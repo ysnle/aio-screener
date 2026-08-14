@@ -49,7 +49,7 @@ if (!errors.length) {
     liveCertification: 'unverified-by-local-contract'
   };
 
-  check('version.json has monotonic-format version', /^v\d+\.\d{1,2}$/.test(version.version));
+  check('version.json has canonical monotonic-format version', /^v\d{1,3}(?:\.\d{2})?$/.test(version.version));
   check('APP_VERSION matches version.json', appVersion === version.version, `${appVersion} != ${version.version}`);
   check('SW_VERSION matches version.json', swVersion === version.version, `${swVersion} != ${version.version}`);
   check('SW_BUILD matches version built timestamp', swBuild === version.built, `${swBuild} != ${version.built}`);

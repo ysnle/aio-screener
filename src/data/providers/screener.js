@@ -14,11 +14,23 @@ function asOfIsFresh(asOf, now, maxAgeDays) {
 
 function liveEnrichment(symbol, readLiveData) {
   const live = readLiveData?.()?.[symbol] || {};
+  const envelope = live.quoteEnvelope || {};
   const marketCap = finite(live.marketCap);
+  const observedAt = live.observedAt || envelope.observedAt || live.timestamp || live.ts || null;
+  const fetchedAt = live.fetchedAt || envelope.fetchedAt || live.updatedAt || null;
+  const source = live.source || envelope.source || 'runtime-quote';
+  const revision = live.revision || envelope.revision || null;
   return {
     price: finite(live.price),
     mcap: marketCap != null ? Math.round(marketCap / 1e9) : null,
-    _mcapObservedAt: live.ts || live.updatedAt || null
+    priceObservedAt: observedAt,
+    priceFetchedAt: fetchedAt,
+    priceSource: source,
+    priceRevision: revision,
+    _mcapObservedAt: observedAt,
+    _mcapFetchedAt: fetchedAt,
+    _mcapSource: source,
+    _mcapRevision: revision
   };
 }
 
@@ -30,7 +42,8 @@ export function createScreenerProvider({
   clock = { now: () => Date.now(), iso: () => new Date().toISOString() }
 } = {}) {
   if (!httpClient || typeof httpClient.requestJson !== 'function') throw new Error('SCREENER_HTTP_CLIENT_INVALID');
-  const STALE_AFTER_DAYS = 7;
+  const ARTIFACT_STALE_AFTER_DAYS = 2;
+  const FACTOR_STALE_AFTER_DAYS = 4;
 
   return Object.freeze({
     async readCurrent({ signal } = {}) {
@@ -48,14 +61,17 @@ export function createScreenerProvider({
         metadata: { detail, artifactRows: 0, universeRows: 0 },
         revision,
         status: 'unavailable',
-        updatedAt: clock.iso()
+        updatedAt: null
       });
 
       if (!artifact || !artifact.data || typeof artifact.data !== 'object') {
         return unavailable(null, artifactResponse.error || 'SCREENER_ARTIFACT_INVALID');
       }
-      if (!asOfIsFresh(artifact.asOf, now, STALE_AFTER_DAYS)) {
+      if (!asOfIsFresh(artifact.asOf, now, ARTIFACT_STALE_AFTER_DAYS)) {
         return unavailable(artifact.asOf || null, 'SCREENER_ARTIFACT_STALE');
+      }
+      if (!asOfIsFresh(artifact.factorObservedAt, now, FACTOR_STALE_AFTER_DAYS)) {
+        return unavailable(artifact.asOf || null, 'SCREENER_FACTOR_OBSERVATION_STALE');
       }
 
       const universe = universeResponse.ok && Array.isArray(universeResponse.data?.universe)
@@ -94,6 +110,10 @@ export function createScreenerProvider({
           sourceKind: factor.sourceKind || null,
           allowedUse: factor.allowedUse || null,
           price: finite(factor.price) ?? live.price,
+          priceObservedAt: finite(factor.price) != null ? (factor.observedAt || artifact.factorObservedAt || null) : live.priceObservedAt,
+          priceFetchedAt: finite(factor.price) != null ? (factor.fetchedAt || artifact.asOf || null) : live.priceFetchedAt,
+          priceSource: finite(factor.price) != null ? (factor.source || artifact.source || 'screener-artifact') : live.priceSource,
+          priceRevision: finite(factor.price) != null ? (artifact.asOf || null) : live.priceRevision,
           pctFrom52wLow: finite(factor.pctFrom52wLow),
           pctFrom52wHigh: finite(factor.pctFrom52wHigh),
           adrPct: finite(factor.adrPct),
@@ -106,6 +126,9 @@ export function createScreenerProvider({
           ema60: finite(factor.ema60),
           mcap: live.mcap,
           _mcapObservedAt: live._mcapObservedAt,
+          _mcapFetchedAt: live._mcapFetchedAt,
+          _mcapSource: live._mcapSource,
+          _mcapRevision: live._mcapRevision,
           rsi: finite(factor.rsi),
           ret1m: finite(factor.ret1m),
           ret3m: finite(factor.ret3m),
@@ -132,6 +155,9 @@ export function createScreenerProvider({
           revGrowth: finite(factor.revGrowth),
           newsMemo: factor.newsMemo || null,
           newsTs: factor.newsTs || null,
+          newsObservedAt: factor.newsTs || null,
+          newsFetchedAt: factor.fetchedAt || artifact.asOf || null,
+          newsSource: 'ticker-news-artifact',
           _fundamentalSource: factor.fundamentalSource || null,
           _fundamentalModel: factor.fundamentalModel || null,
           _fundamentalPeriod: factor.fundamentalPeriod || null,
@@ -139,6 +165,9 @@ export function createScreenerProvider({
           _fundamentalFiledAt: factor.fundamentalFiledAt || null,
           _fundamentalFetchedAt: factor.fundamentalFetchedAt || null,
           _fundamentalAccession: factor.fundamentalAccession || null,
+          identityObservedAt: identity.validFrom || artifact.asOf || null,
+          identityFetchedAt: artifact.asOf || null,
+          identitySource: 'public-data/screener-universe.json',
           observedAt: factor.observedAt || artifact.factorObservedAt || artifact.asOf || null,
           fetchedAt: factor.fetchedAt || artifact.asOf || null,
           instrumentRef
@@ -179,7 +208,7 @@ export function createScreenerProvider({
         revision: artifact.asOf || null,
         snapshotId,
         status: rows.some((row) => typeof row.ret3m === 'number') ? 'current' : 'partial',
-        updatedAt: artifact.asOf || clock.iso()
+        updatedAt: artifact.asOf || null
       });
     }
   });

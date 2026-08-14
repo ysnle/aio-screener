@@ -2,11 +2,151 @@
 verified_by: agent (Claude Sonnet 5) + Codex full-route audit verification
 last_verified: 2026-08-13
 confidence: high
-latest_version: v54.16
-latest_P_number: P915
-next_P_number: P916
-current_total_entries: 635 (P1~P911, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P915 v54.16 screener PIT/cost fail-closed contract closure
+latest_version: v54.22
+latest_P_number: P929
+next_P_number: P930
+current_total_entries: 648 (P1~P929, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P929 v54.22 boot FCP/route measurement separation
+
+## P929 - v54.22 - Synthetic route work was incorrectly charged to initial shell FCP
+
+- **motivation**: The release gate must distinguish how quickly the static shell first paints from how long a user-triggered page transition takes, because each has its own performance budget and remediation path.
+- **symptom/reproduction**: After a full desktop QA run, `ci-boot-interaction-check.mjs` repeatedly reported FCP 4.55~4.70s while DOMContentLoaded remained about 0.40s and the synthetic `signal` transition remained below its independent 2s limit.
+- **root_cause**: The gate invoked `showPage('signal')` in the first task immediately after DOMContentLoaded, before Chromium had a presentation opportunity. Synchronous signal initialization therefore delayed the first rendered frame and was misattributed to shell FCP.
+- **fix**: Added a deterministic double-`requestAnimationFrame` presentation boundary before starting and timing the synthetic route transition. The thresholds remain unchanged: FCP <=2.5s, route <=2s, maximum long task <=2.5s.
+- **violated_rule**: R486; independent performance phases must be measured across an actual browser presentation boundary and may not be merged into one misleading metric.
+- **prevention**: Keep FCP, route latency, and long-task budgets independent; any future pre-route work must occur before the presentation boundary only when it is truly required for the first shell paint.
+- **verification**: Independent Chromium rerun passed at FCP 2.01s, route 1.35s, max long task 1.32s, active `page-signal`, and no retained boot status.
+
+## P928 - v54.22 - Full-route Chromium lifecycle and ownership manifest retained SEC report v2
+
+- **motivation**: Static and unit contracts are insufficient if the rendered fundamental page or its ownership declaration still expects an older report model.
+- **symptom/reproduction**: `ci-architecture-browser-check.mjs` rendered a correct `sec-report.v3` report with `PIT 4건 (filed-date-only)` but failed because its lifecycle assertion required v2; `route-owners.json` also described the old boundary.
+- **root_cause**: The v3 migration search initially covered domain/unit/runtime contracts but missed a long compound Chromium predicate and descriptive ownership strings.
+- **fix**: Updated the Chromium predicate to v3, required visible PIT metadata, and synchronized both active ownership descriptions with filing acceptance/PIT semantics.
+- **violated_rule**: R483; every independent consumer/golden and declared contract must change atomically with a versioned domain envelope.
+- **prevention**: Repository-wide active-code searches for retired model literals are part of the release gate; browser checks must assert new visible semantics, not only the model string.
+- **verification**: Active non-archive/non-context source contains no `sec-report.v2`; architecture browser, runtime, ESM, and pipeline gates all target v3.
+
+## P927 - v54.22 - Runtime W1-04 retained the SEC report v2 golden after PIT v3 migration
+
+- **motivation**: Every active contract gate must certify the same SEC report model that the runtime and independent unit tests consume.
+- **symptom/reproduction**: The complete pre-browser suite failed W1-04 because `sec-report.js` correctly exported v3 while `ci-runtime-contract-check.mjs` still required the literal v2.
+- **root_cause**: P923 updated the ESM unit golden but the separate runtime structural assertion was missed in the initial model-version search.
+- **fix**: Updated W1-04 to v3 and added structural assertions for `pointInTime`, accepted observation counts, and immutable filing metadata rather than changing only the version literal.
+- **violated_rule**: R483; all independent golden gates must move atomically with a versioned domain contract.
+- **prevention**: Active CI must contain no `sec-report.v2` literal; future model changes require a repository-wide version search plus semantic assertions for added fields.
+- **verification**: `ci-runtime-contract-check.mjs`, `ci-esm-core-unit-check.mjs`, and `ci-data-pipeline-contract-check.mjs` all pass with complementary v3 coverage.
+
+## P926 - v54.22 - HY OAS froze on LKG whenever the general FRED API key was absent
+
+- **motivation**: Credit-spread state is shared across risk, FX/bond, briefing and AI evidence; a public official series should not remain stale solely because unrelated macro series use an optional API key.
+- **symptom/reproduction**: On 2026-08-14, the core refresh succeeded for 78/78 quotes but HY OAS remained 2.72 as of 2026-08-11 and the daily audit marked A3/D1 stale. Direct verification of FRED's public CSV showed a newer official 2.71 observation for 2026-08-12.
+- **root_cause**: `fetchFred()` returned immediately without `FRED_API_KEY`, and HY OAS shared that all-or-nothing keyed batch despite FRED exposing this series through a public CSV download.
+- **fix**: Added a bounded keyless FRED CSV parser/fetcher, typed evidence envelope, 12-hour cache, explicit LKG/unavailable states, date-aware merge precedence, registry origin, metadata, and synthetic parser coverage.
+- **violated_rule**: R485; available official keyless downloads should close critical single-series gaps while preserving their true access and lineage.
+- **prevention**: Keep the keyless adapter and public-download registry origin blocking in pipeline/source gates, and retain the exact observation date so publication lag remains visible.
+- **verification**: Actual refresh reports HY OAS 2.71 as of 2026-08-12 from `fred-official-public-csv`; A3 and D1 are OK, 22/22 structural audit passes, and data lineage has FAIL=0.
+
+## P925 - v54.22 - Factor-rank golden fixtures lost parity after row-level freshness enforcement
+
+- **motivation**: Value and quality ranks must activate only from sufficiently current filing observations, while parity fixtures must still represent the complete and incomplete cases they claim to test.
+- **symptom/reproduction**: `ci-domain-parity-check.mjs` expected value/quality factors in `normal_multi_sector_full_factors`, but `computeFactorRanks` correctly deactivated them because every fixture row lacked `_fundamentalObservedAt`.
+- **root_cause**: v54.20 moved eligibility from artifact/API flags to row-level 180-day observation coverage, but the golden fixture producer still emitted the older row shape. The complete fixture was therefore semantically incomplete, and its stale negative-control reason also pinned the old artifact-only wording.
+- **fix**: Added `_fundamentalObservedAt` to the fixture producer, set it explicitly to `null` in the low-coverage negative scenario, migrated the three complete stored fixtures to their fixed generated timestamp, and updated only the negative-control reason to the new 0% row-level coverage result.
+- **violated_rule**: R484; factor fixtures must carry the same field-family epochs required from production rows.
+- **prevention**: Keep the producer and saved fixture synchronized, retain both active and inactive fundamental scenarios, and never restore value/quality parity by weakening the runtime freshness rule.
+- **verification**: `ci-domain-parity-check.mjs` passes all five factor-rank fixtures; broader screener, timeline, headless, and desktop gates remain part of the final release run.
+
+## P924 - v54.22 - Retired mobile knowledge personas left a stale 20-scenario golden count
+
+- **motivation**: The user explicitly removed mobile work from product scope, so generated QA/persona artifacts and their gates must encode the same desktop-only boundary.
+- **symptom/reproduction**: The route-target producer correctly removed two `mobile-keyboard-screenreader` scenarios and generated 18 scenarios, but `ci-knowledge-route-bridge-contract.mjs` still required 20 and blocked the full CI run.
+- **root_cause**: The persona rows were removed without changing the independent count assertion or adding a negative scope assertion.
+- **fix**: Set the expected scenario count to 18 and added an explicit rejection for mobile, tablet, or touch personas.
+- **violated_rule**: R474; mobile personas and acceptance criteria remain out of scope unless the user explicitly reopens them.
+- **prevention**: Keep the negative persona assertion blocking alongside `ci-desktop-scope-check.mjs`; do not satisfy count drift by restoring retired mobile cases.
+- **verification**: `build-knowledge-route-targets.mjs`, `ci-knowledge-route-bridge-contract.mjs`, `ci-desktop-scope-check.mjs`, and the desktop viewport matrix.
+
+## P923 - v54.22 - SEC report v3 shipped with an independent v2 golden assertion
+
+- **motivation**: A domain version bump is complete only when independent gates prove its new semantics and no stale golden value can block or misdescribe the release.
+- **symptom/reproduction**: `ci-esm-core-unit-check.mjs` failed because `deriveSecReport` correctly returned `sec-report.v3`, while the unit fixture still required `sec-report.v2` and did not inspect new PIT metadata.
+- **root_cause**: The pipeline regression suite was expanded for the PIT selector, but the separate core-domain golden assertion was not updated when the report envelope changed.
+- **fix**: Updated the expected model to v3 and added an independent fixture for PIT status, total/accepted observation counts, `acceptedAt`, and filing metadata.
+- **violated_rule**: R483; versioned domain contracts and all deliberate golden assertions must change atomically.
+- **prevention**: Search all model-version literals and contract consumers whenever a domain envelope changes, then require at least one assertion for every newly added semantic field.
+- **verification**: `ci-esm-core-unit-check.mjs` plus the separate `ci-data-pipeline-contract-check.mjs` amendment/as-of fixtures.
+
+## P922 - v54.22 - Source registry was imported online but omitted from the service-worker shell
+
+- **motivation**: A static application with a versioned service-worker shell must cache every runtime dependency as one atomic release graph.
+- **symptom/reproduction**: The final `ci-architecture-contract-check.mjs` failed with `service worker shell asset missing: ./src/data/contracts/source-registry.js`. Online development could still load the module directly, masking an offline or mixed-cache failure after deployment.
+- **root_cause**: The new source registry was added to the runtime dependency graph and CI/data workflows, but its service-worker shell registration was missed during the same change.
+- **fix**: Added the exact module path to `SHELL_ASSETS`, updated the canonical data code map, and retained the architecture dependency scan as a blocking release gate.
+- **violated_rule**: R482; runtime imports and the service-worker application shell must change atomically.
+- **prevention**: Do not manually infer that a new module is deployable from online page success. Run the architecture contract before browser QA and keep its shell-dependency assertion blocking.
+- **verification**: `ci-architecture-contract-check.mjs`, `ci-version-check.mjs`, `ci-release-revision-check.mjs`, service-worker browser fixtures, and the final Pages deployment gate.
+
+## P921 - v54.22 - Static capability labels hid implemented 13F/risk work and SEC facts were not queryable as-of filing time
+
+- **motivation**: The professional gap ledger must describe actual production evidence rather than a planning snapshot. Filing-derived rankings also need to answer what was public on a historical date without leaking later amendments or current prices.
+- **symptom/reproduction**: The ledger still marked institutional filings and portfolio risk as planned despite verified 13F holdings/history and existing VaR/CVaR/attribution code. SEC normalization retained only the latest annual value, discarded amendment history, and recorded filing dates without joining submissions acceptance times, so a historical query could not reconstruct the information set available at that cut.
+- **root_cause**: Capability status was a static declaration without artifact-backed gates, while the SEC adapter optimized current cross-sectional coverage and threw away the time dimension present in companyfacts/submissions.
+- **fix**: Added `sec-pit-facts.v1`, joined accession numbers to SEC submissions acceptance timestamps, retained bounded append-only annual observations, added a deterministic as-of selector, and migrated 540 existing rows without changing values. Reclassified PIT, verified 13F, and portfolio risk as explicitly limited `PARTIAL`; kept five external-rights/specialized-data gaps `BLOCKED`; and enforced the ledger with a new CI/workflow gate.
+- **violated_rule**: R481; a professional capability status requires executable evidence and every PIT result must exclude observations unavailable at the requested cut.
+- **prevention**: Keep `ci-professional-data-gap-check.mjs` and the synthetic original/amendment fixture blocking in CI and all data workflows. Never mark a gap complete, backfill an acceptance timestamp, or calculate historical valuation with a current price.
+- **verification**: SEC migration reports 540/540 PIT rows and 0 fabricated acceptance times; synthetic tests select the original filing before amendment and the amended values afterward. The gate also verifies seven 13F managers, 84 periods, 1,248 full rows, five portfolio-risk capabilities, and five remaining blocked gaps.
+
+## P920 - v54.21 - Unregistered source limits and sparse/null history could present incomplete data as current breadth
+
+- **motivation**: A professional screener needs both exact source provenance and coherent daily history. Static/hardcoded fields, licensed gaps, and derived series must be audited by the same machine contract instead of depending on comments or page-specific conventions.
+- **symptom/reproduction**: The 22-category reconciliation identified evidence but did not expose an authoritative source/access/producer/consumer registry. Fear & Greed and VIX3M lacked durable depth, the Treasury curve lacked five-point official observations, crypto had no independent comparison, and breadth had only a current snapshot. During the first breadth-history rebuild, `Number(null)` could turn missing prices into zero and the latest UTC calendar bucket could contain only two US symbols yet appear as a 50% reading. After the artifact was corrected, the native page still showed “이력 생성 대기” because its reader referenced unused `_historyData` instead of canonical `_aioHistory` and did not listen for `aio:historyLoaded`.
+- **root_cause**: Source ownership, structural limitations, refresh cadence, and page consumption were not one executable contract. Historical breadth aligned dates but initially lacked per-window universe coverage gates and a strict null-presence boundary across different market sessions; the new consumer also bypassed the repository’s canonical history cache/event contract.
+- **fix**: Added a 22-category source registry plus eight-item professional capability gap ledger; wired daily registry/static/refresh audits into core, screener, and watchdog workflows; added exact CNN history, VIX3M, official FRED DGS2/5/10/20/30 and T10Y2Y collection, and CoinGecko cross-checking. Built 252-session AIO breadth history from explicitly dated adjusted closes, rejected sparse rows below 50%/20-symbol coverage, preserved per-field universe lineage, and surfaced the resulting participation trend without calling it official A/D or McClellan. The native page/runtime catalog now consume `_aioHistory`, rerender on `aio:historyLoaded`, and the 16-page browser gate asserts the visible summary and derived-source label.
+- **violated_rule**: R480; every changing or hardcoded category needs a daily-audited origin/limit contract, and sparse or missing observations must fail closed.
+- **prevention**: Keep `ci-source-registry-contract-check.mjs`, the null/missing synthetic fixture, 22-category reconciliation rebuild, static-data audit, and all three workflow calls blocking. New source categories, consumers, or critical data capabilities must enter the registry and an executable readiness gate in the same change.
+- **verification**: Core refresh collected 78/78 symbols, 269 F&G history dates, 234 VIX3M dates, and a passing two-asset CoinGecko comparison. Forced screener refresh produced 848/873 rows and valid US breadth histories: 232 20-day, 202 50-day, and 52 200-day observations; latest 20/50-day points used 708/728 symbols (97.3%) with zero false 0% rows. Source, reconciliation, static-data, refresh, 16-page browser, accessibility, viewport, and 1121-test headless gates pass locally; FRED’s new fields require the configured GitHub Actions secret on the next scheduled run, and deployment/provider rights remain external certification.
+
+## P919 - v54.20 - Quant screener mixed live, factor, filing, and news epochs under one row timestamp
+
+- **motivation**: A quant row combines intraday quotes, delayed EOD factors, filing-derived fundamentals, and ticker news. These inputs cannot inherit one generic `observedAt` without corrupting freshness, factor eligibility, and cross-page consistency.
+- **symptom/reproduction**: The provider merged a live current price into a row whose generic timestamp came from the EOD factor artifact, while market cap used `ts/updatedAt`, fundamentals and news fell back to the factor timestamp, and the page timeline only counted rows containing any field observations. The first visible table rows were not registered with the central quote requester. The six-hour validator checked timestamp shape but not recency, and factor activation used artifact coverage rather than per-row observation age.
+- **root_cause**: Quant freshness was modeled at artifact/row level instead of by field family, and the rendered-row demand boundary was disconnected from the quote scheduler.
+- **fix**: Added field-specific time/source/revision resolution for identity, live price, market cap, EOD factors, fundamentals, news, breadth, and regime; preserved it through normalization; registered visible rows as bounded quote demand; added factor, ranking-epoch, visible-quote, fundamental, and news timeline checks; required fresh per-row coverage for factor activation; and made the scheduled validator reject stale generated/factor epochs.
+- **violated_rule**: R479; quant rows and rankings must preserve separate source epochs, request current quotes for rendered symbols, and fail closed when input coverage or revision parity is insufficient.
+- **prevention**: Keep `G-SCR-LINEAGE`, `G-SCR-LIVE`, the six-check screener timeline contract, the 4-day artifact validator, and the scheduled workflow timeline gate blocking. Never use artifact coverage alone as proof that ranking inputs are current.
+- **verification**: Syntax checks, `validate-screener-artifact.mjs`, `ci-screener-workbench-contract.mjs`, `ci-page-data-timeline-contract-check.mjs`, `ci-screener-auto-refresh-browser-check.mjs`, real-artifact 873/848 coverage audit, desktop route/browser gates, and post-edit QA. The existing v54.16 scheduled workflow and live artifact were observed current, but v54.20 deployment remains a separate certification.
+
+## P918 - v54.19 - Page fields could report different observation times and direction bases as one current market
+
+- **motivation**: Category-level market reconciliation is insufficient when an individual page field can silently use an older observation, a different previous-close basis, or an unrelated browser quote batch.
+- **symptom/reproduction**: Entity, theme, portfolio, sentiment, market, news, and screener paths dropped observation/revision/basis metadata or replaced `updatedAt` with the runtime clock. Server-data refresh synchronized only the market slice, and a long-lived tab had no field-age watchdog. Consequently, pages could agree on a broad market cut while individual values and directions belonged to different timelines.
+- **root_cause**: Freshness was represented as provider-level timestamps rather than an end-to-end field contract. Normalizers were lossy, quote batches lacked one shared revision, and automatic refresh listeners were consumer-specific.
+- **fix**: Added 16 route contracts covering 44 field checks, a runtime observation catalog, canonical quote-batch revision selection, strict direction-basis and revision validation, lineage-preserving normalizers/providers, atomic consumer resynchronization, and a visibility-aware five-minute active-page freshness watchdog. Timeline status and observation windows now feed the existing page market-epoch gate and DOM audit.
+- **violated_rule**: R478; every market-sensitive field must preserve observation lineage, use a compatible direction basis, and fail closed across mixed revisions.
+- **prevention**: Keep the pure timeline negative fixtures and the 16-page browser DOM/API parity gate blocking. New market fields must join a route contract and retain observation, fetch, source, revision, and basis metadata through every layer.
+- **verification**: `ci-page-data-timeline-contract-check.mjs`, `ci-page-market-epoch-browser-check.mjs`, syntax, ESM, architecture, runtime, data-pipeline, structural, desktop route, accessibility, and knowledge gates. Live external-provider recency remains distinct from local structural verification.
+
+## P917 - v54.18 - Static reconciliation could certify stale or inconsistent cross-page market state
+
+- **motivation**: Every market-sensitive page must describe one coherent market cut. A page showing a fresh quote revision while another silently uses an older artifact is more dangerous than an explicit unavailable state.
+- **symptom/reproduction**: The 22-category reconciliation artifact was generated from a hard-coded status table and evidence counts derived from those statuses. Runtime pages shared some source data, but no executable page contract required one revision/cut or capped claims when a required category was partial or blocked. Null history samples could also be coerced to numeric zero and counted as observations.
+- **root_cause**: Producer health, category reconciliation, workflow publication, and page currentness were separate conventions rather than one fail-closed contract. The existing shared cut filtered some data but did not machine-enforce page requirements or revision equality.
+- **fix**: Rebuilt reconciliation from four source artifacts with executable per-category checks, explicit policy/runtime block separation, source lineage and a stable truth revision. Core and screener workflows now rebuild reconciliation and operations status atomically. The browser consumes the reconciliation artifact, rejects revision drift, and applies one shared market epoch contract to 16 market-sensitive routes; partial requirements cap currentness and blocked requirements become unavailable. Missing numeric evidence is now distinct from explicit zero.
+- **violated_rule**: R477; reconciliation and market-sensitive pages must derive status from current evidence and one shared revision/cut.
+- **prevention**: Keep source-truth rebuild, empty-source and null-is-missing negative fixtures blocking. Run the page-market-epoch browser gate on every relevant code or workflow change.
+- **verification**: `ci-reconciliation-contract-check.mjs`, `ci-data-pipeline-contract-check.mjs`, `ci-page-market-epoch-browser-check.mjs`, operations/release gates, structural/runtime checks, and the documented desktop QA tiers must pass. Tier 13 live in-app Browser paint verification remains explicitly unverified in this turn.
+
+## P916 - v54.17 - Mobile acceptance scope and version notation drifted across active gates
+
+- **motivation**: The product has no mobile users, while active QA and knowledge contracts still required mobile/tablet viewports and personas. Version metadata also accepted `v54.1`, allowing lexical and cachebuster drift from the intended `v54.01` sequence.
+- **symptom/reproduction**: Mobile-specific viewport fixtures, acceptance dimensions, and knowledge personas remained in future-facing scripts. Active handoff metadata contained `v54.7`, `v54.10`, and `v54.6` while `version.json` was `v54.16`; the bump script accepted one-digit dotted patches without normalization or a strict monotonic check.
+- **root_cause**: Product scope, browser matrix configuration, knowledge persona coverage, and release version consumers had no single executable policy boundary. The version parser treated patch text as presentation rather than a canonical two-digit field.
+- **fix**: Added the shared desktop QA matrix and blocking scope gate; removed mobile/tablet requirements from future acceptance consumers while retaining legacy responsive code for compatibility; synchronized active handoff metadata; canonicalized version parsing to support `v54`, normalize `v54.1` to `v54.01`, and reject non-increasing bumps.
+- **violated_rule**: R474 and R475; future acceptance must follow the declared product scope and release identifiers must be canonical and strictly increasing.
+- **prevention**: Run `ci-desktop-scope-check.mjs` and all version/release/operations contract gates together. Keep historical mobile and version references as historical records only, and use `node scripts/bump-version.mjs <version>` for every release version change.
+- **verification**: Desktop scope gate, route-target regeneration, syntax checks, version synchronization, headless/viewport/accessibility contracts, and final post-edit QA are required before commit or deployment. Tier 13 live-browser verification remains a separate explicit status.
 
 ## P915 - v54.16 - Missing transaction cost was silently treated as zero in the Outcome Ledger
 

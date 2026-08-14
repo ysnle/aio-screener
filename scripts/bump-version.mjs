@@ -53,12 +53,30 @@ function replaceAll(content, pattern, replacement) {
 
 // ── 메인 ────────────────────────────────────────────────────────────────────
 
-const newVer = process.argv[2];
-if (!newVer) {
+const VERSION_INPUT_RE = /^v(\d{1,3})(?:\.(\d{1,2}))?$/;
+
+function parseVersion(raw) {
+  const match = VERSION_INPUT_RE.exec(raw);
+  if (!match) return null;
+  return { major: Number(match[1]), patch: match[2] == null ? 0 : Number(match[2]) };
+}
+
+function canonicalizeVersion(raw) {
+  const parsed = parseVersion(raw);
+  if (!parsed) return null;
+  return parsed.patch === 0
+    ? `v${parsed.major}`
+    : `v${parsed.major}.${String(parsed.patch).padStart(2, '0')}`;
+}
+
+const newVerInput = process.argv[2];
+const parsedNewVersion = newVerInput ? parseVersion(newVerInput) : null;
+const newVer = parsedNewVersion ? canonicalizeVersion(newVerInput) : null;
+if (!newVerInput) {
   console.error('사용법: node scripts/bump-version.mjs <버전>  (예: v51.65)');
   process.exit(1);
 }
-if (!/^v\d+\.\d+$/.test(newVer)) {
+if (!parsedNewVersion) {
   console.error(`버전 형식 오류: "${newVer}" — v{숫자}.{숫자} 형식이어야 합니다`);
   process.exit(1);
 }
@@ -84,8 +102,60 @@ try {
   process.exit(1);
 }
 
+const parsedPrevVersion = parseVersion(prevVer);
+if (!parsedPrevVersion) {
+  console.error(`version.json의 현재 버전 형식이 잘못되었습니다: ${prevVer}`);
+  process.exit(1);
+}
+if (newVerInput !== newVer) console.log(`버전 정규화: ${newVerInput} → ${newVer}`);
+if (parsedNewVersion.major < parsedPrevVersion.major || (parsedNewVersion.major === parsedPrevVersion.major && parsedNewVersion.patch <= parsedPrevVersion.patch)) {
+  console.error(`버전은 단조 증가해야 합니다: ${prevVer} → ${newVer}`);
+  process.exit(1);
+}
 if (prevVer === newVer) {
   console.error(`이미 ${newVer}입니다. 버전 증가 없음.`);
+  process.exit(1);
+}
+
+// Preflight every replacement target before writing anything. The old
+// step-by-step writer could update the first R1 surfaces and only then fail on
+// a later handoff regex, leaving a half-bumped worktree that broke commit and
+// deploy checks.
+const requirePreflight = (rel, pattern, label) => {
+  if (!pattern.test(read(rel))) throw new Error(`${rel}: preflight target missing (${label})`);
+};
+try {
+  requirePreflight('index.html', new RegExp(`AIO Screener ${escRe(prevVer)}`), 'title');
+  requirePreflight('index.html', new RegExp(`id="app-version-badge">${escRe(prevVer)}</span>`), 'badge');
+  requirePreflight('js/aio-core.js', new RegExp(`const APP_VERSION = '${escRe(prevVer)}'`), 'APP_VERSION');
+  requirePreflight('sw.js', new RegExp(`SW_VERSION = '${escRe(prevVer)}'`), 'SW_VERSION');
+  requirePreflight('CLAUDE.md', new RegExp(escRe(prevVer)), 'root guide version');
+  requirePreflight('_context/CLAUDE.md', new RegExp(escRe(prevVer)), 'context guide version');
+  requirePreflight('_context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json', new RegExp(`(\"targetVersion\"\\s*:\\s*\")${escRe(prevVer)}(\")`), 'audit targetVersion');
+  requirePreflight('_context/MARKET-PRINCIPLES-ATLAS-HANDOFF-FILE-MANIFEST-2026-08-10.json', new RegExp(`AIO-Knowledge-System-Structural-Handoff-${escRe(prevVer)}`), 'handoff packageName');
+  requirePreflight('_context/MARKET-PRINCIPLES-ATLAS-HANDOFF-FILE-MANIFEST-2026-08-10.json', new RegExp(`(\"applicationVersion\"\\s*:\\s*\")${escRe(prevVer)}(\")`), 'handoff applicationVersion');
+  requirePreflight('_context/MARKET-PRINCIPLES-ATLAS-STRUCTURAL-AUDIT-HANDOFF-2026-08-10.md', new RegExp(`target_version:\\s*${escRe(prevVer)}`), 'handoff target_version');
+  requirePreflight('_context/MARKET-PRINCIPLES-ATLAS-STRUCTURAL-AUDIT-HANDOFF-2026-08-10.md', new RegExp(`local_revision:\\s*${escRe(prevVer)}`), 'handoff local_revision');
+  for (const artifactPath of [
+    'public-config.json',
+    'architecture/asset-manifest.json',
+    'architecture/release-manifest.json',
+    'architecture/operations-slo.json',
+    'architecture/visual-state-matrix.json',
+    'architecture/public-readiness.json',
+  ]) {
+    requirePreflight(artifactPath, new RegExp(`(\"appRevision\"\\s*:\\s*\")${escRe(prevVer)}(\")`), `${artifactPath} appRevision`);
+    const artifact = read(artifactPath);
+    if (/\"workerRevision\"\s*:\s*\"/.test(artifact)) {
+      requirePreflight(artifactPath, new RegExp(`(\"workerRevision\"\\s*:\\s*\"sw:)${escRe(prevVer)}(\")`), `${artifactPath} workerRevision`);
+    }
+  }
+  requirePreflight('public-data/operations-status.json', new RegExp(`(\"appRevision\"\\s*:\\s*\")${escRe(prevVer)}(\")`), 'operations appRevision');
+  requirePreflight('public-data/operations-status.json', new RegExp(`(\"browser\"[\\s\\S]*?\"revision\"\\s*:\\s*\")${escRe(prevVer)}(\")`), 'operations browser revision');
+  requirePreflight('_context/SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md', new RegExp(`repository_version:\\s*${escRe(prevVer)}`), 'screener handoff repository_version');
+  requirePreflight('_context/RULES.md', new RegExp(`target_version:\\s*${escRe(prevVer)}`), 'RULES target_version');
+} catch (error) {
+  console.error(`버전 범프 사전 검증 실패: ${error.message}`);
   process.exit(1);
 }
 
@@ -233,6 +303,98 @@ try {
 // ── 7. CHANGELOG.md — 새 섹션 헤더 삽입 ────────────────────────────────────
 console.log('7. CHANGELOG.md 패치...');
 try {
+  // R1 extension: keep active machine-readable handoff metadata on the same version.
+  try {
+    let contract = read('_context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json');
+    contract = replaceOnce(contract,
+      new RegExp(`("targetVersion"\\s*:\\s*")${escRe(prevVer)}(")`),
+      `$1${newVer}$2`,
+      'principles audit targetVersion'
+    );
+    write('_context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json', contract);
+
+    let manifest = read('_context/MARKET-PRINCIPLES-ATLAS-HANDOFF-FILE-MANIFEST-2026-08-10.json');
+    manifest = replaceOnce(manifest,
+      new RegExp(`(AIO-Knowledge-System-Structural-Handoff-)${escRe(prevVer)}`),
+      `$1${newVer}`,
+      'principles handoff packageName'
+    );
+    manifest = replaceOnce(manifest,
+      new RegExp(`("applicationVersion"\\s*:\\s*")${escRe(prevVer)}(")`),
+      `$1${newVer}$2`,
+      'principles handoff applicationVersion'
+    );
+    write('_context/MARKET-PRINCIPLES-ATLAS-HANDOFF-FILE-MANIFEST-2026-08-10.json', manifest);
+
+    let handoff = read('_context/MARKET-PRINCIPLES-ATLAS-STRUCTURAL-AUDIT-HANDOFF-2026-08-10.md');
+    handoff = replaceOnce(handoff,
+      new RegExp(`(target_version:\\s*)${escRe(prevVer)}`),
+      `$1${newVer}`,
+      'principles handoff target_version'
+    );
+    handoff = replaceOnce(handoff,
+      new RegExp(`(local_revision:\\s*)${escRe(prevVer)}`),
+      `$1${newVer}`,
+      'principles handoff local_revision'
+    );
+    write('_context/MARKET-PRINCIPLES-ATLAS-STRUCTURAL-AUDIT-HANDOFF-2026-08-10.md', handoff);
+
+    for (const artifactPath of [
+      'public-config.json',
+      'architecture/asset-manifest.json',
+      'architecture/release-manifest.json',
+      'architecture/operations-slo.json',
+      'architecture/visual-state-matrix.json',
+      'architecture/public-readiness.json',
+    ]) {
+      let artifact = read(artifactPath);
+      artifact = replaceOnce(artifact,
+        new RegExp(`("appRevision"\\s*:\\s*")${escRe(prevVer)}(")`),
+        `$1${newVer}$2`,
+        `${artifactPath} appRevision`
+      );
+      if (/"workerRevision"\s*:\s*"/.test(artifact)) {
+        artifact = replaceOnce(artifact,
+          new RegExp(`("workerRevision"\\s*:\\s*"sw:)${escRe(prevVer)}(")`),
+          `$1${newVer}$2`,
+          `${artifactPath} workerRevision`
+        );
+      }
+      write(artifactPath, artifact);
+    }
+
+    let operations = read('public-data/operations-status.json');
+    operations = replaceOnce(operations,
+      new RegExp(`("appRevision"\\s*:\\s*")${escRe(prevVer)}(")`),
+      `$1${newVer}$2`,
+      'operations status appRevision'
+    );
+    operations = replaceOnce(operations,
+      new RegExp(`("browser"[\\s\\S]*?"revision"\\s*:\\s*")${escRe(prevVer)}(")`),
+      `$1${newVer}$2`,
+      'operations status browser revision'
+    );
+    write('public-data/operations-status.json', operations);
+
+    let screenerHandoff = read('_context/SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md');
+    screenerHandoff = replaceOnce(screenerHandoff,
+      new RegExp(`(repository_version:\\s*)${escRe(prevVer)}`),
+      `$1${newVer}`,
+      'screener handoff repository_version'
+    );
+    write('_context/SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md', screenerHandoff);
+
+    let rules = read('_context/RULES.md');
+    rules = replaceOnce(rules,
+      new RegExp(`(target_version:\\s*)${escRe(prevVer)}`),
+      `$1${newVer}`,
+      'RULES target_version'
+    );
+    write('_context/RULES.md', rules);
+  } catch (e) {
+    errors.push(`active metadata: ${e.message}`);
+  }
+
   let cl = read('CHANGELOG.md');
   const existingHeader = `## ${newVer}`;
   if (cl.includes(existingHeader)) {

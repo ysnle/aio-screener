@@ -5,6 +5,7 @@ import { spawn } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { DESKTOP_PRIMARY_VIEWPORT, DESKTOP_QA_SCOPE } from './desktop-qa-config.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.CI_A11Y_PORT || 8901);
@@ -31,7 +32,7 @@ async function main() {
   mkdirSync(dirname(outPath), { recursive: true });
   const server = await startServer();
   const browser = await chromium.launch();
-  const result = { viewport: { width: 390, height: 844 }, routes: [], manualEvidence: ['NVDA/screen-reader path not automated'], consoleErrors: [] };
+  const result = { scope: DESKTOP_QA_SCOPE, viewport: DESKTOP_PRIMARY_VIEWPORT, routes: [], manualEvidence: ['NVDA/screen-reader path not automated'], consoleErrors: [] };
   try {
     const page = await browser.newPage({ viewport: result.viewport });
     page.on('pageerror', (e) => result.consoleErrors.push(`[pageerror] ${e.message}`));
@@ -61,7 +62,10 @@ async function main() {
       }, routeKey);
       result.routes.push(audit);
     }
-    result.status = result.routes.some((r) => !r.active || r.nameless.length || r.selectsWithoutName.length || r.positiveTabindex.length || r.unnamedCanvas.length || r.fontUnder10.length || r.smallTargetCount > 0) || result.consoleErrors.length ? 'fail' : 'pass';
+    // Product scope is desktop-only: retain target-size observations for audit
+    // visibility, but do not turn the retired mobile touch-target requirement
+    // into a release failure for desktop controls.
+    result.status = result.routes.some((r) => !r.active || r.nameless.length || r.selectsWithoutName.length || r.positiveTabindex.length || r.unnamedCanvas.length || r.fontUnder10.length) || result.consoleErrors.length ? 'fail' : 'pass';
   } catch (error) {
     result.status = 'fail';
     result.error = error.stack || error.message;

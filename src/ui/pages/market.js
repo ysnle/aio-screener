@@ -576,8 +576,30 @@ function breadthTone(value, key) {
   return 'var(--data-red)';
 }
 
+function breadthHistoryEvidence(root) {
+  const rows = (Array.isArray(root?._aioHistory) ? root._aioHistory : Array.isArray(root?._historyData) ? root._historyData : [])
+    .filter((row) => row?.date && row.breadth20 != null && row.breadth50 != null && Number.isFinite(Number(row.breadth20)) && Number.isFinite(Number(row.breadth50)))
+    .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  if (rows.length < 2) return { available: false, rows: rows.length };
+  const latest = rows[rows.length - 1];
+  const comparison = rows[Math.max(0, rows.length - 6)];
+  const meta = latest.fieldMeta?.breadth50 || latest.fieldMeta?.breadth20 || {};
+  return {
+    available: true,
+    rows: rows.length,
+    latest,
+    comparison,
+    sma20Delta: Number(latest.breadth20) - Number(comparison.breadth20),
+    sma50Delta: Number(latest.breadth50) - Number(comparison.breadth50),
+    observedAt: meta.observedAt || latest.date,
+    source: meta.source || 'AIO US screener universe daily history',
+    sourceKind: meta.sourceKind || 'derived-research'
+  };
+}
+
 function renderBreadth(root, page) {
   const evidence = breadthEvidence(root);
+  const historyEvidence = breadthHistoryEvidence(root);
   const source = evidence.available ? (evidence.source || 'AIO screener universe') : 'breadth source unavailable';
   const sourceKind = evidence.available ? 'server-artifact' : 'unavailable';
   const observed = evidence.available && evidence.ts ? new Date(evidence.ts) : null;
@@ -639,7 +661,7 @@ function renderBreadth(root, page) {
     ? `5/20/50일선 상회 ${Math.round(evidence.sma5)}/${Math.round(evidence.sma20)}/${Math.round(evidence.sma50)}%`
     : '판정 보류';
   const diagnosticText = evidence.available
-    ? `${diagnosticSignal} · ${source}의 현재 관측입니다. 시장 참여도는 오늘 수준(추세국면 아님), McClellan은 A/D 시계열이 없어 판정을 보류합니다.`
+    ? `${diagnosticSignal} · ${source}의 현재 관측입니다.${historyEvidence.available ? ` 동일 AIO 유니버스 ${historyEvidence.rows}일 이력에서 20일선 참여도 5거래일 변화는 ${historyEvidence.sma20Delta >= 0 ? '+' : ''}${historyEvidence.sma20Delta.toFixed(1)}%p입니다.` : ' 동일 유니버스 다일 이력은 아직 생성 대기 중입니다.'} 공식 거래소 A/D·McClellan은 별도 원천이 없어 판정을 보류합니다.`
     : '현재 5/20/50일선 breadth 및 A/D 시계열 원천이 없어 종합 진단을 보류합니다.';
   writeText(diagnosticSignalNode, diagnosticSignal);
   writeText(diagnosticTextNode, diagnosticText);
@@ -651,7 +673,7 @@ function renderBreadth(root, page) {
   });
   const stageNode = page.querySelector('#breadth-stage-summary');
   const participation = evidence.available && typeof root?.AIO_ARCH?.classifyBreadthParticipation === 'function'
-    ? root.AIO_ARCH.classifyBreadthParticipation({ sma20: evidence.sma20, sma50: evidence.sma50 })
+    ? root.AIO_ARCH.classifyBreadthParticipation({ sma20: evidence.sma20, sma50: evidence.sma50, sma20Delta: historyEvidence.available ? historyEvidence.sma20Delta : null })
     : { available: false };
   writeText(stageNode, participation.available ? `${participation.level}${participation.direction ? ` · ${participation.direction}` : ''}` : '현재 참여도 미수신');
   if (stageNode) {
@@ -660,11 +682,13 @@ function renderBreadth(root, page) {
     writeLineage(stageNode, participation.available ? sourceKind : 'unavailable', participation.available ? source : 'breadth participation unavailable');
   }
   const mcclellanNode = page.querySelector('#breadth-mcclellan-summary');
-  writeText(mcclellanNode, 'A/D 시계열 미수신 · 판단 보류');
+  writeText(mcclellanNode, historyEvidence.available
+    ? `AIO 50일선 참여도 ${historyEvidence.rows}일 이력 · 5거래일 Δ ${historyEvidence.sma50Delta >= 0 ? '+' : ''}${historyEvidence.sma50Delta.toFixed(1)}%p · 공식 McClellan 아님`
+    : 'AIO 참여도 이력 생성 대기 · 공식 A/D·McClellan 판단 보류');
   if (mcclellanNode) {
     mcclellanNode.dataset.aioBreadthMcclellanRenderer = 'native';
-    mcclellanNode.setAttribute('data-mcclellan-signal', 'unavailable');
-    writeLineage(mcclellanNode, 'unavailable', 'breadth A/D history unavailable');
+    mcclellanNode.setAttribute('data-mcclellan-signal', historyEvidence.available ? 'aio-history-not-mcclellan' : 'unavailable');
+    writeLineage(mcclellanNode, historyEvidence.available ? historyEvidence.sourceKind : 'unavailable', historyEvidence.available ? historyEvidence.source : 'official breadth A/D history unavailable');
   }
 }
 
@@ -746,7 +770,7 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
       const unsubscribe = store?.subscribe?.(renderNow);
       if (unsubscribe) bag.add(unsubscribe);
       const eventTarget = documentRef || root;
-      ['aio:liveQuotes', 'aio:liveDataReceived', 'aio:refresh:done', 'aio:serverDataLoaded', 'aio:macroUpdated'].forEach((eventName) => {
+      ['aio:liveQuotes', 'aio:liveDataReceived', 'aio:refresh:done', 'aio:serverDataLoaded', 'aio:historyLoaded', 'aio:macroUpdated'].forEach((eventName) => {
         eventTarget?.addEventListener?.(eventName, renderNow);
         bag.add(() => eventTarget?.removeEventListener?.(eventName, renderNow));
       });

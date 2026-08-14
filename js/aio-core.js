@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v54.16';
+const APP_VERSION = 'v54.22';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -960,7 +960,9 @@ window.AIO.getAIStreamAudit = function(streamId) {
 var _AIO_AI_COVERAGE_VERSION = 'wp-ai17.coverage-bias.v1';
 var _AIO_AI_HUMAN_CERT_VERSION = 'wp-ai18.human-cert.v1';
 var _AIO_AI_COVERAGE_DIMENSIONS = ['region', 'sector', 'cap', 'liquidity', 'sourceKind'];
-var _AIO_AI_HUMAN_CERT_DIMENSIONS = ['screenReader', 'keyboard', 'mobile', 'novice', 'expert', 'taskCompletion'];
+// Product scope is desktop-only. Keep assistive-tech, keyboard, persona and
+// task evidence, but do not require mobile evidence for future certification.
+var _AIO_AI_HUMAN_CERT_DIMENSIONS = ['screenReader', 'keyboard', 'novice', 'expert', 'taskCompletion'];
 function _aioAICoverageValue(row, dimension) {
   row = row || {};
   if (dimension === 'cap') return row.cap || row.capBand || row.marketCapBand || row.marketCap || null;
@@ -4777,6 +4779,15 @@ window.AIO.getPageEvidenceState = function(pageId, proposedKind) {
   var blockers = [];
   if (contract.requireLiveDom && liveDom === 0) blockers.push('live-dom-empty');
   if (unavailableDom > liveDom && unavailableDom > 3) blockers.push('visible-unavailable-values');
+  var marketEpoch = null;
+  try { marketEpoch = window.AIO.getPageMarketEpochState ? window.AIO.getPageMarketEpochState(pageId) : null; } catch(_) {}
+  if (marketEpoch && marketEpoch.status === 'BLOCKED') {
+    sourceKind = 'UNAVAILABLE';
+    blockers.push('market-epoch-blocked:' + (marketEpoch.blockers || []).join(','));
+  } else if (marketEpoch && marketEpoch.status === 'PARTIAL') {
+    sourceKind = _aioLimitSourceKind(sourceKind, 'DELAYED');
+    blockers.push('market-epoch-partial:' + (marketEpoch.partialCategories || []).join(','));
+  }
   return {
     pageId: pageId,
     sourceKind: sourceKind,
@@ -4786,6 +4797,7 @@ window.AIO.getPageEvidenceState = function(pageId, proposedKind) {
     referenceDom: referenceDom,
     unavailableDom: unavailableDom,
     blockers: blockers,
+    marketEpoch: marketEpoch,
     asOf: _aioDecisionAsOf(sourceKind),
     confidence: _aioDecisionConfidence(sourceKind, pageId.indexOf('kr-') === 0 ? 70 : 84)
   };
@@ -6342,6 +6354,186 @@ window.AIO.getSharedMarketCut = function() {
   };
 };
 
+// One page cannot call a two-day-old snapshot "current" while another page
+// uses the latest market cut. Every route declares the same machine-readable
+// category requirements and is evaluated against the reconciliation artifact
+// that shares marketSnapshotRevision with the server cut.
+window.AIO.PAGE_MARKET_EPOCH_CONTRACT = Object.freeze({
+  home: ['market-quotes','fear-greed','news'],
+  signal: ['market-quotes','us-breadth','fear-greed'],
+  breadth: ['us-breadth','kr-breadth'],
+  sentiment: ['volatility','fear-greed','put-call'],
+  briefing: ['market-quotes','news','cpi-pce'],
+  'market-news': ['news'],
+  technical: ['market-quotes','volatility'],
+  screener: ['market-quotes','us-breadth','kr-breadth'],
+  ticker: ['market-quotes'],
+  portfolio: ['market-quotes'],
+  themes: ['market-quotes','us-breadth','news'],
+  'theme-detail': ['market-quotes','us-breadth','news'],
+  macro: ['cpi-pce','employment-wages','retail-housing-ism','central-bank-policy','macro-calendar'],
+  fxbond: ['market-quotes','treasury-curve','hy-oas','commodities-fx'],
+  fundamental: ['market-quotes'],
+  options: ['volatility','put-call']
+});
+
+window.AIO.getPageMarketEpochState = function(pageId) {
+  pageId = String(pageId || '').replace(/^page-/, '');
+  var requiredCategories = (window.AIO.PAGE_MARKET_EPOCH_CONTRACT[pageId] || []).slice();
+  var cut = window.AIO.getSharedMarketCut ? window.AIO.getSharedMarketCut() : null;
+  var reconciliation = window._serverDataMeta && window._serverDataMeta.reconciliation || null;
+  var fieldTimeline = null;
+  try {
+    fieldTimeline = window.AIO_ARCH && typeof window.AIO_ARCH.getPageDataTimelineState === 'function'
+      ? window.AIO_ARCH.getPageDataTimelineState(pageId) : null;
+  } catch(_) {}
+  if (!requiredCategories.length) {
+    return {
+      pageId: pageId,
+      status: 'REFERENCE',
+      revision: cut && cut.revision || null,
+      cutEnd: cut && cut.end || null,
+      requiredCategories: [],
+      partialCategories: [],
+      blockedCategories: [],
+      blockers: [],
+      fieldTimeline: fieldTimeline
+    };
+  }
+  var blockers = [];
+  if (!cut || cut.usable !== true) blockers.push('shared-market-cut-' + (cut && cut.status || 'missing'));
+  if (!reconciliation || reconciliation.status === 'unavailable') blockers.push('reconciliation-unavailable');
+  else if (reconciliation.status === 'stale' || reconciliation.sourceRevisionMatches !== true) blockers.push('reconciliation-revision-mismatch');
+  var byCategory = {};
+  ((reconciliation && reconciliation.categories) || []).forEach(function(category) {
+    if (category && category.categoryId) byCategory[category.categoryId] = category;
+  });
+  var missingCategories = requiredCategories.filter(function(categoryId) { return !byCategory[categoryId]; });
+  var blockedCategories = requiredCategories.filter(function(categoryId) { return byCategory[categoryId] && byCategory[categoryId].status === 'BLOCKED'; });
+  var partialCategories = requiredCategories.filter(function(categoryId) { return byCategory[categoryId] && byCategory[categoryId].status === 'PARTIAL'; });
+  if (missingCategories.length) blockers.push('required-category-missing:' + missingCategories.join(','));
+  if (blockedCategories.length) blockers.push('required-category-blocked:' + blockedCategories.join(','));
+  var status = blockers.length ? 'BLOCKED' : partialCategories.length ? 'PARTIAL' : 'CURRENT';
+  if (fieldTimeline && fieldTimeline.status === 'BLOCKED') {
+    blockers.push('field-timeline-blocked:' + fieldTimeline.blockedFields.join(','));
+    status = 'BLOCKED';
+  } else if (fieldTimeline && fieldTimeline.status === 'PARTIAL') {
+    if (status === 'CURRENT') status = 'PARTIAL';
+    blockers.push('field-timeline-partial:' + fieldTimeline.staleFields.concat(fieldTimeline.optionalUnavailable || []).join(','));
+  }
+  return {
+    pageId: pageId,
+    status: status,
+    revision: cut && cut.revision || reconciliation && reconciliation.sourceRevision || null,
+    cutStart: cut && cut.start || null,
+    cutEnd: cut && cut.end || null,
+    generatedAt: cut && cut.generatedAt || reconciliation && reconciliation.generatedAt || null,
+    requiredCategories: requiredCategories,
+    partialCategories: partialCategories,
+    blockedCategories: blockedCategories,
+    missingCategories: missingCategories,
+    blockers: blockers,
+    fieldTimeline: fieldTimeline,
+    categoryStates: requiredCategories.map(function(categoryId) {
+      var category = byCategory[categoryId];
+      return category ? {
+        categoryId: categoryId,
+        status: category.status,
+        observed: category.evidence && category.evidence.observed,
+        required: category.evidence && category.evidence.required,
+        checkedAt: category.checkedAt || null
+      } : { categoryId:categoryId, status:'MISSING', observed:0, required:0, checkedAt:null };
+    })
+  };
+};
+
+window.AIO.applyPageMarketEpoch = function(pageId) {
+  pageId = String(pageId || '').replace(/^page-/, '');
+  var page = document.getElementById('page-' + pageId);
+  if (!page) return null;
+  var state = window.AIO.getPageMarketEpochState(pageId);
+  page.setAttribute('data-market-epoch-status', String(state.status || 'BLOCKED').toLowerCase());
+  if (state.revision) page.setAttribute('data-market-revision', state.revision);
+  else page.removeAttribute('data-market-revision');
+  if (state.cutEnd) page.setAttribute('data-market-cut-end', state.cutEnd);
+  else page.removeAttribute('data-market-cut-end');
+  page.setAttribute('data-market-required-categories', state.requiredCategories.join(','));
+  page.setAttribute('data-market-partial-categories', state.partialCategories.join(','));
+  page.setAttribute('data-market-blocked-categories', state.blockedCategories.join(','));
+  var timeline = state.fieldTimeline;
+  page.setAttribute('data-field-timeline-status', String(timeline && timeline.status || 'reference').toLowerCase());
+  if (timeline && timeline.observationStart) page.setAttribute('data-field-observation-start', timeline.observationStart);
+  else page.removeAttribute('data-field-observation-start');
+  if (timeline && timeline.observationEnd) page.setAttribute('data-field-observation-end', timeline.observationEnd);
+  else page.removeAttribute('data-field-observation-end');
+  page.setAttribute('data-field-timeline-blocked', timeline && timeline.blockedFields ? timeline.blockedFields.join(',') : '');
+  page.setAttribute('data-field-timeline-stale', timeline && timeline.staleFields ? timeline.staleFields.join(',') : '');
+  return state;
+};
+
+window.AIO.getPageMarketEpochAudit = function() {
+  var pageIds = Object.keys(window.AIO.PAGE_MARKET_EPOCH_CONTRACT || {});
+  var rows = pageIds.map(function(pageId) {
+    var state = window.AIO.applyPageMarketEpoch(pageId) || window.AIO.getPageMarketEpochState(pageId);
+    var page = document.getElementById('page-' + pageId);
+    return {
+      pageId: pageId,
+      status: state.status,
+      revision: state.revision,
+      cutEnd: state.cutEnd,
+      domRevision: page && page.getAttribute('data-market-revision') || null,
+      domCutEnd: page && page.getAttribute('data-market-cut-end') || null,
+      fieldTimelineStatus: state.fieldTimeline && state.fieldTimeline.status || 'REFERENCE',
+      domFieldTimelineStatus: page && page.getAttribute('data-field-timeline-status') || null,
+      fieldObservationStart: state.fieldTimeline && state.fieldTimeline.observationStart || null,
+      fieldObservationEnd: state.fieldTimeline && state.fieldTimeline.observationEnd || null,
+      blockedFields: state.fieldTimeline && state.fieldTimeline.blockedFields || [],
+      staleFields: state.fieldTimeline && state.fieldTimeline.staleFields || [],
+      partialCategories: state.partialCategories,
+      blockedCategories: state.blockedCategories,
+      blockers: state.blockers
+    };
+  });
+  var revisionSet = {};
+  rows.forEach(function(row) { if (row.revision) revisionSet[row.revision] = true; });
+  var mismatched = rows.filter(function(row) { return row.revision !== row.domRevision || row.cutEnd !== row.domCutEnd || String(row.fieldTimelineStatus).toLowerCase() !== row.domFieldTimelineStatus; }).map(function(row) { return row.pageId; });
+  var blockedPages = rows.filter(function(row) { return row.status === 'BLOCKED'; }).map(function(row) { return row.pageId; });
+  return {
+    status: Object.keys(revisionSet).length <= 1 && !mismatched.length && !blockedPages.length ? 'pass' : 'block',
+    sharedRevisionCount: Object.keys(revisionSet).length,
+    sharedRevision: Object.keys(revisionSet)[0] || null,
+    mismatchedPages: mismatched,
+    blockedPages: blockedPages,
+    partialPages: rows.filter(function(row) { return row.status === 'PARTIAL'; }).map(function(row) { return row.pageId; }),
+    rows: rows,
+    generatedAt: new Date().toISOString()
+  };
+};
+
+function _aioSyncPageMarketEpoch(event) {
+  Object.keys(window.AIO.PAGE_MARKET_EPOCH_CONTRACT || {}).forEach(function(pageId) {
+    try { window.AIO.applyPageMarketEpoch(pageId); } catch(_) {}
+  });
+  var active = document.querySelector('.page.active');
+  var activeId = active && String(active.id || '').replace(/^page-/, '');
+  if (activeId && typeof (window._aioRenderPageDecisionHeader) === 'function') {
+    try { window._aioRenderPageDecisionHeader(activeId); } catch(_) {}
+  }
+  try { document.dispatchEvent(new CustomEvent('aio:marketEpochUpdated', { detail:{ reason:event && event.type || 'sync', audit:window.AIO.getPageMarketEpochAudit() } })); } catch(_) {}
+}
+try {
+  window.addEventListener('aio:sharedMarketCut', _aioSyncPageMarketEpoch);
+  document.addEventListener('aio:serverDataLoaded', _aioSyncPageMarketEpoch);
+  document.addEventListener('aio:dataTimelineUpdated', _aioSyncPageMarketEpoch);
+  document.addEventListener('aio:pageShown', function(event) {
+    var detail = event && event.detail;
+    var pageId = typeof detail === 'string' ? detail : detail && (detail.pageId || detail.id);
+    if (pageId) {
+      try { window.AIO.applyPageMarketEpoch(pageId); } catch(_) {}
+    }
+  });
+} catch(_) {}
+
 window._aioRenderPageDecisionHeader = function(pageId) {
   var page = document.getElementById('page-' + pageId);
   if (!page) return null;
@@ -6378,6 +6570,9 @@ window._aioRenderPageDecisionHeader = function(pageId) {
   var sharedCut = window.AIO && typeof window.AIO.getSharedMarketCut === 'function'
     ? window.AIO.getSharedMarketCut()
     : null;
+  var marketEpoch = window.AIO && typeof window.AIO.getPageMarketEpochState === 'function'
+    ? window.AIO.getPageMarketEpochState(pageId)
+    : null;
   var sharedCutHtml = sharedCut && sharedCut.end
     ? '<span class="aio-confidence-badge" data-market-cut-status="' + _aioDecisionEsc(sharedCut.status || 'unknown') + '" title="' + _aioDecisionEsc(sharedCut.label || '') + '">' + (sharedCut.usable ? '공통컷 ' : '공통컷 지연 · ') + _aioDecisionEsc(sharedCut.endLabel) + '</span>'
     : '<span class="aio-confidence-badge" title="서버 24시간 컷 메타데이터 대기">공통컷 대기</span>';
@@ -6388,12 +6583,18 @@ window._aioRenderPageDecisionHeader = function(pageId) {
       'data-market-cut-status="' + _aioDecisionEsc(sharedCut.status || 'unknown') + '" data-market-cut-start="' + _aioDecisionEsc(sharedCut.start || '') + '" data-market-cut-end="' + _aioDecisionEsc(sharedCut.end || '') + '"'
     );
   }
+  var marketEpochLabel = !marketEpoch ? '시점 확인 중'
+    : marketEpoch.status === 'CURRENT' ? '시점 일치'
+      : marketEpoch.status === 'PARTIAL' ? '시점 부분 일치'
+        : marketEpoch.status === 'REFERENCE' ? '참고 페이지'
+          : '시점 불일치';
+  var marketEpochHtml = '<span class="aio-confidence-badge" data-market-epoch-status="' + _aioDecisionEsc(marketEpoch && marketEpoch.status || 'BLOCKED') + '" title="' + _aioDecisionEsc(marketEpoch && marketEpoch.blockers && marketEpoch.blockers.join(' · ') || marketEpochLabel) + '">' + _aioDecisionEsc(marketEpochLabel) + '</span>';
   var caveatHtml = d.caveat ? '<span class="aio-decision-caveat">' + _aioDecisionEsc(d.caveat) + '</span>' : '';
   var html = ''
-    + '  <section class="aio-decision-header" data-aio-decision-page="' + _aioDecisionEsc(pageId) + '" data-source-kind="' + _aioDecisionEsc(sourceKind) + '" data-as-of="' + _aioDecisionEsc(d.asOf || '') + '">'
+    + '  <section class="aio-decision-header" data-aio-decision-page="' + _aioDecisionEsc(pageId) + '" data-source-kind="' + _aioDecisionEsc(sourceKind) + '" data-as-of="' + _aioDecisionEsc(d.asOf || '') + '" data-market-revision="' + _aioDecisionEsc(marketEpoch && marketEpoch.revision || '') + '" data-market-cut-end="' + _aioDecisionEsc(marketEpoch && marketEpoch.cutEnd || '') + '" data-field-timeline-status="' + _aioDecisionEsc(marketEpoch && marketEpoch.fieldTimeline && marketEpoch.fieldTimeline.status || 'REFERENCE') + '" data-field-observation-start="' + _aioDecisionEsc(marketEpoch && marketEpoch.fieldTimeline && marketEpoch.fieldTimeline.observationStart || '') + '" data-field-observation-end="' + _aioDecisionEsc(marketEpoch && marketEpoch.fieldTimeline && marketEpoch.fieldTimeline.observationEnd || '') + '">'
     + '  <div class="aio-decision-top">'
     + '    <div><div class="aio-decision-kicker">' + _aioDecisionEsc(d.title) + '</div><div class="aio-decision-verdict">' + _aioDecisionEsc(d.decision) + '</div></div>'
-    + '    <div class="aio-decision-meta"><span class="aio-source-badge ' + cls + '" title="sourceKind: ' + _aioDecisionEsc(sourceKind) + '">' + _aioDecisionEsc(sourceLabel) + '</span>' + sharedCutHtml + '<span class="aio-confidence-badge">신뢰도 ' + _aioDecisionEsc(d.confidence) + '</span></div>'
+    + '    <div class="aio-decision-meta"><span class="aio-source-badge ' + cls + '" title="sourceKind: ' + _aioDecisionEsc(sourceKind) + '">' + _aioDecisionEsc(sourceLabel) + '</span>' + sharedCutHtml + marketEpochHtml + '<span class="aio-confidence-badge">신뢰도 ' + _aioDecisionEsc(d.confidence) + '</span></div>'
     + '  </div>'
     + '  <div class="aio-decision-foot">' + (_fomcFootNote ? '<span>' + _aioDecisionEsc(_fomcFootNote) + '</span>' : caveatHtml) + '<button type="button" class="aio-ai-context-btn" data-action="_aioAskAiFromPageDecision" data-arg="' + _aioDecisionEsc(pageId) + '">현재 결과로 AI 분석</button></div>'
     + (_fomcFootNote && caveatHtml ? '<div class="aio-decision-foot aio-decision-evidence-foot">' + caveatHtml + '</div>' : '')
@@ -6403,6 +6604,7 @@ window._aioRenderPageDecisionHeader = function(pageId) {
   else page.insertAdjacentHTML('afterbegin', html);
   var header = page.querySelector('.aio-decision-header[data-aio-decision-page="' + pageId + '"]');
   if (header) page.classList.add('has-aio-decision-header');
+  try { if (window.AIO.applyPageMarketEpoch) window.AIO.applyPageMarketEpoch(pageId); } catch(_) {}
   if (typeof window._aioApplyPageBodyRedesign === 'function') {
     try { window._aioApplyPageBodyRedesign(pageId); } catch(_) {}
   }
@@ -6436,16 +6638,24 @@ window.AIO.getPageEvidenceCurrentnessAudit = function() {
       snapshotDom: e && e.snapshotDom || 0,
       referenceDom: e && e.referenceDom || 0,
       unavailableDom: e && e.unavailableDom || 0,
-      blockers: e && e.blockers || []
+      blockers: e && e.blockers || [],
+      marketEpochStatus: e && e.marketEpoch && e.marketEpoch.status || null,
+      marketRevision: e && e.marketEpoch && e.marketEpoch.revision || null,
+      marketCutEnd: e && e.marketEpoch && e.marketEpoch.cutEnd || null
     };
   });
   var missingCaveat = rows.filter(function(r) { return !r.caveat; }).map(function(r) { return r.pageId; });
   var liveOverstatement = rows.filter(function(r) { return r.sourceKind === 'LIVE' && r.unavailableDom > r.liveDom; }).map(function(r) { return r.pageId; });
+  var marketEpochBlocked = rows.filter(function(r) { return r.marketEpochStatus === 'BLOCKED'; }).map(function(r) { return r.pageId; });
+  var marketRevisionSet = {};
+  rows.forEach(function(r) { if (r.marketRevision) marketRevisionSet[r.marketRevision] = true; });
   return {
-    status: (!missingCaveat.length && !liveOverstatement.length) ? 'pass' : 'warn',
+    status: (!missingCaveat.length && !liveOverstatement.length && !marketEpochBlocked.length && Object.keys(marketRevisionSet).length <= 1) ? 'pass' : 'warn',
     pageCount: rows.length,
     missingCaveat: missingCaveat,
     liveOverstatement: liveOverstatement,
+    marketEpochBlocked: marketEpochBlocked,
+    marketRevisionCount: Object.keys(marketRevisionSet).length,
     rows: rows
   };
 };
@@ -18224,7 +18434,8 @@ const PriceStore = {
       venue: opts.venue || null,
       regularMarketPreviousClose: opts.regularMarketPreviousClose ?? opts.previousClose ?? null,
       changeBasis: opts.changeBasis || opts.valueBasis || 'unknown',
-      valueBasis: opts.valueBasis || opts.changeBasis || 'unknown'
+      valueBasis: opts.valueBasis || opts.changeBasis || 'unknown',
+      revision: opts.revision || null
     };
     this._prev[sym] = price;
     this._stats.accepted++;
@@ -18244,7 +18455,8 @@ const PriceStore = {
       venue: opts.venue || null,
       regularMarketPreviousClose: opts.regularMarketPreviousClose ?? opts.previousClose ?? null,
       changeBasis: opts.changeBasis || opts.valueBasis || 'unknown',
-      valueBasis: opts.valueBasis || opts.changeBasis || 'unknown'
+      valueBasis: opts.valueBasis || opts.changeBasis || 'unknown',
+      revision: opts.revision || null
     });
     window._quoteTimestamps = window._quoteTimestamps || {};
     window._quoteTimestamps[sym] = ts;
@@ -18254,7 +18466,8 @@ const PriceStore = {
       observedAt: opts.observedAt || null, fetchedAt: opts.fetchedAt || null,
       marketState: opts.marketState || null, venue: opts.venue || null,
       changeBasis: opts.changeBasis || opts.valueBasis || 'unknown',
-      valueBasis: opts.valueBasis || opts.changeBasis || 'unknown'
+      valueBasis: opts.valueBasis || opts.changeBasis || 'unknown',
+      revision: opts.revision || null
     };
     if (!opts.deferDomAnnotation && window.AIO && typeof window.AIO.annotateLiveDataSinks === 'function') {
       window.AIO.annotateLiveDataSinks(document, { symbol: sym, force: true });
@@ -18609,6 +18822,7 @@ window._aioSetLiveData = function(sym, data, meta) {
   if (typeof observedAt === 'number' && observedAt > 0 && observedAt < 1e12) observedAt = new Date(observedAt * 1000).toISOString();
   var fetchedAt = data.fetchedAt || meta.fetchedAt || null;
   var provenanceOpts = {
+    revision: data.revision || meta.revision || null,
     observedAt: observedAt,
     fetchedAt: fetchedAt,
     marketState: data.marketState || data.marketSession || meta.marketState || null,
@@ -18643,14 +18857,15 @@ window._aioSetLiveData = function(sym, data, meta) {
     venue: provenanceOpts.venue,
     regularMarketPreviousClose: provenanceOpts.regularMarketPreviousClose,
     changeBasis: provenanceOpts.changeBasis,
-    valueBasis: provenanceOpts.valueBasis
+    valueBasis: provenanceOpts.valueBasis,
+    revision: provenanceOpts.revision
   });
   window._dataSource = window._dataSource || {};
   window._dataSource[sym] = {
     source: source, ts: metric ? metric.ts : ts, pctMissing: pct == null || !isFinite(Number(pct)), policyKey: policyKey, metric: metric,
     reason: meta.reason || null, observedAt: observedAt, fetchedAt: fetchedAt,
     marketState: provenanceOpts.marketState, venue: provenanceOpts.venue,
-    changeBasis: provenanceOpts.changeBasis, valueBasis: provenanceOpts.valueBasis
+    changeBasis: provenanceOpts.changeBasis, valueBasis: provenanceOpts.valueBasis, revision: provenanceOpts.revision
   };
   if (window.AIO && typeof window.AIO.annotateLiveDataSinks === 'function') {
     window.AIO.annotateLiveDataSinks(document, { symbol: sym, force: true });

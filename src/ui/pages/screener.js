@@ -598,7 +598,7 @@ function renderFunnel(documentRef, { universe = 0, ready = 0, passed = 0, unavai
   });
 }
 
-function render({ documentRef, store, readLiveData, readWatchlist, readAliases, sortState, visibleLimit, onWatchlistToggle, onExplain, onCompare, selectedSymbols, compareSymbols, columnPreset = 'discovery', customColumns = [], rowsOverride = null, workbenchResult = null }) {
+function render({ documentRef, store, readLiveData, readWatchlist, readAliases, sortState, visibleLimit, onWatchlistToggle, onExplain, onCompare, onVisibleSymbols, selectedSymbols, compareSymbols, columnPreset = 'discovery', customColumns = [], rowsOverride = null, workbenchResult = null }) {
   const state = selectScreenerState(store?.getState?.() || {});
   const page = documentRef?.getElementById('page-screener');
   if (!page) return;
@@ -611,6 +611,7 @@ function render({ documentRef, store, readLiveData, readWatchlist, readAliases, 
   if (body) {
     body.replaceChildren();
     const visible = filtered.slice(0, visibleLimit.value);
+    onVisibleSymbols?.(visible.map((row) => row.sym || row.symbol).filter(Boolean));
     if (!visible.length) {
       const empty = documentRef.createElement('tr');
       empty.appendChild(cell(documentRef, state?.status === 'unavailable' ? '스크리너 산출물 미수신' : '조건에 맞는 종목이 없습니다', '', 'text-align:center;padding:20px;color:var(--text-muted);'));
@@ -698,6 +699,25 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
       const watchlistReader = readWatchlist || (() => root?._aioWatchlistGet?.() || []);
       const aliasReader = readAliases || (() => root?.SCR_KEYWORD_ALIASES || {});
       const profileReader = () => root?._aioGetActiveProfile?.() || 'balanced';
+      let visibleQuoteSignature = '';
+      let visibleQuoteRequestedAt = 0;
+      const requestVisibleQuotes = (symbols) => {
+        const requested = [...new Set((Array.isArray(symbols) ? symbols : []).map((symbol) => String(symbol || '').trim().toUpperCase()).filter(Boolean))].slice(0, 120);
+        if (!requested.length) return;
+        requested.forEach((symbol) => root?.AIO?.registerLiveSymbol?.(symbol, { reason: 'screener-visible-row' }));
+        const signature = requested.join('|');
+        const nowMs = Date.now();
+        if (signature === visibleQuoteSignature && nowMs - visibleQuoteRequestedAt < 55_000) return;
+        visibleQuoteSignature = signature;
+        visibleQuoteRequestedAt = nowMs;
+        if (root?._aioBootPhase?.quoteReady === false || typeof root?.AIO?.runScheduledRefresh !== 'function') return;
+        Promise.resolve(root.AIO.runScheduledRefresh({
+          keys: ['quotes'],
+          symbols: requested,
+          pageId: 'screener',
+          reason: 'screener-visible-quotes'
+        })).catch(() => {});
+      };
       const workbenchStatus = documentRef.getElementById('scr-workbench-status');
       const definitionEditor = documentRef.getElementById('scr-definition-editor');
       const workbenchPresets = documentRef.getElementById('scr-workbench-presets');
@@ -931,7 +951,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
            else if (compareSymbols.size < 5) compareSymbols.add(symbol);
            renderCompareTray();
            renderNow();
-         }, selectedSymbols, compareSymbols, columnPreset: columnState.preset, customColumns: columnState.custom, onWatchlistToggle: (symbol) => { (onWatchlistToggle || root?._aioWLToggle)?.(symbol); rerender(); }, rowsOverride: activeRows, workbenchResult: activeResult });
+         }, onVisibleSymbols: requestVisibleQuotes, selectedSymbols, compareSymbols, columnPreset: columnState.preset, customColumns: columnState.custom, onWatchlistToggle: (symbol) => { (onWatchlistToggle || root?._aioWLToggle)?.(symbol); rerender(); }, rowsOverride: activeRows, workbenchResult: activeResult });
          renderCompareTray();
        };
        const handleClick = (event) => {

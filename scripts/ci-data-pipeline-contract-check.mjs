@@ -59,6 +59,7 @@ const watchdog = read('.github/workflows/data-watchdog.yml');
 const ci = read('.github/workflows/ci.yml');
 const fetchData = read('scripts/fetch-data.mjs');
 const fetchTelegram = read('scripts/fetch-telegram-digest.mjs');
+const reconciliationBuilder = read('scripts/build-reconciliation-status.mjs');
 const core = read('js/aio-core.js');
 const data = read('js/aio-data.js');
 const chat = read('js/aio-chat.js');
@@ -87,6 +88,8 @@ check('screener refresh is an independent six-hour validated publish job', /cron
 check('screener workflow default automation uses only free SEC path', /fetch-sec-fundamentals\.mjs/.test(screenerRefresh) && /SEC_USER_AGENT/.test(screenerRefresh) && /sec-fundamentals\.json/.test(screenerRefresh) && !/FMP_API_KEY/.test(screenerRefresh));
 check('trading-score backtest harness is wired into the refresh pipeline', /runBacktest as runTradingScoreBacktest/.test(read('scripts/fetch-data.mjs')) && exists('scripts/backtest-trading-score.mjs'));
 check('refresh workflow publishes status summary', /GITHUB_STEP_SUMMARY/.test(refresh) && /fearGreedOk/.test(refresh) && /fredFetchOk/.test(refresh) && /marketAnalysisOk/.test(refresh));
+check('core refresh validates evidence-derived reconciliation before commit', /ci-reconciliation-contract-check\.mjs/.test(refresh) && refresh.indexOf('ci-reconciliation-contract-check.mjs') < refresh.indexOf('Commit refreshed public data if changed'));
+check('screener refresh atomically rebuilds and commits reconciliation and operations status', /build-reconciliation-status\.mjs/.test(screenerRefresh) && /build-operations-status\.mjs/.test(screenerRefresh) && /public-data\/reconciliation-status\.json/.test(screenerRefresh) && /public-data\/operations-status\.json/.test(screenerRefresh));
 check('refresh workflow module summary uses ESM fs import', /node --input-type=module - <<'NODE'[\s\S]*import fs from 'node:fs';/.test(refresh) && !/node --input-type=module - <<'NODE'[\s\S]*const fs = require\(/.test(refresh));
 checkNodeHeredocSyntax('refresh-data workflow', refresh);
 
@@ -119,6 +122,10 @@ check('history stores completed closes and carries the shared market-cut revisio
 check('screener Kalman factor uses comparable log percent scale', /Math\.log\(v\)/.test(fetchData) && /Math\.expm1\(s1\)\s*\*\s*100/.test(fetchData) && /scale:\s*'log_pct_day'/.test(fetchData) && /kalmanScale/.test(fetchData) && /kalmanScale:\s*'log_pct_day'/.test(fetchData));
 check('screener pipeline emits timestamped universe breadth and a research-only ranking contract', /computeScreenerBreadth/.test(fetchData) && /factorObservedAt/.test(fetchData) && /coveragePct/.test(fetchData) && /rankingContract/.test(fetchData) && /research-relative-ranking-only/.test(fetchData));
 check('fetch-data preserves the last-known-good artifact on core quote outage', /CORE_QUOTE_COVERAGE_FAILED/.test(fetchData) && fetchData.indexOf('CORE_QUOTE_COVERAGE_FAILED') < fetchData.indexOf('await writeFile(OUT'));
+check('22-category reconciliation is computed from executable artifact checks, not a static status table', /buildReconciliationStatus/.test(reconciliationBuilder) && /evidenceCheck/.test(reconciliationBuilder) && /runtimeBlockedCategories/.test(reconciliationBuilder) && /policyBlockedCategories/.test(reconciliationBuilder) && !/const CATEGORY_STATUS/.test(reconciliationBuilder));
+check('browser reloads reconciliation with data polling and rejects market revision drift', /reconciliation-status\.json\?t=/.test(data) && /reconciliation-status-v2/.test(data) && /sourceRevisionMatches/.test(data) && /market snapshot revision mismatch/.test(data) && /getDataReconciliationStatus/.test(data));
+check('all market-sensitive pages share one category-to-epoch contract', /PAGE_MARKET_EPOCH_CONTRACT/.test(core) && /getPageMarketEpochState/.test(core) && /applyPageMarketEpoch/.test(core) && /getPageMarketEpochAudit/.test(core));
+check('page evidence is fail-closed by shared market epoch and revision state', /market-epoch-blocked/.test(core) && /market-epoch-partial/.test(core) && /data-market-revision/.test(core) && /data-market-cut-end/.test(core) && /aio:marketEpochUpdated/.test(core));
 check('server quote rows emit explicit observation/fetch/delay/session/venue/use lineage', /observedAt:\s*Number\.isFinite\(m\.regularMarketTime\)/.test(fetchData) && /fetchedAt:\s*new Date\(\)\.toISOString\(\)/.test(fetchData) && /delayedByMs:/.test(fetchData) && /marketSession:/.test(fetchData) && /venue:/.test(fetchData) && /current-with-session-and-delay-gate/.test(fetchData));
 check('fetch-data exposes an isolated screener-only refresh path', /SCREENER_ONLY/.test(fetchData) && /export async function enrichScreener/.test(fetchData));
 check('screener rows retain per-symbol observation/source/use lineage', /f\.observedAt\s*=\s*r\.observedAt/.test(fetchData) && /f\.sourceKind\s*=\s*'delayed-eod'/.test(fetchData) && /f\.allowedUse\s*=\s*'research-relative-ranking-only'/.test(fetchData));
@@ -132,6 +139,12 @@ check('BLS direct adapter is keyless, bounded, cadence-gated, and merged as type
   /method:\s*'POST'/.test(fetchData) && /BLS_CACHE_MAX_AGE_MS/.test(fetchData) && /12 \* 60 \* 60 \* 1000/.test(fetchData) &&
   /M\(\?:0\[1-9\]\|1\[0-2\]\)/.test(fetchData) && /releaseAt:\s*null/.test(fetchData) &&
   /macro\._bls/.test(fetchData) && /blsStatus/.test(fetchData) && /blsLastSuccessfulAt/.test(fetchData));
+check('U.S. Treasury keyless adapter supplies an official same-date five-point curve and 10Y-2Y spread',
+  /parseTreasuryYieldCurveHtml/.test(fetchData) && /fetchTreasuryYieldCurve/.test(fetchData) && /home\.treasury\.gov/.test(fetchData) &&
+  /us-treasury-official-primary/.test(fetchData) && /same-date-spread/.test(fetchData) && /treasuryObservedAt/.test(fetchData));
+check('HY OAS has a keyless official FRED public-download adapter with LKG and typed lineage',
+  /parseFredHyOasCsv/.test(fetchData) && /fetchFredHyOasPublic/.test(fetchData) && /fredgraph\.csv\?id=BAMLH0A0HYM2/.test(fetchData) &&
+  /FRED_HY_OAS_CACHE_MAX_AGE_MS/.test(fetchData) && /fred-official-public-csv/.test(fetchData) && /fredHyOasObservedAt/.test(fetchData));
 {
   let ok = false;
   let detail = '';
@@ -195,11 +208,69 @@ check('BLS direct adapter is keyless, bounded, cadence-gated, and merged as type
         ] } } }
       }
     };
-    const row = normalizeSecCompanyFacts('FIX', facts, 100);
-    ok = row && row.pe === 10 && row.pb === 2 && row.roe === 20 && row.margin === 10 && row.revGrowth === 25 && row.model === 'sec-fy-normalized-v1';
+    const submissions = { filings: { recent: {
+      accessionNumber: ['a', 'b'],
+      acceptanceDateTime: ['2025-02-01T18:00:00.000Z', '2026-02-01T18:00:00.000Z']
+    } } };
+    const row = normalizeSecCompanyFacts('FIX', facts, 100, submissions);
+    ok = row && row.pe === 10 && row.pb === 2 && row.roe === 20 && row.margin === 10 && row.revGrowth === 25 &&
+      row.model === 'sec-fy-normalized-v2' && row.acceptedAt === '2026-02-01T18:00:00.000Z' &&
+      row.pit?.schemaVersion === 'sec-pit-facts.v1' && row.pit.observationCount >= 6 && row.pit.acceptedTimeCount >= 4;
     detail = JSON.stringify(row);
   } catch (error) { detail = error.message; }
   check('SEC companyfacts normalizer preserves annual period and computes bounded comparable ratios', ok, detail.slice(0, 500));
+}
+{
+  let ok = false;
+  let detail = '';
+  try {
+    const { parseTreasuryYieldCurveHtml } = await import('./fetch-data.mjs');
+    const cell = (year, value) => `<td headers="view-field-bc-${year}year-table-column">${value}</td>`;
+    const html = `<table><tr><td><time datetime="2026-08-11T12:00:00Z">08/11/2026</time></td>${cell(2, '4.10')}${cell(5, '4.25')}${cell(10, '4.60')}${cell(20, '5.10')}${cell(30, '5.20')}</tr><tr><td><time datetime="2026-08-12T12:00:00Z">08/12/2026</time></td>${cell(2, '4.20')}${cell(5, '4.38')}${cell(10, '4.68')}${cell(20, '5.24')}${cell(30, '5.24')}</tr></table>`;
+    const curve = parseTreasuryYieldCurveHtml(html, '2026-08-13T00:00:00.000Z');
+    ok = curve?.status === 'ok' && curve.observedAt === '2026-08-12' && curve.values.dgs2 === 4.2 && curve.values.dgs30 === 5.24 && curve.values.t10y2y === 0.48 && curve.sourceKind === 'official-primary';
+    detail = JSON.stringify(curve);
+  } catch (error) { detail = error.message; }
+  check('Treasury curve parser selects the latest complete dated row and derives only a same-date spread', ok, detail);
+}
+{
+  let ok = false;
+  let detail = '';
+  try {
+    const { parseFredHyOasCsv } = await import('./fetch-data.mjs');
+    const csv = 'observation_date,BAMLH0A0HYM2\n2026-08-10,2.70\n2026-08-11,.\n2026-08-12,2.71\ninvalid,9.99\n';
+    const result = parseFredHyOasCsv(csv, '2026-08-13T00:00:00.000Z');
+    ok = result?.status === 'ok' && result.seriesId === 'BAMLH0A0HYM2' && result.observedAt === '2026-08-12' && result.value === 2.71 && result.unit === 'percent' && result.sourceKind === 'official-government-relay';
+    detail = JSON.stringify(result);
+  } catch (error) { detail = error.message; }
+  check('FRED HY OAS CSV parser rejects missing/invalid rows and selects the latest dated observation', ok, detail);
+}
+{
+  let ok = false;
+  let detail = '';
+  try {
+    const { selectSecFundamentalsAsOf } = await import('../src/domain/fundamental/sec-report.js');
+    const record = { symbol: 'FIX', pit: { observations: {
+      revenue: [
+        { value: 800, periodEnd: '2024-12-31', filedAt: '2025-02-01', acceptedAt: '2025-02-01T18:00:00.000Z', accession: 'a' },
+        { value: 1000, periodEnd: '2025-12-31', filedAt: '2026-02-01', acceptedAt: '2026-02-01T18:00:00.000Z', accession: 'b' },
+        { value: 1100, periodEnd: '2025-12-31', filedAt: '2026-03-01', acceptedAt: '2026-03-01T18:00:00.000Z', accession: 'b-amend' }
+      ],
+      netIncome: [
+        { value: 80, periodEnd: '2024-12-31', filedAt: '2025-02-01', acceptedAt: '2025-02-01T18:00:00.000Z', accession: 'a' },
+        { value: 100, periodEnd: '2025-12-31', filedAt: '2026-02-01', acceptedAt: '2026-02-01T18:00:00.000Z', accession: 'b' },
+        { value: 105, periodEnd: '2025-12-31', filedAt: '2026-03-01', acceptedAt: '2026-03-01T18:00:00.000Z', accession: 'b-amend' }
+      ],
+      equity: [{ value: 500, periodEnd: '2025-12-31', filedAt: '2026-02-01', acceptedAt: '2026-02-01T18:00:00.000Z' }],
+      sharesOutstanding: [{ value: 10, periodEnd: '2025-12-31', filedAt: '2026-02-01', acceptedAt: '2026-02-01T18:00:00.000Z' }]
+    } } };
+    const before = selectSecFundamentalsAsOf(record, '2026-02-15T00:00:00.000Z');
+    const after = selectSecFundamentalsAsOf(record, '2026-03-15T00:00:00.000Z', { priceAsOf: 100 });
+    ok = before?.revenue === 1000 && before.netIncome === 100 && before.pe == null &&
+      after?.revenue === 1100 && after.netIncome === 105 && after.pe === 9.52 && after.accession === 'b-amend';
+    detail = JSON.stringify({ before, after });
+  } catch (error) { detail = error.message; }
+  check('SEC PIT selector excludes future amendments and never backfills current price without an as-of price', ok, detail.slice(0, 1000));
 }
 {
   let ok = false;

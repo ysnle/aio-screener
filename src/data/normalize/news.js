@@ -23,5 +23,12 @@ export function normalizeNews(raw = {}) {
     tier: finite(item?.tier),
     _tgChannel: item?._tgChannel === true
   })) : [];
-  return Object.freeze({ items: Object.freeze(items), updatedAt: raw.updatedAt || new Date().toISOString() });
+  return Object.freeze({
+    items: Object.freeze(items),
+    updatedAt: raw.updatedAt || null,
+    fetchedAt: raw.fetchedAt || null,
+    cycleId: raw.cycleId || null,
+    nextRefreshAt: raw.nextRefreshAt || null,
+    checkedAt: raw.checkedAt || null
+  });
 }

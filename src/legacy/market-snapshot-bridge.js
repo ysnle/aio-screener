@@ -14,6 +14,7 @@ export function applyMarketSnapshotToLegacy(root = globalThis, snapshot) {
       regularMarketPreviousClose: quote.previousValue,
       changeBasis: quote.changeBasis || quote.valueBasis || 'unknown',
       valueBasis: quote.valueBasis || quote.changeBasis || 'unknown',
+      revision: snapshot.revision,
       observedAt: quote.observedAt,
       fetchedAt: quote.fetchedAt,
       marketState: quote.session,
@@ -23,7 +24,8 @@ export function applyMarketSnapshotToLegacy(root = globalThis, snapshot) {
       ts: quote.observedAt || quote.fetchedAt || snapshot.generatedAt,
       policyKey: 'static_snapshot',
       reason: 'market-snapshot-fallback',
-      delayed: true
+      delayed: true,
+      revision: snapshot.revision
     })) applied += 1;
   }
   const observedTimes = (snapshot.quotes || [])

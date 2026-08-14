@@ -48,7 +48,7 @@ const requiredHeaders = [
   'Content-Security-Policy: default-src \'self\';'
 ];
 
-check('version format', /^v\d+\.\d{1,2}$/.test(version), version);
+check('canonical version format', /^v\d{1,3}(?:\.\d{2})?$/.test(version), version);
 for (const file of ['architecture/asset-manifest.json', 'architecture/release-manifest.json', 'architecture/visual-state-matrix.json', 'architecture/operations-slo.json', 'architecture/public-readiness.json', 'public-data/operations-status.json']) {
   check(`${file} appRevision`, json(file).appRevision === version, `${json(file).appRevision} != ${version}`);
 }

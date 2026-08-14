@@ -47,6 +47,14 @@ jobs:
       - name: Reject silent artifact degradation
         run: node scripts/ci-refresh-artifact-integrity-check.mjs
 
+      - name: Validate evidence-derived 22-category reconciliation
+        run: |
+          node scripts/ci-reconciliation-contract-check.mjs
+          node scripts/ci-source-registry-contract-check.mjs
+          node scripts/ci-professional-data-gap-check.mjs
+          node scripts/ci-static-data-contract-check.mjs
+          node scripts/ci-data-refresh-audit.mjs
+
       - name: Pipeline status summary
         run: |
           node --input-type=module - <<'NODE'
@@ -95,7 +103,7 @@ jobs:
           [ -f public-data/market-snapshot.json ] && git add public-data/market-snapshot.json || true
           [ -f public-data/market-snapshot-status.json ] && git add public-data/market-snapshot-status.json || true
            [ -f public-data/operations-status.json ] && git add public-data/operations-status.json || true
-           [ -f public-data/reconciliation-status.json ] && git add public-data/reconciliation-status.json || true
+          [ -f public-data/reconciliation-status.json ] && git add public-data/reconciliation-status.json || true
           [ -f public-data/screener.json ] && git add public-data/screener.json || true
           [ -f public-data/telegram-digest.json ] && git add public-data/telegram-digest.json || true
           [ -f public-data/atlas/index.json ] && git add public-data/atlas/index.json || true

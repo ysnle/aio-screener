@@ -1,11 +1,89 @@
 ---
 verified_by: agent (Fable 5) + Codex P761-P892 verification
-last_verified: 2026-08-12
+last_verified: 2026-08-13
 confidence: high
-target_version: v54.13
+target_version: v54.22
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R486. Initial paint and synthetic route latency require a browser presentation boundary (v54.22)
+
+**Rule**: A boot performance gate that reports both first contentful paint and a synthetic page transition must allow the parsed application shell to reach an actual presentation frame before triggering the route. It must not charge route initialization to FCP or hide route cost inside a combined boot value. FCP, route latency, and maximum long-task thresholds remain independent blocking budgets; introducing the boundary cannot relax any threshold.
+
+**Validation**: `ci-boot-interaction-check.mjs` uses a double-`requestAnimationFrame` boundary after DOMContentLoaded and before `showPage('signal')`, then enforces FCP <=2.5s, route <=2s, max long task <=2.5s, the expected active route, and boot-status release in real Chromium.
+
+## R485. Keyless official downloads close critical single-series gaps without relabeling access (v54.22)
+
+**Rule**: When a critical public indicator has an official, keyless, machine-readable download, the scheduled producer should use it as a bounded adapter instead of freezing the field solely because a broader API key is absent. The adapter must preserve the official series ID, exact unit, observation time, fetch/attempt time, URL, authority, allowed use, cache budget, and LKG failure state. It may override an older keyed/LKG observation only when its dated official observation is equal or newer.
+
+**Validation**: `parseFredHyOasCsv` and `fetchFredHyOasPublic` are covered by invalid/missing/latest-row fixtures in `ci-data-pipeline-contract-check.mjs`; `ci-source-registry-contract-check.mjs` requires the public-download origin; `ci-data-refresh-audit.mjs` verifies the resulting HY OAS observation and publication-lag state.
+
+## R484. Factor fixtures carry the same field-family observation epochs as production rows (v54.22)
+
+**Rule**: A synthetic quant fixture that claims current market-cap or fundamental coverage must include the corresponding row-level `_mcapObservedAt` or `_fundamentalObservedAt`. Artifact coverage flags and API success flags cannot substitute for per-row observation epochs. Negative fixtures must express missing or stale epochs explicitly, and golden expectations must preserve the 4-day market-cap and 180-day fundamental eligibility boundaries.
+
+**Validation**: `dump-factor-ranks-fixtures.mjs` emits explicit field-family epochs, while `ci-domain-parity-check.mjs`, `ci-esm-core-unit-check.mjs`, `ci-screener-workbench-contract.mjs`, and `ci-page-data-timeline-contract-check.mjs` verify active/inactive factors and fail-closed coverage.
+
+## R483. Versioned domain-contract changes update every independent golden gate atomically (v54.22)
+
+**Rule**: When a domain model version or response shape changes, all independent unit, pipeline, browser, and consumer golden assertions that intentionally pin that contract must be updated in the same change. The new assertion must verify the added semantics, not merely replace the version string. SEC report v3 therefore proves point-in-time status, observation counts, acceptance counts, and accepted filing metadata independently of the historical selector fixture.
+
+**Validation**: `ci-esm-core-unit-check.mjs` asserts the report-level v3 contract; `ci-data-pipeline-contract-check.mjs` separately covers acceptance-time joins, amendments, as-of selection, and no current-price backfill.
+
+## R482. Runtime-imported modules must enter the service-worker shell in the same change (v54.22)
+
+**Rule**: Any JavaScript module imported by the deployed static application must be added to `sw.js` `SHELL_ASSETS` in the same change. A successful online import is not sufficient evidence because an old service-worker shell or offline transition can otherwise cache the importer without its new dependency. The shell entry must use the exact deployed relative path and remain covered by the architecture dependency scan.
+
+**Validation**: `ci-architecture-contract-check.mjs` derives the required runtime module set and fails when any dependency, including `src/data/contracts/source-registry.js`, is absent from `SHELL_ASSETS`; version and release-revision gates keep the service-worker cache epoch synchronized.
+
+## R481. Professional data capabilities are promoted only by artifact-backed partial scopes (v54.22)
+
+**Rule**: A critical data gap may move from `BLOCKED` to `PARTIAL` only when its implemented scope, remaining limitation, allowed use, and executable validation gate are all declared. SEC point-in-time fundamentals must select only observations whose filing acceptance or filing date is on or before the requested cut; later amendments must not leak backward, and price ratios require a contemporaneous price supplied by the caller. Existing filing values may be migrated into a PIT envelope without changing the value, but absent acceptance timestamps remain `filed-date-only`. Implemented 13F and portfolio risk surfaces remain partial while insider forms, complete security mapping, survivorship-free histories, institutional factors, liquidity and capacity are absent.
+
+**Validation**: `ci-professional-data-gap-check.mjs` verifies the eight-item ledger, five external `BLOCKED` boundaries, SEC PIT artifact coverage, amendment exclusion, verified 13F depth, and portfolio risk markers. `ci-data-pipeline-contract-check.mjs` independently exercises the SEC normalizer and as-of selector. CI, core refresh, screener refresh, and watchdog run the professional gap gate.
+
+## R480. Every changing or hardcoded data category has a daily-audited source and limitation contract (v54.21)
+
+**Rule**: Every one of the 22 reconciliation categories must declare its cadence, refresh mode, producer, generated artifacts, consuming desktop pages, exact origin URL, authority, source kind, access condition, and structural limitation/remediation in the machine-readable source registry. Static or hardcoded market-sensitive values do not escape this rule: they are audited daily and must either be refreshed from dated evidence or remain explicitly unavailable. Derived AIO-universe data must retain universe and coverage lineage and must not be relabeled as official exchange data. Null/missing observations never become numeric zero, and sparse calendar/session buckets cannot become current evidence. Professional capability gaps such as point-in-time fundamentals, historical membership/corporate actions, independent quote reconciliation, exchange breadth, estimates, options/short data, filings, and risk attribution remain in the critical-gap ledger until their production gates pass.
+
+**Validation**: `ci-source-registry-contract-check.mjs` requires 22/22 registry/audit coverage, complete origin contracts, P0 fail-closed status, workflow enforcement, and breadth-history scope/coverage. Core, screener, and hourly watchdog workflows run that gate together with static-data and data-refresh audits. Reconciliation remains evidence-derived; `fetch-data.mjs` produces exact CNN F&G history, VIX3M, FRED five-point Treasury/T10Y2Y observations, CoinGecko crypto comparison, and date-aligned AIO breadth history while preserving source-specific observation time.
+
+## R479. Quant rows and rankings preserve separate source epochs and rendered-symbol refresh demand (v54.20)
+
+**Rule**: A quant row must not project one generic timestamp across live price, market cap, EOD technical/factor data, filing-derived fundamentals, identity, breadth/regime, and news. Every family retains its own observation/fetch/source/revision lineage. Ranking factors activate only when their actual per-row observation-age coverage reaches the declared threshold; artifact-level coverage or a successful fetch flag is insufficient. The visible desktop result batch must register bounded symbol demand with the central quote scheduler, and ranking input revision, screen snapshot, and displayed timeline must agree. Missing or stale required evidence fails closed; optional low-coverage fundamentals/news remain explicitly partial.
+
+**Validation**: `validate-screener-artifact.mjs` enforces 2-day artifact and 4-day factor freshness plus 80% current factor coverage. `ci-screener-workbench-contract.mjs` verifies separate live/fundamental epochs. `ci-page-data-timeline-contract-check.mjs` requires six quant checks: snapshot, factor coverage, ranking epoch, visible quotes, fundamentals, and news. `ci-screener-auto-refresh-browser-check.mjs` proves 12/12 rendered-symbol quote demand, display binding, ranking revision parity, and stale-fundamental factor exclusion. `.github/workflows/refresh-screener.yml` runs the producer-safe pure gates after each six-hour build. Mobile remains excluded by R474.
+
+## R478. Market-sensitive fields retain one machine-checkable timeline and direction basis (v54.19)
+
+**Rule**: Every decision-relevant page field must preserve its value, source, `observedAt`, `fetchedAt`, revision, and change basis from producer through provider, normalizer, state, and renderer. A direction may be compared only when its basis is explicit and compatible. Required missing/basis-incompatible/mixed-revision fields fail closed; stale required fields cap the page at partial. Runtime execution time must never replace observation time. Long-lived visible tabs must periodically reevaluate active-page freshness and reuse the page refresh profile without refreshing hidden tabs.
+
+**Validation**: `ci-page-data-timeline-contract-check.mjs` covers all 16 desktop market routes and 44 field requirements with stale, missing-direction, mixed-revision, and numeric-zero fixtures. `ci-page-market-epoch-browser-check.mjs` verifies runtime audit coverage and page DOM/API timeline parity. Mobile remains outside the product acceptance scope per R474.
+
+## R477. Market-sensitive routes consume one evidence-derived market epoch (v54.18)
+
+**Rule**: Reconciliation status must be computed from current source artifacts and executable category checks, never assigned from a static status table. Every market-sensitive route must consume the same market snapshot revision and completed market cut. A required `PARTIAL` category caps the route at delayed evidence, while a required runtime `BLOCKED` category makes the route unavailable. Licensed or operator-only categories remain separately policy-blocked and must not be synthesized.
+
+**Validation**: `ci-reconciliation-contract-check.mjs` proves source-truth rebuild, empty-source degradation, null-is-missing behavior, and policy/runtime separation. `ci-data-pipeline-contract-check.mjs` enforces atomic workflow publication and browser polling/revision rejection. `ci-page-market-epoch-browser-check.mjs` traverses all market-sensitive desktop routes and rejects mixed revisions, mixed cuts, missing headers, or unexpected runtime errors.
+
+## R474. AIO product QA and future UI work are desktop-only (v54.17)
+
+**Rule**: Mobile and tablet implementation, visual polish, viewport coverage, personas, and acceptance criteria are out of scope because the product has no mobile users. Existing responsive/mobile DOM and CSS may remain as compatibility code, but new work must use `scripts/desktop-qa-config.mjs` and must not add mobile/tablet requirements unless the user explicitly reopens the scope.
+
+**Validation**: `scripts/ci-desktop-scope-check.mjs` is a blocking CI gate. Supported QA viewports are 1280×900, 1440×1000, and 1920×1080. `ci-knowledge-route-bridge-contract.mjs` also rejects mobile/tablet/touch personas so generated learning-route scenarios cannot silently reintroduce mobile acceptance scope.
+
+## R476. Retired mobile touch-target checks do not block desktop-only releases (v54.17)
+
+**Rule**: The accessibility matrix continues to record small-target observations for audit visibility, but the former mobile 24px touch-target criterion is not a required release gate while the product scope is desktop-only. Desktop semantic names, keyboard reachability, focus paths, canvas naming, font floor, and console-error checks remain blocking.
+
+**Validation**: `ci-accessibility-matrix-check.mjs` must report `smallTargetCount` without using it as the desktop release-failure predicate; `ci-desktop-scope-check.mjs` prevents mobile/tablet acceptance from returning.
+
+## R475. Release versions use canonical major or two-digit patch notation (v54.17)
+
+**Rule**: Version identifiers use `v<major>` for a major rollover and `v<major>.<patch>` with exactly two patch digits thereafter. `v53.99 → v54 → v54.01` is valid; `v54.1` is non-canonical and must normalize to `v54.01`. A bump must be strictly greater than the canonical version in `version.json`.
+
+**Validation**: `node scripts/bump-version.mjs <version>` performs normalization and monotonic validation; `ci-version-check.mjs`, `ci-release-revision-check.mjs`, and `ci-operations-contract-check.mjs` reject non-canonical dotted versions and stale active metadata.
 
 ## R472. Browser lifecycle gates must stabilize known boot-delayed timers before leak comparison (v54.12)
 

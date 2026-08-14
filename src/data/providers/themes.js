@@ -21,6 +21,34 @@ function themeDefinitions(value) {
   return Array.isArray(value) ? value : Object.values(value || {});
 }
 
+function runtimeQuote(live, symbol) {
+  const row = live?.[symbol] || {};
+  const envelope = row.quoteEnvelope || {};
+  const price = finite(row.price ?? envelope.price);
+  const rawPct = finite(row.pct ?? envelope.pct);
+  const observedAt = row.observedAt || envelope.observedAt || null;
+  const fetchedAt = row.fetchedAt || envelope.fetchedAt || null;
+  const revision = row.revision || envelope.revision || null;
+  const changeBasis = row.changeBasis || row.valueBasis || envelope.changeBasis || envelope.valueBasis || 'unknown';
+  const directionCompatible = rawPct != null && !!observedAt && changeBasis !== 'unknown';
+  return {
+    price,
+    pct: directionCompatible ? rawPct : null,
+    rawPct,
+    observedAt,
+    fetchedAt,
+    revision,
+    changeBasis,
+    directionCompatible,
+    source: row.source || envelope.source || 'unavailable'
+  };
+}
+
+function latestObservedAt(rows) {
+  const timestamps = rows.map((row) => Date.parse(row?.observedAt || '')).filter(Number.isFinite);
+  return timestamps.length ? new Date(Math.max(...timestamps)).toISOString() : null;
+}
+
 export function createThemesProvider({
   read = null,
   readLiveData = () => ({}),
@@ -63,23 +91,27 @@ export function createThemesProvider({
           hasQuote: !!live[symbol],
           hasBenchmarkQuote: !!live.SPY
         });
-        const history = historyBySymbol[symbol];
-        const dailyPct = finite(live[symbol]?.pct) ?? (
-          Array.isArray(history) && history.length > 1 && Number(history[history.length - 2]) > 0
-            ? ((Number(history[history.length - 1]) / Number(history[history.length - 2])) - 1) * 100
-            : null
-        );
+        const currentQuote = runtimeQuote(live, symbol);
+        const dailyPct = currentQuote.pct;
         return {
           id: String(item?.id || symbol),
           symbol,
           label: item?.name || item?.label || symbol,
+          price: currentQuote.price,
           pct: finite(dailyPct),
           weeklyPct: finite(weeklyPerf[symbol]),
           rsRatio: finite(rotation?.rsRatio ?? item?.rsRatio),
           rsMomentum: finite(rotation?.rsMom ?? item?.rsMomentum),
           quadrant: rotation?.quadrant || item?.quadrant || 'neutral',
           view: item?.view || 'sectors',
-          source: rotation?.modelVersion ? `native-rrg:${rotation.modelVersion}` : (item?.source || 'native-rrg')
+          source: currentQuote.source,
+          sourceKind: currentQuote.price == null ? 'unavailable' : 'runtime-quote',
+          observedAt: currentQuote.observedAt,
+          fetchedAt: currentQuote.fetchedAt,
+          revision: currentQuote.revision,
+          changeBasis: currentQuote.changeBasis,
+          directionCompatible: currentQuote.directionCompatible,
+          rotationSource: rotation?.modelVersion ? `native-rrg:${rotation.modelVersion}` : (item?.source || 'native-rrg')
         };
       });
 
@@ -88,7 +120,7 @@ export function createThemesProvider({
         .find((theme) => String(theme?.id || '') === String(selectedId || '')) || null;
       let selectedDetail = null;
       if (selectedTheme) {
-        const quotePct = (symbol) => finite(live?.[symbol]?.pct);
+        const quotePct = (symbol) => runtimeQuote(live, symbol).pct;
         const etfPct = selectedTheme.etf ? quotePct(selectedTheme.etf) : null;
         const basePct = selectedTheme.compositeBase ? quotePct(selectedTheme.compositeBase) : null;
         const leaderPcts = (selectedTheme.leaders || []).map(quotePct).filter((value) => value != null);
@@ -117,11 +149,8 @@ export function createThemesProvider({
           if (sub?.etf) detailSymbols.add(String(sub.etf));
           (sub?.tickers || []).forEach((symbol) => detailSymbols.add(String(symbol)));
         });
-        const quotes = Object.fromEntries([...detailSymbols].map((symbol) => [symbol, {
-          price: finite(live[symbol]?.price),
-          pct: finite(live[symbol]?.pct)
-        }]));
-        const pricedLeaders = (selectedTheme.leaders || []).map((symbol) => live[symbol]).filter((quote) => quote && quote.price);
+        const quotes = Object.fromEntries([...detailSymbols].map((symbol) => [symbol, runtimeQuote(live, symbol)]));
+        const pricedLeaders = (selectedTheme.leaders || []).map((symbol) => runtimeQuote(live, symbol)).filter((quote) => quote.price != null && quote.directionCompatible);
         const breadth = pricedLeaders.length >= Math.max(2, Math.ceil((selectedTheme.leaders || []).length * 0.6))
           ? Math.round(pricedLeaders.filter((quote) => Number(quote.pct || 0) > 0).length / pricedLeaders.length * 100)
           : null;
@@ -146,7 +175,7 @@ export function createThemesProvider({
           })) : []
         };
       }
-      return Object.freeze({ items, selectedId, selectedDetail, updatedAt: now() });
+      return Object.freeze({ items, selectedId, selectedDetail, updatedAt: latestObservedAt(items) });
     }
   });
 }

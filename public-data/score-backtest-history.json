@@ -1,14 +1,2798 @@
 {
- "generatedAt": "2026-08-13T00:44:09.021Z",
+ "generatedAt": "2026-08-14T00:40:24.641Z",
  "note": "Phase 3 [C3] P599 — computeTradingScore 재구성 검증 하네스. RM-03(2026-07-19)부터 src/domain/signal/trading-score.js 단일 구현을 호출한다. breadth/pcr/뉴스감성은 history.json에 구조적으로 없어 라이브의 현재 fail-closed 미수신 처리(null/false)를 그대로 따른다 — 예전의 중립 상수 근사(57/0.95)는 제거됨(F-11 드리프트였음). 표본 수가 통계적으로 유의미해질 때까지(대략 n>=30) summary를 \"검증 결과\"가 아니라 \"누적 진행 상황\"으로 취급할 것.",
  "summary": {
-  "n5d": 53,
-  "corr5d": -0.308,
-  "n21d": 37,
-  "corr21d": -0.588,
+  "n5d": 265,
+  "corr5d": -0.126,
+  "n21d": 249,
+  "corr21d": -0.203,
   "statisticallyMeaningful": true
  },
  "records": [
+  {
+   "date": "2025-12-19",
+   "reconstructedScore": 61,
+   "subScores": {
+    "vol": 90,
+    "mom": 34,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 1.0423586216987313,
+   "fwd21dReturn": 1.1537054649206286,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2025-12-22",
+   "reconstructedScore": 68,
+   "subScores": {
+    "vol": 90,
+    "mom": 52,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 0.2580508222008028,
+   "fwd21dReturn": 0.5396533250757054,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2025-12-23",
+   "reconstructedScore": 78,
+   "subScores": {
+    "vol": 90,
+    "mom": 74,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -0.9304190141813277,
+   "fwd21dReturn": 0.5852565707496118,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2025-12-24",
+   "reconstructedScore": 78,
+   "subScores": {
+    "vol": 90,
+    "mom": 74,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -1.0614464696590464,
+   "fwd21dReturn": 0.6715185262656815,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2025-12-26",
+   "reconstructedScore": 68,
+   "subScores": {
+    "vol": 90,
+    "mom": 52,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -0.4024565869257081,
+   "fwd21dReturn": 0.6939454021246958,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2025-12-29",
+   "reconstructedScore": 68,
+   "subScores": {
+    "vol": 90,
+    "mom": 52,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 0.565906043378406,
+   "fwd21dReturn": 0.9161943542618234,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2025-12-30",
+   "reconstructedScore": 68,
+   "subScores": {
+    "vol": 90,
+    "mom": 52,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 0.35802118255745896,
+   "fwd21dReturn": 0.6204830458336712,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2025-12-31",
+   "reconstructedScore": 61,
+   "subScores": {
+    "vol": 90,
+    "mom": 34,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 1.10963406617486,
+   "fwd21dReturn": 1.912789423709,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-01-02",
+   "reconstructedScore": 68,
+   "subScores": {
+    "vol": 90,
+    "mom": 52,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 1.5719249336951169,
+   "fwd21dReturn": 0.8652075462894806,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-01-05",
+   "reconstructedScore": 68,
+   "subScores": {
+    "vol": 90,
+    "mom": 52,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 1.089821140096062,
+   "fwd21dReturn": -0.28006172079309666,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-01-06",
+   "reconstructedScore": 68,
+   "subScores": {
+    "vol": 90,
+    "mom": 52,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 0.27243326680893204,
+   "fwd21dReturn": -2.1083339812982924,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-01-07",
+   "reconstructedScore": 63,
+   "subScores": {
+    "vol": 78,
+    "mom": 52,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 0.08192540597867733,
+   "fwd21dReturn": 0.1642842797138519,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-01-08",
+   "reconstructedScore": 63,
+   "subScores": {
+    "vol": 78,
+    "mom": 52,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 0.33244431088238924,
+   "fwd21dReturn": 0.6264574237227358,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-01-09",
+   "reconstructedScore": 68,
+   "subScores": {
+    "vol": 90,
+    "mom": 52,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -0.37710226979104383,
+   "fwd21dReturn": -0.3512635151041782,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-01-12",
+   "reconstructedScore": 73,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -2.58568179244892,
+   "fwd21dReturn": -0.5130946630988937,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-01-13",
+   "reconstructedScore": 73,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -1.26541197689747,
+   "fwd21dReturn": -1.8808858458242206,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-01-14",
+   "reconstructedScore": 73,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -0.1912915427482459,
+   "fwd21dReturn": -1.305546732884825,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-01-15",
+   "reconstructedScore": 73,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -0.4155824706565164,
+   "fwd21dReturn": -1.4579946345797445,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-01-16",
+   "reconstructedScore": 73,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 0.14726203564547233,
+   "fwd21dReturn": -0.8458201068874514,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-01-20",
+   "reconstructedScore": 55,
+   "subScores": {
+    "vol": 62,
+    "mom": 52,
+    "trend": null,
+    "breadth": null,
+    "macro": 47
+   },
+   "fwd5dReturn": 2.673881763049418,
+   "fwd21dReturn": 0.9567653298729215,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-01-21",
+   "reconstructedScore": 63,
+   "subScores": {
+    "vol": 78,
+    "mom": 52,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 1.4894656772771016,
+   "fwd21dReturn": 0.4929010038367497,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-01-22",
+   "reconstructedScore": 63,
+   "subScores": {
+    "vol": 78,
+    "mom": 52,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 0.80510895586076,
+   "fwd21dReturn": -1.0935364186682341,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-01-23",
+   "reconstructedScore": 63,
+   "subScores": {
+    "vol": 78,
+    "mom": 52,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 0.33865414619968554,
+   "fwd21dReturn": -0.36930943185055204,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-01-26",
+   "reconstructedScore": 73,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 0.3771098222648752,
+   "fwd21dReturn": -0.05899085354009083,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-01-27",
+   "reconstructedScore": 73,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -0.871091622961625,
+   "fwd21dReturn": -0.9993408420027038,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-01-28",
+   "reconstructedScore": 73,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -1.365858272320404,
+   "fwd21dReturn": -1.4208881303175773,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-01-29",
+   "reconstructedScore": 73,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -2.4481239085609086,
+   "fwd21dReturn": -1.2539801205623227,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-01-30",
+   "reconstructedScore": 73,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -0.09698761930701501,
+   "fwd21dReturn": -1.7639353050786586,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-02-02",
+   "reconstructedScore": 73,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -0.16656059537529014,
+   "fwd21dReturn": -1.532873499951259,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-02-03",
+   "reconstructedScore": 49,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 0.3469306037604386,
+   "fwd21dReturn": -1.2590689828139303,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-02-04",
+   "reconstructedScore": 57,
+   "subScores": {
+    "vol": 62,
+    "mom": 52,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 0.8535869539949323,
+   "fwd21dReturn": -2.0733082269800285,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-02-05",
+   "reconstructedScore": 48,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": null,
+    "breadth": null,
+    "macro": 47
+   },
+   "fwd5dReturn": 0.5054130383619762,
+   "fwd21dReturn": -0.03544951753353516,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-02-06",
+   "reconstructedScore": 57,
+   "subScores": {
+    "vol": 62,
+    "mom": 52,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -1.3866970558112042,
+   "fwd21dReturn": -2.1756127115098973,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-02-09",
+   "reconstructedScore": 63,
+   "subScores": {
+    "vol": 78,
+    "mom": 52,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -1.7459173388544063,
+   "fwd21dReturn": -2.7139251265646425,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-02-10",
+   "reconstructedScore": 63,
+   "subScores": {
+    "vol": 78,
+    "mom": 52,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -0.8715306238574666,
+   "fwd21dReturn": -3.8778070848957333,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-02-11",
+   "reconstructedScore": 63,
+   "subScores": {
+    "vol": 78,
+    "mom": 52,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -1.1464430444848126,
+   "fwd21dReturn": -4.4555403970628795,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-02-12",
+   "reconstructedScore": 48,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": null,
+    "breadth": null,
+    "macro": 47
+   },
+   "fwd5dReturn": 1.1232649763785059,
+   "fwd21dReturn": -1.9520662221415666,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-02-13",
+   "reconstructedScore": 48,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": null,
+    "breadth": null,
+    "macro": 47
+   },
+   "fwd5dReturn": 0.023112356772870296,
+   "fwd21dReturn": -1.756539114738222,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-02-17",
+   "reconstructedScore": 49,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 0.6846192289594585,
+   "fwd21dReturn": -3.193233594711268,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-02-18",
+   "reconstructedScore": 49,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 0.9419718047871657,
+   "fwd21dReturn": -3.9937163127369733,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-02-19",
+   "reconstructedScore": 48,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": null,
+    "breadth": null,
+    "macro": 47
+   },
+   "fwd5dReturn": 0.6845052893590445,
+   "fwd21dReturn": -5.179476791379646,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-02-20",
+   "reconstructedScore": 49,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -0.44330205759887614,
+   "fwd21dReturn": -4.754461604368474,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-02-23",
+   "reconstructedScore": 48,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": null,
+    "breadth": null,
+    "macro": 47
+   },
+   "fwd5dReturn": 0.6415853168074278,
+   "fwd21dReturn": -4.115096340170379,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-02-24",
+   "reconstructedScore": 49,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -1.0658817689805706,
+   "fwd21dReturn": -4.327532231167464,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-02-25",
+   "reconstructedScore": 56,
+   "subScores": {
+    "vol": 78,
+    "mom": 34,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -1.1032042302692306,
+   "fwd21dReturn": -6.751529268815877,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-02-26",
+   "reconstructedScore": 49,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -1.1311562254843728,
+   "fwd21dReturn": -7.816195436005352,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-02-27",
+   "reconstructedScore": 48,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": null,
+    "breadth": null,
+    "macro": 47
+   },
+   "fwd5dReturn": -2.0186425697206474,
+   "fwd21dReturn": -7.779754843811782,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-03-02",
+   "reconstructedScore": 48,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": null,
+    "breadth": null,
+    "macro": 47
+   },
+   "fwd5dReturn": -1.2443290969277598,
+   "fwd21dReturn": -5.131059256396015,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-03-03",
+   "reconstructedScore": 40,
+   "subScores": {
+    "vol": 42,
+    "mom": 34,
+    "trend": null,
+    "breadth": null,
+    "macro": 47
+   },
+   "fwd5dReturn": -0.5156506954316216,
+   "fwd21dReturn": -3.540019041667223,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-03-04",
+   "reconstructedScore": 49,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -1.364000291142002,
+   "fwd21dReturn": -4.175121915714396,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-03-05",
+   "reconstructedScore": 40,
+   "subScores": {
+    "vol": 42,
+    "mom": 34,
+    "trend": null,
+    "breadth": null,
+    "macro": 47
+   },
+   "fwd5dReturn": -2.314400699195254,
+   "fwd21dReturn": -3.204352109809963,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-03-06",
+   "reconstructedScore": 26,
+   "subScores": {
+    "vol": 22,
+    "mom": 34,
+    "trend": null,
+    "breadth": null,
+    "macro": 47
+   },
+   "fwd5dReturn": -1.5998468847273573,
+   "fwd21dReturn": -1.827442648538136,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-03-09",
+   "reconstructedScore": 31,
+   "subScores": {
+    "vol": 42,
+    "mom": 25,
+    "trend": null,
+    "breadth": null,
+    "macro": 47
+   },
+   "fwd5dReturn": -1.421573604434375,
+   "fwd21dReturn": -0.19393789572967857,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-03-10",
+   "reconstructedScore": 36,
+   "subScores": {
+    "vol": 42,
+    "mom": 25,
+    "trend": null,
+    "breadth": null,
+    "macro": 47
+   },
+   "fwd5dReturn": -0.9642437933902249,
+   "fwd21dReturn": 0.6367341642237431,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-03-11",
+   "reconstructedScore": 35,
+   "subScores": {
+    "vol": 42,
+    "mom": 25,
+    "trend": null,
+    "breadth": null,
+    "macro": 42
+   },
+   "fwd5dReturn": -2.229994982142335,
+   "fwd21dReturn": 0.6064228578175292,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-03-13",
+   "reconstructedScore": 22,
+   "subScores": {
+    "vol": 22,
+    "mom": 25,
+    "trend": null,
+    "breadth": null,
+    "macro": 42
+   },
+   "fwd5dReturn": -1.8954523317335608,
+   "fwd21dReturn": 5.05398669217861,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-03-16",
+   "reconstructedScore": 31,
+   "subScores": {
+    "vol": 42,
+    "mom": 25,
+    "trend": null,
+    "breadth": null,
+    "macro": 47
+   },
+   "fwd5dReturn": -1.7670291877755868,
+   "fwd21dReturn": 4.829849926411097,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-03-17",
+   "reconstructedScore": 31,
+   "subScores": {
+    "vol": 42,
+    "mom": 25,
+    "trend": null,
+    "breadth": null,
+    "macro": 47
+   },
+   "fwd5dReturn": -2.37816944085026,
+   "fwd21dReturn": 4.841954172740383,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-03-18",
+   "reconstructedScore": 30,
+   "subScores": {
+    "vol": 42,
+    "mom": 25,
+    "trend": null,
+    "breadth": null,
+    "macro": 42
+   },
+   "fwd5dReturn": -0.4951167600042294,
+   "fwd21dReturn": 7.568040816942663,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-03-19",
+   "reconstructedScore": 30,
+   "subScores": {
+    "vol": 42,
+    "mom": 25,
+    "trend": null,
+    "breadth": null,
+    "macro": 42
+   },
+   "fwd5dReturn": -1.9576204610920462,
+   "fwd21dReturn": 7.608427470563046,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-03-20",
+   "reconstructedScore": 30,
+   "subScores": {
+    "vol": 42,
+    "mom": 25,
+    "trend": null,
+    "breadth": null,
+    "macro": 42
+   },
+   "fwd5dReturn": -2.1152758480775966,
+   "fwd21dReturn": 8.568842138913832,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-03-23",
+   "reconstructedScore": 35,
+   "subScores": {
+    "vol": 42,
+    "mom": 25,
+    "trend": null,
+    "breadth": null,
+    "macro": 42
+   },
+   "fwd5dReturn": -3.605531074304813,
+   "fwd21dReturn": 8.462239781188263,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-03-24",
+   "reconstructedScore": 30,
+   "subScores": {
+    "vol": 42,
+    "mom": 25,
+    "trend": null,
+    "breadth": null,
+    "macro": 42
+   },
+   "fwd5dReturn": -0.42477773524068124,
+   "fwd21dReturn": 8.41975056319274,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-03-25",
+   "reconstructedScore": 30,
+   "subScores": {
+    "vol": 42,
+    "mom": 25,
+    "trend": null,
+    "breadth": null,
+    "macro": 42
+   },
+   "fwd5dReturn": -0.2515208058374661,
+   "fwd21dReturn": 8.695216857051841,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-03-26",
+   "reconstructedScore": 22,
+   "subScores": {
+    "vol": 22,
+    "mom": 25,
+    "trend": null,
+    "breadth": null,
+    "macro": 42
+   },
+   "fwd5dReturn": 1.6292634426199097,
+   "fwd21dReturn": 10.757029315317206,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-03-27",
+   "reconstructedScore": 22,
+   "subScores": {
+    "vol": 22,
+    "mom": 25,
+    "trend": null,
+    "breadth": null,
+    "macro": 42
+   },
+   "fwd5dReturn": 3.81513146015371,
+   "fwd21dReturn": 12.089309686992152,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-03-30",
+   "reconstructedScore": 17,
+   "subScores": {
+    "vol": 22,
+    "mom": 25,
+    "trend": null,
+    "breadth": null,
+    "macro": 42
+   },
+   "fwd5dReturn": 4.305517898015677,
+   "fwd21dReturn": 12.488413738311268,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-03-31",
+   "reconstructedScore": 25,
+   "subScores": {
+    "vol": 42,
+    "mom": 25,
+    "trend": null,
+    "breadth": null,
+    "macro": 42
+   },
+   "fwd5dReturn": 3.8950635059707244,
+   "fwd21dReturn": 10.423342503354508,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-04-01",
+   "reconstructedScore": 25,
+   "subScores": {
+    "vol": 42,
+    "mom": 25,
+    "trend": null,
+    "breadth": null,
+    "macro": 42
+   },
+   "fwd5dReturn": 3.7920587895342,
+   "fwd21dReturn": 9.958450691373198,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-04-02",
+   "reconstructedScore": 25,
+   "subScores": {
+    "vol": 42,
+    "mom": 25,
+    "trend": null,
+    "breadth": null,
+    "macro": 42
+   },
+   "fwd5dReturn": 3.557816029617083,
+   "fwd21dReturn": 9.389170688578687,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-04-06",
+   "reconstructedScore": 26,
+   "subScores": {
+    "vol": 42,
+    "mom": 25,
+    "trend": null,
+    "breadth": null,
+    "macro": 47
+   },
+   "fwd5dReturn": 4.150288195552515,
+   "fwd21dReturn": 9.791389070801886,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-04-07",
+   "reconstructedScore": 26,
+   "subScores": {
+    "vol": 42,
+    "mom": 25,
+    "trend": null,
+    "breadth": null,
+    "macro": 47
+   },
+   "fwd5dReturn": 5.29753583653853,
+   "fwd21dReturn": 11.308553163514354,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-04-08",
+   "reconstructedScore": 43,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": null,
+    "breadth": null,
+    "macro": 47
+   },
+   "fwd5dReturn": 3.540420563158918,
+   "fwd21dReturn": 8.172129250266472,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-04-09",
+   "reconstructedScore": 44,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 3.1740775364633538,
+   "fwd21dReturn": 8.414631644653367,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-04-10",
+   "reconstructedScore": 44,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 4.535352631478578,
+   "fwd21dReturn": 8.742256366172843,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-04-13",
+   "reconstructedScore": 44,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 3.2368897976254174,
+   "fwd21dReturn": 7.474616045911851,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-04-14",
+   "reconstructedScore": 52,
+   "subScores": {
+    "vol": 62,
+    "mom": 52,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 1.3868914857521781,
+   "fwd21dReturn": 6.84432311715451,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-04-15",
+   "reconstructedScore": 61,
+   "subScores": {
+    "vol": 62,
+    "mom": 74,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 1.636776568251231,
+   "fwd21dReturn": 6.810385948924597,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-04-16",
+   "reconstructedScore": 68,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 0.9532357753135777,
+   "fwd21dReturn": 5.215244955462647,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-04-17",
+   "reconstructedScore": 73,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 0.5475676601095069,
+   "fwd21dReturn": 3.887000670777397,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-04-20",
+   "reconstructedScore": 66,
+   "subScores": {
+    "vol": 62,
+    "mom": 74,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 0.9110806651718706,
+   "fwd21dReturn": 3.4388125708594757,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-04-21",
+   "reconstructedScore": 61,
+   "subScores": {
+    "vol": 62,
+    "mom": 74,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 1.0587470855788703,
+   "fwd21dReturn": 5.223095663794361,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-04-22",
+   "reconstructedScore": 61,
+   "subScores": {
+    "vol": 62,
+    "mom": 74,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -0.027318959357791762,
+   "fwd21dReturn": 4.312472856162185,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-04-23",
+   "reconstructedScore": 61,
+   "subScores": {
+    "vol": 62,
+    "mom": 74,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 1.4153677339485762,
+   "fwd21dReturn": 5.1357548815486,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-04-24",
+   "reconstructedScore": 61,
+   "subScores": {
+    "vol": 62,
+    "mom": 74,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 0.9077358522165833,
+   "fwd21dReturn": 4.941186979070715,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-04-27",
+   "reconstructedScore": 61,
+   "subScores": {
+    "vol": 62,
+    "mom": 74,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 0.37413349205663504,
+   "fwd21dReturn": 4.829305079099122,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-04-28",
+   "reconstructedScore": 68,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 1.6868381240544639,
+   "fwd21dReturn": 5.951000168095478,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-04-29",
+   "reconstructedScore": 56,
+   "subScores": {
+    "vol": 62,
+    "mom": 74,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 3.211485506484772,
+   "fwd21dReturn": 6.223558180760804,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-04-30",
+   "reconstructedScore": 63,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 1.7769430199153484,
+   "fwd21dReturn": 5.42307473564331,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-05-01",
+   "reconstructedScore": 63,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": null,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 2.334816019651132,
+   "fwd21dReturn": 5.2510885019889,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": false,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 60
+   }
+  },
+  {
+   "date": "2026-05-04",
+   "reconstructedScore": 60,
+   "subScores": {
+    "vol": 62,
+    "mom": 74,
+    "trend": 82,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 2.9453876332326514,
+   "fwd21dReturn": 4.901295003992644,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-05-05",
+   "reconstructedScore": 65,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": 82,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 1.9525513760431532,
+   "fwd21dReturn": 4.478304831648581,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-05-06",
+   "reconstructedScore": 70,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": 82,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 1.0743884688912075,
+   "fwd21dReturn": 0.2528132603406311,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-05-07",
+   "reconstructedScore": 70,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": 82,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 2.236984316713258,
+   "fwd21dReturn": 0.9352456212323366,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-05-08",
+   "reconstructedScore": 70,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": 82,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 0.12934302662681912,
+   "fwd21dReturn": -0.16596994430276613,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-05-11",
+   "reconstructedScore": 65,
+   "subScores": {
+    "vol": 62,
+    "mom": 74,
+    "trend": 82,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -0.13206814122522492,
+   "fwd21dReturn": -1.9675320120223876,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-05-12",
+   "reconstructedScore": 65,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": 82,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -0.63978186613629,
+   "fwd21dReturn": -0.08998832583880813,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-05-13",
+   "reconstructedScore": 65,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": 82,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -0.15152634583738786,
+   "fwd21dReturn": -0.1718104577358359,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-05-14",
+   "reconstructedScore": 65,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": 82,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -0.7401442961430315,
+   "fwd21dReturn": -0.9302461992950465,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-05-15",
+   "reconstructedScore": 59,
+   "subScores": {
+    "vol": 62,
+    "mom": 74,
+    "trend": 82,
+    "breadth": null,
+    "macro": 45
+   },
+   "fwd5dReturn": 0.8769656475669872,
+   "fwd21dReturn": 0.30991428764257317,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-05-18",
+   "reconstructedScore": 64,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": 82,
+    "breadth": null,
+    "macro": 45
+   },
+   "fwd5dReturn": 1.5678672979380082,
+   "fwd21dReturn": 2.042941760490606,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-05-19",
+   "reconstructedScore": 59,
+   "subScores": {
+    "vol": 62,
+    "mom": 74,
+    "trend": 82,
+    "breadth": null,
+    "macro": 45
+   },
+   "fwd5dReturn": 2.2675937396734396,
+   "fwd21dReturn": 2.1450688845342722,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-05-20",
+   "reconstructedScore": 69,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": 82,
+    "breadth": null,
+    "macro": 45
+   },
+   "fwd5dReturn": 1.7578437690452113,
+   "fwd21dReturn": -0.17314747671522812,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-05-21",
+   "reconstructedScore": 69,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": 82,
+    "breadth": null,
+    "macro": 45
+   },
+   "fwd5dReturn": 1.804258016686098,
+   "fwd21dReturn": 0.7367991275524687,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-05-22",
+   "reconstructedScore": 69,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": 82,
+    "breadth": null,
+    "macro": 45
+   },
+   "fwd5dReturn": 1.6925203419562769,
+   "fwd21dReturn": 0.3627498337452304,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-05-26",
+   "reconstructedScore": 70,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": 82,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 1.20572620200236,
+   "fwd21dReturn": -0.24657140729234225,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-05-27",
+   "reconstructedScore": 75,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": 82,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 0.4430638958773333,
+   "fwd21dReturn": -0.2630193235430185,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-05-28",
+   "reconstructedScore": 75,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": 82,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": 0.2734136915740232,
+   "fwd21dReturn": -1.201010625850288,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-05-29",
+   "reconstructedScore": 75,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": 82,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -2.589953113827603,
+   "fwd21dReturn": -2.8311121547850595,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-06-01",
+   "reconstructedScore": 70,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": 82,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -2.5556713456386673,
+   "fwd21dReturn": -3.1808062147695484,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-06-02",
+   "reconstructedScore": 70,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": 82,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -2.9321478413305,
+   "fwd21dReturn": -3.315338945409722,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-06-03",
+   "reconstructedScore": 63,
+   "subScores": {
+    "vol": 78,
+    "mom": 52,
+    "trend": 82,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -3.7953686150326793,
+   "fwd21dReturn": -2.6432149627731096,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-06-04",
+   "reconstructedScore": 63,
+   "subScores": {
+    "vol": 78,
+    "mom": 52,
+    "trend": 82,
+    "breadth": null,
+    "macro": 55
+   },
+   "fwd5dReturn": -2.50530371253285,
+   "fwd21dReturn": -3.0364001471458835,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-06-05",
+   "reconstructedScore": 51,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": 82,
+    "breadth": null,
+    "macro": 45
+   },
+   "fwd5dReturn": 0.6462849450278619,
+   "fwd21dReturn": -0.4025060470709877,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-06-08",
+   "reconstructedScore": 51,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": 82,
+    "breadth": null,
+    "macro": 45
+   },
+   "fwd5dReturn": 0.34743367635601724,
+   "fwd21dReturn": 0.46855610452988067,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-06-09",
+   "reconstructedScore": 56,
+   "subScores": {
+    "vol": 62,
+    "mom": 34,
+    "trend": 82,
+    "breadth": null,
+    "macro": 45
+   },
+   "fwd5dReturn": 0.6066349427683781,
+   "fwd21dReturn": 1.5258608435488354,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
   {
    "date": "2026-06-10",
    "reconstructedScore": 41,
@@ -395,10 +3179,10 @@
   },
   {
    "date": "2026-06-26",
-   "reconstructedScore": 49,
+   "reconstructedScore": 47,
    "subScores": {
     "vol": 62,
-    "mom": 34,
+    "mom": 25,
     "trend": 50,
     "breadth": null,
     "macro": 55
@@ -707,16 +3491,16 @@
   },
   {
    "date": "2026-07-09",
-   "reconstructedScore": 63,
+   "reconstructedScore": 58,
    "subScores": {
     "vol": 78,
-    "mom": 52,
+    "mom": 34,
     "trend": 68,
     "breadth": null,
     "macro": 45
    },
    "fwd5dReturn": -0.0006628099962376505,
-   "fwd21dReturn": -3.0156529208711005,
+   "fwd21dReturn": -1.405289754017957,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -740,7 +3524,7 @@
     "macro": 45
    },
    "fwd5dReturn": -0.03946991508028882,
-   "fwd21dReturn": -1.8185202346017857,
+   "fwd21dReturn": -1.1308988712132322,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -812,7 +3596,7 @@
     "macro": 45
    },
    "fwd5dReturn": -0.7670976961787563,
-   "fwd21dReturn": 3.1637956499639337,
+   "fwd21dReturn": 1.1331489992468717,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -836,7 +3620,7 @@
     "macro": 45
    },
    "fwd5dReturn": -1.1387151210497992,
-   "fwd21dReturn": 2.7774574174895443,
+   "fwd21dReturn": 2.5575356030749323,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -860,7 +3644,7 @@
     "macro": 45
    },
    "fwd5dReturn": -1.7051397179229821,
-   "fwd21dReturn": 2.3255506840631814,
+   "fwd21dReturn": 1.9960646558554827,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -884,7 +3668,7 @@
     "macro": 45
    },
    "fwd5dReturn": -0.32613153839313674,
-   "fwd21dReturn": 2.850233017466681,
+   "fwd21dReturn": 2.3386697496737967,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -908,7 +3692,7 @@
     "macro": 45
    },
    "fwd5dReturn": 0.553388515746839,
-   "fwd21dReturn": null,
+   "fwd21dReturn": 4.022022905215969,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -932,7 +3716,7 @@
     "macro": 45
    },
    "fwd5dReturn": -0.6622694158646903,
-   "fwd21dReturn": null,
+   "fwd21dReturn": 3.961280235568924,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -956,7 +3740,7 @@
     "macro": 45
    },
    "fwd5dReturn": -0.6129243773876366,
-   "fwd21dReturn": null,
+   "fwd21dReturn": 3.627262597399466,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -980,7 +3764,7 @@
     "macro": 45
    },
    "fwd5dReturn": -0.4205135370428116,
-   "fwd21dReturn": null,
+   "fwd21dReturn": 4.100611558345249,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1004,7 +3788,7 @@
     "macro": 45
    },
    "fwd5dReturn": -1.2946785276727248,
-   "fwd21dReturn": null,
+   "fwd21dReturn": 3.18675757737176,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1028,7 +3812,7 @@
     "macro": 45
    },
    "fwd5dReturn": -1.1438919530174818,
-   "fwd21dReturn": null,
+   "fwd21dReturn": 4.000954799065467,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -1067,7 +3851,7 @@
   },
   {
    "date": "2026-07-24",
-   "reconstructedScore": 43,
+   "reconstructedScore": 48,
    "subScores": {
     "vol": 62,
     "mom": 34,
@@ -1099,7 +3883,7 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": -1.2929068885776802,
+   "fwd5dReturn": 0.34606137631240974,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
@@ -1123,7 +3907,7 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 0.34606137631240974,
+   "fwd5dReturn": 1.0488425494942066,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
@@ -1195,7 +3979,7 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 5.972540202155506,
+   "fwd5dReturn": 3.886607026919901,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
@@ -1211,15 +3995,15 @@
   },
   {
    "date": "2026-07-30",
-   "reconstructedScore": 48,
+   "reconstructedScore": 53,
    "subScores": {
-    "vol": 62,
+    "vol": 78,
     "mom": 34,
     "trend": 50,
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 5.972540202155506,
+   "fwd5dReturn": 4.018618834225423,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
@@ -1235,15 +4019,15 @@
   },
   {
    "date": "2026-07-31",
-   "reconstructedScore": 53,
+   "reconstructedScore": 63,
    "subScores": {
     "vol": 78,
-    "mom": 34,
-    "trend": 50,
+    "mom": 52,
+    "trend": 68,
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 4.1796916490871405,
+   "fwd5dReturn": 3.122012571898548,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
@@ -1267,7 +4051,7 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": 3.4551358395240372,
+   "fwd5dReturn": 2.9405638662059435,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
@@ -1291,7 +4075,127 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": null,
+   "fwd5dReturn": 3.577169774036947,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-08-03",
+   "reconstructedScore": 63,
+   "subScores": {
+    "vol": 78,
+    "mom": 52,
+    "trend": 68,
+    "breadth": null,
+    "macro": 45
+   },
+   "fwd5dReturn": 2.0078942174856875,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-08-04",
+   "reconstructedScore": 74,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": 82,
+    "breadth": null,
+    "macro": 45
+   },
+   "fwd5dReturn": -0.10754189222028274,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-08-05",
+   "reconstructedScore": 74,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": 82,
+    "breadth": null,
+    "macro": 45
+   },
+   "fwd5dReturn": 0.32303798123919464,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-08-06",
+   "reconstructedScore": 74,
+   "subScores": {
+    "vol": 78,
+    "mom": 74,
+    "trend": 82,
+    "breadth": null,
+    "macro": 45
+   },
+   "fwd5dReturn": 0.4998728916881535,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-08-07",
+   "reconstructedScore": 77,
+   "subScores": {
+    "vol": 90,
+    "mom": 74,
+    "trend": 82,
+    "breadth": null,
+    "macro": 45
+   },
+   "fwd5dReturn": 0.5330229296538568,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
@@ -1379,6 +4283,30 @@
   },
   {
    "date": "2026-08-13",
+   "reconstructedScore": 77,
+   "subScores": {
+    "vol": 90,
+    "mom": 74,
+    "trend": 82,
+    "breadth": null,
+    "macro": 45
+   },
+   "fwd5dReturn": null,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-08-14",
    "reconstructedScore": 77,
    "subScores": {
     "vol": 90,

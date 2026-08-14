@@ -2,6 +2,7 @@ import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { DESKTOP_PRIMARY_VIEWPORT, DESKTOP_QA_SCOPE } from './desktop-qa-config.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.AIO_PRINCIPLES_PORT || 8906);
@@ -24,7 +25,7 @@ const server = await startServer();
 const browser = await chromium.launch();
 const errors = [];
 try {
-  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  const page = await browser.newPage({ viewport: DESKTOP_PRIMARY_VIEWPORT });
   page.on('pageerror', (error) => errors.push(String(error)));
   page.on('console', (message) => { if (message.type() === 'error' && !/ERR_FAILED|favicon|AIO:api|proxy-primary/i.test(message.text())) errors.push(message.text()); });
   await page.route('**/*', (route) => route.request().url().startsWith(`http://127.0.0.1:${port}/`) ? route.continue() : route.abort());
@@ -96,19 +97,8 @@ try {
   }));
   if (library.chapters !== 15 || library.lessons !== 111) throw new Error(`library contract failed: ${JSON.stringify(library)}`);
 
-  await page.setViewportSize({ width: 480, height: 800 });
-  await page.locator('#page-principles [data-principles-action="mode"][data-principles-value="tree"]').click();
-  await page.waitForFunction(() => document.querySelectorAll('#page-principles .principles-tree-section').length === 7);
-  const mobile = await page.evaluate(() => ({
-    sectionColumns: getComputedStyle(document.querySelector('#page-principles .principles-tree-list')).gridTemplateColumns,
-    sectionColumnCount: getComputedStyle(document.querySelector('#page-principles .principles-tree-list')).gridTemplateColumns.trim().split(/\s+/).length,
-    detailPosition: getComputedStyle(document.querySelector('#page-principles .principles-detail-card')).position,
-    overflow: document.documentElement.scrollWidth > window.innerWidth + 2
-  }));
-  if (mobile.overflow || mobile.sectionColumnCount !== 1 || mobile.detailPosition === 'sticky') throw new Error(`mobile learner flow failed: ${JSON.stringify(mobile)}`);
-
   if (errors.length) throw new Error(`browser errors: ${errors.join(' | ')}`);
-  console.log(JSON.stringify({ ok: true, route: 'principles', initial, selected, evidenceOpen, graphOneHop: Number(graphOneHop), graphTwoHop: Number(graphTwoHop), edgeLabels, library, mobile, errors }));
+  console.log(JSON.stringify({ ok: true, scope: DESKTOP_QA_SCOPE, route: 'principles', initial, selected, evidenceOpen, graphOneHop: Number(graphOneHop), graphTwoHop: Number(graphTwoHop), edgeLabels, viewport: DESKTOP_PRIMARY_VIEWPORT, errors }));
 } catch (error) {
   console.error(JSON.stringify({ ok: false, errors: [...errors, String(error?.stack || error)] }));
   process.exitCode = 1;

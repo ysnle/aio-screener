@@ -1,3 +1,68 @@
+## v54.22 (2026-08-13)
+- Added a keyless official U.S. Treasury daily par-yield adapter for 2Y/5Y/10Y/20Y/30Y and same-date 10Y-2Y derivation. The live refresh now records source/observation/fetch lineage and promoted Treasury reconciliation from `PARTIAL` to `MATCH` without depending on a FRED API key.
+- Reconciled the HY OAS freshness policy against the live official FRED series: the stored 2026-08-11 value (2.72) is the upstream latest observation, so its audit uses a source-specific three-calendar-day publication-lag budget while retaining the exact observation date.
+- Added SEC filing point-in-time lineage: bounded companyfacts refreshes now join SEC submissions acceptance times, retain append-only annual fact observations, and expose a deterministic as-of selector that excludes later amendments and never applies a current price retroactively.
+- Migrated all 540 stored SEC rows to `sec-pit-facts.v1` without changing their reported values. Existing rows remain honestly `filed-date-only`; scheduled rows gain exact acceptance timestamps as the configured SEC job revisits them.
+- Corrected the professional capability ledger to match implemented evidence: PIT fundamentals, verified 13F history, and portfolio VaR/CVaR/benchmark/risk attribution are `PARTIAL`, while five rights-, universe-, and specialized-feed gaps remain `BLOCKED`.
+- Added `ci-professional-data-gap-check.mjs` to CI, core refresh, screener refresh, and watchdog enforcement, with synthetic amendment-time regression coverage and live artifact checks.
+- Closed the service-worker dependency boundary for the new source registry: it is now an explicit application-shell asset, and the existing architecture gate prevents future runtime-import/cache divergence (P922/R482).
+- Updated the independent ESM unit contract to assert SEC report v3 PIT status, observation counts, acceptance counts, and filing metadata instead of retaining the v2 golden value (P923/R483).
+- Synchronized the knowledge-route contract with the explicit desktop-only scope: the two retired mobile-persona scenarios stay removed, the expected scenario count is 18, and a negative assertion prevents accidental restoration (P924/R474).
+- Repaired factor-rank parity at its fixture producer: full-fundamental scenarios now carry explicit observation times, the stale-fundamental negative control carries `null`, and the saved golden fixture preserves the 180-day/80% fail-closed contract (P925/R484).
+- Added a keyless official FRED public-CSV adapter for HY OAS. It now refreshes independently of `FRED_API_KEY`, retains typed source/observation/fetch evidence and LKG failure behavior, and updated the live artifact from 2.72 (2026-08-11) to the official 2.71 (2026-08-12) observation (P926/R485).
+- Synchronized runtime W1-04 with `sec-report.v3` and made it assert PIT status/count and accepted filing metadata, closing the last independent v2 golden pin (P927/R483).
+- Synchronized the full-route Chromium lifecycle and route-ownership manifest with `sec-report.v3`; the visible fundamental report must now render a PIT status/count line (P928/R483).
+- Corrected the Chromium boot performance gate so the initial shell reaches a presentation frame before the synthetic route transition; FCP, route, and long-task limits remain independently blocking and unchanged (P929/R486).
+- Added P921-P929/R481-R486 and QA-PRO-DATA/desktop-scope coverage. Mobile remains excluded.
+- R1 7 surfaces: v54.22
+
+## v54.21 (2026-08-13)
+- Added a machine-readable source registry for all 22 data categories, including exact origins, authority/access type, refresh owner/cadence, generated artifacts, consuming desktop pages, and structural limitation/remediation.
+- Enforced the registry, static/hard-data contract, freshness audit, and evidence reconciliation in the 30-minute core refresh, six-hour screener refresh, and hourly watchdog.
+- Backfilled 269 dated CNN Fear & Greed observations and 234 VIX3M dates, added automatic thin-field history backfill, added official FRED DGS2/5/10/20/30 and T10Y2Y collection, and added a fail-closed CoinGecko BTC/ETH cross-provider comparison.
+- Built 252-session same-universe breadth history from explicitly dated adjusted closes. Missing values no longer coerce to zero, sparse cross-session buckets are rejected, and every usable point retains universe/eligible/coverage lineage.
+- Updated the desktop breadth page to show AIO-universe multi-day participation direction without mislabeling it as official exchange A/D or McClellan.
+- Added an eight-capability professional data gap ledger covering PIT fundamentals, historical membership/corporate actions, independent quotes, official breadth, estimates/guidance, short/options feeds, SEC ownership filings, and portfolio risk attribution.
+- Added P920/R480 and QA-SOURCE-DAILY coverage. Mobile work remains excluded.
+- R1 7 surfaces: v54.21
+
+## v54.20 (2026-08-13)
+- Split quant-screener lineage by field family so live price/market-cap, EOD factors, filing-derived fundamentals, identity, and ticker news retain their own observation, fetch, source, and revision epochs.
+- Tightened acceptance to a 2-day generated-artifact budget and 4-day market-session factor budget; stale artifacts and stale factor observations now fail closed in both the browser provider and scheduled artifact validator.
+- Recomputed rankings only from current eligible inputs: market-cap requires 80% four-day coverage, while value/quality require 80% fundamentals observed within 180 days. Current artifact fundamentals remain explicitly insufficient, so those factors stay inactive instead of masquerading as current.
+- Expanded the screener timeline from two coarse checks to six checks covering artifact, 14-field factor coverage, ranking/snapshot parity, visible live quotes, fundamentals, and ticker news.
+- Registered the currently rendered 12-row batches with the central quote scheduler; filter, sort, screen, and load-more changes update the bounded quote demand and the existing live-quote event rerenders the table.
+- Added scheduled-workflow freshness validation, timeline CI wiring, per-field lineage fixtures, visible-quote demand checks, P919/R479, and QA-QUANT-AUTO coverage. Mobile implementation and QA remain excluded.
+- R1 7 surfaces: v54.20
+
+## v54.19 (2026-08-13)
+- Added field-level observation contracts for 16 market-sensitive desktop pages and 44 value, age, direction-basis, and market-revision checks.
+- Preserved `observedAt`, `fetchedAt`, `revision`, and `changeBasis` through quote, entity, theme, portfolio, sentiment, market, and news provider/normalizer paths; removed runtime-now freshness fabrication.
+- Added one canonical browser quote-batch revision and fail-closed handling for incomplete batches, mixed revisions, missing direction bases, and stale required evidence.
+- Resynchronized every native data consumer after server-artifact updates and live quote batches; added a visibility-aware five-minute active-page freshness watchdog using existing page refresh profiles.
+- Exposed field timeline status and observation windows on every contracted page, combined them with the existing shared market epoch decision gate, and added pure/browser CI coverage.
+- Added P918, R478, and QA-DATA-TIMELINE regression coverage. Mobile implementation and QA remain excluded.
+- R1 7 surfaces: v54.19
+
+## v54.18 (2026-08-13)
+- Replaced the static 22-category reconciliation table with evidence-derived checks over core data, market snapshot, screener, and history artifacts, including explicit source lineage and policy/runtime block separation.
+- Added fail-closed negative fixtures for source outages and null-vs-zero history semantics; incomplete Fear & Greed history is now reported as partial instead of matched.
+- Made core-data and screener refresh workflows rebuild, validate, and publish reconciliation plus operations status with their dependent artifacts.
+- Added a shared market epoch contract for 16 market-sensitive desktop routes. All routes expose one revision/cut in their decision header; partial evidence is capped and blocked evidence becomes unavailable.
+- Added a focused desktop browser gate that traverses every contracted route and rejects mixed revisions/cuts, missing epoch evidence, or unexpected runtime errors.
+- Added P917, R477, and QA-DATA-EPOCH regression coverage.
+- Enforced desktop-only future UI/UX and visual QA scope with shared 1280×900, 1440×1000, and 1920×1080 acceptance viewports; responsive/mobile code remains compatibility-only.
+- Hardened version bumps around the canonical `v53.99 → v54 → v54.01` sequence: one-digit patches normalize to two digits, regressions are rejected, all active revision metadata is checked, and preflight prevents partial bumps.
+- R1 7 surfaces: v54.18
+
+## v54.17 (2026-08-13)
+- Declared the product and future QA scope desktop-only; legacy responsive code remains compatibility-only.
+- Added the blocking desktop QA scope gate with 1280×900, 1440×1000, and 1920×1080 shared viewports; removed mobile/tablet requirements from future acceptance consumers and regenerated knowledge route targets.
+- Canonicalized release versions to `v54` or two-digit patches such as `v54.01`; `bump-version.mjs` now normalizes `v54.1` and rejects non-increasing versions.
+- Synchronized active handoff/RULES metadata so knowledge contracts, manifests, and the screener handoff follow the same release revision; historical version references remain historical.
+- Added P916/R474/R475 and QA-SCOPE/QA-VERSION coverage for the two recurring drift classes.
+- R1 7 surfaces: v54.17
+
 ## v54.16 (2026-08-13)
 - Closed the local SCR-OS contract gaps: PIT validation now checks point-in-time dates, observation shape, turnover, liquidity, costs, benchmark identity, and live/backtest definition parity.
 - Added positive and fail-closed PIT fixtures; complete evidence is review-ready only, with `promoted:false` and `autoWeightPromotion:false` preserved for regime weights.

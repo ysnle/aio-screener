@@ -53,6 +53,7 @@ function makeRow(sym, sector, i, opts = {}) {
     vol: opts.vol !== undefined ? opts.vol : 15 + (i % 20),
     mcap: opts.mcap !== undefined ? opts.mcap : 1e9 * (1 + (i % 10)),
     _mcapObservedAt: opts.hasOwnProperty('_mcapObservedAt') ? opts._mcapObservedAt : new Date().toISOString(),
+    _fundamentalObservedAt: opts.hasOwnProperty('_fundamentalObservedAt') ? opts._fundamentalObservedAt : new Date().toISOString(),
     pe: opts.pe !== undefined ? opts.pe : 10 + (i % 30),
     pb: opts.pb !== undefined ? opts.pb : 1 + (i % 5),
     evEbitda: opts.evEbitda !== undefined ? opts.evEbitda : 8 + (i % 15),
@@ -87,7 +88,7 @@ const SCENARIOS = [
   {
     name: 'fundamental_coverage_below_80pct_value_quality_inactive',
     serverScreener: { fundamentalCoveragePct: 42.5, fmpOk: false },
-    rows: SECTORS_3.flatMap((sector, si) => Array.from({ length: 10 }, (_, i) => makeRow(`S${si}R${i}`, sector, si * 10 + i)))
+    rows: SECTORS_3.flatMap((sector, si) => Array.from({ length: 10 }, (_, i) => makeRow(`S${si}R${i}`, sector, si * 10 + i, { _fundamentalObservedAt: null })))
   }
   // NaN/missing-field row handling is NOT covered by a fixture here — NaN does not survive a
   // JSON.stringify/parse round trip (it silently becomes null, which is typeof 'object' and would

@@ -3,6 +3,72 @@ verified_by: agent (Fable 5) + Codex full-route audit verification
 last_verified: 2026-08-13
 confidence: high
 
+## v54.22 Professional data partial-capability closure (2026-08-13)
+
+- [x] QA-DESKTOP-SCOPE-01: knowledge-route scenarios contain 18 desktop-relevant cases and explicitly reject mobile/tablet/touch personas; no mobile implementation or acceptance work was added.
+- [x] QA-PRO-DATA-01: all eight professional capability gaps use only `BLOCKED` or gate-backed `PARTIAL`; each partial entry declares implemented scope, remaining limitation, allowed use, and validation gate.
+- [x] QA-PRO-DATA-02: all 540 stored SEC rows retain their original reported values and now expose `sec-pit-facts.v1`; legacy rows are `filed-date-only` and do not claim unavailable acceptance timestamps.
+- [x] QA-PRO-DATA-03: scheduled SEC refresh joins companyfacts accession numbers to submissions `acceptanceDateTime`, preserves amendments as separate observations, and bounds collection under SEC fair-access rules.
+- [x] QA-PRO-DATA-04: the as-of selector excludes future filings/amendments and emits P/E or P/B only when the caller supplies a contemporaneous price.
+- [x] QA-PRO-DATA-05: verified 13F evidence covers seven managers, 84 historical periods and 1,248 full rows; the ledger remains partial because Forms 3/4/5, 13D/G and a complete security master are absent.
+- [x] QA-PRO-DATA-06: portfolio VaR/CVaR, benchmark beta/alpha/correlation, stress, drawdown, and component return/risk attribution are recognized as implemented but remain partial because institutional factor, liquidity/capacity, transaction-cost and survivorship-free inputs are absent.
+- [ ] QA-PRO-DATA-07: exact SEC acceptance-time coverage is 0/540 locally because `SEC_USER_AGENT` is configured only in GitHub Actions; post-push scheduled execution and live Pages parity require external certification.
+- [x] QA-PRO-DATA-08: the keyless official U.S. Treasury adapter parses one complete same-date 2Y/5Y/10Y/20Y/30Y row, derives 10Y-2Y only from that row, retains last-known-good data on failure, and is covered by a synthetic parser fixture plus reconciliation gates.
+- [x] QA-PRO-DATA-09: HY OAS freshness is compared with the official FRED/ICE latest observation and receives only its documented three-calendar-day publication-lag budget; the original observation date remains visible and values beyond that budget still degrade.
+- [x] QA-PRO-DATA-10: every runtime-imported source contract, including `source-registry.js`, is present in the versioned service-worker shell list; `ci-architecture-contract-check.mjs` blocks any future import/cache divergence.
+- [x] QA-PRO-DATA-11: the independent ESM unit gate asserts `sec-report.v3` plus PIT status/counts and accepted filing metadata, while the data-pipeline gate separately verifies amendment-time selection and historical price non-leakage.
+- [x] QA-PRO-DATA-12: factor-rank golden fixtures distinguish current row-level fundamental observations from missing/stale observations; complete fixtures retain value/quality parity and the negative fixture keeps both factors inactive.
+- [x] QA-PRO-DATA-13: HY OAS refreshes from the official FRED public CSV without an API key, rejects missing/invalid rows, preserves exact percent units and observation time, and retains prior evidence with explicit stale status on failure.
+- [x] QA-PRO-DATA-14: runtime W1-04 and ESM unit gates independently pin `sec-report.v3`, filing metadata, PIT status/counts, freshness and fail-closed decision eligibility; no v2 contract literal remains in active CI.
+- [x] QA-PRO-DATA-15: the full-route Chromium lifecycle requires the native fundamental report model to be `sec-report.v3` and its visible metadata to include the PIT status/count; route ownership declares the same boundary.
+- [x] QA-PRO-DATA-16: the Chromium boot gate presents the initial shell before injecting the synthetic `signal` route, while retaining independent blocking budgets of FCP <=2.5s, route <=2s, and max long task <=2.5s; final local evidence is 2.01s/1.35s/1.32s.
+
+## v54.21 Daily source registry, history, and missing professional data closure (2026-08-13)
+
+- [x] QA-SOURCE-DAILY-01: all 22 reconciliation categories declare cadence, producer, artifact, desktop consumers, exact origins, access mode, source authority, and structural limitation/remediation; all 22 are enrolled in the daily audit.
+- [x] QA-SOURCE-DAILY-02: core, six-hour screener, and hourly watchdog workflows run source-registry, static-data, data-refresh, and reconciliation gates before publication or health certification.
+- [x] QA-SOURCE-DAILY-03: CNN’s publisher feed backfills 269 dated F&G observations, automatic thin-field backfill supplies 234 VIX3M dates, and CoinGecko independently checks BTC/ETH within a 2%/2-hour fail-closed contract.
+- [x] QA-SOURCE-DAILY-04: AIO US-universe breadth history aligns securities by explicit date, uses adjusted closes, rejects null-as-zero and sparse session buckets, and records per-field source/universe/eligible/coverage lineage. Latest 20/50-day points use 708/728 symbols (97.3%).
+- [x] QA-SOURCE-DAILY-05: the breadth desktop page consumes canonical `_aioHistory`, rerenders on `aio:historyLoaded`, and shows same-universe multi-day participation direction while explicitly keeping official exchange A/D and McClellan unavailable; the 16-page browser gate asserts its visible text and source label.
+- [x] QA-SOURCE-DAILY-06: the critical-gap ledger covers PIT fundamentals, membership/corporate actions, independent quotes, official breadth, earnings revisions/guidance, short/options data, insider/institutional filings, and portfolio risk attribution without prematurely promoting any P0 gap.
+- [ ] QA-SOURCE-DAILY-07: the next configured GitHub Actions run must certify new FRED DGS2/5/10/20/30 and T10Y2Y fields; live Pages deployment, licensed data rights, and institutional provider SLAs remain external gates. Local in-app Browser Tier 13 was unavailable because its browser-control runtime was not exposed; the focused Playwright browser gate passed separately and is not relabeled as Tier 13.
+
+## v54.20 Quant screener source epochs and automatic refresh closure (2026-08-13)
+
+- [x] QA-QUANT-AUTO-01: the six-hour workflow rebuilds SEC/screener artifacts, rejects generated artifacts older than 2 days or factor observations older than 4 market-calendar days, and requires at least 80% current factor-row coverage before publication.
+- [x] QA-QUANT-AUTO-02: live price and market cap retain runtime quote observation/fetch/source/revision; EOD factors retain factor epochs; fundamentals retain filing-derived epochs; news retains its own timestamp. No family falls back to another family's observation time.
+- [x] QA-QUANT-AUTO-03: the desktop screener timeline separately checks snapshot, 14-field factor coverage, ranking input/snapshot parity, rendered-row live quotes, 180-day fundamentals, and 2-day ticker news.
+- [x] QA-QUANT-AUTO-04: current rendered batches register no more than 120 symbols with the central quote scheduler; initial render, sort, filter, screen change, and load-more update demand, while identical demand is throttled for 55 seconds.
+- [x] QA-QUANT-AUTO-05: size activates only at 80% four-day market-cap coverage; value/quality activate only at 80% 180-day observed fundamental coverage. The current 873/848 artifact keeps value/quality inactive because current fundamentals do not meet that threshold.
+- [x] QA-QUANT-AUTO-06: scheduled workflow runs artifact validation, Workbench lineage/live-demand gates, page timeline gates, reconciliation, and operations checks before committing validated artifacts.
+- [x] QA-QUANT-AUTO-06B: the dedicated desktop browser gate verifies 12/12 rendered quote registration and display, 100% visible quote coverage, three required timeline passes, ranking revision parity, and value/quality exclusion under stale fundamental coverage.
+- [ ] QA-QUANT-AUTO-07: the v54.20 workflow execution, GitHub Pages deployment, and external provider availability/rights require post-push live certification; local and browser gates do not claim this prematurely.
+
+## v54.19 Field-level page timeline and automation consistency (2026-08-13)
+
+- [x] QA-DATA-TIMELINE-01: 16 market-sensitive desktop routes declare 44 field requirements with maximum age, required/optional status, direction compatibility, and market-revision requirements.
+- [x] QA-DATA-TIMELINE-02: entity, theme, portfolio, sentiment, market, news, and screener normalization does not invent runtime-now observation timestamps and preserves quote lineage metadata.
+- [x] QA-DATA-TIMELINE-03: incomplete or mixed browser quote batches cannot become the canonical market revision; missing direction basis and revision mismatch fail closed, while numeric zero remains present evidence.
+- [x] QA-DATA-TIMELINE-04: live quote and server artifact events resynchronize every affected native consumer, then emit one coalesced timeline update.
+- [x] QA-DATA-TIMELINE-05: visible long-lived desktop tabs reevaluate the active page every five minutes and invoke its existing refresh profile only when partial/blocked; hidden tabs do not auto-fetch.
+- [x] QA-DATA-TIMELINE-06: page DOM attributes match the native timeline audit for all 16 routes in the focused Playwright gate; no mobile implementation or mobile QA was added.
+- [ ] QA-DATA-TIMELINE-07: deployed GitHub Pages and real external-provider freshness/rights remain live certification gates; local/browser contract success does not certify upstream availability.
+
+## v54.18 Evidence-derived data reconciliation and shared market epoch (2026-08-13)
+
+- [x] QA-DATA-EPOCH-01: all 22 reconciliation categories are computed from executable checks over `data.json`, `market-snapshot.json`, `screener.json`, and `history.json`; an empty-source fixture fails closed.
+- [x] QA-DATA-EPOCH-02: null or absent numeric samples never count as explicit zero, and policy/rights blocks are separated from runtime pipeline blocks.
+- [x] QA-DATA-EPOCH-03: both core-data and screener refresh workflows rebuild and validate reconciliation plus operations status before committing the dependent artifacts atomically.
+- [x] QA-DATA-EPOCH-04: 16 market-sensitive desktop routes expose the same market revision and cut; required PARTIAL categories cap currentness and required BLOCKED categories become unavailable.
+- [x] QA-DATA-EPOCH-05: the focused Playwright gate traverses all 16 routes with one revision/cut, complete decision-header evidence, and zero unexpected runtime errors.
+- [ ] QA-DATA-EPOCH-06: live in-app Browser Tier 13 paint verification was not run in this turn; structural and headless browser verification do not imply it.
+
+## v54.17 Desktop-only scope and canonical version gates (2026-08-13)
+
+- [x] QA-SCOPE-01: future UI/UX, visual, browser, accessibility, and acceptance work uses the shared desktop matrix (1280×900, 1440×1000, 1920×1080); legacy mobile/tablet code is compatibility-only and the blocking desktop-scope gate prevents mobile requirements from returning.
+- [x] QA-VERSION-01: version bump accepts major rollover `v54`, canonical two-digit patch `v54.01`, normalizes `v54.1` to `v54.01`, rejects non-increasing versions, and synchronizes active handoff metadata with the R1 surfaces.
+- [ ] QA-SCOPE-02: live in-app Browser Tier 13 visual verification was not run in this turn; local structural/headless gates remain separate from live paint verification.
+
 ## v54.16 SCR-OS local contract closure and promotion safety (2026-08-13)
 
 - [x] QA-SCR-OS14: PIT validation rejects missing/invalid point-in-time dates, present-day universes, missing filing availability, turnover, liquidity, costs, malformed observations, and live/backtest definition mismatch.

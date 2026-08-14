@@ -113,7 +113,7 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
     generatedAt: now,
     appRevision: version.version,
     dataRevision: snapshot.revision || `public-data:${data?.meta?.generatedAt || 'unknown'}`,
-    evidenceRevision: 'evidence-contract:v1+inferred-claim:v1+reconciliation:v1',
+    evidenceRevision: 'evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1',
     overall: durableOk ? 'OPERATOR_REQUIRED' : 'BLOCKED',
     planes: {
       durable: {

@@ -113,10 +113,16 @@ export function computeFactorRanks({ rows = [], weights = null, regimeLabel = nu
     { key: 'trend', fn: trendRaw },
     { key: 'lowvol', fn: lowvolRaw }
   ];
-  const mcapCurrentCount = items.filter((row) => typeof row.mcap === 'number' && row._mcapObservedAt && (now - new Date(row._mcapObservedAt).getTime()) <= 7 * 86400000).length;
+  const mcapCurrentCount = items.filter((row) => typeof row.mcap === 'number' && row._mcapObservedAt && (now - new Date(row._mcapObservedAt).getTime()) <= 4 * 86400000).length;
   const sizeActive = mcapCurrentCount >= Math.ceil(items.length * 0.8);
   if (sizeActive) FACTORS.push({ key: 'size', fn: sizeRaw });
-  const fundamentalCurrent = !!fmpOk || fundamentalCoveragePct >= 80;
+  const fundamentalCurrentCount = items.filter((row) => {
+    const observedMs = Date.parse(row._fundamentalObservedAt || '');
+    const hasInput = valueRaw(row) != null || qualityRaw(row) != null;
+    return hasInput && Number.isFinite(observedMs) && now - observedMs <= 180 * 86400000;
+  }).length;
+  const fundamentalCurrentPct = items.length ? fundamentalCurrentCount / items.length * 100 : 0;
+  const fundamentalCurrent = fundamentalCurrentCount >= Math.ceil(items.length * 0.8);
   const valueActive = fundamentalCurrent && items.some((row) => valueRaw(row) != null);
   const qualityActive = fundamentalCurrent && items.some((row) => qualityRaw(row) != null);
   if (valueActive) FACTORS.push({ key: 'value', fn: valueRaw });
@@ -126,8 +132,8 @@ export function computeFactorRanks({ rows = [], weights = null, regimeLabel = nu
   const activeWeights = weights || DEFAULT_WEIGHTS;
   const inactiveFactorReasons = Object.freeze({
     size: sizeActive ? null : '시가총액 관측시각·80% 커버리지 미확보',
-    value: fundamentalCurrent ? null : `무료 SEC/FMP 재무 커버리지 80% 미만 (${fundamentalCoveragePct.toFixed(1)}%)`,
-    quality: fundamentalCurrent ? null : `무료 SEC/FMP 재무 커버리지 80% 미만 (${fundamentalCoveragePct.toFixed(1)}%)`
+    value: fundamentalCurrent ? null : `재무 관측시각·180일 신선도 커버리지 80% 미만 (${fundamentalCurrentPct.toFixed(1)}%; 산출물 ${fundamentalCoveragePct.toFixed(1)}%)`,
+    quality: fundamentalCurrent ? null : `재무 관측시각·180일 신선도 커버리지 80% 미만 (${fundamentalCurrentPct.toFixed(1)}%; 산출물 ${fundamentalCoveragePct.toFixed(1)}%)`
   });
 
   // work on shallow copies so the caller's row objects/array are never mutated

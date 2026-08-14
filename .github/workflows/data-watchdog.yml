@@ -121,7 +121,12 @@ jobs:
         run: node scripts/ci-operations-status-check.mjs
 
       - name: Check 22-category reconciliation artifact
-        run: node scripts/ci-reconciliation-contract-check.mjs
+        run: |
+          node scripts/ci-reconciliation-contract-check.mjs
+          node scripts/ci-source-registry-contract-check.mjs
+          node scripts/ci-professional-data-gap-check.mjs
+          node scripts/ci-static-data-contract-check.mjs
+          node scripts/ci-data-refresh-audit.mjs
 
       # P572/R263: repo freshness alone proved insufficient — also verify the LIVE site
       # is actually serving fresh data. Live lag budget = refresh cadence (30min) +

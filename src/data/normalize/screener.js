@@ -15,6 +15,10 @@ export function normalizeScreener(raw = {}) {
     sourceKind: row?.sourceKind || null,
     allowedUse: row?.allowedUse || null,
     price: finite(row?.price),
+    priceObservedAt: row?.priceObservedAt || null,
+    priceFetchedAt: row?.priceFetchedAt || null,
+    priceSource: row?.priceSource || null,
+    priceRevision: row?.priceRevision || null,
     pctFrom52wLow: finite(row?.pctFrom52wLow),
     pctFrom52wHigh: finite(row?.pctFrom52wHigh),
     adrPct: finite(row?.adrPct),
@@ -27,6 +31,9 @@ export function normalizeScreener(raw = {}) {
     ema60: finite(row?.ema60),
     mcap: finite(row?.mcap),
     _mcapObservedAt: row?._mcapObservedAt || null,
+    _mcapFetchedAt: row?._mcapFetchedAt || null,
+    _mcapSource: row?._mcapSource || null,
+    _mcapRevision: row?._mcapRevision || null,
     rsi: finite(row?.rsi),
     ret1m: finite(row?.ret1m),
     ret3m: finite(row?.ret3m),
@@ -53,6 +60,9 @@ export function normalizeScreener(raw = {}) {
     revGrowth: finite(row?.revGrowth),
     newsMemo: row?.newsMemo || null,
     newsTs: row?.newsTs || null,
+    newsObservedAt: row?.newsObservedAt || row?.newsTs || null,
+    newsFetchedAt: row?.newsFetchedAt || null,
+    newsSource: row?.newsSource || null,
     _fundamentalSource: row?._fundamentalSource || null,
     _fundamentalModel: row?._fundamentalModel || null,
     _fundamentalPeriod: row?._fundamentalPeriod || null,
@@ -60,6 +70,9 @@ export function normalizeScreener(raw = {}) {
     _fundamentalFiledAt: row?._fundamentalFiledAt || null,
     _fundamentalFetchedAt: row?._fundamentalFetchedAt || null,
     _fundamentalAccession: row?._fundamentalAccession || null,
+    identityObservedAt: row?.identityObservedAt || null,
+    identityFetchedAt: row?.identityFetchedAt || null,
+    identitySource: row?.identitySource || null,
     observedAt: row?.observedAt || null,
     fetchedAt: row?.fetchedAt || null,
     instrumentRef: row?.instrumentRef && typeof row.instrumentRef === 'object' ? { ...row.instrumentRef } : null,
@@ -81,6 +94,6 @@ export function normalizeScreener(raw = {}) {
     revision: raw.revision || null,
     snapshotId: raw.snapshotId || raw.metadata?.snapshotId || null,
     status: raw.status || (rows.length ? 'current' : 'unavailable'),
-    updatedAt: raw.updatedAt || new Date().toISOString()
+    updatedAt: raw.updatedAt || null
   });
 }

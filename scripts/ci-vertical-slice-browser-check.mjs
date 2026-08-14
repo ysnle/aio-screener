@@ -6,6 +6,7 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { VERTICAL_SLICE_CONTRACTS } from '../src/app/vertical-slices.js';
+import { DESKTOP_PRIMARY_VIEWPORT, DESKTOP_QA_SCOPE } from './desktop-qa-config.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.AIO_VERTICAL_SLICE_PORT || 8902);
@@ -26,9 +27,9 @@ function startServer() {
 
 const server = await startServer();
 const browser = await chromium.launch();
-const report = { ok: true, slices: [], errors: [] };
+const report = { ok: true, scope: DESKTOP_QA_SCOPE, viewport: DESKTOP_PRIMARY_VIEWPORT, slices: [], errors: [] };
 try {
-  const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  const page = await browser.newPage({ viewport: DESKTOP_PRIMARY_VIEWPORT });
   await page.route('**/*', (route) => route.request().url().startsWith(`http://127.0.0.1:${port}/`) ? route.continue() : route.abort());
   await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.waitForFunction(() => typeof window.AIO_ARCH === 'object' && typeof window.AIO_ARCH.navigate === 'function', { timeout: 30000 });

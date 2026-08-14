@@ -4953,6 +4953,38 @@ async function _aioLoadServerData() {
       globalThis._aioScreenerLoadState = { status:'unavailable', checkedAt:Date.now(), detail:'invalid data.json payload' };
       return false;
     }
+    // The 22-category artifact is rebuilt from data.json, market-snapshot,
+    // screener and history on every server refresh. Load it with the same
+    // polling cycle so the browser sees category degradation without reload.
+    var _reconciliationState = { status:'unavailable', checkedAt:Date.now(), detail:'not loaded' };
+    try {
+      var _reconciliationUrl = './public-data/reconciliation-status.json?t=' + Math.floor(Date.now() / 60000);
+      var _reconciliationResponse = await fetch(_reconciliationUrl, { cache:'no-cache' });
+      if (!_reconciliationResponse.ok) throw new Error('HTTP ' + _reconciliationResponse.status);
+      var _reconciliation = await _reconciliationResponse.json();
+      if (!_reconciliation || _reconciliation.schemaVersion !== 'reconciliation-status-v2' || !Array.isArray(_reconciliation.categories) || _reconciliation.categories.length !== 22) {
+        throw new Error('invalid reconciliation payload');
+      }
+      var _sourceRevisionMatches = !!(_reconciliation.closure && _reconciliation.closure.sourceRevision && d.meta.marketSnapshotRevision)
+        && _reconciliation.closure.sourceRevision === d.meta.marketSnapshotRevision;
+      _reconciliationState = {
+        status: _sourceRevisionMatches ? 'ready' : 'stale',
+        checkedAt: Date.now(),
+        generatedAt: _reconciliation.generatedAt || null,
+        revision: _reconciliation.revision || null,
+        sourceRevision: _reconciliation.closure && _reconciliation.closure.sourceRevision || null,
+        sourceRevisionMatches: _sourceRevisionMatches,
+        overall: _reconciliation.overall || 'BLOCKED',
+        counts: _reconciliation.counts || {},
+        categories: _reconciliation.categories,
+        partialCategories: _reconciliation.closure && _reconciliation.closure.partialCategories || [],
+        policyBlockedCategories: _reconciliation.closure && _reconciliation.closure.policyBlockedCategories || [],
+        runtimeBlockedCategories: _reconciliation.closure && _reconciliation.closure.runtimeBlockedCategories || [],
+        detail: _sourceRevisionMatches ? null : 'market snapshot revision mismatch'
+      };
+    } catch (_reconciliationError) {
+      _reconciliationState.detail = String(_reconciliationError && _reconciliationError.message || _reconciliationError);
+    }
     // P867: data.json can resolve before aio-core exposes DATA_SNAPSHOT on a
     // cold origin. Previously the macro block was then skipped permanently
     // even though cycle/news metadata loaded, producing saved-key + blank-card
@@ -5035,8 +5067,9 @@ async function _aioLoadServerData() {
       beaLastSuccessfulAt: d.meta.beaLastSuccessfulAt || (d.macro && d.macro._bea && d.macro._bea.lastSuccessfulAt) || null,
       beaReleaseAt: d.meta.beaReleaseAt || (d.macro && d.macro._bea && d.macro._bea.releasedAt) || null,
       beaNextReleaseAt: d.meta.beaNextReleaseAt || (d.macro && d.macro._bea && d.macro._bea.nextReleaseAt) || null,
+      reconciliation: _reconciliationState,
       loadedAt: Date.now(),
-      artifacts: { dataJson: 'ready', telegramDigest: 'pending', screenerJson: 'pending' }
+      artifacts: { dataJson: 'ready', reconciliationStatus: _reconciliationState.status, telegramDigest: 'pending', screenerJson: 'pending' }
     };
 
     // Artifact provenance is the only snapshot-level timestamp. It describes
@@ -5879,6 +5912,20 @@ function _aioRenderPipelineStatus() {
       msgs.push({ icon: '🏦', text: 'FRED 매크로 수집 실패', detail: 'FRED_API_KEY 등록됨 → API 오류 또는 레이트리밋. 키 유효성 확인', color: '#ef4444' });
     }
 
+    var reconciliation = meta.reconciliation || null;
+    if (!reconciliation || reconciliation.status === 'unavailable') {
+      msgs.push({ icon: '!', text: '데이터 범주 상태 미수신', detail: '22개 데이터 범주의 자동 조정 상태를 불러오지 못했습니다.', color: '#ef4444' });
+    } else if (reconciliation.status === 'stale') {
+      msgs.push({ icon: '!', text: '데이터 범주 상태 불일치', detail: '현재 시장 스냅샷과 조정 상태의 revision이 다릅니다.', color: '#ef4444' });
+    } else if (Array.isArray(reconciliation.runtimeBlockedCategories) && reconciliation.runtimeBlockedCategories.length) {
+      msgs.push({
+        icon: '!',
+        text: '자동 데이터 경로 차단 ' + reconciliation.runtimeBlockedCategories.length + '건',
+        detail: reconciliation.runtimeBlockedCategories.slice(0, 6).join(', '),
+        color: '#ef4444'
+      });
+    }
+
     if (msgs.length === 0) { bar.style.display = 'none'; return; }
 
     var html = msgs.map(function(m) {
@@ -6016,6 +6063,15 @@ function _aioBuildPublicShareReadiness(opts) {
   else if (pipelineAudit.status !== 'ok') warnings.push('데이터 파이프라인 주의: ' + (pipelineAudit.issues || []).slice(0, 2).join(' / '));
   // v52.14 P6/P611/R206: shareAudit.blockers는 "full surface audit fail: N issue(s)" 같은 영문 내부
   // 감사 로그 원문 — 일반 방문자에게 노출하면 무의미+불안만 유발(R206 dev-marker 금지 취지). 건수만 한국어로 요약.
+  var reconciliation = meta && meta.reconciliation;
+  if (!reconciliation || reconciliation.status === 'unavailable') warnings.push('22개 데이터 범주 상태 미수신');
+  else if (reconciliation.status === 'stale') blockers.push('시장 스냅샷과 데이터 범주 상태 revision 불일치');
+  else {
+    var runtimeBlocked = Array.isArray(reconciliation.runtimeBlockedCategories) ? reconciliation.runtimeBlockedCategories : [];
+    var partialCategories = Array.isArray(reconciliation.partialCategories) ? reconciliation.partialCategories : [];
+    if (runtimeBlocked.length) blockers.push('자동 데이터 경로 차단 ' + runtimeBlocked.length + '건: ' + runtimeBlocked.slice(0, 4).join(', '));
+    if (partialCategories.length) warnings.push('부분 조정 데이터 범주 ' + partialCategories.length + '건');
+  }
   if (shareAudit && shareAudit.blockers && shareAudit.blockers.length) {
     blockers.push('배포 전 점검 항목 ' + shareAudit.blockers.length + '건 확인 필요');
   } else if (shareAudit && shareAudit.warnings && shareAudit.warnings.length) {
@@ -6081,6 +6137,10 @@ window.AIO.getServerMarketAnalysis = function() {
     generatedAt: m.generatedAt || '',
     source: m.source || 'server'
   } : { ready: false };
+};
+window.AIO.getDataReconciliationStatus = function() {
+  var value = window._serverDataMeta && window._serverDataMeta.reconciliation;
+  return value ? JSON.parse(JSON.stringify(value)) : { status:'unavailable', checkedAt:Date.now() };
 };
 
 function _aioRenderPublicReadiness() {
@@ -6521,6 +6581,11 @@ const MACRO_KW = [
   'power-quality study','behind-the-meter economics','memory LTA allocation',
   'climax top','railroad track','200SMA stretch','relative-strength pullback',
   'inverse ETF','hedge proxy','short-demand proxy','event-driven risk window',
+  // v54.11 (integrate 2026-08-11/12): dated market-briefing vocabulary.
+  'CPI release window','CPI surprise path','oil-rate conflict','AI compute financing',
+  'compute financing platform','third-party capital','equity dilution','margin deleveraging',
+  'forced liquidation','earnings beat breadth','market narrative bridge','foreign flow reversal',
+  'asset manager 200SMA','oil and gas leadership','memory two-way risk','neocloud earnings reaction',
 
   'CPI','PCE','GDP','GDPNow','inflation','deflation','recession','stagflation',
   'tariff','trade war','sanction','export ban','supply chain',
@@ -7007,6 +7072,11 @@ const TECH_KW = [
   'token deflation','memory price momentum','neocloud funding','GPU depreciation',
   'rental yield spread','capital runway','capex intensity','frontier model capex',
   'long-term agreement','floor price','prepayment','memory supercycle',
+  // v54.11 (integrate 2026-08-11/12): briefing report themes and ticker clusters.
+  'AI compute financing','compute financing platform','personal AI agent','on-device model',
+  'humanoid shipment','physical AI shipment','custom AI silicon','equity offering','equity dilution',
+  'earnings beat breadth','photonics earnings','neocloud earnings reaction','asset manager 200SMA',
+  'oil and gas leadership','memory two-way risk','forced liquidation','margin deleveraging',
   // v53.90 (integrate 2026-08-09): power-quality and technical setup vocabulary.
   'AI data-center power','GPU load ramp','transformer thermal stress','harmonic distortion',
   'voltage flicker','rack load volatility','power-quality monitoring','GPU resale price',
@@ -14092,6 +14162,17 @@ function applyLiveQuotes(quotes) {
   window._dataSource = window._dataSource || {};
   const now = Date.now();
   const atomicQuotes = _aioSelectAtomicQuotes(quotes, now);
+  const _batchObservedTimes = atomicQuotes.map(function(q) { return Date.parse(q._atomicObservedAt || '') || 0; }).filter(Boolean);
+  const _batchFetchedTimes = atomicQuotes.map(function(q) { return Date.parse(q._atomicFetchedAt || '') || 0; }).filter(Boolean);
+  const _batchFetchedAt = _batchFetchedTimes.length ? Math.max.apply(null, _batchFetchedTimes) : now;
+  const _quoteBatchRevision = 'browser-quote-batch:' + new Date(_batchFetchedAt).toISOString() + ':' + atomicQuotes.length;
+  window.AIO._quoteBatchEpoch = {
+    revision: _quoteBatchRevision,
+    symbols: atomicQuotes.map(function(q) { return q.symbol; }).filter(Boolean),
+    observationStart: _batchObservedTimes.length ? new Date(Math.min.apply(null, _batchObservedTimes)).toISOString() : null,
+    observationEnd: _batchObservedTimes.length ? new Date(Math.max.apply(null, _batchObservedTimes)).toISOString() : null,
+    fetchedAt: new Date(_batchFetchedAt).toISOString()
+  };
   // v51.61: Yahoo symbol → [DATA_SNAPSHOT priceKey, pctKey] 매핑
   // data-live-price와 data-snap이 항상 동일 시각의 데이터를 표시하기 위한 구조적 브릿지
   var _LIVE_SNAP_MAP = {
@@ -14139,7 +14220,17 @@ function applyLiveQuotes(quotes) {
       }
     }
     // v53.9 P728: 아래 canonical batch DOM pass가 lineage annotation을 소유한다.
-    const accepted = PriceStore.set(q.symbol, price, pct, q._source || 'live:yahoo', { deferDomAnnotation: true });
+    const _quoteChangeBasis = q.changeBasis || q.valueBasis || ((q.regularMarketPreviousClose || q.chartPreviousClose) > 0 ? 'provider-previous-value' : 'unknown');
+    const accepted = PriceStore.set(q.symbol, price, pct, q._source || 'live:yahoo', { deferDomAnnotation: true,
+      revision: _quoteBatchRevision,
+      observedAt: q._atomicObservedAt || q.observedAt || null,
+      fetchedAt: q._atomicFetchedAt || q.fetchedAt || null,
+      marketState: q.marketState || null,
+      venue: q.fullExchangeName || q.exchangeName || null,
+      regularMarketPreviousClose: q.regularMarketPreviousClose || q.chartPreviousClose || null,
+      changeBasis: _quoteChangeBasis,
+      valueBasis: q.valueBasis || _quoteChangeBasis
+    });
     if (!accepted) return;
     if (q.symbol === '^VVIX' && window.DATA_SNAPSHOT) {
       window.DATA_SNAPSHOT.vvix = price;
@@ -14223,14 +14314,16 @@ function applyLiveQuotes(quotes) {
     var _obsMs = _parsedObsMs ? (_parsedObsMs < 1e12 ? _parsedObsMs * 1000 : _parsedObsMs) : null;
     window._liveData[q.symbol] = window._liveData[q.symbol] || {};
     Object.assign(window._liveData[q.symbol], { quoteEnvelope: {
-      revision: q._atomicRevision,
+      revision: _quoteBatchRevision,
       source: q._source,
       price: price,
       change: isFinite(q.regularMarketChange) ? q.regularMarketChange : null,
       pct: hasPct ? pct : null,
       previousClose: isFinite(q.regularMarketPreviousClose) ? q.regularMarketPreviousClose : null,
       observedAt: q._atomicObservedAt,
-      fetchedAt: q._atomicFetchedAt
+      fetchedAt: q._atomicFetchedAt,
+      changeBasis: _quoteChangeBasis,
+      valueBasis: q.valueBasis || _quoteChangeBasis
     } });
     if (_obsMs && isFinite(_obsMs)) window._liveData[q.symbol].observedAt = new Date(_obsMs).toISOString();
     if (q.marketState) window._liveData[q.symbol].marketState = q.marketState;

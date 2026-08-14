@@ -1,15 +1,10 @@
 // Fable-advisor design (2026-07-21, P746 breadth-stage-summary follow-up, second consult). The
-// client only ever has TODAY'S breadth5sma/20sma/50sma (% of a universe above its own N-day SMA)
-// plus, at most, a one-cycle delta against a device-persisted previous reading (caller sources
-// this from js/aio-data.js:_aioGetPrevDeltaRef, a browser-storage-backed helper — deliberately not
-// named literally here since this module must stay storage/DOM/fetch-free per the domain-layer
-// boundary check) — there is no persisted multi-day breadth time series anywhere in this repo
-// (verified: public-data/history.json carries only index/macro series, no breadth fields;
-// architecture/reconciliation-status.json already lists categoryId "breadth-history" as status
-// "BLOCKED"). A genuine trend-phase classification in the Weinstein sense needs historical trend,
-// not a snapshot level, so this deliberately does NOT produce a "Stage" — it classifies today's
-// participation LEVEL, plus an optional best-effort DIRECTION that is never fabricated when the
-// one-cycle delta is unavailable (first run / cleared device storage / day-boundary reset).
+// The client receives today's AIO-universe breadth plus, after the screener producer has completed,
+// a durable daily AIO-universe history in public-data/history.json. The caller may therefore pass a
+// same-universe historical delta; a device-persisted one-cycle delta remains a fallback. This is
+// still not official exchange A/D data and must not be called McClellan or an exchange-wide breadth
+// stage. The model classifies participation LEVEL and DIRECTION only, and never fabricates either
+// when the required same-universe observations are absent.
 export const BREADTH_PARTICIPATION_MODEL_VERSION = 'breadth-participation.v1';
 
 function finite(value) {

@@ -7,6 +7,7 @@ import { spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { DESKTOP_QA_VIEWPORTS } from './desktop-qa-config.mjs';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const root = resolve(scriptDir, '..');
@@ -24,12 +25,8 @@ const ROUTES = [
   'guide'
 ];
 
-const VIEWPORTS = [
-  { name: 'mobile390', width: 390, height: 844 },
-  { name: 'tablet768', width: 768, height: 1024 },
-  { name: 'laptop1024', width: 1024, height: 768 },
-  { name: 'desktop1440', width: 1440, height: 900 },
-].filter((viewport) => !VIEWPORT_FILTER.size || VIEWPORT_FILTER.has(viewport.name));
+const VIEWPORTS = DESKTOP_QA_VIEWPORTS
+  .filter((viewport) => !VIEWPORT_FILTER.size || VIEWPORT_FILTER.has(viewport.name));
 
 if (!VIEWPORTS.length) throw new Error('AIO_VIEWPORT_NAMES did not match a known viewport');
 

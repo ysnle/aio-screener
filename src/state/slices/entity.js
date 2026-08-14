@@ -2,7 +2,7 @@ export const ENTITY_DATA_SET = 'data/entity';
 export const ENTITY_DATA_CLEAR = 'data/entity/clear';
 
 export function createInitialEntityState() {
-  return Object.freeze({ id: null, name: null, quote: null, fundamentals: null, options: null, status: 'unavailable', updatedAt: null });
+  return Object.freeze({ id: null, name: null, quote: null, history: [], fundamentals: null, options: null, status: 'unavailable', updatedAt: null });
 }
 
 export function createEntityDataAction(payload = {}, meta = {}) {
@@ -16,6 +16,7 @@ export function entityReducer(state = createInitialEntityState(), action = {}) {
       id: payload.id || null,
       name: payload.name || null,
       quote: payload.quote && typeof payload.quote === 'object' ? { ...payload.quote } : null,
+      history: Array.isArray(payload.history) ? payload.history.map((row) => ({ ...row })) : [],
       fundamentals: payload.fundamentals && typeof payload.fundamentals === 'object' ? { ...payload.fundamentals } : null,
       options: payload.options && typeof payload.options === 'object' ? { ...payload.options } : null,
       status: payload.status || (payload.id ? 'current' : 'unavailable'),

@@ -56,6 +56,14 @@ try {
   });
   const wallStart = Date.now();
   await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  // Measure the shell's first paint before injecting the synthetic route change.
+  // Calling showPage() in the same task as DOMContentLoaded can prevent Chromium
+  // from presenting the already-parsed shell and incorrectly charge the route's
+  // synchronous work to FCP. FCP and route latency have independent release
+  // budgets below, so force a real presentation opportunity between them.
+  await page.evaluate(() => new Promise((resolvePaint) => {
+    requestAnimationFrame(() => requestAnimationFrame(resolvePaint));
+  }));
   const interactiveStart = Date.now();
   await page.evaluate(() => window.showPage('signal'));
   const routeMs = Date.now() - interactiveStart;

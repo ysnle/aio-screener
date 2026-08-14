@@ -8623,29 +8623,29 @@
       JSON.stringify(biasAudit));
 
     var certMatrix = window.AIO.getHumanChatCertificationMatrix();
-    _assert('T1002 human_certification_matrix (WP-AI18): certification requires SR/keyboard/mobile/novice/expert/task evidence and signature fields',
-      certMatrix.version === 'wp-ai18.human-cert.v1' && certMatrix.requiredDimensions.length === 6 && certMatrix.requiredDimensions.indexOf('screenReader') >= 0 && certMatrix.requiredEvidence.indexOf('signedBy') >= 0,
+    _assert('T1002 human_certification_matrix (WP-AI18): desktop certification requires SR/keyboard/novice/expert/task evidence and signature fields',
+      certMatrix.version === 'wp-ai18.human-cert.v1' && certMatrix.requiredDimensions.length === 5 && certMatrix.requiredDimensions.indexOf('screenReader') >= 0 && certMatrix.requiredDimensions.indexOf('mobile') < 0 && certMatrix.requiredEvidence.indexOf('signedBy') >= 0,
       JSON.stringify(certMatrix));
 
-    var completeCert = window.AIO.createHumanChatCertification({ surface: 'per-page-chat', route: 'ticker', viewport: '390x844', assistiveTech: 'VoiceOver', screenReader: true, keyboard: true, mobile: true, novice: true, expert: true, taskCompletion: true, evidenceId: 'evidence-human-1', signedBy: 'qa-owner', signedAt: '2026-07-14T00:00:00Z' });
+    var completeCert = window.AIO.createHumanChatCertification({ surface: 'per-page-chat', route: 'ticker', viewport: '1440x1000', assistiveTech: 'NVDA', screenReader: true, keyboard: true, novice: true, expert: true, taskCompletion: true, evidenceId: 'evidence-human-1', signedBy: 'qa-owner', signedAt: '2026-07-14T00:00:00Z' });
     _assert('T1003 human_certification_complete (WP-AI18): a signed complete route/surface certification passes',
-      completeCert.status === 'PASS' && completeCert.surface === 'per-page-chat' && completeCert.assistiveTech === 'VoiceOver' && completeCert.evidenceId === 'evidence-human-1',
+      completeCert.status === 'PASS' && completeCert.surface === 'per-page-chat' && completeCert.assistiveTech === 'NVDA' && completeCert.evidenceId === 'evidence-human-1',
       JSON.stringify(completeCert));
 
     var splitCert = window.AIO.evaluateHumanChatCertification({ certifications: [
-      { surface: 'unified-chat', route: 'home', screenReader: true, keyboard: true, mobile: true, novice: true, evidenceId: 'ev-human-a', signedBy: 'qa-a', signedAt: '2026-07-14T00:00:00Z' },
+      { surface: 'unified-chat', route: 'home', screenReader: true, keyboard: true, novice: true, evidenceId: 'ev-human-a', signedBy: 'qa-a', signedAt: '2026-07-14T00:00:00Z' },
       { surface: 'unified-chat', route: 'home', expert: true, taskCompletion: true, evidenceId: 'ev-human-b', signedBy: 'qa-b', signedAt: '2026-07-14T00:00:00Z' }
     ] });
-    _assert('T1004 human_certification_matrix_pass (WP-AI18): split evidence rows can jointly cover novice/expert and assistive/mobile tasks',
+    _assert('T1004 human_certification_matrix_pass (WP-AI18): split desktop evidence rows can jointly cover novice/expert and assistive tasks',
       splitCert.status === 'PASS' && splitCert.blocked === false && splitCert.certificationCount === 2 && splitCert.missingDimensions.length === 0 && splitCert.unsignedCount === 0,
       JSON.stringify(splitCert));
 
-    var unsigned = window.AIO.evaluateHumanChatCertification({ surface: 'unified-chat', route: 'portfolio', screenReader: true, keyboard: true, mobile: true, novice: true, expert: true, taskCompletion: true, evidenceId: 'ev-human-unsigned' });
+    var unsigned = window.AIO.evaluateHumanChatCertification({ surface: 'unified-chat', route: 'portfolio', screenReader: true, keyboard: true, novice: true, expert: true, taskCompletion: true, evidenceId: 'ev-human-unsigned' });
     _assert('T1005 human_certification_signature_gate (WP-AI18): unsigned human evidence fails closed',
       unsigned.status === 'BLOCKED' && unsigned.blocked === true && unsigned.unsignedCount === 1 && unsigned.missingDimensions.length === 0,
       JSON.stringify(unsigned));
 
-    var incomplete = window.AIO.createHumanChatCertification({ surface: 'unified-chat', route: 'home', keyboard: true, mobile: true, novice: true, evidenceId: 'ev-human-incomplete', signedBy: 'qa-owner', signedAt: '2026-07-14T00:00:00Z' });
+    var incomplete = window.AIO.createHumanChatCertification({ surface: 'unified-chat', route: 'home', keyboard: true, novice: true, evidenceId: 'ev-human-incomplete', signedBy: 'qa-owner', signedAt: '2026-07-14T00:00:00Z' });
     var incompleteAudit = window.AIO.evaluateHumanChatCertification(incomplete);
     _assert('T1006 human_certification_incomplete_state (WP-AI18): missing SR/expert/task evidence remains explicit',
       incomplete.status === 'INCOMPLETE' && incompleteAudit.status === 'BLOCKED' && incompleteAudit.missingDimensions.indexOf('screenReader') >= 0 && incompleteAudit.missingDimensions.indexOf('expert') >= 0 && incompleteAudit.missingDimensions.indexOf('taskCompletion') >= 0,

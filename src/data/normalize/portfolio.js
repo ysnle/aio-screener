@@ -11,6 +11,12 @@ export function normalizePortfolio(raw = {}) {
     value: finite(Number(holding?.value)),
     weight: finite(Number(holding?.weight)),
     dailyPct: finite(Number(holding?.dailyPct ?? holding?.pct)),
+    directionValue: finite(Number(holding?.directionValue ?? holding?.dailyPct ?? holding?.pct)),
+    quoteObservedAt: holding?.quoteObservedAt || holding?.observedAt || null,
+    fetchedAt: holding?.fetchedAt || null,
+    revision: holding?.revision || null,
+    changeBasis: holding?.changeBasis || 'unknown',
+    directionCompatible: holding?.directionCompatible === true || (!!holding?.changeBasis && holding.changeBasis !== 'unknown'),
     sector: holding?.sector ? String(holding.sector) : null,
     target: finite(Number(holding?.target)),
     memo: holding?.memo ? String(holding.memo) : '',
@@ -34,6 +40,6 @@ export function normalizePortfolio(raw = {}) {
     } : null,
     privacy: raw.privacy || 'opt-in',
     status: raw.status || (holdings.length ? 'current' : 'empty'),
-    updatedAt: raw.updatedAt || new Date().toISOString()
+    updatedAt: raw.updatedAt || null
   });
 }

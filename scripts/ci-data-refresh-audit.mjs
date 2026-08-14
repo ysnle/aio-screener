@@ -12,6 +12,7 @@ const now = Date.now();
 const data = json('public-data/data.json');
 const snapshot = json('public-data/market-snapshot.json');
 const screener = json('public-data/screener.json');
+const history = json('public-data/history.json');
 const rows = [];
 
 function ageDays(value) {
@@ -19,16 +20,18 @@ function ageDays(value) {
   return Number.isFinite(ms) ? Math.max(0, (now - ms) / 86400000) : null;
 }
 
-function statusFor(observedAt, cadence, forced = null) {
+function statusFor(observedAt, cadence, forced = null, maxAgeDays = null) {
   if (forced) return forced;
   const age = ageDays(observedAt);
   if (age == null) return 'SKIPPED';
-  const limit = cadence === 'daily' ? 2 : cadence === 'weekly' ? 8 : cadence === 'monthly' ? 35 : 120;
+  const limit = Number.isFinite(maxAgeDays)
+    ? maxAgeDays
+    : cadence === 'daily' ? 2 : cadence === 'weekly' ? 8 : cadence === 'monthly' ? 35 : 120;
   return age <= limit ? 'OK' : age <= limit * 2 ? 'STALE' : 'CRITICAL';
 }
 
-function add(id, category, observedAt, cadence, detail, forced = null) {
-  rows.push({ id, category, observedAt: observedAt || null, ageDays: ageDays(observedAt), cadence, status: statusFor(observedAt, cadence, forced), detail });
+function add(id, category, observedAt, cadence, detail, forced = null, maxAgeDays = null) {
+  rows.push({ id, category, observedAt: observedAt || null, ageDays: ageDays(observedAt), cadence, status: statusFor(observedAt, cadence, forced, maxAgeDays), detail });
 }
 
 const quote = (symbol) => (snapshot.quotes || []).find((row) => row.instrumentId === symbol) || null;
@@ -37,18 +40,29 @@ const macro = data.macro || {};
 // The 22 durable categories defined by the data-refresh contract.
 add('A1', 'DATA_SNAPSHOT / durable market artifact', data.meta?.generatedAt, 'daily', `revision=${data.meta?.marketSnapshotRevision || snapshot.revision}`);
 add('A2', 'Fear & Greed', data.fearGreed?.asOf || data.meta?.generatedAt, 'daily', `score=${data.fearGreed?.score ?? '—'} source=${data.fearGreed?._source || 'unknown'}`);
-add('A3', 'VIX + HY OAS shared evidence', quote('^VIX')?.observedAt || macro._asOf_hyOAS, 'daily', `vix=${quote('^VIX')?.value ?? '—'} hyOAS=${macro.hyOAS ?? '—'} hyAsOf=${macro._asOf_hyOAS || '—'}; session=${quote('^VIX')?.session || 'missing'}`, ageDays(macro._asOf_hyOAS) != null && ageDays(macro._asOf_hyOAS) > 2 ? 'STALE' : null);
+add('A3', 'VIX + HY OAS shared evidence', quote('^VIX')?.observedAt || macro._asOf_hyOAS, 'daily', `vix=${quote('^VIX')?.value ?? '—'} hyOAS=${macro.hyOAS ?? '—'} hyAsOf=${macro._asOf_hyOAS || '—'}; session=${quote('^VIX')?.session || 'missing'}`, ageDays(macro._asOf_hyOAS) != null && ageDays(macro._asOf_hyOAS) > 3 ? 'STALE' : null);
 add('B1', 'AAII sentiment', null, 'weekly', 'SKIPPED: current licensed/direct value unavailable; exact percentage synthesis forbidden', 'SKIPPED');
 add('B2', 'NAAIM exposure', null, 'weekly', 'SKIPPED: current licensed/direct value unavailable; bounded inference only', 'SKIPPED');
 add('B3', 'Investor Intelligence bull/bear', null, 'weekly', 'SKIPPED: subscriber value unavailable; no extrapolated value promoted', 'SKIPPED');
 add('B4', 'Put/Call ratio', data.putCall?.asOf || data.meta?.putCallAsOf, 'daily', `total=${data.putCall?.totalPutCall ?? '—'} equity=${data.putCall?.equityPutCall ?? '—'} source=${data.putCall?._source || 'Cboe Daily Market Statistics'}`, Number.isFinite(Number(data.putCall?.totalPutCall)) ? null : 'SKIPPED');
 add('C1', 'US breadth / labels', screener.breadth?.segments?.us?.observedAt || screener.factorObservedAt, 'daily', `coverage=${screener.breadth?.segments?.us?.coveragePct ?? '—'}%`);
 add('C2', 'NDX breadth', screener.breadth?.segments?.us?.observedAt || screener.factorObservedAt, 'daily', 'uses AIO universe contract; official exchange breadth remains separate');
-add('C3', 'McClellan / NYSE A-D', null, 'daily', 'SKIPPED: durable official A/D series unavailable; UI remains explicit unavailable', 'SKIPPED');
+const aioBreadthHistory = history.filter((row) => Number.isFinite(Number(row?.breadth50)) && row?.breadth50 != null);
+const latestAioBreadthHistory = aioBreadthHistory[aioBreadthHistory.length - 1] || null;
+add('C3', 'AIO breadth history / official McClellan boundary', latestAioBreadthHistory?.fieldMeta?.breadth50?.observedAt || latestAioBreadthHistory?.date, 'daily', aioBreadthHistory.length >= 60 ? `AIO-universe history=${aioBreadthHistory.length} rows; official exchange A/D and McClellan remain unavailable` : 'SKIPPED: AIO history producer has not completed 60 rows; official A/D remains unavailable', aioBreadthHistory.length >= 60 ? null : 'SKIPPED');
 add('C4', 'Weinstein stage', null, 'daily', 'DYNAMIC: derived from runtime price history; no hardcoded current claim');
-add('D1', 'HY OAS', macro._asOf_hyOAS || quote('HYG')?.observedAt, 'daily', `value=${macro.hyOAS ?? '—'} observed=${macro._asOf_hyOAS || '—'}; stale points remain reference-only`, Number.isFinite(Number(macro.hyOAS)) ? null : 'SKIPPED');
+add('D1', 'HY OAS', macro._asOf_hyOAS || quote('HYG')?.observedAt, 'daily', `value=${macro.hyOAS ?? '—'} observed=${macro._asOf_hyOAS || '—'}; FRED/ICE publication-lag budget=3d; stale points remain reference-only`, Number.isFinite(Number(macro.hyOAS)) ? null : 'SKIPPED', 3);
 add('D2', 'Treasury yield fallback', quote('^TNX')?.observedAt, 'daily', `10Y=${quote('^TNX')?.value ?? '—'} session=${quote('^TNX')?.session || 'missing'}`);
-add('D3', '10Y-2Y spread', macro._asOf_t10y2y || quote('^TNX')?.observedAt, 'daily', `SKIPPED: spread value=${macro.t10y2y ?? '—'} is unavailable; do not infer from a single 10Y quote`, 'SKIPPED');
+add(
+  'D3',
+  '10Y-2Y spread',
+  macro._asOf_t10y2y,
+  'daily',
+  Number.isFinite(Number(macro.t10y2y))
+    ? `value=${macro.t10y2y}%p source=${macro._source_t10y2y || 'unknown'}; official observation date retained`
+    : 'SKIPPED: official spread is unavailable; do not infer from a single 10Y quote',
+  Number.isFinite(Number(macro.t10y2y)) ? null : 'SKIPPED'
+);
 const officialMacroFetchAt = data.meta?.blsLastSuccessfulAt || data.meta?.generatedAt;
 const bea = macro._bea || {};
 const pceReleaseAt = bea.releasedAt || data.meta?.beaReleaseAt || null;

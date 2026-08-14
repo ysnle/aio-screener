@@ -25,7 +25,15 @@ function normalizeThemeDetail(detail) {
   const quotes = detail.quotes && typeof detail.quotes === 'object'
     ? Object.fromEntries(Object.entries(detail.quotes).map(([symbol, quote]) => [String(symbol).trim().toUpperCase(), Object.freeze({
         price: finite(quote?.price),
-        pct: finite(quote?.pct)
+        pct: finite(quote?.pct),
+        directionValue: finite(quote?.directionValue ?? quote?.pct),
+        observedAt: quote?.observedAt || null,
+        fetchedAt: quote?.fetchedAt || null,
+        source: quote?.source || 'theme-detail-provider',
+        sourceKind: quote?.sourceKind || 'runtime-quote',
+        revision: quote?.revision || null,
+        changeBasis: quote?.changeBasis || 'unknown',
+        directionCompatible: quote?.directionCompatible === true
       })]))
     : {};
   const rawInsight = detail.insight && typeof detail.insight === 'object' ? detail.insight : {};
@@ -65,12 +73,20 @@ export function normalizeThemes(raw = {}) {
     rsMomentum: finite(item?.rsMomentum),
     quadrant: String(item?.quadrant || 'neutral'),
     view: String(item?.view || 'sectors'),
-    source: String(item?.source || 'themes-provider')
+    source: String(item?.source || 'themes-provider'),
+    sourceKind: String(item?.sourceKind || 'runtime-quote'),
+    price: finite(item?.price),
+    directionValue: finite(item?.directionValue ?? item?.pct),
+    observedAt: item?.observedAt || null,
+    fetchedAt: item?.fetchedAt || null,
+    revision: item?.revision || null,
+    changeBasis: item?.changeBasis || 'unknown',
+    directionCompatible: item?.directionCompatible === true
   }));
   return Object.freeze({
     items: Object.freeze(items),
     selectedId: raw.selectedId || null,
     selectedDetail: normalizeThemeDetail(raw.selectedDetail),
-    updatedAt: raw.updatedAt || new Date().toISOString()
+    updatedAt: raw.updatedAt || null
   });
 }

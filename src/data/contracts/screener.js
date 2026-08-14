@@ -190,6 +190,38 @@ function rowValue(row, definition) {
   return definition.rowKey ? row?.[definition.rowKey] ?? null : null;
 }
 
+function fieldObservationContext(row, definition) {
+  const fieldId = String(definition?.fieldId || '');
+  const rowKey = String(definition?.rowKey || '');
+  if (fieldId.startsWith('identity.')) {
+    return { observedAt: row.identityObservedAt || null, fetchedAt: row.identityFetchedAt || row.fetchedAt || null, sourceId: row.identitySource || 'screener-universe' };
+  }
+  if (fieldId === 'price.close') {
+    return { observedAt: row.priceObservedAt || null, fetchedAt: row.priceFetchedAt || null, sourceId: row.priceSource || 'runtime-quote', revisionId: row.priceRevision || null };
+  }
+  if (fieldId === 'valuation.marketCap') {
+    return { observedAt: row._mcapObservedAt || null, fetchedAt: row._mcapFetchedAt || null, sourceId: row._mcapSource || 'runtime-quote', revisionId: row._mcapRevision || null };
+  }
+  if (fieldId.startsWith('valuation.') || fieldId.startsWith('quality.') || fieldId.startsWith('fundamental.')) {
+    return { observedAt: row._fundamentalObservedAt || null, filedAt: row._fundamentalFiledAt || null, fetchedAt: row._fundamentalFetchedAt || null, sourceId: row._fundamentalSource || 'fundamental-artifact' };
+  }
+  if (fieldId.startsWith('news.')) {
+    return { observedAt: row.newsObservedAt || row.newsTs || null, fetchedAt: row.newsFetchedAt || row.fetchedAt || null, sourceId: row.newsSource || 'ticker-news-artifact' };
+  }
+  if (fieldId.startsWith('breadth.')) {
+    return { observedAt: row.breadthObservedAt || null, fetchedAt: row.breadthFetchedAt || row.fetchedAt || null, sourceId: row.breadthSource || 'screener-breadth-artifact' };
+  }
+  if (fieldId.startsWith('regime.')) {
+    return { observedAt: row.regimeObservedAt || null, fetchedAt: row.regimeFetchedAt || row.fetchedAt || null, sourceId: row.regimeSource || 'ranking-regime' };
+  }
+  return {
+    observedAt: row[`${rowKey}ObservedAt`] || row.observedAt || null,
+    filedAt: null,
+    fetchedAt: row[`${rowKey}FetchedAt`] || row.fetchedAt || null,
+    sourceId: row[`${rowKey}Source`] || row.source || 'screener-artifact'
+  };
+}
+
 export function classifyFieldStatus({ value, observedAt, now = Date.now(), freshnessBudgetMs = null, supported = true, rights = 'UNKNOWN', conflict = false, sourceKind = 'T3_PUBLIC_DELAYED', lastGood = false } = {}) {
   if (!supported) return 'UNSUPPORTED';
   if (String(rights) !== 'VERIFIED') return 'BLOCKED_RIGHTS';
@@ -209,9 +241,12 @@ export function buildFieldReadiness(row = {}, { registry = SCREENER_FIELD_REGIST
   const readiness = {};
   for (const definition of registry.fields) {
     const value = rowValue(row, definition);
-    const observedAt = row[`${definition.rowKey}ObservedAt`] || row.observedAt || null;
-    const filedAt = row._fundamentalFiledAt || null;
-    const fetchedAt = row._fundamentalFetchedAt || row.fetchedAt || null;
+    const context = fieldObservationContext(row, definition);
+    const observedAt = context.observedAt;
+    const filedAt = context.filedAt || null;
+    const fetchedAt = context.fetchedAt || null;
+    const fieldSourceId = context.sourceId || sourceId;
+    const fieldRevisionId = context.revisionId || revisionId;
     const status = classifyFieldStatus({
       value,
       observedAt,
@@ -223,9 +258,9 @@ export function buildFieldReadiness(row = {}, { registry = SCREENER_FIELD_REGIST
       sourceKind,
       lastGood: row._lastGoodFields?.includes?.(definition.fieldId)
     });
-    const observation = createObservationEnvelope({ instrumentId: instrumentRef.instrumentId, fieldId: definition.fieldId, value, unit: definition.unit, sourceId, observedAt, filedAt, fetchedAt, revisionId, sourceKind, rightsId: rightsByField[definition.fieldId] || 'unknown', qualityStatus: status, allowedUse: definition.allowedUse, evidenceId: row[`${definition.rowKey}EvidenceId`] || '' });
+    const observation = createObservationEnvelope({ instrumentId: instrumentRef.instrumentId, fieldId: definition.fieldId, value, unit: definition.unit, sourceId: fieldSourceId, observedAt, filedAt, fetchedAt, revisionId: fieldRevisionId, sourceKind, rightsId: rightsByField[definition.fieldId] || 'unknown', qualityStatus: status, allowedUse: definition.allowedUse, evidenceId: row[`${definition.rowKey}EvidenceId`] || '' });
     observations.push(observation);
-    readiness[definition.fieldId] = Object.freeze({ status, value: value ?? null, unit: definition.unit, sourceId, observedAt: observation.observedAt, filedAt: observation.filedAt, fetchedAt: observation.fetchedAt, allowedUse: observation.allowedUse, evidenceId: observation.evidenceId });
+    readiness[definition.fieldId] = Object.freeze({ status, value: value ?? null, unit: definition.unit, sourceId: fieldSourceId, observedAt: observation.observedAt, filedAt: observation.filedAt, fetchedAt: observation.fetchedAt, revisionId: observation.revisionId, allowedUse: observation.allowedUse, evidenceId: observation.evidenceId });
   }
   return Object.freeze({ instrumentRef, observations: Object.freeze(observations), fields: Object.freeze(readiness), coverage: summarizeFieldReadiness(readiness) });
 }

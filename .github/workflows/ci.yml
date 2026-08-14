@@ -179,6 +179,9 @@ jobs:
       - name: 22-category source reconciliation contract (AR-07 Batch 4)
         run: node scripts/ci-reconciliation-contract-check.mjs
 
+      - name: Professional data capability gap contract
+        run: node scripts/ci-professional-data-gap-check.mjs
+
       - name: Operator/live certification boundary contract
         run: node scripts/ci-operator-readiness-check.mjs
 
@@ -209,6 +212,9 @@ jobs:
       - name: Default-path UX checks
         run: node scripts/ci-ux-default-path-check.mjs
 
+      - name: Desktop-only QA scope check
+        run: node scripts/ci-desktop-scope-check.mjs
+
       - name: Runtime contract checks
         run: node scripts/ci-runtime-contract-check.mjs
 
@@ -217,6 +223,15 @@ jobs:
 
       - name: Data pipeline contract checks
         run: node scripts/ci-data-pipeline-contract-check.mjs
+
+      - name: Page field timeline contract
+        run: node scripts/ci-page-data-timeline-contract-check.mjs
+
+      - name: Cross-page shared market epoch browser gate
+        run: node scripts/ci-page-market-epoch-browser-check.mjs
+
+      - name: Quant screener visible-quote and ranking-epoch browser gate
+        run: node scripts/ci-screener-auto-refresh-browser-check.mjs
 
       - name: Refresh artifact integrity and data-release revision guard
         run: |

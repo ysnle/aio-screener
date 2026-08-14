@@ -1,7 +1,9 @@
 // Wave 3: the page work is delivered as ten vertical slices. This registry is
 // the executable boundary for route pairing, required producer intent, and the
 // acceptance checks that every slice must carry before it can be called done.
-const ACCEPTANCE = Object.freeze(['lifecycle', 'data', 'renderer', 'chart', 'narrative', 'requiredData', 'states', 'chartFallback', 'directEntry', 'mobileKeyboard', 'routeReentry', 'outage', 'copyReview']);
+// Product scope is desktop-only. Responsive/mobile compatibility remains in the
+// legacy shell, but mobile is no longer a required acceptance dimension for new work.
+const ACCEPTANCE = Object.freeze(['lifecycle', 'data', 'fieldTimeline', 'renderer', 'chart', 'narrative', 'requiredData', 'states', 'chartFallback', 'directEntry', 'routeReentry', 'outage', 'copyReview']);
 
 export const VERTICAL_SLICE_CONTRACTS = Object.freeze([
   Object.freeze({ id: 'vs01-home-signal', order: 1, routes: Object.freeze(['home', 'signal']), requiredData: Object.freeze(['quotes', 'sentiment', 'breadth', 'technicals', 'vixHistory', 'hySpread']), acceptance: ACCEPTANCE }),

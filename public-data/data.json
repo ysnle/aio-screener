@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-08-13T00:44:03.116Z",
+  "generatedAt": "2026-08-14T00:40:24.581Z",
   "source": "github-actions",
   "symbolsOk": 78,
   "symbolsFail": 0,
@@ -15,61 +15,69 @@
   "tdFallbackEligible": 0,
   "tdFallbackRecovered": 0,
   "fearGreedOk": true,
-  "fredHasKey": true,
-  "fredFetchOk": true,
-  "fredOk": true,
-  "fredLkgUsed": false,
-  "fredLkgSource": null,
-  "macroKeyCount": 27,
-  "fredFetchedKeyCount": 21,
-  "fredAttemptedAt": "2026-08-13T00:44:03.116Z",
-  "fredLastSuccessfulAt": "2026-08-13T00:44:03.116Z",
+  "fredHasKey": false,
+  "fredFetchOk": false,
+  "fredOk": false,
+  "fredLkgUsed": true,
+  "fredLkgSource": "previous-public-data-macro",
+  "macroKeyCount": 33,
+  "fredFetchedKeyCount": 0,
+  "fredAttemptedAt": "2026-08-14T00:40:24.581Z",
+  "fredLastSuccessfulAt": null,
   "fredFailedSeries": [],
   "blsStatus": "cached-fresh",
   "blsSeriesCount": 6,
   "blsFailedSeries": [],
-  "blsAttemptedAt": "2026-08-13T00:43:59.025Z",
-  "blsLastSuccessfulAt": "2026-08-12T14:06:10.549Z",
+  "blsAttemptedAt": "2026-08-14T00:40:20.703Z",
+  "blsLastSuccessfulAt": "2026-08-14T00:38:03.204Z",
   "beaStatus": "ok",
-  "beaAttemptedAt": "2026-08-13T00:43:59.025Z",
-  "beaLastSuccessfulAt": "2026-08-13T00:43:59.025Z",
+  "beaAttemptedAt": "2026-08-14T00:40:20.703Z",
+  "beaLastSuccessfulAt": "2026-08-14T00:40:20.703Z",
   "beaReleaseAt": "2026-07-30T12:30:00.000Z",
   "beaNextReleaseAt": "2026-08-26T12:30:00.000Z",
+  "treasuryStatus": "cached-fresh",
+  "treasuryAttemptedAt": "2026-08-14T00:40:20.704Z",
+  "treasuryLastSuccessfulAt": "2026-08-14T00:38:03.207Z",
+  "treasuryObservedAt": "2026-08-13",
+  "fredHyOasStatus": "ok",
+  "fredHyOasAttemptedAt": "2026-08-14T00:40:20.704Z",
+  "fredHyOasLastSuccessfulAt": "2026-08-14T00:40:20.704Z",
+  "fredHyOasObservedAt": "2026-08-12",
   "newsOk": true,
   "newsCount": 40,
   "newsSourceCount": 8,
   "newsCyclePolicy": "kst-0800-completed-24h",
-  "newsCycleStart": "2026-08-11T23:00:00.000Z",
-  "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-  "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST",
-  "newsNextRefresh": "2026-08-13T23:00:00.000Z",
+  "newsCycleStart": "2026-08-12T23:00:00.000Z",
+  "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+  "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST",
+  "newsNextRefresh": "2026-08-14T23:00:00.000Z",
   "serverNewsScored": true,
-  "newsScoreMin": 44,
-  "newsScoreMax": 70,
+  "newsScoreMin": 41,
+  "newsScoreMax": 76,
   "putCallOk": true,
-  "putCallAsOf": "2026-08-11",
-  "elapsedMs": 4168,
+  "putCallAsOf": "2026-08-12",
+  "elapsedMs": 3944,
   "schema": 1,
   "marketAnalysisOk": false,
   "marketAnalysisSemanticOk": false,
-  "marketAnalysisEvidenceCount": 11,
+  "marketAnalysisEvidenceCount": 9,
   "marketSnapshotPublished": true,
   "marketSnapshotCoverage": {
    "required": 16,
    "observed": 16,
    "ratio": 1
   },
-  "marketSnapshotRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-  "cycleId": "kst-0800-2026-08-12T23:00:00.000Z",
+  "marketSnapshotRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+  "cycleId": "kst-0800-2026-08-13T23:00:00.000Z",
   "cycleStatus": "PUBLISHED",
   "marketCycleFreshnessSlaHours": 12,
   "cycleComponents": {
-   "marketSnapshotRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-   "newsGeneratedAt": "2026-08-13T00:44:03.116Z",
-   "historyCycleEnd": "2026-08-12T23:00:00.000Z",
+   "marketSnapshotRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+   "newsGeneratedAt": "2026-08-14T00:40:24.581Z",
+   "historyCycleEnd": "2026-08-13T23:00:00.000Z",
    "telegramDigestExpected": true
   },
-  "cycleManifestRevision": "kst-0800-2026-08-12T23:00:00.000Z:market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
+  "cycleManifestRevision": "kst-0800-2026-08-13T23:00:00.000Z:market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
   "fmpHasKey": false,
   "secFundamentalsOk": true,
   "secFundamentalsCount": 540,
@@ -79,7 +87,7 @@
  },
  "quotes": [],
  "macro": {
-  "_source": "fred",
+  "_source": "fred:no-key",
   "cpi": 3.3,
   "cpiDelta": -0.2,
   "_asOf_cpi": "2026-07-01",
@@ -109,9 +117,9 @@
   "usWageGrowth": 3.2,
   "usWageGrowthDelta": -0.2,
   "_asOf_usWageGrowth": "2026-07-01",
-  "hyOAS": 2.72,
+  "hyOAS": 2.71,
   "hyOASDelta": 0.02,
-  "_asOf_hyOAS": "2026-08-11",
+  "_asOf_hyOAS": "2026-08-12",
   "blsCpiYoY": 3.3,
   "blsCoreCpiYoY": 2.5,
   "blsUnemployment": 4.1,
@@ -123,9 +131,9 @@
    "source": "BLS Public Data API v1",
    "sourceKind": "official-primary",
    "sourceUrl": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
-   "fetchedAt": "2026-08-12T14:06:10.549Z",
-   "lastSuccessfulAt": "2026-08-12T14:06:10.549Z",
-   "attemptedAt": "2026-08-13T00:43:59.025Z",
+   "fetchedAt": "2026-08-14T00:38:03.204Z",
+   "lastSuccessfulAt": "2026-08-14T00:38:03.204Z",
+   "attemptedAt": "2026-08-14T00:40:20.703Z",
    "releaseAt": null,
    "status": "cached-fresh",
    "series": {
@@ -138,7 +146,7 @@
      "source": "BLS Public Data API v1",
      "sourceKind": "official-primary",
      "sourceUrl": "https://www.bls.gov/developers/",
-     "fetchedAt": "2026-08-12T14:06:10.549Z",
+     "fetchedAt": "2026-08-14T00:38:03.204Z",
      "releaseAt": null,
      "observedAt": "2026-07-01",
      "observationPeriod": "2026-M07",
@@ -165,7 +173,7 @@
      "source": "BLS Public Data API v1",
      "sourceKind": "official-primary",
      "sourceUrl": "https://www.bls.gov/developers/",
-     "fetchedAt": "2026-08-12T14:06:10.549Z",
+     "fetchedAt": "2026-08-14T00:38:03.204Z",
      "releaseAt": null,
      "observedAt": "2026-07-01",
      "observationPeriod": "2026-M07",
@@ -192,7 +200,7 @@
      "source": "BLS Public Data API v1",
      "sourceKind": "official-primary",
      "sourceUrl": "https://www.bls.gov/developers/",
-     "fetchedAt": "2026-08-12T14:06:10.549Z",
+     "fetchedAt": "2026-08-14T00:38:03.204Z",
      "releaseAt": null,
      "observedAt": "2026-07-01",
      "observationPeriod": "2026-M07",
@@ -218,7 +226,7 @@
      "source": "BLS Public Data API v1",
      "sourceKind": "official-primary",
      "sourceUrl": "https://www.bls.gov/developers/",
-     "fetchedAt": "2026-08-12T14:06:10.549Z",
+     "fetchedAt": "2026-08-14T00:38:03.204Z",
      "releaseAt": null,
      "observedAt": "2026-07-01",
      "observationPeriod": "2026-M07",
@@ -244,7 +252,7 @@
      "source": "BLS Public Data API v1",
      "sourceKind": "official-primary",
      "sourceUrl": "https://www.bls.gov/developers/",
-     "fetchedAt": "2026-08-12T14:06:10.549Z",
+     "fetchedAt": "2026-08-14T00:38:03.204Z",
      "releaseAt": null,
      "observedAt": "2026-07-01",
      "observationPeriod": "2026-M07",
@@ -274,7 +282,7 @@
      "source": "BLS Public Data API v1",
      "sourceKind": "official-primary",
      "sourceUrl": "https://www.bls.gov/developers/",
-     "fetchedAt": "2026-08-12T14:06:10.549Z",
+     "fetchedAt": "2026-08-14T00:38:03.204Z",
      "releaseAt": null,
      "observedAt": "2026-07-01",
      "observationPeriod": "2026-M07",
@@ -321,15 +329,15 @@
    "observedAt": "2026-06-01",
    "releasedAt": "2026-07-30T12:30:00.000Z",
    "nextReleaseAt": "2026-08-26T12:30:00.000Z",
-   "fetchedAt": "2026-08-13T00:43:59.025Z",
-   "lastSuccessfulAt": "2026-08-13T00:43:59.025Z",
+   "fetchedAt": "2026-08-14T00:40:20.703Z",
+   "lastSuccessfulAt": "2026-08-14T00:40:20.703Z",
    "values": {
     "pce": 3.7,
     "corePce": 3.3,
     "pceMoM": -0.1,
     "corePceMoM": 0.1
    },
-   "attemptedAt": "2026-08-13T00:43:59.025Z"
+   "attemptedAt": "2026-08-14T00:40:20.703Z"
   },
   "_source_pce": "bea-official-primary",
   "_source_corePce": "bea-official-primary",
@@ -341,75 +349,1489 @@
   "_source_housingStarts": "fred-official-primary",
   "_source_retailSales": "fred-official-primary",
   "_source_usWageGrowth": "fred-official-primary",
-  "_source_hyOAS": "fred-official-primary"
+  "_source_hyOAS": "fred-official-public-csv",
+  "_treasury": {
+   "schemaVersion": "us-treasury-curve.v1",
+   "status": "cached-fresh",
+   "source": "U.S. Treasury Daily Par Yield Curve Rates",
+   "sourceKind": "official-primary",
+   "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?field_tdr_date_value=2026&type=daily_treasury_yield_curve",
+   "observedAt": "2026-08-13",
+   "fetchedAt": "2026-08-14T00:38:03.207Z",
+   "values": {
+    "dgs2": 4.15,
+    "dgs5": 4.32,
+    "dgs10": 4.63,
+    "dgs20": 5.2,
+    "dgs30": 5.21,
+    "t10y2y": 0.48
+   },
+   "allowedUse": "official-observation-and-derived-same-date-spread",
+   "decisionUse": false,
+   "attemptedAt": "2026-08-14T00:40:20.704Z",
+   "cacheHit": true
+  },
+  "dgs2": 4.15,
+  "_asOf_dgs2": "2026-08-13",
+  "_source_dgs2": "us-treasury-official-primary",
+  "dgs5": 4.32,
+  "_asOf_dgs5": "2026-08-13",
+  "_source_dgs5": "us-treasury-official-primary",
+  "dgs10": 4.63,
+  "_asOf_dgs10": "2026-08-13",
+  "_source_dgs10": "us-treasury-official-primary",
+  "dgs20": 5.2,
+  "_asOf_dgs20": "2026-08-13",
+  "_source_dgs20": "us-treasury-official-primary",
+  "dgs30": 5.21,
+  "_asOf_dgs30": "2026-08-13",
+  "_source_dgs30": "us-treasury-official-primary",
+  "t10y2y": 0.48,
+  "_asOf_t10y2y": "2026-08-13",
+  "_source_t10y2y": "us-treasury-official-primary",
+  "_fredHyOas": {
+   "schemaVersion": "fred-public-series.v1",
+   "status": "ok",
+   "seriesId": "BAMLH0A0HYM2",
+   "source": "FRED public series download (ICE BofA US High Yield Index OAS)",
+   "sourceKind": "official-government-relay",
+   "sourceUrl": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=BAMLH0A0HYM2",
+   "observedAt": "2026-08-12",
+   "fetchedAt": "2026-08-14T00:40:20.704Z",
+   "value": 2.71,
+   "unit": "percent",
+   "allowedUse": "official-relay-observation-with-publication-lag",
+   "decisionUse": false,
+   "attemptedAt": "2026-08-14T00:40:20.704Z",
+   "cacheHit": false
+  }
  },
  "fearGreed": {
-  "score": 62,
+  "score": 66,
   "rating": "greed",
   "_source": "cnn",
-  "asOf": "2026-08-12T23:59:58+00:00",
-  "previousScore": 61,
-  "previousWeek": 60
+  "sourceUrl": "https://www.cnn.com/markets/fear-and-greed",
+  "asOf": "2026-08-13T23:59:54+00:00",
+  "previousScore": 62,
+  "previousWeek": 59,
+  "history": [
+   {
+    "observedAt": "2025-08-14T00:00:00.000Z",
+    "score": 63.26,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-08-15T00:00:00.000Z",
+    "score": 63.54,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-08-18T00:00:00.000Z",
+    "score": 64.2,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-08-19T00:00:00.000Z",
+    "score": 59.89,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-08-20T00:00:00.000Z",
+    "score": 55.91,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-08-21T00:00:00.000Z",
+    "score": 52.6,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2025-08-22T00:00:00.000Z",
+    "score": 55.54,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-08-25T00:00:00.000Z",
+    "score": 53.94,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2025-08-26T00:00:00.000Z",
+    "score": 55.4,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-08-27T00:00:00.000Z",
+    "score": 59.11,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-08-28T00:00:00.000Z",
+    "score": 64.43,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-08-29T00:00:00.000Z",
+    "score": 61.54,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-09-02T00:00:00.000Z",
+    "score": 62.46,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-09-03T00:00:00.000Z",
+    "score": 61.37,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-09-04T00:00:00.000Z",
+    "score": 61.17,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-09-05T00:00:00.000Z",
+    "score": 58.69,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-09-08T00:00:00.000Z",
+    "score": 58.23,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-09-09T00:00:00.000Z",
+    "score": 57.94,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-09-10T00:00:00.000Z",
+    "score": 57.94,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-09-11T00:00:00.000Z",
+    "score": 60.34,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-09-12T00:00:00.000Z",
+    "score": 61.34,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-09-15T00:00:00.000Z",
+    "score": 64.46,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-09-16T00:00:00.000Z",
+    "score": 64.37,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-09-17T00:00:00.000Z",
+    "score": 63.77,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-09-18T00:00:00.000Z",
+    "score": 66.54,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-09-19T00:00:00.000Z",
+    "score": 66.23,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-09-22T00:00:00.000Z",
+    "score": 66.51,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-09-23T00:00:00.000Z",
+    "score": 56.77,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-09-24T00:00:00.000Z",
+    "score": 54.57,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2025-09-25T00:00:00.000Z",
+    "score": 50.66,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2025-09-26T00:00:00.000Z",
+    "score": 51.29,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2025-09-29T00:00:00.000Z",
+    "score": 50.97,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2025-09-30T00:00:00.000Z",
+    "score": 51.4,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2025-10-01T00:00:00.000Z",
+    "score": 52.49,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2025-10-02T00:00:00.000Z",
+    "score": 54.54,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2025-10-03T00:00:00.000Z",
+    "score": 52.57,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2025-10-06T00:00:00.000Z",
+    "score": 53.97,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2025-10-07T00:00:00.000Z",
+    "score": 51.86,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2025-10-08T00:00:00.000Z",
+    "score": 52.94,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2025-10-09T00:00:00.000Z",
+    "score": 48.63,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2025-10-10T00:00:00.000Z",
+    "score": 30.14,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-10-13T00:00:00.000Z",
+    "score": 29.74,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-10-14T00:00:00.000Z",
+    "score": 28.29,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-10-15T00:00:00.000Z",
+    "score": 27.41,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-10-16T00:00:00.000Z",
+    "score": 23.11,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2025-10-17T00:00:00.000Z",
+    "score": 22.33,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2025-10-20T00:00:00.000Z",
+    "score": 29.86,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-10-21T00:00:00.000Z",
+    "score": 28.54,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-10-22T00:00:00.000Z",
+    "score": 26.37,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-10-23T00:00:00.000Z",
+    "score": 27.57,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-10-24T00:00:00.000Z",
+    "score": 32.46,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-10-27T00:00:00.000Z",
+    "score": 37.34,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-10-28T00:00:00.000Z",
+    "score": 39.34,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-10-29T00:00:00.000Z",
+    "score": 42.11,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-10-30T00:00:00.000Z",
+    "score": 37.06,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-10-31T00:00:00.000Z",
+    "score": 34.46,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-11-03T00:00:00.000Z",
+    "score": 32.6,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-11-04T00:00:00.000Z",
+    "score": 20.94,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2025-11-05T00:00:00.000Z",
+    "score": 23.06,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2025-11-06T00:00:00.000Z",
+    "score": 24.34,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2025-11-07T00:00:00.000Z",
+    "score": 20.43,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2025-11-10T00:00:00.000Z",
+    "score": 29.94,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-11-11T00:00:00.000Z",
+    "score": 30.46,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-11-12T00:00:00.000Z",
+    "score": 34.57,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-11-13T00:00:00.000Z",
+    "score": 24.54,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2025-11-14T00:00:00.000Z",
+    "score": 22.06,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2025-11-17T00:00:00.000Z",
+    "score": 11.64,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2025-11-18T00:00:00.000Z",
+    "score": 8.9,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2025-11-19T00:00:00.000Z",
+    "score": 7.86,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2025-11-20T00:00:00.000Z",
+    "score": 5.17,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2025-11-21T00:00:00.000Z",
+    "score": 5.66,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2025-11-24T00:00:00.000Z",
+    "score": 13.69,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2025-11-25T00:00:00.000Z",
+    "score": 15.03,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2025-11-26T00:00:00.000Z",
+    "score": 17.66,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2025-11-28T00:00:00.000Z",
+    "score": 21.77,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2025-12-01T00:00:00.000Z",
+    "score": 22.09,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2025-12-02T00:00:00.000Z",
+    "score": 23.26,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2025-12-03T00:00:00.000Z",
+    "score": 24.77,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2025-12-04T00:00:00.000Z",
+    "score": 36.03,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-12-05T00:00:00.000Z",
+    "score": 38.14,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-12-08T00:00:00.000Z",
+    "score": 40.77,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-12-09T00:00:00.000Z",
+    "score": 40.94,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-12-10T00:00:00.000Z",
+    "score": 36.37,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-12-11T00:00:00.000Z",
+    "score": 43.74,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-12-12T00:00:00.000Z",
+    "score": 39.29,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-12-15T00:00:00.000Z",
+    "score": 49.31,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2025-12-16T00:00:00.000Z",
+    "score": 46.4,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2025-12-17T00:00:00.000Z",
+    "score": 37.69,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-12-18T00:00:00.000Z",
+    "score": 42.37,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-12-19T00:00:00.000Z",
+    "score": 44.2,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2025-12-22T00:00:00.000Z",
+    "score": 54.89,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2025-12-23T00:00:00.000Z",
+    "score": 58.57,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-12-24T00:00:00.000Z",
+    "score": 58,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2025-12-26T00:00:00.000Z",
+    "score": 54.86,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2025-12-29T00:00:00.000Z",
+    "score": 47.89,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2025-12-30T00:00:00.000Z",
+    "score": 46.11,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2025-12-31T00:00:00.000Z",
+    "score": 43.26,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-01-02T00:00:00.000Z",
+    "score": 45.23,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2026-01-05T00:00:00.000Z",
+    "score": 47.6,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2026-01-06T00:00:00.000Z",
+    "score": 52.86,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2026-01-07T00:00:00.000Z",
+    "score": 48.57,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2026-01-08T00:00:00.000Z",
+    "score": 48.37,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2026-01-09T00:00:00.000Z",
+    "score": 54.11,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2026-01-12T00:00:00.000Z",
+    "score": 58,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-01-13T00:00:00.000Z",
+    "score": 59.09,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-01-14T00:00:00.000Z",
+    "score": 58.63,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-01-15T00:00:00.000Z",
+    "score": 63.66,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-01-16T00:00:00.000Z",
+    "score": 63.77,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-01-20T00:00:00.000Z",
+    "score": 50.86,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2026-01-21T00:00:00.000Z",
+    "score": 53.86,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2026-01-22T00:00:00.000Z",
+    "score": 54.77,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2026-01-23T00:00:00.000Z",
+    "score": 54.89,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2026-01-26T00:00:00.000Z",
+    "score": 57.66,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-01-27T00:00:00.000Z",
+    "score": 64.97,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-01-28T00:00:00.000Z",
+    "score": 65.54,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-01-29T00:00:00.000Z",
+    "score": 63.83,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-01-30T00:00:00.000Z",
+    "score": 58.6,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-02-02T00:00:00.000Z",
+    "score": 63.4,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-02-03T00:00:00.000Z",
+    "score": 43.34,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-02-04T00:00:00.000Z",
+    "score": 47.23,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2026-02-05T00:00:00.000Z",
+    "score": 34.94,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-02-06T00:00:00.000Z",
+    "score": 45.37,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2026-02-09T00:00:00.000Z",
+    "score": 48.49,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2026-02-10T00:00:00.000Z",
+    "score": 47.23,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2026-02-11T00:00:00.000Z",
+    "score": 49.91,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2026-02-12T00:00:00.000Z",
+    "score": 36.36,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-02-13T00:00:00.000Z",
+    "score": 33.84,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-02-17T00:00:00.000Z",
+    "score": 33.31,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-02-18T00:00:00.000Z",
+    "score": 34.16,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-02-19T00:00:00.000Z",
+    "score": 34.4,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-02-20T00:00:00.000Z",
+    "score": 42.34,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-02-23T00:00:00.000Z",
+    "score": 32.54,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-02-24T00:00:00.000Z",
+    "score": 40.26,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-02-25T00:00:00.000Z",
+    "score": 43.14,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-02-26T00:00:00.000Z",
+    "score": 42.91,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-02-27T00:00:00.000Z",
+    "score": 41.17,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-03-02T00:00:00.000Z",
+    "score": 34.29,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-03-03T00:00:00.000Z",
+    "score": 31.63,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-03-04T00:00:00.000Z",
+    "score": 33.07,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-03-05T00:00:00.000Z",
+    "score": 31.63,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-03-06T00:00:00.000Z",
+    "score": 25.26,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-03-09T00:00:00.000Z",
+    "score": 22.23,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2026-03-10T00:00:00.000Z",
+    "score": 20.27,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2026-03-11T00:00:00.000Z",
+    "score": 18.31,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2026-03-13T00:00:00.000Z",
+    "score": 16.67,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2026-03-16T00:00:00.000Z",
+    "score": 23.91,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2026-03-17T00:00:00.000Z",
+    "score": 22.89,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2026-03-18T00:00:00.000Z",
+    "score": 13.61,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2026-03-19T00:00:00.000Z",
+    "score": 18.31,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2026-03-20T00:00:00.000Z",
+    "score": 8.4,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2026-03-23T00:00:00.000Z",
+    "score": 11.63,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2026-03-24T00:00:00.000Z",
+    "score": 10.36,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2026-03-25T00:00:00.000Z",
+    "score": 16.54,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2026-03-26T00:00:00.000Z",
+    "score": 10.26,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2026-03-27T00:00:00.000Z",
+    "score": 8.17,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2026-03-30T00:00:00.000Z",
+    "score": 5.77,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2026-03-31T00:00:00.000Z",
+    "score": 14.89,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2026-04-01T00:00:00.000Z",
+    "score": 15.86,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2026-04-02T00:00:00.000Z",
+    "score": 18.29,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2026-04-06T00:00:00.000Z",
+    "score": 21.86,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2026-04-07T00:00:00.000Z",
+    "score": 21.57,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2026-04-08T00:00:00.000Z",
+    "score": 29.17,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-04-09T00:00:00.000Z",
+    "score": 33.8,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-04-10T00:00:00.000Z",
+    "score": 38.06,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-04-13T00:00:00.000Z",
+    "score": 40.97,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-04-14T00:00:00.000Z",
+    "score": 47.26,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2026-04-15T00:00:00.000Z",
+    "score": 56.2,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-04-16T00:00:00.000Z",
+    "score": 61.49,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-04-17T00:00:00.000Z",
+    "score": 68.57,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-04-20T00:00:00.000Z",
+    "score": 69.97,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-04-21T00:00:00.000Z",
+    "score": 67.57,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-04-22T00:00:00.000Z",
+    "score": 68.46,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-04-23T00:00:00.000Z",
+    "score": 66.17,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-04-24T00:00:00.000Z",
+    "score": 65.4,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-04-27T00:00:00.000Z",
+    "score": 66.29,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-04-28T00:00:00.000Z",
+    "score": 67.43,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-04-29T00:00:00.000Z",
+    "score": 66.23,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-04-30T00:00:00.000Z",
+    "score": 69.51,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-05-01T00:00:00.000Z",
+    "score": 71.17,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-05-04T00:00:00.000Z",
+    "score": 66.89,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-05-05T00:00:00.000Z",
+    "score": 67.26,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-05-06T00:00:00.000Z",
+    "score": 68.74,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-05-07T00:00:00.000Z",
+    "score": 67.29,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-05-08T00:00:00.000Z",
+    "score": 67.29,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-05-11T00:00:00.000Z",
+    "score": 66.63,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-05-12T00:00:00.000Z",
+    "score": 65.69,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-05-13T00:00:00.000Z",
+    "score": 64.97,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-05-14T00:00:00.000Z",
+    "score": 65.91,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-05-15T00:00:00.000Z",
+    "score": 63.23,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-05-18T00:00:00.000Z",
+    "score": 62.09,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-05-19T00:00:00.000Z",
+    "score": 59.26,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-05-20T00:00:00.000Z",
+    "score": 60.51,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-05-21T00:00:00.000Z",
+    "score": 57.51,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-05-22T00:00:00.000Z",
+    "score": 58.23,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-05-26T00:00:00.000Z",
+    "score": 59.83,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-05-27T00:00:00.000Z",
+    "score": 60.63,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-05-28T00:00:00.000Z",
+    "score": 60.71,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-05-29T00:00:00.000Z",
+    "score": 60.46,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-06-01T00:00:00.000Z",
+    "score": 59.46,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-06-02T00:00:00.000Z",
+    "score": 56.97,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-06-03T00:00:00.000Z",
+    "score": 54.63,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2026-06-04T00:00:00.000Z",
+    "score": 54.57,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2026-06-05T00:00:00.000Z",
+    "score": 41.86,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-06-08T00:00:00.000Z",
+    "score": 39.37,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-06-09T00:00:00.000Z",
+    "score": 33.77,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-06-10T00:00:00.000Z",
+    "score": 27.29,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-06-11T00:00:00.000Z",
+    "score": 29.69,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-06-12T00:00:00.000Z",
+    "score": 33.51,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-06-15T00:00:00.000Z",
+    "score": 40.14,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-06-16T00:00:00.000Z",
+    "score": 39.51,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-06-17T00:00:00.000Z",
+    "score": 32.94,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-06-18T00:00:00.000Z",
+    "score": 37.34,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-06-22T00:00:00.000Z",
+    "score": 33.94,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-06-23T00:00:00.000Z",
+    "score": 28.46,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-06-24T00:00:00.000Z",
+    "score": 26.46,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-06-25T00:00:00.000Z",
+    "score": 25.43,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-06-26T00:00:00.000Z",
+    "score": 24.66,
+    "rating": "extreme fear"
+   },
+   {
+    "observedAt": "2026-06-29T00:00:00.000Z",
+    "score": 26.86,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-06-30T00:00:00.000Z",
+    "score": 29.97,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-07-01T00:00:00.000Z",
+    "score": 31.63,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-07-02T00:00:00.000Z",
+    "score": 32.54,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-07-06T00:00:00.000Z",
+    "score": 41.66,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-07-07T00:00:00.000Z",
+    "score": 39.77,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-07-08T00:00:00.000Z",
+    "score": 38.63,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-07-09T00:00:00.000Z",
+    "score": 44.71,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-07-10T00:00:00.000Z",
+    "score": 46.83,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2026-07-13T00:00:00.000Z",
+    "score": 40.86,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-07-14T00:00:00.000Z",
+    "score": 41.06,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-07-16T00:00:00.000Z",
+    "score": 41.2,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-07-17T00:00:00.000Z",
+    "score": 37.23,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-07-20T00:00:00.000Z",
+    "score": 37.94,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-07-21T00:00:00.000Z",
+    "score": 43.37,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-07-22T00:00:00.000Z",
+    "score": 43.31,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-07-23T00:00:00.000Z",
+    "score": 38.91,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-07-24T00:00:00.000Z",
+    "score": 41.34,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-07-27T00:00:00.000Z",
+    "score": 37.63,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-07-28T00:00:00.000Z",
+    "score": 37.89,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-07-29T00:00:00.000Z",
+    "score": 34.66,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-07-30T00:00:00.000Z",
+    "score": 40.71,
+    "rating": "fear"
+   },
+   {
+    "observedAt": "2026-07-31T00:00:00.000Z",
+    "score": 45.23,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2026-08-03T00:00:00.000Z",
+    "score": 50.74,
+    "rating": "neutral"
+   },
+   {
+    "observedAt": "2026-08-04T00:00:00.000Z",
+    "score": 59.97,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-08-05T00:00:00.000Z",
+    "score": 59.83,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-08-06T00:00:00.000Z",
+    "score": 58.86,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-08-07T00:00:00.000Z",
+    "score": 64.43,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-08-10T00:00:00.000Z",
+    "score": 64.69,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-08-11T00:00:00.000Z",
+    "score": 61.43,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-08-12T00:00:00.000Z",
+    "score": 62.94,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-08-13T00:00:00.000Z",
+    "score": 66.14,
+    "rating": "greed"
+   },
+   {
+    "observedAt": "2026-08-13T23:59:54.000Z",
+    "score": 66.14,
+    "rating": "greed"
+   }
+  ]
  },
  "putCall": {
-  "totalPutCall": 0.81,
-  "indexPutCall": 0.9,
-  "equityPutCall": 0.63,
-  "asOf": "2026-08-11",
-  "fetchedAt": "2026-08-13T00:44:00.346Z",
+  "totalPutCall": 0.84,
+  "indexPutCall": 1.03,
+  "equityPutCall": 0.61,
+  "asOf": "2026-08-12",
+  "fetchedAt": "2026-08-14T00:40:21.700Z",
   "source": "Cboe Daily Market Statistics",
   "sourceUrl": "https://www.cboe.com/data/mktstat.aspx",
   "sourceKind": "delayed",
   "allowedUse": "decision-with-daily-delay"
  },
+ "providerCrossChecks": {
+  "crypto": {
+   "status": "ok",
+   "attemptedAt": "2026-08-14T00:40:20.705Z",
+   "fetchedAt": "2026-08-14T00:40:20.976Z",
+   "source": "CoinGecko Simple Price API",
+   "sourceKind": "independent-secondary",
+   "sourceUrl": "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_last_updated_at=true",
+   "quotes": [
+    {
+     "symbol": "BTC-USD",
+     "price": 63382,
+     "observedAt": "2026-08-14T00:38:20.000Z"
+    },
+    {
+     "symbol": "ETH-USD",
+     "price": 1884.36,
+     "observedAt": "2026-08-14T00:38:20.000Z"
+    }
+   ]
+  }
+ },
  "news": [
   {
-   "title": "Where gold price is headed next as Fed rate hike and inflation odds change direction - CNBC",
-   "link": "https://news.google.com/rss/articles/CBMihgFBVV95cUxQcE9EUXZra0w3S0ZDbGRzTHRDc1dyMEc0ZkpWVEFaeElqYVN5eWFFdzhPVE1qTDBPdnJPNHc0UlloNlhQem1KQUhhZTVOVTJWT1JCelRnUkpBLU9BaGs2blVNT2NZaUFlYUJpOVRBeVZndE9TaE5aOWxieHlwRFJsLVhRR3p3d9IBiwFBVV95cUxOV0ZZUWFRWEsyVGtkaFdSTGlYRi1BN290OEdpdFJ4dU8yVXFGbksxQmtZN0hfdTRuT05BUHQyR29Hdm5XdHhmOEhTUTNOSmFHTjB3cDRaVnlMTEtTUjJGa3hadFFmLVQ4SkRmbjdSNFJrVjd5cTVja2Q2OG1ZLTNGSTlrdTBiVmJnWUVJ?oc=5",
-   "source": "CNBC",
-   "pubDate": "Wed, 12 Aug 2026 19:22:32 GMT",
+   "title": "KOSPI surges 4.1% , outperforms in Asia amid chip-led rally - 네이트",
+   "link": "https://news.google.com/rss/articles/CBMiU0FVX3lxTFBlZTQxQ2NScnNtQWpEejlzZ2lVNUtFSm5RckRYZ3RPYWhXdTZmMXhrcEozRTh5cWZaS0VDc3AtaGZqSGFWVl9QaUkyVndLTFNMNVVR?oc=5",
+   "source": "네이트",
+   "pubDate": "Thu, 13 Aug 2026 02:45:00 GMT",
+   "topic": "kr",
+   "country": "kr",
+   "tier": 3,
+   "score": 41,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | ai-semis+13",
+   "feedSource": "Google News - Korea markets",
+   "sourceTierLabel": "aggregator-or-trade",
+   "contentDepth": "headline-only",
+   "eventTime": "2026-08-13T02:45:00.000Z",
+   "eventTimeKind": "published",
+   "independenceKey": "네이트",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
+  },
+  {
+   "title": "U.S. stocks rise to a record as oil prices drop and inflation gets less bad - BNN Bloomberg",
+   "link": "https://news.google.com/rss/articles/CBMixgFBVV95cUxQSEtoQnNxUUJTeEJ1VjN2WUlhV2l5X0kxejRMd2lzaExMTDZHTUg0T0RDczlsVVl3Zm1jRWcxU2J2emlHSHRXMUNoeWVzbC1DTVYzVFB5VHk2b0lOc290NnVWcVZHR2ZfTzVpNG1panhEUVlfXzN2eGtvdHMwVUhjay01NFVkcG5FQTM0LWxOcTlFZ3BWbzRBcUJPLS1FQmg0aUZSZnpPR25TcjdZY0NKcmFHbGFaeDBFb2c5NFBmVDA4ckVYZXc?oc=5",
+   "source": "BNN Bloomberg",
+   "pubDate": "Thu, 13 Aug 2026 20:31:19 GMT",
    "topic": "macro",
    "country": "us",
    "tier": 1,
-   "score": 70,
-   "selectionReason": "base+20 | source-tier1+16 | recency+12 | macro-rates+14 | fx-bonds-commodities+8",
+   "score": 76,
+   "selectionReason": "base+20 | source-tier1+16 | recency+12 | macro-rates+14 | geopolitics-energy+14",
    "feedSource": "Google News - US markets",
    "sourceTierLabel": "official-or-wire",
    "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T19:22:32.000Z",
+   "eventTime": "2026-08-13T20:31:19.000Z",
    "eventTimeKind": "published",
-   "independenceKey": "cnbc",
+   "independenceKey": "bnn bloomberg",
    "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
   },
   {
-   "title": "Oil Prices Climb as Global Stocks Gain Amid Fed Rate Uncertainty - Global Banking & Finance Review",
-   "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxPZkh5bVUyRkJTaW5FS3YyMlMxbTBPYm9RVXRGc21LQ1dSYjd2OEdKNEJjdFJyLXhXd0ZaLWdWbVdfd05BZjVMZGxieWk4SzhPZkdPeDA1SkFwSWpWNkhnUnVhMEJZTHpwVlJSNE9yeW1uaXRSZ1hkVmluZXBLaUtZTFpZYUhhZkVua1hiQXFzTUtOVEtK?oc=5",
-   "source": "Global Banking & Finance Review",
-   "pubDate": "Wed, 12 Aug 2026 22:19:59 GMT",
-   "topic": "fxbond",
-   "country": "global",
-   "tier": 3,
+   "title": "Asian Stocks Set for Gains as US Inflation Cools: Markets Wrap - Bloomberg.com",
+   "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxNWk9LT09OZ0o3aE1weXpUM0V0XzMzblRONDFQM2JqZFdWaUZ1RkJOV1BPRWM5eWtIczJReUhRY243d1pGMkRTU2ZENTI1ZWU3ZHdnVXNMRDJVQWk2eHBQRFNUN1VDMlZJczFKTVYxZy1Ecm5EbldNVEV5cVh0TmFmUzJWX2xhSXpNWTl3NUdBSXJiZ0h4Znd6V19FNG1WazNUemExeC1wVEdEaHlNdGt6bHdB?oc=5",
+   "source": "Bloomberg.com",
+   "pubDate": "Thu, 13 Aug 2026 22:10:41 GMT",
+   "topic": "macro",
+   "country": "us",
+   "tier": 1,
    "score": 68,
-   "selectionReason": "base+20 | source-tier3+2 | recency+18 | macro-rates+14 | geopolitics-energy+14",
-   "feedSource": "Google News - FX/Bonds",
+   "selectionReason": "base+20 | source-tier1+16 | recency+18 | macro-rates+14",
+   "feedSource": "Google News - US markets",
+   "sourceTierLabel": "official-or-wire",
+   "contentDepth": "headline-only",
+   "eventTime": "2026-08-13T22:10:41.000Z",
+   "eventTimeKind": "published",
+   "independenceKey": "bloomberg.com",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
+  },
+  {
+   "title": "US eyes indefinite Iran naval blockade as oil supply shortfall deepens - Reuters",
+   "link": "https://news.google.com/rss/articles/CBMivgFBVV95cUxPamFTRDhha2lGLW5hTU1KdDZnVjlxd2hEY1lqX3Zfd2NmVlRXZjVWbDNHMXdJem1SX1hsNUpoaF9lWHhYUVFmUWJ0SDBWRG5uOGMzYzI0MFh6ckthOWJNZXNtR0tJVFJFcEMtVjdwZVFpdURyczZ0NTkzMDh1dDJNRWxKQ2htMEpBQ3N2Q25OY19wRWxaYTVCTmJJRWprVFFSMWNITjl4QmUxQVN1MUFnNHRsRWJGYUpHZ1Ywb0Nn?oc=5",
+   "source": "Reuters",
+   "pubDate": "Thu, 13 Aug 2026 22:01:51 GMT",
+   "topic": "geo",
+   "country": "global",
+   "tier": 1,
+   "score": 68,
+   "selectionReason": "base+20 | source-tier1+16 | recency+18 | geopolitics-energy+14",
+   "feedSource": "Google News - Geopolitics/Energy",
+   "sourceTierLabel": "official-or-wire",
+   "contentDepth": "headline-only",
+   "eventTime": "2026-08-13T22:01:51.000Z",
+   "eventTimeKind": "published",
+   "independenceKey": "reuters",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
+  },
+  {
+   "title": "US Stock Futures Rangebound After S&P 500 Ends At Record Highs As Data Shows Cooling Inflation — WDAY, SNDK, AMD, DELL, HTZ In Focus - TradingView",
+   "link": "https://news.google.com/rss/articles/CBMilgJBVV95cUxNV184RHN4bkdnVGNoZ1ZYSzdJaDVZN1hfb2pKN1dTVXcyUDhEX0FZUFE4RERXX2lNWHl6dUVVMjlEUXltbEhnc3R4a3J4aU5MbG53cWc5S1cxbHNTX1A0WjVwUzhkWkFyQ1FENGlkTDNzOG1ZY3IyZDdGWFlCSnpTaDgtOTBCQTVEZk4zb3VNc1RvaFd5ZklUaGlVbHJXZHE2MmtmWlM2cGh2UEI5WEdkZHdiZTdzdlRfaU54dlRKbWRHQlBfWUtUVkcxRGYzR2YxdjN5UVRtN0UzZ0l2Y1RaendhTDJqSzRvR0ZSWUs0d1AyX1ppS09hQ1J3ZW9mdE5WTXhIRlNnLVJmVmlnZFN1VWNEOUFsUQ?oc=5",
+   "source": "TradingView",
+   "pubDate": "Thu, 13 Aug 2026 22:59:21 GMT",
+   "topic": "macro",
+   "country": "us",
+   "tier": 3,
+   "score": 62,
+   "selectionReason": "base+20 | source-tier3+2 | recency+18 | macro-rates+14 | mega-cap+8",
+   "feedSource": "Google News - US markets",
    "sourceTierLabel": "aggregator-or-trade",
    "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T22:19:59.000Z",
+   "eventTime": "2026-08-13T22:59:21.000Z",
    "eventTimeKind": "published",
-   "independenceKey": "global banking & finance review",
+   "independenceKey": "tradingview",
    "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
   },
   {
-   "title": "Wall Street edges near its record as AI stocks rise and worries about inflation ease a bit - BNN Bloomberg",
-   "link": "https://news.google.com/rss/articles/CBMizwFBVV95cUxOR2hPZUg4eldjWm1fWnlhbllJUnQwT2ZIWVcySEFhdFZ0dnNXclA1MzgxcnZMT2ZLU2NuSGk3MjdoQjVKbmVvbXptcm1TbGtJc2lUS1psbHdCa1ZobGRIb2hNR1Y2VkVGNlFpbTFxVVZBVS02QmJkckxrQm1lRVltZ1E1VnJxNlBKMFlLX2VYWWpUUnJDaTNKS0RsUVRRVWJLSUNoQnpJbFhoOXJud3FMT0hSU3lxU0w2b2NqWklkbWg3bUMxTkQ4N3dyLWlGd3M?oc=5",
-   "source": "BNN Bloomberg",
-   "pubDate": "Wed, 12 Aug 2026 20:14:22 GMT",
+   "title": "S&P 500 Hits New High as Inflation, Oil Prices Ease - 조선일보",
+   "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxPUHoyYXVZa3JTLTJxTmU4VXVzeUF3Rm9sRDZTSkhENlFNT0lQSFNhVktXM295RkExNFJLbkhLRFdLdVA0dWtGSkU2djRQc0psM0g4dEpUSmdJc2Y2d2FOVlh5X0tWRmhzZlctV2JiLUlJcDBjVi1qS09HZ21KV2FLZno3TGVDeEk2TDhKSmlB?oc=5",
+   "source": "조선일보",
+   "pubDate": "Thu, 13 Aug 2026 21:53:49 GMT",
+   "topic": "macro",
+   "country": "us",
+   "tier": 3,
+   "score": 62,
+   "selectionReason": "base+20 | source-tier3+2 | recency+12 | macro-rates+14 | geopolitics-energy+14",
+   "feedSource": "Google News - US markets",
+   "sourceTierLabel": "aggregator-or-trade",
+   "contentDepth": "headline-only",
+   "eventTime": "2026-08-13T21:53:49.000Z",
+   "eventTimeKind": "published",
+   "independenceKey": "조선일보",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
+  },
+  {
+   "title": "Cool Inflation Data Propels Stocks to Fresh Records - WSJ",
+   "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxNUDlndXVVSER5VEoyVGllV2R0NklnV2p0QVBoRzVsM3hLeFpHbFQ4SEJoa2tIZUcxamt2MUQtc2dFNTdSRHV5dmNGdnkydjVkT251X2h6TVM1SmdUeWdsUmhnakh4elF2ZlludXlYeGM3YkJtbVlWemJtaGthTUJhbWUyRVdQbHl1a1BjaHJEX0FPZko2OC1jXzh3dw?oc=5",
+   "source": "WSJ",
+   "pubDate": "Thu, 13 Aug 2026 20:47:00 GMT",
    "topic": "macro",
    "country": "us",
    "tier": 1,
@@ -418,82 +1840,40 @@
    "feedSource": "Google News - US markets",
    "sourceTierLabel": "official-or-wire",
    "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T20:14:22.000Z",
+   "eventTime": "2026-08-13T20:47:00.000Z",
    "eventTimeKind": "published",
-   "independenceKey": "bnn bloomberg",
+   "independenceKey": "wsj",
    "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
   },
   {
-   "title": "Trump snaps back to economic warfare in struggle to make Iran tap out - The Hill",
-   "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxPTG85TzIxdUJXU25EX3hyMk5oS21kQWNHUUZJX3h0a29OelZ4REN5LWI0QUJ6NGg2d1FaRE9FaFA4UkNyeUVlOUV0RjhmYmltMno2OVRlTTJOQklwOHFZTGdxOG0wNGZ1X0lFdE1Ua0VKVEotdVFVcGdZU1RNcTZyakFTMjF5Q0hCTVJJTHpLbzdLMUYw0gGaAUFVX3lxTE5YeV9OZGhfYTFJVTlQV2RmQlpkS1k0QzBJcmhldWt1WDRfTVQ5S1hwT1RYVmktXzh0WTdWbEFpQ0h1czIwbkVxYmZsa3c4UmY0MFdnQzM2M0djUzhWcFRCZklJNUd6ODROQVZhYXhYOEZodGp3Nm93TDRia3ltVVZGTU5UbDg4TDlBVG4wdUd3bFZOYmtmeHl4aWc?oc=5",
-   "source": "The Hill",
-   "pubDate": "Wed, 12 Aug 2026 22:31:00 GMT",
+   "title": "Oil settles down 2% on weak demand outlook, hefty US crude build - Reuters",
+   "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxNRHRqOVFPR196RlJ0WTVZajZ6NHRpdmhmZ0EtSDMwTDVZVk5mX2JnVm9LVnFDQ2M4c08ybExVeldFQk9BdG9HVldTbnJFRDVjdTc3MF8wZmc4ck41bWd6Wng2SFowYjZrNW1UVzJuMDR4cnBUT0c2TXUteFR0cTFiVVY5bm5Da09NSDI4akNIcFY4NHRBRzkzNXNuZ1luQjNGUHFFdnVhT1RCNGlKMWx4MkgzdzhLdw?oc=5",
+   "source": "Reuters",
+   "pubDate": "Thu, 13 Aug 2026 19:38:00 GMT",
    "topic": "geo",
    "country": "global",
-   "tier": 2,
-   "score": 61,
-   "selectionReason": "base+20 | source-tier2+9 | recency+18 | geopolitics-energy+14",
-   "feedSource": "Google News - Geopolitics/Energy",
-   "sourceTierLabel": "reputable-secondary",
-   "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T22:31:00.000Z",
-   "eventTimeKind": "published",
-   "independenceKey": "the hill",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
-  },
-  {
-   "title": "Stock Market Today: Nasdaq 100 Rises on Strong AI Earnings, Benign Inflation - TradingView",
-   "link": "https://news.google.com/rss/articles/CBMizgFBVV95cUxNVUFVQUpmMzZFM0lxbzdTMmR5NVMwa3NicVF2UlEzZFB3aXpBQVJ2dlNPby1JVnFuRm84RGFFYW1fbEpNMm9kNXc4N0hxQWhlZGdpUktMOEJ4MEd5VFlySTFiTFprSGNGS2J6MEN4MlFnajNQNWhWTE5JUS1Fbk4yRkJkYk9YWGNjUkQ2UFBNLUJ4RGxSTFA0UlBrNlFNN2pURkJsTnFFdFpDU3NHU0JVMmlBVW5EclBzWkoxaTZmbkxEaFhyS2g5QUxfaWNsQQ?oc=5",
-   "source": "TradingView",
-   "pubDate": "Wed, 12 Aug 2026 17:14:25 GMT",
-   "topic": "macro",
-   "country": "us",
-   "tier": 3,
+   "tier": 1,
    "score": 58,
-   "selectionReason": "base+20 | source-tier3+2 | recency+12 | macro-rates+14 | earnings-guidance+10",
-   "feedSource": "Google News - US markets",
-   "sourceTierLabel": "aggregator-or-trade",
-   "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T17:14:25.000Z",
-   "eventTimeKind": "published",
-   "independenceKey": "tradingview",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
-  },
-  {
-   "title": "Global 2026 oil supply shortfall to deepen as Hormuz reopening remains elusive, IEA says - Reuters",
-   "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxPUm5jZkFKN2RpUWZWbG9rSXctekpyeml5UDgwTENteGwtSmFWbHd0cGFjYV9LRVBXeHRENktmbWVKNVZCeFp0U0YxeTFQcFdqZTJ5Z0sxWjg1TGUwRm13Mm5rSWRoUWw2MzZhNlhFeUV2Wk9mRFNFWDB6QWhSckZDbUtlZ3pzSWQyU0pjS0Q1d2dRT1EtcWt0SVhuQXlPTHZiZlhZTzFWSUoxcXVDdl9qUnA0SnJWR1Zf?oc=5",
-   "source": "Reuters",
-   "pubDate": "Wed, 12 Aug 2026 13:45:33 GMT",
-   "topic": "geo",
-   "country": "global",
-   "tier": 1,
-   "score": 56,
-   "selectionReason": "base+20 | source-tier1+16 | recency+6 | geopolitics-energy+14",
+   "selectionReason": "base+20 | source-tier1+16 | recency+12 | earnings-guidance+10",
    "feedSource": "Google News - Geopolitics/Energy",
    "sourceTierLabel": "official-or-wire",
    "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T13:45:33.000Z",
+   "eventTime": "2026-08-13T19:38:00.000Z",
    "eventTimeKind": "published",
    "independenceKey": "reuters",
    "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
   },
   {
-   "title": "Hormuz closure squeezes global economy as oil demand destruction intensifies, IEA says - CNBC",
-   "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTFBSQm1xZkY4NEc5Vk5lczFaeUNzeFpPMzhlaGpmSHZzbGQyVllTb2gxSTQzb3JmQ0lReEw0VEx5RTVoMURaa3ljTVVzbWtSb0ZFRXFpWkxUNktER3pQZnJ3RVpoRWx0c0NvUlHSAW9BVV95cUxObmUxRXJkaWJORnZLWjEwalppbWswaEhNTWx0XzdBQXJOajJWbGo0MlNGR3R5NmxpUUJsZm5rM1hRcnFTZ1BWMWVMcGxEWjE3VXNmRF85YllsQVM4cFNVUmlUUExhcHJmeGRxM0hxRjQ?oc=5",
+   "title": "Amos Hochstein on the Iran war’s impact on energy: Oil prices are not reflecting reality - CNBC",
+   "link": "https://news.google.com/rss/articles/CBMiygFBVV95cUxQY055b1pIby1JVm05VkZqVm5tZV9DT0lURnVycXdzTnN4S0IyQkJmSjhWb2RZWmJFV1FJTEViWXRzdUxUM002OWx6RjFTd3pKSVhjOU5sS1JlWXl3WWtlelBjNjN3QVZlbjhSM0hvNlBJSUgxVk4zYklzd0dDeU9oMWxtRWxDcEJ5WlFDQy00RUdtNXNVV3lqeXphQzJhTzFjc2xzVTJHTVhHeEFIc3h3YmctZ0xERFQ4TnBlbW1Cc1A1dGRhczQ5LVBn?oc=5",
    "source": "CNBC",
-   "pubDate": "Wed, 12 Aug 2026 08:04:35 GMT",
+   "pubDate": "Thu, 13 Aug 2026 13:14:00 GMT",
    "topic": "geo",
    "country": "global",
    "tier": 1,
@@ -502,19 +1882,19 @@
    "feedSource": "Google News - Geopolitics/Energy",
    "sourceTierLabel": "official-or-wire",
    "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T08:04:35.000Z",
+   "eventTime": "2026-08-13T13:14:00.000Z",
    "eventTimeKind": "published",
    "independenceKey": "cnbc",
    "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
   },
   {
-   "title": "Houthi attack kills six in Red Sea; Trump slams Iran as hopes for Hormuz Strait deal dim - CNBC",
-   "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxOSGtLT21UUTZ1QlQ3UVd6akpNcnhtNzI0aFNidjRHeWExendmSDhoT3VNZmt0VHVkdFk4LS1YVGdveE9uY1VYdUJrWnV2ZGlRanVTZmxmUTB1dzNCNnRDOUg1R2hUS3ZXeHdEMkcwdWZodzNOam9qOTN2TjJlMkNCY25PbzRVNG81RVFMd1NR0gGTAUFVX3lxTE5YekViUjgwbV9GLWVWUmplY0d3Nm9ka1lxQmRFMHVrNzFTWHhiSU1JMVpDbllZRGF2MGtkNW4yakJidmF5LTJsbUk2YVRSQ214ZHQyQzRwczRzYVRTZFJUWk5pNHRMZzZpcXRvX2cwbF9PYzByQlNLNUpvOE1lSGQ3Zk9rUFJsMkdBVFo4ZkMtZnQ1TQ?oc=5",
+   "title": "CNBC Daily Open: Middle East tensions send oil higher while Iran-U.S. tensions escalate - CNBC",
+   "link": "https://news.google.com/rss/articles/CBMivwFBVV95cUxQb2I2bk1ZZlVsRVlhelkwZ2V2UlNqZWo5b3ZmS0FtTWZOY0l6WFNqcFd0cVpQb0I5bmJyNzNaRGNaNUlCa3pxTzA1X21VVmt1bjJOOVZldmJLZlZaRHEyZWxuVDhtX2FRSDRpeFp6N3NOV2NxTEI0SzllcVZ0Q3VkaTV3MkQzNVZRWWlRVmNxN0liaDhNSmFmVWxiVjl3cHJLZEFVcUJ5bklCNFh1eXh1NFlWQ0dNVjdJaFpCRjFqa9IBxAFBVV95cUxNSmlITWpzUWtQTXlHcHhWbEZzN3hXcGFaeDBEeDNDOVRxcHFfZ095bEs5UEJ6dW5rQzhPekxHUHFIOGNRU1dodmRFV1c1QWJra1RtTGZjNnZva3hrMXlrSndpUWtZbW16STFJM1lhV3JxYlROS0NOQ0xfUWRrNDE2aVJCaHZjWThpaU9VZ0tBUTRtQ2VZWkc0aHVKRUN1TE5QdW42bFQ1WDE5X0EzVm82aENpekNBUzFvaVVsU1pBcTdFS3Vu?oc=5",
    "source": "CNBC",
-   "pubDate": "Wed, 12 Aug 2026 05:10:09 GMT",
+   "pubDate": "Thu, 13 Aug 2026 06:28:03 GMT",
    "topic": "geo",
    "country": "global",
    "tier": 1,
@@ -523,19 +1903,19 @@
    "feedSource": "Google News - Geopolitics/Energy",
    "sourceTierLabel": "official-or-wire",
    "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T05:10:09.000Z",
+   "eventTime": "2026-08-13T06:28:03.000Z",
    "eventTimeKind": "published",
    "independenceKey": "cnbc",
    "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
   },
   {
-   "title": "Oil prices little changed after Red Sea, Gulf of Oman vessel attacks - CNBC",
-   "link": "https://news.google.com/rss/articles/CBMie0FVX3lxTE1DUGtHWXRCMkh5Y0hKaHl1MTYxYThUT210WjBqdmVrUlEyTFc3RkRuc2hFeF9qSjRIaTB2RnM0MXAteTZmMFBUdXNDUEZkUFlld1pYbkhRMVpObWNOb244UEZKUTNXQW5aVkZGMmdIdEMyek9zQ3ZBQ2Nrb9IBgAFBVV95cUxPdi1sWGRJdmJPTzVFSGMwM3JPTV9hWTBveUQ3cGlTVElHd2JfWU02TXYxWks2ZmFoWkhWRlplT19faF9GcWdyNG1mRndYTjc1a0dHYUp1REdfRHJxWTFzWm95VzNGbjNNdzZ3RW1ZNHlBT2pmLWdtX25RLTM3RllnSQ?oc=5",
+   "title": "Oil prices fall after U.S. says crude exports through Strait of Hormuz near 9 million barrels per day - CNBC",
+   "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxOOFI0cXFMb3l3bVlpYkJNcFdCc2Z0S0poWEJ0akJvWUo4bjVLQjg0d1VLeWRtZlZHeWhFdDd6aVVteDRyQlkyTS1YVUx3UVduWU4wVHhidlpwR2lpanQzQlRud2tjcS1TZklfX2JfaFIzRVF0bzJoVE5MLTNHZHRRMl9YVdIBiAFBVV95cUxQZXNpOFlnOTlFRGZtUm5ucU53LWRpSVFkaExSa0dPS1phNER0cTRKQkYzMkNCRl9teHlTcGxLM3NadmtVdVlEakx1M0JmZU9HMlAzYnBnak1lWDZWcVNhaG1RakpiWUhLNTIyV2YxUnNXcS1wZnhzN08yRWp1Q0tHNXhiaUVVcnVS?oc=5",
    "source": "CNBC",
-   "pubDate": "Wed, 12 Aug 2026 04:56:36 GMT",
+   "pubDate": "Thu, 13 Aug 2026 01:59:00 GMT",
    "topic": "geo",
    "country": "global",
    "tier": 1,
@@ -544,40 +1924,40 @@
    "feedSource": "Google News - Geopolitics/Energy",
    "sourceTierLabel": "official-or-wire",
    "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T04:56:36.000Z",
+   "eventTime": "2026-08-13T01:59:00.000Z",
    "eventTimeKind": "published",
    "independenceKey": "cnbc",
    "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
   },
   {
-   "title": "Oil prices edge up as investors weigh US-Iran talks deadlock against lower demand - Reuters",
-   "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxOajU2TkE4Zm1kOHlwM2hwX0VXeWJTNkFCblBrN0FuUDNfN1NMRFQ1NE1HREZGVE96UXMyajRlamxJaVZqMGxQNGRyZlBZQ2xnNVNEZjdBZ05zR25PWEFTNksxMk9iREoyNElfZ1h0aUdiTmFKdEJpZlJfUDk1d25ZTXptbnByMDFfRjk2R1oxZ29pNFZiQVhwTmRCaDIzUXdYSFlxZnl6aU05eG1WLWlQWg?oc=5",
-   "source": "Reuters",
-   "pubDate": "Wed, 12 Aug 2026 00:58:00 GMT",
-   "topic": "geo",
-   "country": "global",
+   "title": "Watch Cisco's Forecast for AI Data Center Sales Disappoints Investors - Bloomberg.com",
+   "link": "https://news.google.com/rss/articles/CBMivwFBVV95cUxNVVZOUXB6RVZSdkc5dkxVR1c3bV9oTHZPRGF6WS1VcGM4UmxITDN2azUxR1BjaWpySHQ5bFV1NFZpeGxENm1ZTjUtMWZ4TUh4UGNLTVdoOHBtMTJ1MElmVWdKT1lfSVlDS05nVzh3S19wME8za3A3LXNGZ19TQS1oblRWeVM2Rzc3WjFHNWxLMUVJNmh2MEJpTUhtS1pXMDZ6SU5zYkZDR0VXXzlyNXpncG1nUzlZOThkUW5zRmhiTQ?oc=5",
+   "source": "Bloomberg.com",
+   "pubDate": "Thu, 13 Aug 2026 16:10:07 GMT",
+   "topic": "semi",
+   "country": "us",
    "tier": 1,
-   "score": 56,
-   "selectionReason": "base+20 | source-tier1+16 | recency+6 | geopolitics-energy+14",
-   "feedSource": "Google News - Geopolitics/Energy",
+   "score": 55,
+   "selectionReason": "base+20 | source-tier1+16 | recency+6 | ai-semis+13",
+   "feedSource": "Google News - AI/Semis",
    "sourceTierLabel": "official-or-wire",
    "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T00:58:00.000Z",
+   "eventTime": "2026-08-13T16:10:07.000Z",
    "eventTimeKind": "published",
-   "independenceKey": "reuters",
+   "independenceKey": "bloomberg.com",
    "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
   },
   {
-   "title": "Gas Prices Tick Up as Iran Conflict Keeps Pressure on Global Oil Markets - WENY News",
-   "link": "https://news.google.com/rss/articles/CBMi9AFBVV95cUxOdVRPY25zQzJKX0lrN21oTVYwSXFrR0pnaDdFX3RZejJiZzFmMm5iYkRzNXNIZFdGYmlXUW1nelNCOTFFY1dBakdFN1JFcVZsUDZOSXhqMjVHU1BrTnVCeGZvSGZFSElxY1pfVnM1Y2tMUEFxNTItSG96OTh6MThKVmhkczhjZjI3TGZOdlQtN2xyNjI5TDBoNFlrNGtiem5uVnBKcThzTnU0QXlsMlh4cEhkdzIycm4ydUFGSGVOR2llWWRwS3FmY0c3RlJmSllvU295LWUzS2I1Wkg0aWhwSVhrMUU1WFRSMzJwTEh5UllXVkdP?oc=5",
-   "source": "WENY News",
-   "pubDate": "Wed, 12 Aug 2026 22:00:44 GMT",
+   "title": "Vance says low oil prices are top US goal in Iran conflict - RFI",
+   "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxNR1AyVUVRejRRQ3BCcTNEdU5WaGw1RmVtbnlQYlZ3bU5WV2RXR01PWTFjVHdWYktNVFp2TWJCMkx5ZFExbGdaRzlvYVNNVUNWNUNVM0o5eVBhcC0yODhheXJSWGpDQTVSNjZqMTNaZllvWHRHUTFob3pwVVZUbHI1SnFoNHk4R3FVN0k3Mmt4WEdtZ1daT3dZYmszblZrdncxcG1WU0RZc244UlA0?oc=5",
+   "source": "RFI",
+   "pubDate": "Thu, 13 Aug 2026 22:52:00 GMT",
    "topic": "geo",
    "country": "global",
    "tier": 3,
@@ -586,124 +1966,250 @@
    "feedSource": "Google News - Geopolitics/Energy",
    "sourceTierLabel": "aggregator-or-trade",
    "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T22:00:44.000Z",
+   "eventTime": "2026-08-13T22:52:00.000Z",
    "eventTimeKind": "published",
-   "independenceKey": "weny news",
+   "independenceKey": "rfi",
    "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
   },
   {
-   "title": "Goldman Sachs raises Riskified stock price target on revenue growth - Investing.com",
-   "link": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxNQlVyNnhaVUc0aGt4Z1VWX1RWNVlKQkRzakVEdGZ4ZmxhRzhTbjU2d3ZXMW5ZZm5SdXBlWEZhTlE2RHk2VXJFYS0wMTRRMlo5TDRiUHVESWgtU2laVTJ6U3NQVmxoN1RIZTNSMFJtVmN2N0FKQmNtWmVQaHRHcjJSU2IteHVQY3VLMHg2Y3haVmpQQUpGYmVKblg4VWNVQ3ZrV0tNeW1UVUx1U2xDajNtc3ZHMjlGOUtsbjdjSjhJYkpjTmpSNURJT3lRbnV6YUw3?oc=5",
-   "source": "Investing.com",
-   "pubDate": "Wed, 12 Aug 2026 21:14:00 GMT",
-   "topic": "analyst",
+   "title": "S&P 500 Hits Record High 7,799 as Cool Inflation Data Lifts Rate-Cut Hopes - beincrypto.com",
+   "link": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE1rYVJfRzJqT2tVNWkwLXEycXhsZlVxd2wwLURYdTVKR3c5dEM3RjJWdmo0SUZRa2VKRVpGS3RxS2Juc1d3RzRxLXNQd0JVRzlZVFU5UWFTM3RQX1V1clZpMFhVQUFRUGNt?oc=5",
+   "source": "beincrypto.com",
+   "pubDate": "Thu, 13 Aug 2026 22:48:00 GMT",
+   "topic": "macro",
    "country": "us",
    "tier": 3,
-   "score": 52,
-   "selectionReason": "base+20 | source-tier3+2 | recency+12 | earnings-guidance+10 | analyst-action+8",
-   "feedSource": "Google News - Analyst/Earnings",
+   "score": 54,
+   "selectionReason": "base+20 | source-tier3+2 | recency+18 | macro-rates+14",
+   "feedSource": "Google News - US markets",
    "sourceTierLabel": "aggregator-or-trade",
    "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T21:14:00.000Z",
+   "eventTime": "2026-08-13T22:48:00.000Z",
    "eventTimeKind": "published",
-   "independenceKey": "investing.com",
+   "independenceKey": "beincrypto.com",
    "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
   },
   {
-   "title": "Dow rises as CPI meets estimates, AI earnings lift US stocks higher - TradingView",
-   "link": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxOaXc4Q0U0RVRrblg3NTRFMXJQd2paZHE1Wm53eUI3bGljZHdnal85SkNRZFZRX1hvc0U2Q2VHcmpmV2g3cnZENm1YQXloUGVXVldodlpCRmd5M09CYTQtN0dwaFFLVERnU0lfUTJQcF80T3BPa2IydjFONnpQQzl5Wnk5ei00Mm5zVHRYNEZEY1B2Z0ZkdTRKZGVpWGpja3BOZE5pMGl5Q1NHMGZJdXROQjk2ZWtNV0R0THhZdnFjbFQ?oc=5",
-   "source": "TradingView",
-   "pubDate": "Wed, 12 Aug 2026 13:39:00 GMT",
+   "title": "3.4 Percent Is Not a Good Inflation Rate - National Review",
+   "link": "https://news.google.com/rss/articles/CBMihgFBVV95cUxQQmcyOXhBbFhnU1hEblNOWWpaMkc5SnN4ZnBzdHJPMVo5NXhWb1l2dzVxWlJ1Rmx4a2RvOUxzNjNFa3ZMRko2bU1hZTd0bTdNQ2pwQnY3UXNYdEZMVkwxdDRXdHJLa3ZVTEdxNVVyd2U4cXZhcVNWZTRGNHdRUkFGOHpobHBwZ9IBiwFBVV95cUxOUXFlaFFuSEgzZWxGNkxmbmJTTHBHS1J5enFwX0pmR2VrOTBDdDJJTUJJWm03bEFqX3JOUm1paWtVcGd6VDl2TmxIUUxRd2RQVE9zejMxSDlVekNwUzRpUUtxU0RQOFNvRjY5WVM4b1BRS2VDUGVOU2dBanUxcThKT05Qc1VoblNoSTNF?oc=5",
+   "source": "National Review",
+   "pubDate": "Thu, 13 Aug 2026 22:19:56 GMT",
    "topic": "macro",
+   "country": "us",
+   "tier": 3,
+   "score": 54,
+   "selectionReason": "base+20 | source-tier3+2 | recency+18 | macro-rates+14",
+   "feedSource": "Google News - US markets",
+   "sourceTierLabel": "aggregator-or-trade",
+   "contentDepth": "headline-only",
+   "eventTime": "2026-08-13T22:19:56.000Z",
+   "eventTimeKind": "published",
+   "independenceKey": "national review",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
+  },
+  {
+   "title": "AI Data Center Stocks Retail Investors Are Watching For Power Cooling And Server Demand - simplywall.st",
+   "link": "https://news.google.com/rss/articles/CBMi4AFBVV95cUxPUV9QaTQ3c1NCVE5RajlvbTc1WWdlSGFJbFdaLVNCcGQtZUxkQlgtQk1wSjhtQjFKTDdkdzlxbW9tYy1yaUpPWjhfSE1wYUtyb2lpajU4SXV1eGhUc24yVGZCQnZDYVQ1bjROemFjUXNSUktJdWRRdi1yU3ZzVm1vMmJINkEzZjlNT2ZZYVRhQVhHeXkxWl9DQThMZnJGVlZDOVY2VmpSeWI1LUlOREtSbEg5b2lkTE9KUmxrbm91enM4eFlZSzgtTm5ZOGdSUFBwS1U2RFZYVGxaVEdxTDFFUNIB5gFBVV95cUxQbUE0dWVleU5vNWtSOWN1WTF1OWY0blhFNGtaQmR0MkZ4eVg5LW9Nb0FiX2JscmdFNGE2cGw4bXRQZ3czY0JzcVJyTGhCVGFVVEFoVi1ObTI5RU50VVpNSlUzdkZjRU5oc2NpZ1ZTemIwNUVJTjRSTmRydzRKWWN3RmxzcERQbXRkbGQ4cmJIbnpoSmdxTnhqZ3JvOUZnaWtQWFFxYzdiSlhmT3VsSzFSUFNEeXJEWl9pdUMta29SV0c5MGlkR2ZEWWxJR0VqYUItRld5SXBoRlFDQ3k4RXFybl9QMGJWZw?oc=5",
+   "source": "simplywall.st",
+   "pubDate": "Thu, 13 Aug 2026 22:54:57 GMT",
+   "topic": "semi",
+   "country": "us",
+   "tier": 3,
+   "score": 53,
+   "selectionReason": "base+20 | source-tier3+2 | recency+18 | ai-semis+13",
+   "feedSource": "Google News - AI/Semis",
+   "sourceTierLabel": "aggregator-or-trade",
+   "contentDepth": "headline-only",
+   "eventTime": "2026-08-13T22:54:57.000Z",
+   "eventTimeKind": "published",
+   "independenceKey": "simplywall.st",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
+  },
+  {
+   "title": "Cool CPI Data Pushes Tech Stocks to Records, Then Cisco's AI Guidance Rattles Investors - Startup Fortune",
+   "link": "https://news.google.com/rss/articles/CBMiswFBVV95cUxNbGdVNjlmWnNOVTNUSFpUZU1Mc1J5SEFBVndEangzSDYxWXJ5YXY3Nk4xdjFyclZIbExfOVhGQU04YWsxZVlJWERCYUYxM21KdmJlQzBIZXlJb28zd3VIVHRGRE9hYkRPZmJqaVRWN0xLcXBJRzFMelhsWVlpeVZNTUtWeGVaNGoyOVRYNVVDcWJkNWxuY2laNlNaakQ1MzFWMmxLQXNFQ3lDamx4WHE0S2dzSQ?oc=5",
+   "source": "Startup Fortune",
+   "pubDate": "Thu, 13 Aug 2026 06:34:02 GMT",
+   "topic": "semi",
    "country": "us",
    "tier": 3,
    "score": 52,
    "selectionReason": "base+20 | source-tier3+2 | recency+6 | macro-rates+14 | earnings-guidance+10",
-   "feedSource": "Google News - US markets",
+   "feedSource": "Google News - AI/Semis",
    "sourceTierLabel": "aggregator-or-trade",
    "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T13:39:00.000Z",
+   "eventTime": "2026-08-13T06:34:02.000Z",
    "eventTimeKind": "published",
-   "independenceKey": "tradingview",
+   "independenceKey": "startup fortune",
    "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
   },
   {
-   "title": "HYLN: Record Navy contract, raised guidance, and strong data center demand drive growth outlook - TradingView",
-   "link": "https://news.google.com/rss/articles/CBMiiwJBVV95cUxOOHo2WEpVNUNDT0dZYzhGQjJTOGN6aHkteWZyeEc1eGRyZTdBTEkxMVpoLWtOaERYcTlnbVhMZXh4amN4RzJVS18tbllhM1JiSVhZUmhJU1UzLWpWc05UREE3TU1qdS10enRsQUdtZkZveEdXQ3g4SGU0MzBRdF9TZDJ2T0RDM3V2Y0dROXhPUlNSV3VRVUd1blk2ZzlaTEhHTy0yRkNBV0o1WTR1ZWxtVlE1SlNvUV9WWk1Ib3g3Rmc2OHl5XzhqcmFDZExmUHhvOUZpczROb0R5MEQxVUNHRFNkWEZRSElZZVItZDhIemFQc2VhNHFJN1lEM2lBOWM2ZjZjRTAzSXFFZEk?oc=5",
+   "title": "3 Semiconductor Stocks to Buy Before the Next AI Earnings Wave in August - 24/7 Wall St.",
+   "link": "https://news.google.com/rss/articles/CBMitwFBVV95cUxOZVFkMDAwekpiOWZYNnVjeldDVVJjSDVQODVjVmFOUGs1T1JZRnBsajl5LWRoS2lqRzg2QnBGemRZZWV1d3FMMFZxSmtWRWJjLUQzMVA1SklFWjBVdFlSc3FENjlVVHJ3enp0X0xuWjZJMDZfWU45Rm1sRWFCNVdfRnlialEyNGNwX21oQzNIQ3pkOVRJMGJHNW9LUDExNi1DTnA5SFpiRHk5eTZ2U1o3WEQtRUEtRTQ?oc=5",
+   "source": "24/7 Wall St.",
+   "pubDate": "Thu, 13 Aug 2026 11:00:48 GMT",
+   "topic": "semi",
+   "country": "us",
+   "tier": 3,
+   "score": 51,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | ai-semis+13 | earnings-guidance+10",
+   "feedSource": "Google News - AI/Semis",
+   "sourceTierLabel": "aggregator-or-trade",
+   "contentDepth": "headline-only",
+   "eventTime": "2026-08-13T11:00:48.000Z",
+   "eventTimeKind": "published",
+   "independenceKey": "24/7 wall st.",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
+  },
+  {
+   "title": "Is Upgraded Guidance and Data Center Focus Altering The Investment Case For Helios Technologies (HLIO)? - simplywall.st",
+   "link": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxQcm1pdTFSbU9mZHlfOVczbGhrWV85V0V2ZXQwUkFOc3BQb1hOaElSN1JTT3NKZkltVjd4b0NkYWdXSDFCWVJ0blhpekhwdXIyS1NvT09GOW1td2NKQVk5V0FIMGpQSGNfaTZqNFNtYktzdkdxTWpieGkwdzl1YTJYVDFEZFFLNjdoTTNRSTRvOEZEVGhEYmd5Mk9OaWI3SUFadTlHU1F2YmVNZ0lUYnZIWFJ4SEJhanVIdlB1dzlkSkY2dmZuQ3BCa0hEWE5qOWlOZ3ZDWFVxRXfSAd4BQVVfeXFMUHZpZGNqbDhmakFQYzNzOGZackxQXzdNUjB1bVhsOFQ3amQ1RkdZb3lJTjlNU1VwNkQtV08tS2FWQjcxcTJuQkhJTXZNSWU0SmdCLXI2YmtraXI2VnBlRnhoZk85bDNrRXdXdjBMSXZid0dUb08xdEpDTHk0eXlMVXdkQ25fd3JIaVQyQmVlNHR5SFFud2RhNnI2c1FxdVU5ZnRBZ1NCanA2c0RfMHVSbWJHSkpFYlBFd0Vpb0ZzTXJDZ1JjdHJKSEpNYWdNOWNBdy1BZ0lZdDdCZkFWT3NR?oc=5",
+   "source": "simplywall.st",
+   "pubDate": "Thu, 13 Aug 2026 08:39:14 GMT",
+   "topic": "semi",
+   "country": "us",
+   "tier": 3,
+   "score": 51,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | ai-semis+13 | earnings-guidance+10",
+   "feedSource": "Google News - AI/Semis",
+   "sourceTierLabel": "aggregator-or-trade",
+   "contentDepth": "headline-only",
+   "eventTime": "2026-08-13T08:39:14.000Z",
+   "eventTimeKind": "published",
+   "independenceKey": "simplywall.st",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
+  },
+  {
+   "title": "SiTime (SITM) Lifted Guidance, Is It Fully Priced? - simplywall.st",
+   "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxPTEl2V3Y4STBCM0JlX0F4RkZKaG9ZY3VMQ0xPOE91czVyZmV2Mng1aXM3WjlkeG94RElsWUtHd2ktaGFpbERyZFBMQTZubFhfMTJIOFBCNTk3Y2hWM2xRbGxqS1NBY0pjUjFLUExBMUpOdjZETjlzRmJYWUVsa25oZHQ2aXFxN0RwekR6LWhWa3UwR1AxUjNVdDFvRk5uRnhMbXFqaVd3aVRmRXdUQzZ2R3lEa2dwaWRt0gG-AUFVX3lxTE4yOE5KV3kwaWc1ZGF1SXJiN3Fwdk1mTFg3bUVXbDFKa19ZOXpEWFNQby1EZzRnbDJ1TUxjQ2F1N1VsWU45X201QXB0SEZnWXNJZi1obzFyRnFWZDdqalVzZkkzbV96Q1VnYmQwX09vbFp6bEFPOE1EQklFLWRXd2lobzhKVjFlMkItaEUyVjlfb3h0aXMzSVExQlBPcWxqalFPUk5ldzJzVjR2VlMtajNGQVc5a0YtWWpSdEZNV0E?oc=5",
+   "source": "simplywall.st",
+   "pubDate": "Thu, 13 Aug 2026 22:40:56 GMT",
+   "topic": "semi",
+   "country": "us",
+   "tier": 3,
+   "score": 50,
+   "selectionReason": "base+20 | source-tier3+2 | recency+18 | earnings-guidance+10",
+   "feedSource": "Google News - AI/Semis",
+   "sourceTierLabel": "aggregator-or-trade",
+   "contentDepth": "headline-only",
+   "eventTime": "2026-08-13T22:40:56.000Z",
+   "eventTimeKind": "published",
+   "independenceKey": "simplywall.st",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
+  },
+  {
+   "title": "Gold Price Forecast: ETF Demand and Fed Bets Support the Next Move - equiti.com",
+   "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxObkctclBvYU5HWE1ISm1VWF9RbHRFa0Y3TVJ4d2o2SmptSHAtWmcxTlBwcmc0NTBZSHRkWlNzTElpd2QzdDNRMEVUejFNY2FLSEt0cWo0TFF3NzdTZkJoSXg4NEVGeEd2MFF0OFVYMC1DTEM2a29ZZnR2ZzVxYnJHRVczZWlSaHJJTnp3d2FqNERIWi1zSkR0TVBOVHkxSXBlalZfajE0N1I2MnZxUG1CdFVKX04?oc=5",
+   "source": "equiti.com",
+   "pubDate": "Thu, 13 Aug 2026 13:32:06 GMT",
+   "topic": "fxbond",
+   "country": "global",
+   "tier": 3,
+   "score": 50,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | macro-rates+14 | fx-bonds-commodities+8",
+   "feedSource": "Google News - FX/Bonds",
+   "sourceTierLabel": "aggregator-or-trade",
+   "contentDepth": "headline-only",
+   "eventTime": "2026-08-13T13:32:06.000Z",
+   "eventTimeKind": "published",
+   "independenceKey": "equiti.com",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
+  },
+  {
+   "title": "investingLive European markets wrap: Dollar remains tentative, gold off the highs in post-CPI trading - investingLive",
+   "link": "https://news.google.com/rss/articles/CBMiywFBVV95cUxNR1UxSEwzNmFxSlJlUUVuZ2tPNHFxU2lrbVpIc2x6MHhhRThMMkNZaHpLTWVrVmZ2bEFNSjBnQ1BiR1ZINWFmU196bjJuVi1yamc0MHdLU0VfTjdDVzQ3STh0LUhidW1jUDR6TlZoaWpjQ0hlY3BtQ3JEYWdRRGlaVTY1NXMwMlpjNU5SVXF3ajN2eXNvUGtQRE1XMm5NYzNZaWVNOG1rTlRWTm1kaUxSaGZGQWZPOGNmai1mX1FScHdBUFBTdDZSMXptSQ?oc=5",
+   "source": "investingLive",
+   "pubDate": "Thu, 13 Aug 2026 11:49:35 GMT",
+   "topic": "fxbond",
+   "country": "global",
+   "tier": 3,
+   "score": 50,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | macro-rates+14 | fx-bonds-commodities+8",
+   "feedSource": "Google News - FX/Bonds",
+   "sourceTierLabel": "aggregator-or-trade",
+   "contentDepth": "headline-only",
+   "eventTime": "2026-08-13T11:49:35.000Z",
+   "eventTimeKind": "published",
+   "independenceKey": "investinglive",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
+  },
+  {
+   "title": "Gold's Rally Hits a Fork in the Road as Fed Hawks and Inflation Doves Collide - AD HOC NEWS",
+   "link": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxNem9kUXdnSUdtNjBvaXFrQVhRMnhsWlczSmFpRWxKeVFTOFJ5eU5NVFhDTnpDamVDUEhmbnhZWGIxbm40MUp1ZVMyaFhfLTJoX3BEWXdMVTJDeGZ4cks2MmdqVHhqOUQ2dEI2RllySGVaY1VNZFYtaGo2bV96TlM0TlloS1RHa2g1SzJSaVF4ZkVlQ1ZraWJVWnktcnppNGdKN0x5MlpVbzVrWXJBSUEzUFY5UktPejRrZ0JyMHNFbVFRYTd3QWRud3BxcW5vdENCSy0xZHJYd2g?oc=5",
+   "source": "AD HOC NEWS",
+   "pubDate": "Thu, 13 Aug 2026 11:02:15 GMT",
+   "topic": "fxbond",
+   "country": "global",
+   "tier": 3,
+   "score": 50,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | macro-rates+14 | fx-bonds-commodities+8",
+   "feedSource": "Google News - FX/Bonds",
+   "sourceTierLabel": "aggregator-or-trade",
+   "contentDepth": "headline-only",
+   "eventTime": "2026-08-13T11:02:15.000Z",
+   "eventTimeKind": "published",
+   "independenceKey": "ad hoc news",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
+  },
+  {
+   "title": "The Market Moves Before the Fed: Understanding the Yield Curve for OANDA:XAUUSD by Kelly_Carter12 - TradingView",
+   "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxORzhyWUx3cUtMS3hnenh1WWdMV2hJRGZZdWVCMEhrV25kWGZuc2NwRGZZMjdJS2Rsa3pHbHZia3hhbnVqclpTWFZwbWZJd1VRanl5WlpJa0V6S2J2OS1HUGwzTzN2UHdPVXRza0IxX0ZlVEswTEVDSmZmME9NMVJ6OXFoNFpadUNZNHZRQ1NhUWNSUTlISVc5YkJvcUdUdFJuNDJSR2d3WHlDWDJYMzVGQTNB?oc=5",
    "source": "TradingView",
-   "pubDate": "Wed, 12 Aug 2026 16:46:26 GMT",
-   "topic": "semi",
-   "country": "us",
+   "pubDate": "Thu, 13 Aug 2026 07:58:45 GMT",
+   "topic": "fxbond",
+   "country": "global",
    "tier": 3,
-   "score": 51,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | ai-semis+13 | earnings-guidance+10",
-   "feedSource": "Google News - AI/Semis",
+   "score": 50,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | macro-rates+14 | fx-bonds-commodities+8",
+   "feedSource": "Google News - FX/Bonds",
    "sourceTierLabel": "aggregator-or-trade",
    "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T16:46:26.000Z",
+   "eventTime": "2026-08-13T07:58:45.000Z",
    "eventTimeKind": "published",
    "independenceKey": "tradingview",
    "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
   },
   {
-   "title": "Valens Semiconductor Q2 2026 earnings: Higher revenue supports raised guidance - TradingKey",
-   "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTE52TWo0M1FkQWVRd29pR3hrUDRPUjhpeUlJWXJUVHZmS0JSN2F5RzlyMFV3dzVMcEZYSEozTFVhSGNiSlJzTXBCdVAzc3ZNVHZzeTEwczdIaFpIUlQteDlodF84ejg4UktNVm5sR1Zn?oc=5",
-   "source": "TradingKey",
-   "pubDate": "Wed, 12 Aug 2026 10:42:13 GMT",
-   "topic": "semi",
-   "country": "us",
-   "tier": 3,
-   "score": 51,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | ai-semis+13 | earnings-guidance+10",
-   "feedSource": "Google News - AI/Semis",
-   "sourceTierLabel": "aggregator-or-trade",
-   "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T10:42:13.000Z",
-   "eventTimeKind": "published",
-   "independenceKey": "tradingkey",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
-  },
-  {
-   "title": "NRGV: Backlog doubled to $2B, revenue and margin guidance raised, driven by strong AI/data center demand - TradingView",
-   "link": "https://news.google.com/rss/articles/CBMilgJBVV95cUxPM0ZBNWNCQWFpbXY3RUJHYUhDYk0tR1FiQ3ROM1VxcEtiVnI1QU51dVliclVGUEJIWnBLaUtDWHdrd3lJNUwxUWxVRG8xOUtCMjRZSFFaMWFRbkNrXzZxdDU0TlFGRFdxLVF0UW5PcGpJZUVIXzJycE5PVEVHVmg3ZXZyRXN4S0xYVXhfdmJndVhsZWtUMTNWR1lnNGV0VXVPZG9GdS1FXzVuOEN5ZVFuTHBMalhxeTYzWjNHb3FlUWhnQjM1ZF9PazJQUHlCOHpPdEtCZzBpOVNfS20tTnFPZ0ItUm8ySjVXTlBPY2JfZ2pNcmJSODhTbmZEXzl3X3B2NW5DS0tmU1VYYXFxMUx5d1VzdEUxZw?oc=5",
-   "source": "TradingView",
-   "pubDate": "Tue, 11 Aug 2026 23:40:12 GMT",
-   "topic": "semi",
-   "country": "us",
-   "tier": 3,
-   "score": 51,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | ai-semis+13 | earnings-guidance+10",
-   "feedSource": "Google News - AI/Semis",
-   "sourceTierLabel": "aggregator-or-trade",
-   "contentDepth": "headline-only",
-   "eventTime": "2026-08-11T23:40:12.000Z",
-   "eventTimeKind": "published",
-   "independenceKey": "tradingview",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
-  },
-  {
-   "title": "Oil prices approach two-week high as Hormuz stays closed and Houthi attacks persist - Yahoo Finance",
-   "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxQVVRYV3EzZUc0d1pqYW1wYlJLVkpmZ3BoTG9zbDI4aU5WM3ZYTkdPY0hJSDBORm5Ic29kWktpV095WG5uVjYySU9PV2ZCWlB0YWFUWUJERHJYckF6amJCMnV5b2NQaWJPMmlrbGM1dURvZlVXTDJoSGdYMTB4bVFJVEFSeGZOMzREdzZaZkJB?oc=5",
+   "title": "Hormuz Stalemate Raises Risk of $120 Oil - Yahoo Finance",
+   "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxNSGdfYUVQSFNXZldQWXlfOEFPOXR3bThVaHBGUWhGT0pTNERGaWdiSGRkU2MwNEtXVUtKSkY0c1BvRlVBRFJwenJ6bjFYNjVzX0tfLS1pbHBWd3BwM2c0VjdRMVNORVktMHZBby1YZ2VFU2hkYkkzbmhabzlKR3k1ZFlBZ2owQlBvVjZHWUtFM0xyY1U?oc=5",
    "source": "Yahoo Finance",
-   "pubDate": "Wed, 12 Aug 2026 09:16:19 GMT",
+   "pubDate": "Thu, 13 Aug 2026 15:00:00 GMT",
    "topic": "geo",
    "country": "global",
    "tier": 2,
@@ -712,82 +2218,40 @@
    "feedSource": "Google News - Geopolitics/Energy",
    "sourceTierLabel": "reputable-secondary",
    "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T09:16:19.000Z",
+   "eventTime": "2026-08-13T15:00:00.000Z",
    "eventTimeKind": "published",
    "independenceKey": "yahoo finance",
    "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
   },
   {
-   "title": "US Stock Market Today: S&P 500 Futures Stall As Traders Eye Inflation Signals - Yahoo Finance Singapore",
-   "link": "https://news.google.com/rss/articles/CBMifEFVX3lxTE5QOXNhRmMwajlVUXZLMkRtemxPRHFEQlVLTDJjYm1iMTlCdDM3aHY1bWRDb2N6V0EweEZXQUNiNUlwaXZqRXVoNjJOZlJRMXZuTVVOdjB6S19mb0ZKYTFGdUFhcE1iekRlQXpOVlZIZ3BlbVpaQzNrRjVndS0?oc=5",
-   "source": "Yahoo Finance Singapore",
-   "pubDate": "Wed, 12 Aug 2026 08:12:01 GMT",
+   "title": "Stock Market Today: S&P 500 Closes at Record High as Treasury Yields Retreat, Oil price Falls to $ 87 - eurasiabusinessnews.com",
+   "link": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxPYzRXa01hRmpDZGx6OHZqaldfODM4ejR0c0NyNGlBUnBDMWloSDEwQlZPVWp2QmVxYWl0SGlSWjl1VW1UaE1aMDNhdW95QXpzTmFmVDNONi1IZDlLY1BoaXVfLXhOX3V0U0oxVG1BcS0xa3l0REpPbWNQa2h6X283WDNEMkRvM0ZadHlHUFFKNjh1NW5NMGtaM2g0Y2EwOFYtQTBmSWtMdEdlZVVFdXdib043QW9FVlBJbVpmUGZ3UzBtMEZ3bm9IcUlWSS1PbHZUNmZkZ01IOA?oc=5",
+   "source": "eurasiabusinessnews.com",
+   "pubDate": "Thu, 13 Aug 2026 21:49:55 GMT",
    "topic": "macro",
    "country": "us",
-   "tier": 2,
-   "score": 49,
-   "selectionReason": "base+20 | source-tier2+9 | recency+6 | macro-rates+14",
-   "feedSource": "Google News - US markets",
-   "sourceTierLabel": "reputable-secondary",
-   "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T08:12:01.000Z",
-   "eventTimeKind": "published",
-   "independenceKey": "yahoo finance singapore",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
-  },
-  {
-   "title": "Stock Market Today, Aug. 12: Stocks Edge Higher as Inflation Data Eases Fed Rate Pressure - theglobeandmail.com",
-   "link": "https://news.google.com/rss/articles/CBMigAJBVV95cUxQVndHblR4VWtwNmJrYzNEWmFRY2tfcTV6SUdldkkxWGhnalg4QVpJeVVYQ3pGY2dwRzRwN3N6LWdnN1BDMWhDSlAtU01zNkFhSmtYVm4yeHNSeGhYcU1tNElEcHdlemJUNXJwMTJSUUU0Y01VVjFZQ2Nub3liYlNRVW15RFljTjZJTEVYTXVmdnZqVDhEYjNPWU96b3BqbFFCVndDaU5CSUFNRWVaWElRVksybG5mVHd1TGZoNG1ySHB4MTM2WmN2aklLOWxKS1I5X1FDWDA0MVY1dmV2dW9Xc2IySks1VnJhZF9YbS1BNnUyR0tscWhKajJMWkdGRGpr?oc=5",
-   "source": "theglobeandmail.com",
-   "pubDate": "Wed, 12 Aug 2026 21:30:30 GMT",
-   "topic": "macro",
-   "country": "us",
-   "tier": 3,
-   "score": 48,
-   "selectionReason": "base+20 | source-tier3+2 | recency+12 | macro-rates+14",
-   "feedSource": "Google News - US markets",
-   "sourceTierLabel": "aggregator-or-trade",
-   "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T21:30:30.000Z",
-   "eventTimeKind": "published",
-   "independenceKey": "theglobeandmail.com",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
-  },
-  {
-   "title": "President Trump claims control of Strait of Hormuz as gas prices hit record highs - WPBF",
-   "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxOLTNReUhQRTRTM19naXFPUXVqSHljMVNtTl9LMVRnMDRWTlNraDVtelpOcWdRRFBfd0RrZXhxeVl4ZS10NFNOUHJBbHYzMnFFQTRmNFpuM2NXSEtjLU5IZExkUlVVbWJjVHk2by1OeWRRVFM0V2VnV0dhdjlZUU1PMUxsbk9qN1lpci1jS0dhbDVqQ0k?oc=5",
-   "source": "WPBF",
-   "pubDate": "Wed, 12 Aug 2026 21:23:00 GMT",
-   "topic": "geo",
-   "country": "global",
    "tier": 3,
    "score": 48,
    "selectionReason": "base+20 | source-tier3+2 | recency+12 | geopolitics-energy+14",
-   "feedSource": "Google News - Geopolitics/Energy",
+   "feedSource": "Google News - US markets",
    "sourceTierLabel": "aggregator-or-trade",
    "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T21:23:00.000Z",
+   "eventTime": "2026-08-13T21:49:55.000Z",
    "eventTimeKind": "published",
-   "independenceKey": "wpbf",
+   "independenceKey": "eurasiabusinessnews.com",
    "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
   },
   {
-   "title": "[New York Stock Exchange] July CPI Slowdown Confirmed... S&P 500, Nasdaq Finish Higher - 아시아경제",
-   "link": "https://news.google.com/rss/articles/CBMifEFVX3lxTE55TzJTQzRjTlRGNHhXZms1Y2tnZnpoNW5DRXY0OTVLVEpJeXBYUG0ySkh1Tlc1VHVfQk93Z2NWYmpqQU5VMlZUcW9VUDdmTFVlbzgyNTBreGJESzdFMlpkWnk1UnIxQ1J5b0E0RFZjU1JnY2VIU1luOHZ1elI?oc=5",
-   "source": "아시아경제",
-   "pubDate": "Wed, 12 Aug 2026 20:33:03 GMT",
+   "title": "Stock Market Today, Aug. 13: Stocks Rise as Inflation Cools, Workday Soars 18% - The Motley Fool",
+   "link": "https://news.google.com/rss/articles/CBMizwFBVV95cUxNVk9TbE5qU3VvSFozRC11Rk8zTTVNTmpabF9WQ1ZPWmNybU5Yd3ZYUjExM2hVNndaMGpjVTI0QlpUQ0pteUd1a2ZIUXlfSk1fbzlEcS1iaThmV2VqQ3E1VmcxTU14R1V4NU5CdzdUWlVmV3FlV1dld21EM0xTUl9pTGRabC1MbXFQQ2JYakM5S3lUS3J1WXUySDFrQ29EY2l0VGxKaW1IUV9FYksyTHo1cGowdkgwZlNjbURBTzZraERFX3E1UDJTcWkzUVhBWWM?oc=5",
+   "source": "The Motley Fool",
+   "pubDate": "Thu, 13 Aug 2026 21:41:01 GMT",
    "topic": "macro",
    "country": "us",
    "tier": 3,
@@ -796,19 +2260,19 @@
    "feedSource": "Google News - US markets",
    "sourceTierLabel": "aggregator-or-trade",
    "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T20:33:03.000Z",
+   "eventTime": "2026-08-13T21:41:01.000Z",
    "eventTimeKind": "published",
-   "independenceKey": "아시아경제",
+   "independenceKey": "the motley fool",
    "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
   },
   {
-   "title": "Update: Nasdaq, S&P 500 Bounce Following Benign Inflation Report - Yahoo! Finance Canada",
-   "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxOME54eU1lZWxaNE8xbVhOWlZqYW1tR25MN0pxbVNNTnlMRWswQ3MyVmtjdlNSOWJYc2ltQW1ndUM2RV9WZU1PRC1XWFZ3N2dNcDlUenN3OUdhYjFibW5SVnNsV1pIeFRHUnlMcGZ1NkVmRFowM2NPZk5IX05VSU1DUEc1SFc?oc=5",
-   "source": "Yahoo! Finance Canada",
-   "pubDate": "Wed, 12 Aug 2026 20:26:19 GMT",
+   "title": "Wall Street rallies as easing inflation and cheaper oil lift S&P 500 to record - CHOSUNBIZ - Chosunbiz",
+   "link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxQUWNxemJDUF82UzN3a3pTLWFLZHEtV2JmRmljWURveUo3MEpiX2FfLVNKMG9uUHVNN19IcjY5aXkxSTBxbndoSGZyNUxGZGpwRjZZdFFNWFhBWUxoS0dCRGNYLUl5YlBKRktDaElMbl8tUndZaWNoR0U0SklTTUNGcEg0cG5wSHZJ0gGcAUFVX3lxTE9xQzMydDlMd1pfOHBFQWtYRzdZRERBV282Q0JJQ1daTEZtRzJEdl9WQUpBckZvcXcwM3FuR2l1Q2h5enNDU0JKUWxkOVpTNFJiQkRNdmozYW5ZUUkwa3M4RFJzeWwza2xXQy1tWnU5dWZ2SlVxd3dTLUpMMThuM0ZKWjJEZWxUV3d4M3RaS1VWcjNRaHVEOU1GUVlRMw?oc=5",
+   "source": "Chosunbiz",
+   "pubDate": "Thu, 13 Aug 2026 21:31:00 GMT",
    "topic": "macro",
    "country": "us",
    "tier": 3,
@@ -817,61 +2281,19 @@
    "feedSource": "Google News - US markets",
    "sourceTierLabel": "aggregator-or-trade",
    "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T20:26:19.000Z",
+   "eventTime": "2026-08-13T21:31:00.000Z",
    "eventTimeKind": "published",
-   "independenceKey": "yahoo! finance canada",
+   "independenceKey": "chosunbiz",
    "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
   },
   {
-   "title": "Lower CPI and Falling Treasury Yields Support More Market Upside - Investing.com Canada",
-   "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxPM1hvOWtEUlhTSmFibGNkOXJ6UEdhbGJIWnFXamlIclUwSkxxcENRWmd1ZzJYUF82VV90X0VzZUEwRTRpdjBKazRWT1hheWoweVN3TFZwU2RsYTJMc2txYUhTMDdkSnVjQlV1dzEwNlA5elQtOWZwcDE5QnJIZlNTM1NPaFRlSVROa2s0WWZic0RDWHpkZjhYa2E5akVCZE9CMDduQ2x6WHkwQjJo?oc=5",
-   "source": "Investing.com Canada",
-   "pubDate": "Wed, 12 Aug 2026 19:27:26 GMT",
-   "topic": "fxbond",
-   "country": "global",
-   "tier": 3,
-   "score": 48,
-   "selectionReason": "base+20 | source-tier3+2 | recency+12 | macro-rates+14",
-   "feedSource": "Google News - FX/Bonds",
-   "sourceTierLabel": "aggregator-or-trade",
-   "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T19:27:26.000Z",
-   "eventTimeKind": "published",
-   "independenceKey": "investing.com canada",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
-  },
-  {
-   "title": "Oil prices drop as investors weigh lower demand forecasts against US-Iran talks deadlock - New York Post",
-   "link": "https://news.google.com/rss/articles/CBMixwFBVV95cUxOWlBMOGNuUU03SUtnUWZob1FtX0QyU25pX05YQmF3dE80d1pyR2NpSzJhYzlhdTVFc0Fyemp1Y0lrd05pdFF3N3p4VlRja0g4T2tIRG84dG1vM2pFUTNkZEtMdnBqNnc5SDJqVVlnejFxaWZoSjdDbkZWRWNPQTRBc2YxalBHVE94bkExNkJhZDM0VkNuVXE5cVFPcy1UdTAtTGJHOERxVXVvdHVlNmRWTUxZOWh3SF9FV2ozR0NOczF5SUdjU2lZ?oc=5",
-   "source": "New York Post",
-   "pubDate": "Wed, 12 Aug 2026 18:19:00 GMT",
-   "topic": "geo",
-   "country": "global",
-   "tier": 3,
-   "score": 48,
-   "selectionReason": "base+20 | source-tier3+2 | recency+12 | geopolitics-energy+14",
-   "feedSource": "Google News - Geopolitics/Energy",
-   "sourceTierLabel": "aggregator-or-trade",
-   "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T18:19:00.000Z",
-   "eventTimeKind": "published",
-   "independenceKey": "new york post",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
-  },
-  {
-   "title": "Wall Street flirts with a record after AI stocks rise and worries about inflation ease a bit - The Pilot News",
-   "link": "https://news.google.com/rss/articles/CBMihAJBVV95cUxOQ2liYko5aUdLSTBNb016MmU1blRWeUg3Y1gzaUhZcG5ybGh4eG5GVEllT3Y0bjQ0VmF4Nm9WNjJqOGJCcmxjcExrd2hNeVFIYlhUSGRmai1PeldGZFJqN0NiWkVFaFpsOEZVM0lkTDdpQ1k5Y0JkNm5OeXZZQ3RIZFZaZEJNNU05eWpqMngwdzBXYk45b1U5TzBLTDVsVXVRTVRSaTM2YWpyXzFISDJJN3VzZFQ1UzcyY0sxWk92LWNJOGtDNGlxXzZWZlBZTjA5dGZqXzRVbng1cHhKc3FDV1FkS2dGZDRIZ1ZvTWpCMWoyS0h2c0FTUF9xZXNrUFZad2hycQ?oc=5",
-   "source": "The Pilot News",
-   "pubDate": "Wed, 12 Aug 2026 17:30:00 GMT",
+   "title": "Stocks rise and interest rates slide after inflation report - NBC News",
+   "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxPNTFaSEQyZkFiaU1KTkNPU2FuTk40RmpObmYtUUVXdVU2a2JIZ3RJSThFZ2pNdkZCYU53SjlyU0ZTMUlKVEl4Qi1pV2QxUkotYngtZ3pDRmZ6djhTUWhOc1dvVXlWckxDNG5kOUdCNkgtQ1plb1hJMUxmOWNCMXNDbVUxMWQ?oc=5",
+   "source": "NBC News",
+   "pubDate": "Thu, 13 Aug 2026 20:20:22 GMT",
    "topic": "macro",
    "country": "us",
    "tier": 3,
@@ -880,250 +2302,124 @@
    "feedSource": "Google News - US markets",
    "sourceTierLabel": "aggregator-or-trade",
    "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T17:30:00.000Z",
+   "eventTime": "2026-08-13T20:20:22.000Z",
    "eventTimeKind": "published",
-   "independenceKey": "the pilot news",
+   "independenceKey": "nbc news",
    "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
   },
   {
-   "title": "The Trump Administration's Hormuz Oil Numbers Don't Add Up - Reason Magazine",
-   "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxNNk43NURoOUk3XzVvRTU0VnE5X3Bvc2VjaTRSSlQ5S2ZVd3NicDJDR3ZZNi1pU1NKc0JIU2JaOXo1V1RvMnB2cEkwY1ZFNG9aaU5uNXZXMzlnU3FGdXZHQTR5aUI1QlRMd2hPQlphb01EeFVnODN6MGxvdG5CaDM5SHM1UkFKM0hKbmttdjNqdFk?oc=5",
-   "source": "Reason Magazine",
-   "pubDate": "Wed, 12 Aug 2026 17:02:25 GMT",
-   "topic": "geo",
-   "country": "global",
-   "tier": 3,
-   "score": 48,
-   "selectionReason": "base+20 | source-tier3+2 | recency+12 | geopolitics-energy+14",
-   "feedSource": "Google News - Geopolitics/Energy",
-   "sourceTierLabel": "aggregator-or-trade",
-   "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T17:02:25.000Z",
-   "eventTimeKind": "published",
-   "independenceKey": "reason magazine",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
-  },
-  {
-   "title": "ON Semiconductor (ON) Sees AI Data Center Growth Surge, Is The Upside Already Priced In? - Yahoo Finance UK",
-   "link": "https://news.google.com/rss/articles/CBMiigFBVV95cUxPd0haSjFRWU9aSGtLdTBhano0NVgzUUZvcFpTdV8zbWo3WlItLUZHMDBZNXBkTUdLSkp5NVM4bDZiTzhaYy1vUlFKd1AtaFdUSkt4RDNuS1FBWHRndTg0SnVFZG9rZWh5Q0taS0xZbjBGX3FISWpteWlKNXdlYjZGNjNaLThETkV5cHc?oc=5",
-   "source": "Yahoo Finance UK",
-   "pubDate": "Tue, 11 Aug 2026 23:18:55 GMT",
-   "topic": "semi",
-   "country": "us",
-   "tier": 2,
-   "score": 48,
-   "selectionReason": "base+20 | source-tier2+9 | recency+6 | ai-semis+13",
-   "feedSource": "Google News - AI/Semis",
-   "sourceTierLabel": "reputable-secondary",
-   "contentDepth": "headline-only",
-   "eventTime": "2026-08-11T23:18:55.000Z",
-   "eventTimeKind": "published",
-   "independenceKey": "yahoo finance uk",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
-  },
-  {
-   "title": "LITE Stock Pops As AI Data Center Demand Fuels Blowout Quarter - StocksToTrade",
-   "link": "https://news.google.com/rss/articles/CBMiggFBVV95cUxPNUZEVkRJOG1KUlVhTWVaZHBmTXQ3Uk9raW1IWEZsTFNYSi1VaTN3amhsMm5RRENMYjJRX0JKRkVjVWlpRFAwTkhsZ0lqbzJGUWtQZ1RMcFdjaUJ2M1R6ckhSZndDRGdPVExUTVRsc3NYczloQzF2SVRJRl9tV0l0b0R3?oc=5",
-   "source": "StocksToTrade",
-   "pubDate": "Wed, 12 Aug 2026 20:48:00 GMT",
-   "topic": "semi",
-   "country": "us",
-   "tier": 3,
-   "score": 47,
-   "selectionReason": "base+20 | source-tier3+2 | recency+12 | ai-semis+13",
-   "feedSource": "Google News - AI/Semis",
-   "sourceTierLabel": "aggregator-or-trade",
-   "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T20:48:00.000Z",
-   "eventTimeKind": "published",
-   "independenceKey": "stockstotrade",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
-  },
-  {
-   "title": "5 Semiconductor Stocks Jim Cramer Could Be Talking About on Thursday - 24/7 Wall St.",
-   "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxQeUU1Q3htMnVGV2NiNjZNMlRyemVva01CcFEySVpYOVBBS3dFUWk0cm9YTHlZNjRjd2VGS1l2Q0dsdEJ3STFLdl9fQk5PX2RjV1NwZE96VERTRkwtcmlreG1fMjg4VkJSeWtvck9RMHFoZ0dGNENzNC01WUZfLVlWSklUd1hld1B6NUd3Qy1BSDFPTzE0bzlRTTlMY3l4MHJaSHl5V2Nvb0o2dUhnQUQybm9R?oc=5",
+   "title": "S&P 500 Opens Higher as Cooler Inflation Lifts Sentiment - 24/7 Wall St.",
+   "link": "https://news.google.com/rss/articles/CBMiywFBVV95cUxOaS1Ha2h4emxSX01pSXhaV2NTOWJaQkxEbVBJUVpvVGxSb1FxT0UycENrMU5zUk51TW9vUlRGeEl6S3poZDI4V1BPTE9wSGtsTlRnc3BLSHloTzJNQzNOdmVfT0RycTIzRFdVa1B2aXdVVEVDbzlTeTdSV1ozOVd5N2RoVEd1dDllYmIyMHZZcExlc2F0bzF6aUFEYVQzeVFVdEpfMHpzLXN4bGZjWm9wUU14SzRhUkVKNDFtZ2htQ2lMaFpHZGtiVExvUQ?oc=5",
    "source": "24/7 Wall St.",
-   "pubDate": "Wed, 12 Aug 2026 17:14:41 GMT",
-   "topic": "semi",
+   "pubDate": "Thu, 13 Aug 2026 20:03:45 GMT",
+   "topic": "macro",
    "country": "us",
    "tier": 3,
-   "score": 47,
-   "selectionReason": "base+20 | source-tier3+2 | recency+12 | ai-semis+13",
-   "feedSource": "Google News - AI/Semis",
+   "score": 48,
+   "selectionReason": "base+20 | source-tier3+2 | recency+12 | macro-rates+14",
+   "feedSource": "Google News - US markets",
    "sourceTierLabel": "aggregator-or-trade",
    "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T17:14:41.000Z",
+   "eventTime": "2026-08-13T20:03:45.000Z",
    "eventTimeKind": "published",
    "independenceKey": "24/7 wall st.",
    "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
   },
   {
-   "title": "KeyBanc cuts CAVA stock price target on guidance adjustments - Investing.com",
-   "link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxOeUZuUE1XeE5RZ1haelhfT3lhYUU2Tld0NmdMenBVSDh6MU9wenoxSUhDdVdyZGs0SkUybmppeGJGRGdvUUNINlZibU55Rkx2M2NwSm5vbG9oenNiVUs5WHpZUjdKZm9BZ0JjdDZCQ051TTAyUHNiSEpjbjZHV0JxWHJxS1FuUWc1QzcxZVp6OXZBTTZaRXdDaGRzQWdENWlnbWp3RS01cENrNS0waGczNjd3Ym1oZ2FlS0dvUg?oc=5",
-   "source": "Investing.com",
-   "pubDate": "Wed, 12 Aug 2026 14:03:50 GMT",
-   "topic": "analyst",
-   "country": "us",
-   "tier": 3,
-   "score": 46,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | earnings-guidance+10 | analyst-action+8",
-   "feedSource": "Google News - Analyst/Earnings",
-   "sourceTierLabel": "aggregator-or-trade",
-   "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T14:03:50.000Z",
-   "eventTimeKind": "published",
-   "independenceKey": "investing.com",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
-  },
-  {
-   "title": "Airbnb Stock Slips After PhillipCapital Downgrade Offsets Recent Earnings Rally - TIKR.com",
-   "link": "https://news.google.com/rss/articles/CBMikwFBVV95cUxNVHNsdGI5LXo2djBuTlRzRE1wM0RtV1ZrQmlxMnBlQ0JqYzNEWUs0Y3RNVU9EbV9zOENsVmdLZTNGVTdDYTh5U09iU09uNVp3ZmZid2RNNjZxdzM3bU42S3djbGxXZ3ljMjJSbWZIZFBOdDlvTmxpOHBSWjFWMmptcG9GX1pURm9HQlRVLW1ZVThJNm8?oc=5",
-   "source": "TIKR.com",
-   "pubDate": "Wed, 12 Aug 2026 13:13:31 GMT",
-   "topic": "analyst",
-   "country": "us",
-   "tier": 3,
-   "score": 46,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | earnings-guidance+10 | analyst-action+8",
-   "feedSource": "Google News - Analyst/Earnings",
-   "sourceTierLabel": "aggregator-or-trade",
-   "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T13:13:31.000Z",
-   "eventTimeKind": "published",
-   "independenceKey": "tikr.com",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
-  },
-  {
-   "title": "Stifel raises 908 Devices stock price target on Q2 beat, guidance - Investing.com",
-   "link": "https://news.google.com/rss/articles/CBMizAFBVV95cUxPUDhHX3ZWd1ZSLWlmM3EtRzc4cURrQmJDbGc5T2FOTF9NZ29qMjZHeWhTTXZsTERhMm9IbThwVWRmVU56TFlJV1BRdnRfbmQzS2x1VE1UbnNwWlNXT2Y3NmVjVG9LSF9BWWFpZWVtZWdSVjZqcFJEMkJzVXIwU3o4OE1pcV9USnlYQ3FZMGtfdC0ydHk3Tm53amctSWRLaWZpUXl5NVNjX1ppRVlqOU41UHktQmRCdmRVTTN0ck5YaU94c1dCUmJPbkxzSG4?oc=5",
-   "source": "Investing.com",
-   "pubDate": "Wed, 12 Aug 2026 13:12:00 GMT",
-   "topic": "analyst",
-   "country": "us",
-   "tier": 3,
-   "score": 46,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | earnings-guidance+10 | analyst-action+8",
-   "feedSource": "Google News - Analyst/Earnings",
-   "sourceTierLabel": "aggregator-or-trade",
-   "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T13:12:00.000Z",
-   "eventTimeKind": "published",
-   "independenceKey": "investing.com",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
-  },
-  {
-   "title": "Needham reiterates Super Micro Computer stock rating on revenue guidance - Investing.com",
-   "link": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxNbGRGRG5JNm92YmdZU0lHelpHdjdxZzFoNGltOGQwZzdOZjNKdjBSUklCNlFJNU5XMlgxTXU1SEZJZ0lGT3VnazVOWjdSYlNodTNIak9JSlRtaWU1QXJYWEtUNVVPRHVEbm1RcjRodk9qVU02bDAxenQ0M1hFS2ZFcVpnd0h4R0oyRTNWVi03RDVFWklMLTRNUElNXzVIOUhlQk9YclYyb3poVHFWSjgyWmV0R1labjA4bGY4eGNIeUhjTHlrS29lcERsc1ZuYXlfY1VjcWp1RQ?oc=5",
-   "source": "Investing.com",
-   "pubDate": "Wed, 12 Aug 2026 12:09:00 GMT",
-   "topic": "analyst",
-   "country": "us",
-   "tier": 3,
-   "score": 46,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | earnings-guidance+10 | analyst-action+8",
-   "feedSource": "Google News - Analyst/Earnings",
-   "sourceTierLabel": "aggregator-or-trade",
-   "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T12:09:00.000Z",
-   "eventTimeKind": "published",
-   "independenceKey": "investing.com",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
-  },
-  {
-   "title": "Mizuho raises CoreWeave stock price target on revenue guidance boost - Investing.com",
-   "link": "https://news.google.com/rss/articles/CBMixwFBVV95cUxOLXFvTmtSaUQ5QWNsS3VqbU5hOENLMkdQQ3BmVFZXSnNBX24zTWVpSE5nN0lEZlRmUFNrXzBHUy1nSm1OeE5TU0kyOWxDR1JqMFA2SUVQMnhGb0FUTHJFOFdHS2p1eF8tZGNrOHZ2TWtIN01IaE5QNVQ4ZFJFVVY0aUlsdm1kWDZqVWZMV2R4Z2FZQjFCSjlUQU5zdGZjYmszd3ZrbDJLeV8wYUQxNm5DeDBQaEdzb3NleHRlYkJHYU1zSmhXanJz?oc=5",
-   "source": "Investing.com",
-   "pubDate": "Wed, 12 Aug 2026 12:03:51 GMT",
-   "topic": "analyst",
-   "country": "us",
-   "tier": 3,
-   "score": 46,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | earnings-guidance+10 | analyst-action+8",
-   "feedSource": "Google News - Analyst/Earnings",
-   "sourceTierLabel": "aggregator-or-trade",
-   "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T12:03:51.000Z",
-   "eventTimeKind": "published",
-   "independenceKey": "investing.com",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
-  },
-  {
-   "title": "Rosenblatt raises Super Micro Computer price target on guidance beat - Investing.com",
-   "link": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxOY2VENXlrWHhZejFkUXZXT3NGaWVrZm9uVnZ2N1lsY2J1RENpcExEVmhKZ24wdzBKRFg2T1I1ajlUdXZsMlhPbUdYMUVlLTQ3M3BYak5LQklDSXdkQVJmd2dqdlcwam8tcVBkMEJMaExMQmZENmQwZjhpVGxfQ2J2MGVPT19YemZpRXNWeDJFNmNLUy14OXJndXBLUDRVT2dtN3B6MW5zR1BnZXVZUUQwY2ZyNTJqakkxRW9VdnRHQXNxY2hra0hwRkVjcWVYYVFKYUE?oc=5",
-   "source": "Investing.com",
-   "pubDate": "Wed, 12 Aug 2026 12:02:00 GMT",
-   "topic": "analyst",
-   "country": "us",
-   "tier": 3,
-   "score": 46,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | earnings-guidance+10 | analyst-action+8",
-   "feedSource": "Google News - Analyst/Earnings",
-   "sourceTierLabel": "aggregator-or-trade",
-   "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T12:02:00.000Z",
-   "eventTimeKind": "published",
-   "independenceKey": "investing.com",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
-  },
-  {
-   "title": "Gold and silver prices rise as July CPI cools r... - Pluang",
-   "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxPcFNqeHVsaDdoaFZjNXhZaW0xcUswYVc3WnlrbWpXUXBDbWZtUDZna29LZ1BUMjdlVkVOSVFKUXVPQUQ0dnpKbGVMck9NNVdqM3B5dlFIQ0R3OWJmSVpuenVONXV3a3NpMnRTMU1vdnlMU3UySlRpazdGVXlfUUstRHV4UkI5V0xuamdBU3dVblY2S2UzYWxPUzFDZzhqVDVkaERqcUdYd2xXZlE?oc=5",
-   "source": "Pluang",
-   "pubDate": "Wed, 12 Aug 2026 22:43:58 GMT",
-   "topic": "fxbond",
+   "title": "Oil Falls as Iran Talks Remain Stalled - Rigzone",
+   "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxNQUsxT3BnTVNSOU02Mzl4M3pQRGUzWUlzd1dZXzdpeE1wTUlLb1JRWXhDVlhRaUJHZVBkQ2ZTMmNGTDVvRFpJb1JzYy11OVZLVV9IZjQ5ZU1VbENXWFZGZUhuTWU1enV6bVkyU0pETjI2LVNQdlVXU1NnTDJsczREelM4a2xhSmlxdmdoWFAyejZGZ3pPNHBZVER2OEQtYlNSM0E?oc=5",
+   "source": "Rigzone",
+   "pubDate": "Thu, 13 Aug 2026 19:35:03 GMT",
+   "topic": "geo",
    "country": "global",
-   "tier": 4,
-   "score": 44,
-   "selectionReason": "base+20 | source-tier4-8 | recency+18 | macro-rates+14 | fx-bonds-commodities+8 | low-quality-source-8",
-   "feedSource": "Google News - FX/Bonds",
-   "sourceTierLabel": "low-quality",
+   "tier": 3,
+   "score": 48,
+   "selectionReason": "base+20 | source-tier3+2 | recency+12 | geopolitics-energy+14",
+   "feedSource": "Google News - Geopolitics/Energy",
+   "sourceTierLabel": "aggregator-or-trade",
    "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T22:43:58.000Z",
+   "eventTime": "2026-08-13T19:35:03.000Z",
    "eventTimeKind": "published",
-   "independenceKey": "pluang",
+   "independenceKey": "rigzone",
    "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
   },
   {
-   "title": "Emerson Electric (EMR) Could Be 2% Undervalued After Higher Guidance And Q3 Results - simplywall.st",
-   "link": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxOUmhqZEt3M2N6dVJFM1RrZ09zV1N2Z0F6U3ZVdkwtWDN0YWNxdXEyT0VWQjZRdlpyMGZ5aFRTMVItNkJKY2JITmFJR1JpdUxIMUhpN3NrQlBDVW0xQ0o4dHpZQlFiTTFPVHFyTExzMWlocXNaanlfb2t0cC0xWGtCRjNNY240VmJUX3V6TzNxSk9zNkVDVDNZUUxPXzlkUEVmaktTUk5BVEN2eTd6aHcxOHNyZnhSWDJiRHgxWmw1U3hjVHRXUGgwMjF3VlNxc016RlVN0gHYAUFVX3lxTFBwVlJBQ0llbXAwUlFEX0czX2NOUTk5b2d5TnNZeGFhZXNYLU50OEQ2MjRBSmZVd0QtVzAyR2dXQzV5SGlnRnh4MzNkWWVuSE5wRkp2TU42aUROYnQzM1Z5WHoyYkFMS2JrUWxBdkhYX0xXdHJueHRTcUpIenBsQ1hzX3FOdlN5OTgyOGJ2bFBXS2xoOWRadmhodHZET2JDTTFPcnNfaGNYZmprOXQ2cHl1bm80emFTVS1BU0JaTHlKa3o5NVZDeTVJeG1SR0hKbTBWTWpyTDZaZQ?oc=5",
+   "title": "Oil prices remain below $100 despite tensions surrounding the Strait of Hormuz - UA.NEWS",
+   "link": "https://news.google.com/rss/articles/CBMipwFBVV95cUxObUl2R1BYM1VORHA4TEtWN185ZFF5MktJMk12X0JmZFBKeWItUkV6cExKM2dURlBvelhwNGdCZEptcWw1V1ZrWWFUSUttZTRuWVhic085UFBvSnV0em14SjRTV1lzUUR1SERaZmpfcTR2Y21XYjB1QlNCV3pWRmNMNnFNY2hZOWs1Z1d1SVNkem9HMjZtN1didEhHTXdPVHB5emd3NUoxYw?oc=5",
+   "source": "UA.NEWS",
+   "pubDate": "Thu, 13 Aug 2026 18:09:14 GMT",
+   "topic": "geo",
+   "country": "global",
+   "tier": 3,
+   "score": 48,
+   "selectionReason": "base+20 | source-tier3+2 | recency+12 | geopolitics-energy+14",
+   "feedSource": "Google News - Geopolitics/Energy",
+   "sourceTierLabel": "aggregator-or-trade",
+   "contentDepth": "headline-only",
+   "eventTime": "2026-08-13T18:09:14.000Z",
+   "eventTimeKind": "published",
+   "independenceKey": "ua.news",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
+  },
+  {
+   "title": "Evercore ISI lowers StubHub stock price target on FY26 guidance - Investing.com",
+   "link": "https://news.google.com/rss/articles/CBMiywFBVV95cUxPUnVGRERKY3ZOcGR3U0VTVkRPNGV5VGRnampiLXdHZkhxaW1oZDZjdkpUdTFtLTdob2JhTWJmNXhhbjR1cldsQ3BIU0lxajhjVXJoWC1Ub0ptOTIxVnJkYnJ5dWJMSlZZUGhEMmwtU0R4QnB0ZFNyZ0t1MzJOMWZVYldfdnIydTJUQXJXVURFa19HcXdnZFdsQUc0Vk5WTnVqUXRTRkhFWXo2WG1fRE9xcWU0SGZZWW1ETzhvSnkzWDloajFlZ1o4M3YwTQ?oc=5",
+   "source": "Investing.com",
+   "pubDate": "Thu, 13 Aug 2026 10:32:00 GMT",
+   "topic": "analyst",
+   "country": "us",
+   "tier": 3,
+   "score": 46,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | earnings-guidance+10 | analyst-action+8",
+   "feedSource": "Google News - Analyst/Earnings",
+   "sourceTierLabel": "aggregator-or-trade",
+   "contentDepth": "headline-only",
+   "eventTime": "2026-08-13T10:32:00.000Z",
+   "eventTimeKind": "published",
+   "independenceKey": "investing.com",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
+  },
+  {
+   "title": "Atlassian (TEAM) Beat Earnings And Lifted Guidance, Is The AI Upside Already Priced In? - Yahoo Finance",
+   "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxNMDlLQXR5NnRJUmUxV0hCc2JsZjZUc3lQUzJZUTRETzg4UDMtMFNPLUhLSEVrYXBZbGRYWlJuOC04UWE0ZklsYnZFUURxbHpvSEVMTXpUQWJMZVpoNEtCR2Zsdm1QVDI0Ri1vMkppaWsxM3RHMjIySUJVWERJVzdJWXVHYk9LN01qZUdYN2luZlZaR3c5ZTVnbnhtQXZ1UFN4RUE?oc=5",
+   "source": "Yahoo Finance",
+   "pubDate": "Thu, 13 Aug 2026 08:08:53 GMT",
+   "topic": "semi",
+   "country": "us",
+   "tier": 2,
+   "score": 45,
+   "selectionReason": "base+20 | source-tier2+9 | recency+6 | earnings-guidance+10",
+   "feedSource": "Google News - AI/Semis",
+   "sourceTierLabel": "reputable-secondary",
+   "contentDepth": "headline-only",
+   "eventTime": "2026-08-13T08:08:53.000Z",
+   "eventTimeKind": "published",
+   "independenceKey": "yahoo finance",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
+  },
+  {
+   "title": "Is Stronger Earnings And Higher Guidance Altering The Investment Case For GDS Holdings (GDS)? - simplywall.st",
+   "link": "https://news.google.com/rss/articles/CBMizwFBVV95cUxORHc5dU1iVDl1MTJMYnYyUG5hX0lxaHFLWUM2QTI3TlJpbHByRDhNTDJCYXU5cTJZbE9vNnFTcUptMUs4dVZMU3RSck5vbmN0R2pJSzZ1NF94WGJTbWs1VVZ6ckVQZGc2c3VmQmtwRHIyN185YTJDNkhWeVdlZmhrQm16dkxpSXRpM2ZnOW1XUkdqYVZLemlXRTBTN28tMjVkVU1RdWxMUXNCcHhiNTNITEtsTVBMRF9BdDRLalNyeWRHZ0pUM2hRRHJSVXc5eG_SAc8BQVVfeXFMTkR3OXVNYlQ5dTEyTGJ2MlBuYV9JcWhxS1lDNkEyN05SaWxwckQ4TUwyQmF1OXEyWWxPbzZxU3FKbTFLOHVWTFN0UnJOb25jdEdqSUs2dTRfeFhiU21rNVVWenJFUGRnNnN1ZkJrcERyMjdfOWEyQzZIVnlXZWZoa0JtenZMaUl0aTNmZzltV1JHamFWS3ppV0UwUzdvLTI1ZFVNUXVsTFFzQnB4YjUzSExLbE1QTERfQXQ0S2pTcnlkR2dKVDNoUURyUlV3OXhv?oc=5",
    "source": "simplywall.st",
-   "pubDate": "Wed, 12 Aug 2026 21:37:21 GMT",
+   "pubDate": "Thu, 13 Aug 2026 21:39:02 GMT",
    "topic": "semi",
    "country": "us",
    "tier": 3,
@@ -1132,61 +2428,19 @@
    "feedSource": "Google News - AI/Semis",
    "sourceTierLabel": "aggregator-or-trade",
    "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T21:37:21.000Z",
+   "eventTime": "2026-08-13T21:39:02.000Z",
    "eventTimeKind": "published",
    "independenceKey": "simplywall.st",
    "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
   },
   {
-   "title": "S&P 500, Nasdaq rise as CoreWeave earnings boost AI stocks - Honolulu Star-Advertiser",
-   "link": "https://news.google.com/rss/articles/CBMiswFBVV95cUxPSGQ3Nk91SnYwbDhwT3pJQTdoQUJodGhvNkRFYU5JTGt6Q3BFN1B6YUlSQlVJTzE3aWRETnByUkF3NWV3VDIyS2NfanRnb3ZiQUg2ZmxaRVA5R3JONmR5dERHTEtUblRFdW9wb0VRVTRyQm94M18xaE4wYzMweVlLbWdKOFFSSzdEcDhLNXVVc0dJOFhUTVZZTTRtOG9NQktPeEJMeUNaZTZnUXI4TFdXNTN4TQ?oc=5",
-   "source": "Honolulu Star-Advertiser",
-   "pubDate": "Wed, 12 Aug 2026 21:27:19 GMT",
-   "topic": "macro",
-   "country": "us",
-   "tier": 3,
-   "score": 44,
-   "selectionReason": "base+20 | source-tier3+2 | recency+12 | earnings-guidance+10",
-   "feedSource": "Google News - US markets",
-   "sourceTierLabel": "aggregator-or-trade",
-   "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T21:27:19.000Z",
-   "eventTimeKind": "published",
-   "independenceKey": "honolulu star-advertiser",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
-  },
-  {
-   "title": "Super Micro Computer beats Q4 earnings with $1.70 EPS, raises 2027 outlook - eciks.org",
-   "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE9fZzQzcWQxcWstSVdURm95LXVSMGt5NlFkaDgyRFNMNW9kVVNBMXpURmdkdkxLcTRUWEhtVFNmdmJhbGh0Z0l0UWdXTVpRSGtJb3A2RUVpWElWOTNsQ0tsYw?oc=5",
+   "title": "Applied Materials reports Q3 earnings today as stock holds near $556 - eciks.org",
+   "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFBWdUgwUmxuVGQzTFRBbmdUbG1KbmdqVXd4c3NTOVlIRE1id04xY3o2T25zSmJCR0syUEdsSlFxMWFYVjE3aXAtXzI2WGdfcnQ5WXdmNTRWcUdjUQ?oc=5",
    "source": "eciks.org",
-   "pubDate": "Wed, 12 Aug 2026 20:05:11 GMT",
-   "topic": "semi",
-   "country": "us",
-   "tier": 3,
-   "score": 44,
-   "selectionReason": "base+20 | source-tier3+2 | recency+12 | earnings-guidance+10",
-   "feedSource": "Google News - AI/Semis",
-   "sourceTierLabel": "aggregator-or-trade",
-   "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T20:05:11.000Z",
-   "eventTimeKind": "published",
-   "independenceKey": "eciks.org",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
-  },
-  {
-   "title": "Pinterest Stock (PINS) Opinions on Recent Earnings Guidance - Quiver Quantitative",
-   "link": "https://news.google.com/rss/articles/CBMinAFBVV95cUxQbVlUVkEzTXNiMFRTbmVXWHRyZHdhMlpEVW5tUnV3ZnBFQXB4TnlfQnRDZkFEUDR5ZXhRem5SaFdrbXotcFBFTG85QWs3N0ZqdFJxRmdHT3hTN1c2WGF1TjgxVm1JcDdWUi00ZXpRSmxMVzhjTUNkcjBubHZFaW10SmVkSmEwNkw2cU9Bb3B5N0tqUFItd3BwR2JoR3o?oc=5",
-   "source": "Quiver Quantitative",
-   "pubDate": "Wed, 12 Aug 2026 17:38:00 GMT",
+   "pubDate": "Thu, 13 Aug 2026 20:45:35 GMT",
    "topic": "analyst",
    "country": "us",
    "tier": 3,
@@ -1195,36 +2449,118 @@
    "feedSource": "Google News - Analyst/Earnings",
    "sourceTierLabel": "aggregator-or-trade",
    "contentDepth": "headline-only",
-   "eventTime": "2026-08-12T17:38:00.000Z",
+   "eventTime": "2026-08-13T20:45:35.000Z",
    "eventTimeKind": "published",
-   "independenceKey": "quiver quantitative",
+   "independenceKey": "eciks.org",
    "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-11T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-12T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-12 08:00 KST ~ 2026-08-13 08:00 KST"
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
+  },
+  {
+   "title": "Lumentum Holdings (LITE) Is Up 12.9% After AI-Fueled Guidance Trumps Massive One-Time Loss - Has The Bull Case Changed? - simplywall.st",
+   "link": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPZ0dCSktEY19lblhLS0Y2cW5GdVUwdERoVUQyMDV5Q0Z3NGZ5LXllRE14My1qR2l4TGpaWlBUMWJhQ2kwQkFzMERseWthRlFNdzlwVTZrcVNPcGxsYko3NTFfTG55UDhXeE1YalpBZzkxS1AyWVBETVc0OGd0eHl5UlZNbm5mOWdUb1JpbDhCNi1KcW5wM2E3cGNjYjBlb3QzbTNsOFVHS19wdWV4TS1PWlN0cDhzbkdZbE1WSTFNM2ZtcHJSUWcxbHhSdlRickc2NHfSAdIBQVVfeXFMT2dHQkpLRGNfZW5YS0tGNnFuRnVVMHREaFVEMjA1eUNGdzRmeS15ZURNeDMtakdpeExqWlpQVDFiYUNpMEJBczBEbHlrYUZRTXc5cFU2a3FTT3BsbGJKNzUxX0xueVA4V3hNWGpaQWc5MUtQMllQRE1XNDhndHh5eVJWTW5uZjlnVG9SaWw4QjYtSnFucDNhN3BjY2IwZW90M20zbDhVR0tfcHVleE0tT1pTdHA4c25HWWxNVkkxTTNmbXByUlFnMWx4UnZUYnJHNjR3?oc=5",
+   "source": "simplywall.st",
+   "pubDate": "Thu, 13 Aug 2026 20:37:32 GMT",
+   "topic": "semi",
+   "country": "us",
+   "tier": 3,
+   "score": 44,
+   "selectionReason": "base+20 | source-tier3+2 | recency+12 | earnings-guidance+10",
+   "feedSource": "Google News - AI/Semis",
+   "sourceTierLabel": "aggregator-or-trade",
+   "contentDepth": "headline-only",
+   "eventTime": "2026-08-13T20:37:32.000Z",
+   "eventTimeKind": "published",
+   "independenceKey": "simplywall.st",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
+  },
+  {
+   "title": "Iran war tensions over Hormuz fail to lift oil prices - Arabian Gulf Business Insight | AGBI",
+   "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxQRjBUWmJJQjJHRHBSeFlwbnBBX3Ayb1JNQUFVdWxhMS02bS1qWE0wWmN1d1NrcUdmY0ZXbXJhNWVYaVl6dW12X3pCWmF4Wmp5MlhLY0J5VkNSSTNMOTNDbV82Um5MS21qVzFRODB0bi1JbDRnVjBHNmF0REV1OEJiMkx2R2pmR19xdTlzUk9PbUxmQ1k0TlBuRjlvNA?oc=5",
+   "source": "Arabian Gulf Business Insight | AGBI",
+   "pubDate": "Thu, 13 Aug 2026 16:58:20 GMT",
+   "topic": "geo",
+   "country": "global",
+   "tier": 3,
+   "score": 42,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | geopolitics-energy+14",
+   "feedSource": "Google News - Geopolitics/Energy",
+   "sourceTierLabel": "aggregator-or-trade",
+   "contentDepth": "headline-only",
+   "eventTime": "2026-08-13T16:58:20.000Z",
+   "eventTimeKind": "published",
+   "independenceKey": "arabian gulf business insight | agbi",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
+  },
+  {
+   "title": "Strait of Hormuz chokehold to keep oil supply tight, prices high, watchdog warns - Straight Arrow",
+   "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxOSVRPWXB5SW5Od0RHcnBaWm5qdkFDdkR5OTZDZEhSZEdMNFRKRW5qTl9YNmhBOXZCdXk3OTRwU1JWN1Bsbk8ydDhNNFpTeTdDNlp3MFlqVjRqWmJ1RjBobVU2dnFHSEIwdFM4ZVV2bUpSOG9qXzJkTjdmYUhLbmZLTDRTemxDZFE5YUYzVnBkWTVWRkZZWFpIcFF4NUxKdkk?oc=5",
+   "source": "Straight Arrow",
+   "pubDate": "Thu, 13 Aug 2026 15:54:13 GMT",
+   "topic": "geo",
+   "country": "global",
+   "tier": 3,
+   "score": 42,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | geopolitics-energy+14",
+   "feedSource": "Google News - Geopolitics/Energy",
+   "sourceTierLabel": "aggregator-or-trade",
+   "contentDepth": "headline-only",
+   "eventTime": "2026-08-13T15:54:13.000Z",
+   "eventTimeKind": "published",
+   "independenceKey": "straight arrow",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
+  },
+  {
+   "title": "The U.S.-Iran Stalemate Over The Strait Of Hormuz Continues. Oil Prices Are Edging Down Anyway. - International Business Times",
+   "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxPeS1sNW5zVjdLdkItMVBoSVgwQVVpMUxTRUo4ZGFQeEZPb21oSno3eXdnRVVJbVZ5Tm1DWWRTYmVLWHpwV1NKZGg5X3pET3Bac2tad1dBUW0wQVhnTVFCZE8yRkk5ZlNJdTgxd29vTVA3bXBITFhVMWN3SnY3eDNBbm1UZWdhSTl3WDM4RWZOcnlSNFVtVEtWUVNxM1NxN0szSGtKSHMwSmlOYzZTaWN6aGxn?oc=5",
+   "source": "International Business Times",
+   "pubDate": "Thu, 13 Aug 2026 15:32:24 GMT",
+   "topic": "geo",
+   "country": "global",
+   "tier": 3,
+   "score": 42,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | geopolitics-energy+14",
+   "feedSource": "Google News - Geopolitics/Energy",
+   "sourceTierLabel": "aggregator-or-trade",
+   "contentDepth": "headline-only",
+   "eventTime": "2026-08-13T15:32:24.000Z",
+   "eventTimeKind": "published",
+   "independenceKey": "international business times",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-08-12T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-13T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-13 08:00 KST ~ 2026-08-14 08:00 KST"
   }
  ],
  "marketAnalysis": {
   "schemaVersion": "market-analysis.v2",
   "status": "blocked",
-  "summary": "시장 분석 대기: 검증된 관측치만 표시합니다 — SPX=7748.5 index (2026-08-12T20:36:53.000Z) · VIX=14.55 index (2026-08-12T20:15:01.000Z) · 10Y=4.682 index (2026-08-12T18:59:54.000Z) · DXY=99.927 index (2026-08-13T00:33:55.000Z). 추가 방향성·인과 해석은 유효한 분석 산출물 확인 후 제공됩니다.",
-  "full": "시장 분석 대기: 검증된 관측치만 표시합니다 — SPX=7748.5 index (2026-08-12T20:36:53.000Z) · VIX=14.55 index (2026-08-12T20:15:01.000Z) · 10Y=4.682 index (2026-08-12T18:59:54.000Z) · DXY=99.927 index (2026-08-13T00:33:55.000Z). 추가 방향성·인과 해석은 유효한 분석 산출물 확인 후 제공됩니다.",
-  "oneLine": "시장 분석 대기: 검증된 관측치만 표시합니다 — SPX=7748.5 index (2026-08-12T20:36:53.000Z) · VIX=14.55 index (2026-08-12T20:15:01.000Z) · 10Y=4.682 index (2026-08-12T18:59:54.000Z) · DXY=99.927 index (2026-08-13T00:33:55.000Z). 추가 방향성·인과 해석은 유효한 분석 산출물 확인 후 제공됩니다.",
+  "summary": "시장 분석 대기: 검증된 관측치만 표시합니다 — SPX=7798.99 index (2026-08-13T20:35:03.000Z) · VIX=14.63 index (2026-08-13T20:15:01.000Z) · 10Y=4.641 index (2026-08-13T18:59:55.000Z) · DXY=99.895 index (2026-08-14T00:30:18.000Z). 추가 방향성·인과 해석은 유효한 분석 산출물 확인 후 제공됩니다.",
+  "full": "시장 분석 대기: 검증된 관측치만 표시합니다 — SPX=7798.99 index (2026-08-13T20:35:03.000Z) · VIX=14.63 index (2026-08-13T20:15:01.000Z) · 10Y=4.641 index (2026-08-13T18:59:55.000Z) · DXY=99.895 index (2026-08-14T00:30:18.000Z). 추가 방향성·인과 해석은 유효한 분석 산출물 확인 후 제공됩니다.",
+  "oneLine": "시장 분석 대기: 검증된 관측치만 표시합니다 — SPX=7798.99 index (2026-08-13T20:35:03.000Z) · VIX=14.63 index (2026-08-13T20:15:01.000Z) · 10Y=4.641 index (2026-08-13T18:59:55.000Z) · DXY=99.895 index (2026-08-14T00:30:18.000Z). 추가 방향성·인과 해석은 유효한 분석 산출물 확인 후 제공됩니다.",
   "regime": {
    "label": "UNKNOWN",
    "status": "blocked",
    "evidenceIds": [
-    "market-analysis:^GSPC:2026-08-12T20:36:53.000Z",
-    "market-analysis:^VIX:2026-08-12T20:15:01.000Z",
-    "market-analysis:^TNX:2026-08-12T18:59:54.000Z",
-    "market-analysis:DX-Y.NYB:2026-08-13T00:33:55.000Z",
-    "market-analysis:CL=F:2026-08-13T00:33:57.000Z",
-    "market-analysis:GC=F:2026-08-13T00:33:53.000Z",
-    "market-analysis:^KS11:2026-08-13T00:23:50.000Z",
+    "market-analysis:^GSPC:2026-08-13T20:35:03.000Z",
+    "market-analysis:^VIX:2026-08-13T20:15:01.000Z",
+    "market-analysis:^TNX:2026-08-13T18:59:55.000Z",
+    "market-analysis:DX-Y.NYB:2026-08-14T00:30:18.000Z",
+    "market-analysis:CL=F:2026-08-14T00:30:13.000Z",
+    "market-analysis:GC=F:2026-08-14T00:30:19.000Z",
+    "market-analysis:^KS11:2026-08-14T00:20:10.000Z",
     "market-analysis:macro.cpi:2026-07-01T00:00:00.000Z",
-    "market-analysis:macro.fed-rate:2026-07-01T00:00:00.000Z",
-    "market-analysis:macro.nfp-mom:2026-07-01T00:00:00.000Z",
-    "market-analysis:fear-greed:2026-08-12T23:59:58.000Z"
+    "market-analysis:fear-greed:2026-08-13T23:59:54.000Z"
    ]
   },
   "drivers": [],
@@ -1233,95 +2569,89 @@
    {
     "label": "await validated market analysis",
     "evidenceIds": [
-     "market-analysis:^GSPC:2026-08-12T20:36:53.000Z",
-     "market-analysis:^VIX:2026-08-12T20:15:01.000Z",
-     "market-analysis:^TNX:2026-08-12T18:59:54.000Z",
-     "market-analysis:DX-Y.NYB:2026-08-13T00:33:55.000Z",
-     "market-analysis:CL=F:2026-08-13T00:33:57.000Z",
-     "market-analysis:GC=F:2026-08-13T00:33:53.000Z",
-     "market-analysis:^KS11:2026-08-13T00:23:50.000Z",
+     "market-analysis:^GSPC:2026-08-13T20:35:03.000Z",
+     "market-analysis:^VIX:2026-08-13T20:15:01.000Z",
+     "market-analysis:^TNX:2026-08-13T18:59:55.000Z",
+     "market-analysis:DX-Y.NYB:2026-08-14T00:30:18.000Z",
+     "market-analysis:CL=F:2026-08-14T00:30:13.000Z",
+     "market-analysis:GC=F:2026-08-14T00:30:19.000Z",
+     "market-analysis:^KS11:2026-08-14T00:20:10.000Z",
      "market-analysis:macro.cpi:2026-07-01T00:00:00.000Z",
-     "market-analysis:macro.fed-rate:2026-07-01T00:00:00.000Z",
-     "market-analysis:macro.nfp-mom:2026-07-01T00:00:00.000Z",
-     "market-analysis:fear-greed:2026-08-12T23:59:58.000Z",
-     "news:https://news.google.com/rss/articles/CBMihgFBVV95cUxQcE9EUXZra0w3S0ZDbGRzTHRDc1dyMEc0ZkpWVEFaeElqYVN5eWFFdzhPVE1qTDBPdnJPNHc0UlloNlhQem1KQUhhZTVOVTJWT1JCelRnUkpBLU9BaGs2blVNT2NZaUFlYUJpOVRBeVZndE9TaE5aOWxieHlwRFJsLVhRR3p3d9IBiwFBVV95cUxOV0ZZUWFRWEsyVGtkaFdSTGlYRi1BN290OEdpdFJ4dU8yVXFGbksxQmtZN0hfdTRuT05BUHQyR29Hdm5XdHhmOEhTUTNOSmFHTjB3cDRaVnlMTEtTUjJGa3hadFFmLVQ4SkRmbjdSNFJrVjd5cTVja2Q2OG1ZLTNGSTlrdTBiVmJnWUVJ?oc=5:2026-08-12T19:22:32.000Z",
-     "news:https://news.google.com/rss/articles/CBMilAFBVV95cUxPZkh5bVUyRkJTaW5FS3YyMlMxbTBPYm9RVXRGc21LQ1dSYjd2OEdKNEJjdFJyLXhXd0ZaLWdWbVdfd05BZjVMZGxieWk4SzhPZkdPeDA1SkFwSWpWNkhnUnVhMEJZTHpwVlJSNE9yeW1uaXRSZ1hkVmluZXBLaUtZTFpZYUhhZkVua1hiQXFzTUtOVEtK?oc=5:2026-08-12T22:19:59.000Z",
-     "news:https://news.google.com/rss/articles/CBMizwFBVV95cUxOR2hPZUg4eldjWm1fWnlhbllJUnQwT2ZIWVcySEFhdFZ0dnNXclA1MzgxcnZMT2ZLU2NuSGk3MjdoQjVKbmVvbXptcm1TbGtJc2lUS1psbHdCa1ZobGRIb2hNR1Y2VkVGNlFpbTFxVVZBVS02QmJkckxrQm1lRVltZ1E1VnJxNlBKMFlLX2VYWWpUUnJDaTNKS0RsUVRRVWJLSUNoQnpJbFhoOXJud3FMT0hSU3lxU0w2b2NqWklkbWg3bUMxTkQ4N3dyLWlGd3M?oc=5:2026-08-12T20:14:22.000Z",
-     "news:https://news.google.com/rss/articles/CBMilAFBVV95cUxPTG85TzIxdUJXU25EX3hyMk5oS21kQWNHUUZJX3h0a29OelZ4REN5LWI0QUJ6NGg2d1FaRE9FaFA4UkNyeUVlOUV0RjhmYmltMno2OVRlTTJOQklwOHFZTGdxOG0wNGZ1X0lFdE1Ua0VKVEotdVFVcGdZU1RNcTZyakFTMjF5Q0hCTVJJTHpLbzdLMUYw0gGaAUFVX3lxTE5YeV9OZGhfYTFJVTlQV2RmQlpkS1k0QzBJcmhldWt1WDRfTVQ5S1hwT1RYVmktXzh0WTdWbEFpQ0h1czIwbkVxYmZsa3c4UmY0MFdnQzM2M0djUzhWcFRCZklJNUd6ODROQVZhYXhYOEZodGp3Nm93TDRia3ltVVZGTU5UbDg4TDlBVG4wdUd3bFZOYmtmeHl4aWc?oc=5:2026-08-12T22:31:00.000Z",
-     "news:https://news.google.com/rss/articles/CBMizgFBVV95cUxNVUFVQUpmMzZFM0lxbzdTMmR5NVMwa3NicVF2UlEzZFB3aXpBQVJ2dlNPby1JVnFuRm84RGFFYW1fbEpNMm9kNXc4N0hxQWhlZGdpUktMOEJ4MEd5VFlySTFiTFprSGNGS2J6MEN4MlFnajNQNWhWTE5JUS1Fbk4yRkJkYk9YWGNjUkQ2UFBNLUJ4RGxSTFA0UlBrNlFNN2pURkJsTnFFdFpDU3NHU0JVMmlBVW5EclBzWkoxaTZmbkxEaFhyS2g5QUxfaWNsQQ?oc=5:2026-08-12T17:14:25.000Z",
-     "news:https://news.google.com/rss/articles/CBMiuAFBVV95cUxPUm5jZkFKN2RpUWZWbG9rSXctekpyeml5UDgwTENteGwtSmFWbHd0cGFjYV9LRVBXeHRENktmbWVKNVZCeFp0U0YxeTFQcFdqZTJ5Z0sxWjg1TGUwRm13Mm5rSWRoUWw2MzZhNlhFeUV2Wk9mRFNFWDB6QWhSckZDbUtlZ3pzSWQyU0pjS0Q1d2dRT1EtcWt0SVhuQXlPTHZiZlhZTzFWSUoxcXVDdl9qUnA0SnJWR1Zf?oc=5:2026-08-12T13:45:33.000Z",
-     "news:https://news.google.com/rss/articles/CBMi9AFBVV95cUxOdVRPY25zQzJKX0lrN21oTVYwSXFrR0pnaDdFX3RZejJiZzFmMm5iYkRzNXNIZFdGYmlXUW1nelNCOTFFY1dBakdFN1JFcVZsUDZOSXhqMjVHU1BrTnVCeGZvSGZFSElxY1pfVnM1Y2tMUEFxNTItSG96OTh6MThKVmhkczhjZjI3TGZOdlQtN2xyNjI5TDBoNFlrNGtiem5uVnBKcThzTnU0QXlsMlh4cEhkdzIycm4ydUFGSGVOR2llWWRwS3FmY0c3RlJmSllvU295LWUzS2I1Wkg0aWhwSVhrMUU1WFRSMzJwTEh5UllXVkdP?oc=5:2026-08-12T22:00:44.000Z",
-     "news:https://news.google.com/rss/articles/CBMi0AFBVV95cUxNQlVyNnhaVUc0aGt4Z1VWX1RWNVlKQkRzakVEdGZ4ZmxhRzhTbjU2d3ZXMW5ZZm5SdXBlWEZhTlE2RHk2VXJFYS0wMTRRMlo5TDRiUHVESWgtU2laVTJ6U3NQVmxoN1RIZTNSMFJtVmN2N0FKQmNtWmVQaHRHcjJSU2IteHVQY3VLMHg2Y3haVmpQQUpGYmVKblg4VWNVQ3ZrV0tNeW1UVUx1U2xDajNtc3ZHMjlGOUtsbjdjSjhJYkpjTmpSNURJT3lRbnV6YUw3?oc=5:2026-08-12T21:14:00.000Z"
+     "market-analysis:fear-greed:2026-08-13T23:59:54.000Z",
+     "news:https://news.google.com/rss/articles/CBMixgFBVV95cUxQSEtoQnNxUUJTeEJ1VjN2WUlhV2l5X0kxejRMd2lzaExMTDZHTUg0T0RDczlsVVl3Zm1jRWcxU2J2emlHSHRXMUNoeWVzbC1DTVYzVFB5VHk2b0lOc290NnVWcVZHR2ZfTzVpNG1panhEUVlfXzN2eGtvdHMwVUhjay01NFVkcG5FQTM0LWxOcTlFZ3BWbzRBcUJPLS1FQmg0aUZSZnpPR25TcjdZY0NKcmFHbGFaeDBFb2c5NFBmVDA4ckVYZXc?oc=5:2026-08-13T20:31:19.000Z",
+     "news:https://news.google.com/rss/articles/CBMisgFBVV95cUxNWk9LT09OZ0o3aE1weXpUM0V0XzMzblRONDFQM2JqZFdWaUZ1RkJOV1BPRWM5eWtIczJReUhRY243d1pGMkRTU2ZENTI1ZWU3ZHdnVXNMRDJVQWk2eHBQRFNUN1VDMlZJczFKTVYxZy1Ecm5EbldNVEV5cVh0TmFmUzJWX2xhSXpNWTl3NUdBSXJiZ0h4Znd6V19FNG1WazNUemExeC1wVEdEaHlNdGt6bHdB?oc=5:2026-08-13T22:10:41.000Z",
+     "news:https://news.google.com/rss/articles/CBMivgFBVV95cUxPamFTRDhha2lGLW5hTU1KdDZnVjlxd2hEY1lqX3Zfd2NmVlRXZjVWbDNHMXdJem1SX1hsNUpoaF9lWHhYUVFmUWJ0SDBWRG5uOGMzYzI0MFh6ckthOWJNZXNtR0tJVFJFcEMtVjdwZVFpdURyczZ0NTkzMDh1dDJNRWxKQ2htMEpBQ3N2Q25OY19wRWxaYTVCTmJJRWprVFFSMWNITjl4QmUxQVN1MUFnNHRsRWJGYUpHZ1Ywb0Nn?oc=5:2026-08-13T22:01:51.000Z",
+     "news:https://news.google.com/rss/articles/CBMilgJBVV95cUxNV184RHN4bkdnVGNoZ1ZYSzdJaDVZN1hfb2pKN1dTVXcyUDhEX0FZUFE4RERXX2lNWHl6dUVVMjlEUXltbEhnc3R4a3J4aU5MbG53cWc5S1cxbHNTX1A0WjVwUzhkWkFyQ1FENGlkTDNzOG1ZY3IyZDdGWFlCSnpTaDgtOTBCQTVEZk4zb3VNc1RvaFd5ZklUaGlVbHJXZHE2MmtmWlM2cGh2UEI5WEdkZHdiZTdzdlRfaU54dlRKbWRHQlBfWUtUVkcxRGYzR2YxdjN5UVRtN0UzZ0l2Y1RaendhTDJqSzRvR0ZSWUs0d1AyX1ppS09hQ1J3ZW9mdE5WTXhIRlNnLVJmVmlnZFN1VWNEOUFsUQ?oc=5:2026-08-13T22:59:21.000Z",
+     "news:https://news.google.com/rss/articles/CBMijgFBVV95cUxPUHoyYXVZa3JTLTJxTmU4VXVzeUF3Rm9sRDZTSkhENlFNT0lQSFNhVktXM295RkExNFJLbkhLRFdLdVA0dWtGSkU2djRQc0psM0g4dEpUSmdJc2Y2d2FOVlh5X0tWRmhzZlctV2JiLUlJcDBjVi1qS09HZ21KV2FLZno3TGVDeEk2TDhKSmlB?oc=5:2026-08-13T21:53:49.000Z",
+     "news:https://news.google.com/rss/articles/CBMimwFBVV95cUxNUDlndXVVSER5VEoyVGllV2R0NklnV2p0QVBoRzVsM3hLeFpHbFQ4SEJoa2tIZUcxamt2MUQtc2dFNTdSRHV5dmNGdnkydjVkT251X2h6TVM1SmdUeWdsUmhnakh4elF2ZlludXlYeGM3YkJtbVlWemJtaGthTUJhbWUyRVdQbHl1a1BjaHJEX0FPZko2OC1jXzh3dw?oc=5:2026-08-13T20:47:00.000Z",
+     "news:https://news.google.com/rss/articles/CBMiygFBVV95cUxQY055b1pIby1JVm05VkZqVm5tZV9DT0lURnVycXdzTnN4S0IyQkJmSjhWb2RZWmJFV1FJTEViWXRzdUxUM002OWx6RjFTd3pKSVhjOU5sS1JlWXl3WWtlelBjNjN3QVZlbjhSM0hvNlBJSUgxVk4zYklzd0dDeU9oMWxtRWxDcEJ5WlFDQy00RUdtNXNVV3lqeXphQzJhTzFjc2xzVTJHTVhHeEFIc3h3YmctZ0xERFQ4TnBlbW1Cc1A1dGRhczQ5LVBn?oc=5:2026-08-13T13:14:00.000Z",
+     "news:https://news.google.com/rss/articles/CBMirAFBVV95cUxNR1AyVUVRejRRQ3BCcTNEdU5WaGw1RmVtbnlQYlZ3bU5WV2RXR01PWTFjVHdWYktNVFp2TWJCMkx5ZFExbGdaRzlvYVNNVUNWNUNVM0o5eVBhcC0yODhheXJSWGpDQTVSNjZqMTNaZllvWHRHUTFob3pwVVZUbHI1SnFoNHk4R3FVN0k3Mmt4WEdtZ1daT3dZYmszblZrdncxcG1WU0RZc244UlA0?oc=5:2026-08-13T22:52:00.000Z"
     ]
    }
   ],
   "claims": [
    {
     "id": "market-summary-1",
-    "text": "시장 분석 대기: 검증된 관측치만 표시합니다 — SPX=7748.5 index (2026-08-12T20:36:53.000Z) · VIX=14.55 index (2026-08-12T20:15:01.000Z) · 10Y=4.682 index (2026-08-12T18:59:54.000Z) · DXY=99.927 index (2026-08-13T00:33:55.000Z). 추가 방향성·인과 해석은 유효한 분석 산출물 확인 후 제공됩니다.",
+    "text": "시장 분석 대기: 검증된 관측치만 표시합니다 — SPX=7798.99 index (2026-08-13T20:35:03.000Z) · VIX=14.63 index (2026-08-13T20:15:01.000Z) · 10Y=4.641 index (2026-08-13T18:59:55.000Z) · DXY=99.895 index (2026-08-14T00:30:18.000Z). 추가 방향성·인과 해석은 유효한 분석 산출물 확인 후 제공됩니다.",
     "claimType": "summary",
     "evidenceIds": [
-     "market-analysis:^GSPC:2026-08-12T20:36:53.000Z",
-     "market-analysis:^VIX:2026-08-12T20:15:01.000Z",
-     "market-analysis:^TNX:2026-08-12T18:59:54.000Z",
-     "market-analysis:DX-Y.NYB:2026-08-13T00:33:55.000Z",
-     "market-analysis:CL=F:2026-08-13T00:33:57.000Z",
-     "market-analysis:GC=F:2026-08-13T00:33:53.000Z",
-     "market-analysis:^KS11:2026-08-13T00:23:50.000Z",
+     "market-analysis:^GSPC:2026-08-13T20:35:03.000Z",
+     "market-analysis:^VIX:2026-08-13T20:15:01.000Z",
+     "market-analysis:^TNX:2026-08-13T18:59:55.000Z",
+     "market-analysis:DX-Y.NYB:2026-08-14T00:30:18.000Z",
+     "market-analysis:CL=F:2026-08-14T00:30:13.000Z",
+     "market-analysis:GC=F:2026-08-14T00:30:19.000Z",
+     "market-analysis:^KS11:2026-08-14T00:20:10.000Z",
      "market-analysis:macro.cpi:2026-07-01T00:00:00.000Z",
-     "market-analysis:macro.fed-rate:2026-07-01T00:00:00.000Z",
-     "market-analysis:macro.nfp-mom:2026-07-01T00:00:00.000Z",
-     "market-analysis:fear-greed:2026-08-12T23:59:58.000Z",
-     "news:https://news.google.com/rss/articles/CBMihgFBVV95cUxQcE9EUXZra0w3S0ZDbGRzTHRDc1dyMEc0ZkpWVEFaeElqYVN5eWFFdzhPVE1qTDBPdnJPNHc0UlloNlhQem1KQUhhZTVOVTJWT1JCelRnUkpBLU9BaGs2blVNT2NZaUFlYUJpOVRBeVZndE9TaE5aOWxieHlwRFJsLVhRR3p3d9IBiwFBVV95cUxOV0ZZUWFRWEsyVGtkaFdSTGlYRi1BN290OEdpdFJ4dU8yVXFGbksxQmtZN0hfdTRuT05BUHQyR29Hdm5XdHhmOEhTUTNOSmFHTjB3cDRaVnlMTEtTUjJGa3hadFFmLVQ4SkRmbjdSNFJrVjd5cTVja2Q2OG1ZLTNGSTlrdTBiVmJnWUVJ?oc=5:2026-08-12T19:22:32.000Z",
-     "news:https://news.google.com/rss/articles/CBMilAFBVV95cUxPZkh5bVUyRkJTaW5FS3YyMlMxbTBPYm9RVXRGc21LQ1dSYjd2OEdKNEJjdFJyLXhXd0ZaLWdWbVdfd05BZjVMZGxieWk4SzhPZkdPeDA1SkFwSWpWNkhnUnVhMEJZTHpwVlJSNE9yeW1uaXRSZ1hkVmluZXBLaUtZTFpZYUhhZkVua1hiQXFzTUtOVEtK?oc=5:2026-08-12T22:19:59.000Z",
-     "news:https://news.google.com/rss/articles/CBMizwFBVV95cUxOR2hPZUg4eldjWm1fWnlhbllJUnQwT2ZIWVcySEFhdFZ0dnNXclA1MzgxcnZMT2ZLU2NuSGk3MjdoQjVKbmVvbXptcm1TbGtJc2lUS1psbHdCa1ZobGRIb2hNR1Y2VkVGNlFpbTFxVVZBVS02QmJkckxrQm1lRVltZ1E1VnJxNlBKMFlLX2VYWWpUUnJDaTNKS0RsUVRRVWJLSUNoQnpJbFhoOXJud3FMT0hSU3lxU0w2b2NqWklkbWg3bUMxTkQ4N3dyLWlGd3M?oc=5:2026-08-12T20:14:22.000Z",
-     "news:https://news.google.com/rss/articles/CBMilAFBVV95cUxPTG85TzIxdUJXU25EX3hyMk5oS21kQWNHUUZJX3h0a29OelZ4REN5LWI0QUJ6NGg2d1FaRE9FaFA4UkNyeUVlOUV0RjhmYmltMno2OVRlTTJOQklwOHFZTGdxOG0wNGZ1X0lFdE1Ua0VKVEotdVFVcGdZU1RNcTZyakFTMjF5Q0hCTVJJTHpLbzdLMUYw0gGaAUFVX3lxTE5YeV9OZGhfYTFJVTlQV2RmQlpkS1k0QzBJcmhldWt1WDRfTVQ5S1hwT1RYVmktXzh0WTdWbEFpQ0h1czIwbkVxYmZsa3c4UmY0MFdnQzM2M0djUzhWcFRCZklJNUd6ODROQVZhYXhYOEZodGp3Nm93TDRia3ltVVZGTU5UbDg4TDlBVG4wdUd3bFZOYmtmeHl4aWc?oc=5:2026-08-12T22:31:00.000Z",
-     "news:https://news.google.com/rss/articles/CBMizgFBVV95cUxNVUFVQUpmMzZFM0lxbzdTMmR5NVMwa3NicVF2UlEzZFB3aXpBQVJ2dlNPby1JVnFuRm84RGFFYW1fbEpNMm9kNXc4N0hxQWhlZGdpUktMOEJ4MEd5VFlySTFiTFprSGNGS2J6MEN4MlFnajNQNWhWTE5JUS1Fbk4yRkJkYk9YWGNjUkQ2UFBNLUJ4RGxSTFA0UlBrNlFNN2pURkJsTnFFdFpDU3NHU0JVMmlBVW5EclBzWkoxaTZmbkxEaFhyS2g5QUxfaWNsQQ?oc=5:2026-08-12T17:14:25.000Z",
-     "news:https://news.google.com/rss/articles/CBMiuAFBVV95cUxPUm5jZkFKN2RpUWZWbG9rSXctekpyeml5UDgwTENteGwtSmFWbHd0cGFjYV9LRVBXeHRENktmbWVKNVZCeFp0U0YxeTFQcFdqZTJ5Z0sxWjg1TGUwRm13Mm5rSWRoUWw2MzZhNlhFeUV2Wk9mRFNFWDB6QWhSckZDbUtlZ3pzSWQyU0pjS0Q1d2dRT1EtcWt0SVhuQXlPTHZiZlhZTzFWSUoxcXVDdl9qUnA0SnJWR1Zf?oc=5:2026-08-12T13:45:33.000Z",
-     "news:https://news.google.com/rss/articles/CBMi9AFBVV95cUxOdVRPY25zQzJKX0lrN21oTVYwSXFrR0pnaDdFX3RZejJiZzFmMm5iYkRzNXNIZFdGYmlXUW1nelNCOTFFY1dBakdFN1JFcVZsUDZOSXhqMjVHU1BrTnVCeGZvSGZFSElxY1pfVnM1Y2tMUEFxNTItSG96OTh6MThKVmhkczhjZjI3TGZOdlQtN2xyNjI5TDBoNFlrNGtiem5uVnBKcThzTnU0QXlsMlh4cEhkdzIycm4ydUFGSGVOR2llWWRwS3FmY0c3RlJmSllvU295LWUzS2I1Wkg0aWhwSVhrMUU1WFRSMzJwTEh5UllXVkdP?oc=5:2026-08-12T22:00:44.000Z",
-     "news:https://news.google.com/rss/articles/CBMi0AFBVV95cUxNQlVyNnhaVUc0aGt4Z1VWX1RWNVlKQkRzakVEdGZ4ZmxhRzhTbjU2d3ZXMW5ZZm5SdXBlWEZhTlE2RHk2VXJFYS0wMTRRMlo5TDRiUHVESWgtU2laVTJ6U3NQVmxoN1RIZTNSMFJtVmN2N0FKQmNtWmVQaHRHcjJSU2IteHVQY3VLMHg2Y3haVmpQQUpGYmVKblg4VWNVQ3ZrV0tNeW1UVUx1U2xDajNtc3ZHMjlGOUtsbjdjSjhJYkpjTmpSNURJT3lRbnV6YUw3?oc=5:2026-08-12T21:14:00.000Z"
+     "market-analysis:fear-greed:2026-08-13T23:59:54.000Z",
+     "news:https://news.google.com/rss/articles/CBMixgFBVV95cUxQSEtoQnNxUUJTeEJ1VjN2WUlhV2l5X0kxejRMd2lzaExMTDZHTUg0T0RDczlsVVl3Zm1jRWcxU2J2emlHSHRXMUNoeWVzbC1DTVYzVFB5VHk2b0lOc290NnVWcVZHR2ZfTzVpNG1panhEUVlfXzN2eGtvdHMwVUhjay01NFVkcG5FQTM0LWxOcTlFZ3BWbzRBcUJPLS1FQmg0aUZSZnpPR25TcjdZY0NKcmFHbGFaeDBFb2c5NFBmVDA4ckVYZXc?oc=5:2026-08-13T20:31:19.000Z",
+     "news:https://news.google.com/rss/articles/CBMisgFBVV95cUxNWk9LT09OZ0o3aE1weXpUM0V0XzMzblRONDFQM2JqZFdWaUZ1RkJOV1BPRWM5eWtIczJReUhRY243d1pGMkRTU2ZENTI1ZWU3ZHdnVXNMRDJVQWk2eHBQRFNUN1VDMlZJczFKTVYxZy1Ecm5EbldNVEV5cVh0TmFmUzJWX2xhSXpNWTl3NUdBSXJiZ0h4Znd6V19FNG1WazNUemExeC1wVEdEaHlNdGt6bHdB?oc=5:2026-08-13T22:10:41.000Z",
+     "news:https://news.google.com/rss/articles/CBMivgFBVV95cUxPamFTRDhha2lGLW5hTU1KdDZnVjlxd2hEY1lqX3Zfd2NmVlRXZjVWbDNHMXdJem1SX1hsNUpoaF9lWHhYUVFmUWJ0SDBWRG5uOGMzYzI0MFh6ckthOWJNZXNtR0tJVFJFcEMtVjdwZVFpdURyczZ0NTkzMDh1dDJNRWxKQ2htMEpBQ3N2Q25OY19wRWxaYTVCTmJJRWprVFFSMWNITjl4QmUxQVN1MUFnNHRsRWJGYUpHZ1Ywb0Nn?oc=5:2026-08-13T22:01:51.000Z",
+     "news:https://news.google.com/rss/articles/CBMilgJBVV95cUxNV184RHN4bkdnVGNoZ1ZYSzdJaDVZN1hfb2pKN1dTVXcyUDhEX0FZUFE4RERXX2lNWHl6dUVVMjlEUXltbEhnc3R4a3J4aU5MbG53cWc5S1cxbHNTX1A0WjVwUzhkWkFyQ1FENGlkTDNzOG1ZY3IyZDdGWFlCSnpTaDgtOTBCQTVEZk4zb3VNc1RvaFd5ZklUaGlVbHJXZHE2MmtmWlM2cGh2UEI5WEdkZHdiZTdzdlRfaU54dlRKbWRHQlBfWUtUVkcxRGYzR2YxdjN5UVRtN0UzZ0l2Y1RaendhTDJqSzRvR0ZSWUs0d1AyX1ppS09hQ1J3ZW9mdE5WTXhIRlNnLVJmVmlnZFN1VWNEOUFsUQ?oc=5:2026-08-13T22:59:21.000Z",
+     "news:https://news.google.com/rss/articles/CBMijgFBVV95cUxPUHoyYXVZa3JTLTJxTmU4VXVzeUF3Rm9sRDZTSkhENlFNT0lQSFNhVktXM295RkExNFJLbkhLRFdLdVA0dWtGSkU2djRQc0psM0g4dEpUSmdJc2Y2d2FOVlh5X0tWRmhzZlctV2JiLUlJcDBjVi1qS09HZ21KV2FLZno3TGVDeEk2TDhKSmlB?oc=5:2026-08-13T21:53:49.000Z",
+     "news:https://news.google.com/rss/articles/CBMimwFBVV95cUxNUDlndXVVSER5VEoyVGllV2R0NklnV2p0QVBoRzVsM3hLeFpHbFQ4SEJoa2tIZUcxamt2MUQtc2dFNTdSRHV5dmNGdnkydjVkT251X2h6TVM1SmdUeWdsUmhnakh4elF2ZlludXlYeGM3YkJtbVlWemJtaGthTUJhbWUyRVdQbHl1a1BjaHJEX0FPZko2OC1jXzh3dw?oc=5:2026-08-13T20:47:00.000Z",
+     "news:https://news.google.com/rss/articles/CBMiygFBVV95cUxQY055b1pIby1JVm05VkZqVm5tZV9DT0lURnVycXdzTnN4S0IyQkJmSjhWb2RZWmJFV1FJTEViWXRzdUxUM002OWx6RjFTd3pKSVhjOU5sS1JlWXl3WWtlelBjNjN3QVZlbjhSM0hvNlBJSUgxVk4zYklzd0dDeU9oMWxtRWxDcEJ5WlFDQy00RUdtNXNVV3lqeXphQzJhTzFjc2xzVTJHTVhHeEFIc3h3YmctZ0xERFQ4TnBlbW1Cc1A1dGRhczQ5LVBn?oc=5:2026-08-13T13:14:00.000Z",
+     "news:https://news.google.com/rss/articles/CBMirAFBVV95cUxNR1AyVUVRejRRQ3BCcTNEdU5WaGw1RmVtbnlQYlZ3bU5WV2RXR01PWTFjVHdWYktNVFp2TWJCMkx5ZFExbGdaRzlvYVNNVUNWNUNVM0o5eVBhcC0yODhheXJSWGpDQTVSNjZqMTNaZllvWHRHUTFob3pwVVZUbHI1SnFoNHk4R3FVN0k3Mmt4WEdtZ1daT3dZYmszblZrdncxcG1WU0RZc244UlA0?oc=5:2026-08-13T22:52:00.000Z"
     ],
     "status": "blocked"
    }
   ],
   "evidenceIds": [
-   "market-analysis:^GSPC:2026-08-12T20:36:53.000Z",
-   "market-analysis:^VIX:2026-08-12T20:15:01.000Z",
-   "market-analysis:^TNX:2026-08-12T18:59:54.000Z",
-   "market-analysis:DX-Y.NYB:2026-08-13T00:33:55.000Z",
-   "market-analysis:CL=F:2026-08-13T00:33:57.000Z",
-   "market-analysis:GC=F:2026-08-13T00:33:53.000Z",
-   "market-analysis:^KS11:2026-08-13T00:23:50.000Z",
+   "market-analysis:^GSPC:2026-08-13T20:35:03.000Z",
+   "market-analysis:^VIX:2026-08-13T20:15:01.000Z",
+   "market-analysis:^TNX:2026-08-13T18:59:55.000Z",
+   "market-analysis:DX-Y.NYB:2026-08-14T00:30:18.000Z",
+   "market-analysis:CL=F:2026-08-14T00:30:13.000Z",
+   "market-analysis:GC=F:2026-08-14T00:30:19.000Z",
+   "market-analysis:^KS11:2026-08-14T00:20:10.000Z",
    "market-analysis:macro.cpi:2026-07-01T00:00:00.000Z",
-   "market-analysis:macro.fed-rate:2026-07-01T00:00:00.000Z",
-   "market-analysis:macro.nfp-mom:2026-07-01T00:00:00.000Z",
-   "market-analysis:fear-greed:2026-08-12T23:59:58.000Z",
-   "news:https://news.google.com/rss/articles/CBMihgFBVV95cUxQcE9EUXZra0w3S0ZDbGRzTHRDc1dyMEc0ZkpWVEFaeElqYVN5eWFFdzhPVE1qTDBPdnJPNHc0UlloNlhQem1KQUhhZTVOVTJWT1JCelRnUkpBLU9BaGs2blVNT2NZaUFlYUJpOVRBeVZndE9TaE5aOWxieHlwRFJsLVhRR3p3d9IBiwFBVV95cUxOV0ZZUWFRWEsyVGtkaFdSTGlYRi1BN290OEdpdFJ4dU8yVXFGbksxQmtZN0hfdTRuT05BUHQyR29Hdm5XdHhmOEhTUTNOSmFHTjB3cDRaVnlMTEtTUjJGa3hadFFmLVQ4SkRmbjdSNFJrVjd5cTVja2Q2OG1ZLTNGSTlrdTBiVmJnWUVJ?oc=5:2026-08-12T19:22:32.000Z",
-   "news:https://news.google.com/rss/articles/CBMilAFBVV95cUxPZkh5bVUyRkJTaW5FS3YyMlMxbTBPYm9RVXRGc21LQ1dSYjd2OEdKNEJjdFJyLXhXd0ZaLWdWbVdfd05BZjVMZGxieWk4SzhPZkdPeDA1SkFwSWpWNkhnUnVhMEJZTHpwVlJSNE9yeW1uaXRSZ1hkVmluZXBLaUtZTFpZYUhhZkVua1hiQXFzTUtOVEtK?oc=5:2026-08-12T22:19:59.000Z",
-   "news:https://news.google.com/rss/articles/CBMizwFBVV95cUxOR2hPZUg4eldjWm1fWnlhbllJUnQwT2ZIWVcySEFhdFZ0dnNXclA1MzgxcnZMT2ZLU2NuSGk3MjdoQjVKbmVvbXptcm1TbGtJc2lUS1psbHdCa1ZobGRIb2hNR1Y2VkVGNlFpbTFxVVZBVS02QmJkckxrQm1lRVltZ1E1VnJxNlBKMFlLX2VYWWpUUnJDaTNKS0RsUVRRVWJLSUNoQnpJbFhoOXJud3FMT0hSU3lxU0w2b2NqWklkbWg3bUMxTkQ4N3dyLWlGd3M?oc=5:2026-08-12T20:14:22.000Z",
-   "news:https://news.google.com/rss/articles/CBMilAFBVV95cUxPTG85TzIxdUJXU25EX3hyMk5oS21kQWNHUUZJX3h0a29OelZ4REN5LWI0QUJ6NGg2d1FaRE9FaFA4UkNyeUVlOUV0RjhmYmltMno2OVRlTTJOQklwOHFZTGdxOG0wNGZ1X0lFdE1Ua0VKVEotdVFVcGdZU1RNcTZyakFTMjF5Q0hCTVJJTHpLbzdLMUYw0gGaAUFVX3lxTE5YeV9OZGhfYTFJVTlQV2RmQlpkS1k0QzBJcmhldWt1WDRfTVQ5S1hwT1RYVmktXzh0WTdWbEFpQ0h1czIwbkVxYmZsa3c4UmY0MFdnQzM2M0djUzhWcFRCZklJNUd6ODROQVZhYXhYOEZodGp3Nm93TDRia3ltVVZGTU5UbDg4TDlBVG4wdUd3bFZOYmtmeHl4aWc?oc=5:2026-08-12T22:31:00.000Z",
-   "news:https://news.google.com/rss/articles/CBMizgFBVV95cUxNVUFVQUpmMzZFM0lxbzdTMmR5NVMwa3NicVF2UlEzZFB3aXpBQVJ2dlNPby1JVnFuRm84RGFFYW1fbEpNMm9kNXc4N0hxQWhlZGdpUktMOEJ4MEd5VFlySTFiTFprSGNGS2J6MEN4MlFnajNQNWhWTE5JUS1Fbk4yRkJkYk9YWGNjUkQ2UFBNLUJ4RGxSTFA0UlBrNlFNN2pURkJsTnFFdFpDU3NHU0JVMmlBVW5EclBzWkoxaTZmbkxEaFhyS2g5QUxfaWNsQQ?oc=5:2026-08-12T17:14:25.000Z",
-   "news:https://news.google.com/rss/articles/CBMiuAFBVV95cUxPUm5jZkFKN2RpUWZWbG9rSXctekpyeml5UDgwTENteGwtSmFWbHd0cGFjYV9LRVBXeHRENktmbWVKNVZCeFp0U0YxeTFQcFdqZTJ5Z0sxWjg1TGUwRm13Mm5rSWRoUWw2MzZhNlhFeUV2Wk9mRFNFWDB6QWhSckZDbUtlZ3pzSWQyU0pjS0Q1d2dRT1EtcWt0SVhuQXlPTHZiZlhZTzFWSUoxcXVDdl9qUnA0SnJWR1Zf?oc=5:2026-08-12T13:45:33.000Z",
-   "news:https://news.google.com/rss/articles/CBMi9AFBVV95cUxOdVRPY25zQzJKX0lrN21oTVYwSXFrR0pnaDdFX3RZejJiZzFmMm5iYkRzNXNIZFdGYmlXUW1nelNCOTFFY1dBakdFN1JFcVZsUDZOSXhqMjVHU1BrTnVCeGZvSGZFSElxY1pfVnM1Y2tMUEFxNTItSG96OTh6MThKVmhkczhjZjI3TGZOdlQtN2xyNjI5TDBoNFlrNGtiem5uVnBKcThzTnU0QXlsMlh4cEhkdzIycm4ydUFGSGVOR2llWWRwS3FmY0c3RlJmSllvU295LWUzS2I1Wkg0aWhwSVhrMUU1WFRSMzJwTEh5UllXVkdP?oc=5:2026-08-12T22:00:44.000Z",
-   "news:https://news.google.com/rss/articles/CBMi0AFBVV95cUxNQlVyNnhaVUc0aGt4Z1VWX1RWNVlKQkRzakVEdGZ4ZmxhRzhTbjU2d3ZXMW5ZZm5SdXBlWEZhTlE2RHk2VXJFYS0wMTRRMlo5TDRiUHVESWgtU2laVTJ6U3NQVmxoN1RIZTNSMFJtVmN2N0FKQmNtWmVQaHRHcjJSU2IteHVQY3VLMHg2Y3haVmpQQUpGYmVKblg4VWNVQ3ZrV0tNeW1UVUx1U2xDajNtc3ZHMjlGOUtsbjdjSjhJYkpjTmpSNURJT3lRbnV6YUw3?oc=5:2026-08-12T21:14:00.000Z"
+   "market-analysis:fear-greed:2026-08-13T23:59:54.000Z",
+   "news:https://news.google.com/rss/articles/CBMixgFBVV95cUxQSEtoQnNxUUJTeEJ1VjN2WUlhV2l5X0kxejRMd2lzaExMTDZHTUg0T0RDczlsVVl3Zm1jRWcxU2J2emlHSHRXMUNoeWVzbC1DTVYzVFB5VHk2b0lOc290NnVWcVZHR2ZfTzVpNG1panhEUVlfXzN2eGtvdHMwVUhjay01NFVkcG5FQTM0LWxOcTlFZ3BWbzRBcUJPLS1FQmg0aUZSZnpPR25TcjdZY0NKcmFHbGFaeDBFb2c5NFBmVDA4ckVYZXc?oc=5:2026-08-13T20:31:19.000Z",
+   "news:https://news.google.com/rss/articles/CBMisgFBVV95cUxNWk9LT09OZ0o3aE1weXpUM0V0XzMzblRONDFQM2JqZFdWaUZ1RkJOV1BPRWM5eWtIczJReUhRY243d1pGMkRTU2ZENTI1ZWU3ZHdnVXNMRDJVQWk2eHBQRFNUN1VDMlZJczFKTVYxZy1Ecm5EbldNVEV5cVh0TmFmUzJWX2xhSXpNWTl3NUdBSXJiZ0h4Znd6V19FNG1WazNUemExeC1wVEdEaHlNdGt6bHdB?oc=5:2026-08-13T22:10:41.000Z",
+   "news:https://news.google.com/rss/articles/CBMivgFBVV95cUxPamFTRDhha2lGLW5hTU1KdDZnVjlxd2hEY1lqX3Zfd2NmVlRXZjVWbDNHMXdJem1SX1hsNUpoaF9lWHhYUVFmUWJ0SDBWRG5uOGMzYzI0MFh6ckthOWJNZXNtR0tJVFJFcEMtVjdwZVFpdURyczZ0NTkzMDh1dDJNRWxKQ2htMEpBQ3N2Q25OY19wRWxaYTVCTmJJRWprVFFSMWNITjl4QmUxQVN1MUFnNHRsRWJGYUpHZ1Ywb0Nn?oc=5:2026-08-13T22:01:51.000Z",
+   "news:https://news.google.com/rss/articles/CBMilgJBVV95cUxNV184RHN4bkdnVGNoZ1ZYSzdJaDVZN1hfb2pKN1dTVXcyUDhEX0FZUFE4RERXX2lNWHl6dUVVMjlEUXltbEhnc3R4a3J4aU5MbG53cWc5S1cxbHNTX1A0WjVwUzhkWkFyQ1FENGlkTDNzOG1ZY3IyZDdGWFlCSnpTaDgtOTBCQTVEZk4zb3VNc1RvaFd5ZklUaGlVbHJXZHE2MmtmWlM2cGh2UEI5WEdkZHdiZTdzdlRfaU54dlRKbWRHQlBfWUtUVkcxRGYzR2YxdjN5UVRtN0UzZ0l2Y1RaendhTDJqSzRvR0ZSWUs0d1AyX1ppS09hQ1J3ZW9mdE5WTXhIRlNnLVJmVmlnZFN1VWNEOUFsUQ?oc=5:2026-08-13T22:59:21.000Z",
+   "news:https://news.google.com/rss/articles/CBMijgFBVV95cUxPUHoyYXVZa3JTLTJxTmU4VXVzeUF3Rm9sRDZTSkhENlFNT0lQSFNhVktXM295RkExNFJLbkhLRFdLdVA0dWtGSkU2djRQc0psM0g4dEpUSmdJc2Y2d2FOVlh5X0tWRmhzZlctV2JiLUlJcDBjVi1qS09HZ21KV2FLZno3TGVDeEk2TDhKSmlB?oc=5:2026-08-13T21:53:49.000Z",
+   "news:https://news.google.com/rss/articles/CBMimwFBVV95cUxNUDlndXVVSER5VEoyVGllV2R0NklnV2p0QVBoRzVsM3hLeFpHbFQ4SEJoa2tIZUcxamt2MUQtc2dFNTdSRHV5dmNGdnkydjVkT251X2h6TVM1SmdUeWdsUmhnakh4elF2ZlludXlYeGM3YkJtbVlWemJtaGthTUJhbWUyRVdQbHl1a1BjaHJEX0FPZko2OC1jXzh3dw?oc=5:2026-08-13T20:47:00.000Z",
+   "news:https://news.google.com/rss/articles/CBMiygFBVV95cUxQY055b1pIby1JVm05VkZqVm5tZV9DT0lURnVycXdzTnN4S0IyQkJmSjhWb2RZWmJFV1FJTEViWXRzdUxUM002OWx6RjFTd3pKSVhjOU5sS1JlWXl3WWtlelBjNjN3QVZlbjhSM0hvNlBJSUgxVk4zYklzd0dDeU9oMWxtRWxDcEJ5WlFDQy00RUdtNXNVV3lqeXphQzJhTzFjc2xzVTJHTVhHeEFIc3h3YmctZ0xERFQ4TnBlbW1Cc1A1dGRhczQ5LVBn?oc=5:2026-08-13T13:14:00.000Z",
+   "news:https://news.google.com/rss/articles/CBMirAFBVV95cUxNR1AyVUVRejRRQ3BCcTNEdU5WaGw1RmVtbnlQYlZ3bU5WV2RXR01PWTFjVHdWYktNVFp2TWJCMkx5ZFExbGdaRzlvYVNNVUNWNUNVM0o5eVBhcC0yODhheXJSWGpDQTVSNjZqMTNaZllvWHRHUTFob3pwVVZUbHI1SnFoNHk4R3FVN0k3Mmt4WEdtZ1daT3dZYmszblZrdncxcG1WU0RZc244UlA0?oc=5:2026-08-13T22:52:00.000Z"
   ],
-  "generatedAt": "2026-08-13T00:44:08.960Z",
+  "generatedAt": "2026-08-14T00:40:24.583Z",
   "model": "none",
   "validatorVersion": "market-analysis-validator.v2",
   "semanticStatus": "blocked",
   "semanticIssues": [
-   "metric-value-mismatch:macro.cpi"
+   "anthropic-key-not-configured"
   ],
   "metricEvidence": [
    {
-    "evidenceId": "market-analysis:^GSPC:2026-08-12T20:36:53.000Z",
+    "evidenceId": "market-analysis:^GSPC:2026-08-13T20:35:03.000Z",
     "metricId": "market.spx",
     "label": "SPX",
-    "value": 7748.5,
+    "value": 7798.99,
     "unit": "index",
-    "observedAt": "2026-08-12T20:36:53.000Z",
-    "collectedAt": "2026-08-13T00:44:03.116Z",
-    "asOf": "2026-08-12T20:36:53.000Z",
+    "observedAt": "2026-08-13T20:35:03.000Z",
+    "collectedAt": "2026-08-14T00:40:24.581Z",
+    "asOf": "2026-08-13T20:35:03.000Z",
     "source": "Yahoo chart",
     "sourceTier": "public-information-service",
     "sourceKind": "market-quote",
@@ -1329,14 +2659,14 @@
     "status": "observed"
    },
    {
-    "evidenceId": "market-analysis:^VIX:2026-08-12T20:15:01.000Z",
+    "evidenceId": "market-analysis:^VIX:2026-08-13T20:15:01.000Z",
     "metricId": "market.vix",
     "label": "VIX",
-    "value": 14.55,
+    "value": 14.63,
     "unit": "index",
-    "observedAt": "2026-08-12T20:15:01.000Z",
-    "collectedAt": "2026-08-13T00:44:03.116Z",
-    "asOf": "2026-08-12T20:15:01.000Z",
+    "observedAt": "2026-08-13T20:15:01.000Z",
+    "collectedAt": "2026-08-14T00:40:24.581Z",
+    "asOf": "2026-08-13T20:15:01.000Z",
     "source": "Yahoo chart",
     "sourceTier": "public-information-service",
     "sourceKind": "market-quote",
@@ -1344,14 +2674,14 @@
     "status": "observed"
    },
    {
-    "evidenceId": "market-analysis:^TNX:2026-08-12T18:59:54.000Z",
+    "evidenceId": "market-analysis:^TNX:2026-08-13T18:59:55.000Z",
     "metricId": "market.us10y",
     "label": "10Y",
-    "value": 4.682,
+    "value": 4.641,
     "unit": "index",
-    "observedAt": "2026-08-12T18:59:54.000Z",
-    "collectedAt": "2026-08-13T00:44:03.116Z",
-    "asOf": "2026-08-12T18:59:54.000Z",
+    "observedAt": "2026-08-13T18:59:55.000Z",
+    "collectedAt": "2026-08-14T00:40:24.581Z",
+    "asOf": "2026-08-13T18:59:55.000Z",
     "source": "Yahoo chart",
     "sourceTier": "public-information-service",
     "sourceKind": "market-quote",
@@ -1359,14 +2689,14 @@
     "status": "observed"
    },
    {
-    "evidenceId": "market-analysis:DX-Y.NYB:2026-08-13T00:33:55.000Z",
+    "evidenceId": "market-analysis:DX-Y.NYB:2026-08-14T00:30:18.000Z",
     "metricId": "market.dxy",
     "label": "DXY",
-    "value": 99.927,
+    "value": 99.895,
     "unit": "index",
-    "observedAt": "2026-08-13T00:33:55.000Z",
-    "collectedAt": "2026-08-13T00:44:03.116Z",
-    "asOf": "2026-08-13T00:33:55.000Z",
+    "observedAt": "2026-08-14T00:30:18.000Z",
+    "collectedAt": "2026-08-14T00:40:24.581Z",
+    "asOf": "2026-08-14T00:30:18.000Z",
     "source": "Yahoo chart",
     "sourceTier": "public-information-service",
     "sourceKind": "market-quote",
@@ -1374,14 +2704,14 @@
     "status": "observed"
    },
    {
-    "evidenceId": "market-analysis:CL=F:2026-08-13T00:33:57.000Z",
+    "evidenceId": "market-analysis:CL=F:2026-08-14T00:30:13.000Z",
     "metricId": "market.wti",
     "label": "WTI",
-    "value": 82.31,
+    "value": 81.23,
     "unit": "USD/barrel",
-    "observedAt": "2026-08-13T00:33:57.000Z",
-    "collectedAt": "2026-08-13T00:44:03.116Z",
-    "asOf": "2026-08-13T00:33:57.000Z",
+    "observedAt": "2026-08-14T00:30:13.000Z",
+    "collectedAt": "2026-08-14T00:40:24.581Z",
+    "asOf": "2026-08-14T00:30:13.000Z",
     "source": "Yahoo chart",
     "sourceTier": "public-information-service",
     "sourceKind": "market-quote",
@@ -1389,14 +2719,14 @@
     "status": "observed"
    },
    {
-    "evidenceId": "market-analysis:GC=F:2026-08-13T00:33:53.000Z",
+    "evidenceId": "market-analysis:GC=F:2026-08-14T00:30:19.000Z",
     "metricId": "market.gold",
     "label": "Gold",
-    "value": 4492.8,
+    "value": 4393,
     "unit": "USD/oz",
-    "observedAt": "2026-08-13T00:33:53.000Z",
-    "collectedAt": "2026-08-13T00:44:03.116Z",
-    "asOf": "2026-08-13T00:33:53.000Z",
+    "observedAt": "2026-08-14T00:30:19.000Z",
+    "collectedAt": "2026-08-14T00:40:24.581Z",
+    "asOf": "2026-08-14T00:30:19.000Z",
     "source": "Yahoo chart",
     "sourceTier": "public-information-service",
     "sourceKind": "market-quote",
@@ -1404,14 +2734,14 @@
     "status": "observed"
    },
    {
-    "evidenceId": "market-analysis:^KS11:2026-08-13T00:23:50.000Z",
+    "evidenceId": "market-analysis:^KS11:2026-08-14T00:20:10.000Z",
     "metricId": "market.kospi",
     "label": "KOSPI",
-    "value": 6837.89,
+    "value": 6935.7,
     "unit": "index",
-    "observedAt": "2026-08-13T00:23:50.000Z",
-    "collectedAt": "2026-08-13T00:44:03.116Z",
-    "asOf": "2026-08-13T00:23:50.000Z",
+    "observedAt": "2026-08-14T00:20:10.000Z",
+    "collectedAt": "2026-08-14T00:40:24.581Z",
+    "asOf": "2026-08-14T00:20:10.000Z",
     "source": "Yahoo chart",
     "sourceTier": "public-information-service",
     "sourceKind": "market-quote",
@@ -1425,7 +2755,7 @@
     "value": 3.3,
     "unit": "percent",
     "observedAt": "2026-07-01T00:00:00.000Z",
-    "collectedAt": "2026-08-13T00:44:03.116Z",
+    "collectedAt": "2026-08-14T00:40:24.581Z",
     "asOf": "2026-07-01T00:00:00.000Z",
     "source": "BLS Public Data API v1",
     "sourceTier": "official-primary",
@@ -1434,44 +2764,14 @@
     "status": "observed"
    },
    {
-    "evidenceId": "market-analysis:macro.fed-rate:2026-07-01T00:00:00.000Z",
-    "metricId": "macro.fed-rate",
-    "label": "FedRate",
-    "value": 3.63,
-    "unit": "percent",
-    "observedAt": "2026-07-01T00:00:00.000Z",
-    "collectedAt": "2026-08-13T00:44:03.116Z",
-    "asOf": "2026-07-01T00:00:00.000Z",
-    "source": "FRED",
-    "sourceTier": "official-primary",
-    "sourceKind": "official-primary",
-    "allowedUse": "macro-evidence-with-observation-date",
-    "status": "observed"
-   },
-   {
-    "evidenceId": "market-analysis:macro.nfp-mom:2026-07-01T00:00:00.000Z",
-    "metricId": "macro.nfp-mom",
-    "label": "NFP",
-    "value": -23,
-    "unit": "thousands",
-    "observedAt": "2026-07-01T00:00:00.000Z",
-    "collectedAt": "2026-08-13T00:44:03.116Z",
-    "asOf": "2026-07-01T00:00:00.000Z",
-    "source": "FRED",
-    "sourceTier": "official-primary",
-    "sourceKind": "official-primary",
-    "allowedUse": "macro-evidence-with-observation-date",
-    "status": "observed"
-   },
-   {
-    "evidenceId": "market-analysis:fear-greed:2026-08-12T23:59:58.000Z",
+    "evidenceId": "market-analysis:fear-greed:2026-08-13T23:59:54.000Z",
     "metricId": "sentiment.fear-greed",
     "label": "Fear&Greed",
-    "value": 62,
+    "value": 66,
     "unit": "score",
-    "observedAt": "2026-08-12T23:59:58.000Z",
-    "collectedAt": "2026-08-13T00:44:03.116Z",
-    "asOf": "2026-08-12T23:59:58.000Z",
+    "observedAt": "2026-08-13T23:59:54.000Z",
+    "collectedAt": "2026-08-14T00:40:24.581Z",
+    "asOf": "2026-08-13T23:59:54.000Z",
     "source": "cnn",
     "sourceTier": "public-api",
     "sourceKind": "public-api",
@@ -1481,103 +2781,103 @@
   ],
   "newsEvidence": [
    {
-    "evidenceId": "news:https://news.google.com/rss/articles/CBMihgFBVV95cUxQcE9EUXZra0w3S0ZDbGRzTHRDc1dyMEc0ZkpWVEFaeElqYVN5eWFFdzhPVE1qTDBPdnJPNHc0UlloNlhQem1KQUhhZTVOVTJWT1JCelRnUkpBLU9BaGs2blVNT2NZaUFlYUJpOVRBeVZndE9TaE5aOWxieHlwRFJsLVhRR3p3d9IBiwFBVV95cUxOV0ZZUWFRWEsyVGtkaFdSTGlYRi1BN290OEdpdFJ4dU8yVXFGbksxQmtZN0hfdTRuT05BUHQyR29Hdm5XdHhmOEhTUTNOSmFHTjB3cDRaVnlMTEtTUjJGa3hadFFmLVQ4SkRmbjdSNFJrVjd5cTVja2Q2OG1ZLTNGSTlrdTBiVmJnWUVJ?oc=5:2026-08-12T19:22:32.000Z",
-    "clusterId": "cnbc",
-    "title": "Where gold price is headed next as Fed rate hike and inflation odds change direction - CNBC",
-    "source": "CNBC",
-    "sourceKind": "news-feed",
-    "observedAt": "2026-08-12T19:22:32.000Z",
-    "collectedAt": "2026-08-13T00:44:03.116Z",
-    "link": "https://news.google.com/rss/articles/CBMihgFBVV95cUxQcE9EUXZra0w3S0ZDbGRzTHRDc1dyMEc0ZkpWVEFaeElqYVN5eWFFdzhPVE1qTDBPdnJPNHc0UlloNlhQem1KQUhhZTVOVTJWT1JCelRnUkpBLU9BaGs2blVNT2NZaUFlYUJpOVRBeVZndE9TaE5aOWxieHlwRFJsLVhRR3p3d9IBiwFBVV95cUxOV0ZZUWFRWEsyVGtkaFdSTGlYRi1BN290OEdpdFJ4dU8yVXFGbksxQmtZN0hfdTRuT05BUHQyR29Hdm5XdHhmOEhTUTNOSmFHTjB3cDRaVnlMTEtTUjJGa3hadFFmLVQ4SkRmbjdSNFJrVjd5cTVja2Q2OG1ZLTNGSTlrdTBiVmJnWUVJ?oc=5",
-    "allowedUse": "causal-reference",
-    "status": "observed"
-   },
-   {
-    "evidenceId": "news:https://news.google.com/rss/articles/CBMilAFBVV95cUxPZkh5bVUyRkJTaW5FS3YyMlMxbTBPYm9RVXRGc21LQ1dSYjd2OEdKNEJjdFJyLXhXd0ZaLWdWbVdfd05BZjVMZGxieWk4SzhPZkdPeDA1SkFwSWpWNkhnUnVhMEJZTHpwVlJSNE9yeW1uaXRSZ1hkVmluZXBLaUtZTFpZYUhhZkVua1hiQXFzTUtOVEtK?oc=5:2026-08-12T22:19:59.000Z",
-    "clusterId": "global banking & finance review",
-    "title": "Oil Prices Climb as Global Stocks Gain Amid Fed Rate Uncertainty - Global Banking & Finance Review",
-    "source": "Global Banking & Finance Review",
-    "sourceKind": "news-feed",
-    "observedAt": "2026-08-12T22:19:59.000Z",
-    "collectedAt": "2026-08-13T00:44:03.116Z",
-    "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxPZkh5bVUyRkJTaW5FS3YyMlMxbTBPYm9RVXRGc21LQ1dSYjd2OEdKNEJjdFJyLXhXd0ZaLWdWbVdfd05BZjVMZGxieWk4SzhPZkdPeDA1SkFwSWpWNkhnUnVhMEJZTHpwVlJSNE9yeW1uaXRSZ1hkVmluZXBLaUtZTFpZYUhhZkVua1hiQXFzTUtOVEtK?oc=5",
-    "allowedUse": "causal-reference",
-    "status": "observed"
-   },
-   {
-    "evidenceId": "news:https://news.google.com/rss/articles/CBMizwFBVV95cUxOR2hPZUg4eldjWm1fWnlhbllJUnQwT2ZIWVcySEFhdFZ0dnNXclA1MzgxcnZMT2ZLU2NuSGk3MjdoQjVKbmVvbXptcm1TbGtJc2lUS1psbHdCa1ZobGRIb2hNR1Y2VkVGNlFpbTFxVVZBVS02QmJkckxrQm1lRVltZ1E1VnJxNlBKMFlLX2VYWWpUUnJDaTNKS0RsUVRRVWJLSUNoQnpJbFhoOXJud3FMT0hSU3lxU0w2b2NqWklkbWg3bUMxTkQ4N3dyLWlGd3M?oc=5:2026-08-12T20:14:22.000Z",
+    "evidenceId": "news:https://news.google.com/rss/articles/CBMixgFBVV95cUxQSEtoQnNxUUJTeEJ1VjN2WUlhV2l5X0kxejRMd2lzaExMTDZHTUg0T0RDczlsVVl3Zm1jRWcxU2J2emlHSHRXMUNoeWVzbC1DTVYzVFB5VHk2b0lOc290NnVWcVZHR2ZfTzVpNG1panhEUVlfXzN2eGtvdHMwVUhjay01NFVkcG5FQTM0LWxOcTlFZ3BWbzRBcUJPLS1FQmg0aUZSZnpPR25TcjdZY0NKcmFHbGFaeDBFb2c5NFBmVDA4ckVYZXc?oc=5:2026-08-13T20:31:19.000Z",
     "clusterId": "bnn bloomberg",
-    "title": "Wall Street edges near its record as AI stocks rise and worries about inflation ease a bit - BNN Bloomberg",
+    "title": "U.S. stocks rise to a record as oil prices drop and inflation gets less bad - BNN Bloomberg",
     "source": "BNN Bloomberg",
     "sourceKind": "news-feed",
-    "observedAt": "2026-08-12T20:14:22.000Z",
-    "collectedAt": "2026-08-13T00:44:03.116Z",
-    "link": "https://news.google.com/rss/articles/CBMizwFBVV95cUxOR2hPZUg4eldjWm1fWnlhbllJUnQwT2ZIWVcySEFhdFZ0dnNXclA1MzgxcnZMT2ZLU2NuSGk3MjdoQjVKbmVvbXptcm1TbGtJc2lUS1psbHdCa1ZobGRIb2hNR1Y2VkVGNlFpbTFxVVZBVS02QmJkckxrQm1lRVltZ1E1VnJxNlBKMFlLX2VYWWpUUnJDaTNKS0RsUVRRVWJLSUNoQnpJbFhoOXJud3FMT0hSU3lxU0w2b2NqWklkbWg3bUMxTkQ4N3dyLWlGd3M?oc=5",
+    "observedAt": "2026-08-13T20:31:19.000Z",
+    "collectedAt": "2026-08-14T00:40:24.581Z",
+    "link": "https://news.google.com/rss/articles/CBMixgFBVV95cUxQSEtoQnNxUUJTeEJ1VjN2WUlhV2l5X0kxejRMd2lzaExMTDZHTUg0T0RDczlsVVl3Zm1jRWcxU2J2emlHSHRXMUNoeWVzbC1DTVYzVFB5VHk2b0lOc290NnVWcVZHR2ZfTzVpNG1panhEUVlfXzN2eGtvdHMwVUhjay01NFVkcG5FQTM0LWxOcTlFZ3BWbzRBcUJPLS1FQmg0aUZSZnpPR25TcjdZY0NKcmFHbGFaeDBFb2c5NFBmVDA4ckVYZXc?oc=5",
     "allowedUse": "causal-reference",
     "status": "observed"
    },
    {
-    "evidenceId": "news:https://news.google.com/rss/articles/CBMilAFBVV95cUxPTG85TzIxdUJXU25EX3hyMk5oS21kQWNHUUZJX3h0a29OelZ4REN5LWI0QUJ6NGg2d1FaRE9FaFA4UkNyeUVlOUV0RjhmYmltMno2OVRlTTJOQklwOHFZTGdxOG0wNGZ1X0lFdE1Ua0VKVEotdVFVcGdZU1RNcTZyakFTMjF5Q0hCTVJJTHpLbzdLMUYw0gGaAUFVX3lxTE5YeV9OZGhfYTFJVTlQV2RmQlpkS1k0QzBJcmhldWt1WDRfTVQ5S1hwT1RYVmktXzh0WTdWbEFpQ0h1czIwbkVxYmZsa3c4UmY0MFdnQzM2M0djUzhWcFRCZklJNUd6ODROQVZhYXhYOEZodGp3Nm93TDRia3ltVVZGTU5UbDg4TDlBVG4wdUd3bFZOYmtmeHl4aWc?oc=5:2026-08-12T22:31:00.000Z",
-    "clusterId": "the hill",
-    "title": "Trump snaps back to economic warfare in struggle to make Iran tap out - The Hill",
-    "source": "The Hill",
+    "evidenceId": "news:https://news.google.com/rss/articles/CBMisgFBVV95cUxNWk9LT09OZ0o3aE1weXpUM0V0XzMzblRONDFQM2JqZFdWaUZ1RkJOV1BPRWM5eWtIczJReUhRY243d1pGMkRTU2ZENTI1ZWU3ZHdnVXNMRDJVQWk2eHBQRFNUN1VDMlZJczFKTVYxZy1Ecm5EbldNVEV5cVh0TmFmUzJWX2xhSXpNWTl3NUdBSXJiZ0h4Znd6V19FNG1WazNUemExeC1wVEdEaHlNdGt6bHdB?oc=5:2026-08-13T22:10:41.000Z",
+    "clusterId": "bloomberg.com",
+    "title": "Asian Stocks Set for Gains as US Inflation Cools: Markets Wrap - Bloomberg.com",
+    "source": "Bloomberg.com",
     "sourceKind": "news-feed",
-    "observedAt": "2026-08-12T22:31:00.000Z",
-    "collectedAt": "2026-08-13T00:44:03.116Z",
-    "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxPTG85TzIxdUJXU25EX3hyMk5oS21kQWNHUUZJX3h0a29OelZ4REN5LWI0QUJ6NGg2d1FaRE9FaFA4UkNyeUVlOUV0RjhmYmltMno2OVRlTTJOQklwOHFZTGdxOG0wNGZ1X0lFdE1Ua0VKVEotdVFVcGdZU1RNcTZyakFTMjF5Q0hCTVJJTHpLbzdLMUYw0gGaAUFVX3lxTE5YeV9OZGhfYTFJVTlQV2RmQlpkS1k0QzBJcmhldWt1WDRfTVQ5S1hwT1RYVmktXzh0WTdWbEFpQ0h1czIwbkVxYmZsa3c4UmY0MFdnQzM2M0djUzhWcFRCZklJNUd6ODROQVZhYXhYOEZodGp3Nm93TDRia3ltVVZGTU5UbDg4TDlBVG4wdUd3bFZOYmtmeHl4aWc?oc=5",
+    "observedAt": "2026-08-13T22:10:41.000Z",
+    "collectedAt": "2026-08-14T00:40:24.581Z",
+    "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxNWk9LT09OZ0o3aE1weXpUM0V0XzMzblRONDFQM2JqZFdWaUZ1RkJOV1BPRWM5eWtIczJReUhRY243d1pGMkRTU2ZENTI1ZWU3ZHdnVXNMRDJVQWk2eHBQRFNUN1VDMlZJczFKTVYxZy1Ecm5EbldNVEV5cVh0TmFmUzJWX2xhSXpNWTl3NUdBSXJiZ0h4Znd6V19FNG1WazNUemExeC1wVEdEaHlNdGt6bHdB?oc=5",
     "allowedUse": "causal-reference",
     "status": "observed"
    },
    {
-    "evidenceId": "news:https://news.google.com/rss/articles/CBMizgFBVV95cUxNVUFVQUpmMzZFM0lxbzdTMmR5NVMwa3NicVF2UlEzZFB3aXpBQVJ2dlNPby1JVnFuRm84RGFFYW1fbEpNMm9kNXc4N0hxQWhlZGdpUktMOEJ4MEd5VFlySTFiTFprSGNGS2J6MEN4MlFnajNQNWhWTE5JUS1Fbk4yRkJkYk9YWGNjUkQ2UFBNLUJ4RGxSTFA0UlBrNlFNN2pURkJsTnFFdFpDU3NHU0JVMmlBVW5EclBzWkoxaTZmbkxEaFhyS2g5QUxfaWNsQQ?oc=5:2026-08-12T17:14:25.000Z",
-    "clusterId": "tradingview",
-    "title": "Stock Market Today: Nasdaq 100 Rises on Strong AI Earnings, Benign Inflation - TradingView",
-    "source": "TradingView",
-    "sourceKind": "news-feed",
-    "observedAt": "2026-08-12T17:14:25.000Z",
-    "collectedAt": "2026-08-13T00:44:03.116Z",
-    "link": "https://news.google.com/rss/articles/CBMizgFBVV95cUxNVUFVQUpmMzZFM0lxbzdTMmR5NVMwa3NicVF2UlEzZFB3aXpBQVJ2dlNPby1JVnFuRm84RGFFYW1fbEpNMm9kNXc4N0hxQWhlZGdpUktMOEJ4MEd5VFlySTFiTFprSGNGS2J6MEN4MlFnajNQNWhWTE5JUS1Fbk4yRkJkYk9YWGNjUkQ2UFBNLUJ4RGxSTFA0UlBrNlFNN2pURkJsTnFFdFpDU3NHU0JVMmlBVW5EclBzWkoxaTZmbkxEaFhyS2g5QUxfaWNsQQ?oc=5",
-    "allowedUse": "causal-reference",
-    "status": "observed"
-   },
-   {
-    "evidenceId": "news:https://news.google.com/rss/articles/CBMiuAFBVV95cUxPUm5jZkFKN2RpUWZWbG9rSXctekpyeml5UDgwTENteGwtSmFWbHd0cGFjYV9LRVBXeHRENktmbWVKNVZCeFp0U0YxeTFQcFdqZTJ5Z0sxWjg1TGUwRm13Mm5rSWRoUWw2MzZhNlhFeUV2Wk9mRFNFWDB6QWhSckZDbUtlZ3pzSWQyU0pjS0Q1d2dRT1EtcWt0SVhuQXlPTHZiZlhZTzFWSUoxcXVDdl9qUnA0SnJWR1Zf?oc=5:2026-08-12T13:45:33.000Z",
+    "evidenceId": "news:https://news.google.com/rss/articles/CBMivgFBVV95cUxPamFTRDhha2lGLW5hTU1KdDZnVjlxd2hEY1lqX3Zfd2NmVlRXZjVWbDNHMXdJem1SX1hsNUpoaF9lWHhYUVFmUWJ0SDBWRG5uOGMzYzI0MFh6ckthOWJNZXNtR0tJVFJFcEMtVjdwZVFpdURyczZ0NTkzMDh1dDJNRWxKQ2htMEpBQ3N2Q25OY19wRWxaYTVCTmJJRWprVFFSMWNITjl4QmUxQVN1MUFnNHRsRWJGYUpHZ1Ywb0Nn?oc=5:2026-08-13T22:01:51.000Z",
     "clusterId": "reuters",
-    "title": "Global 2026 oil supply shortfall to deepen as Hormuz reopening remains elusive, IEA says - Reuters",
+    "title": "US eyes indefinite Iran naval blockade as oil supply shortfall deepens - Reuters",
     "source": "Reuters",
     "sourceKind": "news-feed",
-    "observedAt": "2026-08-12T13:45:33.000Z",
-    "collectedAt": "2026-08-13T00:44:03.116Z",
-    "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxPUm5jZkFKN2RpUWZWbG9rSXctekpyeml5UDgwTENteGwtSmFWbHd0cGFjYV9LRVBXeHRENktmbWVKNVZCeFp0U0YxeTFQcFdqZTJ5Z0sxWjg1TGUwRm13Mm5rSWRoUWw2MzZhNlhFeUV2Wk9mRFNFWDB6QWhSckZDbUtlZ3pzSWQyU0pjS0Q1d2dRT1EtcWt0SVhuQXlPTHZiZlhZTzFWSUoxcXVDdl9qUnA0SnJWR1Zf?oc=5",
+    "observedAt": "2026-08-13T22:01:51.000Z",
+    "collectedAt": "2026-08-14T00:40:24.581Z",
+    "link": "https://news.google.com/rss/articles/CBMivgFBVV95cUxPamFTRDhha2lGLW5hTU1KdDZnVjlxd2hEY1lqX3Zfd2NmVlRXZjVWbDNHMXdJem1SX1hsNUpoaF9lWHhYUVFmUWJ0SDBWRG5uOGMzYzI0MFh6ckthOWJNZXNtR0tJVFJFcEMtVjdwZVFpdURyczZ0NTkzMDh1dDJNRWxKQ2htMEpBQ3N2Q25OY19wRWxaYTVCTmJJRWprVFFSMWNITjl4QmUxQVN1MUFnNHRsRWJGYUpHZ1Ywb0Nn?oc=5",
     "allowedUse": "causal-reference",
     "status": "observed"
    },
    {
-    "evidenceId": "news:https://news.google.com/rss/articles/CBMi9AFBVV95cUxOdVRPY25zQzJKX0lrN21oTVYwSXFrR0pnaDdFX3RZejJiZzFmMm5iYkRzNXNIZFdGYmlXUW1nelNCOTFFY1dBakdFN1JFcVZsUDZOSXhqMjVHU1BrTnVCeGZvSGZFSElxY1pfVnM1Y2tMUEFxNTItSG96OTh6MThKVmhkczhjZjI3TGZOdlQtN2xyNjI5TDBoNFlrNGtiem5uVnBKcThzTnU0QXlsMlh4cEhkdzIycm4ydUFGSGVOR2llWWRwS3FmY0c3RlJmSllvU295LWUzS2I1Wkg0aWhwSVhrMUU1WFRSMzJwTEh5UllXVkdP?oc=5:2026-08-12T22:00:44.000Z",
-    "clusterId": "weny news",
-    "title": "Gas Prices Tick Up as Iran Conflict Keeps Pressure on Global Oil Markets - WENY News",
-    "source": "WENY News",
+    "evidenceId": "news:https://news.google.com/rss/articles/CBMilgJBVV95cUxNV184RHN4bkdnVGNoZ1ZYSzdJaDVZN1hfb2pKN1dTVXcyUDhEX0FZUFE4RERXX2lNWHl6dUVVMjlEUXltbEhnc3R4a3J4aU5MbG53cWc5S1cxbHNTX1A0WjVwUzhkWkFyQ1FENGlkTDNzOG1ZY3IyZDdGWFlCSnpTaDgtOTBCQTVEZk4zb3VNc1RvaFd5ZklUaGlVbHJXZHE2MmtmWlM2cGh2UEI5WEdkZHdiZTdzdlRfaU54dlRKbWRHQlBfWUtUVkcxRGYzR2YxdjN5UVRtN0UzZ0l2Y1RaendhTDJqSzRvR0ZSWUs0d1AyX1ppS09hQ1J3ZW9mdE5WTXhIRlNnLVJmVmlnZFN1VWNEOUFsUQ?oc=5:2026-08-13T22:59:21.000Z",
+    "clusterId": "tradingview",
+    "title": "US Stock Futures Rangebound After S&P 500 Ends At Record Highs As Data Shows Cooling Inflation — WDAY, SNDK, AMD, DELL, HTZ In Focus - TradingView",
+    "source": "TradingView",
     "sourceKind": "news-feed",
-    "observedAt": "2026-08-12T22:00:44.000Z",
-    "collectedAt": "2026-08-13T00:44:03.116Z",
-    "link": "https://news.google.com/rss/articles/CBMi9AFBVV95cUxOdVRPY25zQzJKX0lrN21oTVYwSXFrR0pnaDdFX3RZejJiZzFmMm5iYkRzNXNIZFdGYmlXUW1nelNCOTFFY1dBakdFN1JFcVZsUDZOSXhqMjVHU1BrTnVCeGZvSGZFSElxY1pfVnM1Y2tMUEFxNTItSG96OTh6MThKVmhkczhjZjI3TGZOdlQtN2xyNjI5TDBoNFlrNGtiem5uVnBKcThzTnU0QXlsMlh4cEhkdzIycm4ydUFGSGVOR2llWWRwS3FmY0c3RlJmSllvU295LWUzS2I1Wkg0aWhwSVhrMUU1WFRSMzJwTEh5UllXVkdP?oc=5",
+    "observedAt": "2026-08-13T22:59:21.000Z",
+    "collectedAt": "2026-08-14T00:40:24.581Z",
+    "link": "https://news.google.com/rss/articles/CBMilgJBVV95cUxNV184RHN4bkdnVGNoZ1ZYSzdJaDVZN1hfb2pKN1dTVXcyUDhEX0FZUFE4RERXX2lNWHl6dUVVMjlEUXltbEhnc3R4a3J4aU5MbG53cWc5S1cxbHNTX1A0WjVwUzhkWkFyQ1FENGlkTDNzOG1ZY3IyZDdGWFlCSnpTaDgtOTBCQTVEZk4zb3VNc1RvaFd5ZklUaGlVbHJXZHE2MmtmWlM2cGh2UEI5WEdkZHdiZTdzdlRfaU54dlRKbWRHQlBfWUtUVkcxRGYzR2YxdjN5UVRtN0UzZ0l2Y1RaendhTDJqSzRvR0ZSWUs0d1AyX1ppS09hQ1J3ZW9mdE5WTXhIRlNnLVJmVmlnZFN1VWNEOUFsUQ?oc=5",
     "allowedUse": "causal-reference",
     "status": "observed"
    },
    {
-    "evidenceId": "news:https://news.google.com/rss/articles/CBMi0AFBVV95cUxNQlVyNnhaVUc0aGt4Z1VWX1RWNVlKQkRzakVEdGZ4ZmxhRzhTbjU2d3ZXMW5ZZm5SdXBlWEZhTlE2RHk2VXJFYS0wMTRRMlo5TDRiUHVESWgtU2laVTJ6U3NQVmxoN1RIZTNSMFJtVmN2N0FKQmNtWmVQaHRHcjJSU2IteHVQY3VLMHg2Y3haVmpQQUpGYmVKblg4VWNVQ3ZrV0tNeW1UVUx1U2xDajNtc3ZHMjlGOUtsbjdjSjhJYkpjTmpSNURJT3lRbnV6YUw3?oc=5:2026-08-12T21:14:00.000Z",
-    "clusterId": "investing.com",
-    "title": "Goldman Sachs raises Riskified stock price target on revenue growth - Investing.com",
-    "source": "Investing.com",
+    "evidenceId": "news:https://news.google.com/rss/articles/CBMijgFBVV95cUxPUHoyYXVZa3JTLTJxTmU4VXVzeUF3Rm9sRDZTSkhENlFNT0lQSFNhVktXM295RkExNFJLbkhLRFdLdVA0dWtGSkU2djRQc0psM0g4dEpUSmdJc2Y2d2FOVlh5X0tWRmhzZlctV2JiLUlJcDBjVi1qS09HZ21KV2FLZno3TGVDeEk2TDhKSmlB?oc=5:2026-08-13T21:53:49.000Z",
+    "clusterId": "조선일보",
+    "title": "S&P 500 Hits New High as Inflation, Oil Prices Ease - 조선일보",
+    "source": "조선일보",
     "sourceKind": "news-feed",
-    "observedAt": "2026-08-12T21:14:00.000Z",
-    "collectedAt": "2026-08-13T00:44:03.116Z",
-    "link": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxNQlVyNnhaVUc0aGt4Z1VWX1RWNVlKQkRzakVEdGZ4ZmxhRzhTbjU2d3ZXMW5ZZm5SdXBlWEZhTlE2RHk2VXJFYS0wMTRRMlo5TDRiUHVESWgtU2laVTJ6U3NQVmxoN1RIZTNSMFJtVmN2N0FKQmNtWmVQaHRHcjJSU2IteHVQY3VLMHg2Y3haVmpQQUpGYmVKblg4VWNVQ3ZrV0tNeW1UVUx1U2xDajNtc3ZHMjlGOUtsbjdjSjhJYkpjTmpSNURJT3lRbnV6YUw3?oc=5",
+    "observedAt": "2026-08-13T21:53:49.000Z",
+    "collectedAt": "2026-08-14T00:40:24.581Z",
+    "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxPUHoyYXVZa3JTLTJxTmU4VXVzeUF3Rm9sRDZTSkhENlFNT0lQSFNhVktXM295RkExNFJLbkhLRFdLdVA0dWtGSkU2djRQc0psM0g4dEpUSmdJc2Y2d2FOVlh5X0tWRmhzZlctV2JiLUlJcDBjVi1qS09HZ21KV2FLZno3TGVDeEk2TDhKSmlB?oc=5",
+    "allowedUse": "causal-reference",
+    "status": "observed"
+   },
+   {
+    "evidenceId": "news:https://news.google.com/rss/articles/CBMimwFBVV95cUxNUDlndXVVSER5VEoyVGllV2R0NklnV2p0QVBoRzVsM3hLeFpHbFQ4SEJoa2tIZUcxamt2MUQtc2dFNTdSRHV5dmNGdnkydjVkT251X2h6TVM1SmdUeWdsUmhnakh4elF2ZlludXlYeGM3YkJtbVlWemJtaGthTUJhbWUyRVdQbHl1a1BjaHJEX0FPZko2OC1jXzh3dw?oc=5:2026-08-13T20:47:00.000Z",
+    "clusterId": "wsj",
+    "title": "Cool Inflation Data Propels Stocks to Fresh Records - WSJ",
+    "source": "WSJ",
+    "sourceKind": "news-feed",
+    "observedAt": "2026-08-13T20:47:00.000Z",
+    "collectedAt": "2026-08-14T00:40:24.581Z",
+    "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxNUDlndXVVSER5VEoyVGllV2R0NklnV2p0QVBoRzVsM3hLeFpHbFQ4SEJoa2tIZUcxamt2MUQtc2dFNTdSRHV5dmNGdnkydjVkT251X2h6TVM1SmdUeWdsUmhnakh4elF2ZlludXlYeGM3YkJtbVlWemJtaGthTUJhbWUyRVdQbHl1a1BjaHJEX0FPZko2OC1jXzh3dw?oc=5",
+    "allowedUse": "causal-reference",
+    "status": "observed"
+   },
+   {
+    "evidenceId": "news:https://news.google.com/rss/articles/CBMiygFBVV95cUxQY055b1pIby1JVm05VkZqVm5tZV9DT0lURnVycXdzTnN4S0IyQkJmSjhWb2RZWmJFV1FJTEViWXRzdUxUM002OWx6RjFTd3pKSVhjOU5sS1JlWXl3WWtlelBjNjN3QVZlbjhSM0hvNlBJSUgxVk4zYklzd0dDeU9oMWxtRWxDcEJ5WlFDQy00RUdtNXNVV3lqeXphQzJhTzFjc2xzVTJHTVhHeEFIc3h3YmctZ0xERFQ4TnBlbW1Cc1A1dGRhczQ5LVBn?oc=5:2026-08-13T13:14:00.000Z",
+    "clusterId": "cnbc",
+    "title": "Amos Hochstein on the Iran war’s impact on energy: Oil prices are not reflecting reality - CNBC",
+    "source": "CNBC",
+    "sourceKind": "news-feed",
+    "observedAt": "2026-08-13T13:14:00.000Z",
+    "collectedAt": "2026-08-14T00:40:24.581Z",
+    "link": "https://news.google.com/rss/articles/CBMiygFBVV95cUxQY055b1pIby1JVm05VkZqVm5tZV9DT0lURnVycXdzTnN4S0IyQkJmSjhWb2RZWmJFV1FJTEViWXRzdUxUM002OWx6RjFTd3pKSVhjOU5sS1JlWXl3WWtlelBjNjN3QVZlbjhSM0hvNlBJSUgxVk4zYklzd0dDeU9oMWxtRWxDcEJ5WlFDQy00RUdtNXNVV3lqeXphQzJhTzFjc2xzVTJHTVhHeEFIc3h3YmctZ0xERFQ4TnBlbW1Cc1A1dGRhczQ5LVBn?oc=5",
+    "allowedUse": "causal-reference",
+    "status": "observed"
+   },
+   {
+    "evidenceId": "news:https://news.google.com/rss/articles/CBMirAFBVV95cUxNR1AyVUVRejRRQ3BCcTNEdU5WaGw1RmVtbnlQYlZ3bU5WV2RXR01PWTFjVHdWYktNVFp2TWJCMkx5ZFExbGdaRzlvYVNNVUNWNUNVM0o5eVBhcC0yODhheXJSWGpDQTVSNjZqMTNaZllvWHRHUTFob3pwVVZUbHI1SnFoNHk4R3FVN0k3Mmt4WEdtZ1daT3dZYmszblZrdncxcG1WU0RZc244UlA0?oc=5:2026-08-13T22:52:00.000Z",
+    "clusterId": "rfi",
+    "title": "Vance says low oil prices are top US goal in Iran conflict - RFI",
+    "source": "RFI",
+    "sourceKind": "news-feed",
+    "observedAt": "2026-08-13T22:52:00.000Z",
+    "collectedAt": "2026-08-14T00:40:24.581Z",
+    "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxNR1AyVUVRejRRQ3BCcTNEdU5WaGw1RmVtbnlQYlZ3bU5WV2RXR01PWTFjVHdWYktNVFp2TWJCMkx5ZFExbGdaRzlvYVNNVUNWNUNVM0o5eVBhcC0yODhheXJSWGpDQTVSNjZqMTNaZllvWHRHUTFob3pwVVZUbHI1SnFoNHk4R3FVN0k3Mmt4WEdtZ1daT3dZYmszblZrdncxcG1WU0RZc244UlA0?oc=5",
     "allowedUse": "causal-reference",
     "status": "observed"
    }
   ],
   "causalEvidenceCount": 0,
-  "reason": "metric-value-mismatch:macro.cpi"
+  "reason": "anthropic-key-not-configured"
  }
 }

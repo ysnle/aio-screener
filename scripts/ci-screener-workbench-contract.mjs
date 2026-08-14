@@ -112,6 +112,22 @@ function run() {
   assert(validateObservationEnvelope(observation).ok, 'G-SCR-FIELD: ObservationEnvelope validates with four timestamps');
 
   const rows = [fixtureRow('AAA', 'US', 0), fixtureRow('BBB', 'KR', 2)];
+  const lineageRow = fixtureRow('LINEAGE', 'US', 1);
+  lineageRow.priceObservedAt = '2026-08-12T00:01:30.000Z';
+  lineageRow.priceFetchedAt = '2026-08-12T00:01:45.000Z';
+  lineageRow.priceSource = 'runtime-quote-fixture';
+  lineageRow._fundamentalObservedAt = '2026-07-31T00:00:00.000Z';
+  lineageRow._fundamentalFetchedAt = '2026-08-01T00:00:00.000Z';
+  lineageRow._fundamentalSource = 'sec-fixture';
+  const lineage = buildFieldReadiness(lineageRow, {
+    now: Date.parse('2026-08-12T00:02:00.000Z'),
+    revisionId: 'fixture-v2',
+    sourceId: 'factor-fixture',
+    sourceKind: 'T1_OFFICIAL',
+    rightsByField: Object.fromEntries(SCREENER_FIELD_REGISTRY.fields.map((field) => [field.fieldId, 'VERIFIED']))
+  });
+  assert(lineage.fields['price.close'].observedAt === '2026-08-12T00:01:30.000Z' && lineage.fields['price.close'].sourceId === 'runtime-quote-fixture', 'G-SCR-LINEAGE: live price keeps its own observation/source epoch');
+  assert(lineage.fields['quality.roe'].observedAt === '2026-07-31T00:00:00.000Z' && lineage.fields['quality.roe'].sourceId === 'sec-fixture', 'G-SCR-LINEAGE: fundamentals keep filing-derived observation/source epoch');
   const definition = createScreenDefinition({ screenId: 'fixture-screen', name: 'Fixture screen', objective: 'contract-test', filtersAST: { type: 'and', children: [{ type: 'range', field: 'price.ret3m', min: 0, nullPolicy: 'reject' }, { type: 'exists', field: 'quality.roe', nullPolicy: 'reject' }] }, hardGates: [{ type: 'range', field: 'price.dollarVolume30d', min: 1_000_000, nullPolicy: 'reject' }], ranking: { field: 'price.ret3m', direction: 'desc' }, requiredFields: ['price.ret3m', 'quality.roe'] });
   assert(validateScreenDefinition(definition).ok, 'G-SCR-DEFINITION: AST definition validates without executable code');
   const engineSource = fs.readFileSync(path.join(root, 'src/domain/screener/screen-engine.js'), 'utf8');
@@ -200,7 +216,9 @@ function run() {
   const provider = fs.readFileSync(path.join(root, 'src/data/providers/screener.js'), 'utf8');
   assert(index.includes('SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md'), 'G-SCR-DOCS: handoff remains indexed');
   assert(page.includes('scr-definition-editor') && page.includes('scr-readiness-preview') && page.includes('scr-run-history') && page.includes('scr-outcome-lab'), 'G-SCR-UI: workbench adapter controls are present');
-  assert(provider.includes('buildFieldReadiness') && provider.includes('fieldObservations'), 'G-SCR-PIPELINE: provider emits readiness and observations');
+  const screenerUi = fs.readFileSync(path.join(root, 'src/ui/pages/screener.js'), 'utf8');
+  assert(provider.includes('buildFieldReadiness') && provider.includes('fieldObservations') && provider.includes('FACTOR_STALE_AFTER_DAYS = 4'), 'G-SCR-PIPELINE: provider emits readiness and rejects stale factor epochs');
+  assert(screenerUi.includes('screener-visible-quotes') && screenerUi.includes('registerLiveSymbol'), 'G-SCR-LIVE: rendered screener rows register bounded live-quote demand');
 
   const report = { schemaVersion: 'screener-workbench-ci.v1', generatedAt: new Date().toISOString(), status: failures.length ? 'FAIL' : 'PASS', checks, failures, baseline: { universe: artifact.universe, ok: artifact.ok, fundamentalCoveragePct: artifact.fundamentalCoveragePct }, fieldRegistry: registryCheck.size, presetCount: presetsA.length };
   process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);

@@ -1,364 +1,1697 @@
 {
-  "schemaVersion": "reconciliation-status-v1",
-  "generatedAt": "2026-08-13T00:44:09.031Z",
-  "revision": "reconciliation:market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00:22",
+  "schemaVersion": "reconciliation-status-v2",
+  "generatedAt": "2026-08-14T00:40:24.662Z",
+  "revision": "reconciliation:market-snapshot:2026-08-14T00:40:24.581Z:c974b716:c8fab692",
   "overall": "PARTIAL",
   "counts": {
-    "PARTIAL": 14,
-    "MATCH": 3,
-    "BLOCKED": 5
+    "PARTIAL": 11,
+    "MATCH": 7,
+    "BLOCKED": 4
   },
   "categories": [
     {
       "categoryId": "market-quotes",
       "status": "PARTIAL",
       "sourceClass": "PARTIAL",
-      "reason": "Tier 0 snapshot is complete; broader quote universe and field-level source reconciliation remain separate.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-      "checkedAt": "2026-08-13T00:44:09.031Z",
+      "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: independent-provider-reconciliation.",
+      "marketSnapshotRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+      "checkedAt": "2026-08-14T00:40:24.662Z",
+      "refresh": {
+        "cadence": "30m",
+        "mode": "scheduled",
+        "dailyAuditRequired": true,
+        "producer": "scripts/fetch-data.mjs",
+        "artifacts": [
+          "public-data/market-snapshot.json",
+          "public-data/history.json"
+        ],
+        "consumers": [
+          "home",
+          "signal",
+          "technical",
+          "ticker",
+          "portfolio",
+          "screener"
+        ]
+      },
+      "origins": [
+        {
+          "id": "yahoo-chart",
+          "authority": "secondary",
+          "sourceKind": "public-information-service",
+          "access": "public-unofficial",
+          "url": "https://query1.finance.yahoo.com/v8/finance/chart/",
+          "fields": [
+            "price",
+            "previousClose",
+            "changePct",
+            "OHLCV",
+            "marketSession"
+          ]
+        },
+        {
+          "id": "twelve-data",
+          "authority": "secondary",
+          "sourceKind": "licensed-api",
+          "access": "optional-key",
+          "url": "https://twelvedata.com/docs",
+          "fields": [
+            "price-fallback"
+          ]
+        }
+      ],
+      "structuralLimit": {
+        "kind": "provider-rights-and-diversity",
+        "reason": "Primary quote path is a public information service and no independent full-universe reconciliation is configured.",
+        "remediation": "Configure a redistribution-approved quote provider and retain field-level cross-provider tolerances."
+      },
       "evidence": {
-        "observed": 8,
-        "required": 16,
-        "gate": "tier0-quote-fields",
+        "observed": 2,
+        "required": 3,
+        "gate": "tier0-coverage-lineage-provider-diversity",
         "rights": "REVIEW_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-        "promotable": false
+        "sourceRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+        "promotable": false,
+        "checks": [
+          {
+            "id": "tier0-coverage-16-of-16",
+            "status": "PASS",
+            "sourceArtifact": "public-data/market-snapshot.json",
+            "observedAt": "2026-08-14T00:40:24.581Z",
+            "detail": null
+          },
+          {
+            "id": "tier0-field-lineage-complete",
+            "status": "PASS",
+            "sourceArtifact": "public-data/market-snapshot.json",
+            "observedAt": "2026-08-14T00:40:24.581Z",
+            "detail": null
+          },
+          {
+            "id": "independent-provider-reconciliation",
+            "status": "FAIL",
+            "sourceArtifact": "public-data/market-snapshot.json",
+            "observedAt": "2026-08-14T00:40:24.581Z",
+            "detail": "providerFamilies=1"
+          }
+        ]
       }
     },
     {
       "categoryId": "volatility",
-      "status": "PARTIAL",
-      "sourceClass": "PARTIAL",
-      "reason": "VIX/VIX3M are in Tier 0; VVIX and long-term term-structure history are not fully reconciled.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-      "checkedAt": "2026-08-13T00:44:09.031Z",
+      "status": "MATCH",
+      "sourceClass": "OBSERVED",
+      "reason": "All executable source, freshness, and scope checks passed.",
+      "marketSnapshotRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+      "checkedAt": "2026-08-14T00:40:24.662Z",
+      "refresh": {
+        "cadence": "30m",
+        "mode": "scheduled",
+        "dailyAuditRequired": true,
+        "producer": "scripts/fetch-data.mjs",
+        "artifacts": [
+          "public-data/market-snapshot.json",
+          "public-data/history.json"
+        ],
+        "consumers": [
+          "sentiment",
+          "options",
+          "signal"
+        ]
+      },
+      "origins": [
+        {
+          "id": "yahoo-volatility-indexes",
+          "authority": "secondary",
+          "sourceKind": "public-information-service",
+          "access": "public-unofficial",
+          "url": "https://query1.finance.yahoo.com/v8/finance/chart/",
+          "fields": [
+            "VIX",
+            "VIX3M",
+            "VVIX"
+          ]
+        }
+      ],
+      "structuralLimit": {
+        "kind": "official-history-rights",
+        "reason": "Official Cboe redistribution and settlement contracts are not configured.",
+        "remediation": "Add an approved Cboe source before labeling the series official."
+      },
       "evidence": {
-        "observed": 1,
+        "observed": 3,
         "required": 3,
-        "gate": "vix-term-structure-history",
-        "rights": "REVIEW_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-        "promotable": false
+        "gate": "vix-vix3m-vvix-history",
+        "rights": "CURRENT",
+        "sourceRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+        "promotable": true,
+        "checks": [
+          {
+            "id": "vix-vix3m-current",
+            "status": "PASS",
+            "sourceArtifact": "public-data/market-snapshot.json",
+            "observedAt": "2026-08-13T20:15:01.000Z",
+            "detail": null
+          },
+          {
+            "id": "vvix-daily-history-current",
+            "status": "PASS",
+            "sourceArtifact": "public-data/history.json",
+            "observedAt": "2026-08-13T20:15:01.000Z",
+            "detail": null
+          },
+          {
+            "id": "vix3m-term-structure-history",
+            "status": "PASS",
+            "sourceArtifact": "public-data/history.json",
+            "observedAt": "2026-08-14",
+            "detail": null
+          }
+        ]
       }
     },
     {
       "categoryId": "fear-greed",
-      "status": "PARTIAL",
-      "sourceClass": "PARTIAL",
-      "reason": "Latest score is present in the durable artifact; source and historical coverage are not fully reconciled.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-      "checkedAt": "2026-08-13T00:44:09.031Z",
+      "status": "MATCH",
+      "sourceClass": "OBSERVED",
+      "reason": "All executable source, freshness, and scope checks passed.",
+      "marketSnapshotRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+      "checkedAt": "2026-08-14T00:40:24.662Z",
+      "refresh": {
+        "cadence": "30m",
+        "mode": "scheduled",
+        "dailyAuditRequired": true,
+        "producer": "scripts/fetch-data.mjs",
+        "artifacts": [
+          "public-data/data.json",
+          "public-data/history.json"
+        ],
+        "consumers": [
+          "home",
+          "sentiment",
+          "briefing"
+        ]
+      },
+      "origins": [
+        {
+          "id": "cnn-fear-greed",
+          "authority": "publisher",
+          "sourceKind": "secondary-index",
+          "access": "public-web",
+          "url": "https://www.cnn.com/markets/fear-and-greed",
+          "fields": [
+            "score",
+            "rating",
+            "daily-history"
+          ]
+        }
+      ],
+      "structuralLimit": {
+        "kind": "publisher-methodology-and-rights",
+        "reason": "CNN is the index publisher but the web feed is not an exchange or regulator API.",
+        "remediation": "Preserve CNN attribution and reference-only decision use unless a licensed contract is obtained."
+      },
       "evidence": {
-        "observed": 1,
-        "required": 2,
-        "gate": "source-and-history",
-        "rights": "REVIEW_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-        "promotable": false
+        "observed": 3,
+        "required": 3,
+        "gate": "current-source-history",
+        "rights": "CURRENT",
+        "sourceRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+        "promotable": true,
+        "checks": [
+          {
+            "id": "current-score-and-observation",
+            "status": "PASS",
+            "sourceArtifact": "public-data/data.json",
+            "observedAt": "2026-08-13T23:59:54+00:00",
+            "detail": null
+          },
+          {
+            "id": "source-identified",
+            "status": "PASS",
+            "sourceArtifact": "public-data/data.json",
+            "observedAt": "2026-08-13T23:59:54+00:00",
+            "detail": null
+          },
+          {
+            "id": "history-minimum-60",
+            "status": "PASS",
+            "sourceArtifact": "public-data/history.json",
+            "observedAt": "2026-08-14",
+            "detail": null
+          }
+        ]
       }
     },
     {
       "categoryId": "put-call",
       "status": "MATCH",
-      "sourceClass": "OBSERVED_OFFICIAL",
-      "reason": "Cboe delayed artifact is retained with as-of metadata.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-      "checkedAt": "2026-08-13T00:44:09.031Z",
+      "sourceClass": "OBSERVED",
+      "reason": "All executable source, freshness, and scope checks passed.",
+      "marketSnapshotRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+      "checkedAt": "2026-08-14T00:40:24.662Z",
+      "refresh": {
+        "cadence": "daily",
+        "mode": "scheduled",
+        "dailyAuditRequired": true,
+        "producer": "scripts/fetch-data.mjs",
+        "artifacts": [
+          "public-data/data.json"
+        ],
+        "consumers": [
+          "sentiment",
+          "options",
+          "briefing"
+        ]
+      },
+      "origins": [
+        {
+          "id": "cboe-daily-statistics",
+          "authority": "official-exchange",
+          "sourceKind": "official-primary",
+          "access": "public-web-terms-apply",
+          "url": "https://www.cboe.com/us/options/market_statistics/daily/",
+          "fields": [
+            "totalPutCall",
+            "equityPutCall",
+            "indexPutCall"
+          ]
+        }
+      ],
+      "structuralLimit": null,
       "evidence": {
-        "observed": 1,
-        "required": 1,
-        "gate": "cboe-delayed-artifact",
+        "observed": 3,
+        "required": 3,
+        "gate": "cboe-delayed-lineage",
         "rights": "CURRENT",
-        "sourceRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-        "promotable": true
+        "sourceRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+        "promotable": true,
+        "checks": [
+          {
+            "id": "total-put-call-present",
+            "status": "PASS",
+            "sourceArtifact": "public-data/data.json",
+            "observedAt": "2026-08-12",
+            "detail": null
+          },
+          {
+            "id": "daily-observation-current",
+            "status": "PASS",
+            "sourceArtifact": "public-data/data.json",
+            "observedAt": "2026-08-12",
+            "detail": null
+          },
+          {
+            "id": "cboe-source-and-delay-policy",
+            "status": "PASS",
+            "sourceArtifact": "public-data/data.json",
+            "observedAt": "2026-08-14T00:40:21.700Z",
+            "detail": null
+          }
+        ]
       }
     },
     {
       "categoryId": "aaii",
       "status": "BLOCKED",
       "sourceClass": "UNAVAILABLE",
-      "reason": "Licensed/current direct value is unavailable; exact search-derived percentages are forbidden.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-      "checkedAt": "2026-08-13T00:44:09.031Z",
+      "reason": "Licensed/current AAII data is unavailable and must not be synthesized. Missing: licensed-direct-current.",
+      "marketSnapshotRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+      "checkedAt": "2026-08-14T00:40:24.662Z",
+      "refresh": {
+        "cadence": "weekly",
+        "mode": "operator",
+        "dailyAuditRequired": true,
+        "producer": "operator/provider-contract",
+        "artifacts": [
+          "public-data/reconciliation-status.json"
+        ],
+        "consumers": [
+          "sentiment"
+        ]
+      },
+      "origins": [
+        {
+          "id": "aaii-sentiment-survey",
+          "authority": "publisher",
+          "sourceKind": "licensed",
+          "access": "licensed",
+          "url": "https://www.aaii.com/sentimentsurvey",
+          "fields": [
+            "bullish",
+            "neutral",
+            "bearish"
+          ]
+        }
+      ],
+      "structuralLimit": {
+        "kind": "licensed-data",
+        "reason": "Current direct AAII percentages are unavailable.",
+        "remediation": "Configure licensed access; never synthesize exact percentages."
+      },
       "evidence": {
         "observed": 0,
         "required": 1,
         "gate": "licensed-direct-current",
         "rights": "OPERATOR_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-        "promotable": false
+        "sourceRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+        "promotable": false,
+        "checks": [
+          {
+            "id": "licensed-direct-current",
+            "status": "FAIL",
+            "sourceArtifact": "operator/provider-contract",
+            "observedAt": null,
+            "detail": "Current licensed/direct value unavailable; synthesis forbidden."
+          }
+        ]
       }
     },
     {
       "categoryId": "naaim",
       "status": "BLOCKED",
       "sourceClass": "UNAVAILABLE",
-      "reason": "Licensed/current direct value is unavailable; only bounded inference may be used.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-      "checkedAt": "2026-08-13T00:44:09.031Z",
+      "reason": "Licensed/current NAAIM data is unavailable and must not be synthesized. Missing: licensed-direct-current.",
+      "marketSnapshotRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+      "checkedAt": "2026-08-14T00:40:24.662Z",
+      "refresh": {
+        "cadence": "weekly",
+        "mode": "operator",
+        "dailyAuditRequired": true,
+        "producer": "operator/provider-contract",
+        "artifacts": [
+          "public-data/reconciliation-status.json"
+        ],
+        "consumers": [
+          "sentiment"
+        ]
+      },
+      "origins": [
+        {
+          "id": "naaim-exposure-index",
+          "authority": "publisher",
+          "sourceKind": "licensed",
+          "access": "licensed",
+          "url": "https://www.naaim.org/programs/naaim-exposure-index/",
+          "fields": [
+            "exposureIndex"
+          ]
+        }
+      ],
+      "structuralLimit": {
+        "kind": "licensed-data",
+        "reason": "Current direct NAAIM value is unavailable.",
+        "remediation": "Configure licensed/direct access; bounded qualitative inference remains reference-only."
+      },
       "evidence": {
         "observed": 0,
         "required": 1,
         "gate": "licensed-direct-current",
         "rights": "OPERATOR_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-        "promotable": false
+        "sourceRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+        "promotable": false,
+        "checks": [
+          {
+            "id": "licensed-direct-current",
+            "status": "FAIL",
+            "sourceArtifact": "operator/provider-contract",
+            "observedAt": null,
+            "detail": "Current licensed/direct value unavailable; bounded inference only."
+          }
+        ]
       }
     },
     {
       "categoryId": "investors-intelligence",
       "status": "BLOCKED",
       "sourceClass": "UNAVAILABLE",
-      "reason": "Licensed/current direct value is unavailable; subscriber data must not be synthesized.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-      "checkedAt": "2026-08-13T00:44:09.031Z",
+      "reason": "Subscriber Investors Intelligence data is unavailable and must not be synthesized. Missing: subscriber-current.",
+      "marketSnapshotRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+      "checkedAt": "2026-08-14T00:40:24.662Z",
+      "refresh": {
+        "cadence": "weekly",
+        "mode": "operator",
+        "dailyAuditRequired": true,
+        "producer": "operator/provider-contract",
+        "artifacts": [
+          "public-data/reconciliation-status.json"
+        ],
+        "consumers": [
+          "sentiment"
+        ]
+      },
+      "origins": [
+        {
+          "id": "investors-intelligence-advisors-sentiment",
+          "authority": "publisher",
+          "sourceKind": "licensed",
+          "access": "subscriber",
+          "url": "https://www.investorsintelligence.com/",
+          "fields": [
+            "bullish",
+            "bearish",
+            "correction"
+          ]
+        }
+      ],
+      "structuralLimit": {
+        "kind": "subscriber-data",
+        "reason": "Subscriber survey values are unavailable.",
+        "remediation": "Configure subscriber rights; do not extrapolate."
+      },
       "evidence": {
         "observed": 0,
         "required": 1,
         "gate": "subscriber-current",
         "rights": "OPERATOR_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-        "promotable": false
+        "sourceRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+        "promotable": false,
+        "checks": [
+          {
+            "id": "subscriber-current",
+            "status": "FAIL",
+            "sourceArtifact": "operator/provider-contract",
+            "observedAt": null,
+            "detail": "Subscriber value unavailable; extrapolation forbidden."
+          }
+        ]
       }
     },
     {
       "categoryId": "us-breadth",
       "status": "PARTIAL",
       "sourceClass": "PARTIAL",
-      "reason": "AIO universe breadth is available, but official exchange breadth is a different source contract.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-      "checkedAt": "2026-08-13T00:44:09.031Z",
+      "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: official-exchange-breadth.",
+      "marketSnapshotRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+      "checkedAt": "2026-08-14T00:40:24.662Z",
+      "refresh": {
+        "cadence": "6h",
+        "mode": "derived",
+        "dailyAuditRequired": true,
+        "producer": "scripts/fetch-data.mjs:enrichScreener",
+        "artifacts": [
+          "public-data/screener.json",
+          "public-data/history.json"
+        ],
+        "consumers": [
+          "breadth",
+          "signal",
+          "briefing"
+        ]
+      },
+      "origins": [
+        {
+          "id": "aio-us-universe-breadth",
+          "authority": "derived",
+          "sourceKind": "derived-research",
+          "access": "public-unofficial",
+          "url": "https://query1.finance.yahoo.com/v8/finance/chart/",
+          "fields": [
+            "above5",
+            "above20",
+            "above50",
+            "above200",
+            "advanceRatio"
+          ]
+        }
+      ],
+      "structuralLimit": {
+        "kind": "universe-scope",
+        "reason": "AIO-universe breadth is not official NYSE/Nasdaq exchange breadth.",
+        "remediation": "Add an approved exchange-wide advances/declines and new-high/new-low feed as a separate metric."
+      },
       "evidence": {
-        "observed": 1,
-        "required": 2,
-        "gate": "official-exchange-breadth",
+        "observed": 2,
+        "required": 3,
+        "gate": "aio-universe-plus-official-exchange",
         "rights": "REVIEW_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-        "promotable": false
+        "sourceRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+        "promotable": false,
+        "checks": [
+          {
+            "id": "aio-us-universe-current",
+            "status": "PASS",
+            "sourceArtifact": "public-data/screener.json",
+            "observedAt": "2026-08-13T00:00:00.000Z",
+            "detail": null
+          },
+          {
+            "id": "aio-us-universe-source-labelled",
+            "status": "PASS",
+            "sourceArtifact": "public-data/screener.json",
+            "observedAt": "2026-08-13T00:00:00.000Z",
+            "detail": null
+          },
+          {
+            "id": "official-exchange-breadth",
+            "status": "FAIL",
+            "sourceArtifact": "official-exchange-provider",
+            "observedAt": null,
+            "detail": "AIO-universe breadth is not official exchange breadth."
+          }
+        ]
       }
     },
     {
       "categoryId": "kr-breadth",
       "status": "PARTIAL",
       "sourceClass": "PARTIAL",
-      "reason": "Korean breadth is available from the AIO universe; field-level historical reconciliation is pending.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-      "checkedAt": "2026-08-13T00:44:09.031Z",
+      "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: official-kr-exchange-breadth.",
+      "marketSnapshotRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+      "checkedAt": "2026-08-14T00:40:24.662Z",
+      "refresh": {
+        "cadence": "6h",
+        "mode": "derived",
+        "dailyAuditRequired": true,
+        "producer": "scripts/fetch-data.mjs:enrichScreener",
+        "artifacts": [
+          "public-data/screener.json",
+          "public-data/history.json"
+        ],
+        "consumers": [
+          "breadth",
+          "signal",
+          "briefing"
+        ]
+      },
+      "origins": [
+        {
+          "id": "aio-kr-universe-breadth",
+          "authority": "derived",
+          "sourceKind": "derived-research",
+          "access": "public-unofficial",
+          "url": "https://query1.finance.yahoo.com/v8/finance/chart/",
+          "fields": [
+            "above5",
+            "above20",
+            "above50",
+            "above200",
+            "advanceRatio"
+          ]
+        },
+        {
+          "id": "krx-market-data",
+          "authority": "official-exchange",
+          "sourceKind": "official-primary",
+          "access": "operator-rights-required",
+          "url": "https://data.krx.co.kr/",
+          "fields": [
+            "officialAdvancesDeclines"
+          ]
+        }
+      ],
+      "structuralLimit": {
+        "kind": "krx-rights",
+        "reason": "Approved KRX/Koscom breadth redistribution is not configured.",
+        "remediation": "Configure approved KRX/Koscom access and keep AIO-universe breadth separately labeled."
+      },
       "evidence": {
-        "observed": 1,
-        "required": 2,
-        "gate": "official-kr-breadth",
+        "observed": 2,
+        "required": 3,
+        "gate": "aio-universe-plus-approved-kr-source",
         "rights": "REVIEW_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-        "promotable": false
+        "sourceRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+        "promotable": false,
+        "checks": [
+          {
+            "id": "aio-kr-universe-current",
+            "status": "PASS",
+            "sourceArtifact": "public-data/screener.json",
+            "observedAt": "2026-08-13T00:00:00.000Z",
+            "detail": null
+          },
+          {
+            "id": "aio-kr-universe-source-labelled",
+            "status": "PASS",
+            "sourceArtifact": "public-data/screener.json",
+            "observedAt": "2026-08-13T00:00:00.000Z",
+            "detail": null
+          },
+          {
+            "id": "official-kr-exchange-breadth",
+            "status": "FAIL",
+            "sourceArtifact": "approved-krx-provider",
+            "observedAt": null,
+            "detail": "Approved official KR breadth source is not configured."
+          }
+        ]
       }
     },
     {
       "categoryId": "breadth-history",
-      "status": "BLOCKED",
-      "sourceClass": "UNAVAILABLE",
-      "reason": "Daily breadth history and McClellan A/D producer are not yet durable.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-      "checkedAt": "2026-08-13T00:44:09.031Z",
+      "status": "PARTIAL",
+      "sourceClass": "PARTIAL",
+      "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: mcclellan-advance-decline-source.",
+      "marketSnapshotRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+      "checkedAt": "2026-08-14T00:40:24.662Z",
+      "refresh": {
+        "cadence": "6h",
+        "mode": "derived",
+        "dailyAuditRequired": true,
+        "producer": "scripts/fetch-data.mjs:updateScreenerBreadthHistory",
+        "artifacts": [
+          "public-data/history.json"
+        ],
+        "consumers": [
+          "breadth",
+          "technical"
+        ]
+      },
+      "origins": [
+        {
+          "id": "aio-universe-adjusted-close-history",
+          "authority": "derived",
+          "sourceKind": "derived-research",
+          "access": "public-unofficial",
+          "url": "https://query1.finance.yahoo.com/v8/finance/chart/",
+          "fields": [
+            "breadth20",
+            "breadth50",
+            "breadth200",
+            "advanceRatio",
+            "advanceDecline"
+          ]
+        }
+      ],
+      "structuralLimit": {
+        "kind": "official-advance-decline",
+        "reason": "AIO history can measure its own universe but cannot be labeled McClellan/official exchange A-D.",
+        "remediation": "Keep AIO participation history distinct; add official exchange A-D before calculating McClellan."
+      },
       "evidence": {
-        "observed": 0,
-        "required": 1,
+        "observed": 1,
+        "required": 2,
         "gate": "durable-daily-history",
         "rights": "REVIEW_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-        "promotable": false
+        "sourceRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+        "promotable": false,
+        "checks": [
+          {
+            "id": "durable-daily-breadth-history-60",
+            "status": "PASS",
+            "sourceArtifact": "public-data/history.json",
+            "observedAt": "2026-08-14",
+            "detail": "rows=242"
+          },
+          {
+            "id": "mcclellan-advance-decline-source",
+            "status": "FAIL",
+            "sourceArtifact": "official-exchange-provider",
+            "observedAt": null,
+            "detail": "Durable exchange A/D producer is unavailable."
+          }
+        ]
       }
     },
     {
       "categoryId": "treasury-curve",
-      "status": "PARTIAL",
-      "sourceClass": "PARTIAL",
-      "reason": "Official series and runtime curve are present, but all series point-level reconciliation is pending.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-      "checkedAt": "2026-08-13T00:44:09.031Z",
+      "status": "MATCH",
+      "sourceClass": "OBSERVED",
+      "reason": "All executable source, freshness, and scope checks passed.",
+      "marketSnapshotRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+      "checkedAt": "2026-08-14T00:40:24.662Z",
+      "refresh": {
+        "cadence": "daily",
+        "mode": "scheduled",
+        "dailyAuditRequired": true,
+        "producer": "scripts/fetch-data.mjs:fetchFred",
+        "artifacts": [
+          "public-data/data.json",
+          "public-data/history.json"
+        ],
+        "consumers": [
+          "macro",
+          "fxbond",
+          "briefing"
+        ]
+      },
+      "origins": [
+        {
+          "id": "us-treasury-daily-par-curve",
+          "authority": "official-government",
+          "sourceKind": "official-primary",
+          "access": "public-web",
+          "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
+          "fields": [
+            "2Y",
+            "5Y",
+            "10Y",
+            "20Y",
+            "30Y",
+            "same-date 10Y-2Y"
+          ]
+        },
+        {
+          "id": "fred-h15-treasury",
+          "authority": "official-government-relay",
+          "sourceKind": "official-primary",
+          "access": "api-key",
+          "url": "https://fred.stlouisfed.org/docs/api/fred/series_observations.html",
+          "fields": [
+            "DGS2",
+            "DGS5",
+            "DGS10",
+            "DGS20",
+            "DGS30",
+            "T10Y2Y"
+          ]
+        },
+        {
+          "id": "yahoo-treasury-indexes",
+          "authority": "secondary",
+          "sourceKind": "public-information-service",
+          "access": "public-unofficial",
+          "url": "https://query1.finance.yahoo.com/v8/finance/chart/",
+          "fields": [
+            "IRX",
+            "FVX",
+            "TNX",
+            "TYX"
+          ]
+        }
+      ],
+      "structuralLimit": null,
       "evidence": {
-        "observed": 2,
-        "required": 5,
-        "gate": "official-point-history",
-        "rights": "REVIEW_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-        "promotable": false
+        "observed": 4,
+        "required": 4,
+        "gate": "official-five-point-curve",
+        "rights": "CURRENT",
+        "sourceRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+        "promotable": true,
+        "checks": [
+          {
+            "id": "10y-current",
+            "status": "PASS",
+            "sourceArtifact": "public-data/market-snapshot.json",
+            "observedAt": "2026-08-13T18:59:55.000Z",
+            "detail": null
+          },
+          {
+            "id": "13w-current",
+            "status": "PASS",
+            "sourceArtifact": "public-data/market-snapshot.json",
+            "observedAt": "2026-08-13T18:59:55.000Z",
+            "detail": null
+          },
+          {
+            "id": "five-point-official-curve-current",
+            "status": "PASS",
+            "sourceArtifact": "public-data/data.json",
+            "observedAt": "2026-08-13",
+            "detail": "FRED DGS2/DGS5/DGS10/DGS20/DGS30 official observations; observation dates, not fetch time, drive freshness."
+          },
+          {
+            "id": "10y-2y-official-spread-current",
+            "status": "PASS",
+            "sourceArtifact": "public-data/data.json",
+            "observedAt": "2026-08-13",
+            "detail": null
+          }
+        ]
       }
     },
     {
       "categoryId": "hy-oas",
       "status": "PARTIAL",
       "sourceClass": "PARTIAL",
-      "reason": "FRED HY OAS is now published by the durable artifact and applied by the server-data UI path; direct browser freshness and provider-rights evidence remain separate.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-      "checkedAt": "2026-08-13T00:44:09.031Z",
+      "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: fred-source-identified, independent-spread-reconciliation.",
+      "marketSnapshotRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+      "checkedAt": "2026-08-14T00:40:24.662Z",
+      "refresh": {
+        "cadence": "daily",
+        "mode": "scheduled",
+        "dailyAuditRequired": true,
+        "producer": "scripts/fetch-data.mjs:fetchFred",
+        "artifacts": [
+          "public-data/data.json"
+        ],
+        "consumers": [
+          "fxbond",
+          "signal",
+          "briefing"
+        ]
+      },
+      "origins": [
+        {
+          "id": "fred-baml-hy-oas",
+          "authority": "official-government-relay",
+          "sourceKind": "official-primary",
+          "access": "api-key",
+          "url": "https://fred.stlouisfed.org/series/BAMLH0A0HYM2",
+          "fields": [
+            "BAMLH0A0HYM2"
+          ]
+        },
+        {
+          "id": "fred-baml-hy-oas-public-csv",
+          "authority": "official-government-relay",
+          "sourceKind": "official-primary",
+          "access": "public-download",
+          "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=BAMLH0A0HYM2",
+          "fields": [
+            "BAMLH0A0HYM2"
+          ]
+        }
+      ],
+      "structuralLimit": {
+        "kind": "independent-reconciliation",
+        "reason": "No independent spread-level cross-check is configured.",
+        "remediation": "Add a redistribution-approved ICE/Bloomberg/LSEG or equivalent source."
+      },
       "evidence": {
         "observed": 1,
-        "required": 1,
-        "gate": "fred-current-and-rights",
+        "required": 3,
+        "gate": "fred-current-plus-cross-check",
         "rights": "REVIEW_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-        "promotable": false
+        "sourceRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+        "promotable": false,
+        "checks": [
+          {
+            "id": "fred-hy-oas-current",
+            "status": "PASS",
+            "sourceArtifact": "public-data/data.json",
+            "observedAt": "2026-08-12",
+            "detail": null
+          },
+          {
+            "id": "fred-source-identified",
+            "status": "FAIL",
+            "sourceArtifact": "public-data/data.json",
+            "observedAt": null,
+            "detail": null
+          },
+          {
+            "id": "independent-spread-reconciliation",
+            "status": "FAIL",
+            "sourceArtifact": "secondary-credit-spread-provider",
+            "observedAt": null,
+            "detail": "No independent spread-level cross-check is configured."
+          }
+        ]
       }
     },
     {
       "categoryId": "cpi-pce",
       "status": "MATCH",
-      "sourceClass": "OBSERVED_OFFICIAL",
-      "reason": "BLS/BEA reference values are represented in the current data contract.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-      "checkedAt": "2026-08-13T00:44:09.031Z",
+      "sourceClass": "OBSERVED",
+      "reason": "All executable source, freshness, and scope checks passed.",
+      "marketSnapshotRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+      "checkedAt": "2026-08-14T00:40:24.662Z",
+      "refresh": {
+        "cadence": "release",
+        "mode": "scheduled",
+        "dailyAuditRequired": true,
+        "producer": "scripts/fetch-data.mjs",
+        "artifacts": [
+          "public-data/data.json"
+        ],
+        "consumers": [
+          "macro",
+          "briefing",
+          "signal"
+        ]
+      },
+      "origins": [
+        {
+          "id": "bls-public-data",
+          "authority": "official-government",
+          "sourceKind": "official-primary",
+          "access": "public-api",
+          "url": "https://www.bls.gov/bls/api_features.htm",
+          "fields": [
+            "CPI",
+            "coreCPI"
+          ]
+        },
+        {
+          "id": "bea-nipa-api",
+          "authority": "official-government",
+          "sourceKind": "official-primary",
+          "access": "public-api",
+          "url": "https://apps.bea.gov/api/",
+          "fields": [
+            "PCE",
+            "corePCE"
+          ]
+        },
+        {
+          "id": "fred-macro-relay",
+          "authority": "official-government-relay",
+          "sourceKind": "official-primary",
+          "access": "api-key",
+          "url": "https://fred.stlouisfed.org/docs/api/fred/series_observations.html",
+          "fields": [
+            "CPIAUCSL",
+            "CPILFESL",
+            "PCEPI",
+            "PCEPILFE"
+          ]
+        }
+      ],
+      "structuralLimit": null,
       "evidence": {
         "observed": 2,
         "required": 2,
-        "gate": "official-reference-values",
+        "gate": "bls-bea-official-release",
         "rights": "CURRENT",
-        "sourceRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-        "promotable": true
+        "sourceRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+        "promotable": true,
+        "checks": [
+          {
+            "id": "bls-cpi-official-current-release",
+            "status": "PASS",
+            "sourceArtifact": "public-data/data.json",
+            "observedAt": "2026-07-01",
+            "detail": null
+          },
+          {
+            "id": "bea-pce-official-current-release",
+            "status": "PASS",
+            "sourceArtifact": "public-data/data.json",
+            "observedAt": "2026-07-30T12:30:00.000Z",
+            "detail": null
+          }
+        ]
       }
     },
     {
       "categoryId": "employment-wages",
       "status": "MATCH",
-      "sourceClass": "OBSERVED_OFFICIAL",
-      "reason": "Employment and wage reference values are represented with official-source metadata.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-      "checkedAt": "2026-08-13T00:44:09.031Z",
+      "sourceClass": "OBSERVED",
+      "reason": "All executable source, freshness, and scope checks passed.",
+      "marketSnapshotRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+      "checkedAt": "2026-08-14T00:40:24.662Z",
+      "refresh": {
+        "cadence": "release",
+        "mode": "scheduled",
+        "dailyAuditRequired": true,
+        "producer": "scripts/fetch-data.mjs:fetchBlsSeries",
+        "artifacts": [
+          "public-data/data.json"
+        ],
+        "consumers": [
+          "macro",
+          "briefing"
+        ]
+      },
+      "origins": [
+        {
+          "id": "bls-public-data",
+          "authority": "official-government",
+          "sourceKind": "official-primary",
+          "access": "public-api",
+          "url": "https://www.bls.gov/bls/api_features.htm",
+          "fields": [
+            "UNRATE",
+            "PAYEMS",
+            "AHE",
+            "LFPR"
+          ]
+        }
+      ],
+      "structuralLimit": null,
       "evidence": {
-        "observed": 2,
-        "required": 2,
-        "gate": "official-reference-values",
+        "observed": 3,
+        "required": 3,
+        "gate": "bls-employment-wages",
         "rights": "CURRENT",
-        "sourceRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-        "promotable": true
+        "sourceRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+        "promotable": true,
+        "checks": [
+          {
+            "id": "bls-unemployment",
+            "status": "PASS",
+            "sourceArtifact": "public-data/data.json",
+            "observedAt": "2026-07-01",
+            "detail": null
+          },
+          {
+            "id": "bls-nonfarm-payroll",
+            "status": "PASS",
+            "sourceArtifact": "public-data/data.json",
+            "observedAt": "2026-07-01",
+            "detail": null
+          },
+          {
+            "id": "bls-average-hourly-earnings",
+            "status": "PASS",
+            "sourceArtifact": "public-data/data.json",
+            "observedAt": "2026-07-01",
+            "detail": null
+          }
+        ]
       }
     },
     {
       "categoryId": "retail-housing-ism",
       "status": "PARTIAL",
       "sourceClass": "PARTIAL",
-      "reason": "Retail/housing inputs exist; ISM release-aware direct adapter is not complete.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-      "checkedAt": "2026-08-13T00:44:09.031Z",
+      "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: release-aware-ism.",
+      "marketSnapshotRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+      "checkedAt": "2026-08-14T00:40:24.662Z",
+      "refresh": {
+        "cadence": "release",
+        "mode": "scheduled",
+        "dailyAuditRequired": true,
+        "producer": "scripts/fetch-data.mjs:fetchFred",
+        "artifacts": [
+          "public-data/data.json"
+        ],
+        "consumers": [
+          "macro",
+          "briefing"
+        ]
+      },
+      "origins": [
+        {
+          "id": "fred-retail-housing",
+          "authority": "official-government-relay",
+          "sourceKind": "official-primary",
+          "access": "api-key",
+          "url": "https://fred.stlouisfed.org/docs/api/fred/series_observations.html",
+          "fields": [
+            "RSAFS",
+            "HOUST"
+          ]
+        },
+        {
+          "id": "ism-report-on-business",
+          "authority": "publisher",
+          "sourceKind": "licensed-or-public-release",
+          "access": "not-configured",
+          "url": "https://www.ismworld.org/supply-management-news-and-reports/reports/ism-report-on-business/",
+          "fields": [
+            "manufacturingPMI",
+            "servicesPMI"
+          ]
+        }
+      ],
+      "structuralLimit": {
+        "kind": "release-aware-ism",
+        "reason": "An official release-aware ISM adapter is not configured.",
+        "remediation": "Configure a permitted ISM release source and retain release timestamp."
+      },
       "evidence": {
-        "observed": 1,
+        "observed": 2,
         "required": 3,
-        "gate": "release-aware-inputs",
+        "gate": "retail-housing-ism-release-aware",
         "rights": "REVIEW_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-        "promotable": false
+        "sourceRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+        "promotable": false,
+        "checks": [
+          {
+            "id": "fred-retail-sales",
+            "status": "PASS",
+            "sourceArtifact": "public-data/data.json",
+            "observedAt": "2026-06-01",
+            "detail": null
+          },
+          {
+            "id": "fred-housing-starts",
+            "status": "PASS",
+            "sourceArtifact": "public-data/data.json",
+            "observedAt": "2026-06-01",
+            "detail": null
+          },
+          {
+            "id": "release-aware-ism",
+            "status": "FAIL",
+            "sourceArtifact": "ism-official-provider",
+            "observedAt": null,
+            "detail": "Release-aware ISM adapter is not configured."
+          }
+        ]
       }
     },
     {
       "categoryId": "central-bank-policy",
       "status": "PARTIAL",
       "sourceClass": "PARTIAL",
-      "reason": "Official reference registry exists; current statement/rate point-level reconciliation is pending.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-      "checkedAt": "2026-08-13T00:44:09.031Z",
+      "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: multi-central-bank-current-registry.",
+      "marketSnapshotRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+      "checkedAt": "2026-08-14T00:40:24.662Z",
+      "refresh": {
+        "cadence": "daily-audit/event-refresh",
+        "mode": "scheduled-and-operator",
+        "dailyAuditRequired": true,
+        "producer": "scripts/fetch-data.mjs + official calendar registry",
+        "artifacts": [
+          "public-data/data.json"
+        ],
+        "consumers": [
+          "macro",
+          "fxbond",
+          "briefing"
+        ]
+      },
+      "origins": [
+        {
+          "id": "fred-fedfunds",
+          "authority": "official-government-relay",
+          "sourceKind": "official-primary",
+          "access": "api-key",
+          "url": "https://fred.stlouisfed.org/series/FEDFUNDS",
+          "fields": [
+            "fedRate"
+          ]
+        },
+        {
+          "id": "federal-reserve-fomc",
+          "authority": "official-central-bank",
+          "sourceKind": "official-primary",
+          "access": "public-web",
+          "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+          "fields": [
+            "FOMC decisions"
+          ]
+        },
+        {
+          "id": "bok-ecb-boj-boe",
+          "authority": "official-central-banks",
+          "sourceKind": "official-primary",
+          "access": "partially-configured",
+          "url": "https://www.bis.org/cbanks.htm",
+          "fields": [
+            "BOK",
+            "ECB",
+            "BOJ",
+            "BOE policy rates"
+          ]
+        }
+      ],
+      "structuralLimit": {
+        "kind": "multi-central-bank-registry",
+        "reason": "Point-level automatic reconciliation for BOK/ECB/BOJ/BOE is incomplete.",
+        "remediation": "Add official adapters per bank and release-event tests."
+      },
       "evidence": {
         "observed": 1,
         "required": 2,
-        "gate": "current-official-registry",
+        "gate": "multi-central-bank-current-registry",
         "rights": "REVIEW_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-        "promotable": false
+        "sourceRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+        "promotable": false,
+        "checks": [
+          {
+            "id": "fed-rate-official-series",
+            "status": "PASS",
+            "sourceArtifact": "public-data/data.json",
+            "observedAt": "2026-07-01",
+            "detail": null
+          },
+          {
+            "id": "multi-central-bank-current-registry",
+            "status": "FAIL",
+            "sourceArtifact": "official-central-bank-registry",
+            "observedAt": null,
+            "detail": "BOK/ECB/BOJ/BOE point-level automatic reconciliation is incomplete."
+          }
+        ]
       }
     },
     {
       "categoryId": "macro-calendar",
       "status": "PARTIAL",
       "sourceClass": "PARTIAL",
-      "reason": "Release calendar is explicit, but automatic release-aware ingestion is not complete.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-      "checkedAt": "2026-08-13T00:44:09.031Z",
+      "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: multi-agency-release-aware-calendar.",
+      "marketSnapshotRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+      "checkedAt": "2026-08-14T00:40:24.662Z",
+      "refresh": {
+        "cadence": "daily-audit/event-refresh",
+        "mode": "scheduled-and-static-registry",
+        "dailyAuditRequired": true,
+        "producer": "scripts/fetch-data.mjs + calendar registry",
+        "artifacts": [
+          "public-data/data.json",
+          "js/aio-data.js"
+        ],
+        "consumers": [
+          "macro",
+          "briefing"
+        ]
+      },
+      "origins": [
+        {
+          "id": "fomc-calendar",
+          "authority": "official-central-bank",
+          "sourceKind": "official-primary",
+          "access": "public-web",
+          "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+          "fields": [
+            "FOMC meetings"
+          ]
+        },
+        {
+          "id": "bls-release-calendar",
+          "authority": "official-government",
+          "sourceKind": "official-primary",
+          "access": "public-web",
+          "url": "https://www.bls.gov/schedule/",
+          "fields": [
+            "CPI",
+            "Employment"
+          ]
+        },
+        {
+          "id": "bea-release-schedule",
+          "authority": "official-government",
+          "sourceKind": "official-primary",
+          "access": "public-web",
+          "url": "https://www.bea.gov/news/schedule",
+          "fields": [
+            "PCE",
+            "GDP"
+          ]
+        }
+      ],
+      "structuralLimit": {
+        "kind": "multi-agency-trigger",
+        "reason": "Calendar dates are registered, but a single release-triggered ingestion adapter is incomplete.",
+        "remediation": "Poll official schedules daily and trigger post-release refresh by event identity."
+      },
       "evidence": {
         "observed": 1,
-        "required": 1,
-        "gate": "release-aware-calendar",
+        "required": 2,
+        "gate": "multi-agency-release-calendar",
         "rights": "REVIEW_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-        "promotable": false
+        "sourceRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+        "promotable": false,
+        "checks": [
+          {
+            "id": "bea-next-release",
+            "status": "PASS",
+            "sourceArtifact": "public-data/data.json",
+            "observedAt": "2026-08-26T12:30:00.000Z",
+            "detail": null
+          },
+          {
+            "id": "multi-agency-release-aware-calendar",
+            "status": "FAIL",
+            "sourceArtifact": "official-release-calendars",
+            "observedAt": null,
+            "detail": "BLS/FOMC/BEA multi-agency release-triggered ingestion is incomplete."
+          }
+        ]
       }
     },
     {
       "categoryId": "news",
       "status": "PARTIAL",
       "sourceClass": "PARTIAL",
-      "reason": "News artifact has source metadata; full article-level source and translation reconciliation is pending.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-      "checkedAt": "2026-08-13T00:44:09.031Z",
+      "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: full-content-evidence.",
+      "marketSnapshotRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+      "checkedAt": "2026-08-14T00:40:24.662Z",
+      "refresh": {
+        "cadence": "30m",
+        "mode": "scheduled",
+        "dailyAuditRequired": true,
+        "producer": "scripts/fetch-data.mjs:fetchNews",
+        "artifacts": [
+          "public-data/data.json",
+          "public-data/telegram-digest.json"
+        ],
+        "consumers": [
+          "home",
+          "briefing",
+          "market-news",
+          "ticker",
+          "screener"
+        ]
+      },
+      "origins": [
+        {
+          "id": "publisher-rss-and-google-news",
+          "authority": "publisher-aggregation",
+          "sourceKind": "secondary-headline",
+          "access": "public-rss",
+          "url": "https://news.google.com/rss",
+          "fields": [
+            "headline",
+            "publisher",
+            "publishedAt",
+            "url"
+          ]
+        },
+        {
+          "id": "telegram-public-web",
+          "authority": "untrusted-reference",
+          "sourceKind": "reference",
+          "access": "public-web",
+          "url": "https://t.me/s/",
+          "fields": [
+            "research-summary",
+            "publishedAt",
+            "channel"
+          ]
+        }
+      ],
+      "structuralLimit": {
+        "kind": "full-content-and-editorial",
+        "reason": "Headline-only feeds cannot certify article-level claims and Telegram is untrusted reference material.",
+        "remediation": "Add permitted full-text publisher feeds and human/editorial verification for public factual claims."
+      },
       "evidence": {
-        "observed": 1,
-        "required": 1,
-        "gate": "article-level-source-lineage",
+        "observed": 2,
+        "required": 3,
+        "gate": "cycle-lineage-content-depth",
         "rights": "REVIEW_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-        "promotable": false
+        "sourceRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+        "promotable": false,
+        "checks": [
+          {
+            "id": "completed-cycle-minimum-10",
+            "status": "PASS",
+            "sourceArtifact": "public-data/data.json",
+            "observedAt": "2026-08-13T23:00:00.000Z",
+            "detail": "count=40"
+          },
+          {
+            "id": "article-lineage-95pct",
+            "status": "PASS",
+            "sourceArtifact": "public-data/data.json",
+            "observedAt": "2026-08-14T00:40:24.581Z",
+            "detail": "coverage=100.0%"
+          },
+          {
+            "id": "full-content-evidence",
+            "status": "FAIL",
+            "sourceArtifact": "public-data/data.json",
+            "observedAt": "2026-08-14T00:40:24.581Z",
+            "detail": "Headline-only feeds cannot certify article-level claims."
+          }
+        ]
       }
     },
     {
       "categoryId": "commodities-fx",
       "status": "PARTIAL",
       "sourceClass": "PARTIAL",
-      "reason": "Tier 0 commodities/FX are present; settlement-vs-spot and full history reconciliation is pending.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-      "checkedAt": "2026-08-13T00:44:09.031Z",
+      "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: settlement-vs-spot-contract.",
+      "marketSnapshotRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+      "checkedAt": "2026-08-14T00:40:24.662Z",
+      "refresh": {
+        "cadence": "30m",
+        "mode": "scheduled",
+        "dailyAuditRequired": true,
+        "producer": "scripts/fetch-data.mjs",
+        "artifacts": [
+          "public-data/market-snapshot.json",
+          "public-data/history.json"
+        ],
+        "consumers": [
+          "home",
+          "fxbond",
+          "briefing"
+        ]
+      },
+      "origins": [
+        {
+          "id": "yahoo-cross-asset",
+          "authority": "secondary",
+          "sourceKind": "public-information-service",
+          "access": "public-unofficial",
+          "url": "https://query1.finance.yahoo.com/v8/finance/chart/",
+          "fields": [
+            "WTI futures",
+            "gold futures",
+            "DXY",
+            "FX spot"
+          ]
+        },
+        {
+          "id": "twelve-data-cross-check",
+          "authority": "secondary",
+          "sourceKind": "licensed-api",
+          "access": "optional-key",
+          "url": "https://twelvedata.com/docs",
+          "fields": [
+            "fallback quotes"
+          ]
+        }
+      ],
+      "structuralLimit": {
+        "kind": "basis-contract",
+        "reason": "Futures settlement, delayed futures, index and FX spot bases are not interchangeable.",
+        "remediation": "Retain instrument/valueBasis per field and add settlement-specific sources where required."
+      },
       "evidence": {
-        "observed": 2,
-        "required": 4,
-        "gate": "settlement-and-spot-history",
+        "observed": 1,
+        "required": 2,
+        "gate": "current-plus-settlement-spot-contract",
         "rights": "REVIEW_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-        "promotable": false
+        "sourceRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+        "promotable": false,
+        "checks": [
+          {
+            "id": "tier0-wti-gold-dxy-krw-current",
+            "status": "PASS",
+            "sourceArtifact": "public-data/market-snapshot.json",
+            "observedAt": "2026-08-14T00:40:24.581Z",
+            "detail": null
+          },
+          {
+            "id": "settlement-vs-spot-contract",
+            "status": "FAIL",
+            "sourceArtifact": "market-data-field-contract",
+            "observedAt": null,
+            "detail": "Settlement, futures, and spot bases are not fully reconciled."
+          }
+        ]
       }
     },
     {
       "categoryId": "global-indices",
       "status": "PARTIAL",
       "sourceClass": "PARTIAL",
-      "reason": "Global index snapshot is present; broader historical and session reconciliation is pending.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-      "checkedAt": "2026-08-13T00:44:09.031Z",
+      "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: non-us-major-indices-current.",
+      "marketSnapshotRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+      "checkedAt": "2026-08-14T00:40:24.662Z",
+      "refresh": {
+        "cadence": "30m",
+        "mode": "scheduled",
+        "dailyAuditRequired": true,
+        "producer": "scripts/fetch-data.mjs",
+        "artifacts": [
+          "public-data/market-snapshot.json",
+          "public-data/history.json"
+        ],
+        "consumers": [
+          "home",
+          "briefing",
+          "technical"
+        ]
+      },
+      "origins": [
+        {
+          "id": "yahoo-global-indices",
+          "authority": "secondary",
+          "sourceKind": "public-information-service",
+          "access": "public-unofficial",
+          "url": "https://query1.finance.yahoo.com/v8/finance/chart/",
+          "fields": [
+            "SPX",
+            "Nasdaq",
+            "Dow",
+            "Russell",
+            "FTSE",
+            "Nikkei",
+            "Hang Seng",
+            "KOSPI",
+            "KOSDAQ"
+          ]
+        }
+      ],
+      "structuralLimit": {
+        "kind": "provider-rights-and-session-coverage",
+        "reason": "A single public-information provider covers markets with different sessions and redistribution terms.",
+        "remediation": "Add venue-approved feeds and per-exchange calendars before institutional claims."
+      },
       "evidence": {
-        "observed": 2,
-        "required": 4,
-        "gate": "session-history",
+        "observed": 1,
+        "required": 2,
+        "gate": "us-plus-non-us-session-history",
         "rights": "REVIEW_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-        "promotable": false
+        "sourceRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+        "promotable": false,
+        "checks": [
+          {
+            "id": "us-major-indices-current",
+            "status": "PASS",
+            "sourceArtifact": "public-data/market-snapshot.json",
+            "observedAt": "2026-08-14T00:40:24.581Z",
+            "detail": null
+          },
+          {
+            "id": "non-us-major-indices-current",
+            "status": "FAIL",
+            "sourceArtifact": "public-data/market-snapshot.json",
+            "observedAt": "2026-08-14T00:40:24.581Z",
+            "detail": null
+          }
+        ]
       }
     },
     {
       "categoryId": "crypto",
-      "status": "PARTIAL",
-      "sourceClass": "PARTIAL",
-      "reason": "Crypto quotes are available with observed/fetched timestamps; full 24/7 history reconciliation is pending.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-      "checkedAt": "2026-08-13T00:44:09.031Z",
+      "status": "MATCH",
+      "sourceClass": "OBSERVED",
+      "reason": "All executable source, freshness, and scope checks passed.",
+      "marketSnapshotRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+      "checkedAt": "2026-08-14T00:40:24.662Z",
+      "refresh": {
+        "cadence": "30m",
+        "mode": "scheduled",
+        "dailyAuditRequired": true,
+        "producer": "scripts/fetch-data.mjs",
+        "artifacts": [
+          "public-data/data.json",
+          "public-data/market-snapshot.json",
+          "public-data/history.json"
+        ],
+        "consumers": [
+          "home",
+          "briefing"
+        ]
+      },
+      "origins": [
+        {
+          "id": "yahoo-crypto",
+          "authority": "secondary",
+          "sourceKind": "public-information-service",
+          "access": "public-unofficial",
+          "url": "https://query1.finance.yahoo.com/v8/finance/chart/",
+          "fields": [
+            "BTC-USD",
+            "ETH-USD"
+          ]
+        },
+        {
+          "id": "coingecko-simple-price",
+          "authority": "secondary",
+          "sourceKind": "public-api",
+          "access": "public-best-effort",
+          "url": "https://docs.coingecko.com/reference/simple-price",
+          "fields": [
+            "BTC",
+            "ETH cross-check"
+          ]
+        }
+      ],
+      "structuralLimit": {
+        "kind": "redistribution-and-provider-sla",
+        "reason": "CoinGecko public access supplies an independent best-effort comparison but not an institutional redistribution/SLA contract.",
+        "remediation": "Retain the 2%/2-hour fail-closed comparison and obtain an approved provider before institutional promotion."
+      },
       "evidence": {
-        "observed": 1,
-        "required": 2,
-        "gate": "24x7-history",
-        "rights": "REVIEW_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-        "promotable": false
+        "observed": 3,
+        "required": 3,
+        "gate": "current-history-provider-diversity",
+        "rights": "CURRENT",
+        "sourceRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+        "promotable": true,
+        "checks": [
+          {
+            "id": "btc-eth-current",
+            "status": "PASS",
+            "sourceArtifact": "public-data/market-snapshot.json",
+            "observedAt": "2026-08-14T00:40:24.581Z",
+            "detail": null
+          },
+          {
+            "id": "btc-daily-history-60",
+            "status": "PASS",
+            "sourceArtifact": "public-data/history.json",
+            "observedAt": "2026-08-14",
+            "detail": null
+          },
+          {
+            "id": "independent-24x7-provider-reconciliation",
+            "status": "PASS",
+            "sourceArtifact": "public-data/data.json:providerCrossChecks.crypto",
+            "observedAt": "2026-08-14T00:40:20.976Z",
+            "detail": "CoinGecko comparison requires both assets within 2% of the canonical snapshot."
+          }
+        ]
       }
     },
     {
       "categoryId": "kr-macro-vkospi-supply",
       "status": "BLOCKED",
       "sourceClass": "UNAVAILABLE",
-      "reason": "Approved KRX/Koscom provider and VKOSPI rights are unresolved; unavailable must remain explicit.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-      "checkedAt": "2026-08-13T00:44:09.031Z",
+      "reason": "Korean licensed market data cannot be promoted without provider rights. Missing: approved-krx-koscom-rights.",
+      "marketSnapshotRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+      "checkedAt": "2026-08-14T00:40:24.662Z",
+      "refresh": {
+        "cadence": "daily",
+        "mode": "operator-and-browser",
+        "dailyAuditRequired": true,
+        "producer": "KOSIS/BOK/approved-KRX adapters",
+        "artifacts": [
+          "public-data/reconciliation-status.json"
+        ],
+        "consumers": [
+          "macro",
+          "briefing",
+          "themes"
+        ]
+      },
+      "origins": [
+        {
+          "id": "bok-ecos",
+          "authority": "official-central-bank",
+          "sourceKind": "official-primary",
+          "access": "api-key-or-public",
+          "url": "https://ecos.bok.or.kr/api/",
+          "fields": [
+            "Korean macro",
+            "rates",
+            "FX"
+          ]
+        },
+        {
+          "id": "kosis",
+          "authority": "official-government",
+          "sourceKind": "official-primary",
+          "access": "api-key-or-public",
+          "url": "https://kosis.kr/openapi/",
+          "fields": [
+            "Korean statistics"
+          ]
+        },
+        {
+          "id": "krx-koscom",
+          "authority": "official-exchange",
+          "sourceKind": "official-primary",
+          "access": "operator-rights-required",
+          "url": "https://data.krx.co.kr/",
+          "fields": [
+            "VKOSPI",
+            "investor flows",
+            "official breadth"
+          ]
+        }
+      ],
+      "structuralLimit": {
+        "kind": "approved-krx-rights",
+        "reason": "Approved KRX/Koscom provider and redistribution rights are unresolved.",
+        "remediation": "Configure approved access; do not promote Naver/web values as official exchange data."
+      },
       "evidence": {
         "observed": 0,
         "required": 1,
         "gate": "approved-krx-provider-and-rights",
         "rights": "OPERATOR_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-        "promotable": false
+        "sourceRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+        "promotable": false,
+        "checks": [
+          {
+            "id": "approved-krx-koscom-rights",
+            "status": "FAIL",
+            "sourceArtifact": "operator/provider-contract",
+            "observedAt": null,
+            "detail": "Approved KRX/Koscom provider and VKOSPI rights are unresolved."
+          }
+        ]
       }
     }
   ],
@@ -366,15 +1699,12 @@
     "complete": false,
     "unresolvedCategories": [
       "market-quotes",
-      "volatility",
-      "fear-greed",
       "aaii",
       "naaim",
       "investors-intelligence",
       "us-breadth",
       "kr-breadth",
       "breadth-history",
-      "treasury-curve",
       "hy-oas",
       "retail-housing-ism",
       "central-bank-policy",
@@ -382,8 +1712,20 @@
       "news",
       "commodities-fx",
       "global-indices",
-      "crypto",
       "kr-macro-vkospi-supply"
+    ],
+    "partialCategories": [
+      "market-quotes",
+      "us-breadth",
+      "kr-breadth",
+      "breadth-history",
+      "hy-oas",
+      "retail-housing-ism",
+      "central-bank-policy",
+      "macro-calendar",
+      "news",
+      "commodities-fx",
+      "global-indices"
     ],
     "operatorRequiredCategories": [
       "aaii",
@@ -391,6 +1733,98 @@
       "investors-intelligence",
       "kr-macro-vkospi-supply"
     ],
-    "sourceRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00"
+    "policyBlockedCategories": [
+      "aaii",
+      "naaim",
+      "investors-intelligence",
+      "kr-macro-vkospi-supply"
+    ],
+    "runtimeBlockedCategories": [],
+    "sourceRegistry": {
+      "categoryCount": 22,
+      "dailyAuditCoverage": 22,
+      "criticalDataGaps": [
+        {
+          "id": "point-in-time-fundamentals",
+          "priority": "P0",
+          "status": "PARTIAL",
+          "reason": "SEC-covered annual facts now retain append-only filing observations and can be reconstructed by accepted/filed time; coverage still converges in bounded batches and does not supply historical prices or non-SEC issuers.",
+          "requiredOrigin": "SEC companyfacts plus submissions acceptanceDateTime",
+          "allowedInterimUse": "filing-as-of research; valuation only with contemporaneous price",
+          "implementedScope": "sec-pit-facts.v1 history and deterministic as-of selector",
+          "remainingLimit": "bounded SEC coverage, older accession acceptance timestamps, historical prices and non-US issuers",
+          "validationGate": "scripts/ci-professional-data-gap-check.mjs"
+        },
+        {
+          "id": "historical-universe-and-corporate-actions",
+          "priority": "P0",
+          "status": "BLOCKED",
+          "reason": "Delisted securities, membership windows, ticker mapping and split/dividend factors are incomplete.",
+          "requiredOrigin": "PIT membership, map files and factor files",
+          "allowedInterimUse": "no predictive promotion"
+        },
+        {
+          "id": "independent-quote-reconciliation",
+          "priority": "P0",
+          "status": "BLOCKED",
+          "reason": "Tier-0 and rendered quotes lack a redistribution-approved independent comparison plane.",
+          "requiredOrigin": "licensed quote provider",
+          "allowedInterimUse": "reference with source/session labels"
+        },
+        {
+          "id": "official-exchange-breadth",
+          "priority": "P1",
+          "status": "BLOCKED",
+          "reason": "AIO-universe breadth does not replace exchange A/D and new-high/new-low data.",
+          "requiredOrigin": "NYSE/Nasdaq/KRX approved feed",
+          "allowedInterimUse": "AIO-universe participation only"
+        },
+        {
+          "id": "earnings-revisions-and-guidance",
+          "priority": "P1",
+          "status": "BLOCKED",
+          "reason": "Consensus revisions, surprise history and guidance need a licensed or explicitly permitted source.",
+          "requiredOrigin": "licensed estimates plus SEC filings",
+          "allowedInterimUse": "filed actuals and dated news only"
+        },
+        {
+          "id": "short-interest-and-options-flow",
+          "priority": "P1",
+          "status": "BLOCKED",
+          "reason": "Short interest, borrow cost, options Greeks/IV surface and flow require specialized feeds.",
+          "requiredOrigin": "FINRA/exchange/OPRA or licensed vendor",
+          "allowedInterimUse": "Cboe aggregate put/call and delayed VIX only"
+        },
+        {
+          "id": "insider-and-institutional-filings",
+          "priority": "P1",
+          "status": "PARTIAL",
+          "reason": "Seven manager 13F holdings, adjacent-quarter changes and twelve-quarter history are normalized and source-linked; Forms 3/4/5 and 13D/G are not yet normalized.",
+          "requiredOrigin": "SEC EDGAR",
+          "allowedInterimUse": "reported-period institutional reference only",
+          "implementedScope": "verified 13F metadata, holdings, changes and history",
+          "remainingLimit": "insider Forms 3/4/5, beneficial ownership 13D/G and complete CUSIP-to-ticker master",
+          "validationGate": "scripts/ci-masters-contract-check.mjs"
+        },
+        {
+          "id": "portfolio-risk-attribution",
+          "priority": "P2",
+          "status": "PARTIAL",
+          "reason": "Browser-side VaR/CVaR, drawdown, benchmark beta/alpha, correlation, stress and return/risk contribution are implemented; institutional factor models and capacity remain unavailable.",
+          "requiredOrigin": "adjusted OHLCV plus benchmark/factor series",
+          "allowedInterimUse": "historical research with survivorship and provider limitations",
+          "implementedScope": "3-month daily risk plus up-to-10-year monthly benchmark and component attribution",
+          "remainingLimit": "licensed factor returns, transaction costs, liquidity/capacity and survivorship-free histories",
+          "validationGate": "scripts/ci-professional-data-gap-check.mjs"
+        }
+      ]
+    },
+    "sourceRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+    "sourceArtifacts": [
+      "public-data/data.json",
+      "public-data/market-snapshot.json",
+      "public-data/screener.json",
+      "public-data/history.json"
+    ]
   }
 }

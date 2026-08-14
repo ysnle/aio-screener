@@ -7,17 +7,27 @@ const rows = payload && payload.data && typeof payload.data === 'object' ? Objec
 const universe = Number(payload && payload.universe);
 const ok = Number(payload && payload.ok);
 const observed = payload && payload.factorObservedAt ? new Date(payload.factorObservedAt).getTime() : NaN;
+const generated = payload && payload.asOf ? new Date(payload.asOf).getTime() : NaN;
+const now = Date.now();
 const breadth = payload && payload.breadth && payload.breadth.segments;
 const contract = payload && payload.rankingContract;
 const fundamentalFields = ['pe', 'pb', 'roe', 'margin', 'revGrowth'];
 const observedAtSet = new Set(rows.map(row => row && row.observedAt).filter(Boolean));
 const mixedRevision = observedAtSet.size > 1;
 const fundamentalRows = rows.filter(row => row && fundamentalFields.some(field => Number.isFinite(Number(row[field]))));
+const currentFactorRows = rows.filter(row => {
+  const rowObserved = new Date(row?.observedAt || '').getTime();
+  return Number.isFinite(rowObserved) && now - rowObserved >= 0 && now - rowObserved <= 4 * 86400000;
+});
 
 if (!Number.isInteger(universe) || universe < 100) errors.push('universe must be an integer >= 100');
 if (!Number.isInteger(ok) || ok !== rows.length) errors.push(`ok must equal data row count (${ok} != ${rows.length})`);
 if (universe > 0 && ok / universe < 0.8) errors.push(`coverage below 80% (${ok}/${universe})`);
+if (universe > 0 && currentFactorRows.length / universe < 0.8) errors.push(`current factor observation coverage below 80% (${currentFactorRows.length}/${universe})`);
 if (!Number.isFinite(observed)) errors.push('factorObservedAt missing or invalid');
+if (!Number.isFinite(generated)) errors.push('asOf missing or invalid');
+if (Number.isFinite(generated) && (now - generated < -15 * 60 * 1000 || now - generated > 2 * 86400000)) errors.push('artifact asOf is outside the 2-day processing freshness budget');
+if (Number.isFinite(observed) && (now - observed < -15 * 60 * 1000 || now - observed > 4 * 86400000)) errors.push('factorObservedAt is outside the 4-day market-session freshness budget');
 if (!breadth || !breadth.all || !breadth.us || !breadth.kr) errors.push('all/us/kr breadth segments required');
 for (const key of ['all', 'us', 'kr']) {
   const segment = breadth && breadth[key];

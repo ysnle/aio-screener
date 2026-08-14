@@ -37,6 +37,7 @@ const telegramFetcher = read('scripts/fetch-telegram-digest.mjs');
 const worker = exists('cloudflare-worker-proxy.js') ? read('cloudflare-worker-proxy.js') : '';
 const packageJson = read('package.json');
 const ciWorkflow = read('.github/workflows/ci.yml');
+const bootInteractionGate = read('scripts/ci-boot-interaction-check.mjs');
 const knowledgeWorkflow = exists('.github/workflows/knowledge-lint.yml') ? read('.github/workflows/knowledge-lint.yml') : '';
 const runtimeBundle = [core, data, ui, chat].join('\n');
 const extractTelegramPageTags = () => {
@@ -287,7 +288,7 @@ check('headless tests cover all-theme detail and route redirect regressions', /T
 check('proxy layer rejects HTML block pages for JSON endpoints before caching success', /_aioProxyUrlExpectsJson/.test(data) && /_aioValidateProxyResponse/.test(data) && /aioProxyBlockedHtml/.test(data) && /proxy returned HTML for JSON endpoint/.test(data));
 check('KR supply failure state clears canonical evidence and retired investor fanout is not scheduled', /function _showKrSupplyFailureState[\s\S]{0,180}?_krCurrentSupplyEvidence\s*=\s*null/.test(html) && /T863_kr_retired_investor_fanout_not_scheduled/.test(tests));
 check('Cloudflare worker handles Naver JSON endpoints with browser-like headers and HTML block guard', /targetExpectsJson/.test(worker) && /m\.stock\.naver\.com/.test(worker) && /Upstream returned HTML block page for JSON endpoint/.test(worker) && /Referer = 'https:\/\/m\.stock\.naver\.com\/'/.test(worker));
-check('viewport matrix CI script covers 22 routes, four viewport widths, topbar clipping, and SVG text geometry', /ci-viewport-matrix-check\.mjs/.test(read('.github/workflows/ci.yml')) && /const ROUTES = \[/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /'theme-detail'/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /mobile390/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /desktop1440/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /topbarClipCount/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /svgTextOverlapCount/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /svgTinyTextCount/.test(read('scripts/ci-viewport-matrix-check.mjs')));
+check('viewport matrix CI script covers desktop-only viewports, topbar clipping, and SVG text geometry', /ci-viewport-matrix-check\.mjs/.test(read('.github/workflows/ci.yml')) && /ci-desktop-scope-check\.mjs/.test(read('.github/workflows/ci.yml')) && /desktop-qa-config\.mjs/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /'theme-detail'/.test(read('scripts/ci-viewport-matrix-check.mjs')) && !/mobile390|tablet768/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /desktop1440/.test(read('scripts/desktop-qa-config.mjs')) && /topbarClipCount/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /svgTextOverlapCount/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /svgTinyTextCount/.test(read('scripts/ci-viewport-matrix-check.mjs')));
 check('proxy registry ranks active proxies by success-rate score, not only static order', /okCount/.test(data) && /failCount/.test(data) && /getScore:\s*function/.test(data) && /self\.getScore\(b\)\s*-\s*self\.getScore\(a\)/.test(data));
 check('quote count labels distinguish live quotes from reference snapshot quotes',
   /일부 실시간/.test(core + data) &&
@@ -651,6 +652,7 @@ check('PERF-BOOT-03: currentness guard defaults to the active route and batches 
 check('PERF-BOOT-04: live quotes debounce the scoped guard and retired 6s\/18s whole-document rescans stay absent', /scheduleMarketCurrentnessGuard\(250, 'live-quotes'\)/.test(data) && /window\.AIO\.scheduleMarketCurrentnessGuard = _aioScheduleMarketCurrentnessGuard/.test(core) && !/_aioScheduleMarketCurrentnessGuard\(6000/.test(core) && !/_aioScheduleMarketCurrentnessGuard\(18000/.test(core));
 
 check('PERF-BOOT-05: public readiness uses materialized runtime state while full share audits remain explicit/dev-only', /var detailed = opts\.full === true/.test(data) && /if \(detailed\) \{[\s\S]{0,500}getShareReadinessAudit/.test(data) && /_aioBuildPublicShareReadiness\(\{ full: false \}\)/.test(data) && /_aioSchedulePublicReadiness/.test(data) && exists('scripts/ci-boot-interaction-check.mjs') && /ci-boot-interaction-check\.mjs/.test(ciWorkflow));
+check('PERF-BOOT-06: shell FCP is presented before synthetic route timing and all three budgets remain independent', /requestAnimationFrame\(\(\) => requestAnimationFrame\(resolvePaint\)\)/.test(bootInteractionGate) && bootInteractionGate.indexOf('resolvePaint') < bootInteractionGate.indexOf("showPage('signal')") && /fcpMs > 2500/.test(bootInteractionGate) && /routeMs > 2000/.test(bootInteractionGate) && /maxLongTaskMs > 2500/.test(bootInteractionGate));
 
 // v52.75 (WP-AI0): public AI beta safety boundary + unverified auto-analysis block.
 check('WP-AI0: one shared public AI policy exposes beta/research wording, action gate, and Evidence/as-of disclosure helpers', /_AIO_PUBLIC_AI_POLICY/.test(chat) && /_aioPublicAIActionPolicyPrompt/.test(chat) && /_aioApplyAIActionGate/.test(chat) && /_aioBuildAIResponseDisclosure/.test(chat) && /_aioAppendAIPublicDisclosure/.test(chat));
@@ -727,9 +729,9 @@ check('WP-AI16: isolation cache key, idempotency state, and stream finalization 
 check('WP-AI15/16: regression fixtures cover provenance, replay pass/fail, release approval/rollback, tenant isolation, idempotency, stream states, and shared pipeline wiring', /_testV5284ModelRiskIsolation/.test(tests) && /T991/.test(tests) && /T992/.test(tests) && /T993/.test(tests) && /T994/.test(tests) && /T995/.test(tests) && /T996/.test(tests) && /T997/.test(tests) && /T998/.test(tests));
 
 // v52.85 (WP-AI17/18): coverage/exposure bias audit and signed human-chat
-// certification evidence across assistive, keyboard, mobile, novice, and expert paths.
+// certification evidence across desktop assistive, keyboard, novice, and expert paths.
 check('WP-AI17: coverage/exposure report measures region/sector/cap/liquidity/source coverage and neutralizes missingness', /buildAICoverageExposureReport/.test(core) && /evaluateAICoverageBias/.test(core) && /missingness/.test(core) && /BLOCKED_MISSINGNESS_PROMOTION/.test(core) && /sourceKind/.test(core));
-check('WP-AI18: human chat certification exposes required SR/keyboard/mobile/novice/expert/task dimensions and signed evidence', /getHumanChatCertificationMatrix/.test(core) && /createHumanChatCertification/.test(core) && /evaluateHumanChatCertification/.test(core) && /screenReader/.test(core) && /signedBy/.test(core) && /signedAt/.test(core));
+check('WP-AI18: desktop human chat certification exposes required SR/keyboard/novice/expert/task dimensions and signed evidence', /getHumanChatCertificationMatrix/.test(core) && /createHumanChatCertification/.test(core) && /evaluateHumanChatCertification/.test(core) && /screenReader/.test(core) && /signedBy/.test(core) && /signedAt/.test(core) && !/_AIO_AI_HUMAN_CERT_DIMENSIONS\s*=\s*\[[^\]]*mobile/.test(core));
 check('WP-AI17/18: regression fixtures cover exposure, missingness promotion, bias gate, certification matrix, complete/split/unsigned/incomplete human evidence', /_testV5285CoverageAndHumanCertification/.test(tests) && /T999/.test(tests) && /T1000/.test(tests) && /T1001/.test(tests) && /T1002/.test(tests) && /T1003/.test(tests) && /T1004/.test(tests) && /T1005/.test(tests) && /T1006/.test(tests));
 
 // v52.86 (WP-AI19/20): non-agentic capability boundary and explicit
@@ -849,11 +851,14 @@ check('P784/SA-01: proxy registry opens cooldown after three failures and reject
     && /typeof opts\.accept === ['"]function['"]/.test(data));
 
 check('W1-04: SEC annual facts expose versioned freshness and fail-closed decision eligibility',
-  secReportDomain.includes("SEC_REPORT_MODEL_VERSION = 'sec-report.v2'")
+  secReportDomain.includes("SEC_REPORT_MODEL_VERSION = 'sec-report.v3'")
     && /currentMaxAgeDays:\s*400/.test(secReportDomain)
     && /agedMaxAgeDays:\s*730/.test(secReportDomain)
     && /state:\s*'historical'/.test(secReportDomain)
     && /decisionEligible:\s*status === 'current'/.test(secReportDomain)
+    && /pointInTime:\s*Object\.freeze/.test(secReportDomain)
+    && /acceptedTimeCount/.test(secReportDomain)
+    && /filingMetadata:\s*Object\.freeze/.test(secReportDomain)
     && /data-freshness-state/.test(entityPage));
 check('W1-05: ticker action narrative fails closed without entity quote and market-health evidence',
   /pageId === 'ticker'/.test(core)

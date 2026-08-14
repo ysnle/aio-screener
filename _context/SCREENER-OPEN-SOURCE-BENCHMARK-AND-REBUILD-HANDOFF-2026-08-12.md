@@ -1,7 +1,7 @@
 ---
 verified_by: Codex
 last_verified: 2026-08-13
-repository_version: v54.15
+repository_version: v54.22
 status: IMPLEMENTED_LOCAL
 local_code_status: VERIFIED_LOCAL
 implementation_authorized: true
@@ -14,6 +14,11 @@ depends_on:
   - AI-SCREENER-INTELLIGENCE-REBUILD-HANDOFF-2026-07-27.md
   - AIO-CURRENT-CODE-REMEDIATION-HANDOFF-2026-08-09.md
 ---
+
+## Current scope override (2026-08-13)
+
+This product is desktop-only. Current QA uses 1280×900, 1440×1000, and 1920×1080; mobile/tablet implementation and acceptance work is out of scope. Existing responsive markup is retained only for compatibility and is not a future delivery requirement unless the user explicitly reopens the scope.
+
 
 # 오픈소스 전문 스크리너 비교와 AIO Screener 재설계 핸드오프
 
@@ -274,7 +279,7 @@ Streamlit 공개 데모, 기본·기술·섹터 특화 분석, 다중 소스, �
 
 ### 5.1 감사 경계
 
-- 2026-08-12 공개 Pages에서 직접 확인한 화면은 `v54.7`이었다. 현재 저장소 `v54.13`와 같다고 간주하지 않는다.
+- Historical observation (2026-08-12): 공개 Pages에서 직접 확인한 화면은 `v54.7`이었다. 당시 저장소 `v54.13`와 같다고 간주하지 않았으며, 현재 활성 저장소 리비전은 `v54.18`이다.
 - `v54.13`는 `http://127.0.0.1:8765/`로 서빙해 1280×900, 1440×1000, 1920×1080 desktop에서 직접 확인했다. 모바일은 실제 사용자 범위에서 제외하므로 설계·구현·검증 대상에 포함하지 않는다.
 - 확인 흐름은 랭킹·팩터/레짐·백테스트 IC, 고급 필터, 검색 no-match, 전체 컬럼, light/dark theme, 행 선택→ticker→스크리너 복귀, 잘못된 JSON 실행까지 포함한다.
 - 외부 프로젝트는 저장소 README·공식 learning/documentation·공개 스크린샷과 `xang1234/stock-screener` static Scan 화면을 비교했다. 로그인/유료 기능, 모집 사용자 테스트, NVDA 등 보조기술 실사는 인증하지 않았다.

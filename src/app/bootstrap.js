@@ -75,6 +75,7 @@ import { createLegacyFacade, exposeArchitecture } from '../legacy/compatibility-
 import { applyMarketSnapshotToLegacy } from '../legacy/market-snapshot-bridge.js';
 import { ROUTE_IDS } from './routes.js';
 import { VERTICAL_SLICE_CONTRACTS, auditVerticalSliceContracts, getVerticalSliceContract } from './vertical-slices.js';
+import { PAGE_DATA_TIMELINE_CONTRACTS, auditPageDataTimelines, evaluatePageDataTimeline } from '../data/contracts/page-timeline.js';
 import { CAPABILITY_MANIFEST_VERSION, getCapability, getCapabilityManifest, auditCapabilityClaims } from '../domain/content/capability-manifest.js';
 import { classifyAIConduct, buildScopedConductFallback, getAIConductPolicy } from '../ai/policy/conduct.js';
 
@@ -190,7 +191,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     return result;
   };
   const ingestSentiment = (patch = {}) => syncSentimentProjection(patch);
-  const newsProvider = createNewsProvider({ read: runtimeReaders.readNews, now: clock.now });
+  const newsProvider = createNewsProvider({ read: runtimeReaders.readNews, readMeta: () => root?._serverDataMeta || {}, now: clock.now });
   const newsCommands = createNewsCommands({ store });
   const syncNews = createNewsOrchestrator({ provider: newsProvider, commands: newsCommands });
   const marketCommands = createMarketCommands({ store });
@@ -217,7 +218,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   const entityCommands = createEntityCommands({ store });
   // ARX-04: entity's fundamentals now come from a real fetch (public-data/sec-fundamentals.json)
   // — see src/data/providers/entity.js. id/quote/options remain legacy.readEntity projections.
-  const syncEntity = createEntityOrchestrator({ provider: createEntityProvider({ read: runtimeReaders.readEntity, httpClient }), commands: entityCommands });
+  const syncEntity = createEntityOrchestrator({ provider: createEntityProvider({ read: runtimeReaders.readEntity, httpClient, now: clock.now }), commands: entityCommands });
   const portfolioCommands = createPortfolioCommands({ store });
   const portfolioStorage = createStorageGateway({ storage: root?.localStorage, prefix: 'aio' });
   const portfolioVault = createPrivacyVault({ storage: portfolioStorage, key: 'portfolio', consent: () => root?._portfolioVaultConsent === true });
@@ -289,6 +290,41 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     });
   }
 
+  const requiredMarketSymbols = Object.freeze([...new Set(Object.values(PAGE_DATA_TIMELINE_CONTRACTS)
+    .flat()
+    .filter((contract) => contract.required && contract.marketRevision && contract.id.startsWith('market.'))
+    .map((contract) => contract.id.slice('market.'.length)))].sort());
+
+  function getRuntimeObservationCatalog() {
+    return runtimeReaders.readObservationCatalog(store.getState());
+  }
+
+  function getCanonicalMarketRevision(catalog = getRuntimeObservationCatalog()) {
+    const browserBatch = root?.AIO?._quoteBatchEpoch || null;
+    const batchSymbols = new Set(Array.isArray(browserBatch?.symbols) ? browserBatch.symbols : []);
+    const completeBrowserBatch = !!browserBatch?.revision
+      && requiredMarketSymbols.every((symbol) => batchSymbols.has(symbol))
+      && requiredMarketSymbols.every((symbol) => catalog[`market.${symbol}`]?.revision === browserBatch.revision);
+    if (completeBrowserBatch) return browserBatch.revision;
+    return marketSnapshot?.revision || root?._serverDataMeta?.marketSnapshotRevision || null;
+  }
+
+  function getPageDataTimelineState(route) {
+    const catalog = getRuntimeObservationCatalog();
+    return evaluatePageDataTimeline(route, catalog, { now: clock.now(), marketRevision: getCanonicalMarketRevision(catalog) });
+  }
+
+  function getPageDataTimelineAudit() {
+    const catalog = getRuntimeObservationCatalog();
+    return auditPageDataTimelines(catalog, { now: clock.now(), marketRevision: getCanonicalMarketRevision(catalog) });
+  }
+
+  const emitDataTimelineUpdated = coalesceMicrotask((reason = 'state-updated') => {
+    try {
+      eventTarget.dispatchEvent(new CustomEvent('aio:dataTimelineUpdated', { detail: { reason, audit: getPageDataTimelineAudit() } }));
+    } catch (_) {}
+  });
+
   function start() {
     // P858: the legacy snapshot/DOM shell already provides the first paint.
     // Keep only the small decision-state projections on the critical path;
@@ -321,13 +357,16 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // dispatch's subscribers finished reacting). Coalesce them into one microtask-
     // batched flush: repeated aio:liveQuotes firings before the microtask runs collapse
     // into a single pass over all 6 syncs instead of one pass per firing.
-    const flushLiveQuoteSyncs = coalesceMicrotask(() => {
-      syncSentimentProjection();
-      syncMarket.sync();
-      syncThemes.sync();
-      syncEntity.sync();
-      syncPortfolio.sync();
-      syncAnalysis.sync();
+    const flushLiveQuoteSyncs = coalesceMicrotask(async () => {
+      await Promise.allSettled([
+        Promise.resolve().then(() => syncSentimentProjection()),
+        Promise.resolve().then(() => syncMarket.sync()),
+        Promise.resolve().then(() => syncThemes.sync()),
+        Promise.resolve().then(() => syncEntity.sync()),
+        Promise.resolve().then(() => syncPortfolio.sync()),
+        Promise.resolve().then(() => syncAnalysis.sync())
+      ]);
+      emitDataTimelineUpdated('live-quotes');
     });
     const stopQuotes = legacy.on('aio:liveQuotes', flushLiveQuoteSyncs);
     const stopRefresh = legacy.on('aio:refresh:done', syncSentimentProjection);
@@ -336,7 +375,20 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopNews = legacy.on('aio:newsUpdated', syncNews.sync);
     const stopMarketRefresh = legacy.on('aio:refresh:done', syncMarket.sync);
     const stopMarketSnapshot = legacy.on('aio:marketSnapshot', syncMarket.sync);
-    const stopServerMarketData = legacy.on('aio:serverDataLoaded', syncMarket.sync);
+    const syncServerArtifactConsumers = coalesceMicrotask(async () => {
+      await Promise.allSettled([
+        Promise.resolve().then(() => syncSentimentProjection()),
+        Promise.resolve().then(() => syncNews.sync()),
+        Promise.resolve().then(() => syncMarket.sync()),
+        Promise.resolve().then(() => syncThemes.sync()),
+        Promise.resolve().then(() => syncEntity.sync()),
+        Promise.resolve().then(() => syncPortfolio.sync()),
+        Promise.resolve().then(() => syncScreenerData()),
+        Promise.resolve().then(() => syncAnalysis.sync())
+      ]);
+      emitDataTimelineUpdated('server-data');
+    });
+    const stopServerMarketData = legacy.on('aio:serverDataLoaded', syncServerArtifactConsumers);
     const stopMacroUpdated = legacy.on('aio:macroUpdated', syncMarket.sync);
     const stopThemesRefresh = legacy.on('aio:refresh:done', syncThemes.sync);
     const stopThemesHistory = legacy.on('aio:themesHistoryLoaded', syncThemes.sync);
@@ -355,13 +407,29 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       const route = typeof detail === 'string' ? detail : detail?.pageId || detail?.route;
       if (route) store.dispatch({ type: 'route/changed', payload: route });
     });
+    const stopTimelineStore = store.subscribe(() => emitDataTimelineUpdated('store-updated'));
+    const refreshStaleActivePage = () => {
+      emitDataTimelineUpdated('freshness-watchdog');
+      if (documentRef?.visibilityState === 'hidden') return;
+      const route = String(store.getState()?.route || router.active() || '').replace(/^page-/, '');
+      if (!route) return;
+      const timeline = getPageDataTimelineState(route);
+      if ((timeline.status === 'PARTIAL' || timeline.status === 'BLOCKED') && typeof root?._aioRefreshPageData === 'function') {
+        try { root._aioRefreshPageData(route); } catch (_) {}
+      }
+    };
+    const timelineWatchdog = setInterval(refreshStaleActivePage, 5 * 60 * 1000);
+    const onVisibilityTimelineCheck = () => {
+      if (documentRef?.visibilityState !== 'hidden') refreshStaleActivePage();
+    };
+    documentRef?.addEventListener?.('visibilitychange', onVisibilityTimelineCheck);
     // MP-02/KG-07: a direct hash entry can fire the legacy pageShown event
     // before this ESM listener is attached. Replay the canonical initial route
     // once so deep links mount the same native surface as sidebar navigation.
     const initialHashRoute = String(root?.location?.hash || '').replace(/^#/, '').trim();
     const initialRoute = ROUTE_IDS.includes(initialHashRoute) ? initialHashRoute : 'home';
     if (!router.active()) router.transition(initialRoute, { source: 'initial-load', directEntry: true });
-    if (root?._serverDataMeta) queueMicrotask(() => syncMarket.sync());
+    if (root?._serverDataMeta) queueMicrotask(syncServerArtifactConsumers);
     router.start();
     let navigation = legacy.installNavigation(router);
     let disposed = false;
@@ -377,6 +445,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         store.dispatch({ type: 'market/snapshot', payload: marketSnapshot });
         applyMarketSnapshotToLegacy(root, marketSnapshot);
         syncSentimentProjection();
+        syncMarket.sync();
+        emitDataTimelineUpdated('market-snapshot');
       }
       return result;
     }).catch((error) => ({ ok: false, error: error?.message || 'snapshot_loader_failed' }));
@@ -405,6 +475,9 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopAnalysisRefresh();
       stopAnalysisShown();
       stopShown();
+      stopTimelineStore();
+      clearInterval(timelineWatchdog);
+      documentRef?.removeEventListener?.('visibilitychange', onVisibilityTimelineCheck);
       router.dispose();
       // Fable-advisor review (2026-07-21): drop any in-flight screener/entity fetch resolution
       // permanently once the app is torn down — see the generation-counter guard in those two
@@ -423,6 +496,11 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     start,
     router,
     getState: () => store.getState(),
+    getRuntimeObservationCatalog,
+    getCanonicalMarketRevision,
+    getPageDataTimelineState,
+    getPageDataTimelineAudit,
+    getPageDataTimelineContracts: () => PAGE_DATA_TIMELINE_CONTRACTS,
     getScreenerState: () => store.getState()?.screener || null,
     getScreenerWorkbench: () => {
       const state = store.getState()?.screener || {};

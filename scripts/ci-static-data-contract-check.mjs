@@ -5,9 +5,10 @@ const json = (file) => JSON.parse(read(file));
 const core = read('js/aio-core.js');
 const dataCode = read('js/aio-data.js');
 const ui = read('js/aio-ui.js');
+const marketPage = read('src/ui/pages/market.js');
 const index = read('index.html');
 const chat = read('js/aio-chat.js');
-const runtime = `${core}\n${dataCode}\n${ui}\n${index}\n${chat}`;
+const runtime = `${core}\n${dataCode}\n${ui}\n${marketPage}\n${index}\n${chat}`;
 const data = json('public-data/data.json');
 const screener = json('public-data/screener.json');
 const history = json('public-data/history.json');
@@ -87,7 +88,7 @@ const categories = [
   ['investors-intelligence', /iiBull:null/.test(snapshot), 'explicit unavailable'],
   ['us-breadth', hasNumber(us.above20) && us.coveragePct >= 85, 'screener artifact'],
   ['kr-breadth', hasNumber(kr.above20) && kr.coveragePct >= 85, 'screener artifact'],
-  ['breadth-history', /시계열 미수신/.test(ui + core), 'explicit unavailable'],
+  ['breadth-history', historyHas('breadth20','breadth50') || (/breadthHistoryEvidence/.test(marketPage) && /공식 A\/D·McClellan 판단 보류/.test(marketPage)), 'AIO-universe history or explicit official-exchange boundary'],
   ['treasury-curve', ['fedRate'].some((k) => hasNumber(macro[k])) && /getUsTreasuryCurveEvidence/.test(core), 'FRED/runtime evidence'],
   ['hy-oas', (hasNumber(macro.hyOAS) && /_serverHySpreadBp|_hySpreadBp/.test(dataCode)) || /hyOAS:null/.test(snapshot), 'FRED server artifact or explicit unavailable'],
   ['cpi-pce', hasNumber(macro.cpi) && hasNumber(macro.pce), 'FRED/BLS artifact'],

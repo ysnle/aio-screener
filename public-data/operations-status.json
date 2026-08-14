@@ -7,17 +7,17 @@
     "STALE",
     "RIGHTS_REVIEW_REQUIRED"
   ],
-  "generatedAt": "2026-08-13T01:55:19.510Z",
-  "appRevision": "v54.16",
-  "dataRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
-  "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v1",
+  "generatedAt": "2026-08-14T00:40:24.667Z",
+  "appRevision": "v54.22",
+  "dataRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+  "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
   "overall": "OPERATOR_REQUIRED",
   "planes": {
     "durable": {
       "status": "CURRENT",
       "statusCode": "CONFIGURED_HEALTHY",
       "source": "github-actions",
-      "lastSuccessfulAt": "2026-08-13T00:44:03.116Z",
+      "lastSuccessfulAt": "2026-08-14T00:40:24.581Z",
       "coverage": {
         "required": 16,
         "observed": 16,
@@ -64,7 +64,7 @@
       "status": "CURRENT",
       "statusCode": "CONFIGURED_HEALTHY",
       "source": "static-pages+service-worker",
-      "revision": "v54.16"
+      "revision": "v54.22"
     }
   },
   "ai": {
@@ -75,7 +75,7 @@
       "lastCallSucceeded": "BLOCKED",
       "evidence": {
         "marketAnalysisOk": false,
-        "generatedAt": "2026-08-13T00:44:03.116Z"
+        "generatedAt": "2026-08-14T00:40:24.581Z"
       }
     },
     "publicChat": {
@@ -107,15 +107,15 @@
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "reference",
-      "lastFetchAt": "2026-08-13T00:44:03.116Z"
+      "lastFetchAt": "2026-08-14T00:40:24.581Z"
     },
     "fred": {
-      "rights": "REVIEW_REQUIRED",
-      "statusCode": "RIGHTS_REVIEW_REQUIRED",
+      "rights": "OPERATOR_REQUIRED",
+      "statusCode": "NOT_CONFIGURED",
       "use": "official-series",
-      "status": "CURRENT",
-      "lastAttemptAt": "2026-08-13T00:44:03.116Z",
-      "lastFetchAt": "2026-08-13T00:44:03.116Z"
+      "status": "UNAVAILABLE",
+      "lastAttemptAt": "2026-08-14T00:40:24.581Z",
+      "lastFetchAt": null
     },
     "sec": {
       "rights": "REVIEW_REQUIRED",
@@ -129,7 +129,7 @@
   "reconciliation": {
     "tier0": {
       "status": "MATCH",
-      "artifact": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00",
+      "artifact": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
       "uiEvidence": "same-revision-contract",
       "observedAtComplete": true
     },
@@ -137,23 +137,20 @@
     "categoryCount": 22,
     "overall": "PARTIAL",
     "counts": {
-      "PARTIAL": 14,
-      "MATCH": 3,
-      "BLOCKED": 5
+      "PARTIAL": 11,
+      "MATCH": 7,
+      "BLOCKED": 4
     },
     "closure": {
       "complete": false,
       "unresolvedCategories": [
         "market-quotes",
-        "volatility",
-        "fear-greed",
         "aaii",
         "naaim",
         "investors-intelligence",
         "us-breadth",
         "kr-breadth",
         "breadth-history",
-        "treasury-curve",
         "hy-oas",
         "retail-housing-ism",
         "central-bank-policy",
@@ -161,8 +158,20 @@
         "news",
         "commodities-fx",
         "global-indices",
-        "crypto",
         "kr-macro-vkospi-supply"
+      ],
+      "partialCategories": [
+        "market-quotes",
+        "us-breadth",
+        "kr-breadth",
+        "breadth-history",
+        "hy-oas",
+        "retail-housing-ism",
+        "central-bank-policy",
+        "macro-calendar",
+        "news",
+        "commodities-fx",
+        "global-indices"
       ],
       "operatorRequiredCategories": [
         "aaii",
@@ -170,7 +179,99 @@
         "investors-intelligence",
         "kr-macro-vkospi-supply"
       ],
-      "sourceRevision": "market-snapshot:2026-08-13T00:44:03.116Z:8daf3e00"
+      "policyBlockedCategories": [
+        "aaii",
+        "naaim",
+        "investors-intelligence",
+        "kr-macro-vkospi-supply"
+      ],
+      "runtimeBlockedCategories": [],
+      "sourceRegistry": {
+        "categoryCount": 22,
+        "dailyAuditCoverage": 22,
+        "criticalDataGaps": [
+          {
+            "id": "point-in-time-fundamentals",
+            "priority": "P0",
+            "status": "PARTIAL",
+            "reason": "SEC-covered annual facts now retain append-only filing observations and can be reconstructed by accepted/filed time; coverage still converges in bounded batches and does not supply historical prices or non-SEC issuers.",
+            "requiredOrigin": "SEC companyfacts plus submissions acceptanceDateTime",
+            "allowedInterimUse": "filing-as-of research; valuation only with contemporaneous price",
+            "implementedScope": "sec-pit-facts.v1 history and deterministic as-of selector",
+            "remainingLimit": "bounded SEC coverage, older accession acceptance timestamps, historical prices and non-US issuers",
+            "validationGate": "scripts/ci-professional-data-gap-check.mjs"
+          },
+          {
+            "id": "historical-universe-and-corporate-actions",
+            "priority": "P0",
+            "status": "BLOCKED",
+            "reason": "Delisted securities, membership windows, ticker mapping and split/dividend factors are incomplete.",
+            "requiredOrigin": "PIT membership, map files and factor files",
+            "allowedInterimUse": "no predictive promotion"
+          },
+          {
+            "id": "independent-quote-reconciliation",
+            "priority": "P0",
+            "status": "BLOCKED",
+            "reason": "Tier-0 and rendered quotes lack a redistribution-approved independent comparison plane.",
+            "requiredOrigin": "licensed quote provider",
+            "allowedInterimUse": "reference with source/session labels"
+          },
+          {
+            "id": "official-exchange-breadth",
+            "priority": "P1",
+            "status": "BLOCKED",
+            "reason": "AIO-universe breadth does not replace exchange A/D and new-high/new-low data.",
+            "requiredOrigin": "NYSE/Nasdaq/KRX approved feed",
+            "allowedInterimUse": "AIO-universe participation only"
+          },
+          {
+            "id": "earnings-revisions-and-guidance",
+            "priority": "P1",
+            "status": "BLOCKED",
+            "reason": "Consensus revisions, surprise history and guidance need a licensed or explicitly permitted source.",
+            "requiredOrigin": "licensed estimates plus SEC filings",
+            "allowedInterimUse": "filed actuals and dated news only"
+          },
+          {
+            "id": "short-interest-and-options-flow",
+            "priority": "P1",
+            "status": "BLOCKED",
+            "reason": "Short interest, borrow cost, options Greeks/IV surface and flow require specialized feeds.",
+            "requiredOrigin": "FINRA/exchange/OPRA or licensed vendor",
+            "allowedInterimUse": "Cboe aggregate put/call and delayed VIX only"
+          },
+          {
+            "id": "insider-and-institutional-filings",
+            "priority": "P1",
+            "status": "PARTIAL",
+            "reason": "Seven manager 13F holdings, adjacent-quarter changes and twelve-quarter history are normalized and source-linked; Forms 3/4/5 and 13D/G are not yet normalized.",
+            "requiredOrigin": "SEC EDGAR",
+            "allowedInterimUse": "reported-period institutional reference only",
+            "implementedScope": "verified 13F metadata, holdings, changes and history",
+            "remainingLimit": "insider Forms 3/4/5, beneficial ownership 13D/G and complete CUSIP-to-ticker master",
+            "validationGate": "scripts/ci-masters-contract-check.mjs"
+          },
+          {
+            "id": "portfolio-risk-attribution",
+            "priority": "P2",
+            "status": "PARTIAL",
+            "reason": "Browser-side VaR/CVaR, drawdown, benchmark beta/alpha, correlation, stress and return/risk contribution are implemented; institutional factor models and capacity remain unavailable.",
+            "requiredOrigin": "adjusted OHLCV plus benchmark/factor series",
+            "allowedInterimUse": "historical research with survivorship and provider limitations",
+            "implementedScope": "3-month daily risk plus up-to-10-year monthly benchmark and component attribution",
+            "remainingLimit": "licensed factor returns, transaction costs, liquidity/capacity and survivorship-free histories",
+            "validationGate": "scripts/ci-professional-data-gap-check.mjs"
+          }
+        ]
+      },
+      "sourceRevision": "market-snapshot:2026-08-14T00:40:24.581Z:c974b716",
+      "sourceArtifacts": [
+        "public-data/data.json",
+        "public-data/market-snapshot.json",
+        "public-data/screener.json",
+        "public-data/history.json"
+      ]
     },
     "routeCount": 20,
     "rawProducerClaimGate": "not_applicable_for_quote_plane"

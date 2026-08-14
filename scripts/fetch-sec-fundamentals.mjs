@@ -16,6 +16,7 @@ const SCREENER_PATH = `${ROOT}/public-data/screener.json`;
 const OUT = `${ROOT}/public-data/sec-fundamentals.json`;
 const SEC_TICKERS_URL = 'https://www.sec.gov/files/company_tickers_exchange.json';
 const SEC_FACTS_BASE = 'https://data.sec.gov/api/xbrl/companyfacts/CIK';
+const SEC_SUBMISSIONS_BASE = 'https://data.sec.gov/submissions/CIK';
 const DEFAULT_BATCH_LIMIT = 24;
 const REFRESH_AFTER_MS = 28 * 86400000;
 const FAILURE_RETRY_AFTER_MS = 24 * 60 * 60 * 1000;
@@ -99,7 +100,119 @@ function closestEnd(rows, end) {
   return rows.find(row => row.end === end) || null;
 }
 
-export function normalizeSecCompanyFacts(symbol, companyFacts, price) {
+function acceptedAtByAccession(submissions) {
+  const recent = submissions?.filings?.recent || {};
+  const accessions = Array.isArray(recent.accessionNumber) ? recent.accessionNumber : [];
+  const accepted = Array.isArray(recent.acceptanceDateTime) ? recent.acceptanceDateTime : [];
+  return new Map(accessions.map((accession, index) => [String(accession || ''), accepted[index] || null]));
+}
+
+function compactPitRows(rows, field, acceptedMap, maxRows = 40) {
+  const seen = new Set();
+  return rows
+    .filter(row => row && row.end && row.filed && Number.isFinite(Number(row.val)))
+    .sort((a, b) => String(b.end).localeCompare(String(a.end)) || String(b.filed).localeCompare(String(a.filed)))
+    .filter(row => {
+      const key = `${row.start || ''}|${row.end}|${row.filed}|${row.accn || ''}|${row.val}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, maxRows)
+    .map(row => ({
+      field,
+      value: Number(row.val),
+      periodStart: row.start || null,
+      periodEnd: row.end,
+      filedAt: row.filed,
+      acceptedAt: acceptedMap.get(String(row.accn || '')) || null,
+      effectiveAt: acceptedMap.get(String(row.accn || '')) || row.filed,
+      form: row.form || null,
+      accession: row.accn || null,
+      fiscalYear: row.fy ?? null,
+      fiscalPeriod: row.fp || null,
+      frame: row.frame || null,
+      concept: row.concept || null
+    }));
+}
+
+function buildPointInTimeFacts(companyFacts, submissions) {
+  const acceptedMap = acceptedAtByAccession(submissions);
+  const revenueRows = factRows(companyFacts, 'us-gaap', [
+    'RevenueFromContractWithCustomerExcludingAssessedTax',
+    'Revenues',
+    'SalesRevenueNet'
+  ], 'USD').filter(row => {
+    const days = durationDays(row);
+    return /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && days != null && days >= 300 && days <= 400;
+  });
+  const incomeRows = factRows(companyFacts, 'us-gaap', ['NetIncomeLoss', 'ProfitLoss'], 'USD').filter(row => {
+    const days = durationDays(row);
+    return /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && days != null && days >= 300 && days <= 400;
+  });
+  const equityRows = factRows(companyFacts, 'us-gaap', [
+    'StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest',
+    'StockholdersEquity'
+  ], 'USD').filter(row => /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || ''));
+  const shareRows = factRows(companyFacts, 'dei', ['EntityCommonStockSharesOutstanding'], 'shares')
+    .filter(row => /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || ''));
+  const observations = {
+    revenue: compactPitRows(revenueRows, 'revenue', acceptedMap),
+    netIncome: compactPitRows(incomeRows, 'netIncome', acceptedMap),
+    equity: compactPitRows(equityRows, 'equity', acceptedMap),
+    sharesOutstanding: compactPitRows(shareRows, 'sharesOutstanding', acceptedMap)
+  };
+  const all = Object.values(observations).flat();
+  return {
+    schemaVersion: 'sec-pit-facts.v1',
+    status: all.some(row => row.acceptedAt) ? 'accepted-time-partial' : 'filed-date-only',
+    observationCount: all.length,
+    acceptedTimeCount: all.filter(row => row.acceptedAt).length,
+    observations
+  };
+}
+
+function legacyPitFacts(record) {
+  const observations = {};
+  for (const field of ['revenue', 'netIncome', 'equity', 'sharesOutstanding']) {
+    const value = Number(record?.[field]);
+    observations[field] = Number.isFinite(value) && record?.observedAt && record?.filedAt ? [{
+      field,
+      value,
+      periodStart: null,
+      periodEnd: record.observedAt,
+      filedAt: record.filedAt,
+      acceptedAt: record.acceptedAt || null,
+      effectiveAt: record.acceptedAt || record.filedAt,
+      form: record.form || null,
+      accession: record.accession || null,
+      fiscalYear: null,
+      fiscalPeriod: record.periodType || 'FY',
+      frame: null,
+      concept: null
+    }] : [];
+  }
+  const all = Object.values(observations).flat();
+  return {
+    schemaVersion: 'sec-pit-facts.v1',
+    status: all.some(row => row.acceptedAt) ? 'accepted-time-partial' : 'filed-date-only',
+    observationCount: all.length,
+    acceptedTimeCount: all.filter(row => row.acceptedAt).length,
+    observations
+  };
+}
+
+function migrateLegacyPointInTimeData(data = {}) {
+  let migrated = 0;
+  const next = Object.fromEntries(Object.entries(data).map(([symbol, record]) => {
+    if (record?.pit?.schemaVersion === 'sec-pit-facts.v1') return [symbol, record];
+    migrated++;
+    return [symbol, { ...record, model: 'sec-fy-normalized-v2', pit: legacyPitFacts(record) }];
+  }));
+  return { data: next, migrated };
+}
+
+export function normalizeSecCompanyFacts(symbol, companyFacts, price, submissions = null) {
   const revenues = annualDurationRows(companyFacts, [
     'RevenueFromContractWithCustomerExcludingAssessedTax',
     'Revenues',
@@ -118,6 +231,7 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price) {
   const shares = instantRows(companyFacts, 'dei', ['EntityCommonStockSharesOutstanding'], 'shares');
   const currentEquity = closestEnd(equities, currentRevenue.end) || equities[0] || null;
   const currentShares = closestEnd(shares, currentRevenue.end) || shares[0] || null;
+  const acceptedMap = acceptedAtByAccession(submissions);
 
   const revenue = Number(currentRevenue.val);
   const netIncome = Number(currentIncome && currentIncome.val);
@@ -131,10 +245,11 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price) {
     entityName: companyFacts.entityName || null,
     source: 'SEC EDGAR companyfacts',
     sourceTier: 'official-regulator',
-    model: 'sec-fy-normalized-v1',
+    model: 'sec-fy-normalized-v2',
     periodType: 'FY',
     observedAt: currentRevenue.end || null,
     filedAt: currentRevenue.filed || null,
+    acceptedAt: acceptedMap.get(String(currentRevenue.accn || '')) || null,
     fetchedAt: new Date().toISOString(),
     form: currentRevenue.form || null,
     accession: currentRevenue.accn || null,
@@ -142,7 +257,8 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price) {
     netIncome,
     equity: Number.isFinite(equity) ? equity : null,
     sharesOutstanding: Number.isFinite(sharesOutstanding) ? sharesOutstanding : null,
-    coverage: ['revenue', 'netIncome']
+    coverage: ['revenue', 'netIncome'],
+    pit: buildPointInTimeFacts(companyFacts, submissions)
   };
 
   if (priorRevenue && Number(priorRevenue.val) > 0) record.revGrowth = round((revenue / Number(priorRevenue.val) - 1) * 100, 1);
@@ -186,20 +302,26 @@ export async function refreshSecFundamentals() {
   const screener = await readJSON(SCREENER_PATH, { data: {} });
   let previousExists = true;
   let previous;
-  try { previous = JSON.parse(await readFile(OUT, 'utf8')); } catch { previousExists = false; previous = { schemaVersion: '1.0', data: {} }; }
+  try { previous = JSON.parse(await readFile(OUT, 'utf8')); } catch { previousExists = false; previous = { schemaVersion: '2.0', data: {} }; }
+  const migration = migrateLegacyPointInTimeData(previous.data || {});
+  previous = { ...previous, schemaVersion: '2.0', model: 'sec-fy-normalized-v2', data: migration.data };
   if (!/\S+@\S+\.\S+/.test(USER_AGENT)) {
     const skipped = {
       ...previous,
-      schemaVersion: '1.0',
+      schemaVersion: '2.0',
       status: 'operator_configuration_required',
       source: 'SEC EDGAR companyfacts',
       sourceUrl: 'https://www.sec.gov/search-filings/edgar-application-programming-interfaces',
       allowedUse: 'none until SEC fair-access User-Agent is configured',
       requiredConfiguration: 'Repository variable SEC_USER_AGENT with monitored contact email',
+      pointInTimeCoverage: Object.values(previous.data || {}).filter(row => row?.pit?.observationCount > 0).length,
+      pointInTimeAcceptedCoverage: Object.values(previous.data || {}).filter(row => row?.pit?.acceptedTimeCount > 0).length,
       data: previous.data || {}
     };
-    if (!previousExists) {
+    if (!previousExists || migration.migrated > 0) {
       skipped.generatedAt = new Date().toISOString();
+      skipped.migratedAt = skipped.generatedAt;
+      skipped.migratedRows = migration.migrated;
       await atomicWrite(OUT, skipped);
     }
     console.warn('[sec-fundamentals] skipped: SEC_USER_AGENT repository variable is required by SEC fair-access policy');
@@ -239,9 +361,12 @@ export async function refreshSecFundamentals() {
   for (const target of targets) {
     const meta = tickerMap.get(tickerKey(target.symbol));
     try {
-      const facts = await fetchJSON(`${SEC_FACTS_BASE}${meta.cik}.json`, 2);
+      const [facts, submissions] = await Promise.all([
+        fetchJSON(`${SEC_FACTS_BASE}${meta.cik}.json`, 2),
+        fetchJSON(`${SEC_SUBMISSIONS_BASE}${meta.cik}.json`, 2)
+      ]);
       const price = screener.data && screener.data[target.symbol] && screener.data[target.symbol].price;
-      const normalized = normalizeSecCompanyFacts(target.symbol, facts, price);
+      const normalized = normalizeSecCompanyFacts(target.symbol, facts, price, submissions);
       if (!normalized) throw new Error('no comparable annual US-GAAP revenue/net-income facts');
       data[target.symbol] = normalized;
       updated++;
@@ -252,18 +377,20 @@ export async function refreshSecFundamentals() {
   }
 
   const payload = {
-    schemaVersion: '1.0',
+    schemaVersion: '2.0',
     generatedAt: new Date().toISOString(),
     source: 'SEC EDGAR companyfacts',
     sourceUrl: 'https://www.sec.gov/search-filings/edgar-application-programming-interfaces',
     licenseClass: 'US federal public disclosure; SEC fair-access policy applies',
     allowedUse: 'research/reference; normalized annual filing facts, not analyst estimates or live TTM',
-    model: 'sec-fy-normalized-v1',
+    model: 'sec-fy-normalized-v2',
     eligible: eligible.length,
     stored: Object.keys(data).length,
     attempted: targets.length,
     updated,
     failures,
+    pointInTimeCoverage: Object.values(data).filter(row => row?.pit?.observationCount > 0).length,
+    pointInTimeAcceptedCoverage: Object.values(data).filter(row => row?.pit?.acceptedTimeCount > 0).length,
     batchLimit: limit,
     nextRefreshCandidates: Math.max(0, eligible.length - Object.keys(data).length),
     data

@@ -18,7 +18,7 @@ export function createSentimentOrchestrator({ provider, evidenceStore, store, co
       }
       const sourceKind = raw[`${field.metric}SourceKind`] || field.sourceKind;
       const source = raw[`${field.metric}Source`] || sourceKind;
-      const observedAt = field.observedAt === 'now' ? raw.now : (field.observedAt ? raw[field.observedAt] || null : null);
+      const observedAt = field.observedAt ? raw[field.observedAt] || null : null;
       const referenceOnly = sourceKind === 'snapshot' || sourceKind === 'delayed' || sourceKind === 'reference';
       const status = value == null ? 'missing' : sourceKind === 'snapshot' ? 'snapshot' : 'live';
       const input = {
@@ -28,8 +28,8 @@ export function createSentimentOrchestrator({ provider, evidenceStore, store, co
         sourceKind: value == null ? 'unavailable' : sourceKind,
         source: value == null ? 'sentiment-provider' : source,
         observedAt: value == null ? null : observedAt,
-        fetchedAt: raw.now,
-        lastSuccessfulAt: value == null ? null : raw.now,
+        fetchedAt: raw[`${field.metric}FetchedAt`] || raw.fetchedAt || raw.now,
+        lastSuccessfulAt: value == null ? null : raw[`${field.metric}FetchedAt`] || observedAt,
         status,
         allowedUse: value == null ? 'none' : referenceOnly ? 'reference' : undefined
       };
@@ -38,7 +38,9 @@ export function createSentimentOrchestrator({ provider, evidenceStore, store, co
         : { ...applyFreshness(input, { now: clock?.now?.() || Date.now(), maxAgeMs: field.maxAgeMs || 86_400_000 }), ...(referenceOnly ? { allowedUse: 'reference' } : {}) };
       evidenceStore.ingest(evidence);
     }
-    if (commands?.setData) commands.setData(sentiment, { revision: raw.revision || null, updatedAt: raw.now });
+    const observationTimes = sentimentFieldDefinitions().map((field) => Date.parse(raw[field.observedAt] || '')).filter(Number.isFinite);
+    const updatedAt = observationTimes.length ? new Date(Math.max(...observationTimes)).toISOString() : null;
+    if (commands?.setData) commands.setData(sentiment, { revision: raw.revision || null, updatedAt });
     else store.dispatch({ type: 'data/sentiment', payload: sentiment });
     return sentiment;
   }

@@ -11,7 +11,8 @@ const artifact = JSON.parse(fs.readFileSync(path.join(root, 'public-data/knowled
 assert.equal(artifact.counts.articleTargets, 159);
 assert.equal(artifact.counts.compatibilityTargets, 39);
 assert.equal(artifact.targets.length, 198);
-assert.equal(artifact.scenarios.length, 20);
+assert.equal(artifact.scenarios.length, 18);
+assert.equal(artifact.scenarios.some((scenario) => /mobile|tablet|touch/i.test(String(scenario.persona || ''))), false, 'desktop-only knowledge scenarios must not restore mobile personas');
 const bridge = createKnowledgeRouteBridge(artifact.targets);
 for (const target of artifact.targets) {
   assert.equal(bridge.resolve(target.articleId)?.articleId, target.articleId);
