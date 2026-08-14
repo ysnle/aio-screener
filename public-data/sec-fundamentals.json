@@ -1,10 +1,10 @@
 {
  "schemaVersion": "2.0",
- "generatedAt": "2026-08-13T05:09:53.051Z",
+ "generatedAt": "2026-08-14T03:03:47.665Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
- "allowedUse": "none until SEC fair-access User-Agent is configured",
+ "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
  "model": "sec-fy-normalized-v2",
  "eligible": 657,
  "stored": 540,
@@ -12,126 +12,128 @@
  "updated": 0,
  "failures": [
   {
-   "symbol": "CM",
+   "symbol": "AMP",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-12T19:32:49.069Z"
+   "attemptedAt": "2026-08-14T03:03:39.845Z"
   },
   {
-   "symbol": "CMI",
+   "symbol": "AMX",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-12T19:32:49.069Z"
+   "attemptedAt": "2026-08-14T03:03:39.845Z"
   },
   {
-   "symbol": "CNI",
+   "symbol": "ARE",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-12T19:32:49.069Z"
+   "attemptedAt": "2026-08-14T03:03:39.845Z"
   },
   {
-   "symbol": "CNQ",
+   "symbol": "ARGX",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-12T19:32:49.069Z"
+   "attemptedAt": "2026-08-14T03:03:39.845Z"
   },
   {
-   "symbol": "CP",
+   "symbol": "ASML",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-12T19:32:49.069Z"
+   "attemptedAt": "2026-08-14T03:03:39.845Z"
   },
   {
-   "symbol": "CPAY",
+   "symbol": "ASX",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-12T19:32:49.069Z"
+   "attemptedAt": "2026-08-14T03:03:39.845Z"
   },
   {
-   "symbol": "CRWD",
+   "symbol": "AU",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-12T19:32:49.069Z"
+   "attemptedAt": "2026-08-14T03:03:39.845Z"
   },
   {
-   "symbol": "DB",
+   "symbol": "AZN",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-12T19:32:49.069Z"
+   "attemptedAt": "2026-08-14T03:03:39.845Z"
   },
   {
-   "symbol": "DEO",
+   "symbol": "B",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-12T19:32:49.069Z"
+   "attemptedAt": "2026-08-14T03:03:39.845Z"
   },
   {
-   "symbol": "DIA",
-   "reason": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001041130.json HTTP 404",
-   "attemptedAt": "2026-08-12T19:32:49.069Z"
+   "symbol": "BBVA",
+   "reason": "no comparable annual US-GAAP revenue/net-income facts",
+   "attemptedAt": "2026-08-14T03:03:39.845Z"
   },
   {
-   "symbol": "DOW",
+   "symbol": "BCS",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-12T19:32:49.069Z"
+   "attemptedAt": "2026-08-14T03:03:39.845Z"
   },
   {
-   "symbol": "DUK",
+   "symbol": "BHP",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-12T19:32:49.069Z"
+   "attemptedAt": "2026-08-14T03:03:39.845Z"
   },
   {
-   "symbol": "E",
+   "symbol": "BIRD",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-12T19:32:49.069Z"
+   "attemptedAt": "2026-08-14T03:03:39.845Z"
   },
   {
-   "symbol": "EA",
+   "symbol": "BKNG",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-12T19:32:49.069Z"
+   "attemptedAt": "2026-08-14T03:03:39.845Z"
   },
   {
-   "symbol": "ENB",
+   "symbol": "BMO",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-12T19:32:49.069Z"
+   "attemptedAt": "2026-08-14T03:03:39.845Z"
   },
   {
-   "symbol": "EQNR",
+   "symbol": "BN",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-12T19:32:49.069Z"
+   "attemptedAt": "2026-08-14T03:03:39.845Z"
   },
   {
-   "symbol": "FCX",
+   "symbol": "BNS",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-12T19:32:49.069Z"
+   "attemptedAt": "2026-08-14T03:03:39.845Z"
   },
   {
-   "symbol": "FER",
+   "symbol": "BP",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-12T19:32:49.069Z"
+   "attemptedAt": "2026-08-14T03:03:39.845Z"
   },
   {
-   "symbol": "FITB",
+   "symbol": "BSX",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-12T19:32:49.069Z"
+   "attemptedAt": "2026-08-14T03:03:39.845Z"
   },
   {
-   "symbol": "FNV",
+   "symbol": "BTI",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-12T19:32:49.069Z"
+   "attemptedAt": "2026-08-14T03:03:39.845Z"
   },
   {
-   "symbol": "GFI",
+   "symbol": "BUD",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-12T19:32:49.069Z"
+   "attemptedAt": "2026-08-14T03:03:39.845Z"
   },
   {
-   "symbol": "GFS",
+   "symbol": "CCEP",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-12T19:32:49.069Z"
+   "attemptedAt": "2026-08-14T03:03:39.845Z"
   },
   {
-   "symbol": "GLD",
+   "symbol": "CCJ",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-12T19:32:49.069Z"
+   "attemptedAt": "2026-08-14T03:03:39.845Z"
   },
   {
-   "symbol": "GLW",
+   "symbol": "CINF",
    "reason": "no comparable annual US-GAAP revenue/net-income facts",
-   "attemptedAt": "2026-08-12T19:32:49.069Z"
+   "attemptedAt": "2026-08-14T03:03:39.845Z"
   }
  ],
+ "pointInTimeCoverage": 540,
+ "pointInTimeAcceptedCoverage": 0,
  "batchLimit": 24,
  "nextRefreshCandidates": 117,
  "data": {
@@ -56457,11 +56459,5 @@
     }
    }
   }
- },
- "status": "operator_configuration_required",
- "requiredConfiguration": "Repository variable SEC_USER_AGENT with monitored contact email",
- "pointInTimeCoverage": 540,
- "pointInTimeAcceptedCoverage": 0,
- "migratedAt": "2026-08-13T05:09:53.051Z",
- "migratedRows": 540
+ }
 }
