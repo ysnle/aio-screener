@@ -120,6 +120,18 @@ async function main() {
       () => typeof window.AIO_ARCH === 'object' && typeof window.AIO_ARCH.classifyAIConduct === 'function',
       { timeout: 30000 }
     );
+    // The Telegram/category contract is populated by the same asynchronous
+    // localhost artifact pipeline as data.json.  Fast CI machines can reach
+    // AIO.runTests() before that pipeline settles, so certify the completed
+    // artifact state instead of racing the boot fetch.
+    await page.waitForFunction(
+      () => {
+        const artifactState = window._serverDataMeta?.artifacts?.telegramDigest;
+        const digestState = window._aioTelegramDigestMeta?.status;
+        return Boolean(digestState && artifactState && artifactState !== 'pending');
+      },
+      { timeout: 30000 }
+    );
 
     const result = await page.evaluate(async () => {
       await window.AIO.loadTests();

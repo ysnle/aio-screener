@@ -227,12 +227,6 @@ jobs:
       - name: Page field timeline contract
         run: node scripts/ci-page-data-timeline-contract-check.mjs
 
-      - name: Cross-page shared market epoch browser gate
-        run: node scripts/ci-page-market-epoch-browser-check.mjs
-
-      - name: Quant screener visible-quote and ranking-epoch browser gate
-        run: node scripts/ci-screener-auto-refresh-browser-check.mjs
-
       - name: Refresh artifact integrity and data-release revision guard
         run: |
           node scripts/ci-refresh-artifact-integrity-check.mjs
@@ -294,6 +288,12 @@ jobs:
 
       - name: Run AIO.runTests() headlessly
         run: node scripts/ci-headless-tests.mjs
+
+      - name: Cross-page shared market epoch browser gate
+        run: node scripts/ci-page-market-epoch-browser-check.mjs
+
+      - name: Quant screener visible-quote and ranking-epoch browser gate
+        run: node scripts/ci-screener-auto-refresh-browser-check.mjs
 
       - name: Enforce boot interaction performance budget
         run: node scripts/ci-boot-interaction-check.mjs

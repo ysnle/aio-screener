@@ -1,12 +1,32 @@
 ---
 verified_by: agent (Claude Sonnet 5) + Codex full-route audit verification
-last_verified: 2026-08-13
+last_verified: 2026-08-14
 confidence: high
 latest_version: v54.22
-latest_P_number: P931
-next_P_number: P932
-current_total_entries: 650 (P1~P931, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P931 v54.22 committed desktop-scope closure
+latest_P_number: P933
+next_P_number: P934
+current_total_entries: 652 (P1~P933, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P933 v54.22 deterministic browser CI prerequisites
+
+## P933 - v54.22 - Headless tests raced the asynchronous Telegram artifact load
+
+- **motivation**: Browser tests that assert generated-data integration must observe a settled local artifact pipeline, independent of runner speed.
+- **symptom/reproduction**: GitHub run 31760340364 reached `AIO.runTests()` with the fallback snapshot still active; T830 reported zero Telegram categories, no page map, and no digest date even though `public-data/telegram-digest.json` was committed and valid.
+- **root_cause**: The harness waited for the synchronous AIO and architecture APIs but not for the asynchronous `data.json` -> Telegram digest boot chain. Faster CI scheduling exposed a race that slower local runs hid.
+- **fix**: `ci-headless-tests.mjs` now waits until both `_aioTelegramDigestMeta.status` exists and `_serverDataMeta.artifacts.telegramDigest` has left `pending` before loading and running the suite.
+- **violated_rule**: R490; asynchronous generated-artifact consumers require an explicit settled-state barrier before their assertions run.
+- **prevention**: Keep the barrier tied to runtime-owned artifact metadata rather than an arbitrary delay; an unavailable/invalid artifact may settle but must still fail its semantic tests.
+- **verification**: Local headless and GitHub blocking headless jobs must pass T830 without a skip or threshold relaxation.
+
+## P932 - v54.22 - Browser gates ran in a CI job without a browser executable
+
+- **motivation**: A blocking browser contract must execute in a job that provisions the exact browser runtime it imports.
+- **symptom/reproduction**: GitHub run 31760340364 passed every preceding validate contract but `ci-page-market-epoch-browser-check.mjs` failed at `chromium.launch()` because the validate job installed npm packages only; the following quant browser gate was skipped.
+- **root_cause**: The two new Playwright scripts were added to the non-browser validate job while the existing Chromium installation lived only in the blocking headless job.
+- **fix**: Moved both market-epoch and quant auto-refresh browser gates into the blocking headless job immediately after its existing `npm ci` plus Chromium installation and headless suite.
+- **violated_rule**: R489; browser gates must be scheduled only behind a declared browser-install prerequisite and remain in the deploy dependency graph.
+- **prevention**: CI review must pair every `import ... from 'playwright'` workflow step with the same job's browser installation; reuse the existing blocking browser job instead of duplicating downloads.
+- **verification**: GitHub headless must execute both focused gates, and deploy remains gated by `needs: headless-tests`.
 
 ## P931 - v54.22 - Desktop-only gate passed against unstaged scope corrections
 

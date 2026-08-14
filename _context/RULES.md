@@ -1,11 +1,23 @@
 ---
-verified_by: agent (Fable 5) + Codex P761-P892 verification
-last_verified: 2026-08-13
+verified_by: agent (Fable 5) + Codex P761-P933 verification
+last_verified: 2026-08-14
 confidence: high
 target_version: v54.22
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R490. Asynchronous artifact tests wait on runtime-owned settled state (v54.22)
+
+**Rule**: A browser test that asserts data loaded through an asynchronous boot pipeline must wait for that pipeline's explicit runtime state to leave `pending` before running semantic assertions. Fixed delays and unrelated synchronous API readiness are not evidence that the artifact loaded. Settled failure states remain testable failures; the barrier must not turn unavailable data into a pass.
+
+**Validation**: `ci-headless-tests.mjs` requires both `_aioTelegramDigestMeta.status` and a non-pending `_serverDataMeta.artifacts.telegramDigest` before `AIO.runTests()`; T830 remains blocking and unskipped.
+
+## R489. Playwright workflow steps inherit an explicit browser-install prerequisite (v54.22)
+
+**Rule**: Every CI step that launches Playwright must run in a job that installs the matching browser executable first. Focused browser gates should reuse an existing blocking browser job when possible, and moving them must preserve their path into the deploy `needs` graph.
+
+**Validation**: The market-epoch and quant auto-refresh Playwright gates run in `headless-tests` after `npx playwright install --with-deps chromium`; Pages deploy continues to require `headless-tests` success.
 
 ## R488. Scope gates validate their direct inputs from the committed tree (v54.22)
 

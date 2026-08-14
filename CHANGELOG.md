@@ -15,7 +15,9 @@
 - Corrected the Chromium boot performance gate so the initial shell reaches a presentation frame before the synthetic route transition; FCP, route, and long-task limits remain independently blocking and unchanged (P929/R486).
 - Closed a staged-tree version drift found by GitHub CI: three active audit/handoff version surfaces now commit v54.22 without including their unrelated in-progress knowledge edits (P930/R487).
 - Closed the remaining committed desktop-scope drift: Principles no longer requires a mobile fallback mount and the knowledge-depth audit no longer registers a mobile persona (P931/R488).
-- Added P921-P931/R481-R488 and QA-PRO-DATA/desktop-scope coverage. Mobile remains excluded.
+- Moved the focused market-epoch and quant Playwright gates into the existing Chromium-provisioned blocking job, preserving their deploy dependency without a duplicate browser install (P932/R489).
+- Made the headless suite wait for the runtime-owned Telegram artifact state to settle before testing category/page/date integration, eliminating a runner-speed race without weakening T830 (P933/R490).
+- Added P921-P933/R481-R490 and QA-PRO-DATA/desktop-scope coverage. Mobile remains excluded.
 - R1 7 surfaces: v54.22
 
 ## v54.21 (2026-08-13)
