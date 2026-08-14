@@ -7,9 +7,9 @@
     "STALE",
     "RIGHTS_REVIEW_REQUIRED"
   ],
-  "generatedAt": "2026-08-14T19:29:17.265Z",
+  "generatedAt": "2026-08-14T19:57:32.670Z",
   "appRevision": "v54.22",
-  "dataRevision": "market-snapshot:2026-08-14T19:14:28.630Z:acbfe9cc",
+  "dataRevision": "market-snapshot:2026-08-14T19:57:26.045Z:17d19a63",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
   "overall": "OPERATOR_REQUIRED",
   "planes": {
@@ -17,7 +17,7 @@
       "status": "CURRENT",
       "statusCode": "CONFIGURED_HEALTHY",
       "source": "github-actions",
-      "lastSuccessfulAt": "2026-08-14T19:14:28.630Z",
+      "lastSuccessfulAt": "2026-08-14T19:57:26.045Z",
       "coverage": {
         "required": 16,
         "observed": 16,
@@ -75,19 +75,19 @@
       "lastCallSucceeded": "BLOCKED",
       "evidence": {
         "marketAnalysisOk": false,
-        "generatedAt": "2026-08-14T19:14:28.630Z"
+        "generatedAt": "2026-08-14T19:57:26.045Z"
       }
     },
     "publicChat": {
-      "status": "NO_ROUTE",
-      "statusCode": "CONFIGURED_BROKEN",
+      "status": "CURRENT",
+      "statusCode": "CONFIGURED_HEALTHY",
       "personalKey": "EXPLICIT_USER_CONFIG",
-      "sharedWorker": "OPERATOR_REQUIRED",
+      "sharedWorker": "CURRENT",
       "workerEndpoint": "https://aio-proxy.zmfhd007.workers.dev",
       "health": {
-        "status": "OPERATOR_REQUIRED",
+        "status": "CURRENT",
         "statusCode": 200,
-        "observedAt": "2026-08-11T13:27:34.150Z",
+        "observedAt": "2026-08-14T19:57:32.680Z",
         "revision": "v54.5",
         "configured": true,
         "quotaConfigured": true,
@@ -97,7 +97,7 @@
         "providerSmokeObservedAt": "2026-08-11T13:25:15.000Z",
         "providerSmokeRevision": "v54.5",
         "ready": true,
-        "note": "Deploy run 31495812010 passed deep health, CORS/origin checks, and provider smoke. A Korean-origin follow-up returned v54.5 health 200, authorityJurisdiction us, Anthropic 200/OK, and X-AIO-Upstream-Authority durable-object-us."
+        "note": "Live deep health observed; provider smoke is certified separately by the pinned deploy workflow."
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }
@@ -107,15 +107,15 @@
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "reference",
-      "lastFetchAt": "2026-08-14T19:14:28.630Z"
+      "lastFetchAt": "2026-08-14T19:57:26.045Z"
     },
     "fred": {
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "official-series",
       "status": "CURRENT",
-      "lastAttemptAt": "2026-08-14T19:14:28.630Z",
-      "lastFetchAt": "2026-08-14T19:14:28.630Z"
+      "lastAttemptAt": "2026-08-14T19:57:26.045Z",
+      "lastFetchAt": "2026-08-14T19:57:26.045Z"
     },
     "sec": {
       "rights": "REVIEW_REQUIRED",
@@ -129,7 +129,7 @@
   "reconciliation": {
     "tier0": {
       "status": "MATCH",
-      "artifact": "market-snapshot:2026-08-14T19:14:28.630Z:acbfe9cc",
+      "artifact": "market-snapshot:2026-08-14T19:57:26.045Z:17d19a63",
       "uiEvidence": "same-revision-contract",
       "observedAtComplete": true
     },
@@ -265,7 +265,7 @@
           }
         ]
       },
-      "sourceRevision": "market-snapshot:2026-08-14T19:14:28.630Z:acbfe9cc",
+      "sourceRevision": "market-snapshot:2026-08-14T19:57:26.045Z:17d19a63",
       "sourceArtifacts": [
         "public-data/data.json",
         "public-data/market-snapshot.json",
@@ -365,7 +365,6 @@
   },
   "blockers": [
     "fast_plane_cloudflare_credentials_and_soak_required",
-    "provider_rights_review_required",
-    "ai_proxy_deploy_or_readiness_required"
+    "provider_rights_review_required"
   ]
 }
