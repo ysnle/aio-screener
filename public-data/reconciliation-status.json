@@ -1,6 +1,6 @@
 {
   "schemaVersion": "reconciliation-status-v2",
-  "generatedAt": "2026-08-14T12:28:57.020Z",
+  "generatedAt": "2026-08-14T13:50:47.192Z",
   "revision": "reconciliation:market-snapshot:2026-08-14T12:28:50.943Z:1b53e8ba:c8fab692",
   "overall": "PARTIAL",
   "counts": {
@@ -15,7 +15,7 @@
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: independent-provider-reconciliation.",
       "marketSnapshotRevision": "market-snapshot:2026-08-14T12:28:50.943Z:1b53e8ba",
-      "checkedAt": "2026-08-14T12:28:57.020Z",
+      "checkedAt": "2026-08-14T13:50:47.192Z",
       "refresh": {
         "cadence": "30m",
         "mode": "scheduled",
@@ -103,7 +103,7 @@
       "sourceClass": "OBSERVED",
       "reason": "All executable source, freshness, and scope checks passed.",
       "marketSnapshotRevision": "market-snapshot:2026-08-14T12:28:50.943Z:1b53e8ba",
-      "checkedAt": "2026-08-14T12:28:57.020Z",
+      "checkedAt": "2026-08-14T13:50:47.192Z",
       "refresh": {
         "cadence": "30m",
         "mode": "scheduled",
@@ -176,7 +176,7 @@
       "sourceClass": "OBSERVED",
       "reason": "All executable source, freshness, and scope checks passed.",
       "marketSnapshotRevision": "market-snapshot:2026-08-14T12:28:50.943Z:1b53e8ba",
-      "checkedAt": "2026-08-14T12:28:57.020Z",
+      "checkedAt": "2026-08-14T13:50:47.192Z",
       "refresh": {
         "cadence": "30m",
         "mode": "scheduled",
@@ -249,7 +249,7 @@
       "sourceClass": "OBSERVED",
       "reason": "All executable source, freshness, and scope checks passed.",
       "marketSnapshotRevision": "market-snapshot:2026-08-14T12:28:50.943Z:1b53e8ba",
-      "checkedAt": "2026-08-14T12:28:57.020Z",
+      "checkedAt": "2026-08-14T13:50:47.192Z",
       "refresh": {
         "cadence": "daily",
         "mode": "scheduled",
@@ -317,7 +317,7 @@
       "sourceClass": "UNAVAILABLE",
       "reason": "Licensed/current AAII data is unavailable and must not be synthesized. Missing: licensed-direct-current.",
       "marketSnapshotRevision": "market-snapshot:2026-08-14T12:28:50.943Z:1b53e8ba",
-      "checkedAt": "2026-08-14T12:28:57.020Z",
+      "checkedAt": "2026-08-14T13:50:47.192Z",
       "refresh": {
         "cadence": "weekly",
         "mode": "operator",
@@ -373,7 +373,7 @@
       "sourceClass": "UNAVAILABLE",
       "reason": "Licensed/current NAAIM data is unavailable and must not be synthesized. Missing: licensed-direct-current.",
       "marketSnapshotRevision": "market-snapshot:2026-08-14T12:28:50.943Z:1b53e8ba",
-      "checkedAt": "2026-08-14T12:28:57.020Z",
+      "checkedAt": "2026-08-14T13:50:47.192Z",
       "refresh": {
         "cadence": "weekly",
         "mode": "operator",
@@ -427,7 +427,7 @@
       "sourceClass": "UNAVAILABLE",
       "reason": "Subscriber Investors Intelligence data is unavailable and must not be synthesized. Missing: subscriber-current.",
       "marketSnapshotRevision": "market-snapshot:2026-08-14T12:28:50.943Z:1b53e8ba",
-      "checkedAt": "2026-08-14T12:28:57.020Z",
+      "checkedAt": "2026-08-14T13:50:47.192Z",
       "refresh": {
         "cadence": "weekly",
         "mode": "operator",
@@ -483,7 +483,7 @@
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: official-exchange-breadth.",
       "marketSnapshotRevision": "market-snapshot:2026-08-14T12:28:50.943Z:1b53e8ba",
-      "checkedAt": "2026-08-14T12:28:57.020Z",
+      "checkedAt": "2026-08-14T13:50:47.192Z",
       "refresh": {
         "cadence": "6h",
         "mode": "derived",
@@ -532,14 +532,14 @@
             "id": "aio-us-universe-current",
             "status": "PASS",
             "sourceArtifact": "public-data/screener.json",
-            "observedAt": "2026-08-14T00:00:00.000Z",
+            "observedAt": "2026-08-14T13:30:00.000Z",
             "detail": null
           },
           {
             "id": "aio-us-universe-source-labelled",
             "status": "PASS",
             "sourceArtifact": "public-data/screener.json",
-            "observedAt": "2026-08-14T00:00:00.000Z",
+            "observedAt": "2026-08-14T13:30:00.000Z",
             "detail": null
           },
           {
@@ -558,7 +558,7 @@
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: official-kr-exchange-breadth.",
       "marketSnapshotRevision": "market-snapshot:2026-08-14T12:28:50.943Z:1b53e8ba",
-      "checkedAt": "2026-08-14T12:28:57.020Z",
+      "checkedAt": "2026-08-14T13:50:47.192Z",
       "refresh": {
         "cadence": "6h",
         "mode": "derived",
@@ -643,7 +643,7 @@
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: mcclellan-advance-decline-source.",
       "marketSnapshotRevision": "market-snapshot:2026-08-14T12:28:50.943Z:1b53e8ba",
-      "checkedAt": "2026-08-14T12:28:57.020Z",
+      "checkedAt": "2026-08-14T13:50:47.192Z",
       "refresh": {
         "cadence": "6h",
         "mode": "derived",
@@ -691,7 +691,7 @@
             "status": "PASS",
             "sourceArtifact": "public-data/history.json",
             "observedAt": "2026-08-14",
-            "detail": "rows=243"
+            "detail": "rows=244"
           },
           {
             "id": "mcclellan-advance-decline-source",
@@ -709,7 +709,7 @@
       "sourceClass": "OBSERVED",
       "reason": "All executable source, freshness, and scope checks passed.",
       "marketSnapshotRevision": "market-snapshot:2026-08-14T12:28:50.943Z:1b53e8ba",
-      "checkedAt": "2026-08-14T12:28:57.020Z",
+      "checkedAt": "2026-08-14T13:50:47.192Z",
       "refresh": {
         "cadence": "daily",
         "mode": "scheduled",
@@ -816,7 +816,7 @@
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: fred-source-identified, independent-spread-reconciliation.",
       "marketSnapshotRevision": "market-snapshot:2026-08-14T12:28:50.943Z:1b53e8ba",
-      "checkedAt": "2026-08-14T12:28:57.020Z",
+      "checkedAt": "2026-08-14T13:50:47.192Z",
       "refresh": {
         "cadence": "daily",
         "mode": "scheduled",
@@ -896,7 +896,7 @@
       "sourceClass": "OBSERVED",
       "reason": "All executable source, freshness, and scope checks passed.",
       "marketSnapshotRevision": "market-snapshot:2026-08-14T12:28:50.943Z:1b53e8ba",
-      "checkedAt": "2026-08-14T12:28:57.020Z",
+      "checkedAt": "2026-08-14T13:50:47.192Z",
       "refresh": {
         "cadence": "release",
         "mode": "scheduled",
@@ -980,7 +980,7 @@
       "sourceClass": "OBSERVED",
       "reason": "All executable source, freshness, and scope checks passed.",
       "marketSnapshotRevision": "market-snapshot:2026-08-14T12:28:50.943Z:1b53e8ba",
-      "checkedAt": "2026-08-14T12:28:57.020Z",
+      "checkedAt": "2026-08-14T13:50:47.192Z",
       "refresh": {
         "cadence": "release",
         "mode": "scheduled",
@@ -1048,7 +1048,7 @@
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: release-aware-ism.",
       "marketSnapshotRevision": "market-snapshot:2026-08-14T12:28:50.943Z:1b53e8ba",
-      "checkedAt": "2026-08-14T12:28:57.020Z",
+      "checkedAt": "2026-08-14T13:50:47.192Z",
       "refresh": {
         "cadence": "release",
         "mode": "scheduled",
@@ -1129,7 +1129,7 @@
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: multi-central-bank-current-registry.",
       "marketSnapshotRevision": "market-snapshot:2026-08-14T12:28:50.943Z:1b53e8ba",
-      "checkedAt": "2026-08-14T12:28:57.020Z",
+      "checkedAt": "2026-08-14T13:50:47.192Z",
       "refresh": {
         "cadence": "daily-audit/event-refresh",
         "mode": "scheduled-and-operator",
@@ -1215,7 +1215,7 @@
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: multi-agency-release-aware-calendar.",
       "marketSnapshotRevision": "market-snapshot:2026-08-14T12:28:50.943Z:1b53e8ba",
-      "checkedAt": "2026-08-14T12:28:57.020Z",
+      "checkedAt": "2026-08-14T13:50:47.192Z",
       "refresh": {
         "cadence": "daily-audit/event-refresh",
         "mode": "scheduled-and-static-registry",
@@ -1300,7 +1300,7 @@
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: full-content-evidence.",
       "marketSnapshotRevision": "market-snapshot:2026-08-14T12:28:50.943Z:1b53e8ba",
-      "checkedAt": "2026-08-14T12:28:57.020Z",
+      "checkedAt": "2026-08-14T13:50:47.192Z",
       "refresh": {
         "cadence": "30m",
         "mode": "scheduled",
@@ -1388,7 +1388,7 @@
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: settlement-vs-spot-contract.",
       "marketSnapshotRevision": "market-snapshot:2026-08-14T12:28:50.943Z:1b53e8ba",
-      "checkedAt": "2026-08-14T12:28:57.020Z",
+      "checkedAt": "2026-08-14T13:50:47.192Z",
       "refresh": {
         "cadence": "30m",
         "mode": "scheduled",
@@ -1465,7 +1465,7 @@
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: non-us-major-indices-current.",
       "marketSnapshotRevision": "market-snapshot:2026-08-14T12:28:50.943Z:1b53e8ba",
-      "checkedAt": "2026-08-14T12:28:57.020Z",
+      "checkedAt": "2026-08-14T13:50:47.192Z",
       "refresh": {
         "cadence": "30m",
         "mode": "scheduled",
@@ -1537,7 +1537,7 @@
       "sourceClass": "OBSERVED",
       "reason": "All executable source, freshness, and scope checks passed.",
       "marketSnapshotRevision": "market-snapshot:2026-08-14T12:28:50.943Z:1b53e8ba",
-      "checkedAt": "2026-08-14T12:28:57.020Z",
+      "checkedAt": "2026-08-14T13:50:47.192Z",
       "refresh": {
         "cadence": "30m",
         "mode": "scheduled",
@@ -1620,7 +1620,7 @@
       "sourceClass": "UNAVAILABLE",
       "reason": "Korean licensed market data cannot be promoted without provider rights. Missing: approved-krx-koscom-rights.",
       "marketSnapshotRevision": "market-snapshot:2026-08-14T12:28:50.943Z:1b53e8ba",
-      "checkedAt": "2026-08-14T12:28:57.020Z",
+      "checkedAt": "2026-08-14T13:50:47.192Z",
       "refresh": {
         "cadence": "daily",
         "mode": "operator-and-browser",
