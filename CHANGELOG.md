@@ -17,7 +17,8 @@
 - Closed the remaining committed desktop-scope drift: Principles no longer requires a mobile fallback mount and the knowledge-depth audit no longer registers a mobile persona (P931/R488).
 - Moved the focused market-epoch and quant Playwright gates into the existing Chromium-provisioned blocking job, preserving their deploy dependency without a duplicate browser install (P932/R489).
 - Made the headless suite wait for the runtime-owned Telegram artifact state to settle before testing category/page/date integration, eliminating a runner-speed race without weakening T830 (P933/R490).
-- Added P921-P933/R481-R490 and QA-PRO-DATA/desktop-scope coverage. Mobile remains excluded.
+- Corrected the Atlas F3 browser golden to match the committed educational renderer while leaving unrelated local Atlas/Knowledge work out of the release (P934/R491).
+- Added P921-P934/R481-R491 and QA-PRO-DATA/desktop-scope coverage. Mobile remains excluded.
 - R1 7 surfaces: v54.22
 
 ## v54.21 (2026-08-13)

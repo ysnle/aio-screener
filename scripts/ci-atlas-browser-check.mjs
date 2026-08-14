@@ -60,7 +60,7 @@ try {
 
   await page.locator('#page-atlas [data-atlas-action="tab"][data-atlas-value="foundations"]').click();
   await page.locator('#page-atlas [data-atlas-action="layer"][data-atlas-value="F3"]').click();
-  await page.waitForFunction(() => document.querySelectorAll('#page-atlas .atlas-learning-concept').length === 10 && document.querySelector('#page-atlas [data-atlas-learning-detail-title]')?.textContent === '토큰화' && document.querySelectorAll('#page-atlas .atlas-module-lesson').length === 1 && document.querySelectorAll('#page-atlas .atlas-module-question').length === 0 && document.querySelectorAll('#page-atlas .atlas-module-visualization').length === 1);
+  await page.waitForFunction(() => document.querySelectorAll('#page-atlas .atlas-learning-concept').length === 10 && document.querySelector('#page-atlas [data-atlas-learning-detail-title]')?.textContent === '토큰화' && document.querySelectorAll('#page-atlas .atlas-module-lesson').length === 1 && document.querySelectorAll('#page-atlas .atlas-module-question').length === 1 && document.querySelectorAll('#page-atlas .atlas-module-visualization').length === 1);
   await page.locator('#page-atlas [data-atlas-action="module"][data-atlas-value="self-attention"]').click();
   await page.waitForFunction(() => document.querySelector('#page-atlas [data-atlas-learning-detail-title]')?.textContent === 'Self-Attention' && document.querySelector('#page-atlas .atlas-module-lesson')?.dataset.atlasFoundationId === 'self-attention' && document.querySelector('#page-atlas a[data-atlas-foundation-source="FND-GOOGLE-TRANSFORMER"]'));
   await page.locator('#page-atlas [data-atlas-action="tab"][data-atlas-value="taxonomy"]').click();

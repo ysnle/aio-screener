@@ -26,6 +26,7 @@ confidence: high
 - [x] QA-PRO-DATA-18: the committed desktop-scope gate dependencies contain neither the Principles mobile fallback requirement nor the knowledge-depth mobile persona; unrelated knowledge/retrieval edits remain unstaged.
 - [x] QA-PRO-DATA-19: every Playwright gate in CI runs only after the same job installs Chromium; the market-epoch and quant auto-refresh gates remain blocking through `headless-tests` -> deploy.
 - [x] QA-PRO-DATA-20: headless data-integration tests wait for the Telegram artifact pipeline to settle through runtime metadata; T830 remains blocking and no fixed-delay/skip-list workaround is used.
+- [x] QA-PRO-DATA-21: the Atlas F3 browser golden and renderer are checked from the same detached release tree; the committed educational question count is one and unrelated local Atlas/Knowledge edits remain unstaged.
 
 ## v54.21 Daily source registry, history, and missing professional data closure (2026-08-13)
 

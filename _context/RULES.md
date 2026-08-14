@@ -1,11 +1,17 @@
 ---
-verified_by: agent (Fable 5) + Codex P761-P933 verification
+verified_by: agent (Fable 5) + Codex P761-P934 verification
 last_verified: 2026-08-14
 confidence: high
 target_version: v54.22
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R491. Browser goldens and renderers are certified from the same committed tree (v54.22)
+
+**Rule**: A browser golden must describe the implementation and generated inputs present in the release commit, not a newer unstaged overlay. If any direct renderer or artifact input is dirty, the focused gate must run in a detached clean checkout before push. The release may correct the golden to preserve committed behavior, or intentionally stage the implementation, but it may not mix the two states.
+
+**Validation**: `ci-atlas-browser-check.mjs` requires the one educational question rendered by the committed F3 module; the unrelated local Atlas question-removal work remains unstaged, and the focused gate passes in a detached release checkout plus GitHub CI.
 
 ## R490. Asynchronous artifact tests wait on runtime-owned settled state (v54.22)
 

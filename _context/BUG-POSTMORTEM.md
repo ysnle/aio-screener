@@ -3,10 +3,20 @@ verified_by: agent (Claude Sonnet 5) + Codex full-route audit verification
 last_verified: 2026-08-14
 confidence: high
 latest_version: v54.22
-latest_P_number: P933
-next_P_number: P934
-current_total_entries: 652 (P1~P933, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P933 v54.22 deterministic browser CI prerequisites
+latest_P_number: P934
+next_P_number: P935
+current_total_entries: 653 (P1~P934, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P934 v54.22 clean-tree Atlas golden parity
+
+## P934 - v54.22 - Atlas browser golden matched an unstaged renderer overlay
+
+- **motivation**: Blocking browser goldens must describe the committed application tree, especially when the working tree contains separate in-progress UI work.
+- **symptom/reproduction**: GitHub run 31761195679 passed all new data/automation gates but timed out in the Atlas F3 assertion. A detached clean checkout reproduced 10 concepts, `토큰화`, one lesson, one visualization, and one educational question while the gate required zero questions.
+- **root_cause**: The local Atlas renderer had an unrelated unstaged change that removed question prompts, and the browser golden was updated against that overlay even though the renderer change was deliberately excluded from the release.
+- **fix**: Preserved the committed educational question and changed only the stale golden from zero to one; no in-progress Atlas/Knowledge implementation or generated artifact was added to the release.
+- **violated_rule**: R491; a browser golden and its implementation must be verified from the same committed tree before push.
+- **prevention**: Run focused browser gates in a detached clean checkout whenever their renderer or generated inputs are dirty, and treat a working-tree-only pass as insufficient.
+- **verification**: The detached `70f3adf` checkout reproduces the mismatch with an observed question count of one; the corrected gate must pass there and in GitHub before deploy.
 
 ## P933 - v54.22 - Headless tests raced the asynchronous Telegram artifact load
 
