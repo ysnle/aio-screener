@@ -2,12 +2,12 @@
 verified_by: Codex
 last_verified: 2026-08-12
 confidence: high for repository, artifact topology, renderer behavior, content-volume measurement, and reproduced live UI findings; medium for academic/source directness because every external source original was not independently re-read
-target_version: v54.7
+target_version: v54.22
 status: IMPLEMENTATION_IN_PROGRESS
 bounded_changes_implemented: naming_audit_contracts_s0_reference_core_ontology_claim_registry_article_drafts_learning_state_route_bridge_repository_renderers_encyclopedia_mission_full_coverage_web_research_post_ka_track
 knowledge_rebuild_status: STRUCTURED_REFERENCE_DRAFTS_PARTIAL_CONTENT_RESEARCH_OPEN
 live_revision: v54.5
-local_revision: v54.6
+local_revision: v54.22
 machine_contract: _context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json
 file_manifest: _context/MARKET-PRINCIPLES-ATLAS-HANDOFF-FILE-MANIFEST-2026-08-10.json
 ---

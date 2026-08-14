@@ -3,10 +3,20 @@ verified_by: agent (Claude Sonnet 5) + Codex full-route audit verification
 last_verified: 2026-08-13
 confidence: high
 latest_version: v54.22
-latest_P_number: P929
-next_P_number: P930
-current_total_entries: 648 (P1~P929, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P929 v54.22 boot FCP/route measurement separation
+latest_P_number: P930
+next_P_number: P931
+current_total_entries: 649 (P1~P930, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P930 v54.22 committed-version surface closure
+
+## P930 - v54.22 - Local version gate passed against unstaged active handoff surfaces
+
+- **motivation**: A release gate must certify the exact committed tree that GitHub Actions will check, not a newer working-tree overlay.
+- **symptom/reproduction**: Local `ci-version-check.mjs` passed, but GitHub run 31759829321 failed because three active Atlas/Principles audit-handoff files remained at v54.7/v54.6 in commit `55dde44` while their local unstaged copies already carried v54.22.
+- **root_cause**: The release selection correctly excluded unrelated in-progress knowledge edits, but version validation ran against the working tree and did not prove that all required version-only hunks were present in the index/commit.
+- **fix**: Staged only `targetVersion`, manifest package/application version, and structural handoff target/local revision changes; preserved unrelated knowledge edits outside the commit.
+- **violated_rule**: R487; R1 validation before commit/push must cover the staged tree whenever required version surfaces also contain unrelated unstaged work.
+- **prevention**: After selective staging, inspect every R1 surface from the index and run the version contract against a clean committed tree or equivalent index snapshot before push.
+- **verification**: The staged audit contract, file manifest, and structural handoff now all report v54.22 with no whitespace/control-character regression; a follow-up GitHub CI run is required for closure.
 
 ## P929 - v54.22 - Synthetic route work was incorrectly charged to initial shell FCP
 

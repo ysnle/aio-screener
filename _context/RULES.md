@@ -7,6 +7,12 @@ target_version: v54.22
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
 
+## R487. Selective releases validate R1 surfaces from the staged tree (v54.22)
+
+**Rule**: When an R1/version surface contains unrelated unstaged work, a local working-tree pass is insufficient. The release must stage only the intended version hunk, then verify the index/commit representation of every required title, badge, APP_VERSION, version file, service worker, cachebuster, active audit contract, and active handoff manifest. Unrelated content must remain unstaged; omitting the required version hunk is equally invalid.
+
+**Validation**: Inspect required version fields with `git show :path` (or a clean committed-tree checkout), run `ci-version-check.mjs` in the clean tree, and require the GitHub `validate` job to pass before deploy.
+
 ## R486. Initial paint and synthetic route latency require a browser presentation boundary (v54.22)
 
 **Rule**: A boot performance gate that reports both first contentful paint and a synthetic page transition must allow the parsed application shell to reach an actual presentation frame before triggering the route. It must not charge route initialization to FCP or hide route cost inside a combined boot value. FCP, route latency, and maximum long-task thresholds remain independent blocking budgets; introducing the boundary cannot relax any threshold.
