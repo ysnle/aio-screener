@@ -3,10 +3,20 @@ verified_by: agent (Claude Sonnet 5) + Codex full-route audit verification
 last_verified: 2026-08-13
 confidence: high
 latest_version: v54.22
-latest_P_number: P930
-next_P_number: P931
-current_total_entries: 649 (P1~P930, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P930 v54.22 committed-version surface closure
+latest_P_number: P931
+next_P_number: P932
+current_total_entries: 650 (P1~P931, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P931 v54.22 committed desktop-scope closure
+
+## P931 - v54.22 - Desktop-only gate passed against unstaged scope corrections
+
+- **motivation**: The committed CI tree must encode the user's desktop-only decision without relying on local knowledge-work overlays.
+- **symptom/reproduction**: GitHub run 31760113637 passed version synchronization but failed `ci-desktop-scope-check.mjs`: the committed Principles contract still required a mobile fallback mount and the committed knowledge-depth audit still registered a mobile persona.
+- **root_cause**: Both exact corrections existed in the dirty working tree and made local scope validation pass, but they were excluded with broader in-progress knowledge edits during selective release staging.
+- **fix**: Removed the mobile fallback assertion from the Principles contract and removed only the mobile persona line from the depth audit index; unrelated retrieval, quiz, and research-content changes remain unstaged.
+- **violated_rule**: R488; a declared product-scope gate must be verified from the committed tree and its direct dependency set, not from the working tree alone.
+- **prevention**: `ci-desktop-scope-check.mjs` direct input files are part of the selective-release dependency audit, and future releases must run this gate in a clean commit checkout before push.
+- **verification**: The staged diff contains only the two desktop-scope corrections, passes whitespace checks, and requires follow-up GitHub CI closure.
 
 ## P930 - v54.22 - Local version gate passed against unstaged active handoff surfaces
 

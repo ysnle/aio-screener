@@ -39,7 +39,6 @@ const PERSONAS = [
   { id: 'domain-expert', need: '정식 모델·가정·논쟁·주장별 직접 근거', currentSupport: 'WEAK' },
   { id: 'korean-investor', need: '미국·글로벌 충격의 환율·한국 산업·종목 전달', currentSupport: 'PARTIAL' },
   { id: 'returning-learner', need: '진도·북마크·노트·회상 퀴즈·재개', currentSupport: 'MISSING' },
-  { id: 'mobile-keyboard-screenreader', need: '점진 공개·논리 순서·키보드·텍스트 대안', currentSupport: 'PARTIAL' },
   { id: 'skeptical-risk-aware', need: '반례·불확실성·대체 설명·근거 최신성', currentSupport: 'PARTIAL' },
   { id: 'time-poor', need: '요약에서 심층 본문으로 내려가는 단계적 공개', currentSupport: 'PARTIAL' }
 ];

@@ -23,6 +23,7 @@ confidence: high
 - [x] QA-PRO-DATA-15: the full-route Chromium lifecycle requires the native fundamental report model to be `sec-report.v3` and its visible metadata to include the PIT status/count; route ownership declares the same boundary.
 - [x] QA-PRO-DATA-16: the Chromium boot gate presents the initial shell before injecting the synthetic `signal` route, while retaining independent blocking budgets of FCP <=2.5s, route <=2s, and max long task <=2.5s; final local evidence is 2.01s/1.35s/1.32s.
 - [x] QA-PRO-DATA-17: all selectively staged R1 surfaces are inspected from the index/commit, including the active audit contract and two active handoff manifests; unrelated knowledge edits remain unstaged.
+- [x] QA-PRO-DATA-18: the committed desktop-scope gate dependencies contain neither the Principles mobile fallback requirement nor the knowledge-depth mobile persona; unrelated knowledge/retrieval edits remain unstaged.
 
 ## v54.21 Daily source registry, history, and missing professional data closure (2026-08-13)
 

@@ -7,6 +7,12 @@ target_version: v54.22
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
 
+## R488. Scope gates validate their direct inputs from the committed tree (v54.22)
+
+**Rule**: A product-scope declaration such as desktop-only is not complete while any committed gate dependency still requires a retired mobile fallback, persona, viewport, or acceptance path. When broader files contain unrelated work, stage only the exact scope correction, but include every direct input read by the blocking scope gate. A working-tree pass cannot substitute for a clean-commit pass.
+
+**Validation**: `ci-desktop-scope-check.mjs` must pass in GitHub `validate`; the committed Principles contract must not require `principles-graph-mobile-list`, and the committed depth audit must not register `mobile-keyboard-screenreader`.
+
 ## R487. Selective releases validate R1 surfaces from the staged tree (v54.22)
 
 **Rule**: When an R1/version surface contains unrelated unstaged work, a local working-tree pass is insufficient. The release must stage only the intended version hunk, then verify the index/commit representation of every required title, badge, APP_VERSION, version file, service worker, cachebuster, active audit contract, and active handoff manifest. Unrelated content must remain unstaged; omitting the required version hunk is equally invalid.

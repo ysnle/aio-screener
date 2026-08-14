@@ -35,7 +35,7 @@ for (const [label, source, marker] of [
 ]) if (!source.includes(marker)) fail(`${label} missing marker: ${marker}`);
 
 if (!golden.routes.includes('principles') || golden.routes.length !== 20) fail('golden route does not contain the 20-route principles topology');
-if (!/data-principles-content/.test(index) || !/principles-graph-mobile-list/.test(index)) fail('page markup lacks renderer mount or mobile text fallback');
+if (!/data-principles-content/.test(index)) fail('page markup lacks renderer mount');
 if (!/sourceUrl/.test(page) || !/status: 'PARTIAL'/.test(page) || !/status: 'REVIEWED_CANDIDATE'/.test(page)) fail('content packet must carry source URLs and review status badges');
 if (!/RESEARCH_URL/.test(page) || !/CHAPTERS_URL/.test(page) || !/LESSON_LIBRARY_URL/.test(page) || !/NODE_GUIDES_URL/.test(page) || !/createChapterCurriculum/.test(page) || !/createLessonLibrary/.test(page) || !/createEvidenceBlock/.test(page) || !/createResearchAnalysis/.test(page) || !/aioPrinciplesResearch/.test(page) || !/aioPrinciplesChapters/.test(page) || !/aioPrinciplesLessonLibrary/.test(page) || !/aioPrinciplesNodeGuides/.test(page)) fail('principles page is not connected to the authored A~O curriculum, node knowledge base, and reconciled evidence registry');
 if (!/normalizeKnowledgeEdges/.test(page) || !/loadKnowledgeCapabilities/.test(page) || /Promise\.all\(\[loadJson/.test(page)) fail('principles must use typed edge normalization and capability-level artifact loading');

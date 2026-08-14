@@ -14,7 +14,8 @@
 - Synchronized the full-route Chromium lifecycle and route-ownership manifest with `sec-report.v3`; the visible fundamental report must now render a PIT status/count line (P928/R483).
 - Corrected the Chromium boot performance gate so the initial shell reaches a presentation frame before the synthetic route transition; FCP, route, and long-task limits remain independently blocking and unchanged (P929/R486).
 - Closed a staged-tree version drift found by GitHub CI: three active audit/handoff version surfaces now commit v54.22 without including their unrelated in-progress knowledge edits (P930/R487).
-- Added P921-P930/R481-R487 and QA-PRO-DATA/desktop-scope coverage. Mobile remains excluded.
+- Closed the remaining committed desktop-scope drift: Principles no longer requires a mobile fallback mount and the knowledge-depth audit no longer registers a mobile persona (P931/R488).
+- Added P921-P931/R481-R488 and QA-PRO-DATA/desktop-scope coverage. Mobile remains excluded.
 - R1 7 surfaces: v54.22
 
 ## v54.21 (2026-08-13)
