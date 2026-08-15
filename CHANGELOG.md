@@ -1,3 +1,21 @@
+## v54.24 (2026-08-15)
+
+- Completed an exhaustive desktop user-visible data/content audit across the 22 registered categories, generated artifacts, static release calendars, sentiment bridges, schedule labels, screener rows, Telegram digest, history, reconciliation, operations, and version/cachebuster surfaces.
+- Added an operator-captured official WebSearch evidence artifact and blocking contract gate for AAII, NAAIM, Investors Intelligence, Korea Customs reference exports, and structural boundaries for FINRA, NYSE, KRX, Fed, and BOK; reference-only and unavailable values remain explicitly labeled.
+- Fixed SEC fallback concept selection so all configured US-GAAP concepts are unioned before newest filing selection. Rebuilt the bounded SEC artifact to 562/657 eligible rows and corrected current NVIDIA revenue lineage without inventing missing facts (P936/R493).
+- Added data-lineage and WebSearch gates to scheduled refresh, screener, and watchdog workflows. Mobile remains outside scope; Yahoo long-run factor refresh remains provider-degraded and unpromoted.
+- R1 7 surfaces: v54.24
+
+## v54.23 (2026-08-14)
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v54.23
+
+## v54.23 (2026-08-14)
+- Refreshed the live market, macro, breadth, sentiment, news, Telegram, screener, history, reconciliation, and operations artifacts from their configured public producers.
+- Reconciled the SEC fundamentals batch against the SEC fair-access policy; 542 of 657 eligible rows remain stored and 115 rows remain explicitly unavailable where comparable annual US-GAAP facts were not published.
+- Corrected the desktop macro calendar's stale ISM Manufacturing, ISM Services, and U.S. Census retail release dates against the official 2026 calendars. The next verified dates are September 1, September 3, and September 16, respectively.
+- R1 7 surfaces: v54.23
+
 ## v54.22 (2026-08-13)
 - Added a keyless official U.S. Treasury daily par-yield adapter for 2Y/5Y/10Y/20Y/30Y and same-date 10Y-2Y derivation. The live refresh now records source/observation/fetch lineage and promoted Treasury reconciliation from `PARTIAL` to `MATCH` without depending on a FRED API key.
 - Reconciled the HY OAS freshness policy against the live official FRED series: the stored 2026-08-11 value (2.72) is the upstream latest observation, so its audit uses a source-specific three-calendar-day publication-lag budget while retaining the exact observation date.

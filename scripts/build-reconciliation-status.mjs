@@ -161,6 +161,15 @@ export function buildReconciliationStatus({ data = {}, marketSnapshot = {}, scre
   const fullContentCoverage = currentNews.some((row) => row?.contentDepth && row.contentDepth !== 'headline-only');
   const putCallObservedAt = data?.putCall?.asOf || data?.meta?.putCallAsOf;
   const fgObservedAt = data?.fearGreed?.asOf;
+  const surveys = data?.marketSurveys || {};
+  const aaii = surveys?.aaii || null;
+  const naaim = surveys?.naaim || null;
+  const aaiiFresh = !!aaii
+    && ['current-reference', 'current'].includes(String(aaii.status || ''))
+    && ['bullish', 'neutral', 'bearish'].every((field) => finite(aaii[field]))
+    && fresh(aaii.observedAt, 14 * DAY, nowMs);
+  const naaimLatestPublic = !!naaim && finite(naaim.exposure) && !!naaim.observedAt;
+  const naaimFresh = naaimLatestPublic && fresh(naaim.observedAt, 14 * DAY, nowMs);
   const historyBreadthRows = Array.isArray(history)
     ? history.filter((row) => finite(row?.breadth50) || finite(row?.advanceDecline) || finite(row?.mcclellan)).length
     : 0;
@@ -192,12 +201,16 @@ export function buildReconciliationStatus({ data = {}, marketSnapshot = {}, scre
     ], { gate: 'cboe-delayed-lineage' }),
 
     categoryDefinition('aaii', [
-      evidenceCheck('licensed-direct-current', false, 'operator/provider-contract', null, 'Current licensed/direct value unavailable; synthesis forbidden.')
-    ], { gate: 'licensed-direct-current', policyBlocked: true, blockedReason: 'Licensed/current AAII data is unavailable and must not be synthesized.' }),
+      evidenceCheck('public-web-current-reference', aaiiFresh, 'public-data/data.json', aaii?.observedAt, 'AAII weekly public observation is retained as reference-only.'),
+      evidenceCheck('publisher-source-lineage', !!aaii?.sourceUrl && /aaii\.com\/sentimentsurvey/i.test(aaii.sourceUrl), 'public-data/structural-data-research.json', aaii?.observedAt),
+      evidenceCheck('redistribution-rights-for-trading', false, 'operator/provider-contract', null, 'Public web observation is not licensed for trading-gate promotion.')
+    ], { gate: 'public-web-reference-with-rights-boundary', policyBlocked: !aaiiFresh, rights: 'OPERATOR_REQUIRED', partialReason: 'Public AAII observation is available but rights keep it reference-only.', blockedReason: 'No current public AAII observation is available; synthesis forbidden.' }),
 
     categoryDefinition('naaim', [
-      evidenceCheck('licensed-direct-current', false, 'operator/provider-contract', null, 'Current licensed/direct value unavailable; bounded inference only.')
-    ], { gate: 'licensed-direct-current', policyBlocked: true, blockedReason: 'Licensed/current NAAIM data is unavailable and must not be synthesized.' }),
+      evidenceCheck('latest-public-reference', naaimLatestPublic, 'public-data/data.json', naaim?.observedAt, 'Last public NAAIM value is retained with its observation date.'),
+      evidenceCheck('current-freshness', naaimFresh, 'public-data/data.json', naaim?.observedAt, 'The public page is stale after its subscription transition.'),
+      evidenceCheck('redistribution-rights-for-trading', false, 'operator/provider-contract', null, 'NAAIM page requires subscription for current access.')
+    ], { gate: 'latest-public-reference-with-rights-boundary', policyBlocked: !naaimLatestPublic, rights: 'OPERATOR_REQUIRED', partialReason: 'Last public NAAIM observation is available, but it is stale/reference-only.', blockedReason: 'No public NAAIM observation is available; inference forbidden.' }),
 
     categoryDefinition('investors-intelligence', [
       evidenceCheck('subscriber-current', false, 'operator/provider-contract', null, 'Subscriber value unavailable; extrapolation forbidden.')

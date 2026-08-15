@@ -1,7 +1,25 @@
 ---
 verified_by: agent (Fable 5) + Codex full-route audit verification
-last_verified: 2026-08-13
+last_verified: 2026-08-15
 confidence: high
+
+## v54.24 Exhaustive user-visible data and automation freshness (2026-08-15)
+
+- [x] QA-DATA-REFRESH-06: the 22-category refresh audit, source registry, lineage audit, artifact integrity, and static-data contract were rerun after the final generated-data pass; no stale value was promoted without a source/age/availability label.
+- [x] QA-DATA-REFRESH-07: official WebSearch evidence covers AAII, NAAIM, Investors Intelligence, Treasury/FINRA/NYSE/KRX structural boundaries, and Korea Customs reference data; licensed, blocked, or reference-only values remain visibly bounded.
+- [x] QA-DATA-REFRESH-08: SEC fallback concepts are unioned before newest selection; the bounded batch rebuilt 562/657 eligible rows and leaves unavailable rows explicit, with NVIDIA's current filing selected from the later `Revenues` concept.
+- [x] QA-DATA-REFRESH-09: static macro schedules, Korean export reference display, sentiment bridge, screener, Telegram digest, history, reconciliation, operations, and version/cachebuster surfaces were synchronized.
+- [x] QA-AUTOMATION-01: core refresh, six-hour screener refresh, hourly watchdog, WebSearch contract, lineage, reconciliation, operations, data-pipeline, runtime, and Chromium gates are wired for the final release path.
+- [x] QA-AUTOMATION-02: headless T694 accepts either explicit unavailability or a source-bound `reference-only` AAII observation, while AIO breadth remains explicit-null when unavailable.
+- [ ] QA-DATA-REFRESH-10: Yahoo long-run factor refresh remains provider-degraded (`0/0` fetched tickers) and is not promoted; SEC exact acceptance-time enrichment, licensed survey rights, exchange feeds, and AI/Cloudflare operational readiness remain operator/provider gates.
+
+## v54.23 Full data refresh and official calendar freshness (2026-08-14)
+
+- [x] QA-DATA-REFRESH-01: the 22-category freshness audit ran after the live refresh; current market, volatility, F&G, breadth, macro, commodities/FX, indices, crypto, news, Telegram, history, screener, reconciliation, and operations artifacts retain generated/observed timestamps.
+- [x] QA-DATA-REFRESH-02: the SEC batch was executed under the fair-access User-Agent contract; the superseded v54.23 baseline was 542/657, and v54.24 rebuilt 562/657 eligible rows while retaining explicit unavailable rows rather than synthesizing values.
+- [x] QA-DATA-REFRESH-03: the desktop static macro registry was checked against official BLS, BEA, ISM, Census, Federal Reserve, and Bank of Korea calendars; no passed ISM/Census `nextRelease` remains.
+- [x] QA-DATA-REFRESH-04: the Telegram 14-day reference digest and six-hour screener artifact were regenerated from their configured public producers.
+- [ ] QA-DATA-REFRESH-05: external provider rights, licensed AAII/NAAIM/Investors Intelligence values, FRED API credentials, SEC rows without comparable facts, and Cloudflare/AI operational readiness remain operator/provider gates and are not claimed as locally closed.
 
 ## v54.22 Professional data partial-capability closure (2026-08-13)
 

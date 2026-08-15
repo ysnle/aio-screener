@@ -1,11 +1,23 @@
 ---
-verified_by: agent (Fable 5) + Codex P761-P934 verification
-last_verified: 2026-08-14
+verified_by: agent (Fable 5) + Codex P761-P936 verification
+last_verified: 2026-08-15
 confidence: high
-target_version: v54.22
+target_version: v54.24
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R492. Official static release calendars must be date-advanced and source-verified (v54.23)
+
+**Rule**: A desktop macro release registry may retain scheduled dates as reference data, but every `nextRelease` must be checked against the publisher's current official calendar before release. When a scheduled date passes, update `lastRelease`, advance `nextRelease`, and extend the official schedule list in the same change. Do not infer a release from elapsed time or synthesize dates from a generic cadence.
+
+**Validation**: `ci-static-data-contract-check.mjs` and `ci-data-refresh-audit.mjs` must pass with no past `nextRelease`; the refresh record must cite the official BLS, BEA, ISM, Census, Federal Reserve, and Bank of Korea calendar sources used for the current registry.
+
+## R493. SEC fallback concepts must be unioned before newest-observation selection (v54.24)
+
+**Rule**: When a SEC fact field has multiple configured US-GAAP concepts, collect rows from every concept before deduplicating by period, filing date, accession, and form. Never let an older first concept shadow a newer fallback concept. Preserve explicit unavailable status when no comparable fact exists.
+
+**Validation**: `fetch-sec-fundamentals.mjs` must pass a fixture containing an old first concept and a newer second concept; `ci-data-pipeline-contract-check.mjs` and the SEC artifact checks must verify newest-observation selection, filing lineage, coverage, and failure counts before screener publication.
 
 ## R491. Browser goldens and renderers are certified from the same committed tree (v54.22)
 

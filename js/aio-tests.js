@@ -3746,7 +3746,13 @@
       weeklySrc690.slice(0, 120));
 
     var breadthSrc690 = (typeof initBreadthPage === 'function') ? initBreadthPage.toString() : '';
-    _assert('T694 sentiment_and_breadth_scaffolds_allow_explicit_unavailable', DATA_SNAPSHOT.aaiiBear == null && DATA_SNAPSHOT.breadth200sma == null, 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
+    var aaiiReferenceBound = DATA_SNAPSHOT.aaiiBear == null || (
+      typeof DATA_SNAPSHOT.aaiiBear === 'number' &&
+      window._serverDataMeta && window._serverDataMeta.marketSurveys &&
+      window._serverDataMeta.marketSurveys.aaii &&
+      window._serverDataMeta.marketSurveys.aaii.allowedUse === 'reference-only'
+    );
+    _assert('T694 sentiment_and_breadth_scaffolds_allow_bounded_reference_or_unavailable', aaiiReferenceBound && DATA_SNAPSHOT.breadth200sma == null, 'aaiiReferenceBound=' + aaiiReferenceBound + ' policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     var runSrc695 = (window.AIO && typeof window.AIO.runScheduledRefresh === 'function') ? window.AIO.runScheduledRefresh.toString() : '';
     _assert('T695 refresh_progress_events_v49101: scheduler emits start/progress/done state',

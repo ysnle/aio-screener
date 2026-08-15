@@ -40,14 +40,14 @@ export const DATA_SOURCE_REGISTRY = Object.freeze({
     origins: [{ id: 'cboe-daily-statistics', authority: 'official-exchange', sourceKind: 'official-primary', access: 'public-web-terms-apply', url: 'https://www.cboe.com/us/options/market_statistics/daily/', fields: ['totalPutCall', 'equityPutCall', 'indexPutCall'] }], structuralLimit: null
   }),
   aaii: entry({
-    cadence: 'weekly', refreshMode: 'operator', producer: 'operator/provider-contract', artifacts: ['public-data/reconciliation-status.json'], consumers: ['sentiment'],
-    origins: [{ id: 'aaii-sentiment-survey', authority: 'publisher', sourceKind: 'licensed', access: 'licensed', url: 'https://www.aaii.com/sentimentsurvey', fields: ['bullish', 'neutral', 'bearish'] }],
-    structuralLimit: { kind: 'licensed-data', reason: 'Current direct AAII percentages are unavailable.', remediation: 'Configure licensed access; never synthesize exact percentages.' }
+    cadence: 'weekly', refreshMode: 'operator-web-research', producer: 'scripts/refresh-web-research.mjs', artifacts: ['public-data/data.json', 'public-data/structural-data-research.json', 'public-data/reconciliation-status.json'], consumers: ['sentiment'],
+    origins: [{ id: 'aaii-sentiment-survey', authority: 'publisher', sourceKind: 'publisher-public-web', access: 'public-web-terms-apply', url: 'https://www.aaii.com/sentimentsurvey', fields: ['bullish', 'neutral', 'bearish'] }],
+    structuralLimit: { kind: 'publisher-terms-and-reference-cadence', reason: 'The official public page provides weekly values, but this is reference-only and not a licensed real-time trading input.', remediation: 'Keep the dated public observation and obtain licensed rights before promotion beyond reference use.' }
   }),
   naaim: entry({
-    cadence: 'weekly', refreshMode: 'operator', producer: 'operator/provider-contract', artifacts: ['public-data/reconciliation-status.json'], consumers: ['sentiment'],
-    origins: [{ id: 'naaim-exposure-index', authority: 'publisher', sourceKind: 'licensed', access: 'licensed', url: 'https://www.naaim.org/programs/naaim-exposure-index/', fields: ['exposureIndex'] }],
-    structuralLimit: { kind: 'licensed-data', reason: 'Current direct NAAIM value is unavailable.', remediation: 'Configure licensed/direct access; bounded qualitative inference remains reference-only.' }
+    cadence: 'weekly', refreshMode: 'operator-web-research', producer: 'scripts/refresh-web-research.mjs', artifacts: ['public-data/data.json', 'public-data/structural-data-research.json', 'public-data/reconciliation-status.json'], consumers: ['sentiment'],
+    origins: [{ id: 'naaim-exposure-index', authority: 'publisher', sourceKind: 'publisher-public-web', access: 'public-web-terms-apply', url: 'https://naaim.org/programs/naaim-exposure-index/', fields: ['exposureIndex'] }],
+    structuralLimit: { kind: 'publisher-subscription-transition', reason: 'The last public NAAIM value is dated 2026-07-22 and the publisher states subscription access became effective 2026-08-01.', remediation: 'Retain the dated value as stale reference only; configure licensed/direct access for current data.' }
   }),
   'investors-intelligence': entry({
     cadence: 'weekly', refreshMode: 'operator', producer: 'operator/provider-contract', artifacts: ['public-data/reconciliation-status.json'], consumers: ['sentiment'],

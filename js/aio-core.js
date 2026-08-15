@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v54.22';
+const APP_VERSION = 'v54.24';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -12910,9 +12910,9 @@ window.AIO_MACRO_CALENDAR = {
     'us-nfp':       { name: 'BLS NFP',        frequency: 'monthly-first-friday', lastRelease: '2026-08-07', nextRelease: '2026-09-04', dataField: 'usUnemploy', source: 'BLS official schedule' },
     'us-cpi':       { name: 'BLS CPI',        frequency: 'monthly-mid',          lastRelease: '2026-08-12', nextRelease: '2026-09-11', dataField: 'cpi', source: 'BLS official schedule' },
     'us-pce':       { name: 'BEA PCE',        frequency: 'monthly-end',          lastRelease: '2026-07-30', nextRelease: '2026-08-26', dataField: 'pce', source: 'BEA official schedule' },
-    'us-ism-mfg':   { name: 'ISM Mfg PMI',    frequency: 'monthly-first',        lastRelease: '2026-07-01', nextRelease: '2026-08-03', dataField: 'ismPmi', source: 'ISM official calendar' },
-    'us-ism-svc':   { name: 'ISM Services',   frequency: 'monthly-third',        lastRelease: '2026-07-06', nextRelease: '2026-08-05', dataField: 'ismSvc', source: 'ISM official calendar' },
-    'us-retail':    { name: 'Retail Sales',   frequency: 'monthly-mid',          lastRelease: '2026-07-16', nextRelease: '2026-08-14', dataField: 'retailSales', source: 'U.S. Census official schedule' },
+    'us-ism-mfg':   { name: 'ISM Mfg PMI',    frequency: 'monthly-first',        lastRelease: '2026-08-03', nextRelease: '2026-09-01', dataField: 'ismPmi', source: 'ISM official calendar' },
+    'us-ism-svc':   { name: 'ISM Services',   frequency: 'monthly-third',        lastRelease: '2026-08-05', nextRelease: '2026-09-03', dataField: 'ismSvc', source: 'ISM official calendar' },
+    'us-retail':    { name: 'Retail Sales',   frequency: 'monthly-mid',          lastRelease: '2026-08-14', nextRelease: '2026-09-16', dataField: 'retailSales', source: 'U.S. Census official schedule' },
     // v49.41 P296/R77 보강: FOMC 회의 + fed-rate (signal 페이지 CP2 lastUpdated 메타용)
     // v52.42 (P657/EF-03, WebSearch 재확인): 6/17 회의는 이미 지나 결과가 나왔으므로(3.50-3.75% 동결
     // 유지, 확인됨) lastRelease로 승격. 7/28-29 회의도 종료되어 다음 결정일(9/16)로 이동.
@@ -12929,7 +12929,7 @@ window.AIO_MACRO_OFFICIAL_SCHEDULES = {
   'us-pce': ['2026-07-30', '2026-08-26', '2026-09-30'],
   'us-ism-mfg': ['2026-07-01', '2026-08-03', '2026-09-01'],
   'us-ism-svc': ['2026-07-06', '2026-08-05', '2026-09-03'],
-  'us-retail': ['2026-07-16', '2026-08-14'],
+  'us-retail': ['2026-07-16', '2026-08-14', '2026-09-16'],
   'us-fomc': ['2026-06-17', '2026-07-29', '2026-09-16'],
   'us-fed-rate': ['2026-06-17', '2026-07-29', '2026-09-16'],
   'kr-bok': ['2026-07-16', '2026-08-27']
@@ -21549,7 +21549,7 @@ const DATA_SNAPSHOT = {
   breadth5sma:null, breadth20sma:null, breadth50sma:null, breadth200sma:null,
   krBond3y:null, krBond10y:null, krCd91:null, krUnemploy:null, krPpi:null,
   krManufPmi:null, krManufPmiPrev:null, krGdp:null, krGdpYoy:null,
-  krExport:null, krImport:null, krSemiExport:null, krCreditBalance:null,
+  krExport:null, krExportReference:null, krImport:null, krSemiExport:null, krCreditBalance:null,
   krDeposit:null, krShortSelling:null, krForeignNet:null,
   krAdvance:null, krDecline:null, kr52wHigh:null, kr52wLow:null,
   krServicePrice:null, krServicePmi:null, gexCurrent:null,
@@ -22090,6 +22090,9 @@ function applyDataSnapshot() {
       'kr-ppi':        '—',
       'kr-pmi':        unit(S.krPmi, 1),
       'kr-export':     unit(S.krExport, 1),
+      'kr-export-reference': (S.krExportReference && isFinite(Number(S.krExportReference.exportsBillionUsd)))
+        ? String(S.krExportReference.periodLabel || '공식 잠정치') + ' 수출 $' + Number(S.krExportReference.exportsBillionUsd).toFixed(1) + 'B (' + (Number(S.krExportReference.exportsYoyPct) >= 0 ? '+' : '') + Number(S.krExportReference.exportsYoyPct).toFixed(1) + '% YoY)'
+        : '공식 잠정치 미수신',
       'kr-import':     unit(S.krImport, 1),
       'kr-credit':     unit(S.krCreditBalance, 1, '조원'),
       'kr-deposit':    unit(S.krDeposit, 1, '조원'),
