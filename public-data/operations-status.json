@@ -7,9 +7,9 @@
     "STALE",
     "RIGHTS_REVIEW_REQUIRED"
   ],
-  "generatedAt": "2026-08-15T10:14:45.488Z",
+  "generatedAt": "2026-08-15T10:46:46.293Z",
   "appRevision": "v54.25",
-  "dataRevision": "market-snapshot:2026-08-15T10:09:47.123Z:da337b37",
+  "dataRevision": "market-snapshot:2026-08-15T10:44:38.871Z:29e6f1b1",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
   "overall": "OPERATOR_REQUIRED",
   "planes": {
@@ -17,7 +17,7 @@
       "status": "CURRENT",
       "statusCode": "CONFIGURED_HEALTHY",
       "source": "github-actions",
-      "lastSuccessfulAt": "2026-08-15T10:09:47.123Z",
+      "lastSuccessfulAt": "2026-08-15T10:44:38.871Z",
       "coverage": {
         "required": 16,
         "observed": 16,
@@ -75,7 +75,7 @@
       "lastCallSucceeded": "BLOCKED",
       "evidence": {
         "marketAnalysisOk": false,
-        "generatedAt": "2026-08-15T10:09:47.123Z"
+        "generatedAt": "2026-08-15T10:44:38.871Z"
       }
     },
     "publicChat": {
@@ -107,14 +107,14 @@
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "reference",
-      "lastFetchAt": "2026-08-15T10:09:47.123Z"
+      "lastFetchAt": "2026-08-15T10:44:38.871Z"
     },
     "fred": {
       "rights": "OPERATOR_REQUIRED",
       "statusCode": "NOT_CONFIGURED",
       "use": "official-series",
       "status": "UNAVAILABLE",
-      "lastAttemptAt": "2026-08-15T10:09:47.123Z",
+      "lastAttemptAt": "2026-08-15T10:44:38.871Z",
       "lastFetchAt": null
     },
     "sec": {
@@ -129,7 +129,7 @@
   "reconciliation": {
     "tier0": {
       "status": "MATCH",
-      "artifact": "market-snapshot:2026-08-15T10:09:47.123Z:da337b37",
+      "artifact": "market-snapshot:2026-08-15T10:44:38.871Z:29e6f1b1",
       "uiEvidence": "same-revision-contract",
       "observedAtComplete": true
     },
@@ -263,7 +263,7 @@
           }
         ]
       },
-      "sourceRevision": "market-snapshot:2026-08-15T10:09:47.123Z:da337b37",
+      "sourceRevision": "market-snapshot:2026-08-15T10:44:38.871Z:29e6f1b1",
       "sourceArtifacts": [
         "public-data/data.json",
         "public-data/market-snapshot.json",
