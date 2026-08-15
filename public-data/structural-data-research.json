@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "structural-data-research.v1",
+  "source": "official-web-research",
+  "checkedAt": "2026-08-14T15:00:00Z",
+  "method": "WebSearch against official publisher, exchange, regulator, or government pages; no secondary value promoted when the official numeric field was unavailable.",
+  "entries": [
+    {
+      "id": "aaii",
+      "status": "CURRENT_REFERENCE",
+      "valueArtifact": "public-data/data.json.marketSurveys.aaii",
+      "sourceUrl": "https://www.aaii.com/sentimentsurvey",
+      "observation": "2026-08-12",
+      "detail": "34.7 bullish / 27.4 neutral / 37.9 bearish; reference-only because publisher terms and weekly cadence apply."
+    },
+    {
+      "id": "naaim",
+      "status": "STALE_REFERENCE",
+      "valueArtifact": "public-data/data.json.marketSurveys.naaim",
+      "sourceUrl": "https://naaim.org/programs/naaim-exposure-index/",
+      "observation": "2026-07-22",
+      "detail": "84.02 is the last public value shown; the page announces subscription access from 2026-08-01, so no current value was inferred."
+    },
+    {
+      "id": "investors-intelligence",
+      "status": "BLOCKED",
+      "sourceUrl": "https://www.investorsintelligence.com/help/education/advisors-sentiment",
+      "detail": "Official public page provides methodology/education but no current numeric reading; subscriber value required."
+    },
+    {
+      "id": "historical-universe-and-corporate-actions",
+      "status": "PARTIAL_SOURCE_FOUND",
+      "sourceUrls": [
+        "https://www.nyse.com/market-data/corporate-actions",
+        "https://www.nasdaq.com/solutions/data/equities/nasdaq"
+      ],
+      "detail": "Official NYSE corporate-action reports and Nasdaq Daily List are identified, but a complete survivorship-free historical membership/factor feed is not publicly configured; no synthetic history inserted."
+    },
+    {
+      "id": "independent-quote-reconciliation",
+      "status": "BLOCKED",
+      "sourceUrls": [
+        "https://www.nasdaq.com/market-activity/most-active"
+      ],
+      "detail": "Official public pages describe delayed/real-time products but do not provide a configured redistribution-approved second quote plane for all 78 symbols."
+    },
+    {
+      "id": "official-exchange-breadth",
+      "status": "BLOCKED",
+      "sourceUrls": [
+        "https://www.nyse.com/data-insights/nyse-introduces-daily-us-equity-market-statistics-report",
+        "https://www.nasdaq.com/market-activity/most-active"
+      ],
+      "detail": "Official pages expose market-statistics/movers products, but no stable public exchange-wide A/D and new-high/new-low payload was available for a durable adapter; AIO-universe breadth remains separately labeled."
+    },
+    {
+      "id": "earnings-revisions-and-guidance",
+      "status": "PARTIAL_SOURCE_FOUND",
+      "sourceUrls": [
+        "https://www.sec.gov/edgar/search/",
+        "https://www.sec.gov/Archives/edgar/data/"
+      ],
+      "detail": "SEC filings support dated actuals and issuer guidance text; no official public consensus-revision series was found, so consensus values remain blocked."
+    },
+    {
+      "id": "short-interest-and-options-flow",
+      "status": "PARTIAL_SOURCE_FOUND",
+      "sourceUrls": [
+        "https://www.finra.org/finra-data/browse-catalog/equity-short-interest",
+        "https://developer.finra.org/docs",
+        "https://www.cboe.com/us/options/market_statistics/daily/"
+      ],
+      "detail": "FINRA publishes the dataset and API documentation, but API credentials/entitlement are required for automated access; Cboe aggregate put/call remains the only configured public options metric. No per-symbol short/options flow was synthesized."
+    },
+    {
+      "id": "kr-macro-vkospi-supply",
+      "status": "PARTIAL_SOURCE_FOUND",
+      "sourceUrls": [
+        "https://data.krx.co.kr/",
+        "https://index.krx.co.kr/"
+      ],
+      "detail": "KRX official data/index pages confirm the authoritative VKOSPI and market-data surfaces, but a public redistribution-ready adapter/rights path is not configured; no web/secondary VKOSPI value was promoted."
+    },
+    {
+      "id": "kr-export-reference",
+      "status": "CURRENT_REFERENCE",
+      "valueArtifact": "public-data/data.json.officialWebReferences.krExports",
+      "sourceUrl": "https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?bbsId=1362&mi=2891&nttSn=10169503&nttSnUrl=be8cdd187fb1efe4fe4c464b1cb3a147",
+      "observation": "2026-07-01",
+      "detail": "Latest public official customs reference found: 2026-07-01~10 exports $29.8B, +53.9% YoY; reference-only and not a live API replacement."
+    }
+  ]
+}

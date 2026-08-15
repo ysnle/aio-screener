@@ -98,7 +98,7 @@ function failuresOf(data) {
 }
 
 const POLICIES = {
-  'backtest-history.json': { kind: 'research-history', timestamp: ['12.asOf', 'generatedAt'], maxAgeHours: 24 * 14 },
+  'backtest-history.json': { kind: 'research-history', custom: 'backtest-history-latest', maxAgeHours: 24 * 14 },
   'data.json': { kind: 'live-core', timestamp: ['meta.generatedAt'], maxAgeHours: 12 },
   'factor-backtest-longrun.json': { kind: 'research-horizon', timestamp: ['generatedAt', 'meta.generatedAt'] },
   'history.json': { kind: 'daily-history', custom: 'history-date', maxAgeHours: 24 * 3 },
@@ -117,7 +117,8 @@ const POLICIES = {
   'telegram-reference-window.json': { kind: 'research-reference', timestamp: ['reviewedAt', 'generatedAt', 'meta.generatedAt'], maxAgeHours: 24 * 90 },
   'user-research-digest.json': { kind: 'research-reference', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 24 * 90 },
   'model-validation-status.json': { kind: 'research-horizon', timestamp: ['observedAt', 'generatedAt'], maxAgeHours: 24 * 90 },
-  'operations-slo-window.json': { kind: 'operational-status', timestamp: ['observedAt', 'generatedAt'], maxAgeHours: 24 }
+  'operations-slo-window.json': { kind: 'operational-status', timestamp: ['observedAt', 'generatedAt'], maxAgeHours: 24 },
+  'structural-data-research.json': { kind: 'research-reference', timestamp: ['checkedAt', 'generatedAt'], maxAgeHours: 24 * 14 }
 };
 
 function extractTimestamp(data, policy) {
@@ -125,6 +126,11 @@ function extractTimestamp(data, policy) {
     const rows = Array.isArray(data) ? data : Array.isArray(data.history) ? data.history : [];
     const dated = rows.map(row => row?.date).filter(Boolean).sort();
     return dated.length ? { path: 'last row.date', value: dated.at(-1) } : { path: null, value: null };
+  }
+  if (policy.custom === 'backtest-history-latest') {
+    const rows = Array.isArray(data) ? data : Array.isArray(data.history) ? data.history : [];
+    const row = rows.length ? rows[rows.length - 1] : null;
+    return { path: 'last row.asOf', value: row?.asOf ?? null };
   }
   if (policy.custom === 'operator-updated') return { path: 'updated', value: data.updated };
   if (policy.custom === 'universe-bulk-update') return { path: 'meta.lastBulkUpdate', value: data.meta?.lastBulkUpdate };
@@ -203,6 +209,8 @@ function runContractSelfTests() {
   if (releaseOnly.value !== null) throw new Error('self-test: releaseAt was promoted to generatedAt');
   const history = extractTimestamp([{ date: '2026-07-14' }, { date: '2026-07-15' }], POLICIES['history.json']);
   if (history.value !== '2026-07-15') throw new Error('self-test: history last date selector drifted');
+  const backtest = extractTimestamp([{ asOf: '2026-07-14T00:00:00Z' }, { asOf: '2026-07-15T00:00:00Z' }], POLICIES['backtest-history.json']);
+  if (backtest.value !== '2026-07-15T00:00:00Z') throw new Error('self-test: backtest last asOf selector drifted');
 }
 
 runContractSelfTests();

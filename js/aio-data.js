@@ -5206,6 +5206,43 @@ async function _aioLoadServerData() {
       if (_beaEvidence && _beaEvidence.status === 'ok' && window.DATA_SNAPSHOT._fieldTs && (_beaEvidence.releasedAt || _beaEvidence.lastSuccessfulAt)) {
         window.DATA_SNAPSHOT._fieldTs.macro_bea = _beaEvidence.releasedAt || _beaEvidence.lastSuccessfulAt;
       }
+      // Publisher sentiment surveys are an operator-captured WebSearch artifact.
+      // Project dated values for reference UI only; never treat them as a live
+      // trading input or manufacture a replacement when a source is stale.
+      var _marketSurveys = d.marketSurveys || {};
+      var _officialWebReferences = d.officialWebReferences || {};
+      var _aaiiSurvey = _marketSurveys.aaii || null;
+      if (_aaiiSurvey && typeof _aaiiSurvey.bearish === 'number' && isFinite(_aaiiSurvey.bearish)) {
+        window.DATA_SNAPSHOT.aaiiBull = typeof _aaiiSurvey.bullish === 'number' ? _aaiiSurvey.bullish : null;
+        window.DATA_SNAPSHOT.aaiiNeutral = typeof _aaiiSurvey.neutral === 'number' ? _aaiiSurvey.neutral : null;
+        window.DATA_SNAPSHOT.aaiiBear = _aaiiSurvey.bearish;
+        window['_aaiiBearish'] = _aaiiSurvey.bearish;
+        window.DATA_SNAPSHOT._aaiiSource = _aaiiSurvey.sourceUrl || null;
+        if (window.DATA_SNAPSHOT._fieldTs && _aaiiSurvey.observedAt) window.DATA_SNAPSHOT._fieldTs.aaii = _aaiiSurvey.observedAt;
+      }
+      var _naaimSurvey = _marketSurveys.naaim || null;
+      if (_naaimSurvey && typeof _naaimSurvey.exposure === 'number' && isFinite(_naaimSurvey.exposure)) {
+        window.DATA_SNAPSHOT.naaimExposure = _naaimSurvey.exposure;
+        window.DATA_SNAPSHOT._naaimSource = _naaimSurvey.sourceUrl || null;
+        if (window.DATA_SNAPSHOT._fieldTs && _naaimSurvey.observedAt) window.DATA_SNAPSHOT._fieldTs.naaim = _naaimSurvey.observedAt;
+      }
+      if (window._serverDataMeta) {
+        window._serverDataMeta.marketSurveys = {
+          status: _marketSurveys.policy || 'unavailable',
+          checkedAt: _marketSurveys.checkedAt || null,
+          aaii: _aaiiSurvey,
+          naaim: _naaimSurvey,
+          investorsIntelligence: _marketSurveys.investorsIntelligence || null
+        };
+        window._serverDataMeta.officialWebReferences = _officialWebReferences;
+      }
+      var _webReferenceSnapshot = window.DATA_SNAPSHOT;
+      if (_officialWebReferences.krExports && _webReferenceSnapshot) {
+        _webReferenceSnapshot.krExportReference = _officialWebReferences.krExports;
+        if (_webReferenceSnapshot._fieldTs && _officialWebReferences.krExports.observedAt) {
+          _webReferenceSnapshot._fieldTs.krExportReference = _officialWebReferences.krExports.observedAt;
+        }
+      }
     }
     // v51.67: F&G previousScore → _fearGreedDelta 계산
     if (d.fearGreed && typeof d.fearGreed.score === 'number') {

@@ -1,10 +1,14 @@
 ---
 verified_by: Codex (repository/gates/Chrome live/GitHub Actions 실측)
-last_verified: 2026-08-13
+last_verified: 2026-08-15
 confidence: high
 auto_refresh: true
 target_version: version.json
 ---
+
+> **Current correction (2026-08-15 v54.24)**: The final desktop user-visible data audit rebuilt the configured market, macro, breadth, sentiment, news, Telegram, screener, history, reconciliation, operations, and SEC artifacts. SEC fallback concepts are now unioned before newest filing selection, producing 562/657 eligible rows with explicit unavailable rows. Official WebSearch evidence is retained as reference-only or blocked where public numeric access is unavailable; no mobile work was added. Yahoo long-run factor refresh remains provider-degraded and unpromoted.
+
+> **Current correction (2026-08-14 v54.23)**: The live refresh regenerated the configured market, macro, breadth, sentiment, news, Telegram, screener, history, reconciliation, and operations artifacts. The desktop macro registry was reconciled against official BLS, BEA, ISM, Census, Federal Reserve, and Bank of Korea calendars; ISM Manufacturing/Services now advance to 2026-09-01/03 and Census retail to 2026-09-16. SEC remains 542/657 stored with 115 explicit unavailable rows; licensed/provider-rights gaps remain blocked. Mobile remains outside scope.
 
 > **Current correction (2026-08-14 v54.22)**: SEC annual facts now retain an append-only `sec-pit-facts.v1` envelope and can be reconstructed by filing acceptance/filed time without future-amendment or current-price leakage. All 540 stored rows were migrated without changing reported values; exact acceptance timestamps remain 0 locally until the configured GitHub Actions SEC job revisits rows. Keyless official adapters now supply U.S. Treasury same-date 2Y/5Y/10Y/20Y/30Y and 10Y-2Y lineage plus FRED public-download HY OAS; the latter refreshed to 2.71 as of 2026-08-12 and retains a visible three-day publication-lag budget. The professional gap ledger recognizes PIT, verified 13F, and portfolio risk as bounded `PARTIAL`, while historical universe/actions, institutional quote reconciliation, official exchange breadth, estimates/guidance, and short/options feeds remain `BLOCKED`. Mobile remains outside scope.
 

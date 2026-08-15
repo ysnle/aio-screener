@@ -51,9 +51,10 @@ jobs:
         run: |
           node scripts/ci-reconciliation-contract-check.mjs
           node scripts/ci-source-registry-contract-check.mjs
-          node scripts/ci-professional-data-gap-check.mjs
-          node scripts/ci-static-data-contract-check.mjs
-          node scripts/ci-data-refresh-audit.mjs
+           node scripts/ci-professional-data-gap-check.mjs
+           node scripts/ci-static-data-contract-check.mjs
+           node scripts/ci-web-research-contract-check.mjs
+           node scripts/ci-data-refresh-audit.mjs
 
       - name: Pipeline status summary
         run: |
@@ -109,6 +110,7 @@ jobs:
           [ -f public-data/atlas/index.json ] && git add public-data/atlas/index.json || true
           [ -f public-data/backtest-history.json ] && git add public-data/backtest-history.json || true
           [ -f public-data/score-backtest-history.json ] && git add public-data/score-backtest-history.json || true
+          [ -f public-data/structural-data-research.json ] && git add public-data/structural-data-research.json || true
           git add architecture/asset-manifest.json architecture/release-manifest.json
           if git diff --staged --quiet; then
             echo "No public-data changes to commit"

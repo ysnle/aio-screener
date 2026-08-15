@@ -65,11 +65,12 @@ function durationDays(row) {
 function factRows(companyFacts, taxonomy, concepts, unit) {
   const facts = companyFacts && companyFacts.facts && companyFacts.facts[taxonomy];
   if (!facts) return [];
+  const collected = [];
   for (const concept of concepts) {
-    const rows = facts[concept] && facts[concept].units && facts[concept].units[unit];
-    if (Array.isArray(rows) && rows.length) return rows.map(row => ({ ...row, concept }));
+    const conceptRows = facts[concept] && facts[concept].units && facts[concept].units[unit];
+    if (Array.isArray(conceptRows) && conceptRows.length) conceptRows.forEach(row => collected.push({ ...row, concept }));
   }
-  return [];
+  return collected;
 }
 
 function dedupeLatestFiled(rows) {

@@ -1,12 +1,32 @@
 ---
 verified_by: agent (Claude Sonnet 5) + Codex full-route audit verification
-last_verified: 2026-08-14
+last_verified: 2026-08-15
 confidence: high
-latest_version: v54.22
-latest_P_number: P934
-next_P_number: P935
+latest_version: v54.24
+latest_P_number: P936
+next_P_number: P937
 current_total_entries: 653 (P1~P934, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P934 v54.22 clean-tree Atlas golden parity
+current_checkpoint: P936 v54.24 SEC concept-union freshness parity
+
+## P936 - v54.24 - SEC fact fallback concept selection retained stale observations
+
+- **motivation**: User-visible fundamentals must select the newest comparable filing across every configured SEC US-GAAP concept, not only the first concept returned by the fallback list.
+- **symptom/reproduction**: NVIDIA's refresh carried a current fetch time but selected a 2022 observation because `RevenueFromContractWithCustomerExcludingAssessedTax` ended earlier while the later `Revenues` concept contained the FY2026 filing.
+- **root_cause**: `fetch-sec-fundamentals.mjs` returned rows from the first available concept and never unioned the remaining configured concepts before period/filed-date deduplication.
+- **fix**: Aggregate all requested concepts, then deduplicate and sort by period/filed/accession; rerun the bounded SEC batches and rebuild downstream screener artifacts without synthesizing unavailable rows.
+- **violated_rule**: R493; SEC fallback concepts must be unioned before newest-observation selection.
+- **prevention**: Keep a regression fixture with an old first concept and newer second concept, assert key-symbol observations against the official SEC payload, and retain coverage/failure counts in the reconciliation artifact.
+- **verification**: `node --check scripts/fetch-sec-fundamentals.mjs`, SEC batch coverage 562/657, NVIDIA current filing observation, source-bound AAII T694 contract, screener rebuild, lineage, data-pipeline, web-research, runtime, and Chromium gates.
+
+## P935 - v54.23 - Static macro calendar retained passed release dates
+
+- **motivation**: The desktop macro calendar is a user-visible data surface and cannot retain a past date as the next official release after the publisher has advanced its schedule.
+- **symptom/reproduction**: `us-ism-mfg` and `us-ism-svc` still pointed to August 3/5 as `nextRelease` after those releases; `us-retail` still pointed to August 14 instead of the next Census release.
+- **root_cause**: The registry and its official schedule arrays were manually seeded and were not updated by the generated macro snapshot refresh.
+- **fix**: Verified BLS, BEA, ISM, Census, Federal Reserve, and Bank of Korea official calendars; advanced ISM to September 1/3 and Census retail to September 16, while retaining the dated schedule history.
+- **violated_rule**: R492; scheduled dates must be checked against the publisher calendar and advanced when passed.
+- **prevention**: Keep the static registry under the data-refresh audit, require no past `nextRelease`, and preserve official source evidence in the refresh report before each release.
+- **verification**: Static-data, freshness, reconciliation, version, syntax, and runtime gates are required after the v54.23 update; licensed/provider-unavailable categories remain explicitly blocked rather than synthesized.
 
 ## P934 - v54.22 - Atlas browser golden matched an unstaged renderer overlay
 

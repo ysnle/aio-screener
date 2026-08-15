@@ -3,24 +3,24 @@
 ---
 verified_by: Codex (`ReadAllLines` + `rg -n` full structural remeasurement) + P761-P855 update
 current_override: P892 hierarchical Principles/Atlas learning UX and Masters adjacent-quarter/runtime closure on top of P891 learner-first content flow and P890 Scion availability evidence; live edge enforcement, provider rights, model benchmark, fast-plane soak, and AI proxy health remain explicit operator gates
-  last_verified: 2026-08-13
+  last_verified: 2026-08-15
 confidence: high
-target_version: v54.19
+target_version: v54.24
 target_file: index.html + js/*.js + src/**/*.js + worker/*.js
 target_lines: refreshed after P892 gate
   current_checkpoint: P892 adds broad-to-narrow Atlas workspaces, deep AI taxonomy, Principles relation/detail fixes, and Masters finite/adjacent-quarter contracts; official currentness/security-master and live model/Worker/provider certification remain operator-required
 ---
 
-## Current machine-verified file-size table (v54.19, 2026-08-13)
+## Current machine-verified file-size table (v54.24, 2026-08-15)
 
 | File | Lines | Verification |
 |------|------:|--------------|
-| `index.html` | 28,213 | `Get-Content.Count` + `ci-doc-currency-check.mjs` |
-| `js/aio-core.js` | 27,406 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-data.js` | 16,318 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `index.html` | 28,213 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-core.js` | 27,409 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-data.js` | 16,355 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-ui.js` | 4,303 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-chat.js` | 6,805 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-tests.js` | 9,096 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-tests.js` | 9,102 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `src/ui/pages/guide.js` | 130 | native guide search/jump/capability lifecycle module |
 | `src/ui/pages/screener.js` | 525 | native screener table/filter/profile/watchlist/position renderer + research setup labels |
 | `src/data/providers/screener.js` | 146 | screener artifact + identity-universe provider + reference memo/RVOL fields |

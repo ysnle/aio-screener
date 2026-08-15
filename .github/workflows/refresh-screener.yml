@@ -50,9 +50,10 @@ jobs:
           node scripts/build-operations-status.mjs
           node scripts/ci-reconciliation-contract-check.mjs
           node scripts/ci-source-registry-contract-check.mjs
-          node scripts/ci-professional-data-gap-check.mjs
-          node scripts/ci-static-data-contract-check.mjs
-          node scripts/ci-data-refresh-audit.mjs
+           node scripts/ci-professional-data-gap-check.mjs
+           node scripts/ci-static-data-contract-check.mjs
+           node scripts/ci-web-research-contract-check.mjs
+           node scripts/ci-data-refresh-audit.mjs
           node scripts/ci-operations-status-check.mjs
 
       - name: Commit only validated screener artifacts

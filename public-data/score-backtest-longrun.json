@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-07-17T02:30:11.829Z",
+ "generatedAt": "2026-08-14T15:17:38.162Z",
  "methodology": {
   "scope": "PARTIAL validation of computeTradingScore() — covers only volScore(VIX)+trendScore(SPX vs 50/200MA)+macroScore(DXY/TNX/HYG/VIX/oil) inputs, which are the ones with freely obtainable multi-year PIT history.",
   "excludedInputs": [
@@ -14,31 +14,31 @@
   "dataSource": "Yahoo Finance public chart API (query1/query2.finance.yahoo.com/v8/finance/chart), same endpoint pattern already used in production by scripts/fetch-data.mjs fetchHistory()."
  },
  "dataRange": {
-  "from": "2016-07-18",
-  "to": "2026-07-16",
-  "tradingDays": 2513,
+  "from": "2016-08-15",
+  "to": "2026-08-14",
+  "tradingDays": 2514,
   "perSymbolFetchCount": {
-   "spx": 2513,
-   "vix": 2514,
-   "vvix": 2505,
-   "tnx": 2512,
+   "spx": 2514,
+   "vix": 2515,
+   "vvix": 2506,
+   "tnx": 2513,
    "dxy": 2514,
-   "wti": 2513,
-   "hyg": 2513
+   "wti": 2514,
+   "hyg": 2514
   }
  },
  "overallCorrelations": {
   "fwd1d": {
    "composite": {
-    "n": 2512,
-    "rho": -0.043,
+    "n": 2513,
+    "rho": -0.042,
     "ci95": [
-     -0.082,
-     -0.004
+     -0.081,
+     -0.003
     ]
    },
    "vol": {
-    "n": 2512,
+    "n": 2513,
     "rho": -0.041,
     "ci95": [
      -0.08,
@@ -46,49 +46,49 @@
     ]
    },
    "trend": {
-    "n": 2512,
-    "rho": -0.023,
+    "n": 2314,
+    "rho": -0.037,
     "ci95": [
-     -0.062,
-     0.016
+     -0.077,
+     0.004
     ]
    },
    "macro": {
-    "n": 2512,
-    "rho": 0.009,
+    "n": 2513,
+    "rho": -0.005,
     "ci95": [
-     -0.03,
-     0.048
+     -0.044,
+     0.034
     ]
    },
    "compositeRel": {
-    "n": 2259,
-    "rho": -0.016,
+    "n": 2260,
+    "rho": -0.014,
     "ci95": [
-     -0.058,
-     0.025
+     -0.056,
+     0.027
     ]
    },
    "volRel": {
-    "n": 2259,
-    "rho": -0.031,
+    "n": 2260,
+    "rho": -0.028,
     "ci95": [
-     -0.072,
-     0.011
+     -0.069,
+     0.014
     ]
    },
    "macroRel": {
-    "n": 2259,
-    "rho": 0.035,
+    "n": 2260,
+    "rho": 0.038,
     "ci95": [
-     -0.007,
-     0.076
+     -0.003,
+     0.079
     ]
    }
   },
   "fwd5d": {
    "composite": {
-    "n": 2508,
+    "n": 2509,
     "rho": -0.095,
     "ci95": [
      -0.134,
@@ -96,7 +96,7 @@
     ]
    },
    "vol": {
-    "n": 2508,
+    "n": 2509,
     "rho": -0.104,
     "ci95": [
      -0.142,
@@ -104,139 +104,139 @@
     ]
    },
    "trend": {
-    "n": 2508,
-    "rho": -0.039,
+    "n": 2310,
+    "rho": -0.059,
     "ci95": [
-     -0.078,
-     0
+     -0.1,
+     -0.018
     ]
    },
    "macro": {
-    "n": 2508,
-    "rho": -0.007,
+    "n": 2509,
+    "rho": -0.015,
     "ci95": [
-     -0.046,
-     0.033
+     -0.055,
+     0.024
     ]
    },
    "compositeRel": {
-    "n": 2255,
-    "rho": -0.031,
+    "n": 2256,
+    "rho": -0.034,
     "ci95": [
-     -0.072,
-     0.011
+     -0.075,
+     0.008
     ]
    },
    "volRel": {
-    "n": 2255,
+    "n": 2256,
     "rho": -0.066,
     "ci95": [
      -0.107,
-     -0.024
+     -0.025
     ]
    },
    "macroRel": {
-    "n": 2255,
-    "rho": 0.044,
+    "n": 2256,
+    "rho": 0.045,
     "ci95": [
-     0.002,
-     0.085
+     0.004,
+     0.086
     ]
    }
   },
   "fwd21d": {
    "composite": {
-    "n": 2492,
-    "rho": -0.166,
+    "n": 2493,
+    "rho": -0.168,
     "ci95": [
-     -0.204,
-     -0.128
+     -0.206,
+     -0.129
     ]
    },
    "vol": {
-    "n": 2492,
-    "rho": -0.172,
+    "n": 2493,
+    "rho": -0.17,
     "ci95": [
-     -0.209,
-     -0.133
+     -0.208,
+     -0.132
     ]
    },
    "trend": {
-    "n": 2492,
-    "rho": -0.082,
+    "n": 2294,
+    "rho": -0.11,
     "ci95": [
-     -0.121,
-     -0.043
+     -0.15,
+     -0.069
     ]
    },
    "macro": {
-    "n": 2492,
-    "rho": -0.116,
+    "n": 2493,
+    "rho": -0.108,
     "ci95": [
-     -0.155,
-     -0.078
+     -0.147,
+     -0.069
     ]
    },
    "compositeRel": {
-    "n": 2239,
-    "rho": -0.078,
+    "n": 2240,
+    "rho": -0.073,
     "ci95": [
-     -0.119,
-     -0.037
+     -0.114,
+     -0.031
     ]
    },
    "volRel": {
-    "n": 2239,
-    "rho": -0.114,
+    "n": 2240,
+    "rho": -0.107,
     "ci95": [
-     -0.155,
-     -0.073
+     -0.148,
+     -0.066
     ]
    },
    "macroRel": {
-    "n": 2239,
-    "rho": 0.03,
+    "n": 2240,
+    "rho": 0.036,
     "ci95": [
-     -0.011,
-     0.071
+     -0.005,
+     0.077
     ]
    }
   },
   "fwd63d": {
    "composite": {
-    "n": 2450,
-    "rho": -0.257,
+    "n": 2451,
+    "rho": -0.263,
     "ci95": [
-     -0.294,
-     -0.22
+     -0.3,
+     -0.226
     ]
    },
    "vol": {
-    "n": 2450,
-    "rho": -0.266,
+    "n": 2451,
+    "rho": -0.264,
     "ci95": [
-     -0.302,
-     -0.229
+     -0.3,
+     -0.226
     ]
    },
    "trend": {
-    "n": 2450,
-    "rho": -0.102,
+    "n": 2252,
+    "rho": -0.123,
     "ci95": [
-     -0.141,
-     -0.062
+     -0.163,
+     -0.082
     ]
    },
    "macro": {
-    "n": 2450,
-    "rho": -0.087,
+    "n": 2451,
+    "rho": -0.077,
     "ci95": [
-     -0.126,
-     -0.047
+     -0.116,
+     -0.037
     ]
    },
    "compositeRel": {
-    "n": 2197,
+    "n": 2198,
     "rho": -0.078,
     "ci95": [
      -0.12,
@@ -244,16 +244,16 @@
     ]
    },
    "volRel": {
-    "n": 2197,
-    "rho": -0.152,
+    "n": 2198,
+    "rho": -0.148,
     "ci95": [
-     -0.192,
-     -0.111
+     -0.189,
+     -0.107
     ]
    },
    "macroRel": {
-    "n": 2197,
-    "rho": 0.038,
+    "n": 2198,
+    "rho": 0.039,
     "ci95": [
      -0.003,
      0.08
@@ -264,63 +264,63 @@
  "walkForward": {
   "referencePeriod": {
    "dateRange": [
-    "2016-07-18",
-    "2023-07-13"
+    "2016-08-15",
+    "2023-08-10"
    ],
    "n": 1759,
    "corr21d_composite": {
     "n": 1759,
-    "rho": -0.174,
+    "rho": -0.184,
     "ci95": [
-     -0.219,
-     -0.128
+     -0.229,
+     -0.139
     ]
    },
    "corr21d_compositeRel": {
     "n": 1506,
-    "rho": -0.062,
+    "rho": -0.065,
     "ci95": [
-     -0.112,
-     -0.012
+     -0.115,
+     -0.015
     ]
    },
    "corr63d_compositeRel": {
     "n": 1506,
-    "rho": -0.021,
+    "rho": -0.041,
     "ci95": [
-     -0.072,
-     0.029
+     -0.091,
+     0.01
     ]
    }
   },
   "holdoutPeriod": {
    "dateRange": [
-    "2023-07-14",
-    "2026-07-16"
+    "2023-08-11",
+    "2026-08-14"
    ],
-   "n": 754,
+   "n": 755,
    "corr21d_composite": {
-    "n": 733,
-    "rho": -0.187,
+    "n": 734,
+    "rho": -0.175,
     "ci95": [
-     -0.256,
-     -0.116
+     -0.244,
+     -0.104
     ]
    },
    "corr21d_compositeRel": {
-    "n": 733,
-    "rho": -0.092,
+    "n": 734,
+    "rho": -0.082,
     "ci95": [
-     -0.163,
-     -0.019
+     -0.154,
+     -0.01
     ]
    },
    "corr63d_compositeRel": {
-    "n": 691,
-    "rho": -0.306,
+    "n": 692,
+    "rho": -0.302,
     "ci95": [
-     -0.372,
-     -0.237
+     -0.368,
+     -0.232
     ]
    }
   }
@@ -328,41 +328,41 @@
  "regimes": [
   {
    "label": "low-vol_bull(within-5%-of-1y-high)",
-   "n": 1366,
+   "n": 1360,
    "corr21d_composite": {
-    "n": 1350,
-    "rho": -0.011,
+    "n": 1346,
+    "rho": -0.009,
     "ci95": [
-     -0.064,
-     0.043
+     -0.062,
+     0.044
     ]
    },
    "corr21d_compositeRel": {
-    "n": 1104,
-    "rho": 0.144,
+    "n": 1100,
+    "rho": 0.16,
     "ci95": [
-     0.086,
-     0.201
+     0.102,
+     0.217
     ]
    }
   },
   {
    "label": "mid-vol_bull(within-5%-of-1y-high)",
-   "n": 417,
+   "n": 424,
    "corr21d_composite": {
-    "n": 412,
-    "rho": -0.154,
+    "n": 417,
+    "rho": -0.122,
     "ci95": [
-     -0.247,
-     -0.058
+     -0.216,
+     -0.026
     ]
    },
    "corr21d_compositeRel": {
-    "n": 405,
-    "rho": 0.01,
+    "n": 410,
+    "rho": 0.003,
     "ci95": [
-     -0.088,
-     0.107
+     -0.094,
+     0.099
     ]
    }
   },
@@ -371,18 +371,18 @@
    "n": 322,
    "corr21d_composite": {
     "n": 322,
-    "rho": -0.113,
+    "rho": -0.12,
     "ci95": [
-     -0.219,
-     -0.004
+     -0.226,
+     -0.011
     ]
    },
    "corr21d_compositeRel": {
     "n": 322,
-    "rho": 0.01,
+    "rho": 0.009,
     "ci95": [
-     -0.099,
-     0.119
+     -0.1,
+     0.118
     ]
    }
   },
@@ -391,18 +391,18 @@
    "n": 105,
    "corr21d_composite": {
     "n": 105,
-    "rho": -0.252,
+    "rho": -0.241,
     "ci95": [
-     -0.423,
-     -0.063
+     -0.413,
+     -0.052
     ]
    },
    "corr21d_compositeRel": {
     "n": 105,
-    "rho": -0.149,
+    "rho": -0.146,
     "ci95": [
-     -0.331,
-     0.044
+     -0.329,
+     0.047
     ]
    }
   },
@@ -411,18 +411,18 @@
    "n": 101,
    "corr21d_composite": {
     "n": 101,
-    "rho": 0.06,
+    "rho": 0.067,
     "ci95": [
-     -0.137,
-     0.252
+     -0.13,
+     0.259
     ]
    },
    "corr21d_compositeRel": {
     "n": 101,
-    "rho": 0.158,
+    "rho": 0.155,
     "ci95": [
-     -0.039,
-     0.342
+     -0.042,
+     0.34
     ]
    }
   },
@@ -431,18 +431,18 @@
    "n": 97,
    "corr21d_composite": {
     "n": 97,
-    "rho": 0.178,
+    "rho": 0.133,
     "ci95": [
-     -0.022,
-     0.365
+     -0.069,
+     0.324
     ]
    },
    "corr21d_compositeRel": {
     "n": 97,
-    "rho": 0.447,
+    "rho": 0.459,
     "ci95": [
-     0.272,
-     0.594
+     0.286,
+     0.603
     ]
    }
   },
@@ -451,18 +451,18 @@
    "n": 87,
    "corr21d_composite": {
     "n": 87,
-    "rho": 0.157,
+    "rho": 0.133,
     "ci95": [
-     -0.056,
-     0.356
+     -0.08,
+     0.334
     ]
    },
    "corr21d_compositeRel": {
     "n": 87,
-    "rho": 0.016,
+    "rho": 0.008,
     "ci95": [
-     -0.195,
-     0.226
+     -0.203,
+     0.218
     ]
    }
   },
@@ -497,76 +497,76 @@
  },
  "quantileSpread": {
   "fwd5d": {
-   "n": 2508,
+   "n": 2509,
    "bottomTercile": {
     "n": 836,
-    "meanReturn": 0.5,
-    "hitRate": 61.5
+    "meanReturn": 0.48,
+    "hitRate": 60.9
    },
    "topTercile": {
     "n": 836,
-    "meanReturn": 0.21,
-    "hitRate": 64.6
+    "meanReturn": 0.23,
+    "hitRate": 64.8
    },
    "unconditional": {
     "meanReturn": 0.28,
-    "hitRate": 61.4
+    "hitRate": 61.3
    },
-   "quantileSpread": -0.29
+   "quantileSpread": -0.25
   },
   "fwd21d": {
-   "n": 2492,
+   "n": 2493,
    "bottomTercile": {
-    "n": 830,
-    "meanReturn": 1.94,
-    "hitRate": 67.7
+    "n": 831,
+    "meanReturn": 1.95,
+    "hitRate": 68
    },
    "topTercile": {
-    "n": 830,
-    "meanReturn": 0.65,
-    "hitRate": 70.5
-   },
-   "unconditional": {
-    "meanReturn": 1.15,
-    "hitRate": 68.5
-   },
-   "quantileSpread": -1.29
-  },
-  "rel_fwd21d": {
-   "n": 2239,
-   "bottomTercile": {
-    "n": 746,
-    "meanReturn": 1.47,
-    "hitRate": 64.7
-   },
-   "topTercile": {
-    "n": 746,
-    "meanReturn": 1.19,
-    "hitRate": 72.4
+    "n": 831,
+    "meanReturn": 0.67,
+    "hitRate": 69.8
    },
    "unconditional": {
     "meanReturn": 1.16,
-    "hitRate": 68.1
+    "hitRate": 68.6
    },
-   "quantileSpread": -0.28
+   "quantileSpread": -1.28
+  },
+  "rel_fwd21d": {
+   "n": 2240,
+   "bottomTercile": {
+    "n": 746,
+    "meanReturn": 1.49,
+    "hitRate": 64.9
+   },
+   "topTercile": {
+    "n": 746,
+    "meanReturn": 1.15,
+    "hitRate": 72.9
+   },
+   "unconditional": {
+    "meanReturn": 1.18,
+    "hitRate": 68.7
+   },
+   "quantileSpread": -0.33
   },
   "rel_fwd63d": {
-   "n": 2197,
+   "n": 2198,
    "bottomTercile": {
     "n": 732,
-    "meanReturn": 4.06,
-    "hitRate": 69.8
+    "meanReturn": 4.12,
+    "hitRate": 69.9
    },
    "topTercile": {
     "n": 732,
-    "meanReturn": 2.83,
-    "hitRate": 77.9
+    "meanReturn": 2.78,
+    "hitRate": 77.2
    },
    "unconditional": {
     "meanReturn": 3.45,
     "hitRate": 74.3
    },
-   "quantileSpread": -1.23
+   "quantileSpread": -1.33
   }
  },
  "caveats": [

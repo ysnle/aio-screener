@@ -2527,6 +2527,8 @@ async function main() {
   let previousTreasury = null;
   let previousFredHyOas = null;
   let previousMacro = null;
+  let previousMarketSurveys = null;
+  let previousOfficialWebReferences = null;
   try {
     const previous = JSON.parse(await readFile(OUT, 'utf8'));
     previousBls = previous && previous.macro && previous.macro._bls || null;
@@ -2534,6 +2536,8 @@ async function main() {
     previousTreasury = previous && previous.macro && previous.macro._treasury || null;
     previousFredHyOas = previous && previous.macro && previous.macro._fredHyOas || null;
     previousMacro = previous && previous.macro || null;
+    previousMarketSurveys = previous && previous.marketSurveys || null;
+    previousOfficialWebReferences = previous && previous.officialWebReferences || null;
   } catch (_) {}
 
   const [quotesRaw, macroRaw, fearGreed, news, putCall, bls, bea, treasury, fredHyOas, cryptoCrossCheck] = await Promise.all([
@@ -2682,6 +2686,8 @@ async function main() {
       newsScoreMax: newsScores.length ? Math.max(...newsScores) : null,
       putCallOk: putCall && Number.isFinite(putCall.totalPutCall),
       putCallAsOf: putCall && putCall.asOf || null,
+      marketSurveysStatus: previousMarketSurveys?.policy || null,
+      marketSurveysCheckedAt: previousMarketSurveys?.checkedAt || null,
       elapsedMs: Date.now() - t0,
       schema: 1,
     },
@@ -2690,6 +2696,11 @@ async function main() {
     fearGreed,
     putCall,
     providerCrossChecks: { crypto: cryptoCrossCheck },
+    // Publisher survey values are an operator-captured WebSearch artifact.
+    // Preserve them across automated market refreshes; do not synthesize a new
+    // value when a publisher page is stale, subscriber-only, or unavailable.
+    marketSurveys: previousMarketSurveys,
+    officialWebReferences: previousOfficialWebReferences,
     news,
   };
 

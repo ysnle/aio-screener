@@ -124,9 +124,10 @@ jobs:
         run: |
           node scripts/ci-reconciliation-contract-check.mjs
           node scripts/ci-source-registry-contract-check.mjs
-          node scripts/ci-professional-data-gap-check.mjs
-          node scripts/ci-static-data-contract-check.mjs
-          node scripts/ci-data-refresh-audit.mjs
+           node scripts/ci-professional-data-gap-check.mjs
+           node scripts/ci-static-data-contract-check.mjs
+           node scripts/ci-web-research-contract-check.mjs
+           node scripts/ci-data-refresh-audit.mjs
 
       # P572/R263: repo freshness alone proved insufficient — also verify the LIVE site
       # is actually serving fresh data. Live lag budget = refresh cadence (30min) +
