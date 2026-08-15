@@ -3,7 +3,7 @@ status: IMPLEMENTED_LOCAL
 verified_by: Codex release verification
 last_verified: 2026-08-15
 confidence: high
-target_version: v54.26
+target_version: v54.27
 ---
 
 # SCR-OS-00 Baseline and Dependency Ledger

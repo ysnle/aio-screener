@@ -2,7 +2,7 @@
 verified_by: agent (Fable 5) + Codex P761-P936 verification
 last_verified: 2026-08-15
 confidence: high
-target_version: v54.26
+target_version: v54.27
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
@@ -24,6 +24,12 @@ target_version: v54.26
 **Rule**: When a generated screener/SEC artifact changes its measured coverage, every active golden, baseline ledger, index summary, and user-visible availability contract that consumes that measurement must be updated from the same committed tree. An unavailable SEC report must retain its `sec-report.v3` and PIT boundary in visible metadata; it must never imply a current filing or synthesize a missing fact.
 
 **Validation**: `ci-screener-workbench-contract.mjs`, `ci-architecture-browser-check.mjs`, `ci-data-lineage-audit.mjs`, and `ci-reconciliation-contract-check.mjs` must pass against the same artifact revision.
+
+## R495. Generated reference summaries must share the source artifact lineage (v54.27, P939)
+
+**Rule**: When a generated research digest is refreshed, every user-visible index or summary that reports its observation count, status, channels, or currentness must be regenerated from the same source artifact and release pass. A producer's synchronization code does not certify a stale previously generated summary.
+
+**Validation**: `ci-atlas-contract-check.mjs`, `ci-six-doc-coverage-check.mjs`, `ci-data-lineage-audit.mjs`, and the release-manifest contract must verify digest/index equality and pass after the final producer run.
 
 ## R491. Browser goldens and renderers are certified from the same committed tree (v54.22)
 

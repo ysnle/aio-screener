@@ -2,11 +2,21 @@
 verified_by: agent (Claude Sonnet 5) + Codex full-route audit verification
 last_verified: 2026-08-15
 confidence: high
-latest_version: v54.26
-latest_P_number: P938
-next_P_number: P939
-current_total_entries: 654 (P1~P934, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P938 v54.26 release contract correction
+latest_version: v54.27
+latest_P_number: P939
+next_P_number: P940
+current_total_entries: 655 (P1~P939, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P939 v54.27 Telegram/Atlas lineage correction
+
+## P939 - v54.27 - Telegram digest refresh left the Atlas lineage summary stale
+
+- **motivation**: Every user-visible research reference packet must expose the same current Telegram observation lineage as the generated digest used by the desktop knowledge route.
+- **symptom/reproduction**: The v54.26 release contained a Telegram digest with `retainedItemCount=444`, while `public-data/atlas/index.json` still declared `telegramObservedLineage=457`; the GitHub research reference packet gate failed even though the producer wiring was present.
+- **root_cause**: The digest was regenerated before the producer's atomic Atlas-index synchronization was included in the final artifact pass, so the generated summary and its source artifact were committed from different refresh states.
+- **fix**: Re-ran the Telegram producer for the current 14-day window, accepted the measured `retainedItemCount=452`, and committed the digest and Atlas index from the same generated tree.
+- **violated_rule**: R494/R495; generated user-visible summaries must be regenerated from the same data revision as their source artifacts.
+- **prevention**: Keep `ci-atlas-contract-check.mjs` blocking on digest/index lineage equality, run the producer immediately before release-manifest generation, and retain the exact channel/retained counts in the changelog and QA record.
+- **verification**: Local Atlas, six-document coverage, data-refresh, lineage, reconciliation, runtime, version, architecture, headless, and release-manifest gates must pass; GitHub CI and Pages remain the final live gates.
 
 ## P938 - v54.26 - Refreshed SEC coverage and empty-report semantics drifted from blocking contracts
 

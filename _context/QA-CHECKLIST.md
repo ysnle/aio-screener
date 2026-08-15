@@ -3,6 +3,13 @@ verified_by: agent (Fable 5) + Codex full-route audit verification
 last_verified: 2026-08-15
 confidence: high
 
+## v54.27 Telegram/Atlas lineage correction (2026-08-15)
+
+- [x] QA-DATA-TELEGRAM-01: the configured 14-day Telegram producer completed with 4/4 channels and a retained lineage of 452 items; the digest carries current generated/attempted/success timestamps.
+- [x] QA-DATA-TELEGRAM-02: `public-data/atlas/index.json.telegramObservedLineage` equals `public-data/telegram-digest.json.retainedItemCount` (452), and the blocking Atlas contract passes.
+- [x] QA-DATA-TELEGRAM-03: release manifests, reconciliation, operations, version/cachebusters, and source/consumer lineage were regenerated or rechecked after the final Telegram artifact pass; no stale `457` lineage remains in the release tree.
+- [ ] QA-DATA-TELEGRAM-04: the new GitHub Actions run and Pages deployment must pass from the committed v54.27 release tree; local gates do not certify live deployment.
+
 ## v54.26 Release contract correction (2026-08-15)
 
 - [x] QA-RELEASE-CONTRACT-01: the Workbench golden and active SCR-OS baseline agree with the refreshed artifact at universe 873, observed/usable 847, and fundamental coverage 77.2%; the contract does not preserve the superseded 873/848/74.2 values.

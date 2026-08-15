@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-08-15T10:40:04.182Z",
-  "attemptedAt": "2026-08-15T10:40:04.182Z",
-  "lastSuccessfulAt": "2026-08-15T10:40:04.182Z",
+  "generatedAt": "2026-08-15T11:31:57.133Z",
+  "attemptedAt": "2026-08-15T11:31:57.133Z",
+  "lastSuccessfulAt": "2026-08-15T11:31:57.133Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-08-01T10:39:58.016Z",
-  "until": "2026-08-15T10:39:58.016Z",
+  "since": "2026-08-01T11:31:33.517Z",
+  "until": "2026-08-15T11:31:33.517Z",
   "current24hWindow": {
     "start": "2026-08-13T23:00:00.000Z",
     "end": "2026-08-14T23:00:00.000Z",
@@ -80,7 +80,7 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 280,
+      "count": 277,
       "freshCount": 18,
       "eligibleTextCount": 17,
       "selectedCount": 75,
@@ -89,22 +89,22 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1150,
-      "freshCount": 20,
-      "eligibleTextCount": 17,
+      "count": 1149,
+      "freshCount": 38,
+      "eligibleTextCount": 34,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 61203
+      "lastPostId": 61204
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 246,
+      "count": 245,
       "freshCount": 19,
       "eligibleTextCount": 19,
       "selectedCount": 87,
@@ -116,7 +116,7 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 742,
+      "count": 740,
       "freshCount": 16,
       "eligibleTextCount": 16,
       "selectedCount": 125,
@@ -124,9 +124,29 @@
       "lastPostId": 67181
     }
   ],
-  "count": 2418,
-  "retainedItemCount": 444,
+  "count": 2411,
+  "retainedItemCount": 452,
   "observedItems": [
+    {
+      "id": "insidertracking/61204",
+      "channel": "insidertracking",
+      "datetime": "2026-08-15T11:19:45.000Z",
+      "localDateKst": "2026-08-15",
+      "score": 100,
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "equity"
+      ],
+      "tickers": [
+        "AMZN",
+        "MA"
+      ],
+      "hasText": true
+    },
     {
       "id": "insidertracking/61203",
       "channel": "insidertracking",
@@ -757,7 +777,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67160",
@@ -799,7 +819,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67158",
@@ -853,7 +873,7 @@
         "NFLX",
         "UNP"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61177",
@@ -879,7 +899,7 @@
         "MTZ",
         "IVV"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61176",
@@ -909,7 +929,7 @@
         "GLW",
         "SMH"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61175",
@@ -933,7 +953,7 @@
         "B",
         "AU"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61174",
@@ -970,7 +990,7 @@
         "NI",
         "SPY"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61172",
@@ -1000,7 +1020,7 @@
         "DAL",
         "LSCC"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67156",
@@ -1039,7 +1059,7 @@
         "STZ",
         "OXY"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67155",
@@ -1063,7 +1083,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67154",
@@ -1092,7 +1112,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61168",
@@ -1104,7 +1124,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61167",
@@ -1116,7 +1136,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61166",
@@ -1128,7 +1148,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61165",
@@ -1140,7 +1160,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61164",
@@ -1152,7 +1172,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61163",
@@ -34461,157 +34481,49 @@
       ],
       "tickers": [],
       "hasText": false
-    },
-    {
-      "id": "bornlupin/19467",
-      "channel": "bornlupin",
-      "datetime": "2026-08-01T11:08:29.000Z",
-      "localDateKst": "2026-08-01",
-      "score": 100,
-      "tags": [
-        "macro",
-        "semi",
-        "kr-market",
-        "earnings",
-        "japan"
-      ],
-      "tickers": [
-        "MSFT",
-        "GOOG",
-        "AMZN",
-        "005930.KS",
-        "009150.KS"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/24258",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-08-01T11:05:25.000Z",
-      "localDateKst": "2026-08-01",
-      "score": 64,
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/24257",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-08-01T11:01:48.000Z",
-      "localDateKst": "2026-08-01",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59943",
-      "channel": "insidertracking",
-      "datetime": "2026-08-01T11:00:56.000Z",
-      "localDateKst": "2026-08-01",
-      "score": 45,
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/24256",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-08-01T11:00:03.000Z",
-      "localDateKst": "2026-08-01",
-      "score": 48,
-      "tags": [
-        "power"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/66384",
-      "channel": "HANAchina",
-      "datetime": "2026-08-01T10:56:47.000Z",
-      "localDateKst": "2026-08-01",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/66383",
-      "channel": "HANAchina",
-      "datetime": "2026-08-01T10:56:03.000Z",
-      "localDateKst": "2026-08-01",
-      "score": 40,
-      "tags": [
-        "earnings"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/59942",
-      "channel": "insidertracking",
-      "datetime": "2026-08-01T10:41:19.000Z",
-      "localDateKst": "2026-08-01",
-      "score": 58,
-      "tags": [
-        "geo",
-        "kr-market",
-        "flows"
-      ],
-      "tickers": [],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2418,
-    "eligibleTextCount": 69,
-    "mediaOnlyCount": 2349,
+    "observedCount": 2411,
+    "eligibleTextCount": 86,
+    "mediaOnlyCount": 2325,
     "highSignalCount": 637,
-    "broadSignalCount": 1229,
+    "broadSignalCount": 1227,
     "selectedRawCount": 408,
-    "selectedRawCoveragePct": 591.3,
+    "selectedRawCoveragePct": 474.4,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "market-note": 564,
-    "geo": 390,
-    "japan": 194,
-    "macro": 870,
-    "semi": 719,
+    "credit": 75,
+    "macro": 869,
+    "geo": 389,
+    "semi": 718,
     "power": 358,
+    "equity": 218,
+    "market-note": 562,
+    "japan": 193,
     "ai-policy": 182,
-    "kr-market": 373,
-    "equity": 217,
-    "flows": 258,
-    "earnings": 607,
+    "kr-market": 371,
+    "flows": 257,
+    "earnings": 605,
     "media-only": 50,
     "healthcare": 135,
     "optical": 71,
     "crypto": 18,
-    "credit": 74,
     "insider": 79
   },
   "tickerCounts": {
+    "AMZN": 82,
+    "MA": 3,
     "NVDA": 102,
     "AAPL": 54,
-    "MSFT": 46,
-    "GOOG": 94,
+    "MSFT": 45,
+    "GOOG": 93,
     "META": 50,
     "AVGO": 40,
-    "AMZN": 82,
     "MU": 50,
     "TSM": 93,
     "BE": 23,
@@ -34700,7 +34612,7 @@
     "BNS": 1,
     "MTK": 7,
     "BMY": 5,
-    "005930.KS": 134,
+    "005930.KS": 133,
     "COHR": 17,
     "6600.T": 9,
     "SMCI": 13,
@@ -34723,7 +34635,7 @@
     "WDAY": 1,
     "IRDM": 2,
     "FDX": 1,
-    "009150.KS": 4,
+    "009150.KS": 3,
     "207940.KS": 1,
     "006400.KS": 1,
     "032830.KS": 1,
@@ -34813,7 +34725,6 @@
     "NUE": 2,
     "PRU": 1,
     "JCI": 2,
-    "MA": 2,
     "DIS": 1,
     "DASH": 1,
     "BKNG": 3,
@@ -34840,14 +34751,14 @@
     "RDDT": 1
   },
   "themes": [
-    "Macro/Rates (870 posts in 14-day research window): >>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도...",
-    "Semiconductors/Memory (719 posts in 14-day research window): >>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도...",
-    "Earnings/Corporate (607 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 애플 (AAPL) — 중국 시장용 AI 모델을 자체 개발하고 있으며, 알리바바가 모델 개발을...",
-    "Market Notes (564 posts in 14-day research window): 52주 신고가 · Aehr Test Systems · Aramark · Associated Banc-Corp · Bank of America Corp. Preferred · Bank of Montreal ·...",
-    "Geopolitics (390 posts in 14-day research window): >>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도...",
-    "Korea Market (373 posts in 14-day research window): >>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도...",
-    "AI Power/Grid (358 posts in 14-day research window): >>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도...",
-    "Positioning/Flows (258 posts in 14-day research window): >>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도..."
+    "Macro/Rates (869 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 15일 > 오전 8시~오후 8시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국 정부는 애플에 중국산 메모리 반도체 사용을 자제하라고 압박. AI 수요로 메모리 공급이 빠듯해지는 상황에서도 CXMT·YMTC 등 중국 업체 활용에 국가안보 및 공급망 우려를...",
+    "Semiconductors/Memory (718 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 15일 > 오전 8시~오후 8시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국 정부는 애플에 중국산 메모리 반도체 사용을 자제하라고 압박. AI 수요로 메모리 공급이 빠듯해지는 상황에서도 CXMT·YMTC 등 중국 업체 활용에 국가안보 및 공급망 우려를...",
+    "Earnings/Corporate (605 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 애플 (AAPL) — 중국 시장용 AI 모델을 자체 개발하고 있으며, 알리바바가 모델 개발을...",
+    "Market Notes (562 posts in 14-day research window): 52주 신고가 · Aehr Test Systems · Aramark · Associated Banc-Corp · Bank of America Corp. Preferred · Bank of Montreal ·...",
+    "Geopolitics (389 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 15일 > 오전 8시~오후 8시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국 정부는 애플에 중국산 메모리 반도체 사용을 자제하라고 압박. AI 수요로 메모리 공급이 빠듯해지는 상황에서도 CXMT·YMTC 등 중국 업체 활용에 국가안보 및 공급망 우려를...",
+    "Korea Market (371 posts in 14-day research window): >>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도...",
+    "AI Power/Grid (358 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 15일 > 오전 8시~오후 8시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국 정부는 애플에 중국산 메모리 반도체 사용을 자제하라고 압박. AI 수요로 메모리 공급이 빠듯해지는 상황에서도 CXMT·YMTC 등 중국 업체 활용에 국가안보 및 공급망 우려를...",
+    "Positioning/Flows (257 posts in 14-day research window): >>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도..."
   ],
   "catalysts": [
     {
@@ -34857,7 +34768,7 @@
     },
     {
       "key": "005930.KS",
-      "count": 134,
+      "count": 133,
       "text": "Market Summary - 2026년 8월 13일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령, 미국이 호르무즈 해협을 “완전히 통제”하고 있으며 이를 계속 유지할 수 있다고 발언. ·..."
     },
     {
@@ -34867,7 +34778,7 @@
     },
     {
       "key": "GOOG",
-      "count": 94,
+      "count": 93,
       "text": ">>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도..."
     },
     {
@@ -34878,12 +34789,12 @@
     {
       "key": "AMZN",
       "count": 82,
-      "text": ">>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도..."
+      "text": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 15일 > 오전 8시~오후 8시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국 정부는 애플에 중국산 메모리 반도체 사용을 자제하라고 압박. AI 수요로 메모리 공급이 빠듯해지는 상황에서도 CXMT·YMTC 등 중국 업체 활용에 국가안보 및 공급망 우려를..."
     },
     {
       "key": "AMD",
       "count": 81,
-      "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 📊 13F 보고서 ━━━━━━━━━━━━━━ 🏦 기관: Situational Awareness LP (시추에이셔널 어웨어니스) 📅 분기:..."
+      "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 📊 13F 보고서 ━━━━━━━━━━━━━━ 🏦 기관: Situational Awareness LP (시추에이셔널 어웨어니스) 📅 분기: 2026Q2 👤 Manager: Kimberly Summe ━━━━━━━━━━━━━━ 💼 Top..."
     },
     {
       "key": "AAPL",
@@ -34918,8 +34829,8 @@
       "topics": [
         "macro"
       ],
-      "count": 870,
-      "focus": ">>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도..."
+      "count": 869,
+      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 15일 > 오전 8시~오후 8시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국 정부는 애플에 중국산 메모리 반도체 사용을 자제하라고 압박. AI 수요로 메모리 공급이 빠듯해지는 상황에서도 CXMT·YMTC 등 중국 업체 활용에 국가안보 및 공급망 우려를..."
     },
     {
       "id": "geo",
@@ -34927,8 +34838,8 @@
       "topics": [
         "geo"
       ],
-      "count": 390,
-      "focus": ">>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도..."
+      "count": 389,
+      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 15일 > 오전 8시~오후 8시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국 정부는 애플에 중국산 메모리 반도체 사용을 자제하라고 압박. AI 수요로 메모리 공급이 빠듯해지는 상황에서도 CXMT·YMTC 등 중국 업체 활용에 국가안보 및 공급망 우려를..."
     },
     {
       "id": "credit",
@@ -34936,8 +34847,8 @@
       "topics": [
         "credit"
       ],
-      "count": 74,
-      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 14일 > 새벽 5시~오후 2시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 국가안보상 민감한 특정 드론에 100%, 소형 드론에 25%..."
+      "count": 75,
+      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 15일 > 오전 8시~오후 8시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국 정부는 애플에 중국산 메모리 반도체 사용을 자제하라고 압박. AI 수요로 메모리 공급이 빠듯해지는 상황에서도 CXMT·YMTC 등 중국 업체 활용에 국가안보 및 공급망 우려를..."
     },
     {
       "id": "semi",
@@ -34945,8 +34856,8 @@
       "topics": [
         "semi"
       ],
-      "count": 719,
-      "focus": ">>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도..."
+      "count": 718,
+      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 15일 > 오전 8시~오후 8시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국 정부는 애플에 중국산 메모리 반도체 사용을 자제하라고 압박. AI 수요로 메모리 공급이 빠듯해지는 상황에서도 CXMT·YMTC 등 중국 업체 활용에 국가안보 및 공급망 우려를..."
     },
     {
       "id": "optical",
@@ -34964,7 +34875,7 @@
         "power"
       ],
       "count": 358,
-      "focus": ">>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도..."
+      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 15일 > 오전 8시~오후 8시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국 정부는 애플에 중국산 메모리 반도체 사용을 자제하라고 압박. AI 수요로 메모리 공급이 빠듯해지는 상황에서도 CXMT·YMTC 등 중국 업체 활용에 국가안보 및 공급망 우려를..."
     },
     {
       "id": "ai-policy",
@@ -34981,7 +34892,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 373,
+      "count": 371,
       "focus": ">>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도..."
     },
     {
@@ -34990,8 +34901,8 @@
       "topics": [
         "equity"
       ],
-      "count": 217,
-      "focus": ">>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도..."
+      "count": 218,
+      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 15일 > 오전 8시~오후 8시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국 정부는 애플에 중국산 메모리 반도체 사용을 자제하라고 압박. AI 수요로 메모리 공급이 빠듯해지는 상황에서도 CXMT·YMTC 등 중국 업체 활용에 국가안보 및 공급망 우려를..."
     },
     {
       "id": "crypto",
@@ -35008,7 +34919,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 607,
+      "count": 605,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 애플 (AAPL) — 중국 시장용 AI 모델을 자체 개발하고 있으며, 알리바바가 모델 개발을..."
     },
     {
@@ -35026,7 +34937,7 @@
       "topics": [
         "japan"
       ],
-      "count": 194,
+      "count": 193,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 애플 (AAPL) — 중국 시장용 AI 모델을 자체 개발하고 있으며, 알리바바가 모델 개발을..."
     },
     {
@@ -35035,7 +34946,7 @@
       "topics": [
         "flows"
       ],
-      "count": 258,
+      "count": 257,
       "focus": ">>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도..."
     },
     {
@@ -35053,7 +34964,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 564,
+      "count": 562,
       "focus": "52주 신고가 · Aehr Test Systems · Aramark · Associated Banc-Corp · Bank of America Corp. Preferred · Bank of Montreal ·..."
     }
   ],
@@ -35305,6 +35216,28 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "insidertracking/61204",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61204",
+      "datetime": "2026-08-15T11:19:45.000Z",
+      "localDateKst": "2026-08-15",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "equity"
+      ],
+      "tickers": [
+        "AMZN",
+        "MA"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 15일 > 오전 8시~오후 8시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국 정부는 애플에 중국산 메모리 반도체 사용을 자제하라고 압박. AI 수요로..."
+    },
     {
       "id": "HANAchina/67180",
       "channel": "HANAchina",
@@ -36110,31 +36043,6 @@
       "summary": "2026년 8월 11일 서학개미 순매수 미국 주식 TOP 50 1위: II-VI INCORPORATED Com CHAN 009623241 US9021041085 (10.09%) 2위: AKAMAI..."
     },
     {
-      "id": "insidertracking/60891",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/60891",
-      "datetime": "2026-08-11T20:16:29.000Z",
-      "localDateKst": "2026-08-12",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "equity",
-        "earnings",
-        "healthcare"
-      ],
-      "tickers": [
-        "AAPL",
-        "GOOG",
-        "META"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "2026년 8월 12일 미국 증시 브리핑 미국 증시는 S&P 500 -0.32%, 다우 -0.34%, 나스닥 -0.60%로 약세 마감한 반면 러셀2000은 +0.37% 상승하며 대형 성장주에서..."
-    },
-    {
       "id": "aetherjapanresearch/24525",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/24525",
@@ -36537,6 +36445,28 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/61204",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61204",
+      "datetime": "2026-08-15T11:19:45.000Z",
+      "localDateKst": "2026-08-15",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi",
+        "power",
+        "equity"
+      ],
+      "tickers": [
+        "AMZN",
+        "MA"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 15일 > 오전 8시~오후 8시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국 정부는 애플에 중국산 메모리 반도체 사용을 자제하라고 압박. AI 수요로..."
+    },
     {
       "id": "HANAchina/67180",
       "channel": "HANAchina",
@@ -41948,46 +41878,6 @@
       "score": 52,
       "hasText": true,
       "summary": "코어위브 매출 수주 잔고 (Revenue Backlog) 1,042억 달러 (전년 동기 대비 246% 증가) 엔터프라이즈 및 AI 네이티브 고객층의 지속적인 다변화가 성장을 견인. 3분기 초에 추가된 250억..."
-    },
-    {
-      "id": "insidertracking/60898",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/60898",
-      "datetime": "2026-08-11T20:29:39.000Z",
-      "localDateKst": "2026-08-12",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "optical",
-        "kr-market",
-        "flows",
-        "healthcare"
-      ],
-      "tickers": [
-        "AMD",
-        "TSLA",
-        "GOOG",
-        "TSM",
-        "MRVL",
-        "LITE",
-        "RKLB",
-        "000660.KS",
-        "GOOGL",
-        "NKE",
-        "LUNR",
-        "CRDO",
-        "GLW",
-        "NRG",
-        "AKAM",
-        "QQQ",
-        "SOXX",
-        "GLD",
-        "SLV"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "2026년 8월 11일 서학개미 순매수 미국 주식 TOP 50 1위: II-VI INCORPORATED Com CHAN 009623241 US9021041085 (10.09%) 2위: AKAMAI..."
     },
     {
       "id": "bornlupin/19667",

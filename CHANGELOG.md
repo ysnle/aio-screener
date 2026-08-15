@@ -1,3 +1,9 @@
+## v54.27 (2026-08-15)
+- Re-ran the configured 14-day Telegram producer: 4/4 channels succeeded and the retained lineage moved to 452 items; regenerated `public-data/atlas/index.json` from that same digest so the reference packet cannot publish a stale lineage count.
+- Rebuilt release lineage, reconciliation, and operations artifacts after the data refresh; unresolved provider-rights, FRED/Anthropic credentials, Cloudflare soak, licensed feeds, and bounded SEC gaps remain explicit rather than synthesized.
+- Fixed the follow-up CI contract drift from the v54.26 release tree; mobile/tablet implementation and QA remain excluded.
+- R1 7곳 v54.27
+
 ## v54.26 (2026-08-15)
 - Regenerated the active screener baseline and Workbench contract from the latest refresh: 873 universe, 847 usable observations, 77.2% fundamental coverage.
 - Made the empty SEC `sec-report.v3` surface explicitly show `PIT` unavailable, preserving the point-in-time boundary without inventing a fact.
