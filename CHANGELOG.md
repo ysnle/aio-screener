@@ -1,3 +1,9 @@
+## v54.26 (2026-08-15)
+- Regenerated the active screener baseline and Workbench contract from the latest refresh: 873 universe, 847 usable observations, 77.2% fundamental coverage.
+- Made the empty SEC `sec-report.v3` surface explicitly show `PIT` unavailable, preserving the point-in-time boundary without inventing a fact.
+- Closed the follow-up local contract drift after the v54.25 refresh; mobile/tablet work remains excluded and live Pages certification stays CI-gated.
+- R1 7곳 v54.26
+
 ## v54.25 (2026-08-15)
 - Refreshed the full desktop user-visible data set again: 78/78 quotes, macro/F&G/news/history, 873-symbol screener, 562/657 SEC fundamentals, Telegram digest, reconciliation, operations, and 22-category freshness/lineage contracts.
 - Fixed the shared snapshot lineage tooltip regression found by the blocking headless suite: internal `DATA_SNAPSHOT` remains available to evidence attributes, while user-facing titles now use Korean reference-data wording (P937/R206).

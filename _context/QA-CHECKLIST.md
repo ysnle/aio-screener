@@ -3,6 +3,12 @@ verified_by: agent (Fable 5) + Codex full-route audit verification
 last_verified: 2026-08-15
 confidence: high
 
+## v54.26 Release contract correction (2026-08-15)
+
+- [x] QA-RELEASE-CONTRACT-01: the Workbench golden and active SCR-OS baseline agree with the refreshed artifact at universe 873, observed/usable 847, and fundamental coverage 77.2%; the contract does not preserve the superseded 873/848/74.2 values.
+- [x] QA-RELEASE-CONTRACT-02: the empty SEC report state visibly declares `PIT` unavailable while keeping the report model `sec-report.v3`; the architecture browser gate fails if the PIT boundary is omitted.
+- [ ] QA-RELEASE-CONTRACT-03: the new GitHub Actions run and Pages deployment must pass from the committed release tree; local gates do not certify live deployment.
+
 ## v54.25 Visible snapshot marker regression (2026-08-15)
 
 - [x] QA-UX-MARKER-01: the shared snapshot lineage renderer keeps `data-source-label` for internal evidence tracing but translates `title` text to user-facing reference language; `T776` must report zero visible `DATA_SNAPSHOT` markers across all desktop pages.
@@ -67,7 +73,7 @@ confidence: high
 - [x] QA-QUANT-AUTO-02: live price and market cap retain runtime quote observation/fetch/source/revision; EOD factors retain factor epochs; fundamentals retain filing-derived epochs; news retains its own timestamp. No family falls back to another family's observation time.
 - [x] QA-QUANT-AUTO-03: the desktop screener timeline separately checks snapshot, 14-field factor coverage, ranking input/snapshot parity, rendered-row live quotes, 180-day fundamentals, and 2-day ticker news.
 - [x] QA-QUANT-AUTO-04: current rendered batches register no more than 120 symbols with the central quote scheduler; initial render, sort, filter, screen change, and load-more update demand, while identical demand is throttled for 55 seconds.
-- [x] QA-QUANT-AUTO-05: size activates only at 80% four-day market-cap coverage; value/quality activate only at 80% 180-day observed fundamental coverage. The current 873/848 artifact keeps value/quality inactive because current fundamentals do not meet that threshold.
+- [x] QA-QUANT-AUTO-05: size activates only at 80% four-day market-cap coverage; value/quality activate only at 80% 180-day observed fundamental coverage. The current 873/847 artifact keeps value/quality inactive because current fundamentals do not meet that threshold.
 - [x] QA-QUANT-AUTO-06: scheduled workflow runs artifact validation, Workbench lineage/live-demand gates, page timeline gates, reconciliation, and operations checks before committing validated artifacts.
 - [x] QA-QUANT-AUTO-06B: the dedicated desktop browser gate verifies 12/12 rendered quote registration and display, 100% visible quote coverage, three required timeline passes, ranking revision parity, and value/quality exclusion under stale fundamental coverage.
 - [ ] QA-QUANT-AUTO-07: the v54.20 workflow execution, GitHub Pages deployment, and external provider availability/rights require post-push live certification; local and browser gates do not claim this prematurely.

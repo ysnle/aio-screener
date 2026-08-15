@@ -2,11 +2,21 @@
 verified_by: agent (Claude Sonnet 5) + Codex full-route audit verification
 last_verified: 2026-08-15
 confidence: high
-latest_version: v54.25
-latest_P_number: P937
-next_P_number: P938
+latest_version: v54.26
+latest_P_number: P938
+next_P_number: P939
 current_total_entries: 654 (P1~P934, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P937 v54.25 visible snapshot marker regression
+current_checkpoint: P938 v54.26 release contract correction
+
+## P938 - v54.26 - Refreshed SEC coverage and empty-report semantics drifted from blocking contracts
+
+- **motivation**: A release must publish the actual refreshed screener baseline and keep the SEC report's point-in-time boundary visible even when no entity facts are available.
+- **symptom/reproduction**: The Workbench contract still expected the superseded `873/848/74.2` baseline while the committed refresh produced `873/847/77.2`; the architecture browser contract also failed because the empty SEC report meta text omitted `PIT`.
+- **root_cause**: The generated SEC/screener artifacts were refreshed without regenerating the independent Workbench golden and active SCR-OS summary, and the v3 report renderer only appended PIT evidence for current rows, leaving its explicit unavailable state semantically incomplete.
+- **fix**: Updated the Workbench golden and active baseline/index references to the measured `873/847/77.2` values, and changed the shared empty SEC report renderer to state `PIT 관측 없음` without fabricating a fact or changing the v3 model.
+- **violated_rule**: R483/R494; independent contracts must be regenerated from the same committed data/runtime tree, and a report's unavailable state must preserve its evidence boundary.
+- **prevention**: Keep the Workbench golden, SCR-OS baseline, and artifact coverage in the same release audit; require the architecture browser check to assert visible PIT semantics for both current and unavailable SEC report states.
+- **verification**: Local Workbench contract, architecture browser lifecycle, version/data/static/reconciliation/operations/runtime contracts, syntax, and full headless suite are required before the follow-up push; GitHub CI and Pages remain the final live gates.
 
 ## P937 - v54.25 - Shared snapshot lineage tooltip exposed an internal marker
 

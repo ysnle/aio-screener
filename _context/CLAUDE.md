@@ -4,7 +4,7 @@
 > 2026-07-02: 디스크 인코딩 손상(이중 인코딩 mojibake)으로 전면 재작성. 아래 hooks/commands/agents 추적 상태는
 > `git ls-files` 실측 기반(이전 버전의 "GitHub-tracked에는 hooks 없음" 서술은 2026-05-18 이후로는 틀린 정보였음).
 
-- **현재 버전**: v54.25
+- **현재 버전**: v54.26
 - **전체 버전 이력 → CHANGELOG.md** (상세 변경 내역의 단일 출처). 이 문서는 구조·Hook·Skills·복리 루프만 유지하고 버전별 변경 내역은 담지 않는다.
 
 ## _context/ 문서 (57개 versioned/new 활성, 2026-08-12 갱신)
@@ -22,7 +22,7 @@
 | RESEARCH-INTEGRATION-2026-08-09-TELEGRAM.md | Telegram 4채널 공개 감사·역할·관찰창·Q1~Q5·stale/failure 경계 원장 | Telegram source catalog 또는 reference 품질 변경 시 |
 | RESEARCH-INTEGRATION-2026-08-12-DAILY-BRIEFING.md | 데일리 브리핑 현재 정본/참고 자료 비교·대조, 인과 서사, 시계열, 근거 경계 원장 | 데일리 리포트 자료 또는 브리핑 소비 구조 변경 시 |
 | SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md | 전문·브라우저·개인 공개 스크리너 20개 비교와 AIO Screener Workbench 목표 구조, desktop UI/UX·테마·표·상태·Why 흐름 심층 감사(UX-SCR-01~16), 자동 개별 갱신·공급자 capability·시장 레짐·PIT 검증·SCR-OS/UX 실행 계약. IMPLEMENTED_LOCAL; live/PIT 승격 경계 유지 | 비교군, 라이선스, screener 기준선·UI 흐름·visual state, 목표 계약, SCR-OS/UX 상태 또는 rebuild trigger 변경 시 |
-| SCREENER-OS-00-BASELINE-2026-08-12.md | SCR-OS-00 기준선 873/848/74.2, producer→contract→consumer dependency ledger, packet 상태와 명시적 non-claims | screener artifact baseline, packet status, validation/live boundary 변경 시 |
+| SCREENER-OS-00-BASELINE-2026-08-12.md | SCR-OS-00 현재 기준선 873/847/77.2, producer→contract→consumer dependency ledger, packet 상태와 명시적 non-claims | screener artifact baseline, packet status, validation/live boundary 변경 시 |
 | INDEX.md | 지식 베이스 인덱스 + 배포 baseline (R24) | /knowledge-lint L6, _context 문서 추가/제거 시 |
 | WORKTREE-AUDIT.md | GitHub/live/worktree 라우팅 + 미배포 작업 인벤토리 | 워크트리 병합/배포/감사 시 |
 | DEEP-QA-2026-05-05.md | UI/API/페이지 로직 심층 QA 결과 | 심층 QA 또는 live/local parity 변경 시 |

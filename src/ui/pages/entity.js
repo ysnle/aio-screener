@@ -253,7 +253,7 @@ function renderFundamentalReport(documentRef, page, state) {
   if (meta) {
     meta.textContent = report.status === 'current'
       ? `${report.form || 'Annual filing'} · 기준일 ${report.observedAt || '—'} · 신선도 ${report.freshness?.state || 'unknown'}${report.freshness?.ageDays != null ? ` (${report.freshness.ageDays}일)` : ''} · 제출일 ${report.filedAt || '—'}${report.filingMetadata?.acceptedAt ? ` · 접수 ${report.filingMetadata.acceptedAt}` : ''}${report.accession ? ` · ${report.accession}` : ''}${report.pointInTime?.observationCount ? ` · PIT ${report.pointInTime.observationCount}건 (${report.pointInTime.status})` : ''}`
-      : 'SEC EDGAR 연간 데이터 수신 대기 · 값이 없는 항목은 추정하지 않습니다';
+      : 'SEC EDGAR 연간 데이터 수신 대기 · PIT 관측 없음 · 값이 없는 항목은 추정하지 않습니다';
   }
   if (coverage) coverage.textContent = report.status === 'current'
     ? `관측 항목 ${report.coverage.length}개 · ${report.source} · ${report.freshness?.state === 'current' ? '현재 참고 가능' : '과거 참고 전용'}`

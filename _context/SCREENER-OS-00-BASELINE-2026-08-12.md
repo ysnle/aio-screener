@@ -1,9 +1,9 @@
 ---
 status: IMPLEMENTED_LOCAL
-verified_by: pending final local verification batch
-last_verified: 2026-08-12
-confidence: medium
-target_version: v54.13
+verified_by: Codex release verification
+last_verified: 2026-08-15
+confidence: high
+target_version: v54.26
 ---
 
 # SCR-OS-00 Baseline and Dependency Ledger
@@ -15,8 +15,8 @@ target_version: v54.13
 | 항목 | 기준선 | 의미 | owner |
 |---|---:|---|---|
 | Screener universe | 873 | 현재 공개 유니버스 식별자 수 | `public-data/screener.json` |
-| Observed/usable rows | 848 | 현재 artifact의 quote 관측 성공 수 | `public-data/screener.json` |
-| Fundamental coverage | 74.2% | 728개 분모 기준 SEC/FMP 결합 coverage | `scripts/validate-screener-artifact.mjs` |
+| Observed/usable rows | 847 | 현재 artifact의 quote 관측 성공 수 | `public-data/screener.json` |
+| Fundamental coverage | 77.2% | 728개 분모 기준 SEC/FMP 결합 coverage | `scripts/validate-screener-artifact.mjs` |
 | Model validation | BLOCKED | PIT·비생존편향·비용·유동성·live/backtest parity 미확립 | `public-data/model-validation-status.json` |
 | Validation gate | BLOCKED | 자동 가중치/예측 모델 승격 금지 | `public-data/screener-validation-gate.json` |
 

@@ -208,7 +208,7 @@ function run() {
   const artifact = readJson('public-data/screener.json');
   const model = readJson('public-data/model-validation-status.json');
   const validationGate = readJson('public-data/screener-validation-gate.json');
-  assert(artifact.universe === 873 && artifact.ok === 848 && artifact.fundamentalCoveragePct === 74.2, 'SCR-OS-00: baseline remains 873/848/74.2', { universe: artifact.universe, ok: artifact.ok, fundamentalCoveragePct: artifact.fundamentalCoveragePct });
+  assert(artifact.universe === 873 && artifact.ok === 847 && artifact.fundamentalCoveragePct === 77.2, 'SCR-OS-00: baseline remains 873/847/77.2', { universe: artifact.universe, ok: artifact.ok, fundamentalCoveragePct: artifact.fundamentalCoveragePct });
   assert(model.status === 'BLOCKED' && model.pointInTimeUniverse === false && model.transactionCostsModeled === false, 'G-SCR-09: model validation remains explicitly blocked');
   assert(validationGate.status === 'BLOCKED' && validationGate.pointInTimeUniverse === false, 'G-SCR-09: persistent validation gate is fail-closed');
   const index = fs.readFileSync(path.join(root, '_context/INDEX.md'), 'utf8');

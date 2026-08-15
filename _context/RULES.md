@@ -2,7 +2,7 @@
 verified_by: agent (Fable 5) + Codex P761-P936 verification
 last_verified: 2026-08-15
 confidence: high
-target_version: v54.25
+target_version: v54.26
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
@@ -18,6 +18,12 @@ target_version: v54.25
 **Rule**: When a SEC fact field has multiple configured US-GAAP concepts, collect rows from every concept before deduplicating by period, filing date, accession, and form. Never let an older first concept shadow a newer fallback concept. Preserve explicit unavailable status when no comparable fact exists.
 
 **Validation**: `fetch-sec-fundamentals.mjs` must pass a fixture containing an old first concept and a newer second concept; `ci-data-pipeline-contract-check.mjs` and the SEC artifact checks must verify newest-observation selection, filing lineage, coverage, and failure counts before screener publication.
+
+## R494. Refreshed data baselines and unavailable report states must be regenerated together (v54.26, P938)
+
+**Rule**: When a generated screener/SEC artifact changes its measured coverage, every active golden, baseline ledger, index summary, and user-visible availability contract that consumes that measurement must be updated from the same committed tree. An unavailable SEC report must retain its `sec-report.v3` and PIT boundary in visible metadata; it must never imply a current filing or synthesize a missing fact.
+
+**Validation**: `ci-screener-workbench-contract.mjs`, `ci-architecture-browser-check.mjs`, `ci-data-lineage-audit.mjs`, and `ci-reconciliation-contract-check.mjs` must pass against the same artifact revision.
 
 ## R491. Browser goldens and renderers are certified from the same committed tree (v54.22)
 
