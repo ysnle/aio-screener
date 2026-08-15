@@ -1,3 +1,9 @@
+## v54.25 (2026-08-15)
+- Refreshed the full desktop user-visible data set again: 78/78 quotes, macro/F&G/news/history, 873-symbol screener, 562/657 SEC fundamentals, Telegram digest, reconciliation, operations, and 22-category freshness/lineage contracts.
+- Fixed the shared snapshot lineage tooltip regression found by the blocking headless suite: internal `DATA_SNAPSHOT` remains available to evidence attributes, while user-facing titles now use Korean reference-data wording (P937/R206).
+- Kept mobile/tablet work out of scope; provider-rights, licensed survey, exchange-feed, Yahoo factor, Cloudflare, and AI readiness boundaries remain explicit rather than synthesized.
+- R1 7곳 v54.25
+
 ## v54.24 (2026-08-15)
 
 - Completed an exhaustive desktop user-visible data/content audit across the 22 registered categories, generated artifacts, static release calendars, sentiment bridges, schedule labels, screener rows, Telegram digest, history, reconciliation, operations, and version/cachebuster surfaces.

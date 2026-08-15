@@ -3,6 +3,11 @@ verified_by: agent (Fable 5) + Codex full-route audit verification
 last_verified: 2026-08-15
 confidence: high
 
+## v54.25 Visible snapshot marker regression (2026-08-15)
+
+- [x] QA-UX-MARKER-01: the shared snapshot lineage renderer keeps `data-source-label` for internal evidence tracing but translates `title` text to user-facing reference language; `T776` must report zero visible `DATA_SNAPSHOT` markers across all desktop pages.
+- [x] QA-UX-MARKER-02: the offline Chromium reproduction covered breadth, sentiment, technical, macro, FX/bond, and options surfaces; the fix was applied once at the shared renderer rather than per-page string patches.
+
 ## v54.24 Exhaustive user-visible data and automation freshness (2026-08-15)
 
 - [x] QA-DATA-REFRESH-06: the 22-category refresh audit, source registry, lineage audit, artifact integrity, and static-data contract were rerun after the final generated-data pass; no stale value was promoted without a source/age/availability label.

@@ -2,11 +2,21 @@
 verified_by: agent (Claude Sonnet 5) + Codex full-route audit verification
 last_verified: 2026-08-15
 confidence: high
-latest_version: v54.24
-latest_P_number: P936
-next_P_number: P937
-current_total_entries: 653 (P1~P934, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P936 v54.24 SEC concept-union freshness parity
+latest_version: v54.25
+latest_P_number: P937
+next_P_number: P938
+current_total_entries: 654 (P1~P934, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P937 v54.25 visible snapshot marker regression
+
+## P937 - v54.25 - Shared snapshot lineage tooltip exposed an internal marker
+
+- **motivation**: User-visible desktop data surfaces must explain reference-only snapshot values without exposing implementation identifiers.
+- **symptom/reproduction**: The blocking Chromium headless suite reported `T776` 1120/1121 with six visible `DATA_SNAPSHOT` markers in the `title` attribute on breadth, sentiment, technical, macro, FX/bond, and options pages.
+- **root_cause**: The shared snapshot lineage renderer used the internal `DATA_SNAPSHOT` storage name as the fallback tooltip text while correctly retaining the same name in the internal `data-source-label` lineage attribute.
+- **fix**: Translate only the user-facing title to `스냅샷 기준일 · 참고용 데이터` / `참고용 데이터 스냅샷`; preserve the internal lineage attribute for audits and source tracing.
+- **violated_rule**: R206; implementation identifiers must not appear on the user-visible text/ARIA/tooltip surface.
+- **prevention**: Keep `T776` as a blocking browser regression gate and require source metadata to separate internal lineage identifiers from user-facing labels.
+- **verification**: Reproduced the six violations with the offline Playwright audit, patched the shared renderer, then reran the full headless suite plus static/runtime/data gates.
 
 ## P936 - v54.24 - SEC fact fallback concept selection retained stale observations
 

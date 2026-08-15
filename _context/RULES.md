@@ -2,7 +2,7 @@
 verified_by: agent (Fable 5) + Codex P761-P936 verification
 last_verified: 2026-08-15
 confidence: high
-target_version: v54.24
+target_version: v54.25
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
@@ -1414,6 +1414,7 @@ ctx.strokeStyle = 'rgba(255,255,255,0.08)';  // 또는 '#8888884A'
 ## R204. User-facing market text must pass the text surface contract (v50.3 added, P479 root)
 ## R205. Static market calendars must separate official releases from source-dependent topics (v50.4 added, P480 root)
 ## R206. 사용자 가시 텍스트에 개발자/버전 마커 금지 (v50.14 added, v50.13 UX audit root)
+**Rule extension (P937)**: Internal lineage identifiers such as `DATA_SNAPSHOT` may remain in evidence attributes used by audits, but every title, tooltip, ARIA label, placeholder, and visible text surface must translate them into user-facing source language; `T776` is the blocking regression gate.
 ## R207. 접근성 WCAG AA 유지 — 접근 이름·최소 폰트·tap target (v50.14 added)
 ## R208. 분석 UI 상태·수량·정밀 주장·향후 일정은 증거 원천에서 파생 (v50.55 added, P500 root)
 ## R209. 계약 수·시간대·복합 가격 카드는 단일 진실 원천에서 파생 (v50.56 added, P501 root)

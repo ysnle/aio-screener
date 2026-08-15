@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v54.24';
+const APP_VERSION = 'v54.25';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -2611,7 +2611,7 @@ window._aioRenderSnapshotDates = function() {
       if (!el.getAttribute('data-source-kind')) el.setAttribute('data-source-kind', 'snapshot');
       if (!el.getAttribute('data-operational-use')) el.setAttribute('data-operational-use', 'reference-only');
       if (!el.getAttribute('data-source-label')) el.setAttribute('data-source-label', 'DATA_SNAPSHOT:' + key);
-      if (!el.title) el.title = d ? ('DATA_SNAPSHOT 기준일 ' + d + ' · 참고용 스냅샷') : 'DATA_SNAPSHOT 참고용 스냅샷';
+      if (!el.title) el.title = d ? ('스냅샷 기준일 ' + d + ' · 참고용 데이터') : '참고용 데이터 스냅샷';
     });
     // KR 카드 stale-days span 갱신 — kr-* 5개 ID에 _aioStaleDaysLabel 호출
     if (typeof window._aioStaleDaysLabel === 'function') {
