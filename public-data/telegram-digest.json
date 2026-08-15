@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-08-15T08:01:58.294Z",
-  "attemptedAt": "2026-08-15T08:01:58.294Z",
-  "lastSuccessfulAt": "2026-08-15T08:01:58.294Z",
+  "generatedAt": "2026-08-15T08:45:50.990Z",
+  "attemptedAt": "2026-08-15T08:45:50.990Z",
+  "lastSuccessfulAt": "2026-08-15T08:45:50.990Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-08-01T08:01:50.271Z",
-  "until": "2026-08-15T08:01:50.271Z",
+  "since": "2026-08-01T08:45:39.195Z",
+  "until": "2026-08-15T08:45:39.195Z",
   "current24hWindow": {
     "start": "2026-08-13T23:00:00.000Z",
     "end": "2026-08-14T23:00:00.000Z",
@@ -14,7 +14,7 @@
   },
   "current24hCoverage": {
     "observedCount": 95,
-    "eligibleTextCount": 13,
+    "eligibleTextCount": 25,
     "channelCounts": {
       "insidertracking": 50,
       "HANAchina": 32,
@@ -80,7 +80,7 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 284,
+      "count": 282,
       "freshCount": 18,
       "eligibleTextCount": 17,
       "selectedCount": 75,
@@ -89,15 +89,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1146,
-      "freshCount": 20,
-      "eligibleTextCount": 15,
+      "count": 1149,
+      "freshCount": 38,
+      "eligibleTextCount": 34,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 61198
+      "lastPostId": 61201
     },
     {
       "channel": "bornlupin",
@@ -113,20 +113,68 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 742,
-      "freshCount": 16,
-      "eligibleTextCount": 16,
+      "freshCount": 36,
+      "eligibleTextCount": 36,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 67180
+      "lastPostId": 67181
     }
   ],
-  "count": 2418,
-  "retainedItemCount": 442,
+  "count": 2419,
+  "retainedItemCount": 456,
   "observedItems": [
+    {
+      "id": "insidertracking/61201",
+      "channel": "insidertracking",
+      "datetime": "2026-08-15T08:45:04.000Z",
+      "localDateKst": "2026-08-15",
+      "score": 35,
+      "tags": [
+        "japan"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/61200",
+      "channel": "insidertracking",
+      "datetime": "2026-08-15T08:23:29.000Z",
+      "localDateKst": "2026-08-15",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/61199",
+      "channel": "insidertracking",
+      "datetime": "2026-08-15T08:21:49.000Z",
+      "localDateKst": "2026-08-15",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/67181",
+      "channel": "HANAchina",
+      "datetime": "2026-08-15T08:04:08.000Z",
+      "localDateKst": "2026-08-15",
+      "score": 45,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "HANAchina/67180",
       "channel": "HANAchina",
@@ -697,7 +745,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67159",
@@ -715,7 +763,7 @@
         "META",
         "AMZN"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61180",
@@ -741,7 +789,7 @@
         "equity"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67157",
@@ -753,7 +801,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61178",
@@ -807,7 +855,7 @@
         "MTZ",
         "IVV"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61176",
@@ -837,7 +885,7 @@
         "GLW",
         "SMH"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61175",
@@ -861,7 +909,7 @@
         "B",
         "AU"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61174",
@@ -898,7 +946,7 @@
         "NI",
         "SPY"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61172",
@@ -928,7 +976,7 @@
         "DAL",
         "LSCC"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67156",
@@ -943,7 +991,7 @@
         "GOOG",
         "GOOGL"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61171",
@@ -967,7 +1015,7 @@
         "STZ",
         "OXY"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67155",
@@ -979,7 +1027,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61170",
@@ -991,7 +1039,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67154",
@@ -1008,7 +1056,7 @@
         "TSM",
         "SNPS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61169",
@@ -1020,7 +1068,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61168",
@@ -1032,7 +1080,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61167",
@@ -1044,7 +1092,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61166",
@@ -1056,7 +1104,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61165",
@@ -1068,7 +1116,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61164",
@@ -1080,7 +1128,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61163",
@@ -1119,7 +1167,7 @@
         "INTC",
         "PANW"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61162",
@@ -1157,7 +1205,7 @@
         "SOXX",
         "GLD"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61161",
@@ -1169,7 +1217,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61160",
@@ -1357,7 +1405,7 @@
         "power"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67152",
@@ -1373,7 +1421,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67151",
@@ -1387,7 +1435,7 @@
         "power"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67150",
@@ -1400,7 +1448,7 @@
         "equity"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67149",
@@ -1426,7 +1474,7 @@
         "TSM",
         "MTK"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67148",
@@ -1440,7 +1488,7 @@
         "equity"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67147",
@@ -1454,7 +1502,7 @@
       "tickers": [
         "000660.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19717",
@@ -1629,7 +1677,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61140",
@@ -1678,7 +1726,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61137",
@@ -1799,7 +1847,7 @@
         "TSM",
         "LITE"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19714",
@@ -1836,7 +1884,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67142",
@@ -1848,7 +1896,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67141",
@@ -34554,75 +34602,33 @@
       ],
       "tickers": [],
       "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/24252",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-08-01T08:43:00.000Z",
-      "localDateKst": "2026-08-01",
-      "score": 58,
-      "tags": [
-        "power",
-        "earnings",
-        "japan"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/24251",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-08-01T08:38:51.000Z",
-      "localDateKst": "2026-08-01",
-      "score": 75,
-      "tags": [
-        "semi",
-        "kr-market",
-        "equity",
-        "flows"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/66382",
-      "channel": "HANAchina",
-      "datetime": "2026-08-01T08:04:52.000Z",
-      "localDateKst": "2026-08-01",
-      "score": 60,
-      "tags": [
-        "geo",
-        "ai-policy"
-      ],
-      "tickers": [],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2418,
-    "eligibleTextCount": 67,
-    "mediaOnlyCount": 2351,
-    "highSignalCount": 641,
-    "broadSignalCount": 1235,
+    "observedCount": 2419,
+    "eligibleTextCount": 106,
+    "mediaOnlyCount": 2313,
+    "highSignalCount": 640,
+    "broadSignalCount": 1232,
     "selectedRawCount": 408,
-    "selectedRawCoveragePct": 609,
+    "selectedRawCoveragePct": 384.9,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "macro": 873,
-    "geo": 391,
-    "semi": 721,
-    "power": 360,
-    "ai-policy": 183,
-    "kr-market": 377,
-    "equity": 218,
-    "flows": 262,
     "japan": 196,
-    "earnings": 610,
-    "market-note": 561,
+    "market-note": 563,
+    "geo": 391,
+    "macro": 873,
+    "semi": 720,
+    "power": 359,
+    "ai-policy": 182,
+    "kr-market": 376,
+    "equity": 217,
+    "flows": 261,
+    "earnings": 609,
     "media-only": 50,
     "healthcare": 136,
     "optical": 71,
@@ -34867,19 +34873,19 @@
   },
   "themes": [
     "Macro/Rates (873 posts in 14-day research window): >>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도...",
-    "Semiconductors/Memory (721 posts in 14-day research window): >>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도...",
-    "Earnings/Corporate (610 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 애플 (AAPL) — 중국 시장용 AI 모델을 자체 개발하고 있으며, 알리바바가 모델 개발을...",
-    "Market Notes (561 posts in 14-day research window): 52주 신고가 · Aehr Test Systems · Aramark · Associated Banc-Corp · Bank of America Corp. Preferred · Bank of Montreal ·...",
+    "Semiconductors/Memory (720 posts in 14-day research window): >>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도...",
+    "Earnings/Corporate (609 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 애플 (AAPL) — 중국 시장용 AI 모델을 자체 개발하고 있으며, 알리바바가 모델 개발을...",
+    "Market Notes (563 posts in 14-day research window): 52주 신고가 · Aehr Test Systems · Aramark · Associated Banc-Corp · Bank of America Corp. Preferred · Bank of Montreal ·...",
     "Geopolitics (391 posts in 14-day research window): >>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도...",
-    "Korea Market (377 posts in 14-day research window): >>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도...",
-    "AI Power/Grid (360 posts in 14-day research window): >>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도...",
-    "Positioning/Flows (262 posts in 14-day research window): >>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도..."
+    "Korea Market (376 posts in 14-day research window): >>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도...",
+    "AI Power/Grid (359 posts in 14-day research window): >>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도...",
+    "Positioning/Flows (261 posts in 14-day research window): >>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도..."
   ],
   "catalysts": [
     {
       "key": "000660.KS",
       "count": 196,
-      "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/08/01 ~ 2026/08/14 1위: SPACE EXPLORATION TECHN-CL A (5.76%) 2위: AMAZON.COM INC..."
+      "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/08/01 ~ 2026/08/14 1위: SPACE EXPLORATION TECHN-CL A (5.76%) 2위: AMAZON.COM INC (5.76%) 3위: ALPHABET INC CL A (5.03%) 4위: TESLA INC (4.87%) 5위:..."
     },
     {
       "key": "005930.KS",
@@ -34909,7 +34915,7 @@
     {
       "key": "AMD",
       "count": 81,
-      "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 📊 13F 보고서 ━━━━━━━━━━━━━━ 🏦 기관: Situational Awareness LP (시추에이셔널 어웨어니스) 📅 분기:..."
+      "text": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 📊 13F 보고서 ━━━━━━━━━━━━━━ 🏦 기관: Situational Awareness LP (시추에이셔널 어웨어니스) 📅 분기: 2026Q2 👤 Manager: Kimberly Summe ━━━━━━━━━━━━━━ 💼 Top..."
     },
     {
       "key": "AAPL",
@@ -34971,7 +34977,7 @@
       "topics": [
         "semi"
       ],
-      "count": 721,
+      "count": 720,
       "focus": ">>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도..."
     },
     {
@@ -34981,7 +34987,7 @@
         "optical"
       ],
       "count": 71,
-      "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/08/01 ~ 2026/08/14 1위: SPACE EXPLORATION TECHN-CL A (5.76%) 2위: AMAZON.COM INC..."
+      "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/08/01 ~ 2026/08/14 1위: SPACE EXPLORATION TECHN-CL A (5.76%) 2위: AMAZON.COM INC (5.76%) 3위: ALPHABET INC CL A (5.03%) 4위: TESLA INC (4.87%) 5위:..."
     },
     {
       "id": "power",
@@ -34989,7 +34995,7 @@
       "topics": [
         "power"
       ],
-      "count": 360,
+      "count": 359,
       "focus": ">>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도..."
     },
     {
@@ -34998,7 +35004,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 183,
+      "count": 182,
       "focus": ">>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도..."
     },
     {
@@ -35007,7 +35013,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 377,
+      "count": 376,
       "focus": ">>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도..."
     },
     {
@@ -35016,7 +35022,7 @@
       "topics": [
         "equity"
       ],
-      "count": 218,
+      "count": 217,
       "focus": ">>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도..."
     },
     {
@@ -35034,7 +35040,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 610,
+      "count": 609,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 애플 (AAPL) — 중국 시장용 AI 모델을 자체 개발하고 있으며, 알리바바가 모델 개발을..."
     },
     {
@@ -35061,7 +35067,7 @@
       "topics": [
         "flows"
       ],
-      "count": 262,
+      "count": 261,
       "focus": ">>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도..."
     },
     {
@@ -35079,7 +35085,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 561,
+      "count": 563,
       "focus": "52주 신고가 · Aehr Test Systems · Aramark · Associated Banc-Corp · Bank of America Corp. Preferred · Bank of Montreal ·..."
     }
   ],
@@ -44064,6 +44070,21 @@
       "summary": ">>CATL, 호주 국가전력시장 최대 운영 배터리 저장 프로젝트 단독 공급…3단계에 TENER 적용 •CATL은 8월 14일, Quinbrook이 개발한 호주 Supernode 에너지저장 프로젝트 2단계가..."
     },
     {
+      "id": "HANAchina/67150",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/67150",
+      "datetime": "2026-08-14T14:01:12.000Z",
+      "localDateKst": "2026-08-14",
+      "tags": [
+        "macro",
+        "equity"
+      ],
+      "tickers": [],
+      "score": 47,
+      "hasText": true,
+      "summary": ">>9년째 연기된 테슬라 로드스터, 드디어 날아오르나?…테슬라·SpaceX 협력, 이르면 이달 공개 •테슬라가 약 9년간 출시를 미뤄온 신형 Roadster 를 이르면 이달 SpaceX 테스트 기지에서 공개할..."
+    },
+    {
       "id": "HANAchina/67149",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/67149",
@@ -44310,6 +44331,20 @@
       "summary": "엔화가 8월 14일 달러당 159.43엔까지 약 1% 하락하며 3개월 만에 최대 주간 낙폭을 기록할 전망. 최근 일본과 미국이 연계된 시장 개입 효과가 약화된 가운데, 엔화가 달러당 160엔을 넘어설 경우..."
     },
     {
+      "id": "HANAchina/67145",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/67145",
+      "datetime": "2026-08-14T10:22:16.000Z",
+      "localDateKst": "2026-08-14",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 35,
+      "hasText": true,
+      "summary": "**중국 3대사 모두 공격적인 증설 돌입"
+    },
+    {
       "id": "insidertracking/61137",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/61137",
@@ -44391,6 +44426,35 @@
       "score": 40,
       "hasText": true,
       "summary": "2026.08.14 15:55:56 기업명: 티에스이(시가총액: 2조 8,760억) A131290 보고서명: 반기보고서 (2026.06) 잠정실적 : N 매출액 : 1,888억(예상치 : 1,463억,..."
+    },
+    {
+      "id": "HANAchina/67143",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/67143",
+      "datetime": "2026-08-14T07:59:15.000Z",
+      "localDateKst": "2026-08-14",
+      "tags": [
+        "semi",
+        "earnings"
+      ],
+      "tickers": [],
+      "score": 47,
+      "hasText": true,
+      "summary": ">>캠브리콘·무어스레드 ‘중간고사’ 낙제? •해외산 AI 컴퓨팅 공급 차단으로 수요가 중국산으로 몰리면서 캠브리콘 의 상반기 매출은 약 60억 위안으로 YoY 두 배 가까이 증가했고, 무어스레드 의 상반기..."
+    },
+    {
+      "id": "HANAchina/67142",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/67142",
+      "datetime": "2026-08-14T07:42:45.000Z",
+      "localDateKst": "2026-08-14",
+      "tags": [
+        "flows"
+      ],
+      "tickers": [],
+      "score": 35,
+      "hasText": true,
+      "summary": ">>난야 플라스틱, 전자재료 올해 가격 2배 이상 상승…유리섬유 원단 품귀 가장 심각 •전자재료 선두업체 난야 플라스틱 은 동박, 유리섬유 원단, 수지 등 원재료 비용 급등으로 올해 전자재료 가격이 누적으로..."
     },
     {
       "id": "HANAchina/67141",
