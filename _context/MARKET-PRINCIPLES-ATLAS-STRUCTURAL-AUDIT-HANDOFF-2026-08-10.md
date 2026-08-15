@@ -2,23 +2,35 @@
 verified_by: Codex
 last_verified: 2026-08-12
 confidence: high for repository, artifact topology, renderer behavior, content-volume measurement, and reproduced live UI findings; medium for academic/source directness because every external source original was not independently re-read
-target_version: v54.22
+ target_version: v54.24
+ scope: desktop-only
 status: IMPLEMENTATION_IN_PROGRESS
 bounded_changes_implemented: naming_audit_contracts_s0_reference_core_ontology_claim_registry_article_drafts_learning_state_route_bridge_repository_renderers_encyclopedia_mission_full_coverage_web_research_post_ka_track
 knowledge_rebuild_status: STRUCTURED_REFERENCE_DRAFTS_PARTIAL_CONTENT_RESEARCH_OPEN
 live_revision: v54.5
-local_revision: v54.22
+live_revision_role: historical_observation
+local_revision: v54.24
 machine_contract: _context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json
 file_manifest: _context/MARKET-PRINCIPLES-ATLAS-HANDOFF-FILE-MANIFEST-2026-08-10.json
 ---
 
+## Current scope override (2026-08-13)
+
+The historical mobile/tablet acceptance references in this handoff are retained as audit history only. Current product QA and future implementation scope are desktop-only, using 1280×900, 1440×1000, and 1920×1080. Legacy responsive markup may remain for compatibility, but mobile/tablet work is not a required acceptance dimension unless the user explicitly reopens the scope.
+
 ## 2026-08-12 KA-11~15 implementation update
+
+### 사용자 범위 보정
+
+사용자는 퀴즈·연습문제·교육용 정량 랩을 요청하지 않았고 전문성과 신뢰성을 해칠 수 있으므로 신규 구현하지 않는다. 기존 생성 랩 파일은 보존된 기록일 뿐이며 Atlas 화면·지식 repository·CI 생성/검증 경로에서 제외한다. 이번 트랙의 콘텐츠 범위는 개념·원리·근거·시장 전달·반례·무효화·현재성 경계다.
+
+실제 직접 확인한 공식·학술 자료는 NIST AI RMF, Transformer 논문, FRED, SEC/Investor.gov, DOE, FINRA, ASML, OECD, BLS, Federal Reserve, KRX로 한정한다. 각 원고에 연결된 사실은 `research-facts.json`의 source·scope·asOf·invalidation을 따른다. 확인하지 않은 423개 전체의 claim을 완성 처리하지 않는다.
 
 The local implementation now carries the planned coverage and research-boundary artifacts. `public-data/knowledge/coverage-matrix.json` inventories 423 units: 111 core lessons, 48 foundations, 60 Principles concept guides, 95 taxonomy nodes, 50 deep branches, 19 domains, 20 players and 20 products. This is an inventory gate, not a completion claim.
 
-Per-unit Web Research dossiers are generated for all 423 units. Web Search directly inspected five official/academic seed pages and registered them as leads; 0 dossiers are fully researched, 172 are `RESEARCH_IN_PROGRESS`, and 251 are `RESEARCH_REQUIRED`. Source reuse, discovery-only promotion and current-value claims remain blocked by the dossier boundary.
+Per-unit Web Research dossiers are generated for all 423 units. Web Search directly inspected twenty-six official/academic source pages and registered claim-scoped facts; all 159 article records now carry at least one evidence candidate, while 0 dossiers are fully researched, 280 are `RESEARCH_IN_PROGRESS`, and 143 are `RESEARCH_REQUIRED`. Source reuse, discovery-only promotion and current-value claims remain blocked by the dossier boundary.
 
-KA-13 retains 159 unique reconstruction seeds but all articles remain `RECONSTRUCTION_REQUIRED`. KA-14 adds 19 structural domain dossiers covering 95 taxonomy nodes and 50 unique deep branches. KA-15 adds 15 deterministic educational quantitative labs with formulas, units, assumptions, synthetic examples, observation metrics, confirmation/invalidation and stale-data boundaries. None are live values, user-validated learning outcomes or investment recommendations. KA-16 semantic/browser/live/user certification remains open.
+KA-13 retains 159 unique reconstruction seeds but all articles remain `RECONSTRUCTION_REQUIRED`; the new `researchEvidence` fields attach directly inspected facts without falsely promoting the articles to human-reviewed publications. KA-14 adds 19 structural domain dossiers covering 95 taxonomy nodes and 73 linked deep branches. KA-15 quantitative labs are excluded from the product scope by user direction. KA-16 semantic/browser/live/user certification remains open.
 
 ## 2026-08-11 implementation update
 
@@ -703,7 +715,7 @@ KA-00 gate baseline
 | KA-12 신규 계획 | `public-data/knowledge/research-dossiers/*.json` | content unit별 검색 질문·후보/채택/기각 출처·claim directness·합의/반론·현재성 기록 | dossier/source-profile gate 전수 PASS |
 | KA-13 현재→재집필 | `public-data/knowledge/articles/principles/*.json`, `public-data/knowledge/articles/atlas-foundations/*.json` | 159개 draft를 고유 정량 예제와 완결된 시장 transmission을 가진 human-reviewed article로 승격 | article uniqueness/depth 159/159 |
 | KA-14 신규 계획 | `public-data/knowledge/domain-dossiers/*.json` | 경제·금융·주식·산업·AI 기술 전 세부 sector/domain/category의 KPI·병목·기업·제품·재무·시장 연결 | sector-domain-depth 전수 PASS |
-| KA-15 신규 계획 | `public-data/knowledge/quantitative-labs/*.json` | 재현 가능한 계산·시나리오·관찰 지표·촉매·확인·무효화와 능동학습 연결 | quantitative/market-transmission/persona gate PASS |
+| KA-15 사용자 범위 제외 | 기존 `public-data/knowledge/quantitative-labs/*.json` 기록은 보존하되 제품·CI에서 로드하지 않음 | 퀴즈·연습문제·교육용 정량 랩은 사용자 요청 범위 밖 | 해당 gate 실행·완료 주장 금지 |
 | KA-16 확장 | semantic/browser/viewport/accessibility/live/user gates | 전체 corpus의 의미·표현·실사용·배포 상태 최종 인증 | coverage state `LIVE_VERIFIED` + 사용자 검증 경계 명시 |
 
 ### 13.1 병렬 작업 경계
