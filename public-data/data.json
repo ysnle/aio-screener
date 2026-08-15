@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-08-15T07:00:07.082Z",
+  "generatedAt": "2026-08-15T07:46:17.670Z",
   "source": "github-actions",
   "symbolsOk": 78,
   "symbolsFail": 0,
@@ -22,25 +22,25 @@
   "fredLkgSource": null,
   "macroKeyCount": 39,
   "fredFetchedKeyCount": 33,
-  "fredAttemptedAt": "2026-08-15T07:00:07.082Z",
-  "fredLastSuccessfulAt": "2026-08-15T07:00:07.082Z",
+  "fredAttemptedAt": "2026-08-15T07:46:17.670Z",
+  "fredLastSuccessfulAt": "2026-08-15T07:46:17.670Z",
   "fredFailedSeries": [],
   "blsStatus": "cached-fresh",
   "blsSeriesCount": 6,
   "blsFailedSeries": [],
-  "blsAttemptedAt": "2026-08-15T06:58:01.211Z",
+  "blsAttemptedAt": "2026-08-15T07:44:10.140Z",
   "blsLastSuccessfulAt": "2026-08-15T03:05:07.644Z",
   "beaStatus": "ok",
-  "beaAttemptedAt": "2026-08-15T06:58:01.211Z",
-  "beaLastSuccessfulAt": "2026-08-15T06:58:01.211Z",
+  "beaAttemptedAt": "2026-08-15T07:44:10.140Z",
+  "beaLastSuccessfulAt": "2026-08-15T07:44:10.140Z",
   "beaReleaseAt": "2026-07-30T12:30:00.000Z",
   "beaNextReleaseAt": "2026-08-26T12:30:00.000Z",
-  "treasuryStatus": "cached-fresh",
-  "treasuryAttemptedAt": "2026-08-15T06:58:01.212Z",
-  "treasuryLastSuccessfulAt": "2026-08-15T06:00:39.660Z",
+  "treasuryStatus": "ok",
+  "treasuryAttemptedAt": "2026-08-15T07:44:10.142Z",
+  "treasuryLastSuccessfulAt": "2026-08-15T07:44:10.142Z",
   "treasuryObservedAt": "2026-08-14",
   "fredHyOasStatus": "cached-fresh",
-  "fredHyOasAttemptedAt": "2026-08-15T06:58:01.212Z",
+  "fredHyOasAttemptedAt": "2026-08-15T07:44:10.143Z",
   "fredHyOasLastSuccessfulAt": "2026-08-15T03:05:07.648Z",
   "fredHyOasObservedAt": "2026-08-13",
   "newsOk": false,
@@ -56,7 +56,7 @@
   "newsScoreMax": null,
   "putCallOk": true,
   "putCallAsOf": "2026-08-14",
-  "elapsedMs": 125943,
+  "elapsedMs": 127604,
   "schema": 1,
   "marketAnalysisOk": false,
   "marketAnalysisSemanticOk": false,
@@ -67,17 +67,17 @@
    "observed": 16,
    "ratio": 1
   },
-  "marketSnapshotRevision": "market-snapshot:2026-08-15T07:00:07.082Z:14db8606",
+  "marketSnapshotRevision": "market-snapshot:2026-08-15T07:46:17.670Z:bf47098c",
   "cycleId": "kst-0800-2026-08-14T23:00:00.000Z",
   "cycleStatus": "PUBLISHED",
   "marketCycleFreshnessSlaHours": 12,
   "cycleComponents": {
-   "marketSnapshotRevision": "market-snapshot:2026-08-15T07:00:07.082Z:14db8606",
-   "newsGeneratedAt": "2026-08-15T07:00:07.082Z",
+   "marketSnapshotRevision": "market-snapshot:2026-08-15T07:46:17.670Z:bf47098c",
+   "newsGeneratedAt": "2026-08-15T07:46:17.670Z",
    "historyCycleEnd": "2026-08-14T23:00:00.000Z",
    "telegramDigestExpected": true
   },
-  "cycleManifestRevision": "kst-0800-2026-08-14T23:00:00.000Z:market-snapshot:2026-08-15T07:00:07.082Z:14db8606",
+  "cycleManifestRevision": "kst-0800-2026-08-14T23:00:00.000Z:market-snapshot:2026-08-15T07:46:17.670Z:bf47098c",
   "fmpHasKey": false,
   "secFundamentalsOk": true,
   "secFundamentalsCount": 540,
@@ -133,7 +133,7 @@
    "sourceUrl": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
    "fetchedAt": "2026-08-15T03:05:07.644Z",
    "lastSuccessfulAt": "2026-08-15T03:05:07.644Z",
-   "attemptedAt": "2026-08-15T06:58:01.211Z",
+   "attemptedAt": "2026-08-15T07:44:10.140Z",
    "releaseAt": null,
    "status": "cached-fresh",
    "series": {
@@ -329,15 +329,15 @@
    "observedAt": "2026-06-01",
    "releasedAt": "2026-07-30T12:30:00.000Z",
    "nextReleaseAt": "2026-08-26T12:30:00.000Z",
-   "fetchedAt": "2026-08-15T06:58:01.211Z",
-   "lastSuccessfulAt": "2026-08-15T06:58:01.211Z",
+   "fetchedAt": "2026-08-15T07:44:10.140Z",
+   "lastSuccessfulAt": "2026-08-15T07:44:10.140Z",
    "values": {
     "pce": 3.7,
     "corePce": 3.3,
     "pceMoM": -0.1,
     "corePceMoM": 0.1
    },
-   "attemptedAt": "2026-08-15T06:58:01.211Z"
+   "attemptedAt": "2026-08-15T07:44:10.140Z"
   },
   "_source_pce": "bea-official-primary",
   "_source_corePce": "bea-official-primary",
@@ -352,12 +352,12 @@
   "_source_hyOAS": "fred-official-public-csv",
   "_treasury": {
    "schemaVersion": "us-treasury-curve.v1",
-   "status": "cached-fresh",
+   "status": "ok",
    "source": "U.S. Treasury Daily Par Yield Curve Rates",
    "sourceKind": "official-primary",
    "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?field_tdr_date_value=2026&type=daily_treasury_yield_curve",
    "observedAt": "2026-08-14",
-   "fetchedAt": "2026-08-15T06:00:39.660Z",
+   "fetchedAt": "2026-08-15T07:44:10.142Z",
    "values": {
     "dgs2": 4.17,
     "dgs5": 4.36,
@@ -368,8 +368,8 @@
    },
    "allowedUse": "official-observation-and-derived-same-date-spread",
    "decisionUse": false,
-   "attemptedAt": "2026-08-15T06:58:01.212Z",
-   "cacheHit": true
+   "attemptedAt": "2026-08-15T07:44:10.142Z",
+   "cacheHit": false
   },
   "dgs2": 4.17,
   "_asOf_dgs2": "2026-08-14",
@@ -402,7 +402,7 @@
    "unit": "percent",
    "allowedUse": "official-relay-observation-with-publication-lag",
    "decisionUse": false,
-   "attemptedAt": "2026-08-15T06:58:01.212Z",
+   "attemptedAt": "2026-08-15T07:44:10.143Z",
    "cacheHit": true
   },
   "dgs2Delta": -0.05,
@@ -1678,7 +1678,7 @@
   "indexPutCall": 0.99,
   "equityPutCall": 0.52,
   "asOf": "2026-08-14",
-  "fetchedAt": "2026-08-15T06:58:01.831Z",
+  "fetchedAt": "2026-08-15T07:44:10.533Z",
   "source": "Cboe Daily Market Statistics",
   "sourceUrl": "https://www.cboe.com/data/mktstat.aspx",
   "sourceKind": "delayed",
@@ -1687,21 +1687,21 @@
  "providerCrossChecks": {
   "crypto": {
    "status": "ok",
-   "attemptedAt": "2026-08-15T06:58:01.212Z",
-   "fetchedAt": "2026-08-15T06:58:01.465Z",
+   "attemptedAt": "2026-08-15T07:44:10.143Z",
+   "fetchedAt": "2026-08-15T07:44:10.351Z",
    "source": "CoinGecko Simple Price API",
    "sourceKind": "independent-secondary",
    "sourceUrl": "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_last_updated_at=true",
    "quotes": [
     {
      "symbol": "BTC-USD",
-     "price": 63073,
-     "observedAt": "2026-08-15T06:56:30.000Z"
+     "price": 63027,
+     "observedAt": "2026-08-15T07:42:30.000Z"
     },
     {
      "symbol": "ETH-USD",
-     "price": 1881.39,
-     "observedAt": "2026-08-15T06:56:50.000Z"
+     "price": 1879.53,
+     "observedAt": "2026-08-15T07:42:50.000Z"
     }
    ]
   }
@@ -1710,14 +1710,14 @@
  "marketAnalysis": {
   "schemaVersion": "market-analysis.v2",
   "status": "blocked",
-  "summary": "시장 분석 대기: 검증된 관측치만 표시합니다 — SPX=7785.76 index (2026-08-14T20:39:27.000Z) · VIX=14.25 index (2026-08-14T20:15:01.000Z) · 10Y=4.696 index (2026-08-14T18:59:53.000Z) · DXY=99.636 index (2026-08-14T20:59:59.000Z). 추가 방향성·인과 해석은 유효한 분석 산출물 확인 후 제공됩니다.",
-  "full": "시장 분석 대기: 검증된 관측치만 표시합니다 — SPX=7785.76 index (2026-08-14T20:39:27.000Z) · VIX=14.25 index (2026-08-14T20:15:01.000Z) · 10Y=4.696 index (2026-08-14T18:59:53.000Z) · DXY=99.636 index (2026-08-14T20:59:59.000Z). 추가 방향성·인과 해석은 유효한 분석 산출물 확인 후 제공됩니다.",
-  "oneLine": "시장 분석 대기: 검증된 관측치만 표시합니다 — SPX=7785.76 index (2026-08-14T20:39:27.000Z) · VIX=14.25 index (2026-08-14T20:15:01.000Z) · 10Y=4.696 index (2026-08-14T18:59:53.000Z) · DXY=99.636 index (2026-08-14T20:59:59.000Z). 추가 방향성·인과 해석은 유효한 분석 산출물 확인 후 제공됩니다.",
+  "summary": "시장 분석 대기: 검증된 관측치만 표시합니다 — SPX=7785.76 index (2026-08-14T20:00:00.000Z) · VIX=14.25 index (2026-08-14T20:15:01.000Z) · 10Y=4.696 index (2026-08-14T18:59:53.000Z) · DXY=99.636 index (2026-08-14T20:59:59.000Z). 추가 방향성·인과 해석은 유효한 분석 산출물 확인 후 제공됩니다.",
+  "full": "시장 분석 대기: 검증된 관측치만 표시합니다 — SPX=7785.76 index (2026-08-14T20:00:00.000Z) · VIX=14.25 index (2026-08-14T20:15:01.000Z) · 10Y=4.696 index (2026-08-14T18:59:53.000Z) · DXY=99.636 index (2026-08-14T20:59:59.000Z). 추가 방향성·인과 해석은 유효한 분석 산출물 확인 후 제공됩니다.",
+  "oneLine": "시장 분석 대기: 검증된 관측치만 표시합니다 — SPX=7785.76 index (2026-08-14T20:00:00.000Z) · VIX=14.25 index (2026-08-14T20:15:01.000Z) · 10Y=4.696 index (2026-08-14T18:59:53.000Z) · DXY=99.636 index (2026-08-14T20:59:59.000Z). 추가 방향성·인과 해석은 유효한 분석 산출물 확인 후 제공됩니다.",
   "regime": {
    "label": "UNKNOWN",
    "status": "blocked",
    "evidenceIds": [
-    "market-analysis:^GSPC:2026-08-14T20:39:27.000Z",
+    "market-analysis:^GSPC:2026-08-14T20:00:00.000Z",
     "market-analysis:^VIX:2026-08-14T20:15:01.000Z",
     "market-analysis:^TNX:2026-08-14T18:59:53.000Z",
     "market-analysis:DX-Y.NYB:2026-08-14T20:59:59.000Z",
@@ -1736,7 +1736,7 @@
    {
     "label": "await validated market analysis",
     "evidenceIds": [
-     "market-analysis:^GSPC:2026-08-14T20:39:27.000Z",
+     "market-analysis:^GSPC:2026-08-14T20:00:00.000Z",
      "market-analysis:^VIX:2026-08-14T20:15:01.000Z",
      "market-analysis:^TNX:2026-08-14T18:59:53.000Z",
      "market-analysis:DX-Y.NYB:2026-08-14T20:59:59.000Z",
@@ -1753,10 +1753,10 @@
   "claims": [
    {
     "id": "market-summary-1",
-    "text": "시장 분석 대기: 검증된 관측치만 표시합니다 — SPX=7785.76 index (2026-08-14T20:39:27.000Z) · VIX=14.25 index (2026-08-14T20:15:01.000Z) · 10Y=4.696 index (2026-08-14T18:59:53.000Z) · DXY=99.636 index (2026-08-14T20:59:59.000Z). 추가 방향성·인과 해석은 유효한 분석 산출물 확인 후 제공됩니다.",
+    "text": "시장 분석 대기: 검증된 관측치만 표시합니다 — SPX=7785.76 index (2026-08-14T20:00:00.000Z) · VIX=14.25 index (2026-08-14T20:15:01.000Z) · 10Y=4.696 index (2026-08-14T18:59:53.000Z) · DXY=99.636 index (2026-08-14T20:59:59.000Z). 추가 방향성·인과 해석은 유효한 분석 산출물 확인 후 제공됩니다.",
     "claimType": "summary",
     "evidenceIds": [
-     "market-analysis:^GSPC:2026-08-14T20:39:27.000Z",
+     "market-analysis:^GSPC:2026-08-14T20:00:00.000Z",
      "market-analysis:^VIX:2026-08-14T20:15:01.000Z",
      "market-analysis:^TNX:2026-08-14T18:59:53.000Z",
      "market-analysis:DX-Y.NYB:2026-08-14T20:59:59.000Z",
@@ -1772,7 +1772,7 @@
    }
   ],
   "evidenceIds": [
-   "market-analysis:^GSPC:2026-08-14T20:39:27.000Z",
+   "market-analysis:^GSPC:2026-08-14T20:00:00.000Z",
    "market-analysis:^VIX:2026-08-14T20:15:01.000Z",
    "market-analysis:^TNX:2026-08-14T18:59:53.000Z",
    "market-analysis:DX-Y.NYB:2026-08-14T20:59:59.000Z",
@@ -1784,23 +1784,23 @@
    "market-analysis:macro.nfp-mom:2026-07-01T00:00:00.000Z",
    "market-analysis:fear-greed:2026-08-14T23:59:53.000Z"
   ],
-  "generatedAt": "2026-08-15T07:00:10.152Z",
+  "generatedAt": "2026-08-15T07:46:21.686Z",
   "model": "none",
   "validatorVersion": "market-analysis-validator.v2",
   "semanticStatus": "blocked",
   "semanticIssues": [
-   "metric-value-mismatch:macro.nfp-mom,causal-evidence-missing"
+   "causal-evidence-missing"
   ],
   "metricEvidence": [
    {
-    "evidenceId": "market-analysis:^GSPC:2026-08-14T20:39:27.000Z",
+    "evidenceId": "market-analysis:^GSPC:2026-08-14T20:00:00.000Z",
     "metricId": "market.spx",
     "label": "SPX",
     "value": 7785.76,
     "unit": "index",
-    "observedAt": "2026-08-14T20:39:27.000Z",
-    "collectedAt": "2026-08-15T07:00:07.082Z",
-    "asOf": "2026-08-14T20:39:27.000Z",
+    "observedAt": "2026-08-14T20:00:00.000Z",
+    "collectedAt": "2026-08-15T07:46:17.670Z",
+    "asOf": "2026-08-14T20:00:00.000Z",
     "source": "Yahoo chart",
     "sourceTier": "public-information-service",
     "sourceKind": "market-quote",
@@ -1814,7 +1814,7 @@
     "value": 14.25,
     "unit": "index",
     "observedAt": "2026-08-14T20:15:01.000Z",
-    "collectedAt": "2026-08-15T07:00:07.082Z",
+    "collectedAt": "2026-08-15T07:46:17.670Z",
     "asOf": "2026-08-14T20:15:01.000Z",
     "source": "Yahoo chart",
     "sourceTier": "public-information-service",
@@ -1829,7 +1829,7 @@
     "value": 4.696,
     "unit": "index",
     "observedAt": "2026-08-14T18:59:53.000Z",
-    "collectedAt": "2026-08-15T07:00:07.082Z",
+    "collectedAt": "2026-08-15T07:46:17.670Z",
     "asOf": "2026-08-14T18:59:53.000Z",
     "source": "Yahoo chart",
     "sourceTier": "public-information-service",
@@ -1844,7 +1844,7 @@
     "value": 99.636,
     "unit": "index",
     "observedAt": "2026-08-14T20:59:59.000Z",
-    "collectedAt": "2026-08-15T07:00:07.082Z",
+    "collectedAt": "2026-08-15T07:46:17.670Z",
     "asOf": "2026-08-14T20:59:59.000Z",
     "source": "Yahoo chart",
     "sourceTier": "public-information-service",
@@ -1859,7 +1859,7 @@
     "value": 82.4,
     "unit": "USD/barrel",
     "observedAt": "2026-08-14T20:59:59.000Z",
-    "collectedAt": "2026-08-15T07:00:07.082Z",
+    "collectedAt": "2026-08-15T07:46:17.670Z",
     "asOf": "2026-08-14T20:59:59.000Z",
     "source": "Yahoo chart",
     "sourceTier": "public-information-service",
@@ -1874,7 +1874,7 @@
     "value": 4437.3,
     "unit": "USD/oz",
     "observedAt": "2026-08-14T21:00:00.000Z",
-    "collectedAt": "2026-08-15T07:00:07.082Z",
+    "collectedAt": "2026-08-15T07:46:17.670Z",
     "asOf": "2026-08-14T21:00:00.000Z",
     "source": "Yahoo chart",
     "sourceTier": "public-information-service",
@@ -1889,7 +1889,7 @@
     "value": 6977.94,
     "unit": "index",
     "observedAt": "2026-08-14T09:05:40.000Z",
-    "collectedAt": "2026-08-15T07:00:07.082Z",
+    "collectedAt": "2026-08-15T07:46:17.670Z",
     "asOf": "2026-08-14T09:05:40.000Z",
     "source": "Yahoo chart",
     "sourceTier": "public-information-service",
@@ -1904,7 +1904,7 @@
     "value": 3.3,
     "unit": "percent",
     "observedAt": "2026-07-01T00:00:00.000Z",
-    "collectedAt": "2026-08-15T07:00:07.082Z",
+    "collectedAt": "2026-08-15T07:46:17.670Z",
     "asOf": "2026-07-01T00:00:00.000Z",
     "source": "BLS Public Data API v1",
     "sourceTier": "official-primary",
@@ -1919,7 +1919,7 @@
     "value": 3.63,
     "unit": "percent",
     "observedAt": "2026-07-01T00:00:00.000Z",
-    "collectedAt": "2026-08-15T07:00:07.082Z",
+    "collectedAt": "2026-08-15T07:46:17.670Z",
     "asOf": "2026-07-01T00:00:00.000Z",
     "source": "FRED",
     "sourceTier": "official-primary",
@@ -1934,7 +1934,7 @@
     "value": -23,
     "unit": "thousands",
     "observedAt": "2026-07-01T00:00:00.000Z",
-    "collectedAt": "2026-08-15T07:00:07.082Z",
+    "collectedAt": "2026-08-15T07:46:17.670Z",
     "asOf": "2026-07-01T00:00:00.000Z",
     "source": "FRED",
     "sourceTier": "official-primary",
@@ -1949,7 +1949,7 @@
     "value": 65,
     "unit": "score",
     "observedAt": "2026-08-14T23:59:53.000Z",
-    "collectedAt": "2026-08-15T07:00:07.082Z",
+    "collectedAt": "2026-08-15T07:46:17.670Z",
     "asOf": "2026-08-14T23:59:53.000Z",
     "source": "cnn",
     "sourceTier": "public-api",
@@ -1960,6 +1960,6 @@
   ],
   "newsEvidence": [],
   "causalEvidenceCount": 0,
-  "reason": "metric-value-mismatch:macro.nfp-mom,causal-evidence-missing"
+  "reason": "causal-evidence-missing"
  }
 }
