@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-08-15T08:45:50.990Z",
-  "attemptedAt": "2026-08-15T08:45:50.990Z",
-  "lastSuccessfulAt": "2026-08-15T08:45:50.990Z",
+  "generatedAt": "2026-08-15T09:08:53.708Z",
+  "attemptedAt": "2026-08-15T09:08:53.708Z",
+  "lastSuccessfulAt": "2026-08-15T09:08:53.708Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-08-01T08:45:39.195Z",
-  "until": "2026-08-15T08:45:39.195Z",
+  "since": "2026-08-01T09:08:48.465Z",
+  "until": "2026-08-15T09:08:48.465Z",
   "current24hWindow": {
     "start": "2026-08-13T23:00:00.000Z",
     "end": "2026-08-14T23:00:00.000Z",
@@ -14,7 +14,7 @@
   },
   "current24hCoverage": {
     "observedCount": 95,
-    "eligibleTextCount": 25,
+    "eligibleTextCount": 13,
     "channelCounts": {
       "insidertracking": 50,
       "HANAchina": 32,
@@ -92,12 +92,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1149,
+      "count": 1151,
       "freshCount": 38,
       "eligibleTextCount": 34,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 61201
+      "lastPostId": 61203
     },
     {
       "channel": "bornlupin",
@@ -113,20 +113,44 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 742,
-      "freshCount": 36,
-      "eligibleTextCount": 36,
+      "freshCount": 16,
+      "eligibleTextCount": 16,
       "selectedCount": 125,
       "error": null,
       "lastPostId": 67181
     }
   ],
-  "count": 2419,
-  "retainedItemCount": 456,
+  "count": 2421,
+  "retainedItemCount": 451,
   "observedItems": [
+    {
+      "id": "insidertracking/61203",
+      "channel": "insidertracking",
+      "datetime": "2026-08-15T08:56:30.000Z",
+      "localDateKst": "2026-08-15",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/61202",
+      "channel": "insidertracking",
+      "datetime": "2026-08-15T08:52:06.000Z",
+      "localDateKst": "2026-08-15",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "insidertracking/61201",
       "channel": "insidertracking",
@@ -721,7 +745,7 @@
         "AAPL",
         "GOOG"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61181",
@@ -745,7 +769,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67159",
@@ -763,7 +787,7 @@
         "META",
         "AMZN"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61180",
@@ -789,7 +813,7 @@
         "equity"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67157",
@@ -801,7 +825,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61178",
@@ -991,7 +1015,7 @@
         "GOOG",
         "GOOGL"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61171",
@@ -1027,7 +1051,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61170",
@@ -1056,7 +1080,7 @@
         "TSM",
         "SNPS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61169",
@@ -1205,7 +1229,7 @@
         "SOXX",
         "GLD"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61161",
@@ -1217,7 +1241,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61160",
@@ -1405,7 +1429,7 @@
         "power"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67152",
@@ -1421,7 +1445,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67151",
@@ -1435,7 +1459,7 @@
         "power"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67150",
@@ -1448,7 +1472,7 @@
         "equity"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67149",
@@ -1474,7 +1498,7 @@
         "TSM",
         "MTK"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67148",
@@ -1488,7 +1512,7 @@
         "equity"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67147",
@@ -1502,7 +1526,7 @@
       "tickers": [
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19717",
@@ -1677,7 +1701,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61140",
@@ -1726,7 +1750,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61137",
@@ -1847,7 +1871,7 @@
         "TSM",
         "LITE"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19714",
@@ -1884,7 +1908,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67142",
@@ -1896,7 +1920,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67141",
@@ -34608,19 +34632,19 @@
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2419,
-    "eligibleTextCount": 106,
-    "mediaOnlyCount": 2313,
+    "observedCount": 2421,
+    "eligibleTextCount": 86,
+    "mediaOnlyCount": 2335,
     "highSignalCount": 640,
     "broadSignalCount": 1232,
     "selectedRawCount": 408,
-    "selectedRawCoveragePct": 384.9,
+    "selectedRawCoveragePct": 474.4,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
+    "market-note": 564,
+    "geo": 392,
     "japan": 196,
-    "market-note": 563,
-    "geo": 391,
     "macro": 873,
     "semi": 720,
     "power": 359,
@@ -34875,8 +34899,8 @@
     "Macro/Rates (873 posts in 14-day research window): >>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도...",
     "Semiconductors/Memory (720 posts in 14-day research window): >>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도...",
     "Earnings/Corporate (609 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 애플 (AAPL) — 중국 시장용 AI 모델을 자체 개발하고 있으며, 알리바바가 모델 개발을...",
-    "Market Notes (563 posts in 14-day research window): 52주 신고가 · Aehr Test Systems · Aramark · Associated Banc-Corp · Bank of America Corp. Preferred · Bank of Montreal ·...",
-    "Geopolitics (391 posts in 14-day research window): >>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도...",
+    "Market Notes (564 posts in 14-day research window): 52주 신고가 · Aehr Test Systems · Aramark · Associated Banc-Corp · Bank of America Corp. Preferred · Bank of Montreal ·...",
+    "Geopolitics (392 posts in 14-day research window): >>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도...",
     "Korea Market (376 posts in 14-day research window): >>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도...",
     "AI Power/Grid (359 posts in 14-day research window): >>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도...",
     "Positioning/Flows (261 posts in 14-day research window): >>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도..."
@@ -34959,7 +34983,7 @@
       "topics": [
         "geo"
       ],
-      "count": 391,
+      "count": 392,
       "focus": ">>TSMC 매수·매도 엇갈리고, 버크셔는 Alphabet 추가 매수…미국 기관 2분기 기술주 대대적 교체, 8대 포인트 (대만경제일보) •기관들의 기술주 투자 의견 크게 교차 : 6,371개 기관의 13F 자료를 보면 44%가 ‘M7’ 비중을 줄였고 42%는 신규 편입하거나 늘렸음. 소프트웨어주도 매도..."
     },
     {
@@ -35085,7 +35109,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 563,
+      "count": 564,
       "focus": "52주 신고가 · Aehr Test Systems · Aramark · Associated Banc-Corp · Bank of America Corp. Preferred · Bank of Montreal ·..."
     }
   ],
@@ -44070,21 +44094,6 @@
       "summary": ">>CATL, 호주 국가전력시장 최대 운영 배터리 저장 프로젝트 단독 공급…3단계에 TENER 적용 •CATL은 8월 14일, Quinbrook이 개발한 호주 Supernode 에너지저장 프로젝트 2단계가..."
     },
     {
-      "id": "HANAchina/67150",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/67150",
-      "datetime": "2026-08-14T14:01:12.000Z",
-      "localDateKst": "2026-08-14",
-      "tags": [
-        "macro",
-        "equity"
-      ],
-      "tickers": [],
-      "score": 47,
-      "hasText": true,
-      "summary": ">>9년째 연기된 테슬라 로드스터, 드디어 날아오르나?…테슬라·SpaceX 협력, 이르면 이달 공개 •테슬라가 약 9년간 출시를 미뤄온 신형 Roadster 를 이르면 이달 SpaceX 테스트 기지에서 공개할..."
-    },
-    {
       "id": "HANAchina/67149",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/67149",
@@ -44331,20 +44340,6 @@
       "summary": "엔화가 8월 14일 달러당 159.43엔까지 약 1% 하락하며 3개월 만에 최대 주간 낙폭을 기록할 전망. 최근 일본과 미국이 연계된 시장 개입 효과가 약화된 가운데, 엔화가 달러당 160엔을 넘어설 경우..."
     },
     {
-      "id": "HANAchina/67145",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/67145",
-      "datetime": "2026-08-14T10:22:16.000Z",
-      "localDateKst": "2026-08-14",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "**중국 3대사 모두 공격적인 증설 돌입"
-    },
-    {
       "id": "insidertracking/61137",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/61137",
@@ -44426,35 +44421,6 @@
       "score": 40,
       "hasText": true,
       "summary": "2026.08.14 15:55:56 기업명: 티에스이(시가총액: 2조 8,760억) A131290 보고서명: 반기보고서 (2026.06) 잠정실적 : N 매출액 : 1,888억(예상치 : 1,463억,..."
-    },
-    {
-      "id": "HANAchina/67143",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/67143",
-      "datetime": "2026-08-14T07:59:15.000Z",
-      "localDateKst": "2026-08-14",
-      "tags": [
-        "semi",
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 47,
-      "hasText": true,
-      "summary": ">>캠브리콘·무어스레드 ‘중간고사’ 낙제? •해외산 AI 컴퓨팅 공급 차단으로 수요가 중국산으로 몰리면서 캠브리콘 의 상반기 매출은 약 60억 위안으로 YoY 두 배 가까이 증가했고, 무어스레드 의 상반기..."
-    },
-    {
-      "id": "HANAchina/67142",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/67142",
-      "datetime": "2026-08-14T07:42:45.000Z",
-      "localDateKst": "2026-08-14",
-      "tags": [
-        "flows"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": ">>난야 플라스틱, 전자재료 올해 가격 2배 이상 상승…유리섬유 원단 품귀 가장 심각 •전자재료 선두업체 난야 플라스틱 은 동박, 유리섬유 원단, 수지 등 원재료 비용 급등으로 올해 전자재료 가격이 누적으로..."
     },
     {
       "id": "HANAchina/67141",
