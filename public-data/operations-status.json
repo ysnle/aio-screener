@@ -7,7 +7,7 @@
     "STALE",
     "RIGHTS_REVIEW_REQUIRED"
   ],
-  "generatedAt": "2026-08-21T01:57:45.632Z",
+  "generatedAt": "2026-08-21T02:03:50.773Z",
   "appRevision": "v54.37",
   "dataRevision": "market-snapshot:2026-08-21T01:57:39.668Z:df154473",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
@@ -87,7 +87,7 @@
       "health": {
         "status": "CURRENT",
         "statusCode": 200,
-        "observedAt": "2026-08-21T01:57:45.813Z",
+        "observedAt": "2026-08-11T13:27:34.150Z",
         "revision": "v54.5",
         "configured": true,
         "quotaConfigured": true,
@@ -97,7 +97,7 @@
         "providerSmokeObservedAt": "2026-08-11T13:25:15.000Z",
         "providerSmokeRevision": "v54.5",
         "ready": true,
-        "note": "Live deep health observed; provider smoke is certified separately by the pinned deploy workflow."
+        "note": "Deploy run 31495812010 passed deep health, CORS/origin checks, and provider smoke. A Korean-origin follow-up returned v54.5 health 200, authorityJurisdiction us, Anthropic 200/OK, and X-AIO-Upstream-Authority durable-object-us."
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }
@@ -121,9 +121,9 @@
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "filing-evidence",
-      "coveragePct": 85.5,
+      "coveragePct": 85.7,
       "stored": 562,
-      "eligible": 657
+      "eligible": 656
     }
   },
   "reconciliation": {
