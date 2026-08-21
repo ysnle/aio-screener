@@ -16,7 +16,7 @@ current_checkpoint: P947 v54.37 public AI browser preflight header repair
 - **fix**: added `anthropic-beta` to the canonical Worker `Access-Control-Allow-Headers` list, synchronized `AIO_APP_REVISION` to the v54.37 release, and added a reliability-contract assertion that every browser chat header is allowed.
 - **violated_rule**: R497; browser route certification must cover the complete public request contract, including preflight.
 - **prevention**: keep a real preflight check alongside the public-route browser fixture and treat any client-added non-simple header as a Worker CORS contract change. Do not infer browser success from direct POST/curl success.
-- **verification**: local reliability contract and syntax gates pass; the authorized `Deploy AI proxy` workflow 32438015866 passed deployment, health, CORS, fail-closed-origin and real upstream checks. A fresh live browser test is rerun after propagation before release closure.
+- **verification**: local reliability contract and syntax gates pass; the repaired Worker deployment workflow 32438467898 passed deployment, health, CORS, fail-closed-origin and real upstream checks. After propagation, a fresh live in-app browser completed the public POST and rendered the non-empty Claude Haiku answer `AI 연결 상태 확인`.
 
 ## P946 - v54.37 - SEC report unavailable state omitted its point-in-time boundary
 

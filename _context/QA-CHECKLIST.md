@@ -7,7 +7,7 @@ confidence: high
 
 - [x] QA-AI-CORS-01: the canonical Worker CORS allowlist includes `anthropic-beta`, matching the prompt-caching header emitted by the client.
 - [x] QA-AI-CORS-02: `Deploy AI proxy` workflow 32438015866 passed Worker deployment, health/readiness, OPTIONS 204, allowed GitHub Pages origin, blocked foreign origin, and real Anthropic upstream smoke.
-- [ ] QA-AI-LIVE-02: a fresh in-app browser must complete the full public chat POST and render a non-empty model answer after the Worker propagation window; direct live curl success is not a substitute.
+- [x] QA-AI-LIVE-02: after Worker propagation, a fresh in-app browser completed the full public chat POST and rendered a non-empty Claude Haiku answer (`AI 연결 상태 확인` plus the current data-status boundary); direct live curl and browser UI both pass.
 
 ## v54.37 public AI end-to-end reliability (2026-08-18)
 
