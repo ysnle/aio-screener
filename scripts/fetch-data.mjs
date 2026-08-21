@@ -1977,7 +1977,6 @@ export async function enrichScreener() {
     if (fmpResult && fmpResult.data) {
       for (const sym in fmpResult.data) {
         if (data[sym]) Object.assign(data[sym], fmpResult.data[sym]);
-        else data[sym] = fmpResult.data[sym];
       }
     }
   } catch (e) { console.warn('[fetch-data] fundamentals 병합 실패(무시):', e && e.message || e); }
@@ -1986,7 +1985,10 @@ export async function enrichScreener() {
   // SEC는 annual filing facts이고 FMP는 TTM이므로 서로 같은 모델처럼 섞지 않는다.
   const secResult = await enrichSecFundamentals(syms, data);
   for (const sym in secResult.data) {
-    if (!data[sym]) data[sym] = {};
+    // A screener row represents a successfully derived factor observation. A
+    // filing-only row belongs in sec-fundamentals.json, not in this factor map.
+    // Injecting it here makes `ok`, row count and factor readiness disagree.
+    if (!data[sym]) continue;
     const sec = secResult.data[sym];
     ['pe','pb','roe','margin','revGrowth'].forEach(key => {
       if (typeof data[sym][key] !== 'number' && typeof sec[key] === 'number') data[sym][key] = sec[key];
@@ -2686,7 +2688,7 @@ async function main() {
       newsScoreMax: newsScores.length ? Math.max(...newsScores) : null,
       putCallOk: putCall && Number.isFinite(putCall.totalPutCall),
       putCallAsOf: putCall && putCall.asOf || null,
-      marketSurveysStatus: previousMarketSurveys?.policy || null,
+      marketSurveysStatus: previousMarketSurveys ? 'web-research-captured-reference' : null,
       marketSurveysCheckedAt: previousMarketSurveys?.checkedAt || null,
       elapsedMs: Date.now() - t0,
       schema: 1,

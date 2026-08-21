@@ -1,7 +1,100 @@
 ---
 verified_by: agent (Fable 5) + Codex full-route audit verification
-last_verified: 2026-08-15
+last_verified: 2026-08-18
 confidence: high
+
+## v54.37 public AI end-to-end reliability (2026-08-18)
+
+- [x] QA-AIROUTE5: a fresh browser with empty storage selects the shipped HTTPS public Worker, while a valid personal key remains the preferred route and no API key is sent to the shared Worker.
+- [x] QA-AISTREAM1: both chat surfaces use one canonical evidence registry and completion envelope; the client honors the Worker's advertised 1,500-token limit and records `stop_reason`/truncation.
+- [x] QA-AIDEGRADE3: one invalid or unbound AnswerPlan claim is removed without blanking safe summary/sections; unsupported current numeric prose is removed while qualitative analysis remains visible.
+- [x] QA-AIDEGRADE4: partial structured streams expose only a progress message, never control JSON; truncated structured output recovers safe prose and publishes an explicit model-output limitation.
+- [x] QA-AIOPS1: the operations producer canonicalizes the health-path observation into the field consumed by route readiness, so the same configured Worker is reported `CONFIGURED_HEALTHY`.
+- [x] QA-AIBROWSER1: `ci-ai-chat-public-route-browser-check.mjs` passes the route, stream, claim degradation, numeric stripping and truncation scenarios in real Chromium.
+- [x] QA-DATA-REFRESH-12: the existing producer refreshed 78/78 configured quotes, Fear & Greed, news, history, market snapshot and release manifests without inventing unavailable FRED/licensed values; the 22-category audit keeps stale breadth/HY and rights-limited categories explicit.
+- [x] QA-SCREENER-FRESHNESS-02: a forced screener run removed the filing-only row and passes with 847/847 factor rows, 561 fundamental rows, 77.1% usable coverage and current factor epochs.
+- [x] QA-FUND-PIT-01: the `sec-report.v3` unavailable state visibly says both SEC annual data and the PIT reference time are pending and does not estimate missing values.
+- [x] QA-AILOCAL-01: local blocking gates pass: 1124/1124 headless, fresh-browser public route, FULL_INIT 51/51, Critical-10, accessibility 20 routes, Vault, 13 vertical slices, 20-route architecture lifecycle and three-lap route soak.
+- [ ] QA-TIER13-01: Codex in-app browser certification is unavailable because Browser plugin initialization rejects `browser-service.mjs` outside its configured trusted RPC path; standalone real-Chromium gates pass but are not mislabeled as in-app-browser evidence.
+- [ ] QA-AIRELEASE1: full headless/release gates, GitHub Pages deployment and post-deploy live public-chat certification must pass before this release is closed.
+
+## v54.36 semantic/reference completion pass (2026-08-18)
+
+- [x] QA-KNOWLEDGE-DEPTH-03: all 112 Principles and 48 Atlas foundation source lessons meet the 1,200-character floor and carry the complete semantic field set plus structured worked examples; `audit-knowledge-encyclopedia-depth.mjs --strict` passes.
+- [x] QA-KNOWLEDGE-RESEARCH-02: all 160 core/foundation lessons carry dated fact IDs and canonical selected sources in their research dossiers; whole-corpus state is 318 researched, 4 in progress and 105 research-required units.
+- [x] QA-ATLAS-EVIDENCE-02: `current-evidence-ledger.json` contains 40 dated primary-reference entries from 38 sources and is visible in the Atlas evidence room; current operational/production/financial promotion remains zero.
+- [x] QA-MASTERS-13F-27: raw SEC multi-quarter issuer aggregation is connected for 2,500 manager·CUSIP·share-type·put/call keys from 13,629 rows across seven managers; 268 review flags remain explicit and no ticker/sector/corporate-action inference is published.
+- [x] QA-PAGES-STRUCTURE-02: Principles, Atlas and Masters focused contract/browser gates pass after the new source-depth, evidence-ledger and issuer-aggregate consumers were connected.
+- [ ] QA-KNOWLEDGE-SELF-05: independent human semantic/source review and recruited-user validation remain open; automated semantic certification is not a substitute for those reviews.
+- [ ] QA-MASTERS-13F-28: authorized security-master, corporate-action and sector provider review, plus remaining metadata-only manager row imports, remain pending.
+- [ ] QA-DEPLOY-02: live deployed-site parity and required response-header certification remain open; no deployment was performed.
+- [ ] QA-DATA-REFRESH-03: this local run could not refresh Yahoo/BEA/Cboe; the producer failed closed with `CORE_QUOTE_COVERAGE_FAILED:0/78` and preserved the prior `data.json`. VIX/HY OAS, breadth, put/call and screener reference artifacts remain stale/reference-only where the freshness audit says so.
+- [ ] QA-SCREENER-FRESHNESS-01: `screener.json` remains outside its 2-day processing freshness budget and its validator still reports `847 != 848` plus one row without derived factors; screener workbench and page-market-epoch browser gates therefore remain blocked until the authorized refresh pipeline succeeds.
+
+## v54.35 sequential quality closure (2026-08-18)
+
+- [x] QA-MASTERS-13F-23: SEC EDGAR Q2 refresh is connected for five managers; Pershing Q1 and Scion 2025-Q3 remain explicit latest/stale references, with 1,290 full rows, 1,387 comparisons, 84 periods and 12,339 historical rows.
+- [x] QA-MASTERS-13F-24: Duquesne’s $4 cover-total mismatch is preserved as `MISMATCH`; Masters visibly holds total-based interpretation and does not silently round or repair the source.
+- [x] QA-MASTERS-13F-25: raw holdings coverage is derived and gated at 1,130 normalized CUSIP values and 1,161 issuer strings; verified security-master, ticker/share-class, sector, corporate-action and issuer aggregation promotion remains blocked.
+- [x] QA-KNOWLEDGE-DEPTH-02: generated worked examples retain the source verification question and no longer contain the prior undefined/English placeholder step; article contract and uniqueness gates pass for 160 structured drafts.
+- [x] QA-ATLAS-CURRENTNESS-01: player/product reference overlay visibly reports 43 official-reference rows, a seven-day review window, 40 stale-reference rows and zero current numeric/production/financial claims.
+- [x] QA-KNOWLEDGE-FRESHNESS-01: encyclopedia-depth audit date is derived from the run date rather than a stale hardcoded date.
+- [x] QA-DATA-REFRESH-11: official/allowed refresh completed with 78/78 quotes, 398 history rows, 40 news items and a 22-category reconciliation rebuild; web-research status remains canonical and reference-only through subsequent refreshes.
+- [ ] QA-KNOWLEDGE-SELF-04: encyclopedia-depth certification, direct source/semantic review and recruited-user validation remain open; the 160 generated articles are not certified encyclopedia copy.
+- [ ] QA-MASTERS-13F-26: verified security master, corporate actions, sector mapping, issuer-level multi-quarter aggregation and the remaining metadata-only manager row imports require authoritative review/rights and remain pending.
+- [ ] QA-DEPLOY-01: deployed-site parity cannot be certified until the live-site network fetch is available; no deployment was performed.
+
+## v54.34 structural quality and content-depth closure (2026-08-16)
+
+- [x] QA-KNOWLEDGE-DEPTH-01: Principles 자료실 connects all 112 A~O lessons to the 112 structured deep articles; each remains visibly educational-reference-only with semantic/source-directness review required.
+- [x] QA-ATLAS-FOUNDATION-01: Atlas exposes all seven curriculum layers, including the F0 problem→learning→model→system→hardware primer, with six readable primer concepts and no false long-form completion claim.
+- [x] QA-MASTERS-13F-22: each of the seven connected 13F managers records SEC cover-total vs information-table row-total reconciliation; exact matches are labeled and the Duquesne +$1 source exception is disclosed without row-total correction.
+- [x] QA-PAGES-STRUCTURE-01: focused Principles, Atlas and Masters contract/browser gates pass after the structural/content patch; F0 selection, deep-article expansion and 13F reconciliation disclosure are browser assertions.
+- [ ] QA-KNOWLEDGE-SELF-04: encyclopedia-depth certification, independent research, semantic review and recruited-user validation remain open; the connected deep corpus is still reference draft, not certified completion.
+
+## v54.33 self-guided learning and observation scope (2026-08-16)
+
+- [x] QA-KNOWLEDGE-SELF-01: Principles and Atlas no longer render quiz, verification-question, or simulation prompts; declarative self-guided reading paths and exploration lenses are visible instead.
+- [x] QA-KNOWLEDGE-SELF-02: current-observations renderer filters by selected node/lesson scope; Principles initial scarcity view shows only its directly linked observation and Atlas foundation views show an explicit empty state when no direct observation exists.
+- [x] QA-KNOWLEDGE-SELF-03: Atlas relationship search filters both visible nodes and matching edges by the same query, preventing hidden-node edge residue.
+- [x] QA-MASTERS-13F-21: Masters detail exposes a self-guided 13F reading order and explicit blind-spot boundary without generating trade signals.
+- [ ] QA-KNOWLEDGE-SELF-04: encyclopedia-depth certification and recruited-user validation remain open; `audit-knowledge-encyclopedia-depth.mjs` must pass before publishing long-form completion.
+
+## v54.32 method-only master boundary (2026-08-16)
+
+- [x] QA-MASTERS-13F-18: Mark Minervini is visible as one `METHOD_ONLY` profile, separate from the 37 SEC-filer profiles.
+- [x] QA-MASTERS-13F-19: Mark’s operator/strategy teaching fields render, while CIK, accession, filing, holdings, AUM and reported-value fields remain absent.
+- [x] QA-MASTERS-13F-20: contract/browser counts are 38 profiles, 30 SEC metadata profiles, seven reconciled row managers and five/55 SEC previews; method-only count is one.
+
+## v54.31 beginner-core Masters curation (2026-08-16)
+
+- [x] QA-MASTERS-13F-13: the default catalog is 38 beginner-core profiles (37 SEC filers + 1 method-only learning profile); clearly lower-signal/default-noise entries (Lone Pine, Coatue, Akre and Altimeter) are retired while famous momentum educator Mark Minervini remains visible as `METHOD_ONLY`.
+- [x] QA-MASTERS-13F-14: every profile has a manager category, scale tier/basis, named operator and role, strategy approach, horizon, risk style and teaching use; seven profiles additionally carry official dated scale values with units and source links.
+- [x] QA-MASTERS-13F-15: the UI renders operator, scale and strategy on cards/detail metrics and keeps filer/CIK, legal owner, firm AUM and named-person teaching labels distinct.
+- [x] QA-MASTERS-13F-16: synchronized catalog/index/preview and contract/browser expectations are 38 profiles (37 SEC filers + 1 method-only), 30 SEC metadata profiles, seven reconciled row managers, and five managers/55 SEC preview rows.
+- [x] QA-MASTERS-13F-16b: Mark Minervini renders operator/strategy teaching metadata without CIK, filing, holdings, reported value, weights, or trading claims.
+- [ ] QA-MASTERS-13F-17: remaining metadata-only managers still require fair-access collection, cover/table reconciliation, CUSIP/share-class normalization and adjacent-period comparison before full-row promotion.
+
+## v54.30 major filer expansion (2026-08-16)
+
+- [x] QA-MASTERS-13F-10: BlackRock, Goldman Sachs, Citi, Harvard Management Company, and Situational Awareness/Leopold were added with official Q1 2026 SEC CIK, accession, report period, filing index, and information-table links.
+- [x] QA-MASTERS-13F-11: catalog coverage is 28 profiles, 20 SEC metadata-confirmed, seven full-row reconciled, and seven preview-connected/80 preview rows; bank, university, and combination-filer boundaries remain explicit.
+- [ ] QA-MASTERS-13F-12: newly added major filers remain pending full row import, cover-total reconciliation, CUSIP normalization, and adjacent-quarter comparison.
+
+## v54.29 SEC 13F row preview boundary (2026-08-16)
+
+- [x] QA-MASTERS-13F-06: `manager-row-previews.json` contains 60 actual SEC information-table rows across five metadata-only managers, each with CIK/accession/report period/source XML and issuer/CUSIP/value/shares fields.
+- [x] QA-MASTERS-13F-07: Masters renders preview rows with an explicit “전체 원장 대기” boundary; previews are not merged into verified holdings, comparisons, sector weights, signals, or AI action claims.
+- [x] QA-MASTERS-13F-08: service-worker, catalog/index coverage counters, static contract, and Chromium interaction test prove the 5-manager/60-row preview layer while preserving seven full-row reconciled managers.
+- [ ] QA-MASTERS-13F-09: full promotion still requires SEC fair-access collection, cover-total reconciliation, CUSIP/share-class/corporate-action normalization, and adjacent-period comparison for every preview manager.
+
+## v54.28 13F manager coverage and discovery separation (2026-08-16)
+
+- [x] QA-MASTERS-13F-01: `manager-catalog.json` contains 23 unique priority profiles, 15 SEC-indexed metadata-only managers, seven existing row-connected managers, and explicit row-import/currentness states.
+- [x] QA-MASTERS-13F-02: Bridgewater, Citadel, Oaktree, Tiger Global, Soros, Lone Pine, Third Point, Coatue, TCI, Viking, Akre, ARK, Elliott, Altimeter, and JPMorgan entries retain CIK/accession/report period/information-table/primary-document links from SEC EDGAR search results.
+- [x] QA-MASTERS-13F-03: seven Telegram `@insidertracking` leads are `DISCOVERY_SECONDARY` and X search is `UNREADABLE_DISCOVERY`; no social summary is consumed as a holding, weight, current position, or trade label.
+- [x] QA-MASTERS-13F-04: Masters UI visibly separates `secMetadataVerified`, `verifiedRowsConnected`, and `rowImportPending`, loads the catalog from a service-worker shell asset, and preserves the 13F whole-portfolio disclosure.
+- [ ] QA-MASTERS-13F-05: Run the SEC fair-access row collector with a declared production User-Agent, then reconcile each pending information table against cover totals, CUSIP/share-class/corporate-action mappings, and adjacent prior filings before promoting any new rows.
 
 ## v54.24 Exhaustive user-visible data and automation freshness (2026-08-15)
 
@@ -137,9 +230,9 @@ confidence: high
 
 ## v54.7 KA-11~16 execution gates (2026-08-12)
 
-- [x] QA-KA11: `coverage-matrix.json` inventories 423 units with exact 111/48/60/95/50/19/20/20 counts; inventory remains distinct from content completion.
-- [x] QA-KA12: 423 research dossier contracts resolve to the canonical source registry; five official/academic seed sources are recorded; research completion remains 0 researched / 172 in progress / 251 required.
-- [x] QA-KA13: 159 article reconstruction seeds are unique and progressive disclosure is present; all remain reconstruction-required pending human semantic review.
+- [x] QA-KA11: `coverage-matrix.json` inventories 427 units with exact 112/48/60/95/50/19/21/22 counts; inventory remains distinct from content completion.
+- [x] QA-KA12: 427 research dossier contracts resolve to the canonical source registry; 44 Web-research seed sources are recorded; completion remains 0 researched / 281 in progress / 146 required.
+- [x] QA-KA13: 160 article reconstruction seeds are unique and progressive disclosure is present; all remain reconstruction-required pending human semantic review.
 - [x] QA-KA14: 19 domain dossiers cover 95 taxonomy nodes and 50 unique deep branches with KPI, bottleneck, value-chain and market-transmission fields.
 - [x] QA-KA15: 15 deterministic educational labs pass formula/unit/assumption/example/observation/invalidation checks and contain no current market value.
 - [x] QA-KA16: currentness separation and repository contracts pass locally; browser/live/recruited-user certification remains open and must not be represented as complete.
@@ -148,21 +241,38 @@ confidence: high
 
 - [x] QA-KA1: canonical ontology artifacts contain 155 concepts, 461 aliases, four explicit overlap equivalence groups, and no registry errors.
 - [x] QA-KA2: Principles keeps 71 explicit edge semantics with zero inferred runtime edges; Atlas remains 95 nodes/98 connected edges.
-- [x] QA-KA3: the unified registry contains 119 sources and 270 claims with zero unresolved references or duplicate claim IDs; non-DIRECT claims cannot be promoted implicitly.
-- [x] QA-KA4: 159 article files plus the combined article index and 159-node/16-path learning graph pass structural contracts while remaining marked `STRUCTURED_REFERENCE_DRAFT`.
+- [x] QA-KA3: the unified registry contains 168 sources and 274 claims with zero unresolved references or duplicate claim IDs; non-DIRECT claims cannot be promoted implicitly.
+- [x] QA-KA4: 160 article files plus the combined article index and 160-node/16-path learning graph pass structural contracts while remaining marked `STRUCTURED_REFERENCE_DRAFT`.
 - [x] QA-KA5: route serialization, local persistence, route bridge, repository fallback, selector, and five shared renderer fixtures pass their local contracts.
 - [ ] QA-KA6: semantic source review, primary-source fact-checking, recruited-user validation, and live browser certification remain open and must not be represented as complete.
 - [x] QA-KA7: handoff와 machine contract가 제품을 주식·경제·금융·기술 백과사전으로 정의하고 기존 KA-00~10 뒤 KA-11~16 추가 순서를 고정한다.
-- [ ] QA-KA8: 111/48/60/95/50/19 전체 corpus와 모든 sector/domain/category coverage matrix가 누락·thin orphan 0으로 완성되어야 한다.
+- [ ] QA-KA8: 112/48/60/95/50/19 전체 corpus와 모든 sector/domain/category coverage matrix가 누락·thin orphan 0으로 완성되어야 한다.
 - [ ] QA-KA9: 모든 content unit의 Web Research dossier, profile별 source mix, factual/current/quantitative/product claim 직접 근거 100%, 반대 근거·기준일·currentness 경계가 검증되어야 한다.
-- [ ] QA-KA10: 159 human-reviewed deep article, sector/domain dossier, 정량 lab, market transmission, active-learning browser flow와 live/user boundary가 KA-16에서 최종 인증되어야 한다.
+- [ ] QA-KA10: 160 human-reviewed deep article, sector/domain dossier, 정량 lab, market transmission, active-learning browser flow와 live/user boundary가 KA-16에서 최종 인증되어야 한다.
+
+## v54.25 관계 지도·중립금리·SNDK 통합 (2026-08-15)
+
+- [x] QA-REL1: 5개 관계 지도는 35개 노드·31개 방향 edge를 가지며 각 노드는 정의·중요성·메커니즘·지표·반증 조건을, 각 edge는 criticality를 가진다.
+- [x] QA-REL2: 중립금리 D6는 r*의 비관측성, `r* + 장기 기대물가 ≈ 명목 중립`, 정책 격차, TIPS/기간·유동성 프리미엄 반론을 함께 표시하고 날짜 없는 현재 추정치를 금지한다.
+- [x] QA-REL3: SNDK는 추론→KV cache/staging→SSD/NAND→NBM→capital intensity→reported FCF/share로 연결되며 FY28~30 목표와 HBF는 forward-looking/roadmap reference로 분리된다.
+- [x] QA-REL4: Sandisk player와 BiCS/SSD·HBF 제품은 taxonomy와 currentness overlay에 연결되고, 현재 출하·수율·매출·valuation을 생성하지 않는다.
+- [x] QA-REL5: Atlas 계약 게이트는 관계 artifact, source resolution, edge endpoints, player/product/currentness counts와 safe-DOM consumer를 차단식으로 검증한다.
+- [x] QA-REL6: 로컬 Chromium에서 4개 탭, 5개 지도, criticality 필터, node detail, source 펼침, keyboard focus와 1280/760 반응형을 시각 검증한다.
+- [x] QA-REL7: 관계 지도는 r*의 Kalman/one-sided/two-sided·data-vintage 경계, KV cache 용량식과 GQA/MQA 반례, OCF→FCF bridge, 공급망 qualification/recovery, PUE denominator, CPO link-budget·repairability를 차단 게이트로 보존한다.
+- [x] QA-REL8: 48개 기초 레슨은 별도 `sourceCoverage` fallback이 없어도 각 레코드의 `sourceIds`가 비어 있지 않고, 모든 ID가 공식·연구 source catalog에 해석된다.
+
+## v54.27 실제 관측값 연결 (2026-08-15)
+
+- [x] QA-REL9: `current-observations.v1`은 10개 행 각각에 값·표시값·단위·관측일·sourceId·sourceKind·allowedUse·HTTPS 출처를 가지며 `principles`와 `atlas` 양쪽을 대상으로 한다.
+- [x] QA-REL10: 시장 원리 기본 상세와 AI 시대 기초 레슨/관계 지도 상세가 동일 current-observations 원장을 렌더링하고, 공개 스냅샷·공식 거시값·SNDK forward-looking 목표를 `reference-only`로 표시한다.
+- [x] QA-REL11: Principles/Atlas Chromium 게이트가 10개 실제 관측값 카드와 3.625% 값을 확인하고, 1280/760 관계 지도에서 document overflow 0을 유지한다.
 
 ## v54.5 AI 선택 라우트·배포 게이트 일치 (2026-08-11)
 
 - [x] QA-AIROUTE1: 개인 키와 Worker URL이 함께 있어도 실제 target이 Worker면 deep health를 통과하기 전 `ok:true`가 되지 않는다.
 - [x] QA-AIROUTE2: UI readiness와 호출 경로가 동일 `_aioClaudeTarget` 결과를 사용한다.
 - [x] QA-AIROUTE3: Worker deep health는 URL별 단일 in-flight이며 성공 60초·실패 5초의 비대칭 TTL과 7초 네트워크 예산을 사용한다.
-- [x] QA-AIROUTE4: `public-config.json`은 현재 앱 revision과 동기화하되 Worker URL을 공개하지 않는 explicit-opt-in을 보존한다.
+- [x] QA-AIROUTE4 (historical, superseded by QA-AIROUTE5/R497): v54.5는 Worker URL 비공개 explicit-opt-in을 보존했으나, 이 정책이 fresh-browser `NO_ROUTE` 회귀를 만들었으므로 v54.37부터 공개 fallback 계약으로 대체한다.
 
 ## v54.4 AI 안전 분류·US authority 구조 교정 (2026-08-11)
 
@@ -234,7 +344,7 @@ confidence: high
 
 - [x] QA-KB1: 사용자 노출 명칭은 내비게이션·페이지 제목·breadcrumb·route registry·CTA·검색 접근성 이름에서 `AI 시대 지식 지도`로 통일하고 내부 route ID `atlas`는 유지한다.
 - [x] QA-KB2: 정적 Atlas contract와 Chromium gate가 `AI 시대 지식 백과` kicker, `AI 시대 지식 지도` 제목, 한국어 검색 접근성 이름을 검증한다.
-- [x] QA-KB3: 111개 시장 원리와 48개 AI 기초 원고의 핵심 필드 분량을 전수 계산한다. 현재 중앙값 325자/275자, 1,200자 하한 통과 0/159, structured worked example 0/159를 완료로 승격하지 않는다.
+- [x] QA-KB3: 112개 시장 원리와 48개 AI 기초 원고의 핵심 필드 분량을 전수 계산한다. 현재 중앙값 325자/275자, 1,200자 하한 통과 0/160, structured worked example 0/160를 완료로 승격하지 않는다.
 - [x] QA-KB4: 심층 원고 계약은 직관·형식 모델 또는 rationale·worked example·반례·실물경제→기업→재무제표→밸류에이션→시장→트레이딩 적용·무효화·claim ID·용어·회상 질문을 요구하고 글자 수만으로 통과시키지 않는다.
 - [x] QA-KB5: 초보자·중급 투자자·트레이더·전문가·한국 투자자·재방문·모바일/접근성·위험 회피·시간 부족 사용자 시나리오를 handoff와 machine contract에 연결한다.
 - [x] QA-KB6: 다중 persona 감사는 휴리스틱으로 표시하고 실제 참여자 연구·장기 학습효과를 인증하지 않는다.
@@ -266,7 +376,7 @@ confidence: high
 
 ## v53.93 구조 보완 closure (2026-08-09)
 
-- [x] QA-STRUCT1: Atlas foundations 48/48 lessons have effective source linkage; 18 previously empty lessons resolve through `sourceCoverage` to five official reference documents, and the selected Self-Attention lesson renders its source link.
+- [x] QA-STRUCT1: Atlas foundations 48/48 lessons have direct authored `sourceIds` linkage; the 18-entry `sourceCoverage` map remains a compatibility audit, five official reference documents resolve, and the selected Self-Attention lesson renders its source link.
 - [x] QA-STRUCT2: Atlas taxonomy relationship model covers all 19 domains and 95 nodes with 76 intra-domain chain edges plus 18 cross-domain edges; current claims remain zero.
 - [x] QA-STRUCT3: Telegram UI reads `public-data/telegram-digest.json` as the four-channel SSOT, shows `collectionStatus=failed` and channel error boundaries, and does not present failed fetches as fresh current data.
 - [x] QA-STRUCT4: Principles Path no longer exposes the generic SEC search URL; each path lesson uses exact lesson/node source IDs when available and an explicit unlinked state otherwise.
@@ -321,13 +431,13 @@ current_P839_checkpoint: P892 hierarchical Atlas/Principles UX and Masters adjac
 - [x] QA-AI1: All 48 Foundations modules now have independent definition, mechanism, example, limit, evidence-boundary copy, and layer-specific teaching-question/visualization frames; current metrics remain gated.
 - [x] QA-AI2: A separate authored reference artifact connects all 48 Foundations modules with lesson copy, Atlas node IDs, source IDs, visualization frames, and explicit reference status.
 - [x] QA-AT6: All 19 Atlas domains now render a domain guide with definition, mechanism, unit, bottleneck, verification question, and official source link.
-- [x] QA-MP5: Market Principles A~O chapters are connected as 15 authored reference cards and the 111-lesson library is visible/searchable; the 39-lesson canonical compatibility catalog covers all 60 nodes.
+- [x] QA-MP5: Market Principles A~O chapters are connected as 15 authored reference cards and the 112-lesson library is visible/searchable; the 39-lesson canonical compatibility catalog covers all 60 nodes.
 - [x] QA-DOC1: Six-document coverage artifact and binary coverage contract exist; the contract reports remaining scope instead of allowing structural connection to be mistaken for full publication.
 - [x] QA-DOC2: Domain packets/claims/node coverage, A~O lesson library, Telegram reference window, currentness overlay, and 13F 84-period/12,525-row SEC history are connected. Verified current numeric claims, full player/product enrichment, and Masters security-master/corporate-action/issuer-level aggregation remain explicitly gated.
 - [x] QA-MF4: 1,102 unique CUSIP and 1,122 issuer-name normalization queue is recorded in a connected fail-closed security-master artifact; verified issuer/ticker/share-class/sector mapping is still absent and sector weights remain intentionally undisclosed.
 - [x] QA-DATA1: Weekend freshness grace is fail-closed: it requires complete Tier-0 coverage, `QG-01_PASS`, and no snapshot errors; the official refresh failure preserves the last-known-good artifact.
 - [x] QA-MF5: Scion's `STALE_REFERENCE` state is explained by a dated SEC submissions JSON availability check (`NO_LATER_13F_HR_REPORTED`) and is visible in the Masters detail view; it is not promoted to current.
-- [x] QA-MP6: Market Principles now defaults to a seven-branch Tree with nested learning groups; 60 node guides and 111 A~O lessons are individually authored, the full library is isolated in 자료실, research IDs/statuses are collapsed, and browser QA verifies 1-hop/2-hop 16→18, relation labels, 1440px and 480px flows.
+- [x] QA-MP6: Market Principles now defaults to a seven-branch Tree with nested learning groups; 60 node guides and 112 A~O lessons are individually authored, the full library is isolated in 자료실, research IDs/statuses are collapsed, and browser QA verifies 1-hop/2-hop 16→18, relation labels, 1440px and 480px flows.
 - [x] QA-AT7: AI Atlas now defaults to a user-facing 48-module 학습 지도; taxonomy and 근거 자료실 remain separate tabs, and Foundations source IDs/status details are collapsed behind 근거 및 더 읽기.
 - [x] QA-AT8: Atlas foundations and industry taxonomy use a broad→narrow master-detail flow; 10 deep AI-era topics, 50 nested branches, and 56 canonical node anchors are contract-validated while only one detail/branch is open by default.
 - [x] QA-MF6: Masters renders finite row numbers, has no link nested inside manager buttons, preserves focus during multi-character search, and compares every connected 13F manager with the actual adjacent history period.

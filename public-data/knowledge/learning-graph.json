@@ -1,12 +1,12 @@
 {
   "schemaVersion": "knowledge-learning-graph.v1",
-  "generatedAt": "2026-08-11",
+  "generatedAt": "2026-08-18",
   "status": "STRUCTURED_REFERENCE_DRAFT",
   "boundary": "graph continuity is local reference structure; it does not certify learning outcomes or recruited-user validation",
   "counts": {
-    "nodes": 159,
+    "nodes": 160,
     "paths": 16,
-    "principlesLessons": 111,
+    "principlesLessons": 112,
     "atlasLessons": 48
   },
   "nodes": [
@@ -337,10 +337,30 @@
         "principles:D4"
       ],
       "nextIds": [
-        "principles:E1"
+        "principles:D6"
       ],
       "expertRouteIds": [
         "principles:D5"
+      ],
+      "pathIds": [
+        "principles-chapter-D"
+      ],
+      "overviewOnly": false,
+      "status": "STRUCTURED_REFERENCE_DRAFT"
+    },
+    {
+      "id": "principles:D6",
+      "surface": "principles",
+      "lessonId": "D6",
+      "articleId": "principles:D6",
+      "prerequisiteIds": [
+        "principles:D5"
+      ],
+      "nextIds": [
+        "principles:E1"
+      ],
+      "expertRouteIds": [
+        "principles:D6"
       ],
       "pathIds": [
         "principles-chapter-D"
@@ -354,7 +374,7 @@
       "lessonId": "E1",
       "articleId": "principles:E1",
       "prerequisiteIds": [
-        "principles:D5"
+        "principles:D6"
       ],
       "nextIds": [
         "principles:E2"
@@ -3232,7 +3252,8 @@
         "principles:D2",
         "principles:D3",
         "principles:D4",
-        "principles:D5"
+        "principles:D5",
+        "principles:D6"
       ],
       "surface": "principles",
       "status": "STRUCTURED_REFERENCE_DRAFT"

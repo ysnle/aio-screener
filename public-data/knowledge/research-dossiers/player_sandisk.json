@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "knowledge-research-dossier.v1",
+  "dossierId": "research:player:sandisk",
+  "contentUnitId": "player:sandisk",
+  "unitKind": "PLAYER",
+  "title": "Sandisk",
+  "researchQuestions": [
+    "What is the claim-specific mechanism for Sandisk?",
+    "Which variable, unit, time boundary or assumption would change the interpretation of Sandisk?",
+    "Which official, academic, standard or filing evidence can directly support the relevant claim?"
+  ],
+  "queries": [
+    "Sandisk mechanism primary source",
+    "Sandisk official data standard filing evidence",
+    "Sandisk disconfirming evidence limitations"
+  ],
+  "searchedAt": null,
+  "method": "NOT_STARTED",
+  "candidateSources": [
+    {
+      "sourceId": "PP-21",
+      "url": "https://investor.sandisk.com/static-files/c050c0a0-91fe-4186-bb34-3b331378060f",
+      "publisher": "Sandisk",
+      "title": "2026 Sandisk Investor Day",
+      "sourceTier": null
+    },
+    {
+      "sourceId": "PP-22",
+      "url": "https://investor.sandisk.com/news-releases/news-release-details/sandisk-announces-sampling-bics10-1tb-tlc-3d-nand-flash-memory",
+      "publisher": "Sandisk",
+      "title": "BiCS10 3D NAND sampling",
+      "sourceTier": null
+    },
+    {
+      "sourceId": "PP-23",
+      "url": "https://investor.sandisk.com/news-releases/news-release-details/sandisk-collaborate-sk-hynix-drive-standardization-high",
+      "publisher": "Sandisk",
+      "title": "High Bandwidth Flash standardization",
+      "sourceTier": null
+    }
+  ],
+  "selectedSources": [],
+  "rejectedSources": [],
+  "sourceTiers": [],
+  "claimCoverage": [
+    {
+      "claimId": "player-role-sandisk",
+      "currentDirectness": "STRUCTURAL",
+      "requiredAction": "independent direct source required"
+    }
+  ],
+  "researchFactIds": [],
+  "consensus": "Not assessed.",
+  "disagreement": "Not assessed until independent source comparison is complete.",
+  "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
+  "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
+  "q1Thesis": "A claim about Sandisk must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+  "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
+  "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
+  "q4StructuralMechanism": "Trace Sandisk through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+  "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
+  "status": "RESEARCH_REQUIRED",
+  "completion": {
+    "researchComplete": false,
+    "sourceProfileComplete": false,
+    "semanticReview": "REQUIRED",
+    "userValidation": "NOT_CONDUCTED"
+  }
+}

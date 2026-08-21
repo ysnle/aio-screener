@@ -97,7 +97,8 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
   const proxyConfigured = !!workerEndpoints.proxy?.baseUrl;
   const providerSmokeCurrent = Number(fastEvidence.proxyProviderSmokeStatus) === 200
     && fastEvidence.proxyProviderSmokeRevision === fastEvidence.proxyHealthRevision;
-  const proxyHealthy = Number(fastEvidence.proxyHealthStatus) === 200
+  const proxyHealthStatus = Number(fastEvidence.proxyHealthStatus ?? fastEvidence.proxyHealthPathObserved);
+  const proxyHealthy = proxyHealthStatus === 200
     && fastEvidence.proxyAiReady === true
     && fastEvidence.proxyAuthorityReady === true
     && fastEvidence.proxyAuthorityJurisdiction === 'us'
@@ -144,7 +145,7 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
         workerEndpoint: workerEndpoints.proxy?.baseUrl || null,
         health: {
           status: proxyHealthy ? 'CURRENT' : 'OPERATOR_REQUIRED',
-          statusCode: Number(fastEvidence.proxyHealthStatus ?? fastEvidence.proxyHealthPathObserved) || null,
+          statusCode: proxyHealthStatus || null,
           observedAt: fastEvidence.proxyHealthObserved || null,
           revision: fastEvidence.proxyHealthRevision || null,
           configured: fastEvidence.proxyAiConfigured === true,

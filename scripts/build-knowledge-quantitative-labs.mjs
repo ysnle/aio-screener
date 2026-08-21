@@ -5,6 +5,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+console.log(JSON.stringify({ status: 'EXCLUDED_BY_PRODUCT_SCOPE', reason: '퀴즈·연습문제·교육용 정량 랩은 사용자 요청 범위 밖이며 제품 artifact를 생성하지 않습니다.' }, null, 2));
+process.exit(0);
 const read = (file) => JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
 const write = (file, value) => {
   const target = path.join(root, file);

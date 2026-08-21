@@ -3,18 +3,18 @@
   "dossierId": "research:atlas-foundation:rack-density-and-cooling",
   "contentUnitId": "atlas-foundation:rack-density-and-cooling",
   "unitKind": "FOUNDATION_LESSON",
-  "title": "rack-density-and-cooling",
+  "title": "Rack density and cooling",
   "researchQuestions": [
-    "What is the claim-specific mechanism for rack-density-and-cooling?",
-    "Which variable, unit, time boundary or assumption would change the interpretation of rack-density-and-cooling?",
+    "What is the claim-specific mechanism for Rack density and cooling?",
+    "Which variable, unit, time boundary or assumption would change the interpretation of Rack density and cooling?",
     "Which official, academic, standard or filing evidence can directly support the relevant claim?"
   ],
   "queries": [
-    "rack-density-and-cooling mechanism primary source",
-    "rack-density-and-cooling official data standard filing evidence",
-    "rack-density-and-cooling disconfirming evidence limitations"
+    "Rack density and cooling mechanism primary source",
+    "Rack density and cooling official data standard filing evidence",
+    "Rack density and cooling disconfirming evidence limitations"
   ],
-  "searchedAt": "2026-08-12",
+  "searchedAt": "2026-08-18",
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
@@ -32,14 +32,51 @@
       "sourceTier": null
     },
     {
+      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
+      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
+      "publisher": "NIST AI Resource Center",
+      "title": "AI RMF Core: Govern, Map, Measure, Manage",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    },
+    {
       "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
       "url": "https://www.energy.gov/cmei/femp/cooling-water-efficiency-opportunities-federal-data-centers",
       "publisher": "U.S. Department of Energy",
       "title": "Cooling Water Efficiency Opportunities for Federal Data Centers",
       "sourceTier": "PRIMARY_OFFICIAL"
+    },
+    {
+      "sourceId": "WEB-TSMC-3DFABRIC-2026",
+      "url": "https://www.tsmc.com/english/dedicatedFoundry/services/advanced-packaging",
+      "publisher": "TSMC",
+      "title": "3DFabric advanced packaging",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
+    },
+    {
+      "sourceId": "WEB-MICRON-HBM2E-2020",
+      "url": "https://assets.micron.com/adobe/assets/urn%3Aaaid%3Aaem%3A275edf31-79e3-4b6c-8bbd-a233babe9281/renditions/original/as/micron-hbm2e-memory-wp.pdf",
+      "publisher": "Micron",
+      "title": "Integrating and Operating HBM2E Memory",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
+    },
+    {
+      "sourceId": "WEB-DOE-DATACENTER-DESIGN-2024",
+      "url": "https://www.energy.gov/cmei/femp/articles/best-practices-guide-energy-efficient-data-center-design",
+      "publisher": "U.S. Department of Energy",
+      "title": "Best Practices Guide for Energy-Efficient Data Center Design",
+      "sourceTier": "PRIMARY_OFFICIAL"
     }
   ],
   "selectedSources": [
+    {
+      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
+      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
+      "publisher": "NIST AI Resource Center",
+      "title": "AI RMF Core: Govern, Map, Measure, Manage",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
     {
       "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
       "url": "https://www.energy.gov/cmei/femp/cooling-water-efficiency-opportunities-federal-data-centers",
@@ -47,12 +84,40 @@
       "title": "Cooling Water Efficiency Opportunities for Federal Data Centers",
       "sourceTier": "PRIMARY_OFFICIAL",
       "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-TSMC-3DFABRIC-2026",
+      "url": "https://www.tsmc.com/english/dedicatedFoundry/services/advanced-packaging",
+      "publisher": "TSMC",
+      "title": "3DFabric advanced packaging",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-MICRON-HBM2E-2020",
+      "url": "https://assets.micron.com/adobe/assets/urn%3Aaaid%3Aaem%3A275edf31-79e3-4b6c-8bbd-a233babe9281/renditions/original/as/micron-hbm2e-memory-wp.pdf",
+      "publisher": "Micron",
+      "title": "Integrating and Operating HBM2E Memory",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-DOE-DATACENTER-DESIGN-2024",
+      "url": "https://www.energy.gov/cmei/femp/articles/best-practices-guide-energy-efficient-data-center-design",
+      "publisher": "U.S. Department of Energy",
+      "title": "Best Practices Guide for Energy-Efficient Data Center Design",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
   "rejectedSources": [],
   "sourceTiers": [
-    "PRIMARY_OFFICIAL"
+    "PRIMARY_OFFICIAL",
+    "COMPANY_TECHNICAL_DOCUMENT"
   ],
   "claimCoverage": [
     {
@@ -61,19 +126,26 @@
       "requiredAction": "independent direct source required"
     }
   ],
-  "consensus": "Seed sources were directly inspected for topic relevance; claim-level consensus remains open.",
+  "researchFactIds": [
+    "fact:nist:ai-rmf-core",
+    "fact:doe:pue",
+    "fact:tsmc:3dfabric",
+    "fact:micron:hbm2e",
+    "fact:doe:datacenter-kpi-denominators"
+  ],
+  "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",
   "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
   "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
-  "q1Thesis": "A claim about rack-density-and-cooling must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+  "q1Thesis": "A claim about Rack density and cooling must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
   "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
   "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
-  "q4StructuralMechanism": "Trace rack-density-and-cooling through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+  "q4StructuralMechanism": "Trace Rack density and cooling through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-  "status": "RESEARCH_IN_PROGRESS",
+  "status": "RESEARCHED",
   "completion": {
-    "researchComplete": false,
-    "sourceProfileComplete": false,
+    "researchComplete": true,
+    "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   }

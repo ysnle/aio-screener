@@ -1,6 +1,6 @@
 {
-  "version": "v53.43",
-  "generatedAt": "2026-07-27T15:30:00+09:00",
+  "version": "v54.26",
+  "generatedAt": "2026-08-15T16:00:00+09:00",
   "sourceKind": "REFERENCE",
   "description": "User supplied X threads and UI/UX screenshots normalized for AIO Screener page and AI-context integration. These are design/framework references, not live market data.",
   "items": [
@@ -269,6 +269,180 @@
       }
     },
     {
+      "id": "daily-market-report-20260811-deepdive-kr-close",
+      "title": "Daily market report: Korea close, AI memory scarcity and the CPI/rates bridge",
+      "sourceKind": "REFERENCE",
+      "asOf": "2026-08-11T16:10:00+09:00",
+      "publishedAt": "2026-08-11T16:10:00+09:00",
+      "sourceTimeZone": "Asia/Seoul",
+      "marketSession": "KRX_CLOSE",
+      "sourceFiles": ["user-pasted-DeepDive-KR-close-20260811"],
+      "urls": ["https://x.com/DeepDive_KR/status/2087075422198800512"],
+      "categories": ["macro", "fxbond", "themes", "semi", "kr-market", "supply-chain", "screener", "ticker", "ai-context"],
+      "pageTargets": ["home", "briefing", "macro", "fxbond", "technical", "signal", "breadth", "sentiment", "themes", "theme-detail", "fundamental", "screener", "ticker", "portfolio", "options", "kr-home", "kr-supply", "kr-themes", "kr-macro", "kr-tech", "kr-technical", "market-news"],
+      "extraction": {
+        "thesis": "The Korea close showed index resilience despite semiconductor weakness, higher US yields and a weaker won; the durable question is whether domestic retail demand can offset foreign de-risking when the next inflation release reprices rates.",
+        "signals": ["AI memory scarcity", "semiconductor fatigue", "CPI surprise", "10Y yield repricing", "USD/KRW pressure", "foreign selling", "KOSPI retail support", "Washington chip allocation", "enterprise AI subscription demand"],
+        "risks": ["reported market numbers differ from the canonical snapshot", "memory shortage narrative lacks direct allocation evidence", "CPI forecasts are not CPI outcomes", "policy commentary can be mistaken for confirmed government action"],
+        "automationHint": "For Korea and macro answers, show the completed KRX close and the US/rates/FX observation window separately; use this report for causal context only and require canonical market evidence before a current claim."
+      },
+      "framework": {
+        "Q1": "Why did the KOSPI hold up while SOX, yields and the won moved against risk assets?",
+        "Q2": "The key model is local flow resilience versus global duration and semiconductor supply stress, not index direction alone.",
+        "Q3": "Confirm with foreign/institutional flows, SOX-to-KOSPI relative performance, USD/KRW, US 10Y, memory pricing/lead times and breadth.",
+        "Q4": "The chain is AI demand -> constrained memory allocation -> downstream cost and availability pressure -> policy lobbying -> semiconductor multiple/positioning reset; in parallel CPI/oil -> yields/FX -> foreign flow.",
+        "Q5": "The thesis weakens if CPI/rates normalize, foreign selling reverses with broad participation, memory availability improves, or policy claims fail to produce documented allocation/capacity action.",
+        "communicationContract": ["lead with the session and timestamp", "separate reported values from canonical runtime values", "explain the cross-asset transmission before ticker implications", "close with confirmation, invalidation and next release window"]
+      },
+      "observations": [
+        {"seriesKey":"kospi.close","eventDate":"2026-08-11","observedAt":"2026-08-11T15:30:00+09:00","reportedValue":6345.53,"unit":"index","direction":"up","reportedChangePct":0.73,"observationStatus":"SECONDARY_REPORTED","allowedUse":"reference-only"},
+        {"seriesKey":"spx.close","eventDate":"2026-08-10","observedAt":"2026-08-11T06:00:00+09:00","reportedValue":7753.11,"unit":"index","direction":"down","reportedChangePct":-0.06,"observationStatus":"SECONDARY_REPORTED","allowedUse":"reference-only"},
+        {"seriesKey":"nasdaq.close","eventDate":"2026-08-10","observedAt":"2026-08-11T06:00:00+09:00","reportedValue":26605.36,"unit":"index","direction":"down","reportedChangePct":-0.32,"observationStatus":"SECONDARY_REPORTED","allowedUse":"reference-only"},
+        {"seriesKey":"sox.close","eventDate":"2026-08-10","observedAt":"2026-08-11T06:00:00+09:00","reportedValue":11993.86,"unit":"index","direction":"down","reportedChangePct":-2.94,"observationStatus":"SECONDARY_REPORTED","allowedUse":"reference-only"},
+        {"seriesKey":"us10y.close","eventDate":"2026-08-10","observedAt":"2026-08-11T06:00:00+09:00","reportedValue":4.72,"unit":"percent","direction":"up","reportedChangeBp":7,"observationStatus":"SECONDARY_REPORTED","allowedUse":"reference-only"},
+        {"seriesKey":"usdkrw.close","eventDate":"2026-08-11","observedAt":"2026-08-11T16:10:00+09:00","reportedValue":1418.30,"unit":"KRW_per_USD","direction":"up","reportedChangePct":0.62,"observationStatus":"SECONDARY_REPORTED","allowedUse":"reference-only"},
+        {"seriesKey":"wti.front-month","eventDate":"2026-08-11","observedAt":"2026-08-11T16:10:00+09:00","reportedValue":82.36,"unit":"USD_per_barrel","direction":"up","reportedChangePct":1.42,"observationStatus":"SECONDARY_REPORTED","allowedUse":"reference-only"},
+        {"seriesKey":"krx.foreign-net-flow","eventDate":"2026-08-11","observedAt":"2026-08-11T16:10:00+09:00","reportedValue":-3138,"unit":"100m_KRW","direction":"outflow","observationStatus":"SECONDARY_REPORTED","allowedUse":"reference-only"},
+        {"seriesKey":"krx.retail-net-flow","eventDate":"2026-08-11","observedAt":"2026-08-11T16:10:00+09:00","reportedValue":3645,"unit":"100m_KRW","direction":"inflow","observationStatus":"SECONDARY_REPORTED","allowedUse":"reference-only"},
+        {"seriesKey":"krx.institution-net-flow","eventDate":"2026-08-11","observedAt":"2026-08-11T16:10:00+09:00","reportedValue":-662,"unit":"100m_KRW","direction":"outflow","observationStatus":"SECONDARY_REPORTED","allowedUse":"reference-only"}
+      ],
+      "referenceTimeSeries": {
+        "valueStatus": "reported-reference-only; canonical market-snapshot remains the decision input",
+        "observationWindows": ["2026-08-11 KRX completed close", "2026-08-10 US completed close reported at 2026-08-11 06:00 KST", "2026-08-12 US CPI release at 08:30 ET / 21:30 KST"],
+        "nextCheck": ["US CPI actual versus consensus", "US 10Y and USD/KRW response", "foreign flow after CPI", "SOX/KOSPI relative breadth", "official evidence of memory allocation or policy action"]
+      },
+      "watchlist": [{"theme":"memory-supply","tickers":["MU","SNDK","000660.KS","005930.KS"],"confirm":["pricing/lead-time or company disclosure","accepted price-volume and breadth"],"invalidate":["supply relief or demand slowdown","failed reclaim with distribution"]},{"theme":"rates-fx-flow","tickers":["SPY","QQQ","EWY","^KS11"],"confirm":["CPI surprise and 10Y/FX co-movement","foreign flow reversal or continuation"],"invalidate":["cross-asset response decouples","official release contradicts forecast framing"]}],
+      "evidenceHierarchy": ["BLS/FRED/exchange/company filing or IR", "official policy or government release", "attributable analyst/news report", "social post or user-supplied briefing"],
+      "sourceAudit": [{"id":"deepdive-kr-market-values","observation":"The post supplies a dated KRX/US/rates/FX/oil and flow snapshot.","integration":"Reference time-series and cross-asset narrative layer.","limitation":"Do not overwrite canonical runtime artifacts; exact field provenance must come from the native producer."},{"id":"deepdive-kr-memory-policy","observation":"The post links memory scarcity, Washington policy and downstream industries.","integration":"Memory supply-chain and policy research branch.","limitation":"The reported lobbying and government-action claims remain pending direct confirmation."}],
+      "accessNotes": {"sourceBoundary":"Reference context only; no DATA_SNAPSHOT, live quote, current fundamental or automatic trade decision promotion.","webVerification":"BLS confirms the July CPI release schedule for 2026-08-12; post-specific forecasts and policy assertions remain attributed/unverified."}
+    },
+    {
+      "id": "daily-market-report-20260811-deepdive-us-close",
+      "title": "Daily market report: US close, oil/geopolitics, financing dilution and rate-path conflict",
+      "sourceKind": "REFERENCE",
+      "asOf": "2026-08-11T06:00:00+09:00",
+      "publishedAt": "2026-08-11T06:00:00+09:00",
+      "sourceTimeZone": "Asia/Seoul",
+      "marketSession": "NYSE_CLOSE_REPORTED_IN_KST",
+      "sourceFiles": ["user-pasted-DeepDive-US-close-20260811"],
+      "urls": ["https://x.com/DeepDive_KR/status/2086971875939508718"],
+      "categories": ["macro", "fxbond", "geo", "semi", "energy", "japan", "screener", "ticker", "ai-context"],
+      "pageTargets": ["home", "briefing", "macro", "fxbond", "technical", "signal", "breadth", "sentiment", "themes", "theme-detail", "fundamental", "screener", "ticker", "portfolio", "options", "kr-home", "kr-supply", "kr-themes", "kr-macro", "kr-tech", "kr-technical", "market-news"],
+      "extraction": {
+        "thesis": "A weak-growth/rate-relief impulse can be neutralized when an energy or geopolitical shock lifts inflation risk; company financing that funds AI capacity can simultaneously strengthen infrastructure supply and pressure equity multiples through dilution or credit demand.",
+        "signals": ["Hormuz risk premium", "oil-inflation pass-through", "Intel equity dilution", "AI infrastructure financing", "SOX concentration", "BOJ scheduled meeting", "payroll revisions", "growth-versus-inflation conflict"],
+        "risks": ["geopolitical demands are secondary-source claims", "financing headlines can conflate equity, debt and third-party capital", "rate-path conclusions require official labor/inflation data", "market index values must be read from the completed-market snapshot"],
+        "automationHint": "On macro, energy and semiconductor pages, preserve the two-sided regime: labor weakness can lower rates while oil can raise inflation premia. Track event, market response and source tier independently."
+      },
+      "framework": {
+        "Q1": "Does a labor slowdown dominate, or does an energy shock reassert inflation and duration pressure?",
+        "Q2": "The paradigm is not ‘bad data is good’; it is competing discount-rate channels with different beneficiaries and losers.",
+        "Q3": "Confirm through official payroll revisions, CPI/PPI, WTI curve, US 10Y real/nominal yields, breakevens, USD/JPY, SOX breadth and financing terms.",
+        "Q4": "Geopolitical supply risk raises oil and inflation premia; financing expands AI capacity but can create dilution, leverage and circular-demand concerns; BOJ policy changes the yen/carry channel.",
+        "Q5": "Invalidate the stress branch with de-escalation and falling oil, contained breakevens, stable yields, official filings that contradict the offering, or broad semiconductor participation despite financing news.",
+        "communicationContract": ["state the US session close in KST and its underlying US date", "separate fact, attribution and scenario", "describe transmission to rates/FX/sector breadth", "end with the next catalyst and the condition that would reverse the read"]
+      },
+      "observations": [
+        {"seriesKey":"wti.front-month","eventDate":"2026-08-10","observedAt":"2026-08-11T06:00:00+09:00","reportedValue":81.21,"unit":"USD_per_barrel","direction":"up","reportedChangePct":6.97,"observationStatus":"SECONDARY_REPORTED","allowedUse":"reference-only"},
+        {"seriesKey":"us10y.close","eventDate":"2026-08-10","observedAt":"2026-08-11T06:00:00+09:00","reportedValue":4.72,"unit":"percent","direction":"up","reportedChangeBp":7,"observationStatus":"SECONDARY_REPORTED","allowedUse":"reference-only"},
+        {"seriesKey":"intel.equity-offering","eventDate":"2026-08-10","observedAt":"2026-08-11T06:00:00+09:00","reportedValue":15000000000,"unit":"USD","direction":"announced","observationStatus":"ATTRIBUTED_PENDING_PRIMARY","allowedUse":"reference-only"},
+        {"seriesKey":"intel.stock-reaction","eventDate":"2026-08-10","observedAt":"2026-08-11T06:00:00+09:00","reportedValue":-4.06,"unit":"percent","direction":"down","observationStatus":"SECONDARY_REPORTED","allowedUse":"reference-only"},
+        {"seriesKey":"nvidia.ai-infrastructure-financing","eventDate":"2026-08-10","observedAt":"2026-08-11T06:00:00+09:00","reportedValue":500000000000,"unit":"USD_third_party_capital_target","direction":"announced","observationStatus":"ATTRIBUTED_PENDING_PRIMARY","allowedUse":"reference-only"},
+        {"seriesKey":"nikkei.close","eventDate":"2026-08-11","observedAt":"2026-08-11T06:00:00+09:00","reportedValue":2.08,"unit":"percent_change","direction":"up","observationStatus":"SECONDARY_REPORTED","allowedUse":"reference-only"}
+      ],
+      "referenceTimeSeries": {"valueStatus":"reported-reference-only; no live promotion","observationWindows":["2026-08-10 NYSE/Nasdaq close reported in KST on 2026-08-11 06:00","2026-08-11 Asia session","2026-08-12 US CPI release window"],"nextCheck":["official Intel filing and offering terms","NVIDIA/financing primary release","Hormuz/Oil settlement and curve","BLS July payroll details and revisions","BOJ 2026-09-17/18 scheduled MPM"]},
+      "watchlist": [{"theme":"oil-rate-conflict","tickers":["CL=F","XLE","XOP","TLT","QQQ"],"confirm":["oil curve and breakeven rise with 10Y","duration underperformance and sector rotation"],"invalidate":["de-escalation and falling oil","rates fail to follow oil after official inflation data"]},{"theme":"ai-financing-dilution","tickers":["NVDA","INTC","APO","BX","BLK","KKR"],"confirm":["primary terms, capital deployment and customer contracts","cash-flow/credit/price-volume confirmation"],"invalidate":["no primary filing or terms","funding raises capacity but not utilization or returns"]}],
+      "evidenceHierarchy": ["SEC/company IR/official central-bank and BLS releases", "exchange/raw market data", "authoritative attributed reporting", "social post or user-supplied briefing"],
+      "sourceAudit": [{"id":"deepdive-us-energy","observation":"The post frames Hormuz/oil as an inflation-risk premium.","integration":"Macro cross-asset scenario and next-session watch.","limitation":"The underlying geopolitical claims require primary or authoritative confirmation."},{"id":"deepdive-us-financing","observation":"The post links Intel funding and Nvidia-linked infrastructure capital to semiconductor risk.","integration":"Company financing, dilution, credit and AI-capital theme branches.","limitation":"Do not equate a reported target amount with committed capital or realized demand."}],
+      "accessNotes": {"sourceBoundary":"Reference context only; no current quote, fundamental or trade signal promotion.","webVerification":"BLS official schedules confirm July CPI on 2026-08-12 and the July employment release on 2026-08-07. SEC/IR search found related Intel financing filings and Nvidia/partner infrastructure releases, but the exact post-date terms still require filing-level reconciliation."}
+    },
+    {
+      "id": "daily-market-report-20260811-amit-recap",
+      "title": "Daily market recap: AI financing, open models, humanoid robotics, earnings breadth and Korean deleveraging",
+      "sourceKind": "REFERENCE",
+      "asOf": "2026-08-11T11:36:00+09:00",
+      "publishedAt": "2026-08-11T11:36:00+09:00",
+      "sourceTimeZone": "Asia/Seoul",
+      "marketSession": "US_NEWS_AND_EARNINGS_RECAP",
+      "sourceFiles": ["user-attached-amit-amitisinvesting-pasted-text"],
+      "urls": ["https://x.com/amitisinvesting"],
+      "categories": ["fundamental", "earnings", "themes", "ai", "robotics", "space", "options", "semi", "kr-market", "screener", "ticker", "ai-context"],
+      "pageTargets": ["home", "briefing", "macro", "fxbond", "technical", "signal", "breadth", "sentiment", "themes", "theme-detail", "fundamental", "screener", "ticker", "portfolio", "options", "kr-home", "kr-supply", "kr-themes", "kr-macro", "kr-tech", "kr-technical", "market-news"],
+      "extraction": {
+        "thesis": "The AI cycle is widening from chips into financeable compute infrastructure, local/open models, physical AI, custom silicon and space systems; the stock-level test is whether earnings, backlog, utilization, pricing and capital structure convert the narrative into durable cash flow.",
+        "signals": ["AI compute as financeable asset", "open-weight local inference", "personal AI agent", "humanoid shipment scale", "custom AI silicon", "backlog conversion", "earnings beat breadth", "equity dilution", "options activity concentration", "memory price insensitivity", "Korean forced deleveraging"],
+        "risks": ["third-party capital target is not realized revenue", "open weights do not prove monetization or model superiority", "shipment share is not unit economics", "options contracts are activity not directional conviction", "earnings beat rate can hide one-time gains", "forced liquidation figures and payroll/rate claims need primary confirmation"],
+        "automationHint": "Distribute company observations to fundamentals, themes, options and ticker research, but require filing/IR/official market evidence before using any metric. Use the same narrative: demand -> capacity/backlog -> utilization/pricing -> cash flow -> funding/dilution -> price reaction."
+      },
+      "framework": {
+        "Q1": "Is AI becoming an investable infrastructure asset class, or is capital formation outrunning cash-flow validation?",
+        "Q2": "The old model treated AI as a chip-demand story; the broader model includes financing platforms, model distribution, embodied AI, custom silicon, space systems and the capital structure that funds them.",
+        "Q3": "Require revenue/backlog conversion, customer concentration, gross margin, utilization, rental spread, capex/OCF, dilution, financing terms, options positioning and price-volume acceptance.",
+        "Q4": "AI demand pulls capital into compute; compute finance expands supply; supply and model efficiency pressure pricing; earnings/backlog and cash flow validate or break the loop; deleveraging can amplify Korean semiconductor volatility.",
+        "Q5": "The thesis weakens if backlog fails to convert, margins compress, utilization/rental prices fall, funding costs rise, dilution accelerates, open-model distribution fails to monetize, robotics shipments lack paid use cases, or price leadership loses breadth.",
+        "communicationContract": ["group the report into infrastructure, software/model, physical AI/space and market plumbing", "distinguish reported metric, verified filing and interpretation", "map each theme to upstream/downstream beneficiaries and substitutes", "close with the next evidence checkpoint, not a conclusion from the headline"]
+      },
+      "observations": [
+        {"seriesKey":"nvidia.ai-financing","eventDate":"2026-08-10","observedAt":"2026-08-11T11:36:00+09:00","reportedValue":500000000000,"unit":"USD_third_party_capital_target","direction":"announced","observationStatus":"ATTRIBUTED_PENDING_PRIMARY","allowedUse":"reference-only"},
+        {"seriesKey":"humanoid.shipments.2026H1","eventDate":"2026-06-30","observedAt":"2026-08-11T11:36:00+09:00","reportedValue":19100,"unit":"units","direction":"up","reportedChangePct":200,"observationStatus":"SECONDARY_REPORTED","allowedUse":"reference-only"},
+        {"seriesKey":"humanoid.china-share.2026H1","eventDate":"2026-06-30","observedAt":"2026-08-11T11:36:00+09:00","reportedValue":97,"unit":"percent","direction":"share","observationStatus":"SECONDARY_REPORTED","allowedUse":"reference-only"},
+        {"seriesKey":"rocketlab.q2-2026.revenue","eventDate":"2026-06-30","observedAt":"2026-08-11T11:36:00+09:00","reportedValue":234,"unit":"USD_million","direction":"up","reportedChangePct":62,"observationStatus":"ATTRIBUTED_PENDING_PRIMARY","allowedUse":"reference-only"},
+        {"seriesKey":"rocketlab.backlog","eventDate":"2026-06-30","observedAt":"2026-08-11T11:36:00+09:00","reportedValue":2360,"unit":"USD_million","direction":"up","reportedChangePct":137,"observationStatus":"ATTRIBUTED_PENDING_PRIMARY","allowedUse":"reference-only"},
+        {"seriesKey":"sp500.q2-eps-growth","eventDate":"2026-08-11","observedAt":"2026-08-11T11:36:00+09:00","reportedValue":30,"unit":"percent_yoy_excluding_one_time_items","direction":"up","observationStatus":"SECONDARY_REPORTED","allowedUse":"reference-only"},
+        {"seriesKey":"sp500.eps-beat-rate","eventDate":"2026-08-11","observedAt":"2026-08-11T11:36:00+09:00","reportedValue":76,"unit":"percent_of_reporters","direction":"flat","observationStatus":"SECONDARY_REPORTED","allowedUse":"reference-only"},
+        {"seriesKey":"intel.equity-offering","eventDate":"2026-08-10","observedAt":"2026-08-11T11:36:00+09:00","reportedValue":15000000000,"unit":"USD","direction":"announced","observationStatus":"ATTRIBUTED_PENDING_PRIMARY","allowedUse":"reference-only"},
+        {"seriesKey":"korea.sk-hynix-leveraged-etf-volume","eventDate":"2026-08-04","observedAt":"2026-08-11T11:36:00+09:00","reportedValue":-90,"unit":"percent_change_from_pre-rule-volume","direction":"down","observationStatus":"SECONDARY_REPORTED","allowedUse":"reference-only"},
+        {"seriesKey":"us.payrolls.july-2026","eventDate":"2026-07-31","observedAt":"2026-08-11T11:36:00+09:00","reportedValue":-23000,"unit":"jobs","direction":"down","observationStatus":"ATTRIBUTED_PENDING_PRIMARY","allowedUse":"reference-only"},
+        {"seriesKey":"micron.customer-demand","eventDate":"2026-08-11","observedAt":"2026-08-11T11:36:00+09:00","reportedValue":null,"unit":"qualitative","direction":"scarce","observationStatus":"ATTRIBUTED_PENDING_PRIMARY","allowedUse":"reference-only"}
+      ],
+      "tickerMap": {"ai-financing":["NVDA","APO","BLK","BX","KKR","MSFT"],"models":["META","MSFT"],"physical-ai":["TSLA"],"robotics":["TSLA"],"space":["RKLB"],"memory":["MU","SNDK","INTC","000660.KS"],"earnings":["HIMS","RKLB","INTC","MU"],"options":["NVDA","TSLA","AAPL","SPCX","MSFT","MU","INTC","PLTR","AMZN","META"],"korean-deleveraging":["000660.KS"]},
+      "referenceTimeSeries": {"valueStatus":"mixed secondary/attributed reference; primary confirmation required","observationWindows":["2026-08-11 recap publication","2026 H1 humanoid shipment window","Q2 2026 earnings window","2026-08-04 Korea margin/deleveraging observation"],"nextCheck":["company earnings releases and SEC filings","capital deployment versus financing target","backlog and gross-margin conversion","options volume versus open interest/flow","KRX margin and forced-liquidation data","BLS July employment release and revisions"]},
+      "watchlist": [{"theme":"ai-capital-stack","tickers":["NVDA","APO","BLK","BX","KKR","MSFT"],"confirm":["committed financing and customer utilization","OCF/backlog/margin conversion"],"invalidate":["capital announcement without deployment","credit/dilution rises faster than cash flow"]},{"theme":"memory-and-deleveraging","tickers":["MU","SNDK","000660.KS","005930.KS","INTC"],"confirm":["official pricing/demand and allocation data","volume and foreign-flow stabilization"],"invalidate":["demand/pricing softens","forced selling or failed support persists"]},{"theme":"earnings-breadth","tickers":["SPY","QQQ","RKLB","HIMS"],"confirm":["reported actual/estimate, guidance and price-volume reaction","equal-weight and sector breadth"],"invalidate":["one-time gains dominate","beats fail to broaden or guidance weakens"]}],
+      "evidenceHierarchy": ["SEC/company IR/exchange/official statistics", "industry research with methodology", "authoritative attributed reporting", "social recap and pasted text"],
+      "sourceAudit": [{"id":"amit-ai-capital","observation":"The recap links AI compute financing to asset-class formation and listed capital providers.","integration":"AI capital-stack theme, financing/dilution and utilization checkpoints.","limitation":"Reported capital targets are not equivalent to committed or deployed capital."},{"id":"amit-earnings","observation":"The recap combines company results, guidance, backlog, beat rate and options activity.","integration":"Fundamental/ticker/options context with explicit metric lineage.","limitation":"Exact figures require the company release, filing or primary data vendor."},{"id":"amit-korea-deleveraging","observation":"The recap describes leveraged SK Hynix-linked ETF volume contraction and forced liquidation.","integration":"Korea supply/flow/deleveraging research branch.","limitation":"Regulatory, margin and flow figures are not promoted without exchange/regulator confirmation."}],
+      "accessNotes": {"sourceBoundary":"Reference context only; no automatic ranking, order, current fundamental or live quote promotion.","webVerification":"Official BLS calendar confirms the July employment and CPI release windows; Micron, NVIDIA, Rocket Lab and SEC/IR materials provide adjacent primary context, but all post-specific numbers remain separately labelled until exact primary reconciliation."}
+    },
+    {
+      "id": "daily-market-report-20260811-ariel-recap",
+      "title": "Daily recap: calm before CPI, memory two-way risk, oil leadership and software breadth",
+      "sourceKind": "REFERENCE",
+      "asOf": "2026-08-12T08:58:00+09:00",
+      "publishedAt": "2026-08-12T08:58:00+09:00",
+      "sourceTimeZone": "Asia/Seoul",
+      "marketSession": "US_CLOSE_RECAP_POSTED_IN_KST",
+      "sourceFiles": ["user-attached-Ariel-Hernandez-screenshot-20260812"],
+      "urls": ["https://x.com/RealSimpleAriel"],
+      "categories": ["technical", "themes", "semi", "energy", "software", "earnings", "breadth", "screener", "ticker", "ai-context"],
+      "pageTargets": ["home", "briefing", "macro", "fxbond", "technical", "signal", "breadth", "sentiment", "themes", "theme-detail", "fundamental", "screener", "ticker", "portfolio", "options", "kr-home", "kr-supply", "kr-themes", "kr-macro", "kr-tech", "kr-technical", "market-news"],
+      "extraction": {
+        "thesis": "Ahead of CPI the tape was quiet at the index level but internally rotational: megacap pressure, memory two-way risk, positive earnings reactions in photonics/neocloud/servers, asset managers reclaiming long-term trend, commodities pausing except persistent oil/gas leadership, and software still leading.",
+        "signals": ["calm before CPI", "megacap pressure", "memory breakout-or-breakdown", "photonics earnings", "neocloud earnings reaction", "asset-manager 200SMA reclaim", "commodity pause", "oil and gas relative strength", "software leadership", "two-day consolidation after July 29 oil rally"],
+        "risks": ["screenshot observations are not a complete market dataset", "ticker symbols/earnings reactions need provider and filing confirmation", "200SMA reclaim is not trend confirmation without breadth and volume", "oil leadership can reprice rates and software duration after CPI"],
+        "automationHint": "Use the recap as an internal-rotation checklist: compare index move with equal-weight/sector breadth, then require OHLCV, volume, moving-average and earnings evidence for each ticker. Keep the date of the observed session separate from the post timestamp."
+      },
+      "framework": {
+        "Q1": "Was the calm a genuine pause, or compressed event risk before CPI?",
+        "Q2": "The useful model is market breadth and leadership rotation beneath a flat index, not index calm as low risk.",
+        "Q3": "Confirm with equal-weight breadth, sector relative strength, volume, 20/50/200SMA status, earnings actual/estimate/guidance and oil/rates response.",
+        "Q4": "CPI is the catalyst; megacap/software duration, memory supply, asset-manager risk appetite, oil/gas inflation beta and photonics/neocloud earnings are the transmission branches.",
+        "Q5": "The setup weakens if post-CPI breadth expands with falling yields, memory reclaims with volume, software maintains leadership, or oil/gas loses relative strength; it breaks if leadership fails broadly and yields/oil rise together.",
+        "chartReadingProtocol": ["separate index calm from internal breadth", "use reclaim or failed retest rather than one candle", "require daily/weekly OHLCV for breakout or exhaustion claims", "show session date, post timestamp and observation horizon"],
+        "communicationContract": ["start with the event-risk regime", "move from index to internal leadership", "map each ticker cluster to a mechanism", "end with CPI reaction paths and invalidation"]
+      },
+      "observations": [
+        {"seriesKey":"daily-recap.event-risk","eventDate":"2026-08-11","observedAt":"2026-08-12T08:58:00+09:00","reportedValue":null,"unit":"qualitative","direction":"pre-CPI-calm","observationStatus":"SCREENSHOT_REFERENCE","allowedUse":"reference-only"},
+        {"seriesKey":"memory.relative-strength","eventDate":"2026-08-11","observedAt":"2026-08-12T08:58:00+09:00","reportedValue":null,"unit":"qualitative","direction":"two-way","observationStatus":"SCREENSHOT_REFERENCE","allowedUse":"reference-only"},
+        {"seriesKey":"asset-manager.200sma","eventDate":"2026-08-11","observedAt":"2026-08-12T08:58:00+09:00","reportedValue":null,"unit":"qualitative","direction":"reclaim-observed","observationStatus":"SCREENSHOT_REFERENCE","allowedUse":"reference-only"},
+        {"seriesKey":"oil-gas.relative-strength","eventDate":"2026-08-11","observedAt":"2026-08-12T08:58:00+09:00","reportedValue":null,"unit":"qualitative","direction":"strong","observationStatus":"SCREENSHOT_REFERENCE","allowedUse":"reference-only"}
+      ],
+      "tickerMap": {"megacap-pressure":["GOOGL","AMZN"],"memory":["SNDK","MU"],"photonics":["SLITE"],"neocloud":["CRWV","NBIS"],"servers":["SMCI","DELL","SHPE"],"asset-managers":["KKR","BX","APO","BLK"],"oil-gas":["VLO","MPC","PSX","PBR","XOP","XLE"],"software":["IGV","QQQ"]},
+      "referenceTimeSeries": {"valueStatus":"screenshot observation only; no OCR levels or current signal promotion","observationWindows":["2026-08-11 US session recap","post published 2026-08-12 08:58 KST","CPI reaction window after 2026-08-12 21:30 KST"],"nextCheck":["actual CPI versus consensus and core services","10Y/oil/FX response","sector and equal-weight breadth","ticker earnings actual/estimate/guidance","200SMA acceptance with volume","memory and software relative strength"]},
+      "watchlist": [{"theme":"memory-two-way","tickers":["SNDK","MU"],"confirm":["volume-backed breakout or failed retest","pricing and allocation evidence"],"invalidate":["low-volume reversal","demand/pricing deterioration"]},{"theme":"oil-duration","tickers":["VLO","MPC","PSX","PBR","XOP","XLE","IGV","QQQ"],"confirm":["oil/rates/relative-strength alignment","breadth after CPI"],"invalidate":["oil reversal and falling yields","software leadership broadens despite higher rates"]}],
+      "evidenceHierarchy": ["exchange/provider OHLCV and company earnings release", "official macro release", "attributable market commentary", "user-supplied screenshot"],
+      "sourceAudit": [{"id":"ariel-internal-rotation","observation":"The screenshot records qualitative leadership and weakness clusters beneath a calm index.","integration":"Breadth/relative-strength checklist across themes, screener and technical pages.","limitation":"No OCR levels, price, volume or provider timestamp is promoted."}],
+      "accessNotes": {"sourceBoundary":"Screenshot-derived reference only; no exact price, chart level, earnings fact or automatic signal promotion.","timestampBoundary":"Session observation is 2026-08-11; post timestamp is 2026-08-12 08:58 KST; these are separate fields."}
+    },
+    {
       "id": "telegram-four-channel-audit-20260809",
       "title": "Telegram 4채널 공개 감사: AI 인프라·반도체·한국/중국 공급망·매크로 이벤트",
       "sourceKind": "REFERENCE",
@@ -332,6 +506,128 @@
         "automation": "The local public-mirror fetch attempt failed at the network layer. Existing digest data was preserved and marked collectionStatus=failed; no failed fetch was promoted as fresh.",
         "copyrightAndQuality": "Only paraphrased structural observations are retained; channel reach, repost count and target prices are not used as evidence."
       }
+    },
+    {
+      "id": "sandisk-investor-day-20260813",
+      "title": "Sandisk Investor Day: AI inference storage, NBM contracts and FCF/share verification tree",
+      "sourceKind": "REFERENCE",
+      "asOf": "2026-08-13",
+      "publishedAt": "2026-08-13",
+      "sourceTimeZone": "America/Los_Angeles",
+      "sourceFiles": ["user-pasted-sandisk-investor-day-summary", "user-supplied-image-1", "tmp/pdfs/sandisk-2026-investor-day.pdf"],
+      "urls": [
+        "https://investor.sandisk.com/events/event-details/2026-sandisk-investor-day",
+        "https://investor.sandisk.com/static-files/c050c0a0-91fe-4186-bb34-3b331378060f",
+        "https://investor.sandisk.com/news-releases/news-release-details/sandisk-announces-sampling-bics10-1tb-tlc-3d-nand-flash-memory",
+        "https://arxiv.org/abs/2309.06180"
+      ],
+      "categories": ["semi", "memory", "storage", "ai-inference", "fundamental", "screener", "ticker", "atlas", "ai-context"],
+      "pageTargets": ["briefing", "themes", "theme-detail", "fundamental", "screener", "ticker", "atlas", "market-news"],
+      "extraction": {
+        "thesis": "The durable question is not whether NAND prices rise, but whether inference-driven data movement, enterprise SSD demand, NBM contract floors, bit/wafer productivity and capital discipline convert into reported free cash flow per diluted share.",
+        "signals": ["context and concurrency", "KV-cache/staging offload", "enterprise SSD qualification", "NBM coverage and duration", "BiCS yield and cost per bit", "capital intensity", "reported FCF/share", "buyback average price"],
+        "risks": ["company targets are forward-looking and non-GAAP", "RPO/TCV are not revenue or cash", "customer concentration and floor economics", "HBF is a roadmap option rather than current revenue", "technology transition and yield risk"],
+        "automationHint": "For SNDK analysis, show the causal tree and its disconfirming evidence. Keep Investor Day targets in a dated company-claim layer and update only from filings, results and contract disclosures."
+      },
+      "framework": {
+        "Q1": "Did inference workload growth create persistent storage traffic under a latency and endurance budget, or only a generic token narrative?",
+        "Q2": "How much revenue is covered by enforceable NBM terms, for how long, with what floor, mix, customer concentration and recognition schedule?",
+        "Q3": "Do BiCS9/10 yield, bit/wafer, cost/bit and qualification offset price normalization and required capital?",
+        "Q4": "Do reported gross margin, taxes, working capital, JV cash flows and capex reconcile to adjusted FCF and then to FCF/share?",
+        "Q5": "The thesis weakens if contracts are revised, mix/margins normalize faster, qualification or yield slips, capital intensity rises, customer concentration bites, or buybacks occur above intrinsic value."
+      },
+      "observations": [
+        {"seriesKey":"sndk.nbm.fy27-coverage-target","eventDate":"2026-08-13","observedAt":"2026-08-13","reportedValue":50,"unit":"percent-of-revenue","direction":"company-target","observationStatus":"PRIMARY_COMPANY_FORWARD_LOOKING","allowedUse":"reference-only"},
+        {"seriesKey":"sndk.nbm.fy28-coverage-target","eventDate":"2026-08-13","observedAt":"2026-08-13","reportedValue":67,"unit":"approximately-percent-of-revenue","direction":"company-target","observationStatus":"PRIMARY_COMPANY_FORWARD_LOOKING","allowedUse":"reference-only"},
+        {"seriesKey":"sndk.fy28-30.non-gaap-gross-margin-target","eventDate":"2026-08-13","observedAt":"2026-08-13","reportedValue":80,"unit":"approximately-percent","direction":"company-target","observationStatus":"PRIMARY_COMPANY_FORWARD_LOOKING_NON_GAAP","allowedUse":"reference-only"},
+        {"seriesKey":"sndk.fy28-30.adjusted-fcf-margin-target","eventDate":"2026-08-13","observedAt":"2026-08-13","reportedValue":50,"unit":"approximately-percent","direction":"company-target","observationStatus":"PRIMARY_COMPANY_FORWARD_LOOKING_NON_GAAP","allowedUse":"reference-only"}
+      ],
+      "tickerMap": {"primary":["SNDK"],"memory-peers":["MU","WDC","000660.KS","005930.KS"],"storage":["STX"]},
+      "referenceTimeSeries": {"valueStatus":"primary company forward-looking reference; no live promotion","observationWindows":["2026-08-13 Investor Day"],"nextCheck":["quarterly NBM revenue coverage and customer concentration","RPO/TCV recognition and cash collection","reported-to-adjusted FCF reconciliation","BiCS qualification, yield and cost per bit","capital intensity and JV cash flows","diluted shares and repurchase average price","HBF standard/sample/qualification milestones"]},
+      "watchlist": [{"theme":"sndk-contract-to-cash","tickers":["SNDK"],"confirm":["filed NBM coverage and recognized revenue","reported margin and FCF/share conversion","qualification and cost/bit evidence"],"invalidate":["contract/floor revision or concentration loss","margin normalization and capex above target","HBF roadmap slippage without customer adoption"]}],
+      "evidenceHierarchy": ["SEC filing and quarterly results", "dated company IR with forward-looking label", "industry standard and academic systems/storage paper", "user summary and screenshot"],
+      "sourceAudit": [
+        {"id":"sndk-ir-20260813","observation":"The official 98-page presentation provides NBM structure, BiCS/HBF roadmap, financial targets, capital allocation and forward-looking disclaimers.","integration":"SNDK memo, Atlas relationship guide, player/product registry and knowledge facts.","limitation":"Targets and internal simulations remain company claims; non-GAAP future reconciliations are unavailable."},
+        {"id":"sndk-user-summary","observation":"The supplied summary correctly foregrounds contract visibility, AI storage and FCF/share rather than spot NAND alone.","integration":"Q1-Q5 verification framework and beginner-facing causal tree.","limitation":"Quoted market price, market cap and buyback arithmetic are dated reference values and are not copied into the current-data layer."}
+      ],
+      "accessNotes": {"sourceBoundary":"All targets remain REFERENCE and forward-looking. Live price, valuation, current financials and signals remain owned by canonical providers.","academicBoundary":"PagedAttention supports KV-cache memory pressure, not a universal NAND demand coefficient; SSD residency depends on workload latency, reuse and system design."}
+    },
+    {
+      "id": "neutral-rate-brief-20260811",
+      "title": "Neutral-rate policy brief: r-star, nominal neutral rate, policy gap and market counterpoint",
+      "sourceKind": "REFERENCE",
+      "asOf": "2026-08-11",
+      "publishedAt": "2026-08-11",
+      "sourceTimeZone": "Asia/Seoul",
+      "sourceFiles": ["user-supplied-images-3-through-12"],
+      "urls": [
+        "https://www.newyorkfed.org/research/policy/rstar",
+        "https://www.newyorkfed.org/research/staff_reports/sr1063.html",
+        "https://libertystreeteconomics.newyorkfed.org/2025/08/are-financial-markets-good-predictors-of-r-star/",
+        "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20260617.pdf",
+        "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260617a.htm",
+        "https://www.bls.gov/news.release/cpi.htm?lv=true"
+      ],
+      "categories": ["macro", "fxbond", "principles", "atlas", "briefing", "ai-context"],
+      "pageTargets": ["home", "briefing", "macro", "fxbond", "principles", "atlas", "screener", "ticker"],
+      "extraction": {
+        "thesis": "Policy stance is better framed as the policy rate minus an estimated nominal neutral rate than by the policy rate alone, but r-star is unobservable and market real yields contain risk and liquidity premia.",
+        "signals": ["HLW and DSGE r-star ranges", "long-run inflation expectations", "policy-range midpoint", "SEP longer-run rate", "TIPS and nominal yield curve", "term premium", "headline/core inflation divergence", "credit conditions"],
+        "risks": ["false precision in an unobserved variable", "confusing current CPI with long-run expectations", "equating TIPS with r-star", "ignoring balance sheet, fiscal and credit transmission"],
+        "automationHint": "Render definition, formula, dated gap and market counterpoint together. Recompute dated observations after FOMC, SEP, BLS or model updates; never retain a timeless current r-star number in the glossary."
+      },
+      "framework": {
+        "Q1": "Which r-star definition and model are used, with what confidence interval and data vintage?",
+        "Q2": "Which long-run expected-inflation measure converts real r-star into nominal neutral, and is it a survey, projection or market price?",
+        "Q3": "What policy-rate observation and midpoint convention define the gap?",
+        "Q4": "Do credit spreads, the balance sheet, dollar, fiscal impulse and market term premium confirm or offset the rate-gap signal?",
+        "Q5": "Which new FOMC/SEP/CPI/model observation or market-premium decomposition would change the stance conclusion?"
+      },
+      "observations": [
+        {"seriesKey":"fed.funds.target-midpoint","eventDate":"2026-06-17","observedAt":"2026-08-11","reportedValue":3.625,"unit":"percent","direction":"policy-reference","observationStatus":"PRIMARY_OFFICIAL_DATED","allowedUse":"reference-only"},
+        {"seriesKey":"fed.sep.longer-run-funds-median","eventDate":"2026-06-17","observedAt":"2026-08-11","reportedValue":3.1,"unit":"percent","direction":"projection-reference","observationStatus":"PRIMARY_OFFICIAL_DATED","allowedUse":"reference-only"},
+        {"seriesKey":"bls.cpi.all-items.yoy","eventDate":"2026-06-30","observedAt":"2026-08-11","reportedValue":3.5,"unit":"percent-yoy","direction":"inflation-reference","observationStatus":"PRIMARY_OFFICIAL_DATED","allowedUse":"reference-only"},
+        {"seriesKey":"bls.cpi.core.yoy","eventDate":"2026-06-30","observedAt":"2026-08-11","reportedValue":2.6,"unit":"percent-yoy","direction":"inflation-reference","observationStatus":"PRIMARY_OFFICIAL_DATED","allowedUse":"reference-only"}
+      ],
+      "referenceTimeSeries": {"valueStatus":"official dated reference plus model interpretation; no live promotion","observationWindows":["2026-06-17 FOMC and SEP","2026-06 CPI","2026-08-11 briefing"],"nextCheck":["next FOMC target range","next SEP longer-run median and dispersion","updated NY Fed r-star estimates","headline/core/PCE composition","TIPS and term-premium decomposition","credit and dollar transmission"]},
+      "evidenceHierarchy": ["Federal Reserve/BLS official release", "New York Fed model documentation and research", "market price with premium decomposition", "user-supplied briefing image"],
+      "sourceAudit": [
+        {"id":"neutral-rate-images","observation":"The supplied ten-slide brief teaches definition, formula, policy gap, inflation evidence, market counterpoint and sources in a beginner-friendly sequence.","integration":"Principles D6, Atlas relationship guide, glossary correction and macro/ticker reference context.","limitation":"Some market values and hike probabilities are dated; only official values reconciled to primary releases are retained as observations."},
+        {"id":"nyfed-rstar","observation":"NY Fed sources establish the unobservable/model-based nature of r-star and the non-equivalence of market real yields.","integration":"False-precision and market-premium invalidation rules.","limitation":"No single model estimate is promoted as the current true neutral rate."}
+      ],
+      "accessNotes": {"sourceBoundary":"Reference data never overwrites live rates, yields, inflation or probability providers.","formulaBoundary":"Nominal neutral ≈ r-star + long-run expected inflation is an approximation; the exact Fisher relation and risk premia require separate treatment."}
+    },
+    {
+      "id": "leonardo-visual-atlas-20260815",
+      "title": "Visual supply-chain atlas patterns: graph, filters, chokepoints and beginner drill-down",
+      "sourceKind": "REFERENCE",
+      "asOf": "2026-08-15",
+      "publishedAt": "2026-08-15",
+      "urls": [
+        "https://leonardo-boquillon.com/ai-semiconductor-supply-chain",
+        "https://leonardo-boquillon.com/ai-semiconductor-companies",
+        "https://leonardo-boquillon.com/ai-datacenter-supply-chain",
+        "https://leonardo-boquillon.com/photonic-cop-supply-chain",
+        "https://leonardo-boquillon.com/how-chips-are-made"
+      ],
+      "categories": ["atlas", "supply-chain", "semi", "data-center", "photonics", "ui-ux", "ai-context"],
+      "pageTargets": ["atlas", "themes", "theme-detail", "fundamental", "screener", "ticker"],
+      "extraction": {
+        "thesis": "A beginner-friendly supply-chain encyclopedia needs progressive disclosure: broad system map, filterable groups and criticality, searchable nodes, then definition, mechanism, metrics, downstream effect and evidence in a detail rail.",
+        "signals": ["graph/list view", "region/type/tier filters", "edge criticality", "chokepoint mode", "stage tree", "search", "detail rail", "source boundary"],
+        "risks": ["copying proprietary company/edge counts", "mistaking visual node size for verified market importance", "overloading mobile layouts", "hiding the text alternative"],
+        "automationHint": "Use the interaction grammar and information hierarchy, but populate AIO nodes and edges only from its own taxonomy and reviewed source registry."
+      },
+      "framework": {
+        "Q1": "Can a novice start from a system or stage rather than a ticker?",
+        "Q2": "Can the user filter by group and evidence/criticality without losing the full topology?",
+        "Q3": "Does every selected node explain definition, importance, mechanism, metrics and invalidation?",
+        "Q4": "Are relationships explicit and keyboard-readable with a text alternative?",
+        "Q5": "Are third-party counts and unverified chokepoint labels excluded from AIO's evidence layer?"
+      },
+      "evidenceHierarchy": ["AIO primary/academic source registry", "AIO reviewed taxonomy and relationship artifact", "third-party site as visual-information-architecture reference only"],
+      "sourceAudit": [{"id":"leonardo-site-audit","observation":"The live site exposes interactive semiconductor, data-center, CPO and manufacturing maps with filters, search and detail drill-down.","integration":"Atlas relationship-map tab and five causal/system guides.","limitation":"The site's company counts, dependency counts, node positions and proprietary classifications are not copied or promoted as AIO facts."}],
+      "accessNotes": {"browser":"Pages were directly inspected in Chrome on 2026-08-15.","copyrightAndQuality":"Only UI structure and generalized information architecture are retained; content is rebuilt from AIO sources."}
     }
   ]
 }

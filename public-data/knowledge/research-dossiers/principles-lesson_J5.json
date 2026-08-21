@@ -14,8 +14,8 @@
     "투자 프로세스 official data standard filing evidence",
     "투자 프로세스 disconfirming evidence limitations"
   ],
-  "searchedAt": null,
-  "method": "NOT_STARTED",
+  "searchedAt": "2026-08-18",
+  "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
       "sourceId": "MP-SEC",
@@ -23,11 +23,30 @@
       "publisher": "SEC Investor.gov",
       "title": "Investing basics and disclosures",
       "sourceTier": null
+    },
+    {
+      "sourceId": "WEB-FINRA-ORDER-TYPES",
+      "url": "https://www.finra.org/investors/investing/investment-products/stocks/order-types",
+      "publisher": "FINRA",
+      "title": "Order Types",
+      "sourceTier": "PRIMARY_OFFICIAL"
     }
   ],
-  "selectedSources": [],
+  "selectedSources": [
+    {
+      "sourceId": "WEB-FINRA-ORDER-TYPES",
+      "url": "https://www.finra.org/investors/investing/investment-products/stocks/order-types",
+      "publisher": "FINRA",
+      "title": "Order Types",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    }
+  ],
   "rejectedSources": [],
-  "sourceTiers": [],
+  "sourceTiers": [
+    "PRIMARY_OFFICIAL"
+  ],
   "claimCoverage": [
     {
       "claimId": "principles-lesson-J5",
@@ -35,7 +54,10 @@
       "requiredAction": "independent direct source required"
     }
   ],
-  "consensus": "Not assessed.",
+  "researchFactIds": [
+    "fact:finra:orders"
+  ],
+  "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",
   "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
   "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -44,10 +66,10 @@
   "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
   "q4StructuralMechanism": "Trace 투자 프로세스 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-  "status": "RESEARCH_REQUIRED",
+  "status": "RESEARCHED",
   "completion": {
-    "researchComplete": false,
-    "sourceProfileComplete": false,
+    "researchComplete": true,
+    "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   }

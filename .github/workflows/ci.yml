@@ -119,8 +119,11 @@ jobs:
             git diff --exit-code -- src/domain/knowledge/principles-edge-semantics.js
             node scripts/build-knowledge-evidence-registry.mjs
             git diff --exit-code -- public-data/knowledge/sources.json public-data/knowledge/claims.json
+            node scripts/enrich-knowledge-source-lessons.mjs
+            git diff --exit-code -- public-data/principles/lesson-library.json public-data/atlas/foundation-lessons.json
             node scripts/build-knowledge-articles-and-learning-graph.mjs
             git diff --exit-code -- public-data/knowledge/articles.json public-data/knowledge/learning-graph.json public-data/knowledge/articles
+            node scripts/audit-knowledge-encyclopedia-depth.mjs --strict
             node scripts/build-knowledge-route-targets.mjs
             git diff --exit-code -- public-data/knowledge/route-targets.json
             node scripts/ci-knowledge-core-semantic-check.mjs
@@ -132,6 +135,8 @@ jobs:
             node scripts/build-knowledge-coverage-matrix.mjs
             node scripts/ci-knowledge-full-corpus-coverage.mjs
             node scripts/build-knowledge-research-dossiers.mjs
+            node scripts/build-knowledge-coverage-matrix.mjs
+            git diff --exit-code -- public-data/knowledge/coverage-matrix.json public-data/knowledge/research-dossiers.json
             node scripts/ci-knowledge-web-research-dossier.mjs
             node scripts/build-knowledge-domain-dossiers.mjs
             node scripts/ci-knowledge-sector-domain-depth.mjs
@@ -141,6 +146,10 @@ jobs:
             node scripts/ci-six-doc-coverage-check.mjs
             node scripts/ci-atlas-contract-check.mjs
             node scripts/ci-principles-contract-check.mjs
+            node scripts/build-atlas-current-evidence-ledger.mjs
+            git diff --exit-code -- public-data/atlas/current-evidence-ledger.json public-data/atlas/index.json
+            node scripts/build-13f-issuer-aggregates.mjs
+            git diff --exit-code -- public-data/masters/issuer-aggregates.json public-data/masters/index.json
             node scripts/ci-masters-contract-check.mjs
 
       - name: AI Screener intelligence contract (AIQ-0/AIQ-1)
@@ -288,6 +297,9 @@ jobs:
 
       - name: Run AIO.runTests() headlessly
         run: node scripts/ci-headless-tests.mjs
+
+      - name: Fresh-browser public AI route and resilient response gate
+        run: node scripts/ci-ai-chat-public-route-browser-check.mjs
 
       - name: Cross-page shared market epoch browser gate
         run: node scripts/ci-page-market-epoch-browser-check.mjs

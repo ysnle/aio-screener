@@ -1,7 +1,7 @@
 {
   "schemaVersion": "masters-13f-history-index.v2",
-  "revision": "2026-08-02-v53.85",
-  "reviewedAt": "2026-08-02",
+  "revision": "2026-08-18-v54.35",
+  "reviewedAt": "2026-08-18",
   "status": "FILING_HISTORY_ROWS_CONNECTED",
   "publication": "EDUCATIONAL_REFERENCE_ONLY",
   "boundary": "SEC filing metadata와 정보표 원문 행·보고가치·보유수량을 연결한다. ticker·sector·issuer aggregate·corporate action은 verified security master가 확인되기 전 공개하지 않는다.",
@@ -10,10 +10,28 @@
     {
       "managerId": "berkshire-hathaway",
       "cik": "0001067983",
-      "latestConnectedPeriod": "2026-03-31",
+      "latestConnectedPeriod": "2026-06-30",
       "periodsAvailable": 12,
       "historyDepthTarget": 12,
       "periods": [
+        {
+          "form": "13F-HR",
+          "accession": "0001193125-26-352200",
+          "periodOfReport": "2026-06-30",
+          "filedAt": "2026-08-14",
+          "indexUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526352200/0001193125-26-352200-index.html",
+          "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526352200/xslForm13F_X02/primary_doc.xml",
+          "rowImportStatus": "IMPORTED_CURRENT",
+          "shareHistoryStatus": "CONNECTED_TO_HOLDINGS_ARTIFACT",
+          "sourceKind": "SEC_EDGAR",
+          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526352200/56757.xml",
+          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526352200/56757.html",
+          "rowCount": 89,
+          "reportedValueTotal": 299253556246,
+          "coverEntryTotal": 89,
+          "coverValueTotal": 299253556246,
+          "countReconciled": true
+        },
         {
           "form": "13F-HR",
           "accession": "0001193125-26-226661",
@@ -21,15 +39,15 @@
           "filedAt": "2026-05-15",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526226661/0001193125-26-226661-index.html",
           "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526226661/xslForm13F_X02/primary_doc.xml",
-          "rowImportStatus": "IMPORTED_CURRENT",
+          "rowImportStatus": "IMPORTED_PRIOR",
           "shareHistoryStatus": "CONNECTED_TO_HOLDINGS_ARTIFACT",
           "sourceKind": "SEC_EDGAR",
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526226661/53405.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526226661/53405.html",
           "rowCount": 90,
           "reportedValueTotal": 263095703570,
-          "coverEntryTotal": 90,
-          "coverValueTotal": 263095703570,
+          "coverEntryTotal": null,
+          "coverValueTotal": null,
           "countReconciled": true
         },
         {
@@ -47,8 +65,6 @@
           "rowCount": 110,
           "reportedValueTotal": 274160086701,
           "reportedSharesTotal": 2440749360,
-          "coverEntryTotal": 110,
-          "coverValueTotal": 274160086701,
           "countReconciled": true
         },
         {
@@ -58,15 +74,14 @@
           "filedAt": "2025-11-14",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312525282901/0001193125-25-282901-index.html",
           "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1067983/000119312525282901/xslForm13F_X02/primary_doc.xml",
-          "rowImportStatus": "IMPORTED_PRIOR",
-          "shareHistoryStatus": "CONNECTED_TO_HOLDINGS_ARTIFACT",
+          "rowImportStatus": "IMPORTED_HISTORICAL",
+          "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1067983/000119312525282901/46994.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1067983/000119312525282901/46994.html",
           "rowCount": 115,
           "reportedValueTotal": 267334501955,
-          "coverEntryTotal": null,
-          "coverValueTotal": null,
+          "reportedSharesTotal": 2495131300,
           "countReconciled": true
         },
         {
@@ -84,8 +99,6 @@
           "rowCount": 114,
           "reportedValueTotal": 257521776925,
           "reportedSharesTotal": 2554185209,
-          "coverEntryTotal": 114,
-          "coverValueTotal": 257521776925,
           "countReconciled": true
         },
         {
@@ -103,8 +116,6 @@
           "rowCount": 4,
           "reportedValueTotal": 1106550356,
           "reportedSharesTotal": 9199055,
-          "coverEntryTotal": 4,
-          "coverValueTotal": 1106550356,
           "countReconciled": true
         },
         {
@@ -122,8 +133,6 @@
           "rowCount": 112,
           "reportedValueTotal": 267175474249,
           "reportedSharesTotal": 2675791303,
-          "coverEntryTotal": 112,
-          "coverValueTotal": 267175474249,
           "countReconciled": true
         },
         {
@@ -141,8 +150,6 @@
           "rowCount": 121,
           "reportedValueTotal": 266378900503,
           "reportedSharesTotal": 2855644983,
-          "coverEntryTotal": 121,
-          "coverValueTotal": 266378900503,
           "countReconciled": true
         },
         {
@@ -160,8 +167,6 @@
           "rowCount": 129,
           "reportedValueTotal": 279969062343,
           "reportedSharesTotal": 3349084898,
-          "coverEntryTotal": 129,
-          "coverValueTotal": 279969062343,
           "countReconciled": true
         },
         {
@@ -179,8 +184,6 @@
           "rowCount": 133,
           "reportedValueTotal": 331680406332,
           "reportedSharesTotal": 3648170490,
-          "coverEntryTotal": 133,
-          "coverValueTotal": 331680406332,
           "countReconciled": true
         },
         {
@@ -198,8 +201,6 @@
           "rowCount": 1,
           "reportedValueTotal": 4542600000,
           "reportedSharesTotal": 20100000,
-          "coverEntryTotal": 1,
-          "coverValueTotal": 4542600000,
           "countReconciled": true
         },
         {
@@ -217,27 +218,6 @@
           "rowCount": 1,
           "reportedValueTotal": 1695320075,
           "reportedSharesTotal": 8143530,
-          "coverEntryTotal": 1,
-          "coverValueTotal": 1695320075,
-          "countReconciled": true
-        },
-        {
-          "form": "13F-HR",
-          "accession": "0000950123-23-008074",
-          "periodOfReport": "2023-06-30",
-          "filedAt": "2023-08-14",
-          "indexUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000095012323008074/0000950123-23-008074-index.html",
-          "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1067983/000095012323008074/xslForm13F_X02/primary_doc.xml",
-          "rowImportStatus": "IMPORTED_HISTORICAL",
-          "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
-          "sourceKind": "SEC_EDGAR",
-          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1067983/000095012323008074/25376.xml",
-          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1067983/000095012323008074/25376.html",
-          "rowCount": 157,
-          "reportedValueTotal": 348194055552,
-          "reportedSharesTotal": 3908107496,
-          "coverEntryTotal": 157,
-          "coverValueTotal": 348194055552,
           "countReconciled": true
         }
       ]
@@ -245,10 +225,28 @@
     {
       "managerId": "duquesne-family-office",
       "cik": "0001536411",
-      "latestConnectedPeriod": "2026-03-31",
+      "latestConnectedPeriod": "2026-06-30",
       "periodsAvailable": 12,
       "historyDepthTarget": 12,
       "periods": [
+        {
+          "form": "13F-HR",
+          "accession": "0001536411-26-000006",
+          "periodOfReport": "2026-06-30",
+          "filedAt": "2026-08-14",
+          "indexUrl": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/0001536411-26-000006-index.html",
+          "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/xslForm13F_X02/primary_doc.xml",
+          "rowImportStatus": "IMPORTED_CURRENT",
+          "shareHistoryStatus": "CONNECTED_TO_HOLDINGS_ARTIFACT",
+          "sourceKind": "SEC_EDGAR",
+          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/form13f_20260630.xml",
+          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/form13f_20260630.html",
+          "rowCount": 95,
+          "reportedValueTotal": 5210856,
+          "coverEntryTotal": 95,
+          "coverValueTotal": 5210860,
+          "countReconciled": true
+        },
         {
           "form": "13F-HR",
           "accession": "0001536411-26-000004",
@@ -256,15 +254,15 @@
           "filedAt": "2026-05-15",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000004/0001536411-26-000004-index.html",
           "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000004/xslForm13F_X02/primary_doc.xml",
-          "rowImportStatus": "IMPORTED_CURRENT",
+          "rowImportStatus": "IMPORTED_PRIOR",
           "shareHistoryStatus": "CONNECTED_TO_HOLDINGS_ARTIFACT",
           "sourceKind": "SEC_EDGAR",
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000004/form13f_20260331.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000004/form13f_20260331.html",
           "rowCount": 70,
           "reportedValueTotal": 3376828,
-          "coverEntryTotal": 70,
-          "coverValueTotal": 3376827,
+          "coverEntryTotal": null,
+          "coverValueTotal": null,
           "countReconciled": true
         },
         {
@@ -274,15 +272,14 @@
           "filedAt": "2026-02-17",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000002/0001536411-26-000002-index.html",
           "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000002/xslForm13F_X02/primary_doc.xml",
-          "rowImportStatus": "IMPORTED_PRIOR",
-          "shareHistoryStatus": "CONNECTED_TO_HOLDINGS_ARTIFACT",
+          "rowImportStatus": "IMPORTED_HISTORICAL",
+          "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000002/form13f_20251231.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000002/form13f_20251231.html",
           "rowCount": 62,
           "reportedValueTotal": 4494450,
-          "coverEntryTotal": null,
-          "coverValueTotal": null,
+          "reportedSharesTotal": 70686339,
           "countReconciled": true
         },
         {
@@ -300,8 +297,6 @@
           "rowCount": 65,
           "reportedValueTotal": 4062003,
           "reportedSharesTotal": 68965844,
-          "coverEntryTotal": 65,
-          "coverValueTotal": 4062007,
           "countReconciled": true
         },
         {
@@ -319,8 +314,6 @@
           "rowCount": 69,
           "reportedValueTotal": 4071255,
           "reportedSharesTotal": 71863091,
-          "coverEntryTotal": 69,
-          "coverValueTotal": 4071254,
           "countReconciled": true
         },
         {
@@ -338,8 +331,6 @@
           "rowCount": 52,
           "reportedValueTotal": 3060048,
           "reportedSharesTotal": 69139390,
-          "coverEntryTotal": 52,
-          "coverValueTotal": 3060048,
           "countReconciled": true
         },
         {
@@ -357,8 +348,6 @@
           "rowCount": 78,
           "reportedValueTotal": 3722951,
           "reportedSharesTotal": 75766289,
-          "coverEntryTotal": 78,
-          "coverValueTotal": 3722948,
           "countReconciled": true
         },
         {
@@ -376,8 +365,6 @@
           "rowCount": 75,
           "reportedValueTotal": 2952104,
           "reportedSharesTotal": 55862426,
-          "coverEntryTotal": 75,
-          "coverValueTotal": 2952103,
           "countReconciled": true
         },
         {
@@ -395,8 +382,6 @@
           "rowCount": 64,
           "reportedValueTotal": 2917218,
           "reportedSharesTotal": 62643920,
-          "coverEntryTotal": 64,
-          "coverValueTotal": 2917218,
           "countReconciled": true
         },
         {
@@ -414,8 +399,6 @@
           "rowCount": 73,
           "reportedValueTotal": 4387664,
           "reportedSharesTotal": 84396628,
-          "coverEntryTotal": 73,
-          "coverValueTotal": 4387664,
           "countReconciled": true
         },
         {
@@ -433,8 +416,6 @@
           "rowCount": 51,
           "reportedValueTotal": 3351823,
           "reportedSharesTotal": 64408818,
-          "coverEntryTotal": 51,
-          "coverValueTotal": 3351824,
           "countReconciled": true
         },
         {
@@ -452,27 +433,6 @@
           "rowCount": 41,
           "reportedValueTotal": 2786884,
           "reportedSharesTotal": 56309763,
-          "coverEntryTotal": 41,
-          "coverValueTotal": 2786882,
-          "countReconciled": true
-        },
-        {
-          "form": "13F-HR",
-          "accession": "0001536411-23-000006",
-          "periodOfReport": "2023-06-30",
-          "filedAt": "2023-08-14",
-          "indexUrl": "https://www.sec.gov/Archives/edgar/data/1536411/000153641123000006/0001536411-23-000006-index.html",
-          "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641123000006/xslForm13F_X02/primary_doc.xml",
-          "rowImportStatus": "IMPORTED_HISTORICAL",
-          "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
-          "sourceKind": "SEC_EDGAR",
-          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641123000006/form13f_20230630.xml",
-          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641123000006/form13f_20230630.html",
-          "rowCount": 53,
-          "reportedValueTotal": 2874612,
-          "reportedSharesTotal": 56094405,
-          "coverEntryTotal": 53,
-          "coverValueTotal": 2874614,
           "countReconciled": true
         }
       ]
@@ -480,10 +440,28 @@
     {
       "managerId": "fisher-asset-management",
       "cik": "0000850529",
-      "latestConnectedPeriod": "2026-03-31",
+      "latestConnectedPeriod": "2026-06-30",
       "periodsAvailable": 12,
       "historyDepthTarget": 12,
       "periods": [
+        {
+          "form": "13F-HR",
+          "accession": "0000850529-26-000006",
+          "periodOfReport": "2026-06-30",
+          "filedAt": "2026-08-04",
+          "indexUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/0000850529-26-000006-index.html",
+          "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/xslForm13F_X02/primary_doc.xml",
+          "rowImportStatus": "IMPORTED_CURRENT",
+          "shareHistoryStatus": "CONNECTED_TO_HOLDINGS_ARTIFACT",
+          "sourceKind": "SEC_EDGAR",
+          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/q2202613f.xml",
+          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/q2202613f.html",
+          "rowCount": 1037,
+          "reportedValueTotal": 335827609549,
+          "coverEntryTotal": 1037,
+          "coverValueTotal": 335827609549,
+          "countReconciled": true
+        },
         {
           "form": "13F-HR",
           "accession": "0000850529-26-000004",
@@ -491,15 +469,15 @@
           "filedAt": "2026-05-05",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000004/0000850529-26-000004-index.html",
           "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000004/xslForm13F_X02/primary_doc.xml",
-          "rowImportStatus": "IMPORTED_CURRENT",
+          "rowImportStatus": "IMPORTED_PRIOR",
           "shareHistoryStatus": "CONNECTED_TO_HOLDINGS_ARTIFACT",
           "sourceKind": "SEC_EDGAR",
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000004/2026Q113F1.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000004/2026Q113F1.html",
           "rowCount": 1016,
           "reportedValueTotal": 294892645875,
-          "coverEntryTotal": 1016,
-          "coverValueTotal": 294892645875,
+          "coverEntryTotal": null,
+          "coverValueTotal": null,
           "countReconciled": true
         },
         {
@@ -509,15 +487,14 @@
           "filedAt": "2026-02-09",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000002/0000850529-26-000002-index.html",
           "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000002/xslForm13F_X02/primary_doc.xml",
-          "rowImportStatus": "IMPORTED_PRIOR",
-          "shareHistoryStatus": "CONNECTED_TO_HOLDINGS_ARTIFACT",
+          "rowImportStatus": "IMPORTED_HISTORICAL",
+          "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000002/2025Q413F1.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000002/2025Q413F1.html",
           "rowCount": 1017,
           "reportedValueTotal": 292994292134,
-          "coverEntryTotal": null,
-          "coverValueTotal": null,
+          "reportedSharesTotal": 2931127625,
           "countReconciled": true
         },
         {
@@ -535,8 +512,6 @@
           "rowCount": 1014,
           "reportedValueTotal": 276288374576,
           "reportedSharesTotal": 2994781688,
-          "coverEntryTotal": 1014,
-          "coverValueTotal": 276288374576,
           "countReconciled": true
         },
         {
@@ -554,8 +529,6 @@
           "rowCount": 986,
           "reportedValueTotal": 251889373564,
           "reportedSharesTotal": 2954151931,
-          "coverEntryTotal": 986,
-          "coverValueTotal": 251889373564,
           "countReconciled": true
         },
         {
@@ -573,8 +546,6 @@
           "rowCount": 999,
           "reportedValueTotal": 230997481218,
           "reportedSharesTotal": 2873615404,
-          "coverEntryTotal": 999,
-          "coverValueTotal": 230997481218,
           "countReconciled": true
         },
         {
@@ -592,8 +563,6 @@
           "rowCount": 975,
           "reportedValueTotal": 251327283058,
           "reportedSharesTotal": 2487248402,
-          "coverEntryTotal": 975,
-          "coverValueTotal": 251327283058,
           "countReconciled": true
         },
         {
@@ -611,8 +580,6 @@
           "rowCount": 919,
           "reportedValueTotal": 244023936959,
           "reportedSharesTotal": 2413605824,
-          "coverEntryTotal": 919,
-          "coverValueTotal": 244023936959,
           "countReconciled": true
         },
         {
@@ -630,8 +597,6 @@
           "rowCount": 986,
           "reportedValueTotal": 229851765575,
           "reportedSharesTotal": 2377842444,
-          "coverEntryTotal": 986,
-          "coverValueTotal": 229851765575,
           "countReconciled": true
         },
         {
@@ -649,8 +614,6 @@
           "rowCount": 964,
           "reportedValueTotal": 214110154901,
           "reportedSharesTotal": 2236347135,
-          "coverEntryTotal": 964,
-          "coverValueTotal": 214110154901,
           "countReconciled": true
         },
         {
@@ -668,8 +631,6 @@
           "rowCount": 981,
           "reportedValueTotal": 189126873810,
           "reportedSharesTotal": 2149264713,
-          "coverEntryTotal": 981,
-          "coverValueTotal": 189126873810,
           "countReconciled": true
         },
         {
@@ -687,27 +648,6 @@
           "rowCount": 1168,
           "reportedValueTotal": 176319572400,
           "reportedSharesTotal": 2488189735,
-          "coverEntryTotal": 1168,
-          "coverValueTotal": 176319572400,
-          "countReconciled": true
-        },
-        {
-          "form": "13F-HR/A",
-          "accession": "0000850529-23-000012",
-          "periodOfReport": "2023-06-30",
-          "filedAt": "2023-12-12",
-          "indexUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052923000012/0000850529-23-000012-index.html",
-          "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/850529/000085052923000012/xslForm13F_X02/primary_doc.xml",
-          "rowImportStatus": "IMPORTED_HISTORICAL",
-          "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
-          "sourceKind": "SEC_EDGAR",
-          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/850529/000085052923000012/FINAL13FQ22023.xml",
-          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/850529/000085052923000012/FINAL13FQ22023.html",
-          "rowCount": 1163,
-          "reportedValueTotal": 180880960686,
-          "reportedSharesTotal": 2443165178,
-          "coverEntryTotal": 1163,
-          "coverValueTotal": 180880960686,
           "countReconciled": true
         }
       ]
@@ -770,8 +710,6 @@
           "rowCount": 11,
           "reportedValueTotal": 14643293767,
           "reportedSharesTotal": 174886291,
-          "coverEntryTotal": 11,
-          "coverValueTotal": 14643293767,
           "countReconciled": true
         },
         {
@@ -789,8 +727,6 @@
           "rowCount": 11,
           "reportedValueTotal": 13729120533,
           "reportedSharesTotal": 175661525,
-          "coverEntryTotal": 11,
-          "coverValueTotal": 13729120533,
           "countReconciled": true
         },
         {
@@ -808,8 +744,6 @@
           "rowCount": 11,
           "reportedValueTotal": 11930893008,
           "reportedSharesTotal": 183286330,
-          "coverEntryTotal": 11,
-          "coverValueTotal": 11930893008,
           "countReconciled": true
         },
         {
@@ -827,8 +761,6 @@
           "rowCount": 1,
           "reportedValueTotal": 46533105,
           "reportedSharesTotal": 12713963,
-          "coverEntryTotal": 1,
-          "coverValueTotal": 46533105,
           "countReconciled": true
         },
         {
@@ -846,8 +778,6 @@
           "rowCount": 11,
           "reportedValueTotal": 12916077581,
           "reportedSharesTotal": 157655599,
-          "coverEntryTotal": 11,
-          "coverValueTotal": 12916077581,
           "countReconciled": true
         },
         {
@@ -865,8 +795,6 @@
           "rowCount": 9,
           "reportedValueTotal": 10411823523,
           "reportedSharesTotal": 116156414,
-          "coverEntryTotal": 9,
-          "coverValueTotal": 10411823523,
           "countReconciled": true
         },
         {
@@ -884,8 +812,6 @@
           "rowCount": 7,
           "reportedValueTotal": 10761092093,
           "reportedSharesTotal": 80952910,
-          "coverEntryTotal": 7,
-          "coverValueTotal": 10761092093,
           "countReconciled": true
         },
         {
@@ -903,8 +829,6 @@
           "rowCount": 8,
           "reportedValueTotal": 10396017618,
           "reportedSharesTotal": 82279439,
-          "coverEntryTotal": 8,
-          "coverValueTotal": 10396017618,
           "countReconciled": true
         },
         {
@@ -922,8 +846,6 @@
           "rowCount": 8,
           "reportedValueTotal": 10494117169,
           "reportedSharesTotal": 87308321,
-          "coverEntryTotal": 8,
-          "coverValueTotal": 10494117169,
           "countReconciled": true
         },
         {
@@ -941,8 +863,6 @@
           "rowCount": 8,
           "reportedValueTotal": 10816723106,
           "reportedSharesTotal": 84331397,
-          "coverEntryTotal": 8,
-          "coverValueTotal": 10816723106,
           "countReconciled": true
         }
       ]
@@ -950,10 +870,28 @@
     {
       "managerId": "appaloosa-management",
       "cik": "0001656456",
-      "latestConnectedPeriod": "2026-03-31",
+      "latestConnectedPeriod": "2026-06-30",
       "periodsAvailable": 12,
       "historyDepthTarget": 12,
       "periods": [
+        {
+          "form": "13F-HR",
+          "accession": "0001656456-26-000003",
+          "periodOfReport": "2026-06-30",
+          "filedAt": "2026-08-14",
+          "indexUrl": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000003/0001656456-26-000003-index.html",
+          "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000003/xslForm13F_X02/primary_doc.xml",
+          "rowImportStatus": "IMPORTED_CURRENT",
+          "shareHistoryStatus": "CONNECTED_TO_HOLDINGS_ARTIFACT",
+          "sourceKind": "SEC_EDGAR",
+          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000003/Form13FInfoTable.xml",
+          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000003/Form13FInfoTable.html",
+          "rowCount": 27,
+          "reportedValueTotal": 7725383349,
+          "coverEntryTotal": 27,
+          "coverValueTotal": 7725383349,
+          "countReconciled": true
+        },
         {
           "form": "13F-HR",
           "accession": "0001656456-26-000002",
@@ -961,15 +899,15 @@
           "filedAt": "2026-05-15",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000002/0001656456-26-000002-index.html",
           "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000002/xslForm13F_X02/primary_doc.xml",
-          "rowImportStatus": "IMPORTED_CURRENT",
+          "rowImportStatus": "IMPORTED_PRIOR",
           "shareHistoryStatus": "CONNECTED_TO_HOLDINGS_ARTIFACT",
           "sourceKind": "SEC_EDGAR",
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000002/Form13FInfoTable.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000002/Form13FInfoTable.html",
           "rowCount": 31,
           "reportedValueTotal": 5933477986,
-          "coverEntryTotal": 31,
-          "coverValueTotal": 5933477986,
+          "coverEntryTotal": null,
+          "coverValueTotal": null,
           "countReconciled": true
         },
         {
@@ -979,15 +917,14 @@
           "filedAt": "2026-02-17",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000001/0001656456-26-000001-index.html",
           "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000001/xslForm13F_X02/primary_doc.xml",
-          "rowImportStatus": "IMPORTED_PRIOR",
-          "shareHistoryStatus": "CONNECTED_TO_HOLDINGS_ARTIFACT",
+          "rowImportStatus": "IMPORTED_HISTORICAL",
+          "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000001/Form13FInfoTable.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000001/Form13FInfoTable.html",
           "rowCount": 39,
           "reportedValueTotal": 6925020650,
-          "coverEntryTotal": null,
-          "coverValueTotal": null,
+          "reportedSharesTotal": 72335249,
           "countReconciled": true
         },
         {
@@ -1005,8 +942,6 @@
           "rowCount": 45,
           "reportedValueTotal": 7383589018,
           "reportedSharesTotal": 87649218,
-          "coverEntryTotal": 45,
-          "coverValueTotal": 7383589018,
           "countReconciled": true
         },
         {
@@ -1024,8 +959,6 @@
           "rowCount": 38,
           "reportedValueTotal": 6448959614,
           "reportedSharesTotal": 75397680,
-          "coverEntryTotal": 38,
-          "coverValueTotal": 6448959614,
           "countReconciled": true
         },
         {
@@ -1043,8 +976,6 @@
           "rowCount": 38,
           "reportedValueTotal": 8382766354,
           "reportedSharesTotal": 79497083,
-          "coverEntryTotal": 38,
-          "coverValueTotal": 8382766354,
           "countReconciled": true
         },
         {
@@ -1062,8 +993,6 @@
           "rowCount": 37,
           "reportedValueTotal": 6463901899,
           "reportedSharesTotal": 89829680,
-          "coverEntryTotal": 37,
-          "coverValueTotal": 6463901899,
           "countReconciled": true
         },
         {
@@ -1081,8 +1010,6 @@
           "rowCount": 38,
           "reportedValueTotal": 6731933575,
           "reportedSharesTotal": 91088521,
-          "coverEntryTotal": 38,
-          "coverValueTotal": 6731933575,
           "countReconciled": true
         },
         {
@@ -1100,8 +1027,6 @@
           "rowCount": 37,
           "reportedValueTotal": 6175369744,
           "reportedSharesTotal": 80893641,
-          "coverEntryTotal": 37,
-          "coverValueTotal": 6175369744,
           "countReconciled": true
         },
         {
@@ -1119,8 +1044,6 @@
           "rowCount": 39,
           "reportedValueTotal": 6754832658,
           "reportedSharesTotal": 76267409,
-          "coverEntryTotal": 39,
-          "coverValueTotal": 6754832658,
           "countReconciled": true
         },
         {
@@ -1138,8 +1061,6 @@
           "rowCount": 40,
           "reportedValueTotal": 5790984844,
           "reportedSharesTotal": 66490074,
-          "coverEntryTotal": 40,
-          "coverValueTotal": 5790984844,
           "countReconciled": true
         },
         {
@@ -1157,27 +1078,6 @@
           "rowCount": 32,
           "reportedValueTotal": 5065993233,
           "reportedSharesTotal": 68033181,
-          "coverEntryTotal": 32,
-          "coverValueTotal": 5065993233,
-          "countReconciled": true
-        },
-        {
-          "form": "13F-HR",
-          "accession": "0001656456-23-000003",
-          "periodOfReport": "2023-06-30",
-          "filedAt": "2023-08-14",
-          "indexUrl": "https://www.sec.gov/Archives/edgar/data/1656456/000165645623000003/0001656456-23-000003-index.html",
-          "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645623000003/xslForm13F_X02/primary_doc.xml",
-          "rowImportStatus": "IMPORTED_HISTORICAL",
-          "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
-          "sourceKind": "SEC_EDGAR",
-          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645623000003/Form13FInfoTable.xml",
-          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645623000003/Form13FInfoTable.html",
-          "rowCount": 39,
-          "reportedValueTotal": 5389198749,
-          "reportedSharesTotal": 72573181,
-          "coverEntryTotal": 39,
-          "coverValueTotal": 5389198749,
           "countReconciled": true
         }
       ]
@@ -1185,10 +1085,28 @@
     {
       "managerId": "baupost-group",
       "cik": "0001061768",
-      "latestConnectedPeriod": "2026-03-31",
+      "latestConnectedPeriod": "2026-06-30",
       "periodsAvailable": 12,
       "historyDepthTarget": 12,
       "periods": [
+        {
+          "form": "13F-HR",
+          "accession": "0001061768-26-000010",
+          "periodOfReport": "2026-06-30",
+          "filedAt": "2026-08-13",
+          "indexUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/0001061768-26-000010-index.html",
+          "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/xslForm13F_X02/primary_doc.xml",
+          "rowImportStatus": "IMPORTED_CURRENT",
+          "shareHistoryStatus": "CONNECTED_TO_HOLDINGS_ARTIFACT",
+          "sourceKind": "SEC_EDGAR",
+          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/BGLLCQ22026.xml",
+          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/BGLLCQ22026.html",
+          "rowCount": 23,
+          "reportedValueTotal": 5415853,
+          "coverEntryTotal": 23,
+          "coverValueTotal": 5415853,
+          "countReconciled": true
+        },
         {
           "form": "13F-HR",
           "accession": "0001061768-26-000007",
@@ -1196,15 +1114,15 @@
           "filedAt": "2026-05-14",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000007/0001061768-26-000007-index.html",
           "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000007/xslForm13F_X02/primary_doc.xml",
-          "rowImportStatus": "IMPORTED_CURRENT",
+          "rowImportStatus": "IMPORTED_PRIOR",
           "shareHistoryStatus": "CONNECTED_TO_HOLDINGS_ARTIFACT",
           "sourceKind": "SEC_EDGAR",
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000007/BGLLCQ12026.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000007/BGLLCQ12026.html",
           "rowCount": 22,
           "reportedValueTotal": 5115380,
-          "coverEntryTotal": 22,
-          "coverValueTotal": 5115380,
+          "coverEntryTotal": null,
+          "coverValueTotal": null,
           "countReconciled": true
         },
         {
@@ -1214,15 +1132,14 @@
           "filedAt": "2026-02-13",
           "indexUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000005/0001061768-26-000005-index.html",
           "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000005/xslForm13F_X02/primary_doc.xml",
-          "rowImportStatus": "IMPORTED_PRIOR",
-          "shareHistoryStatus": "CONNECTED_TO_HOLDINGS_ARTIFACT",
+          "rowImportStatus": "IMPORTED_HISTORICAL",
+          "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000005/bgllcq42025.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000005/bgllcq42025.html",
           "rowCount": 22,
           "reportedValueTotal": 5278590,
-          "coverEntryTotal": null,
-          "coverValueTotal": null,
+          "reportedSharesTotal": 75092612,
           "countReconciled": true
         },
         {
@@ -1240,8 +1157,6 @@
           "rowCount": 22,
           "reportedValueTotal": 4790804,
           "reportedSharesTotal": 105387785,
-          "coverEntryTotal": 22,
-          "coverValueTotal": 4790804,
           "countReconciled": true
         },
         {
@@ -1259,8 +1174,6 @@
           "rowCount": 23,
           "reportedValueTotal": 4130042,
           "reportedSharesTotal": 100599666,
-          "coverEntryTotal": 23,
-          "coverValueTotal": 4130042,
           "countReconciled": true
         },
         {
@@ -1278,8 +1191,6 @@
           "rowCount": 23,
           "reportedValueTotal": 3496062,
           "reportedSharesTotal": 102668895,
-          "coverEntryTotal": 23,
-          "coverValueTotal": 3496062,
           "countReconciled": true
         },
         {
@@ -1297,8 +1208,6 @@
           "rowCount": 22,
           "reportedValueTotal": 3434526,
           "reportedSharesTotal": 141400995,
-          "coverEntryTotal": 22,
-          "coverValueTotal": 3434526,
           "countReconciled": true
         },
         {
@@ -1316,8 +1225,6 @@
           "rowCount": 21,
           "reportedValueTotal": 3516299,
           "reportedSharesTotal": 143319064,
-          "coverEntryTotal": 21,
-          "coverValueTotal": 3516299,
           "countReconciled": true
         },
         {
@@ -1335,8 +1242,6 @@
           "rowCount": 24,
           "reportedValueTotal": 3634101,
           "reportedSharesTotal": 257755379,
-          "coverEntryTotal": 24,
-          "coverValueTotal": 3634101,
           "countReconciled": true
         },
         {
@@ -1354,8 +1259,6 @@
           "rowCount": 22,
           "reportedValueTotal": 3650776,
           "reportedSharesTotal": 256135295,
-          "coverEntryTotal": 22,
-          "coverValueTotal": 3650776,
           "countReconciled": true
         },
         {
@@ -1373,8 +1276,6 @@
           "rowCount": 23,
           "reportedValueTotal": 4585037,
           "reportedSharesTotal": 182269312,
-          "coverEntryTotal": 23,
-          "coverValueTotal": 4585037,
           "countReconciled": true
         },
         {
@@ -1392,27 +1293,6 @@
           "rowCount": 32,
           "reportedValueTotal": 5214139,
           "reportedSharesTotal": 304847510,
-          "coverEntryTotal": 32,
-          "coverValueTotal": 5214139,
-          "countReconciled": true
-        },
-        {
-          "form": "13F-HR",
-          "accession": "0001567619-23-006910",
-          "periodOfReport": "2023-06-30",
-          "filedAt": "2023-08-11",
-          "indexUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000156761923006910/0001567619-23-006910-index.html",
-          "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1061768/000156761923006910/xslForm13F_X02/primary_doc.xml",
-          "rowImportStatus": "IMPORTED_HISTORICAL",
-          "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
-          "sourceKind": "SEC_EDGAR",
-          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1061768/000156761923006910/form13fInfoTable.xml",
-          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1061768/000156761923006910/form13fInfoTable.html",
-          "rowCount": 29,
-          "reportedValueTotal": 5614945,
-          "reportedSharesTotal": 323168955,
-          "coverEntryTotal": 29,
-          "coverValueTotal": 5614945,
           "countReconciled": true
         }
       ]
@@ -1475,8 +1355,6 @@
           "rowCount": 7,
           "reportedValueTotal": 199225000,
           "reportedSharesTotal": 2200000,
-          "coverEntryTotal": 7,
-          "coverValueTotal": 199225000,
           "countReconciled": true
         },
         {
@@ -1494,8 +1372,6 @@
           "rowCount": 13,
           "reportedValueTotal": 77435131,
           "reportedSharesTotal": 1635938,
-          "coverEntryTotal": 13,
-          "coverValueTotal": 77435131,
           "countReconciled": true
         },
         {
@@ -1513,8 +1389,6 @@
           "rowCount": 11,
           "reportedValueTotal": 129753375,
           "reportedSharesTotal": 3357200,
-          "coverEntryTotal": 11,
-          "coverValueTotal": 129753375,
           "countReconciled": true
         },
         {
@@ -1532,8 +1406,6 @@
           "rowCount": 10,
           "reportedValueTotal": 52487171,
           "reportedSharesTotal": 4630066,
-          "coverEntryTotal": 10,
-          "coverValueTotal": 52487171,
           "countReconciled": true
         },
         {
@@ -1551,8 +1423,6 @@
           "rowCount": 16,
           "reportedValueTotal": 103486463,
           "reportedSharesTotal": 3955313,
-          "coverEntryTotal": 16,
-          "coverValueTotal": 103486463,
           "countReconciled": true
         },
         {
@@ -1570,8 +1440,6 @@
           "rowCount": 25,
           "reportedValueTotal": 94591240,
           "reportedSharesTotal": 3857774,
-          "coverEntryTotal": 25,
-          "coverValueTotal": 94591240,
           "countReconciled": true
         },
         {
@@ -1589,8 +1457,6 @@
           "rowCount": 13,
           "reportedValueTotal": 98976144,
           "reportedSharesTotal": 2877651,
-          "coverEntryTotal": 13,
-          "coverValueTotal": 98976144,
           "countReconciled": true
         },
         {
@@ -1608,8 +1474,6 @@
           "rowCount": 33,
           "reportedValueTotal": 1736760059,
           "reportedSharesTotal": 12295358,
-          "coverEntryTotal": 33,
-          "coverValueTotal": 1736760059,
           "countReconciled": true
         },
         {
@@ -1627,8 +1491,6 @@
           "rowCount": 21,
           "reportedValueTotal": 106935614,
           "reportedSharesTotal": 5533734,
-          "coverEntryTotal": 21,
-          "coverValueTotal": 106935614,
           "countReconciled": true
         },
         {
@@ -1646,8 +1508,6 @@
           "rowCount": 9,
           "reportedValueTotal": 46536925,
           "reportedSharesTotal": 3569228,
-          "coverEntryTotal": 9,
-          "coverValueTotal": 46536925,
           "countReconciled": true
         }
       ]

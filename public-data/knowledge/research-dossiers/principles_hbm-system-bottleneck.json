@@ -14,14 +14,54 @@
     "HBM 시스템 병목 official data standard filing evidence",
     "HBM 시스템 병목 disconfirming evidence limitations"
   ],
-  "searchedAt": null,
-  "method": "NOT_STARTED",
-  "candidateSources": [],
-  "selectedSources": [],
+  "searchedAt": "2026-08-18",
+  "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
+  "candidateSources": [
+    {
+      "sourceId": "WEB-TSMC-3DFABRIC-2026",
+      "url": "https://www.tsmc.com/english/dedicatedFoundry/services/advanced-packaging",
+      "publisher": "TSMC",
+      "title": "3DFabric advanced packaging",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
+    },
+    {
+      "sourceId": "WEB-MICRON-HBM2E-2020",
+      "url": "https://assets.micron.com/adobe/assets/urn%3Aaaid%3Aaem%3A275edf31-79e3-4b6c-8bbd-a233babe9281/renditions/original/as/micron-hbm2e-memory-wp.pdf",
+      "publisher": "Micron",
+      "title": "Integrating and Operating HBM2E Memory",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
+    }
+  ],
+  "selectedSources": [
+    {
+      "sourceId": "WEB-TSMC-3DFABRIC-2026",
+      "url": "https://www.tsmc.com/english/dedicatedFoundry/services/advanced-packaging",
+      "publisher": "TSMC",
+      "title": "3DFabric advanced packaging",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    },
+    {
+      "sourceId": "WEB-MICRON-HBM2E-2020",
+      "url": "https://assets.micron.com/adobe/assets/urn%3Aaaid%3Aaem%3A275edf31-79e3-4b6c-8bbd-a233babe9281/renditions/original/as/micron-hbm2e-memory-wp.pdf",
+      "publisher": "Micron",
+      "title": "Integrating and Operating HBM2E Memory",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    }
+  ],
   "rejectedSources": [],
-  "sourceTiers": [],
+  "sourceTiers": [
+    "COMPANY_TECHNICAL_DOCUMENT"
+  ],
   "claimCoverage": [],
-  "consensus": "Not assessed.",
+  "researchFactIds": [
+    "fact:tsmc:3dfabric",
+    "fact:micron:hbm2e"
+  ],
+  "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",
   "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
   "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -30,10 +70,10 @@
   "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
   "q4StructuralMechanism": "Trace HBM 시스템 병목 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-  "status": "RESEARCH_REQUIRED",
+  "status": "RESEARCHED",
   "completion": {
-    "researchComplete": false,
-    "sourceProfileComplete": false,
+    "researchComplete": true,
+    "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   }

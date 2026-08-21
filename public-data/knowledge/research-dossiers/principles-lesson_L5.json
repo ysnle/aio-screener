@@ -14,7 +14,7 @@
     "설계 생태계 official data standard filing evidence",
     "설계 생태계 disconfirming evidence limitations"
   ],
-  "searchedAt": "2026-08-12",
+  "searchedAt": "2026-08-18",
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
@@ -46,6 +46,27 @@
       "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD"
     },
     {
+      "sourceId": "WEB-ASML-EUV-2026",
+      "url": "https://www.asml.com/en/en/products/euv-lithography-systems",
+      "publisher": "ASML",
+      "title": "EUV lithography systems",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
+    },
+    {
+      "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
+      "url": "https://www.energy.gov/cmei/femp/cooling-water-efficiency-opportunities-federal-data-centers",
+      "publisher": "U.S. Department of Energy",
+      "title": "Cooling Water Efficiency Opportunities for Federal Data Centers",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    },
+    {
+      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
+      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
+      "publisher": "NIST AI Resource Center",
+      "title": "AI RMF Core: Govern, Map, Measure, Manage",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    },
+    {
       "sourceId": "WEB-NIST-AI-RMF-2023",
       "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-ai-rmf-10",
       "publisher": "NIST",
@@ -61,7 +82,34 @@
       "title": "Attention Is All You Need",
       "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
       "directness": "DIRECT",
-      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-ASML-EUV-2026",
+      "url": "https://www.asml.com/en/en/products/euv-lithography-systems",
+      "publisher": "ASML",
+      "title": "EUV lithography systems",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
+      "url": "https://www.energy.gov/cmei/femp/cooling-water-efficiency-opportunities-federal-data-centers",
+      "publisher": "U.S. Department of Energy",
+      "title": "Cooling Water Efficiency Opportunities for Federal Data Centers",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
+      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
+      "publisher": "NIST AI Resource Center",
+      "title": "AI RMF Core: Govern, Map, Measure, Manage",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
     },
     {
       "sourceId": "WEB-NIST-AI-RMF-2023",
@@ -76,6 +124,7 @@
   "rejectedSources": [],
   "sourceTiers": [
     "ACADEMIC_TEXTBOOK_STANDARD",
+    "COMPANY_TECHNICAL_DOCUMENT",
     "PRIMARY_OFFICIAL"
   ],
   "claimCoverage": [
@@ -85,7 +134,14 @@
       "requiredAction": "independent direct source required"
     }
   ],
-  "consensus": "Seed sources were directly inspected for topic relevance; claim-level consensus remains open.",
+  "researchFactIds": [
+    "fact:transformer:attention",
+    "fact:asml:euv",
+    "fact:doe:pue",
+    "fact:nist:ai-rmf-core",
+    "fact:ibm:silicon-doping"
+  ],
+  "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",
   "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
   "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -94,10 +150,10 @@
   "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
   "q4StructuralMechanism": "Trace 설계 생태계 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-  "status": "RESEARCH_IN_PROGRESS",
+  "status": "RESEARCHED",
   "completion": {
-    "researchComplete": false,
-    "sourceProfileComplete": false,
+    "researchComplete": true,
+    "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   }

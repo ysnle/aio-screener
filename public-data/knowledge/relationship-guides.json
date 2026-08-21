@@ -1,0 +1,172 @@
+{
+  "schemaVersion": "knowledge-relationship-guides.v1",
+  "revision": "2026-08-15-v1",
+  "status": "REVIEWED_REFERENCE",
+  "publication": "EDUCATIONAL_REFERENCE_ONLY",
+  "boundary": "관계 지도는 원리·전달 경로·검증 질문을 설명한다. 기업 목표와 시점 수치는 해당 기준일의 REFERENCE이며 현재 실적·가격·매매 신호로 승격하지 않는다. 제3자 시각화 사이트는 UI·탐색 구조 참고에만 사용하고 회사 수·관계 수 같은 자체 집계는 복제하지 않는다.",
+  "sourceMethod": "공식 원문과 학술 자료를 우선하고, 회사 IR은 회사 주장·목표로, 제3자 사이트는 구조 참고로 분리했다.",
+  "criticalityScale": [
+    { "id": "structural", "label": "구조", "meaning": "물리·회계·경제 원리상 필요한 연결" },
+    { "id": "conditional", "label": "조건부", "meaning": "수요·계약·기술 조건이 충족될 때 강해지는 연결" },
+    { "id": "claim", "label": "회사 주장", "meaning": "기업 전망 또는 목표이므로 독립 검증이 필요한 연결" }
+  ],
+  "guides": [
+    {
+      "id": "neutral-rate-policy-gap",
+      "title": "중립금리와 정책 스탠스",
+      "eyebrow": "정의 → 추정 → 격차 → 시장 반론",
+      "summary": "정책금리의 절대 수준보다 명목 중립금리와의 격차를 보되, 관측 불가능한 r*와 기대인플레이션의 모델 불확실성을 함께 표시한다.",
+      "asOf": "2026-08-11",
+      "sourceIds": ["WEB-NYFED-RSTAR-2026", "WEB-NYFED-HLW-2023", "WEB-NYFED-RSTAR-MARKETS-2025", "WEB-FED-SEP-2026-06", "WEB-FED-FOMC-2026-06", "WEB-BLS-CPI-2026-06"],
+      "groups": [
+        { "id": "definition", "label": "1. 정의" },
+        { "id": "estimate", "label": "2. 추정" },
+        { "id": "stance", "label": "3. 정책 판단" },
+        { "id": "market", "label": "4. 반론·검증" }
+      ],
+      "nodes": [
+        { "id": "rstar", "group": "definition", "label": "실질 중립금리 r*", "kind": "concept", "definition": "경제가 잠재 수준에 있고 물가가 안정적일 때 경기를 자극하지도 억제하지도 않는 이론적 실질 단기금리다.", "importance": "정책이 완화적인지 제약적인지 비교하는 기준점이지만 직접 관측되지 않는다.", "mechanism": "LW·HLW류 상태공간 모형은 GDP·물가·금리에서 잠재성장·output gap·r* 같은 잠재 상태를 Kalman filter로 추정한다. 생산성·인구·저축·투자·위험 선호가 균형 실질금리를 바꾼다.", "metrics": ["one-sided 실시간 추정", "two-sided 사후 smoothing", "data vintage·모형 버전", "추정 구간과 수정", "생산성·인구·저축률"], "invalidation": "한 모델의 점 추정치를 참값 또는 고정 상수로 취급하거나, 사후 수정치를 당시 의사결정 정보로 소급하지 않는다.", "routeIds": ["D2", "D3"] },
+        { "id": "inflation-expectation", "group": "definition", "label": "장기 기대인플레이션", "kind": "concept", "definition": "경제주체가 장기적으로 예상하는 물가상승률이며 현재 월간 CPI와 다르다.", "importance": "실질 중립금리를 명목 중립금리로 번역하는 두 번째 항이다.", "mechanism": "목표의 신뢰·임금·가격 설정·공급 충격의 지속성이 기대를 형성한다.", "metrics": ["SEP 장기 물가 전망", "시장·서베이 기대", "기대의 위험 프리미엄"], "invalidation": "당월 CPI를 장기 기대인플레이션에 그대로 대입하지 않는다.", "routeIds": ["D2"] },
+        { "id": "nominal-neutral", "group": "estimate", "label": "명목 중립금리", "kind": "formula", "definition": "근사적으로 실질 중립금리 r*와 장기 기대인플레이션의 합이다.", "importance": "정책금리와 같은 명목 단위로 비교할 수 있게 한다.", "mechanism": "명목 중립금리 ≈ r* + 장기 기대인플레이션. 정확한 Fisher 관계에는 교차항과 기대·위험 프리미엄 구분이 필요하다.", "metrics": ["r* 추정 범위", "장기 물가 기대", "민감도 범위"], "invalidation": "추정 범위를 소수점 한 자리의 확정값으로 표시하지 않는다.", "routeIds": ["D2", "D3"] },
+        { "id": "policy-gap", "group": "stance", "label": "정책 격차", "kind": "decision", "definition": "정책금리에서 추정 명목 중립금리를 뺀 값이다.", "importance": "양수면 다른 조건이 같을 때 제약적, 음수면 완화적인 방향을 뜻한다.", "mechanism": "점 추정 하나가 아니라 정책금리 범위 − 명목 중립금리 추정 범위의 민감도 표로 계산한 뒤, 금융조건·신용·수요·고용·물가로의 시차 전달을 점검한다.", "metrics": ["목표범위·중간값", "중립금리 추정 구간", "모형별 gap 범위", "실질 금융조건", "신용스프레드"], "invalidation": "격차 하나로 정책 효과를 단정하지 않는다. 대차대조표·달러·신용·재정과 모형 불확실성이 전달을 바꾼다.", "routeIds": ["D3", "D5"] },
+        { "id": "dated-brief", "group": "stance", "label": "2026-08-11 브리핑", "kind": "dated-reference", "definition": "이미지는 정책금리 중간값 3.625%, 추정 명목 중립 약 3.1%, 약 +50bp의 제약적 격차를 제시한다.", "importance": "정의와 수치를 결합한 좋은 사례지만 모델·기준일이 붙은 스냅샷이다.", "mechanism": "2026-06 FOMC 목표범위와 SEP 장기 중앙값, HLW형 추정·장기 기대물가를 결합한 해석이다.", "metrics": ["3.50–3.75% 목표범위", "3.625% 중간값", "SEP 장기 연방기금금리 3.1%"], "invalidation": "새 FOMC 결정·SEP·r* 추정 또는 기대물가 변화가 발생하면 재산출한다.", "routeIds": ["D3", "D5"] },
+        { "id": "market-counterpoint", "group": "market", "label": "시장금리의 반론", "kind": "counterpoint", "definition": "장기 국채와 TIPS는 모델보다 높은 중립금리·인플레이션·기간 프리미엄을 가격에 반영할 수 있다.", "importance": "중앙은행 모델과 시장 가격의 불일치를 별도 가설로 보존한다.", "mechanism": "장기금리 = 기대 단기금리 경로 + 기간·유동성·인플레이션 위험 프리미엄의 합으로 해석한다.", "metrics": ["명목·실질 국채곡선", "기간 프리미엄", "시장 기대와 SEP", "유가·핵심 CPI"], "invalidation": "TIPS 실질금리를 r*의 순수 관측치로 동일시하지 않는다.", "routeIds": ["D3", "E2"] }
+      ],
+      "edges": [
+        { "from": "rstar", "to": "nominal-neutral", "type": "adds-to", "label": "실질 기준", "criticality": "structural" },
+        { "from": "inflation-expectation", "to": "nominal-neutral", "type": "adds-to", "label": "명목화", "criticality": "structural" },
+        { "from": "nominal-neutral", "to": "policy-gap", "type": "benchmark-for", "label": "비교 기준", "criticality": "structural" },
+        { "from": "policy-gap", "to": "dated-brief", "type": "applied-as", "label": "시점 적용", "criticality": "conditional" },
+        { "from": "market-counterpoint", "to": "policy-gap", "type": "challenges", "label": "시장 반론", "criticality": "conditional" }
+      ]
+    },
+    {
+      "id": "nand-inference-fcf",
+      "title": "AI 추론 → NAND → FCF/share",
+      "eyebrow": "워크로드에서 주당 현금흐름까지",
+      "summary": "AI 추론의 데이터 이동이 SSD 수요와 계약 구조를 거쳐 현금흐름 가시성으로 번역되는지, 회사 목표와 검증 지표를 분리해 추적한다.",
+      "asOf": "2026-08-13",
+      "ticker": "SNDK",
+      "sourceIds": ["WEB-ARXIV-PAGEDATTENTION-2023", "WEB-NVME-SPEC-REV", "WEB-SANDISK-INVESTOR-DAY-2026", "WEB-SANDISK-BICS10-2026", "WEB-SANDISK-HBF-SKHYNIX-2025", "WEB-ARXIV-3DNAND-RETENTION-2018"],
+      "groups": [
+        { "id": "workload", "label": "1. 추론 워크로드" },
+        { "id": "storage", "label": "2. 저장 계층" },
+        { "id": "contract", "label": "3. 계약·제조" },
+        { "id": "finance", "label": "4. 재무·주당가치" }
+      ],
+      "nodes": [
+        { "id": "context-growth", "group": "workload", "label": "문맥·동시성 증가", "kind": "driver", "definition": "긴 문맥과 동시 요청 증가는 KV cache와 중간 데이터의 용량·대역폭·수명 요구를 키운다.", "importance": "토큰 수 증가를 실제 메모리·스토리지 부하로 번역하는 시작점이다.", "mechanism": "각 레이어의 key/value를 요청·토큰별로 유지하면서 메모리 사용량이 커진다.", "metrics": ["context length", "batch·동시성", "TTFT·TPOT", "cache hit·reuse"], "invalidation": "모델·런타임의 압축, sparse attention, cache 재계산이 저장 수요 증가를 상쇄할 수 있다.", "routeIds": ["kv-cache"] },
+        { "id": "kv-cache", "group": "workload", "label": "KV cache·staging", "kind": "mechanism", "definition": "이미 계산한 key/value와 추론 중간 데이터를 재사용·이동시키는 계층이다.", "importance": "GPU 메모리 부족과 지연을 완화하지만 모든 cache가 NAND에 저장되는 것은 아니다.", "mechanism": "전통적 구조의 cache bytes는 대략 2 × layer × KV heads × head dimension × bytes/element × active tokens로 분해한다. PagedAttention류 관리와 계층형 offload가 HBM·DRAM·SSD 사이의 배치를 최적화한다.", "metrics": ["bytes/token·active tokens", "GQA·MQA·quantization", "cache residency", "page size·fragmentation", "read/write ratio", "tail-latency budget"], "invalidation": "워크로드의 재사용률이 낮거나 압축·재계산이 우세하거나 SSD 지연이 SLA를 넘으면 NAND 전환이 약해진다.", "routeIds": ["kv-cache", "memory-enterprise-ssd"] },
+        { "id": "enterprise-ssd", "group": "storage", "label": "Enterprise SSD", "kind": "product-layer", "definition": "NAND, controller, firmware, NVMe 인터페이스를 결합해 지속성·용량·성능을 제공한다.", "importance": "NAND bit 수요가 실제 데이터센터 제품 매출로 변환되는 단위다.", "mechanism": "controller의 FTL·wear leveling·ECC·QoS가 NAND의 물리 특성을 서비스 수준으로 번역한다.", "metrics": ["IOPS·latency tail", "GB/s", "DWPD·TBW", "power/TB", "qualification"], "invalidation": "원시 NAND 밀도만으로 SSD 성능·마진을 추정하지 않는다.", "routeIds": ["memory-enterprise-ssd", "memory-nand"] },
+        { "id": "bics-roadmap", "group": "storage", "label": "BiCS9·BiCS10", "kind": "technology", "definition": "층수·cell 밀도·CMOS/array 결합을 통해 bit/wafer, 대역폭, 전력 효율을 개선하는 3D NAND 로드맵이다.", "importance": "수요가 늘어도 원가/bit·수율·qualification이 개선되어야 경제성이 남는다.", "mechanism": "vertical stacking, QLC, interface speed, array/CMOS 결합이 용량과 성능을 바꾼다.", "metrics": ["bit/wafer", "yield", "cost/bit", "read/write bandwidth", "retention·endurance"], "invalidation": "회사 세대 간 비교는 시험 조건·제품 mix가 다르면 직접 비교할 수 없다.", "routeIds": ["memory-nand"] },
+        { "id": "nbm", "group": "contract", "label": "NBM 장기 계약", "kind": "business-model", "definition": "월별 mix·volume·가격과 최소 재무 보장을 포함한다고 회사가 설명한 다년 계약 구조다.", "importance": "spot ASP×volume 중심의 순환 노출을 계약 매출·마진·현금흐름 가시성으로 바꾸려는 핵심이다.", "mechanism": "다년 물량·가격 규칙과 선급/보장 조건이 생산계획과 downside를 제한할 수 있다.", "metrics": ["계약 매출 비중", "weighted duration", "floor economics", "customer concentration", "RPO와 인식 시점"], "invalidation": "RPO·TCV를 매출·현금과 동일시하지 않으며 수정·해지·mix·회계 인식 조건을 확인한다.", "routeIds": ["memory-enterprise-ssd", "capital-revenue-quality"] },
+        { "id": "capital-efficiency", "group": "contract", "label": "JV·capital intensity", "kind": "production-economics", "definition": "Kioxia JV, 기술 전환, wafer productivity와 투자 규율이 필요한 자본을 결정한다.", "importance": "높은 마진 목표보다 실제 wafer 투입·capex·운전자본·세금 후 현금 전환이 중요하다.", "mechanism": "bit/wafer 개선과 공동 투자 구조가 증설 단위당 현금 부담을 낮출 수 있다.", "metrics": ["capital intensity", "bit output", "wafer productivity", "JV cash flows", "inventory"], "invalidation": "기술 전환 지연·수율 저하·추가 증설이 mid-single-digit 자본집약 가정을 깨뜨릴 수 있다.", "routeIds": ["capex-and-depreciation", "fcf-and-funding"] },
+        { "id": "financial-targets", "group": "finance", "label": "FY28–30 회사 목표", "kind": "company-claim", "definition": "회사는 mid-to-high-teens 성장, 약 80% non-GAAP gross margin, 약 75% operating margin, 약 50% adjusted FCF margin을 목표로 제시했다.", "importance": "upcycle 전망이 아니라 구조적 현금흐름 모델을 주장하는 정량 표지다.", "mechanism": "매출×gross margin − OPEX − 현금세금 ± 운전자본 − CAPEX ± JV/기타 조정을 reported OCF·FCF와 대사한다. NBM floor, 기술 원가, mix, capital intensity 가정이 동시에 성립해야 한다.", "metrics": ["reported vs non-GAAP reconciliation", "gross margin bridge", "OCF-to-FCF bridge", "stock compensation·adjustments", "tax·working capital", "capex·JV cash flow"], "invalidation": "이는 미래지향 목표다. 분기 실적과 계약 이행, reported 현금흐름으로 검증되기 전 현재 성과로 표시하지 않는다.", "routeIds": ["fcf-and-funding", "capital-revenue-quality"] },
+        { "id": "fcf-per-share", "group": "finance", "label": "FCF/share·환원", "kind": "valuation-bridge", "definition": "기업 FCF를 희석주식수와 순현금 배분으로 나눠 주당 가치 변화로 번역한다.", "importance": "‘FCF 성장’과 ‘주주가 실제로 받는 가치’를 구분한다.", "mechanism": "FCF − 필수 재투자·부채/현금 필요액 → 환원 가능 현금; 자사주 매입 가격이 주당 가치 증감에 영향을 준다.", "metrics": ["diluted shares", "net cash/debt", "buyback average price", "stock compensation", "FCF/share"], "invalidation": "100% excess cash return을 모든 adjusted FCF의 즉시 환원으로 해석하지 않는다.", "routeIds": ["fcf-and-funding", "valuation"] },
+        { "id": "hbf-option", "group": "finance", "label": "HBF 옵션", "kind": "technology-option", "definition": "회사는 HBM 수준 read bandwidth와 더 큰 용량을 목표로 하는 read-optimized flash 계층을 제안한다.", "importance": "성공하면 NAND의 주소 가능한 계층이 넓어질 수 있지만 현재 매출과 분리해야 한다.", "mechanism": "stacked flash와 인터페이스/패키징을 조합해 추론 read-heavy workload를 겨냥한다.", "metrics": ["표준화", "sample·qualification", "read bandwidth", "latency·power", "customer adoption"], "invalidation": "2027 sample roadmap·내부 simulation은 양산 수율·고객 채택·경제성을 보장하지 않는다.", "routeIds": ["memory-enterprise-ssd", "memory-dram-hbm"] }
+      ],
+      "edges": [
+        { "from": "context-growth", "to": "kv-cache", "type": "drives", "label": "용량·대역폭", "criticality": "structural" },
+        { "from": "kv-cache", "to": "enterprise-ssd", "type": "offloads-to", "label": "조건부 계층화", "criticality": "conditional" },
+        { "from": "bics-roadmap", "to": "enterprise-ssd", "type": "enables", "label": "원가·성능", "criticality": "structural" },
+        { "from": "enterprise-ssd", "to": "nbm", "type": "contracted-through", "label": "물량·가격 규칙", "criticality": "conditional" },
+        { "from": "nbm", "to": "financial-targets", "type": "supports", "label": "가시성", "criticality": "claim" },
+        { "from": "capital-efficiency", "to": "financial-targets", "type": "supports", "label": "현금 전환", "criticality": "claim" },
+        { "from": "financial-targets", "to": "fcf-per-share", "type": "translates-to", "label": "실적 검증 후", "criticality": "conditional" },
+        { "from": "hbf-option", "to": "enterprise-ssd", "type": "extends", "label": "미래 계층", "criticality": "claim" }
+      ]
+    },
+    {
+      "id": "semiconductor-supply-network",
+      "title": "반도체 공급망 네트워크",
+      "eyebrow": "산업 단계 × 위험 속성",
+      "summary": "회사 수를 세는 대신 R&D·설계·전공정·후공정·시스템 통합의 단계와 각 연결의 대체 가능성·지역·검증 상태를 추적한다.",
+      "asOf": "2026-08-15",
+      "sourceIds": ["WEB-SIA-MANUFACTURING-2026", "WEB-SIA-ECOSYSTEM-2026", "WEB-NIST-SCRM-2026", "WEB-LEONARDO-VISUAL-ATLAS-2026"],
+      "groups": [
+        { "id": "design", "label": "1. 지식·설계" },
+        { "id": "fab", "label": "2. 전공정" },
+        { "id": "back", "label": "3. 후공정" },
+        { "id": "system", "label": "4. 시스템·수요" }
+      ],
+      "nodes": [
+        { "id": "rnd-ip-eda", "group": "design", "label": "R&D·IP·EDA", "kind": "stage", "definition": "기초·응용 연구, 설계자산과 자동화 도구가 칩의 기능·검증 가능성을 만든다.", "importance": "대체 공급자가 적고 학습·인증 전환비용이 큰 지식 병목이 될 수 있다.", "mechanism": "PDK·IP·EDA·인력이 설계 규칙과 검증을 연결한다.", "metrics": ["tool/IP dependency", "porting time", "license·talent concentration"], "invalidation": "회사 수가 적다는 이유만으로 sole source를 단정하지 않는다.", "routeIds": ["foundry-design-ecosystem"] },
+        { "id": "chip-design", "group": "design", "label": "칩 설계", "kind": "stage", "definition": "제품 요구를 아키텍처·RTL·physical design으로 변환한다.", "importance": "수요와 제조능력을 연결하고 tape-out 실패 비용을 좌우한다.", "mechanism": "워크로드→사양→검증→tape-out의 반복으로 제조 데이터를 만든다.", "metrics": ["design cycle", "tape-out", "software enablement", "design win"], "invalidation": "설계 발표를 양산·매출로 간주하지 않는다.", "routeIds": ["compute-gpu", "compute-asic"] },
+        { "id": "equipment-materials", "group": "fab", "label": "장비·소재", "kind": "input", "definition": "노광·식각·증착·계측 장비와 wafer·gas·chemical·mask가 공정을 가능하게 한다.", "importance": "qualified substitute와 service capacity가 제한되면 작은 공급 차질이 fab 전체를 멈출 수 있다.", "mechanism": "공정 recipe와 장비/소재의 공동 qualification이 전환비용을 만든다. 노드 크기 대신 대체 가능성·qualification 시간·재고 완충·복구시간을 함께 봐야 한다.", "metrics": ["qualified-source coverage", "time-to-qualify", "time-to-recover", "inventory time-to-survive", "lead time", "installed-base service"], "invalidation": "매출 점유율·그래프 중심성을 실제 공정 criticality와 혼동하지 않는다. 제품·공정·지역별 증거가 필요하다.", "routeIds": ["foundry-equipment", "foundry-materials"] },
+        { "id": "wafer-fab", "group": "fab", "label": "전공정 fab", "kind": "stage", "definition": "wafer 위에 반복적인 패터닝·증착·식각·주입·세정·계측을 수행해 die를 만든다.", "importance": "막대한 고정비와 긴 cycle time 때문에 수율·utilization이 원가를 크게 바꾼다.", "mechanism": "공정 수백 단계의 누적 defect와 variation이 최종 good die를 결정한다.", "metrics": ["yield", "cycle time", "wafer starts", "utilization", "good die/wafer"], "invalidation": "공정 node 명칭만으로 성능·수율·경제성을 비교하지 않는다.", "routeIds": ["foundry-process-node", "foundry-capacity-yield"] },
+        { "id": "packaging-test", "group": "back", "label": "패키징·테스트", "kind": "stage", "definition": "good die를 연결·보호·검증해 시스템에서 사용할 수 있는 부품으로 만든다.", "importance": "AI 시스템에서는 HBM·logic·substrate·thermal의 공동 수율이 병목이 된다.", "mechanism": "assembly, bonding, substrate, thermal, final test가 package 성능과 수율을 결정한다.", "metrics": ["package yield", "test coverage", "substrate capacity", "thermal resistance"], "invalidation": "후공정을 단순 포장 단계로 축소하지 않는다.", "routeIds": ["package-2-5d", "package-3d-stacking"] },
+        { "id": "board-system", "group": "system", "label": "PCB·서버·네트워크", "kind": "integration", "definition": "반도체를 전력·냉각·firmware·network와 결합해 작동하는 시스템으로 만든다.", "importance": "부품 availability가 있어도 상호운용·전력·냉각·qualification이 배치를 막을 수 있다.", "mechanism": "부품→board→rack→cluster의 계층별 검사와 통합이 이루어진다.", "metrics": ["system yield", "qualification", "rack lead time", "power·cooling readiness"], "invalidation": "한 부품의 출하를 완성 시스템 capacity와 동일시하지 않는다.", "routeIds": ["network-fabric", "aidc-rack-density"] },
+        { "id": "end-demand", "group": "system", "label": "최종 수요·운영", "kind": "demand", "definition": "cloud·enterprise·consumer·industrial 수요가 utilization과 교체·증설을 결정한다.", "importance": "공급 부족 서사는 실제 workload 사용과 고객 지불로 검증되어야 한다.", "mechanism": "주문·backlog·재고가 deployment·utilization·서비스 매출로 전환된다.", "metrics": ["sell-through", "utilization", "inventory", "customer concentration", "service revenue"], "invalidation": "발표된 CAPEX나 주문을 최종 사용량·매출로 자동 변환하지 않는다.", "routeIds": ["application-roi-payer", "capital-revenue-quality"] }
+      ],
+      "edges": [
+        { "from": "rnd-ip-eda", "to": "chip-design", "type": "enables", "label": "설계 지식", "criticality": "structural" },
+        { "from": "chip-design", "to": "wafer-fab", "type": "tapes-out-to", "label": "제조 데이터", "criticality": "structural" },
+        { "from": "equipment-materials", "to": "wafer-fab", "type": "supplies", "label": "qualified input", "criticality": "structural" },
+        { "from": "wafer-fab", "to": "packaging-test", "type": "feeds", "label": "good die", "criticality": "structural" },
+        { "from": "packaging-test", "to": "board-system", "type": "integrates-into", "label": "qualified package", "criticality": "structural" },
+        { "from": "board-system", "to": "end-demand", "type": "serves", "label": "배치·사용", "criticality": "conditional" },
+        { "from": "end-demand", "to": "chip-design", "type": "feeds-back", "label": "사양·수요 피드백", "criticality": "conditional" }
+      ]
+    },
+    {
+      "id": "ai-datacenter-gigawatt-to-token",
+      "title": "Gigawatt → Token",
+      "eyebrow": "전력원에서 AI 서비스까지",
+      "summary": "발전량이 실제 token 처리량과 수익으로 바뀌기까지 계통·변전·시설·rack·냉각·network·수요의 연속 제약을 본다.",
+      "asOf": "2026-08-15",
+      "sourceIds": ["WEB-DOE-DATACENTER-DEMAND-2024", "WEB-DOE-DATACENTER-DESIGN-2024", "WEB-LEONARDO-VISUAL-ATLAS-2026"],
+      "groups": [
+        { "id": "power", "label": "1. 전력 공급" },
+        { "id": "facility", "label": "2. 시설" },
+        { "id": "compute", "label": "3. 컴퓨트" },
+        { "id": "output", "label": "4. 경제적 출력" }
+      ],
+      "nodes": [
+        { "id": "generation-grid", "group": "power", "label": "발전·송전망", "kind": "infrastructure", "definition": "발전원과 송전망이 위치·시간대별 전력과 신뢰도를 제공한다.", "importance": "국가 총발전량이 있어도 접속 지점의 firm capacity가 없으면 데이터센터를 가동할 수 없다.", "mechanism": "발전→송전 제약→계통 접속·보강→부하 승인으로 이어진다.", "metrics": ["firm MW", "interconnection queue", "capacity factor", "curtailment"], "invalidation": "발표된 발전 용량을 데이터센터 가용전력으로 동일시하지 않는다.", "routeIds": ["power-generation", "power-grid"] },
+        { "id": "substation-distribution", "group": "power", "label": "변전·배전 장비", "kind": "infrastructure", "definition": "고전압 전력을 부지와 건물에서 사용할 수 있는 전압·품질로 변환한다.", "importance": "transformer·switchgear의 lead time과 허가가 COD를 지연시킬 수 있다.", "mechanism": "substation→transformer→switchgear→UPS/PDU의 보호·변환 계층을 거친다.", "metrics": ["MVA", "lead time", "redundancy", "power quality"], "invalidation": "부지 확보를 전력 준비 완료로 간주하지 않는다.", "routeIds": ["power-transformer", "aidc-power-delivery"] },
+        { "id": "construction-electrical", "group": "facility", "label": "건설·전기 시스템", "kind": "facility", "definition": "토지·허가·구조물·배선·UPS·backup이 IT 부하를 수용할 물리 환경을 만든다.", "importance": "전력 계약과 건물 완공의 일정 불일치가 유휴 자본을 만든다.", "mechanism": "설계·허가·조달·시공·commissioning의 순차 의존성이 COD를 결정한다.", "metrics": ["time-to-power", "construction progress", "commissioning", "$/MW"], "invalidation": "CAPEX 집행을 가동 capacity로 바로 환산하지 않는다.", "routeIds": ["aidc-construction", "aidc-power-delivery"] },
+        { "id": "thermal", "group": "facility", "label": "열관리·안전", "kind": "facility", "definition": "냉각·수처리·화재·제어가 rack 열을 제거하고 안정 운전을 유지한다.", "importance": "rack density가 높아질수록 이름표 전력보다 지속 냉각능력이 실사용을 제한한다.", "mechanism": "chip→cold plate/air→CDU/loop→heat rejection의 열저항 사슬로 작동한다. PUE = 연간 시설 전체 에너지 ÷ 연간 IT 장비 에너지로 경계를 고정한다.", "metrics": ["kW/rack", "PUE·측정 경계", "WUE·CUE", "useful work/W 또는 utilization", "supply/return temperature", "availability"], "invalidation": "PUE 하나로 compute 효율·물·탄소·경제성을 대표하거나 snapshot ratio를 연간 PUE로 부르지 않는다.", "routeIds": ["aidc-liquid-cooling", "aidc-rack-density"] },
+        { "id": "rack-system", "group": "compute", "label": "AI rack 시스템", "kind": "compute", "definition": "accelerator·CPU·memory·storage·interconnect를 전력·냉각 가능한 rack으로 통합한다.", "importance": "부품별 공급과 시스템 qualification이 모두 맞아야 usable compute가 된다.", "mechanism": "package→board→server→rack의 공동 수율과 software enablement가 throughput을 만든다.", "metrics": ["accelerators/rack", "rack power", "system yield", "utilization", "tokens/J"], "invalidation": "GPU 수량을 즉시 서비스 capacity로 간주하지 않는다.", "routeIds": ["compute-gpu", "aidc-rack-density"] },
+        { "id": "optical-network", "group": "compute", "label": "광·네트워크 fabric", "kind": "network", "definition": "rack·cluster 사이에서 model state와 데이터를 이동시킨다.", "importance": "network blocking·latency·power가 accelerator utilization을 낮출 수 있다.", "mechanism": "switch ASIC, optical/electrical links, topology와 congestion control이 collective 통신을 결정한다.", "metrics": ["bandwidth", "latency", "power/bit", "BER", "fabric utilization"], "invalidation": "port speed만으로 workload 성능을 추정하지 않는다.", "routeIds": ["network-fabric", "network-cpo"] },
+        { "id": "demand-offtake", "group": "output", "label": "수요·offtake", "kind": "economics", "definition": "고객 workload와 계약이 설치된 capacity를 사용량·매출·현금흐름으로 전환한다.", "importance": "공급망의 최종 검증은 장비 발주가 아니라 유료 사용과 수익성이다.", "mechanism": "capacity→deployment→utilization→revenue/OCF의 변환에서 가격·전력비·감가상각이 경제성을 결정한다.", "metrics": ["utilization", "contracted MW", "revenue/MW", "tokens/$", "OCF·ROIC"], "invalidation": "계약 발표·backlog·가동률·매출을 서로 같은 값으로 취급하지 않는다.", "routeIds": ["application-roi-payer", "capital-revenue-quality"] }
+      ],
+      "edges": [
+        { "from": "generation-grid", "to": "substation-distribution", "type": "delivers", "label": "firm power", "criticality": "structural" },
+        { "from": "substation-distribution", "to": "construction-electrical", "type": "feeds", "label": "site power", "criticality": "structural" },
+        { "from": "construction-electrical", "to": "thermal", "type": "hosts", "label": "운영 시설", "criticality": "structural" },
+        { "from": "thermal", "to": "rack-system", "type": "supports", "label": "지속 rack load", "criticality": "structural" },
+        { "from": "optical-network", "to": "rack-system", "type": "connects", "label": "cluster fabric", "criticality": "structural" },
+        { "from": "rack-system", "to": "demand-offtake", "type": "serves", "label": "token·서비스", "criticality": "conditional" }
+      ]
+    },
+    {
+      "id": "cpo-supply-map",
+      "title": "CPO·포토닉스 공급 지도",
+      "eyebrow": "Silicon × III-V × package",
+      "summary": "CPO를 단일 부품이 아니라 switch ASIC, silicon photonics, InP laser, bonding/package, fiber와 운영·표준화가 만나는 시스템으로 본다.",
+      "asOf": "2026-08-15",
+      "sourceIds": ["WEB-OIF-COPACKAGING-2022", "WEB-LEONARDO-VISUAL-ATLAS-2026"],
+      "groups": [
+        { "id": "electrical", "label": "1. 전기·연산" },
+        { "id": "optical", "label": "2. 광원·포토닉" },
+        { "id": "assembly", "label": "3. 조립·운영" },
+        { "id": "demand", "label": "4. 적용" }
+      ],
+      "nodes": [
+        { "id": "switch-asic", "group": "electrical", "label": "Switch ASIC", "kind": "silicon", "definition": "packet switching과 serialization을 수행하는 고대역폭 silicon logic이다.", "importance": "I/O 대역폭과 package power가 광엔진을 가까이 배치하려는 압력을 만든다.", "mechanism": "SerDes에서 package edge까지의 electrical reach·loss가 구조 선택을 제한한다.", "metrics": ["switch capacity", "SerDes rate", "I/O power", "latency"], "invalidation": "ASIC 로드맵만으로 CPO 채택 시점을 단정하지 않는다.", "routeIds": ["network-switch", "network-cpo"] },
+        { "id": "sip-modulator", "group": "optical", "label": "Silicon photonics", "kind": "silicon", "definition": "silicon waveguide·modulator·detector가 전기 신호와 광 신호를 변환한다.", "importance": "CMOS 생태계와 광 기능을 결합하지만 laser와 package는 별도 물질·공정이 필요할 수 있다.", "mechanism": "modulation, coupling, detection과 thermal tuning이 link budget을 만든다.", "metrics": ["insertion loss", "modulator efficiency", "coupling loss", "temperature stability"], "invalidation": "‘silicon’이라는 이름을 완전한 monolithic integration으로 해석하지 않는다.", "routeIds": ["network-silicon-photonics"] },
+        { "id": "inp-laser", "group": "optical", "label": "III-V·InP laser", "kind": "compound-semiconductor", "definition": "통신 파장의 광원을 제공하는 compound-semiconductor 계층이다.", "importance": "외부 laser 또는 heterogeneous integration 방식에 따라 공급·열·수명 위험이 달라진다.", "mechanism": "laser die·array가 광원을 만들고 coupling 구조가 silicon photonics로 전달한다. 외부 광원은 교체·열분리를 돕지만 insertion loss와 요구 출력이 커질 수 있고, 통합 광원은 손실과 수리·열 경계가 다르다.", "metrics": ["optical link budget", "insertion·coupling loss", "wall-plug efficiency", "lifetime·field replaceability", "coupling yield"], "invalidation": "광원 업체 집중이나 한 demo의 link budget을 곧바로 sole source·양산 신뢰성으로 표시하지 않는다.", "routeIds": ["network-silicon-photonics", "network-cpo"] },
+        { "id": "bond-package", "group": "assembly", "label": "Hybrid bond·package", "kind": "integration", "definition": "ASIC·photonic engine·laser·fiber를 정렬·접합·열관리하는 assembly 계층이다.", "importance": "개별 die 수율보다 known-good-die, alignment, thermal, repairability의 공동 수율이 중요하다.", "mechanism": "bonding·substrate·fiber attach·thermal path가 electrical/optical budget을 동시에 닫는다.", "metrics": ["assembly yield", "alignment tolerance", "thermal resistance", "testability·repair"], "invalidation": "prototype link 성능을 volume package economics로 일반화하지 않는다.", "routeIds": ["package-2-5d", "network-cpo"] },
+        { "id": "fiber-connector", "group": "assembly", "label": "Fiber·connector", "kind": "passive", "definition": "광신호를 package 밖의 network로 연결하는 passive·connector 계층이다.", "importance": "fiber routing, connector density와 현장 serviceability가 rack 운영을 좌우한다.", "mechanism": "coupling·routing·connector loss가 전체 link budget과 유지보수를 결정한다.", "metrics": ["loss", "density", "bend radius", "service time"], "invalidation": "광 link의 낮은 chip power만 보고 전체 케이블·냉각·정비 비용을 생략하지 않는다.", "routeIds": ["network-optical-module", "network-cpo"] },
+        { "id": "standard-demand", "group": "demand", "label": "표준·hyperscaler 수요", "kind": "adoption", "definition": "상호운용 표준, vendor qualification, network architecture와 운영 모델이 채택을 결정한다.", "importance": "기술 가능성과 대규모 배치는 다르며 교체·수리 방식이 경제성에 포함된다.", "mechanism": "framework→interface standard→multi-vendor qualification→deployment의 순서로 위험이 줄어든다.", "metrics": ["standard maturity", "design wins", "field reliability", "multi-vendor interoperability"], "invalidation": "demo나 framework 문서를 volume shipment의 증거로 쓰지 않는다.", "routeIds": ["network-cpo", "cloud-hyperscaler"] }
+      ],
+      "edges": [
+        { "from": "switch-asic", "to": "sip-modulator", "type": "interfaces-with", "label": "electrical I/O", "criticality": "structural" },
+        { "from": "inp-laser", "to": "sip-modulator", "type": "illuminates", "label": "optical source", "criticality": "structural" },
+        { "from": "sip-modulator", "to": "bond-package", "type": "integrates-into", "label": "optical engine", "criticality": "structural" },
+        { "from": "bond-package", "to": "fiber-connector", "type": "couples-to", "label": "fiber attach", "criticality": "structural" },
+        { "from": "fiber-connector", "to": "standard-demand", "type": "qualified-by", "label": "운영·표준", "criticality": "conditional" }
+      ]
+    }
+  ]
+}

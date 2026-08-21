@@ -10,6 +10,9 @@ const history = JSON.parse(await fs.readFile(historyPath, 'utf8'));
 const holdings = JSON.parse(await fs.readFile(path.join(root, 'public-data', 'masters', 'holdings.json'), 'utf8'));
 const filings = JSON.parse(await fs.readFile(path.join(root, 'public-data', 'masters', 'filings.json'), 'utf8'));
 const userAgent = 'AIO Screener research contact research@example.com';
+const reviewedAt = new Date().toISOString().slice(0, 10);
+const appVersion = JSON.parse(await fs.readFile(path.join(root, 'version.json'), 'utf8')).version;
+const revision = `${reviewedAt}-${appVersion}`;
 let lastRequestAt = 0;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -120,6 +123,13 @@ try {
   historicalRows = Array.isArray(partial.rows) ? partial.rows : [];
   importedPeriods = Number(partial.importedPeriods) || 0;
 } catch {}
+if (!historicalRows.length) {
+  try {
+    const existing = JSON.parse(await fs.readFile(historyRowsPath, 'utf8'));
+    historicalRows = Array.isArray(existing.rows) ? existing.rows : [];
+    importedPeriods = Number(existing.periodsImported) || 0;
+  } catch {}
+}
 const importedPeriodKeys = new Set(historicalRows.map((row) => `${row.managerId}|${row.reportPeriod}`));
 async function writeCheckpoint() {
   await fs.writeFile(partialRowsPath, `${JSON.stringify({ importedPeriods, rows: historicalRows }, null, 2)}\n`, 'utf8');
@@ -142,7 +152,19 @@ for (const manager of history.managers) {
       continue;
     }
     const periodKey = `${manager.managerId}|${period.periodOfReport}`;
-    if (importedPeriodKeys.has(periodKey)) continue;
+    if (importedPeriodKeys.has(periodKey)) {
+      const existingRows = historicalRows.filter((row) => `${row.managerId}|${row.reportPeriod}` === periodKey);
+      const firstRow = existingRows[0];
+      period.informationTableXml = firstRow?.sourceUrl || period.informationTableXml;
+      period.informationTableHtml = period.informationTableXml?.replace(/\.xml$/i, '.html') || period.informationTableHtml;
+      period.rowImportStatus = 'IMPORTED_HISTORICAL';
+      period.shareHistoryStatus = 'CONNECTED_TO_HISTORY_ROWS';
+      period.rowCount = existingRows.length;
+      period.reportedValueTotal = existingRows.reduce((sum, row) => sum + Number(row.value || 0), 0);
+      period.reportedSharesTotal = existingRows.reduce((sum, row) => sum + Number(row.shares || 0), 0);
+      period.countReconciled = true;
+      continue;
+    }
     const informationTableXml = await resolveInformationTableUrl(period);
     const tableXml = await fetchText(informationTableXml);
     const primaryXml = await fetchText(period.primaryDocumentXml);
@@ -180,7 +202,8 @@ for (const manager of history.managers) {
 }
 
 history.schemaVersion = 'masters-13f-history-index.v2';
-history.revision = '2026-08-02-v53.85';
+history.revision = revision;
+history.reviewedAt = reviewedAt;
 history.status = 'FILING_HISTORY_ROWS_CONNECTED';
 history.boundary = 'SEC filing metadata와 정보표 원문 행·보고가치·보유수량을 연결한다. ticker·sector·issuer aggregate·corporate action은 verified security master가 확인되기 전 공개하지 않는다.';
 history.historicalRowsArtifact = 'public-data/masters/history-holdings.json';
@@ -191,8 +214,8 @@ await fs.writeFile(historyPath, `${JSON.stringify(history, null, 2)}\n`, 'utf8')
 
 const historyRowsArtifact = {
   schemaVersion: 'masters-13f-history-holdings.v1',
-  revision: '2026-08-02-v53.85',
-  reviewedAt: '2026-08-02',
+  revision,
+  reviewedAt,
   status: 'RAW_SEC_HISTORY_CONNECTED',
   publication: 'EDUCATIONAL_REFERENCE_ONLY',
   boundary: 'SEC 정보표 원문을 보고분기별로 보존한다. CUSIP·issuer 문자열은 원문 그대로이며 ticker·sector·corporate action·현재 포트폴리오 해석은 포함하지 않는다.',

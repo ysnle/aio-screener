@@ -17,12 +17,10 @@ const learning = createLearningState({ storage, now: () => '2026-08-11T00:00:00.
 learning.markViewed('principles:A1');
 learning.toggleBookmark('principles:A1');
 learning.setNote('principles:A1', '재방문 확인');
-learning.recordRetrieval('principles:A1', { correct: true });
 const snapshot = learning.snapshot();
 assert.equal(snapshot.progress['principles:A1'].viewed, true);
 assert.deepEqual(snapshot.bookmarks, ['principles:A1']);
 assert.equal(snapshot.notes['principles:A1'].value, '재방문 확인');
-assert.equal(snapshot.retrieval['principles:A1'].correct, true);
 const reloaded = createLearningState({ storage, now: () => '2026-08-11T00:00:00.000Z' }).snapshot();
 assert.equal(reloaded.progress['principles:A1'].viewed, true);
 console.log(JSON.stringify({ status: 'PASS', serialized, persisted: Boolean(reloaded.notes['principles:A1']) }, null, 2));

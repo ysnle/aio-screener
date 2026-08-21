@@ -4,6 +4,7 @@ import { loadKnowledgeCapabilities } from '../../data/knowledge/load-capabilitie
 import { parseKnowledgeRouteState, replaceKnowledgeRouteState } from '../../app/knowledge-route-state.js';
 import { createAppKnowledgeLearningState } from '../../app/knowledge-learning-state.js';
 import { renderKnowledgeLesson } from '../../ui/knowledge/lesson.js';
+import { createCurrentObservationBlock } from '../../ui/knowledge/current-observations.js';
 
 const REVIEWED_AT = '2026-08-02';
 const RESEARCH_URL = './public-data/atlas/source-packets.json';
@@ -23,7 +24,9 @@ const KNOWLEDGE_ARTICLES_URL = './public-data/knowledge/articles.json';
 const KNOWLEDGE_COVERAGE_URL = './public-data/knowledge/coverage-matrix.json';
 const KNOWLEDGE_RESEARCH_DOSSIERS_URL = './public-data/knowledge/research-dossiers.json';
 const KNOWLEDGE_DOMAIN_DOSSIERS_URL = './public-data/knowledge/domain-dossiers.json';
-const KNOWLEDGE_QUANTITATIVE_LABS_URL = './public-data/knowledge/quantitative-labs.json';
+const KNOWLEDGE_RELATIONSHIP_GUIDES_URL = './public-data/knowledge/relationship-guides.json';
+const CURRENT_OBSERVATIONS_URL = './public-data/knowledge/current-observations.json';
+const CURRENT_EVIDENCE_LEDGER_URL = './public-data/atlas/current-evidence-ledger.json';
 const TELEGRAM_DISCOVERY_BOUNDARY = 'discovery only';
 
 // The three design specs deliberately stop before source-packet completion.
@@ -54,6 +57,7 @@ const FOUNDATION_TRACKS = Object.freeze([
 ]);
 
 const FOUNDATION_LAYER_DISPLAY = Object.freeze({
+  F0: { title: '문제·학습·시스템의 공통 언어', summary: '무엇을 해결하려는지, 어떻게 학습하는지, 모델과 완성 시스템을 어떻게 구분하는지 먼저 정리합니다.' },
   F1: { title: '물리·수학·반도체의 출발점', summary: '에너지, 행렬, 확률, 병렬처리와 실리콘이 AI 계산의 물리적 바닥을 어떻게 만드는지 이해합니다.' },
   F2: { title: 'AI는 어떻게 학습하는가', summary: '규칙 기반 프로그램과 학습 시스템의 차이에서 신경망, 역전파, 일반화와 환각까지 연결합니다.' },
   F3: { title: 'Transformer와 LLM의 생애주기', summary: '문장이 토큰과 벡터가 되고 attention을 거쳐 학습·추론 서비스로 구현되는 순서를 따라갑니다.' },
@@ -61,6 +65,15 @@ const FOUNDATION_LAYER_DISPLAY = Object.freeze({
   F5: { title: '칩에서 데이터센터·전력망까지', summary: 'workload가 CPU·GPU·ASIC, HBM, 패키징, 네트워크, 냉각과 전력 수요로 번역되는 가치사슬입니다.' },
   F6: { title: '산업 경제성과 투자 검증', summary: '가동률·수율·CAPEX·FCF·ROIC를 통해 기술 수요가 기업 현금흐름과 자본 수익으로 이어지는지 검증합니다.' }
 });
+
+const FOUNDATION_PRIMER_MODULES = Object.freeze([
+  Object.freeze({ id: 'problem-and-ability', title: 'Problem and ability', layer: 'F0', sourceSection: 'F0', evidence: [] }),
+  Object.freeze({ id: 'learning-method', title: 'Learning method', layer: 'F0', sourceSection: 'F0', evidence: [] }),
+  Object.freeze({ id: 'model-architecture', title: 'Model architecture', layer: 'F0', sourceSection: 'F0', evidence: [] }),
+  Object.freeze({ id: 'learning-objective', title: 'Learning objective', layer: 'F0', sourceSection: 'F0', evidence: [] }),
+  Object.freeze({ id: 'finished-system', title: 'Finished system', layer: 'F0', sourceSection: 'F0', evidence: [] }),
+  Object.freeze({ id: 'execution-hardware', title: 'Execution hardware', layer: 'F0', sourceSection: 'F0', evidence: [] })
+]);
 
 const FOUNDATION_MODULE_LABELS = Object.freeze({
   'energy-and-power': '에너지와 전력',
@@ -411,6 +424,31 @@ function createResearchView(documentRef, research, query) {
   return view;
 }
 
+function createCurrentEvidenceLedgerView(documentRef, ledger, query) {
+  const view = element(documentRef, 'section', 'atlas-current-evidence-ledger');
+  const entries = (ledger?.entries || []).filter((entry) => !query || [entry.evidenceId, entry.factId, entry.publisher, entry.title, entry.statement, entry.scope, entry.claimType].join(' ').toLowerCase().includes(query));
+  view.append(
+    element(documentRef, 'h2', 'atlas-section-title atlas-section-title-spaced', 'Dated primary evidence ledger'),
+    element(documentRef, 'p', 'atlas-card-copy', `${ledger?.coverage?.entries || 0}개 dated evidence · ${ledger?.coverage?.sources || 0}개 source · 검색 결과 ${entries.length}개`),
+    element(documentRef, 'p', 'atlas-governance-note', ledger?.boundary || '기준일과 직접성은 별도 확인이 필요합니다.')
+  );
+  const grid = element(documentRef, 'div', 'atlas-claim-grid');
+  entries.slice(0, 24).forEach((entry) => {
+    const card = element(documentRef, 'article', 'atlas-claim-card');
+    const meta = element(documentRef, 'div', 'atlas-card-meta', `${entry.asOf} · ${entry.claimType}`);
+    const link = element(documentRef, 'a', 'atlas-source-link', `${entry.publisher} · ${entry.title}`);
+    link.href = entry.url;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    card.append(meta, link, element(documentRef, 'p', 'atlas-card-copy', entry.statement), element(documentRef, 'p', 'atlas-card-copy', `범위: ${entry.scope} · 직접성: ${entry.directness}`), element(documentRef, 'p', 'atlas-card-copy atlas-node-guide-risk', entry.caution));
+    grid.appendChild(card);
+  });
+  if (!entries.length) grid.appendChild(element(documentRef, 'div', 'atlas-empty', '검색 결과가 없습니다.'));
+  if (entries.length > 24) grid.appendChild(element(documentRef, 'p', 'atlas-card-copy', '표시 제한: 24개 · 전체 원장은 artifact에서 확인할 수 있습니다.'));
+  view.appendChild(grid);
+  return view;
+}
+
 function createTelegramReferenceView(documentRef, telegram, query) {
   if (!telegram) return null;
   const view = element(documentRef, 'section', 'atlas-telegram-reference');
@@ -473,6 +511,12 @@ function taxonomyLevelDisplay(level) {
 }
 
 const FOUNDATION_LESSON_GUIDES = Object.freeze({
+  'problem-and-ability': { definition: 'AI 시스템은 해결하려는 문제와 그 문제를 수행할 수 있는 능력을 먼저 정의해야 합니다.', mechanism: '문제의 입력·출력·성공 기준을 분리하면 학습이 필요한 부분과 단순한 규칙·업무 절차를 구분할 수 있습니다.', example: '문서 분류는 입력 문서와 분류 기준을 정의한 뒤 사람의 업무 결과와 비교해야 합니다.', limit: '문제 정의가 모호하면 모델 성능이나 하드웨어 사양이 좋아도 실제 가치로 이어졌다고 판단할 수 없습니다.' },
+  'learning-method': { definition: '학습 방법은 시스템이 규칙·데이터·피드백 중 무엇을 통해 능력을 얻는지 설명하는 층입니다.', mechanism: '정답·보상·관측 데이터의 구조가 목표 함수와 검증 방법을 바꾸며, 사람의 피드백은 별도 운영 절차를 만듭니다.', example: '같은 업무라도 규칙 기반 자동화, 지도학습, 강화학습은 필요한 데이터와 실패 경계가 다릅니다.', limit: '학습이라는 이름만으로 자동 일반화·자율성·정확성이 보장되지는 않습니다.' },
+  'model-architecture': { definition: '모델 구조는 입력을 내부 표현으로 바꾸고 출력을 만드는 계산 그래프의 설계입니다.', mechanism: '층·메모리·attention·상태 표현이 어떤 패턴을 학습하고 어떤 비용으로 실행할 수 있는지를 제한합니다.', example: 'Transformer는 token 관계를 attention으로 계산하지만 context 길이와 메모리 이동 비용도 함께 만듭니다.', limit: '모델 구조의 이름이나 파라미터 수만으로 실제 업무 품질·비용·안전성을 결론낼 수 없습니다.' },
+  'learning-objective': { definition: '학습 목표는 무엇을 잘하도록 최적화할지와 무엇을 실패로 볼지를 정하는 계약입니다.', mechanism: '손실·보상·평가 지표가 데이터와 모델 업데이트를 유도하므로 목표와 실제 업무의 차이를 점검해야 합니다.', example: '정답률을 높이는 목표와 지연·비용·안전까지 만족하는 서비스 목표는 서로 다를 수 있습니다.', limit: '대리 지표가 좋아져도 사용자 가치·현실 제약·부작용이 개선된다는 보장은 없습니다.' },
+  'finished-system': { definition: '완성 시스템은 모델 하나가 아니라 데이터·소프트웨어·도구·권한·운영·사람 검토가 결합한 서비스입니다.', mechanism: '입력 수집부터 추론·검색·오류 처리·배포·모니터링까지의 경로가 실제 품질과 비용을 만듭니다.', example: '검색 보강 서비스는 모델뿐 아니라 문서 갱신, 검색 품질, 권한 필터와 답변 검증이 함께 작동해야 합니다.', limit: '모델 데모나 benchmark 결과를 완성 서비스의 안정적 운영 증거로 확대할 수 없습니다.' },
+  'execution-hardware': { definition: '실행 하드웨어는 학습·추론·저장·네트워크를 실제 시간과 전력 안에서 수행하는 물리 계층입니다.', mechanism: '계산량·메모리 대역폭·지연·전력·냉각·공급능력이 서비스의 처리량과 비용 상한을 만듭니다.', example: '같은 모델도 배치·지연 요구·메모리 용량에 따라 GPU·CPU·ASIC과 시설 구성이 달라집니다.', limit: '이론 연산량이나 칩 출하만으로 실제 가동률·서비스 매출·투자 회수를 추정할 수 없습니다.' },
   'energy-and-power': { definition: '에너지는 일을 할 수 있는 능력이고 전력은 그 에너지가 시간당 전달되는 속도입니다.', mechanism: 'AI 장비의 전력은 전기→계산·메모리 이동→열로 바뀌며, 냉각과 계통 용량이 실제 운영 상한을 만듭니다.', example: '같은 처리량이라도 전력당 성능이 높으면 랙과 시설의 비용·열 부담이 낮아집니다.', limit: '전력 사용량만으로 모델의 사회적 효율이나 기업 수익을 결론내릴 수 없습니다.' },
   'vectors-and-matrices': { definition: '벡터는 수치 묶음이고 행렬은 벡터를 변환하는 배열입니다.', mechanism: '신경망의 선형변환은 행렬곱과 덧셈으로 입력 표현을 다음 층으로 옮깁니다.', example: '큰 행렬곱을 병렬로 계산하기 때문에 GPU와 tensor core가 중요해집니다.', limit: '행렬곱의 이론 FLOPS가 실제 서비스 처리량과 같지는 않습니다.' },
   'probability-and-statistics': { definition: '확률은 불확실성을 표현하고 통계는 관측 자료에서 패턴과 오차를 추정합니다.', mechanism: '모델 출력은 가능한 token·class의 분포이며 평가는 표본·측정오차·분산을 함께 봐야 합니다.', example: '한 번의 benchmark보다 여러 seed와 업무 분포에서의 신뢰구간이 더 informative합니다.', limit: '통계적으로 유의해도 업무상 중요한 효과나 인과관계를 보장하지 않습니다.' },
@@ -524,13 +568,13 @@ const FOUNDATION_LESSON_GUIDES = Object.freeze({
 });
 
 const FOUNDATION_TEACHING_FRAME = Object.freeze({
-  F0: { question: '이 개념은 문제·능력·모델·완성 시스템 중 어느 층을 설명하는가?', visualization: '문제 → 학습 → 모델 → 서비스 → 하드웨어 계층도' },
-  F1: { question: '입력 자원과 물리적 제약이 어떤 단위로 결과를 제한하는가?', visualization: '에너지·연산·메모리·열의 병목 흐름도' },
-  F2: { question: '데이터·목표·학습 피드백이 모델의 오류와 일반화를 어떻게 바꾸는가?', visualization: '데이터 → 손실 → 파라미터 → 평가 루프' },
-  F3: { question: '표현·문맥·학습·배포 중 어느 단계에서 비용과 품질이 결정되는가?', visualization: 'token → attention → training → serving 수명주기' },
-  F4: { question: '외부 정보·도구·상태·사람의 검토가 어떤 실패를 줄이거나 새로 만드는가?', visualization: '관찰 → 검색/도구 → 행동 → 검증 상태기계' },
-  F5: { question: 'workload가 계산·메모리·네트워크·전력·냉각 중 무엇을 먼저 포화시키는가?', visualization: '가속기 → HBM → 인터커넥트 → 랙 → 전력망' },
-  F6: { question: '기술 능력이 사용량·마진·현금흐름·자본수익률로 전달되는 증거는 무엇인가?', visualization: '수요 → CAPEX → 가동률 → FCF → ROIC 검증 원장' }
+  F0: { lens: '문제 → 능력 → 모델 → 서비스 → 하드웨어의 층위를 분리해 읽습니다.', visualization: '문제 → 학습 → 모델 → 서비스 → 하드웨어 계층도' },
+  F1: { lens: '입력 자원과 물리적 제약이 결과를 제한하는 단위를 먼저 봅니다.', visualization: '에너지·연산·메모리·열의 병목 흐름도' },
+  F2: { lens: '데이터·목표·학습 피드백이 오류와 일반화를 바꾸는 경로를 따라갑니다.', visualization: '데이터 → 손실 → 파라미터 → 평가 루프' },
+  F3: { lens: '표현·문맥·학습·배포 중 비용과 품질이 결정되는 지점을 분리합니다.', visualization: 'token → attention → training → serving 수명주기' },
+  F4: { lens: '외부 정보·도구·상태·사람의 검토가 실패와 권한을 어떻게 바꾸는지 봅니다.', visualization: '관찰 → 검색/도구 → 행동 → 검토 상태 흐름' },
+  F5: { lens: 'workload가 계산·메모리·네트워크·전력·냉각 중 어디를 먼저 포화시키는지 추적합니다.', visualization: '가속기 → HBM → 인터커넥트 → 랙 → 전력망' },
+  F6: { lens: '기술 능력이 사용량·마진·현금흐름·자본수익률로 번역되는 증거를 연결합니다.', visualization: '수요 → CAPEX → 가동률 → FCF → ROIC 원장' }
 });
 
 function createModuleLesson(documentRef, module, authoredLessons, deepArticle = null) {
@@ -541,17 +585,19 @@ function createModuleLesson(documentRef, module, authoredLessons, deepArticle = 
     example: '실제 시스템에서는 입력·변환·출력과 비용·품질·운영 제약을 함께 확인합니다.',
     limit: '현재 수치·투자 판단으로 확장하려면 기준일과 직접적인 1차 출처가 추가로 필요합니다.'
   };
+  const display = authored?.summary || guide;
   const teachingFrame = FOUNDATION_TEACHING_FRAME[module.layer] || FOUNDATION_TEACHING_FRAME.F6;
   const authoredStatusLabels = { AUTHORED_REFERENCE: '학습 원고 작성 완료', AUTHORED_REFERENCE_CONNECTED: '학습 원고·출처 연결' };
   const body = element(documentRef, 'div', 'atlas-module-lesson');
   body.dataset.atlasFoundationId = module.id;
   body.append(
-    element(documentRef, 'p', 'atlas-card-copy atlas-module-authored', authored ? '학습 원고 · 교육용 참고 콘텐츠' : '기본 개념 프레임 · 교육용 참고 콘텐츠'),
-    element(documentRef, 'p', 'atlas-card-copy', guide.definition),
-    element(documentRef, 'p', 'atlas-card-copy', `작동 원리: ${guide.mechanism}`),
-    element(documentRef, 'p', 'atlas-card-copy', `예시·관찰 포인트: ${guide.example}`),
-    element(documentRef, 'p', 'atlas-card-copy atlas-node-guide-risk', `한계·실패 조건: ${guide.limit}`),
-    element(documentRef, 'p', 'atlas-card-copy atlas-module-question', `학습 질문: ${guide.teachingQuestion || teachingFrame.question}`),
+    element(documentRef, 'p', 'atlas-card-copy atlas-module-authored', authored ? '학습 원고 · 교육용 참고 콘텐츠' : module.layer === 'F0' ? '출발점 프레임 · 교육용 참고 콘텐츠' : '기본 개념 프레임 · 교육용 참고 콘텐츠'),
+    element(documentRef, 'p', 'atlas-card-copy atlas-module-status', `출처 상태: ${authoredStatusLabels[authored?.status] || '원문 연결 상태 확인 필요'}`),
+    element(documentRef, 'p', 'atlas-card-copy', display.definition),
+    element(documentRef, 'p', 'atlas-card-copy', `작동 원리: ${display.mechanism}`),
+    element(documentRef, 'p', 'atlas-card-copy', `예시·관찰 포인트: ${display.example}`),
+    element(documentRef, 'p', 'atlas-card-copy atlas-node-guide-risk', `한계·실패 조건: ${display.counterScenario || display.limit}`),
+    element(documentRef, 'p', 'atlas-card-copy atlas-module-lens', `탐색 초점: ${teachingFrame.lens}`),
     element(documentRef, 'p', 'atlas-card-copy atlas-module-visualization', `권장 시각화: ${guide.visualization || teachingFrame.visualization}`),
     element(documentRef, 'p', 'atlas-card-copy atlas-node-guide-boundary', '현재 수치·투자 판단으로 사용하지 않는 구조적 학습 자료입니다.')
   );
@@ -560,6 +606,12 @@ function createModuleLesson(documentRef, module, authoredLessons, deepArticle = 
     authored.relatedAtlasNodeIds.forEach((nodeId) => related.appendChild(element(documentRef, 'span', 'atlas-chip', `연결: ${nodeId}`)));
     body.appendChild(related);
   }
+  const exploration = element(documentRef, 'section', 'atlas-module-exploration');
+  exploration.append(
+    element(documentRef, 'strong', 'atlas-module-exploration-title', '스스로 이어가는 탐색 경로'),
+    element(documentRef, 'p', 'atlas-card-copy', '정의 → 작동 원리 → 시각화 → 관련 산업 노드 → 최신 수치·기업 자료 순서로 내려가며 필요한 깊이에서 멈출 수 있습니다.')
+  );
+  body.appendChild(exploration);
   if (authored?.sourceIds?.length || module.evidence?.length) {
     const sourceDetails = element(documentRef, 'details', 'atlas-module-source-details');
     sourceDetails.appendChild(element(documentRef, 'summary', 'atlas-module-source-summary', '근거 및 더 읽기'));
@@ -589,10 +641,11 @@ function createModuleLesson(documentRef, module, authoredLessons, deepArticle = 
 function createCurriculumView(documentRef, curriculum, query, authoredLessons, knowledgeArticles, selection = {}) {
   const view = element(documentRef, 'div', 'atlas-curriculum-view');
   const allModules = curriculum?.moduleIndex || [];
-  const moduleById = new Map(allModules.map((module) => [module.id, module]));
+  const moduleById = new Map([...FOUNDATION_PRIMER_MODULES, ...allModules].map((module) => [module.id, module]));
+  const searchableModules = [...FOUNDATION_PRIMER_MODULES, ...allModules];
   const searchable = (module) => [module.id, module.title, FOUNDATION_MODULE_LABELS[module.id], module.layer, module.sourceSection, (module.evidence || []).join(' ')].join(' ').toLowerCase();
-  const matchingModules = allModules.filter((module) => !query || searchable(module).includes(query));
-  const layers = (curriculum?.layers || []).filter((layer) => layer.id !== 'F0');
+  const matchingModules = searchableModules.filter((module) => !query || searchable(module).includes(query));
+  const layers = curriculum?.layers || [];
   const requestedLayer = layers.find((layer) => layer.id === selection.layerId);
   const activeLayer = requestedLayer || layers.find((layer) => (layer.modules || []).some((id) => matchingModules.some((module) => module.id === id))) || layers[0];
   const visibleModules = query
@@ -604,8 +657,8 @@ function createCurriculumView(documentRef, curriculum, query, authoredLessons, k
 
   const intro = element(documentRef, 'div', 'atlas-subsection-intro atlas-learning-intro');
   intro.append(
-    element(documentRef, 'h2', 'atlas-section-title', 'AI를 이해하는 6단계'),
-    element(documentRef, 'p', 'atlas-card-copy', '물리·수학의 바닥에서 시작해 학습 원리, Transformer, Agent·World Model, AI 인프라, 산업 경제성으로 내려갑니다. 왼쪽에서 큰 층을 고르고, 가운데에서 세부 개념을 선택해 한 번에 하나씩 읽으세요.')
+    element(documentRef, 'h2', 'atlas-section-title', 'AI를 이해하는 7단계'),
+    element(documentRef, 'p', 'atlas-card-copy', '문제와 학습의 공통 언어에서 시작해 물리·수학, 학습 원리, Transformer, Agent·World Model, AI 인프라, 산업 경제성으로 내려갑니다. 왼쪽에서 큰 층을 고르고, 가운데에서 세부 개념을 선택해 한 번에 하나씩 읽으세요.')
   );
 
   const workspace = element(documentRef, 'div', 'atlas-learning-workspace');
@@ -660,6 +713,10 @@ function createCurriculumView(documentRef, curriculum, query, authoredLessons, k
     title.dataset.atlasLearningDetailTitle = selectedModule.id;
     const deepArticle = knowledgeArticles?.articles?.find((article) => article.articleId === `atlas-foundations:${selectedModule.id}`) || null;
     detail.append(breadcrumb, title, createModuleLesson(documentRef, selectedModule, authoredLessons, deepArticle));
+    if (selection.currentObservations) {
+      const moduleGuide = authoredLessons?.byId?.[selectedModule.id] || authoredLessons?.lessons?.find((lesson) => lesson.id === selectedModule.id);
+      detail.appendChild(createCurrentObservationBlock(documentRef, selection.currentObservations, { page: 'atlas', nodeIds: moduleGuide?.relatedAtlasNodeIds || selectedModule.relatedAtlasNodeIds || [], title: 'AI 시대 구조와 연결된 실제 관측값' }));
+    }
     const position = allModules.findIndex((module) => module.id === selectedModule.id);
     const navigation = element(documentRef, 'div', 'atlas-learning-navigation');
     if (position > 0) navigation.appendChild(actionButton(documentRef, 'atlas-learning-nav-button', `← ${FOUNDATION_MODULE_LABELS[allModules[position - 1].id] || allModules[position - 1].title}`, 'module', allModules[position - 1].id));
@@ -903,6 +960,12 @@ function createPlayerProductView(documentRef, node, registry) {
   if (!players.length && !products.length && !coverage) return null;
   const block = element(documentRef, 'section', 'atlas-player-product-map');
   block.append(element(documentRef, 'h4', 'atlas-player-product-title', '역할·제품군 reference map'));
+  const currentness = registry.currentness;
+  if (currentness?.coverage && currentness?.freshnessPolicy) {
+    const boundary = element(documentRef, 'p', 'atlas-card-copy atlas-player-product-boundary', `현재성 QA 경계 · 공식 reference ${currentness.coverage.officialCheckedRows}행 · 기준일 ${currentness.freshnessPolicy.latestPlayerAsOf}~${currentness.freshnessPolicy.latestProductAsOf} · ${currentness.freshnessPolicy.staleReferenceRows}행은 ${currentness.freshnessPolicy.referenceReviewWindowDays}일 검토 창 초과 · 현재 수치·생산량·세대별 출하·재무 claim ${currentness.coverage.currentNumericClaims}개`);
+    boundary.dataset.atlasCurrentnessBoundary = currentness.freshnessStatus || 'REFERENCE_REVIEW_REQUIRED';
+    block.appendChild(boundary);
+  }
   const grid = element(documentRef, 'div', 'atlas-player-product-grid');
   const productStatusLabel = (status) => ({
     MATURE: '서비스·제품 페이지 확인',
@@ -934,7 +997,7 @@ function createPlayerProductView(documentRef, node, registry) {
       element(documentRef, 'p', 'atlas-card-copy', `제품·서비스군: ${coverage.productFamilyReference}`),
       element(documentRef, 'p', 'atlas-card-copy atlas-taxonomy-relations', `상류: ${(coverage.upstreamTitles || coverage.upstream || []).join(' · ') || '도메인 시작점'} · 하류: ${(coverage.downstreamTitles || coverage.downstream || []).join(' · ') || '도메인 종점'}`),
       element(documentRef, 'p', 'atlas-card-copy atlas-player-product-boundary', `대표 연결: ${(coverage.representativePlayerIds || []).join(' · ') || '대표 player 추가 조사 필요'} · 현재 claim ${coverage.currentClaims} · 기준일 ${coverage.asOf || '현재값 없음'}`),
-      element(documentRef, 'p', 'atlas-card-copy atlas-node-guide-boundary', `검증 질문: ${coverage.verificationQuestion}`)
+      element(documentRef, 'p', 'atlas-card-copy atlas-node-guide-boundary', '탐색 순서: 상류 제약 → 제품·서비스 역할 → 하류 매출·현금흐름 → 기준일·출처')
     );
     const sourceLinks = element(documentRef, 'div', 'atlas-reference-source-links');
     (coverage.sourceIds || []).forEach((sourceId) => {
@@ -961,7 +1024,7 @@ function createDomainGuide(documentRef, domain, guide, packet, claimLedger) {
     element(documentRef, 'p', 'atlas-card-copy', guide.unit),
     element(documentRef, 'h4', 'atlas-detail-label', '어디에서 막히는가'),
     element(documentRef, 'p', 'atlas-card-copy atlas-domain-guide-bottleneck', guide.bottleneck),
-    element(documentRef, 'p', 'atlas-domain-verification-question', `스스로 확인할 질문 · ${guide.verificationQuestion}`)
+    element(documentRef, 'p', 'atlas-card-copy atlas-domain-guide-exploration', '탐색 경로: 정의 → 작동 단위 → 병목 → 상·하류 연결 → 공식 자료')
   );
 
   const evidence = element(documentRef, 'details', 'atlas-domain-evidence');
@@ -978,9 +1041,7 @@ function createDomainGuide(documentRef, domain, guide, packet, claimLedger) {
   evidence.appendChild(links);
   if (packet) {
     evidence.appendChild(element(documentRef, 'p', 'atlas-card-copy atlas-domain-guide-boundary', `검토일 ${packet.reviewedAt}`));
-    const questions = element(documentRef, 'div', 'atlas-domain-packet-questions');
-    (packet.evidenceQuestions || []).forEach((question) => questions.appendChild(element(documentRef, 'span', 'atlas-chip', question)));
-    evidence.appendChild(questions);
+    evidence.appendChild(element(documentRef, 'p', 'atlas-card-copy atlas-domain-guide-boundary', `근거 범위: ${packet.evidenceQuestions?.length || 0}개 검토 포인트를 출처 목록과 함께 보존합니다.`));
     const packetLinks = element(documentRef, 'div', 'atlas-domain-guide-links atlas-domain-packet-links');
     (packet.sources || []).forEach((source) => {
       const sourceLink = element(documentRef, 'a', 'atlas-reference-source-link', source.publisher);
@@ -1084,6 +1145,151 @@ function createResearchTaxonomyView(documentRef, research, query, registry, doma
   return view;
 }
 
+function relationshipNodeHaystack(node) {
+  return [node?.id, node?.label, node?.kind, node?.definition, node?.importance, node?.mechanism, ...(node?.metrics || []), node?.invalidation].join(' ').toLowerCase();
+}
+
+function createRelationshipGuidesView(documentRef, artifact, query, registry, selection = {}) {
+  const view = element(documentRef, 'div', 'atlas-relationship-view');
+  const allGuides = Array.isArray(artifact?.guides) ? artifact.guides : [];
+  const visibleGuides = allGuides.filter((guide) => !query || [guide.id, guide.title, guide.eyebrow, guide.summary, ...(guide.nodes || []).map(relationshipNodeHaystack)].join(' ').toLowerCase().includes(query));
+  const guide = visibleGuides.find((item) => item.id === selection.guideId) || visibleGuides[0] || allGuides[0] || null;
+  if (!guide) {
+    view.appendChild(element(documentRef, 'div', 'atlas-empty', '관계 지도 데이터가 없습니다.'));
+    return view;
+  }
+  const criticality = ['all', 'structural', 'conditional', 'claim'].includes(selection.criticality) ? selection.criticality : 'all';
+   const queryMatchesNode = (node) => !query || relationshipNodeHaystack(node).includes(query);
+   const matchingEdges = (guide.edges || []).filter((edge) => {
+     if (criticality !== 'all' && edge.criticality !== criticality) return false;
+     if (!query) return true;
+     return queryMatchesNode((guide.nodes || []).find((node) => node.id === edge.from)) || queryMatchesNode((guide.nodes || []).find((node) => node.id === edge.to));
+   });
+   const connectedIds = new Set(matchingEdges.flatMap((edge) => [edge.from, edge.to]));
+   let visibleNodes = (guide.nodes || []).filter((node) => {
+     const criticalityMatch = criticality === 'all' || connectedIds.has(node.id);
+     const queryMatch = !query || queryMatchesNode(node) || connectedIds.has(node.id);
+     return criticalityMatch && queryMatch;
+   });
+  if (!visibleNodes.length && !query) visibleNodes = guide.nodes || [];
+  const selectedNode = visibleNodes.find((node) => node.id === selection.nodeId) || visibleNodes[0] || guide.nodes?.[0] || null;
+  const nodeById = new Map((guide.nodes || []).map((node) => [node.id, node]));
+
+  const header = element(documentRef, 'section', 'atlas-relationship-header');
+  const titleBlock = element(documentRef, 'div', 'atlas-relationship-title-block');
+  titleBlock.append(
+    element(documentRef, 'span', 'atlas-relationship-eyebrow', guide.eyebrow),
+    element(documentRef, 'h2', 'atlas-section-title', guide.title),
+    element(documentRef, 'p', 'atlas-card-copy', guide.summary)
+  );
+  const meta = element(documentRef, 'div', 'atlas-relationship-meta');
+  meta.append(
+    element(documentRef, 'span', 'atlas-status', artifact?.status || 'REFERENCE'),
+    element(documentRef, 'span', 'atlas-chip', `기준일 ${guide.asOf || '구조 지식'}`),
+    element(documentRef, 'span', 'atlas-chip', `노드 ${(guide.nodes || []).length} · 관계 ${(guide.edges || []).length}`)
+  );
+  header.append(titleBlock, meta);
+
+  const guideRail = element(documentRef, 'nav', 'atlas-relationship-guide-rail');
+  guideRail.setAttribute('aria-label', '관계 지도 선택');
+  visibleGuides.forEach((item) => {
+    const button = actionButton(documentRef, `atlas-relationship-guide${item.id === guide.id ? ' is-active' : ''}`, '', 'relationship-guide', item.id);
+    button.append(element(documentRef, 'span', 'atlas-relationship-guide-kicker', item.eyebrow), element(documentRef, 'strong', '', item.title), element(documentRef, 'small', '', `${item.nodes?.length || 0} nodes`));
+    guideRail.appendChild(button);
+  });
+
+  const filterBar = element(documentRef, 'div', 'atlas-relationship-filters');
+  filterBar.appendChild(element(documentRef, 'span', 'atlas-relationship-filter-label', '관계 성격'));
+  [['all', '전체'], ['structural', '구조'], ['conditional', '조건부'], ['claim', '회사 주장']].forEach(([value, label]) => {
+    filterBar.appendChild(actionButton(documentRef, `atlas-relationship-filter${criticality === value ? ' is-active' : ''}`, label, 'relationship-criticality', value));
+  });
+
+  const mapPanel = element(documentRef, 'section', 'atlas-relationship-map-panel');
+  mapPanel.setAttribute('aria-label', `${guide.title} 관계 지도`);
+  const columns = element(documentRef, 'div', 'atlas-relationship-columns');
+  (guide.groups || []).forEach((group, groupIndex) => {
+    const groupNode = element(documentRef, 'section', 'atlas-relationship-group');
+    groupNode.dataset.relationshipGroup = group.id;
+    groupNode.appendChild(element(documentRef, 'h3', 'atlas-relationship-group-title', group.label));
+    const nodes = visibleNodes.filter((node) => node.group === group.id);
+    nodes.forEach((node) => {
+      const button = actionButton(documentRef, `atlas-relationship-node kind-${node.kind || 'concept'}${selectedNode?.id === node.id ? ' is-active' : ''}`, '', 'relationship-node', node.id);
+      button.setAttribute('aria-pressed', selectedNode?.id === node.id ? 'true' : 'false');
+      button.append(element(documentRef, 'span', 'atlas-relationship-node-kind', node.kind || 'concept'), element(documentRef, 'strong', '', node.label), element(documentRef, 'small', '', node.importance || node.definition || ''));
+      groupNode.appendChild(button);
+    });
+    if (!nodes.length) groupNode.appendChild(element(documentRef, 'div', 'atlas-relationship-group-empty', '필터에 해당하는 노드 없음'));
+    columns.appendChild(groupNode);
+    if (groupIndex < (guide.groups || []).length - 1) columns.appendChild(element(documentRef, 'div', 'atlas-relationship-column-arrow', '→'));
+  });
+  mapPanel.appendChild(columns);
+
+  const edgeList = element(documentRef, 'div', 'atlas-relationship-edge-list');
+  edgeList.appendChild(element(documentRef, 'h3', 'atlas-relationship-edge-title', '명시적 관계'));
+  matchingEdges.forEach((edge) => {
+    const row = element(documentRef, 'div', `atlas-relationship-edge is-${edge.criticality || 'structural'}`);
+    row.append(
+      element(documentRef, 'strong', '', nodeById.get(edge.from)?.label || edge.from),
+      element(documentRef, 'span', 'atlas-relationship-edge-arrow', `— ${edge.label || edge.type} →`),
+      element(documentRef, 'strong', '', nodeById.get(edge.to)?.label || edge.to),
+      element(documentRef, 'span', 'atlas-relationship-edge-type', edge.criticality || 'structural')
+    );
+    edgeList.appendChild(row);
+  });
+  if (!matchingEdges.length) edgeList.appendChild(element(documentRef, 'div', 'atlas-empty', '선택한 성격의 관계가 없습니다.'));
+  mapPanel.appendChild(edgeList);
+
+  const detail = element(documentRef, 'aside', 'atlas-relationship-detail');
+  detail.setAttribute('aria-live', 'polite');
+  if (selectedNode) {
+    const metrics = element(documentRef, 'ul', 'atlas-relationship-metrics');
+    (selectedNode.metrics || []).forEach((metric) => metrics.appendChild(element(documentRef, 'li', '', metric)));
+    const routes = element(documentRef, 'div', 'atlas-chip-row');
+    (selectedNode.routeIds || []).forEach((routeId) => routes.appendChild(element(documentRef, 'span', 'atlas-chip', routeId)));
+    detail.append(
+      element(documentRef, 'span', 'atlas-relationship-eyebrow', selectedNode.kind || 'concept'),
+      element(documentRef, 'h3', 'atlas-relationship-detail-title', selectedNode.label),
+      element(documentRef, 'h4', 'atlas-relationship-detail-heading', '정의'),
+      element(documentRef, 'p', 'atlas-card-copy', selectedNode.definition),
+      element(documentRef, 'h4', 'atlas-relationship-detail-heading', '왜 중요한가'),
+      element(documentRef, 'p', 'atlas-card-copy', selectedNode.importance),
+      element(documentRef, 'h4', 'atlas-relationship-detail-heading', '작동 원리'),
+      element(documentRef, 'p', 'atlas-card-copy', selectedNode.mechanism),
+      element(documentRef, 'h4', 'atlas-relationship-detail-heading', '확인 지표'),
+      metrics,
+      element(documentRef, 'h4', 'atlas-relationship-detail-heading', '반증·한계'),
+      element(documentRef, 'p', 'atlas-relationship-invalidation', selectedNode.invalidation),
+      createCurrentObservationBlock(documentRef, selection.currentObservations, { page: 'atlas', nodeId: selectedNode.id, title: 'AI 시대 구조와 연결된 실제 관측값' }),
+      routes
+    );
+  }
+
+  const sources = element(documentRef, 'details', 'atlas-relationship-sources');
+  sources.appendChild(element(documentRef, 'summary', '', `근거·경계 보기 · ${guide.sourceIds?.length || 0} sources`));
+  sources.appendChild(element(documentRef, 'p', 'atlas-card-copy', artifact?.boundary || '교육용 관계 참고 자료'));
+  const sourceList = element(documentRef, 'ul', 'atlas-source-list');
+  (guide.sourceIds || []).forEach((sourceId) => {
+    const source = registry?.evidenceById?.get?.(sourceId);
+    const item = element(documentRef, 'li', 'atlas-source-item');
+    if (source?.url) {
+      const link = element(documentRef, 'a', 'atlas-source-link', `${source.publisher} · ${source.title}`);
+      link.href = source.url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      item.append(link, element(documentRef, 'code', '', sourceId));
+    } else {
+      item.append(element(documentRef, 'span', '', source?.title || sourceId), element(documentRef, 'code', '', sourceId));
+    }
+    sourceList.appendChild(item);
+  });
+  sources.appendChild(sourceList);
+
+  const workspace = element(documentRef, 'div', 'atlas-relationship-workspace');
+  workspace.append(guideRail, mapPanel, detail);
+  view.append(header, filterBar, workspace, sources);
+  return view;
+}
+
 export function createAtlasPage({ root = globalThis, documentRef = root.document } = {}) {
   return {
     route: 'atlas',
@@ -1093,9 +1299,9 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
       const content = page?.querySelector('[data-atlas-content]');
       if (!page || !content) return () => bag.dispose();
        const sharedRoute = parseKnowledgeRouteState(root?.location);
-       const initialTab = ['foundations', 'taxonomy', 'overview'].includes(sharedRoute.mode) ? sharedRoute.mode : 'foundations';
+       const initialTab = ['foundations', 'relationships', 'taxonomy', 'overview'].includes(sharedRoute.mode) ? sharedRoute.mode : 'foundations';
        const learning = createAppKnowledgeLearningState(root);
-       const state = { tab: initialTab, query: '', selectedLayerId: sharedRoute.chapter || 'F1', selectedModuleId: sharedRoute.lesson || 'energy-and-power', selectedDomainId: 'domain-cloud-platform', selectedDomainNodeId: sharedRoute.node || 'cloud-hyperscaler', selectedDeepTopicId: '', research: null, foundations: null, foundationLessons: null, knowledgeArticles: null, registry: null, domainGuides: null, domainPackets: null, claimLedger: null, taxonomyCoverage: null, deepTaxonomy: null, telegram: null, currentness: null, knowledgeSources: null, knowledgeClaims: null, knowledgeCoverage: null, knowledgeResearchDossiers: null, knowledgeDomainDossiers: null, knowledgeQuantitativeLabs: null, researchError: false, foundationsError: false, foundationLessonsError: false, knowledgeArticlesError: false, registryError: false, domainGuidesError: false, domainPacketsError: false, claimLedgerError: false, taxonomyCoverageError: false, deepTaxonomyError: false, telegramError: false, currentnessError: false, knowledgeSourcesError: false, knowledgeClaimsError: false, knowledgeCoverageError: false, knowledgeResearchDossiersError: false, knowledgeDomainDossiersError: false, knowledgeQuantitativeLabsError: false };
+       const state = { tab: initialTab, query: '', selectedLayerId: sharedRoute.chapter || 'F1', selectedModuleId: sharedRoute.lesson || 'energy-and-power', selectedDomainId: 'domain-cloud-platform', selectedDomainNodeId: sharedRoute.node || 'cloud-hyperscaler', selectedDeepTopicId: '', selectedRelationshipGuideId: 'neutral-rate-policy-gap', selectedRelationshipNodeId: '', relationshipCriticality: 'all', relationshipGuides: null, currentObservations: null, research: null, foundations: null, foundationLessons: null, knowledgeArticles: null, registry: null, domainGuides: null, domainPackets: null, claimLedger: null, taxonomyCoverage: null, deepTaxonomy: null, telegram: null, currentness: null, currentEvidenceLedger: null, knowledgeSources: null, knowledgeClaims: null, knowledgeCoverage: null, knowledgeResearchDossiers: null, knowledgeDomainDossiers: null, relationshipGuidesError: false, currentObservationsError: false, researchError: false, foundationsError: false, foundationLessonsError: false, knowledgeArticlesError: false, registryError: false, domainGuidesError: false, domainPacketsError: false, claimLedgerError: false, taxonomyCoverageError: false, deepTaxonomyError: false, telegramError: false, currentnessError: false, currentEvidenceLedgerError: false, knowledgeSourcesError: false, knowledgeClaimsError: false, knowledgeCoverageError: false, knowledgeResearchDossiersError: false, knowledgeDomainDossiersError: false };
       page.dataset.aioArchitectureRoute = 'atlas';
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioContentKind = 'REFERENCE';
@@ -1107,7 +1313,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
       const render = () => {
         const toolbar = element(documentRef, 'div', 'atlas-toolbar');
         const tabs = element(documentRef, 'div', 'atlas-tabs');
-        [['foundations', '학습 지도'], ['taxonomy', '산업·가치사슬'], ['overview', '근거 자료실']].forEach(([value, label]) => tabs.appendChild(actionButton(documentRef, `atlas-tab${state.tab === value ? ' is-active' : ''}`, label, 'tab', value)));
+        [['foundations', '학습 지도'], ['relationships', '관계 지도'], ['taxonomy', '산업·가치사슬'], ['overview', '근거 자료실']].forEach(([value, label]) => tabs.appendChild(actionButton(documentRef, `atlas-tab${state.tab === value ? ' is-active' : ''}`, label, 'tab', value)));
         const searchLabel = element(documentRef, 'label', 'atlas-search');
         searchLabel.appendChild(element(documentRef, 'span', 'atlas-sr-only', 'AI 시대 지식 지도 검색'));
         const input = element(documentRef, 'input', 'atlas-search-input');
@@ -1127,7 +1333,10 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
         searchLabel.appendChild(input);
         toolbar.append(tabs, searchLabel);
         const body = element(documentRef, 'div', 'atlas-body');
-        if (state.tab === 'taxonomy') {
+        if (state.tab === 'relationships') {
+           if (state.relationshipGuides) body.appendChild(createRelationshipGuidesView(documentRef, state.relationshipGuides, state.query, state.registry, { guideId: state.selectedRelationshipGuideId, nodeId: state.selectedRelationshipNodeId, criticality: state.relationshipCriticality, currentObservations: state.currentObservations }));
+          if (state.relationshipGuidesError) body.appendChild(element(documentRef, 'div', 'atlas-empty', '관계 지도 artifact를 불러오지 못했습니다. 다른 학습·산업 지도는 계속 사용할 수 있습니다.'));
+        } else if (state.tab === 'taxonomy') {
            body.appendChild(state.research?.taxonomyDomains ? createResearchTaxonomyView(documentRef, state.research, state.query, state.registry, state.domainGuides, state.domainPackets, state.claimLedger, state.deepTaxonomy, { domainId: state.selectedDomainId, nodeId: state.selectedDomainNodeId, deepTopicId: state.selectedDeepTopicId }) : createTaxonomyView(documentRef));
         } else if (state.tab === 'foundations') {
           const tracks = FOUNDATION_TRACKS.filter((track) => !state.query || [track.id, track.title, track.duration, track.summary, track.nodes.join(' ')].join(' ').toLowerCase().includes(state.query));
@@ -1139,16 +1348,29 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
             pathDetails.appendChild(grid);
             body.appendChild(pathDetails);
           }
-          if (state.foundations) body.appendChild(createCurriculumView(documentRef, state.foundations, state.query, state.foundationLessons, state.knowledgeArticles, { layerId: state.selectedLayerId, moduleId: state.selectedModuleId }));
+           if (state.foundations) body.appendChild(createCurriculumView(documentRef, state.foundations, state.query, state.foundationLessons, state.knowledgeArticles, { layerId: state.selectedLayerId, moduleId: state.selectedModuleId, currentObservations: state.currentObservations }));
           if (state.foundationsError) body.appendChild(element(documentRef, 'div', 'atlas-empty', 'Curriculum artifact could not be loaded; summary tracks remain available.'));
           if (state.foundationLessonsError) body.appendChild(element(documentRef, 'div', 'atlas-empty', 'Authored lesson artifact could not be loaded; the reference frame remains available.'));
         } else {
           const packetMeta = new Map((state.research?.packets || []).map((packet) => [packet.id, packet]));
           const packets = ATLAS_PACKETS.map((packet) => ({ ...packet, ...(packetMeta.get(packet.id) || {}) })).filter((packet) => !state.query || [packet.id, packet.title, packet.scope, packet.status].join(' ').toLowerCase().includes(state.query));
-          const metrics = element(documentRef, 'div', 'atlas-metric-grid');
-          metrics.replaceChildren();
-          const research = state.research;
-          [['공식 1차 출처', String(research?.sources?.length || 0)], ['검토 후보 노드', String(research?.nodes?.length || 0)], ['Telegram 역할', '발견 보조'], ['현재 주장', String(research?.publication?.currentClaims || 0)], ['Knowledge coverage inventory', String(state.knowledgeCoverage?.counts?.units || 0)], ['Research dossiers', `${state.knowledgeResearchDossiers?.counts?.researched || 0}/${state.knowledgeResearchDossiers?.counts?.total || 0}`], ['Domain dossiers', String(state.knowledgeDomainDossiers?.counts?.domains || 0)], ['Quantitative labs', String(state.knowledgeQuantitativeLabs?.counts?.labs || 0)]].forEach(([label, value]) => { const card = element(documentRef, 'div', 'atlas-metric'); card.append(element(documentRef, 'span', 'atlas-metric-label', label), element(documentRef, 'strong', 'atlas-metric-value', value)); metrics.appendChild(card); });
+           const metrics = element(documentRef, 'div', 'atlas-metric-grid');
+           metrics.replaceChildren();
+            const research = state.research;
+            [['공식 1차 출처', String(research?.sources?.length || 0)], ['검토 후보 노드', String(research?.nodes?.length || 0)], ['Telegram 역할', '발견 보조'], ['현재 주장', String(research?.publication?.currentClaims || 0)], ['Dated evidence', String(state.currentEvidenceLedger?.coverage?.entries || 0)], ['Knowledge coverage inventory', String(state.knowledgeCoverage?.counts?.units || 0)], ['Research dossiers', `${state.knowledgeResearchDossiers?.counts?.researched || 0}/${state.knowledgeResearchDossiers?.counts?.total || 0}`], ['Domain dossiers', String(state.knowledgeDomainDossiers?.counts?.domains || 0)]].forEach(([label, value]) => { const card = element(documentRef, 'div', 'atlas-metric'); card.append(element(documentRef, 'span', 'atlas-metric-label', label), element(documentRef, 'strong', 'atlas-metric-value', value)); metrics.appendChild(card); });
+           const readingGuide = element(documentRef, 'section', 'atlas-overview-guide');
+           readingGuide.append(
+             element(documentRef, 'h2', 'atlas-section-title', '이 지도를 읽는 순서'),
+             element(documentRef, 'p', 'atlas-card-copy', 'AI를 단일 종목이나 단일 숫자가 아니라 문제·병목·가치사슬·현금흐름이 이어지는 시스템으로 읽습니다.'),
+             element(documentRef, 'ol', 'atlas-overview-steps')
+           );
+           [['01', '구조', '학습 지도에서 개념의 위치와 앞뒤 계층을 확인합니다.'], ['02', '전달', '관계 지도와 산업 지도를 통해 병목이 제품·기업·자본으로 번역되는 경로를 따라갑니다.'], ['03', '검증', '근거 자료실에서 출처·기준일·반대 시나리오를 확인하고, 현재 주장은 전문 페이지에서 별도로 대조합니다.']].forEach(([index, title, copy]) => {
+             const item = element(documentRef, 'li', 'atlas-overview-step');
+             item.append(element(documentRef, 'span', 'atlas-overview-step-index', index), element(documentRef, 'span', 'atlas-overview-step-copy', `${title} · ${copy}`));
+             readingGuide.querySelector('ol').appendChild(item);
+           });
+           const evidenceStatus = element(documentRef, 'details', 'atlas-evidence-status');
+           evidenceStatus.append(element(documentRef, 'summary', 'atlas-evidence-status-summary', '검증 상태·출처 범위 보기'), metrics);
           const grid = element(documentRef, 'div', 'atlas-packet-grid');
           packets.forEach((packet) => grid.appendChild(createPacketCard(documentRef, packet)));
           if (!packets.length) grid.appendChild(element(documentRef, 'div', 'atlas-empty', '검색 결과가 없습니다.'));
@@ -1160,16 +1382,17 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
           principles.addEventListener('click', () => route('principles'));
           masters.addEventListener('click', () => route('masters'));
           links.append(principles, masters);
-           body.append(metrics, grid, note, links);
+            body.append(readingGuide, grid, evidenceStatus, note, links);
            if (research) body.appendChild(createResearchView(documentRef, research, state.query));
+           if (state.currentEvidenceLedger) body.appendChild(createCurrentEvidenceLedgerView(documentRef, state.currentEvidenceLedger, state.query));
            const telegramView = createTelegramReferenceView(documentRef, state.telegram, state.query);
            if (telegramView) body.appendChild(telegramView);
           if (state.researchError) body.appendChild(element(documentRef, 'div', 'atlas-empty', 'Research artifact could not be loaded; structural packet view remains available.'));
-          if (state.knowledgeCoverageError || state.knowledgeResearchDossiersError || state.knowledgeDomainDossiersError || state.knowledgeQuantitativeLabsError) body.appendChild(element(documentRef, 'div', 'atlas-empty', 'Knowledge completion artifacts are unavailable; this page keeps the structural reference boundary and does not infer current claims.'));
+           if (state.knowledgeCoverageError || state.knowledgeResearchDossiersError || state.knowledgeDomainDossiersError) body.appendChild(element(documentRef, 'div', 'atlas-empty', 'Knowledge completion artifacts are unavailable; this page keeps the structural reference boundary and does not infer current claims.'));
         }
         content.replaceChildren(toolbar, body);
         const resultCount = page.querySelector('[data-atlas-result-count]');
-         if (resultCount) resultCount.textContent = state.tab === 'foundations' ? `기초 개념 ${state.foundations?.moduleIndex?.length || 48}개 · 학습 원고 연결 · 근거는 접힘` : state.tab === 'taxonomy' ? `산업 분류 19개 · 구조 노드 95개 · 근거는 상세` : `연구 패킷 ${ATLAS_PACKETS.length}개 · 공식 출처 ${state.research?.sources?.length || 0}개`;
+          if (resultCount) resultCount.textContent = state.tab === 'foundations' ? `기초 개념 ${state.foundations?.moduleIndex?.length || 48}개 · 학습 원고 연결 · 근거는 접힘` : state.tab === 'relationships' ? `관계 지도 ${state.relationshipGuides?.guides?.length || 0}개 · 원리→지표→반증 연결` : state.tab === 'taxonomy' ? `산업 분류 19개 · 구조 노드 95개 · 근거는 상세` : `연구 패킷 ${ATLAS_PACKETS.length}개 · 공식 출처 ${state.research?.sources?.length || 0}개`;
       };
       const onClick = (event) => {
         const target = event.target.closest?.('[data-atlas-action]');
@@ -1204,6 +1427,15 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
           state.selectedDeepTopicId = state.deepTaxonomy?.topics?.find((topic) => topic.anchorNodeIds?.includes(value))?.id || '';
         }
         if (action === 'deep-topic') state.selectedDeepTopicId = value;
+        if (action === 'relationship-guide') {
+          state.selectedRelationshipGuideId = value;
+          state.selectedRelationshipNodeId = '';
+        }
+        if (action === 'relationship-node') state.selectedRelationshipNodeId = value;
+        if (action === 'relationship-criticality') {
+          state.relationshipCriticality = value;
+          state.selectedRelationshipNodeId = '';
+        }
         if (action !== 'route') {
           event.preventDefault();
           if (action === 'module') learning.markViewed(`atlas-foundations:${value}`);
@@ -1215,7 +1447,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
       };
       page.addEventListener('click', onClick);
       bag.add(() => page.removeEventListener('click', onClick));
-         bag.add(() => { delete page.dataset.aioArchitectureRoute; delete page.dataset.aioArchitectureRenderer; delete page.dataset.aioContentKind; delete page.dataset.aioReviewedAt; delete page.dataset.aioKnowledgeLearningState; delete page.dataset.aioAtlasResearch; delete page.dataset.aioAtlasFoundations; delete page.dataset.aioAtlasFoundationLessons; delete page.dataset.aioAtlasKnowledgeArticles; delete page.dataset.aioAtlasRegistry; delete page.dataset.aioAtlasDomainGuides; delete page.dataset.aioAtlasDomainPackets; delete page.dataset.aioAtlasClaims; delete page.dataset.aioAtlasTaxonomyCoverage; delete page.dataset.aioAtlasDeepTaxonomy; delete page.dataset.aioAtlasTelegram; delete page.dataset.aioAtlasCurrentness; delete page.dataset.aioAtlasKnowledgeSources; delete page.dataset.aioAtlasKnowledgeClaims; delete page.dataset.aioAtlasKnowledgeCoverage; delete page.dataset.aioAtlasKnowledgeResearchDossiers; delete page.dataset.aioAtlasKnowledgeDomainDossiers; delete page.dataset.aioAtlasKnowledgeQuantitativeLabs; content.replaceChildren(); });
+           bag.add(() => { delete page.dataset.aioArchitectureRoute; delete page.dataset.aioArchitectureRenderer; delete page.dataset.aioContentKind; delete page.dataset.aioReviewedAt; delete page.dataset.aioKnowledgeLearningState; delete page.dataset.aioAtlasResearch; delete page.dataset.aioAtlasFoundations; delete page.dataset.aioAtlasFoundationLessons; delete page.dataset.aioAtlasKnowledgeArticles; delete page.dataset.aioAtlasRegistry; delete page.dataset.aioAtlasDomainGuides; delete page.dataset.aioAtlasDomainPackets; delete page.dataset.aioAtlasClaims; delete page.dataset.aioAtlasTaxonomyCoverage; delete page.dataset.aioAtlasDeepTaxonomy; delete page.dataset.aioAtlasTelegram; delete page.dataset.aioAtlasCurrentness; delete page.dataset.aioAtlasCurrentEvidenceLedger; delete page.dataset.aioAtlasKnowledgeSources; delete page.dataset.aioAtlasKnowledgeClaims; delete page.dataset.aioAtlasKnowledgeCoverage; delete page.dataset.aioAtlasKnowledgeResearchDossiers; delete page.dataset.aioAtlasKnowledgeDomainDossiers; delete page.dataset.aioAtlasRelationshipGuides; delete page.dataset.aioAtlasCurrentObservations; content.replaceChildren(); });
       render();
       const fetchFn = root?.fetch || globalThis.fetch;
        if (typeof fetchFn === 'function') {
@@ -1230,19 +1462,22 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
             { key: 'taxonomyCoverage', url: TAXONOMY_COVERAGE_URL },
             { key: 'deepTaxonomy', url: DEEP_TAXONOMY_URL },
             { key: 'telegram', url: TELEGRAM_REFERENCE_URL },
-            { key: 'registry', url: PLAYER_PRODUCT_URL },
-            { key: 'currentness', url: PLAYER_PRODUCT_CURRENTNESS_URL },
-            { key: 'knowledgeSources', url: KNOWLEDGE_SOURCES_URL },
+             { key: 'registry', url: PLAYER_PRODUCT_URL },
+             { key: 'currentness', url: PLAYER_PRODUCT_CURRENTNESS_URL },
+             { key: 'currentEvidenceLedger', url: CURRENT_EVIDENCE_LEDGER_URL },
+             { key: 'knowledgeSources', url: KNOWLEDGE_SOURCES_URL },
             { key: 'knowledgeClaims', url: KNOWLEDGE_CLAIMS_URL },
             { key: 'knowledgeCoverage', url: KNOWLEDGE_COVERAGE_URL },
             { key: 'knowledgeResearchDossiers', url: KNOWLEDGE_RESEARCH_DOSSIERS_URL },
-            { key: 'knowledgeDomainDossiers', url: KNOWLEDGE_DOMAIN_DOSSIERS_URL },
-            { key: 'knowledgeQuantitativeLabs', url: KNOWLEDGE_QUANTITATIVE_LABS_URL }
+             { key: 'knowledgeDomainDossiers', url: KNOWLEDGE_DOMAIN_DOSSIERS_URL }
+              , { key: 'relationshipGuides', url: KNOWLEDGE_RELATIONSHIP_GUIDES_URL },
+              { key: 'currentObservations', url: CURRENT_OBSERVATIONS_URL }
           ]).then((capabilities) => {
             for (const [key, result] of Object.entries(capabilities)) {
               state[key] = result.value;
               state[`${key}Error`] = result.status !== 'connected';
             }
+            page.dataset.aioReviewedAt = [state.research?.reviewedAt, state.foundations?.reviewedAt, state.foundationLessons?.reviewedAt, state.taxonomyCoverage?.reviewedAt, state.deepTaxonomy?.reviewedAt, state.relationshipGuides?.reviewedAt, REVIEWED_AT].filter(Boolean).sort().at(-1) || REVIEWED_AT;
             const sourceCoverage = state.foundationLessons?.sourceCoverage || {};
             if (state.foundationLessons) {
               state.foundationLessons = { ...state.foundationLessons, byId: Object.fromEntries((state.foundationLessons.lessons || []).map((lesson) => [lesson.id, { ...lesson, sourceIds: [...new Set([...(lesson.sourceIds || []), ...(sourceCoverage[lesson.id] || [])])] }])) };
@@ -1259,8 +1494,8 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
               research: 'aioAtlasResearch', foundations: 'aioAtlasFoundations', foundationLessons: 'aioAtlasFoundationLessons', knowledgeArticles: 'aioAtlasKnowledgeArticles',
               domainGuides: 'aioAtlasDomainGuides', domainPackets: 'aioAtlasDomainPackets', claimLedger: 'aioAtlasClaims',
               taxonomyCoverage: 'aioAtlasTaxonomyCoverage', deepTaxonomy: 'aioAtlasDeepTaxonomy', telegram: 'aioAtlasTelegram',
-              registry: 'aioAtlasRegistry', currentness: 'aioAtlasCurrentness'
-              , knowledgeSources: 'aioAtlasKnowledgeSources', knowledgeClaims: 'aioAtlasKnowledgeClaims', knowledgeCoverage: 'aioAtlasKnowledgeCoverage', knowledgeResearchDossiers: 'aioAtlasKnowledgeResearchDossiers', knowledgeDomainDossiers: 'aioAtlasKnowledgeDomainDossiers', knowledgeQuantitativeLabs: 'aioAtlasKnowledgeQuantitativeLabs'
+               registry: 'aioAtlasRegistry', currentness: 'aioAtlasCurrentness', currentEvidenceLedger: 'aioAtlasCurrentEvidenceLedger'
+               , knowledgeSources: 'aioAtlasKnowledgeSources', knowledgeClaims: 'aioAtlasKnowledgeClaims', knowledgeCoverage: 'aioAtlasKnowledgeCoverage', knowledgeResearchDossiers: 'aioAtlasKnowledgeResearchDossiers', knowledgeDomainDossiers: 'aioAtlasKnowledgeDomainDossiers', relationshipGuides: 'aioAtlasRelationshipGuides', currentObservations: 'aioAtlasCurrentObservations'
             };
             for (const [key, datasetKey] of Object.entries(datasetMap)) page.dataset[datasetKey] = capabilities[key].status;
             render();
@@ -1271,4 +1506,4 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
   };
 }
 
-export { ATLAS_PACKETS, FOUNDATION_TRACKS, TAXONOMY_LEVELS, REPRESENTATIVE_NODES, RESEARCH_URL, FOUNDATIONS_URL, FOUNDATIONS_LESSONS_URL, DOMAIN_GUIDES_URL, DOMAIN_PACKETS_URL, DOMAIN_CLAIMS_URL, TAXONOMY_COVERAGE_URL, DEEP_TAXONOMY_URL, TELEGRAM_REFERENCE_URL, PLAYER_PRODUCT_URL, PLAYER_PRODUCT_CURRENTNESS_URL, KNOWLEDGE_SOURCES_URL, KNOWLEDGE_CLAIMS_URL, KNOWLEDGE_ARTICLES_URL, KNOWLEDGE_COVERAGE_URL, KNOWLEDGE_RESEARCH_DOSSIERS_URL, KNOWLEDGE_DOMAIN_DOSSIERS_URL, KNOWLEDGE_QUANTITATIVE_LABS_URL };
+export { ATLAS_PACKETS, FOUNDATION_TRACKS, TAXONOMY_LEVELS, REPRESENTATIVE_NODES, RESEARCH_URL, FOUNDATIONS_URL, FOUNDATIONS_LESSONS_URL, DOMAIN_GUIDES_URL, DOMAIN_PACKETS_URL, DOMAIN_CLAIMS_URL, TAXONOMY_COVERAGE_URL, DEEP_TAXONOMY_URL, TELEGRAM_REFERENCE_URL, PLAYER_PRODUCT_URL, PLAYER_PRODUCT_CURRENTNESS_URL, KNOWLEDGE_SOURCES_URL, KNOWLEDGE_CLAIMS_URL, KNOWLEDGE_ARTICLES_URL, KNOWLEDGE_COVERAGE_URL, KNOWLEDGE_RESEARCH_DOSSIERS_URL, KNOWLEDGE_DOMAIN_DOSSIERS_URL, KNOWLEDGE_RELATIONSHIP_GUIDES_URL, CURRENT_OBSERVATIONS_URL };

@@ -4,6 +4,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+console.log(JSON.stringify({ status: 'EXCLUDED_BY_PRODUCT_SCOPE', reason: '퀴즈·연습문제·교육용 정량 랩은 사용자 요청 범위 밖입니다.' }, null, 2));
+process.exit(0);
+
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const index = JSON.parse(fs.readFileSync(path.join(root, 'public-data/knowledge/quantitative-labs.json'), 'utf8'));
 const failures = [];

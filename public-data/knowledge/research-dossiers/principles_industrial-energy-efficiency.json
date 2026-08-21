@@ -14,7 +14,7 @@
     "산업 효율과 냉각 official data standard filing evidence",
     "산업 효율과 냉각 disconfirming evidence limitations"
   ],
-  "searchedAt": "2026-08-12",
+  "searchedAt": "2026-08-18",
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
@@ -22,6 +22,13 @@
       "url": "https://www.energy.gov/cmei/femp/cooling-water-efficiency-opportunities-federal-data-centers",
       "publisher": "U.S. Department of Energy",
       "title": "Cooling Water Efficiency Opportunities for Federal Data Centers",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    },
+    {
+      "sourceId": "WEB-DOE-DATACENTER-DESIGN-2024",
+      "url": "https://www.energy.gov/cmei/femp/articles/best-practices-guide-energy-efficient-data-center-design",
+      "publisher": "U.S. Department of Energy",
+      "title": "Best Practices Guide for Energy-Efficient Data Center Design",
       "sourceTier": "PRIMARY_OFFICIAL"
     }
   ],
@@ -34,6 +41,15 @@
       "sourceTier": "PRIMARY_OFFICIAL",
       "directness": "DIRECT",
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    },
+    {
+      "sourceId": "WEB-DOE-DATACENTER-DESIGN-2024",
+      "url": "https://www.energy.gov/cmei/femp/articles/best-practices-guide-energy-efficient-data-center-design",
+      "publisher": "U.S. Department of Energy",
+      "title": "Best Practices Guide for Energy-Efficient Data Center Design",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
   "rejectedSources": [],
@@ -41,7 +57,11 @@
     "PRIMARY_OFFICIAL"
   ],
   "claimCoverage": [],
-  "consensus": "Seed sources were directly inspected for topic relevance; claim-level consensus remains open.",
+  "researchFactIds": [
+    "fact:doe:pue",
+    "fact:oecd:productivity"
+  ],
+  "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",
   "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
   "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -50,10 +70,10 @@
   "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
   "q4StructuralMechanism": "Trace 산업 효율과 냉각 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-  "status": "RESEARCH_IN_PROGRESS",
+  "status": "RESEARCHED",
   "completion": {
-    "researchComplete": false,
-    "sourceProfileComplete": false,
+    "researchComplete": true,
+    "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   }

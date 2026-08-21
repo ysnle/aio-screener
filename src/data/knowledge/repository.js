@@ -11,7 +11,8 @@ export const KNOWLEDGE_CAPABILITY_DEFINITIONS = Object.freeze([
   Object.freeze({ key: 'coverageMatrix', url: './public-data/knowledge/coverage-matrix.json' }),
   Object.freeze({ key: 'researchDossiers', url: './public-data/knowledge/research-dossiers.json' }),
   Object.freeze({ key: 'domainDossiers', url: './public-data/knowledge/domain-dossiers.json' }),
-  Object.freeze({ key: 'quantitativeLabs', url: './public-data/knowledge/quantitative-labs.json' })
+  Object.freeze({ key: 'relationshipGuides', url: './public-data/knowledge/relationship-guides.json' }),
+  Object.freeze({ key: 'currentObservations', url: './public-data/knowledge/current-observations.json' })
 ]);
 
 export async function createKnowledgeRepository(fetchFn, definitions = KNOWLEDGE_CAPABILITY_DEFINITIONS) {

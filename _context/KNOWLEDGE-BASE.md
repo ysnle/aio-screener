@@ -1,16 +1,58 @@
 ﻿---
 verified_by: human + Codex full-route audit verification
-last_verified: 2026-08-12
+last_verified: 2026-08-18
 confidence: high
 ---
 
+## 2026-08-18 v54.36 authored depth, dated evidence and 13F raw identity aggregation
+
+- `public-data/principles/lesson-library.json`의 112개 A~O lesson과 `public-data/atlas/foundation-lessons.json`의 48개 foundation lesson은 기존 짧은 요약을 `summary`로 보존하면서 1,200자 이상 심층 원문, 직관·형식모델·workedExample·실물경제·기업·재무제표·밸류에이션·시장·관찰적용·무효화·용어·claim ID를 갖는 semantic reference 원장으로 확장됐다. 화면은 짧은 summary를 기본으로 사용하고 심층 article은 점진 공개한다.
+- 160개 핵심 lesson에 연결된 dated `research-facts`와 canonical source를 dossier의 `selectedSources`/`researchFactIds`로 반영했다. 전체 427 unit은 318 `RESEARCHED`, 4 `RESEARCH_IN_PROGRESS`, 105 `RESEARCH_REQUIRED`이며, `RESEARCHED`는 dated evidence 연결을 뜻할 뿐 독립적인 사람 검토나 사용자 검증을 뜻하지 않는다.
+- `public-data/atlas/current-evidence-ledger.json`은 40개 dated primary-reference entry와 38개 source를 보유하고 Atlas 자료실에 표시한다. 제품·수치·기업 목표의 범위와 caution을 함께 보존하며 current operational/production-volume/financial claim은 0건이다.
+- `public-data/masters/issuer-aggregates.json`은 SEC 현재·이력 13,629개 원문 행을 manager·normalized CUSIP·share type·put/call 단위로 2,500개 집계 record로 연결한다. 268개 review flag는 issuer 변형·share class·put/call·CUSIP 형식 검토 대상으로 남고 ticker·sector·기업행동은 승격하지 않는다.
+- CI가 enrichment, deterministic article/dossier/coverage builders, strict encyclopedia-depth audit, Atlas evidence ledger, Masters issuer aggregate와 focused browser gates를 실행한다. 자동 구조 인증은 사람의 source/semantic 검토와 recruited-user validation을 대체하지 않는다.
+
+## 2026-08-18 v54.35 sequential refresh, currentness and draft-quality boundary
+
+- 13F reference data now selects SEC EDGAR Q2 2026 filings for Berkshire, Duquesne, Fisher, Appaloosa and Baupost; Pershing Q1 and Scion 2025-Q3 remain explicit latest/stale references. The connected artifact contains 1,290 full rows, 1,387 comparison rows, 84 periods and 12,339 historical rows.
+- Duquesne’s Q2 cover total and information-table total differ by $4. This is a source reconciliation mismatch, not a rounding opportunity: the Masters UI holds total-based interpretation and keeps the original SEC evidence available.
+- The historical collector is checkpoint/resume-aware and marks rows already present in a partial artifact as imported rather than silently leaving them pending. Review dates and revisions are run-derived.
+- The generated 160-article corpus now has non-placeholder worked-example steps and retains each article’s verification question. It remains `STRUCTURED_REFERENCE_DRAFT`; the source lesson corpora still fail the 1,200-character/semantic/worked-example certification and require direct review and user validation.
+- Atlas player/product currentness is reference-only. The artifact and UI now show a seven-day review window, 40 stale-reference rows, 43 official-reference rows, and zero current numeric, production-volume, generation-specific verified, or financial claims. No current production or revenue inference is allowed from `MATURE`, `RAMP`, or `RESEARCH` labels.
+
+## 2026-08-16 v54.33 self-guided learning flow and scoped observations
+
+- Principles·Atlas·Masters now use a self-guided reading flow: definition → mechanism → limits → connected nodes → dated evidence → specialist analysis. The UI does not render quizzes, verification questions, simulations, or forced answer prompts.
+- Source artifacts may retain question-shaped editorial fields for research/search lineage, but user-facing consumers expose declarative exploration lenses, connection chips, source-status badges, and next-route guidance instead.
+- `current-observations.json` remains a shared reference layer, but each page now passes the selected principle node, Atlas relationship node, or foundation lesson's related node IDs. Unrelated S&P/VIX/FOMC/CPI/SNDK cards are not shown as if they directly support every concept; empty states explicitly direct the learner to graph/source exploration.
+- Masters adds a four-step 13F reading path (operator/strategy → filing as-of → reported-row change → current price/financial verification) and an explicit blind-spot boundary for shorts, cash, private assets, derivatives, and unreported assets.
+- The encyclopedic depth gate remains separate and blocked: 160 core articles still require long-form semantic fields, worked examples, direct claim sources, and user validation. This release improves the learning surface and evidence routing without claiming encyclopedia completion.
+
+## 2026-08-15 v54.27 실제 관측값을 시장 원리·AI 시대 화면에 연결
+
+- `public-data/knowledge/current-observations.json`을 새 SSOT로 추가했다. S&P 500/VIX 최신 공개 스냅샷, FOMC 목표 중간값·SEP 장기 중앙값·BLS CPI/근원 CPI, Sandisk Investor Day의 FY27/FY28 NBM 커버리지와 FY28~30 조정 총마진·FCF 마진 목표를 값·단위·관측일·sourceKind·sourceId·allowedUse와 함께 보존한다.
+- `시장 원리`와 `AI 시대 지식 지도`가 동일 원장을 capability로 로드한다. 기본 상세 화면과 AI 기초 레슨 상세에 `실제 관측값` 카드가 표시되고, 출처 링크와 `reference-only` 경계가 함께 노출된다. 회사 목표는 현재 실적·매매 신호가 아니라 날짜가 있는 forward-looking reference로만 렌더링한다.
+- 새 `ci-knowledge-current-observations-check.mjs`, repository contract, Principles/Atlas Chromium gate가 양쪽 페이지 연결·값·출처·반응형 렌더링을 검증한다. 지식 원고의 영구 정의와 시점 데이터는 계속 분리된다.
+
+## 2026-08-15 v54.26 source-linkage closure and residual data boundary
+
+- Atlas 기초 48개 레슨의 `sourceIds`를 모두 레코드에 직접 기입했다. 기존 18개 `sourceCoverage`는 호환·감사 매핑으로 남기되, fallback만으로 source linkage를 통과할 수 없도록 `ci-atlas-contract-check.mjs`와 QA-REL8을 강화했다.
+- 이 변경 뒤 근거 레지스트리·articles·learning graph·concept manifest·route targets·coverage·research/domain dossiers를 재생성했다. 현재 160 articles, 169 sources, 274 claims, 427 coverage units, 5 관계 지도/35 nodes/31 edges가 정합성을 갖는다.
+- `ci-data-refresh-audit.mjs` 기준 현재 핵심 데이터는 17 PASS, 4 WARN, 5 주간/전문영역 SKIPPED를 유지한다. missing/licensed/rights-bound 데이터는 숫자를 합성하지 않고 `PARTIAL`, `BLOCKED`, `REFERENCE`로 남긴다. 현재 전문 데이터 gap은 historical universe/corporate actions, independent quote reconciliation, official exchange breadth, earnings revisions/guidance, short interest/options flow이며 각각의 확인 원천과 해소 조건을 별도 추적한다.
+- 백과사전 심층 인증은 아직 완료가 아니다. 160개 generated article은 구조화된 장문 draft로 연결됐지만, 1200자/semantic field/직접성 검토와 실제 사용자 검증은 별도 human-review gate로 남아 있다.
+
+## 2026-08-12 KA-11~15 content-source pass and product-scope correction
+
+- `public-data/knowledge/research-source-seeds.json` records twenty-six directly inspected official/academic source pages, and `research-facts.json` contains twenty-four claim-scoped fact records from NIST, SEC/Investor.gov, FINRA, ASML, DOE, FRED, OECD, BLS, the Federal Reserve, KRX, Google, NVIDIA, TSMC, Micron, IBM, and academic papers. The facts are attached to all 159 core article records as evidence candidates with scope, as-of, and invalidation boundaries; they do not turn every article into a completed research publication.
+- Research dossier generation now maps the new source families by topic. Current artifact count is 145 canonical sources, 280 `RESEARCH_IN_PROGRESS`, 143 `RESEARCH_REQUIRED`, and 0 `RESEARCHED`; the remaining counts are intentionally visible rather than fabricated away.
+- Quantitative labs, quiz, and practice-task scope is explicitly excluded by the user. Existing generated lab files are not loaded by the Atlas page, repository, or CI. The product remains an encyclopedia/reference surface focused on explanation, evidence, market transmission, and limits.
+
 ## 2026-08-12 KA-11~15 implementation boundary
 
-- `v54.7` now contains a canonical `coverage-matrix.json` with 423 inventoried units: 111 Principles lessons, 48 Atlas foundations, 60 Principles concept guides, 95 taxonomy nodes, 50 deep branches, 19 domains, 20 players and 20 products. Inventory is not content completion.
-- Every unit has a research dossier contract. Web Search was used for five directly inspected official/academic seed pages, but this does not promote unrelated claims: 0 dossiers are fully researched, 172 are `RESEARCH_IN_PROGRESS`, and 251 remain `RESEARCH_REQUIRED`.
+- `v54.8` now contains a canonical `coverage-matrix.json` with 423 inventoried units: 111 Principles lessons, 48 Atlas foundations, 60 Principles concept guides, 95 taxonomy nodes, 50 deep branches, 19 domains, 20 players and 20 products. Inventory is not content completion.
+- Every unit has a research dossier contract. Web Search was used for twenty-six directly inspected official/academic source pages, but this does not promote unrelated claims: 0 dossiers are fully researched, 280 are `RESEARCH_IN_PROGRESS`, and 143 remain `RESEARCH_REQUIRED`.
 - KA-13 remains bounded: all 159 articles have unique reconstruction seeds and progressive-disclosure fields, but remain `RECONSTRUCTION_REQUIRED`; no human-reviewed encyclopedia completion is claimed.
-- KA-14 has 19 structural domain dossiers covering 95 taxonomy nodes and 50 unique deep branches. KA-15 has 15 deterministic educational labs with formulas, units, assumptions, synthetic worked examples, observation/confirmation/invalidation and stale-data boundaries. These are reference-only, not live market values or investment recommendations.
-- Repository capabilities now load coverage, research dossiers, domain dossiers and quantitative labs with per-capability fallback. CI gates cover full corpus, research dossier shape, article uniqueness, sector/domain depth, quantitative examples, market transmission, and currentness separation. KA-16 browser/live/user certification remains open until those gates and external validation are actually completed.
+- KA-14 has 19 structural domain dossiers covering 95 taxonomy nodes and 73 linked deep branches. The previously generated quantitative-lab artifacts are outside the requested product scope and are no longer loaded or counted. Repository capabilities now load coverage, research dossiers, and domain dossiers with per-capability fallback. CI gates cover full corpus, research dossier shape, article uniqueness, sector/domain depth, market transmission, and currentness separation. KA-16 browser/live/user certification remains open until those gates and external validation are actually completed.
 
 ## 2026-08-11 백과사전 제품 사명: 구조는 기반이고 전체 콘텐츠가 제품이다
 
@@ -1155,3 +1197,122 @@ INTC DCAI 2026E +22% YoY, 서버 두 자릿수 성장 2027 지속 전망.
 - 차트는 `시장 맥락 → 추세/이동평균 → 구조적 지지·저항/채널·confluence → reclaim/failed retest → 거래량·breadth·상대강도·credit/volatility → oscillator → 무효화·다음 관찰창` 순서로 읽는다. 패턴명이나 한 개 캔들만으로 반전/바닥을 확정하지 않는다.
 - 행동은 `wait → probe → hold → protect` 상태로 표현한다. wait는 좁은 breadth·저거래량 반등에서 추격하지 않고, probe는 독립 확인이 2개 이상일 때 가설을 단계적으로 시험하며, hold는 수익화·스프레드·자금조달이 함께 유지될 때 조건부 유지하고, protect는 breadth·VIX·HY OAS·실질금리·유가 스트레스 또는 계약/조달 훼손 시 레버리지와 노출을 재평가한다.
 - 모든 답변은 `결론/국면 → 관측 evidence → reference evidence → 추론 → 변화/불변/누락 → 확인·무효화·시간창` 순서를 지킨다. 실행·비중은 자동화하지 않고 사용자 mandate에 남긴다.
+
+### TM-XI. Daily briefing current/reference comparison bridge [2026-08-12]
+> Source packet: user-supplied DeepDive Korea/US closes, Amit recap, and Ariel screenshot. Durable ledger: `RESEARCH-INTEGRATION-2026-08-12-DAILY-BRIEFING.md` and `public-data/user-research-digest.json`.
+
+- The daily briefing is the first visible consumer. It compares the canonical current cut against dated reference observations instead of making the supplied report look like a live quote.
+- The reusable narrative is `rates/oil/FX → duration and flow`, `AI demand → memory/compute/power`, and `earnings reaction → breadth/relative strength`. Each branch closes with a next check and an invalidation condition.
+- Session chronology is first-class: US close, KST report publication, KRX close, screenshot post timestamp, and the CPI release window are distinct fields. A post timestamp is never silently used as the event timestamp.
+- Secondary, attributed, and screenshot observations remain `REFERENCE`/`reference-only`; no exact social-post number, OCR level, flow, financing, dilution, shipment, or earnings claim is promoted without primary reconciliation.
+- The same structured fields fan out to macro, FX/bond, technical, breadth, themes, fundamental, screener, ticker, portfolio, options, Korea pages, market news, and AI retrieval. This is a knowledge/context integration, not a quiz or practice feature.
+
+### TM-XII. Relationship-first encyclopedia: r-star, AI storage and supply networks [2026-08-15]
+> Sources: New York Fed r-star/HLW and market-comparison research, June 2026 FOMC/SEP, BLS June CPI, Sandisk 2026 Investor Day and technical releases, PagedAttention, NVMe, 3D NAND reliability research, SIA manufacturing/ecosystem, NIST SCRM, DOE data-center infrastructure and OIF co-packaging. Leonardo Boquillon's site is visual-information-architecture reference only.
+
+**1. 지식 구조**
+- 관계 지도는 `정의 → 중요성 → 작동 원리 → 확인 지표 → 반증 조건`을 node 계약으로, `from → to + type + label + criticality`를 edge 계약으로 사용한다.
+- 초보자는 broad system/stage에서 시작하고, guide·criticality·검색으로 범위를 줄인 뒤 한 node의 상세와 근거를 읽는다. dense graph 자체보다 명시적 edge와 텍스트 대안이 우선이다.
+- 제3자 지도에서 참고한 것은 graph/list 전환, group·tier·criticality 필터, chokepoint drill-down, detail rail이라는 상호작용 문법이다. 자체 회사 수·dependency 수·node 크기·병목 등급은 AIO 사실로 복제하지 않는다.
+
+**2. 중립금리의 학문적 경계**
+- 실질 중립금리 `r*`는 경제가 잠재 수준에 있고 물가가 안정적일 때의 이론적 실질 단기금리다. 직접 관측되지 않으므로 HLW·DSGE 등 모델, 데이터 vintage, 추정 오차를 함께 기록한다.
+- 명목 중립금리는 근사적으로 `r* + 장기 기대인플레이션`이다. 당월 headline/core CPI는 현재 물가 구성의 evidence이지 장기 기대물가 자체가 아니다.
+- 정책 스탠스는 `정책금리 − 추정 명목 중립금리`로 읽되 대차대조표·신용스프레드·재정·달러·전달 시차를 함께 본다. 2026-06 목표범위 중간값 3.625%와 SEP 장기 중앙값 3.1%의 약 +50bp 격차는 dated briefing example이다.
+- 장기 TIPS·국채는 기대 단기금리 외 기간·유동성·인플레이션 위험 프리미엄을 포함할 수 있다. 시장값을 r*의 관측치로 치환하지 않고 모델-시장 불일치를 별도 반론으로 보존한다.
+
+**3. AI 추론에서 NAND·FCF/share까지**
+- 긴 context와 동시성은 KV cache 용량·대역폭을 키운다. PagedAttention은 paging과 fragmentation/sharing 문제를 뒷받침하지만 모든 cache가 SSD로 내려간다는 계수는 제공하지 않는다.
+- SSD는 NAND만이 아니라 controller·FTL·ECC·firmware·NVMe·qualification의 시스템이다. 평가 단위는 IOPS·tail latency·bandwidth·endurance/retention·power/TB·cost/bit이다.
+- Sandisk thesis는 `workload → KV cache/staging/fast data lake → enterprise SSD/NAND → NBM mix·volume·floor → bit/wafer·yield·JV·capital intensity → reported FCF/share → 자본환원`으로 검증한다.
+- FY28~30 성장·non-GAAP margin·adjusted FCF 목표, NBM coverage·duration, HBF 성능·sample roadmap은 회사의 forward-looking claim이다. RPO/TCV≠매출≠현금, adjusted FCF≠모든 즉시 환원 가능 현금, HBF roadmap≠현재 매출이라는 경계를 유지한다.
+- 반증은 계약/floor 수정, 고객 집중, mix·margin 정상화, BiCS yield·qualification 지연, capex·운전자본·세금 증가, diluted shares·고가 buyback, HBF 표준/샘플/채택 지연이다.
+
+**4. 공급망·데이터센터·CPO**
+- 반도체는 SIA의 R&D→설계→전공정→후공정→system/demand 뼈대를 쓰고, 각 관계에 qualified substitute·지역·tier·lead time·evidence·mitigation을 붙인다. node 크기나 회사 수만으로 chokepoint를 판정하지 않는다.
+- 데이터센터는 `발전·송전 → 변전·배전 → 건설·전기 → 열관리 → rack → optical/network → 유료 수요·utilization·OCF/ROIC`로 본다. announced MW·CAPEX·GPU count·backlog·가동률·매출은 서로 다른 단계다.
+- CPO는 switch ASIC, silicon photonics, III-V/InP laser, hybrid bond/package, fiber/connector, 표준·운영의 공동 시스템이다. demo/framework는 volume shipment·field reliability·supplier criticality 증거가 아니다.
+
+**5. 실제 소비 경로**
+- `public-data/knowledge/relationship-guides.json`이 5 guides/35 nodes/31 edges의 canonical relationship artifact다.
+- Atlas `관계 지도` 탭이 guide rail, criticality filter, stage columns, explicit edge list, node detail과 source disclosure를 소비한다.
+- 2차 학문 보강은 여섯 denominator를 고정한다: r*의 Kalman/one-sided/two-sided·data vintage, `KV bytes ≈ 2×layers×KV heads×head dimension×bytes×active tokens`, reported OCF→FCF 대사, 공급망 `time-to-qualify/recover/survive`, 연간 `PUE = facility energy / IT energy`와 WUE·CUE·useful work, CPO optical link budget·laser serviceability. 어느 식도 단독으로 기업 수요·매출·양산을 증명하지 않는다.
+- Principles D6, glossary, SNDK screener memo, player/product/currentness registry, `user-research-digest.json`, knowledge sources/claims/articles가 같은 경계를 공유한다.
+- current price·yield·CPI·financial·signal은 기존 canonical live/snapshot/official producer만 소유한다. 이 통합은 교육·분석 framework이며 주문·추천·현재값 승격을 수행하지 않는다.
+### TM-XIII. 13F 기관 커버리지: SEC 검증 원장과 Telegram/X 발견 레이어의 분리 [2026-08-16]
+> 출처: SEC EDGAR 2026-03-31 13F-HR/HRA 원문 색인·정보표, SEC Form 13F 데이터셋 설명, `@insidertracking` 공개 미러의 2026Q2 게시물 요약. 구현: `public-data/masters/manager-catalog.json`, `src/ui/pages/masters.js`, `public-data/masters/index.json`. X 검색 페이지는 브라우저 도구에서 본문을 반환하지 않아 소비하지 않았다.
+
+**1. 현재 연결 상태**
+- 큐레이션된 우선순위 기관·대가 23개를 카탈로그에 등록했다. 이 중 SEC 신고 메타데이터(기관명·CIK·보고분기·접수일·accession·정보표 URL)를 공식 색인으로 확인한 신규 기관은 15개이며, 기존 7개 기관의 원문 행·분기 비교 원장은 계속 `holdings.json`의 검증 레이어가 소유한다.
+- 신규 15개는 Bridgewater, Citadel, Oaktree, Tiger Global, Soros, Lone Pine, Third Point, Coatue, TCI, Viking, Akre, ARK, Elliott, Altimeter, JPMorgan이다. 정보표 행·표지 합계·CUSIP 정규화·인접 전분기 비교를 아직 재실행하지 않았으므로 `PENDING_SEC_ROW_IMPORT`로 표시한다. 메타데이터를 보유한 것이 포트폴리오 행을 보유했다는 뜻은 아니다.
+- Telegram `@insidertracking` 2026Q2 게시물 6건과 Harvard 요약 1건은 기관명·티커 힌트만 `discoveryLeads`에 보관한다. CIK/SEC accession/정보표가 없는 요약은 보유·비중·매수/매도 값으로 승격하지 않는다. X `13F` 검색은 본문을 읽지 못한 상태를 기록하고 추정하지 않는다.
+
+**2. 학문적·법적 해석 프레임**
+- Form 13F는 기관투자매니저가 분기 말 Section 13(f) 보고가능 증권을 신고하는 스냅샷이다. 제출은 분기 말 뒤 최대 45일 지연될 수 있고, 현금·대부분의 공매도·비상장 자산·비보고 파생·전체 해외 익스포저를 포함하지 않는다. 따라서 화면의 `reported value`는 전체 AUM이나 순노출이 아니다.
+- 인물명(버핏·달리오·마크스 등)은 설명용 별칭일 뿐 법적 데이터 owner가 아니다. 실제 owner는 SEC filer와 CIK이며, 여러 운용법인·펀드·옵션·공동재량을 개인 계좌처럼 합산하지 않는다.
+- 전분기 변화는 평가액 차이가 아니라 정규화된 CUSIP + put/call + share type의 주식 수 변화로 판정한다. 가격 변화, 분할·합병·CUSIP 변경·수정공시는 거래로 오인될 수 있으므로 corporate-action 보정 전에는 보류한다.
+
+**3. 운용 연결 프레임**
+`manager CIK → SEC submissions/filing index → 13F-HR 또는 13F-HR/A → information table XML → cover/table 합계 검산 → CUSIP·share class·put/call 정규화 → 인접 분기 비교 → masters·ticker·기관흐름 참고 레이어` 순서로 연결한다. 이 순서를 건너뛰는 Telegram/X 요약은 `DISCOVERY_SECONDARY`로만 남긴다.
+
+**4. 반증·승격 게이트**
+- 최신 분기 accession 부재, amendment 미반영, cover/table 총액 불일치, CUSIP 매핑 실패, 전분기 누락, row count 불일치가 하나라도 있으면 `PENDING_SEC_ROW_IMPORT` 또는 `STALE_REFERENCE`를 유지한다.
+- `verifiedRowsConnected`와 `secMetadataVerified`를 별도 지표로 노출한다. 기관 수를 늘리는 것과 실제 행·수치가 검증되는 것은 다른 진척도다.
+
+### TM-XIV. SEC 원문 행 미리보기와 전체 원장 승격 규칙 [2026-08-16]
+> 출처: SEC EDGAR information-table XML의 연결된 행(Altimeter·TCI·Akre·Viking·Third Point). 구현: `public-data/masters/manager-row-previews.json` 및 Masters 페이지의 `SEC_ROW_PREVIEW` 렌더러. 미리보기 60행은 전체 포트폴리오가 아니다.
+
+**1. 왜 미리보기와 원장을 분리하는가**
+- SEC XML에서 issuer·title·CUSIP·reported value·shares·share type을 실제로 읽었다는 것은 해당 행의 원천 증거가 있다는 뜻이지, 해당 기관의 전체 보유 행·cover 총액·순노출을 재구성했다는 뜻이 아니다.
+- 따라서 미리보기는 초보자가 `reported value`와 `shares`의 의미를 확인하고 원문으로 이동하는 교육 레이어다. 비교·섹터·비중·시그널·AI 행동 문구의 producer가 될 수 없다.
+
+**2. Q1~Q5 검증 질문**
+- Q1 사실성: 행의 issuer/CUSIP/title/value/shares가 공식 XML과 일치하는가?
+- Q2 완결성: 정보표 전체 행 수와 cover page 합계가 일치하는가? 미리보기 행 수를 전체 행 수로 오인하지 않았는가?
+- Q3 시간성: 보고분기·제출일·amendment·인접 전분기 accession이 분리되어 있는가?
+- Q4 정규화: CUSIP share class, put/call, warrant, 분할·합병·티커 변경을 거래 변화로 오인하지 않았는가?
+- Q5 사용범위: `SEC_ROW_PREVIEW`가 `VERIFIED_ROWS`로 승격되기 전에는 비교·sector·추천·현재가격과 결합하지 않는가?
+
+**3. 승격 조건과 무효화**
+- 다섯 질문을 모두 통과하고 cover/table 합계, row count, CUSIP 정규화, 인접 분기 비교를 재현한 경우에만 `CONNECTED_IN_HOLDINGS_ARTIFACT`로 이동한다.
+- XML 접근 실패, amendment 발견, 합계 불일치, CUSIP 매핑 실패, 전분기 부재가 있으면 미리보기는 유지하되 `PENDING_FULL_RECONCILIATION`으로 되돌린다. 행을 삭제하거나 값·비중을 추정해 채우지 않는다.
+
+### TM-XV. 대형 기관·대학기금·AI 신흥 펀드의 filer 분리 [2026-08-16]
+> 출처: SEC EDGAR Q1 2026 filing index 및 `@insidertracking`/BlockBeats 공개 게시물. 구현: `public-data/masters/manager-catalog.json`. Telegram/X 언급은 후보 탐색용이며 SEC filer·CIK가 canonical owner다.
+
+- BlackRock, Goldman Sachs, Citi, Harvard Management Company, Situational Awareness LP(Leopold Aschenbrenner)를 추가해 카탈로그를 28개로 확장했다. 다만 BlackRock·은행·대학기금은 결합 신고주체이므로 개인 또는 단일 전략 펀드의 포트폴리오로 해석하지 않는다.
+- Situational Awareness는 Telegram/BlockBeats에서 Leopold의 AI·반도체 포트폴리오로 언급됐지만, 실제 runtime owner는 `Situational Awareness LP`, CIK `0002045724`의 SEC 13F다. 게시물의 Q2 요약과 SEC Q1 2026 신고를 섞지 않는다.
+- BlackRock은 여러 법인과 13F-NT/13F-HR가 공존한다. 이번 카탈로그는 Q1 2026 결합 13F-HR CIK `0002012383`을 우선 연결하고, BlackRock Fund Advisors·BlackRock Institutional Trust 등의 별도 filer는 중복 집계하지 않는다.
+- Goldman Sachs와 Citi도 고객·시장조성·은행 계정이 섞인 기관 신고주체다. SEC 행을 가져오기 전에는 `reported value`를 자체 운용 AUM, 고객 순노출 또는 개인 대가 포트폴리오로 표시하지 않는다.
+- Harvard Management Company는 대학기금의 13F 신고주체다. 대학 전체 자산·비공개·대체투자를 대표하지 않으며, `Harvard Management Co Inc`와 대학의 교육기관 정체성을 데이터상 분리한다.
+- SEC 정보표에서 실제로 연결한 preview 레이어도 Situational Awareness 10행과 Harvard 10행을 추가해 총 7개 기관·80행으로 확장했다. BlackRock·Goldman·Citi의 대용량 정보표는 우선 CIK/accession 메타데이터만 연결하고, 임의로 일부 행을 복사해 전체 포트폴리오처럼 보이지 않게 유지한다.
+
+### TM-XVI. 초보자 핵심 기관 선별: 규모·운영자·전략의 3축 [2026-08-16]
+> 출처: Vanguard, BlackRock, State Street, Fidelity, Capital Group, T. Rowe Price, Wellington, Dimensional, Citadel의 공식 리더십·회사·연차/실적 자료와 SEC EDGAR filing index. 수치는 회사 전체 AUM/AUA 또는 investment capital의 공식 발표값이며 13F reported value와 동일하지 않다.
+
+**1. 왜 38개로 정리했는가**
+- 초보자 화면은 유명세만 모은 목록이 아니라 `인지도·교육가치·규모·운영자 식별·SEC 추적 가능성`을 동시에 만족하는 BEGINNER_CORE 층으로 제한한다. Lone Pine, Coatue, Akre, Altimeter는 기본 목록에서 제거했고, 유명 대가 Mark Minervini는 별도 방법론 레이어로 복원했다.
+- 38개는 `기관·패시브 → 액티브 장기 → 가치·매크로 → 퀀트·멀티전략 → 행동주의·성장 → 대학기금·AI 신흥`의 37개 SEC filer 학습 묶음과, 별도의 1개 방법론 프로필로 구성된다. 목록의 개수 자체가 우수성이나 추천 순위를 뜻하지 않는다.
+
+**2. 운영 책임자와 법적 filer를 분리한다**
+- 카드의 `운영 책임자`는 초보자가 전략의 대표 인물을 찾기 위한 교육용 연결이다. 법적 데이터 owner는 여전히 SEC filer·CIK·accession이다. 예: Berkshire는 2026년 CEO Greg Abel과 legacy capital allocator Warren Buffett를 분리하고, Bridgewater는 CEO Nir Bar Dea와 창업자 Ray Dalio를 분리한다.
+- BlackRock·Vanguard·State Street·Fidelity·Capital Group처럼 여러 법인과 상품이 있는 플랫폼은 CEO/CIO가 회사의 운영 맥락을 설명할 뿐, 한 개인의 13F 포트폴리오라고 합산하지 않는다.
+
+**3. 규모값을 AUM과 13F에서 분리한다**
+- 공식 규모 참고값은 다음처럼 날짜·단위·범위를 같이 기록한다: BlackRock `$14T+ AUM`(2025년 말 회사 편지), Vanguard `$12.5T global assets`(2026-02-28), State Street `$6.3T AUM`(2026-06-30), Fidelity `$7.1T managed assets` 및 `$18.0T AUA`(2025-12-31), Capital Group `$3.3T+ AUM`(2025-12-31), T. Rowe Price `$1.83T client assets`(2026-04-30), Citadel `$71B investment capital`(2026-07-01).
+- `AUM`, `AUA`, `client assets`, `investment capital`, custody/administration은 서로 다른 분모다. 13F의 `reported value`는 Section 13(f) 보고가능 증권의 분기말 스냅샷이며 회사 전체 규모·순노출·현금·공매도·비상장·비보고 파생을 포함하지 않는다. 따라서 화면은 수치를 같은 축으로 합산하지 않는다.
+- 공식 단일 AUM이 공개되지 않거나 filer와 비교가 불가능한 경우에는 `공식 단일 AUM 미확인 · 규모 구간만 사용`으로 표시한다. 빈칸을 업계 추정치로 채우지 않는다.
+
+**4. 전략 성격의 학습 분류**
+- `패시브·인덱스`: Vanguard·State Street처럼 저비용·분산·장기 기준선을 학습한다.
+- `액티브 기본분석`: Fidelity·Capital Group·Wellington·T. Rowe Price처럼 리서치·복리·분산의 조직적 운용을 본다.
+- `팩터·퀀트·시스템`: Dimensional·Renaissance·Two Sigma처럼 규칙, 데이터, 모델, 자동화와 turnover/모델 위험을 본다.
+- `멀티전략·매크로`: Millennium·Citadel·Tudor·Bridgewater처럼 레짐, 리스크 예산, 동적 헤지와 전략 분산을 본다.
+- `가치·집중·행동주의`: Berkshire·Oaktree·Baupost·Pershing·ValueAct·Starboard·Trian처럼 하방, 촉매, 거버넌스, 장기 보유를 비교한다.
+- `성장·테마·특수상황`: ARK·Tiger·Situational Awareness·Scion 등은 고변동·이벤트·테마 위험을 별도 학습한다. 전략 라벨은 13F 행만으로 추론한 현재 포지션이 아니라 공개된 조직/운용 철학을 요약한 것이다.
+- Mark Minervini는 유명한 모멘텀·성장·손실 제한 교육자이므로 초보자 학습군에 남긴다. 다만 SEC filer/CIK/13F 행이 없는 `METHOD_ONLY` 프로필이며, 운영 규모·보유 종목·reported value를 생성하거나 기관 포트폴리오로 표시하지 않는다.
+
+**5. 런타임 반영과 승격 경계**
+- `manager-catalog.json`이 38개 profile(37개 SEC filer + 1개 method-only)의 `operator`, `scaleMetric`, `scaleTier`, `strategyProfile`, `teachingUse`를 canonical metadata로 소유하고, Masters 카드/상세 지표가 이를 소비한다. `index.json`, 정적 계약, Chromium 게이트는 38/30/7/5/55 수치를 검증한다.
+- SEC metadata 30개는 CIK/accession/정보표 링크가 확인된 상태이고, 실제 원문 행이 연결된 manager는 7개다. 미리보기는 5개/55행이며 전체 행·cover 합계·CUSIP 정규화·인접분기 비교 전에는 `PENDING_FULL_RECONCILIATION`이다.
+- 기관의 유명도·AUM·대표 운영자·전략 성격은 초보자 탐색을 돕는 분류다. 이 세 축 어느 것도 보유 종목, 수익률, 매수/매도 신호, 투자 권고를 생성하지 않는다.

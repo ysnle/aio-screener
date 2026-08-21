@@ -14,8 +14,8 @@
     "Cloud commitments official data standard filing evidence",
     "Cloud commitments disconfirming evidence limitations"
   ],
-  "searchedAt": null,
-  "method": "NOT_STARTED",
+  "searchedAt": "2026-08-18",
+  "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
       "sourceId": "hyperscaler annual report",
@@ -24,9 +24,42 @@
     {
       "sourceId": "SEC 10-K/10-Q",
       "unresolved": true
+    },
+    {
+      "sourceId": "WEB-SEC-FINANCIAL-STATEMENTS-2024",
+      "url": "https://www.sec.gov/newsroom/press-releases/2024-120",
+      "publisher": "U.S. Securities and Exchange Commission",
+      "title": "SEC educational resources about income statements and balance sheets",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    },
+    {
+      "sourceId": "WEB-SEC-INVESTOR-10K-2020",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/how-read-10-k",
+      "publisher": "SEC Investor.gov",
+      "title": "How to Read a 10-K",
+      "sourceTier": "PRIMARY_OFFICIAL"
     }
   ],
-  "selectedSources": [],
+  "selectedSources": [
+    {
+      "sourceId": "WEB-SEC-FINANCIAL-STATEMENTS-2024",
+      "url": "https://www.sec.gov/newsroom/press-releases/2024-120",
+      "publisher": "U.S. Securities and Exchange Commission",
+      "title": "SEC educational resources about income statements and balance sheets",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    },
+    {
+      "sourceId": "WEB-SEC-INVESTOR-10K-2020",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/how-read-10-k",
+      "publisher": "SEC Investor.gov",
+      "title": "How to Read a 10-K",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    }
+  ],
   "rejectedSources": [
     {
       "sourceId": "hyperscaler annual report",
@@ -37,9 +70,16 @@
       "reason": "unresolved in canonical registry; cannot be promoted"
     }
   ],
-  "sourceTiers": [],
+  "sourceTiers": [
+    "PRIMARY_OFFICIAL"
+  ],
   "claimCoverage": [],
-  "consensus": "Not assessed.",
+  "researchFactIds": [
+    "fact:sec:10k-reading",
+    "fact:sia:semiconductor-value-chain",
+    "fact:nist:supply-chain-risk"
+  ],
+  "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",
   "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
   "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -48,10 +88,10 @@
   "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
   "q4StructuralMechanism": "Trace Cloud commitments through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-  "status": "RESEARCH_REQUIRED",
+  "status": "RESEARCHED",
   "completion": {
-    "researchComplete": false,
-    "sourceProfileComplete": false,
+    "researchComplete": true,
+    "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   }

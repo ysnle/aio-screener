@@ -1,0 +1,2170 @@
+{
+  "schema": "masters-13f-manager-catalog.v1",
+  "status": "METADATA_AND_DISCOVERY_SEPARATED",
+  "reviewedAt": "2026-08-16",
+  "selectionPolicy": "BEGINNER_CORE: keep widely recognizable institutions/funds or major named operators, with SEC traceability where applicable, meaningful scale or educational value, and a teachable strategy. Famous method-only educators may appear in a separately labeled METHOD_ONLY layer; they never create 13F rows. Family filers are aggregated conceptually and not treated as one person portfolio.",
+  "sourceBoundary": "SEC EDGAR filing index and SEC structured 13F data are canonical. Telegram/X are discovery-only and never create holdings, weights, or trade labels.",
+  "coverage": {
+    "priorityManagerCount": 38,
+    "secFilerProfiles": 37,
+    "methodOnlyProfiles": 1,
+    "secMetadataVerified": 30,
+    "verifiedRowsConnected": 7,
+    "rowImportPending": 30,
+    "rowPreviewManagers": 5,
+    "previewRows": 55,
+    "previewArtifact": "public-data/masters/manager-row-previews.json",
+    "discoveryLeads": 8,
+    "telegramDiscoveryLeads": 7,
+    "xSearchStatus": "UNREADABLE_BY_BROWSER_TOOL"
+  },
+  "managers": [
+    {
+      "id": "blackrock-inc",
+      "displayName": "BlackRock",
+      "filer": "BlackRock, Inc.",
+      "style": "대형 패시브·ETF·다중 법인",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "priority": 1,
+      "cik": "0002012383",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0002012383-26-001841",
+        "periodOfReport": "2026-03-31",
+        "filedAt": "2026-05-13",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/2012383/000201238326001841/0002012383-26-001841-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/2012383/000201238326001841/form13fInfoTable.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/2012383/000201238326001841/form13fInfoTable.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/2012383/000201238326001841/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/2012383/000201238326001841/0002012383-26-001841-index.htm",
+      "institutionalBoundary": "BlackRock, Inc.의 결합 신고주체이며 개별 ETF·펀드 또는 개인계좌와 동일하지 않습니다.",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "INSTITUTIONAL_BENCHMARK",
+      "scaleTier": "MEGA",
+      "scaleBasis": "글로벌 대형 운용 플랫폼 또는 대형 기관 신고주체",
+      "operator": {
+        "names": [
+          "Larry Fink"
+        ],
+        "roles": [
+          "Founder/Chair/CEO"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "기관·결합 신고",
+        "horizon": "혼합",
+        "instrumentFocus": "주식·ETF·파생",
+        "riskStyle": "고객·계열 혼합"
+      },
+      "teachingUse": "대형 기관 신고와 family-filer 경계",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "scaleMetric": {
+        "label": "$14T+ AUM",
+        "value": 14,
+        "unit": "USD_TRILLION",
+        "asOf": "2025-12-31",
+        "sourceName": "BlackRock 2026 Chairman letter",
+        "sourceUrl": "https://www.blackrock.com/corporate/literature/presentation/larry-fink-annual-chairmans-letter.pdf",
+        "basis": "회사 전체 AUM; 13F reported value와 동일하지 않음"
+      }
+    },
+    {
+      "id": "citigroup",
+      "displayName": "Citi",
+      "filer": "Citigroup Inc.",
+      "style": "대형 은행·다자산·시장조성",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "priority": 2,
+      "cik": "0000831001",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0000831001-26-000022",
+        "periodOfReport": "2026-03-31",
+        "filedAt": "2026-05-11",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000022/0000831001-26-000022-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000022/CITIGROUP_13F_HR_INFOTABLE.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000022/CITIGROUP_13F_HR_INFOTABLE.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000022/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000022/0000831001-26-000022-index.htm",
+      "institutionalBoundary": "Citigroup Inc.의 신고주체이며 은행·고객·시장조성 관련 포지션을 단일 투자자의 개인 포트폴리오로 해석하지 않습니다.",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "INSTITUTIONAL_BENCHMARK",
+      "scaleTier": "MEGA",
+      "scaleBasis": "글로벌 대형 운용 플랫폼 또는 대형 기관 신고주체",
+      "operator": {
+        "names": [
+          "Jane Fraser"
+        ],
+        "roles": [
+          "CEO, Citigroup"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "기관·결합 신고",
+        "horizon": "혼합",
+        "instrumentFocus": "주식·ETF·파생",
+        "riskStyle": "고객·계열 혼합"
+      },
+      "teachingUse": "대형 기관 신고와 family-filer 경계",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "goldman-sachs-group",
+      "displayName": "Goldman Sachs",
+      "filer": "The Goldman Sachs Group, Inc.",
+      "style": "대형 기관·프라임브로커·다중 전략",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "priority": 3,
+      "cik": "0000886982",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0000886982-26-000274",
+        "periodOfReport": "2026-03-31",
+        "filedAt": "2026-05-15",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/886982/000088698226000274/0000886982-26-000274-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/886982/000088698226000274/InfoTable_20260513_FinalV.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/886982/000088698226000274/InfoTable_20260513_FinalV.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/886982/000088698226000274/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/886982/000088698226000274/0000886982-26-000274-index.htm",
+      "institutionalBoundary": "Goldman Sachs Group의 결합 신고주체이며 고객·프라임브로커 포지션과 자체 운용 포지션을 개인 펀드처럼 해석하지 않습니다.",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "INSTITUTIONAL_BENCHMARK",
+      "scaleTier": "MEGA",
+      "scaleBasis": "글로벌 대형 운용 플랫폼 또는 대형 기관 신고주체",
+      "operator": {
+        "names": [
+          "Marc Nachmann",
+          "David Solomon"
+        ],
+        "roles": [
+          "Global Head, Asset & Wealth Management",
+          "Chair/CEO, Goldman Sachs Group"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "기관·결합 신고",
+        "horizon": "혼합",
+        "instrumentFocus": "주식·ETF·파생",
+        "riskStyle": "고객·계열 혼합"
+      },
+      "teachingUse": "대형 기관 신고와 family-filer 경계",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "jpmorgan-chase",
+      "displayName": "JPMorgan Asset Management",
+      "filer": "JPMorgan Chase & Co",
+      "style": "대형 기관·다자산·분산",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "priority": 4,
+      "cik": "0000019617",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0000019617-26-000212",
+        "periodOfReport": "2026-03-31",
+        "filedAt": "2026-05-13",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/19617/000001961726000212/0000019617-26-000212-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/19617/000001961726000212/Information_Table_03.31.2026.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/19617/000001961726000212/Information_Table_03.31.2026.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/19617/000001961726000212/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/19617/000001961726000212/0000019617-26-000212-index.htm",
+      "institutionalBoundary": "대형 기관 신고주체이며 특정 개인의 개인계좌 포트폴리오가 아닙니다.",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "INSTITUTIONAL_BENCHMARK",
+      "scaleTier": "MEGA",
+      "scaleBasis": "글로벌 대형 운용 플랫폼 또는 대형 기관 신고주체",
+      "operator": {
+        "names": [
+          "Mary Callahan Erdoes",
+          "Jamie Dimon"
+        ],
+        "roles": [
+          "CEO, JPMorgan Asset Management",
+          "Chair/CEO, JPMorgan Chase"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "기관·결합 신고",
+        "horizon": "혼합",
+        "instrumentFocus": "주식·ETF·파생",
+        "riskStyle": "고객·계열 혼합"
+      },
+      "teachingUse": "대형 기관 신고와 family-filer 경계",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "state-street-investment-management",
+      "displayName": "State Street Investment Management",
+      "filer": "State Street Corp / State Street Global Advisors family",
+      "style": "패시브·ETF·기관 인덱스",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "cik": "0000093751",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0000093751-26-000315",
+        "periodOfReport": "2026-03-31",
+        "filedAt": "2026-05-15",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000315/0000093751-26-000315-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000315/XML_Infotable.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000315/XML_Infotable.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000315/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000315/0000093751-26-000315-index.htm",
+      "institutionalBoundary": "State Street 신고에는 은행·글로벌 SSGA 계열과 other managers가 함께 표시될 수 있어 단일 개인 포트폴리오가 아니다.",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "PASSIVE_INDEX",
+      "scaleTier": "MEGA",
+      "scaleBasis": "글로벌 대형 운용 플랫폼 또는 대형 기관 신고주체",
+      "operator": {
+        "names": [
+          "Yie-Hsin Hung"
+        ],
+        "roles": [
+          "CEO, State Street Investment Management"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "패시브·인덱스",
+        "horizon": "장기",
+        "instrumentFocus": "주식·ETF·채권",
+        "riskStyle": "분산·저비용"
+      },
+      "teachingUse": "인덱스·ETF·분산의 기준선",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "priority": 5,
+      "scaleMetric": {
+        "label": "$6.3T AUM",
+        "value": 6.3,
+        "unit": "USD_TRILLION",
+        "asOf": "2026-06-30",
+        "sourceName": "State Street Q2 2026 results",
+        "sourceUrl": "https://investors.statestreet.com/investor-news-events/press-releases/news-details/2026/State-Street-Corporation-NYSE-STT-Reports-Second-Quarter-2026-Financial-Results/default.aspx",
+        "basis": "State Street corporate AUM context; custody/AUA와 분리"
+      }
+    },
+    {
+      "id": "vanguard-group",
+      "displayName": "Vanguard",
+      "filer": "Vanguard family · canonical filer: Vanguard Asset Management, Ltd",
+      "style": "초저비용 인덱스·ETF·분산",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "cik": "0001680208",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "familyCiks": [
+        "0000102909",
+        "0001680208",
+        "0001811242",
+        "0000947529",
+        "0002100119"
+      ],
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0001680208-26-000005",
+        "periodOfReport": "2026-03-31",
+        "filedAt": "2026-05-08",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/1680208/000168020826000005/0001680208-26-000005-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1680208/000168020826000005/13F_0001680208_20260331.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1680208/000168020826000005/13F_0001680208_20260331.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1680208/000168020826000005/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/1680208/000168020826000005/0001680208-26-000005-index.htm",
+      "institutionalBoundary": "Vanguard는 여러 SEC 신고주체가 있는 family filer다. 계열 중복을 제거한 뒤 family-level로 읽어야 한다.",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "PASSIVE_INDEX",
+      "scaleTier": "MEGA",
+      "scaleBasis": "글로벌 대형 운용 플랫폼 또는 대형 기관 신고주체",
+      "operator": {
+        "names": [
+          "Salim Ramji",
+          "Greg Davis"
+        ],
+        "roles": [
+          "CEO",
+          "President/CIO"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "패시브·인덱스",
+        "horizon": "장기",
+        "instrumentFocus": "주식·ETF·채권",
+        "riskStyle": "분산·저비용"
+      },
+      "teachingUse": "인덱스·ETF·분산의 기준선",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "priority": 6,
+      "scaleMetric": {
+        "label": "$12.5T global assets",
+        "value": 12.5,
+        "unit": "USD_TRILLION",
+        "asOf": "2026-02-28",
+        "sourceName": "Vanguard management team",
+        "sourceUrl": "https://corporate.vanguard.com/content/corporatesite/us/en/corp/why-vanguard/who-we-are/our-management-team.html",
+        "basis": "글로벌 자산; family filer와 동일하지 않음"
+      }
+    },
+    {
+      "id": "capital-international-investors",
+      "displayName": "Capital Group",
+      "filer": "Capital International Investors",
+      "style": "액티브·장기·분산",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "cik": "0001562230",
+      "latestAvailablePeriod": "2025-12-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0001562230-26-000005",
+        "periodOfReport": "2025-12-31",
+        "filedAt": "2026-02-11",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/1562230/000156223026000005/0001562230-26-000005-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1562230/000156223026000005/form13fInfoTable.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1562230/000156223026000005/form13fInfoTable.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1562230/000156223026000005/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/1562230/000156223026000005/0001562230-26-000005-index.htm",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "ACTIVE_LONG_ONLY",
+      "scaleTier": "MEGA",
+      "scaleBasis": "글로벌 대형 운용 플랫폼 또는 대형 기관 신고주체",
+      "operator": {
+        "names": [
+          "Mike Gitlin",
+          "Martin Romo"
+        ],
+        "roles": [
+          "President/CEO",
+          "Chair/CIO"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "액티브 기본분석",
+        "horizon": "중장기",
+        "instrumentFocus": "주식",
+        "riskStyle": "리서치·분산"
+      },
+      "teachingUse": "기본분석·장기 복리·리서치 조직",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "priority": 7,
+      "scaleMetric": {
+        "label": "$3.3T+ AUM",
+        "value": 3.3,
+        "unit": "USD_TRILLION",
+        "asOf": "2025-12-31",
+        "sourceName": "Capital Group newsroom",
+        "sourceUrl": "https://www.capitalgroup.com/about-us/news-room.html",
+        "basis": "Capital Group global organization; CII filer와 동일하지 않음"
+      }
+    },
+    {
+      "id": "fidelity-fmr",
+      "displayName": "Fidelity / FMR",
+      "filer": "FMR LLC",
+      "style": "액티브·성장·리서치 기반",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "cik": "0000315066",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0000315066-26-001390",
+        "periodOfReport": "2026-03-31",
+        "filedAt": "2026-05-15",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/315066/000031506626001390/0000315066-26-001390-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/315066/000031506626001390/20260515_FMRLLC.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/315066/000031506626001390/20260515_FMRLLC.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/315066/000031506626001390/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/315066/000031506626001390/0000315066-26-001390-index.htm",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "ACTIVE_LONG_ONLY",
+      "scaleTier": "MEGA",
+      "scaleBasis": "글로벌 대형 운용 플랫폼 또는 대형 기관 신고주체",
+      "operator": {
+        "names": [
+          "Abigail Johnson"
+        ],
+        "roles": [
+          "Chair/CEO, Fidelity Investments"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "액티브 기본분석",
+        "horizon": "중장기",
+        "instrumentFocus": "주식",
+        "riskStyle": "리서치·분산"
+      },
+      "teachingUse": "기본분석·장기 복리·리서치 조직",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "priority": 8,
+      "scaleMetric": {
+        "label": "$7.1T managed assets (AUA $18.0T)",
+        "value": 7.1,
+        "unit": "USD_TRILLION",
+        "asOf": "2025-12-31",
+        "sourceName": "Fidelity 2025 annual report",
+        "sourceUrl": "https://about.fidelity.com/data-and-insights/2025-annual-report",
+        "basis": "managed assets와 AUA를 구분; FMR 13F와 동일하지 않음"
+      }
+    },
+    {
+      "id": "t-rowe-price",
+      "displayName": "T. Rowe Price",
+      "filer": "Price T Rowe Associates Inc /MD/",
+      "style": "액티브·성장·기본분석",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "cik": "0000080255",
+      "latestAvailablePeriod": "2025-12-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0000080255-26-000231",
+        "periodOfReport": "2025-12-31",
+        "filedAt": "2026-02-17",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/80255/000008025526000231/0000080255-26-000231-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/80255/000008025526000231/infotable.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/80255/000008025526000231/infotable.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/80255/000008025526000231/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/80255/000008025526000231/0000080255-26-000231-index.htm",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "ACTIVE_LONG_ONLY",
+      "scaleTier": "LARGE",
+      "scaleBasis": "유명 대형 헤지펀드·기관 운용사·행동주의 플랫폼",
+      "operator": {
+        "names": [
+          "Rob Sharps",
+          "Eric Veiel"
+        ],
+        "roles": [
+          "Chair/CEO",
+          "President/Co-head of Global Investments/CIO"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "액티브 기본분석",
+        "horizon": "중장기",
+        "instrumentFocus": "주식",
+        "riskStyle": "리서치·분산"
+      },
+      "teachingUse": "기본분석·장기 복리·리서치 조직",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "priority": 9,
+      "scaleMetric": {
+        "label": "$1.83T client assets",
+        "value": 1.83,
+        "unit": "USD_TRILLION",
+        "asOf": "2026-04-30",
+        "sourceName": "T. Rowe Price leadership release",
+        "sourceUrl": "https://troweprice.gcs-web.com/news-releases/news-release-details/t-rowe-price-expands-leadership-team",
+        "basis": "client assets; 13F reported value와 동일하지 않음"
+      }
+    },
+    {
+      "id": "wellington-management",
+      "displayName": "Wellington Management",
+      "filer": "Wellington Management Group LLP",
+      "style": "액티브·기관·리서치 플랫폼",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "cik": "0000902219",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0000902219-26-000209",
+        "periodOfReport": "2026-03-31",
+        "filedAt": "2026-05-15",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/902219/000090221926000209/0000902219-26-000209-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/902219/000090221926000209/form13fInfoTable.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/902219/000090221926000209/form13fInfoTable.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/902219/000090221926000209/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/902219/000090221926000209/0000902219-26-000209-index.htm",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "ACTIVE_LONG_ONLY",
+      "scaleTier": "MEGA",
+      "scaleBasis": "글로벌 대형 운용 플랫폼 또는 대형 기관 신고주체",
+      "operator": {
+        "names": [
+          "Jean Hynes"
+        ],
+        "roles": [
+          "CEO"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "액티브 기본분석",
+        "horizon": "중장기",
+        "instrumentFocus": "주식",
+        "riskStyle": "리서치·분산"
+      },
+      "teachingUse": "기본분석·장기 복리·리서치 조직",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "priority": 10,
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "dimensional-fund-advisors",
+      "displayName": "Dimensional Fund Advisors",
+      "filer": "Dimensional Fund Advisors LP",
+      "style": "학술 팩터·저비용·체계적 운용",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "cik": "0000354204",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0000354204-26-000581",
+        "periodOfReport": "2026-03-31",
+        "filedAt": "2026-05-07",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000581/0000354204-26-000581-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000581/1Q202613F.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000581/1Q202613F.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000581/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000581/0000354204-26-000581-index.htm",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "FACTOR_SYSTEMATIC",
+      "scaleTier": "LARGE",
+      "scaleBasis": "유명 대형 헤지펀드·기관 운용사·행동주의 플랫폼",
+      "operator": {
+        "names": [
+          "David Booth",
+          "Gerard O’Reilly",
+          "Dave Butler"
+        ],
+        "roles": [
+          "Founder/Chair",
+          "Co-CEO/Co-CIO",
+          "Co-CEO"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "팩터·학술 기반",
+        "horizon": "중장기",
+        "instrumentFocus": "주식·ETF",
+        "riskStyle": "규칙·분산"
+      },
+      "teachingUse": "팩터·학술 연구의 운용화",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "priority": 11,
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "berkshire-hathaway",
+      "displayName": "Warren Buffett",
+      "filer": "Berkshire Hathaway Inc.",
+      "style": "집중·가치·장기 보유",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_ROWS",
+      "priority": 12,
+      "cik": "0001067983",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "CONNECTED_IN_HOLDINGS_ARTIFACT",
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526226661/0001193125-26-226661-index.htm",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "CONCENTRATED_VALUE",
+      "scaleTier": "MEGA",
+      "scaleBasis": "글로벌 대형 운용 플랫폼 또는 대형 기관 신고주체",
+      "operator": {
+        "names": [
+          "Greg Abel",
+          "Warren Buffett"
+        ],
+        "roles": [
+          "CEO",
+          "Chair/legacy capital allocator"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "집중 가치·자본배분",
+        "horizon": "장기",
+        "instrumentFocus": "주식·현금",
+        "riskStyle": "고확신·하방"
+      },
+      "teachingUse": "집중·가치·자본배분",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "soros-fund-management",
+      "displayName": "George Soros / Dawn Fitzpatrick",
+      "filer": "Soros Fund Management LLC",
+      "style": "글로벌 매크로·이벤트",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "priority": 13,
+      "cik": "0001029160",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0000902664-26-002529",
+        "periodOfReport": "2026-03-31",
+        "filedAt": "2026-05-15",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/1029160/000090266426002529/0000902664-26-002529-index.html",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1029160/000090266426002529/infotable.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1029160/000090266426002529/infotable.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1029160/000090266426002529/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/1029160/000090266426002529/0000902664-26-002529-index.html",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "MACRO",
+      "scaleTier": "LARGE",
+      "scaleBasis": "유명 대형 헤지펀드·기관 운용사·행동주의 플랫폼",
+      "operator": {
+        "names": [
+          "Dawn Fitzpatrick",
+          "George Soros"
+        ],
+        "roles": [
+          "CEO/CIO",
+          "Founder/legacy chair"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "글로벌 매크로",
+        "horizon": "중기~장기",
+        "instrumentFocus": "금리·FX·주식·원자재",
+        "riskStyle": "레짐·거시"
+      },
+      "teachingUse": "금리·환율·유동성·거시 레짐",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "bridgewater-associates",
+      "displayName": "Ray Dalio",
+      "filer": "Bridgewater Associates, LP",
+      "style": "글로벌 매크로·리스크 패리티",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "priority": 14,
+      "cik": "0001350694",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0001350694-26-000002",
+        "periodOfReport": "2026-03-31",
+        "filedAt": "2026-05-15",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000002/0001350694-26-000002-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000002/infotable.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000002/infotable.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000002/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/edgar/browse/?CIK=1350694",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "MACRO",
+      "scaleTier": "MEGA",
+      "scaleBasis": "글로벌 대형 운용 플랫폼 또는 대형 기관 신고주체",
+      "operator": {
+        "names": [
+          "Nir Bar Dea",
+          "Ray Dalio"
+        ],
+        "roles": [
+          "CEO",
+          "Founder/legacy chair"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "글로벌 매크로",
+        "horizon": "중기~장기",
+        "instrumentFocus": "금리·FX·주식·원자재",
+        "riskStyle": "레짐·거시"
+      },
+      "teachingUse": "금리·환율·유동성·거시 레짐",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "duquesne-family-office",
+      "displayName": "Stanley Druckenmiller",
+      "filer": "Duquesne Family Office LLC",
+      "style": "거시·성장·변화 대응",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_ROWS",
+      "priority": 15,
+      "cik": "0001536411",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "CONNECTED_IN_HOLDINGS_ARTIFACT",
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000004/0001536411-26-000004-index.htm",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "MACRO_GROWTH",
+      "scaleTier": "LARGE",
+      "scaleBasis": "유명 대형 헤지펀드·기관 운용사·행동주의 플랫폼",
+      "operator": {
+        "names": [
+          "Stanley Druckenmiller"
+        ],
+        "roles": [
+          "Founder/Chair"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "매크로·성장",
+        "horizon": "중기",
+        "instrumentFocus": "주식·FX·채권",
+        "riskStyle": "동적 배분"
+      },
+      "teachingUse": "거시·성장·변화 대응",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "appaloosa-management",
+      "displayName": "David Tepper",
+      "filer": "Appaloosa LP",
+      "style": "거시·가치·전환",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_ROWS",
+      "priority": 16,
+      "cik": "0001656456",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "CONNECTED_IN_HOLDINGS_ARTIFACT",
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000002/0001656456-26-000002-index.htm",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "MACRO_VALUE",
+      "scaleTier": "LARGE",
+      "scaleBasis": "유명 대형 헤지펀드·기관 운용사·행동주의 플랫폼",
+      "operator": {
+        "names": [
+          "David Tepper"
+        ],
+        "roles": [
+          "Founder/President"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "매크로·가치",
+        "horizon": "중기",
+        "instrumentFocus": "주식·채권·현금",
+        "riskStyle": "전환·헤지"
+      },
+      "teachingUse": "거시·가치·전환",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "oaktree-capital-management",
+      "displayName": "Howard Marks",
+      "filer": "Oaktree Capital Management LP",
+      "style": "신용·가치·하방 방어",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "priority": 17,
+      "cik": "0000949509",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR/A",
+        "accession": "0000949509-26-000003",
+        "periodOfReport": "2026-03-31",
+        "filedAt": "2026-05-19",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000003/0000949509-26-000003-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000003/13F_OCMLP_1Q2026.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000003/13F_OCMLP_1Q2026.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000003/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000003/0000949509-26-000003-index.htm",
+      "amendmentNote": "Latest row source is an SEC 13F-HR/A; the original 13F-HR is retained as the prior evidence layer.",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "CREDIT_VALUE",
+      "scaleTier": "LARGE",
+      "scaleBasis": "유명 대형 헤지펀드·기관 운용사·행동주의 플랫폼",
+      "operator": {
+        "names": [
+          "Howard Marks",
+          "Bruce Karsh",
+          "Armen Panossian"
+        ],
+        "roles": [
+          "Co-founder/Co-chair",
+          "Co-founder/Co-chair/CIO",
+          "CEO/Co-CIO"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "신용·가치",
+        "horizon": "중장기",
+        "instrumentFocus": "채권·대출·특수상황",
+        "riskStyle": "하방 방어"
+      },
+      "teachingUse": "신용 사이클·하방 방어",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "citadel-advisors",
+      "displayName": "Ken Griffin / Seth Levy",
+      "filer": "Citadel Advisors LLC",
+      "style": "멀티전략·퀀트·시장중립",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "priority": 18,
+      "cik": "0001423053",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0001104659-26-062477",
+        "periodOfReport": "2026-03-31",
+        "filedAt": "2026-05-15",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/1423053/000110465926062477/0001104659-26-062477-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1423053/000110465926062477/infotable.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1423053/000110465926062477/infotable.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1423053/000110465926062477/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/1423053/000110465926062477/0001104659-26-062477-index.htm",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "MULTI_STRATEGY",
+      "scaleTier": "MEGA",
+      "scaleBasis": "글로벌 대형 운용 플랫폼 또는 대형 기관 신고주체",
+      "operator": {
+        "names": [
+          "Ken Griffin"
+        ],
+        "roles": [
+          "Founder/CEO/Co-CIO"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "멀티전략",
+        "horizon": "단기~중기",
+        "instrumentFocus": "주식·채권·파생",
+        "riskStyle": "전략 분산"
+      },
+      "teachingUse": "전략 분산과 리스크 예산",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "scaleMetric": {
+        "label": "$71B investment capital",
+        "value": 71,
+        "unit": "USD_BILLION",
+        "asOf": "2026-07-01",
+        "sourceName": "Citadel official company page",
+        "sourceUrl": "https://www.citadel.com/",
+        "basis": "investment capital; Citadel Advisors 13F와 동일하지 않음"
+      }
+    },
+    {
+      "id": "millennium-management",
+      "displayName": "Millennium Management",
+      "filer": "Millennium Management LLC",
+      "style": "멀티전략·리스크 분산·롱숏",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "cik": "0001273087",
+      "latestAvailablePeriod": "2025-12-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0001273087-26-000002",
+        "periodOfReport": "2025-12-31",
+        "filedAt": "2026-02-17",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/1273087/000127308726000002/0001273087-26-000002-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1273087/000127308726000002/MLP_Filing_20251231_v1.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1273087/000127308726000002/MLP_Filing_20251231_v1.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1273087/000127308726000002/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/1273087/000127308726000002/0001273087-26-000002-index.htm",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "MULTI_STRATEGY",
+      "scaleTier": "MEGA",
+      "scaleBasis": "글로벌 대형 운용 플랫폼 또는 대형 기관 신고주체",
+      "operator": {
+        "names": [
+          "Izzy Englander"
+        ],
+        "roles": [
+          "Founder/CEO"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "멀티전략",
+        "horizon": "단기~중기",
+        "instrumentFocus": "주식·채권·파생",
+        "riskStyle": "전략 분산"
+      },
+      "teachingUse": "전략 분산과 리스크 예산",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "priority": 19,
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "renaissance-technologies",
+      "displayName": "Renaissance Technologies",
+      "filer": "Renaissance Technologies LLC",
+      "style": "퀀트·시스템·데이터 기반",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "cik": "0001037389",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0001037389-26-000033",
+        "periodOfReport": "2026-03-31",
+        "filedAt": "2026-05-14",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/1037389/000103738926000033/0001037389-26-000033-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1037389/000103738926000033/renaissance13Fq12026_holding.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1037389/000103738926000033/renaissance13Fq12026_holding.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1037389/000103738926000033/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/1037389/000103738926000033/0001037389-26-000033-index.htm",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "QUANT_SYSTEMATIC",
+      "scaleTier": "LARGE",
+      "scaleBasis": "유명 대형 헤지펀드·기관 운용사·행동주의 플랫폼",
+      "operator": {
+        "names": [
+          "Peter Brown",
+          "Jim Simons"
+        ],
+        "roles": [
+          "CEO",
+          "Founder/legacy chair"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "퀀트·시스템",
+        "horizon": "단기~중기",
+        "instrumentFocus": "주식·옵션·선물",
+        "riskStyle": "모델·자동화"
+      },
+      "teachingUse": "데이터·모델·시스템 트레이딩",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "priority": 20,
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "two-sigma-investments",
+      "displayName": "Two Sigma",
+      "filer": "Two Sigma Investments, LP",
+      "style": "퀀트·멀티전략·대규모 데이터",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "cik": "0001179392",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0000899140-26-000547",
+        "periodOfReport": "2026-03-31",
+        "filedAt": "2026-05-15",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/1179392/000089914026000547/0000899140-26-000547-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1179392/000089914026000547/informationtable.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1179392/000089914026000547/informationtable.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1179392/000089914026000547/xslForm13F_X02/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/1179392/000089914026000547/xslForm13F_X02/primary_doc.xml",
+      "institutionalBoundary": "13개 other managers가 cover page에 포함되므로 Two Sigma family-level로 중복 제거한다.",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "QUANT_SYSTEMATIC",
+      "scaleTier": "LARGE",
+      "scaleBasis": "유명 대형 헤지펀드·기관 운용사·행동주의 플랫폼",
+      "operator": {
+        "names": [
+          "David Siegel",
+          "John Overdeck"
+        ],
+        "roles": [
+          "Co-founder/Co-chair",
+          "Co-founder/Co-chair"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "퀀트·시스템",
+        "horizon": "단기~중기",
+        "instrumentFocus": "주식·옵션·선물",
+        "riskStyle": "모델·자동화"
+      },
+      "teachingUse": "데이터·모델·시스템 트레이딩",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "priority": 21,
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "tudor-investment",
+      "displayName": "Tudor Investment",
+      "filer": "Tudor Investment Corp et al",
+      "style": "매크로·선물·멀티전략",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "cik": "0000923093",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0000902664-26-002516",
+        "periodOfReport": "2026-03-31",
+        "filedAt": "2026-05-15",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/923093/000090266426002516/0000902664-26-002516-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/923093/000090266426002516/infotable.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/923093/000090266426002516/infotable.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/923093/000090266426002516/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/923093/000090266426002516/0000902664-26-002516-index.htm",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "MACRO_MULTI_STRATEGY",
+      "scaleTier": "LARGE",
+      "scaleBasis": "유명 대형 헤지펀드·기관 운용사·행동주의 플랫폼",
+      "operator": {
+        "names": [
+          "Paul Tudor Jones"
+        ],
+        "roles": [
+          "Founder/CIO"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "매크로·멀티전략",
+        "horizon": "단기~중기",
+        "instrumentFocus": "선물·옵션·주식",
+        "riskStyle": "동적 헤지"
+      },
+      "teachingUse": "거시 변수와 멀티전략",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "priority": 22,
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "pershing-square",
+      "displayName": "Bill Ackman",
+      "filer": "Pershing Square Capital Management, L.P.",
+      "style": "집중·행동주의",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_ROWS",
+      "priority": 23,
+      "cik": "0001336528",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "CONNECTED_IN_HOLDINGS_ARTIFACT",
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/1336528/000117266126002336/0001172661-26-002336-index.html",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "ACTIVIST",
+      "scaleTier": "LARGE",
+      "scaleBasis": "유명 대형 헤지펀드·기관 운용사·행동주의 플랫폼",
+      "operator": {
+        "names": [
+          "Bill Ackman"
+        ],
+        "roles": [
+          "Founder/CEO/CIO"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "행동주의·가치",
+        "horizon": "중장기",
+        "instrumentFocus": "주식·지분",
+        "riskStyle": "촉매·거버넌스"
+      },
+      "teachingUse": "촉매·거버넌스·기업 개선",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "starboard-value",
+      "displayName": "Starboard Value",
+      "filer": "Starboard Value LP",
+      "style": "행동주의·촉매·기업 개선",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "cik": "0001517137",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0000921895-26-001402",
+        "periodOfReport": "2026-03-31",
+        "filedAt": "2026-05-15",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/1517137/000092189526001402/0000921895-26-001402-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1517137/000092189526001402/infotable.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1517137/000092189526001402/infotable.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1517137/000092189526001402/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/1517137/000092189526001402/0000921895-26-001402-index.htm",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "ACTIVIST",
+      "scaleTier": "LARGE",
+      "scaleBasis": "유명 대형 헤지펀드·기관 운용사·행동주의 플랫폼",
+      "operator": {
+        "names": [
+          "Jeffrey Smith"
+        ],
+        "roles": [
+          "Founder/CEO/CIO"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "행동주의·가치",
+        "horizon": "중장기",
+        "instrumentFocus": "주식·지분",
+        "riskStyle": "촉매·거버넌스"
+      },
+      "teachingUse": "촉매·거버넌스·기업 개선",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "priority": 24,
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "trian-fund-management",
+      "displayName": "Trian Fund Management",
+      "filer": "Trian Fund Management, L.P.",
+      "style": "행동주의·집중·소비재/산업",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "cik": "0001345471",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0001345471-26-000026",
+        "periodOfReport": "2026-03-31",
+        "filedAt": "2026-05-15",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/1345471/000134547126000026/0001345471-26-000026-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1345471/000134547126000026/Q12026-tfmlp-info-table.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1345471/000134547126000026/Q12026-tfmlp-info-table.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1345471/000134547126000026/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/1345471/000134547126000026/0001345471-26-000026-index.htm",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "ACTIVIST",
+      "scaleTier": "LARGE",
+      "scaleBasis": "유명 대형 헤지펀드·기관 운용사·행동주의 플랫폼",
+      "operator": {
+        "names": [
+          "Nelson Peltz",
+          "Ed Garden"
+        ],
+        "roles": [
+          "Co-founder/CEO",
+          "Co-founder/CIO"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "행동주의·가치",
+        "horizon": "중장기",
+        "instrumentFocus": "주식·지분",
+        "riskStyle": "촉매·거버넌스"
+      },
+      "teachingUse": "촉매·거버넌스·기업 개선",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "priority": 25,
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "valueact-holdings",
+      "displayName": "ValueAct",
+      "filer": "ValueAct Holdings, L.P.",
+      "style": "행동주의·집중·기업 개선",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "cik": "0001418814",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0001418814-26-000002",
+        "periodOfReport": "2026-03-31",
+        "filedAt": "2026-05-15",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/1418814/000141881426000002/0001418814-26-000002-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1418814/000141881426000002/vac13f51526.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1418814/000141881426000002/vac13f51526.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1418814/000141881426000002/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/1418814/000141881426000002/0001418814-26-000002-index.htm",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "ACTIVIST",
+      "scaleTier": "LARGE",
+      "scaleBasis": "유명 대형 헤지펀드·기관 운용사·행동주의 플랫폼",
+      "operator": {
+        "names": [
+          "Mason Morfit"
+        ],
+        "roles": [
+          "President/CEO"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "행동주의·가치",
+        "horizon": "중장기",
+        "instrumentFocus": "주식·지분",
+        "riskStyle": "촉매·거버넌스"
+      },
+      "teachingUse": "촉매·거버넌스·기업 개선",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "priority": 26,
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "third-point",
+      "displayName": "Daniel Loeb",
+      "filer": "Third Point LLC",
+      "style": "행동주의·이벤트",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "priority": 27,
+      "cik": "0001040273",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0001040273-26-000002",
+        "periodOfReport": "2026-03-31",
+        "filedAt": "2026-05-15",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000104027326000002/0001040273-26-000002-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1040273/000104027326000002/infotable.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1040273/000104027326000002/infotable.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1040273/000104027326000002/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/1040273/000104027326000002/0001040273-26-000002-index.htm",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "ACTIVIST_EVENT",
+      "scaleTier": "LARGE",
+      "scaleBasis": "유명 대형 헤지펀드·기관 운용사·행동주의 플랫폼",
+      "operator": {
+        "names": [
+          "Daniel Loeb"
+        ],
+        "roles": [
+          "Founder/CEO"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "행동주의·이벤트",
+        "horizon": "단기~중기",
+        "instrumentFocus": "주식·이벤트",
+        "riskStyle": "촉매·특수상황"
+      },
+      "teachingUse": "이벤트·행동주의·촉매",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "elliott-investment-management",
+      "displayName": "Paul Singer",
+      "filer": "Elliott Investment Management L.P.",
+      "style": "행동주의·이벤트·가치",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "priority": 28,
+      "cik": "0001791786",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0001013594-26-000613",
+        "periodOfReport": "2026-03-31",
+        "filedAt": "2026-05-15",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/1791786/000101359426000613/0001013594-26-000613-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1791786/000101359426000613/form13fInfoTable.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1791786/000101359426000613/form13fInfoTable.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1791786/000101359426000613/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/1791786/000101359426000613/0001013594-26-000613-index.htm",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "ACTIVIST_EVENT",
+      "scaleTier": "MEGA",
+      "scaleBasis": "글로벌 대형 운용 플랫폼 또는 대형 기관 신고주체",
+      "operator": {
+        "names": [
+          "Paul Singer",
+          "Jonathan Pollock"
+        ],
+        "roles": [
+          "Founder/Co-CEO",
+          "Co-CEO/CIO"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "행동주의·이벤트",
+        "horizon": "단기~중기",
+        "instrumentFocus": "주식·이벤트",
+        "riskStyle": "촉매·특수상황"
+      },
+      "teachingUse": "이벤트·행동주의·촉매",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "tci-fund-management",
+      "displayName": "Chris Hohn",
+      "filer": "TCI Fund Management Ltd",
+      "style": "집중·퀄리티·행동주의",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "priority": 29,
+      "cik": "0001647251",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0001647251-26-000004",
+        "periodOfReport": "2026-03-31",
+        "filedAt": "2026-05-15",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000164725126000004/0001647251-26-000004-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1647251/000164725126000004/Form13fInfoTable.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1647251/000164725126000004/Form13fInfoTable.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1647251/000164725126000004/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/1647251/000164725126000004/0001647251-26-000004-index.htm",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "ACTIVIST_QUALITY",
+      "scaleTier": "LARGE",
+      "scaleBasis": "유명 대형 헤지펀드·기관 운용사·행동주의 플랫폼",
+      "operator": {
+        "names": [
+          "Chris Hohn"
+        ],
+        "roles": [
+          "Founder/Managing Partner"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "집중·퀄리티",
+        "horizon": "중장기",
+        "instrumentFocus": "주식",
+        "riskStyle": "고확신·거버넌스"
+      },
+      "teachingUse": "집중·퀄리티·주주행동",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "viking-global-investors",
+      "displayName": "Andreas Halvorsen",
+      "filer": "Viking Global Investors LP",
+      "style": "롱/숏·성장·퀄리티",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "priority": 30,
+      "cik": "0001103804",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0001103804-26-000004",
+        "periodOfReport": "2026-03-31",
+        "filedAt": "2026-05-15",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000110380426000004/0001103804-26-000004-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1103804/000110380426000004/MSFS13F033126.XML",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1103804/000110380426000004/MSFS13F033126.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1103804/000110380426000004/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/1103804/000110380426000004/0001103804-26-000004-index.htm",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "LONG_SHORT_GROWTH",
+      "scaleTier": "LARGE",
+      "scaleBasis": "유명 대형 헤지펀드·기관 운용사·행동주의 플랫폼",
+      "operator": {
+        "names": [
+          "Andreas Halvorsen"
+        ],
+        "roles": [
+          "Co-founder/CEO"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "롱숏 성장",
+        "horizon": "중기",
+        "instrumentFocus": "주식·옵션",
+        "riskStyle": "롱숏·헤지"
+      },
+      "teachingUse": "성장·퀄리티 롱숏",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "tiger-global-management",
+      "displayName": "Chase Coleman",
+      "filer": "Tiger Global Management LLC",
+      "style": "성장·기술·벤처",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "priority": 31,
+      "cik": "0001167483",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0000919574-26-003362",
+        "periodOfReport": "2026-03-31",
+        "filedAt": "2026-05-15",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/1167483/000091957426003362/0000919574-26-003362-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1167483/000091957426003362/infotable.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1167483/000091957426003362/infotable.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1167483/000091957426003362/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/1167483/000091957426003362/0000919574-26-003362-index-headers.html",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "GROWTH_TECH",
+      "scaleTier": "LARGE",
+      "scaleBasis": "유명 대형 헤지펀드·기관 운용사·행동주의 플랫폼",
+      "operator": {
+        "names": [
+          "Chase Coleman"
+        ],
+        "roles": [
+          "Founder/CEO"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "성장·기술 집중",
+        "horizon": "중장기",
+        "instrumentFocus": "성장주·비상장",
+        "riskStyle": "집중·변동성 허용"
+      },
+      "teachingUse": "성장주·기술 플랫폼 집중",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "ark-investment-management",
+      "displayName": "Cathie Wood",
+      "filer": "ARK Investment Management LLC",
+      "style": "혁신·고성장·테마",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "priority": 32,
+      "cik": "0001697748",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0001104659-26-059240",
+        "periodOfReport": "2026-03-31",
+        "filedAt": "2026-05-12",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926059240/0001104659-26-059240-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926059240/infotable.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926059240/infotable.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926059240/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926059240/0001104659-26-059240-index.htm",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "THEMATIC_GROWTH",
+      "scaleTier": "LARGE",
+      "scaleBasis": "유명 대형 헤지펀드·기관 운용사·행동주의 플랫폼",
+      "operator": {
+        "names": [
+          "Cathie Wood"
+        ],
+        "roles": [
+          "Founder/CEO/CIO"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "테마·혁신",
+        "horizon": "중장기",
+        "instrumentFocus": "성장주·혁신",
+        "riskStyle": "집중·고변동"
+      },
+      "teachingUse": "테마·혁신·고성장",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "harvard-management-company",
+      "displayName": "Harvard Management Company",
+      "filer": "Harvard Management Co Inc",
+      "style": "대학기금·다자산·장기 분산",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "priority": 33,
+      "cik": "0001082621",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0001193125-26-226658",
+        "periodOfReport": "2026-03-31",
+        "filedAt": "2026-05-15",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312526226658/0001193125-26-226658-index.html",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1082621/000119312526226658/53948.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1082621/000119312526226658/53948.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1082621/000119312526226658/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/1082621/000119312526226658/0001193125-26-226658-index.html",
+      "institutionalBoundary": "대학기금의 기관 신고주체이며 Harvard 전체 자산·기부금·비공개·대체투자 포트폴리오를 대표하지 않습니다.",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "ENDOWMENT",
+      "scaleTier": "LARGE",
+      "scaleBasis": "유명 대형 헤지펀드·기관 운용사·행동주의 플랫폼",
+      "operator": {
+        "names": [
+          "N.P. Narvekar"
+        ],
+        "roles": [
+          "President/CEO"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "대학기금 자산배분",
+        "horizon": "장기",
+        "instrumentFocus": "주식·대체·채권",
+        "riskStyle": "분산·유동성 관리"
+      },
+      "teachingUse": "대학기금·장기 분산·대체투자 경계",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "situational-awareness",
+      "displayName": "Leopold Aschenbrenner",
+      "filer": "Situational Awareness LP",
+      "style": "AI 인프라·반도체·성장 집중",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_METADATA",
+      "priority": 34,
+      "cik": "0002045724",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "PENDING_SEC_ROW_IMPORT",
+      "latestFiling": {
+        "form": "13F-HR",
+        "accession": "0002045724-26-000008",
+        "periodOfReport": "2026-03-31",
+        "filedAt": "2026-05-18",
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/2045724/000204572426000008/0002045724-26-000008-index.htm",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/2045724/000204572426000008/salp13fq1xml.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/2045724/000204572426000008/salp13fq1xml.html",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/2045724/000204572426000008/primary_doc.xml"
+      },
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/2045724/000204572426000008/0002045724-26-000008-index.htm",
+      "discoverySource": "https://t.me/s/theblockbeats/176983",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "AI_SPECIALIST",
+      "scaleTier": "SPECIALIST",
+      "scaleBasis": "전문 전략·신흥 운용사",
+      "operator": {
+        "names": [
+          "Leopold Aschenbrenner"
+        ],
+        "roles": [
+          "Founder/Managing Partner"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "AI·반도체 전문",
+        "horizon": "중기~장기",
+        "instrumentFocus": "AI 인프라·성장주",
+        "riskStyle": "집중·테마"
+      },
+      "teachingUse": "AI 인프라·신흥 전문 운용자",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "baupost-group",
+      "displayName": "Seth Klarman",
+      "filer": "Baupost Group LLC/MA",
+      "style": "가치·현금중시·하방 방어",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_ROWS",
+      "priority": 35,
+      "cik": "0001061768",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "CONNECTED_IN_HOLDINGS_ARTIFACT",
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000007/0001061768-26-000007-index.htm",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "VALUE_DEFENSIVE",
+      "scaleTier": "LARGE",
+      "scaleBasis": "유명 대형 헤지펀드·기관 운용사·행동주의 플랫폼",
+      "operator": {
+        "names": [
+          "Seth Klarman"
+        ],
+        "roles": [
+          "Founder/President"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "가치·방어",
+        "horizon": "중장기",
+        "instrumentFocus": "주식·현금·신용",
+        "riskStyle": "현금·하방"
+      },
+      "teachingUse": "가치·현금·하방 방어",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "scion-asset-management",
+      "displayName": "Michael Burry",
+      "filer": "Scion Asset Management, LLC",
+      "style": "비대칭·헤지·이벤트",
+      "type": "LIVE_13F",
+      "status": "STALE_REFERENCE",
+      "priority": 36,
+      "cik": "0001649339",
+      "latestAvailablePeriod": "2025-09-30",
+      "rowStatus": "CONNECTED_STALE_IN_HOLDINGS_ARTIFACT",
+      "sourceEvidence": "https://data.sec.gov/submissions/CIK0001649339.json",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "SPECIAL_SITUATIONS",
+      "scaleTier": "SPECIALIST",
+      "scaleBasis": "전문 전략·신흥 운용사",
+      "operator": {
+        "names": [
+          "Michael Burry"
+        ],
+        "roles": [
+          "Founder/Portfolio Manager"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "특수상황·비대칭",
+        "horizon": "단기~중기",
+        "instrumentFocus": "주식·옵션",
+        "riskStyle": "이벤트·헤지"
+      },
+      "teachingUse": "비대칭·이벤트·헤지",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "fisher-asset-management",
+      "displayName": "Ken Fisher",
+      "filer": "Fisher Asset Management, LLC",
+      "style": "글로벌·분산·대형주",
+      "type": "LIVE_13F",
+      "status": "VERIFIED_ROWS",
+      "priority": 37,
+      "cik": "0000850529",
+      "latestAvailablePeriod": "2026-03-31",
+      "rowStatus": "CONNECTED_IN_HOLDINGS_ARTIFACT",
+      "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000004/0000850529-26-000004-index.htm",
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "GLOBAL_LONG_ONLY",
+      "scaleTier": "MEGA",
+      "scaleBasis": "글로벌 대형 운용 플랫폼 또는 대형 기관 신고주체",
+      "operator": {
+        "names": [
+          "Ken Fisher"
+        ],
+        "roles": [
+          "Founder/Executive Chairman/CIO"
+        ]
+      },
+      "strategyProfile": {
+        "approach": "액티브 기본분석",
+        "horizon": "중장기",
+        "instrumentFocus": "주식",
+        "riskStyle": "리서치·분산"
+      },
+      "teachingUse": "글로벌 분산·대형주",
+      "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
+      "scaleMetric": {
+        "label": "공식 단일 AUM 미확인 · 규모 구간만 사용",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": null,
+        "sourceUrl": null,
+        "basis": "13F와 직접 비교 가능한 공통 AUM 수치가 아님"
+      }
+    },
+    {
+      "id": "mark-minervini",
+      "displayName": "Mark Minervini",
+      "filer": "방법론 전용 프로필 · SEC 13F filer 아님",
+      "style": "모멘텀·성장·손실 제한",
+      "type": "METHOD_ONLY",
+      "status": "METHOD_ONLY",
+      "priority": 38,
+      "audienceTier": "BEGINNER_CORE",
+      "managerCategory": "MOMENTUM_GROWTH",
+      "scaleTier": "SPECIALIST",
+      "scaleBasis": "개인 대가·방법론 교육자; 공개 AUM 비교 대상 아님",
+      "operator": {
+        "names": ["Mark Minervini"],
+        "roles": ["Founder/Portfolio Manager·교육자"]
+      },
+      "strategyProfile": {
+        "approach": "모멘텀·성장",
+        "horizon": "단기~중기",
+        "instrumentFocus": "상장주식",
+        "riskStyle": "추세 추종·손실 제한"
+      },
+      "teachingUse": "모멘텀·포지션 사이징·손실 제한",
+      "selectionReason": "초보자에게 추세·리스크 관리의 대표 방법론을 설명하는 유명 대가 프로필",
+      "sourceEvidence": "https://www.minervini.com/",
+      "scaleMetric": {
+        "label": "공식 AUM 미공개 · 방법론 프로필",
+        "value": null,
+        "unit": null,
+        "asOf": null,
+        "sourceName": "Mark Minervini 공식 사이트",
+        "sourceUrl": "https://www.minervini.com/",
+        "basis": "SEC 13F 포트폴리오·기관 AUM으로 오인하지 않음"
+      },
+      "profileBoundary": "SEC 13F 행·CIK·reported value·보유비중을 생성하지 않는 방법론 전용 프로필"
+    }
+  ],
+  "discoveryLeads": [
+    {
+      "id": "telegram-insidertracking-61177",
+      "sourceKind": "DISCOVERY_SECONDARY",
+      "status": "UNVERIFIED_DISCOVERY",
+      "channel": "insidertracking",
+      "messageId": "61177",
+      "url": "https://t.me/insidertracking/61177",
+      "observedAt": "2026-08-15T00:10:47.000Z",
+      "namedManager": "Citadel Advisors LLC",
+      "namedPerson": "Seth Levy",
+      "reportedPeriod": "2026Q2",
+      "tickerHints": [
+        "NVDA",
+        "AAPL",
+        "GOOG",
+        "AMZN",
+        "ALAB",
+        "GOOGL",
+        "HON",
+        "MTZ",
+        "IVV"
+      ],
+      "allowedUse": "lead-only; do not display as verified holdings or weights",
+      "reason": "Telegram summary is truncated and no SEC accession/row evidence is attached."
+    },
+    {
+      "id": "telegram-insidertracking-61178",
+      "sourceKind": "DISCOVERY_SECONDARY",
+      "status": "UNVERIFIED_DISCOVERY",
+      "channel": "insidertracking",
+      "messageId": "61178",
+      "url": "https://t.me/insidertracking/61178",
+      "observedAt": "2026-08-15T00:15:25.000Z",
+      "namedManager": "Harvard Management Company Inc",
+      "namedPerson": "Kathryn I.",
+      "reportedPeriod": "2026Q2",
+      "tickerHints": [
+        "NVDA",
+        "MSFT",
+        "GOOG",
+        "META",
+        "AVGO",
+        "AMZN",
+        "TSM",
+        "LITE",
+        "GOOGL",
+        "NFLX",
+        "UNP"
+      ],
+      "allowedUse": "lead-only; do not display as verified holdings or weights",
+      "reason": "Telegram summary is truncated and the named university manager has no linked SEC accession in the retained item."
+    },
+    {
+      "id": "telegram-insidertracking-61176",
+      "sourceKind": "DISCOVERY_SECONDARY",
+      "status": "UNVERIFIED_DISCOVERY",
+      "channel": "insidertracking",
+      "messageId": "61176",
+      "url": "https://t.me/insidertracking/61176",
+      "observedAt": "2026-08-15T00:06:58.000Z",
+      "namedManager": "Situational Awareness LP",
+      "reportedPeriod": "2026Q2",
+      "managerId": "situational-awareness",
+      "tickerHints": [
+        "NVDA",
+        "AMD",
+        "MU",
+        "TSM",
+        "BE",
+        "SNDK",
+        "INTC",
+        "RIOT",
+        "CRWV",
+        "NBIS",
+        "CORZ",
+        "GLW",
+        "SMH"
+      ],
+      "allowedUse": "lead-only; do not display as verified holdings or weights",
+      "reason": "Telegram discovery item has no linked SEC filer CIK or information table."
+    },
+    {
+      "id": "telegram-insidertracking-61175",
+      "sourceKind": "DISCOVERY_SECONDARY",
+      "status": "UNVERIFIED_DISCOVERY",
+      "channel": "insidertracking",
+      "messageId": "61175",
+      "url": "https://t.me/insidertracking/61175",
+      "observedAt": "2026-08-15T00:03:12.000Z",
+      "namedManager": "Oaktree Capital Management LP",
+      "reportedPeriod": "2026Q2",
+      "tickerHints": [
+        "CORZ",
+        "CRDO",
+        "NRG",
+        "TLN",
+        "VSAT",
+        "SE",
+        "HDB",
+        "PBR",
+        "B",
+        "AU"
+      ],
+      "allowedUse": "lead-only; do not display as verified holdings or weights",
+      "reason": "Q2 claim is not reconciled to the SEC Q2 filing; Oaktree's verified catalog entry remains Q1 13F-HR/A metadata only."
+    },
+    {
+      "id": "telegram-insidertracking-61174",
+      "sourceKind": "DISCOVERY_SECONDARY",
+      "status": "UNVERIFIED_DISCOVERY",
+      "channel": "insidertracking",
+      "messageId": "61174",
+      "url": "https://t.me/insidertracking/61174",
+      "observedAt": "2026-08-15T00:00:03.000Z",
+      "namedManager": "Bridgewater Associates LP",
+      "reportedPeriod": "2026Q2",
+      "tickerHints": [
+        "NVDA",
+        "AMD",
+        "GOOG",
+        "AVGO",
+        "AMZN",
+        "AAOI",
+        "PLTR",
+        "GOOGL",
+        "CSCO",
+        "NOW",
+        "LRCX",
+        "ASX",
+        "CRWV",
+        "NBIS",
+        "APP",
+        "DUK",
+        "ED",
+        "STT",
+        "NI",
+        "SPY"
+      ],
+      "allowedUse": "lead-only; do not display as verified holdings or weights",
+      "reason": "Telegram discovery item has no SEC accession and the current SEC catalog entry is Q1 metadata."
+    },
+    {
+      "id": "telegram-insidertracking-61172",
+      "sourceKind": "DISCOVERY_SECONDARY",
+      "status": "UNVERIFIED_DISCOVERY",
+      "channel": "insidertracking",
+      "messageId": "61172",
+      "url": "https://t.me/insidertracking/61172",
+      "observedAt": "2026-08-14T23:56:39.000Z",
+      "namedManager": "Duquesne Family Office LLC",
+      "reportedPeriod": "2026Q2",
+      "tickerHints": [
+        "AMD",
+        "GOOG",
+        "AVGO",
+        "AMZN",
+        "TSM",
+        "BE",
+        "STX",
+        "GOOGL",
+        "INTC",
+        "PANW",
+        "HUM",
+        "DAL",
+        "LSCC"
+      ],
+      "allowedUse": "lead-only; do not display as verified holdings or weights",
+      "reason": "Telegram Q2 claim is not reconciled to a SEC Q2 accession."
+    },
+    {
+      "id": "telegram-insidertracking-61171",
+      "sourceKind": "DISCOVERY_SECONDARY",
+      "status": "UNVERIFIED_DISCOVERY",
+      "channel": "insidertracking",
+      "messageId": "61171",
+      "url": "https://t.me/insidertracking/61171",
+      "observedAt": "2026-08-14T23:49:56.000Z",
+      "namedManager": "Berkshire Hathaway Inc",
+      "reportedPeriod": "2026Q2",
+      "tickerHints": [
+        "AAPL",
+        "GOOG",
+        "GOOGL",
+        "BRK.B",
+        "CVX",
+        "KO",
+        "BAC",
+        "AXP",
+        "STZ",
+        "OXY"
+      ],
+      "allowedUse": "lead-only; do not display as verified holdings or weights",
+      "reason": "Telegram summary is not a SEC filing; the current verified artifact remains Q1 2026."
+    },
+    {
+      "id": "x-search-13f",
+      "sourceKind": "DISCOVERY_SECONDARY",
+      "status": "UNREADABLE_DISCOVERY",
+      "url": "https://x.com/search?q=13F&src=typed_query",
+      "observedAt": "2026-08-16",
+      "namedManager": null,
+      "reportedPeriod": null,
+      "tickerHints": [],
+      "allowedUse": "not consumed; no claim or portfolio may be derived",
+      "reason": "The in-app web search returned an internal error and did not expose post content for verification."
+    }
+  ]
+}

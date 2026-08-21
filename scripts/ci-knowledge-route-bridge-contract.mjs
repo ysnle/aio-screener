@@ -8,9 +8,9 @@ import { createKnowledgeRouteBridge, ALLOWED_ROUTES } from '../src/domain/knowle
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const artifact = JSON.parse(fs.readFileSync(path.join(root, 'public-data/knowledge/route-targets.json'), 'utf8'));
-assert.equal(artifact.counts.articleTargets, 159);
+assert.equal(artifact.counts.articleTargets, 160);
 assert.equal(artifact.counts.compatibilityTargets, 39);
-assert.equal(artifact.targets.length, 198);
+assert.equal(artifact.targets.length, 199);
 assert.equal(artifact.scenarios.length, 18);
 assert.equal(artifact.scenarios.some((scenario) => /mobile|tablet|touch/i.test(String(scenario.persona || ''))), false, 'desktop-only knowledge scenarios must not restore mobile personas');
 const bridge = createKnowledgeRouteBridge(artifact.targets);

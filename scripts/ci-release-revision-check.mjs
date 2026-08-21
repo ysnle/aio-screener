@@ -57,10 +57,12 @@ if (!errors.length) {
   check('HTML version badge exposes the same version', html.includes(`id="app-version-badge">${version.version}</span>`));
   check('data artifact has generatedAt', Boolean(data.meta?.generatedAt));
   check('screener artifact has asOf and research-only contract', Boolean(screener.asOf) && screener.rankingContract?.tradingSignal === false && screener.rankingContract?.allowedUse === 'research-relative-ranking-only');
-  check('public AI config is revision-bound, non-secret, and explicit', publicConfig.schemaVersion === 'ai-public-config.v1'
+  check('public AI config is revision-bound, non-secret, and fresh-browser usable', publicConfig.schemaVersion === 'ai-public-config.v1'
     && publicConfig.appRevision === version.version
-    && publicConfig.ai?.serverMode === 'explicit-opt-in'
-    && publicConfig.ai?.workerUrl === null);
+    && publicConfig.ai?.serverMode === 'shared-worker-fallback'
+    && publicConfig.ai?.chatPolicy === 'personal-key-or-public-worker'
+    && /^https:\/\//.test(publicConfig.ai?.workerUrl || '')
+    && !text('public-config.json').includes('ANTHROPIC_API_KEY'));
   const publicRuntimeScripts = ['js/aio-core.js', 'js/aio-data.js', 'js/aio-ui.js', 'js/aio-chat.js', 'js/aio-glossary.js'];
   check('Pages allowlist includes only runtime/data artifacts', Array.isArray(allowlist.publicRootAllowlist)
     && allowlist.publicRootAllowlist.includes('index.html')

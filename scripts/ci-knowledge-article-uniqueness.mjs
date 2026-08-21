@@ -7,6 +7,8 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
 const articles = read('public-data/knowledge/articles.json').articles || [];
+const expectedArticleCount = (read('public-data/principles/lesson-library.json').lessons || []).length
+  + (read('public-data/atlas/foundation-lessons.json').lessons || []).length;
 const failures = [];
 const signatures = new Map();
 for (const article of articles) {
@@ -20,6 +22,7 @@ const collisions = [...signatures.values()].filter((ids) => ids.length > 1);
 const report = {
   status: failures.length ? 'FAIL' : 'PASS_WITH_BOUNDARY',
   articles: articles.length,
+  expectedArticles: expectedArticleCount,
   uniqueDraftSeeds: signatures.size,
   exactCollisions: collisions.length,
   completionReady: false,
@@ -27,4 +30,4 @@ const report = {
   failures
 };
 console.log(JSON.stringify(report, null, 2));
-if (failures.length || articles.length !== 159) process.exit(1);
+if (failures.length || articles.length !== expectedArticleCount) process.exit(1);

@@ -8538,14 +8538,27 @@
     _assert('T990c research_failure_degrades_without_erasing_analysis: missing web evidence preserves conditional prose with an explicit limitation',
       degradedResearch.blocked === false && degradedResearch.text.indexOf('수요와 공급 병목') >= 0 && degradedResearch.limitations.indexOf('research-evidence-unavailable') >= 0,
       JSON.stringify(degradedResearch));
-    var degradedCurrent = window._aioRunAIResponsePipeline('현재 기준 시나리오 값은 100입니다.', {
+    var degradedCurrent = window._aioRunAIResponsePipeline('현재 기준 시나리오 값은 100입니다. 수요와 공급 조건은 함께 확인해야 합니다.', {
       request: window._aioCreateAIRequestObject('current-degraded-test', { ctxId:'home', query:'현재 시나리오' }),
       ctxId:'home', query:'현재 시나리오', currentSensitive:true, record:false
     });
-    _assert('T990d current_evidence_gap_is_claim_scoped: an unverified current number is disclosed without replacing the whole answer',
-      degradedCurrent.blocked === false && degradedCurrent.text.indexOf('시나리오 값은 100') >= 0 &&
+    _assert('T990d current_evidence_gap_is_claim_scoped: an unverified current number is removed without replacing qualitative analysis',
+      degradedCurrent.blocked === false && degradedCurrent.text.indexOf('수요와 공급 조건') >= 0 && degradedCurrent.text.indexOf('100') < 0 &&
       degradedCurrent.limitations.indexOf('market-session-evidence-unavailable') >= 0 && degradedCurrent.limitations.indexOf('current-numeric-claim-unverified') >= 0,
       JSON.stringify(degradedCurrent));
+    var claimScopedPlan = '[AI_ANSWER_PLAN]' + JSON.stringify({ schemaVersion:'answer-plan.v1', summary:'변동성과 위험 선호를 함께 확인해야 합니다.', claims:[{ type:'metric', text:'VIX', value:15.2, unit:'index', asOf:'2026-08-18T13:00:00Z', source:'fixture', evidenceIds:['missing-vix'], status:'verified' }], sections:[{ title:'조건', body:'확인된 설명은 유지합니다.' }], citations:[], followUps:[] }) + '[/AI_ANSWER_PLAN]';
+    var claimScoped = window._aioRunAIResponsePipeline(claimScopedPlan, { request:window._aioCreateAIRequestObject('claim-scoped-plan-test', { ctxId:'home' }), currentSensitive:true, evidence:[], record:false });
+    _assert('T990e answer_plan_unbound_claim_is_removed_not_whole_answer: qualitative plan text survives an unbound numeric claim',
+      claimScoped.blocked === false && claimScoped.text.indexOf('변동성과 위험 선호') >= 0 && claimScoped.text.indexOf('15.2') < 0 && claimScoped.limitations.indexOf('answer-plan-claim-degraded') >= 0,
+      JSON.stringify(claimScoped));
+    var invalidPlan = window._aioRunAIResponsePipeline('[AI_ANSWER_PLAN]{"schemaVersion":"answer-plan.v1","summary":"현재 VIX는 15.2입니다","claims":[],"sections":[{"title":"조건","body":"변동성과 위험 선호를 함께 확인해야 합니다."}],"citations":[],"followUps":[]}[/AI_ANSWER_PLAN]', { request:window._aioCreateAIRequestObject('invalid-plan-test', { ctxId:'home' }), currentSensitive:true, evidence:[], record:false });
+    _assert('T990f invalid_answer_plan_preserves_safe_sections: invalid numeric prose is removed while qualitative sections remain',
+      invalidPlan.blocked === false && invalidPlan.text.indexOf('변동성과 위험 선호') >= 0 && invalidPlan.text.indexOf('15.2') < 0,
+      JSON.stringify(invalidPlan));
+    var partialPlan = window._aioRunAIResponsePipeline('[AI_ANSWER_PLAN]{"schemaVersion":"answer-plan.v1"', { request:window._aioCreateAIRequestObject('partial-plan-test', { ctxId:'home' }), streamPhase:'partial', record:false });
+    _assert('T990g partial_answer_plan_hides_control_json: partial structured stream shows a stable progress state',
+      partialPlan.blocked === false && partialPlan.text === 'AI 답변을 구성하고 근거를 검증하는 중…' && partialPlan.text.indexOf('AI_ANSWER_PLAN') < 0,
+      JSON.stringify(partialPlan));
   }
 
   function _testV5284ModelRiskIsolation() {

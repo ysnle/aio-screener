@@ -672,7 +672,9 @@ check('WP-AI1: briefing route is defined in the unified context map and regressi
 // v52.77 (WP-AI2): typed claim schema and fail-closed claim/evidence validation.
 check('WP-AI2: typed claim schema exposes metric/unit/scale/direction/asOf/source/evidenceId fields', /_AIO_CLAIM_SCHEMA_VERSION/.test(core) && /createTypedClaim/.test(core) && /validateTypedClaim/.test(core) && /getAIClaimSchemaPrompt/.test(core));
 check('WP-AI2: structured claim envelopes are parsed and validated by the shared response pipeline', /extractAIClaimEnvelope/.test(core) && /validateAIClaimEnvelope/.test(core) && /validateAIResponseClaims/.test(core) && /claimAudit/.test(chat) && /typed-claim-validation/.test(chat));
-check('WP-AI2: per-page and unified AI responses pass injected evidence rows into the shared typed-claim audit', /evidence: \(chatFreshPreflight && chatFreshPreflight\.after/.test(chat) && /evidence: \(_uniFreshPreflight && _uniFreshPreflight\.after/.test(html));
+check('WP-AI2: per-page and unified AI responses merge injected evidence once and pass the canonical registry into the shared typed-claim audit',
+  /var _pageClaimEvidence = _aioCollectAIClaimEvidence/.test(chat) && /evidence: _pageClaimEvidence/.test(chat)
+  && /var _uniClaimEvidence = typeof window\._aioCollectAIClaimEvidence/.test(html) && /evidence: _uniClaimEvidence/.test(html));
 check('WP-AI2: counterexample fixtures cover F&G/VIX, NFP 10x, bp/percent, sign, FX inversion, missing evidence, parser, and pipeline block', /_testV5277TypedClaimContract/.test(tests) && /T941/.test(tests) && /T942/.test(tests) && /T943/.test(tests) && /T944/.test(tests) && /T945/.test(tests) && /T946/.test(tests) && /T947/.test(tests) && /T948/.test(tests) && /T949/.test(tests));
 
 // v52.78 (WP-AI3): intent-aware reference retrieval, deterministic compaction,
@@ -719,7 +721,7 @@ check('R460/P905: conduct policy blocks prohibited execution only while read-onl
 check('R460/P905: both chat surfaces advertise conditional analysis and downgrade research outages without erasing the answer',
   /투자·법률·세무 조건부 분석/.test(html) && /투자·법률·세무 조건부 분석/.test(chat) &&
   /research-evidence-unavailable/.test(chat) && !/RESEARCH_REQUIRED_BUT_UNAVAILABLE/.test(chat) && !/RESEARCH_REQUIRED_BUT_UNAVAILABLE/.test(html));
-check('WP-AI13/14: regression fixtures cover retrieval, conduct, shared pipeline, and claim-scoped degradation', /_testV5283RetrievalQualityAndConduct/.test(tests) && /T983/.test(tests) && /T984/.test(tests) && /T985/.test(tests) && /T986/.test(tests) && /T987/.test(tests) && /T988/.test(tests) && /T989/.test(tests) && /T990/.test(tests) && /T990c/.test(tests) && /T990d/.test(tests));
+check('WP-AI13/14: regression fixtures cover retrieval, conduct, shared pipeline, claim-scoped degradation, malformed-plan recovery, and partial-stream concealment', /_testV5283RetrievalQualityAndConduct/.test(tests) && /T983/.test(tests) && /T984/.test(tests) && /T985/.test(tests) && /T986/.test(tests) && /T987/.test(tests) && /T988/.test(tests) && /T989/.test(tests) && /T990/.test(tests) && /T990c/.test(tests) && /T990d/.test(tests) && /T990e/.test(tests) && /T990f/.test(tests) && /T990g/.test(tests));
 
 // v52.84 (WP-AI15/16): model-risk replay/release evidence and cache,
 // isolation, idempotency, and stream-finalization boundaries.

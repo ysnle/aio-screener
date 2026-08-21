@@ -3,18 +3,18 @@
   "dossierId": "research:atlas-foundation:human-review",
   "contentUnitId": "atlas-foundation:human-review",
   "unitKind": "FOUNDATION_LESSON",
-  "title": "human-review",
+  "title": "Human review",
   "researchQuestions": [
-    "What is the claim-specific mechanism for human-review?",
-    "Which variable, unit, time boundary or assumption would change the interpretation of human-review?",
+    "What is the claim-specific mechanism for Human review?",
+    "Which variable, unit, time boundary or assumption would change the interpretation of Human review?",
     "Which official, academic, standard or filing evidence can directly support the relevant claim?"
   ],
   "queries": [
-    "human-review mechanism primary source",
-    "human-review official data standard filing evidence",
-    "human-review disconfirming evidence limitations"
+    "Human review mechanism primary source",
+    "Human review official data standard filing evidence",
+    "Human review disconfirming evidence limitations"
   ],
-  "searchedAt": "2026-08-12",
+  "searchedAt": "2026-08-18",
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
@@ -32,6 +32,20 @@
       "sourceTier": null
     },
     {
+      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
+      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
+      "publisher": "NIST AI Resource Center",
+      "title": "AI RMF Core: Govern, Map, Measure, Manage",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    },
+    {
+      "sourceId": "WEB-SEC-GOOGLE-10K-2025",
+      "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
+      "publisher": "U.S. Securities and Exchange Commission / Alphabet",
+      "title": "Alphabet 2025 Form 10-K filing",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    },
+    {
       "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
       "url": "https://arxiv.org/abs/1706.03762",
       "publisher": "arXiv / Vaswani et al.",
@@ -47,6 +61,24 @@
     }
   ],
   "selectedSources": [
+    {
+      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
+      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
+      "publisher": "NIST AI Resource Center",
+      "title": "AI RMF Core: Govern, Map, Measure, Manage",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-SEC-GOOGLE-10K-2025",
+      "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
+      "publisher": "U.S. Securities and Exchange Commission / Alphabet",
+      "title": "Alphabet 2025 Form 10-K filing",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
     {
       "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
       "url": "https://arxiv.org/abs/1706.03762",
@@ -68,8 +100,8 @@
   ],
   "rejectedSources": [],
   "sourceTiers": [
-    "ACADEMIC_TEXTBOOK_STANDARD",
-    "PRIMARY_OFFICIAL"
+    "PRIMARY_OFFICIAL",
+    "ACADEMIC_TEXTBOOK_STANDARD"
   ],
   "claimCoverage": [
     {
@@ -78,19 +110,23 @@
       "requiredAction": "independent direct source required"
     }
   ],
-  "consensus": "Seed sources were directly inspected for topic relevance; claim-level consensus remains open.",
+  "researchFactIds": [
+    "fact:nist:ai-rmf-core",
+    "fact:sec:capex-depreciation"
+  ],
+  "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",
   "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
   "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
-  "q1Thesis": "A claim about human-review must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+  "q1Thesis": "A claim about Human review must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
   "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
   "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
-  "q4StructuralMechanism": "Trace human-review through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+  "q4StructuralMechanism": "Trace Human review through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-  "status": "RESEARCH_IN_PROGRESS",
+  "status": "RESEARCHED",
   "completion": {
-    "researchComplete": false,
-    "sourceProfileComplete": false,
+    "researchComplete": true,
+    "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   }

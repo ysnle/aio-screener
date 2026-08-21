@@ -7,6 +7,7 @@ const filingsPath = path.join(root, 'public-data', 'masters', 'filings.json');
 const holdingsPath = path.join(root, 'public-data', 'masters', 'holdings.json');
 const filings = JSON.parse(await fs.readFile(filingsPath, 'utf8'));
 const userAgent = 'AIO Screener research contact research@example.com';
+const reviewedAt = new Date().toISOString().slice(0, 10);
 
 function decodeXml(value = '') {
   return String(value)
@@ -185,6 +186,8 @@ for (const manager of verified) {
     return counts;
   }, {});
   const parsedValueTotal = rows.reduce((sum, row) => sum + row.value, 0);
+  const valueDelta = cover.tableValueTotal == null ? null : parsedValueTotal - cover.tableValueTotal;
+  const valueReconciliationStatus = cover.tableValueTotal == null ? 'NOT_REPORTED' : valueDelta === 0 ? 'EXACT' : Math.abs(valueDelta) <= 1 ? 'EXCEPTION_DISCLOSED' : 'MISMATCH';
   const countReconciled = cover.tableEntryTotal == null || cover.tableEntryTotal === rows.length;
   const priorCountReconciled = !manager.priorFiling || priorCover?.tableEntryTotal == null || priorCover.tableEntryTotal === priorRows.length;
   const topRows = aggregateDisplayRows(rows).sort((a, b) => b.value - a.value).slice(0, 10).map((row) => {
@@ -246,6 +249,8 @@ for (const manager of verified) {
       cover,
       fullRowCount: rows.length,
       parsedValueTotal,
+      valueDelta,
+      valueReconciliationStatus,
       countReconciled,
       priorReportPeriod: manager.priorFiling?.periodOfReport || null,
       priorFullRowCount: priorRows.length,
@@ -299,7 +304,7 @@ await fs.writeFile(filingsPath, `${JSON.stringify(refreshedFilings, null, 2)}\n`
 
 const result = {
   schema: 'masters-13f-reference.v2',
-  reviewedAt: '2026-08-02',
+  reviewedAt,
   generatedAt,
   sourceKind: 'SEC_EDGAR',
   status: managers.every((manager) => manager.status === 'VERIFIED_ROWS') ? 'REFERENCE_ROWS_CONNECTED' : 'REVIEW_REQUIRED',

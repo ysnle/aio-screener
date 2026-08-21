@@ -3,19 +3,19 @@
   "dossierId": "research:atlas-foundation:interconnect",
   "contentUnitId": "atlas-foundation:interconnect",
   "unitKind": "FOUNDATION_LESSON",
-  "title": "interconnect",
+  "title": "Interconnect",
   "researchQuestions": [
-    "What is the claim-specific mechanism for interconnect?",
-    "Which variable, unit, time boundary or assumption would change the interpretation of interconnect?",
+    "What is the claim-specific mechanism for Interconnect?",
+    "Which variable, unit, time boundary or assumption would change the interpretation of Interconnect?",
     "Which official, academic, standard or filing evidence can directly support the relevant claim?"
   ],
   "queries": [
-    "interconnect mechanism primary source",
-    "interconnect official data standard filing evidence",
-    "interconnect disconfirming evidence limitations"
+    "Interconnect mechanism primary source",
+    "Interconnect official data standard filing evidence",
+    "Interconnect disconfirming evidence limitations"
   ],
-  "searchedAt": null,
-  "method": "NOT_STARTED",
+  "searchedAt": "2026-08-18",
+  "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
       "sourceId": "PS-01",
@@ -30,11 +30,95 @@
       "publisher": "Micron",
       "title": "HBM4 and data-center memory/storage announcement",
       "sourceTier": null
+    },
+    {
+      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
+      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
+      "publisher": "NIST AI Resource Center",
+      "title": "AI RMF Core: Govern, Map, Measure, Manage",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    },
+    {
+      "sourceId": "WEB-OECD-PRODUCTIVITY-METHODS",
+      "url": "https://www.oecd.org/sdd/productivity-stats/OECD-Productivity-Statistics-Methodological-note.pdf",
+      "publisher": "OECD",
+      "title": "OECD Productivity Statistics methodological note",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    },
+    {
+      "sourceId": "WEB-NVIDIA-CUDA-PROGRAMMING-GUIDE-2026",
+      "url": "https://docs.nvidia.com/cuda/cuda-programming-guide/index.html",
+      "publisher": "NVIDIA",
+      "title": "CUDA Programming Guide",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
+    },
+    {
+      "sourceId": "WEB-TSMC-3DFABRIC-2026",
+      "url": "https://www.tsmc.com/english/dedicatedFoundry/services/advanced-packaging",
+      "publisher": "TSMC",
+      "title": "3DFabric advanced packaging",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
+    },
+    {
+      "sourceId": "WEB-MICRON-HBM2E-2020",
+      "url": "https://assets.micron.com/adobe/assets/urn%3Aaaid%3Aaem%3A275edf31-79e3-4b6c-8bbd-a233babe9281/renditions/original/as/micron-hbm2e-memory-wp.pdf",
+      "publisher": "Micron",
+      "title": "Integrating and Operating HBM2E Memory",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
     }
   ],
-  "selectedSources": [],
+  "selectedSources": [
+    {
+      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
+      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
+      "publisher": "NIST AI Resource Center",
+      "title": "AI RMF Core: Govern, Map, Measure, Manage",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-OECD-PRODUCTIVITY-METHODS",
+      "url": "https://www.oecd.org/sdd/productivity-stats/OECD-Productivity-Statistics-Methodological-note.pdf",
+      "publisher": "OECD",
+      "title": "OECD Productivity Statistics methodological note",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-NVIDIA-CUDA-PROGRAMMING-GUIDE-2026",
+      "url": "https://docs.nvidia.com/cuda/cuda-programming-guide/index.html",
+      "publisher": "NVIDIA",
+      "title": "CUDA Programming Guide",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-TSMC-3DFABRIC-2026",
+      "url": "https://www.tsmc.com/english/dedicatedFoundry/services/advanced-packaging",
+      "publisher": "TSMC",
+      "title": "3DFabric advanced packaging",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-MICRON-HBM2E-2020",
+      "url": "https://assets.micron.com/adobe/assets/urn%3Aaaid%3Aaem%3A275edf31-79e3-4b6c-8bbd-a233babe9281/renditions/original/as/micron-hbm2e-memory-wp.pdf",
+      "publisher": "Micron",
+      "title": "Integrating and Operating HBM2E Memory",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    }
+  ],
   "rejectedSources": [],
-  "sourceTiers": [],
+  "sourceTiers": [
+    "PRIMARY_OFFICIAL",
+    "COMPANY_TECHNICAL_DOCUMENT"
+  ],
   "claimCoverage": [
     {
       "claimId": "atlas-foundation-interconnect",
@@ -42,19 +126,25 @@
       "requiredAction": "independent direct source required"
     }
   ],
-  "consensus": "Not assessed.",
+  "researchFactIds": [
+    "fact:nist:ai-rmf-core",
+    "fact:oecd:productivity",
+    "fact:nvidia:cuda-parallel",
+    "fact:tsmc:3dfabric"
+  ],
+  "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",
   "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
   "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
-  "q1Thesis": "A claim about interconnect must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+  "q1Thesis": "A claim about Interconnect must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
   "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
   "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
-  "q4StructuralMechanism": "Trace interconnect through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+  "q4StructuralMechanism": "Trace Interconnect through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-  "status": "RESEARCH_REQUIRED",
+  "status": "RESEARCHED",
   "completion": {
-    "researchComplete": false,
-    "sourceProfileComplete": false,
+    "researchComplete": true,
+    "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   }

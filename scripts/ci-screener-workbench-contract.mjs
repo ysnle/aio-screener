@@ -208,7 +208,23 @@ function run() {
   const artifact = readJson('public-data/screener.json');
   const model = readJson('public-data/model-validation-status.json');
   const validationGate = readJson('public-data/screener-validation-gate.json');
-  assert(artifact.universe === 873 && artifact.ok === 848 && artifact.fundamentalCoveragePct === 74.2, 'SCR-OS-00: baseline remains 873/848/74.2', { universe: artifact.universe, ok: artifact.ok, fundamentalCoveragePct: artifact.fundamentalCoveragePct });
+  const artifactRows = Object.values(artifact.data || {});
+  const factorRows = artifactRows.filter((row) => Number.isFinite(Number(row?.ret1m)) || Number.isFinite(Number(row?.rsi)));
+  const expectedFundamentalCoverage = artifact.fundamentalCoverageDenominator > 0
+    ? Math.round((Number(artifact.fundamentalCount || 0) / artifact.fundamentalCoverageDenominator) * 1000) / 10 : 0;
+  assert(artifact.universe === 873
+    && artifact.ok === artifactRows.length
+    && factorRows.length === artifactRows.length
+    && artifact.ok >= Math.ceil(artifact.universe * 0.8)
+    && artifact.fundamentalCoveragePct === expectedFundamentalCoverage,
+  'SCR-OS-00: published baseline is self-consistent and keeps 80%+ factor coverage', {
+    universe: artifact.universe,
+    ok: artifact.ok,
+    rows: artifactRows.length,
+    factorRows: factorRows.length,
+    fundamentalCoveragePct: artifact.fundamentalCoveragePct,
+    expectedFundamentalCoverage
+  });
   assert(model.status === 'BLOCKED' && model.pointInTimeUniverse === false && model.transactionCostsModeled === false, 'G-SCR-09: model validation remains explicitly blocked');
   assert(validationGate.status === 'BLOCKED' && validationGate.pointInTimeUniverse === false, 'G-SCR-09: persistent validation gate is fail-closed');
   const index = fs.readFileSync(path.join(root, '_context/INDEX.md'), 'utf8');

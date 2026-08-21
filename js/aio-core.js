@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v54.24';
+const APP_VERSION = 'v54.37';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -16464,10 +16464,10 @@ function _aioValidateCredential(key, value) {
   return { ok: true };
 }
 
-// Public configuration is non-secret policy metadata. It may advertise an
-// explicitly configured Worker, but it never contains a provider credential.
-// The default is deliberately personal-key-only until an operator publishes a
-// real Worker URL and readiness policy.
+// Public configuration is non-secret policy metadata. The public Worker URL is
+// a route address, not a credential; the Worker owns origin, quota, model and
+// token enforcement. Keep the boot fallback usable so a fresh browser does not
+// transiently advertise NO_ROUTE before public-config.json finishes loading.
 function _aioSetPublicConfig(value) {
   Object.defineProperty(window, 'AIO_PUBLIC_CONFIG', {
     value: value,
@@ -16480,8 +16480,8 @@ if (!window.AIO_PUBLIC_CONFIG) {
   _aioSetPublicConfig({
     schemaVersion: 'ai-public-config.v1',
     appRevision: window.APP_VERSION || null,
-    ai: { chatPolicy: 'personal-or-explicit-worker', workerUrl: null, serverMode: 'explicit-opt-in', healthPath: '/health' },
-    privacy: { clientKeysStayBrowserLocal: true, networkTransmission: 'provider-or-explicit-worker' }
+    ai: { chatPolicy: 'personal-key-or-public-worker', workerUrl: 'https://aio-proxy.zmfhd007.workers.dev', serverMode: 'shared-worker-fallback', healthPath: '/health', maxTokens: 'worker-advertised' },
+    privacy: { clientKeysStayBrowserLocal: true, networkTransmission: 'provider-or-public-worker' }
   });
 }
 window.AIO.loadPublicConfig = async function() {
@@ -16496,7 +16496,7 @@ window.AIO.loadPublicConfig = async function() {
     if (!cfg || cfg.schemaVersion !== 'ai-public-config.v1') throw new Error('public_config_schema');
     var workerUrl = cfg.ai && typeof cfg.ai.workerUrl === 'string' ? cfg.ai.workerUrl.trim().replace(/\/+$/, '') : '';
     if (workerUrl && !/^https:\/\/[^\s]+$/i.test(workerUrl)) workerUrl = '';
-    cfg.ai = Object.assign({ chatPolicy: 'personal-or-explicit-worker', workerUrl: null, serverMode: 'explicit-opt-in', healthPath: '/health' }, cfg.ai || {}, { workerUrl: workerUrl || null });
+    cfg.ai = Object.assign({ chatPolicy: 'personal-key-or-public-worker', workerUrl: 'https://aio-proxy.zmfhd007.workers.dev', serverMode: 'shared-worker-fallback', healthPath: '/health', maxTokens: 'worker-advertised' }, cfg.ai || {}, { workerUrl: workerUrl || null });
     cfg._loaded = true;
     _aioSetPublicConfig(cfg);
     try { window.dispatchEvent(new CustomEvent('aio:publicConfig', { detail: cfg })); } catch(_) {}

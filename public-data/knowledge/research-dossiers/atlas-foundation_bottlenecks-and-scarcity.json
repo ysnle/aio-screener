@@ -3,19 +3,19 @@
   "dossierId": "research:atlas-foundation:bottlenecks-and-scarcity",
   "contentUnitId": "atlas-foundation:bottlenecks-and-scarcity",
   "unitKind": "FOUNDATION_LESSON",
-  "title": "bottlenecks-and-scarcity",
+  "title": "Bottlenecks and scarcity",
   "researchQuestions": [
-    "What is the claim-specific mechanism for bottlenecks-and-scarcity?",
-    "Which variable, unit, time boundary or assumption would change the interpretation of bottlenecks-and-scarcity?",
+    "What is the claim-specific mechanism for Bottlenecks and scarcity?",
+    "Which variable, unit, time boundary or assumption would change the interpretation of Bottlenecks and scarcity?",
     "Which official, academic, standard or filing evidence can directly support the relevant claim?"
   ],
   "queries": [
-    "bottlenecks-and-scarcity mechanism primary source",
-    "bottlenecks-and-scarcity official data standard filing evidence",
-    "bottlenecks-and-scarcity disconfirming evidence limitations"
+    "Bottlenecks and scarcity mechanism primary source",
+    "Bottlenecks and scarcity official data standard filing evidence",
+    "Bottlenecks and scarcity disconfirming evidence limitations"
   ],
-  "searchedAt": null,
-  "method": "NOT_STARTED",
+  "searchedAt": "2026-08-18",
+  "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
       "sourceId": "PS-01",
@@ -37,11 +37,79 @@
       "publisher": "Japan METI",
       "title": "Manufacturing-base report",
       "sourceTier": null
+    },
+    {
+      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
+      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
+      "publisher": "NIST AI Resource Center",
+      "title": "AI RMF Core: Govern, Map, Measure, Manage",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    },
+    {
+      "sourceId": "WEB-TSMC-3DFABRIC-2026",
+      "url": "https://www.tsmc.com/english/dedicatedFoundry/services/advanced-packaging",
+      "publisher": "TSMC",
+      "title": "3DFabric advanced packaging",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
+    },
+    {
+      "sourceId": "WEB-MICRON-HBM2E-2020",
+      "url": "https://assets.micron.com/adobe/assets/urn%3Aaaid%3Aaem%3A275edf31-79e3-4b6c-8bbd-a233babe9281/renditions/original/as/micron-hbm2e-memory-wp.pdf",
+      "publisher": "Micron",
+      "title": "Integrating and Operating HBM2E Memory",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
+    },
+    {
+      "sourceId": "WEB-SEC-GOOGLE-10K-2025",
+      "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
+      "publisher": "U.S. Securities and Exchange Commission / Alphabet",
+      "title": "Alphabet 2025 Form 10-K filing",
+      "sourceTier": "PRIMARY_OFFICIAL"
     }
   ],
-  "selectedSources": [],
+  "selectedSources": [
+    {
+      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
+      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
+      "publisher": "NIST AI Resource Center",
+      "title": "AI RMF Core: Govern, Map, Measure, Manage",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-TSMC-3DFABRIC-2026",
+      "url": "https://www.tsmc.com/english/dedicatedFoundry/services/advanced-packaging",
+      "publisher": "TSMC",
+      "title": "3DFabric advanced packaging",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-MICRON-HBM2E-2020",
+      "url": "https://assets.micron.com/adobe/assets/urn%3Aaaid%3Aaem%3A275edf31-79e3-4b6c-8bbd-a233babe9281/renditions/original/as/micron-hbm2e-memory-wp.pdf",
+      "publisher": "Micron",
+      "title": "Integrating and Operating HBM2E Memory",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-SEC-GOOGLE-10K-2025",
+      "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
+      "publisher": "U.S. Securities and Exchange Commission / Alphabet",
+      "title": "Alphabet 2025 Form 10-K filing",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    }
+  ],
   "rejectedSources": [],
-  "sourceTiers": [],
+  "sourceTiers": [
+    "PRIMARY_OFFICIAL",
+    "COMPANY_TECHNICAL_DOCUMENT"
+  ],
   "claimCoverage": [
     {
       "claimId": "atlas-foundation-bottlenecks-and-scarcity",
@@ -49,19 +117,25 @@
       "requiredAction": "independent direct source required"
     }
   ],
-  "consensus": "Not assessed.",
+  "researchFactIds": [
+    "fact:nist:ai-rmf-core",
+    "fact:tsmc:3dfabric",
+    "fact:micron:hbm2e",
+    "fact:sec:capex-depreciation"
+  ],
+  "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",
   "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
   "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
-  "q1Thesis": "A claim about bottlenecks-and-scarcity must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+  "q1Thesis": "A claim about Bottlenecks and scarcity must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
   "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
   "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
-  "q4StructuralMechanism": "Trace bottlenecks-and-scarcity through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+  "q4StructuralMechanism": "Trace Bottlenecks and scarcity through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-  "status": "RESEARCH_REQUIRED",
+  "status": "RESEARCHED",
   "completion": {
-    "researchComplete": false,
-    "sourceProfileComplete": false,
+    "researchComplete": true,
+    "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   }

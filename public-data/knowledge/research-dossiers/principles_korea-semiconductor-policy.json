@@ -14,14 +14,75 @@
     "한국 반도체 정책과 공급망 official data standard filing evidence",
     "한국 반도체 정책과 공급망 disconfirming evidence limitations"
   ],
-  "searchedAt": null,
-  "method": "NOT_STARTED",
-  "candidateSources": [],
-  "selectedSources": [],
+  "searchedAt": "2026-08-18",
+  "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
+  "candidateSources": [
+    {
+      "sourceId": "WEB-KRX-SECURITIES-INTRO",
+      "url": "https://open.krx.co.kr/contents/OPN/01/01030100/OPN01030100.jsp",
+      "publisher": "Korea Exchange",
+      "title": "Securities products introduction",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    },
+    {
+      "sourceId": "WEB-ASML-EUV-2026",
+      "url": "https://www.asml.com/en/en/products/euv-lithography-systems",
+      "publisher": "ASML",
+      "title": "EUV lithography systems",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
+    },
+    {
+      "sourceId": "WEB-IBM-SEMICONDUCTOR-DOPING",
+      "url": "https://www.ibm.com/think/topics/semiconductors/jcr%3Acontent",
+      "publisher": "IBM Think",
+      "title": "What is a Semiconductor?",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
+    }
+  ],
+  "selectedSources": [
+    {
+      "sourceId": "WEB-KRX-SECURITIES-INTRO",
+      "url": "https://open.krx.co.kr/contents/OPN/01/01030100/OPN01030100.jsp",
+      "publisher": "Korea Exchange",
+      "title": "Securities products introduction",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    },
+    {
+      "sourceId": "WEB-ASML-EUV-2026",
+      "url": "https://www.asml.com/en/en/products/euv-lithography-systems",
+      "publisher": "ASML",
+      "title": "EUV lithography systems",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    },
+    {
+      "sourceId": "WEB-IBM-SEMICONDUCTOR-DOPING",
+      "url": "https://www.ibm.com/think/topics/semiconductors/jcr%3Acontent",
+      "publisher": "IBM Think",
+      "title": "What is a Semiconductor?",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    }
+  ],
   "rejectedSources": [],
-  "sourceTiers": [],
+  "sourceTiers": [
+    "PRIMARY_OFFICIAL",
+    "COMPANY_TECHNICAL_DOCUMENT"
+  ],
   "claimCoverage": [],
-  "consensus": "Not assessed.",
+  "researchFactIds": [
+    "fact:asml:euv",
+    "fact:fed:policy-transmission",
+    "fact:ibm:silicon-doping",
+    "fact:nyfed:rstar-definition",
+    "fact:fed:2026-june-policy-neutral-reference",
+    "fact:sia:semiconductor-value-chain"
+  ],
+  "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",
   "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
   "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -30,10 +91,10 @@
   "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
   "q4StructuralMechanism": "Trace 한국 반도체 정책과 공급망 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-  "status": "RESEARCH_REQUIRED",
+  "status": "RESEARCHED",
   "completion": {
-    "researchComplete": false,
-    "sourceProfileComplete": false,
+    "researchComplete": true,
+    "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   }

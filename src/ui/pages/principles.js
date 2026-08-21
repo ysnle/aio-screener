@@ -4,6 +4,8 @@ import { loadKnowledgeCapabilities } from '../../data/knowledge/load-capabilitie
 import { PRINCIPLE_EDGE_SEMANTICS } from '../../domain/knowledge/principles-edge-semantics.js';
 import { parseKnowledgeRouteState, replaceKnowledgeRouteState } from '../../app/knowledge-route-state.js';
 import { createAppKnowledgeLearningState } from '../../app/knowledge-learning-state.js';
+import { createCurrentObservationBlock } from '../../ui/knowledge/current-observations.js';
+import { renderKnowledgeLesson } from '../../ui/knowledge/lesson.js';
 
 const REVIEWED_AT = '2026-08-02';
 const RESEARCH_URL = './public-data/atlas/source-packets.json';
@@ -16,6 +18,8 @@ const KNOWLEDGE_SOURCES_URL = './public-data/knowledge/sources.json';
 const KNOWLEDGE_CLAIMS_URL = './public-data/knowledge/claims.json';
 const KNOWLEDGE_COVERAGE_URL = './public-data/knowledge/coverage-matrix.json';
 const KNOWLEDGE_RESEARCH_DOSSIERS_URL = './public-data/knowledge/research-dossiers.json';
+const KNOWLEDGE_ARTICLES_URL = './public-data/knowledge/articles.json';
+const CURRENT_OBSERVATIONS_URL = './public-data/knowledge/current-observations.json';
 
 const RESEARCH_NODE_IDS = Object.freeze({
   'ai-era': 'candidate.ai-era',
@@ -327,8 +331,10 @@ function button(documentRef, className, text, action, value) {
 function sourceBadge(documentRef, item) {
   const wrap = element(documentRef, 'details', 'principles-source');
   wrap.dataset.principlesSourceStatus = item.status || 'NEEDS_REVIEW';
-  const summary = element(documentRef, 'summary', 'principles-source-summary', '근거 및 더 읽기');
+  const status = researchStatusLabel(item.status || 'NEEDS_REVIEW');
+  const summary = element(documentRef, 'summary', 'principles-source-summary', `근거 및 더 읽기 · ${status}`);
   const body = element(documentRef, 'div', 'principles-source-body');
+  body.appendChild(element(documentRef, 'span', 'principles-source-status', status));
   const reviewed = element(documentRef, 'span', 'principles-reviewed', `검토 ${item.reviewedAt || REVIEWED_AT}`);
   if (item.sourceUrl) {
     const link = element(documentRef, 'a', 'principles-source-link', item.sourceName || '원문 출처');
@@ -344,7 +350,7 @@ function sourceBadge(documentRef, item) {
 }
 
 function researchStatusLabel(status) {
-  return ({ REFERENCE_CONNECTED: '학습 원고 연결', EDUCATIONAL_REFERENCE_ONLY: '교육용 참고', PARTIAL: '일부 확인', REVIEWED_CANDIDATE: '1차 출처 확인 후보' })[status] || status || '확인 중';
+  return ({ REFERENCE_CONNECTED: '학습 원고 연결', EDUCATIONAL_REFERENCE_ONLY: '교육용 참고', PARTIAL: '일부 확인', REVIEWED_CANDIDATE: '1차 출처 확인 후보', NEEDS_REVIEW: '검토 필요', AUTHORED_REFERENCE: '참고 원고', AUTHORED_REFERENCE_CONNECTED: '참고 원고·출처 연결' })[status] || status || '확인 중';
 }
 
 function relatedNodes(item) {
@@ -443,21 +449,6 @@ function createEvidenceBlock(documentRef, sourceIds, research) {
   return block;
 }
 
-const NODE_READING_FRAMES = Object.freeze({
-  'ai-era': ['문제·모델·시스템·하드웨어를 같은 층위의 주장으로 섞지 않았는가?', '산업 구조를 설명하는 관찰과 기업 성과를 설명하는 관찰이 분리되어 있는가?'],
-  'ai-workload': ['학습과 추론 중 어느 workload를 설명하는가?', '처리량·지연·메모리 이동·저장 요구 중 어떤 병목이 관찰된 것인가?'],
-  compute: ['연산량 증가가 실제 시스템 처리량으로 이어지는 조건은 무엇인가?', '가속기 수요와 특정 공급자의 매출·마진 주장을 분리했는가?'],
-  'memory-hbm': ['대역폭·용량·전력 중 어떤 메모리 제약을 말하는가?', '제품 발표를 전체 공급·가격·수율 전망으로 확대하지 않았는가?'],
-  'advanced-packaging': ['패키징이 연결하는 계산·메모리·열 조건은 무엇인가?', '기술 로드맵과 실제 생산능력·수율의 차이를 확인했는가?'],
-  storage: ['추론·KV cache·RAG가 저장장치에 만드는 요구는 무엇인가?', '제품 use case와 전체 NAND 수요·가격 전망을 분리했는가?'],
-  'power-cooling': ['전력 인입·냉각·가동률 중 어떤 확장 조건을 검증하는가?', 'CAPEX를 수요의 증거로 곧바로 해석하지 않았는가?'],
-  'ai-capex': ['CAPEX가 매출·FCF·감가상각·리스 약정과 어떻게 연결되는가?', '계획된 투자와 이미 인식된 수요를 구분했는가?'],
-  visibility: ['LTA·수주·예약·사용량 중 실제 관찰된 매출 단서는 무엇인가?', '고객 집중도와 downside protection을 별도 질문으로 두었는가?'],
-  financing: ['금리·리스·신용 조건이 프로젝트의 현금흐름에 어떤 제약을 주는가?', '금융조건의 변화와 주가 방향을 하나의 인과로 단정하지 않았는가?'],
-  'geo-rates': ['에너지·공급망·물가·금리 사이에서 실제 관측된 연결고리는 무엇인가?', '정책·시장 반응·기업 valuation을 서로 다른 evidence 층으로 분리했는가?'],
-  evaluation: ['주장·출처·관찰시점·단위가 함께 기록되었는가?', '반대 설명과 추가 검증에 필요한 1차 자료가 무엇인가?']
-});
-
 const NODE_EXPLANATIONS = Object.freeze({
   'ai-era': { definition: 'AI 시대는 모델 하나의 이야기가 아니라 데이터·연산·메모리·전력·자본·검증이 연결된 생산 시스템의 변화입니다.', intuition: '한 부품의 성능이 올라가도 다른 병목이 남아 있으면 전체 서비스의 경제성은 개선되지 않습니다.', mechanism: '사용 사례가 workload를 만들고, workload가 칩·메모리·네트워크·데이터센터 투자를 유도하며, 매출과 자금조달이 다시 확장을 결정합니다.', kpi: '사용량과 추론 비용, 지연시간, 데이터센터 가동률, CAPEX와 FCF, 계약·매출의 가시성을 함께 봅니다.', connection: '반도체·서버·전력·냉각·클라우드·소프트웨어의 역할을 하나의 전달 경로로 읽는 출발점입니다.', risk: '수요가 실제 사용으로 이어지지 않거나 비용·전력·규제 병목이 풀리지 않으면 성장 주장이 약해집니다.' },
   'ai-workload': { definition: 'AI workload는 학습과 추론에서 발생하는 실제 계산·메모리·통신 작업의 묶음입니다.', intuition: '같은 모델이라도 학습인지 추론인지, 배치인지 실시간인지에 따라 필요한 하드웨어가 달라집니다.', mechanism: '행렬 연산, 메모리 접근, 모델 크기, 토큰 처리량, 사용자 지연 요구가 시스템 설계를 결정합니다.', kpi: '처리량, 지연시간, GPU 사용률, 메모리 대역폭, 요청당 비용, 전력당 성능을 확인합니다.', connection: 'workload 정의가 컴퓨트·HBM·패키징·네트워크·스토리지 수요의 근거가 됩니다.', risk: '벤치마크가 실제 서비스 패턴을 대표하지 않거나, 효율 개선이 사용량 증가로 상쇄될 수 있습니다.' },
@@ -520,7 +511,7 @@ function createLearningTracks(documentRef) {
   return block;
 }
 
-function createLessonLibrary(documentRef, artifact, query) {
+function createLessonLibrary(documentRef, artifact, knowledgeArticles, query) {
   const block = element(documentRef, 'section', 'principles-lesson-library');
   const lessons = (artifact?.lessons || []).filter((lesson) => !query || [lesson.id, lesson.chapterId, lesson.title, lesson.definition, lesson.mechanism, lesson.example, lesson.counterScenario, lesson.verificationQuestion, lesson.diagram, (lesson.sourceIds || []).join(' ')].join(' ').toLowerCase().includes(query));
   block.append(
@@ -531,17 +522,17 @@ function createLessonLibrary(documentRef, artifact, query) {
   const grid = element(documentRef, 'div', 'principles-lesson-library-grid');
   const sourceById = new Map((artifact?.sources || []).map((source) => [source.id, source]));
   lessons.forEach((lesson) => {
+    const display = lesson.summary || lesson;
     const card = element(documentRef, 'article', 'principles-authored-lesson-card');
     card.dataset.principlesLessonId = lesson.id;
     card.append(
       element(documentRef, 'div', 'principles-eyebrow', `${lesson.chapterId} · ${lesson.level} · 참고 원고`),
       element(documentRef, 'h4', 'principles-learning-card-title', `${lesson.id} · ${lesson.title}`),
-      element(documentRef, 'p', 'principles-chapter-copy', `정의: ${lesson.definition}`),
-      element(documentRef, 'p', 'principles-chapter-copy', `작동 원리: ${lesson.mechanism}`),
-      element(documentRef, 'p', 'principles-chapter-copy', `분석 예시: ${lesson.example}`),
-      element(documentRef, 'p', 'principles-chapter-copy principles-chapter-counter', `반례·실패 조건: ${lesson.counterScenario}`),
-      element(documentRef, 'p', 'principles-chapter-copy principles-chapter-question', `검증 질문: ${lesson.verificationQuestion}`),
-      element(documentRef, 'p', 'principles-chapter-copy', `선수 개념: ${(lesson.prerequisites || []).join(' · ')} · 시각화: ${lesson.diagram}`)
+      element(documentRef, 'p', 'principles-chapter-copy', `정의: ${display.definition}`),
+      element(documentRef, 'p', 'principles-chapter-copy', `작동 원리: ${display.mechanism}`),
+      element(documentRef, 'p', 'principles-chapter-copy', `분석 예시: ${display.example}`),
+      element(documentRef, 'p', 'principles-chapter-copy principles-chapter-counter', `반례·실패 조건: ${display.counterScenario}`),
+      element(documentRef, 'p', 'principles-chapter-copy', `연결 구조: ${(lesson.prerequisites || []).join(' · ') || '기초 개념에서 출발'} · 시각화: ${display.diagram}`)
     );
     const sources = element(documentRef, 'div', 'principles-evidence-links');
     (lesson.sourceIds || []).forEach((sourceId) => {
@@ -554,6 +545,17 @@ function createLessonLibrary(documentRef, artifact, query) {
       sources.appendChild(link);
     });
     card.appendChild(sources);
+    const deepArticle = knowledgeArticles?.articles?.find((article) => article.articleId === `principles:${lesson.id}`) || null;
+    if (deepArticle) {
+      const deepPanel = element(documentRef, 'details', 'principles-deep-article');
+      deepPanel.dataset.principlesArticleId = deepArticle.articleId;
+      deepPanel.append(
+        element(documentRef, 'summary', 'principles-deep-article-summary', '5분 심층 원고 보기 · 교육용 참고 초안'),
+        element(documentRef, 'p', 'principles-deep-article-boundary', '자동 구조화된 참고 원고입니다. 의미 검토·출처 직접성 검토 전이며 현재 수치·매매 판단으로 승격하지 않습니다.'),
+        renderKnowledgeLesson(documentRef, deepArticle, { className: 'principles-deep-lesson' })
+      );
+      card.appendChild(deepPanel);
+    }
     grid.appendChild(card);
   });
   if (!lessons.length) grid.appendChild(element(documentRef, 'div', 'principles-empty', '검색 결과가 없습니다.'));
@@ -577,11 +579,10 @@ function createChapterCurriculum(documentRef, chapterArtifact, query) {
     card.append(
       meta,
       element(documentRef, 'h4', 'principles-learning-card-title', chapter.title),
-      element(documentRef, 'p', 'principles-chapter-question', `핵심 질문: ${chapter.question}`),
       element(documentRef, 'p', 'principles-chapter-copy', `핵심 원리: ${chapter.coreIdea}`),
       element(documentRef, 'p', 'principles-chapter-copy', `작동 경로: ${chapter.mechanism}`),
       element(documentRef, 'p', 'principles-chapter-copy principles-chapter-counter', `반례·실패 조건: ${chapter.counterScenario}`),
-      element(documentRef, 'p', 'principles-chapter-copy principles-chapter-question', `검증 질문: ${chapter.verificationQuestion}`)
+      element(documentRef, 'p', 'principles-chapter-copy', `탐색 순서: 원리 → 작동 경로 → 반례·실패 조건 → 연결 개념`)
     );
     const nodes = element(documentRef, 'div', 'principles-related');
     (chapter.nodeIds || []).forEach((nodeId) => nodes.appendChild(element(documentRef, 'span', 'principles-related-chip', NODE_BY_ID.get(nodeId)?.title || nodeId)));
@@ -643,10 +644,15 @@ function createResearchAnalysis(documentRef, node, research) {
     body.appendChild(element(documentRef, 'p', 'principles-analysis-empty', '이 노드에는 아직 개별 수치 검증이 연결되지 않았습니다. 아래 설명은 구조적 학습 자료이며 현재 수치나 판단을 생성하지 않습니다.'));
   }
   const frame = element(documentRef, 'div', 'principles-reading-frame');
-  frame.appendChild(element(documentRef, 'strong', 'principles-reading-frame-title', '이 노드를 읽을 때 확인할 질문'));
-  const questions = element(documentRef, 'ul', 'principles-reading-frame-list');
-  (NODE_READING_FRAMES[node?.id] || ['무엇이 관찰값이고 무엇이 추론인가?', '관찰시점·단위·대체 설명을 함께 확인했는가?']).forEach((question) => questions.appendChild(element(documentRef, 'li', '', question)));
-  frame.appendChild(questions);
+  frame.appendChild(element(documentRef, 'strong', 'principles-reading-frame-title', '이 노드를 읽는 탐색 프레임'));
+  const prompts = element(documentRef, 'ul', 'principles-reading-frame-list');
+  [
+    '관찰값·해석·전망을 서로 다른 층으로 분리합니다.',
+    '기준일·단위·출처를 먼저 확인한 뒤 연결 개념으로 이동합니다.',
+    '반례·실패 조건과 대체 설명을 함께 놓고 구조를 비교합니다.',
+    '최신 가격·실적·차트는 연결된 전문 분석 화면에서 별도로 대조합니다.'
+  ].forEach((prompt) => prompts.appendChild(element(documentRef, 'li', '', prompt)));
+  frame.appendChild(prompts);
   frame.appendChild(element(documentRef, 'p', 'principles-analysis-boundary', '관찰 사실과 해석을 구분하기 위한 보충 자료입니다. 현재 가격·목표가·매매 신호는 제공하지 않습니다.'));
   body.appendChild(frame);
   block.append(summary, body);
@@ -705,7 +711,33 @@ function createSvgGraph(documentRef, selectedId, visibleNodes, visibleEdges, dep
   return graph;
 }
 
-function createNodeDetail(documentRef, node, lesson, onRoute, research, authoredGuide) {
+function createSelfGuidedExploration(documentRef, node, lesson, currentObservations) {
+  const block = element(documentRef, 'section', 'principles-exploration-panel');
+  const connected = CATALOG.edges.filter((edge) => edge.from === node?.id || edge.to === node?.id).length;
+  const observationCount = Array.isArray(currentObservations?.observations)
+    ? currentObservations.observations.filter((item) => item.pageTargets?.includes('principles') && item.nodeIds?.includes(node?.id)).length
+    : 0;
+  block.append(
+    element(documentRef, 'div', 'principles-eyebrow', 'SELF-GUIDED PATH'),
+    element(documentRef, 'h4', 'principles-exploration-title', '호기심을 따라가는 읽기 순서'),
+    element(documentRef, 'p', 'principles-exploration-copy', `${lesson?.title || node?.title || '선택한 개념'}에서 출발해 연결·관측·전문 분석으로 내려가는 탐색 경로입니다.`)
+  );
+  const steps = element(documentRef, 'ol', 'principles-exploration-steps');
+  [
+    ['01', '원리', '한 문장 정의 → 작동 원리 → 반례·실패 조건 순서로 구조를 잡습니다.'],
+    ['02', '연결', `${connected}개 연결 관계를 눌러 원인이 다음 계층으로 전파되는 경로를 따라갑니다.`],
+    ['03', '관측', observationCount ? `${observationCount}개 직접 연결 관측값의 기준일·출처·허용 용도를 대조합니다.` : '직접 연결 관측값이 없으면 그래프와 원문 출처를 우선 탐색합니다.'],
+    ['04', '적용', '최신 가격·실적·차트·리스크는 연결된 전문 분석 화면에서 별도 검증합니다.']
+  ].forEach(([index, title, copy]) => {
+    const item = element(documentRef, 'li', 'principles-exploration-step');
+    item.append(element(documentRef, 'span', 'principles-exploration-index', index), element(documentRef, 'div', 'principles-exploration-step-body', `${title} · ${copy}`));
+    steps.appendChild(item);
+  });
+  block.appendChild(steps);
+  return block;
+}
+
+function createNodeDetail(documentRef, node, lesson, onRoute, research, authoredGuide, currentObservations) {
   const detail = element(documentRef, 'article', 'principles-detail-card');
   if (node) {
     const section = TREE_SECTIONS.find((item) => item.nodeIds.includes(node.id));
@@ -731,9 +763,11 @@ function createNodeDetail(documentRef, node, lesson, onRoute, research, authored
         block.appendChild(links);
         return block;
       })(),
-      sourceBadge(documentRef, { ...node, reviewedAt: REVIEWED_AT }),
+      sourceBadge(documentRef, { ...node, status: authoredGuide?.status || 'AUTHORED_REFERENCE_CONNECTED', reviewedAt: REVIEWED_AT }),
       createEvidenceBlock(documentRef, researchNode(research, node.id)?.evidence || [], research),
-      createResearchAnalysis(documentRef, node, research)
+      createResearchAnalysis(documentRef, node, research),
+      createSelfGuidedExploration(documentRef, node, lesson, currentObservations),
+      createCurrentObservationBlock(documentRef, currentObservations, { page: 'principles', nodeId: node.id, title: '시장 원리와 연결된 실제 관측값' })
     );
     detail.querySelector('.principles-detail-title')?.setAttribute('tabindex', '-1');
   }
@@ -771,7 +805,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
        const initialNode = NODE_BY_ID.has(sharedRoute.node) ? sharedRoute.node : 'scarcity-choice';
        const initialPath = CATALOG.paths.some((item) => item.id === sharedRoute.path) ? sharedRoute.path : 'beginner';
        const learning = createAppKnowledgeLearningState(root);
-       const state = { mode: initialMode, view: 'map', query: '', selectedId: initialNode, pathId: initialPath, step: sharedRoute.step ?? 0, depth: 1, expandedSections: new Set(['scarcity']), expandedGroups: new Set(['scarcity-choice-path']), research: null, chapters: null, lessonLibrary: null, nodeGuides: null, knowledgeCoverage: null, knowledgeResearchDossiers: null, researchError: false, chaptersError: false, lessonLibraryError: false, nodeGuidesError: false, knowledgeCoverageError: false, knowledgeResearchDossiersError: false };
+       const state = { mode: initialMode, view: 'map', query: '', selectedId: initialNode, pathId: initialPath, step: sharedRoute.step ?? 0, depth: 1, expandedSections: new Set(['scarcity']), expandedGroups: new Set(['scarcity-choice-path']), research: null, chapters: null, lessonLibrary: null, nodeGuides: null, knowledgeArticles: null, knowledgeCoverage: null, knowledgeResearchDossiers: null, currentObservations: null, researchError: false, chaptersError: false, lessonLibraryError: false, nodeGuidesError: false, knowledgeArticlesError: false, knowledgeCoverageError: false, knowledgeResearchDossiersError: false, currentObservationsError: false };
       page.dataset.aioArchitectureRoute = 'principles';
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioContentKind = 'REFERENCE';
@@ -891,7 +925,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
         TREE_SECTIONS.forEach((section) => list.appendChild(createTreeSection(section, state.query)));
         if (state.query && !TREE_SECTIONS.some((section) => section.nodeIds.some((nodeId) => nodeMatches(NODE_BY_ID.get(nodeId), state.query)))) list.appendChild(element(documentRef, 'div', 'principles-empty', `"${state.query}"와 일치하는 개념이 없습니다.`));
         layout.appendChild(list);
-         layout.appendChild(createNodeDetail(documentRef, NODE_BY_ID.get(state.selectedId), selectedLesson, () => route(selectedLesson?.route), state.research, state.nodeGuides?.nodes?.find((guide) => guide.id === state.selectedId)));
+         layout.appendChild(createNodeDetail(documentRef, NODE_BY_ID.get(state.selectedId), selectedLesson, () => route(selectedLesson?.route), state.research, state.nodeGuides?.nodes?.find((guide) => guide.id === state.selectedId), state.currentObservations));
         return layout;
       }
 
@@ -908,7 +942,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
         list.setAttribute('aria-label', '그래프 노드 텍스트 목록');
          nodes.forEach((node) => list.appendChild(createNodeCard(documentRef, node, state.selectedId === node.id, () => selectNode(node.id), state.research)));
         layout.appendChild(list);
-         layout.appendChild(createNodeDetail(documentRef, NODE_BY_ID.get(state.selectedId), selectedLesson, () => route(selectedLesson?.route), state.research, state.nodeGuides?.nodes?.find((guide) => guide.id === state.selectedId)));
+         layout.appendChild(createNodeDetail(documentRef, NODE_BY_ID.get(state.selectedId), selectedLesson, () => route(selectedLesson?.route), state.research, state.nodeGuides?.nodes?.find((guide) => guide.id === state.selectedId), state.currentObservations));
         return layout;
       }
 
@@ -957,12 +991,12 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
         library.append(
           element(documentRef, 'div', 'principles-eyebrow', '참고 원고 자료실'),
           element(documentRef, 'h2', 'principles-library-title', 'A~O 챕터와 세부 레슨'),
-          element(documentRef, 'p', 'principles-library-copy', '지도에서 개념을 먼저 선택한 뒤, 전체 원고와 검증 질문을 펼쳐 읽습니다. 출처와 검토 상태는 각 원고 안의 근거 영역에 접혀 있습니다.')
+          element(documentRef, 'p', 'principles-library-copy', '지도에서 개념을 먼저 선택한 뒤, 정의·작동 원리·반례·연결 구조를 펼쳐 읽습니다. 출처와 검토 상태는 각 원고 안의 근거 영역에 접혀 있습니다.')
         );
         const chapterPanel = element(documentRef, 'details', 'principles-library-panel');
         chapterPanel.append(element(documentRef, 'summary', 'principles-library-panel-summary', `15개 챕터 원고 보기${state.query ? ` · 검색어 “${state.query}”` : ''}`), createChapterCurriculum(documentRef, state.chapters, state.query));
         const lessonPanel = element(documentRef, 'details', 'principles-library-panel');
-        lessonPanel.append(element(documentRef, 'summary', 'principles-library-panel-summary', `111개 세부 레슨 보기${state.query ? ` · 검색어 “${state.query}”` : ''}`), createLessonLibrary(documentRef, state.lessonLibrary, state.query));
+         lessonPanel.append(element(documentRef, 'summary', 'principles-library-panel-summary', `${state.lessonLibrary?.lessons?.length || 0}개 세부 레슨 보기${state.query ? ` · 검색어 “${state.query}”` : ''}`), createLessonLibrary(documentRef, state.lessonLibrary, state.knowledgeArticles, state.query));
         library.append(chapterPanel, lessonPanel, createLearningTracks(documentRef));
         return library;
       }
@@ -1014,13 +1048,15 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
           delete page.dataset.aioPrinciplesResearch;
           delete page.dataset.aioPrinciplesChapters;
           delete page.dataset.aioPrinciplesLessonLibrary;
-          delete page.dataset.aioPrinciplesNodeGuides;
+            delete page.dataset.aioPrinciplesNodeGuides;
+           delete page.dataset.aioPrinciplesKnowledgeArticles;
           delete page.dataset.aioPrinciplesKnowledgeConcepts;
           delete page.dataset.aioPrinciplesKnowledgeAliases;
           delete page.dataset.aioPrinciplesKnowledgeSources;
            delete page.dataset.aioPrinciplesKnowledgeClaims;
            delete page.dataset.aioPrinciplesKnowledgeCoverage;
            delete page.dataset.aioPrinciplesKnowledgeResearchDossiers;
+           delete page.dataset.aioPrinciplesCurrentObservations;
           delete page.dataset.aioKnowledgeLearningState;
           content.replaceChildren();
         });
@@ -1037,7 +1073,9 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
             { key: 'knowledgeSources', url: KNOWLEDGE_SOURCES_URL },
              { key: 'knowledgeClaims', url: KNOWLEDGE_CLAIMS_URL },
              { key: 'knowledgeCoverage', url: KNOWLEDGE_COVERAGE_URL },
-             { key: 'knowledgeResearchDossiers', url: KNOWLEDGE_RESEARCH_DOSSIERS_URL }
+             { key: 'knowledgeResearchDossiers', url: KNOWLEDGE_RESEARCH_DOSSIERS_URL },
+             { key: 'knowledgeArticles', url: KNOWLEDGE_ARTICLES_URL },
+             { key: 'currentObservations', url: CURRENT_OBSERVATIONS_URL }
           ]).then((capabilities) => {
             for (const [key, result] of Object.entries(capabilities)) {
               state[key] = result.value;
@@ -1052,7 +1090,10 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
             page.dataset.aioPrinciplesKnowledgeSources = capabilities.knowledgeSources.status;
              page.dataset.aioPrinciplesKnowledgeClaims = capabilities.knowledgeClaims.status;
              page.dataset.aioPrinciplesKnowledgeCoverage = capabilities.knowledgeCoverage.status;
-             page.dataset.aioPrinciplesKnowledgeResearchDossiers = capabilities.knowledgeResearchDossiers.status;
+            page.dataset.aioPrinciplesKnowledgeResearchDossiers = capabilities.knowledgeResearchDossiers.status;
+            page.dataset.aioPrinciplesKnowledgeArticles = capabilities.knowledgeArticles.status;
+            page.dataset.aioPrinciplesCurrentObservations = capabilities.currentObservations.status;
+            page.dataset.aioReviewedAt = [state.knowledgeArticles?.generatedAt, state.knowledgeArticles?.articles?.map((article) => article.reviewedAt).sort().at(-1), state.chapters?.reviewedAt, state.lessonLibrary?.reviewedAt, REVIEWED_AT].filter(Boolean).sort().at(-1) || REVIEWED_AT;
             render();
           });
        }
@@ -1061,4 +1102,4 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
   };
 }
 
-export { CATALOG as MARKET_PRINCIPLES_CATALOG, RESEARCH_URL, CHAPTERS_URL, LESSON_LIBRARY_URL, NODE_GUIDES_URL, KNOWLEDGE_CONCEPTS_URL, KNOWLEDGE_ALIASES_URL, KNOWLEDGE_SOURCES_URL, KNOWLEDGE_CLAIMS_URL, KNOWLEDGE_COVERAGE_URL, KNOWLEDGE_RESEARCH_DOSSIERS_URL };
+export { CATALOG as MARKET_PRINCIPLES_CATALOG, RESEARCH_URL, CHAPTERS_URL, LESSON_LIBRARY_URL, NODE_GUIDES_URL, KNOWLEDGE_CONCEPTS_URL, KNOWLEDGE_ALIASES_URL, KNOWLEDGE_SOURCES_URL, KNOWLEDGE_CLAIMS_URL, KNOWLEDGE_COVERAGE_URL, KNOWLEDGE_RESEARCH_DOSSIERS_URL, KNOWLEDGE_ARTICLES_URL, CURRENT_OBSERVATIONS_URL };

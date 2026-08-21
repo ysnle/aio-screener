@@ -15,7 +15,8 @@ const fixtures = {
   '/public-data/knowledge/coverage-matrix.json': { units: [{ unitId: 'principles:A1' }] },
   '/public-data/knowledge/research-dossiers.json': { dossiers: [{ contentUnitId: 'principles:A1' }] },
   '/public-data/knowledge/domain-dossiers.json': { dossiers: [] },
-  '/public-data/knowledge/quantitative-labs.json': { labs: [] }
+  '/public-data/knowledge/relationship-guides.json': { guides: [] },
+  '/public-data/knowledge/current-observations.json': { observations: [] }
 };
 const repository = await createKnowledgeRepository(async (url) => ({
   ok: url !== './public-data/knowledge/claims.json',
@@ -32,5 +33,5 @@ assert.equal(summary.routeTarget.articleId, 'principles:A1');
 assert.equal(repository.status('coverageMatrix'), 'connected');
 assert.equal(repository.status('researchDossiers'), 'connected');
 assert.equal(repository.status('domainDossiers'), 'connected');
-assert.equal(repository.status('quantitativeLabs'), 'connected');
+assert.equal(repository.status('currentObservations'), 'connected');
 console.log(JSON.stringify({ status: 'PASS', connected: Object.values(repository.capabilities).filter((item) => item.status === 'connected').length, fallback: Object.values(repository.capabilities).filter((item) => item.status === 'fallback').length }, null, 2));

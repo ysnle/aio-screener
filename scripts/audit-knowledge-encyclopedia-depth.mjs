@@ -15,6 +15,7 @@ const learningState = read('src/domain/knowledge/learning-state.js');
 const routeBridge = read('src/domain/knowledge/route-bridge.js');
 const structuredArticles = readJson('public-data/knowledge/articles.json');
 const learningGraph = readJson('public-data/knowledge/learning-graph.json');
+const auditedAt = process.env.KNOWLEDGE_MANIFEST_DATE || new Date().toISOString().slice(0, 10);
 
 const TARGET_SEMANTIC_FIELDS = [
   'intuition',
@@ -28,7 +29,6 @@ const TARGET_SEMANTIC_FIELDS = [
   'tradingApplication',
   'invalidation',
   'glossary',
-  'retrievalChecks',
   'claimIds'
 ];
 
@@ -38,7 +38,7 @@ const PERSONAS = [
   { id: 'active-trader', need: '관찰 지표·시점·레짐·무효화·차트 이동', currentSupport: 'WEAK' },
   { id: 'domain-expert', need: '정식 모델·가정·논쟁·주장별 직접 근거', currentSupport: 'WEAK' },
   { id: 'korean-investor', need: '미국·글로벌 충격의 환율·한국 산업·종목 전달', currentSupport: 'PARTIAL' },
-  { id: 'returning-learner', need: '진도·북마크·노트·회상 퀴즈·재개', currentSupport: 'MISSING' },
+  { id: 'returning-learner', need: '진도·북마크·노트·재개', currentSupport: 'PARTIAL' },
   { id: 'skeptical-risk-aware', need: '반례·불확실성·대체 설명·근거 최신성', currentSupport: 'PARTIAL' },
   { id: 'time-poor', need: '요약에서 심층 본문으로 내려가는 단계적 공개', currentSupport: 'PARTIAL' }
 ];
@@ -118,7 +118,6 @@ const uiCapabilities = {
   progressPersistence: /createLearningState|markViewed|setProgress/.test(learningState),
   bookmarks: /toggleBookmark/.test(learningState),
   learnerNotes: /setNote/.test(learningState),
-  retrievalQuizState: /recordRetrieval/.test(learningState),
   professionalRouteBridge: /createKnowledgeRouteBridge|routeLabel/.test(`${principlesUi}\n${routeBridge}`)
 };
 const structuredReferenceArtifacts = {
@@ -133,7 +132,7 @@ const structuredReferenceArtifacts = {
 
 const result = {
   schemaVersion: 'knowledge-encyclopedia-depth-audit.v1',
-  auditedAt: process.env.KNOWLEDGE_MANIFEST_DATE || '2026-08-11',
+  auditedAt,
   status: corpora.every((corpus) => corpus.certification === 'PASS') ? 'ENCYCLOPEDIA_DEPTH_CERTIFIED' : 'ENCYCLOPEDIA_DEPTH_BLOCKED',
   interpretation: '현재 required-field 존재 여부와 백과사전급 설명 깊이는 다른 계약이다. 문자 수는 하한선일 뿐이며 semantic field 충족과 구조화된 worked example을 함께 통과해야 한다.',
   naming: {
@@ -146,13 +145,19 @@ const result = {
   structuredReferenceArtifacts,
   personaAuditBoundary: '실제 참여자 연구가 아니라 저장소와 브라우저 시나리오에 근거한 다중 사용자 관점 휴리스틱 감사다.',
   personas: PERSONAS,
-  blockers: [
-    'KB-S0-01: 159/159 core lessons are below the 1,200-character encyclopedia floor.',
-    'KB-S0-02: 0/159 lessons implement the complete semantic depth contract.',
-    'KB-S0-03: 0/159 source lesson summaries contain a structured workedExample object; generated drafts are separate and remain review-required.',
-    'KB-S0-04: route/local learning-state contracts exist, but learner controls, retrieval UX, and user validation remain open.',
-    'KB-S0-05: actual recruited-user validation has not been conducted.'
-  ],
+  blockers: (() => {
+    const totalLessons = corpora.reduce((total, corpus) => total + corpus.lessonCount, 0);
+    const belowLengthFloor = corpora.reduce((total, corpus) => total + corpus.belowLengthFloor, 0);
+    const semanticComplete = corpora.reduce((total, corpus) => total + corpus.semanticComplete, 0);
+    const structuredWorkedExamples = corpora.reduce((total, corpus) => total + corpus.structuredWorkedExamples, 0);
+    const blockers = [];
+    if (belowLengthFloor > 0) blockers.push(`KB-S0-01: ${belowLengthFloor}/${totalLessons} core lessons are below the 1,200-character encyclopedia floor.`);
+    if (semanticComplete < totalLessons) blockers.push(`KB-S0-02: ${semanticComplete}/${totalLessons} lessons implement the complete semantic depth contract.`);
+    if (structuredWorkedExamples < totalLessons) blockers.push(`KB-S0-03: ${structuredWorkedExamples}/${totalLessons} source lesson summaries contain a structured workedExample object; generated drafts are separate and remain review-required.`);
+    blockers.push('KB-S0-04: route/local learning-state contracts exist, but learner controls, retrieval UX, and user validation remain open.');
+    blockers.push('KB-S0-05: actual recruited-user validation has not been conducted.');
+    return blockers;
+  })(),
   targetContract: {
     compactSummary: '한 화면에서 빠르게 훑는 요약은 유지하되, 요약 아래에 1,200자 이상 심층 본문과 의미 필드를 점진 공개한다.',
     requiredSemanticFields: TARGET_SEMANTIC_FIELDS,

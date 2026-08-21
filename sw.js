@@ -5,8 +5,8 @@
 
 // R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
 // v48.80/P150: operational hardening adds an explicit build marker and health message.
-const SW_VERSION = 'v54.24';
-const SW_BUILD = '2026-08-15T00:50:00+09:00';
+const SW_VERSION = 'v54.37';
+const SW_BUILD = '2026-08-18T22:39:00+09:00';
 const SHELL_CACHE = 'aio-shell-' + SW_VERSION;
 const DATA_CACHE  = 'aio-data-'  + SW_VERSION;
 
@@ -72,6 +72,7 @@ const SHELL_ASSETS = [
   './src/ui/knowledge/lesson.js',
   './src/ui/knowledge/path.js',
   './src/ui/knowledge/tree.js',
+  './src/ui/knowledge/current-observations.js',
   './src/ai/provider/adapter.js',
   './src/ai/response/claim-ledger.js',
   './src/ai/response/renderer.js',
@@ -174,6 +175,8 @@ const SHELL_ASSETS = [
   './src/ui/pages/legacy-observer.js',
   './src/ui/pages/principles.js',
   './src/ui/pages/masters.js',
+  './public-data/masters/manager-catalog.json',
+  './public-data/masters/manager-row-previews.json',
   './src/ui/pages/atlas.js',
   './src/ui/pages/guide.js',
   './src/ui/pages/news.js',
@@ -205,6 +208,12 @@ const DATA_URL_PATTERNS = [
   /rsshub\.app/,                          // RSSHub 텔레그램
 ];
 
+// 교육·원문 reference artifact — 네트워크 성공 후 오프라인에서도 마지막
+// 검증 원장을 유지하되, 현재 가격·뉴스 TTL과 섞지 않는다.
+const REFERENCE_URL_PATTERNS = [
+  /\/public-data\/(?:atlas\/current-evidence-ledger|masters\/issuer-aggregates|principles\/lesson-library|atlas\/foundation-lessons|knowledge\/(?:articles|learning-graph|coverage-matrix|research-dossiers))\.json(?:\?|$)/
+];
+
 // 민감 URL 패턴 — API 키/토큰/중첩 proxy URL 포함 시 캐시 금지
 const SENSITIVE_QUERY_RE = /[?&](apikey|api_key|token|access_token|client_secret|url)=/i;
 function isSensitiveUrl(u) { return SENSITIVE_QUERY_RE.test(u); }
@@ -212,6 +221,7 @@ function isSensitiveUrl(u) { return SENSITIVE_QUERY_RE.test(u); }
 // DATA_CACHE TTL 상수 (초)
 const DATA_CACHE_TTL = 900;   // 시세/API: 15분
 const NEWS_CACHE_TTL = 1800;  // 뉴스/RSS: 30분
+const REFERENCE_CACHE_TTL = 86400; // 지식·원문 reference artifact: 24시간
 
 // TTL 만료된 DATA_CACHE 항목 정리 (비동기 논블로킹 — 매 저장 시 호출)
 async function purgeExpiredData(cache) {
@@ -312,11 +322,12 @@ self.addEventListener('fetch', function(event) {
   // 2) 데이터/API — Network-First + 캐시 폴백 (offline 시 마지막 캐시 응답)
   const isData = DATA_URL_PATTERNS.some(function(re) { return re.test(url); });
   const isNews = NEWS_URL_PATTERNS.some(function(re) { return re.test(url); });
-  if (isData || isNews) {
+  const isReference = REFERENCE_URL_PATTERNS.some(function(re) { return re.test(url); });
+  if (isData || isNews || isReference) {
     event.respondWith(
       fetch(request).then(function(resp) {
         if (resp && resp.ok && resp.status === 200 && !isSensitiveUrl(url)) {
-          var ttl = isNews ? NEWS_CACHE_TTL : DATA_CACHE_TTL;
+          var ttl = isReference ? REFERENCE_CACHE_TTL : isNews ? NEWS_CACHE_TTL : DATA_CACHE_TTL;
           var now = String(Date.now());
           // TTL 헤더를 주입한 래핑 응답 저장 (body 복사 필요)
           resp.clone().arrayBuffer().then(function(body) {

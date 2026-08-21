@@ -1,6 +1,6 @@
 {
   "schemaVersion": "screener-scale-benchmark.v1",
-  "generatedAt": "2026-08-12T14:27:41.697Z",
+  "generatedAt": "2026-08-13T01:58:20.141Z",
   "environment": {
     "node": "v24.18.0",
     "platform": "win32",
@@ -16,30 +16,30 @@
     {
       "size": 873,
       "serializedBytes": 176273,
-      "memoryDeltaBytes": 91552,
+      "memoryDeltaBytes": 0,
       "operations": {
         "parse": {
           "label": "json-parse",
-          "p50Ms": 0.565,
-          "p95Ms": 1.661,
+          "p50Ms": 1.182,
+          "p95Ms": 2.275,
           "resultCount": 873
         },
         "projection": {
           "label": "column-projection",
-          "p50Ms": 0.06,
-          "p95Ms": 0.374,
+          "p50Ms": 0.059,
+          "p95Ms": 0.67,
           "resultCount": 873
         },
         "query": {
           "label": "rank-query",
-          "p50Ms": 0.047,
-          "p95Ms": 0.191,
+          "p50Ms": 0.05,
+          "p95Ms": 0.266,
           "resultCount": 100
         },
         "renderPrep": {
           "label": "render-preparation",
-          "p50Ms": 0.038,
-          "p95Ms": 0.636,
+          "p50Ms": 0.062,
+          "p95Ms": 0.419,
           "resultCount": 250
         }
       }
@@ -47,30 +47,30 @@
     {
       "size": 5000,
       "serializedBytes": 1015497,
-      "memoryDeltaBytes": 1009792,
+      "memoryDeltaBytes": 1248720,
       "operations": {
         "parse": {
           "label": "json-parse",
-          "p50Ms": 3.462,
-          "p95Ms": 4.355,
+          "p50Ms": 3.721,
+          "p95Ms": 6.306,
           "resultCount": 5000
         },
         "projection": {
           "label": "column-projection",
-          "p50Ms": 0.145,
-          "p95Ms": 0.264,
+          "p50Ms": 0.177,
+          "p95Ms": 0.328,
           "resultCount": 5000
         },
         "query": {
           "label": "rank-query",
           "p50Ms": 0.321,
-          "p95Ms": 0.343,
+          "p95Ms": 0.359,
           "resultCount": 100
         },
         "renderPrep": {
           "label": "render-preparation",
           "p50Ms": 0.011,
-          "p95Ms": 0.435,
+          "p95Ms": 0.494,
           "resultCount": 250
         }
       }
@@ -78,30 +78,30 @@
     {
       "size": 20000,
       "serializedBytes": 4076246,
-      "memoryDeltaBytes": 33162272,
+      "memoryDeltaBytes": 32825832,
       "operations": {
         "parse": {
           "label": "json-parse",
-          "p50Ms": 14.535,
-          "p95Ms": 23.109,
+          "p50Ms": 16.804,
+          "p95Ms": 25.713,
           "resultCount": 20000
         },
         "projection": {
           "label": "column-projection",
-          "p50Ms": 0.815,
-          "p95Ms": 1.405,
+          "p50Ms": 1.13,
+          "p95Ms": 1.846,
           "resultCount": 20000
         },
         "query": {
           "label": "rank-query",
-          "p50Ms": 1.43,
-          "p95Ms": 2.029,
+          "p50Ms": 1.624,
+          "p95Ms": 2.248,
           "resultCount": 100
         },
         "renderPrep": {
           "label": "render-preparation",
-          "p50Ms": 0.041,
-          "p95Ms": 0.048,
+          "p50Ms": 0.073,
+          "p95Ms": 0.087,
           "resultCount": 250
         }
       }

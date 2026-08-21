@@ -6,6 +6,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const filingsPath = path.join(root, 'public-data', 'masters', 'filings.json');
 const outputPath = path.join(root, 'public-data', 'masters', 'history-index.json');
 const filings = JSON.parse(await fs.readFile(filingsPath, 'utf8'));
+const reviewedAt = new Date().toISOString().slice(0, 10);
+const appVersion = JSON.parse(await fs.readFile(path.join(root, 'version.json'), 'utf8')).version;
 const userAgent = 'AIO Screener research contact research@example.com';
 
 async function fetchJson(url) {
@@ -61,8 +63,8 @@ for (const manager of filings.managers.filter((item) => item.cik && item.status 
 
 const result = {
   schemaVersion: 'masters-13f-history-index.v1',
-  revision: '2026-08-02-v53.85',
-  reviewedAt: '2026-08-02',
+  revision: `${reviewedAt}-${appVersion}`,
+  reviewedAt,
   status: 'FILING_METADATA_HISTORY_CONNECTED',
   publication: 'EDUCATIONAL_REFERENCE_ONLY',
   boundary: '분기별 SEC filing metadata와 원문 링크를 연결한다. 현재 보유·전체 포트폴리오·분기별 shares history는 해당 기간의 information table row import와 security master 검증 후에만 공개한다.',

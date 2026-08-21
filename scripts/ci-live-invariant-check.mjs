@@ -30,7 +30,7 @@ async function fetchResponse(path) {
 }
 
 async function main() {
-  let html, core, data, ui, chat, glossary, versionJson, indexResponse;
+  let html, core, data, ui, chat, glossary, versionJson, publicConfig, indexResponse;
   try {
     [indexResponse, core, data, ui, chat, glossary] = await Promise.all([
       fetchResponse('index.html'),
@@ -42,6 +42,7 @@ async function main() {
     ]);
     html = await indexResponse.text();
     versionJson = JSON.parse(await fetchText('version.json'));
+    publicConfig = JSON.parse(await fetchText('public-config.json'));
   } catch (e) {
     console.error(`live-invariant-check: could not fetch deployed site — ${e.message}`);
     process.exit(1);
@@ -59,6 +60,24 @@ async function main() {
     staticBusters.length >= 5 && staticBusters.every((v) => v === versionNum),
     `version.json=${version}, found busters=${staticBusters.join(',') || 'none'}`
   );
+
+  // Public AI is a consumer outcome: a fresh browser must discover the exact
+  // healthy Worker route from the deployed config. A healthy hidden Worker is
+  // not a usable public chat path.
+  check('live public AI config matches the live app revision', publicConfig?.appRevision === version, `config=${publicConfig?.appRevision}, version=${version}`);
+  check('live public AI config exposes an HTTPS shared fallback', publicConfig?.ai?.serverMode === 'shared-worker-fallback' && publicConfig?.ai?.chatPolicy === 'personal-key-or-public-worker' && /^https:\/\//.test(publicConfig?.ai?.workerUrl || ''), JSON.stringify(publicConfig?.ai || {}));
+  if (publicConfig?.ai?.workerUrl) {
+    try {
+      const workerUrl = String(publicConfig.ai.workerUrl).replace(/\/$/, '');
+      const healthResponse = await fetch(`${workerUrl}${publicConfig.ai.healthPath || '/health'}`, { headers: { Origin: 'https://ysnle.github.io', 'cache-control': 'no-cache' } });
+      const health = await healthResponse.json();
+      check('live public AI Worker deep health is ready', healthResponse.ok && health?.schemaVersion === 'aio-worker-health.v1' && health?.ai?.configured === true && health?.ai?.quotaConfigured === true && health?.ai?.authorityReady === true && health?.ai?.authorityJurisdiction === 'us' && health?.ai?.ready === true, `HTTP ${healthResponse.status} ${JSON.stringify(health?.ai || {})}`);
+      check('live public AI Worker advertises a positive output cap', Number(health?.ai?.maxTokens) > 0, `maxTokens=${health?.ai?.maxTokens}`);
+      check('live public AI Worker CORS matches Pages origin', healthResponse.headers.get('access-control-allow-origin') === 'https://ysnle.github.io', `observed=${healthResponse.headers.get('access-control-allow-origin') || 'missing'}`);
+    } catch (error) {
+      check('live public AI Worker health request succeeds', false, error?.message || String(error));
+    }
+  }
 
   // Predicate 3: compatible edge headers must be present on the actual live
   // response, not only in the repository's _headers declaration. GitHub Pages

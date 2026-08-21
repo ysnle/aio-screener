@@ -1,12 +1,109 @@
 ---
 verified_by: agent (Claude Sonnet 5) + Codex full-route audit verification
-last_verified: 2026-08-15
+last_verified: 2026-08-18
 confidence: high
-latest_version: v54.24
-latest_P_number: P936
-next_P_number: P937
-current_total_entries: 653 (P1~P934, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P936 v54.24 SEC concept-union freshness parity
+latest_version: v54.37
+latest_P_number: P946
+next_P_number: P947
+current_total_entries: 662 (P1~P946, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P946 v54.37 PIT unavailable-state disclosure repair
+
+## P946 - v54.37 - SEC report unavailable state omitted its point-in-time boundary
+
+- **motivation**: the release browser lifecycle gate must prove that both available and unavailable fundamental states disclose the same PIT interpretation boundary.
+- **symptom/reproduction**: the native report used `sec-report.v3`, but when SEC data was unavailable its meta text only said annual data was pending and did not mention that PIT basis was also unavailable; `ci-architecture-browser-check.mjs` therefore failed.
+- **root_cause**: PIT metadata was appended only when the current report had observations, while the empty-state copy predated the v3 point-in-time contract.
+- **fix**: the static shell and native renderer now explicitly state that both SEC annual data and the PIT reference time are pending and continue to prohibit estimation.
+- **violated_rule**: R481.
+- **prevention**: the architecture browser lifecycle gate retains the `sec-report.v3` and visible `PIT` assertions for both current and unavailable render paths.
+- **verification**: `ci-architecture-browser-check.mjs` passes with 20 routes, stable 42 canvases/12 timers across two laps, `sec-report.v3` and visible PIT-unavailable disclosure; FULL_INIT, accessibility and vertical-slice browser gates also pass.
+
+## P945 - v54.37 - fundamentals created a row with no screener factors while CI pinned an obsolete snapshot
+
+- **motivation**: the full release gate found that the current screener artifact reported 847 successful factor rows but contained 848 objects and could not be deployed.
+- **symptom/reproduction**: `validate-screener-artifact.mjs` reported `847 != 848` and one row with no derived factors; `ci-screener-workbench-contract.mjs` separately demanded the historical `873/848/74.2` snapshot although current SEC coverage was 77.2%.
+- **root_cause**: FMP/SEC enrichment created a new object when a symbol had no successful price-factor row. The workbench contract treated mutable generated data counts as source-code constants, so it contradicted the artifact validator after legitimate coverage changes.
+- **fix**: fundamentals now enrich only existing factor rows; filing-only records stay in the dedicated SEC artifact. The workbench contract derives row equality and fundamental coverage from the published artifact, retains the 873 universe and 80% minimum factor floor, and CI forbids reintroducing the fundamental-only insertion path.
+- **violated_rule**: R498.
+- **prevention**: forced screener refresh plus artifact validation, workbench contract and pipeline static guard must all agree before release.
+- **verification**: forced producer refresh passes `validate-screener-artifact.mjs` with 847/847 factor rows, current factor epochs and 561 fundamental rows (77.1%); workbench, data-pipeline, page-timeline and screener browser gates pass.
+
+## P944 - v54.37 - safety hardening disconnected the public route and converted claim failures into blank chat
+
+- **motivation**: repeated reports from multiple users showed that AI chat availability had regressed even though route, safety, evidence and structured-answer checks had each been strengthened.
+- **symptom/reproduction**: a fresh browser without a personal API key resolved to `NO_ROUTE` because the shipped public config omitted the already healthy Worker URL. When a model returned a syntactically valid AnswerPlan containing one unbound claim, the response pipeline could reject the entire answer; when the Worker's 1,500-token ceiling truncated structured JSON, the client hid the partial control stream and then had no safe text to publish. Client requests still assumed 12K/16K output and ignored the stream `stop_reason`. Operations could simultaneously report a broken route because the producer read a different health field than the fetcher wrote.
+- **root_cause**: configuration, boot readiness, target selection, Worker capability, structured validation, stream finalization and UI rendering were hardened as separate layers without one fresh-browser end-to-end invariant. Fail-closed behavior was applied at whole-answer granularity instead of claim granularity, while client and Worker token contracts had diverged.
+- **fix**: restored the public Worker as a shipped fallback while preserving personal-key preference; unified both chat surfaces on one evidence registry and completion envelope; bound requested output to Worker-advertised limits; consumed `stop_reason`; filtered unsupported claims/current numeric sentences without deleting safe qualitative content; concealed partial control JSON and recovered safe prose from truncated plans; canonicalized operations health input.
+- **violated_rule**: R497.
+- **prevention**: CI now boots a fresh browser with empty storage, intercepts the public Worker contract, streams a complete answer, verifies no API key is leaked, exercises unbound-claim degradation, unsupported-number removal, truncated-JSON recovery and partial-stream concealment, and requires the same public route in config, boot defaults, operations status and live invariants.
+- **verification**: syntax, AI reliability/intelligence/operations/runtime contracts, fresh-browser public-route Chromium gate, 1124/1124 headless tests, FULL_INIT 51/51, Critical-10, accessibility, Vault, vertical slices and three-lap route soak pass locally. Codex in-app browser Tier-13 remains unavailable because its trusted RPC dependency is rejected during plugin initialization; deployed Pages and live Worker/user-flow certification remain release gates.
+
+## P943 - v54.36 - authored depth and raw identity aggregation were not reflected in repository state
+
+- **motivation**: the previous pass left the 160 source lessons below the encyclopedia contract and kept dated evidence and 13F multi-quarter identity work outside the connected runtime surfaces.
+- **symptom/reproduction**: source lesson records had only short definition/mechanism/example fields; research dossiers remained open even when each core lesson already carried a dated research fact; 13F history had raw rows but no manager·CUSIP·period aggregate for review; Atlas had primary facts but no dedicated dated-evidence ledger.
+- **root_cause**: authored content, research dossier generation, page consumers and raw identity normalization were maintained as separate artifacts without a deterministic promotion state.
+- **fix**: added an idempotent source-lesson enrichment builder with per-chapter/per-layer application lenses, semantic fields and worked-example shape; promoted attached dated facts into 160 researched core/foundation dossiers; added the 40-entry Atlas evidence ledger and 2,500-record raw 13F issuer aggregate, then connected both to their pages and contracts.
+- **prevention**: CI now runs enrichment and deterministic builders, strict depth audit, dated-evidence boundary checks and issuer-aggregate contract/browser checks. Raw CUSIP aggregation explicitly remains below verified ticker/sector/corporate-action publication.
+- **verification**: depth strict PASS; 160/160 core/foundation dossiers researched; Atlas, Principles and Masters contract/browser PASS; no commit or deploy performed. Human semantic review, recruited-user validation, authorized security master and live-site parity remain explicit open gates.
+
+## P942 - v54.35 - refreshable data and generated-reference surfaces could drift from their declared boundaries
+
+- **motivation**: the remaining work required a sequential refresh of 13F data and a quality pass over generated knowledge and Atlas currentness without promoting unverified claims.
+- **symptom/reproduction**: the connected 13F artifact still pointed to older latest filings; a resumed historical import could leave imported periods marked pending; generated worked-example steps could lose the source verification question and emit an English placeholder; Atlas player/product reference rows had no visible freshness-window summary.
+- **root_cause**: refresh metadata and revisions were hardcoded or maintained separately from producer output, checkpoint recovery treated existing rows as an implicit skip rather than an imported state, the article generator deleted a field before consuming it, and `fetch-data.mjs` copied a human-readable survey policy into a machine-checked status field. The Atlas overlay had source/status fields but no user-facing freshness aggregate.
+- **fix**: refreshed official SEC filing indexes and information tables, made history collection resume-aware with dynamic review/revision metadata, preserved the verification question in article generation, added dynamic encyclopedia-audit dating, added Atlas freshness/coverage metadata plus a visible fail-closed boundary, and made automated market refresh preserve the canonical `web-research-captured-reference` status.
+- **prevention**: every generated artifact must derive date/count/revision claims from its inputs or run context; resumed imports must distinguish `IMPORTED_HISTORICAL` from pending; generated prose must be contract-tested for undefined/placeholder content; currentness overlays must expose freshness and zero-claim boundaries in both data and UI.
+- **verification**: 13F refresh/reconciliation/history, Masters/Atlas/knowledge contracts, article contract/uniqueness, and focused syntax gates pass. Duquesne’s $4 mismatch remains disclosed. Encyclopedia semantic certification, verified security master and deployed-site parity remain blocked/open by design; no commit or deploy performed.
+
+## P941 - v54.34 - three knowledge surfaces had incomplete depth or reconciliation disclosure
+
+- **motivation**: the Principles, Atlas and Masters pages needed to be evaluated as one learning-and-evidence system, not as isolated UI shells.
+- **symptom/reproduction**: Principles had 112 structured deep articles in the repository but no consumer on the page; Atlas declared seven layers while its F0 modules were absent from the 48-module index; Masters verified row counts but did not classify cover-total versus row-total differences, including Duquesne’s +$1 source discrepancy.
+- **root_cause**: content artifacts, page consumers and data-quality contracts had been added in separate increments without a final cross-surface completeness gate.
+- **fix**: connected Principles deep articles through progressive disclosure, added an explicit F0 primer module map and authored short guides, and added generated/current 13F value reconciliation fields with an exception-disclosure renderer and contract assertions.
+- **prevention**: keep deep-article consumer coverage, every visible curriculum layer, and value reconciliation status in focused contract/browser gates; preserve explicit reference-only and source-exception labels until semantic review or source correction closes them.
+- **verification**: Principles, Atlas and Masters syntax/contract/browser gates pass; Atlas F0 selection and Principles deep-article expansion are exercised in Chromium; the live deployed-site invariant remains an external/network-blocked check.
+
+## P940 - v54.33 - shared current observations were rendered without selected-node scope
+
+- **motivation**: Principles and Atlas share one dated reference artifact, but a selected concept must not inherit unrelated market/company cards.
+- **symptom/reproduction**: Selecting `희소성과 선택` or an Atlas foundation module rendered the same full observation set, including unrelated SNDK, CPI, VIX and FOMC values.
+- **root_cause**: `currentObservationMatches()` supported node scope, but the page consumers omitted `nodeId`/`nodeIds` and the fallback treated the page as an unscoped overview.
+- **fix**: Added explicit multi-node scope support, passed selected Principles/Atlas node IDs, and made empty states tell the learner to follow graph/source links instead of implying direct evidence.
+- **violated_rule**: R496.
+- **prevention**: Browser goldens assert scoped counts and reject unrelated values on default Principles/Atlas views.
+- **verification**: `ci-principles-browser-check.mjs`, `ci-atlas-browser-check.mjs`, `ci-knowledge-current-observations-check.mjs` pass after the change.
+
+## P939 - v54.33 - user-facing knowledge pages exposed forced question prompts
+
+- **motivation**: The user requested curiosity-led, self-directed learning without quizzes, verification questions, or simulations.
+- **symptom/reproduction**: Principles library/detail and Atlas foundation/domain surfaces rendered question-labeled prompts; a cleanup helper also removed them inconsistently after render.
+- **root_cause**: Source artifacts mixed editorial question fields with consumer UI requirements, and browser contracts only checked structural presence rather than the intended learning style.
+- **fix**: Removed question/quiz prompt renderers, replaced them with declarative exploration lenses and reading paths, exposed source-status labels, and added Masters' 13F reading order and blind-spot boundary.
+- **violated_rule**: R495; historical R491 question-presence behavior is superseded by the user-facing learner-first boundary.
+- **prevention**: Focused browser contracts assert zero question-prompt DOM nodes and require self-guided exploration panels.
+- **verification**: Principles, Atlas, Masters syntax/contract/browser checks pass; no commit or deploy performed.
+
+## P938 - v54.25 - Atlas relationship-map patch dropped an existing teaching question
+
+- **motivation**: The new relationship map must not regress the beginner-first Foundations learning contract while extending the same Atlas renderer.
+- **symptom/reproduction**: `ci-atlas-browser-check.mjs` timed out at the F3 contract; direct Chromium inspection showed 10 concepts, `토큰화`, one lesson and one visualization, but zero `.atlas-module-question` elements.
+- **root_cause**: A neighboring edit in `createModuleLesson()` unintentionally removed the existing teaching-question node while adding relationship-map rendering elsewhere in the same large module.
+- **fix**: Restored the layer/authored teaching-question paragraph and retained the existing F3 browser assertion of exactly one question.
+- **violated_rule**: R491; browser goldens and the implementation must be checked from the same working tree, especially when a large shared renderer is dirty.
+- **prevention**: Keep `QA-PRO-DATA-21` and the blocking F3 negative control; a renderer with zero teaching questions now fails before release.
+- **verification**: Direct Chromium reproduction identified the zero-count state; the repaired focused Atlas browser gate passes with the F3 question restored, relationship-map keyboard activation, 5/35/31 coverage, source disclosure and zero document overflow at 1280/760. Full headless is 1121/1121 PASS. No commit or deploy performed.
+
+## P937 - v54.25 - timeless neutral-rate value and disconnected company roadmap
+
+- **motivation**: User-supplied macro and Sandisk research needed to become durable knowledge without turning model estimates or Investor Day targets into current facts.
+- **symptom/reproduction**: The glossary fixed U.S. neutral rate at an undated 2.5–3.0% estimate, while Atlas lacked a visible consumer for model uncertainty, market counterpoints and the inference→NAND→contract→FCF/share chain; Sandisk was absent from the player/product registry.
+- **root_cause**: Definitions, dated observations, company forward-looking claims and visual relationship structure were stored in separate prose/registry paths with no typed relationship artifact or publication boundary.
+- **fix**: Removed the timeless r-star number; added Principles D6, official/academic research facts, five source-grounded relationship guides, a safe-DOM Atlas relationship-map consumer, Sandisk player/product/currentness records, a dated screener memo and user-research packets.
+- **violated_rule**: R494; unobservable estimates and company targets must retain model/date/directness boundaries through every consumer.
+- **prevention**: `ci-atlas-contract-check.mjs` now validates guide/node/edge shape, source resolution, counts, safe-DOM connection and currentness separation; browser QA must exercise filters, details and sources before completion.
+- **verification**: evidence registry 169/274 with zero unresolved/conflicts; 160 articles; 427 coverage units; Atlas contract and focused Chromium relationship checks PASS; no commit or deploy performed.
 
 ## P936 - v54.24 - SEC fact fallback concept selection retained stale observations
 

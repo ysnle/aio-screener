@@ -1,11 +1,35 @@
 ---
 verified_by: agent (Fable 5) + Codex P761-P936 verification
-last_verified: 2026-08-15
+last_verified: 2026-08-16
 confidence: high
-target_version: v54.24
+target_version: v54.37
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R498. Screener factor rows cannot be created by fundamentals alone (v54.37, P945)
+
+**Rule**: `public-data/screener.json.data` contains only symbols with a successfully derived price-factor row. FMP or SEC enrichment may add fields to an existing factor row but must never create a filing-only row. Publication gates derive their expected row and fundamental-coverage counts from the artifact contract instead of pinning an obsolete historical snapshot, while retaining the 80% minimum factor-coverage floor. Filing-only coverage remains in the dedicated SEC artifact.
+
+**Validation**: `scripts/validate-screener-artifact.mjs`, `scripts/ci-screener-workbench-contract.mjs`, and `scripts/ci-data-pipeline-contract-check.mjs` must pass after a forced screener producer run.
+
+## R497. Public AI chat is certified as a fresh-browser consumer outcome (v54.37, P944)
+
+**Rule**: A public AI fallback is usable only when one canonical route contract connects `public-config.json`, boot defaults, readiness, deep health, the request target, Worker-advertised token limits, stream completion, and a non-empty user-visible answer in a browser with no stored key or override. Personal keys remain preferred when present. AnswerPlan validation must remove only unsupported claims or current numeric sentences; it must not erase independently safe qualitative content. Partial structured streams must conceal control JSON, and truncated structured output must recover safe prose with an explicit limitation instead of producing a blank response.
+
+**Validation**: `scripts/ci-ai-chat-public-route-browser-check.mjs`, `scripts/ci-ai-chat-reliability-contract-check.mjs`, `scripts/ci-runtime-contract-check.mjs`, and `js/aio-tests.js` T990d~T990g must pass. `scripts/ci-live-invariant-check.mjs` must verify the deployed public config and Worker health contract before live certification.
+
+## R496. Dated observations must be scoped to the selected knowledge node (v54.33)
+
+**Rule**: Shared current-observation artifacts may target multiple pages, but a Principles, Atlas foundation, or Atlas relationship consumer must pass its selected node/related-node scope. Do not display unrelated market or company values as if they directly support every concept; when no direct observation exists, render an explicit reference-only empty state.
+
+**Validation**: `src/ui/knowledge/current-observations.js`, `ci-knowledge-current-observations-check.mjs`, `ci-principles-browser-check.mjs`, and `ci-atlas-browser-check.mjs`.
+
+## R495. Learner-first knowledge surfaces use declarative exploration, not quiz prompts (v54.33)
+
+**Rule**: Principles, Atlas, and Masters may retain question-shaped fields in source artifacts for lineage and search, but user-facing pages must not render verification questions, quizzes, simulations, or forced answer prompts. Replace them with declarative reading order, connection paths, evidence scope, limits, and specialist-route guidance that lets users explore at their own pace.
+
+**Validation**: `ci-principles-contract-check.mjs`, `ci-atlas-contract-check.mjs`, `ci-principles-browser-check.mjs`, `ci-atlas-browser-check.mjs`, and `ci-masters-browser-check.mjs`.
 
 ## R492. Official static release calendars must be date-advanced and source-verified (v54.23)
 
@@ -2223,3 +2247,15 @@ endpoint identity while retaining explicit operator blockers.
 **Rule**: 개인 키와 Worker URL이 동시에 존재해도 route resolver가 선택한 endpoint의 인증·health만 readiness 근거로 사용한다. Worker target을 개인 키 존재로 통과시키거나 UI가 다른 route를 표시하면 안 된다. Deep health의 동시 호출은 URL별로 합치고, 일시 실패 TTL은 성공 TTL보다 짧아야 한다. 비공개 지인 공유의 explicit Worker URL을 공개 설정에 자동 게시하지 않는다.
 
 **Validation**: `scripts/ci-ai-chat-reliability-contract-check.mjs`, `_aioClaudeTarget`, `_aioEnsureClaudeRoute`, `getLLMRouteReadiness`, `public-config.json`.
+
+## R494. 관측 불가능한 경제변수와 기업 목표는 관계 지도에서도 시점·추정·반증 경계를 보존한다 (v54.25, P937)
+
+**Rule**: 중립금리(r*)처럼 직접 관측할 수 없는 변수는 모델·기대값·오차 범위·데이터 vintage 없이 현재 단일값으로 용어집이나 판단층에 고정하지 않는다. 기업 Investor Day의 장기 계약·기술 로드맵·non-GAAP 목표는 `DATED_COMPANY_REFERENCE`로만 보존하고 현재 실적·매출·현금·valuation으로 승격하지 않는다. 관계 지도는 모든 노드에 정의·중요성·작동 원리·확인 지표·반증 조건을, 모든 edge에 방향·의미·criticality를 가지며 source→artifact→Atlas/Principles/Screener consumer와 접근 가능한 텍스트 대안을 함께 검증한다. 제3자 시각화의 자체 기업·관계 수는 복제하지 않고 정보 구조만 참고한다.
+
+**Validation**: `scripts/ci-atlas-contract-check.mjs`, `scripts/ci-knowledge-currentness-separation.mjs`, `scripts/ci-knowledge-article-contract.mjs`, `public-data/knowledge/relationship-guides.json`, Atlas Chromium browser check.
+
+## R495. reference-depth·currentness·provider-review는 서로 다른 승격 단계로 보존한다 (v54.36, P943)
+
+**Rule**: 1,200자 이상 원문, semantic field, worked example, dated fact 연결, current-evidence ledger, raw 13F CUSIP 집계는 각각 해당 구조와 출처 연결만 인증한다. 이를 human semantic review, independent directness review, current operational/financial/production claim, verified ticker·sector·corporate-action mapping, 또는 recruited-user validation으로 승격하지 않는다. 외부 provider 권한·갱신 실패·stale artifact는 기존 LKG를 보존하면서 `STALE`/`RESEARCH_REQUIRED`/`REVIEW_REQUIRED`/`BLOCKED` 상태와 원인을 남긴다.
+
+**Validation**: `scripts/audit-knowledge-encyclopedia-depth.mjs`, `scripts/ci-knowledge-web-research-dossier.mjs`, `scripts/build-atlas-current-evidence-ledger.mjs`, `scripts/build-13f-issuer-aggregates.mjs`, `scripts/ci-data-refresh-audit.mjs`, `_context/QA-CHECKLIST.md`.

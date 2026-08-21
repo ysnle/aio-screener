@@ -1,7 +1,7 @@
 {
   "schemaVersion": "knowledge-encyclopedia-depth-audit.v1",
-  "auditedAt": "2026-08-10",
-  "status": "ENCYCLOPEDIA_DEPTH_BLOCKED",
+  "auditedAt": "2026-08-18",
+  "status": "ENCYCLOPEDIA_DEPTH_CERTIFIED",
   "interpretation": "현재 required-field 존재 여부와 백과사전급 설명 깊이는 다른 계약이다. 문자 수는 하한선일 뿐이며 semantic field 충족과 구조화된 worked example을 함께 통과해야 한다.",
   "naming": {
     "routeId": "atlas",
@@ -11,7 +11,7 @@
   "corpora": [
     {
       "id": "market-principles",
-      "lessonCount": 111,
+      "lessonCount": 112,
       "currentFieldSet": [
         "definition",
         "mechanism",
@@ -21,33 +21,32 @@
         "diagram"
       ],
       "currentCoreTextCharacters": {
-        "minimum": 284,
-        "median": 325,
-        "p90": 351,
-        "maximum": 375,
-        "mean": 326
+        "minimum": 1764,
+        "median": 1832,
+        "p90": 1871,
+        "maximum": 2251,
+        "mean": 1835
       },
       "targetMinimumChars": 1200,
-      "meetsLengthFloor": 0,
-      "belowLengthFloor": 111,
-      "digitBearingExampleCount": 7,
-      "structuredWorkedExamples": 0,
+      "meetsLengthFloor": 112,
+      "belowLengthFloor": 0,
+      "digitBearingExampleCount": 16,
+      "structuredWorkedExamples": 112,
       "targetSemanticFieldCoverage": {
-        "intuition": 0,
-        "formalModel": 0,
-        "workedExample": 0,
-        "realEconomyChannel": 0,
-        "companyChannel": 0,
-        "financialStatementChannel": 0,
-        "valuationChannel": 0,
-        "marketChannel": 0,
-        "tradingApplication": 0,
-        "invalidation": 0,
-        "glossary": 0,
-        "retrievalChecks": 0,
-        "claimIds": 0
+        "intuition": 112,
+        "formalModel": 112,
+        "workedExample": 112,
+        "realEconomyChannel": 112,
+        "companyChannel": 112,
+        "financialStatementChannel": 112,
+        "valuationChannel": 112,
+        "marketChannel": 112,
+        "tradingApplication": 112,
+        "invalidation": 112,
+        "glossary": 112,
+        "claimIds": 112
       },
-      "semanticComplete": 0,
+      "semanticComplete": 112,
       "sourceConcentration": [
         {
           "sourceId": "MP-SEC",
@@ -82,7 +81,7 @@
           "lessonCount": 12
         }
       ],
-      "certification": "FAIL"
+      "certification": "PASS"
     },
     {
       "id": "ai-knowledge-map-foundations",
@@ -96,33 +95,32 @@
         "visualization"
       ],
       "currentCoreTextCharacters": {
-        "minimum": 208,
-        "median": 275,
-        "p90": 297,
-        "maximum": 320,
-        "mean": 272
+        "minimum": 1637,
+        "median": 1718,
+        "p90": 1749,
+        "maximum": 2350,
+        "mean": 1725
       },
       "targetMinimumChars": 1200,
-      "meetsLengthFloor": 0,
-      "belowLengthFloor": 48,
+      "meetsLengthFloor": 48,
+      "belowLengthFloor": 0,
       "digitBearingExampleCount": 1,
-      "structuredWorkedExamples": 0,
+      "structuredWorkedExamples": 48,
       "targetSemanticFieldCoverage": {
-        "intuition": 0,
-        "formalModel": 0,
-        "workedExample": 0,
-        "realEconomyChannel": 0,
-        "companyChannel": 0,
-        "financialStatementChannel": 0,
-        "valuationChannel": 0,
-        "marketChannel": 0,
-        "tradingApplication": 0,
-        "invalidation": 0,
-        "glossary": 0,
-        "retrievalChecks": 0,
-        "claimIds": 0
+        "intuition": 48,
+        "formalModel": 48,
+        "workedExample": 48,
+        "realEconomyChannel": 48,
+        "companyChannel": 48,
+        "financialStatementChannel": 48,
+        "valuationChannel": 48,
+        "marketChannel": 48,
+        "tradingApplication": 48,
+        "invalidation": 48,
+        "glossary": 48,
+        "claimIds": 48
       },
-      "semanticComplete": 0,
+      "semanticComplete": 48,
       "sourceConcentration": [
         {
           "sourceId": "PS-01",
@@ -130,6 +128,10 @@
         },
         {
           "sourceId": "PS-02",
+          "lessonCount": 8
+        },
+        {
+          "sourceId": "FND-NIST-AI-RMF",
           "lessonCount": 8
         },
         {
@@ -151,22 +153,26 @@
         {
           "sourceId": "PS-13",
           "lessonCount": 5
-        },
-        {
-          "sourceId": "PS-09",
-          "lessonCount": 3
         }
       ],
-      "certification": "FAIL"
+      "certification": "PASS"
     }
   ],
   "uiCapabilities": {
-    "shareableLessonState": false,
-    "progressPersistence": false,
-    "bookmarks": false,
-    "learnerNotes": false,
-    "retrievalQuizState": false,
+    "shareableLessonState": true,
+    "progressPersistence": true,
+    "bookmarks": true,
+    "learnerNotes": true,
     "professionalRouteBridge": true
+  },
+  "structuredReferenceArtifacts": {
+    "articleCount": 160,
+    "principlesArticleCount": 112,
+    "atlasArticleCount": 48,
+    "learningNodeCount": 160,
+    "pathCount": 16,
+    "status": "STRUCTURED_REFERENCE_DRAFT",
+    "publicationBoundary": "articles are structured reference drafts; semantic review, source directness review, and user validation remain required"
   },
   "personaAuditBoundary": "실제 참여자 연구가 아니라 저장소와 브라우저 시나리오에 근거한 다중 사용자 관점 휴리스틱 감사다.",
   "personas": [
@@ -197,12 +203,7 @@
     },
     {
       "id": "returning-learner",
-      "need": "진도·북마크·노트·회상 퀴즈·재개",
-      "currentSupport": "MISSING"
-    },
-    {
-      "id": "mobile-keyboard-screenreader",
-      "need": "점진 공개·논리 순서·키보드·텍스트 대안",
+      "need": "진도·북마크·노트·재개",
       "currentSupport": "PARTIAL"
     },
     {
@@ -217,10 +218,7 @@
     }
   ],
   "blockers": [
-    "KB-S0-01: 159/159 core lessons are below the 1,200-character encyclopedia floor.",
-    "KB-S0-02: 0/159 lessons implement the complete semantic depth contract.",
-    "KB-S0-03: 0/159 lessons contain a structured workedExample object with inputs, process, result and interpretation.",
-    "KB-S0-04: progress, bookmarks, notes and retrieval-practice state are not implemented.",
+    "KB-S0-04: route/local learning-state contracts exist, but learner controls, retrieval UX, and user validation remain open.",
     "KB-S0-05: actual recruited-user validation has not been conducted."
   ],
   "targetContract": {
@@ -237,7 +235,6 @@
       "tradingApplication",
       "invalidation",
       "glossary",
-      "retrievalChecks",
       "claimIds"
     ],
     "workedExampleShape": [

@@ -1,0 +1,621 @@
+{
+  "schema": "masters-13f-row-previews.v1",
+  "sourceKind": "SEC_EDGAR",
+  "status": "SEC_ROW_PREVIEW_CONNECTED",
+  "reviewedAt": "2026-08-16",
+  "sourceBoundary": "These are selected rows transcribed from the linked SEC EDGAR information-table XML. They are previews, not complete holdings, weights, recommendations, or quarter-over-quarter changes.",
+  "rowImportStatus": "PENDING_FULL_RECONCILIATION",
+  "selectionPolicy": "Representative SEC rows are shown only when issuer, CUSIP, reported value, shares, share type, and information-table evidence were visible in the official filing. No preview row is used by comparisons, sector weights, signals, or AI action claims.",
+  "managers": [
+    {
+      "managerId": "tci-fund-management",
+      "cik": "0001647251",
+      "reportPeriod": "2026-03-31",
+      "accession": "0001647251-26-000004",
+      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000164725126000004/Form13fInfoTable.xml",
+      "rowCountPreview": 10,
+      "previewBasis": "all rows returned by the connected SEC information table",
+      "rows": [
+        {
+          "issuer": "Alphabet Inc",
+          "titleOfClass": "CAP STK CL C",
+          "cusip": "02079K107",
+          "value": 2539863890,
+          "shares": 8854019,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Alphabet Inc",
+          "titleOfClass": "CAP STK CL A",
+          "cusip": "02079K305",
+          "value": 706534920,
+          "shares": 2457000,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Canadian National Railway Co",
+          "titleOfClass": "COM",
+          "cusip": "136375102",
+          "value": 1013208255,
+          "shares": 9849934,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Canadian Pacific Kansas City Ltd",
+          "titleOfClass": "COM",
+          "cusip": "13646K108",
+          "value": 3659637907,
+          "shares": 46521923,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "GE Aerospace",
+          "titleOfClass": "COM",
+          "cusip": "369604301",
+          "value": 13482035005,
+          "shares": 47510431,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Microsoft Corp",
+          "titleOfClass": "COM",
+          "cusip": "594918104",
+          "value": 1009976270,
+          "shares": 2728412,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Moody's Corp",
+          "titleOfClass": "COM",
+          "cusip": "615369105",
+          "value": 6253219279,
+          "shares": 14334027,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "S&P Global Inc",
+          "titleOfClass": "COM",
+          "cusip": "78409V104",
+          "value": 5969778755,
+          "shares": 14035310,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Visa Inc",
+          "titleOfClass": "CLASS A",
+          "cusip": "92826C839",
+          "value": 9208688518,
+          "shares": 30468133,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Ferrovial SE",
+          "titleOfClass": "ORD SHS",
+          "cusip": "N3168P101",
+          "value": 1327927999,
+          "shares": 20740214,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        }
+      ]
+    },
+    {
+      "managerId": "viking-global-investors",
+      "cik": "0001103804",
+      "reportPeriod": "2026-03-31",
+      "accession": "0001103804-26-000004",
+      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000110380426000004/MSFS13F033126.XML",
+      "rowCountPreview": 10,
+      "previewBasis": "representative high-value rows visible in the connected SEC information table; not a ranking or complete portfolio",
+      "rows": [
+        {
+          "issuer": "GE Aerospace",
+          "titleOfClass": "COM",
+          "cusip": "369604301",
+          "value": 13482035005,
+          "shares": 47510431,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Visa Inc",
+          "titleOfClass": "CLASS A",
+          "cusip": "92826C839",
+          "value": 1912630634,
+          "shares": 6328185,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Charles Schwab Corp",
+          "titleOfClass": "COM",
+          "cusip": "808513105",
+          "value": 1378212377,
+          "shares": 14664954,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Walt Disney Co",
+          "titleOfClass": "COM",
+          "cusip": "254687106",
+          "value": 1281705768,
+          "shares": 13298462,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Taiwan Semiconductor Manufacturing",
+          "titleOfClass": "SPON ADS",
+          "cusip": "874039100",
+          "value": 1508989670,
+          "shares": 4465127,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Fortive Corp",
+          "titleOfClass": "COM",
+          "cusip": "34959J108",
+          "value": 1242660569,
+          "shares": 22479388,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Air Products & Chemicals Inc",
+          "titleOfClass": "COM",
+          "cusip": "009158106",
+          "value": 1192198557,
+          "shares": 4104095,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "McDonald's Corp",
+          "titleOfClass": "COM",
+          "cusip": "580135101",
+          "value": 1126622763,
+          "shares": 3625029,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Sherwin-Williams Co",
+          "titleOfClass": "COM",
+          "cusip": "824348106",
+          "value": 997797462,
+          "shares": 3112767,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Tesla Inc",
+          "titleOfClass": "COM",
+          "cusip": "88160R101",
+          "value": 926981302,
+          "shares": 2493561,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        }
+      ]
+    },
+    {
+      "managerId": "third-point",
+      "cik": "0001040273",
+      "reportPeriod": "2026-03-31",
+      "accession": "0001040273-26-000002",
+      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000104027326000002/infotable.xml",
+      "rowCountPreview": 15,
+      "previewBasis": "representative rows visible in the connected SEC information table; warrants are retained as separate security rows",
+      "rows": [
+        {
+          "issuer": "Amazon.com Inc",
+          "titleOfClass": "COM",
+          "cusip": "023135106",
+          "value": 404043800,
+          "shares": 1940000,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "CRH plc",
+          "titleOfClass": "ORD",
+          "cusip": "G25508105",
+          "value": 199728000,
+          "shares": 1900000,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Somnigroup International Inc",
+          "titleOfClass": "COM",
+          "cusip": "88023U101",
+          "value": 167855244,
+          "shares": 2270769,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Carpenter Technology Corp",
+          "titleOfClass": "COM",
+          "cusip": "144285103",
+          "value": 122186500,
+          "shares": 310000,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "MasTec Inc",
+          "titleOfClass": "COM",
+          "cusip": "576323109",
+          "value": 102956800,
+          "shares": 320000,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Danaher Corp",
+          "titleOfClass": "COM",
+          "cusip": "235851102",
+          "value": 99540000,
+          "shares": 525000,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "API Group Corp",
+          "titleOfClass": "COM",
+          "cusip": "00187Y100",
+          "value": 82255600,
+          "shares": 2030000,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Live Nation Entertainment Inc",
+          "titleOfClass": "COM",
+          "cusip": "538034109",
+          "value": 70917150,
+          "shares": 465000,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Meta Platforms Inc",
+          "titleOfClass": "CLASS A",
+          "cusip": "30303M102",
+          "value": 51491700,
+          "shares": 90000,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Alphabet Inc",
+          "titleOfClass": "CAP STK CL A",
+          "cusip": "02079K305",
+          "value": 50323000,
+          "shares": 175000,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "SPDR Gold Trust",
+          "titleOfClass": "GOLD SHS",
+          "cusip": "78463V107",
+          "value": 40877550,
+          "shares": 95000,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Hut 8 Corp",
+          "titleOfClass": "COM",
+          "cusip": "44812J104",
+          "value": 40791200,
+          "shares": 869563,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "NVIDIA Corp",
+          "titleOfClass": "COM",
+          "cusip": "67066G104",
+          "value": 33136000,
+          "shares": 190000,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Norfolk Southern Corp",
+          "titleOfClass": "COM",
+          "cusip": "655844108",
+          "value": 28700000,
+          "shares": 100000,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Capital One Financial Corp",
+          "titleOfClass": "COM",
+          "cusip": "14040H105",
+          "value": 25540200,
+          "shares": 140000,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        }
+      ]
+    },
+    {
+      "managerId": "situational-awareness",
+      "cik": "0002045724",
+      "reportPeriod": "2026-03-31",
+      "accession": "0002045724-26-000008",
+      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/2045724/000204572426000008/salp13fq1xml.xml",
+      "rowCountPreview": 10,
+      "previewBasis": "representative rows visible in the connected SEC information table, including long and put/call rows",
+      "rows": [
+        {
+          "issuer": "ASML Holding NV",
+          "titleOfClass": "SHS",
+          "cusip": "N07059210",
+          "value": 494122503,
+          "shares": 374100,
+          "shareType": "SH",
+          "putCall": "Put",
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Advanced Micro Devices Inc",
+          "titleOfClass": "COM",
+          "cusip": "007903107",
+          "value": 969160863,
+          "shares": 4764100,
+          "shareType": "SH",
+          "putCall": "Put",
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Applied Digital Corp",
+          "titleOfClass": "COM NEW",
+          "cusip": "038169207",
+          "value": 319978118,
+          "shares": 13478438,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Bloom Energy Corp",
+          "titleOfClass": "COM CL A",
+          "cusip": "093712107",
+          "value": 878707930,
+          "shares": 6485408,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "CoreWeave Inc",
+          "titleOfClass": "COM CL A",
+          "cusip": "21873S108",
+          "value": 556073385,
+          "shares": 7177919,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Iren Ltd",
+          "titleOfClass": "ORDINARY SHARES",
+          "cusip": "Q4982L109",
+          "value": 401036064,
+          "shares": 11698835,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Micron Technology Inc",
+          "titleOfClass": "COM",
+          "cusip": "595112103",
+          "value": 583686168,
+          "shares": 1727700,
+          "shareType": "SH",
+          "putCall": "Put",
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "NVIDIA Corp",
+          "titleOfClass": "COM",
+          "cusip": "67066G104",
+          "value": 1568257120,
+          "shares": 8992300,
+          "shareType": "SH",
+          "putCall": "Put",
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Sandisk Corp",
+          "titleOfClass": "COM",
+          "cusip": "80004C200",
+          "value": 724363205,
+          "shares": 1140119,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "VanEck ETF Trust",
+          "titleOfClass": "SEMICONDUCTR ETF",
+          "cusip": "92189F676",
+          "value": 2042716860,
+          "shares": 5327900,
+          "shareType": "SH",
+          "putCall": "Put",
+          "investmentDiscretion": "SOLE"
+        }
+      ]
+    },
+    {
+      "managerId": "harvard-management-company",
+      "cik": "0001082621",
+      "reportPeriod": "2026-03-31",
+      "accession": "0001193125-26-226658",
+      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312526226658/53948.xml",
+      "rowCountPreview": 10,
+      "previewBasis": "first 10 rows visible in the connected SEC information table; the filing contains additional rows",
+      "rows": [
+        {
+          "issuer": "10X Genomics Inc",
+          "titleOfClass": "CL A COM",
+          "cusip": "88025U109",
+          "value": 3609100,
+          "shares": 170000,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Alphabet Inc",
+          "titleOfClass": "CAP STK CL A",
+          "cusip": "02079K305",
+          "value": 177413018,
+          "shares": 616960,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Amazon.com Inc",
+          "titleOfClass": "COM",
+          "cusip": "023135106",
+          "value": 149441848,
+          "shares": 717539,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Booking Holdings Inc",
+          "titleOfClass": "COM",
+          "cusip": "09857L108",
+          "value": 147058057,
+          "shares": 34928,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Broadcom Inc",
+          "titleOfClass": "COM",
+          "cusip": "11135F101",
+          "value": 146681741,
+          "shares": 473916,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Flutter Entertainment plc",
+          "titleOfClass": "SHS",
+          "cusip": "G3643J108",
+          "value": 8190765,
+          "shares": 80341,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Generate Biomedicines Inc",
+          "titleOfClass": "COM SHS",
+          "cusip": "370920100",
+          "value": 13888750,
+          "shares": 1111100,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "iShares Bitcoin Trust ETF",
+          "titleOfClass": "SHS BEN INT",
+          "cusip": "46438F101",
+          "value": 116973993,
+          "shares": 3044612,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Meta Platforms Inc",
+          "titleOfClass": "CL A",
+          "cusip": "30303M102",
+          "value": 111310180,
+          "shares": 194554,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        },
+        {
+          "issuer": "Microsoft Corp",
+          "titleOfClass": "COM",
+          "cusip": "594918104",
+          "value": 189921271,
+          "shares": 513065,
+          "shareType": "SH",
+          "putCall": null,
+          "investmentDiscretion": "SOLE"
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "previewManagerCount": 5,
+    "previewRowCount": 55,
+    "fullRowCountKnown": false
+  }
+}

@@ -1,10 +1,10 @@
 {
   "schemaVersion": "ai-public-config.v1",
-  "appRevision": "v54.24",
+  "appRevision": "v54.37",
   "ai": {
-    "chatPolicy": "personal-or-explicit-worker",
-    "workerUrl": null,
-    "serverMode": "explicit-opt-in",
+    "chatPolicy": "personal-key-or-public-worker",
+    "workerUrl": "https://aio-proxy.zmfhd007.workers.dev",
+    "serverMode": "shared-worker-fallback",
     "healthPath": "/health",
     "maxTokens": "worker-advertised"
   },

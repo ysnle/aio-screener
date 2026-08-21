@@ -1,0 +1,153 @@
+{
+  "schemaVersion": "knowledge-research-dossier.v1",
+  "dossierId": "research:principles-lesson:D6",
+  "contentUnitId": "principles-lesson:D6",
+  "unitKind": "CORE_LESSON",
+  "title": "중립금리와 정책 스탠스",
+  "researchQuestions": [
+    "What is the claim-specific mechanism for 중립금리와 정책 스탠스?",
+    "Which variable, unit, time boundary or assumption would change the interpretation of 중립금리와 정책 스탠스?",
+    "Which official, academic, standard or filing evidence can directly support the relevant claim?"
+  ],
+  "queries": [
+    "중립금리와 정책 스탠스 mechanism primary source",
+    "중립금리와 정책 스탠스 official data standard filing evidence",
+    "중립금리와 정책 스탠스 disconfirming evidence limitations"
+  ],
+  "searchedAt": "2026-08-18",
+  "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
+  "candidateSources": [
+    {
+      "sourceId": "MP-NYFED-RSTAR",
+      "url": "https://www.newyorkfed.org/research/policy/rstar",
+      "publisher": "Federal Reserve Bank of New York",
+      "title": "Measuring the Natural Rate of Interest",
+      "sourceTier": null
+    },
+    {
+      "sourceId": "MP-FED-SEP-2026-06",
+      "url": "https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20260617.pdf",
+      "publisher": "Federal Reserve Board",
+      "title": "Summary of Economic Projections, June 2026",
+      "sourceTier": null
+    },
+    {
+      "sourceId": "MP-FED-MP",
+      "url": "https://www.federalreserve.gov/monetarypolicy.htm",
+      "publisher": "Federal Reserve",
+      "title": "Monetary policy",
+      "sourceTier": null
+    },
+    {
+      "sourceId": "MP-BLS",
+      "url": "https://www.bls.gov/cpi/",
+      "publisher": "U.S. Bureau of Labor Statistics",
+      "title": "Consumer Price Index",
+      "sourceTier": null
+    },
+    {
+      "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
+      "url": "https://fred.stlouisfed.org/release?rid=500",
+      "publisher": "Federal Reserve Bank of St. Louis",
+      "title": "Inflation Expectations release",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    },
+    {
+      "sourceId": "WEB-FED-MPR-JULY-2026",
+      "url": "https://www.federalreserve.gov/monetarypolicy/2026-07-mpr-summary.htm",
+      "publisher": "Federal Reserve",
+      "title": "Monetary Policy Report July 2026",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    },
+    {
+      "sourceId": "WEB-OECD-PRODUCTIVITY-METHODS",
+      "url": "https://www.oecd.org/sdd/productivity-stats/OECD-Productivity-Statistics-Methodological-note.pdf",
+      "publisher": "OECD",
+      "title": "OECD Productivity Statistics methodological note",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    },
+    {
+      "sourceId": "WEB-NYFED-RSTAR-2026",
+      "url": "https://www.newyorkfed.org/research/policy/rstar",
+      "publisher": "Federal Reserve Bank of New York",
+      "title": "Measuring the Natural Rate of Interest",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    }
+  ],
+  "selectedSources": [
+    {
+      "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
+      "url": "https://fred.stlouisfed.org/release?rid=500",
+      "publisher": "Federal Reserve Bank of St. Louis",
+      "title": "Inflation Expectations release",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-FED-MPR-JULY-2026",
+      "url": "https://www.federalreserve.gov/monetarypolicy/2026-07-mpr-summary.htm",
+      "publisher": "Federal Reserve",
+      "title": "Monetary Policy Report July 2026",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-OECD-PRODUCTIVITY-METHODS",
+      "url": "https://www.oecd.org/sdd/productivity-stats/OECD-Productivity-Statistics-Methodological-note.pdf",
+      "publisher": "OECD",
+      "title": "OECD Productivity Statistics methodological note",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-NYFED-RSTAR-2026",
+      "url": "https://www.newyorkfed.org/research/policy/rstar",
+      "publisher": "Federal Reserve Bank of New York",
+      "title": "Measuring the Natural Rate of Interest",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    }
+  ],
+  "rejectedSources": [],
+  "sourceTiers": [
+    "PRIMARY_OFFICIAL"
+  ],
+  "claimCoverage": [
+    {
+      "claimId": "principles-lesson-D6",
+      "currentDirectness": "CONTEXT",
+      "requiredAction": "independent direct source required"
+    }
+  ],
+  "researchFactIds": [
+    "fact:fred:real-rates",
+    "fact:fed:policy-transmission",
+    "fact:oecd:productivity",
+    "fact:nyfed:rstar-definition",
+    "fact:ibm:silicon-doping",
+    "fact:nyfed:rstar-model-market",
+    "fact:fed:2026-june-policy-neutral-reference",
+    "fact:bls:2026-june-headline-core",
+    "fact:nyfed:rstar-estimation-method"
+  ],
+  "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
+  "disagreement": "Not assessed until independent source comparison is complete.",
+  "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
+  "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
+  "q1Thesis": "A claim about 중립금리와 정책 스탠스 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+  "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
+  "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
+  "q4StructuralMechanism": "Trace 중립금리와 정책 스탠스 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+  "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
+  "status": "RESEARCHED",
+  "completion": {
+    "researchComplete": true,
+    "sourceProfileComplete": true,
+    "semanticReview": "REQUIRED",
+    "userValidation": "NOT_CONDUCTED"
+  }
+}

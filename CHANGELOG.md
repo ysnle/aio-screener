@@ -1,3 +1,109 @@
+## v54.37 (2026-08-18)
+- **Public AI route restored**: shipped the existing HTTPS Worker as the default fallback for fresh browsers while preserving personal-key preference and manual Worker override. Boot defaults, public config, readiness, deep health, request routing and operations status now describe the same route.
+- **Claim-scoped safety**: invalid or unbound AnswerPlan claims and unsupported current numeric sentences are removed without erasing independently safe qualitative analysis. Both per-page and unified chat use the same canonical evidence registry.
+- **Stream resilience**: the client honors the Worker's advertised output ceiling, consumes stream `stop_reason`, hides partial control JSON, and recovers safe prose plus an explicit limitation from truncated structured output.
+- **Consumer-level regression gate**: added a real-Chromium, empty-storage public-route test covering route selection, no-key leakage, SSE completion, claim degradation, numeric stripping, truncated-plan recovery and partial-stream concealment; deployed live invariants now validate public config and Worker health together.
+- **Screener publication boundary**: fundamentals can enrich only an existing price-factor row; filing-only records remain in the SEC artifact. The workbench gate now validates self-consistent generated counts and a minimum coverage floor instead of pinning an obsolete mutable snapshot.
+- **Release data refresh**: refreshed all 78 configured quotes plus sentiment, news, history, market snapshot, reconciliation and release manifests through the existing producer; unavailable FRED/licensed sources and stale breadth/HY evidence remain explicitly bounded.
+- **Accumulated knowledge/data release**: includes the v54.36 source-depth, dated Atlas evidence-ledger, research-state and raw 13F issuer-aggregation work already recorded below, together with its focused contracts and browser coverage.
+- **Local release verification**: 1124/1124 headless tests, fresh-browser AI route, FULL_INIT 51/51, Critical-10, accessibility 20 routes, Vault, 13 vertical slices, 20-route lifecycle and three-lap route soak pass. Codex in-app-browser initialization remains an environment-level unverified tier and is not claimed as evidence.
+- R1 7곳 v54.37
+
+## v54.36 (2026-08-18)
+- **Knowledge source depth**: expanded all 112 Market Principles and 48 AI Era foundation lessons from short reference cards into 1,200+ character source lessons with semantic fields, structured worked examples, application channels, glossary, claim IDs and explicit invalidation boundaries; short summaries remain the default UI layer.
+- **Research state fidelity**: attached the dated fact and canonical source already used by every core lesson to its research dossier. The repository now distinguishes 318 researched units, 4 in-progress units and 105 units requiring additional research across the 427-unit inventory; researched does not mean human/user certification.
+- **AI evidence ledger**: added a 40-entry, 38-source dated primary-reference ledger for the AI Era page and connected it to the Atlas overview. Numeric/product context remains reference-only; current operational, production-volume and financial claims remain zero.
+- **13F issuer aggregation**: added a 2,500-record raw SEC CUSIP/issuer multi-quarter aggregate across 7 managers, 13,629 input rows and 268 review-queue items. It is connected to the Masters quarter view without inferring ticker, sector or corporate actions.
+- **CI and QA**: added deterministic builders and contract/browser gates for semantic depth, evidence-ledger connectivity and issuer aggregation. Local Principles, Atlas and Masters browser checks pass.
+- R1 7곳 v54.36
+
+## v54.35 (2026-08-18)
+- **13F official refresh**: SEC EDGAR Q2 2026 filings were refreshed for Berkshire, Duquesne, Fisher, Appaloosa and Baupost; Pershing’s Q1 and Scion’s 2025-Q3 remain the explicit latest available references. The artifact now exposes 1,290 full rows, 1,387 comparison rows, 84 periods and 12,339 historical rows.
+- **13F reconciliation boundary**: Duquesne’s Q2 cover total and information-table total differ by $4; the UI and contract keep the state as `MISMATCH` and hold total-based interpretation instead of rounding or correcting the source.
+- **Knowledge artifact quality**: the article generator no longer deletes the verification question before building worked-example steps and no longer emits an English placeholder; 160 structured articles remain `STRUCTURED_REFERENCE_DRAFT` pending semantic/source/user review.
+- **Atlas currentness boundary**: added an explicit 7-day reference freshness policy, 40 stale-reference rows, zero current numeric/production/financial claims, and a visible QA boundary. No current production or financial claim was promoted.
+- **Verification**: refresh, history resume, Masters/Atlas/knowledge contracts, article contract and uniqueness gates pass. Encyclopedia-depth certification, verified security master/corporate actions/sector mapping and deployed-site parity remain open. No commit or deploy performed.
+- **Data-refresh closure**: refreshed 78/78 quote symbols, 60 Fear & Greed observations, 398 history rows and 40 news items; rebuilt reconciliation as `PARTIAL` with 14 partial, 6 matched and 2 policy-blocked categories. Canonical web-research status is now preserved through automated refresh.
+- R1 7곳 v54.35
+
+## v54.34 (2026-08-16)
+- **Principles depth connection**: connected all 112 A~O lesson-library entries to the existing structured deep-article corpus behind a collapsed, clearly labeled educational-reference panel; semantic and source-directness review remain required.
+- **Atlas curriculum integrity**: restored the F0 problem/learning/model/system/hardware primer as a visible seventh layer with six explicit orientation concepts, while keeping the separately authored 48-module long-form count honest.
+- **13F reconciliation quality**: added cover-total vs information-table row-total reconciliation states to the artifact, UI and contract gate; exact matches are explicit and Duquesne’s disclosed +$1 source exception is not silently rounded away.
+- **Verification**: Principles, Atlas and Masters syntax/contract/browser gates pass, including F0 selection, deep-article expansion, 13F exception disclosure and responsive relationship-map checks. No commit or deploy performed.
+- R1 7곳 v54.34
+
+## v54.33 (2026-08-16)
+- Reworked Principles, Atlas and Masters into a self-guided reading flow: declarative exploration lenses, connection paths, evidence scope, limits and specialist-route guidance replace verification questions, quizzes and forced prompts.
+- Scoped shared current observations to the selected concept/related node. Unrelated market or Sandisk reference cards no longer appear as direct evidence for every lesson; explicit reference-only empty states guide further exploration.
+- Fixed Atlas relationship search so matching edges follow the same query as visible nodes, exposed Principles source-review status badges, corrected the dynamic lesson count, and added a four-step 13F reading order with explicit blind spots.
+- Updated focused browser/contract gates and QA/knowledge/postmortem rules. Encyclopedia-depth certification and recruited-user validation remain open; no commit or deploy performed.
+- R1 7곳 v54.33
+
+## v54.32 (2026-08-16)
+- Restored Mark Minervini as a beginner-core `METHOD_ONLY` profile after separating the 13F data criterion from the famous-investor teaching criterion.
+- Masters now exposes 38 profiles as 37 SEC filer profiles plus one method-only profile. Mark’s operator, momentum/growth approach, horizon, risk discipline and official-site source are visible, while CIK, filing, holdings, AUM and reported-value fields remain intentionally absent.
+- Updated catalog/index counts, method-only browser coverage, contract assertions and encyclopedia wording. No 13F claim is inferred from Minervini’s methodology materials.
+- R1 7곳 v54.32
+
+## v54.31 (2026-08-16)
+- Re-curated the beginner-facing Masters catalog from 28 to 38 profiles: removed Lone Pine, Coatue, Akre and Altimeter from the default list, while restoring famous momentum educator Mark Minervini as one explicitly separated `METHOD_ONLY` learning profile.
+- Added Vanguard, State Street Investment Management, Fidelity/FMR, Dimensional, Wellington, Capital Group, T. Rowe Price, Renaissance, Two Sigma, Millennium, Tudor, ValueAct, Starboard and Trian as the missing passive, factor, quant, multi-strategy and activist reference set.
+- Every core profile now carries an operator/role, manager category, scale tier, strategy approach, horizon, instruments, risk style and teaching use. Seven official scale references are linked with value, unit, as-of date and source; where AUM is not comparable or not published, the UI says so instead of estimating.
+- Masters UI now renders operator, scale and strategy metadata in cards and detail metrics, while catalog/index/contracts/browser checks are synchronized to 38 profiles (37 SEC filers + 1 method-only), 30 SEC metadata profiles, seven reconciled row managers and five/55 SEC row previews.
+- SEC filer ownership remains distinct from the named person and firm AUM; no preview or AUM value is promoted to a current position, complete portfolio, return, or trade signal.
+- R1 7곳 v54.31
+
+## v54.30 (2026-08-16)
+- Added BlackRock, Goldman Sachs, Citi, Harvard Management Company, and Situational Awareness LP (Leopold Aschenbrenner) with official Q1 2026 SEC filer/CIK/accession/information-table metadata.
+- Expanded the Masters catalog from 23 to 28 profiles and SEC metadata coverage from 15 to 20. Combination-filer, bank/customer, university-endowment, and person-vs-filer boundaries remain explicit.
+- Linked the Situational Awareness Telegram/BlockBeats discovery lead to its SEC filer without promoting the social summary or Q2 claim as a verified portfolio.
+- Added actual SEC information-table previews for Situational Awareness and Harvard, bringing the preview layer to seven managers and 80 rows; BlackRock, Goldman Sachs, and Citi remain metadata-only until their large tables pass full reconciliation.
+- Updated catalog/index counters, Masters contract/browser assertions, knowledge-base framework, QA checklist, and version surfaces. Newly added institutions remain pending full row reconciliation.
+- R1 7곳 v54.30
+
+## v54.29 (2026-08-16)
+- Added `public-data/masters/manager-row-previews.json` with 60 actual SEC information-table rows across Altimeter, TCI, Akre, Viking and Third Point. Each row retains issuer, title, CUSIP, reported value, shares, share type, CIK/accession and XML evidence.
+- Connected the preview artifact to the Masters page and service-worker shell. Preview rows are visibly labeled as partial, are never merged into verified holdings/comparisons/sector weights, and remain `PENDING_FULL_RECONCILIATION`.
+- Expanded the catalog/index coverage counters and masters contract/browser checks to prove the 5-manager/60-row preview layer and preserve the 7-manager full-row boundary.
+- R1 7곳 v54.29
+
+## v54.28 (2026-08-16)
+
+- Added `public-data/masters/manager-catalog.json` with 23 curated institutional managers, 15 SEC-verified filing metadata profiles, explicit row-import boundaries, and eight Telegram/X discovery leads (seven Telegram, one unreadable X search) kept outside the verified holdings layer.
+- Added SEC-indexed coverage for Bridgewater, Citadel, Oaktree, Tiger Global, Soros, Lone Pine, Third Point, Coatue, TCI, Viking, Akre, ARK, Elliott, Altimeter, and JPMorgan. New rows remain `PENDING_SEC_ROW_IMPORT` until information-table totals, CUSIP normalization, and adjacent-quarter comparisons are rerun.
+- Expanded the Masters page to load the catalog, show institution coverage counts and source boundaries, preserve verified 13F rows, and disclose that X search content was unreadable and therefore not consumed. Added the catalog to the service-worker shell and masters contracts/browser checks.
+- Added the 13F academic/legal interpretation and SEC-vs-discovery framework to `_context/KNOWLEDGE-BASE.md`. No Telegram/X claim is promoted to a holding, weight, current position, or trade signal.
+- R1 7 surfaces: v54.28
+
+## v54.27 (2026-08-15)
+
+- Added `public-data/knowledge/current-observations.json` with 10 structured values: current public S&P 500/VIX snapshot, dated FOMC/SEP/CPI reference values, and dated Sandisk Investor Day NBM/margin/FCF targets. Every row retains unit, observedAt, sourceId, sourceKind, allowedUse and source URL.
+- Connected the same observation layer to both the Market Principles page and the AI Era Atlas: default detail, AI foundation lesson detail, and relationship detail now show actual-value cards with provenance and reference-only boundaries.
+- Added the shared current-observation renderer, repository capability, static contract and browser assertions for both pages. No timeless lesson claim, live quote, valuation target or trading signal is synthesized. No commit or deploy.
+- R1 7 surfaces: v54.27
+
+## v54.26 (2026-08-15)
+
+- Promoted all 48 Atlas foundation lesson records to direct authored `sourceIds` linkage; the 18-entry `sourceCoverage` map remains an audit/compatibility map rather than the only runtime source path.
+- Regenerated the evidence registry, structured articles, learning graph, concept manifest, route targets, coverage matrix and research/domain dossiers after the linkage repair: 160 articles, 169 sources, 274 claims, 427 coverage units, 35 relationship nodes and 31 relationship edges.
+- Reconciled blocking contracts with the live reference catalog: 21 players, 22 products, 23 sources and 112 Principles lessons; `ci-atlas-contract` and six-document coverage now pass with the remaining current-data boundaries explicit.
+- Added QA-REL8 and a contract assertion that an empty authored `sourceIds` array cannot pass even when a compatibility map exists. No commit or deploy.
+- R1 7 surfaces: v54.26
+
+## v54.25 (2026-08-15)
+
+- Integrated the supplied Sandisk Investor Day summary/images, neutral-rate briefing images and Leonardo Boquillon visual-atlas reference into one source-grounded encyclopedia workflow.
+- Added 21 official/academic/standards/dated-company source seeds and 16 explanatory facts covering r-star uncertainty and estimation, FOMC/SEP/CPI stance, PagedAttention/KV cache, 3D NAND reliability, Sandisk NBM/BiCS/HBF, semiconductor stages, SCRM, data-center denominators and CPO.
+- Added Principles D6 and removed the glossary's timeless U.S. neutral-rate point estimate. Generated 160 structured articles, 169 sources, 274 claims and 427 coverage units with zero evidence-registry conflicts/unresolved IDs.
+- Added `relationship-guides.json` with 5 guides, 35 nodes and 31 typed edges, plus a responsive, keyboard-readable Atlas `관계 지도` tab with guide/criticality filters, causal stage columns, explicit relationship text, node details, invalidation and source disclosure.
+- Connected Sandisk/SNDK to the player/product/currentness registry, screener memo and reference digest. Investor Day financial targets and HBF remain dated forward-looking/roadmap claims; no price, valuation, current financial or trade signal was promoted.
+- Added R494/P937/QA-REL gates and extended the Atlas blocking contract for relationship shape, source resolution, player/product counts, currentness separation and safe-DOM consumption. No commit or deploy.
+- Restored the existing Foundations teaching-question node after the shared Atlas renderer edit exposed a zero-question regression in the blocking F3 browser gate (P938/R491).
+- Extended the focused Atlas Chromium gate through the relationship tab, SNDK company-claim filter, keyboard node activation, six resolved sources and 1280/760 zero-document-overflow checks.
+- Added a second academic layer: latent-state/Kalman and data-vintage discipline for r-star, a parameterized KV-cache capacity model with GQA/MQA boundaries, reported OCF-to-FCF verification, supply-chain recovery/qualification metrics, DOE PUE/WUE/CUE denominators, and OIF laser/link-budget tradeoffs; exact depth markers are now blocking Atlas checks.
+- R1 7 surfaces: v54.25
+
 ## v54.24 (2026-08-15)
 
 - Completed an exhaustive desktop user-visible data/content audit across the 22 registered categories, generated artifacts, static release calendars, sentiment bridges, schedule labels, screener rows, Telegram digest, history, reconciliation, operations, and version/cachebuster surfaces.

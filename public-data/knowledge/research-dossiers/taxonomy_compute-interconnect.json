@@ -14,8 +14,8 @@
     "Accelerator interconnect official data standard filing evidence",
     "Accelerator interconnect disconfirming evidence limitations"
   ],
-  "searchedAt": null,
-  "method": "NOT_STARTED",
+  "searchedAt": "2026-08-18",
+  "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
       "sourceId": "architecture documents",
@@ -24,9 +24,42 @@
     {
       "sourceId": "IEEE / ISSCC / IEDM",
       "unresolved": true
+    },
+    {
+      "sourceId": "WEB-TSMC-3DFABRIC-2026",
+      "url": "https://www.tsmc.com/english/dedicatedFoundry/services/advanced-packaging",
+      "publisher": "TSMC",
+      "title": "3DFabric advanced packaging",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
+    },
+    {
+      "sourceId": "WEB-MICRON-HBM2E-2020",
+      "url": "https://assets.micron.com/adobe/assets/urn%3Aaaid%3Aaem%3A275edf31-79e3-4b6c-8bbd-a233babe9281/renditions/original/as/micron-hbm2e-memory-wp.pdf",
+      "publisher": "Micron",
+      "title": "Integrating and Operating HBM2E Memory",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
     }
   ],
-  "selectedSources": [],
+  "selectedSources": [
+    {
+      "sourceId": "WEB-TSMC-3DFABRIC-2026",
+      "url": "https://www.tsmc.com/english/dedicatedFoundry/services/advanced-packaging",
+      "publisher": "TSMC",
+      "title": "3DFabric advanced packaging",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    },
+    {
+      "sourceId": "WEB-MICRON-HBM2E-2020",
+      "url": "https://assets.micron.com/adobe/assets/urn%3Aaaid%3Aaem%3A275edf31-79e3-4b6c-8bbd-a233babe9281/renditions/original/as/micron-hbm2e-memory-wp.pdf",
+      "publisher": "Micron",
+      "title": "Integrating and Operating HBM2E Memory",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    }
+  ],
   "rejectedSources": [
     {
       "sourceId": "architecture documents",
@@ -37,9 +70,17 @@
       "reason": "unresolved in canonical registry; cannot be promoted"
     }
   ],
-  "sourceTiers": [],
+  "sourceTiers": [
+    "COMPANY_TECHNICAL_DOCUMENT"
+  ],
   "claimCoverage": [],
-  "consensus": "Not assessed.",
+  "researchFactIds": [
+    "fact:google:tpu",
+    "fact:tsmc:3dfabric",
+    "fact:sia:semiconductor-value-chain",
+    "fact:nist:supply-chain-risk"
+  ],
+  "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",
   "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
   "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -48,10 +89,10 @@
   "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
   "q4StructuralMechanism": "Trace Accelerator interconnect through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-  "status": "RESEARCH_REQUIRED",
+  "status": "RESEARCHED",
   "completion": {
-    "researchComplete": false,
-    "sourceProfileComplete": false,
+    "researchComplete": true,
+    "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   }

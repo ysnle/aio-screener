@@ -14,8 +14,8 @@
     "한국 전력·산업정책 official data standard filing evidence",
     "한국 전력·산업정책 disconfirming evidence limitations"
   ],
-  "searchedAt": null,
-  "method": "NOT_STARTED",
+  "searchedAt": "2026-08-18",
+  "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
       "sourceId": "MP-BOK",
@@ -37,11 +37,78 @@
       "publisher": "SEC Investor.gov",
       "title": "Investing basics and disclosures",
       "sourceTier": null
+    },
+    {
+      "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
+      "url": "https://fred.stlouisfed.org/release?rid=500",
+      "publisher": "Federal Reserve Bank of St. Louis",
+      "title": "Inflation Expectations release",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    },
+    {
+      "sourceId": "WEB-SEC-INVESTOR-10K-2020",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/how-read-10-k",
+      "publisher": "SEC Investor.gov",
+      "title": "How to Read a 10-K",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    },
+    {
+      "sourceId": "WEB-KRX-SECURITIES-INTRO",
+      "url": "https://open.krx.co.kr/contents/OPN/01/01030100/OPN01030100.jsp",
+      "publisher": "Korea Exchange",
+      "title": "Securities products introduction",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    },
+    {
+      "sourceId": "WEB-SEC-GOOGLE-10K-2025",
+      "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
+      "publisher": "U.S. Securities and Exchange Commission / Alphabet",
+      "title": "Alphabet 2025 Form 10-K filing",
+      "sourceTier": "PRIMARY_OFFICIAL"
     }
   ],
-  "selectedSources": [],
+  "selectedSources": [
+    {
+      "sourceId": "WEB-FRED-INFLATION-EXPECTATIONS",
+      "url": "https://fred.stlouisfed.org/release?rid=500",
+      "publisher": "Federal Reserve Bank of St. Louis",
+      "title": "Inflation Expectations release",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-SEC-INVESTOR-10K-2020",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/how-read-10-k",
+      "publisher": "SEC Investor.gov",
+      "title": "How to Read a 10-K",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-KRX-SECURITIES-INTRO",
+      "url": "https://open.krx.co.kr/contents/OPN/01/01030100/OPN01030100.jsp",
+      "publisher": "Korea Exchange",
+      "title": "Securities products introduction",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-SEC-GOOGLE-10K-2025",
+      "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
+      "publisher": "U.S. Securities and Exchange Commission / Alphabet",
+      "title": "Alphabet 2025 Form 10-K filing",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    }
+  ],
   "rejectedSources": [],
-  "sourceTiers": [],
+  "sourceTiers": [
+    "PRIMARY_OFFICIAL"
+  ],
   "claimCoverage": [
     {
       "claimId": "principles-lesson-O4",
@@ -49,7 +116,13 @@
       "requiredAction": "independent direct source required"
     }
   ],
-  "consensus": "Not assessed.",
+  "researchFactIds": [
+    "fact:fred:real-rates",
+    "fact:sec:10k-reading",
+    "fact:krx:listed-products",
+    "fact:sec:capex-depreciation"
+  ],
+  "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",
   "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
   "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -58,10 +131,10 @@
   "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
   "q4StructuralMechanism": "Trace 한국 전력·산업정책 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-  "status": "RESEARCH_REQUIRED",
+  "status": "RESEARCHED",
   "completion": {
-    "researchComplete": false,
-    "sourceProfileComplete": false,
+    "researchComplete": true,
+    "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   }

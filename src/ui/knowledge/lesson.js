@@ -43,6 +43,5 @@ export function renderKnowledgeLesson(documentRef, article, { className = 'knowl
   const glossary = element(documentRef, 'section', 'knowledge-lesson-section');
   glossary.append(element(documentRef, 'h5', 'knowledge-lesson-section-title', '용어'), list(documentRef, article.article.glossary, 'knowledge-glossary-list'));
   root.appendChild(glossary);
-  root.append(element(documentRef, 'section', 'knowledge-lesson-section', list(documentRef, article.article.retrievalChecks, 'knowledge-retrieval-list')));
   return root;
 }

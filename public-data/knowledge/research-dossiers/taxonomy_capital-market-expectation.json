@@ -14,7 +14,7 @@
     "Expectation and price official data standard filing evidence",
     "Expectation and price disconfirming evidence limitations"
   ],
-  "searchedAt": "2026-08-12",
+  "searchedAt": "2026-08-18",
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
@@ -35,6 +35,20 @@
       "publisher": "U.S. Securities and Exchange Commission",
       "title": "SEC educational resources about income statements and balance sheets",
       "sourceTier": "PRIMARY_OFFICIAL"
+    },
+    {
+      "sourceId": "WEB-SEC-INVESTOR-10K-2020",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/how-read-10-k",
+      "publisher": "SEC Investor.gov",
+      "title": "How to Read a 10-K",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    },
+    {
+      "sourceId": "WEB-FINRA-ORDER-TYPES",
+      "url": "https://www.finra.org/investors/investing/investment-products/stocks/order-types",
+      "publisher": "FINRA",
+      "title": "Order Types",
+      "sourceTier": "PRIMARY_OFFICIAL"
     }
   ],
   "selectedSources": [
@@ -43,6 +57,24 @@
       "url": "https://www.sec.gov/newsroom/press-releases/2024-120",
       "publisher": "U.S. Securities and Exchange Commission",
       "title": "SEC educational resources about income statements and balance sheets",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    },
+    {
+      "sourceId": "WEB-SEC-INVESTOR-10K-2020",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/how-read-10-k",
+      "publisher": "SEC Investor.gov",
+      "title": "How to Read a 10-K",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    },
+    {
+      "sourceId": "WEB-FINRA-ORDER-TYPES",
+      "url": "https://www.finra.org/investors/investing/investment-products/stocks/order-types",
+      "publisher": "FINRA",
+      "title": "Order Types",
       "sourceTier": "PRIMARY_OFFICIAL",
       "directness": "DIRECT",
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
@@ -66,7 +98,15 @@
     "PRIMARY_OFFICIAL"
   ],
   "claimCoverage": [],
-  "consensus": "Seed sources were directly inspected for topic relevance; claim-level consensus remains open.",
+  "researchFactIds": [
+    "fact:sec:financial-statements",
+    "fact:sec:10k-reading",
+    "fact:finra:orders",
+    "fact:oecd:productivity",
+    "fact:bls:cpi",
+    "fact:fed:policy-transmission"
+  ],
+  "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",
   "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
   "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -75,10 +115,10 @@
   "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
   "q4StructuralMechanism": "Trace Expectation and price through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-  "status": "RESEARCH_IN_PROGRESS",
+  "status": "RESEARCHED",
   "completion": {
-    "researchComplete": false,
-    "sourceProfileComplete": false,
+    "researchComplete": true,
+    "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   }

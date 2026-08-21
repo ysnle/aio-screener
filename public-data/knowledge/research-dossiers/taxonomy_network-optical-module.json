@@ -14,8 +14,8 @@
     "Optical module official data standard filing evidence",
     "Optical module disconfirming evidence limitations"
   ],
-  "searchedAt": null,
-  "method": "NOT_STARTED",
+  "searchedAt": "2026-08-18",
+  "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
       "sourceId": "OFC",
@@ -28,9 +28,26 @@
     {
       "sourceId": "switch and optics vendors",
       "unresolved": true
+    },
+    {
+      "sourceId": "WEB-ASML-EUV-2026",
+      "url": "https://www.asml.com/en/en/products/euv-lithography-systems",
+      "publisher": "ASML",
+      "title": "EUV lithography systems",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
     }
   ],
-  "selectedSources": [],
+  "selectedSources": [
+    {
+      "sourceId": "WEB-ASML-EUV-2026",
+      "url": "https://www.asml.com/en/en/products/euv-lithography-systems",
+      "publisher": "ASML",
+      "title": "EUV lithography systems",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    }
+  ],
   "rejectedSources": [
     {
       "sourceId": "OFC",
@@ -45,9 +62,17 @@
       "reason": "unresolved in canonical registry; cannot be promoted"
     }
   ],
-  "sourceTiers": [],
+  "sourceTiers": [
+    "COMPANY_TECHNICAL_DOCUMENT"
+  ],
   "claimCoverage": [],
-  "consensus": "Not assessed.",
+  "researchFactIds": [
+    "fact:asml:euv",
+    "fact:sia:semiconductor-value-chain",
+    "fact:nist:supply-chain-risk",
+    "fact:oif:copackaging-framework"
+  ],
+  "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",
   "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
   "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -56,10 +81,10 @@
   "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
   "q4StructuralMechanism": "Trace Optical module through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-  "status": "RESEARCH_REQUIRED",
+  "status": "RESEARCHED",
   "completion": {
-    "researchComplete": false,
-    "sourceProfileComplete": false,
+    "researchComplete": true,
+    "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   }

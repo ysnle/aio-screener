@@ -49,9 +49,9 @@ The current preflight is local `main` HEAD `02ec6bc`, v53.19, dirty/uncommitted,
 
 - repository: `AIO`
 - branch: `main`
-- git_head: `762cc21`
+- git_head: `2910a8e`
 - working_tree: `dirty / uncommitted local changes`
-- application_version: `v53.97`
+- application_version: `v54.19`
 - deployment: `not deployed; live/operator certification remains external`
 - historical_cards: `HEAD/version/deployment values below are historical evidence, not current state`
 

@@ -82,7 +82,10 @@ export function parseAnswerPlanText(text, { questionPlan = null, currentSensitiv
         : createClaimLedger([]);
     const plan = Object.freeze({ ...payload, claims, schemaVersion: 'answer-plan.v1', queryId: payload.queryId || questionPlan?.queryId || null });
     const audit = validateAnswerPlan(plan, { currentSensitive });
-    return Object.freeze({ status: audit.ok ? 'valid' : 'invalid', plan: audit.ok ? plan : null, audit });
+    // Keep a syntactically valid plan available even when one claim or prose
+    // field fails validation. The publication boundary can then remove only
+    // the unsafe claim instead of erasing the whole otherwise useful answer.
+    return Object.freeze({ status: audit.ok ? 'valid' : 'invalid', plan, audit });
   } catch (error) {
     return Object.freeze({ status: 'invalid', plan: null, audit: { ok: false, errors: ['answer_plan_json_invalid', error?.message || 'parse_failed'] } });
   }

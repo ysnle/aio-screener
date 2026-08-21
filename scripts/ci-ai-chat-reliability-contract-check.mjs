@@ -39,11 +39,19 @@ check('research producer uses canonical nested evidence', /researchEvidence:\s*\
 check('research failures retain per-provider detail', chat.includes('_aioNormalizeResearchProviderFailure') && chat.includes('noResults.failures = subFailures'));
 check('Worker route does not certify native search tool', core.includes("'NATIVE_TOOL_UNVERIFIED'") && !core.includes("'NATIVE_TOOL_ROUTE_READY'") && core.includes('nativeCitationCount'));
 check('research diagnostic audit exposes contract and last execution', core.includes('contractReady: contractReady') && core.includes('lastPreparation:') && core.includes('lastExecution:'));
-check('public config is revision-bound and keeps the private shared route explicit', config.schemaVersion === 'ai-public-config.v1'
+check('public config is revision-bound and gives fresh browsers the healthy shared route', config.schemaVersion === 'ai-public-config.v1'
   && config.appRevision === operations.appRevision
-  && config.ai?.workerUrl === null
-  && config.ai?.serverMode === 'explicit-opt-in'
-  && config.ai?.chatPolicy === 'personal-or-explicit-worker');
+  && /^https:\/\//.test(config.ai?.workerUrl || '')
+  && config.ai?.workerUrl === operations.ai?.publicChat?.workerEndpoint
+  && config.ai?.serverMode === 'shared-worker-fallback'
+  && config.ai?.chatPolicy === 'personal-key-or-public-worker'
+  && operations.ai?.publicChat?.statusCode === 'CONFIGURED_HEALTHY');
+check('boot fallback exposes the same public route without storing a provider secret', core.includes(`workerUrl: '${config.ai.workerUrl}'`) && core.includes("serverMode: 'shared-worker-fallback'") && !read('public-config.json').includes('ANTHROPIC_API_KEY'));
+check('personal key remains preferred over the public fallback while manual Worker override remains explicit', chat.indexOf("if (localWorker && serverMode)") < chat.indexOf("if (apiKey) return") && chat.indexOf("if (apiKey) return") < chat.indexOf("if (publicWorker) return"));
+check('both chat surfaces share the expanded evidence registry', chat.includes('function _aioCollectAIClaimEvidence') && chat.includes('evidence: _pageClaimEvidence') && html.includes('evidence: _uniClaimEvidence'));
+check('invalid or unbound AnswerPlan claims degrade claim scope instead of erasing the answer', chat.includes('answer-plan-claim-degraded') && chat.includes('droppedClaims') && !chat.includes("blocked: true,\n      text: 'AI 베타 안전 모드\\n\\n현재성 수치의 AnswerPlan claim"));
+check('partial structured streams hide control JSON until completion', chat.includes("visible = 'AI 답변을 구성하고 근거를 검증하는 중…'") && chat.includes("var isPartialStream = meta.streamPhase === 'partial'"));
+check('Worker token cap and stop reason are consumed by the client', chat.includes('workerMaxTokens') && chat.includes('effectiveMaxTokens') && chat.includes("stopReason === 'max_tokens'") && chat.includes('completion: completion || null'));
 check('server market prose requires typed evidence before client publish', data.includes('_serverMarketMetricEvidenceValid') && data.includes('metric-evidence-required') && data.includes('_serverMarketSemanticContract'));
 check('Worker exposes health readiness', worker.includes("_u.pathname === '/health'") && worker.includes("schemaVersion: 'aio-worker-health.v1'") && worker.includes('ai: { configured'));
 check('Worker rolls back owned failed quota reservations', worker.includes('releaseAnthropicQuota') && worker.includes('ownedReservation'));

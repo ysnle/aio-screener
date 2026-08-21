@@ -11,7 +11,7 @@ const write = (file, value) => {
   fs.mkdirSync(path.dirname(target), { recursive: true });
   fs.writeFileSync(target, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
 };
-const reviewedAt = process.env.KNOWLEDGE_MANIFEST_DATE || '2026-08-12';
+const reviewedAt = process.env.KNOWLEDGE_MANIFEST_DATE || '2026-08-18';
 const principles = read('public-data/principles/lesson-library.json');
 const foundations = read('public-data/atlas/foundation-lessons.json');
 const concepts = read('public-data/knowledge/concepts.json');
@@ -20,9 +20,20 @@ const deep = read('public-data/atlas/deep-taxonomy.json');
 const domains = read('public-data/atlas/domain-guides.json');
 const registry = read('public-data/atlas/player-product-registry.json');
 const articles = read('public-data/knowledge/articles.json');
+const research = read('public-data/knowledge/research-dossiers.json');
+const dossierByUnit = new Map((research.dossiers || []).map((dossier) => [dossier.contentUnitId, dossier]));
 
 const units = [];
-const add = (unit) => units.push({
+const add = (unit) => {
+  const dossier = dossierByUnit.get(unit.unitId);
+  const authored = unit.semanticStatus === 'SEMANTIC_REFERENCE_AUTHORED';
+  const researchStatus = dossier?.status === 'RESEARCHED' ? 'RESEARCHED' : dossier?.status === 'RESEARCH_IN_PROGRESS' ? 'RESEARCH_IN_PROGRESS' : 'RESEARCH_REQUIRED';
+  const missing = [];
+  if (researchStatus !== 'RESEARCHED') missing.push('independent-research-dossier');
+  if (!unit.sourceIds?.length) missing.push('source-profile');
+  if (!authored) missing.push('semantic-review');
+  missing.push('browser-certification');
+  units.push({
   unitId: unit.unitId,
   kind: unit.kind,
   surface: unit.surface || null,
@@ -32,25 +43,26 @@ const add = (unit) => units.push({
   articleId: unit.articleId || null,
   dossierId: `research:${unit.unitId}`,
   sourceIds: [...new Set(unit.sourceIds || [])],
-  coverageState: 'INVENTORIED',
-  researchStatus: 'RESEARCH_REQUIRED',
+  coverageState: authored ? 'AUTHORED' : 'INVENTORIED',
+  researchStatus,
   articleStatus: unit.articleId && articles.articles?.some((article) => article.articleId === unit.articleId)
     ? 'STRUCTURED_REFERENCE_DRAFT'
     : 'MISSING',
-  semanticStatus: 'REQUIRED',
+  semanticStatus: unit.semanticStatus || 'REQUIRED',
   browserStatus: 'NOT_RUN',
   currentness: 'REFERENCE_ONLY',
   currentnessBoundary: 'REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.',
-  missing: ['independent-research-dossier', 'source-profile', 'semantic-review', 'browser-certification']
-});
+  missing
+  });
+};
 
 for (const lesson of principles.lessons || []) add({
   unitId: `principles-lesson:${lesson.id}`, kind: 'CORE_LESSON', surface: 'principles', title: lesson.title || lesson.id,
-  sourceArtifact: 'public-data/principles/lesson-library.json', articleId: `principles:${lesson.id}`, sourceIds: lesson.sourceIds
+  sourceArtifact: 'public-data/principles/lesson-library.json', articleId: `principles:${lesson.id}`, sourceIds: lesson.sourceIds, semanticStatus: lesson.deepStatus
 });
 for (const lesson of foundations.lessons || []) add({
   unitId: `atlas-foundation:${lesson.id}`, kind: 'FOUNDATION_LESSON', surface: 'atlas-foundations', title: lesson.title || lesson.id,
-  sourceArtifact: 'public-data/atlas/foundation-lessons.json', articleId: `atlas-foundations:${lesson.id}`, sourceIds: lesson.sourceIds
+  sourceArtifact: 'public-data/atlas/foundation-lessons.json', articleId: `atlas-foundations:${lesson.id}`, sourceIds: lesson.sourceIds, semanticStatus: lesson.deepStatus
 });
 for (const concept of (concepts.concepts || []).filter((item) => item.surface === 'principles')) add({
   unitId: concept.canonicalId, kind: 'CONCEPT_GUIDE', surface: concept.surface, title: concept.title,
@@ -82,8 +94,8 @@ const counts = Object.fromEntries(['CORE_LESSON', 'FOUNDATION_LESSON', 'CONCEPT_
 write('public-data/knowledge/coverage-matrix.json', {
   schemaVersion: 'knowledge-coverage-matrix.v1',
   generatedAt: reviewedAt,
-  status: 'INVENTORIED',
-  boundary: 'coverage inventory records the full corpus and its open research/certification state; inventory is not content completion',
+  status: units.some((unit) => unit.coverageState !== 'INVENTORIED' || unit.researchStatus !== 'RESEARCH_REQUIRED') ? 'PARTIALLY_AUTHORED' : 'INVENTORIED',
+  boundary: 'coverage matrix records the full corpus, authored depth, research dossier state and open certification state; authored or researched does not imply browser/live validation',
   stateVocabulary: ['INVENTORIED', 'RESEARCHED', 'AUTHORED', 'SEMANTIC_REVIEWED', 'BROWSER_VERIFIED', 'LIVE_VERIFIED'],
   counts: {
     units: units.length,

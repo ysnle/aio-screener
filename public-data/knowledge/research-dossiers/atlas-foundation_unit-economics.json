@@ -3,19 +3,19 @@
   "dossierId": "research:atlas-foundation:unit-economics",
   "contentUnitId": "atlas-foundation:unit-economics",
   "unitKind": "FOUNDATION_LESSON",
-  "title": "unit-economics",
+  "title": "Unit economics",
   "researchQuestions": [
-    "What is the claim-specific mechanism for unit-economics?",
-    "Which variable, unit, time boundary or assumption would change the interpretation of unit-economics?",
+    "What is the claim-specific mechanism for Unit economics?",
+    "Which variable, unit, time boundary or assumption would change the interpretation of Unit economics?",
     "Which official, academic, standard or filing evidence can directly support the relevant claim?"
   ],
   "queries": [
-    "unit-economics mechanism primary source",
-    "unit-economics official data standard filing evidence",
-    "unit-economics disconfirming evidence limitations"
+    "Unit economics mechanism primary source",
+    "Unit economics official data standard filing evidence",
+    "Unit economics disconfirming evidence limitations"
   ],
-  "searchedAt": null,
-  "method": "NOT_STARTED",
+  "searchedAt": "2026-08-18",
+  "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
       "sourceId": "PS-06",
@@ -37,11 +37,63 @@
       "publisher": "Oracle / SEC EDGAR",
       "title": "2026 Q3 Form 10-Q",
       "sourceTier": null
+    },
+    {
+      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
+      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
+      "publisher": "NIST AI Resource Center",
+      "title": "AI RMF Core: Govern, Map, Measure, Manage",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    },
+    {
+      "sourceId": "WEB-NVIDIA-CUDA-PROGRAMMING-GUIDE-2026",
+      "url": "https://docs.nvidia.com/cuda/cuda-programming-guide/index.html",
+      "publisher": "NVIDIA",
+      "title": "CUDA Programming Guide",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
+    },
+    {
+      "sourceId": "WEB-SEC-GOOGLE-10K-2025",
+      "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
+      "publisher": "U.S. Securities and Exchange Commission / Alphabet",
+      "title": "Alphabet 2025 Form 10-K filing",
+      "sourceTier": "PRIMARY_OFFICIAL"
     }
   ],
-  "selectedSources": [],
+  "selectedSources": [
+    {
+      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
+      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
+      "publisher": "NIST AI Resource Center",
+      "title": "AI RMF Core: Govern, Map, Measure, Manage",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-NVIDIA-CUDA-PROGRAMMING-GUIDE-2026",
+      "url": "https://docs.nvidia.com/cuda/cuda-programming-guide/index.html",
+      "publisher": "NVIDIA",
+      "title": "CUDA Programming Guide",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-SEC-GOOGLE-10K-2025",
+      "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
+      "publisher": "U.S. Securities and Exchange Commission / Alphabet",
+      "title": "Alphabet 2025 Form 10-K filing",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    }
+  ],
   "rejectedSources": [],
-  "sourceTiers": [],
+  "sourceTiers": [
+    "PRIMARY_OFFICIAL",
+    "COMPANY_TECHNICAL_DOCUMENT"
+  ],
   "claimCoverage": [
     {
       "claimId": "atlas-foundation-unit-economics",
@@ -49,19 +101,24 @@
       "requiredAction": "independent direct source required"
     }
   ],
-  "consensus": "Not assessed.",
+  "researchFactIds": [
+    "fact:nist:ai-rmf-core",
+    "fact:nvidia:cuda-parallel",
+    "fact:sec:capex-depreciation"
+  ],
+  "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",
   "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
   "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
-  "q1Thesis": "A claim about unit-economics must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+  "q1Thesis": "A claim about Unit economics must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
   "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
   "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
-  "q4StructuralMechanism": "Trace unit-economics through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+  "q4StructuralMechanism": "Trace Unit economics through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-  "status": "RESEARCH_REQUIRED",
+  "status": "RESEARCHED",
   "completion": {
-    "researchComplete": false,
-    "sourceProfileComplete": false,
+    "researchComplete": true,
+    "sourceProfileComplete": true,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   }

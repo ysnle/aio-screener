@@ -38,6 +38,8 @@ try {
   await page.waitForFunction(() => document.getElementById('page-principles')?.dataset.aioPrinciplesChapters === 'connected');
   await page.waitForFunction(() => document.getElementById('page-principles')?.dataset.aioPrinciplesLessonLibrary === 'connected');
   await page.waitForFunction(() => document.getElementById('page-principles')?.dataset.aioPrinciplesNodeGuides === 'connected');
+  await page.waitForFunction(() => document.getElementById('page-principles')?.dataset.aioPrinciplesKnowledgeArticles === 'connected');
+  await page.waitForFunction(() => document.getElementById('page-principles')?.dataset.aioPrinciplesCurrentObservations === 'connected');
 
   const initial = await page.evaluate(() => ({
     active: document.getElementById('page-principles')?.classList.contains('active'),
@@ -46,14 +48,18 @@ try {
     nodes: document.querySelectorAll('#page-principles .principles-node-card').length,
     evidenceBadges: document.querySelectorAll('#page-principles .principles-node-evidence').length,
     detail: document.querySelector('#page-principles .principles-detail-card')?.textContent || '',
+    currentObservationCards: document.querySelectorAll('#page-principles .knowledge-current-observation-card').length,
+    currentObservationValues: [...document.querySelectorAll('#page-principles .knowledge-current-observation-value')].map((node) => node.textContent),
     libraryTab: document.querySelector('#page-principles [data-principles-action="view"][data-principles-value="library"]')?.textContent || '',
     defaultLibraryCards: document.querySelectorAll('#page-principles [data-principles-lesson-id]').length,
-    hiddenSources: [...document.querySelectorAll('#page-principles .principles-source')].filter((node) => !node.open).length,
-    internalStatusVisible: [...document.querySelectorAll('#page-principles .principles-status')].some((node) => node.closest('details')?.open === true),
-    count: document.querySelector('[data-principles-result-count]')?.textContent || '',
+     hiddenSources: [...document.querySelectorAll('#page-principles .principles-source')].filter((node) => !node.open).length,
+     internalStatusVisible: [...document.querySelectorAll('#page-principles .principles-status')].some((node) => node.closest('details')?.open === true),
+     explorationPanel: document.querySelectorAll('#page-principles .principles-exploration-panel').length,
+     questionPrompts: document.querySelectorAll('#page-principles .principles-chapter-question').length,
+     count: document.querySelector('[data-principles-result-count]')?.textContent || '',
     overflow: document.documentElement.scrollWidth > window.innerWidth + 2
   }));
-  if (!initial.active || initial.treeSections !== 7 || initial.treeGroups !== 1 || initial.nodes !== 3 || initial.evidenceBadges !== 0 || !initial.detail.includes('한 문장 정의') || initial.defaultLibraryCards !== 0 || !initial.libraryTab || initial.hiddenSources < 1 || initial.internalStatusVisible || initial.overflow) throw new Error(`learner-first initial contract failed: ${JSON.stringify(initial)}`);
+  if (!initial.active || initial.treeSections !== 7 || initial.treeGroups !== 1 || initial.nodes !== 3 || initial.evidenceBadges !== 0 || !initial.detail.includes('한 문장 정의') || initial.currentObservationCards !== 1 || initial.currentObservationValues.includes('3.625%') || initial.explorationPanel !== 1 || initial.questionPrompts !== 0 || initial.defaultLibraryCards !== 0 || !initial.libraryTab || initial.hiddenSources < 1 || initial.internalStatusVisible || initial.overflow) throw new Error(`learner-first initial contract failed: ${JSON.stringify(initial)}`);
 
   await page.locator('#page-principles [data-principles-action="toggle-section"][data-principles-value="ai"]').click();
   await page.locator('#page-principles [data-principles-action="toggle-group"][data-principles-value="ai-economics-path"]').click();
@@ -88,14 +94,20 @@ try {
   await page.locator('#page-principles [data-principles-action="mode"][data-principles-value="path"]').click();
   await page.waitForFunction(() => document.querySelectorAll('#page-principles .principles-path-card').length === 1);
   await page.locator('#page-principles [data-principles-action="view"][data-principles-value="library"]').click();
-  await page.waitForFunction(() => document.querySelectorAll('#page-principles [data-principles-lesson-id]').length === 111);
+  await page.locator('#page-principles .principles-library-panel-summary').nth(1).click();
+  await page.waitForFunction(() => document.querySelectorAll('#page-principles [data-principles-lesson-id]').length === 112);
+  await page.waitForFunction(() => document.querySelectorAll('#page-principles .principles-deep-article').length === 112);
   const library = await page.evaluate(() => ({
     chapters: document.querySelectorAll('#page-principles [data-principles-chapter]').length,
     lessons: document.querySelectorAll('#page-principles [data-principles-lesson-id]').length,
     chapterColumns: getComputedStyle(document.querySelector('#page-principles .principles-chapter-grid')).gridTemplateColumns,
-    lessonColumns: getComputedStyle(document.querySelector('#page-principles .principles-lesson-library-grid')).gridTemplateColumns
+    lessonColumns: getComputedStyle(document.querySelector('#page-principles .principles-lesson-library-grid')).gridTemplateColumns,
+    deepArticles: document.querySelectorAll('#page-principles .principles-deep-article').length,
+    deepBoundary: document.querySelector('.principles-deep-article-boundary')?.textContent || ''
   }));
-  if (library.chapters !== 15 || library.lessons !== 111) throw new Error(`library contract failed: ${JSON.stringify(library)}`);
+  await page.locator('#page-principles .principles-deep-article').first().locator('summary').click();
+  await page.waitForFunction(() => document.querySelectorAll('#page-principles .principles-deep-lesson .knowledge-lesson-section').length >= 8);
+  if (library.chapters !== 15 || library.lessons !== 112 || library.deepArticles !== 112 || !library.deepBoundary.includes('검토')) throw new Error(`library contract failed: ${JSON.stringify(library)}`);
 
   if (errors.length) throw new Error(`browser errors: ${errors.join(' | ')}`);
   console.log(JSON.stringify({ ok: true, scope: DESKTOP_QA_SCOPE, route: 'principles', initial, selected, evidenceOpen, graphOneHop: Number(graphOneHop), graphTwoHop: Number(graphTwoHop), edgeLabels, viewport: DESKTOP_PRIMARY_VIEWPORT, errors }));

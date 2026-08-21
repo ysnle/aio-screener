@@ -6,7 +6,6 @@ function emptyState() {
     progress: {},
     bookmarks: [],
     notes: {},
-    retrieval: {},
     updatedAt: null
   };
 }
@@ -22,7 +21,7 @@ function safeRead(storage, key) {
       progress: { ...(parsed.progress || {}) },
       bookmarks: [...new Set(parsed.bookmarks || [])],
       notes: { ...(parsed.notes || {}) },
-      retrieval: { ...(parsed.retrieval || {}) }
+      retrieval: {}
     };
   } catch {
     return emptyState();
@@ -43,7 +42,7 @@ export function createLearningState({ storage = null, key = STORAGE_KEY, now = (
     progress: Object.freeze({ ...state.progress }),
     bookmarks: Object.freeze([...state.bookmarks]),
     notes: Object.freeze({ ...state.notes }),
-    retrieval: Object.freeze({ ...state.retrieval })
+    retrieval: Object.freeze({})
   });
   return Object.freeze({
     snapshot,
@@ -69,11 +68,6 @@ export function createLearningState({ storage = null, key = STORAGE_KEY, now = (
       else delete state.notes[articleId];
       return persist();
     },
-    recordRetrieval(articleId, result) {
-      if (!articleId) return snapshot();
-      state.retrieval[articleId] = { ...(state.retrieval[articleId] || {}), ...result, attemptedAt: now() };
-      return persist();
-    }
   });
 }
 

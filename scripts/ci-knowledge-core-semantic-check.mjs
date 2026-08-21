@@ -61,7 +61,8 @@ const research = readJson('public-data/atlas/source-packets.json');
 const registry = readJson('public-data/atlas/player-product-registry.json');
 const foundationLessons = readJson('public-data/atlas/foundation-lessons.json');
 const domainPackets = readJson('public-data/atlas/domain-source-packets.json');
-const evidence = createEvidenceRegistry(research, registry, foundationLessons, domainPackets);
+const knowledgeSources = readJson('public-data/knowledge/sources.json');
+const evidence = createEvidenceRegistry(knowledgeSources, research, registry, foundationLessons, domainPackets);
 const referencedSourceIds = [
   ...taxonomy.relationshipModel.crossDomainEdges.flatMap((edge) => edge.sourceIds || []),
   ...registry.players.flatMap((player) => player.sourceIds || []),
@@ -95,7 +96,6 @@ assert(conceptsArtifact.concepts.length === 155, `Canonical concept count: ${con
 assert(ontology.errors.length === 0, `Ontology errors: ${JSON.stringify(ontology.errors)}`);
 assert(ontology.resolve('defense-autonomy').length === 2, 'Cross-page duplicate legacy ID must resolve through explicit equivalence');
 
-const knowledgeSources = readJson('public-data/knowledge/sources.json');
 const knowledgeClaims = readJson('public-data/knowledge/claims.json');
 const unifiedEvidence = createEvidenceRegistry(knowledgeSources);
 const claimRegistry = createClaimRegistry(knowledgeClaims.claims, unifiedEvidence);

@@ -129,47 +129,170 @@ function _aioRecordAIResponseManifest(result) {
   if (audit.length > 100) audit.splice(0, audit.length - 100);
 }
 
+function _aioAIClaimEvidenceId(row) {
+  return String(row && (row.evidenceId || row.documentId || row.id) || '').trim();
+}
+
+function _aioCollectAIClaimEvidence(meta) {
+  meta = meta || {};
+  var collected = [];
+  function addRows(rows) {
+    (Array.isArray(rows) ? rows : []).forEach(function(row) {
+      if (!row || typeof row !== 'object') return;
+      var isDocument = !!row.documentId;
+      var normalized = (!isDocument && window.AIO && typeof window.AIO.normalizeAIChatEvidenceRow === 'function')
+        ? window.AIO.normalizeAIChatEvidenceRow(row) : Object.assign({}, row);
+      var evidenceId = _aioAIClaimEvidenceId(normalized);
+      if (!evidenceId) return;
+      if (isDocument) {
+        normalized = Object.assign({}, normalized, {
+          evidenceId: evidenceId,
+          metric: normalized.metric || 'research-document',
+          value: normalized.value == null ? null : normalized.value,
+          unit: normalized.unit || 'document',
+          asOf: normalized.asOf || normalized.publishedAt || normalized.retrievedAt || null,
+          source: normalized.source || normalized.publisher || normalized.canonicalUrl || 'web-research',
+          sourceKind: normalized.sourceKind || 'REFERENCE',
+          status: normalized.status || 'reference'
+        });
+      }
+      collected.push(normalized);
+    });
+  }
+  addRows(meta.evidence);
+  addRows(meta.provenanceBundle && meta.provenanceBundle.rows);
+  addRows(meta.chatEvidence && meta.chatEvidence.tickers);
+  addRows(meta.researchResult && meta.researchResult.researchEvidence && meta.researchResult.researchEvidence.evidenceDocuments);
+  addRows(meta.researchGate && meta.researchGate.evidenceDocuments);
+  var byId = {};
+  collected.forEach(function(row) {
+    var id = _aioAIClaimEvidenceId(row);
+    if (id && !byId[id]) byId[id] = row;
+  });
+  return Object.keys(byId).map(function(id) { return byId[id]; });
+}
+function _aioEvidenceCanPublish(row) {
+  var status = String(row && (row.status || row.truthStatus) || '').toLowerCase();
+  var rights = String(row && row.rights || '').toUpperCase();
+  var allowedUse = String(row && row.allowedUse || '').toLowerCase();
+  return !!_aioAIClaimEvidenceId(row) &&
+    !/(blocked|missing|stale|mismatch|invalid|refresh_required|unavailable)/.test(status) &&
+    rights !== 'BLOCKED' && allowedUse !== 'none';
+}
+
+function _aioHasCurrentNumericContent(value) {
+  return /(?:[$₩€]\s*\d[\d,.]*|\d[\d,.]*\s*(?:%|bp|bps|원|달러|USD|배|포인트|pt|지수)|(?:VIX|PER|PBR|PSR|PEG|ROE|RSI|주가|시세|환율|금리|시가총액|매출|영업이익)\s*(?:는|은|이|:)?\s*\d[\d,.]*|(?:현재|최신|지금|오늘)[^.!?。！？\n]{0,40}?\d[\d,.]*|\b(?:19|20)\d{2}-\d{2}-\d{2}\b)/i.test(String(value || ''));
+}
+
+function _aioStripUnverifiedCurrentNumericSentences(value) {
+  var sentences = String(value || '').match(/[^.!?。！？\n]+[.!?。！？]?/g) || [];
+  return sentences.filter(function(sentence) { return !_aioHasCurrentNumericContent(sentence); }).join(' ').trim();
+}
+
+function _aioExtractAIAnswerFallback(rawText, currentSensitive) {
+  var raw = String(rawText || '');
+  var hasControlBlock = /\[\/?AI_ANSWER_PLAN\]/i.test(raw);
+  if (!hasControlBlock) return currentSensitive ? _aioStripUnverifiedCurrentNumericSentences(raw) : raw.trim();
+  var values = [];
+  var fieldRe = /"(?:summary|body)"\s*:\s*("(?:\\.|[^"\\])*")/g;
+  var match;
+  while ((match = fieldRe.exec(raw)) && values.length < 8) {
+    try {
+      var decoded = JSON.parse(match[1]);
+      if (decoded && values.indexOf(decoded) < 0) values.push(decoded);
+    } catch (_) {}
+  }
+  var fallback = values.join('\n\n').trim();
+  return currentSensitive ? _aioStripUnverifiedCurrentNumericSentences(fallback) : fallback;
+}
+
+function _aioBuildPublishableAnswerPlan(plan, bindingIds, currentSensitive) {
+  if (!plan) return { plan: null, droppedClaims: [], unboundEvidenceIds: [] };
+  var claims = plan.claims && Array.isArray(plan.claims.claims) ? plan.claims.claims : [];
+  var droppedClaims = [];
+  var unboundEvidenceIds = [];
+  var safeClaims = claims.filter(function(claim) {
+    var reasons = [];
+    var type = String(claim && claim.type || '');
+    var ids = Array.isArray(claim && claim.evidenceIds) ? claim.evidenceIds.map(String) : [];
+    if (/^(?:numeric|metric|percentage|probability)$/.test(type)) {
+      if (typeof claim.value !== 'number' || !isFinite(claim.value)) reasons.push('numeric-value');
+      if (!claim.unit || !claim.asOf || !claim.source || !ids.length) reasons.push('traceability');
+    }
+    if (currentSensitive && (!claim.asOf || !claim.source || !ids.length)) reasons.push('current-traceability');
+    if (type === 'probability' && !(claim.calibration && claim.calibration.modelId)) reasons.push('calibration');
+    if (claim.allowedUse === 'decision' && (!ids.length || claim.status !== 'verified')) reasons.push('decision-use');
+    ids.forEach(function(id) { if (!bindingIds.has(id)) { reasons.push('evidence-unbound'); unboundEvidenceIds.push(id); } });
+    if (claim.status === 'blocked') reasons.push('claim-blocked');
+    if (reasons.length) {
+      droppedClaims.push({ claimId: claim.claimId || null, reasons: Array.from(new Set(reasons)) });
+      return false;
+    }
+    return true;
+  });
+  var summary = currentSensitive ? _aioStripUnverifiedCurrentNumericSentences(plan.summary) : String(plan.summary || '').trim();
+  var sections = (Array.isArray(plan.sections) ? plan.sections : []).map(function(section) {
+    if (typeof section === 'string') return currentSensitive ? _aioStripUnverifiedCurrentNumericSentences(section) : section;
+    if (!section || typeof section !== 'object') return null;
+    return Object.assign({}, section, { body: currentSensitive ? _aioStripUnverifiedCurrentNumericSentences(section.body) : section.body });
+  }).filter(function(section) { return typeof section === 'string' ? !!section.trim() : !!(section && section.title && section.body); });
+  return {
+    plan: Object.assign({}, plan, { summary: summary, sections: sections, claims: { schemaVersion: 'claim-ledger.v1', claims: safeClaims } }),
+    droppedClaims: droppedClaims,
+    unboundEvidenceIds: Array.from(new Set(unboundEvidenceIds))
+  };
+}
+
 function _aioRunAIResponsePipeline(rawText, meta) {
   meta = meta || {};
   var request = meta.request || _aioCreateAIRequestObject(meta.entrypoint, meta);
   var questionPlan = meta.questionPlan || request.questionPlan || null;
   var currentSensitive = meta.currentSensitive === true || !!(questionPlan && questionPlan.currentSensitive === true);
   var researchRequired = meta.researchRequired === true || !!(questionPlan && questionPlan.researchDecision && questionPlan.researchDecision.requirement === 'REQUIRED');
+  var isPartialStream = meta.streamPhase === 'partial';
   if (typeof window !== 'undefined' && request && request.requestId) window._aioActiveAIRequestId = request.requestId;
   var raw = String(rawText == null ? '' : rawText);
   var answerPlanAudit = (typeof window !== 'undefined' && window.AIO_ARCH && typeof window.AIO_ARCH.parseAIAnswerPlan === 'function')
     ? window.AIO_ARCH.parseAIAnswerPlan(raw, { questionPlan: questionPlan, currentSensitive: currentSensitive })
     : { status: 'unavailable', plan: null, audit: { ok: false, errors: ['orchestrator-unavailable'] } };
-  // The structured payload is a control plane, never user-visible content.
-  // Valid plans are rendered by the single ESM renderer; legacy prose remains
-  // available only as the non-current compatibility fallback.
-  var visible = raw.replace(/\[AI_ANSWER_PLAN\][\s\S]*?\[\/AI_ANSWER_PLAN\]/ig, '').trim();
-  if (answerPlanAudit.status === 'valid' && window.AIO_ARCH && typeof window.AIO_ARCH.renderAIAnswerPlan === 'function') {
-    visible = window.AIO_ARCH.renderAIAnswerPlan(answerPlanAudit.plan, { format: 'text' });
+  var bindingEvidence = _aioCollectAIClaimEvidence(meta);
+  var bindingIds = new Set(bindingEvidence.filter(_aioEvidenceCanPublish).map(_aioAIClaimEvidenceId));
+  var publishablePlan = _aioBuildPublishableAnswerPlan(answerPlanAudit.plan, bindingIds, currentSensitive);
+  var answerPlanBindingAudit = {
+    ok: publishablePlan.unboundEvidenceIds.length === 0,
+    evidenceCount: bindingIds.size,
+    unboundEvidenceIds: publishablePlan.unboundEvidenceIds,
+    droppedClaims: publishablePlan.droppedClaims
+  };
+  // Structured control JSON is never exposed while streaming. At completion,
+  // render every safe part and drop only invalid/unbound claims.
+  var visible = '';
+  if (publishablePlan.plan && window.AIO_ARCH && typeof window.AIO_ARCH.renderAIAnswerPlan === 'function') {
+    visible = window.AIO_ARCH.renderAIAnswerPlan(publishablePlan.plan, { format: 'text' });
+  } else if (isPartialStream) {
+    visible = 'AI 답변을 구성하고 근거를 검증하는 중…';
+  } else {
+    visible = _aioExtractAIAnswerFallback(raw, currentSensitive);
   }
+  if (!visible && !isPartialStream) visible = '답변 형식이 완성되지 않아 검증 가능한 문장을 복구하지 못했습니다. 같은 질문을 다시 보내면 간결한 형식으로 재시도합니다.';
   if (meta.stripChips !== false && typeof stripChips === 'function') visible = stripChips(visible);
   var gate = (typeof _aioApplyAIActionGate === 'function')
     ? _aioApplyAIActionGate(visible, meta)
     : { blocked: true, text: 'AI 베타 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', reasons: ['validator-unavailable'] };
-  var claimAudit = answerPlanAudit.status === 'valid'
-    ? { status: 'pass', blocked: false, claims: answerPlanAudit.plan.claims.claims, validCount: answerPlanAudit.plan.claims.claims.length, issues: [], source: 'answer-plan.v1' }
+  var claimAudit = answerPlanAudit.plan
+    ? { status: publishablePlan.droppedClaims.length ? 'partial' : 'pass', blocked: false, claims: publishablePlan.plan.claims.claims, validCount: publishablePlan.plan.claims.claims.length, issues: publishablePlan.droppedClaims, source: 'answer-plan.v1' }
     : (typeof window !== 'undefined' && window.AIO && typeof window.AIO.validateAIResponseClaims === 'function')
     ? window.AIO.validateAIResponseClaims(raw, {
-      evidence: meta.evidence || [],
+      evidence: bindingEvidence,
       currentSensitive: currentSensitive
     })
      : { status: 'unavailable', blocked: false, claims: [], validCount: 0, issues: [] };
-  var bindingEvidence = (meta.evidence || []).concat(meta.researchGate && meta.researchGate.evidenceDocuments || []);
-  var bindingIds = new Set(bindingEvidence.map(function(row){ return String(row && (row.evidenceId || row.documentId || row.id) || ''); }).filter(Boolean));
-  var unboundClaimIds = answerPlanAudit.status === 'valid'
-    ? answerPlanAudit.plan.claims.claims.flatMap(function(claim){ return (claim.evidenceIds || []).filter(function(id){ return !bindingIds.has(String(id)); }); }) : [];
-  var answerPlanBindingAudit = { ok:unboundClaimIds.length === 0, evidenceCount:bindingIds.size, unboundEvidenceIds:Array.from(new Set(unboundClaimIds)) };
   var conductAudit = (typeof window !== 'undefined' && window.AIO && typeof window.AIO.evaluateAIActionPermission === 'function')
     ? window.AIO.evaluateAIActionPermission({
       query: meta.query || (request && request.query) || '',
       text: visible,
       ctxId: meta.ctxId || (request && request.ctxId) || '',
-      evidence: meta.evidence || [],
+      evidence: bindingEvidence,
       suitabilityProfile: meta.suitabilityProfile || null,
       calibrated: meta.calibrated === true
     })
@@ -204,7 +327,7 @@ function _aioRunAIResponsePipeline(rawText, meta) {
     gate = {
       blocked: true,
       text: (typeof window !== 'undefined' && window.AIO && typeof window.AIO.buildDeterministicEvidenceSummary === 'function')
-        ? window.AIO.buildDeterministicEvidenceSummary(meta.evidence || [], { label: 'Automated publish fallback' })
+        ? window.AIO.buildDeterministicEvidenceSummary(bindingEvidence, { label: 'Automated publish fallback' })
         : '자동 생성 결과를 검증할 수 없어 결정론적 근거 요약으로 대체합니다.',
       reasons: (gate.reasons || []).concat(publishAudit.issues || ['automated-publish-gate'])
     };
@@ -214,13 +337,6 @@ function _aioRunAIResponsePipeline(rawText, meta) {
       blocked: true,
       text: 'AI 베타 안전 모드\n\nTyped claim/Evidence 검증을 통과하지 못한 현재성 수치는 표시하지 않습니다.\n\n주입된 데이터와 원문을 직접 재확인하세요.',
       reasons: (gate.reasons || []).concat(['typed-claim-validation'])
-    };
-  }
-  if (currentSensitive && answerPlanAudit.status === 'valid' && !answerPlanBindingAudit.ok) {
-    gate = {
-      blocked: true,
-      text: 'AI 베타 안전 모드\n\n현재성 수치의 AnswerPlan claim이 실제 주입 Evidence와 연결되지 않아 표시하지 않습니다. 기준시각과 원문을 다시 확인하세요.',
-      reasons: (gate.reasons || []).concat(['answer-plan-evidence-unbound'])
     };
   }
   function applyLimitation(reason, notice) {
@@ -239,10 +355,13 @@ function _aioRunAIResponsePipeline(rawText, meta) {
   // erase educational, legal/tax, or conditional analysis that remains useful.
   var sessionEvidence = questionPlan && questionPlan.sessionEvidence;
   var sessionReady = !!(sessionEvidence && sessionEvidence.verified === true && sessionEvidence.observedAt && /^(open|closed|pre|post)$/.test(sessionEvidence.status));
-  if (currentSensitive && !sessionReady) {
+  if (!isPartialStream && currentSensitive && !sessionReady) {
     applyLimitation('market-session-evidence-unavailable', '※ 시장 세션 근거 미수신: 장중·장외 상태와 최신 수치는 확인 보류하며, 아래 내용은 확인된 기존 근거와 조건부 분석 범위입니다.');
   }
-  if (currentSensitive && /\d/.test(visible) && answerPlanAudit.status !== 'valid') {
+  if (!isPartialStream && publishablePlan.droppedClaims.length) {
+    applyLimitation('answer-plan-claim-degraded', '※ 근거 검증 제한: 형식·현재성·Evidence 연결을 통과하지 못한 주장만 제외하고 검증 가능한 설명은 보존했습니다.');
+  }
+  if (!isPartialStream && currentSensitive && _aioHasCurrentNumericContent(raw) && answerPlanAudit.status !== 'valid') {
     applyLimitation('current-numeric-claim-unverified', '※ 현재성 수치 검증 제한: strict AnswerPlan/ClaimLedger에 연결되지 않은 숫자는 의사결정 전에 기준시각과 원문을 재확인하세요.');
   } else if (gate.blocked !== true && claimAudit && claimAudit.status === 'not-structured' &&
       /(현재|지금|오늘|현시점|방금|as of)/i.test(visible) && /\d/.test(visible)) {
@@ -251,8 +370,11 @@ function _aioRunAIResponsePipeline(rawText, meta) {
       unverifiedNumericNotice: true
     });
   }
-  if (researchRequired && (!meta.researchGate || meta.researchGate.ready !== true)) {
+  if (!isPartialStream && researchRequired && (!meta.researchGate || meta.researchGate.ready !== true)) {
     applyLimitation('research-evidence-unavailable', '※ Web Research 근거 미수신: 최신 사실·수치·원인 단정은 확인 보류합니다. 아래 답변은 주입된 데이터, 기존 검증 근거와 일반 원리에 기반한 조건부 분석입니다.');
+  }
+  if (!isPartialStream && meta.completion && meta.completion.truncated === true) {
+    applyLimitation('model-output-truncated', '※ 응답 길이 한도 도달: 완결되지 않은 구조에서 복구 가능한 설명만 표시했습니다. 누락된 항목은 후속 질문으로 나눠 확인하세요.');
   }
   var result = {
     request: request,
@@ -272,7 +394,7 @@ function _aioRunAIResponsePipeline(rawText, meta) {
     streamAudit: streamAudit,
     toolAudit: toolAudit,
     rightsAudit: rightsAudit,
-    evidence: meta.evidence || [],
+    evidence: bindingEvidence,
     evidenceStatus: meta.evidenceStatus || null,
     asOf: meta.asOf || null,
     retrievalAudit: meta.retrievalAudit || null,
@@ -302,7 +424,7 @@ var _aioBasePublicAIActionPolicyPrompt = _aioPublicAIActionPolicyPrompt;
 _aioPublicAIActionPolicyPrompt = function() {
   var base = _aioBasePublicAIActionPolicyPrompt();
   return base + '\n\n【AI AnswerPlan v1 — 단일 출력 계약】\n' +
-    '답변 전체를 아래 블록 하나로 출력하라. 블록 밖에는 어떤 문장도 쓰지 마라. summary/sections에는 근거 없는 현재 수치를 쓰지 말고, 현재성 수치는 claims에만 넣어라. 각 수치 claim은 type, text, value, unit, asOf, source, evidenceIds, status를 채워라. Evidence가 없으면 수치를 생략하고 확인 불가를 설명하라. followUps는 실제 답변과 사용 가능한 데이터에 연결된 질문 2~3개만 넣어라.\n' +
+    '답변 전체를 아래 블록 하나로 출력하라. 블록 밖에는 어떤 문장도 쓰지 마라. 1,500토큰 안에 완결되도록 summary는 2문장 이하, sections는 최대 4개, section body는 각 3문장 이하로 간결하게 작성하라. summary/sections에는 현재 수치를 반복하지 말고, 현재성 수치는 claims에만 넣어라. 각 수치 claim은 type, text, value, unit, asOf, source, evidenceIds, status를 채워라. Evidence가 없으면 해당 수치만 생략하고 확인 불가를 설명하라. followUps는 실제 답변과 사용 가능한 데이터에 연결된 질문 2개만 넣어라.\n' +
     '[AI_ANSWER_PLAN]{"schemaVersion":"answer-plan.v1","summary":"질문에 대한 직접 답변","claims":[],"sections":[{"title":"핵심 근거","body":"정성·정량 근거와 반대 조건"}],"citations":[],"followUps":[]}[\/AI_ANSWER_PLAN]\n';
 };
 
@@ -957,19 +1079,21 @@ function chatShowLoading(ctxId) {
 
 // ── Claude API streaming ───────────────────────────────────────────────
 // v31.3: opts = { modelKey: 'haiku'|'sonnet'|'sonnet-thinking' }
-// v50.52 B5: Claude 호출 엔드포인트 결정 — 서버 키 모드(CF Worker /anthropic) vs 직접 호출.
-//   운영자가 Worker URL + 서버 키 토글(aio_claude_server_mode) 설정 시 Worker 경유.
-//   토글이 없으면 개인 키 직접 호출을 우선하고, 개인 키가 없을 때만 저장된 Worker를 사용한다.
+// Claude endpoint precedence is explicit and shared by readiness + UI:
+// manual Worker override -> personal key -> public Worker fallback. A public
+// route address is not authentication; the Worker enforces origin and quota.
 function _aioClaudeTarget(apiKey) {
   try {
     var localWorker = (typeof _getApiKey === 'function' ? (_getApiKey('aio_cf_worker_url') || '') : '').trim().replace(/\/+$/, '');
     var publicCfg = window.AIO && typeof window.AIO.getPublicConfig === 'function' ? window.AIO.getPublicConfig() : null;
     var publicWorker = publicCfg && publicCfg.ai && typeof publicCfg.ai.workerUrl === 'string' ? publicCfg.ai.workerUrl.trim().replace(/\/+$/, '') : '';
-    var wurl = localWorker || publicWorker;
     var serverMode = false;
     try { serverMode = localStorage.getItem('aio_claude_server_mode') === '1'; } catch(_) {}
-    if (publicWorker && publicCfg.ai.serverMode === 'shared-worker') serverMode = true;
-    if (wurl && (serverMode || !apiKey)) return { url: wurl + '/anthropic', healthUrl: wurl + ((publicCfg && publicCfg.ai && publicCfg.ai.healthPath) || '/health'), workerUrl: wurl, serverKey: true, source: localWorker ? 'local-config' : 'public-config' };
+    var healthPath = (publicCfg && publicCfg.ai && publicCfg.ai.healthPath) || '/health';
+    if (localWorker && serverMode) return { url: localWorker + '/anthropic', healthUrl: localWorker + healthPath, workerUrl: localWorker, serverKey: true, source: 'local-config' };
+    if (apiKey) return { url: 'https://api.anthropic.com/v1/messages', serverKey: false, source: 'personal-key' };
+    if (localWorker) return { url: localWorker + '/anthropic', healthUrl: localWorker + healthPath, workerUrl: localWorker, serverKey: true, source: 'local-config' };
+    if (publicWorker) return { url: publicWorker + '/anthropic', healthUrl: publicWorker + healthPath, workerUrl: publicWorker, serverKey: true, source: 'public-config' };
   } catch(_) {}
   return { url: 'https://api.anthropic.com/v1/messages', serverKey: false, source: 'personal-key' };
 }
@@ -1045,7 +1169,7 @@ async function _aioEnsureClaudeRoute(apiKey) {
 Object.defineProperty(window, '_aioRouteNotice', {
   value: function(reason) {
   return ({
-    NO_ROUTE: 'AI 라우트가 없습니다. Claude 개인 키를 저장하거나 운영자가 공개 Worker를 명시적으로 연결해야 합니다. 브리핑/번역은 운영자 서버키 가능 여부를 Worker health 확인 후에만 표시합니다.',
+    NO_ROUTE: '공용 AI 연결 설정을 불러오지 못했습니다. 잠시 후 다시 시도하거나 Claude 개인 키를 사용할 수 있습니다.',
     VAULT_LOCKED: 'Claude 키가 Vault에 잠겨 있습니다. 사이드바에서 PIN으로 잠금 해제한 뒤 다시 시도하세요.',
     WORKER_NOT_READY: '공유 AI Worker가 준비되지 않았습니다. 운영자 설정·키·쿼터·허용 Origin을 확인하세요.',
     RATE_LIMIT: 'AI 요청 한도에 도달했습니다. 잠시 후 다시 시도하세요.',
@@ -1142,15 +1266,20 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
   } else {
     _systemField = _sysStr;  // 짧거나 마커 없음 → 캐싱 생략
   }
+  var requestedMaxTokens = opts.maxTokens || (modelCfg.thinking ? 16000 : 12000);
+  var workerMaxTokens = Number(routeState && routeState.health && routeState.health.ai && routeState.health.ai.maxTokens);
+  var effectiveMaxTokens = _claudeTarget.serverKey && isFinite(workerMaxTokens) && workerMaxTokens > 0
+    ? Math.min(requestedMaxTokens, workerMaxTokens) : requestedMaxTokens;
+  var useExtendedThinking = !!(modelCfg.thinking && (!_claudeTarget.serverKey || effectiveMaxTokens > (modelCfg.thinkingBudget || 5000) + 256));
   var reqBody = {
     model: modelCfg.id,
-    max_tokens: opts.maxTokens || (modelCfg.thinking ? 16000 : 12000),
+    max_tokens: effectiveMaxTokens,
     stream: true,
     system: _systemField,
     messages: _trimmedMessages
   };
   // Extended Thinking 설정
-  if (modelCfg.thinking) {
+  if (useExtendedThinking) {
     reqBody.thinking = {
       type: 'enabled',
       budget_tokens: modelCfg.thinkingBudget || 5000
@@ -1228,6 +1357,7 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
     var decoder = new TextDecoder();
     var buffer = '';
     var fullText = '';
+    var stopReason = null;
 
     // v50.10: native web_search 인용/검색결과 수집 (사용자 출처 표면화). 요청 시작 시 리셋.
     if (opts.webSearch === true) {
@@ -1272,8 +1402,9 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
               if (evt.delta.type === 'text_delta') {
                 fullText += evt.delta.text;
                 // v48.14 (W12): 50KB 초과 시 truncated 마지막 chunk 보장 + 취소
-                if (fullText.length > 50000) {
-                  fullText = fullText.slice(0, 50000) + '\n\n[응답이 50,000자를 초과하여 잘렸습니다]';
+                 if (fullText.length > 50000) {
+                   fullText = fullText.slice(0, 50000) + '\n\n[응답이 50,000자를 초과하여 잘렸습니다]';
+                   stopReason = 'client_output_limit';
                   try { onChunk(fullText); } catch(e) {}  // 마지막 truncated 텍스트도 반드시 렌더
                   if (typeof _aioLog === 'function') _aioLog('warn', 'ai', 'response truncated at 50KB', { model: opts && opts.model });
                   try { reader.cancel(); } catch(e) {}
@@ -1310,8 +1441,9 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
             else if (evt.type === 'message_start' && evt.message && evt.message.usage) {
               window._lastClaudeUsage = Object.assign({}, evt.message.usage);
             }
-            else if (evt.type === 'message_delta' && evt.usage) {
-              window._lastClaudeUsage = Object.assign(window._lastClaudeUsage || {}, evt.usage);
+            else if (evt.type === 'message_delta') {
+              if (evt.delta && evt.delta.stop_reason) stopReason = String(evt.delta.stop_reason);
+              if (evt.usage && window._lastClaudeUsage) Object.assign(window._lastClaudeUsage, evt.usage);
             }
           } catch(e) {}
         }
@@ -1344,16 +1476,23 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
           requestId: window._aioActiveAIRequestId || null,
           entrypoint: opts.entrypoint || 'chat',
           model: (modelCfg && modelCfg.key) || opts.modelKey || 'unknown',
-          status: 'success', latencyMs: Math.round(_aiEndedAt - _aiStartedAt),
+          status: stopReason === 'max_tokens' || stopReason === 'client_output_limit' ? 'degraded' : 'success', latencyMs: Math.round(_aiEndedAt - _aiStartedAt),
           inputTokens: (_sloUsage.input_tokens || 0) + (_sloUsage.cache_read_input_tokens || 0) + (_sloUsage.cache_creation_input_tokens || 0),
           outputTokens: _sloUsage.output_tokens || 0
         });
       }
-      onDone(fullText);
+      onDone(fullText, {
+        stopReason: stopReason || 'end_turn',
+        truncated: stopReason === 'max_tokens' || stopReason === 'client_output_limit',
+        requestedMaxTokens: requestedMaxTokens,
+        effectiveMaxTokens: effectiveMaxTokens,
+        workerMaxTokens: isFinite(workerMaxTokens) && workerMaxTokens > 0 ? workerMaxTokens : null,
+        extendedThinking: useExtendedThinking
+      });
     } catch(streamErr) {
       try { reader.cancel(); } catch(e) {}
       if (streamErr.message === 'chunk_timeout') {
-        if (fullText) onDone(fullText);  // 일부 수신된 텍스트가 있으면 그대로 완료
+        if (fullText) onDone(fullText, { stopReason: 'chunk_timeout', truncated: true, requestedMaxTokens: requestedMaxTokens, effectiveMaxTokens: effectiveMaxTokens, workerMaxTokens: isFinite(workerMaxTokens) && workerMaxTokens > 0 ? workerMaxTokens : null, extendedThinking: useExtendedThinking });
         else {
           var chunkTimeout = _aioChatError({ message: 'chunk_timeout', status: 408 }, 408);
           onError(chunkTimeout.displayMessage || chunkTimeout.userMessage);
@@ -3723,6 +3862,14 @@ function _formatSearchForPrompt(sr) {
       out += '  [' + (i+1) + '] ' + sr.citations[i] + '\n';
     }
   }
+  var evidenceDocuments = sr.researchEvidence && Array.isArray(sr.researchEvidence.evidenceDocuments)
+    ? sr.researchEvidence.evidenceDocuments : [];
+  if (evidenceDocuments.length) {
+    out += '\n AnswerPlan Evidence IDs:\n';
+    evidenceDocuments.slice(0, 12).forEach(function(doc) {
+      out += '  - evidenceId=' + doc.documentId + ' source=' + (doc.publisher || doc.canonicalUrl || 'web-research') + ' depth=' + (doc.contentDepth || 'unknown') + '\n';
+    });
+  }
   out += '───────────────────────────────\n';
   if (sr.engine === 'google') {
     out += '위는 Google 검색 스니펫이다. 스니펫은 탐색 후보이며 구체 수치·가이던스·인과를 단독 확정 근거로 사용하지 말라. 원문·공식 자료가 확인되지 않으면 확인 불가로 표시하라. 모델 기억은 최신 사실 검증 수단으로 사용하지 말라.\n';
@@ -5247,9 +5394,11 @@ async function chatSend(ctxId, _aioDispatchOptions) {
   // v20+: dynamic system prompts (portfolio injects live data)
   var systemPrompt = typeof ctx.system === 'function' ? ctx.system() : ctx.system;
   var chatProvenanceBundle = null;
+  var chatEvidenceContext = null;
   var chatProvenanceContextStr = '';
   try {
     chatProvenanceBundle = window.AIO && typeof window.AIO.getDecisionEvidenceBundle === 'function' ? window.AIO.getDecisionEvidenceBundle() : null;
+    chatEvidenceContext = window.AIO && typeof window.AIO.getChatEvidenceContext === 'function' ? window.AIO.getChatEvidenceContext({ tickers: detectedTickers }) : null;
     chatProvenanceContextStr = window.AIO && typeof window.AIO.getDecisionEvidencePromptContext === 'function'
       ? window.AIO.getDecisionEvidencePromptContext(chatProvenanceBundle) : '';
   } catch(_provenanceErr) {}
@@ -5283,9 +5432,15 @@ async function chatSend(ctxId, _aioDispatchOptions) {
     systemPrompt += '\n\n[AI Chat Freshness + Truth/Cross-Source Preflight v50.0]\n' +
       'status=' + (chatFreshPreflight.status || 'unknown') + ' strict=' + !!chatFreshPreflight.strict + ' tickers=' + detectedTickers.join(',') + '\n' +
       'quotes=' + (_cfRows || 'not available') + '\n' +
-      _aioBuildAIClaimEvidenceRegistry(_cfAfter.quoteRows || []) +
       'rule: For these tickers, cite only the quote/company-analysis data blocks injected in this prompt or EvidenceStore verified/current items. If a ticker quote remains missing, stale, truth-blocked, cross-source mismatched, out-of-range, source-mismatched, or EvidenceStore-blocked after preflight, do not invent or use price, market cap, valuation, earnings, or target-price numbers for trading judgment. Say "현재 검증 데이터 없음" for blocked current claims.\n';
   }
+  var _pageClaimEvidence = _aioCollectAIClaimEvidence({
+    evidence: chatFreshPreflight && chatFreshPreflight.after && chatFreshPreflight.after.quoteRows || [],
+    provenanceBundle: chatProvenanceBundle,
+    chatEvidence: chatEvidenceContext,
+    researchResult: webSearchResult
+  });
+  systemPrompt += _aioBuildAIClaimEvidenceRegistry(_pageClaimEvidence);
 
   // v48.11: 환각 방지 5중 강화 (chatSend) — chatSendUnified와 완전 일치
   // 1) 오늘 날짜 + Claude 커트오프  2) 추세 해석 필수 규칙  3) [주가 추이] 주입 여부 체크
@@ -5466,7 +5621,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
         aiBubble = chatAppendMsg(ctxId, 'ai', '', 'chat-' + ctxId + '-streaming');
       }
       var _pageChunkResult = (typeof _aioRunAIResponsePipeline === 'function')
-         ? _aioRunAIResponsePipeline(fullText, { request: _pageAIRequest, questionPlan: _aioQuestionPlan, researchRequired: _researchRequiredForChat, entrypoint: 'per-page-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: chatFreshPreflight, evidence: (chatFreshPreflight && chatFreshPreflight.after && chatFreshPreflight.after.quoteRows) || [], retrievalAudit: _pageRetrievalAudit, contextBudgetAudit: _pageContextBudgetAudit, streamPhase: 'partial', record: false })
+         ? _aioRunAIResponsePipeline(fullText, { request: _pageAIRequest, questionPlan: _aioQuestionPlan, researchRequired: _researchRequiredForChat, entrypoint: 'per-page-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: chatFreshPreflight, evidence: _pageClaimEvidence, provenanceBundle: chatProvenanceBundle, chatEvidence: chatEvidenceContext, researchResult: webSearchResult, retrievalAudit: _pageRetrievalAudit, contextBudgetAudit: _pageContextBudgetAudit, streamPhase: 'partial', record: false })
         : { blocked: true, text: 'AI 베타 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', actionGate: { blocked: true } };
       var visible = _pageChunkResult.text;
       // Native web_search citations arrive after text deltas. Do not stream a
@@ -5497,7 +5652,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
     };
 
   // onDone — finalise. This is the same completion contract used by retry.
-  var _pageOnDone = function(fullText) {
+  var _pageOnDone = function(fullText, completion) {
       state.streaming = false;
       state._chatSendEntered = 0;  // v49.78 C4 P419: atomic lock release
       if (btn) { btn.disabled = false; btn.textContent = '전송 ▶'; }
@@ -5510,7 +5665,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
         ? _aioEvaluateAIResearchGate({ questionPlan: _aioQuestionPlan, required: _researchRequiredForChat, externalResult: webSearchResult, nativeCitations: _useClaudeWebSearch ? (window._aioLastClaudeCitations || []) : [], error: webSearchResult ? null : (_researchFailureForChat || window._aioLastClaudeResearchError) })
         : { required: _researchRequiredForChat, ready: !_researchRequiredForChat, reason: 'research-gate-unavailable' };
       var _pageDoneResult = (typeof _aioRunAIResponsePipeline === 'function')
-         ? _aioRunAIResponsePipeline(fullText, { request: _pageAIRequest, questionPlan: _aioQuestionPlan, researchRequired: _researchRequiredForChat, researchGate: _pageResearchGate, entrypoint: 'per-page-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: chatFreshPreflight, evidence: (chatFreshPreflight && chatFreshPreflight.after && chatFreshPreflight.after.quoteRows) || [], retrievalAudit: _pageRetrievalAudit, contextBudgetAudit: _pageContextBudgetAudit, streamPhase: 'complete' })
+         ? _aioRunAIResponsePipeline(fullText, { request: _pageAIRequest, questionPlan: _aioQuestionPlan, researchRequired: _researchRequiredForChat, researchGate: _pageResearchGate, entrypoint: 'per-page-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: chatFreshPreflight, evidence: _pageClaimEvidence, provenanceBundle: chatProvenanceBundle, chatEvidence: chatEvidenceContext, researchResult: webSearchResult, retrievalAudit: _pageRetrievalAudit, contextBudgetAudit: _pageContextBudgetAudit, completion: completion || null, streamPhase: 'complete' })
         : { blocked: true, text: 'AI 베타 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', actionGate: { blocked: true } };
       var visible = _pageDoneResult.text;
       var _researchEvidenceReady = !_researchRequiredForChat || _pageResearchGate.ready;

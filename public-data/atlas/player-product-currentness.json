@@ -1,10 +1,30 @@
 {
   "schemaVersion": "ai-era-player-product-currentness.v1",
-  "revision": "2026-08-02-v53.85",
+  "revision": "2026-08-18-v54.35",
   "status": "REFERENCE_CURRENTNESS_CONNECTED",
   "publication": "EDUCATIONAL_REFERENCE_ONLY",
-  "reviewedAt": "2026-08-02",
-  "boundary": "기준일과 상태는 공식 제품·기업 페이지의 존재·공급 단계 표현을 2026-08-02에 확인한 reference 분류다. 출하량·수율·점유율·매출·양산 물량을 뜻하지 않으며, 제품군 내부의 서로 다른 세대는 별도 검증이 필요하다.",
+  "reviewedAt": "2026-08-15",
+  "artifactAuditedAt": "2026-08-18",
+  "freshnessStatus": "STALE_REFERENCE_REVIEW_REQUIRED",
+  "freshnessPolicy": {
+    "referenceReviewWindowDays": 7,
+    "latestPlayerAsOf": "2026-08-13",
+    "latestProductAsOf": "2026-08-13",
+    "staleReferenceRows": 40,
+    "interpretation": "기준일이 검토 창을 지난 reference 행은 공식 페이지 재확인 전까지 최신 현재성으로 해석하지 않는다."
+  },
+  "coverage": {
+    "players": 21,
+    "products": 22,
+    "officialCheckedRows": 43,
+    "currentNumericClaims": 0,
+    "productionVolumeClaims": 0,
+    "generationSpecificVerifiedClaims": 0,
+    "financialClaims": 0,
+    "directEvidenceLedgerStatus": "REQUIRED_FOR_CURRENT_CLAIMS",
+    "publicationBoundary": "상태·제품군 reference 연결은 완료했지만, 현재 수치·생산량·수율·세대별 출하·재무 주장은 게시하지 않는다."
+  },
+  "boundary": "기준일과 상태는 공식 제품·기업 페이지의 존재·공급 단계 표현을 확인한 reference 분류다. 출하량·수율·점유율·매출·양산 물량을 뜻하지 않으며, 제품군 내부의 서로 다른 세대는 별도 검증이 필요하다. HBF는 roadmap option으로 current revenue와 분리한다.",
   "players": [
     {
       "playerId": "nvidia",
@@ -53,6 +73,12 @@
       "asOf": "2026-08-02",
       "verificationStatus": "OFFICIAL_PAGE_CHECKED",
       "statusBasis": "official company/product page checked; player role is not a performance claim"
+    },
+    {
+      "playerId": "sandisk",
+      "asOf": "2026-08-13",
+      "verificationStatus": "OFFICIAL_IR_CHECKED",
+      "statusBasis": "official Investor Day and technical releases checked; NBM and financial targets remain forward-looking company claims"
     },
     {
       "playerId": "synopsys",
@@ -287,6 +313,22 @@
       "confidence": "MEDIUM",
       "statusBasis": "official product or service page checked; reference availability classification, not production volume or yield",
       "sourceType": "OFFICIAL_PRODUCT_PAGE"
+    },
+    {
+      "productId": "sandisk-bics-enterprise-ssd-family",
+      "productionStatus": "MIXED_BY_GENERATION",
+      "asOf": "2026-08-13",
+      "confidence": "MEDIUM",
+      "statusBasis": "official Investor Day and BiCS10 sampling release checked; generation-specific qualification, shipment, yield and economics require filings and product evidence",
+      "sourceType": "OFFICIAL_IR_AND_TECHNICAL_RELEASE"
+    },
+    {
+      "productId": "sandisk-hbf-roadmap",
+      "productionStatus": "ROADMAP_OPTION",
+      "asOf": "2026-08-13",
+      "confidence": "LOW_MEDIUM",
+      "statusBasis": "official roadmap and standardization collaboration checked; no current revenue, volume production or customer adoption inferred",
+      "sourceType": "OFFICIAL_IR_ROADMAP"
     }
   ]
 }
