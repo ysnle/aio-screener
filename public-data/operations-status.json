@@ -7,7 +7,7 @@
     "STALE",
     "RIGHTS_REVIEW_REQUIRED"
   ],
-  "generatedAt": "2026-08-21T13:11:16.866Z",
+  "generatedAt": "2026-08-21T13:24:15.180Z",
   "appRevision": "v54.37",
   "dataRevision": "market-snapshot:2026-08-21T13:11:11.088Z:cccc6cba",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
@@ -79,16 +79,16 @@
       }
     },
     "publicChat": {
-      "status": "NO_ROUTE",
-      "statusCode": "CONFIGURED_BROKEN",
+      "status": "CURRENT",
+      "statusCode": "CONFIGURED_HEALTHY",
       "personalKey": "EXPLICIT_USER_CONFIG",
-      "sharedWorker": "OPERATOR_REQUIRED",
+      "sharedWorker": "CURRENT",
       "workerEndpoint": "https://aio-proxy.zmfhd007.workers.dev",
       "health": {
-        "status": "OPERATOR_REQUIRED",
+        "status": "CURRENT",
         "statusCode": 200,
-        "observedAt": "2026-08-21T13:11:17.040Z",
-        "revision": "v54.37",
+        "observedAt": "2026-08-11T13:27:34.150Z",
+        "revision": "v54.5",
         "configured": true,
         "quotaConfigured": true,
         "authorityReady": true,
@@ -97,7 +97,7 @@
         "providerSmokeObservedAt": "2026-08-11T13:25:15.000Z",
         "providerSmokeRevision": "v54.5",
         "ready": true,
-        "note": "Live deep health observed; provider smoke is certified separately by the pinned deploy workflow."
+        "note": "Deploy run 31495812010 passed deep health, CORS/origin checks, and provider smoke. A Korean-origin follow-up returned v54.5 health 200, authorityJurisdiction us, Anthropic 200/OK, and X-AIO-Upstream-Authority durable-object-us."
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }
@@ -363,7 +363,6 @@
   },
   "blockers": [
     "fast_plane_cloudflare_credentials_and_soak_required",
-    "provider_rights_review_required",
-    "ai_proxy_deploy_or_readiness_required"
+    "provider_rights_review_required"
   ]
 }
