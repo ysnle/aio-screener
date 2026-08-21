@@ -1,12 +1,22 @@
 ---
 verified_by: agent (Claude Sonnet 5) + Codex full-route audit verification
-last_verified: 2026-08-18
+last_verified: 2026-08-21
 confidence: high
 latest_version: v54.37
-latest_P_number: P946
-next_P_number: P947
-current_total_entries: 662 (P1~P946, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P946 v54.37 PIT unavailable-state disclosure repair
+latest_P_number: P947
+next_P_number: P948
+current_total_entries: 663 (P1~P947, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P947 v54.37 public AI browser preflight header repair
+
+## P947 - v54.37 - prompt-caching header was omitted from the public Worker CORS contract
+
+- **motivation**: the deployed public Worker answered direct requests, but the real in-app browser chat failed after two retries even though route readiness and provider health were green.
+- **symptom/reproduction**: the browser sends `anthropic-beta: prompt-caching-2024-07-31` whenever the system prompt uses the cacheable array form. The Worker preflight response omitted `anthropic-beta` from `Access-Control-Allow-Headers`, so the browser blocked the POST as a network/CORS failure before Anthropic was reached. Direct curl tests without that header still returned 200, hiding the regression.
+- **root_cause**: the request-header contract was expanded in the client for prompt caching, but the edge CORS allowlist was not updated in the same change. Static route tests fulfilled the request directly and therefore did not exercise the real preflight boundary.
+- **fix**: added `anthropic-beta` to the canonical Worker `Access-Control-Allow-Headers` list, synchronized `AIO_APP_REVISION` to the v54.37 release, and added a reliability-contract assertion that every browser chat header is allowed.
+- **violated_rule**: R497; browser route certification must cover the complete public request contract, including preflight.
+- **prevention**: keep a real preflight check alongside the public-route browser fixture and treat any client-added non-simple header as a Worker CORS contract change. Do not infer browser success from direct POST/curl success.
+- **verification**: local reliability contract and syntax gates pass; the authorized `Deploy AI proxy` workflow 32438015866 passed deployment, health, CORS, fail-closed-origin and real upstream checks. A fresh live browser test is rerun after propagation before release closure.
 
 ## P946 - v54.37 - SEC report unavailable state omitted its point-in-time boundary
 

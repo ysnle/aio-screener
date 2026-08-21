@@ -197,7 +197,7 @@ function getCorsHeaders(requestOrigin, env) {
   return {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS, POST',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, anthropic-version, X-AIO-App-Token', // v52.47 WO-1B: 신규 앱 토큰 헤더 — 없으면 브라우저 CORS 프리플라이트가 이 헤더 전송 자체를 차단
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, anthropic-version, anthropic-beta, X-AIO-App-Token', // v54.37 P947: prompt caching beta 헤더도 공개 채팅 프리플라이트에 허용
     'Access-Control-Max-Age': '86400',
   };
 }

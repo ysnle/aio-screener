@@ -54,6 +54,7 @@ check('partial structured streams hide control JSON until completion', chat.incl
 check('Worker token cap and stop reason are consumed by the client', chat.includes('workerMaxTokens') && chat.includes('effectiveMaxTokens') && chat.includes("stopReason === 'max_tokens'") && chat.includes('completion: completion || null'));
 check('server market prose requires typed evidence before client publish', data.includes('_serverMarketMetricEvidenceValid') && data.includes('metric-evidence-required') && data.includes('_serverMarketSemanticContract'));
 check('Worker exposes health readiness', worker.includes("_u.pathname === '/health'") && worker.includes("schemaVersion: 'aio-worker-health.v1'") && worker.includes('ai: { configured'));
+check('Worker CORS allows every browser chat header', worker.includes("anthropic-version, anthropic-beta, X-AIO-App-Token") && worker.includes('Access-Control-Allow-Headers'));
 check('Worker rolls back owned failed quota reservations', worker.includes('releaseAnthropicQuota') && worker.includes('ownedReservation'));
 check('Worker exposes effective token cap', worker.includes("'X-AIO-Max-Tokens'"));
 check('operations status separates scheduled analysis and public chat', operations.ai?.scheduledAnalysis && operations.ai?.publicChat?.scheduledAnalysisDoesNotImplyChat === true);

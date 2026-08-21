@@ -1,4 +1,5 @@
 ## v54.37 (2026-08-18)
+- **Live browser CORS repair (2026-08-21)**: allowed the client's prompt-caching `anthropic-beta` header in the canonical Worker preflight contract, synchronized the Worker release revision to v54.37, and added a regression assertion. The direct Worker/Anthropic smoke remains green; fresh in-app browser chat is rechecked after propagation.
 - **Public AI route restored**: shipped the existing HTTPS Worker as the default fallback for fresh browsers while preserving personal-key preference and manual Worker override. Boot defaults, public config, readiness, deep health, request routing and operations status now describe the same route.
 - **Claim-scoped safety**: invalid or unbound AnswerPlan claims and unsupported current numeric sentences are removed without erasing independently safe qualitative analysis. Both per-page and unified chat use the same canonical evidence registry.
 - **Stream resilience**: the client honors the Worker's advertised output ceiling, consumes stream `stop_reason`, hides partial control JSON, and recovers safe prose plus an explicit limitation from truncated structured output.
