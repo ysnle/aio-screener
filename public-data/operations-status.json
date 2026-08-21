@@ -7,9 +7,9 @@
     "STALE",
     "RIGHTS_REVIEW_REQUIRED"
   ],
-  "generatedAt": "2026-08-21T07:57:29.007Z",
+  "generatedAt": "2026-08-21T08:58:46.344Z",
   "appRevision": "v54.37",
-  "dataRevision": "market-snapshot:2026-08-21T07:57:24.168Z:f15e5f0f",
+  "dataRevision": "market-snapshot:2026-08-21T08:58:40.870Z:7f0eabd5",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
   "overall": "OPERATOR_REQUIRED",
   "planes": {
@@ -17,7 +17,7 @@
       "status": "CURRENT",
       "statusCode": "CONFIGURED_HEALTHY",
       "source": "github-actions",
-      "lastSuccessfulAt": "2026-08-21T07:57:24.168Z",
+      "lastSuccessfulAt": "2026-08-21T08:58:40.870Z",
       "coverage": {
         "required": 16,
         "observed": 16,
@@ -75,7 +75,7 @@
       "lastCallSucceeded": "BLOCKED",
       "evidence": {
         "marketAnalysisOk": false,
-        "generatedAt": "2026-08-21T07:57:24.168Z"
+        "generatedAt": "2026-08-21T08:58:40.870Z"
       }
     },
     "publicChat": {
@@ -87,7 +87,7 @@
       "health": {
         "status": "OPERATOR_REQUIRED",
         "statusCode": 200,
-        "observedAt": "2026-08-21T07:57:29.155Z",
+        "observedAt": "2026-08-21T08:58:46.506Z",
         "revision": "v54.37",
         "configured": true,
         "quotaConfigured": true,
@@ -107,15 +107,15 @@
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "reference",
-      "lastFetchAt": "2026-08-21T07:57:24.168Z"
+      "lastFetchAt": "2026-08-21T08:58:40.870Z"
     },
     "fred": {
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "official-series",
       "status": "CURRENT",
-      "lastAttemptAt": "2026-08-21T07:57:24.168Z",
-      "lastFetchAt": "2026-08-21T07:57:24.168Z"
+      "lastAttemptAt": "2026-08-21T08:58:40.870Z",
+      "lastFetchAt": "2026-08-21T08:58:40.870Z"
     },
     "sec": {
       "rights": "REVIEW_REQUIRED",
@@ -129,7 +129,7 @@
   "reconciliation": {
     "tier0": {
       "status": "MATCH",
-      "artifact": "market-snapshot:2026-08-21T07:57:24.168Z:f15e5f0f",
+      "artifact": "market-snapshot:2026-08-21T08:58:40.870Z:7f0eabd5",
       "uiEvidence": "same-revision-contract",
       "observedAtComplete": true
     },
@@ -263,7 +263,7 @@
           }
         ]
       },
-      "sourceRevision": "market-snapshot:2026-08-21T07:57:24.168Z:f15e5f0f",
+      "sourceRevision": "market-snapshot:2026-08-21T08:58:40.870Z:7f0eabd5",
       "sourceArtifacts": [
         "public-data/data.json",
         "public-data/market-snapshot.json",

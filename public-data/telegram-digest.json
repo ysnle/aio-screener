@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-08-21T07:57:34.056Z",
-  "attemptedAt": "2026-08-21T07:57:34.056Z",
-  "lastSuccessfulAt": "2026-08-21T07:57:34.056Z",
+  "generatedAt": "2026-08-21T08:58:52.094Z",
+  "attemptedAt": "2026-08-21T08:58:52.094Z",
+  "lastSuccessfulAt": "2026-08-21T08:58:52.094Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-08-07T07:57:29.580Z",
-  "until": "2026-08-21T07:57:29.580Z",
+  "since": "2026-08-07T08:58:46.760Z",
+  "until": "2026-08-21T08:58:46.760Z",
   "current24hWindow": {
     "start": "2026-08-19T23:00:00.000Z",
     "end": "2026-08-20T23:00:00.000Z",
@@ -14,7 +14,7 @@
   },
   "current24hCoverage": {
     "observedCount": 195,
-    "eligibleTextCount": 35,
+    "eligibleTextCount": 34,
     "channelCounts": {
       "insidertracking": 103,
       "HANAchina": 54,
@@ -78,27 +78,27 @@
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 256,
-      "freshCount": 20,
-      "eligibleTextCount": 20,
-      "selectedCount": 94,
+      "count": 258,
+      "freshCount": 40,
+      "eligibleTextCount": 40,
+      "selectedCount": 99,
       "error": null,
-      "lastPostId": 24706
+      "lastPostId": 24711
     },
     {
       "channel": "insidertracking",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1097,
+      "count": 1102,
       "freshCount": 38,
       "eligibleTextCount": 35,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 61734
+      "lastPostId": 61742
     },
     {
       "channel": "bornlupin",
@@ -106,28 +106,309 @@
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 201,
-      "freshCount": 34,
-      "eligibleTextCount": 34,
-      "selectedCount": 74,
+      "freshCount": 36,
+      "eligibleTextCount": 36,
+      "selectedCount": 70,
       "error": null,
-      "lastPostId": 19804
+      "lastPostId": 19806
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 735,
-      "freshCount": 39,
-      "eligibleTextCount": 39,
+      "count": 738,
+      "freshCount": 35,
+      "eligibleTextCount": 35,
       "selectedCount": 123,
       "error": null,
-      "lastPostId": 67577
+      "lastPostId": 67586
     }
   ],
-  "count": 2289,
-  "retainedItemCount": 477,
+  "count": 2299,
+  "retainedItemCount": 490,
   "observedItems": [
+    {
+      "id": "HANAchina/67586",
+      "channel": "HANAchina",
+      "datetime": "2026-08-21T08:53:34.000Z",
+      "localDateKst": "2026-08-21",
+      "score": 86,
+      "tags": [
+        "credit",
+        "macro",
+        "semi",
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/67585",
+      "channel": "HANAchina",
+      "datetime": "2026-08-21T08:50:10.000Z",
+      "localDateKst": "2026-08-21",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/61742",
+      "channel": "insidertracking",
+      "datetime": "2026-08-21T08:50:00.000Z",
+      "localDateKst": "2026-08-21",
+      "score": 61,
+      "tags": [
+        "semi",
+        "insider",
+        "earnings"
+      ],
+      "tickers": [
+        "005930.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19806",
+      "channel": "bornlupin",
+      "datetime": "2026-08-21T08:42:32.000Z",
+      "localDateKst": "2026-08-21",
+      "score": 51,
+      "tags": [
+        "semi",
+        "earnings"
+      ],
+      "tickers": [
+        "005930.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19805",
+      "channel": "bornlupin",
+      "datetime": "2026-08-21T08:42:02.000Z",
+      "localDateKst": "2026-08-21",
+      "score": 73,
+      "tags": [
+        "semi",
+        "kr-market",
+        "insider",
+        "earnings"
+      ],
+      "tickers": [
+        "005930.KS",
+        "035420.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/61740",
+      "channel": "insidertracking",
+      "datetime": "2026-08-21T08:31:32.000Z",
+      "localDateKst": "2026-08-21",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/24711",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-08-21T08:28:21.000Z",
+      "localDateKst": "2026-08-21",
+      "score": 55,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "005930.KS",
+        "000660.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/61739",
+      "channel": "insidertracking",
+      "datetime": "2026-08-21T08:22:27.000Z",
+      "localDateKst": "2026-08-21",
+      "score": 81,
+      "tags": [
+        "macro",
+        "semi",
+        "power"
+      ],
+      "tickers": [
+        "TSM"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/61738",
+      "channel": "insidertracking",
+      "datetime": "2026-08-21T08:21:37.000Z",
+      "localDateKst": "2026-08-21",
+      "score": 71,
+      "tags": [
+        "macro",
+        "semi",
+        "power"
+      ],
+      "tickers": [
+        "000660.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/24710",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-08-21T08:21:33.000Z",
+      "localDateKst": "2026-08-21",
+      "score": 55,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/67584",
+      "channel": "HANAchina",
+      "datetime": "2026-08-21T08:19:10.000Z",
+      "localDateKst": "2026-08-21",
+      "score": 69,
+      "tags": [
+        "semi",
+        "kr-market",
+        "flows",
+        "healthcare"
+      ],
+      "tickers": [
+        "TSM"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/24709",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-08-21T08:16:44.000Z",
+      "localDateKst": "2026-08-21",
+      "score": 56,
+      "tags": [
+        "semi",
+        "earnings"
+      ],
+      "tickers": [
+        "005930.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/61737",
+      "channel": "insidertracking",
+      "datetime": "2026-08-21T08:14:15.000Z",
+      "localDateKst": "2026-08-21",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/24708",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-08-21T08:14:05.000Z",
+      "localDateKst": "2026-08-21",
+      "score": 57,
+      "tags": [
+        "semi",
+        "insider",
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/61736",
+      "channel": "insidertracking",
+      "datetime": "2026-08-21T08:12:59.000Z",
+      "localDateKst": "2026-08-21",
+      "score": 51,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "005930.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/24707",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-08-21T08:12:50.000Z",
+      "localDateKst": "2026-08-21",
+      "score": 51,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "005930.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/67583",
+      "channel": "HANAchina",
+      "datetime": "2026-08-21T08:07:23.000Z",
+      "localDateKst": "2026-08-21",
+      "score": 52,
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/67579",
+      "channel": "HANAchina",
+      "datetime": "2026-08-21T08:05:33.000Z",
+      "localDateKst": "2026-08-21",
+      "score": 45,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/61735",
+      "channel": "insidertracking",
+      "datetime": "2026-08-21T08:01:47.000Z",
+      "localDateKst": "2026-08-21",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/67578",
+      "channel": "HANAchina",
+      "datetime": "2026-08-21T07:57:49.000Z",
+      "localDateKst": "2026-08-21",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "HANAchina/67577",
       "channel": "HANAchina",
@@ -1448,7 +1729,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61706",
@@ -1473,7 +1754,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67544",
@@ -1485,7 +1766,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61705",
@@ -1535,7 +1816,7 @@
       "tickers": [
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67542",
@@ -1550,7 +1831,7 @@
       "tickers": [
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67541",
@@ -1562,7 +1843,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61704",
@@ -1599,7 +1880,7 @@
         "equity"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67539",
@@ -1611,7 +1892,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67538",
@@ -1623,7 +1904,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67537",
@@ -1636,7 +1917,7 @@
         "ai-policy"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67536",
@@ -1674,7 +1955,7 @@
         "equity"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61700",
@@ -1686,7 +1967,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61699",
@@ -1698,7 +1979,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61698",
@@ -1710,7 +1991,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61697",
@@ -1723,7 +2004,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61696",
@@ -1735,7 +2016,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61695",
@@ -1747,7 +2028,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61694",
@@ -2193,7 +2474,7 @@
         "healthcare"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/24685",
@@ -2209,7 +2490,7 @@
       "tickers": [
         "CRWV"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/24684",
@@ -2227,7 +2508,7 @@
         "NVDA",
         "MU"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61670",
@@ -2263,7 +2544,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61668",
@@ -2306,7 +2587,7 @@
       "tickers": [
         "AVGO"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61666",
@@ -2372,7 +2653,7 @@
         "018880.KS",
         "036570.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61663",
@@ -2462,7 +2743,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61657",
@@ -2735,7 +3016,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61641",
@@ -2795,7 +3076,7 @@
         "equity"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61637",
@@ -3059,7 +3340,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67523",
@@ -3192,7 +3473,7 @@
         "AVGO",
         "MRVL"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/24675",
@@ -3207,7 +3488,7 @@
       "tickers": [
         "000660.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67519",
@@ -3436,7 +3717,7 @@
       "tickers": [
         "016360.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/24674",
@@ -3448,7 +3729,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/24672",
@@ -3468,7 +3749,7 @@
         "032830.KS",
         "000810.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67512",
@@ -32256,173 +32537,45 @@
         "AAOI"
       ],
       "hasText": false
-    },
-    {
-      "id": "HANAchina/66771",
-      "channel": "HANAchina",
-      "datetime": "2026-08-07T08:54:37.000Z",
-      "localDateKst": "2026-08-07",
-      "score": 53,
-      "tags": [
-        "kr-market"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/24431",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-08-07T08:40:40.000Z",
-      "localDateKst": "2026-08-07",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/24430",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-08-07T08:40:33.000Z",
-      "localDateKst": "2026-08-07",
-      "score": 51,
-      "tags": [
-        "semi"
-      ],
-      "tickers": [
-        "000660.KS"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/24429",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-08-07T08:35:50.000Z",
-      "localDateKst": "2026-08-07",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/66770",
-      "channel": "HANAchina",
-      "datetime": "2026-08-07T08:15:10.000Z",
-      "localDateKst": "2026-08-07",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/19589",
-      "channel": "bornlupin",
-      "datetime": "2026-08-07T08:10:15.000Z",
-      "localDateKst": "2026-08-07",
-      "score": 47,
-      "tags": [
-        "semi",
-        "insider"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/66769",
-      "channel": "HANAchina",
-      "datetime": "2026-08-07T08:06:00.000Z",
-      "localDateKst": "2026-08-07",
-      "score": 81,
-      "tags": [
-        "macro",
-        "semi",
-        "optical",
-        "healthcare"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/60552",
-      "channel": "insidertracking",
-      "datetime": "2026-08-07T08:01:39.000Z",
-      "localDateKst": "2026-08-07",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/60551",
-      "channel": "insidertracking",
-      "datetime": "2026-08-07T07:59:53.000Z",
-      "localDateKst": "2026-08-07",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/19588",
-      "channel": "bornlupin",
-      "datetime": "2026-08-07T07:57:36.000Z",
-      "localDateKst": "2026-08-07",
-      "score": 47,
-      "tags": [
-        "semi",
-        "earnings"
-      ],
-      "tickers": [],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2289,
-    "eligibleTextCount": 128,
-    "mediaOnlyCount": 2161,
-    "highSignalCount": 593,
-    "broadSignalCount": 1117,
-    "selectedRawCount": 411,
-    "selectedRawCoveragePct": 321.1,
+    "observedCount": 2299,
+    "eligibleTextCount": 146,
+    "mediaOnlyCount": 2153,
+    "highSignalCount": 597,
+    "broadSignalCount": 1128,
+    "selectedRawCount": 412,
+    "selectedRawCoveragePct": 282.2,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "macro": 822,
-    "semi": 658,
-    "insider": 80,
-    "earnings": 504,
+    "credit": 93,
+    "macro": 825,
+    "semi": 667,
+    "earnings": 509,
+    "market-note": 590,
+    "insider": 82,
+    "kr-market": 342,
+    "power": 326,
+    "flows": 242,
+    "healthcare": 131,
     "ai-policy": 171,
     "japan": 183,
-    "power": 324,
-    "kr-market": 341,
-    "market-note": 589,
-    "credit": 92,
     "media-only": 74,
     "equity": 185,
-    "flows": 241,
     "geo": 326,
-    "healthcare": 131,
-    "optical": 67,
+    "optical": 66,
     "crypto": 15
   },
   "tickerCounts": {
-    "005930.KS": 92,
-    "000660.KS": 146,
-    "035420.KS": 44,
+    "005930.KS": 99,
+    "035420.KS": 45,
+    "000660.KS": 147,
+    "TSM": 86,
     "TXN": 1,
     "AMD": 44,
     "AVGO": 43,
@@ -32437,7 +32590,6 @@
     "META": 40,
     "GOOGL": 27,
     "MRNA": 7,
-    "TSM": 85,
     "ASTS": 2,
     "TMUS": 1,
     "MU": 54,
@@ -32655,19 +32807,19 @@
     "TTWO": 1
   },
   "themes": [
-    "Macro/Rates (822 posts in 14-day research window): 2026년 8월 21일 미국 기업 섹터별 소식 정리 (실적 제외) > 새벽 5시 30분~오후 3시 기준 ━━━━━━━━━━━━━━ 💾 반도체 · 데이터센터 · 광통신 • 브로드컴 (AVGO) — Anthropic 등 AI 기업의 인프라 구축을 지원하는 AI 칩 금융 거래를 위해 600억 달러 이상의 부채 조달을...",
-    "Semiconductors/Memory (658 posts in 14-day research window): 2026년 8월 21일 미국 기업 섹터별 소식 정리 (실적 제외) > 새벽 5시 30분~오후 3시 기준 ━━━━━━━━━━━━━━ 💾 반도체 · 데이터센터 · 광통신 • 브로드컴 (AVGO) — Anthropic 등 AI 기업의 인프라 구축을 지원하는 AI 칩 금융 거래를 위해 600억 달러 이상의 부채 조달을...",
-    "Market Notes (589 posts in 14-day research window): >중국 AI 연산 투자수익 분석: 자체 구축은 3년 만에 회수, 클라우드 업체 ROIC 13~20%, Alibaba Cloud가 가장 유리 (모건스탠리) •모건스탠리의 최신 정량 분석에 따르면 중국 클라우드...",
-    "Earnings/Corporate (504 posts in 14-day research window): 2026년 8월 21일 미국 기업 섹터별 소식 정리 (실적 제외) > 새벽 5시 30분~오후 3시 기준 ━━━━━━━━━━━━━━ 💾 반도체 · 데이터센터 · 광통신 • 브로드컴 (AVGO) — Anthropic 등 AI 기업의 인프라 구축을 지원하는 AI 칩 금융 거래를 위해 600억 달러 이상의 부채 조달을...",
-    "Korea Market (341 posts in 14-day research window): 2026년 8월 21일 미국 기업 섹터별 소식 정리 (실적 제외) > 새벽 5시 30분~오후 3시 기준 ━━━━━━━━━━━━━━ 💾 반도체 · 데이터센터 · 광통신 • 브로드컴 (AVGO) — Anthropic 등 AI 기업의 인프라 구축을 지원하는 AI 칩 금융 거래를 위해 600억 달러 이상의 부채 조달을...",
+    "Macro/Rates (825 posts in 14-day research window): 2026년 8월 21일 미국 기업 섹터별 소식 정리 (실적 제외) > 새벽 5시 30분~오후 3시 기준 ━━━━━━━━━━━━━━ 💾 반도체 · 데이터센터 · 광통신 • 브로드컴 (AVGO) — Anthropic 등 AI 기업의 인프라 구축을 지원하는 AI 칩 금융 거래를 위해 600억 달러 이상의 부채 조달을...",
+    "Semiconductors/Memory (667 posts in 14-day research window): 2026년 8월 21일 미국 기업 섹터별 소식 정리 (실적 제외) > 새벽 5시 30분~오후 3시 기준 ━━━━━━━━━━━━━━ 💾 반도체 · 데이터센터 · 광통신 • 브로드컴 (AVGO) — Anthropic 등 AI 기업의 인프라 구축을 지원하는 AI 칩 금융 거래를 위해 600억 달러 이상의 부채 조달을...",
+    "Market Notes (590 posts in 14-day research window): >중국 AI 연산 투자수익 분석: 자체 구축은 3년 만에 회수, 클라우드 업체 ROIC 13~20%, Alibaba Cloud가 가장 유리 (모건스탠리) •모건스탠리의 최신 정량 분석에 따르면 중국 클라우드...",
+    "Earnings/Corporate (509 posts in 14-day research window): 2026년 8월 21일 미국 기업 섹터별 소식 정리 (실적 제외) > 새벽 5시 30분~오후 3시 기준 ━━━━━━━━━━━━━━ 💾 반도체 · 데이터센터 · 광통신 • 브로드컴 (AVGO) — Anthropic 등 AI 기업의 인프라 구축을 지원하는 AI 칩 금융 거래를 위해 600억 달러 이상의 부채 조달을...",
+    "Korea Market (342 posts in 14-day research window): 2026년 8월 21일 미국 기업 섹터별 소식 정리 (실적 제외) > 새벽 5시 30분~오후 3시 기준 ━━━━━━━━━━━━━━ 💾 반도체 · 데이터센터 · 광통신 • 브로드컴 (AVGO) — Anthropic 등 AI 기업의 인프라 구축을 지원하는 AI 칩 금융 거래를 위해 600억 달러 이상의 부채 조달을...",
+    "AI Power/Grid (326 posts in 14-day research window): 2026년 8월 21일 미국 기업 섹터별 소식 정리 (실적 제외) > 새벽 5시 30분~오후 3시 기준 ━━━━━━━━━━━━━━ 💾 반도체 · 데이터센터 · 광통신 • 브로드컴 (AVGO) — Anthropic 등 AI 기업의 인프라 구축을 지원하는 AI 칩 금융 거래를 위해 600억 달러 이상의 부채 조달을...",
     "Geopolitics (326 posts in 14-day research window): 알리바바(BABA) Q1 2027 어닝콜 요약 🟢 긍정 요인: • 견조한 매출 성장과 클라우드 고성장. 1분기 매출은 2,690억위안으로 전년 대비 9% 증가. 알리바바 클라우드는 45% 성장하며 AI 관련...",
-    "AI Power/Grid (324 posts in 14-day research window): 2026년 8월 21일 미국 기업 섹터별 소식 정리 (실적 제외) > 새벽 5시 30분~오후 3시 기준 ━━━━━━━━━━━━━━ 💾 반도체 · 데이터센터 · 광통신 • 브로드컴 (AVGO) — Anthropic 등 AI 기업의 인프라 구축을 지원하는 AI 칩 금융 거래를 위해 600억 달러 이상의 부채 조달을...",
-    "Positioning/Flows (241 posts in 14-day research window): 2026년 8월 21일 미국 기업 섹터별 소식 정리 (실적 제외) > 새벽 5시 30분~오후 3시 기준 ━━━━━━━━━━━━━━ 💾 반도체 · 데이터센터 · 광통신 • 브로드컴 (AVGO) — Anthropic 등 AI 기업의 인프라 구축을 지원하는 AI 칩 금융 거래를 위해 600억 달러 이상의 부채 조달을..."
+    "Positioning/Flows (242 posts in 14-day research window): 2026년 8월 21일 미국 기업 섹터별 소식 정리 (실적 제외) > 새벽 5시 30분~오후 3시 기준 ━━━━━━━━━━━━━━ 💾 반도체 · 데이터센터 · 광통신 • 브로드컴 (AVGO) — Anthropic 등 AI 기업의 인프라 구축을 지원하는 AI 칩 금융 거래를 위해 600억 달러 이상의 부채 조달을..."
   ],
   "catalysts": [
     {
       "key": "000660.KS",
-      "count": 146,
+      "count": 147,
       "text": "미국 레딧 게시물 분석 (2026년 8월 21일 00:00~05:30 기준) > 💾 MU / SNDK / MRAM - AI 메모리 광풍 · MU 다음은 MRAM이냐는 토론 급증 · \"SNDK → MRAM\"..."
     },
     {
@@ -32677,12 +32829,12 @@
     },
     {
       "key": "005930.KS",
-      "count": 92,
-      "text": "Citi) 한국 주식 전략 — Citi 코리아 인베스터 컨퍼런스 2026 관전 포인트 (8/20, 36p) 1. 컨퍼런스 개요 Citi는 8월 27~28일 코리아 인베스터 컨퍼런스 2026을 개최합니다. 하루..."
+      "count": 99,
+      "text": "Citi) 한국 주식 전략 — Citi 코리아 인베스터 컨퍼런스 2026 관전 포인트 (8/20, 36p) 1. 컨퍼런스 개요 Citi는 8월 27~28일 코리아 인베스터 컨퍼런스 2026을 개최합니다. 하루 앞선 26일에는 플래그십 사이드 투어로 코리아 테크 투어, 코리아 컨슈머 투어, C레벨 경영진 미팅이..."
     },
     {
       "key": "TSM",
-      "count": 85,
+      "count": 86,
       "text": "2026년 8월 19일 서학개미 순매수 미국 주식 TOP 50 1위: SNDSK CRP ORD WI (15.78%) 2위: ALPHABET INC CL A (9.31%) 3위: DIREX DAI SEMI BE..."
     },
     {
@@ -32707,8 +32859,8 @@
     },
     {
       "key": "035420.KS",
-      "count": 44,
-      "text": "하루아침에 반도체 악재로…'반년새 7배 성장'에도 앤스로픽 실망론 전날 블룸버그통신은 앤스로픽의 7월 말 연환산매출(ARR)이 650억달러 이상이라고 보도했다. 작년 말 약 90억달러에서 7배 넘게 늘어난..."
+      "count": 45,
+      "text": "2026.08.21 17:09:54 기업명: 삼성전자(시가총액: 1,645조 7,274억) A005930 보고서명: 수시공시의무관련사항(공정공시) 제목 : 2026년 주주환원 예상 규모 및 시행 방안 * 주요내용 □ 2024~2026년 주주환원정책 및 실적 (2024년 1월 31일 공시 내용) - 2024년부터..."
     },
     {
       "key": "AMD",
@@ -32733,7 +32885,7 @@
       "topics": [
         "macro"
       ],
-      "count": 822,
+      "count": 825,
       "focus": "2026년 8월 21일 미국 기업 섹터별 소식 정리 (실적 제외) > 새벽 5시 30분~오후 3시 기준 ━━━━━━━━━━━━━━ 💾 반도체 · 데이터센터 · 광통신 • 브로드컴 (AVGO) — Anthropic 등 AI 기업의 인프라 구축을 지원하는 AI 칩 금융 거래를 위해 600억 달러 이상의 부채 조달을..."
     },
     {
@@ -32751,7 +32903,7 @@
       "topics": [
         "credit"
       ],
-      "count": 92,
+      "count": 93,
       "focus": "2026년 8월 21일 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글은 Antigravity를 대상 Gemini..."
     },
     {
@@ -32760,7 +32912,7 @@
       "topics": [
         "semi"
       ],
-      "count": 658,
+      "count": 667,
       "focus": "2026년 8월 21일 미국 기업 섹터별 소식 정리 (실적 제외) > 새벽 5시 30분~오후 3시 기준 ━━━━━━━━━━━━━━ 💾 반도체 · 데이터센터 · 광통신 • 브로드컴 (AVGO) — Anthropic 등 AI 기업의 인프라 구축을 지원하는 AI 칩 금융 거래를 위해 600억 달러 이상의 부채 조달을..."
     },
     {
@@ -32769,7 +32921,7 @@
       "topics": [
         "optical"
       ],
-      "count": 67,
+      "count": 66,
       "focus": "2026년 8월 19일 서학개미 순매수 미국 주식 TOP 50 1위: SNDSK CRP ORD WI (15.78%) 2위: ALPHABET INC CL A (9.31%) 3위: DIREX DAI SEMI BE..."
     },
     {
@@ -32778,7 +32930,7 @@
       "topics": [
         "power"
       ],
-      "count": 324,
+      "count": 326,
       "focus": "2026년 8월 21일 미국 기업 섹터별 소식 정리 (실적 제외) > 새벽 5시 30분~오후 3시 기준 ━━━━━━━━━━━━━━ 💾 반도체 · 데이터센터 · 광통신 • 브로드컴 (AVGO) — Anthropic 등 AI 기업의 인프라 구축을 지원하는 AI 칩 금융 거래를 위해 600억 달러 이상의 부채 조달을..."
     },
     {
@@ -32796,7 +32948,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 341,
+      "count": 342,
       "focus": "2026년 8월 21일 미국 기업 섹터별 소식 정리 (실적 제외) > 새벽 5시 30분~오후 3시 기준 ━━━━━━━━━━━━━━ 💾 반도체 · 데이터센터 · 광통신 • 브로드컴 (AVGO) — Anthropic 등 AI 기업의 인프라 구축을 지원하는 AI 칩 금융 거래를 위해 600억 달러 이상의 부채 조달을..."
     },
     {
@@ -32823,7 +32975,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 504,
+      "count": 509,
       "focus": "2026년 8월 21일 미국 기업 섹터별 소식 정리 (실적 제외) > 새벽 5시 30분~오후 3시 기준 ━━━━━━━━━━━━━━ 💾 반도체 · 데이터센터 · 광통신 • 브로드컴 (AVGO) — Anthropic 등 AI 기업의 인프라 구축을 지원하는 AI 칩 금융 거래를 위해 600억 달러 이상의 부채 조달을..."
     },
     {
@@ -32842,7 +32994,7 @@
         "japan"
       ],
       "count": 183,
-      "focus": "Citi) 한국 주식 전략 — Citi 코리아 인베스터 컨퍼런스 2026 관전 포인트 (8/20, 36p) 1. 컨퍼런스 개요 Citi는 8월 27~28일 코리아 인베스터 컨퍼런스 2026을 개최합니다. 하루..."
+      "focus": "Citi) 한국 주식 전략 — Citi 코리아 인베스터 컨퍼런스 2026 관전 포인트 (8/20, 36p) 1. 컨퍼런스 개요 Citi는 8월 27~28일 코리아 인베스터 컨퍼런스 2026을 개최합니다. 하루 앞선 26일에는 플래그십 사이드 투어로 코리아 테크 투어, 코리아 컨슈머 투어, C레벨 경영진 미팅이..."
     },
     {
       "id": "flows",
@@ -32850,7 +33002,7 @@
       "topics": [
         "flows"
       ],
-      "count": 241,
+      "count": 242,
       "focus": "2026년 8월 21일 미국 기업 섹터별 소식 정리 (실적 제외) > 새벽 5시 30분~오후 3시 기준 ━━━━━━━━━━━━━━ 💾 반도체 · 데이터센터 · 광통신 • 브로드컴 (AVGO) — Anthropic 등 AI 기업의 인프라 구축을 지원하는 AI 칩 금융 거래를 위해 600억 달러 이상의 부채 조달을..."
     },
     {
@@ -32859,7 +33011,7 @@
       "topics": [
         "insider"
       ],
-      "count": 80,
+      "count": 82,
       "focus": "2026년 8월 21일 미국 기업 섹터별 소식 정리 (실적 제외) > 새벽 5시 30분~오후 3시 기준 ━━━━━━━━━━━━━━ 💾 반도체 · 데이터센터 · 광통신 • 브로드컴 (AVGO) — Anthropic 등 AI 기업의 인프라 구축을 지원하는 AI 칩 금융 거래를 위해 600억 달러 이상의 부채 조달을..."
     },
     {
@@ -32868,7 +33020,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 589,
+      "count": 590,
       "focus": ">중국 AI 연산 투자수익 분석: 자체 구축은 3년 만에 회수, 클라우드 업체 ROIC 13~20%, Alibaba Cloud가 가장 유리 (모건스탠리) •모건스탠리의 최신 정량 분석에 따르면 중국 클라우드..."
     }
   ],
@@ -34297,6 +34449,243 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "HANAchina/67586",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/67586",
+      "datetime": "2026-08-21T08:53:34.000Z",
+      "localDateKst": "2026-08-21",
+      "tags": [
+        "credit",
+        "macro",
+        "semi",
+        "earnings"
+      ],
+      "tickers": [],
+      "score": 86,
+      "hasText": true,
+      "summary": ">>엔비디아, AI 데이터 공급업체 Mercor 지분 투자 추진…기업가치 200억 달러 •엔비디아가 AI 데이터 공급업체 Mercor에 대한 지분 투자를 추진 중인 것으로 알려졌음. Mercor의 기업가치는..."
+    },
+    {
+      "id": "insidertracking/61742",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61742",
+      "datetime": "2026-08-21T08:50:00.000Z",
+      "localDateKst": "2026-08-21",
+      "tags": [
+        "semi",
+        "insider",
+        "earnings"
+      ],
+      "tickers": [
+        "005930.KS"
+      ],
+      "score": 61,
+      "hasText": true,
+      "summary": "삼성전자 주주환원 관련 정리 - 2026년 8월 21일 📍 2026년 주주환원 · 삼성전자, 2026년 주주환원 잔여 재원 약 90~110조원 규모로 예상 · 2024~2026년 3년간 총 FCF의..."
+    },
+    {
+      "id": "bornlupin/19806",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19806",
+      "datetime": "2026-08-21T08:42:32.000Z",
+      "localDateKst": "2026-08-21",
+      "tags": [
+        "semi",
+        "earnings"
+      ],
+      "tickers": [
+        "005930.KS"
+      ],
+      "score": 51,
+      "hasText": true,
+      "summary": "[DS 반도체 이수림] 삼성전자 주주환원 정책 관련 코멘트 가장 중요한 핵심은 2026년 잔여 주주환원 재원이 90~110조원 이라는 회사 가이던스 입니다. 두번째, 3Q26 현금배당 30조원 내외 입니다...."
+    },
+    {
+      "id": "bornlupin/19805",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19805",
+      "datetime": "2026-08-21T08:42:02.000Z",
+      "localDateKst": "2026-08-21",
+      "tags": [
+        "semi",
+        "kr-market",
+        "insider",
+        "earnings"
+      ],
+      "tickers": [
+        "005930.KS",
+        "035420.KS"
+      ],
+      "score": 73,
+      "hasText": true,
+      "summary": "2026.08.21 17:09:54 기업명: 삼성전자(시가총액: 1,645조 7,274억) A005930 보고서명: 수시공시의무관련사항(공정공시) 제목 : 2026년 주주환원 예상 규모 및 시행 방안 *..."
+    },
+    {
+      "id": "aetherjapanresearch/24711",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/24711",
+      "datetime": "2026-08-21T08:28:21.000Z",
+      "localDateKst": "2026-08-21",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "005930.KS",
+        "000660.KS"
+      ],
+      "score": 55,
+      "hasText": true,
+      "summary": "삼성전자/SK하이닉스 주주환원정책 비교"
+    },
+    {
+      "id": "insidertracking/61739",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61739",
+      "datetime": "2026-08-21T08:22:27.000Z",
+      "localDateKst": "2026-08-21",
+      "tags": [
+        "macro",
+        "semi",
+        "power"
+      ],
+      "tickers": [
+        "TSM"
+      ],
+      "score": 81,
+      "hasText": true,
+      "summary": "TSMC가 이르면 올해 옹스트롬급 A16 공정 양산에 돌입할 준비를 마쳤으며, 기술 개발과 검증을 모두 완료. 대만 내 첨단 생산라인에서 2nm 칩 생산이 본격 확대되는 가운데, TSMC는 다음 분기부터 기존..."
+    },
+    {
+      "id": "insidertracking/61738",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61738",
+      "datetime": "2026-08-21T08:21:37.000Z",
+      "localDateKst": "2026-08-21",
+      "tags": [
+        "macro",
+        "semi",
+        "power"
+      ],
+      "tickers": [
+        "000660.KS"
+      ],
+      "score": 71,
+      "hasText": true,
+      "summary": "엔비디아가 한국 AI 반도체 스타트업 리벨리온과 기술 협력, 투자 또는 인수 가능성을 두고 초기 협상 진행 중. 젠슨 황 엔비디아 CEO는 이번 주 엔비디아 본사에서 박성현 리벨리온 CEO와 만나 잠재적 협력..."
+    },
+    {
+      "id": "aetherjapanresearch/24710",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/24710",
+      "datetime": "2026-08-21T08:21:33.000Z",
+      "localDateKst": "2026-08-21",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [],
+      "score": 55,
+      "hasText": true,
+      "summary": "주주환원이지만 주주우선은 아니네요. FCF에 임직원 성과급 차감됩니다. 또 LTA 선수금도 잉여현금에 포함 안되는데 이는 선수금은 곧 CAPEX에만 쓰인다고 봐야 겠습니다 * 3년간 총 FCF 산정시 보증금..."
+    },
+    {
+      "id": "HANAchina/67584",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/67584",
+      "datetime": "2026-08-21T08:19:10.000Z",
+      "localDateKst": "2026-08-21",
+      "tags": [
+        "semi",
+        "kr-market",
+        "flows",
+        "healthcare"
+      ],
+      "tickers": [
+        "TSM"
+      ],
+      "score": 69,
+      "hasText": true,
+      "summary": "> 중화권 마감 시황 (26.08.21, 금) 🇨🇳 중국 본토 증시는 하락 출발했으나 장중 반등하며 주요 지수가 일제히 상승 마감. 다만 2,800개 이상의 종목이 하락하는 등 종목별로는 혼조세를..."
+    },
+    {
+      "id": "aetherjapanresearch/24709",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/24709",
+      "datetime": "2026-08-21T08:16:44.000Z",
+      "localDateKst": "2026-08-21",
+      "tags": [
+        "semi",
+        "earnings"
+      ],
+      "tickers": [
+        "005930.KS"
+      ],
+      "score": 56,
+      "hasText": true,
+      "summary": "하이닉스 FCF 50%이상 환원 vs 삼성전자: FCF 50%환원 □ 정책 기간(2025년~2027년) 동안 발생하는 누적 Free Cash Flow(잉여현금흐름)의 50% 이상을 환원 할 계획(SK하닉) □..."
+    },
+    {
+      "id": "aetherjapanresearch/24708",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/24708",
+      "datetime": "2026-08-21T08:14:05.000Z",
+      "localDateKst": "2026-08-21",
+      "tags": [
+        "semi",
+        "insider",
+        "earnings"
+      ],
+      "tickers": [],
+      "score": 57,
+      "hasText": true,
+      "summary": "□ 2024~2026년 주주환원정책 및 실적 (2024년 1월 31일 공시 내용) - 2024년부터 2026년까지 3년간 발생하는 총 Free Cash Flow의 50%를 주주환원 ·매년 9.8조원 정규배당..."
+    },
+    {
+      "id": "insidertracking/61736",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61736",
+      "datetime": "2026-08-21T08:12:59.000Z",
+      "localDateKst": "2026-08-21",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "005930.KS"
+      ],
+      "score": 51,
+      "hasText": true,
+      "summary": "삼성전자 26년 주주환원 90-110조"
+    },
+    {
+      "id": "aetherjapanresearch/24707",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/24707",
+      "datetime": "2026-08-21T08:12:50.000Z",
+      "localDateKst": "2026-08-21",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "005930.KS"
+      ],
+      "score": 51,
+      "hasText": true,
+      "summary": "삼성전자 26년 주주환원 90-110조"
+    },
+    {
+      "id": "HANAchina/67583",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/67583",
+      "datetime": "2026-08-21T08:07:23.000Z",
+      "localDateKst": "2026-08-21",
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "score": 52,
+      "hasText": true,
+      "summary": ">>18년 만에 4배&#33; 미국 국가부채 40조 달러는 어떻게 만들어졌나? •미국 국가부채는 약 18년 만에 4배로 증가해 40조 달러 규모에 도달했음. •부채 증가의 핵심 원인은 감세, 복지지출 확대,..."
+    },
     {
       "id": "HANAchina/67577",
       "channel": "HANAchina",
@@ -40416,23 +40805,6 @@
       "summary": ">>BHP 연간 순이익 30% 증가, 원자재 가격 상승으로 실적 개선…구리 매출 사상 처음 철광석 추월 •BHP의 연간 순이익 98억3,000만 달러로, 시장 예상치 109억5,000만 달러를 하회 •연간..."
     },
     {
-      "id": "HANAchina/67306",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/67306",
-      "datetime": "2026-08-17T22:50:48.000Z",
-      "localDateKst": "2026-08-18",
-      "tags": [
-        "semi"
-      ],
-      "tickers": [
-        "005930.KS",
-        "000660.KS"
-      ],
-      "score": 55,
-      "hasText": true,
-      "summary": ">>CXMT 시가총액 4조 위안 재돌파, 2.5개의 마오타이 규모…AI 메모리 수혜(프리미엄)은 이제 시작? (중국언론) •CXMT가 다시 사상 최고치를 기록했음. 핵심 동력은 AI에 따른 DRAM 호황..."
-    },
-    {
       "id": "bornlupin/19735",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/19735",
@@ -40462,38 +40834,6 @@
       "score": 70,
       "hasText": true,
       "summary": "BofA, AI 광 트랜시버(Optical Transceiver) 시장 전망 및 세대 전환 분석 ​뱅크오브아메리카(BofA)에 따르면, AI용 고속 광 트랜시버 시장은 800G·1.6T·3.2T 모듈 수요..."
-    },
-    {
-      "id": "HANAchina/67305",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/67305",
-      "datetime": "2026-08-17T22:41:22.000Z",
-      "localDateKst": "2026-08-18",
-      "tags": [
-        "credit",
-        "macro",
-        "flows"
-      ],
-      "tickers": [],
-      "score": 74,
-      "hasText": true,
-      "summary": ">>30년물 미 국채 금리 2007년 이후 최고치, 8월 미국 투자등급 채권 발행량 사상 최대 •월요일 30년물 미 국채 금리가 한때 5.31%를 넘어 2007년 이후 최고치를 기록 •기업들이 AI 열풍을..."
-    },
-    {
-      "id": "HANAchina/67304",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/67304",
-      "datetime": "2026-08-17T22:40:05.000Z",
-      "localDateKst": "2026-08-18",
-      "tags": [
-        "macro",
-        "ai-policy",
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 57,
-      "hasText": true,
-      "summary": ">>Anthropic 7월 연환산 매출 650억 달러 돌파 추정, 지난해 말 대비 7배 이상 증가 •Anthropic의 7월 연환산 매출이 650억 달러를 넘어선 것으로 알려졌으며, 지난해 말 대비 7배 이상..."
     },
     {
       "id": "aetherjapanresearch/24596",
@@ -40686,65 +41026,6 @@
       "summary": "52주 신고가 ━━━━━━━━━━━━━━ 🏦 금융 · Bank of America · Bank of Montreal · Bank of New York Mellon · Bank of Nova Scotia ·..."
     },
     {
-      "id": "insidertracking/61341",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/61341",
-      "datetime": "2026-08-17T20:42:59.000Z",
-      "localDateKst": "2026-08-18",
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "score": 67,
-      "hasText": true,
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 8월 18일 📍 트럼프·이란 및 호르무즈 해협 · 트럼프, 이란에 대해 “내가 필요하다고 생각하는 종류의 합의를 하지 않을 것” 발언 · 트럼프 “이란은..."
-    },
-    {
-      "id": "insidertracking/61340",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/61340",
-      "datetime": "2026-08-17T20:41:37.000Z",
-      "localDateKst": "2026-08-18",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy"
-      ],
-      "tickers": [],
-      "score": 97,
-      "hasText": true,
-      "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 18일 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국과 캐나다는 기존 25%인 캐나다산 자동차 관세를 일부 역내 가치 공제 후 15%로 낮추는 방안을 협의..."
-    },
-    {
-      "id": "insidertracking/61339",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/61339",
-      "datetime": "2026-08-17T20:40:18.000Z",
-      "localDateKst": "2026-08-18",
-      "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "equity",
-        "earnings",
-        "japan"
-      ],
-      "tickers": [
-        "NVDA",
-        "AMZN",
-        "WFC"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "Market Summary - 2026년 8월 18일 ━━━━━━━━━━━━━━ 📍 미국 정치 · 트럼프 대통령 지지율이 Reuters/Ipsos 조사에서 33%로 취임 후 최저치 기록, 64%는 국정..."
-    },
-    {
       "id": "aetherjapanresearch/24595",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/24595",
@@ -40799,20 +41080,6 @@
       "score": 79,
       "hasText": true,
       "summary": "트렌드포스) 8월 독일 DDR5 가격 전년 대비 5배에 육박, 중국은 주간 14% 급등 보도되며 글로벌 랠리 지속 DDR5 메모리 가격 급등세가 전 세계 시장으로 확산되고 있습니다. 3D Center를 인용한..."
-    },
-    {
-      "id": "insidertracking/61337",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/61337",
-      "datetime": "2026-08-17T12:23:43.000Z",
-      "localDateKst": "2026-08-17",
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "score": 50,
-      "hasText": true,
-      "summary": "📢 공지사항 안내 Speed matters, Facts matter more > 속도도 중요하지만, 정확한 사실이 우선이다 미국 주식, 크립토, 국제 정세, 속보 및 전쟁 이슈까지 가장 빠르고 정확하게..."
     },
     {
       "id": "aetherjapanresearch/24591",
@@ -41366,150 +41633,6 @@
       "score": 91,
       "hasText": true,
       "summary": "JP모건, 샌디스크( &#036;SNDK ), 투자의견 ‘비중확대(Overweight)’ 및 목표주가 2,250달러로 커버리지 재개 \"당사는 샌디스크(Sandisk)가 AI 추론의 폭발적 성장에 힘입은..."
-    },
-    {
-      "id": "bornlupin/19712",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19712",
-      "datetime": "2026-08-14T06:35:13.000Z",
-      "localDateKst": "2026-08-14",
-      "tags": [
-        "macro",
-        "semi",
-        "power",
-        "equity",
-        "insider",
-        "earnings"
-      ],
-      "tickers": [
-        "SNDK"
-      ],
-      "score": 89,
-      "hasText": true,
-      "summary": "골드만삭스, 샌디스크 (SanDisk , &#036;SNDK ), 투자의견 매수 (Buy), 목표주가: &#036;2,200 인베스터 데이: 강력한 재무 목표와 주주환원, 차세대 HBF의 성장 잠재력 *..."
-    },
-    {
-      "id": "bornlupin/19710",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19710",
-      "datetime": "2026-08-14T00:14:43.000Z",
-      "localDateKst": "2026-08-14",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power"
-      ],
-      "tickers": [
-        "AMD",
-        "AVGO",
-        "BE",
-        "000660.KS"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "CNBC) SK하이닉스 내부 공개: 세계 최대 AI 메모리 구축 현장을 가다 SK하이닉스가 7,200억 달러를 베팅하는 이유 — “AI가 메모리 산업의 사이클 자체를 바꾼다” SK하이닉스는 AI 시대의 HBM..."
-    },
-    {
-      "id": "bornlupin/19709",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19709",
-      "datetime": "2026-08-13T23:52:22.000Z",
-      "localDateKst": "2026-08-14",
-      "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy"
-      ],
-      "tickers": [
-        "MU"
-      ],
-      "score": 86,
-      "hasText": true,
-      "summary": "마이크론 벤처스, 차세대 AI 투자를 위한 2억 5,000만 달러 규모 '패러다임 펀드' 출범 마이크론 테크놀로지(Micron Technology, Inc.)가 AI의 미래를 이끌어갈 혁신 기업들과 협력하기..."
-    },
-    {
-      "id": "bornlupin/19707",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19707",
-      "datetime": "2026-08-13T23:46:42.000Z",
-      "localDateKst": "2026-08-14",
-      "tags": [
-        "macro",
-        "semi",
-        "earnings"
-      ],
-      "tickers": [
-        "AMD"
-      ],
-      "score": 83,
-      "hasText": true,
-      "summary": "BofA: CPU TAM 전체 시장 성장 (TAM 및 AI 확장) 총 매출 성장: 서버 CPU TAM은 2025년 349억 8,300만 달러에서 2030년(CY30)까지 2,106억 3,700만 달러로 대폭..."
-    },
-    {
-      "id": "bornlupin/19706",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19706",
-      "datetime": "2026-08-13T23:37:13.000Z",
-      "localDateKst": "2026-08-14",
-      "tags": [
-        "semi",
-        "optical",
-        "power",
-        "earnings"
-      ],
-      "tickers": [
-        "AVGO",
-        "LITE",
-        "COHR",
-        "AAOI"
-      ],
-      "score": 89,
-      "hasText": true,
-      "summary": "[메리츠증권 전기전자/IT부품 양승수] ▶ 북미 광통신 3사 실적 Review : 800G에서 1.6T, 그리고 NPO/CPO [주요 시사점] ▶ 높아지는 NPO/CPO에 대한 관심 - 이번 미국 광통신..."
-    },
-    {
-      "id": "bornlupin/19705",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19705",
-      "datetime": "2026-08-13T23:18:36.000Z",
-      "localDateKst": "2026-08-14",
-      "tags": [
-        "semi",
-        "equity",
-        "insider",
-        "earnings"
-      ],
-      "tickers": [
-        "GOOG",
-        "META",
-        "SNDK",
-        "6600.T",
-        "000660.KS"
-      ],
-      "score": 77,
-      "hasText": true,
-      "summary": "Mizuho, 샌디스크 (Sandisk, &#036;SNDK ), 투자의견 Outperform , 목표주가: &#036;1,900 인베스터 데이: 고수익성 장기화, 매출총이익률(GM) 하한선 80%, 4년..."
-    },
-    {
-      "id": "bornlupin/19704",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19704",
-      "datetime": "2026-08-13T23:10:19.000Z",
-      "localDateKst": "2026-08-14",
-      "tags": [
-        "macro",
-        "semi",
-        "insider",
-        "earnings"
-      ],
-      "tickers": [
-        "SNDK"
-      ],
-      "score": 81,
-      "hasText": true,
-      "summary": "Evercore ISI , 샌디스크 (Sandisk, &#036;SNDK ) , 목표주가 &#036;2,800, 투자의견: 매수 (Outperform) SNDK 인베스터 데이 현장 중계 1) 지속 가능한 장기..."
     }
   ],
   "current24hItems": [
@@ -41541,20 +41664,6 @@
       "score": 59,
       "hasText": true,
       "summary": ">>마이크론, 향후 10년간 미국 메모리 연구소에 100억 달러 투자 (과창판일보) •마이크론이 향후 10년간 100억 달러를 투자해 미국에 메모리 연구소를 설립할 계획 •연구소 본부는 아이다호주 보이시에..."
-    },
-    {
-      "id": "HANAchina/67544",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/67544",
-      "datetime": "2026-08-20T22:57:35.000Z",
-      "localDateKst": "2026-08-21",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": ">>폭스콘, 아이폰18 양산 앞두고 긴급 채용 확대 (과창판일보) •애플의 가을 신제품 발표를 앞두고 폭스콘이 아이폰18 양산을 위해 대규모 긴급 채용에 나섰음. 입사 인센티브는 최대 7,800위안까지..."
     },
     {
       "id": "insidertracking/61705",
@@ -41630,20 +41739,6 @@
       "summary": ">>SK하이닉스, 일본 미야기현 메모리 반도체 공장 건설 검토 (중국언론 인용) •SK하이닉스가 일본 미야기현에 메모리 반도체 제조공장 건설을 추진하고 있다는 보도가 나왔음. 성사될 경우 한국 반도체 업체가..."
     },
     {
-      "id": "HANAchina/67541",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/67541",
-      "datetime": "2026-08-20T22:48:11.000Z",
-      "localDateKst": "2026-08-21",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "**중국 당국 입장이 더 문제"
-    },
-    {
       "id": "insidertracking/61704",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/61704",
@@ -41670,49 +41765,6 @@
       "score": 40,
       "hasText": true,
       "summary": "레딧 관심도. 아직도 모더나에 관심이 몰려있으나, 오늘 모더나 주가는 24% 하락 마감."
-    },
-    {
-      "id": "HANAchina/67540",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/67540",
-      "datetime": "2026-08-20T22:26:40.000Z",
-      "localDateKst": "2026-08-21",
-      "tags": [
-        "ai-policy",
-        "equity"
-      ],
-      "tickers": [],
-      "score": 45,
-      "hasText": true,
-      "summary": ">>Anthropic, SpaceX 넘어 역대 최대 IPO 도전 •Anthropic이 IPO 규모에서 SpaceX가 세운 역대 최대 기록과 맞먹거나 이를 넘어설 것으로 전망 •Anthropic은 이르면 이달..."
-    },
-    {
-      "id": "HANAchina/67539",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/67539",
-      "datetime": "2026-08-20T21:57:34.000Z",
-      "localDateKst": "2026-08-21",
-      "tags": [
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 40,
-      "hasText": true,
-      "summary": ">>알리바바 AI, 성장 곡선 가팔라져 •알리바바 클라우드·AI 관련 매출이 빠르게 증가하고 있음. AI 클라우드·컴퓨팅 서비스 매출은 YoY+45% 증가했으며, AI 관련 제품 ARR은 495억 위안까지..."
-    },
-    {
-      "id": "HANAchina/67538",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/67538",
-      "datetime": "2026-08-20T21:53:40.000Z",
-      "localDateKst": "2026-08-21",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": ""
     },
     {
       "id": "HANAchina/67537",
@@ -41760,20 +41812,6 @@
       "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 앤트로픽이 기업공개(IPO) 주관사 라인업에 씨티그룹을 추가. 씨티그룹은 모건스탠리, 골드만삭스, JP모건과 함께 앤트로픽 IPO를 담당하는 주요 주관사로 참여할 예정...."
     },
     {
-      "id": "insidertracking/61700",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/61700",
-      "datetime": "2026-08-20T20:50:33.000Z",
-      "localDateKst": "2026-08-21",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 페루 아야쿠초 지역의 코라코라에서 규모 6.7의 강진이 발생."
-    },
-    {
       "id": "insidertracking/61699",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/61699",
@@ -41786,63 +41824,6 @@
       "score": 52,
       "hasText": true,
       "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 블룸버그에 따르면 러시아의 오데사 항만 공격으로 올해 우크라이나 GDP의 약 2%에 달하는 경제적 손실이 발생할 가능성. 이번 공격으로 우크라이나 곡물 수출의 약 90%를..."
-    },
-    {
-      "id": "insidertracking/61698",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/61698",
-      "datetime": "2026-08-20T20:49:03.000Z",
-      "localDateKst": "2026-08-21",
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "score": 45,
-      "hasText": true,
-      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 스콧 베선트 미 재무장관이 이란에 대해 “역사상 가장 강력한 제재를 가할 것이며, 이는 효과를 낼 것입니다. 봉쇄 조치를 시행한 뒤 베네수엘라에서 효과를 냈고, 현재 쿠바에서도..."
-    },
-    {
-      "id": "insidertracking/61697",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/61697",
-      "datetime": "2026-08-20T20:47:57.000Z",
-      "localDateKst": "2026-08-21",
-      "tags": [
-        "kr-market",
-        "flows"
-      ],
-      "tickers": [],
-      "score": 43,
-      "hasText": true,
-      "summary": "루마니아 공군 F-16 전투기가 넵툰 딥 가스전 인근에서 작전 중이던 정체불명의 해상 드론을 요격해 20mm 기관포 사격으로 파괴. 우크라이나는 루마니아 및 NATO 관계자들에게 해당 드론이 우크라이나 소속이..."
-    },
-    {
-      "id": "insidertracking/61696",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/61696",
-      "datetime": "2026-08-20T20:47:21.000Z",
-      "localDateKst": "2026-08-21",
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "score": 47,
-      "hasText": true,
-      "summary": "베선트 장관은 “오늘 유가가 급등했는데, 솔직히 그 이유를 잘 모르겠습니다”라고 발언."
-    },
-    {
-      "id": "insidertracking/61695",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/61695",
-      "datetime": "2026-08-20T20:45:56.000Z",
-      "localDateKst": "2026-08-21",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "밴스 부통령: “현재 우리는 일종의 새로운 국면에 접어들었으며, 우리가 보유한 가장 효과적인 수단은 경제적 압박입니다. 우리는 이것이 궁극적으로 최종 목표를 달성하는 가장 좋은 방법이라고 판단하기 때문에..."
     },
     {
       "id": "insidertracking/61694",
@@ -42232,6 +42213,20 @@
       "summary": "📢 공지사항 안내 Speed matters, Facts matter more > 속도도 중요하지만, 정확한 사실이 우선이다 미국 주식, 크립토, 국제 정세, 속보 및 전쟁 이슈까지 가장 빠르고 정확하게..."
     },
     {
+      "id": "aetherjapanresearch/24683",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/24683",
+      "datetime": "2026-08-20T12:38:22.000Z",
+      "localDateKst": "2026-08-20",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [],
+      "score": 47,
+      "hasText": true,
+      "summary": "[단독]반도체 초과세수로 '월 15만원' 농어촌 기본소득…미래대응기금 포함 검토 정부가 반도체 호황으로 늘어난 초과세수를 인구감소지역 주민에게 월 15만 원씩 지급하는 농어촌 기본소득에 투입하는 방안을..."
+    },
+    {
       "id": "insidertracking/61668",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/61668",
@@ -42359,6 +42354,20 @@
       "score": 55,
       "hasText": true,
       "summary": "원달러 환율 1,396원"
+    },
+    {
+      "id": "aetherjapanresearch/24680",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/24680",
+      "datetime": "2026-08-20T12:00:54.000Z",
+      "localDateKst": "2026-08-20",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [],
+      "score": 47,
+      "hasText": true,
+      "summary": "마이크론 CEO 산제이 내일 오전 7시 KST 짐 크레이머 매드머니쇼 출연 메모리 산업 현황, 장기계약, 주주환원, 중국 메모리 등 이야기 할 것으로 기대."
     },
     {
       "id": "HANAchina/67535",
@@ -42517,6 +42526,34 @@
       "summary": "미국 기업 섹터별 소식 정리 (실적 제외) > 오후 2시~오후 8시 기준 ━━━━━━━━━━━━━━ • TSMC (TSM) — 1.6nm급 A16 공정의 개발·검증을 완료하고 2026년 4분기 양산을 목표로..."
     },
     {
+      "id": "aetherjapanresearch/24679",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/24679",
+      "datetime": "2026-08-20T10:07:18.000Z",
+      "localDateKst": "2026-08-20",
+      "tags": [
+        "earnings"
+      ],
+      "tickers": [],
+      "score": 40,
+      "hasText": true,
+      "summary": "알리바바 1QFY27 실적: • 매출 2689.5억위안 vs. 예상 2685.2억위안 • 조정EPS 8.52위안 vs. 예상 11.28위안 • 조정EBITDA 391.4억위안 vs. 예상 369.2억위안 •..."
+    },
+    {
+      "id": "aetherjapanresearch/24678",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/24678",
+      "datetime": "2026-08-20T09:01:00.000Z",
+      "localDateKst": "2026-08-20",
+      "tags": [
+        "equity"
+      ],
+      "tickers": [],
+      "score": 35,
+      "hasText": true,
+      "summary": "🔍 [단독] 국민연금 “누가 AI거품론을 말했는가”…오픈AI·앤트로픽 IPO 참여"
+    },
+    {
       "id": "HANAchina/67527",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/67527",
@@ -42597,6 +42634,20 @@
       "score": 51,
       "hasText": true,
       "summary": ">>삼성전자 미국 증설 속도전: 텍사스 2공장 연내 착공, 장비 인증도 조기 착수 (중국언론 인용) •삼성전자의 북미 생산능력 확대가 빠르게 진행되고 있음. 텍사스 2기 공장의 구체적인 사양이 아직 확정되지..."
+    },
+    {
+      "id": "aetherjapanresearch/24677",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/24677",
+      "datetime": "2026-08-20T06:43:24.000Z",
+      "localDateKst": "2026-08-20",
+      "tags": [
+        "japan"
+      ],
+      "tickers": [],
+      "score": 45,
+      "hasText": true,
+      "summary": "안녕하세요. 2026년 임단협 잠정합의안 공유드립니다. 1. 임금 6.3% (직무급+경력급) ㄴ 311,165원 인상(평균 경력급포함) ㄴ 직무급 정액:정률(5:5) 2. 기존연금 최대 40만원까지 확대 ㄴ..."
     },
     {
       "id": "insidertracking/61623",
@@ -42815,6 +42866,20 @@
       "score": 71,
       "hasText": true,
       "summary": "앤스로픽과 오픈AI 재무 데이터에 대한 생각 안녕하세요 삼성증권 글로벌 AI/SW 담당 이영진입니다. 앤스로픽과 오픈AI의 재무 데이터 관련 보도 후 AI 수요 부진으로 연결되는 해석이 대두되었습니다. 우선..."
+    },
+    {
+      "id": "aetherjapanresearch/24674",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/24674",
+      "datetime": "2026-08-20T03:39:57.000Z",
+      "localDateKst": "2026-08-20",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 35,
+      "hasText": true,
+      "summary": "이건 그냥 7월 앤스로픽이 GPT5.6의 출시와 함께 고객을 뺏겼다고 해석하는게 맞다고 봄. 25년 말과 비교하는건 또 적절치 않을 수 있음. 그땐 바이브코딩을 위한 선택지가 사실상 클로드 1황이었음. 이젠..."
     },
     {
       "id": "aetherjapanresearch/24672",
