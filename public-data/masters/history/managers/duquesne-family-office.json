@@ -1,0 +1,938 @@
+{
+  "schema": "masters-13f-manager-history-runtime.v1",
+  "sourceKind": "SEC_EDGAR_DERIVED_RAW_ROWS",
+  "reviewedAt": "2026-08-22",
+  "generatedAt": "2026-08-22T10:23:13.861Z",
+  "managerId": "duquesne-family-office",
+  "historyRows": [],
+  "historySummary": {
+    "rawRowsAvailable": 630,
+    "periodTotalsSource": "history-index.json.managers[].periods"
+  },
+  "issuerAggregates": {
+    "schema": "masters-13f-issuer-aggregates.v1",
+    "status": "RAW_CUSIP_MULTI_QUARTER_CONNECTED",
+    "publication": "EDUCATIONAL_REFERENCE_ONLY",
+    "boundary": "SEC CUSIP·issuer text·reported value·shares·period history are aggregated for research navigation. This is not a verified security master and cannot produce sector weights, current prices or recommendations.",
+    "managers": [
+      {
+        "managerId": "duquesne-family-office",
+        "aggregateCount": 289,
+        "latestPeriod": "2026-06-30",
+        "periodsCovered": 11,
+        "reviewQueueCount": 289
+      }
+    ],
+    "coverage": {
+      "aggregateRecords": 289,
+      "periods": 11,
+      "reviewQueue": 23,
+      "previewRecords": 10
+    },
+    "reviewQueue": [
+      {
+        "aggregateId": "sec-13f-cusip:duquesne-family-office|023135106|SH|Call",
+        "managerId": "duquesne-family-office",
+        "cusipNormalized": "023135106",
+        "flags": [
+          "PUT_CALL_REVIEW"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
+        "aggregateId": "sec-13f-cusip:duquesne-family-office|02376R102|SH|",
+        "managerId": "duquesne-family-office",
+        "cusipNormalized": "02376R102",
+        "flags": [
+          "ISSUER_NAME_VARIATION",
+          "TITLE_OF_CLASS_VARIATION"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
+        "aggregateId": "sec-13f-cusip:duquesne-family-office|247361702|SH|",
+        "managerId": "duquesne-family-office",
+        "cusipNormalized": "247361702",
+        "flags": [
+          "ISSUER_NAME_VARIATION"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
+        "aggregateId": "sec-13f-cusip:duquesne-family-office|464286400|SH|Call",
+        "managerId": "duquesne-family-office",
+        "cusipNormalized": "464286400",
+        "flags": [
+          "PUT_CALL_REVIEW"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
+        "aggregateId": "sec-13f-cusip:duquesne-family-office|464287655|SH|Call",
+        "managerId": "duquesne-family-office",
+        "cusipNormalized": "464287655",
+        "flags": [
+          "PUT_CALL_REVIEW"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
+        "aggregateId": "sec-13f-cusip:duquesne-family-office|81369Y605|SH|",
+        "managerId": "duquesne-family-office",
+        "cusipNormalized": "81369Y605",
+        "flags": [
+          "TITLE_OF_CLASS_VARIATION"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
+        "aggregateId": "sec-13f-cusip:duquesne-family-office|78462F103|SH|Call",
+        "managerId": "duquesne-family-office",
+        "cusipNormalized": "78462F103",
+        "flags": [
+          "ISSUER_NAME_VARIATION",
+          "PUT_CALL_REVIEW"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
+        "aggregateId": "sec-13f-cusip:duquesne-family-office|874039100|SH|",
+        "managerId": "duquesne-family-office",
+        "cusipNormalized": "874039100",
+        "flags": [
+          "ISSUER_NAME_VARIATION"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
+        "aggregateId": "sec-13f-cusip:duquesne-family-office|632307104|SH|Call",
+        "managerId": "duquesne-family-office",
+        "cusipNormalized": "632307104",
+        "flags": [
+          "PUT_CALL_REVIEW"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
+        "aggregateId": "sec-13f-cusip:duquesne-family-office|235851102|SH|",
+        "managerId": "duquesne-family-office",
+        "cusipNormalized": "235851102",
+        "flags": [
+          "ISSUER_NAME_VARIATION"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      }
+    ],
+    "aggregates": [
+      {
+        "aggregateId": "sec-13f-cusip:duquesne-family-office|632307104|SH|",
+        "managerId": "duquesne-family-office",
+        "cik": "0001536411",
+        "cusipNormalized": "632307104",
+        "issuerNames": [
+          "Natera Inc"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2023-09-30",
+        "latestReportPeriod": "2026-06-30",
+        "periodCount": 11,
+        "periods": [
+          {
+            "reportPeriod": "2023-09-30",
+            "filedAt": "2023-11-14",
+            "valueUsd": 39517,
+            "shares": 893030,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641123000008/form13f_20230930.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2023-12-31",
+            "filedAt": "2024-02-14",
+            "valueUsd": 55939,
+            "shares": 893030,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000002/form13f_20231231.xml"
+            ],
+            "valueDeltaUsd": 16422,
+            "sharesDelta": 0
+          },
+          {
+            "reportPeriod": "2024-03-31",
+            "filedAt": "2024-05-15",
+            "valueUsd": 176461,
+            "shares": 1929380,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000005/form13f_20240331.xml"
+            ],
+            "valueDeltaUsd": 120522,
+            "sharesDelta": 1036350
+          },
+          {
+            "reportPeriod": "2024-06-30",
+            "filedAt": "2024-08-14",
+            "valueUsd": 213860,
+            "shares": 1974880,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000007/form13f_20240630.xml"
+            ],
+            "valueDeltaUsd": 37399,
+            "sharesDelta": 45500
+          },
+          {
+            "reportPeriod": "2024-09-30",
+            "filedAt": "2024-11-14",
+            "valueUsd": 452812,
+            "shares": 3566850,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000009/form13f_20240930.xml"
+            ],
+            "valueDeltaUsd": 238952,
+            "sharesDelta": 1591970
+          },
+          {
+            "reportPeriod": "2024-12-31",
+            "filedAt": "2025-02-14",
+            "valueUsd": 564632,
+            "shares": 3566850,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000006/form13f_20241231.xml"
+            ],
+            "valueDeltaUsd": 111820,
+            "sharesDelta": 0
+          },
+          {
+            "reportPeriod": "2025-03-31",
+            "filedAt": "2025-05-15",
+            "valueUsd": 481123,
+            "shares": 3402330,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000008/form13f_20250331.xml"
+            ],
+            "valueDeltaUsd": -83509,
+            "sharesDelta": -164520
+          },
+          {
+            "reportPeriod": "2025-06-30",
+            "filedAt": "2025-08-15",
+            "valueUsd": 521212,
+            "shares": 3085190,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000011/form13f_20250630.xml"
+            ],
+            "valueDeltaUsd": 40089,
+            "sharesDelta": -317140
+          },
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-14",
+            "valueUsd": 517443,
+            "shares": 3214532,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000017/form13f_20250930.xml"
+            ],
+            "valueDeltaUsd": -3769,
+            "sharesDelta": 129342
+          },
+          {
+            "reportPeriod": "2025-12-31",
+            "filedAt": "2026-02-17",
+            "valueUsd": 575327,
+            "shares": 2511357,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000002/form13f_20251231.xml"
+            ],
+            "valueDeltaUsd": 57884,
+            "sharesDelta": -703175
+          },
+          {
+            "reportPeriod": "2026-06-30",
+            "filedAt": "2026-08-14",
+            "valueUsd": 864923,
+            "shares": 3186306,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/form13f_20260630.html"
+            ],
+            "valueDeltaUsd": 289596,
+            "sharesDelta": 674949
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000002/form13f_20251231.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000017/form13f_20250930.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000011/form13f_20250630.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000008/form13f_20250331.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000006/form13f_20241231.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000009/form13f_20240930.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000007/form13f_20240630.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000005/form13f_20240331.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000002/form13f_20231231.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641123000008/form13f_20230930.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/form13f_20260630.html"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:duquesne-family-office|81369Y605|SH|",
+        "managerId": "duquesne-family-office",
+        "cik": "0001536411",
+        "cusipNormalized": "81369Y605",
+        "issuerNames": [
+          "Select Sector Spdr Tr"
+        ],
+        "titleOfClasses": [
+          "STATE STREET FIN",
+          "FINANCIAL"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2025-06-30",
+        "latestReportPeriod": "2025-12-31",
+        "periodCount": 2,
+        "periods": [
+          {
+            "reportPeriod": "2025-06-30",
+            "filedAt": "2025-08-15",
+            "valueUsd": 51600,
+            "shares": 985300,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000011/form13f_20250630.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2025-12-31",
+            "filedAt": "2026-02-17",
+            "valueUsd": 300994,
+            "shares": 5495600,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000002/form13f_20251231.xml"
+            ],
+            "valueDeltaUsd": 249394,
+            "sharesDelta": 4510300
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000002/form13f_20251231.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000011/form13f_20250630.xml"
+        ],
+        "reviewFlags": [
+          "TITLE_OF_CLASS_VARIATION"
+        ],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:duquesne-family-office|874039100|SH|",
+        "managerId": "duquesne-family-office",
+        "cik": "0001536411",
+        "cusipNormalized": "874039100",
+        "issuerNames": [
+          "Taiwan Semiconductor Mfg Ltd",
+          "Taiwan Semiconductor Manufac"
+        ],
+        "titleOfClasses": [
+          "SPONSORED ADS"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2024-09-30",
+        "latestReportPeriod": "2026-06-30",
+        "periodCount": 7,
+        "periods": [
+          {
+            "reportPeriod": "2024-09-30",
+            "filedAt": "2024-11-14",
+            "valueUsd": 9961,
+            "shares": 57355,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000009/form13f_20240930.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2024-12-31",
+            "filedAt": "2025-02-14",
+            "valueUsd": 21233,
+            "shares": 107515,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000006/form13f_20241231.xml"
+            ],
+            "valueDeltaUsd": 11272,
+            "sharesDelta": 50160
+          },
+          {
+            "reportPeriod": "2025-03-31",
+            "filedAt": "2025-05-15",
+            "valueUsd": 99397,
+            "shares": 598780,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000008/form13f_20250331.xml"
+            ],
+            "valueDeltaUsd": 78164,
+            "sharesDelta": 491265
+          },
+          {
+            "reportPeriod": "2025-06-30",
+            "filedAt": "2025-08-15",
+            "valueUsd": 173284,
+            "shares": 765085,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000011/form13f_20250630.xml"
+            ],
+            "valueDeltaUsd": 73887,
+            "sharesDelta": 166305
+          },
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-14",
+            "valueUsd": 213681,
+            "shares": 765085,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000017/form13f_20250930.xml"
+            ],
+            "valueDeltaUsd": 40397,
+            "sharesDelta": 0
+          },
+          {
+            "reportPeriod": "2025-12-31",
+            "filedAt": "2026-02-17",
+            "valueUsd": 165038,
+            "shares": 543085,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000002/form13f_20251231.xml"
+            ],
+            "valueDeltaUsd": -48643,
+            "sharesDelta": -222000
+          },
+          {
+            "reportPeriod": "2026-06-30",
+            "filedAt": "2026-08-14",
+            "valueUsd": 281613,
+            "shares": 589680,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/form13f_20260630.html"
+            ],
+            "valueDeltaUsd": 116575,
+            "sharesDelta": 46595
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000002/form13f_20251231.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000017/form13f_20250930.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000011/form13f_20250630.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000008/form13f_20250331.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000006/form13f_20241231.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000009/form13f_20240930.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/form13f_20260630.html"
+        ],
+        "reviewFlags": [
+          "ISSUER_NAME_VARIATION"
+        ],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:duquesne-family-office|67066G104|SH|Call",
+        "managerId": "duquesne-family-office",
+        "cik": "0001536411",
+        "cusipNormalized": "67066G104",
+        "issuerNames": [
+          "Nvidia Corporation"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [
+          "Call"
+        ],
+        "firstReportPeriod": "2023-12-31",
+        "latestReportPeriod": "2023-12-31",
+        "periodCount": 1,
+        "periods": [
+          {
+            "reportPeriod": "2023-12-31",
+            "filedAt": "2024-02-14",
+            "valueUsd": 242410,
+            "shares": 489500,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000002/form13f_20231231.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000002/form13f_20231231.xml"
+        ],
+        "reviewFlags": [
+          "PUT_CALL_REVIEW"
+        ],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:duquesne-family-office|861012102|SH|",
+        "managerId": "duquesne-family-office",
+        "cik": "0001536411",
+        "cusipNormalized": "861012102",
+        "issuerNames": [
+          "Stmicroelectronics N V"
+        ],
+        "titleOfClasses": [
+          "NY REGISTRY"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2025-12-31",
+        "latestReportPeriod": "2026-06-30",
+        "periodCount": 2,
+        "periods": [
+          {
+            "reportPeriod": "2025-12-31",
+            "filedAt": "2026-02-17",
+            "valueUsd": 20066,
+            "shares": 773555,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000002/form13f_20251231.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2026-06-30",
+            "filedAt": "2026-08-14",
+            "valueUsd": 232375,
+            "shares": 3102880,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/form13f_20260630.html"
+            ],
+            "valueDeltaUsd": 212309,
+            "sharesDelta": 2329325
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000002/form13f_20251231.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/form13f_20260630.html"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:duquesne-family-office|46137V357|SH|Call",
+        "managerId": "duquesne-family-office",
+        "cik": "0001536411",
+        "cusipNormalized": "46137V357",
+        "issuerNames": [
+          "Invesco Exchange Traded Fd T"
+        ],
+        "titleOfClasses": [
+          "S&P500 EQL WGT"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [
+          "Call"
+        ],
+        "firstReportPeriod": "2026-06-30",
+        "latestReportPeriod": "2026-06-30",
+        "periodCount": 1,
+        "periods": [
+          {
+            "reportPeriod": "2026-06-30",
+            "filedAt": "2026-08-14",
+            "valueUsd": 174684,
+            "shares": 821000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/form13f_20260630.html"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/form13f_20260630.html"
+        ],
+        "reviewFlags": [
+          "PUT_CALL_REVIEW"
+        ],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:duquesne-family-office|457669307|SH|",
+        "managerId": "duquesne-family-office",
+        "cik": "0001536411",
+        "cusipNormalized": "457669307",
+        "issuerNames": [
+          "Insmed Inc"
+        ],
+        "titleOfClasses": [
+          "COM PAR $.01"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2024-06-30",
+        "latestReportPeriod": "2026-06-30",
+        "periodCount": 8,
+        "periods": [
+          {
+            "reportPeriod": "2024-06-30",
+            "filedAt": "2024-08-14",
+            "valueUsd": 1340,
+            "shares": 20000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000007/form13f_20240630.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2024-09-30",
+            "filedAt": "2024-11-14",
+            "valueUsd": 1460,
+            "shares": 20000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000009/form13f_20240930.xml"
+            ],
+            "valueDeltaUsd": 120,
+            "sharesDelta": 0
+          },
+          {
+            "reportPeriod": "2024-12-31",
+            "filedAt": "2025-02-14",
+            "valueUsd": 40973,
+            "shares": 593470,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000006/form13f_20241231.xml"
+            ],
+            "valueDeltaUsd": 39513,
+            "sharesDelta": 573470
+          },
+          {
+            "reportPeriod": "2025-03-31",
+            "filedAt": "2025-05-15",
+            "valueUsd": 104445,
+            "shares": 1369050,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000008/form13f_20250331.xml"
+            ],
+            "valueDeltaUsd": 63472,
+            "sharesDelta": 775580
+          },
+          {
+            "reportPeriod": "2025-06-30",
+            "filedAt": "2025-08-15",
+            "valueUsd": 226786,
+            "shares": 2253435,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000011/form13f_20250630.xml"
+            ],
+            "valueDeltaUsd": 122341,
+            "sharesDelta": 884385
+          },
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-14",
+            "valueUsd": 348999,
+            "shares": 2423435,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000017/form13f_20250930.xml"
+            ],
+            "valueDeltaUsd": 122213,
+            "sharesDelta": 170000
+          },
+          {
+            "reportPeriod": "2025-12-31",
+            "filedAt": "2026-02-17",
+            "valueUsd": 257884,
+            "shares": 1481752,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000002/form13f_20251231.xml"
+            ],
+            "valueDeltaUsd": -91115,
+            "sharesDelta": -941683
+          },
+          {
+            "reportPeriod": "2026-06-30",
+            "filedAt": "2026-08-14",
+            "valueUsd": 151900,
+            "shares": 1424690,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/form13f_20260630.html"
+            ],
+            "valueDeltaUsd": -105984,
+            "sharesDelta": -57062
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000002/form13f_20251231.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000017/form13f_20250930.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000011/form13f_20250630.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000008/form13f_20250331.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000006/form13f_20241231.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000009/form13f_20240930.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000007/form13f_20240630.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/form13f_20260630.html"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:duquesne-family-office|369604301|SH|",
+        "managerId": "duquesne-family-office",
+        "cik": "0001536411",
+        "cusipNormalized": "369604301",
+        "issuerNames": [
+          "General Electric Co"
+        ],
+        "titleOfClasses": [
+          "COM NEW"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2023-09-30",
+        "latestReportPeriod": "2024-03-31",
+        "periodCount": 3,
+        "periods": [
+          {
+            "reportPeriod": "2023-09-30",
+            "filedAt": "2023-11-14",
+            "valueUsd": 81375,
+            "shares": 736095,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641123000008/form13f_20230930.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2023-12-31",
+            "filedAt": "2024-02-14",
+            "valueUsd": 93948,
+            "shares": 736095,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000002/form13f_20231231.xml"
+            ],
+            "valueDeltaUsd": 12573,
+            "sharesDelta": 0
+          },
+          {
+            "reportPeriod": "2024-03-31",
+            "filedAt": "2024-05-15",
+            "valueUsd": 149744,
+            "shares": 853095,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000005/form13f_20240331.xml"
+            ],
+            "valueDeltaUsd": 55796,
+            "sharesDelta": 117000
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000005/form13f_20240331.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000002/form13f_20231231.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641123000008/form13f_20230930.xml"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:duquesne-family-office|464286400|SH|Call",
+        "managerId": "duquesne-family-office",
+        "cik": "0001536411",
+        "cusipNormalized": "464286400",
+        "issuerNames": [
+          "Ishares Inc"
+        ],
+        "titleOfClasses": [
+          "MSCI BRAZIL ETF"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [
+          "Call"
+        ],
+        "firstReportPeriod": "2025-12-31",
+        "latestReportPeriod": "2026-06-30",
+        "periodCount": 2,
+        "periods": [
+          {
+            "reportPeriod": "2025-12-31",
+            "filedAt": "2026-02-17",
+            "valueUsd": 134324,
+            "shares": 4228000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000002/form13f_20251231.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2026-06-30",
+            "filedAt": "2026-08-14",
+            "valueUsd": 145866,
+            "shares": 4228000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/form13f_20260630.html"
+            ],
+            "valueDeltaUsd": 11542,
+            "sharesDelta": 0
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000002/form13f_20251231.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/form13f_20260630.html"
+        ],
+        "reviewFlags": [
+          "PUT_CALL_REVIEW"
+        ],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:duquesne-family-office|457669307|SH|Call",
+        "managerId": "duquesne-family-office",
+        "cik": "0001536411",
+        "cusipNormalized": "457669307",
+        "issuerNames": [
+          "Insmed Inc"
+        ],
+        "titleOfClasses": [
+          "COM PAR $.01"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [
+          "Call"
+        ],
+        "firstReportPeriod": "2025-06-30",
+        "latestReportPeriod": "2026-06-30",
+        "periodCount": 2,
+        "periods": [
+          {
+            "reportPeriod": "2025-06-30",
+            "filedAt": "2025-08-15",
+            "valueUsd": 10064,
+            "shares": 100000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000011/form13f_20250630.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2026-06-30",
+            "filedAt": "2026-08-14",
+            "valueUsd": 143937,
+            "shares": 1350000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/form13f_20260630.html"
+            ],
+            "valueDeltaUsd": 133873,
+            "sharesDelta": 1250000
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000011/form13f_20250630.xml",
+          "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/form13f_20260630.html"
+        ],
+        "reviewFlags": [
+          "PUT_CALL_REVIEW"
+        ],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      }
+    ]
+  }
+}

@@ -1,9 +1,9 @@
 {
   "schemaVersion": "knowledge-handoff-file-manifest.v2",
-  "packageName": "AIO-Knowledge-System-Structural-Handoff-v54.37",
-  "applicationVersion": "v54.37",
+  "packageName": "AIO-Knowledge-System-Structural-Handoff-v54.43",
+  "applicationVersion": "v54.43",
   "status": "IMPLEMENTATION_IN_PROGRESS_CONTENT_RESEARCH_OPEN",
-  "generatedAt": "2026-08-12T10:37:00+09:00",
+  "generatedAt": "2026-08-22T14:16:00+09:00",
   "entryPoint": "_context/MARKET-PRINCIPLES-ATLAS-STRUCTURAL-AUDIT-HANDOFF-2026-08-10.md",
   "machineContract": "_context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json",
   "packageArtifact": null,
@@ -12,19 +12,21 @@
   "files": [
     {"path":"_context/MARKET-PRINCIPLES-ATLAS-STRUCTURAL-AUDIT-HANDOFF-2026-08-10.md","role":"master audit, target architecture, work packets, acceptance and code ownership","classification":"HANDOFF_SSOT"},
     {"path":"_context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json","role":"baseline/current state, blockers, work-package status and depth contract","classification":"MACHINE_CONTRACT"},
-    {"path":"_artifacts/knowledge-encyclopedia-depth-audit.json","role":"reproducible 159-lesson depth baseline","classification":"AUDIT_EVIDENCE"},
+    {"path":"_artifacts/knowledge-encyclopedia-depth-audit.json","role":"reproducible 160-lesson structured-depth boundary","classification":"AUDIT_EVIDENCE"},
     {"path":"scripts/audit-knowledge-encyclopedia-depth.mjs","role":"depth baseline producer","classification":"AUDIT_TOOL"},
     {"path":"scripts/ci-knowledge-core-semantic-check.mjs","role":"graph, evidence, entity mapping and partial-failure release gate","classification":"REFERENCE_GATE"},
     {"path":"src/domain/knowledge/graph.js","role":"typed edge normalization and topology inspection reference core","classification":"REFERENCE_IMPLEMENTATION"},
     {"path":"src/domain/knowledge/evidence.js","role":"global PS/PP/FND/AT evidence registry reference core","classification":"REFERENCE_IMPLEMENTATION"},
     {"path":"src/data/knowledge/load-capabilities.js","role":"per-artifact loading and failure isolation reference core","classification":"REFERENCE_IMPLEMENTATION"},
+    {"path":"src/data/artifact-cache.js","role":"shared request coalescing, consumer-only abort and bounded LRU reuse","classification":"CURRENT_RUNTIME"},
     {"path":"public-data/atlas/taxonomy-node-coverage.json","role":"95-node, 98-edge connected Atlas structural graph","classification":"CURRENT_DATA_CONTRACT"},
     {"path":"public-data/atlas/player-product-registry.json","role":"representative company/product mapping with corrected negative controls","classification":"CURRENT_DATA_CONTRACT"},
     {"path":"src/ui/pages/principles.js","role":"current Principles consumer integration point","classification":"CURRENT_CONSUMER"},
     {"path":"src/ui/pages/atlas.js","role":"current Atlas consumer integration point","classification":"CURRENT_CONSUMER"},
     {"path":"scripts/ci-principles-contract-check.mjs","role":"Principles structural consumer contract","classification":"CURRENT_GATE"},
     {"path":"scripts/ci-atlas-contract-check.mjs","role":"Atlas structural/source/loading contract","classification":"CURRENT_GATE"},
-    {"path":"scripts/ci-atlas-browser-check.mjs","role":"live DOM source-resolution and learner-flow contract","classification":"CURRENT_BROWSER_GATE"}
+    {"path":"scripts/ci-atlas-browser-check.mjs","role":"live DOM source-resolution and learner-flow contract","classification":"CURRENT_BROWSER_GATE"},
+    {"path":"scripts/ci-three-page-artifact-budget-check.mjs","role":"cold bytes, explicit-detail transfer and zero-repeat re-entry contract","classification":"CURRENT_BROWSER_GATE"}
   ],
   "currentKnowledgeCore": [
     "public-data/knowledge/concepts.json",
@@ -39,7 +41,7 @@
     "schemas/knowledge/concept.schema.json",
     "schemas/knowledge/article.schema.json"
   ],
-  "plannedContentCompletionArtifacts": [
+  "contentCompletionArtifacts": [
     "public-data/knowledge/coverage-matrix.json",
     "public-data/knowledge/research-dossiers/*.json",
     "public-data/knowledge/domain-dossiers/*.json",
@@ -68,7 +70,7 @@
     "run KA-16 only after every sector, domain and category passes semantic and browser coverage"
   ],
   "forbiddenCompletionClaims": [
-    "159 deep articles complete",
+    "160 deep articles human-certified",
     "all claims independently fact-checked",
     "structured reference drafts equal completed encyclopedia content",
     "Web Research complete without per-content-unit research dossiers",

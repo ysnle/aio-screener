@@ -1,3 +1,56 @@
+## v54.43 (2026-08-22)
+- **Narrative-first Market Principles**: replaced the textbook-like card default with a six-part, 12-chapter story that starts from money as future choice, moves through inflation, rates, liquidity, companies and AI's physical/CAPEX constraints, and ends at market expectations and ownership risk.
+- **AI Era editorial depth**: all 19 domains and 95 taxonomy nodes keep authored mechanism/evidence/market passages; 48 foundation lessons now read as connected story, application and counter-condition blocks. Internal packet/node/status wording is removed from primary learner copy, and root/bridge/leaf boundaries are explicit.
+- **Regulatory meaning**: refreshed Masters contains 37 reconciled SEC filer profiles, 193,121 current rows, 89,892 prior comparison rows and 249 separate 13D/G events. Reported-share deltas are not described as trades, and HTML/text primary documents are no longer stored under an XML label.
+- **Cross-page learning flow**: Principles lands on the exact Atlas bottleneck or Masters comparison, Masters returns to the matching market-expectations chapter, and concept/metric/timeframe/return context survives reload. Plain navigation clears stale page-specific query state.
+- **Responsive and accessible reading**: mobile story passages render within the 3–6-line target with no horizontal overflow; the chapter rail wraps, relationship maps stack and tab groups expose selected state. Data coverage remains collapsed behind a readable first-step guide.
+- **Performance and verification**: initial runtime artifacts remain bounded at 29,617 B Principles, 487,837 B Masters and 598,450 B Atlas. Focused contracts/browsers, the new cross-page browser gate, 20-route accessibility, 60 desktop viewport combinations, knowledge corpus/currentness and static-data refresh audits pass locally.
+- **Boundary**: structured educational coverage is connected across all visible units, while human semantic/source-directness certification remains explicitly separate. Pershing and Scion retain their stale latest periods; verified ticker/sector/corporate-action normalization remains unavailable rather than inferred.
+- R1 7곳 v54.43
+
+## v54.42 (2026-08-22)
+- **Masters coverage truth**: replaced the ambiguous connected state with complete/partial/fallback and rendered the actual 5 current-full, 2 stale-full, 5 preview-only, 25 metadata-only and 1 method-only coverage, including current-quarter, official-principles and security-master gaps.
+- **Principles lesson closure**: bound all 112 library lessons to their own bookmark, note and reloadable URL state; expanded search to every structured field and loaded article text; added compact publication-status and base-artifact retry surfaces.
+- **Atlas route closure**: preserved F0 primer identity and persistence, unified knowledge bridge hash parsing across initial load/popstate/back/forward, and exposed human-review/publication boundaries.
+- **Readable long-form UI**: structured glossary entries now render as `용어 — 설명` instead of raw JSON and the worked-example section is localized.
+- **Regression coverage**: focused real-browser gates cover partial Masters categories, Principles state/search/retry, Atlas destination reload/history and F0 persistence, while the three-page byte/re-entry budgets remain enforced.
+- **Service-worker fixture accuracy**: controller takeover now counts only main-frame navigations, so third-party iframe reloads cannot create a false double-reload failure.
+- **Boundary**: local rendering is verified, but the new workflow has not been deployed or run; Masters current full rows remain 5/37 and the knowledge corpus remains human/publication review pending.
+- R1 7곳 v54.42
+
+## v54.41 (2026-08-22)
+- **Survey-status correction**: refreshed AAII from its official public page to the week ending 2026-08-19 (35.5% bullish, 24.6% neutral, 39.9% bearish, -4.4 pp spread) and retained it as current reference-only evidence.
+- **Honest external boundaries**: NAAIM current/API data is now `BLOCKED` rather than `SKIPPED` because the publisher moved current access behind subscription and permits only a three-month-delayed public reference; Investors Intelligence current readings remain subscriber-blocked.
+- **Derived-state correction**: Weinstein Stage is now `DYNAMIC`, not `SKIPPED`, because it is computed from selected runtime OHLCV/30-week evidence and is not an external refresh category.
+- **Visible sentiment wiring**: AAII's observation date now crosses both runtime-reader and compatibility-facade paths with its values, so the sentiment page can render `2026-08-19` instead of claiming the official source is missing.
+- **SEC configuration correction**: removed the unsupported claim that the GitHub Actions `SEC_USER_AGENT` variable is absent. Repository records already identify it as Actions-only; this local session lacks the variable and its GitHub CLI/browser authentication cannot independently inspect the current repository setting or run history.
+- **Regression gate**: the 22-category audit now fails unless AAII=`OK`, NAAIM=`BLOCKED`, Investors Intelligence=`BLOCKED`, and Weinstein=`DYNAMIC`; web-research and reconciliation gates pass with the refreshed official evidence.
+- R1 7곳 v54.41
+
+## v54.40 (2026-08-22)
+- **Narrow interaction loading**: Masters no longer downloads a manager's full 13F shard on route entry or simple profile selection. Top holdings stay a compact summary; full holdings and sector detail load only after the matching user request, with visible loading/failure/retry states.
+- **Long-session and failure resilience**: the shared artifact cache now enforces a 64-entry LRU cap. Principles and Atlas retain per-article errors as accessible alerts and prove fail→retry recovery in Chromium.
+- **Measured transfer reduction**: Masters cold transfer fell from 459,064 to 341,070 bytes; Fisher selection transfers 0 manager bytes, explicit Berkshire full rows transfer 117,994 bytes, and route re-entry repeats 0 page artifacts.
+- **Current data refresh**: regenerated 78/78 quotes, 55 Fear & Greed observations, Cboe Put/Call, HY OAS, Treasury spread, 40 news items and 402 history days. The v54.41 follow-up corrects the survey/derived status classification used in this entry.
+- **Verification**: 1,124/1,124 headless tests, 20-route accessibility, Critical-10, normal and FULL_INIT 60/60 viewport matrices, zero overflow, 20-route × 3 soak, stable lifecycle resources, SW/vault/vertical slices and an independent in-app Browser pass all succeed.
+- **Boundaries**: SEC online 37/37 discovery was not rerun from the local shell; the v54.41 follow-up distinguishes that local limitation from the already recorded GitHub Actions variable. Human semantic/source-directness and recruited-user certification remain open. No commit or deploy performed.
+- R1 7곳 v54.40
+
+## v54.39 (2026-08-22)
+- **Three-page runtime budgets**: separated canonical research/rebuild artifacts from browser runtime projections. Masters now enters through a 143 KB summary and the selected manager shard, then loads only that manager's bounded quarter bundle; the browser no longer requests 2.6 MB holdings, 9.3 MB history or 8.4 MB issuer-aggregate monoliths.
+- **Knowledge detail on demand**: Market Principles paginates the 112-lesson library to 20 cards and loads one article shard only after an explicit request. AI Era does the same for its 48 foundation articles and uses a compact completion-status projection instead of multi-megabyte coverage/research/domain dossiers for counts.
+- **Shared request reuse**: added in-flight coalescing, consumer-scoped abort and resolved artifact reuse across route mounts. A Chromium byte-budget gate confirms cold transfers of 459 KB Masters, 258 KB Principles, 596 KB Atlas foundations and zero repeated artifact requests on all three route re-entries.
+- **Completion truth preserved**: canonical artifacts still expose 1,290 holdings rows, 1,387 comparisons and 427 knowledge units. SEC online discovery remains 37/37 blocked without `SEC_USER_AGENT`; knowledge remains 318 researched, 4 in progress, 105 research-required and not human/publication certified.
+- **Verification**: cache unit, focused Masters/Principles/Atlas browsers, knowledge contracts, currentness fixtures and three-page artifact budgets pass locally. Codex in-app Browser also confirms all three routes, on-demand single-article behavior and zero overflow; its only console error is the expected local external-API proxy warning. No commit or deploy performed.
+- R1 7곳 v54.39
+
+## v54.38 (2026-08-22)
+- **13F·13D/G 전수 갱신 계약**: 37개 SEC filer의 최신 13F 제출·보유기간·직전기간과 Schedule 13D/G 소유권 이벤트를 매일 탐색하는 직렬 EDGAR 수집기와 currentness 게이트를 추가했다. `13F-NT`, 원본/정정/추가 보유 amendment, 원자적 쓰기, manager별 last-known-good 보존, 공정접근 User-Agent 미설정 시 명시적 `BLOCKED` 상태를 다룬다. 13D/G는 13F 보유나 당일 매매로 합산하지 않는다.
+- **Masters 분석 흐름**: manager shard, 신고가치·종목 수·Top 5/10 집중도·reported-share 변화·turnover proxy, 2~4개 운용사 비교, 공식 출처 기반 Mark Minervini/Berkshire 방법론 원칙을 연결했다. 부분 실패는 다른 운용사와 화면 전체를 중단시키지 않는다.
+- **시장 원리·AI 시대 학습 UX**: capability별 지연 로딩과 route-scope abort/liveness, 본문·별칭·관계까지 포함한 전문 검색, 검색 포커스 유지, 북마크·개인 메모, 199개 전문 페이지 metric/timeframe 브리지를 연결했다. 112+48 원문과 160개 구조화 초안은 사람의 의미·출처 검수 및 사용자 검증과 구분한다.
+- **공통 QA**: 세 신규 경로를 20-route viewport matrix에 포함하고, 학습 메모 접근성 이름과 사용자 화면의 내부 데이터 식별자 노출을 정리했다. 실제 SEC 13F·13D/G 37/37 온라인 새로고침은 연락 가능한 `SEC_USER_AGENT`가 없어 이번 로컬 실행에서 수행하지 않았고 배포도 하지 않았다.
+- R1 7곳 v54.38
+
 ## v54.37 (2026-08-18)
 - **Live browser CORS repair (2026-08-21)**: allowed the client's prompt-caching `anthropic-beta` header in the canonical Worker preflight contract, synchronized the Worker release revision to v54.37, and added a regression assertion. The direct Worker/Anthropic smoke remains green; fresh in-app browser chat is rechecked after propagation.
 - **Public AI route restored**: shipped the existing HTTPS Worker as the default fallback for fresh browsers while preserving personal-key preference and manual Worker override. Boot defaults, public config, readiness, deep health, request routing and operations status now describe the same route.

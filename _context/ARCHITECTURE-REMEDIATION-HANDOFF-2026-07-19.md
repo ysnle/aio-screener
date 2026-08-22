@@ -8,15 +8,15 @@ auto_refresh: false
   target_version: v53.64
   current_update: P858 implemented and locally verified; commit/deploy remains intentionally held until the final validation batch and external operations are verified
 
-## Current generated preflight (P895, 2026-08-10)
+## Current generated preflight (P949, 2026-08-22)
 
 <!-- GENERATED-CURRENT-PREFLIGHT: scripts/ci-doc-currency-check.mjs -->
 
 - repository: `AIO`
 - branch: `main`
-- git_head: `2910a8e`
+- git_head: `4c0879c`
 - working_tree: `dirty / uncommitted local changes`
-- application_version: `v54.19`
+- application_version: `v54.43`
 - deployment: `not deployed; live/operator certification remains external`
 - historical_cards: `HEAD/version/deployment values below are historical evidence, not current state`
 

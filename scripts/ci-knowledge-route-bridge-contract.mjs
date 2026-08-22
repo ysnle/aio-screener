@@ -17,9 +17,19 @@ const bridge = createKnowledgeRouteBridge(artifact.targets);
 for (const target of artifact.targets) {
   assert.equal(bridge.resolve(target.articleId)?.articleId, target.articleId);
   if (target.routeId) assert(ALLOWED_ROUTES.has(target.routeId), `unsupported route ${target.routeId}`);
+  assert(target.metric && target.timeframe, `${target.articleId}: metric/timeframe context missing`);
   const navigation = bridge.buildNavigation(target.articleId, { returnContext: target.returnContext });
-  if (target.routeId) assert.equal(navigation.status, 'ROUTE_TARGET');
+  if (target.routeId) {
+    assert.equal(navigation.status, 'ROUTE_TARGET');
+    const [routeId, query = ''] = navigation.url.slice(1).split('?');
+    const params = new URLSearchParams(query);
+    assert.equal(routeId, target.routeId, `${target.articleId}: hash route mismatch`);
+    assert.equal(params.get('metric'), target.metric, `${target.articleId}: metric context mismatch`);
+    assert.equal(params.get('timeframe'), target.timeframe, `${target.articleId}: timeframe context mismatch`);
+    assert.deepEqual(JSON.parse(params.get('return')), target.returnContext, `${target.articleId}: return context mismatch`);
+  }
   else assert.equal(navigation.status, 'OVERVIEW_ONLY');
 }
+assert.equal(artifact.targets.filter((target) => target.articleId.startsWith('principles:') || target.articleId.startsWith('atlas-foundations:')).every((target) => target.status === 'ROUTE_TARGET'), true, 'all 160 primary articles must have a professional route target');
 for (const scenario of artifact.scenarios) assert(bridge.resolve(scenario.articleId), `scenario target missing ${scenario.articleId}`);
 console.log(JSON.stringify({ status: 'PASS', targets: artifact.targets.length, articleTargets: artifact.counts.articleTargets, compatibilityTargets: artifact.counts.compatibilityTargets, routeTargets: artifact.targets.filter((target) => target.routeId).length, overviewOnly: artifact.targets.filter((target) => !target.routeId).length, scenarios: artifact.scenarios.length }, null, 2));

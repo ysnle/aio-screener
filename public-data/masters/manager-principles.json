@@ -1,0 +1,50 @@
+{
+  "schema": "masters-manager-principles.v1",
+  "sourceKind": "OFFICIAL_REFERENCE",
+  "status": "PARTIAL_OFFICIAL_COVERAGE",
+  "reviewedAt": "2026-08-22",
+  "boundary": "공식 자료에서 확인되는 방법론 요약과 13F 행에서 관찰되는 패턴을 분리한다. 원칙은 현재 보유·추천·성과 보증이 아니며 긴 직접 인용을 포함하지 않는다.",
+  "profiles": [
+    {
+      "managerId": "mark-minervini",
+      "status": "OFFICIAL_METHOD_REFERENCE",
+      "sourceName": "Minervini Markets 360 공식 사이트",
+      "sourceUrl": "https://www.minervini.com/",
+      "reviewedAt": "2026-08-22",
+      "statedPrinciples": [
+        { "title": "SEPA 기반 선별", "summary": "성장주 후보를 구조화된 선별 절차로 좁히고 가격·리더십·행동 특성을 함께 점검한다." },
+        { "title": "가격 리더십 확인", "summary": "시장과 동종군 대비 강한 가격 행동을 관찰하되 한 지표만으로 결론을 내리지 않는다." },
+        { "title": "사전 위험 관리", "summary": "진입 전 손실 허용 범위와 포지션 위험을 정하고 기록·복기를 통해 실행 일관성을 관리한다." },
+        { "title": "실행과 기록", "summary": "후보 선별, 실행, 포트폴리오 위험, 사후 기록을 하나의 반복 가능한 과정으로 다룬다." }
+      ],
+      "observedHoldingsPatterns": [],
+      "limitations": [
+        "방법론 전용 프로필이며 SEC 13F 신고주체가 아니다.",
+        "공식 서비스 소개의 방법론 범위를 요약했으며 유료 교육과정의 세부 규칙을 재현하지 않는다.",
+        "특정 종목의 현재 적합성이나 매매 지시로 사용하지 않는다."
+      ],
+      "relatedPrincipleNodeIds": ["risk-reward", "trend-and-positioning", "liquidity"]
+    },
+    {
+      "managerId": "berkshire-hathaway",
+      "status": "OFFICIAL_OWNER_PRINCIPLES_REFERENCE",
+      "sourceName": "Berkshire Hathaway Owner's Manual / shareholder letters",
+      "sourceUrl": "https://www.berkshirehathaway.com/letters/letters.html",
+      "reviewedAt": "2026-08-22",
+      "statedPrinciples": [
+        { "title": "소유자 관점", "summary": "주주와 경영진의 관계를 단기 가격 변동보다 사업의 장기 공동 소유 관점에서 설명한다." },
+        { "title": "이해 가능한 사업과 장기 경제성", "summary": "사업 구조, 경쟁 우위, 경영진, 장기 현금창출력을 함께 평가한다." },
+        { "title": "인내와 집중", "summary": "기준에 맞지 않는 기회는 거절하고 확신이 높은 기회에는 규율 있게 자본을 배분한다." },
+        { "title": "보수적 가치 판단", "summary": "자사주를 포함한 자본 배분에서 지속 주주의 주당 가치를 보수적으로 판단한다." }
+      ],
+      "observedHoldingsPatterns": [
+        "공개 13F에서는 상위 종목 집중도가 높게 관찰될 수 있으나 비공개 자회사·현금·채권·해외 직접보유를 포함한 전체 자산을 뜻하지 않는다."
+      ],
+      "limitations": [
+        "Owner's Manual과 주주서한의 기업 운영·자본배분 원칙을 압축한 교육용 요약이다.",
+        "13F 변화와 본인이 밝힌 원칙을 동일한 원인으로 단정하지 않는다."
+      ],
+      "relatedPrincipleNodeIds": ["compounding", "capital-allocation", "opportunity-cost"]
+    }
+  ]
+}

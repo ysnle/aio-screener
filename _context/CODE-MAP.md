@@ -2,20 +2,20 @@
 
 ---
 verified_by: Codex (`ReadAllLines` + `rg -n` full structural remeasurement) + P761-P855 update
-current_override: P944 v54.37 restores fresh-browser public AI routing and makes AnswerPlan/stream failure claim-scoped; P943 source depth, dated Atlas evidence and raw 13F issuer aggregation are included, while human semantic review, provider rights, authorized security master and live release certification remain explicit gates
-  last_verified: 2026-08-18
+current_override: P950 v54.40 binds full 13F rows and long-form articles to explicit detail interactions, separates Top summaries from full-row state, bounds shared cache growth and exposes retryable detail failures; SEC online collection, human/source/user review, provider rights, authorized security master and live release certification remain explicit gates
+  last_verified: 2026-08-22
 confidence: high
-target_version: v54.37
+target_version: v54.40
 target_file: index.html + js/*.js + src/**/*.js + worker/*.js
 target_lines: refreshed after P892 gate
-  current_checkpoint: P944 connects public config, boot readiness, Worker capability, streaming and resilient rendering in one fresh-browser invariant; human/source/user review and authorized security-master certification remain operator-required
+  current_checkpoint: P950 narrows detail loading beyond route scope, gates zero-byte profile selection, full-row semantic separation, bounded LRU reuse and failed-detail recovery
 ---
 
-## Current machine-verified file-size table (v54.37, 2026-08-18)
+## Current machine-verified file-size table (v54.40, 2026-08-22)
 
 | File | Lines | Verification |
 |------|------:|--------------|
-| `index.html` | 28,349 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `index.html` | 28,369 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-core.js` | 27,409 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-data.js` | 16,355 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-ui.js` | 4,303 | `ReadAllLines` + `ci-doc-currency-check.mjs` |

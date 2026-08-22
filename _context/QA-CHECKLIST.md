@@ -1,7 +1,86 @@
 ---
 verified_by: agent (Fable 5) + Codex full-route audit verification
-last_verified: 2026-08-21
+last_verified: 2026-08-22
 confidence: high
+
+## v54.43 narrative-first three-page closure (2026-08-22)
+
+- [x] Principles opens on the six-part, 12-chapter money→inflation→rates→liquidity→company→AI CAPEX→market→risk story; maps, paths and long-form references remain optional deeper layers.
+- [x] The 390px editorial-density gate keeps the selected Principles story paragraphs within 3–6 rendered lines, uses a wrapping chapter rail and reports zero horizontal overflow.
+- [x] Atlas exposes 19 domains, 95/95 authored node explanations, 48/48 authored foundation lessons and 50 deep branches; each node is connected and labeled ROOT/BRIDGE/LEAF with an explicit structural boundary.
+- [x] Principles→Atlas lands on `compute-gpu` with bottleneck context; Principles→Masters lands on reported-share changes; Masters→Principles returns to the market-expectations chapter.
+- [x] All three route destinations preserve concept, metric, timeframe and return context after reload; plain page changes remove stale mode/node/manager query state.
+- [x] Masters reports 37 reconciled filers, 193,121 current rows, 89,892 prior comparison rows and 249 separate 13D/G events; 35 are current to 2026-06-30 and Pershing/Scion remain stale.
+- [x] Reported-share changes are not labeled trades; 13D/G primary HTML/text documents use a neutral URL field and remain separate from 13F holdings.
+- [x] Three-page initial budgets pass: Principles 29,617 B, Masters 487,837 B, Atlas 598,450 B; selected detail shards load only after their matching interaction and re-entry repeats zero requests.
+- [x] Focused page contracts/browsers, cross-page flow, 20-route accessibility, 60 desktop viewport combinations, knowledge corpus/ontology/currentness and static-data refresh gates pass locally.
+- [ ] Commit, deployment and deployed GitHub Pages parity are completed only after the final release gates below pass.
+
+## v54.42 three-page completeness and route-state closure (2026-08-22)
+
+- [x] Masters reports `partial`, not generic `connected`, until discovery and full-row coverage both complete.
+- [x] Masters user-visible coverage is fixed at current-full 5, stale-full 2, preview-only 5, metadata-only 25 and method-only 1; latest-period gaps 32/37, official principles 2/38 and verified security-master rows 0 remain visible.
+- [x] Principles 112/112 lesson shards render, and the opened lesson owns its bookmark, note and URL state across reload.
+- [x] Principles search covers all structured lesson fields plus loaded deep-article text; compact review/publication status and base-artifact failure/retry are visible.
+- [x] Atlas 48/48 foundation shards and seven layers render; F0 primer selection owns its label/bookmark/URL and restores after reload.
+- [x] Atlas professional route context survives destination reload/back/forward and exposes knowledge node, metric and timeframe to the destination.
+- [x] Both knowledge pages reject raw glossary JSON and show the Korean `사례·근거 전개` heading.
+- [x] Focused contract and Chromium gates plus the three-page transfer/re-entry budget pass locally.
+- [x] SA-03 controller-takeover fixture counts main-frame reloads only and passes without third-party iframe navigation noise.
+- [ ] Masters SEC online completion remains pending: the repository variable exists, but the new SEC workflow/collector changes are not deployed or run; current full-row coverage is 5/37.
+- [ ] Knowledge human semantic/source-directness review and publication certification remain open; the UI now states those boundaries explicitly.
+
+## v54.41 external-source state correction (2026-08-22)
+
+- [x] AAII official public observation is refreshed to week ending 2026-08-19: bullish 35.5%, neutral 24.6%, bearish 39.9%, spread -4.4 pp; it remains reference-only and excluded from trading gates.
+- [x] NAAIM current/API access is `BLOCKED`; the 2026-07-22 value is retained only as a stale reference and is never promoted as current. The publisher's three-month public delay and commercial-use permission boundary are recorded.
+- [x] Investors Intelligence current numeric reading is `BLOCKED` behind the publisher's subscription contract; no search snippet or secondary estimate is promoted.
+- [x] Weinstein Stage is `DYNAMIC` from runtime OHLCV/30-week evidence and cannot regress to generic missing-data `SKIPPED`.
+- [x] The 22-category gate requires 19 `OK`, 2 `BLOCKED`, 1 `DYNAMIC`; web-research, reconciliation and refresh audit contracts pass.
+- [x] AAII value and `aaiiObservedAt` cross both runtime-reader paths; the native sentiment page renders the 2026-08-19 date instead of a false missing-source label.
+- [x] SEC configuration wording is scope-correct: the project ledger records `SEC_USER_AGENT` as configured in GitHub Actions, while the local shell does not contain it.
+- [ ] Current GitHub variable metadata and latest SEC Actions run remain externally unverified in this session because the local `gh` token is expired and the available browsers are signed out. No repository setting was changed and no commit-producing workflow was dispatched.
+
+## v54.40 interaction-scoped detail and current-data closure (2026-08-22)
+
+- [x] Masters route entry loads only compact summaries; no `/public-data/masters/managers/*` request occurs and full-row state is `0`.
+- [x] Selecting the largest connected manager (Fisher) transfers zero full-row bytes until holdings/sector/comparison detail is explicitly requested.
+- [x] Top holdings are labeled as a summary, not verified full rows; explicit Berkshire holdings loads one 117,994-byte shard and paginates 25 rows.
+- [x] Shared JSON cache remains at or below 64 resolved entries and records LRU eviction without canceling other consumers.
+- [x] Principles and Atlas article failures remain visible with an accessible alert, keep the page usable and succeed on retry.
+- [x] Three-page cold/re-entry budgets pass: Masters 341,070 B initial, 0 B selection, 117,994 B explicit rows, 132,506 B quarter; all re-entry repeats are 0.
+- [x] Official/public refresh completes 78/78 quotes. P951/v54.41 supersedes the original four-`SKIPPED` classification with AAII=`OK`, NAAIM/Investor Intelligence=`BLOCKED`, Weinstein=`DYNAMIC`.
+- [x] Full release QA: 1,124/1,124 headless, accessibility 20/20, Critical-10, viewport normal+FULL_INIT 60/60 each, overflow 0, route soak 20×3, lifecycle 42 canvases/12 timers stable, SW/vault/vertical slices PASS.
+- [x] Codex in-app Browser independently confirms v54.40: Masters 38 profiles, Top-summary fullRows=0, Fisher selection deferred then 1,037 rows/25 visible; Principles 20/page + one explicit article; Atlas 7 layers + one explicit article; all three overflow 0.
+- [ ] SEC discovery/13F/13D-G 37/37 online refresh — `UNVERIFIED_THIS_SESSION`: the Actions-only `SEC_USER_AGENT` configuration is recorded, but current variable metadata/run output cannot be inspected with the expired local GitHub authentication. Stored LKG remains authoritative until a successful run artifact is reconciled.
+- [ ] Human semantic/source-directness review of 160 structured articles, 105 research-required inventory units and recruited-user validation remain external review gates.
+
+## v54.39 three-page runtime budget and completeness boundary (2026-08-22)
+
+- [x] QA-PAGES-PERF-01: Masters cold runtime artifacts total 459,064 bytes and exclude canonical `holdings.json`; quarters add only `history-index.json` plus the selected manager bundle (132,506 bytes for the default manager), never the 9.3 MB history or 8.4 MB issuer monolith.
+- [x] QA-PAGES-PERF-02: Principles cold structure is 258,377 bytes, library capability is 1,491,243 bytes, visible lesson DOM is paginated to 20, and explicit article loading fetches exactly one 25,256-byte shard rather than `knowledge/articles.json` or completion dossiers.
+- [x] QA-PAGES-PERF-03: Atlas foundations total 596,104 bytes, explicit article loading fetches one 24,675-byte shard, and overview uses the 53,545-byte evidence/status pair without article, claim, coverage or dossier monoliths.
+- [x] QA-PAGES-CACHE-01: two concurrent consumers share one request; aborting one consumer does not cancel the survivor; a resolved cache hit performs no fetch; different fetch functions remain isolated; Masters, Principles and Atlas re-entry each produce zero repeated page-artifact requests.
+- [x] QA-MASTERS-RUNTIME-01: the deterministic runtime builder publishes seven current manager shards, seven bounded history bundles, a compact summary and descriptors while retaining the canonical 1,290 holdings rows and 1,387 comparisons for contracts/rebuilds.
+- [x] QA-KNOWLEDGE-RUNTIME-01: the compact status projection reports all 427 units, 160 article shards, 318 researched, 4 in progress and 105 research-required without promoting `humanReviewComplete` or `publicationReady`.
+- [x] QA-TIER13-02: Codex in-app Browser connects all three routes at v54.39: Masters shows 38 profiles, connected selected shard and 10 default rows; Principles shows 112 lessons paginated 20 at a time and one article only after request; Atlas shows connected foundations/lessons and one article only after request. All three have zero document overflow; the only console error is the expected local external-API proxy warning.
+- [ ] QA-MASTERS-ONLINE-01: actual SEC discovery/import remains unverified in this local session; the monitored contact is configured in GitHub Actions according to the project ledger, but a successful current run artifact is still required before replacing the 7-manager LKG layer.
+- [ ] QA-KNOWLEDGE-HUMAN-01: the 105 research-required units and independent human semantic/source-directness/recruited-user review remain open; runtime sharding does not change those completion states.
+- [ ] QA-DEPLOY-04: no commit or deployment is performed in this task; deployed-site parity remains open.
+
+## v54.38 three-page currentness and learner-flow closure (2026-08-22)
+
+- [x] QA-MASTERS-13F-29: one daily workflow discovers all 37 configured SEC filers through a serialized fair-access queue and records latest 13F submission, latest holdings, adjacent prior period, `13F-NT`, amendments, separate Schedule 13D/G ownership events and explicit blocked/error states.
+- [x] QA-MASTERS-13F-30: the collector composes original, restatement and new-holdings amendments, publishes manager shards atomically, and preserves each manager's last-known-good rows when another manager or request fails.
+- [x] QA-MASTERS-13F-31: Masters renders reported value, unique positions, Top 5/10 concentration, reported-share changes and turnover proxy; supports 2~4 manager comparison; and keeps method-only Minervini/Berkshire principles separate from 13F holdings claims.
+- [x] QA-KNOWLEDGE-UX-01: Principles and Atlas load capability groups lazily with route-scope `AbortSignal`/liveness and isolated settlement, retain search focus, and search authored body, aliases, articles and Atlas relationship/taxonomy content.
+- [x] QA-KNOWLEDGE-UX-02: durable bookmark/note controls are accessible and 199 knowledge targets carry professional route, metric, timeframe and return context. The 160 connected long-form artifacts remain labeled structured drafts rather than human-certified encyclopedia copy.
+- [x] QA-PAGES-VIEWPORT-01: Principles, Masters and Atlas are included in the shared 20-route viewport matrix; visible internal snapshot/service identifiers and the unnamed learning textarea were removed.
+- [x] QA-PAGES-REGRESSION-01: local closure passes 1124/1124 headless tests, 20-route accessibility, 60 FULL_INIT route×desktop-viewport combinations, Critical-10, 20 routes×3 soak laps, service-worker controller migration and 20-route lifecycle with stable 42 canvases/12 timers.
+- [ ] QA-MASTERS-13F-32: run and reconcile the actual online 37/37 SEC 13F·13D/G refresh after configuring a monitored contact in `SEC_USER_AGENT`; the committed discovery artifact must remain explicit `PARTIAL/BLOCKED` until then.
+- [ ] QA-MASTERS-13F-33: verified security master, corporate-action and sector mapping plus remaining manager row imports require authoritative provider review and remain open.
+- [ ] QA-KNOWLEDGE-UX-03: independent human semantic/source-directness review and recruited-user validation remain open; automated depth and browser contracts are not substitutes.
+- [ ] QA-DEPLOY-03: deployed-site parity is open because this task performs no commit or deployment.
 
 ## v54.37 live AI browser preflight repair (2026-08-21)
 

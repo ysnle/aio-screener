@@ -1,6 +1,5 @@
 // FABLE-UIUX-DEEP-AUDIT-2026-07-08 Phase V3-1
-// Internal route x viewport surface check: 19 primary pages + 2 derived views + 1 reference shell.
-// The glossary is a user-facing overlay, so the product has 20 user surfaces although this matrix has 22 routes.
+// Internal route x viewport surface check for every primary page plus derived views.
 
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
@@ -22,7 +21,7 @@ const OUT_DIR = resolve(root, '_artifacts', 'viewport-matrix');
 const ROUTES = [
   'home','signal','breadth','sentiment','briefing','market-news','technical','screener',
   'ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','options',
-  'guide'
+  'guide','principles','masters','atlas'
 ];
 
 const VIEWPORTS = DESKTOP_QA_VIEWPORTS

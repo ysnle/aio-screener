@@ -2,8 +2,8 @@
   "schemaVersion": "masters-13f.v1",
   "sourceKind": "REFERENCE",
   "status": "REFERENCE_ROWS_CONNECTED",
-  "reviewedAt": "2026-08-18",
-  "generatedAt": "2026-08-18T01:11:48.187Z",
+  "reviewedAt": "2026-08-22",
+  "generatedAt": "2026-08-22T10:23:13.861Z",
   "latestAvailablePeriod": "2026-06-30",
   "metadataStatus": "REFERENCE_METADATA_CONNECTED",
   "metadataArtifact": "public-data/masters/filings.json",
@@ -11,8 +11,8 @@
   "priorityManagerCount": 38,
   "secFilerProfiles": 37,
   "methodOnlyProfiles": 1,
-  "secMetadataManagers": 30,
-  "rowImportPendingManagers": 30,
+  "secMetadataManagers": 37,
+  "rowImportPendingManagers": 0,
   "rowPreviewArtifact": "public-data/masters/manager-row-previews.json",
   "rowPreviewStatus": "SEC_ROW_PREVIEW_CONNECTED",
   "rowPreviewManagers": 5,
@@ -21,13 +21,13 @@
   "telegramDiscoveryLeads": 7,
   "xSearchStatus": "UNREADABLE_BY_BROWSER_TOOL",
   "holdingsArtifact": "public-data/masters/holdings.json",
-  "verifiedFilerMetadata": 7,
-  "holdingRowsPublished": 68,
-  "fullRowsAvailable": 1290,
-  "reconciledManagers": 7,
-  "comparisonRowsPublished": 68,
-  "fullComparisonRowsAvailable": 1387,
-  "reconciledComparisons": 7,
+  "verifiedFilerMetadata": 37,
+  "holdingRowsPublished": 366,
+  "fullRowsAvailable": 193121,
+  "reconciledManagers": 37,
+  "comparisonRowsPublished": 366,
+  "fullComparisonRowsAvailable": 89892,
+  "reconciledComparisons": 37,
   "historyIndexArtifact": "public-data/masters/history-index.json",
   "historyHoldingsArtifact": "public-data/masters/history-holdings.json",
   "historyPeriods": 84,
@@ -49,67 +49,67 @@
       "id": "blackrock-inc",
       "displayName": "BlackRock",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "citigroup",
       "displayName": "Citi",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "goldman-sachs-group",
       "displayName": "Goldman Sachs",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "jpmorgan-chase",
       "displayName": "JPMorgan Asset Management",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "state-street-investment-management",
       "displayName": "State Street Investment Management",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "vanguard-group",
       "displayName": "Vanguard",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "capital-international-investors",
       "displayName": "Capital Group",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "fidelity-fmr",
       "displayName": "Fidelity / FMR",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "t-rowe-price",
       "displayName": "T. Rowe Price",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "wellington-management",
       "displayName": "Wellington Management",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "dimensional-fund-advisors",
       "displayName": "Dimensional Fund Advisors",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "berkshire-hathaway",
@@ -121,13 +121,13 @@
       "id": "soros-fund-management",
       "displayName": "George Soros / Dawn Fitzpatrick",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "bridgewater-associates",
       "displayName": "Ray Dalio",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "duquesne-family-office",
@@ -145,109 +145,109 @@
       "id": "oaktree-capital-management",
       "displayName": "Howard Marks",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "citadel-advisors",
       "displayName": "Ken Griffin / Seth Levy",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "millennium-management",
       "displayName": "Millennium Management",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "renaissance-technologies",
       "displayName": "Renaissance Technologies",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "two-sigma-investments",
       "displayName": "Two Sigma",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "tudor-investment",
       "displayName": "Tudor Investment",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "pershing-square",
       "displayName": "Bill Ackman",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_ROWS"
+      "status": "STALE_REFERENCE"
     },
     {
       "id": "starboard-value",
       "displayName": "Starboard Value",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "trian-fund-management",
       "displayName": "Trian Fund Management",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "valueact-holdings",
       "displayName": "ValueAct",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "third-point",
       "displayName": "Daniel Loeb",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "elliott-investment-management",
       "displayName": "Paul Singer",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "tci-fund-management",
       "displayName": "Chris Hohn",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "viking-global-investors",
       "displayName": "Andreas Halvorsen",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "tiger-global-management",
       "displayName": "Chase Coleman",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "ark-investment-management",
       "displayName": "Cathie Wood",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "harvard-management-company",
       "displayName": "Harvard Management Company",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "situational-awareness",
       "displayName": "Leopold Aschenbrenner",
       "profileType": "LIVE_13F",
-      "status": "VERIFIED_METADATA"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "baupost-group",
@@ -279,6 +279,11 @@
   "nextStep": "MF-05 issuer/ticker/share-class/corporate-action normalization and sector mapping before portfolio-weight labels; raw SEC history rows remain reference-only.",
   "lastSuccessfulArtifact": "2026-08-18T01:11:48.187Z",
   "staleReferenceManagers": [
+    "pershing-square",
     "scion-asset-management"
-  ]
+  ],
+  "runtimeHoldingsArtifact": "public-data/masters/holdings-summary.json",
+  "runtimeHoldingsBytes": 237903,
+  "managerShardCount": 37,
+  "historyManagerShardCount": 7
 }

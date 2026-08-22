@@ -888,10 +888,40 @@ window.addEventListener('offline', () => {
 
 
 // ── Browser back/forward support ──────────────────────────────────────
+// Knowledge route links use #route?knowledgeNode=... so the app shell and
+// destination pages share one bookmarkable route-context grammar.
+function _aioParseRouteHash(hashValue) {
+  var raw = String(hashValue || '').replace(/^#/, '');
+  var separator = raw.indexOf('?');
+  var routeId = separator >= 0 ? raw.slice(0, separator) : raw;
+  var query = separator >= 0 ? raw.slice(separator + 1) : '';
+  return { routeId: routeId || 'home', params: new URLSearchParams(query) };
+}
+function _aioSyncKnowledgeRouteContext() {
+  var parsed = _aioParseRouteHash(location.hash);
+  var returnContext = null;
+  try { returnContext = parsed.params.get('return') ? JSON.parse(parsed.params.get('return')) : null; } catch (_) {}
+  var context = Object.freeze({
+    routeId: parsed.routeId,
+    knowledgeNode: parsed.params.get('knowledgeNode') || null,
+    metric: parsed.params.get('metric') || null,
+    timeframe: parsed.params.get('timeframe') || null,
+    returnContext: returnContext,
+    active: parsed.params.has('knowledgeNode') || parsed.params.has('metric') || parsed.params.has('timeframe') || parsed.params.has('return')
+  });
+  window.AIO_KNOWLEDGE_ROUTE_CONTEXT = context;
+  if (window.AIO && window.AIO.state) window.AIO.state.knowledgeRouteContext = context;
+  try { window.dispatchEvent(new CustomEvent('aio:knowledgeRouteContext', { detail: context })); } catch (_) {}
+  return context;
+}
+window._aioParseRouteHash = _aioParseRouteHash;
+window._aioSyncKnowledgeRouteContext = _aioSyncKnowledgeRouteContext;
 // popstate only available outside sandboxed iframes
 // v30.14: popstate 핸들러 — 전체 9개 페이지 reinit (기존 3개만 있어서 6개 누락 수정)
 try { if (!window._aioPopstateRegistered) window.addEventListener('popstate', (e) => {
-  var id = e.state?.page || (location.hash.slice(1)) || 'home';
+  var parsedRoute = _aioParseRouteHash(location.hash);
+  var id = String(e.state?.page || parsedRoute.routeId || 'home').split('?')[0];
+  _aioSyncKnowledgeRouteContext();
   // v34.5: 해시 별칭 매핑
   var _ha = { chart: 'technical', dashboard: 'home', stock: 'fundamental', forex: 'fxbond', bond: 'fxbond', news: 'market-news', search: 'home', help: 'guide', manual: 'guide', trend: 'themes', theme: 'themes', moat: 'fundamental', korea: 'macro', 'kr-theme': 'themes', 'kr-home': 'macro', 'kr-supply': 'macro', 'kr-themes': 'themes', 'kr-macro': 'macro', 'kr-technical': 'technical' }; // v53.7 (P725)
   if (_ha[id]) id = _ha[id];
@@ -928,8 +958,12 @@ try { if (!window._aioPopstateRegistered) window.addEventListener('popstate', (e
 
 // Load page from URL hash on first visit (e.g. bookmark #signal)
 (function initFromHash() {
-  const hash = location.hash.slice(1);
-  if (hash) {
+  const rawHash = location.hash.slice(1);
+  const parsedRoute = _aioParseRouteHash(location.hash);
+  const hash = parsedRoute.routeId;
+  _aioSyncKnowledgeRouteContext();
+  if (rawHash) {
+    try { history.replaceState(Object.assign({}, history.state || {}, { page: hash }), '', location.href); } catch(e) {}
     const navEl = document.querySelector(`[data-action="showPage"][data-arg="${hash}"]`);
     showPage(hash, navEl);
   } else {

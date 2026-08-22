@@ -1,11 +1,20 @@
 {
   "schemaVersion": "1.3.0",
   "status": "IMPLEMENTATION_IN_PROGRESS",
-  "boundedChangesImplemented": ["public naming", "depth audit", "name regression gates", "handoff and knowledge contracts", "semantic graph gate", "typed edge normalization", "unified evidence resolver", "capability-level artifact loading", "S0 topology and product mapping corrections", "canonical ontology manifest", "claim directness registry", "structured article drafts", "learning graph", "shareable learning state", "route bridge", "knowledge repository and selectors", "shared knowledge renderers", "encyclopedia product mission", "full sector-domain-category coverage contract", "web research dossier contract", "post-KA content completion track"],
+  "boundedChangesImplemented": ["public naming", "depth audit", "name regression gates", "handoff and knowledge contracts", "semantic graph gate", "typed edge normalization", "unified evidence resolver", "capability-level artifact loading", "scope-owned abort and liveness", "full-text retrieval", "bookmark and note controls", "S0 topology and product mapping corrections", "canonical ontology manifest", "claim directness registry", "structured article drafts", "learning graph", "shareable learning state", "professional route bridge", "knowledge repository and selectors", "shared knowledge renderers", "encyclopedia product mission", "full sector-domain-category coverage contract", "web research dossier contract", "post-KA content completion track"],
   "knowledgeRebuildStatus": "STRUCTURED_REFERENCE_DRAFTS_PARTIAL_CONTENT_RESEARCH_OPEN",
-  "auditedAt": "2026-08-12",
-  "targetVersion": "v54.37",
+  "auditedAt": "2026-08-22",
+  "targetVersion": "v54.43",
   "surfaces": ["principles", "atlas"],
+  "latestImplementationUpdate": {
+    "version": "v54.40",
+    "date": "2026-08-22",
+    "structuredCorpus": {"principlesSourceLessons": 112, "atlasFoundationLessons": 48, "structuredArticleDrafts": 160, "inventoryUnits": 427},
+    "researchState": {"researched": 318, "inProgress": 4, "researchRequired": 105},
+    "learnerFlow": {"capabilityLazyLoading": true, "itemArticleLoading": true, "visibleRetryableArticleFailures": true, "sharedArtifactCacheMaxEntries": 64, "scopeAbortAndLiveness": true, "fullTextRetrieval": true, "bookmarkAndNoteControls": true, "professionalRouteTargets": 199},
+    "browserBudgetsBytes": {"principlesCore": 258377, "principlesLibrary": 1478997, "principlesArticle": 25126, "atlasFoundations": 590844, "atlasArticle": 24526, "atlasOverview": 52847, "reentryRepeatedArtifacts": 0},
+    "certificationBoundary": "LOCAL_STRUCTURED_AND_BROWSER_CONTRACTS_ONLY; independent human semantic/source-directness review, recruited-user validation and live parity remain open"
+  },
   "encyclopediaMission": {
     "productDefinition": "A connected stock, economics, finance and technology encyclopedia that leads from concept learning to evidence-backed market application",
     "requiredClosure": ["realEconomy", "industryAndTechnologyValueChain", "companyAndProduct", "financialStatementsAndCashFlow", "valuation", "financialMarketsAndStockPrice", "tradingObservationScenarioAndInvalidation"],
@@ -79,26 +88,26 @@
     "resilience": {
       "principlesCapabilities": 4,
       "atlasCapabilities": 11,
-      "loadingModel": "PROMISE_ALL_SETTLED_PER_CAPABILITY"
+      "loadingModel": "SCOPE_OWNED_LAZY_ALL_SETTLED_PER_CAPABILITY"
     },
-      "certificationBoundary": "LOCAL_REFERENCE_IMPLEMENTATION_ONLY; 159 human-reviewed deep articles, full independent Web Research, semantic source review, active-learning UX, live parity and recruited-user validation remain open; 423-unit inventory, 19 structural domain dossiers and 15 educational labs are reference scaffolds only"
+      "certificationBoundary": "LOCAL_STRUCTURED_REFERENCE_IMPLEMENTATION_ONLY; 160 structured drafts and 427 inventory units exist, but independent semantic/source-directness review, live parity and recruited-user validation remain open; 19 structural domain dossiers and 15 educational labs are reference scaffolds only"
   },
   "certificationBlockers": [
     {
       "id": "KB-S0-01",
       "surface": "shared",
       "kind": "ENCYCLOPEDIA_DEPTH",
-      "evidence": "159 structured drafts exist, but the source lesson summaries remain below the 1,200-character floor and 0/159 have passed the complete semantic depth contract",
+      "evidence": "112 Principles and 48 Atlas source lessons pass the automated 1,200-character and semantic-field contract; all 160 connected articles remain structured drafts pending independent semantic and source-directness review",
       "requiredGate": "encyclopedia-depth",
-      "status": "OPEN"
+      "status": "RESOLVED_LOCAL_STRUCTURED_ONLY"
     },
     {
       "id": "KB-S0-02",
       "surface": "shared",
       "kind": "ACTIVE_LEARNING_STATE",
-      "evidence": "URL state and local persistence contracts exist; learner controls, retrieval UX, and user validation remain open",
+      "evidence": "URL state, full-text retrieval, accessible bookmark/note controls and local persistence are connected; recruited-user validation remains open",
       "requiredGate": "persona-journey",
-      "status": "OPEN"
+      "status": "RESOLVED_LOCAL_USER_VALIDATION_OPEN"
     },
     {
       "id": "KB-S0-03",
@@ -112,7 +121,7 @@
       "id": "KB-S0-04",
       "surface": "shared",
       "kind": "WEB_RESEARCH_AND_SOURCE_PROFILE",
-      "evidence": "423 per-unit dossier contracts now exist, with 0 fully researched, 172 research-in-progress and 251 research-required units; complete primary/academic source profiles, disagreement records, and independent claim-by-claim fact-checking remain open",
+      "evidence": "427 per-unit dossier contracts now report 318 researched, 4 research-in-progress and 105 research-required units; complete independent claim-by-claim fact-checking and source-directness review remain open",
       "requiredGate": "web-research-dossier",
       "status": "OPEN"
     },
@@ -171,16 +180,16 @@
     {"id": "KA-01", "wave": 0, "title": "Ontology and ID freeze", "dependsOn": ["KA-00"], "status": "VERIFIED_LOCAL"},
     {"id": "KA-02", "wave": 1, "title": "Typed graph migration", "dependsOn": ["KA-01"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
     {"id": "KA-03", "wave": 1, "title": "Evidence registry and resolver unification", "dependsOn": ["KA-01"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
-    {"id": "KA-04", "wave": 2, "title": "159-lesson encyclopedia article rebuild, worked examples and academic depth", "dependsOn": ["KA-02", "KA-03"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
+    {"id": "KA-04", "wave": 2, "title": "160-lesson encyclopedia article rebuild, worked examples and academic depth", "dependsOn": ["KA-02", "KA-03"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
     {"id": "KA-05", "wave": 2, "title": "Lesson and path continuity", "dependsOn": ["KA-02", "KA-03"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
-    {"id": "KA-06", "wave": 3, "title": "Shareable state and active learning", "dependsOn": ["KA-05"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
-    {"id": "KA-07", "wave": 3, "title": "Professional route bridge", "dependsOn": ["KA-04", "KA-05"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
+    {"id": "KA-06", "wave": 3, "title": "Shareable state and active learning", "dependsOn": ["KA-05"], "status": "VERIFIED_LOCAL_USER_VALIDATION_OPEN"},
+    {"id": "KA-07", "wave": 3, "title": "Professional route bridge", "dependsOn": ["KA-04", "KA-05"], "status": "VERIFIED_LOCAL"},
     {"id": "KA-08", "wave": 4, "title": "Repository, state and selector extraction", "dependsOn": ["KA-02", "KA-03"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
     {"id": "KA-09", "wave": 4, "title": "Thin renderer migration and legacy deletion", "dependsOn": ["KA-06", "KA-07", "KA-08"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
     {"id": "KA-10", "wave": 5, "title": "Structural semantic and local certification checkpoint", "dependsOn": ["KA-09"], "status": "DESIGNED"},
     {"id": "KA-11", "wave": 6, "title": "Full corpus and sector-domain-category coverage inventory", "dependsOn": ["KA-10"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
     {"id": "KA-12", "wave": 6, "title": "Concept-level Web Research dossiers and source audit", "dependsOn": ["KA-11"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
-    {"id": "KA-13", "wave": 7, "title": "159 human-reviewed core deep article reconstruction", "dependsOn": ["KA-12"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
+    {"id": "KA-13", "wave": 7, "title": "160 human-reviewed core deep article reconstruction", "dependsOn": ["KA-12"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
     {"id": "KA-14", "wave": 7, "title": "Principles and Atlas sector-domain-category dossier enrichment", "dependsOn": ["KA-12", "KA-13"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
     {"id": "KA-15", "wave": 8, "title": "Quantitative labs, market application and active learning closure", "dependsOn": ["KA-13", "KA-14"], "status": "PARTIAL_REFERENCE_IMPLEMENTATION"},
     {"id": "KA-16", "wave": 9, "title": "Encyclopedia semantic, browser, live and user certification", "dependsOn": ["KA-15"], "status": "DESIGNED"}
@@ -195,21 +204,21 @@
     "semanticCore": "PASS",
     "ontology": "PASS: 155 concepts / 461 aliases",
     "claimRegistry": "PASS: 119 sources / 270 claims / 0 unresolved",
-    "articleContract": "PASS: 159 structured drafts / 16 paths",
-    "learningState": "PASS: URL serialization and local persistence",
-    "routeBridge": "PASS: 198 targets / 20 scenarios",
+    "articleContract": "PASS: 160 structured drafts / 16 paths",
+    "learningState": "PASS: URL serialization, accessible bookmark/note controls and local persistence",
+    "routeBridge": "PASS: 199 targets with route, metric, timeframe and return context",
     "repository": "PASS: 10 connected / 1 fallback fixture",
     "sharedRenderers": "PASS: 5 renderer contract fixtures",
     "principlesBrowser": "PASS",
     "atlasBrowser": "PASS",
-    "headless": "1108/1108 PASS",
+    "headless": "1124/1124 PASS",
     "accessibilityRoutes": "20/20 PASS",
-    "routeSoak": "20 routes x 3 laps PASS",
-    "viewportMatrix": "17 routes x 4 viewports PASS; overflow 0",
+    "routeSoak": "20 routes x 3 laps PASS; 42 canvases stable",
+    "viewportMatrix": "20 routes x 3 desktop viewports PASS; 60 FULL_INIT combinations, overflow 0, JavaScript errors 0",
     "architectureRatchet": "FAIL_OUT_OF_PACKET: explicitWindowWrites 1092 > baseline 1090 from two existing AI research window assignments",
-    "ka11Coverage": "PASS_WITH_BOUNDARY: 423 units inventoried; completionReady false",
-    "ka12Research": "PASS_WITH_BOUNDARY: 0 researched / 172 in progress / 251 required",
-    "ka13ArticleUniqueness": "PASS_WITH_BOUNDARY: 159 unique reconstruction seeds; completionReady false",
+    "ka11Coverage": "PASS_WITH_BOUNDARY: 427 units inventoried; completionReady false",
+    "ka12Research": "PASS_WITH_BOUNDARY: 318 researched / 4 in progress / 105 required; independent fact-checking open",
+    "ka13ArticleUniqueness": "PASS_WITH_BOUNDARY: 160 unique reconstruction seeds; completionReady false",
     "ka14DomainDepth": "PASS_WITH_BOUNDARY: 19 domains / 95 taxonomy nodes / 50 unique deep branches",
     "ka15Quantitative": "PASS_WITH_BOUNDARY: 15 educational labs; completionReady false",
     "ka16Currentness": "PASS_WITH_BOUNDARY: reference-only separation gate; browser/live/user certification pending"

@@ -349,6 +349,7 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
       hySpreadSource: root?._hySpreadBp != null ? 'FRED BAMLH0A0HYM2' : 'DATA_SNAPSHOT',
       hySpreadDate: root?._hySpreadDate || snapshot._snapshotDate || snapshot._updated || null,
       aaiiBear: finite(snapshot.aaiiBear), aaiiBull: finite(snapshot.aaiiBull),
+      aaiiObservedAt: snapshot._fieldTs?.aaii || root?._serverDataMeta?.marketSurveys?.aaii?.observedAt || null,
       vixHistory: Array.isArray(root?._vixHistory) ? root._vixHistory.slice(-30).map((point) => ({ date: point?.date || null, value: finite(point?.value) })) : [],
       now: isoNow()
     });

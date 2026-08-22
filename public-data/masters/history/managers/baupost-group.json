@@ -1,0 +1,979 @@
+{
+  "schema": "masters-13f-manager-history-runtime.v1",
+  "sourceKind": "SEC_EDGAR_DERIVED_RAW_ROWS",
+  "reviewedAt": "2026-08-22",
+  "generatedAt": "2026-08-22T10:23:13.861Z",
+  "managerId": "baupost-group",
+  "historyRows": [],
+  "historySummary": {
+    "rawRowsAvailable": 234,
+    "periodTotalsSource": "history-index.json.managers[].periods"
+  },
+  "issuerAggregates": {
+    "schema": "masters-13f-issuer-aggregates.v1",
+    "status": "RAW_CUSIP_MULTI_QUARTER_CONNECTED",
+    "publication": "EDUCATIONAL_REFERENCE_ONLY",
+    "boundary": "SEC CUSIP·issuer text·reported value·shares·period history are aggregated for research navigation. This is not a verified security master and cannot produce sector weights, current prices or recommendations.",
+    "managers": [
+      {
+        "managerId": "baupost-group",
+        "aggregateCount": 73,
+        "latestPeriod": "2026-06-30",
+        "periodsCovered": 11,
+        "reviewQueueCount": 73
+      }
+    ],
+    "coverage": {
+      "aggregateRecords": 73,
+      "periods": 11,
+      "reviewQueue": 1,
+      "previewRecords": 10
+    },
+    "reviewQueue": [
+      {
+        "aggregateId": "sec-13f-cusip:baupost-group|036752103|SH|",
+        "managerId": "baupost-group",
+        "cusipNormalized": "036752103",
+        "flags": [
+          "ISSUER_NAME_VARIATION"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      }
+    ],
+    "aggregates": [
+      {
+        "aggregateId": "sec-13f-cusip:baupost-group|023135106|SH|",
+        "managerId": "baupost-group",
+        "cik": "0001061768",
+        "cusipNormalized": "023135106",
+        "issuerNames": [
+          "AMAZON COM INC"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2025-12-31",
+        "latestReportPeriod": "2026-06-30",
+        "periodCount": 2,
+        "periods": [
+          {
+            "reportPeriod": "2025-12-31",
+            "filedAt": "2026-02-13",
+            "valueUsd": 489659,
+            "shares": 2121391,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000005/bgllcq42025.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2026-06-30",
+            "filedAt": "2026-08-13",
+            "valueUsd": 892310,
+            "shares": 3743854,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/BGLLCQ22026.html"
+            ],
+            "valueDeltaUsd": 402651,
+            "sharesDelta": 1622463
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000005/bgllcq42025.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/BGLLCQ22026.html"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:baupost-group|G5480U120|SH|",
+        "managerId": "baupost-group",
+        "cik": "0001061768",
+        "cusipNormalized": "G5480U120",
+        "issuerNames": [
+          "LIBERTY GLOBAL PLC"
+        ],
+        "titleOfClasses": [
+          "SHS CL C"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2023-09-30",
+        "latestReportPeriod": "2023-09-30",
+        "periodCount": 1,
+        "periods": [
+          {
+            "reportPeriod": "2023-09-30",
+            "filedAt": "2023-11-13",
+            "valueUsd": 785292,
+            "shares": 42311011,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000156761923007709/form13fInfoTable.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1061768/000156761923007709/form13fInfoTable.xml"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:baupost-group|923454102|SH|",
+        "managerId": "baupost-group",
+        "cik": "0001061768",
+        "cusipNormalized": "923454102",
+        "issuerNames": [
+          "VERITIV CORP"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2023-09-30",
+        "latestReportPeriod": "2023-09-30",
+        "periodCount": 1,
+        "periods": [
+          {
+            "reportPeriod": "2023-09-30",
+            "filedAt": "2023-11-13",
+            "valueUsd": 561478,
+            "shares": 3324324,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000156761923007709/form13fInfoTable.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1061768/000156761923007709/form13fInfoTable.xml"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:baupost-group|036752103|SH|",
+        "managerId": "baupost-group",
+        "cik": "0001061768",
+        "cusipNormalized": "036752103",
+        "issuerNames": [
+          "ELEVANCE HEALTH INC FORMERLY",
+          "ELEVANCE HEALTH INC"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2025-03-31",
+        "latestReportPeriod": "2026-06-30",
+        "periodCount": 5,
+        "periods": [
+          {
+            "reportPeriod": "2025-03-31",
+            "filedAt": "2025-05-14",
+            "valueUsd": 107000,
+            "shares": 246000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000003/bgllcq12025.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2025-06-30",
+            "filedAt": "2025-08-13",
+            "valueUsd": 239599,
+            "shares": 616000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000005/bgllcq22025.xml"
+            ],
+            "valueDeltaUsd": 132599,
+            "sharesDelta": 370000
+          },
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-13",
+            "valueUsd": 426195,
+            "shares": 1319000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000007/bgllcq32025.xml"
+            ],
+            "valueDeltaUsd": 186596,
+            "sharesDelta": 703000
+          },
+          {
+            "reportPeriod": "2025-12-31",
+            "filedAt": "2026-02-13",
+            "valueUsd": 444954,
+            "shares": 1269302,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000005/bgllcq42025.xml"
+            ],
+            "valueDeltaUsd": 18759,
+            "sharesDelta": -49698
+          },
+          {
+            "reportPeriod": "2026-06-30",
+            "filedAt": "2026-08-13",
+            "valueUsd": 493140,
+            "shares": 1275154,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/BGLLCQ22026.html"
+            ],
+            "valueDeltaUsd": 48186,
+            "sharesDelta": 5852
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000005/bgllcq42025.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000007/bgllcq32025.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000005/bgllcq22025.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000003/bgllcq12025.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/BGLLCQ22026.html"
+        ],
+        "reviewFlags": [
+          "ISSUER_NAME_VARIATION"
+        ],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:baupost-group|76131D103|SH|",
+        "managerId": "baupost-group",
+        "cik": "0001061768",
+        "cusipNormalized": "76131D103",
+        "issuerNames": [
+          "RESTAURANT BRANDS INTL INC"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2024-09-30",
+        "latestReportPeriod": "2026-06-30",
+        "periodCount": 7,
+        "periods": [
+          {
+            "reportPeriod": "2024-09-30",
+            "filedAt": "2024-11-13",
+            "valueUsd": 2041,
+            "shares": 28294,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176824000005/BGLLCQ32024.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2024-12-31",
+            "filedAt": "2025-02-13",
+            "valueUsd": 189133,
+            "shares": 2901700,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000002/bgllcq42024.xml"
+            ],
+            "valueDeltaUsd": 187092,
+            "sharesDelta": 2873406
+          },
+          {
+            "reportPeriod": "2025-03-31",
+            "filedAt": "2025-05-14",
+            "valueUsd": 259000,
+            "shares": 3886562,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000003/bgllcq12025.xml"
+            ],
+            "valueDeltaUsd": 69867,
+            "sharesDelta": 984862
+          },
+          {
+            "reportPeriod": "2025-06-30",
+            "filedAt": "2025-08-13",
+            "valueUsd": 268445,
+            "shares": 4049562,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000005/bgllcq22025.xml"
+            ],
+            "valueDeltaUsd": 9445,
+            "sharesDelta": 163000
+          },
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-13",
+            "valueUsd": 529337,
+            "shares": 8252862,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000007/bgllcq32025.xml"
+            ],
+            "valueDeltaUsd": 260892,
+            "sharesDelta": 4203300
+          },
+          {
+            "reportPeriod": "2025-12-31",
+            "filedAt": "2026-02-13",
+            "valueUsd": 551325,
+            "shares": 8080112,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000005/bgllcq42025.xml"
+            ],
+            "valueDeltaUsd": 21988,
+            "sharesDelta": -172750
+          },
+          {
+            "reportPeriod": "2026-06-30",
+            "filedAt": "2026-08-13",
+            "valueUsd": 489612,
+            "shares": 6753112,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/BGLLCQ22026.html"
+            ],
+            "valueDeltaUsd": -61713,
+            "sharesDelta": -1327000
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000005/bgllcq42025.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000007/bgllcq32025.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000005/bgllcq22025.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000003/bgllcq12025.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000002/bgllcq42024.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176824000005/BGLLCQ32024.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/BGLLCQ22026.html"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:baupost-group|02079K107|SH|",
+        "managerId": "baupost-group",
+        "cik": "0001061768",
+        "cusipNormalized": "02079K107",
+        "issuerNames": [
+          "ALPHABET INC"
+        ],
+        "titleOfClasses": [
+          "CAP STK CL C"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2023-09-30",
+        "latestReportPeriod": "2026-06-30",
+        "periodCount": 11,
+        "periods": [
+          {
+            "reportPeriod": "2023-09-30",
+            "filedAt": "2023-11-13",
+            "valueUsd": 505188,
+            "shares": 3831538,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000156761923007709/form13fInfoTable.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2023-12-31",
+            "filedAt": "2024-02-13",
+            "valueUsd": 415678,
+            "shares": 2949538,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000156761924000192/form13fInfoTable.xml"
+            ],
+            "valueDeltaUsd": -89510,
+            "sharesDelta": -882000
+          },
+          {
+            "reportPeriod": "2024-03-31",
+            "filedAt": "2024-05-14",
+            "valueUsd": 450332,
+            "shares": 2957652,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000156761924000317/form13fInfoTable.xml"
+            ],
+            "valueDeltaUsd": 34654,
+            "sharesDelta": 8114
+          },
+          {
+            "reportPeriod": "2024-06-30",
+            "filedAt": "2024-08-13",
+            "valueUsd": 196184,
+            "shares": 1069588,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000156761924000363/form13fInfoTable.xml"
+            ],
+            "valueDeltaUsd": -254148,
+            "sharesDelta": -1888064
+          },
+          {
+            "reportPeriod": "2024-09-30",
+            "filedAt": "2024-11-13",
+            "valueUsd": 245032,
+            "shares": 1465588,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176824000005/BGLLCQ32024.xml"
+            ],
+            "valueDeltaUsd": 48848,
+            "sharesDelta": 396000
+          },
+          {
+            "reportPeriod": "2024-12-31",
+            "filedAt": "2025-02-13",
+            "valueUsd": 271565,
+            "shares": 1425988,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000002/bgllcq42024.xml"
+            ],
+            "valueDeltaUsd": 26533,
+            "sharesDelta": -39600
+          },
+          {
+            "reportPeriod": "2025-03-31",
+            "filedAt": "2025-05-14",
+            "valueUsd": 324644,
+            "shares": 2077988,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000003/bgllcq12025.xml"
+            ],
+            "valueDeltaUsd": 53079,
+            "sharesDelta": 652000
+          },
+          {
+            "reportPeriod": "2025-06-30",
+            "filedAt": "2025-08-13",
+            "valueUsd": 467243,
+            "shares": 2633988,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000005/bgllcq22025.xml"
+            ],
+            "valueDeltaUsd": 142599,
+            "sharesDelta": 556000
+          },
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-13",
+            "valueUsd": 452550,
+            "shares": 1858138,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000007/bgllcq32025.xml"
+            ],
+            "valueDeltaUsd": -14693,
+            "sharesDelta": -775850
+          },
+          {
+            "reportPeriod": "2025-12-31",
+            "filedAt": "2026-02-13",
+            "valueUsd": 341157,
+            "shares": 1087181,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000005/bgllcq42025.xml"
+            ],
+            "valueDeltaUsd": -111393,
+            "sharesDelta": -770957
+          },
+          {
+            "reportPeriod": "2026-06-30",
+            "filedAt": "2026-08-13",
+            "valueUsd": 484744,
+            "shares": 1371931,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/BGLLCQ22026.html"
+            ],
+            "valueDeltaUsd": 143587,
+            "sharesDelta": 284750
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000005/bgllcq42025.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000007/bgllcq32025.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000005/bgllcq22025.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000003/bgllcq12025.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000002/bgllcq42024.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176824000005/BGLLCQ32024.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000156761924000363/form13fInfoTable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000156761924000317/form13fInfoTable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000156761924000192/form13fInfoTable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000156761923007709/form13fInfoTable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/BGLLCQ22026.html"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:baupost-group|G96629103|SH|",
+        "managerId": "baupost-group",
+        "cik": "0001061768",
+        "cusipNormalized": "G96629103",
+        "issuerNames": [
+          "WILLIS TOWERS WATSON PLC LTD"
+        ],
+        "titleOfClasses": [
+          "SHS"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2023-09-30",
+        "latestReportPeriod": "2025-12-31",
+        "periodCount": 10,
+        "periods": [
+          {
+            "reportPeriod": "2023-09-30",
+            "filedAt": "2023-11-13",
+            "valueUsd": 325072,
+            "shares": 1555667,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000156761923007709/form13fInfoTable.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2023-12-31",
+            "filedAt": "2024-02-13",
+            "valueUsd": 375227,
+            "shares": 1555667,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000156761924000192/form13fInfoTable.xml"
+            ],
+            "valueDeltaUsd": 50155,
+            "sharesDelta": 0
+          },
+          {
+            "reportPeriod": "2024-03-31",
+            "filedAt": "2024-05-14",
+            "valueUsd": 427808,
+            "shares": 1555667,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000156761924000317/form13fInfoTable.xml"
+            ],
+            "valueDeltaUsd": 52581,
+            "sharesDelta": 0
+          },
+          {
+            "reportPeriod": "2024-06-30",
+            "filedAt": "2024-08-13",
+            "valueUsd": 433225,
+            "shares": 1652648,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000156761924000363/form13fInfoTable.xml"
+            ],
+            "valueDeltaUsd": 5417,
+            "sharesDelta": 96981
+          },
+          {
+            "reportPeriod": "2024-09-30",
+            "filedAt": "2024-11-13",
+            "valueUsd": 524619,
+            "shares": 1781206,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176824000005/BGLLCQ32024.xml"
+            ],
+            "valueDeltaUsd": 91394,
+            "sharesDelta": 128558
+          },
+          {
+            "reportPeriod": "2024-12-31",
+            "filedAt": "2025-02-13",
+            "valueUsd": 575343,
+            "shares": 1836748,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000002/bgllcq42024.xml"
+            ],
+            "valueDeltaUsd": 50724,
+            "sharesDelta": 55542
+          },
+          {
+            "reportPeriod": "2025-03-31",
+            "filedAt": "2025-05-14",
+            "valueUsd": 515599,
+            "shares": 1525667,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000003/bgllcq12025.xml"
+            ],
+            "valueDeltaUsd": -59744,
+            "sharesDelta": -311081
+          },
+          {
+            "reportPeriod": "2025-06-30",
+            "filedAt": "2025-08-13",
+            "valueUsd": 402797,
+            "shares": 1314184,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000005/bgllcq22025.xml"
+            ],
+            "valueDeltaUsd": -112802,
+            "sharesDelta": -211483
+          },
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-13",
+            "valueUsd": 376218,
+            "shares": 1089065,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000007/bgllcq32025.xml"
+            ],
+            "valueDeltaUsd": -26579,
+            "sharesDelta": -225119
+          },
+          {
+            "reportPeriod": "2025-12-31",
+            "filedAt": "2026-02-13",
+            "valueUsd": 446108,
+            "shares": 1357601,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000005/bgllcq42025.xml"
+            ],
+            "valueDeltaUsd": 69890,
+            "sharesDelta": 268536
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000005/bgllcq42025.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000007/bgllcq32025.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000005/bgllcq22025.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000003/bgllcq12025.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000002/bgllcq42024.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176824000005/BGLLCQ32024.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000156761924000363/form13fInfoTable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000156761924000317/form13fInfoTable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000156761924000192/form13fInfoTable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000156761923007709/form13fInfoTable.xml"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:baupost-group|31488V107|SH|",
+        "managerId": "baupost-group",
+        "cik": "0001061768",
+        "cusipNormalized": "31488V107",
+        "issuerNames": [
+          "FERGUSON ENTERPRISES INC"
+        ],
+        "titleOfClasses": [
+          "COMMON STOCK NEW"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2024-12-31",
+        "latestReportPeriod": "2026-06-30",
+        "periodCount": 6,
+        "periods": [
+          {
+            "reportPeriod": "2024-12-31",
+            "filedAt": "2025-02-13",
+            "valueUsd": 196481,
+            "shares": 1132000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000002/bgllcq42024.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2025-03-31",
+            "filedAt": "2025-05-14",
+            "valueUsd": 181380,
+            "shares": 1132000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000003/bgllcq12025.xml"
+            ],
+            "valueDeltaUsd": -15101,
+            "sharesDelta": 0
+          },
+          {
+            "reportPeriod": "2025-06-30",
+            "filedAt": "2025-08-13",
+            "valueUsd": 246493,
+            "shares": 1132000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000005/bgllcq22025.xml"
+            ],
+            "valueDeltaUsd": 65113,
+            "sharesDelta": 0
+          },
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-13",
+            "valueUsd": 259502,
+            "shares": 1155500,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000007/bgllcq32025.xml"
+            ],
+            "valueDeltaUsd": 13009,
+            "sharesDelta": 23500
+          },
+          {
+            "reportPeriod": "2025-12-31",
+            "filedAt": "2026-02-13",
+            "valueUsd": 253138,
+            "shares": 1137035,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000005/bgllcq42025.xml"
+            ],
+            "valueDeltaUsd": -6364,
+            "sharesDelta": -18465
+          },
+          {
+            "reportPeriod": "2026-06-30",
+            "filedAt": "2026-08-13",
+            "valueUsd": 344269,
+            "shares": 1450594,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/BGLLCQ22026.html"
+            ],
+            "valueDeltaUsd": 91131,
+            "sharesDelta": 313559
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000005/bgllcq42025.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000007/bgllcq32025.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000005/bgllcq22025.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000003/bgllcq12025.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000002/bgllcq42024.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/BGLLCQ22026.html"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:baupost-group|372460105|SH|",
+        "managerId": "baupost-group",
+        "cik": "0001061768",
+        "cusipNormalized": "372460105",
+        "issuerNames": [
+          "GENUINE PARTS CO"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2024-12-31",
+        "latestReportPeriod": "2026-06-30",
+        "periodCount": 4,
+        "periods": [
+          {
+            "reportPeriod": "2024-12-31",
+            "filedAt": "2025-02-13",
+            "valueUsd": 36819,
+            "shares": 315337,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000002/bgllcq42024.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-13",
+            "valueUsd": 193347,
+            "shares": 1395000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000007/bgllcq32025.xml"
+            ],
+            "valueDeltaUsd": 156528,
+            "sharesDelta": 1079663
+          },
+          {
+            "reportPeriod": "2025-12-31",
+            "filedAt": "2026-02-13",
+            "valueUsd": 182729,
+            "shares": 1486088,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000005/bgllcq42025.xml"
+            ],
+            "valueDeltaUsd": -10618,
+            "sharesDelta": 91088
+          },
+          {
+            "reportPeriod": "2026-06-30",
+            "filedAt": "2026-08-13",
+            "valueUsd": 332253,
+            "shares": 2816178,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/BGLLCQ22026.html"
+            ],
+            "valueDeltaUsd": 149524,
+            "sharesDelta": 1330090
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000005/bgllcq42025.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000007/bgllcq32025.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000002/bgllcq42024.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/BGLLCQ22026.html"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:baupost-group|907818108|SH|",
+        "managerId": "baupost-group",
+        "cik": "0001061768",
+        "cusipNormalized": "907818108",
+        "issuerNames": [
+          "UNION PAC CORP"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2025-09-30",
+        "latestReportPeriod": "2026-06-30",
+        "periodCount": 3,
+        "periods": [
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-13",
+            "valueUsd": 353658,
+            "shares": 1496204,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000007/bgllcq32025.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2025-12-31",
+            "filedAt": "2026-02-13",
+            "valueUsd": 376416,
+            "shares": 1627254,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000005/bgllcq42025.xml"
+            ],
+            "valueDeltaUsd": 22758,
+            "sharesDelta": 131050
+          },
+          {
+            "reportPeriod": "2026-06-30",
+            "filedAt": "2026-08-13",
+            "valueUsd": 322427,
+            "shares": 1185395,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/BGLLCQ22026.html"
+            ],
+            "valueDeltaUsd": -53989,
+            "sharesDelta": -441859
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000005/bgllcq42025.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000007/bgllcq32025.xml",
+          "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/BGLLCQ22026.html"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      }
+    ]
+  }
+}

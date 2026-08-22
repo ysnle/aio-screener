@@ -47,11 +47,11 @@ export const DATA_SOURCE_REGISTRY = Object.freeze({
   naaim: entry({
     cadence: 'weekly', refreshMode: 'operator-web-research', producer: 'scripts/refresh-web-research.mjs', artifacts: ['public-data/data.json', 'public-data/structural-data-research.json', 'public-data/reconciliation-status.json'], consumers: ['sentiment'],
     origins: [{ id: 'naaim-exposure-index', authority: 'publisher', sourceKind: 'publisher-public-web', access: 'public-web-terms-apply', url: 'https://naaim.org/programs/naaim-exposure-index/', fields: ['exposureIndex'] }],
-    structuralLimit: { kind: 'publisher-subscription-transition', reason: 'The last public NAAIM value is dated 2026-07-22 and the publisher states subscription access became effective 2026-08-01.', remediation: 'Retain the dated value as stale reference only; configure licensed/direct access for current data.' }
+    structuralLimit: { kind: 'publisher-current-subscription-and-commercial-use-permission', reason: 'The publisher exposes public values with a three-month delay, reserves current/API access for subscribers, and requires express permission for commercial use.', remediation: 'Retain dated public values as stale reference only; configure licensed/direct access and permitted display rights for current data.' }
   }),
   'investors-intelligence': entry({
     cadence: 'weekly', refreshMode: 'operator', producer: 'operator/provider-contract', artifacts: ['public-data/reconciliation-status.json'], consumers: ['sentiment'],
-    origins: [{ id: 'investors-intelligence-advisors-sentiment', authority: 'publisher', sourceKind: 'licensed', access: 'subscriber', url: 'https://www.investorsintelligence.com/', fields: ['bullish', 'bearish', 'correction'] }],
+    origins: [{ id: 'investors-intelligence-advisors-sentiment', authority: 'publisher', sourceKind: 'licensed', access: 'subscriber', url: 'https://www.investorsintelligence.com/subscribe/packages', fields: ['bullish', 'bearish', 'correction'] }],
     structuralLimit: { kind: 'subscriber-data', reason: 'Subscriber survey values are unavailable.', remediation: 'Configure subscriber rights; do not extrapolate.' }
   }),
   'us-breadth': entry({

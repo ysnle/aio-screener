@@ -41,16 +41,23 @@ const macro = data.macro || {};
 add('A1', 'DATA_SNAPSHOT / durable market artifact', data.meta?.generatedAt, 'daily', `revision=${data.meta?.marketSnapshotRevision || snapshot.revision}`);
 add('A2', 'Fear & Greed', data.fearGreed?.asOf || data.meta?.generatedAt, 'daily', `score=${data.fearGreed?.score ?? '—'} source=${data.fearGreed?._source || 'unknown'}`);
 add('A3', 'VIX + HY OAS shared evidence', quote('^VIX')?.observedAt || macro._asOf_hyOAS, 'daily', `vix=${quote('^VIX')?.value ?? '—'} hyOAS=${macro.hyOAS ?? '—'} hyAsOf=${macro._asOf_hyOAS || '—'}; session=${quote('^VIX')?.session || 'missing'}`, ageDays(macro._asOf_hyOAS) != null && ageDays(macro._asOf_hyOAS) > 3 ? 'STALE' : null);
-add('B1', 'AAII sentiment', null, 'weekly', 'SKIPPED: current licensed/direct value unavailable; exact percentage synthesis forbidden', 'SKIPPED');
-add('B2', 'NAAIM exposure', null, 'weekly', 'SKIPPED: current licensed/direct value unavailable; bounded inference only', 'SKIPPED');
-add('B3', 'Investor Intelligence bull/bear', null, 'weekly', 'SKIPPED: subscriber value unavailable; no extrapolated value promoted', 'SKIPPED');
+const surveys = data.marketSurveys || {};
+const aaii = surveys.aaii || {};
+const aaiiComplete = aaii.status === 'current-reference'
+  && ['bullish', 'neutral', 'bearish'].every((field) => Number.isFinite(Number(aaii[field])));
+add('B1', 'AAII sentiment', aaii.observedAt, 'weekly', aaiiComplete
+  ? `bull=${aaii.bullish}% neutral=${aaii.neutral}% bear=${aaii.bearish}% source=${aaii.source || 'AAII'}; public current observation, reference-only`
+  : 'BLOCKED: no complete current official public observation; exact percentage synthesis forbidden', aaiiComplete ? null : 'BLOCKED');
+const naaim = surveys.naaim || {};
+add('B2', 'NAAIM exposure', naaim.observedAt, 'weekly', `BLOCKED_CURRENT: latest/API access is subscription-based; retained public reference=${naaim.exposure ?? '—'} observed=${naaim.observedAt || '—'} and must not be relabeled current`, 'BLOCKED');
+add('B3', 'Investor Intelligence bull/bear', null, 'weekly', 'BLOCKED: current publisher numeric values require subscriber access; no extrapolated value promoted', 'BLOCKED');
 add('B4', 'Put/Call ratio', data.putCall?.asOf || data.meta?.putCallAsOf, 'daily', `total=${data.putCall?.totalPutCall ?? '—'} equity=${data.putCall?.equityPutCall ?? '—'} source=${data.putCall?._source || 'Cboe Daily Market Statistics'}`, Number.isFinite(Number(data.putCall?.totalPutCall)) ? null : 'SKIPPED');
 add('C1', 'US breadth / labels', screener.breadth?.segments?.us?.observedAt || screener.factorObservedAt, 'daily', `coverage=${screener.breadth?.segments?.us?.coveragePct ?? '—'}%`);
 add('C2', 'NDX breadth', screener.breadth?.segments?.us?.observedAt || screener.factorObservedAt, 'daily', 'uses AIO universe contract; official exchange breadth remains separate');
 const aioBreadthHistory = history.filter((row) => Number.isFinite(Number(row?.breadth50)) && row?.breadth50 != null);
 const latestAioBreadthHistory = aioBreadthHistory[aioBreadthHistory.length - 1] || null;
 add('C3', 'AIO breadth history / official McClellan boundary', latestAioBreadthHistory?.fieldMeta?.breadth50?.observedAt || latestAioBreadthHistory?.date, 'daily', aioBreadthHistory.length >= 60 ? `AIO-universe history=${aioBreadthHistory.length} rows; official exchange A/D and McClellan remain unavailable` : 'SKIPPED: AIO history producer has not completed 60 rows; official A/D remains unavailable', aioBreadthHistory.length >= 60 ? null : 'SKIPPED');
-add('C4', 'Weinstein stage', null, 'daily', 'DYNAMIC: derived from runtime price history; no hardcoded current claim');
+add('C4', 'Weinstein stage', screener.factorObservedAt || snapshot.generatedAt, 'daily', 'DYNAMIC: computed from selected runtime OHLCV/30-week evidence; not an external refresh category', 'DYNAMIC');
 add('D1', 'HY OAS', macro._asOf_hyOAS || quote('HYG')?.observedAt, 'daily', `value=${macro.hyOAS ?? '—'} observed=${macro._asOf_hyOAS || '—'}; FRED/ICE publication-lag budget=3d; stale points remain reference-only`, Number.isFinite(Number(macro.hyOAS)) ? null : 'SKIPPED', 3);
 add('D2', 'Treasury yield fallback', quote('^TNX')?.observedAt, 'daily', `10Y=${quote('^TNX')?.value ?? '—'} session=${quote('^TNX')?.session || 'missing'}`);
 add(
@@ -86,12 +93,17 @@ const sourceChecks = {
 };
 const unknownSessions = (snapshot.quotes || []).filter((row) => !row.session || row.session === 'UNKNOWN');
 const dynamicOk = Object.values(sourceChecks).every(Boolean);
-const structuralOk = rows.length === 22 && snapshot.status === 'published' && Number(snapshot.coverage?.observed) >= Number(snapshot.coverage?.required) && unknownSessions.length === 0;
+const auditState = Object.fromEntries(rows.map((row) => [row.id, row.status]));
+const policyStateOk = auditState.B1 === 'OK'
+  && auditState.B2 === 'BLOCKED'
+  && auditState.B3 === 'BLOCKED'
+  && auditState.C4 === 'DYNAMIC';
+const structuralOk = rows.length === 22 && snapshot.status === 'published' && Number(snapshot.coverage?.observed) >= Number(snapshot.coverage?.required) && unknownSessions.length === 0 && policyStateOk;
 
 console.log('| # | Category | Observed | Age(d) | Cadence | Status | Detail |');
 console.log('|---|---|---|---:|---|---|---|');
 for (const row of rows) console.log(`| ${row.id} | ${row.category} | ${row.observedAt || '—'} | ${row.ageDays == null ? '—' : row.ageDays.toFixed(2)} | ${row.cadence} | ${row.status} | ${row.detail} |`);
 console.log(`H-dynamic | ${dynamicOk ? 'PASS' : 'FAIL'} | ${JSON.stringify(sourceChecks)}`);
-console.log(`D1-structural | ${structuralOk ? 'yes' : 'no'} | rows=${rows.length} unknownSessions=${unknownSessions.length} tier0=${snapshot.coverage?.observed}/${snapshot.coverage?.required}`);
+console.log(`D1-structural | ${structuralOk ? 'yes' : 'no'} | rows=${rows.length} unknownSessions=${unknownSessions.length} tier0=${snapshot.coverage?.observed}/${snapshot.coverage?.required} policyStates=${JSON.stringify({ B1: auditState.B1, B2: auditState.B2, B3: auditState.B3, C4: auditState.C4 })}`);
 
 if (!structuralOk || !dynamicOk) process.exit(1);

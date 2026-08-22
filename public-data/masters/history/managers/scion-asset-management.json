@@ -1,0 +1,638 @@
+{
+  "schema": "masters-13f-manager-history-runtime.v1",
+  "sourceKind": "SEC_EDGAR_DERIVED_RAW_ROWS",
+  "reviewedAt": "2026-08-22",
+  "generatedAt": "2026-08-22T10:23:13.861Z",
+  "managerId": "scion-asset-management",
+  "historyRows": [],
+  "historySummary": {
+    "rawRowsAvailable": 158,
+    "periodTotalsSource": "history-index.json.managers[].periods"
+  },
+  "issuerAggregates": {
+    "schema": "masters-13f-issuer-aggregates.v1",
+    "status": "RAW_CUSIP_MULTI_QUARTER_CONNECTED",
+    "publication": "EDUCATIONAL_REFERENCE_ONLY",
+    "boundary": "SEC CUSIP·issuer text·reported value·shares·period history are aggregated for research navigation. This is not a verified security master and cannot produce sector weights, current prices or recommendations.",
+    "managers": [
+      {
+        "managerId": "scion-asset-management",
+        "aggregateCount": 93,
+        "latestPeriod": "2025-09-30",
+        "periodsCovered": 11,
+        "reviewQueueCount": 93
+      }
+    ],
+    "coverage": {
+      "aggregateRecords": 93,
+      "periods": 11,
+      "reviewQueue": 14,
+      "previewRecords": 10
+    },
+    "reviewQueue": [
+      {
+        "aggregateId": "sec-13f-cusip:scion-asset-management|01609W102|SH|Put",
+        "managerId": "scion-asset-management",
+        "cusipNormalized": "01609W102",
+        "flags": [
+          "PUT_CALL_REVIEW"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
+        "aggregateId": "sec-13f-cusip:scion-asset-management|056752108|SH|Put",
+        "managerId": "scion-asset-management",
+        "cusipNormalized": "056752108",
+        "flags": [
+          "PUT_CALL_REVIEW"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
+        "aggregateId": "sec-13f-cusip:scion-asset-management|47215P106|SH|Put",
+        "managerId": "scion-asset-management",
+        "cusipNormalized": "47215P106",
+        "flags": [
+          "PUT_CALL_REVIEW"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
+        "aggregateId": "sec-13f-cusip:scion-asset-management|67066G104|SH|Put",
+        "managerId": "scion-asset-management",
+        "cusipNormalized": "67066G104",
+        "flags": [
+          "PUT_CALL_REVIEW"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
+        "aggregateId": "sec-13f-cusip:scion-asset-management|722304102|SH|Put",
+        "managerId": "scion-asset-management",
+        "cusipNormalized": "722304102",
+        "flags": [
+          "PUT_CALL_REVIEW"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
+        "aggregateId": "sec-13f-cusip:scion-asset-management|89677Q107|SH|Put",
+        "managerId": "scion-asset-management",
+        "cusipNormalized": "89677Q107",
+        "flags": [
+          "PUT_CALL_REVIEW"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
+        "aggregateId": "sec-13f-cusip:scion-asset-management|47215P106|SH|",
+        "managerId": "scion-asset-management",
+        "cusipNormalized": "47215P106",
+        "flags": [
+          "TITLE_OF_CLASS_VARIATION"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
+        "aggregateId": "sec-13f-cusip:scion-asset-management|09857L108|SH|Put",
+        "managerId": "scion-asset-management",
+        "cusipNormalized": "09857L108",
+        "flags": [
+          "PUT_CALL_REVIEW"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
+        "aggregateId": "sec-13f-cusip:scion-asset-management|464287523|SH|Put",
+        "managerId": "scion-asset-management",
+        "cusipNormalized": "464287523",
+        "flags": [
+          "PUT_CALL_REVIEW"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
+        "aggregateId": "sec-13f-cusip:scion-asset-management|46090E103|SH|Put",
+        "managerId": "scion-asset-management",
+        "cusipNormalized": "46090E103",
+        "flags": [
+          "PUT_CALL_REVIEW"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      }
+    ],
+    "aggregates": [
+      {
+        "aggregateId": "sec-13f-cusip:scion-asset-management|69608A108|SH|Put",
+        "managerId": "scion-asset-management",
+        "cik": "0001649339",
+        "cusipNormalized": "69608A108",
+        "issuerNames": [
+          "PALANTIR TECHNOLOGIES INC"
+        ],
+        "titleOfClasses": [
+          "CL A"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [
+          "Put"
+        ],
+        "firstReportPeriod": "2025-09-30",
+        "latestReportPeriod": "2025-09-30",
+        "periodCount": 1,
+        "periods": [
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-03",
+            "valueUsd": 912100000,
+            "shares": 5000000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1649339/000164933925000007/infotable.html"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1649339/000164933925000007/infotable.html"
+        ],
+        "reviewFlags": [
+          "PUT_CALL_REVIEW"
+        ],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:scion-asset-management|78462F103|SH|Put",
+        "managerId": "scion-asset-management",
+        "cik": "0001649339",
+        "cusipNormalized": "78462F103",
+        "issuerNames": [
+          "SPDR S&P 500 ETF TR"
+        ],
+        "titleOfClasses": [
+          "TR UNIT"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [
+          "Put"
+        ],
+        "firstReportPeriod": "2023-06-30",
+        "latestReportPeriod": "2023-06-30",
+        "periodCount": 1,
+        "periods": [
+          {
+            "reportPeriod": "2023-06-30",
+            "filedAt": "2023-08-14",
+            "valueUsd": 886560000,
+            "shares": 2000000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1649339/000090514823000689/informationtable.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1649339/000090514823000689/informationtable.xml"
+        ],
+        "reviewFlags": [
+          "PUT_CALL_REVIEW"
+        ],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:scion-asset-management|46090E103|SH|Put",
+        "managerId": "scion-asset-management",
+        "cik": "0001649339",
+        "cusipNormalized": "46090E103",
+        "issuerNames": [
+          "INVESCO QQQ TR"
+        ],
+        "titleOfClasses": [
+          "UNIT SER 1"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [
+          "Put"
+        ],
+        "firstReportPeriod": "2023-06-30",
+        "latestReportPeriod": "2023-06-30",
+        "periodCount": 1,
+        "periods": [
+          {
+            "reportPeriod": "2023-06-30",
+            "filedAt": "2023-08-14",
+            "valueUsd": 738840000,
+            "shares": 2000000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1649339/000090514823000689/informationtable.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1649339/000090514823000689/informationtable.xml"
+        ],
+        "reviewFlags": [
+          "PUT_CALL_REVIEW"
+        ],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:scion-asset-management|67066G104|SH|Put",
+        "managerId": "scion-asset-management",
+        "cik": "0001649339",
+        "cusipNormalized": "67066G104",
+        "issuerNames": [
+          "NVIDIA CORPORATION"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [
+          "Put"
+        ],
+        "firstReportPeriod": "2025-03-31",
+        "latestReportPeriod": "2025-09-30",
+        "periodCount": 2,
+        "periods": [
+          {
+            "reportPeriod": "2025-03-31",
+            "filedAt": "2025-05-15",
+            "valueUsd": 97542000,
+            "shares": 900000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1649339/000187920225000025/infotable.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-03",
+            "valueUsd": 186580000,
+            "shares": 1000000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1649339/000164933925000007/infotable.html"
+            ],
+            "valueDeltaUsd": 89038000,
+            "sharesDelta": 100000
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1649339/000187920225000025/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1649339/000164933925000007/infotable.html"
+        ],
+        "reviewFlags": [
+          "PUT_CALL_REVIEW"
+        ],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:scion-asset-management|717081103|SH|Call",
+        "managerId": "scion-asset-management",
+        "cik": "0001649339",
+        "cusipNormalized": "717081103",
+        "issuerNames": [
+          "PFIZER INC"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [
+          "Call"
+        ],
+        "firstReportPeriod": "2025-09-30",
+        "latestReportPeriod": "2025-09-30",
+        "periodCount": 1,
+        "periods": [
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-03",
+            "valueUsd": 152880000,
+            "shares": 6000000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1649339/000164933925000007/infotable.html"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1649339/000164933925000007/infotable.html"
+        ],
+        "reviewFlags": [
+          "PUT_CALL_REVIEW"
+        ],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:scion-asset-management|406216101|SH|Call",
+        "managerId": "scion-asset-management",
+        "cik": "0001649339",
+        "cusipNormalized": "406216101",
+        "issuerNames": [
+          "HALLIBURTON CO"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [
+          "Call"
+        ],
+        "firstReportPeriod": "2025-09-30",
+        "latestReportPeriod": "2025-09-30",
+        "periodCount": 1,
+        "periods": [
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-03",
+            "valueUsd": 61500000,
+            "shares": 2500000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1649339/000164933925000007/infotable.html"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1649339/000164933925000007/infotable.html"
+        ],
+        "reviewFlags": [
+          "PUT_CALL_REVIEW"
+        ],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:scion-asset-management|464287523|SH|Put",
+        "managerId": "scion-asset-management",
+        "cik": "0001649339",
+        "cusipNormalized": "464287523",
+        "issuerNames": [
+          "ISHARES TR"
+        ],
+        "titleOfClasses": [
+          "ISHARES SEMICDTR"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [
+          "Put"
+        ],
+        "firstReportPeriod": "2023-09-30",
+        "latestReportPeriod": "2023-09-30",
+        "periodCount": 1,
+        "periods": [
+          {
+            "reportPeriod": "2023-09-30",
+            "filedAt": "2023-11-14",
+            "valueUsd": 47365000,
+            "shares": 100000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1649339/000090514823001400/informationtable.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1649339/000090514823001400/informationtable.xml"
+        ],
+        "reviewFlags": [
+          "PUT_CALL_REVIEW"
+        ],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:scion-asset-management|01609W102|SH|Put",
+        "managerId": "scion-asset-management",
+        "cik": "0001649339",
+        "cusipNormalized": "01609W102",
+        "issuerNames": [
+          "ALIBABA GROUP HLDG LTD"
+        ],
+        "titleOfClasses": [
+          "SPONSORED ADS"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [
+          "Put"
+        ],
+        "firstReportPeriod": "2024-09-30",
+        "latestReportPeriod": "2025-03-31",
+        "periodCount": 2,
+        "periods": [
+          {
+            "reportPeriod": "2024-09-30",
+            "filedAt": "2024-11-14",
+            "valueUsd": 17923668,
+            "shares": 168900,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1649339/000090514824003106/informationtable.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2025-03-31",
+            "filedAt": "2025-05-15",
+            "valueUsd": 26446000,
+            "shares": 200000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1649339/000187920225000025/infotable.xml"
+            ],
+            "valueDeltaUsd": 8522332,
+            "sharesDelta": 31100
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1649339/000187920225000025/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1649339/000090514824003106/informationtable.xml"
+        ],
+        "reviewFlags": [
+          "PUT_CALL_REVIEW"
+        ],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:scion-asset-management|60855R100|SH|",
+        "managerId": "scion-asset-management",
+        "cik": "0001649339",
+        "cusipNormalized": "60855R100",
+        "issuerNames": [
+          "MOLINA HEALTHCARE INC"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2024-06-30",
+        "latestReportPeriod": "2025-09-30",
+        "periodCount": 4,
+        "periods": [
+          {
+            "reportPeriod": "2024-06-30",
+            "filedAt": "2024-08-14",
+            "valueUsd": 7292769,
+            "shares": 24530,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1649339/000090514824002196/informationtable.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2024-09-30",
+            "filedAt": "2024-11-14",
+            "valueUsd": 10336800,
+            "shares": 30000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1649339/000090514824003106/informationtable.xml"
+            ],
+            "valueDeltaUsd": 3044031,
+            "sharesDelta": 5470
+          },
+          {
+            "reportPeriod": "2024-12-31",
+            "filedAt": "2025-02-14",
+            "valueUsd": 7276250,
+            "shares": 25000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1649339/000187920225000012/infotable.xml"
+            ],
+            "valueDeltaUsd": -3060550,
+            "sharesDelta": -5000
+          },
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-03",
+            "valueUsd": 23920000,
+            "shares": 125000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1649339/000164933925000007/infotable.html"
+            ],
+            "valueDeltaUsd": 16643750,
+            "sharesDelta": 100000
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1649339/000187920225000012/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1649339/000090514824003106/informationtable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1649339/000090514824002196/informationtable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1649339/000164933925000007/infotable.html"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:scion-asset-management|722304102|SH|Put",
+        "managerId": "scion-asset-management",
+        "cik": "0001649339",
+        "cusipNormalized": "722304102",
+        "issuerNames": [
+          "PDD HOLDINGS INC"
+        ],
+        "titleOfClasses": [
+          "SPONSORED ADS"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [
+          "Put"
+        ],
+        "firstReportPeriod": "2025-03-31",
+        "latestReportPeriod": "2025-03-31",
+        "periodCount": 1,
+        "periods": [
+          {
+            "reportPeriod": "2025-03-31",
+            "filedAt": "2025-05-15",
+            "valueUsd": 23670000,
+            "shares": 200000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1649339/000187920225000025/infotable.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1649339/000187920225000025/infotable.xml"
+        ],
+        "reviewFlags": [
+          "PUT_CALL_REVIEW"
+        ],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      }
+    ]
+  }
+}

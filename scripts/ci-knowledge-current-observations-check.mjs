@@ -11,6 +11,8 @@ assert.equal(artifact.status, 'CONNECTED_WITH_BOUNDARY');
 assert.ok(artifact.boundary);
 assert.ok(Array.isArray(artifact.observations) && artifact.observations.length >= 8);
 assert.equal(validateCurrentObservationsArtifact(artifact), true);
+assert.equal(validateCurrentObservationsArtifact(null), false);
+assert.equal(validateCurrentObservationsArtifact({ observations: [{ id: 'bad' }] }), false);
 const ids = new Set();
 for (const row of artifact.observations) {
   assert.equal(ids.has(row.id), false, `duplicate observation id: ${row.id}`);

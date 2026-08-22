@@ -1,11 +1,71 @@
 ---
 verified_by: agent (Fable 5) + Codex P761-P936 verification
-last_verified: 2026-08-16
+last_verified: 2026-08-22
 confidence: high
-target_version: v54.37
+target_version: v54.43
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R509. Learning pages require narrative order, destination consumption and filing-semantic labels (v54.43, P953)
+
+**Rule**: a knowledge page must open on the authored causal story, keep each category explanation readable as a bounded passage, and place detailed maps/evidence behind the learner's next question. A cross-page CTA is complete only when the destination consumes the exact concept, metric and timeframe, shows the arrival context, preserves a return path and restores after reload. Plain page navigation must clear page-specific knowledge query keys so one page's tab or manager cannot select another page's mode. Regulatory UI and artifact fields must describe the filing evidence: reported-share deltas are not trades, 13D/G is not a 13F position, and a primary HTML/text document may not be labeled XML.
+
+**Validation**: `scripts/ci-three-page-learning-flow-check.mjs`, the Principles/Atlas/Masters focused contract and browser gates, `scripts/ci-three-page-artifact-budget-check.mjs`, `scripts/reconcile-atlas-taxonomy.mjs`, and `scripts/ci-masters-contract-check.mjs`.
+
+## R508. Rendering, coverage, persistence and publication readiness are separate contracts (v54.42, P952)
+
+**Rule**: a page may report data as complete only when its declared universe, current-period rows and required artifact groups are complete; otherwise it must expose an explicit partial/fallback state and category counts. Opening a library lesson or primer must bind bookmark, note and share URL state to that exact item and survive reload/back/forward. Professional route bridges must use the app's parsed route grammar and expose their metric/timeframe context after direct load. Structured knowledge may not imply human review or publication readiness, and object-valued glossary content must be rendered as readable product text rather than serialized JSON.
+
+**Validation**: `scripts/ci-masters-contract-check.mjs`, `scripts/ci-masters-browser-check.mjs`, `scripts/ci-principles-browser-check.mjs`, `scripts/ci-atlas-browser-check.mjs`, `scripts/ci-knowledge-route-bridge-contract.mjs`, and `scripts/ci-three-page-artifact-budget-check.mjs`.
+
+## R507. Refresh audits distinguish observed, policy-blocked and runtime-derived categories (v54.41, P951)
+
+**Rule**: a public current publisher observation must be audited from its dated artifact and may not be labeled `SKIPPED` merely because it is reference-only. Subscriber/current-access restrictions are `BLOCKED` with the last permissible reference kept separately. A model computed from runtime OHLCV is `DYNAMIC`, not an unavailable external feed. Local environment absence must never be used as proof that a GitHub Actions repository variable is absent; configuration and execution evidence are reported separately.
+
+**Validation**: `scripts/refresh-web-research.mjs`, `scripts/ci-web-research-contract-check.mjs`, `scripts/ci-data-refresh-audit.mjs`, and the SEC workflow/configuration evidence ledger.
+
+## R506. Detail artifacts belong to the narrowest interaction and retain honest failure state (v54.40, P950)
+
+**Rule**: route entry and profile selection may consume summaries but must not fetch full manager rows or long-form detail artifacts. Compact Top rows must never populate full-row state or be labeled as a complete filing. Full holdings, sector mapping, comparison detail and long-form articles load only after the matching explicit interaction, expose loading/failure/retry state, and preserve other summary/source surfaces after failure. A shared resolved-artifact cache must have an enforced LRU/size bound so long sessions cannot retain every visited shard indefinitely.
+
+**Validation**: `scripts/ci-artifact-cache-check.mjs`, `scripts/ci-masters-browser-check.mjs`, `scripts/ci-principles-browser-check.mjs`, `scripts/ci-atlas-browser-check.mjs`, and `scripts/ci-three-page-artifact-budget-check.mjs`.
+
+## R505. Summary-only surfaces consume compact projections, not completion corpora (v54.39, P949)
+
+**Rule**: a page that renders only counts or progress must consume a deterministic compact status projection and may not download article, coverage, claim or dossier monoliths. The projection must retain the canonical incomplete/human-review boundary and must never be used as evidence for unit-level publication or completion.
+
+**Validation**: `scripts/build-knowledge-runtime-index.mjs`, `public-data/knowledge/status-summary.json`, `scripts/ci-three-page-artifact-budget-check.mjs`, and the Atlas focused Chromium gate.
+
+## R504. Browser runtime data uses bounded shards and shared request coalescing (v54.39, P949)
+
+**Rule**: canonical full-resolution holdings, history, aggregates and long-form corpora remain rebuild/research artifacts; browser routes consume a compact index and fetch only the selected manager, period or article shard. Identical URL requests from concurrent capabilities or route re-entry must share one in-flight/result cache. One consumer's AbortSignal may stop its own wait but must not cancel data required by another live consumer. Every affected route has an explicit cold-byte budget and a zero-repeat re-entry assertion.
+
+**Validation**: `src/data/artifact-cache.js`, `scripts/build-masters-runtime-artifacts.mjs`, `scripts/ci-artifact-cache-check.mjs`, `scripts/ci-masters-contract-check.mjs`, and `scripts/ci-three-page-artifact-budget-check.mjs`.
+
+## R502. Every golden route belongs to shared viewport and accessibility coverage (v54.38, P948)
+
+**Rule**: a route promoted to the primary navigation must be present in the shared desktop viewport, accessibility and lifecycle route inventories. User-visible copy must use product language, never raw internal artifact/service identifiers, and every persistent input must have an accessible name.
+
+**Validation**: `scripts/ci-viewport-matrix-check.mjs`, the accessibility browser gate and the 20-route lifecycle/soak gates must include `principles`, `masters` and `atlas`.
+
+## R501. Structured knowledge depth is not human certification (v54.38, P948)
+
+**Rule**: Principles and Atlas may publish structured long-form reference drafts only with an explicit review boundary. Each connected learner target must expose durable bookmark/note state and an exact professional route bridge containing route, metric, timeframe and return context. Automated length, schema and browser checks cannot be described as independent semantic, source-directness or recruited-user certification.
+
+**Validation**: the knowledge depth audit reports `completionReady:false`; route-bridge, Principles and Atlas browser contracts cover all primary targets and persisted learner state.
+
+## R500. Knowledge routes load by route-owned capability and preserve interaction state (v54.38, P948)
+
+**Rule**: heavy knowledge artifacts load only when their tab, search or selected module needs them. Requests belong to the active route scope through `AbortSignal`/liveness guards, independent capabilities settle without collapsing the whole page, and rerenders preserve the user's search value and focus.
+
+**Validation**: `src/data/knowledge/load-capabilities.js`, `src/ui/pages/principles.js`, `src/ui/pages/atlas.js`, and their focused Chromium gates.
+
+## R499. Regulatory universes require discovery, fair access, amendment composition and last-known-good preservation (v54.38, P948)
+
+**Rule**: a 13F/13D/G universe cannot be called current from a hand-maintained subset. One scheduled producer must discover every configured filer, use a monitored SEC contact and serialized/retried request queue, separate submission recency from holdings periods, compose `13F-HR/A` according to its amendment type, preserve per-manager last-known-good rows on partial failure, and publish an explicit `BLOCKED` state when fair-access identity is unavailable. Schedule 13D/G events remain a separate beneficial-ownership layer and must never be merged into 13F positions or described as current trades.
+
+**Validation**: `scripts/collect-13f-discovery.mjs`, `scripts/collect-13f-reference.mjs`, `scripts/lib/sec-edgar.mjs`, `scripts/ci-13f-currentness-check.mjs`, and the daily SEC job in `.github/workflows/refresh-data.yml`.
 
 ## R498. Screener factor rows cannot be created by fundamentals alone (v54.37, P945)
 
@@ -2254,7 +2314,7 @@ endpoint identity while retaining explicit operator blockers.
 
 **Validation**: `scripts/ci-atlas-contract-check.mjs`, `scripts/ci-knowledge-currentness-separation.mjs`, `scripts/ci-knowledge-article-contract.mjs`, `public-data/knowledge/relationship-guides.json`, Atlas Chromium browser check.
 
-## R495. reference-depth·currentness·provider-review는 서로 다른 승격 단계로 보존한다 (v54.36, P943)
+## R503. reference-depth·currentness·provider-review는 서로 다른 승격 단계로 보존한다 (v54.36, P943)
 
 **Rule**: 1,200자 이상 원문, semantic field, worked example, dated fact 연결, current-evidence ledger, raw 13F CUSIP 집계는 각각 해당 구조와 출처 연결만 인증한다. 이를 human semantic review, independent directness review, current operational/financial/production claim, verified ticker·sector·corporate-action mapping, 또는 recruited-user validation으로 승격하지 않는다. 외부 provider 권한·갱신 실패·stale artifact는 기존 LKG를 보존하면서 `STALE`/`RESEARCH_REQUIRED`/`REVIEW_REQUIRED`/`BLOCKED` 상태와 원인을 남긴다.
 

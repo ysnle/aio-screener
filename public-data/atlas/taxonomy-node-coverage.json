@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ai-era-atlas-taxonomy-node-coverage.v1",
-  "revision": "2026-08-10-v53.99",
+  "revision": "2026-08-22-source-and-relationship-reconciled",
   "status": "STRUCTURAL_COVERAGE_CONNECTED",
   "publication": "EDUCATIONAL_REFERENCE_ONLY",
   "sourceDocument": "_context/AI-ERA-DEEP-TAXONOMY-PLAYER-PRODUCT-SPEC-2026-08-01.md",
@@ -16,49 +16,616 @@
   "relationshipModel": {
     "status": "STRUCTURAL_RELATIONSHIPS_CONNECTED",
     "domainChains": [
-      {"domainId":"domain-cloud-platform","nodeIds":["cloud-hyperscaler","cloud-ai-service","cloud-utilization","cloud-commitments","cloud-depreciation"]},
-      {"domainId":"domain-neocloud-finance","nodeIds":["neocloud-gpu-rental","neocloud-capacity-reservation","neocloud-lease-burden","neocloud-customer-concentration","neocloud-rental-yield"]},
-      {"domainId":"domain-compute-silicon","nodeIds":["compute-gpu","compute-asic","compute-npu","compute-precision","compute-interconnect"]},
-      {"domainId":"domain-memory-storage","nodeIds":["memory-sram","memory-dram-hbm","memory-nand","memory-enterprise-ssd","memory-cxl"]},
-      {"domainId":"domain-foundry-equipment","nodeIds":["foundry-design-ecosystem","foundry-process-node","foundry-equipment","foundry-materials","foundry-capacity-yield"]},
-      {"domainId":"domain-packaging-substrate","nodeIds":["package-2-5d","package-3d-stacking","package-interposer","package-substrate","package-glass"]},
-      {"domainId":"domain-network-photonics","nodeIds":["network-switch","network-optical-module","network-silicon-photonics","network-cpo","network-fabric"]},
-      {"domainId":"domain-aidc-cooling","nodeIds":["aidc-rack-density","aidc-liquid-cooling","aidc-thermal-design","aidc-server-platform","aidc-pue"]},
-      {"domainId":"domain-power-grid","nodeIds":["power-it-load","power-generation","power-transmission","power-interconnection","power-transformer"]},
-      {"domainId":"domain-on-device-physical-ai","nodeIds":["edge-soc-npu","edge-memory-power","physical-ai-sensing","physical-ai-control","physical-ai-digital-twin"]},
-      {"domainId":"domain-ai-economics","nodeIds":["economics-revenue-model","economics-capex","economics-depreciation","economics-fcf","economics-roic"]},
-      {"domainId":"domain-physical-ai-robotics","nodeIds":["physical-ai-perception","physical-ai-world-model","physical-ai-planning","physical-ai-actuation","physical-ai-unit-economics"]},
-      {"domainId":"domain-drone-defense","nodeIds":["defense-kill-chain","defense-c2-isr-ew","defense-autonomy","defense-drone-production","defense-procurement-economics"]},
-      {"domainId":"domain-space-aerospace","nodeIds":["space-rocket-physics","space-reusability","space-satellite-economics","space-artemis-architecture","space-aircraft-supply-chain"]},
-      {"domainId":"domain-ai-applications","nodeIds":["application-healthcare","application-manufacturing","application-automotive","application-finance","application-roi-payer"]},
-      {"domainId":"domain-resources-materials","nodeIds":["resources-copper","resources-lithium","resources-rare-earths","resources-refining","resources-industrial-equipment"]},
-      {"domainId":"domain-geopolitics-policy-security","nodeIds":["policy-export-controls","policy-supply-chain-resilience","policy-semiconductor-incentives","policy-cybersecurity","policy-national-security-risk"]},
-      {"domainId":"domain-capital-markets-company-map","nodeIds":["capital-company-role","capital-revenue-quality","capital-margin-structure","capital-balance-sheet","capital-market-expectation"]},
-      {"domainId":"domain-adjacent-future-tech","nodeIds":["future-quantum","future-photonic-compute","future-neuromorphic","future-new-energy","future-uncertainty-gate"]}
+      {
+        "domainId": "domain-cloud-platform",
+        "nodeIds": [
+          "cloud-hyperscaler",
+          "cloud-ai-service",
+          "cloud-utilization",
+          "cloud-commitments",
+          "cloud-depreciation"
+        ]
+      },
+      {
+        "domainId": "domain-neocloud-finance",
+        "nodeIds": [
+          "neocloud-gpu-rental",
+          "neocloud-capacity-reservation",
+          "neocloud-lease-burden",
+          "neocloud-customer-concentration",
+          "neocloud-rental-yield"
+        ]
+      },
+      {
+        "domainId": "domain-compute-silicon",
+        "nodeIds": [
+          "compute-gpu",
+          "compute-asic",
+          "compute-npu",
+          "compute-precision",
+          "compute-interconnect"
+        ]
+      },
+      {
+        "domainId": "domain-memory-storage",
+        "nodeIds": [
+          "memory-sram",
+          "memory-dram-hbm",
+          "memory-nand",
+          "memory-enterprise-ssd",
+          "memory-cxl"
+        ]
+      },
+      {
+        "domainId": "domain-foundry-equipment",
+        "nodeIds": [
+          "foundry-design-ecosystem",
+          "foundry-process-node",
+          "foundry-equipment",
+          "foundry-materials",
+          "foundry-capacity-yield"
+        ]
+      },
+      {
+        "domainId": "domain-packaging-substrate",
+        "nodeIds": [
+          "package-2-5d",
+          "package-3d-stacking",
+          "package-interposer",
+          "package-substrate",
+          "package-glass"
+        ]
+      },
+      {
+        "domainId": "domain-network-photonics",
+        "nodeIds": [
+          "network-switch",
+          "network-optical-module",
+          "network-silicon-photonics",
+          "network-cpo",
+          "network-fabric"
+        ]
+      },
+      {
+        "domainId": "domain-aidc-cooling",
+        "nodeIds": [
+          "aidc-rack-density",
+          "aidc-liquid-cooling",
+          "aidc-thermal-design",
+          "aidc-server-platform",
+          "aidc-pue"
+        ]
+      },
+      {
+        "domainId": "domain-power-grid",
+        "nodeIds": [
+          "power-it-load",
+          "power-generation",
+          "power-transmission",
+          "power-interconnection",
+          "power-transformer"
+        ]
+      },
+      {
+        "domainId": "domain-on-device-physical-ai",
+        "nodeIds": [
+          "edge-soc-npu",
+          "edge-memory-power",
+          "physical-ai-sensing",
+          "physical-ai-control",
+          "physical-ai-digital-twin"
+        ]
+      },
+      {
+        "domainId": "domain-ai-economics",
+        "nodeIds": [
+          "economics-revenue-model",
+          "economics-capex",
+          "economics-depreciation",
+          "economics-fcf",
+          "economics-roic"
+        ]
+      },
+      {
+        "domainId": "domain-physical-ai-robotics",
+        "nodeIds": [
+          "physical-ai-perception",
+          "physical-ai-world-model",
+          "physical-ai-planning",
+          "physical-ai-actuation",
+          "physical-ai-unit-economics"
+        ]
+      },
+      {
+        "domainId": "domain-drone-defense",
+        "nodeIds": [
+          "defense-kill-chain",
+          "defense-c2-isr-ew",
+          "defense-autonomy",
+          "defense-drone-production",
+          "defense-procurement-economics"
+        ]
+      },
+      {
+        "domainId": "domain-space-aerospace",
+        "nodeIds": [
+          "space-rocket-physics",
+          "space-reusability",
+          "space-satellite-economics",
+          "space-artemis-architecture",
+          "space-aircraft-supply-chain"
+        ]
+      },
+      {
+        "domainId": "domain-ai-applications",
+        "nodeIds": [
+          "application-healthcare",
+          "application-manufacturing",
+          "application-automotive",
+          "application-finance",
+          "application-roi-payer"
+        ]
+      },
+      {
+        "domainId": "domain-resources-materials",
+        "nodeIds": [
+          "resources-copper",
+          "resources-lithium",
+          "resources-rare-earths",
+          "resources-refining",
+          "resources-industrial-equipment"
+        ]
+      },
+      {
+        "domainId": "domain-geopolitics-policy-security",
+        "nodeIds": [
+          "policy-export-controls",
+          "policy-supply-chain-resilience",
+          "policy-semiconductor-incentives",
+          "policy-cybersecurity",
+          "policy-national-security-risk"
+        ]
+      },
+      {
+        "domainId": "domain-capital-markets-company-map",
+        "nodeIds": [
+          "capital-company-role",
+          "capital-revenue-quality",
+          "capital-margin-structure",
+          "capital-balance-sheet",
+          "capital-market-expectation"
+        ]
+      },
+      {
+        "domainId": "domain-adjacent-future-tech",
+        "nodeIds": [
+          "future-quantum",
+          "future-photonic-compute",
+          "future-neuromorphic",
+          "future-new-energy",
+          "future-uncertainty-gate"
+        ]
+      }
     ],
     "crossDomainEdges": [
-      {"id":"atlas-edge-cloud-compute-demand","from":"cloud-hyperscaler","to":"compute-gpu","relation":"AI compute demand","type":"REQUIRES","direction":"DIRECTED","kind":"INDUSTRY","strength":"CORE","polarity":"CONDITIONAL","conditions":["AI workload demand is served with accelerator capacity"],"sourceIds":["AT-CL-01","AT-CS-01"],"reviewedAt":"2026-08-10"},
-      {"id":"atlas-edge-compute-memory-bandwidth","from":"compute-gpu","to":"memory-dram-hbm","relation":"workload bandwidth","type":"REQUIRES","direction":"DIRECTED","kind":"INDUSTRY","strength":"CORE","polarity":"CONDITIONAL","conditions":["memory bandwidth constrains accelerator utilization"],"sourceIds":["AT-CS-01","AT-MS-01"],"reviewedAt":"2026-08-10"},
-      {"id":"atlas-edge-memory-package-integration","from":"memory-dram-hbm","to":"package-2-5d","relation":"system integration","type":"REQUIRES","direction":"DIRECTED","kind":"INDUSTRY","strength":"CORE","polarity":"CONDITIONAL","conditions":["stacked memory and logic require advanced integration"],"sourceIds":["AT-MS-01","AT-PA-01"],"reviewedAt":"2026-08-10"},
-      {"id":"atlas-edge-package-network-scale","from":"package-2-5d","to":"network-fabric","relation":"cluster scale","type":"ENABLES","direction":"DIRECTED","kind":"INDUSTRY","strength":"CORE","polarity":"CONDITIONAL","conditions":["packaged compute expands from node scale to cluster scale"],"sourceIds":["AT-PA-01","AT-NP-01"],"reviewedAt":"2026-08-10"},
-      {"id":"atlas-edge-network-facility-deployment","from":"network-fabric","to":"aidc-server-platform","relation":"facility deployment","type":"ENABLES","direction":"DIRECTED","kind":"INDUSTRY","strength":"CORE","polarity":"CONDITIONAL","conditions":["cluster fabrics are deployed as part of server platforms"],"sourceIds":["AT-NP-01","AT-AC-01"],"reviewedAt":"2026-08-10"},
-      {"id":"atlas-edge-aidc-power-load","from":"aidc-server-platform","to":"power-it-load","relation":"IT load","type":"CAUSES","direction":"DIRECTED","kind":"INDUSTRY","strength":"CORE","polarity":"POSITIVE","conditions":["deployed server capacity is energized and utilized"],"sourceIds":["AT-AC-01","AT-PG-01"],"reviewedAt":"2026-08-10"},
-      {"id":"atlas-edge-power-grid-access","from":"power-it-load","to":"power-interconnection","relation":"grid access","type":"REQUIRES","direction":"DIRECTED","kind":"INDUSTRY","strength":"CORE","polarity":"CONDITIONAL","conditions":["incremental IT load requires deliverable grid capacity"],"sourceIds":["AT-PG-01","AT-PG-02"],"reviewedAt":"2026-08-10"},
-      {"id":"atlas-edge-interconnection-transformer","from":"power-interconnection","to":"power-transformer","relation":"substation equipment","type":"REQUIRES","direction":"DIRECTED","kind":"INDUSTRY","strength":"CORE","polarity":"CONDITIONAL","conditions":["interconnection design requires suitable voltage transformation"],"sourceIds":["AT-PG-02","AT-PG-03"],"reviewedAt":"2026-08-10"},
-      {"id":"atlas-edge-power-capex","from":"power-it-load","to":"economics-capex","relation":"capital requirement","type":"CAUSES","direction":"DIRECTED","kind":"ECONOMIC","strength":"CORE","polarity":"POSITIVE","conditions":["new power and facility capacity is built rather than absorbed by spare capacity"],"sourceIds":["AT-PG-01","AT-AE-01"],"reviewedAt":"2026-08-10"},
-      {"id":"atlas-edge-roic-company-role","from":"economics-roic","to":"capital-company-role","relation":"value capture","type":"MEASURES","direction":"DIRECTED","kind":"MARKET","strength":"CORE","polarity":"CONDITIONAL","conditions":["company role and invested capital boundaries are identified consistently"],"sourceIds":["AT-AE-03","AT-CM-01"],"reviewedAt":"2026-08-10"},
-      {"id":"atlas-edge-compute-edge-deployment","from":"compute-gpu","to":"edge-soc-npu","relation":"deployment split","type":"EXPOSES_TO","direction":"DIRECTED","kind":"INDUSTRY","strength":"SUPPORTING","polarity":"CONDITIONAL","conditions":["latency privacy or power shifts inference toward the edge"],"sourceIds":["AT-CS-02","AT-OD-01"],"reviewedAt":"2026-08-10"},
-      {"id":"atlas-edge-edge-physical-perception","from":"edge-soc-npu","to":"physical-ai-perception","relation":"on-device sensing","type":"ENABLES","direction":"DIRECTED","kind":"INDUSTRY","strength":"CORE","polarity":"CONDITIONAL","conditions":["sensor data is processed within latency and power budgets"],"sourceIds":["AT-OD-01","AT-RB-01"],"reviewedAt":"2026-08-10"},
-      {"id":"atlas-edge-compute-world-model","from":"compute-gpu","to":"physical-ai-world-model","relation":"simulation compute","type":"ENABLES","direction":"DIRECTED","kind":"INDUSTRY","strength":"SUPPORTING","polarity":"CONDITIONAL","conditions":["training and simulation scale with accelerator availability"],"sourceIds":["AT-CS-01","AT-RB-02"],"reviewedAt":"2026-08-10"},
-      {"id":"atlas-edge-planning-defense-autonomy","from":"physical-ai-planning","to":"defense-autonomy","relation":"autonomous decision loop","type":"ENABLES","direction":"DIRECTED","kind":"INDUSTRY","strength":"SUPPORTING","polarity":"CONDITIONAL","conditions":["planning is bounded by command rules safety and human control"],"sourceIds":["AT-RB-02","AT-DD-02"],"reviewedAt":"2026-08-10"},
-      {"id":"atlas-edge-defense-space-procurement","from":"defense-procurement-economics","to":"space-satellite-economics","relation":"mission procurement demand","type":"FUNDS","direction":"DIRECTED","kind":"ECONOMIC","strength":"SUPPORTING","polarity":"CONDITIONAL","conditions":["space capability is procured for defense or public missions"],"sourceIds":["AT-DD-03","AT-SA-02"],"reviewedAt":"2026-08-10"},
-      {"id":"atlas-edge-policy-compute-access","from":"policy-export-controls","to":"compute-gpu","relation":"access constraint","type":"CONSTRAINS","direction":"DIRECTED","kind":"POLICY","strength":"CORE","polarity":"NEGATIVE","conditions":["covered products destinations and end uses fall within the rule"],"sourceIds":["AT-GP-01","AT-CS-01"],"reviewedAt":"2026-08-10"},
-      {"id":"atlas-edge-revenue-quality-roic","from":"capital-revenue-quality","to":"economics-roic","relation":"cashflow verification","type":"EVIDENCES","direction":"DIRECTED","kind":"MARKET","strength":"CORE","polarity":"CONDITIONAL","conditions":["reported revenue converts into durable operating cash flow"],"sourceIds":["AT-CM-02","AT-AE-03"],"reviewedAt":"2026-08-10"},
-      {"id":"atlas-edge-uncertainty-market-expectation","from":"future-uncertainty-gate","to":"capital-market-expectation","relation":"evidence gate","type":"CONSTRAINS","direction":"DIRECTED","kind":"MARKET","strength":"CORE","polarity":"CONDITIONAL","conditions":["future-technology claims lack repeatable scale economics or integration evidence"],"sourceIds":["AT-FT-03","AT-CM-03"],"reviewedAt":"2026-08-10"},
-      {"id":"atlas-edge-cloud-neocloud-rental","from":"cloud-ai-service","to":"neocloud-gpu-rental","relation":"overflow and specialist capacity","type":"FUNDS","direction":"DIRECTED","kind":"ECONOMIC","strength":"SUPPORTING","polarity":"CONDITIONAL","conditions":["customers procure specialist accelerator capacity outside hyperscaler supply"],"sourceIds":["AT-CL-02","AT-NC-01"],"reviewedAt":"2026-08-10"},
-      {"id":"atlas-edge-foundry-compute-supply","from":"foundry-capacity-yield","to":"compute-gpu","relation":"qualified accelerator supply","type":"ENABLES","direction":"DIRECTED","kind":"INDUSTRY","strength":"CORE","polarity":"CONDITIONAL","conditions":["qualified wafer output and packaging capacity convert designs into shipments"],"sourceIds":["AT-FE-03","AT-CS-03"],"reviewedAt":"2026-08-10"},
-      {"id":"atlas-edge-application-revenue-model","from":"application-roi-payer","to":"economics-revenue-model","relation":"payer-backed monetization","type":"EVIDENCES","direction":"DIRECTED","kind":"ECONOMIC","strength":"CORE","polarity":"CONDITIONAL","conditions":["a defined payer receives measurable workflow value"],"sourceIds":["AT-AA-03","AT-AE-01"],"reviewedAt":"2026-08-10"},
-      {"id":"atlas-edge-refining-foundry-materials","from":"resources-refining","to":"foundry-materials","relation":"qualified material supply","type":"ENABLES","direction":"DIRECTED","kind":"INDUSTRY","strength":"SUPPORTING","polarity":"CONDITIONAL","conditions":["refined materials meet semiconductor purity and qualification requirements"],"sourceIds":["AT-RM-02","AT-FE-02"],"reviewedAt":"2026-08-10"}
+      {
+        "id": "atlas-edge-cloud-compute-demand",
+        "from": "cloud-hyperscaler",
+        "to": "compute-gpu",
+        "relation": "AI compute demand",
+        "type": "REQUIRES",
+        "direction": "DIRECTED",
+        "kind": "INDUSTRY",
+        "strength": "CORE",
+        "polarity": "CONDITIONAL",
+        "conditions": [
+          "AI workload demand is served with accelerator capacity"
+        ],
+        "sourceIds": [
+          "AT-CL-01",
+          "AT-CS-01"
+        ],
+        "reviewedAt": "2026-08-10"
+      },
+      {
+        "id": "atlas-edge-compute-memory-bandwidth",
+        "from": "compute-gpu",
+        "to": "memory-dram-hbm",
+        "relation": "workload bandwidth",
+        "type": "REQUIRES",
+        "direction": "DIRECTED",
+        "kind": "INDUSTRY",
+        "strength": "CORE",
+        "polarity": "CONDITIONAL",
+        "conditions": [
+          "memory bandwidth constrains accelerator utilization"
+        ],
+        "sourceIds": [
+          "AT-CS-01",
+          "AT-MS-01"
+        ],
+        "reviewedAt": "2026-08-10"
+      },
+      {
+        "id": "atlas-edge-memory-package-integration",
+        "from": "memory-dram-hbm",
+        "to": "package-2-5d",
+        "relation": "system integration",
+        "type": "REQUIRES",
+        "direction": "DIRECTED",
+        "kind": "INDUSTRY",
+        "strength": "CORE",
+        "polarity": "CONDITIONAL",
+        "conditions": [
+          "stacked memory and logic require advanced integration"
+        ],
+        "sourceIds": [
+          "AT-MS-01",
+          "AT-PA-01"
+        ],
+        "reviewedAt": "2026-08-10"
+      },
+      {
+        "id": "atlas-edge-package-network-scale",
+        "from": "package-2-5d",
+        "to": "network-fabric",
+        "relation": "cluster scale",
+        "type": "ENABLES",
+        "direction": "DIRECTED",
+        "kind": "INDUSTRY",
+        "strength": "CORE",
+        "polarity": "CONDITIONAL",
+        "conditions": [
+          "packaged compute expands from node scale to cluster scale"
+        ],
+        "sourceIds": [
+          "AT-PA-01",
+          "AT-NP-01"
+        ],
+        "reviewedAt": "2026-08-10"
+      },
+      {
+        "id": "atlas-edge-network-facility-deployment",
+        "from": "network-fabric",
+        "to": "aidc-server-platform",
+        "relation": "facility deployment",
+        "type": "ENABLES",
+        "direction": "DIRECTED",
+        "kind": "INDUSTRY",
+        "strength": "CORE",
+        "polarity": "CONDITIONAL",
+        "conditions": [
+          "cluster fabrics are deployed as part of server platforms"
+        ],
+        "sourceIds": [
+          "AT-NP-01",
+          "AT-AC-01"
+        ],
+        "reviewedAt": "2026-08-10"
+      },
+      {
+        "id": "atlas-edge-aidc-power-load",
+        "from": "aidc-server-platform",
+        "to": "power-it-load",
+        "relation": "IT load",
+        "type": "CAUSES",
+        "direction": "DIRECTED",
+        "kind": "INDUSTRY",
+        "strength": "CORE",
+        "polarity": "POSITIVE",
+        "conditions": [
+          "deployed server capacity is energized and utilized"
+        ],
+        "sourceIds": [
+          "AT-AC-01",
+          "AT-PG-01"
+        ],
+        "reviewedAt": "2026-08-10"
+      },
+      {
+        "id": "atlas-edge-power-grid-access",
+        "from": "power-it-load",
+        "to": "power-interconnection",
+        "relation": "grid access",
+        "type": "REQUIRES",
+        "direction": "DIRECTED",
+        "kind": "INDUSTRY",
+        "strength": "CORE",
+        "polarity": "CONDITIONAL",
+        "conditions": [
+          "incremental IT load requires deliverable grid capacity"
+        ],
+        "sourceIds": [
+          "AT-PG-01",
+          "AT-PG-02"
+        ],
+        "reviewedAt": "2026-08-10"
+      },
+      {
+        "id": "atlas-edge-interconnection-transformer",
+        "from": "power-interconnection",
+        "to": "power-transformer",
+        "relation": "substation equipment",
+        "type": "REQUIRES",
+        "direction": "DIRECTED",
+        "kind": "INDUSTRY",
+        "strength": "CORE",
+        "polarity": "CONDITIONAL",
+        "conditions": [
+          "interconnection design requires suitable voltage transformation"
+        ],
+        "sourceIds": [
+          "AT-PG-02",
+          "AT-PG-03"
+        ],
+        "reviewedAt": "2026-08-10"
+      },
+      {
+        "id": "atlas-edge-power-capex",
+        "from": "power-it-load",
+        "to": "economics-capex",
+        "relation": "capital requirement",
+        "type": "CAUSES",
+        "direction": "DIRECTED",
+        "kind": "ECONOMIC",
+        "strength": "CORE",
+        "polarity": "POSITIVE",
+        "conditions": [
+          "new power and facility capacity is built rather than absorbed by spare capacity"
+        ],
+        "sourceIds": [
+          "AT-PG-01",
+          "AT-AE-01"
+        ],
+        "reviewedAt": "2026-08-10"
+      },
+      {
+        "id": "atlas-edge-roic-company-role",
+        "from": "economics-roic",
+        "to": "capital-company-role",
+        "relation": "value capture",
+        "type": "MEASURES",
+        "direction": "DIRECTED",
+        "kind": "MARKET",
+        "strength": "CORE",
+        "polarity": "CONDITIONAL",
+        "conditions": [
+          "company role and invested capital boundaries are identified consistently"
+        ],
+        "sourceIds": [
+          "AT-AE-03",
+          "AT-CM-01"
+        ],
+        "reviewedAt": "2026-08-10"
+      },
+      {
+        "id": "atlas-edge-compute-edge-deployment",
+        "from": "compute-gpu",
+        "to": "edge-soc-npu",
+        "relation": "deployment split",
+        "type": "EXPOSES_TO",
+        "direction": "DIRECTED",
+        "kind": "INDUSTRY",
+        "strength": "SUPPORTING",
+        "polarity": "CONDITIONAL",
+        "conditions": [
+          "latency privacy or power shifts inference toward the edge"
+        ],
+        "sourceIds": [
+          "AT-CS-02",
+          "AT-OD-01"
+        ],
+        "reviewedAt": "2026-08-10"
+      },
+      {
+        "id": "atlas-edge-edge-physical-perception",
+        "from": "edge-soc-npu",
+        "to": "physical-ai-perception",
+        "relation": "on-device sensing",
+        "type": "ENABLES",
+        "direction": "DIRECTED",
+        "kind": "INDUSTRY",
+        "strength": "CORE",
+        "polarity": "CONDITIONAL",
+        "conditions": [
+          "sensor data is processed within latency and power budgets"
+        ],
+        "sourceIds": [
+          "AT-OD-01",
+          "AT-RB-01"
+        ],
+        "reviewedAt": "2026-08-10"
+      },
+      {
+        "id": "atlas-edge-compute-world-model",
+        "from": "compute-gpu",
+        "to": "physical-ai-world-model",
+        "relation": "simulation compute",
+        "type": "ENABLES",
+        "direction": "DIRECTED",
+        "kind": "INDUSTRY",
+        "strength": "SUPPORTING",
+        "polarity": "CONDITIONAL",
+        "conditions": [
+          "training and simulation scale with accelerator availability"
+        ],
+        "sourceIds": [
+          "AT-CS-01",
+          "AT-RB-02"
+        ],
+        "reviewedAt": "2026-08-10"
+      },
+      {
+        "id": "atlas-edge-planning-defense-autonomy",
+        "from": "physical-ai-planning",
+        "to": "defense-autonomy",
+        "relation": "autonomous decision loop",
+        "type": "ENABLES",
+        "direction": "DIRECTED",
+        "kind": "INDUSTRY",
+        "strength": "SUPPORTING",
+        "polarity": "CONDITIONAL",
+        "conditions": [
+          "planning is bounded by command rules safety and human control"
+        ],
+        "sourceIds": [
+          "AT-RB-02",
+          "AT-DD-02"
+        ],
+        "reviewedAt": "2026-08-10"
+      },
+      {
+        "id": "atlas-edge-defense-space-procurement",
+        "from": "defense-procurement-economics",
+        "to": "space-satellite-economics",
+        "relation": "mission procurement demand",
+        "type": "FUNDS",
+        "direction": "DIRECTED",
+        "kind": "ECONOMIC",
+        "strength": "SUPPORTING",
+        "polarity": "CONDITIONAL",
+        "conditions": [
+          "space capability is procured for defense or public missions"
+        ],
+        "sourceIds": [
+          "AT-DD-03",
+          "AT-SA-02"
+        ],
+        "reviewedAt": "2026-08-10"
+      },
+      {
+        "id": "atlas-edge-policy-compute-access",
+        "from": "policy-export-controls",
+        "to": "compute-gpu",
+        "relation": "access constraint",
+        "type": "CONSTRAINS",
+        "direction": "DIRECTED",
+        "kind": "POLICY",
+        "strength": "CORE",
+        "polarity": "NEGATIVE",
+        "conditions": [
+          "covered products destinations and end uses fall within the rule"
+        ],
+        "sourceIds": [
+          "AT-GP-01",
+          "AT-CS-01"
+        ],
+        "reviewedAt": "2026-08-10"
+      },
+      {
+        "id": "atlas-edge-revenue-quality-roic",
+        "from": "capital-revenue-quality",
+        "to": "economics-roic",
+        "relation": "cashflow verification",
+        "type": "EVIDENCES",
+        "direction": "DIRECTED",
+        "kind": "MARKET",
+        "strength": "CORE",
+        "polarity": "CONDITIONAL",
+        "conditions": [
+          "reported revenue converts into durable operating cash flow"
+        ],
+        "sourceIds": [
+          "AT-CM-02",
+          "AT-AE-03"
+        ],
+        "reviewedAt": "2026-08-10"
+      },
+      {
+        "id": "atlas-edge-uncertainty-market-expectation",
+        "from": "future-uncertainty-gate",
+        "to": "capital-market-expectation",
+        "relation": "evidence gate",
+        "type": "CONSTRAINS",
+        "direction": "DIRECTED",
+        "kind": "MARKET",
+        "strength": "CORE",
+        "polarity": "CONDITIONAL",
+        "conditions": [
+          "future-technology claims lack repeatable scale economics or integration evidence"
+        ],
+        "sourceIds": [
+          "AT-FT-03",
+          "AT-CM-03"
+        ],
+        "reviewedAt": "2026-08-10"
+      },
+      {
+        "id": "atlas-edge-cloud-neocloud-rental",
+        "from": "cloud-ai-service",
+        "to": "neocloud-gpu-rental",
+        "relation": "overflow and specialist capacity",
+        "type": "FUNDS",
+        "direction": "DIRECTED",
+        "kind": "ECONOMIC",
+        "strength": "SUPPORTING",
+        "polarity": "CONDITIONAL",
+        "conditions": [
+          "customers procure specialist accelerator capacity outside hyperscaler supply"
+        ],
+        "sourceIds": [
+          "AT-CL-02",
+          "AT-NC-01"
+        ],
+        "reviewedAt": "2026-08-10"
+      },
+      {
+        "id": "atlas-edge-foundry-compute-supply",
+        "from": "foundry-capacity-yield",
+        "to": "compute-gpu",
+        "relation": "qualified accelerator supply",
+        "type": "ENABLES",
+        "direction": "DIRECTED",
+        "kind": "INDUSTRY",
+        "strength": "CORE",
+        "polarity": "CONDITIONAL",
+        "conditions": [
+          "qualified wafer output and packaging capacity convert designs into shipments"
+        ],
+        "sourceIds": [
+          "AT-FE-03",
+          "AT-CS-03"
+        ],
+        "reviewedAt": "2026-08-10"
+      },
+      {
+        "id": "atlas-edge-application-revenue-model",
+        "from": "application-roi-payer",
+        "to": "economics-revenue-model",
+        "relation": "payer-backed monetization",
+        "type": "EVIDENCES",
+        "direction": "DIRECTED",
+        "kind": "ECONOMIC",
+        "strength": "CORE",
+        "polarity": "CONDITIONAL",
+        "conditions": [
+          "a defined payer receives measurable workflow value"
+        ],
+        "sourceIds": [
+          "AT-AA-03",
+          "AT-AE-01"
+        ],
+        "reviewedAt": "2026-08-10"
+      },
+      {
+        "id": "atlas-edge-refining-foundry-materials",
+        "from": "resources-refining",
+        "to": "foundry-materials",
+        "relation": "qualified material supply",
+        "type": "ENABLES",
+        "direction": "DIRECTED",
+        "kind": "INDUSTRY",
+        "strength": "SUPPORTING",
+        "polarity": "CONDITIONAL",
+        "conditions": [
+          "refined materials meet semiconductor purity and qualification requirements"
+        ],
+        "sourceIds": [
+          "AT-RM-02",
+          "AT-FE-02"
+        ],
+        "reviewedAt": "2026-08-10"
+      }
     ]
   },
   "nodes": [
@@ -71,21 +638,29 @@
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Hyperscaler cloud product/service family",
       "upstream": [],
-      "downstream": [],
+      "downstream": [
+        "cloud-ai-service",
+        "compute-gpu"
+      ],
       "representativePlayerIds": [
-        "google-cloud",
-        "aws"
+        "aws",
+        "google-cloud"
       ],
       "representativeProductIds": [],
       "sourceIds": [
-        "hyperscaler annual report",
-        "SEC 10-K/10-Q"
+        "AT-CL-01",
+        "AT-CL-02",
+        "AT-CL-03"
       ],
       "verificationQuestion": "Hyperscaler cloud의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "ROOT",
+      "flowBoundary": "이 구조도에서 앞선 노드를 생략한 출발점이며, 실제 산업 전체의 절대적 시작이라는 뜻은 아닙니다."
     },
     {
       "nodeId": "cloud-ai-service",
@@ -95,25 +670,35 @@
       "kind": "service",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Managed AI service product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "cloud-hyperscaler"
+      ],
+      "downstream": [
+        "cloud-utilization",
+        "neocloud-gpu-rental"
+      ],
       "representativePlayerIds": [
-        "google-cloud",
-        "aws"
+        "aws",
+        "google-cloud"
       ],
       "representativeProductIds": [
-        "cloud-tpu-family",
-        "aws-trainium-family"
+        "aws-trainium-family",
+        "cloud-tpu-family"
       ],
       "sourceIds": [
-        "hyperscaler annual report",
-        "SEC 10-K/10-Q"
+        "AT-CL-01",
+        "AT-CL-02",
+        "AT-CL-03"
       ],
       "verificationQuestion": "Managed AI service의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "cloud-utilization",
@@ -123,19 +708,28 @@
       "kind": "economics",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Utilization / workload mix product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "cloud-ai-service"
+      ],
+      "downstream": [
+        "cloud-commitments"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "hyperscaler annual report",
-        "SEC 10-K/10-Q"
+        "AT-CL-01",
+        "AT-CL-02",
+        "AT-CL-03"
       ],
       "verificationQuestion": "Utilization / workload mix의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "cloud-commitments",
@@ -145,19 +739,28 @@
       "kind": "contract",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Cloud commitments product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "cloud-utilization"
+      ],
+      "downstream": [
+        "cloud-depreciation"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "hyperscaler annual report",
-        "SEC 10-K/10-Q"
+        "AT-CL-01",
+        "AT-CL-02",
+        "AT-CL-03"
       ],
       "verificationQuestion": "Cloud commitments의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "cloud-depreciation",
@@ -167,19 +770,26 @@
       "kind": "finance",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Depreciation cycle product/service family",
-      "upstream": [],
+      "upstream": [
+        "cloud-commitments"
+      ],
       "downstream": [],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "hyperscaler annual report",
-        "SEC 10-K/10-Q"
+        "AT-CL-01",
+        "AT-CL-02",
+        "AT-CL-03"
       ],
       "verificationQuestion": "Depreciation cycle의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "LEAF",
+      "flowBoundary": "이 구조도에서 다음 노드를 생략한 도착점이며, 가치사슬과 경제 효과가 여기서 끝난다는 뜻은 아닙니다."
     },
     {
       "nodeId": "neocloud-gpu-rental",
@@ -189,19 +799,28 @@
       "kind": "business-model",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "GPU rental product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "cloud-ai-service"
+      ],
+      "downstream": [
+        "neocloud-capacity-reservation"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "SEC 10-K/S-1",
-        "debt and lease notes"
+        "AT-NC-01",
+        "AT-NC-02",
+        "AT-NC-03"
       ],
       "verificationQuestion": "GPU rental의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "neocloud-capacity-reservation",
@@ -211,19 +830,28 @@
       "kind": "contract",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Capacity reservation product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "neocloud-gpu-rental"
+      ],
+      "downstream": [
+        "neocloud-lease-burden"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "SEC 10-K/S-1",
-        "debt and lease notes"
+        "AT-NC-01",
+        "AT-NC-02",
+        "AT-NC-03"
       ],
       "verificationQuestion": "Capacity reservation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "neocloud-lease-burden",
@@ -233,19 +861,28 @@
       "kind": "finance",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Lease burden product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "neocloud-capacity-reservation"
+      ],
+      "downstream": [
+        "neocloud-customer-concentration"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "SEC 10-K/S-1",
-        "debt and lease notes"
+        "AT-NC-01",
+        "AT-NC-02",
+        "AT-NC-03"
       ],
       "verificationQuestion": "Lease burden의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "neocloud-customer-concentration",
@@ -255,19 +892,28 @@
       "kind": "risk",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Customer concentration product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "neocloud-lease-burden"
+      ],
+      "downstream": [
+        "neocloud-rental-yield"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "SEC 10-K/S-1",
-        "debt and lease notes"
+        "AT-NC-01",
+        "AT-NC-02",
+        "AT-NC-03"
       ],
       "verificationQuestion": "Customer concentration의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "neocloud-rental-yield",
@@ -277,19 +923,26 @@
       "kind": "economics",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Rental yield minus funding cost product/service family",
-      "upstream": [],
+      "upstream": [
+        "neocloud-customer-concentration"
+      ],
       "downstream": [],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "SEC 10-K/S-1",
-        "debt and lease notes"
+        "AT-NC-01",
+        "AT-NC-02",
+        "AT-NC-03"
       ],
       "verificationQuestion": "Rental yield minus funding cost의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "LEAF",
+      "flowBoundary": "이 구조도에서 다음 노드를 생략한 도착점이며, 가치사슬과 경제 효과가 여기서 끝난다는 뜻은 아닙니다."
     },
     {
       "nodeId": "compute-gpu",
@@ -299,25 +952,39 @@
       "kind": "accelerator",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "GPU product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "cloud-hyperscaler",
+        "foundry-capacity-yield",
+        "policy-export-controls"
+      ],
+      "downstream": [
+        "compute-asic",
+        "edge-soc-npu",
+        "memory-dram-hbm",
+        "physical-ai-world-model"
+      ],
       "representativePlayerIds": [
-        "nvidia",
-        "amd"
+        "amd",
+        "nvidia"
       ],
       "representativeProductIds": [
-        "nvidia-gpu-accelerator-platform",
-        "amd-instinct-accelerator-family"
+        "amd-instinct-accelerator-family",
+        "nvidia-gpu-accelerator-platform"
       ],
       "sourceIds": [
-        "architecture documents",
-        "IEEE / ISSCC / IEDM"
+        "AT-CS-01",
+        "AT-CS-02",
+        "AT-CS-03"
       ],
       "verificationQuestion": "GPU의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "compute-asic",
@@ -327,28 +994,37 @@
       "kind": "accelerator",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "ASIC / custom accelerator product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "compute-gpu"
+      ],
+      "downstream": [
+        "compute-npu"
+      ],
       "representativePlayerIds": [
         "amd",
-        "google-cloud",
         "aws",
-        "synopsys",
-        "broadcom"
+        "broadcom",
+        "google-cloud",
+        "synopsys"
       ],
       "representativeProductIds": [
-        "cloud-tpu-family",
-        "aws-trainium-family"
+        "aws-trainium-family",
+        "cloud-tpu-family"
       ],
       "sourceIds": [
-        "architecture documents",
-        "IEEE / ISSCC / IEDM"
+        "AT-CS-01",
+        "AT-CS-02",
+        "AT-CS-03"
       ],
       "verificationQuestion": "ASIC / custom accelerator의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "compute-npu",
@@ -358,19 +1034,28 @@
       "kind": "accelerator",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "NPU / edge accelerator product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "compute-asic"
+      ],
+      "downstream": [
+        "compute-precision"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "architecture documents",
-        "IEEE / ISSCC / IEDM"
+        "AT-CS-01",
+        "AT-CS-02",
+        "AT-CS-03"
       ],
       "verificationQuestion": "NPU / edge accelerator의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "compute-precision",
@@ -380,19 +1065,28 @@
       "kind": "technical",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "FP/BF/INT precision product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "compute-npu"
+      ],
+      "downstream": [
+        "compute-interconnect"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "architecture documents",
-        "IEEE / ISSCC / IEDM"
+        "AT-CS-01",
+        "AT-CS-02",
+        "AT-CS-03"
       ],
       "verificationQuestion": "FP/BF/INT precision의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "compute-interconnect",
@@ -402,7 +1096,9 @@
       "kind": "technical",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Accelerator interconnect product/service family",
-      "upstream": [],
+      "upstream": [
+        "compute-precision"
+      ],
       "downstream": [],
       "representativePlayerIds": [
         "nvidia"
@@ -411,14 +1107,19 @@
         "nvidia-gpu-accelerator-platform"
       ],
       "sourceIds": [
-        "architecture documents",
-        "IEEE / ISSCC / IEDM"
+        "AT-CS-01",
+        "AT-CS-02",
+        "AT-CS-03"
       ],
       "verificationQuestion": "Accelerator interconnect의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "LEAF",
+      "flowBoundary": "이 구조도에서 다음 노드를 생략한 도착점이며, 가치사슬과 경제 효과가 여기서 끝난다는 뜻은 아닙니다."
     },
     {
       "nodeId": "memory-sram",
@@ -429,19 +1130,25 @@
       "roleReference": "industry value-chain role",
       "productFamilyReference": "SRAM / cache product/service family",
       "upstream": [],
-      "downstream": [],
+      "downstream": [
+        "memory-dram-hbm"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "JEDEC",
-        "company IR",
-        "SNIA"
+        "AT-MS-01",
+        "AT-MS-02",
+        "AT-MS-03"
       ],
       "verificationQuestion": "SRAM / cache의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "ROOT",
+      "flowBoundary": "이 구조도에서 앞선 노드를 생략한 출발점이며, 실제 산업 전체의 절대적 시작이라는 뜻은 아닙니다."
     },
     {
       "nodeId": "memory-dram-hbm",
@@ -451,26 +1158,37 @@
       "kind": "memory",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "DRAM / HBM product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "compute-gpu",
+        "memory-sram"
+      ],
+      "downstream": [
+        "memory-nand",
+        "package-2-5d"
+      ],
       "representativePlayerIds": [
         "micron",
         "samsung-electronics"
       ],
       "representativeProductIds": [
         "micron-hbm-family",
-        "samsung-hbm-family"
+        "samsung-hbm-family",
+        "sandisk-hbf-roadmap"
       ],
       "sourceIds": [
-        "JEDEC",
-        "company IR",
-        "SNIA"
+        "AT-MS-01",
+        "AT-MS-02",
+        "AT-MS-03"
       ],
       "verificationQuestion": "DRAM / HBM의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "memory-nand",
@@ -480,25 +1198,35 @@
       "kind": "memory",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "NAND flash product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "memory-dram-hbm"
+      ],
+      "downstream": [
+        "memory-enterprise-ssd"
+      ],
       "representativePlayerIds": [
+        "kioxia",
         "micron",
-        "kioxia"
+        "sandisk"
       ],
       "representativeProductIds": [
-        "kioxia-enterprise-ssd-family"
+        "kioxia-enterprise-ssd-family",
+        "sandisk-bics-enterprise-ssd-family"
       ],
       "sourceIds": [
-        "JEDEC",
-        "company IR",
-        "SNIA"
+        "AT-MS-01",
+        "AT-MS-02",
+        "AT-MS-03"
       ],
       "verificationQuestion": "NAND flash의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "memory-enterprise-ssd",
@@ -508,25 +1236,36 @@
       "kind": "storage",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Enterprise / data-center SSD product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "memory-nand"
+      ],
+      "downstream": [
+        "memory-cxl"
+      ],
       "representativePlayerIds": [
+        "kioxia",
         "micron",
-        "kioxia"
+        "sandisk"
       ],
       "representativeProductIds": [
-        "kioxia-enterprise-ssd-family"
+        "kioxia-enterprise-ssd-family",
+        "sandisk-bics-enterprise-ssd-family",
+        "sandisk-hbf-roadmap"
       ],
       "sourceIds": [
-        "JEDEC",
-        "company IR",
-        "SNIA"
+        "AT-MS-01",
+        "AT-MS-02",
+        "AT-MS-03"
       ],
       "verificationQuestion": "Enterprise / data-center SSD의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "memory-cxl",
@@ -536,22 +1275,29 @@
       "kind": "interface",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "CXL / pooled memory product/service family",
-      "upstream": [],
+      "upstream": [
+        "memory-enterprise-ssd"
+      ],
       "downstream": [],
       "representativePlayerIds": [
-        "kioxia"
+        "kioxia",
+        "sandisk"
       ],
       "representativeProductIds": [],
       "sourceIds": [
-        "JEDEC",
-        "company IR",
-        "SNIA"
+        "AT-MS-01",
+        "AT-MS-02",
+        "AT-MS-03"
       ],
       "verificationQuestion": "CXL / pooled memory의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "LEAF",
+      "flowBoundary": "이 구조도에서 다음 노드를 생략한 도착점이며, 가치사슬과 경제 효과가 여기서 끝난다는 뜻은 아닙니다."
     },
     {
       "nodeId": "foundry-design-ecosystem",
@@ -562,7 +1308,9 @@
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Design ecosystem product/service family",
       "upstream": [],
-      "downstream": [],
+      "downstream": [
+        "foundry-process-node"
+      ],
       "representativePlayerIds": [
         "synopsys"
       ],
@@ -570,15 +1318,19 @@
         "synopsys-eda-flow"
       ],
       "sourceIds": [
-        "company IR",
-        "SEMI",
-        "IEEE / IEDM"
+        "AT-FE-01",
+        "AT-FE-02",
+        "AT-FE-03"
       ],
       "verificationQuestion": "Design ecosystem의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "ROOT",
+      "flowBoundary": "이 구조도에서 앞선 노드를 생략한 출발점이며, 실제 산업 전체의 절대적 시작이라는 뜻은 아닙니다."
     },
     {
       "nodeId": "foundry-process-node",
@@ -588,27 +1340,34 @@
       "kind": "manufacturing",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Process node product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "foundry-design-ecosystem"
+      ],
+      "downstream": [
+        "foundry-equipment"
+      ],
       "representativePlayerIds": [
-        "tsmc",
         "asml",
-        "samsung-electronics"
+        "samsung-electronics",
+        "tsmc"
       ],
       "representativeProductIds": [
-        "asml-euv-lithography-family",
-        "samsung-hbm-family"
+        "asml-euv-lithography-family"
       ],
       "sourceIds": [
-        "company IR",
-        "SEMI",
-        "IEEE / IEDM"
+        "AT-FE-01",
+        "AT-FE-02",
+        "AT-FE-03"
       ],
       "verificationQuestion": "Process node의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "foundry-equipment",
@@ -618,8 +1377,12 @@
       "kind": "equipment",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Process equipment product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "foundry-process-node"
+      ],
+      "downstream": [
+        "foundry-materials"
+      ],
       "representativePlayerIds": [
         "asml"
       ],
@@ -627,15 +1390,19 @@
         "asml-euv-lithography-family"
       ],
       "sourceIds": [
-        "company IR",
-        "SEMI",
-        "IEEE / IEDM"
+        "AT-FE-01",
+        "AT-FE-02",
+        "AT-FE-03"
       ],
       "verificationQuestion": "Process equipment의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "foundry-materials",
@@ -645,20 +1412,29 @@
       "kind": "materials",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Materials / chemicals product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "foundry-equipment",
+        "resources-refining"
+      ],
+      "downstream": [
+        "foundry-capacity-yield"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "company IR",
-        "SEMI",
-        "IEEE / IEDM"
+        "AT-FE-01",
+        "AT-FE-02",
+        "AT-FE-03"
       ],
       "verificationQuestion": "Materials / chemicals의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "foundry-capacity-yield",
@@ -668,22 +1444,30 @@
       "kind": "economics",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Capacity / yield / utilization product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "foundry-materials"
+      ],
+      "downstream": [
+        "compute-gpu"
+      ],
       "representativePlayerIds": [
         "tsmc"
       ],
       "representativeProductIds": [],
       "sourceIds": [
-        "company IR",
-        "SEMI",
-        "IEEE / IEDM"
+        "AT-FE-01",
+        "AT-FE-02",
+        "AT-FE-03"
       ],
       "verificationQuestion": "Capacity / yield / utilization의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "package-2-5d",
@@ -693,8 +1477,13 @@
       "kind": "packaging",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "2.5D integration product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "memory-dram-hbm"
+      ],
+      "downstream": [
+        "network-fabric",
+        "package-3d-stacking"
+      ],
       "representativePlayerIds": [
         "tsmc"
       ],
@@ -702,15 +1491,19 @@
         "tsmc-3dfabric-family"
       ],
       "sourceIds": [
-        "TSMC technology",
-        "UCIe",
-        "substrate vendor IR"
+        "AT-PA-01",
+        "AT-PA-02",
+        "AT-PA-03"
       ],
       "verificationQuestion": "2.5D integration의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "package-3d-stacking",
@@ -720,24 +1513,33 @@
       "kind": "packaging",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "3D stacking product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "package-2-5d"
+      ],
+      "downstream": [
+        "package-interposer"
+      ],
       "representativePlayerIds": [
         "tsmc"
       ],
       "representativeProductIds": [
+        "samsung-hbm-family",
         "tsmc-3dfabric-family"
       ],
       "sourceIds": [
-        "TSMC technology",
-        "UCIe",
-        "substrate vendor IR"
+        "AT-PA-01",
+        "AT-PA-02",
+        "AT-PA-03"
       ],
       "verificationQuestion": "3D stacking의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "package-interposer",
@@ -747,20 +1549,28 @@
       "kind": "packaging",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Interposer / bridge product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "package-3d-stacking"
+      ],
+      "downstream": [
+        "package-substrate"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "TSMC technology",
-        "UCIe",
-        "substrate vendor IR"
+        "AT-PA-01",
+        "AT-PA-02",
+        "AT-PA-03"
       ],
       "verificationQuestion": "Interposer / bridge의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "package-substrate",
@@ -770,20 +1580,28 @@
       "kind": "materials",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "ABF / FC-BGA substrate product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "package-interposer"
+      ],
+      "downstream": [
+        "package-glass"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "TSMC technology",
-        "UCIe",
-        "substrate vendor IR"
+        "AT-PA-01",
+        "AT-PA-02",
+        "AT-PA-03"
       ],
       "verificationQuestion": "ABF / FC-BGA substrate의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "package-glass",
@@ -793,20 +1611,26 @@
       "kind": "emerging-technology",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Glass substrate product/service family",
-      "upstream": [],
+      "upstream": [
+        "package-substrate"
+      ],
       "downstream": [],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "TSMC technology",
-        "UCIe",
-        "substrate vendor IR"
+        "AT-PA-01",
+        "AT-PA-02",
+        "AT-PA-03"
       ],
       "verificationQuestion": "Glass substrate의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "LEAF",
+      "flowBoundary": "이 구조도에서 다음 노드를 생략한 도착점이며, 가치사슬과 경제 효과가 여기서 끝난다는 뜻은 아닙니다."
     },
     {
       "nodeId": "network-switch",
@@ -817,7 +1641,9 @@
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Switch silicon product/service family",
       "upstream": [],
-      "downstream": [],
+      "downstream": [
+        "network-optical-module"
+      ],
       "representativePlayerIds": [
         "broadcom"
       ],
@@ -825,15 +1651,19 @@
         "broadcom-ethernet-switch-family"
       ],
       "sourceIds": [
-        "OFC",
-        "IEEE",
-        "switch and optics vendors"
+        "AT-NP-01",
+        "AT-NP-02",
+        "AT-NP-03"
       ],
       "verificationQuestion": "Switch silicon의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "ROOT",
+      "flowBoundary": "이 구조도에서 앞선 노드를 생략한 출발점이며, 실제 산업 전체의 절대적 시작이라는 뜻은 아닙니다."
     },
     {
       "nodeId": "network-optical-module",
@@ -843,8 +1673,12 @@
       "kind": "photonics",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Optical module product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "network-switch"
+      ],
+      "downstream": [
+        "network-silicon-photonics"
+      ],
       "representativePlayerIds": [
         "coherent"
       ],
@@ -852,15 +1686,19 @@
         "coherent-optical-module-family"
       ],
       "sourceIds": [
-        "OFC",
-        "IEEE",
-        "switch and optics vendors"
+        "AT-NP-01",
+        "AT-NP-02",
+        "AT-NP-03"
       ],
       "verificationQuestion": "Optical module의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "network-silicon-photonics",
@@ -870,8 +1708,12 @@
       "kind": "photonics",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Silicon photonics product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "network-optical-module"
+      ],
+      "downstream": [
+        "network-cpo"
+      ],
       "representativePlayerIds": [
         "coherent"
       ],
@@ -879,15 +1721,19 @@
         "coherent-optical-module-family"
       ],
       "sourceIds": [
-        "OFC",
-        "IEEE",
-        "switch and optics vendors"
+        "AT-NP-01",
+        "AT-NP-02",
+        "AT-NP-03"
       ],
       "verificationQuestion": "Silicon photonics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "network-cpo",
@@ -897,8 +1743,12 @@
       "kind": "photonics",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Co-packaged optics product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "network-silicon-photonics"
+      ],
+      "downstream": [
+        "network-fabric"
+      ],
       "representativePlayerIds": [
         "coherent"
       ],
@@ -906,15 +1756,19 @@
         "coherent-optical-module-family"
       ],
       "sourceIds": [
-        "OFC",
-        "IEEE",
-        "switch and optics vendors"
+        "AT-NP-01",
+        "AT-NP-02",
+        "AT-NP-03"
       ],
       "verificationQuestion": "Co-packaged optics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "network-fabric",
@@ -924,25 +1778,34 @@
       "kind": "system",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "AI cluster fabric product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "network-cpo",
+        "package-2-5d"
+      ],
+      "downstream": [
+        "aidc-server-platform"
+      ],
       "representativePlayerIds": [
-        "nvidia",
-        "broadcom"
+        "broadcom",
+        "nvidia"
       ],
       "representativeProductIds": [
         "broadcom-ethernet-switch-family"
       ],
       "sourceIds": [
-        "OFC",
-        "IEEE",
-        "switch and optics vendors"
+        "AT-NP-01",
+        "AT-NP-02",
+        "AT-NP-03"
       ],
       "verificationQuestion": "AI cluster fabric의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "aidc-rack-density",
@@ -953,7 +1816,9 @@
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Rack density product/service family",
       "upstream": [],
-      "downstream": [],
+      "downstream": [
+        "aidc-liquid-cooling"
+      ],
       "representativePlayerIds": [
         "vertiv"
       ],
@@ -961,15 +1826,19 @@
         "vertiv-thermal-power-solutions"
       ],
       "sourceIds": [
-        "DOE/LBNL",
-        "data-center operators",
-        "server OEM IR"
+        "AT-AC-01",
+        "AT-AC-02",
+        "AT-AC-03"
       ],
       "verificationQuestion": "Rack density의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "ROOT",
+      "flowBoundary": "이 구조도에서 앞선 노드를 생략한 출발점이며, 실제 산업 전체의 절대적 시작이라는 뜻은 아닙니다."
     },
     {
       "nodeId": "aidc-liquid-cooling",
@@ -979,8 +1848,12 @@
       "kind": "thermal",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Liquid cooling product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "aidc-rack-density"
+      ],
+      "downstream": [
+        "aidc-thermal-design"
+      ],
       "representativePlayerIds": [
         "vertiv"
       ],
@@ -988,15 +1861,19 @@
         "vertiv-thermal-power-solutions"
       ],
       "sourceIds": [
-        "DOE/LBNL",
-        "data-center operators",
-        "server OEM IR"
+        "AT-AC-01",
+        "AT-AC-02",
+        "AT-AC-03"
       ],
       "verificationQuestion": "Liquid cooling의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "aidc-thermal-design",
@@ -1006,20 +1883,28 @@
       "kind": "engineering",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Thermal design product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "aidc-liquid-cooling"
+      ],
+      "downstream": [
+        "aidc-server-platform"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "DOE/LBNL",
-        "data-center operators",
-        "server OEM IR"
+        "AT-AC-01",
+        "AT-AC-02",
+        "AT-AC-03"
       ],
       "verificationQuestion": "Thermal design의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "aidc-server-platform",
@@ -1029,20 +1914,30 @@
       "kind": "system",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Server platform product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "aidc-thermal-design",
+        "network-fabric"
+      ],
+      "downstream": [
+        "aidc-pue",
+        "power-it-load"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "DOE/LBNL",
-        "data-center operators",
-        "server OEM IR"
+        "AT-AC-01",
+        "AT-AC-02",
+        "AT-AC-03"
       ],
       "verificationQuestion": "Server platform의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "aidc-pue",
@@ -1052,20 +1947,26 @@
       "kind": "metric",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "PUE / facility efficiency product/service family",
-      "upstream": [],
+      "upstream": [
+        "aidc-server-platform"
+      ],
       "downstream": [],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "DOE/LBNL",
-        "data-center operators",
-        "server OEM IR"
+        "AT-AC-01",
+        "AT-AC-02",
+        "AT-AC-03"
       ],
       "verificationQuestion": "PUE / facility efficiency의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "LEAF",
+      "flowBoundary": "이 구조도에서 다음 노드를 생략한 도착점이며, 가치사슬과 경제 효과가 여기서 끝난다는 뜻은 아닙니다."
     },
     {
       "nodeId": "power-it-load",
@@ -1075,20 +1976,30 @@
       "kind": "demand",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Accelerator IT load product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "aidc-server-platform"
+      ],
+      "downstream": [
+        "economics-capex",
+        "power-generation",
+        "power-interconnection"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "IEA Energy and AI",
-        "DOE/LBNL",
-        "grid operator"
+        "AT-PG-01",
+        "AT-PG-02",
+        "AT-PG-03"
       ],
       "verificationQuestion": "Accelerator IT load의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "power-generation",
@@ -1098,20 +2009,28 @@
       "kind": "energy",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Generation mix product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "power-it-load"
+      ],
+      "downstream": [
+        "power-transmission"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "IEA Energy and AI",
-        "DOE/LBNL",
-        "grid operator"
+        "AT-PG-01",
+        "AT-PG-02",
+        "AT-PG-03"
       ],
       "verificationQuestion": "Generation mix의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "power-transmission",
@@ -1121,20 +2040,28 @@
       "kind": "grid",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Transmission / substation product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "power-generation"
+      ],
+      "downstream": [
+        "power-interconnection"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "IEA Energy and AI",
-        "DOE/LBNL",
-        "grid operator"
+        "AT-PG-01",
+        "AT-PG-02",
+        "AT-PG-03"
       ],
       "verificationQuestion": "Transmission / substation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "power-interconnection",
@@ -1144,20 +2071,29 @@
       "kind": "regulation",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Interconnection queue product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "power-it-load",
+        "power-transmission"
+      ],
+      "downstream": [
+        "power-transformer"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "IEA Energy and AI",
-        "DOE/LBNL",
-        "grid operator"
+        "AT-PG-01",
+        "AT-PG-02",
+        "AT-PG-03"
       ],
       "verificationQuestion": "Interconnection queue의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "power-transformer",
@@ -1167,7 +2103,9 @@
       "kind": "equipment",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Transformer / switchgear product/service family",
-      "upstream": [],
+      "upstream": [
+        "power-interconnection"
+      ],
       "downstream": [],
       "representativePlayerIds": [
         "vertiv"
@@ -1176,15 +2114,19 @@
         "vertiv-thermal-power-solutions"
       ],
       "sourceIds": [
-        "IEA Energy and AI",
-        "DOE/LBNL",
-        "grid operator"
+        "AT-PG-01",
+        "AT-PG-02",
+        "AT-PG-03"
       ],
       "verificationQuestion": "Transformer / switchgear의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "LEAF",
+      "flowBoundary": "이 구조도에서 다음 노드를 생략한 도착점이며, 가치사슬과 경제 효과가 여기서 끝난다는 뜻은 아닙니다."
     },
     {
       "nodeId": "edge-soc-npu",
@@ -1194,23 +2136,32 @@
       "kind": "hardware",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Edge SoC / NPU product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "compute-gpu"
+      ],
+      "downstream": [
+        "edge-memory-power",
+        "physical-ai-perception"
+      ],
       "representativePlayerIds": [
         "amd",
         "tesla"
       ],
       "representativeProductIds": [],
       "sourceIds": [
-        "SoC/NPU documentation",
-        "robotics papers",
-        "simulation frameworks"
+        "AT-OD-01",
+        "AT-OD-02",
+        "AT-OD-03"
       ],
       "verificationQuestion": "Edge SoC / NPU의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "edge-memory-power",
@@ -1220,20 +2171,28 @@
       "kind": "constraint",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Memory / power envelope product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "edge-soc-npu"
+      ],
+      "downstream": [
+        "physical-ai-sensing"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "SoC/NPU documentation",
-        "robotics papers",
-        "simulation frameworks"
+        "AT-OD-01",
+        "AT-OD-02",
+        "AT-OD-03"
       ],
       "verificationQuestion": "Memory / power envelope의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "physical-ai-sensing",
@@ -1243,20 +2202,28 @@
       "kind": "robotics",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Sensors / perception product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "edge-memory-power"
+      ],
+      "downstream": [
+        "physical-ai-control"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "SoC/NPU documentation",
-        "robotics papers",
-        "simulation frameworks"
+        "AT-OD-01",
+        "AT-OD-02",
+        "AT-OD-03"
       ],
       "verificationQuestion": "Sensors / perception의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "physical-ai-control",
@@ -1266,26 +2233,34 @@
       "kind": "robotics",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Control / actuation product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "physical-ai-sensing"
+      ],
+      "downstream": [
+        "physical-ai-digital-twin"
+      ],
       "representativePlayerIds": [
-        "tesla",
-        "shield-ai"
+        "shield-ai",
+        "tesla"
       ],
       "representativeProductIds": [
-        "tesla-optimus-and-autonomy-stack",
-        "shield-ai-hivemind-autonomy"
+        "shield-ai-hivemind-autonomy",
+        "tesla-optimus-and-autonomy-stack"
       ],
       "sourceIds": [
-        "SoC/NPU documentation",
-        "robotics papers",
-        "simulation frameworks"
+        "AT-OD-01",
+        "AT-OD-02",
+        "AT-OD-03"
       ],
       "verificationQuestion": "Control / actuation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "physical-ai-digital-twin",
@@ -1295,7 +2270,9 @@
       "kind": "software",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Simulation / digital twin product/service family",
-      "upstream": [],
+      "upstream": [
+        "physical-ai-control"
+      ],
       "downstream": [],
       "representativePlayerIds": [
         "siemens"
@@ -1304,15 +2281,19 @@
         "siemens-industrial-copilot"
       ],
       "sourceIds": [
-        "SoC/NPU documentation",
-        "robotics papers",
-        "simulation frameworks"
+        "AT-OD-01",
+        "AT-OD-02",
+        "AT-OD-03"
       ],
       "verificationQuestion": "Simulation / digital twin의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "LEAF",
+      "flowBoundary": "이 구조도에서 다음 노드를 생략한 도착점이며, 가치사슬과 경제 효과가 여기서 끝난다는 뜻은 아닙니다."
     },
     {
       "nodeId": "economics-revenue-model",
@@ -1322,20 +2303,28 @@
       "kind": "finance",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Revenue model product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "application-roi-payer"
+      ],
+      "downstream": [
+        "economics-capex"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "SEC filings",
-        "annual reports",
-        "credit disclosures"
+        "AT-AE-01",
+        "AT-AE-02",
+        "AT-AE-03"
       ],
       "verificationQuestion": "Revenue model의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "economics-capex",
@@ -1345,20 +2334,29 @@
       "kind": "finance",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "CAPEX / lease product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "economics-revenue-model",
+        "power-it-load"
+      ],
+      "downstream": [
+        "economics-depreciation"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "SEC filings",
-        "annual reports",
-        "credit disclosures"
+        "AT-AE-01",
+        "AT-AE-02",
+        "AT-AE-03"
       ],
       "verificationQuestion": "CAPEX / lease의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "economics-depreciation",
@@ -1368,20 +2366,28 @@
       "kind": "accounting",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Depreciation / useful life product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "economics-capex"
+      ],
+      "downstream": [
+        "economics-fcf"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "SEC filings",
-        "annual reports",
-        "credit disclosures"
+        "AT-AE-01",
+        "AT-AE-02",
+        "AT-AE-03"
       ],
       "verificationQuestion": "Depreciation / useful life의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "economics-fcf",
@@ -1391,20 +2397,28 @@
       "kind": "finance",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "FCF / funding product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "economics-depreciation"
+      ],
+      "downstream": [
+        "economics-roic"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "SEC filings",
-        "annual reports",
-        "credit disclosures"
+        "AT-AE-01",
+        "AT-AE-02",
+        "AT-AE-03"
       ],
       "verificationQuestion": "FCF / funding의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "economics-roic",
@@ -1414,20 +2428,29 @@
       "kind": "investment-framework",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "ROIC / counter-scenario product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "capital-revenue-quality",
+        "economics-fcf"
+      ],
+      "downstream": [
+        "capital-company-role"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "SEC filings",
-        "annual reports",
-        "credit disclosures"
+        "AT-AE-01",
+        "AT-AE-02",
+        "AT-AE-03"
       ],
       "verificationQuestion": "ROIC / counter-scenario의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "physical-ai-perception",
@@ -1437,8 +2460,12 @@
       "kind": "robotics",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Perception and sensor fusion product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "edge-soc-npu"
+      ],
+      "downstream": [
+        "physical-ai-world-model"
+      ],
       "representativePlayerIds": [
         "tesla"
       ],
@@ -1446,15 +2473,19 @@
         "tesla-optimus-and-autonomy-stack"
       ],
       "sourceIds": [
-        "NIST robotics",
-        "ISO safety standards",
-        "robotics company filings"
+        "AT-RB-01",
+        "AT-RB-02",
+        "AT-RB-03"
       ],
       "verificationQuestion": "Perception and sensor fusion의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "physical-ai-world-model",
@@ -1464,20 +2495,29 @@
       "kind": "software",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "World model and simulation product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "compute-gpu",
+        "physical-ai-perception"
+      ],
+      "downstream": [
+        "physical-ai-planning"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "NIST robotics",
-        "ISO safety standards",
-        "robotics company filings"
+        "AT-RB-01",
+        "AT-RB-02",
+        "AT-RB-03"
       ],
       "verificationQuestion": "World model and simulation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "physical-ai-planning",
@@ -1487,26 +2527,35 @@
       "kind": "robotics",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Planning and control product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "physical-ai-world-model"
+      ],
+      "downstream": [
+        "defense-autonomy",
+        "physical-ai-actuation"
+      ],
       "representativePlayerIds": [
-        "tesla",
-        "shield-ai"
+        "shield-ai",
+        "tesla"
       ],
       "representativeProductIds": [
-        "tesla-optimus-and-autonomy-stack",
-        "shield-ai-hivemind-autonomy"
+        "shield-ai-hivemind-autonomy",
+        "tesla-optimus-and-autonomy-stack"
       ],
       "sourceIds": [
-        "NIST robotics",
-        "ISO safety standards",
-        "robotics company filings"
+        "AT-RB-01",
+        "AT-RB-02",
+        "AT-RB-03"
       ],
       "verificationQuestion": "Planning and control의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "physical-ai-actuation",
@@ -1516,20 +2565,28 @@
       "kind": "hardware",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Actuation and safety product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "physical-ai-planning"
+      ],
+      "downstream": [
+        "physical-ai-unit-economics"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "NIST robotics",
-        "ISO safety standards",
-        "robotics company filings"
+        "AT-RB-01",
+        "AT-RB-02",
+        "AT-RB-03"
       ],
       "verificationQuestion": "Actuation and safety의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "physical-ai-unit-economics",
@@ -1539,20 +2596,26 @@
       "kind": "economics",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Robot unit economics product/service family",
-      "upstream": [],
+      "upstream": [
+        "physical-ai-actuation"
+      ],
       "downstream": [],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "NIST robotics",
-        "ISO safety standards",
-        "robotics company filings"
+        "AT-RB-01",
+        "AT-RB-02",
+        "AT-RB-03"
       ],
       "verificationQuestion": "Robot unit economics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "LEAF",
+      "flowBoundary": "이 구조도에서 다음 노드를 생략한 도착점이며, 가치사슬과 경제 효과가 여기서 끝난다는 뜻은 아닙니다."
     },
     {
       "nodeId": "defense-kill-chain",
@@ -1563,19 +2626,25 @@
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Detection-to-decision chain product/service family",
       "upstream": [],
-      "downstream": [],
+      "downstream": [
+        "defense-c2-isr-ew"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "U.S. DoD budget",
-        "Congressional Research Service",
-        "defense procurement disclosures"
+        "AT-DD-01",
+        "AT-DD-02",
+        "AT-DD-03"
       ],
       "verificationQuestion": "Detection-to-decision chain의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "ROOT",
+      "flowBoundary": "이 구조도에서 앞선 노드를 생략한 출발점이며, 실제 산업 전체의 절대적 시작이라는 뜻은 아닙니다."
     },
     {
       "nodeId": "defense-c2-isr-ew",
@@ -1585,8 +2654,12 @@
       "kind": "defense",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "C2 / ISR / electronic warfare product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "defense-kill-chain"
+      ],
+      "downstream": [
+        "defense-autonomy"
+      ],
       "representativePlayerIds": [
         "shield-ai"
       ],
@@ -1594,15 +2667,19 @@
         "shield-ai-hivemind-autonomy"
       ],
       "sourceIds": [
-        "U.S. DoD budget",
-        "Congressional Research Service",
-        "defense procurement disclosures"
+        "AT-DD-01",
+        "AT-DD-02",
+        "AT-DD-03"
       ],
       "verificationQuestion": "C2 / ISR / electronic warfare의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "defense-autonomy",
@@ -1612,8 +2689,13 @@
       "kind": "policy",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Autonomy and human control product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "defense-c2-isr-ew",
+        "physical-ai-planning"
+      ],
+      "downstream": [
+        "defense-drone-production"
+      ],
       "representativePlayerIds": [
         "shield-ai"
       ],
@@ -1621,15 +2703,19 @@
         "shield-ai-hivemind-autonomy"
       ],
       "sourceIds": [
-        "U.S. DoD budget",
-        "Congressional Research Service",
-        "defense procurement disclosures"
+        "AT-DD-01",
+        "AT-DD-02",
+        "AT-DD-03"
       ],
       "verificationQuestion": "Autonomy and human control의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "defense-drone-production",
@@ -1639,20 +2725,28 @@
       "kind": "manufacturing",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Drone production and attrition product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "defense-autonomy"
+      ],
+      "downstream": [
+        "defense-procurement-economics"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "U.S. DoD budget",
-        "Congressional Research Service",
-        "defense procurement disclosures"
+        "AT-DD-01",
+        "AT-DD-02",
+        "AT-DD-03"
       ],
       "verificationQuestion": "Drone production and attrition의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "defense-procurement-economics",
@@ -1662,20 +2756,28 @@
       "kind": "economics",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Procurement economics product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "defense-drone-production"
+      ],
+      "downstream": [
+        "space-satellite-economics"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "U.S. DoD budget",
-        "Congressional Research Service",
-        "defense procurement disclosures"
+        "AT-DD-01",
+        "AT-DD-02",
+        "AT-DD-03"
       ],
       "verificationQuestion": "Procurement economics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "space-rocket-physics",
@@ -1686,7 +2788,9 @@
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Rocket physics and launch energy product/service family",
       "upstream": [],
-      "downstream": [],
+      "downstream": [
+        "space-reusability"
+      ],
       "representativePlayerIds": [
         "rocket-lab"
       ],
@@ -1694,15 +2798,19 @@
         "rocket-lab-electron-neutron-space-systems"
       ],
       "sourceIds": [
-        "NASA Artemis",
-        "FAA commercial space",
-        "company launch disclosures"
+        "AT-SA-01",
+        "AT-SA-02",
+        "AT-SA-03"
       ],
       "verificationQuestion": "Rocket physics and launch energy의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "ROOT",
+      "flowBoundary": "이 구조도에서 앞선 노드를 생략한 출발점이며, 실제 산업 전체의 절대적 시작이라는 뜻은 아닙니다."
     },
     {
       "nodeId": "space-reusability",
@@ -1712,8 +2820,12 @@
       "kind": "engineering",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Reusability and turnaround product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "space-rocket-physics"
+      ],
+      "downstream": [
+        "space-satellite-economics"
+      ],
       "representativePlayerIds": [
         "rocket-lab"
       ],
@@ -1721,15 +2833,19 @@
         "rocket-lab-electron-neutron-space-systems"
       ],
       "sourceIds": [
-        "NASA Artemis",
-        "FAA commercial space",
-        "company launch disclosures"
+        "AT-SA-01",
+        "AT-SA-02",
+        "AT-SA-03"
       ],
       "verificationQuestion": "Reusability and turnaround의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "space-satellite-economics",
@@ -1739,8 +2855,13 @@
       "kind": "economics",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Satellite data economics product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "defense-procurement-economics",
+        "space-reusability"
+      ],
+      "downstream": [
+        "space-artemis-architecture"
+      ],
       "representativePlayerIds": [
         "rocket-lab"
       ],
@@ -1748,15 +2869,19 @@
         "rocket-lab-electron-neutron-space-systems"
       ],
       "sourceIds": [
-        "NASA Artemis",
-        "FAA commercial space",
-        "company launch disclosures"
+        "AT-SA-01",
+        "AT-SA-02",
+        "AT-SA-03"
       ],
       "verificationQuestion": "Satellite data economics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "space-artemis-architecture",
@@ -1766,20 +2891,28 @@
       "kind": "program",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Artemis architecture product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "space-satellite-economics"
+      ],
+      "downstream": [
+        "space-aircraft-supply-chain"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "NASA Artemis",
-        "FAA commercial space",
-        "company launch disclosures"
+        "AT-SA-01",
+        "AT-SA-02",
+        "AT-SA-03"
       ],
       "verificationQuestion": "Artemis architecture의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "space-aircraft-supply-chain",
@@ -1789,7 +2922,9 @@
       "kind": "manufacturing",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Aircraft and space supply chain product/service family",
-      "upstream": [],
+      "upstream": [
+        "space-artemis-architecture"
+      ],
       "downstream": [],
       "representativePlayerIds": [
         "rocket-lab"
@@ -1798,15 +2933,19 @@
         "rocket-lab-electron-neutron-space-systems"
       ],
       "sourceIds": [
-        "NASA Artemis",
-        "FAA commercial space",
-        "company launch disclosures"
+        "AT-SA-01",
+        "AT-SA-02",
+        "AT-SA-03"
       ],
       "verificationQuestion": "Aircraft and space supply chain의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "LEAF",
+      "flowBoundary": "이 구조도에서 다음 노드를 생략한 도착점이며, 가치사슬과 경제 효과가 여기서 끝난다는 뜻은 아닙니다."
     },
     {
       "nodeId": "application-healthcare",
@@ -1817,19 +2956,25 @@
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Healthcare workflow product/service family",
       "upstream": [],
-      "downstream": [],
+      "downstream": [
+        "application-manufacturing"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "FDA digital health",
-        "DOE manufacturing",
-        "company product filings"
+        "AT-AA-01",
+        "AT-AA-02",
+        "AT-AA-03"
       ],
       "verificationQuestion": "Healthcare workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "ROOT",
+      "flowBoundary": "이 구조도에서 앞선 노드를 생략한 출발점이며, 실제 산업 전체의 절대적 시작이라는 뜻은 아닙니다."
     },
     {
       "nodeId": "application-manufacturing",
@@ -1839,8 +2984,12 @@
       "kind": "application",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Manufacturing workflow product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "application-healthcare"
+      ],
+      "downstream": [
+        "application-automotive"
+      ],
       "representativePlayerIds": [
         "palantir",
         "siemens"
@@ -1850,15 +2999,19 @@
         "siemens-industrial-copilot"
       ],
       "sourceIds": [
-        "FDA digital health",
-        "DOE manufacturing",
-        "company product filings"
+        "AT-AA-01",
+        "AT-AA-02",
+        "AT-AA-03"
       ],
       "verificationQuestion": "Manufacturing workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "application-automotive",
@@ -1868,8 +3021,12 @@
       "kind": "application",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Automotive autonomy product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "application-manufacturing"
+      ],
+      "downstream": [
+        "application-finance"
+      ],
       "representativePlayerIds": [
         "tesla"
       ],
@@ -1877,15 +3034,19 @@
         "tesla-optimus-and-autonomy-stack"
       ],
       "sourceIds": [
-        "FDA digital health",
-        "DOE manufacturing",
-        "company product filings"
+        "AT-AA-01",
+        "AT-AA-02",
+        "AT-AA-03"
       ],
       "verificationQuestion": "Automotive autonomy의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "application-finance",
@@ -1895,25 +3056,33 @@
       "kind": "application",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Financial decision workflow product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "application-automotive"
+      ],
+      "downstream": [
+        "application-roi-payer"
+      ],
       "representativePlayerIds": [
-        "palantir",
-        "ibm"
+        "ibm",
+        "palantir"
       ],
       "representativeProductIds": [
         "palantir-aip"
       ],
       "sourceIds": [
-        "FDA digital health",
-        "DOE manufacturing",
-        "company product filings"
+        "AT-AA-01",
+        "AT-AA-02",
+        "AT-AA-03"
       ],
       "verificationQuestion": "Financial decision workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "application-roi-payer",
@@ -1923,8 +3092,12 @@
       "kind": "economics",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Payer, ROI and adoption product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "application-finance"
+      ],
+      "downstream": [
+        "economics-revenue-model"
+      ],
       "representativePlayerIds": [
         "palantir"
       ],
@@ -1932,15 +3105,19 @@
         "palantir-aip"
       ],
       "sourceIds": [
-        "FDA digital health",
-        "DOE manufacturing",
-        "company product filings"
+        "AT-AA-01",
+        "AT-AA-02",
+        "AT-AA-03"
       ],
       "verificationQuestion": "Payer, ROI and adoption의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "resources-copper",
@@ -1951,19 +3128,25 @@
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Copper and conductors product/service family",
       "upstream": [],
-      "downstream": [],
+      "downstream": [
+        "resources-lithium"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "IEA critical minerals",
-        "USGS minerals",
-        "industrial company filings"
+        "AT-RM-01",
+        "AT-RM-02",
+        "AT-RM-03"
       ],
       "verificationQuestion": "Copper and conductors의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "ROOT",
+      "flowBoundary": "이 구조도에서 앞선 노드를 생략한 출발점이며, 실제 산업 전체의 절대적 시작이라는 뜻은 아닙니다."
     },
     {
       "nodeId": "resources-lithium",
@@ -1973,20 +3156,28 @@
       "kind": "materials",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Lithium and storage materials product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "resources-copper"
+      ],
+      "downstream": [
+        "resources-rare-earths"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "IEA critical minerals",
-        "USGS minerals",
-        "industrial company filings"
+        "AT-RM-01",
+        "AT-RM-02",
+        "AT-RM-03"
       ],
       "verificationQuestion": "Lithium and storage materials의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "resources-rare-earths",
@@ -1996,8 +3187,12 @@
       "kind": "materials",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Rare earths and magnets product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "resources-lithium"
+      ],
+      "downstream": [
+        "resources-refining"
+      ],
       "representativePlayerIds": [
         "mp-materials"
       ],
@@ -2005,15 +3200,19 @@
         "mp-materials-rare-earth-magnetics"
       ],
       "sourceIds": [
-        "IEA critical minerals",
-        "USGS minerals",
-        "industrial company filings"
+        "AT-RM-01",
+        "AT-RM-02",
+        "AT-RM-03"
       ],
       "verificationQuestion": "Rare earths and magnets의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "resources-refining",
@@ -2023,8 +3222,13 @@
       "kind": "process",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Mining, refining and recycling product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "resources-rare-earths"
+      ],
+      "downstream": [
+        "foundry-materials",
+        "resources-industrial-equipment"
+      ],
       "representativePlayerIds": [
         "mp-materials"
       ],
@@ -2032,15 +3236,19 @@
         "mp-materials-rare-earth-magnetics"
       ],
       "sourceIds": [
-        "IEA critical minerals",
-        "USGS minerals",
-        "industrial company filings"
+        "AT-RM-01",
+        "AT-RM-02",
+        "AT-RM-03"
       ],
       "verificationQuestion": "Mining, refining and recycling의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "resources-industrial-equipment",
@@ -2050,7 +3258,9 @@
       "kind": "equipment",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Industrial equipment bottlenecks product/service family",
-      "upstream": [],
+      "upstream": [
+        "resources-refining"
+      ],
       "downstream": [],
       "representativePlayerIds": [
         "mp-materials"
@@ -2059,15 +3269,19 @@
         "mp-materials-rare-earth-magnetics"
       ],
       "sourceIds": [
-        "IEA critical minerals",
-        "USGS minerals",
-        "industrial company filings"
+        "AT-RM-01",
+        "AT-RM-02",
+        "AT-RM-03"
       ],
       "verificationQuestion": "Industrial equipment bottlenecks의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "LEAF",
+      "flowBoundary": "이 구조도에서 다음 노드를 생략한 도착점이며, 가치사슬과 경제 효과가 여기서 끝난다는 뜻은 아닙니다."
     },
     {
       "nodeId": "policy-export-controls",
@@ -2078,19 +3292,26 @@
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Export controls product/service family",
       "upstream": [],
-      "downstream": [],
+      "downstream": [
+        "compute-gpu",
+        "policy-supply-chain-resilience"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "BIS export controls",
-        "U.S. Treasury sanctions",
-        "national industrial policy documents"
+        "AT-GP-01",
+        "AT-GP-02",
+        "AT-GP-03"
       ],
       "verificationQuestion": "Export controls의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "ROOT",
+      "flowBoundary": "이 구조도에서 앞선 노드를 생략한 출발점이며, 실제 산업 전체의 절대적 시작이라는 뜻은 아닙니다."
     },
     {
       "nodeId": "policy-supply-chain-resilience",
@@ -2100,8 +3321,12 @@
       "kind": "policy",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Supply-chain resilience product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "policy-export-controls"
+      ],
+      "downstream": [
+        "policy-semiconductor-incentives"
+      ],
       "representativePlayerIds": [
         "mp-materials"
       ],
@@ -2109,15 +3334,19 @@
         "mp-materials-rare-earth-magnetics"
       ],
       "sourceIds": [
-        "BIS export controls",
-        "U.S. Treasury sanctions",
-        "national industrial policy documents"
+        "AT-GP-01",
+        "AT-GP-02",
+        "AT-GP-03"
       ],
       "verificationQuestion": "Supply-chain resilience의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "policy-semiconductor-incentives",
@@ -2127,22 +3356,30 @@
       "kind": "policy",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Semiconductor incentives product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "policy-supply-chain-resilience"
+      ],
+      "downstream": [
+        "policy-cybersecurity"
+      ],
       "representativePlayerIds": [
         "samsung-electronics"
       ],
       "representativeProductIds": [],
       "sourceIds": [
-        "BIS export controls",
-        "U.S. Treasury sanctions",
-        "national industrial policy documents"
+        "AT-GP-01",
+        "AT-GP-02",
+        "AT-GP-03"
       ],
       "verificationQuestion": "Semiconductor incentives의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "policy-cybersecurity",
@@ -2152,20 +3389,28 @@
       "kind": "security",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Cybersecurity and sovereign AI product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "policy-semiconductor-incentives"
+      ],
+      "downstream": [
+        "policy-national-security-risk"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "BIS export controls",
-        "U.S. Treasury sanctions",
-        "national industrial policy documents"
+        "AT-GP-01",
+        "AT-GP-02",
+        "AT-GP-03"
       ],
       "verificationQuestion": "Cybersecurity and sovereign AI의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "policy-national-security-risk",
@@ -2175,20 +3420,26 @@
       "kind": "risk",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "National-security risk product/service family",
-      "upstream": [],
+      "upstream": [
+        "policy-cybersecurity"
+      ],
       "downstream": [],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "BIS export controls",
-        "U.S. Treasury sanctions",
-        "national industrial policy documents"
+        "AT-GP-01",
+        "AT-GP-02",
+        "AT-GP-03"
       ],
       "verificationQuestion": "National-security risk의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "LEAF",
+      "flowBoundary": "이 구조도에서 다음 노드를 생략한 도착점이며, 가치사슬과 경제 효과가 여기서 끝난다는 뜻은 아닙니다."
     },
     {
       "nodeId": "capital-company-role",
@@ -2198,8 +3449,12 @@
       "kind": "company",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Company role and value capture product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "economics-roic"
+      ],
+      "downstream": [
+        "capital-revenue-quality"
+      ],
       "representativePlayerIds": [
         "palantir",
         "siemens"
@@ -2209,15 +3464,19 @@
         "siemens-industrial-copilot"
       ],
       "sourceIds": [
-        "SEC EDGAR",
-        "company annual reports",
-        "exchange rulebooks"
+        "AT-CM-01",
+        "AT-CM-02",
+        "AT-CM-03"
       ],
       "verificationQuestion": "Company role and value capture의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "capital-revenue-quality",
@@ -2227,22 +3486,31 @@
       "kind": "finance",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Revenue quality and visibility product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "capital-company-role"
+      ],
+      "downstream": [
+        "capital-margin-structure",
+        "economics-roic"
+      ],
       "representativePlayerIds": [
         "palantir"
       ],
       "representativeProductIds": [],
       "sourceIds": [
-        "SEC EDGAR",
-        "company annual reports",
-        "exchange rulebooks"
+        "AT-CM-01",
+        "AT-CM-02",
+        "AT-CM-03"
       ],
       "verificationQuestion": "Revenue quality and visibility의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "capital-margin-structure",
@@ -2252,20 +3520,28 @@
       "kind": "finance",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Margin and cost structure product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "capital-revenue-quality"
+      ],
+      "downstream": [
+        "capital-balance-sheet"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "SEC EDGAR",
-        "company annual reports",
-        "exchange rulebooks"
+        "AT-CM-01",
+        "AT-CM-02",
+        "AT-CM-03"
       ],
       "verificationQuestion": "Margin and cost structure의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "capital-balance-sheet",
@@ -2275,20 +3551,28 @@
       "kind": "finance",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Balance sheet and funding product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "capital-margin-structure"
+      ],
+      "downstream": [
+        "capital-market-expectation"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "SEC EDGAR",
-        "company annual reports",
-        "exchange rulebooks"
+        "AT-CM-01",
+        "AT-CM-02",
+        "AT-CM-03"
       ],
       "verificationQuestion": "Balance sheet and funding의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "capital-market-expectation",
@@ -2298,20 +3582,27 @@
       "kind": "market",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Expectation and price product/service family",
-      "upstream": [],
+      "upstream": [
+        "capital-balance-sheet",
+        "future-uncertainty-gate"
+      ],
       "downstream": [],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "SEC EDGAR",
-        "company annual reports",
-        "exchange rulebooks"
+        "AT-CM-01",
+        "AT-CM-02",
+        "AT-CM-03"
       ],
       "verificationQuestion": "Expectation and price의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "LEAF",
+      "flowBoundary": "이 구조도에서 다음 노드를 생략한 도착점이며, 가치사슬과 경제 효과가 여기서 끝난다는 뜻은 아닙니다."
     },
     {
       "nodeId": "future-quantum",
@@ -2322,7 +3613,9 @@
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Quantum computing product/service family",
       "upstream": [],
-      "downstream": [],
+      "downstream": [
+        "future-photonic-compute"
+      ],
       "representativePlayerIds": [
         "ibm"
       ],
@@ -2330,15 +3623,19 @@
         "ibm-quantum-platform"
       ],
       "sourceIds": [
-        "peer-reviewed research",
-        "standards bodies",
-        "company R&D disclosures"
+        "AT-FT-01",
+        "AT-FT-02",
+        "AT-FT-03"
       ],
       "verificationQuestion": "Quantum computing의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "ROOT",
+      "flowBoundary": "이 구조도에서 앞선 노드를 생략한 출발점이며, 실제 산업 전체의 절대적 시작이라는 뜻은 아닙니다."
     },
     {
       "nodeId": "future-photonic-compute",
@@ -2348,24 +3645,30 @@
       "kind": "emerging-technology",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Photonic compute product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "future-quantum"
+      ],
+      "downstream": [
+        "future-neuromorphic"
+      ],
       "representativePlayerIds": [
         "ibm"
       ],
-      "representativeProductIds": [
-        "ibm-quantum-platform"
-      ],
+      "representativeProductIds": [],
       "sourceIds": [
-        "peer-reviewed research",
-        "standards bodies",
-        "company R&D disclosures"
+        "AT-FT-01",
+        "AT-FT-02",
+        "AT-FT-03"
       ],
       "verificationQuestion": "Photonic compute의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "REFERENCE_MAPPED",
+      "representativeMappingBoundary": "Reference identity mapping only; no current production, revenue, market-share or valuation claim.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "future-neuromorphic",
@@ -2375,20 +3678,28 @@
       "kind": "emerging-technology",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Neuromorphic systems product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "future-photonic-compute"
+      ],
+      "downstream": [
+        "future-new-energy"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "peer-reviewed research",
-        "standards bodies",
-        "company R&D disclosures"
+        "AT-FT-01",
+        "AT-FT-02",
+        "AT-FT-03"
       ],
       "verificationQuestion": "Neuromorphic systems의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "future-new-energy",
@@ -2398,20 +3709,28 @@
       "kind": "energy",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "New energy systems product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "future-neuromorphic"
+      ],
+      "downstream": [
+        "future-uncertainty-gate"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "peer-reviewed research",
-        "standards bodies",
-        "company R&D disclosures"
+        "AT-FT-01",
+        "AT-FT-02",
+        "AT-FT-03"
       ],
       "verificationQuestion": "New energy systems의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     },
     {
       "nodeId": "future-uncertainty-gate",
@@ -2421,20 +3740,28 @@
       "kind": "method",
       "roleReference": "industry value-chain role",
       "productFamilyReference": "Technology uncertainty gate product/service family",
-      "upstream": [],
-      "downstream": [],
+      "upstream": [
+        "future-new-energy"
+      ],
+      "downstream": [
+        "capital-market-expectation"
+      ],
       "representativePlayerIds": [],
       "representativeProductIds": [],
       "sourceIds": [
-        "peer-reviewed research",
-        "standards bodies",
-        "company R&D disclosures"
+        "AT-FT-01",
+        "AT-FT-02",
+        "AT-FT-03"
       ],
       "verificationQuestion": "Technology uncertainty gate의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
       "status": "STRUCTURAL_REFERENCE_ONLY",
       "currentClaims": 0,
       "asOf": null,
-      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim"
+      "boundary": "taxonomy role/product family only; no current revenue, shipment, yield, production status, market share or investment claim",
+      "representativeMappingStatus": "NOT_YET_VERIFIED",
+      "representativeMappingBoundary": "No verified representative company/product mapping is published for this structural node.",
+      "flowPosition": "BRIDGE",
+      "flowBoundary": "앞선 투입을 받아 다음 단계로 전달하는 연결 지점입니다."
     }
   ]
 }

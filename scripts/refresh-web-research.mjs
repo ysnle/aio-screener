@@ -6,12 +6,12 @@ const EVIDENCE_PATH = new URL('../public-data/structural-data-research.json', im
 // This is an operator-captured WebSearch snapshot. Values are copied only from
 // the linked publisher pages and are never extrapolated when the page is stale,
 // subscriber-only, or lacks a numeric observation.
-// 2026-08-15 KST expressed as a non-future UTC instant for the lineage audit.
-const CHECKED_AT = '2026-08-14T15:00:00Z';
+// 2026-08-22 KST expressed as a non-future UTC instant for the lineage audit.
+const CHECKED_AT = '2026-08-21T15:00:00Z';
 const SOURCES = Object.freeze({
   aaii: 'https://www.aaii.com/sentimentsurvey',
   naaim: 'https://naaim.org/programs/naaim-exposure-index/',
-  investorsIntelligence: 'https://www.investorsintelligence.com/help/education/advisors-sentiment',
+  investorsIntelligence: 'https://www.investorsintelligence.com/subscribe/packages',
   finraShortInterest: 'https://www.finra.org/finra-data/browse-catalog/equity-short-interest',
   finraApi: 'https://developer.finra.org/docs',
   nyseCorporateActions: 'https://www.nyse.com/market-data/corporate-actions',
@@ -28,12 +28,12 @@ const MARKET_SURVEYS = Object.freeze({
   policy: 'official-publisher-public-web; reference-only; no synthesis',
   aaii: {
     status: 'current-reference',
-    bullish: 34.7,
-    neutral: 27.4,
-    bearish: 37.9,
-    spread: -3.2,
-    observedAt: '2026-08-12',
-    period: 'week-ending-2026-08-12',
+    bullish: 35.5,
+    neutral: 24.6,
+    bearish: 39.9,
+    spread: -4.4,
+    observedAt: '2026-08-19',
+    period: 'week-ending-2026-08-19',
     source: 'AAII Sentiment Survey',
     sourceKind: 'publisher-public-web',
     sourceUrl: SOURCES.aaii,
@@ -51,7 +51,7 @@ const MARKET_SURVEYS = Object.freeze({
     sourceUrl: SOURCES.naaim,
     access: 'public-web-terms-apply',
     allowedUse: 'reference-only',
-    note: 'Official page displays 84.02 as the last public value and states access became subscription-based effective 2026-08-01; no newer public numeric value was promoted.'
+    note: 'Official page retains 84.02 as the last public value, exposes public data only with a three-month delay, and requires a subscription/API for current values; no newer current value was inferred.'
   },
   investorsIntelligence: {
     status: 'blocked-no-public-numeric',
@@ -59,7 +59,7 @@ const MARKET_SURVEYS = Object.freeze({
     sourceKind: 'publisher-public-web',
     sourceUrl: SOURCES.investorsIntelligence,
     allowedUse: 'not-used',
-    note: 'Official education page documents the survey but does not expose a current numeric reading without subscriber access.'
+    note: 'Official subscription page documents the survey but does not expose a current numeric reading without subscriber access.'
   }
 });
 
@@ -91,11 +91,11 @@ const STRUCTURAL_EVIDENCE = {
   entries: [
     {
       id: 'aaii', status: 'CURRENT_REFERENCE', valueArtifact: 'public-data/data.json.marketSurveys.aaii',
-      sourceUrl: SOURCES.aaii, observation: '2026-08-12', detail: '34.7 bullish / 27.4 neutral / 37.9 bearish; reference-only because publisher terms and weekly cadence apply.'
+      sourceUrl: SOURCES.aaii, observation: '2026-08-19', detail: '35.5 bullish / 24.6 neutral / 39.9 bearish; current official public observation, retained as reference-only because publisher terms apply.'
     },
     {
       id: 'naaim', status: 'STALE_REFERENCE', valueArtifact: 'public-data/data.json.marketSurveys.naaim',
-      sourceUrl: SOURCES.naaim, observation: '2026-07-22', detail: '84.02 is the last public value shown; the page announces subscription access from 2026-08-01, so no current value was inferred.'
+      sourceUrl: SOURCES.naaim, observation: '2026-07-22', detail: '84.02 is the last public value retained; the publisher now exposes public data with a three-month delay and reserves current/API access for subscribers, so no current value was inferred.'
     },
     {
       id: 'investors-intelligence', status: 'BLOCKED', sourceUrl: SOURCES.investorsIntelligence,

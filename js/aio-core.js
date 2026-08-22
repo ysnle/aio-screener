@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v54.37';
+const APP_VERSION = 'v54.43';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -2611,7 +2611,7 @@ window._aioRenderSnapshotDates = function() {
       if (!el.getAttribute('data-source-kind')) el.setAttribute('data-source-kind', 'snapshot');
       if (!el.getAttribute('data-operational-use')) el.setAttribute('data-operational-use', 'reference-only');
       if (!el.getAttribute('data-source-label')) el.setAttribute('data-source-label', 'DATA_SNAPSHOT:' + key);
-      if (!el.title) el.title = d ? ('DATA_SNAPSHOT 기준일 ' + d + ' · 참고용 스냅샷') : 'DATA_SNAPSHOT 참고용 스냅샷';
+      if (!el.title) el.title = d ? ('정적 참고값 기준일 ' + d + ' · 실시간 갱신 전 참고용') : '정적 참고값 · 실시간 갱신 전 참고용';
     });
     // KR 카드 stale-days span 갱신 — kr-* 5개 ID에 _aioStaleDaysLabel 호출
     if (typeof window._aioStaleDaysLabel === 'function') {
@@ -17205,7 +17205,7 @@ window.AIO.getExternalDependencyAudit = function() {
     { id:'kr-realtime-supply-short', current:'Naver investorTrend proxy; short data unavailable', state:'free_equivalent_unavailable', target:'reference_only', freeAlternatives:[], rights:'no confirmed free source with equivalent real-time/redistribution rights', cadence:'official delayed snapshot only when permitted' },
     { id:'breadth', current:'AIO universe adjusted-close aggregation', state:'connected_research_only', target:'point_in_time_universe_breadth', alternatives:['licensed full-universe EOD bars','exchange/vendor breadth series'], rights:'underlying constituent/history rights required', cadence:'daily after all bars settle' },
     { id:'put-call', current:'Cboe official daily statistics server ingest', state:'connected_delayed', target:'official_cboe_ingest', freeAlternatives:['Cboe Daily Market Statistics'], rights:'free public page with Cboe attribution; website terms still apply', cadence:'30-minute fetch of latest completed daily statistic' },
-    { id:'survey-sentiment', current:'AAII/NAAIM/Investors Intelligence snapshots', state:'free_equivalent_unavailable', target:'manual_reference_only', freeAlternatives:['NAAIM official weekly publication when publicly posted'], rights:'no equivalent free API; do not relabel VIX/F&G as the same survey', cadence:'weekly manual/reference' },
+    { id:'survey-sentiment', current:'AAII current public reference + delayed/blocked NAAIM and Investors Intelligence', state:'mixed_public_reference_and_subscriber', target:'publisher_reference_with_rights_boundary', freeAlternatives:['AAII official current weekly public observation','NAAIM official three-month-delayed public reference'], rights:'AAII current public values remain reference-only; NAAIM current/API and Investors Intelligence current values require subscriber/display rights; do not relabel VIX/F&G as these surveys', cadence:'weekly operator research/reference' },
     { id:'news-events', current:'multi-RSS + Finnhub/NewsData optional', state:'connected_with_gap', target:'normalized_news_event_bus', alternatives:['GDELT Event/GKG','licensed news API','issuer/exchange/regulator RSS'], rights:'headline/body copyright and redistribution differ by source', cadence:'5-15 minute ingest + dedupe' },
     { id:'telegram', current:'public web/RSS mirrors with per-channel failure tracking', state:'operator_required', target:'authorized_channel_ingest', alternatives:['Telegram Bot API for managed channels','Telegram MTProto/TDLib user-authorized client','licensed aggregator'], rights:'account authorization, channel rights, platform terms; anonymous scraping is not a durable primary source', cadence:'webhook/update stream + 24h gap reconciliation' },
     { id:'options-chain-greeks', current:'reference-only page; no verified chain', state:'free_equivalent_unavailable', target:'education_only', freeAlternatives:[], rights:'OPRA/exchange entitlements and display rights required for equivalent live coverage', cadence:'none' },
@@ -21474,10 +21474,11 @@ const AIO_MANUAL_REFERENCE = Object.freeze({
     operationalUse: 'reference-only'
   }),
   krInflation: Object.freeze({
-    // P720 데이터 정직화: publishedAt은 참조 입력일이 아니라 통계청 실제 발표일(2026-07-02).
-    headline: 3.2, core: 2.5, observation: '2026-06', publishedAt: '2026-07-02',
-    source: 'Bank of Korea', sourceKind: 'official-primary',
-    sourceUrl: 'https://www.bok.or.kr/portal/bbs/P0000559/view.do?menuNo=200690&nttId=11062942',
+    // P953 데이터 정직화: 국가데이터처 공식 발표의 관측월·발표일·근원 정의를 함께 고정한다.
+    headline: 2.8, core: 2.6, coreDefinition: 'food-and-energy-excluded',
+    observation: '2026-07', publishedAt: '2026-08-04',
+    source: 'Ministry of Data and Statistics (Korea)', sourceKind: 'official-primary',
+    sourceUrl: 'https://mods.go.kr/board.es?act=view&bid=213&list_no=446338&mid=b70203010000&nPage=1&ref_bid=213&tag=',
     operationalUse: 'reference-only'
   }),
   usCpiCalendar: Object.freeze({
@@ -26651,10 +26652,23 @@ function showPage(id, navEl) {
   // Browser history — enables native back/forward (skipped if sandboxed or popstate)
   // v49.1 P187: _aioInPopstate 플래그로 popstate 핸들러 내부에서 pushState 호출 방지
   try {
+    var _pendingRouteHash = window._aioPendingRouteHash || '';
+    delete window._aioPendingRouteHash;
+    var _plainRouteUrl = '#' + id;
+    if (!_pendingRouteHash) {
+      try {
+        var _cleanRouteUrl = new URL(location.href);
+        ['mode','node','path','step','chapter','lesson','domain','topic','guide','criticality','manager','period'].forEach(function(key) { _cleanRouteUrl.searchParams.delete(key); });
+        _plainRouteUrl = _cleanRouteUrl.pathname + (_cleanRouteUrl.searchParams.toString() ? '?' + _cleanRouteUrl.searchParams.toString() : '') + '#' + id;
+      } catch (_) {}
+    }
     if (!_aioInPopstate && history.state?.page !== id) {
-      history.pushState({ page: id }, '', '#' + id);
+      history.pushState(Object.assign({}, history.state || {}, { page: id }), '', _pendingRouteHash || _plainRouteUrl);
+    } else if (!_aioInPopstate && _pendingRouteHash) {
+      history.replaceState(Object.assign({}, history.state || {}, { page: id }), '', _pendingRouteHash);
     }
   } catch(e) { /* sandboxed iframe — history API not available */ }
+  try { if (typeof window._aioSyncKnowledgeRouteContext === 'function') window._aioSyncKnowledgeRouteContext(); } catch (_) {}
   try { Reflect.set(window, 'prevPage', id); } catch(_) {}
   if (window.AIO && window.AIO.state) window.AIO.state.prevPage = id; // v49.1 P184
   // v42.1: 마켓 펄스 바 — home에서는 숨기고 나머지 페이지에서 표시
@@ -26689,7 +26703,9 @@ if (typeof window !== 'undefined' && !window._aioPopstateRegistered) {
   window.addEventListener('popstate', function(e) {
     var pageId = null;
     if (e.state && e.state.page) pageId = e.state.page;
-    else if (location.hash && location.hash.length > 1) pageId = location.hash.slice(1);
+    else if (location.hash && location.hash.length > 1) pageId = typeof window._aioParseRouteHash === 'function' ? window._aioParseRouteHash(location.hash).routeId : location.hash.slice(1).split('?')[0];
+    if (pageId) pageId = String(pageId).split('?')[0];
+    try { if (typeof window._aioSyncKnowledgeRouteContext === 'function') window._aioSyncKnowledgeRouteContext(); } catch (_) {}
     if (!pageId) pageId = 'home';
     // 유효 페이지인지 확인
     if (document.getElementById('page-' + pageId)) {

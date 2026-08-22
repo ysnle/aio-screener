@@ -1,23 +1,12 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { archiveBase, createSecClient } from './lib/sec-edgar.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const filingsPath = path.join(root, 'public-data', 'masters', 'filings.json');
 const filings = JSON.parse(await fs.readFile(filingsPath, 'utf8'));
-const userAgent = 'AIO Screener research contact research@example.com';
-
-async function fetchJson(url) {
-  const response = await fetch(url, { headers: { 'User-Agent': userAgent, Accept: 'application/json' } });
-  if (!response.ok) throw new Error(`${response.status} ${url}`);
-  return response.json();
-}
-
-function archiveBase(cik, accession) {
-  const numericCik = String(cik).replace(/^0+/, '');
-  const accessionPath = accession.replace(/-/g, '');
-  return `https://www.sec.gov/Archives/edgar/data/${numericCik}/${accessionPath}`;
-}
+const secClient = createSecClient();
 
 function selectPrior(recent, current) {
   const rows = recent.form.map((form, index) => ({
@@ -34,7 +23,7 @@ function selectPrior(recent, current) {
 const output = [];
 for (const manager of filings.managers.filter((item) => item.latestFiling?.cik || item.cik)) {
   if (!manager.latestFiling || !manager.cik) continue;
-  const recent = await fetchJson(`https://data.sec.gov/submissions/CIK${manager.cik}.json`);
+  const recent = await secClient.json(`https://data.sec.gov/submissions/CIK${manager.cik}.json`);
   const prior = selectPrior(recent.filings.recent, {
     accession: manager.latestFiling.accession,
     periodOfReport: manager.latestFiling.periodOfReport
@@ -44,7 +33,7 @@ for (const manager of filings.managers.filter((item) => item.latestFiling?.cik |
     continue;
   }
   const base = archiveBase(manager.cik, prior.accession);
-  const indexJson = await fetchJson(`${base}/index.json`);
+  const indexJson = await secClient.json(`${base}/index.json`);
   const files = indexJson.directory?.item || [];
   const xmlCandidates = files
     .map((item) => item.name)
@@ -53,8 +42,8 @@ for (const manager of filings.managers.filter((item) => item.latestFiling?.cik |
   let informationTableXml = null;
   for (const file of xmlCandidates) {
     const candidate = `${base}/${file}`;
-    const response = await fetch(candidate, { headers: { 'User-Agent': userAgent, Accept: 'application/xml,text/xml' } });
-    if (response.ok && /<[^>]*infoTable\b/i.test(await response.text())) {
+    const xml = await secClient.text(candidate);
+    if (/<[^>]*infoTable\b/i.test(xml)) {
       informationTableXml = candidate;
       break;
     }

@@ -102,7 +102,9 @@ jobs:
         run: node scripts/ci-baseline-contract-check.mjs
 
       - name: ESM core unit contracts (RM-05 — store/router/lifecycle/evidence-store/facade in isolation)
-        run: node scripts/ci-esm-core-unit-check.mjs
+        run: |
+          node scripts/ci-esm-core-unit-check.mjs
+          node scripts/ci-artifact-cache-check.mjs
 
       - name: Screener Workbench contract gate (SCR-OS-00~09)
         run: node scripts/ci-screener-workbench-contract.mjs
@@ -140,6 +142,8 @@ jobs:
             node scripts/ci-knowledge-web-research-dossier.mjs
             node scripts/build-knowledge-domain-dossiers.mjs
             node scripts/ci-knowledge-sector-domain-depth.mjs
+            node scripts/build-knowledge-runtime-index.mjs
+            git diff --exit-code -- public-data/knowledge/status-summary.json
             node scripts/ci-knowledge-article-uniqueness.mjs
             node scripts/ci-knowledge-market-transmission.mjs
             node scripts/ci-knowledge-currentness-separation.mjs
@@ -319,11 +323,17 @@ jobs:
       - name: AI Era Atlas reference shell browser contract
         run: node scripts/ci-atlas-browser-check.mjs
 
+      - name: 13F · Principles · AI Era artifact and re-entry budget
+        run: node scripts/ci-three-page-artifact-budget-check.mjs
+
       - name: Market Principles evidence registry browser contract
         run: node scripts/ci-principles-browser-check.mjs
 
       - name: Masters SEC metadata browser contract
         run: node scripts/ci-masters-browser-check.mjs
+
+      - name: Three-page narrative handoff and mobile reading-density contract
+        run: node scripts/ci-three-page-learning-flow-check.mjs
 
       - name: Wave 5 route soak and lifecycle leak contract
         run: node scripts/ci-route-soak-check.mjs

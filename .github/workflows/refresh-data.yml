@@ -7,6 +7,7 @@ name: Refresh market data
 on:
   schedule:
     - cron: '17,47 * * * *'
+    - cron: '13 7 * * *'
   workflow_dispatch: {}
 
 permissions:
@@ -40,6 +41,20 @@ jobs:
         env:
           TG_PAGE_LIMIT: 50
         run: node scripts/fetch-telegram-digest.mjs --days=14 --out=public-data/telegram-digest.json
+
+      - name: Refresh SEC 13F and 13D-G discovery with connected rows
+        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '13 7 * * *'
+        env:
+          SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
+        run: |
+          node scripts/collect-13f-discovery.mjs
+          node scripts/collect-13f-reference.mjs
+          node scripts/collect-13f-history-index.mjs
+          node scripts/collect-13f-history-rows.mjs
+          node scripts/build-13f-issuer-aggregates.mjs
+          node scripts/build-masters-runtime-artifacts.mjs
+          node scripts/ci-13f-currentness-check.mjs
+          node scripts/ci-masters-contract-check.mjs
 
       - name: Promote one data release revision
         run: node scripts/sync-data-release-manifests.mjs
@@ -111,6 +126,16 @@ jobs:
           [ -f public-data/backtest-history.json ] && git add public-data/backtest-history.json || true
           [ -f public-data/score-backtest-history.json ] && git add public-data/score-backtest-history.json || true
           [ -f public-data/structural-data-research.json ] && git add public-data/structural-data-research.json || true
+          [ -f public-data/masters/filing-discovery.json ] && git add public-data/masters/filing-discovery.json || true
+          [ -f public-data/masters/filings.json ] && git add public-data/masters/filings.json || true
+          [ -f public-data/masters/manager-catalog.json ] && git add public-data/masters/manager-catalog.json || true
+          [ -f public-data/masters/holdings.json ] && git add public-data/masters/holdings.json || true
+          [ -f public-data/masters/holdings-summary.json ] && git add public-data/masters/holdings-summary.json || true
+          [ -f public-data/masters/history-index.json ] && git add public-data/masters/history-index.json || true
+          [ -f public-data/masters/history-holdings.json ] && git add public-data/masters/history-holdings.json || true
+          [ -f public-data/masters/issuer-aggregates.json ] && git add public-data/masters/issuer-aggregates.json || true
+          [ -d public-data/masters/managers ] && git add public-data/masters/managers || true
+          [ -d public-data/masters/history/managers ] && git add public-data/masters/history/managers || true
           git add architecture/asset-manifest.json architecture/release-manifest.json
           if git diff --staged --quiet; then
             echo "No public-data changes to commit"

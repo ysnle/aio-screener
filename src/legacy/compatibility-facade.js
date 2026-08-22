@@ -58,6 +58,7 @@ function readLegacy(root) {
     hySpreadDate: root?._hySpreadDate || snapshot._snapshotDate || snapshot._updated || null,
     aaiiBear: finite(snapshot.aaiiBear),
     aaiiBull: finite(snapshot.aaiiBull),
+    aaiiObservedAt: snapshot._fieldTs?.aaii || root?._serverDataMeta?.marketSurveys?.aaii?.observedAt || null,
     vixHistory,
     now: new Date().toISOString()
   });

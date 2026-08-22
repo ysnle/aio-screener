@@ -1,15 +1,15 @@
 ---
 verified_by: Codex
-last_verified: 2026-08-12
+last_verified: 2026-08-22
 confidence: high for repository, artifact topology, renderer behavior, content-volume measurement, and reproduced live UI findings; medium for academic/source directness because every external source original was not independently re-read
- target_version: v54.37
- scope: desktop-only
+target_version: v54.43
+scope: desktop-only
 status: IMPLEMENTATION_IN_PROGRESS
-bounded_changes_implemented: naming_audit_contracts_s0_reference_core_ontology_claim_registry_article_drafts_learning_state_route_bridge_repository_renderers_encyclopedia_mission_full_coverage_web_research_post_ka_track
+bounded_changes_implemented: naming_audit_contracts_s0_reference_core_ontology_claim_registry_article_drafts_lazy_scoped_loading_full_text_learning_controls_route_bridge_repository_renderers_encyclopedia_mission_full_coverage_web_research_post_ka_track
 knowledge_rebuild_status: STRUCTURED_REFERENCE_DRAFTS_PARTIAL_CONTENT_RESEARCH_OPEN
 live_revision: v54.5
 live_revision_role: historical_observation
-local_revision: v54.37
+local_revision: v54.43
 machine_contract: _context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json
 file_manifest: _context/MARKET-PRINCIPLES-ATLAS-HANDOFF-FILE-MANIFEST-2026-08-10.json
 ---
@@ -17,6 +17,12 @@ file_manifest: _context/MARKET-PRINCIPLES-ATLAS-HANDOFF-FILE-MANIFEST-2026-08-10
 ## Current scope override (2026-08-13)
 
 The historical mobile/tablet acceptance references in this handoff are retained as audit history only. Current product QA and future implementation scope are desktop-only, using 1280×900, 1440×1000, and 1920×1080. Legacy responsive markup may remain for compatibility, but mobile/tablet work is not a required acceptance dimension unless the user explicitly reopens the scope.
+
+## v54.40 current implementation update (2026-08-22)
+
+Principles and Atlas now load heavy capability groups only when the selected tab, search or module needs them. Long-form articles load one item only after an explicit request; per-item failures remain visible as accessible alerts and can be retried without collapsing the page. Route-scope abort/liveness guards prevent late writes, independent capabilities settle separately, full-text retrieval preserves search focus, and the shared 15-minute artifact cache is capped at 64 LRU entries. Accessible bookmark/note controls persist locally. All 160 primary structured drafts are connected, and 199 route targets include an exact professional route, metric, timeframe and return context.
+
+Cold browser budgets are measured at 258,377 bytes for Principles core, 1,478,997 additional bytes for the explicit library, 25,126 bytes for one Principles article, 590,844 bytes for Atlas foundations, 24,526 bytes for one Atlas article and 52,847 bytes for the Atlas overview; route re-entry repeats zero page artifacts. The current inventory is 427 units: 112 Principles source lessons, 48 Atlas foundation lessons and their broader concept/taxonomy/domain coverage. Research state is 318 researched, 4 in progress and 105 requiring research. These are local structured and browser contracts only: the articles remain drafts, and independent semantic/source-directness review, recruited-user validation and live deployment parity remain open. The dated sections below are retained as historical implementation records rather than current counts.
 
 ## 2026-08-12 KA-11~15 implementation update
 

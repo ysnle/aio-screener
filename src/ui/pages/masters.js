@@ -1,15 +1,18 @@
 import { createResourceBag } from '../../app/lifecycle.js';
+import { navigateKnowledgeTarget, parseKnowledgeRouteState, parseKnowledgeTargetContext, replaceKnowledgeRouteState } from '../../app/knowledge-route-state.js';
+import { loadJsonArtifact } from '../../data/artifact-cache.js';
+import { applySafeExternalLink } from '../../ui/knowledge/safe-external-link.js';
 
 const REVIEWED_AT = '2026-08-16';
 const FILINGS_URL = './public-data/masters/filings.json';
-const HOLDINGS_URL = './public-data/masters/holdings.json';
+const HOLDINGS_URL = './public-data/masters/holdings-summary.json';
 const SECURITY_MASTER_URL = './public-data/masters/security-master.json';
 const SECURITY_MASTER_REFERENCE_URL = './public-data/masters/security-master-reference.json';
 const HISTORY_INDEX_URL = './public-data/masters/history-index.json';
-const HISTORY_HOLDINGS_URL = './public-data/masters/history-holdings.json';
-const ISSUER_AGGREGATES_URL = './public-data/masters/issuer-aggregates.json';
 const MANAGER_CATALOG_URL = './public-data/masters/manager-catalog.json';
 const ROW_PREVIEWS_URL = './public-data/masters/manager-row-previews.json';
+const FILING_DISCOVERY_URL = './public-data/masters/filing-discovery.json';
+const MANAGER_PRINCIPLES_URL = './public-data/masters/manager-principles.json';
 
 // MF-05: holding rows are rendered only from a verified SEC EDGAR
 // filer/CIK/filing artifact; the registry itself never invents rows.
@@ -37,6 +40,9 @@ const VIEW_LABELS = Object.freeze({
   holdings: '전체 보유',
   sectors: '섹터 구성',
   quarters: '분기 추이',
+  compare: '투자자 비교',
+  principles: '투자 원칙',
+  ownership: '13D/G 소유권',
   filings: '원본 공시'
 });
 
@@ -61,6 +67,10 @@ function statusLabel(status) {
     VERIFIED_METADATA: '공시 메타데이터 확인',
     CURRENT_REFERENCE: '최신 연결 기준',
     STALE_REFERENCE: '최신성 지연 참고',
+    NOTICE_FILED: '13F 통지서 제출',
+    CURRENT_ROWS: '최신 행 연결',
+    STALE_OR_MISSING_ROWS: '최신 행 대사 필요',
+    BLOCKED: '원천 확인 차단',
     METHOD_ONLY: '방법론 전용',
     PENDING_SEC_ROW_IMPORT: '행 가져오기 대기',
     SEC_ROW_PREVIEW: 'SEC 행 미리보기',
@@ -84,6 +94,10 @@ function buildManagerRegistry(catalog) {
       cik: entry.cik || null,
       latestFiling: entry.latestFiling || null,
       latestAvailablePeriod: entry.latestAvailablePeriod || entry.latestFiling?.periodOfReport || null,
+      latestSubmission: entry.latestSubmission || null,
+      noticeStatus: entry.noticeStatus || null,
+      freshnessStatus: entry.freshnessStatus || null,
+      rowFreshnessStatus: entry.rowFreshnessStatus || null,
       audienceTier: entry.audienceTier || null,
       managerCategory: entry.managerCategory || null,
       scaleTier: entry.scaleTier || null,
@@ -107,11 +121,10 @@ function sourceBadge(documentRef, manager, statusOverride = manager.status, fres
   const wrap = element(documentRef, 'div', 'masters-source');
   const status = element(documentRef, 'span', `masters-status masters-status-${String(statusOverride).toLowerCase()}`, statusLabel(statusOverride));
   status.dataset.mastersStatus = statusOverride || '';
-  const reviewed = element(documentRef, 'span', 'masters-reviewed', `검토 ${REVIEWED_AT}`);
+  const reviewedAt = String(manager.currentnessCheckedAt || manager.latestSubmission?.filedAt || REVIEWED_AT).slice(0, 10);
+  const reviewed = element(documentRef, 'span', 'masters-reviewed', `검토 ${reviewedAt}`);
   const link = element(documentRef, 'a', 'masters-source-link', manager.sourceName);
-  link.href = manager.sourceUrl;
-  link.target = '_blank';
-  link.rel = 'noopener noreferrer';
+  applySafeExternalLink(link, manager.sourceUrl);
   wrap.append(status, reviewed, link);
   if (freshnessStatus) wrap.appendChild(element(documentRef, 'span', `masters-freshness masters-freshness-${freshnessStatus.toLowerCase()}`, statusLabel(freshnessStatus)));
   return wrap;
@@ -128,7 +141,7 @@ function formatOperator(manager) {
   return names.length ? names.map((name, index) => roles[index] ? `${name} (${roles[index]})` : name).join(' · ') : '운영 책임자 확인 필요';
 }
 
-function createManagerCard(documentRef, manager, selected, statusOverride = manager.status, freshnessStatus = null, reportPeriod = null) {
+function createManagerCard(documentRef, manager, selected, statusOverride = manager.status, freshnessStatus = null, reportPeriod = null, holdingMeta = null) {
   const card = button(documentRef, `masters-manager-card${selected ? ' is-selected' : ''}`, '', 'select-manager', manager.id);
   card.setAttribute('aria-pressed', selected ? 'true' : 'false');
   card.setAttribute('aria-label', `${manager.name} ${reportPeriod ? `${reportPeriod} 13F` : statusLabel(statusOverride)} 보기`);
@@ -142,7 +155,9 @@ function createManagerCard(documentRef, manager, selected, statusOverride = mana
     element(documentRef, 'span', 'masters-manager-operator', `운영 ${formatOperator(manager)}`),
     element(documentRef, 'span', 'masters-manager-profile', [manager.scaleTier, manager.strategyProfile?.approach].filter(Boolean).join(' · ') || '전략·규모 분류 확인 필요'),
     element(documentRef, 'span', 'masters-manager-scale', manager.scaleMetric?.label || '공식 규모값 확인 필요'),
-    element(documentRef, 'span', `masters-manager-state${freshnessStatus === 'STALE_REFERENCE' ? ' is-stale' : ''}`, stateText)
+    element(documentRef, 'span', `masters-manager-state${freshnessStatus === 'STALE_REFERENCE' ? ' is-stale' : ''}`, stateText),
+    element(documentRef, 'span', 'masters-manager-profile', holdingMeta?.verification?.fullRowCount != null ? `신고 행 ${holdingMeta.verification.fullRowCount}개 · Top 10 ${formatPercent(holdingMeta.verification.top10ConcentrationPct)}` : '전체 행 대사 대기'),
+    element(documentRef, 'span', 'masters-manager-state', holdingMeta?.verification?.comparisonActionCounts ? summarizeLatestChange(holdingMeta.verification.comparisonActionCounts) : statusLabel(manager.rowFreshnessStatus || manager.noticeStatus || statusOverride))
   );
   return card;
 }
@@ -155,7 +170,7 @@ function createMetric(documentRef, label, value) {
 
 function createSelfGuided13FGuide(documentRef, manager, compactRows, previewRows, fullRows) {
   const block = element(documentRef, 'section', 'masters-exploration-panel');
-  const rowState = fullRows.length ? '검증된 전체 행' : previewRows.length ? '원문 일부 미리보기' : '행 데이터 연결 대기';
+  const rowState = fullRows.length ? '검증된 전체 행' : compactRows.length ? '검증된 Top 보유 요약' : previewRows.length ? '원문 일부 미리보기' : '행 데이터 연결 대기';
   block.append(
     element(documentRef, 'strong', 'masters-exploration-title', '공시를 읽는 순서'),
     element(documentRef, 'p', 'masters-exploration-copy', `${manager.name} · ${rowState}. 한 분기의 보유 행을 결론으로 복사하지 않고 기준일과 전략 성격을 함께 읽습니다.`)
@@ -176,14 +191,102 @@ function createSelfGuided13FGuide(documentRef, manager, compactRows, previewRows
   return block;
 }
 
-function createCatalogCoverage(documentRef, catalog, registry) {
+function deriveCoverageSummary(registry = [], catalog = null, holdings = null, previews = null, discovery = null, principlesArtifact = null, securityMaster = null) {
+  const filerIds = new Set(registry.filter((manager) => manager.type !== 'METHOD_ONLY').map((manager) => manager.id));
+  const methodOnly = registry.filter((manager) => manager.type === 'METHOD_ONLY').length;
+  const shardCount = Object.keys(holdings?.managerShards || {}).length;
+  const shardIntegrityVerified = holdings?.shardIntegrityStatus === 'VERIFIED' && Number(holdings?.shardsVerified) === shardCount && shardCount === filerIds.size;
+  const fullManagers = shardIntegrityVerified ? (holdings?.managers || []).filter((manager) => filerIds.has(manager.id) && Number(manager.verification?.fullRowCount) > 0) : [];
+  const fullIds = new Set(fullManagers.map((manager) => manager.id));
+  const latestPeriod = holdings?.latestAvailablePeriod || discovery?.latestAvailablePeriod || null;
+  const currentFull = fullManagers.filter((manager) => manager.freshnessStatus === 'CURRENT_REFERENCE' && manager.verification?.reportPeriod === latestPeriod).length;
+  const staleFull = fullManagers.length - currentFull;
+  const previewIds = new Set((previews?.managers || []).map((manager) => manager.managerId).filter((managerId) => filerIds.has(managerId) && !fullIds.has(managerId)));
+  const metadataOnly = [...filerIds].filter((managerId) => !fullIds.has(managerId) && !previewIds.has(managerId)).length;
+  const officialPrinciples = principlesArtifact
+    ? (principlesArtifact.profiles || []).filter((profile) => profile.sourceUrl && profile.statedPrinciples?.length).length
+    : Number(holdings?.enrichmentSummary?.officialPrinciples || 0);
+  const verifiedSecurityRecords = securityMaster
+    ? Number(securityMaster.coverage?.recordsPublished || 0)
+    : Number(holdings?.enrichmentSummary?.verifiedSecurityRecords || 0);
+  const discovered = Number(discovery?.coverage?.discovered || 0);
+  const blocked = Number(discovery?.coverage?.blocked || 0);
+  const discoveryComplete = discovery?.status === 'CURRENT' && discovered === filerIds.size && blocked === 0;
+  const rowCoverageComplete = currentFull === filerIds.size && staleFull === 0 && previewIds.size === 0 && metadataOnly === 0;
+  const principlesComplete = registry.length > 0 && officialPrinciples === registry.length;
+  const securityMasterComplete = verifiedSecurityRecords > 0
+    && (securityMaster?.coverage?.sectorWeightsPublished === true || holdings?.enrichmentSummary?.sectorWeightsPublished === true)
+    && !/PENDING|PARTIAL|REFERENCE/i.test(String(securityMaster?.status || holdings?.enrichmentSummary?.securityMasterStatus || ''));
+  const enrichmentComplete = principlesComplete && securityMasterComplete;
+  return {
+    state: discoveryComplete && rowCoverageComplete && enrichmentComplete ? 'complete' : 'partial',
+    discoveryState: discoveryComplete ? 'complete' : 'partial',
+    rowCoverageState: rowCoverageComplete ? 'complete' : 'partial',
+    enrichmentState: enrichmentComplete ? 'complete' : 'partial',
+    profiles: registry.length,
+    filers: filerIds.size,
+    methodOnly,
+    currentFull,
+    staleFull,
+    previewOnly: previewIds.size,
+    metadataOnly,
+    latestPeriod,
+    latestPeriodMissing: Math.max(0, filerIds.size - currentFull),
+    officialPrinciples,
+    verifiedSecurityRecords,
+    discovered,
+    blocked,
+    discoveryComplete,
+    rowCoverageComplete,
+    shardIntegrityVerified,
+    catalogStatus: catalog?.status || 'NOT_CONNECTED'
+  };
+}
+
+function createMastersArrivalContext(documentRef, context, onReturn) {
+  if (!context || context.routeId !== 'masters') return null;
+  const block = element(documentRef, 'aside', 'masters-arrival-context');
+  block.setAttribute('aria-label', '시장 원리에서 이어 읽기');
+  block.append(
+    element(documentRef, 'span', 'masters-eyebrow', '시장 원리에서 이어 읽기'),
+    element(documentRef, 'strong', 'masters-arrival-title', '시장의 기대를 기관의 공개 보유 변화와 대조합니다.'),
+    element(documentRef, 'p', 'masters-catalog-copy', '13F는 분기 말의 지연된 스냅샷입니다. 먼저 같은 보고분기의 신고 수량 변화를 보고, 다음으로 원본 공시와 누락 자산 경계를 확인한 뒤, 이야기에서 세운 가설과 일치하는지 비교하세요.')
+  );
+  if (context.returnContext?.route) {
+    const back = element(documentRef, 'button', 'masters-route-button is-secondary', '읽던 이야기로 돌아가기');
+    back.type = 'button';
+    back.addEventListener('click', onReturn);
+    block.appendChild(back);
+  }
+  return block;
+}
+
+function createCatalogCoverage(documentRef, catalog, registry, holdings, previews, discovery, principlesArtifact, securityMaster) {
   if (!catalog) return null;
-  const section = element(documentRef, 'section', 'masters-catalog-coverage');
-  section.dataset.mastersCatalogState = catalog.status || 'CONNECTED';
+  const summary = deriveCoverageSummary(registry, catalog, holdings, previews, discovery, principlesArtifact, securityMaster);
+  const section = element(documentRef, 'details', 'masters-catalog-coverage');
+  section.dataset.mastersCatalogState = summary.catalogStatus;
+  section.dataset.mastersCoverageState = summary.state;
+  section.dataset.mastersDiscoveryState = summary.discoveryState;
+  section.dataset.mastersRowCoverageState = summary.rowCoverageState;
+  section.dataset.mastersEnrichmentState = summary.enrichmentState;
+  section.dataset.mastersCurrentFull = String(summary.currentFull);
+  section.dataset.mastersStaleFull = String(summary.staleFull);
+  section.dataset.mastersPreviewOnly = String(summary.previewOnly);
+  section.dataset.mastersMetadataOnly = String(summary.metadataOnly);
+  section.dataset.mastersMethodOnly = String(summary.methodOnly);
+  section.dataset.mastersOfficialPrinciples = String(summary.officialPrinciples);
+  section.dataset.mastersVerifiedSecurityRecords = String(summary.verifiedSecurityRecords);
   const coverage = catalog.coverage || {};
   section.append(
-    element(documentRef, 'strong', 'masters-catalog-title', '기관·대가 커버리지'),
-    element(documentRef, 'p', 'masters-catalog-copy', `초보자 핵심 ${coverage.priorityManagerCount || registry.length}개 (13F 신고 ${coverage.secFilerProfiles || 0}개 + 방법론 전용 ${coverage.methodOnlyProfiles || 0}개) · SEC 메타데이터 확인 ${coverage.secMetadataVerified || 0}개 · 행 검증 연결 ${coverage.verifiedRowsConnected || 0}개 · 원문 행 미리보기 ${coverage.rowPreviewManagers || 0}개/${coverage.previewRows || 0}행 · 전체 행 가져오기 대기 ${coverage.rowImportPending || 0}개`),
+    element(documentRef, 'summary', 'masters-catalog-title', `데이터 범위와 검증 상태 보기 · SEC 발견 ${summary.discoveryState === 'complete' ? '전체' : '부분'} · 13F 행 ${summary.rowCoverageState === 'complete' ? '전체' : '부분'} · 보강 ${summary.enrichmentState === 'complete' ? '전체' : '부분'}`),
+    element(documentRef, 'p', 'masters-catalog-copy masters-coverage-classification', `현재 분류 ${summary.profiles}개: 최신 전체 행 ${summary.currentFull} · 지연 전체 행 ${summary.staleFull} · 원문 미리보기만 ${summary.previewOnly} · 메타데이터만 ${summary.metadataOnly} · 방법론 전용 ${summary.methodOnly}`),
+    element(documentRef, 'p', 'masters-catalog-boundary masters-latest-quarter-boundary', `${summary.latestPeriod || '최신분기 확인 필요'} 기준 13F 신고주체 ${summary.filers}개 중 ${summary.latestPeriodMissing}개는 최신분기 전체 행이 연결되지 않았습니다. 프로필·CIK·과거 공시 링크가 있어도 최신 보유 데이터 완성을 뜻하지 않습니다.`),
+    element(documentRef, 'p', 'masters-catalog-boundary masters-discovery-boundary', `SEC 온라인 현재성 발견 ${summary.discovered}/${summary.filers} · 차단/미완료 ${summary.blocked}. 이 artifact 상태는 수집 실행 결과이며 repository 변수 설정 존재 여부와 같은 뜻이 아닙니다.`),
+    element(documentRef, 'p', 'masters-catalog-boundary masters-shard-integrity-boundary', `브라우저 전체 행 원장 무결성 ${summary.shardIntegrityVerified ? '검증 완료' : '검증 미완료'}. 신고 메타데이터의 행 수와 실제 선택 로드 shard 길이가 일치할 때만 전체 행 연결로 분류합니다.`),
+    element(documentRef, 'p', 'masters-catalog-boundary masters-enrichment-boundary', `공식 투자 원칙 원고 ${summary.officialPrinciples}/${summary.profiles} · 검증 issuer·ticker·sector master ${summary.verifiedSecurityRecords}개. 나머지 원칙은 catalog 전략 분류이며, 참고 섹터 분류는 검증 master로 승격하지 않습니다.`),
+    element(documentRef, 'p', 'masters-catalog-copy', `SEC 메타데이터 상태 ${coverage.secMetadataVerified || 0}개 · 전체 행 대사 ${fullManagersLabel(summary)} · 원문 행 미리보기 ${coverage.rowPreviewManagers || 0}개/${coverage.previewRows || 0}행`),
+    element(documentRef, 'p', 'masters-catalog-boundary masters-history-boundary', `12분기 심화 이력은 우선순위 ${holdings?.historySummary?.connectedManagers || 0}/${summary.filers}개 기관에 연결되어 있습니다. 나머지 기관은 최신·직전 분기 비교까지만 제공하며 장기 이력이 있는 것처럼 확대 표시하지 않습니다.`),
     element(documentRef, 'p', 'masters-catalog-copy', '각 카드에는 운영 책임자, 규모 구간, 전략 성격을 함께 표시합니다. 13F 신고 주체와 실제 투자 책임자는 다를 수 있으므로 두 축을 구분해 읽습니다.'),
     element(documentRef, 'p', 'masters-catalog-boundary', `텔레그램 발견 단서 ${coverage.telegramDiscoveryLeads || coverage.discoveryLeads || 0}개는 검증 포트폴리오에 합산하지 않습니다. X 13F 검색은 ${coverage.xSearchStatus === 'UNREADABLE_BY_BROWSER_TOOL' ? '본문을 읽지 못해 소비하지 않음' : '별도 검증 필요'} 상태입니다.`)
   );
@@ -191,9 +294,7 @@ function createCatalogCoverage(documentRef, catalog, registry) {
   const addLink = (label, url) => {
     if (!url) return;
     const link = element(documentRef, 'a', 'masters-source-link', label);
-    link.href = url;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
+    applySafeExternalLink(link, url);
     links.appendChild(link);
   };
   addLink('SEC 13F 데이터셋', 'https://www.sec.gov/data-research/sec-markets-data/form-13f-data-sets');
@@ -204,6 +305,14 @@ function createCatalogCoverage(documentRef, catalog, registry) {
 
 function formatReportedValue(value) {
   return value == null ? '—' : `$${new Intl.NumberFormat('en-US').format(value)}`;
+}
+
+function formatPercent(value) {
+  return Number.isFinite(Number(value)) ? `${Number(value).toFixed(1)}%` : '—';
+}
+
+function summarizeLatestChange(counts = {}) {
+  return `보고 수량상 신규 ${counts.NEW || 0} · 확대 ${counts.INCREASED || 0} · 축소 ${counts.REDUCED || 0} · 제외 ${counts.EXITED || 0}`;
 }
 
 function formatDelta(value, formatter = new Intl.NumberFormat('en-US')) {
@@ -219,7 +328,7 @@ function createChangeSummary(documentRef, verification) {
   const counts = element(documentRef, 'div', 'masters-change-counts');
   ['NEW', 'INCREASED', 'REDUCED', 'UNCHANGED', 'EXITED'].forEach((action) => {
     const count = verification.comparisonActionCounts?.[action] || 0;
-    counts.appendChild(element(documentRef, 'span', `masters-change-count masters-change-${action.toLowerCase()}`, `${ACTION_LABELS[action]} ${count}`));
+    counts.appendChild(element(documentRef, 'span', `masters-change-count masters-change-${action.toLowerCase()}`, `보고 수량상 ${ACTION_LABELS[action]} ${count}`));
   });
   summary.appendChild(counts);
   return summary;
@@ -229,15 +338,47 @@ function createAvailabilityNote(documentRef, check) {
   if (!check?.result) return null;
   const note = element(documentRef, 'section', 'masters-availability-note');
   note.appendChild(element(documentRef, 'strong', '', '최신 13F 제출 확인'));
-  note.appendChild(element(documentRef, 'p', '', check.result === 'NO_LATER_13F_HR_REPORTED'
+  const copy = check.result === 'NO_LATER_13F_HR_REPORTED'
     ? `SEC 제출목록 기준 ${check.latest13fPeriod || '확인된 분기'} 이후 새 13F-HR/13F-HR/A가 없습니다. 최신 제출분을 유지하고 공백을 표시합니다.`
-    : 'SEC 제출목록의 최신성 확인 결과를 표시합니다.'));
+    : check.result === 'LATEST_13F_NOTICE_REPORTED'
+      ? `SEC 제출목록의 최신 보고는 ${check.latest13fPeriod || '확인된 분기'} 13F-NT입니다. 통지서를 빈 보유로 해석하지 않으며 included-manager 확인 전 직전 13F-HR 행을 최신 보유로 승격하지 않습니다.`
+      : `SEC 제출목록에서 ${check.latest13fPeriod || '확인된 분기'} 최신 13F-HR/13F-HR/A를 확인했습니다.`;
+  note.appendChild(element(documentRef, 'p', '', copy));
   const link = element(documentRef, 'a', 'masters-source-link', check.source || 'SEC submissions JSON');
-  link.href = check.sourceUrl;
-  link.target = '_blank';
-  link.rel = 'noopener noreferrer';
+  applySafeExternalLink(link, check.sourceUrl);
   note.appendChild(link);
   return note;
+}
+
+function createOwnershipEvents(documentRef, manager, discovery) {
+  if (manager.type === 'METHOD_ONLY') return null;
+  const section = element(documentRef, 'section', 'masters-ownership-events masters-availability-note');
+  section.appendChild(element(documentRef, 'strong', '', 'Schedule 13D/G 소유권 이벤트'));
+  section.appendChild(element(documentRef, 'p', 'masters-catalog-boundary', '13D/G는 특정 발행인에 대한 실질 소유권 공시입니다. 13F 분기 보유행, 전체 포트폴리오, 당일 매매 또는 매매 신호로 합산하지 않습니다.'));
+  if (!discovery || discovery.status === 'BLOCKED' || discovery.ownershipStatus === 'BLOCKED') {
+    section.appendChild(element(documentRef, 'div', 'masters-empty-state', '현재 연결된 SEC discovery artifact가 완료 상태가 아니므로 13D/G 최신 여부를 인증하지 않습니다. 이는 repository 변수 설정 존재 여부가 아니라 이 artifact의 수집 실행 결과를 뜻합니다.'));
+    return section;
+  }
+  const events = discovery.ownershipEvents || [];
+  if (!events.length) {
+    section.appendChild(element(documentRef, 'div', 'masters-empty-state', '현재 연결된 SEC 최근 제출목록에서 이 신고주체의 13D/G 이벤트를 찾지 못했습니다. 이는 소유권 부재를 뜻하지 않습니다.'));
+    return section;
+  }
+  const list = element(documentRef, 'ul', 'masters-ownership-list');
+  events.forEach((event) => {
+    const item = element(documentRef, 'li', 'masters-ownership-item');
+    const link = element(documentRef, 'a', 'masters-source-link', `${event.form} · 제출 ${event.filedAt || '기준일 확인 필요'}`);
+    applySafeExternalLink(link, event.indexUrl);
+    item.appendChild(link);
+    if (event.periodOfReport) item.appendChild(element(documentRef, 'span', '', ` · 보고일 ${event.periodOfReport}`));
+    list.appendChild(item);
+  });
+  section.appendChild(list);
+  return section;
+}
+
+function fullManagersLabel(summary) {
+  return `${summary.currentFull + summary.staleFull}/${summary.filers}개 (최신 ${summary.currentFull} · 지연 ${summary.staleFull})`;
 }
 
 function createTable(documentRef, headers, rows, rowBuilder, className = 'masters-holdings-table') {
@@ -258,7 +399,8 @@ function createHoldingRow(documentRef, row, index, includeAction = true) {
   [String(row.rank || index + 1), row.issuer || '—', row.cusipNormalized || row.cusip || '—', formatReportedValue(row.value), formatter.format(row.shares || 0), formatDelta(row.sharesDelta, formatter), formatDelta(row.valueDelta, formatter), row.putCall || '—'].forEach((value) => tr.appendChild(element(documentRef, 'td', '', value)));
   if (includeAction) {
     const action = row.action || 'UNAVAILABLE';
-    tr.appendChild(element(documentRef, 'td', `masters-action masters-action-${action.toLowerCase()}`, ACTION_LABELS[action] || action));
+    const prefix = row.actionConfidence === 'REVIEW_REQUIRED' ? '신고 수량상 ' : '';
+    tr.appendChild(element(documentRef, 'td', `masters-action masters-action-${action.toLowerCase()}`, `${prefix}${ACTION_LABELS[action] || action}`));
   }
   tr.title = `${row.evidenceId || 'SEC reference'} · ${row.reportPeriod || ''}`;
   return tr;
@@ -290,7 +432,7 @@ function createPagination(documentRef, page, pageCount, total, action = 'detail-
 function createChangeLedger(documentRef, comparisonRows, state) {
   const section = element(documentRef, 'section', 'masters-holdings-section masters-change-ledger');
   section.appendChild(element(documentRef, 'h4', 'masters-holdings-title', '분기 변화 원장'));
-  section.appendChild(element(documentRef, 'p', 'masters-holdings-meta', '보고된 주식 수 기준입니다. 현재 가격, 매매 신호, 목표가는 계산하지 않습니다.'));
+  section.appendChild(element(documentRef, 'p', 'masters-holdings-meta', '두 보고분기의 신고 주식 수 차이에서 계산한 분류이며 모든 행은 재검토 대상입니다. 현재 가격, 실제 체결 매매, 매매 신호, 목표가를 뜻하지 않습니다.'));
   const filters = element(documentRef, 'div', 'masters-action-filters');
   ['ALL', 'NEW', 'INCREASED', 'REDUCED', 'UNCHANGED', 'EXITED'].forEach((action) => {
     const label = action === 'ALL' ? '전체' : ACTION_LABELS[action];
@@ -303,12 +445,12 @@ function createChangeLedger(documentRef, comparisonRows, state) {
   state.page = Math.min(state.page, pageCount);
   const start = (state.page - 1) * state.pageSize;
   const pageRows = filtered.slice(start, start + state.pageSize);
-  const table = createTable(documentRef, ['#', 'Issuer', 'CUSIP', 'Current value', 'Current shares', 'Δ shares', 'Δ value', 'Action'], pageRows, (row, index) => {
+  const table = createTable(documentRef, ['#', 'Issuer', 'CUSIP', '보고분기 신고가치', '보고분기 주식 수', '신고 수량 변화', '신고가치 변화', '보고 수량상 분류'], pageRows, (row, index) => {
     const tr = element(documentRef, 'tr', '');
     const formatter = new Intl.NumberFormat('en-US');
     [String(start + index + 1), row.issuer || '—', row.cusipNormalized || row.cusip || '—', formatReportedValue(row.value), formatter.format(row.shares || 0), formatDelta(row.sharesDelta, formatter), formatDelta(row.valueDelta, formatter)].forEach((value) => tr.appendChild(element(documentRef, 'td', '', value)));
-    tr.appendChild(element(documentRef, 'td', `masters-action masters-action-${String(row.action || 'UNAVAILABLE').toLowerCase()}`, ACTION_LABELS[row.action] || row.action || '—'));
-    tr.title = `${row.evidenceId || 'SEC comparison'} · ${row.priorReportPeriod || ''}`;
+    tr.appendChild(element(documentRef, 'td', `masters-action masters-action-${String(row.action || 'UNAVAILABLE').toLowerCase()}`, `신고 수량상 ${ACTION_LABELS[row.action] || row.action || '비교 불가'}`));
+    tr.title = `${row.evidenceId || 'SEC comparison'} · 이전 보고분기 ${row.priorReportPeriod || '확인 필요'} · ${row.actionBasis || 'REPORTED_SHARE_DELTA'} · ${row.actionConfidence || 'REVIEW_REQUIRED'}`;
     return tr;
   }, 'masters-comparison-table masters-holdings-table');
   section.append(filters, table, createPagination(documentRef, state.page, pageCount, filtered.length));
@@ -375,9 +517,7 @@ function createRowPreviewView(documentRef, manager, previewMeta, previewRows) {
     const sourceCell = element(documentRef, 'td', '');
     if (previewMeta?.sourceUrl) {
       const link = element(documentRef, 'a', 'masters-source-link', 'XML');
-      link.href = previewMeta.sourceUrl;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
+      applySafeExternalLink(link, previewMeta.sourceUrl);
       sourceCell.appendChild(link);
     } else sourceCell.textContent = '—';
     tr.appendChild(sourceCell);
@@ -468,9 +608,7 @@ function createQuarterView(documentRef, holdingMeta, historyManager, historyRows
     const sourceCell = element(documentRef, 'td', '');
     if (row.indexUrl) {
       const link = element(documentRef, 'a', 'masters-source-link', 'SEC');
-      link.href = row.indexUrl;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
+      applySafeExternalLink(link, row.indexUrl);
       sourceCell.appendChild(link);
     } else sourceCell.textContent = '—';
     tr.appendChild(sourceCell);
@@ -491,9 +629,9 @@ function createIssuerAggregateView(documentRef, aggregateArtifact, managerId) {
   );
   const metrics = element(documentRef, 'div', 'masters-normalization-metrics');
   [
-    ['현재 manager 집계 CUSIP', String(records.length)],
-    ['집계에 포함된 보고기간', String(periods.size)],
-    ['검토 대기 플래그', String(reviewQueue.length)],
+    ['현재 manager 집계 CUSIP', String(aggregateArtifact?.coverage?.aggregateRecords ?? records.length)],
+    ['집계에 포함된 보고기간', String(aggregateArtifact?.coverage?.periods ?? periods.size)],
+    ['검토 대기 플래그', String(aggregateArtifact?.coverage?.reviewQueue ?? reviewQueue.length)],
     ['전체 원장', `${aggregateArtifact?.coverage?.aggregateRecords || 0} records`]
   ].forEach(([label, value]) => metrics.appendChild(createMetric(documentRef, label, value)));
   section.appendChild(metrics);
@@ -532,39 +670,138 @@ function createFilingArtifact(documentRef, filingMeta, holdingMeta) {
   const addLink = (label, url) => {
     if (!url) return;
     const link = element(documentRef, 'a', 'masters-source-link', label);
-    link.href = url;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
+    applySafeExternalLink(link, url);
     links.appendChild(link);
   };
   addLink('SEC filing index', filing.indexUrl);
   addLink('Information table XML', filing.informationTableXml);
-  addLink('Primary document XML', filing.primaryDocumentXml || holdingMeta?.latestFiling?.primaryDocumentXml);
+  addLink('Primary document', filing.primaryDocumentUrl || filing.primaryDocumentXml || holdingMeta?.latestFiling?.primaryDocumentUrl || holdingMeta?.latestFiling?.primaryDocumentXml);
   addLink('이전 분기 정보표', filingMeta?.priorFiling?.informationTableXml);
   artifact.appendChild(links);
   return artifact;
 }
 
-function createDetail(documentRef, manager, onRoute, filingMeta, holdingMeta, compactRows, fullRows, comparisonRows, previewMeta, previewRows, state, securityMaster, referenceMaster, historyManager, historyRowsArtifact, issuerAggregates) {
+function createPrinciplesView(documentRef, manager, principlesArtifact) {
+  const section = element(documentRef, 'section', 'masters-principles-view masters-holdings-section');
+  const profile = principlesArtifact?.profiles?.find((item) => item.managerId === manager.id);
+  section.append(
+    element(documentRef, 'h4', 'masters-holdings-title', '공식 원칙과 관찰 패턴'),
+    element(documentRef, 'p', 'masters-holdings-meta', profile
+      ? '공식 자료에서 확인되는 원칙과 공개 13F에서 관찰되는 패턴을 분리해 표시합니다.'
+      : '공식 원칙 원고가 아직 연결되지 않아 catalog의 전략 분류만 표시합니다. 이 분류를 본인의 직접 발언으로 해석하지 않습니다.')
+  );
+  const principles = profile?.statedPrinciples || [
+    { title: '전략 분류', summary: manager.strategyProfile?.approach || manager.style || '분류 확인 필요' },
+    { title: '관찰 기간', summary: manager.strategyProfile?.horizon || '기간 확인 필요' },
+    { title: '주요 수단', summary: manager.strategyProfile?.instrumentFocus || '수단 확인 필요' },
+    { title: '위험 성격', summary: manager.strategyProfile?.riskStyle || '위험 성격 확인 필요' }
+  ];
+  const list = element(documentRef, 'div', 'masters-principles-list');
+  principles.forEach((principle) => {
+    const card = element(documentRef, 'article', 'masters-principle-card');
+    card.append(element(documentRef, 'strong', '', principle.title), element(documentRef, 'p', '', principle.summary));
+    list.appendChild(card);
+  });
+  section.appendChild(list);
+  if (profile?.observedHoldingsPatterns?.length) {
+    section.appendChild(element(documentRef, 'h5', 'masters-holdings-title', '공개 보유에서 관찰되는 패턴'));
+    const observed = element(documentRef, 'ul', 'masters-principles-limitations');
+    profile.observedHoldingsPatterns.forEach((item) => observed.appendChild(element(documentRef, 'li', '', item)));
+    section.appendChild(observed);
+  }
+  const limits = profile?.limitations || [manager.teachingUse || '교육용 전략 분류', '현재 종목 추천이나 성과 예측으로 사용하지 않습니다.'];
+  const limitationList = element(documentRef, 'ul', 'masters-principles-limitations');
+  limits.forEach((item) => limitationList.appendChild(element(documentRef, 'li', '', item)));
+  section.appendChild(limitationList);
+  if (profile?.sourceUrl) {
+    const link = element(documentRef, 'a', 'masters-source-link', `${profile.sourceName || '공식 자료'} · 검토 ${profile.reviewedAt || principlesArtifact.reviewedAt}`);
+    applySafeExternalLink(link, profile.sourceUrl);
+    section.appendChild(link);
+  }
+  return section;
+}
+
+function createInvestorCompareView(documentRef, selectedIds, registry, holdingManagers, rowsByManager) {
+  const section = element(documentRef, 'section', 'masters-compare-view masters-holdings-section');
+  section.append(
+    element(documentRef, 'h4', 'masters-holdings-title', '2~4명 공개 신고 비교'),
+    element(documentRef, 'p', 'masters-holdings-meta', '같은 보고분기의 SEC 신고 행만 비교합니다. 공통 보유나 같은 방향 변화는 추천·공모·현재 포지션의 증거가 아닙니다.')
+  );
+  const ids = selectedIds.slice(0, 4);
+  if (ids.length < 2) {
+    section.appendChild(element(documentRef, 'div', 'masters-empty-state', '상세 상단의 “비교에 추가”를 눌러 2~4명을 선택하세요.'));
+    return section;
+  }
+  const metrics = element(documentRef, 'div', 'masters-metric-grid');
+  const reportPeriods = [];
+  ids.forEach((id) => {
+    const manager = registry.find((item) => item.id === id);
+    const holding = holdingManagers.find((item) => item.id === id);
+    const reportPeriod = holding?.verification?.reportPeriod || null;
+    if (reportPeriod) reportPeriods.push(reportPeriod);
+    const rowCount = Number.isFinite(Number(holding?.verification?.fullRowCount)) ? `${Number(holding.verification.fullRowCount)}행` : '행 확인 필요';
+    metrics.appendChild(createMetric(documentRef, manager?.name || id, `${reportPeriod || '분기 확인 필요'} · Top10 ${formatPercent(holding?.verification?.top10ConcentrationPct)} · ${rowCount}`));
+  });
+  section.appendChild(metrics);
+  const uniquePeriods = [...new Set(reportPeriods)];
+  if (reportPeriods.length !== ids.length || uniquePeriods.length !== 1) {
+    const periodSummary = ids.map((id) => {
+      const manager = registry.find((item) => item.id === id);
+      const holding = holdingManagers.find((item) => item.id === id);
+      return `${manager?.name || id} ${holding?.verification?.reportPeriod || '분기 미확인'}`;
+    }).join(' · ');
+    section.appendChild(element(documentRef, 'div', 'masters-empty-state masters-compare-period-mismatch', `선택 운용사의 보고분기가 일치하지 않아 공통 보유 비교를 보류합니다. ${periodSummary}`));
+    return section;
+  }
+  const commonPeriod = uniquePeriods[0];
+  const rowMaps = ids.map((id) => new Map((rowsByManager.get(id)?.holdings || [])
+    .filter((row) => row.reportPeriod === commonPeriod)
+    .map((row) => [row.key || `${row.cusipNormalized || row.cusip}|${row.putCall || ''}|${row.shareType || ''}`, row])));
+  const commonKeys = rowMaps.length ? [...rowMaps[0].keys()].filter((key) => rowMaps.every((map) => map.has(key))) : [];
+  if (commonKeys.length) {
+    const common = commonKeys.slice(0, 25).map((key) => ({ key, rows: rowMaps.map((map) => map.get(key)) }));
+    section.appendChild(createTable(documentRef, ['Issuer', 'CUSIP', '신고주체 수', '보고분기'], common, ({ rows }) => {
+      const tr = element(documentRef, 'tr', '');
+      [rows[0]?.issuer || '—', rows[0]?.cusipNormalized || rows[0]?.cusip || '—', String(rows.length), [...new Set(rows.map((row) => row.reportPeriod).filter(Boolean))].join(' · ')].forEach((value) => tr.appendChild(element(documentRef, 'td', '', value)));
+      return tr;
+    }));
+  } else {
+    section.appendChild(element(documentRef, 'div', 'masters-empty-state', '현재 연결된 동일 CUSIP 공통 보유가 없거나 선택 운용사의 전체 행 shard가 아직 로드되지 않았습니다.'));
+  }
+  return section;
+}
+
+function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscovery, holdingMeta, compactRows, fullRows, comparisonRows, previewMeta, previewRows, state, securityMaster, referenceMaster, historyManager, historyRowsArtifact, issuerAggregates, principlesArtifact, registry, holdingManagers, rowsByManager) {
   const detail = element(documentRef, 'article', 'masters-detail-card');
   const dataStatus = holdingMeta?.status || (previewRows.length ? 'SEC_ROW_PREVIEW' : filingMeta?.status || manager.status);
   const freshnessStatus = holdingMeta?.freshnessStatus || filingMeta?.freshnessStatus || null;
   detail.append(
-    element(documentRef, 'div', 'masters-eyebrow', manager.type === 'METHOD_ONLY' ? '방법론 전용 프로필' : '공개 13F 포트폴리오'),
+    element(documentRef, 'div', 'masters-eyebrow', manager.type === 'METHOD_ONLY' ? '방법론 전용 프로필' : '공개 13F 신고 보유'),
     element(documentRef, 'h3', 'masters-detail-title', manager.name),
     element(documentRef, 'p', 'masters-detail-filer', manager.filer),
     sourceBadge(documentRef, manager, dataStatus, freshnessStatus)
   );
   detail.querySelector('.masters-detail-title')?.setAttribute('tabindex', '-1');
+  detail.appendChild(createSelfGuided13FGuide(documentRef, manager, compactRows, previewRows, fullRows));
 
   const metrics = element(documentRef, 'div', 'masters-metric-grid');
   const fullRowCount = holdingMeta?.verification?.fullRowCount || fullRows.length || 0;
+  const shardLoaded = state.managerRows.has(manager.id);
+  const shardFailed = state.managerRowErrors.has(manager.id);
+  const fullRowDisplay = fullRowCount
+    ? `${fullRowCount}행 · ${shardLoaded ? `실제 ${fullRows.length}행 확인` : shardFailed ? '무결성/로드 오류' : '메타데이터 확인, 원장 미로드'}`
+    : '준비 중';
   metrics.append(
     createMetric(documentRef, '최신 보고분기', filingMeta?.latestFiling?.periodOfReport || holdingMeta?.verification?.reportPeriod || '확인 필요'),
-    createMetric(documentRef, '전체 신고 행', fullRowCount ? `${fullRowCount}행` : '준비 중'),
+    createMetric(documentRef, 'SEC 신고 행 원장', fullRowDisplay),
     createMetric(documentRef, 'Filer / CIK', filingMeta?.cik || holdingMeta?.cik || '확인 필요'),
     createMetric(documentRef, '이전 보고분기', holdingMeta?.verification?.priorReportPeriod || '연결 안 됨'),
     createMetric(documentRef, '비교 행', holdingMeta?.verification?.comparisonRowCount ? `${holdingMeta.verification.comparisonRowCount}행` : '확인 필요'),
+    createMetric(documentRef, '신고 가치 합계', formatReportedValue(holdingMeta?.verification?.parsedValueTotal)),
+    createMetric(documentRef, '고유 신고 포지션', holdingMeta?.verification?.reportedPositionCount != null ? `${holdingMeta.verification.reportedPositionCount}개` : '확인 필요'),
+    createMetric(documentRef, 'Top 5 / Top 10', `${formatPercent(holdingMeta?.verification?.top5ConcentrationPct)} / ${formatPercent(holdingMeta?.verification?.top10ConcentrationPct)}`),
+    createMetric(documentRef, '변화 요약', holdingMeta?.verification?.comparisonActionCounts ? summarizeLatestChange(holdingMeta.verification.comparisonActionCounts) : '비교 필요'),
+    createMetric(documentRef, '회전율 대용치', formatPercent(holdingMeta?.verification?.turnoverProxyPct)),
     createMetric(documentRef, '총액 대조', valueReconciliationStatus(holdingMeta?.verification)),
     createMetric(documentRef, '원문 미리보기', previewRows.length ? `${previewRows.length}행` : '없음'),
     createMetric(documentRef, '데이터 상태', statusLabel(dataStatus)),
@@ -575,15 +812,12 @@ function createDetail(documentRef, manager, onRoute, filingMeta, holdingMeta, co
   detail.append(metrics);
   if (manager.scaleMetric?.sourceUrl) {
     const scaleSource = element(documentRef, 'a', 'masters-scale-source', `규모 근거: ${manager.scaleMetric.sourceName || '공식 자료'} · ${manager.scaleMetric.asOf || '기준일 확인 필요'}`);
-    scaleSource.href = manager.scaleMetric.sourceUrl;
-    scaleSource.target = '_blank';
-    scaleSource.rel = 'noopener noreferrer';
+    applySafeExternalLink(scaleSource, manager.scaleMetric.sourceUrl);
     detail.appendChild(scaleSource);
   }
   detail.appendChild(createFilingArtifact(documentRef, filingMeta, holdingMeta));
   const availabilityNote = createAvailabilityNote(documentRef, filingMeta?.latestAvailabilityCheck);
   if (availabilityNote) detail.appendChild(availabilityNote);
-
   const warning = element(documentRef, 'div', 'masters-coverage-warning');
   warning.textContent = manager.type === 'METHOD_ONLY'
     ? '방법론 전용 프로필입니다. 교육 자료에서 보유 종목·비중·매매 신호를 생성하지 않습니다.'
@@ -594,9 +828,13 @@ function createDetail(documentRef, manager, onRoute, filingMeta, holdingMeta, co
         : 'SEC filer와 공시 메타데이터는 연결됐지만 이 프로필의 행 데이터가 아직 연결되지 않았습니다.';
   detail.appendChild(warning);
   if (holdingMeta?.verification) detail.appendChild(createValueReconciliationNotice(documentRef, holdingMeta.verification));
-  detail.appendChild(createSelfGuided13FGuide(documentRef, manager, compactRows, previewRows, fullRows));
+  const compareToggle = button(documentRef, 'masters-route-button is-secondary', state.compareIds.includes(manager.id) ? '비교에서 제거' : '비교에 추가', 'toggle-compare', manager.id);
+  compareToggle.disabled = !state.compareIds.includes(manager.id) && state.compareIds.length >= 4;
+  detail.appendChild(compareToggle);
 
   const tabs = element(documentRef, 'div', 'masters-detail-tabs');
+  tabs.setAttribute('role', 'group');
+  tabs.setAttribute('aria-label', `${manager.name} 공시 읽기 방식`);
   Object.entries(VIEW_LABELS).forEach(([view, label]) => {
     const tab = button(documentRef, `masters-detail-tab${state.view === view ? ' is-active' : ''}`, label, 'view', view);
     tab.setAttribute('aria-pressed', state.view === view ? 'true' : 'false');
@@ -604,10 +842,31 @@ function createDetail(documentRef, manager, onRoute, filingMeta, holdingMeta, co
   });
   detail.appendChild(tabs);
 
-  if (manager.type === 'METHOD_ONLY') {
-    const empty = element(documentRef, 'div', 'masters-empty-state');
-    empty.append(element(documentRef, 'strong', '', '방법론 콘텐츠는 별도 학습 자료로 연결됩니다.'), element(documentRef, 'p', '', '공식 자료의 검증된 원칙과 체크리스트를 연결하기 전에는 신고 보유 데이터로 오인될 수 있는 내용을 표시하지 않습니다.'));
-    detail.appendChild(empty);
+  const managerShard = state.holdings?.managerShards?.[manager.id];
+  const createDeferredRowsState = () => {
+    const block = element(documentRef, 'div', 'masters-empty-state');
+    if (state.loadingManagers.has(manager.id)) {
+      block.textContent = '선택한 신고주체의 전체 공시 행을 불러오는 중입니다.';
+      block.setAttribute('role', 'status');
+      return block;
+    }
+    if (state.managerRowErrors.has(manager.id)) {
+      const error = element(documentRef, 'p', 'masters-holdings-meta', '전체 공시 행을 불러오지 못했습니다. 요약·원문 링크는 계속 사용할 수 있습니다.');
+      error.setAttribute('role', 'alert');
+      block.appendChild(error);
+    } else {
+      block.appendChild(element(documentRef, 'p', 'masters-holdings-meta', '전체 공시 행은 이 보기를 요청할 때만 가져옵니다. 단순 프로필 탐색에는 Top 보유 요약만 사용합니다.'));
+    }
+    if (managerShard?.url) block.appendChild(button(documentRef, 'masters-route-button is-secondary', state.managerRowErrors.has(manager.id) ? '전체 공시 행 다시 불러오기' : `전체 공시 행 ${managerShard.fullRows || ''}개 불러오기`, 'load-manager', manager.id));
+    return block;
+  };
+
+  if (state.view === 'principles' || manager.type === 'METHOD_ONLY') {
+    detail.appendChild(createPrinciplesView(documentRef, manager, principlesArtifact));
+  } else if (state.view === 'ownership') {
+    detail.appendChild(createOwnershipEvents(documentRef, manager, ownershipDiscovery) || element(documentRef, 'div', 'masters-empty-state', 'Schedule 13D/G 소유권 이벤트 원장을 불러오는 중입니다.'));
+  } else if (state.view === 'compare') {
+    detail.appendChild(createInvestorCompareView(documentRef, state.compareIds, registry, holdingManagers, rowsByManager));
   } else if (state.view === 'changes') {
     const summary = createChangeSummary(documentRef, holdingMeta?.verification);
     if (summary) detail.appendChild(summary);
@@ -615,11 +874,14 @@ function createDetail(documentRef, manager, onRoute, filingMeta, holdingMeta, co
     if (comparisonRows.length) detail.appendChild(createChangeLedger(documentRef, comparisonRows, state));
     if (!compactRows.length && previewRows.length) detail.appendChild(createRowPreviewView(documentRef, manager, previewMeta, previewRows));
   } else if (state.view === 'holdings') {
-    detail.appendChild(fullRows.length ? createFullHoldingsView(documentRef, fullRows, state) : previewRows.length ? createRowPreviewView(documentRef, manager, previewMeta, previewRows) : element(documentRef, 'div', 'masters-empty-state', '전체 보유 행이 아직 연결되지 않았습니다.'));
+    detail.appendChild(fullRows.length ? createFullHoldingsView(documentRef, fullRows, state) : managerShard?.url ? createDeferredRowsState() : previewRows.length ? createRowPreviewView(documentRef, manager, previewMeta, previewRows) : element(documentRef, 'div', 'masters-empty-state', '전체 보유 행이 아직 연결되지 않았습니다.'));
   } else if (state.view === 'sectors') {
-    const referenceSectorView = createReferenceSectorView(documentRef, fullRows, referenceMaster);
-    if (referenceSectorView) detail.appendChild(referenceSectorView);
-    detail.appendChild(createSectorView(documentRef, fullRows, securityMaster));
+    if (fullRows.length) {
+      const referenceSectorView = createReferenceSectorView(documentRef, fullRows, referenceMaster);
+      if (referenceSectorView) detail.appendChild(referenceSectorView);
+      detail.appendChild(createSectorView(documentRef, fullRows, securityMaster));
+    } else if (managerShard?.url) detail.appendChild(createDeferredRowsState());
+    else detail.appendChild(createSectorView(documentRef, fullRows, securityMaster));
   } else if (state.view === 'quarters') {
     detail.appendChild(createQuarterView(documentRef, holdingMeta, historyManager, historyRowsArtifact));
     detail.appendChild(createIssuerAggregateView(documentRef, issuerAggregates, manager.id));
@@ -638,18 +900,28 @@ function createDetail(documentRef, manager, onRoute, filingMeta, holdingMeta, co
 export function createMastersPage({ root = globalThis, documentRef = root.document } = {}) {
   return {
     route: 'masters',
-    mount() {
+    mount({ scope } = {}) {
       const bag = createResourceBag();
       const page = documentRef?.getElementById('page-masters');
       const content = page?.querySelector('[data-masters-content]');
       if (!page || !content) return () => bag.dispose();
-       const state = { query: '', filter: 'ALL', selectedId: MASTER_REGISTRY[0].id, view: 'changes', actionFilter: 'ALL', holdingsQuery: '', page: 1, pageSize: 25, filings: null, holdings: null, catalog: null, previews: null, securityMaster: null, referenceMaster: null, history: null, historyRows: null, issuerAggregates: null, filingsError: false, holdingsError: false, catalogError: false, previewsError: false, securityMasterError: false, referenceMasterError: false, historyError: false, historyRowsError: false, issuerAggregatesError: false };
+       const sharedRoute = parseKnowledgeRouteState(root?.location);
+       const arrivalContext = parseKnowledgeTargetContext({ root, locationLike: root?.location });
+       const initialView = Object.hasOwn(VIEW_LABELS, sharedRoute.mode) ? sharedRoute.mode : 'changes';
+       const state = { query: '', filter: 'ALL', arrivalContext: arrivalContext?.routeId === 'masters' ? arrivalContext : null, selectedId: sharedRoute.manager || MASTER_REGISTRY[0].id, view: initialView, actionFilter: 'ALL', holdingsQuery: '', page: 1, pageSize: 25, compareIds: [], managerRows: new Map(), managerRowErrors: new Set(), loadingManagers: new Set(), loadingCapabilities: new Set(), quarterBundles: new Map(), loadingQuarterManagers: new Set(), filings: null, holdings: null, catalog: null, previews: null, discovery: null, principles: null, securityMaster: null, referenceMaster: null, history: null, filingsError: false, holdingsError: false, catalogError: false, previewsError: false, discoveryError: false, principlesError: false, securityMasterError: false, referenceMasterError: false, historyError: false, historyRowsError: false, issuerAggregatesError: false };
+       const isAlive = () => !scope?.disposed && (typeof scope?.isCurrent !== 'function' || scope.isCurrent());
       page.dataset.aioArchitectureRoute = 'masters';
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioContentKind = 'REFERENCE';
       page.dataset.aioReviewedAt = REVIEWED_AT;
 
       const route = (routeId) => { if (typeof root?.showPage === 'function') root.showPage(routeId); };
+      const syncSharedState = () => replaceKnowledgeRouteState({ root, state: {
+        mode: state.view,
+        manager: state.selectedId,
+        period: state.holdings?.managers?.find((manager) => manager.id === state.selectedId)?.verification?.reportPeriod || null
+      } });
+      syncSharedState();
       const focusDetail = () => {
         const heading = page.querySelector('.masters-detail-title');
         if (!heading) return;
@@ -657,6 +929,7 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
         heading.focus({ preventScroll: true });
       };
        const render = () => {
+         if (!isAlive()) return;
          const registry = buildManagerRegistry(state.catalog);
          const toolbar = element(documentRef, 'div', 'masters-toolbar');
          const filters = element(documentRef, 'div', 'masters-filter-tabs');
@@ -692,7 +965,8 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
             manager.id === state.selectedId,
             holdingMeta?.status || (previewMeta ? 'SEC_ROW_PREVIEW' : filingMeta?.status || manager.status),
             holdingMeta?.freshnessStatus || filingMeta?.freshnessStatus,
-            holdingMeta?.verification?.reportPeriod || filingMeta?.latestFiling?.periodOfReport || null
+             holdingMeta?.verification?.reportPeriod || filingMeta?.latestSubmission?.periodOfReport || filingMeta?.latestFiling?.periodOfReport || null,
+             holdingMeta
           ));
         });
         if (!matchesList.length) list.appendChild(element(documentRef, 'div', 'masters-empty-state', '조건에 맞는 프로필이 없습니다.'));
@@ -702,27 +976,135 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
          const filingMeta = state.filings?.managers?.find((item) => item.id === selected.id) || catalogMeta;
         const holdingMeta = state.holdings?.managers?.find((item) => item.id === selected.id);
         const compactRows = (state.holdings?.holdings || []).filter((item) => item.managerId === selected.id);
-        const fullRows = (state.holdings?.allHoldings || state.holdings?.holdings || []).filter((item) => item.managerId === selected.id);
-         const comparisonRows = (state.holdings?.comparisons || []).filter((item) => item.managerId === selected.id);
+         const selectedShard = state.managerRows.get(selected.id);
+         const embeddedRows = (state.holdings?.allHoldings || []).filter((item) => item.managerId === selected.id);
+         const fullRows = selectedShard?.holdings || embeddedRows;
+          const comparisonRows = selectedShard?.comparisons?.length ? selectedShard.comparisons : (state.holdings?.comparisons || []).filter((item) => item.managerId === selected.id).length ? (state.holdings?.comparisons || []).filter((item) => item.managerId === selected.id) : compactRows.filter((item) => item.comparisonStatus === 'VERIFIED_PRIOR_PERIOD');
           const previewMeta = state.previews?.managers?.find((item) => item.managerId === selected.id);
           const previewRows = previewMeta?.rows || [];
           const historyManager = state.history?.managers?.find((item) => item.managerId === selected.id);
-          layout.append(list, createDetail(documentRef, selected, () => route('principles'), filingMeta, holdingMeta, compactRows, fullRows, comparisonRows, previewMeta, previewRows, state, state.securityMaster, state.referenceMaster, historyManager, state.historyRows, state.issuerAggregates));
-        if (state.filingsError) layout.appendChild(element(documentRef, 'div', 'masters-empty-state', 'SEC metadata artifact could not be loaded; profile shell remains available.'));
-        if (state.holdingsError) layout.appendChild(element(documentRef, 'div', 'masters-empty-state', 'SEC holdings artifact could not be loaded; metadata remains available.'));
-         if (state.securityMasterError || state.referenceMasterError) layout.appendChild(element(documentRef, 'div', 'masters-empty-state', 'Security master artifact could not be loaded; sector mapping remains fail-closed.'));
-          if (state.historyError || state.historyRowsError) layout.appendChild(element(documentRef, 'div', 'masters-empty-state', 'SEC filing history row artifact could not be loaded; metadata and current/prior rows remain available.'));
-          if (state.issuerAggregatesError) layout.appendChild(element(documentRef, 'div', 'masters-empty-state', 'SEC issuer aggregate artifact could not be loaded; raw current/prior rows remain available.'));
-         if (state.previewsError) layout.appendChild(element(documentRef, 'div', 'masters-empty-state', 'SEC row preview artifact could not be loaded; full-row and metadata boundaries remain available.'));
-         const coverage = createCatalogCoverage(documentRef, state.catalog, registry);
+          const quarterBundle = state.quarterBundles.get(selected.id);
+          const rowsByManager = new Map(state.managerRows);
+          registry.forEach((item) => {
+            if (rowsByManager.has(item.id)) return;
+            const rows = (state.holdings?.allHoldings || []).filter((row) => row.managerId === item.id);
+            const comparisons = (state.holdings?.comparisons || []).filter((row) => row.managerId === item.id);
+            if (rows.length || comparisons.length) rowsByManager.set(item.id, { holdings: rows, comparisons });
+          });
+          const ownershipDiscovery = state.discovery?.managers?.find((item) => item.managerId === selected.id);
+          layout.append(list, createDetail(documentRef, selected, () => navigateKnowledgeTarget({ root, target: {
+            routeId: 'principles',
+            conceptId: 'institutional-position-change',
+            metric: '13F_QUARTERLY_CHANGE',
+            timeframe: holdingMeta?.verification?.reportPeriod || 'QUARTERLY_LAGGED',
+            returnContext: { route: 'masters', manager: selected.id, mode: state.view, period: holdingMeta?.verification?.reportPeriod || null }
+          } }), filingMeta, ownershipDiscovery, holdingMeta, compactRows, fullRows, comparisonRows, previewMeta, previewRows, state, state.securityMaster, state.referenceMaster, historyManager, quarterBundle ? { rows: quarterBundle.historyRows || [] } : null, quarterBundle?.issuerAggregates || null, state.principles, registry, state.holdings?.managers || [], rowsByManager));
+        if (state.filingsError) layout.appendChild(element(documentRef, 'div', 'masters-empty-state', 'SEC 공시 메타데이터를 불러오지 못했습니다. 기관 소개는 계속 볼 수 있습니다.'));
+        if (state.holdingsError) layout.appendChild(element(documentRef, 'div', 'masters-empty-state', 'SEC 보유 행을 불러오지 못했습니다. 공시 메타데이터는 계속 볼 수 있습니다.'));
+         if (state.securityMasterError || state.referenceMasterError) layout.appendChild(element(documentRef, 'div', 'masters-empty-state', '종목 분류 원장을 불러오지 못해 섹터를 임의로 추정하지 않습니다.'));
+          if (state.historyError || state.historyRowsError) layout.appendChild(element(documentRef, 'div', 'masters-empty-state', 'SEC 과거 공시 행을 불러오지 못했습니다. 현재·직전 분기 행과 공시 메타데이터는 계속 볼 수 있습니다.'));
+          if (state.issuerAggregatesError) layout.appendChild(element(documentRef, 'div', 'masters-empty-state', '종목별 과거 합산 자료를 불러오지 못했습니다. 원본 현재·직전 분기 행은 계속 볼 수 있습니다.'));
+         if (state.previewsError) layout.appendChild(element(documentRef, 'div', 'masters-empty-state', '공시 행 미리보기를 불러오지 못했습니다. 전체 행 요청과 메타데이터는 계속 사용할 수 있습니다.'));
+         if (state.discoveryError) layout.appendChild(element(documentRef, 'div', 'masters-empty-state', 'SEC 최신 제출 확인 자료를 불러오지 못했습니다. 저장된 제출일은 표시하되 최신이라고 단정하지 않습니다.'));
+         const discoveryState = state.discovery || state.holdings?.filingDiscoverySummary;
+         const coverageSummary = deriveCoverageSummary(registry, state.catalog, state.holdings, state.previews, discoveryState, state.principles, state.securityMaster);
+         const coverage = createCatalogCoverage(documentRef, state.catalog, registry, state.holdings, state.previews, discoveryState, state.principles, state.securityMaster);
+         const coreArtifactsConnected = !!(state.holdings && state.catalog);
+         page.dataset.aioMastersData = coreArtifactsConnected ? coverageSummary.state : 'fallback';
+         page.dataset.aioMastersCoverageState = coverageSummary.state;
+         page.dataset.aioMastersCurrentFull = String(coverageSummary.currentFull);
+         page.dataset.aioMastersStaleFull = String(coverageSummary.staleFull);
+         page.dataset.aioMastersPreviewOnly = String(coverageSummary.previewOnly);
+         page.dataset.aioMastersMetadataOnly = String(coverageSummary.metadataOnly);
+         page.dataset.aioMastersMethodOnly = String(coverageSummary.methodOnly);
+         page.dataset.aioMastersOfficialPrinciples = String(coverageSummary.officialPrinciples);
+         page.dataset.aioMastersVerifiedSecurityRecords = String(coverageSummary.verifiedSecurityRecords);
+         page.dataset.aioMastersLatestPeriodMissing = String(coverageSummary.latestPeriodMissing);
          page.dataset.aioMastersView = state.view;
         page.dataset.aioMastersFullRows = String(fullRows.length);
         page.dataset.aioMastersComparisonRows = String(comparisonRows.length);
         page.dataset.aioMastersActionFilter = state.actionFilter;
-        page.dataset.aioMastersIssuerAggregates = state.issuerAggregates ? 'connected' : 'pending';
-         content.replaceChildren(toolbar);
+        page.dataset.aioMastersIssuerAggregates = quarterBundle?.issuerAggregates ? 'connected' : 'pending';
+         const arrival = createMastersArrivalContext(documentRef, state.arrivalContext, () => {
+           if (typeof root?.history?.back === 'function') root.history.back();
+           else if (state.arrivalContext?.returnContext?.route && typeof root?.showPage === 'function') root.showPage(state.arrivalContext.returnContext.route);
+         });
+         content.replaceChildren(...[toolbar, arrival].filter(Boolean));
          if (coverage) content.appendChild(coverage);
          content.appendChild(layout);
+      };
+      const fetchFn = root?.fetch || globalThis.fetch;
+      const loadJson = (url) => loadJsonArtifact(fetchFn, url, { signal: scope?.signal });
+      const loadOptionalArtifact = async (key, url) => {
+        if (!isAlive() || state[key] != null || state.loadingCapabilities.has(key)) return;
+        state.loadingCapabilities.add(key);
+        state[`${key}Error`] = false;
+        page.dataset[`aioMasters${key[0].toUpperCase()}${key.slice(1)}`] = 'loading';
+        try {
+          state[key] = await loadJson(url);
+          if (!isAlive()) return;
+          page.dataset[`aioMasters${key[0].toUpperCase()}${key.slice(1)}`] = 'connected';
+        } catch (error) {
+          if (scope?.signal?.aborted) return;
+          state[`${key}Error`] = true;
+          page.dataset[`aioMasters${key[0].toUpperCase()}${key.slice(1)}`] = 'fallback';
+        } finally {
+          state.loadingCapabilities.delete(key);
+          if (isAlive()) render();
+        }
+      };
+      const loadManagerRows = async (managerId) => {
+        if (!isAlive() || state.managerRows.has(managerId) || state.loadingManagers.has(managerId)) return;
+        const descriptor = state.holdings?.managerShards?.[managerId];
+        if (!descriptor?.url) return;
+        state.loadingManagers.add(managerId);
+        state.managerRowErrors.delete(managerId);
+        render();
+        try {
+          const artifact = await loadJson(descriptor.url);
+          if (!isAlive()) return;
+          if (artifact?.managerId !== managerId || artifact?.holdings?.length !== descriptor.fullRows || artifact?.comparisons?.length !== descriptor.comparisonRows || artifact?.latestFiling?.accession !== descriptor.accession) {
+            throw new Error(`manager shard integrity mismatch: ${managerId}`);
+          }
+          state.managerRows.set(managerId, artifact);
+          state.managerRowErrors.delete(managerId);
+          page.dataset.aioMastersSelectedShard = 'connected';
+        } catch (error) {
+          if (scope?.signal?.aborted) return;
+          state.managerRowErrors.add(managerId);
+          page.dataset.aioMastersSelectedShard = 'fallback';
+        } finally {
+          state.loadingManagers.delete(managerId);
+          render();
+        }
+      };
+      const loadQuarterArtifacts = async (managerId = state.selectedId) => {
+        if (!isAlive() || state.quarterBundles.has(managerId) || state.loadingQuarterManagers.has(managerId)) return;
+        state.loadingQuarterManagers.add(managerId);
+        try {
+          if (!state.history) state.history = await loadJson(HISTORY_INDEX_URL);
+          if (!isAlive()) return;
+          page.dataset.aioMastersHistory = 'connected';
+          const descriptor = state.history?.managerShards?.[managerId];
+          if (!descriptor?.url) throw new Error(`manager history shard missing: ${managerId}`);
+          const bundle = await loadJson(descriptor.url);
+          if (!isAlive()) return;
+          state.quarterBundles.set(managerId, bundle);
+          state.historyRowsError = false;
+          state.issuerAggregatesError = false;
+          page.dataset.aioMastersHistoryRows = 'connected';
+          page.dataset.aioMastersIssuerAggregates = 'connected';
+        } catch (error) {
+          if (scope?.signal?.aborted) return;
+          state.historyError = !state.history;
+          state.historyRowsError = true;
+          state.issuerAggregatesError = true;
+          page.dataset.aioMastersHistoryRows = 'fallback';
+          page.dataset.aioMastersIssuerAggregates = 'fallback';
+        } finally {
+          state.loadingQuarterManagers.delete(managerId);
+          render();
+        }
       };
       const onClick = (event) => {
         const target = event.target.closest?.('[data-masters-action]');
@@ -733,13 +1115,27 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
         if (action === 'filter') { state.filter = value; }
         if (action === 'select-manager') { state.selectedId = value; state.view = 'changes'; state.actionFilter = 'ALL'; state.holdingsQuery = ''; state.page = 1; }
         if (action === 'view') { state.view = value; state.page = 1; }
+        if (action === 'toggle-compare') {
+          state.compareIds = state.compareIds.includes(value) ? state.compareIds.filter((id) => id !== value) : [...state.compareIds, value].slice(0, 4);
+        }
         if (action === 'change-filter') { state.actionFilter = value; state.page = 1; }
         if (action === 'detail-page') {
           state.page = Math.max(1, state.page + (value === 'next' ? 1 : -1));
         }
         if (action !== 'route') {
           event.preventDefault();
+          syncSharedState();
           render();
+          if (action === 'load-manager' || action === 'toggle-compare') loadManagerRows(value);
+          if (action === 'view' && (value === 'holdings' || value === 'sectors')) loadManagerRows(state.selectedId);
+          if (action === 'view' && value === 'quarters') loadQuarterArtifacts(state.selectedId);
+          if (action === 'view' && value === 'filings') loadOptionalArtifact('filings', FILINGS_URL);
+          if (action === 'view' && value === 'ownership') loadOptionalArtifact('discovery', FILING_DISCOVERY_URL);
+          if (action === 'view' && value === 'principles') loadOptionalArtifact('principles', MANAGER_PRINCIPLES_URL);
+          if (action === 'view' && value === 'sectors') {
+            loadOptionalArtifact('securityMaster', SECURITY_MASTER_URL);
+            loadOptionalArtifact('referenceMaster', SECURITY_MASTER_REFERENCE_URL);
+          }
           if (action === 'select-manager' || action === 'view' || (action === 'change-filter' && previousSelection !== state.selectedId)) queueMicrotask(focusDetail);
         }
       };
@@ -759,18 +1155,31 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
       page.addEventListener('input', onInput);
       bag.add(() => page.removeEventListener('click', onClick));
       bag.add(() => page.removeEventListener('input', onInput));
-       bag.add(() => { delete page.dataset.aioArchitectureRoute; delete page.dataset.aioArchitectureRenderer; delete page.dataset.aioContentKind; delete page.dataset.aioReviewedAt; delete page.dataset.aioMastersData; delete page.dataset.aioMastersHoldings; delete page.dataset.aioMastersCatalog; delete page.dataset.aioMastersPreviews; delete page.dataset.aioMastersSecurityMaster; delete page.dataset.aioMastersReferenceMaster; delete page.dataset.aioMastersHistory; delete page.dataset.aioMastersHistoryRows; delete page.dataset.aioMastersIssuerAggregates; delete page.dataset.aioMastersView; delete page.dataset.aioMastersFullRows; delete page.dataset.aioMastersComparisonRows; delete page.dataset.aioMastersActionFilter; content.replaceChildren(); });
+       bag.add(() => { delete page.dataset.aioArchitectureRoute; delete page.dataset.aioArchitectureRenderer; delete page.dataset.aioContentKind; delete page.dataset.aioReviewedAt; delete page.dataset.aioMastersData; delete page.dataset.aioMastersCoverageState; delete page.dataset.aioMastersCurrentFull; delete page.dataset.aioMastersStaleFull; delete page.dataset.aioMastersPreviewOnly; delete page.dataset.aioMastersMetadataOnly; delete page.dataset.aioMastersMethodOnly; delete page.dataset.aioMastersOfficialPrinciples; delete page.dataset.aioMastersVerifiedSecurityRecords; delete page.dataset.aioMastersLatestPeriodMissing; delete page.dataset.aioMastersHoldings; delete page.dataset.aioMastersCatalog; delete page.dataset.aioMastersPreviews; delete page.dataset.aioMastersDiscovery; delete page.dataset.aioMastersPrinciples; delete page.dataset.aioMastersSelectedShard; delete page.dataset.aioMastersSecurityMaster; delete page.dataset.aioMastersReferenceMaster; delete page.dataset.aioMastersHistory; delete page.dataset.aioMastersHistoryRows; delete page.dataset.aioMastersIssuerAggregates; delete page.dataset.aioMastersView; delete page.dataset.aioMastersFullRows; delete page.dataset.aioMastersComparisonRows; delete page.dataset.aioMastersActionFilter; content.replaceChildren(); });
       render();
-      const fetchFn = root?.fetch || globalThis.fetch;
-      if (typeof fetchFn === 'function') {
-        const loadJson = (url) => fetchFn(url).then((response) => { if (!response.ok) throw new Error(`Masters artifact ${response.status}`); return response.json(); });
-         Promise.all([loadJson(FILINGS_URL), loadJson(HOLDINGS_URL), loadJson(MANAGER_CATALOG_URL), loadJson(ROW_PREVIEWS_URL), loadJson(SECURITY_MASTER_URL), loadJson(SECURITY_MASTER_REFERENCE_URL), loadJson(HISTORY_INDEX_URL), loadJson(HISTORY_HOLDINGS_URL), loadJson(ISSUER_AGGREGATES_URL)])
-             .then(([filings, holdings, catalog, previews, securityMaster, referenceMaster, history, historyRows, issuerAggregates]) => { state.filings = filings; state.holdings = holdings; state.catalog = catalog; state.previews = previews; state.securityMaster = securityMaster; state.referenceMaster = referenceMaster; state.history = history; state.historyRows = historyRows; state.issuerAggregates = issuerAggregates; page.dataset.aioMastersData = 'connected'; page.dataset.aioMastersHoldings = 'connected'; page.dataset.aioMastersCatalog = 'connected'; page.dataset.aioMastersPreviews = 'connected'; page.dataset.aioMastersSecurityMaster = 'connected'; page.dataset.aioMastersReferenceMaster = 'connected'; page.dataset.aioMastersHistory = 'connected'; page.dataset.aioMastersHistoryRows = 'connected'; page.dataset.aioMastersIssuerAggregates = 'connected'; render(); })
-             .catch(() => { state.filingsError = true; state.holdingsError = true; state.catalogError = true; state.previewsError = true; state.securityMasterError = true; state.referenceMasterError = true; state.historyError = true; state.historyRowsError = true; state.issuerAggregatesError = true; page.dataset.aioMastersData = 'fallback'; page.dataset.aioMastersHoldings = 'fallback'; page.dataset.aioMastersCatalog = 'fallback'; page.dataset.aioMastersPreviews = 'fallback'; page.dataset.aioMastersSecurityMaster = 'fallback'; page.dataset.aioMastersReferenceMaster = 'fallback'; page.dataset.aioMastersHistory = 'fallback'; page.dataset.aioMastersHistoryRows = 'fallback'; page.dataset.aioMastersIssuerAggregates = 'fallback'; render(); });
-      }
+       if (typeof fetchFn === 'function') {
+         const entries = [['holdings', HOLDINGS_URL], ['catalog', MANAGER_CATALOG_URL]];
+         Promise.allSettled(entries.map(([, url]) => loadJson(url))).then((results) => {
+           if (!isAlive()) return;
+           results.forEach((result, index) => {
+             const key = entries[index][0];
+             if (result.status === 'fulfilled') {
+               state[key] = result.value;
+               page.dataset[`aioMasters${key[0].toUpperCase()}${key.slice(1)}`] = 'connected';
+             } else {
+               state[`${key}Error`] = true;
+               page.dataset[`aioMasters${key[0].toUpperCase()}${key.slice(1)}`] = 'fallback';
+             }
+           });
+           const reviewedAt = [state.discovery?.reviewedAt, state.holdings?.reviewedAt, state.catalog?.reviewedAt, state.principles?.reviewedAt, REVIEWED_AT].filter(Boolean).sort().at(-1);
+           page.dataset.aioReviewedAt = reviewedAt || REVIEWED_AT;
+           render();
+            page.dataset.aioMastersSelectedShard = 'deferred';
+         });
+       }
       return () => bag.dispose();
     }
   };
 }
 
-export { MASTER_REGISTRY, FILINGS_URL, HOLDINGS_URL, MANAGER_CATALOG_URL, ROW_PREVIEWS_URL, SECURITY_MASTER_URL, SECURITY_MASTER_REFERENCE_URL, HISTORY_INDEX_URL, HISTORY_HOLDINGS_URL, ISSUER_AGGREGATES_URL, buildManagerRegistry };
+export { MASTER_REGISTRY, FILINGS_URL, HOLDINGS_URL, MANAGER_CATALOG_URL, ROW_PREVIEWS_URL, FILING_DISCOVERY_URL, MANAGER_PRINCIPLES_URL, SECURITY_MASTER_URL, SECURITY_MASTER_REFERENCE_URL, HISTORY_INDEX_URL, buildManagerRegistry, deriveCoverageSummary };

@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createSecClient } from './lib/sec-edgar.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const historyPath = path.join(root, 'public-data', 'masters', 'history-index.json');
@@ -9,40 +10,21 @@ const partialRowsPath = `${historyRowsPath}.partial.json`;
 const history = JSON.parse(await fs.readFile(historyPath, 'utf8'));
 const holdings = JSON.parse(await fs.readFile(path.join(root, 'public-data', 'masters', 'holdings.json'), 'utf8'));
 const filings = JSON.parse(await fs.readFile(path.join(root, 'public-data', 'masters', 'filings.json'), 'utf8'));
-const userAgent = 'AIO Screener research contact research@example.com';
 const reviewedAt = new Date().toISOString().slice(0, 10);
 const appVersion = JSON.parse(await fs.readFile(path.join(root, 'version.json'), 'utf8')).version;
 const revision = `${reviewedAt}-${appVersion}`;
-let lastRequestAt = 0;
-
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-async function request(url, init = {}) {
-  const waitMs = Math.max(0, 1100 - (Date.now() - lastRequestAt));
-  if (waitMs) await sleep(waitMs);
-  lastRequestAt = Date.now();
-  const response = await fetch(url, { ...init, headers: { 'User-Agent': userAgent, ...(init.headers || {}) } });
-  if (response.status === 429) {
-    await sleep(30000);
-    lastRequestAt = Date.now();
-    return fetch(url, { ...init, headers: { 'User-Agent': userAgent, ...(init.headers || {}) } });
-  }
-  return response;
-}
+const secClient = createSecClient({ minIntervalMs: 1100 });
 
 async function fetchText(url, accept = 'application/xml,text/xml,text/html;q=0.9,*/*;q=0.8') {
-  const response = await request(url, { headers: { Accept: accept } });
-  if (!response.ok) throw new Error(`${response.status} ${url}`);
-  return response.text();
+  void accept;
+  return secClient.text(url);
 }
 
 async function fetchDirectory(base) {
   try {
-    const response = await request(`${base}index.json`, { headers: { Accept: 'application/json' } });
-    if (response.ok) {
-      const payload = await response.json();
-      const names = (payload.directory?.item || []).map((item) => item.name).filter(Boolean);
-      if (names.length) return names;
-    }
+    const payload = await secClient.json(`${base}index.json`);
+    const names = (payload.directory?.item || []).map((item) => item.name).filter(Boolean);
+    if (names.length) return names;
     const html = await fetchText(`${base}index.html`, 'text/html');
     return [...html.matchAll(/href=["']([^"']+\.xml)["']/gi)].map((match) => match[1].split('/').pop()).filter(Boolean);
   } catch {

@@ -6,6 +6,7 @@ import { createClaimRegistry, createEvidenceRegistry, unresolvedEvidenceIds } fr
 import { inspectKnowledgeGraph, normalizeKnowledgeEdges } from '../src/domain/knowledge/graph.js';
 import { loadKnowledgeCapabilities } from '../src/data/knowledge/load-capabilities.js';
 import { createConceptRegistry } from '../src/domain/knowledge/ontology.js';
+import { safeExternalHref } from '../src/ui/knowledge/safe-external-link.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readJson = (relativePath) => JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
@@ -73,6 +74,12 @@ const unresolvedSources = unresolvedEvidenceIds(evidence, referencedSourceIds);
 assert(evidence.conflicts.length === 0, `Evidence registry conflicts: ${JSON.stringify(evidence.conflicts)}`);
 assert(unresolvedSources.length === 0, `Unresolved evidence IDs: ${unresolvedSources.join(',')}`);
 assert([...new Set(referencedSourceIds)].every((sourceId) => evidence.resolve(sourceId)?.url), 'Every referenced evidence ID must resolve to a URL');
+const primaryResearchSource = evidence.resolve('PS-01');
+assert(primaryResearchSource?.publishedAt === '2026-06-04', 'Evidence view model must preserve source publication date');
+assert(primaryResearchSource?.verification === 'opened_primary_source', 'Evidence view model must preserve source verification');
+assert(Boolean(primaryResearchSource?.scope), 'Evidence view model must preserve source scope');
+assert(safeExternalHref('https://www.sec.gov/Archives/test')?.startsWith('https://www.sec.gov/'), 'HTTPS source URL must be allowed');
+for (const unsafeUrl of ['javascript:alert(1)', 'data:text/html,test', 'http://example.com', 'not a url', '']) assert(safeExternalHref(unsafeUrl) === null, `Unsafe URL must be rejected: ${unsafeUrl}`);
 
 const samsungHbm = registry.products.find((product) => product.productId === 'samsung-hbm-family');
 const ibmQuantum = registry.products.find((product) => product.productId === 'ibm-quantum-platform');
@@ -88,6 +95,8 @@ const capabilities = await loadKnowledgeCapabilities(async (url) => ({
 }), [{ key: 'available', url: '/available.json' }, { key: 'missing', url: '/missing.json' }]);
 assert(capabilities.available.status === 'connected' && capabilities.available.value?.url === '/available.json', 'Capability loader must preserve a successful artifact');
 assert(capabilities.missing.status === 'fallback' && capabilities.missing.value === null, 'Capability loader must isolate a failed artifact');
+const invalidCapability = await loadKnowledgeCapabilities(async () => ({ ok: true, status: 200, async json() { return { wrong: true }; } }), [{ key: 'validated', url: '/invalid.json', validate: (value) => value?.expected === true }]);
+assert(invalidCapability.validated.status === 'fallback' && invalidCapability.validated.value === null, 'Capability loader must fail closed on invalid artifact schema');
 
 const conceptsArtifact = readJson('public-data/knowledge/concepts.json');
 const aliasesArtifact = readJson('public-data/knowledge/aliases.json');

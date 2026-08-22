@@ -5,13 +5,25 @@ function element(documentRef, tag, className, text) {
   return node;
 }
 
+function formatListValue(value) {
+  if (typeof value === 'string') return value;
+  if (value && typeof value === 'object') {
+    if (value.term && value.definition) return `${value.term} — ${value.definition}`;
+    return Object.entries(value)
+      .filter(([, item]) => item != null && item !== '')
+      .map(([key, item]) => `${key}: ${Array.isArray(item) ? item.join(', ') : item}`)
+      .join(' · ');
+  }
+  return String(value ?? '');
+}
+
 function list(documentRef, values, className) {
   const ul = element(documentRef, 'ul', className);
-  for (const value of values || []) ul.appendChild(element(documentRef, 'li', '', typeof value === 'string' ? value : JSON.stringify(value)));
+  for (const value of values || []) ul.appendChild(element(documentRef, 'li', '', formatListValue(value)));
   return ul;
 }
 
-export function renderKnowledgeLesson(documentRef, article, { className = 'knowledge-lesson' } = {}) {
+export function renderKnowledgeLesson(documentRef, article, { className = 'knowledge-lesson', routeTarget = null, onNavigate = null } = {}) {
   const root = element(documentRef, 'article', className);
   if (!article?.article) {
     root.appendChild(element(documentRef, 'p', 'knowledge-empty', '심층 원고를 아직 불러오지 못했습니다. 요약·근거 경계를 유지합니다.'));
@@ -31,7 +43,7 @@ export function renderKnowledgeLesson(documentRef, article, { className = 'knowl
   }
   const example = article.article.workedExampleOrRationale;
   const exampleSection = element(documentRef, 'section', 'knowledge-lesson-section knowledge-worked-example');
-  exampleSection.append(element(documentRef, 'h5', 'knowledge-lesson-section-title', 'Worked example / rationale'));
+  exampleSection.append(element(documentRef, 'h5', 'knowledge-lesson-section-title', '사례·근거 전개'));
   for (const [label, value] of [['입력', example?.inputs], ['가정', example?.assumptions], ['단계', example?.steps], ['결과', example?.result], ['해석', example?.interpretation], ['실패 경계', example?.failureBoundary]]) {
     const block = element(documentRef, 'div', 'knowledge-example-block');
     block.appendChild(element(documentRef, 'strong', 'knowledge-example-label', label));
@@ -43,5 +55,20 @@ export function renderKnowledgeLesson(documentRef, article, { className = 'knowl
   const glossary = element(documentRef, 'section', 'knowledge-lesson-section');
   glossary.append(element(documentRef, 'h5', 'knowledge-lesson-section-title', '용어'), list(documentRef, article.article.glossary, 'knowledge-glossary-list'));
   root.appendChild(glossary);
+  if (routeTarget?.routeId && typeof onNavigate === 'function') {
+    const bridge = element(documentRef, 'section', 'knowledge-professional-bridge');
+    bridge.append(
+      element(documentRef, 'strong', 'knowledge-professional-bridge-title', '전문 화면에서 실제 데이터 검증'),
+      element(documentRef, 'p', 'knowledge-lesson-copy', `${routeTarget.metric || '연결 지표'} · ${routeTarget.timeframe || '기간 확인'} 맥락을 전달합니다. 이 링크 자체는 투자 판단이 아닙니다.`)
+    );
+    const action = element(documentRef, 'button', 'knowledge-professional-bridge-button', routeTarget.routeLabel || '전문 화면 열기');
+    action.type = 'button';
+    action.dataset.knowledgeRoute = routeTarget.routeId;
+    action.dataset.knowledgeMetric = routeTarget.metric || '';
+    action.dataset.knowledgeTimeframe = routeTarget.timeframe || '';
+    action.addEventListener('click', () => onNavigate(routeTarget));
+    bridge.appendChild(action);
+    root.appendChild(bridge);
+  }
   return root;
 }

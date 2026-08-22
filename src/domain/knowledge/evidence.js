@@ -22,14 +22,31 @@ export function createEvidenceRegistry(...catalogs) {
       sourceRole: source.sourceRole || source.role || 'REFERENCE',
       scope: source.scope || null,
       allowedUse: source.allowedUse || 'REFERENCE_ONLY',
-      reviewedAt: source.reviewedAt || null
+      reviewedAt: source.reviewedAt || null,
+      publishedAt: source.publishedAt || source.asOf || null,
+      verification: source.verification || null,
+      directness: source.directness || null,
+      sourceTier: source.sourceTier || null
     });
     const existing = byId.get(id);
     if (existing && existing.url && normalized.url && existing.url !== normalized.url) {
       conflicts.push(Object.freeze({ id, existing, incoming: normalized }));
       continue;
     }
-    if (!existing || (!existing.url && normalized.url)) byId.set(id, normalized);
+    if (!existing) {
+      byId.set(id, normalized);
+    } else {
+      byId.set(id, Object.freeze({
+        ...existing,
+        url: existing.url || normalized.url,
+        scope: existing.scope || normalized.scope,
+        reviewedAt: existing.reviewedAt || normalized.reviewedAt,
+        publishedAt: existing.publishedAt || normalized.publishedAt,
+        verification: existing.verification || normalized.verification,
+        directness: existing.directness || normalized.directness,
+        sourceTier: existing.sourceTier || normalized.sourceTier
+      }));
+    }
   }
   return Object.freeze({
     sources: Object.freeze([...byId.values()]),

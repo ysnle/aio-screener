@@ -5,8 +5,8 @@
 
 // R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
 // v48.80/P150: operational hardening adds an explicit build marker and health message.
-const SW_VERSION = 'v54.37';
-const SW_BUILD = '2026-08-18T22:39:00+09:00';
+const SW_VERSION = 'v54.43';
+const SW_BUILD = '2026-08-22T21:02:00+09:00';
 const SHELL_CACHE = 'aio-shell-' + SW_VERSION;
 const DATA_CACHE  = 'aio-data-'  + SW_VERSION;
 
@@ -119,6 +119,7 @@ const SHELL_ASSETS = [
   './src/data/quality/freshness.js',
   './src/data/quality/lineage.js',
   './src/data/knowledge/load-capabilities.js',
+  './src/data/artifact-cache.js',
   './src/domain/sentiment/metrics.js',
   './src/domain/home/summary.js',
   './src/domain/macro/treasury-curve.js',
@@ -173,10 +174,14 @@ const SHELL_ASSETS = [
   './src/state/selectors/screener.js',
   './src/state/selectors/analysis.js',
   './src/ui/pages/legacy-observer.js',
+  './src/ui/knowledge/learning-controls.js',
   './src/ui/pages/principles.js',
   './src/ui/pages/masters.js',
   './public-data/masters/manager-catalog.json',
   './public-data/masters/manager-row-previews.json',
+  './public-data/masters/filing-discovery.json',
+  './public-data/masters/manager-principles.json',
+  './public-data/knowledge/route-targets.json',
   './src/ui/pages/atlas.js',
   './src/ui/pages/guide.js',
   './src/ui/pages/news.js',
@@ -211,7 +216,7 @@ const DATA_URL_PATTERNS = [
 // 교육·원문 reference artifact — 네트워크 성공 후 오프라인에서도 마지막
 // 검증 원장을 유지하되, 현재 가격·뉴스 TTL과 섞지 않는다.
 const REFERENCE_URL_PATTERNS = [
-  /\/public-data\/(?:atlas\/current-evidence-ledger|masters\/issuer-aggregates|principles\/lesson-library|atlas\/foundation-lessons|knowledge\/(?:articles|learning-graph|coverage-matrix|research-dossiers))\.json(?:\?|$)/
+  /\/public-data\/(?:atlas\/current-evidence-ledger|masters\/(?:holdings-summary|managers\/[^/]+|history\/managers\/[^/]+)|principles\/lesson-library|atlas\/foundation-lessons|knowledge\/(?:articles(?:\/(?:principles|atlas-foundations)\/[^/]+)?|status-summary|learning-graph|coverage-matrix|research-dossiers))\.json(?:\?|$)/
 ];
 
 // 민감 URL 패턴 — API 키/토큰/중첩 proxy URL 포함 시 캐시 금지

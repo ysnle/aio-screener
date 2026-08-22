@@ -1,5 +1,7 @@
 # MASTERS PORTFOLIO / 13F PAGE DESIGN HANDOFF — 대가의 공개 포트폴리오
 
+> **현행 구현 보정 (2026-08-22 v54.40)**: 이 문서는 원 설계 의도 SSOT이며 아래 `DESIGN_ONLY` 표기는 2026-08-01 당시의 역사적 상태다. 현재 `masters` route는 38개 학습 프로필(37 SEC filer + 1 METHOD_ONLY), 30개 SEC 메타데이터, 7개 전체 행 대사, 1,290 current rows, 1,387 comparison rows, 84개 분기, 12,339 history rows와 분리된 Schedule 13D/G 발견 층을 `IMPLEMENTED_LOCAL`로 연결한다. 브라우저는 compact summary만 먼저 가져오고 전체 행·분기 bundle은 명시적 holdings/sector/compare/quarter interaction 뒤에만 로드한다. 37/37 최신 SEC 온라인 discovery는 monitored `SEC_USER_AGENT` 부재로 `BLOCKED`; 현재성 완성이나 live 배포는 주장하지 않는다.
+
 > 상태: **DESIGN_ONLY — 구현 미착수**  
 > 작성일: 2026-08-01  
 > 사용자 지시: 실제 코드·버전·테스트·배포를 수정하지 말고, 다른 에이전트가 구현할 수 있는 기획/설계 자료만 준비  

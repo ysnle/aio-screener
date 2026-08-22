@@ -3644,18 +3644,26 @@
     var daxOk = ds2.dax >= 24000;                                          // DAX 사상최고권 (23200 stale 제외)
     var bojOk = ds2.bojRate >= 0.75;                                       // BOJ 인상 반영
     _assert('T683 offline_market_values_remain_unavailable', [DATA_SNAPSHOT.vkospi,DATA_SNAPSHOT.vix,DATA_SNAPSHOT.dax].every(function(v){ return v == null || Number.isFinite(Number(v)); }), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
-    // T684: KR 2차 거시지표 sanity band.
+    // T684: KR 2차 거시지표 sanity band + 공식 CPI 의미·최신성 계약.
     // P626-followup: krManufPmi's own sub-check pinned ">53" (April's specific 53.6 print) rather
     // than the actual meaningful economic threshold — PMI readings legitimately move month to
     // month (now 52.1), so ">53" was never going to hold as a permanent invariant. ">50" is the
     // real, conventionally-meaningful expansion/contraction boundary this check was trying to
     // express ("still showing expansion, not regressed to a contractionary stale value") —
     // asserting that structural property instead of one month's specific print.
-    var krCpiOk  = ds2.krCpi  >= 0 && ds2.krCpi  <= 6;       // 한국 CPI 정상범위 (4월 실측 2.6)
+    var krCpiOk  = ds2.krCpi  >= 0 && ds2.krCpi  <= 6;       // 한국 CPI 정상범위
     var krPmiOk  = ds2.krManufPmi >= 40 && ds2.krManufPmi <= 60 && ds2.krManufPmi > 50; // PMI 확장 국면(50 초과) 유지
     var krPpiOk  = ds2.krPpi  >= 5 && ds2.krPpi  <= 10;      // 이란 유가 충격 반영 (1.5 평시값 stale 제외)
     var krCrOk   = ds2.krCreditBalance >= 30;                // record 빚투 36조 (19.2 stale 제외)
-    _assert('T684 kr_secondary_macro_missing_values_are_not_backfilled', DATA_SNAPSHOT.krCpi === 3.2 && DATA_SNAPSHOT.krManufPmi == null && DATA_SNAPSHOT.krPpi == null, 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
+    var krInflationRef = window.AIO_MANUAL_REFERENCE && window.AIO_MANUAL_REFERENCE.krInflation;
+    var krInflationContractOk = DATA_SNAPSHOT.krCpi === 2.8
+      && DATA_SNAPSHOT.krCoreCpi === 2.6
+      && krInflationRef && krInflationRef.observation === '2026-07'
+      && krInflationRef.publishedAt === '2026-08-04'
+      && krInflationRef.coreDefinition === 'food-and-energy-excluded'
+      && /mods\.go\.kr/.test(krInflationRef.sourceUrl || '')
+      && krInflationRef.operationalUse === 'reference-only';
+    _assert('T684 kr_secondary_macro_official_reference_and_missing_values_contract', krInflationContractOk && DATA_SNAPSHOT.krManufPmi == null && DATA_SNAPSHOT.krPpi == null, 'reference=' + JSON.stringify(krInflationRef || null) + ' policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
     // T685: US 2차 거시지표 sanity band (stale 값 재발 방지).
     // P626-followup: ismPrice's own sub-check pinned ">=80" (the specific print when this was
     // written) rather than a genuine sanity floor — ISM Prices Paid is a real, volatile

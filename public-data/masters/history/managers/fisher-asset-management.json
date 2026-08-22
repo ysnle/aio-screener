@@ -1,0 +1,1848 @@
+{
+  "schema": "masters-13f-manager-history-runtime.v1",
+  "sourceKind": "SEC_EDGAR_DERIVED_RAW_ROWS",
+  "reviewedAt": "2026-08-22",
+  "generatedAt": "2026-08-22T10:23:13.861Z",
+  "managerId": "fisher-asset-management",
+  "historyRows": [],
+  "historySummary": {
+    "rawRowsAvailable": 10009,
+    "periodTotalsSource": "history-index.json.managers[].periods"
+  },
+  "issuerAggregates": {
+    "schema": "masters-13f-issuer-aggregates.v1",
+    "status": "RAW_CUSIP_MULTI_QUARTER_CONNECTED",
+    "publication": "EDUCATIONAL_REFERENCE_ONLY",
+    "boundary": "SEC CUSIP·issuer text·reported value·shares·period history are aggregated for research navigation. This is not a verified security master and cannot produce sector weights, current prices or recommendations.",
+    "managers": [
+      {
+        "managerId": "fisher-asset-management",
+        "aggregateCount": 1885,
+        "latestPeriod": "2026-06-30",
+        "periodsCovered": 11,
+        "reviewQueueCount": 1885
+      }
+    ],
+    "coverage": {
+      "aggregateRecords": 1885,
+      "periods": 11,
+      "reviewQueue": 208,
+      "previewRecords": 10
+    },
+    "reviewQueue": [
+      {
+        "aggregateId": "sec-13f-cusip:fisher-asset-management|46434V381|SH|",
+        "managerId": "fisher-asset-management",
+        "cusipNormalized": "46434V381",
+        "flags": [
+          "ISSUER_NAME_VARIATION"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
+        "aggregateId": "sec-13f-cusip:fisher-asset-management|002824100|SH|",
+        "managerId": "fisher-asset-management",
+        "cusipNormalized": "002824100",
+        "flags": [
+          "ISSUER_NAME_VARIATION"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
+        "aggregateId": "sec-13f-cusip:fisher-asset-management|002896207|SH|",
+        "managerId": "fisher-asset-management",
+        "cusipNormalized": "002896207",
+        "flags": [
+          "ISSUER_NAME_VARIATION"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
+        "aggregateId": "sec-13f-cusip:fisher-asset-management|00508Y102|SH|",
+        "managerId": "fisher-asset-management",
+        "cusipNormalized": "00508Y102",
+        "flags": [
+          "ISSUER_NAME_VARIATION"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
+        "aggregateId": "sec-13f-cusip:fisher-asset-management|00737L103|SH|",
+        "managerId": "fisher-asset-management",
+        "cusipNormalized": "00737L103",
+        "flags": [
+          "ISSUER_NAME_VARIATION"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
+        "aggregateId": "sec-13f-cusip:fisher-asset-management|008252108|SH|",
+        "managerId": "fisher-asset-management",
+        "cusipNormalized": "008252108",
+        "flags": [
+          "ISSUER_NAME_VARIATION"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
+        "aggregateId": "sec-13f-cusip:fisher-asset-management|009158106|SH|",
+        "managerId": "fisher-asset-management",
+        "cusipNormalized": "009158106",
+        "flags": [
+          "ISSUER_NAME_VARIATION"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
+        "aggregateId": "sec-13f-cusip:fisher-asset-management|03027X100|SH|",
+        "managerId": "fisher-asset-management",
+        "cusipNormalized": "03027X100",
+        "flags": [
+          "ISSUER_NAME_VARIATION"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
+        "aggregateId": "sec-13f-cusip:fisher-asset-management|032095101|SH|",
+        "managerId": "fisher-asset-management",
+        "cusipNormalized": "032095101",
+        "flags": [
+          "ISSUER_NAME_VARIATION"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      },
+      {
+        "aggregateId": "sec-13f-cusip:fisher-asset-management|03524A108|SH|",
+        "managerId": "fisher-asset-management",
+        "cusipNormalized": "03524A108",
+        "flags": [
+          "ISSUER_NAME_VARIATION"
+        ],
+        "action": "Verify issuer, share class, corporate actions and sector from an authorized security master before publication."
+      }
+    ],
+    "aggregates": [
+      {
+        "aggregateId": "sec-13f-cusip:fisher-asset-management|67066G104|SH|",
+        "managerId": "fisher-asset-management",
+        "cik": "0000850529",
+        "cusipNormalized": "67066G104",
+        "issuerNames": [
+          "NVIDIA CORP COM"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2023-09-30",
+        "latestReportPeriod": "2026-06-30",
+        "periodCount": 11,
+        "periods": [
+          {
+            "reportPeriod": "2023-09-30",
+            "filedAt": "2023-11-13",
+            "valueUsd": 3632052049,
+            "shares": 8349736,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052923000010/2023Q313F.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2023-12-31",
+            "filedAt": "2024-03-05",
+            "valueUsd": 4428225395,
+            "shares": 8941935,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000006/2023Q413Famendment.xml"
+            ],
+            "valueDeltaUsd": 796173346,
+            "sharesDelta": 592199
+          },
+          {
+            "reportPeriod": "2024-03-31",
+            "filedAt": "2024-05-09",
+            "valueUsd": 8252596105,
+            "shares": 9133422,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000007/2024Q113F.xml"
+            ],
+            "valueDeltaUsd": 3824370710,
+            "sharesDelta": 191487
+          },
+          {
+            "reportPeriod": "2024-06-30",
+            "filedAt": "2024-08-14",
+            "valueUsd": 11543247605,
+            "shares": 93437327,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000009/2024Q213F.xml"
+            ],
+            "valueDeltaUsd": 3290651500,
+            "sharesDelta": 84303905
+          },
+          {
+            "reportPeriod": "2024-09-30",
+            "filedAt": "2024-11-12",
+            "valueUsd": 11745762743,
+            "shares": 96720707,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000012/2024Q313F.xml"
+            ],
+            "valueDeltaUsd": 202515138,
+            "sharesDelta": 3283380
+          },
+          {
+            "reportPeriod": "2024-12-31",
+            "filedAt": "2025-02-05",
+            "valueUsd": 13205995273,
+            "shares": 98339379,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000002/2024Q413F.xml"
+            ],
+            "valueDeltaUsd": 1460232530,
+            "sharesDelta": 1618672
+          },
+          {
+            "reportPeriod": "2025-03-31",
+            "filedAt": "2025-05-14",
+            "valueUsd": 9834522420,
+            "shares": 90741118,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000003/2025Q113F.xml"
+            ],
+            "valueDeltaUsd": -3371472853,
+            "sharesDelta": -7598261
+          },
+          {
+            "reportPeriod": "2025-06-30",
+            "filedAt": "2025-08-13",
+            "valueUsd": 13035979655,
+            "shares": 82511422,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000005/2025Q213F.xml"
+            ],
+            "valueDeltaUsd": 3201457235,
+            "sharesDelta": -8229696
+          },
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-12",
+            "valueUsd": 15777871986,
+            "shares": 84563575,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000011/2025Q313F.xml"
+            ],
+            "valueDeltaUsd": 2741892331,
+            "sharesDelta": 2052153
+          },
+          {
+            "reportPeriod": "2025-12-31",
+            "filedAt": "2026-02-09",
+            "valueUsd": 16049730832,
+            "shares": 86057537,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052926000002/2025Q413F1.xml"
+            ],
+            "valueDeltaUsd": 271858846,
+            "sharesDelta": 1493962
+          },
+          {
+            "reportPeriod": "2026-06-30",
+            "filedAt": "2026-08-04",
+            "valueUsd": 18195373846,
+            "shares": 90935947,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/q2202613f.html"
+            ],
+            "valueDeltaUsd": 2145643014,
+            "sharesDelta": 4878410
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052926000002/2025Q413F1.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000011/2025Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000005/2025Q213F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000003/2025Q113F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000002/2024Q413F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000012/2024Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000009/2024Q213F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000007/2024Q113F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000006/2023Q413Famendment.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052923000010/2023Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/q2202613f.html"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:fisher-asset-management|037833100|SH|",
+        "managerId": "fisher-asset-management",
+        "cik": "0000850529",
+        "cusipNormalized": "037833100",
+        "issuerNames": [
+          "APPLE INC"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2023-09-30",
+        "latestReportPeriod": "2026-06-30",
+        "periodCount": 11,
+        "periods": [
+          {
+            "reportPeriod": "2023-09-30",
+            "filedAt": "2023-11-13",
+            "valueUsd": 9182799370,
+            "shares": 53634713,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052923000010/2023Q313F.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2023-12-31",
+            "filedAt": "2024-03-05",
+            "valueUsd": 10531834152,
+            "shares": 54702300,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000006/2023Q413Famendment.xml"
+            ],
+            "valueDeltaUsd": 1349034782,
+            "sharesDelta": 1067587
+          },
+          {
+            "reportPeriod": "2024-03-31",
+            "filedAt": "2024-05-09",
+            "valueUsd": 9582956861,
+            "shares": 55883815,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000007/2024Q113F.xml"
+            ],
+            "valueDeltaUsd": -948877291,
+            "sharesDelta": 1181515
+          },
+          {
+            "reportPeriod": "2024-06-30",
+            "filedAt": "2024-08-14",
+            "valueUsd": 12111286431,
+            "shares": 57503020,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000009/2024Q213F.xml"
+            ],
+            "valueDeltaUsd": 2528329570,
+            "sharesDelta": 1619205
+          },
+          {
+            "reportPeriod": "2024-09-30",
+            "filedAt": "2024-11-12",
+            "valueUsd": 13657307690,
+            "shares": 58615053,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000012/2024Q313F.xml"
+            ],
+            "valueDeltaUsd": 1546021259,
+            "sharesDelta": 1112033
+          },
+          {
+            "reportPeriod": "2024-12-31",
+            "filedAt": "2025-02-05",
+            "valueUsd": 14847413073,
+            "shares": 59290044,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000002/2024Q413F.xml"
+            ],
+            "valueDeltaUsd": 1190105383,
+            "sharesDelta": 674991
+          },
+          {
+            "reportPeriod": "2025-03-31",
+            "filedAt": "2025-05-14",
+            "valueUsd": 11837036476,
+            "shares": 53288778,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000003/2025Q113F.xml"
+            ],
+            "valueDeltaUsd": -3010376597,
+            "sharesDelta": -6001266
+          },
+          {
+            "reportPeriod": "2025-06-30",
+            "filedAt": "2025-08-13",
+            "valueUsd": 10988081823,
+            "shares": 53555986,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000005/2025Q213F.xml"
+            ],
+            "valueDeltaUsd": -848954653,
+            "sharesDelta": 267208
+          },
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-12",
+            "valueUsd": 13862683481,
+            "shares": 54442459,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000011/2025Q313F.xml"
+            ],
+            "valueDeltaUsd": 2874601658,
+            "sharesDelta": 886473
+          },
+          {
+            "reportPeriod": "2025-12-31",
+            "filedAt": "2026-02-09",
+            "valueUsd": 14992196101,
+            "shares": 55146752,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052926000002/2025Q413F1.xml"
+            ],
+            "valueDeltaUsd": 1129512620,
+            "sharesDelta": 704293
+          },
+          {
+            "reportPeriod": "2026-06-30",
+            "filedAt": "2026-08-04",
+            "valueUsd": 16670059955,
+            "shares": 57610104,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/q2202613f.html"
+            ],
+            "valueDeltaUsd": 1677863854,
+            "sharesDelta": 2463352
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052926000002/2025Q413F1.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000011/2025Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000005/2025Q213F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000003/2025Q113F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000002/2024Q413F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000012/2024Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000009/2024Q213F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000007/2024Q113F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000006/2023Q413Famendment.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052923000010/2023Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/q2202613f.html"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:fisher-asset-management|464287440|SH|",
+        "managerId": "fisher-asset-management",
+        "cik": "0000850529",
+        "cusipNormalized": "464287440",
+        "issuerNames": [
+          "ISHARES TR 7 10YR TR BD ETF"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2023-09-30",
+        "latestReportPeriod": "2026-06-30",
+        "periodCount": 11,
+        "periods": [
+          {
+            "reportPeriod": "2023-09-30",
+            "filedAt": "2023-11-13",
+            "valueUsd": 845356497,
+            "shares": 9229790,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052923000010/2023Q313F.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2023-12-31",
+            "filedAt": "2024-03-05",
+            "valueUsd": 934700954,
+            "shares": 9697073,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000006/2023Q413Famendment.xml"
+            ],
+            "valueDeltaUsd": 89344457,
+            "sharesDelta": 467283
+          },
+          {
+            "reportPeriod": "2024-03-31",
+            "filedAt": "2024-05-09",
+            "valueUsd": 1849144600,
+            "shares": 19534592,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000007/2024Q113F.xml"
+            ],
+            "valueDeltaUsd": 914443646,
+            "sharesDelta": 9837519
+          },
+          {
+            "reportPeriod": "2024-06-30",
+            "filedAt": "2024-08-14",
+            "valueUsd": 1907730299,
+            "shares": 20370851,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000009/2024Q213F.xml"
+            ],
+            "valueDeltaUsd": 58585699,
+            "sharesDelta": 836259
+          },
+          {
+            "reportPeriod": "2024-09-30",
+            "filedAt": "2024-11-12",
+            "valueUsd": 4087042749,
+            "shares": 41653513,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000012/2024Q313F.xml"
+            ],
+            "valueDeltaUsd": 2179312450,
+            "sharesDelta": 21282662
+          },
+          {
+            "reportPeriod": "2024-12-31",
+            "filedAt": "2025-02-05",
+            "valueUsd": 4550389119,
+            "shares": 49220000,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000002/2024Q413F.xml"
+            ],
+            "valueDeltaUsd": 463346370,
+            "sharesDelta": 7566487
+          },
+          {
+            "reportPeriod": "2025-03-31",
+            "filedAt": "2025-05-14",
+            "valueUsd": 5241988287,
+            "shares": 54964750,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000003/2025Q113F.xml"
+            ],
+            "valueDeltaUsd": 691599168,
+            "sharesDelta": 5744750
+          },
+          {
+            "reportPeriod": "2025-06-30",
+            "filedAt": "2025-08-13",
+            "valueUsd": 5521225842,
+            "shares": 57650891,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000005/2025Q213F.xml"
+            ],
+            "valueDeltaUsd": 279237555,
+            "sharesDelta": 2686141
+          },
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-12",
+            "valueUsd": 8455918831,
+            "shares": 87662438,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000011/2025Q313F.xml"
+            ],
+            "valueDeltaUsd": 2934692989,
+            "sharesDelta": 30011547
+          },
+          {
+            "reportPeriod": "2025-12-31",
+            "filedAt": "2026-02-09",
+            "valueUsd": 12965538648,
+            "shares": 134832971,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052926000002/2025Q413F1.xml"
+            ],
+            "valueDeltaUsd": 4509619817,
+            "sharesDelta": 47170533
+          },
+          {
+            "reportPeriod": "2026-06-30",
+            "filedAt": "2026-08-04",
+            "valueUsd": 15222380109,
+            "shares": 160964153,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/q2202613f.html"
+            ],
+            "valueDeltaUsd": 2256841461,
+            "sharesDelta": 26131182
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052926000002/2025Q413F1.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000011/2025Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000005/2025Q213F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000003/2025Q113F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000002/2024Q413F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000012/2024Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000009/2024Q213F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000007/2024Q113F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000006/2023Q413Famendment.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052923000010/2023Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/q2202613f.html"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:fisher-asset-management|02079K305|SH|",
+        "managerId": "fisher-asset-management",
+        "cik": "0000850529",
+        "cusipNormalized": "02079K305",
+        "issuerNames": [
+          "ALPHABET INC CLASS A"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2023-09-30",
+        "latestReportPeriod": "2026-06-30",
+        "periodCount": 11,
+        "periods": [
+          {
+            "reportPeriod": "2023-09-30",
+            "filedAt": "2023-11-13",
+            "valueUsd": 5724969816,
+            "shares": 43748814,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052923000010/2023Q313F.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2023-12-31",
+            "filedAt": "2024-03-05",
+            "valueUsd": 6310925420,
+            "shares": 45178075,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000006/2023Q413Famendment.xml"
+            ],
+            "valueDeltaUsd": 585955604,
+            "sharesDelta": 1429261
+          },
+          {
+            "reportPeriod": "2024-03-31",
+            "filedAt": "2024-05-09",
+            "valueUsd": 6991843449,
+            "shares": 46325074,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000007/2024Q113F.xml"
+            ],
+            "valueDeltaUsd": 680918029,
+            "sharesDelta": 1146999
+          },
+          {
+            "reportPeriod": "2024-06-30",
+            "filedAt": "2024-08-14",
+            "valueUsd": 8856226893,
+            "shares": 48620515,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000009/2024Q213F.xml"
+            ],
+            "valueDeltaUsd": 1864383444,
+            "sharesDelta": 2295441
+          },
+          {
+            "reportPeriod": "2024-09-30",
+            "filedAt": "2024-11-12",
+            "valueUsd": 8268932960,
+            "shares": 49857900,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000012/2024Q313F.xml"
+            ],
+            "valueDeltaUsd": -587293933,
+            "sharesDelta": 1237385
+          },
+          {
+            "reportPeriod": "2024-12-31",
+            "filedAt": "2025-02-05",
+            "valueUsd": 9581426909,
+            "shares": 50615038,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000002/2024Q413F.xml"
+            ],
+            "valueDeltaUsd": 1312493949,
+            "sharesDelta": 757138
+          },
+          {
+            "reportPeriod": "2025-03-31",
+            "filedAt": "2025-05-14",
+            "valueUsd": 5724202620,
+            "shares": 37016311,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000003/2025Q113F.xml"
+            ],
+            "valueDeltaUsd": -3857224289,
+            "sharesDelta": -13598727
+          },
+          {
+            "reportPeriod": "2025-06-30",
+            "filedAt": "2025-08-13",
+            "valueUsd": 6465008676,
+            "shares": 36685062,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000005/2025Q213F.xml"
+            ],
+            "valueDeltaUsd": 740806056,
+            "sharesDelta": -331249
+          },
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-12",
+            "valueUsd": 9121830545,
+            "shares": 37522955,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000011/2025Q313F.xml"
+            ],
+            "valueDeltaUsd": 2656821869,
+            "sharesDelta": 837893
+          },
+          {
+            "reportPeriod": "2025-12-31",
+            "filedAt": "2026-02-09",
+            "valueUsd": 11927188753,
+            "shares": 38106033,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052926000002/2025Q413F1.xml"
+            ],
+            "valueDeltaUsd": 2805358208,
+            "sharesDelta": 583078
+          },
+          {
+            "reportPeriod": "2026-06-30",
+            "filedAt": "2026-08-04",
+            "valueUsd": 14291169577,
+            "shares": 39989840,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/q2202613f.html"
+            ],
+            "valueDeltaUsd": 2363980824,
+            "sharesDelta": 1883807
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052926000002/2025Q413F1.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000011/2025Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000005/2025Q213F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000003/2025Q113F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000002/2024Q413F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000012/2024Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000009/2024Q213F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000007/2024Q113F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000006/2023Q413Famendment.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052923000010/2023Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/q2202613f.html"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:fisher-asset-management|149123101|SH|",
+        "managerId": "fisher-asset-management",
+        "cik": "0000850529",
+        "cusipNormalized": "149123101",
+        "issuerNames": [
+          "CATERPILLAR INC"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2023-09-30",
+        "latestReportPeriod": "2026-06-30",
+        "periodCount": 11,
+        "periods": [
+          {
+            "reportPeriod": "2023-09-30",
+            "filedAt": "2023-11-13",
+            "valueUsd": 2174699580,
+            "shares": 7965932,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052923000010/2023Q313F.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2023-12-31",
+            "filedAt": "2024-03-05",
+            "valueUsd": 2406470516,
+            "shares": 8139040,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000006/2023Q413Famendment.xml"
+            ],
+            "valueDeltaUsd": 231770936,
+            "sharesDelta": 173108
+          },
+          {
+            "reportPeriod": "2024-03-31",
+            "filedAt": "2024-05-09",
+            "valueUsd": 3056627805,
+            "shares": 8341641,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000007/2024Q113F.xml"
+            ],
+            "valueDeltaUsd": 650157289,
+            "sharesDelta": 202601
+          },
+          {
+            "reportPeriod": "2024-06-30",
+            "filedAt": "2024-08-14",
+            "valueUsd": 2913832915,
+            "shares": 8747620,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000009/2024Q213F.xml"
+            ],
+            "valueDeltaUsd": -142794890,
+            "sharesDelta": 405979
+          },
+          {
+            "reportPeriod": "2024-09-30",
+            "filedAt": "2024-11-12",
+            "valueUsd": 3501553803,
+            "shares": 8952632,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000012/2024Q313F.xml"
+            ],
+            "valueDeltaUsd": 587720888,
+            "sharesDelta": 205012
+          },
+          {
+            "reportPeriod": "2024-12-31",
+            "filedAt": "2025-02-05",
+            "valueUsd": 3294505128,
+            "shares": 9081775,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000002/2024Q413F.xml"
+            ],
+            "valueDeltaUsd": -207048675,
+            "sharesDelta": 129143
+          },
+          {
+            "reportPeriod": "2025-03-31",
+            "filedAt": "2025-05-14",
+            "valueUsd": 3037499370,
+            "shares": 9210125,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000003/2025Q113F.xml"
+            ],
+            "valueDeltaUsd": -257005758,
+            "sharesDelta": 128350
+          },
+          {
+            "reportPeriod": "2025-06-30",
+            "filedAt": "2025-08-13",
+            "valueUsd": 3656286468,
+            "shares": 9418321,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000005/2025Q213F.xml"
+            ],
+            "valueDeltaUsd": 618787098,
+            "sharesDelta": 208196
+          },
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-12",
+            "valueUsd": 4503913348,
+            "shares": 9439197,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000011/2025Q313F.xml"
+            ],
+            "valueDeltaUsd": 847626880,
+            "sharesDelta": 20876
+          },
+          {
+            "reportPeriod": "2025-12-31",
+            "filedAt": "2026-02-09",
+            "valueUsd": 5438408329,
+            "shares": 9493266,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052926000002/2025Q413F1.xml"
+            ],
+            "valueDeltaUsd": 934494981,
+            "sharesDelta": 54069
+          },
+          {
+            "reportPeriod": "2026-06-30",
+            "filedAt": "2026-08-04",
+            "valueUsd": 10587791364,
+            "shares": 9942521,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/q2202613f.html"
+            ],
+            "valueDeltaUsd": 5149383035,
+            "sharesDelta": 449255
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052926000002/2025Q413F1.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000011/2025Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000005/2025Q213F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000003/2025Q113F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000002/2024Q413F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000012/2024Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000009/2024Q213F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000007/2024Q113F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000006/2023Q413Famendment.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052923000010/2023Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/q2202613f.html"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:fisher-asset-management|594918104|SH|",
+        "managerId": "fisher-asset-management",
+        "cik": "0000850529",
+        "cusipNormalized": "594918104",
+        "issuerNames": [
+          "MICROSOFT CORP"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2023-09-30",
+        "latestReportPeriod": "2026-06-30",
+        "periodCount": 11,
+        "periods": [
+          {
+            "reportPeriod": "2023-09-30",
+            "filedAt": "2023-11-13",
+            "valueUsd": 7886893056,
+            "shares": 24978283,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052923000010/2023Q313F.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2023-12-31",
+            "filedAt": "2024-03-05",
+            "valueUsd": 9544531866,
+            "shares": 25381692,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000006/2023Q413Famendment.xml"
+            ],
+            "valueDeltaUsd": 1657638810,
+            "sharesDelta": 403409
+          },
+          {
+            "reportPeriod": "2024-03-31",
+            "filedAt": "2024-05-09",
+            "valueUsd": 10908153229,
+            "shares": 25927345,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000007/2024Q113F.xml"
+            ],
+            "valueDeltaUsd": 1363621363,
+            "sharesDelta": 545653
+          },
+          {
+            "reportPeriod": "2024-06-30",
+            "filedAt": "2024-08-14",
+            "valueUsd": 12187315624,
+            "shares": 27267737,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000009/2024Q213F.xml"
+            ],
+            "valueDeltaUsd": 1279162395,
+            "sharesDelta": 1340392
+          },
+          {
+            "reportPeriod": "2024-09-30",
+            "filedAt": "2024-11-12",
+            "valueUsd": 12007285266,
+            "shares": 27904450,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000012/2024Q313F.xml"
+            ],
+            "valueDeltaUsd": -180030358,
+            "sharesDelta": 636713
+          },
+          {
+            "reportPeriod": "2024-12-31",
+            "filedAt": "2025-02-05",
+            "valueUsd": 11898314040,
+            "shares": 28228502,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000002/2024Q413F.xml"
+            ],
+            "valueDeltaUsd": -108971226,
+            "sharesDelta": 324052
+          },
+          {
+            "reportPeriod": "2025-03-31",
+            "filedAt": "2025-05-14",
+            "valueUsd": 9458942083,
+            "shares": 25197639,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000003/2025Q113F.xml"
+            ],
+            "valueDeltaUsd": -2439371957,
+            "sharesDelta": -3030863
+          },
+          {
+            "reportPeriod": "2025-06-30",
+            "filedAt": "2025-08-13",
+            "valueUsd": 12085754713,
+            "shares": 24297369,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000005/2025Q213F.xml"
+            ],
+            "valueDeltaUsd": 2626812630,
+            "sharesDelta": -900270
+          },
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-12",
+            "valueUsd": 12867119752,
+            "shares": 24842396,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000011/2025Q313F.xml"
+            ],
+            "valueDeltaUsd": 781365039,
+            "sharesDelta": 545027
+          },
+          {
+            "reportPeriod": "2025-12-31",
+            "filedAt": "2026-02-09",
+            "valueUsd": 12235784763,
+            "shares": 25300410,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052926000002/2025Q413F1.xml"
+            ],
+            "valueDeltaUsd": -631334989,
+            "sharesDelta": 458014
+          },
+          {
+            "reportPeriod": "2026-06-30",
+            "filedAt": "2026-08-04",
+            "valueUsd": 9926707366,
+            "shares": 26611728,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/q2202613f.html"
+            ],
+            "valueDeltaUsd": -2309077397,
+            "sharesDelta": 1311318
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052926000002/2025Q413F1.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000011/2025Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000005/2025Q213F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000003/2025Q113F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000002/2024Q413F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000012/2024Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000009/2024Q213F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000007/2024Q113F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000006/2023Q413Famendment.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052923000010/2023Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/q2202613f.html"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:fisher-asset-management|N07059210|SH|",
+        "managerId": "fisher-asset-management",
+        "cik": "0000850529",
+        "cusipNormalized": "N07059210",
+        "issuerNames": [
+          "ASML HOLDING N V NYS",
+          "ASML HLDG NV NYS"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2023-09-30",
+        "latestReportPeriod": "2026-06-30",
+        "periodCount": 11,
+        "periods": [
+          {
+            "reportPeriod": "2023-09-30",
+            "filedAt": "2023-11-13",
+            "valueUsd": 2868047682,
+            "shares": 4872163,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052923000010/2023Q313F.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2023-12-31",
+            "filedAt": "2024-03-05",
+            "valueUsd": 3760348174,
+            "shares": 4967958,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000006/2023Q413Famendment.xml"
+            ],
+            "valueDeltaUsd": 892300492,
+            "sharesDelta": 95795
+          },
+          {
+            "reportPeriod": "2024-03-31",
+            "filedAt": "2024-05-09",
+            "valueUsd": 3007951821,
+            "shares": 3099478,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000007/2024Q113F.xml"
+            ],
+            "valueDeltaUsd": -752396353,
+            "sharesDelta": -1868480
+          },
+          {
+            "reportPeriod": "2024-06-30",
+            "filedAt": "2024-08-14",
+            "valueUsd": 3226042315,
+            "shares": 3154343,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000009/2024Q213F.xml"
+            ],
+            "valueDeltaUsd": 218090494,
+            "sharesDelta": 54865
+          },
+          {
+            "reportPeriod": "2024-09-30",
+            "filedAt": "2024-11-12",
+            "valueUsd": 2654920557,
+            "shares": 3186222,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000012/2024Q313F.xml"
+            ],
+            "valueDeltaUsd": -571121758,
+            "sharesDelta": 31879
+          },
+          {
+            "reportPeriod": "2024-12-31",
+            "filedAt": "2025-02-05",
+            "valueUsd": 2191718313,
+            "shares": 3162286,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000002/2024Q413F.xml"
+            ],
+            "valueDeltaUsd": -463202244,
+            "sharesDelta": -23936
+          },
+          {
+            "reportPeriod": "2025-03-31",
+            "filedAt": "2025-05-14",
+            "valueUsd": 2646094660,
+            "shares": 3993320,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000003/2025Q113F.xml"
+            ],
+            "valueDeltaUsd": 454376347,
+            "sharesDelta": 831034
+          },
+          {
+            "reportPeriod": "2025-06-30",
+            "filedAt": "2025-08-13",
+            "valueUsd": 3401303805,
+            "shares": 4244254,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000005/2025Q213F.xml"
+            ],
+            "valueDeltaUsd": 755209145,
+            "sharesDelta": 250934
+          },
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-12",
+            "valueUsd": 4213705207,
+            "shares": 4352596,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000011/2025Q313F.xml"
+            ],
+            "valueDeltaUsd": 812401402,
+            "sharesDelta": 108342
+          },
+          {
+            "reportPeriod": "2025-12-31",
+            "filedAt": "2026-02-09",
+            "valueUsd": 4798268297,
+            "shares": 4484949,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052926000002/2025Q413F1.xml"
+            ],
+            "valueDeltaUsd": 584563090,
+            "sharesDelta": 132353
+          },
+          {
+            "reportPeriod": "2026-06-30",
+            "filedAt": "2026-08-04",
+            "valueUsd": 9425199953,
+            "shares": 4737614,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/q2202613f.html"
+            ],
+            "valueDeltaUsd": 4626931656,
+            "sharesDelta": 252665
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052926000002/2025Q413F1.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000011/2025Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000005/2025Q213F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000003/2025Q113F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000002/2024Q413F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000012/2024Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000009/2024Q213F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000007/2024Q113F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000006/2023Q413Famendment.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052923000010/2023Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/q2202613f.html"
+        ],
+        "reviewFlags": [
+          "ISSUER_NAME_VARIATION"
+        ],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:fisher-asset-management|874039100|SH|",
+        "managerId": "fisher-asset-management",
+        "cik": "0000850529",
+        "cusipNormalized": "874039100",
+        "issuerNames": [
+          "TAIWAN SEMICONDUCTOR MFG L ADR",
+          "TAIWAN SEMICONDUCTOR MANUF ADR"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2023-09-30",
+        "latestReportPeriod": "2026-06-30",
+        "periodCount": 11,
+        "periods": [
+          {
+            "reportPeriod": "2023-09-30",
+            "filedAt": "2023-11-13",
+            "valueUsd": 2662389498,
+            "shares": 30637393,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052923000010/2023Q313F.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2023-12-31",
+            "filedAt": "2024-03-05",
+            "valueUsd": 3230278515,
+            "shares": 31060369,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000006/2023Q413Famendment.xml"
+            ],
+            "valueDeltaUsd": 567889017,
+            "sharesDelta": 422976
+          },
+          {
+            "reportPeriod": "2024-03-31",
+            "filedAt": "2024-05-09",
+            "valueUsd": 3946548478,
+            "shares": 29008073,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000007/2024Q113F.xml"
+            ],
+            "valueDeltaUsd": 716269963,
+            "sharesDelta": -2052296
+          },
+          {
+            "reportPeriod": "2024-06-30",
+            "filedAt": "2024-08-14",
+            "valueUsd": 4937464673,
+            "shares": 28407252,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000009/2024Q213F.xml"
+            ],
+            "valueDeltaUsd": 990916195,
+            "sharesDelta": -600821
+          },
+          {
+            "reportPeriod": "2024-09-30",
+            "filedAt": "2024-11-12",
+            "valueUsd": 4995983575,
+            "shares": 28767106,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000012/2024Q313F.xml"
+            ],
+            "valueDeltaUsd": 58518902,
+            "sharesDelta": 359854
+          },
+          {
+            "reportPeriod": "2024-12-31",
+            "filedAt": "2025-02-05",
+            "valueUsd": 5599226818,
+            "shares": 28351950,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000002/2024Q413F.xml"
+            ],
+            "valueDeltaUsd": 603243243,
+            "sharesDelta": -415156
+          },
+          {
+            "reportPeriod": "2025-03-31",
+            "filedAt": "2025-05-14",
+            "valueUsd": 2988886974,
+            "shares": 18005343,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000003/2025Q113F.xml"
+            ],
+            "valueDeltaUsd": -2610339844,
+            "sharesDelta": -10346607
+          },
+          {
+            "reportPeriod": "2025-06-30",
+            "filedAt": "2025-08-13",
+            "valueUsd": 4000936296,
+            "shares": 17664956,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000005/2025Q213F.xml"
+            ],
+            "valueDeltaUsd": 1012049322,
+            "sharesDelta": -340387
+          },
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-12",
+            "valueUsd": 4980614344,
+            "shares": 17833127,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000011/2025Q313F.xml"
+            ],
+            "valueDeltaUsd": 979678048,
+            "sharesDelta": 168171
+          },
+          {
+            "reportPeriod": "2025-12-31",
+            "filedAt": "2026-02-09",
+            "valueUsd": 5514661759,
+            "shares": 18146900,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052926000002/2025Q413F1.xml"
+            ],
+            "valueDeltaUsd": 534047415,
+            "sharesDelta": 313773
+          },
+          {
+            "reportPeriod": "2026-06-30",
+            "filedAt": "2026-08-04",
+            "valueUsd": 9009930721,
+            "shares": 18866198,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/q2202613f.html"
+            ],
+            "valueDeltaUsd": 3495268962,
+            "sharesDelta": 719298
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052926000002/2025Q413F1.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000011/2025Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000005/2025Q213F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000003/2025Q113F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000002/2024Q413F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000012/2024Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000009/2024Q213F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000007/2024Q113F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000006/2023Q413Famendment.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052923000010/2023Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/q2202613f.html"
+        ],
+        "reviewFlags": [
+          "ISSUER_NAME_VARIATION"
+        ],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:fisher-asset-management|023135106|SH|",
+        "managerId": "fisher-asset-management",
+        "cik": "0000850529",
+        "cusipNormalized": "023135106",
+        "issuerNames": [
+          "AMAZON COM INC COM"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2023-09-30",
+        "latestReportPeriod": "2026-06-30",
+        "periodCount": 11,
+        "periods": [
+          {
+            "reportPeriod": "2023-09-30",
+            "filedAt": "2023-11-13",
+            "valueUsd": 5256821076,
+            "shares": 41353218,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052923000010/2023Q313F.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2023-12-31",
+            "filedAt": "2024-03-05",
+            "valueUsd": 6348254509,
+            "shares": 41781324,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000006/2023Q413Famendment.xml"
+            ],
+            "valueDeltaUsd": 1091433433,
+            "sharesDelta": 428106
+          },
+          {
+            "reportPeriod": "2024-03-31",
+            "filedAt": "2024-05-09",
+            "valueUsd": 7678116830,
+            "shares": 42566342,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000007/2024Q113F.xml"
+            ],
+            "valueDeltaUsd": 1329862321,
+            "sharesDelta": 785018
+          },
+          {
+            "reportPeriod": "2024-06-30",
+            "filedAt": "2024-08-14",
+            "valueUsd": 8460561806,
+            "shares": 43780397,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000009/2024Q213F.xml"
+            ],
+            "valueDeltaUsd": 782444976,
+            "sharesDelta": 1214055
+          },
+          {
+            "reportPeriod": "2024-09-30",
+            "filedAt": "2024-11-12",
+            "valueUsd": 8320299919,
+            "shares": 44653571,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000012/2024Q313F.xml"
+            ],
+            "valueDeltaUsd": -140261887,
+            "sharesDelta": 873174
+          },
+          {
+            "reportPeriod": "2024-12-31",
+            "filedAt": "2025-02-05",
+            "valueUsd": 9907594875,
+            "shares": 45159737,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000002/2024Q413F.xml"
+            ],
+            "valueDeltaUsd": 1587294956,
+            "sharesDelta": 506166
+          },
+          {
+            "reportPeriod": "2025-03-31",
+            "filedAt": "2025-05-14",
+            "valueUsd": 6198462254,
+            "shares": 32578903,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000003/2025Q113F.xml"
+            ],
+            "valueDeltaUsd": -3709132621,
+            "sharesDelta": -12580834
+          },
+          {
+            "reportPeriod": "2025-06-30",
+            "filedAt": "2025-08-13",
+            "valueUsd": 7126230226,
+            "shares": 32482019,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000005/2025Q213F.xml"
+            ],
+            "valueDeltaUsd": 927767972,
+            "sharesDelta": -96884
+          },
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-12",
+            "valueUsd": 7268576882,
+            "shares": 33103688,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000011/2025Q313F.xml"
+            ],
+            "valueDeltaUsd": 142346656,
+            "sharesDelta": 621669
+          },
+          {
+            "reportPeriod": "2025-12-31",
+            "filedAt": "2026-02-09",
+            "valueUsd": 7754077761,
+            "shares": 33593612,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052926000002/2025Q413F1.xml"
+            ],
+            "valueDeltaUsd": 485500879,
+            "sharesDelta": 489924
+          },
+          {
+            "reportPeriod": "2026-06-30",
+            "filedAt": "2026-08-04",
+            "valueUsd": 8336759712,
+            "shares": 34978432,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/q2202613f.html"
+            ],
+            "valueDeltaUsd": 582681951,
+            "sharesDelta": 1384820
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052926000002/2025Q413F1.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000011/2025Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000005/2025Q213F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000003/2025Q113F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000002/2024Q413F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000012/2024Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000009/2024Q213F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000007/2024Q113F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000006/2023Q413Famendment.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052923000010/2023Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/q2202613f.html"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:fisher-asset-management|92206C870|SH|",
+        "managerId": "fisher-asset-management",
+        "cik": "0000850529",
+        "cusipNormalized": "92206C870",
+        "issuerNames": [
+          "VANGUARD FDS INT TERM CORP",
+          "VANGUARD FDS INTTERM CORP",
+          "VANGUARD FDS INT-TERM CORP",
+          "VANGUARD FDS INT  TERM CORP"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2023-09-30",
+        "latestReportPeriod": "2026-06-30",
+        "periodCount": 11,
+        "periods": [
+          {
+            "reportPeriod": "2023-09-30",
+            "filedAt": "2023-11-13",
+            "valueUsd": 5216749776,
+            "shares": 68659512,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052923000010/2023Q313F.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2023-12-31",
+            "filedAt": "2024-03-05",
+            "valueUsd": 5938867115,
+            "shares": 73066770,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000006/2023Q413Famendment.xml"
+            ],
+            "valueDeltaUsd": 722117339,
+            "sharesDelta": 4407258
+          },
+          {
+            "reportPeriod": "2024-03-31",
+            "filedAt": "2024-05-09",
+            "valueUsd": 6669503616,
+            "shares": 82840685,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000007/2024Q113F.xml"
+            ],
+            "valueDeltaUsd": 730636501,
+            "sharesDelta": 9773915
+          },
+          {
+            "reportPeriod": "2024-06-30",
+            "filedAt": "2024-08-14",
+            "valueUsd": 7180601113,
+            "shares": 89836120,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000009/2024Q213F.xml"
+            ],
+            "valueDeltaUsd": 511097497,
+            "sharesDelta": 6995435
+          },
+          {
+            "reportPeriod": "2024-09-30",
+            "filedAt": "2024-11-12",
+            "valueUsd": 7411423776,
+            "shares": 88494611,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052924000012/2024Q313F.xml"
+            ],
+            "valueDeltaUsd": 230822663,
+            "sharesDelta": -1341509
+          },
+          {
+            "reportPeriod": "2024-12-31",
+            "filedAt": "2025-02-05",
+            "valueUsd": 7447767793,
+            "shares": 92783951,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000002/2024Q413F.xml"
+            ],
+            "valueDeltaUsd": 36344017,
+            "sharesDelta": 4289340
+          },
+          {
+            "reportPeriod": "2025-03-31",
+            "filedAt": "2025-05-14",
+            "valueUsd": 7963718823,
+            "shares": 97403605,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000003/2025Q113F.xml"
+            ],
+            "valueDeltaUsd": 515951030,
+            "sharesDelta": 4619654
+          },
+          {
+            "reportPeriod": "2025-06-30",
+            "filedAt": "2025-08-13",
+            "valueUsd": 8478890501,
+            "shares": 102253864,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000005/2025Q213F.xml"
+            ],
+            "valueDeltaUsd": 515171678,
+            "sharesDelta": 4850259
+          },
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-12",
+            "valueUsd": 6782407892,
+            "shares": 80637353,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052925000011/2025Q313F.xml"
+            ],
+            "valueDeltaUsd": -1696482609,
+            "sharesDelta": -21616511
+          },
+          {
+            "reportPeriod": "2025-12-31",
+            "filedAt": "2026-02-09",
+            "valueUsd": 7033021873,
+            "shares": 83976379,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052926000002/2025Q413F1.xml"
+            ],
+            "valueDeltaUsd": 250613981,
+            "sharesDelta": 3339026
+          },
+          {
+            "reportPeriod": "2026-06-30",
+            "filedAt": "2026-08-04",
+            "valueUsd": 7909861199,
+            "shares": 95703099,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/q2202613f.html"
+            ],
+            "valueDeltaUsd": 876839326,
+            "sharesDelta": 11726720
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052926000002/2025Q413F1.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000011/2025Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000005/2025Q213F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000003/2025Q113F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052925000002/2024Q413F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000012/2024Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000009/2024Q213F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000007/2024Q113F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052924000006/2023Q413Famendment.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052923000010/2023Q313F.xml",
+          "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/q2202613f.html"
+        ],
+        "reviewFlags": [
+          "ISSUER_NAME_VARIATION"
+        ],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      }
+    ]
+  }
+}

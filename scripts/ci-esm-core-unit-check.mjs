@@ -209,6 +209,8 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
   if (emptySentiment.fearGreed !== null || emptySentiment.fearGreedSourceKind !== 'unavailable') fail('facade: readSentiment on an empty root must report fail-closed unavailable, not throw or guess a value');
   const withData = createLegacyFacade({ _liveData: { '^VIX': { price: 17.5 } } }, new EventTarget());
   if (withData.readSentiment().vix !== 17.5) fail('facade: readSentiment did not read a present _liveData quote');
+  const withAaii = createLegacyFacade({ DATA_SNAPSHOT: { aaiiBear: 39.9, aaiiBull: 35.5, _fieldTs: { aaii: '2026-08-19' } } }, new EventTarget()).readSentiment();
+  if (withAaii.aaiiBear !== 39.9 || withAaii.aaiiBull !== 35.5 || withAaii.aaiiObservedAt !== '2026-08-19') fail('facade: AAII values and observation date must reach the native sentiment evidence path together');
   let navigateCalls = 0;
   const rootWithShowPage = { showPage: (id) => { navigateCalls += 1; return id; } };
   const navFacade = createLegacyFacade(rootWithShowPage, new EventTarget());

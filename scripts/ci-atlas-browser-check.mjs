@@ -34,16 +34,9 @@ try {
   if (await disclaimerButton.count()) await disclaimerButton.click();
   await page.evaluate(() => window.AIO_ARCH.navigate('atlas'));
   await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioArchitectureRoute === 'atlas');
-  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasResearch === 'connected');
   await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasFoundations === 'connected');
   await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasFoundationLessons === 'connected');
-  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasDomainGuides === 'connected');
-  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasDeepTaxonomy === 'connected');
-  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasRegistry === 'connected');
-  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasTelegram === 'connected');
-  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasRelationshipGuides === 'connected');
   await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasCurrentObservations === 'connected');
-  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasCurrentEvidenceLedger === 'connected');
   const overview = await page.evaluate(() => ({
     active: document.getElementById('page-atlas')?.classList.contains('active'),
     pageTitle: document.getElementById('atlas-page-title')?.textContent?.trim(),
@@ -63,29 +56,73 @@ try {
      questionPrompts: document.querySelectorAll('#page-atlas .atlas-module-question, #page-atlas .atlas-domain-verification-question, #page-atlas .atlas-domain-packet-questions').length,
      overflow: document.documentElement.scrollWidth > window.innerWidth + 2
    }));
-  if (!overview.active || overview.pageTitle !== 'AI 시대 지식 지도' || overview.pageKicker !== 'AI 시대 지식 백과' || overview.searchLabel !== 'AI 시대 지식 지도 검색' || overview.trackCards !== 7 || overview.modules !== 1 || overview.totalModules !== 48 || overview.layerButtons !== 7 || overview.conceptButtons !== 7 || overview.currentObservationCards !== 0 || overview.currentObservationValues.includes('3.625%') || overview.explorationPanel !== 1 || overview.questionPrompts !== 0 || !overview.pathClosed || !overview.sourceDetailsClosed || overview.rawInternalVisible || overview.overflow) throw new Error(`learner-first atlas contract failed: ${JSON.stringify(overview)}`);
+  if (!overview.active || overview.pageTitle !== 'AI 시대 지식 지도' || overview.pageKicker !== 'AI 산업과 자본을 읽는 지도' || overview.searchLabel !== 'AI 시대 지식 지도 검색' || overview.trackCards !== 7 || overview.modules !== 1 || overview.totalModules !== 48 || overview.layerButtons !== 7 || overview.conceptButtons !== 7 || overview.currentObservationCards !== 0 || overview.currentObservationValues.includes('3.625%') || overview.explorationPanel !== 1 || overview.questionPrompts !== 0 || !overview.pathClosed || !overview.sourceDetailsClosed || overview.rawInternalVisible || overview.overflow) throw new Error(`learner-first atlas contract failed: ${JSON.stringify(overview)}`);
+
+  await page.locator('#page-atlas .knowledge-learning-bookmark').click();
+  await page.locator('#page-atlas .knowledge-learning-note').fill('전력과 계산 병목을 구분');
+  await page.locator('#page-atlas .knowledge-learning-note-save').click();
+  const learningRecord = await page.evaluate(() => JSON.parse(localStorage.getItem('aio-knowledge-learning-v1') || 'null'));
+  if (!learningRecord?.bookmarks?.includes('atlas-foundations:energy-and-power') || learningRecord?.notes?.['atlas-foundations:energy-and-power']?.value !== '전력과 계산 병목을 구분') throw new Error(`atlas learning controls failed: ${JSON.stringify(learningRecord)}`);
+
+  const foundationSearch = page.locator('#page-atlas .atlas-search-input');
+  await foundationSearch.fill('행렬곱의 크기');
+  await page.waitForFunction(() => document.activeElement?.classList.contains('atlas-search-input') && document.querySelector('.atlas-search-input')?.value === '행렬곱의 크기' && document.querySelectorAll('#page-atlas .atlas-learning-concept').length > 0);
+  await foundationSearch.fill('');
 
   await page.locator('#page-atlas [data-atlas-action="tab"][data-atlas-value="foundations"]').click();
   await page.locator('#page-atlas [data-atlas-action="layer"][data-atlas-value="F0"]').click();
-  await page.waitForFunction(() => document.querySelectorAll('#page-atlas .atlas-learning-concept').length === 6 && document.querySelector('#page-atlas .atlas-module-lesson')?.dataset.atlasFoundationId === 'problem-and-ability' && document.querySelectorAll('#page-atlas .atlas-deep-lesson').length === 0 && document.querySelector('#page-atlas .atlas-module-lesson')?.textContent.includes('출발점 프레임'));
+  await page.waitForFunction(() => document.querySelectorAll('#page-atlas .atlas-learning-concept').length === 6 && document.querySelector('#page-atlas .atlas-module-lesson')?.dataset.atlasFoundationId === 'problem-and-ability' && document.querySelector('#page-atlas .knowledge-learning-controls-label')?.textContent === '문제와 능력' && document.querySelectorAll('#page-atlas .atlas-deep-lesson').length === 0 && document.querySelector('#page-atlas .atlas-module-lesson')?.textContent.includes('출발점 프레임') && new URL(location.href).searchParams.get('chapter') === 'F0' && new URL(location.href).searchParams.get('lesson') === 'problem-and-ability');
+  await page.locator('#page-atlas .knowledge-learning-bookmark').click();
+  const f0LearningRecord = await page.evaluate(() => JSON.parse(localStorage.getItem('aio-knowledge-learning-v1') || 'null'));
+  if (!f0LearningRecord?.bookmarks?.includes('atlas-foundations:problem-and-ability') || f0LearningRecord?.bookmarks?.includes('atlas-foundations:')) throw new Error(`F0 learning key failed: ${JSON.stringify(f0LearningRecord)}`);
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.waitForFunction(() => document.getElementById('page-atlas')?.classList.contains('active') && document.getElementById('page-atlas')?.dataset.aioAtlasFoundations === 'connected' && document.querySelector('#page-atlas .atlas-module-lesson')?.dataset.atlasFoundationId === 'problem-and-ability' && document.querySelector('#page-atlas .knowledge-learning-controls-label')?.textContent === '문제와 능력' && document.querySelector('#page-atlas .knowledge-learning-bookmark')?.getAttribute('aria-pressed') === 'true');
   await page.locator('#page-atlas [data-atlas-action="layer"][data-atlas-value="F3"]').click();
   await page.waitForFunction(() => document.querySelectorAll('#page-atlas .atlas-learning-concept').length === 10 && document.querySelector('#page-atlas [data-atlas-learning-detail-title]')?.textContent === '토큰화' && document.querySelectorAll('#page-atlas .atlas-module-lesson').length === 1 && document.querySelectorAll('#page-atlas .atlas-module-question').length === 0 && document.querySelectorAll('#page-atlas .atlas-module-visualization').length === 1);
   await page.locator('#page-atlas [data-atlas-action="module"][data-atlas-value="self-attention"]').click();
-  await page.waitForFunction(() => document.querySelector('#page-atlas [data-atlas-learning-detail-title]')?.textContent === 'Self-Attention' && document.querySelector('#page-atlas .atlas-module-lesson')?.dataset.atlasFoundationId === 'self-attention' && document.querySelector('#page-atlas a[data-atlas-foundation-source="FND-GOOGLE-TRANSFORMER"]'));
+  await page.waitForFunction(() => document.querySelector('#page-atlas [data-atlas-action="load-article"][data-atlas-value="self-attention"]') && document.querySelectorAll('#page-atlas .atlas-deep-lesson').length === 0);
+  const articlePattern = '**/public-data/knowledge/articles/atlas-foundations/*.json';
+  await page.route(articlePattern, (route) => route.abort());
+  await page.locator('#page-atlas [data-atlas-action="load-article"][data-atlas-value="self-attention"]').click();
+  await page.waitForFunction(() => document.querySelector('#page-atlas [role="alert"]')?.textContent.includes('다시 시도'));
+  await page.unroute(articlePattern);
+  await page.locator('#page-atlas [data-atlas-action="load-article"][data-atlas-value="self-attention"]').click();
+  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasKnowledgeArticles === 'connected');
+  await page.waitForFunction(() => document.querySelector('#page-atlas [data-atlas-learning-detail-title]')?.textContent === 'Self-Attention' && document.querySelector('#page-atlas .atlas-module-lesson')?.dataset.atlasFoundationId === 'self-attention' && document.querySelector('#page-atlas a[data-atlas-foundation-source="FND-GOOGLE-TRANSFORMER"]') && document.querySelector('#page-atlas .knowledge-professional-bridge-button[data-knowledge-route="themes"][data-knowledge-metric][data-knowledge-timeframe]'));
+  const atlasArticleText = await page.locator('#page-atlas .atlas-deep-lesson').innerText();
+  if (atlasArticleText.includes('{"term":') || !atlasArticleText.includes('사례·근거 전개') || !atlasArticleText.includes(' — ')) throw new Error('atlas article must render structured glossary values as readable Korean UI text');
+  await page.locator('#page-atlas .knowledge-professional-bridge-button').click();
+  await page.waitForFunction(() => document.getElementById('page-themes')?.classList.contains('active') && window.AIO_KNOWLEDGE_ROUTE_CONTEXT?.routeId === 'themes' && window.AIO_KNOWLEDGE_ROUTE_CONTEXT?.knowledgeNode === 'atlas:compute-gpu' && window.AIO_KNOWLEDGE_ROUTE_CONTEXT?.metric && window.AIO_KNOWLEDGE_ROUTE_CONTEXT?.timeframe && window.AIO_KNOWLEDGE_ROUTE_CONTEXT?.returnContext?.lesson === 'self-attention');
+  const bridgeContext = await page.evaluate(() => ({ href: location.href, context: window.AIO_KNOWLEDGE_ROUTE_CONTEXT }));
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.waitForFunction(() => document.getElementById('page-themes')?.classList.contains('active') && window.AIO_KNOWLEDGE_ROUTE_CONTEXT?.routeId === 'themes' && window.AIO_KNOWLEDGE_ROUTE_CONTEXT?.returnContext?.lesson === 'self-attention');
+  await page.goBack();
+  await page.waitForFunction(() => document.getElementById('page-atlas')?.classList.contains('active') && document.getElementById('page-atlas')?.dataset.aioAtlasFoundations === 'connected');
+  await page.goForward();
+  await page.waitForFunction(() => document.getElementById('page-themes')?.classList.contains('active') && window.AIO_KNOWLEDGE_ROUTE_CONTEXT?.returnContext?.lesson === 'self-attention');
+  await page.goBack();
+  await page.waitForFunction(() => document.getElementById('page-atlas')?.classList.contains('active') && document.getElementById('page-atlas')?.dataset.aioAtlasFoundations === 'connected');
   await page.locator('#page-atlas [data-atlas-action="tab"][data-atlas-value="taxonomy"]').click();
+  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasResearch === 'connected');
+  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasDomainGuides === 'connected');
+  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasDeepTaxonomy === 'connected');
+  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasRegistry === 'connected');
   await page.waitForFunction(() => document.querySelectorAll('#page-atlas .atlas-level-card').length === 7);
   await page.waitForFunction(() => Number(document.querySelector('#page-atlas [data-atlas-taxonomy-domain-total]')?.dataset.atlasTaxonomyDomainTotal) === 19 && Number(document.querySelector('#page-atlas [data-atlas-taxonomy-node-total]')?.dataset.atlasTaxonomyNodeTotal) === 95 && document.querySelectorAll('#page-atlas [data-atlas-action="domain"]').length === 19 && document.querySelectorAll('#page-atlas .atlas-domain-guide').length === 1 && document.querySelectorAll('#page-atlas [data-atlas-action="domain-node"]').length === 5 && document.querySelectorAll('#page-atlas .atlas-node-guide').length === 1);
   await page.locator('#page-atlas [data-atlas-action="domain"][data-atlas-value="domain-compute-silicon"]').click();
   await page.locator('#page-atlas [data-atlas-action="domain-node"][data-atlas-value="compute-gpu"]').click();
-  await page.waitForFunction(() => document.querySelector('#page-atlas a[data-atlas-domain-guide-source="domain-compute-silicon"]')?.href === 'https://science.osti.gov/ascr' && document.querySelectorAll('#page-atlas .atlas-player-product-map').length === 1 && document.querySelectorAll('#page-atlas [data-atlas-player-id]').length > 0 && document.querySelectorAll('#page-atlas [data-atlas-product-id]').length > 0 && document.querySelectorAll('#page-atlas .atlas-coverage-card').length <= 1 && document.querySelector('#page-atlas [data-atlas-currentness-boundary]')?.dataset.atlasCurrentnessBoundary === 'STALE_REFERENCE_REVIEW_REQUIRED' && document.querySelector('#page-atlas [data-atlas-currentness-boundary]')?.textContent.includes('40행') && document.querySelector('#page-atlas [data-atlas-currentness-boundary]')?.textContent.includes('claim 0개'));
+  await page.waitForFunction(() => document.querySelector('#page-atlas a[data-atlas-domain-guide-source="domain-compute-silicon"]')?.href === 'https://science.osti.gov/ascr' && document.querySelectorAll('#page-atlas .atlas-player-product-map').length === 1 && document.querySelectorAll('#page-atlas [data-atlas-player-id]').length > 0 && document.querySelectorAll('#page-atlas [data-atlas-product-id]').length > 0 && document.querySelectorAll('#page-atlas .atlas-coverage-card').length <= 1 && document.querySelector('#page-atlas [data-atlas-currentness-boundary]')?.dataset.atlasCurrentnessBoundary === 'STALE_REFERENCE_REVIEW_REQUIRED' && document.querySelector('#page-atlas [data-atlas-currentness-boundary]')?.textContent.includes('40행') && document.querySelector('#page-atlas [data-atlas-currentness-boundary]')?.textContent.includes('주장 0개'));
   const taxonomyDisclosure = await page.evaluate(() => ({
     domainGuides: document.querySelectorAll('#page-atlas .atlas-domain-guide').length,
     visibleNodes: document.querySelectorAll('#page-atlas [data-atlas-action="domain-node"]').length,
     nodeGuides: document.querySelectorAll('#page-atlas .atlas-node-guide').length,
+    structuralClaims: document.querySelectorAll('#page-atlas .atlas-domain-claim').length,
+    claimBoundaryVisible: [...document.querySelectorAll('#page-atlas .atlas-domain-claim')].every((node) => node.textContent.includes('구조 참고') && node.textContent.includes('현재성 비적용') && node.textContent.includes('부분 검토')),
+    rawInternalVisible: /(?:source seed|\b(?:PP|PS|AT-[A-Z]{2})-\d+\b)/i.test(document.querySelector('#page-atlas .atlas-taxonomy-research')?.innerText || ''),
     evidenceClosed: [...document.querySelectorAll('#page-atlas .atlas-domain-evidence')].every((node) => !node.open),
     overflow: document.documentElement.scrollWidth > window.innerWidth + 2
   }));
-  if (taxonomyDisclosure.domainGuides !== 1 || taxonomyDisclosure.visibleNodes !== 5 || taxonomyDisclosure.nodeGuides !== 1 || !taxonomyDisclosure.evidenceClosed || taxonomyDisclosure.overflow) throw new Error(`taxonomy progressive-disclosure contract failed: ${JSON.stringify(taxonomyDisclosure)}`);
+  if (taxonomyDisclosure.domainGuides !== 1 || taxonomyDisclosure.visibleNodes !== 5 || taxonomyDisclosure.nodeGuides !== 1 || taxonomyDisclosure.structuralClaims !== 3 || !taxonomyDisclosure.claimBoundaryVisible || taxonomyDisclosure.rawInternalVisible || !taxonomyDisclosure.evidenceClosed || taxonomyDisclosure.overflow) throw new Error(`taxonomy progressive-disclosure contract failed: ${JSON.stringify(taxonomyDisclosure)}`);
 
   await page.locator('#page-atlas [data-atlas-action="domain"][data-atlas-value="domain-foundry-equipment"]').click();
   await page.locator('#page-atlas [data-atlas-action="domain-node"][data-atlas-value="foundry-process-node"]').click();
@@ -94,6 +131,7 @@ try {
   await page.waitForFunction(() => document.querySelector('#page-atlas .atlas-deep-topic-title')?.textContent === 'DUV·EUV·High-NA와 반도체 전공정' && document.querySelectorAll('#page-atlas .atlas-deep-branch').length === 6);
 
   await page.locator('#page-atlas [data-atlas-action="tab"][data-atlas-value="relationships"]').click();
+  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasRelationshipGuides === 'connected');
   await page.waitForFunction(() => document.querySelectorAll('#page-atlas .atlas-relationship-guide').length === 5 && document.querySelectorAll('#page-atlas .atlas-relationship-node').length === 6 && document.querySelectorAll('#page-atlas .atlas-relationship-edge').length === 5 && document.querySelector('#page-atlas .atlas-relationship-detail-title')?.textContent === '실질 중립금리 r*' && !document.querySelector('#page-atlas .atlas-relationship-sources')?.open);
   await page.locator('#page-atlas [data-atlas-action="relationship-guide"][data-atlas-value="nand-inference-fcf"]').click();
   await page.waitForFunction(() => document.querySelectorAll('#page-atlas .atlas-relationship-node').length === 9 && document.querySelectorAll('#page-atlas .atlas-relationship-edge').length === 8 && document.querySelector('#page-atlas .atlas-relationship-detail-title')?.textContent === '문맥·동시성 증가');
@@ -103,6 +141,11 @@ try {
   await targetNode.focus();
   await page.keyboard.press('Enter');
   await page.waitForFunction(() => document.querySelector('#page-atlas .atlas-relationship-detail-title')?.textContent === 'FY28–30 회사 목표' && document.querySelector('#page-atlas [data-atlas-action="relationship-node"][data-atlas-value="financial-targets"]')?.getAttribute('aria-pressed') === 'true');
+  const financialTargetObservation = await page.evaluate(() => ({
+    provenance: [...document.querySelectorAll('#page-atlas .knowledge-current-observation-provenance')].map((node) => node.textContent),
+    units: [...document.querySelectorAll('#page-atlas .knowledge-current-observation-meta')].map((node) => node.textContent)
+  }));
+  if (!financialTargetObservation.provenance.some((text) => text.includes('회사 IR 미래 목표')) || financialTargetObservation.units.some((text) => /approximately-percent|percent-of-revenue/.test(text))) throw new Error(`financial target semantic labels failed: ${JSON.stringify(financialTargetObservation)}`);
   await page.locator('#page-atlas .atlas-relationship-sources summary').click();
   await page.waitForFunction(() => document.querySelector('#page-atlas .atlas-relationship-sources')?.open && document.querySelectorAll('#page-atlas .atlas-relationship-sources a').length === 6);
   const relationshipGuideSpecs = [
@@ -148,15 +191,31 @@ try {
   await relationshipSearch.fill('');
 
   await page.locator('#page-atlas [data-atlas-action="tab"][data-atlas-value="overview"]').click();
-  await page.waitForFunction(() => document.querySelectorAll('#page-atlas .atlas-telegram-channel-card').length === 4 && document.querySelector('#page-atlas .atlas-telegram-status') && document.querySelector('#page-atlas .atlas-current-evidence-ledger')?.textContent.includes('40개 dated evidence'));
+  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasTelegram === 'connected');
+  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasCurrentEvidenceLedger === 'connected');
+  await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasKnowledgeStatus === 'connected');
+  await page.waitForFunction(() => document.querySelectorAll('#page-atlas .atlas-telegram-channel-card').length === 4 && document.querySelector('#page-atlas .atlas-telegram-status') && document.querySelector('#page-atlas .atlas-current-evidence-ledger')?.textContent.includes('기준일이 있는 근거 40개') && document.querySelector('#page-atlas .atlas-publication-readiness')?.dataset.atlasHumanReviewComplete === 'false' && document.querySelector('#page-atlas .atlas-publication-readiness')?.dataset.atlasPublicationReady === 'false' && document.querySelector('#page-atlas .atlas-publication-readiness')?.textContent.includes('사람 검수 미완료') && document.querySelector('#page-atlas .atlas-publication-readiness')?.textContent.includes('출판 준비 미완료'));
+  const publicationReadiness = await page.locator('#page-atlas .atlas-publication-readiness').innerText();
   const search = page.locator('#page-atlas .atlas-search-input');
   await search.fill('CPO');
   await page.waitForFunction(() => document.querySelectorAll('#page-atlas .atlas-packet-card').length === 1 && document.querySelector('#page-atlas [data-atlas-packet-id]')?.dataset.atlasPacketId === 'ATLAS-04');
   await search.fill('');
+  const failurePage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  await failurePage.route('**/public-data/atlas/source-packets.json', (route) => route.abort());
+  await failurePage.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await failurePage.waitForFunction(() => typeof window.AIO_ARCH === 'object' && typeof window.AIO_ARCH.navigate === 'function', { timeout: 30000 });
+  const failureDisclaimer = failurePage.locator('#aio-first-visit-disclaimer button');
+  if (await failureDisclaimer.count()) await failureDisclaimer.click();
+  await failurePage.evaluate(() => window.AIO_ARCH.navigate('atlas'));
+  await failurePage.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioArchitectureRoute === 'atlas');
+  await failurePage.locator('#page-atlas [data-atlas-action="tab"][data-atlas-value="taxonomy"]').click();
+  await failurePage.waitForFunction(() => document.querySelector('#page-atlas .atlas-taxonomy-structural-boundary[role="alert"]')?.textContent.includes('검증된 현재 산업 상태') && document.querySelector('#page-atlas [data-atlas-result-count]')?.textContent.includes('연구 수량 미확인'));
+  const taxonomyFailureBoundary = await failurePage.locator('#page-atlas .atlas-taxonomy-structural-boundary').innerText();
+  await failurePage.close();
   await page.locator('#page-atlas [data-atlas-action="route"][data-atlas-value="principles"]').click();
   await page.waitForFunction(() => document.getElementById('page-principles')?.classList.contains('active'));
   if (errors.length) throw new Error(`browser errors: ${errors.join(' | ')}`);
-  console.log(JSON.stringify({ ok: true, route: 'atlas', learnerTracks: overview.trackCards, visibleAuthoredLessons: overview.modules, authoredLessonTotal: overview.totalModules, curriculumLayers: 7, taxonomyLevels: 7, taxonomyDomains: 19, visibleDomainGuides: taxonomyDisclosure.domainGuides, taxonomyNodes: 95, visibleNodeGuides: taxonomyDisclosure.nodeGuides, deepTopics: 10, deepBranches: 50, relationshipGuides: 5, relationshipNodes: 35, relationshipEdges: 31, relationshipFocusedGuide: 'nand-inference-fcf', relationshipFocusedNode: 'financial-targets', relationshipResponsive, relationshipSearch: filteredRelationship, researchPackets: 11, evidenceClaims: 14, primarySources: 23, telegramChannels: 4, searchedPacket: 'ATLAS-04', routeCta: 'principles', errors }));
+  console.log(JSON.stringify({ ok: true, route: 'atlas', learnerTracks: overview.trackCards, visibleAuthoredLessons: overview.modules, authoredLessonTotal: overview.totalModules, curriculumLayers: 7, f0Restored: true, bridgeContext, publicationReadiness, taxonomyLevels: 7, taxonomyDomains: 19, visibleDomainGuides: taxonomyDisclosure.domainGuides, taxonomyNodes: 95, visibleNodeGuides: taxonomyDisclosure.nodeGuides, structuralClaimCards: taxonomyDisclosure.structuralClaims, rawInternalVisible: taxonomyDisclosure.rawInternalVisible, taxonomyFailureBoundary, deepTopics: 10, deepBranches: 50, relationshipGuides: 5, relationshipNodes: 35, relationshipEdges: 31, relationshipFocusedGuide: 'nand-inference-fcf', relationshipFocusedNode: 'financial-targets', relationshipResponsive, relationshipSearch: filteredRelationship, researchPackets: 11, evidenceClaims: 14, primarySources: 23, telegramChannels: 4, searchedPacket: 'ATLAS-04', routeCta: 'principles', errors }));
 } catch (error) {
   console.error(JSON.stringify({ ok: false, errors: [...errors, String(error?.stack || error)] }));
   process.exitCode = 1;

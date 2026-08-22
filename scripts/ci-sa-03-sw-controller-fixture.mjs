@@ -32,8 +32,13 @@ try {
     const stateKey = '__aio_sa03_state';
     let controllerVersion = localStorage.getItem(versionKey) || oldVersion;
     const listeners = {};
-    const state = JSON.parse(localStorage.getItem(stateKey) || 'null') || { version: controllerVersion, queries: 0, changes: 0, registrations: 0 };
+    const state = JSON.parse(localStorage.getItem(stateKey) || 'null') || { version: controllerVersion, queries: 0, changes: 0, registrations: 0, reloads: 0 };
+    if (!Number.isFinite(state.reloads)) state.reloads = 0;
     const persist = () => localStorage.setItem(stateKey, JSON.stringify(state));
+    window.addEventListener('beforeunload', () => {
+      state.reloads += 1;
+      persist();
+    }, { once: true });
     const controller = {
       postMessage(_message, transfer) {
         state.queries += 1;
@@ -69,7 +74,9 @@ try {
     window.__aioSa03Trigger = () => serviceWorker.__triggerControllerChange();
   }, { oldVersion, appVersion });
   let navigations = 0;
-  page.on('framenavigated', () => { navigations += 1; });
+  page.on('framenavigated', (frame) => {
+    if (frame === page.mainFrame()) navigations += 1;
+  });
   await page.route('**/*', (route) => route.request().url().startsWith(`http://127.0.0.1:${port}/`) ? route.continue() : route.abort());
   await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.waitForFunction((oldVersion) => window._aioSWVersion === oldVersion, oldVersion, { timeout: 30000 });
@@ -99,7 +106,7 @@ try {
   const ok = before.version === oldVersion && before.state.queries === 1
     && after.version === appVersion && after.mismatch === ''
     && after.state.changes === 1 && after.state.queries >= 2
-    && after.reloadGuard === null && navigations === navigationsBeforeControllerChange + 1;
+    && after.state.reloads === 1 && after.reloadGuard === null;
   console.log(JSON.stringify({ ok, fixture: 'SA-03 SW-controller-fixture', appVersion, oldVersion, before, after, navigations, navigationsBeforeControllerChange }, null, 2));
   if (!ok) process.exitCode = 1;
 } finally {

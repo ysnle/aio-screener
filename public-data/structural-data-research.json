@@ -1,7 +1,7 @@
 {
   "schemaVersion": "structural-data-research.v1",
   "source": "official-web-research",
-  "checkedAt": "2026-08-14T15:00:00Z",
+  "checkedAt": "2026-08-21T15:00:00Z",
   "method": "WebSearch against official publisher, exchange, regulator, or government pages; no secondary value promoted when the official numeric field was unavailable.",
   "entries": [
     {
@@ -9,8 +9,8 @@
       "status": "CURRENT_REFERENCE",
       "valueArtifact": "public-data/data.json.marketSurveys.aaii",
       "sourceUrl": "https://www.aaii.com/sentimentsurvey",
-      "observation": "2026-08-12",
-      "detail": "34.7 bullish / 27.4 neutral / 37.9 bearish; reference-only because publisher terms and weekly cadence apply."
+      "observation": "2026-08-19",
+      "detail": "35.5 bullish / 24.6 neutral / 39.9 bearish; current official public observation, retained as reference-only because publisher terms apply."
     },
     {
       "id": "naaim",
@@ -18,12 +18,12 @@
       "valueArtifact": "public-data/data.json.marketSurveys.naaim",
       "sourceUrl": "https://naaim.org/programs/naaim-exposure-index/",
       "observation": "2026-07-22",
-      "detail": "84.02 is the last public value shown; the page announces subscription access from 2026-08-01, so no current value was inferred."
+      "detail": "84.02 is the last public value retained; the publisher now exposes public data with a three-month delay and reserves current/API access for subscribers, so no current value was inferred."
     },
     {
       "id": "investors-intelligence",
       "status": "BLOCKED",
-      "sourceUrl": "https://www.investorsintelligence.com/help/education/advisors-sentiment",
+      "sourceUrl": "https://www.investorsintelligence.com/subscribe/packages",
       "detail": "Official public page provides methodology/education but no current numeric reading; subscriber value required."
     },
     {

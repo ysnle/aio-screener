@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { archiveBase, createSecClient } from './lib/sec-edgar.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const filingsPath = path.join(root, 'public-data', 'masters', 'filings.json');
@@ -8,23 +9,12 @@ const outputPath = path.join(root, 'public-data', 'masters', 'history-index.json
 const filings = JSON.parse(await fs.readFile(filingsPath, 'utf8'));
 const reviewedAt = new Date().toISOString().slice(0, 10);
 const appVersion = JSON.parse(await fs.readFile(path.join(root, 'version.json'), 'utf8')).version;
-const userAgent = 'AIO Screener research contact research@example.com';
-
-async function fetchJson(url) {
-  const response = await fetch(url, { headers: { 'User-Agent': userAgent, Accept: 'application/json' } });
-  if (!response.ok) throw new Error(`${response.status} ${url}`);
-  return response.json();
-}
-
-function archiveBase(cik, accession) {
-  const numericCik = String(cik).replace(/^0+/, '');
-  const accessionPath = accession.replace(/-/g, '');
-  return `https://www.sec.gov/Archives/edgar/data/${numericCik}/${accessionPath}`;
-}
+const secClient = createSecClient();
+const historyManagerIds = new Set(['berkshire-hathaway', 'duquesne-family-office', 'fisher-asset-management', 'pershing-square', 'appaloosa-management', 'baupost-group', 'scion-asset-management']);
 
 const managers = [];
-for (const manager of filings.managers.filter((item) => item.cik && item.status === 'VERIFIED_METADATA')) {
-  const recent = await fetchJson(`https://data.sec.gov/submissions/CIK${manager.cik}.json`);
+for (const manager of filings.managers.filter((item) => item.cik && item.latestFiling && historyManagerIds.has(item.id))) {
+  const recent = await secClient.json(`https://data.sec.gov/submissions/CIK${manager.cik}.json`);
   const entries = recent.filings.recent.form.map((_, index) => ({
     form: recent.filings.recent.form[index],
     accession: recent.filings.recent.accessionNumber[index],

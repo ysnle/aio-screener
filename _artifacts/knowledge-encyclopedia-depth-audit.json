@@ -1,7 +1,8 @@
 {
   "schemaVersion": "knowledge-encyclopedia-depth-audit.v1",
-  "auditedAt": "2026-08-18",
-  "status": "ENCYCLOPEDIA_DEPTH_CERTIFIED",
+  "auditedAt": "2026-08-22",
+  "status": "STRUCTURED_DEPTH_CERTIFIED_USER_VALIDATION_PENDING",
+  "completionReady": false,
   "interpretation": "현재 required-field 존재 여부와 백과사전급 설명 깊이는 다른 계약이다. 문자 수는 하한선일 뿐이며 semantic field 충족과 구조화된 worked example을 함께 통과해야 한다.",
   "naming": {
     "routeId": "atlas",
@@ -163,6 +164,8 @@
     "progressPersistence": true,
     "bookmarks": true,
     "learnerNotes": true,
+    "learnerControls": true,
+    "fullTextSearch": true,
     "professionalRouteBridge": true
   },
   "structuredReferenceArtifacts": {
@@ -218,8 +221,8 @@
     }
   ],
   "blockers": [
-    "KB-S0-04: route/local learning-state contracts exist, but learner controls, retrieval UX, and user validation remain open.",
-    "KB-S0-05: actual recruited-user validation has not been conducted."
+    "KB-S0-05: actual recruited-user validation has not been conducted.",
+    "KB-S0-06: structured drafts still require independent semantic and source-directness review before publication-quality certification."
   ],
   "targetContract": {
     "compactSummary": "한 화면에서 빠르게 훑는 요약은 유지하되, 요약 아래에 1,200자 이상 심층 본문과 의미 필드를 점진 공개한다.",

@@ -1,0 +1,888 @@
+{
+  "schema": "masters-13f-manager-history-runtime.v1",
+  "sourceKind": "SEC_EDGAR_DERIVED_RAW_ROWS",
+  "reviewedAt": "2026-08-22",
+  "generatedAt": "2026-08-22T10:23:13.861Z",
+  "managerId": "pershing-square",
+  "historyRows": [],
+  "historySummary": {
+    "rawRowsAvailable": 85,
+    "periodTotalsSource": "history-index.json.managers[].periods"
+  },
+  "issuerAggregates": {
+    "schema": "masters-13f-issuer-aggregates.v1",
+    "status": "RAW_CUSIP_MULTI_QUARTER_CONNECTED",
+    "publication": "EDUCATIONAL_REFERENCE_ONLY",
+    "boundary": "SEC CUSIP·issuer text·reported value·shares·period history are aggregated for research navigation. This is not a verified security master and cannot produce sector weights, current prices or recommendations.",
+    "managers": [
+      {
+        "managerId": "pershing-square",
+        "aggregateCount": 18,
+        "latestPeriod": "2026-03-31",
+        "periodsCovered": 11,
+        "reviewQueueCount": 18
+      }
+    ],
+    "coverage": {
+      "aggregateRecords": 18,
+      "periods": 11,
+      "reviewQueue": 0,
+      "previewRecords": 10
+    },
+    "reviewQueue": [],
+    "aggregates": [
+      {
+        "aggregateId": "sec-13f-cusip:pershing-square|11271J107|SH|",
+        "managerId": "pershing-square",
+        "cik": "0001336528",
+        "cusipNormalized": "11271J107",
+        "issuerNames": [
+          "BROOKFIELD CORP"
+        ],
+        "titleOfClasses": [
+          "CL A LTD VT SH"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2024-06-30",
+        "latestReportPeriod": "2026-03-31",
+        "periodCount": 6,
+        "periods": [
+          {
+            "reportPeriod": "2024-06-30",
+            "filedAt": "2024-08-14",
+            "valueUsd": 284736345,
+            "shares": 6854510,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266124003511/infotable.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2024-09-30",
+            "filedAt": "2024-11-14",
+            "valueUsd": 1739912181,
+            "shares": 32735883,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266124005218/infotable.xml"
+            ],
+            "valueDeltaUsd": 1455175836,
+            "sharesDelta": 25881373
+          },
+          {
+            "reportPeriod": "2025-03-31",
+            "filedAt": "2025-05-15",
+            "valueUsd": 2149054073,
+            "shares": 41004657,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266125002315/infotable.xml"
+            ],
+            "valueDeltaUsd": 409141892,
+            "sharesDelta": 8268774
+          },
+          {
+            "reportPeriod": "2025-06-30",
+            "filedAt": "2025-08-14",
+            "valueUsd": 2545770554,
+            "shares": 41160397,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266125003509/infotable.xml"
+            ],
+            "valueDeltaUsd": 396716481,
+            "sharesDelta": 155740
+          },
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-14",
+            "valueUsd": 2813167442,
+            "shares": 41020231,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266125005039/infotable.xml"
+            ],
+            "valueDeltaUsd": 267396888,
+            "sharesDelta": -140166
+          },
+          {
+            "reportPeriod": "2026-03-31",
+            "filedAt": "2026-05-15",
+            "valueUsd": 2415946008,
+            "shares": 59697208,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266126002336/infotable.html"
+            ],
+            "valueDeltaUsd": -397221434,
+            "sharesDelta": 18676977
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266125005039/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266125003509/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266125002315/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266124005218/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266124003511/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266126002336/infotable.html"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:pershing-square|023135106|SH|",
+        "managerId": "pershing-square",
+        "cik": "0001336528",
+        "cusipNormalized": "023135106",
+        "issuerNames": [
+          "AMAZON COM INC"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2025-06-30",
+        "latestReportPeriod": "2026-03-31",
+        "periodCount": 3,
+        "periods": [
+          {
+            "reportPeriod": "2025-06-30",
+            "filedAt": "2025-08-14",
+            "valueUsd": 1277577297,
+            "shares": 5823316,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266125003509/infotable.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-14",
+            "valueUsd": 1278625494,
+            "shares": 5823316,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266125005039/infotable.xml"
+            ],
+            "valueDeltaUsd": 1048197,
+            "sharesDelta": 0
+          },
+          {
+            "reportPeriod": "2026-03-31",
+            "filedAt": "2026-05-15",
+            "valueUsd": 2385104083,
+            "shares": 11451981,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266126002336/infotable.html"
+            ],
+            "valueDeltaUsd": 1106478589,
+            "sharesDelta": 5628665
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266125005039/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266125003509/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266126002336/infotable.html"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:pershing-square|90353T100|SH|",
+        "managerId": "pershing-square",
+        "cik": "0001336528",
+        "cusipNormalized": "90353T100",
+        "issuerNames": [
+          "UBER TECHNOLOGIES INC"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2025-03-31",
+        "latestReportPeriod": "2026-03-31",
+        "periodCount": 4,
+        "periods": [
+          {
+            "reportPeriod": "2025-03-31",
+            "filedAt": "2025-05-15",
+            "valueUsd": 2207742590,
+            "shares": 30301161,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266125002315/infotable.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2025-06-30",
+            "filedAt": "2025-08-14",
+            "valueUsd": 2827098321,
+            "shares": 30301161,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266125003509/infotable.xml"
+            ],
+            "valueDeltaUsd": 619355731,
+            "sharesDelta": 0
+          },
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-14",
+            "valueUsd": 2965602648,
+            "shares": 30270518,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266125005039/infotable.xml"
+            ],
+            "valueDeltaUsd": 138504327,
+            "sharesDelta": -30643
+          },
+          {
+            "reportPeriod": "2026-03-31",
+            "filedAt": "2026-05-15",
+            "valueUsd": 2154934398,
+            "shares": 29958771,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266126002336/infotable.html"
+            ],
+            "valueDeltaUsd": -810668250,
+            "sharesDelta": -311747
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266125005039/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266125003509/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266125002315/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266126002336/infotable.html"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:pershing-square|594918104|SH|",
+        "managerId": "pershing-square",
+        "cik": "0001336528",
+        "cusipNormalized": "594918104",
+        "issuerNames": [
+          "MICROSOFT CORP"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2026-03-31",
+        "latestReportPeriod": "2026-03-31",
+        "periodCount": 1,
+        "periods": [
+          {
+            "reportPeriod": "2026-03-31",
+            "filedAt": "2026-05-15",
+            "valueUsd": 2092970053,
+            "shares": 5654078,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266126002336/infotable.html"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266126002336/infotable.html"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:pershing-square|76131D103|SH|",
+        "managerId": "pershing-square",
+        "cik": "0001336528",
+        "cusipNormalized": "76131D103",
+        "issuerNames": [
+          "RESTAURANT BRANDS INTL INC"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2023-06-30",
+        "latestReportPeriod": "2026-03-31",
+        "periodCount": 10,
+        "periods": [
+          {
+            "reportPeriod": "2023-06-30",
+            "filedAt": "2023-08-14",
+            "valueUsd": 1809947425,
+            "shares": 23348135,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266123003137/infotable.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2023-09-30",
+            "filedAt": "2023-11-14",
+            "valueUsd": 1555452754,
+            "shares": 23348135,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266123004016/infotable.xml"
+            ],
+            "valueDeltaUsd": -254494671,
+            "sharesDelta": 0
+          },
+          {
+            "reportPeriod": "2023-12-31",
+            "filedAt": "2024-02-14",
+            "valueUsd": 1824189788,
+            "shares": 23348135,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266124001556/infotable.xml"
+            ],
+            "valueDeltaUsd": 268737034,
+            "sharesDelta": 0
+          },
+          {
+            "reportPeriod": "2024-03-31",
+            "filedAt": "2024-05-15",
+            "valueUsd": 1855009326,
+            "shares": 23348135,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266124002519/infotable.xml"
+            ],
+            "valueDeltaUsd": 30819538,
+            "sharesDelta": 0
+          },
+          {
+            "reportPeriod": "2024-06-30",
+            "filedAt": "2024-08-14",
+            "valueUsd": 1628540681,
+            "shares": 23142542,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266124003511/infotable.xml"
+            ],
+            "valueDeltaUsd": -226468645,
+            "sharesDelta": -205593
+          },
+          {
+            "reportPeriod": "2024-09-30",
+            "filedAt": "2024-11-14",
+            "valueUsd": 1658825918,
+            "shares": 23000914,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266124005218/infotable.xml"
+            ],
+            "valueDeltaUsd": 30285237,
+            "sharesDelta": -141628
+          },
+          {
+            "reportPeriod": "2025-03-31",
+            "filedAt": "2025-05-15",
+            "valueUsd": 1532780909,
+            "shares": 23000914,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266125002315/infotable.xml"
+            ],
+            "valueDeltaUsd": -126045009,
+            "sharesDelta": 0
+          },
+          {
+            "reportPeriod": "2025-06-30",
+            "filedAt": "2025-08-14",
+            "valueUsd": 1524730589,
+            "shares": 23000914,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266125003509/infotable.xml"
+            ],
+            "valueDeltaUsd": -8050320,
+            "sharesDelta": 0
+          },
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-14",
+            "valueUsd": 1469799913,
+            "shares": 22915496,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266125005039/infotable.xml"
+            ],
+            "valueDeltaUsd": -54930676,
+            "sharesDelta": -85418
+          },
+          {
+            "reportPeriod": "2026-03-31",
+            "filedAt": "2026-05-15",
+            "valueUsd": 1673501194,
+            "shares": 22645483,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266126002336/infotable.html"
+            ],
+            "valueDeltaUsd": 203701281,
+            "sharesDelta": -270013
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266125005039/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266125003509/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266125002315/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266124005218/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266124003511/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266124002519/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266124001556/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266123004016/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266123003137/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266126002336/infotable.html"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:pershing-square|30303M102|SH|",
+        "managerId": "pershing-square",
+        "cik": "0001336528",
+        "cusipNormalized": "30303M102",
+        "issuerNames": [
+          "META PLATFORMS INC"
+        ],
+        "titleOfClasses": [
+          "CL A"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2026-03-31",
+        "latestReportPeriod": "2026-03-31",
+        "periodCount": 1,
+        "periods": [
+          {
+            "reportPeriod": "2026-03-31",
+            "filedAt": "2026-05-15",
+            "valueUsd": 1522358404,
+            "shares": 2660861,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266126002336/infotable.html"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266126002336/infotable.html"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:pershing-square|654106103|SH|",
+        "managerId": "pershing-square",
+        "cik": "0001336528",
+        "cusipNormalized": "654106103",
+        "issuerNames": [
+          "NIKE INC"
+        ],
+        "titleOfClasses": [
+          "CL B"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2024-06-30",
+        "latestReportPeriod": "2024-09-30",
+        "periodCount": 2,
+        "periods": [
+          {
+            "reportPeriod": "2024-06-30",
+            "filedAt": "2024-08-14",
+            "valueUsd": 229134749,
+            "shares": 3040132,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266124003511/infotable.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2024-09-30",
+            "filedAt": "2024-11-14",
+            "valueUsd": 1439181879,
+            "shares": 16280338,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266124005218/infotable.xml"
+            ],
+            "valueDeltaUsd": 1210047130,
+            "sharesDelta": 13240206
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266124005218/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266124003511/infotable.xml"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:pershing-square|44267D107|SH|",
+        "managerId": "pershing-square",
+        "cik": "0001336528",
+        "cusipNormalized": "44267D107",
+        "issuerNames": [
+          "HOWARD HUGHES CORP"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2023-06-30",
+        "latestReportPeriod": "2023-06-30",
+        "periodCount": 1,
+        "periods": [
+          {
+            "reportPeriod": "2023-06-30",
+            "filedAt": "2023-08-14",
+            "valueUsd": 1307722394,
+            "shares": 16570228,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266123003137/infotable.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266123003137/infotable.xml"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:pershing-square|44267T102|SH|",
+        "managerId": "pershing-square",
+        "cik": "0001336528",
+        "cusipNormalized": "44267T102",
+        "issuerNames": [
+          "HOWARD HUGHES HOLDINGS INC"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2023-09-30",
+        "latestReportPeriod": "2026-03-31",
+        "periodCount": 9,
+        "periods": [
+          {
+            "reportPeriod": "2023-09-30",
+            "filedAt": "2023-11-14",
+            "valueUsd": 1245896090,
+            "shares": 16806908,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266123004016/infotable.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2023-12-31",
+            "filedAt": "2024-02-14",
+            "valueUsd": 1612794075,
+            "shares": 18852064,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266124001556/infotable.xml"
+            ],
+            "valueDeltaUsd": 366897985,
+            "sharesDelta": 2045156
+          },
+          {
+            "reportPeriod": "2024-03-31",
+            "filedAt": "2024-05-15",
+            "valueUsd": 1369036888,
+            "shares": 18852064,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266124002519/infotable.xml"
+            ],
+            "valueDeltaUsd": -243757187,
+            "sharesDelta": 0
+          },
+          {
+            "reportPeriod": "2024-06-30",
+            "filedAt": "2024-08-14",
+            "valueUsd": 1221990788,
+            "shares": 18852064,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266124003511/infotable.xml"
+            ],
+            "valueDeltaUsd": -147046100,
+            "sharesDelta": 0
+          },
+          {
+            "reportPeriod": "2024-09-30",
+            "filedAt": "2024-11-14",
+            "valueUsd": 1459715316,
+            "shares": 18852064,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266124005218/infotable.xml"
+            ],
+            "valueDeltaUsd": 237724528,
+            "sharesDelta": 0
+          },
+          {
+            "reportPeriod": "2025-03-31",
+            "filedAt": "2025-05-15",
+            "valueUsd": 1396560901,
+            "shares": 18852064,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266125002315/infotable.xml"
+            ],
+            "valueDeltaUsd": -63154415,
+            "sharesDelta": 0
+          },
+          {
+            "reportPeriod": "2025-06-30",
+            "filedAt": "2025-08-14",
+            "valueUsd": 1272514320,
+            "shares": 18852064,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266125003509/infotable.xml"
+            ],
+            "valueDeltaUsd": -124046581,
+            "sharesDelta": 0
+          },
+          {
+            "reportPeriod": "2025-09-30",
+            "filedAt": "2025-11-14",
+            "valueUsd": 1549074099,
+            "shares": 18852064,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266125005039/infotable.xml"
+            ],
+            "valueDeltaUsd": 276559779,
+            "sharesDelta": 0
+          },
+          {
+            "reportPeriod": "2026-03-31",
+            "filedAt": "2026-05-15",
+            "valueUsd": 1192581569,
+            "shares": 18852064,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266126002336/infotable.html"
+            ],
+            "valueDeltaUsd": -356492530,
+            "sharesDelta": 0
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266125005039/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266125003509/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266125002315/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266124005218/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266124003511/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266124002519/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266124001556/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266123004016/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266126002336/infotable.html"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      },
+      {
+        "aggregateId": "sec-13f-cusip:pershing-square|13646K108|SH|",
+        "managerId": "pershing-square",
+        "cik": "0001336528",
+        "cusipNormalized": "13646K108",
+        "issuerNames": [
+          "CANADIAN PACIFIC KANSAS CITY"
+        ],
+        "titleOfClasses": [
+          "COM"
+        ],
+        "shareTypes": [
+          "SH"
+        ],
+        "putCallTypes": [],
+        "firstReportPeriod": "2023-06-30",
+        "latestReportPeriod": "2025-03-31",
+        "periodCount": 7,
+        "periods": [
+          {
+            "reportPeriod": "2023-06-30",
+            "filedAt": "2023-08-14",
+            "valueUsd": 1219265797,
+            "shares": 15095528,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266123003137/infotable.xml"
+            ],
+            "valueDeltaUsd": null,
+            "sharesDelta": null
+          },
+          {
+            "reportPeriod": "2023-09-30",
+            "filedAt": "2023-11-14",
+            "valueUsd": 1123258238,
+            "shares": 15095528,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266123004016/infotable.xml"
+            ],
+            "valueDeltaUsd": -96007559,
+            "sharesDelta": 0
+          },
+          {
+            "reportPeriod": "2023-12-31",
+            "filedAt": "2024-02-14",
+            "valueUsd": 1193452444,
+            "shares": 15095528,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266124001556/infotable.xml"
+            ],
+            "valueDeltaUsd": 70194206,
+            "sharesDelta": 0
+          },
+          {
+            "reportPeriod": "2024-03-31",
+            "filedAt": "2024-05-15",
+            "valueUsd": 1330972704,
+            "shares": 15095528,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266124002519/infotable.xml"
+            ],
+            "valueDeltaUsd": 137520260,
+            "sharesDelta": 0
+          },
+          {
+            "reportPeriod": "2024-06-30",
+            "filedAt": "2024-08-14",
+            "valueUsd": 1178244916,
+            "shares": 14965641,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266124003511/infotable.xml"
+            ],
+            "valueDeltaUsd": -152727788,
+            "sharesDelta": -129887
+          },
+          {
+            "reportPeriod": "2024-09-30",
+            "filedAt": "2024-11-14",
+            "valueUsd": 1272634267,
+            "shares": 14877651,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266124005218/infotable.xml"
+            ],
+            "valueDeltaUsd": 94389351,
+            "sharesDelta": -87990
+          },
+          {
+            "reportPeriod": "2025-03-31",
+            "filedAt": "2025-05-15",
+            "valueUsd": 1039093677,
+            "shares": 14799796,
+            "rowCount": 1,
+            "sourceUrls": [
+              "https://www.sec.gov/Archives/edgar/data/1336528/000117266125002315/infotable.xml"
+            ],
+            "valueDeltaUsd": -233540590,
+            "sharesDelta": -77855
+          }
+        ],
+        "sourceUrls": [
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266125002315/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266124005218/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266124003511/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266124002519/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266124001556/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266123004016/infotable.xml",
+          "https://www.sec.gov/Archives/edgar/data/1336528/000117266123003137/infotable.xml"
+        ],
+        "reviewFlags": [],
+        "normalizationStatus": "RAW_CUSIP_ISSUER_AGGREGATE",
+        "tickerStatus": "NOT_PUBLISHED",
+        "sectorStatus": "NOT_PUBLISHED",
+        "corporateActionStatus": "REVIEW_REQUIRED"
+      }
+    ]
+  }
+}

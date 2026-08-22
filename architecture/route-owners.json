@@ -2,9 +2,9 @@
   "schemaVersion": "route-owners-v1",
   "ownerEnums": ["native", "legacy", "not-applicable"],
   "notApplicablePolicy": "chartOwner and narrativeOwner use not-applicable for static reference routes; legacy means an actual compatibility producer remains.",
-  "generatedAt": "2026-08-02",
+  "generatedAt": "2026-08-22",
   "sourceHandoff": "_context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md#RM-00",
-  "method": "Re-measured directly against the v53.85 working tree (bootstrap.js module wiring, router transition, PAGES init literals, cross-grep of native writer ids against js/*.js and index.html, including principles/masters/atlas route modules and their primary surface markers). Not copied from prior declarations.",
+  "method": "Re-measured directly against the current working tree (bootstrap.js module wiring, router transition, async scope ownership, capability-level loading, cross-grep of native writer ids against js/*.js and index.html, including principles/masters/atlas route modules and their primary surface markers). Not copied from prior declarations.",
   "rm01Note": "RM-01 (2026-07-19) deleted every native setText/textContent write this file's contestedIds/legacyWriterEvidence originally documented as a live race (per RM-01 §2 default action: delete native, keep legacy). Those fields are kept as a historical DELETE-LEDGER record of what was found and removed, not a claim that the race is still live — for the 15 rendererOwner='legacy' routes, native no longer writes any of these ids at all. The real ARX cutover (deleting the *legacy* writer so native can take sole ownership) remains future per-route work; see route-owners.json openItems and the execution plan's ARX-05..11 packets.",
   "rm05AgDomWriterProcedure": "AG-DOM-WRITER (scripts/ci-architecture-contract-check.mjs) asserts the intersection of ids written by src/ui/pages/*.js and ids written by js/*.js+index.html is empty, except entries in domWriterIntersectionAllowlist below. Procedure for a real future route cutover (deleting the *legacy* writer so native takes sole ownership of a currently-legacy-owned id): (1) delete the legacy writer line(s) named in that route's legacyWriterEvidence array in this file; (2) re-add the native setText/textContent write for that id in the route's src/ui/pages/*.js module; (3) update that route's rendererOwner to 'native' and move its ids from contestedIds to a cleared state in this file; (4) if the id is also referenced by routeOwners.legacySymbolsMustBeAbsent for ANY renderer-native route (i.e. legacy code must never reintroduce a writer for it), add it there. Do NOT add a newly-cut-over id to domWriterIntersectionAllowlist — that list is exclusively for ids where legacy legitimately READS (not writes) a value native owns (see fg-score-big/pc-score-big below); an allowlist entry for a genuine two-way content race would defeat the gate's purpose.",
   "columnDefinitions": {
@@ -481,7 +481,7 @@
       "notApplicableFields": ["chartOwner", "narrativeOwner"],
       "contestedIds": [],
       "legacyWriterEvidence": [],
-      "notes": "MP-03/KG-05: static reference catalog with deterministic SVG graph, text fallback, and path navigation. No live market producer, chart instance, or generated narrative is attached to this route."
+      "notes": "Native learner-first reference route with deterministic SVG/text graph, path/library modes, lazy capability groups, abort-scoped loading, full-text search, persistent bookmark/note controls, and metric/timeframe professional-route bridges. Current observations remain dated reference-only inputs, not trading signals."
     },
     "masters": {
       "lifecycleOwner": "native",
@@ -493,7 +493,7 @@
       "notApplicableFields": ["chartOwner", "narrativeOwner"],
       "contestedIds": [],
       "legacyWriterEvidence": [],
-      "notes": "MF-05: SEC 13F reference shell. The route exposes manager metadata and explicit PENDING/METHOD_ONLY states; holdings remain blocked until the SEC EDGAR collector produces verified filing artifacts."
+      "notes": "Native SEC 13F reference route. It exposes 37 SEC filer profiles plus one separately labeled method-only educator, per-manager shards, filing/currentness discovery, reconciliation, holdings/change metrics, 2–4 manager comparison, official principles and explicit CURRENT/PARTIAL/BLOCKED/NOTICE states. SEC collection requires a policy-compliant repository SEC_USER_AGENT and never promotes discovery-only data."
     },
     "atlas": {
       "lifecycleOwner": "native",
@@ -505,7 +505,7 @@
       "notApplicableFields": ["chartOwner", "narrativeOwner"],
       "contestedIds": [],
       "legacyWriterEvidence": [],
-      "notes": "AI-ERA Atlas reference shell. It exposes ontology levels, foundations tracks, and research packet status as DESIGN_ONLY; no current company, shipment, yield, valuation, or trading claim is promoted before evidence-ledger review."
+      "notes": "Native learner-first AI knowledge route with foundations, relationship, taxonomy and evidence views. Capability groups load by tab under route abort scope; search covers authored body/evidence; learning state and professional-route bridges are interactive. Structural role/product coverage stays separate from dated currentness and no unverified shipment, yield, valuation or trading claim is promoted."
     }
   },
   "counts": {

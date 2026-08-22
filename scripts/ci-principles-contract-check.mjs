@@ -15,6 +15,7 @@ const worker = read('sw.js');
 const golden = JSON.parse(read('architecture/golden-routes.json'));
 const research = JSON.parse(read('public-data/atlas/source-packets.json'));
 const chapters = JSON.parse(read('public-data/principles/chapters.json'));
+const narrative = JSON.parse(read('public-data/principles/narrative-journey.json'));
 const lessonLibrary = JSON.parse(read('public-data/principles/lesson-library.json'));
 const nodeGuides = JSON.parse(read('public-data/principles/node-guides.json'));
 const knowledgeArticles = JSON.parse(read('public-data/knowledge/articles.json'));
@@ -29,18 +30,25 @@ for (const [label, source, marker] of [
   ['navigation', index, 'data-arg="principles"'],
   ['service worker', worker, "'./src/ui/pages/principles.js'"],
   ['native page factory', page, 'export function createPrinciplesPage'],
-  ['tree mode', page, "['tree', '지도 Tree', 'tree']"],
-  ['graph mode', page, "['graph', '관계 Graph', 'graph']"],
-  ['path mode', page, "['path', '학습 Path', 'path']"],
+  ['narrative mode', page, "['story', '이어 읽기', 'story']"],
+  ['tree mode', page, "['tree', '개념 지도', 'tree']"],
+  ['graph mode', page, "['graph', '관계 지도', 'graph']"],
+  ['path mode', page, "['path', '선택 학습', 'path']"],
     ['reviewed content', page, 'reviewedAt: REVIEWED_AT'],
     ['deep article renderer', page, 'renderKnowledgeLesson'],
-    ['deep article artifact', page, 'KNOWLEDGE_ARTICLES_URL']
+    ['per-lesson article shard', page, './public-data/knowledge/articles/principles/']
 ]) if (!source.includes(marker)) fail(`${label} missing marker: ${marker}`);
 
 if (!golden.routes.includes('principles') || golden.routes.length !== 20) fail('golden route does not contain the 20-route principles topology');
+const narrativeChapters = narrative.parts?.flatMap((part) => part.chapters || []) || [];
+const expectedNarrativeOrder = ['money-is-choice', 'inflation-purchasing-power', 'interest-time-price', 'central-bank-transmission', 'bonds-dollar-trust', 'liquidity-asset-inflation', 'company-economic-machine', 'valuation-expectations', 'ai-physical-bottleneck', 'ai-capex-economics', 'market-expectations-prices', 'ownership-risk-process'];
+if (narrative.schemaVersion !== 'principles-narrative.v1' || narrative.parts?.length !== 6 || narrativeChapters.length !== 12 || narrativeChapters.map((chapter) => chapter.id).join(',') !== expectedNarrativeOrder.join(',')) fail('canonical money-to-market narrative order drifted');
+if (!narrative.thesis?.includes('무엇을 소유할지') || narrativeChapters.some((chapter) => !chapter.title || !chapter.lead || chapter.paragraphs?.length < 3 || chapter.chain?.length < 4 || !chapter.marketBridge || !chapter.checkpoint || !['STRUCTURAL', 'FRAMEWORK'].includes(chapter.classification) || !chapter.lessonIds?.length || !chapter.sources?.every((source) => /^https:\/\//.test(source.url)))) fail('narrative chapter depth, boundary, or source contract drifted');
+if (!page.includes('createNarrativeView') || !page.includes('NARRATIVE_URL') || !page.includes('selectedNarrativeChapterId') || !page.includes('principles-story:')) fail('narrative renderer, deep-link state, or learning state is disconnected');
 if (!/data-principles-content/.test(index)) fail('page markup lacks renderer mount');
 if (!/sourceUrl/.test(page) || !/status: 'PARTIAL'/.test(page) || !/status: 'REVIEWED_CANDIDATE'/.test(page)) fail('content packet must carry source URLs and review status badges');
 if (!/RESEARCH_URL/.test(page) || !/CHAPTERS_URL/.test(page) || !/LESSON_LIBRARY_URL/.test(page) || !/NODE_GUIDES_URL/.test(page) || !/createChapterCurriculum/.test(page) || !/createLessonLibrary/.test(page) || !/createEvidenceBlock/.test(page) || !/createResearchAnalysis/.test(page) || !/aioPrinciplesResearch/.test(page) || !/aioPrinciplesChapters/.test(page) || !/aioPrinciplesLessonLibrary/.test(page) || !/aioPrinciplesNodeGuides/.test(page) || !/aioPrinciplesKnowledgeArticles/.test(page)) fail('principles page is not connected to the authored A~O curriculum, node knowledge base, deep article corpus, and reconciled evidence registry');
+if (!page.includes('article identity mismatch') || !page.includes('validateCurrentObservationsArtifact') || !page.includes('applySafeExternalLink')) fail('principles runtime artifact identity/schema/URL safety gates are missing');
 if (!/normalizeKnowledgeEdges/.test(page) || !/loadKnowledgeCapabilities/.test(page) || /Promise\.all\(\[loadJson/.test(page)) fail('principles must use typed edge normalization and capability-level artifact loading');
 if (!/principles-analysis-claim/.test(page) || !/principles-reading-frame/.test(page) || !/createSelfGuidedExploration/.test(page) || !/observations/.test(page)) fail('principles page must render claim summaries, observations, and self-guided reading paths');
 if (!/createNodeExplanation/.test(page) || !/NODE_EXPLANATIONS/.test(page) || !/LEARNING_TRACKS/.test(page) || !/15·30·45분/.test(page)) fail('principles page must render user-facing concept explanations and learning tracks');
@@ -62,6 +70,13 @@ if (nodeGuides.status !== 'AUTHORED_REFERENCE_CONNECTED' || nodeGuides.publicati
 const principlesArticles = knowledgeArticles.articles.filter((article) => article.surface === 'principles');
 const principleLessonIds = new Set(lessonLibrary.lessons.map((lesson) => lesson.id));
 if (knowledgeArticles.status !== 'STRUCTURED_REFERENCE_DRAFT' || principlesArticles.length !== expectedLessonCount || principlesArticles.some((article) => !principleLessonIds.has(article.lessonId) || article.articleId !== `principles:${article.lessonId}` || article.publication !== 'EDUCATIONAL_REFERENCE_ONLY' || article.quality?.semanticReview !== 'REQUIRED' || article.quality?.sourceDirectnessReview !== 'REQUIRED' || !article.article?.workedExampleOrRationale || !article.article?.invalidation)) fail('principles deep article corpus must cover all A~O lessons with explicit review boundary and worked rationale');
+if (page.includes('KNOWLEDGE_ARTICLES_URL') || page.includes("loadGroup([{ key: 'knowledgeArticles'")) fail('principles browser path must not restore the article monolith capability');
+for (const article of principlesArticles) {
+  const shardFile = `public-data/knowledge/articles/principles/${article.lessonId}.json`;
+  if (!fs.existsSync(path.join(root, shardFile))) fail(`principles article shard missing: ${shardFile}`);
+  const shard = JSON.parse(read(shardFile));
+  if (shard.articleId !== article.articleId || shard.lessonId !== article.lessonId || shard.surface !== 'principles') fail(`principles article shard identity drifted: ${shardFile}`);
+}
 for (const field of ['definition', 'mechanism', 'example', 'counterScenario', 'verificationQuestion', 'diagram']) if (new Set(lessonLibrary.lessons.map((lesson) => lesson[field])).size !== expectedLessonCount) fail(`lesson library ${field} content is repeated or missing individual authorship`);
 for (const chapter of chapters.chapters) {
   for (const field of ['title', 'question', 'coreIdea', 'mechanism', 'counterScenario', 'verificationQuestion', 'sourceName', 'sourceUrl']) if (typeof chapter[field] !== 'string' || !chapter[field].trim()) fail(`chapter ${chapter.id} missing ${field}`);
@@ -71,4 +86,4 @@ if (/data-live-price|data-live-chg|targetPrice|target-price|BUY|SELL/.test(page)
 if (!/aria-label.*그래프|aria-label.*graph/i.test(page)) fail('graph must expose an accessible name');
 if (!/replaceChildren/.test(page) || /innerHTML/.test(page)) fail('principles renderer must use safe DOM construction');
 
- console.log(JSON.stringify({ ok: true, route: 'principles', modes: ['tree', 'graph', 'path', 'library'], graphNodes: 60, lessons: 39, authoredLessonLibrary: lessonLibrary.lessons.length, deepArticles: principlesArticles.length, authoredNodeGuides: nodeGuides.nodes.length, authoredChapters: chapters.chapters.length, paths: 8, evidenceSources: research.sources.length, evidenceClaims: research.claims.length, reviewedAt: knowledgeArticles.articles.map((article) => article.reviewedAt).sort().at(-1) }));
+ console.log(JSON.stringify({ ok: true, route: 'principles', modes: ['story', 'tree', 'graph', 'path', 'library'], narrativeParts: narrative.parts.length, narrativeChapters: narrativeChapters.length, graphNodes: 60, lessons: 39, authoredLessonLibrary: lessonLibrary.lessons.length, deepArticles: principlesArticles.length, authoredNodeGuides: nodeGuides.nodes.length, authoredChapters: chapters.chapters.length, paths: 8, evidenceSources: research.sources.length, evidenceClaims: research.claims.length, reviewedAt: knowledgeArticles.articles.map((article) => article.reviewedAt).sort().at(-1) }));

@@ -10,6 +10,8 @@ const readJson = (relativePath) => JSON.parse(read(relativePath));
 const principles = readJson('public-data/principles/lesson-library.json');
 const atlas = readJson('public-data/atlas/foundation-lessons.json');
 const principlesUi = read('src/ui/pages/principles.js');
+const atlasUi = read('src/ui/pages/atlas.js');
+const learningControls = read('src/ui/knowledge/learning-controls.js');
 const routeState = read('src/app/knowledge-route-state.js');
 const learningState = read('src/domain/knowledge/learning-state.js');
 const routeBridge = read('src/domain/knowledge/route-bridge.js');
@@ -118,7 +120,9 @@ const uiCapabilities = {
   progressPersistence: /createLearningState|markViewed|setProgress/.test(learningState),
   bookmarks: /toggleBookmark/.test(learningState),
   learnerNotes: /setNote/.test(learningState),
-  professionalRouteBridge: /createKnowledgeRouteBridge|routeLabel/.test(`${principlesUi}\n${routeBridge}`)
+  learnerControls: /createKnowledgeLearningControls/.test(`${principlesUi}\n${atlasUi}\n${learningControls}`),
+  fullTextSearch: /knowledgeArticles|LESSON_SEARCH_EXTRA/.test(principlesUi) && /JSON\.stringify\(authored|knowledgeArticles/.test(atlasUi),
+  professionalRouteBridge: /createKnowledgeRouteBridge|knowledge-professional-bridge|routeLabel/.test(`${principlesUi}\n${atlasUi}\n${routeBridge}`)
 };
 const structuredReferenceArtifacts = {
   articleCount: structuredArticles.counts?.total || 0,
@@ -133,7 +137,8 @@ const structuredReferenceArtifacts = {
 const result = {
   schemaVersion: 'knowledge-encyclopedia-depth-audit.v1',
   auditedAt,
-  status: corpora.every((corpus) => corpus.certification === 'PASS') ? 'ENCYCLOPEDIA_DEPTH_CERTIFIED' : 'ENCYCLOPEDIA_DEPTH_BLOCKED',
+  status: corpora.every((corpus) => corpus.certification === 'PASS') ? 'STRUCTURED_DEPTH_CERTIFIED_USER_VALIDATION_PENDING' : 'ENCYCLOPEDIA_DEPTH_BLOCKED',
+  completionReady: false,
   interpretation: '현재 required-field 존재 여부와 백과사전급 설명 깊이는 다른 계약이다. 문자 수는 하한선일 뿐이며 semantic field 충족과 구조화된 worked example을 함께 통과해야 한다.',
   naming: {
     routeId: 'atlas',
@@ -154,8 +159,9 @@ const result = {
     if (belowLengthFloor > 0) blockers.push(`KB-S0-01: ${belowLengthFloor}/${totalLessons} core lessons are below the 1,200-character encyclopedia floor.`);
     if (semanticComplete < totalLessons) blockers.push(`KB-S0-02: ${semanticComplete}/${totalLessons} lessons implement the complete semantic depth contract.`);
     if (structuredWorkedExamples < totalLessons) blockers.push(`KB-S0-03: ${structuredWorkedExamples}/${totalLessons} source lesson summaries contain a structured workedExample object; generated drafts are separate and remain review-required.`);
-    blockers.push('KB-S0-04: route/local learning-state contracts exist, but learner controls, retrieval UX, and user validation remain open.');
+    if (!uiCapabilities.learnerControls || !uiCapabilities.fullTextSearch) blockers.push('KB-S0-04: learner controls or full-text retrieval UX remain incomplete.');
     blockers.push('KB-S0-05: actual recruited-user validation has not been conducted.');
+    blockers.push('KB-S0-06: structured drafts still require independent semantic and source-directness review before publication-quality certification.');
     return blockers;
   })(),
   targetContract: {
@@ -174,4 +180,4 @@ if (process.argv.includes('--write')) {
 }
 
 console.log(JSON.stringify(result, null, 2));
-if (process.argv.includes('--strict') && result.status !== 'ENCYCLOPEDIA_DEPTH_CERTIFIED') process.exitCode = 1;
+if (process.argv.includes('--strict') && result.status === 'ENCYCLOPEDIA_DEPTH_BLOCKED') process.exitCode = 1;
