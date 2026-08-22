@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-08-22T07:46:44.523Z",
-  "attemptedAt": "2026-08-22T07:46:44.523Z",
-  "lastSuccessfulAt": "2026-08-22T07:46:44.523Z",
+  "generatedAt": "2026-08-22T08:03:57.225Z",
+  "attemptedAt": "2026-08-22T08:03:57.225Z",
+  "lastSuccessfulAt": "2026-08-22T08:03:57.225Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-08-08T07:46:39.965Z",
-  "until": "2026-08-22T07:46:39.965Z",
+  "since": "2026-08-08T08:03:52.670Z",
+  "until": "2026-08-22T08:03:52.670Z",
   "current24hWindow": {
     "start": "2026-08-20T23:00:00.000Z",
     "end": "2026-08-21T23:00:00.000Z",
@@ -14,7 +14,7 @@
   },
   "current24hCoverage": {
     "observedCount": 179,
-    "eligibleTextCount": 46,
+    "eligibleTextCount": 56,
     "channelCounts": {
       "insidertracking": 81,
       "HANAchina": 46,
@@ -90,15 +90,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1089,
-      "freshCount": 19,
-      "eligibleTextCount": 17,
+      "count": 1090,
+      "freshCount": 39,
+      "eligibleTextCount": 35,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 61813
+      "lastPostId": 61814
     },
     {
       "channel": "bornlupin",
@@ -114,20 +114,32 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 736,
-      "freshCount": 39,
-      "eligibleTextCount": 39,
+      "freshCount": 19,
+      "eligibleTextCount": 19,
       "selectedCount": 123,
       "error": null,
       "lastPostId": 67633
     }
   ],
-  "count": 2273,
-  "retainedItemCount": 455,
+  "count": 2274,
+  "retainedItemCount": 460,
   "observedItems": [
+    {
+      "id": "insidertracking/61814",
+      "channel": "insidertracking",
+      "datetime": "2026-08-22T07:54:05.000Z",
+      "localDateKst": "2026-08-22",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "HANAchina/67633",
       "channel": "HANAchina",
@@ -557,7 +569,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61796",
@@ -590,7 +602,7 @@
         "MRVL",
         "MTK"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67609",
@@ -607,7 +619,7 @@
         "TSM",
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67607",
@@ -619,7 +631,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67606",
@@ -633,7 +645,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67605",
@@ -646,7 +658,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67604",
@@ -659,7 +671,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61795",
@@ -749,7 +761,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67602",
@@ -766,7 +778,7 @@
         "MU",
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67601",
@@ -778,7 +790,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67599",
@@ -790,7 +802,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67598",
@@ -806,7 +818,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67597",
@@ -819,7 +831,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61792",
@@ -843,7 +855,7 @@
         "crypto"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61789",
@@ -855,7 +867,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61788",
@@ -874,7 +886,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61787",
@@ -910,7 +922,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61784",
@@ -922,7 +934,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61783",
@@ -934,7 +946,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61782",
@@ -946,7 +958,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61781",
@@ -958,7 +970,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61780",
@@ -970,7 +982,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61779",
@@ -982,7 +994,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61778",
@@ -994,7 +1006,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61777",
@@ -1006,7 +1018,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61775",
@@ -1018,7 +1030,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61774",
@@ -1031,7 +1043,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61773",
@@ -1071,7 +1083,7 @@
         "IONQ",
         "CRWV"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61772",
@@ -1112,7 +1124,7 @@
         "GLD",
         "SLV"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61771",
@@ -1124,7 +1136,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61770",
@@ -1291,7 +1303,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67595",
@@ -1303,7 +1315,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67594",
@@ -1315,7 +1327,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19809",
@@ -1390,7 +1402,7 @@
         "power"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61761",
@@ -1426,7 +1438,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61759",
@@ -1470,7 +1482,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67590",
@@ -1483,7 +1495,7 @@
         "equity"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61758",
@@ -32150,22 +32162,22 @@
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2273,
-    "eligibleTextCount": 96,
-    "mediaOnlyCount": 2177,
+    "observedCount": 2274,
+    "eligibleTextCount": 94,
+    "mediaOnlyCount": 2180,
     "highSignalCount": 592,
     "broadSignalCount": 1120,
     "selectedRawCount": 413,
-    "selectedRawCoveragePct": 430.2,
+    "selectedRawCoveragePct": 439.4,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
+    "geo": 325,
     "kr-market": 329,
     "healthcare": 132,
     "power": 324,
     "earnings": 500,
     "macro": 813,
-    "geo": 324,
     "semi": 661,
     "credit": 91,
     "media-only": 75,
@@ -32412,20 +32424,20 @@
     "6981.T": 1
   },
   "themes": [
-    "Macro/Rates (813 posts in 14-day research window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한...",
-    "Semiconductors/Memory (661 posts in 14-day research window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한...",
+    "Macro/Rates (813 posts in 14-day research window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한 새로운 정책 개입이 성공할 것으로 전망하면서도, 실패할 경우 시장에 심각한 충격이 발생할 수 있다고 경고....",
+    "Semiconductors/Memory (661 posts in 14-day research window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한 새로운 정책 개입이 성공할 것으로 전망하면서도, 실패할 경우 시장에 심각한 충격이 발생할 수 있다고 경고....",
     "Market Notes (585 posts in 14-day research window): >>UBS, 최초 판다채 발행… 최대 20억 위안 조달 •UBS가 처음으로 판다채를 발행해 최대 20억 위안의 자금을 조달할 계획. 발행 만기는 5년이며, 조달 자금의 순액 중 30% 이하를 중국 내 사업에...",
-    "Earnings/Corporate (500 posts in 14-day research window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한...",
-    "Korea Market (329 posts in 14-day research window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한...",
-    "AI Power/Grid (324 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET...",
-    "Geopolitics (324 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET...",
-    "Positioning/Flows (233 posts in 14-day research window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한..."
+    "Earnings/Corporate (500 posts in 14-day research window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한 새로운 정책 개입이 성공할 것으로 전망하면서도, 실패할 경우 시장에 심각한 충격이 발생할 수 있다고 경고....",
+    "Korea Market (329 posts in 14-day research window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한 새로운 정책 개입이 성공할 것으로 전망하면서도, 실패할 경우 시장에 심각한 충격이 발생할 수 있다고 경고....",
+    "Geopolitics (325 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET INC CL A (5.96%) 3위: SNDSK CRP ORD WI (5.24%) 4위: AMAZON.COM...",
+    "AI Power/Grid (324 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET INC CL A (5.96%) 3위: SNDSK CRP ORD WI (5.24%) 4위: AMAZON.COM...",
+    "Positioning/Flows (233 posts in 14-day research window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한 새로운 정책 개입이 성공할 것으로 전망하면서도, 실패할 경우 시장에 심각한 충격이 발생할 수 있다고 경고...."
   ],
   "catalysts": [
     {
       "key": "000660.KS",
       "count": 141,
-      "text": "서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET..."
+      "text": "서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET INC CL A (5.96%) 3위: SNDSK CRP ORD WI (5.24%) 4위: AMAZON.COM..."
     },
     {
       "key": "NVDA",
@@ -32440,22 +32452,22 @@
     {
       "key": "TSM",
       "count": 86,
-      "text": "서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET..."
+      "text": "서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET INC CL A (5.96%) 3위: SNDSK CRP ORD WI (5.24%) 4위: AMAZON.COM..."
     },
     {
       "key": "GOOG",
       "count": 73,
-      "text": "서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET..."
+      "text": "서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET INC CL A (5.96%) 3위: SNDSK CRP ORD WI (5.24%) 4위: AMAZON.COM..."
     },
     {
       "key": "AMZN",
       "count": 57,
-      "text": "서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET..."
+      "text": "서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET INC CL A (5.96%) 3위: SNDSK CRP ORD WI (5.24%) 4위: AMAZON.COM..."
     },
     {
       "key": "MU",
       "count": 54,
-      "text": "서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET..."
+      "text": "서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET INC CL A (5.96%) 3위: SNDSK CRP ORD WI (5.24%) 4위: AMAZON.COM..."
     },
     {
       "key": "AAPL",
@@ -32465,7 +32477,7 @@
     {
       "key": "AVGO",
       "count": 46,
-      "text": "2026년 8월 21일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (52.77%) 2위: SNDSK CRP ORD WI..."
+      "text": "2026년 8월 21일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (52.77%) 2위: SNDSK CRP ORD WI (5.63%) 3위: SK HYNIX INC SPON ADS EACH REP 0.1 SHS WI (5.57%)..."
     },
     {
       "key": "AMD",
@@ -32475,12 +32487,12 @@
     {
       "key": "META",
       "count": 43,
-      "text": "서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET..."
+      "text": "서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET INC CL A (5.96%) 3위: SNDSK CRP ORD WI (5.24%) 4위: AMAZON.COM..."
     },
     {
       "key": "SNDK",
       "count": 43,
-      "text": "2026년 8월 21일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (52.77%) 2위: SNDSK CRP ORD WI..."
+      "text": "2026년 8월 21일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (52.77%) 2위: SNDSK CRP ORD WI (5.63%) 3위: SK HYNIX INC SPON ADS EACH REP 0.1 SHS WI (5.57%)..."
     }
   ],
   "categories": [
@@ -32491,7 +32503,7 @@
         "macro"
       ],
       "count": 813,
-      "focus": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한..."
+      "focus": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한 새로운 정책 개입이 성공할 것으로 전망하면서도, 실패할 경우 시장에 심각한 충격이 발생할 수 있다고 경고...."
     },
     {
       "id": "geo",
@@ -32499,8 +32511,8 @@
       "topics": [
         "geo"
       ],
-      "count": 324,
-      "focus": "서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET..."
+      "count": 325,
+      "focus": "서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET INC CL A (5.96%) 3위: SNDSK CRP ORD WI (5.24%) 4위: AMAZON.COM..."
     },
     {
       "id": "credit",
@@ -32509,7 +32521,7 @@
         "credit"
       ],
       "count": 91,
-      "focus": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한..."
+      "focus": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한 새로운 정책 개입이 성공할 것으로 전망하면서도, 실패할 경우 시장에 심각한 충격이 발생할 수 있다고 경고...."
     },
     {
       "id": "semi",
@@ -32518,7 +32530,7 @@
         "semi"
       ],
       "count": 661,
-      "focus": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한..."
+      "focus": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한 새로운 정책 개입이 성공할 것으로 전망하면서도, 실패할 경우 시장에 심각한 충격이 발생할 수 있다고 경고...."
     },
     {
       "id": "optical",
@@ -32527,7 +32539,7 @@
         "optical"
       ],
       "count": 61,
-      "focus": "서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET..."
+      "focus": "서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET INC CL A (5.96%) 3위: SNDSK CRP ORD WI (5.24%) 4위: AMAZON.COM..."
     },
     {
       "id": "power",
@@ -32536,7 +32548,7 @@
         "power"
       ],
       "count": 324,
-      "focus": "서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET..."
+      "focus": "서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET INC CL A (5.96%) 3위: SNDSK CRP ORD WI (5.24%) 4위: AMAZON.COM..."
     },
     {
       "id": "ai-policy",
@@ -32554,7 +32566,7 @@
         "kr-market"
       ],
       "count": 329,
-      "focus": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한..."
+      "focus": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한 새로운 정책 개입이 성공할 것으로 전망하면서도, 실패할 경우 시장에 심각한 충격이 발생할 수 있다고 경고...."
     },
     {
       "id": "equity",
@@ -32563,7 +32575,7 @@
         "equity"
       ],
       "count": 186,
-      "focus": "서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET..."
+      "focus": "서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET INC CL A (5.96%) 3위: SNDSK CRP ORD WI (5.24%) 4위: AMAZON.COM..."
     },
     {
       "id": "crypto",
@@ -32572,7 +32584,7 @@
         "crypto"
       ],
       "count": 16,
-      "focus": "2026년 8월 21일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (52.77%) 2위: SNDSK CRP ORD WI..."
+      "focus": "2026년 8월 21일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (52.77%) 2위: SNDSK CRP ORD WI (5.63%) 3위: SK HYNIX INC SPON ADS EACH REP 0.1 SHS WI (5.57%)..."
     },
     {
       "id": "earnings",
@@ -32581,7 +32593,7 @@
         "earnings"
       ],
       "count": 500,
-      "focus": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한..."
+      "focus": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한 새로운 정책 개입이 성공할 것으로 전망하면서도, 실패할 경우 시장에 심각한 충격이 발생할 수 있다고 경고...."
     },
     {
       "id": "healthcare",
@@ -32590,7 +32602,7 @@
         "healthcare"
       ],
       "count": 132,
-      "focus": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한..."
+      "focus": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한 새로운 정책 개입이 성공할 것으로 전망하면서도, 실패할 경우 시장에 심각한 충격이 발생할 수 있다고 경고...."
     },
     {
       "id": "japan",
@@ -32599,7 +32611,7 @@
         "japan"
       ],
       "count": 180,
-      "focus": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한..."
+      "focus": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한 새로운 정책 개입이 성공할 것으로 전망하면서도, 실패할 경우 시장에 심각한 충격이 발생할 수 있다고 경고...."
     },
     {
       "id": "flows",
@@ -32608,7 +32620,7 @@
         "flows"
       ],
       "count": 233,
-      "focus": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한..."
+      "focus": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한 새로운 정책 개입이 성공할 것으로 전망하면서도, 실패할 경우 시장에 심각한 충격이 발생할 수 있다고 경고...."
     },
     {
       "id": "insider",
@@ -41201,6 +41213,20 @@
       "summary": "아 오랜만에.....그거 해야겠네요 한국인이 운영하는 주식, 코인, 기타 텔레그램 채널들 엑셀로 자료 만드는거&#33;&#33;&#33; > 요즘 인스타나 스레드에서도 텔레로 많이 넘어오더라고요. 지금 후딱..."
     },
     {
+      "id": "insidertracking/61790",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61790",
+      "datetime": "2026-08-21T22:29:48.000Z",
+      "localDateKst": "2026-08-22",
+      "tags": [
+        "crypto"
+      ],
+      "tickers": [],
+      "score": 35,
+      "hasText": true,
+      "summary": "비트코인 공탐지수는 벌써 탐욕구간 진입.... 근데, 비트코인 공탐지수는 플랫폼마다 다르더라고요. > 어떤곳은 뉴트럴, 어떤곳은 아직도 공포 코인 하시는 방장님들이랑 구독자님들은 그동안 고생하신거 꼭..."
+    },
+    {
       "id": "insidertracking/61789",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/61789",
@@ -41236,6 +41262,160 @@
       "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한..."
     },
     {
+      "id": "insidertracking/61787",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61787",
+      "datetime": "2026-08-21T21:30:49.000Z",
+      "localDateKst": "2026-08-22",
+      "tags": [
+        "media-only"
+      ],
+      "tickers": [],
+      "score": 0,
+      "hasText": false,
+      "summary": ""
+    },
+    {
+      "id": "insidertracking/61786",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61786",
+      "datetime": "2026-08-21T21:29:29.000Z",
+      "localDateKst": "2026-08-22",
+      "tags": [
+        "media-only"
+      ],
+      "tickers": [],
+      "score": 0,
+      "hasText": false,
+      "summary": ""
+    },
+    {
+      "id": "insidertracking/61785",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61785",
+      "datetime": "2026-08-21T21:28:47.000Z",
+      "localDateKst": "2026-08-22",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 35,
+      "hasText": true,
+      "summary": "2222222"
+    },
+    {
+      "id": "insidertracking/61784",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61784",
+      "datetime": "2026-08-21T21:27:42.000Z",
+      "localDateKst": "2026-08-22",
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "score": 45,
+      "hasText": true,
+      "summary": "이란 국방부 대변인: \"지난 한 해 동안, 우리 국가에서 생산되는 무기와 방위 장비의 생산량은 두 배로 증가했습니다.\" > 음...."
+    },
+    {
+      "id": "insidertracking/61783",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61783",
+      "datetime": "2026-08-21T21:26:21.000Z",
+      "localDateKst": "2026-08-22",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 35,
+      "hasText": true,
+      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 우크라이나가 오늘 밤 러시아를 상대로 대규모 드론 공격을 진행 중이며, 흑해에서는 수상 드론도 공격에 가세."
+    },
+    {
+      "id": "insidertracking/61782",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61782",
+      "datetime": "2026-08-21T21:25:55.000Z",
+      "localDateKst": "2026-08-22",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 35,
+      "hasText": true,
+      "summary": "기자: 소고기 거래와 관련해서, 어떤 나라들과 협상을 진행하셨습니까? 트럼프: 말씀드리기 어렵습니다."
+    },
+    {
+      "id": "insidertracking/61781",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61781",
+      "datetime": "2026-08-21T21:23:16.000Z",
+      "localDateKst": "2026-08-22",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 35,
+      "hasText": true,
+      "summary": "⚡️ ⚡️ ⚡️ 트럼프 “궁극적인 개입 수단은 미군…필요하면 사용할 것” 도널드 트럼프 미국 대통령이 기자들과의 문답에서 “우리에겐 여러 형태의 개입 수단이 있다”며 “궁극적인 개입은 우리의 군사력” 이라고..."
+    },
+    {
+      "id": "insidertracking/61780",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61780",
+      "datetime": "2026-08-21T21:21:53.000Z",
+      "localDateKst": "2026-08-22",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 35,
+      "hasText": true,
+      "summary": "폭스뉴스에 따르면 미 연방대법원이 백악관 부지 내 군사·볼룸 복합시설 건설을 계속 진행할 수 있도록 허용한 가운데, 트럼프 대통령이 이를 크게 환영. 트럼프 대통령은 “미국 연방대법원의 결정에 감사드립니다...."
+    },
+    {
+      "id": "insidertracking/61779",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61779",
+      "datetime": "2026-08-21T21:20:23.000Z",
+      "localDateKst": "2026-08-22",
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "score": 45,
+      "hasText": true,
+      "summary": "이스라엘군, 크파르 룸만의 알두브샤 고지 공습"
+    },
+    {
+      "id": "insidertracking/61778",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61778",
+      "datetime": "2026-08-21T21:18:15.000Z",
+      "localDateKst": "2026-08-22",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 35,
+      "hasText": true,
+      "summary": "미 중부사령부에 따르면 미 해군 장병들이 아라비아해를 항해 중인 항공모함 조지 워싱턴(CVN-73)에서 야간 비행 작전을 수행 중."
+    },
+    {
+      "id": "insidertracking/61777",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61777",
+      "datetime": "2026-08-21T21:17:33.000Z",
+      "localDateKst": "2026-08-22",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 40,
+      "hasText": true,
+      "summary": "테슬라를 포함한 12개 자동차 업체가 중국에서 약 300만 대의 차량을 리콜. 충돌이나 화재 발생 시 숨겨진 비상용 도어 잠금 해제 장치를 이용해 문을 수동으로 여는 방법을 차량 소유자에게 안내하기 위한 중국..."
+    },
+    {
       "id": "insidertracking/61775",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/61775",
@@ -41248,6 +41428,21 @@
       "score": 52,
       "hasText": true,
       "summary": "💬 💬 💬 💬 💬 💬 차주 한국시간 (KST) 기준 경제지표 및 주요 일정 ━━━━━━━━━━━━━━ 2026년 8월 25일 화요일 23:00 – CB 소비자신뢰지수 (8월) 23:00 – 신규..."
+    },
+    {
+      "id": "insidertracking/61774",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61774",
+      "datetime": "2026-08-21T21:13:00.000Z",
+      "localDateKst": "2026-08-22",
+      "tags": [
+        "semi",
+        "earnings"
+      ],
+      "tickers": [],
+      "score": 47,
+      "hasText": true,
+      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 차주 실적 발표 리스트 > 한국 시간 목요일 새벽에 엔비디아 실적"
     },
     {
       "id": "insidertracking/61773",
@@ -41333,6 +41528,20 @@
       "score": 100,
       "hasText": true,
       "summary": "2026년 8월 21일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (52.77%) 2위: SNDSK CRP ORD WI..."
+    },
+    {
+      "id": "insidertracking/61771",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61771",
+      "datetime": "2026-08-21T21:05:36.000Z",
+      "localDateKst": "2026-08-22",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 35,
+      "hasText": true,
+      "summary": "딸원 1,386원 마감"
     },
     {
       "id": "insidertracking/61770",
@@ -41494,20 +41703,6 @@
       "summary": ">>YMTC, 2026년 1-3월 NAND Flash 제품 GPM 78.73%로 상승 •YMTC의 공시 자료에 따르면, 2026년 1~3월 NAND Flash 제품 GPM은 78.73%까지 상승 •메모리..."
     },
     {
-      "id": "HANAchina/67594",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/67594",
-      "datetime": "2026-08-21T14:09:33.000Z",
-      "localDateKst": "2026-08-21",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 40,
-      "hasText": true,
-      "summary": ">>2026년 2분기 유럽 스마트폰 출하량 YoY-10% •Counterpoint Research, 2026년 2분기 유럽 스마트폰 출하량은 3,500만 대로 YoY-10%를 기록. 유럽의 2분기 기준 최근..."
-    },
-    {
       "id": "bornlupin/19809",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/19809",
@@ -41654,36 +41849,6 @@
       "score": 71,
       "hasText": true,
       "summary": "[단독] 엔비디아, 데이터센터 전력 개발업체 '클로버리프 인프라스트럭처' 투자 논의 이번 거래는 데이터센터 프로젝트의 극초기 단계에서 칩 제조사로서 엔비디아의 입지를 더욱 확고히 할 전망이다. 엔비디아가..."
-    },
-    {
-      "id": "HANAchina/67591",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/67591",
-      "datetime": "2026-08-21T12:36:04.000Z",
-      "localDateKst": "2026-08-21",
-      "tags": [
-        "semi",
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 47,
-      "hasText": true,
-      "summary": ">>YMTC 지주사, 2026년 1-3월 매출 470.42억 위안·순이익 333.79억 위안 •YMTC 지주사 투자설명서에 따르면, 2024년 흑자 전환 이후 수익성이 빠르게 개선됐으며 2026년 1-3월..."
-    },
-    {
-      "id": "HANAchina/67590",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/67590",
-      "datetime": "2026-08-21T12:18:53.000Z",
-      "localDateKst": "2026-08-21",
-      "tags": [
-        "semi",
-        "equity"
-      ],
-      "tickers": [],
-      "score": 47,
-      "hasText": true,
-      "summary": ">>YMTC, 과창판 IPO 심사 ‘접수 완료’ •상하이증권거래소에 따르면 YMTC(양쯔메모리)의 과창판 최초 상장 및 주식 공모(IPO) 심사 상태가 ‘접수 완료(已受理)’로 변경 •공모를 통한 조달 예정..."
     },
     {
       "id": "insidertracking/61758",
