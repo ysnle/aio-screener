@@ -175,6 +175,7 @@ const SHELL_ASSETS = [
   './src/state/selectors/analysis.js',
   './src/ui/pages/legacy-observer.js',
   './src/ui/knowledge/learning-controls.js',
+  './src/ui/knowledge/safe-external-link.js',
   './src/ui/pages/principles.js',
   './src/ui/pages/masters.js',
   './public-data/masters/manager-catalog.json',
