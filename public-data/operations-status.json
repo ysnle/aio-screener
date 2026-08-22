@@ -7,9 +7,9 @@
     "STALE",
     "RIGHTS_REVIEW_REQUIRED"
   ],
-  "generatedAt": "2026-08-22T13:44:55.515Z",
+  "generatedAt": "2026-08-22T14:02:46.004Z",
   "appRevision": "v54.43",
-  "dataRevision": "market-snapshot:2026-08-22T13:44:50.784Z:db8ac033",
+  "dataRevision": "market-snapshot:2026-08-22T14:02:42.597Z:5f8a94ec",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
   "overall": "OPERATOR_REQUIRED",
   "planes": {
@@ -17,7 +17,7 @@
       "status": "CURRENT",
       "statusCode": "CONFIGURED_HEALTHY",
       "source": "github-actions",
-      "lastSuccessfulAt": "2026-08-22T13:44:50.784Z",
+      "lastSuccessfulAt": "2026-08-22T14:02:42.597Z",
       "coverage": {
         "required": 16,
         "observed": 16,
@@ -75,7 +75,7 @@
       "lastCallSucceeded": "BLOCKED",
       "evidence": {
         "marketAnalysisOk": false,
-        "generatedAt": "2026-08-22T13:44:50.784Z"
+        "generatedAt": "2026-08-22T14:02:42.597Z"
       }
     },
     "publicChat": {
@@ -87,7 +87,7 @@
       "health": {
         "status": "OPERATOR_REQUIRED",
         "statusCode": 200,
-        "observedAt": "2026-08-22T13:44:55.692Z",
+        "observedAt": "2026-08-22T14:02:46.166Z",
         "revision": "v54.37",
         "configured": true,
         "quotaConfigured": true,
@@ -107,15 +107,15 @@
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "reference",
-      "lastFetchAt": "2026-08-22T13:44:50.784Z"
+      "lastFetchAt": "2026-08-22T14:02:42.597Z"
     },
     "fred": {
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "official-series",
       "status": "CURRENT",
-      "lastAttemptAt": "2026-08-22T13:44:50.784Z",
-      "lastFetchAt": "2026-08-22T13:44:50.784Z"
+      "lastAttemptAt": "2026-08-22T14:02:42.597Z",
+      "lastFetchAt": "2026-08-22T14:02:42.597Z"
     },
     "sec": {
       "rights": "REVIEW_REQUIRED",
@@ -129,7 +129,7 @@
   "reconciliation": {
     "tier0": {
       "status": "MATCH",
-      "artifact": "market-snapshot:2026-08-22T13:44:50.784Z:db8ac033",
+      "artifact": "market-snapshot:2026-08-22T14:02:42.597Z:5f8a94ec",
       "uiEvidence": "same-revision-contract",
       "observedAtComplete": true
     },
@@ -137,9 +137,9 @@
     "categoryCount": 22,
     "overall": "PARTIAL",
     "counts": {
-      "PARTIAL": 13,
+      "PARTIAL": 12,
       "MATCH": 7,
-      "BLOCKED": 2
+      "BLOCKED": 3
     },
     "closure": {
       "complete": false,
@@ -171,7 +171,6 @@
         "retail-housing-ism",
         "central-bank-policy",
         "macro-calendar",
-        "news",
         "commodities-fx",
         "global-indices"
       ],
@@ -183,7 +182,9 @@
         "investors-intelligence",
         "kr-macro-vkospi-supply"
       ],
-      "runtimeBlockedCategories": [],
+      "runtimeBlockedCategories": [
+        "news"
+      ],
       "sourceRegistry": {
         "categoryCount": 22,
         "dailyAuditCoverage": 22,
@@ -263,7 +264,7 @@
           }
         ]
       },
-      "sourceRevision": "market-snapshot:2026-08-22T13:44:50.784Z:db8ac033",
+      "sourceRevision": "market-snapshot:2026-08-22T14:02:42.597Z:5f8a94ec",
       "sourceArtifacts": [
         "public-data/data.json",
         "public-data/market-snapshot.json",
