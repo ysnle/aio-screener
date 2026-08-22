@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-08-22T11:35:15.819Z",
-  "attemptedAt": "2026-08-22T11:35:15.819Z",
-  "lastSuccessfulAt": "2026-08-22T11:35:15.819Z",
+  "generatedAt": "2026-08-22T11:58:06.502Z",
+  "attemptedAt": "2026-08-22T11:58:06.502Z",
+  "lastSuccessfulAt": "2026-08-22T11:58:06.502Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-08-08T11:35:11.722Z",
-  "until": "2026-08-22T11:35:11.722Z",
+  "since": "2026-08-08T11:58:01.948Z",
+  "until": "2026-08-22T11:58:01.948Z",
   "current24hWindow": {
     "start": "2026-08-20T23:00:00.000Z",
     "end": "2026-08-21T23:00:00.000Z",
@@ -14,7 +14,7 @@
   },
   "current24hCoverage": {
     "observedCount": 179,
-    "eligibleTextCount": 35,
+    "eligibleTextCount": 47,
     "channelCounts": {
       "insidertracking": 81,
       "HANAchina": 46,
@@ -81,7 +81,7 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 251,
+      "count": 250,
       "freshCount": 20,
       "eligibleTextCount": 20,
       "selectedCount": 101,
@@ -93,7 +93,7 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1090,
+      "count": 1087,
       "freshCount": 19,
       "eligibleTextCount": 18,
       "selectedCount": 121,
@@ -102,15 +102,15 @@
     },
     {
       "channel": "bornlupin",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 196,
-      "freshCount": 20,
-      "eligibleTextCount": 20,
+      "count": 198,
+      "freshCount": 34,
+      "eligibleTextCount": 34,
       "selectedCount": 68,
       "error": null,
-      "lastPostId": 19813
+      "lastPostId": 19815
     },
     {
       "channel": "HANAchina",
@@ -125,9 +125,36 @@
       "lastPostId": 67638
     }
   ],
-  "count": 2276,
-  "retainedItemCount": 445,
+  "count": 2274,
+  "retainedItemCount": 451,
   "observedItems": [
+    {
+      "id": "bornlupin/19815",
+      "channel": "bornlupin",
+      "datetime": "2026-08-22T11:39:45.000Z",
+      "localDateKst": "2026-08-22",
+      "score": 70,
+      "tags": [
+        "geo",
+        "semi",
+        "kr-market",
+        "japan"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19814",
+      "channel": "bornlupin",
+      "datetime": "2026-08-22T11:39:34.000Z",
+      "localDateKst": "2026-08-22",
+      "score": 40,
+      "tags": [
+        "japan"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "bornlupin/19813",
       "channel": "bornlupin",
@@ -2918,7 +2945,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61720",
@@ -2947,7 +2974,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19791",
@@ -2959,7 +2986,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19790",
@@ -2971,7 +2998,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19785",
@@ -2983,7 +3010,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61718",
@@ -3183,7 +3210,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67553",
@@ -3327,7 +3354,7 @@
         "AMZN",
         "MRVL"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19780",
@@ -3342,7 +3369,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67549",
@@ -3367,7 +3394,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19778",
@@ -3385,7 +3412,7 @@
       "tickers": [
         "000660.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/24692",
@@ -3430,7 +3457,7 @@
       "tickers": [
         "000660.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61709",
@@ -3459,7 +3486,7 @@
       "tickers": [
         "005930.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67548",
@@ -32110,88 +32137,32 @@
       ],
       "tickers": [],
       "hasText": false
-    },
-    {
-      "id": "insidertracking/60645",
-      "channel": "insidertracking",
-      "datetime": "2026-08-08T11:44:04.000Z",
-      "localDateKst": "2026-08-08",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/24444",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-08-08T11:41:45.000Z",
-      "localDateKst": "2026-08-08",
-      "score": 63,
-      "tags": [
-        "semi",
-        "kr-market"
-      ],
-      "tickers": [
-        "000660.KS",
-        "035420.KS"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/60644",
-      "channel": "insidertracking",
-      "datetime": "2026-08-08T11:41:22.000Z",
-      "localDateKst": "2026-08-08",
-      "score": 63,
-      "tags": [
-        "semi",
-        "kr-market"
-      ],
-      "tickers": [
-        "000660.KS",
-        "035420.KS"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/60643",
-      "channel": "insidertracking",
-      "datetime": "2026-08-08T11:36:09.000Z",
-      "localDateKst": "2026-08-08",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2276,
-    "eligibleTextCount": 77,
-    "mediaOnlyCount": 2199,
-    "highSignalCount": 590,
-    "broadSignalCount": 1118,
+    "observedCount": 2274,
+    "eligibleTextCount": 91,
+    "mediaOnlyCount": 2183,
+    "highSignalCount": 591,
+    "broadSignalCount": 1117,
     "selectedRawCount": 413,
-    "selectedRawCoveragePct": 536.4,
+    "selectedRawCoveragePct": 453.8,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "semi": 659,
-    "japan": 181,
+    "geo": 325,
+    "semi": 658,
+    "kr-market": 326,
+    "japan": 183,
     "credit": 92,
     "macro": 816,
-    "geo": 324,
-    "market-note": 586,
+    "market-note": 584,
     "earnings": 503,
     "equity": 187,
     "healthcare": 133,
-    "kr-market": 327,
     "power": 321,
     "media-only": 75,
     "flows": 231,
@@ -32205,7 +32176,7 @@
     "META": 44,
     "AVGO": 47,
     "TSM": 84,
-    "000660.KS": 141,
+    "000660.KS": 139,
     "AMD": 43,
     "GOOG": 73,
     "MRVL": 27,
@@ -32253,7 +32224,7 @@
     "SMCI": 12,
     "RKLB": 17,
     "042660.KS": 1,
-    "035420.KS": 43,
+    "035420.KS": 41,
     "TXN": 1,
     "MRNA": 7,
     "ASTS": 2,
@@ -32435,18 +32406,18 @@
   },
   "themes": [
     "Macro/Rates (816 posts in 14-day research window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한...",
-    "Semiconductors/Memory (659 posts in 14-day research window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한...",
-    "Market Notes (586 posts in 14-day research window): >>UBS, 최초 판다채 발행… 최대 20억 위안 조달 •UBS가 처음으로 판다채를 발행해 최대 20억 위안의 자금을 조달할 계획. 발행 만기는 5년이며, 조달 자금의 순액 중 30% 이하를 중국 내 사업에...",
+    "Semiconductors/Memory (658 posts in 14-day research window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한...",
+    "Market Notes (584 posts in 14-day research window): >>UBS, 최초 판다채 발행… 최대 20억 위안 조달 •UBS가 처음으로 판다채를 발행해 최대 20억 위안의 자금을 조달할 계획. 발행 만기는 5년이며, 조달 자금의 순액 중 30% 이하를 중국 내 사업에...",
     "Earnings/Corporate (503 posts in 14-day research window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한...",
-    "Korea Market (327 posts in 14-day research window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한...",
-    "Geopolitics (324 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET...",
+    "Korea Market (326 posts in 14-day research window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한...",
+    "Geopolitics (325 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET...",
     "AI Power/Grid (321 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET...",
     "Positioning/Flows (231 posts in 14-day research window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한..."
   ],
   "catalysts": [
     {
       "key": "000660.KS",
-      "count": 141,
+      "count": 139,
       "text": "서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET..."
     },
     {
@@ -32521,7 +32492,7 @@
       "topics": [
         "geo"
       ],
-      "count": 324,
+      "count": 325,
       "focus": "서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET..."
     },
     {
@@ -32539,7 +32510,7 @@
       "topics": [
         "semi"
       ],
-      "count": 659,
+      "count": 658,
       "focus": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한..."
     },
     {
@@ -32575,7 +32546,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 327,
+      "count": 326,
       "focus": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한..."
     },
     {
@@ -32620,7 +32591,7 @@
       "topics": [
         "japan"
       ],
-      "count": 181,
+      "count": 183,
       "focus": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한..."
     },
     {
@@ -32647,7 +32618,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 586,
+      "count": 584,
       "focus": ">>UBS, 최초 판다채 발행… 최대 20억 위안 조달 •UBS가 처음으로 판다채를 발행해 최대 20억 위안의 자금을 조달할 계획. 발행 만기는 5년이며, 조달 자금의 순액 중 30% 이하를 중국 내 사업에..."
     }
   ],
@@ -34083,6 +34054,23 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "bornlupin/19815",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19815",
+      "datetime": "2026-08-22T11:39:45.000Z",
+      "localDateKst": "2026-08-22",
+      "tags": [
+        "geo",
+        "semi",
+        "kr-market",
+        "japan"
+      ],
+      "tickers": [],
+      "score": 70,
+      "hasText": true,
+      "summary": "네비우스, 한국 및 일본 시장 확장 가속화 채용 포지션: 어카운트 이그제큐티브 (Account Executive - South Korea) 근무 형태: 대한민국 원격 근무 (APJ 초기 창립 멤버) 회사 소개..."
+    },
     {
       "id": "insidertracking/61821",
       "channel": "insidertracking",
@@ -41188,21 +41176,6 @@
       "score": 97,
       "hasText": true,
       "summary": "마이크론 주가, 다시 1,000달러 선 근접… 어디까지 오를 수 있을까 최근 메모리주 반등의 배경 중 하나로는 샌디스크(&#036;SNDK)가 제시한 강한 장기 NAND 시장 전망이 언급됐다. KeyBanc의..."
-    },
-    {
-      "id": "bornlupin/19723",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/19723",
-      "datetime": "2026-08-15T06:40:46.000Z",
-      "localDateKst": "2026-08-15",
-      "tags": [
-        "semi",
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 65,
-      "hasText": true,
-      "summary": "​[글로벌 반도체 분석] 낸드 플래시(NAND), 앞으로 4년간 공급 부족 이어지나? 파이슨(Phison) CEO 판젠청: \"신규 낸드 증설 양산까지 4년 걸린다\" ​① 신규 캐파(CAPEX) 증설의 현실..."
     }
   ],
   "current24hItems": [
@@ -42610,6 +42583,20 @@
       "summary": ">>마이크론 CEO: 메모리는 더 이상 단순 부품이 아닌 AI 전략 인프라 •마이크론 CEO 산제이 메흐로트라는 메모리가 더 이상 AI 시스템의 일반적인 부품이 아니라, AI를 더 빠르고 지능적으로 확장할 수..."
     },
     {
+      "id": "bornlupin/19793",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19793",
+      "datetime": "2026-08-21T02:35:23.000Z",
+      "localDateKst": "2026-08-21",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 45,
+      "hasText": true,
+      "summary": "BofA, 낸드 웨이퍼 가격, 8월 초 급반등"
+    },
+    {
       "id": "bornlupin/19792",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/19792",
@@ -42627,6 +42614,34 @@
       "score": 87,
       "hasText": true,
       "summary": "Global Memory Tech: SK하이닉스 자사주 매입 함의, 현물가 강세 (Bofa) 1. SK 하이닉스 대규모 자사주 매입의 긍정적 함의 • 메모리 업체들이 무리하게 설비투자를 늘리기보다 주주환원에..."
+    },
+    {
+      "id": "bornlupin/19791",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19791",
+      "datetime": "2026-08-21T02:18:29.000Z",
+      "localDateKst": "2026-08-21",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 35,
+      "hasText": true,
+      "summary": "*8월 플래시, 중량 기준 수출 단가: 폭발적 수직 상승"
+    },
+    {
+      "id": "bornlupin/19790",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19790",
+      "datetime": "2026-08-21T02:18:23.000Z",
+      "localDateKst": "2026-08-21",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [],
+      "score": 47,
+      "hasText": true,
+      "summary": "* 8월 1~20일 DRAM 수출 단가: 선형적/구조적 상승세 지속"
     },
     {
       "id": "bornlupin/19785",
@@ -42733,6 +42748,20 @@
       "score": 65,
       "hasText": true,
       "summary": "JP모건) 알리바바: AI Capex, 지출에서 수익으로 (Overweight 유지, 목표주가 상향) JP모건은 알리바바에 대해 Overweight 의견을 유지하며 Dec-26 목표주가를 미국 ADR 기준..."
+    },
+    {
+      "id": "bornlupin/19782",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19782",
+      "datetime": "2026-08-21T01:07:51.000Z",
+      "localDateKst": "2026-08-21",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 40,
+      "hasText": true,
+      "summary": "(TRASS-BF) 잠정 수출 | 2026년 8월 20일 8월 20일 잠정 수출액 주요 품목 ATH ※ 매월 1-20일까지의 수치 기준 디램: +415% Y/Y, +3% M/M 낸드: +400% Y/Y,..."
     },
     {
       "id": "HANAchina/67553",
