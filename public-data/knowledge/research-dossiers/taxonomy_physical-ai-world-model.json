@@ -18,30 +18,25 @@
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
-      "sourceId": "NIST robotics",
-      "unresolved": true
+      "sourceId": "AT-RB-01",
+      "url": "https://www.nist.gov/topics/robotics",
+      "publisher": "NIST",
+      "title": "Robotics research and measurement",
+      "sourceTier": null
     },
     {
-      "sourceId": "ISO safety standards",
-      "unresolved": true
+      "sourceId": "AT-RB-02",
+      "url": "https://www.tesla.com/AI",
+      "publisher": "Tesla",
+      "title": "AI and robotics overview",
+      "sourceTier": null
     },
     {
-      "sourceId": "robotics company filings",
-      "unresolved": true
-    },
-    {
-      "sourceId": "WEB-SEC-FINANCIAL-STATEMENTS-2024",
-      "url": "https://www.sec.gov/newsroom/press-releases/2024-120",
-      "publisher": "U.S. Securities and Exchange Commission",
-      "title": "SEC educational resources about income statements and balance sheets",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
-      "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-      "url": "https://www.investor.gov/introduction-investing/investing-basics/how-read-10-k",
-      "publisher": "SEC Investor.gov",
-      "title": "How to Read a 10-K",
-      "sourceTier": "PRIMARY_OFFICIAL"
+      "sourceId": "AT-RB-03",
+      "url": "https://www.siemens.com/en-us/company/insights/generative-ai-industrial-copilot/",
+      "publisher": "Siemens",
+      "title": "Industrial Copilot",
+      "sourceTier": null
     },
     {
       "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
@@ -66,24 +61,6 @@
     }
   ],
   "selectedSources": [
-    {
-      "sourceId": "WEB-SEC-FINANCIAL-STATEMENTS-2024",
-      "url": "https://www.sec.gov/newsroom/press-releases/2024-120",
-      "publisher": "U.S. Securities and Exchange Commission",
-      "title": "SEC educational resources about income statements and balance sheets",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
-    },
-    {
-      "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-      "url": "https://www.investor.gov/introduction-investing/investing-basics/how-read-10-k",
-      "publisher": "SEC Investor.gov",
-      "title": "How to Read a 10-K",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
-    },
     {
       "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
       "url": "https://arxiv.org/abs/1706.03762",
@@ -112,32 +89,18 @@
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
-  "rejectedSources": [
-    {
-      "sourceId": "NIST robotics",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "ISO safety standards",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "robotics company filings",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    }
-  ],
+  "rejectedSources": [],
   "sourceTiers": [
-    "PRIMARY_OFFICIAL",
-    "ACADEMIC_TEXTBOOK_STANDARD"
+    "ACADEMIC_TEXTBOOK_STANDARD",
+    "PRIMARY_OFFICIAL"
   ],
   "claimCoverage": [],
   "researchFactIds": [
     "fact:nist:ai-rmf-core",
-    "fact:sec:financial-statements",
-    "fact:sec:10k-reading",
     "fact:transformer:attention",
     "fact:google:learning-types",
-    "fact:sia:semiconductor-value-chain"
+    "fact:sia:semiconductor-value-chain",
+    "fact:nist:supply-chain-risk"
   ],
   "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",

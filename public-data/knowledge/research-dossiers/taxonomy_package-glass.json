@@ -18,33 +18,29 @@
   "method": "NOT_STARTED",
   "candidateSources": [
     {
-      "sourceId": "TSMC technology",
-      "unresolved": true
+      "sourceId": "AT-PA-01",
+      "url": "https://www.tsmc.com/english/dedicatedFoundry/technology/3dfabric",
+      "publisher": "TSMC",
+      "title": "3DFabric advanced packaging",
+      "sourceTier": null
     },
     {
-      "sourceId": "UCIe",
-      "unresolved": true
+      "sourceId": "AT-PA-02",
+      "url": "https://www.intel.com/content/www/us/en/foundry/advanced-packaging.html",
+      "publisher": "Intel",
+      "title": "Advanced packaging technologies",
+      "sourceTier": null
     },
     {
-      "sourceId": "substrate vendor IR",
-      "unresolved": true
+      "sourceId": "AT-PA-03",
+      "url": "https://www.jedec.org/standards-documents",
+      "publisher": "JEDEC",
+      "title": "HBM standards",
+      "sourceTier": null
     }
   ],
   "selectedSources": [],
-  "rejectedSources": [
-    {
-      "sourceId": "TSMC technology",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "UCIe",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "substrate vendor IR",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    }
-  ],
+  "rejectedSources": [],
   "sourceTiers": [],
   "claimCoverage": [],
   "researchFactIds": [

@@ -18,42 +18,38 @@
   "method": "NOT_STARTED",
   "candidateSources": [
     {
-      "sourceId": "JEDEC",
-      "unresolved": true
+      "sourceId": "AT-MS-01",
+      "url": "https://www.jedec.org/standards-documents",
+      "publisher": "JEDEC",
+      "title": "Standards documents",
+      "sourceTier": null
     },
     {
-      "sourceId": "company IR",
-      "unresolved": true
+      "sourceId": "AT-MS-02",
+      "url": "https://www.micron.com/products/memory/hbm",
+      "publisher": "Micron",
+      "title": "High bandwidth memory",
+      "sourceTier": null
     },
     {
-      "sourceId": "SNIA",
-      "unresolved": true
+      "sourceId": "AT-MS-03",
+      "url": "https://www.kioxia-holdings.com/en-jp/technology/topics/ssd.html",
+      "publisher": "KIOXIA",
+      "title": "Enterprise and data-center SSD technology",
+      "sourceTier": null
     }
   ],
   "selectedSources": [],
-  "rejectedSources": [
-    {
-      "sourceId": "JEDEC",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "company IR",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "SNIA",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    }
-  ],
+  "rejectedSources": [],
   "sourceTiers": [],
   "claimCoverage": [],
   "researchFactIds": [
-    "fact:sec:financial-statements",
-    "fact:sec:10k-reading",
     "fact:ml:generalization-memory",
     "fact:tsmc:3dfabric",
     "fact:micron:hbm2e",
-    "fact:pagedattention:kv-cache"
+    "fact:pagedattention:kv-cache",
+    "fact:3dnand:reliability-boundary",
+    "fact:sandisk:2026-investor-day-model"
   ],
   "consensus": "Not assessed.",
   "disagreement": "Not assessed until independent source comparison is complete.",

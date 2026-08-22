@@ -18,32 +18,31 @@
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
-      "sourceId": "SEC 10-K/S-1",
-      "unresolved": true
+      "sourceId": "AT-NC-01",
+      "url": "https://www.sec.gov/edgar/search-and-access",
+      "publisher": "SEC EDGAR",
+      "title": "Company filings search",
+      "sourceTier": null
     },
     {
-      "sourceId": "debt and lease notes",
-      "unresolved": true
+      "sourceId": "AT-NC-02",
+      "url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312526101045/orcl-20260228.htm",
+      "publisher": "Oracle / SEC EDGAR",
+      "title": "2026 Q3 Form 10-Q",
+      "sourceTier": null
+    },
+    {
+      "sourceId": "AT-NC-03",
+      "url": "https://www.federalreserve.gov/monetarypolicy.htm",
+      "publisher": "Federal Reserve",
+      "title": "Financial conditions and monetary policy",
+      "sourceTier": null
     },
     {
       "sourceId": "WEB-FED-FINANCIAL-STABILITY",
       "url": "https://www.federalreserve.gov/financial-stability/what-is-financial-stability.htm",
       "publisher": "Federal Reserve",
       "title": "What Is Financial Stability?",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
-      "sourceId": "WEB-SEC-FINANCIAL-STATEMENTS-2024",
-      "url": "https://www.sec.gov/newsroom/press-releases/2024-120",
-      "publisher": "U.S. Securities and Exchange Commission",
-      "title": "SEC educational resources about income statements and balance sheets",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
-      "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-      "url": "https://www.investor.gov/introduction-investing/investing-basics/how-read-10-k",
-      "publisher": "SEC Investor.gov",
-      "title": "How to Read a 10-K",
       "sourceTier": "PRIMARY_OFFICIAL"
     },
     {
@@ -72,24 +71,6 @@
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     },
     {
-      "sourceId": "WEB-SEC-FINANCIAL-STATEMENTS-2024",
-      "url": "https://www.sec.gov/newsroom/press-releases/2024-120",
-      "publisher": "U.S. Securities and Exchange Commission",
-      "title": "SEC educational resources about income statements and balance sheets",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
-    },
-    {
-      "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-      "url": "https://www.investor.gov/introduction-investing/investing-basics/how-read-10-k",
-      "publisher": "SEC Investor.gov",
-      "title": "How to Read a 10-K",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
-    },
-    {
       "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
       "url": "https://www.energy.gov/cmei/femp/cooling-water-efficiency-opportunities-federal-data-centers",
       "publisher": "U.S. Department of Energy",
@@ -108,22 +89,12 @@
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
-  "rejectedSources": [
-    {
-      "sourceId": "SEC 10-K/S-1",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "debt and lease notes",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    }
-  ],
+  "rejectedSources": [],
   "sourceTiers": [
     "PRIMARY_OFFICIAL"
   ],
   "claimCoverage": [],
   "researchFactIds": [
-    "fact:sec:10k-reading",
     "fact:fred:real-rates",
     "fact:fed:financial-stability",
     "fact:nyfed:rstar-model-market",

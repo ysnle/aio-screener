@@ -18,16 +18,25 @@
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
-      "sourceId": "OFC",
-      "unresolved": true
+      "sourceId": "AT-NP-01",
+      "url": "https://www.ofcconference.org/",
+      "publisher": "OFC",
+      "title": "Optical communications conference and ecosystem",
+      "sourceTier": null
     },
     {
-      "sourceId": "IEEE",
-      "unresolved": true
+      "sourceId": "AT-NP-02",
+      "url": "https://www.broadcom.com/products/ethernet-connectivity/switching",
+      "publisher": "Broadcom",
+      "title": "Ethernet switching portfolio",
+      "sourceTier": null
     },
     {
-      "sourceId": "switch and optics vendors",
-      "unresolved": true
+      "sourceId": "AT-NP-03",
+      "url": "https://www.coherent.com/networking",
+      "publisher": "Coherent",
+      "title": "Networking and optical communications",
+      "sourceTier": null
     },
     {
       "sourceId": "WEB-ASML-EUV-2026",
@@ -48,20 +57,7 @@
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
-  "rejectedSources": [
-    {
-      "sourceId": "OFC",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "IEEE",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "switch and optics vendors",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    }
-  ],
+  "rejectedSources": [],
   "sourceTiers": [
     "COMPANY_TECHNICAL_DOCUMENT"
   ],

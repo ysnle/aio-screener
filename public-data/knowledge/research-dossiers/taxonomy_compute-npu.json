@@ -18,25 +18,29 @@
   "method": "NOT_STARTED",
   "candidateSources": [
     {
-      "sourceId": "architecture documents",
-      "unresolved": true
+      "sourceId": "AT-CS-01",
+      "url": "https://science.osti.gov/ascr",
+      "publisher": "U.S. DOE ASCR",
+      "title": "Advanced scientific computing research",
+      "sourceTier": null
     },
     {
-      "sourceId": "IEEE / ISSCC / IEDM",
-      "unresolved": true
+      "sourceId": "AT-CS-02",
+      "url": "https://developer.nvidia.com/deep-learning",
+      "publisher": "NVIDIA",
+      "title": "Deep learning technical resources",
+      "sourceTier": null
+    },
+    {
+      "sourceId": "AT-CS-03",
+      "url": "https://www.nist.gov/ai",
+      "publisher": "NIST",
+      "title": "AI evaluation",
+      "sourceTier": null
     }
   ],
   "selectedSources": [],
-  "rejectedSources": [
-    {
-      "sourceId": "architecture documents",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "IEEE / ISSCC / IEDM",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    }
-  ],
+  "rejectedSources": [],
   "sourceTiers": [],
   "claimCoverage": [],
   "researchFactIds": [

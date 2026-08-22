@@ -18,16 +18,25 @@
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
-      "sourceId": "FDA digital health",
-      "unresolved": true
+      "sourceId": "AT-AA-01",
+      "url": "https://www.nist.gov/ai",
+      "publisher": "NIST",
+      "title": "Artificial intelligence",
+      "sourceTier": null
     },
     {
-      "sourceId": "DOE manufacturing",
-      "unresolved": true
+      "sourceId": "AT-AA-02",
+      "url": "https://www.palantir.com/platforms/aip/",
+      "publisher": "Palantir",
+      "title": "Artificial Intelligence Platform",
+      "sourceTier": null
     },
     {
-      "sourceId": "company product filings",
-      "unresolved": true
+      "sourceId": "AT-AA-03",
+      "url": "https://oecd.ai/en/",
+      "publisher": "OECD",
+      "title": "AI policy and productivity",
+      "sourceTier": null
     },
     {
       "sourceId": "WEB-SEC-FINANCIAL-STATEMENTS-2024",
@@ -64,20 +73,7 @@
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
-  "rejectedSources": [
-    {
-      "sourceId": "FDA digital health",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "DOE manufacturing",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "company product filings",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    }
-  ],
+  "rejectedSources": [],
   "sourceTiers": [
     "PRIMARY_OFFICIAL"
   ],

@@ -18,16 +18,25 @@
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
-      "sourceId": "DOE/LBNL",
-      "unresolved": true
+      "sourceId": "AT-AC-01",
+      "url": "https://www.energy.gov/articles/energy-department-releases-new-report-economics-data-centers",
+      "publisher": "U.S. DOE",
+      "title": "Data centers and energy economics",
+      "sourceTier": null
     },
     {
-      "sourceId": "data-center operators",
-      "unresolved": true
+      "sourceId": "AT-AC-02",
+      "url": "https://www.vertiv.com/en-us/solutions/ai/",
+      "publisher": "Vertiv",
+      "title": "AI data-center solutions",
+      "sourceTier": null
     },
     {
-      "sourceId": "server OEM IR",
-      "unresolved": true
+      "sourceId": "AT-AC-03",
+      "url": "https://www.ashrae.org/technical-resources/bookstore/datacom-series",
+      "publisher": "ASHRAE",
+      "title": "Data center resources",
+      "sourceTier": null
     },
     {
       "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
@@ -112,20 +121,7 @@
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
-  "rejectedSources": [
-    {
-      "sourceId": "DOE/LBNL",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "data-center operators",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "server OEM IR",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    }
-  ],
+  "rejectedSources": [],
   "sourceTiers": [
     "ACADEMIC_TEXTBOOK_STANDARD",
     "PRIMARY_OFFICIAL"

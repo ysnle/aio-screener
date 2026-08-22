@@ -18,16 +18,25 @@
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
-      "sourceId": "SoC/NPU documentation",
-      "unresolved": true
+      "sourceId": "AT-OD-01",
+      "url": "https://www.nist.gov/topics/robotics",
+      "publisher": "NIST",
+      "title": "AI and robotics",
+      "sourceTier": null
     },
     {
-      "sourceId": "robotics papers",
-      "unresolved": true
+      "sourceId": "AT-OD-02",
+      "url": "https://www.qualcomm.com/artificial-intelligence",
+      "publisher": "Qualcomm",
+      "title": "On-device AI",
+      "sourceTier": null
     },
     {
-      "sourceId": "simulation frameworks",
-      "unresolved": true
+      "sourceId": "AT-OD-03",
+      "url": "https://www.arm.com/markets/edge-ai",
+      "publisher": "Arm",
+      "title": "Edge AI",
+      "sourceTier": null
     },
     {
       "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
@@ -80,20 +89,7 @@
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
-  "rejectedSources": [
-    {
-      "sourceId": "SoC/NPU documentation",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "robotics papers",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "simulation frameworks",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    }
-  ],
+  "rejectedSources": [],
   "sourceTiers": [
     "ACADEMIC_TEXTBOOK_STANDARD",
     "PRIMARY_OFFICIAL"

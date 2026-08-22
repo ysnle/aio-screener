@@ -18,16 +18,25 @@
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
-      "sourceId": "SEC EDGAR",
-      "unresolved": true
+      "sourceId": "AT-CM-01",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics",
+      "publisher": "SEC Investor.gov",
+      "title": "Investing basics and disclosures",
+      "sourceTier": null
     },
     {
-      "sourceId": "company annual reports",
-      "unresolved": true
+      "sourceId": "AT-CM-02",
+      "url": "https://home.treasury.gov/policy-issues/financing-the-government/interest-rates",
+      "publisher": "U.S. Treasury",
+      "title": "Interest rates and financing",
+      "sourceTier": null
     },
     {
-      "sourceId": "exchange rulebooks",
-      "unresolved": true
+      "sourceId": "AT-CM-03",
+      "url": "https://www.federalreserve.gov/monetarypolicy.htm",
+      "publisher": "Federal Reserve",
+      "title": "Financial accounts and monetary policy",
+      "sourceTier": null
     },
     {
       "sourceId": "WEB-FED-FINANCIAL-STABILITY",
@@ -80,31 +89,18 @@
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
-  "rejectedSources": [
-    {
-      "sourceId": "SEC EDGAR",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "company annual reports",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "exchange rulebooks",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    }
-  ],
+  "rejectedSources": [],
   "sourceTiers": [
     "PRIMARY_OFFICIAL"
   ],
   "claimCoverage": [],
   "researchFactIds": [
     "fact:sec:financial-statements",
-    "fact:sec:10k-reading",
     "fact:oecd:productivity",
     "fact:fed:policy-transmission",
-    "fact:krx:listed-products",
-    "fact:fed:financial-stability"
+    "fact:fed:financial-stability",
+    "fact:sec:capex-depreciation",
+    "fact:sia:semiconductor-value-chain"
   ],
   "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",

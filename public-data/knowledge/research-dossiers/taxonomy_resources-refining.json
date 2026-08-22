@@ -14,81 +14,40 @@
     "Mining, refining and recycling official data standard filing evidence",
     "Mining, refining and recycling disconfirming evidence limitations"
   ],
-  "searchedAt": "2026-08-18",
-  "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
+  "searchedAt": null,
+  "method": "NOT_STARTED",
   "candidateSources": [
     {
-      "sourceId": "IEA critical minerals",
-      "unresolved": true
+      "sourceId": "AT-RM-01",
+      "url": "https://www.iea.org/topics/critical-minerals",
+      "publisher": "IEA",
+      "title": "Critical minerals",
+      "sourceTier": null
     },
     {
-      "sourceId": "USGS minerals",
-      "unresolved": true
+      "sourceId": "AT-RM-02",
+      "url": "https://www.usgs.gov/centers/national-minerals-information-center/mineral-commodity-summaries",
+      "publisher": "USGS",
+      "title": "Mineral commodity summaries",
+      "sourceTier": null
     },
     {
-      "sourceId": "industrial company filings",
-      "unresolved": true
-    },
-    {
-      "sourceId": "WEB-SEC-FINANCIAL-STATEMENTS-2024",
-      "url": "https://www.sec.gov/newsroom/press-releases/2024-120",
-      "publisher": "U.S. Securities and Exchange Commission",
-      "title": "SEC educational resources about income statements and balance sheets",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
-      "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-      "url": "https://www.investor.gov/introduction-investing/investing-basics/how-read-10-k",
-      "publisher": "SEC Investor.gov",
-      "title": "How to Read a 10-K",
-      "sourceTier": "PRIMARY_OFFICIAL"
+      "sourceId": "AT-RM-03",
+      "url": "https://www.mpmaterials.com/",
+      "publisher": "MP Materials",
+      "title": "Rare-earth materials and magnetics",
+      "sourceTier": null
     }
   ],
-  "selectedSources": [
-    {
-      "sourceId": "WEB-SEC-FINANCIAL-STATEMENTS-2024",
-      "url": "https://www.sec.gov/newsroom/press-releases/2024-120",
-      "publisher": "U.S. Securities and Exchange Commission",
-      "title": "SEC educational resources about income statements and balance sheets",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
-    },
-    {
-      "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-      "url": "https://www.investor.gov/introduction-investing/investing-basics/how-read-10-k",
-      "publisher": "SEC Investor.gov",
-      "title": "How to Read a 10-K",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
-    }
-  ],
-  "rejectedSources": [
-    {
-      "sourceId": "IEA critical minerals",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "USGS minerals",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "industrial company filings",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    }
-  ],
-  "sourceTiers": [
-    "PRIMARY_OFFICIAL"
-  ],
+  "selectedSources": [],
+  "rejectedSources": [],
+  "sourceTiers": [],
   "claimCoverage": [],
   "researchFactIds": [
-    "fact:sec:financial-statements",
-    "fact:sec:10k-reading",
     "fact:sia:semiconductor-value-chain",
     "fact:nist:supply-chain-risk"
   ],
-  "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
+  "consensus": "Not assessed.",
   "disagreement": "Not assessed until independent source comparison is complete.",
   "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
   "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -97,10 +56,10 @@
   "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
   "q4StructuralMechanism": "Trace Mining, refining and recycling through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-  "status": "RESEARCHED",
+  "status": "RESEARCH_REQUIRED",
   "completion": {
-    "researchComplete": true,
-    "sourceProfileComplete": true,
+    "researchComplete": false,
+    "sourceProfileComplete": false,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   }

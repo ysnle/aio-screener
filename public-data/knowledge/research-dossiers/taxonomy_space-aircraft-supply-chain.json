@@ -18,16 +18,25 @@
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
-      "sourceId": "NASA Artemis",
-      "unresolved": true
+      "sourceId": "AT-SA-01",
+      "url": "https://www.nasa.gov/humans-in-space/artemis/",
+      "publisher": "NASA",
+      "title": "Artemis program",
+      "sourceTier": null
     },
     {
-      "sourceId": "FAA commercial space",
-      "unresolved": true
+      "sourceId": "AT-SA-02",
+      "url": "https://rocketlabcorp.com/space-systems/spacecraft/",
+      "publisher": "Rocket Lab",
+      "title": "Space systems and spacecraft",
+      "sourceTier": null
     },
     {
-      "sourceId": "company launch disclosures",
-      "unresolved": true
+      "sourceId": "AT-SA-03",
+      "url": "https://www.faa.gov/space/space_transportation",
+      "publisher": "FAA",
+      "title": "Commercial space transportation",
+      "sourceTier": null
     },
     {
       "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
@@ -80,20 +89,7 @@
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
-  "rejectedSources": [
-    {
-      "sourceId": "NASA Artemis",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "FAA commercial space",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "company launch disclosures",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    }
-  ],
+  "rejectedSources": [],
   "sourceTiers": [
     "ACADEMIC_TEXTBOOK_STANDARD",
     "PRIMARY_OFFICIAL"
@@ -101,8 +97,6 @@
   "claimCoverage": [],
   "researchFactIds": [
     "fact:nist:ai-rmf-core",
-    "fact:sec:financial-statements",
-    "fact:sec:10k-reading",
     "fact:sia:semiconductor-value-chain",
     "fact:nist:supply-chain-risk"
   ],

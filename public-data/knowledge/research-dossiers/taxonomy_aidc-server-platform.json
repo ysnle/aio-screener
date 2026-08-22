@@ -18,16 +18,25 @@
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
-      "sourceId": "DOE/LBNL",
-      "unresolved": true
+      "sourceId": "AT-AC-01",
+      "url": "https://www.energy.gov/articles/energy-department-releases-new-report-economics-data-centers",
+      "publisher": "U.S. DOE",
+      "title": "Data centers and energy economics",
+      "sourceTier": null
     },
     {
-      "sourceId": "data-center operators",
-      "unresolved": true
+      "sourceId": "AT-AC-02",
+      "url": "https://www.vertiv.com/en-us/solutions/ai/",
+      "publisher": "Vertiv",
+      "title": "AI data-center solutions",
+      "sourceTier": null
     },
     {
-      "sourceId": "server OEM IR",
-      "unresolved": true
+      "sourceId": "AT-AC-03",
+      "url": "https://www.ashrae.org/technical-resources/bookstore/datacom-series",
+      "publisher": "ASHRAE",
+      "title": "Data center resources",
+      "sourceTier": null
     },
     {
       "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
@@ -41,20 +50,6 @@
       "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-ai-rmf-10",
       "publisher": "NIST",
       "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
-      "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-      "url": "https://www.energy.gov/cmei/femp/cooling-water-efficiency-opportunities-federal-data-centers",
-      "publisher": "U.S. Department of Energy",
-      "title": "Cooling Water Efficiency Opportunities for Federal Data Centers",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
-      "sourceId": "WEB-DOE-DATACENTER-DESIGN-2024",
-      "url": "https://www.energy.gov/cmei/femp/articles/best-practices-guide-energy-efficient-data-center-design",
-      "publisher": "U.S. Department of Energy",
-      "title": "Best Practices Guide for Energy-Efficient Data Center Design",
       "sourceTier": "PRIMARY_OFFICIAL"
     },
     {
@@ -85,24 +80,6 @@
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     },
     {
-      "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
-      "url": "https://www.energy.gov/cmei/femp/cooling-water-efficiency-opportunities-federal-data-centers",
-      "publisher": "U.S. Department of Energy",
-      "title": "Cooling Water Efficiency Opportunities for Federal Data Centers",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
-    },
-    {
-      "sourceId": "WEB-DOE-DATACENTER-DESIGN-2024",
-      "url": "https://www.energy.gov/cmei/femp/articles/best-practices-guide-energy-efficient-data-center-design",
-      "publisher": "U.S. Department of Energy",
-      "title": "Best Practices Guide for Energy-Efficient Data Center Design",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
-    },
-    {
       "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
       "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
       "publisher": "NIST AI Resource Center",
@@ -112,20 +89,7 @@
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
-  "rejectedSources": [
-    {
-      "sourceId": "DOE/LBNL",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "data-center operators",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "server OEM IR",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    }
-  ],
+  "rejectedSources": [],
   "sourceTiers": [
     "ACADEMIC_TEXTBOOK_STANDARD",
     "PRIMARY_OFFICIAL"
@@ -133,10 +97,8 @@
   "claimCoverage": [],
   "researchFactIds": [
     "fact:nist:ai-rmf-core",
-    "fact:doe:pue",
     "fact:sia:semiconductor-value-chain",
-    "fact:nist:supply-chain-risk",
-    "fact:doe:datacenter-kpi-denominators"
+    "fact:nist:supply-chain-risk"
   ],
   "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",

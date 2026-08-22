@@ -18,16 +18,25 @@
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
-      "sourceId": "company IR",
-      "unresolved": true
+      "sourceId": "AT-FE-01",
+      "url": "https://www.tsmc.com/english/dedicatedFoundry/technology",
+      "publisher": "TSMC",
+      "title": "Technology platform",
+      "sourceTier": null
     },
     {
-      "sourceId": "SEMI",
-      "unresolved": true
+      "sourceId": "AT-FE-02",
+      "url": "https://www.asml.com/en/technology/all-about-euv",
+      "publisher": "ASML",
+      "title": "EUV lithography technology",
+      "sourceTier": null
     },
     {
-      "sourceId": "IEEE / IEDM",
-      "unresolved": true
+      "sourceId": "AT-FE-03",
+      "url": "https://www.intel.com/content/www/us/en/newsroom/resources/intel-process-technology.html",
+      "publisher": "Intel",
+      "title": "Process technology roadmap",
+      "sourceTier": null
     },
     {
       "sourceId": "WEB-ASML-EUV-2026",
@@ -96,32 +105,19 @@
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
-  "rejectedSources": [
-    {
-      "sourceId": "company IR",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "SEMI",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "IEEE / IEDM",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    }
-  ],
+  "rejectedSources": [],
   "sourceTiers": [
     "COMPANY_TECHNICAL_DOCUMENT",
     "PRIMARY_OFFICIAL"
   ],
   "claimCoverage": [],
   "researchFactIds": [
-    "fact:sec:financial-statements",
-    "fact:sec:10k-reading",
     "fact:asml:euv",
     "fact:doe:pue",
     "fact:fred:real-rates",
-    "fact:sec:capex-depreciation"
+    "fact:sec:capex-depreciation",
+    "fact:nyfed:rstar-model-market",
+    "fact:sia:semiconductor-value-chain"
   ],
   "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",

@@ -14,98 +14,41 @@
     "CAPEX / lease official data standard filing evidence",
     "CAPEX / lease disconfirming evidence limitations"
   ],
-  "searchedAt": "2026-08-18",
-  "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
+  "searchedAt": null,
+  "method": "NOT_STARTED",
   "candidateSources": [
     {
-      "sourceId": "SEC filings",
-      "unresolved": true
+      "sourceId": "AT-AE-01",
+      "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526191507/msft-20260331.htm",
+      "publisher": "Microsoft / SEC EDGAR",
+      "title": "2026 Q3 Form 10-Q",
+      "sourceTier": null
     },
     {
-      "sourceId": "annual reports",
-      "unresolved": true
+      "sourceId": "AT-AE-02",
+      "url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026028526/meta-20260331.htm",
+      "publisher": "Meta / SEC EDGAR",
+      "title": "2026 Q1 Form 10-Q",
+      "sourceTier": null
     },
     {
-      "sourceId": "credit disclosures",
-      "unresolved": true
-    },
-    {
-      "sourceId": "WEB-FED-FINANCIAL-STABILITY",
-      "url": "https://www.federalreserve.gov/financial-stability/what-is-financial-stability.htm",
-      "publisher": "Federal Reserve",
-      "title": "What Is Financial Stability?",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
-      "sourceId": "WEB-SEC-FINANCIAL-STATEMENTS-2024",
-      "url": "https://www.sec.gov/newsroom/press-releases/2024-120",
-      "publisher": "U.S. Securities and Exchange Commission",
-      "title": "SEC educational resources about income statements and balance sheets",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
-      "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-      "url": "https://www.investor.gov/introduction-investing/investing-basics/how-read-10-k",
-      "publisher": "SEC Investor.gov",
-      "title": "How to Read a 10-K",
-      "sourceTier": "PRIMARY_OFFICIAL"
+      "sourceId": "AT-AE-03",
+      "url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312526101045/orcl-20260228.htm",
+      "publisher": "Oracle / SEC EDGAR",
+      "title": "2026 Q3 Form 10-Q",
+      "sourceTier": null
     }
   ],
-  "selectedSources": [
-    {
-      "sourceId": "WEB-FED-FINANCIAL-STABILITY",
-      "url": "https://www.federalreserve.gov/financial-stability/what-is-financial-stability.htm",
-      "publisher": "Federal Reserve",
-      "title": "What Is Financial Stability?",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
-    },
-    {
-      "sourceId": "WEB-SEC-FINANCIAL-STATEMENTS-2024",
-      "url": "https://www.sec.gov/newsroom/press-releases/2024-120",
-      "publisher": "U.S. Securities and Exchange Commission",
-      "title": "SEC educational resources about income statements and balance sheets",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
-    },
-    {
-      "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-      "url": "https://www.investor.gov/introduction-investing/investing-basics/how-read-10-k",
-      "publisher": "SEC Investor.gov",
-      "title": "How to Read a 10-K",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
-    }
-  ],
-  "rejectedSources": [
-    {
-      "sourceId": "SEC filings",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "annual reports",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "credit disclosures",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    }
-  ],
-  "sourceTiers": [
-    "PRIMARY_OFFICIAL"
-  ],
+  "selectedSources": [],
+  "rejectedSources": [],
+  "sourceTiers": [],
   "claimCoverage": [],
   "researchFactIds": [
-    "fact:sec:10k-reading",
-    "fact:fed:financial-stability",
     "fact:sec:capex-depreciation",
     "fact:sia:semiconductor-value-chain",
     "fact:nist:supply-chain-risk"
   ],
-  "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
+  "consensus": "Not assessed.",
   "disagreement": "Not assessed until independent source comparison is complete.",
   "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
   "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
@@ -114,10 +57,10 @@
   "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
   "q4StructuralMechanism": "Trace CAPEX / lease through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
   "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
-  "status": "RESEARCHED",
+  "status": "RESEARCH_REQUIRED",
   "completion": {
-    "researchComplete": true,
-    "sourceProfileComplete": true,
+    "researchComplete": false,
+    "sourceProfileComplete": false,
     "semanticReview": "REQUIRED",
     "userValidation": "NOT_CONDUCTED"
   }

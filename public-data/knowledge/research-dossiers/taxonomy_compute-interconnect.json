@@ -18,12 +18,25 @@
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
-      "sourceId": "architecture documents",
-      "unresolved": true
+      "sourceId": "AT-CS-01",
+      "url": "https://science.osti.gov/ascr",
+      "publisher": "U.S. DOE ASCR",
+      "title": "Advanced scientific computing research",
+      "sourceTier": null
     },
     {
-      "sourceId": "IEEE / ISSCC / IEDM",
-      "unresolved": true
+      "sourceId": "AT-CS-02",
+      "url": "https://developer.nvidia.com/deep-learning",
+      "publisher": "NVIDIA",
+      "title": "Deep learning technical resources",
+      "sourceTier": null
+    },
+    {
+      "sourceId": "AT-CS-03",
+      "url": "https://www.nist.gov/ai",
+      "publisher": "NIST",
+      "title": "AI evaluation",
+      "sourceTier": null
     },
     {
       "sourceId": "WEB-TSMC-3DFABRIC-2026",
@@ -60,16 +73,7 @@
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
-  "rejectedSources": [
-    {
-      "sourceId": "architecture documents",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "IEEE / ISSCC / IEDM",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    }
-  ],
+  "rejectedSources": [],
   "sourceTiers": [
     "COMPANY_TECHNICAL_DOCUMENT"
   ],

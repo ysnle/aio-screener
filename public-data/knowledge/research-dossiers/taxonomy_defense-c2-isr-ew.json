@@ -18,16 +18,25 @@
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
-      "sourceId": "U.S. DoD budget",
-      "unresolved": true
+      "sourceId": "AT-DD-01",
+      "url": "https://www.defense.gov/Topics/Technology/",
+      "publisher": "U.S. Department of Defense",
+      "title": "Technology topics",
+      "sourceTier": null
     },
     {
-      "sourceId": "Congressional Research Service",
-      "unresolved": true
+      "sourceId": "AT-DD-02",
+      "url": "https://shield.ai/hivemind/",
+      "publisher": "Shield AI",
+      "title": "Hivemind autonomy platform",
+      "sourceTier": null
     },
     {
-      "sourceId": "defense procurement disclosures",
-      "unresolved": true
+      "sourceId": "AT-DD-03",
+      "url": "https://www.gao.gov/defense-acquisition",
+      "publisher": "U.S. Government Accountability Office",
+      "title": "Defense acquisition",
+      "sourceTier": null
     },
     {
       "sourceId": "WEB-FED-FINANCIAL-STABILITY",
@@ -48,20 +57,7 @@
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
-  "rejectedSources": [
-    {
-      "sourceId": "U.S. DoD budget",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "Congressional Research Service",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "defense procurement disclosures",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    }
-  ],
+  "rejectedSources": [],
   "sourceTiers": [
     "PRIMARY_OFFICIAL"
   ],

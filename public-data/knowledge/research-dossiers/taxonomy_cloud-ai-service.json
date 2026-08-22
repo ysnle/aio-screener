@@ -18,26 +18,25 @@
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
-      "sourceId": "hyperscaler annual report",
-      "unresolved": true
+      "sourceId": "AT-CL-01",
+      "url": "https://www.energy.gov/articles/energy-department-releases-new-report-economics-data-centers",
+      "publisher": "U.S. DOE",
+      "title": "Data centers and energy economics",
+      "sourceTier": null
     },
     {
-      "sourceId": "SEC 10-K/10-Q",
-      "unresolved": true
+      "sourceId": "AT-CL-02",
+      "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526191507/msft-20260331.htm",
+      "publisher": "Microsoft / SEC EDGAR",
+      "title": "2026 Q3 Form 10-Q",
+      "sourceTier": null
     },
     {
-      "sourceId": "WEB-SEC-FINANCIAL-STATEMENTS-2024",
-      "url": "https://www.sec.gov/newsroom/press-releases/2024-120",
-      "publisher": "U.S. Securities and Exchange Commission",
-      "title": "SEC educational resources about income statements and balance sheets",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
-      "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-      "url": "https://www.investor.gov/introduction-investing/investing-basics/how-read-10-k",
-      "publisher": "SEC Investor.gov",
-      "title": "How to Read a 10-K",
-      "sourceTier": "PRIMARY_OFFICIAL"
+      "sourceId": "AT-CL-03",
+      "url": "https://aws.amazon.com/what-is-cloud-computing/",
+      "publisher": "Amazon Web Services",
+      "title": "Cloud computing overview",
+      "sourceTier": null
     },
     {
       "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
@@ -62,24 +61,6 @@
     }
   ],
   "selectedSources": [
-    {
-      "sourceId": "WEB-SEC-FINANCIAL-STATEMENTS-2024",
-      "url": "https://www.sec.gov/newsroom/press-releases/2024-120",
-      "publisher": "U.S. Securities and Exchange Commission",
-      "title": "SEC educational resources about income statements and balance sheets",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
-    },
-    {
-      "sourceId": "WEB-SEC-INVESTOR-10K-2020",
-      "url": "https://www.investor.gov/introduction-investing/investing-basics/how-read-10-k",
-      "publisher": "SEC Investor.gov",
-      "title": "How to Read a 10-K",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
-    },
     {
       "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
       "url": "https://arxiv.org/abs/1706.03762",
@@ -108,24 +89,14 @@
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
-  "rejectedSources": [
-    {
-      "sourceId": "hyperscaler annual report",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "SEC 10-K/10-Q",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    }
-  ],
+  "rejectedSources": [],
   "sourceTiers": [
-    "PRIMARY_OFFICIAL",
-    "ACADEMIC_TEXTBOOK_STANDARD"
+    "ACADEMIC_TEXTBOOK_STANDARD",
+    "PRIMARY_OFFICIAL"
   ],
   "claimCoverage": [],
   "researchFactIds": [
     "fact:nist:ai-rmf-core",
-    "fact:sec:10k-reading",
     "fact:sia:semiconductor-value-chain",
     "fact:nist:supply-chain-risk"
   ],

@@ -12301,7 +12301,7 @@ button[data-filter-active="true"] {
       </div>
       <div class="atlas-contract" aria-label="콘텐츠 경계">
         <span>교육용 참고</span><span>근거는 상세에서 확인</span><span>텔레그램은 발견용</span>
-        <span data-atlas-result-count aria-live="polite">기초 개념 48개 · 학습 원고 연결 · 근거는 접힘</span>
+        <span data-atlas-result-count role="status">기초 개념 48개 · 학습 원고 연결 · 근거는 접힘</span>
       </div>
     </section>
     <section class="aio-section" aria-label="AI 시대 지식 지도 탐색">
@@ -13494,7 +13494,7 @@ function addPortfolioPosition() {
   // v46.6: KNOWN_TICKERS가 Set이므로 .has() 사용 (기존 .indexOf()는 Set에서 TypeError)
   var isKnown = (knownTickers.has ? knownTickers.has(ticker) : (knownTickers.indexOf ? knownTickers.indexOf(ticker) >= 0 : false)) || snapFb[ticker] || ld[ticker] || /^\d{6}$/.test(ticker);
   if (!isKnown) {
-    showToast('"' + ticker + '" 티커는 검증되지 않아 저장하지 않았습니다. 정확한 심볼인지 확인하세요. (예: AAPL, NVDA, 005930)');
+    showToast('"' + ticker + '" 검증되지 않은 티커라 저장하지 않았습니다. 정확한 심볼인지 확인하세요. (예: AAPL, NVDA, 005930)');
     return;
   }
 

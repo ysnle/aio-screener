@@ -18,16 +18,25 @@
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
-      "sourceId": "JEDEC",
-      "unresolved": true
+      "sourceId": "AT-MS-01",
+      "url": "https://www.jedec.org/standards-documents",
+      "publisher": "JEDEC",
+      "title": "Standards documents",
+      "sourceTier": null
     },
     {
-      "sourceId": "company IR",
-      "unresolved": true
+      "sourceId": "AT-MS-02",
+      "url": "https://www.micron.com/products/memory/hbm",
+      "publisher": "Micron",
+      "title": "High bandwidth memory",
+      "sourceTier": null
     },
     {
-      "sourceId": "SNIA",
-      "unresolved": true
+      "sourceId": "AT-MS-03",
+      "url": "https://www.kioxia-holdings.com/en-jp/technology/topics/ssd.html",
+      "publisher": "KIOXIA",
+      "title": "Enterprise and data-center SSD technology",
+      "sourceTier": null
     },
     {
       "sourceId": "WEB-TSMC-3DFABRIC-2026",
@@ -64,31 +73,18 @@
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
-  "rejectedSources": [
-    {
-      "sourceId": "JEDEC",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "company IR",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "SNIA",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    }
-  ],
+  "rejectedSources": [],
   "sourceTiers": [
     "COMPANY_TECHNICAL_DOCUMENT"
   ],
   "claimCoverage": [],
   "researchFactIds": [
-    "fact:sec:financial-statements",
-    "fact:sec:10k-reading",
     "fact:ml:generalization-memory",
     "fact:tsmc:3dfabric",
     "fact:micron:hbm2e",
-    "fact:pagedattention:kv-cache"
+    "fact:pagedattention:kv-cache",
+    "fact:sandisk:hbf-option",
+    "fact:sia:semiconductor-value-chain"
   ],
   "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",

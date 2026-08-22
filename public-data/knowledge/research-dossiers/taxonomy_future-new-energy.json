@@ -18,16 +18,25 @@
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
-      "sourceId": "peer-reviewed research",
-      "unresolved": true
+      "sourceId": "AT-FT-01",
+      "url": "https://www.ibm.com/quantum/products",
+      "publisher": "IBM",
+      "title": "Quantum platform",
+      "sourceTier": null
     },
     {
-      "sourceId": "standards bodies",
-      "unresolved": true
+      "sourceId": "AT-FT-02",
+      "url": "https://www.nist.gov/quantum-information-science",
+      "publisher": "NIST",
+      "title": "Post-quantum and emerging technology",
+      "sourceTier": null
     },
     {
-      "sourceId": "company R&D disclosures",
-      "unresolved": true
+      "sourceId": "AT-FT-03",
+      "url": "https://science.osti.gov/",
+      "publisher": "U.S. DOE",
+      "title": "Office of Science emerging technologies",
+      "sourceTier": null
     },
     {
       "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
@@ -64,27 +73,12 @@
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
-  "rejectedSources": [
-    {
-      "sourceId": "peer-reviewed research",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "standards bodies",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "company R&D disclosures",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    }
-  ],
+  "rejectedSources": [],
   "sourceTiers": [
     "PRIMARY_OFFICIAL"
   ],
   "claimCoverage": [],
   "researchFactIds": [
-    "fact:sec:financial-statements",
-    "fact:sec:10k-reading",
     "fact:doe:pue",
     "fact:sia:semiconductor-value-chain",
     "fact:nist:supply-chain-risk"

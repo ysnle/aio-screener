@@ -18,16 +18,25 @@
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
-      "sourceId": "SEC filings",
-      "unresolved": true
+      "sourceId": "AT-AE-01",
+      "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526191507/msft-20260331.htm",
+      "publisher": "Microsoft / SEC EDGAR",
+      "title": "2026 Q3 Form 10-Q",
+      "sourceTier": null
     },
     {
-      "sourceId": "annual reports",
-      "unresolved": true
+      "sourceId": "AT-AE-02",
+      "url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026028526/meta-20260331.htm",
+      "publisher": "Meta / SEC EDGAR",
+      "title": "2026 Q1 Form 10-Q",
+      "sourceTier": null
     },
     {
-      "sourceId": "credit disclosures",
-      "unresolved": true
+      "sourceId": "AT-AE-03",
+      "url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312526101045/orcl-20260228.htm",
+      "publisher": "Oracle / SEC EDGAR",
+      "title": "2026 Q3 Form 10-Q",
+      "sourceTier": null
     },
     {
       "sourceId": "WEB-FED-FINANCIAL-STABILITY",
@@ -80,26 +89,12 @@
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
-  "rejectedSources": [
-    {
-      "sourceId": "SEC filings",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "annual reports",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "credit disclosures",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    }
-  ],
+  "rejectedSources": [],
   "sourceTiers": [
     "PRIMARY_OFFICIAL"
   ],
   "claimCoverage": [],
   "researchFactIds": [
-    "fact:sec:10k-reading",
     "fact:fed:financial-stability",
     "fact:sia:semiconductor-value-chain",
     "fact:nist:supply-chain-risk"

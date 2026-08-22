@@ -18,30 +18,25 @@
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
-      "sourceId": "IEA Energy and AI",
-      "unresolved": true
+      "sourceId": "AT-PG-01",
+      "url": "https://www.iea.org/reports/electricity-2025",
+      "publisher": "IEA",
+      "title": "Electricity 2025",
+      "sourceTier": null
     },
     {
-      "sourceId": "DOE/LBNL",
-      "unresolved": true
+      "sourceId": "AT-PG-02",
+      "url": "https://www.energy.gov/oe/activities/technology-development/grid-modernization-and-smart-grid",
+      "publisher": "U.S. DOE",
+      "title": "Grid modernization and smart grid",
+      "sourceTier": null
     },
     {
-      "sourceId": "grid operator",
-      "unresolved": true
-    },
-    {
-      "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-      "url": "https://arxiv.org/abs/1706.03762",
-      "publisher": "arXiv / Vaswani et al.",
-      "title": "Attention Is All You Need",
-      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD"
-    },
-    {
-      "sourceId": "WEB-NIST-AI-RMF-2023",
-      "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-ai-rmf-10",
-      "publisher": "NIST",
-      "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
-      "sourceTier": "PRIMARY_OFFICIAL"
+      "sourceId": "AT-PG-03",
+      "url": "https://www.ferc.gov/electric-transmission-markets",
+      "publisher": "FERC",
+      "title": "Electric transmission and markets",
+      "sourceTier": null
     },
     {
       "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
@@ -55,36 +50,11 @@
       "url": "https://www.energy.gov/cmei/femp/articles/best-practices-guide-energy-efficient-data-center-design",
       "publisher": "U.S. Department of Energy",
       "title": "Best Practices Guide for Energy-Efficient Data Center Design",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
       "sourceTier": "PRIMARY_OFFICIAL"
     }
   ],
   "selectedSources": [
     {
-      "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-      "url": "https://arxiv.org/abs/1706.03762",
-      "publisher": "arXiv / Vaswani et al.",
-      "title": "Attention Is All You Need",
-      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
-      "directness": "DIRECT",
-      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
-    },
-    {
-      "sourceId": "WEB-NIST-AI-RMF-2023",
-      "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-ai-rmf-10",
-      "publisher": "NIST",
-      "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
-    },
-    {
       "sourceId": "WEB-DOE-DATACENTER-PUE-2019",
       "url": "https://www.energy.gov/cmei/femp/cooling-water-efficiency-opportunities-federal-data-centers",
       "publisher": "U.S. Department of Energy",
@@ -101,38 +71,14 @@
       "sourceTier": "PRIMARY_OFFICIAL",
       "directness": "DIRECT",
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
-    },
-    {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
-  "rejectedSources": [
-    {
-      "sourceId": "IEA Energy and AI",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "DOE/LBNL",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "grid operator",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    }
-  ],
+  "rejectedSources": [],
   "sourceTiers": [
-    "ACADEMIC_TEXTBOOK_STANDARD",
     "PRIMARY_OFFICIAL"
   ],
   "claimCoverage": [],
   "researchFactIds": [
-    "fact:nist:ai-rmf-core",
     "fact:doe:pue",
     "fact:google:tpu",
     "fact:sia:semiconductor-value-chain",

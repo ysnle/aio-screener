@@ -18,16 +18,25 @@
   "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
   "candidateSources": [
     {
-      "sourceId": "BIS export controls",
-      "unresolved": true
+      "sourceId": "AT-GP-01",
+      "url": "https://www.bis.gov/",
+      "publisher": "U.S. BIS",
+      "title": "Export administration regulations",
+      "sourceTier": null
     },
     {
-      "sourceId": "U.S. Treasury sanctions",
-      "unresolved": true
+      "sourceId": "AT-GP-02",
+      "url": "https://www.meti.go.jp/english/press/2026/0415_001.html",
+      "publisher": "Japan METI",
+      "title": "Manufacturing and supply-chain policy",
+      "sourceTier": null
     },
     {
-      "sourceId": "national industrial policy documents",
-      "unresolved": true
+      "sourceId": "AT-GP-03",
+      "url": "https://www.cisa.gov/cybersecurity-performance-goals",
+      "publisher": "CISA",
+      "title": "Cybersecurity performance goals",
+      "sourceTier": null
     },
     {
       "sourceId": "WEB-ASML-EUV-2026",
@@ -64,20 +73,7 @@
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
-  "rejectedSources": [
-    {
-      "sourceId": "BIS export controls",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "U.S. Treasury sanctions",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    },
-    {
-      "sourceId": "national industrial policy documents",
-      "reason": "unresolved in canonical registry; cannot be promoted"
-    }
-  ],
+  "rejectedSources": [],
   "sourceTiers": [
     "COMPANY_TECHNICAL_DOCUMENT"
   ],
@@ -85,10 +81,10 @@
   "researchFactIds": [
     "fact:asml:euv",
     "fact:fed:policy-transmission",
-    "fact:world-models:planning",
     "fact:ibm:silicon-doping",
     "fact:nyfed:rstar-definition",
-    "fact:fed:2026-june-policy-neutral-reference"
+    "fact:fed:2026-june-policy-neutral-reference",
+    "fact:sia:semiconductor-value-chain"
   ],
   "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",
