@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-08-22T21:58:09.513Z",
-  "attemptedAt": "2026-08-22T21:58:09.513Z",
-  "lastSuccessfulAt": "2026-08-22T21:58:09.513Z",
+  "generatedAt": "2026-08-22T22:39:13.063Z",
+  "attemptedAt": "2026-08-22T22:39:13.063Z",
+  "lastSuccessfulAt": "2026-08-22T22:39:13.063Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-08-08T21:58:07.036Z",
-  "until": "2026-08-22T21:58:07.036Z",
+  "since": "2026-08-08T22:39:09.243Z",
+  "until": "2026-08-22T22:39:09.243Z",
   "current24hWindow": {
     "start": "2026-08-20T23:00:00.000Z",
     "end": "2026-08-21T23:00:00.000Z",
@@ -90,15 +90,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1092,
-      "freshCount": 20,
-      "eligibleTextCount": 19,
+      "count": 1093,
+      "freshCount": 39,
+      "eligibleTextCount": 36,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 61835
+      "lastPostId": 61836
     },
     {
       "channel": "bornlupin",
@@ -125,9 +125,22 @@
       "lastPostId": 67642
     }
   ],
-  "count": 2278,
-  "retainedItemCount": 446,
+  "count": 2279,
+  "retainedItemCount": 458,
   "observedItems": [
+    {
+      "id": "insidertracking/61836",
+      "channel": "insidertracking",
+      "datetime": "2026-08-22T22:32:33.000Z",
+      "localDateKst": "2026-08-23",
+      "score": 64,
+      "tags": [
+        "macro",
+        "semi"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "insidertracking/61835",
       "channel": "insidertracking",
@@ -605,7 +618,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67633",
@@ -659,7 +672,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61812",
@@ -672,7 +685,7 @@
         "kr-market"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61811",
@@ -686,7 +699,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61810",
@@ -699,7 +712,7 @@
         "healthcare"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61809",
@@ -711,7 +724,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61808",
@@ -735,7 +748,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67630",
@@ -807,7 +820,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61805",
@@ -819,7 +832,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67625",
@@ -843,7 +856,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67624",
@@ -903,7 +916,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67619",
@@ -927,7 +940,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67618",
@@ -951,7 +964,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61798",
@@ -963,7 +976,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67617",
@@ -1150,7 +1163,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19811",
@@ -1204,7 +1217,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/61793",
@@ -32177,24 +32190,24 @@
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2278,
-    "eligibleTextCount": 78,
-    "mediaOnlyCount": 2200,
+    "observedCount": 2279,
+    "eligibleTextCount": 95,
+    "mediaOnlyCount": 2184,
     "highSignalCount": 590,
-    "broadSignalCount": 1119,
+    "broadSignalCount": 1120,
     "selectedRawCount": 413,
-    "selectedRawCoveragePct": 529.5,
+    "selectedRawCoveragePct": 434.7,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
+    "macro": 816,
+    "semi": 656,
     "market-note": 584,
     "media-only": 76,
     "geo": 329,
-    "macro": 815,
     "kr-market": 326,
     "flows": 231,
     "earnings": 503,
-    "semi": 655,
     "power": 320,
     "japan": 181,
     "credit": 92,
@@ -32439,8 +32452,8 @@
     "6981.T": 1
   },
   "themes": [
-    "Macro/Rates (815 posts in 14-day research window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한...",
-    "Semiconductors/Memory (655 posts in 14-day research window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한...",
+    "Macro/Rates (816 posts in 14-day research window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한...",
+    "Semiconductors/Memory (656 posts in 14-day research window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한...",
     "Market Notes (584 posts in 14-day research window): >>UBS, 최초 판다채 발행… 최대 20억 위안 조달 •UBS가 처음으로 판다채를 발행해 최대 20억 위안의 자금을 조달할 계획. 발행 만기는 5년이며, 조달 자금의 순액 중 30% 이하를 중국 내 사업에...",
     "Earnings/Corporate (503 posts in 14-day research window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한...",
     "Geopolitics (329 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 (8월 누적) > 기간: 2026/08/03 ~ 2026/08/21 1위: SPACE EXPLORATION TECHN-CL A (6.45%) 2위: ALPHABET...",
@@ -32517,7 +32530,7 @@
       "topics": [
         "macro"
       ],
-      "count": 815,
+      "count": 816,
       "focus": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한..."
     },
     {
@@ -32544,7 +32557,7 @@
       "topics": [
         "semi"
       ],
-      "count": 655,
+      "count": 656,
       "focus": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크 오브 아메리카 Bull & Bear Indicator 지표는 9.3에서 9.5로 상승 (매도 구간) > 뱅크오브아메리카 전략가들은 미국 장기 국채 금리를 억제하기 위한..."
     },
     {
@@ -34088,6 +34101,21 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/61836",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/61836",
+      "datetime": "2026-08-22T22:32:33.000Z",
+      "localDateKst": "2026-08-23",
+      "tags": [
+        "macro",
+        "semi"
+      ],
+      "tickers": [],
+      "score": 64,
+      "hasText": true,
+      "summary": "받) 트럼프 대통령의 최신 정부 신고 자료에 따르면 6월 한 달간 주식, ETF, 채권 등 총 1,051건의 증권 거래를 진행했으며, 신고된 거래 규모는 7,810만~2억6,310만 달러로 집계. 6월 18일..."
+    },
     {
       "id": "insidertracking/61832",
       "channel": "insidertracking",
@@ -39822,20 +39850,6 @@
       "score": 52,
       "hasText": true,
       "summary": "•트럼프, 캐나다 50% 관세 부과 3일 유예 >特朗普暂停对加拿大加征50%关税三天时间。 （来自华尔街见闻）"
-    },
-    {
-      "id": "insidertracking/61494",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/61494",
-      "datetime": "2026-08-19T02:16:39.000Z",
-      "localDateKst": "2026-08-19",
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "score": 52,
-      "hasText": true,
-      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 나는 내일 아침부터 발효될 예정이었던 캐나다에 대한 50% 관세를 3일간 유예했다. 캐나다와 미국이 문서 최종 확정을 전제로 합의에 도달했기..."
     },
     {
       "id": "HANAchina/67416",
