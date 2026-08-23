@@ -1,7 +1,7 @@
 {
   "schema": "masters-13f-manager-catalog.v1",
   "status": "METADATA_AND_DISCOVERY_SEPARATED",
-  "reviewedAt": "2026-08-22",
+  "reviewedAt": "2026-08-23",
   "selectionPolicy": "BEGINNER_CORE: keep widely recognizable institutions/funds or major named operators, with SEC traceability where applicable, meaningful scale or educational value, and a teachable strategy. Famous method-only educators may appear in a separately labeled METHOD_ONLY layer; they never create 13F rows. Family filers are aggregated conceptually and not treated as one person portfolio.",
   "sourceBoundary": "SEC EDGAR filing index and SEC structured 13F data are canonical. Telegram/X are discovery-only and never create holdings, weights, or trade labels.",
   "coverage": {
@@ -47,6 +47,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/2012383/000201238326003238/0002012383-26-003238-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/2012383/000201238326003238/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/2012383/000201238326003238/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/2012383/000201238326003238/form13fInfoTable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/2012383/000201238326003238/form13fInfoTable.html"
@@ -93,6 +94,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/2012383/000201238326003238/0002012383-26-003238-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/2012383/000201238326003238/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/2012383/000201238326003238/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -106,6 +108,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/2012383/000201238326001841/0002012383-26-001841-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/2012383/000201238326001841/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/2012383/000201238326001841/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/2012383/000201238326001841/form13fInfoTable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/2012383/000201238326001841/form13fInfoTable.html"
@@ -113,7 +116,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "citigroup",
@@ -137,6 +140,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000040/0000831001-26-000040-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000040/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000040/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000040/CITIGROUP_13F_HR_INFOTABLE.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000040/CITIGROUP_13F_HR_INFOTABLE.html"
@@ -183,6 +187,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000040/0000831001-26-000040-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000040/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000040/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -196,6 +201,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000022/0000831001-26-000022-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000022/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000022/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000022/CITIGROUP_13F_HR_INFOTABLE.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/831001/000083100126000022/CITIGROUP_13F_HR_INFOTABLE.html"
@@ -203,7 +209,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "goldman-sachs-group",
@@ -227,6 +233,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/886982/000088698226000519/0000886982-26-000519-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/886982/000088698226000519/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/886982/000088698226000519/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/886982/000088698226000519/InfoTable_2026-08-13_Final_1.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/886982/000088698226000519/InfoTable_2026-08-13_Final_1.html"
@@ -275,6 +282,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/886982/000088698226000519/0000886982-26-000519-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/886982/000088698226000519/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/886982/000088698226000519/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -288,6 +296,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/886982/000088698226000274/0000886982-26-000274-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/886982/000088698226000274/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/886982/000088698226000274/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/886982/000088698226000274/InfoTable_20260513_FinalV.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/886982/000088698226000274/InfoTable_20260513_FinalV.html"
@@ -295,7 +304,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "jpmorgan-chase",
@@ -319,6 +328,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/19617/000001961726000325/0000019617-26-000325-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/19617/000001961726000325/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/19617/000001961726000325/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/19617/000001961726000325/Information_Table_06.30.2026.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/19617/000001961726000325/Information_Table_06.30.2026.html"
@@ -367,6 +377,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/19617/000001961726000325/0000019617-26-000325-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/19617/000001961726000325/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/19617/000001961726000325/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -380,6 +391,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/19617/000001961726000225/0000019617-26-000225-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/19617/000001961726000225/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/19617/000001961726000225/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/19617/000001961726000225/Information_Table_03.31.2026.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/19617/000001961726000225/Information_Table_03.31.2026.html"
@@ -387,7 +399,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "state-street-investment-management",
@@ -410,6 +422,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000507/0000093751-26-000507-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000507/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000507/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000507/XML_Infotable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000507/XML_Infotable.html"
@@ -457,6 +470,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000507/0000093751-26-000507-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000507/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000507/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -470,6 +484,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000315/0000093751-26-000315-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000315/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000315/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000315/XML_Infotable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000315/XML_Infotable.html"
@@ -477,7 +492,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "vanguard-group",
@@ -507,6 +522,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1680208/000168020826000016/0001680208-26-000016-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1680208/000168020826000016/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1680208/000168020826000016/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1680208/000168020826000016/13F_0001680208_20260630.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1680208/000168020826000016/13F_0001680208_20260630.html"
@@ -556,6 +572,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1680208/000168020826000016/0001680208-26-000016-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1680208/000168020826000016/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1680208/000168020826000016/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -569,6 +586,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1680208/000168020826000009/0001680208-26-000009-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1680208/000168020826000009/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1680208/000168020826000009/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1680208/000168020826000009/13F_0001680208_20260331_VAM.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1680208/000168020826000009/13F_0001680208_20260331_VAM.html"
@@ -576,7 +594,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "capital-international-investors",
@@ -599,6 +617,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1562230/000156223026000107/0001562230-26-000107-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1562230/000156223026000107/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1562230/000156223026000107/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1562230/000156223026000107/form13fInfoTable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1562230/000156223026000107/form13fInfoTable.html"
@@ -647,6 +666,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1562230/000156223026000107/0001562230-26-000107-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1562230/000156223026000107/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1562230/000156223026000107/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -660,6 +680,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1562230/000156223026000049/0001562230-26-000049-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1562230/000156223026000049/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1562230/000156223026000049/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1562230/000156223026000049/form13fInfoTable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1562230/000156223026000049/form13fInfoTable.html"
@@ -667,7 +688,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "fidelity-fmr",
@@ -690,6 +711,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/315066/000031506626002260/0000315066-26-002260-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/315066/000031506626002260/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/315066/000031506626002260/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/315066/000031506626002260/20260814_FMRLLC.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/315066/000031506626002260/20260814_FMRLLC.html"
@@ -736,6 +758,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/315066/000031506626002260/0000315066-26-002260-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/315066/000031506626002260/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/315066/000031506626002260/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -749,6 +772,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/315066/000031506626001390/0000315066-26-001390-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/315066/000031506626001390/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/315066/000031506626001390/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/315066/000031506626001390/20260515_FMRLLC.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/315066/000031506626001390/20260515_FMRLLC.html"
@@ -756,7 +780,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "t-rowe-price",
@@ -779,6 +803,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/80255/000008025526000519/0000080255-26-000519-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/80255/000008025526000519/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/80255/000008025526000519/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/80255/000008025526000519/infotable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/80255/000008025526000519/infotable.html"
@@ -827,6 +852,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/80255/000008025526000519/0000080255-26-000519-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/80255/000008025526000519/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/80255/000008025526000519/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -840,6 +866,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/80255/000008025526000381/0000080255-26-000381-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/80255/000008025526000381/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/80255/000008025526000381/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/80255/000008025526000381/infotable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/80255/000008025526000381/infotable.html"
@@ -847,7 +874,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "wellington-management",
@@ -870,6 +897,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/902219/000090221926000311/0000902219-26-000311-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/902219/000090221926000311/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/902219/000090221926000311/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/902219/000090221926000311/form13fInfoTable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/902219/000090221926000311/form13fInfoTable.html"
@@ -916,6 +944,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/902219/000090221926000311/0000902219-26-000311-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/902219/000090221926000311/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/902219/000090221926000311/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -929,6 +958,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/902219/000090221926000209/0000902219-26-000209-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/902219/000090221926000209/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/902219/000090221926000209/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/902219/000090221926000209/form13fInfoTable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/902219/000090221926000209/form13fInfoTable.html"
@@ -936,7 +966,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "dimensional-fund-advisors",
@@ -959,6 +989,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000866/0000354204-26-000866-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000866/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000866/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000866/2Q2613F.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000866/2Q2613F.html"
@@ -1009,6 +1040,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000866/0000354204-26-000866-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000866/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000866/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -1022,6 +1054,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000581/0000354204-26-000581-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000581/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000581/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000581/1Q202613F.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/354204/000035420426000581/1Q202613F.html"
@@ -1029,7 +1062,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "berkshire-hathaway",
@@ -1085,6 +1118,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526352200/0001193125-26-352200-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526352200/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526352200/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526352200/56757.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526352200/56757.html"
@@ -1100,6 +1134,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526352200/0001193125-26-352200-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526352200/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526352200/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -1113,6 +1148,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526226661/0001193125-26-226661-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526226661/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526226661/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526226661/53405.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526226661/53405.html"
@@ -1120,7 +1156,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "soros-fund-management",
@@ -1144,6 +1180,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1029160/000090266426003507/0000902664-26-003507-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1029160/000090266426003507/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1029160/000090266426003507/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1029160/000090266426003507/infotable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1029160/000090266426003507/infotable.html"
@@ -1191,6 +1228,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1029160/000090266426003507/0000902664-26-003507-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1029160/000090266426003507/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1029160/000090266426003507/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -1204,6 +1242,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1029160/000090266426002529/0000902664-26-002529-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1029160/000090266426002529/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1029160/000090266426002529/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1029160/000090266426002529/infotable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1029160/000090266426002529/infotable.html"
@@ -1211,7 +1250,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "bridgewater-associates",
@@ -1235,6 +1274,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000003/0001350694-26-000003-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000003/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000003/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000003/infotable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000003/infotable.html"
@@ -1282,6 +1322,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000003/0001350694-26-000003-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000003/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000003/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -1295,6 +1336,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000002/0001350694-26-000002-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000002/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000002/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000002/infotable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1350694/000135069426000002/infotable.html"
@@ -1302,7 +1344,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "duquesne-family-office",
@@ -1356,6 +1398,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/0001536411-26-000006-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/form13f_20260630.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/form13f_20260630.html"
@@ -1371,6 +1414,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/0001536411-26-000006-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -1384,6 +1428,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000004/0001536411-26-000004-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000004/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000004/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000004/form13f_20260331.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000004/form13f_20260331.html"
@@ -1391,7 +1436,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "appaloosa-management",
@@ -1445,6 +1490,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000003/0001656456-26-000003-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000003/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000003/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000003/Form13FInfoTable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000003/Form13FInfoTable.html"
@@ -1460,6 +1506,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000003/0001656456-26-000003-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000003/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000003/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -1473,6 +1520,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000002/0001656456-26-000002-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000002/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000002/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000002/Form13FInfoTable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000002/Form13FInfoTable.html"
@@ -1480,7 +1528,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "oaktree-capital-management",
@@ -1504,6 +1552,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000005/0000949509-26-000005-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000005/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000005/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000005/13F_OCMLP_2Q2026.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000005/13F_OCMLP_2Q2026.html"
@@ -1554,6 +1603,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000005/0000949509-26-000005-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000005/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000005/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -1567,6 +1617,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000004/0000949509-26-000004-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000004/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000004/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000004/13F_OCMLP_1Q2026.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000004/13F_OCMLP_1Q2026.html"
@@ -1574,7 +1625,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "citadel-advisors",
@@ -1598,6 +1649,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1423053/000110465926097200/0001104659-26-097200-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1423053/000110465926097200/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1423053/000110465926097200/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1423053/000110465926097200/infotable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1423053/000110465926097200/infotable.html"
@@ -1643,6 +1695,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1423053/000110465926097200/0001104659-26-097200-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1423053/000110465926097200/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1423053/000110465926097200/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -1656,6 +1709,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1423053/000110465926062477/0001104659-26-062477-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1423053/000110465926062477/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1423053/000110465926062477/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1423053/000110465926062477/infotable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1423053/000110465926062477/infotable.html"
@@ -1663,7 +1717,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "millennium-management",
@@ -1686,6 +1740,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1273087/000127308726000007/0001273087-26-000007-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1273087/000127308726000007/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1273087/000127308726000007/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1273087/000127308726000007/MLP_Filing_20260630.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1273087/000127308726000007/MLP_Filing_20260630.html"
@@ -1732,6 +1787,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1273087/000127308726000007/0001273087-26-000007-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1273087/000127308726000007/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1273087/000127308726000007/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -1745,6 +1801,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1273087/000127308726000004/0001273087-26-000004-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1273087/000127308726000004/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1273087/000127308726000004/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1273087/000127308726000004/MLP_FIling_20260331.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1273087/000127308726000004/MLP_FIling_20260331.html"
@@ -1752,7 +1809,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "renaissance-technologies",
@@ -1775,6 +1832,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1037389/000103738926000059/0001037389-26-000059-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1037389/000103738926000059/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1037389/000103738926000059/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1037389/000103738926000059/renaissance13Fq22026_holding.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1037389/000103738926000059/renaissance13Fq22026_holding.html"
@@ -1823,6 +1881,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1037389/000103738926000059/0001037389-26-000059-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1037389/000103738926000059/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1037389/000103738926000059/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -1836,6 +1895,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1037389/000103738926000033/0001037389-26-000033-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1037389/000103738926000033/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1037389/000103738926000033/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1037389/000103738926000033/renaissance13Fq12026_holding.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1037389/000103738926000033/renaissance13Fq12026_holding.html"
@@ -1843,7 +1903,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "two-sigma-investments",
@@ -1866,6 +1926,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1179392/000089914026000855/0000899140-26-000855-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1179392/000089914026000855/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1179392/000089914026000855/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1179392/000089914026000855/form13fInfoTable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1179392/000089914026000855/form13fInfoTable.html"
@@ -1915,6 +1976,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1179392/000089914026000855/0000899140-26-000855-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1179392/000089914026000855/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1179392/000089914026000855/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -1928,6 +1990,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1179392/000089914026000547/0000899140-26-000547-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1179392/000089914026000547/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1179392/000089914026000547/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1179392/000089914026000547/informationtable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1179392/000089914026000547/informationtable.html"
@@ -1935,7 +1998,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "tudor-investment",
@@ -1958,6 +2021,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/923093/000090266426003485/0000902664-26-003485-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/923093/000090266426003485/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/923093/000090266426003485/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/923093/000090266426003485/infotable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/923093/000090266426003485/infotable.html"
@@ -2004,6 +2068,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/923093/000090266426003485/0000902664-26-003485-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/923093/000090266426003485/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/923093/000090266426003485/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -2017,6 +2082,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/923093/000090266426002516/0000902664-26-002516-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/923093/000090266426002516/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/923093/000090266426002516/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/923093/000090266426002516/infotable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/923093/000090266426002516/infotable.html"
@@ -2024,7 +2090,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "pershing-square",
@@ -2078,6 +2144,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1336528/000117266126002336/0001172661-26-002336-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1336528/000117266126002336/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1336528/000117266126002336/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1336528/000117266126002336/infotable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1336528/000117266126002336/infotable.html"
@@ -2093,6 +2160,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1336528/000117266126003777/0001172661-26-003777-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1336528/000117266126003777/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1336528/000117266126003777/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -2106,6 +2174,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1336528/000117266126001091/0001172661-26-001091-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1336528/000117266126001091/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1336528/000117266126001091/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1336528/000117266126001091/infotable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1336528/000117266126001091/infotable.html"
@@ -2113,7 +2182,7 @@
       "noticeStatus": "NOTICE_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "STALE_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "starboard-value",
@@ -2136,6 +2205,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1517137/000092189526002172/0000921895-26-002172-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1517137/000092189526002172/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1517137/000092189526002172/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1517137/000092189526002172/infotable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1517137/000092189526002172/infotable.html"
@@ -2182,6 +2252,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1517137/000092189526002172/0000921895-26-002172-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1517137/000092189526002172/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1517137/000092189526002172/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -2195,6 +2266,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1517137/000092189526001402/0000921895-26-001402-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1517137/000092189526001402/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1517137/000092189526001402/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1517137/000092189526001402/infotable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1517137/000092189526001402/infotable.html"
@@ -2202,7 +2274,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "trian-fund-management",
@@ -2225,6 +2297,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1345471/000134547126000035/0001345471-26-000035-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1345471/000134547126000035/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1345471/000134547126000035/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1345471/000134547126000035/Q22026-tfmlp-info-table.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1345471/000134547126000035/Q22026-tfmlp-info-table.html"
@@ -2273,6 +2346,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1345471/000134547126000035/0001345471-26-000035-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1345471/000134547126000035/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1345471/000134547126000035/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -2286,6 +2360,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1345471/000134547126000026/0001345471-26-000026-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1345471/000134547126000026/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1345471/000134547126000026/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1345471/000134547126000026/Q12026-tfmlp-info-table.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1345471/000134547126000026/Q12026-tfmlp-info-table.html"
@@ -2293,7 +2368,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "valueact-holdings",
@@ -2316,6 +2391,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1418814/000141881426000003/0001418814-26-000003-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1418814/000141881426000003/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1418814/000141881426000003/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1418814/000141881426000003/vac13f81426.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1418814/000141881426000003/vac13f81426.html"
@@ -2362,6 +2438,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1418814/000141881426000003/0001418814-26-000003-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1418814/000141881426000003/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1418814/000141881426000003/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -2375,6 +2452,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1418814/000141881426000002/0001418814-26-000002-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1418814/000141881426000002/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1418814/000141881426000002/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1418814/000141881426000002/vac13f51526.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1418814/000141881426000002/vac13f51526.html"
@@ -2382,7 +2460,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "third-point",
@@ -2406,6 +2484,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000104027326000003/0001040273-26-000003-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000104027326000003/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1040273/000104027326000003/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1040273/000104027326000003/infotable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1040273/000104027326000003/infotable.html"
@@ -2451,6 +2530,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000104027326000003/0001040273-26-000003-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000104027326000003/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1040273/000104027326000003/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -2464,6 +2544,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000104027326000002/0001040273-26-000002-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1040273/000104027326000002/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1040273/000104027326000002/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1040273/000104027326000002/infotable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1040273/000104027326000002/infotable.html"
@@ -2471,7 +2552,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "elliott-investment-management",
@@ -2495,6 +2576,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1791786/000101359426000915/0001013594-26-000915-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1791786/000101359426000915/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1791786/000101359426000915/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1791786/000101359426000915/form13fInfoTable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1791786/000101359426000915/form13fInfoTable.html"
@@ -2542,6 +2624,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1791786/000101359426000915/0001013594-26-000915-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1791786/000101359426000915/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1791786/000101359426000915/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -2555,6 +2638,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1791786/000101359426000613/0001013594-26-000613-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1791786/000101359426000613/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1791786/000101359426000613/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1791786/000101359426000613/form13fInfoTable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1791786/000101359426000613/form13fInfoTable.html"
@@ -2562,7 +2646,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "tci-fund-management",
@@ -2586,6 +2670,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000164725126000007/0001647251-26-000007-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000164725126000007/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1647251/000164725126000007/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1647251/000164725126000007/Form13fInfoTable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1647251/000164725126000007/Form13fInfoTable.html"
@@ -2631,6 +2716,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000164725126000007/0001647251-26-000007-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000164725126000007/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1647251/000164725126000007/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -2644,6 +2730,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000164725126000004/0001647251-26-000004-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1647251/000164725126000004/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1647251/000164725126000004/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1647251/000164725126000004/Form13fInfoTable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1647251/000164725126000004/Form13fInfoTable.html"
@@ -2651,7 +2738,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "viking-global-investors",
@@ -2675,6 +2762,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000110380426000006/0001103804-26-000006-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000110380426000006/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1103804/000110380426000006/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1103804/000110380426000006/Q2202613F.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1103804/000110380426000006/Q2202613F.html"
@@ -2720,6 +2808,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000110380426000006/0001103804-26-000006-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000110380426000006/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1103804/000110380426000006/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -2733,6 +2822,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000110380426000004/0001103804-26-000004-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1103804/000110380426000004/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1103804/000110380426000004/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1103804/000110380426000004/MSFS13F033126.XML",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1103804/000110380426000004/MSFS13F033126.html"
@@ -2740,7 +2830,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "tiger-global-management",
@@ -2764,6 +2854,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1167483/000091957426005427/0000919574-26-005427-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1167483/000091957426005427/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1167483/000091957426005427/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1167483/000091957426005427/infotable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1167483/000091957426005427/infotable.html"
@@ -2809,6 +2900,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1167483/000091957426005427/0000919574-26-005427-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1167483/000091957426005427/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1167483/000091957426005427/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -2822,6 +2914,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1167483/000091957426003362/0000919574-26-003362-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1167483/000091957426003362/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1167483/000091957426003362/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1167483/000091957426003362/infotable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1167483/000091957426003362/infotable.html"
@@ -2829,7 +2922,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "ark-investment-management",
@@ -2853,6 +2946,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926096910/0001104659-26-096910-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926096910/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926096910/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926096910/infotable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926096910/infotable.html"
@@ -2898,6 +2992,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926096910/0001104659-26-096910-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926096910/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926096910/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -2911,6 +3006,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926059240/0001104659-26-059240-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926059240/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926059240/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926059240/infotable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1697748/000110465926059240/infotable.html"
@@ -2918,7 +3014,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "harvard-management-company",
@@ -2942,6 +3038,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312526352412/0001193125-26-352412-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312526352412/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1082621/000119312526352412/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1082621/000119312526352412/56904.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1082621/000119312526352412/56904.html"
@@ -2988,6 +3085,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312526352412/0001193125-26-352412-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312526352412/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1082621/000119312526352412/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -3001,6 +3099,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312526226658/0001193125-26-226658-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1082621/000119312526226658/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1082621/000119312526226658/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1082621/000119312526226658/53948.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1082621/000119312526226658/53948.html"
@@ -3008,7 +3107,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "situational-awareness",
@@ -3032,6 +3131,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/2045724/000093583626000418/0000935836-26-000418-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/2045724/000093583626000418/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/2045724/000093583626000418/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/2045724/000093583626000418/form13fInfoTable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/2045724/000093583626000418/form13fInfoTable.html"
@@ -3078,6 +3178,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/2045724/000093583626000418/0000935836-26-000418-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/2045724/000093583626000418/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/2045724/000093583626000418/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -3091,6 +3192,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/2045724/000204572426000008/0002045724-26-000008-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/2045724/000204572426000008/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/2045724/000204572426000008/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/2045724/000204572426000008/salp13fq1xml.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/2045724/000204572426000008/salp13fq1xml.html"
@@ -3098,7 +3200,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "baupost-group",
@@ -3152,6 +3254,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/0001061768-26-000010-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/BGLLCQ22026.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/BGLLCQ22026.html"
@@ -3167,6 +3270,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/0001061768-26-000010-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -3180,6 +3284,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000007/0001061768-26-000007-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000007/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000007/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000007/BGLLCQ12026.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000007/BGLLCQ12026.html"
@@ -3187,7 +3292,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "scion-asset-management",
@@ -3241,6 +3346,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1649339/000164933925000007/0001649339-25-000007-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1649339/000164933925000007/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1649339/000164933925000007/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1649339/000164933925000007/infotable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1649339/000164933925000007/infotable.html"
@@ -3256,6 +3362,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1649339/000164933925000007/0001649339-25-000007-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1649339/000164933925000007/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1649339/000164933925000007/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -3269,6 +3376,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/1649339/000187920225000038/0001879202-25-000038-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/1649339/000187920225000038/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/1649339/000187920225000038/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1649339/000187920225000038/infotable.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1649339/000187920225000038/infotable.html"
@@ -3276,7 +3384,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "STALE_REFERENCE",
       "rowFreshnessStatus": "STALE_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "fisher-asset-management",
@@ -3330,6 +3438,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/0000850529-26-000006-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/q2202613f.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/q2202613f.html"
@@ -3345,6 +3454,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/0000850529-26-000006-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000006/xslForm13F_X02/primary_doc.xml"
       },
       "priorFiling": {
@@ -3358,6 +3468,7 @@
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
         "indexUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000004/0000850529-26-000004-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000004/xslForm13F_X02/primary_doc.xml",
         "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000004/xslForm13F_X02/primary_doc.xml",
         "informationTableXml": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000004/2026Q113F1.xml",
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000004/2026Q113F1.html"
@@ -3365,7 +3476,7 @@
       "noticeStatus": "HOLDINGS_FILED",
       "freshnessStatus": "CURRENT_REFERENCE",
       "rowFreshnessStatus": "CURRENT_ROWS",
-      "currentnessCheckedAt": "2026-08-22T10:23:13.861Z"
+      "currentnessCheckedAt": "2026-08-23T07:45:26.845Z"
     },
     {
       "id": "mark-minervini",
@@ -3616,5 +3727,5 @@
       "reason": "The in-app web search returned an internal error and did not expose post content for verification."
     }
   ],
-  "generatedAt": "2026-08-22T10:23:13.861Z"
+  "generatedAt": "2026-08-23T07:45:26.845Z"
 }
