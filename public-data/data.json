@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-08-23T07:47:31.659Z",
+  "generatedAt": "2026-08-23T08:49:01.677Z",
   "source": "github-actions",
   "symbolsOk": 78,
   "symbolsFail": 0,
@@ -22,25 +22,25 @@
   "fredLkgSource": null,
   "macroKeyCount": 39,
   "fredFetchedKeyCount": 33,
-  "fredAttemptedAt": "2026-08-23T07:47:31.659Z",
-  "fredLastSuccessfulAt": "2026-08-23T07:47:31.659Z",
+  "fredAttemptedAt": "2026-08-23T08:49:01.677Z",
+  "fredLastSuccessfulAt": "2026-08-23T08:49:01.677Z",
   "fredFailedSeries": [],
   "blsStatus": "cached-fresh",
   "blsSeriesCount": 6,
   "blsFailedSeries": [],
-  "blsAttemptedAt": "2026-08-23T07:47:28.490Z",
+  "blsAttemptedAt": "2026-08-23T08:48:52.294Z",
   "blsLastSuccessfulAt": "2026-08-23T04:04:03.384Z",
   "beaStatus": "ok",
-  "beaAttemptedAt": "2026-08-23T07:47:28.490Z",
-  "beaLastSuccessfulAt": "2026-08-23T07:47:28.490Z",
+  "beaAttemptedAt": "2026-08-23T08:48:52.294Z",
+  "beaLastSuccessfulAt": "2026-08-23T08:48:52.294Z",
   "beaReleaseAt": "2026-07-30T12:30:00.000Z",
   "beaNextReleaseAt": "2026-08-26T12:30:00.000Z",
-  "treasuryStatus": "cached-fresh",
-  "treasuryAttemptedAt": "2026-08-23T07:47:28.491Z",
-  "treasuryLastSuccessfulAt": "2026-08-23T07:44:22.708Z",
+  "treasuryStatus": "ok",
+  "treasuryAttemptedAt": "2026-08-23T08:48:52.296Z",
+  "treasuryLastSuccessfulAt": "2026-08-23T08:48:52.296Z",
   "treasuryObservedAt": "2026-08-21",
   "fredHyOasStatus": "cached-fresh",
-  "fredHyOasAttemptedAt": "2026-08-23T07:47:28.491Z",
+  "fredHyOasAttemptedAt": "2026-08-23T08:48:52.297Z",
   "fredHyOasLastSuccessfulAt": "2026-08-23T04:04:03.387Z",
   "fredHyOasObservedAt": "2026-08-20",
   "newsOk": true,
@@ -58,10 +58,10 @@
   "putCallAsOf": "2026-08-21",
   "marketSurveysStatus": "web-research-captured-reference",
   "marketSurveysCheckedAt": "2026-08-21T15:00:00Z",
-  "elapsedMs": 3230,
+  "elapsedMs": 9456,
   "schema": 1,
-  "marketAnalysisOk": true,
-  "marketAnalysisSemanticOk": true,
+  "marketAnalysisOk": false,
+  "marketAnalysisSemanticOk": false,
   "marketAnalysisEvidenceCount": 11,
   "marketSnapshotPublished": true,
   "marketSnapshotCoverage": {
@@ -69,17 +69,17 @@
    "observed": 16,
    "ratio": 1
   },
-  "marketSnapshotRevision": "market-snapshot:2026-08-23T07:47:31.659Z:834a7778",
+  "marketSnapshotRevision": "market-snapshot:2026-08-23T08:49:01.677Z:c2a85d11",
   "cycleId": "kst-0800-2026-08-22T23:00:00.000Z",
   "cycleStatus": "PUBLISHED",
   "marketCycleFreshnessSlaHours": 12,
   "cycleComponents": {
-   "marketSnapshotRevision": "market-snapshot:2026-08-23T07:47:31.659Z:834a7778",
-   "newsGeneratedAt": "2026-08-23T07:47:31.659Z",
+   "marketSnapshotRevision": "market-snapshot:2026-08-23T08:49:01.677Z:c2a85d11",
+   "newsGeneratedAt": "2026-08-23T08:49:01.677Z",
    "historyCycleEnd": "2026-08-22T23:00:00.000Z",
    "telegramDigestExpected": true
   },
-  "cycleManifestRevision": "kst-0800-2026-08-22T23:00:00.000Z:market-snapshot:2026-08-23T07:47:31.659Z:834a7778",
+  "cycleManifestRevision": "kst-0800-2026-08-22T23:00:00.000Z:market-snapshot:2026-08-23T08:49:01.677Z:c2a85d11",
   "fmpHasKey": false,
   "secFundamentalsOk": true,
   "secFundamentalsCount": 562,
@@ -135,7 +135,7 @@
    "sourceUrl": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
    "fetchedAt": "2026-08-23T04:04:03.384Z",
    "lastSuccessfulAt": "2026-08-23T04:04:03.384Z",
-   "attemptedAt": "2026-08-23T07:47:28.490Z",
+   "attemptedAt": "2026-08-23T08:48:52.294Z",
    "releaseAt": null,
    "status": "cached-fresh",
    "series": {
@@ -331,15 +331,15 @@
    "observedAt": "2026-06-01",
    "releasedAt": "2026-07-30T12:30:00.000Z",
    "nextReleaseAt": "2026-08-26T12:30:00.000Z",
-   "fetchedAt": "2026-08-23T07:47:28.490Z",
-   "lastSuccessfulAt": "2026-08-23T07:47:28.490Z",
+   "fetchedAt": "2026-08-23T08:48:52.294Z",
+   "lastSuccessfulAt": "2026-08-23T08:48:52.294Z",
    "values": {
     "pce": 3.7,
     "corePce": 3.3,
     "pceMoM": -0.1,
     "corePceMoM": 0.1
    },
-   "attemptedAt": "2026-08-23T07:47:28.490Z"
+   "attemptedAt": "2026-08-23T08:48:52.294Z"
   },
   "_source_pce": "bea-official-primary",
   "_source_corePce": "bea-official-primary",
@@ -354,12 +354,12 @@
   "_source_hyOAS": "fred-official-public-csv",
   "_treasury": {
    "schemaVersion": "us-treasury-curve.v1",
-   "status": "cached-fresh",
+   "status": "ok",
    "source": "U.S. Treasury Daily Par Yield Curve Rates",
    "sourceKind": "official-primary",
    "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?field_tdr_date_value=2026&type=daily_treasury_yield_curve",
    "observedAt": "2026-08-21",
-   "fetchedAt": "2026-08-23T07:44:22.708Z",
+   "fetchedAt": "2026-08-23T08:48:52.296Z",
    "values": {
     "dgs2": 4.24,
     "dgs5": 4.43,
@@ -370,8 +370,8 @@
    },
    "allowedUse": "official-observation-and-derived-same-date-spread",
    "decisionUse": false,
-   "attemptedAt": "2026-08-23T07:47:28.491Z",
-   "cacheHit": true
+   "attemptedAt": "2026-08-23T08:48:52.296Z",
+   "cacheHit": false
   },
   "dgs2": 4.24,
   "_asOf_dgs2": "2026-08-21",
@@ -404,7 +404,7 @@
    "unit": "percent",
    "allowedUse": "official-relay-observation-with-publication-lag",
    "decisionUse": false,
-   "attemptedAt": "2026-08-23T07:47:28.491Z",
+   "attemptedAt": "2026-08-23T08:48:52.297Z",
    "cacheHit": true
   },
   "dgs2Delta": 0,
@@ -1675,7 +1675,7 @@
   "indexPutCall": 0.85,
   "equityPutCall": 0.51,
   "asOf": "2026-08-21",
-  "fetchedAt": "2026-08-23T07:47:29.272Z",
+  "fetchedAt": "2026-08-23T08:48:53.106Z",
   "source": "Cboe Daily Market Statistics",
   "sourceUrl": "https://www.cboe.com/data/mktstat.aspx",
   "sourceKind": "delayed",
@@ -1684,21 +1684,21 @@
  "providerCrossChecks": {
   "crypto": {
    "status": "ok",
-   "attemptedAt": "2026-08-23T07:47:28.491Z",
-   "fetchedAt": "2026-08-23T07:47:28.843Z",
+   "attemptedAt": "2026-08-23T08:48:52.297Z",
+   "fetchedAt": "2026-08-23T08:48:52.694Z",
    "source": "CoinGecko Simple Price API",
    "sourceKind": "independent-secondary",
    "sourceUrl": "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_last_updated_at=true",
    "quotes": [
     {
      "symbol": "BTC-USD",
-     "price": 76050,
-     "observedAt": "2026-08-23T07:45:50.000Z"
+     "price": 76566,
+     "observedAt": "2026-08-23T08:46:30.000Z"
     },
     {
      "symbol": "ETH-USD",
-     "price": 2388.97,
-     "observedAt": "2026-08-23T07:46:00.000Z"
+     "price": 2420.09,
+     "observedAt": "2026-08-23T08:46:30.000Z"
     }
    ]
   }
@@ -1821,27 +1821,6 @@
    "eventTime": "2026-08-22T18:56:50.000Z",
    "eventTimeKind": "published",
    "independenceKey": "forex.com",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-21T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-22T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-22 08:00 KST ~ 2026-08-23 08:00 KST"
-  },
-  {
-   "title": "Ahead of tough new U.S. sanctions, Iran criticizes 'extraterritorial sovereignty' - CNBC",
-   "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxOak5FU3lnQ0FsZU5vbjdlazdtTUhDZUpVX3hiWm1tWng5RjUxM2RYOFhTcEdfUVE1WDl3QkFCcXVxNHczbmNocnA5UG85cTFPWnFYQ0lQRENHeEd3dUNRVUdhbk1mbFc2OExVM3VjTWNONm1yRWNQY0FtU21CcnlIS1JTUzBlRzJmLUFtVHZYTEdIa3BLWUpVc1BR0gGfAUFVX3lxTE5MUUhtTlBzNDdFX1Y4eDc4OEVkLTIxUW1ycDlBNzE2ZmkzN3dUZm80S3RlZ1FiVEZrRkFISVkxNXZBUjZxQ2lMMmdhc1VOYW5LRTY1elVSVDNGM1QtdEFCMklqSWxJUWR6YTNhLXY5X1YzMnQ3WVhCZmtRWXprN1NNdHJmcFpTOENNNGZNcTZoUEhFZzd2NXFyN2hGem5mRQ?oc=5",
-   "source": "CNBC",
-   "pubDate": "Sat, 22 Aug 2026 10:21:47 GMT",
-   "topic": "geo",
-   "country": "global",
-   "tier": 1,
-   "score": 56,
-   "selectionReason": "base+20 | source-tier1+16 | recency+6 | geopolitics-energy+14",
-   "feedSource": "Google News - Geopolitics/Energy",
-   "sourceTierLabel": "official-or-wire",
-   "contentDepth": "headline-only",
-   "eventTime": "2026-08-22T10:21:47.000Z",
-   "eventTimeKind": "published",
-   "independenceKey": "cnbc",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-08-21T23:00:00.000Z",
    "newsCycleEnd": "2026-08-22T23:00:00.000Z",
@@ -2016,8 +1995,29 @@
    "newsCycleLabel": "2026-08-22 08:00 KST ~ 2026-08-23 08:00 KST"
   },
   {
+   "title": "Cloudflare Q2 2026 Earnings Preview: NET at a Record High, Can a Beat Justify It? - TradingKey",
+   "link": "https://news.google.com/rss/articles/CBMiswFBVV95cUxObzFrWUtPMEx3Y2dtcl9sWWJZa0JSbTBWUU5Qd2ZVczVrYW42czBLYzl6VWdOTkwwenFGSUZZenE5TE40SndaekxTZk1VNGV1MUg2ZG1td2duUGgwNGpaUmFZd3ZpVW5GaUk3ZG4yUzE2b2FqNWl1SDIzemRZNzZCZ2c1SGI1SVVnLThPNTk5OHNkUkVhUnRheWE3OUdjZTdxY0R5NUVFS0xVQ0JOQktoYk5pTQ?oc=5",
+   "source": "TradingKey",
+   "pubDate": "Sat, 22 Aug 2026 18:42:09 GMT",
+   "topic": "semi",
+   "country": "us",
+   "tier": 3,
+   "score": 44,
+   "selectionReason": "base+20 | source-tier3+2 | recency+12 | earnings-guidance+10",
+   "feedSource": "Google News - AI/Semis",
+   "sourceTierLabel": "aggregator-or-trade",
+   "contentDepth": "headline-only",
+   "eventTime": "2026-08-22T18:42:09.000Z",
+   "eventTimeKind": "published",
+   "independenceKey": "tradingkey",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-08-21T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-22T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-22 08:00 KST ~ 2026-08-23 08:00 KST"
+  },
+  {
    "title": "Zoetis Stock (ZTS) Opinions on Recent Earnings Guidance Cuts - Quiver Quantitative",
-   "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxQUlAyRXByNEh4ajhtUW1RenliMk5GZmROblg3bk41NE8zZ0tFWkVJbkVrdVpjSjBuczdvci01ZkwxbHZjX2FpRkFLQU5adzV0emhqRzFRQk5iSndhaGdzSXp4WmdNX2VHWk5kS05fWC12bG1VYmNWVXZjcFMwbVFPLU5LS0hxeF9PcDNRMEdKU3JNT29SYW1MeQ?oc=5",
+   "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxQWl9QNUl1VWIyMW9nWDdsNEx6ck9seDNJR2NRR3BWVDNveTJiY1FfRG1nSU15bjZsNEpWMlBQY0JUM1pWNm0yOEo5TXRESTRnc2M5anJFd2pPZGdJSXBrS1Z2N29Wb3ptM3lPclNMRTBWN2FCeEtzN3pZQWpjUVZLeDBYc0djRW1KcC1reWtFX3FKcU5uaTJTVmxNcWh3QQ?oc=5",
    "source": "Quiver Quantitative",
    "pubDate": "Sat, 22 Aug 2026 17:33:00 GMT",
    "topic": "analyst",
@@ -2142,6 +2142,27 @@
    "newsCycleLabel": "2026-08-22 08:00 KST ~ 2026-08-23 08:00 KST"
   },
   {
+   "title": "U.S., Iran keep up hostile rhetoric ahead of new sanctions - NBC News",
+   "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxOc1A2UFJnSDBtVGhDbmEwS0ZCR3RESEJWTUpYMGRTVDRPQlQ4YlQxTmItdHZCNTBxSWlST0F3OU5jQ2hoNjlqemdMMi1RS0l3LUlEYmU3Yzl1anpBR2pWbXZFWlJDbWtuejRPQnBseUliU2czQjQ1MWlIbVlqenZrTHlMZzUwN3hfdGFqZGVRS29adXV5Y1pETlhHbw?oc=5",
+   "source": "NBC News",
+   "pubDate": "Sat, 22 Aug 2026 10:24:32 GMT",
+   "topic": "geo",
+   "country": "global",
+   "tier": 3,
+   "score": 42,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | geopolitics-energy+14",
+   "feedSource": "Google News - Geopolitics/Energy",
+   "sourceTierLabel": "aggregator-or-trade",
+   "contentDepth": "headline-only",
+   "eventTime": "2026-08-22T10:24:32.000Z",
+   "eventTimeKind": "published",
+   "independenceKey": "nbc news",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-08-21T23:00:00.000Z",
+   "newsCycleEnd": "2026-08-22T23:00:00.000Z",
+   "newsCycleLabel": "2026-08-22 08:00 KST ~ 2026-08-23 08:00 KST"
+  },
+  {
    "title": "Iran warns states joining US sanctions will be considered enemies - France 24",
    "link": "https://news.google.com/rss/articles/CBMixAFBVV95cUxQYXZnc2o0bVBvcHRyUHVaN0kyaFpCVzNMWV9sQ0Z4QmVrUmNhbDh6N2t5RnNTal80RUJmbmlxSGYtNjRtSTZZdUs3S3FuNDFubjdwUDM4cUtlQ2R5Sy1zRUo3S2lKVnpjZ0ZQU1d0bEROTkRMMWdtdnBzcC1mMTcySzh1bEJNeGNyWEUzYW1VWEZraW5sLUllU0EyOWxqVFJDVkdrLTVYRjJkTGVRdk5wX2s3SnNhOGwtWTdsRjA0TFZxcFlx?oc=5",
    "source": "France 24",
@@ -2248,9 +2269,9 @@
   },
   {
    "title": "VNET Group (VNET) Is Down 11.6% After Reaffirming 2026 Guidance Despite Wider Quarterly Loss - simplywall.st",
-   "link": "https://news.google.com/rss/articles/CBMixwFBVV95cUxQcGhZREoxdGNKWFJZVEdST0VKVGZCUG1ZWDAtNzJmeXRUN20wMklhWmZVN3lwQkJiOXZINHgxVUxKci1Ld0h1SDhVMzd5bHV5N0FmSl9rZ081eUNRUXM5TW41RGhWaXhrcWxaQW5xSUFZamw5VndDTXg3dF9nZE0zRUNjSjNzOEFyTHd5RUgxT0FfSjdmblhqeWlfQzNlNTBHUWFPeUtYRUc5dEVQRnRyM0lnRm9PeGxVSnhaampKU0xwSFlTci1N0gHMAUFVX3lxTFBfbFJhLXAtYzBaYktBQmNSX2NJRE5fUnd6M1NzdllyTGxJUlprVlhSODZ3eDNzTlA2RVNFWXR2T2Nrc3h1TXQxekN2N0N4SW53eE5Nek9OMkJHVUdlaTdpaUdQQXB4Vk4ta0hfZWc3Z182NlE4VlN5OHZsdkRncXVGalBRV3hCUjFGYmRwejVyWTItaVd4NlltalYweFFaVzdCSzRibTZON3FOam92QWRwbVoxN0Z6Rm53b2xZVXZNbXFvc182MlB5Z1E1Mw?oc=5",
+   "link": "https://news.google.com/rss/articles/CBMizAFBVV95cUxQX2xSYS1wLWMwWmJLQUJjUl9jSUROX1J3ejNTc3ZZckxsSVJaa1ZYUjg2d3gzc05QNkVTRVl0dk9ja3N4dU10MXpDdjdDeElud3hOTXpPTjJCR1VHZWk3aWlHUEFweFZOLWtIX2VnN2dfNjZROFZTeTh2bHZEZ3F1RmpQUVd4QlIxRmJkcHo1clkyLWlXeDZZbWpWMHhRWlc3Qks0Ym02TjdxTmpvdkFkcG1aMTdGekZud29sWVV2TW1xb3NfNjJQeWdRNTPSAcwBQVVfeXFMUF9sUmEtcC1jMFpiS0FCY1JfY0lETl9Sd3ozU3N2WXJMbElSWmtWWFI4Nnd4M3NOUDZFU0VZdHZPY2tzeHVNdDF6Q3Y3Q3hJbnd4Tk16T04yQkdVR2VpN2lpR1BBcHhWTi1rSF9lZzdnXzY2UThWU3k4dmx2RGdxdUZqUFFXeEJSMUZiZHB6NXJZMi1pV3g2WW1qVjB4UVpXN0JLNGJtNk43cU5qb3ZBZHBtWjE3RnpGbndvbFlVdk1tcW9zXzYyUHlnUTUz?oc=5",
    "source": "simplywall.st",
-   "pubDate": "Sat, 22 Aug 2026 16:24:09 GMT",
+   "pubDate": "Sat, 22 Aug 2026 16:24:10 GMT",
    "topic": "semi",
    "country": "us",
    "tier": 3,
@@ -2259,7 +2280,7 @@
    "feedSource": "Google News - AI/Semis",
    "sourceTierLabel": "aggregator-or-trade",
    "contentDepth": "headline-only",
-   "eventTime": "2026-08-22T16:24:09.000Z",
+   "eventTime": "2026-08-22T16:24:10.000Z",
    "eventTimeKind": "published",
    "independenceKey": "simplywall.st",
    "newsCyclePolicy": "kst-0800-completed-24h",
@@ -2283,27 +2304,6 @@
    "eventTime": "2026-08-22T16:21:59.000Z",
    "eventTimeKind": "published",
    "independenceKey": "tradingkey",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-08-21T23:00:00.000Z",
-   "newsCycleEnd": "2026-08-22T23:00:00.000Z",
-   "newsCycleLabel": "2026-08-22 08:00 KST ~ 2026-08-23 08:00 KST"
-  },
-  {
-   "title": "These Analysts Boost Their Forecasts On Nordson After Q3 Earnings - Sahm",
-   "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxOZlpld05mMDF4ZFBWTGxYNkZvajdDdVJEdkpUUWIxWktjd0pOZDA1Yl9ibTRiNWs2YWN3NXlEYkVqWllFaVdKQU9aemRNcTFZbmE3eVVWLWdkREJaVU1TMGlXQ2daSnNfLUhhVXBuWW5xUGhvVmx2YVMxSHdLUF9na0ZCbTUydmVPVG1vZmUwNEFkVFpyamV3RmRZWWMyel9BSTA3R2ZiMnFUdWticno2RUc1X19FZlU4?oc=5",
-   "source": "Sahm",
-   "pubDate": "Sat, 22 Aug 2026 09:13:27 GMT",
-   "topic": "analyst",
-   "country": "us",
-   "tier": 3,
-   "score": 38,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | earnings-guidance+10",
-   "feedSource": "Google News - Analyst/Earnings",
-   "sourceTierLabel": "aggregator-or-trade",
-   "contentDepth": "headline-only",
-   "eventTime": "2026-08-22T09:13:27.000Z",
-   "eventTimeKind": "published",
-   "independenceKey": "sahm",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-08-21T23:00:00.000Z",
    "newsCycleEnd": "2026-08-22T23:00:00.000Z",
@@ -2606,13 +2606,13 @@
  ],
  "marketAnalysis": {
   "schemaVersion": "market-analysis.v2",
-  "status": "verified",
-  "summary": "# Korean Market Analysis\n**Market Positioning:** KOSPI stands at 6,912.95 (market-analysis:^KS11) while U.S. equities reach 7,674.37 (market-analysis:^GSPC), with regional sentiment balanced at Fear&Greed=55 (market-analysis:fear-greed).\n**Monetary & Inflation Environment:** Fed rate at 3.63% and CPI at 3.3% (market-analysis:macro.fed-rate, market-analysis:macro.cpi) support stable conditions, though NFP contracted -23K (market-analysis:macro.nfp-mom), signaling labor market softness.\n**Commodity & Currency Headwinds:** Oil surged to $87.06/barrel amid Iran sanctions threats (news:Reuters, news:CNBC), while DXY strengthened to 98.839 (market-analysis:DX-Y.NYB), pressuring export-dependent Korean equities; Gold rose to $4,680.6 (market-analysis:GC=F).\n**Key Catalyst Risk:** Nvidia earnings anticipated to drive $313B market-value shifts (news:TechStock²) with Jackson Hole Symposium focus (news:finance.biggo.com), creating near-term volatility spillover to Asian tech-heavy indices including KOSPI.\n**Volatility Context:** VIX at 15.13 (market-analysis:^VIX) with 10Y yields at 4.738% (market-analysis:^TNX) reflect contained but elevated uncertainty ahead of macro events.",
-  "full": "# Korean Market Analysis\n**Market Positioning:** KOSPI stands at 6,912.95 (market-analysis:^KS11) while U.S. equities reach 7,674.37 (market-analysis:^GSPC), with regional sentiment balanced at Fear&Greed=55 (market-analysis:fear-greed).\n**Monetary & Inflation Environment:** Fed rate at 3.63% and CPI at 3.3% (market-analysis:macro.fed-rate, market-analysis:macro.cpi) support stable conditions, though NFP contracted -23K (market-analysis:macro.nfp-mom), signaling labor market softness.\n**Commodity & Currency Headwinds:** Oil surged to $87.06/barrel amid Iran sanctions threats (news:Reuters, news:CNBC), while DXY strengthened to 98.839 (market-analysis:DX-Y.NYB), pressuring export-dependent Korean equities; Gold rose to $4,680.6 (market-analysis:GC=F).\n**Key Catalyst Risk:** Nvidia earnings anticipated to drive $313B market-value shifts (news:TechStock²) with Jackson Hole Symposium focus (news:finance.biggo.com), creating near-term volatility spillover to Asian tech-heavy indices including KOSPI.\n**Volatility Context:** VIX at 15.13 (market-analysis:^VIX) with 10Y yields at 4.738% (market-analysis:^TNX) reflect contained but elevated uncertainty ahead of macro events.",
-  "oneLine": "# Korean Market Analysis",
+  "status": "blocked",
+  "summary": "시장 분석 대기: 검증된 관측치만 표시합니다 — SPX=7674.37 index (2026-08-21T20:41:52.000Z) · VIX=15.13 index (2026-08-21T20:15:01.000Z) · 10Y=4.738 index (2026-08-21T18:59:54.000Z) · DXY=98.839 index (2026-08-21T20:59:59.000Z). 추가 방향성·인과 해석은 유효한 분석 산출물 확인 후 제공됩니다.",
+  "full": "시장 분석 대기: 검증된 관측치만 표시합니다 — SPX=7674.37 index (2026-08-21T20:41:52.000Z) · VIX=15.13 index (2026-08-21T20:15:01.000Z) · 10Y=4.738 index (2026-08-21T18:59:54.000Z) · DXY=98.839 index (2026-08-21T20:59:59.000Z). 추가 방향성·인과 해석은 유효한 분석 산출물 확인 후 제공됩니다.",
+  "oneLine": "시장 분석 대기: 검증된 관측치만 표시합니다 — SPX=7674.37 index (2026-08-21T20:41:52.000Z) · VIX=15.13 index (2026-08-21T20:15:01.000Z) · 10Y=4.738 index (2026-08-21T18:59:54.000Z) · DXY=98.839 index (2026-08-21T20:59:59.000Z). 추가 방향성·인과 해석은 유효한 분석 산출물 확인 후 제공됩니다.",
   "regime": {
-   "label": "MODEL_SUMMARY",
-   "status": "verified",
+   "label": "UNKNOWN",
+   "status": "blocked",
    "evidenceIds": [
     "market-analysis:^GSPC:2026-08-21T20:41:52.000Z",
     "market-analysis:^VIX:2026-08-21T20:15:01.000Z",
@@ -2627,61 +2627,11 @@
     "market-analysis:fear-greed:2026-08-21T23:59:58.000Z"
    ]
   },
-  "drivers": [
-   {
-    "label": "validated summary drivers",
-    "evidenceIds": [
-     "market-analysis:^GSPC:2026-08-21T20:41:52.000Z",
-     "market-analysis:^VIX:2026-08-21T20:15:01.000Z",
-     "market-analysis:^TNX:2026-08-21T18:59:54.000Z",
-     "market-analysis:DX-Y.NYB:2026-08-21T20:59:59.000Z",
-     "market-analysis:CL=F:2026-08-21T20:59:59.000Z",
-     "market-analysis:GC=F:2026-08-21T20:59:58.000Z",
-     "market-analysis:^KS11:2026-08-21T09:05:40.000Z",
-     "market-analysis:macro.cpi:2026-07-01T00:00:00.000Z",
-     "market-analysis:macro.fed-rate:2026-07-01T00:00:00.000Z",
-     "market-analysis:macro.nfp-mom:2026-07-01T00:00:00.000Z",
-     "market-analysis:fear-greed:2026-08-21T23:59:58.000Z",
-     "news:https://news.google.com/rss/articles/CBMilgFBVV95cUxNbk4yQTVQTTRjdFpmOERLbk85Qlg2MnFXQmI5b3R6d1dqRm1uU1VLR1pIUnZkTjVQQmhOUDhfNlA5VlFONWROblNZSXpfWkllVVhlV3pZMG1qSXZvS0ZBLUNlRW5rbF9lOGt6ODVFSUpyaGNmVmR1WnVFSXhlNlBNbW85VFlkRWZXSks5dmlhSHRROVdNckE?oc=5:2026-08-22T18:50:05.000Z",
-     "news:https://news.google.com/rss/articles/CBMidkFVX3lxTE9wMExzMkhTYy1fX0lLMlJZWXBrbzVSQzByTXBpd2ZxZk1jQ1JhelkzQm15VE1hRGx0dWN0V29nOUxOQVR3STNkTHI2aG1SbVZOOC1GUURVazF2YWhDejZvT1lQcTBfcFBLOXk5YXQxaDk5VnJNSUE?oc=5:2026-08-22T05:55:00.000Z",
-     "news:https://news.google.com/rss/articles/CBMixgFBVV95cUxOc1BhZmhPM1hvZWNtV19XN3pZSTZBOVhnOGM3Vk9OSlB1WDdjOUwyUU44WGo4U3Z4LVJUNlFwazluQVlwMzlBek84dTI3YTRoYkVqVWwtTTc3V29vUGNvb3Nvb1NKTzdZMktHSzBTOHJFN3RmZGc2NmVQWEw0UW1zLTZQMHB0V05LblA5eGVTTDVFNmF2cU45aGxkNHRDM3JpMm5jR09HTEdnaHlzN1p5TDM1NHpJblEzNUZPRzkyVGxBaHVmWkE?oc=5:2026-08-22T18:56:50.000Z",
-     "news:https://news.google.com/rss/articles/CBMimgFBVV95cUxOak5FU3lnQ0FsZU5vbjdlazdtTUhDZUpVX3hiWm1tWng5RjUxM2RYOFhTcEdfUVE1WDl3QkFCcXVxNHczbmNocnA5UG85cTFPWnFYQ0lQRENHeEd3dUNRVUdhbk1mbFc2OExVM3VjTWNONm1yRWNQY0FtU21CcnlIS1JTUzBlRzJmLUFtVHZYTEdIa3BLWUpVc1BR0gGfAUFVX3lxTE5MUUhtTlBzNDdFX1Y4eDc4OEVkLTIxUW1ycDlBNzE2ZmkzN3dUZm80S3RlZ1FiVEZrRkFISVkxNXZBUjZxQ2lMMmdhc1VOYW5LRTY1elVSVDNGM1QtdEFCMklqSWxJUWR6YTNhLXY5X1YzMnQ3WVhCZmtRWXprN1NNdHJmcFpTOENNNGZNcTZoUEhFZzd2NXFyN2hGem5mRQ?oc=5:2026-08-22T10:21:47.000Z",
-     "news:https://news.google.com/rss/articles/CBMitAFBVV95cUxPbEh1QVJmcTNtSE1PMURxNmRBT3RIWHhVTmtwZDRiMk5yUzJtc2xuNHFlQXF1a3VJS3FQckxIY3Y2VjhFejlkNDZnLTY0R0prazZHb194Y19sRDdjUVJtNHlMT0lwSHRRcU5UM2VBTFZpVHBDZEl1OGFWbUkxX1pacWhMYUtFQ0pRbGVRYVNYcy1zSUNZVWtxNW4zczc0YVhZVkFWUHJwRWlFQl8zQUR3dFNIU1o?oc=5:2026-08-21T23:26:38.000Z",
-     "news:https://news.google.com/rss/articles/CBMiiwFBVV95cUxNV2xMWTZpOU5KZjZuWWxxZUwxVGxLTFhabnBiYmpwc2NBb2NzcnRFVXd1blpleWxGNmhHcUpZNGpNd1lYMDVGalVhSU1FTmQtRDZPZUhSam5NYUNTcGpMQWZXSVhCQm11SlRrcU91VE90S1FNQUtEZFMwZHE0ckNTazdoNGZEaWVlVlZB?oc=5:2026-08-22T17:20:00.000Z",
-     "news:https://news.google.com/rss/articles/CBMigwJBVV95cUxNVVN1NVQ0SWNHa3dkN2lMOFlreEVweXl0WUkza3llSWxzVDRYSmtVc05NamwteTZRZUV1QzhxSFZ0VGpCYkVoZlJtbmVqOWFTME4yaXVPQ0owWVRfM3pVQkFYenBSMEZlOHBkc2kxX3VNRTdwY1I1d3VDRkJjeXlkOFJfNEpkWlZmWHNJaFVLa2l0QmVMSVMzblZ4SEZjc3FWdHBPZUl0UnMzRnYyVlhpdkhhU0NzNV9WcElTR20xR0lOR2Y3TURhTm9jNFhMaDlQNzJ6eGlabG9XczBaM09qcGVzUnNQOXBaLXd0NEVVT0VfM1lDR0dJN3FNNkM3cEU4YlBZ0gGDAkFVX3lxTE1VU3U1VDRJY0drd2Q3aUw4WWt4RXB5eXRZSTNreWVJbHNUNFhKa1VzTk1qbC15NlFlRXVDOHFIVnRUakJiRWhmUm1uZWo5YVMwTjJpdU9DSjBZVF8zelVCQVh6cFIwRmU4cGRzaTFfdU1FN3BjUjV3dUNGQmN5eWQ4Ul80SmRaVmZYc0loVUtraXRCZUxJUzNuVnhIRmNzcVZ0cE9lSXRSczNGdjJWWGl2SGFTQ3M1X1ZwSVNHbTFHSU5HZjdNRGFOb2M0WExoOVA3Mnp4aVpsb1dzMFozT2pwZXNSc1A5cFotd3Q0RVVPRV8zWUNHR0k3cU02QzdwRThiUFk?oc=5:2026-08-22T01:12:06.000Z",
-     "news:https://news.google.com/rss/articles/CBMiwAFBVV95cUxOQ0l0Z1U0RWwtZmFTdVlhZngtdU5OejFYU05Kd0lCejVFWlpWN2hrWElyUjFEWU1MdVhWVGNXUnFBU3VRTE9fUFNpSm5nVURIczhsa3dmWV8tazdtcnhGQ29jM01sMU9UclkzbkV1U09uQVhLeUU4UVd5bHpzZXJRYW02S3F3ODIzSzRCU1FrNUJsTHdBNC1sdW12aUZ1VVQwakwzdF83dVp3cko4MEhsREphaHNGTEhHbGNMSHZKa0g?oc=5:2026-08-22T16:24:56.000Z"
-    ]
-   }
-  ],
-  "risks": [
-   {
-    "label": "validated summary risks",
-    "evidenceIds": [
-     "market-analysis:^GSPC:2026-08-21T20:41:52.000Z",
-     "market-analysis:^VIX:2026-08-21T20:15:01.000Z",
-     "market-analysis:^TNX:2026-08-21T18:59:54.000Z",
-     "market-analysis:DX-Y.NYB:2026-08-21T20:59:59.000Z",
-     "market-analysis:CL=F:2026-08-21T20:59:59.000Z",
-     "market-analysis:GC=F:2026-08-21T20:59:58.000Z",
-     "market-analysis:^KS11:2026-08-21T09:05:40.000Z",
-     "market-analysis:macro.cpi:2026-07-01T00:00:00.000Z",
-     "market-analysis:macro.fed-rate:2026-07-01T00:00:00.000Z",
-     "market-analysis:macro.nfp-mom:2026-07-01T00:00:00.000Z",
-     "market-analysis:fear-greed:2026-08-21T23:59:58.000Z",
-     "news:https://news.google.com/rss/articles/CBMilgFBVV95cUxNbk4yQTVQTTRjdFpmOERLbk85Qlg2MnFXQmI5b3R6d1dqRm1uU1VLR1pIUnZkTjVQQmhOUDhfNlA5VlFONWROblNZSXpfWkllVVhlV3pZMG1qSXZvS0ZBLUNlRW5rbF9lOGt6ODVFSUpyaGNmVmR1WnVFSXhlNlBNbW85VFlkRWZXSks5dmlhSHRROVdNckE?oc=5:2026-08-22T18:50:05.000Z",
-     "news:https://news.google.com/rss/articles/CBMidkFVX3lxTE9wMExzMkhTYy1fX0lLMlJZWXBrbzVSQzByTXBpd2ZxZk1jQ1JhelkzQm15VE1hRGx0dWN0V29nOUxOQVR3STNkTHI2aG1SbVZOOC1GUURVazF2YWhDejZvT1lQcTBfcFBLOXk5YXQxaDk5VnJNSUE?oc=5:2026-08-22T05:55:00.000Z",
-     "news:https://news.google.com/rss/articles/CBMixgFBVV95cUxOc1BhZmhPM1hvZWNtV19XN3pZSTZBOVhnOGM3Vk9OSlB1WDdjOUwyUU44WGo4U3Z4LVJUNlFwazluQVlwMzlBek84dTI3YTRoYkVqVWwtTTc3V29vUGNvb3Nvb1NKTzdZMktHSzBTOHJFN3RmZGc2NmVQWEw0UW1zLTZQMHB0V05LblA5eGVTTDVFNmF2cU45aGxkNHRDM3JpMm5jR09HTEdnaHlzN1p5TDM1NHpJblEzNUZPRzkyVGxBaHVmWkE?oc=5:2026-08-22T18:56:50.000Z",
-     "news:https://news.google.com/rss/articles/CBMimgFBVV95cUxOak5FU3lnQ0FsZU5vbjdlazdtTUhDZUpVX3hiWm1tWng5RjUxM2RYOFhTcEdfUVE1WDl3QkFCcXVxNHczbmNocnA5UG85cTFPWnFYQ0lQRENHeEd3dUNRVUdhbk1mbFc2OExVM3VjTWNONm1yRWNQY0FtU21CcnlIS1JTUzBlRzJmLUFtVHZYTEdIa3BLWUpVc1BR0gGfAUFVX3lxTE5MUUhtTlBzNDdFX1Y4eDc4OEVkLTIxUW1ycDlBNzE2ZmkzN3dUZm80S3RlZ1FiVEZrRkFISVkxNXZBUjZxQ2lMMmdhc1VOYW5LRTY1elVSVDNGM1QtdEFCMklqSWxJUWR6YTNhLXY5X1YzMnQ3WVhCZmtRWXprN1NNdHJmcFpTOENNNGZNcTZoUEhFZzd2NXFyN2hGem5mRQ?oc=5:2026-08-22T10:21:47.000Z",
-     "news:https://news.google.com/rss/articles/CBMitAFBVV95cUxPbEh1QVJmcTNtSE1PMURxNmRBT3RIWHhVTmtwZDRiMk5yUzJtc2xuNHFlQXF1a3VJS3FQckxIY3Y2VjhFejlkNDZnLTY0R0prazZHb194Y19sRDdjUVJtNHlMT0lwSHRRcU5UM2VBTFZpVHBDZEl1OGFWbUkxX1pacWhMYUtFQ0pRbGVRYVNYcy1zSUNZVWtxNW4zczc0YVhZVkFWUHJwRWlFQl8zQUR3dFNIU1o?oc=5:2026-08-21T23:26:38.000Z",
-     "news:https://news.google.com/rss/articles/CBMiiwFBVV95cUxNV2xMWTZpOU5KZjZuWWxxZUwxVGxLTFhabnBiYmpwc2NBb2NzcnRFVXd1blpleWxGNmhHcUpZNGpNd1lYMDVGalVhSU1FTmQtRDZPZUhSam5NYUNTcGpMQWZXSVhCQm11SlRrcU91VE90S1FNQUtEZFMwZHE0ckNTazdoNGZEaWVlVlZB?oc=5:2026-08-22T17:20:00.000Z",
-     "news:https://news.google.com/rss/articles/CBMigwJBVV95cUxNVVN1NVQ0SWNHa3dkN2lMOFlreEVweXl0WUkza3llSWxzVDRYSmtVc05NamwteTZRZUV1QzhxSFZ0VGpCYkVoZlJtbmVqOWFTME4yaXVPQ0owWVRfM3pVQkFYenBSMEZlOHBkc2kxX3VNRTdwY1I1d3VDRkJjeXlkOFJfNEpkWlZmWHNJaFVLa2l0QmVMSVMzblZ4SEZjc3FWdHBPZUl0UnMzRnYyVlhpdkhhU0NzNV9WcElTR20xR0lOR2Y3TURhTm9jNFhMaDlQNzJ6eGlabG9XczBaM09qcGVzUnNQOXBaLXd0NEVVT0VfM1lDR0dJN3FNNkM3cEU4YlBZ0gGDAkFVX3lxTE1VU3U1VDRJY0drd2Q3aUw4WWt4RXB5eXRZSTNreWVJbHNUNFhKa1VzTk1qbC15NlFlRXVDOHFIVnRUakJiRWhmUm1uZWo5YVMwTjJpdU9DSjBZVF8zelVCQVh6cFIwRmU4cGRzaTFfdU1FN3BjUjV3dUNGQmN5eWQ4Ul80SmRaVmZYc0loVUtraXRCZUxJUzNuVnhIRmNzcVZ0cE9lSXRSczNGdjJWWGl2SGFTQ3M1X1ZwSVNHbTFHSU5HZjdNRGFOb2M0WExoOVA3Mnp4aVpsb1dzMFozT2pwZXNSc1A5cFotd3Q0RVVPRV8zWUNHR0k3cU02QzdwRThiUFk?oc=5:2026-08-22T01:12:06.000Z",
-     "news:https://news.google.com/rss/articles/CBMiwAFBVV95cUxOQ0l0Z1U0RWwtZmFTdVlhZngtdU5OejFYU05Kd0lCejVFWlpWN2hrWElyUjFEWU1MdVhWVGNXUnFBU3VRTE9fUFNpSm5nVURIczhsa3dmWV8tazdtcnhGQ29jM01sMU9UclkzbkV1U09uQVhLeUU4UVd5bHpzZXJRYW02S3F3ODIzSzRCU1FrNUJsTHdBNC1sdW12aUZ1VVQwakwzdF83dVp3cko4MEhsREphaHNGTEhHbGNMSHZKa0g?oc=5:2026-08-22T16:24:56.000Z"
-    ]
-   }
-  ],
+  "drivers": [],
+  "risks": [],
   "watch": [
    {
-    "label": "monitor cited evidence",
+    "label": "await validated market analysis",
     "evidenceIds": [
      "market-analysis:^GSPC:2026-08-21T20:41:52.000Z",
      "market-analysis:^VIX:2026-08-21T20:15:01.000Z",
@@ -2697,18 +2647,18 @@
      "news:https://news.google.com/rss/articles/CBMilgFBVV95cUxNbk4yQTVQTTRjdFpmOERLbk85Qlg2MnFXQmI5b3R6d1dqRm1uU1VLR1pIUnZkTjVQQmhOUDhfNlA5VlFONWROblNZSXpfWkllVVhlV3pZMG1qSXZvS0ZBLUNlRW5rbF9lOGt6ODVFSUpyaGNmVmR1WnVFSXhlNlBNbW85VFlkRWZXSks5dmlhSHRROVdNckE?oc=5:2026-08-22T18:50:05.000Z",
      "news:https://news.google.com/rss/articles/CBMidkFVX3lxTE9wMExzMkhTYy1fX0lLMlJZWXBrbzVSQzByTXBpd2ZxZk1jQ1JhelkzQm15VE1hRGx0dWN0V29nOUxOQVR3STNkTHI2aG1SbVZOOC1GUURVazF2YWhDejZvT1lQcTBfcFBLOXk5YXQxaDk5VnJNSUE?oc=5:2026-08-22T05:55:00.000Z",
      "news:https://news.google.com/rss/articles/CBMixgFBVV95cUxOc1BhZmhPM1hvZWNtV19XN3pZSTZBOVhnOGM3Vk9OSlB1WDdjOUwyUU44WGo4U3Z4LVJUNlFwazluQVlwMzlBek84dTI3YTRoYkVqVWwtTTc3V29vUGNvb3Nvb1NKTzdZMktHSzBTOHJFN3RmZGc2NmVQWEw0UW1zLTZQMHB0V05LblA5eGVTTDVFNmF2cU45aGxkNHRDM3JpMm5jR09HTEdnaHlzN1p5TDM1NHpJblEzNUZPRzkyVGxBaHVmWkE?oc=5:2026-08-22T18:56:50.000Z",
-     "news:https://news.google.com/rss/articles/CBMimgFBVV95cUxOak5FU3lnQ0FsZU5vbjdlazdtTUhDZUpVX3hiWm1tWng5RjUxM2RYOFhTcEdfUVE1WDl3QkFCcXVxNHczbmNocnA5UG85cTFPWnFYQ0lQRENHeEd3dUNRVUdhbk1mbFc2OExVM3VjTWNONm1yRWNQY0FtU21CcnlIS1JTUzBlRzJmLUFtVHZYTEdIa3BLWUpVc1BR0gGfAUFVX3lxTE5MUUhtTlBzNDdFX1Y4eDc4OEVkLTIxUW1ycDlBNzE2ZmkzN3dUZm80S3RlZ1FiVEZrRkFISVkxNXZBUjZxQ2lMMmdhc1VOYW5LRTY1elVSVDNGM1QtdEFCMklqSWxJUWR6YTNhLXY5X1YzMnQ3WVhCZmtRWXprN1NNdHJmcFpTOENNNGZNcTZoUEhFZzd2NXFyN2hGem5mRQ?oc=5:2026-08-22T10:21:47.000Z",
      "news:https://news.google.com/rss/articles/CBMitAFBVV95cUxPbEh1QVJmcTNtSE1PMURxNmRBT3RIWHhVTmtwZDRiMk5yUzJtc2xuNHFlQXF1a3VJS3FQckxIY3Y2VjhFejlkNDZnLTY0R0prazZHb194Y19sRDdjUVJtNHlMT0lwSHRRcU5UM2VBTFZpVHBDZEl1OGFWbUkxX1pacWhMYUtFQ0pRbGVRYVNYcy1zSUNZVWtxNW4zczc0YVhZVkFWUHJwRWlFQl8zQUR3dFNIU1o?oc=5:2026-08-21T23:26:38.000Z",
      "news:https://news.google.com/rss/articles/CBMiiwFBVV95cUxNV2xMWTZpOU5KZjZuWWxxZUwxVGxLTFhabnBiYmpwc2NBb2NzcnRFVXd1blpleWxGNmhHcUpZNGpNd1lYMDVGalVhSU1FTmQtRDZPZUhSam5NYUNTcGpMQWZXSVhCQm11SlRrcU91VE90S1FNQUtEZFMwZHE0ckNTazdoNGZEaWVlVlZB?oc=5:2026-08-22T17:20:00.000Z",
      "news:https://news.google.com/rss/articles/CBMigwJBVV95cUxNVVN1NVQ0SWNHa3dkN2lMOFlreEVweXl0WUkza3llSWxzVDRYSmtVc05NamwteTZRZUV1QzhxSFZ0VGpCYkVoZlJtbmVqOWFTME4yaXVPQ0owWVRfM3pVQkFYenBSMEZlOHBkc2kxX3VNRTdwY1I1d3VDRkJjeXlkOFJfNEpkWlZmWHNJaFVLa2l0QmVMSVMzblZ4SEZjc3FWdHBPZUl0UnMzRnYyVlhpdkhhU0NzNV9WcElTR20xR0lOR2Y3TURhTm9jNFhMaDlQNzJ6eGlabG9XczBaM09qcGVzUnNQOXBaLXd0NEVVT0VfM1lDR0dJN3FNNkM3cEU4YlBZ0gGDAkFVX3lxTE1VU3U1VDRJY0drd2Q3aUw4WWt4RXB5eXRZSTNreWVJbHNUNFhKa1VzTk1qbC15NlFlRXVDOHFIVnRUakJiRWhmUm1uZWo5YVMwTjJpdU9DSjBZVF8zelVCQVh6cFIwRmU4cGRzaTFfdU1FN3BjUjV3dUNGQmN5eWQ4Ul80SmRaVmZYc0loVUtraXRCZUxJUzNuVnhIRmNzcVZ0cE9lSXRSczNGdjJWWGl2SGFTQ3M1X1ZwSVNHbTFHSU5HZjdNRGFOb2M0WExoOVA3Mnp4aVpsb1dzMFozT2pwZXNSc1A5cFotd3Q0RVVPRV8zWUNHR0k3cU02QzdwRThiUFk?oc=5:2026-08-22T01:12:06.000Z",
-     "news:https://news.google.com/rss/articles/CBMiwAFBVV95cUxOQ0l0Z1U0RWwtZmFTdVlhZngtdU5OejFYU05Kd0lCejVFWlpWN2hrWElyUjFEWU1MdVhWVGNXUnFBU3VRTE9fUFNpSm5nVURIczhsa3dmWV8tazdtcnhGQ29jM01sMU9UclkzbkV1U09uQVhLeUU4UVd5bHpzZXJRYW02S3F3ODIzSzRCU1FrNUJsTHdBNC1sdW12aUZ1VVQwakwzdF83dVp3cko4MEhsREphaHNGTEhHbGNMSHZKa0g?oc=5:2026-08-22T16:24:56.000Z"
+     "news:https://news.google.com/rss/articles/CBMiwAFBVV95cUxOQ0l0Z1U0RWwtZmFTdVlhZngtdU5OejFYU05Kd0lCejVFWlpWN2hrWElyUjFEWU1MdVhWVGNXUnFBU3VRTE9fUFNpSm5nVURIczhsa3dmWV8tazdtcnhGQ29jM01sMU9UclkzbkV1U09uQVhLeUU4UVd5bHpzZXJRYW02S3F3ODIzSzRCU1FrNUJsTHdBNC1sdW12aUZ1VVQwakwzdF83dVp3cko4MEhsREphaHNGTEhHbGNMSHZKa0g?oc=5:2026-08-22T16:24:56.000Z",
+     "news:https://news.google.com/rss/articles/CBMitAFBVV95cUxQQVdYVGt0eHZLMUxEUHdZLUs2eHdfNWRLTURIUW90aVd3T2VpZWxWcEhYM2RNQWV6WVA4Tmh1dEM3eEx5V1pxVXozdU1kMUZHN19SM25tUDZNSFI3S3NfTTRQd3V5Vy1xNEFIQzRoWDh4MmpxbnVxeld6eVRoTElvWktZcmdNMHgwUkpnLTNQamszVzdjYmx3MDhvVDBpTEtZMHFJcHVWYjRMSDlMblhDckVPeTc?oc=5:2026-08-22T19:00:59.000Z"
     ]
    }
   ],
   "claims": [
    {
     "id": "market-summary-1",
-    "text": "# Korean Market Analysis\n**Market Positioning:** KOSPI stands at 6,912.95 (market-analysis:^KS11) while U.S. equities reach 7,674.37 (market-analysis:^GSPC), with regional sentiment balanced at Fear&Greed=55 (market-analysis:fear-greed).\n**Monetary & Inflation Environment:** Fed rate at 3.63% and CPI at 3.3% (market-analysis:macro.fed-rate, market-analysis:macro.cpi) support stable conditions, though NFP contracted -23K (market-analysis:macro.nfp-mom), signaling labor market softness.\n**Commodity & Currency Headwinds:** Oil surged to $87.06/barrel amid Iran sanctions threats (news:Reuters, news:CNBC), while DXY strengthened to 98.839 (market-analysis:DX-Y.NYB), pressuring export-dependent Korean equities; Gold rose to $4,680.6 (market-analysis:GC=F).\n**Key Catalyst Risk:** Nvidia earnings anticipated to drive $313B market-value shifts (news:TechStock²) with Jackson Hole Symposium focus (news:finance.biggo.com), creating near-term volatility spillover to Asian tech-heavy indices including KOSPI.\n**Volatility Context:** VIX at 15.13 (market-analysis:^VIX) with 10Y yields at 4.738% (market-analysis:^TNX) reflect contained but elevated uncertainty ahead of macro events.",
+    "text": "시장 분석 대기: 검증된 관측치만 표시합니다 — SPX=7674.37 index (2026-08-21T20:41:52.000Z) · VIX=15.13 index (2026-08-21T20:15:01.000Z) · 10Y=4.738 index (2026-08-21T18:59:54.000Z) · DXY=98.839 index (2026-08-21T20:59:59.000Z). 추가 방향성·인과 해석은 유효한 분석 산출물 확인 후 제공됩니다.",
     "claimType": "summary",
     "evidenceIds": [
      "market-analysis:^GSPC:2026-08-21T20:41:52.000Z",
@@ -2725,13 +2675,13 @@
      "news:https://news.google.com/rss/articles/CBMilgFBVV95cUxNbk4yQTVQTTRjdFpmOERLbk85Qlg2MnFXQmI5b3R6d1dqRm1uU1VLR1pIUnZkTjVQQmhOUDhfNlA5VlFONWROblNZSXpfWkllVVhlV3pZMG1qSXZvS0ZBLUNlRW5rbF9lOGt6ODVFSUpyaGNmVmR1WnVFSXhlNlBNbW85VFlkRWZXSks5dmlhSHRROVdNckE?oc=5:2026-08-22T18:50:05.000Z",
      "news:https://news.google.com/rss/articles/CBMidkFVX3lxTE9wMExzMkhTYy1fX0lLMlJZWXBrbzVSQzByTXBpd2ZxZk1jQ1JhelkzQm15VE1hRGx0dWN0V29nOUxOQVR3STNkTHI2aG1SbVZOOC1GUURVazF2YWhDejZvT1lQcTBfcFBLOXk5YXQxaDk5VnJNSUE?oc=5:2026-08-22T05:55:00.000Z",
      "news:https://news.google.com/rss/articles/CBMixgFBVV95cUxOc1BhZmhPM1hvZWNtV19XN3pZSTZBOVhnOGM3Vk9OSlB1WDdjOUwyUU44WGo4U3Z4LVJUNlFwazluQVlwMzlBek84dTI3YTRoYkVqVWwtTTc3V29vUGNvb3Nvb1NKTzdZMktHSzBTOHJFN3RmZGc2NmVQWEw0UW1zLTZQMHB0V05LblA5eGVTTDVFNmF2cU45aGxkNHRDM3JpMm5jR09HTEdnaHlzN1p5TDM1NHpJblEzNUZPRzkyVGxBaHVmWkE?oc=5:2026-08-22T18:56:50.000Z",
-     "news:https://news.google.com/rss/articles/CBMimgFBVV95cUxOak5FU3lnQ0FsZU5vbjdlazdtTUhDZUpVX3hiWm1tWng5RjUxM2RYOFhTcEdfUVE1WDl3QkFCcXVxNHczbmNocnA5UG85cTFPWnFYQ0lQRENHeEd3dUNRVUdhbk1mbFc2OExVM3VjTWNONm1yRWNQY0FtU21CcnlIS1JTUzBlRzJmLUFtVHZYTEdIa3BLWUpVc1BR0gGfAUFVX3lxTE5MUUhtTlBzNDdFX1Y4eDc4OEVkLTIxUW1ycDlBNzE2ZmkzN3dUZm80S3RlZ1FiVEZrRkFISVkxNXZBUjZxQ2lMMmdhc1VOYW5LRTY1elVSVDNGM1QtdEFCMklqSWxJUWR6YTNhLXY5X1YzMnQ3WVhCZmtRWXprN1NNdHJmcFpTOENNNGZNcTZoUEhFZzd2NXFyN2hGem5mRQ?oc=5:2026-08-22T10:21:47.000Z",
      "news:https://news.google.com/rss/articles/CBMitAFBVV95cUxPbEh1QVJmcTNtSE1PMURxNmRBT3RIWHhVTmtwZDRiMk5yUzJtc2xuNHFlQXF1a3VJS3FQckxIY3Y2VjhFejlkNDZnLTY0R0prazZHb194Y19sRDdjUVJtNHlMT0lwSHRRcU5UM2VBTFZpVHBDZEl1OGFWbUkxX1pacWhMYUtFQ0pRbGVRYVNYcy1zSUNZVWtxNW4zczc0YVhZVkFWUHJwRWlFQl8zQUR3dFNIU1o?oc=5:2026-08-21T23:26:38.000Z",
      "news:https://news.google.com/rss/articles/CBMiiwFBVV95cUxNV2xMWTZpOU5KZjZuWWxxZUwxVGxLTFhabnBiYmpwc2NBb2NzcnRFVXd1blpleWxGNmhHcUpZNGpNd1lYMDVGalVhSU1FTmQtRDZPZUhSam5NYUNTcGpMQWZXSVhCQm11SlRrcU91VE90S1FNQUtEZFMwZHE0ckNTazdoNGZEaWVlVlZB?oc=5:2026-08-22T17:20:00.000Z",
      "news:https://news.google.com/rss/articles/CBMigwJBVV95cUxNVVN1NVQ0SWNHa3dkN2lMOFlreEVweXl0WUkza3llSWxzVDRYSmtVc05NamwteTZRZUV1QzhxSFZ0VGpCYkVoZlJtbmVqOWFTME4yaXVPQ0owWVRfM3pVQkFYenBSMEZlOHBkc2kxX3VNRTdwY1I1d3VDRkJjeXlkOFJfNEpkWlZmWHNJaFVLa2l0QmVMSVMzblZ4SEZjc3FWdHBPZUl0UnMzRnYyVlhpdkhhU0NzNV9WcElTR20xR0lOR2Y3TURhTm9jNFhMaDlQNzJ6eGlabG9XczBaM09qcGVzUnNQOXBaLXd0NEVVT0VfM1lDR0dJN3FNNkM3cEU4YlBZ0gGDAkFVX3lxTE1VU3U1VDRJY0drd2Q3aUw4WWt4RXB5eXRZSTNreWVJbHNUNFhKa1VzTk1qbC15NlFlRXVDOHFIVnRUakJiRWhmUm1uZWo5YVMwTjJpdU9DSjBZVF8zelVCQVh6cFIwRmU4cGRzaTFfdU1FN3BjUjV3dUNGQmN5eWQ4Ul80SmRaVmZYc0loVUtraXRCZUxJUzNuVnhIRmNzcVZ0cE9lSXRSczNGdjJWWGl2SGFTQ3M1X1ZwSVNHbTFHSU5HZjdNRGFOb2M0WExoOVA3Mnp4aVpsb1dzMFozT2pwZXNSc1A5cFotd3Q0RVVPRV8zWUNHR0k3cU02QzdwRThiUFk?oc=5:2026-08-22T01:12:06.000Z",
-     "news:https://news.google.com/rss/articles/CBMiwAFBVV95cUxOQ0l0Z1U0RWwtZmFTdVlhZngtdU5OejFYU05Kd0lCejVFWlpWN2hrWElyUjFEWU1MdVhWVGNXUnFBU3VRTE9fUFNpSm5nVURIczhsa3dmWV8tazdtcnhGQ29jM01sMU9UclkzbkV1U09uQVhLeUU4UVd5bHpzZXJRYW02S3F3ODIzSzRCU1FrNUJsTHdBNC1sdW12aUZ1VVQwakwzdF83dVp3cko4MEhsREphaHNGTEhHbGNMSHZKa0g?oc=5:2026-08-22T16:24:56.000Z"
+     "news:https://news.google.com/rss/articles/CBMiwAFBVV95cUxOQ0l0Z1U0RWwtZmFTdVlhZngtdU5OejFYU05Kd0lCejVFWlpWN2hrWElyUjFEWU1MdVhWVGNXUnFBU3VRTE9fUFNpSm5nVURIczhsa3dmWV8tazdtcnhGQ29jM01sMU9UclkzbkV1U09uQVhLeUU4UVd5bHpzZXJRYW02S3F3ODIzSzRCU1FrNUJsTHdBNC1sdW12aUZ1VVQwakwzdF83dVp3cko4MEhsREphaHNGTEhHbGNMSHZKa0g?oc=5:2026-08-22T16:24:56.000Z",
+     "news:https://news.google.com/rss/articles/CBMitAFBVV95cUxQQVdYVGt0eHZLMUxEUHdZLUs2eHdfNWRLTURIUW90aVd3T2VpZWxWcEhYM2RNQWV6WVA4Tmh1dEM3eEx5V1pxVXozdU1kMUZHN19SM25tUDZNSFI3S3NfTTRQd3V5Vy1xNEFIQzRoWDh4MmpxbnVxeld6eVRoTElvWktZcmdNMHgwUkpnLTNQamszVzdjYmx3MDhvVDBpTEtZMHFJcHVWYjRMSDlMblhDckVPeTc?oc=5:2026-08-22T19:00:59.000Z"
     ],
-    "status": "validated"
+    "status": "blocked"
    }
   ],
   "evidenceIds": [
@@ -2749,17 +2699,19 @@
    "news:https://news.google.com/rss/articles/CBMilgFBVV95cUxNbk4yQTVQTTRjdFpmOERLbk85Qlg2MnFXQmI5b3R6d1dqRm1uU1VLR1pIUnZkTjVQQmhOUDhfNlA5VlFONWROblNZSXpfWkllVVhlV3pZMG1qSXZvS0ZBLUNlRW5rbF9lOGt6ODVFSUpyaGNmVmR1WnVFSXhlNlBNbW85VFlkRWZXSks5dmlhSHRROVdNckE?oc=5:2026-08-22T18:50:05.000Z",
    "news:https://news.google.com/rss/articles/CBMidkFVX3lxTE9wMExzMkhTYy1fX0lLMlJZWXBrbzVSQzByTXBpd2ZxZk1jQ1JhelkzQm15VE1hRGx0dWN0V29nOUxOQVR3STNkTHI2aG1SbVZOOC1GUURVazF2YWhDejZvT1lQcTBfcFBLOXk5YXQxaDk5VnJNSUE?oc=5:2026-08-22T05:55:00.000Z",
    "news:https://news.google.com/rss/articles/CBMixgFBVV95cUxOc1BhZmhPM1hvZWNtV19XN3pZSTZBOVhnOGM3Vk9OSlB1WDdjOUwyUU44WGo4U3Z4LVJUNlFwazluQVlwMzlBek84dTI3YTRoYkVqVWwtTTc3V29vUGNvb3Nvb1NKTzdZMktHSzBTOHJFN3RmZGc2NmVQWEw0UW1zLTZQMHB0V05LblA5eGVTTDVFNmF2cU45aGxkNHRDM3JpMm5jR09HTEdnaHlzN1p5TDM1NHpJblEzNUZPRzkyVGxBaHVmWkE?oc=5:2026-08-22T18:56:50.000Z",
-   "news:https://news.google.com/rss/articles/CBMimgFBVV95cUxOak5FU3lnQ0FsZU5vbjdlazdtTUhDZUpVX3hiWm1tWng5RjUxM2RYOFhTcEdfUVE1WDl3QkFCcXVxNHczbmNocnA5UG85cTFPWnFYQ0lQRENHeEd3dUNRVUdhbk1mbFc2OExVM3VjTWNONm1yRWNQY0FtU21CcnlIS1JTUzBlRzJmLUFtVHZYTEdIa3BLWUpVc1BR0gGfAUFVX3lxTE5MUUhtTlBzNDdFX1Y4eDc4OEVkLTIxUW1ycDlBNzE2ZmkzN3dUZm80S3RlZ1FiVEZrRkFISVkxNXZBUjZxQ2lMMmdhc1VOYW5LRTY1elVSVDNGM1QtdEFCMklqSWxJUWR6YTNhLXY5X1YzMnQ3WVhCZmtRWXprN1NNdHJmcFpTOENNNGZNcTZoUEhFZzd2NXFyN2hGem5mRQ?oc=5:2026-08-22T10:21:47.000Z",
    "news:https://news.google.com/rss/articles/CBMitAFBVV95cUxPbEh1QVJmcTNtSE1PMURxNmRBT3RIWHhVTmtwZDRiMk5yUzJtc2xuNHFlQXF1a3VJS3FQckxIY3Y2VjhFejlkNDZnLTY0R0prazZHb194Y19sRDdjUVJtNHlMT0lwSHRRcU5UM2VBTFZpVHBDZEl1OGFWbUkxX1pacWhMYUtFQ0pRbGVRYVNYcy1zSUNZVWtxNW4zczc0YVhZVkFWUHJwRWlFQl8zQUR3dFNIU1o?oc=5:2026-08-21T23:26:38.000Z",
    "news:https://news.google.com/rss/articles/CBMiiwFBVV95cUxNV2xMWTZpOU5KZjZuWWxxZUwxVGxLTFhabnBiYmpwc2NBb2NzcnRFVXd1blpleWxGNmhHcUpZNGpNd1lYMDVGalVhSU1FTmQtRDZPZUhSam5NYUNTcGpMQWZXSVhCQm11SlRrcU91VE90S1FNQUtEZFMwZHE0ckNTazdoNGZEaWVlVlZB?oc=5:2026-08-22T17:20:00.000Z",
    "news:https://news.google.com/rss/articles/CBMigwJBVV95cUxNVVN1NVQ0SWNHa3dkN2lMOFlreEVweXl0WUkza3llSWxzVDRYSmtVc05NamwteTZRZUV1QzhxSFZ0VGpCYkVoZlJtbmVqOWFTME4yaXVPQ0owWVRfM3pVQkFYenBSMEZlOHBkc2kxX3VNRTdwY1I1d3VDRkJjeXlkOFJfNEpkWlZmWHNJaFVLa2l0QmVMSVMzblZ4SEZjc3FWdHBPZUl0UnMzRnYyVlhpdkhhU0NzNV9WcElTR20xR0lOR2Y3TURhTm9jNFhMaDlQNzJ6eGlabG9XczBaM09qcGVzUnNQOXBaLXd0NEVVT0VfM1lDR0dJN3FNNkM3cEU4YlBZ0gGDAkFVX3lxTE1VU3U1VDRJY0drd2Q3aUw4WWt4RXB5eXRZSTNreWVJbHNUNFhKa1VzTk1qbC15NlFlRXVDOHFIVnRUakJiRWhmUm1uZWo5YVMwTjJpdU9DSjBZVF8zelVCQVh6cFIwRmU4cGRzaTFfdU1FN3BjUjV3dUNGQmN5eWQ4Ul80SmRaVmZYc0loVUtraXRCZUxJUzNuVnhIRmNzcVZ0cE9lSXRSczNGdjJWWGl2SGFTQ3M1X1ZwSVNHbTFHSU5HZjdNRGFOb2M0WExoOVA3Mnp4aVpsb1dzMFozT2pwZXNSc1A5cFotd3Q0RVVPRV8zWUNHR0k3cU02QzdwRThiUFk?oc=5:2026-08-22T01:12:06.000Z",
-   "news:https://news.google.com/rss/articles/CBMiwAFBVV95cUxOQ0l0Z1U0RWwtZmFTdVlhZngtdU5OejFYU05Kd0lCejVFWlpWN2hrWElyUjFEWU1MdVhWVGNXUnFBU3VRTE9fUFNpSm5nVURIczhsa3dmWV8tazdtcnhGQ29jM01sMU9UclkzbkV1U09uQVhLeUU4UVd5bHpzZXJRYW02S3F3ODIzSzRCU1FrNUJsTHdBNC1sdW12aUZ1VVQwakwzdF83dVp3cko4MEhsREphaHNGTEhHbGNMSHZKa0g?oc=5:2026-08-22T16:24:56.000Z"
+   "news:https://news.google.com/rss/articles/CBMiwAFBVV95cUxOQ0l0Z1U0RWwtZmFTdVlhZngtdU5OejFYU05Kd0lCejVFWlpWN2hrWElyUjFEWU1MdVhWVGNXUnFBU3VRTE9fUFNpSm5nVURIczhsa3dmWV8tazdtcnhGQ29jM01sMU9UclkzbkV1U09uQVhLeUU4UVd5bHpzZXJRYW02S3F3ODIzSzRCU1FrNUJsTHdBNC1sdW12aUZ1VVQwakwzdF83dVp3cko4MEhsREphaHNGTEhHbGNMSHZKa0g?oc=5:2026-08-22T16:24:56.000Z",
+   "news:https://news.google.com/rss/articles/CBMitAFBVV95cUxQQVdYVGt0eHZLMUxEUHdZLUs2eHdfNWRLTURIUW90aVd3T2VpZWxWcEhYM2RNQWV6WVA4Tmh1dEM3eEx5V1pxVXozdU1kMUZHN19SM25tUDZNSFI3S3NfTTRQd3V5Vy1xNEFIQzRoWDh4MmpxbnVxeld6eVRoTElvWktZcmdNMHgwUkpnLTNQamszVzdjYmx3MDhvVDBpTEtZMHFJcHVWYjRMSDlMblhDckVPeTc?oc=5:2026-08-22T19:00:59.000Z"
   ],
-  "generatedAt": "2026-08-23T07:47:38.075Z",
-  "model": "claude-haiku-4-5",
+  "generatedAt": "2026-08-23T08:49:07.283Z",
+  "model": "none",
   "validatorVersion": "market-analysis-validator.v2",
-  "semanticStatus": "verified",
-  "semanticIssues": [],
+  "semanticStatus": "blocked",
+  "semanticIssues": [
+   "metric-identity-mismatch:vix-vs-fear-greed"
+  ],
   "metricEvidence": [
    {
     "evidenceId": "market-analysis:^GSPC:2026-08-21T20:41:52.000Z",
@@ -2768,7 +2720,7 @@
     "value": 7674.37,
     "unit": "index",
     "observedAt": "2026-08-21T20:41:52.000Z",
-    "collectedAt": "2026-08-23T07:47:31.659Z",
+    "collectedAt": "2026-08-23T08:49:01.677Z",
     "asOf": "2026-08-21T20:41:52.000Z",
     "source": "Yahoo chart",
     "sourceTier": "public-information-service",
@@ -2783,7 +2735,7 @@
     "value": 15.13,
     "unit": "index",
     "observedAt": "2026-08-21T20:15:01.000Z",
-    "collectedAt": "2026-08-23T07:47:31.659Z",
+    "collectedAt": "2026-08-23T08:49:01.677Z",
     "asOf": "2026-08-21T20:15:01.000Z",
     "source": "Yahoo chart",
     "sourceTier": "public-information-service",
@@ -2798,7 +2750,7 @@
     "value": 4.738,
     "unit": "index",
     "observedAt": "2026-08-21T18:59:54.000Z",
-    "collectedAt": "2026-08-23T07:47:31.659Z",
+    "collectedAt": "2026-08-23T08:49:01.677Z",
     "asOf": "2026-08-21T18:59:54.000Z",
     "source": "Yahoo chart",
     "sourceTier": "public-information-service",
@@ -2813,7 +2765,7 @@
     "value": 98.839,
     "unit": "index",
     "observedAt": "2026-08-21T20:59:59.000Z",
-    "collectedAt": "2026-08-23T07:47:31.659Z",
+    "collectedAt": "2026-08-23T08:49:01.677Z",
     "asOf": "2026-08-21T20:59:59.000Z",
     "source": "Yahoo chart",
     "sourceTier": "public-information-service",
@@ -2828,7 +2780,7 @@
     "value": 87.06,
     "unit": "USD/barrel",
     "observedAt": "2026-08-21T20:59:59.000Z",
-    "collectedAt": "2026-08-23T07:47:31.659Z",
+    "collectedAt": "2026-08-23T08:49:01.677Z",
     "asOf": "2026-08-21T20:59:59.000Z",
     "source": "Yahoo chart",
     "sourceTier": "public-information-service",
@@ -2843,7 +2795,7 @@
     "value": 4680.6,
     "unit": "USD/oz",
     "observedAt": "2026-08-21T20:59:58.000Z",
-    "collectedAt": "2026-08-23T07:47:31.659Z",
+    "collectedAt": "2026-08-23T08:49:01.677Z",
     "asOf": "2026-08-21T20:59:58.000Z",
     "source": "Yahoo chart",
     "sourceTier": "public-information-service",
@@ -2858,7 +2810,7 @@
     "value": 6912.95,
     "unit": "index",
     "observedAt": "2026-08-21T09:05:40.000Z",
-    "collectedAt": "2026-08-23T07:47:31.659Z",
+    "collectedAt": "2026-08-23T08:49:01.677Z",
     "asOf": "2026-08-21T09:05:40.000Z",
     "source": "Yahoo chart",
     "sourceTier": "public-information-service",
@@ -2873,7 +2825,7 @@
     "value": 3.3,
     "unit": "percent",
     "observedAt": "2026-07-01T00:00:00.000Z",
-    "collectedAt": "2026-08-23T07:47:31.659Z",
+    "collectedAt": "2026-08-23T08:49:01.677Z",
     "asOf": "2026-07-01T00:00:00.000Z",
     "source": "BLS Public Data API v1",
     "sourceTier": "official-primary",
@@ -2888,7 +2840,7 @@
     "value": 3.63,
     "unit": "percent",
     "observedAt": "2026-07-01T00:00:00.000Z",
-    "collectedAt": "2026-08-23T07:47:31.659Z",
+    "collectedAt": "2026-08-23T08:49:01.677Z",
     "asOf": "2026-07-01T00:00:00.000Z",
     "source": "FRED",
     "sourceTier": "official-primary",
@@ -2903,7 +2855,7 @@
     "value": -23,
     "unit": "thousands",
     "observedAt": "2026-07-01T00:00:00.000Z",
-    "collectedAt": "2026-08-23T07:47:31.659Z",
+    "collectedAt": "2026-08-23T08:49:01.677Z",
     "asOf": "2026-07-01T00:00:00.000Z",
     "source": "FRED",
     "sourceTier": "official-primary",
@@ -2918,7 +2870,7 @@
     "value": 55,
     "unit": "score",
     "observedAt": "2026-08-21T23:59:58.000Z",
-    "collectedAt": "2026-08-23T07:47:31.659Z",
+    "collectedAt": "2026-08-23T08:49:01.677Z",
     "asOf": "2026-08-21T23:59:58.000Z",
     "source": "cnn",
     "sourceTier": "public-api",
@@ -2935,7 +2887,7 @@
     "source": "TechStock²",
     "sourceKind": "news-feed",
     "observedAt": "2026-08-22T18:50:05.000Z",
-    "collectedAt": "2026-08-23T07:47:31.659Z",
+    "collectedAt": "2026-08-23T08:49:01.677Z",
     "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxNbk4yQTVQTTRjdFpmOERLbk85Qlg2MnFXQmI5b3R6d1dqRm1uU1VLR1pIUnZkTjVQQmhOUDhfNlA5VlFONWROblNZSXpfWkllVVhlV3pZMG1qSXZvS0ZBLUNlRW5rbF9lOGt6ODVFSUpyaGNmVmR1WnVFSXhlNlBNbW85VFlkRWZXSks5dmlhSHRROVdNckE?oc=5",
     "allowedUse": "causal-reference",
     "status": "observed"
@@ -2947,7 +2899,7 @@
     "source": "finance.biggo.com",
     "sourceKind": "news-feed",
     "observedAt": "2026-08-22T05:55:00.000Z",
-    "collectedAt": "2026-08-23T07:47:31.659Z",
+    "collectedAt": "2026-08-23T08:49:01.677Z",
     "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE9wMExzMkhTYy1fX0lLMlJZWXBrbzVSQzByTXBpd2ZxZk1jQ1JhelkzQm15VE1hRGx0dWN0V29nOUxOQVR3STNkTHI2aG1SbVZOOC1GUURVazF2YWhDejZvT1lQcTBfcFBLOXk5YXQxaDk5VnJNSUE?oc=5",
     "allowedUse": "causal-reference",
     "status": "observed"
@@ -2959,20 +2911,8 @@
     "source": "FOREX.com",
     "sourceKind": "news-feed",
     "observedAt": "2026-08-22T18:56:50.000Z",
-    "collectedAt": "2026-08-23T07:47:31.659Z",
+    "collectedAt": "2026-08-23T08:49:01.677Z",
     "link": "https://news.google.com/rss/articles/CBMixgFBVV95cUxOc1BhZmhPM1hvZWNtV19XN3pZSTZBOVhnOGM3Vk9OSlB1WDdjOUwyUU44WGo4U3Z4LVJUNlFwazluQVlwMzlBek84dTI3YTRoYkVqVWwtTTc3V29vUGNvb3Nvb1NKTzdZMktHSzBTOHJFN3RmZGc2NmVQWEw0UW1zLTZQMHB0V05LblA5eGVTTDVFNmF2cU45aGxkNHRDM3JpMm5jR09HTEdnaHlzN1p5TDM1NHpJblEzNUZPRzkyVGxBaHVmWkE?oc=5",
-    "allowedUse": "causal-reference",
-    "status": "observed"
-   },
-   {
-    "evidenceId": "news:https://news.google.com/rss/articles/CBMimgFBVV95cUxOak5FU3lnQ0FsZU5vbjdlazdtTUhDZUpVX3hiWm1tWng5RjUxM2RYOFhTcEdfUVE1WDl3QkFCcXVxNHczbmNocnA5UG85cTFPWnFYQ0lQRENHeEd3dUNRVUdhbk1mbFc2OExVM3VjTWNONm1yRWNQY0FtU21CcnlIS1JTUzBlRzJmLUFtVHZYTEdIa3BLWUpVc1BR0gGfAUFVX3lxTE5MUUhtTlBzNDdFX1Y4eDc4OEVkLTIxUW1ycDlBNzE2ZmkzN3dUZm80S3RlZ1FiVEZrRkFISVkxNXZBUjZxQ2lMMmdhc1VOYW5LRTY1elVSVDNGM1QtdEFCMklqSWxJUWR6YTNhLXY5X1YzMnQ3WVhCZmtRWXprN1NNdHJmcFpTOENNNGZNcTZoUEhFZzd2NXFyN2hGem5mRQ?oc=5:2026-08-22T10:21:47.000Z",
-    "clusterId": "cnbc",
-    "title": "Ahead of tough new U.S. sanctions, Iran criticizes 'extraterritorial sovereignty' - CNBC",
-    "source": "CNBC",
-    "sourceKind": "news-feed",
-    "observedAt": "2026-08-22T10:21:47.000Z",
-    "collectedAt": "2026-08-23T07:47:31.659Z",
-    "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxOak5FU3lnQ0FsZU5vbjdlazdtTUhDZUpVX3hiWm1tWng5RjUxM2RYOFhTcEdfUVE1WDl3QkFCcXVxNHczbmNocnA5UG85cTFPWnFYQ0lQRENHeEd3dUNRVUdhbk1mbFc2OExVM3VjTWNONm1yRWNQY0FtU21CcnlIS1JTUzBlRzJmLUFtVHZYTEdIa3BLWUpVc1BR0gGfAUFVX3lxTE5MUUhtTlBzNDdFX1Y4eDc4OEVkLTIxUW1ycDlBNzE2ZmkzN3dUZm80S3RlZ1FiVEZrRkFISVkxNXZBUjZxQ2lMMmdhc1VOYW5LRTY1elVSVDNGM1QtdEFCMklqSWxJUWR6YTNhLXY5X1YzMnQ3WVhCZmtRWXprN1NNdHJmcFpTOENNNGZNcTZoUEhFZzd2NXFyN2hGem5mRQ?oc=5",
     "allowedUse": "causal-reference",
     "status": "observed"
    },
@@ -2983,7 +2923,7 @@
     "source": "Reuters",
     "sourceKind": "news-feed",
     "observedAt": "2026-08-21T23:26:38.000Z",
-    "collectedAt": "2026-08-23T07:47:31.659Z",
+    "collectedAt": "2026-08-23T08:49:01.677Z",
     "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxPbEh1QVJmcTNtSE1PMURxNmRBT3RIWHhVTmtwZDRiMk5yUzJtc2xuNHFlQXF1a3VJS3FQckxIY3Y2VjhFejlkNDZnLTY0R0prazZHb194Y19sRDdjUVJtNHlMT0lwSHRRcU5UM2VBTFZpVHBDZEl1OGFWbUkxX1pacWhMYUtFQ0pRbGVRYVNYcy1zSUNZVWtxNW4zczc0YVhZVkFWUHJwRWlFQl8zQUR3dFNIU1o?oc=5",
     "allowedUse": "causal-reference",
     "status": "observed"
@@ -2995,7 +2935,7 @@
     "source": "Yahoo Finance",
     "sourceKind": "news-feed",
     "observedAt": "2026-08-22T17:20:00.000Z",
-    "collectedAt": "2026-08-23T07:47:31.659Z",
+    "collectedAt": "2026-08-23T08:49:01.677Z",
     "link": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxNV2xMWTZpOU5KZjZuWWxxZUwxVGxLTFhabnBiYmpwc2NBb2NzcnRFVXd1blpleWxGNmhHcUpZNGpNd1lYMDVGalVhSU1FTmQtRDZPZUhSam5NYUNTcGpMQWZXSVhCQm11SlRrcU91VE90S1FNQUtEZFMwZHE0ckNTazdoNGZEaWVlVlZB?oc=5",
     "allowedUse": "causal-reference",
     "status": "observed"
@@ -3007,7 +2947,7 @@
     "source": "simplywall.st",
     "sourceKind": "news-feed",
     "observedAt": "2026-08-22T01:12:06.000Z",
-    "collectedAt": "2026-08-23T07:47:31.659Z",
+    "collectedAt": "2026-08-23T08:49:01.677Z",
     "link": "https://news.google.com/rss/articles/CBMigwJBVV95cUxNVVN1NVQ0SWNHa3dkN2lMOFlreEVweXl0WUkza3llSWxzVDRYSmtVc05NamwteTZRZUV1QzhxSFZ0VGpCYkVoZlJtbmVqOWFTME4yaXVPQ0owWVRfM3pVQkFYenBSMEZlOHBkc2kxX3VNRTdwY1I1d3VDRkJjeXlkOFJfNEpkWlZmWHNJaFVLa2l0QmVMSVMzblZ4SEZjc3FWdHBPZUl0UnMzRnYyVlhpdkhhU0NzNV9WcElTR20xR0lOR2Y3TURhTm9jNFhMaDlQNzJ6eGlabG9XczBaM09qcGVzUnNQOXBaLXd0NEVVT0VfM1lDR0dJN3FNNkM3cEU4YlBZ0gGDAkFVX3lxTE1VU3U1VDRJY0drd2Q3aUw4WWt4RXB5eXRZSTNreWVJbHNUNFhKa1VzTk1qbC15NlFlRXVDOHFIVnRUakJiRWhmUm1uZWo5YVMwTjJpdU9DSjBZVF8zelVCQVh6cFIwRmU4cGRzaTFfdU1FN3BjUjV3dUNGQmN5eWQ4Ul80SmRaVmZYc0loVUtraXRCZUxJUzNuVnhIRmNzcVZ0cE9lSXRSczNGdjJWWGl2SGFTQ3M1X1ZwSVNHbTFHSU5HZjdNRGFOb2M0WExoOVA3Mnp4aVpsb1dzMFozT2pwZXNSc1A5cFotd3Q0RVVPRV8zWUNHR0k3cU02QzdwRThiUFk?oc=5",
     "allowedUse": "causal-reference",
     "status": "observed"
@@ -3019,13 +2959,25 @@
     "source": "TradingKey",
     "sourceKind": "news-feed",
     "observedAt": "2026-08-22T16:24:56.000Z",
-    "collectedAt": "2026-08-23T07:47:31.659Z",
+    "collectedAt": "2026-08-23T08:49:01.677Z",
     "link": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxOQ0l0Z1U0RWwtZmFTdVlhZngtdU5OejFYU05Kd0lCejVFWlpWN2hrWElyUjFEWU1MdVhWVGNXUnFBU3VRTE9fUFNpSm5nVURIczhsa3dmWV8tazdtcnhGQ29jM01sMU9UclkzbkV1U09uQVhLeUU4UVd5bHpzZXJRYW02S3F3ODIzSzRCU1FrNUJsTHdBNC1sdW12aUZ1VVQwakwzdF83dVp3cko4MEhsREphaHNGTEhHbGNMSHZKa0g?oc=5",
+    "allowedUse": "causal-reference",
+    "status": "observed"
+   },
+   {
+    "evidenceId": "news:https://news.google.com/rss/articles/CBMitAFBVV95cUxQQVdYVGt0eHZLMUxEUHdZLUs2eHdfNWRLTURIUW90aVd3T2VpZWxWcEhYM2RNQWV6WVA4Tmh1dEM3eEx5V1pxVXozdU1kMUZHN19SM25tUDZNSFI3S3NfTTRQd3V5Vy1xNEFIQzRoWDh4MmpxbnVxeld6eVRoTElvWktZcmdNMHgwUkpnLTNQamszVzdjYmx3MDhvVDBpTEtZMHFJcHVWYjRMSDlMblhDckVPeTc?oc=5:2026-08-22T19:00:59.000Z",
+    "clusterId": "cryptorank",
+    "title": "Rising Treasury Yields Pressure the Fed: What Yield Control Means for Bitcoin - CryptoRank",
+    "source": "CryptoRank",
+    "sourceKind": "news-feed",
+    "observedAt": "2026-08-22T19:00:59.000Z",
+    "collectedAt": "2026-08-23T08:49:01.677Z",
+    "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxQQVdYVGt0eHZLMUxEUHdZLUs2eHdfNWRLTURIUW90aVd3T2VpZWxWcEhYM2RNQWV6WVA4Tmh1dEM3eEx5V1pxVXozdU1kMUZHN19SM25tUDZNSFI3S3NfTTRQd3V5Vy1xNEFIQzRoWDh4MmpxbnVxeld6eVRoTElvWktZcmdNMHgwUkpnLTNQamszVzdjYmx3MDhvVDBpTEtZMHFJcHVWYjRMSDlMblhDckVPeTc?oc=5",
     "allowedUse": "causal-reference",
     "status": "observed"
    }
   ],
-  "causalEvidenceCount": 40,
-  "reason": null
+  "causalEvidenceCount": 0,
+  "reason": "metric-identity-mismatch:vix-vs-fear-greed"
  }
 }
