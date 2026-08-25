@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-08-25T15:05:50.586Z",
-  "attemptedAt": "2026-08-25T15:05:50.586Z",
-  "lastSuccessfulAt": "2026-08-25T15:05:50.586Z",
+  "generatedAt": "2026-08-25T16:02:11.625Z",
+  "attemptedAt": "2026-08-25T16:02:11.625Z",
+  "lastSuccessfulAt": "2026-08-25T16:02:11.625Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-08-11T15:05:45.447Z",
-  "until": "2026-08-25T15:05:45.447Z",
+  "since": "2026-08-11T16:02:06.666Z",
+  "until": "2026-08-25T16:02:06.666Z",
   "current24hWindow": {
     "start": "2026-08-23T23:00:00.000Z",
     "end": "2026-08-24T23:00:00.000Z",
@@ -82,11 +82,11 @@
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 215,
-      "freshCount": 36,
-      "eligibleTextCount": 36,
+      "freshCount": 33,
+      "eligibleTextCount": 33,
       "selectedCount": 85,
       "error": null,
-      "lastPostId": 24761
+      "lastPostId": 24762
     },
     {
       "channel": "insidertracking",
@@ -126,8 +126,21 @@
     }
   ],
   "count": 2266,
-  "retainedItemCount": 454,
+  "retainedItemCount": 453,
   "observedItems": [
+    {
+      "id": "aetherjapanresearch/24762",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-08-25T15:32:42.000Z",
+      "localDateKst": "2026-08-26",
+      "score": 67,
+      "tags": [
+        "macro",
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "aetherjapanresearch/24761",
       "channel": "aetherjapanresearch",
@@ -5903,7 +5916,7 @@
         "AMZN",
         "009150.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61855",
@@ -5943,7 +5956,7 @@
       "tickers": [
         "005930.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67663",
@@ -6002,7 +6015,7 @@
         "000660.KS",
         "039030.KQ"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61854",
@@ -6115,7 +6128,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/61849",
@@ -31799,26 +31812,6 @@
         "BCS"
       ],
       "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/24528",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-08-11T15:07:04.000Z",
-      "localDateKst": "2026-08-12",
-      "score": 77,
-      "tags": [
-        "macro",
-        "semi",
-        "insider",
-        "earnings",
-        "flows",
-        "healthcare"
-      ],
-      "tickers": [
-        "AMD",
-        "000660.KS"
-      ],
-      "hasText": false
     }
   ],
   "coverage": {
@@ -31826,25 +31819,25 @@
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
     "observedCount": 2266,
-    "eligibleTextCount": 94,
-    "mediaOnlyCount": 2172,
+    "eligibleTextCount": 91,
+    "mediaOnlyCount": 2175,
     "highSignalCount": 565,
     "broadSignalCount": 1096,
     "selectedRawCount": 421,
-    "selectedRawCoveragePct": 447.9,
+    "selectedRawCoveragePct": 462.6,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "semi": 644,
+    "macro": 794,
+    "geo": 334,
+    "semi": 643,
     "power": 332,
     "equity": 191,
-    "insider": 74,
-    "earnings": 487,
-    "healthcare": 123,
+    "insider": 73,
+    "earnings": 486,
+    "healthcare": 122,
     "kr-market": 309,
-    "flows": 215,
-    "macro": 794,
-    "geo": 333,
+    "flows": 214,
     "ai-policy": 154,
     "media-only": 83,
     "optical": 67,
@@ -31862,8 +31855,8 @@
     "TSM": 67,
     "MTK": 8,
     "005930.KS": 90,
-    "000660.KS": 124,
-    "AMD": 50,
+    "000660.KS": 123,
+    "AMD": 49,
     "BE": 22,
     "STX": 6,
     "RKLB": 14,
@@ -32095,19 +32088,19 @@
   },
   "themes": [
     "Macro/Rates (794 posts in 14-day research window): 2026년 8월 25일 프리마켓 주요 종목 동향 ━━━━━━━━━━━━━━ 상승 종목 NYAX (+11.89%) 스마트 주차 사업 확대를 위해 IPS Group을 &#036;350M 현금에 인수. KURA (+11.21%) CEO가 약 &#036;1.2M 규모의 자사주 10만 주를 매입. FLNC (+9.10%)...",
-    "Semiconductors/Memory (644 posts in 14-day research window): 2026년 8월 25일 프리마켓 주요 종목 동향 ━━━━━━━━━━━━━━ 상승 종목 NYAX (+11.89%) 스마트 주차 사업 확대를 위해 IPS Group을 &#036;350M 현금에 인수. KURA (+11.21%) CEO가 약 &#036;1.2M 규모의 자사주 10만 주를 매입. FLNC (+9.10%)...",
+    "Semiconductors/Memory (643 posts in 14-day research window): 2026년 8월 25일 프리마켓 주요 종목 동향 ━━━━━━━━━━━━━━ 상승 종목 NYAX (+11.89%) 스마트 주차 사업 확대를 위해 IPS Group을 &#036;350M 현금에 인수. KURA (+11.21%) CEO가 약 &#036;1.2M 규모의 자사주 10만 주를 매입. FLNC (+9.10%)...",
     "Market Notes (576 posts in 14-day research window): >>BofA: 공화당이 중간선거에서 상원을 잃으면 미국 증시 10% 이상 하락, 텍사스 선거가 ‘AI 정책’ 결정 •BofA Hartnett는 시장이 중간선거 결과를 지나치게 낙관적으로 가격에 반영하고 있다고...",
-    "Earnings/Corporate (487 posts in 14-day research window): 2026년 8월 25일 프리마켓 주요 종목 동향 ━━━━━━━━━━━━━━ 상승 종목 NYAX (+11.89%) 스마트 주차 사업 확대를 위해 IPS Group을 &#036;350M 현금에 인수. KURA (+11.21%) CEO가 약 &#036;1.2M 규모의 자사주 10만 주를 매입. FLNC (+9.10%)...",
-    "Geopolitics (333 posts in 14-day research window): • 하이퍼스케일러발 맞춤형 AI ASIC 칩이 2026년 말 본격 양산 국면에 진입하면서, ASIC 시장의 경쟁이 기술력을 넘어 대규모 자본력 및 재무 대차대조표 싸움으로 전환. • 선단 공정 포토마스크 비용...",
+    "Earnings/Corporate (486 posts in 14-day research window): 2026년 8월 25일 프리마켓 주요 종목 동향 ━━━━━━━━━━━━━━ 상승 종목 NYAX (+11.89%) 스마트 주차 사업 확대를 위해 IPS Group을 &#036;350M 현금에 인수. KURA (+11.21%) CEO가 약 &#036;1.2M 규모의 자사주 10만 주를 매입. FLNC (+9.10%)...",
+    "Geopolitics (334 posts in 14-day research window): • 하이퍼스케일러발 맞춤형 AI ASIC 칩이 2026년 말 본격 양산 국면에 진입하면서, ASIC 시장의 경쟁이 기술력을 넘어 대규모 자본력 및 재무 대차대조표 싸움으로 전환. • 선단 공정 포토마스크 비용...",
     "AI Power/Grid (332 posts in 14-day research window): 2026년 8월 25일 프리마켓 주요 종목 동향 ━━━━━━━━━━━━━━ 상승 종목 NYAX (+11.89%) 스마트 주차 사업 확대를 위해 IPS Group을 &#036;350M 현금에 인수. KURA (+11.21%) CEO가 약 &#036;1.2M 규모의 자사주 10만 주를 매입. FLNC (+9.10%)...",
     "Korea Market (309 posts in 14-day research window): 2026년 8월 24일 서학개미 순매수 미국 주식 TOP 50 1위: Circle Internet (5.68%) 2위: DIREX DAI SEMI BE 3X ETF-USD SPLR 2642142633002...",
-    "Positioning/Flows (215 posts in 14-day research window): 미즈호 증권) SemiAnalysis: 메모리 디스펙(De-Spec), WFE, 800V 불확실성과 구리/광학 부문의 상승 여력 당사는 SemiAnalysis(SA)의 대표 더그 오러플린(Doug O'Laughlin)과 만찬을 진행하였습니다. SA의 주요 견해 중 일부를 강조하면 다음과 같습니다. 1) 메모리가..."
+    "Positioning/Flows (214 posts in 14-day research window): 미즈호 증권) SemiAnalysis: 메모리 디스펙(De-Spec), WFE, 800V 불확실성과 구리/광학 부문의 상승 여력 당사는 SemiAnalysis(SA)의 대표 더그 오러플린(Doug O'Laughlin)과 만찬을 진행하였습니다. SA의 주요 견해 중 일부를 강조하면 다음과 같습니다. 1) 메모리가..."
   ],
   "catalysts": [
     {
       "key": "000660.KS",
-      "count": 124,
-      "text": "J.P. 모건) 아시아 테크 투어(서울 파트) 주요 시사점: 메모리 반도체 당사는 8월 20~21일 개최된 JPM 아시아 테크 투어에 주요 메모리 업체들(SEC, SKH, 키옥시아, NYT(난야테크))과 메모리 공급망 업체들(FADU, 이오테크닉스 — 양사 모두 커버리지 대상 아님)을 초청했으며, 50명 이상의..."
+      "count": 123,
+      "text": "J.P. 모건) 아시아 테크 투어(서울 파트) 주요 시사점: 메모리 반도체 당사는 8월 20~21일 개최된 JPM 아시아 테크 투어에 주요 메모리 업체들(SEC, SKH, 키옥시아, NYT(난야테크))과..."
     },
     {
       "key": "NVDA",
@@ -32146,7 +32139,7 @@
     },
     {
       "key": "AMD",
-      "count": 50,
+      "count": 49,
       "text": "2026년 8월 25일 프리마켓 주요 종목 동향 ━━━━━━━━━━━━━━ 상승 종목 NYAX (+11.89%) 스마트 주차 사업 확대를 위해 IPS Group을 &#036;350M 현금에 인수. KURA (+11.21%) CEO가 약 &#036;1.2M 규모의 자사주 10만 주를 매입. FLNC (+9.10%)..."
     },
     {
@@ -32181,7 +32174,7 @@
       "topics": [
         "geo"
       ],
-      "count": 333,
+      "count": 334,
       "focus": "• 하이퍼스케일러발 맞춤형 AI ASIC 칩이 2026년 말 본격 양산 국면에 진입하면서, ASIC 시장의 경쟁이 기술력을 넘어 대규모 자본력 및 재무 대차대조표 싸움으로 전환. • 선단 공정 포토마스크 비용..."
     },
     {
@@ -32199,7 +32192,7 @@
       "topics": [
         "semi"
       ],
-      "count": 644,
+      "count": 643,
       "focus": "2026년 8월 25일 프리마켓 주요 종목 동향 ━━━━━━━━━━━━━━ 상승 종목 NYAX (+11.89%) 스마트 주차 사업 확대를 위해 IPS Group을 &#036;350M 현금에 인수. KURA (+11.21%) CEO가 약 &#036;1.2M 규모의 자사주 10만 주를 매입. FLNC (+9.10%)..."
     },
     {
@@ -32262,7 +32255,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 487,
+      "count": 486,
       "focus": "2026년 8월 25일 프리마켓 주요 종목 동향 ━━━━━━━━━━━━━━ 상승 종목 NYAX (+11.89%) 스마트 주차 사업 확대를 위해 IPS Group을 &#036;350M 현금에 인수. KURA (+11.21%) CEO가 약 &#036;1.2M 규모의 자사주 10만 주를 매입. FLNC (+9.10%)..."
     },
     {
@@ -32271,7 +32264,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 123,
+      "count": 122,
       "focus": "미즈호 증권) SemiAnalysis: 메모리 디스펙(De-Spec), WFE, 800V 불확실성과 구리/광학 부문의 상승 여력 당사는 SemiAnalysis(SA)의 대표 더그 오러플린(Doug O'Laughlin)과 만찬을 진행하였습니다. SA의 주요 견해 중 일부를 강조하면 다음과 같습니다. 1) 메모리가..."
     },
     {
@@ -32289,7 +32282,7 @@
       "topics": [
         "flows"
       ],
-      "count": 215,
+      "count": 214,
       "focus": "미즈호 증권) SemiAnalysis: 메모리 디스펙(De-Spec), WFE, 800V 불확실성과 구리/광학 부문의 상승 여력 당사는 SemiAnalysis(SA)의 대표 더그 오러플린(Doug O'Laughlin)과 만찬을 진행하였습니다. SA의 주요 견해 중 일부를 강조하면 다음과 같습니다. 1) 메모리가..."
     },
     {
@@ -32298,7 +32291,7 @@
       "topics": [
         "insider"
       ],
-      "count": 74,
+      "count": 73,
       "focus": "2026년 8월 25일 프리마켓 주요 종목 동향 ━━━━━━━━━━━━━━ 상승 종목 NYAX (+11.89%) 스마트 주차 사업 확대를 위해 IPS Group을 &#036;350M 현금에 인수. KURA (+11.21%) CEO가 약 &#036;1.2M 규모의 자사주 10만 주를 매입. FLNC (+9.10%)..."
     },
     {
@@ -33753,6 +33746,21 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "aetherjapanresearch/24762",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/24762",
+      "datetime": "2026-08-25T15:32:42.000Z",
+      "localDateKst": "2026-08-26",
+      "tags": [
+        "macro",
+        "geo"
+      ],
+      "tickers": [],
+      "score": 67,
+      "hasText": true,
+      "summary": "CNBC) 캐나다, 약 200억 달러 규모 미국산 제품에 보복 관세 발표 캐나다는 화요일 미국에 대한 보복 관세를 발표하면서, 무역 협상 결렬 이후 도널드 트럼프 대통령이 주말에 부과한 50% 관세에 \"달러..."
+    },
     {
       "id": "aetherjapanresearch/24761",
       "channel": "aetherjapanresearch",
@@ -40764,26 +40772,6 @@
       "score": 56,
       "hasText": true,
       "summary": "이번 소각으로 ADR 추가 발행이 나올 수도 있습니다. SK스퀘어가 보유한 SK하이닉스 지분율은 소각전 20.00% → 소각후 20.68%로 늘어나는데, 상승분만큼 ADR 발행을 위한 원주 증자가 가능해지는..."
-    },
-    {
-      "id": "aetherjapanresearch/24640",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/24640",
-      "datetime": "2026-08-19T09:05:30.000Z",
-      "localDateKst": "2026-08-19",
-      "tags": [
-        "credit",
-        "semi",
-        "equity",
-        "insider",
-        "earnings"
-      ],
-      "tickers": [
-        "000660.KS"
-      ],
-      "score": 91,
-      "hasText": true,
-      "summary": "[DS 반도체 이수림] SK하이닉스 주주환원 관련 주요 포인트 금일 SK하이닉스는 40조원 규모의 자사주 매입·소각과 함께 2025~2027년 누적 FCF의 50% 이상을 주주환원하겠다는 정책을 발표 이번..."
     }
   ],
   "current24hItems": [
