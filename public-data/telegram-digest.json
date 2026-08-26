@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-08-26T17:09:22.900Z",
-  "attemptedAt": "2026-08-26T17:09:22.900Z",
-  "lastSuccessfulAt": "2026-08-26T17:09:22.900Z",
+  "generatedAt": "2026-08-26T19:20:03.192Z",
+  "attemptedAt": "2026-08-26T19:20:03.192Z",
+  "lastSuccessfulAt": "2026-08-26T19:20:03.192Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-08-12T17:09:18.420Z",
-  "until": "2026-08-26T17:09:18.420Z",
+  "since": "2026-08-12T19:19:58.432Z",
+  "until": "2026-08-26T19:19:58.432Z",
   "current24hWindow": {
     "start": "2026-08-24T23:00:00.000Z",
     "end": "2026-08-25T23:00:00.000Z",
@@ -14,7 +14,7 @@
   },
   "current24hCoverage": {
     "observedCount": 185,
-    "eligibleTextCount": 22,
+    "eligibleTextCount": 10,
     "channelCounts": {
       "insidertracking": 86,
       "HANAchina": 59,
@@ -78,12 +78,12 @@
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 218,
-      "freshCount": 35,
-      "eligibleTextCount": 33,
+      "freshCount": 18,
+      "eligibleTextCount": 17,
       "selectedCount": 80,
       "error": null,
       "lastPostId": 24788
@@ -126,7 +126,7 @@
     }
   ],
   "count": 2258,
-  "retainedItemCount": 463,
+  "retainedItemCount": 458,
   "observedItems": [
     {
       "id": "aetherjapanresearch/24788",
@@ -1693,7 +1693,7 @@
       "tickers": [
         "AMAT"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67839",
@@ -1730,7 +1730,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/62109",
@@ -1777,7 +1777,7 @@
       "tickers": [
         "NVDA"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67836",
@@ -2003,7 +2003,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67826",
@@ -2720,7 +2720,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24761",
@@ -2733,7 +2733,7 @@
         "power"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67811",
@@ -2772,7 +2772,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67810",
@@ -2998,7 +2998,7 @@
         "MU",
         "SNDK"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24758",
@@ -3024,7 +3024,7 @@
         "LITE",
         "SNDK"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67804",
@@ -3381,7 +3381,7 @@
         "power"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67800",
@@ -3605,7 +3605,7 @@
         "MRVL",
         "SNDK"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67793",
@@ -4336,7 +4336,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24752",
@@ -4348,7 +4348,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/62016",
@@ -4429,7 +4429,7 @@
       "tickers": [
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19848",
@@ -4550,7 +4550,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19844",
@@ -4591,7 +4591,7 @@
       "tickers": [
         "NVDA"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19843",
@@ -31625,12 +31625,12 @@
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
     "observedCount": 2258,
-    "eligibleTextCount": 91,
-    "mediaOnlyCount": 2167,
+    "eligibleTextCount": 75,
+    "mediaOnlyCount": 2183,
     "highSignalCount": 548,
     "broadSignalCount": 1077,
     "selectedRawCount": 423,
-    "selectedRawCoveragePct": 464.8,
+    "selectedRawCoveragePct": 564,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
@@ -31949,7 +31949,7 @@
     {
       "key": "SNDK",
       "count": 42,
-      "text": "미즈호 증권) SemiAnalysis: 메모리 디스펙(De-Spec), WFE, 800V 불확실성과 구리/광학 부문의 상승 여력 당사는 SemiAnalysis(SA)의 대표 더그 오러플린(Doug O'Laughlin)과 만찬을 진행하였습니다. SA의 주요 견해 중 일부를 강조하면 다음과 같습니다. 1) 메모리가..."
+      "text": "미즈호 증권) SemiAnalysis: 메모리 디스펙(De-Spec), WFE, 800V 불확실성과 구리/광학 부문의 상승 여력 당사는 SemiAnalysis(SA)의 대표 더그 오러플린(Doug..."
     },
     {
       "key": "AAPL",
@@ -41915,36 +41915,6 @@
       "score": 52,
       "hasText": true,
       "summary": "트럼프 행정부 국토안보부가 8월 24일 신규 H-1B 비자 쿼터 적용 청원 건당 10만3,265달러의 영구 수수료를 부과하는 방안 제안. 이번 조치는 2025년 트럼프 대통령의 포고령을 통해 도입됐다가..."
-    },
-    {
-      "id": "aetherjapanresearch/24753",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/24753",
-      "datetime": "2026-08-25T00:37:20.000Z",
-      "localDateKst": "2026-08-25",
-      "tags": [
-        "semi",
-        "equity",
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 47,
-      "hasText": true,
-      "summary": "엔비디아, 베라 루빈 첫 테스트 충격. 딥시크 처리량 30배 급증&#33; • 엔비디아, 베라 루빈 NVL72 온칩 실측 데이터 최초 공개. 딥시크-V4-Pro로 에이전트 코딩 작업 통해 GB300 대비..."
-    },
-    {
-      "id": "aetherjapanresearch/24752",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/24752",
-      "datetime": "2026-08-25T00:36:09.000Z",
-      "localDateKst": "2026-08-25",
-      "tags": [
-        "semi"
-      ],
-      "tickers": [],
-      "score": 47,
-      "hasText": true,
-      "summary": "[단독] 美, 호남 반도체 언급하며 \"공장 지어달라\" 압박 현지 반도체 투자 지연에 불만 메모리 물량 안정적 공급도 요구"
     },
     {
       "id": "insidertracking/62016",
