@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-08-26T16:05:31.422Z",
-  "attemptedAt": "2026-08-26T16:05:31.422Z",
-  "lastSuccessfulAt": "2026-08-26T16:05:31.422Z",
+  "generatedAt": "2026-08-26T17:09:22.900Z",
+  "attemptedAt": "2026-08-26T17:09:22.900Z",
+  "lastSuccessfulAt": "2026-08-26T17:09:22.900Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-08-12T16:05:26.900Z",
-  "until": "2026-08-26T16:05:26.900Z",
+  "since": "2026-08-12T17:09:18.420Z",
+  "until": "2026-08-26T17:09:18.420Z",
   "current24hWindow": {
     "start": "2026-08-24T23:00:00.000Z",
     "end": "2026-08-25T23:00:00.000Z",
@@ -81,12 +81,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 217,
+      "count": 218,
       "freshCount": 35,
-      "eligibleTextCount": 34,
+      "eligibleTextCount": 33,
       "selectedCount": 80,
       "error": null,
-      "lastPostId": 24787
+      "lastPostId": 24788
     },
     {
       "channel": "insidertracking",
@@ -125,9 +125,21 @@
       "lastPostId": 67880
     }
   ],
-  "count": 2257,
-  "retainedItemCount": 464,
+  "count": 2258,
+  "retainedItemCount": 463,
   "observedItems": [
+    {
+      "id": "aetherjapanresearch/24788",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-08-26T16:15:31.000Z",
+      "localDateKst": "2026-08-27",
+      "score": 0,
+      "tags": [
+        "media-only"
+      ],
+      "tickers": [],
+      "hasText": false
+    },
     {
       "id": "aetherjapanresearch/24787",
       "channel": "aetherjapanresearch",
@@ -5548,7 +5560,7 @@
         "healthcare"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67747",
@@ -31612,16 +31624,17 @@
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2257,
-    "eligibleTextCount": 92,
-    "mediaOnlyCount": 2165,
+    "observedCount": 2258,
+    "eligibleTextCount": 91,
+    "mediaOnlyCount": 2167,
     "highSignalCount": 548,
     "broadSignalCount": 1077,
     "selectedRawCount": 423,
-    "selectedRawCoveragePct": 459.8,
+    "selectedRawCoveragePct": 464.8,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
+    "media-only": 88,
     "ai-policy": 152,
     "kr-market": 310,
     "insider": 80,
@@ -31637,7 +31650,6 @@
     "geo": 338,
     "credit": 99,
     "optical": 61,
-    "media-only": 87,
     "crypto": 17
   },
   "tickerCounts": {
