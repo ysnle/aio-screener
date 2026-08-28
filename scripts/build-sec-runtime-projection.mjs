@@ -4,7 +4,9 @@ import { readFile, rename, writeFile } from 'node:fs/promises';
 const SOURCE = new URL('../public-data/sec-fundamentals.json', import.meta.url);
 const OUTPUT = new URL('../public-data/sec-fundamentals-summary.json', import.meta.url);
 const MANIFEST = new URL('../public-data/sec-fundamentals-summary.manifest.json', import.meta.url);
-const sha256 = (value) => createHash('sha256').update(value).digest('hex');
+const canonicalText = (value) => value.replace(/\r\n?/g, '\n');
+const sha256 = (value) => createHash('sha256').update(canonicalText(value)).digest('hex');
+const canonicalBytes = (value) => Buffer.byteLength(canonicalText(value));
 
 async function writeAtomic(url, value) {
   const text = `${JSON.stringify(value, null, 2)}\n`;
@@ -45,8 +47,8 @@ const manifest = {
   artifactRole: projection.artifactRole,
   sourceSha256: sha256(sourceText),
   runtimeSha256: sha256(projectionText),
-  sourceBytes: Buffer.byteLength(sourceText),
-  runtimeBytes: Buffer.byteLength(projectionText),
+  sourceBytes: canonicalBytes(sourceText),
+  runtimeBytes: canonicalBytes(projectionText),
   records: Object.keys(data).length,
   generatedAt: projection.generatedAt
 };

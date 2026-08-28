@@ -3,11 +3,17 @@ verified_by: Codex deterministic gates + browser audit
 last_verified: 2026-08-28
 confidence: high
 latest_version: v54.63
-latest_P_number: P998
-next_P_number: P999
-current_total_entries: 712 (P1~P998, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P987~P998 v54.63 source-to-screen data and research-model reconstruction
+latest_P_number: P999
+next_P_number: P1000
+current_total_entries: 713 (P1~P999, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P987~P999 v54.63 source-to-screen data and research-model reconstruction
 ---
+
+## P999 - v54.63 - SEC runtime projection manifest가 Windows source CRLF digest를 저장했다
+
+- **root_cause**: SEC bounded projection manifest의 source digest·byte 계산이 checkout의 물리적 줄바꿈을 그대로 해시해 Windows 생성 manifest가 Linux LF exact checkout에서 drift했다.
+- **fix/prevention**: SEC projection builder와 검증기가 모두 LF 정규화된 UTF-8 텍스트로 digest·bytes를 계산하고 CRLF/LF 동일성 회귀 검사를 실행한다.
+- **verification**: exact-SHA LF archive에서 data gate 실패를 재현하고, 새 manifest로 Windows/LF data group 및 차기 exact-SHA CI를 통과시킨다.
 
 ## P998 - v54.63 - generated workspace byte inventory가 checkout 줄바꿈에 따라 달라졌다
 

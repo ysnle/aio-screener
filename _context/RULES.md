@@ -7,6 +7,12 @@ target_version: v54.63
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
 
+## R565. 텍스트 projection manifest의 digest·bytes는 checkout 줄바꿈에 독립적이어야 한다 (v54.63, P999)
+
+**Rule**: GitHub Pages에 배포되는 JSON 텍스트의 manifest digest와 bytes는 CRLF/LF checkout 파일을 직접 해시하지 않고 LF 정규화된 UTF-8 직렬화를 기준으로 계산한다. builder와 verifier는 같은 canonicalization 함수를 사용하고 동일성 fixture를 통과해야 한다.
+
+**Validation**: SEC runtime projection digest/byte CRLF-LF fixture, Windows data group, LF archive data group, exact-SHA GitHub CI.
+
 ## R564. 생성 상태의 텍스트 크기는 checkout 줄바꿈과 무관해야 한다 (v54.63, P998)
 
 **Rule**: `CURRENT-STATE`·`CONTEXT-CATALOG`의 텍스트 바이트 집계는 CRLF/LF 물리 표현을 직접 세지 않고 LF 정규화된 UTF-8 크기를 사용한다. 로컬 작업 폴더 PASS만으로 deterministic generation을 단언하지 않으며 clean checkout에서도 같은 생성물을 요구한다.

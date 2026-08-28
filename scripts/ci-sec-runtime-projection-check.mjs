@@ -7,11 +7,15 @@ const runtimeText = read('public-data/sec-fundamentals-summary.json');
 const source = JSON.parse(sourceText);
 const runtime = JSON.parse(runtimeText);
 const manifest = JSON.parse(read('public-data/sec-fundamentals-summary.manifest.json'));
-const sha256 = (value) => createHash('sha256').update(value).digest('hex');
+const canonicalText = (value) => value.replace(/\r\n?/g, '\n');
+const sha256 = (value) => createHash('sha256').update(canonicalText(value)).digest('hex');
+const canonicalBytes = (value) => Buffer.byteLength(canonicalText(value));
 const fail = (message) => { throw new Error(`[sec-runtime-projection] ${message}`); };
 
+if (sha256('alpha\nbeta\n') !== sha256('alpha\r\nbeta\r\n') || canonicalBytes('alpha\nbeta\n') !== canonicalBytes('alpha\r\nbeta\r\n')) fail('projection digest accounting is checkout-newline dependent');
+
 if (runtime.schemaVersion !== 'sec-fundamentals-runtime-summary.v1' || runtime.artifactRole !== 'BOUNDED_PAGE_PROJECTION') fail('runtime projection identity is invalid');
-if (Buffer.byteLength(runtimeText) > 1024 * 1024) fail(`runtime projection exceeds 1 MiB: ${Buffer.byteLength(runtimeText)}`);
+if (canonicalBytes(runtimeText) > 1024 * 1024) fail(`runtime projection exceeds 1 MiB: ${canonicalBytes(runtimeText)}`);
 const sourceSymbols = Object.keys(source.data || {});
 const runtimeSymbols = Object.keys(runtime.data || {});
 if (sourceSymbols.length !== runtimeSymbols.length || sourceSymbols.some((symbol) => !runtime.data[symbol])) fail('runtime symbol coverage differs from canonical source');
@@ -25,5 +29,5 @@ for (const symbol of sourceSymbols) {
   if ((projected?.pit?.observationCount || 0) !== (canonical?.pit?.observationCount || 0)) fail(`${symbol} PIT coverage count drifted`);
 }
 if (manifest.sourceSha256 !== sha256(sourceText) || manifest.runtimeSha256 !== sha256(runtimeText)) fail('projection digest manifest drifted');
-if (manifest.sourceBytes !== Buffer.byteLength(sourceText) || manifest.runtimeBytes !== Buffer.byteLength(runtimeText) || manifest.records !== runtimeSymbols.length) fail('projection byte/count manifest drifted');
+if (manifest.sourceBytes !== canonicalBytes(sourceText) || manifest.runtimeBytes !== canonicalBytes(runtimeText) || manifest.records !== runtimeSymbols.length) fail('projection byte/count manifest drifted');
 console.log(JSON.stringify({ ok: true, records: runtimeSymbols.length, sourceBytes: manifest.sourceBytes, runtimeBytes: manifest.runtimeBytes, reductionPct: Math.round((1 - manifest.runtimeBytes / manifest.sourceBytes) * 1000) / 10 }));
