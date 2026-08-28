@@ -7,7 +7,7 @@
     "STALE",
     "RIGHTS_REVIEW_REQUIRED"
   ],
-  "generatedAt": "2026-08-28T04:16:26.487Z",
+  "generatedAt": "2026-08-28T11:34:52.908Z",
   "appRevision": "v54.63",
   "dataRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
@@ -31,7 +31,7 @@
         "withinSla": true,
         "marketClosedGrace": false,
         "generatedAt": "2026-08-28T03:43:37.585Z",
-        "ageHours": 0.55,
+        "ageHours": 7.85,
         "maxAgeHours": 12,
         "reason": null
       },
@@ -151,8 +151,8 @@
     "categoryCount": 22,
     "overall": "PARTIAL",
     "counts": {
-      "PARTIAL": 13,
-      "MATCH": 7,
+      "PARTIAL": 14,
+      "MATCH": 6,
       "BLOCKED": 2
     },
     "closure": {
@@ -172,6 +172,7 @@
         "news",
         "commodities-fx",
         "global-indices",
+        "crypto",
         "kr-macro-vkospi-supply"
       ],
       "partialCategories": [
@@ -187,7 +188,8 @@
         "macro-calendar",
         "news",
         "commodities-fx",
-        "global-indices"
+        "global-indices",
+        "crypto"
       ],
       "operatorRequiredCategories": [
         "investors-intelligence",
