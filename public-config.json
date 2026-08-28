@@ -2,18 +2,18 @@
   "schemaVersion": "ai-public-config.v1",
   "appRevision": "v54.63",
   "ai": {
-    "chatPolicy": "personal-key-only",
-    "workerUrl": null,
-    "serverMode": "personal-key-only",
+    "chatPolicy": "personal-key-or-public-worker",
+    "workerUrl": "https://aio-proxy.zmfhd007.workers.dev",
+    "serverMode": "shared-worker-fallback",
     "healthPath": "/health",
     "maxTokens": "worker-advertised",
-    "routeStatus": "DISABLED",
-    "routeReason": "WORKER_HEALTH_STALE",
+    "routeStatus": "PUBLISHED",
+    "routeReason": null,
     "routeEvidence": {
-      "status": "OPERATOR_REQUIRED",
-      "source": "last-observed-live-health",
-      "observedAt": "2026-08-27T00:06:18.098Z",
-      "observationStatus": "NOT_ATTEMPTED"
+      "status": "CURRENT",
+      "source": "periodic-live-health",
+      "observedAt": "2026-08-28T21:31:58.978Z",
+      "observationStatus": "SUCCESS"
     }
   },
   "privacy": {
