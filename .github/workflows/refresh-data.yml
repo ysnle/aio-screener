@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: refresh-data
@@ -91,6 +92,8 @@ jobs:
               `| FRED Secret | ${m.fredHasKey ? (m.fredFailedSeries && m.fredFailedSeries.length ? 'WARN' : 'OK') : 'MISSING'} | fredFetchOk: ${m.fredFetchOk ? 'yes (' + (m.macroKeyCount || 0) + ' keys)' : 'no'}${m.fredFailedSeries && m.fredFailedSeries.length ? ' · failed: ' + m.fredFailedSeries.join(',') : ''} |`,
               `| FRED LKG | ${m.fredLkgUsed ? 'REFERENCE' : 'N/A'} | source=${m.fredLkgSource || 'none'} · original observation dates retained |`,
               `| BLS official | ${m.blsStatus === 'ok' || m.blsStatus === 'cached-fresh' ? 'OK' : m.blsStatus === 'partial' ? 'PARTIAL' : 'WARN'} | status=${m.blsStatus || 'unavailable'} series=${m.blsSeriesCount || 0}/6 failed=${(m.blsFailedSeries || []).join(',') || 'none'} lastSuccessfulAt=${m.blsLastSuccessfulAt || 'none'} |`,
+              `| Treasury curve | ${m.treasuryStatus === 'ok' || m.treasuryStatus === 'cached-fresh' ? 'OK' : 'WARN'} | status=${m.treasuryStatus || 'unavailable'} observed=${m.treasuryObservedAt || 'none'} same-date 10Y-2Y only |`,
+              `| AAII weekly | ${m.aaiiStatus === 'current-reference' ? 'REFERENCE' : 'WARN'} | observed=${m.aaiiObservedAt || 'none'} relay=${m.aaiiRelayUsed ? 'bounded-reader' : 'direct/none'} decisionUse=false |`,
               `| News | ${m.newsOk ? 'OK' : 'WARN'} | ${m.newsCount || 0} items · ${m.newsCycleLabel || 'cycle n/a'} |`,
               `| LLM Analysis | ${m.marketAnalysisOk ? 'OK' : 'WARN'} | ${m.marketAnalysisOk ? ((d.marketAnalysis && d.marketAnalysis.model) || 'model n/a') : 'ANTHROPIC_API_KEY missing or generation failed'} |`,
               `| Fundamentals | ${Number(m.fundamentalCoveragePct || 0) >= 80 ? 'OK' : 'PARTIAL'} | free SEC companyfacts=${m.secFundamentalsCount || 0} coverage=${m.fundamentalCoveragePct || 0}% · paid FMP not required |`,
@@ -105,6 +108,7 @@ jobs:
           NODE
 
       - name: Commit refreshed public data if changed
+        id: commit
         # P564/R255: this used to `git push` once with no pull/rebase beforehand. main is also
         # updated directly by humans (e.g. editing operator-note.json via the GitHub web UI)
         # and by other sessions/workflows while this job's two fetch steps run for minutes —
@@ -118,7 +122,8 @@ jobs:
           git add public-data/data.json public-data/history.json
           [ -f public-data/market-snapshot.json ] && git add public-data/market-snapshot.json || true
           [ -f public-data/market-snapshot-status.json ] && git add public-data/market-snapshot-status.json || true
-           [ -f public-data/operations-status.json ] && git add public-data/operations-status.json || true
+          [ -f public-data/operations-status.json ] && git add public-data/operations-status.json || true
+          [ -f public-config.json ] && git add public-config.json || true
           [ -f public-data/reconciliation-status.json ] && git add public-data/reconciliation-status.json || true
           [ -f public-data/screener.json ] && git add public-data/screener.json || true
           [ -f public-data/telegram-digest.json ] && git add public-data/telegram-digest.json || true
@@ -135,10 +140,12 @@ jobs:
           [ -f public-data/masters/history-holdings.json ] && git add public-data/masters/history-holdings.json || true
           [ -f public-data/masters/issuer-aggregates.json ] && git add public-data/masters/issuer-aggregates.json || true
           [ -d public-data/masters/managers ] && git add public-data/masters/managers || true
+          [ -d public-data/objects/masters ] && git add public-data/objects/masters || true
           [ -d public-data/masters/history/managers ] && git add public-data/masters/history/managers || true
           git add architecture/asset-manifest.json architecture/release-manifest.json
           if git diff --staged --quiet; then
             echo "No public-data changes to commit"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           ts=$(date -u +"%Y-%m-%dT%H:%MZ")
@@ -162,4 +169,15 @@ jobs:
             attempt=$((attempt + 1))
             sleep $((attempt * 3))
           done
+          echo "changed=true" >> "$GITHUB_OUTPUT"
           echo "Pushed refreshed public-data files"
+
+      - name: Dispatch exact produced commit to CI
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          final_sha="$(git rev-parse HEAD)"
+          gh workflow run ci.yml --ref main -f release_sha="$final_sha" -f origin="refresh-data"
+          echo "Dispatched CI for exact refresh commit $final_sha"

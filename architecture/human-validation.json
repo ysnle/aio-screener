@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "human-validation.v1",
+  "status": "NOT_EXECUTED",
+  "certification": "OPERATOR_REQUIRED",
+  "rawEvidencePolicy": "Store consent records and raw session material in a private operator-controlled system; commit only anonymized aggregate evidence IDs and signed summaries.",
+  "minimumStudy": {
+    "participantsPerPersona": 5,
+    "personas": ["novice-investor", "experienced-investor", "assistive-technology-user"],
+    "platforms": ["desktop", "mobile"],
+    "assistiveTechnology": ["NVDA-or-JAWS", "VoiceOver"],
+    "manualAccessibilityDimensions": ["screen-reader-reading-order", "keyboard-only", "computed-contrast", "200-percent-zoom-reflow", "dialog-focus-trap-and-return"],
+    "tasks": ["identify-current-decision-and-source", "distinguish-stale-reference-blocked", "run-and-explain-a-screen", "compare-13f-managers-with-lag-boundary", "follow-knowledge-to-professional-route", "recover-from-partial-or-timeout-state"]
+  },
+  "acceptance": {
+    "taskCompletionRateMin": 0.9,
+    "criticalMisunderstandingRateMax": 0.05,
+    "accessibilityCriticalFailuresMax": 0,
+    "requiredFieldsPerSession": ["evidenceId", "participantAlias", "persona", "platform", "assistiveTechnology", "taskId", "completed", "criticalMisunderstanding", "observedAt", "reviewer", "signedAt"]
+  },
+  "sessions": [],
+  "aggregate": {
+    "participantsByPersona": {},
+    "taskCompletionRate": null,
+    "criticalMisunderstandingRate": null,
+    "accessibilityCriticalFailures": null
+  },
+  "reason": "Automated browser checks and expert review are not recruited-user or assistive-technology evidence. No session is promoted without signed, anonymized evidence."
+}

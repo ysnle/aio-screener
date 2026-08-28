@@ -32,6 +32,7 @@ export const DATA_SOURCE_REGISTRY = Object.freeze({
   }),
   'fear-greed': entry({
     cadence: '30m', refreshMode: 'scheduled', producer: 'scripts/fetch-data.mjs', artifacts: ['public-data/data.json', 'public-data/history.json'], consumers: ['home', 'sentiment', 'briefing'],
+    allowedUseCeiling: 'reference',
     origins: [{ id: 'cnn-fear-greed', authority: 'publisher', sourceKind: 'secondary-index', access: 'public-web', url: 'https://www.cnn.com/markets/fear-and-greed', fields: ['score', 'rating', 'daily-history'] }],
     structuralLimit: { kind: 'publisher-methodology-and-rights', reason: 'CNN is the index publisher but the web feed is not an exchange or regulator API.', remediation: 'Preserve CNN attribution and reference-only decision use unless a licensed contract is obtained.' }
   }),
@@ -40,8 +41,11 @@ export const DATA_SOURCE_REGISTRY = Object.freeze({
     origins: [{ id: 'cboe-daily-statistics', authority: 'official-exchange', sourceKind: 'official-primary', access: 'public-web-terms-apply', url: 'https://www.cboe.com/us/options/market_statistics/daily/', fields: ['totalPutCall', 'equityPutCall', 'indexPutCall'] }], structuralLimit: null
   }),
   aaii: entry({
-    cadence: 'weekly', refreshMode: 'operator-web-research', producer: 'scripts/refresh-web-research.mjs', artifacts: ['public-data/data.json', 'public-data/structural-data-research.json', 'public-data/reconciliation-status.json'], consumers: ['sentiment'],
-    origins: [{ id: 'aaii-sentiment-survey', authority: 'publisher', sourceKind: 'publisher-public-web', access: 'public-web-terms-apply', url: 'https://www.aaii.com/sentimentsurvey', fields: ['bullish', 'neutral', 'bearish'] }],
+    cadence: 'weekly', refreshMode: 'scheduled', producer: 'scripts/fetch-data.mjs:fetchAaiiSentiment', artifacts: ['public-data/data.json', 'public-data/structural-data-research.json', 'public-data/reconciliation-status.json'], consumers: ['sentiment'],
+    origins: [
+      { id: 'aaii-sentiment-survey', authority: 'publisher', sourceKind: 'publisher-public-web', access: 'public-web-terms-apply', url: 'https://www.aaii.com/sentimentsurvey/sent_results?adv=yes', fields: ['bullish', 'neutral', 'bearish'] },
+      { id: 'jina-reader-relay', authority: 'relay', sourceKind: 'public-text-relay', access: 'public-best-effort', url: 'https://r.jina.ai/', fields: ['publisher-page-text-fallback'] }
+    ],
     structuralLimit: { kind: 'publisher-terms-and-reference-cadence', reason: 'The official public page provides weekly values, but this is reference-only and not a licensed real-time trading input.', remediation: 'Keep the dated public observation and obtain licensed rights before promotion beyond reference use.' }
   }),
   naaim: entry({

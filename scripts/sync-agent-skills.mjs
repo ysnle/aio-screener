@@ -31,8 +31,8 @@ const canonicalFiles = walk(canonicalRoot);
 const canonicalRelative = canonicalFiles.map((path) => relative(canonicalRoot, path)).sort();
 
 if (checkOnly && !existsSync(mirrorRoot)) {
-  console.log('Agent skill mirror check SKIP: .agents/skills is not materialized in this checkout.');
-  process.exit(0);
+  console.error('Agent skill mirror synchronization failed: .agents/skills is missing.');
+  process.exit(1);
 }
 
 if (!checkOnly) {

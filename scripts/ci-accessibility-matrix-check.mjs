@@ -32,7 +32,20 @@ async function main() {
   mkdirSync(dirname(outPath), { recursive: true });
   const server = await startServer();
   const browser = await chromium.launch();
-  const result = { scope: DESKTOP_QA_SCOPE, viewport: DESKTOP_PRIMARY_VIEWPORT, routes: [], manualEvidence: ['NVDA/screen-reader path not automated'], consoleErrors: [] };
+  const result = {
+    schemaVersion: 'aio-accessibility-evidence.v2',
+    observedAt: new Date().toISOString(),
+    scope: DESKTOP_QA_SCOPE,
+    viewport: DESKTOP_PRIMARY_VIEWPORT,
+    routes: [],
+    manualBoundaries: [
+      { id: 'screen-reader', status: 'UNVERIFIED', requiredEvidence: 'NVDA or equivalent screen-reader task flow' },
+      { id: 'contrast', status: 'UNVERIFIED', requiredEvidence: 'computed foreground/background contrast including state variants' },
+      { id: 'zoom-reflow', status: 'UNVERIFIED', requiredEvidence: '200% zoom and keyboard flow at supported desktop width' },
+      { id: 'dialog-focus', status: 'UNVERIFIED', requiredEvidence: 'open/close/focus-trap/focus-return for every dialog branch' }
+    ],
+    consoleErrors: []
+  };
   try {
     const page = await browser.newPage({ viewport: result.viewport });
     page.on('pageerror', (e) => result.consoleErrors.push(`[pageerror] ${e.message}`));
@@ -56,16 +69,21 @@ async function main() {
         const unnamedCanvas = canvases.filter((el) => !name(el) && !el.getAttribute('aria-describedby')).map((el) => el.id || 'canvas');
         const textNodes = root ? Array.from(root.querySelectorAll('*')).filter((el) => visible(el) && (el.children.length === 0) && (el.textContent || '').trim()) : [];
         const fontUnder10 = textNodes.filter((el) => parseFloat(getComputedStyle(el).fontSize || '0') < 10).map((el) => ({ id:el.id || '', text:(el.textContent || '').trim().slice(0, 70), fontSize:getComputedStyle(el).fontSize, html:el.outerHTML.slice(0, 220) })).slice(0, 50);
-        const smallTargets = controls.filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && (r.width < 24 || r.height < 24); }).map((el) => ({ id:el.id || '', text:name(el).slice(0, 60), width:Math.round(el.getBoundingClientRect().width), height:Math.round(el.getBoundingClientRect().height) })).slice(0, 80);
+        const smallTargets = controls.filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && (r.width < 24 || r.height < 24); }).map((el) => {
+          const r = el.getBoundingClientRect();
+          const parentText = (el.parentElement?.textContent || '').replace(/\s+/g, ' ').trim();
+          const inlineTextException = el.tagName === 'A' && getComputedStyle(el).display === 'inline' && parentText.length > name(el).length;
+          return { id:el.id || '', text:name(el).slice(0, 60), width:Math.round(r.width), height:Math.round(r.height), exception:inlineTextException ? 'wcag-inline-text' : null };
+        }).slice(0, 80);
+        const smallTargetViolations = smallTargets.filter((row) => !row.exception);
+        const smallTargetExceptions = smallTargets.filter((row) => !!row.exception);
         const modalContracts = Array.from(document.querySelectorAll('[role="dialog"],.modal,[id*="modal"]')).filter(visible).map((el) => ({ id:el.id || '', labelled:!!(el.getAttribute('aria-label') || el.getAttribute('aria-labelledby')) }));
-        return { routeId:id, active:!!root && (id === 'theme-detail' ? !!document.getElementById('page-themes')?.classList.contains('active') : root.classList.contains('active')), nameless, selectCount:controls.filter((el) => el.tagName === 'SELECT').length, selectsWithoutName, positiveTabindex, canvasCount:canvases.length, unnamedCanvas, fontUnder10Count:fontUnder10.length, fontUnder10, smallTargetCount:smallTargets.length, smallTargets, skipLink:!!document.querySelector('.skip-link[href="#main-content"]'), modalContracts };
+        return { routeId:id, active:!!root && (id === 'theme-detail' ? !!document.getElementById('page-themes')?.classList.contains('active') : root.classList.contains('active')), nameless, selectCount:controls.filter((el) => el.tagName === 'SELECT').length, selectsWithoutName, positiveTabindex, canvasCount:canvases.length, unnamedCanvas, fontUnder10Count:fontUnder10.length, fontUnder10, smallTargetViolationCount:smallTargetViolations.length, smallTargetViolations, smallTargetExceptionCount:smallTargetExceptions.length, smallTargetExceptions, skipLink:!!document.querySelector('.skip-link[href="#main-content"]'), modalContracts };
       }, routeKey);
       result.routes.push(audit);
     }
-    // Product scope is desktop-only: retain target-size observations for audit
-    // visibility, but do not turn the retired mobile touch-target requirement
-    // into a release failure for desktop controls.
-    result.status = result.routes.some((r) => !r.active || r.nameless.length || r.selectsWithoutName.length || r.positiveTabindex.length || r.unnamedCanvas.length || r.fontUnder10.length) || result.consoleErrors.length ? 'fail' : 'pass';
+    result.status = result.routes.some((r) => !r.active || !r.skipLink || r.nameless.length || r.selectsWithoutName.length || r.positiveTabindex.length || r.unnamedCanvas.length || r.fontUnder10.length || r.smallTargetViolationCount || r.modalContracts.some((modal) => !modal.labelled)) || result.consoleErrors.length ? 'fail' : 'pass';
+    result.certificationStatus = result.status === 'pass' ? 'PARTIAL_AUTOMATED' : 'FAILED_AUTOMATED';
   } catch (error) {
     result.status = 'fail';
     result.error = error.stack || error.message;

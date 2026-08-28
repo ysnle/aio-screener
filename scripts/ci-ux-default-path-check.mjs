@@ -7,7 +7,8 @@ const html = readFileSync(join(root, 'index.html'), 'utf8');
 const core = readFileSync(join(root, 'js/aio-core.js'), 'utf8');
 const ui = readFileSync(join(root, 'js/aio-ui.js'), 'utf8');
 const data = readFileSync(join(root, 'js/aio-data.js'), 'utf8');
-const ci = readFileSync(join(root, '.github/workflows/ci.yml'), 'utf8');
+const qaPipeline = JSON.parse(readFileSync(join(root, 'architecture/qa-pipeline.json'), 'utf8'));
+const qaScripts = Object.values(qaPipeline.groups || {}).flatMap((group) => group.gates || []).map((gate) => gate.script);
 const qa = readFileSync(join(root, '_context/QA-CHECKLIST.md'), 'utf8');
 const rules = readFileSync(join(root, '_context/RULES.md'), 'utf8');
 
@@ -80,7 +81,7 @@ check('index.html div tags must remain balanced after UX pruning', divOpen === d
 check('P529 QA checklist must mention the default-path UX gate', /P529/.test(qa) && /ci-ux-default-path-check\.mjs/.test(qa));
 check('P532 QA checklist must mention operator-note priority and Signal fold gate', /P532/.test(qa) && /operator note/i.test(qa) && /Signal/i.test(qa));
 check('P534 QA checklist must mention visual hierarchy refresh', /P534/.test(qa) && /visual hierarchy/i.test(qa));
-check('default-path UX gate must be wired into CI', /ci-ux-default-path-check\.mjs/.test(ci));
+check('default-path UX gate must be wired into CI', qaPipeline.profiles?.full?.includes('core') && qaScripts.includes('scripts/ci-ux-default-path-check.mjs'));
 check('R228 must document default-route UX constraints', /R228/.test(rules) && /auto-fill/.test(rules) && /default route/.test(rules));
 check('R231 must document visual hierarchy and non-Bloomberg lock-in', /R231/.test(rules) && /Bloomberg/.test(rules) && /visual hierarchy/i.test(rules));
 

@@ -1,12 +1,23 @@
-import { createVersionedRepository } from './repository.js';
-
-export function createPrivacyVault({ storage, key = 'portfolio', version = 1, validate = () => true, consent = () => false } = {}) {
-  const repository = createVersionedRepository({ storage, key: `vault:${key}`, version, validate });
+// A consent wrapper is not encryption. This adapter accepts only a repository
+// that explicitly proves encrypted-at-rest capability; generic storage gateways
+// must use createVersionedRepository and must never be presented as a Vault.
+export function createPrivacyVault({ secureRepository = null, consent = () => false } = {}) {
+  const encryptedAtRest = secureRepository?.capabilities?.encryptedAtRest === true;
   function read(fallback = null) {
-    return consent() ? repository.read(fallback) : fallback;
+    return consent() && encryptedAtRest ? secureRepository.read(fallback) : fallback;
   }
   function write(value) {
-    return consent() ? repository.write(value) : false;
+    return consent() && encryptedAtRest ? secureRepository.write(value) : false;
   }
-  return Object.freeze({ read, write, remove: () => repository.remove(), migrateStored: repository.migrateStored, version });
+  function remove() {
+    return encryptedAtRest && typeof secureRepository.remove === 'function' ? secureRepository.remove() : false;
+  }
+  return Object.freeze({
+    read,
+    write,
+    remove,
+    migrateStored: encryptedAtRest && typeof secureRepository.migrateStored === 'function' ? secureRepository.migrateStored : () => null,
+    status: encryptedAtRest ? 'encrypted-repository-ready' : 'disabled-no-encrypted-repository',
+    encryptedAtRest
+  });
 }

@@ -1,40 +1,43 @@
-> **v53.55 (P761~P849 현행)**: v53.7 KR 5페이지 통합 이후의 ESM architecture/data-plane 경계, P755~P780 domain/route work, P781 derived ownership gate, P782 active SW controller diagnostics, P783 snapshot-first degraded quote operation, P785 technical health, P786 signal hero, P787 home aggregate, P788~P795 theme-detail bounded native ownership, P821 home quality, P822 technical candle metadata, P823 validation hardening, P824 native currentness guard, P825 live-region reduction, P826 derived-route compatibility canonicalization, P827~P830 secondary surface closure, P831 portfolio summary, P832 SEC report, P833 KV-only fast quote deployment, P834 AI infrastructure reference integration, P835 chart/behavior/communication protocols, P836 data refresh pipeline correction, P837 fast-plane smoke bootstrap handling, P838~P841 evidence/lifecycle/freshness/slice contracts, P842 capability claim boundary, P843 operations/soak/readiness boundary, P846 credential compatibility, P847 typed data evidence, P848 AI QuestionPlan/ClaimLedger/causal boundaries, P849 domain/evaluation/operations contracts까지 반영했다. 아래 historical 표는 감사 문맥이며 수정 전에는 상단 current 표와 `rg -n` 결과를 우선한다.
-
 ---
 verified_by: Codex (`ReadAllLines` + `rg -n` full structural remeasurement) + P761-P855 update
-current_override: P950 v54.40 binds full 13F rows and long-form articles to explicit detail interactions, separates Top summaries from full-row state, bounds shared cache growth and exposes retryable detail failures; SEC online collection, human/source/user review, provider rights, authorized security master and live release certification remain explicit gates
-  last_verified: 2026-08-22
+last_verified: 2026-08-23
 confidence: high
-target_version: v54.40
+auto_refresh: true
+target_version: v54.57
 target_file: index.html + js/*.js + src/**/*.js + worker/*.js
 target_lines: refreshed after P892 gate
-  current_checkpoint: P950 narrows detail loading beyond route scope, gates zero-byte profile selection, full-row semantic separation, bounded LRU reuse and failed-detail recovery
+current_override: P958 keeps user-supplied market commentary reference-only, blocks missing macro transmission variables rather than substituting proxies, composes cancellation/focus ownership, and separates screener factor/SEC provenance; P950 detail-loading boundary and SEC/knowledge review gates remain active
+current_checkpoint: P963 correlated public-AI browser request plus ticker empty-state/accessibility truth, route-owned native hydration, cancellation/focus ownership, full-row semantic separation, bounded LRU reuse and failed-detail recovery
 ---
 
-## Current machine-verified file-size table (v54.40, 2026-08-22)
+> **v54.57 (P761~P964 현행)**: v53.7 KR 5페이지 통합 이후의 ESM architecture/data-plane 경계, native macro transmission and AI inference/deal-loop reference lenses, explicit `REFERENCE`/`BLOCKED` promotion boundaries, and the P954~P964 research-integration, cancellation, focus, screener-provenance, route-ownership, ticker empty-state, portfolio missingness, theme-detail interaction, visible-surface hygiene, correlated browser-request verification and workspace-governance rules are reflected. 아래 historical 표는 감사 문맥이며 수정 전에는 상단 current 표와 `rg -n` 결과를 우선한다.
+
+## Current machine-verified file-size table (v54.57, 2026-08-23)
 
 | File | Lines | Verification |
 |------|------:|--------------|
-| `index.html` | 28,369 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-core.js` | 27,409 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-data.js` | 16,355 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-ui.js` | 4,303 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-chat.js` | 6,960 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-tests.js` | 9,115 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `src/ui/pages/guide.js` | 130 | native guide search/jump/capability lifecycle module |
-| `src/ui/pages/screener.js` | 525 | native screener table/filter/profile/watchlist/position renderer + research setup labels |
-| `src/data/providers/screener.js` | 146 | screener artifact + identity-universe provider + reference memo/RVOL fields |
-| `src/data/normalize/screener.js` | 67 | screener row/metadata/setup-profile normalization |
-| `src/data/orchestrators/screener.js` | 60 | screener state orchestration + factor-rank/setup-profile wiring |
-| `src/domain/screener/setup-profile.js` | 81 | reference-only relative-strength pullback, support/200SMA stretch, volume-evidence, and climax setup labels |
-| `src/ui/pages/news.js` | 285 | native market-news and briefing primary feed renderers; legacy AI digest boundary |
-| `src/ui/pages/market.js` | 801 | native macro/fxbond/breadth primary metric renderers, curve/chart lifecycles, and native screener-metadata breadth fallback |
-| `src/ui/pages/themes.js` | 861 | native bounded RRG quadrant/rotation-read renderer plus theme-detail summary/composition/leaders/temperature/spread/breadth-health/subtheme-gap/benchmark/insights and RRG chart lifecycle; deeper legacy-only surfaces remain bounded |
-| `src/ui/pages/analysis.js` | 369 | native home/signal/technical decision surfaces and technical OHLCV/volume chart lifecycles with fail-closed input states |
-| `src/ui/pages/entity.js` | 387 | native ticker hero/activity, options metrics, fundamental SEC status/summary, `sec-report.v2` core report renderer, and native ticker chart lifecycle with explicit unavailable history state |
-| `src/ui/pages/portfolio.js` | 372 | native portfolio state, holdings/summary/allocation surfaces, and position-allocation chart lifecycle with explicit unavailable state |
+| `index.html` | 28,618 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-core.js` | 27,513 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-data.js` | 16,526 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-ui.js` | 4,354 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-chat.js` | 7,067 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-tests.js` | 9,123 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `src/ui/pages/guide.js` | 131 | native guide search/jump/capability lifecycle module |
+| `src/ui/pages/screener.js` | 1,190 | native screener table/filter/profile/watchlist/position renderer + provenance and research setup labels |
+| `src/data/providers/screener.js` | 242 | screener artifact + identity-universe provider + coverage/provenance metadata |
+| `src/data/normalize/screener.js` | 100 | screener row/metadata/setup-profile normalization |
+| `src/data/orchestrators/screener.js` | 100 | screener state orchestration + factor-rank/setup-profile wiring |
+| `src/domain/screener/setup-profile.js` | 114 | reference-only relative-strength pullback, support/200SMA stretch, volume-evidence, and climax setup labels |
+| `src/ui/pages/news.js` | 320 | native market-news and briefing primary feed renderers; legacy AI digest boundary |
+| `src/ui/pages/market.js` | 986 | native macro/fxbond/breadth primary metric renderers, curve/chart lifecycles, native screener-metadata breadth fallback, and macro transmission evidence lens |
+| `src/ui/pages/themes.js` | 1,117 | native bounded RRG quadrant/rotation-read renderer plus accessible theme-detail triggers, theme-detail summary/composition/leaders/temperature/spread/breadth-health/subtheme-gap/benchmark/insights, RRG chart lifecycle and AI inference/deal-loop reference lens; deeper legacy-only surfaces remain bounded |
+| `src/domain/ai/inference-efficiency.js` | 105 | reference-only inference efficiency axes, workload fit, architecture archetypes, AI deal-map nodes/role-level edges and public proxy resolver |
+| `src/domain/macro/transmission.js` | 65 | pure macro funding-to-hedge causal chain, observed/blocked evidence states and missing-producer registry; no synthetic risk score |
+| `src/ui/pages/analysis.js` | 371 | native home/signal/technical decision surfaces and technical OHLCV/volume chart lifecycles with fail-closed input states |
+| `src/ui/pages/entity.js` | 453 | native ticker hero/activity/navigation, options metrics, fundamental SEC status/summary, `sec-report.v2` core report renderer, and native ticker chart lifecycle with explicit unavailable history state |
+| `src/ui/pages/portfolio.js` | 386 | native portfolio state, positive-only holdings/summary/allocation surfaces, and position-allocation chart lifecycle with explicit unavailable state |
 | `src/data/runtime-readers.js` | 353 | canonical read-only runtime boundary plus 16-route field observation catalog |
-| `js/aio-glossary.js` | 314 | `scripts/ci-doc-currency-check.mjs` |
+| `js/aio-glossary.js` | 322 | `scripts/ci-doc-currency-check.mjs` |
 
 | `src/ai/intent/taxonomy.js` | 83 | AIQ-1 typed intent taxonomy/routing |
 | `src/ai/entity/resolver.js` | 51 | AIQ-1 entity alias/ticker resolution |

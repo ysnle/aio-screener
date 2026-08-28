@@ -1,0 +1,148 @@
+{
+  "schemaVersion": "aio-product-charter.v1",
+  "status": "ACTIVE",
+  "canonicalDocument": "_context/AIO-CURRENT-PRODUCT-ARCHITECTURE-CHARTER.md",
+  "productIdentity": {
+    "name": "AIO Screener",
+    "category": "self-directed-investment-research-and-decision-support",
+    "primaryUser": "Korean-speaking self-directed investor who needs one evidence-bound research workflow",
+    "primaryJob": "Observe market state, triage opportunities and risks, compare evidence, and record a reviewable thesis without mistaking incomplete public data for execution-grade truth",
+    "executionCapability": "NONE",
+    "stage": "RESEARCH_BETA_CONDITIONAL"
+  },
+  "allowedOutcomes": [
+    "observe-market-state",
+    "screen-and-triage",
+    "compare-evidence",
+    "explain-uncertainty-and-limitations",
+    "journal-thesis-and-review-outcome",
+    "learn-market-principles"
+  ],
+  "nonGoals": [
+    "brokerage-order-routing-or-trade-execution",
+    "individualized-buy-sell-sizing-or-timing-instructions-without-suitability-and-current-decision-evidence",
+    "licensed-professional-real-time-terminal-parity",
+    "claiming-real-time-from-best-effort-public-data",
+    "general-purpose-chatbot",
+    "full-cms-backtest-or-portfolio-accounting-platform"
+  ],
+  "experiencePrinciples": [
+    "evidence-before-opinion",
+    "progressive-disclosure-for-novice-and-expert-density",
+    "research-and-action-language-are-separated",
+    "missing-is-never-zero",
+    "degraded-and-stale-states-remain-visible",
+    "one-primary-workflow-before-feature-breadth"
+  ],
+  "evidencePolicy": {
+    "allowedUseOrder": ["none", "reference", "decision"],
+    "monotonicRestriction": true,
+    "requiredFields": ["sourceKind", "observedAt", "status", "allowedUse", "freshness"],
+    "decisionUseRequires": ["current-enough-for-domain", "source-rights-compatible", "validated-provenance", "non-synthetic-observation"],
+    "claimRules": {
+      "realTime": "FORBIDDEN_UNLESS_SOURCE_RIGHTS_AND_MEASURED_LATENCY_ARE_EXPLICIT",
+      "missingObservation": "UNKNOWN_NOT_ZERO",
+      "derivedMetric": "LABEL_INPUTS_METHOD_AND_LIMITATIONS",
+      "staleObservation": "REFERENCE_OR_NONE_ONLY"
+    }
+  },
+  "trustPlanes": [
+    {
+      "id": "public-shell",
+      "owner": "github-pages",
+      "contains": ["versioned-ui-shell", "small-public-projections", "static-reference-content"],
+      "mustNotContain": ["secrets", "private-portfolio-records", "unbounded-bulk-market-history"]
+    },
+    {
+      "id": "durable-current-data",
+      "owner": "scheduled-data-pipeline",
+      "contains": ["validated-snapshots", "lineage", "freshness", "publication-status"],
+      "mustNotContain": ["unattested-generated-output", "missing-as-zero"]
+    },
+    {
+      "id": "fast-market-reference",
+      "owner": "edge-data-plane",
+      "contains": ["best-effort-quotes", "request-budgets", "provider-health"],
+      "mustNotContain": ["execution-grade-claims-without-rights", "client-exposed-provider-secrets"]
+    },
+    {
+      "id": "research-corpus",
+      "owner": "knowledge-pipeline",
+      "contains": ["principles", "source-citations", "semantic-review-state"],
+      "mustNotContain": ["current-market-observations-presented-as-durable-knowledge", "structural-coverage-presented-as-human-certification"]
+    },
+    {
+      "id": "personal-vault",
+      "owner": "user-device",
+      "contains": ["explicitly-consented-personal-state"],
+      "mustNotContain": ["default-on-chat-history", "plaintext-sensitive-state-presented-as-a-vault"]
+    },
+    {
+      "id": "ai-synthesis",
+      "owner": "evidence-bound-orchestrator",
+      "contains": ["cited-synthesis", "limitations", "action-permission-state"],
+      "mustNotContain": ["uncited-personalized-action", "provider-output-published-before-policy-check"]
+    },
+    {
+      "id": "operations-evidence",
+      "owner": "ci-and-observability",
+      "contains": ["immutable-revision-bound-artifacts", "environment", "command", "timestamp", "gate-status"],
+      "mustNotContain": ["mechanically-version-bumped-measurements", "local-pass-presented-as-live-proof"]
+    }
+  ],
+  "architecturePrinciples": [
+    "one-machine-readable-registry-per-decision",
+    "source-adapter-to-validation-to-canonical-evidence-to-selector-to-ui",
+    "route-ownership-requires-writer-retirement-not-only-native-wrappers",
+    "capabilities-are-lazy-loaded-by-route-and-intent",
+    "bulk-artifacts-are-projected-before-browser-delivery",
+    "personal-state-is-opt-in-minimized-and-encrypted-before-vault-claims",
+    "ai-policy-is-enforced-before-provider-call-and-before-publication",
+    "release-evidence-is-bound-to-an-immutable-sha-and-artifact"
+  ],
+  "auditCoverage": [
+    { "domain": "product-intent-and-strategy", "reviewStatus": "AUDITED", "implementationStatus": "CORRECTED", "evidence": ["productIdentity", "nonGoals", "experiencePrinciples"] },
+    { "domain": "system-topology-and-trust-planes", "reviewStatus": "AUDITED", "implementationStatus": "GUARDRAILS_COMPLETE_MIGRATION_OPEN", "evidence": ["trustPlanes", "deploymentBoundary"] },
+    { "domain": "frontend-layers-route-and-runtime-ownership", "reviewStatus": "AUDITED", "implementationStatus": "MIGRATION_OPEN", "evidence": ["architecture/route-owners.json", "architecture/retirement-manifest.json"] },
+    { "domain": "design-ui-and-ux", "reviewStatus": "AUDITED", "implementationStatus": "AUTOMATED_EVIDENCE_PARTIAL_HUMAN_VALIDATION_OPEN", "evidence": ["architecture/route-owners.json", "architecture/public-readiness.json"] },
+    { "domain": "data-provenance-freshness-and-rights", "reviewStatus": "AUDITED", "implementationStatus": "GUARDRAILS_COMPLETE_PROJECTION_MIGRATION_OPEN", "evidence": ["src/data/contracts/source-registry.js", "evidencePolicy"] },
+    { "domain": "ai-privacy-and-security", "reviewStatus": "AUDITED", "implementationStatus": "GUARDRAILS_COMPLETE_OPERATOR_REVIEW_OPEN", "evidence": ["aiBoundary", "architecture/public-readiness.json"] },
+    { "domain": "performance-loading-and-runtime-lifecycle", "reviewStatus": "AUDITED", "implementationStatus": "ROOT_CAUSE_CONFIRMED_MIGRATION_OPEN", "evidence": ["architecture/operations-slo.json", "architecture/retirement-manifest.json"] },
+    { "domain": "accessibility", "reviewStatus": "AUDITED", "implementationStatus": "AUTOMATED_COMPLETE_MANUAL_OPEN", "evidence": ["architecture/public-readiness.json", "_artifacts/accessibility-matrix-audit.json"] },
+    { "domain": "qa-verification-and-test-economics", "reviewStatus": "AUDITED", "implementationStatus": "REDESIGNED_INCREMENTAL", "evidence": ["architecture/qa-pipeline.json", "_context/QA-PIPELINE-ARCHITECTURE.md"] },
+    { "domain": "internal-automation-loop", "reviewStatus": "AUDITED", "implementationStatus": "SOURCE_CONTRACTED_REMOTE_OBSERVATION_OPEN", "evidence": ["_context/WORKFLOW-GOVERNANCE.md", "architecture/qa-pipeline.json"] },
+    { "domain": "knowledge-skills-and-workspace", "reviewStatus": "AUDITED", "implementationStatus": "STRUCTURAL_CONTRACTS_COMPLETE_HUMAN_SEMANTIC_REVIEW_OPEN", "evidence": ["_context/CONTEXT-CATALOG.json", "architecture/skill-eval-cases.json"] },
+    { "domain": "github-ci-pages-delivery", "reviewStatus": "AUDITED", "implementationStatus": "SOURCE_REDESIGNED_DEPLOYED_CONVERGENCE_OPEN", "evidence": [".github/workflows/ci.yml", ".github/workflows/pages-deploy.yml"] },
+    { "domain": "cloudflare-edge-and-provider-plane", "reviewStatus": "AUDITED", "implementationStatus": "SOURCE_CONTRACTED_LIVE_REVISION_DIVERGED", "evidence": ["architecture/worker-endpoints.json", "architecture/operations-slo.json"] },
+    { "domain": "release-operations-and-feedback-loop", "reviewStatus": "AUDITED", "implementationStatus": "EVIDENCE_BOUND_SLO_AND_OPERATOR_PROMOTION_OPEN", "evidence": ["architecture/operations-slo.json", "architecture/public-readiness.json"] }
+  ],
+  "deploymentBoundary": {
+    "githubPages": ["versioned-shell", "route-chunks", "bounded-public-projections", "reference-content"],
+    "cloudflare": ["secret-bearing-provider-calls", "quotas", "idempotency", "dynamic-data-proxy", "observability"],
+    "futureBulkStore": ["large-historical-datasets", "content-addressed-shards", "retention-managed-artifacts"],
+    "forbiddenCoupling": ["browser-fanout-as-primary-data-pipeline", "pages-deploy-from-untested-mutable-branch", "same-version-contents-with-different-evidence"]
+  },
+  "aiBoundary": {
+    "role": "evidence-bound-screener-analyst",
+    "personalizedDirectActionDefault": "BLOCKED",
+    "requiredForPersonalizedDirectAction": ["explicit-user-intent", "suitability-context", "current-decision-grade-evidence", "jurisdiction-and-product-policy-allow"],
+    "generalChat": false,
+    "autoTrading": false
+  },
+  "promotionGates": [
+    "all-public-claims-map-to-evidence-policy",
+    "critical-routes-have-current-browser-evidence",
+    "release-artifact-is-sha-bound-and-attested",
+    "provider-rights-and-quotas-are-reviewed",
+    "privacy-vault-is-cryptographically-accurate-or-disabled",
+    "thirty-day-operations-slo-is-measured",
+    "accessibility-manual-boundaries-are-explicit"
+  ],
+  "canonicalContracts": {
+    "routes": "architecture/route-owners.json",
+    "sources": "src/data/contracts/source-registry.js",
+    "qa": "architecture/qa-pipeline.json",
+    "operations": "architecture/operations-slo.json",
+    "readiness": "architecture/public-readiness.json"
+  }
+}

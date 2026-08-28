@@ -5,7 +5,11 @@
   "staleAfterDays": 30,
   "replaceAfterDays": 90,
   "source": "js/aio-data.js curated identity universe; public-data/screener.json runtime enrichment",
-  "note": "정적 유니버스는 심볼·이름·섹터·지수만 보관하며 signal/memo/mcap/rsi는 런타임 산출물로만 채운다."
+  "note": "정적 유니버스는 심볼·이름·섹터·지수만 보관하며 signal/memo/mcap/rsi는 런타임 산출물로만 채운다.",
+  "recordCount": 873,
+  "uniqueSymbols": 873,
+  "duplicateSymbols": 0,
+  "currentness": "STALE"
  },
  "universe": [
   {
@@ -999,12 +1003,6 @@
    "name": "Robinhood",
    "sector": "Financials",
    "index": "NASDAQ100"
-  },
-  {
-   "sym": "SQ",
-   "name": "Block Inc (SQ)",
-   "sector": "Financials",
-   "index": "SP500"
   },
   {
    "sym": "MSTR",
@@ -4738,12 +4736,6 @@
    "index": "KOSPI"
   },
   {
-   "sym": "000720.KS",
-   "name": "현대건설",
-   "sector": "Industrials",
-   "index": "KOSPI"
-  },
-  {
    "sym": "052690.KS",
    "name": "한전기술",
    "sector": "Industrials",
@@ -4820,12 +4812,6 @@
   {
    "sym": "000100.KS",
    "name": "유한양행",
-   "sector": "Healthcare",
-   "index": "KOSPI"
-  },
-  {
-   "sym": "326030.KS",
-   "name": "SK바이오팜",
    "sector": "Healthcare",
    "index": "KOSPI"
   },

@@ -3,13 +3,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { atomicWriteJsonSync } from './lib/atomic-write.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readJson = (relativePath) => JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
 const writeJson = (relativePath, value) => {
   const target = path.join(root, relativePath);
-  fs.mkdirSync(path.dirname(target), { recursive: true });
-  fs.writeFileSync(target, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
+  atomicWriteJsonSync(target, value);
 };
 const reviewedAt = process.env.KNOWLEDGE_MANIFEST_DATE || '2026-08-11';
 const principles = readJson('public-data/principles/lesson-library.json');

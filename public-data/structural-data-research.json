@@ -9,8 +9,8 @@
       "status": "CURRENT_REFERENCE",
       "valueArtifact": "public-data/data.json.marketSurveys.aaii",
       "sourceUrl": "https://www.aaii.com/sentimentsurvey",
-      "observation": "2026-08-19",
-      "detail": "35.5 bullish / 24.6 neutral / 39.9 bearish; current official public observation, retained as reference-only because publisher terms apply."
+      "observation": "2026-08-26",
+      "detail": "32.9% bullish / 22.6% neutral / 44.4% bearish; automated official-public reference via bounded reader relay, excluded from trading gates."
     },
     {
       "id": "naaim",
@@ -82,7 +82,7 @@
     },
     {
       "id": "kr-export-reference",
-      "status": "CURRENT_REFERENCE",
+      "status": "STALE_REFERENCE",
       "valueArtifact": "public-data/data.json.officialWebReferences.krExports",
       "sourceUrl": "https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?bbsId=1362&mi=2891&nttSn=10169503&nttSnUrl=be8cdd187fb1efe4fe4c464b1cb3a147",
       "observation": "2026-07-01",

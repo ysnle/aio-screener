@@ -5,15 +5,32 @@
 
 // R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
 // v48.80/P150: operational hardening adds an explicit build marker and health message.
-const SW_VERSION = 'v54.43';
-const SW_BUILD = '2026-08-22T21:02:00+09:00';
+const SW_VERSION = 'v54.63';
+const SW_BUILD = '2026-08-27T09:23:00+09:00';
 const SHELL_CACHE = 'aio-shell-' + SW_VERSION;
 const DATA_CACHE  = 'aio-data-'  + SW_VERSION;
 
-// 앱 셸 — 최초 설치 시 pre-cache
+// Only the bounded critical shell is installed atomically. The larger registry
+// below is a publication/dependency audit aid; route/ESM modules are cached only
+// after the browser actually requests them.
+const CRITICAL_SHELL_ASSETS = [
+  './',
+  './index.html',
+  './version.json',
+  './public-config.json',
+  './js/aio-core.js',
+  './js/aio-data.js',
+  './js/aio-ui.js',
+  './js/aio-chat.js',
+  './js/aio-glossary.js',
+  './src/app/bootstrap.js'
+];
+const RUNTIME_SHELL_PATH_RE = /\/(?:js|src)\//;
+
+// Published runtime dependency registry (not an install-time precache list).
 // v48.29: 4개 모듈 모두 외부 분리 (MODULE 1/2/3/4 = core/data/ui/chat)
 // v49.43 P310 hotfix: manifest.json 제거 (GitHub UI 29af1f3 삭제) — cache.add 404 차단 + SW install 실패 방지
-const SHELL_ASSETS = [
+const PUBLISHED_RUNTIME_ASSETS = [
   './',
   './index.html',
   './version.json',
@@ -73,6 +90,7 @@ const SHELL_ASSETS = [
   './src/ui/knowledge/path.js',
   './src/ui/knowledge/tree.js',
   './src/ui/knowledge/current-observations.js',
+  './src/ui/knowledge/reference-curriculum.js',
   './src/ai/provider/adapter.js',
   './src/ai/response/claim-ledger.js',
   './src/ai/response/renderer.js',
@@ -123,6 +141,7 @@ const SHELL_ASSETS = [
   './src/domain/sentiment/metrics.js',
   './src/domain/home/summary.js',
   './src/domain/macro/treasury-curve.js',
+  './src/domain/macro/transmission.js',
   './src/domain/market/breadth.js',
   './src/domain/market/health.js',
   './src/domain/news/scoring.js',
@@ -143,6 +162,7 @@ const SHELL_ASSETS = [
   './src/domain/technical/stage.js',
   './src/domain/themes/rrg.js',
   './src/domain/content/capability-manifest.js',
+  './src/domain/ai/inference-efficiency.js',
   './src/domain/knowledge/graph.js',
   './src/domain/knowledge/evidence.js',
   './src/legacy/compatibility-facade.js',
@@ -201,6 +221,7 @@ const SHELL_ASSETS = [
 // API/데이터 URL 패턴 — Network-First + 캐시 폴백
 const DATA_URL_PATTERNS = [
   /\/public-data\/(?:market-snapshot|market-snapshot-status|operations-status|reconciliation-status)\.json(?:\?|$)/,
+  /\/public-data\/sec-fundamentals-summary\.json(?:\?|$)/,
   /query[12]\.finance\.yahoo\.com/,      // Yahoo Finance
   /api\.coingecko\.com/,                  // CoinGecko
   /fredgraph\.csv|fredapi/,               // FRED
@@ -217,7 +238,7 @@ const DATA_URL_PATTERNS = [
 // 교육·원문 reference artifact — 네트워크 성공 후 오프라인에서도 마지막
 // 검증 원장을 유지하되, 현재 가격·뉴스 TTL과 섞지 않는다.
 const REFERENCE_URL_PATTERNS = [
-  /\/public-data\/(?:atlas\/current-evidence-ledger|masters\/(?:holdings-summary|managers\/[^/]+|history\/managers\/[^/]+)|principles\/lesson-library|atlas\/foundation-lessons|knowledge\/(?:articles(?:\/(?:principles|atlas-foundations)\/[^/]+)?|status-summary|learning-graph|coverage-matrix|research-dossiers))\.json(?:\?|$)/
+  /\/public-data\/(?:objects\/masters\/[a-f0-9]{64}|atlas\/current-evidence-ledger|masters\/(?:holdings-summary|history\/managers\/[^/]+)|principles\/lesson-library|atlas\/foundation-lessons|knowledge\/(?:articles(?:\/(?:principles|atlas-foundations)\/[^/]+)?|status-summary|learning-graph|coverage-matrix|research-dossiers))\.json(?:\?|$)/
 ];
 
 // 민감 URL 패턴 — API 키/토큰/중첩 proxy URL 포함 시 캐시 금지
@@ -256,14 +277,9 @@ const NEWS_URL_PATTERNS = [
 self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.open(SHELL_CACHE).then(function(cache) {
-      // shell 항목만 pre-cache (일부 실패해도 설치 계속)
-      return Promise.allSettled(
-        SHELL_ASSETS.map(function(url) {
-          return cache.add(url).catch(function(e) {
-            console.warn('[AIO SW] shell cache miss:', url, e.message);
-          });
-        })
-      );
+      // A missing critical asset invalidates the install. Partial shell versions
+      // must never become active under a successful service-worker revision.
+      return cache.addAll(CRITICAL_SHELL_ASSETS);
     }).then(function() { self.skipWaiting(); })
   );
 });
@@ -300,8 +316,7 @@ self.addEventListener('fetch', function(event) {
   // 1) 앱 셸 — Network-First (응답 후 캐시 갱신, 오프라인 시 캐시 폴백)
   const reqUrl = new URL(url);
   const scopeUrl = new URL(self.registration.scope);
-  const isShell = SHELL_ASSETS.some(function(asset) {
-    if (/^https?:\/\//.test(asset)) return url === asset;
+  const isCriticalShell = CRITICAL_SHELL_ASSETS.some(function(asset) {
     const rel = asset.replace(/^\.\//, '');
     if (!rel) {
       return reqUrl.origin === scopeUrl.origin &&
@@ -309,6 +324,8 @@ self.addEventListener('fetch', function(event) {
     }
     return reqUrl.origin === scopeUrl.origin && reqUrl.pathname.endsWith('/' + rel);
   });
+  const isRuntimeShell = reqUrl.origin === scopeUrl.origin && RUNTIME_SHELL_PATH_RE.test(reqUrl.pathname);
+  const isShell = isCriticalShell || isRuntimeShell;
   if (isShell) {
     event.respondWith(
       fetch(request, { cache: 'no-store' }).then(function(resp) {

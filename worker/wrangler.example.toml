@@ -3,11 +3,16 @@ main = "data-plane.js"
 compatibility_date = "2026-07-18"
 workers_dev = true
 
+[observability]
+enabled = true
+head_sampling_rate = 0.1
+
 [triggers]
 crons = ["*/5 * * * *"]
 
 [vars]
 ALLOWED_ORIGINS = "https://ysnle.github.io"
+AIO_SOURCE_SHA = "__AIO_SOURCE_SHA__"
 
 [[kv_namespaces]]
 binding = "AIO_QUOTES_KV"

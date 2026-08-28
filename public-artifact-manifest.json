@@ -6,6 +6,7 @@
     "index.html",
     "sw.js",
     "version.json",
+    "deployment.json",
     "og-image.svg",
     "robots.txt",
     "sitemap.xml",
@@ -18,7 +19,8 @@
     "js/aio-chat.js",
     "js/aio-glossary.js",
     "src/**/*.js",
-    "public-data/*.json"
+    "public-data/*.json",
+    "public-data/**/*.json"
   ],
   "excludedFromPagesArtifact": [
     "AGENTS.md",
@@ -42,12 +44,22 @@
     "*.pdf",
     "*.py",
     "package*.json"
+    ,"public-data/sec-fundamentals.json"
+    ,"public-data/masters/holdings.json"
+    ,"public-data/masters/history-holdings.json"
+    ,"public-data/masters/issuer-aggregates.json"
+    ,"public-data/masters/managers/**"
   ],
   "dataHandling": {
     "portfolioAndApiKeys": "portfolio stays browser-local; API keys stay in browser storage and are transmitted only to the selected provider or an explicitly configured Worker for the requested call",
-    "publicData": "public-data contains published snapshots, research references, and derived artifacts; do not place secrets or personal data there",
+    "publicData": "Pages receives bounded snapshots, research references, and content-addressed web projections only; canonical bulk ledgers remain producer-side until retention-managed object storage is configured; do not place secrets or personal data in either plane",
     "contact": "https://github.com/ysnle/aio-screener/issues",
     "termsAndDisclaimer": "guide-public-policy section in index.html"
   },
-  "deploymentContract": "The Pages workflow stages only this allowlist; a root checkout is not itself a public artifact."
+  "deploymentContract": "The Pages workflow stages this allowlist minus the explicit bulk exclusions; a root checkout is not itself a public artifact.",
+  "bulkDataBoundary": {
+    "status": "OBJECT_STORAGE_OPERATOR_REQUIRED",
+    "pagesRole": "bounded projections and immutable digest-addressed web objects",
+    "futureStoreRole": "complete 13F rows, PIT observations, large histories, retention-managed raw and replay artifacts"
+  }
 }

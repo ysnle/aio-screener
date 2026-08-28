@@ -39,14 +39,32 @@ check('research producer uses canonical nested evidence', /researchEvidence:\s*\
 check('research failures retain per-provider detail', chat.includes('_aioNormalizeResearchProviderFailure') && chat.includes('noResults.failures = subFailures'));
 check('Worker route does not certify native search tool', core.includes("'NATIVE_TOOL_UNVERIFIED'") && !core.includes("'NATIVE_TOOL_ROUTE_READY'") && core.includes('nativeCitationCount'));
 check('research diagnostic audit exposes contract and last execution', core.includes('contractReady: contractReady') && core.includes('lastPreparation:') && core.includes('lastExecution:'));
-check('public config is revision-bound and gives fresh browsers the healthy shared route', config.schemaVersion === 'ai-public-config.v1'
+const normalizeWorkerUrl = value => String(value || '').trim().replace(/\/+$/, '');
+const configWorkerUrl = normalizeWorkerUrl(config.ai?.workerUrl);
+const operationsWorkerUrl = normalizeWorkerUrl(operations.ai?.publicChat?.workerEndpoint);
+const publicRoutePublished = /^https:\/\//i.test(configWorkerUrl);
+const publicRouteDisabled = !configWorkerUrl
+  && config.ai?.routeStatus === 'DISABLED'
+  && config.ai?.serverMode === 'personal-key-only'
+  && config.ai?.chatPolicy === 'personal-key-only'
+  && typeof config.ai?.routeReason === 'string'
+  && config.ai.routeReason.length > 0
+  && config.ai?.routeEvidence?.status === 'OPERATOR_REQUIRED'
+  && operations.ai?.publicChat?.statusCode !== 'CONFIGURED_HEALTHY';
+check('public config is revision-bound and either publishes the healthy shared route or explicitly disables it', config.schemaVersion === 'ai-public-config.v1'
   && config.appRevision === operations.appRevision
-  && /^https:\/\//.test(config.ai?.workerUrl || '')
-  && config.ai?.workerUrl === operations.ai?.publicChat?.workerEndpoint
-  && config.ai?.serverMode === 'shared-worker-fallback'
-  && config.ai?.chatPolicy === 'personal-key-or-public-worker'
-  && operations.ai?.publicChat?.statusCode === 'CONFIGURED_HEALTHY');
-check('boot fallback exposes the same public route without storing a provider secret', core.includes(`workerUrl: '${config.ai.workerUrl}'`) && core.includes("serverMode: 'shared-worker-fallback'") && !read('public-config.json').includes('ANTHROPIC_API_KEY'));
+  && ((publicRoutePublished
+    && config.ai?.routeStatus === 'PUBLISHED'
+    && config.ai?.routeEvidence?.status === 'CURRENT'
+    && configWorkerUrl === operationsWorkerUrl
+    && config.ai?.serverMode === 'shared-worker-fallback'
+    && config.ai?.chatPolicy === 'personal-key-or-public-worker'
+    && operations.ai?.publicChat?.statusCode === 'CONFIGURED_HEALTHY')
+    || publicRouteDisabled));
+const bootRouteContract = publicRoutePublished
+  ? core.includes(`workerUrl: '${configWorkerUrl}'`) && core.includes("serverMode: 'shared-worker-fallback'")
+  : core.includes('workerUrl: workerUrl || null') && core.includes('loadPublicConfig');
+check('boot fallback follows the generated public route state without storing a provider secret', bootRouteContract && !read('public-config.json').includes('ANTHROPIC_API_KEY'));
 check('personal key remains preferred over the public fallback while manual Worker override remains explicit', chat.indexOf("if (localWorker && serverMode)") < chat.indexOf("if (apiKey) return") && chat.indexOf("if (apiKey) return") < chat.indexOf("if (publicWorker) return"));
 check('both chat surfaces share the expanded evidence registry', chat.includes('function _aioCollectAIClaimEvidence') && chat.includes('evidence: _pageClaimEvidence') && html.includes('evidence: _uniClaimEvidence'));
 check('invalid or unbound AnswerPlan claims degrade claim scope instead of erasing the answer', chat.includes('answer-plan-claim-degraded') && chat.includes('droppedClaims') && !chat.includes("blocked: true,\n      text: 'AI 베타 안전 모드\\n\\n현재성 수치의 AnswerPlan claim"));

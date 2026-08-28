@@ -5,7 +5,7 @@ function finite(value) {
 }
 
 function asDefinitions(value) {
-  if (!value || typeof value !== 'object') return { sectors: [], subsectors: [], themes: {}, insights: {} };
+  if (!value || typeof value !== 'object') return { sectors: [], subsectors: [], themes: {}, insights: {}, membershipPolicy: null };
   const themes = Array.isArray(value.themes)
     ? value.themes
     : (value.themes && typeof value.themes === 'object' ? value.themes : {});
@@ -13,7 +13,8 @@ function asDefinitions(value) {
     sectors: Array.isArray(value.sectors) ? value.sectors : [],
     subsectors: Array.isArray(value.subsectors) ? value.subsectors : [],
     themes,
-    insights: value.insights && typeof value.insights === 'object' ? value.insights : {}
+    insights: value.insights && typeof value.insights === 'object' ? value.insights : {},
+    membershipPolicy: value.membershipPolicy && typeof value.membershipPolicy === 'object' ? { ...value.membershipPolicy } : null
   };
 }
 
@@ -163,6 +164,7 @@ export function createThemesProvider({
           pct: finite(pct),
           breadth: finite(breadth),
           source,
+          membershipPolicy: definitions.membershipPolicy,
           quotes,
           insight,
           leaders: Array.isArray(selectedTheme.leaders) ? selectedTheme.leaders.slice() : [],

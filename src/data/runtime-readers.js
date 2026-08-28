@@ -89,6 +89,22 @@ function coverageObservation(rows, { emptyAllowed = false, fallbackObservedAt = 
   };
 }
 
+function hySpreadObservation(root, snapshot = {}) {
+  const evidence = root?._serverMacroEvidence?.hyOAS || root?._serverDataMeta?.hyOAS || {};
+  const value = finite(root?._hySpreadBp) ?? finite(snapshot.hySpread);
+  const source = evidence.source || root?._hySpreadSource || snapshot._hySpreadSource || 'DATA_SNAPSHOT';
+  const sourceKind = evidence.sourceKind
+    || (String(source).includes('last-known-good') || value == null ? (value == null ? 'unavailable' : 'snapshot') : 'official-primary');
+  return {
+    value,
+    observedAt: evidence.observedAt || root?._hySpreadDate || snapshot._fieldTs?.hySpread || snapshot._snapshotDate || snapshot._updated || null,
+    fetchedAt: evidence.fetchedAt || null,
+    source,
+    sourceKind,
+    allowedUse: value == null ? 'none' : evidence.allowedUse || (sourceKind === 'official-primary' ? 'reference' : 'reference')
+  };
+}
+
 const SCREENER_FACTOR_FIELD_IDS = Object.freeze([
   'price.ret1m', 'price.ret3m', 'price.ret6m', 'price.volatility', 'price.rsi14',
   'price.pctSma50', 'price.pctSma200', 'technical.kalmanVelocity',
@@ -140,7 +156,9 @@ export function buildRuntimeObservationCatalog({ root = globalThis, state = {}, 
     observedAt: canonicalFearGreed?.asOf || canonicalFearGreed?.observedAt || root?._lastFGMeta?.sourceTs || snapshot._updated || snapshot._snapshotDate || null,
     fetchedAt: meta.generatedAt || null,
     source: canonicalFearGreed?.source || root?._lastFGMeta?.sourceLabel || 'DATA_SNAPSHOT:fear-greed',
-    sourceKind: canonicalFearGreed?.sourceKind || root?._lastFGMeta?.sourceKind || 'snapshot'
+    sourceKind: canonicalFearGreed?.sourceKind || root?._lastFGMeta?.sourceKind || 'snapshot',
+    allowedUse: canonicalFearGreed?.decisionUse === true ? 'decision' : 'reference',
+    allowedUseCeiling: root?._lastFGMeta?.allowedUseCeiling || 'reference'
   };
   const putCall = root?._lastPutCallPayload || {};
   catalog['sentiment.putCall'] = {
@@ -150,13 +168,7 @@ export function buildRuntimeObservationCatalog({ root = globalThis, state = {}, 
     source: putCall.sourceLabel || putCall.source || 'CBOE options volume daily',
     sourceKind: putCall.sourceKind || 'delayed'
   };
-  catalog['sentiment.hySpread'] = {
-    value: finite(root?._hySpreadBp) ?? finite(snapshot.hySpread),
-    observedAt: root?._hySpreadDate || root?._serverMacroEvidence?.hyOAS?.observedAt || null,
-    fetchedAt: root?._serverMacroEvidence?.hyOAS?.fetchedAt || meta.generatedAt || null,
-    source: root?._serverMacroEvidence?.hyOAS?.source || 'FRED BAMLH0A0HYM2',
-    sourceKind: 'official-primary'
-  };
+  catalog['sentiment.hySpread'] = hySpreadObservation(root, snapshot);
   const breadth = state?.screener?.metadata?.breadth || root?.AIO_ARCH?.getScreenerState?.()?.metadata?.breadth || null;
   for (const market of ['us', 'kr']) {
     const segment = breadth?.segments?.[market] || null;
@@ -331,11 +343,14 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
     const fg = finite(canonical?.value) ?? finite(root?._lastFG) ?? finite(snapshot.fg);
     const putCall = root?._lastPutCallPayload || {};
     const quote = (symbol) => live[symbol] || {};
+    const hySpread = hySpreadObservation(root, snapshot);
     return Object.freeze({
       fearGreed: fg,
       fearGreedSourceKind: canonical?.sourceKind || root?._lastFGMeta?.sourceKind || (fg == null ? 'unavailable' : 'snapshot'),
       fearGreedSource: canonical?.source || canonical?.sourceLabel || root?._lastFGMeta?.sourceLabel || 'DATA_SNAPSHOT:fear-greed',
       fearGreedObservedAt: canonical?.asOf || canonical?.observedAt || root?._lastFGMeta?.sourceTs || snapshot._updated || snapshot._snapshotDate || null,
+      fearGreedAllowedUse: canonical?.decisionUse === true ? 'decision' : (root?._lastFGMeta?.allowedUse || 'reference'),
+      fearGreedAllowedUseCeiling: root?._lastFGMeta?.allowedUseCeiling || 'reference',
       vix9d: finite(quote('^VIX9D').price), vix9dObservedAt: observedAt(quote('^VIX9D')),
       vix: finite(quote('^VIX').price), vixObservedAt: observedAt(quote('^VIX')),
       vix3m: finite(quote('^VIX3M').price), vix3mObservedAt: observedAt(quote('^VIX3M')),
@@ -344,10 +359,12 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
       putCallSourceKind: putCall.sourceKind || (root?._putCallRatio != null ? 'delayed' : 'snapshot'),
       putCallSource: putCall.sourceLabel || (root?._putCallRatio != null ? 'CBOE options volume daily' : 'DATA_SNAPSHOT'),
       putCallObservedAt: putCall.asOf || putCall.tradeDate || snapshot._snapshotDate || snapshot._updated || null,
-      hySpread: finite(root?._hySpreadBp) ?? finite(snapshot.hySpread),
-      hySpreadSourceKind: root?._hySpreadBp != null ? 'fred' : 'snapshot',
-      hySpreadSource: root?._hySpreadBp != null ? 'FRED BAMLH0A0HYM2' : 'DATA_SNAPSHOT',
-      hySpreadDate: root?._hySpreadDate || snapshot._snapshotDate || snapshot._updated || null,
+      hySpread: hySpread.value,
+      hySpreadSourceKind: hySpread.sourceKind,
+      hySpreadSource: hySpread.source,
+      hySpreadDate: hySpread.observedAt,
+      hySpreadFetchedAt: hySpread.fetchedAt,
+      hySpreadAllowedUse: hySpread.allowedUse,
       aaiiBear: finite(snapshot.aaiiBear), aaiiBull: finite(snapshot.aaiiBull),
       aaiiObservedAt: snapshot._fieldTs?.aaii || root?._serverDataMeta?.marketSurveys?.aaii?.observedAt || null,
       vixHistory: Array.isArray(root?._vixHistory) ? root._vixHistory.slice(-30).map((point) => ({ date: point?.date || null, value: finite(point?.value) })) : [],

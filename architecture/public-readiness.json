@@ -1,20 +1,69 @@
 {
   "schemaVersion": "public-readiness-v1",
-  "appRevision": "v54.43",
+  "appRevision": "v54.63",
   "currentStage": "RESEARCH_BETA_CONDITIONAL",
   "nextStage": "PUBLIC_BETA",
   "criteria": [
-    { "id": "fail-closed", "status": "PASS", "evidence": "Wave 1·2·3 contracts and SA-02/03" },
-    { "id": "source-and-constraint-labels", "status": "PASS", "evidence": "vertical slice completeness + capability manifest" },
-    { "id": "privacy-p0", "status": "PASS", "evidence": "versioned Vault and plaintext IndexedDB backup retirement" },
-    { "id": "route-matrix", "status": "PASS", "evidence": "ci-viewport-matrix-check.mjs" },
-    { "id": "route-soak", "status": "PASS", "evidence": "ci-route-soak-check.mjs; _artifacts/route-soak-report.json" },
-    { "id": "boot-performance", "status": "PASS", "evidence": "architecture/operations-slo.json latestMeasuredBoot: 3 sequential runs; initialExternalRequests=12/25, initialQuoteRequests=0/16, maxLongTaskMs=103-113/200, totalLongTaskMs=542-558/1000, activeRouteDomNodes=724/2500" },
-    { "id": "thirty-day-slo", "status": "OPERATOR_REQUIRED", "evidence": "architecture/operations-slo.json" },
-    { "id": "live-revision", "status": "OPERATOR_REQUIRED", "evidence": "ci-live-invariant-check.mjs; v53.68 deployment verification pending" },
-    { "id": "edge-security-headers", "status": "OPERATOR_REQUIRED", "evidence": "_headers; GitHub Pages edge enforcement must be confirmed" },
-    { "id": "provider-rights", "status": "REVIEW_REQUIRED", "evidence": "public-data/operations-status.json" },
-    { "id": "fred-success-branch", "status": "PASS", "evidence": "public-data/data.json current artifact has fredHasKey:true/fredFetchOk:true/fredOk:true; SA-04 is required for each release" }
+    {
+      "id": "fail-closed",
+      "status": "PASS",
+      "evidence": "Wave 1·2·3 contracts and SA-02/03"
+    },
+    {
+      "id": "source-and-constraint-labels",
+      "status": "PASS",
+      "evidence": "vertical slice completeness + capability manifest"
+    },
+    {
+      "id": "privacy-p0",
+      "status": "PASS",
+      "evidence": "AES-GCM _AioVault E2E, plaintext IndexedDB backup retirement, and native consent-only plaintext facade disabled"
+    },
+    {
+      "id": "route-matrix",
+      "status": "PASS",
+      "evidence": "ci-viewport-matrix-check.mjs"
+    },
+    {
+      "id": "route-soak",
+      "status": "PENDING_LOCAL_GATE",
+      "evidence": "Previous route-soak evidence predates v54.63; run ci-route-soak-check.mjs once at the release boundary."
+    },
+    {
+      "id": "boot-performance",
+      "status": "REMEASURE_REQUIRED",
+      "evidence": "architecture/operations-slo.json records the July v53.62 sample as historical only; current-revision immutable evidence is required."
+    },
+    {
+      "id": "accessibility-manual",
+      "status": "OPERATOR_REQUIRED",
+      "evidence": "architecture/human-validation.json; automated route matrix is structural only."
+    },
+    {
+      "id": "thirty-day-slo",
+      "status": "OPERATOR_REQUIRED",
+      "evidence": "public-data/operations-slo-window.json source template + watchdog-uploaded runtime window artifact"
+    },
+    {
+      "id": "live-revision",
+      "status": "OPERATOR_REQUIRED",
+      "evidence": "Observed 2026-08-25: GitHub Pages is v54.43 and /deployment.json is 404; v54.61 exact-SHA deployment remains pending. Current Workers are healthy but predate sourceSha rollout."
+    },
+    {
+      "id": "edge-security-headers",
+      "status": "OPERATOR_REQUIRED",
+      "evidence": "_headers; GitHub Pages edge enforcement must be confirmed"
+    },
+    {
+      "id": "provider-rights",
+      "status": "REVIEW_REQUIRED",
+      "evidence": "public-data/operations-status.json"
+    },
+    {
+      "id": "fred-success-branch",
+      "status": "OPERATOR_REQUIRED",
+      "evidence": "public-data/data.json reports fredHasKey:false, fredFetchOk:false, fredOk:false; current official-series success is not certified."
+    }
   ],
   "publicBetaDecision": "BLOCKED_UNTIL_OPERATOR_CRITERIA_CLOSE"
 }

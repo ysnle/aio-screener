@@ -9,17 +9,25 @@ export function createSentimentOrchestrator({ provider, evidenceStore, store, co
     const raw = normalizeSentiment({ ...provider.readCurrent(), ...provided });
     const sentiment = { ...raw };
     for (const field of sentimentFieldDefinitions()) {
-      const value = sentiment[field.metric];
+      let value = sentiment[field.metric];
       const snapshot = snapshotEvidence?.get?.(field.metric);
       const hasProvidedValue = Object.prototype.hasOwnProperty.call(provided, field.metric);
-      if (snapshot && !hasProvidedValue) {
+      let sourceKind = raw[`${field.metric}SourceKind`] || field.sourceKind;
+      let source = raw[`${field.metric}Source`] || sourceKind;
+      let observedAt = field.observedAt ? raw[field.observedAt] || null : null;
+      // A snapshot is a reference fallback, not an override for a fresh runtime
+      // quote. Keep live/provider observations authoritative when present; use the
+      // snapshot only when the runtime field is missing or already reference-only.
+      if (snapshot && !hasProvidedValue && (value == null || sourceKind === 'snapshot' || sourceKind === 'reference')) {
         sentiment[field.metric] = snapshot.value;
-        continue;
+        value = snapshot.value;
+        sourceKind = 'snapshot';
+        source = snapshot.source || snapshot.sourceKind || 'market-snapshot';
+        observedAt = snapshot.observedAt || observedAt;
       }
-      const sourceKind = raw[`${field.metric}SourceKind`] || field.sourceKind;
-      const source = raw[`${field.metric}Source`] || sourceKind;
-      const observedAt = field.observedAt ? raw[field.observedAt] || null : null;
       const referenceOnly = sourceKind === 'snapshot' || sourceKind === 'delayed' || sourceKind === 'reference';
+      const declaredAllowedUse = raw[`${field.metric}AllowedUse`];
+      const allowedUseCeiling = raw[`${field.metric}AllowedUseCeiling`];
       const status = value == null ? 'missing' : sourceKind === 'snapshot' ? 'snapshot' : 'live';
       const input = {
         metric: field.metric,
@@ -31,11 +39,10 @@ export function createSentimentOrchestrator({ provider, evidenceStore, store, co
         fetchedAt: raw[`${field.metric}FetchedAt`] || raw.fetchedAt || raw.now,
         lastSuccessfulAt: value == null ? null : raw[`${field.metric}FetchedAt`] || observedAt,
         status,
-        allowedUse: value == null ? 'none' : referenceOnly ? 'reference' : undefined
+        allowedUse: value == null ? 'none' : declaredAllowedUse || (referenceOnly ? 'reference' : undefined),
+        allowedUseCeiling
       };
-      const evidence = sourceKind === 'snapshot'
-        ? input
-        : { ...applyFreshness(input, { now: clock?.now?.() || Date.now(), maxAgeMs: field.maxAgeMs || 86_400_000 }), ...(referenceOnly ? { allowedUse: 'reference' } : {}) };
+      const evidence = applyFreshness(input, { now: clock?.now?.() || Date.now(), maxAgeMs: field.maxAgeMs || 86_400_000 });
       evidenceStore.ingest(evidence);
     }
     const observationTimes = sentimentFieldDefinitions().map((field) => Date.parse(raw[field.observedAt] || '')).filter(Number.isFinite);

@@ -39,8 +39,9 @@ async function main() {
   check('single canonical Anthropic handler', (workerSource.match(/async function handleAnthropic\(/g) || []).length === 1);
   check('legacy non-atomic KV handler removed', !workerSource.includes('env.AIO_QUOTA.get(') && !workerSource.includes('env.AIO_QUOTA.put('));
   const realFetch = globalThis.fetch;
+  let anthropicFetchCount = 0;
   globalThis.fetch = async (url) => String(url).includes('api.anthropic.com')
-    ? new Response(JSON.stringify({ id: 'fixture', type: 'message', content: [{ type: 'text', text: 'ok' }] }), { status: 200, headers: { 'content-type': 'application/json' } })
+    ? (anthropicFetchCount += 1, new Response(JSON.stringify({ id: 'fixture', type: 'message', content: [{ type: 'text', text: 'ok' }] }), { status: 200, headers: { 'content-type': 'application/json' } }))
     : realFetch(url);
   const missing = await worker.fetch(makeReq({ body: {} }), {});
   check('missing key -> 503', missing.status === 503, missing.status);
@@ -55,6 +56,7 @@ async function main() {
   const devPreflight = await worker.fetch(makeReq({ origin: DEV_ORIGIN, method: 'OPTIONS' }), env);
   check('configured exact dev origin preflight -> 204', devPreflight.status === 204, devPreflight.status);
   check('configured dev origin echoed', devPreflight.headers.get('Access-Control-Allow-Origin') === DEV_ORIGIN, devPreflight.headers.get('Access-Control-Allow-Origin'));
+  check('idempotency headers are allowed by preflight', /X-AIO-Idempotency-Key/.test(devPreflight.headers.get('Access-Control-Allow-Headers') || '') && /X-AIO-Request-Id/.test(devPreflight.headers.get('Access-Control-Allow-Headers') || ''), devPreflight.headers.get('Access-Control-Allow-Headers'));
 
   const noToken = await worker.fetch(makeReq({ body: {} }), { ...env, AIO_APP_TOKEN: 'secret' });
   check('missing app token -> 403', noToken.status === 403, noToken.status);
@@ -73,12 +75,21 @@ async function main() {
 
   const sameKeyQuota = atomicQuota(0);
   const sameKeyEnv = { ANTHROPIC_API_KEY: 'sk-test', AIO_QUOTA_DO: sameKeyQuota, ANTHROPIC_DAILY_CAP: '1' };
+  const beforeSameKeyFetches = anthropicFetchCount;
   const sameKey = await Promise.all(Array.from({ length: 5 }, () => worker.fetch(makeReq({ headers: { 'X-AIO-Idempotency-Key': 'same-key-1234' }, body: { messages: [] } }), sameKeyEnv)));
   check('same idempotency key is deduplicated', sameKeyQuota.count === 1, sameKeyQuota.count);
+  check('duplicate idempotency key invokes upstream exactly once', anthropicFetchCount - beforeSameKeyFetches === 1 && sameKey.filter((response) => response.status === 409).length === 4, { fetches: anthropicFetchCount - beforeSameKeyFetches, statuses: sameKey.map((response) => response.status) });
 
+  const repeatedBodyQuota = atomicQuota(0);
+  const repeatedBodyEnv = { ANTHROPIC_API_KEY: 'sk-test', AIO_QUOTA_DO: repeatedBodyQuota, ANTHROPIC_DAILY_CAP: '3' };
+  const repeatedBody = await Promise.all(Array.from({ length: 2 }, () => worker.fetch(makeReq({ body: { messages: [{ role: 'user', content: 'same prompt' }] } }), repeatedBodyEnv)));
+  check('identical bodies without idempotency key count as separate attempts', repeatedBodyQuota.count === 2 && repeatedBody.every((response) => response.status === 200), { count: repeatedBodyQuota.count, statuses: repeatedBody.map((response) => response.status) });
+
+  env.AIO_SOURCE_SHA = '2'.repeat(40);
   const health = await worker.fetch(new Request('https://worker.example/health', { headers: { Origin: PROD_ORIGIN } }), env);
   const healthBody = await health.json();
   check('health reports atomic quota configured', healthBody.ai?.quotaConfigured === true, healthBody);
+  check('health reports exact source SHA', healthBody.sourceSha === '2'.repeat(40), healthBody);
 
   let observedJurisdiction = null;
   let observedAuthorityName = null;
@@ -106,7 +117,7 @@ async function main() {
   const authorityHealthBody = await authorityHealth.json();
   check('health executes the authority and requires US jurisdiction', authorityHealthBody.ai?.authorityReady === true && authorityHealthBody.ai?.authorityJurisdiction === 'us' && authorityHealthBody.ai?.ready === true, authorityHealthBody);
 
-  const durableStorage = new Map();
+  const durableStorage = new Map([['quota-state', { days: { 'claude:2020-01-01': 9 }, reservations: { 'claude:2020-01-01:old': 1 } }]]);
   const durableState = {
     id: { jurisdiction: 'us' },
     storage: {
@@ -121,6 +132,8 @@ async function main() {
     body: JSON.stringify({ dayKey: 'claude:fixture', cap: 2, requestId: 'fixture-do-request', claudeBody: { model: 'claude-haiku-4-5', max_tokens: 8, messages: [] } }),
   }));
   check('Durable Object executes quota and provider in one authority', durableResponse.status === 200 && durableResponse.headers.get('X-AIO-Upstream-Authority') === 'durable-object-us', durableResponse.status);
+  const prunedState = durableStorage.get('quota-state');
+  check('Durable Object prunes expired day and reservation state', !Object.hasOwn(prunedState.days, 'claude:2020-01-01') && !Object.hasOwn(prunedState.reservations, 'claude:2020-01-01:old'), prunedState);
 
   const wrongJurisdiction = new AIOQuotaDurableObject({ ...durableState, id: { jurisdiction: undefined } }, { ANTHROPIC_API_KEY: 'sk-test' });
   const wrongJurisdictionResponse = await wrongJurisdiction.fetch(new Request('https://aio-quota.internal/proxy', {

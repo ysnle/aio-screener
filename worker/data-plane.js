@@ -160,7 +160,7 @@ export default {
     if (url.pathname === '/health') {
       const heartbeat = await env?.AIO_QUOTES_KV?.get?.('quotes:heartbeat', 'json');
       const current = await readLatest(env);
-      return jsonResponse({ ok: !!current, heartbeat, revision: current?.revision || null, coverage: current?.coverage || null }, request, env, current ? 200 : 503);
+      return jsonResponse({ ok: !!current, heartbeat, revision: current?.revision || null, sourceSha: env?.AIO_SOURCE_SHA || null, coverage: current?.coverage || null }, request, env, current ? 200 : 503);
     }
     if (url.pathname === '/quotes') {
       const current = await readLatest(env);

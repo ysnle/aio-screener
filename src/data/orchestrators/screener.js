@@ -7,12 +7,9 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
   if (!provider?.readCurrent || !commands?.setData) throw new Error('SCREENER_ORCHESTRATOR_DEPENDENCY_INVALID');
   // ARX-04: provider.readCurrent() now performs a real fetch (src/data/providers/screener.js),
   // so this orchestrator awaits it instead of treating it as a synchronous legacy projection.
-  // Fable-advisor review (2026-07-21): sync() is invoked on every aio:pageShown (any route) and
-  // every aio:refresh:done, and readCurrent() has no internal caching (unlike entity's memoized
-  // fundamentals fetch) — so overlapping in-flight calls are possible, and without ordering an
-  // older response resolving after a newer one would silently overwrite fresher state with stale
-  // data. The generation counter drops any resolution that isn't from the most recently started
-  // call; dispose() drops every in-flight resolution permanently (for bootstrap teardown/tests).
+  // Route-scoped pageShown dispatch plus the generation guard prevent duplicate artifact reads and
+  // stale results during rapid navigation. refresh:done remains global because it publishes a new
+  // shared screener artifact to the native consumer.
   let generation = 0;
   let disposed = false;
   async function sync({ scope } = {}) {
@@ -26,7 +23,7 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
       rows: normalized.rows,
       weights: context.weights || null,
       regimeLabel: context.regimeLabel || null,
-      fundamentalCoveragePct: Number(normalized.metadata.fundamentalCoveragePct) || 0,
+      fundamentalCoveragePct: Number.isFinite(Number(normalized.metadata.fundamentalCoveragePct)) ? Number(normalized.metadata.fundamentalCoveragePct) : 0,
       fmpOk: !!normalized.metadata.fmpOk,
       now: Number.isFinite(context.now) ? context.now : Date.now(),
       inputVersion: normalized.revision || 'unknown'
@@ -79,10 +76,22 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
           inputVersion: ranking.inputVersion,
           available: ranking.available,
           ranked: ranking.ranked,
-          activeFactors: ranking.activeFactors,
-          activeFactorRegime: ranking.activeFactorRegime,
-          activeFactorWeights: ranking.activeFactorWeights,
-          inactiveFactorReasons: ranking.inactiveFactorReasons
+         activeFactors: ranking.activeFactors,
+         activeFactorRegime: ranking.activeFactorRegime,
+         activeFactorWeights: ranking.activeFactorWeights,
+          appliedFactorWeights: ranking.appliedFactorWeights,
+          inactiveFactorReasons: ranking.inactiveFactorReasons,
+          factorCoverage: ranking.factorCoverage,
+          qualityStatus: ranking.qualityStatus,
+          confidence: ranking.confidence,
+          compositeConfidence: ranking.compositeConfidence,
+          confidenceMeaning: ranking.confidenceMeaning,
+          inputAudit: ranking.inputAudit,
+          sectorNeutrality: ranking.sectorNeutrality,
+          outlierDiagnostics: ranking.outlierDiagnostics,
+          regimeStability: ranking.regimeStability,
+          turnoverStability: ranking.turnoverStability,
+          researchBoundary: ranking.researchBoundary
           } : null,
         workbench: {
           contractVersion: 'screener-workbench.v1',

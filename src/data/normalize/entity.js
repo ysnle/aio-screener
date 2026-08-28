@@ -21,5 +21,18 @@ export function normalizeEntity(raw = {}) {
       open: finite(row?.open), high: finite(row?.high), low: finite(row?.low), close: finite(row?.close), volume: finite(row?.volume)
     })).filter((row) => row.time && row.close != null)
     : [];
-  return Object.freeze({ id: raw.id ? String(raw.id).toUpperCase() : null, name: raw.name ? String(raw.name) : null, quote, history, fundamentals: raw.fundamentals || null, options: raw.options || null, updatedAt: raw.updatedAt || null });
+  const fundamentalsWatchlist = Array.isArray(raw.fundamentalsWatchlist)
+    ? raw.fundamentalsWatchlist.filter((row) => row && typeof row === 'object').map((row) => ({ ...row }))
+    : [];
+  return Object.freeze({
+    id: raw.id ? String(raw.id).toUpperCase() : null,
+    name: raw.name ? String(raw.name) : null,
+    quote,
+    history,
+    fundamentals: raw.fundamentals || null,
+    fundamentalsWatchlist,
+    fundamentalsMeta: raw.fundamentalsMeta && typeof raw.fundamentalsMeta === 'object' ? { ...raw.fundamentalsMeta } : null,
+    options: raw.options || null,
+    updatedAt: raw.updatedAt || null
+  });
 }

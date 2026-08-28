@@ -1,0 +1,298 @@
+{
+  "schemaVersion": "aio-qa-pipeline.v1",
+  "cacheVersion": 1,
+  "profiles": {
+    "fast": ["preflight"],
+    "contracts": ["preflight", "core", "data", "knowledge", "workspace", "cloudflare"],
+    "full": ["preflight", "core", "data", "knowledge", "workspace", "cloudflare", "browser-unit", "browser-runtime", "browser-knowledge", "browser-resilience", "browser-viewport", "browser-surface"],
+    "external": ["external"],
+    "watchdog": ["watchdog-local", "external"]
+  },
+  "workflowContracts": [
+    {
+      "workflow": ".github/workflows/refresh-data.yml",
+      "mode": "direct",
+      "requiredScripts": [
+        "scripts/ci-source-registry-contract-check.mjs",
+        "scripts/ci-professional-data-gap-check.mjs",
+        "scripts/ci-static-data-contract-check.mjs",
+        "scripts/ci-data-refresh-audit.mjs"
+      ]
+    },
+    {
+      "workflow": ".github/workflows/refresh-screener.yml",
+      "mode": "direct",
+      "requiredScripts": [
+        "scripts/ci-source-registry-contract-check.mjs",
+        "scripts/ci-professional-data-gap-check.mjs",
+        "scripts/ci-static-data-contract-check.mjs",
+        "scripts/ci-data-refresh-audit.mjs",
+        "scripts/ci-sec-runtime-projection-check.mjs"
+      ],
+      "requiredTokens": ["public-data/history.json"]
+    },
+    {
+      "workflow": ".github/workflows/data-watchdog.yml",
+      "mode": "profile",
+      "profile": "watchdog",
+      "requiredScripts": [
+        "scripts/ci-source-registry-contract-check.mjs",
+        "scripts/ci-professional-data-gap-check.mjs",
+        "scripts/ci-static-data-contract-check.mjs",
+        "scripts/ci-data-refresh-audit.mjs"
+      ]
+    }
+  ],
+  "retiredGateScripts": [
+    {
+      "script": "scripts/ci-fast-plane-live-check.mjs",
+      "status": "consolidated",
+      "replacement": "scripts/ci-live-invariant-check.mjs",
+      "reason": "The external profile owns one canonical live-plane observation instead of duplicate network probes."
+    },
+    {
+      "script": "scripts/ci-knowledge-quantitative-example.mjs",
+      "status": "scope-retired",
+      "replacement": "scripts/ci-reference-curriculum-contract-check.mjs",
+      "reason": "Quantitative labs were explicitly removed from product scope; the script exits before its historical implementation."
+    },
+    {
+      "script": "scripts/ci-second-pass-baseline.mjs",
+      "status": "historical-one-off",
+      "replacement": "scripts/qa-runner.mjs",
+      "reason": "Current task baselines are captured by qa-runner session-start and live state by the external profile."
+    }
+  ],
+  "groups": {
+    "preflight": {
+      "phase": 0,
+      "kind": "static",
+      "inputs": ["**"],
+      "gates": [
+        { "id": "syntax", "script": "scripts/ci-syntax-check.mjs", "timeoutMs": 60000 },
+        { "id": "workflow-yaml", "script": "scripts/ci-control-char-check.mjs" },
+        { "id": "version", "script": "scripts/ci-version-check.mjs" },
+        { "id": "product-charter", "script": "scripts/ci-product-charter-contract-check.mjs" },
+        { "id": "architecture", "script": "scripts/ci-architecture-contract-check.mjs" },
+        { "id": "native-decision", "script": "scripts/ci-native-decision-evidence-check.mjs" },
+        { "id": "vertical-slice", "script": "scripts/ci-vertical-slice-contract-check.mjs" },
+        { "id": "capability-claims", "script": "scripts/ci-capability-claim-contract-check.mjs" },
+        { "id": "operations-contract", "script": "scripts/ci-operations-contract-check.mjs" },
+        { "id": "reference-curriculum", "script": "scripts/ci-reference-curriculum-contract-check.mjs" },
+        { "id": "generated-state", "script": "scripts/generate-workspace-state.mjs", "args": ["--check"] },
+        { "id": "workspace-contract", "script": "scripts/ci-workspace-contract-check.mjs" },
+        { "id": "qa-runner-behavior", "script": "scripts/ci-qa-runner-behavior-check.mjs" }
+      ]
+    },
+    "core": {
+      "phase": 1,
+      "kind": "static",
+      "inputs": ["index.html", "js/**", "src/**", "sw.js", "version.json", "public-config.json", "public-artifact-manifest.json", "architecture/**", "scripts/**", "_headers"],
+      "gates": [
+        { "id": "market-session", "script": "scripts/ci-market-session-contract-check.mjs" },
+        { "id": "decomposition", "script": "scripts/ci-decomp-hotspot-check.mjs" },
+        { "id": "baseline", "script": "scripts/ci-baseline-contract-check.mjs" },
+        { "id": "esm-core", "script": "scripts/ci-esm-core-unit-check.mjs" },
+        { "id": "artifact-cache", "script": "scripts/ci-artifact-cache-check.mjs" },
+        { "id": "headless-group-lifecycle", "script": "scripts/ci-headless-group-lifecycle-check.mjs" },
+        { "id": "service-worker-cache-policy", "script": "scripts/ci-service-worker-cache-policy-check.mjs" },
+        { "id": "ai-intelligence", "script": "scripts/ci-ai-intelligence-contract-check.mjs" },
+        { "id": "domain-parity", "script": "scripts/ci-domain-parity-check.mjs" },
+        { "id": "research-model", "script": "scripts/ci-research-model-contract-check.mjs" },
+        { "id": "storage-migration", "script": "scripts/ci-storage-migration-check.mjs" },
+        { "id": "release-manifest", "script": "scripts/ci-release-manifest-contract.mjs" },
+        { "id": "deployment-convergence", "script": "scripts/ci-deployment-convergence-check.mjs" },
+        { "id": "retirement", "script": "scripts/ci-retirement-contract.mjs" },
+        { "id": "inference", "script": "scripts/ci-inference-contract-check.mjs" },
+        { "id": "csp", "script": "scripts/ci-csp-ratchet-check.mjs" },
+        { "id": "structural", "script": "scripts/ci-structural-check.mjs" },
+        { "id": "default-ux", "script": "scripts/ci-ux-default-path-check.mjs" },
+        { "id": "desktop-scope", "script": "scripts/ci-desktop-scope-check.mjs" },
+        { "id": "runtime", "script": "scripts/ci-runtime-contract-check.mjs" },
+        { "id": "ai-chat-reliability", "script": "scripts/ci-ai-chat-reliability-contract-check.mjs" },
+        { "id": "data-pipeline", "script": "scripts/ci-data-pipeline-contract-check.mjs" },
+        { "id": "page-timeline", "script": "scripts/ci-page-data-timeline-contract-check.mjs" },
+        { "id": "semantic-review", "script": "scripts/ci-semantic-review-check.mjs" }
+      ]
+    },
+    "data": {
+      "phase": 1,
+      "kind": "static",
+      "inputs": ["public-data/**", "architecture/**", "scripts/**", "src/data/**", "src/domain/**", "src/state/**", "js/aio-data.js", "version.json"],
+      "gates": [
+        { "id": "screener-workbench", "script": "scripts/ci-screener-workbench-contract.mjs" },
+        { "id": "screener-benchmark", "script": "scripts/benchmark-screener-workbench.mjs", "args": ["--out", "{cacheDir}/screener-scale-benchmark.json"], "timeoutMs": 120000 },
+        { "id": "market-snapshot", "script": "scripts/ci-market-snapshot-contract-check.mjs" },
+        { "id": "history-time", "script": "scripts/ci-history-field-time-contract-check.mjs" },
+        { "id": "data-plane", "script": "scripts/ci-data-plane-contract-check.mjs" },
+        { "id": "operations-status", "script": "scripts/ci-operations-status-check.mjs" },
+        { "id": "operations-slo", "script": "scripts/ci-operations-slo-window-check.mjs" },
+        { "id": "human-validation", "script": "scripts/ci-human-validation-contract-check.mjs" },
+        { "id": "reconciliation", "script": "scripts/ci-reconciliation-contract-check.mjs" },
+        { "id": "source-registry", "script": "scripts/ci-source-registry-contract-check.mjs" },
+        { "id": "professional-gap", "script": "scripts/ci-professional-data-gap-check.mjs" },
+        { "id": "operator-readiness", "script": "scripts/ci-operator-readiness-check.mjs" },
+        { "id": "data-lineage", "script": "scripts/ci-data-lineage-audit.mjs" },
+        { "id": "sec-runtime-projection", "script": "scripts/ci-sec-runtime-projection-check.mjs" },
+        { "id": "static-data", "script": "scripts/ci-static-data-contract-check.mjs" },
+        { "id": "data-refresh", "script": "scripts/ci-data-refresh-audit.mjs" },
+        { "id": "refresh-integrity", "script": "scripts/ci-refresh-artifact-integrity-check.mjs" },
+        { "id": "release-revision", "script": "scripts/ci-release-revision-check.mjs" },
+        { "id": "release-generated-parity", "script": "scripts/ci-generated-release-parity-check.mjs" }
+        ,{ "id": "13f-currentness", "script": "scripts/ci-13f-currentness-check.mjs" }
+      ]
+    },
+    "knowledge": {
+      "phase": 1,
+      "kind": "static",
+      "inputs": ["public-data/knowledge/**", "public-data/principles/**", "public-data/atlas/**", "public-data/masters/**", "src/domain/knowledge/**", "src/ui/pages/principles.js", "src/ui/pages/atlas.js", "src/ui/pages/masters.js", "src/ui/knowledge/**", "scripts/**", "_context/**"],
+      "gates": [
+        { "id": "knowledge-generated-parity", "script": "scripts/ci-knowledge-generated-parity-check.mjs", "timeoutMs": 180000 },
+        { "id": "knowledge-ontology", "script": "scripts/ci-knowledge-ontology-contract.mjs" },
+        { "id": "knowledge-core", "script": "scripts/ci-knowledge-core-semantic-check.mjs" },
+        { "id": "knowledge-articles", "script": "scripts/ci-knowledge-article-contract.mjs" },
+        { "id": "knowledge-learning", "script": "scripts/ci-knowledge-learning-state-contract.mjs" },
+        { "id": "knowledge-routes", "script": "scripts/ci-knowledge-route-bridge-contract.mjs" },
+        { "id": "knowledge-repository", "script": "scripts/ci-knowledge-repository-contract.mjs" },
+        { "id": "knowledge-renderer", "script": "scripts/ci-knowledge-renderer-contract.mjs" },
+        { "id": "knowledge-coverage", "script": "scripts/ci-knowledge-full-corpus-coverage.mjs" },
+        { "id": "knowledge-web", "script": "scripts/ci-knowledge-web-research-dossier.mjs" },
+        { "id": "knowledge-sector", "script": "scripts/ci-knowledge-sector-domain-depth.mjs" },
+        { "id": "knowledge-unique", "script": "scripts/ci-knowledge-article-uniqueness.mjs" },
+        { "id": "knowledge-transmission", "script": "scripts/ci-knowledge-market-transmission.mjs" },
+        { "id": "knowledge-currentness", "script": "scripts/ci-knowledge-currentness-separation.mjs" },
+        { "id": "knowledge-current-observations", "script": "scripts/ci-knowledge-current-observations-check.mjs" },
+        { "id": "six-doc-coverage", "script": "scripts/ci-six-doc-coverage-check.mjs" },
+        { "id": "atlas-contract", "script": "scripts/ci-atlas-contract-check.mjs" },
+        { "id": "principles-contract", "script": "scripts/ci-principles-contract-check.mjs" },
+        { "id": "masters-contract", "script": "scripts/ci-masters-contract-check.mjs" }
+      ]
+    },
+    "workspace": {
+      "phase": 1,
+      "kind": "static",
+      "inputs": ["AGENTS.md", "CLAUDE.md", ".agents/**", ".claude/**", ".codex/**", ".github/**", "_context/**", "architecture/agent-profiles.json", "architecture/skill-eval-cases.json", "architecture/qa-pipeline.json", "scripts/**"],
+      "gates": [
+        { "id": "knowledge-lint", "script": "scripts/ci-knowledge-lint-check.mjs" },
+        { "id": "workflow-compaction", "script": "scripts/ci-workflow-compaction-check.mjs" },
+        { "id": "skill-contract", "script": "scripts/ci-skill-contract-check.mjs" },
+        { "id": "skill-evals", "script": "scripts/ci-skill-eval-fixture-check.mjs" },
+        { "id": "agent-profiles", "script": "scripts/sync-agent-profiles.mjs", "args": ["--check"] },
+        { "id": "agent-skills", "script": "scripts/sync-agent-skills.mjs", "args": ["--check"] },
+        { "id": "live-header-policy", "script": "scripts/ci-live-header-policy-contract-check.mjs" },
+        { "id": "doc-currency", "script": "scripts/ci-doc-currency-check.mjs" },
+        { "id": "qa-pipeline-contract", "script": "scripts/ci-qa-pipeline-contract-check.mjs" }
+      ]
+    },
+    "cloudflare": {
+      "phase": 1,
+      "kind": "static",
+      "inputs": ["cloudflare-worker-proxy.js", "worker/**", ".github/workflows/deploy-ai-proxy.yml", ".github/workflows/deploy-data-plane.yml", "architecture/worker-endpoints.json", "scripts/ci-worker-anthropic-check.mjs", "scripts/ci-data-plane-contract-check.mjs", "scripts/ci-cloudflare-deployment-contract-check.mjs"],
+      "gates": [
+        { "id": "worker-anthropic", "script": "scripts/ci-worker-anthropic-check.mjs" },
+        { "id": "worker-data-plane", "script": "scripts/ci-data-plane-contract-check.mjs" },
+        { "id": "cloudflare-deployment", "script": "scripts/ci-cloudflare-deployment-contract-check.mjs" }
+      ]
+    },
+    "browser-unit": {
+      "phase": 2,
+      "kind": "browser",
+      "inputs": ["index.html", "js/**", "src/**", "public-data/**", "sw.js", "public-config.json"],
+      "gates": [
+        { "id": "headless", "script": "scripts/ci-headless-tests.mjs", "args": ["--shard=1/1"], "timeoutMs": 180000 }
+      ]
+    },
+    "browser-runtime": {
+      "phase": 2,
+      "kind": "browser",
+      "inputs": ["index.html", "js/**", "src/app/**", "src/data/**", "src/domain/**", "src/state/**", "src/ui/pages/market.js", "src/ui/pages/screener.js", "public-data/**", "public-config.json", "architecture/**", "sw.js"],
+      "gates": [
+        { "id": "browser-ai-public", "script": "scripts/ci-ai-chat-public-route-browser-check.mjs", "timeoutMs": 120000 },
+        { "id": "browser-market-epoch", "script": "scripts/ci-page-market-epoch-browser-check.mjs", "timeoutMs": 180000 },
+        { "id": "browser-screener-refresh", "script": "scripts/ci-screener-auto-refresh-browser-check.mjs", "timeoutMs": 120000 },
+        { "id": "browser-boot", "script": "scripts/ci-boot-interaction-check.mjs", "timeoutMs": 120000 },
+        { "id": "browser-architecture", "script": "scripts/ci-architecture-browser-check.mjs", "timeoutMs": 300000 },
+        { "id": "browser-vertical", "script": "scripts/ci-vertical-slice-browser-check.mjs", "timeoutMs": 300000 }
+      ]
+    },
+    "browser-knowledge": {
+      "phase": 2,
+      "kind": "browser",
+      "inputs": ["index.html", "js/**", "src/ui/pages/atlas.js", "src/ui/pages/principles.js", "src/ui/pages/masters.js", "src/ui/knowledge/**", "public-data/atlas/**", "public-data/principles/**", "public-data/masters/**", "public-data/knowledge/**"],
+      "gates": [
+        { "id": "artifact-budget", "script": "scripts/ci-three-page-artifact-budget-check.mjs", "timeoutMs": 180000 },
+        { "id": "browser-atlas", "script": "scripts/ci-atlas-browser-check.mjs", "timeoutMs": 180000 },
+        { "id": "browser-principles", "script": "scripts/ci-principles-browser-check.mjs", "timeoutMs": 180000 },
+        { "id": "browser-masters", "script": "scripts/ci-masters-browser-check.mjs", "timeoutMs": 180000 },
+        { "id": "browser-learning-flow", "script": "scripts/ci-three-page-learning-flow-check.mjs", "timeoutMs": 180000 }
+      ]
+    },
+    "browser-resilience": {
+      "phase": 2,
+      "kind": "browser",
+      "inputs": ["index.html", "js/**", "src/**", "public-data/**", "sw.js", "architecture/**"],
+      "gates": [
+        { "id": "browser-route-soak", "script": "scripts/ci-route-soak-check.mjs", "timeoutMs": 300000 },
+        { "id": "browser-sa02", "script": "scripts/ci-sa-02-outage-browser-fixture.mjs", "timeoutMs": 180000 },
+        { "id": "browser-sa03", "script": "scripts/ci-sa-03-sw-controller-fixture.mjs", "timeoutMs": 180000 },
+        { "id": "browser-sa04", "script": "scripts/ci-sa-04-boot-network-budget.mjs", "timeoutMs": 180000 }
+      ]
+    },
+    "browser-viewport": {
+      "phase": 2,
+      "kind": "browser",
+      "inputs": ["index.html", "js/**", "src/ui/**", "src/app/**", "public-data/**", "sw.js"],
+      "gates": [{ "id": "browser-viewport", "script": "scripts/ci-viewport-matrix-check.mjs", "env": { "AIO_VIEWPORT_FULL_INIT": "1" }, "timeoutMs": 600000 }]
+    },
+    "browser-surface": {
+      "phase": 2,
+      "kind": "browser",
+      "inputs": ["index.html", "js/**", "src/**", "public-data/**", "sw.js", "architecture/**"],
+      "gates": [
+        { "id": "browser-critical", "script": "scripts/ci-critical10-human-surface-check.mjs", "timeoutMs": 180000 },
+        { "id": "browser-vault", "script": "scripts/ci-portfolio-vault-e2e.mjs", "timeoutMs": 180000 },
+        { "id": "browser-a11y", "script": "scripts/ci-accessibility-matrix-check.mjs", "timeoutMs": 300000 }
+      ]
+    },
+    "watchdog-local": {
+      "phase": 3,
+      "kind": "external",
+      "cache": false,
+      "inputs": ["public-data/**", "architecture/**", "scripts/**", "version.json"],
+      "gates": [
+        { "id": "watchdog-market-snapshot", "script": "scripts/ci-market-snapshot-contract-check.mjs", "cache": false },
+        { "id": "watchdog-operations", "script": "scripts/ci-operations-status-check.mjs", "cache": false },
+        { "id": "watchdog-reconciliation", "script": "scripts/ci-reconciliation-contract-check.mjs", "cache": false },
+        { "id": "watchdog-source-registry", "script": "scripts/ci-source-registry-contract-check.mjs", "cache": false },
+        { "id": "watchdog-professional-gap", "script": "scripts/ci-professional-data-gap-check.mjs", "cache": false },
+        { "id": "watchdog-static-data", "script": "scripts/ci-static-data-contract-check.mjs", "cache": false },
+        { "id": "watchdog-web-research", "script": "scripts/ci-web-research-contract-check.mjs", "cache": false },
+        { "id": "watchdog-data-refresh", "script": "scripts/ci-data-refresh-audit.mjs", "cache": false }
+      ]
+    },
+    "external": {
+      "phase": 3,
+      "kind": "external",
+      "cache": false,
+      "inputs": ["version.json", "public-config.json", "architecture/worker-endpoints.json", "worker/wrangler.proxy.toml", "scripts/ci-external-pipeline-check.mjs", "scripts/ci-live-invariant-check.mjs"],
+      "gates": [
+        { "id": "external-pipeline", "script": "scripts/ci-external-pipeline-check.mjs", "args": ["--mode", "watchdog"], "timeoutMs": 120000, "cache": false },
+        { "id": "live-invariants", "script": "scripts/ci-live-invariant-check.mjs", "timeoutMs": 120000, "cache": false }
+      ]
+    }
+  },
+  "impactRules": [
+    { "patterns": ["AGENTS.md", "CLAUDE.md", ".agents/**", ".claude/**", ".codex/**", ".github/**", "_context/**", "architecture/qa-pipeline.json", "architecture/agent-profiles.json", "architecture/skill-eval-cases.json"], "groups": ["workspace"] },
+    { "patterns": ["public-data/knowledge/**", "public-data/principles/**", "public-data/atlas/**", "public-data/masters/**", "src/domain/knowledge/**", "src/ui/pages/principles.js", "src/ui/pages/atlas.js", "src/ui/pages/masters.js", "src/ui/knowledge/**"], "groups": ["knowledge", "browser-knowledge", "browser-unit", "browser-viewport"] },
+    { "patterns": ["public-data/**", "scripts/fetch-*.mjs", "scripts/sync-*.mjs", "src/data/**", "src/domain/**", "src/state/**", "js/aio-data.js"], "groups": ["data", "core", "browser-unit", "browser-runtime"] },
+    { "patterns": ["index.html", "js/**", "src/app/**", "src/ui/**", "sw.js", "public-config.json"], "groups": ["core", "browser-unit", "browser-runtime", "browser-resilience", "browser-viewport", "browser-surface"] },
+    { "patterns": ["cloudflare-worker-proxy.js", "worker/**", ".github/workflows/deploy-ai-proxy.yml", ".github/workflows/deploy-data-plane.yml", "architecture/worker-endpoints.json"], "groups": ["cloudflare"] },
+    { "patterns": ["scripts/qa-runner.mjs", "scripts/ci-qa-pipeline-contract-check.mjs", "architecture/qa-pipeline.json"], "groups": ["core", "data", "knowledge", "workspace", "cloudflare"] },
+    { "patterns": ["scripts/*knowledge*.mjs", "scripts/*atlas*.mjs", "scripts/*principles*.mjs", "scripts/*masters*.mjs", "scripts/enrich-knowledge-*.mjs", "architecture/knowledge-*.json"], "groups": ["knowledge", "workspace"] },
+    { "patterns": ["scripts/*data*.mjs", "scripts/fetch-*.mjs", "scripts/*screener*.mjs", "scripts/*market*.mjs", "scripts/*operations*.mjs", "scripts/*reconciliation*.mjs", "scripts/*source-registry*.mjs", "scripts/*professional*.mjs", "scripts/*history*.mjs", "architecture/asset-manifest.json", "architecture/release-manifest.json", "architecture/operations-slo.json", "architecture/public-readiness.json"], "groups": ["data", "core"] },
+    { "patterns": ["scripts/*worker*.mjs", "scripts/*cloudflare*.mjs", "scripts/*data-plane*.mjs"], "groups": ["cloudflare"] },
+    { "patterns": ["scripts/*workspace*.mjs", "scripts/*skill*.mjs", "scripts/*agent*.mjs", "scripts/*workflow*.mjs", "scripts/*doc*.mjs", "scripts/*header-policy*.mjs", "architecture/agent-profiles.json", "architecture/skill-eval-cases.json"], "groups": ["workspace"] },
+    { "patterns": ["scripts/**"], "groups": ["core"] },
+    { "patterns": ["architecture/**"], "groups": ["core", "data"] }
+  ]
+}

@@ -1,3 +1,163 @@
+## v54.63 (2026-08-28)
+- **Source-to-screen fundamentals**: retired hardcoded valuation/estimate cards and default NVDA/provider work; the native fundamental route now renders a bounded SEC annual-facts watchlist with filing/source/reference-only semantics and state-only card selection.
+- **Metric-definition integrity**: separated BLS NSA headline/core CPI from SA analytical companions, bridged official Treasury maturities and same-date 10Y-2Y evidence to browser consumers, and made screener rights/readiness field-specific.
+- **Research-model reliability**: rebuilt factor ranks around 80% coverage/freshness gates, identity/time audits, MAD outlier guards, sector-relative shrinkage and explicit input confidence; PIT/cost/liquidity/live parity gaps keep decision and trading promotion disabled.
+- **News evidence depth**: classified the refreshed 40-row RSS cycle as headline-only and excluded it from sentiment, AI and causal market analysis while preserving discovery links and visible usage limits.
+- **Operational delivery**: public AI configuration now fails closed from observed Worker health, and the bounded Masters bootstrap passes the 500,000-byte budget without dropping semantic fields.
+- **Actual free refresh**: refreshed 78/78 core quotes, 16/16 Tier-0 snapshot, 406-day history and 846/873 screener factor rows; lineage reports zero FAIL. SEC refresh still requires a monitored-contact User-Agent and licensed/PIT/full-text gaps remain explicit.
+- **Release-aware freshness**: kept the latest complete AAII public week current through its next official Thursday publication window instead of falsely expiring it at a raw UTC eight-day boundary.
+- **Lineage/calendar closure**: registered both CPI SA companion sinks in the element-level source audit and advanced the completed August PCE release to the September 30 official schedule.
+- **Deterministic parallel QA**: all 13 knowledge-parity builders now use a shared same-directory atomic writer for JSON/generated text, eliminating transient EOF and target-open races during parallel full-suite contracts.
+- **Self-healing public-data loop**: moved AAII from operator-captured weekly values into the scheduled producer with direct-official then bounded-reader collection, and replaced the slow Treasury HTML scrape with its official monthly XML developer feed; both remain fail-closed and visible in workflow summaries.
+- **Verification boundary**: targeted structural/data/model/operations gates pass; final affected/full/browser/external results are recorded separately. No commit, push or deployment was performed.
+- R1 7곳 v54.63
+
+## v54.62 (2026-08-26)
+- **AI provider boundary**: moved action-permission enforcement into the shared answer orchestrator before any provider runner, added a safe UI-only blocked adapter to both chat surfaces and hid research-required partial claims until evidence is verified.
+- **Freshness and lineage truth**: unified the 12-hour market-cycle SLA across lineage, operations and browser quote promotion; labeled FRED carry-forward values as last-known-good, registered SEC runtime projections and made public FRED readiness mirror artifact flags.
+- **Cache correctness**: transient entity artifact failures now retry immediately, and artifact `maxBytes` constraints participate in cache identity.
+- **End-to-end navigation**: ticker related-theme actions now route to the owning themes page and retain selection across lazy mount; a real NVDA→theme Chromium regression passes.
+- **Visible provenance**: options and SEC filings show observedAt/source/reference semantics, theme membership is explicitly curated/as-of-unverified, and unsourced TAM/CAGR numbers are withheld.
+- **Official refresh**: refreshed 78/78 quotes, F&G, Cboe put/call, BEA, public FRED HY OAS, history and 40 news items. General FRED remains operator-required without a configured key; reference artifacts and licensed-data gaps remain explicit warnings.
+- **Verification boundary**: targeted static/unit/browser contracts pass and lineage reports zero FAIL. Release full, exact-SHA deployment, route soak, manual accessibility and recruited-user validation remain separate; no commit, push or deployment was performed.
+- R1 7곳 v54.62
+
+## v54.61 (2026-08-25)
+- **All-route lazy delivery**: moved all 20 page renderers behind retryable route-scope dynamic imports while keeping a small cross-route sentiment projection independent; ownership remains honestly split at fullNativeOwner 4/20.
+- **Bounded data delivery**: generated a 0.55 MB SEC current-facts summary from the 30.34 MB append-only canonical artifact, and delivered Masters through bounded SHA-256/byte-verified objects while excluding canonical bulk from Pages.
+- **Independent failed-test lifecycle**: added stable headless group IDs, exact `--groups` selection and QA-runner failed-group replay; a focused real Chromium group completed 11/11 in about nine seconds.
+- **Exact-SHA convergence contract**: Pages deployment metadata and both Worker health surfaces now carry source identity in source/workflow contracts. Live Pages is still v54.43 and current Workers predate sourceSha rollout, so deployment remains unclaimed.
+- **Operations truth and SLO**: preserved TTL-bounded last-observed Worker evidence on non-observing local rebuilds, aligned the two-failure alert threshold, measured GitHub issue dedupe, and added fail-closed 7/30-day plus manual accessibility/user-study evidence contracts.
+- **Verification boundary**: targeted static/unit/projection contracts were used during implementation; release full, current-revision route soak, exact-SHA deployment, 30-day history and human sessions remain separate. No commit, push or deployment was performed.
+- R1 7곳 v54.61
+
+## v54.60 (2026-08-25)
+- **Complete audit ledger**: recorded 14 reviewed domains spanning product intent, system topology, frontend ownership, design/UI/UX, data, AI/privacy/security, performance, accessibility, QA, automation, knowledge/workspace, GitHub, Cloudflare and operations. Review completeness is now explicitly separate from implementation and live certification.
+- **Bounded runtime readiness**: separated lightweight runtime status from explicit release-deep AutoOps audits, bounded normal continuity/coverage sampling and indexed KR theme/composition semantic resolution instead of rebuilding and scanning the full screener universe per symbol.
+- **Shared audit evidence**: a headless run now computes the expensive full readiness/deployment graph once and injects it into dependent assertions; score/provenance consumers share the same forced-fresh evidence bundle.
+- **Test ownership**: replaced a full breadth renderer invocation inside a unit regression with the canonical pure regime contract plus focused DOM delta assertion. Ordered headless execution remains single-gate until group isolation is proven, and process cleanup handles interrupts.
+- **Evidence lifecycle**: version bumps now invalidate route-soak certification and retain the prior result as revision-labeled history instead of relabeling it as current PASS; the long soak runs once at a release boundary.
+- **Verification boundary**: long repeated browser runs were stopped after the user identified excessive elapsed time. Static, targeted and task-affected evidence are recorded for v54.60; release full, deployed parity, manual accessibility and human UX validation remain separate and unclaimed. No commit, push or deployment was performed.
+- R1 7곳 v54.60
+
+## v54.59 (2026-08-24)
+- **Original-intent review and product charter**: objectively reclassified AIO as evidence-bound self-directed research/decision support, not a brokerage, personalized trade-instruction engine, licensed real-time terminal or general chatbot. Added seven trust planes, explicit non-goals, claim rules, target architecture and phased reconstruction plan.
+- **Evidence and AI safety**: made `allowedUse` monotonic across source rights/freshness/explicit ceilings, kept best-effort Fear & Greed reference-only, and blocked unsupported personalized allocation/action both before provider work and before publication.
+- **Privacy correctness**: changed chat history to explicit opt-in with redaction/deletion, corrected the Korean share-unit boundary so `120주` cannot survive portfolio-history redaction, disabled the second consent-only plaintext native “vault” and retained only the tested AES-GCM portfolio path.
+- **Fast, task-scoped QA**: added content-hash session baselines, exact `--files/--since` selection, exact failed-gate reruns and gate-local cache fingerprints. Every CI script is now reachable or explicitly retired, and refresh workflow reachability is manifest-owned.
+- **Immutable delivery pipeline**: data bots dispatch the exact commit they produced to bounded CI matrices; CI uploads a SHA attestation after selected contracts/browser shards pass; Pages downloads, validates and deploys only that SHA. Mutable branch/version-only release paths were removed.
+- **Runtime and operations truth**: fixed Worker idempotency/quota bypass, bound boot/soak evidence to revision/commit/environment/command/artifact, and demoted mechanically version-bumped historical performance to stale measurement.
+- **Performance and accessibility**: reduced install-time service-worker precache to 10 critical same-origin assets with request-driven route-module caching. Accessibility now fails real target/skip-link/dialog-name violations while explicitly separating inline exceptions and unverified manual evidence.
+- **Migration truth**: reconciled the current 56-property compatibility facade against its eight-property target, deep-froze read snapshots and kept `fullNativeOwner=0/20`, bulk-data projection, manual accessibility, two corrupted historical documents and live/operator convergence explicitly open.
+- **Verification boundary**: targeted contracts and the 20-route automated accessibility matrix pass during implementation. Final affected/full/external results are recorded after the v54.59 closeout; no commit, push or deployment was performed.
+- R1 7곳 v54.59
+
+## v54.58 (2026-08-24)
+- **Incremental QA engine**: added the manifest-driven `fast`, `affected`, `rerun-failed`, `full` and `external` profiles with phase barriers, per-phase failure aggregation, content-keyed successful-gate caching and machine-readable reports. QA-runner behavior is itself covered by deterministic negative fixtures.
+- **Faster failure discovery**: moved the Chromium artifact-budget test out of preflight and parallelized syntax parsing. Measured uncached preflight fell to 8.0s and an unchanged local rerun to 0.8s; a real data-group run surfaced two independent regressions together in 3.2s.
+- **CI and Pages separation**: replaced the copied sequential CI step list with 5 static and 6 browser `fail-fast:false` shards behind a cheap preflight. Pages now deploys a successful CI SHA separately; data refresh uses a live-version drift guard and data-only gate instead of rerunning the full browser suite.
+- **End-to-end operations loop**: watchdog now aggregates local data, Pages, proxy, fast plane, Actions and live invariants. Operations alert covers all eight critical workflows. Cloudflare deploys are manual, serialized, source-gated, exact-Wrangler, observable and post-deploy health/smoke checked.
+- **Evidence correctness**: removed timestamped health claims from the static Worker endpoint registry. Refresh-time operations status now observes both Cloudflare planes; current local evidence records proxy v54.37 ready in US authority and fast-plane 16/16 while soak/rights and scheduled AI analysis remain unclosed.
+- **Workflow memory**: added `QA-PIPELINE-ARCHITECTURE.md`, updated the post-edit QA skill/command and synchronized the tracked `.agents` mirror. Autoresearch binary score moved from 0/8 baseline to 8/8; external rollout remains unclaimed until explicit commit/push/deploy.
+- **Verification boundary**: final uncached local `full` passes 99/99 in 767.5s, including 79 source contracts and all headless/runtime/knowledge/resilience/viewport/human-surface/Vault/accessibility browser gates. External aggregate separately remains red because live Pages is v54.43 with stale deployed data and the latest completed remote CI failed; Cloudflare proxy/fast health are green. No commit, push or deployment was performed.
+- R1 7곳 v54.58
+
+## v54.57 (2026-08-23)
+- **Generated workspace truth**: added repository-derived `_context/CURRENT-STATE.md` and a bidirectional `_context/CONTEXT-CATALOG.json`; version, routes, code footprint, context topology, skills, agents, workflows, knowledge progress and readiness are no longer copied across hot prompts.
+- **Progressive-disclosure knowledge system**: rewrote root/context AGENTS, CLAUDE, INDEX and governance preflight around a 64KiB budget; RULES, BUG, QA and KNOWLEDGE are now search-only ledgers, while every context artifact has an explicit generated classification/read policy.
+- **Safe portable agent runtime**: replaced fourteen Bash/Stop hooks with one cross-platform Node JSON handler for destructive-command denial, protected-history edits, SessionStart current context and advisory post-edit gates. Automatic stage/commit/push/deploy behavior was removed.
+- **Agent and skill quality contracts**: added canonical generated Claude/Codex agent profiles, six-skill/18-case stable eval fixtures with negative controls, a tracked portable `.agents/skills` discovery mirror that fails closed when absent, and an explicit static-fixture-versus-behavioral-evidence boundary.
+- **Internal/external feedback loop**: workspace, knowledge, skill, eval and profile parity now run on push/PR and scheduled CI. A separate workflow owns one deduplicated issue per CI/watchdog/knowledge failure and closes it only after matching recovery; it never mutates or deploys source.
+- **Operational truth boundary**: GitHub Pages' unavailable repository-defined response headers remain visible as `OPERATOR_REQUIRED` without making the independent data watchdog permanently red; a deterministic policy gate proves custom-edge or explicit strict mode fails closed.
+- **Documentation repair**: repaired malformed/BOM frontmatter, refreshed the CODE-MAP measurements, added P964, R520~R524 and QA-WORKSPACE-01~12, and made R1 regenerate current state/catalog after every version bump.
+- **Autoresearch evidence**: deterministic workspace-contract score moved from the recorded 1/8 baseline to 8/8. The 18 skill prompt cases are stable inputs only; independent behavioral executions are still unclaimed.
+- **Verification**: state/catalog, hooks, profiles, skills/evals, workflow YAML, knowledge/workspace/version/structural/runtime/architecture/curriculum/currentness/reconciliation/operations/release gates pass. Chromium passes headless `1,124/1,124`, 20-route architecture/3-lap soak/accessibility, 60 viewport combinations, 13 vertical slices, boot/Vault/AI/market-epoch/refresh/SA gates. The in-app Browser confirms the 11-stage curriculum, stage-10 interaction and portfolio return bridge; external proxy/provider errors degraded to snapshot fallback and remain separately open. Live deployment/provider certification, human semantic review and recruited-user validation remain separate. No commit, push or deployment was performed.
+- R1 7곳 v54.57
+
+## v54.56 (2026-08-23)
+- **Market Principles curriculum integration**: added a reference-only 0~10 stage curriculum derived from the nine user-supplied `@blazingbees` public articles and the supplied staged-library screenshots. The page now exposes the reusable loop `hypothesis → evidence → market response → exposure → invalidation → journal`, stage questions, mechanisms, invalidation boundaries, source links and route bridges.
+- **Data/currentness boundary**: article-specific prices, forecasts, leverage thresholds, broker timings, index composition and other time-bound claims stay out of live data and screener scoring. The new artifact and dossier preserve source IDs, provenance and promotion gates.
+- **Learning surface**: added glossary terms for respond-not-predict, thesis invalidation, averaging down, leaders, echo chambers, index baskets, active/passive/benchmark and collateral/forced liquidation.
+- **AI context bridge**: related analyst contexts now receive the same public-article decision loop as `REFERENCE`; live numbers and trade actions remain bounded by existing evidence contracts.
+- **Verification boundary**: no tests or browser checks were run in this code-only pass by explicit request. No commit or deployment was performed.
+- R1 7곳 v54.56
+
+## v54.55 (2026-08-23)
+- **AI browser-gate correctness**: the public Worker request assertion now selects the user-triggered request by its query payload instead of allowing a later background news-translation request to overwrite the observed request. The Worker-advertised 1,500-token cap, no-personal-key boundary, claim degradation and truncated-output recovery now pass in a real Chromium route.
+- **Performance verification boundary**: the boot gate passed in an isolated rerun at FCP 1,620ms / route 830ms / max long task 1,022ms. A concurrent multi-gate run produced a 2,956ms FCP outlier, so that run is recorded as contention noise rather than a code regression.
+- **Verification**: v54.55 static/version/knowledge/architecture/runtime/timeline/screener, full headless 1,124/1,124, accessibility 20/20, viewport 60/60, vertical slices 13/13, screener refresh, AI reliability/public route and portfolio vault all pass. Full Tier 13, deployed parity and recruited-user validation remain open; no commit or deployment is claimed.
+- R1 7곳 v54.55
+
+## v54.54 (2026-08-23)
+- **Visible-surface regression fix**: removed the internal route-consolidation version token from Guide prose; it was correctly classified as a developer marker by the full headless audit.
+- **Verification boundary**: the latest browser rerun had one expected code-quality failure isolated to that visible marker; the fix is version-synchronized for the next complete run. Full Tier 13, deployed parity and recruited-user validation remain open.
+- R1 7곳 v54.54
+
+## v54.53 (2026-08-23)
+- **Portfolio derivation closure**: the native hero and holdings table now derive `price × shares` before any stored valuation, so a positive current quote cannot be paired with a stale zero or stale P&L total.
+- **Verification boundary**: the v54.52 interaction fixes were extended and version-synchronized after the final portfolio derivation pass. Full Tier 13, deployed parity and recruited-user validation remain open; no commit or deployment is claimed.
+- R1 7곳 v54.53
+
+## v54.52 (2026-08-23)
+- **Portfolio truth boundary**: positive-price/value selection now prevents a stored/runtime zero from overriding a valid quote or producing false P&L; missing quotes render `—` and keep totals/exposure fail-closed.
+- **Theme navigation**: related-theme controls can route to the owning inline detail surface, native RRG chips become accessible buttons when a catalog mapping exists, and the ticker surface has a native fallback bridge for scoped theme actions.
+- **Entity semantics**: selected ticker navigation now labels the parent as `종목 분석` with an actionable fundamental-analysis route instead of implying a portfolio relationship.
+- **Guide/glossary correctness**: retired KR-only page names were replaced with the current integrated-section model; BUY/SELL/HOLD and VIX definitions no longer read as recommendations or universal thresholds.
+- **Verification boundary**: in-app Browser sequential checks now cover route reading and representative inputs/tabs/actions, but full Tier 13 certification, deployed parity and recruited-user validation remain open. No commit or deployment is claimed.
+- R1 7곳 v54.52
+
+## v54.51 (2026-08-23)
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v54.51
+
+## v54.50 (2026-08-23)
+- **Route-state truth**: direct ticker entry no longer presents a stale `Portfolio > NVDA` breadcrumb or static NVDA hero; the empty state now clearly means that no symbol has been selected yet.
+- **Accessibility**: added an accessible name to the Korean ticker-code input so the visible prompt and assistive-technology label describe the same control.
+- **Second-pass correctness**: live sentiment values now outrank reference snapshots; stale screener identity, unknown SEC coverage and expired news cycles remain explicit; macro/FX-bond stories no longer acquire inferred security ticker badges; and FEDFUNDS is consistently described as a monthly average.
+- **Interaction semantics**: hidden mobile overlays remain out of the accessibility tree until opened; signal-mode state and AI close semantics are now exposed to assistive technology.
+- **Surface audit**: generated and visually reviewed 20 route screenshots at 1,440px. Content widths remain within the shell, horizontal overflow is 0px, and intentional empty states are labeled as missing, pending or blocked rather than rendered as missing evidence.
+- **Verification boundary**: local full headless is 1,124/1,124 with exit 0; accessibility is 20/20; viewport is 60/60 with 0px overflow; release deployment, deployed parity, in-app Browser Tier 13 and recruited-user validation remain unverified. No commit or deployment is claimed.
+- R1 7곳 v54.50
+
+## v54.49 (2026-08-23)
+- **Route/network ownership**: pageShown hydration now dispatches entity, screener, portfolio and analysis syncs only for their owning routes; a route change before the queued sync settles drops the work through the active scope.
+- **Gate correctness**: the architecture window-write counter now excludes strict equality comparisons, preventing modal accessibility checks from being miscounted as global writes. CodeMap line counts were remeasured after the patch.
+- **Verification boundary**: HTTP abort/timeout, route-scoped sync syntax/contracts, architecture/runtime/doc currency, 20-route architecture/vertical/route-soak browser gates and earlier 60-viewport/SA-02/SA-03/portfolio fixtures are recorded. The final 1,124-test headless run was interrupted before its result; no commit/deploy, deployed parity, in-app Browser Tier 13 or recruited-user validation is claimed.
+- R1 7곳 v54.49
+
+## v54.48 (2026-08-23)
+- **Residual structural closure**: composed caller abort with common HTTP timeouts, propagated route/page cancellation through proxy and scheduled refreshes, and kept scheduler in-flight state until the underlying task settled.
+- **UI trust and accessibility**: replaced the static topbar LIVE claim with a source-confirmed state badge, added dialog semantics/focus trap/focus-return for confirmation, prompt, keyboard, glossary and mobile-menu flows, and clarified FEDFUNDS as a monthly average separate from daily EFFR/FOMC targets.
+- **Data lineage**: deduplicated the canonical screener identity universe, added generated record/unique/currentness metadata, separated factor observation/generated timestamps and SEC FY coverage denominators, and made missing operator-note provenance visibly reference-only.
+- **Verification boundary**: local contracts and browser fixtures are being rerun for v54.48. GitHub Pages/Worker parity, in-app Browser Tier 13 and recruited-user validation remain unverified; no commit/deploy.
+- R1 7곳 v54.48
+
+## v54.47 (2026-08-23)
+- **Second-pass runtime hardening**: scoped MutationObserver/data annotations to added or visible route roots, corrected unknown provenance to `REFERENCE`, added a total proxy deadline, and propagated abort signals through dynamic quote races and chat freshness preflight.
+- **Trust and semantics**: route titles/headings now follow the active page, live announcements are limited to summary sinks, touch controls receive minimum sizes, and Macro explicitly separates EFFR/FOMC target range plus BLS SA-derived CPI from NSA release headlines.
+- **Fail-closed UI**: stale operator notes are marked reference-only, and portfolio/sentiment/fundamental initial badges no longer claim current/live data before an observation arrives.
+- **Verification boundary**: local syntax/diff checks are being rerun with the full route/data/accessibility gates; deployment, provider parity and recruited-user validation remain external gates.
+- R1 7곳 v54.47
+
+## v54.46 (2026-08-22)
+- **Copy and suitability hardening**: softened Home/Signal framing from execution decisions to evidence review, removed unsupported account-size/position-sizing claims from the Guide, and changed high-volatility guidance to observation/backtest-first language.
+- **Verification boundary**: this follow-up preserves the v54.45 full-route audit gates; no live deployment/provider certification or commit is claimed.
+- R1 7곳 v54.46
+
+## v54.45 (2026-08-22)
+- **Full-route audit fixes**: preserved missing numeric inputs as unavailable, retained valid zero macro observations, aligned Home credit/FX-bond ticker suppression, and remapped legacy Korean-theme chat chips to canonical Themes.
+- **Lifecycle and offline integrity**: registered/disconnected Deep Analysis chart `ResizeObserver` instances and added new AI/macro domain modules to the service-worker shell asset registry.
+- **Accessibility and trust**: corrected `--text-muted` contrast to WCAG AA and removed unverified “real-time/external feed normal” wording from generic status labels.
+- **Verification boundary**: 20 active routes plus education/derived/reference/retired categories were audited with 20/20 accessibility, 60 desktop viewport combinations, 1,124/1,124 headless tests and 20×3 route soak. Live deployment/provider truth remains unverified; no commit/deploy.
+
+## v54.44 (2026-08-22)
+- **AI inference efficiency lens**: added a reference-only memory-proximity × specialization taxonomy, workload-fit view and Cerebras/Groq/Etched/Frozen v2 archetypes to the Themes page. Current NVDA/AMD/AVGO/MRVL/MU/ANET returns are shown only as unranked public proxies.
+- **AI deal-loop map**: normalized every named node from the supplied Bloomberg image into hyperscaler, model lab, accelerator, cloud/neocloud, power/data-center, networking/optics and vertical-application roles. Services/investment/hardware edges remain role-level reference relationships; image valuations are not loaded as current data.
+- **Macro transmission lens**: added a native Macro panel for observed 2Y/10Y/30Y, FRED HY OAS, VIX and breadth inputs, with explicit blocked states for term premium, Treasury/corporate issuance, dealer gamma/options positioning and China credit.
+- **Research integration**: expanded the existing AI-infrastructure chat framework, default chips and macro/tech keyword routing with the three supplied X sources, inference-efficiency terms, funding-supply chain, Q1–Q5 and invalidation boundaries. Added a dated integration dossier, Knowledge Base entry, R510/R511 and QA-REF gates.
+- **Boundary**: X commentary, estimates, dates, option claims and the 2026-06-08 screenshot remain `REFERENCE`/`UNVERIFIED`; no deployment or commit performed.
+- R1 7곳 v54.44
+
 ## v54.43 (2026-08-22)
 - **Narrative-first Market Principles**: replaced the textbook-like card default with a six-part, 12-chapter story that starts from money as future choice, moves through inflation, rates, liquidity, companies and AI's physical/CAPEX constraints, and ends at market expectations and ownership risk.
 - **AI Era editorial depth**: all 19 domains and 95 taxonomy nodes keep authored mechanism/evidence/market passages; 48 foundation lessons now read as connected story, application and counter-condition blocks. Internal packet/node/status wording is removed from primary learner copy, and root/bridge/leaf boundaries are explicit.

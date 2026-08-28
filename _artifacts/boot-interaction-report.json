@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "aio-boot-performance-evidence.v1",
+  "observedAt": "2026-08-28T04:01:37.770Z",
+  "appRevision": "v54.63",
+  "gitHead": "20f0f641a90448f66eada460fb13f5ea283c8800",
+  "gitClean": false,
+  "environment": {
+    "browser": "chromium",
+    "browserVersion": "149.0.7827.55",
+    "platform": "win32",
+    "node": "v24.18.0",
+    "viewport": "playwright-default"
+  },
+  "command": "node scripts/ci-boot-interaction-check.mjs",
+  "gateStatus": "PASS",
+  "targetStatus": "TARGET_MISS",
+  "targetFailures": [
+    "max long task 1349 > 200",
+    "total long task 1955 > 1000"
+  ],
+  "metrics": {
+    "fcpMs": 244,
+    "dclMs": 391,
+    "loadMs": 434,
+    "maxLongTaskMs": 1349,
+    "totalLongTaskMs": 1955,
+    "longTaskCount": 8,
+    "longTaskObservationWindowMs": 2000,
+    "domNodes": 7259,
+    "activeRouteDomNodes": 718,
+    "activePage": "page-signal",
+    "bootStatusPresent": false,
+    "routeMs": 58,
+    "wallMs": 7016,
+    "totalExternalRequests": 133,
+    "quoteRequests": 87,
+    "initialExternalRequests": 12,
+    "initialQuoteRequests": 0,
+    "bootObservationWindowMs": 2000
+  }
+}

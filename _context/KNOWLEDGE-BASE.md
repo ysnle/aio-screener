@@ -1,13 +1,60 @@
-﻿---
-verified_by: human + Codex full-route audit verification
-last_verified: 2026-08-18
+---
+verified_by: Codex structural/runtime audit; semantic human review remains open
+last_verified: 2026-08-23
 confidence: high
 ---
+
+## 2026-08-23 v54.57 generated workspace and knowledge-layer boundary
+
+- “현재 상태”는 prose가 아니라 계산 가능한 산출물이어야 한다. `workspace-state-lib.mjs`가 version, route registry, context inventory, skill/agent/workflow topology, QA open IDs, knowledge runtime status와 readiness artifact를 읽어 `CURRENT-STATE.md`/`CONTEXT-CATALOG.json`을 생성한다.
+- 지식은 세 계층으로 소비한다: current operational facts는 생성 state/runtime artifact, durable principles와 재사용 insight는 KNOWLEDGE/typed corpus, dated audits/research integrations는 catalog의 targeted 또는 historical evidence다. 하위 계층의 오래된 숫자를 상위 current fact로 승격하지 않는다.
+- 구조적 완전성은 의미적 완전성과 다르다. 파일·ontology·article/source 계약이 통과해도 human review와 publication readiness가 false이면 그 상태가 정본이다.
+- 대형 RULES/BUG/QA/KNOWLEDGE 원장은 agent memory가 아니라 검색 가능한 ledger다. 기본 preflight는 64KiB 이하 hot set을 사용하고, 관련 ID/producer/consumer/gate 범위만 가져온다.
+- 스킬/에이전트 품질도 topology와 behavior를 분리한다. mirror·router·fixture parity는 deterministic evidence이고, 동일 프롬프트의 독립 실행/채점 없이는 behavioral improvement를 주장하지 않는다.
+- 훅은 권한 소유자가 아니다. destructive-command guard와 advisory context만 허용되며 자동 commit/push/deploy는 선순환이 아니라 사용자 변경을 섞는 위험한 숨은 mutation이다.
+- 외부 선순환은 “실패 run 생성”으로 끝나지 않는다. 동일 workflow failure를 하나의 운영 issue로 집약하고 동일 workflow 성공 때 닫아야 실패가 관찰→소유→복구로 이어진다.
+
+## 2026-08-23 v54.54 in-app interaction and financial missingness closure
+
+- A holding with a valid quote must not inherit a stored/runtime `0` valuation. Portfolio price/value selection is positive-only; when quote evidence is absent, row P&L, aggregate value, percentage, exposure and related risk outputs stay unavailable instead of fabricating a loss.
+- Theme detail is an owning-surface contract: native RRG chips are buttons only when they map to a catalog theme, and ticker-related theme controls carry a route bridge to the themes inline panel. A visible control without a terminating handler is a functional defect even if the legacy event name exists.
+- Direct ticker context is `AIO / 종목 분석 / TICKER`; portfolio is a valid parent only when the user explicitly arrived from portfolio. The Guide now describes the v53.7 integrated Korean-market sections rather than retired KR-only routes.
+- Glossary wording must separate educational signal labels from recommendations: BUY/SELL/HOLD are reference classifications, and VIX bands are rough context—not universal thresholds or a buy-the-fear instruction.
+- In-app Browser work is evidence of actual route/control use, not recruited-user evidence. Provider/proxy failures remain visible and keep AI/currentness gates open.
+
+## 2026-08-23 v54.55 AI request correlation and performance evidence boundary
+
+- A browser page may issue multiple Worker requests for one visible route. Public AI transport gates must bind the cap/key assertion to the unique test prompt, not the last intercepted request; otherwise valid 1,500-token behavior can be falsely reported as a failure by background translation traffic.
+- The public Worker fixture now passes with no personal key, `maxTokens=1500`, claim-level degradation and truncated-output recovery. This is local route evidence, not live deployed-provider certification.
+- Boot performance is release evidence only from an isolated run: FCP 1,620ms, route 830ms and max long task 1,022ms. Concurrent browser jobs can inflate FCP and must be recorded as contention rather than silently averaged away.
+
+## 2026-08-23 v54.50 visual surface and ticker-state closure
+
+- The 20-route screenshot audit found no desktop overflow or unlabelled large blank panels. Waiting, unavailable, pending and blocked states are intentionally visible and must not be upgraded to current evidence.
+- Direct ticker entry now starts with `—` and `종목 선택 대기`; it no longer implies `NVDA` or a portfolio relationship before the user selects a symbol. The Korean symbol input has an accessible programmatic name.
+- The second-pass audit establishes a cross-surface negative-control: live sentiment wins over reference snapshots, stale screener identity is `partial` with its last bulk-update date, unknown coverage remains `null`/`미확인`, news freshness is derived from the completed cycle, and macro/FX-bond topic rows suppress inferred security tickers.
+- Hidden mobile overlays must not be focusable or role-bearing while closed. Generic `data-action` accessibility normalization now respects that boundary; signal mode exposes selected state and the AI close control has a specific accessible name.
+- Screenshot review is an expert visual audit, not recruited-user evidence. Full headless, in-app Browser Tier 13, deployed parity and human usability gates remain separate.
+
+## 2026-08-23 v54.49 residual audit closure
+
+- HTTP caller cancellation, scheduler/page refresh ownership, modal focus return, source-confirmed LIVE state, FEDFUNDS monthly-average semantics and screener factor/SEC provenance are now treated as one cross-surface reliability boundary.
+- PageShown hydration is now route-owned: entity/fundamental/options, screener, portfolio and analysis reads are skipped on unrelated routes and dropped after an active-scope transition. The final headless suite remains an explicit pre-release gate because its v54.49 run was interrupted.
+- Static artifacts remain bounded by their own currentness: the screener identity universe is deduplicated but remains `STALE` until its declared refresh producer runs; SEC coverage remains partial with explicit failures; operator notes lacking source metadata remain `REFERENCE` only.
+- Local Chromium route, accessibility, viewport, outage, service-worker and portfolio fixtures do not certify deployed GitHub Pages/Worker parity or recruited-user usability.
+
+## 2026-08-22 v54.44 AI 추론 효율·AI 거래 순환·채권 위험 전이 통합
+
+- 세 개의 사용자 X 자료와 Bloomberg `The Circular Nature of AI Deals` 이미지를 `REFERENCE`로 분리했다. X의 수치·예상·이벤트 날짜·옵션 포지셔닝·기업별 해석과 이미지의 2026-06-08 밸류에이션/원 크기는 현재 데이터가 아니다.
+- 추론 효율은 `메모리 근접성(HBM↔SRAM/온칩) × 특화도(범용↔모델 특화)`와 `저배치 latency / 대규모 batch tokens/W·TCO / hybrid prefill·KV↔decode`의 두 단계 구조로 저장했다. Cerebras·Groq·Etched·Frozen v2는 reference archetype이며 독립 benchmark가 연결되기 전 순위나 성능을 주장하지 않는다.
+- AI deal map은 services·investment·hardware 범례와 hyperscaler·model lab·accelerator·cloud/neocloud·power/data center·memory/networking·vertical application 역할로 정규화했다. 노드/엣지는 역할 수준 지도이고 계약·투자금액·소유관계를 의미하지 않는다.
+- 매크로 위험 전이는 `funding supply → term premium/long-end yields → credit·CAPEX → breadth·volatility → hedge assets`로 모델링했다. 2Y/10Y/30Y·FRED HY OAS·VIX·시장폭·금/BTC/DXY는 관측 가능한 입력만 소비하고, term premium·Treasury/기업채 issuance·dealer gamma·China credit는 `BLOCKED`로 노출한다.
+- 향후 데이터 갱신은 `/data-refresh`와 공식 Treasury/FRED/SEC/옵션/중국 통계 source contract를 별도로 통과해야 하며, 이 reference packet만으로 `LIVE`, 현재 밸류에이션 또는 매매 행동을 생성하지 않는다. 상세 Q1–Q5와 승격 조건은 `RESEARCH-INTEGRATION-AI-INFRA-MARKET-RISK-2026-08-22.md`에 보존했다.
 
 ## 2026-08-18 v54.36 authored depth, dated evidence and 13F raw identity aggregation
 
 - `public-data/principles/lesson-library.json`의 112개 A~O lesson과 `public-data/atlas/foundation-lessons.json`의 48개 foundation lesson은 기존 짧은 요약을 `summary`로 보존하면서 1,200자 이상 심층 원문, 직관·형식모델·workedExample·실물경제·기업·재무제표·밸류에이션·시장·관찰적용·무효화·용어·claim ID를 갖는 semantic reference 원장으로 확장됐다. 화면은 짧은 summary를 기본으로 사용하고 심층 article은 점진 공개한다.
-- 160개 핵심 lesson에 연결된 dated `research-facts`와 canonical source를 dossier의 `selectedSources`/`researchFactIds`로 반영했다. 전체 427 unit은 318 `RESEARCHED`, 4 `RESEARCH_IN_PROGRESS`, 105 `RESEARCH_REQUIRED`이며, `RESEARCHED`는 dated evidence 연결을 뜻할 뿐 독립적인 사람 검토나 사용자 검증을 뜻하지 않는다.
+- 160개 핵심 lesson에 연결된 dated `research-facts`와 canonical source를 dossier의 `selectedSources`/`researchFactIds`로 반영했다. 현재 runtime status artifact의 전체 427 unit은 298 `RESEARCHED`, 4 `RESEARCH_IN_PROGRESS`, 125 `RESEARCH_REQUIRED`이며, `RESEARCHED`는 dated evidence 연결을 뜻할 뿐 독립적인 사람 검토나 사용자 검증을 뜻하지 않는다.
 - `public-data/atlas/current-evidence-ledger.json`은 40개 dated primary-reference entry와 38개 source를 보유하고 Atlas 자료실에 표시한다. 제품·수치·기업 목표의 범위와 caution을 함께 보존하며 current operational/production-volume/financial claim은 0건이다.
 - `public-data/masters/issuer-aggregates.json`은 SEC 현재·이력 13,629개 원문 행을 manager·normalized CUSIP·share type·put/call 단위로 2,500개 집계 record로 연결한다. 268개 review flag는 issuer 변형·share class·put/call·CUSIP 형식 검토 대상으로 남고 ticker·sector·기업행동은 승격하지 않는다.
 - CI가 enrichment, deterministic article/dossier/coverage builders, strict encyclopedia-depth audit, Atlas evidence ledger, Masters issuer aggregate와 focused browser gates를 실행한다. 자동 구조 인증은 사람의 source/semantic 검토와 recruited-user validation을 대체하지 않는다.
@@ -1316,3 +1363,14 @@ INTC DCAI 2026E +22% YoY, 서버 두 자릿수 성장 2027 지속 전망.
 - `manager-catalog.json`이 38개 profile(37개 SEC filer + 1개 method-only)의 `operator`, `scaleMetric`, `scaleTier`, `strategyProfile`, `teachingUse`를 canonical metadata로 소유하고, Masters 카드/상세 지표가 이를 소비한다. `index.json`, 정적 계약, Chromium 게이트는 38/30/7/5/55 수치를 검증한다.
 - SEC metadata 30개는 CIK/accession/정보표 링크가 확인된 상태이고, 실제 원문 행이 연결된 manager는 7개다. 미리보기는 5개/55행이며 전체 행·cover 합계·CUSIP 정규화·인접분기 비교 전에는 `PENDING_FULL_RECONCILIATION`이다.
 - 기관의 유명도·AUM·대표 운영자·전략 성격은 초보자 탐색을 돕는 분류다. 이 세 축 어느 것도 보유 종목, 수익률, 매수/매도 신호, 투자 권고를 생성하지 않는다.
+### TM-XVII. 공개 시장 학습 아티클의 단계형 판단 루프 통합 [2026-08-23]
+> 출처: 사용자가 제공한 `@blazingbees` 공개 게시물 9건 및 단계형 아티클 라이브러리 화면 6장. 상세 원장: `RESEARCH-INTEGRATION-MARKET-LEARNING-2026-08-23.md`. 런타임 구현: `public-data/principles/reference-curriculum.json`, `src/ui/knowledge/reference-curriculum.js`, `src/ui/pages/principles.js`.
+
+- 이 자료의 durable contribution은 특정 종목이나 가격이 아니라 `가설 → 증거 → 시장 반응 → 포지션 크기 → 무효화 → 복기`의 반복 루프와 0~10단계 progressive disclosure 구조다. 원문 숫자·당시 시장 전망·특정 증권사 규칙은 현재 데이터로 승격하지 않았다.
+- 시장 원리 자료실에 단계형 커리큘럼을 lazy-load로 추가했다. 각 단계는 `목표·핵심 질문·레슨·작동 구조·무효화·원문 source note·전문 화면 route target`을 가지며, 전문 화면 이동 시 원래 원리 페이지로 돌아오는 맥락을 보존한다.
+- 기존 `CHAT_CONTEXTS` 관련 분석가 컨텍스트에도 동일한 루프를 `REFERENCE` 프레임으로 주입했다. 현재 수치·재무·거시 숫자·매매 행동은 주입된 LIVE/SNAPSHOT/공식 evidence만 사용하고, 아티클 프레임은 질문·반증·복기 구조로만 사용한다.
+- `가격·가치·좋은 기업`, `지수·시장 전체`, `기관·외국인 수급`, `물타기·불타기`, `자발적 축소·반대매매`를 같은 라벨로 합치지 않는다. 구성·기준일·규칙·계좌 맥락·시장 반응을 분리해 읽는 경계를 유지한다.
+- 스크리너에는 새 factor나 매수 점수를 추가하지 않았다. 주도성은 가격·거래량·상대강도·유동성으로 검증할 수 있는 학습 질문으로 연결하고, 실제 수치와 ranking은 기존 canonical producer만 소유한다.
+- 리서치·공시·탐방 정보는 발견 레이어와 검증 레이어를 분리한다. 1차 자료·공식 통계·공시·시장 데이터가 없는 기간성 주장은 `REFERENCE`로만 표시한다. 정보량이 늘어도 반대 증거와 무효화 조건이 없어지면 에코챔버로 간주한다.
+- 신용·담보·반대매매는 공식 거래소·증권사 문서 없이는 특정 시각·비율로 일반화하지 않는다. 지수·ETF·선물은 시가총액 가중·구성·유동성·바스켓 전달 경로를 확인한 뒤 현재 관측과 결합한다.
+- 다음 승격 조건은 source tier, as-of, unit, allowed use, invalidation을 갖춘 canonical evidence다. 이번 코드 통합 후 테스트/브라우저 검사는 사용자 지시에 따라 실행하지 않았다.

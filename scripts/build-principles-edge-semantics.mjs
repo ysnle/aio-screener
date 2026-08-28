@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MARKET_PRINCIPLES_CATALOG } from '../src/ui/pages/principles.js';
+import { atomicWriteFileSync } from './lib/atomic-write.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const reviewedAt = process.env.KNOWLEDGE_MANIFEST_DATE || '2026-08-11';
@@ -76,5 +77,5 @@ const semantics = Object.fromEntries(MARKET_PRINCIPLES_CATALOG.edges.map((edge, 
   return [`${edge.from}->${edge.to}`, { id: `principle-edge-${String(index + 1).padStart(3, '0')}`, type: profile[0], direction: 'DIRECTED', kind: 'PRINCIPLE', strength: 'CORE', polarity: 'CONDITIONAL', conditions: [profile[1]], sourceIds: [], reviewedAt, reviewStatus: 'STRUCTURAL_REFERENCE_REVIEWED', sourceStatus: 'EVIDENCE_REGISTRY_PENDING' }];
 }));
 const target = path.join(root, 'src/domain/knowledge/principles-edge-semantics.js');
-fs.writeFileSync(target, `// Generated from the exported Principles catalog; edit the relation profile and regenerate.\nexport const PRINCIPLE_EDGE_SEMANTICS = Object.freeze(${JSON.stringify(semantics, null, 2)});\n`, 'utf8');
+atomicWriteFileSync(target, `// Generated from the exported Principles catalog; edit the relation profile and regenerate.\nexport const PRINCIPLE_EDGE_SEMANTICS = Object.freeze(${JSON.stringify(semantics, null, 2)});\n`, 'utf8');
 console.log(JSON.stringify({ status: 'PASS', edges: rows.length, target }, null, 2));

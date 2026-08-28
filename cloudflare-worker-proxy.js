@@ -197,7 +197,7 @@ function getCorsHeaders(requestOrigin, env) {
   return {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS, POST',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, anthropic-version, anthropic-beta, X-AIO-App-Token', // v54.37 P947: prompt caching beta 헤더도 공개 채팅 프리플라이트에 허용
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, anthropic-version, anthropic-beta, X-AIO-App-Token, X-AIO-Idempotency-Key, X-AIO-Request-Id',
     'Access-Control-Max-Age': '86400',
   };
 }
@@ -269,6 +269,7 @@ async function healthResponse(origin, env, method = 'GET') {
     ok: true,
     service: 'aio-screener-worker',
     revision: env && env.AIO_APP_REVISION ? String(env.AIO_APP_REVISION) : null,
+    sourceSha: env && env.AIO_SOURCE_SHA ? String(env.AIO_SOURCE_SHA) : null,
     ai: { configured, quotaConfigured, authorityReady, authorityJurisdiction: authority?.jurisdiction || null, killSwitch, ready, maxTokens: parseInt((env && env.ANTHROPIC_MAX_TOKENS) || '1500', 10) },
     dataProxy: { ready: true }
   };
@@ -320,10 +321,16 @@ async function quotaRpc(env, operation, payload) {
 async function deriveRequestId(request, bodyText) {
   const supplied = request.headers.get('X-AIO-Idempotency-Key') || request.headers.get('X-AIO-Request-Id');
   if (supplied && /^[A-Za-z0-9._:-]{8,160}$/.test(supplied)) return 'client:' + supplied;
-  const bytes = new TextEncoder().encode(bodyText);
+  // Identical prompts are separate billable attempts unless the caller opts
+  // into an explicit idempotency key. Hashing the body under-counted repeated
+  // upstream spend while the provider was still called for every duplicate.
+  if (typeof crypto.randomUUID === 'function') return 'attempt:' + crypto.randomUUID();
+  const bytes = new TextEncoder().encode(`${Date.now()}:${Math.random()}:${bodyText.length}`);
   const digest = await crypto.subtle.digest('SHA-256', bytes);
-  return 'body:' + Array.from(new Uint8Array(digest), b => b.toString(16).padStart(2, '0')).join('');
+  return 'attempt:' + Array.from(new Uint8Array(digest), b => b.toString(16).padStart(2, '0')).join('');
 }
+
+const QUOTA_STATE_RETENTION_MS = 3 * 24 * 60 * 60 * 1000;
 
 /**
  * Single Durable Object quota authority. The state lock makes reserve/release
@@ -346,10 +353,30 @@ export class AIOQuotaDurableObject {
 
   async save() { await this.storage.put('quota-state', this.counts); }
 
+  prune(now = Date.now()) {
+    let changed = false;
+    const cutoff = now - QUOTA_STATE_RETENTION_MS;
+    for (const [key, reservedAt] of Object.entries(this.counts.reservations || {})) {
+      if (!Number.isFinite(Number(reservedAt)) || Number(reservedAt) < cutoff) {
+        delete this.counts.reservations[key];
+        changed = true;
+      }
+    }
+    for (const dayKey of Object.keys(this.counts.days || {})) {
+      const match = dayKey.match(/(\d{4}-\d{2}-\d{2})$/);
+      if (match && Date.parse(`${match[1]}T00:00:00Z`) < cutoff) {
+        delete this.counts.days[dayKey];
+        changed = true;
+      }
+    }
+    return changed;
+  }
+
   async mutateQuota(operation, body) {
     let result;
     await this.state.blockConcurrencyWhile(async () => {
       await this.load();
+      if (this.prune()) await this.save();
       const dayKey = String(body.dayKey || '');
       const requestId = String(body.requestId || '');
       const key = dayKey + ':' + requestId;
@@ -405,6 +432,7 @@ export class AIOQuotaDurableObject {
       }
       const reservation = await this.mutateQuota('reserve', body);
       if (!reservation?.ok || !reservation.reserved) return Response.json({ error: { type: 'rate_limit_error', message: 'daily AI quota exceeded' } }, { status: 429 });
+      if (reservation.duplicate) return Response.json({ error: { type: 'idempotency_conflict', message: 'duplicate request is already reserved; retry with a new request id' } }, { status: 409, headers: { 'X-AIO-Upstream-Authority': 'durable-object-us' } });
       const ownedReservation = !reservation.duplicate;
       try {
         const controller = new AbortController();
@@ -493,6 +521,7 @@ async function handleAnthropic(request, env, origin) {
   try {
     const reservation = await quotaRpc(env, 'reserve', { dayKey, cap, requestId });
     if (!reservation?.ok || !reservation.reserved) return errorResponse('daily AI quota exceeded', 429, origin, aiError, env);
+    if (reservation.duplicate) return errorResponse('duplicate idempotency key is already reserved', 409, origin, aiError, env);
     ownedReservation = !reservation.duplicate;
   } catch { return errorResponse('AI quota unavailable', 503, origin, aiError, env); }
   try {

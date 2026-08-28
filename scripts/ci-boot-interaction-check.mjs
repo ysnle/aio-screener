@@ -1,5 +1,7 @@
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { resolve, dirname } from 'node:path';
 
@@ -7,6 +9,9 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.CI_BOOT_PORT || 8898);
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 const BOOT_OBSERVATION_WINDOW_MS = 2000;
+const version = JSON.parse(readFileSync(resolve(root, 'version.json'), 'utf8')).version;
+const operationsSlo = JSON.parse(readFileSync(resolve(root, 'architecture', 'operations-slo.json'), 'utf8'));
+const git = (args) => { try { return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim(); } catch { return null; } };
 
 function startServer() {
   return new Promise((resolveServer, reject) => {
@@ -25,6 +30,7 @@ function startServer() {
 
 const server = await startServer();
 const browser = await chromium.launch();
+let evidence = null;
 try {
   const page = await browser.newPage();
   const externalRequests = [];
@@ -93,13 +99,36 @@ try {
   result.initialExternalRequests = initialExternalRequests.length;
   result.initialQuoteRequests = initialQuoteRequests.length;
   result.bootObservationWindowMs = BOOT_OBSERVATION_WINDOW_MS;
-  console.log(JSON.stringify(result, null, 2));
   const failures = [];
   if (result.fcpMs == null || result.fcpMs > 2500) failures.push(`FCP ${result.fcpMs}ms > 2500ms`);
   if (result.routeMs > 2000) failures.push(`initial route ${result.routeMs}ms > 2000ms`);
   if (result.maxLongTaskMs > 2500) failures.push(`max long task ${result.maxLongTaskMs}ms > 2500ms`);
   if (result.activePage !== 'page-signal') failures.push(`route did not activate signal (${result.activePage})`);
   if (result.bootStatusPresent) failures.push('boot status did not hard-release');
+  const targets = operationsSlo.targets?.bootPerformance || {};
+  const targetFailures = [];
+  if (result.initialExternalRequests > targets.initialExternalRequestsMax) targetFailures.push(`initial external ${result.initialExternalRequests} > ${targets.initialExternalRequestsMax}`);
+  if (result.initialQuoteRequests > targets.initialQuoteRequestsMax) targetFailures.push(`initial quotes ${result.initialQuoteRequests} > ${targets.initialQuoteRequestsMax}`);
+  if (result.activeRouteDomNodes > targets.domNodesMax) targetFailures.push(`active DOM ${result.activeRouteDomNodes} > ${targets.domNodesMax}`);
+  if (result.domNodes > targets.totalDomNodesDiagnosticMax) targetFailures.push(`total DOM ${result.domNodes} > ${targets.totalDomNodesDiagnosticMax}`);
+  if (result.maxLongTaskMs > targets.maxLongTaskMs) targetFailures.push(`max long task ${result.maxLongTaskMs} > ${targets.maxLongTaskMs}`);
+  if (result.totalLongTaskMs > targets.totalLongTaskMs) targetFailures.push(`total long task ${result.totalLongTaskMs} > ${targets.totalLongTaskMs}`);
+  const statusLines = git(['status', '--short']) || '';
+  evidence = {
+    schemaVersion: 'aio-boot-performance-evidence.v1',
+    observedAt: new Date().toISOString(),
+    appRevision: version,
+    gitHead: git(['rev-parse', 'HEAD']),
+    gitClean: statusLines.length === 0,
+    environment: { browser: 'chromium', browserVersion: browser.version(), platform: process.platform, node: process.version, viewport: 'playwright-default' },
+    command: 'node scripts/ci-boot-interaction-check.mjs',
+    gateStatus: failures.length ? 'FAIL' : 'PASS',
+    targetStatus: targetFailures.length ? 'TARGET_MISS' : 'TARGET_COMPLIANT',
+    targetFailures,
+    metrics: result
+  };
+  writeFileSync(resolve(root, '_artifacts', 'boot-interaction-report.json'), `${JSON.stringify(evidence, null, 2)}\n`);
+  console.log(JSON.stringify(evidence, null, 2));
   if (failures.length) throw new Error(`boot interaction gate failed: ${failures.join('; ')}`);
 } finally {
   await browser.close();

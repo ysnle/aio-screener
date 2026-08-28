@@ -2,6 +2,7 @@ import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
 import { deriveSentimentSummary } from '../../domain/sentiment/metrics.js';
 import { selectSentimentValues } from '../../state/selectors/sentiment.js';
 import { subscribeToSlice } from '../../state/memoize.js';
+import { renderSentimentSummaryProjection } from '../projections/sentiment-summary.js';
 
 const SENTIMENT_CANVAS_IDS = Object.freeze([
   'vix-term-chart', 'vix-chart', 'naaim-chart', 'ii-chart', 'hy-chart',
@@ -39,15 +40,6 @@ function setText(documentRef, id, value) {
 // fg-rating-text/vix-term-regime-text remain native-only: they live on the sentiment page itself
 // and no active legacy code writes them (the only other candidate, index.html's
 // _generateSentimentAnalysis/_updateSentimentActionGuides, only reads them and has zero callers).
-export function renderSentimentSummaryProjection(documentRef, summary) {
-  const score = summary?.fearGreed?.score;
-  const scoreText = formatNumber(score, 0);
-  setText(documentRef, 'fg-score-big', scoreText);
-  setText(documentRef, 'fg-score-val', scoreText);
-  setText(documentRef, 'fg-rating-text', summary?.fearGreed?.label || '판정 보류');
-  setText(documentRef, 'vix-term-regime-text', summary?.vixTermStructure?.regime || '판정 보류');
-}
-
 function setAttribute(element, name, value) {
   if (!element) return;
   if (value == null || value === '') element.removeAttribute(name);

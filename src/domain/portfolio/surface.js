@@ -14,13 +14,21 @@ function firstFinite(...values) {
   return null;
 }
 
+function firstPositive(...values) {
+  for (const value of values) {
+    const number = finite(value);
+    if (number != null && number > 0) return number;
+  }
+  return null;
+}
+
 function holdingValue(holding, live) {
   const shares = finite(holding?.shares);
-  const livePrice = finite(live?.price ?? live?.regularMarketPrice);
-  const price = firstFinite(livePrice, holding?.price);
-  const explicitValue = finite(holding?.value);
+  const livePrice = firstPositive(live?.price, live?.regularMarketPrice);
+  const price = firstPositive(livePrice, holding?.price);
+  const explicitValue = firstPositive(holding?.value);
   if (shares != null && price != null && price > 0) return { value: shares * price, price, sourceKind: livePrice != null ? 'live-quote' : 'portfolio-state' };
-  if (explicitValue != null && explicitValue >= 0) return { value: explicitValue, price, sourceKind: 'portfolio-state' };
+  if (explicitValue != null) return { value: explicitValue, price, sourceKind: 'portfolio-state' };
   return { value: null, price, sourceKind: 'unavailable' };
 }
 
@@ -56,12 +64,14 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null }
   }).filter((row) => row.symbol);
 
   const allRowsValued = rows.length > 0 && rows.every((row) => row.value != null);
-  const positionValue = firstFinite(totals.totalValue, totals.positionsValue, totals.equityValue) ?? (allRowsValued ? rows.reduce((sum, row) => sum + row.value, 0) : null);
+  const positionValue = firstPositive(totals.totalValue, totals.positionsValue, totals.equityValue) ?? (allRowsValued ? rows.reduce((sum, row) => sum + row.value, 0) : null);
   const cash = firstFinite(state?.cash, totals.cash);
-  const totalAssets = firstFinite(totals.totalAssets, totals.totalValueWithCash) ?? (positionValue != null && cash != null ? positionValue + Math.max(0, cash) : positionValue);
+  const totalAssets = firstPositive(totals.totalAssets, totals.totalValueWithCash) ?? (positionValue != null && cash != null ? positionValue + Math.max(0, cash) : positionValue);
   const allRowsCosted = rows.length > 0 && rows.every((row) => row.cost != null);
-  const totalCost = firstFinite(totals.totalCost, totals.costBasis) ?? (allRowsCosted ? rows.reduce((sum, row) => sum + row.cost, 0) : null);
-  const totalPnl = firstFinite(totals.totalPnl, totals.pnl, totals.profitLoss) ?? (positionValue != null && totalCost != null && totalCost > 0 ? positionValue - totalCost : null);
+  const totalCost = firstPositive(totals.totalCost, totals.costBasis) ?? (allRowsCosted ? rows.reduce((sum, row) => sum + row.cost, 0) : null);
+  const totalPnl = positionValue != null && totalCost != null && totalCost > 0
+    ? firstFinite(totals.totalPnl, totals.pnl, totals.profitLoss) ?? (positionValue - totalCost)
+    : null;
   const totalPnlPct = firstFinite(totals.totalPnlPct, totals.pnlPct) ?? (totalPnl != null && totalCost > 0 ? totalPnl / totalCost * 100 : null);
   const allRowsDaily = rows.length > 0 && rows.every((row) => row.value != null && row.dailyPct != null);
   const dailyChange = firstFinite(totals.dailyChange, totals.totalDailyChg, totals.dailyPnl) ?? (allRowsDaily ? rows.reduce((sum, row) => sum + row.value * row.dailyPct / 100, 0) : null);

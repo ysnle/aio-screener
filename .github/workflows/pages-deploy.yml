@@ -1,0 +1,122 @@
+name: Deploy GitHub Pages
+
+# Every release deploys only the immutable SHA attested by a successful CI run.
+# Data refresh jobs explicitly dispatch CI with the commit they produced; Pages
+# never resolves a mutable branch after validation.
+on:
+  workflow_run:
+    workflows: ['CI']
+    types: [completed]
+
+concurrency:
+  group: aio-pages-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url || steps.deployment_retry.outputs.page_url }}
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - name: Download CI release attestation
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: aio-release-attestation
+          path: ${{ runner.temp }}/release-attestation
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Validate release attestation
+        id: release
+        env:
+          WORKFLOW_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          file="$RUNNER_TEMP/release-attestation/aio-release-attestation.json"
+          sha="$(node -e "const a=require(process.argv[1]); if(a.schemaVersion!=='aio-release-attestation.v1'||!/^([0-9a-f]{40})$/.test(a.testedSha)) process.exit(1); process.stdout.write(a.testedSha)" "$file")"
+          test "$sha" = "$WORKFLOW_SHA"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout exact attested SHA
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ steps.release.outputs.sha }}
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Stage explicit public artifact allowlist
+        env:
+          AIO_SOURCE_SHA: ${{ steps.release.outputs.sha }}
+          AIO_ATTESTATION_RUN_ID: ${{ github.event.workflow_run.id }}
+          AIO_DEPLOYMENT_RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/pages-dist/js" "$RUNNER_TEMP/pages-dist/src" "$RUNNER_TEMP/pages-dist/public-data"
+          cp index.html sw.js version.json og-image.svg robots.txt sitemap.xml public-artifact-manifest.json public-config.json _headers "$RUNNER_TEMP/pages-dist/"
+          cp js/aio-core.js js/aio-data.js js/aio-ui.js js/aio-chat.js js/aio-glossary.js "$RUNNER_TEMP/pages-dist/js/"
+          rsync -a src/ "$RUNNER_TEMP/pages-dist/src/"
+          # Canonical bulk ledgers stay producer-side until retention-managed object storage is
+          # configured. Pages receives only bounded projections and referenced immutable objects.
+          rsync -a \
+            --exclude 'sec-fundamentals.json' \
+            --exclude 'masters/holdings.json' \
+            --exclude 'masters/history-holdings.json' \
+            --exclude 'masters/issuer-aggregates.json' \
+            --exclude 'masters/managers/' \
+            public-data/ "$RUNNER_TEMP/pages-dist/public-data/"
+          node --input-type=module -e "import fs from 'node:fs'; const version=JSON.parse(fs.readFileSync('version.json','utf8')).version; const artifact={schemaVersion:'aio-deployment.v1',sourceSha:process.env.AIO_SOURCE_SHA,appRevision:version,attestationRunId:Number(process.env.AIO_ATTESTATION_RUN_ID),deploymentRunId:Number(process.env.AIO_DEPLOYMENT_RUN_ID),deployedAt:new Date().toISOString()}; if(!/^[0-9a-f]{40}$/.test(artifact.sourceSha)) process.exit(1); fs.writeFileSync(process.env.RUNNER_TEMP+'/pages-dist/deployment.json',JSON.stringify(artifact,null,2)+'\n');"
+
+      - name: Setup Pages
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5.0.0
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
+        with:
+          path: ${{ runner.temp }}/pages-dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
+        continue-on-error: true
+
+      - name: Wait before deploy retry
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 30
+
+      - name: Deploy to GitHub Pages (retry)
+        id: deployment_retry
+        if: steps.deployment.outcome == 'failure'
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
+
+      - name: Fail if both deploy attempts failed
+        if: steps.deployment.outcome == 'failure' && steps.deployment_retry.outcome != 'success'
+        run: |
+          echo "::error::GitHub Pages deploy failed twice."
+          exit 1
+
+      - name: Verify released Pages and all external planes
+        env:
+          AIO_EXTERNAL_RETRY_MS: '5000'
+          AIO_EXPECTED_SHA: ${{ steps.release.outputs.sha }}
+        run: node scripts/ci-external-pipeline-check.mjs --mode release
+
+      - name: Verify live standing invariants
+        env:
+          LIVE_HEADER_POLICY: operator-required
+        run: node scripts/ci-live-invariant-check.mjs

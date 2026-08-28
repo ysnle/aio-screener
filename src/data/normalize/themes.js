@@ -54,6 +54,15 @@ function normalizeThemeDetail(detail) {
     pct: finite(detail.pct),
     breadth: finite(detail.breadth),
     source: String(detail.source || 'theme-detail-provider'),
+    membershipPolicy: detail.membershipPolicy && typeof detail.membershipPolicy === 'object' ? Object.freeze({
+      version: String(detail.membershipPolicy.version || 'theme-membership.v1'),
+      source: String(detail.membershipPolicy.source || 'AIO curated taxonomy'),
+      sourceKind: String(detail.membershipPolicy.sourceKind || 'REFERENCE'),
+      observedAt: detail.membershipPolicy.observedAt || null,
+      allowedUse: String(detail.membershipPolicy.allowedUse || 'reference'),
+      status: String(detail.membershipPolicy.status || 'as-of-unverified'),
+      note: String(detail.membershipPolicy.note || '')
+    }) : null,
     leaders: Object.freeze(leaders),
     leaderHighlight: Object.freeze(leaderHighlight),
     quotes: Object.freeze(quotes),

@@ -2,13 +2,20 @@ function finite(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
+function positiveFinite(value) {
+  const number = finite(value);
+  return number != null && number > 0 ? number : null;
+}
+
 export function normalizePortfolio(raw = {}) {
   const holdings = Array.isArray(raw.holdings) ? raw.holdings.map((holding) => ({
     symbol: String(holding?.symbol || holding?.sym || '').toUpperCase(),
     shares: finite(Number(holding?.shares ?? holding?.qty)),
     avgCost: finite(Number(holding?.avgCost ?? holding?.avg)),
-    price: finite(Number(holding?.price)),
-    value: finite(Number(holding?.value)),
+    // A blocked quote is not a zero-dollar quote. Preserve missingness so the
+    // table cannot manufacture a 100% loss from an unavailable price.
+    price: positiveFinite(Number(holding?.price)),
+    value: positiveFinite(Number(holding?.value)),
     weight: finite(Number(holding?.weight)),
     dailyPct: finite(Number(holding?.dailyPct ?? holding?.pct)),
     directionValue: finite(Number(holding?.directionValue ?? holding?.dailyPct ?? holding?.pct)),

@@ -1,112 +1,81 @@
-// R290/P653: deterministic subset of /knowledge-lint's seven passes, run on a schedule
-// (.github/workflows/knowledge-lint.yml) independent of whether a session remembers to
-// run the full semantic lint manually. Karpathy's LLM-wiki pattern names drift ("pages
-// go stale, cross-references rot") as the #1 failure mode for any LLM-maintained wiki at
-// scale; this repo's `_context/` is exactly that kind of wiki, and until now "run
-// /knowledge-lint weekly" was prose-only with no forcing function. This script does not
-// replace the full lint (contradiction detection, ambiguous ownership still need judgment)
-// — it catches the mechanical subset that never needs judgment: file/table drift and
-// stale-by-the-document's-own-declared-schedule.
+// Deterministic coverage for the mechanical subset of the knowledge-lint skill.
+// Semantic truth, source directness and human review remain separate evidence levels.
 
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { execSync } from 'node:child_process';
+import { buildContextCatalog, buildWorkspaceState, renderCurrentState, serializeJson } from './workspace-state-lib.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(join(root, path), 'utf8');
-
 const errors = [];
 const warnings = [];
-const check = (label, condition, detail = '') => {
-  if (!condition) errors.push(label + (detail ? ': ' + detail : ''));
-};
-const warn = (label, condition, detail = '') => {
-  if (!condition) warnings.push(label + (detail ? ': ' + detail : ''));
-};
+const check = (label, condition, detail = '') => { if (!condition) errors.push(label + (detail ? `: ${detail}` : '')); };
+const warn = (label, condition, detail = '') => { if (!condition) warnings.push(label + (detail ? `: ${detail}` : '')); };
 
-// --- Pass A: versioned + newly-created _context/*.md files vs INDEX.md's table --------
-// Include non-ignored, untracked documents so the lint is useful before staging/commit.
-// The previous tracked-only query falsely reported a correctly indexed new document as
-// "no longer git-tracked" during the exact local-edit window this gate is meant to cover.
-// -z (NUL-separated, unquoted) avoids git's default core.quotepath behavior, which wraps any
-// path containing a space or non-ASCII byte in double quotes with octal escapes (e.g. a stray
-// untracked "…- 복사본.md" file would otherwise come back as the literal 4-character-escaped
-// string `"_context/… \353\263\265….md"` — the plain .replace(/^_context\//, '') below wouldn't
-// strip that leading quote, so join('_context', file) later would double-prefix the path and
-// readFileSync would throw ENOENT on a path that never existed, crashing the whole gate).
-const trackedFiles = execSync('git ls-files -z --cached --others --exclude-standard -- "_context/*.md"', { cwd: root, encoding: 'utf8' })
-  .split('\0')
-  .filter(Boolean)
-  .map((p) => p.replace(/^_context\//, ''));
-const trackedSet = new Set(trackedFiles);
+const catalog = buildContextCatalog(root);
+const catalogText = serializeJson(catalog);
+const state = buildWorkspaceState(root);
+check('generated context catalog matches the filesystem in both directions', existsSync(join(root, '_context', 'CONTEXT-CATALOG.json')) && read('_context/CONTEXT-CATALOG.json') === catalogText);
+check('generated current state matches repository registries', existsSync(join(root, '_context', 'CURRENT-STATE.md')) && read('_context/CURRENT-STATE.md') === renderCurrentState(state));
 
-const indexMd = read('_context/INDEX.md');
-const claudeMd = read('_context/CLAUDE.md');
-
-const extractDocTable = (src, nameRe) => {
-  const names = new Set();
-  for (const m of src.matchAll(nameRe)) names.add(m[1]);
-  return names;
-};
-// INDEX.md wraps the filename in backticks; _context/CLAUDE.md's table does not.
-const indexDocs = extractDocTable(indexMd, /^\|\s*`([\w.-]+\.md)`\s*\|/gm);
-const claudeMdDocs = extractDocTable(claudeMd, /^\|\s*([\w.-]+\.md)\s*\|/gm);
-
-const missingFromIndex = [...trackedSet].filter((f) => !indexDocs.has(f));
-const indexButNotTracked = [...indexDocs].filter((f) => !trackedSet.has(f));
-check(
-  'every versioned or newly-created _context/*.md file is listed in INDEX.md\'s document table',
-  missingFromIndex.length === 0,
-  missingFromIndex.join(', ')
-);
-check(
-  'INDEX.md\'s document table does not list a missing or ignored file',
-  indexButNotTracked.length === 0,
-  indexButNotTracked.join(', ')
-);
-
-// --- Pass B: INDEX.md's document table vs _context/CLAUDE.md's document table ---------
-// Both docs maintain a near-duplicate "which _context docs exist and why" table
-// (_context/CLAUDE.md's own note calls out that INDEX.md and it must be updated together).
-// They are two independently-editable lists asserting the same fact, which is exactly the
-// shape of thing that drifts apart silently — R290's own rationale, applied to docs instead
-// of live code.
-const onlyInIndex = [...indexDocs].filter((f) => !claudeMdDocs.has(f));
-const onlyInClaudeMd = [...claudeMdDocs].filter((f) => !indexDocs.has(f));
-check(
-  'INDEX.md and _context/CLAUDE.md document tables list the same file set',
-  onlyInIndex.length === 0 && onlyInClaudeMd.length === 0,
-  `only in INDEX.md: [${onlyInIndex.join(', ')}], only in _context/CLAUDE.md: [${onlyInClaudeMd.join(', ')}]`
-);
-
-// --- Pass C: staleness for docs that opt in via auto_refresh: true frontmatter --------
-// Opt-in on purpose: most _context docs are intentionally frozen point-in-time audit
-// snapshots (their own INDEX.md "Refresh trigger" column says so — e.g. "재감사/항목 완료
-// 시"), not living documents on a calendar cadence. Only check docs that declare
-// `auto_refresh: true`, which is this repo's own existing convention for "keep me current."
 const STALE_DAYS = 45;
 const now = Date.now();
-for (const file of trackedFiles) {
-  const src = read(join('_context', file));
-  const fm = src.match(/^---\n([\s\S]*?)\n---/);
-  if (!fm) continue;
-  const isAutoRefresh = /auto_refresh:\s*true/.test(fm[1]);
-  if (!isAutoRefresh) continue;
-  const lastVerified = fm[1].match(/last_verified:\s*(\d{4}-\d{2}-\d{2})/);
-  check(`${file} declares auto_refresh: true and must also declare a parseable last_verified date`, !!lastVerified);
-  if (!lastVerified) continue;
-  const ageDays = Math.floor((now - new Date(lastVerified[1] + 'T00:00:00Z').getTime()) / 86400000);
-  warn(`${file} last_verified is ${ageDays}d old (auto_refresh: true, threshold ${STALE_DAYS}d)`, ageDays <= STALE_DAYS);
+for (const doc of catalog.documents) {
+  if (!doc.path.endsWith('.md') || doc.generated) continue;
+  const text = read(doc.path);
+  if (text.startsWith('---')) check(`${doc.path} has closed YAML frontmatter`, /^---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$)/.test(text));
+  if (['preflight', 'ledger', 'targeted-map'].includes(doc.kind)) check(`${doc.path} has frontmatter`, /^---\r?\n/.test(text));
+  if (doc.kind === 'current-handoff') {
+    check(`${doc.path} current handoff declares last_verified`, /^\d{4}-\d{2}-\d{2}$/.test(doc.lastVerified || ''));
+    if (/^\d{4}-\d{2}-\d{2}$/.test(doc.lastVerified || '')) {
+      const ageDays = Math.floor((now - new Date(`${doc.lastVerified}T00:00:00Z`).getTime()) / 86400000);
+      warn(`${doc.path} current handoff is ${ageDays}d old`, ageDays <= STALE_DAYS, `threshold=${STALE_DAYS}d; reclassify historical or refresh`);
+    }
+  }
+  warn(`${doc.path} contains replacement-character encoding damage`, !text.includes('\uFFFD'), 'historical evidence remains explicit-only until recovered from Git history');
+  if (!doc.autoRefresh) continue;
+  check(`${doc.path} declares parseable last_verified with auto_refresh`, /^\d{4}-\d{2}-\d{2}$/.test(doc.lastVerified || ''));
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(doc.lastVerified || '')) continue;
+  const ageDays = Math.floor((now - new Date(`${doc.lastVerified}T00:00:00Z`).getTime()) / 86400000);
+  warn(`${doc.path} last_verified is ${ageDays}d old`, ageDays <= STALE_DAYS, `threshold=${STALE_DAYS}d`);
 }
+
+const hotSurfaces = [
+  'AGENTS.md', 'CLAUDE.md', '_context/CURRENT-STATE.md', '_context/INDEX.md', '_context/CLAUDE.md', '_context/WORKFLOW-GOVERNANCE.md',
+  ...readdirSync(join(root, '.claude', 'commands')).filter((name) => name.endsWith('.md')).map((name) => `.claude/commands/${name}`),
+  ...readdirSync(join(root, '.claude', 'skills'), { withFileTypes: true }).filter((entry) => entry.isDirectory() && entry.name !== '_shared').map((entry) => `.claude/skills/${entry.name}/SKILL.md`),
+  ...readdirSync(join(root, '.claude', 'agents')).filter((name) => name.endsWith('.md')).map((name) => `.claude/agents/${name}`),
+  ...readdirSync(join(root, '.codex', 'agents')).filter((name) => name.endsWith('.toml')).map((name) => `.codex/agents/${name}`)
+];
+const reasoningEcho = /(show|reveal|print|explain|narrate|echo).{0,30}(chain[- ]of[- ]thought|internal reasoning|hidden reasoning|사고 과정|내부 추론)/i;
+const staleFacts = /(39,?000\+?|~32,?000|2\.2MB|21개 SPA|라우트 17개|R1~R18|204개 검증|버전 6곳)/i;
+for (const path of hotSurfaces) {
+  const text = read(path);
+  check(`${path} does not request internal-reasoning disclosure`, !reasoningEcho.test(text));
+  check(`${path} contains no frozen historical workspace count`, !staleFacts.test(text));
+}
+
+const rules = read('_context/RULES.md');
+const qa = read('_context/QA-CHECKLIST.md');
+const postmortem = read('_context/BUG-POSTMORTEM.md');
+const governance = read('_context/WORKFLOW-GOVERNANCE.md');
+check('postmortem-to-rule workflow is explicit', /Postmortem-To-Gate Rule/.test(governance));
+check('generated-state rule is present', /R520/.test(rules) && /CURRENT-STATE/.test(rules));
+check('hook authority rule is present', /R521/.test(rules) && /automatic commit|자동 커밋/i.test(rules));
+check('workspace regression QA is present', /QA-WORKSPACE-01/.test(qa) && /ci-workspace-contract-check\.mjs/.test(qa));
+check('workspace drift postmortem is present', /P964/.test(postmortem) && /workspace|작업환경/i.test(postmortem));
+const defaultWorkingSet = read('_context/INDEX.md').match(/## Default working set([\s\S]*?)## Search-only ledgers/)?.[1] || '';
+check('default working set does not route to the frozen v48 worktree audit', !/WORKTREE-AUDIT\.md/.test(defaultWorkingSet));
+check('knowledge current-observations gate is reachable through the QA manifest', Object.values(JSON.parse(read('architecture/qa-pipeline.json')).groups || {}).some((group) => (group.gates || []).some((gate) => gate.script === 'scripts/ci-knowledge-current-observations-check.mjs')));
 
 if (warnings.length) {
   console.warn('Knowledge lint warnings:');
-  for (const w of warnings) console.warn(`  - ${w}`);
+  warnings.forEach((warning) => console.warn(` - ${warning}`));
 }
 if (errors.length) {
   console.error('Knowledge lint check failed:');
-  for (const e of errors) console.error(`  - ${e}`);
+  errors.forEach((error) => console.error(` - ${error}`));
   process.exit(1);
 }
-console.log(`Knowledge lint check OK (${trackedFiles.length} versioned/new _context/*.md files, ${warnings.length} warning(s)).`);
+console.log(`Knowledge lint OK: ${catalog.documentCount} context documents, ${hotSurfaces.length} prescriptive surfaces, ${warnings.length} warning(s). Mechanical PASS does not certify semantic truth.`);

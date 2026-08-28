@@ -1,0 +1,677 @@
+{
+  "schemaVersion": "aio-context-catalog.v1",
+  "generatedBy": "scripts/generate-workspace-state.mjs",
+  "selfExcludedFromSizeAccounting": true,
+  "classificationPolicy": {
+    "required": "Read on every task: current facts, governance, and routing only.",
+    "targeted": "Search or read only when the task touches the named domain.",
+    "explicitOnly": "Point-in-time evidence; never load by default or treat as current state."
+  },
+  "documentCount": 67,
+  "documents": [
+    {
+      "path": "_context/AI-CHAT-INSTITUTIONAL-AUDIT-2026-07-12.md",
+      "title": "AIO AI 채팅 기관급 전수 진단 및 실행 핸드오프",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 68766,
+      "lines": 1005,
+      "lastVerified": "2026-07-14",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/AI-ERA-DEEP-TAXONOMY-PLAYER-PRODUCT-SPEC-2026-08-01.md",
+      "title": "AI ERA DEEP TAXONOMY — 세부 섹터·기업·제품 재귀 분류 명세",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 31482,
+      "lines": 968,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/AI-ERA-FOUNDATIONS-CURRICULUM-2026-08-01.md",
+      "title": "AI ERA FOUNDATIONS CURRICULUM — AI 시대의 원리·과학·산업 지도",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 47374,
+      "lines": 1653,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/AI-ERA-INDUSTRY-ATLAS-RESEARCH-SPEC-2026-08-01.md",
+      "title": "AI ERA INDUSTRY ATLAS — 산업 범위·리서치·콘텐츠 생산 명세",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 34242,
+      "lines": 870,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/AI-SCREENER-INTELLIGENCE-REBUILD-HANDOFF-2026-07-27.md",
+      "title": "AI Screener Intelligence 전체 재구축 핸드오프",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 40317,
+      "lines": 1116,
+      "lastVerified": "2026-07-27",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/AIO-CURRENT-CODE-REMEDIATION-HANDOFF-2026-08-09.md",
+      "title": "AIO 현재형 코드 개선 핸드오프",
+      "kind": "current-handoff",
+      "readPolicy": "targeted",
+      "bytes": 30674,
+      "lines": 528,
+      "lastVerified": "2026-08-10",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/AIO-CURRENT-PRODUCT-ARCHITECTURE-CHARTER.md",
+      "title": "AIO 현재 제품·아키텍처 헌장",
+      "kind": "current-handoff",
+      "readPolicy": "targeted",
+      "bytes": 17991,
+      "lines": 183,
+      "lastVerified": "2026-08-24",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/AIO-STRUCTURAL-REMEDIATION-MASTERPLAN-2026-07-27.md",
+      "title": "AIO Screener 구조 개편 마스터플랜",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 56088,
+      "lines": 1255,
+      "lastVerified": "2026-07-27",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/API-AI-CHAT-RELIABILITY-REMEDIATION-HANDOFF-2026-07-27.md",
+      "title": "API·AI 채팅 신뢰성 집중 진단 및 구조 개편 핸드오프",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 43984,
+      "lines": 996,
+      "lastVerified": "2026-07-27",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/ARCHITECTURE-AUDIT-2026-05-10.md",
+      "title": "AIO v49.3 Architecture Audit Reinforcement",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 2849,
+      "lines": 44,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md",
+      "title": "ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 103456,
+      "lines": 846,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/ARCHITECTURE-REBUILD-HANDOFF-2026-07-18.md",
+      "title": "AIO Screener 구조 개편·근본 재구축 핸드오프",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 37479,
+      "lines": 582,
+      "lastVerified": "2026-07-19",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md",
+      "title": "ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 137966,
+      "lines": 834,
+      "lastVerified": "2026-07-29",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/AUTOMATED-DATA-RELIABILITY-HANDOFF-2026-07-18.md",
+      "title": "자동 데이터 신뢰성·대체 추론 구조 핸드오프",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 35105,
+      "lines": 463,
+      "lastVerified": "2026-07-19",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/BUG-POSTMORTEM.md",
+      "title": "2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.",
+      "kind": "ledger",
+      "readPolicy": "targeted",
+      "bytes": 519007,
+      "lines": 2586,
+      "lastVerified": "2026-08-28",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/CHAT-DATA-AUDIT-2026-06-04.md",
+      "title": "AI 채팅 데이터 출처 전수 감사 baseline — v50.8 (2026-06-04)",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 9707,
+      "lines": 91,
+      "lastVerified": "2026-06-04",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/CLAUDE.md",
+      "title": "AIO Agent Workspace",
+      "kind": "targeted-map",
+      "readPolicy": "targeted",
+      "bytes": 2875,
+      "lines": 55,
+      "lastVerified": "2026-08-23",
+      "autoRefresh": true
+    },
+    {
+      "path": "_context/CODE-MAP.md",
+      "title": "AIO v53.11 CODE-MAP",
+      "kind": "targeted-map",
+      "readPolicy": "targeted",
+      "bytes": 50545,
+      "lines": 531,
+      "lastVerified": "2026-08-23",
+      "autoRefresh": true
+    },
+    {
+      "path": "_context/CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md",
+      "title": "AIO Screener 종합 진단 및 인수인계 — 2026-07-10",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 51490,
+      "lines": 744,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/CODEX-SECOND-PASS-HANDOFF-2026-07-10.md",
+      "title": "AIO Screener 2차 인수인계 — 외부 공개 보강 기획·설계",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 72908,
+      "lines": 1360,
+      "lastVerified": "2026-07-12",
+      "autoRefresh": true
+    },
+    {
+      "path": "_context/CONTEXT-CATALOG.json",
+      "title": "CONTEXT-CATALOG",
+      "kind": "generated",
+      "readPolicy": "generated",
+      "generated": true
+    },
+    {
+      "path": "_context/CURRENT-STATE.md",
+      "title": "CURRENT-STATE",
+      "kind": "generated",
+      "readPolicy": "generated",
+      "generated": true
+    },
+    {
+      "path": "_context/DATA-FRESHNESS-AUDIT-2026-05-10.md",
+      "title": "AIO v49.4 Data Freshness Audit",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 2555,
+      "lines": 38,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/DATA-PIPELINE-AUDIT-2026-05-06.md",
+      "title": "Data Pipeline Audit - 2026-05-06",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 7490,
+      "lines": 109,
+      "lastVerified": "2026-05-09",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/DATA-SOURCE-REPLACEMENT-PLAN-2026-07-14.md",
+      "title": "외부 데이터 의존성 대체 계획",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 7971,
+      "lines": 98,
+      "lastVerified": "2026-07-15",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/DEEP-QA-2026-05-05.md",
+      "title": "AIO Deep QA Report — 2026-05-05",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 6040,
+      "lines": 83,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/DEFERRED-BLOCKS.md",
+      "title": "미뤄둔 작업 / 진짜 블록 현황 (Deferred & Blocked)",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 19810,
+      "lines": 105,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/FABLE-ARCH-DIAGNOSIS-2026-07-06.md",
+      "title": "AIO Screener 전수 아키텍처 진단 + Sonnet 5 인수인계 (Fable 5, 2026-07-06)",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 29271,
+      "lines": 225,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/FABLE-EDU-OVERHAUL-DESIGN-2026-07-09.md",
+      "title": "FABLE-EDU-OVERHAUL-DESIGN — 22페이지 교육 레이어 대규모 개편 설계 (2026-07-09)",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 51171,
+      "lines": 508,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/FABLE-EFFICACY-AUDIT-2026-07-10.md",
+      "title": "FABLE-EFFICACY-AUDIT-2026-07-10 — 라이브 페이지별 시장데이터 완비·사용성·실효성 진단 + 보강 설계",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 40545,
+      "lines": 168,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/FABLE-LIVE-AUDIT-2026-07-04.md",
+      "title": "FABLE 라이브 전수 감사 — 2026-07-04 (Sonnet 5 인계용)",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 14689,
+      "lines": 113,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/FABLE-LIVE-AUDIT-2026-07-07.md",
+      "title": "FABLE-LIVE-AUDIT-2026-07-07 — 폭락일 실측 감사 + 구조 개선 설계",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 31245,
+      "lines": 207,
+      "lastVerified": "2026-07-07",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md",
+      "title": "AIO Screener 시스템 뼈대 진단 (Fable 5, 2026-07-02)",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 31766,
+      "lines": 281,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/FABLE-UIUX-DEEP-AUDIT-2026-07-08.md",
+      "title": "FABLE-UIUX-DEEP-AUDIT-2026-07-08 — UI/UX 심층 실측 + 구조 개선 설계",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 28409,
+      "lines": 161,
+      "lastVerified": "2026-07-08",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/FRONTEND-UX-AUDIT-2026-06-05.md",
+      "title": "프론트엔드/UX 라이브 audit 리포트 — v50.12 (2026-06-05)",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 11320,
+      "lines": 138,
+      "lastVerified": "2026-06-05",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/GATE-BASELINE-2026-06-04.md",
+      "title": "Evidence Deployment Gate Baseline — v50.4 (2026-06-04)",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 12573,
+      "lines": 180,
+      "lastVerified": "2026-06-04",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/GATE-BASELINE-2026-07-03.md",
+      "title": "Headless CI Test Baseline — v51.91→v51.96 (2026-07-03, Phase 2 [B5] + full /data-refresh)",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 5475,
+      "lines": 69,
+      "lastVerified": "2026-07-03",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/INDEX.md",
+      "title": "AIO Context Index",
+      "kind": "preflight",
+      "readPolicy": "required",
+      "bytes": 4602,
+      "lines": 83,
+      "lastVerified": "2026-08-23",
+      "autoRefresh": true
+    },
+    {
+      "path": "_context/INSTITUTIONAL-DATA-READINESS-HANDOFF-2026-07-12.md",
+      "title": "AIO Screener 기관급 데이터·콘텐츠 운영 준비도 핸드오프",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 68027,
+      "lines": 1339,
+      "lastVerified": "2026-07-13",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/INSTITUTIONAL-HANDOFF-RECONCILIATION-2026-07-15.md",
+      "title": "기관급 데이터 핸드오프 대조 및 실행 설계",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 39053,
+      "lines": 501,
+      "lastVerified": "2026-07-15",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/KNOWLEDGE-BASE.md",
+      "title": "AIO Screener -- 기술 지식 베이스 (Knowledge Base)",
+      "kind": "ledger",
+      "readPolicy": "targeted",
+      "bytes": 174215,
+      "lines": 1376,
+      "lastVerified": "2026-08-23",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json",
+      "title": "MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026-08-10.json",
+      "kind": "machine-contract",
+      "readPolicy": "targeted",
+      "bytes": 17502,
+      "lines": 303,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/MARKET-PRINCIPLES-ATLAS-HANDOFF-FILE-MANIFEST-2026-08-10.json",
+      "title": "MARKET-PRINCIPLES-ATLAS-HANDOFF-FILE-MANIFEST-2026-08-10.json",
+      "kind": "machine-contract",
+      "readPolicy": "targeted",
+      "bytes": 6189,
+      "lines": 83,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/MARKET-PRINCIPLES-ATLAS-STRUCTURAL-AUDIT-HANDOFF-2026-08-10.md",
+      "title": "시장 원리·AI 시대 지식 지도 구조 개편 핸드오프",
+      "kind": "current-handoff",
+      "readPolicy": "targeted",
+      "bytes": 74624,
+      "lines": 904,
+      "lastVerified": "2026-08-22",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/MARKET-PRINCIPLES-KNOWLEDGE-GRAPH-UX-SPEC-2026-08-01.md",
+      "title": "MARKET PRINCIPLES KNOWLEDGE GRAPH UX SPEC — 트리·마인드맵·학습 경로",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 18807,
+      "lines": 688,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/MARKET-PRINCIPLES-PAGE-DESIGN-HANDOFF-2026-08-01.md",
+      "title": "MARKET PRINCIPLES PAGE DESIGN HANDOFF — 시장 원리/자본의 지도",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 44665,
+      "lines": 1358,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/MASTERS-PORTFOLIO-13F-PAGE-DESIGN-HANDOFF-2026-08-01.md",
+      "title": "MASTERS PORTFOLIO / 13F PAGE DESIGN HANDOFF — 대가의 공개 포트폴리오",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 21535,
+      "lines": 703,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/OPERATIONS-AUDIT-2026-05-06.md",
+      "title": "Operations Audit - 2026-05-06",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 3765,
+      "lines": 73,
+      "lastVerified": "2026-05-09",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/OPUS-HANDOFF-STRUCTURAL-AUDIT-2026-06-10.md",
+      "title": "AIO Screener 구조 전수 감사 + Opus 작업 지시서 (2026-06-10)",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 25603,
+      "lines": 346,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/PAGE-UX-AUDIT-2026-06-13.md",
+      "title": "페이지별 사용자 경험 전수 조사 (2026-06-13)",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 5929,
+      "lines": 60,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/QA-CHECKLIST.md",
+      "title": "2026-07-18 통합/압축: 검증 완료된 버전별 원장(v34.x~v53.4)을 §6 압축 원장으로 축약, 퇴역 표면(KR 독립 5페이지 등) 항목 제거.",
+      "kind": "ledger",
+      "readPolicy": "targeted",
+      "bytes": 201512,
+      "lines": 1579,
+      "lastVerified": "2026-08-28",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/QA-PIPELINE-ARCHITECTURE.md",
+      "title": "QA And Delivery Pipeline Architecture",
+      "kind": "targeted-map",
+      "readPolicy": "targeted",
+      "bytes": 6022,
+      "lines": 69,
+      "lastVerified": "2026-08-24",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/REMAINING-WORK-2026-07-12.md",
+      "title": "AIO Screener — 남은 작업 원장",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 6985,
+      "lines": 72,
+      "lastVerified": "2026-07-16",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/RESEARCH-INTEGRATION-2026-08-09-TELEGRAM.md",
+      "title": "Telegram 4채널 구조적 통합 원장 — 2026-08-09",
+      "kind": "research-record",
+      "readPolicy": "targeted",
+      "bytes": 11550,
+      "lines": 98,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/RESEARCH-INTEGRATION-2026-08-09.md",
+      "title": "Research Integration Ledger — 2026-08-09",
+      "kind": "research-record",
+      "readPolicy": "targeted",
+      "bytes": 7775,
+      "lines": 66,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/RESEARCH-INTEGRATION-2026-08-12-DAILY-BRIEFING.md",
+      "title": "Daily briefing comparison and integration — 2026-08-12",
+      "kind": "research-record",
+      "readPolicy": "targeted",
+      "bytes": 4077,
+      "lines": 44,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/RESEARCH-INTEGRATION-AI-INFRA-MARKET-RISK-2026-08-22.md",
+      "title": "사용자 자료 통합 — AI 추론 효율·AI 거래 순환·채권시장 위험 전이",
+      "kind": "research-record",
+      "readPolicy": "targeted",
+      "bytes": 10944,
+      "lines": 117,
+      "lastVerified": "2026-08-22",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/RESEARCH-INTEGRATION-MARKET-LEARNING-2026-08-23.md",
+      "title": "공개 시장 학습 아티클 통합 원장 — 2026-08-23",
+      "kind": "research-record",
+      "readPolicy": "targeted",
+      "bytes": 6790,
+      "lines": 60,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/RULES.md",
+      "title": "2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.",
+      "kind": "ledger",
+      "readPolicy": "targeted",
+      "bytes": 331704,
+      "lines": 2641,
+      "lastVerified": "2026-08-28",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md",
+      "title": "오픈소스 전문 스크리너 비교와 AIO Screener 재설계 핸드오프",
+      "kind": "current-handoff",
+      "readPolicy": "targeted",
+      "bytes": 66285,
+      "lines": 927,
+      "lastVerified": "2026-08-13",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/SCREENER-OS-00-BASELINE-2026-08-12.md",
+      "title": "SCR-OS-00 Baseline and Dependency Ledger",
+      "kind": "current-handoff",
+      "readPolicy": "targeted",
+      "bytes": 2953,
+      "lines": 44,
+      "lastVerified": "2026-08-15",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/WEB-RESEARCH-CRITICAL-DATA-REMEDIATION-HANDOFF-2026-07-27.md",
+      "title": "Web Research·핵심 데이터 구조 개편 핸드오프",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 31664,
+      "lines": 800,
+      "lastVerified": "2026-07-27",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/WO7-GLOBAL-INVENTORY-2026-07-10.md",
+      "title": "WO-7 점진적 구조 격리 — Packet 1: 전역 read/write 인벤토리 (2026-07-10)",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 6668,
+      "lines": 52,
+      "lastVerified": "2026-07-10",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/WORKFLOW-GOVERNANCE.md",
+      "title": "Workflow Governance",
+      "kind": "preflight",
+      "readPolicy": "required",
+      "bytes": 14275,
+      "lines": 234,
+      "lastVerified": "2026-08-23",
+      "autoRefresh": true
+    },
+    {
+      "path": "_context/WORKTREE-AUDIT.md",
+      "title": "Worktree Audit",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 4349,
+      "lines": 76,
+      "lastVerified": "2026-05-06",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/control-char-baseline.json",
+      "title": "control-char-baseline.json",
+      "kind": "machine-contract",
+      "readPolicy": "targeted",
+      "bytes": 416,
+      "lines": 5,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/gate-baseline-skip-list.json",
+      "title": "gate-baseline-skip-list.json",
+      "kind": "machine-contract",
+      "readPolicy": "targeted",
+      "bytes": 2604,
+      "lines": 9,
+      "lastVerified": null,
+      "autoRefresh": false
+    }
+  ]
+}

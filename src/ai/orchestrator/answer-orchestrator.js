@@ -22,6 +22,31 @@ export function createAIAnswerOrchestrator({ root = globalThis, now = () => new 
   };
   const execute = async (input = {}) => {
     const questionPlan = input.questionPlan || plan(input);
+    const actionPermission = questionPlan?.actionPermission || null;
+    if (actionPermission?.allowed === false) {
+      try {
+        const result = typeof input.blockedRunner === 'function'
+          ? await input.blockedRunner(questionPlan, actionPermission)
+          : null;
+        return Object.freeze({
+          ok: false,
+          status: 'blocked-action-permission',
+          reason: 'action-permission-denied',
+          permission: actionPermission,
+          plan: questionPlan,
+          result: result ?? null
+        });
+      } catch (error) {
+        return Object.freeze({
+          ok: false,
+          status: 'blocked-runner-error',
+          reason: 'action-permission-denied',
+          permission: actionPermission,
+          plan: questionPlan,
+          error: error?.message || 'blocked_runner_failed'
+        });
+      }
+    }
     if (typeof input.legacyRunner !== 'function') return Object.freeze({ ok: false, status: 'blocked', reason: 'runner-missing', plan: questionPlan });
     try {
       const result = await input.legacyRunner(questionPlan);

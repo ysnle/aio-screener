@@ -39,17 +39,28 @@ function renderPortfolioHero(documentRef, state) {
   const valueElement = documentRef?.getElementById('pf-total-value');
   const pnlElement = documentRef?.getElementById('pf-total-pnl');
   if (!valueElement && !pnlElement) return;
-  const totals = state?.totals && typeof state.totals === 'object' ? state.totals : {};
   const holdings = Array.isArray(state?.holdings) ? state.holdings : [];
-  const holdingValue = holdings.reduce((sum, holding) => sum + (finite(holding?.value) ?? 0), 0);
+  const rowValues = holdings.map((holding) => {
+    const shares = finite(holding?.shares);
+    const price = finite(holding?.price);
+    const explicitValue = finite(holding?.value);
+    if (shares != null && shares > 0 && price != null && price > 0) return price * shares;
+    return explicitValue != null && explicitValue > 0 ? explicitValue : null;
+  });
+  const holdingValue = rowValues.reduce((sum, value) => sum + (value ?? 0), 0);
   const cash = finite(state?.cash) ?? 0;
-  const totalValue = finite(totals.totalAssets ?? totals.totalValue ?? totals.value) ?? (holdingValue + cash || null);
+  const completeQuotes = holdings.length > 0 && rowValues.every((value) => value != null);
+  const totalValue = completeQuotes
+    ? holdingValue + Math.max(0, cash)
+    : null;
   const holdingCost = holdings.reduce((sum, holding) => {
     const shares = finite(holding?.shares);
     const avgCost = finite(holding?.avgCost);
     return sum + (shares != null && avgCost != null ? shares * avgCost : 0);
   }, 0);
-  const totalPnl = finite(totals.totalPnl ?? totals.pnl ?? totals.profitLoss) ?? (holdingValue - holdingCost || null);
+  const totalPnl = completeQuotes
+    ? holdingValue - holdingCost
+    : null;
   if (valueElement) {
     valueElement.textContent = formatMoney(totalValue);
     valueElement.setAttribute('data-aio-portfolio-hero-renderer', 'native');
@@ -168,8 +179,12 @@ function renderPortfolioTable(documentRef, page, state) {
     const symbol = String(holding?.symbol || '').toUpperCase();
     const shares = finite(holding?.shares);
     const avgCost = finite(holding?.avgCost);
-    const price = finite(holding?.price);
-    const value = finite(holding?.value) ?? (price != null && shares != null ? price * shares : null);
+    const priceValue = finite(holding?.price);
+    const price = priceValue != null && priceValue > 0 ? priceValue : null;
+    const explicitValue = finite(holding?.value);
+    const value = price != null && shares != null && shares > 0
+      ? price * shares
+      : (explicitValue != null && explicitValue > 0 ? explicitValue : null);
     const costValue = avgCost != null && shares != null ? avgCost * shares : null;
     const pnl = value != null && costValue != null ? value - costValue : null;
     const pnlPct = pnl != null && costValue > 0 ? pnl / costValue * 100 : null;

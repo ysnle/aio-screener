@@ -1,7 +1,10 @@
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { fetchAaiiSentiment } from './fetch-data.mjs';
 
-const DATA_PATH = new URL('../public-data/data.json', import.meta.url);
-const EVIDENCE_PATH = new URL('../public-data/structural-data-research.json', import.meta.url);
+const DATA_PATH = fileURLToPath(new URL('../public-data/data.json', import.meta.url));
+const EVIDENCE_PATH = fileURLToPath(new URL('../public-data/structural-data-research.json', import.meta.url));
 
 // This is an operator-captured WebSearch snapshot. Values are copied only from
 // the linked publisher pages and are never extrapolated when the page is stale,
@@ -65,7 +68,7 @@ const MARKET_SURVEYS = Object.freeze({
 
 const OFFICIAL_WEB_REFERENCES = Object.freeze({
   krExports: {
-    status: 'latest-public-found',
+    status: 'stale-reference',
     period: '2026-07-01..2026-07-10',
     periodLabel: '2026-07-01~10',
     observedAt: '2026-07-01',
@@ -132,7 +135,7 @@ const STRUCTURAL_EVIDENCE = {
       detail: 'KRX official data/index pages confirm the authoritative VKOSPI and market-data surfaces, but a public redistribution-ready adapter/rights path is not configured; no web/secondary VKOSPI value was promoted.'
     },
     {
-      id: 'kr-export-reference', status: 'CURRENT_REFERENCE',
+      id: 'kr-export-reference', status: 'STALE_REFERENCE',
       valueArtifact: 'public-data/data.json.officialWebReferences.krExports',
       sourceUrl: OFFICIAL_WEB_REFERENCES.krExports.sourceUrl,
       observation: OFFICIAL_WEB_REFERENCES.krExports.observedAt,
@@ -141,18 +144,36 @@ const STRUCTURAL_EVIDENCE = {
   ]
 };
 
-  const data = JSON.parse(await readFile(DATA_PATH, 'utf8'));
-  data.marketSurveys = MARKET_SURVEYS;
+const data = JSON.parse(await readFile(DATA_PATH, 'utf8'));
+const aaii = await fetchAaiiSentiment(data.marketSurveys?.aaii || MARKET_SURVEYS.aaii);
+const marketSurveys = { ...MARKET_SURVEYS, automatedCheckedAt: aaii.attemptedAt, aaii };
+const structuralEvidence = {
+  ...STRUCTURAL_EVIDENCE,
+  entries: STRUCTURAL_EVIDENCE.entries.map((entry) => entry.id === 'aaii'
+    ? {
+        ...entry,
+        status: aaii.status === 'current-reference' ? 'CURRENT_REFERENCE' : 'STALE_REFERENCE',
+        observation: aaii.observedAt,
+        detail: `${aaii.bullish}% bullish / ${aaii.neutral}% neutral / ${aaii.bearish}% bearish; automated official-public reference${aaii.relayUrl ? ' via bounded reader relay' : ''}, excluded from trading gates.`
+      }
+    : entry)
+};
+data.marketSurveys = marketSurveys;
   data.officialWebReferences = OFFICIAL_WEB_REFERENCES;
 data.meta = data.meta || {};
 data.meta.marketSurveysStatus = 'web-research-captured-reference';
 data.meta.marketSurveysCheckedAt = CHECKED_AT;
-await writeFile(DATA_PATH, JSON.stringify(data, null, 1) + '\n', 'utf8');
-await writeFile(EVIDENCE_PATH, JSON.stringify(STRUCTURAL_EVIDENCE, null, 2) + '\n', 'utf8');
+data.meta.aaiiStatus = aaii.status;
+data.meta.aaiiAttemptedAt = aaii.attemptedAt;
+data.meta.aaiiFetchedAt = aaii.fetchedAt;
+data.meta.aaiiObservedAt = aaii.observedAt;
+data.meta.aaiiRelayUsed = !!aaii.relayUrl;
+await atomicWriteFile(DATA_PATH, JSON.stringify(data, null, 1) + '\n', 'utf8');
+await atomicWriteFile(EVIDENCE_PATH, JSON.stringify(structuralEvidence, null, 2) + '\n', 'utf8');
 console.log(JSON.stringify({
   ok: true,
   checkedAt: CHECKED_AT,
-  aaii: MARKET_SURVEYS.aaii,
+  aaii,
   naaim: MARKET_SURVEYS.naaim,
   evidenceEntries: STRUCTURAL_EVIDENCE.entries.length,
   artifacts: ['public-data/data.json', 'public-data/structural-data-research.json']

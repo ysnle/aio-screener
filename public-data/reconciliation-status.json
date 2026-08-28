@@ -1,7 +1,7 @@
 {
   "schemaVersion": "reconciliation-status-v2",
-  "generatedAt": "2026-08-22T12:52:50.987Z",
-  "revision": "reconciliation:market-snapshot:2026-08-22T11:57:56.595Z:33aba161:9b950d3b",
+  "generatedAt": "2026-08-28T03:44:49.074Z",
+  "revision": "reconciliation:market-snapshot:2026-08-28T03:43:37.585Z:680b26f6:9f2b9bac",
   "overall": "PARTIAL",
   "counts": {
     "PARTIAL": 13,
@@ -14,8 +14,8 @@
       "status": "PARTIAL",
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: independent-provider-reconciliation.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
-      "checkedAt": "2026-08-22T12:52:50.987Z",
+      "marketSnapshotRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
+      "checkedAt": "2026-08-28T03:44:49.074Z",
       "refresh": {
         "cadence": "30m",
         "mode": "scheduled",
@@ -70,28 +70,28 @@
         "required": 3,
         "gate": "tier0-coverage-lineage-provider-diversity",
         "rights": "REVIEW_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
+        "sourceRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
         "promotable": false,
         "checks": [
           {
             "id": "tier0-coverage-16-of-16",
             "status": "PASS",
             "sourceArtifact": "public-data/market-snapshot.json",
-            "observedAt": "2026-08-22T11:57:56.595Z",
+            "observedAt": "2026-08-28T03:43:37.585Z",
             "detail": null
           },
           {
             "id": "tier0-field-lineage-complete",
             "status": "PASS",
             "sourceArtifact": "public-data/market-snapshot.json",
-            "observedAt": "2026-08-22T11:57:56.595Z",
+            "observedAt": "2026-08-28T03:43:37.585Z",
             "detail": null
           },
           {
             "id": "independent-provider-reconciliation",
             "status": "FAIL",
             "sourceArtifact": "public-data/market-snapshot.json",
-            "observedAt": "2026-08-22T11:57:56.595Z",
+            "observedAt": "2026-08-28T03:43:37.585Z",
             "detail": "providerFamilies=1"
           }
         ]
@@ -102,8 +102,8 @@
       "status": "MATCH",
       "sourceClass": "OBSERVED",
       "reason": "All executable source, freshness, and scope checks passed.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
-      "checkedAt": "2026-08-22T12:52:50.987Z",
+      "marketSnapshotRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
+      "checkedAt": "2026-08-28T03:44:49.074Z",
       "refresh": {
         "cadence": "30m",
         "mode": "scheduled",
@@ -143,28 +143,28 @@
         "required": 3,
         "gate": "vix-vix3m-vvix-history",
         "rights": "CURRENT",
-        "sourceRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
+        "sourceRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
         "promotable": true,
         "checks": [
           {
             "id": "vix-vix3m-current",
             "status": "PASS",
             "sourceArtifact": "public-data/market-snapshot.json",
-            "observedAt": "2026-08-21T20:15:01.000Z",
+            "observedAt": "2026-08-27T20:15:01.000Z",
             "detail": null
           },
           {
             "id": "vvix-daily-history-current",
             "status": "PASS",
             "sourceArtifact": "public-data/history.json",
-            "observedAt": "2026-08-21T20:15:01.000Z",
+            "observedAt": "2026-08-27T20:15:01.000Z",
             "detail": null
           },
           {
             "id": "vix3m-term-structure-history",
             "status": "PASS",
             "sourceArtifact": "public-data/history.json",
-            "observedAt": "2026-08-22",
+            "observedAt": "2026-08-28",
             "detail": null
           }
         ]
@@ -175,8 +175,8 @@
       "status": "MATCH",
       "sourceClass": "OBSERVED",
       "reason": "All executable source, freshness, and scope checks passed.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
-      "checkedAt": "2026-08-22T12:52:50.987Z",
+      "marketSnapshotRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
+      "checkedAt": "2026-08-28T03:44:49.074Z",
       "refresh": {
         "cadence": "30m",
         "mode": "scheduled",
@@ -216,28 +216,28 @@
         "required": 3,
         "gate": "current-source-history",
         "rights": "CURRENT",
-        "sourceRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
+        "sourceRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
         "promotable": true,
         "checks": [
           {
             "id": "current-score-and-observation",
             "status": "PASS",
             "sourceArtifact": "public-data/data.json",
-            "observedAt": "2026-08-21T23:59:58+00:00",
+            "observedAt": "2026-08-27T23:59:53+00:00",
             "detail": null
           },
           {
             "id": "source-identified",
             "status": "PASS",
             "sourceArtifact": "public-data/data.json",
-            "observedAt": "2026-08-21T23:59:58+00:00",
+            "observedAt": "2026-08-27T23:59:53+00:00",
             "detail": null
           },
           {
             "id": "history-minimum-60",
             "status": "PASS",
             "sourceArtifact": "public-data/history.json",
-            "observedAt": "2026-08-22",
+            "observedAt": "2026-08-28",
             "detail": null
           }
         ]
@@ -248,8 +248,8 @@
       "status": "MATCH",
       "sourceClass": "OBSERVED",
       "reason": "All executable source, freshness, and scope checks passed.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
-      "checkedAt": "2026-08-22T12:52:50.987Z",
+      "marketSnapshotRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
+      "checkedAt": "2026-08-28T03:44:49.074Z",
       "refresh": {
         "cadence": "daily",
         "mode": "scheduled",
@@ -284,28 +284,28 @@
         "required": 3,
         "gate": "cboe-delayed-lineage",
         "rights": "CURRENT",
-        "sourceRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
+        "sourceRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
         "promotable": true,
         "checks": [
           {
             "id": "total-put-call-present",
             "status": "PASS",
             "sourceArtifact": "public-data/data.json",
-            "observedAt": "2026-08-21",
+            "observedAt": "2026-08-27",
             "detail": null
           },
           {
             "id": "daily-observation-current",
             "status": "PASS",
             "sourceArtifact": "public-data/data.json",
-            "observedAt": "2026-08-21",
+            "observedAt": "2026-08-27",
             "detail": null
           },
           {
             "id": "cboe-source-and-delay-policy",
             "status": "PASS",
             "sourceArtifact": "public-data/data.json",
-            "observedAt": "2026-08-22T11:57:46.862Z",
+            "observedAt": "2026-08-28T03:43:19.830Z",
             "detail": null
           }
         ]
@@ -316,13 +316,13 @@
       "status": "PARTIAL",
       "sourceClass": "PARTIAL",
       "reason": "Public AAII observation is available but rights keep it reference-only. Missing: redistribution-rights-for-trading.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
-      "checkedAt": "2026-08-22T12:52:50.987Z",
+      "marketSnapshotRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
+      "checkedAt": "2026-08-28T03:44:49.074Z",
       "refresh": {
         "cadence": "weekly",
-        "mode": "operator-web-research",
+        "mode": "scheduled",
         "dailyAuditRequired": true,
-        "producer": "scripts/refresh-web-research.mjs",
+        "producer": "scripts/fetch-data.mjs:fetchAaiiSentiment",
         "artifacts": [
           "public-data/data.json",
           "public-data/structural-data-research.json",
@@ -338,11 +338,21 @@
           "authority": "publisher",
           "sourceKind": "publisher-public-web",
           "access": "public-web-terms-apply",
-          "url": "https://www.aaii.com/sentimentsurvey",
+          "url": "https://www.aaii.com/sentimentsurvey/sent_results?adv=yes",
           "fields": [
             "bullish",
             "neutral",
             "bearish"
+          ]
+        },
+        {
+          "id": "jina-reader-relay",
+          "authority": "relay",
+          "sourceKind": "public-text-relay",
+          "access": "public-best-effort",
+          "url": "https://r.jina.ai/",
+          "fields": [
+            "publisher-page-text-fallback"
           ]
         }
       ],
@@ -356,21 +366,21 @@
         "required": 3,
         "gate": "public-web-reference-with-rights-boundary",
         "rights": "OPERATOR_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
+        "sourceRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
         "promotable": false,
         "checks": [
           {
             "id": "public-web-current-reference",
             "status": "PASS",
             "sourceArtifact": "public-data/data.json",
-            "observedAt": "2026-08-19",
+            "observedAt": "2026-08-26",
             "detail": "AAII weekly public observation is retained as reference-only."
           },
           {
             "id": "publisher-source-lineage",
             "status": "PASS",
             "sourceArtifact": "public-data/structural-data-research.json",
-            "observedAt": "2026-08-19",
+            "observedAt": "2026-08-26",
             "detail": null
           },
           {
@@ -388,8 +398,8 @@
       "status": "PARTIAL",
       "sourceClass": "PARTIAL",
       "reason": "Last public NAAIM observation is available, but it is stale/reference-only. Missing: current-freshness, redistribution-rights-for-trading.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
-      "checkedAt": "2026-08-22T12:52:50.987Z",
+      "marketSnapshotRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
+      "checkedAt": "2026-08-28T03:44:49.074Z",
       "refresh": {
         "cadence": "weekly",
         "mode": "operator-web-research",
@@ -426,7 +436,7 @@
         "required": 3,
         "gate": "latest-public-reference-with-rights-boundary",
         "rights": "OPERATOR_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
+        "sourceRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
         "promotable": false,
         "checks": [
           {
@@ -458,8 +468,8 @@
       "status": "BLOCKED",
       "sourceClass": "UNAVAILABLE",
       "reason": "Subscriber Investors Intelligence data is unavailable and must not be synthesized. Missing: subscriber-current.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
-      "checkedAt": "2026-08-22T12:52:50.987Z",
+      "marketSnapshotRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
+      "checkedAt": "2026-08-28T03:44:49.074Z",
       "refresh": {
         "cadence": "weekly",
         "mode": "operator",
@@ -496,7 +506,7 @@
         "required": 1,
         "gate": "subscriber-current",
         "rights": "OPERATOR_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
+        "sourceRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
         "promotable": false,
         "checks": [
           {
@@ -514,8 +524,8 @@
       "status": "PARTIAL",
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: official-exchange-breadth.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
-      "checkedAt": "2026-08-22T12:52:50.987Z",
+      "marketSnapshotRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
+      "checkedAt": "2026-08-28T03:44:49.074Z",
       "refresh": {
         "cadence": "6h",
         "mode": "derived",
@@ -557,21 +567,21 @@
         "required": 3,
         "gate": "aio-universe-plus-official-exchange",
         "rights": "REVIEW_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
+        "sourceRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
         "promotable": false,
         "checks": [
           {
             "id": "aio-us-universe-current",
             "status": "PASS",
             "sourceArtifact": "public-data/screener.json",
-            "observedAt": "2026-08-21T13:30:00.000Z",
+            "observedAt": "2026-08-28T00:00:00.000Z",
             "detail": null
           },
           {
             "id": "aio-us-universe-source-labelled",
             "status": "PASS",
             "sourceArtifact": "public-data/screener.json",
-            "observedAt": "2026-08-21T13:30:00.000Z",
+            "observedAt": "2026-08-28T00:00:00.000Z",
             "detail": null
           },
           {
@@ -589,8 +599,8 @@
       "status": "PARTIAL",
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: official-kr-exchange-breadth.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
-      "checkedAt": "2026-08-22T12:52:50.987Z",
+      "marketSnapshotRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
+      "checkedAt": "2026-08-28T03:44:49.074Z",
       "refresh": {
         "cadence": "6h",
         "mode": "derived",
@@ -642,21 +652,21 @@
         "required": 3,
         "gate": "aio-universe-plus-approved-kr-source",
         "rights": "REVIEW_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
+        "sourceRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
         "promotable": false,
         "checks": [
           {
             "id": "aio-kr-universe-current",
             "status": "PASS",
             "sourceArtifact": "public-data/screener.json",
-            "observedAt": "2026-08-21T00:00:00.000Z",
+            "observedAt": "2026-08-28T00:00:00.000Z",
             "detail": null
           },
           {
             "id": "aio-kr-universe-source-labelled",
             "status": "PASS",
             "sourceArtifact": "public-data/screener.json",
-            "observedAt": "2026-08-21T00:00:00.000Z",
+            "observedAt": "2026-08-28T00:00:00.000Z",
             "detail": null
           },
           {
@@ -674,8 +684,8 @@
       "status": "PARTIAL",
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: mcclellan-advance-decline-source.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
-      "checkedAt": "2026-08-22T12:52:50.987Z",
+      "marketSnapshotRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
+      "checkedAt": "2026-08-28T03:44:49.074Z",
       "refresh": {
         "cadence": "6h",
         "mode": "derived",
@@ -715,15 +725,15 @@
         "required": 2,
         "gate": "durable-daily-history",
         "rights": "REVIEW_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
+        "sourceRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
         "promotable": false,
         "checks": [
           {
             "id": "durable-daily-breadth-history-60",
             "status": "PASS",
             "sourceArtifact": "public-data/history.json",
-            "observedAt": "2026-08-22",
-            "detail": "rows=249"
+            "observedAt": "2026-08-28",
+            "detail": "rows=253"
           },
           {
             "id": "mcclellan-advance-decline-source",
@@ -740,8 +750,8 @@
       "status": "MATCH",
       "sourceClass": "OBSERVED",
       "reason": "All executable source, freshness, and scope checks passed.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
-      "checkedAt": "2026-08-22T12:52:50.987Z",
+      "marketSnapshotRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
+      "checkedAt": "2026-08-28T03:44:49.074Z",
       "refresh": {
         "cadence": "daily",
         "mode": "scheduled",
@@ -808,35 +818,35 @@
         "required": 4,
         "gate": "official-five-point-curve",
         "rights": "CURRENT",
-        "sourceRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
+        "sourceRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
         "promotable": true,
         "checks": [
           {
             "id": "10y-current",
             "status": "PASS",
             "sourceArtifact": "public-data/market-snapshot.json",
-            "observedAt": "2026-08-21T18:59:54.000Z",
+            "observedAt": "2026-08-27T18:59:54.000Z",
             "detail": null
           },
           {
             "id": "13w-current",
             "status": "PASS",
             "sourceArtifact": "public-data/market-snapshot.json",
-            "observedAt": "2026-08-21T18:59:54.000Z",
+            "observedAt": "2026-08-27T18:59:54.000Z",
             "detail": null
           },
           {
             "id": "five-point-official-curve-current",
             "status": "PASS",
             "sourceArtifact": "public-data/data.json",
-            "observedAt": "2026-08-21",
+            "observedAt": "2026-08-27",
             "detail": "FRED DGS2/DGS5/DGS10/DGS20/DGS30 official observations; observation dates, not fetch time, drive freshness."
           },
           {
             "id": "10y-2y-official-spread-current",
             "status": "PASS",
             "sourceArtifact": "public-data/data.json",
-            "observedAt": "2026-08-21",
+            "observedAt": "2026-08-27",
             "detail": null
           }
         ]
@@ -847,8 +857,8 @@
       "status": "PARTIAL",
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: fred-source-identified, independent-spread-reconciliation.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
-      "checkedAt": "2026-08-22T12:52:50.987Z",
+      "marketSnapshotRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
+      "checkedAt": "2026-08-28T03:44:49.074Z",
       "refresh": {
         "cadence": "daily",
         "mode": "scheduled",
@@ -895,21 +905,21 @@
         "required": 3,
         "gate": "fred-current-plus-cross-check",
         "rights": "REVIEW_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
+        "sourceRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
         "promotable": false,
         "checks": [
           {
             "id": "fred-hy-oas-current",
             "status": "PASS",
             "sourceArtifact": "public-data/data.json",
-            "observedAt": "2026-08-20",
+            "observedAt": "2026-08-26",
             "detail": null
           },
           {
             "id": "fred-source-identified",
             "status": "FAIL",
             "sourceArtifact": "public-data/data.json",
-            "observedAt": "2026-08-22T11:57:56.595Z",
+            "observedAt": null,
             "detail": null
           },
           {
@@ -927,8 +937,8 @@
       "status": "MATCH",
       "sourceClass": "OBSERVED",
       "reason": "All executable source, freshness, and scope checks passed.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
-      "checkedAt": "2026-08-22T12:52:50.987Z",
+      "marketSnapshotRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
+      "checkedAt": "2026-08-28T03:44:49.074Z",
       "refresh": {
         "cadence": "release",
         "mode": "scheduled",
@@ -986,7 +996,7 @@
         "required": 2,
         "gate": "bls-bea-official-release",
         "rights": "CURRENT",
-        "sourceRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
+        "sourceRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
         "promotable": true,
         "checks": [
           {
@@ -1000,7 +1010,7 @@
             "id": "bea-pce-official-current-release",
             "status": "PASS",
             "sourceArtifact": "public-data/data.json",
-            "observedAt": "2026-07-30T12:30:00.000Z",
+            "observedAt": "2026-08-26T12:30:00.000Z",
             "detail": null
           }
         ]
@@ -1011,8 +1021,8 @@
       "status": "MATCH",
       "sourceClass": "OBSERVED",
       "reason": "All executable source, freshness, and scope checks passed.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
-      "checkedAt": "2026-08-22T12:52:50.987Z",
+      "marketSnapshotRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
+      "checkedAt": "2026-08-28T03:44:49.074Z",
       "refresh": {
         "cadence": "release",
         "mode": "scheduled",
@@ -1047,7 +1057,7 @@
         "required": 3,
         "gate": "bls-employment-wages",
         "rights": "CURRENT",
-        "sourceRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
+        "sourceRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
         "promotable": true,
         "checks": [
           {
@@ -1079,8 +1089,8 @@
       "status": "PARTIAL",
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: release-aware-ism.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
-      "checkedAt": "2026-08-22T12:52:50.987Z",
+      "marketSnapshotRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
+      "checkedAt": "2026-08-28T03:44:49.074Z",
       "refresh": {
         "cadence": "release",
         "mode": "scheduled",
@@ -1128,7 +1138,7 @@
         "required": 3,
         "gate": "retail-housing-ism-release-aware",
         "rights": "REVIEW_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
+        "sourceRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
         "promotable": false,
         "checks": [
           {
@@ -1160,8 +1170,8 @@
       "status": "PARTIAL",
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: multi-central-bank-current-registry.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
-      "checkedAt": "2026-08-22T12:52:50.987Z",
+      "marketSnapshotRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
+      "checkedAt": "2026-08-28T03:44:49.074Z",
       "refresh": {
         "cadence": "daily-audit/event-refresh",
         "mode": "scheduled-and-operator",
@@ -1221,7 +1231,7 @@
         "required": 2,
         "gate": "multi-central-bank-current-registry",
         "rights": "REVIEW_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
+        "sourceRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
         "promotable": false,
         "checks": [
           {
@@ -1246,8 +1256,8 @@
       "status": "PARTIAL",
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: multi-agency-release-aware-calendar.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
-      "checkedAt": "2026-08-22T12:52:50.987Z",
+      "marketSnapshotRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
+      "checkedAt": "2026-08-28T03:44:49.074Z",
       "refresh": {
         "cadence": "daily-audit/event-refresh",
         "mode": "scheduled-and-static-registry",
@@ -1306,14 +1316,14 @@
         "required": 2,
         "gate": "multi-agency-release-calendar",
         "rights": "REVIEW_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
+        "sourceRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
         "promotable": false,
         "checks": [
           {
             "id": "bea-next-release",
             "status": "PASS",
             "sourceArtifact": "public-data/data.json",
-            "observedAt": "2026-08-26T12:30:00.000Z",
+            "observedAt": "2026-09-30T12:30:00.000Z",
             "detail": null
           },
           {
@@ -1331,8 +1341,8 @@
       "status": "PARTIAL",
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: full-content-evidence.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
-      "checkedAt": "2026-08-22T12:52:50.987Z",
+      "marketSnapshotRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
+      "checkedAt": "2026-08-28T03:44:49.074Z",
       "refresh": {
         "cadence": "30m",
         "mode": "scheduled",
@@ -1387,28 +1397,28 @@
         "required": 3,
         "gate": "cycle-lineage-content-depth",
         "rights": "REVIEW_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
+        "sourceRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
         "promotable": false,
         "checks": [
           {
             "id": "completed-cycle-minimum-10",
             "status": "PASS",
             "sourceArtifact": "public-data/data.json",
-            "observedAt": "2026-08-21T23:00:00.000Z",
+            "observedAt": "2026-08-27T23:00:00.000Z",
             "detail": "count=40"
           },
           {
             "id": "article-lineage-95pct",
             "status": "PASS",
             "sourceArtifact": "public-data/data.json",
-            "observedAt": "2026-08-22T11:57:56.595Z",
+            "observedAt": "2026-08-28T03:43:37.585Z",
             "detail": "coverage=100.0%"
           },
           {
             "id": "full-content-evidence",
             "status": "FAIL",
             "sourceArtifact": "public-data/data.json",
-            "observedAt": "2026-08-22T11:57:56.595Z",
+            "observedAt": "2026-08-28T03:43:37.585Z",
             "detail": "Headline-only feeds cannot certify article-level claims."
           }
         ]
@@ -1419,8 +1429,8 @@
       "status": "PARTIAL",
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: settlement-vs-spot-contract.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
-      "checkedAt": "2026-08-22T12:52:50.987Z",
+      "marketSnapshotRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
+      "checkedAt": "2026-08-28T03:44:49.074Z",
       "refresh": {
         "cadence": "30m",
         "mode": "scheduled",
@@ -1471,14 +1481,14 @@
         "required": 2,
         "gate": "current-plus-settlement-spot-contract",
         "rights": "REVIEW_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
+        "sourceRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
         "promotable": false,
         "checks": [
           {
             "id": "tier0-wti-gold-dxy-krw-current",
             "status": "PASS",
             "sourceArtifact": "public-data/market-snapshot.json",
-            "observedAt": "2026-08-22T11:57:56.595Z",
+            "observedAt": "2026-08-28T03:43:37.585Z",
             "detail": null
           },
           {
@@ -1496,8 +1506,8 @@
       "status": "PARTIAL",
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: non-us-major-indices-current.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
-      "checkedAt": "2026-08-22T12:52:50.987Z",
+      "marketSnapshotRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
+      "checkedAt": "2026-08-28T03:44:49.074Z",
       "refresh": {
         "cadence": "30m",
         "mode": "scheduled",
@@ -1543,21 +1553,21 @@
         "required": 2,
         "gate": "us-plus-non-us-session-history",
         "rights": "REVIEW_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
+        "sourceRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
         "promotable": false,
         "checks": [
           {
             "id": "us-major-indices-current",
             "status": "PASS",
             "sourceArtifact": "public-data/market-snapshot.json",
-            "observedAt": "2026-08-22T11:57:56.595Z",
+            "observedAt": "2026-08-28T03:43:37.585Z",
             "detail": null
           },
           {
             "id": "non-us-major-indices-current",
             "status": "FAIL",
             "sourceArtifact": "public-data/market-snapshot.json",
-            "observedAt": "2026-08-22T11:57:56.595Z",
+            "observedAt": "2026-08-28T03:43:37.585Z",
             "detail": null
           }
         ]
@@ -1568,8 +1578,8 @@
       "status": "MATCH",
       "sourceClass": "OBSERVED",
       "reason": "All executable source, freshness, and scope checks passed.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
-      "checkedAt": "2026-08-22T12:52:50.987Z",
+      "marketSnapshotRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
+      "checkedAt": "2026-08-28T03:44:49.074Z",
       "refresh": {
         "cadence": "30m",
         "mode": "scheduled",
@@ -1619,28 +1629,28 @@
         "required": 3,
         "gate": "current-history-provider-diversity",
         "rights": "CURRENT",
-        "sourceRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
+        "sourceRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
         "promotable": true,
         "checks": [
           {
             "id": "btc-eth-current",
             "status": "PASS",
             "sourceArtifact": "public-data/market-snapshot.json",
-            "observedAt": "2026-08-22T11:57:56.595Z",
+            "observedAt": "2026-08-28T03:43:37.585Z",
             "detail": null
           },
           {
             "id": "btc-daily-history-60",
             "status": "PASS",
             "sourceArtifact": "public-data/history.json",
-            "observedAt": "2026-08-22",
+            "observedAt": "2026-08-28",
             "detail": null
           },
           {
             "id": "independent-24x7-provider-reconciliation",
             "status": "PASS",
             "sourceArtifact": "public-data/data.json:providerCrossChecks.crypto",
-            "observedAt": "2026-08-22T11:57:46.492Z",
+            "observedAt": "2026-08-28T03:43:18.850Z",
             "detail": "CoinGecko comparison requires both assets within 2% of the canonical snapshot."
           }
         ]
@@ -1651,8 +1661,8 @@
       "status": "BLOCKED",
       "sourceClass": "UNAVAILABLE",
       "reason": "Korean licensed market data cannot be promoted without provider rights. Missing: approved-krx-koscom-rights.",
-      "marketSnapshotRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
-      "checkedAt": "2026-08-22T12:52:50.987Z",
+      "marketSnapshotRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
+      "checkedAt": "2026-08-28T03:44:49.074Z",
       "refresh": {
         "cadence": "daily",
         "mode": "operator-and-browser",
@@ -1713,7 +1723,7 @@
         "required": 1,
         "gate": "approved-krx-provider-and-rights",
         "rights": "OPERATOR_REQUIRED",
-        "sourceRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
+        "sourceRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
         "promotable": false,
         "checks": [
           {
@@ -1849,7 +1859,7 @@
         }
       ]
     },
-    "sourceRevision": "market-snapshot:2026-08-22T11:57:56.595Z:33aba161",
+    "sourceRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
     "sourceArtifacts": [
       "public-data/data.json",
       "public-data/market-snapshot.json",

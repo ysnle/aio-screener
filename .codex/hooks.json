@@ -1,72 +1,57 @@
 {
+  "description": "Portable, advisory AIO workspace hooks. They never commit, push, deploy, or rewrite user work.",
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Edit|Write",
+        "matcher": "^(apply_patch|Edit|Write)$",
         "hooks": [
           {
             "type": "command",
-            "command": ".codex/hooks/protect-files.sh",
-            "timeout": 5
+            "command": "node \"$(git rev-parse --show-toplevel)/scripts/agent-hook.mjs\" guard-edit",
+            "commandWindows": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"$r=(git rev-parse --show-toplevel); node (Join-Path $r 'scripts/agent-hook.mjs') guard-edit\"",
+            "timeout": 10,
+            "statusMessage": "Protecting archived evidence"
           }
         ]
       },
       {
-        "matcher": "Bash",
+        "matcher": "^Bash$",
         "hooks": [
           {
             "type": "command",
-            "command": ".codex/hooks/block-dangerous.sh",
-            "timeout": 5
+            "command": "node \"$(git rev-parse --show-toplevel)/scripts/agent-hook.mjs\" guard-command",
+            "commandWindows": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"$r=(git rev-parse --show-toplevel); node (Join-Path $r 'scripts/agent-hook.mjs') guard-command\"",
+            "timeout": 10,
+            "statusMessage": "Checking destructive-command policy"
           }
         ]
       }
     ],
     "PostToolUse": [
       {
-        "matcher": "Edit|Write",
+        "matcher": "^(apply_patch|Edit|Write)$",
         "hooks": [
           {
             "type": "command",
-            "command": ".codex/hooks/validate-edit.sh",
-            "timeout": 10
-          },
-          {
-            "type": "command",
-            "command": ".codex/hooks/check-antipatterns.sh",
-            "timeout": 10
-          },
-          {
-            "type": "command",
-            "command": ".codex/hooks/check-version-sync.sh",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo '{\"systemMessage\":\"[세션 종료 전 체크] 코드 수정이 있었다면 반드시 /deploy 실행 후 종료하세요. /deploy 없이 종료 시 이번 세션 작업이 origin/main에 반영되지 않습니다. 메모리 업데이트가 필요하면 /session-save도 실행하세요.\"}'",
-            "timeout": 5
-          },
-          {
-            "type": "command",
-            "command": ".codex/hooks/auto-commit-on-stop.sh",
-            "timeout": 15
+            "command": "node \"$(git rev-parse --show-toplevel)/scripts/agent-hook.mjs\" post-edit",
+            "commandWindows": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"$r=(git rev-parse --show-toplevel); node (Join-Path $r 'scripts/agent-hook.mjs') post-edit\"",
+            "timeout": 20,
+            "statusMessage": "Checking affected AIO contracts"
           }
         ]
       }
     ],
     "SessionStart": [
       {
+        "matcher": "startup|resume|clear|compact",
         "hooks": [
           {
             "type": "command",
-            "command": ".codex/hooks/session-start-snapshot.sh",
-            "timeout": 5
+            "command": "node \"$(git rev-parse --show-toplevel)/scripts/agent-hook.mjs\" session-start",
+            "commandWindows": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"$r=(git rev-parse --show-toplevel); node (Join-Path $r 'scripts/agent-hook.mjs') session-start\"",
+            "timeout": 10,
+            "statusMessage": "Loading generated AIO workspace state",
+            "additionalContextLimit": 3000
           }
         ]
       }

@@ -2,6 +2,7 @@
   "schemaVersion": "route-owners-v1",
   "ownerEnums": ["native", "legacy", "not-applicable"],
   "notApplicablePolicy": "chartOwner and narrativeOwner use not-applicable for static reference routes; legacy means an actual compatibility producer remains.",
+  "loadingStrategyPolicy": "fullNativeOwner requires route-dynamic-import in addition to native ownership (with only declared not-applicable dimensions), zero contested ids, and zero active legacy writer evidence.",
   "generatedAt": "2026-08-22",
   "sourceHandoff": "_context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md#RM-00",
   "method": "Re-measured directly against the current working tree (bootstrap.js module wiring, router transition, async scope ownership, capability-level loading, cross-grep of native writer ids against js/*.js and index.html, including principles/masters/atlas route modules and their primary surface markers). Not copied from prior declarations.",
@@ -44,6 +45,7 @@
       "chartOwner": "legacy",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/analysis.js (createAnalysisPage route=home)",
+      "loadingStrategy": "route-dynamic-import",
       "nativePrimarySurface": [
         "#page-home #home-hero-total",
         "#page-home #home-hero-headline",
@@ -75,6 +77,7 @@
       "chartOwner": "legacy",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/analysis.js (createAnalysisPage route=signal)",
+      "loadingStrategy": "route-dynamic-import",
       "nativePrimarySurface": [
         "#page-signal #score-gauge-val",
         "#page-signal #score-decision-badge",
@@ -94,6 +97,7 @@
       "chartOwner": "native",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/market.js (createMarketSlicePage route=breadth)",
+      "loadingStrategy": "route-dynamic-import",
       "nativePrimarySurface": [
         "#page-breadth [data-snap=\"breadth-5sma\"]",
         "#page-breadth [data-snap=\"breadth-20sma\"]",
@@ -129,6 +133,7 @@
       "chartOwner": "native",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/sentiment.js (createSentimentPage)",
+      "loadingStrategy": "route-dynamic-import",
       "contestedIds": [],
       "legacyWriterEvidence": [],
       "notes": "RM-01 (2026-07-19) found and closed two contests this route's earlier 'fully clean' verification (P736/P738/P739) missed: (1) renderSentimentSummaryProjection() cross-page-wrote home-fg-score, which js/aio-data.js:16609 also writes — removed the native write, legacy keeps that cross-page id. (2) sent-analysis-text was written by both this module and an ACTIVE legacy function (index.html `_generateSentimentAnalysis`, deferred via setTimeout from js/aio-data.js:16811/16819/16825 — materially richer capitulation/decoupling/cluster analysis) — removed the native write per the RM-01 default action, so narrativeOwner is now honestly 'legacy', not 'native'. fg-score-big/pc-score-big are a legitimate exception: legacy's function only READS them (to build its analysis) and this module remains the sole writer (route-owners.json domWriterIntersectionAllowlist). P833 moves sentiment data ownership to the data-layer runtime reader; narrative remains legacy until the analysis text writer is cut over."
@@ -140,6 +145,7 @@
       "chartOwner": "legacy",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/news.js (createNewsPage route=briefing)",
+      "loadingStrategy": "route-dynamic-import",
       "contestedIds": [],
       "legacyWriterEvidence": [],
       "notes": "P770: native news.js owns briefing-live-news-list, count, completed 08:00 KST timestamp, and reveal control from canonical news state. Legacy AI digest and model/translation producers remain compatibility/narrative boundaries; no legacy primary-feed DOM writer remains."
@@ -151,6 +157,7 @@
       "chartOwner": "native",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/analysis.js (createAnalysisPage route=technical)",
+      "loadingStrategy": "route-dynamic-import",
       "nativePrimarySurface": [
         "#page-technical #tech-health-pill",
         "#page-technical #health-score-display",
@@ -185,6 +192,7 @@
       "chartOwner": "native",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/market.js (createMarketSlicePage route=macro)",
+      "loadingStrategy": "route-dynamic-import",
       "nativePrimarySurface": [
         "#page-macro [data-live-price]",
         "#page-macro [data-live-chg]",
@@ -219,6 +227,7 @@
       "chartOwner": "native",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/market.js (createMarketSlicePage route=fxbond)",
+      "loadingStrategy": "route-dynamic-import",
       "nativePrimarySurface": [
         "#page-fxbond [data-live-price]",
         "#page-fxbond [data-live-chg]",
@@ -262,6 +271,7 @@
       "chartOwner": "native",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/themes.js (createThemesPage route=themes)",
+      "loadingStrategy": "route-dynamic-import",
       "contestedIds": [],
       "legacyWriterEvidence": [
         "index.html:drawRRG and js/aio-core.js chart cleanup retain only compatibility paths; both fence rrg-canvas when the native marker is active",
@@ -291,6 +301,7 @@
       "chartOwner": "legacy",
       "narrativeOwner": "native",
       "nativeModule": "src/ui/pages/themes.js (themes route mount; derived theme-detail event boundary and all visible child surfaces)",
+      "loadingStrategy": "route-dynamic-import",
       "nativeSecondarySurface": [
         "#page-themes #theme-detail-native-summary",
         "#page-themes #theme-detail-native-composition",
@@ -328,6 +339,7 @@
       "chartOwner": "native",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/entity.js (createEntityPage route=ticker)",
+      "loadingStrategy": "route-dynamic-import",
       "nativePrimarySurface": [
         "#page-ticker #ticker-hero-name",
         "#page-ticker #ticker-hero-fullname",
@@ -358,6 +370,7 @@
       "chartOwner": "legacy",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/entity.js (createEntityPage route=fundamental)",
+      "loadingStrategy": "route-dynamic-import",
       "nativePrimarySurface": [
         "#page-fundamental #fund-data-status"
       ],
@@ -384,6 +397,7 @@
       "chartOwner": "legacy",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/entity.js (createEntityPage route=options)",
+      "loadingStrategy": "route-dynamic-import",
       "nativePrimarySurface": [
         "#page-options #opt-vix-val-secondary",
         "#page-options #opt-pcr-val-secondary",
@@ -405,6 +419,7 @@
       "chartOwner": "native",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/portfolio.js (createPortfolioPage)",
+      "loadingStrategy": "route-dynamic-import",
       "nativePrimarySurface": [
         "#page-portfolio #pf-analysis-status"
       ],
@@ -444,6 +459,7 @@
       "chartOwner": "legacy",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/news.js (createNewsPage route=market-news)",
+      "loadingStrategy": "route-dynamic-import",
       "contestedIds": [],
       "legacyWriterEvidence": [],
       "notes": "P769/P770: native news.js owns the primary live-news-feed and briefing-live-news-list DOM, counts, completed 08:00 KST empty states/timestamps, and reveal controls from canonical news state. Legacy RSS/filter/translation/model handlers remain compatibility producers; the secondary Korean rewrite, briefing digest/AI narrative, and data pipeline remain legacy-owned for the next content packet."
@@ -455,6 +471,7 @@
       "chartOwner": "legacy",
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/screener.js (createScreenerPage)",
+      "loadingStrategy": "route-dynamic-import",
       "contestedIds": [],
       "legacyWriterEvidence": [],
       "notes": "ARX-10/ARX-16: screener.js is the sole visible DOM owner and the native provider/orchestrator owns the canonical screener state and single artifact fetch. Non-route readers use AIO_ARCH.getScreenerRows() through the compatibility boundary; legacy profile/watchlist storage and identity/memo overlays remain as explicit compatibility producers."
@@ -466,6 +483,7 @@
       "chartOwner": "not-applicable",
       "narrativeOwner": "not-applicable",
       "nativeModule": "src/ui/pages/guide.js (createGuidePage)",
+      "loadingStrategy": "route-dynamic-import",
       "notApplicableFields": ["chartOwner", "narrativeOwner"],
       "contestedIds": [],
       "legacyWriterEvidence": [],
@@ -478,6 +496,7 @@
       "chartOwner": "not-applicable",
       "narrativeOwner": "not-applicable",
       "nativeModule": "src/ui/pages/principles.js (createPrinciplesPage)",
+      "loadingStrategy": "route-dynamic-import",
       "notApplicableFields": ["chartOwner", "narrativeOwner"],
       "contestedIds": [],
       "legacyWriterEvidence": [],
@@ -490,6 +509,7 @@
       "chartOwner": "not-applicable",
       "narrativeOwner": "not-applicable",
       "nativeModule": "src/ui/pages/masters.js (createMastersPage)",
+      "loadingStrategy": "route-dynamic-import",
       "notApplicableFields": ["chartOwner", "narrativeOwner"],
       "contestedIds": [],
       "legacyWriterEvidence": [],
@@ -502,6 +522,7 @@
       "chartOwner": "not-applicable",
       "narrativeOwner": "not-applicable",
       "nativeModule": "src/ui/pages/atlas.js (createAtlasPage)",
+      "loadingStrategy": "route-dynamic-import",
       "notApplicableFields": ["chartOwner", "narrativeOwner"],
       "contestedIds": [],
       "legacyWriterEvidence": [],
@@ -571,7 +592,8 @@
     ],
     "narrativeNative": 1,
     "narrativeNativeRoutes": ["theme-detail"],
-    "fullNativeOwner": []
+    "lazyLoadedRoutes": ["home", "signal", "breadth", "sentiment", "briefing", "technical", "macro", "fxbond", "themes", "theme-detail", "ticker", "fundamental", "options", "portfolio", "market-news", "screener", "guide", "principles", "masters", "atlas"],
+    "fullNativeOwner": ["guide", "principles", "masters", "atlas"]
   },
   "legacySymbolsMustBeAbsent": {
     "sentiment": [

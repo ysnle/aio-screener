@@ -57,6 +57,9 @@ const refresh = read('.github/workflows/refresh-data.yml');
 const screenerRefresh = read('.github/workflows/refresh-screener.yml');
 const watchdog = read('.github/workflows/data-watchdog.yml');
 const ci = read('.github/workflows/ci.yml');
+const externalPipeline = read('scripts/ci-external-pipeline-check.mjs');
+const qaPipeline = JSON.parse(read('architecture/qa-pipeline.json'));
+const watchdogScripts = (qaPipeline.profiles?.watchdog || []).flatMap((group) => qaPipeline.groups?.[group]?.gates || []).map((gate) => gate.script);
 const fetchData = read('scripts/fetch-data.mjs');
 const fetchTelegram = read('scripts/fetch-telegram-digest.mjs');
 const reconciliationBuilder = read('scripts/build-reconciliation-status.mjs');
@@ -89,18 +92,20 @@ check('screener producer never promotes filing-only records into the factor row 
 check('screener workflow default automation uses only free SEC path', /fetch-sec-fundamentals\.mjs/.test(screenerRefresh) && /SEC_USER_AGENT/.test(screenerRefresh) && /sec-fundamentals\.json/.test(screenerRefresh) && !/FMP_API_KEY/.test(screenerRefresh));
 check('trading-score backtest harness is wired into the refresh pipeline', /runBacktest as runTradingScoreBacktest/.test(read('scripts/fetch-data.mjs')) && exists('scripts/backtest-trading-score.mjs'));
 check('refresh workflow publishes status summary', /GITHUB_STEP_SUMMARY/.test(refresh) && /fearGreedOk/.test(refresh) && /fredFetchOk/.test(refresh) && /marketAnalysisOk/.test(refresh));
+check('refresh summary exposes automated AAII relay and same-date Treasury producer states', /AAII weekly/.test(refresh) && /aaiiRelayUsed/.test(refresh) && /Treasury curve/.test(refresh) && /treasuryObservedAt/.test(refresh));
 check('core refresh validates evidence-derived reconciliation before commit', /ci-reconciliation-contract-check\.mjs/.test(refresh) && refresh.indexOf('ci-reconciliation-contract-check.mjs') < refresh.indexOf('Commit refreshed public data if changed'));
 check('screener refresh atomically rebuilds and commits reconciliation and operations status', /build-reconciliation-status\.mjs/.test(screenerRefresh) && /build-operations-status\.mjs/.test(screenerRefresh) && /public-data\/reconciliation-status\.json/.test(screenerRefresh) && /public-data\/operations-status\.json/.test(screenerRefresh));
 check('refresh workflow module summary uses ESM fs import', /node --input-type=module - <<'NODE'[\s\S]*import fs from 'node:fs';/.test(refresh) && !/node --input-type=module - <<'NODE'[\s\S]*const fs = require\(/.test(refresh));
 checkNodeHeredocSyntax('refresh-data workflow', refresh);
 
-check('watchdog checks data and telegram freshness', /data\.json meta\.generatedAt/.test(watchdog) && /telegram-digest\.json generatedAt/.test(watchdog));
-check('watchdog checks live telegram digest freshness and channel coverage', /aio-screener\/public-data/.test(watchdog) && /checkAge\('telegram-digest\.json'/.test(watchdog) && /LIVE telegram digest too thin/i.test(watchdog) && /lastPostId/.test(watchdog));
-check('watchdog freshness threshold tolerates transient Actions lag', /default:\s*'240'/.test(watchdog) && /MAX_AGE_MIN:\s*\$\{\{ github\.event\.inputs\.max_age_minutes \|\| '240' \}\}/.test(watchdog));
-check('watchdog has core quality floors for public data', /symbolsOk[\s\S]{0,200}<\s*70/.test(watchdog) && /newsCount[\s\S]{0,200}<\s*10/.test(watchdog) && /telegramCount[\s\S]{0,240}<\s*100/.test(watchdog));
-check('watchdog reports optional degraded services', /FRED_API_KEY/.test(watchdog) && /fredFetchOk/.test(watchdog) && /marketAnalysisOk/.test(watchdog));
-check('watchdog checks screener artifact health', /screener\.json/.test(watchdog) && /scrAge/.test(watchdog) && /ok=\$\{scr\.ok\}/.test(watchdog));
-checkNodeHeredocSyntax('data-watchdog workflow', watchdog);
+check('watchdog runs the aggregate local+external profile', /qa-runner\.mjs watchdog --no-cache/.test(watchdog) && ['watchdog-local', 'external'].every((group) => qaPipeline.profiles?.watchdog?.includes(group)));
+check('watchdog checks data and Telegram freshness', /pages-data-freshness/.test(externalPipeline) && /pages-telegram-freshness/.test(externalPipeline));
+check('watchdog checks live Telegram channel coverage', /pages-telegram-coverage/.test(externalPipeline) && /lastPostId/.test(externalPipeline));
+check('watchdog freshness threshold tolerates transient Actions lag', /default:\s*'360'/.test(watchdog) && /AIO_LIVE_MAX_AGE_MIN:/.test(watchdog));
+check('watchdog has core quality floors for public data', /symbolsOk\)\s*>=\s*70/.test(externalPipeline) && /newsCount\)\s*>=\s*10/.test(externalPipeline) && /telegram\?\.count\)\s*>=\s*100/.test(externalPipeline));
+check('watchdog reports optional degraded services', /fearGreedOk/.test(externalPipeline) && /fredFetchOk/.test(externalPipeline) && /marketAnalysisOk/.test(externalPipeline));
+check('watchdog checks screener artifact health', /pages-screener-freshness/.test(externalPipeline) && /48 \* 60/.test(externalPipeline));
+check('watchdog retains local data contracts', ['scripts/ci-market-snapshot-contract-check.mjs', 'scripts/ci-operations-status-check.mjs', 'scripts/ci-reconciliation-contract-check.mjs', 'scripts/ci-data-refresh-audit.mjs'].every((script) => watchdogScripts.includes(script)));
 
 check('fetch-data writes data/history/screener artifacts', /public-data\/data\.json/.test(fetchData) && /public-data\/history\.json/.test(fetchData) && /public-data\/screener\.json/.test(fetchData));
 check('fetch-data collects quotes, F&G, FRED, news, LLM analysis', /fetchQuote/.test(fetchData) && /fetchFearGreed/.test(fetchData) && /fetchFred/.test(fetchData) && /fetchNews/.test(fetchData) && /genMarketAnalysis/.test(fetchData));
@@ -111,6 +116,9 @@ check('market analysis requires typed metric evidence and identity validation', 
 check('market analysis is structured, evidence-bound, and fail-closed with a typed fallback', /schemaVersion:\s*'market-analysis\.v2'/.test(fetchData) && /claims/.test(fetchData) && /evidenceIds/.test(fetchData) && /buildMarketAnalysisFallback/.test(fetchData) && /marketAnalysisOk\s*=\s*marketAnalysis\.status === 'verified'/.test(fetchData));
 check('market analysis news selection uses independent clusters instead of a blind first-N slice', /buildMarketAnalysisNewsEvidence/.test(fetchData) && /independenceKey/.test(fetchData) && /clusters/.test(fetchData) && !/data\.news\)\.slice\(0, 8\)/.test(fetchData));
 check('news artifacts expose source tier, content depth, event time, and independence lineage', /sourceTierLabel/.test(fetchData) && /contentDepth:\s*'headline-only'/.test(fetchData) && /eventTime:/.test(fetchData) && /independenceKey:/.test(fetchData));
+check('market-analysis news evidence excludes headline-only rows and requires article content', /isMarketAnalysisNewsEligible/.test(fetchData) && /MARKET_ANALYSIS_NEWS_HEADLINE_DEPTHS/.test(fetchData) && /body\.length\s*>=\s*40/.test(fetchData) && /causalEvidence\s*=\s*buildMarketAnalysisNewsEvidence\(data\)/.test(fetchData));
+check('server Treasury curve bridge projects every dated maturity to browser consumers', /AIO_SERVER_TREASURY_FIELDS/.test(data) && ['dgs2', 'dgs5', 'dgs10', 'dgs20', 'dgs30', 't10y2y'].every((field) => new RegExp(`field:\\s*'${field}'`).test(data)) && /window\._fredData\s*=\s*fred/.test(data) && /DATA_SNAPSHOT\[snapshotKey\]/.test(data) && /globalThis\[definition\.runtimeKey\]/.test(data) && /window\._live5Y/.test(data) && /window\._live20Y/.test(data) && /tnx20y/.test(data) && /treasuryProjectedFields/.test(data));
+check('CPI contract keeps BLS NSA market-standard and SA analytical series explicitly separate', /CUUR0000SA0/.test(fetchData) && /CUSR0000SA0/.test(fetchData) && /seasonalAdjustment:\s*'NSA'/.test(fetchData) && /seasonalAdjustment:\s*'SA'/.test(fetchData) && /blsCpiSaYoY/.test(fetchData) && /blsCoreCpiSaYoY/.test(fetchData) && /CPIAUCNS/.test(fetchData) && /expectedAdjustment/.test(fetchData) && /_canonicalCpiDefinitionBlocked/.test(data));
 check('screener validator exposes mixed revision and fundamental field lineage gates', /mixedRevision/.test(read('scripts/validate-screener-artifact.mjs')) && /fundamental rows require source\/model\/observedAt lineage/.test(read('scripts/validate-screener-artifact.mjs')) && /fieldCoverage/.test(read('scripts/validate-screener-artifact.mjs')));
 check('fetch-data ranks backstop news by market-impact score', /scoreServerNewsItem/.test(fetchData) && /SERVER_NEWS_PRIORITY_RULES/.test(fetchData) && /selectionReason/.test(fetchData) && /serverNewsScored/.test(fetchData) && /newsScoreMax/.test(fetchData));
 check('fetch-data has first-class credit/funding news backstop', /Google News - Credit\/Funding/.test(fetchData) && /topic:\s*'credit'/.test(fetchData) && /credit-funding/.test(fetchData) && /capex funding/.test(fetchData) && /data center financing/.test(fetchData));
@@ -141,8 +149,11 @@ check('BLS direct adapter is keyless, bounded, cadence-gated, and merged as type
   /M\(\?:0\[1-9\]\|1\[0-2\]\)/.test(fetchData) && /releaseAt:\s*null/.test(fetchData) &&
   /macro\._bls/.test(fetchData) && /blsStatus/.test(fetchData) && /blsLastSuccessfulAt/.test(fetchData));
 check('U.S. Treasury keyless adapter supplies an official same-date five-point curve and 10Y-2Y spread',
-  /parseTreasuryYieldCurveHtml/.test(fetchData) && /fetchTreasuryYieldCurve/.test(fetchData) && /home\.treasury\.gov/.test(fetchData) &&
+  /parseTreasuryYieldCurveXml/.test(fetchData) && /pages\/xml\?data=daily_treasury_yield_curve/.test(fetchData) && /fetchTreasuryYieldCurve/.test(fetchData) && /home\.treasury\.gov/.test(fetchData) &&
   /us-treasury-official-primary/.test(fetchData) && /same-date-spread/.test(fetchData) && /treasuryObservedAt/.test(fetchData));
+check('AAII weekly reference refresh is automated with bounded publisher-direct/reader-relay paths and remains non-decision evidence',
+  /fetchAaiiSentiment/.test(fetchData) && /parseAaiiSentimentText/.test(fetchData) && /AAII_READER_URL/.test(fetchData) &&
+  /publisher-public-web-via-reader-relay/.test(fetchData) && /decisionUse:\s*false/.test(fetchData) && /aaiiRelayUsed/.test(fetchData));
 check('HY OAS has a keyless official FRED public-download adapter with LKG and typed lineage',
   /parseFredHyOasCsv/.test(fetchData) && /fetchFredHyOasPublic/.test(fetchData) && /fredgraph\.csv\?id=BAMLH0A0HYM2/.test(fetchData) &&
   /FRED_HY_OAS_CACHE_MAX_AGE_MS/.test(fetchData) && /fred-official-public-csv/.test(fetchData) && /fredHyOasObservedAt/.test(fetchData));
@@ -163,8 +174,10 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     const aheSeries = monthly('CES0500000003', 40, 39, 38);
     aheSeries.data[0].footnotes = [{ code: 'P', text: 'Preliminary' }];
     const payload = { Results: { series: [
-      monthly('CUSR0000SA0', 300, 299, 285),
-      monthly('CUSR0000SA0L1E', 200, 199, 190),
+      monthly('CUUR0000SA0', 300, 299, 285),
+      monthly('CUSR0000SA0', 310, 309, 300),
+      monthly('CUUR0000SA0L1E', 200, 199, 190),
+      monthly('CUSR0000SA0L1E', 210, 209, 200),
       monthly('LNS14000000', 4.1, 4.0),
       monthly('LNS11300000', 62.5, 62.4),
       monthly('CES0000000001', 16000, 15900),
@@ -172,15 +185,38 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     ] } };
     const result = normalizeBlsSeriesResponse(payload, '2026-07-15T00:00:00.000Z');
     const cpi = result.series.cpi;
+    const cpiSa = result.series.cpiSa;
+    const coreCpi = result.series.coreCpi;
+    const coreCpiSa = result.series.coreCpiSa;
     const nfp = result.series.nonfarmPayroll;
     const ahe = result.series.averageHourlyEarnings;
-    ok = result.status === 'ok' && result.values.blsCpiYoY === 5.3 && result.values.blsNfpMoM === 100 &&
+    ok = result.status === 'ok' && result.values.blsCpiYoY === 5.3 && result.values.blsCpiSaYoY === 3.3 &&
+      result.values.blsCoreCpiYoY === 5.3 && result.values.blsCoreCpiSaYoY === 5 && result.values.blsNfpMoM === 100 &&
       result.values.blsAverageHourlyEarningsYoY === 5.3 && cpi.unit === 'index' && cpi.releaseAt === null &&
+      cpi.seasonalAdjustment === 'NSA' && cpi.displayRole === 'market-standard-headline' && cpi.definition.includes('not seasonally adjusted') &&
+      cpiSa.seasonalAdjustment === 'SA' && cpiSa.displayRole === 'analytical-seasonally-adjusted' &&
+      coreCpi.seasonalAdjustment === 'NSA' && coreCpiSa.seasonalAdjustment === 'SA' &&
       cpi.inputObservationPeriods.every(period => !period.endsWith('M13')) && ahe.observationStatus === 'footnote-present' &&
       nfp.unit === 'thousands' && nfp.observedAt === '2026-06-01';
-    detail = JSON.stringify({ status: result.status, values: result.values, cpi, nfp });
+    detail = JSON.stringify({ status: result.status, values: result.values, cpi, cpiSa, coreCpi, coreCpiSa, nfp });
   } catch (error) { detail = error.message; }
   check('BLS normalizer rejects M13, preserves units/observation periods, and derives YoY/MoM deterministically', ok, detail.slice(0, 1200));
+}
+{
+  let ok = false;
+  let detail = '';
+  try {
+    const { buildMarketAnalysisNewsEvidence, isMarketAnalysisNewsEligible, validateMarketAnalysisText } = await import('./fetch-data.mjs');
+    const base = { source: 'Reuters', link: 'https://example.test/story', eventTime: '2026-08-12T12:00:00.000Z', score: 90, independenceKey: 'reuters' };
+    const headline = { ...base, title: 'Headline-only market move', contentDepth: 'headline-only', content: 'This text is deliberately ignored because the source declares headline-only.' };
+    const excerpt = { ...base, title: 'Article excerpt with a documented market catalyst', link: 'https://example.test/excerpt', independenceKey: 'ap-source', contentDepth: 'EXCERPT', excerpt: 'The article explains the catalyst, the reported transmission channel, and the observed response in sufficient detail for a cautious reference.' };
+    const data = { meta: { generatedAt: '2026-08-12T12:01:00.000Z' }, news: [headline, excerpt] };
+    const evidence = buildMarketAnalysisNewsEvidence(data);
+    const semantic = validateMarketAnalysisText('Markets moved because the documented catalyst changed risk pricing.', { ...data, macro: {} });
+    ok = !isMarketAnalysisNewsEligible(headline) && isMarketAnalysisNewsEligible(excerpt) && evidence.length === 1 && evidence[0].title === excerpt.title && semantic.causalEvidenceCount === 1;
+    detail = JSON.stringify({ evidence, semantic });
+  } catch (error) { detail = error.message; }
+  check('market analysis rejects headline-only news as causal evidence while accepting a substantive excerpt', ok, detail.slice(0, 1600));
 }
 {
   let ok = false;
@@ -225,14 +261,26 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   let ok = false;
   let detail = '';
   try {
-    const { parseTreasuryYieldCurveHtml } = await import('./fetch-data.mjs');
-    const cell = (year, value) => `<td headers="view-field-bc-${year}year-table-column">${value}</td>`;
-    const html = `<table><tr><td><time datetime="2026-08-11T12:00:00Z">08/11/2026</time></td>${cell(2, '4.10')}${cell(5, '4.25')}${cell(10, '4.60')}${cell(20, '5.10')}${cell(30, '5.20')}</tr><tr><td><time datetime="2026-08-12T12:00:00Z">08/12/2026</time></td>${cell(2, '4.20')}${cell(5, '4.38')}${cell(10, '4.68')}${cell(20, '5.24')}${cell(30, '5.24')}</tr></table>`;
-    const curve = parseTreasuryYieldCurveHtml(html, '2026-08-13T00:00:00.000Z');
+    const { parseTreasuryYieldCurveXml } = await import('./fetch-data.mjs');
+    const entry = (date, values) => `<entry><content><m:properties><d:NEW_DATE m:type="Edm.DateTime">${date}T00:00:00</d:NEW_DATE>${Object.entries(values).map(([year, value]) => `<d:BC_${year}YEAR m:type="Edm.Double">${value}</d:BC_${year}YEAR>`).join('')}</m:properties></content></entry>`;
+    const xml = `<feed>${entry('2026-08-11', { 2: 4.10, 5: 4.25, 10: 4.60, 20: 5.10, 30: 5.20 })}${entry('2026-08-12', { 2: 4.20, 5: 4.38, 10: 4.68, 20: 5.24, 30: 5.24 })}</feed>`;
+    const curve = parseTreasuryYieldCurveXml(xml, '2026-08-13T00:00:00.000Z');
     ok = curve?.status === 'ok' && curve.observedAt === '2026-08-12' && curve.values.dgs2 === 4.2 && curve.values.dgs30 === 5.24 && curve.values.t10y2y === 0.48 && curve.sourceKind === 'official-primary';
     detail = JSON.stringify(curve);
   } catch (error) { detail = error.message; }
   check('Treasury curve parser selects the latest complete dated row and derives only a same-date spread', ok, detail);
+}
+{
+  let ok = false;
+  let detail = '';
+  try {
+    const { parseAaiiSentimentText } = await import('./fetch-data.mjs');
+    const text = 'Reported Date Bullish Neutral Bearish\nAug 26 32.9%22.6%44.4%\nAug 19 35.5%24.6%39.9%';
+    const result = parseAaiiSentimentText(text, '2026-08-28T03:00:00.000Z', 'https://r.jina.ai/https://www.aaii.com/sentimentsurvey/sent_results?adv=yes');
+    ok = result?.status === 'current-reference' && result.observedAt === '2026-08-26' && result.bullish === 32.9 && result.neutral === 22.6 && result.bearish === 44.4 && result.spread === -11.5 && result.allowedUse === 'reference-only' && result.decisionUse === false && /relay/.test(result.sourceKind);
+    detail = JSON.stringify(result);
+  } catch (error) { detail = error.message; }
+  check('AAII parser selects the latest complete official row, validates the 100% sum, and keeps relay evidence reference-only', ok, detail);
 }
 {
   let ok = false;
@@ -453,7 +501,7 @@ check('getScreenerSymbols reads screener-universe.json, not source-text regex', 
   check('public-data/screener-universe.json is in sync with js/aio-data.js SCREENER_DB', sync.status === 0, (sync.stdout + sync.stderr).trim().slice(0, 400));
 }
 
-check('data pipeline contract is wired into CI', /ci-data-pipeline-contract-check\.mjs/.test(ci));
+check('data pipeline contract is wired into CI', qaPipeline.profiles?.full?.includes('core') && Object.values(qaPipeline.groups || {}).flatMap((group) => group.gates || []).some((gate) => gate.script === 'scripts/ci-data-pipeline-contract-check.mjs'));
 check('data pipeline contract documented in QA/rules/postmortem', /P517/.test(qa) && /R222/.test(rules) && /P517/.test(postmortem) && /P531/.test(qa) && /R230/.test(rules) && /P531/.test(postmortem) && /P535/.test(qa) && /R232/.test(rules) && /P535/.test(postmortem));
 check('workflow governance doc exists', exists('_context/WORKFLOW-GOVERNANCE.md'));
 

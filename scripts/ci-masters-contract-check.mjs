@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
@@ -31,6 +32,7 @@ for (const [label, source, marker] of [
   ['route registry', routes, "'masters'"],
   ['vertical slice', slices, 'vs12-masters'],
   ['bootstrap import', bootstrap, "../ui/pages/masters.js"],
+  ['route dynamic import', bootstrap, "loader: () => import('../ui/pages/masters.js')"],
   ['bootstrap mount', bootstrap, 'createMastersPage({ root, documentRef })'],
   ['page DOM', index, 'id="page-masters"'],
   ['navigation', index, 'data-arg="masters"'],
@@ -54,6 +56,8 @@ for (const [label, source, marker] of [
   ['shared artifact cache', page, 'loadJsonArtifact'],
   ['pending state', page, "status: 'PENDING'"]
 ]) if (!source.includes(marker)) fail(`${label} missing marker: ${marker}`);
+
+if (/^import\s+\{[^\n]*createMastersPage[^\n]*from\s+['"]\.\.\/ui\/pages\/masters\.js['"]/m.test(bootstrap)) fail('masters page returned to the initial static module graph');
 
 if (!golden.routes.includes('masters') || golden.routes.length !== 20) fail('golden route does not contain the 20-route masters topology');
 if (!/data-masters-content/.test(index)) fail('page markup lacks renderer mount');
@@ -100,7 +104,7 @@ if (!page.includes('repository 변수 설정 존재 여부와 같은 뜻이 아�
 const scion = filings.managers.find((manager) => manager.id === 'scion-asset-management');
 if (scion?.cik !== '0001649339' || scion.status !== 'VERIFIED_ROWS') fail('Scion filing boundary drifted');
 if (!/^REFERENCE_ROWS_(?:CONNECTED|PARTIAL)$/.test(holdings.status) || holdings.managers.length < 7 || holdings.reconciledManagers < 7 || holdings.holdingRowsPublished !== holdings.holdings.length || holdings.fullRowsAvailable < 1290 || holdings.allHoldings?.length < 1290 || holdings.comparisonRowsPublished > holdings.holdingRowsPublished || holdings.fullComparisonRowsAvailable < 1387 || holdings.comparisons?.length < 1387 || holdings.reconciledComparisons < 7) fail('SEC holdings or prior-period comparison counts drifted');
-if (runtimeHoldings.schema !== 'masters-13f-runtime-summary.v1' || runtimeHoldings.artifactRole !== 'PAGE_BOOTSTRAP' || runtimeHoldings.allHoldings || runtimeHoldings.fullRowsAvailable !== holdings.fullRowsAvailable || Object.keys(runtimeHoldings.managerShards || {}).length !== holdings.managers.length || runtimeHoldings.shardIntegrityStatus !== 'VERIFIED' || runtimeHoldings.shardsVerified !== holdings.managers.length || runtimeHoldings.comparisonRowsPublished !== runtimeHoldings.topRowsWithComparison || runtimeHoldings.comparisonRowsScope !== 'COMPACT_TOP_HOLDINGS_ONLY' || runtimeHoldings.fullComparisonRowsAvailable !== holdings.fullComparisonRowsAvailable || Buffer.byteLength(JSON.stringify(runtimeHoldings)) > 280 * 1024 || !page.includes("holdings-summary.json")) fail('Masters runtime summary does not enforce the verified-shard, comparison scope, and initial payload budget');
+if (runtimeHoldings.schema !== 'masters-13f-runtime-summary.v1' || runtimeHoldings.artifactRole !== 'PAGE_BOOTSTRAP' || runtimeHoldings.allHoldings || runtimeHoldings.fullRowsAvailable !== holdings.fullRowsAvailable || Object.keys(runtimeHoldings.managerShards || {}).length !== holdings.managers.length || runtimeHoldings.shardIntegrityStatus !== 'VERIFIED' || runtimeHoldings.shardsVerified !== holdings.managers.length || runtimeHoldings.comparisonRowsPublished !== runtimeHoldings.topRowsWithComparison || runtimeHoldings.comparisonRowsScope !== 'COMPACT_TOP_HOLDINGS_ONLY' || runtimeHoldings.fullComparisonRowsAvailable !== holdings.fullComparisonRowsAvailable || runtimeHoldings.managerProjectionPolicy?.artifactRole !== 'BOUNDED_WEB_PROJECTION' || runtimeHoldings.managerProjectionPolicy?.rowLimitPerCollection !== 200 || runtimeHoldings.managerProjectionPolicy?.maxBytes !== 512 * 1024 || runtimeHoldings.managerProjectionPolicy?.fullRowStore !== 'BULK_OBJECT_STORAGE_REQUIRED' || Buffer.byteLength(JSON.stringify(runtimeHoldings)) > 280 * 1024 || !page.includes("holdings-summary.json") || !page.includes('integrity: descriptor.sha256') || !page.includes('bounded 웹 투영')) fail('Masters runtime summary does not enforce the verified-shard, bounded projection, integrity, and initial payload budget');
 if (page.includes("history-holdings.json") || page.includes("issuer-aggregates.json")) fail('Masters browser consumer must not request monolithic history or issuer artifacts');
 if (holdings.managerShards) {
   for (const [managerId, descriptor] of Object.entries(holdings.managerShards)) {
@@ -111,6 +115,14 @@ if (holdings.managerShards) {
     if (shard.managerId !== managerId || shard.latestFiling?.accession !== descriptor.accession || shard.holdings?.length !== descriptor.fullRows || shard.comparisons?.length !== descriptor.comparisonRows) fail(`manager row shard content drift for ${managerId}: declared ${descriptor.fullRows}/${descriptor.comparisonRows}, actual ${shard.holdings?.length || 0}/${shard.comparisons?.length || 0}`);
   }
   if (holdings.fullRowsAvailable < holdings.embeddedFullRowsAvailable || holdings.fullComparisonRowsAvailable < holdings.embeddedFullComparisonRowsAvailable) fail('manager shard totals are below embedded totals');
+}
+for (const [managerId, descriptor] of Object.entries(runtimeHoldings.managerShards || {})) {
+  if (descriptor.artifactRole !== 'BOUNDED_WEB_PROJECTION' || !/^\.\/public-data\/objects\/masters\/[a-f0-9]{64}\.json$/.test(descriptor.url) || descriptor.sha256 !== descriptor.url.match(/([a-f0-9]{64})\.json$/)?.[1] || descriptor.bytes > 512 * 1024 || descriptor.projectionRows > 200 || descriptor.comparisonProjectionRows > 200 || descriptor.fullRows < descriptor.projectionRows || descriptor.comparisonRows < descriptor.comparisonProjectionRows) fail(`bounded projection descriptor invalid for ${managerId}`);
+  const shardFile = descriptor.url.replace(/^\.\//, '');
+  const shardText = read(shardFile);
+  const shard = JSON.parse(shardText);
+  if (createHash('sha256').update(shardText).digest('hex') !== descriptor.sha256 || Buffer.byteLength(shardText) !== descriptor.bytes) fail(`bounded projection digest/bytes drift for ${managerId}`);
+  if (shard.managerId !== managerId || shard.artifactRole !== descriptor.artifactRole || shard.latestFiling?.accession !== descriptor.accession || shard.holdings?.length !== descriptor.projectionRows || shard.comparisons?.length !== descriptor.comparisonProjectionRows || shard.fullRowsAvailable !== descriptor.fullRows || shard.fullComparisonsAvailable !== descriptor.comparisonRows) fail(`bounded projection content drift for ${managerId}`);
 }
 if (Object.keys(historyIndex.managerShards || {}).length !== historyIndex.managers.length || historyIndex.managers.length !== historyIndex.connectedManagers) fail('manager history runtime shard coverage is incomplete');
 for (const descriptor of Object.values(historyIndex.managerShards || {})) {

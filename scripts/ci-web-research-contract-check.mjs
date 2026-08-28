@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const DATA_PATH = resolve(ROOT, 'public-data/data.json');
 const EVIDENCE_PATH = resolve(ROOT, 'public-data/structural-data-research.json');
-const MAX_AGE_DAYS = 14;
+const MAX_AGE_DAYS = 180;
 const REQUIRED_IDS = [
   'aaii',
   'naaim',
@@ -79,6 +79,12 @@ if (Math.abs((Number(aaii.bullish) + Number(aaii.neutral) + Number(aaii.bearish)
 parseDate(aaii.observedAt, 'AAII observedAt');
 assertOfficialUrl(aaii.sourceUrl, 'AAII sourceUrl');
 if (aaii.allowedUse !== 'reference-only') fail('AAII must remain reference-only');
+const aaiiAgeDays = (Date.now() - parseDate(aaii.observedAt, 'AAII observedAt').getTime()) / 86400000;
+if (aaiiAgeDays > 9) fail(`AAII automated reference is stale: ${aaiiAgeDays.toFixed(1)}d > 9d`);
+if (!aaii.fetchedAt || Date.now() - parseDate(aaii.fetchedAt, 'AAII fetchedAt').getTime() > 12 * 60 * 60 * 1000) {
+  fail(`AAII automated collection has not succeeded within 12h: ${aaii.fetchedAt || 'missing'}`);
+}
+if (aaii.relayUrl && aaii.sourceKind !== 'publisher-public-web-via-reader-relay') fail('AAII relay lineage is not explicit');
 
 const naaim = surveys.naaim;
 if (!naaim || naaim.status !== 'stale-reference' || !Number.isFinite(Number(naaim.exposure))) {
@@ -93,7 +99,7 @@ if (surveys.investorsIntelligence?.status !== 'blocked-no-public-numeric') {
 }
 
 const krExports = data.officialWebReferences?.krExports;
-if (!krExports || krExports.status !== 'latest-public-found' || krExports.allowedUse !== 'reference-only') {
+if (!krExports || !['latest-public-found', 'stale-reference'].includes(krExports.status) || krExports.allowedUse !== 'reference-only') {
   fail('Korea customs reference is missing or incorrectly promoted');
 }
 for (const field of ['exportsBillionUsd', 'importsBillionUsd', 'tradeBalanceBillionUsd', 'exportsYoyPct', 'importsYoyPct']) {

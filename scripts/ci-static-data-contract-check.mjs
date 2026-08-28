@@ -58,6 +58,7 @@ const prohibited = [
   [/\b(inputPerMTok|outputPerMTok|exchangeRate|costPerQuery)\s*:/, 'embedded provider price or FX rate'],
   [/\bmodelPrice\s*=|var\s+pricing\s*=\s*\{[\s\S]{0,500}?input\s*:\s*\d/, 'embedded AI provider pricing table'],
   [/BASELINE_SURFACE\s*=\s*\{\s*home\s*:/, 'stale hardcoded page-surface baseline'],
+  [/\bFUND_FALLBACK\b|March 2026 estimates|good FUND_FALLBACK-sourced numbers/, 'stale hardcoded fundamental valuation table'],
   [/var\s+HISTORICAL_PRECEDENTS\s*=|lockoutRally\s*:\s*\{/, 'unused embedded historical precedent registry'],
   [/DATA_SNAPSHOT\.(?:spx|nasdaq|gold)\s*\/\s*(?:10|45)/, 'synthetic cross-symbol quote approximation'],
   [/<[^>]+\b(?:data-live-(?:price|chg|pct|field)|data-snap)="[^"]+"[^>]*>[\s+\-▲▼$₩%.,()]*\d[\d\s+\-▲▼$₩%.,()]*<\//, 'numeric DOM seed in runtime value slot'],

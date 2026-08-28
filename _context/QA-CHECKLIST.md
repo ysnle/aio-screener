@@ -1,7 +1,200 @@
 ---
-verified_by: agent (Fable 5) + Codex full-route audit verification
-last_verified: 2026-08-22
+verified_by: Codex deterministic gates + browser audit
+last_verified: 2026-08-28
 confidence: high
+---
+
+## v54.63 source-to-screen data and research-model reconstruction (2026-08-28)
+
+- [x] QA-DATA-01: hardcoded March 2026 fundamental valuation/estimate cards are retired; bounded SEC annual facts visibly retain filing/source/reference-only semantics.
+- [x] QA-DATA-02: fundamental route entry performs no default NVDA/provider search and SEC watchlist selection synchronizes native entity state without the legacy search delegate.
+- [x] QA-DATA-03: headline-only news remains discoverable but is excluded from sentiment, AI eligibility and causal market-analysis evidence; the current 40-row cycle yields evidence count 0.
+- [x] QA-DATA-04: BLS CPI-U headline/core canonical values are NSA 3.4%/2.5%; SA analytical companions 3.3%/2.5% remain separate and visibly labeled.
+- [x] QA-DATA-05: official Treasury 2Y 4.19%, 10Y 4.66% and same-date 10Y-2Y 0.47%p retain source/as-of through the browser bridge.
+- [x] QA-DATA-06: screener readiness resolves rights/source kind per field; official SEC facts and delayed Yahoo price factors are not collapsed into one row-level rights decision.
+- [x] QA-DATA-07: free public screener refresh produced 846/873 valid factor rows (96.9%), 76.9% fundamental coverage and current AIO-universe breadth.
+- [x] QA-DATA-08: factor-ranks v2 gates 80% coverage and freshness, audits identity/time, guards MAD outliers, applies sector-relative shrinkage and exposes row/composite confidence.
+- [x] QA-DATA-09: screener UI states that confidence is evidence coverage rather than return probability and exposes sector/outlier/turnover/regime diagnostics with decisionEligible=false.
+- [x] QA-DATA-10: failed/stale/non-HTTPS Worker health generates a disabled personal-key-only public route; healthy evidence is required before publishing a shared endpoint.
+- [x] QA-DATA-11: Masters bootstrap retains semantic fields while remaining within the 500,000-byte initial budget (412,645B at the implementation gate).
+- [x] QA-DATA-12: actual free core refresh completed 78/78 quotes, 16/16 Tier-0 snapshot, Fear & Greed 55, 40 news rows, 406-day history and zero lineage FAIL.
+- [ ] QA-DATA-13: SEC projection remains older than 48h because a monitored-contact `SEC_USER_AGENT` is not configured locally; the existing official artifact is reference-only and not relabeled current.
+- [ ] QA-DATA-14: licensed independent quote reconciliation, official exchange breadth, estimates/guidance, options/short-flow, historical universe/corporate actions and full-text news remain external/provider gaps.
+- [ ] QA-DATA-15: exact-SHA commit/push/deploy, live Worker/Pages convergence, manual assistive-technology and recruited-user validation require separate authority/evidence.
+- [x] QA-DATA-16: the AAII week ending 2026-08-19 remains the latest official public result before the next Thursday publication window; release-aware cadence prevents a false UTC-boundary stale state.
+- [x] QA-DATA-17: CPI SA companion sinks have explicit DATA_SNAPSHOT aliases and the PCE calendar advances the completed 2026-08-26 release to the next official 2026-09-30 date.
+- [x] QA-DATA-18: all 13 knowledge-parity builders use the shared same-directory atomic writer with bounded Windows rename-lock retry; direct truncate-write and retry removal are executable-gate failures.
+- [x] QA-DATA-19: scheduled core refresh owns AAII official-public collection with an explicit bounded relay fallback and Treasury monthly XML curve collection; values remain reference-only/same-date-derived and producer status is visible in Actions summaries.
+- [x] QA-DATA-20: headless lineage expectations move with declared producer automation; breadth and official static macro are both connected, while unknown or blocked categories remain fail-closed.
+
+## v54.62 data truth and end-to-end user-flow remediation (2026-08-26)
+
+- [x] QA-TRUTH-01: denied personalized/action QuestionPlan exits before provider work in the shared orchestrator; per-page and unified adapters retain defense-in-depth gates.
+- [x] QA-TRUTH-02: research-required partial streams do not expose unverified current numbers or causal claims.
+- [x] QA-TRUTH-03: live-core data, browser quote promotion and operations readiness share a 12-hour SLA plus bounded market-closed grace.
+- [x] QA-TRUTH-04: FRED LKG fields retain observation/origin but are labeled last-known-good/stale-reference; public readiness mirrors the actual FRED success flags.
+- [x] QA-TRUTH-05: SEC runtime summary and manifest are registered lineage artifacts; the 23-artifact audit reports zero FAIL after official refresh.
+- [x] QA-TRUTH-06: entity transient failure is immediately retryable and artifact `maxBytes` participates in cache identity.
+- [x] QA-TRUTH-07: ticker related-theme click survives route transition/lazy mount and opens the selected native detail with no pending ID.
+- [x] QA-TRUTH-08: option substitute metrics and SEC filings visibly show observedAt/source/reference semantics; theme membership visibly states curated taxonomy and unverified as-of.
+- [x] QA-TRUTH-09: TAM/CAGR numeric output requires sourceUrl+observedAt; unsourced SIC/memo numbers are withheld.
+- [x] QA-TRUTH-10: official refresh fetched 78/78 quotes, F&G, Cboe, BEA, public HY OAS and 40 news items; general FRED remains OPERATOR_REQUIRED without a configured key.
+- [x] QA-TRUTH-11: targeted AI, architecture, runtime, cache, ESM, history, operations and real Chromium cross-route gates pass.
+- [ ] QA-TRUTH-12: SEC bounded projection is older than its 48-hour reference window, Telegram digest/universe/operator-note/SLO reference artifacts remain warnings, and licensed independent quote/official breadth/estimates/options-flow data remain external gaps.
+- [x] QA-TRUTH-13: local release/full `--no-cache` completes 108/108 gates, including 1,124/1,124 headless assertions, current-revision route soak, 60 viewport combinations, accessibility, vault and knowledge/browser surfaces.
+- [x] QA-TRUTH-14: pre-native headless tests verify deterministic theme selection retention; native panel visibility remains separately certified by Chromium architecture and route-soak gates.
+- [ ] QA-TRUTH-15: exact-SHA commit/push/Pages/Worker deployment, live `deployment.json` and Worker `sourceSha` convergence, manual accessibility and recruited-user validation require separate authority/evidence. The observed remote CI is an older failing revision and is not promoted as local evidence.
+
+## v54.61 prioritized structural reconstruction (2026-08-25)
+
+- [x] QA-REBUILD-01: all 20 route page renderers use retryable route-scope dynamic imports; shared page modules reuse the browser module cache and the small sentiment cross-route projection remains outside the heavy page chunk.
+- [x] QA-REBUILD-02: SEC append-only canonical data and Masters canonical holdings are excluded from the Pages shell; bounded projections and SHA-256/byte-checked content-addressed Masters objects own interactive delivery.
+- [x] QA-REBUILD-03: failed headless assertions retain stable group IDs and `rerun-failed` selects the exact failed groups plus declared dependencies; an actual G001 browser run passed 11/11 in about nine seconds.
+- [x] QA-REBUILD-04: CI attestation, Pages deployment.json and both Worker health responses have exact source-SHA contracts in source; deployed Pages v54.43 and legacy Worker responses do not yet satisfy them.
+- [x] QA-REBUILD-05: operations generation preserves fresh last-observed Worker evidence only when observation is skipped, expires it after 24 hours, and never hides an explicitly attempted failure.
+- [x] QA-REBUILD-06: manual accessibility/recruited-user topology and acceptance thresholds are machine-checked without converting zero sessions into validation.
+- [x] QA-REBUILD-07: 7/30-day Actions evidence, recovery counts and workflow-keyed GitHub issue dedupe are collected by the watchdog; checked-in fixtures and an unelapsed 30-day window cannot certify production SLO.
+- [ ] QA-REBUILD-08: retire remaining secondary legacy chart/narrative/facade writers; current independently derived `fullNativeOwner` is 4/20 despite lazy page delivery being 20/20.
+- [ ] QA-REBUILD-09: after explicit commit/push/deploy authority, obtain CI attestation, deploy exact-SHA Pages/Workers, observe scheduled watchdog/SLO and run manual assistive-technology/recruited-user sessions.
+
+## v54.60 bounded audit execution and complete reverse-engineering ledger (2026-08-25)
+
+- [x] QA-AUDIT-01: product charter enumerates all 14 reviewed domains and separates review completeness from implementation, migration, human and operator status.
+- [x] QA-AUDIT-02: runtime AutoOps readiness avoids deep release audits and uses bounded requirements/coverage; explicit full mode retains the complete audit surface.
+- [x] QA-AUDIT-03: one full AutoOps result is shared across repeated assertions and deployment/share consumers instead of recomputing the same graph.
+- [x] QA-AUDIT-04: KR theme resolution and composition semantic evidence each build one canonical index; bounded runtime coverage samples at most 120 symbols while full continuity remains explicit.
+- [x] QA-AUDIT-05: breadth regime unit coverage validates the canonical pure classifier and zero-delta DOM helper; full renderer coverage remains owned by route/browser gates.
+- [x] QA-AUDIT-06: headless interrupt/termination closes browser and server children, and the suite remains one ordered gate until test groups prove isolated lifecycle ownership.
+- [ ] QA-AUDIT-07: release `full --no-cache`, live deployed parity, manual accessibility and recruited-user UX remain distinct unverified/operator boundaries; they are not rerun after each source edit.
+- [x] QA-AUDIT-08: a version bump demotes route-soak evidence to `PENDING_LOCAL_GATE`, preserves the prior revision as historical evidence and does not force a long browser rerun merely to make static preflight green.
+
+## v54.59 product, architecture and closed-loop redesign (2026-08-24)
+
+- [x] QA-ARCH-01: `product-charter.json` fixes research/decision-support identity, non-goals, seven trust planes, evidence/AI/deployment boundaries and promotion gates; its current Korean rationale passes the product-charter gate.
+- [x] QA-ARCH-02: all `scripts/ci-*.mjs` files are reachable from a QA/profile/workflow contract or carry a complete retired/replacement declaration.
+- [x] QA-ARCH-03: evidence allowedUse can only become more restrictive; CNN Fear & Greed remains current-reference rather than decision-grade.
+- [x] QA-ARCH-04: chat history defaults OFF, redacts bounded sensitive fields, and disable deletes retained rows; the native consent-only plaintext portfolio repository is disabled.
+- [x] QA-ARCH-05: unsupported personalized allocation/action requests block before provider work and again before final publication; educational and evidence-comparison paths remain available.
+- [x] QA-ARCH-06: explicit Worker idempotency keys permit at most one upstream call, unkeyed attempts each consume quota, and old reservations are pruned.
+- [x] QA-ARCH-07: task session/explicit files isolate affected QA from pre-existing dirty work; rerun-failed selects exact failed gates and dependencies.
+- [x] QA-ARCH-08: boot and route-soak evidence schemas bind revision, commit, environment, command and timestamp; historical v53.62 performance is not current v54.59 proof.
+- [x] QA-ARCH-09: CI attests the exact tested SHA and Pages deploys only that artifact; refresh workflows dispatch the exact bot-produced SHA with bounded market/screener matrices.
+- [x] QA-ARCH-10: service-worker install atomically precaches 10 critical same-origin assets; route/ESM modules are cached on demand and external CDNs do not block install.
+- [x] QA-ARCH-11: the facade gate reconciles all 56 current globals against an eight-API target and prevents expansion; `getState` and other read surfaces return snapshots.
+- [x] QA-ARCH-12: automated 20-route accessibility audit blocks real small-target/skip-link/dialog-name violations, records inline exceptions separately and labels manual screen-reader/contrast/zoom/dialog-focus evidence `UNVERIFIED`.
+- [x] QA-ARCH-13: large SEC/Masters interactive payloads use bounded projections/content-addressed objects and canonical bulk is excluded from GitHub Pages; a separate operator bulk store remains an explicit future boundary.
+- [ ] QA-ARCH-14: all 20 routes now use route-level dynamic import, but every route must still reach `fullNativeOwner` with legacy chart/narrative/facade writers retired; current count is 4/20.
+- [ ] QA-ARCH-15: recover two historical July architecture documents containing irreversible U+FFFD damage through an explicit history reconstruction review; catalog/lint now prevents them from being treated as current truth.
+- [ ] QA-ARCH-16: after explicit commit/push/deploy authority, observe CI attestation, exact-SHA Pages/Workers, refreshed data dispatch and scheduled watchdog; current Pages remains v54.43 and lacks deployment.json.
+
+## v54.58 phased QA and delivery pipeline redesign (superseded where noted, 2026-08-24)
+
+- [x] QA-PIPELINE-01: `ci-qa-runner-behavior-check.mjs` proves two sibling failures are reported in one run, the expensive next phase is skipped, and unchanged successful gates are content-cache hits.
+- [x] QA-PIPELINE-02: uncached `fast` contains no Chromium/server gate and completes in 8.0s; identical-input rerun completes in 0.8s with 12 cache hits.
+- [x] QA-PIPELINE-03: affected selection supports task session/explicit files/since-ref; `rerun-failed` selects exact gates, while full and external profiles remain manifest-declared and IDs unique.
+- [x] QA-PIPELINE-04: CI is preflight → `fail-fast:false` static matrix → `fail-fast:false` browser matrix; Pages deployment is absent from CI.
+- [x] QA-PIPELINE-05: superseded by QA-ARCH-09; Pages now requires the CI attestation artifact rather than trusting only event SHA/version equality.
+- [x] QA-PIPELINE-06: superseded by QA-ARCH-09; refresh dispatches its exact commit to bounded relevant CI shards and never feeds Pages directly.
+- [x] QA-PIPELINE-07: watchdog aggregate runs local data, Pages, proxy, fast plane, GitHub workflows and live invariants without one failed plane skipping another.
+- [x] QA-PIPELINE-08: Worker endpoint registry has no timestamped health evidence; refresh-time operations generation observes both configured endpoints.
+- [x] QA-PIPELINE-09: both Cloudflare deploy workflows remain explicit manual authority, are serialized, run the cloudflare source group, pin Wrangler and verify health; source TOML declares Workers Logs sampling. Live observability rollout still requires an explicitly authorized Worker deploy.
+- [x] QA-PIPELINE-10: workflow escalation owns CI, Pages, watchdog, knowledge, both refresh and both Cloudflare workflows without commit/push/deploy authority.
+- [x] QA-PIPELINE-11: local operations evidence confirms proxy 200/revision v54.37/US authority ready and fast 200/16-of-16; fast soak/provider rights and scheduled AI analysis remain explicit operator/blocking boundaries.
+- [ ] QA-PIPELINE-12: superseded by QA-ARCH-16 for the v54.59 attested delivery path.
+- [x] QA-PIPELINE-13: historical v54.58 certification passed 99/99 in 767.5s; it is not evidence for the changed v54.59 source.
+
+## v54.57 workspace, knowledge and automation-loop redesign (2026-08-23)
+
+- [x] QA-WORKSPACE-01: `generate-workspace-state.mjs --check` proves `CURRENT-STATE.md` and `CONTEXT-CATALOG.json` exactly match repository registries and every `_context/*.md|json` file is classified once.
+- [x] QA-WORKSPACE-02: `ci-workspace-contract-check.mjs` proves root/context AGENTS/CLAUDE/INDEX/GOVERNANCE stay within compact preflight budgets and contain no frozen historical route/file/rule/QA counts.
+- [x] QA-WORKSPACE-03: `ci-knowledge-lint-check.mjs` validates catalog parity, closed frontmatter, opted-in currentness and all prescriptive skill/command/agent surfaces while explicitly refusing semantic overclaim.
+- [x] QA-WORKSPACE-04: Codex hook fixtures accept safe commands, deny destructive commands, inject SessionStart current state and return advisory PostToolUse output with valid JSON; all handlers have Windows overrides and no Stop/commit/push/deploy path.
+- [x] QA-WORKSPACE-05: `sync-agent-profiles.mjs --check` proves four canonical profiles match both Claude and Codex generated surfaces without model names or historical constants.
+- [x] QA-WORKSPACE-06: `ci-skill-contract-check.mjs`, `ci-skill-eval-fixture-check.mjs` and `sync-agent-skills.mjs --check` pass; fixture PASS remains distinct from independent behavioral execution.
+- [x] QA-WORKSPACE-07: push/PR CI and scheduled knowledge lint both run workspace/knowledge contracts; workflow control-character/YAML validation passes.
+- [x] QA-WORKSPACE-08: operations alert workflow has one deduplicated issue per monitored workflow, reopens/updates on failure and closes only after the matching workflow succeeds.
+- [x] QA-WORKSPACE-09: live security headers on GitHub Pages remain an explicit operator-required readiness boundary rather than an impossible data-watchdog hard failure; enforce mode still fails when configured.
+- [x] QA-WORKSPACE-10: v54.56 curriculum static/reference/currentness checks and focused Principles/browser flow pass before release promotion.
+- [x] QA-WORKSPACE-11: Tier 1 plus affected runtime/headless/accessibility/viewport/route-soak gates pass; Tier 13 and live/provider evidence are reported independently.
+- [x] QA-WORKSPACE-12: no commit, push or deployment occurs without a separate explicit user request.
+
+## v54.56 market-learning curriculum integration (2026-08-23)
+
+- [x] QA-PRINCIPLES-REF-01: load `reference-curriculum.json` from the Market Principles library and confirm all 11 stage tabs expose a selected lesson with question, mechanism, invalidation and source links.
+- [x] QA-PRINCIPLES-REF-02: select a curriculum route bridge and confirm the destination preserves the Market Principles return context without generating a recommendation or current-data claim.
+- [x] QA-PRINCIPLES-REF-03: verify the curriculum remains readable at the supported desktop widths and that its stage/lesson controls have selected-state and keyboard focus semantics.
+- [x] QA-PRINCIPLES-REF-04: confirm article-specific prices, forecasts, leverage thresholds, broker timings and index snapshots are not promoted into live artifacts or screener scoring.
+- [x] QA-PRINCIPLES-REF-05: confirm the glossary additions remain educational definitions and do not duplicate or contradict canonical live signal labels.
+- [x] QA-AI-REFERENCE-01: confirm related `CHAT_CONTEXTS` receive the market-learning loop as `REFERENCE` while current numeric claims still require injected LIVE/SNAPSHOT/official evidence.
+- [x] QA-CODEONLY-01: historical v54.56 code-only boundary is retained and superseded by the completed v54.57 static/browser verification above.
+
+## v54.55 AI public-route and isolated boot verification (2026-08-23)
+
+- [x] QA-AI-07: fresh-browser public Worker route selects the request generated by the test prompt, sends no personal API key, honors the advertised 1,500-token cap, degrades unsupported claims without leaking them, recovers truncated prose and reports no page errors.
+- [x] QA-BOOT-08: isolated Chromium boot gate passes FCP 1,620ms, first route 830ms, max long task 1,022ms, `page-signal` activation and boot-status hard release. A concurrent run's 2,956ms FCP is treated as a contention outlier and is not release evidence.
+- [x] QA-REGRESSION-07: v54.55 full headless run passes 1,124/1,124; static/version/knowledge/architecture/runtime/page-timeline/screener contracts, accessibility 20/20, viewport 60/60, vertical 13/13, screener refresh and portfolio vault pass.
+- [ ] QA-TIER13-07: full in-app Browser certification of every modal, focus-return path and all data-backed interaction branches remains open; current evidence is a sequential representative matrix, not recruited-user evidence.
+- [ ] QA-DEPLOY-08: GitHub Pages/Worker deployed parity remains unverified until explicitly authorized commit/deployment and post-deploy check.
+- [ ] QA-HUMAN-04: recruited-user usability/reliability validation has not been performed; expert browser review is not human-subject evidence.
+
+## v54.54 in-app interaction and cross-route trust audit (2026-08-23)
+
+- [x] QA-TRUST-06: portfolio price/value selection rejects zero and non-positive quote/value placeholders; with a valid holding but no quote, current price, P&L, percentage, total value and exposure remain `—` rather than a synthetic loss.
+- [x] QA-INTERACTION-06: sequential in-app Browser checks exercised representative navigation and controls across all visible route categories, including portfolio invalid/valid input, screener condition/tabs/search, fundamental search, learning maps, glossary filtering, ticker entry-quality calculation and signal-mode state.
+- [x] QA-ROUTE-DETAIL-06: native theme chips expose accessible button semantics when mapped and related ticker-theme actions have a route bridge to the owning inline detail surface; direct ticker parent context is `종목 분석`.
+- [x] QA-COPY-06: Guide copy reflects the v53.7 integrated Korean-market sections; glossary BUY/SELL/HOLD and VIX definitions are framed as reference/education rather than recommendations or universal thresholds.
+- [ ] QA-TIER13-06: full in-app Browser certification of every modal, focus-return path and all data-backed interaction branches remains open; current evidence is a sequential representative matrix, not recruited-user evidence.
+- [ ] QA-AI-06: visible AI answer or explicit user-facing failure state was not certified because the configured proxy/provider degraded during the live send attempt.
+- [x] QA-COPY-07: Guide's integrated Korean-market explanation contains no visible internal version/route developer marker after the full-headless negative-control rerun.
+
+## v54.50 ticker-state and visual surface audit (2026-08-23)
+
+- [x] QA-A11Y-03: Korean ticker-code input has a programmatic accessible name (`aria-label="한국 종목코드"`) independent of placeholder text.
+- [x] QA-A11Y-04: hidden mobile overlay is `hidden`/`aria-hidden=true` without role or tabindex, gains close semantics only while open, signal mode exposes `aria-pressed`, and AI close is named `AI 베타 닫기`.
+- [x] QA-TRUST-04: direct ticker entry starts with neutral `—`/`종목 선택 대기` state and does not imply NVDA or a portfolio relationship before selection.
+- [x] QA-TRUST-05: live sentiment values are not overwritten by reference snapshots; stale screener identity, unknown coverage and expired news cycles remain explicit rather than current/zero.
+- [x] QA-DATA-05: macro/geopolitics/policy/rates/FX-bond news rows do not receive inferred security ticker badges; FEDFUNDS is labeled as a monthly average.
+- [x] QA-VISUAL-01: 20 route screenshots at desktop 1,440px were generated and visually inspected; intentional empty states are labeled as waiting/unavailable/pending/blocked and no route has horizontal overflow.
+- [x] QA-VIEWPORT-04: 20 routes × 3 desktop viewports (1,280/1,440/1,920) pass with worst overflow 0px, critical tiny text 0 and JS errors 0.
+- [x] QA-VERTICAL-04: 13 vertical slices pass with no runtime errors; partial/loaded state is retained honestly by route.
+- [x] QA-SCREENER-04: screener auto-refresh fixture passes with 100% registered quote coverage and explicit partial timeline state.
+- [x] QA-HEADLESS-05: latest v54.50 full headless run completes at 1,124/1,124 with exit 0; external CDN/provider aborts are expected blocked network, not runtime errors.
+- [ ] QA-TIER13-05: in-app Browser full-page/tabs/modal/focus-return certification remains unavailable in this environment.
+- [ ] QA-DEPLOY-07: GitHub Pages/Worker deployed parity remains unverified until explicitly authorized commit/deployment and post-deploy check.
+- [ ] QA-HUMAN-03: recruited-user usability/reliability validation has not been performed; screenshot review is an expert visual audit, not recruited-user evidence.
+
+## v54.49 route ownership and release-boundary closure (2026-08-23)
+
+- [x] QA-RUNTIME-03: entity/fundamental/options, screener, portfolio and analysis pageShown hydration is restricted to the owning route and drops queued work when the active route changes.
+- [x] QA-CONTRACT-03: architecture `explicitWindowWrites` counts direct single-equals assignments and does not classify `===` comparisons as writes; CODE-MAP file sizes match the current tree.
+- [x] QA-FIXTURE-03: ESM HTTP caller abort and internal timeout return distinct `HTTP_ABORTED`/`HTTP_TIMEOUT` outcomes.
+- [x] QA-BROWSER-03: architecture browser, vertical-slice browser and 20-route×3 route-soak gates pass with zero browser errors; the prior 60 desktop viewport, SA-02, SA-03 and portfolio fixtures remain recorded as passing.
+- [ ] QA-HEADLESS-04: the v54.49 full 1,124-test headless run was interrupted before its final result and must be completed before release promotion.
+- [ ] QA-TIER13-04: in-app Browser full-page/tabs/modal/focus-return certification remains unavailable in this environment.
+- [ ] QA-DEPLOY-06: GitHub Pages/Worker deployed parity remains unverified until an explicitly authorized commit/deployment and post-deploy check.
+- [ ] QA-HUMAN-02: recruited-user usability/reliability validation has not been performed.
+
+## v54.48 residual-closure currentness/cancellation/accessibility (2026-08-23)
+
+- [x] QA-TRUST-03: the topbar starts pending and promotes to `LIVE` only from a source-confirmed live quote; snapshot/partial/unavailable paths remove pulse semantics.
+- [x] QA-RUNTIME-02: common ESM HTTP requests compose caller abort with timeout; scheduler/page refresh signals propagate and `_inFlight` remains set until the underlying task settles.
+- [x] QA-A11Y-02: confirmation/prompt/keyboard/glossary/mobile-menu close paths restore the opener; dynamic prompt exposes dialog semantics and modal trap.
+- [x] QA-DATA-03: canonical screener identity source is deduplicated; generated metadata exposes record/unique/duplicate/currentness; screener UI separates factor observation/generated time and SEC FY coverage.
+- [x] QA-DATA-04: FEDFUNDS is presented as a monthly average, distinct from NY Fed daily EFFR and FOMC target range; operator notes without source metadata remain reference-only with a visible boundary.
+- [ ] QA-TIER13-03: in-app Browser full-page/tabs/modal/focus-return certification remains blocked by the local browser blocker; standalone Chromium gates are the local substitute.
+- [ ] QA-DEPLOY-05: deployed GitHub Pages/Worker parity remains unverified because this task performs no commit or deployment.
+- [ ] QA-HUMAN-01: recruited-user usability/reliability validation remains an external human gate; automated route matrices do not count as user recruitment.
+
+## v54.47 second-pass currentness/cancellation closure (2026-08-23)
+
+- [x] QA-TRUST-01: unknown live-source provenance is classified as `REFERENCE`; initial sentiment/fundamental/portfolio labels are fail-closed until a source/observation is received.
+- [x] QA-TRUST-02: operator notes expose age and stale notes include an explicit `reference-only` boundary; Macro labels distinguish EFFR/FOMC and BLS SA/NSA meanings.
+- [x] QA-RUNTIME-01: visible/added-root observer work is scoped; proxy and dynamic ticker requests support total deadlines and abort propagation; chart disposal remains required.
+- [x] QA-A11Y-01: route title/heading semantics and summary-only `aria-live` sinks are asserted; form/button touch-size floors are present for coarse pointers.
+- [ ] QA-TIER13-03: in-app Browser full-page/tabs/modal/focus-return certification remains blocked by the local browser blocker; standalone Chromium gates are the local substitute.
+- [ ] QA-DEPLOY-05: deployed GitHub Pages/Worker parity remains unverified because this task performs no commit or deployment.
+- [ ] QA-HUMAN-01: recruited-user usability/reliability validation remains an external human gate; automated route matrices do not count as user recruitment.
+
 
 ## v54.43 narrative-first three-page closure (2026-08-22)
 
@@ -53,7 +246,7 @@ confidence: high
 - [x] Full release QA: 1,124/1,124 headless, accessibility 20/20, Critical-10, viewport normal+FULL_INIT 60/60 each, overflow 0, route soak 20×3, lifecycle 42 canvases/12 timers stable, SW/vault/vertical slices PASS.
 - [x] Codex in-app Browser independently confirms v54.40: Masters 38 profiles, Top-summary fullRows=0, Fisher selection deferred then 1,037 rows/25 visible; Principles 20/page + one explicit article; Atlas 7 layers + one explicit article; all three overflow 0.
 - [ ] SEC discovery/13F/13D-G 37/37 online refresh — `UNVERIFIED_THIS_SESSION`: the Actions-only `SEC_USER_AGENT` configuration is recorded, but current variable metadata/run output cannot be inspected with the expired local GitHub authentication. Stored LKG remains authoritative until a successful run artifact is reconciled.
-- [ ] Human semantic/source-directness review of 160 structured articles, 105 research-required inventory units and recruited-user validation remain external review gates.
+- [ ] Human semantic/source-directness review of 160 structured articles, 125 research-required inventory units and recruited-user validation remain external review gates.
 
 ## v54.39 three-page runtime budget and completeness boundary (2026-08-22)
 
@@ -62,10 +255,10 @@ confidence: high
 - [x] QA-PAGES-PERF-03: Atlas foundations total 596,104 bytes, explicit article loading fetches one 24,675-byte shard, and overview uses the 53,545-byte evidence/status pair without article, claim, coverage or dossier monoliths.
 - [x] QA-PAGES-CACHE-01: two concurrent consumers share one request; aborting one consumer does not cancel the survivor; a resolved cache hit performs no fetch; different fetch functions remain isolated; Masters, Principles and Atlas re-entry each produce zero repeated page-artifact requests.
 - [x] QA-MASTERS-RUNTIME-01: the deterministic runtime builder publishes seven current manager shards, seven bounded history bundles, a compact summary and descriptors while retaining the canonical 1,290 holdings rows and 1,387 comparisons for contracts/rebuilds.
-- [x] QA-KNOWLEDGE-RUNTIME-01: the compact status projection reports all 427 units, 160 article shards, 318 researched, 4 in progress and 105 research-required without promoting `humanReviewComplete` or `publicationReady`.
+- [x] QA-KNOWLEDGE-RUNTIME-01: the compact status projection reports all 427 units, 160 article shards, 298 researched, 4 in progress and 125 research-required without promoting `humanReviewComplete` or `publicationReady`.
 - [x] QA-TIER13-02: Codex in-app Browser connects all three routes at v54.39: Masters shows 38 profiles, connected selected shard and 10 default rows; Principles shows 112 lessons paginated 20 at a time and one article only after request; Atlas shows connected foundations/lessons and one article only after request. All three have zero document overflow; the only console error is the expected local external-API proxy warning.
 - [ ] QA-MASTERS-ONLINE-01: actual SEC discovery/import remains unverified in this local session; the monitored contact is configured in GitHub Actions according to the project ledger, but a successful current run artifact is still required before replacing the 7-manager LKG layer.
-- [ ] QA-KNOWLEDGE-HUMAN-01: the 105 research-required units and independent human semantic/source-directness/recruited-user review remain open; runtime sharding does not change those completion states.
+- [ ] QA-KNOWLEDGE-HUMAN-01: the 125 research-required units and independent human semantic/source-directness/recruited-user review remain open; runtime sharding does not change those completion states.
 - [ ] QA-DEPLOY-04: no commit or deployment is performed in this task; deployed-site parity remains open.
 
 ## v54.38 three-page currentness and learner-flow closure (2026-08-22)
@@ -88,6 +281,29 @@ confidence: high
 - [x] QA-AI-CORS-02: `Deploy AI proxy` workflow 32438015866 passed Worker deployment, health/readiness, OPTIONS 204, allowed GitHub Pages origin, blocked foreign origin, and real Anthropic upstream smoke.
 - [x] QA-AI-LIVE-02: after Worker propagation, a fresh in-app browser completed the full public chat POST and rendered a non-empty Claude Haiku answer (`AI 연결 상태 확인` plus the current data-status boundary); direct live curl and browser UI both pass.
 
+## v54.44 user research integration: inference efficiency and macro transmission (2026-08-22)
+
+- [x] QA-REF-AI-01: the three supplied X posts and Bloomberg deal-map attachment are registered as `REFERENCE`; source dates, supplied URLs, the 2026-06-08 image as-of and no-current-valuation boundary are visible in `_context/RESEARCH-INTEGRATION-AI-INFRA-MARKET-RISK-2026-08-22.md` and chat context.
+- [x] QA-REF-AI-02: Themes exposes the memory-proximity × specialization taxonomy, workload fit, Cerebras/Groq/Etched/Frozen v2 archetypes, all named deal-map nodes and role-level services/investment/hardware edges without fabricated market caps or contract values.
+- [x] QA-REF-MACRO-01: Macro exposes observed 2Y/10Y/30Y, FRED HY OAS, VIX and breadth inputs, while term premium, Treasury/corporate issuance, dealer gamma/options positioning and China credit remain explicit `BLOCKED` gaps.
+- [x] QA-REF-CHAT-01: macro/themes chips, keyword routing and the existing AI-infrastructure `CHAT_CONTEXTS` path contain inference-efficiency, AI deal-loop and macro-transmission terms with current/reference separation.
+- [ ] QA-REF-DATA-01: official term-premium, Treasury auction/buyback, corporate issuance, options positioning/dealer gamma and China credit producers remain unconnected; no current score or trade instruction may consume the reference material alone.
+- [ ] QA-REF-DATA-02: independent benchmark evidence for latency, tokens/W, KV-cache behavior, workload boundary and system TCO remains pending for any live ranking of inference architectures.
+
+## v54.45 full-route audit and fail-closed rendering fixes (2026-08-22)
+
+- [x] QA-AUDIT-01: 20 active routes, education routes (`principles`, `masters`, `atlas`), derived/reference surfaces and retired KR aliases are inventoried separately; 20-route accessibility, 60 desktop viewport combinations, 20×3 route soak and vertical slices pass locally.
+- [x] QA-AUDIT-02: AI proxy `null`/empty inputs remain unavailable, valid zero observations survive macro transmission rendering, and Home credit/FX-bond stories suppress ticker decoration consistently.
+- [x] QA-AUDIT-03: Deep Analysis `ResizeObserver` instances are registered and disconnected before chart teardown; the architecture contract fails if the lifecycle markers regress.
+- [x] QA-AUDIT-04: `--text-muted` is darkened to meet WCAG AA against both paper/card backgrounds; the accessibility matrix reports no console or nameless-control errors.
+- [x] QA-AUDIT-05: new AI/macro domain modules are present in the service-worker shell asset list; version, syntax, runtime/data pipeline and knowledge-lint gates pass.
+- [ ] QA-AUDIT-DATA-01: provider/live truth, GitHub Pages parity, mobile 320/768px interaction, screen-reader behavior, stale screener-universe refresh and SEC fundamental producer failures remain operator/external verification items.
+
+## v54.46 evidence-first copy hardening (2026-08-22)
+
+- [x] QA-COPY-01: Home and Signal primary briefs describe evidence review, input status and user-recorded invalidation criteria rather than asserting a trade decision.
+- [x] QA-COPY-02: Guide no longer presents unsupported account-size eligibility, fixed position-size percentages or fixed risk/reward numbers as product rules; high-volatility examples are observation/backtest-first.
+
 ## v54.37 public AI end-to-end reliability (2026-08-18)
 
 - [x] QA-AIROUTE5: a fresh browser with empty storage selects the shipped HTTPS public Worker, while a valid personal key remains the preferred route and no API key is sent to the shared Worker.
@@ -106,7 +322,7 @@ confidence: high
 ## v54.36 semantic/reference completion pass (2026-08-18)
 
 - [x] QA-KNOWLEDGE-DEPTH-03: all 112 Principles and 48 Atlas foundation source lessons meet the 1,200-character floor and carry the complete semantic field set plus structured worked examples; `audit-knowledge-encyclopedia-depth.mjs --strict` passes.
-- [x] QA-KNOWLEDGE-RESEARCH-02: all 160 core/foundation lessons carry dated fact IDs and canonical selected sources in their research dossiers; whole-corpus state is 318 researched, 4 in progress and 105 research-required units.
+- [x] QA-KNOWLEDGE-RESEARCH-02: all 160 core/foundation lessons carry dated fact IDs and canonical selected sources in their research dossiers; whole-corpus state is 298 researched, 4 in progress and 125 research-required units.
 - [x] QA-ATLAS-EVIDENCE-02: `current-evidence-ledger.json` contains 40 dated primary-reference entries from 38 sources and is visible in the Atlas evidence room; current operational/production/financial promotion remains zero.
 - [x] QA-MASTERS-13F-27: raw SEC multi-quarter issuer aggregation is connected for 2,500 manager·CUSIP·share-type·put/call keys from 13,629 rows across seven managers; 268 review flags remain explicit and no ticker/sector/corporate-action inference is published.
 - [x] QA-PAGES-STRUCTURE-02: Principles, Atlas and Masters focused contract/browser gates pass after the new source-depth, evidence-ledger and issuer-aggregate consumers were connected.

@@ -1,17 +1,335 @@
 ---
-verified_by: agent (Fable 5) + Codex P761-P936 verification
-last_verified: 2026-08-22
+verified_by: Codex deterministic gates + repository audit
+last_verified: 2026-08-28
 confidence: high
-target_version: v54.43
+target_version: v54.63
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R562. producer 자동화 상태와 lineage 회귀 계약은 같은 변경에서 이동한다 (v54.63, P996)
+
+**Rule**: 데이터 카테고리를 manual에서 scheduled/server-auto로 승격하거나 그 반대로 강등할 때 producer·source registry·runtime inventory만 수정하고 과거 상태를 고정한 headless/CI 기대값을 남겨두지 않는다. 회귀 테스트는 현재 선언된 producer 연결을 구체적으로 검증하며, 알 수 없는 상태를 `connected`로 묵인하지 않는다.
+
+**Validation**: `getDataLineageAudit()` staticMacro/breadth inventory, headless G079/T677, exact failed-group rerun and uncached full QA.
+
+## R561. 공개 주기 데이터는 수동 숫자가 아니라 release-aware producer와 실패 가시성으로 닫는다 (v54.63, P995)
+
+**Rule**: 무료 공개 최신치가 있는 항목은 operator-captured 숫자를 정기 pipeline의 truth로 보존하지 않는다. direct official adapter를 우선하고 필요한 relay는 명시적 provenance·bounded timeout·reference-only로 제한한다. 다중 tenor 파생값은 같은 공식 관측 행에서만 계산하며, producer 실패는 LKG의 원 관측일과 실패 상태를 운영 요약/감사에 노출한다. AI는 결측 사실을 생성하거나 현재치로 추정하지 않는다.
+
+**Validation**: AAII direct/reader parser fixture, Treasury monthly XML same-date fixture, refresh workflow summary, data-refresh/reconciliation/lineage gates.
+
+## R560. 병렬 검사에 노출된 generated JSON은 완성본 단위로 원자 교체한다 (v54.63, P994)
+
+**Rule**: 다른 gate/runtime이 동시에 읽을 수 있는 생성 JSON은 최종 경로를 직접 truncate-write하지 않는다. 동일 파일시스템·동일 디렉터리의 고유 임시 파일에 완성본을 기록하고 atomic rename으로 교체하며, 실패한 임시 파일은 정리한다. Windows의 일시적 reader lock만 bounded backoff로 재시도하고 그 밖의 오류는 즉시 실패시킨다.
+
+**Validation**: knowledge article/learning-graph builder regeneration, principles contract and generated-parity concurrency in uncached full QA.
+
+## R559. 새 화면 지표는 sink·source alias·발표 일정까지 같은 변경으로 닫는다 (v54.63, P993)
+
+**Rule**: data-snap 지표를 추가할 때 producer/runtime 값만 연결하고 끝내지 않는다. 정적 seed/alias audit와 보이는 정의를 함께 등록한다. 공식 발표가 수신되면 해당 날짜를 lastRelease로 승격하고 다음 공식 일정이 미래인지 검증한다.
+
+**Validation**: headless G079/G080/G091/G092 cell-lineage and macro-calendar assertions.
+
+## R558. 주간 데이터 freshness는 다음 공식 발표 가능 시각 전까지 release-aware로 계산한다 (v54.63, P992)
+
+**Rule**: 주간 설문을 단순 UTC 7일/8일 경계로 stale 처리하지 않는다. 공식 집계 종료·발표 timezone을 반영한 bounded grace를 사용하되, 완전한 공식 값과 관측일이 없으면 적용하지 않고 다음 공개 관측을 추정하거나 날짜를 바꾸지 않는다.
+
+**Validation**: AAII official page comparison and `ci-data-refresh-audit.mjs` policy-state fixture.
+
+## R557. 공개 AI 경로와 bootstrap payload는 동일한 readiness·byte evidence에서 생성한다 (v54.63, P991)
+
+**Rule**: 실패·stale·비 HTTPS Worker를 정적 설정만으로 공개하지 않는다. 공개 route는 관측된 health에서 생성하고 불확실하면 null/disabled/personal-key-only로 단조 강등한다. 대형 canonical 데이터는 초기 shell에서 제외하고 의미를 보존한 bounded projection이 선언 byte budget을 통과해야 한다.
+
+**Validation**: operations/public-route/AI browser/release contracts and Masters initial-artifact budget.
+
+## R556. 팩터 순위의 confidence는 입력 근거 진단이며 수익확률·매매신호가 아니다 (v54.63, P990)
+
+**Rule**: 관측시점·identity·최소 coverage를 통과하지 못한 팩터는 종합점수에서 제외한다. 섹터 중립·극단치 완화·결측·turnover/regime 안정성을 기록하고 confidence의 의미를 UI에 표시한다. PIT·생존편향·비용·유동성·live parity가 없으면 decisionEligible/tradingSignal/자동 weight promotion은 항상 false다.
+
+**Validation**: factor-ranks v2 negative controls, domain parity, screener workbench diagnostics.
+
+## R555. 같은 지표명의 계절조정·비계절조정과 field별 권한을 합치지 않는다 (v54.63, P989)
+
+**Rule**: CPI 공식 보도 canonical은 BLS CPI-U NSA headline/core이고 SA 전년비는 분석 companion으로 별도 전달한다. Treasury maturity/spread는 같은 관측일·출처를 유지한다. 하나의 행에 공식 공시와 지연 가격이 공존할 때 readiness/rights/sourceKind는 field별로 계산한다.
+
+**Validation**: data pipeline/history-time/screener rights contracts plus refreshed BLS/Treasury artifacts.
+
+## R554. 헤드라인은 발견 근거이지 기사 수준 분석·인과 근거가 아니다 (v54.63, P988)
+
+**Rule**: 본문 또는 의미 있는 요약이 없는 뉴스는 headline-only로 분류하고 AI evidence, 감성 집계, causal market analysis에서 제외한다. 목록 노출은 허용하되 사용 제한과 분석 보류를 사용자에게 표시한다.
+
+**Validation**: news normalization/headless fixture, market-analysis evidence gate and visible news boundary.
+
+## R553. 기본 route와 정적 카드는 숨은 provider 호출·시점 없는 투자 숫자를 만들지 않는다 (v54.63, P987)
+
+**Rule**: 페이지 진입이나 reference card 선택만으로 유료/외부 provider 검색을 실행하지 않는다. 재무 숫자는 공식 bounded artifact의 source/observed/filed/fetched 시각과 허용 용도를 함께 전달하고, 공시·현재 시세·추정치를 동일 시계로 섞지 않는다. 선택 상태는 native orchestrator가 소유한다.
+
+**Validation**: entity provider/UI/event contracts, static-data and architecture retirement gates.
+
+## R552. lazy mount 전 headless 상태 보존과 mount 후 브라우저 가시성을 분리한다 (v54.62, P986)
+
+**Rule**: lazy native renderer가 아직 mount되지 않은 동기 headless 구간은 선택·pending state 보존을 검증하고, renderer marker 이후에는 실제 native panel 가시성을 검증한다. mount 전 legacy DOM을 다시 쓰게 하거나 headless 결과를 실제 브라우저 표시 증거로 승격하지 않는다.
+
+**Validation**: `js/aio-tests.js` T641/T860 selection contract plus Chromium architecture and route-soak gates.
+
+## R551. 보이는 투자 숫자는 기준일·출처·허용 용도를 같은 표면에 둔다 (v54.62, P985)
+
+**Rule**: 투자 화면의 수치가 DOM data attribute에만 provenance를 가질 수 없다. 사용자가 값과 함께 observedAt/source/reference·decision 경계를 읽을 수 있어야 한다. 편집 taxonomy와 수동 추정치는 공식 현재 분류로 보이지 않게 기준일·성격을 표시하고, 출처 URL과 관측일이 없는 TAM/성장률 숫자는 공개하지 않는다.
+
+**Validation**: `src/ui/pages/entity.js`, `src/ui/pages/themes.js`, `js/aio-core.js`, architecture/AI contracts and browser evidence.
+
+## R550. derived route의 선택 state는 owning lazy renderer가 소비할 때까지 보존한다 (v54.62, P984)
+
+**Rule**: 다른 route에서 inline/derived surface를 열 때 숨은 DOM 존재를 mount 증거로 사용하지 않는다. owning page active 상태와 native renderer marker를 확인하고, 선택 ID는 listener/mount 완료 뒤 정확히 한 번 소비·삭제한다. capture handler는 global delegate 존재 여부와 무관하게 자기 route action의 소유권을 명시한다.
+
+**Validation**: `index.html` showThemeDetail, `js/aio-core.js` showPage, `src/ui/pages/themes.js`, `src/ui/pages/entity.js`, Chromium cross-route regression.
+
+## R549. 실패 결과는 성공 TTL cache가 아니며 모든 안전 제약은 cache identity다 (v54.62, P983)
+
+**Rule**: aborted/non-2xx/malformed/empty-invalid fetch 결과를 정상 artifact로 장기 캐시하지 않는다. integrity, byte budget 등 결과 수용 여부를 바꾸는 제약은 cache key에 포함하고, 더 느슨한 요청의 성공이 더 엄격한 요청을 우회할 수 없어야 한다.
+
+**Validation**: `src/data/providers/entity.js`, `src/data/artifact-cache.js`, ESM core and artifact-cache fixtures.
+
+## R548. freshness·LKG·readiness는 producer에서 UI까지 단조롭게 강등된다 (v54.62, P982)
+
+**Rule**: 생성·publish·coverage 성공만으로 current를 선언하지 않고 artifact cadence SLA와 market-session grace를 함께 확인한다. 이전 관측을 유지할 때 source/asOf를 보존하되 current fetch 성공처럼 라벨링하지 않는다. readiness criterion은 같은 canonical artifact에서 생성하고 모든 tracked public artifact는 lineage policy를 가져야 한다.
+
+**Validation**: fetch/data lineage/operations/runtime readers, `ci-data-lineage-audit.mjs`, `ci-operations-contract-check.mjs`, actual official refresh.
+
+## R547. AI 행동 권한은 모든 provider·quota·retrieval보다 앞선 단일 오케스트레이터 경계다 (v54.62, P981)
+
+**Rule**: QuestionPlan의 action permission이 denied이면 provider runner를 절대 호출하지 않는다. UI는 안전한 교육·비교 대안만 표시할 수 있으며, 각 chat adapter의 추가 gate는 단일 경계를 보강할 뿐 대체하지 않는다. required research가 미확인인 partial stream에는 최신 수치·원인 단정을 노출하지 않는다.
+
+**Validation**: answer orchestrator executable fixture, both chat surfaces, `ci-ai-intelligence-contract-check.mjs`.
+
+## R546. 운영 알림 임계값·dedupe·복구 증거는 같은 workflow identity로 수렴한다 (v54.61, P980)
+
+**Rule**: SLO에 선언한 연속 실패 임계값과 실제 이슈 생성 시점은 같아야 한다. workflow별 marker는 정확히 하나의 durable issue를 소유하고 반복 실패는 갱신, 성공은 종료한다. rolling SLO는 Actions run뿐 아니라 issue marker 중복과 복구 상태를 읽되 기간 미경과를 PASS로 승격하지 않는다.
+
+**Validation**: `.github/workflows/operations-alert.yml`, `scripts/build-operations-slo-window.mjs`, `scripts/ci-operations-slo-window-check.mjs`, `scripts/ci-workspace-contract-check.mjs`.
+
+## R545. 관측 생략·실패·유효기간 내 LKG를 서로 다른 운영 상태로 보존한다 (v54.61, P979)
+
+**Rule**: 로컬 생성이 live 관측을 요청하지 않았다는 이유로 마지막 유효 증거를 삭제하지 않는다. 명시적 관측 실패는 이전 성공으로 숨기지 않고, 재사용 증거는 원래 observedAt/source/revision/sourceSha를 유지하며 TTL 이후 `STALE`로 강등한다. source-only PASS는 exact-SHA live convergence가 아니다.
+
+**Validation**: `scripts/build-operations-status.mjs`, `scripts/ci-operations-status-check.mjs`, `scripts/ci-deployment-convergence-check.mjs`, live Worker health.
+
+## R544. 최초 browser lifecycle과 실패 group 재검사는 서로 다른 실행 단위다 (v54.61, P978)
+
+**Rule**: 최초 release headless는 shared boot 비용을 한 번만 지불하는 ordered lifecycle로 실행한다. 실패 수정 뒤에는 stable group ID와 그 dependency만 exact selector로 재검사하고 성공 group 전체를 반복하지 않는다. unknown selector, stale failure output, group 밖 assertion은 fail closed한다.
+
+**Validation**: `js/aio-tests.js`, `scripts/ci-headless-tests.mjs`, `scripts/qa-runner.mjs`, `scripts/ci-headless-group-lifecycle-check.mjs`, `scripts/ci-qa-runner-behavior-check.mjs`.
+
+## R543. native ownership, lazy delivery, bulk retention은 독립적으로 증명한다 (v54.61, P977)
+
+**Rule**: route가 lifecycle/renderer native라는 사실만으로 lazy chunk나 legacy 완전 퇴역을 선언하지 않는다. 모든 route page renderer는 route-scope dynamic import와 retry/late-write 폐기 계약을 가져야 하며, interactive payload는 bounded projection만 사용한다. append-only/canonical bulk는 digest-bound object 또는 운영자 bulk store에 두고 Pages shell과 분리한다.
+
+**Validation**: `architecture/route-owners.json`, `src/app/router.js`, `src/app/bootstrap.js`, SEC/Masters projection builders and contracts, `architecture/retirement-manifest.json`.
+
+## R542. 버전 범프는 revision-bound 실행 증거를 자동 승격하지 않고 무효화한다 (v54.60, P976)
+
+**Rule**: R1 source revision 변경은 과거 boot·route soak·live parity를 새 revision의 PASS로 치환하지 않는다. 재측정되지 않은 실행 증거는 `REMEASURE_REQUIRED`/`PENDING_LOCAL_GATE`로 강등하고 이전 결과는 revision이 표시된 역사 증거로만 보존한다. 긴 실행 gate는 매 편집 후가 아니라 release/shared-shell 인증 경계에서 한 번 실행한다.
+
+**Validation**: `scripts/bump-version.mjs`, `architecture/operations-slo.json`, `architecture/public-readiness.json`, `scripts/ci-operations-contract-check.mjs`.
+
+## R541. 런타임 상태 요약과 릴리스 전수 감사는 실행 경계와 비용 예산을 공유하지 않는다 (v54.60, P975)
+
+**Rule**: UI/runtime readiness는 bounded sample과 필수 계약만 계산한다. release deep audit는 explicit `mode:full`에서만 실행하고 같은 run의 consumer는 immutable 결과를 주입·공유한다. 단위 테스트는 pure contract를 우선하며 전체 renderer·route·provider 통합은 해당 browser/live gate가 한 번만 소유한다. 실패 수정 뒤에는 exact `rerun-failed`를 사용하고 release `full --no-cache`는 shared-shell 또는 배포 인증 경계에서 한 번만 실행한다. 테스트 group은 독립 setup/teardown이 증명되기 전에는 병렬 shard로 선언하지 않는다.
+
+**Validation**: `js/aio-core.js` AutoOps/runtime/full modes and injected deployment/share audits, `js/aio-tests.js` shared full audit/pure breadth regression, `scripts/ci-headless-tests.mjs` lifecycle cleanup, `architecture/qa-pipeline.json` ordered headless gate.
+
+## R540. 비ASCII 민감정보 단위는 ASCII `\b` 경계에 의존하지 않는다 (v54.59, P974)
+
+**Rule**: 한국어 수량·화폐·식별자 등 비ASCII 토큰을 redaction할 때 JavaScript `\b`를 토큰 끝 경계로 가정하지 않는다. 언어별 실제 입력 fixture에서 원문이 사라지고 정책 marker만 남는지 검증하며, 테스트를 통과시키기 위해 민감정보 기대값을 완화하지 않는다.
+
+**Validation**: `js/aio-core.js` `_aioRedactChatHistoryText`, `js/aio-tests.js` T962, full headless gate.
+
+## R539. Compatibility facade의 현재 표면과 목표 표면을 구분하고 확장을 ratchet한다 (v54.59, P972)
+
+**Rule**: `architecture/retirement-manifest.json.currentFacadeApi`는 `AIO_ARCH`의 실제 노출 전체와 정확히 일치해야 하며 `approvedFacadeApi`는 migration 이후 목표로만 해석한다. 현재 개수는 budget을 넘을 수 없고 `getState` 등 조회 API는 deep-frozen snapshot을 반환한다. lifecycle/renderer native만으로 facade 축소·migration 완료를 선언하지 않으며 모든 applicable owner와 legacy writer 퇴역을 확인한다.
+
+**Validation**: `scripts/ci-retirement-contract.mjs`, `src/legacy/compatibility-facade.js`, `architecture/route-owners.json`.
+
+## R538. Service worker 설치는 작은 핵심 셸만 원자적으로 precache한다 (v54.59, P972)
+
+**Rule**: service worker install은 bounded same-origin critical shell만 `cache.addAll`로 설치한다. route/ESM module은 실제 요청 뒤 runtime cache하며 외부 CDN·대형 데이터·전체 module registry가 install을 막거나 `allSettled`로 partial install을 성공 처리할 수 없다.
+
+**Validation**: `scripts/ci-service-worker-cache-policy-check.mjs`, `sw.js`, `scripts/ci-architecture-contract-check.mjs`.
+
+## R537. 자동 접근성 PASS는 수동 접근성 인증을 대신하지 않는다 (v54.59, P972)
+
+**Rule**: 자동 route matrix는 이름·키보드 구조·canvas·font·target·dialog·skip-link 위반만 인증한다. 24px 미만 target은 WCAG inline-text 예외와 실제 위반을 구분한다. screen reader, computed contrast, 200% zoom/reflow, 모든 dialog focus trap/return은 구조화된 `UNVERIFIED` 경계로 남기며 public promotion에서 operator evidence를 요구한다.
+
+**Validation**: `scripts/ci-accessibility-matrix-check.mjs`, `_artifacts/accessibility-matrix-audit.json`, `architecture/public-readiness.json`.
+
+## R536. Pages는 CI가 발행한 불변 SHA attestation만 배포한다 (v54.59, P973)
+
+**Rule**: Pages workflow는 mutable `head_branch`나 동일 버전 비교로 checkout 대상을 정하지 않는다. 앱 push와 data bot commit 모두 정확한 SHA에서 CI를 실행하고, 모든 선택 gate가 통과한 뒤 업로드된 `aio-release-attestation.v1`의 SHA를 검증해 그 commit만 배포한다. refresh의 기본 `GITHUB_TOKEN` push는 후속 push workflow를 만들지 않으므로 실제 push SHA를 workflow_dispatch 입력으로 명시한다.
+
+**Validation**: `.github/workflows/ci.yml`, `.github/workflows/pages-deploy.yml`, 두 refresh workflow, `scripts/ci-qa-pipeline-contract-check.mjs`.
+
+## R535. 제품 범위·non-goal·trust plane은 구현보다 먼저 계약한다 (v54.59, P972)
+
+**Rule**: AIO의 제품 정체성은 자기주도 투자 연구·의사결정 보조이며 주문 실행, 무조건적 개인화 행동 지시, 라이선스 전문 실시간 단말 parity, 공개 best-effort 자료의 real-time 주장은 non-goal이다. 아키텍처 변경은 `architecture/product-charter.json`의 evidence policy·trust plane·deployment boundary를 만족하거나 먼저 헌장을 명시적으로 변경해야 한다.
+
+**Validation**: `scripts/ci-product-charter-contract-check.mjs`, `_context/AIO-CURRENT-PRODUCT-ARCHITECTURE-CHARTER.md`.
+
+## R534. QA 영향 범위는 task baseline 또는 명시적 파일 목록으로 결정한다 (v54.59, P971)
+
+**Rule**: 기존 dirty tree에서 작업할 때 수정 전 `session-start --session <task-id>`를 실행한다. 기준선이 없으면 이번 작업이 소유한 정확한 `--files` 목록을 사용한다. `rerun-failed`는 이전 실패 gate와 선언된 dependency만 실행하며 무관한 manifest/runner 변경은 모든 PASS cache를 무효화하지 않는다.
+
+**Validation**: `scripts/ci-qa-runner-behavior-check.mjs`, `scripts/qa-runner.mjs`, post-edit-qa skill.
+
+## R533. 성능·운영 측정은 revision·commit·환경·명령·artifact에 묶는다 (v54.59, P970)
+
+**Rule**: 측정값의 상단 appRevision 문자열을 기계적으로 올려 현재 증거로 만들 수 없다. boot/soak/SLO 증거는 observed revision, git head, timestamp, browser/environment, command, artifact와 gate/target 상태를 보존하며 local evidence는 live/30-day evidence를 대신하지 않는다.
+
+**Validation**: `scripts/ci-boot-interaction-check.mjs`, `scripts/ci-route-soak-check.mjs`, `scripts/ci-operations-contract-check.mjs`, `architecture/operations-slo.json`.
+
+## R532. AI quota reservation과 upstream 실행은 하나의 idempotency 경계를 가진다 (v54.59, P969)
+
+**Rule**: 동일한 명시 idempotency key는 최대 한 번만 upstream을 호출하고 중복은 호출 전에 거부한다. key가 없는 별도 요청은 body가 같아도 각각 quota를 소비한다. quota reservation은 bounded retention으로 정리하며 CORS는 지원 key header를 명시한다.
+
+**Validation**: `scripts/ci-worker-anthropic-check.mjs`, `cloudflare-worker-proxy.js`.
+
+## R531. 민감 로컬 보존은 기본 OFF·최소화·암호화 정확성을 요구한다 (v54.59, P968)
+
+**Rule**: chat history는 opt-in 전 저장하지 않고 저장 전 민감정보를 redaction하며 비활성화 시 기존 row를 삭제한다. 동의 wrapper나 versioned JSON repository를 Vault라 부르지 않는다. `encryptedAtRest` capability가 없는 저장소는 privacy vault read/write를 모두 거부하고 개인 portfolio는 검증된 AES-GCM 경로만 소비한다.
+
+**Validation**: `js/aio-tests.js` T962, `scripts/ci-storage-migration-check.mjs`, `scripts/ci-portfolio-vault-e2e.mjs`, `src/storage/vault.js`.
+
+## R530. Evidence allowedUse는 생성 이후 오직 더 제한적으로만 바뀐다 (v54.59, P967)
+
+**Rule**: `none < reference < decision` 순서에서 source rights ceiling, explicit use, freshness/status의 교집합만 허용한다. freshness 평가나 consumer가 reference/snapshot 값을 decision으로 승격할 수 없다. 공개 Fear & Greed best-effort 호출은 현재 값이어도 reference-only다.
+
+**Validation**: `src/data/contracts/evidence.js`, `src/data/quality/freshness.js`, `scripts/ci-source-registry-contract-check.mjs`, ESM/runtime fixtures.
+
+## R529. 모든 CI script는 실행 경로 또는 명시적 퇴역 원장을 가져야 한다 (v54.59, P966)
+
+**Rule**: `scripts/ci-*.mjs`는 `architecture/qa-pipeline.json` group/profile/workflow contract에서 도달 가능하거나 replacement·reason을 가진 `retiredGateScripts`에 있어야 한다. domain gate가 workflow YAML을 문자열 검색해 자기 도달성을 증명할 수 없고, refresh/watchdog이 요구하는 source/data gate는 manifest contract가 직접 검증한다.
+
+**Validation**: `scripts/ci-qa-pipeline-contract-check.mjs`, `architecture/qa-pipeline.json`.
+
+## R525. QA는 영향 기반 manifest와 단계별 전수 실패 수집을 사용한다 (v54.58, P965)
+
+**Rule**: `architecture/qa-pipeline.json`이 로컬·CI gate, input scope, phase, timeout, cache policy의 단일 원본이다. 값싼 preflight 안에는 browser/server 시작을 넣지 않으며 한 phase의 gate는 첫 실패에서 중단하지 않고 모두 보고한다. 정상 작업은 `affected`, 수정 후에는 `rerun-failed`, release/shared-shell 인증은 마지막 한 번의 `full --no-cache`를 사용한다. CI는 preflight → static matrix → browser matrix 순서를 지키고 matrix는 `fail-fast: false`다.
+
+**Validation**: `scripts/ci-qa-runner-behavior-check.mjs`, `scripts/ci-qa-pipeline-contract-check.mjs`, `.github/workflows/ci.yml`, `.cache/aio-qa/last-run.json`.
+
+## R526. 앱 릴리스와 데이터-only 릴리스는 검증·checkout 경계를 공유하지 않는다 (v54.58, P965)
+
+**Superseded by R536/P973 (v54.59)**: version-equality + mutable branch 방식은 같은 버전의 다른 내용을 증명하지 못하므로 폐기됐다. 앱과 data refresh 모두 정확한 commit SHA를 CI에 전달하고 CI attestation을 거쳐 Pages가 같은 SHA만 배포한다. Data refresh는 origin별 관련 shard만 실행해 범위를 줄이되 direct Pages 우회 경로를 갖지 않는다.
+
+**Validation**: R536의 attestation workflow와 `scripts/ci-qa-pipeline-contract-check.mjs`.
+
+## R527. Endpoint 구성과 현재 운영 증거는 같은 파일에 저장하지 않는다 (v54.58, P965)
+
+**Rule**: `architecture/worker-endpoints.json`에는 endpoint·role·secret 요구사항만 둔다. timestamp가 있는 health/revision/coverage는 refresh/watchdog/release 시 다시 관찰해 운영 artifact 또는 ignored QA report에 기록한다. 오래된 관측값으로 `configured-healthy`를 영구 선언하지 않으며 local, live Pages, proxy, fast plane, GitHub workflow 상태를 별도 evidence level로 보고한다.
+
+**Validation**: `scripts/build-operations-status.mjs`, `scripts/ci-external-pipeline-check.mjs`, `public-data/operations-status.json`, `.github/workflows/data-watchdog.yml`.
+
+## R528. Cloudflare 배포는 수동 권한·직렬 ownership·관측·smoke를 함께 가진다 (v54.58, P965)
+
+**Rule**: AI proxy와 fast data plane 배포는 `workflow_dispatch`만 허용하고 같은 plane의 배포를 cancel하지 않고 직렬화한다. 고정 Wrangler, source contract, Workers Logs sampling, post-deploy health를 필수로 하며 AI proxy는 CORS/origin fail-closed와 실제 provider smoke까지 통과해야 성공이다. Pages 또는 local QA 성공은 Worker 배포 권한이 아니다.
+
+**Validation**: `.github/workflows/deploy-ai-proxy.yml`, `.github/workflows/deploy-data-plane.yml`, `worker/wrangler.proxy.toml`, `worker/wrangler.example.toml`, `scripts/ci-cloudflare-deployment-contract-check.mjs`.
+
+## R520. Current workspace facts are generated once and historical ledgers are search-only (v54.57, P964)
+
+**Rule**: version, route count, code size, context inventory, skill/agent/workflow counts and knowledge readiness must be derived from repository registries into `_context/CURRENT-STATE.md` and `_context/CONTEXT-CATALOG.json`. AGENTS/CLAUDE/INDEX/agent prompts may link to those outputs but may not copy changing counts. RULES, BUG, QA and KNOWLEDGE remain durable ledgers and are queried by matching term/ID rather than loaded in full by default. Dated handoffs are not current state unless the catalog marks them targeted.
+
+**Validation**: `scripts/generate-workspace-state.mjs --check`, `scripts/ci-workspace-contract-check.mjs`, `scripts/ci-knowledge-lint-check.mjs`, and the 64KiB preflight budget in `scripts/ci-workflow-compaction-check.mjs`.
+
+## R521. Agent hooks are portable guardrails and never mutate repository authority state (v54.57, P964)
+
+**Rule**: project hooks must consume one JSON object from stdin, resolve scripts from the Git root, support Windows commands and emit only documented event output. They may deny destructive commands or provide advisory context, but automatic commit/push/deploy, staging, working-content deletion or pressure to request deployment is forbidden. Stop/SessionEnd cannot broaden user authority.
+
+**Validation**: `.codex/hooks.json`, `.claude/settings.json`, `scripts/agent-hook.mjs`, hook positive/negative fixtures in `ci-workspace-contract-check.mjs`, and absence of tracked legacy shell hooks.
+
+## R522. Skills and agent profiles require generated parity plus observable eval inputs (v54.57, P964)
+
+**Rule**: `.claude/skills` is the canonical skill tree and tracked `.agents/skills` is its generated byte mirror and portable Codex discovery surface. A clean checkout missing that mirror must fail, never skip, the parity gate. `architecture/agent-profiles.json` is the canonical source for `.claude/agents` and `.codex/agents`. Every skill has at least three stable task prompts with observable must-include evidence and a negative-control claim. Deterministic topology/fixture PASS must never be reported as independent behavioral-model PASS.
+
+**Validation**: `scripts/ci-skill-contract-check.mjs`, `scripts/ci-skill-eval-fixture-check.mjs`, `scripts/sync-agent-skills.mjs --check`, and `scripts/sync-agent-profiles.mjs --check`.
+
+## R523. Workspace and knowledge drift are push gates with deduplicated operational escalation (v54.57, P964)
+
+**Rule**: workspace contract and knowledge lint run on every push/PR that can deploy and on the scheduled knowledge workflow. A failing CI, data watchdog or knowledge lint must update one workflow-specific operational issue instead of producing unlimited duplicates or relying only on transient Actions email. The issue closes only after the same workflow reports success. This escalation reports failure; it does not auto-edit, auto-commit or auto-deploy.
+
+**Validation**: `.github/workflows/ci.yml`, `.github/workflows/knowledge-lint.yml`, `.github/workflows/operations-alert.yml`, and `scripts/ci-workspace-contract-check.mjs`.
+
+## R524. Structural knowledge completeness and semantic certification are separate state machines (v54.57, P964)
+
+**Rule**: catalog parity, ontology connectivity, article counts and source-ledger shape may prove structural readiness only. They may not set human review, source-directness, publication readiness or investment correctness to complete. Current observations, durable principles and historical integration records must keep separate provenance/currentness boundaries and independent promotion gates.
+
+**Validation**: `_context/CURRENT-STATE.md`, `public-data/knowledge/status-summary.json`, `scripts/ci-knowledge-lint-check.mjs`, knowledge contract family and explicit human/live QA items.
 
 ## R509. Learning pages require narrative order, destination consumption and filing-semantic labels (v54.43, P953)
 
 **Rule**: a knowledge page must open on the authored causal story, keep each category explanation readable as a bounded passage, and place detailed maps/evidence behind the learner's next question. A cross-page CTA is complete only when the destination consumes the exact concept, metric and timeframe, shows the arrival context, preserves a return path and restores after reload. Plain page navigation must clear page-specific knowledge query keys so one page's tab or manager cannot select another page's mode. Regulatory UI and artifact fields must describe the filing evidence: reported-share deltas are not trades, 13D/G is not a 13F position, and a primary HTML/text document may not be labeled XML.
 
 **Validation**: `scripts/ci-three-page-learning-flow-check.mjs`, the Principles/Atlas/Masters focused contract and browser gates, `scripts/ci-three-page-artifact-budget-check.mjs`, `scripts/reconcile-atlas-taxonomy.mjs`, and `scripts/ci-masters-contract-check.mjs`.
+
+## R510. User-supplied market commentary stays reference-only until a producer reconciles it (v54.44, P954)
+
+**Rule**: X posts, screenshots, interviews, estimates, rumors and role-level deal maps may seed durable hypotheses, keywords, chat context and monitoring lenses, but they may not become current quotes, valuation, event results, option positioning, trade instructions or live ranking without a dated official/provider evidence row. Every consumer must expose `REFERENCE`/`UNVERIFIED` and preserve the source/as-of boundary.
+
+**Validation**: `_context/RESEARCH-INTEGRATION-AI-INFRA-MARKET-RISK-2026-08-22.md`, `src/domain/ai/inference-efficiency.js`, `src/domain/macro/transmission.js`, `QA-REF-AI-01~02`, and the existing typed AI evidence/runtime audits.
+
+## R511. Missing macro transmission variables are blocked, not inferred from proxies (v54.44, P955)
+
+**Rule**: a causal macro lens may consume connected 2Y/10Y/30Y, FRED HY OAS, VIX, breadth and cross-asset quotes, but term premium, Treasury/corporate issuance, dealer gamma/options positioning and China credit/investment remain distinct inputs. A 10Y level, VIX level, HYG price or narrative headline cannot silently substitute for a missing producer; the UI must name the blocked field and its next connection gate.
+
+**Validation**: `src/domain/macro/transmission.js`, `src/ui/pages/market.js`, `QA-REF-MACRO-01`, and the provider/data-refresh contracts when a producer is added.
+
+## R512. Missing numeric observations, news topic suppression and chart observers fail closed together (v54.45, P956)
+
+**Rule**: `null`, empty and non-finite numeric inputs must remain unavailable; a finite zero is a valid observation and must not be discarded. Shared news surfaces must use one topic-suppression vocabulary so credit and FX/bond stories cannot acquire misleading ticker decorations. Any chart or observer created by a route-scoped surface must be registered and disposed before the surface is re-entered or removed. New ESM domain imports must also be present in the service-worker shell asset registry.
+
+**Validation**: `scripts/ci-architecture-contract-check.mjs`, `src/domain/ai/inference-efficiency.js`, `src/ui/pages/market.js`, `js/aio-data.js`, `js/aio-core.js`, `index.html`, and the full route/accessibility/soak browser gates.
+
+## R514. Cancellation, focus return and coverage denominators are one boundary (v54.48, P958)
+
+**Rule**: a caller-provided `AbortSignal` must be composed with every internal timeout controller and must be distinguishable from a timeout. A scheduler must not clear `_inFlight` while its underlying task is pending; route/page refreshes must abort or scope work before the next route can consume it. Every dialog/menu close path must restore its opener when it remains in the document. Screener mixed fundamental coverage, SEC-only coverage and factor observation/generated timestamps are separate metrics and must not share a denominator or model label. A source badge may say `LIVE` only after a source-confirmed observation; otherwise it stays `SNAPSHOT`, unavailable or pending.
+
+**Validation**: `src/platform/http.js`, `js/aio-data.js`, modal/menu surfaces in `index.html`/`js/aio-core.js`, `src/data/providers/screener.js`, `src/ui/pages/screener.js`, `scripts/sync-screener-universe.mjs`, `ci-esm-core-unit-check.mjs`, headless/accessibility/viewport/route-soak gates and the data-lineage refresh audit.
+
+## R515. Page hydration must follow route ownership (v54.49, P959)
+
+**Rule**: a `pageShown` listener that can read a provider, normalize a large artifact or start network-backed hydration must declare its owning route set. It may queue work only while that route remains active and its route scope remains current; unrelated routes must not trigger the read. Global refresh and shared-artifact publication events remain separate from page-entry hydration.
+
+**Validation**: `src/app/bootstrap.js`, `src/data/orchestrators/entity.js`, `src/data/orchestrators/screener.js`, the architecture/runtime contracts, vertical-slice browser and 20-route route-soak gates.
+
+## R516. Direct entity routes must start from neutral, accessible empty state (v54.50, P960)
+
+**Rule**: a direct ticker/entity route may not seed a concrete symbol, portfolio relationship or stale breadcrumb before the user selects an entity or a provider returns one. Waiting, unavailable and blocked panels must explain their state, and every symbol/code input must have a programmatic accessible name independent of placeholder text.
+
+**Validation**: `src/ui/pages/entity.js`, `js/aio-core.js`, `index.html`, the accessibility matrix, route-by-viewport visual audit and entity direct-entry browser checks.
+
+## R517. Freshness, source precedence and missingness must remain visible across compatibility boundaries (v54.50, P961)
+
+**Rule**: a runtime observation must not be overwritten by a reference snapshot; a stale identity universe or expired news cycle may not be labeled current; and missing numeric coverage must remain `null`/`미확인`, never a synthetic zero. Shared news renderers must suppress inferred security tickers when the primary topic is macro, geopolitical, policy, rates or FX/bond. Hidden action surfaces must not gain focusable semantics until they are visible.
+
+**Validation**: `src/data/orchestrators/sentiment.js`, `src/data/orchestrators/news.js`, `src/data/providers/screener.js`, `src/ui/pages/screener.js`, `src/ui/pages/news.js`, `js/aio-data.js`, `js/aio-core.js`, sentiment/provider fixtures, data-refresh/lineage audits and headless/accessibility/viewport gates.
+
+## R519. Browser network assertions must correlate to the initiating user action (v54.55, P963)
+
+**Rule**: In a page with asynchronous background work, a browser gate must not assert against a mutable “last request” slot. Capture the request set and correlate the assertion to a unique prompt, request ID, or endpoint contract owned by the test action. Performance budgets are interpreted from isolated runs when concurrent Chromium jobs can contend for CPU.
+
+**Validation**: `scripts/ci-ai-chat-public-route-browser-check.mjs` selects the request containing the unique public-route test payload and reports the observed request count; `scripts/ci-boot-interaction-check.mjs` is rerun in isolation for FCP/route/long-task release evidence.
+
+## R518. Portfolio financial values and cross-route detail controls fail closed (v54.54, P962)
+
+**Rule**: prices and valuations in the portfolio domain must be strictly positive; a stored/runtime zero or negative placeholder may not override a valid quote, and P&L/totals/exposure remain unavailable until their required inputs are present. Any visible theme/detail CTA must have a native or compatibility handler that reaches the owning detail surface, while direct entity context must not imply portfolio ownership. Retired route names and BUY/SELL/VIX educational copy must preserve the integrated-route and non-advice boundaries.
+
+**Validation**: `src/data/providers/portfolio.js`, `src/domain/portfolio/surface.js`, `src/ui/pages/portfolio.js`, `src/ui/pages/entity.js`, `src/ui/pages/themes.js`, `index.html`, `js/aio-glossary.js`, the in-app Browser interaction matrix, portfolio negative-control fixtures and the full route/accessibility/headless gates.
+
+## R513. Currentness, cancellation, source semantics and stale disclosure share one negative-control gate (v54.47, P957)
+
+**Rule**: visible data must remain `REFERENCE`/unavailable until its source and observation basis are known; initial labels may not claim `LIVE` or `SOURCE 확인` before a successful observation. Route-scoped observers and mutation scans must operate on added/visible roots, not repeatedly rescan hidden pages. Any timeout that can outlive the UI response must expose a cancellation hook and propagate `AbortSignal` to the underlying fetch. Macro labels must preserve metric semantics such as EFFR versus FOMC target range and BLS SA-derived YoY versus NSA release headline. A stale operator or user note must show elapsed age and an explicit reference-only boundary.
+
+**Validation**: `scripts/ci-architecture-contract-check.mjs`, `scripts/ci-static-data-contract-check.mjs`, `scripts/ci-runtime-contract-check.mjs`, the accessibility/viewport/route-soak/headless gates, and the dynamic lookup/chat cancellation fixtures.
 
 ## R508. Rendering, coverage, persistence and publication readiness are separate contracts (v54.42, P952)
 
@@ -813,6 +1131,8 @@ target_version: v54.43
 - See P604/BUG-POSTMORTEM.md.
 
 ## R278. A `workflow_run`-triggered job that needs the commit its trigger produced must checkout `head_branch`, not `head_sha` (v52.5)
+
+> **Superseded for release workflows by R536/P973.** `head_branch` repaired the one-cycle lag but introduced a mutable-branch race. Current refresh jobs dispatch the exact produced SHA to CI, and Pages consumes the CI attestation. The text below is retained as the historical failure explanation, not current deployment guidance.
 
 - `github.event.workflow_run.head_sha` is fixed to the head of the triggering workflow's branch **at the moment that workflow started** — not any commit it committed/pushed during its own run. A downstream job that does `actions/checkout@v4` with `ref: ${{ github.event.workflow_run.head_sha }}` in order to validate or deploy "what the triggering run just produced" will instead always get the commit that existed *before* that run's own work — one full cycle behind, indefinitely, on every single firing.
 - If the triggering workflow's own job is a commit-and-push job (a bot/data-refresh workflow) and a downstream `workflow_run` job needs that pushed commit, checkout `ref: ${{ github.event.workflow_run.head_branch }}` instead (the branch name, e.g. `main`) — this resolves to the actual current head of that branch at checkout time, which by the time the `workflow_run` event has fired already includes the push. Guard it so `push`/`pull_request`/`workflow_dispatch` paths (which have no `workflow_run` payload) keep their existing behavior: `${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.sha }}`.

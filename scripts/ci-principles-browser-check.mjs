@@ -138,6 +138,32 @@ try {
   await page.locator('#page-principles [data-principles-action="retry-capability"][data-principles-value="chapters"]').click();
   await page.waitForFunction(() => document.getElementById('page-principles')?.dataset.aioPrinciplesChapters === 'connected');
   await page.waitForFunction(() => document.getElementById('page-principles')?.dataset.aioPrinciplesLessonLibrary === 'connected');
+  await page.waitForFunction(() => document.getElementById('page-principles')?.dataset.aioPrinciplesReferenceCurriculum === 'connected' && document.querySelectorAll('#page-principles [data-principles-reference-stage]').length === 11);
+  const referenceInitial = await page.evaluate(() => ({
+    status: document.querySelector('#page-principles .principles-reference-curriculum')?.dataset.principlesReferenceStatus,
+    stages: document.querySelectorAll('#page-principles [data-principles-reference-stage]').length,
+    selectedStages: document.querySelectorAll('#page-principles [data-principles-reference-stage][aria-selected="true"]').length,
+    loopSteps: document.querySelectorAll('#page-principles .principles-reference-loop-item').length,
+    questionCount: document.querySelectorAll('#page-principles .principles-reference-questions li').length,
+    lessonTitle: document.querySelector('#page-principles .principles-reference-lesson-title')?.textContent || '',
+    mechanism: document.querySelector('#page-principles .principles-reference-mechanism')?.textContent || '',
+    invalidation: document.querySelector('#page-principles .principles-reference-invalidation')?.textContent || '',
+    sourceLinks: document.querySelectorAll('#page-principles .principles-reference-source').length,
+    routeBridge: document.querySelector('#page-principles .principles-reference-route')?.textContent || '',
+    tabbable: [...document.querySelectorAll('#page-principles [data-principles-reference-stage]')].every((node) => node.tabIndex >= 0)
+  }));
+  if (referenceInitial.status !== 'REFERENCE_CONNECTED' || referenceInitial.stages !== 11 || referenceInitial.selectedStages !== 1 || referenceInitial.loopSteps !== 6 || referenceInitial.questionCount < 2 || !referenceInitial.lessonTitle || !referenceInitial.mechanism.includes('작동 구조') || !referenceInitial.invalidation.includes('무효화') || referenceInitial.sourceLinks < 1 || !referenceInitial.routeBridge || !referenceInitial.tabbable) throw new Error(`reference curriculum initial contract failed: ${JSON.stringify(referenceInitial)}`);
+  await page.locator('#page-principles [data-principles-reference-stage="stage-10"]').focus();
+  if (!(await page.locator('#page-principles [data-principles-reference-stage="stage-10"]').evaluate((node) => document.activeElement === node))) throw new Error('reference curriculum stage tabs are not keyboard focusable');
+  await page.locator('#page-principles [data-principles-reference-stage="stage-10"]').click();
+  await page.waitForFunction(() => document.querySelector('#page-principles [data-principles-reference-stage="stage-10"]')?.getAttribute('aria-selected') === 'true' && document.querySelector('#page-principles .principles-reference-lesson-title')?.textContent === '거래 전·후 기록');
+  const referenceStageTen = await page.evaluate(() => ({
+    selected: document.querySelector('#page-principles [data-principles-reference-stage="stage-10"]')?.getAttribute('aria-selected'),
+    title: document.querySelector('#page-principles .principles-reference-stage-title')?.textContent || '',
+    lesson: document.querySelector('#page-principles .principles-reference-lesson-title')?.textContent || '',
+    route: document.querySelector('#page-principles .principles-reference-route')?.textContent || ''
+  }));
+  if (referenceStageTen.selected !== 'true' || referenceStageTen.title !== '실전 매매일지' || referenceStageTen.lesson !== '거래 전·후 기록' || !referenceStageTen.route.includes('portfolio')) throw new Error(`reference curriculum stage selection failed: ${JSON.stringify(referenceStageTen)}`);
   await page.locator('#page-principles .principles-library-panel-summary').nth(1).click();
   await page.waitForFunction(() => document.querySelectorAll('#page-principles [data-principles-lesson-id]').length === 20);
   await search.fill('상관·구조 설명은 인과');
@@ -192,8 +218,31 @@ try {
   await page.locator('#page-principles .knowledge-professional-bridge-button').first().click();
   await page.waitForFunction(() => document.getElementById('page-macro')?.classList.contains('active') && new URLSearchParams(location.hash.split('?')[1] || '').has('metric') && new URLSearchParams(location.hash.split('?')[1] || '').has('timeframe'));
 
+  const bridgePage = await browser.newPage({ viewport: DESKTOP_PRIMARY_VIEWPORT });
+  await bridgePage.route('**/*', (route) => route.request().url().startsWith(`http://127.0.0.1:${port}/`) ? route.continue() : route.abort());
+  await bridgePage.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await bridgePage.waitForFunction(() => typeof window.AIO_ARCH?.navigate === 'function', { timeout: 30000 });
+  const bridgeDisclaimer = bridgePage.locator('#aio-first-visit-disclaimer button');
+  if (await bridgeDisclaimer.count()) await bridgeDisclaimer.click();
+  await bridgePage.evaluate(() => window.AIO_ARCH.navigate('principles'));
+  await bridgePage.waitForFunction(() => document.getElementById('page-principles')?.dataset.aioPrinciplesNarrative === 'connected');
+  await bridgePage.locator('#page-principles [data-principles-action="view"][data-principles-value="library"]').click();
+  await bridgePage.waitForFunction(() => document.getElementById('page-principles')?.dataset.aioPrinciplesReferenceCurriculum === 'connected');
+  await bridgePage.locator('#page-principles [data-principles-reference-stage="stage-10"]').click();
+  await bridgePage.waitForFunction(() => document.querySelector('#page-principles .principles-reference-lesson-title')?.textContent === '거래 전·후 기록');
+  await bridgePage.locator('#page-principles .principles-reference-route').click();
+  await bridgePage.waitForFunction(() => document.getElementById('page-portfolio')?.classList.contains('active'));
+  const referenceBridge = await bridgePage.evaluate(() => {
+    const params = new URLSearchParams(location.hash.split('?')[1] || '');
+    let returnContext = null;
+    try { returnContext = JSON.parse(params.get('return') || 'null'); } catch (_) {}
+    return { route: location.hash.split('?')[0], metric: params.get('metric'), timeframe: params.get('timeframe'), returnContext };
+  });
+  await bridgePage.close();
+  if (referenceBridge.route !== '#portfolio' || !referenceBridge.metric || !referenceBridge.timeframe || referenceBridge.returnContext?.route !== 'principles' || referenceBridge.returnContext?.view !== 'library') throw new Error(`reference curriculum route bridge failed: ${JSON.stringify(referenceBridge)}`);
+
   if (errors.length) throw new Error(`browser errors: ${errors.join(' | ')}`);
-  console.log(JSON.stringify({ ok: true, scope: DESKTOP_QA_SCOPE, route: 'principles', narrativeInitial, initial, selected, evidenceOpen, graphOneHop: Number(graphOneHop), graphTwoHop: Number(graphTwoHop), edgeLabels, viewport: DESKTOP_PRIMARY_VIEWPORT, errors }));
+  console.log(JSON.stringify({ ok: true, scope: DESKTOP_QA_SCOPE, route: 'principles', narrativeInitial, initial, referenceInitial, referenceStageTen, referenceBridge, selected, evidenceOpen, graphOneHop: Number(graphOneHop), graphTwoHop: Number(graphTwoHop), edgeLabels, viewport: DESKTOP_PRIMARY_VIEWPORT, errors }));
 } catch (error) {
   console.error(JSON.stringify({ ok: false, errors: [...errors, String(error?.stack || error)] }));
   process.exitCode = 1;

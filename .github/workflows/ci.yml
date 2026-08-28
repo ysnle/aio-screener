@@ -1,552 +1,123 @@
 name: CI
 
-# 왜: 836개 런타임 테스트·200+ 규칙이 전부 "브라우저 콘솔 수동 실행"이라, P311(구문 오류로
-# 파이프라인 전체 마비)·버전 누락·stray 파일이 push 시점에 안 걸렸다. 이 게이트가 push/PR마다
-# (1) 전 JS/스크립트 구문 검사 (2) 버전 동기화 7곳+캐시버스터 (3) stray 파일을 검증한다.
-# main push에서 실패하면 GitHub가 소유자에게 자동 이메일 → 회귀를 분 단위로 포착.
-# (데이터 신선도는 refresh-data.yml + data-watchdog.yml 담당. 여기서 fetch를 실행하면 Yahoo에
-#  push마다 74요청이 추가돼 IP 차단을 악화시키므로 구문 검사만 한다.)
-# v50.25/WO-8
-# v51.95/R272: `on.workflow_run` 추가 — refresh-data.yml의 GITHUB_TOKEN 커밋이 이 워크플로의
-# `push` 트리거를 못 울려 validate/deploy가 통째로 건너뛰어지던 문제(아래 `on:` 블록 주석 참조)를
-# PAT 없이 해소.
-
+# The manifest is the source of truth. Cheap gates must finish before expensive
+# browser shards start; every shard reports independently so one failure does not
+# hide the next one. Pages deployment lives in pages-deploy.yml.
 on:
   push:
     branches: [main]
   pull_request:
-  workflow_dispatch: {}
-  # P590-followup/R272: GitHub does not let a push made with the default GITHUB_TOKEN trigger
-  # further `on: push` workflow runs (anti-recursion safeguard, documented GitHub Actions
-  # behavior — not something [skip ci] removal fixes). refresh-data.yml's every-30-minute
-  # commits use exactly that token, so this workflow's `push` trigger above silently never
-  # fired for them — validate/deploy never ran, and the live site quietly went stale for
-  # ~19h until the next human-initiated push happened to redeploy it (found live 2026-07-03,
-  # data.json 2026-07-02T06:10 vs a 2026-07-03T01:04 watchdog check). `workflow_run` is exempt
-  # from that restriction — it fires on completion of the named workflow regardless of what
-  # authored the commits inside it — so this closes the gap without a PAT/new secret.
-  workflow_run:
-    workflows: ['Refresh market data']
-    types: [completed]
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Exact bot-produced commit to validate and attest
+        required: false
+        type: string
+      origin:
+        description: Validation scope owner (refresh-data or refresh-screener)
+        required: false
+        type: string
 
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || inputs.release_sha || github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  validate:
+  preflight:
+    name: Preflight (cheap blocking gate)
     runs-on: ubuntu-latest
-    # Skip entirely if a workflow_run trigger's source run itself failed — nothing new/valid
-    # to validate or deploy in that case (refresh-data.yml may not have even committed).
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     steps:
-      # ↓↓↓ P557/R248: validate must fully pass before the deploy job below is allowed to
-      # run — this is the whole point of this change. Do not add `continue-on-error` to any
-      # step here without also revisiting deploy's `needs: validate` gate.
-      # P602/R278: workflow_run.head_sha is fixed to the commit the triggering run *started*
-      # from, not any commit it pushed during its own run (GitHub's documented behavior) — so
-      # every bot data-commit cycle had CI validate/deploy the *previous* cycle's tree instead
-      # of its own (FABLE-LIVE-AUDIT-2026-07-04.md P0). head_branch (= main) checks out the
-      # branch's actual current head at checkout time, i.e. the commit this run is really about.
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.sha }}
-
+          ref: ${{ inputs.release_sha || github.sha }}
       - name: Setup Node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '20'
-
-      - name: Install CI script dependencies (js-yaml)
+          cache: npm
+      - name: Install dependencies
         run: npm ci --no-audit --no-fund
+      - name: Run aggregate preflight
+        run: node scripts/qa-runner.mjs --group preflight --no-cache
 
-      - name: Workflow YAML + control character checks (WO-0/P660)
-        run: node scripts/ci-control-char-check.mjs
-
-      - name: Cloudflare Worker /anthropic security checks (WO-1B/P662)
-        run: node scripts/ci-worker-anthropic-check.mjs
-
-      - name: Market session/time evidence contract (CR-TIME-01)
-        run: node scripts/ci-market-session-contract-check.mjs
-
-      - name: JS 구문 검사 (전 클라이언트 스크립트 — P311 재발 방지)
-        run: |
-          set -e
-          for f in js/*.js; do
-            echo "--check $f"
-            node --check "$f"
-          done
-
-      - name: 데이터/CI 스크립트 구문 검사 (.mjs)
-        run: |
-          set -e
-          for f in scripts/*.mjs; do
-            echo "--check $f"
-            node --check "$f"
-          done
-
-      - name: Native ESM architecture contract (AR-00~06)
-        run: |
-          set -e
-          find src -name '*.js' -print0 | xargs -0 -n1 node --check
-          node scripts/ci-architecture-contract-check.mjs
-          node scripts/ci-native-decision-evidence-check.mjs
-          node scripts/ci-vertical-slice-contract-check.mjs
-          node scripts/ci-capability-claim-contract-check.mjs
-          node scripts/ci-operations-contract-check.mjs
-
-      - name: Measured decomposition hotspot contract (CR-DECOMP-01)
-        run: node scripts/ci-decomp-hotspot-check.mjs
-
-      - name: Baseline and dependency graph contract (CR-BASE-01)
-        run: node scripts/ci-baseline-contract-check.mjs
-
-      - name: ESM core unit contracts (RM-05 — store/router/lifecycle/evidence-store/facade in isolation)
-        run: |
-          node scripts/ci-esm-core-unit-check.mjs
-          node scripts/ci-artifact-cache-check.mjs
-
-      - name: Screener Workbench contract gate (SCR-OS-00~09)
-        run: node scripts/ci-screener-workbench-contract.mjs
-
-      - name: Screener Workbench scale benchmark (SCR-OS-10)
-        run: node scripts/benchmark-screener-workbench.mjs --out "$RUNNER_TEMP/screener-scale-benchmark.json"
-
-      - name: Research reference packet contracts (Atlas/Principles/Masters)
-        run: |
-            node scripts/build-knowledge-concept-manifest.mjs
-            git diff --exit-code -- public-data/knowledge/concepts.json public-data/knowledge/aliases.json
-            node scripts/ci-knowledge-ontology-contract.mjs
-            node scripts/build-principles-edge-semantics.mjs
-            git diff --exit-code -- src/domain/knowledge/principles-edge-semantics.js
-            node scripts/build-knowledge-evidence-registry.mjs
-            git diff --exit-code -- public-data/knowledge/sources.json public-data/knowledge/claims.json
-            node scripts/enrich-knowledge-source-lessons.mjs
-            git diff --exit-code -- public-data/principles/lesson-library.json public-data/atlas/foundation-lessons.json
-            node scripts/build-knowledge-articles-and-learning-graph.mjs
-            git diff --exit-code -- public-data/knowledge/articles.json public-data/knowledge/learning-graph.json public-data/knowledge/articles
-            node scripts/audit-knowledge-encyclopedia-depth.mjs --strict
-            node scripts/build-knowledge-route-targets.mjs
-            git diff --exit-code -- public-data/knowledge/route-targets.json
-            node scripts/ci-knowledge-core-semantic-check.mjs
-            node scripts/ci-knowledge-article-contract.mjs
-            node scripts/ci-knowledge-learning-state-contract.mjs
-            node scripts/ci-knowledge-route-bridge-contract.mjs
-            node scripts/ci-knowledge-repository-contract.mjs
-            node scripts/ci-knowledge-renderer-contract.mjs
-            node scripts/build-knowledge-coverage-matrix.mjs
-            node scripts/ci-knowledge-full-corpus-coverage.mjs
-            node scripts/build-knowledge-research-dossiers.mjs
-            node scripts/build-knowledge-coverage-matrix.mjs
-            git diff --exit-code -- public-data/knowledge/coverage-matrix.json public-data/knowledge/research-dossiers.json
-            node scripts/ci-knowledge-web-research-dossier.mjs
-            node scripts/build-knowledge-domain-dossiers.mjs
-            node scripts/ci-knowledge-sector-domain-depth.mjs
-            node scripts/build-knowledge-runtime-index.mjs
-            git diff --exit-code -- public-data/knowledge/status-summary.json
-            node scripts/ci-knowledge-article-uniqueness.mjs
-            node scripts/ci-knowledge-market-transmission.mjs
-            node scripts/ci-knowledge-currentness-separation.mjs
-            node scripts/ci-six-doc-coverage-check.mjs
-            node scripts/ci-atlas-contract-check.mjs
-            node scripts/ci-principles-contract-check.mjs
-            node scripts/build-atlas-current-evidence-ledger.mjs
-            git diff --exit-code -- public-data/atlas/current-evidence-ledger.json public-data/atlas/index.json
-            node scripts/build-13f-issuer-aggregates.mjs
-            git diff --exit-code -- public-data/masters/issuer-aggregates.json public-data/masters/index.json
-            node scripts/ci-masters-contract-check.mjs
-
-      - name: AI Screener intelligence contract (AIQ-0/AIQ-1)
-        run: node scripts/ci-ai-intelligence-contract-check.mjs
-
-      - name: Domain live/backtest parity contract (ARX-12 — trading-score real, others smoke pending RM-03 item 2)
-        run: node scripts/ci-domain-parity-check.mjs
-
-      - name: Research model validation contract (CR-MODEL-01)
-        run: node scripts/ci-research-model-contract-check.mjs
-
-      - name: Storage migration and privacy vault contract (ARX-14)
-        run: node scripts/ci-storage-migration-check.mjs
-
-      - name: Release asset/revision contract (ARX-15)
-        run: node scripts/ci-release-manifest-contract.mjs
-
-      - name: Compatibility retirement contract (ARX-16)
-        run: node scripts/ci-retirement-contract.mjs
-
-      - name: Canonical market snapshot contract (AR-07 Batch 0)
-        run: node scripts/ci-market-snapshot-contract-check.mjs
-
-      - name: Field-level history and AI scale contract (AR-07 Batch 0/3)
-        run: node scripts/ci-history-field-time-contract-check.mjs
-
-      - name: Cloudflare fast data plane contract (AR-07 Batch 1)
-        run: node scripts/ci-data-plane-contract-check.mjs
-
-      - name: Operations status and reconciliation contract (AR-07/08)
-        run: node scripts/ci-operations-status-check.mjs
-
-      - name: Operations 7/30-day SLO window contract (CR-OPS-01)
-        run: node scripts/ci-operations-slo-window-check.mjs
-
-      - name: 22-category source reconciliation contract (AR-07 Batch 4)
-        run: node scripts/ci-reconciliation-contract-check.mjs
-
-      - name: Professional data capability gap contract
-        run: node scripts/ci-professional-data-gap-check.mjs
-
-      - name: Operator/live certification boundary contract
-        run: node scripts/ci-operator-readiness-check.mjs
-
-      - name: WebSearch inference claim contract (AR-06)
-        run: node scripts/ci-inference-contract-check.mjs
-
-      - name: 버전 동기화 검증 (R1 7곳 + 캐시버스터 6곳)
-        run: node scripts/ci-version-check.mjs
-
-      - name: Local release revision contract (WP-8)
-        run: node scripts/ci-release-revision-check.mjs
-
-      - name: Data lineage and freshness audit (WP-8/WP-12)
-        run: node scripts/ci-data-lineage-audit.mjs
-
-      - name: Static and hardcoded data contract (22 categories)
-        run: node scripts/ci-static-data-contract-check.mjs
-
-      - name: CSP trusted-rendering sink ratchet (CR-CSP-01)
-        run: node scripts/ci-csp-ratchet-check.mjs
-
-      - name: Data refresh 22-category freshness and session audit
-        run: node scripts/ci-data-refresh-audit.mjs
-
-      - name: Structural regression checks
-        run: node scripts/ci-structural-check.mjs
-
-      - name: Default-path UX checks
-        run: node scripts/ci-ux-default-path-check.mjs
-
-      - name: Desktop-only QA scope check
-        run: node scripts/ci-desktop-scope-check.mjs
-
-      - name: Runtime contract checks
-        run: node scripts/ci-runtime-contract-check.mjs
-
-      - name: AI chat reliability and route contract (P844)
-        run: node scripts/ci-ai-chat-reliability-contract-check.mjs
-
-      - name: Data pipeline contract checks
-        run: node scripts/ci-data-pipeline-contract-check.mjs
-
-      - name: Page field timeline contract
-        run: node scripts/ci-page-data-timeline-contract-check.mjs
-
-      - name: Refresh artifact integrity and data-release revision guard
-        run: |
-          node scripts/ci-refresh-artifact-integrity-check.mjs
-          node scripts/sync-data-release-manifests.mjs
-          git diff --exit-code -- architecture/asset-manifest.json architecture/release-manifest.json
-
-      - name: Semantic review checks
-        run: node scripts/ci-semantic-review-check.mjs
-
-      - name: Workflow compaction checks
-        run: node scripts/ci-workflow-compaction-check.mjs
-
-      - name: Skill contract checks
-        run: node scripts/ci-skill-contract-check.mjs
-
-      - name: Documentation currency check (WO-8/P669, informational)
-        run: node scripts/ci-doc-currency-check.mjs
-
-      - name: stray 임시/백업 파일 검사
-        run: |
-          set -e
-          STRAY=$(git ls-files | grep -E '(\.git-msg.*|.*\.tmp|.*~|.*\.bak|.*\.orig|.*\.rej)$' || true)
-          if [ -n "$STRAY" ]; then
-            echo "❌ 추적된 stray 임시/백업 파일 발견:"; echo "$STRAY"; exit 1
-          fi
-          echo "✅ stray 파일 없음"
-
-  # Phase 2 [B5] (FABLE-SYSTEM-DIAGNOSIS-2026-07-02.md §4): the 900+ in-browser unit tests in
-  # js/aio-tests.js (AIO.runTests()) previously only ran via manual browser console — runtime
-  # regressions (render/state/contract breaks, distinct from the syntax-only checks above) sailed
-  # through `validate` and were found live. This job serves the app headlessly with Playwright and
-  # runs the real suite. Deliberately NOT a step inside `validate` and NOT in deploy's `needs:` —
-  # 27 known pre-existing failures (market-data/calendar/version drift + a few latent UX/a11y
-  # findings, see _context/GATE-BASELINE-2026-07-03.md) are still open, so this is report-only
-  # until they're triaged. `continue-on-error` here is intentional; do not remove it without first
-  # clearing _context/gate-baseline-skip-list.json down to zero.
-  # CURRENT v52.22: skip-list is empty and headless-tests is a blocking deploy gate.
-  headless-tests:
-    name: Headless unit tests (AIO.runTests())
+  contracts:
+    name: Contracts / ${{ matrix.group }}
+    needs: preflight
     runs-on: ubuntu-latest
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
-    permissions:
-      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        group: ${{ fromJSON(inputs.origin == 'refresh-data' && '["core","data","knowledge"]' || inputs.origin == 'refresh-screener' && '["core","data"]' || '["core","data","knowledge","workspace","cloudflare"]') }}
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.sha }}
-
+          ref: ${{ inputs.release_sha || github.sha }}
       - name: Setup Node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '20'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Run all gates in shard
+        run: node scripts/qa-runner.mjs --group ${{ matrix.group }} --no-cache
 
-      - name: Install Playwright
-        run: |
-          npm ci --no-audit --no-fund
-          npx playwright install --with-deps chromium
-
-      - name: Run AIO.runTests() headlessly
-        run: node scripts/ci-headless-tests.mjs
-
-      - name: Fresh-browser public AI route and resilient response gate
-        run: node scripts/ci-ai-chat-public-route-browser-check.mjs
-
-      - name: Cross-page shared market epoch browser gate
-        run: node scripts/ci-page-market-epoch-browser-check.mjs
-
-      - name: Quant screener visible-quote and ranking-epoch browser gate
-        run: node scripts/ci-screener-auto-refresh-browser-check.mjs
-
-      - name: Enforce boot interaction performance budget
-        run: node scripts/ci-boot-interaction-check.mjs
-
-      - name: Architecture ESM browser lifecycle contract (AR-01~06)
-        run: node scripts/ci-architecture-browser-check.mjs
-
-      - name: Wave 3 vertical slice browser contract
-        run: node scripts/ci-vertical-slice-browser-check.mjs
-
-      - name: AI Era Atlas reference shell browser contract
-        run: node scripts/ci-atlas-browser-check.mjs
-
-      - name: 13F · Principles · AI Era artifact and re-entry budget
-        run: node scripts/ci-three-page-artifact-budget-check.mjs
-
-      - name: Market Principles evidence registry browser contract
-        run: node scripts/ci-principles-browser-check.mjs
-
-      - name: Masters SEC metadata browser contract
-        run: node scripts/ci-masters-browser-check.mjs
-
-      - name: Three-page narrative handoff and mobile reading-density contract
-        run: node scripts/ci-three-page-learning-flow-check.mjs
-
-      - name: Wave 5 route soak and lifecycle leak contract
-        run: node scripts/ci-route-soak-check.mjs
-
-      - name: SA-02 external outage snapshot fixture (P784)
-        run: node scripts/ci-sa-02-outage-browser-fixture.mjs
-
-      - name: SA-03 service-worker controllerchange fixture (P784)
-        run: node scripts/ci-sa-03-sw-controller-fixture.mjs
-
-      - name: SA-04 boot network budget fixture (P784)
-        run: node scripts/ci-sa-04-boot-network-budget.mjs
-
-  # v52.5x/WO-4: was report-only (continue-on-error: true, default FULL_INIT=0 — only swapped
-  # .active classes, never called showPage()/rendered charts/fired events). CODEX-COMPREHENSIVE-
-  # DIAGNOSIS-2026-07-10.md WO-4 flagged this as a real init QA gap (F-02): default 88/88 PASS was
-  # not evidence of real page-init success. Verified locally with AIO_VIEWPORT_FULL_INIT=1 (real
-  # showPage() + chart render + pageerror/console.error collection, see ci-runtime-contract-check.mjs
-  # WO-4 checks) — found and fixed one real bug (js/aio-ui.js _pricePosition() SVG label/value
-  # overlap, F-01) before promoting this to a blocking gate.
-  viewport-matrix:
-    name: Viewport route matrix (full-init, blocking)
+  browser:
+    name: Browser / ${{ matrix.group }}
+    needs: contracts
     runs-on: ubuntu-latest
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
-    permissions:
-      contents: read
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        group: ${{ fromJSON(inputs.origin == 'refresh-data' && '["browser-unit","browser-runtime","browser-knowledge","browser-viewport"]' || inputs.origin == 'refresh-screener' && '["browser-unit","browser-runtime"]' || '["browser-unit","browser-runtime","browser-knowledge","browser-resilience","browser-viewport","browser-surface"]') }}
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.sha }}
-
+          ref: ${{ inputs.release_sha || github.sha }}
       - name: Setup Node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '20'
-
-      - name: Install Playwright
+          cache: npm
+      - name: Install dependencies and Chromium
         run: |
           npm ci --no-audit --no-fund
           npx playwright install --with-deps chromium
+      - name: Run all gates in shard
+        run: node scripts/qa-runner.mjs --group ${{ matrix.group }} --no-cache
 
-      - name: Run route x viewport surface matrix (FULL_INIT)
+  attest:
+    name: Attest exact tested release
+    if: github.event_name != 'pull_request' && github.ref_name == 'main'
+    needs: [preflight, contracts, browser]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout exact tested SHA
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ inputs.release_sha || github.sha }}
+      - name: Build immutable release attestation
         env:
-          AIO_VIEWPORT_FULL_INIT: '1'
-        run: node scripts/ci-viewport-matrix-check.mjs
-
-  # v52.58/H3-H/I: route-level human surface gate. This exercises the actual
-  # showPage lifecycle at the supported laptop viewport, then checks the first
-  # decision surface, accessible names, keyboard reachability, and canvas labels.
-  human-surface:
-    name: Critical-10 human surface (hierarchy + keyboard a11y)
-    runs-on: ubuntu-latest
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.sha }}
-
-      - name: Setup Node
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: '20'
-
-      - name: Install Playwright
+          EXPECTED_SHA: ${{ inputs.release_sha || github.sha }}
+          RELEASE_ORIGIN: ${{ inputs.origin || 'source-push' }}
         run: |
-          npm ci --no-audit --no-fund
-          npx playwright install --with-deps chromium
-
-      - name: Run Critical-10 human surface audit
-        run: node scripts/ci-critical10-human-surface-check.mjs
-
-  # v52.59/H2-05: portfolio storage is a separate deterministic Chromium gate.
-  # It covers PIN creation, AES-GCM ciphertext, reload lock, wrong/correct PIN,
-  # legacy migration, explicit opt-out, and the input XSS boundary. Live quotes
-  # and operator secrets remain outside this local fixture's evidence scope.
-  portfolio-vault:
-    name: Portfolio Vault storage E2E
-    runs-on: ubuntu-latest
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+          set -euo pipefail
+          tested_sha="$(git rev-parse HEAD)"
+          test "$tested_sha" = "$EXPECTED_SHA"
+          node --input-type=module -e "import fs from 'node:fs'; const version=JSON.parse(fs.readFileSync('version.json','utf8')).version; fs.mkdirSync('.release',{recursive:true}); fs.writeFileSync('.release/aio-release-attestation.json', JSON.stringify({schemaVersion:'aio-release-attestation.v1',testedSha:process.env.EXPECTED_SHA,appRevision:version,origin:process.env.RELEASE_ORIGIN,runId:process.env.GITHUB_RUN_ID,repository:process.env.GITHUB_REPOSITORY,attestedAt:new Date().toISOString()},null,2)+'\n');"
+      - name: Upload release attestation
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.sha }}
-
-      - name: Setup Node
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: '20'
-
-      - name: Install Playwright
-        run: |
-          npm ci --no-audit --no-fund
-          npx playwright install --with-deps chromium
-
-      - name: Run portfolio Vault E2E
-        run: node scripts/ci-portfolio-vault-e2e.mjs
-
-  # v52.59/H2-10: every classified route receives the same Chromium accessibility
-  # contract.  This is structural evidence; NVDA/screen-reader and browser-engine
-  # parity remain explicit manual/Tier-13 evidence.
-  a11y-matrix:
-    name: All-route accessibility matrix
-    runs-on: ubuntu-latest
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.sha }}
-
-      - name: Setup Node
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: '20'
-
-      - name: Install Playwright
-        run: |
-          npm ci --no-audit --no-fund
-          npx playwright install --with-deps chromium
-
-      - name: Run all-route accessibility matrix
-        run: node scripts/ci-accessibility-matrix-check.mjs
-
-  # P557/R248: GitHub Pages was on "legacy" branch-deploy, which republishes whatever is on
-  # main the instant it's pushed — completely independent of whether `validate` above passed
-  # or failed (confirmed live: 33% of recent CI runs failed, some of those pushes went live
-  # anyway). This job makes deployment depend on `validate` succeeding first via `needs:`,
-  # so a broken push simply does not update the live site instead of deploying broken.
-  # CURRENT v52.22: deployment also depends on the blocking headless-tests job.
-  # v52.5x/WO-4: also depends on viewport-matrix now that it runs FULL_INIT=1 and is a real
-  # signal (previously report-only against a mode that never exercised showPage()/chart-init,
-  # so gating deploy on it would have blocked nothing meaningful while still adding failure
-  # surface). This does mean a real viewport-matrix regression now blocks the automated
-  # refresh-data.yml -> deploy path too, not just human pushes — accepted deliberately, same
-  # blocking philosophy this repo already applies to validate/headless-tests (R248), not a new
-  # risk category.
-  deploy:
-    name: Deploy to GitHub Pages (gated on validate + headless + viewport + human-surface + portfolio + a11y)
-    needs: [validate, headless-tests, viewport-matrix, human-surface, portfolio-vault, a11y-matrix]
-    # Deploy on a direct human/session push to main, OR on a successful refresh-data.yml run
-    # completing on main (the workflow_run path this comment block's `on:` note added — see
-    # above). workflow_dispatch and pull_request never deploy.
-    if: >-
-      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url || steps.deployment_retry.outputs.page_url }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.sha }}
-
-      # H2-06: stage the explicit public artifact allowlist. A raw checkout would expose
-      # root AGENTS/CLAUDE/CHANGELOG/Worker/source-control files that are not part of the
-      # product surface; dot/underscore exclusion alone is insufficient for those files.
-      - name: Stage public site (explicit artifact allowlist)
-        run: |
-          set -e
-          mkdir -p "$RUNNER_TEMP/pages-dist/js" "$RUNNER_TEMP/pages-dist/src" "$RUNNER_TEMP/pages-dist/public-data"
-          cp index.html sw.js version.json og-image.svg robots.txt sitemap.xml public-artifact-manifest.json public-config.json _headers "$RUNNER_TEMP/pages-dist/"
-          cp js/aio-core.js js/aio-data.js js/aio-ui.js js/aio-chat.js js/aio-glossary.js "$RUNNER_TEMP/pages-dist/js/"
-          rsync -a src/ "$RUNNER_TEMP/pages-dist/src/"
-          rsync -a public-data/ "$RUNNER_TEMP/pages-dist/public-data/"
-
-      - name: Setup Pages
-        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5.0.0
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
-        with:
-          path: ${{ runner.temp }}/pages-dist
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
-        continue-on-error: true
-
-      # P600-followup: `actions/deploy-pages` intermittently fails with "Deployment failed,
-      # try again later." (a GitHub-side Pages deploy API issue — validate/tests pass every
-      # time this happens, and it's not correlated with an overlapping deploy on this repo).
-      # Measured 2026-07-04: 4 of the last 16 workflow_run-triggered deploys (25%) hit this.
-      # Each unretried failure leaves the live site behind the latest data commit until the
-      # next refresh-data.yml cycle (up to ~30min, longer if that cycle's deploy also fails),
-      # which data-watchdog.yml's live-freshness check then separately flags as its own
-      # failed run. A single retry absorbs most of these in place instead of waiting for the
-      # next cycle (or the next few) to self-heal.
-      - name: Wait before deploy retry
-        if: steps.deployment.outcome == 'failure'
-        run: sleep 30
-
-      - name: Deploy to GitHub Pages (retry)
-        id: deployment_retry
-        if: steps.deployment.outcome == 'failure'
-        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
-
-      - name: Fail if both deploy attempts failed
-        if: steps.deployment.outcome == 'failure' && steps.deployment_retry.outcome != 'success'
-        run: |
-          echo "::error::GitHub Pages deploy failed twice in a row (initial attempt + retry)."
-          exit 1
+          name: aio-release-attestation
+          path: .release/aio-release-attestation.json
+          if-no-files-found: error
+          retention-days: 7

@@ -30,7 +30,7 @@ const errors = [];
 const required = [
   ['route', routes.includes("'atlas'")],
   ['slice', slices.includes("vs13-atlas")],
-  ['bootstrap import', bootstrap.includes("createAtlasPage")],
+  ['bootstrap dynamic import', bootstrap.includes("loader: () => import('../ui/pages/atlas.js')")],
   ['bootstrap mount', bootstrap.includes("modules.atlas")],
   ['index page', index.includes('id="page-atlas"')],
   ['index content sink', index.includes('data-atlas-content')],
@@ -52,6 +52,7 @@ const required = [
   ['relationship guide consumer', atlas.includes('KNOWLEDGE_RELATIONSHIP_GUIDES_URL') && atlas.includes('createRelationshipGuidesView') && atlas.includes("['relationships', '관계 지도']") && data.relationshipGuideArtifact === 'public-data/knowledge/relationship-guides.json'],
   ['safe dom', atlas.includes('replaceChildren') && !atlas.includes('innerHTML')]
 ];
+if (/^import\s+\{[^\n]*createAtlasPage[^\n]*from\s+['"]\.\.\/ui\/pages\/atlas\.js['"]/m.test(bootstrap)) errors.push('atlas page returned to the initial static module graph');
 required.forEach(([label, ok]) => { if (!ok) errors.push(label); });
 if (data.packets !== 11 || data.reviewedNodes !== 0 || data.candidateNodes !== 12 || data.taxonomyDomains !== 19 || data.taxonomyNodes !== 95 || data.evidenceClaims !== 14 || data.primarySources !== 23 || data.foundationLayers !== 7 || data.foundationModules !== 48) errors.push('reference data counts');
 if (!atlas.includes('createResearchView') || !atlas.includes('RESEARCH_URL') || !atlas.includes('createCurriculumView') || !atlas.includes('FOUNDATIONS_URL') || !atlas.includes('FOUNDATIONS_LESSONS_URL') || !atlas.includes('DOMAIN_GUIDES_URL') || !atlas.includes('createDomainGuide') || !atlas.includes('atlas-module-authored') || !atlas.includes('atlas-domain-guide')) errors.push('research view connection');

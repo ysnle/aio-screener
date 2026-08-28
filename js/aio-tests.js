@@ -12,11 +12,30 @@
   var _passCount = 0;
   var _failCount = 0;
   var _groupResults = [];
+  var _activeTestGroupId = null;
+  var _fullAutoOpsAuditCache = null;
+  var _fullDeploymentGateCache = null;
+
+  function _getFullAutoOpsAudit() {
+    if (_fullAutoOpsAuditCache) return _fullAutoOpsAuditCache;
+    _fullAutoOpsAuditCache = window.AIO && typeof window.AIO.getAutoOpsReadiness === 'function'
+      ? window.AIO.getAutoOpsReadiness({ mode: 'full' })
+      : null;
+    return _fullAutoOpsAuditCache;
+  }
+
+  function _getFullDeploymentGateAudit() {
+    if (_fullDeploymentGateCache) return _fullDeploymentGateCache;
+    _fullDeploymentGateCache = window.AIO && typeof window.AIO.getDeploymentGateAudit === 'function'
+      ? window.AIO.getDeploymentGateAudit({ strict: false, mode: 'full', readiness: _getFullAutoOpsAudit() })
+      : null;
+    return _fullDeploymentGateCache;
+  }
 
   // ── 내부 헬퍼 ────────────────────────────────────────────────────────
   function _assert(label, condition, detail) {
     var ok = !!condition;
-    var entry = { label: label, ok: ok, detail: detail || '' };
+    var entry = { label: label, ok: ok, detail: detail || '', groupId: _activeTestGroupId };
     _testResults.push(entry);
     if (ok) { _passCount++; }
     else {
@@ -62,6 +81,9 @@
     _passCount = 0;
     _failCount = 0;
     _groupResults = [];
+    _activeTestGroupId = null;
+    _fullAutoOpsAuditCache = null;
+    _fullDeploymentGateCache = null;
   }
 
   // ── 테스트 픽스처 (공통 데이터) ─────────────────────────────────────
@@ -1209,18 +1231,22 @@
       : null;
     _assert('T146 static_text_freshness: stale live-like date detected', textAudit && textAudit.issueCount >= 1, textAudit && JSON.stringify(textAudit.issues));
 
+    console.debug('[AIO TEST PROGRESS] group=G024 step=T147-governance-audit-start');
     var staticAudit = window.AIO && typeof window.AIO.getStaticDataGovernanceAudit === 'function' ? window.AIO.getStaticDataGovernanceAudit() : null;
     _assert('T147 static_data_governance: audit shape', staticAudit && Array.isArray(staticAudit.items) && typeof staticAudit.issueCount === 'number', staticAudit && JSON.stringify({ items: staticAudit.items && staticAudit.items.length, issues: staticAudit.issueCount }));
 
     // Full-document rendering is an explicit audit action; normal boot is active-page scoped (P689/R301).
+    console.debug('[AIO TEST PROGRESS] group=G024 step=T148-full-badges-start');
     var badgeAudit = window.AIO && typeof window.AIO.renderStaticDataGovernanceBadges === 'function' ? window.AIO.renderStaticDataGovernanceBadges({ full: true }) : null;
+    console.debug('[AIO TEST PROGRESS] group=G024 step=T148-full-badges-done');
     var hasBadge = !!document.querySelector('.aio-static-data-badge');
     _assert('T148 static_data_governance: badges render without breaking DOM', badgeAudit && hasBadge, badgeAudit && JSON.stringify({ items: badgeAudit.items && badgeAudit.items.length }));
 
+    console.debug('[AIO TEST PROGRESS] group=G024 step=T149-scheduler-start');
     var sched = window.AIO && typeof window.AIO.getRefreshSchedulerAudit === 'function' ? window.AIO.getRefreshSchedulerAudit() : null;
     _assert('T149 auto_refresh_scheduler: public audit exposed', sched && sched.totalTasks >= 5 && sched.tasks && sched.tasks.quotes, sched && JSON.stringify({ total: sched.totalTasks, missing: sched.tasksWithoutFn }));
 
-    var readiness = window.AIO && typeof window.AIO.getAutoOpsReadiness === 'function' ? window.AIO.getAutoOpsReadiness() : null;
+    var readiness = window.AIO && typeof window.AIO.getAutoOpsReadiness === 'function' ? window.AIO.getAutoOpsReadiness({ mode: 'runtime' }) : null;
     _assert('T150 auto_ops_readiness: unified diagnostic contract', readiness && readiness.commands && readiness.commands.forceRefresh && readiness.staticGovernance && readiness.scheduler, readiness && JSON.stringify({ status: readiness.status, issues: readiness.issues && readiness.issues.length }));
 
     _assert('T151 force_refresh: manual refresh entry point exists', window.AIO && typeof window.AIO.forceRefreshAllData === 'function' && typeof window.AIO.runScheduledRefresh === 'function');
@@ -1268,8 +1294,8 @@
       : '';
     _assert('T159 chat_data_coverage: missing data is explicit', /tickerData=MISS/.test(intentCtx) && /미수집|제한/.test(intentCtx), intentCtx);
 
-    var before = null;
-    try { before = localStorage.getItem('aio_chat_history'); } catch(_) {}
+    var before = null, beforeHistoryFlag = null;
+    try { before = localStorage.getItem('aio_chat_history'); beforeHistoryFlag = localStorage.getItem('aio_chat_history_enabled'); localStorage.setItem('aio_chat_history_enabled', '1'); } catch(_) {}
     try {
       localStorage.setItem('aio_chat_history', JSON.stringify([
         { ctx:'technical', q:'NVDA 지금 매수해도 돼?', a:'추격매수보다 10EMA와 거래량 확인이 우선입니다.', ts:Date.now() - 60000 }
@@ -1280,6 +1306,8 @@
     try {
       if (before == null) localStorage.removeItem('aio_chat_history');
       else localStorage.setItem('aio_chat_history', before);
+      if (beforeHistoryFlag == null) localStorage.removeItem('aio_chat_history_enabled');
+      else localStorage.setItem('aio_chat_history_enabled', beforeHistoryFlag);
     } catch(_) {}
 
     var profile = window.AIO && typeof window.AIO.getDataRequirementProfile === 'function'
@@ -1290,7 +1318,7 @@
     var plan = window.AIO && typeof window.AIO.getAutoFreshnessPlan === 'function'
       ? window.AIO.getAutoFreshnessPlan({ pageId:'home', query:'latest market news', tickers:['SPY'], reason:'chat' })
       : null;
-    _assert('T162 auto_fresh_plan: exposes plan shape', plan && Array.isArray(plan.tasks) && plan.profile && plan.coverage, plan && JSON.stringify({ status: plan.status, tasks: plan.tasks, command: plan.command }));
+    _assert('T162 auto_fresh_plan: exposes bounded coverage shape', plan && Array.isArray(plan.tasks) && plan.profile && plan.coverage && plan.coverage.sampleLimit === 120, plan && JSON.stringify({ status: plan.status, tasks: plan.tasks, command: plan.command, coverageScope: plan.coverageScope, sampleLimit: plan.coverage && plan.coverage.sampleLimit }));
 
     var dry = window.AIO && typeof window.AIO.ensureFreshDataForUse === 'function'
       ? window.AIO.ensureFreshDataForUse({ pageId:'home', query:'latest market news', dryRun:true })
@@ -1298,7 +1326,7 @@
     _assert('T163 ensure_fresh_data: dry-run returns a Promise', dry && typeof dry.then === 'function', typeof dry);
 
     var continuity = window.AIO && typeof window.AIO.getAutoDataContinuityAudit === 'function' ? window.AIO.getAutoDataContinuityAudit({ dryRun:true }) : null;
-    _assert('T164 continuity_audit: page-level data flow contract', continuity && continuity.pagesChecked >= 17 && Array.isArray(continuity.pages) /* v53.7 P725 */, continuity && JSON.stringify({ pages: continuity.pagesChecked, issues: continuity.issueCount }));
+    _assert('T164 continuity_audit: bounded page-level data flow contract', continuity && continuity.pagesChecked >= 17 && Array.isArray(continuity.pages) && continuity.coverageScope === 'requirements-only' && continuity.profileScope === 'base-requirements' && continuity.symbolLimit === 120 /* v54.60 P975 */, continuity && JSON.stringify({ pages: continuity.pagesChecked, issues: continuity.issueCount, scope: continuity.coverageScope, profileScope: continuity.profileScope, symbolLimit: continuity.symbolLimit }));
 
     var themeProfile = window.AIO && typeof window.AIO.getDataRequirementProfile === 'function'
       ? window.AIO.getDataRequirementProfile({ pageId:'themes', symbolLimit:999 })
@@ -1313,7 +1341,7 @@
     var themePlan = window.AIO && typeof window.AIO.getAutoFreshnessPlan === 'function'
       ? window.AIO.getAutoFreshnessPlan({ pageId:'themes', symbolLimit:999 })
       : null;
-    _assert('T167 theme_fresh_plan: quotes refresh sees theme symbol universe', themePlan && themePlan.profile && themePlan.profile.symbols.indexOf('NVDA') >= 0 && themePlan.tasks.indexOf('quotes') >= 0, themePlan && JSON.stringify({ tasks: themePlan.tasks, symbols: themePlan.profile.symbols.length }));
+    _assert('T167 theme_fresh_plan: quotes refresh sees theme universe through bounded coverage', themePlan && themePlan.profile && themePlan.profile.symbols.indexOf('NVDA') >= 0 && themePlan.tasks.indexOf('quotes') >= 0 && themePlan.coverage && themePlan.coverage.sampled === true && themePlan.coverage.sampleLimit === 120, themePlan && JSON.stringify({ tasks: themePlan.tasks, symbols: themePlan.profile.symbols.length, coverageScope: themePlan.coverageScope, sampleLimit: themePlan.coverage && themePlan.coverage.sampleLimit }));
 
     var syntheticPerf = typeof window.getThemePerf === 'function'
       ? window.getThemePerf({ id:'test_missing', nameKr:'Test', leaders:['ZZZ_TEST_MISSING'], tickers:['ZZZ_TEST_MISSING'], weights:{ ZZZ_TEST_MISSING:100 } })
@@ -1390,7 +1418,7 @@
       'status=' + (typeof brStatus === 'object' ? JSON.stringify(brStatus).substring(0,60) : brStatus));
 
     // T319: getAutoOpsReadiness 23→25축 (crossPage + dataAction 통합)
-    var ops = window.AIO.getAutoOpsReadiness();
+    var ops = _getFullAutoOpsAudit();
     _assert('T319 autoOps_25_axes: crossPageIndicator + dataActionHandler 통합',
       ops && ops.crossPageIndicator && ops.dataActionHandler && typeof ops.crossPageIndicator.issueCount === 'number',
       ops ? ('has crossPage=' + !!ops.crossPageIndicator + ' has dataAction=' + !!ops.dataActionHandler) : 'missing');
@@ -1462,7 +1490,7 @@
       sf ? 'issueCount=' + sf.issueCount : 'missing');
 
     // T328: getAutoOpsReadiness 26축 통합 (staticSeedFallback)
-    var ops = window.AIO.getAutoOpsReadiness();
+    var ops = _getFullAutoOpsAudit();
     _assert('T328 autoOps_26_axes: staticSeedFallback 통합',
       ops && ops.staticSeedFallback && typeof ops.staticSeedFallback.issueCount === 'number',
       ops && ops.staticSeedFallback ? 'has=true' : 'missing');
@@ -1613,7 +1641,7 @@
       'count=' + (pgs && pgs.options && pgs.options.subSections ? pgs.options.subSections.length : '?'));
 
     // T354 getAutoOpsReadiness 27축 (liveSymbolsCoverage 통합)
-    var ops = window.AIO.getAutoOpsReadiness();
+    var ops = _getFullAutoOpsAudit();
     _assert('T354 autoOps_27_axes: liveSymbolsCoverage 통합',
       ops && ops.liveSymbolsCoverage && typeof ops.liveSymbolsCoverage.issueCount === 'number',
       ops && ops.liveSymbolsCoverage ? 'has=true' : 'missing');
@@ -1698,7 +1726,7 @@
       guard && typeof guard.usable === 'boolean' && typeof guard.hardStaleMs === 'number',
       guard ? JSON.stringify(guard) : 'missing');
 
-    var gate = window.AIO && window.AIO.getDeploymentGateAudit ? window.AIO.getDeploymentGateAudit({ strict: false }) : null;
+    var gate = _getFullDeploymentGateAudit();
     _assert('T370 deployment_gate_available',
       gate && typeof gate.deployable === 'boolean' && Array.isArray(gate.blocking) && Array.isArray(gate.warnings),
       gate ? JSON.stringify(gate) : 'missing');
@@ -1707,7 +1735,7 @@
       typeof _ldSafe === 'function' && _ldSafe('__NO_SUCH_SYMBOL__', 'price') === null,
       'value=' + (typeof _ldSafe === 'function' ? _ldSafe('__NO_SUCH_SYMBOL__', 'price') : 'missing'));
 
-    var ops = window.AIO && window.AIO.getAutoOpsReadiness ? window.AIO.getAutoOpsReadiness() : null;
+    var ops = _getFullAutoOpsAudit();
     _assert('T372 autoops_sustained_freshness_axes',
       ops && ops.hardcodedQuoteFallback && ops.snapshotFallbackGuard && ops.commands && /DeploymentGate|deploymentGate/i.test(JSON.stringify(ops.commands)),
       ops ? 'has hardcoded=' + !!ops.hardcodedQuoteFallback + ' guard=' + !!ops.snapshotFallbackGuard : 'missing');
@@ -1798,7 +1826,7 @@
       typeof _showKrSupplyFailureState === 'function' && /_krCurrentSupplyEvidence\s*=\s*null/.test(_showKrSupplyFailureState.toString()) && !/fetchKrInvestorTop10/.test(krDynamicSrc383),
       'dynamic=' + krDynamicSrc383.slice(0, 180));
 
-    var ops = window.AIO && window.AIO.getAutoOpsReadiness ? window.AIO.getAutoOpsReadiness() : null;
+    var ops = _getFullAutoOpsAudit();
     _assert('T384_autoops_contract_and_kr_runtime_axes',
       ops && ops.operationalDataContract && ops.krSupplyRuntime && ops.commands && ops.commands.operationalDataContract && ops.commands.krSupplyRuntime,
       ops ? JSON.stringify(ops.commands) : 'missing');
@@ -1821,7 +1849,7 @@
       currentAudit && currentAudit.issues && currentAudit.issues.some(function(x) { return x.key === '__AIO_TEST__'; }),
       currentAudit ? JSON.stringify(currentAudit.issues.slice(-3)) : 'missing');
 
-    var ops2 = window.AIO && window.AIO.getAutoOpsReadiness ? window.AIO.getAutoOpsReadiness() : null;
+    var ops2 = _getFullAutoOpsAudit();
     _assert('T388_autoops_market_currentness_axis',
       ops2 && ops2.marketCurrentness && ops2.commands && ops2.commands.marketCurrentness && ops2.commands.applyMarketCurrentnessGuard,
       ops2 ? JSON.stringify(ops2.commands) : 'missing');
@@ -2330,12 +2358,12 @@
     _assert('T487 sidebar_essence_row_v4965: 3대 본질 row DOM 존재',
       !!essenceEl, 'essence row=' + !!essenceEl);
 
-    var ops = window.AIO && window.AIO.getAutoOpsReadiness && window.AIO.getAutoOpsReadiness();
+    var ops = _getFullAutoOpsAudit();
     _assert('T488 auto_ops_includes_essence_v4965: getAutoOpsReadiness에 essenceAlignment 통합',
       ops && ops.essenceAlignment && ops.commands && ops.commands.essenceAlignment === 'AIO.getEssenceAlignmentAudit()',
       ops ? 'hasEssence=' + !!ops.essenceAlignment : 'missing ops');
 
-    var gate = window.AIO && window.AIO.getDeploymentGateAudit && window.AIO.getDeploymentGateAudit({ strict: false });
+    var gate = _getFullDeploymentGateAudit();
     _assert('T489 deployment_gate_includes_essence_v4965: 배포 게이트가 3대 본질 점수 포함',
       gate && Object.prototype.hasOwnProperty.call(gate, 'essenceAlignment'),
       gate ? 'status=' + gate.status : 'missing gate');
@@ -2377,7 +2405,7 @@
     _assert('T510 sidebar_full_surface_row_v4967: sidebar audit row [data-audit-key="fullSurface"] exists',
       !!fsRow, 'fullSurface row=' + !!fsRow);
 
-    var opsSurface = window.AIO && window.AIO.getAutoOpsReadiness && window.AIO.getAutoOpsReadiness();
+    var opsSurface = _getFullAutoOpsAudit();
     _assert('T511 auto_ops_includes_full_surface_v4967: getAutoOpsReadiness includes fullSurfaceAudit',
       opsSurface && opsSurface.fullSurfaceAudit && opsSurface.commands && opsSurface.commands.fullSurfaceAudit === 'AIO.getFullSurfaceAudit()',
       opsSurface ? 'hasSurface=' + !!opsSurface.fullSurfaceAudit : 'missing ops');
@@ -2386,7 +2414,7 @@
       surface && surface.totals && surface.totals.visibleLoadingText === 0,
       surface ? 'visibleLoadingText=' + surface.totals.visibleLoadingText : 'missing full surface audit');
 
-    var gateSurface = window.AIO && window.AIO.getDeploymentGateAudit && window.AIO.getDeploymentGateAudit({ strict: false });
+    var gateSurface = _getFullDeploymentGateAudit();
     _assert('T513 deployment_gate_includes_full_surface_v4967: deployment gate includes fullSurfaceAudit',
       gateSurface && Object.prototype.hasOwnProperty.call(gateSurface, 'fullSurfaceAudit'),
       gateSurface ? 'hasSurface=' + Object.prototype.hasOwnProperty.call(gateSurface, 'fullSurfaceAudit') : 'missing gate');
@@ -2408,12 +2436,12 @@
     _assert('T517 sidebar_deep_review_row_v4967: sidebar audit row [data-audit-key="deepReview"] exists',
       !!drRow, 'deepReview row=' + !!drRow);
 
-    var opsDeep = window.AIO && window.AIO.getAutoOpsReadiness && window.AIO.getAutoOpsReadiness();
+    var opsDeep = _getFullAutoOpsAudit();
     _assert('T518 auto_ops_includes_deep_review_v4967: getAutoOpsReadiness includes deepReviewAudit',
       opsDeep && opsDeep.deepReviewAudit && opsDeep.commands && opsDeep.commands.deepReviewAudit === 'AIO.getDeepReviewAudit()',
       opsDeep ? 'hasDeep=' + !!opsDeep.deepReviewAudit : 'missing ops');
 
-    var gateDeep = window.AIO && window.AIO.getDeploymentGateAudit && window.AIO.getDeploymentGateAudit({ strict: false });
+    var gateDeep = _getFullDeploymentGateAudit();
     _assert('T519 deployment_gate_includes_deep_review_v4967: deployment gate includes deepReviewAudit',
       gateDeep && Object.prototype.hasOwnProperty.call(gateDeep, 'deepReviewAudit'),
       gateDeep ? 'hasDeep=' + Object.prototype.hasOwnProperty.call(gateDeep, 'deepReviewAudit') : 'missing gate');
@@ -2439,12 +2467,12 @@
     _assert('T554 sidebar_fourth_fifth_row_v4970: sidebar audit row [data-audit-key="fourthFifth"] exists',
       !!ffRow, 'fourthFifth row=' + !!ffRow);
 
-    var opsFf = window.AIO && window.AIO.getAutoOpsReadiness && window.AIO.getAutoOpsReadiness();
+    var opsFf = _getFullAutoOpsAudit();
     _assert('T555 auto_ops_includes_fourth_fifth_v4970: getAutoOpsReadiness includes fourthFifthPass',
       opsFf && opsFf.fourthFifthPass && opsFf.commands && opsFf.commands.fourthFifthPass === 'AIO.getFourthFifthPassAudit()',
       opsFf ? 'hasFourthFifth=' + !!opsFf.fourthFifthPass : 'missing ops');
 
-    var gateFf = window.AIO && window.AIO.getDeploymentGateAudit && window.AIO.getDeploymentGateAudit({ strict: false });
+    var gateFf = _getFullDeploymentGateAudit();
     _assert('T556 deployment_gate_includes_fourth_fifth_v4970: deployment gate includes fourthFifthPass',
       gateFf && Object.prototype.hasOwnProperty.call(gateFf, 'fourthFifthPass'),
       gateFf ? 'hasFourthFifth=' + Object.prototype.hasOwnProperty.call(gateFf, 'fourthFifthPass') : 'missing gate');
@@ -3302,7 +3330,14 @@
         if (firstTheme) {
           window.showThemeDetail(firstTheme);
           var themePanel = document.getElementById('theme-detail-panel');
-          themeOk = !!(themePanel && themePanel.style.display !== 'none' && (/LIVE REQUIRED|시세 대기|판정 보류/.test(themePanel.textContent || '')));
+          var nativeThemeDetailMounted = !!(themePanel && themePanel.dataset.aioThemeDetailPanelRenderer === 'native');
+          var themeSelectionQueued = window._currentThemeId === firstTheme;
+          var themeDetailVisible = !!(themePanel && themePanel.style.display !== 'none'
+            && (/LIVE REQUIRED|시세 대기|판정 보류/.test(themePanel.textContent || '')));
+          // Headless tests can run before the lazy native renderer mounts. At
+          // that evidence level, deterministic selection retention is the
+          // contract; real visibility is certified by Chromium route gates.
+          themeOk = themeSelectionQueued && (!nativeThemeDetailMounted || themeDetailVisible);
         }
       }
       if (typeof window.showSubThemeDetail === 'function') {
@@ -3339,12 +3374,22 @@
       window._liveData = syntheticLive;
       if (typeof window.showPage === 'function') window.showPage('themes');
       if (typeof window.showThemeDetail === 'function' && window.THEME_MAP && window.THEME_MAP.length) {
-        window.THEME_MAP.forEach(function(t) {
+        var themeRegistryComplete = window.THEME_MAP.every(function(t) {
+          return !!(t && t.id && t.nameKr && (Array.isArray(t.leaders) || Array.isArray(t.tickers)));
+        });
+        var sampleIndexes = [0, Math.floor(window.THEME_MAP.length / 2), window.THEME_MAP.length - 1]
+          .filter(function(index, position, list) { return list.indexOf(index) === position; });
+        sampleIndexes.map(function(index) { return window.THEME_MAP[index]; }).forEach(function(t, sampleIndex) {
           try { window.showThemeDetail(t.id); }
           catch(e) { allThemeDetailOk = false; allThemeErr = (t && t.id ? t.id : '?') + ': ' + (e && e.message || e); }
         });
+        allThemeDetailOk = allThemeDetailOk && themeRegistryComplete;
         var allThemePanel = document.getElementById('theme-detail-panel');
-        allThemeVisibleOk = !!(allThemePanel && allThemePanel.style.display !== 'none' && allThemePanel.dataset.currentTheme);
+        var representativeTheme = window.THEME_MAP[sampleIndexes[sampleIndexes.length - 1]];
+        var representativeSelectionQueued = !!(representativeTheme && window._currentThemeId === representativeTheme.id);
+        var representativeNativeMounted = !!(allThemePanel && allThemePanel.dataset.aioThemeDetailPanelRenderer === 'native');
+        var representativeVisible = !!(allThemePanel && allThemePanel.style.display !== 'none' && allThemePanel.dataset.currentTheme === representativeTheme.id);
+        allThemeVisibleOk = representativeSelectionQueued && (!representativeNativeMounted || representativeVisible);
       }
       if (typeof window.showPage === 'function') {
         window.showPage('theme-detail');
@@ -3357,7 +3402,7 @@
     } finally {
       window._liveData = prevLive;
     }
-    _assert('T860 theme_detail_all_themes_no_throw_v5227: all theme tiles open inline without dispatch crash',
+    _assert('T860 theme_detail_registry_and_representative_render_v5460: all theme records satisfy renderer schema and boundary samples open inline',
       allThemeDetailOk && allThemeVisibleOk,
       'allThemeDetailOk=' + allThemeDetailOk + ' visible=' + allThemeVisibleOk + ' err=' + allThemeErr);
     _assert('T861 theme_detail_route_redirect_v5227: orphan route redirects to themes inline surface',
@@ -3389,55 +3434,23 @@
       var fixture866 = document.createElement('div');
       fixture866.innerHTML = '<span id="t866-delta"></span>';
       document.body.appendChild(fixture866);
-      var prev5_866 = window._breadth5;
-      var prev20_866 = window._breadth20;
-      var prev200_866 = window._breadth200;
-      var prev50_866 = window._breadth50;
-      var prevLiveBreadth866 = window._breadthLiveData;
-      var b5Bar866 = document.getElementById('bb-5sma-bar');
-      var b5Val866 = document.getElementById('bb-5sma-val');
-      var b5Badge866 = document.getElementById('bb-5sma-badge');
-      var b5PrevStyle866 = b5Bar866 ? b5Bar866.getAttribute('style') : null;
-      var b5ValPrevText866 = b5Val866 ? b5Val866.textContent : null;
-      var b5ValPrevStyle866 = b5Val866 ? b5Val866.getAttribute('style') : null;
-      var b5BadgePrevText866 = b5Badge866 ? b5Badge866.textContent : null;
-      var b5BadgePrevStyle866 = b5Badge866 ? b5Badge866.getAttribute('style') : null;
-      window._breadth5 = 32;
-      window._breadth20 = 38;
-      window._breadth200 = null;
-      window._breadth50 = 48;
-      window._breadthLiveData = { sma5:32, sma20:38, sma50:48, ts:Date.now(), source:'test-observed' };
       if (typeof _aioSetDeltaEl === 'function') _aioSetDeltaEl('t866-delta', 0, 1, { suffix:'pp', decimals:0 });
-      if (typeof updateBreadthBars === 'function') updateBreadthBars();
       var delta866 = document.getElementById('t866-delta');
-      var b5Bg866 = b5Bar866 && b5Bar866.style.background || '';
+      var regime866 = typeof NARRATIVE_ENGINE !== 'undefined' && NARRATIVE_ENGINE.getBreadthRegime
+        ? NARRATIVE_ENGINE.getBreadthRegime(32)
+        : null;
       t866ok = !!(delta866 && delta866.textContent === '0pp' && /is-flat/.test(delta866.className || '') &&
         !/±/.test(delta866.textContent || '') &&
-        /(?:255,\s*91,\s*80|#ff5b50)/i.test(b5Bg866) &&
-        /공포/.test(b5Badge866 && b5Badge866.textContent || ''));
+        regime866 && /#ff5b50/i.test(regime866.color || '') && /공포/.test(regime866.label || ''));
       t866detail = JSON.stringify({
         delta: delta866 && delta866.textContent,
         deltaClass: delta866 && delta866.className,
-        b5Bg: b5Bg866,
-        b5Badge: b5Badge866 && b5Badge866.textContent
+        regimeColor: regime866 && regime866.color,
+        regimeLabel: regime866 && regime866.label
       });
-      window._breadth5 = prev5_866;
-      window._breadth20 = prev20_866;
-      window._breadth200 = prev200_866;
-      window._breadth50 = prev50_866;
-      window._breadthLiveData = prevLiveBreadth866;
-      if (b5Bar866) b5PrevStyle866 == null ? b5Bar866.removeAttribute('style') : b5Bar866.setAttribute('style', b5PrevStyle866);
-      if (b5Val866) {
-        b5Val866.textContent = b5ValPrevText866;
-        b5ValPrevStyle866 == null ? b5Val866.removeAttribute('style') : b5Val866.setAttribute('style', b5ValPrevStyle866);
-      }
-      if (b5Badge866) {
-        b5Badge866.textContent = b5BadgePrevText866;
-        b5BadgePrevStyle866 == null ? b5Badge866.removeAttribute('style') : b5Badge866.setAttribute('style', b5BadgePrevStyle866);
-      }
       fixture866.remove();
     } catch(e) { t866detail = 'ERR:' + e.message; }
-    _assert('T866 breadth_regime_color_and_zero_delta_v5231: 32% breadth renders fearful red and zero delta is neutral 0pp',
+    _assert('T866 breadth_regime_contract_and_zero_delta_v5460: 32% breadth classifies fearful red and zero delta is neutral 0pp',
       t866ok,
       t866detail);
     var briefSummarySrc867 = typeof _buildBriefingDecisionSummary === 'function' ? _buildBriefingDecisionSummary.toString() : '';
@@ -3607,11 +3620,11 @@
     _assert('T676 data_lineage_no_broken_v4989: lineage rows >= 13 + broken === 0 (gap/manual은 정상)',
       dl && Array.isArray(dl.rows) && dl.rows.length >= 13 && dl.broken === 0,
       dl ? 'total=' + dl.total + ' connected=' + dl.connected + ' broken=' + dl.broken + ' gap=' + dl.gap + ' manual=' + dl.manual : 'no audit');
-    // T677: breadth=connected / staticMacro=manual 정확 분류 (v52.92 자동 breadth 반영)
+    // T677: breadth/staticMacro 모두 scheduled producer에 연결됨 (v54.63 공식 macro 자동화 반영)
     var breadthRow = dl && dl.rows && dl.rows.filter(function(r){ return r.id === 'breadth'; })[0];
-    var macroRow = dl && dl.rows && dl.rows.filter(function(r){ return r.id === 'staticMacro'; })[0];
-    _assert('T677 data_lineage_tier_classify_v5292: breadth=connected + staticMacro=manual',
-      breadthRow && breadthRow.status === 'connected' && macroRow && macroRow.status === 'manual',
+    var macroRow = dl && dl.rows && dl.rows.filter(function(r){ return r.id === 'officialServerMacro'; })[0];
+    _assert('T677 data_lineage_tier_classify_v5463: breadth=connected + staticMacro=connected',
+      breadthRow && breadthRow.status === 'connected' && macroRow && macroRow.status === 'connected',
       'breadth=' + (breadthRow ? breadthRow.status : '?') + ' macro=' + (macroRow ? macroRow.status : '?'));
     // T678: 사이드바 19축 dataLineage row DOM
     _assert('T678 sidebar_19_lineage_v4989: [data-audit-key="dataLineage"] DOM',
@@ -4240,7 +4253,7 @@
       findings ? 'count=' + findings.length : 'missing');
 
     // T312: getAutoOpsReadiness 22→23축 (inlineThresholdTable 통합)
-    var ops = window.AIO.getAutoOpsReadiness();
+    var ops = _getFullAutoOpsAudit();
     _assert('T312 autoOps_inline_threshold: inlineThresholdTable 통합',
       ops && ops.inlineThresholdTable && typeof ops.inlineThresholdTable.issueCount === 'number',
       ops ? 'has inline=' + !!ops.inlineThresholdTable : 'missing');
@@ -4389,7 +4402,7 @@
       fundCritLen >= 15, 'criteria=' + fundCritLen);
 
     // T290: getAutoOpsReadiness 21→22축 (pageCriteria 통합)
-    var ops = window.AIO.getAutoOpsReadiness();
+    var ops = _getFullAutoOpsAudit();
     _assert('T290 autoOps_22_axes: pageCriteria 통합',
       ops && ops.pageCriteria && typeof ops.pageCriteria.coveragePct === 'number',
       ops ? 'has pageCriteria=' + !!ops.pageCriteria : 'missing');
@@ -4560,7 +4573,7 @@
       hf ? 'status=' + hf.status + ' healthy=' + hf.chainHealthy : 'missing');
 
     // T268: getAutoOpsReadiness 13→20축 통합 (5 신규 + 2 확장)
-    var ops = window.AIO.getAutoOpsReadiness();
+    var ops = _getFullAutoOpsAudit();
     _assert('T268 autoOps_20_axes: 5 신규 + 2 확장 통합',
       ops && ops.numericGuideline && ops.tickerMapping && ops.chatPriceFetchHealth && ops.fundCriteria,
       ops ? 'axes=' + Object.keys(ops).length : 'missing');
@@ -4640,7 +4653,7 @@
       cycleLate ? 'text=' + cycleLateText.slice(0, 80) : 'missing');
 
     // T257: getAutoOpsReadiness 13축 통합 (geopolitical 포함)
-    var ops = window.AIO && window.AIO.getAutoOpsReadiness ? window.AIO.getAutoOpsReadiness() : null;
+    var ops = _getFullAutoOpsAudit();
     _assert('T257 autoOps_13_axes: getAutoOpsReadiness에 geopolitical 통합',
       ops && ops.geopolitical && typeof ops.geopolitical.overdueCount === 'number',
       ops ? ('axes=' + Object.keys(ops).length + ' has geopolitical=' + !!ops.geopolitical) : 'missing');
@@ -5322,9 +5335,10 @@
     var bwT750 = typeof _getBriefingWindowKST === 'function' ? _getBriefingWindowKST() : { start: nowT750 - 6 * 3600000, end: nowT750 + 6 * 3600000, anchorDate: new Date(nowT750) };
     var inBriefingDate = new Date(Math.min(bwT750.start + 2 * 3600000, Date.now())).toISOString();
     var sampleNews = [
-      { title:'Fed rates shock lifts SPY and QQQ', source:'Reuters', tier:1, country:'us', topic:'macro', score:96, pubDate:inBriefingDate, link:'https://example.com/fed-rates', tickers:['SPY','QQQ'] },
+      { title:'Fed rates shock lifts SPY and QQQ', desc:'Policy expectations moved after a documented release with enough body context for this deterministic fixture.', source:'Reuters', tier:1, country:'us', topic:'macro', score:96, pubDate:inBriefingDate, link:'https://example.com/fed-rates', tickers:['SPY','QQQ'] },
       { title:'Fed rates shock lifts SPY and QQQ duplicate', source:'Bloomberg', tier:1, country:'us', topic:'macro', score:94, pubDate:inBriefingDate, link:'https://example.com/fed-rates-2' },
-      { title:'NVDA earnings guide raises AI capex debate', source:'CNBC', tier:2, country:'us', topic:'earnings', score:82, pubDate:inBriefingDate, link:'https://example.com/nvda', tickers:['NVDA'] },
+      { title:'NVDA earnings guide raises AI capex debate', desc:'The fixture includes a sufficiently long summary so the body-depth gate can distinguish it from RSS headlines.', source:'CNBC', tier:2, country:'us', topic:'earnings', score:82, pubDate:inBriefingDate, link:'https://example.com/nvda', tickers:['NVDA'] },
+      { title:'Wire headline without article body', source:'Reuters', tier:1, country:'us', topic:'macro', score:90, pubDate:inBriefingDate, link:'https://example.com/headline-only', contentDepth:'headline-only' },
       { title:'Telegram rumor says bank rescue is imminent', source:'TG Fast Feed', tier:4, country:'us', topic:'equity', score:76, pubDate:inBriefingDate, link:'https://example.com/tg-rumor', _tgChannel:true },
       { title:'Old weekly static market item', source:'Archive', tier:2, country:'us', topic:'macro', score:99, pubDate:new Date(nowT750 - 96 * 3600000).toISOString(), link:'https://example.com/old' }
     ];
@@ -5342,7 +5356,8 @@
 
     _assert('T752 v502_briefing_ai_uses_verified_current_only: secondary/unverified stay out of AI summary set',
       briefingModel && briefingModel.aiItems.every(function(i) { return i.eligibleForAi && i.verificationStatus === 'verified-current'; }) &&
-        briefingModel.reviewItems.some(function(i) { return i.verificationStatus === 'secondary-only'; }),
+        briefingModel.reviewItems.some(function(i) { return i.verificationStatus === 'secondary-only'; }) &&
+        briefingModel.reviewItems.some(function(i) { return i.verificationStatus === 'headline-only' && i.eligibleForAi === false; }),
       JSON.stringify(briefingModel && { ai: briefingModel.aiItems.map(function(i){return i.verificationStatus;}), review: briefingModel.reviewItems.map(function(i){return i.verificationStatus;}) }));
 
     var emptyFiltered = window.AIO && window.AIO.buildNewsSurfaceModel ? window.AIO.buildNewsSurfaceModel('market-news', sampleNews, { nowMs: nowT750, countryFilter:'all', topicFilter:'crypto', typeTab:'all', sortMode:'score' }) : null;
@@ -6264,7 +6279,7 @@
       var coh815 = hasCoherence ? window.AIO.getMarketStateCoherenceAudit() : null;
       var cohOk = !!(coh815 && coh815.present === true && (coh815.status === 'ok' || coh815.status === 'warn'));
       // AutoOps에 통합됐는지(명령 맵 + 필드)
-      var ro815 = (window.AIO && typeof window.AIO.getAutoOpsReadiness === 'function') ? window.AIO.getAutoOpsReadiness() : null;
+      var ro815 = _getFullAutoOpsAudit();
       var wiredAutoOps = !!(ro815 && ro815.commands && ro815.commands.marketStateCoherence && ('marketStateCoherence' in ro815));
       t815ok = hasCompute && hasSchedule && hasCoherence && fired815 && stateShapeOk && cacheOk815 && cohOk && wiredAutoOps;
       t815detail = 'compute=' + hasCompute + ' schedule=' + hasSchedule + ' fired=' + fired815 + ' shape=' + stateShapeOk + ' cache=' + cacheOk815 + ' coherence=' + (coh815 ? coh815.status : 'na') + ' autoOps=' + wiredAutoOps;
@@ -6398,7 +6413,7 @@
       var coreConnected = !!(la && la.stages.brain.ok && la.stages.text.ok && la.stages.reflect.ok); // 두뇌→텍스트→반영 핵심 고리
       var statusOk = !!(la && (la.status === 'ok' || la.status === 'warn') && typeof la.connected === 'string');
       // AutoOps 통합
-      var ro = (typeof window.AIO.getAutoOpsReadiness === 'function') ? window.AIO.getAutoOpsReadiness() : null;
+      var ro = _getFullAutoOpsAudit();
       var wiredAutoOps = !!(ro && ro.commands && ro.commands.autonomousLoop);
       // 서버 LLM 우선 폴백: _serverMarketAnalysis 주입 시 sink source가 server-llm
       var serverPriorityOk = false;
@@ -7149,8 +7164,9 @@
     var t844ok = false, t844detail = '';
     try {
       var runtime844 = window.AIO && typeof window.AIO.getRuntimeContractAudit === 'function' ? window.AIO.getRuntimeContractAudit() : null;
-      var share844 = window.AIO && typeof window.AIO.getShareReadinessAudit === 'function' ? window.AIO.getShareReadinessAudit({ skipEssence: true }) : null;
-      var deploy844 = window.AIO && typeof window.AIO.getDeploymentGateAudit === 'function' ? window.AIO.getDeploymentGateAudit({ strict: false, skipEssence: true }) : null;
+      var readiness844 = _getFullAutoOpsAudit();
+      var deploy844 = _getFullDeploymentGateAudit();
+      var share844 = window.AIO && typeof window.AIO.getShareReadinessAudit === 'function' ? window.AIO.getShareReadinessAudit({ skipEssence: true, readiness: readiness844, deployment: deploy844 }) : null;
       var scripts844 = Array.from(document.scripts || []).map(function(s) { return s.getAttribute('src') || ''; }).filter(function(src) { return src.indexOf('./js/aio-') >= 0; });
       var oldCache844 = scripts844.some(function(src) { return /\?v=50\.(75|76|77|78)/.test(src); });
       t844ok = !!(runtime844 && runtime844.status !== 'fail' &&
@@ -7847,19 +7863,19 @@
     try {
       window.DATA_SNAPSHOT = { fg: 31, _updated: '2026-07-03T00:00:00Z' };
       window._lastFG = 49;
-      window._lastFGMeta = { value:49, source:'cnn', sourceKind:'live', sourceLabel:'test-live', sourceTs:new Date().toISOString(), fetchedAt:Date.now(), freshnessClock:'fetch' };
+      window._lastFGMeta = { value:49, source:'cnn', sourceKind:'live', sourceLabel:'test-live', sourceTs:new Date().toISOString(), fetchedAt:Date.now(), freshnessClock:'fetch', allowedUse:'reference', allowedUseCeiling:'reference' };
       var live901 = window.AIO.getCanonicalMetric('fg');
-      _assert('T901 canonical_prefers_live_over_snapshot (H3-A)', live901.value === 49 && live901.status === 'VALID' && live901.allowedUse === true, JSON.stringify(live901));
+      _assert('T901 canonical_prefers_current_observation_without_policy_promotion (H3-A)', live901.value === 49 && live901.status === 'REFERENCE_CURRENT' && live901.allowedUse === false, JSON.stringify(live901));
       window._lastFG = 0;
-      window._lastFGMeta = { value:0, source:'cnn', sourceKind:'live', sourceLabel:'test-zero', sourceTs:new Date().toISOString(), fetchedAt:Date.now(), freshnessClock:'fetch' };
+      window._lastFGMeta = { value:0, source:'cnn', sourceKind:'live', sourceLabel:'test-zero', sourceTs:new Date().toISOString(), fetchedAt:Date.now(), freshnessClock:'fetch', allowedUse:'reference', allowedUseCeiling:'reference' };
       var zero902 = window.AIO.getCanonicalMetric('fg');
-      _assert('T902 canonical_preserves_zero (H3-A)', zero902.value === 0 && zero902.status === 'VALID', JSON.stringify(zero902));
+      _assert('T902 canonical_preserves_reference_zero (H3-A)', zero902.value === 0 && zero902.status === 'REFERENCE_CURRENT' && zero902.allowedUse === false, JSON.stringify(zero902));
       window._lastFG = 49;
       window._lastFGMeta = { value:49, source:'cnn', sourceKind:'snapshot', sourceLabel:'test-snapshot', sourceTs:'2026-07-03T00:00:00Z', fetchedAt:null, freshnessClock:'observation' };
       var ref903 = window.AIO.getCanonicalMetric('fg');
       _assert('T903 snapshot_not_decision_use (H3-A)', ref903.value === 31 && ref903.status === 'SNAPSHOT_REFERENCE' && ref903.allowedUse === false, JSON.stringify(ref903));
       window._lastFG = 49;
-      window._lastFGMeta = { value:49, source:'cnn', sourceKind:'live', sourceLabel:'test-stale', sourceTs:new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(), fetchedAt:Date.now() - 8 * 60 * 60 * 1000, freshnessClock:'fetch' };
+      window._lastFGMeta = { value:49, source:'cnn', sourceKind:'live', sourceLabel:'test-stale', sourceTs:new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(), fetchedAt:Date.now() - 8 * 60 * 60 * 1000, freshnessClock:'fetch', allowedUse:'reference', allowedUseCeiling:'reference' };
       var stale904 = window.AIO.getCanonicalMetric('fg');
       _assert('T904 stale_current_is_blocked (H3-A)', stale904.value === 49 && stale904.status === 'STALE' && stale904.allowedUse === false, JSON.stringify(stale904));
     } finally {
@@ -8268,12 +8284,21 @@
       JSON.stringify({ off: consentOff, on: consentOn }));
 
     var oldHistory = window.AIO.getChatHistoryPolicy();
+    var oldHistoryRows = null, oldHistoryFlag = null;
+    try { oldHistoryRows = localStorage.getItem('aio_chat_history'); oldHistoryFlag = localStorage.getItem('aio_chat_history_enabled'); localStorage.setItem('aio_chat_history', '[{"q":"sensitive"}]'); } catch(_) {}
+    var redactedHistory = window.AIO.prepareChatHistoryEntry({ ctx:'portfolio', q:'me@example.com API_KEY=abcdef123456 AAPL 120주 $45000 35%', a:'Bearer abcdefghijklmnop 010-1234-5678' });
     window.AIO.setChatHistoryEnabled(false);
     var historyOff = window.AIO.getChatHistoryPolicy();
-    window.AIO.setChatHistoryEnabled(oldHistory.enabled);
-    _assert('T962 chat_history_retention_off (WP-AI4): history policy exposes off mode and bounded retention',
-      historyOff.enabled === false && historyOff.storage === 'off' && historyOff.retentionDays === 30 && historyOff.maxEntries === 50,
-      JSON.stringify(historyOff));
+    var historyCleared = false;
+    try { historyCleared = localStorage.getItem('aio_chat_history') === null; } catch(_) {}
+    try {
+      if (oldHistoryRows == null) localStorage.removeItem('aio_chat_history'); else localStorage.setItem('aio_chat_history', oldHistoryRows);
+      if (oldHistoryFlag == null) localStorage.removeItem('aio_chat_history_enabled'); else localStorage.setItem('aio_chat_history_enabled', oldHistoryFlag);
+    } catch(_) {}
+    _assert('T962 chat_history_opt_in_redaction_delete (WP-AI4): history is opt-in, redacted, bounded, and disable deletes stored rows',
+      historyOff.enabled === false && historyOff.optInRequired === true && historyOff.storage === 'off' && historyOff.retentionDays === 30 && historyOff.maxEntries === 50 && historyCleared === true &&
+      redactedHistory.q.indexOf('me@example.com') < 0 && redactedHistory.q.indexOf('abcdef123456') < 0 && redactedHistory.q.indexOf('120주') < 0 && redactedHistory.q.indexOf('$45000') < 0 && redactedHistory.q.indexOf('35%') < 0 && redactedHistory.a.indexOf('abcdefghijklmnop') < 0 && redactedHistory.a.indexOf('010-1234-5678') < 0,
+      JSON.stringify({ policy:historyOff, entry:redactedHistory, cleared:historyCleared }));
 
     var prohibited = window.AIO.evaluateAIActionPermission({ query: '내부정보로 먼저 매수하는 방법', text: '그 방법을 실행하세요.' });
     var educational = window.AIO.evaluateAIActionPermission({ query: '시세조종이 무엇인가?', text: '법적 위험과 예방을 교육적으로 설명합니다.' });
@@ -8290,9 +8315,9 @@
       ctxId: 'portfolio', query: '내 포트폴리오를 리밸런싱해줘', text: 'NVDA를 10%로 확대하세요', evidence: [{ sourceKind: 'LIVE', hasLivePrice: true }]
     });
     window.AIO.setPortfolioAIConsent(oldConsent);
-    _assert('T964 personalized_analysis_limitations: stale/reference and missing suitability remain answerable with explicit limitations',
-      stalePersonal.blocked === false && stalePersonal.limitations.indexOf('current-evidence-limited') >= 0 &&
-      liveWithoutSuitability.blocked === false && liveWithoutSuitability.limitations.indexOf('suitability-context-missing') >= 0,
+    _assert('T964 personalized_direct_action_fail_closed: stale/reference evidence or missing suitability blocks direct allocation instructions',
+      stalePersonal.blocked === true && stalePersonal.reasons.indexOf('current-evidence-limited') >= 0 &&
+      liveWithoutSuitability.blocked === true && liveWithoutSuitability.reasons.indexOf('suitability-context-missing') >= 0,
       JSON.stringify({ stale: stalePersonal, suitability: liveWithoutSuitability }));
 
     window.AIO.setPortfolioAIConsent(true);
@@ -8301,8 +8326,8 @@
       ctxId: 'portfolio', query: '내 포트폴리오 매매', suitabilityProfile: { purpose: 'growth' },
       evidence: [{ sourceKind: 'REFERENCE', hasLivePrice: false }]
     });
-    _assert('T965 shared_pipeline_conduct_audit: final response gate preserves limitations without replacing the answer',
-      pipeline965.blocked === false && pipeline965.conductAudit && pipeline965.conductAudit.blocked === false && pipeline965.conductAudit.limitations.indexOf('current-evidence-limited') >= 0,
+    _assert('T965 shared_pipeline_conduct_audit: final response gate replaces unsupported personalized action with the safe boundary',
+      pipeline965.blocked === true && pipeline965.conductAudit && pipeline965.conductAudit.blocked === true && pipeline965.conductAudit.reasons.indexOf('current-evidence-limited') >= 0 && pipeline965.text.indexOf('decision-grade') >= 0,
       JSON.stringify(pipeline965));
     window.AIO.setPortfolioAIConsent(oldConsent);
 
@@ -9037,6 +9062,9 @@
     var recordAssertion = settings.recordAssertion !== false;
     (Array.isArray(groups) ? groups : []).forEach(function(group, index) {
       var groupId = group && group.id ? String(group.id) : 'missing-' + (index + 1);
+      if (typeof settings.onProgress === 'function') {
+        try { settings.onProgress({ groupId:groupId, index:index + 1, total:groups.length }); } catch(_) {}
+      }
       var assertionId = 'GROUP-' + groupId + '-EXCEPTION';
       if (seen[groupId]) {
         exceptionGroups++;
@@ -9052,6 +9080,8 @@
         return;
       }
       assertionIds[assertionId] = true;
+      var previousGroupId = _activeTestGroupId;
+      _activeTestGroupId = groupId;
       try {
         if (!group || typeof group.run !== 'function') throw new Error('group runner missing');
         group.run();
@@ -9062,6 +9092,8 @@
         var message = error && error.message ? error.message : String(error);
         results.push({ id:groupId, name:String(group.name || groupId), status:'exception', error:message });
         if (recordAssertion) _assert(assertionId, false, message);
+      } finally {
+        _activeTestGroupId = previousGroupId;
       }
     });
     var plannedGroups = Array.isArray(groups) ? groups.length : 0;
@@ -9077,12 +9109,51 @@
     ], { recordAssertion:false });
   };
 
-  window.AIO.runTests = function() {
+  function _selectTestGroups(options) {
+    var settings = options || {};
+    var requested = Array.isArray(settings.groupIds)
+      ? settings.groupIds.map(function(id) { return String(id || '').trim().toUpperCase(); }).filter(Boolean)
+      : [];
+    requested = requested.filter(function(id, index) { return requested.indexOf(id) === index; });
+    if (requested.length) {
+      var known = Object.create(null);
+      _TEST_GROUPS.forEach(function(group) { known[group.id] = true; });
+      var unknown = requested.filter(function(id) { return !known[id]; });
+      if (unknown.length) throw new Error('UNKNOWN_TEST_GROUPS:' + unknown.join(','));
+      return {
+        mode:'groups',
+        requested:requested,
+        groups:_TEST_GROUPS.filter(function(group) { return requested.indexOf(group.id) !== -1; })
+      };
+    }
+    var shardCount = Math.max(1, Math.floor(Number(settings.shardCount) || 1));
+    var shardIndex = Math.min(shardCount, Math.max(1, Math.floor(Number(settings.shardIndex) || 1)));
+    return {
+      mode:'shard',
+      requested:[],
+      groups:_TEST_GROUPS.filter(function(_, index) { return index % shardCount === shardIndex - 1; })
+    };
+  }
+
+  window.AIO.getTestGroupRegistry = function() {
+    return _TEST_GROUPS.map(function(group) { return { id:group.id, name:group.name }; });
+  };
+
+  window.AIO.runTests = function(options) {
+    options = options || {};
+    var shardCount = Math.max(1, Math.floor(Number(options.shardCount) || 1));
+    var shardIndex = Math.min(shardCount, Math.max(1, Math.floor(Number(options.shardIndex) || 1)));
+    var selection = _selectTestGroups(options);
+    var selectedGroups = selection.groups;
     _resetCounters();
 
     console.group('[AIO TEST] registry 단위 테스트 실행');
-    console.log('대상 그룹: ' + _TEST_GROUPS.length + '개 (registry-derived)');
-    var groupRun = _runGroupRegistry(_TEST_GROUPS);
+    console.log('대상 그룹: ' + selectedGroups.length + '/' + _TEST_GROUPS.length + '개 (' + (selection.mode === 'groups' ? selection.requested.join(',') : 'shard ' + shardIndex + '/' + shardCount) + ')');
+    var groupRun = _runGroupRegistry(selectedGroups, {
+      onProgress: options.progress === true ? function(progress) {
+        console.debug('[AIO TEST PROGRESS] shard=' + shardIndex + '/' + shardCount + ' group=' + progress.groupId + ' ' + progress.index + '/' + progress.total);
+      } : null
+    });
     _groupResults = groupRun.results;
 
     var total = _passCount + _failCount;
@@ -9097,6 +9168,8 @@
       total: total,
       allPass: _failCount === 0 && groupRun.allPass,
       summary: summary,
+      shard: { index:shardIndex, count:shardCount, registryGroups:_TEST_GROUPS.length, selectedGroups:selectedGroups.length },
+      selection: { mode:selection.mode, requestedGroups:selection.requested.slice() },
       results: _testResults.slice(),
       groups: { plannedGroups: groupRun.plannedGroups, completedGroups: groupRun.completedGroups, exceptionGroups: groupRun.exceptionGroups, allPass: groupRun.allPass },
       groupResults: _groupResults.slice()

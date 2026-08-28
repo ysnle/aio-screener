@@ -1,0 +1,83 @@
+name: Operations failure escalation
+
+# One durable issue per monitored workflow. This turns repeated red runs into an owned,
+# deduplicated recovery loop without editing source, dispatching work, or deploying.
+on:
+  workflow_run:
+    workflows: ['CI', 'Deploy GitHub Pages', 'Data freshness watchdog', 'Knowledge base lint', 'Refresh market data', 'Refresh screener and SEC fundamentals', 'Deploy AI proxy', 'Deploy fast data plane']
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+  issues: write
+
+jobs:
+  reconcile:
+    if: github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reconcile workflow failure issue
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const run = context.payload.workflow_run;
+            const workflow = run.name;
+            const marker = `<!-- aio-operations-alert:${workflow} -->`;
+            const label = 'aio-operations-alert';
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            try {
+              await github.rest.issues.getLabel({ owner, repo, name: label });
+            } catch (error) {
+              if (error.status !== 404) throw error;
+              await github.rest.issues.createLabel({ owner, repo, name: label, color: 'B60205', description: 'Automated AIO workflow recovery alert' });
+            }
+
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: 'all',
+              labels: label,
+              per_page: 100
+            });
+            const existing = issues.find((issue) => !issue.pull_request && String(issue.body || '').includes(marker));
+            const succeeded = run.conclusion === 'success';
+            const runUrl = run.html_url;
+            const sha = String(run.head_sha || '').slice(0, 12);
+            const timestamp = new Date(run.updated_at || Date.now()).toISOString();
+
+            if (succeeded) {
+              if (existing && existing.state === 'open') {
+                await github.rest.issues.createComment({ owner, repo, issue_number: existing.number, body: `Recovered: [${workflow} run ${run.id}](${runUrl}) succeeded at ${timestamp}.` });
+                await github.rest.issues.update({ owner, repo, issue_number: existing.number, state: 'closed', state_reason: 'completed' });
+              }
+              return;
+            }
+
+            const recentRuns = await github.paginate(github.rest.actions.listWorkflowRunsForRepo, {
+              owner,
+              repo,
+              branch: 'main',
+              status: 'completed',
+              per_page: 100
+            });
+            const sameWorkflowRuns = recentRuns
+              .filter((candidate) => candidate.name === workflow && candidate.id !== run.id)
+              .sort((left, right) => new Date(right.updated_at) - new Date(left.updated_at));
+            let consecutiveFailures = 1;
+            for (const candidate of sameWorkflowRuns) {
+              if (candidate.conclusion === 'success') break;
+              consecutiveFailures += 1;
+            }
+            if (consecutiveFailures < 2) return;
+
+            const title = `[Operations] ${workflow} is ${run.conclusion || 'not successful'}`;
+            const body = `${marker}\n## Automated recovery alert\n\n- Workflow: **${workflow}**\n- Conclusion: **${run.conclusion || 'unknown'}**\n- Consecutive failures: **${consecutiveFailures}**\n- Branch: \`${run.head_branch || 'unknown'}\`\n- Revision: \`${sha || 'unknown'}\`\n- Updated: ${timestamp}\n- Run: ${runUrl}\n\nThis issue is updated/reopened on repeated failures and closes only when the same workflow succeeds. It does not authorize an automatic source change, commit, dispatch, or deployment.`;
+            if (existing) {
+              await github.rest.issues.update({ owner, repo, issue_number: existing.number, title, body, state: 'open' });
+              await github.rest.issues.createComment({ owner, repo, issue_number: existing.number, body: `Still failing: [run ${run.id}](${runUrl}) concluded **${run.conclusion || 'unknown'}** at ${timestamp}.` });
+            } else {
+              await github.rest.issues.create({ owner, repo, title, body, labels: [label] });
+            }

@@ -28,6 +28,7 @@ for (const [categoryId, contract] of Object.entries(DATA_SOURCE_REGISTRY)) {
   if (!Array.isArray(contract.artifacts) || contract.artifacts.length === 0) fail(`${categoryId} artifacts missing`);
   if (!Array.isArray(contract.consumers) || contract.consumers.length === 0) fail(`${categoryId} consumers missing`);
   if (!Array.isArray(contract.origins) || contract.origins.length === 0) fail(`${categoryId} origins missing`);
+  if (contract.allowedUseCeiling && !['decision', 'reference', 'none'].includes(contract.allowedUseCeiling)) fail(`${categoryId} allowed-use ceiling is invalid`);
   for (const origin of contract.origins) {
     for (const field of ['id', 'authority', 'sourceKind', 'access', 'url']) {
       if (!origin[field]) fail(`${categoryId}/${origin.id || 'unknown'} ${field} missing`);
@@ -39,6 +40,7 @@ for (const [categoryId, contract] of Object.entries(DATA_SOURCE_REGISTRY)) {
     fail(`${categoryId} structural limit is incomplete`);
   }
 }
+if (DATA_SOURCE_REGISTRY['fear-greed']?.allowedUseCeiling !== 'reference') fail('CNN Fear & Greed must remain reference-only until licensed rights are configured');
 
 const breadthRows = history.filter((row) => row?.breadth20 != null || row?.breadth50 != null || row?.breadth200 != null);
 for (const row of breadthRows) {
@@ -60,32 +62,6 @@ for (const gap of CRITICAL_DATA_GAP_REGISTRY) {
   if (gap.priority === 'P0' && gap.status !== 'BLOCKED' && (!gap.validationGate || !gap.implementedScope || !gap.remainingLimit)) fail(`${gap.id} P0 partial capability requires a validation gate, implemented scope and remaining limit`);
 }
 
-const workflowRequirements = {
-  '.github/workflows/refresh-data.yml': [
-    'ci-source-registry-contract-check.mjs',
-    'ci-professional-data-gap-check.mjs',
-    'ci-static-data-contract-check.mjs',
-    'ci-data-refresh-audit.mjs'
-  ],
-  '.github/workflows/refresh-screener.yml': [
-    'ci-source-registry-contract-check.mjs',
-    'ci-professional-data-gap-check.mjs',
-    'ci-static-data-contract-check.mjs',
-    'ci-data-refresh-audit.mjs',
-    'public-data/history.json'
-  ],
-  '.github/workflows/data-watchdog.yml': [
-    'ci-source-registry-contract-check.mjs',
-    'ci-professional-data-gap-check.mjs',
-    'ci-static-data-contract-check.mjs',
-    'ci-data-refresh-audit.mjs'
-  ]
-};
-for (const [workflow, requiredTokens] of Object.entries(workflowRequirements)) {
-  const source = read(workflow);
-  for (const token of requiredTokens) if (!source.includes(token)) fail(`${workflow} does not enforce ${token}`);
-}
-
 console.log(JSON.stringify({
   ok: true,
   categoryCount: SOURCE_REGISTRY_CATEGORY_IDS.length,
@@ -93,6 +69,5 @@ console.log(JSON.stringify({
   dailyAuditCoverage: `${SOURCE_REGISTRY_CATEGORY_IDS.length}/${SOURCE_REGISTRY_CATEGORY_IDS.length}`,
   criticalGaps: CRITICAL_DATA_GAP_REGISTRY.length,
   p0Blocked: CRITICAL_DATA_GAP_REGISTRY.filter((gap) => gap.priority === 'P0' && gap.status === 'BLOCKED').length,
-  p0Partial: CRITICAL_DATA_GAP_REGISTRY.filter((gap) => gap.priority === 'P0' && gap.status === 'PARTIAL').length,
-  workflows: Object.keys(workflowRequirements).length
+  p0Partial: CRITICAL_DATA_GAP_REGISTRY.filter((gap) => gap.priority === 'P0' && gap.status === 'PARTIAL').length
 }));

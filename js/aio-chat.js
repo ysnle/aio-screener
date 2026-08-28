@@ -582,16 +582,72 @@ function _aioTacticalTraderFrameworkContext(ctxId, q) {
 }
 if (typeof window !== 'undefined') window._aioTacticalTraderFrameworkContext = _aioTacticalTraderFrameworkContext;
 
+// v54.56 / integrate 2026-08-23: the supplied public article set contributes a
+// reusable learning loop, not live levels or a portfolio recommendation. Keep
+// it in the same explicit REFERENCE lane as other user-supplied frameworks.
+var AIO_MARKET_LEARNING_REFERENCE = {
+  id: 'market-learning-curriculum-20260823',
+  sourceKind: 'REFERENCE',
+  asOf: '2026-08-23',
+  sourceLabel: 'User-supplied @blazingbees public article set and staged learning-library screenshots',
+  sourceLinks: [
+    'https://x.com/blazingbees/status/2016850989782020602',
+    'https://x.com/blazingbees/status/2027724281438966055',
+    'https://x.com/blazingbees/status/2019369817334280638',
+    'https://x.com/blazingbees/status/2020512736632091086',
+    'https://x.com/blazingbees/status/2088176331175444533',
+    'https://x.com/blazingbees/status/2027036874687332382',
+    'https://x.com/blazingbees/status/2028358320420196761',
+    'https://x.com/blazingbees/status/2028642294023569637',
+    'https://x.com/blazingbees/status/2029156243416465873'
+  ],
+  loop: '가설 → 증거 → 시장 반응 → 포지션 크기 → 무효화 → 복기',
+  rules: [
+    { id: 'ML-01', meaning: '방법론 라벨보다 시간축·자본·심리에 맞는 실행 규칙을 먼저 정의한다.', requiredEvidence: ['사용자 제약', '실행 규칙'] },
+    { id: 'ML-02', meaning: '가격·거래량·상대강도는 서사를 확인하는 결과 증거이며, 지수·기관·탐방 라벨만으로 의도를 단정하지 않는다.', requiredEvidence: ['가격', '거래량', '상대강도'] },
+    { id: 'ML-03', meaning: '예측에 선약하지 않고 시나리오와 실제 시장 반응에 따라 노출을 조정한다.', requiredEvidence: ['조건부 시나리오', '실제 반응'] },
+    { id: 'ML-04', meaning: '확인된 논점에는 단계적으로 추가할 수 있지만, 무효화된 논점을 평균단가 낮추기로 가리지 않는다.', requiredEvidence: ['논점', '무효화', '위험 한도'] },
+    { id: 'ML-05', meaning: '계좌별 현금·집중도·담보 여유를 이벤트 리스크와 함께 보고 자발적 축소와 강제청산을 구분한다.', requiredEvidence: ['계좌 상태', '공식 담보 규칙'] },
+    { id: 'ML-06', meaning: '발견 자료는 1차 자료와 대조하고, 불확실하면 설명을 늘리기보다 포지션과 확신을 줄인다.', requiredEvidence: ['출처', '기준일', '반대 증거'] }
+  ],
+  boundaries: 'Article-specific prices, forecasts, broker timings, leverage thresholds, index snapshots and named-company claims remain REFERENCE/UNVERIFIED. Current values require injected LIVE/SNAPSHOT/official evidence.'
+};
+
+function _aioMarketLearningCurriculumContext(ctxId, q) {
+  try {
+    var relevant = {
+      home:1, briefing:1, macro:1, fxbond:1, technical:1, signal:1, breadth:1,
+      screener:1, ticker:1, fundamental:1, themes:1, 'theme-detail':1,
+      portfolio:1, 'market-news':1, options:1, principles:1
+    };
+    var ask = String(q || '').toLowerCase();
+    var keywordHit = /예측|대응|주도주|리더|불타기|물타기|손절|반대매매|담보|신용|지수|바스켓|패시브|에코챔버|복기|거래일지|정보 과잉/.test(ask);
+    if (!relevant[ctxId] && !keywordHit) return '';
+    var f = AIO_MARKET_LEARNING_REFERENCE;
+    var lines = f.rules.map(function(r) {
+      return '- ' + r.id + ': ' + r.meaning + ' Evidence=' + r.requiredEvidence.join('/');
+    }).join('\n');
+    return '\n\n[Public market-learning curriculum | sourceKind=' + f.sourceKind + ' | asOf=' + f.asOf + ']\n' +
+      'Use the following as an educational decision framework, never as live market data or a trade instruction.\n' +
+      'Loop=' + f.loop + '\n' + lines + '\n' +
+      'Boundary: ' + f.boundaries + '\n';
+  } catch(_) { return ''; }
+}
+if (typeof window !== 'undefined') {
+  window.AIO_MARKET_LEARNING_REFERENCE = AIO_MARKET_LEARNING_REFERENCE;
+  window._aioMarketLearningCurriculumContext = _aioMarketLearningCurriculumContext;
+}
+
 // v53.43 / integrate 2026-07-20: the user supplied AI-infrastructure material is
 // stored as a durable REFERENCE framework. It is deliberately separated from
 // live values so the two competing capex theses can guide questions without
 // turning an essay, screenshot, or X link into current market data.
 var AIO_AI_INFRA_CYCLE_REFERENCE = {
   id: 'ai-infrastructure-cycle-20260720',
-  version: 'v53.91',
+  version: 'v54.44',
   sourceKind: 'REFERENCE',
-  asOf: '2026-08-09',
-  sourceLabel: 'User-supplied market analysis, interview summary, X links, chart/calendar images, and Telegram channel observations',
+  asOf: '2026-08-22',
+  sourceLabel: 'User-supplied market analysis, interview summary, X links, chart/calendar images, Bloomberg AI deal map, and Telegram channel observations',
   sourceLinks: [
     'https://x.com/BlogJulianKomar/status/2085704780010152132',
     'https://x.com/tmmrwseoul/status/2085041662037004412',
@@ -608,8 +664,48 @@ var AIO_AI_INFRA_CYCLE_REFERENCE = {
     'https://t.me/s/aetherjapanresearch',
     'https://t.me/s/insidertracking',
     'https://t.me/s/bornlupin',
-    'https://t.me/s/HANAchina'
+    'https://t.me/s/HANAchina',
+    'https://x.com/laylaperfume/status/2091084964024726001',
+    'https://x.com/BSPK_/status/2089940398525546617',
+    'https://x.com/fivedragontiger/status/2089601660213715312'
   ],
+  suppliedPacket: {
+    id: 'ai-inference-market-risk-20260822',
+    observedAt: '2026-08-22',
+    sourceKind: 'REFERENCE',
+    sourceLinks: [
+      'https://x.com/laylaperfume/status/2091084964024726001',
+      'https://x.com/BSPK_/status/2089940398525546617',
+      'https://x.com/fivedragontiger/status/2089601660213715312'
+    ],
+    attachment: 'Bloomberg · The Circular Nature of AI Deals · companies by valuation as of 2026-06-08',
+    extraction: 'macro event-dependency and funding-supply chain; inference efficiency axes; AI capital/services/hardware loop; named-node role map',
+    boundaries: 'X commentary, estimates, rumors, exact dates, option positioning and screenshot valuations remain REFERENCE/UNVERIFIED until official or current provider evidence reconciles them.'
+  },
+  aiInferenceEfficiencyFrame: {
+    paradigm: 'Training is not the only bottleneck; repeated inference token generation shifts the debate toward memory movement, latency, power and workload-stage TCO.',
+    axes: 'memory proximity (HBM ↔ SRAM/on-chip) × hardware specialization (general-purpose ↔ model/transformer-specialized)',
+    workloads: 'low-batch realtime=latency; large batch=tokens/W·TCO; hybrid=prefill/KV on GPU/HBM plus decode on LPU/SRAM',
+    referenceEntities: 'Cerebras, Groq, Etched and rumored Google Frozen v2 are comparison archetypes, not current ranked winners; official specifications and standardized benchmarks are required.',
+    invalidation: 'If decode is not memory-bound for the target workload, or flexibility/portability dominates latency and energy, the specialization thesis weakens.'
+  },
+  aiDealLoopFrame: {
+    legend: 'services / investment / hardware',
+    roles: 'hyperscaler·capital, model lab, accelerator·custom silicon, cloud/neocloud, power·data center, memory·networking, vertical application',
+    namedNodes: 'Microsoft, Broadcom, Google, SoftBank, CoreWeave, Nscale, Figure AI, Nebius, SB Energy, Harvey, Cursor, OpenAI, Ambience Healthcare, Anthropic, Mistral, Nvidia, Corning, Intel, Oracle, xAI, AMD, Amazon',
+    interpretation: 'The diagram is a role-level circular dependency map. Node size and arrows are not current market caps, contract values, ownership, or investment confirmation.'
+  },
+  macroTransmissionFrame: {
+    chain: 'funding supply → term premium/long-end yields → credit and AI CAPEX/corporate issuance → breadth/volatility → hedge assets',
+    liveInputs: 'US 2Y/10Y/30Y, FRED HY OAS, VIX/VIX3M, breadth and gold/BTC/DXY when available',
+    blockedInputs: 'official term premium, Treasury issuance/buyback, corporate issuance, dealer gamma/options positioning and China credit/investment',
+    rule: 'Do not infer a missing input from a topic proxy; display BLOCKED and name the next producer.'
+  },
+  eventDependencyFrame: {
+    chain: 'PCE/GDP → Jackson Hole/Fed path → AI earnings/CAPEX → month-end institutional/passive rebalance',
+    corporateActions: 'Samsung/SK Hynix shareholder return and buyback/cancellation claims require official IR/filing definitions; DRAM short squeeze and Korea leverage require price/flow/borrow/volume evidence.',
+    boundary: 'NVIDIA estimates, China revenue assumptions, PCE/PPI/GDP scenarios and event dates remain source-specific reference values until current official releases reconcile them.'
+  },
   handling: 'Use as a reusable debate and monitoring framework only. Exact historical figures, chart levels, and external-link claims require current/official evidence before they can affect a decision.',
   evidenceHierarchy: [
     'Tier 1: current provider data, filings, utility/ISO measurements, and reproducible calculations.',
@@ -712,7 +808,7 @@ function _aioAIInfraCycleContext(ctxId, q) {
       'kr-home':1, 'kr-supply':1, 'kr-themes':1, 'kr-macro':1, 'kr-tech':1, 'kr-technical':1
     };
     var ask = String(q || '').toLowerCase();
-    var hit = /capex|depreciation|neocloud|coreweave|nebius|iren|memory|dram|hbm|gpu|tpu|breadth|kospi|ewy|soxx|smh|oil|real yield|credit|backlog|utilization|funding|multiple|earnings|calendar|telegram|hana|china|taiwan|ess|battery|kioxia|qwen|hormuz|water|power quality|실적|경제 일정|고용/.test(ask);
+    var hit = /capex|depreciation|neocloud|coreweave|nebius|iren|memory|memory wall|dram|hbm|gpu|tpu|inference|tokens per watt|kv cache|prefill|decode|breadth|kospi|ewy|soxx|smh|oil|real yield|term premium|credit|backlog|utilization|funding|multiple|earnings|calendar|telegram|hana|china|taiwan|china credit|ess|battery|kioxia|qwen|hormuz|water|power quality|dealer gamma|negative gamma|options expiry|treasury buyback|corporate issuance|ai deals|capital loop|추론 효율|메모리 벽|기간 프리미엄|딜러 감마|실적|경제 일정|고용/.test(ask);
     if (!relevant[ctxId] && !hit) return '';
     var f = AIO_AI_INFRA_CYCLE_REFERENCE;
     var lines = [
@@ -731,11 +827,16 @@ function _aioAIInfraCycleContext(ctxId, q) {
     lines.push('Communication contract: ' + f.communicationContract.join(' | '));
     lines.push('Power-quality frame: ' + f.powerQualityFrame.paradigm + ' Chain=' + f.powerQualityFrame.causalChain);
     lines.push('Power-quality monitoring: ' + f.powerQualityFrame.monitor.join(' / ') + ' · Metrics=' + f.powerQualityFrame.metrics.join(' / ') + ' · Caveat=' + f.powerQualityFrame.caveat);
+    lines.push('New supplied packet: ' + f.suppliedPacket.extraction + ' · Attachment=' + f.suppliedPacket.attachment + ' · Boundary=' + f.suppliedPacket.boundaries);
+    lines.push('Inference-efficiency frame: ' + f.aiInferenceEfficiencyFrame.paradigm + ' Axes=' + f.aiInferenceEfficiencyFrame.axes + ' Workloads=' + f.aiInferenceEfficiencyFrame.workloads + ' Entities=' + f.aiInferenceEfficiencyFrame.referenceEntities + ' Invalidation=' + f.aiInferenceEfficiencyFrame.invalidation);
+    lines.push('AI-deal loop frame: ' + f.aiDealLoopFrame.legend + ' · Roles=' + f.aiDealLoopFrame.roles + ' · Named nodes=' + f.aiDealLoopFrame.namedNodes + ' · Interpretation=' + f.aiDealLoopFrame.interpretation);
+    lines.push('Macro transmission frame: ' + f.macroTransmissionFrame.chain + ' · Live inputs=' + f.macroTransmissionFrame.liveInputs + ' · Blocked inputs=' + f.macroTransmissionFrame.blockedInputs + ' · Rule=' + f.macroTransmissionFrame.rule);
+    lines.push('Event dependency frame: ' + f.eventDependencyFrame.chain + ' · Corporate actions=' + f.eventDependencyFrame.corporateActions + ' · Boundary=' + f.eventDependencyFrame.boundary);
     lines.push('AI-demand falsifiers: ' + f.demandFalsifiers.join(' | '));
     lines.push('Memory LTA frame: ' + f.memoryLtaFrame);
     lines.push('Event/earnings calendar frame: ' + f.eventCalendarFrame);
     lines.push('Telegram reference frame: ' + f.telegramFrame.channelRoles + ' Extraction=' + f.telegramFrame.extraction + ' Quality=' + f.telegramFrame.quality + ' Promotion gate=' + f.telegramFrame.promotionGate + ' Invalidation=' + f.telegramFrame.invalidation);
-    lines.push('Required cross-check: compare the 2026-08-09 supplied reference packet with the latest available time series, then state what changed, what did not change, and which evidence is still missing.');
+    lines.push('Required cross-check: compare the 2026-08-22 supplied reference packet with the latest available time series, then state what changed, what did not change, and which evidence is still missing.');
     lines.push('Required answer split: (1) memory P/ASP/multiple, (2) neocloud Q/spread/capital, (3) capex/backlog/depreciation, (4) breadth/rates/credit/oil, (5) confirmation and invalidation conditions.');
     lines.push('Do not infer a bottom from one-day rebound, a low P/E, a backlog headline, or a chart pattern alone.');
 
@@ -830,8 +931,9 @@ function _aioCreateEvidenceContext(title, focus) {
       }
       var framework = typeof _getV48IntegratedContext === 'function' ? _getV48IntegratedContext(focus) : '';
       var aiInfra = typeof _aioAIInfraCycleContext === 'function' ? _aioAIInfraCycleContext(focus) : '';
+      var marketLearning = typeof _aioMarketLearningCurriculumContext === 'function' ? _aioMarketLearningCurriculumContext(focus, '') : '';
       var rules = typeof _getChatRules === 'function' ? _getChatRules() : '';
-      return lines.join('\n') + framework + aiInfra + rules;
+      return lines.join('\n') + framework + aiInfra + marketLearning + rules;
     }
   };
 }
@@ -852,6 +954,7 @@ const CHAT_CONTEXTS = {
   home:_aioCreateEvidenceContext('AI 시장 분석가','home'),
   briefing:_aioCreateEvidenceContext('AI 브리핑 분석가','briefing'),
   'market-news':_aioCreateEvidenceContext('AI 뉴스 분석가','market-news'),
+  principles:_aioCreateEvidenceContext('AI 시장 원리 학습 분석가','principles'),
   options:_aioCreateEvidenceContext('AI 옵션 분석가','options'),
   'kr-themes':_aioCreateEvidenceContext('AI 한국 테마 분석가','themes'),
   'kr-macro':_aioCreateEvidenceContext('AI 한국 매크로 분석가','macro'),
@@ -1900,12 +2003,15 @@ async function _fetchTickerTrend(ticker) {
 // 채팅 fetch가 hang 시 응답 30초+ 지연 차단. 11 fetch 모두 graceful degradation.
 // 사용: _withTimeout(promise, 2500, null) — 2.5초 내 미해결 시 null 반환
 // ─────────────────────────────────────────────────────────────────
-function _withTimeout(promise, ms, fallback) {
+function _withTimeout(promise, ms, fallback, onTimeout) {
   if (!promise || typeof promise.then !== 'function') return Promise.resolve(fallback);
   var waitMs = ms == null ? 2500 : Math.max(0, Number(ms) || 0);
   var to;
   var timeoutPromise = new Promise(function(resolve) {
-    to = setTimeout(function() { resolve(fallback); }, waitMs);
+    to = setTimeout(function() {
+      try { if (typeof onTimeout === 'function') onTimeout(); } catch(_) {}
+      resolve(fallback);
+    }, waitMs);
   });
   return Promise.race([
     promise.then(function(v) { clearTimeout(to); return v; }).catch(function() { clearTimeout(to); return fallback; }),
@@ -2074,7 +2180,7 @@ function _fetchDomainContextForChat(ctxId) {
       var infl = []; if (cpi != null) infl.push('CPI ' + cpi + '%'); if (core != null) infl.push('Core CPI ' + core + '%'); if (pce != null) infl.push('PCE ' + pce + '%'); if (cpce != null) infl.push('Core PCE ' + cpce + '%');
       if (infl.length) lines.push('• 인플레(FRED/스냅샷): ' + infl.join(' · '));
       var fed = pick('fedRate','fed-rate'), nfp = pick('nfp'), unemp = num(pick('unemployment')), fomc = pick('fomc');
-      var pol = []; if (fed != null) pol.push('Fed ' + fed + (String(fed).indexOf('%') < 0 ? '%' : '')); if (nfp != null) pol.push('NFP ' + nfp); if (unemp != null) pol.push('실업률 ' + unemp + '%'); if (fomc) pol.push('다음 FOMC ' + fomc);
+      var pol = []; if (fed != null) pol.push('Fed 연방기금금리 월평균 ' + fed + (String(fed).indexOf('%') < 0 ? '%' : '')); if (nfp != null) pol.push('NFP ' + nfp); if (unemp != null) pol.push('실업률 ' + unemp + '%'); if (fomc) pol.push('다음 FOMC ' + fomc);
       if (pol.length) lines.push('• 정책/고용: ' + pol.join(' · '));
       if (tnx != null || twoY != null) lines.push('• 금리: ' + (tnx != null ? '10Y ' + tnx.toFixed(2) + '%' : '') + (twoY != null ? ' · 2Y ' + twoY.toFixed(2) + '%' : '') + (spread != null ? ' · 2s10s ' + (spread >= 0 ? '+' : '') + (spread * 100).toFixed(0) + 'bp' + (spread < 0 ? ' (역전·침체 선행)' : ' (정상)') : ''));
       try { if (window.AIO && typeof window.AIO.getCycleFromMacro === 'function') { var cyc = window.AIO.getCycleFromMacro({ vix: reg && reg.vix, breadth50: br50, yield2s10s: spread, spxTrend: (spxPct || 0) >= 0 ? 'up' : 'down' }); if (cyc && cyc.phase) lines.push('• 경기 사이클 국면(동적): ' + cyc.phase + (cyc.label ? ' — ' + cyc.label : '')); } } catch(_) {}
@@ -2158,6 +2264,7 @@ var AIO_CHAT_PIPELINE_REGISTRY = [
   { key:'screener', label:'퀀트 스크리너 후보군', tier:'analysis', kind:'quant', pages:['screener','themes','kr-themes'] },
   { key:'breadthSentiment', label:'시장 폭·심리', tier:'context', kind:'quant', pages:['breadth','sentiment'] },
   { key:'macroRatesFx', label:'매크로·금리·환율', tier:'context', kind:'quant', pages:['macro','fxbond','kr-macro'] },
+  { key:'userResearchReference', label:'사용자 연구자료 · AI 추론·매크로 전이', tier:'reference', kind:'qual', pages:['macro','themes','briefing','market-news','options'] },
   { key:'companyFundamentals', label:'기업 펀더멘털·밸류에이션', tier:'analysis', kind:'mixed', pages:['fundamental'] },
   { key:'newsFilings', label:'뉴스·공시·촉매·리스크', tier:'current', kind:'qual', pages:['market-news','briefing','fundamental'] },
   { key:'themes', label:'테마·섹터 로테이션', tier:'context', kind:'mixed', pages:['themes','theme-detail','kr-themes'] },
@@ -5113,11 +5220,37 @@ async function chatSend(ctxId, _aioDispatchOptions) {
         query: q,
         route: ctxId,
         surface: 'per-page-chat',
+        blockedRunner: function(questionPlan, permission) {
+          var reasons = permission && Array.isArray(permission.reasons) ? permission.reasons.join(', ') : 'suitability-or-evidence-required';
+          var safeText = 'AI 행동 경계\n\n사용자 적합성 정보와 최신 의사결정 근거가 확인되기 전에는 직접 매수·매도 또는 포트폴리오 행동을 제안할 수 없습니다.\n\n대신 비교 기준, 위험 요인, 확인할 데이터와 일반적인 분석 절차는 설명할 수 있습니다.\n\n확인 필요: ' + reasons;
+          inp.value = '';
+          chatAppendMsg(ctxId, 'user', renderMarkdownLight(q));
+          chatAppendMsg(ctxId, 'ai', _aioSafeMD(safeText));
+          saveChatEntry(ctxId, q, safeText);
+          return { displayed: true, safeAlternative: true };
+        },
         legacyRunner: function(questionPlan) {
           return chatSend(ctxId, { _aioOrchestrated: true, questionPlan: questionPlan });
         }
       });
     }
+  }
+  // Product-charter boundary: reject personalized direct action before quota,
+  // retrieval, or provider work. The same evaluator runs again on model output.
+  var _aioPreProviderPermission = (window.AIO && typeof window.AIO.evaluateAIActionPermission === 'function')
+    ? window.AIO.evaluateAIActionPermission({
+      ctxId: ctxId,
+      query: q,
+      text: q,
+      suitabilityProfile: _aioQuestionPlan && _aioQuestionPlan.suitabilityProfile || null,
+      evidence: _aioQuestionPlan && Array.isArray(_aioQuestionPlan.decisionEvidence) ? _aioQuestionPlan.decisionEvidence : []
+    }) : { blocked: true, reasons: ['action-permission-unavailable'], safeText: 'AI 안전 모드\n\n공통 행동 권한 검증을 사용할 수 없어 요청을 전송하지 않습니다.' };
+  if (_aioPreProviderPermission.blocked === true) {
+    inp.value = '';
+    chatAppendMsg(ctxId, 'user', renderMarkdownLight(q));
+    chatAppendMsg(ctxId, 'ai', _aioSafeMD(_aioPreProviderPermission.safeText || 'AI 안전 모드\n\n현재 요청은 행동 권한 경계를 통과하지 못했습니다.'));
+    saveChatEntry(ctxId, q, _aioPreProviderPermission.safeText || '행동 권한 검증에서 차단됨');
+    return;
   }
   // v49.78 C4 P419: state.streaming atomic lock — 동시 클릭 race condition 차단
   // 기존 L4335 streaming=true 설정까지 60줄+ 거리 → 빠른 더블 클릭 시 race window 존재
@@ -6639,6 +6772,11 @@ async function fundamentalSearch() {
     if (_earlyProgressEl) _earlyProgressEl.innerHTML = '<div style="color:#ff5b50;">올바른 티커 형식이 아닙니다 (예: AAPL, 005930.KS)</div>';
     return;
   }
+  // Publish the selection before slower optional provider work starts. The native
+  // entity slice can immediately project the bounded SEC row while Yahoo/FMP/etc.
+  // remain a user-triggered enhancement rather than the identity source of truth.
+  window._currentTickerId = ticker;
+  try { document.dispatchEvent(new CustomEvent('aio:entityChanged', { detail: { id: ticker, source: 'fundamental-search' } })); } catch (_) {}
   // v33.4: 검색 기록 추가
   _fundRecentSearches(ticker);
 

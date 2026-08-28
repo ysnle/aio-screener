@@ -1,24 +1,13 @@
 ---
 verified_by: Claude Fable 5 (repository-wide structural audit; 발견마다 ?�일:?�인 증거 ?�용); RM-00~06/P755~P758 ?�행 Claude Sonnet 5; P759~P785 �??�재 ?��?�?Codex
-  last_verified: 2026-07-29
-  current_packet: P859-P866 themes evidence, decision/news/portfolio fail-closed boundaries, Worker endpoint evidence, release-manifest synchronization, official FOMC rollover, and post-refresh revision coherence after P858 boot critical-path ownership; migration and operator certification remain separate
-  verification_note: Codex P761-P834 route cutovers plus AI infrastructure reference integration, derived ownership accounting, active SW controller diagnostics, snapshot-first degraded quote operation, bounded technical health ownership, bounded signal/home/theme-detail ownership, breadth/fx-bond chart lifecycle ownership, ticker activity ownership, Vault-backed portfolio table ownership, portfolio surface model, SEC report model, and KV-only fast-plane deployment contract; live certification remains operator-dependent
+last_verified: 2026-07-29
+current_packet: P859-P866 themes evidence, decision/news/portfolio fail-closed boundaries, Worker endpoint evidence, release-manifest synchronization, official FOMC rollover, and post-refresh revision coherence after P858 boot critical-path ownership; migration and operator certification remain separate
+verification_note: Codex P761-P834 route cutovers plus AI infrastructure reference integration, derived ownership accounting, active SW controller diagnostics, snapshot-first degraded quote operation, bounded technical health ownership, bounded signal/home/theme-detail ownership, breadth/fx-bond chart lifecycle ownership, ticker activity ownership, Vault-backed portfolio table ownership, portfolio surface model, SEC report model, and KV-only fast-plane deployment contract; live certification remains operator-dependent
 confidence: high
 auto_refresh: false
-  target_version: v53.64
-  current_update: P858 implemented and locally verified; commit/deploy remains intentionally held until the final validation batch and external operations are verified
-
-## Current generated preflight (P949, 2026-08-22)
-
-<!-- GENERATED-CURRENT-PREFLIGHT: scripts/ci-doc-currency-check.mjs -->
-
-- repository: `AIO`
-- branch: `main`
-- git_head: `4c0879c`
-- working_tree: `dirty / uncommitted local changes`
-- application_version: `v54.43`
-- deployment: `not deployed; live/operator certification remains external`
-- historical_cards: `HEAD/version/deployment values below are historical evidence, not current state`
+target_version: v53.64
+current_update: P858 implemented and locally verified; commit/deploy remains intentionally held until the final validation batch and external operations are verified
+---
 
 ## Current verified checkpoint (P834, 2026-07-27)
 

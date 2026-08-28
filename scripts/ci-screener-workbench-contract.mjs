@@ -21,6 +21,7 @@ import { createDefaultScreenDefinitions, runScreen } from '../src/domain/screene
 import { createSavedScreen, decodeScreenSharePayload, encodeScreenSharePayload } from '../src/domain/screener/saved-screens.js';
 import { createRefreshPlanner } from '../src/domain/screener/refresh-planner.js';
 import { DEFAULT_SCREENER_CAPABILITY_CATALOG, observationFromProvider, reconcileFieldObservations, selectProviderForField } from '../src/domain/screener/provider-capability.js';
+import { createScreenerProvider } from '../src/data/providers/screener.js';
 import { deriveRegimeState, replayRegime } from '../src/domain/screener/regime.js';
 import { createValidationGate, promotionDecision, validatePITRun } from '../src/domain/screener/pit-validation.js';
 import { calculateOutcome } from '../src/domain/screener/outcome-ledger.js';
@@ -101,7 +102,7 @@ function fixtureRow(symbol, market, offset = 0) {
   return row;
 }
 
-function run() {
+async function run() {
   const registryCheck = validateFieldRegistry(SCREENER_FIELD_REGISTRY);
   assert(registryCheck.ok && registryCheck.size >= 30, 'G-SCR-FIELD: registry has 30+ fields with US/KR coverage', registryCheck);
   assert(FIELD_STATUS.length === 9 && OBSERVATION_SOURCES.length === 4, 'G-SCR-FIELD: status/source vocabulary is closed');
@@ -227,18 +228,70 @@ function run() {
   });
   assert(model.status === 'BLOCKED' && model.pointInTimeUniverse === false && model.transactionCostsModeled === false, 'G-SCR-09: model validation remains explicitly blocked');
   assert(validationGate.status === 'BLOCKED' && validationGate.pointInTimeUniverse === false, 'G-SCR-09: persistent validation gate is fail-closed');
-  const index = fs.readFileSync(path.join(root, '_context/INDEX.md'), 'utf8');
+  const contextCatalog = JSON.parse(fs.readFileSync(path.join(root, '_context/CONTEXT-CATALOG.json'), 'utf8'));
   const page = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
   const provider = fs.readFileSync(path.join(root, 'src/data/providers/screener.js'), 'utf8');
-  assert(index.includes('SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md'), 'G-SCR-DOCS: handoff remains indexed');
+  assert(contextCatalog.documents?.some((doc) => doc.path === '_context/SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md' && doc.readPolicy === 'targeted'), 'G-SCR-DOCS: handoff remains catalogued for targeted reads');
   assert(page.includes('scr-definition-editor') && page.includes('scr-readiness-preview') && page.includes('scr-run-history') && page.includes('scr-outcome-lab'), 'G-SCR-UI: workbench adapter controls are present');
   const screenerUi = fs.readFileSync(path.join(root, 'src/ui/pages/screener.js'), 'utf8');
+  const screenerOrchestrator = fs.readFileSync(path.join(root, 'src/data/orchestrators/screener.js'), 'utf8');
   assert(provider.includes('buildFieldReadiness') && provider.includes('fieldObservations') && provider.includes('FACTOR_STALE_AFTER_DAYS = 4'), 'G-SCR-PIPELINE: provider emits readiness and rejects stale factor epochs');
+  assert(provider.includes('rightsByField') && provider.includes('resolveFieldRights') && provider.includes('sourceKindByField'), 'G-SCR-RIGHTS: provider resolves explicit rights/source kind per field before readiness');
   assert(screenerUi.includes('screener-visible-quotes') && screenerUi.includes('registerLiveSymbol'), 'G-SCR-LIVE: rendered screener rows register bounded live-quote demand');
+  assert(page.includes('screener-factor-confidence') && page.includes('screener-factor-diagnostics') && screenerUi.includes('미래 수익률 확률 아님') && screenerUi.includes('dataset.decisionEligible'), 'G-SCR-FACTOR-UX: confidence and research-only diagnostics are visible and cannot masquerade as return probability');
+  assert(['factorCoverage', 'confidenceMeaning', 'sectorNeutrality', 'outlierDiagnostics', 'turnoverStability', 'researchBoundary'].every((field) => screenerOrchestrator.includes(field)), 'G-SCR-FACTOR-LINEAGE: factor diagnostics survive ranker-to-UI metadata projection');
+
+  const providerArtifact = {
+    asOf: '2026-08-25T12:00:00.000Z',
+    factorObservedAt: '2026-08-25T11:00:00.000Z',
+    source: 'github-actions:yahoo-1y',
+    universe: 1,
+    data: {
+      AAA: {
+        ret1m: 1,
+        ret3m: 2,
+        ret6m: 3,
+        vol: 10,
+        rsi: 50,
+        roe: 12,
+        margin: 10,
+        revGrowth: 8,
+        observedAt: '2026-08-25T11:00:00.000Z',
+        source: 'Yahoo chart 1y adjusted-close history',
+        sourceKind: 'delayed-eod',
+        allowedUse: 'research-relative-ranking-only',
+        fundamentalSource: 'SEC EDGAR companyfacts',
+        fundamentalModel: 'sec-fy-normalized-v2',
+        fundamentalObservedAt: '2026-08-20T00:00:00.000Z',
+        fundamentalFiledAt: '2026-08-19T00:00:00.000Z',
+        fundamentalFetchedAt: '2026-08-25T11:00:00.000Z'
+      }
+    }
+  };
+  const providerUniverse = {
+    meta: { currentness: 'CURRENT', lastBulkUpdate: '2026-08-25T00:00:00.000Z', staleAfterDays: 30 },
+    universe: [{ sym: 'AAA', name: 'Fixture Corp', sector: 'Technology', index: 'NASDAQ100' }]
+  };
+  const artifactProvider = createScreenerProvider({
+    httpClient: {
+      requestJson: async (requestUrl) => requestUrl.includes('screener-universe')
+        ? { ok: true, data: providerUniverse }
+        : { ok: true, data: providerArtifact }
+    },
+    clock: { now: () => Date.parse('2026-08-26T00:00:00.000Z'), iso: () => '2026-08-26T00:00:00.000Z' }
+  });
+  const providerOutput = await artifactProvider.readCurrent();
+  const providerReadiness = providerOutput.rows[0]?.fieldReadiness;
+  const providerStatuses = Object.values(providerReadiness?.fields || {}).map((field) => field.status);
+  assert(providerOutput.rows.length === 1 && providerStatuses.some((status) => status !== 'BLOCKED_RIGHTS'), 'G-SCR-RIGHTS: provider fixture does not turn every populated readiness field into BLOCKED_RIGHTS', { statuses: providerStatuses });
+  assert(providerReadiness?.fields?.['identity.symbol']?.status !== 'BLOCKED_RIGHTS' && providerReadiness?.fields?.['quality.roe']?.status !== 'BLOCKED_RIGHTS' && providerReadiness?.fields?.['quality.roe']?.rightsId === 'VERIFIED' && providerReadiness?.observations?.some((observation) => observation.fieldId === 'quality.roe' && observation.rightsId === 'VERIFIED'), 'G-SCR-RIGHTS: identity and SEC fundamental fields preserve verified rights', providerReadiness?.fields?.['quality.roe']);
 
   const report = { schemaVersion: 'screener-workbench-ci.v1', generatedAt: new Date().toISOString(), status: failures.length ? 'FAIL' : 'PASS', checks, failures, baseline: { universe: artifact.universe, ok: artifact.ok, fundamentalCoveragePct: artifact.fundamentalCoveragePct }, fieldRegistry: registryCheck.size, presetCount: presetsA.length };
   process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
   if (failures.length) process.exitCode = 1;
 }
 
-run();
+run().catch((error) => {
+  process.stderr.write(`screener workbench contract check crashed: ${error?.stack || error}\n`);
+  process.exitCode = 1;
+});

@@ -1,12 +1,20 @@
 {
   "schemaVersion": "ai-public-config.v1",
-  "appRevision": "v54.43",
+  "appRevision": "v54.63",
   "ai": {
-    "chatPolicy": "personal-key-or-public-worker",
-    "workerUrl": "https://aio-proxy.zmfhd007.workers.dev",
-    "serverMode": "shared-worker-fallback",
+    "chatPolicy": "personal-key-only",
+    "workerUrl": null,
+    "serverMode": "personal-key-only",
     "healthPath": "/health",
-    "maxTokens": "worker-advertised"
+    "maxTokens": "worker-advertised",
+    "routeStatus": "DISABLED",
+    "routeReason": "WORKER_HEALTH_STALE",
+    "routeEvidence": {
+      "status": "OPERATOR_REQUIRED",
+      "source": "last-observed-live-health",
+      "observedAt": "2026-08-27T00:06:18.098Z",
+      "observationStatus": "NOT_ATTEMPTED"
+    }
   },
   "privacy": {
     "clientKeysStayBrowserLocal": true,

@@ -17,6 +17,7 @@ import { createResearchPlan, validateResearchPlan } from '../src/ai/research/pla
 import { createEvidenceDocument, evaluateResearchEvidenceFloor, normalizeResearchExecutionResult, normalizeSearchResults, validateClaimEvidenceBinding } from '../src/ai/research/evidence.js';
 import { createResearchCapability, validateResearchCapability } from '../src/ai/research/capability.js';
 import { classifyAIConduct, buildScopedConductFallback } from '../src/ai/policy/conduct.js';
+import { createAIAnswerOrchestrator } from '../src/ai/orchestrator/answer-orchestrator.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
@@ -60,6 +61,24 @@ for (const { query, expected, route = 'home' } of cases) {
   check(`routing:${query}`, plan.intent.primary === expected);
   check(`plan-schema:${query}`, plan.schemaVersion === 'question-plan.v1' && Array.isArray(plan.requiredEvidence));
 }
+
+const actionBoundaryOrchestrator = createAIAnswerOrchestrator({ now: () => new Date('2026-07-28T12:00:00Z') });
+let blockedProviderCalls = 0;
+let blockedAdapterCalls = 0;
+const blockedActionResult = await actionBoundaryOrchestrator.execute({
+  query: '내 포트폴리오에서 NVDA 전량 매도해줘',
+  route: 'portfolio',
+  legacyRunner: async () => { blockedProviderCalls += 1; },
+  blockedRunner: async () => { blockedAdapterCalls += 1; return { displayed: true }; }
+});
+check('action-permission-blocks-before-provider', blockedActionResult.status === 'blocked-action-permission' && blockedProviderCalls === 0 && blockedAdapterCalls === 1);
+let educationProviderCalls = 0;
+const educationResult = await actionBoundaryOrchestrator.execute({
+  query: '분산투자의 원리를 설명해줘',
+  route: 'education',
+  legacyRunner: async () => { educationProviderCalls += 1; return 'ok'; }
+});
+check('educational-request-reaches-provider', educationResult.ok === true && educationProviderCalls === 1);
 
 const unknownSession = createMarketSessionEvidence({ market: 'US', now: '2026-07-28T12:00:00Z' });
 check('market-session-unknown-is-not-open', unknownSession.status === 'unknown' && unknownSession.isOpen === null && validateMarketSessionEvidence(unknownSession).ok === false);
@@ -175,6 +194,9 @@ const core = read('js/aio-core.js');
 const bootstrap = read('src/app/bootstrap.js');
 check('single-orchestrator-export', /getAIOrchestrator/.test(bootstrap) && /createAIAnswerOrchestrator/.test(bootstrap));
 check('chat-dispatches-through-orchestrator', /AIO_ARCH\.getAIOrchestrator/.test(chat) && /_aioOrchestrated/.test(chat));
+check('orchestrator-enforces-action-permission-before-runner', /actionPermission\?\.allowed === false/.test(read('src/ai/orchestrator/answer-orchestrator.js')) && /blocked-action-permission/.test(read('src/ai/orchestrator/answer-orchestrator.js')));
+check('both-chat-surfaces-have-pre-provider-action-boundary', /_aioPreProviderPermission/.test(chat) && /_uniPreProviderPermission/.test(read('index.html')));
+check('both-chat-surfaces-hide-unverified-research-streams', /Web Research 검증 중/.test(chat) && /Web Research 근거를 검증 중/.test(read('index.html')));
 check('no-confirmed-verdict', !/verdict\s*=\s*[^;]*CONFIRMED/.test(data) && /RESEARCH_CANDIDATE/.test(data) && /research-relative-ranking-only/.test(data));
 check('producer-observed-time', /producer observation time/.test(data) && /관측시각 미확인/.test(data));
 check('probability-policy-is-strict', /calibrated !== true/.test(core) && /보정\(calibration\).*확률/.test(chat));
@@ -196,6 +218,7 @@ check('research-partial-results-preserve-query-index', /settled\.map\(function\(
 check('fred-official-host-is-correct', read('src/ai/research/evidence.js').includes("'fred.stlouisfed.org'"));
 check('quote-provenance-is-persisted', core.includes('observedAt: observedAt') && core.includes('fetchedAt: fetchedAt') && core.includes('marketState: provenanceOpts.marketState'));
 check('sentiment-does-not-stamp-missing-observation-now', !/raw\[field\.observedAt\]\s*\|\|\s*raw\.now/.test(read('src/data/orchestrators/sentiment.js')));
+check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.sourceUrl && tamMeta\.observedAt/.test(core) && /missingProvenance:\s*'withhold-numeric-output'/.test(core) && /출처·기준일이 검증된 시장규모가 없어 숫자를 표시하지 않습니다/.test(core));
 
 if (failures.length) {
   console.error(`AI intelligence contract failed (${failures.length})`);

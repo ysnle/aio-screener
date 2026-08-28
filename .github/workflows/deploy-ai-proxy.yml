@@ -6,6 +6,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: aio-cloudflare-ai-proxy
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -30,21 +34,27 @@ jobs:
         with:
           node-version: '24'
 
+      - name: Validate Cloudflare source and deployment contract
+        run: node scripts/qa-runner.mjs --group cloudflare --no-cache
+
       - name: Install Wrangler
         run: npm install --global wrangler@4.120.0
+
+      - name: Render exact-SHA deployment config
+        run: sed -e "s/__AIO_SOURCE_SHA__/${GITHUB_SHA}/" worker/wrangler.proxy.toml > worker/wrangler.proxy.deploy.toml
 
       - name: Deploy canonical Worker
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: wrangler deploy --config worker/wrangler.proxy.toml
+        run: wrangler deploy --config worker/wrangler.proxy.deploy.toml
 
       - name: Publish Anthropic secret
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: printf '%s' "$ANTHROPIC_API_KEY" | wrangler secret put ANTHROPIC_API_KEY --config worker/wrangler.proxy.toml
+        run: printf '%s' "$ANTHROPIC_API_KEY" | wrangler secret put ANTHROPIC_API_KEY --config worker/wrangler.proxy.deploy.toml
 
       - name: Verify health, readiness, CORS, and fail-closed origin
         env:
@@ -54,7 +64,7 @@ jobs:
           ready="0"
           for attempt in $(seq 1 12); do
             status="$(curl --silent --show-error --output /tmp/aio-ai-health.json --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/health" || true)"
-            if [ "$status" = "200" ] && node -e "const fs=require('fs');const h=JSON.parse(fs.readFileSync('/tmp/aio-ai-health.json'));if(h.schemaVersion!=='aio-worker-health.v1'||h.ai?.configured!==true||h.ai?.quotaConfigured!==true||h.ai?.authorityReady!==true||h.ai?.authorityJurisdiction!=='us'||h.ai?.ready!==true)process.exit(1)"; then
+            if [ "$status" = "200" ] && node -e "const fs=require('fs');const h=JSON.parse(fs.readFileSync('/tmp/aio-ai-health.json'));if(h.schemaVersion!=='aio-worker-health.v1'||h.sourceSha!==process.env.GITHUB_SHA||h.ai?.configured!==true||h.ai?.quotaConfigured!==true||h.ai?.authorityReady!==true||h.ai?.authorityJurisdiction!=='us'||h.ai?.ready!==true)process.exit(1)"; then
               ready="1"
               break
             fi

@@ -113,6 +113,8 @@ const POLICIES = {
   'screener.json': { kind: 'research-screener', timestamp: ['asOf', 'meta.asOf'], maxAgeHours: 48 },
   'screener-validation-gate.json': { kind: 'research-validation-gate', timestamp: ['observedAt', 'generatedAt'], maxAgeHours: 24 * 90 },
   'sec-fundamentals.json': { kind: 'incremental-official-reference', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 48 },
+  'sec-fundamentals-summary.json': { kind: 'bounded-runtime-projection', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 48 },
+  'sec-fundamentals-summary.manifest.json': { kind: 'bounded-runtime-projection', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 48 },
   'telegram-digest.json': { kind: 'reference-digest', timestamp: ['generatedAt', 'lastSuccessfulAt', 'meta.generatedAt'], maxAgeHours: 12 },
   'telegram-reference-window.json': { kind: 'research-reference', timestamp: ['reviewedAt', 'generatedAt', 'meta.generatedAt'], maxAgeHours: 24 * 90 },
   'user-research-digest.json': { kind: 'research-reference', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 24 * 90 },

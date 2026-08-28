@@ -12,7 +12,6 @@
 // 변경 시 CODE-MAP 갱신")을 넘는 드리프트만 경고로 표시한다.
 
 import { readFileSync } from 'node:fs';
-import { execFileSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -27,26 +26,17 @@ const version = JSON.parse(read('version.json')).version;
 
 const warnings = [];
 const info = [];
-const gitHead = execFileSync('git', ['rev-parse', '--short', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
-const workingTreeClean = execFileSync('git', ['status', '--short'], { cwd: root, encoding: 'utf8' }).trim() === '';
-
-// SA-05: current preflight is generated state; historical session cards must not
-// be mistaken for the current checkout/version/deployment status.
+// R520/P964: current facts have one generated owner. Dated handoffs are catalogued
+// as explicit-only historical evidence and must not embed another "current" card.
+const currentState = read('_context/CURRENT-STATE.md');
+const contextCatalog = JSON.parse(read('_context/CONTEXT-CATALOG.json'));
+if (!currentState.includes(`- Version: \`${version}\``)) warnings.push(`CURRENT-STATE.md does not report ${version}`);
 for (const docPath of ['_context/ARCHITECTURE-REMEDIATION-HANDOFF-2026-07-19.md', '_context/ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md']) {
   const doc = read(docPath);
-  const blockMatch = doc.match(/## Current generated preflight \(P\d+, \d{4}-\d{2}-\d{2}\)[\s\S]*?(?=\n## |\n# |$)/);
-  if (!blockMatch) {
-    warnings.push(`${docPath} is missing the generated current preflight block`);
-    continue;
-  }
-  const block = blockMatch[0];
-  if (!block.includes('GENERATED-CURRENT-PREFLIGHT: scripts/ci-doc-currency-check.mjs')) warnings.push(`${docPath} current preflight is not marked generated`);
-  if (!workingTreeClean && !block.includes(`git_head: \`${gitHead}\``)) warnings.push(`${docPath} current preflight git_head is stale (expected ${gitHead})`);
-  if (!block.includes(`application_version: \`${version}\``)) warnings.push(`${docPath} current preflight application_version is stale (expected ${version})`);
-  if (!block.includes(workingTreeClean ? 'working_tree: `clean / committed local changes`' : 'working_tree: `dirty / uncommitted local changes`')) warnings.push(`${docPath} current preflight must state the current working-tree status`);
-  if (!block.includes('historical_cards: `HEAD/version/deployment values below are historical evidence')) warnings.push(`${docPath} current preflight does not label historical cards`);
-  if (/\n\s*Checkout\/HEAD\/version\/liveRevision:/.test(doc) || /\n\s*Working tree:/.test(doc)) warnings.push(`${docPath} contains an unlabeled historical checkout/deployment claim`);
-  info.push(`${docPath}: generated current preflight matches ${gitHead}/${version}`);
+  const entry = contextCatalog.documents.find((candidate) => candidate.path === docPath);
+  if (entry?.kind !== 'historical-snapshot' || entry?.readPolicy !== 'explicit-only') warnings.push(`${docPath} must be catalogued as explicit-only historical-snapshot`);
+  if (/GENERATED-CURRENT-PREFLIGHT|## Current generated preflight/.test(doc)) warnings.push(`${docPath} duplicates generated current state`);
+  info.push(`${docPath}: ${entry?.kind || 'unclassified'}/${entry?.readPolicy || 'unclassified'}`);
 }
 
 // frontmatter의 target_version과 현재 버전 비교

@@ -1,15 +1,17 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const mastersDir = path.join(root, 'public-data', 'masters');
 const readJson = async (name) => JSON.parse(await fs.readFile(path.join(mastersDir, name), 'utf8'));
 
-async function writeAtomic(file, value) {
+async function writeAtomic(file, value, { pretty = true } = {}) {
   await fs.mkdir(path.dirname(file), { recursive: true });
   const temp = `${file}.tmp`;
-  await fs.writeFile(temp, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
+  const serialized = pretty ? JSON.stringify(value, null, 2) : JSON.stringify(value);
+  await fs.writeFile(temp, `${serialized}\n`, 'utf8');
   await fs.rename(temp, file);
 }
 
@@ -25,6 +27,34 @@ const [holdings, historyIndex, historyRows, issuerAggregates, mastersIndex, fili
 ]);
 
 const generatedAt = holdings.generatedAt || [holdings.reviewedAt, historyIndex.reviewedAt, historyRows.reviewedAt, issuerAggregates.reviewedAt].filter(Boolean).sort().at(-1) || '1970-01-01';
+const MANAGER_PROJECTION_ROW_LIMIT = 200;
+const MANAGER_PROJECTION_MAX_BYTES = 512 * 1024;
+const compactProjectionRow = (row) => ({
+  managerId: row.managerId,
+  reportPeriod: row.reportPeriod,
+  filedAt: row.filedAt,
+  rank: row.rank,
+  issuer: row.issuer,
+  titleOfClass: row.titleOfClass,
+  cusip: row.cusip,
+  cusipNormalized: row.cusipNormalized,
+  value: row.value,
+  shares: row.shares,
+  shareType: row.shareType,
+  putCall: row.putCall,
+  priorReportPeriod: row.priorReportPeriod,
+  priorValue: row.priorValue,
+  priorShares: row.priorShares,
+  valueDelta: row.valueDelta,
+  sharesDelta: row.sharesDelta,
+  action: row.action,
+  actionConfidence: row.actionConfidence,
+  actionBasis: row.actionBasis,
+  comparisonStatus: row.comparisonStatus,
+  evidenceId: row.evidenceId,
+  sourceUrl: row.sourceUrl,
+  key: row.key
+});
 const managerShards = {};
 for (const manager of holdings.managers || []) {
   const descriptor = holdings.managerShards?.[manager.id] || null;
@@ -56,8 +86,36 @@ for (const manager of holdings.managers || []) {
   if (descriptor && (managerRows.length !== descriptor.fullRows || managerComparisons.length !== descriptor.comparisonRows)) {
     throw new Error(`manager shard descriptor drift for ${manager.id}: expected ${descriptor.fullRows}/${descriptor.comparisonRows}, got ${managerRows.length}/${managerComparisons.length}`);
   }
+  const projection = {
+    schema: 'masters-13f-manager-web-projection.v1',
+    artifactRole: 'BOUNDED_WEB_PROJECTION',
+    projectionPolicy: `Rank-ordered first ${MANAGER_PROJECTION_ROW_LIMIT} current and comparison rows; complete SEC row stores remain outside the Pages interactive artifact.`,
+    sourceKind: holdings.sourceKind,
+    reviewedAt: holdings.reviewedAt,
+    generatedAt,
+    managerId: manager.id,
+    cik: manager.cik,
+    latestFiling: manager.latestFiling,
+    priorFiling: manager.priorFiling || null,
+    verification: manager.verification,
+    fullRowsAvailable: managerRows.length,
+    fullComparisonsAvailable: managerComparisons.length,
+    holdings: managerRows.slice(0, MANAGER_PROJECTION_ROW_LIMIT).map(compactProjectionRow),
+    comparisons: managerComparisons.slice(0, MANAGER_PROJECTION_ROW_LIMIT).map(compactProjectionRow)
+  };
+  const projectionText = `${JSON.stringify(projection, null, 2)}\n`;
+  const projectionBytes = Buffer.byteLength(projectionText);
+  if (projectionBytes > MANAGER_PROJECTION_MAX_BYTES) throw new Error(`manager projection byte budget exceeded for ${manager.id}: ${projectionBytes}`);
+  const projectionSha256 = createHash('sha256').update(projectionText).digest('hex');
+  const projectionFile = path.join(mastersDir, '..', 'objects', 'masters', `${projectionSha256}.json`);
+  await writeAtomic(projectionFile, projection);
   managerShards[manager.id] = {
-    url: `./public-data/masters/managers/${manager.id}.json`,
+    url: `./public-data/objects/masters/${projectionSha256}.json`,
+    sha256: projectionSha256,
+    bytes: projectionBytes,
+    artifactRole: projection.artifactRole,
+    projectionRows: projection.holdings.length,
+    comparisonProjectionRows: projection.comparisons.length,
     fullRows: managerRows.length,
     comparisonRows: managerComparisons.length,
     reportPeriod: manager.latestFiling?.periodOfReport || manager.verification?.reportPeriod || null,
@@ -112,6 +170,12 @@ const runtimeHoldings = {
   holdings: compactHoldings,
   comparisons: [],
   managerShards,
+  managerProjectionPolicy: {
+    artifactRole: 'BOUNDED_WEB_PROJECTION',
+    rowLimitPerCollection: MANAGER_PROJECTION_ROW_LIMIT,
+    maxBytes: MANAGER_PROJECTION_MAX_BYTES,
+    fullRowStore: 'BULK_OBJECT_STORAGE_REQUIRED'
+  },
   shardIntegrityStatus: 'VERIFIED',
   shardsVerified: Object.keys(managerShards).length,
   filingDiscoverySummary: {
@@ -146,7 +210,11 @@ const runtimeHoldings = {
   reconciledComparisons: holdings.reconciledComparisons,
   nextStep: holdings.nextStep
 };
-await writeAtomic(path.join(mastersDir, 'holdings-summary.json'), runtimeHoldings);
+// This file is the page bootstrap payload, not an operator-facing ledger. Keep
+// the canonical objects pretty-printed for review, but serialize the bootstrap
+// compactly so transport budgets measure data rather than indentation. The
+// payload remains deterministic JSON and no fields are removed or abbreviated.
+await writeAtomic(path.join(mastersDir, 'holdings-summary.json'), runtimeHoldings, { pretty: false });
 
 const historyManagerShards = {};
 for (const manager of historyIndex.managers || []) {

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "deployment-convergence.v1",
+  "status": "SOURCE_CONTRACTED_LIVE_OPERATOR_REQUIRED",
+  "identityFormat": "lowercase 40-character Git commit SHA",
+  "planes": {
+    "pages": {
+      "releaseCoupling": "CI_ATTESTATION_REQUIRED",
+      "identityEndpoint": "/deployment.json",
+      "requiredFields": ["sourceSha", "appRevision", "attestationRunId", "deploymentRunId", "deployedAt"],
+      "convergenceRule": "sourceSha must equal the successful CI attestation testedSha and the Pages workflow expected SHA"
+    },
+    "aiProxy": {
+      "releaseCoupling": "INDEPENDENT_MANUAL_DEPLOYMENT",
+      "identityEndpoint": "/health",
+      "requiredField": "sourceSha",
+      "sameShaAsPagesRequired": false,
+      "convergenceRule": "sourceSha must equal the exact checkout SHA used by its own successful deployment run"
+    },
+    "fastDataPlane": {
+      "releaseCoupling": "INDEPENDENT_MANUAL_DEPLOYMENT",
+      "identityEndpoint": "/health",
+      "requiredField": "sourceSha",
+      "sameShaAsPagesRequired": false,
+      "convergenceRule": "sourceSha must equal the exact checkout SHA used by its own successful deployment run"
+    }
+  },
+  "evidenceBoundary": {
+    "sourceContract": "scripts/ci-deployment-convergence-check.mjs",
+    "liveObservation": "scripts/ci-external-pipeline-check.mjs",
+    "standingInvariant": "scripts/ci-live-invariant-check.mjs",
+    "localCannotCertifyLive": true
+  }
+}

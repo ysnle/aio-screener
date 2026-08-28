@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: refresh-data
@@ -29,6 +30,11 @@ jobs:
           SEC_BATCH_LIMIT: 24
           SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
         run: node scripts/fetch-sec-fundamentals.mjs
+
+      - name: Build bounded SEC runtime projection
+        run: |
+          node scripts/build-sec-runtime-projection.mjs
+          node scripts/ci-sec-runtime-projection-check.mjs
 
       - name: Refresh screener independently
         env:
@@ -57,13 +63,15 @@ jobs:
           node scripts/ci-operations-status-check.mjs
 
       - name: Commit only validated screener artifacts
+        id: commit
         run: |
           git config user.name "aio-data-bot"
           git config user.email "actions@github.com"
-          git add public-data/screener.json public-data/sec-fundamentals.json public-data/screener-validation-gate.json public-data/reconciliation-status.json public-data/operations-status.json public-data/history.json
+          git add public-data/screener.json public-data/sec-fundamentals.json public-data/sec-fundamentals-summary.json public-data/sec-fundamentals-summary.manifest.json public-data/screener-validation-gate.json public-data/reconciliation-status.json public-data/operations-status.json public-data/history.json public-config.json
           [ -f public-data/backtest-history.json ] && git add public-data/backtest-history.json || true
           if git diff --staged --quiet; then
             echo "No screener changes to commit"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           ts=$(date -u +"%Y-%m-%dT%H:%MZ")
@@ -80,3 +88,14 @@ jobs:
             attempt=$((attempt + 1))
             sleep $((attempt * 3))
           done
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch exact produced commit to CI
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          final_sha="$(git rev-parse HEAD)"
+          gh workflow run ci.yml --ref main -f release_sha="$final_sha" -f origin="refresh-screener"
+          echo "Dispatched CI for exact screener refresh commit $final_sha"

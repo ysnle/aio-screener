@@ -2,7 +2,7 @@ export const NEWS_DATA_SET = 'data/news';
 export const NEWS_DATA_CLEAR = 'data/news/clear';
 
 export function createInitialNewsState() {
-  return Object.freeze({ items: [], status: 'unavailable', revision: null, updatedAt: null });
+  return Object.freeze({ items: [], status: 'unavailable', revision: null, updatedAt: null, fetchedAt: null, nextRefreshAt: null, checkedAt: null });
 }
 
 export function createNewsDataAction(payload = {}, meta = {}) {
@@ -16,7 +16,10 @@ export function newsReducer(state = createInitialNewsState(), action = {}) {
       items: Array.isArray(payload.items) ? payload.items.slice() : [],
       status: payload.status || (payload.items?.length ? 'current' : 'unavailable'),
       revision: action.meta?.revision || payload.revision || state.revision || null,
-      updatedAt: action.meta?.updatedAt || payload.updatedAt || state.updatedAt || null
+      updatedAt: action.meta?.updatedAt || payload.updatedAt || state.updatedAt || null,
+      fetchedAt: action.meta?.fetchedAt || payload.fetchedAt || state.fetchedAt || null,
+      nextRefreshAt: action.meta?.nextRefreshAt || payload.nextRefreshAt || state.nextRefreshAt || null,
+      checkedAt: action.meta?.checkedAt || payload.checkedAt || state.checkedAt || null
     };
   }
   if (action.type === NEWS_DATA_CLEAR) return createInitialNewsState();

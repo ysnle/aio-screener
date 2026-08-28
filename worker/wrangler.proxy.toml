@@ -3,10 +3,15 @@ main = "../cloudflare-worker-proxy.js"
 compatibility_date = "2026-08-10"
 workers_dev = true
 
+[observability]
+enabled = true
+head_sampling_rate = 0.1
+
 [vars]
 ANTHROPIC_DAILY_CAP = "300"
 ANTHROPIC_MAX_TOKENS = "1500"
 AIO_APP_REVISION = "v54.37"
+AIO_SOURCE_SHA = "__AIO_SOURCE_SHA__"
 
 [[durable_objects.bindings]]
 name = "AIO_QUOTA_DO"

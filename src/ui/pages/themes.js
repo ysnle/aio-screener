@@ -1,5 +1,11 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 import { selectSelectedThemeDetail, selectThemesItems } from '../../state/selectors/themes.js';
+import {
+  AI_INFERENCE_EFFICIENCY_REFERENCE,
+  AI_DEAL_ECOSYSTEM_EDGES,
+  AI_DEAL_ECOSYSTEM_NODES,
+  selectAiInferenceProxies
+} from '../../domain/ai/inference-efficiency.js';
 
 const QUADRANTS = Object.freeze([
   { key: 'Leading', label: '선도 Leading', sub: '비중 유지', note: '상대강도·모멘텀 모두 우위' },
@@ -236,18 +242,39 @@ function renderThemePerformanceBars({ documentRef, root, store, route }) {
   });
 }
 
-function createChip(documentRef, item) {
-  const chip = documentRef.createElement('span');
+function resolveThemeDetailId(root, item) {
+  const symbol = String(item?.symbol || item?.id || '').trim().toUpperCase();
+  const catalog = Array.isArray(root?.THEME_MAP) ? root.THEME_MAP : [];
+  const theme = catalog.find((entry) => (
+    String(entry?.id || '').trim() === String(item?.id || '').trim()
+    || String(entry?.etf || '').trim().toUpperCase() === symbol
+    || String(entry?.compositeBase || '').trim().toUpperCase() === symbol
+  ));
+  return theme?.id ? String(theme.id) : null;
+}
+
+function createChip(documentRef, item, root, onThemeDetail) {
+  const detailId = resolveThemeDetailId(root, item);
+  const chip = documentRef.createElement(detailId ? 'button' : 'span');
   const pct = finite(item?.pct);
   const symbol = String(item?.symbol || item?.id || '');
   chip.dataset.themeSymbol = symbol;
   chip.textContent = `${symbol} ${String(item?.label || symbol)} ${pct == null ? '—' : `${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`}`;
-  chip.style.cssText = 'font-size:12px;border:1px solid var(--border-subtle);border-radius:6px;padding:4px 10px;background:var(--bg-elevated);color:var(--text-primary);font-variant-numeric:tabular-nums;';
+  chip.style.cssText = `font-size:12px;border:1px solid var(--border-subtle);border-radius:6px;padding:4px 10px;background:var(--bg-elevated);color:var(--text-primary);font-variant-numeric:tabular-nums;${detailId ? 'cursor:pointer;text-align:left;' : ''}`;
+  if (detailId) {
+    chip.type = 'button';
+    chip.dataset.action = 'showThemeDetail';
+    chip.dataset.arg = detailId;
+    chip.dataset.passEl = '1';
+    chip.setAttribute('aria-label', `${String(item?.label || symbol)} 테마 상세 열기`);
+    chip.title = '테마 상세 열기';
+    chip.addEventListener('click', () => onThemeDetail?.(detailId));
+  }
   if (pct != null) chip.style.color = pct >= 0 ? 'var(--data-green)' : 'var(--data-red)';
   return chip;
 }
 
-function renderThemes({ documentRef, root, store, route }) {
+function renderThemes({ documentRef, root, store, route, onThemeDetail }) {
   if (route !== 'themes') return;
   const container = documentRef?.getElementById('rrg-quadrant-cards');
   if (!container) return;
@@ -283,7 +310,7 @@ function renderThemes({ documentRef, root, store, route }) {
     const chips = documentRef.createElement('div');
     chips.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;';
     const group = groups.get(quadrant.key) || [];
-    if (group.length) group.forEach((item) => chips.appendChild(createChip(documentRef, item)));
+    if (group.length) group.forEach((item) => chips.appendChild(createChip(documentRef, item, root, onThemeDetail)));
     else {
       const empty = documentRef.createElement('span');
       empty.textContent = '해당 섹터 없음';
@@ -335,8 +362,13 @@ function renderThemeDetailSummary({ documentRef, root, store, themeId = null, de
   leaders.style.cssText = 'font-size:11px;line-height:1.6;color:var(--text-secondary);';
 
   const provenance = documentRef.createElement('div');
-  provenance.textContent = `canonical theme-detail · ${detail.source === 'quote-missing' ? 'reference-only' : `source: ${detail.source}`}`;
+  const membership = detail.membershipPolicy || {};
+  const membershipAsOf = membership.observedAt ? `구성 기준 ${String(membership.observedAt).slice(0, 10)}` : '구성 기준일 미검증';
+  provenance.textContent = `canonical theme-detail · ${detail.source === 'quote-missing' ? '시세 reference-only' : `시세 source: ${detail.source}`} · ${membership.source || 'AIO curated taxonomy'} · ${membershipAsOf} · 참고 분류`;
   provenance.style.cssText = 'font-size:10px;line-height:1.5;color:var(--text-muted);';
+  provenance.setAttribute('data-source-kind', membership.sourceKind || 'REFERENCE');
+  provenance.setAttribute('data-operational-use', membership.allowedUse === 'decision' ? 'decision' : 'reference-only');
+  if (membership.observedAt) provenance.setAttribute('data-observed-at', membership.observedAt);
 
   host.replaceChildren(header, leaders, provenance);
   host.hidden = false;
@@ -708,6 +740,153 @@ function renderThemeDetailInsights({ documentRef, root, store, themeId = null, d
   host.hidden = false;
 }
 
+function renderAiInfrastructureLens({ documentRef, root, route }) {
+  if (route !== 'themes') return;
+  const host = documentRef?.getElementById('ai-infra-efficiency-lens');
+  if (!host) return;
+  const proxies = selectAiInferenceProxies(root?._liveData || {});
+  host.replaceChildren();
+  host.dataset.aioAiInfrastructureRenderer = 'native';
+  host.setAttribute('data-source-kind', AI_INFERENCE_EFFICIENCY_REFERENCE.sourceKind);
+  host.setAttribute('data-operational-use', AI_INFERENCE_EFFICIENCY_REFERENCE.operationalUse);
+
+  const header = documentRef.createElement('div');
+  header.style.cssText = 'display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:6px;';
+  const title = documentRef.createElement('div');
+  title.textContent = 'AI 추론 효율 · 메모리 벽 × 특화도';
+  title.style.cssText = 'font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);';
+  const badge = documentRef.createElement('span');
+  const liveCount = proxies.filter((item) => item.pct != null).length;
+  badge.textContent = liveCount ? `REFERENCE · 공개 프록시 ${liveCount}/${proxies.length}개 수신` : 'REFERENCE · 현재 프록시 수신 대기';
+  badge.style.cssText = 'font-size:10px;font-weight:700;color:var(--text-muted);';
+  header.append(title, badge);
+  host.appendChild(header);
+
+  const intro = documentRef.createElement('div');
+  intro.textContent = '다음 AI 경쟁의 단위를 단일 칩 승자가 아니라 workload stage별 비용·지연·전력으로 재정의합니다. 아래 업체·구조·거래선은 자료에서 추출한 연구 지도이며 현재 매출·밸류에이션·성능 순위가 아닙니다.';
+  intro.style.cssText = 'font-size:12px;line-height:1.7;color:var(--text-secondary);margin-bottom:12px;';
+  host.appendChild(intro);
+
+  const topGrid = documentRef.createElement('div');
+  topGrid.style.cssText = 'display:grid;grid-template-columns:1.1fr 1fr;gap:14px;margin-bottom:14px;';
+  const axes = documentRef.createElement('div');
+  const axesTitle = documentRef.createElement('div');
+  axesTitle.textContent = '구조 축';
+  axesTitle.style.cssText = 'font-size:11px;font-weight:800;color:var(--text-secondary);margin-bottom:6px;';
+  axes.appendChild(axesTitle);
+  AI_INFERENCE_EFFICIENCY_REFERENCE.axes.forEach((axis) => {
+    const row = documentRef.createElement('div');
+    row.style.cssText = 'border:1px solid var(--border-subtle);border-radius:4px;background:var(--bg-card);padding:8px;margin-bottom:6px;';
+    const label = documentRef.createElement('div');
+    label.textContent = axis.label;
+    label.style.cssText = 'font-size:11px;font-weight:800;color:var(--text-primary);margin-bottom:4px;';
+    const range = documentRef.createElement('div');
+    range.textContent = `${axis.low}  ←  ${axis.high}`;
+    range.style.cssText = 'font-size:10px;font-family:var(--font-mono);color:var(--data-cyan);';
+    const question = documentRef.createElement('div');
+    question.textContent = axis.question;
+    question.style.cssText = 'font-size:10px;line-height:1.5;color:var(--text-muted);margin-top:4px;';
+    row.append(label, range, question);
+    axes.appendChild(row);
+  });
+  const workloads = documentRef.createElement('div');
+  const workloadsTitle = documentRef.createElement('div');
+  workloadsTitle.textContent = 'workload fit';
+  workloadsTitle.style.cssText = 'font-size:11px;font-weight:800;color:var(--text-secondary);margin-bottom:6px;';
+  workloads.appendChild(workloadsTitle);
+  AI_INFERENCE_EFFICIENCY_REFERENCE.workloads.forEach((workload) => {
+    const row = documentRef.createElement('div');
+    row.style.cssText = 'border-bottom:1px solid var(--border-subtle);padding:7px 0;';
+    const label = documentRef.createElement('div');
+    label.textContent = `${workload.label} · ${workload.metric}`;
+    label.style.cssText = 'font-size:11px;font-weight:700;color:var(--text-primary);';
+    const fit = documentRef.createElement('div');
+    fit.textContent = workload.fit;
+    fit.style.cssText = 'font-size:10px;line-height:1.5;color:var(--text-muted);margin-top:3px;';
+    row.append(label, fit);
+    workloads.appendChild(row);
+  });
+  topGrid.append(axes, workloads);
+  host.appendChild(topGrid);
+
+  const entityTitle = documentRef.createElement('div');
+  entityTitle.textContent = '추론 하드웨어 reference map';
+  entityTitle.style.cssText = 'font-size:11px;font-weight:800;color:var(--text-secondary);margin-bottom:6px;';
+  host.appendChild(entityTitle);
+  const entities = documentRef.createElement('div');
+  entities.style.cssText = 'display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-bottom:14px;';
+  AI_INFERENCE_EFFICIENCY_REFERENCE.entities.forEach((entity) => {
+    const card = documentRef.createElement('div');
+    card.style.cssText = 'background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:4px;padding:8px;';
+    const name = documentRef.createElement('div');
+    name.textContent = entity.label;
+    name.style.cssText = 'font-size:11px;font-weight:800;color:var(--text-primary);';
+    const detail = documentRef.createElement('div');
+    detail.textContent = `${entity.memory} · ${entity.specialization}`;
+    detail.style.cssText = 'font-size:10px;line-height:1.5;color:var(--data-cyan);margin-top:4px;';
+    const fit = documentRef.createElement('div');
+    fit.textContent = `${entity.fit} · ${entity.status}`;
+    fit.style.cssText = 'font-size:10px;line-height:1.5;color:var(--text-muted);margin-top:3px;';
+    card.append(name, detail, fit);
+    card.setAttribute('data-source-kind', 'REFERENCE');
+    card.setAttribute('data-operational-use', 'reference-only');
+    entities.appendChild(card);
+  });
+  host.appendChild(entities);
+
+  const proxyTitle = documentRef.createElement('div');
+  proxyTitle.textContent = '현재 시장 프록시 (구조 노출의 참고값, 판단 근거 아님)';
+  proxyTitle.style.cssText = 'font-size:11px;font-weight:800;color:var(--text-secondary);margin-bottom:6px;';
+  host.appendChild(proxyTitle);
+  const proxyRow = documentRef.createElement('div');
+  proxyRow.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;';
+  proxies.forEach((item) => {
+    const chip = documentRef.createElement('span');
+    chip.textContent = `${item.symbol} ${item.pct == null ? '—' : `${item.pct >= 0 ? '+' : ''}${item.pct.toFixed(2)}%`}`;
+    chip.style.cssText = 'font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:3px;padding:4px 7px;';
+    chip.setAttribute('data-source-kind', item.sourceKind);
+    chip.setAttribute('data-operational-use', item.pct == null ? 'blocked' : 'reference-only');
+    chip.title = item.pct == null ? `${item.label} 현재 시세 미수신` : `${item.label} 등락률은 구조적 승자 판정이 아님`;
+    proxyRow.appendChild(chip);
+  });
+  host.appendChild(proxyRow);
+
+  const mapTitle = documentRef.createElement('div');
+  mapTitle.textContent = 'AI 거래의 순환 구조 · Bloomberg 도식의 역할/엣지 해석';
+  mapTitle.style.cssText = 'font-size:11px;font-weight:800;color:var(--text-secondary);margin-bottom:6px;';
+  host.appendChild(mapTitle);
+  const map = documentRef.createElement('div');
+  map.style.cssText = 'display:grid;grid-template-columns:1.05fr 1fr;gap:14px;margin-bottom:10px;';
+  const nodes = documentRef.createElement('div');
+  nodes.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;align-content:flex-start;';
+  AI_DEAL_ECOSYSTEM_NODES.forEach((node) => {
+    const chip = documentRef.createElement('span');
+    chip.textContent = node.label;
+    chip.title = node.role;
+    chip.style.cssText = 'font-size:10px;color:var(--text-secondary);background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:3px;padding:3px 5px;';
+    chip.setAttribute('data-source-kind', 'REFERENCE');
+    chip.setAttribute('data-operational-use', 'reference-only');
+    nodes.appendChild(chip);
+  });
+  const edges = documentRef.createElement('div');
+  AI_DEAL_ECOSYSTEM_EDGES.forEach((edge) => {
+    const row = documentRef.createElement('div');
+    row.textContent = `${edge.kind.toUpperCase()} · ${edge.label}`;
+    row.style.cssText = 'font-size:10px;line-height:1.6;color:var(--text-muted);border-bottom:1px solid var(--border-subtle);padding:3px 0;';
+    row.setAttribute('data-source-kind', 'REFERENCE');
+    row.setAttribute('data-operational-use', 'reference-only');
+    edges.appendChild(row);
+  });
+  map.append(nodes, edges);
+  host.appendChild(map);
+  const note = documentRef.createElement('div');
+  note.textContent = '도식의 원 크기·화살표는 2026-06-08 기준 Bloomberg 참고 이미지의 시각적 관계를 보존한 것이며, 현재 시가총액·계약·투자금액·지배관계를 의미하지 않습니다.';
+  note.style.cssText = 'font-size:10px;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border-subtle);padding-top:8px;';
+  note.setAttribute('data-source-kind', 'REFERENCE');
+  note.setAttribute('data-operational-use', 'reference-only');
+  host.appendChild(note);
+}
+
 export function createThemesPage({ root = globalThis, documentRef, store, route = 'themes' } = {}) {
   return {
     route,
@@ -735,7 +914,17 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         const subthemeGapHost = documentRef.getElementById('theme-detail-native-subtheme-gap');
         const benchmarkHost = documentRef.getElementById('theme-detail-native-benchmark');
         const insightsHost = documentRef.getElementById('theme-detail-native-insights');
-        let activeThemeDetail = null;
+         let activeThemeDetail = null;
+         const requestThemeDetail = (themeId) => {
+           const id = String(themeId || '').trim();
+           if (!id) return;
+           root._currentThemeId = id;
+           if (typeof root.showThemeDetail === 'function') {
+             root.showThemeDetail(id);
+             return;
+           }
+           eventTarget?.dispatchEvent?.(new CustomEvent('aio:themeDetailShown', { detail: { themeId: id } }));
+         };
         if (container) container.dataset.aioThemesRenderer = 'native';
         if (rrgStatusHost) rrgStatusHost.dataset.aioRrgStatusRenderer = 'native';
         if (rrgCanvasHost) rrgCanvasHost.dataset.aioRrgChartRenderer = 'native';
@@ -744,7 +933,7 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
          if (performanceBarsHost) performanceBarsHost.dataset.aioThemePerformanceBarsRenderer = 'native';
          if (detailPanel) detailPanel.dataset.aioThemeDetailPanelRenderer = 'native';
         const renderNow = () => {
-          renderThemes({ documentRef, root, store, route });
+           renderThemes({ documentRef, root, store, route, onThemeDetail: requestThemeDetail });
           renderRRGStatus({ documentRef, root, store, route });
           renderRRGCanvas({ documentRef, root, store, route });
           renderThemeCyclePill({ documentRef, root, store, route });
@@ -756,10 +945,11 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           renderThemeDetailTemperature({ documentRef, root, store, detailOverride: activeThemeDetail });
           renderThemeDetailSpread({ documentRef, root, store, detailOverride: activeThemeDetail });
           renderThemeDetailBreadthHealth({ documentRef, root, store, detailOverride: activeThemeDetail });
-          renderThemeDetailSubthemeGap({ documentRef, root, store, detailOverride: activeThemeDetail });
-          renderThemeDetailBenchmark({ documentRef, root, store, detailOverride: activeThemeDetail });
-          renderThemeDetailInsights({ documentRef, root, store, detailOverride: activeThemeDetail });
-        };
+           renderThemeDetailSubthemeGap({ documentRef, root, store, detailOverride: activeThemeDetail });
+           renderThemeDetailBenchmark({ documentRef, root, store, detailOverride: activeThemeDetail });
+           renderThemeDetailInsights({ documentRef, root, store, detailOverride: activeThemeDetail });
+           renderAiInfrastructureLens({ documentRef, root, route });
+         };
         renderNow();
         const unsubscribe = store?.subscribe?.(renderNow);
         if (unsubscribe) bag.add(unsubscribe);
@@ -881,6 +1071,11 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         eventTarget?.addEventListener?.('aio:themeDetailClosed', onThemeDetailClosed);
         bag.add(() => eventTarget?.removeEventListener?.('aio:themeDetailShown', onThemeDetailShown));
         bag.add(() => eventTarget?.removeEventListener?.('aio:themeDetailClosed', onThemeDetailClosed));
+        const pendingThemeId = String(root?._aioOpenThemeDetailOnThemes || '').trim();
+        if (pendingThemeId) {
+          delete root._aioOpenThemeDetailOnThemes;
+          queueMicrotask(() => requestThemeDetail(pendingThemeId));
+        }
         bag.add(() => {
           activeThemeDetail = null;
           if (page.dataset.aioArchitectureRenderer === 'native') delete page.dataset.aioArchitectureRenderer;

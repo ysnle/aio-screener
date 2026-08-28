@@ -3,12 +3,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { atomicWriteJsonSync } from './lib/atomic-write.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const reviewedAt = process.env.KNOWLEDGE_MANIFEST_DATE || '2026-08-18';
 
 const readJson = (relativePath) => JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
-const writeJson = (relativePath, value) => fs.writeFileSync(path.join(root, relativePath), `${JSON.stringify(value, null, 2)}\n`, 'utf8');
+const writeJson = (relativePath, value) => atomicWriteJsonSync(path.join(root, relativePath), value);
 
 const PRINCIPLE_LENSES = Object.freeze({
   A: {

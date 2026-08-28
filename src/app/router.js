@@ -9,6 +9,84 @@ function defaultPage(route) {
   };
 }
 
+function setLazyModuleState({ documentRef, route, state, errorMessage } = {}) {
+  const page = documentRef?.getElementById?.(`page-${route}`);
+  if (!page) return;
+  page.dataset.aioRouteModuleState = state;
+  const marker = page.querySelector?.('[data-aio-route-module-error]');
+  if (state !== 'failed') {
+    marker?.remove?.();
+    return;
+  }
+  const status = marker || documentRef?.createElement?.('div');
+  if (!status) return;
+  status.dataset.aioRouteModuleError = route;
+  status.className = 'info-box warning';
+  status.setAttribute?.('role', 'alert');
+  status.textContent = errorMessage || '이 화면 모듈을 불러오지 못했습니다. 다른 화면으로 이동한 뒤 다시 열어 주세요.';
+  if (!marker) page.prepend?.(status);
+}
+
+/**
+ * Keep a route out of the initial module graph while preserving the router's synchronous
+ * transition contract. Successful imports/factories are cached; failed loads are cleared so
+ * re-entering the route retries. A disposed route scope can never mount after its import settles.
+ */
+export function createLazyPage({ route, loader, factory, errorMessage } = {}) {
+  if (!isRouteId(route)) throw new Error(`LAZY_ROUTE_INVALID:${route || ''}`);
+  if (typeof loader !== 'function') throw new Error(`LAZY_ROUTE_LOADER_INVALID:${route}`);
+  if (typeof factory !== 'function') throw new Error(`LAZY_ROUTE_FACTORY_INVALID:${route}`);
+  let resolvedPage = null;
+  let pendingPage = null;
+
+  function resolvePage() {
+    if (resolvedPage) return Promise.resolve(resolvedPage);
+    if (pendingPage) return pendingPage;
+    pendingPage = Promise.resolve()
+      .then(loader)
+      .then((module) => factory(module))
+      .then((page) => {
+        if (!page || typeof page.mount !== 'function') throw new Error(`LAZY_ROUTE_MODULE_INVALID:${route}`);
+        resolvedPage = page;
+        return page;
+      })
+      .catch((error) => {
+        pendingPage = null;
+        throw error;
+      });
+    return pendingPage;
+  }
+
+  return Object.freeze({
+    route,
+    loadingStrategy: 'route-dynamic-import',
+    mount(context = {}) {
+      let disposed = false;
+      let innerDispose = null;
+      setLazyModuleState({ documentRef: context.documentRef, route, state: 'loading' });
+      void resolvePage()
+        .then((page) => {
+          if (disposed || context.scope?.disposed || context.scope?.isCurrent?.() === false) return;
+          innerDispose = page.mount(context);
+          if (typeof innerDispose !== 'function') innerDispose = null;
+          setLazyModuleState({ documentRef: context.documentRef, route, state: 'ready' });
+        })
+        .catch((error) => {
+          if (disposed || context.scope?.disposed || context.scope?.isCurrent?.() === false) return;
+          setLazyModuleState({ documentRef: context.documentRef, route, state: 'failed', errorMessage });
+          context.runtimeRoot?.dispatchEvent?.(new context.runtimeRoot.CustomEvent('aio:routeModuleError', {
+            detail: { route, message: String(error?.message || error) }
+          }));
+        });
+      return () => {
+        disposed = true;
+        try { innerDispose?.(); } catch (_) {}
+        innerDispose = null;
+      };
+    }
+  });
+}
+
 const ENTITY_ROUTES = new Set(['ticker', 'fundamental', 'options']);
 
 function entityIdFor(route, detail = {}) {

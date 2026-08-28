@@ -1,68 +1,50 @@
-# AIO Screener — Codex 프로젝트 가이드
+# AIO Screener — Agent Guide
 
-AIO Screener는 GitHub Pages로 배포 중인 **단일 HTML 올인원 투자 터미널**이다. 실시간 시세, 매매 시그널, 섹터 로테이션(RRG), Fear & Greed, 포트폴리오, LLM 채팅을 하나의 `index.html`에 담는다.
+AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + native ESM 투자 리서치 터미널이다. 현재 버전·라우트·파일 크기·지식 상태는 사람이 이 문서에 복사하지 않는다. 항상 [`_context/CURRENT-STATE.md`](./_context/CURRENT-STATE.md)와 원본 레지스트리에서 파생한다.
 
-- 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **`version.json` 기준**
-- 메인 파일: `index.html` (**~32,000줄**, ~2.2MB) + `js/` 6개 모듈
-- 스택: HTML5 + 인라인 CSS/JS · Chart.js(CDN) · AES-256 · GitHub Pages · 한국어 UI · 다크 테마 · WCAG AA
+## Mandatory preflight
 
----
+1. `git status --short`와 `version.json`으로 작업 트리 경계를 확인한다. 기존 dirty 변경은 사용자 소유다. 수정 전에 `node scripts/qa-runner.mjs session-start --session <task-id>`로 content-hash 기준선을 잡는다.
+2. `_context/CURRENT-STATE.md`, `_context/WORKFLOW-GOVERNANCE.md`, `_context/INDEX.md`만 공통으로 읽는다.
+3. 작업과 일치하는 스킬의 `SKILL.md`를 완전히 읽고, 그 스킬이 직접 지정한 reference만 추가로 읽는다.
+4. `RULES.md`, `BUG-POSTMORTEM.md`, `QA-CHECKLIST.md`, `KNOWLEDGE-BASE.md`는 전체 로드하지 않는다. 관련 함수·R/P/QA ID·키워드로 검색한 범위만 읽는다.
+5. `index.html`은 `_context/CODE-MAP.md`에서 담당 구간을 찾은 뒤 필요한 범위만 수정한다.
 
-## 작업 유형별 읽을 파일
+## Task routing
 
-| 작업 | 읽을 파일 |
-|------|----------|
-| **index.html 수정** | `_context/CODE-MAP.md` → 해당 line 범위만 Read |
-| **버그 수정** | `_context/RULES.md` → `BUG-POSTMORTEM.md` → `QA-CHECKLIST.md` |
-| **새 기능** | `_context/RULES.md` → `_context/CODE-MAP.md` → `_context/WORKTREE-AUDIT.md`(워크트리/배포 영향 시) |
-| **QA/점검** | `_context/RULES.md` → `BUG-POSTMORTEM.md` → `QA-CHECKLIST.md` |
-| **자료 통합** | `/integrate` 스킬 (→ `CHANGELOG.md` + `_context/KNOWLEDGE-BASE.md` 환류) |
-| **데이터 갱신** | `/data-refresh` 스킬 |
-| **지식 린팅** | `/knowledge-lint` 스킬 |
+| Task | Skill / evidence |
+|---|---|
+| Defect or failed gate | `bug-fix` → matching P/R/QA entries → regression gate |
+| Code, UI, workflow or skill verification | `post-edit-qa` → risk-derived tiers |
+| Data freshness or generated artifacts | `data-refresh` |
+| Supplied research or market framework | `integrate` |
+| Docs, skills, agents, hooks or knowledge drift | `knowledge-lint` |
+| Skill experiments and eval design | `autoresearch` |
 
-상세 문서: `_context/INDEX.md` + `_context/WORKFLOW-GOVERNANCE.md` (파일 구조 · 작업 게이트 · Skills 운영 루프)
+## Non-negotiable boundaries
 
----
+- Automatic commit, push and deployment are forbidden. Run them only after an explicit user request for that action.
+- Use `node scripts/bump-version.mjs <version>` for versioned changes. R1 remains the existing seven synchronized surface groups and is verified by `ci-version-check.mjs`.
+- Bug fixes require a new P entry. Promote recurring classes to RULES/QA and an executable gate.
+- Generated workspace files are never hand-edited: run `node scripts/generate-workspace-state.mjs --write`, `node scripts/sync-agent-profiles.mjs`, and `node scripts/sync-agent-skills.mjs` as applicable.
+- Static, runtime/headless, browser and live evidence are separate. Never promote a lower evidence level to a higher one.
+- No commit or deployment is implied by “finish”, “fix all”, QA completion, or a passing local gate.
 
-## 절대 규칙 (R1~R3만 — 나머지 R4~R263+는 `_context/RULES.md`)
+## Closeout
 
-**R1. 버전 동기화**: title · badge · APP_VERSION · version.json · sw.js SW_VERSION · root/context docs · CHANGELOG.md · JS cachebusters — **반드시 `node scripts/bump-version.mjs <버전>`으로 일괄 패치** (v51.64~)
-**R2. 버전 체계**: `v{major}.{patch}` 숫자 단조 증가 (예: v48.76 → v48.77). 최신 실제 체계는 두 자리 patch 허용.
-**R3. 버그 수정 시 사후 분석**: `_context/BUG-POSTMORTEM.md`에 P번호 기록
-**R27. Commands↔Skills 동기화**: 새 스킬 시 command wrapper 동시 생성
+Use `architecture/qa-pipeline.json` through `node scripts/qa-runner.mjs affected --session <task-id>` for normal closeout. If no baseline was captured, pass the exact task-owned list with `--files <comma-separated-paths>`; never let unrelated pre-existing dirty files silently widen the run. Fix the complete failure batch, then use `rerun-failed`, which rechecks the exact failed gates and declared dependencies. Reserve `full --no-cache` for release/shared-shell certification and `external --no-cache` for deployed claims.
 
----
+For workspace-facing changes run at minimum:
 
-## 작업 규칙
-
-- **자동 배포/커밋 금지** — `/deploy` 또는 "배포해줘" 명시 시에만
-- **전체 재작성 금지** — CODE-MAP.md 기반 부분 패치만
-- **코드 수정 시 자동 반영**: BUG-POSTMORTEM + QA-CHECKLIST + RULES + 버전 7곳 동기화
-
----
-
-## 복리 루프 (Karpathy Second Brain)
-
+```text
+node scripts/generate-workspace-state.mjs --check
+node scripts/ci-workspace-contract-check.mjs
+node scripts/ci-knowledge-lint-check.mjs
+node scripts/ci-skill-contract-check.mjs
+node scripts/ci-skill-eval-fixture-check.mjs
+node scripts/sync-agent-profiles.mjs --check
+node scripts/sync-agent-skills.mjs --check
+git diff --check
 ```
-작업 수행 → 산출물 → 위키(_context/) 환류 → 실행 게이트/CI 연결 → 다음 작업이 더 정확
-```
 
-| 작업 | 환류 대상 |
-|------|----------|
-| 버그 수정 | BUG-POSTMORTEM → 3회 반복 시 RULES 승격 |
-| /integrate | CHAT_CONTEXTS + SCREENER_DB + TECH_KW/MACRO_KW |
-| /qa | QA-CHECKLIST 항목 추가 |
-| 인사이트 | KNOWLEDGE-BASE (R26) |
-| 리팩토링 ±500줄 | CODE-MAP 재스캔 |
-
-에러 복리 방지: `_context/WORKFLOW-GOVERNANCE.md`를 먼저 읽고, `/knowledge-lint`를 주기적으로 실행한다. 기록만 남기지 말고 runtime audit/CI/test/checklist 중 하나로 닫는다.
-
----
-
-## 토큰 효율성
-
-- 인사/칭찬/마무리 멘트 금지 · 질문 되풀이 금지 — 바로 작업
-- 요청 범위 외 제안/과잉 설계 금지
-- index.html은 CODE-MAP 기반 부분 읽기 · 파일은 한 번만 읽기
-- 모르면 솔직히 말하기 (경로/함수명 날조 금지)
+Add the code/data/browser gates selected by the touched surface. Final reports must separate verified, blocked and unverified work and state whether commit/deploy occurred.

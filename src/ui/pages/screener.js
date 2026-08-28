@@ -362,7 +362,7 @@ function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatch
 function renderFactorTab(documentRef, metadata) {
   const ranking = metadata?.ranking || {};
   const bars = documentRef.getElementById('scr-factor-bars');
-  const weights = ranking.activeFactorWeights || {};
+  const weights = ranking.appliedFactorWeights || ranking.activeFactorWeights || {};
   const factors = ranking.activeFactors || [];
   if (bars) {
     bars.replaceChildren();
@@ -393,6 +393,30 @@ function renderFactorTab(documentRef, metadata) {
   if (regimeNode) regimeNode.textContent = regime;
   const desc = documentRef.getElementById('scr-regime-desc');
   if (desc) desc.textContent = REGIME_DESCRIPTIONS[regime] || '현재 레짐에 맞는 팩터 가중치를 적용했습니다.';
+  const confidenceNode = documentRef.getElementById('screener-factor-confidence');
+  if (confidenceNode) {
+    const confidence = finite(ranking.confidence);
+    const composite = finite(ranking.compositeConfidence);
+    const status = ranking.qualityStatus || 'unavailable';
+    confidenceNode.textContent = confidence == null
+      ? '입력 신뢰도 산출 불가 — 미래 수익률 확률이 아닙니다.'
+      : `행 근거 평균 ${Math.round(confidence * 100)}% · 횡단면 진단 ${composite == null ? '—' : `${Math.round(composite * 100)}%`} · 품질 ${status} · 미래 수익률 확률 아님`;
+  }
+  const diagnosticsNode = documentRef.getElementById('screener-factor-diagnostics');
+  if (diagnosticsNode) {
+    const sector = ranking.sectorNeutrality || {};
+    const outliers = ranking.outlierDiagnostics || {};
+    const turnover = ranking.turnoverStability || {};
+    const regimeStability = ranking.regimeStability || {};
+    const parts = [
+      `섹터 중립 ${sector.status || '미확인'}${Number.isFinite(Number(sector.groups)) ? ` (${sector.groups}개 그룹${Number(sector.unknownRows) ? `, 미분류 ${sector.unknownRows}` : ''})` : ''}`,
+      `극단치 완화 ${Number.isFinite(Number(outliers.totalOutliers)) ? `${outliers.totalOutliers}건` : '미확인'}`,
+      `상위군 회전 ${Number.isFinite(Number(turnover.turnoverPct)) ? `${turnover.turnoverPct}%` : turnover.status || '이전 스냅샷 없음'}`,
+      `레짐 안정성 ${regimeStability.status || '이전 스냅샷 없음'}`
+    ];
+    diagnosticsNode.textContent = `${parts.join(' · ')} · 연구용 상대 순위이며 매매 신호/자동 가중 승격에 사용하지 않습니다.`;
+    diagnosticsNode.dataset.decisionEligible = String(ranking.researchBoundary?.decisionEligible === true);
+  }
 }
 
 function renderBacktest(documentRef, metadata) {
@@ -638,6 +662,21 @@ function render({ documentRef, store, readLiveData, readWatchlist, readAliases, 
   if (factorCount) factorCount.textContent = String(state?.metadata?.ranking?.activeFactors?.length || '—');
   const asOf = page.querySelector('[data-factor-asof]');
   if (asOf) asOf.textContent = workbenchResult?.run?.snapshotId ? `스크린 스냅샷 ${String(workbenchResult.run.snapshotId).slice(0, 18)}` : state?.metadata?.asOf ? `팩터 기준 ${String(state.metadata.asOf).slice(0, 10)}` : '팩터 데이터 대기';
+  const provenance = page.querySelector('[data-screener-provenance]');
+  if (provenance) {
+    const metadata = state?.metadata || {};
+    const fmtDate = (value) => value ? String(value).slice(0, 16).replace('T', ' ') : '—';
+    const sec = metadata.secFundamentalsEligible > 0
+      ? `SEC FY ${metadata.secFundamentalsModel || '정규화'} ${metadata.secFundamentalsStored || 0}/${metadata.secFundamentalsEligible}`
+      : 'SEC FY coverage 별도 확인 대기';
+    const universeNote = metadata.universeFreshnessStatus === 'stale'
+      ? `종목 유니버스 갱신 필요 (${fmtDate(metadata.universeLastBulkUpdate)})`
+      : metadata.universeFreshnessStatus === 'unknown' ? '종목 유니버스 최신성 미확인' : '종목 유니버스 최신';
+    provenance.textContent = `연구용 스냅샷 · 팩터 관측 ${fmtDate(metadata.factorObservedAt)} · 생성 ${fmtDate(metadata.asOf)} · ${metadata.source || '출처 확인 대기'} · ${sec} · ${universeNote} · 공식 거래소 breadth 아님`;
+    provenance.title = metadata.fundamentalCoverageScope || '관측시각·생성시각·SEC-only 분모를 분리해 표시합니다.';
+    provenance.dataset.sourceKind = 'reference';
+    provenance.dataset.operationalUse = 'reference-only';
+  }
   const readiness = documentRef.getElementById('screener-readiness-note');
   const run = workbenchResult?.run || state?.lastRun || {};
   const readinessResult = workbenchResult?.readiness || state?.readiness;
@@ -646,7 +685,7 @@ function render({ documentRef, store, readLiveData, readWatchlist, readAliases, 
   const unavailableCount = run?.unavailable ?? 0;
   if (readiness) readiness.textContent = state?.status === 'unavailable'
     ? '데이터 상태: 산출물 미수신 · 결과와 검증 수치를 표시하지 않습니다.'
-    : `현재 snapshot · 유니버스 ${allRows.length} · 필드 준비 ${readyCount} · 조건 통과 ${passedCount} · 데이터 부족 ${unavailableCount} · 상대 랭킹은 연구용입니다.`;
+    : `${state?.metadata?.universeFreshnessStatus === 'stale' ? '부분 상태: 종목 유니버스 최신성 확인 필요 · ' : ''}연구 snapshot · 유니버스 ${allRows.length} · 필드 준비 ${readyCount} · 조건 통과 ${passedCount} · 데이터 부족 ${unavailableCount} · 상대 랭킹은 연구용이며 현재 매매 지시가 아닙니다.`;
   renderFunnel(documentRef, { universe: allRows.length, ready: readyCount, passed: passedCount, unavailable: unavailableCount, filtered: filtered.length });
   renderFilterChips(documentRef);
   const coverage = documentRef.getElementById('screener-factor-coverage');
@@ -763,7 +802,8 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
          const contrary = explanation.contraryEvidence || [];
          setText('scr-why-title', `${row.sym || row.symbol || '종목'} · ${title}`);
          setText('scr-why-subtitle', row.name || '연구용 상대 랭킹 설명');
-         setText('scr-why-status', `${row.screenStatus || 'unavailable'} · rank ${row.rank == null ? '—' : row.rank} · coverage ${readiness.coveragePct == null ? '—' : `${readiness.coveragePct}%`}`);
+          const factorConfidence = finite(row.confidence);
+          setText('scr-why-status', `${row.screenStatus || 'unavailable'} · rank ${row.rank == null ? '—' : row.rank} · 필드 coverage ${readiness.coveragePct == null ? '—' : `${readiness.coveragePct}%`} · 팩터 근거 ${factorConfidence == null ? '—' : `${Math.round(factorConfidence * 100)}%`} (수익확률 아님)`);
          setText('scr-why-contrary', contrary.length ? contrary.join(' · ') : '조건을 반대한 근거가 없습니다.');
          setText('scr-why-missing', missing.length ? missing.join(' · ') : '필수 필드 결측 없음');
          setText('scr-why-provenance', row.instrumentRef?.instrumentId ? `instrument ${row.instrumentRef.instrumentId}` : row.source || 'provenance 미수신');

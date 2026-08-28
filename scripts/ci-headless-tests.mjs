@@ -10,17 +10,61 @@
 // Yahoo/FMP 등에 부하를 주지 않고 항상 동일한 offline/seed-fallback 상태로 측정되게 한다.
 
 import { chromium } from 'playwright';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { resolve, dirname } from 'node:path';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const root = resolve(scriptDir, '..');
-const PORT = Number(process.env.CI_TEST_PORT || 8891);
+const shardArg = process.argv.find((value) => /^--shard=\d+\/\d+$/.test(value)) || '--shard=1/1';
+const groupsArg = process.argv.find((value) => value.startsWith('--groups=')) || null;
+const GROUP_IDS = groupsArg
+  ? [...new Set(groupsArg.slice('--groups='.length).split(',').map((value) => value.trim().toUpperCase()).filter(Boolean))]
+  : [];
+if (groupsArg && (!GROUP_IDS.length || GROUP_IDS.some((id) => !/^G\d{3}$/.test(id)))) throw new Error(`invalid headless groups: ${groupsArg}`);
+if (groupsArg && process.argv.some((value) => value.startsWith('--shard=') && value !== '--shard=1/1')) throw new Error('--groups cannot be combined with a multi-shard selection');
+const shardMatch = shardArg.match(/^--shard=(\d+)\/(\d+)$/);
+const SHARD_INDEX = Number(shardMatch?.[1]);
+const SHARD_COUNT = Number(shardMatch?.[2]);
+if (!Number.isInteger(SHARD_INDEX) || !Number.isInteger(SHARD_COUNT) || SHARD_INDEX < 1 || SHARD_COUNT < 1 || SHARD_INDEX > SHARD_COUNT) {
+  throw new Error(`invalid headless shard: ${shardArg}`);
+}
+const SHARD_LABEL = `${SHARD_INDEX}/${SHARD_COUNT}`;
+const SELECTION_LABEL = GROUP_IDS.length ? GROUP_IDS.join(',') : `shard=${SHARD_LABEL}`;
+const PORT = Number(process.env.CI_TEST_PORT || (8890 + SHARD_INDEX));
 const BASE_URL = `http://127.0.0.1:${PORT}/index.html`;
 const SKIP_LIST_PATH = resolve(root, '_context/gate-baseline-skip-list.json');
 const RUNTIME_ALLOWLIST_PATH = resolve(root, 'architecture/browser-error-allowlist.json');
+let activeServer = null;
+let activeBrowser = null;
+let cleanupPromise = null;
+
+function stopServerTree(server) {
+  if (!server?.pid) return;
+  try { server.kill('SIGTERM'); } catch (_) {}
+  if (process.platform === 'win32') {
+    spawnSync('taskkill.exe', ['/PID', String(server.pid), '/T', '/F'], { stdio: 'ignore' });
+  }
+}
+
+function cleanup() {
+  if (cleanupPromise) return cleanupPromise;
+  cleanupPromise = (async () => {
+    try { if (activeBrowser) await activeBrowser.close(); } catch (_) {}
+    stopServerTree(activeServer);
+    activeBrowser = null;
+    activeServer = null;
+  })();
+  return cleanupPromise;
+}
+
+['SIGINT', 'SIGTERM'].forEach((signal) => {
+  process.once(signal, async () => {
+    await cleanup();
+    process.exit(signal === 'SIGINT' ? 130 : 143);
+  });
+});
 
 function loadSkipList() {
   try {
@@ -77,7 +121,9 @@ async function main() {
   const skipList = loadSkipList();
   const runtimeAllowlist = loadRuntimeAllowlist();
   const server = await startServer();
+  activeServer = server;
   const browser = await chromium.launch();
+  activeBrowser = browser;
   let exitCode = 0;
 
   try {
@@ -87,6 +133,10 @@ async function main() {
     const abortedExternalUrls = new Set();
     page.on('pageerror', (err) => runtimeErrors.push({ kind: 'pageerror', text: err.message, source: 'page' }));
     page.on('console', (msg) => {
+      if (msg.text().startsWith('[AIO TEST PROGRESS]')) {
+        console.log(`[qa-progress] headless ${msg.text().replace('[AIO TEST PROGRESS] ', '')}`);
+        return;
+      }
       if (msg.type() !== 'error') return;
       const location = msg.location?.() || {};
       const locationUrl = location.url || '';
@@ -133,14 +183,28 @@ async function main() {
       { timeout: 30000 }
     );
 
-    const result = await page.evaluate(async () => {
+    const heartbeatStartedAt = Date.now();
+    const heartbeat = setInterval(() => console.log(`[qa-progress] headless selection=${SELECTION_LABEL} elapsed=${Math.round((Date.now() - heartbeatStartedAt) / 1000)}s`), 15000);
+    let result;
+    try {
+      result = await page.evaluate(async ({ shardIndex, shardCount, groupIds }) => {
       await window.AIO.loadTests();
-      return window.AIO.runTests();
-    });
+        return window.AIO.runTests({ shardIndex, shardCount, groupIds, progress: true });
+      }, { shardIndex: SHARD_INDEX, shardCount: SHARD_COUNT, groupIds: GROUP_IDS });
+    } finally {
+      clearInterval(heartbeat);
+    }
+
+    if (result?.shard?.index !== SHARD_INDEX || result?.shard?.count !== SHARD_COUNT || result?.shard?.selectedGroups < 1) {
+      throw new Error(`headless shard coverage mismatch: ${JSON.stringify(result?.shard || null)}`);
+    }
+    if (GROUP_IDS.length && (result?.selection?.mode !== 'groups' || result.shard.selectedGroups !== GROUP_IDS.length || GROUP_IDS.some((id) => !result.selection.requestedGroups.includes(id)))) {
+      throw new Error(`headless group coverage mismatch: ${JSON.stringify(result?.selection || null)}`);
+    }
 
     const sentinel = await page.evaluate(() => window.AIO.runGroupContractSelfTest?.() || null);
 
-    console.log(`\n[ci-headless-tests] ${result.summary}`);
+    console.log(`\n[ci-headless-tests] selection=${SELECTION_LABEL} groups=${result.shard.selectedGroups}/${result.shard.registryGroups} ${result.summary}`);
 
     const unexpected = [];
     const expectedSkipped = [];
@@ -188,8 +252,13 @@ async function main() {
     }
 
     if (unexpected.length) {
+      const failedGroups = [...new Set([
+        ...unexpected.map((entry) => entry.groupId).filter((id) => /^G\d{3}$/.test(id || '')),
+        ...(result.groupResults || []).filter((group) => group.status === 'exception').map((group) => group.id).filter((id) => /^G\d{3}$/.test(id || ''))
+      ])];
+      if (failedGroups.length) console.error(`[ci-headless-tests] AIO_FAILED_GROUPS=${failedGroups.join(',')}`);
       console.error(`\n[ci-headless-tests] ❌ 예상 밖 실패 ${unexpected.length}건 (skip-list에 없음):`);
-      for (const e of unexpected) console.error(`  - ${e.label} | ${e.detail}`);
+      for (const e of unexpected) console.error(`  - ${e.groupId || 'unscoped'} | ${e.label} | ${e.detail}`);
       exitCode = 1;
     } else {
       console.log('\n[ci-headless-tests] ✅ skip-list 밖 실패 없음');
@@ -198,8 +267,7 @@ async function main() {
     console.error(`[ci-headless-tests] 실행 오류: ${e.stack || e.message}`);
     exitCode = 1;
   } finally {
-    await browser.close();
-    server.kill();
+    await cleanup();
   }
 
   process.exit(exitCode);

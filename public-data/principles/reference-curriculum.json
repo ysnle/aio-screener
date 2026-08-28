@@ -1,0 +1,122 @@
+{
+  "schemaVersion": "market-learning-curriculum.v1",
+  "revision": "2026-08-23",
+  "status": "REFERENCE_CONNECTED",
+  "publication": "EDUCATIONAL_REFERENCE_ONLY",
+  "boundary": "공개 아티클에서 재사용 가능한 학습·판단 프레임만 추출한 참고 자료다. 특정 종목·가격·목표가·현재 시장 전망·매매 지시를 포함하지 않는다.",
+  "sourceProfile": {
+    "author": "Katoo (@blazingbees)",
+    "sourceName": "공개 시장 학습 아티클 묶음",
+    "sourceType": "USER_SUPPLIED_PUBLIC_ARTICLES",
+    "sourceUrls": [
+      "https://x.com/blazingbees/status/2016850989782020602",
+      "https://x.com/blazingbees/status/2027724281438966055",
+      "https://x.com/blazingbees/status/2019369817334280638",
+      "https://x.com/blazingbees/status/2020512736632091086",
+      "https://x.com/blazingbees/status/2088176331175444533",
+      "https://x.com/blazingbees/status/2027036874687332382",
+      "https://x.com/blazingbees/status/2028358320420196761",
+      "https://x.com/blazingbees/status/2028642294023569637",
+      "https://x.com/blazingbees/status/2029156243416465873"
+    ]
+  },
+  "sourceNotes": [
+    {"id":"BB-01","title":"가치투자에 대한 회상","url":"https://x.com/blazingbees/status/2016850989782020602","durableThemes":["방법론은 개인의 상황에 맞아야 함","가격과 시장 반응으로 가설을 재평가","시장 참여자의 역할은 상호 연결됨"]},
+    {"id":"BB-02","title":"주식은 왜 날로 먹고 싶은가","url":"https://x.com/blazingbees/status/2027724281438966055","durableThemes":["천천히 읽고 재독하는 학습 루프","예측보다 확인과 대응","단순화하되 증거를 버리지 않기"]},
+    {"id":"BB-03","title":"투기·투자·불타기·물타기·손절","url":"https://x.com/blazingbees/status/2019369817334280638","durableThemes":["논점 무효화와 손절","검증된 포지션에 단계적으로 추가","약한 포지션의 노출 축소"]},
+    {"id":"BB-04","title":"돈 공부와 지속적인 복기","url":"https://x.com/blazingbees/status/2020512736632091086","durableThemes":["의도적 연습","월간 성과 검토","시간과 자료의 배분"]},
+    {"id":"BB-05","title":"기업탐방과 에코챔버","url":"https://x.com/blazingbees/status/2088176331175444533","durableThemes":["현장 정보의 편향","공개 시장 반응의 검증 기능","정보 과잉과 관계 편향 경계"]},
+    {"id":"BB-06","title":"불필요하게 복잡해지지 않기","url":"https://x.com/blazingbees/status/2027036874687332382","durableThemes":["가장 단순한 충분조건","가격·거래량을 핵심 증거로 사용","불확실하면 포지션을 줄임"]},
+    {"id":"BB-07","title":"지수 전망과 계좌 맥락","url":"https://x.com/blazingbees/status/2028358320420196761","durableThemes":["지수 전망에 선약하지 않기","계좌 상태별 위험 허용도","위기 전 포지션·현금 버퍼 설계"]},
+    {"id":"BB-08","title":"지수의 기본 이해","url":"https://x.com/blazingbees/status/2028642294023569637","durableThemes":["시가총액 가중과 대표성","지수·ETF·선물의 바스켓 구조","액티브·패시브·벤치마크 구분"]},
+    {"id":"BB-09","title":"신용거래와 반대매매","url":"https://x.com/blazingbees/status/2029156243416465873","durableThemes":["신용잔고를 유동성과 함께 해석","자발적 디레버리징과 강제청산 구분","담보·결제 규칙은 공식 원문 확인"]}
+  ],
+  "decisionLoop": [
+    {"id":"claim","label":"가설","question":"무엇이 일어나야 이 아이디어가 맞다고 볼 수 있는가?"},
+    {"id":"evidence","label":"증거","question":"어떤 가격·거래량·공시·시장 구조 자료가 관찰 가능한가?"},
+    {"id":"response","label":"시장 반응","question":"예상보다 실제 가격·거래량·상대강도는 어떻게 반응했는가?"},
+    {"id":"exposure","label":"노출","question":"증거의 질과 계좌 상황에 맞는 포지션 크기는 얼마인가?"},
+    {"id":"invalidation","label":"무효화","question":"어떤 관찰이 논점을 틀렸다고 인정하게 만드는가?"},
+    {"id":"journal","label":"복기","question":"결과와 과정을 기록하고 다음 규칙을 어떻게 수정할 것인가?"}
+  ],
+  "stages": [
+    {
+      "id":"stage-00","number":0,"title":"서비스 입문","accent":"cyan","objective":"정보를 소비하는 습관을 판단 시스템으로 바꾸고, 참고 자료와 현재 관측값의 경계를 세운다.","questions":["이 자료는 발견용인가, 검증용인가?","내가 이해하지 못한 용어와 전제는 무엇인가?"],
+      "lessons":[
+        {"id":"bb-learning-contract","title":"읽기·재독·복기의 학습 계약","framework":"빠른 동의보다 천천히 읽고 시간이 지난 뒤 다시 해석한다.","mechanism":"원문 읽기 → 핵심 주장 분리 → 경험 후 재독 → 규칙 수정","invalidation":"읽은 횟수만 늘고 실제 관찰·기록·행동 변화가 없으면 학습으로 간주하지 않는다.","sourceIds":["BB-02","BB-04"],"routeTarget":{"routeId":"principles","metric":"학습 루프","timeframe":"장기"}},
+        {"id":"bb-reference-boundary","title":"참고 원고와 현재 데이터의 경계","framework":"아티클의 설명은 가설 생성용이고 현재 판단은 기준일·출처가 있는 관측값으로 다시 확인한다.","mechanism":"참고 원고 → 검증 질문 → 공식·시장 데이터 → 현재 맥락","invalidation":"출처·기준일·허용 용도가 없으면 현재 신호로 승격하지 않는다.","sourceIds":["BB-02","BB-05","BB-09"],"routeTarget":{"routeId":"market-news","metric":"출처·기준일","timeframe":"현재 관측"}}
+      ]
+    },
+    {
+      "id":"stage-01","number":1,"title":"투자 철학","accent":"amber","objective":"투자·트레이딩·거시·퀀트 등 방법론을 서열화하지 않고 자신의 시간·자본·심리에 맞는 규칙으로 번역한다.","questions":["나는 어떤 시간축과 손실을 감당할 수 있는가?","라벨이 아니라 실행 규칙으로 설명할 수 있는가?"],
+      "lessons":[
+        {"id":"bb-style-fit","title":"방법론보다 상황 적합성","framework":"가치·모멘텀·매크로·기술적 접근은 각자의 조건에서 작동하며 보편적 정답이 아니다.","mechanism":"상황·제약 → 방법론 선택 → 반복 실행 → 결과와 적합성 평가","invalidation":"남의 성과나 라벨만 복사하고 자신의 기간·손실 한도를 설명하지 못하면 적합성을 확인한 것이 아니다.","sourceIds":["BB-01","BB-02"],"routeTarget":{"routeId":"principles","metric":"방법론 적합성","timeframe":"장기"}},
+        {"id":"bb-price-value-separation","title":"가격·가치·시장 반응 분리","framework":"좋은 기업, 싼 가격, 상승하는 주식은 서로 다른 문장이다.","mechanism":"기업·가격·기대 → 시장의 재평가 → 가격·거래량 반응","invalidation":"한 가지 라벨만으로 매수·보유·매도를 설명하면 기대와 가격의 차이를 놓친다.","sourceIds":["BB-01","BB-02"],"routeTarget":{"routeId":"fundamental","metric":"가치·가격·기대","timeframe":"비교 기간"}}
+      ]
+    },
+    {
+      "id":"stage-02","number":2,"title":"핵심 원칙","accent":"yellow","objective":"시장 설명을 가격·거래량·상대강도와 검증 가능한 최소 설명으로 압축한다.","questions":["가격은 무엇을 확인해 주었는가?","추가 서사를 빼도 남는 핵심 증거는 무엇인가?"],
+      "lessons":[
+        {"id":"bb-price-volume-confirmation","title":"가격·거래량은 결과 증거","framework":"원인을 상상하기 전에 시장이 실제로 받아들인 흔적을 가격·거래량·상대강도로 확인한다.","mechanism":"가설 → 가격·거래량 반응 → 상대강도·유동성 비교 → 다음 행동","invalidation":"가격 반응이 없거나 유동성이 부족한데 서사만 강해지면 확인으로 간주하지 않는다.","sourceIds":["BB-03","BB-05","BB-06"],"routeTarget":{"routeId":"screener","metric":"가격·거래량 확인","timeframe":"관측 기간"}},
+        {"id":"bb-respond-not-predict","title":"예측보다 대응","framework":"지수를 맞히려는 약속보다 시나리오를 세우고 관측된 반응에 맞춰 행동한다.","mechanism":"조건부 시나리오 → 실제 반응 → 포지션·현금 조정 → 재평가","invalidation":"관측과 달라도 최초 전망을 지키기 위해 보유·추가를 고집하면 시스템이 멈춘 것이다.","sourceIds":["BB-02","BB-07"],"routeTarget":{"routeId":"macro","metric":"시나리오·시장 반응","timeframe":"현재 국면"}},
+        {"id":"bb-simplest-sufficient","title":"단순하지만 충분한 설명","framework":"복잡한 설명은 측정 가능한 증거를 추가할 때만 허용하고, 불확실하면 노출을 줄인다.","mechanism":"관측 → 최소 가설 → 대체 설명 비교 → 증거가 늘 때만 확장","invalidation":"설명을 복잡하게 만들수록 반대 증거와 손절 기준이 사라지면 과적합이다.","sourceIds":["BB-02","BB-06"],"routeTarget":{"routeId":"screener","metric":"설명·무효화","timeframe":"관측 기간"}}
+      ]
+    },
+    {
+      "id":"stage-03","number":3,"title":"시장 구조 기초","accent":"green","objective":"지수·ETF·선물·참여자·유동성의 구조를 분리해 가격 움직임의 전달 경로를 읽는다.","questions":["이 움직임은 개별 기업인가, 바스켓·벤치마크 흐름인가?","대표 지수의 가중 방식과 구성 범위는 무엇인가?"],
+      "lessons":[
+        {"id":"bb-index-as-compression","title":"지수는 집단 가격의 압축 표현","framework":"지수는 시장 전체가 아니라 구성·가중 방식에 따라 다른 집단의 가격 움직임을 요약한다.","mechanism":"구성 종목·가중치 → 바스켓 수요 → 지수 변화 → ETF·선물·벤치마크 반응","invalidation":"지수 한 줄을 모든 종목·모든 투자자의 상태로 확대 해석하면 대표성 오류다.","sourceIds":["BB-08"],"routeTarget":{"routeId":"macro","metric":"지수 대표성·가중","timeframe":"현재 구성"}},
+        {"id":"bb-passive-active-basket","title":"액티브·패시브·바스켓 흐름","framework":"기관이라는 단일 주체 대신 액티브·패시브·선물·헤지 목적의 서로 다른 흐름을 구분한다.","mechanism":"벤치마크·유동성 제약 → 바스켓 주문 → 구성 종목·선물·ETF 간 전달","invalidation":"수급 주체의 라벨만으로 의도를 단정하고 가격·거래량·구성 변화를 확인하지 않으면 설명이 약하다.","sourceIds":["BB-06","BB-08"],"routeTarget":{"routeId":"market-news","metric":"바스켓·수급 구조","timeframe":"관측 기간"}}
+      ]
+    },
+    {
+      "id":"stage-04","number":4,"title":"주도주·종목 선정","accent":"blue","objective":"기업의 서사보다 시장의 관심·상대강도·거래대금·논점 검증을 함께 본다.","questions":["시장 참여자가 실제로 어디에 유동성과 관심을 모으는가?","매수 이유를 한 문장과 반대 증거로 적을 수 있는가?"],
+      "lessons":[
+        {"id":"bb-leader-confirmation","title":"주도성은 시장의 수용으로 확인","framework":"주도주는 품질 보증서가 아니라 가격·거래량·상대강도·관심이 모인 상태를 뜻한다.","mechanism":"수요·관심 → 거래대금·상대강도 → 추세·리더십 → 논점 재검증","invalidation":"상승만 있고 유동성·지속성·기업·시장 맥락의 확인이 없으면 주도성은 가설이다.","sourceIds":["BB-01","BB-05","BB-06"],"routeTarget":{"routeId":"screener","metric":"상대강도·거래대금","timeframe":"비교 기간"}},
+        {"id":"bb-thesis-sentence","title":"매수 이유를 논점으로 고정","framework":"기업·차트·시장·수급 중 어떤 분석을 했는지와 결과가 틀렸다고 인정할 조건을 함께 적는다.","mechanism":"매수 논점 → 관측 지표 → 기대 반응 → 무효화 문장","invalidation":"‘좋은 회사라서’처럼 검증 불가능한 설명만 남으면 종목 선정이 아니라 신념이다.","sourceIds":["BB-03","BB-07"],"routeTarget":{"routeId":"fundamental","metric":"논점·기대·무효화","timeframe":"투자 기간"}}
+      ]
+    },
+    {
+      "id":"stage-05","number":5,"title":"매매 기법","accent":"indigo","objective":"포지션의 크기와 방향을 시장 확인에 따라 조절하고, 승자와 패자를 비대칭적으로 관리한다.","questions":["확인될수록 어떻게 추가하고 틀리면 어떻게 줄이는가?","추가 매수와 평균단가 낮추기를 같은 행동으로 취급하고 있지 않은가?"],
+      "lessons":[
+        {"id":"bb-pyramid-winners","title":"확인된 포지션에 단계적 추가","framework":"논점이 강화되고 시장이 수용할 때 추가하되, 추가분도 별도 위험 한도 안에 둔다.","mechanism":"초기 가설 → 확인된 반응 → 작은 추가 → 전체 위험 재계산","invalidation":"가격이 불리하게 움직이는데 손실을 만회하려고 추가하면 피라미딩이 아니라 무계획한 물타기다.","sourceIds":["BB-03"],"routeTarget":{"routeId":"technical","metric":"추세·추가 진입","timeframe":"포지션 기간"}},
+        {"id":"bb-invalidation-stop","title":"손절은 논점의 종료","framework":"손절은 가격 숫자 하나가 아니라 사전에 정의한 논점 훼손과 위험 한도에 대한 실행이다.","mechanism":"논점·손실 한도 → 반대 증거 → 노출 축소·종료 → 기록","invalidation":"‘장기 투자’라는 말로 무효화된 논점을 보류하면 기간이 위험 관리를 대체한다.","sourceIds":["BB-03","BB-07"],"routeTarget":{"routeId":"portfolio","metric":"포지션·손실 한도","timeframe":"계좌 맥락"}}
+      ]
+    },
+    {
+      "id":"stage-06","number":6,"title":"이벤트·리스크 관리","accent":"teal","objective":"시장 이벤트와 계좌 상태를 사전에 연결하고 레버리지·담보·청산을 단일 공포 서사로 뭉개지 않는다.","questions":["위기 전에 현금·포지션·손실 버퍼를 설계했는가?","자발적 축소와 강제 청산을 구분할 공식 근거가 있는가?"],
+      "lessons":[
+        {"id":"bb-account-specific-risk","title":"계좌 맥락별 위험 관리","framework":"같은 시장 하락도 수익 버퍼·손실·현금·집중도에 따라 행동 가능성이 달라진다.","mechanism":"계좌 상태 → 이벤트 시나리오 → 손실·담보 여유 → 포지션 조정","invalidation":"모든 투자자에게 ‘무조건 보유’ 또는 ‘무조건 매도’를 적용하면 계좌 위험을 무시한 것이다.","sourceIds":["BB-07","BB-09"],"routeTarget":{"routeId":"portfolio","metric":"계좌 위험·버퍼","timeframe":"이벤트 전후"}},
+        {"id":"bb-credit-liquidation","title":"신용·담보·반대매매의 분리","framework":"신용잔고의 절대액보다 예탁금·유동성·담보 규칙·결제 시점을 함께 확인한다.","mechanism":"레버리지 → 가격 변동 → 담보 여유 → 자발적 축소 또는 규칙 기반 청산","invalidation":"증권사·시장별 공식 규칙을 확인하지 않고 특정 시간·비율을 보편 규칙으로 쓰면 위험하다.","sourceIds":["BB-09"],"routeTarget":{"routeId":"portfolio","metric":"신용·담보·청산 규칙","timeframe":"공식 기준일"}}
+      ]
+    },
+    {
+      "id":"stage-07","number":7,"title":"리서치·공시 분석","accent":"orange","objective":"발견 자료와 검증 자료를 분리하고, 기업·공시·컨센서스·시장 반응의 연결을 확인한다.","questions":["이 주장은 1차 자료에서 어떤 문장과 숫자로 확인되는가?","정보가 판단을 개선하는가, 불안을 달래는가?"],
+      "lessons":[
+        {"id":"bb-primary-source","title":"발견과 검증의 분리","framework":"게시물·뉴스·탐방은 질문을 만드는 재료이고, 공시·공식 자료·시장 데이터가 검증을 담당한다.","mechanism":"발견 → 주장·단위·기간 추출 → 1차 자료 대조 → 시장 반응 확인","invalidation":"출처·기준일·단위가 없는 주장을 현재 사실로 승격하지 않는다.","sourceIds":["BB-02","BB-05","BB-09"],"routeTarget":{"routeId":"fundamental","metric":"공시·기대·현금흐름","timeframe":"공시 기간"}},
+        {"id":"bb-echo-chamber","title":"탐방·관계·에코챔버 관리","framework":"현장 정보는 유용할 수 있지만 관계 편향과 확증 편향을 만들 수 있으므로 시장의 독립적인 반응과 대조한다.","mechanism":"현장 정보 → 편향 가능성 → 공개 근거·가격·거래량 대조 → 보류·채택","invalidation":"더 많은 자료와 친밀한 설명이 반대 증거를 없애는 방향으로 작동하면 정보가 아니라 에코챔버다.","sourceIds":["BB-05"],"routeTarget":{"routeId":"market-news","metric":"출처·반대 증거","timeframe":"검증 기간"}}
+      ]
+    },
+    {
+      "id":"stage-08","number":8,"title":"섹터 심화","accent":"purple","objective":"기업을 단독 종목이 아니라 수요·가치사슬·병목·자본회수·정책의 연결망으로 읽는다.","questions":["어느 단계에 병목과 가격 결정력이 있는가?","수요 증가가 실제 마진·현금흐름으로 번역되는가?"],
+      "lessons":[
+        {"id":"bb-value-chain","title":"수요에서 이익 풀까지","framework":"테마의 크기보다 최종 고객·공급 단계·병목·대체재·자본회수 기간을 분해한다.","mechanism":"최종 수요 → 가치사슬 단계 → 병목·교섭력 → 마진·CAPEX → 현금흐름","invalidation":"시장 규모나 기술 시연만으로 모든 단계의 이익을 가정하면 가치사슬 분석이 아니다.","sourceIds":["BB-01","BB-08"],"routeTarget":{"routeId":"themes","metric":"가치사슬·병목","timeframe":"산업 주기"}},
+        {"id":"bb-sector-relative-strength","title":"섹터와 종목의 상대 비교","framework":"개별 종목의 절대 상승보다 섹터 내 상대강도·거래대금·이익 변화의 조합을 비교한다.","mechanism":"섹터 수요 → 구성 종목 분화 → 상대강도·유동성 → 주도성 검증","invalidation":"한 종목의 급등을 섹터 전체의 구조적 변화로 확대하면 비교 기준이 부족하다.","sourceIds":["BB-06","BB-08"],"routeTarget":{"routeId":"themes","metric":"섹터 상대강도","timeframe":"비교 기간"}}
+      ]
+    },
+    {
+      "id":"stage-09","number":9,"title":"정보 처리","accent":"slate","objective":"정보량을 늘리는 대신 판단에 필요한 신호·반대 증거·무효화 조건을 관리한다.","questions":["이 정보가 실제 행동 규칙을 바꾸는가?","단순한 설명과 불확실성을 어떻게 표시할 것인가?"],
+      "lessons":[
+        {"id":"bb-information-discipline","title":"정보량보다 정보의 역할","framework":"정보를 발견·검증·현재 관측·행동 근거로 분류하고 역할을 섞지 않는다.","mechanism":"정보 수집 → 역할·기준일 부여 → 신호와 소음 분리 → 판단 기록","invalidation":"새 자료가 늘어날수록 판단 기준이 자주 바뀌고 반대 증거가 사라지면 정보 처리가 실패한 것이다.","sourceIds":["BB-02","BB-05"],"routeTarget":{"routeId":"market-news","metric":"정보 역할·기준일","timeframe":"현재 맥락"}},
+        {"id":"bb-uncertainty-sizing","title":"불확실성은 포지션 크기로 반영","framework":"설명이나 증거가 불완전할수록 논쟁으로 확신을 키우기보다 노출을 줄여 생존성을 높인다.","mechanism":"증거 품질 → 불확실성 → 포지션 크기·현금 → 추가 증거 대기","invalidation":"불확실한데도 목표 수익을 맞추기 위해 포지션을 키우면 위험을 정보로 착각한 것이다.","sourceIds":["BB-06","BB-07"],"routeTarget":{"routeId":"portfolio","metric":"불확실성·포지션 크기","timeframe":"계좌 맥락"}}
+      ]
+    },
+    {
+      "id":"stage-10","number":10,"title":"실전 매매일지","accent":"rose","objective":"거래 전 가설과 거래 후 결과를 연결해 개인 규칙을 지속적으로 개선한다.","questions":["결과가 아니라 과정에서 어떤 규칙이 작동했는가?","다음 거래에서 바꿀 한 가지는 무엇인가?"],
+      "lessons":[
+        {"id":"bb-trade-journal","title":"거래 전·후 기록","framework":"진입 이유·관찰 지표·크기·무효화·실제 행동을 같은 문서에 남긴다.","mechanism":"진입 전 계획 → 시장 반응 → 조정·종료 → 결과·과정 분리 복기","invalidation":"수익이면 좋은 거래, 손실이면 나쁜 거래로만 분류하면 학습 가능한 원인이 남지 않는다.","sourceIds":["BB-03","BB-04","BB-07"],"routeTarget":{"routeId":"portfolio","metric":"거래 전후 복기","timeframe":"거래별"}},
+        {"id":"bb-monthly-review","title":"월간 성과와 규칙 재정리","framework":"정기적으로 성과·실수·자료·시간 배분을 검토해 규칙을 작게 수정한다.","mechanism":"거래 집계 → 반복 패턴 확인 → 규칙 한 가지 수정 → 다음 기간 관찰","invalidation":"복기에서 규칙을 매번 크게 바꾸거나 기록을 남기지 않으면 피드백 루프가 아니다.","sourceIds":["BB-04"],"routeTarget":{"routeId":"portfolio","metric":"성과·규칙 복기","timeframe":"월간"}}
+      ]
+    }
+  ]
+}

@@ -51,26 +51,13 @@ import { buildEvidenceContext } from '../ai/context-builder.js';
 import { createEvidenceRetriever } from '../ai/retrieval/evidence.js';
 import { createAIAnswerOrchestrator } from '../ai/orchestrator/answer-orchestrator.js';
 import { createEvidenceDocument, evaluateResearchEvidenceFloor, normalizeResearchExecutionResult } from '../ai/research/evidence.js';
-import { createRouteRegistry } from './router.js';
-import { createLifecycleRouter } from './router.js';
-import { createGuidePage } from '../ui/pages/guide.js';
-import { createPrinciplesPage } from '../ui/pages/principles.js';
-import { createMastersPage } from '../ui/pages/masters.js';
-import { createAtlasPage } from '../ui/pages/atlas.js';
-import { createNewsPage } from '../ui/pages/news.js';
-import { createMarketSlicePage } from '../ui/pages/market.js';
-import { createThemesPage } from '../ui/pages/themes.js';
-import { createSentimentPage, renderSentimentSummaryProjection } from '../ui/pages/sentiment.js';
-import { createEntityPage } from '../ui/pages/entity.js';
-import { createPortfolioPage } from '../ui/pages/portfolio.js';
-import { createScreenerPage } from '../ui/pages/screener.js';
-import { createAnalysisPage } from '../ui/pages/analysis.js';
+import { createLazyPage, createRouteRegistry, createLifecycleRouter } from './router.js';
+import { renderSentimentSummaryProjection } from '../ui/projections/sentiment-summary.js';
 import { createInitialAnalysisState, analysisReducer, ANALYSIS_DATA_CLEAR, ANALYSIS_DATA_SET } from '../state/slices/analysis.js';
 import { createAnalysisCommands } from './commands/analysis.js';
 import { createAnalysisProvider } from '../data/providers/analysis.js';
 import { createAnalysisOrchestrator } from '../data/orchestrators/analysis.js';
 import { createStorageGateway } from '../platform/storage.js';
-import { createPrivacyVault } from '../storage/vault.js';
 import { createLegacyFacade, exposeArchitecture } from '../legacy/compatibility-facade.js';
 import { applyMarketSnapshotToLegacy } from '../legacy/market-snapshot-bridge.js';
 import { ROUTE_IDS } from './routes.js';
@@ -208,7 +195,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         sectors: root?.RRG_SECTORS,
         subsectors: root?.RRG_SUBSECTORS,
         themes: root?.THEME_MAP,
-        insights: root?.THEME_INSIGHTS
+        insights: root?.THEME_INSIGHTS,
+        membershipPolicy: root?.THEME_MEMBERSHIP_POLICY
       }),
       readSelectedId: () => root?._currentThemeId || null,
       now: clock.now
@@ -216,13 +204,14 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     commands: themesCommands
   });
   const entityCommands = createEntityCommands({ store });
-  // ARX-04: entity's fundamentals now come from a real fetch (public-data/sec-fundamentals.json)
+  // ARX-04/P977: entity fundamentals use the bounded SEC current-facts projection; append-only
+  // PIT observations stay outside the interactive payload.
   // — see src/data/providers/entity.js. id/quote/options remain legacy.readEntity projections.
   const syncEntity = createEntityOrchestrator({ provider: createEntityProvider({ read: runtimeReaders.readEntity, httpClient, now: clock.now }), commands: entityCommands });
   const portfolioCommands = createPortfolioCommands({ store });
-  const portfolioStorage = createStorageGateway({ storage: root?.localStorage, prefix: 'aio' });
-  const portfolioVault = createPrivacyVault({ storage: portfolioStorage, key: 'portfolio', consent: () => root?._portfolioVaultConsent === true });
-  const syncPortfolio = createPortfolioOrchestrator({ provider: createPortfolioProvider({ read: runtimeReaders.readPortfolio, repository: portfolioVault }), commands: portfolioCommands });
+  // Personal holdings are read from the established AES-GCM `_AioVault` path
+  // through runtimeReaders. Do not create a second consent-only/plaintext store.
+  const syncPortfolio = createPortfolioOrchestrator({ provider: createPortfolioProvider({ read: runtimeReaders.readPortfolio }), commands: portfolioCommands });
   const screenerCommands = createScreenerCommands({ store });
   const screenerSessionStorage = createStorageGateway({ storage: root?.sessionStorage, prefix: 'aio-session' });
   // ARX-10: the native provider/orchestrator feeds the native screener renderer from the
@@ -245,40 +234,60 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   const syncAnalysis = createAnalysisOrchestrator({ provider: createAnalysisProvider({ read: runtimeReaders.readAnalysis }), commands: analysisCommands });
 
   const modules = {};
-  modules.principles = createPrinciplesPage({ root, documentRef });
-  modules.masters = createMastersPage({ root, documentRef });
-  modules.atlas = createAtlasPage({ root, documentRef });
-  modules.guide = createGuidePage({ documentRef });
-  modules['market-news'] = createNewsPage({ root, documentRef, store, route: 'market-news' });
-  modules.briefing = createNewsPage({ root, documentRef, store, route: 'briefing' });
-  modules.macro = createMarketSlicePage({ documentRef, store, route: 'macro' });
-  modules.fxbond = createMarketSlicePage({ documentRef, store, route: 'fxbond' });
-  modules.breadth = createMarketSlicePage({ documentRef, store, route: 'breadth' });
-  modules.themes = createThemesPage({ documentRef, store, route: 'themes' });
-  modules['theme-detail'] = createThemesPage({ documentRef, store, route: 'theme-detail' });
-  modules.sentiment = createSentimentPage({ documentRef, evidenceStore, store, chartFactory: () => root?.Chart });
-  modules.ticker = createEntityPage({ root, documentRef, store, route: 'ticker' });
-  modules.fundamental = createEntityPage({ root, documentRef, store, route: 'fundamental' });
-  modules.options = createEntityPage({ root, documentRef, store, route: 'options' });
-  modules.portfolio = createPortfolioPage({ root, documentRef, store });
-  modules.screener = createScreenerPage({
-    documentRef,
-    store,
-    root,
-    readLiveData: () => root?._liveData || {},
-    readWatchlist: () => root?._aioWatchlistGet?.() || [],
-    readAliases: () => root?.SCR_KEYWORD_ALIASES || {},
-    onTicker: (symbol) => {
-      if (typeof root?._aioScreenerTicker === 'function') return root._aioScreenerTicker(symbol);
-      return root?.showTicker?.(symbol);
-    },
-    onWatchlistToggle: (symbol) => root?._aioWLToggle?.(symbol),
-    writeReturnContext: (context) => screenerSessionStorage.set('screener:return-context', JSON.stringify(context)),
-    onProfileChange: (profile) => profile ? syncScreenerData() : null
+  modules.principles = createLazyPage({
+    route: 'principles',
+    loader: () => import('../ui/pages/principles.js'),
+    factory: ({ createPrinciplesPage }) => createPrinciplesPage({ root, documentRef })
   });
-  modules.home = createAnalysisPage({ root, documentRef, store, route: 'home' });
-  modules.signal = createAnalysisPage({ root, documentRef, store, route: 'signal' });
-  modules.technical = createAnalysisPage({ root, documentRef, store, route: 'technical' });
+  modules.masters = createLazyPage({
+    route: 'masters',
+    loader: () => import('../ui/pages/masters.js'),
+    factory: ({ createMastersPage }) => createMastersPage({ root, documentRef })
+  });
+  modules.atlas = createLazyPage({
+    route: 'atlas',
+    loader: () => import('../ui/pages/atlas.js'),
+    factory: ({ createAtlasPage }) => createAtlasPage({ root, documentRef })
+  });
+  modules.guide = createLazyPage({
+    route: 'guide',
+    loader: () => import('../ui/pages/guide.js'),
+    factory: ({ createGuidePage }) => createGuidePage({ documentRef })
+  });
+  modules['market-news'] = createLazyPage({ route: 'market-news', loader: () => import('../ui/pages/news.js'), factory: ({ createNewsPage }) => createNewsPage({ root, documentRef, store, route: 'market-news' }) });
+  modules.briefing = createLazyPage({ route: 'briefing', loader: () => import('../ui/pages/news.js'), factory: ({ createNewsPage }) => createNewsPage({ root, documentRef, store, route: 'briefing' }) });
+  modules.macro = createLazyPage({ route: 'macro', loader: () => import('../ui/pages/market.js'), factory: ({ createMarketSlicePage }) => createMarketSlicePage({ documentRef, store, route: 'macro' }) });
+  modules.fxbond = createLazyPage({ route: 'fxbond', loader: () => import('../ui/pages/market.js'), factory: ({ createMarketSlicePage }) => createMarketSlicePage({ documentRef, store, route: 'fxbond' }) });
+  modules.breadth = createLazyPage({ route: 'breadth', loader: () => import('../ui/pages/market.js'), factory: ({ createMarketSlicePage }) => createMarketSlicePage({ documentRef, store, route: 'breadth' }) });
+  modules.themes = createLazyPage({ route: 'themes', loader: () => import('../ui/pages/themes.js'), factory: ({ createThemesPage }) => createThemesPage({ documentRef, store, route: 'themes' }) });
+  modules['theme-detail'] = createLazyPage({ route: 'theme-detail', loader: () => import('../ui/pages/themes.js'), factory: ({ createThemesPage }) => createThemesPage({ documentRef, store, route: 'theme-detail' }) });
+  modules.sentiment = createLazyPage({ route: 'sentiment', loader: () => import('../ui/pages/sentiment.js'), factory: ({ createSentimentPage }) => createSentimentPage({ documentRef, evidenceStore, store, chartFactory: () => root?.Chart }) });
+  modules.ticker = createLazyPage({ route: 'ticker', loader: () => import('../ui/pages/entity.js'), factory: ({ createEntityPage }) => createEntityPage({ root, documentRef, store, route: 'ticker' }) });
+  modules.fundamental = createLazyPage({ route: 'fundamental', loader: () => import('../ui/pages/entity.js'), factory: ({ createEntityPage }) => createEntityPage({ root, documentRef, store, route: 'fundamental' }) });
+  modules.options = createLazyPage({ route: 'options', loader: () => import('../ui/pages/entity.js'), factory: ({ createEntityPage }) => createEntityPage({ root, documentRef, store, route: 'options' }) });
+  modules.portfolio = createLazyPage({ route: 'portfolio', loader: () => import('../ui/pages/portfolio.js'), factory: ({ createPortfolioPage }) => createPortfolioPage({ root, documentRef, store }) });
+  modules.screener = createLazyPage({
+    route: 'screener',
+    loader: () => import('../ui/pages/screener.js'),
+    factory: ({ createScreenerPage }) => createScreenerPage({
+      documentRef,
+      store,
+      root,
+      readLiveData: () => root?._liveData || {},
+      readWatchlist: () => root?._aioWatchlistGet?.() || [],
+      readAliases: () => root?.SCR_KEYWORD_ALIASES || {},
+      onTicker: (symbol) => {
+        if (typeof root?._aioScreenerTicker === 'function') return root._aioScreenerTicker(symbol);
+        return root?.showTicker?.(symbol);
+      },
+      onWatchlistToggle: (symbol) => root?._aioWLToggle?.(symbol),
+      writeReturnContext: (context) => screenerSessionStorage.set('screener:return-context', JSON.stringify(context)),
+      onProfileChange: (profile) => profile ? syncScreenerData() : null
+    })
+  });
+  modules.home = createLazyPage({ route: 'home', loader: () => import('../ui/pages/analysis.js'), factory: ({ createAnalysisPage }) => createAnalysisPage({ root, documentRef, store, route: 'home' }) });
+  modules.signal = createLazyPage({ route: 'signal', loader: () => import('../ui/pages/analysis.js'), factory: ({ createAnalysisPage }) => createAnalysisPage({ root, documentRef, store, route: 'signal' }) });
+  modules.technical = createLazyPage({ route: 'technical', loader: () => import('../ui/pages/analysis.js'), factory: ({ createAnalysisPage }) => createAnalysisPage({ root, documentRef, store, route: 'technical' }) });
   const router = createLifecycleRouter({ root: eventTarget, registry: createRouteRegistry({ modules }), context: { store, evidenceStore, legacy, clock, documentRef, runtimeRoot: root } });
 
   function syncScreenerData({ scope = router.activeScope() } = {}) {
@@ -394,14 +403,28 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopThemesHistory = legacy.on('aio:themesHistoryLoaded', syncThemes.sync);
     const stopThemeDetail = legacy.on('aio:themeDetailShown', syncThemes.sync);
     const stopEntityRefresh = legacy.on('aio:refresh:done', syncEntity.sync);
-    const deferCurrentScope = (sync) => () => queueMicrotask(() => sync({ scope: router.activeScope() }));
-    const stopEntityShown = legacy.on('aio:pageShown', deferCurrentScope(syncEntity.sync));
-    const stopPortfolioShown = legacy.on('aio:pageShown', syncPortfolio.sync);
+    const stopEntityChanged = legacy.on('aio:entityChanged', syncEntity.sync);
+    const normalizeShownRoute = (event) => {
+      const detail = event?.detail;
+      const route = typeof detail === 'string' ? detail : detail?.pageId || detail?.route || router.active();
+      return String(route || '').replace(/^page-/, '');
+    };
+    const onCurrentRouteShown = (routes, sync, { withScope = false } = {}) => (event) => {
+      const shownRoute = normalizeShownRoute(event);
+      if (!routes.has(shownRoute)) return;
+      queueMicrotask(() => {
+        if (router.active() !== shownRoute) return;
+        const scope = router.activeScope();
+        return withScope ? sync({ scope }) : sync();
+      });
+    };
+    const stopEntityShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['ticker', 'fundamental', 'options']), syncEntity.sync, { withScope: true }));
+    const stopPortfolioShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['portfolio']), syncPortfolio.sync));
     const stopPortfolioChanged = legacy.on('aio:portfolioChanged', syncPortfolio.sync);
     const stopScreenerRefresh = legacy.on('aio:refresh:done', syncScreenerData);
-    const stopScreenerShown = legacy.on('aio:pageShown', deferCurrentScope(syncScreenerData));
+    const stopScreenerShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['screener']), syncScreenerData, { withScope: true }));
     const stopAnalysisRefresh = legacy.on('aio:refresh:done', syncAnalysis.sync);
-    const stopAnalysisShown = legacy.on('aio:pageShown', syncAnalysis.sync);
+    const stopAnalysisShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['home', 'signal', 'technical']), syncAnalysis.sync));
     const stopShown = legacy.on('aio:pageShown', (event) => {
       const detail = event?.detail;
       const route = typeof detail === 'string' ? detail : detail?.pageId || detail?.route;
@@ -467,6 +490,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopThemesHistory();
       stopThemeDetail();
       stopEntityRefresh();
+      stopEntityChanged();
       stopEntityShown();
       stopPortfolioShown();
       stopPortfolioChanged();

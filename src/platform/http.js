@@ -13,14 +13,27 @@ export function createHttpClient({
 
   async function requestJson(url, options = {}) {
     const controller = new AbortController();
+    const externalSignal = options.signal;
+    let abortKind = 'timeout';
+    const relayExternalAbort = () => {
+      abortKind = 'external';
+      try { controller.abort(externalSignal?.reason); } catch (_) { controller.abort(); }
+    };
+    if (externalSignal) {
+      if (externalSignal.aborted) relayExternalAbort();
+      else if (typeof externalSignal.addEventListener === 'function') externalSignal.addEventListener('abort', relayExternalAbort, { once: true });
+    }
     const timeoutMs = Number.isFinite(options.timeoutMs) ? options.timeoutMs : defaultTimeoutMs;
-    const timeoutId = setTimeout(() => controller.abort('timeout'), timeoutMs);
+    const timeoutId = setTimeout(() => {
+      abortKind = 'timeout';
+      try { controller.abort('timeout'); } catch (_) { controller.abort(); }
+    }, timeoutMs);
     const startedAt = clock.now();
     try {
       const response = await fetchImpl(url, {
         ...options,
         timeoutMs: undefined,
-        signal: options.signal || controller.signal,
+        signal: controller.signal,
         headers: { accept: 'application/json', ...(options.headers || {}) }
       });
       const data = await response.json();
@@ -39,10 +52,13 @@ export function createHttpClient({
         data: null,
         fetchedAt: clock.iso(),
         elapsedMs: Math.max(0, clock.now() - startedAt),
-        error: error && error.name === 'AbortError' ? 'HTTP_TIMEOUT' : 'HTTP_FAILED'
+        error: controller.signal.aborted
+          ? (abortKind === 'external' || externalSignal?.aborted ? 'HTTP_ABORTED' : 'HTTP_TIMEOUT')
+          : 'HTTP_FAILED'
       });
     } finally {
       clearTimeout(timeoutId);
+      if (externalSignal && typeof externalSignal.removeEventListener === 'function') externalSignal.removeEventListener('abort', relayExternalAbort);
     }
   }
 

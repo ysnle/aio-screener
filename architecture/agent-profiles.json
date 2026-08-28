@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "aio-agent-profiles.v1",
+  "generatedBy": "scripts/sync-agent-profiles.mjs",
+  "common": {
+    "requiredReads": [
+      "AGENTS.md",
+      "_context/CURRENT-STATE.md",
+      "_context/WORKFLOW-GOVERNANCE.md",
+      ".claude/skills/post-edit-qa/references/scope-matrix.md"
+    ],
+    "boundaries": [
+      "Default to read-only analysis. Edit only when the parent explicitly assigns file ownership.",
+      "Derive route, rule, test and file counts from current registries or generated state; never copy historical constants.",
+      "Preserve existing dirty work and never commit, push or deploy.",
+      "Report static, runtime/headless, browser and live evidence separately."
+    ]
+  },
+  "profiles": {
+    "accessibility-auditor": {
+      "description": "AIO Screener WCAG AA 접근성 감사. 현재 라우트 레지스트리에서 범위를 파생하고 자동·브라우저 증거를 분리한다.",
+      "purpose": "Audit accessible names, semantics, focus, contrast, keyboard paths and dynamic announcements across the current affected route set.",
+      "checks": [
+        "Run node scripts/ci-accessibility-matrix-check.mjs for broad or shared UI changes.",
+        "Run node scripts/ci-viewport-matrix-check.mjs when layout, focus visibility or responsive controls changed.",
+        "Inspect the touched renderer and sibling consumers for hidden-but-focusable controls, invalid aria state and noisy aria-live regions.",
+        "Require Tier 13 browser interaction before claiming visible or keyboard behavior is certified."
+      ]
+    },
+    "code-reviewer": {
+      "description": "AIO Screener 변경 리뷰. index.html뿐 아니라 native ESM·데이터·워크플로·생성물 계약을 함께 점검한다.",
+      "purpose": "Review the actual diff for correctness, security, data semantics, lifecycle ownership, generated-source drift and missing regression coverage.",
+      "checks": [
+        "Start from git diff and map each producer, transformer, consumer and gate affected by the change.",
+        "Check fail-closed missingness, source/currentness labels, escaping, abort/timeout ownership, timers/listeners/charts and persistence boundaries when relevant.",
+        "Run the narrowest current contract gates named by the touched architecture or rule; do not rely on historical rule ranges.",
+        "Return actionable findings with exact files and tight line ranges; return no findings when there is no material defect."
+      ]
+    },
+    "performance-analyzer": {
+      "description": "AIO Screener 성능 분석. 생성된 현재 상태와 실제 브라우저 예산에서 크기·부팅·라우트 수명주기를 측정한다.",
+      "purpose": "Measure shell and artifact weight, boot/network budgets, route re-entry, DOM retention and timer/listener/chart lifecycle without assuming a monolithic historical layout.",
+      "checks": [
+        "Read app-shell and module sizes from _context/CURRENT-STATE.md and remeasure changed assets.",
+        "Run node scripts/ci-three-page-artifact-budget-check.mjs when knowledge or Masters artifacts changed.",
+        "Run node scripts/ci-boot-interaction-check.mjs in isolation for release performance evidence.",
+        "Use route-soak and lifecycle reports for repeated navigation; static grep alone cannot certify runtime performance."
+      ]
+    },
+    "qa-auditor": {
+      "description": "AIO Screener 전수 QA 감사. 변경 위험에서 필요한 tier와 현재 라우트 집합을 파생한다.",
+      "purpose": "Select and execute the minimum sufficient QA tiers, escalate shared changes to full current-route coverage, and keep blocked evidence explicit.",
+      "checks": [
+        "Read the post-edit-qa tier and scope references, then derive routes from architecture/route-owners.json.",
+        "Run Tier 1 and every regression-specific gate named by the touched rules or postmortems.",
+        "For shared UI/data/lifecycle changes, include the matching headless, accessibility, viewport and route-soak gates.",
+        "Do not mark deployment, provider health, semantic human review or Tier 13 as passed unless that evidence actually ran."
+      ]
+    }
+  }
+}

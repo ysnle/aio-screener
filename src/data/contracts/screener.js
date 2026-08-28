@@ -233,9 +233,10 @@ export function classifyFieldStatus({ value, observedAt, now = Date.now(), fresh
   return String(sourceKind) === 'T3_PUBLIC_DELAYED' ? 'DELAYED' : 'CURRENT';
 }
 
-export function buildFieldReadiness(row = {}, { registry = SCREENER_FIELD_REGISTRY, now = Date.now(), revisionId = 'unpublished', supportedFields = null, rightsByField = {}, conflictFields = [], sourceId = 'screener-artifact', sourceKind = 'T3_PUBLIC_DELAYED' } = {}) {
+export function buildFieldReadiness(row = {}, { registry = SCREENER_FIELD_REGISTRY, now = Date.now(), revisionId = 'unpublished', supportedFields = null, rightsByField = {}, sourceKindByField = {}, conflictFields = [], sourceId = 'screener-artifact', sourceKind = 'T3_PUBLIC_DELAYED' } = {}) {
   const supported = supportedFields instanceof Set ? supportedFields : null;
   const conflicts = new Set(conflictFields);
+  const readFieldMap = (map, fieldId) => map instanceof Map ? map.get(fieldId) : map?.[fieldId];
   const instrumentRef = row.instrumentRef || createInstrumentRef(row);
   const observations = [];
   const readiness = {};
@@ -247,20 +248,22 @@ export function buildFieldReadiness(row = {}, { registry = SCREENER_FIELD_REGIST
     const fetchedAt = context.fetchedAt || null;
     const fieldSourceId = context.sourceId || sourceId;
     const fieldRevisionId = context.revisionId || revisionId;
+    const fieldRights = readFieldMap(rightsByField, definition.fieldId) || 'UNKNOWN';
+    const fieldSourceKind = readFieldMap(sourceKindByField, definition.fieldId) || sourceKind;
     const status = classifyFieldStatus({
       value,
       observedAt,
       now,
       freshnessBudgetMs: definition.freshnessBudgetMs,
       supported: supported ? supported.has(definition.fieldId) : !row._unsupportedFields?.includes?.(definition.fieldId),
-      rights: rightsByField[definition.fieldId] || 'UNKNOWN',
+      rights: fieldRights,
       conflict: conflicts.has(definition.fieldId),
-      sourceKind,
+      sourceKind: fieldSourceKind,
       lastGood: row._lastGoodFields?.includes?.(definition.fieldId)
     });
-    const observation = createObservationEnvelope({ instrumentId: instrumentRef.instrumentId, fieldId: definition.fieldId, value, unit: definition.unit, sourceId: fieldSourceId, observedAt, filedAt, fetchedAt, revisionId: fieldRevisionId, sourceKind, rightsId: rightsByField[definition.fieldId] || 'unknown', qualityStatus: status, allowedUse: definition.allowedUse, evidenceId: row[`${definition.rowKey}EvidenceId`] || '' });
+    const observation = createObservationEnvelope({ instrumentId: instrumentRef.instrumentId, fieldId: definition.fieldId, value, unit: definition.unit, sourceId: fieldSourceId, observedAt, filedAt, fetchedAt, revisionId: fieldRevisionId, sourceKind: fieldSourceKind, rightsId: fieldRights, qualityStatus: status, allowedUse: definition.allowedUse, evidenceId: row[`${definition.rowKey}EvidenceId`] || '' });
     observations.push(observation);
-    readiness[definition.fieldId] = Object.freeze({ status, value: value ?? null, unit: definition.unit, sourceId: fieldSourceId, observedAt: observation.observedAt, filedAt: observation.filedAt, fetchedAt: observation.fetchedAt, revisionId: observation.revisionId, allowedUse: observation.allowedUse, evidenceId: observation.evidenceId });
+    readiness[definition.fieldId] = Object.freeze({ status, value: value ?? null, unit: definition.unit, sourceId: fieldSourceId, sourceKind: fieldSourceKind, rightsId: fieldRights, observedAt: observation.observedAt, filedAt: observation.filedAt, fetchedAt: observation.fetchedAt, revisionId: observation.revisionId, allowedUse: observation.allowedUse, evidenceId: observation.evidenceId });
   }
   return Object.freeze({ instrumentRef, observations: Object.freeze(observations), fields: Object.freeze(readiness), coverage: summarizeFieldReadiness(readiness) });
 }

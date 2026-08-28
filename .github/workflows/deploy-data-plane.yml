@@ -6,6 +6,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: aio-cloudflare-data-plane
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -30,6 +34,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Validate Cloudflare source and deployment contract
+        run: node scripts/qa-runner.mjs --group cloudflare --no-cache
+
       - name: Install Wrangler
         run: npm install --global wrangler@4.44.0
 
@@ -39,7 +46,7 @@ jobs:
           KV_ID: ${{ secrets.AIO_QUOTES_KV_ID }}
         run: |
           set -euo pipefail
-          sed -e "s/__AIO_QUOTES_KV_ID__/${KV_ID}/" worker/wrangler.example.toml > worker/wrangler.toml
+          sed -e "s/__AIO_QUOTES_KV_ID__/${KV_ID}/" -e "s/__AIO_SOURCE_SHA__/${GITHUB_SHA}/" worker/wrangler.example.toml > worker/wrangler.toml
 
       - name: Deploy Worker
         env:
@@ -64,4 +71,4 @@ jobs:
             exit 1
           fi
           cat /tmp/aio-fast-health.json
-          node -e "const fs=require('fs'); const h=JSON.parse(fs.readFileSync('/tmp/aio-fast-health.json')); const complete=h.ok&&h.coverage?.tier0Observed>=h.coverage?.tier0Required; const bootstrap=!h.ok&&h.heartbeat===null&&h.revision===null; if(!complete&&!bootstrap) process.exit(1); if(bootstrap) console.warn('operator_required: Worker is deployed; first scheduled KV snapshot has not been published yet')"
+          node -e "const fs=require('fs'); const h=JSON.parse(fs.readFileSync('/tmp/aio-fast-health.json')); const complete=h.ok&&h.coverage?.tier0Observed>=h.coverage?.tier0Required; const bootstrap=!h.ok&&h.heartbeat===null&&h.revision===null; if(h.sourceSha!==process.env.GITHUB_SHA||(!complete&&!bootstrap)) process.exit(1); if(bootstrap) console.warn('operator_required: Worker is deployed; first scheduled KV snapshot has not been published yet')"

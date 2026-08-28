@@ -1,222 +1,62 @@
 name: Data freshness watchdog
 
-# Independent watchdog for public-data artifacts. Checks BOTH the committed repo
-# files (refresh commits stopped arriving?) AND the deployed live site (deploys
-# stopped publishing them?). P572/R263: the repo-only check had a blind spot —
-# when [skip ci] data commits stopped triggering the CI-gated Pages deploy, the
-# repo stayed fresh, this watchdog stayed green, and the live site went stale.
-#
-# R290: also runs scripts/ci-live-invariant-check.mjs here, not in ci.yml — that
-# script re-checks standing invariants (cachebuster/version coherency, R280 shadow
-# scan) against what GitHub Pages is actually serving, on this schedule, independent
-# of whether a new commit triggered ci.yml at all. See _context/RULES.md R290.
-
+# Independent operating check. Local artifacts, Pages, proxy, fast plane and live
+# invariants share one aggregate profile, so one red plane never hides the others.
 on:
   schedule:
     - cron: '23 * * * *'
   workflow_dispatch:
     inputs:
       max_age_minutes:
-        description: 'Maximum allowed age in minutes before failing.'
+        description: 'Maximum live artifact age in minutes.'
         required: false
-        default: '240'
+        default: '360'
 
 permissions:
+  actions: read
   contents: read
+  issues: read
+
+concurrency:
+  group: aio-data-watchdog
+  cancel-in-progress: true
 
 jobs:
   check:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Check public-data freshness
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '20'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Check every local and external plane without fail-fast hiding
+        id: qa
+        continue-on-error: true
         env:
-          MAX_AGE_MIN: ${{ github.event.inputs.max_age_minutes || '240' }}
-        run: |
-          node --input-type=module - <<'NODE'
-          import fs from 'node:fs';
-          const max = parseInt(process.env.MAX_AGE_MIN || '240', 10);
+          AIO_LIVE_MAX_AGE_MIN: ${{ github.event.inputs.max_age_minutes || '360' }}
+          LIVE_HEADER_POLICY: operator-required
+        run: node scripts/qa-runner.mjs watchdog --no-cache --jobs 2
 
-          function readJson(path) {
-            try { return JSON.parse(fs.readFileSync(path, 'utf8')); }
-            catch (e) {
-              console.error(`${path} read/parse failed: ${e.message}`);
-              process.exit(1);
-            }
-          }
+      - name: Build rolling 7/30-day operations evidence
+        if: always()
+        run: node scripts/build-operations-slo-window.mjs --out "$RUNNER_TEMP/operations-slo-window.json"
 
-          function checkAge(label, ts) {
-            if (!ts) {
-              console.error(`${label} timestamp missing`);
-              process.exit(1);
-            }
-            const ageMin = Math.round((Date.now() - new Date(ts).getTime()) / 60000);
-            console.log(`${label}=${ts} / age=${ageMin}min / max=${max}min`);
-            if (!Number.isFinite(ageMin) || ageMin > max) {
-              console.error(`${label} is stale (${ageMin}min > ${max}min). Check refresh-data.yml schedule and commit permissions.`);
-              process.exit(1);
-            }
-            return ageMin;
-          }
+      - name: Upload rolling operations evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: aio-operations-slo-window-${{ github.run_id }}
+          path: ${{ runner.temp }}/operations-slo-window.json
+          if-no-files-found: error
+          retention-days: 90
 
-          const data = readJson('public-data/data.json');
-          checkAge('data.json meta.generatedAt', data && data.meta && data.meta.generatedAt);
-          console.log(`symbolsOk=${data.meta && data.meta.symbolsOk} fearGreedOk=${data.meta && data.meta.fearGreedOk} fredOk=${data.meta && data.meta.fredOk}`);
-          if (!data.meta || data.meta.symbolsOk < 70) {
-            console.error(`symbolsOk too low: ${data.meta && data.meta.symbolsOk}`);
-            process.exit(1);
-          }
-          if (!data.meta.newsOk || data.meta.newsCount < 10) {
-            console.error(`news backstop too thin: newsOk=${data.meta.newsOk} newsCount=${data.meta.newsCount}`);
-            process.exit(1);
-          }
-
-          const tg = readJson('public-data/telegram-digest.json');
-          checkAge('telegram-digest.json generatedAt', tg && tg.generatedAt);
-          console.log(`telegramCount=${tg.count} channels=${Array.isArray(tg.channels) ? tg.channels.length : 0}`);
-          if (!tg || tg.count < 100 || !Array.isArray(tg.channels) || tg.channels.length < 2) {
-            console.error(`telegram digest too thin: count=${tg && tg.count} channels=${tg && Array.isArray(tg.channels) ? tg.channels.length : 0}`);
-            process.exit(1);
-          }
-
-          // v50.78: F&G, FRED, screener.json 상태 경보 (실패 아닌 경고 — 사이트는 폴백 동작)
-          if (!data.meta.fearGreedOk) console.warn('⚠️  fearGreedOk=false — CNN F&G fetch 실패. 정적 폴백 사용 중.');
-          if (!data.meta.fredHasKey) console.warn('⚠️  FRED_API_KEY Secret 미등록 — 매크로 서버 갱신 비활성. 클라이언트 aio_fred_key 브릿지로 보완 가능.');
-          else if (!data.meta.fredFetchOk) console.warn('⚠️  FRED 키 있으나 fetchOk=false — 키 유효성/레이트리밋 확인 필요.');
-          if (!data.meta.marketAnalysisOk) console.warn('⚠️  marketAnalysisOk=false — ANTHROPIC_API_KEY Secret 미등록 또는 LLM 분석 생성 실패. 정적/클라이언트 분석으로 보완 중.');
-
-          try {
-            const scr = readJson('public-data/screener.json');
-            const scrAge = scr && scr.asOf ? Math.round((Date.now() - new Date(scr.asOf).getTime()) / 3600000) : null;
-            if (scrAge === null) console.warn('⚠️  screener.json asOf 없음 — enrichment 미실행 가능성.');
-            else if (scrAge > 48) { console.error(`❌ screener.json ${scrAge}h 경과 — 48h 초과 CI 실패. (ok=${scr.ok}/${scr.universe})`); process.exit(1); }
-            else if (scrAge > 24) console.warn(`⚠️  screener.json ${scrAge}h 경과 — enrichment 지연 가능. (ok=${scr.ok}/${scr.universe})`);
-            else console.log(`screener.json asOf=${scr.asOf} age=${scrAge}h ok=${scr.ok}/${scr.universe}`);
-          } catch(e) { console.warn('⚠️  screener.json 읽기 실패:', e.message); }
-
-          console.log('public-data freshness OK');
-          NODE
-
-      - name: Check canonical market snapshot (AR-07 QG-01/QG-03/QG-06)
-        run: |
-          node --input-type=module - <<'NODE'
-          import fs from 'node:fs';
-          const snapshot = JSON.parse(fs.readFileSync('public-data/market-snapshot.json', 'utf8'));
-          const status = JSON.parse(fs.readFileSync('public-data/market-snapshot-status.json', 'utf8'));
-          const fail = (message) => { console.error(message); process.exit(1); };
-          const coverage = snapshot.coverage || {};
-          if (snapshot.status !== 'published') fail(`market snapshot is ${snapshot.status}`);
-          if (coverage.tier0Observed !== coverage.tier0Required || coverage.tier0Required !== 16) fail(`Tier 0 coverage ${coverage.tier0Observed}/${coverage.tier0Required}`);
-          if (!snapshot.lastSuccessfulAt || !status.lastSuccessfulAt) fail('market snapshot lastSuccessfulAt missing');
-          if (!Array.isArray(snapshot.quotes) || snapshot.quotes.length !== 16) fail(`market snapshot quote count=${snapshot.quotes?.length}`);
-          for (const quote of snapshot.quotes) {
-            for (const field of ['evidenceId','metricId','instrumentId','value','unit','source','observedAt','fetchedAt','quality']) if (quote[field] == null || quote[field] === '') fail(`${quote.instrumentId || 'quote'} ${field} missing`);
-          }
-          console.log(`market snapshot OK revision=${snapshot.revision} coverage=${coverage.tier0Observed}/${coverage.tier0Required}`);
-          NODE
-
-      - name: Check operations status artifact
-        run: node scripts/ci-operations-status-check.mjs
-
-      - name: Check 22-category reconciliation artifact
-        run: |
-          node scripts/ci-reconciliation-contract-check.mjs
-          node scripts/ci-source-registry-contract-check.mjs
-           node scripts/ci-professional-data-gap-check.mjs
-           node scripts/ci-static-data-contract-check.mjs
-           node scripts/ci-web-research-contract-check.mjs
-           node scripts/ci-data-refresh-audit.mjs
-
-      # P572/R263: repo freshness alone proved insufficient — also verify the LIVE site
-      # is actually serving fresh data. Live lag budget = refresh cadence (30min) +
-      # CI validate + Pages deploy + CDN cache (~10min), so a generous 360min max
-      # still catches a broken deploy pipeline within hours instead of never.
-      - name: Check LIVE site freshness
-        env:
-          LIVE_MAX_AGE_MIN: '360'
-        run: |
-          node - <<'NODE'
-          const max = parseInt(process.env.LIVE_MAX_AGE_MIN || '360', 10);
-          const base = 'https://ysnle.github.io/aio-screener/public-data';
-          const fail = (message) => {
-            console.error(message);
-            process.exit(1);
-          };
-          const fetchJson = async (name) => {
-            const r = await fetch(`${base}/${name}`, { headers: { 'cache-control': 'no-cache' } });
-            if (!r.ok) throw new Error(`${name} HTTP ${r.status}`);
-            return r.json();
-          };
-          const checkAge = (label, ts) => {
-            if (!ts) fail(`LIVE ${label} generatedAt missing`);
-            const ageMin = Math.round((Date.now() - new Date(ts).getTime()) / 60000);
-            console.log(`LIVE ${label} generatedAt=${ts} / age=${ageMin}min / max=${max}min`);
-            if (!Number.isFinite(ageMin) || ageMin > max) {
-              fail(`LIVE ${label} is stale (${ageMin}min > ${max}min). Repo is fresh but deploys may not be publishing; check CI deploy and Pages cache.`);
-            }
-          };
-          (async () => {
-            const data = await fetchJson('data.json');
-            checkAge('data.json', data && data.meta && data.meta.generatedAt);
-
-            const snapshot = await fetchJson('market-snapshot.json');
-            if (snapshot.status !== 'published') fail(`LIVE market snapshot status=${snapshot.status}`);
-            if (snapshot.coverage?.tier0Observed !== snapshot.coverage?.tier0Required || snapshot.coverage?.tier0Required !== 16) fail(`LIVE market snapshot coverage=${snapshot.coverage?.tier0Observed}/${snapshot.coverage?.tier0Required}`);
-            console.log(`LIVE market snapshot revision=${snapshot.revision} coverage=${snapshot.coverage.tier0Observed}/${snapshot.coverage.tier0Required}`);
-
-            const operations = await fetchJson('operations-status.json');
-            if (!operations.generatedAt || !operations.planes?.durable?.status || !operations.planes?.fast?.status) fail('LIVE operations status is incomplete');
-            if (operations.reconciliation?.categoryCount !== 22 || !operations.reconciliation?.artifact) fail('LIVE reconciliation status is incomplete');
-            console.log(`LIVE operations overall=${operations.overall} durable=${operations.planes.durable.status} fast=${operations.planes.fast.status}`);
-
-            const reconciliation = await fetchJson('reconciliation-status.json');
-            if (reconciliation.categories?.length !== 22 || !reconciliation.overall || !reconciliation.revision) fail('LIVE reconciliation artifact is incomplete');
-            console.log(`LIVE reconciliation overall=${reconciliation.overall} categories=${reconciliation.categories.length}`);
-
-            const telegram = await fetchJson('telegram-digest.json');
-            checkAge('telegram-digest.json', telegram && telegram.generatedAt);
-            const count = Number(telegram && telegram.count);
-            if (!Number.isFinite(count) || count < 100) fail(`LIVE telegram digest too thin: count=${count}`);
-            const channels = Array.isArray(telegram && telegram.channels) ? telegram.channels : [];
-            if (channels.length < 3) fail(`LIVE telegram digest channel coverage too thin: channels=${channels.length}`);
-            const badChannels = channels.filter(ch => !Number.isFinite(Number(ch.lastPostId)) || ch.error);
-            if (badChannels.length) fail(`LIVE telegram digest channel errors: ${badChannels.map(ch => `${ch.channel}:${ch.error || ch.lastPostId}`).join(', ')}`);
-            console.log(`LIVE telegram channels=${channels.map(ch => `${ch.channel}:${ch.lastPostId}`).join(', ')}`);
-            console.log('live site freshness OK');
-          })().catch(e => {
-            fail(`LIVE site check failed: ${e.message}`);
-          });
-          NODE
-
-      - name: Check independent fast quote plane (AR-07 QG-08)
-        env:
-          FAST_QUOTES_URL: ${{ vars.AIO_FAST_QUOTES_URL || 'https://aio-screener-data-plane.zmfhd007.workers.dev' }}
-        run: |
-          node --input-type=module - <<'NODE'
-          const base = String(process.env.FAST_QUOTES_URL || '').replace(/\/$/, '');
-          if (!base) { console.error('operator_required: fast-plane endpoint is not configured'); process.exit(1); }
-          const response = await fetch(`${base}/health`, { headers: { 'cache-control': 'no-cache' } });
-          if (!response.ok) { console.error(`FAST /health HTTP ${response.status}`); process.exit(1); }
-          const health = await response.json();
-          if (!health.ok || health.coverage?.tier0Observed !== health.coverage?.tier0Required || health.coverage?.tier0Required !== 16) {
-            console.error(`FAST health failed: ${JSON.stringify(health)}`); process.exit(1);
-          }
-          console.log(`FAST quote plane OK revision=${health.revision} coverage=${health.coverage.tier0Observed}/${health.coverage.tier0Required}`);
-          NODE
-
-      # R290: standing invariants re-verified against the live deployed bundle, not just
-      # public-data JSON freshness. Runs on this same hourly schedule so a deploy that
-      # silently regressed a fixed contract (cachebuster/version mismatch, a cross-file
-      # function shadow re-introduced only in what's served, not in the repo) surfaces
-      # without waiting for the next commit/PR to trigger ci.yml.
-      # 2026-07-21/P754: this step must not depend on the fast-plane step's outcome — the fast
-      # plane can use the recorded public endpoint while credentials/rights/soak remain explicit,
-      # which must not silently skip this entirely unrelated live-
-      # invariant check on every scheduled run since default GHA step ordering skips subsequent
-      # steps after any failure. if: !cancelled() restores this step's own documented intent
-      # (independent of any other check's status) without weakening what it actually asserts.
-      - name: Check LIVE standing invariants (R290)
-        if: ${{ !cancelled() }}
-        run: node scripts/ci-live-invariant-check.mjs
+      - name: Preserve watchdog failure conclusion
+        if: always() && steps.qa.outcome != 'success'
+        run: exit 1

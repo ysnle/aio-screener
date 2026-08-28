@@ -1,4 +1,17 @@
 {
+  "schemaVersion": "aio-route-soak-evidence.v1",
+  "observedAt": "2026-08-28T04:05:27.697Z",
+  "appRevision": "v54.63",
+  "gitHead": "20f0f641a90448f66eada460fb13f5ea283c8800",
+  "gitClean": false,
+  "environment": {
+    "browser": "chromium",
+    "browserVersion": "149.0.7827.55",
+    "platform": "win32",
+    "node": "v24.18.0",
+    "viewport": "1024x900"
+  },
+  "command": "node scripts/ci-route-soak-check.mjs",
   "ok": true,
   "routes": 20,
   "laps": 3,

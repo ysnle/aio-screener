@@ -13,20 +13,23 @@ function setText(documentRef, id, value) {
   return element;
 }
 
-function renderTickerHero(documentRef, state) {
-  const id = state?.id || null;
+function renderTickerHero(documentRef, state, root) {
+  const requestedId = String(root?._currentTickerId || '').trim().toUpperCase() || null;
+  const id = state?.id || requestedId;
   const quote = state?.quote || {};
   const price = finite(quote.value);
   const pct = finite(quote.pct);
   setText(documentRef, 'ticker-hero-name', id || '—');
-  setText(documentRef, 'ticker-hero-fullname', id ? (state?.name || id) : '종목을 검색하세요');
+  setText(documentRef, 'ticker-hero-fullname', id
+    ? (state?.name || (state?.id ? id : `${root?._currentTickerName || id} · 시세 수신 대기`))
+    : '종목을 검색하세요');
   setText(documentRef, 'ticker-hero-price', price == null ? '—' : `$${price.toFixed(2)}`);
   const change = setText(documentRef, 'ticker-hero-chg', pct == null ? '—' : `${pct >= 0 ? '▲ +' : '▼ '}${Math.abs(pct).toFixed(2)}%`);
   if (change) change.className = `ticker-chg-big ${pct == null ? '' : pct >= 0 ? 'up' : 'down'}`;
 }
 
-function renderTickerSecondarySymbols(documentRef, state) {
-  const symbol = state?.id || '—';
+function renderTickerSecondarySymbols(documentRef, state, root) {
+  const symbol = state?.id || String(root?._currentTickerId || '').trim().toUpperCase() || '—';
   ['ticker-candle-symbol', 'ticker-entry-symbol'].forEach((id) => {
     const element = setText(documentRef, id, symbol);
     if (!element) return;
@@ -88,6 +91,32 @@ function renderTickerActivity(documentRef, root, state, portfolioState) {
   }
 }
 
+function renderTickerNavigation(documentRef, state, root) {
+  const breadcrumb = tickerElement(documentRef, 'ticker-breadcrumb-main');
+  const backButton = tickerElement(documentRef, 'ticker-back-btn-main');
+  const hasSelection = !!state?.id || !!String(root?._currentTickerId || '').trim();
+  if (!hasSelection) {
+    if (breadcrumb) breadcrumb.textContent = '종목 선택 대기';
+    if (backButton) backButton.textContent = '← 돌아가기';
+    return;
+  }
+  // A direct ticker search is an entity-analysis route, not a portfolio
+  // child route. Keep the visible breadcrumb truthful and give keyboard and
+  // pointer users an actionable parent even when no legacy context exists.
+  if (breadcrumb) {
+    breadcrumb.textContent = '종목 분석';
+    breadcrumb.setAttribute('data-action', 'showPage');
+    breadcrumb.setAttribute('data-arg', 'fundamental');
+    breadcrumb.setAttribute('role', 'button');
+    breadcrumb.setAttribute('tabindex', '0');
+  }
+  if (backButton) {
+    backButton.textContent = '← 기업 분석';
+    backButton.setAttribute('data-action', 'showPage');
+    backButton.setAttribute('data-arg', 'fundamental');
+  }
+}
+
 function renderTickerChart({ root, page, state, charts }) {
   const canvas = page?.querySelector?.('#ticker-price-chart');
   if (!canvas) return;
@@ -141,7 +170,18 @@ function renderOptionMetric(documentRef, id, metric, color = null) {
   element.setAttribute('data-source-kind', sourceKind);
   element.setAttribute('data-source-label', metric?.source || 'unavailable');
   element.setAttribute('data-operational-use', 'reference-only');
+  if (metric?.observedAt) element.setAttribute('data-observed-at', metric.observedAt);
+  else element.removeAttribute('data-observed-at');
   if (color) element.style.color = color;
+  const meta = documentRef?.getElementById(`${id}-meta`);
+  if (meta) {
+    const asOf = metric?.observedAt ? String(metric.observedAt).replace('T', ' ').replace(/\.000Z$|Z$/, ' UTC') : '기준일 미수신';
+    meta.textContent = `${asOf} · ${metric?.source || '출처 미수신'} · 참고용`;
+    meta.setAttribute('data-source-kind', sourceKind);
+    meta.setAttribute('data-operational-use', 'reference-only');
+    if (metric?.observedAt) meta.setAttribute('data-observed-at', metric.observedAt);
+    else meta.removeAttribute('data-observed-at');
+  }
 }
 
 function renderOptions(documentRef, state) {
@@ -161,12 +201,13 @@ function renderFundamentalStatus(documentRef, state) {
   const fundamentals = state?.fundamentals;
   const available = !!fundamentals && typeof fundamentals === 'object'
     && Array.isArray(fundamentals.coverage) && fundamentals.coverage.length > 0;
-  element.textContent = available ? '● SEC 연간 데이터' : '○ SEC 데이터 미수신';
-  element.className = `freshness-badge ${available ? 'fb-live' : 'fb-static'}`;
+  const observedAt = fundamentals?.observedAt || fundamentals?.filedAt || null;
+  element.textContent = available ? `● SEC 연간 공시 · ${observedAt ? `기준 ${String(observedAt).slice(0, 10)}` : '기준일 미수신'}` : '○ SEC 데이터 미수신';
+  element.className = 'freshness-badge fb-static';
   element.setAttribute('data-source-kind', available ? (fundamentals.sourceTier || 'official-regulator') : 'unavailable');
   element.setAttribute('data-source-label', available ? (fundamentals.source || 'SEC EDGAR companyfacts') : 'sec-fundamentals.json');
   element.setAttribute('data-operational-use', 'reference-only');
-  if (fundamentals?.observedAt) element.setAttribute('data-observed-at', fundamentals.observedAt);
+  if (observedAt) element.setAttribute('data-observed-at', observedAt);
   else element.removeAttribute('data-observed-at');
 }
 
@@ -211,6 +252,106 @@ function renderFundamentalSummary(documentRef, state) {
   element.setAttribute('data-operational-use', 'reference-only');
   if (available && fundamentals?.observedAt) element.setAttribute('data-observed-at', fundamentals.observedAt);
   else element.removeAttribute('data-observed-at');
+}
+
+function formatSecWatchlistValue(value, { percent = false } = {}) {
+  const number = finite(value);
+  if (number == null) return '—';
+  if (percent) return `${number.toFixed(1)}%`;
+  const absolute = Math.abs(number);
+  const sign = number < 0 ? '-' : '';
+  if (absolute >= 1e12) return `${sign}$${(absolute / 1e12).toFixed(1)}T`;
+  if (absolute >= 1e9) return `${sign}$${(absolute / 1e9).toFixed(1)}B`;
+  if (absolute >= 1e6) return `${sign}$${(absolute / 1e6).toFixed(1)}M`;
+  return `${sign}$${absolute.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+}
+
+function appendSecWatchlistMetric(documentRef, container, labelText, valueText) {
+  const metric = documentRef.createElement('div');
+  metric.style.cssText = 'display:flex;justify-content:space-between;gap:8px;font-size:11px;color:var(--text-secondary);';
+  const label = documentRef.createElement('span');
+  label.textContent = labelText;
+  const value = documentRef.createElement('strong');
+  value.textContent = valueText;
+  value.style.cssText = 'color:var(--text-primary);font-family:var(--font-mono);text-align:right;';
+  metric.append(label, value);
+  container.appendChild(metric);
+}
+
+function renderFundamentalWatchlist(documentRef, state) {
+  const grid = documentRef?.getElementById('fund-cards-grid');
+  if (!grid) return;
+  const rows = Array.isArray(state?.fundamentalsWatchlist) ? state.fundamentalsWatchlist : [];
+  const meta = state?.fundamentalsMeta || {};
+  grid.replaceChildren();
+  grid.dataset.aioFundamentalWatchlistRenderer = 'native';
+  grid.setAttribute('data-source-kind', rows.length ? (meta.sourceTier || 'official-regulator') : 'unavailable');
+  grid.setAttribute('data-source-label', rows.length ? (meta.source || 'SEC EDGAR companyfacts') : 'sec-fundamentals-summary.json');
+  grid.setAttribute('data-operational-use', 'reference-only');
+  if (meta.generatedAt) grid.setAttribute('data-fetched-at', meta.generatedAt);
+  else grid.removeAttribute('data-fetched-at');
+  if (!rows.length) {
+    const empty = documentRef.createElement('div');
+    empty.textContent = '공식 SEC 연간 공시 투영을 수신하지 못해 관심종목 비교를 표시하지 않습니다.';
+    empty.style.cssText = 'grid-column:1/-1;text-align:center;padding:24px;color:var(--text-muted);font-size:11px;';
+    grid.appendChild(empty);
+    return;
+  }
+  const notice = documentRef.createElement('div');
+  const generatedMs = Date.parse(meta.generatedAt || '');
+  const ageHours = Number.isFinite(generatedMs) ? Math.max(0, (Date.now() - generatedMs) / 3600000) : null;
+  const projectionState = ageHours == null ? '투영 확인시각 미수신' : ageHours <= 48 ? '자동 투영 확인 정상' : '자동 투영 확인 지연 · 참고 전용';
+  const coverageText = Number.isFinite(meta.stored) && Number.isFinite(meta.eligible)
+    ? ` · ${meta.stored}/${meta.eligible}개 SEC 대상 보유`
+    : '';
+  notice.textContent = `SEC EDGAR companyfacts · ${projectionState}${meta.generatedAt ? ` · 확인 ${String(meta.generatedAt).replace('T', ' ').slice(0, 16)}Z` : ''}${coverageText} · 연간 공시와 시세는 서로 다른 시계로 분리`;
+  notice.style.cssText = `grid-column:1/-1;padding:9px 10px;border-left:2px solid ${ageHours != null && ageHours <= 48 ? 'var(--data-green)' : 'var(--data-amber)'};background:var(--surface-2);color:var(--text-secondary);font-size:10px;line-height:1.5;`;
+  grid.appendChild(notice);
+  for (const row of rows) {
+    const symbol = String(row.symbol || '').trim().toUpperCase();
+    if (!symbol) continue;
+    const card = documentRef.createElement('button');
+    card.type = 'button';
+    card.className = 'fund-ticker-card';
+    card.setAttribute('data-aio-entity-symbol', symbol);
+    card.setAttribute('data-source-kind', row.sourceTier || 'official-regulator');
+    card.setAttribute('data-source-label', row.source || meta.source || 'SEC EDGAR companyfacts');
+    card.setAttribute('data-operational-use', 'reference-only');
+    card.setAttribute('data-decision-eligible', 'false');
+    if (row.observedAt) card.setAttribute('data-observed-at', row.observedAt);
+    card.style.cssText = 'appearance:none;width:100%;background:var(--bg-card);border-radius:4px;padding:14px;border:1px solid var(--border);cursor:pointer;text-align:left;color:inherit;';
+
+    const heading = documentRef.createElement('div');
+    heading.style.cssText = 'display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px;';
+    const identity = documentRef.createElement('div');
+    const symbolNode = documentRef.createElement('div');
+    symbolNode.textContent = symbol;
+    symbolNode.style.cssText = 'font-size:13px;font-weight:700;color:var(--text-primary);';
+    const name = documentRef.createElement('div');
+    name.textContent = row.entityName || symbol;
+    name.style.cssText = 'font-size:10px;color:var(--text-muted);line-height:1.35;margin-top:2px;';
+    identity.append(symbolNode, name);
+    const period = documentRef.createElement('span');
+    period.textContent = `${row.periodType || 'FY'} · ${row.observedAt || '기준일 미상'}`;
+    period.style.cssText = 'font-size:10px;color:var(--text-muted);white-space:nowrap;';
+    heading.append(identity, period);
+    card.appendChild(heading);
+
+    const metrics = documentRef.createElement('div');
+    metrics.style.cssText = 'display:grid;gap:5px;';
+    appendSecWatchlistMetric(documentRef, metrics, '매출', formatSecWatchlistValue(row.revenue));
+    appendSecWatchlistMetric(documentRef, metrics, '순이익', formatSecWatchlistValue(row.netIncome));
+    appendSecWatchlistMetric(documentRef, metrics, '매출 성장', formatSecWatchlistValue(row.revGrowth, { percent: true }));
+    appendSecWatchlistMetric(documentRef, metrics, '순이익률', formatSecWatchlistValue(row.margin, { percent: true }));
+    appendSecWatchlistMetric(documentRef, metrics, 'ROE', formatSecWatchlistValue(row.roe, { percent: true }));
+    card.appendChild(metrics);
+
+    const source = documentRef.createElement('div');
+    source.textContent = `SEC ${row.form || 'annual filing'} · 제출 ${row.filedAt || '미상'} · 추정치 없음`;
+    source.style.cssText = 'font-size:9px;color:var(--text-muted);margin-top:10px;line-height:1.35;';
+    card.appendChild(source);
+    grid.appendChild(card);
+  }
 }
 
 function formatSecMetric(metric) {
@@ -301,15 +442,17 @@ function render({ root, documentRef, store, route, charts }) {
     if (route === 'ticker' || route === 'options' || route === 'fundamental') routeNode.dataset.aioArchitectureRenderer = 'native';
   }
   if (route === 'ticker') {
-    renderTickerHero(documentRef, state);
-    renderTickerSecondarySymbols(documentRef, state);
+    renderTickerHero(documentRef, state, root);
+    renderTickerSecondarySymbols(documentRef, state, root);
     renderTickerActivity(documentRef, root, state, portfolioState);
+    renderTickerNavigation(documentRef, state, root);
     renderTickerChart({ root, page: routeNode, state, charts });
   }
   if (route === 'options') renderOptions(documentRef, state);
   if (route === 'fundamental') {
     renderFundamentalStatus(documentRef, state);
     renderFundamentalSummary(documentRef, state);
+    renderFundamentalWatchlist(documentRef, state);
     renderFundamentalReport(documentRef, routeNode, state);
   }
 }
@@ -326,11 +469,59 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
       bag.add(store.subscribe(renderNow));
       const eventTarget = documentRef || globalThis;
       const refresh = () => renderNow();
+      const onPageShown = (event) => {
+        const detail = event?.detail;
+        const shownRoute = typeof detail === 'string' ? detail : detail?.pageId || detail?.route;
+        if (route === 'ticker' && shownRoute === 'ticker') refresh();
+      };
       ['aio:liveQuotes', 'aio:refresh:done', 'aio:sentimentUpdated', 'aio:serverDataLoaded'].forEach((eventName) => {
         eventTarget?.addEventListener?.(eventName, refresh);
         bag.add(() => eventTarget?.removeEventListener?.(eventName, refresh));
       });
+      eventTarget?.addEventListener?.('aio:pageShown', onPageShown);
+      bag.add(() => eventTarget?.removeEventListener?.('aio:pageShown', onPageShown));
+      if (route === 'ticker') {
+        const onRelatedThemeClick = (event) => {
+          const trigger = event?.target?.closest?.('[data-action="showThemeDetail"][data-arg]');
+          if (!trigger) return;
+          const themeId = String(trigger.getAttribute('data-arg') || '').trim();
+          if (!themeId) return;
+          event.preventDefault?.();
+          event.stopImmediatePropagation?.();
+          if (typeof root?.showThemeDetail === 'function') {
+            root.showThemeDetail(themeId);
+            return;
+          }
+          root._currentThemeId = themeId;
+          root._aioOpenThemeDetailOnThemes = themeId;
+          const navigate = typeof root?.showPage === 'function'
+            ? root.showPage.bind(root)
+            : typeof root?.AIO_ARCH?.router?.transition === 'function'
+              ? root.AIO_ARCH.router.transition.bind(root.AIO_ARCH.router)
+              : typeof root?.__AIO_ARCH_RUNTIME__?.router?.transition === 'function'
+                ? root.__AIO_ARCH_RUNTIME__.router.transition.bind(root.__AIO_ARCH_RUNTIME__.router)
+                : null;
+          if (navigate) {
+            navigate(typeof root?.showPage === 'function' ? 'theme-detail' : 'themes', { source: 'ticker-related-theme', themeId });
+          }
+          eventTarget?.dispatchEvent?.(new CustomEvent('aio:themeDetailShown', { detail: { themeId } }));
+        };
+        eventTarget?.addEventListener?.('click', onRelatedThemeClick, true);
+        bag.add(() => eventTarget?.removeEventListener?.('click', onRelatedThemeClick, true));
+      }
       if (route === 'fundamental') {
+        const onFundamentalCardClick = (event) => {
+          const trigger = event?.target?.closest?.('[data-aio-entity-symbol]');
+          if (!trigger) return;
+          const symbol = String(trigger.getAttribute('data-aio-entity-symbol') || '').trim().toUpperCase();
+          if (!symbol) return;
+          event.preventDefault?.();
+          event.stopImmediatePropagation?.();
+          root._currentTickerId = symbol;
+          eventTarget?.dispatchEvent?.(new CustomEvent('aio:entityChanged', { detail: { symbol, source: 'sec-watchlist' } }));
+        };
+        eventTarget?.addEventListener?.('click', onFundamentalCardClick, true);
+        bag.add(() => eventTarget?.removeEventListener?.('click', onFundamentalCardClick, true));
         const summary = documentRef?.getElementById('fund-analysis-text');
         if (summary) summary.dataset.aioFundamentalSummaryRenderer = 'native';
         bag.add(() => {
@@ -347,6 +538,14 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
             delete element.dataset.operationalUse;
             delete element.dataset.observedAt;
           });
+          const watchlist = documentRef?.getElementById('fund-cards-grid');
+          if (watchlist?.dataset.aioFundamentalWatchlistRenderer === 'native') {
+            delete watchlist.dataset.aioFundamentalWatchlistRenderer;
+            delete watchlist.dataset.sourceKind;
+            delete watchlist.dataset.sourceLabel;
+            delete watchlist.dataset.operationalUse;
+            delete watchlist.dataset.fetchedAt;
+          }
         });
       }
       if (route === 'ticker') {

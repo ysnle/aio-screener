@@ -196,7 +196,6 @@ var SCREENER_DB = [
   { sym:'ESTC', name:'Elastic', sector:'Technology', index:'SP500' },
   // ── 핀테크 / 결제 / 크립토 ──
   { sym:'HOOD', name:'Robinhood', sector:'Financials', index:'NASDAQ100' },
-  { sym:'SQ', name:'Block Inc (SQ)', sector:'Financials', index:'SP500' },
   { sym:'MSTR', name:'MicroStrategy', sector:'Technology', index:'NASDAQ100' },
   // ── 전력 / 에너지 / 원전 ──
   { sym:'NRG', name:'NRG Energy', sector:'Utilities', index:'SP500' },
@@ -846,7 +845,6 @@ var SCREENER_DB = [
 
   //  원전 (nuclear)
   { sym:'034020.KS', name:'두산에너빌리티', sector:'Industrials', index:'KOSPI' },
-  { sym:'000720.KS', name:'현대건설', sector:'Industrials', index:'KOSPI' },
   { sym:'052690.KS', name:'한전기술', sector:'Industrials', index:'KOSPI' },
   { sym:'051600.KS', name:'한전KPS', sector:'Industrials', index:'KOSPI' },
   { sym:'092200.KQ', name:'디아이씨', sector:'Industrials', index:'KOSDAQ' },
@@ -864,7 +862,6 @@ var SCREENER_DB = [
   { sym:'128940.KS', name:'한미약품', sector:'Healthcare', index:'KOSPI' },
   { sym:'028300.KQ', name:'HLB', sector:'Healthcare', index:'KOSDAQ' },
   { sym:'000100.KS', name:'유한양행', sector:'Healthcare', index:'KOSPI' },
-  { sym:'326030.KS', name:'SK바이오팜', sector:'Healthcare', index:'KOSPI' },
   { sym:'145020.KQ', name:'휴젤', sector:'Healthcare', index:'KOSDAQ' },
   { sym:'302440.KQ', name:'SK바이오사이언스', sector:'Healthcare', index:'KOSDAQ' },
   { sym:'141080.KQ', name:'리가켐바이오', sector:'Healthcare', index:'KOSDAQ' },
@@ -1384,7 +1381,7 @@ function _aioRenderTelegramFeedHtml(pageId) {
         ? window.AIO.normalizeExternalSourceState({ status: state, count: count, expected: expected })
         : { status: state, label: state === 'success' ? '정상 수신' : '외부 수집 실패', allowedUse: state === 'success' ? 'decision' : 'none' };
       var cls = n.status === 'success' ? 'is-ok' : n.status === 'partial' ? 'is-partial' : 'is-fail';
-      var note = n.status === 'success' ? '외부 피드 정상 수신' : n.status === 'partial' ? '일부 채널만 수신 · 참고용' : '외부 피드 실패 · 서버 다이제스트/기존 데이터 유지';
+      var note = n.status === 'success' ? '서버 24시간 다이제스트 확인' : n.status === 'partial' ? '일부 채널만 수신 · 참고용' : '서버 다이제스트 실패 · 기존 데이터 유지';
       return '<div class="tg-source-state ' + cls + '" data-external-source="telegram:' + escHtml(pageId) + '" data-state="' + n.status + '" title="' + escHtml(note) + '">' +
         '<span class="tg-source-state-dot"></span>' + escHtml(n.label) + ' · ' + escHtml(note) + '</div>';
     };
@@ -2003,9 +2000,19 @@ const API_KEY_CONFIG = [
 
 // ── 유틸리티: 타임아웃 fetch ──────────────────────────────────
 function fetchWithTimeout(url, opts = {}, ms = 8000) {
+  opts = opts || {};
   const ctrl = new AbortController();
+  const externalSignal = opts.signal;
+  const relayAbort = () => { try { ctrl.abort(); } catch(_) {} };
+  if (externalSignal) {
+    if (externalSignal.aborted) relayAbort();
+    else if (typeof externalSignal.addEventListener === 'function') externalSignal.addEventListener('abort', relayAbort, { once: true });
+  }
   const timer = setTimeout(() => ctrl.abort(), ms);
-  return fetch(url, { ...opts, signal: ctrl.signal }).finally(() => clearTimeout(timer));
+  return fetch(url, { ...opts, signal: ctrl.signal }).finally(() => {
+    clearTimeout(timer);
+    if (externalSignal && typeof externalSignal.removeEventListener === 'function') externalSignal.removeEventListener('abort', relayAbort);
+  });
 }
 
 // ── v30.11 Task 11: CORS 프록시 레지스트리 (단일 진실 원천) ──────────────────
@@ -2151,40 +2158,63 @@ async function fetchViaProxy(url, timeout) {
   var _sensitiveUrlRe = /[?&](apikey|api_key|token|access_token|client_secret|url)=/i;
   var _isSensitive = _sensitiveUrlRe.test(url);
   var cacheKey = _isSensitive ? null : 'aio_proxy_cache_' + btoa(url.slice(0, 150)).replace(/[^A-Za-z0-9]/g, '').substring(0, 64);
-  for (var i = 0; i < active.length; i++) {
-    var proxy = active[i];
-    try {
-      var r = await fetchWithTimeout(proxy.mkUrl(url), {}, timeout);
-      if (r.ok) {
-        var validated = await _aioValidateProxyResponse(url, r, opts);
-        var payload = opts.parseJson
-          ? (validated.jsonReady ? validated.json : await r.clone().json())
-          : opts.parseText
-            ? await r.clone().text()
-            : r;
-        if (typeof opts.accept === 'function' && !opts.accept(payload)) {
-          _PROXY_REGISTRY.markFail(proxy.id, 'invalid-payload');
-          continue;
+  // Per-proxy timeouts are not enough when the registry falls back sequentially.
+  // A shared deadline aborts the current attempt and prevents a 5× timeout hang.
+  var deadlineCtrl = new AbortController();
+  var externalSignal = opts.signal;
+  var relayAbort = function() { try { deadlineCtrl.abort(); } catch(_) {} };
+  if (externalSignal) {
+    if (externalSignal.aborted) relayAbort();
+    else if (typeof externalSignal.addEventListener === 'function') externalSignal.addEventListener('abort', relayAbort, { once: true });
+  }
+  var totalTimeout = Number(opts.totalTimeout || opts.deadline || 0);
+  if (!isFinite(totalTimeout) || totalTimeout <= 0) totalTimeout = Math.max(timeout, Math.min(timeout * Math.max(1, active.length), 15000));
+  var deadlineTimer = setTimeout(relayAbort, totalTimeout);
+  try {
+    for (var i = 0; i < active.length; i++) {
+      if (deadlineCtrl.signal.aborted) break;
+      var proxy = active[i];
+      try {
+        var r = await fetchWithTimeout(proxy.mkUrl(url), { signal: deadlineCtrl.signal }, timeout);
+        if (r.ok) {
+          var validated = await _aioValidateProxyResponse(url, r, opts);
+          var payload = opts.parseJson
+            ? (validated.jsonReady ? validated.json : await r.clone().json())
+            : opts.parseText
+              ? await r.clone().text()
+              : r;
+          if (typeof opts.accept === 'function' && !opts.accept(payload)) {
+            _PROXY_REGISTRY.markFail(proxy.id, 'invalid-payload');
+            continue;
+          }
+          _PROXY_REGISTRY.markOk(proxy.id);
+          // 성공 응답 캐시 (stale 폴백용) — 민감 URL은 저장 안 함
+          if (cacheKey) {
+            try {
+              var rClone = r.clone();
+              rClone.text().then(function(t) {
+                try { localStorage.setItem(cacheKey, JSON.stringify({ body: t, ts: Date.now() })); } catch(e) {}
+              }).catch(function() {});
+            } catch(e) {}
+          }
+          if (opts.parseJson) return payload;
+          if (opts.parseText) return payload;
+          return r;
         }
-        _PROXY_REGISTRY.markOk(proxy.id);
-        // 성공 응답 캐시 (stale 폴백용) — 민감 URL은 저장 안 함
-        if (cacheKey) {
-          try {
-            var rClone = r.clone();
-            rClone.text().then(function(t) {
-              try { localStorage.setItem(cacheKey, JSON.stringify({ body: t, ts: Date.now() })); } catch(e) {}
-            }).catch(function() {});
-          } catch(e) {}
-        }
-        if (opts.parseJson) return payload;
-        if (opts.parseText) return payload;
-        return r;
+        _PROXY_REGISTRY.markFail(proxy.id, r.status);
+      } catch(e) {
+        _PROXY_REGISTRY.markFail(proxy.id, e && e.aioProxyBlockedHtml ? 'html' : null);
+        if (typeof _aioLog === 'function' && e && e.aioProxyBlockedHtml) _aioLog('warn', 'proxy', proxy.id + ' HTML 차단 응답 — 다음 프록시 시도', { url: String(url).slice(0, 120) });
       }
-      _PROXY_REGISTRY.markFail(proxy.id, r.status);
-    } catch(e) {
-      _PROXY_REGISTRY.markFail(proxy.id, e && e.aioProxyBlockedHtml ? 'html' : null);
-      if (typeof _aioLog === 'function' && e && e.aioProxyBlockedHtml) _aioLog('warn', 'proxy', proxy.id + ' HTML 차단 응답 — 다음 프록시 시도', { url: String(url).slice(0, 120) });
     }
+  } finally {
+    clearTimeout(deadlineTimer);
+    if (externalSignal && typeof externalSignal.removeEventListener === 'function') externalSignal.removeEventListener('abort', relayAbort);
+  }
+  if (externalSignal && externalSignal.aborted) {
+    var callerAbort = new Error('proxy request aborted by caller');
+    callerAbort.name = 'AbortError';
+    throw callerAbort;
   }
   if (typeof _reportApiError === 'function') _reportApiError('proxy-primary', '전체 프록시 실패');
   // v48.14: stale-cache 폴백 — 전체 프록시 실패 시 localStorage last-good 응답 반환 (민감 URL 제외)
@@ -2736,13 +2766,18 @@ const FRED_SERIES = {
   'T10Y2Y':       { name: '10Y-2Y Spread', el: null, unit: '%' },
   'T10Y3M':       { name: '10Y-3M Spread', el: null, unit: '%' },
   'DGS2':         { name: '2Y Treasury', el: null, unit: '%' },
+  'DGS5':         { name: '5Y Treasury', el: null, unit: '%' },
   'DGS10':        { name: '10Y Treasury', el: null, unit: '%' },
+  'DGS20':        { name: '20Y Treasury', el: null, unit: '%' },
   'DGS30':        { name: '30Y Treasury', el: null, unit: '%' },
   'DTWEXBGS':     { name: 'Trade Weighted USD', el: null, unit: '' },
   'VIXCLS':       { name: 'VIX Close', el: null, unit: '' },
   'ICSA':         { name: 'Initial Claims', el: null, unit: 'K', multiplier: 0.001 },
   'UNRATE':       { name: 'Unemployment Rate', el: null, unit: '%' },
-  'CPIAUCSL':     { name: 'CPI', el: null, unit: '', yoy: true },          // 헤드라인 CPI (YoY 계산)
+  'CPIAUCNS':     { name: 'CPI-U headline (NSA)', el: null, unit: '', yoy: true }, // 시장 표준 발표 헤드라인
+  'CPILFENS':     { name: 'Core CPI-U (NSA)', el: null, unit: '', yoy: true },
+  'CPIAUCSL':     { name: 'CPI-U analytical (SA)', el: null, unit: '', yoy: true },
+  'CPILFESL':     { name: 'Core CPI-U analytical (SA)', el: null, unit: '', yoy: true },
   'FEDFUNDS':     { name: 'Fed Funds Rate', el: null, unit: '%' },
   // v47.11 신규
   'DFEDTARU':     { name: 'Fed Funds Target Upper', el: null, unit: '%' },
@@ -2759,7 +2794,9 @@ const FRED_SERIES = {
   'CES0500000003':{ name: 'Avg Hourly Earnings', el: null, unit: 'USD' },  // wage-growth
   'PAYEMS':       { name: 'Non-farm Payrolls', el: null, unit: 'K' },      // 고용 (NFP)
   // v50.5: C계층 매크로 실데이터 연결 — 연준 선호 지표(PCE) + 근원(Core) YoY
-  'CPILFESL':     { name: 'Core CPI', el: null, unit: '', yoy: true },     // 근원 CPI (식료품·에너지 제외)
+  // The SA/NSA CPI entries above are deliberately separate.  Do not collapse
+  // them back into one generic CPI key: their YoY values can differ and have
+  // different release/display semantics.
   'PCEPI':        { name: 'PCE', el: null, unit: '', yoy: true },          // 헤드라인 PCE (연준 선호)
   'PCEPILFE':     { name: 'Core PCE', el: null, unit: '', yoy: true }      // 근원 PCE (연준 2% 목표 기준)
 };
@@ -2925,6 +2962,9 @@ function applyFredToUI(data) {
     if (entry._source && entry._source.startsWith('yahoo-')) {
       return '실시간 (' + new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) + ')';
     }
+    if (entry._source && entry._source.indexOf('treasury-official') >= 0) {
+      return 'U.S. Treasury ' + (entry.date || '');
+    }
     return 'FRED ' + (entry.date || '');
   }
 
@@ -2950,16 +2990,19 @@ function applyFredToUI(data) {
     _updSnap('fed-rate', function(){ return r.toFixed(2) + '%'; });
   }
   // v50.5: CPI/Core CPI/PCE/Core PCE를 YoY(전년 동월 대비)로 렌더 — 시장/연준 기준 지표.
-  // 기존 'cpi' sink는 비교표(11571)에서 "CPI (YoY)"로 표기되므로 YoY가 정확.
+  // CPI headline/core는 BLS release convention과 맞춘 NSA 시리즈를 기본으로
+  // 사용하고, SA 시계열은 명시적인 별도 snapshot 필드로만 보존한다.
   function _fredYoYSnap(seriesId, snapKey) {
     const e = data[seriesId];
     if (!e || typeof e.yoy !== 'number' || !isFinite(e.yoy)) return;
     const yoy = e.yoy;
     _updSnap(snapKey, function(){ return (yoy >= 0 ? '+' : '') + yoy.toFixed(1) + '%'; });
   }
-  _fredYoYSnap('CPIAUCSL', 'cpi');        // 비교표 호환 (US CPI YoY)
-  _fredYoYSnap('CPIAUCSL', 'cpi-yoy');    // 전용 카드
-  _fredYoYSnap('CPILFESL', 'core-cpi-yoy');
+  _fredYoYSnap('CPIAUCNS', 'cpi');        // 비교표 호환 (US CPI-U headline YoY, NSA)
+  _fredYoYSnap('CPIAUCNS', 'cpi-yoy');    // 전용 카드
+  _fredYoYSnap('CPILFENS', 'core-cpi-yoy');
+  _fredYoYSnap('CPIAUCSL', 'cpi-sa-yoy'); // analytical SA companion
+  _fredYoYSnap('CPILFESL', 'core-cpi-sa-yoy');
   _fredYoYSnap('PCEPI',    'pce-yoy');
   _fredYoYSnap('PCEPILFE', 'core-pce-yoy');
   // NFP: PAYEMS는 천명 단위 레벨 → 전월 대비 증감(MoM change)이 시장이 보는 "신규 고용".
@@ -2981,8 +3024,10 @@ function applyFredToUI(data) {
           DS._fredLive[key] = { value: val, source: 'FRED', ts: Date.now() };
         }
       };
-      if (data['CPIAUCSL'] && typeof data['CPIAUCSL'].yoy === 'number') _setLiveSnap('cpi', +data['CPIAUCSL'].yoy.toFixed(1));
-      if (data['CPILFESL'] && typeof data['CPILFESL'].yoy === 'number') _setLiveSnap('coreCpi', +data['CPILFESL'].yoy.toFixed(1));
+      if (data['CPIAUCNS'] && typeof data['CPIAUCNS'].yoy === 'number') _setLiveSnap('cpi', +data['CPIAUCNS'].yoy.toFixed(1));
+      if (data['CPILFENS'] && typeof data['CPILFENS'].yoy === 'number') _setLiveSnap('coreCpi', +data['CPILFENS'].yoy.toFixed(1));
+      if (data['CPIAUCSL'] && typeof data['CPIAUCSL'].yoy === 'number') _setLiveSnap('cpiSa', +data['CPIAUCSL'].yoy.toFixed(1));
+      if (data['CPILFESL'] && typeof data['CPILFESL'].yoy === 'number') _setLiveSnap('coreCpiSa', +data['CPILFESL'].yoy.toFixed(1));
       if (data['PCEPI'] && typeof data['PCEPI'].yoy === 'number') _setLiveSnap('pce', +data['PCEPI'].yoy.toFixed(1));
       if (data['PCEPILFE'] && typeof data['PCEPILFE'].yoy === 'number') _setLiveSnap('corePce', +data['PCEPILFE'].yoy.toFixed(1));
       if (data['PAYEMS'] && data['PAYEMS'].value != null && data['PAYEMS'].prevValue != null) {
@@ -3031,12 +3076,29 @@ function applyFredToUI(data) {
     if (typeof updateFxBondPage === 'function') updateFxBondPage();
   }
 
+  // Keep every Treasury maturity available to both the legacy curve renderer
+  // and native consumers.  The server bridge uses the same aliases below;
+  // this also prevents a personal FRED refresh from reintroducing a 5Y/20Y
+  // gap after the official server artifact was projected.
+  if (data['DGS5']) {
+    window._live5Y = data['DGS5'].value;
+    if (window.DATA_SNAPSHOT) window.DATA_SNAPSHOT.fvx = data['DGS5'].value;
+  }
   // v31.9: DGS10 Yahoo 실시간 → _live10Y 동기화 (yield curve 계산용)
   if (data['DGS10']) {
     window._live10Y = data['DGS10'].value;
+    if (window.DATA_SNAPSHOT) window.DATA_SNAPSHOT.tnx = data['DGS10'].value;
+  }
+  if (data['DGS20']) {
+    window._live20Y = data['DGS20'].value;
+    if (window.DATA_SNAPSHOT) window.DATA_SNAPSHOT.tnx20y = data['DGS20'].value;
   }
   if (data['DGS30']) {
     window._live30Y = data['DGS30'].value;
+    if (window.DATA_SNAPSHOT) window.DATA_SNAPSHOT.tyx = data['DGS30'].value;
+  }
+  if (data['T10Y2Y']) {
+    if (window.DATA_SNAPSHOT) window.DATA_SNAPSHOT.t10y2y = data['T10Y2Y'].value;
   }
   // v31.9: VIXCLS Yahoo 실시간 → 센티먼트 히스토리에 최신값 주입
   if (data['VIXCLS'] && data['VIXCLS']._source && data['VIXCLS']._source.startsWith('yahoo-')) {
@@ -3130,8 +3192,8 @@ async function _renderFredCharts() {
   var statusEl = document.getElementById('fred-chart-status');
   var series = [
     { id:'UNRATE', canvas:'fred-unrate-chart', color:'#ff5b50', label:'실업률 (%)' },
-    { id:'CPIAUCSL', canvas:'fred-cpi-chart', color:'#ffa31a', label:'CPI YoY (%)', transform:'yoy' },
-    { id:'FEDFUNDS', canvas:'fred-fedfunds-chart', color:'#00bcd4', label:'기준금리 (%)' }
+    { id:'CPIAUCNS', canvas:'fred-cpi-chart', color:'#ffa31a', label:'CPI-U headline YoY (NSA) (%)', transform:'yoy' },
+    { id:'FEDFUNDS', canvas:'fred-fedfunds-chart', color:'#00bcd4', label:'연방기금금리 월평균 (%)' }
   ];
   function markUnavailable(s, reason) {
     var canvas = document.getElementById(s.canvas);
@@ -3595,16 +3657,45 @@ async function _runScheduledTask(key, cfg, showError, opts) {
   cfg._status = 'loading';
   cfg._failureReason = '';
   var resolved;
+  var taskPromise = null;
+  var taskSettled = true;
+  var taskTimer = null;
+  var taskController = new AbortController();
+  var externalSignal = opts.signal;
+  var externalAbortReject = null;
+  var runFinished = false;
+  var finishRun = function() {
+    if (runFinished) return;
+    runFinished = true;
+    cfg.lastRunEnd = Date.now();
+    cfg.lastDurationMs = cfg.lastRunEnd - cfg.lastRunStart;
+    cfg._inFlight = false;
+    cfg._activeRun = null;
+  };
+  var relayExternalAbort = function() {
+    try { taskController.abort(externalSignal && externalSignal.reason); } catch (_) { try { taskController.abort(); } catch (_) {} }
+    if (externalAbortReject) externalAbortReject(new Error('scheduler aborted by caller: ' + key));
+  };
+  if (externalSignal) {
+    if (externalSignal.aborted) relayExternalAbort();
+    else if (typeof externalSignal.addEventListener === 'function') externalSignal.addEventListener('abort', relayExternalAbort, { once: true });
+  }
+  cfg._activeRun = { key: key, startedAt: cfg.lastRunStart, controller: taskController };
   try {
-    var taskResult = cfg.fn(opts);
+    var taskResult = cfg.fn(Object.assign({}, opts, { signal: taskController.signal }));
     if (taskResult && typeof taskResult.then === 'function') {
+      taskSettled = false;
+      taskPromise = Promise.resolve(taskResult);
+      taskPromise.then(function() { taskSettled = true; finishRun(); }, function() { taskSettled = true; finishRun(); });
       var timeoutMs = Math.max(3000, cfg.timeoutMs || 30000);
-      resolved = await Promise.race([
-        taskResult,
-        new Promise(function(_, reject) {
-          setTimeout(function() { reject(new Error('scheduler timeout: ' + key + ' (' + timeoutMs + 'ms)')); }, timeoutMs);
-        })
-      ]);
+      var timeoutPromise = new Promise(function(_, reject) {
+        taskTimer = setTimeout(function() {
+          try { taskController.abort('timeout'); } catch (_) {}
+          reject(new Error('scheduler timeout: ' + key + ' (' + timeoutMs + 'ms)'));
+        }, timeoutMs);
+      });
+      var abortPromise = externalSignal ? new Promise(function(_, reject) { externalAbortReject = reject; }) : null;
+      resolved = await Promise.race([taskPromise, timeoutPromise, abortPromise].filter(Boolean));
     } else {
       resolved = taskResult;
     }
@@ -3655,9 +3746,9 @@ async function _runScheduledTask(key, cfg, showError, opts) {
     if (showError) showDataError(cfg.label, 'auto refresh failed; retrying on next cycle', 'warn');
     return { key: key, ok: false, skipped: false, updated: false, error: cfg._lastErr };
   } finally {
-    cfg.lastRunEnd = Date.now();
-    cfg.lastDurationMs = cfg.lastRunEnd - cfg.lastRunStart;
-    cfg._inFlight = false;
+    if (taskTimer) clearTimeout(taskTimer);
+    if (externalSignal && typeof externalSignal.removeEventListener === 'function') externalSignal.removeEventListener('abort', relayExternalAbort);
+    if (!taskPromise || taskSettled) finishRun();
   }
 }
 
@@ -3826,6 +3917,8 @@ function _aioGetCritical10Symbols() {
 window._aioGetCritical10Symbols = _aioGetCritical10Symbols;
 
 var _aioPageRefreshLast = {};   // key -> 마지막 on-enter 강제 fetch ts (per-task 최소 간격 가드)
+var _aioPageRefreshControllers = globalThis._aioPageRefreshControllers || {};
+globalThis._aioPageRefreshControllers = _aioPageRefreshControllers;
 
 // v49.99 연계점①: HOME_WEEKLY_NEWS 만료 감지 → news 태스크 강제 pre-warm
 // 문제: news interval 45분, stale threshold 22.5분 — HOME_WEEKLY_NEWS 만료 시점에
@@ -3860,6 +3953,17 @@ function _aioRefreshPageData(pageId) {
     var keys = (profile && profile.tasks && profile.tasks.length) ? profile.tasks : AIO_PAGE_REFRESH_MAP[pageId];
     if (!keys || !keys.length || !window.REFRESH_SCHEDULE) return;
     var symbols = Array.isArray(profile.symbols) ? profile.symbols.slice() : [];
+    Object.keys(_aioPageRefreshControllers).forEach(function(activePageId) {
+      if (activePageId !== pageId && _aioPageRefreshControllers[activePageId]) {
+        try { _aioPageRefreshControllers[activePageId].abort('route-changed'); } catch (_) {}
+        delete _aioPageRefreshControllers[activePageId];
+      }
+    });
+    if (_aioPageRefreshControllers[pageId]) {
+      try { _aioPageRefreshControllers[pageId].abort('superseded'); } catch (_) {}
+    }
+    var pageController = new AbortController();
+    _aioPageRefreshControllers[pageId] = pageController;
     var now = Date.now();
     // v49.99 연계점①: home/briefing 진입 시 주간뉴스 만료 여부 사전 체크
     var weeklyNewsExpiring = (pageId === 'home' || pageId === 'briefing') && _aioIsWeeklyNewsExpiring();
@@ -3882,8 +3986,12 @@ function _aioRefreshPageData(pageId) {
     });
     if (dueKeys.length && window.AIO && typeof window.AIO.runScheduledRefresh === 'function') {
       setTimeout(function(){
-        window.AIO.runScheduledRefresh({ keys: dueKeys, options: options, pageId: pageId, symbols: symbols, reason: 'page-onenter' }).catch(function(e) {
+        var activePageId = String((window.AIO && typeof window.AIO.getActivePage === 'function' && window.AIO.getActivePage()) || document.querySelector('.page.active')?.id || '').replace(/^page-/, '');
+        if (pageController.signal.aborted || (activePageId && activePageId !== pageId)) return;
+        window.AIO.runScheduledRefresh({ keys: dueKeys, options: options, pageId: pageId, symbols: symbols, reason: 'page-onenter', signal: pageController.signal }).catch(function(e) {
           if (typeof _aioLog === 'function') _aioLog('warn', 'refresh', 'page refresh failed: ' + pageId + ' ' + (e && e.message || e));
+        }).finally(function() {
+          if (_aioPageRefreshControllers[pageId] === pageController) delete _aioPageRefreshControllers[pageId];
         });
       }, 0);
     }
@@ -4269,6 +4377,7 @@ window.AIO.runScheduledRefresh = async function(keys) {
   var runSymbols = [];
   var runPageId = '';
   var runReason = '';
+  var runSignal = null;
   var list = Array.isArray(keys) && keys.length ? keys : Object.keys(REFRESH_SCHEDULE || {});
   if (keys && !Array.isArray(keys) && typeof keys === 'object') {
     list = Array.isArray(keys.keys) && keys.keys.length ? keys.keys : Object.keys(REFRESH_SCHEDULE || {});
@@ -4277,6 +4386,7 @@ window.AIO.runScheduledRefresh = async function(keys) {
     runSymbols = Array.isArray(keys.symbols) ? keys.symbols.slice() : [];
     runPageId = keys.pageId || '';
     runReason = keys.reason || '';
+    runSignal = keys.signal || null;
   }
   if (!runSymbols.length && runPageId) {
     var runProfile = _aioGetRefreshProfile(runPageId);
@@ -4304,6 +4414,10 @@ window.AIO.runScheduledRefresh = async function(keys) {
   _schedulerPaused = false;
   try {
     for (var i = 0; i < list.length; i++) {
+      if (runSignal && runSignal.aborted) {
+        out.push({ key: list[i], ok: false, skipped: true, error: 'refresh aborted by caller', durationMs: 0, lastOk: 0 });
+        break;
+      }
       var key = list[i];
       var cfg = REFRESH_SCHEDULE && REFRESH_SCHEDULE[key];
       var started = Date.now();
@@ -4339,7 +4453,8 @@ window.AIO.runScheduledRefresh = async function(keys) {
         pageId: runPageId || keyOpts.pageId || '',
         reason: runReason || keyOpts.reason || '',
         symbols: runSymbols.length ? runSymbols.slice() : (Array.isArray(keyOpts.symbols) ? keyOpts.symbols.slice() : []),
-        forceRefresh: !!(forceAll || keyOpts.forceRefresh)
+        forceRefresh: !!(forceAll || keyOpts.forceRefresh),
+        signal: runSignal
       });
       var taskRun = await _runScheduledTask(key, cfg, true, opts);
       out.push({ key: key, ok: !!(taskRun && taskRun.ok), skipped: !!(taskRun && taskRun.skipped), updated: !!(taskRun && taskRun.updated), error: (taskRun && taskRun.error) || cfg._lastErr || '', durationMs: Date.now() - started, lastOk: cfg._lastOk || 0 });
@@ -4436,7 +4551,8 @@ window.AIO.ensureFreshDataForUse = async function(scope) {
       pageId: scope.pageId || scope.ctxId || scope.context || '',
       reason: scope.reason || 'ensure-fresh',
       symbols: plan.profile && Array.isArray(plan.profile.symbols) ? plan.profile.symbols : [],
-      forceRefresh: !!scope.forceFresh
+      forceRefresh: !!scope.forceFresh,
+      signal: scope.signal || null
     });
     try { if (typeof applyDataSnapshot === 'function') applyDataSnapshot(); } catch(_) {}
     var binding = null;
@@ -4569,9 +4685,17 @@ window.AIO.ensureFreshChatAnswerData = async function(scope) {
       var ageMs = _aioTickerQuoteAgeMs(t);
       if (!live || !live.price || !isFinite(ageMs) || ageMs > 90 * 1000 || scope.forceFresh) {
         try {
+          var lookupCtrl = new AbortController();
+          var relayScopeAbort = function() { try { lookupCtrl.abort(); } catch(_) {} };
+          if (scope.signal && typeof scope.signal.addEventListener === 'function') {
+            if (scope.signal.aborted) relayScopeAbort();
+            else scope.signal.addEventListener('abort', relayScopeAbort, { once: true });
+          }
+          var lookupPromise = dynamicTickerLookup(t, { forceFresh: true, reason: 'chat-answer-preflight', signal: lookupCtrl.signal });
           var r = await (typeof _withTimeout === 'function'
-            ? _withTimeout(dynamicTickerLookup(t, { forceFresh: true, reason: 'chat-answer-preflight' }), 3500, null)
-            : dynamicTickerLookup(t, { forceFresh: true, reason: 'chat-answer-preflight' }));
+            ? _withTimeout(lookupPromise, 3500, null, function() { try { lookupCtrl.abort(); } catch(_) {} })
+            : lookupPromise);
+          if (scope.signal && typeof scope.signal.removeEventListener === 'function') scope.signal.removeEventListener('abort', relayScopeAbort);
           lookups.push({ ticker: t, ok: !!(r && r.price), source: r && (r.source || r.exchange || '') || '' });
         } catch(e2) {
           lookups.push({ ticker: t, ok: false, error: e2 && e2.message || String(e2) });
@@ -4874,7 +4998,8 @@ function _aioApplyNativeScreenerState(nativeState) {
   if (!state || typeof state !== 'object') return false;
   var metadata = state.metadata && typeof state.metadata === 'object' ? state.metadata : {};
   var hasArtifact = state.status === 'current' || state.status === 'partial' || state.status === 'ready';
-  var status = hasArtifact ? (metadata.backtest ? 'ready' : 'partial') : (state.status || 'unavailable');
+  var status = hasArtifact ? (metadata.universeFreshnessStatus === 'stale' ? 'partial' : (metadata.backtest ? 'ready' : 'partial')) : (state.status || 'unavailable');
+  var numberOrNull = function(value) { return value == null || value === '' ? null : (isFinite(Number(value)) ? Number(value) : null); };
   var loadState = {
     status: status,
     checkedAt: Date.now(),
@@ -4882,9 +5007,21 @@ function _aioApplyNativeScreenerState(nativeState) {
     factorObservedAt: metadata.factorObservedAt || null,
     count: Number(metadata.artifactRows) || (Array.isArray(state.rows) ? state.rows.length : 0),
     universe: Number(metadata.universe) || null,
+    fundamentalCoverageDenominator: numberOrNull(metadata.fundamentalCoverageDenominator),
+    fundamentalModels: Array.isArray(metadata.fundamentalModels) ? metadata.fundamentalModels.slice() : [],
+    fundamentalCoverageScope: metadata.fundamentalCoverageScope || null,
     fmpOk: !!metadata.fmpOk,
     secFundamentalsOk: !!metadata.secFundamentalsOk,
-    fundamentalCoveragePct: Number(metadata.fundamentalCoveragePct) || 0,
+    secFundamentalsCount: numberOrNull(metadata.secFundamentalsCount),
+    secFundamentalsStored: numberOrNull(metadata.secFundamentalsStored),
+    secFundamentalsEligible: numberOrNull(metadata.secFundamentalsEligible),
+    secFundamentalsModel: metadata.secFundamentalsModel || null,
+    secFundamentalsGeneratedAt: metadata.secFundamentalsGeneratedAt || null,
+    fundamentalCoveragePct: numberOrNull(metadata.fundamentalCoveragePct),
+    universeCurrentness: metadata.universeCurrentness || 'UNKNOWN',
+    universeLastBulkUpdate: metadata.universeLastBulkUpdate || null,
+    universeStaleAfterDays: numberOrNull(metadata.universeStaleAfterDays),
+    universeFreshnessStatus: metadata.universeFreshnessStatus || 'unknown',
     breadthStatus: 'blocked',
     source: metadata.source || 'native-screener-state',
     nativeRevision: state.revision || null
@@ -4896,7 +5033,15 @@ function _aioApplyNativeScreenerState(nativeState) {
     universe: loadState.universe,
     fmpOk: loadState.fmpOk,
     secFundamentalsOk: loadState.secFundamentalsOk,
+    secFundamentalsCount: loadState.secFundamentalsCount,
+    secFundamentalsStored: loadState.secFundamentalsStored,
+    secFundamentalsEligible: loadState.secFundamentalsEligible,
+    secFundamentalsModel: loadState.secFundamentalsModel,
     fundamentalCoveragePct: loadState.fundamentalCoveragePct,
+    universeCurrentness: loadState.universeCurrentness,
+    universeLastBulkUpdate: loadState.universeLastBulkUpdate,
+    universeStaleAfterDays: loadState.universeStaleAfterDays,
+    universeFreshnessStatus: loadState.universeFreshnessStatus,
     rankingContract: metadata.rankingContract || null,
     backtest: metadata.backtest || null,
     breadth: metadata.breadth || null,
@@ -4913,8 +5058,10 @@ function _aioApplyNativeScreenerState(nativeState) {
     window._aioFactorBacktestStaleReason = 'legacy_kalman_scale';
   }
   if (window.SCREENER_DB_META && loadState.asOf) {
-    window.SCREENER_DB_META.lastBulkUpdate = String(loadState.asOf).slice(0, 10);
-    window.SCREENER_DB_META.stale = status !== 'ready' && status !== 'partial';
+    if (loadState.universeLastBulkUpdate) window.SCREENER_DB_META.lastBulkUpdate = String(loadState.universeLastBulkUpdate).slice(0, 10);
+    if (loadState.universeStaleAfterDays != null) window.SCREENER_DB_META.staleAfterDays = loadState.universeStaleAfterDays;
+    window.SCREENER_DB_META.currentness = loadState.universeCurrentness;
+    window.SCREENER_DB_META.stale = loadState.universeFreshnessStatus === 'stale';
   }
   if (typeof _aioApplyScreenerBreadth === 'function' && metadata.breadth) {
     loadState.breadthStatus = _aioApplyScreenerBreadth({ breadth: metadata.breadth }) ? 'verified_current' : 'blocked';
@@ -4939,6 +5086,86 @@ try {
 
 let _aioServerMacroReady = false;
 let _aioServerHyReady = false;
+
+// Server macro artifacts carry the complete official Treasury curve, but the
+// legacy/browser consumers historically only saw the Yahoo/FRED client cache.
+// Keep this projection in one place so DATA_SNAPSHOT, _fredData and the
+// per-maturity runtime variables cannot drift apart.  Values remain dated
+// observations; this helper never derives a missing maturity or spread.
+const AIO_SERVER_TREASURY_FIELDS = Object.freeze([
+  { field: 'dgs2', fredId: 'DGS2', snapshotKey: 'tnx2y', runtimeKey: '_live2Y' },
+  { field: 'dgs5', fredId: 'DGS5', snapshotKey: 'fvx', runtimeKey: '_live5Y' },
+  { field: 'dgs10', fredId: 'DGS10', snapshotKey: 'tnx', runtimeKey: '_live10Y' },
+  { field: 'dgs20', fredId: 'DGS20', snapshotKey: 'tnx20y', runtimeKey: '_live20Y' },
+  { field: 'dgs30', fredId: 'DGS30', snapshotKey: 'tyx', runtimeKey: '_live30Y' },
+  { field: 't10y2y', fredId: 'T10Y2Y', snapshotKey: 't10y2y', runtimeKey: null }
+]);
+
+function _aioApplyServerTreasuryEvidence(macro, metadata) {
+  if (!macro || !window.DATA_SNAPSHOT) return { applied: 0, fields: [] };
+  const treasury = macro._treasury && typeof macro._treasury === 'object' ? macro._treasury : {};
+  const fred = window._fredData && typeof window._fredData === 'object' ? window._fredData : {};
+  const fields = [];
+  AIO_SERVER_TREASURY_FIELDS.forEach(function(definition) {
+    const value = Number(macro[definition.field] ?? (treasury.values && treasury.values[definition.field]));
+    if (!Number.isFinite(value)) return;
+    const observedAt = macro['_asOf_' + definition.field] || treasury.observedAt || null;
+    const fetchedAt = treasury.fetchedAt || metadata?.treasuryLastSuccessfulAt || metadata?.generatedAt || null;
+    const sourceMarker = macro['_source_' + definition.field] || treasury.source || 'server-data:treasury';
+    const freshness = sourceMarker === 'last-known-good' ? 'stale-reference' : 'observed';
+    const source = sourceMarker === 'last-known-good'
+      ? (macro['_originSource_' + definition.field] || treasury.source || sourceMarker)
+      : sourceMarker;
+    const existing = fred[definition.fredId];
+    const existingMs = existing && existing.date ? Date.parse(existing.date) : NaN;
+    const observedMs = observedAt ? Date.parse(observedAt) : NaN;
+    // A client FRED observation from a later date wins.  Equal-date server
+    // evidence is preferred because it carries the official Treasury source.
+    if (existing && Number.isFinite(existingMs) && (!Number.isFinite(observedMs) || existingMs > observedMs)) return;
+    const delta = Number(macro[definition.field + 'Delta']);
+    const entry = {
+      value,
+      prevValue: Number.isFinite(delta) ? value - delta : null,
+      date: observedAt,
+      observedAt,
+      fetchedAt,
+      source,
+      sourceKind: 'official-primary',
+      allowedUse: 'reference-only',
+      freshness,
+      _source: source
+    };
+    fred[definition.fredId] = entry;
+    const snapshotKey = definition.snapshotKey;
+    window.DATA_SNAPSHOT[snapshotKey] = value;
+    window.DATA_SNAPSHOT['_' + snapshotKey + '_src'] = source;
+    window.DATA_SNAPSHOT['_' + snapshotKey + '_freshness'] = freshness;
+    window.DATA_SNAPSHOT._fieldTs = window.DATA_SNAPSHOT._fieldTs || {};
+    if (observedAt) window.DATA_SNAPSHOT._fieldTs['macro_' + definition.field] = observedAt;
+    if (definition.runtimeKey) globalThis[definition.runtimeKey] = value;
+    if (window._serverMacroEvidence) {
+      window._serverMacroEvidence[definition.field] = {
+        value,
+        observedAt,
+        fetchedAt,
+        source,
+        sourceKind: 'official-primary',
+        allowedUse: 'reference-only',
+        freshness,
+        seriesId: definition.fredId,
+        seasonalAdjustment: null,
+        status: treasury.status || 'unknown'
+      };
+    }
+    fields.push(definition.field);
+  });
+  window._fredData = fred;
+  // Reuse the existing DOM projection so legacy macro/fx-bond sinks and the
+  // native event-driven consumers observe the same dated field envelope.
+  try { if (typeof applyFredToUI === 'function') applyFredToUI(fred); } catch (_) {}
+  return { applied: fields.length, fields };
+}
+
 async function _aioLoadServerData() {
   globalThis._aioScreenerLoadState = { status:'loading', checkedAt:Date.now() };
   try {
@@ -5016,7 +5243,22 @@ async function _aioLoadServerData() {
     }
     globalThis._aioServerDataBridgeAttempts = 0;
 
-    var ageMin = d.meta.generatedAt ? Math.round((Date.now() - new Date(d.meta.generatedAt).getTime()) / 60000) : null;
+    var _serverGeneratedMs = d.meta.generatedAt ? new Date(d.meta.generatedAt).getTime() : NaN;
+    var ageMin = isFinite(_serverGeneratedMs) ? Math.round((Date.now() - _serverGeneratedMs) / 60000) : null;
+    var _marketCycleFreshnessSlaHours = Number(d.meta.marketCycleFreshnessSlaHours || 12);
+    var _liveCoreAgeHours = ageMin == null ? Infinity : ageMin / 60;
+    var _marketCoverage = d.meta.marketSnapshotCoverage || {};
+    var _marketCoverageComplete = Number(_marketCoverage.tier0Required) > 0
+      && Number(_marketCoverage.tier0Observed) === Number(_marketCoverage.tier0Required)
+      && (!Array.isArray(d.meta.failedSymbols) || d.meta.failedSymbols.length === 0);
+    var _utcDay = new Date().getUTCDay();
+    var _marketClosedGrace = (_utcDay === 0 || _utcDay === 6)
+      && d.meta.cycleStatus === 'PUBLISHED'
+      && _marketCoverageComplete;
+    var _liveCoreFresh = isFinite(_liveCoreAgeHours) && _liveCoreAgeHours >= 0 && _liveCoreAgeHours <= _marketCycleFreshnessSlaHours;
+    var _liveCoreEligible = _liveCoreFresh || _marketClosedGrace;
+    var _liveCoreStaleReason = _liveCoreEligible ? null
+      : (!isFinite(_liveCoreAgeHours) ? 'generatedAt-missing-or-invalid' : 'market-cycle-freshness-sla-exceeded');
     window._serverDataMeta = {
       generatedAt: d.meta.generatedAt,
       ageMin: ageMin,
@@ -5029,6 +5271,9 @@ async function _aioLoadServerData() {
       fredOk: !!d.meta.fredOk,
       fredFetchedKeyCount: d.meta.fredFetchedKeyCount || 0,
       fredLastSuccessfulAt: d.meta.fredLastSuccessfulAt || null,
+      treasuryStatus: d.meta.treasuryStatus || (d.macro && d.macro._treasury && d.macro._treasury.status) || 'unavailable',
+      treasuryObservedAt: d.meta.treasuryObservedAt || (d.macro && d.macro._treasury && d.macro._treasury.observedAt) || null,
+      treasuryLastSuccessfulAt: d.meta.treasuryLastSuccessfulAt || (d.macro && d.macro._treasury && d.macro._treasury.lastSuccessfulAt) || null,
       macroKeyCount: d.meta.macroKeyCount || 0,
       newsOk: !!d.meta.newsOk,
       newsCount: d.meta.newsCount || (Array.isArray(d.news) ? d.news.length : 0),
@@ -5040,7 +5285,12 @@ async function _aioLoadServerData() {
       marketSnapshotRevision: d.meta.marketSnapshotRevision || null,
       cycleId: d.meta.cycleId || null,
       cycleStatus: d.meta.cycleStatus || 'unknown',
-      marketCycleFreshnessSlaHours: Number(d.meta.marketCycleFreshnessSlaHours || 12),
+      marketCycleFreshnessSlaHours: _marketCycleFreshnessSlaHours,
+      liveCoreAgeHours: isFinite(_liveCoreAgeHours) ? _liveCoreAgeHours : null,
+      liveCoreFresh: _liveCoreFresh,
+      liveCoreEligible: _liveCoreEligible,
+      marketClosedGrace: _marketClosedGrace,
+      liveCoreStaleReason: _liveCoreStaleReason,
       cycleManifestRevision: d.meta.cycleManifestRevision || null,
       cycleComponents: d.meta.cycleComponents || null,
       putCallOk: !!d.meta.putCallOk,
@@ -5052,11 +5302,11 @@ async function _aioLoadServerData() {
       marketAnalysisOk: d.meta.marketAnalysisOk === true && d.meta.marketAnalysisSemanticOk === true,
       fmpHasKey: d.meta.fmpHasKey != null ? !!d.meta.fmpHasKey : null, // null = screener skipped이라 미확인
       fmpOk: !!d.meta.fmpOk,
-      fmpCount: d.meta.fmpCount || 0,
+      fmpCount: d.meta.fmpCount == null ? null : Number(d.meta.fmpCount),
       fmpPlanError: !!d.meta.fmpPlanError,
       secFundamentalsOk: !!d.meta.secFundamentalsOk,
-      secFundamentalsCount: d.meta.secFundamentalsCount || 0,
-      fundamentalCoveragePct: d.meta.fundamentalCoveragePct || 0,
+      secFundamentalsCount: d.meta.secFundamentalsCount == null ? null : Number(d.meta.secFundamentalsCount),
+      fundamentalCoveragePct: d.meta.fundamentalCoveragePct == null ? null : Number(d.meta.fundamentalCoveragePct),
       blsStatus: d.meta.blsStatus || (d.macro && d.macro._bls && d.macro._bls.status) || 'unavailable',
       blsSeriesCount: d.meta.blsSeriesCount || 0,
       blsFailedSeries: d.meta.blsFailedSeries || [],
@@ -5069,21 +5319,25 @@ async function _aioLoadServerData() {
       beaNextReleaseAt: d.meta.beaNextReleaseAt || (d.macro && d.macro._bea && d.macro._bea.nextReleaseAt) || null,
       reconciliation: _reconciliationState,
       loadedAt: Date.now(),
-      artifacts: { dataJson: 'ready', reconciliationStatus: _reconciliationState.status, telegramDigest: 'pending', screenerJson: 'pending' }
+      artifacts: { dataJson: _liveCoreEligible ? 'ready' : 'stale', reconciliationStatus: _reconciliationState.status, telegramDigest: 'pending', screenerJson: 'pending' }
     };
 
     // Artifact provenance is the only snapshot-level timestamp. It describes
     // the payload, not every field; per-field timestamps remain authoritative.
     if (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fieldTs && d.meta.generatedAt) {
       window.DATA_SNAPSHOT._fieldTs.serverData = d.meta.generatedAt;
-      window.DATA_SNAPSHOT._updated = d.meta.generatedAt;
-      window.DATA_SNAPSHOT._marketDataUpdated = d.meta.generatedAt;
-      window.DATA_SNAPSHOT._snapshotDate = String(d.meta.generatedAt).slice(0, 10);
-      window.DATA_SNAPSHOT._marketDataDate = window.DATA_SNAPSHOT._snapshotDate;
+      var _existingSnapshotMs = new Date(window.DATA_SNAPSHOT._updated || window.DATA_SNAPSHOT._marketDataUpdated || 0).getTime();
+      if (!isFinite(_existingSnapshotMs) || _serverGeneratedMs >= _existingSnapshotMs) {
+        window.DATA_SNAPSHOT._updated = d.meta.generatedAt;
+        window.DATA_SNAPSHOT._marketDataUpdated = d.meta.generatedAt;
+        window.DATA_SNAPSHOT._snapshotDate = String(d.meta.generatedAt).slice(0, 10);
+        window.DATA_SNAPSHOT._marketDataDate = window.DATA_SNAPSHOT._snapshotDate;
+      }
     }
 
-    // 1) 시세 → applyLiveQuotes (앱 전체 갱신 + aio:liveQuotes 발화)
-    if (Array.isArray(d.quotes) && d.quotes.length && typeof applyLiveQuotes === 'function') {
+    // 1) 시세 → freshness SLA를 통과한 market-cycle만 live quote plane에 승격.
+    // Stale data.json remains available as dated reference evidence below.
+    if (_liveCoreEligible && Array.isArray(d.quotes) && d.quotes.length && typeof applyLiveQuotes === 'function') {
       applyLiveQuotes(d.quotes);
     }
     // 2) 매크로 → DATA_SNAPSHOT (FRED 서버값, 채팅/macro 페이지가 소비)
@@ -5095,8 +5349,12 @@ async function _aioLoadServerData() {
       // v51.97/Phase 2 [B2]: housingStarts/retailSales/usWageGrowth 서버 FRED 자동화 편입.
       // consConf(Conf. Board)는 제외 유지 — FRED엔 해당 시리즈가 없고, UMCSENT(미시간대)는
       // 별개 지표라 혼입 금지(P593).
-      ['cpi','coreCpi','pce','corePce','fedRate','unemployment','nfp','housingStarts','retailSales','usWageGrowth'].forEach(function(k){
-        if (typeof d.macro[k] === 'number' && isFinite(d.macro[k])) {
+      ['cpi','coreCpi','cpiSa','coreCpiSa','pce','corePce','fedRate','unemployment','nfp','housingStarts','retailSales','usWageGrowth','dgs2','dgs5','dgs10','dgs20','dgs30','t10y2y'].forEach(function(k){
+        var _blsCanonicalCpi = d.macro._bls && d.macro._bls.series && d.macro._bls.series[k];
+        var _canonicalCpiDefinitionBlocked = (k === 'cpi' || k === 'coreCpi')
+          && _blsCanonicalCpi
+          && String(_blsCanonicalCpi.seasonalAdjustment || '').toUpperCase() !== 'NSA';
+        if (!_canonicalCpiDefinitionBlocked && typeof d.macro[k] === 'number' && isFinite(d.macro[k])) {
           window.DATA_SNAPSHOT[k] = d.macro[k];
           var _macroSource = d.macro['_' + 'source_' + k]
             || ((k === 'pce' || k === 'corePce') && d.macro._bea && d.macro._bea.status === 'ok' ? 'bea-official-primary' : null)
@@ -5128,33 +5386,38 @@ async function _aioLoadServerData() {
       // derive OAS from HYG's dollar price (duration-contaminated proxy).
       if (typeof d.macro.hyOAS === 'number' && isFinite(d.macro.hyOAS)) {
         var _serverHySpreadBp = Math.round(d.macro.hyOAS * 100);
+        var _serverHySource = d.macro._source_hyOAS || 'last-known-good';
+        var _serverHyOfficial = _serverHySource === 'fred-official-public-csv' || _serverHySource === 'fred-official-primary';
+        var _serverHyEvidence = {
+          value: d.macro.hyOAS,
+          valueBp: _serverHySpreadBp,
+          observedAt: d.macro._asOf_hyOAS || null,
+          fetchedAt: _serverHyOfficial ? d.meta.generatedAt || null : null,
+          source: _serverHySource,
+          sourceKind: _serverHyOfficial ? 'official-primary' : 'snapshot',
+          allowedUse: _serverHyOfficial ? 'reference-until-freshness-gate' : 'reference'
+        };
         Object.assign(window, {
           _hySpreadBp: _serverHySpreadBp,
           _hySpreadDate: d.macro._asOf_hyOAS || null,
-          _hySpreadSource: 'github-actions:FRED'
+          _hySpreadSource: _serverHySource
         });
         Object.assign(window.DATA_SNAPSHOT, {
           hyOAS: d.macro.hyOAS,
           hySpread: _serverHySpreadBp,
-          _hySpreadSource: 'fred-server-artifact'
+          _hySpreadSource: _serverHySource
         });
-        if (window.DATA_SNAPSHOT._fieldTs) window.DATA_SNAPSHOT._fieldTs.hySpread = d.meta.generatedAt || new Date().toISOString();
-        if (window._serverDataMeta) window._serverDataMeta.hyOAS = {
-          value: d.macro.hyOAS,
-          valueBp: _serverHySpreadBp,
-          observedAt: d.macro._asOf_hyOAS || null,
-          fetchedAt: d.meta.generatedAt || null,
-          source: 'FRED BAMLH0A0HYM2 via GitHub Actions',
-          sourceKind: 'official-series',
-          allowedUse: 'reference-until-freshness-gate'
-        };
+        if (window.DATA_SNAPSHOT._fieldTs && d.macro._asOf_hyOAS) window.DATA_SNAPSHOT._fieldTs.hySpread = d.macro._asOf_hyOAS;
+        window._serverMacroEvidence.hyOAS = _serverHyEvidence;
+        if (window._serverDataMeta) window._serverDataMeta.hyOAS = _serverHyEvidence;
         try {
           if (window.AIO_ARCH && typeof window.AIO_ARCH.ingestSentiment === 'function') {
             window.AIO_ARCH.ingestSentiment({
               hySpread: _serverHySpreadBp,
-              hySpreadSourceKind: 'delayed',
-              hySpreadSource: 'github-actions:FRED',
+              hySpreadSourceKind: _serverHyOfficial ? 'delayed' : 'snapshot',
+              hySpreadSource: _serverHySource,
               hySpreadDate: d.macro._asOf_hyOAS || d.meta.generatedAt || null,
+              hySpreadAllowedUse: _serverHyOfficial ? 'reference' : 'reference',
               now: new Date().toISOString()
             });
           }
@@ -5202,6 +5465,45 @@ async function _aioLoadServerData() {
         if (window.DATA_SNAPSHOT._fieldTs && (_blsEvidence.lastSuccessfulAt || _blsEvidence.fetchedAt)) {
           window.DATA_SNAPSHOT._fieldTs.macro_bls = _blsEvidence.lastSuccessfulAt || _blsEvidence.fetchedAt;
         }
+      }
+      // BLS headline/core CPI fields are canonical only when the typed series
+      // explicitly says NSA.  The SA companions remain namespaced and visible
+      // for analysis; they never overwrite the market-standard slots.
+      var _blsCpiPromotions = [
+        { metricId: 'cpi', valueKey: 'blsCpiYoY', snapshotKey: 'cpi', saMetricId: 'cpiSa', saValueKey: 'blsCpiSaYoY', saSnapshotKey: 'cpiSa' },
+        { metricId: 'coreCpi', valueKey: 'blsCoreCpiYoY', snapshotKey: 'coreCpi', saMetricId: 'coreCpiSa', saValueKey: 'blsCoreCpiSaYoY', saSnapshotKey: 'coreCpiSa' }
+      ];
+      _blsCpiPromotions.forEach(function(definition) {
+        var standard = _blsEvidence && _blsEvidence.series && _blsEvidence.series[definition.metricId];
+        var standardValue = _blsEvidence && _blsEvidence.values ? Number(_blsEvidence.values[definition.valueKey]) : NaN;
+        if (standard && standard.status === 'ok' && String(standard.seasonalAdjustment || '').toUpperCase() === 'NSA' && isFinite(standardValue)) {
+          window.DATA_SNAPSHOT[definition.snapshotKey] = standardValue;
+          window.DATA_SNAPSHOT['_' + definition.snapshotKey + '_src'] = standard.source || 'bls-official-primary';
+          window.DATA_SNAPSHOT['_' + definition.snapshotKey + '_definition'] = standard.definition || 'BLS CPI-U NSA';
+          if (window.DATA_SNAPSHOT._fieldTs && standard.observedAt) window.DATA_SNAPSHOT._fieldTs['macro_' + definition.snapshotKey] = standard.observedAt;
+          if (window._serverMacroEvidence) window._serverMacroEvidence[definition.snapshotKey] = Object.assign({}, window._serverMacroEvidence[definition.snapshotKey] || {}, {
+            value: standardValue,
+            observedAt: standard.observedAt || null,
+            source: standard.source || 'BLS Public Data API v1',
+            sourceKind: standard.sourceKind || 'official-primary',
+            seasonalAdjustment: 'NSA',
+            definition: standard.definition || null,
+            allowedUse: standard.allowedUse || 'macro-evidence-with-observation-date'
+          });
+        }
+        var sa = _blsEvidence && _blsEvidence.series && _blsEvidence.series[definition.saMetricId];
+        var saValue = _blsEvidence && _blsEvidence.values ? Number(_blsEvidence.values[definition.saValueKey]) : NaN;
+        if (sa && sa.status === 'ok' && String(sa.seasonalAdjustment || '').toUpperCase() === 'SA' && isFinite(saValue)) {
+          window.DATA_SNAPSHOT[definition.saSnapshotKey] = saValue;
+          window.DATA_SNAPSHOT['_' + definition.saSnapshotKey + '_src'] = sa.source || 'bls-official-primary';
+          window.DATA_SNAPSHOT['_' + definition.saSnapshotKey + '_definition'] = sa.definition || 'BLS CPI-U SA analytical companion';
+          if (window.DATA_SNAPSHOT._fieldTs && sa.observedAt) window.DATA_SNAPSHOT._fieldTs['macro_' + definition.saSnapshotKey] = sa.observedAt;
+        }
+      });
+      var _serverTreasuryProjection = _aioApplyServerTreasuryEvidence(d.macro, window._serverDataMeta);
+      if (window._serverDataMeta) {
+        window._serverDataMeta.treasury = d.macro._treasury || null;
+        window._serverDataMeta.treasuryProjectedFields = _serverTreasuryProjection.fields;
       }
       if (_beaEvidence && _beaEvidence.status === 'ok' && window.DATA_SNAPSHOT._fieldTs && (_beaEvidence.releasedAt || _beaEvidence.lastSuccessfulAt)) {
         window.DATA_SNAPSHOT._fieldTs.macro_bea = _beaEvidence.releasedAt || _beaEvidence.lastSuccessfulAt;
@@ -5608,7 +5910,7 @@ window._aioRenderDataFreshness = _aioRenderDataFreshness;
 // v51.66: 수동 유지 _fieldTs 필드 staleness 경고 — >7일 경과 시 콘솔 warn + 배너 pill
 // 중앙은행 금리/매크로 정책 날짜는 자동 갱신 불가 — 운영자가 직접 aio-core.js에서 업데이트해야 함
 var _MANUAL_FIELDTS_LABELS = {
-  fed_rate:        'Fed 기준금리',
+  fed_rate:        'Fed 연방기금금리 월평균',
   boj_rate:        'BOJ 정책금리',
   bok_rate:        'BOK 기준금리',
   boe_rate:        'BOE 정책금리',
@@ -5742,15 +6044,26 @@ function _aioRenderOperatorNote() {
   var staleInfo = (typeof window._aioStaleDaysLabel === 'function')
     ? window._aioStaleDaysLabel(note.updated, { warnDays: 3, staleDays: 7 })
     : { text: '', color: 'var(--text-muted)' };
+  var noteIsHardStale = staleInfo && staleInfo.days != null && staleInfo.days > 7;
   var staleHtml = staleInfo.text
     ? ' <span class="aio-operator-note-stale-days" id="home-operator-note-stale-days" style="color:' + staleInfo.color + ';font-weight:600;">' + _esc(staleInfo.text) + '</span>'
     : '';
+  var staleBoundaryHtml = noteIsHardStale
+    ? '<div class="aio-operator-note-stale-boundary" data-source-kind="REFERENCE" data-operational-use="reference-only" style="margin:8px 0;padding:6px 8px;border-left:3px solid var(--data-amber);background:rgba(160,106,18,0.08);color:var(--data-amber);font-size:11px;line-height:1.5;font-weight:700;">오래된 참고 메모 · 현재 시장 판단에 사용하지 않음 · 최신 데이터와 공식 원문을 우선 확인하세요.</div>'
+    : '';
+  var noteHasSource = !!(note.source || note.sourceUrl);
+  var noteHasObservation = !!(note.observedAt || note.releaseAt || note.updated);
+  var provenanceBoundaryHtml = (!noteHasSource || !noteHasObservation)
+    ? '<div class="aio-operator-note-provenance-boundary" data-source-kind="REFERENCE" data-operational-use="reference-only" style="margin:8px 0;padding:6px 8px;border-left:3px solid var(--data-amber);background:rgba(160,106,18,0.06);color:var(--data-amber);font-size:11px;line-height:1.5;font-weight:700;">근거 출처 또는 관측시각 미제공 · 참고 전용 · 현재 판단에 사용하지 않음</div>'
+    : '';
   el.innerHTML =
-    '<div class="aio-operator-note-card aio-operator-note-priority">' +
+    '<div class="aio-operator-note-card aio-operator-note-priority" data-source-kind="REFERENCE" data-operational-use="reference-only" data-stale-state="' + (noteIsHardStale ? 'stale' : 'current') + '">' +
       '<div class="aio-operator-note-meta">' +
         '<span class="aio-operator-note-kicker">운영자 노트</span>' +
         '<span class="aio-operator-note-date">' + _esc(note.updated || '') + '</span>' + staleHtml +
       '</div>' +
+      staleBoundaryHtml +
+      provenanceBoundaryHtml +
       '<div class="aio-operator-note-title">' + _esc(note.title || '') + '</div>' +
       (leadText ? '<div class="aio-operator-note-lead">' + _esc(leadText) + '</div>' : '') +
       (restText
@@ -5938,9 +6251,15 @@ function _aioRenderPipelineStatus() {
     if (meta.marketAnalysisOk === false) {
       msgs.push({ icon: '🤖', text: 'AI 시장 분석 비활성', detail: 'GitHub Secrets → ANTHROPIC_API_KEY 등록 시 자동 활성화', color: '#f59e0b' });
     }
-    if (meta.fmpHasKey && meta.fmpOk === false && Number(meta.fundamentalCoveragePct || 0) < 80) {
-      var fmpDetail = '유료 FMP는 사용하지 않음 · 무료 SEC companyfacts 누적 커버리지 ' + Number(meta.fundamentalCoveragePct || 0).toFixed(1) + '%';
+    if (meta.fmpHasKey && meta.fmpOk === false && (meta.fundamentalCoveragePct == null || Number(meta.fundamentalCoveragePct) < 80)) {
+      var coverageValue = meta.fundamentalCoveragePct == null ? null : Number(meta.fundamentalCoveragePct);
+      var coverageLabel = isFinite(coverageValue) ? coverageValue.toFixed(1) + '%' : '미확인';
+      var fmpDetail = '유료 FMP는 사용하지 않음 · 무료 SEC companyfacts 누적 커버리지 ' + coverageLabel;
       msgs.push({ icon: '📊', text: '재무 팩터 축소 모드', detail: fmpDetail, color: '#ef4444' });
+    }
+    var screenerUniverse = window._aioServerScreener || {};
+    if (screenerUniverse.universeFreshnessStatus === 'stale') {
+      msgs.push({ icon: '!', text: '스크리너 종목 유니버스 갱신 필요', detail: '팩터 파일과 종목 식별 유니버스의 기준일이 다릅니다. 현재 결과는 연구용 부분 상태입니다.', color: '#f59e0b' });
     }
     if (!meta.fredHasKey) {
       msgs.push({ icon: '🏦', text: 'FRED 매크로 서버갱신 비활성', detail: 'GitHub Secrets → FRED_API_KEY 등록 시 자동 활성화 (클라이언트 키로 대체 가능)', color: '#94a3b8' });
@@ -5981,10 +6300,14 @@ function _aioRenderPipelineStatus() {
     if (scrFmpEl && meta.fmpHasKey != null) {
       if (meta.fmpHasKey && meta.fmpOk === false) {
         scrFmpEl.style.display = 'inline-flex';
-        if (scrFmpReason) scrFmpReason.textContent = '유료 플랜 미사용 · 무료 SEC companyfacts ' + Number(meta.fundamentalCoveragePct || 0).toFixed(1) + '% 누적';
+        var inlineCoverage = meta.fundamentalCoveragePct == null ? '미확인' : (isFinite(Number(meta.fundamentalCoveragePct)) ? Number(meta.fundamentalCoveragePct).toFixed(1) + '%' : '미확인');
+        if (scrFmpReason) scrFmpReason.textContent = '유료 플랜 미사용 · 무료 SEC companyfacts ' + inlineCoverage + ' 누적';
       } else if (!meta.fmpHasKey) {
         scrFmpEl.style.display = 'inline-flex';
-        if (scrFmpReason) scrFmpReason.textContent = Number(meta.fundamentalCoveragePct || 0) >= 80 ? '무료 SEC 재무 팩터 사용' : '무료 SEC 재무 데이터 누적 중 (가격 팩터 모드)';
+        if (scrFmpReason) {
+          var noKeyCoverage = meta.fundamentalCoveragePct == null ? null : Number(meta.fundamentalCoveragePct);
+          scrFmpReason.textContent = isFinite(noKeyCoverage) ? (noKeyCoverage >= 80 ? '무료 SEC 재무 팩터 사용' : '무료 SEC 재무 데이터 누적 중 (가격 팩터 모드)') : '무료 SEC 재무 커버리지 미확인 (가격 팩터 모드)';
+        }
       } else {
         scrFmpEl.style.display = 'none';
       }
@@ -7031,7 +7354,20 @@ const MACRO_KW = [
   'AI infrastructure broadening','market broadening','KOSPI positioning','KOSPI deleveraging',
   'Texas data center queue','Texas water stress','interconnection queue 474GW','temporary Hormuz safe route',
   'US-Japan FX intervention','DXY long unwind','credit deleveraging','single-name leverage unwind',
+  // v54.44 (integrate 2026-08-22): user-supplied funding-supply and volatility transmission frame.
+  'term premium','Treasury buyback','Treasury issuance','corporate bond issuance','corporate issuance',
+  'long-end supply demand','AI capex financing','dealer gamma','negative gamma','options expiry','VIX expiry',
+  'all-asset deleveraging','China credit impulse','China fixed asset investment','국채 발행 공급','기업채 발행',
+  '기간 프리미엄','딜러 감마','옵션 만기','전 자산 디레버리징','중국 신용','AI 자본순환',
+  'PCE GDP','GDP second estimate','Jackson Hole','Fed path','month-end rebalancing','passive rebalancing',
+  'shareholder return','buyback cancellation','DRAM short squeeze','Korea leverage','central bank UST selling',
+  '주주환원','자사주 소각','월말 리밸런싱','DRAM 숏스퀴즈','한국 레버리지','중앙은행 국채 매도',
 ];
+SCREENER_DB_META.recordCount = SCREENER_DB.length;
+SCREENER_DB_META.uniqueSymbols = new Set(SCREENER_DB.map(function(row) { return row && row.sym; }).filter(Boolean)).size;
+SCREENER_DB_META.duplicateSymbols = Math.max(0, SCREENER_DB_META.recordCount - SCREENER_DB_META.uniqueSymbols);
+SCREENER_DB_META.stale = !SCREENER_DB_META.lastBulkUpdate || (Date.now() - new Date(SCREENER_DB_META.lastBulkUpdate + 'T00:00:00Z').getTime()) > (SCREENER_DB_META.staleAfterDays * 86400000);
+SCREENER_DB_META.currentness = SCREENER_DB_META.stale ? 'STALE' : 'CURRENT';
 // TECH_KW: 기술/AI 주요 이벤트 → 섹터 관련 (+15점)
 const TECH_KW = [
   'AI chip','H100','H200','Blackwell','Rubin','Rubin Ultra','Feynman','HBM','HBM4','CoWoS',
@@ -7755,6 +8091,12 @@ const MED_KW = [
   'PCIe 6.0 NAND','UFS 5.0 NAND','Qwen3.8-Max','TPU v9','HBM4 test equipment',
   'Korea semiconductor power 6.3GW','industrial water 650kt/day','foldable smartphone demand',
   'AI inference token intensity','memory LTA 3-5 year','CoPoS panel packaging',
+  // v54.44 (integrate 2026-08-22): inference-efficiency and AI-deal-map reference terms.
+  'inference efficiency','memory wall','tokens per watt','decode memory bound','prefill decode',
+  'SRAM','on-chip memory','transformer specialized','low batch inference','AI deal loop',
+  'Cerebras','Groq','Etched','Frozen v2','Frozen v2 hardware','Mistral','Figure AI',
+  'OpenAI deals','Anthropic deals','model lab','neocloud workload','KV cache','decode latency',
+  '추론 효율','메모리 벽','토큰당 전력','온칩 메모리','트랜스포머 특화','저배치 추론','AI 거래 순환',
 ];
 // ANALYST_KW: 개별 종목 analyst rating → 홈 노출 페널티 (-20점)
 const ANALYST_KW = [
@@ -10141,8 +10483,20 @@ window.AIO.getNewsTranslationQualityAudit = function(items) {
   audit.ok = audit.checked === 0 || (audit.koSummary >= Math.min(10, audit.checked) && audit.koExplain >= Math.min(10, audit.checked));
   return audit;
 };
+// Primary macro/geo/rates stories describe market conditions rather than a
+// single issuable security. Suppressing inferred ticker badges on these rows
+// prevents an ETF/company mention from being presented as an actionable entity
+// link in the native and legacy news surfaces alike.
+var _AIO_NEWS_TICKER_SUPPRESS_TOPICS = new Set([
+  'macro','geopolitics','policy','fed','rates','trade','geo','bond','credit','fx','fxbond'
+]);
+function _aioSuppressNewsTickers(item) {
+  return _AIO_NEWS_TICKER_SUPPRESS_TOPICS.has(String(item?.topic || '').trim().toLowerCase());
+}
+
 /* v27.2: 캐시된 티커 ($ 포함) 반환 — v27.4: 빈 배열 캐시 충돌 수정 */
 function getDisplayTickers(item) {
+  if (_aioSuppressNewsTickers(item)) return [];
   // v27.4 근본 개편: API 결과 + 로컬 추출을 항상 합침 (풀리지 않는 구조)
   const merged = new Set();
 
@@ -10515,6 +10869,10 @@ function _aioNewsVerificationStatus(item, ageHours, contract) {
   if (stale) return 'stale';
   if (unverified) return 'unverified';
   if (tg || tier >= 4) return 'secondary-only';
+  // A reputable publisher authenticates the source, not an absent article body.
+  // Headline-only RSS rows remain useful for discovery but cannot become verified
+  // narrative/causal evidence or an AI-summary input without an excerpt/summary.
+  if (String(item && item.contentDepth || '').toLowerCase() === 'headline-only') return 'headline-only';
   if (tier <= 2) return 'verified-current';
   return 'current';
 }
@@ -10578,12 +10936,15 @@ function _aioNormalizeNewsItem(surfaceId, item, contract, nowMs, cycleWindow) {
   row.score = Number(row.score || 0);
   row.topic = row.topic || 'general';
   row.tickers = Array.isArray(tickers) ? tickers : [];
+  var bodyText = String(row.summary || row.desc || row.description || '').trim();
+  row.contentDepth = row.contentDepth || (bodyText.length >= 40 ? 'summary' : 'headline-only');
   row.sourceTier = _aioNewsSourceTier(row);
   row.verificationStatus = _aioNewsVerificationStatus(row, statusAgeHours, contract);
   row.staleStatus = row.verificationStatus === 'stale' ? 'stale' : 'current-window';
   row.sourcePolicy = surfaceId === 'briefing' ? contract.aiPolicy : 'surface-contract';
   row.inclusionReason = _aioNewsInclusionReason(row, surfaceId);
-  row.eligibleForAi = row.verificationStatus === 'verified-current' || (row.verificationStatus === 'current' && row.sourceTier <= 2);
+  row.eligibleForAi = row.contentDepth !== 'headline-only'
+    && (row.verificationStatus === 'verified-current' || (row.verificationStatus === 'current' && row.sourceTier <= 2));
   return row;
 }
 
@@ -10812,7 +11173,7 @@ function renderHomeFeed(items) {
         var displayTitle = escHtml(getDisplayTitle(item));
         var displaySummary = escHtml(getDisplaySummary(item));
         var summaryLine = displaySummary ? '<div style="font-size:10px;color:var(--text-secondary);margin-top:1px;line-height:1.35;">' + displaySummary + '</div>' : '';
-        var hMacroTopics = ['macro','geopolitics','policy','fed','rates','trade','geo','bond','fx'];
+      var hMacroTopics = ['macro','geopolitics','policy','fed','rates','trade','geo','bond','credit','fx','fxbond'];
         var tickers = hMacroTopics.indexOf(item.topic) === -1 ? getDisplayTickers(item) : [];
         var tickerStr = tickers.length > 0
           ? tickers.slice(0,2).map(function(t) { var s = t.replace('$',''); return '<span data-action="_aioNewsTickerClick" data-arg="' + escHtml(s) + '" role="button" tabindex="0" style="font-size:11px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);cursor:pointer;" title="' + escHtml(s) + ' 분석">' + escHtml(t.charAt(0) === '$' ? t : '$' + t) + '</span>'; }).join(' ') + ' '
@@ -15158,10 +15519,14 @@ function toggleSignalMode(mode) {
   if (mode === 'swing') {
     if (swBtn) { swBtn.classList.add('primary'); swBtn.style.background='var(--text-primary)'; swBtn.style.color='var(--bg-base)'; }
     if (dyBtn) { dyBtn.classList.remove('primary'); dyBtn.style.background='transparent'; dyBtn.style.color='var(--text-muted)'; }
+    if (swBtn) swBtn.setAttribute('aria-pressed', 'true');
+    if (dyBtn) dyBtn.setAttribute('aria-pressed', 'false');
     if (desc)  desc.textContent = '스윙 트레이딩 모드 · 임계값 60점 · 자동 갱신 45초';
   } else {
     if (dyBtn) { dyBtn.classList.add('primary'); dyBtn.style.background='var(--text-primary)'; dyBtn.style.color='var(--bg-base)'; }
     if (swBtn) { swBtn.classList.remove('primary'); swBtn.style.background='transparent'; swBtn.style.color='var(--text-muted)'; }
+    if (dyBtn) dyBtn.setAttribute('aria-pressed', 'true');
+    if (swBtn) swBtn.setAttribute('aria-pressed', 'false');
     if (desc)  desc.textContent = '데이 트레이딩 모드 · 임계값 65점 (더 엄격) · 자동 갱신 45초';
   }
 }
@@ -15499,14 +15864,17 @@ function _applyFearGreedScore(opts) {
   var sourceKind = opts.sourceKind || 'unavailable';  // live | proxy | snapshot | unavailable
   var sourceLabel= opts.sourceLabel || 'cnn-fear-greed';
   var sourceTs   = opts.sourceTs || ((sourceKind === 'snapshot' || sourceKind === 'delayed') && typeof DATA_SNAPSHOT !== 'undefined' ? (DATA_SNAPSHOT._updated || DATA_SNAPSHOT._snapshotDate) : null) || new Date().toISOString();
-  var operationalUse = opts.operationalUse || (sourceKind === 'live' ? 'decision' : sourceKind === 'proxy' ? 'decision' : 'reference-only');
+  // CNN public-web observations may be current enough to display, but the
+  // source registry caps them at reference use until licensed rights exist.
+  var operationalUse = 'reference-only';
   // H3-A canonical provenance: DOM lineage and decision engine read the same envelope.
   if (score != null && isFinite(score)) {
     var _fgTsNum = typeof sourceTs === 'number' && sourceTs < 100000000000 ? sourceTs * 1000 : new Date(sourceTs).getTime();
     window._lastFGMeta = {
       value: Number(score), source: sourceLabel, sourceKind: sourceKind, sourceLabel: sourceLabel,
       sourceTs: sourceTs, asOf: sourceTs, fetchedAt: (sourceKind === 'live' || sourceKind === 'proxy') ? Date.now() : null,
-      freshnessClock: sourceKind === 'delayed' ? 'observation' : 'fetch', normalizedSourceTs: isFinite(_fgTsNum) ? _fgTsNum : null
+      freshnessClock: sourceKind === 'delayed' ? 'observation' : 'fetch', normalizedSourceTs: isFinite(_fgTsNum) ? _fgTsNum : null,
+      operationalUse: operationalUse, allowedUse: 'reference', allowedUseCeiling: 'reference'
     };
   }
   if (score != null && isFinite(score)) {
@@ -15518,6 +15886,8 @@ function _applyFearGreedScore(opts) {
           fearGreedSourceKind: sourceKind,
           fearGreedSource: sourceLabel,
           fearGreedObservedAt: sourceTs,
+          fearGreedAllowedUse: 'reference',
+          fearGreedAllowedUseCeiling: 'reference',
           now: new Date().toISOString()
         });
       }
@@ -15555,7 +15925,7 @@ async function fetchFearGreed() {
       }
     } catch(subErr) { /* 서브컴포넌트는 옵셔널 — 실패해도 메인 score 갱신은 성공 */ }
     // v49.64 P334: 단일 helper로 sink + lineage 메타 일괄 적용 (live 경로)
-    _applyFearGreedScore({ score: score, sourceKind: 'live', sourceLabel: 'cnn-fear-greed-api', sourceTs: fg.timestamp || data.timestamp || new Date().toISOString(), operationalUse: 'decision' });
+    _applyFearGreedScore({ score: score, sourceKind: 'live', sourceLabel: 'cnn-fear-greed-api', sourceTs: fg.timestamp || data.timestamp || new Date().toISOString(), operationalUse: 'reference-only' });
     return true;
   } catch(e) {
     // Try CORS proxy
@@ -15570,7 +15940,7 @@ async function fetchFearGreed() {
         const score2 = Math.round(fg2.score);
         _aioRenderLiveFearGreedDelta(score2, fg2.previous_close);
         // v49.64 P334: helper 통합 (proxy 경로)
-        _applyFearGreedScore({ score: score2, sourceKind: 'proxy', sourceLabel: 'cnn-fear-greed-proxy', sourceTs: fg2.timestamp || data2.timestamp || new Date().toISOString(), operationalUse: 'decision' });
+        _applyFearGreedScore({ score: score2, sourceKind: 'proxy', sourceLabel: 'cnn-fear-greed-proxy', sourceTs: fg2.timestamp || data2.timestamp || new Date().toISOString(), operationalUse: 'reference-only' });
       }
       // v37.8: 심리 복합 분석 갱신
       if (typeof _generateSentimentAnalysis === 'function') setTimeout(_generateSentimentAnalysis, 200);

@@ -57,7 +57,7 @@ try {
   requests = [];
   await page.locator('#page-masters [data-masters-action="select-manager"][data-masters-value="fisher-asset-management"]').click();
   await page.waitForFunction(() => document.querySelector('#page-masters .masters-filing-artifact')?.textContent.includes('0000850529'));
-  const mastersSelection = await summarize(requests, (path) => path.startsWith('/public-data/masters/managers/'));
+  const mastersSelection = await summarize(requests, (path) => path.startsWith('/public-data/objects/masters/'));
   if (mastersSelection.paths.length) throw new Error(`Masters profile selection loaded a full manager shard: ${JSON.stringify(mastersSelection.paths)}`);
   requests = [];
   await page.locator('#page-masters [data-masters-action="view"][data-masters-value="ownership"]').click();
@@ -78,8 +78,8 @@ try {
   requests = [];
   await page.locator('#page-masters [data-masters-action="view"][data-masters-value="holdings"]').click();
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersSelectedShard === 'connected');
-  const mastersFullRows = await summarize(requests, (path) => path.startsWith('/public-data/masters/managers/'));
-  if (mastersFullRows.paths.length !== 1 || mastersFullRows.bytes > 200_000) throw new Error(`Masters explicit full-row view contract failed: ${JSON.stringify(mastersFullRows)}`);
+  const mastersFullRows = await summarize(requests, (path) => path.startsWith('/public-data/objects/masters/'));
+  if (mastersFullRows.paths.length !== 1 || !/\/public-data\/objects\/masters\/[a-f0-9]{64}\.json$/.test(mastersFullRows.paths[0]) || mastersFullRows.bytes > 512 * 1024) throw new Error(`Masters bounded content-addressed projection contract failed: ${JSON.stringify(mastersFullRows)}`);
   requests = [];
   await page.locator('#page-masters [data-masters-action="view"][data-masters-value="quarters"]').click();
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersHistoryRows === 'connected');

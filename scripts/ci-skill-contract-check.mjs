@@ -47,6 +47,9 @@ check('skill directory is .claude/skills', exists('.claude/skills'));
 check('shared operating contract exists', exists('.claude/skills/_shared/operating-contract.md'));
 check('command directory exists', exists('.claude/commands'));
 check('agent mirror sync script exists', exists('scripts/sync-agent-skills.mjs'));
+check('generated current state exists', exists('_context/CURRENT-STATE.md'));
+check('skill eval fixture exists', exists('architecture/skill-eval-cases.json'));
+check('skill eval fixture gate exists', exists('scripts/ci-skill-eval-fixture-check.mjs'));
 
 for (const skill of skills) {
   const skillPath = `.claude/skills/${skill}/SKILL.md`;
@@ -62,6 +65,7 @@ for (const skill of skills) {
   check(`skill has no frozen contract version: ${skill}`, !/AIO Skill Operating Contract v\d/.test(text));
   check(`skill links workflow governance: ${skill}`, /_context\/WORKFLOW-GOVERNANCE\.md/.test(text));
   check(`skill links context index: ${skill}`, /_context\/INDEX\.md/.test(text));
+  check(`skill links generated current state: ${skill}`, /_context\/CURRENT-STATE\.md/.test(text));
   check(`skill links shared contract: ${skill}`, /\.claude\/skills\/_shared\/operating-contract\.md/.test(text));
   check(`skill uses R1 7-surface wording: ${skill}`, /R1 7/.test(text) || /7 surfaces/.test(text));
   check(`skill mentions skill contract gate: ${skill}`, /ci-skill-contract-check\.mjs/.test(text));
@@ -104,6 +108,13 @@ const index = read('_context/INDEX.md');
 check('workflow governance documents skill matrix', /AIO Skill Matrix/.test(workflow));
 check('workflow governance points to .claude/skills', /\.claude\/skills/.test(workflow) || /\.claude\\skills/.test(workflow));
 check('context index points to .claude/skills', /\.claude\/skills/.test(index) || /\.claude\\skills/.test(index));
+check('workflow governance separates deterministic fixtures from behavioral runs', /fixture PASS is not behavioral-model PASS|fixture.*behavioral/i.test(workflow));
+check('context index routes through generated current state', /CURRENT-STATE\.md/.test(index));
+
+const evalCases = JSON.parse(read('architecture/skill-eval-cases.json'));
+for (const skill of skills) {
+  check(`skill has at least three stable eval task prompts: ${skill}`, Array.isArray(evalCases.skills?.[skill]) && evalCases.skills[skill].length >= 3);
+}
 
 const evalGuide = read('.claude/skills/autoresearch/references/eval-guide.md');
 check('eval guide encoding sentinel is intact', /Eval Guide \(AIO 스킬용\)/.test(evalGuide));

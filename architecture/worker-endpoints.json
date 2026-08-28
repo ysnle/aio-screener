@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "worker-endpoints-v1",
+  "schemaVersion": "worker-endpoints-v2",
   "fastQuotes": {
     "name": "aio-screener-data-plane",
     "baseUrl": "https://aio-screener-data-plane.zmfhd007.workers.dev",
@@ -14,7 +14,7 @@
     "baseUrl": "https://aio-proxy.zmfhd007.workers.dev",
     "healthPath": "/health",
     "role": "cors-proxy-and-optional-anthropic-route",
-    "readiness": "configured-healthy"
+    "readiness": "verify-at-runtime"
   },
   "security": {
     "secretsStayOutOfRepo": true,
@@ -38,24 +38,5 @@
       "productionOrigins": ["https://ysnle.github.io"],
       "developmentOrigins": "explicit exact http://localhost:<port> or http://127.0.0.1:<port> values in AIO_DEV_ORIGINS"
     }
-  },
-  "evidence": {
-    "fastHealthObserved": "2026-07-30T01:40:48.507Z",
-    "fastHealthStatus": 200,
-    "fastCoverage": "16/16",
-    "fastRevision": "fast-quotes:2026-07-30T01:45:48.508Z:1c4c64c3",
-    "fastSoak": "0/7-days",
-    "proxyHealthPathObserved": 200,
-    "proxyHealthObserved": "2026-08-11T13:27:34.150Z",
-    "proxyHealthRevision": "v54.5",
-    "proxyAiConfigured": true,
-    "proxyQuotaConfigured": true,
-    "proxyAuthorityReady": true,
-    "proxyAuthorityJurisdiction": "us",
-    "proxyAiReady": true,
-    "proxyProviderSmokeStatus": 200,
-    "proxyProviderSmokeObserved": "2026-08-11T13:25:15.000Z",
-    "proxyProviderSmokeRevision": "v54.5",
-    "proxyHealthNote": "Deploy run 31495812010 passed deep health, CORS/origin checks, and provider smoke. A Korean-origin follow-up returned v54.5 health 200, authorityJurisdiction us, Anthropic 200/OK, and X-AIO-Upstream-Authority durable-object-us."
   }
 }

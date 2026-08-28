@@ -1,6 +1,6 @@
 ---
 verified_by: agent
-last_verified: 2026-06-19
+last_verified: 2026-08-23
 confidence: high
 auto_refresh: true
 target_version: version.json
@@ -31,14 +31,18 @@ observe failure -> identify pattern -> change code or workflow -> add binary gat
 Before changing code, data, docs, or skills:
 
 1. Identify the active workspace or worktree with `git status --short` and read `version.json`.
-2. Read `AGENTS.md`, `_context/INDEX.md`, and this document.
-3. Read the relevant skill `SKILL.md` completely when a task matches a skill.
-4. Read the latest relevant entries:
-   - bugs: `_context/BUG-POSTMORTEM.md` recent matching P entries
-   - process/rules: `_context/RULES.md`
-   - QA: `_context/QA-CHECKLIST.md`
-   - recent product changes: `CHANGELOG.md` latest 5 entries
-5. State the current assumption when the root checkout and active worktree differ.
+2. Capture a task boundary before editing: `node scripts/qa-runner.mjs session-start --session <task-id>`. If work already began, maintain an exact task-owned file list for `affected --files` instead of using the entire dirty tree.
+3. Read `AGENTS.md`, `_context/CURRENT-STATE.md`, `_context/INDEX.md`, and this document.
+4. Read the relevant skill `SKILL.md` completely when a task matches a skill.
+5. Search only the latest relevant entries in the large ledgers:
+   - bugs: matching symptoms/functions and recent P entries in `_context/BUG-POSTMORTEM.md`
+   - process/rules: matching R entries in `_context/RULES.md`
+   - QA: matching open/current QA IDs in `_context/QA-CHECKLIST.md`
+   - knowledge: matching domain/source terms in `_context/KNOWLEDGE-BASE.md`
+   - recent product changes: `CHANGELOG.md` latest relevant entries
+6. State the current assumption when the root checkout and active worktree differ.
+
+Do not load the full RULES/BUG/QA/KNOWLEDGE ledgers by default. `_context/CONTEXT-CATALOG.json` marks historical snapshots as `explicit-only`; they are evidence, not current instructions.
 
 ## Work Quality Gate
 
@@ -48,26 +52,39 @@ Do not finish by saying "done" unless the work has one of these outcomes:
 - **Blocked**: the exact blocked surface is named, including the command/tool/policy that blocked it.
 - **Scoped partial**: the completed subset and remaining blockers are explicit.
 
-For code-facing changes, prefer these checks when available:
+For normal code/data/workspace changes, use the manifest-driven affected set:
 
 ```bash
-node --check js/aio-core.js
-node --check js/aio-data.js
-node --check js/aio-ui.js
-node --check js/aio-chat.js
-node --check js/aio-tests.js
-node scripts/ci-version-check.mjs
-node scripts/ci-structural-check.mjs
-node scripts/ci-runtime-contract-check.mjs
+node scripts/qa-runner.mjs affected --session <task-id> --explain
+node scripts/qa-runner.mjs affected --session <task-id>
+# fallback only when the baseline was not captured:
+node scripts/qa-runner.mjs affected --files path/a.js,path/b.md
+# after fixing the complete reported batch
+node scripts/qa-runner.mjs rerun-failed
 git diff --check
 ```
 
-Two additional gates are not part of the local-only set above because they check state outside the working tree; run them when the task touches what they cover:
+The source of truth is `architecture/qa-pipeline.json`. Cheap preflight blocks expensive phases, every gate in the active phase reports before exit, and successful local gates use content-keyed caching. `rerun-failed` selects exact failed gates rather than whole groups. Run `node scripts/qa-runner.mjs full --no-cache` once for release/shared-shell certification, not after each fix.
+
+For docs, skills, agents, hooks, workflows, or task-environment changes, `affected` must select the workspace group, which includes:
 
 ```bash
-node scripts/ci-knowledge-lint-check.mjs    # offline; _context/INDEX.md and doc-table drift, staleness
-node scripts/ci-live-invariant-check.mjs    # network-dependent; fetches the LIVE deployed site
+node scripts/generate-workspace-state.mjs --check
+node scripts/ci-workspace-contract-check.mjs
+node scripts/ci-knowledge-lint-check.mjs
+node scripts/ci-skill-contract-check.mjs
+node scripts/ci-skill-eval-fixture-check.mjs
+node scripts/sync-agent-profiles.mjs --check
+node scripts/sync-agent-skills.mjs --check
 ```
+
+External state is a separate profile because it changes without a source edit:
+
+```bash
+node scripts/qa-runner.mjs external --no-cache
+```
+
+The scheduled watchdog runs the `watchdog` profile so a Pages failure cannot skip Cloudflare or live-invariant evidence.
 
 For local server validation, check the actual served asset, not only the file on disk:
 
@@ -117,15 +134,17 @@ Keep list 2 small. Add to it only when a local gate structurally cannot see the 
 
 When improving a skill:
 
-0. Treat `.claude/skills/*/SKILL.md` and `.claude/commands/*.md` as the tracked canonical surfaces. Treat ignored local `.agents/skills` as a generated Codex mirror, never an independent source.
+0. Treat `.claude/skills/*/SKILL.md` and `.claude/commands/*.md` as the tracked canonical surfaces. Treat the tracked `.agents/skills` tree as a generated Codex discovery mirror, never an independent source.
 1. Keep `SKILL.md` concise and task-facing: contract, purpose, reference loading map, core workflow, binary self-eval.
 2. Move long examples, category lists, QA tiers, report templates, and domain detail into directly linked `references/`.
 3. Keep shared obligations in `.claude/skills/_shared/operating-contract.md`.
 4. Add a binary self-eval section with yes/no checks.
 5. Link the skill to this workflow document.
 6. Materialize or refresh the Codex mirror with `node scripts/sync-agent-skills.mjs`, then validate frontmatter, router size, references, wrappers, encoding sentinels, and mirror parity with `node scripts/ci-skill-contract-check.mjs`.
-7. Run `node scripts/sync-agent-skills.mjs --check` when `.agents/skills` exists.
+7. Run `node scripts/sync-agent-skills.mjs --check`; the tracked `.agents/skills` mirror must always exist and match canonical content.
 8. Update `_context/INDEX.md` when adding or removing context docs.
+9. Keep representative task prompts and negative-control claims in `architecture/skill-eval-cases.json`; deterministic fixture PASS is not behavioral-model PASS.
+10. Include `.claude/.codex` agent profiles, hooks, AGENTS/CLAUDE and workflow wiring in prescriptive-drift review.
 
 Do not create a new skill when an existing skill can be hardened. New skills require command-wrapper synchronization under R27.
 
@@ -162,7 +181,28 @@ When new recurring or long-running work comes up, name which primitive it needs 
 | Time-based | A schedule | Cancelled, or the work itself completes | `refresh-data.yml` (`'17,47 * * * *'`), `data-watchdog.yml` (`'23 * * * *'`) |
 | Proactive | An event/schedule with no human watching in real time | Each run's goal is met; the schedule itself runs until turned off | `ci.yml` on push/PR gating `deploy`; the R290 live-invariant job |
 
-Pick time-based/proactive only for work that must happen without a human present — this repo already pays for that with three GitHub Actions workflows, so a new recurring need should extend one of those (add a step/predicate) before inventing a new schedule. Reserve turn-based/goal-based for work that benefits from a human or agent actively reasoning about the specific instance. Verification should be encoded as a skill (`post-edit-qa`, `references/tiers.md`) so a turn-based check can approach self-verifying instead of relying on the operator's manual read.
+Pick time-based/proactive only for work that must happen without a human present. Extend the current workflow owner when possible before inventing another schedule. Reserve turn-based/goal-based work for tasks that benefit from active human or agent judgment. Verification should be encoded as a skill (`post-edit-qa`, `references/tiers.md`) so a turn-based check can approach self-verifying instead of relying on an operator's manual read.
+
+## Generated State And Knowledge Layers
+
+Current operational facts have one generated route:
+
+```text
+repository registries/artifacts -> workspace-state-lib.mjs -> CURRENT-STATE.md + CONTEXT-CATALOG.json -> workspace/knowledge CI
+```
+
+- `CURRENT-STATE.md` contains repository-derived current facts only.
+- `RULES.md`, `BUG-POSTMORTEM.md`, `QA-CHECKLIST.md`, and `KNOWLEDGE-BASE.md` are durable ledgers, not preflight documents.
+- Dated handoffs are historical or domain evidence unless the catalog marks them current/targeted.
+- Runtime knowledge coverage and semantic/human certification are separate. Structural counts cannot set `humanReviewComplete` or `publicationReady`.
+- Live/deployed state is measured at runtime and must not be copied into an enduring “current deployment” card.
+
+## Hook And Authority Policy
+
+- Hooks may block destructive commands and provide advisory state/gate context.
+- Hooks must consume the documented JSON stdin contract, support Windows execution, resolve from the Git root, and remain covered by fixture tests.
+- Hooks must never stage, commit, push, deploy, delete working content, or pressure the agent to request deployment.
+- Commit, push, workflow dispatch and deployment require explicit user authority for that action. A task completion instruction does not broaden this authority.
 
 ## Karpathy Loop For AIO
 

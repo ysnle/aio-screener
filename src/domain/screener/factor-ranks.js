@@ -1,179 +1,458 @@
-// RM-03 continued (2026-07-21, P759, Fable-advisor design review): extracted from
-// js/aio-data.js's _aioComputeFactorRanks (~15947-16081). Pure function: takes plain row data and
-// resolved weights/regime as explicit parameters instead of reading SCREENER_DB/window globals,
-// and returns a NEW array of per-row results keyed by `sym` (NOT `.symbol` — verified against every
-// legacy read site; `sym` is the real, deduped-by-convention field) instead of mutating its input.
+// RM-03/RM-04: pure cross-sectional factor ranking model.
 //
-// Deliberately does NOT extract `_aioFactorWeights` (js/aio-data.js:15871) this round — it has a
-// single call site (this function), reads two more hidden globals of its own
-// (the browser profile store + AIO_TRADER_PROFILES) beyond its `marketState` param, and
-// extracting it unlocks no reuse. The wrapper calls legacy `_aioFactorWeights(marketState)` and
-// passes the RESOLVED weights/regimeLabel in here instead (same boundary trading-score drew around
-// its own dependencies).
+// The compatibility wrapper in js/aio-data.js still owns profile/storage lookup and projects
+// the result onto SCREENER_DB. This module owns only deterministic factor math and quality
+// metadata. The model is deliberately a research-relative ranking: it is not a forecast,
+// trading signal, suitability assessment, or portfolio construction engine.
 //
-// Legacy subtleties preserved as-is (do not "clean up" — see architecture/fixtures/
-// factor-ranks-golden.json for the exact cases a plain dump caught):
-//   1. `factorScores`/`_z_*` are SPARSE per inactive factor (the key is simply absent for every
-//      row, not null/0) — this function only ever writes keys for factors in the active FACTORS
-//      list, exactly like legacy.
-//   2. wsum normalizes only over the ACTIVE factors' weight sum, never all 7.
-//   3. A row's raw factor value can be NaN (typeof NaN === 'number' is true, so the `typeof`
-//      guards inside each raw-factor function do not exclude it) — legacy relies on TWO separate
-//      isFinite filters: once when collecting stats input (a NaN row's raw value is excluded from
-//      the mean/stddev the whole sector uses), and again inside winz() (that same row still gets
-//      z=0, not NaN, for its own score) — dropping either filter changes results for NaN inputs.
-//   4. Sector grouping defaults to the literal string '_' for rows with no sector, so sectorless
-//      rows get scored relative to each other once there are enough of them.
-//   5. The final sort is `(a,b) => a._compositeZ - b._compositeZ` with NO secondary tiebreaker —
-//      ties keep the input array's order (stable sort). Adding one (e.g. by sym) would silently
-//      change .rank for tied rows relative to legacy.
-export const FACTOR_RANKS_MODEL_VERSION = 'factor-ranks.v1';
+// Normal finite inputs retain the v1 factor formula and golden-fixture results. v2 adds bounded
+// quality controls around that formula:
+//   - finite-value audits and duplicate/observation-date diagnostics;
+//   - factor-level coverage gating instead of silently diluting a composite with absent factors;
+//   - MAD-triggered winsorized statistics for extreme cross-sectional outliers;
+//   - sector-relative normalization with unknown-sector -> universe fallback;
+//   - row/ensemble confidence that measures evidence coverage, not return probability;
+//   - optional prior-rank/regime stability diagnostics (never used to auto-promote weights).
+export const FACTOR_RANKS_MODEL_VERSION = 'factor-ranks.v2';
+export const FACTOR_RANKS_ALLOWED_USE = 'research-relative-ranking-only';
+
+const DAY_MS = 86_400_000;
+const FACTOR_FRESHNESS_MS = 4 * DAY_MS;
+const FUNDAMENTAL_FRESHNESS_MS = 180 * DAY_MS;
+const MIN_CROSS_SECTION_COVERAGE = 0.8;
+const MIN_SECTOR_OBSERVATIONS = 6;
+// Six observations is the minimum sector bucket size used by the shrinkage rule, so the robust
+// guard must also be able to protect a full-size sector bucket of six.
+const MIN_ROBUST_OBSERVATIONS = 6;
+const ROBUST_Z_THRESHOLD = 6;
+const ROBUST_CLIP_Z = 5;
+const UNKNOWN_SECTOR = null;
 
 const DEFAULT_WEIGHTS = { momentum: 0.32, trend: 0.23, lowvol: 0.18, size: 0.18, value: 0, quality: 0, kalman: 0.09 };
+
+function finite(value) {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
+}
 
 function avg(values) {
   return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
 }
 
+function median(values) {
+  if (!values.length) return null;
+  const sorted = values.slice().sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+}
+
 function momRaw(row) {
   const parts = [];
-  if (typeof row.ret1m === 'number') parts.push({ v: row.ret1m, w: 0.4 });
-  if (typeof row.ret3m === 'number') parts.push({ v: row.ret3m, w: 0.4 });
-  if (typeof row.ret6m === 'number') parts.push({ v: row.ret6m, w: 0.2 });
+  if (finite(row?.ret1m) != null) parts.push({ v: row.ret1m, w: 0.4 });
+  if (finite(row?.ret3m) != null) parts.push({ v: row.ret3m, w: 0.4 });
+  if (finite(row?.ret6m) != null) parts.push({ v: row.ret6m, w: 0.2 });
   const denom = parts.reduce((sum, p) => sum + p.w, 0);
   return denom > 0 ? parts.reduce((sum, p) => sum + p.v * p.w, 0) / denom : null;
 }
 
 function trendRaw(row) {
   const parts = [];
-  if (typeof row.pctSma50 === 'number') parts.push({ v: row.pctSma50, w: 0.6 });
-  if (typeof row.pctSma200 === 'number') parts.push({ v: row.pctSma200, w: 0.4 });
+  if (finite(row?.pctSma50) != null) parts.push({ v: row.pctSma50, w: 0.6 });
+  if (finite(row?.pctSma200) != null) parts.push({ v: row.pctSma200, w: 0.4 });
   const denom = parts.reduce((sum, p) => sum + p.w, 0);
   return denom > 0 ? parts.reduce((sum, p) => sum + p.v * p.w, 0) / denom : null;
 }
 
-function lowvolRaw(row) { return typeof row.vol === 'number' ? -row.vol : null; }
-function sizeRaw(row) { return (typeof row.mcap === 'number' && row.mcap > 0) ? -Math.log(row.mcap) : null; }
+function lowvolRaw(row) {
+  const volatility = finite(row?.vol);
+  return volatility != null && volatility >= 0 ? -volatility : null;
+}
+
+function sizeRaw(row) {
+  const marketCap = finite(row?.mcap);
+  return marketCap != null && marketCap > 0 ? -Math.log(marketCap) : null;
+}
 
 function valueRaw(row) {
   const parts = [];
-  const clampV = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
-  if (typeof row.pe === 'number' && row.pe > 0 && row.pe < 200) parts.push(clampV(1 / row.pe, 0, 0.20) / 0.20);
-  if (typeof row.pb === 'number' && row.pb > 0 && row.pb < 50) parts.push(clampV(1 / row.pb, 0, 2.0) / 2.0);
-  if (typeof row.evEbitda === 'number' && row.evEbitda > 0 && row.evEbitda < 100) parts.push(clampV(1 / row.evEbitda, 0, 0.20) / 0.20);
+  const addInverse = (value, upper, maxInverse) => {
+    const numeric = finite(value);
+    if (numeric != null && numeric > 0 && numeric < upper) parts.push(Math.max(0, Math.min(maxInverse, 1 / numeric)) / maxInverse);
+  };
+  addInverse(row?.pe, 200, 0.20);
+  addInverse(row?.pb, 50, 2.0);
+  addInverse(row?.evEbitda, 100, 0.20);
   return parts.length ? avg(parts) : null;
 }
 
 function qualityRaw(row) {
   const parts = [];
-  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
-  if (typeof row.roe === 'number') parts.push(clamp(row.roe, -30, 60) / 60);
-  if (typeof row.margin === 'number') parts.push(clamp(row.margin, -20, 40) / 40);
-  if (typeof row.revGrowth === 'number') parts.push(clamp(row.revGrowth, -30, 60) / 60);
+  const addClamped = (value, lo, hi, denominator) => {
+    const numeric = finite(value);
+    if (numeric != null) parts.push(Math.max(lo, Math.min(hi, numeric)) / denominator);
+  };
+  addClamped(row?.roe, -30, 60, 60);
+  addClamped(row?.margin, -20, 40, 40);
+  addClamped(row?.revGrowth, -30, 60, 60);
   return parts.length ? avg(parts) : null;
 }
 
-function kalmanRaw(row) { return typeof row.kalmanVelConf === 'number' ? row.kalmanVelConf : (typeof row.kalmanVel === 'number' ? row.kalmanVel : null); }
+function kalmanRaw(row) {
+  const confidence = finite(row?.kalmanVelConf);
+  return confidence != null ? confidence : finite(row?.kalmanVel);
+}
 
 function stats(values) {
   if (!values.length) return { mu: 0, sd: 1 };
   const mu = avg(values);
-  const sd = values.length > 1 ? Math.sqrt(values.reduce((sum, v) => sum + (v - mu) * (v - mu), 0) / (values.length - 1)) : 1;
-  return { mu, sd: sd > 0 ? sd : 1 };
+  const sd = values.length > 1 ? Math.sqrt(values.reduce((sum, value) => sum + (value - mu) * (value - mu), 0) / (values.length - 1)) : 1;
+  return { mu, sd: sd > 0 && Number.isFinite(sd) ? sd : 1 };
+}
+
+// Use ordinary sample statistics by default to preserve the established model. If a robust
+// MAD screen finds a truly extreme value, clip only the statistics sample; the row itself still
+// receives a bounded z-score. This keeps a bad print from moving every peer's rank while making
+// the intervention observable in diagnostics.
+function guardedStats(values) {
+  const ordinary = stats(values);
+  if (values.length < MIN_ROBUST_OBSERVATIONS) return { ...ordinary, method: 'sample-standard-deviation', outlierCount: 0, outlierIndexes: [] };
+  const center = median(values);
+  const mad = median(values.map((value) => Math.abs(value - center)));
+  const robustScale = mad == null ? 0 : mad * 1.4826;
+  if (!(robustScale > 1e-12)) return { ...ordinary, method: 'sample-standard-deviation', outlierCount: 0, outlierIndexes: [] };
+  const outlierIndexes = values.reduce((indexes, value, index) => {
+    if (Math.abs((value - center) / robustScale) > ROBUST_Z_THRESHOLD) indexes.push(index);
+    return indexes;
+  }, []);
+  if (!outlierIndexes.length) return { ...ordinary, method: 'sample-standard-deviation', outlierCount: 0, outlierIndexes: [] };
+  const lower = center - ROBUST_CLIP_Z * robustScale;
+  const upper = center + ROBUST_CLIP_Z * robustScale;
+  const clipped = values.map((value) => Math.max(lower, Math.min(upper, value)));
+  const robust = stats(clipped);
+  return { ...robust, method: 'winsorized-mad', outlierCount: outlierIndexes.length, outlierIndexes };
 }
 
 function winz(x, mu, sd) {
-  if (typeof x !== 'number' || !isFinite(x)) return 0;
-  const z = (x - mu) / sd;
-  return Math.max(-3, Math.min(3, z));
+  const numeric = finite(x);
+  if (numeric == null) return 0;
+  const z = (numeric - mu) / sd;
+  return Number.isFinite(z) ? Math.max(-3, Math.min(3, z)) : 0;
 }
 
 function z2pct(z) { return Math.max(0, Math.min(100, Math.round(50 + z * 16.67))); }
 
+function normalizeSector(value) {
+  const sector = String(value == null ? '' : value).trim();
+  return sector || UNKNOWN_SECTOR;
+}
+
+function isoMs(value) {
+  const parsed = Date.parse(value || '');
+  return Number.isFinite(parsed) ? parsed : NaN;
+}
+
+function isFreshPast(value, now, budgetMs) {
+  const observed = isoMs(value);
+  return Number.isFinite(observed) && Number.isFinite(now) && now >= observed && now - observed <= budgetMs;
+}
+
+function freezeRecord(record) { return Object.freeze({ ...record }); }
+
+function sanitizeWeights(weights, factors) {
+  const source = weights && typeof weights === 'object' ? weights : DEFAULT_WEIGHTS;
+  const applied = {};
+  factors.forEach(({ key }) => {
+    const value = finite(Number(source[key]));
+    applied[key] = value != null && value > 0 ? value : 0;
+  });
+  let total = Object.values(applied).reduce((sum, value) => sum + value, 0);
+  if (!(total > 0)) {
+    factors.forEach(({ key }) => { applied[key] = 1; });
+    total = factors.length;
+  }
+  return Object.fromEntries(Object.entries(applied).map(([key, value]) => [key, value / total]));
+}
+
+function readPreviousRankMap(previousRanks) {
+  if (Array.isArray(previousRanks)) {
+    return new Map(previousRanks.map((row) => [String(row?.sym || row?.symbol || '').toUpperCase(), finite(row?.rank)]).filter(([sym, rank]) => sym && rank != null));
+  }
+  if (previousRanks && typeof previousRanks === 'object') {
+    return new Map(Object.entries(previousRanks).map(([sym, value]) => [String(sym).toUpperCase(), finite(typeof value === 'object' ? value.rank : value)]).filter(([sym, rank]) => sym && rank != null));
+  }
+  return null;
+}
+
+function deriveTurnoverStability(sorted, previousRanks, topPct = 20) {
+  const previous = readPreviousRankMap(previousRanks);
+  const boundedTopPct = Math.max(1, Math.min(100, Number(topPct) || 20));
+  const topCount = Math.max(1, Math.ceil(sorted.length * boundedTopPct / 100));
+  const currentTop = new Set(sorted.slice(-topCount).map((row) => String(row.sym || row.symbol || '').toUpperCase()).filter(Boolean));
+  if (!previous) {
+    return freezeRecord({ status: 'unavailable', topCount, topPct: boundedTopPct, currentTopCount: currentTop.size, previousTopCount: null, overlapPct: null, turnoverPct: null, stabilityBand: 'unknown', reason: 'prior ranking snapshot not supplied', usedForRanking: false });
+  }
+  const previousTop = new Set([...previous.entries()].sort((a, b) => b[1] - a[1]).slice(0, topCount).map(([sym]) => sym));
+  const overlap = [...currentTop].filter((sym) => previousTop.has(sym)).length;
+  const replacements = Math.max(currentTop.size, previousTop.size) - overlap;
+  const turnoverPct = Math.round((replacements / Math.max(1, topCount)) * 1000) / 10;
+  return freezeRecord({
+    status: 'observed', topCount, topPct: boundedTopPct, currentTopCount: currentTop.size, previousTopCount: previousTop.size,
+    overlapPct: Math.round(overlap / Math.max(1, topCount) * 1000) / 10, turnoverPct,
+    stabilityBand: turnoverPct <= 20 ? 'stable' : turnoverPct <= 40 ? 'mixed' : 'high-turnover',
+    reason: 'top-quintile membership overlap; execution turnover/cost/liquidity are not modeled',
+    usedForRanking: false
+  });
+}
+
+function deriveRegimeStability(regimeLabel, previousRegimeLabel, previousWeights, activeWeights) {
+  const current = regimeLabel || null;
+  const previous = previousRegimeLabel || null;
+  const changed = current != null && previous != null && current !== previous;
+  const weightKeys = new Set([...Object.keys(activeWeights || {}), ...Object.keys(previousWeights || {})]);
+  const maxWeightDelta = previousWeights && typeof previousWeights === 'object'
+    ? Math.max(0, ...[...weightKeys].map((key) => Math.abs((finite(Number(activeWeights?.[key])) || 0) - (finite(Number(previousWeights?.[key])) || 0))))
+    : null;
+  return freezeRecord({
+    status: !current ? 'missing' : !previous ? 'unavailable' : changed ? 'transition' : 'stable',
+    current, previous, changed, maxWeightDelta,
+    reason: !previous ? 'prior regime/weight snapshot not supplied; no hysteresis claim' : 'diagnostic only; automatic weight promotion is disabled',
+    usedForRanking: false
+  });
+}
+
+function emptyResult({ inputVersion, regimeLabel, weights, reason = 'fewer than five eligible rows', inputAudit = {}, factorCoverage = {} } = {}) {
+  return Object.freeze({
+    modelVersion: FACTOR_RANKS_MODEL_VERSION,
+    inputVersion,
+    available: false,
+    qualityStatus: 'unavailable',
+    ranked: 0,
+    activeFactors: Object.freeze([]),
+    activeFactorRegime: regimeLabel || null,
+    activeFactorWeights: Object.freeze({ ...(weights || DEFAULT_WEIGHTS) }),
+    appliedFactorWeights: Object.freeze({}),
+    inactiveFactorReasons: Object.freeze({}),
+    factorCoverage: Object.freeze({ ...factorCoverage }),
+    confidence: 0,
+    compositeConfidence: 0,
+    confidenceMeaning: '입력 커버리지·표본 안정성 진단값이며 미래 수익률 확률이 아님',
+    inputAudit: freezeRecord({ inputRows: 0, eligibleRows: 0, validCoreRows: 0, invalidCoreRows: 0, duplicateRows: 0, missingIdentityRows: 0, reason, ...inputAudit }),
+    sectorNeutrality: freezeRecord({ method: 'sector-relative-z-score-with-global-shrinkage', unknownSectorPolicy: 'universe-fallback', status: 'unavailable', groups: 0, unknownRows: 0, maxAbsMeanCompositeZ: null }),
+    outlierDiagnostics: freezeRecord({ method: 'MAD-triggered-winsorization', byFactor: {}, totalOutliers: 0 }),
+    regimeStability: deriveRegimeStability(regimeLabel, null, null, {}),
+    turnoverStability: deriveTurnoverStability([], null),
+    researchBoundary: freezeRecord({ allowedUse: FACTOR_RANKS_ALLOWED_USE, tradingSignal: false, decisionEligible: false, predictiveValidation: 'not-established', autoWeightPromotion: false, reason: 'insufficient cross-sectional factor observations' }),
+    rows: Object.freeze([])
+  });
+}
+
 /**
  * @param {object} input
- * @param {Array<object>} input.rows  SCREENER_DB-shaped rows (sym, sector, ret1m/ret3m/ret6m,
- *   pctSma50/pctSma200, vol, mcap, _mcapObservedAt, pe/pb/evEbitda, roe/margin/revGrowth,
- *   kalmanVelConf/kalmanVel) — read only, never mutated.
- * @param {object|null} input.weights       resolved regime-adaptive weights (caller already
- *   called legacy _aioFactorWeights(marketState) and is passing its .weights through)
- * @param {string|null} input.regimeLabel   resolved regime label from the same call
- * @param {number} input.fundamentalCoveragePct
- * @param {boolean} input.fmpOk
- * @param {number} input.now  Date.now()-equivalent, explicit for testability
+ * @param {Array<object>} input.rows SCREENER_DB-shaped rows. Read-only.
+ * @param {object|null} input.weights resolved regime/profile weights.
+ * @param {string|null} input.regimeLabel resolved regime/profile label.
+ * @param {number} input.fundamentalCoveragePct published artifact coverage (display only).
+ * @param {boolean} input.fmpOk published provider flag (display only; never promotes missing data).
+ * @param {number} input.now Date.now-equivalent, explicit for testability.
+ * @param {Array<object>|object|null} input.previousRanks optional prior rank snapshot for diagnostics.
+ * @param {string|null} input.previousRegimeLabel optional prior regime label for diagnostics.
+ * @param {object|null} input.previousWeights optional prior weights for diagnostics.
  */
-export function computeFactorRanks({ rows = [], weights = null, regimeLabel = null, fundamentalCoveragePct = 0, fmpOk = false, now = Date.now(), inputVersion = 'unknown' } = {}) {
-  const items = (Array.isArray(rows) ? rows : []).filter((row) => row && (typeof row.ret3m === 'number' || typeof row.ret1m === 'number'));
-  if (items.length < 5) {
-    return Object.freeze({ modelVersion: FACTOR_RANKS_MODEL_VERSION, inputVersion, available: false, ranked: 0, activeFactors: Object.freeze([]), activeFactorRegime: regimeLabel || null, activeFactorWeights: Object.freeze(weights || DEFAULT_WEIGHTS), inactiveFactorReasons: Object.freeze({}), rows: Object.freeze([]) });
+export function computeFactorRanks({
+  rows = [], weights = null, regimeLabel = null, fundamentalCoveragePct = 0, fmpOk = false,
+  now = Date.now(), inputVersion = 'unknown', previousRanks = null, previousRegimeLabel = null, previousWeights = null,
+  topPct = 20
+} = {}) {
+  const inputRows = Array.isArray(rows) ? rows : [];
+  const seenSymbols = new Set();
+  let duplicateRows = 0;
+  let missingIdentityRows = 0;
+  const items = inputRows.filter((row) => {
+    if (!row || (typeof row.ret3m !== 'number' && typeof row.ret1m !== 'number')) return false;
+    const symbol = String(row.sym || row.symbol || '').trim().toUpperCase();
+    if (!symbol) { missingIdentityRows += 1; return false; }
+    if (symbol && seenSymbols.has(symbol)) { duplicateRows += 1; return false; }
+    if (symbol) seenSymbols.add(symbol);
+    return true;
+  });
+  const validCoreRows = items.filter((row) => finite(row.ret3m) != null || finite(row.ret1m) != null).length;
+  const invalidCoreRows = items.length - validCoreRows;
+  if (items.length < 5 || validCoreRows < 5) {
+    return emptyResult({
+      inputVersion,
+      regimeLabel,
+      weights,
+      reason: items.length < 5 ? 'fewer than five eligible rows' : 'fewer than five rows with finite momentum observations',
+      inputAudit: { inputRows: inputRows.length, eligibleRows: items.length, validCoreRows, invalidCoreRows, duplicateRows, missingIdentityRows }
+    });
   }
 
-  const FACTORS = [
+  const candidateFactors = [
     { key: 'momentum', fn: momRaw },
     { key: 'trend', fn: trendRaw },
-    { key: 'lowvol', fn: lowvolRaw }
+    { key: 'lowvol', fn: lowvolRaw },
+    { key: 'size', fn: sizeRaw },
+    { key: 'value', fn: valueRaw },
+    { key: 'quality', fn: qualityRaw },
+    { key: 'kalman', fn: kalmanRaw }
   ];
-  const mcapCurrentCount = items.filter((row) => typeof row.mcap === 'number' && row._mcapObservedAt && (now - new Date(row._mcapObservedAt).getTime()) <= 4 * 86400000).length;
-  const sizeActive = mcapCurrentCount >= Math.ceil(items.length * 0.8);
-  if (sizeActive) FACTORS.push({ key: 'size', fn: sizeRaw });
-  const fundamentalCurrentCount = items.filter((row) => {
-    const observedMs = Date.parse(row._fundamentalObservedAt || '');
+  const working = items.map((row, index) => ({
+    ...row,
+    _factorIndex: index,
+    _sectorKey: normalizeSector(row.sector),
+    _factorValues: Object.fromEntries(candidateFactors.map((factor) => [factor.key, factor.fn(row)]))
+  }));
+  const bySector = new Map();
+  working.forEach((row) => {
+    const key = row._sectorKey;
+    if (!bySector.has(key)) bySector.set(key, []);
+    bySector.get(key).push(row);
+  });
+
+  const factorCoverage = {};
+  candidateFactors.forEach((factor) => {
+    const observed = working.filter((row) => finite(row._factorValues[factor.key]) != null).length;
+    const coverage = items.length ? observed / items.length : 0;
+    factorCoverage[factor.key] = freezeRecord({
+      observations: observed,
+      eligibleRows: items.length,
+      coveragePct: Math.round(coverage * 1000) / 10,
+      minCoveragePct: MIN_CROSS_SECTION_COVERAGE * 100,
+      active: coverage >= MIN_CROSS_SECTION_COVERAGE,
+      status: coverage >= MIN_CROSS_SECTION_COVERAGE ? 'active-candidate' : 'coverage-below-threshold'
+    });
+  });
+
+  const mcapCurrentCount = working.filter((row) => sizeRaw(row) != null && isFreshPast(row._mcapObservedAt, now, FACTOR_FRESHNESS_MS)).length;
+  const sizeActive = mcapCurrentCount >= Math.ceil(items.length * MIN_CROSS_SECTION_COVERAGE) && factorCoverage.size.coveragePct >= MIN_CROSS_SECTION_COVERAGE * 100;
+  const fundamentalCurrentCount = working.filter((row) => {
     const hasInput = valueRaw(row) != null || qualityRaw(row) != null;
-    return hasInput && Number.isFinite(observedMs) && now - observedMs <= 180 * 86400000;
+    return hasInput && isFreshPast(row._fundamentalObservedAt, now, FUNDAMENTAL_FRESHNESS_MS);
   }).length;
   const fundamentalCurrentPct = items.length ? fundamentalCurrentCount / items.length * 100 : 0;
-  const fundamentalCurrent = fundamentalCurrentCount >= Math.ceil(items.length * 0.8);
-  const valueActive = fundamentalCurrent && items.some((row) => valueRaw(row) != null);
-  const qualityActive = fundamentalCurrent && items.some((row) => qualityRaw(row) != null);
-  if (valueActive) FACTORS.push({ key: 'value', fn: valueRaw });
-  if (qualityActive) FACTORS.push({ key: 'quality', fn: qualityRaw });
-  if (items.some((row) => kalmanRaw(row) != null)) FACTORS.push({ key: 'kalman', fn: kalmanRaw });
-
-  const activeWeights = weights || DEFAULT_WEIGHTS;
-  const inactiveFactorReasons = Object.freeze({
-    size: sizeActive ? null : '시가총액 관측시각·80% 커버리지 미확보',
-    value: fundamentalCurrent ? null : `재무 관측시각·180일 신선도 커버리지 80% 미만 (${fundamentalCurrentPct.toFixed(1)}%; 산출물 ${fundamentalCoveragePct.toFixed(1)}%)`,
-    quality: fundamentalCurrent ? null : `재무 관측시각·180일 신선도 커버리지 80% 미만 (${fundamentalCurrentPct.toFixed(1)}%; 산출물 ${fundamentalCoveragePct.toFixed(1)}%)`
-  });
-
-  // work on shallow copies so the caller's row objects/array are never mutated
-  const working = items.map((row) => ({ ...row }));
-  const bySector = {};
-  working.forEach((row) => { const key = row.sector || '_'; (bySector[key] = bySector[key] || []).push(row); });
-
-  FACTORS.forEach((factor) => {
-    const allVals = working.map(factor.fn).filter((v) => typeof v === 'number' && isFinite(v));
-    const uni = stats(allVals);
-    Object.keys(bySector).forEach((sectorKey) => {
-      const group = bySector[sectorKey];
-      const vals = group.map(factor.fn).filter((v) => typeof v === 'number' && isFinite(v));
-      let st;
-      if (vals.length >= 6) {
-        st = stats(vals);
-      } else if (vals.length >= 2) {
-        const sectorSt = stats(vals);
-        const blend = vals.length / 6;
-        st = { mu: blend * sectorSt.mu + (1 - blend) * uni.mu, sd: blend * sectorSt.sd + (1 - blend) * uni.sd };
-      } else {
-        st = uni;
-      }
-      group.forEach((row) => { row['_z_' + factor.key] = winz(factor.fn(row), st.mu, st.sd); });
+  const fundamentalCurrent = fundamentalCurrentCount >= Math.ceil(items.length * MIN_CROSS_SECTION_COVERAGE);
+  const valueActive = fundamentalCurrent && factorCoverage.value.coveragePct >= MIN_CROSS_SECTION_COVERAGE * 100;
+  const qualityActive = fundamentalCurrent && factorCoverage.quality.coveragePct >= MIN_CROSS_SECTION_COVERAGE * 100;
+  factorCoverage.size = freezeRecord({ ...factorCoverage.size, active: sizeActive, status: sizeActive ? 'active' : 'freshness-or-coverage-blocked' });
+  factorCoverage.value = freezeRecord({ ...factorCoverage.value, active: valueActive, status: valueActive ? 'active' : 'freshness-or-coverage-blocked' });
+  factorCoverage.quality = freezeRecord({ ...factorCoverage.quality, active: qualityActive, status: qualityActive ? 'active' : 'freshness-or-coverage-blocked' });
+  factorCoverage.kalman = freezeRecord({ ...factorCoverage.kalman, active: factorCoverage.kalman.coveragePct >= MIN_CROSS_SECTION_COVERAGE * 100, status: factorCoverage.kalman.coveragePct >= MIN_CROSS_SECTION_COVERAGE * 100 ? 'active' : 'coverage-below-threshold' });
+  for (const key of ['momentum', 'trend', 'lowvol']) {
+    const active = factorCoverage[key].coveragePct >= MIN_CROSS_SECTION_COVERAGE * 100;
+    factorCoverage[key] = freezeRecord({ ...factorCoverage[key], active, status: active ? 'active' : 'coverage-below-threshold' });
+  }
+  const activeCandidates = new Set(candidateFactors.filter((factor) => ['momentum', 'trend', 'lowvol'].includes(factor.key) && factorCoverage[factor.key].coveragePct >= MIN_CROSS_SECTION_COVERAGE * 100).map((factor) => factor.key));
+  if (sizeActive) activeCandidates.add('size');
+  if (valueActive) activeCandidates.add('value');
+  if (qualityActive) activeCandidates.add('quality');
+  if (factorCoverage.kalman.coveragePct >= MIN_CROSS_SECTION_COVERAGE * 100) activeCandidates.add('kalman');
+  const FACTORS = candidateFactors.filter((factor) => activeCandidates.has(factor.key));
+  if (!FACTORS.length) {
+    return emptyResult({
+      inputVersion,
+      regimeLabel,
+      weights,
+      reason: 'no factor meets the minimum cross-sectional coverage threshold',
+      factorCoverage,
+      inputAudit: { inputRows: inputRows.length, eligibleRows: items.length, validCoreRows, invalidCoreRows, duplicateRows, missingIdentityRows }
     });
+  }
+
+  const activeWeights = weights && typeof weights === 'object' ? { ...weights } : { ...DEFAULT_WEIGHTS };
+  const appliedFactorWeights = sanitizeWeights(activeWeights, FACTORS);
+  const inactiveFactorReasons = {
+    momentum: factorCoverage.momentum.active ? null : `모멘텀 유효값 커버리지 80% 미만 (${factorCoverage.momentum.coveragePct.toFixed(1)}%)`,
+    trend: factorCoverage.trend.active ? null : `추세 유효값 커버리지 80% 미만 (${factorCoverage.trend.coveragePct.toFixed(1)}%)`,
+    lowvol: factorCoverage.lowvol.active ? null : `변동성 유효값 커버리지 80% 미만 (${factorCoverage.lowvol.coveragePct.toFixed(1)}%)`,
+    size: sizeActive ? null : '시가총액 관측시각·80% 커버리지 미확보',
+    value: valueActive ? null : `재무 관측시각·180일 신선도 또는 유효값 커버리지 80% 미만 (${fundamentalCurrentPct.toFixed(1)}%; 산출물 ${Number(fundamentalCoveragePct || 0).toFixed(1)}%)`,
+    quality: qualityActive ? null : `재무 관측시각·180일 신선도 또는 유효값 커버리지 80% 미만 (${fundamentalCurrentPct.toFixed(1)}%; 산출물 ${Number(fundamentalCoveragePct || 0).toFixed(1)}%)`,
+    kalman: factorCoverage.kalman.active ? null : `칼만 유효값 커버리지 80% 미만 (${factorCoverage.kalman.coveragePct.toFixed(1)}%)`
+  };
+  // Preserve the established reason text when only the freshness gate is responsible. Existing
+  // parity fixtures and UI consumers use these two exact messages.
+  if (!fundamentalCurrent) {
+    const reason = `재무 관측시각·180일 신선도 커버리지 80% 미만 (${fundamentalCurrentPct.toFixed(1)}%; 산출물 ${Number(fundamentalCoveragePct || 0).toFixed(1)}%)`;
+    inactiveFactorReasons.value = reason;
+    inactiveFactorReasons.quality = reason;
+  }
+
+  const outlierByFactor = {};
+  FACTORS.forEach((factor) => {
+    const finiteRows = working.filter((row) => finite(row._factorValues[factor.key]) != null);
+    const allVals = finiteRows.map((row) => row._factorValues[factor.key]);
+    const universeStats = guardedStats(allVals);
+    const outlierRows = new Set();
+    const guardedGroups = [];
+    if (universeStats.outlierIndexes.length) {
+      universeStats.outlierIndexes.forEach((index) => {
+        const row = finiteRows[index];
+        if (row) outlierRows.add(String(row.sym || row.symbol || `row-${row._factorIndex}`));
+      });
+      guardedGroups.push('universe');
+    }
+    for (const [sectorKey, group] of bySector.entries()) {
+      const finiteGroupRows = group.filter((row) => finite(row._factorValues[factor.key]) != null);
+      const vals = finiteGroupRows.map((row) => row._factorValues[factor.key]);
+      let groupStats = universeStats;
+      let source = 'universe';
+      if (sectorKey !== UNKNOWN_SECTOR) {
+        if (vals.length >= MIN_SECTOR_OBSERVATIONS) {
+          groupStats = guardedStats(vals);
+          source = 'sector';
+        } else if (vals.length >= 2) {
+          const sectorStats = guardedStats(vals);
+          const blend = vals.length / MIN_SECTOR_OBSERVATIONS;
+          groupStats = {
+            mu: blend * sectorStats.mu + (1 - blend) * universeStats.mu,
+            sd: blend * sectorStats.sd + (1 - blend) * universeStats.sd,
+            method: sectorStats.method === 'winsorized-mad' ? 'sector-winsorized-mad+universe-shrinkage' : 'sector+universe-shrinkage',
+            outlierCount: sectorStats.outlierCount,
+            outlierIndexes: sectorStats.outlierIndexes
+          };
+          source = 'sector+universe-shrinkage';
+        }
+      }
+      if (groupStats.outlierIndexes.length) {
+        groupStats.outlierIndexes.forEach((index) => {
+          const candidate = finiteGroupRows[index];
+          if (candidate) outlierRows.add(String(candidate.sym || candidate.symbol || `row-${candidate._factorIndex}`));
+        });
+        guardedGroups.push(sectorKey || 'unknown');
+      }
+      group.forEach((row) => { row['_z_' + factor.key] = winz(row._factorValues[factor.key], groupStats.mu, groupStats.sd); });
+    }
+    outlierByFactor[factor.key] = freezeRecord({ count: outlierRows.size, symbols: Object.freeze([...outlierRows]), guardedGroups: Object.freeze([...new Set(guardedGroups)]), method: 'MAD-triggered-winsorization' });
   });
 
-  let wsum = 0;
-  FACTORS.forEach((factor) => { wsum += (activeWeights[factor.key] || 0); });
-  if (wsum <= 0) wsum = 1;
+  const sectorCounts = [...bySector.entries()].map(([sector, group]) => ({ sector: sector || 'unknown', count: group.length, known: sector !== UNKNOWN_SECTOR }));
+  const knownRows = sectorCounts.filter((entry) => entry.known).reduce((sum, entry) => sum + entry.count, 0);
+  const sectorConfidence = items.length ? Math.max(0, Math.min(1, (knownRows / items.length) * Math.min(1, sectorCounts.filter((entry) => entry.known).length / 3))) : 0;
+  const crossSectionConfidence = Math.min(1, items.length / 30);
+  let totalCompositeConfidence = 0;
   working.forEach((row) => {
     let composite = 0;
+    let observedWeight = 0;
     const factorScores = {};
+    const missingFactors = [];
     FACTORS.forEach((factor) => {
-      const z = row['_z_' + factor.key] || 0;
-      composite += z * (activeWeights[factor.key] || 0);
+      const observed = finite(row._factorValues[factor.key]) != null;
+      const z = finite(row['_z_' + factor.key]) || 0;
+      const weight = appliedFactorWeights[factor.key] || 0;
+      composite += z * weight;
+      if (observed) observedWeight += weight;
+      else missingFactors.push(factor.key);
       factorScores[factor.key] = z2pct(z);
     });
-    row._compositeZ = composite / wsum;
-    row.factorScores = factorScores;
+    // Missing factors stay neutral in the composite (compatibility + conservative bias), but
+    // confidence explicitly shrinks so consumers cannot mistake neutral imputation for evidence.
+    row._compositeZ = composite;
+    row.factorScores = Object.freeze(factorScores);
+    row.factorCoverage = FACTORS.length ? observedWeight : 0;
+    row.missingFactors = Object.freeze(missingFactors);
+    const sectorGroup = bySector.get(row._sectorKey) || [];
+    const rowSectorConfidence = row._sectorKey === UNKNOWN_SECTOR ? 0 : Math.min(1, sectorGroup.length / MIN_SECTOR_OBSERVATIONS);
+    row.confidence = Math.max(0, Math.min(1, 0.55 * row.factorCoverage + 0.25 * crossSectionConfidence + 0.20 * rowSectorConfidence));
+    totalCompositeConfidence += row.confidence;
   });
 
   const sorted = working.slice().sort((a, b) => a._compositeZ - b._compositeZ);
@@ -184,20 +463,84 @@ export function computeFactorRanks({ rows = [], weights = null, regimeLabel = nu
   });
 
   const resultRows = working.map((row) => {
-    const out = { sym: row.sym, _compositeZ: row._compositeZ, factorScores: row.factorScores, rank: row.rank, quantSignal: row.quantSignal };
+    const out = {
+      sym: row.sym,
+      _compositeZ: row._compositeZ,
+      factorScores: row.factorScores,
+      rank: row.rank,
+      quantSignal: row.quantSignal,
+      factorCoverage: Math.round(row.factorCoverage * 1000) / 1000,
+      missingFactors: row.missingFactors,
+      confidence: Math.round(row.confidence * 1000) / 1000,
+      allowedUse: FACTOR_RANKS_ALLOWED_USE,
+      decisionEligible: false
+    };
     FACTORS.forEach((factor) => { out['_z_' + factor.key] = row['_z_' + factor.key]; });
     return Object.freeze(out);
+  });
+
+  const maxAbsMeanCompositeZ = Math.max(0, ...sectorCounts.filter((entry) => entry.known).map((entry) => {
+    const group = bySector.get(entry.sector);
+    return Math.abs(avg(group.map((row) => row._compositeZ)) || 0);
+  }));
+  const activeCoverage = FACTORS.length ? avg(FACTORS.map((factor) => factorCoverage[factor.key].coveragePct / 100)) : 0;
+  const compositeConfidence = Math.max(0, Math.min(1, 0.55 * (activeCoverage || 0) + 0.25 * crossSectionConfidence + 0.20 * sectorConfidence));
+  const outlierTotal = Object.values(outlierByFactor).reduce((sum, entry) => sum + entry.count, 0);
+  const qualityStatus = compositeConfidence >= 0.8 && invalidCoreRows === 0 && duplicateRows === 0 && outlierTotal === 0 ? 'ready' : 'partial';
+  const smallSectorGroups = sectorCounts.filter((entry) => entry.known && entry.count < MIN_SECTOR_OBSERVATIONS);
+  const unknownRows = sectorCounts.find((entry) => !entry.known)?.count || 0;
+  const sectorNeutrality = freezeRecord({
+    method: 'sector-relative-z-score-with-global-shrinkage',
+    unknownSectorPolicy: 'universe-fallback',
+    status: smallSectorGroups.length || unknownRows || maxAbsMeanCompositeZ > 0.25 ? 'partial' : 'observed',
+    groups: sectorCounts.filter((entry) => entry.known).length,
+    unknownRows,
+    smallSectorGroups: Object.freeze(smallSectorGroups.map((entry) => entry.sector)),
+    maxAbsMeanCompositeZ: Number.isFinite(maxAbsMeanCompositeZ) ? Math.round(maxAbsMeanCompositeZ * 1e6) / 1e6 : null,
+    groupsDetail: Object.freeze(sectorCounts.map((entry) => freezeRecord(entry)))
+  });
+  const inputAudit = freezeRecord({
+    inputRows: inputRows.length,
+    eligibleRows: items.length,
+    validCoreRows,
+    invalidCoreRows,
+    duplicateRows,
+    missingIdentityRows,
+    fundamentalCurrentRows: fundamentalCurrentCount,
+    fundamentalArtifactCoveragePct: finite(Number(fundamentalCoveragePct)),
+    fmpOk: fmpOk === true,
+    futureOrInvalidMcapDates: inputRows.filter((row) => row?._mcapObservedAt && !isFreshPast(row._mcapObservedAt, now, FACTOR_FRESHNESS_MS)).length,
+    futureOrInvalidFundamentalDates: inputRows.filter((row) => row?._fundamentalObservedAt && !isFreshPast(row._fundamentalObservedAt, now, FUNDAMENTAL_FRESHNESS_MS)).length
   });
 
   return Object.freeze({
     modelVersion: FACTOR_RANKS_MODEL_VERSION,
     inputVersion,
     available: true,
+    qualityStatus,
     ranked: n,
     activeFactors: Object.freeze(FACTORS.map((factor) => factor.key)),
     activeFactorRegime: regimeLabel || null,
     activeFactorWeights: Object.freeze({ ...activeWeights }),
-    inactiveFactorReasons,
+    appliedFactorWeights: Object.freeze({ ...appliedFactorWeights }),
+    inactiveFactorReasons: Object.freeze(inactiveFactorReasons),
+    factorCoverage: Object.freeze({ ...factorCoverage }),
+    confidence: Math.round((totalCompositeConfidence / Math.max(1, n)) * 1000) / 1000,
+    compositeConfidence: Math.round(compositeConfidence * 1000) / 1000,
+    confidenceMeaning: '입력 커버리지·표본 안정성 진단값이며 미래 수익률 확률이 아님',
+    inputAudit,
+    sectorNeutrality,
+    outlierDiagnostics: freezeRecord({ method: 'MAD-triggered-winsorization', byFactor: Object.freeze(outlierByFactor), totalOutliers: outlierTotal }),
+    regimeStability: deriveRegimeStability(regimeLabel, previousRegimeLabel, previousWeights, activeWeights),
+    turnoverStability: deriveTurnoverStability(sorted, previousRanks, topPct),
+    researchBoundary: freezeRecord({
+      allowedUse: FACTOR_RANKS_ALLOWED_USE,
+      tradingSignal: false,
+      decisionEligible: false,
+      predictiveValidation: 'not-established',
+      autoWeightPromotion: false,
+      reason: '현재 결과는 관측시점 기준 상대 순위이며 PIT·생존편향·비용·유동성·실거래 패리티를 인증하지 않음'
+    }),
     rows: Object.freeze(resultRows)
   });
 }

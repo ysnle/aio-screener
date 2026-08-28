@@ -11,33 +11,41 @@ function finite(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
+function isNewsAnalysisEligible(item) {
+  if (!item || item.verificationStatus === 'unverified' || item.verificationStatus === 'secondary-only') return false;
+  if (String(item.contentDepth || '').toLowerCase() === 'headline-only' || item.verificationStatus === 'headline-only') return false;
+  return String(item.summary || item.desc || '').trim().length >= 40;
+}
+
 function renderNewsSummary(documentRef, root, model, status) {
   const rows = Array.isArray(model?.items) ? model.items : [];
   const distinctSources = new Set(rows.map((item) => item?._tgChannel || item?.source || item?.feed).filter(Boolean));
-  const configuredSources = Array.isArray(root?.AIO_NEWS_SOURCES) ? root.AIO_NEWS_SOURCES.length : null;
-  const tones = rows.map((item) => sentimentTone(root, item).label);
+  const analyzableRows = rows.filter(isNewsAnalysisEligible);
+  const tones = analyzableRows.map((item) => sentimentTone(root, item).label);
   const bull = tones.filter((label) => label === '긍정').length;
   const bear = tones.filter((label) => label === '부정').length;
-  const risk = rows.filter((item, index) => item?.verificationStatus === 'unverified' || tones[index] === '주의').length;
-  const score = rows.length ? Math.max(0, Math.min(100, Math.round(50 + ((bull - bear) / rows.length) * 50))) : null;
+  const risk = rows.filter((item) => !isNewsAnalysisEligible(item)).length;
+  const score = analyzableRows.length ? Math.max(0, Math.min(100, Math.round(50 + ((bull - bear) / analyzableRows.length) * 50))) : null;
   const set = (id, value, fallback = '—') => {
     const node = documentRef?.getElementById(id);
     if (node) node.textContent = value == null || value === '' ? fallback : String(value);
   };
   documentRef?.querySelectorAll?.('[data-news-source-count]').forEach((node) => {
-    node.textContent = configuredSources == null ? String(distinctSources.size || '—') : String(configuredSources);
+    node.textContent = String(distinctSources.size || '—');
   });
   set('news-24h-count', model?.eligibleCount ?? rows.length, '0');
   set('news-24h-sources', distinctSources.size ? `${distinctSources.size}개 소스` : '소스 확인 중');
   set('news-risk-count', risk, '0');
-  set('news-risk-label', risk ? '주의 필요' : '리스크 없음');
+  set('news-risk-label', risk ? '본문/검증 필요' : '분석 가능');
   set('news-sent-score', score);
-  set('news-sent-label', score == null ? '데이터 대기' : score >= 60 ? '긍정' : score <= 40 ? '주의' : '중립');
+  set('news-sent-label', score == null ? '분석 보류' : score >= 60 ? '긍정' : score <= 40 ? '주의' : '중립');
   let cut = null;
   try { cut = root?.AIO?.getSharedMarketCut?.() || null; } catch (_) {}
   const generatedAt = root?._serverDataMeta?.generatedAt || null;
   const generatedLabel = generatedAt ? new Date(generatedAt).toLocaleString('ko-KR', { month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' }) : '';
-  set('last-fetch-time', cut?.status === 'stale' ? `공통컷 지연 · ${cut.endLabel || '최신 완료컷 확인 필요'}` : generatedLabel || (status === 'current' ? '정상 수신' : '수신 대기'));
+  set('last-fetch-time', cut?.status === 'stale' || status === 'stale'
+    ? `뉴스 기준시각 경과 · ${cut?.endLabel || '최신 완료컷 확인 필요'}`
+    : generatedLabel || (status === 'current' ? '정상 수신' : '수신 대기'));
 }
 
 function safeUrl(value) {
@@ -51,6 +59,11 @@ function safeUrl(value) {
 }
 
 function sentimentTone(root, item) {
+  if (!isNewsAnalysisEligible(item)) {
+    return String(item?.contentDepth || '').toLowerCase() === 'headline-only' || item?.verificationStatus === 'headline-only'
+      ? { label: '본문 미수신', color: 'var(--text-muted)' }
+      : { label: '검증 대기', color: 'var(--data-amber)' };
+  }
   try {
     const sentiment = typeof root?.getSentimentFromText === 'function'
       ? root.getSentimentFromText(`${item?.title || ''} ${item?.desc || ''}`)
@@ -126,7 +139,10 @@ function createNewsCard(documentRef, root, item, index) {
   meta.className = 'news-item-meta';
   const source = item?._tgChannel ? `TG · ${item?.source || ''}` : item?.source || '';
   const score = finite(item?.score);
-  meta.textContent = [item?.verificationStatus === 'unverified' ? '미검증' : '', item?.flag || '', source, item?.topic || '', timeAgo, score == null ? '' : `중요도 ${score}`]
+  const contentBoundary = String(item?.contentDepth || '').toLowerCase() === 'headline-only'
+    ? '헤드라인 전용 · 단독 분석 근거 사용 금지'
+    : '';
+  meta.textContent = [item?.verificationStatus === 'unverified' ? '미검증' : '', contentBoundary, item?.sourceTierLabel || '', item?.flag || '', source, item?.topic || '', timeAgo, score == null ? '' : `선별 점수 ${score}`]
     .filter(Boolean)
     .join(' · ');
   body.appendChild(meta);
@@ -242,7 +258,8 @@ function render({ documentRef, root, store, route }) {
   if (page) {
     page.dataset.aioArchitectureRoute = route;
     page.dataset.aioArchitectureSlice = 'news';
-    page.dataset.aioArchitectureState = selectNewsStatus(state) === 'current' && items.length ? 'observed' : 'blocked';
+    const newsStatus = selectNewsStatus(state);
+    page.dataset.aioArchitectureState = newsStatus === 'current' && items.length ? 'observed' : newsStatus === 'stale' && items.length ? 'stale' : 'blocked';
   }
   if (route === 'briefing') {
     const windowInfo = getBriefingWindow(root);

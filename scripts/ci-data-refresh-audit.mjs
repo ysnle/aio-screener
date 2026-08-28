@@ -36,9 +36,16 @@ function add(id, category, observedAt, cadence, detail, forced = null, maxAgeDay
 
 const quote = (symbol) => (snapshot.quotes || []).find((row) => row.instrumentId === symbol) || null;
 const macro = data.macro || {};
+const utcDay = new Date(now).getUTCDay();
+const marketClosedGrace = (utcDay === 0 || utcDay === 6)
+  && data.meta?.cycleStatus === 'PUBLISHED'
+  && snapshot.status === 'published'
+  && Number(snapshot.coverage?.tier0Required) > 0
+  && Number(snapshot.coverage?.tier0Observed) === Number(snapshot.coverage?.tier0Required)
+  && (!Array.isArray(snapshot.errors) || snapshot.errors.length === 0);
 
 // The 22 durable categories defined by the data-refresh contract.
-add('A1', 'DATA_SNAPSHOT / durable market artifact', data.meta?.generatedAt, 'daily', `revision=${data.meta?.marketSnapshotRevision || snapshot.revision}`);
+add('A1', 'DATA_SNAPSHOT / durable market artifact', data.meta?.generatedAt, 'daily', `revision=${data.meta?.marketSnapshotRevision || snapshot.revision}; SLA=12h${marketClosedGrace ? '; market-closed grace' : ''}`, marketClosedGrace ? 'OK' : null, 0.5);
 add('A2', 'Fear & Greed', data.fearGreed?.asOf || data.meta?.generatedAt, 'daily', `score=${data.fearGreed?.score ?? '—'} source=${data.fearGreed?._source || 'unknown'}`);
 add('A3', 'VIX + HY OAS shared evidence', quote('^VIX')?.observedAt || macro._asOf_hyOAS, 'daily', `vix=${quote('^VIX')?.value ?? '—'} hyOAS=${macro.hyOAS ?? '—'} hyAsOf=${macro._asOf_hyOAS || '—'}; session=${quote('^VIX')?.session || 'missing'}`, ageDays(macro._asOf_hyOAS) != null && ageDays(macro._asOf_hyOAS) > 3 ? 'STALE' : null);
 const surveys = data.marketSurveys || {};
@@ -47,7 +54,7 @@ const aaiiComplete = aaii.status === 'current-reference'
   && ['bullish', 'neutral', 'bearish'].every((field) => Number.isFinite(Number(aaii[field])));
 add('B1', 'AAII sentiment', aaii.observedAt, 'weekly', aaiiComplete
   ? `bull=${aaii.bullish}% neutral=${aaii.neutral}% bear=${aaii.bearish}% source=${aaii.source || 'AAII'}; public current observation, reference-only`
-  : 'BLOCKED: no complete current official public observation; exact percentage synthesis forbidden', aaiiComplete ? null : 'BLOCKED');
+  : 'BLOCKED: no complete current official public observation; exact percentage synthesis forbidden', aaiiComplete ? null : 'BLOCKED', 9);
 const naaim = surveys.naaim || {};
 add('B2', 'NAAIM exposure', naaim.observedAt, 'weekly', `BLOCKED_CURRENT: latest/API access is subscription-based; retained public reference=${naaim.exposure ?? '—'} observed=${naaim.observedAt || '—'} and must not be relabeled current`, 'BLOCKED');
 add('B3', 'Investor Intelligence bull/bear', null, 'weekly', 'BLOCKED: current publisher numeric values require subscriber access; no extrapolated value promoted', 'BLOCKED');

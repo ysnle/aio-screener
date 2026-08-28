@@ -6,15 +6,25 @@ Cross-session packet order, per-layer ownership, route cutover, and deletion
 ledgers are defined in
 `_context/ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md`.
 
-The current release keeps the GitHub Pages shell. New code under `src/` is
-native ESM and owns all 17 route lifecycle/renderer modules plus the
-sentiment/news/entity/portfolio/screener/analysis state boundaries, pure domain
-models, AI envelopes, storage gateways, and release contracts. It exposes a
-read-only `window.AIO_ARCH` projection; legacy globals are consumed only through
-the compatibility facade.
+The current release keeps the GitHub Pages shell. Code under `src/` is a native
+ESM strangler layer over a legacy-first boot path. The route registry currently
+contains 20 routes and records lifecycle/renderer/data ownership separately from
+chart, narrative, storage and producer retirement. A route is not fully native
+until every applicable surface is native or explicitly not applicable and its
+legacy writer is removed. `fullNativeOwner` is therefore the completion signal;
+lifecycle/renderer counts alone are not.
+
+`window.AIO_ARCH` is still a transitional compatibility API, not a certified
+minimal read-only facade. Native runtime readers also still adapt legacy globals.
+The target direction remains source adapter → validation → canonical evidence
+store → selector/view model → route UI, with no UI fetch/storage/private-global
+access after each vertical slice is retired.
 
 Files in this directory are release inputs, not a progress diary:
 
+- `product-charter.json` — product identity, non-goals, trust planes, evidence
+  claims, deployment boundaries and promotion gates. Architecture changes must
+  preserve this contract or change it explicitly before implementation.
 - `golden-routes.json` — the supported route contract used by the boundary gate.
 - `baseline.json` — AR-00 legacy coupling counters plus monotonic burn-down
   targets and retired-pattern contracts; equality is not sufficient for a

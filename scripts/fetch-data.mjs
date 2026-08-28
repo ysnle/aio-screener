@@ -55,8 +55,14 @@ const SYMBOLS = [
 // + 이미 더 권위있는 직접 소스(KOSIS API 브릿지 aio-data.js fetchAllKosisData, /data-refresh 통계청
 // 수동 확인)가 있어 릴레이로 교체 시 오히려 신선도 퇴보 위험 — 확장 후보로 문서에만 남김.
 const FRED_SERIES = {
-  cpi:        { id: 'CPIAUCSL', kind: 'yoy' },
-  coreCpi:    { id: 'CPILFESL', kind: 'yoy' },
+  // Market-standard headline/core CPI are the non-seasonally-adjusted
+  // twelve-month CPI-U series.  Keep the SA series as explicitly named
+  // companions below so an analytical consumer cannot mistake one for the
+  // BLS release headline.
+  cpi:        { id: 'CPIAUCNS', kind: 'yoy' },
+  coreCpi:    { id: 'CPILFENS', kind: 'yoy' },
+  cpiSa:      { id: 'CPIAUCSL', kind: 'yoy' },
+  coreCpiSa:  { id: 'CPILFESL', kind: 'yoy' },
   pce:        { id: 'PCEPI',    kind: 'yoy' },
   corePce:    { id: 'PCEPILFE', kind: 'yoy' },
   fedRate:    { id: 'FEDFUNDS', kind: 'level' },
@@ -75,11 +81,17 @@ const FRED_SERIES = {
 };
 
 // BLS Public Data API v1 is a separate official observation path from FRED.
-// Keep the six-series allowlist bounded and preserve typed observation evidence
-// inside data.json.macro; do not silently overwrite the FRED projection above.
+// Keep the bounded allowlist explicit and preserve typed observation evidence
+// inside data.json.macro.  Only the explicit NSA headline/core fields may
+// become the canonical CPI slots; SA companions stay namespaced below.
 const BLS_SERIES = {
-  cpi: { id: 'CUSR0000SA0', field: 'blsCpiYoY', unit: 'index', frequency: 'monthly', seasonalAdjustment: 'SA', derive: 'yoy' },
-  coreCpi: { id: 'CUSR0000SA0L1E', field: 'blsCoreCpiYoY', unit: 'index', frequency: 'monthly', seasonalAdjustment: 'SA', derive: 'yoy' },
+  // BLS release headlines use the unadjusted CPI-U index.  SA-derived
+  // twelve-month changes remain available under separate metric IDs/fields;
+  // they are analytical companions, never an implicit replacement.
+  cpi: { id: 'CUUR0000SA0', field: 'blsCpiYoY', unit: 'index', frequency: 'monthly', seasonalAdjustment: 'NSA', displayRole: 'market-standard-headline', definition: 'CPI-U U.S. city average all items, not seasonally adjusted', derive: 'yoy' },
+  cpiSa: { id: 'CUSR0000SA0', field: 'blsCpiSaYoY', unit: 'index', frequency: 'monthly', seasonalAdjustment: 'SA', displayRole: 'analytical-seasonally-adjusted', definition: 'CPI-U U.S. city average all items, seasonally adjusted', derive: 'yoy' },
+  coreCpi: { id: 'CUUR0000SA0L1E', field: 'blsCoreCpiYoY', unit: 'index', frequency: 'monthly', seasonalAdjustment: 'NSA', displayRole: 'market-standard-core', definition: 'CPI-U U.S. city average all items less food and energy, not seasonally adjusted', derive: 'yoy' },
+  coreCpiSa: { id: 'CUSR0000SA0L1E', field: 'blsCoreCpiSaYoY', unit: 'index', frequency: 'monthly', seasonalAdjustment: 'SA', displayRole: 'analytical-seasonally-adjusted-core', definition: 'CPI-U U.S. city average all items less food and energy, seasonally adjusted', derive: 'yoy' },
   unemployment: { id: 'LNS14000000', field: 'blsUnemployment', unit: 'percent', frequency: 'monthly', seasonalAdjustment: 'SA', derive: 'level' },
   laborForceParticipation: { id: 'LNS11300000', field: 'blsLaborForceParticipation', unit: 'percent', frequency: 'monthly', seasonalAdjustment: 'SA', derive: 'level' },
   nonfarmPayroll: { id: 'CES0000000001', field: 'blsNfpMoM', unit: 'thousands', frequency: 'monthly', seasonalAdjustment: 'SA', derive: 'mom_diff' },
@@ -89,8 +101,12 @@ const BLS_ENDPOINT = 'https://api.bls.gov/publicAPI/v1/timeseries/data/';
 const BLS_CACHE_MAX_AGE_MS = 12 * 60 * 60 * 1000;
 const FRED_HY_OAS_CSV_URL = 'https://fred.stlouisfed.org/graph/fredgraph.csv?id=BAMLH0A0HYM2';
 const FRED_HY_OAS_CACHE_MAX_AGE_MS = 12 * 60 * 60 * 1000;
-const TREASURY_CURVE_URL = `https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?field_tdr_date_value=${new Date().getUTCFullYear()}&type=daily_treasury_yield_curve`;
+const treasuryMonth = new Date().toISOString().slice(0, 7).replace('-', '');
+const TREASURY_CURVE_URL = `https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value_month=${treasuryMonth}`;
 const TREASURY_CACHE_MAX_AGE_MS = 12 * 60 * 60 * 1000;
+const AAII_SENTIMENT_URL = 'https://www.aaii.com/sentimentsurvey/sent_results?adv=yes';
+const AAII_READER_URL = `https://r.jina.ai/${AAII_SENTIMENT_URL}`;
+const AAII_CACHE_MAX_AGE_MS = 6 * 60 * 60 * 1000;
 
 const UA = { 'User-Agent': 'Mozilla/5.0 (compatible; AIO-Screener-bot/1.0)' };
 
@@ -427,6 +443,35 @@ export function parseTreasuryYieldCurveHtml(html, fetchedAt = new Date().toISOSt
   };
 }
 
+export function parseTreasuryYieldCurveXml(xml, fetchedAt = new Date().toISOString()) {
+  const entries = [...String(xml || '').matchAll(/<entry\b[^>]*>([\s\S]*?)<\/entry>/gi)].map(match => match[1]);
+  const parsed = entries.map((entry) => {
+    const observedAt = (entry.match(/<d:NEW_DATE\b[^>]*>(\d{4}-\d{2}-\d{2})T/i) || [])[1] || null;
+    if (!observedAt) return null;
+    const pick = (years) => {
+      const raw = (entry.match(new RegExp(`<d:BC_${years}YEAR\\b[^>]*>([^<]+)<\\/d:BC_${years}YEAR>`, 'i')) || [])[1];
+      const value = Number(raw);
+      return Number.isFinite(value) ? value : null;
+    };
+    const values = { dgs2: pick(2), dgs5: pick(5), dgs10: pick(10), dgs20: pick(20), dgs30: pick(30) };
+    return Object.values(values).every(Number.isFinite) ? { observedAt, values } : null;
+  }).filter(Boolean).sort((a, b) => b.observedAt.localeCompare(a.observedAt));
+  const latest = parsed[0] || null;
+  if (!latest) return null;
+  return {
+    schemaVersion: 'us-treasury-curve.v1',
+    status: 'ok',
+    source: 'U.S. Treasury Daily Par Yield Curve Rates XML Feed',
+    sourceKind: 'official-primary',
+    sourceUrl: TREASURY_CURVE_URL,
+    observedAt: latest.observedAt,
+    fetchedAt,
+    values: { ...latest.values, t10y2y: round(latest.values.dgs10 - latest.values.dgs2, 3) },
+    allowedUse: 'official-observation-and-derived-same-date-spread',
+    decisionUse: false
+  };
+}
+
 export async function fetchTreasuryYieldCurve(previous = null) {
   const nowIso = new Date().toISOString();
   const previousFetchedAt = Date.parse(previous?.fetchedAt || '');
@@ -434,9 +479,9 @@ export async function fetchTreasuryYieldCurve(previous = null) {
     return { ...previous, attemptedAt: nowIso, status: 'cached-fresh', cacheHit: true };
   }
   try {
-    const html = await _fetchRss(TREASURY_CURVE_URL, 20000);
-    const parsed = parseTreasuryYieldCurveHtml(html, nowIso);
-    if (!parsed) throw new Error('official Treasury page contained no complete five-point curve');
+    const xml = await _fetchRss(TREASURY_CURVE_URL, 35000);
+    const parsed = parseTreasuryYieldCurveXml(xml, nowIso);
+    if (!parsed) throw new Error('official Treasury XML feed contained no complete five-point curve');
     return { ...parsed, attemptedAt: nowIso, cacheHit: false };
   } catch (error) {
     const failureReason = String(error?.message || error);
@@ -449,6 +494,86 @@ export async function fetchTreasuryYieldCurve(previous = null) {
   }
 }
 
+function inferAaiiObservationDate(monthName, day, fetchedAt) {
+  const monthIndex = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'].indexOf(String(monthName || '').slice(0, 3).toLowerCase());
+  const fetched = new Date(fetchedAt);
+  if (monthIndex < 0 || !Number.isFinite(fetched.getTime())) return null;
+  let year = fetched.getUTCFullYear();
+  let candidate = new Date(Date.UTC(year, monthIndex, Number(day)));
+  if (candidate.getTime() > fetched.getTime() + 14 * 86400000) {
+    year -= 1;
+    candidate = new Date(Date.UTC(year, monthIndex, Number(day)));
+  }
+  return Number.isFinite(candidate.getTime()) ? candidate.toISOString().slice(0, 10) : null;
+}
+
+export function parseAaiiSentimentText(text, fetchedAt = new Date().toISOString(), relayUrl = null) {
+  const normalized = String(text || '')
+    .replace(/<script\b[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style\b[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;|&#160;/gi, ' ')
+    .replace(/\s+/g, ' ');
+  const matches = [...normalized.matchAll(/\b(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+(\d{1,2})\s+(\d{1,3}(?:\.\d+)?)%\s*(\d{1,3}(?:\.\d+)?)%\s*(\d{1,3}(?:\.\d+)?)%/gi)];
+  const rows = matches.map((match) => {
+    const observedAt = inferAaiiObservationDate(match[1], Number(match[2]), fetchedAt);
+    const bullish = Number(match[3]);
+    const neutral = Number(match[4]);
+    const bearish = Number(match[5]);
+    const total = bullish + neutral + bearish;
+    return observedAt && [bullish, neutral, bearish].every(value => value >= 0 && value <= 100) && Math.abs(total - 100) <= 0.3
+      ? { observedAt, bullish, neutral, bearish }
+      : null;
+  }).filter(Boolean).sort((a, b) => b.observedAt.localeCompare(a.observedAt));
+  const latest = rows[0] || null;
+  if (!latest) return null;
+  return {
+    status: 'current-reference',
+    ...latest,
+    spread: round(latest.bullish - latest.bearish, 1),
+    period: `week-ending-${latest.observedAt}`,
+    source: 'AAII Sentiment Survey',
+    sourceKind: relayUrl ? 'publisher-public-web-via-reader-relay' : 'publisher-public-web',
+    sourceUrl: AAII_SENTIMENT_URL,
+    relayUrl,
+    fetchedAt,
+    access: 'public-web-terms-apply',
+    allowedUse: 'reference-only',
+    decisionUse: false,
+    note: relayUrl
+      ? 'Official public percentages collected through a bounded text relay after the publisher blocked direct automation; reference-only and excluded from trading gates.'
+      : 'Official public percentages collected directly; reference-only and excluded from trading gates.'
+  };
+}
+
+export async function fetchAaiiSentiment(previous = null) {
+  const nowIso = new Date().toISOString();
+  const previousFetchedAt = Date.parse(previous?.fetchedAt || '');
+  if (previous?.status === 'current-reference' && Number.isFinite(previousFetchedAt) && Date.now() - previousFetchedAt <= AAII_CACHE_MAX_AGE_MS) {
+    return { ...previous, attemptedAt: nowIso, cacheHit: true };
+  }
+  const failures = [];
+  for (const candidate of [
+    { url: AAII_SENTIMENT_URL, timeoutMs: 15000, relayUrl: null },
+    { url: AAII_READER_URL, timeoutMs: 25000, relayUrl: AAII_READER_URL }
+  ]) {
+    try {
+      const text = await _fetchRss(candidate.url, candidate.timeoutMs);
+      const parsed = parseAaiiSentimentText(text, nowIso, candidate.relayUrl);
+      if (!parsed) throw new Error('no complete dated AAII percentage row');
+      return { ...parsed, attemptedAt: nowIso, cacheHit: false };
+    } catch (error) {
+      failures.push(`${candidate.relayUrl ? 'relay' : 'direct'}:${String(error?.message || error)}`);
+    }
+  }
+  if (previous?.observedAt) return { ...previous, status: 'stale-reference', attemptedAt: nowIso, failureReason: failures.join(' | '), cacheHit: false };
+  return {
+    status: 'unavailable', bullish: null, neutral: null, bearish: null, spread: null, observedAt: null,
+    source: 'AAII Sentiment Survey', sourceKind: 'publisher-public-web', sourceUrl: AAII_SENTIMENT_URL,
+    fetchedAt: null, attemptedAt: nowIso, failureReason: failures.join(' | '), allowedUse: 'none', decisionUse: false
+  };
+}
+
 // AR-07 Batch 0/QG-06: a missing FRED key or a transient series failure must
 // not erase a usable last-known-good macro payload. The original observation
 // dates remain on each field and the meta status still says the new fetch did
@@ -456,6 +581,19 @@ export async function fetchTreasuryYieldCurve(previous = null) {
 export function mergeMacroLastKnownGood(current, previous) {
   if (!previous || typeof previous !== 'object') return current || {};
   const merged = { ...previous, ...(current || {}) };
+  // A retained value keeps its original observation date, but it must not keep
+  // the source/status of the failed current fetch. Otherwise downstream readers
+  // can mistake an LKG carry-forward for a newly observed official value.
+  for (const field of Object.keys(FRED_SERIES)) {
+    const currentValue = Number(current?.[field]);
+    const previousValue = Number(previous?.[field]);
+    if (Number.isFinite(currentValue)) continue;
+    if (!Number.isFinite(previousValue)) continue;
+    const previousSource = previous?.[`_source_${field}`] || previous?._source || 'unknown';
+    merged[`_originSource_${field}`] = previous?.[`_originSource_${field}`] || previousSource;
+    merged[`_source_${field}`] = 'last-known-good';
+    merged[`_freshness_${field}`] = 'stale-reference';
+  }
   const failed = new Set([...(Array.isArray(previous._failedSeries) ? previous._failedSeries : []), ...(Array.isArray(current?._failedSeries) ? current._failedSeries : [])]);
   merged._failedSeries = [...failed];
   merged._lastKnownGoodAt = previous._lastKnownGoodAt || previous._asOf_hyOAS || null;
@@ -642,6 +780,8 @@ export function normalizeBlsSeriesResponse(payload, fetchedAt = new Date().toISO
       unit: config.unit,
       frequency: config.frequency,
       seasonalAdjustment: config.seasonalAdjustment,
+      displayRole: config.displayRole || null,
+      definition: config.definition || null,
       source: 'BLS Public Data API v1',
       sourceKind: 'official-primary',
       sourceUrl: 'https://www.bls.gov/developers/',
@@ -1697,7 +1837,7 @@ async function enrichSecFundamentals(syms, priceData) {
       if (!Object.keys(rec).length) continue;
       Object.assign(rec, {
         fundamentalSource: 'SEC EDGAR companyfacts',
-        fundamentalModel: row.model || payload.model || 'sec-fy-normalized-v1',
+        fundamentalModel: row.model || payload.model || 'sec-fy-normalized-v2',
         fundamentalPeriod: row.periodType || 'FY',
         fundamentalObservedAt: row.observedAt || null,
         fundamentalFiledAt: row.filedAt || null,
@@ -1707,9 +1847,17 @@ async function enrichSecFundamentals(syms, priceData) {
       out[sym] = rec;
       available++;
     }
-    return { data: out, ok: available, stored: Object.keys(rows).length, generatedAt: payload.generatedAt || null, source: payload.source || 'SEC EDGAR companyfacts' };
+    return {
+      data: out,
+      ok: available,
+      stored: Object.keys(rows).length,
+      eligible: Number(payload.eligible) || 0,
+      model: payload.model || 'sec-fy-normalized-v2',
+      generatedAt: payload.generatedAt || null,
+      source: payload.source || 'SEC EDGAR companyfacts'
+    };
   } catch (error) {
-    return { data: {}, ok: 0, stored: 0, generatedAt: null, source: 'SEC EDGAR companyfacts', error: String(error && error.message || error) };
+    return { data: {}, ok: 0, stored: 0, eligible: 0, model: 'sec-fy-normalized-v2', generatedAt: null, source: 'SEC EDGAR companyfacts', error: String(error && error.message || error) };
   }
 }
 
@@ -2047,11 +2195,14 @@ export async function enrichScreener() {
     secFundamentalsOk: secResult.ok > 0,
     secFundamentalsCount: secResult.ok,
     secFundamentalsStored: secResult.stored,
+    secFundamentalsEligible: secResult.eligible,
+    secFundamentalsModel: secResult.model,
     secFundamentalsGeneratedAt: secResult.generatedAt,
     fundamentalCount,
     fundamentalCoveragePct,
     fundamentalCoverageDenominator: usUniverse,
-    fundamentalModels: ['fmp-ttm', 'sec-fy-normalized-v1'],
+    fundamentalModels: ['fmp-ttm', 'sec-fy-normalized-v2'],
+    fundamentalCoverageScope: 'US screener universe; mixed fundamental fields, separate from SEC-only coverage',
     breadth,
     breadthHistory: {
       status: breadthHistoryInfo.updated ? 'CURRENT' : 'BLOCKED',
@@ -2087,7 +2238,7 @@ const MARKET_ANALYSIS_QUOTE_DEFS = [
 const MARKET_ANALYSIS_MACRO_DEFS = [
   { key: 'cpi', metricId: 'macro.cpi', label: 'CPI', unit: 'percent', aliases: [] },
   { key: 'fedRate', metricId: 'macro.fed-rate', label: 'FedRate', unit: 'percent', aliases: ['Fed rate', 'Fed funds'] },
-  { key: 'nfp', metricId: 'macro.nfp-mom', label: 'NFP', unit: 'thousands', aliases: ['nonfarm payroll'] },
+  { key: 'nfp', blsMetricId: 'nonfarmPayroll', metricId: 'macro.nfp-mom', label: 'NFP', unit: 'thousands', aliases: ['nonfarm payroll'] },
 ];
 
 function _validIsoDate(value) {
@@ -2120,9 +2271,14 @@ export function buildMarketAnalysisEvidence(data) {
   }
   const macro = data?.macro || {};
   for (const def of MARKET_ANALYSIS_MACRO_DEFS) {
-    const bls = macro._bls?.series?.[def.key];
+    const bls = macro._bls?.series?.[def.blsMetricId || def.key];
     const value = Number(macro[def.key]);
-    const blsMatchesValue = bls?.status === 'ok' && Number.isFinite(Number(bls.value)) && Number(bls.value) === value;
+    // A BLS series is eligible for the market-standard CPI evidence slot only
+    // when its seasonal-adjustment contract matches the slot.  This prevents
+    // a legacy SA CUSR payload from masquerading as the NSA release headline.
+    const expectedAdjustment = def.key === 'cpi' || def.key === 'coreCpi' ? 'NSA' : null;
+    const blsDefinitionMatches = !expectedAdjustment || String(bls?.seasonalAdjustment || '').toUpperCase() === expectedAdjustment;
+    const blsMatchesValue = bls?.status === 'ok' && blsDefinitionMatches && Number.isFinite(Number(bls.value)) && Number(bls.value) === value;
     const asOf = _validIsoDate(blsMatchesValue ? bls.observedAt : macro[`_asOf_${def.key}`]);
     const source = blsMatchesValue ? bls.source : (macro._source === 'fred' ? 'FRED' : null);
     if (!Number.isFinite(value) || !asOf || !source) continue;
@@ -2207,7 +2363,10 @@ export function validateMarketAnalysisText(text, data) {
     issues.push('nfp-scale-mismatch');
   }
   const causalClaim = /\b(?:because|due to|driven by|led by|after|following|amid|risk|supports?|weakened|strengthened)\b/i.test(body);
-  const causalEvidence = (data?.news || []).filter(row => row && row.title && row.source && row.link && _validIsoDate(row.eventTime || row.pubDate));
+  // Keep the semantic gate aligned with the publisher-side evidence builder.
+  // A headline can establish that a story exists, but cannot support an AI
+  // causal claim without article content/excerpt.
+  const causalEvidence = buildMarketAnalysisNewsEvidence(data);
   if (causalClaim && causalEvidence.length === 0) issues.push('causal-evidence-missing');
   return { ok: issues.length === 0, issues: Array.from(new Set(issues)), metricEvidence, causalEvidenceCount: causalEvidence.length };
 }
@@ -2226,7 +2385,8 @@ async function genMarketAnalysisLegacy(data) {
   if (!key) return null; // 키 없으면 스킵 — 클라이언트 템플릿이 처리
     const q = {};
     (data.quotes || []).forEach(x => { if (x && x.symbol) q[x.symbol] = x.regularMarketPrice ?? x.price; });
-    const heads = (data.news || []).slice(0, 8).map(n => '- ' + (n.title || '') + ' [' + (n.source || 'unknown') + ' | ' + (n.eventTime || n.pubDate || 'unknown') + ']').join('\n');
+    const newsEvidence = buildMarketAnalysisNewsEvidence(data);
+    const heads = newsEvidence.map(n => '- ' + (n.title || '') + ' [' + (n.source || 'unknown') + ' | ' + (n.observedAt || 'unknown') + ']').join('\n');
     const evidenceLines = metricEvidence.slice(0, 16).map(row => `- ${row.metricId} label=${row.label} value=${row.value} unit=${row.unit} asOf=${row.asOf} source=${row.source}`).join('\n');
     const nfp = Number(data.macro?.nfp);
     const nfpUnit = data.macro?._bls?.series?.nonfarmPayroll?.unit || 'thousands';
@@ -2273,11 +2433,23 @@ async function genMarketAnalysisLegacy(data) {
   } catch (e) { console.warn('[fetch-data] LLM 분석 생성 예외(템플릿 폴백):', e && e.message); return null; }
 }
 
+const MARKET_ANALYSIS_NEWS_HEADLINE_DEPTHS = new Set(['', 'headline', 'headline-only', 'title-only', 'snippet']);
+
+// Only rows with an explicit non-headline content contract and substantive
+// text may support causal/AI market analysis.  RSS title rows deliberately
+// remain usable by currentness/discovery surfaces but fail closed here.
+export function isMarketAnalysisNewsEligible(row) {
+  const depth = String(row?.contentDepth || '').trim().toLowerCase().replace(/_/g, '-');
+  if (MARKET_ANALYSIS_NEWS_HEADLINE_DEPTHS.has(depth)) return false;
+  const body = String(row?.content || row?.body || row?.description || row?.summary || row?.excerpt || row?.desc || '').trim();
+  return body.length >= 40;
+}
+
 export function buildMarketAnalysisNewsEvidence(data) {
   const rows = Array.isArray(data?.news) ? data.news : [];
   const clusters = new Set();
   return rows
-    .filter(row => row && row.title && row.source && row.link && _validIsoDate(row.eventTime || row.pubDate))
+    .filter(row => row && row.title && row.source && row.link && _validIsoDate(row.eventTime || row.pubDate) && isMarketAnalysisNewsEligible(row))
     .sort((a, b) => Number(b.score || 0) - Number(a.score || 0))
     .map(row => {
       const observedAt = _validIsoDate(row.eventTime || row.pubDate);
@@ -2290,6 +2462,8 @@ export function buildMarketAnalysisNewsEvidence(data) {
         title: String(row.title).slice(0, 240),
         source: row.source,
         sourceKind: row.sourceKind || 'news-feed',
+        contentDepth: String(row.contentDepth || '').trim(),
+        evidenceBasis: 'article-content-or-excerpt',
         observedAt,
         collectedAt: data?.meta?.generatedAt || null,
         link: row.link,
@@ -2542,7 +2716,7 @@ async function main() {
     previousOfficialWebReferences = previous && previous.officialWebReferences || null;
   } catch (_) {}
 
-  const [quotesRaw, macroRaw, fearGreed, news, putCall, bls, bea, treasury, fredHyOas, cryptoCrossCheck] = await Promise.all([
+  const [quotesRaw, macroRaw, fearGreed, news, putCall, bls, bea, treasury, fredHyOas, cryptoCrossCheck, aaii] = await Promise.all([
     mapLimit(SYMBOLS, 6, fetchQuote),
     fetchFred(process.env.FRED_API_KEY),
     fetchFearGreed(),
@@ -2553,12 +2727,44 @@ async function main() {
     fetchTreasuryYieldCurve(previousTreasury),
     fetchFredHyOasPublic(previousFredHyOas),
     fetchCoinGeckoCrossCheck(),
+    fetchAaiiSentiment(previousMarketSurveys?.aaii || null),
   ]);
+  const surveyAttemptedAt = aaii.attemptedAt || new Date().toISOString();
+  const marketSurveys = previousMarketSurveys
+    ? { ...previousMarketSurveys, automatedCheckedAt: surveyAttemptedAt, aaii }
+    : {
+        schemaVersion: 'web-research-surveys.v2',
+        checkedAt: surveyAttemptedAt,
+        automatedCheckedAt: surveyAttemptedAt,
+        policy: 'official-publisher-public-web; bounded relay fallback; reference-only; no synthesis',
+        aaii
+      };
   const macro = mergeMacroLastKnownGood(macroRaw, previousMacro);
   for (const field of Object.keys(FRED_SERIES)) {
     if (Number.isFinite(Number(macroRaw?.[field]))) macro[`_source_${field}`] = 'fred-official-primary';
   }
   Object.assign(macro, bls.values || {});
+  // Promote only the successful BLS headline/core fields to the canonical
+  // `macro.cpi`/`macro.coreCpi` slots.  Those slots are consumed by the
+  // market-standard CPI cards and therefore must be CPI-U NSA, while the
+  // explicitly named `blsCpiSaYoY`/`blsCoreCpiSaYoY` values remain available
+  // for SA analysis.  A stale BLS last-known-good payload is retained under
+  // `_bls` but never silently promoted over the current FRED/previous value.
+  const blsFieldPromotions = [
+    ['cpi', 'blsCpiYoY'],
+    ['coreCpi', 'blsCoreCpiYoY']
+  ];
+  if (['ok', 'cached-fresh', 'partial'].includes(bls.status)) {
+    for (const [macroField, blsField] of blsFieldPromotions) {
+      const metricId = macroField;
+      const seriesEvidence = bls.series?.[metricId];
+      const value = Number(bls.values?.[blsField]);
+      if (seriesEvidence?.status !== 'ok' || !Number.isFinite(value)) continue;
+      macro[macroField] = value;
+      macro[`_asOf_${macroField}`] = seriesEvidence.observedAt || null;
+      macro[`_source_${macroField}`] = 'bls-official-primary';
+    }
+  }
   macro._bls = bls;
   macro._bea = bea;
   macro._treasury = treasury;
@@ -2671,6 +2877,11 @@ async function main() {
       treasuryAttemptedAt: treasury.attemptedAt || null,
       treasuryLastSuccessfulAt: ['ok', 'cached-fresh'].includes(treasury.status) ? treasury.fetchedAt : null,
       treasuryObservedAt: treasury.observedAt || null,
+      aaiiStatus: aaii.status,
+      aaiiAttemptedAt: aaii.attemptedAt || null,
+      aaiiFetchedAt: aaii.fetchedAt || null,
+      aaiiObservedAt: aaii.observedAt || null,
+      aaiiRelayUsed: !!aaii.relayUrl,
       fredHyOasStatus: fredHyOas.status,
       fredHyOasAttemptedAt: fredHyOas.attemptedAt || null,
       fredHyOasLastSuccessfulAt: ['ok', 'cached-fresh'].includes(fredHyOas.status) ? fredHyOas.fetchedAt : null,
@@ -2688,8 +2899,8 @@ async function main() {
       newsScoreMax: newsScores.length ? Math.max(...newsScores) : null,
       putCallOk: putCall && Number.isFinite(putCall.totalPutCall),
       putCallAsOf: putCall && putCall.asOf || null,
-      marketSurveysStatus: previousMarketSurveys ? 'web-research-captured-reference' : null,
-      marketSurveysCheckedAt: previousMarketSurveys?.checkedAt || null,
+      marketSurveysStatus: marketSurveys ? 'web-research-captured-reference' : null,
+      marketSurveysCheckedAt: marketSurveys?.checkedAt || null,
       elapsedMs: Date.now() - t0,
       schema: 1,
     },
@@ -2698,10 +2909,11 @@ async function main() {
     fearGreed,
     putCall,
     providerCrossChecks: { crypto: cryptoCrossCheck },
-    // Publisher survey values are an operator-captured WebSearch artifact.
-    // Preserve them across automated market refreshes; do not synthesize a new
-    // value when a publisher page is stale, subscriber-only, or unavailable.
-    marketSurveys: previousMarketSurveys,
+    // AAII is refreshed server-side from its official public table, with a
+    // bounded text-relay fallback when publisher anti-bot policy blocks direct
+    // automation. Subscriber-only surveys remain preserved/blocked and no
+    // missing percentage is synthesized.
+    marketSurveys,
     officialWebReferences: previousOfficialWebReferences,
     news,
   };
@@ -2713,10 +2925,12 @@ async function main() {
     data.meta.marketAnalysisOk = marketAnalysis.status === 'verified';
     data.meta.marketAnalysisSemanticOk = marketAnalysis.status === 'verified' && marketAnalysis.semanticStatus === 'verified' && Array.isArray(marketAnalysis.metricEvidence) && marketAnalysis.metricEvidence.length >= 2 && (!marketAnalysis.semanticIssues || marketAnalysis.semanticIssues.length === 0);
     data.meta.marketAnalysisEvidenceCount = Array.isArray(marketAnalysis.metricEvidence) ? marketAnalysis.metricEvidence.length : 0;
+    data.meta.marketAnalysisNewsEvidenceCount = Array.isArray(marketAnalysis.newsEvidence) ? marketAnalysis.newsEvidence.length : 0;
   } else {
     data.meta.marketAnalysisOk = false;
     data.meta.marketAnalysisSemanticOk = false;
     data.meta.marketAnalysisEvidenceCount = 0;
+    data.meta.marketAnalysisNewsEvidenceCount = 0;
   }
 
   if (!fearGreedOk) console.warn('[fetch-data] 경고: F&G 수집 실패 (사이트는 정적 폴백 사용)');

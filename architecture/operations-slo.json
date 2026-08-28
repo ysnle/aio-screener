@@ -1,6 +1,6 @@
 {
   "schemaVersion": "operations-slo-v1",
-  "appRevision": "v54.43",
+  "appRevision": "v54.63",
   "generatedAt": "2026-07-29T20:18:00+09:00",
   "targets": {
     "artifactSuccessRate30d": 0.995,
@@ -26,31 +26,65 @@
     }
   },
   "latestMeasuredBoot": {
-    "fcpMs": 860,
-    "dclMs": 379,
-    "loadMs": 838,
-    "maxLongTaskMs": 105,
-    "totalLongTaskMs": 558,
-    "longTaskCount": 6,
-    "longTaskObservationWindowMs": 2000,
-    "domNodes": 6875,
-    "activeRouteDomNodes": 724,
-    "routeMs": 106,
-    "wallMs": 7002,
-    "totalExternalRequests": 186,
-    "quoteRequests": 83,
-    "initialExternalRequests": 12,
-    "initialQuoteRequests": 0,
-    "bootObservationWindowMs": 2000,
-    "quoteRequestCeiling": 100,
-    "runs": 3,
-    "status": "TARGET_COMPLIANT"
+    "status": "STALE_MEASUREMENT",
+    "observedAppRevision": "v53.62",
+    "observedCommit": "d722c86d5d357ab8b95331d66438e32f3b7a8701",
+    "observedAt": "2026-07-29T20:18:00+09:00",
+    "command": "node scripts/ci-boot-interaction-check.mjs (three sequential runs)",
+    "artifact": null,
+    "provenanceComplete": false,
+    "reason": "Historical aggregate had no immutable run artifact or exact browser/environment binding and cannot certify the current revision.",
+    "metrics": {
+      "fcpMs": 860,
+      "dclMs": 379,
+      "loadMs": 838,
+      "maxLongTaskMs": 105,
+      "totalLongTaskMs": 558,
+      "longTaskCount": 6,
+      "longTaskObservationWindowMs": 2000,
+      "domNodes": 6875,
+      "activeRouteDomNodes": 724,
+      "routeMs": 106,
+      "wallMs": 7002,
+      "totalExternalRequests": 186,
+      "quoteRequests": 83,
+      "initialExternalRequests": 12,
+      "initialQuoteRequests": 0,
+      "bootObservationWindowMs": 2000,
+      "quoteRequestCeiling": 100,
+      "runs": 3
+    }
   },
   "localBoundary": {
-    "routeSoak": { "status": "pass", "script": "scripts/ci-route-soak-check.mjs", "laps": 3, "routes": 20, "report": "_artifacts/route-soak-report.json", "browserErrors": 0, "maxCanvases": 42, "entityRoundTrip": "AAPL>MSFT>AAPL" },
-    "visualStateMatrix": { "status": "contracted", "manifest": "architecture/visual-state-matrix.json" },
-    "revisionInvariant": { "status": "contracted", "script": "scripts/ci-release-revision-check.mjs" },
-    "securityHeaders": { "status": "edge-required", "manifest": "_headers" }
+    "routeSoak": {
+      "status": "pending",
+      "script": "scripts/ci-route-soak-check.mjs",
+      "laps": 3,
+      "routes": 20,
+      "report": "_artifacts/route-soak-report.json",
+      "previousEvidence": {
+        "appRevision": "v54.59",
+        "status": "pass",
+        "browserErrors": 0,
+        "maxCanvases": 42,
+        "entityRoundTrip": "AAPL>MSFT>AAPL",
+        "report": "_artifacts/route-soak-report.json"
+      },
+      "evidenceStatus": "REMEASURE_REQUIRED",
+      "reason": "Source revision changed from v54.62 to v54.63; route-soak evidence remains historical until rerun."
+    },
+    "visualStateMatrix": {
+      "status": "contracted",
+      "manifest": "architecture/visual-state-matrix.json"
+    },
+    "revisionInvariant": {
+      "status": "contracted",
+      "script": "scripts/ci-release-revision-check.mjs"
+    },
+    "securityHeaders": {
+      "status": "edge-required",
+      "manifest": "_headers"
+    }
   },
   "certification": {
     "thirtyDaySlo": "not-certified",

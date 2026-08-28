@@ -16,7 +16,7 @@ const fail = (message) => { throw new Error(`[esm-core-unit] ${message}`); };
 const load = (rel) => import(pathToFileURL(path.join(root, rel)));
 
 const { createStore } = await load('src/state/store.js');
-const { createRouteRegistry, createLifecycleRouter } = await load('src/app/router.js');
+const { createLazyPage, createRouteRegistry, createLifecycleRouter } = await load('src/app/router.js');
 const { ROUTE_IDS } = await load('src/app/routes.js');
 const { getVerticalSliceContract, auditVerticalSliceContracts } = await load('src/app/vertical-slices.js');
 const { createResourceBag, createChartRegistry } = await load('src/app/lifecycle.js');
@@ -160,10 +160,19 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
 
 // ── W1-01/W1-02: one allowedUse enum and decision-only selectors ─────────────────────────────
 {
-  const { createEvidence, normalizeAllowedUse } = await load('src/data/contracts/evidence.js');
+  const { createEvidence, normalizeAllowedUse, restrictAllowedUse } = await load('src/data/contracts/evidence.js');
+  const { applyFreshness } = await load('src/data/quality/freshness.js');
   const { selectForDecision, selectForDisplay, selectLastKnown, selectCompleteness } = await load('src/data/selectors/evidence.js');
   if (normalizeAllowedUse(true) !== 'decision' || normalizeAllowedUse('reference-only') !== 'reference' || normalizeAllowedUse('unknown-provider-state') !== 'none') {
     fail('truth-boundary: legacy allowedUse aliases must normalize to decision/reference/none and unknown values must fail closed');
+  }
+  if (restrictAllowedUse('decision', 'reference') !== 'reference' || restrictAllowedUse('fresh', 'none') !== 'none') {
+    fail('truth-boundary: allowed-use restriction must choose the most restrictive policy');
+  }
+  const referenceCurrent = applyFreshness({ metric: 'reference-current', value: 7, status: 'live', allowedUse: 'reference', allowedUseCeiling: 'reference', observedAt: '2026-07-19T00:00:00Z' }, { now: Date.parse('2026-07-19T00:01:00Z') });
+  const impossiblePromotion = createEvidence({ metric: 'snapshot-promote', value: 8, status: 'snapshot', allowedUse: 'decision' });
+  if (referenceCurrent.status !== 'fresh' || referenceCurrent.allowedUse !== 'reference' || impossiblePromotion.allowedUse !== 'reference') {
+    fail(`truth-boundary: freshness/status promoted restricted evidence: ${JSON.stringify({ referenceCurrent, impossiblePromotion })}`);
   }
   const evidence = {
     live: createEvidence({ metric: 'live', value: 1, status: 'live', allowedUse: true }),
@@ -496,6 +505,121 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
   if (empty.status !== 'unavailable' || empty.label !== '관찰' || empty.relativeStrengthPullback !== 'unavailable') {
     fail(`setup-profile: empty row must remain unavailable, got ${JSON.stringify(empty)}`);
   }
+}
+
+// ── data/providers/entity.js ─────────────────────────────────────────────────────────────────
+{
+  const { createEntityProvider } = await load('src/data/providers/entity.js');
+  let requests = 0;
+  const provider = createEntityProvider({
+    read: () => ({ id: 'AAPL' }),
+    fundamentalWatchlist: ['MSFT', 'MISSING'],
+    httpClient: {
+      requestJson: async () => {
+        requests += 1;
+        if (requests === 1) return { ok: false, error: 'HTTP_ABORTED' };
+        return {
+          ok: true,
+          data: {
+            generatedAt: '2026-07-28T10:00:00Z',
+            source: 'SEC EDGAR companyfacts',
+            model: 'sec-fy-normalized-v2',
+            data: {
+              AAPL: { symbol: 'AAPL', observedAt: '2026-07-28', revenue: 100 },
+              MSFT: { symbol: 'MSFT', observedAt: '2026-06-30', revenue: 200 }
+            }
+          }
+        };
+      }
+    },
+    now: () => Date.parse('2026-07-28T12:00:00Z')
+  });
+  const failed = await provider.readCurrent();
+  const retried = await provider.readCurrent();
+  if (failed.fundamentals !== null || requests !== 2 || retried.fundamentals?.revenue !== 100) {
+    fail(`entity provider: transient empty response was cached instead of retried: ${JSON.stringify({ requests, failed: failed.fundamentals, retried: retried.fundamentals })}`);
+  }
+  if (retried.fundamentalsWatchlist?.length !== 1 || retried.fundamentalsWatchlist[0]?.symbol !== 'MSFT'
+    || retried.fundamentalsMeta?.model !== 'sec-fy-normalized-v2') {
+    fail(`entity provider: bounded SEC watchlist projection or metadata drifted: ${JSON.stringify({ rows: retried.fundamentalsWatchlist, meta: retried.fundamentalsMeta })}`);
+  }
+}
+
+// ── router.js (route-dynamic-import lifecycle) ──────────────────────────────────────────────
+{
+  const makeNode = () => {
+    let errorMarker = null;
+    return {
+      dataset: {},
+      querySelector: (selector) => selector === '[data-aio-route-module-error]' ? errorMarker : null,
+      prepend: (node) => { errorMarker = node; }
+    };
+  };
+  const nodes = { guide: makeNode(), masters: makeNode(), signal: makeNode() };
+  const documentRef = {
+    getElementById: (id) => nodes[id.replace('page-', '')] || null,
+    createElement: () => ({
+      dataset: {},
+      className: '',
+      textContent: '',
+      setAttribute() {},
+      remove() {}
+    })
+  };
+  const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
+  let resolveGuide;
+  let guideLoads = 0;
+  let guideMounts = 0;
+  let guideDisposes = 0;
+  const guide = createLazyPage({
+    route: 'guide',
+    loader: () => {
+      guideLoads += 1;
+      return new Promise((resolve) => { resolveGuide = resolve; });
+    },
+    factory: (module) => module.createGuidePage()
+  });
+  let mastersLoads = 0;
+  let mastersMounts = 0;
+  const masters = createLazyPage({
+    route: 'masters',
+    loader: async () => {
+      mastersLoads += 1;
+      if (mastersLoads === 1) throw new Error('fixture-load-failure');
+      return { createMastersPage: () => ({ mount: () => { mastersMounts += 1; } }) };
+    },
+    factory: (module) => module.createMastersPage()
+  });
+  const target = new EventTarget();
+  const registry = createRouteRegistry({ modules: {
+    guide,
+    masters,
+    signal: { mount: () => () => {} }
+  } });
+  const router = createLifecycleRouter({ root: target, registry, context: { documentRef } });
+
+  router.transition('guide');
+  await Promise.resolve();
+  router.transition('signal');
+  resolveGuide({ createGuidePage: () => ({
+    mount: () => { guideMounts += 1; return () => { guideDisposes += 1; }; }
+  }) });
+  await flush();
+  if (guideMounts !== 0) fail('lazy-router: a module resolved after route disposal mounted stale UI');
+  router.transition('guide');
+  await flush();
+  if (guideLoads !== 1 || guideMounts !== 1 || nodes.guide.dataset.aioRouteModuleState !== 'ready') fail('lazy-router: successful module was not cached and mounted on re-entry');
+  router.transition('signal');
+  if (guideDisposes !== 1) fail('lazy-router: loaded page disposer was not owned by the route scope');
+
+  router.transition('masters');
+  await flush();
+  if (mastersLoads !== 1 || nodes.masters.dataset.aioRouteModuleState !== 'failed') fail('lazy-router: load failure did not expose a fail-closed route state');
+  router.transition('signal');
+  router.transition('masters');
+  await flush();
+  if (mastersLoads !== 2 || mastersMounts !== 1 || nodes.masters.dataset.aioRouteModuleState !== 'ready') fail('lazy-router: failed dynamic import was not retryable on route re-entry');
+  router.dispose();
 }
 
   const { derivePortfolioSurface } = await load('src/domain/portfolio/surface.js');

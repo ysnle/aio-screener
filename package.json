@@ -3,6 +3,14 @@
   "private": true,
   "description": "CI-only tooling (no app runtime dependency — index.html is a dependency-free static SPA).",
   "type": "module",
+  "scripts": {
+    "qa": "node scripts/qa-runner.mjs affected",
+    "qa:fast": "node scripts/qa-runner.mjs fast",
+    "qa:contracts": "node scripts/qa-runner.mjs contracts --no-cache",
+    "qa:retry": "node scripts/qa-runner.mjs rerun-failed",
+    "qa:full": "node scripts/qa-runner.mjs full --no-cache",
+    "qa:external": "node scripts/qa-runner.mjs external --no-cache"
+  },
   "devDependencies": {
     "js-yaml": "5.2.1",
     "playwright": "^1.48.0"

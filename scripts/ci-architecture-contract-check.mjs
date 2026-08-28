@@ -19,10 +19,8 @@ for (const marker of ['## 2. 계층별 현재 상태와 목표', '## 5. 17 route
 if (golden.firstVerticalSlice !== 'sentiment') fail('first vertical slice must remain sentiment');
 if (!publicManifest.publicRootAllowlist.includes('src/**/*.js')) fail('Pages allowlist does not publish native ESM');
 const srcFiles = fs.readdirSync(path.join(root, 'src'), { recursive: true }).filter((file) => String(file).endsWith('.js'));
-for (const file of srcFiles) {
-  const asset = `./src/${String(file).replaceAll('\\', '/')}`;
-  if (!serviceWorkerSource.includes(`'${asset}'`)) fail(`service worker shell asset missing: ${asset}`);
-}
+if (!serviceWorkerSource.includes('RUNTIME_SHELL_PATH_RE') || !serviceWorkerSource.includes('isRuntimeShell')) fail('service worker must runtime-cache requested native ESM modules');
+if (!serviceWorkerSource.includes('cache.addAll(CRITICAL_SHELL_ASSETS)')) fail('service worker critical shell install must be atomic');
 for (const field of ['appRevision', 'dataRevision', 'evidenceRevision']) {
   if (!release[field] || release[field] === 'unknown') fail(`release revision missing: ${field}`);
 }
@@ -52,12 +50,33 @@ const baseline = JSON.parse(read('architecture/baseline.json'));
 const routeOwners = JSON.parse(read('architecture/route-owners.json'));
 const routeEntries = Object.entries(routeOwners.routes || {});
 const ownerDimensions = ['lifecycle', 'renderer', 'data', 'chart', 'narrative'];
+const bootstrapSource = read('src/app/bootstrap.js');
 const nativeRoutesByDimension = Object.fromEntries(ownerDimensions.map((dimension) => [
   dimension,
   routeEntries.filter(([, owner]) => owner[`${dimension}Owner`] === 'native').map(([route]) => route)
 ]));
+const declaredNotApplicable = (owner, field) => owner[`${field}Owner`] === 'not-applicable'
+  && owner.notApplicableFields?.includes(`${field}Owner`);
+const hasCompleteOwnership = (owner) => owner.lifecycleOwner === 'native'
+  && owner.rendererOwner === 'native'
+  && owner.dataOwner === 'native'
+  && ['chart', 'narrative'].every((field) => owner[`${field}Owner`] === 'native' || declaredNotApplicable(owner, field))
+  && owner.loadingStrategy === 'route-dynamic-import'
+  && (owner.contestedIds || []).length === 0
+  && (owner.legacyWriterEvidence || []).length === 0;
+const routePageFile = (owner) => String(owner.nativeModule || '').match(/^src\/ui\/pages\/([^\s]+\.js)/)?.[1] || null;
+const escapePattern = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const lazyLoadedRoutes = routeEntries
+  .filter(([route, owner]) => {
+    const pageFile = routePageFile(owner);
+    return owner.loadingStrategy === 'route-dynamic-import'
+      && pageFile
+      && new RegExp(`route:\\s*['\"]${escapePattern(route)}['\"][\\s\\S]{0,240}?loader:\\s*\\(\\)\\s*=>\\s*import\\(['\"]\\.\\.\/ui\/pages\/${escapePattern(pageFile)}['\"]\\)`).test(bootstrapSource)
+      && !new RegExp(`^import\\s+\\{[^\\n]*from\\s+['\"]\\.\\.\/ui\/pages\/${escapePattern(pageFile)}['\"]`, 'm').test(bootstrapSource);
+  })
+  .map(([route]) => route);
 const fullNativeOwner = routeEntries
-  .filter(([, owner]) => ownerDimensions.every((dimension) => owner[`${dimension}Owner`] === 'native'))
+  .filter(([route, owner]) => hasCompleteOwnership(owner) && lazyLoadedRoutes.includes(route))
   .map(([route]) => route);
 const assertExactRoutes = (field, expected) => {
   const actual = routeOwners.counts?.[field];
@@ -82,12 +101,14 @@ assertExactRoutes('rendererLegacyRoutes', routeEntries.filter(([, owner]) => own
 assertExactRoutes('dataNativeRoutes', nativeRoutesByDimension.data);
 assertExactRoutes('chartNativeRoutes', nativeRoutesByDimension.chart);
 assertExactRoutes('narrativeNativeRoutes', nativeRoutesByDimension.narrative);
+assertExactRoutes('lazyLoadedRoutes', lazyLoadedRoutes);
 assertExactRoutes('fullNativeOwner', fullNativeOwner);
 const legacyFiles = ['index.html', 'js/aio-core.js', 'js/aio-data.js', 'js/aio-ui.js', 'js/aio-chat.js'];
 const aggregate = legacyFiles.map((file) => read(file)).join('\n');
 const count = (pattern) => (aggregate.match(pattern) || []).length;
 const current = {
-  explicitWindowWrites: count(/\bwindow\s*\.\s*[A-Za-z_$][\w$]*\s*=/g),
+  // Count direct assignments only; `window.foo === ...` is a comparison, not a write.
+  explicitWindowWrites: count(/\bwindow\s*\.\s*[A-Za-z_$][\w$]*\s*=(?!=)/g),
   directFetch: count(/\bfetch\s*\(/g),
   directStorage: count(/\b(?:localStorage|sessionStorage)\s*\./g),
   htmlSinks: count(/\.innerHTML\s*=/g)
@@ -106,7 +127,22 @@ if (Number.isFinite(burnDown.explicitWindowWritesMax) && current.explicitWindowW
 const dataSource = read('js/aio-data.js');
 const coreSource = read('js/aio-core.js');
 const uiSource = read('js/aio-ui.js');
-const bootstrapSource = read('src/app/bootstrap.js');
+const chatSource = read('js/aio-chat.js');
+const inferenceEfficiencySource = read('src/domain/ai/inference-efficiency.js');
+const marketPageContractSource = read('src/ui/pages/market.js');
+const indexSource = read('index.html');
+if (!inferenceEfficiencySource.includes('const rawPct = quote?.pct ?? quote?.regularMarketChangePercent') || !inferenceEfficiencySource.includes("rawPct == null || rawPct === '' ? null : Number(rawPct)")) {
+  fail('AI inference proxy must preserve missing pct as null rather than Number(null)=0');
+}
+if (marketPageContractSource.includes('number === 0 ? null') || !marketPageContractSource.includes('const observedNumber = (value) => finite(value)')) {
+  fail('macro transmission renderer must preserve finite zero observations');
+}
+if (!dataSource.includes("var hMacroTopics = ['macro','geopolitics','policy','fed','rates','trade','geo','bond','credit','fx','fxbond'];")) {
+  fail('home news ticker suppression must cover credit and fxbond topics');
+}
+if (!coreSource.includes('mc.__aioResizeObserver = deepChartObserver') || !indexSource.includes('c.__aioResizeObserver.disconnect()')) {
+  fail('deep technical chart ResizeObserver lifecycle must be registered and disconnected');
+}
 const sentimentPageSource = read('src/ui/pages/sentiment.js');
 const guidePageSource = read('src/ui/pages/guide.js');
 const newsPageSource = read('src/ui/pages/news.js');
@@ -119,6 +155,7 @@ const marketHealthSource = read('src/domain/market/health.js');
 if (!bootstrapSource.includes('const ingestSentiment') || !bootstrapSource.includes('ingestSentiment,')) fail('sentiment canonical ingest gateway missing');
 if (!dataSource.includes('AIO_ARCH.ingestSentiment')) fail('legacy sentiment producer gateway notification missing');
 if (!bootstrapSource.includes('createRuntimeReaders') || /create[A-Za-z]+Provider\(\{\s*read:\s*legacy\.read/.test(bootstrapSource)) fail('native route providers must use data-layer runtime readers rather than legacy.read projections');
+if (!chatSource.includes("'aio:entityChanged'") || !bootstrapSource.includes("legacy.on('aio:entityChanged', syncEntity.sync)")) fail('fundamental ticker selection must invalidate the native entity projection before optional provider work');
 if (burnDown.retiredDataShowPageMonkeyPatch && (/const originalShowPage\s*=\s*window\.showPage/.test(dataSource) || /window\.showPage\s*=\s*function\s*\(pageId/.test(dataSource))) {
   fail('retired aio-data showPage monkey patch returned');
 }
@@ -160,6 +197,10 @@ if (!newsPageSource.includes("page.dataset.aioArchitectureRenderer = 'native'"))
 if (!newsPageSource.includes("container.dataset.aioNewsRenderer = 'native'")) fail('news.js native feed marker missing');
 if (!newsPageSource.includes("container.dataset.aioBriefingRenderer = 'native'")) fail('news.js native briefing feed marker missing');
 if (newsPageSource.includes('renderStories')) fail('news.js content-rendering helper (renderStories) returned after RM-01 removed it');
+if (!dataSource.includes("return 'headline-only'") || !dataSource.includes("row.contentDepth !== 'headline-only'") || !dataSource.includes("bodyText.length >= 40 ? 'summary' : 'headline-only'")) fail('headline-only news must remain outside verified/AI evidence');
+for (const marker of ['isNewsAnalysisEligible', '헤드라인 전용 · 단독 분석 근거 사용 금지', '본문/검증 필요']) {
+  if (!newsPageSource.includes(marker)) fail(`native news evidence-depth boundary missing: ${marker}`);
+}
 // P771: market.js owns macro primary quote/FRED metric sinks. The legacy global passes must
 // retain an explicit native-element fence so a later refresh cannot win by last-writer timing.
 if (!marketPageSource.includes("page.dataset.aioArchitectureRenderer = 'native'") || !marketPageSource.includes('renderLiveQuotes') || !marketPageSource.includes('renderSnapshotMetrics')) fail('market.js native macro primary renderer marker missing');
@@ -225,6 +266,11 @@ const indexHtmlSource = read('index.html');
 const showThemeDetailSource = indexHtmlSource.slice(indexHtmlSource.indexOf('function showThemeDetail'), indexHtmlSource.indexOf('var _retiredThemeDeepAnalysis'));
 const closeThemeDetailSource = indexHtmlSource.slice(indexHtmlSource.indexOf('function closeThemeDetail'), indexHtmlSource.indexOf('function showSubThemeDetail'));
 if (showThemeDetailSource.includes("container.style.display = 'block'") || showThemeDetailSource.includes("container.dataset.currentTheme = themeId") || closeThemeDetailSource.includes("p.style.display = 'none'")) fail('legacy theme detail panel writer returned after P818 cutover');
+if (!showThemeDetailSource.includes('themesPageActive') || !showThemeDetailSource.includes("window.showPage('theme-detail')")) fail('ticker-to-theme detail bridge does not route when the owning themes page is inactive');
+if (!coreSource.includes('nativeThemeDetailMounted') || !themesPageSource.includes('pendingThemeId') || !themesPageSource.includes('queueMicrotask(() => requestThemeDetail(pendingThemeId))')) fail('theme-detail lazy-mount pending handoff contract missing');
+for (const marker of ['THEME_MEMBERSHIP_POLICY', 'membershipPolicy', '구성 기준일 미검증']) {
+  if (!(indexHtmlSource.includes(marker) || themesPageSource.includes(marker))) fail(`theme membership provenance marker missing: ${marker}`);
+}
 // P803: market.js owns the bounded breadth signal label from the normalized advance ratio;
 // the legacy RSP/SPY signal writer must not overwrite the native element.
 if (!marketPageSource.includes('breadth-signal-val') || !marketPageSource.includes('aioBreadthSignalRenderer')) fail('native breadth signal renderer marker missing');
@@ -238,6 +284,8 @@ for (const marker of ['renderTickerHero', "route === 'ticker'", "routeNode.datas
 for (const marker of ['renderOptions', "route === 'options'", 'opt-vix-val-secondary', 'opt-pcr-val-secondary', 'opt-skew-val-secondary']) {
   if (!entityPageSource.includes(marker)) fail(`native options renderer marker missing: ${marker}`);
 }
+if (!entityPageSource.includes('data-observed-at') || !entityPageSource.includes('기준일 미수신') || !indexHtmlSource.includes('opt-vix-val-secondary-meta') || !indexHtmlSource.includes('opt-pcr-val-secondary-meta') || !indexHtmlSource.includes('opt-skew-val-secondary-meta')) fail('visible option observedAt/source contract missing');
+if (!entityPageSource.includes("root.showThemeDetail(themeId)") || !entityPageSource.includes('stopImmediatePropagation')) fail('native ticker related-theme action does not own the cross-route click');
 for (const marker of ['renderFundamentalStatus', "route === 'fundamental'", 'fund-data-status', 'data-source-kind']) {
   if (!entityPageSource.includes(marker)) fail(`native fundamental status renderer marker missing: ${marker}`);
 }
@@ -247,6 +295,14 @@ for (const marker of ['renderFundamentalSummary', 'fund-analysis-text', 'aioFund
   if (!entityPageSource.includes(marker)) fail(`native fundamental summary renderer marker missing: ${marker}`);
 }
 if (read('index.html').includes("document.getElementById('fund-analysis-text')") || read('index.html').includes('_generateFundamentalAnalysis(FUND_FALLBACK')) fail('legacy fundamental summary writer returned after P815 cutover');
+for (const marker of ['renderFundamentalWatchlist', 'fund-cards-grid', 'aioFundamentalWatchlistRenderer', 'fundamentalsWatchlist']) {
+  if (!entityPageSource.includes(marker)) fail(`native SEC fundamental watchlist renderer marker missing: ${marker}`);
+}
+for (const marker of ['data-aio-entity-symbol', 'aio:entityChanged', 'sec-watchlist']) {
+  if (!entityPageSource.includes(marker)) fail(`native SEC fundamental selection marker missing: ${marker}`);
+}
+if (/\b(?:FUND_FALLBACK|buildFundCard|initFundamentalCards)\b/.test(read('index.html'))) fail('legacy hardcoded fundamental watchlist writer returned');
+if (/function\s+fundamentalCardClick\s*\(/.test(read('index.html'))) fail('legacy fundamental card provider-search delegate returned');
 // P819: market.js owns the current-evidence breadth diagnostic signal/text;
 // updateBreadthBars remains compatibility-only for these marked sinks.
 for (const marker of ['breadth-diag-signal', 'breadth-diag-text', 'aioBreadthDiagnosticRenderer']) {

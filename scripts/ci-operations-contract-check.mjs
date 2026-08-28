@@ -23,11 +23,16 @@ const routeOwners = json('architecture/route-owners.json');
 const visual = json('architecture/visual-state-matrix.json');
 const slo = json('architecture/operations-slo.json');
 const readiness = json('architecture/public-readiness.json');
+const humanValidation = json('architecture/human-validation.json');
 const operations = json('public-data/operations-status.json');
+const durableData = json('public-data/data.json');
 const publicConfig = json('public-config.json');
 const snapshot = json('public-data/market-snapshot.json');
 const allowlist = json('public-artifact-manifest.json');
 const ci = read('.github/workflows/ci.yml');
+const pagesDeploy = read('.github/workflows/pages-deploy.yml');
+const qaPipeline = json('architecture/qa-pipeline.json');
+const qaGateScripts = Object.values(qaPipeline.groups || {}).flatMap((group) => group.gates || []).map((gate) => gate.script);
 const aiProxyWorkflow = read('.github/workflows/deploy-ai-proxy.yml');
 const aiProxyWrangler = read('worker/wrangler.proxy.toml');
 const worker = read('cloudflare-worker-proxy.js');
@@ -80,18 +85,31 @@ check('route soak declaration', ['pending', 'pass'].includes(slo.localBoundary?.
 check('route soak topology', slo.localBoundary?.routeSoak?.laps === 3 && slo.localBoundary?.routeSoak?.routes === 20);
 check('security header gate is explicit', slo.localBoundary?.securityHeaders?.status === 'edge-required' && slo.localBoundary?.securityHeaders?.manifest === '_headers');
 check('public readiness decision is conservative', readiness.publicBetaDecision === 'BLOCKED_UNTIL_OPERATOR_CRITERIA_CLOSE');
+check('human validation remains evidence-bound', humanValidation.schemaVersion === 'human-validation.v1' && humanValidation.certification === 'OPERATOR_REQUIRED' && readiness.criteria?.find((criterion) => criterion.id === 'accessibility-manual')?.evidence.includes('architecture/human-validation.json'));
 check('public readiness route soak mirror', readiness.criteria?.find((criterion) => criterion.id === 'route-soak')?.status === (slo.localBoundary?.routeSoak?.status === 'pass' ? 'PASS' : 'PENDING_LOCAL_GATE'));
-check('public readiness boot-performance mirror', readiness.criteria?.find((criterion) => criterion.id === 'boot-performance')?.status === (slo.latestMeasuredBoot?.status === 'TARGET_COMPLIANT' ? 'PASS' : 'BLOCKED'));
-check('latest boot measurement is target-compliant before release', slo.latestMeasuredBoot?.status === 'TARGET_COMPLIANT', `status=${slo.latestMeasuredBoot?.status || 'missing'}`);
+const fredSuccess = durableData.meta?.fredHasKey === true && durableData.meta?.fredFetchOk === true && durableData.meta?.fredOk === true;
+check('public readiness FRED success branch mirrors durable artifact', readiness.criteria?.find((criterion) => criterion.id === 'fred-success-branch')?.status === (fredSuccess ? 'PASS' : 'OPERATOR_REQUIRED'));
+check('durable plane exposes freshness evidence', operations.planes?.durable?.freshness && Number(operations.planes.durable.freshness.maxAgeHours) === Number(durableData.meta?.marketCycleFreshnessSlaHours || 12));
+const bootMeasurement = slo.latestMeasuredBoot || {};
+const bootMeasurementCurrent = bootMeasurement.status === 'TARGET_COMPLIANT'
+  && bootMeasurement.observedAppRevision === version
+  && bootMeasurement.provenanceComplete === true
+  && !!bootMeasurement.observedAt
+  && !!bootMeasurement.observedCommit
+  && !!bootMeasurement.artifact;
+check('boot measurement provenance cannot be version-bumped into currency', bootMeasurement.observedAppRevision !== version || bootMeasurementCurrent, JSON.stringify({ appRevision: version, observedAppRevision: bootMeasurement.observedAppRevision, status: bootMeasurement.status }));
+check('public readiness boot-performance mirror', readiness.criteria?.find((criterion) => criterion.id === 'boot-performance')?.status === (bootMeasurementCurrent ? 'PASS' : 'REMEASURE_REQUIRED'));
+if (readiness.publicBetaDecision !== 'BLOCKED_UNTIL_OPERATOR_CRITERIA_CLOSE') check('current boot measurement is required before promotion', bootMeasurementCurrent);
 
 for (const header of requiredHeaders) check(`security header ${header}`, headers.includes(header));
 check('Pages allowlist includes _headers', allowlist.publicRootAllowlist?.includes('_headers'));
-check('Pages staging copies _headers', /cp\s+[^\r\n]*_headers[^\r\n]*pages-dist/.test(ci));
+check('Pages staging copies _headers', /cp\s+[^\r\n]*_headers[^\r\n]*pages-dist/.test(pagesDeploy));
 check('CI runs npm ci', /npm ci\s+--no-audit\s+--no-fund/.test(ci));
 check('CI does not use mutable npm install', !/\bnpm install\b/.test(ci));
-check('route soak is a blocking CI step', ci.includes('node scripts/ci-route-soak-check.mjs'));
-check('vertical slice browser gate is wired', ci.includes('node scripts/ci-vertical-slice-browser-check.mjs'));
-check('live invariant watchdog is wired', read('.github/workflows/data-watchdog.yml').includes('ci-live-invariant-check.mjs'));
+check('route soak is a blocking CI gate', qaPipeline.profiles?.full?.includes('browser-resilience') && qaGateScripts.includes('scripts/ci-route-soak-check.mjs'));
+check('vertical slice browser gate is wired', qaPipeline.profiles?.full?.includes('browser-runtime') && qaGateScripts.includes('scripts/ci-vertical-slice-browser-check.mjs'));
+check('live invariant watchdog is wired', qaPipeline.profiles?.watchdog?.includes('external') && qaGateScripts.includes('scripts/ci-live-invariant-check.mjs'));
+check('watchdog produces a retained rolling SLO artifact without hiding QA failure', /build-operations-slo-window\.mjs/.test(workflowText) && /aio-operations-slo-window/.test(workflowText) && /steps\.qa\.outcome != 'success'/.test(workflowText));
 
 const uses = [...workflowText.matchAll(/^\s*uses:\s*([^\s#]+)/gm)].map((match) => match[1]);
 check('all GitHub Actions refs are SHA pinned', uses.length > 0 && uses.every((ref) => /@[0-9a-f]{40}$/i.test(ref)), uses.join(', '));
@@ -100,11 +118,29 @@ check('AI proxy Wrangler install is exact-versioned', /npm install --global wran
 check('AI proxy deploy owns canonical source and atomic quota binding', aiProxyWrangler.includes('main = "../cloudflare-worker-proxy.js"') && aiProxyWrangler.includes('name = "AIO_QUOTA_DO"') && aiProxyWrangler.includes('class_name = "AIOQuotaDurableObject"'));
 check('AI provider outbound is executed by the guaranteed US Durable Object authority', worker.includes("jurisdiction('us')") && worker.includes("getByName('anthropic-authority-v1')") && worker.includes("'X-AIO-Upstream-Authority': 'durable-object-us'") && worker.includes('fetchAnthropicThroughDurableObject') && !worker.includes("locationHint: 'enam'"));
 check('AI proxy deploy requires secrets and blocks on executed US readiness/upstream', ['CLOUDFLARE_API_TOKEN', 'CLOUDFLARE_ACCOUNT_ID', 'ANTHROPIC_API_KEY', 'aio-worker-health.v1', 'quotaConfigured', 'authorityReady', 'authorityJurisdiction', 'durable-object-us', 'ai_proxy_origin_gate_failed', 'ai_proxy_upstream_failed'].every((token) => aiProxyWorkflow.includes(token)));
-check('operations producer combines periodic deep health with revision-matched provider smoke', ['AIO_OBSERVE_PROXY_HEALTH', 'proxyAuthorityReady', 'proxyAuthorityJurisdiction', 'proxyProviderSmokeStatus', 'proxyProviderSmokeRevision', 'providerSmokeCurrent'].every((token) => read('scripts/build-operations-status.mjs').includes(token)) && read('.github/workflows/refresh-data.yml').includes("AIO_OBSERVE_PROXY_HEALTH: '1'"));
+check('operations producer observes both Worker planes while provider smoke remains deployment-owned', ['AIO_OBSERVE_PROXY_HEALTH', 'observeWorkerHealth', 'fastHealthStatus', 'proxyAuthorityReady', 'proxyAuthorityJurisdiction', 'blocking-deployment-workflow-only'].every((token) => read('scripts/build-operations-status.mjs').includes(token)) && read('.github/workflows/refresh-data.yml').includes("AIO_OBSERVE_PROXY_HEALTH: '1'") && /ai_proxy_upstream_failed/.test(aiProxyWorkflow));
+check('public AI route state is generated from the same Worker observation and committed with operations status', ['derivePublicAiConfig', 'syncPublicAiConfig', 'routeStatus', 'WORKER_HEALTH_STALE'].every((token) => read('scripts/build-operations-status.mjs').includes(token))
+  && read('.github/workflows/refresh-data.yml').includes('public-config.json')
+  && read('.github/workflows/refresh-screener.yml').includes('public-config.json'));
+const normalizeWorkerUrl = (value) => String(value || '').trim().replace(/\/+$/, '');
+const publicWorkerUrl = normalizeWorkerUrl(publicConfig.ai?.workerUrl);
+const operationsWorkerUrl = normalizeWorkerUrl(operations.ai?.publicChat?.workerEndpoint);
+const publicRoutePublished = /^https:\/\//i.test(publicWorkerUrl);
+const publicRouteDisabled = !publicWorkerUrl
+  && publicConfig.ai?.routeStatus === 'DISABLED'
+  && publicConfig.ai?.serverMode === 'personal-key-only'
+  && publicConfig.ai?.chatPolicy === 'personal-key-only'
+  && typeof publicConfig.ai?.routeReason === 'string'
+  && publicConfig.ai.routeReason.length > 0
+  && publicConfig.ai?.routeEvidence?.status === 'OPERATOR_REQUIRED'
+  && operations.ai?.publicChat?.statusCode !== 'CONFIGURED_HEALTHY';
 check('public AI route policy is revision-bound and any published route matches operations evidence', publicConfig.appRevision === version
-  && (!publicConfig.ai?.workerUrl
-    || (operations.ai?.publicChat?.statusCode === 'CONFIGURED_HEALTHY'
-      && publicConfig.ai.workerUrl === operations.ai.publicChat.workerEndpoint)));
+  && ((publicRoutePublished
+    && operations.ai?.publicChat?.statusCode === 'CONFIGURED_HEALTHY'
+    && publicWorkerUrl === operationsWorkerUrl
+    && publicConfig.ai?.routeStatus === 'PUBLISHED'
+    && publicConfig.ai?.routeEvidence?.status === 'CURRENT')
+    || publicRouteDisabled));
 check('lockfile exists', existsSync(join(root, 'package-lock.json')));
 
 const routeSoakReportPath = join(root, '_artifacts', 'route-soak-report.json');
@@ -114,6 +150,7 @@ if (slo.localBoundary?.routeSoak?.status === 'pass') {
     const report = JSON.parse(readFileSync(routeSoakReportPath, 'utf8'));
     check('route soak report passed', report.ok === true && Array.isArray(report.errors) && report.errors.length === 0);
     check('route soak report topology', report.routes === 20 && report.laps === 3);
+    check('route soak report binds revision and environment', report.schemaVersion === 'aio-route-soak-evidence.v1' && report.appRevision === version && !!report.observedAt && !!report.gitHead && !!report.environment?.browserVersion);
   }
 }
 

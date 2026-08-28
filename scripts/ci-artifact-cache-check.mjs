@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { artifactCacheSnapshot, clearArtifactCache, loadJsonArtifact } from '../src/data/artifact-cache.js';
 
 let calls = 0;
@@ -61,4 +62,26 @@ await assert.rejects(secondPending, (error) => error?.name === 'AbortError');
 await Promise.resolve();
 assert.equal(allConsumersAborted, true, 'underlying request must abort after the last consumer leaves');
 
-console.log(JSON.stringify({ ok: true, calls, isolatedCalls, timeoutAborted, allConsumersAborted, contract: 'artifact-cache.v2' }));
+const protectedText = JSON.stringify({ scope: 'bounded-projection', rows: [1, 2, 3] });
+const protectedDigest = createHash('sha256').update(protectedText).digest('hex');
+const protectedFetch = async () => ({ ok: true, headers: { get: () => String(Buffer.byteLength(protectedText)) }, text: async () => protectedText });
+assert.deepEqual(await loadJsonArtifact(protectedFetch, './protected.json', { integrity: protectedDigest, maxBytes: 1024 }), JSON.parse(protectedText), 'content-addressed artifact must pass byte and digest verification');
+clearArtifactCache(protectedFetch);
+await assert.rejects(loadJsonArtifact(protectedFetch, './protected.json', { integrity: '0'.repeat(64), maxBytes: 1024 }), /integrity mismatch/, 'digest mismatch must fail closed');
+clearArtifactCache(protectedFetch);
+await assert.rejects(loadJsonArtifact(protectedFetch, './protected.json', { integrity: protectedDigest, maxBytes: 8 }), /byte budget exceeded/, 'oversized artifact must fail before publication into the cache');
+
+let constraintCalls = 0;
+const constraintFetch = async () => {
+  constraintCalls += 1;
+  return { ok: true, headers: { get: () => String(Buffer.byteLength(protectedText)) }, text: async () => protectedText };
+};
+assert.deepEqual(await loadJsonArtifact(constraintFetch, './constraint-key.json', { integrity: protectedDigest, maxBytes: 1024 }), JSON.parse(protectedText));
+await assert.rejects(
+  loadJsonArtifact(constraintFetch, './constraint-key.json', { integrity: protectedDigest, maxBytes: 8 }),
+  /byte budget exceeded/,
+  'a stricter byte budget must not reuse a value cached under a looser constraint'
+);
+assert.equal(constraintCalls, 2, 'maxBytes must participate in the artifact cache key');
+
+console.log(JSON.stringify({ ok: true, calls, isolatedCalls, timeoutAborted, allConsumersAborted, integrity: true, byteBudget: true, constraintCalls, contract: 'artifact-cache.v3' }));

@@ -12,7 +12,7 @@
 //    문자 단위 무결성 없이는 안전하게 재구성할 수 없다 — baseline으로 기록해 회귀만 차단한다.
 //    baseline보다 늘어나면 실패(새 손상 유입 차단), 줄어들면 baseline을 갱신해 개선을 인정한다.
 
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execSync } from 'node:child_process';
@@ -49,10 +49,10 @@ function countControlChars(text) {
 }
 
 // ── 1) 워크플로 YAML: 하드 게이트 (baseline 없음, 0건 필수) ─────────────────────
-const workflowFiles = execSync('git ls-files .github/workflows', { cwd: root, encoding: 'utf8' })
-  .split('\n')
-  .map((s) => s.trim())
-  .filter((s) => s.endsWith('.yml') || s.endsWith('.yaml'));
+const workflowFiles = readdirSync(join(root, '.github', 'workflows'))
+  .filter((name) => name.endsWith('.yml') || name.endsWith('.yaml'))
+  .map((name) => `.github/workflows/${name}`)
+  .sort();
 
 for (const wf of workflowFiles) {
   const text = read(wf);
@@ -67,7 +67,7 @@ for (const wf of workflowFiles) {
 if (workflowFiles.length === 0) errors.push('워크플로 파일을 찾지 못함 — glob 경로 확인 필요');
 
 // ── 2) 저장소 전체: baseline 대비 회귀만 차단 ────────────────────────────────
-const allTracked = execSync('git ls-files', { cwd: root, encoding: 'utf8' }).split('\n').map((s) => s.trim());
+const allTracked = execSync('git ls-files --cached --others --exclude-standard', { cwd: root, encoding: 'utf8' }).split('\n').map((s) => s.trim());
 const scanTargets = allTracked.filter(
   (f) =>
     /\.(md|yml|yaml|js|mjs|json|html)$/.test(f) &&

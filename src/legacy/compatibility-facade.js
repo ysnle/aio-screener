@@ -13,6 +13,16 @@ function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
+function readonlySnapshot(value) {
+  const snapshot = clone(value);
+  const freeze = (node) => {
+    if (!node || typeof node !== 'object' || Object.isFrozen(node)) return node;
+    Object.values(node).forEach(freeze);
+    return Object.freeze(node);
+  };
+  return freeze(snapshot);
+}
+
 // Quote timestamps are a shared compatibility boundary for every legacy
 // projection.  Keep the snapshot-only `ts` fallback explicit so a live quote
 // without an observation timestamp is never presented as current.
@@ -485,6 +495,7 @@ export function createLegacyFacade(root = globalThis, eventTarget = root?.docume
 
 export function exposeArchitecture(root, api) {
   if (!root || !api) return;
+  const snapshotCall = (fn) => (...args) => readonlySnapshot(typeof fn === 'function' ? fn(...args) : null);
   Object.defineProperty(root, 'AIO_ARCH', {
     configurable: true,
     enumerable: false,
@@ -492,21 +503,21 @@ export function exposeArchitecture(root, api) {
     value: Object.freeze({
       status: 'MIGRATION_IN_PROGRESS',
       version: api.version,
-       getState: api.getState,
-       getScreenerRows: api.getScreenerRows,
-       getScreenerState: api.getScreenerState,
-       getEvidence: api.getEvidence,
-       selectForDecision: api.selectForDecision,
-       selectForDisplay: api.selectForDisplay,
-       selectLastKnown: api.selectLastKnown,
-       selectCompleteness: api.selectCompleteness,
-       getMarketSnapshot: api.getMarketSnapshot,
-       getRuntimeObservationCatalog: api.getRuntimeObservationCatalog,
-       getCanonicalMarketRevision: api.getCanonicalMarketRevision,
-       getPageDataTimelineState: api.getPageDataTimelineState,
-       getPageDataTimelineAudit: api.getPageDataTimelineAudit,
-       getPageDataTimelineContracts: api.getPageDataTimelineContracts,
-       getSentimentSummary: api.getSentimentSummary,
+       getState: snapshotCall(api.getState),
+       getScreenerRows: snapshotCall(api.getScreenerRows),
+       getScreenerState: snapshotCall(api.getScreenerState),
+       getEvidence: snapshotCall(api.getEvidence),
+       selectForDecision: snapshotCall(api.selectForDecision),
+       selectForDisplay: snapshotCall(api.selectForDisplay),
+       selectLastKnown: snapshotCall(api.selectLastKnown),
+       selectCompleteness: snapshotCall(api.selectCompleteness),
+       getMarketSnapshot: snapshotCall(api.getMarketSnapshot),
+       getRuntimeObservationCatalog: snapshotCall(api.getRuntimeObservationCatalog),
+       getCanonicalMarketRevision: snapshotCall(api.getCanonicalMarketRevision),
+       getPageDataTimelineState: snapshotCall(api.getPageDataTimelineState),
+       getPageDataTimelineAudit: snapshotCall(api.getPageDataTimelineAudit),
+       getPageDataTimelineContracts: snapshotCall(api.getPageDataTimelineContracts),
+       getSentimentSummary: snapshotCall(api.getSentimentSummary),
       ingestSentiment: api.ingestSentiment,
        getAIContext: api.getAIContext,
        getAIOrchestrator: api.getAIOrchestrator,

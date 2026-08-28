@@ -170,7 +170,7 @@ function createMetric(documentRef, label, value) {
 
 function createSelfGuided13FGuide(documentRef, manager, compactRows, previewRows, fullRows) {
   const block = element(documentRef, 'section', 'masters-exploration-panel');
-  const rowState = fullRows.length ? '검증된 전체 행' : compactRows.length ? '검증된 Top 보유 요약' : previewRows.length ? '원문 일부 미리보기' : '행 데이터 연결 대기';
+  const rowState = fullRows.length ? '검증된 웹 투영 행' : compactRows.length ? '검증된 Top 보유 요약' : previewRows.length ? '원문 일부 미리보기' : '행 데이터 연결 대기';
   block.append(
     element(documentRef, 'strong', 'masters-exploration-title', '공시를 읽는 순서'),
     element(documentRef, 'p', 'masters-exploration-copy', `${manager.name} · ${rowState}. 한 분기의 보유 행을 결론으로 복사하지 않고 기준일과 전략 성격을 함께 읽습니다.`)
@@ -457,10 +457,13 @@ function createChangeLedger(documentRef, comparisonRows, state) {
   return section;
 }
 
-function createFullHoldingsView(documentRef, fullRows, state) {
+function createFullHoldingsView(documentRef, fullRows, state, descriptor = null) {
   const section = element(documentRef, 'section', 'masters-holdings-section');
   const heading = element(documentRef, 'div', 'masters-holdings-heading');
-  heading.append(element(documentRef, 'h4', 'masters-holdings-title', '전체 신고 보유 행'), element(documentRef, 'p', 'masters-holdings-meta', 'SEC 정보표의 원문 행 · 페이지당 25개'));
+  heading.append(
+    element(documentRef, 'h4', 'masters-holdings-title', '신고 보유 행 웹 투영'),
+    element(documentRef, 'p', 'masters-holdings-meta', `SEC 정보표 중 ${fullRows.length.toLocaleString('en-US')}행 투영 / 전체 ${Number(descriptor?.fullRows || fullRows.length).toLocaleString('en-US')}행 · 페이지당 25개 · 검색은 현재 투영 범위`)
+  );
   const controls = element(documentRef, 'div', 'masters-holdings-controls');
   const search = element(documentRef, 'input', 'masters-holdings-search');
   search.type = 'search';
@@ -789,7 +792,7 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
   const shardLoaded = state.managerRows.has(manager.id);
   const shardFailed = state.managerRowErrors.has(manager.id);
   const fullRowDisplay = fullRowCount
-    ? `${fullRowCount}행 · ${shardLoaded ? `실제 ${fullRows.length}행 확인` : shardFailed ? '무결성/로드 오류' : '메타데이터 확인, 원장 미로드'}`
+    ? `${fullRowCount}행 · ${shardLoaded ? `웹 투영 ${fullRows.length}행 확인` : shardFailed ? '무결성/로드 오류' : '메타데이터 확인, 투영 미로드'}`
     : '준비 중';
   metrics.append(
     createMetric(documentRef, '최신 보고분기', filingMeta?.latestFiling?.periodOfReport || holdingMeta?.verification?.reportPeriod || '확인 필요'),
@@ -846,18 +849,18 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
   const createDeferredRowsState = () => {
     const block = element(documentRef, 'div', 'masters-empty-state');
     if (state.loadingManagers.has(manager.id)) {
-      block.textContent = '선택한 신고주체의 전체 공시 행을 불러오는 중입니다.';
+      block.textContent = '선택한 신고주체의 bounded 웹 투영을 불러오는 중입니다.';
       block.setAttribute('role', 'status');
       return block;
     }
     if (state.managerRowErrors.has(manager.id)) {
-      const error = element(documentRef, 'p', 'masters-holdings-meta', '전체 공시 행을 불러오지 못했습니다. 요약·원문 링크는 계속 사용할 수 있습니다.');
+      const error = element(documentRef, 'p', 'masters-holdings-meta', '공시 행 웹 투영을 불러오지 못했습니다. 요약·원문 링크는 계속 사용할 수 있습니다.');
       error.setAttribute('role', 'alert');
       block.appendChild(error);
     } else {
-      block.appendChild(element(documentRef, 'p', 'masters-holdings-meta', '전체 공시 행은 이 보기를 요청할 때만 가져옵니다. 단순 프로필 탐색에는 Top 보유 요약만 사용합니다.'));
+      block.appendChild(element(documentRef, 'p', 'masters-holdings-meta', 'bounded 웹 투영은 이 보기를 요청할 때만 가져옵니다. 전체 SEC 원장은 대형 객체 저장소 승격 전까지 브라우저에 전송하지 않습니다.'));
     }
-    if (managerShard?.url) block.appendChild(button(documentRef, 'masters-route-button is-secondary', state.managerRowErrors.has(manager.id) ? '전체 공시 행 다시 불러오기' : `전체 공시 행 ${managerShard.fullRows || ''}개 불러오기`, 'load-manager', manager.id));
+    if (managerShard?.url) block.appendChild(button(documentRef, 'masters-route-button is-secondary', state.managerRowErrors.has(manager.id) ? '웹 투영 다시 불러오기' : `웹 투영 ${managerShard.projectionRows || ''}개 불러오기`, 'load-manager', manager.id));
     return block;
   };
 
@@ -874,7 +877,7 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
     if (comparisonRows.length) detail.appendChild(createChangeLedger(documentRef, comparisonRows, state));
     if (!compactRows.length && previewRows.length) detail.appendChild(createRowPreviewView(documentRef, manager, previewMeta, previewRows));
   } else if (state.view === 'holdings') {
-    detail.appendChild(fullRows.length ? createFullHoldingsView(documentRef, fullRows, state) : managerShard?.url ? createDeferredRowsState() : previewRows.length ? createRowPreviewView(documentRef, manager, previewMeta, previewRows) : element(documentRef, 'div', 'masters-empty-state', '전체 보유 행이 아직 연결되지 않았습니다.'));
+    detail.appendChild(fullRows.length ? createFullHoldingsView(documentRef, fullRows, state, managerShard) : managerShard?.url ? createDeferredRowsState() : previewRows.length ? createRowPreviewView(documentRef, manager, previewMeta, previewRows) : element(documentRef, 'div', 'masters-empty-state', '보유 행 웹 투영이 아직 연결되지 않았습니다.'));
   } else if (state.view === 'sectors') {
     if (fullRows.length) {
       const referenceSectorView = createReferenceSectorView(documentRef, fullRows, referenceMaster);
@@ -1061,9 +1064,9 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
         state.managerRowErrors.delete(managerId);
         render();
         try {
-          const artifact = await loadJson(descriptor.url);
+          const artifact = await loadJsonArtifact(fetchFn, descriptor.url, { signal: scope?.signal, integrity: descriptor.sha256, maxBytes: descriptor.bytes });
           if (!isAlive()) return;
-          if (artifact?.managerId !== managerId || artifact?.holdings?.length !== descriptor.fullRows || artifact?.comparisons?.length !== descriptor.comparisonRows || artifact?.latestFiling?.accession !== descriptor.accession) {
+          if (artifact?.managerId !== managerId || artifact?.artifactRole !== 'BOUNDED_WEB_PROJECTION' || artifact?.holdings?.length !== descriptor.projectionRows || artifact?.comparisons?.length !== descriptor.comparisonProjectionRows || artifact?.fullRowsAvailable !== descriptor.fullRows || artifact?.fullComparisonsAvailable !== descriptor.comparisonRows || artifact?.latestFiling?.accession !== descriptor.accession) {
             throw new Error(`manager shard integrity mismatch: ${managerId}`);
           }
           state.managerRows.set(managerId, artifact);

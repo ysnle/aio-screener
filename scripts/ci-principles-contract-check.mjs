@@ -24,6 +24,7 @@ for (const [label, source, marker] of [
   ['route registry', routes, "'principles'"],
   ['vertical slice', verticalSlices, "vs11-principles"],
   ['bootstrap import', bootstrap, "../ui/pages/principles.js"],
+  ['route dynamic import', bootstrap, "loader: () => import('../ui/pages/principles.js')"],
   ['bootstrap mount', bootstrap, 'createPrinciplesPage({ root, documentRef })'],
   ['deep-link replay', bootstrap, 'source: \'initial-load\', directEntry: true'],
   ['page DOM', index, 'id="page-principles"'],
@@ -38,6 +39,8 @@ for (const [label, source, marker] of [
     ['deep article renderer', page, 'renderKnowledgeLesson'],
     ['per-lesson article shard', page, './public-data/knowledge/articles/principles/']
 ]) if (!source.includes(marker)) fail(`${label} missing marker: ${marker}`);
+
+if (/^import\s+\{[^\n]*createPrinciplesPage[^\n]*from\s+['"]\.\.\/ui\/pages\/principles\.js['"]/m.test(bootstrap)) fail('principles page returned to the initial static module graph');
 
 if (!golden.routes.includes('principles') || golden.routes.length !== 20) fail('golden route does not contain the 20-route principles topology');
 const narrativeChapters = narrative.parts?.flatMap((part) => part.chapters || []) || [];

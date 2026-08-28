@@ -6,7 +6,7 @@
 //   node scripts/bump-version.mjs <새버전>
 //   node scripts/bump-version.mjs v51.65
 //
-// R1 7개 위치를 한 번에 패치:
+// R1 버전 표면과 생성형 현재 상태를 한 번에 패치:
 //   1. index.html  — <title>, badge span, ?v= 캐시버스터 4곳
 //   2. js/aio-core.js — APP_VERSION 상수
 //   3. sw.js       — SW_VERSION + SW_BUILD
@@ -14,6 +14,7 @@
 //   5. CLAUDE.md (루트)   — 현재 버전 줄
 //   6. _context/CLAUDE.md — 현재 버전 줄
 //   7. CHANGELOG.md — 새 버전 섹션 헤더 삽입
+//   8. _context/CURRENT-STATE.md + CONTEXT-CATALOG.json 재생성
 //
 // 설계 원칙 (R1):
 //   - 이 스크립트가 유일한 버전 패치 경로. 직접 파일 편집은 금지.
@@ -22,6 +23,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { execFileSync } from 'child_process';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -363,6 +365,39 @@ try {
       write(artifactPath, artifact);
     }
 
+    // A version bump invalidates revision-bound browser evidence. Preserve the
+    // previous measurement as history, but never relabel it as proof for the
+    // new source revision merely because appRevision changed.
+    const operationsSlo = JSON.parse(read('architecture/operations-slo.json'));
+    const routeSoak = operationsSlo.localBoundary?.routeSoak;
+    if (routeSoak) {
+      if (routeSoak.status === 'pass') {
+        routeSoak.previousEvidence = {
+          appRevision: prevVer,
+          status: 'pass',
+          browserErrors: routeSoak.browserErrors,
+          maxCanvases: routeSoak.maxCanvases,
+          entityRoundTrip: routeSoak.entityRoundTrip,
+          report: routeSoak.report
+        };
+      }
+      routeSoak.status = 'pending';
+      routeSoak.evidenceStatus = 'REMEASURE_REQUIRED';
+      routeSoak.reason = `Source revision changed from ${prevVer} to ${newVer}; route-soak evidence remains historical until rerun.`;
+      delete routeSoak.browserErrors;
+      delete routeSoak.maxCanvases;
+      delete routeSoak.entityRoundTrip;
+    }
+    write('architecture/operations-slo.json', `${JSON.stringify(operationsSlo, null, 2)}\n`);
+
+    const publicReadiness = JSON.parse(read('architecture/public-readiness.json'));
+    const routeSoakCriterion = publicReadiness.criteria?.find((criterion) => criterion.id === 'route-soak');
+    if (routeSoakCriterion) {
+      routeSoakCriterion.status = 'PENDING_LOCAL_GATE';
+      routeSoakCriterion.evidence = `Previous route-soak evidence predates ${newVer}; run ci-route-soak-check.mjs once at the release boundary.`;
+    }
+    write('architecture/public-readiness.json', `${JSON.stringify(publicReadiness, null, 2)}\n`);
+
     let operations = read('public-data/operations-status.json');
     operations = replaceOnce(operations,
       new RegExp(`("appRevision"\\s*:\\s*")${escRe(prevVer)}(")`),
@@ -416,15 +451,29 @@ try {
   errors.push(`CHANGELOG.md: ${e.message}`);
 }
 
+// ── 8. generated current state/catalog ──────────────────────────────────────
+if (errors.length === 0) {
+  console.log('8. generated current state/catalog 갱신...');
+  try {
+    execFileSync(process.execPath, [resolve(ROOT, 'scripts/generate-workspace-state.mjs'), '--write'], {
+      cwd: ROOT,
+      stdio: 'inherit',
+    });
+    console.log('   ✓ CURRENT-STATE.md + CONTEXT-CATALOG.json');
+  } catch (e) {
+    errors.push(`generated workspace state: ${e.message}`);
+  }
+}
+
 // ── 결과 ─────────────────────────────────────────────────────────────────────
 console.log('\n─────────────────────────────');
 if (errors.length === 0) {
-  console.log(`✅ ${prevVer} → ${newVer} 버전 범프 완료 (R1 7개 위치)`);
+  console.log(`✅ ${prevVer} → ${newVer} 버전 범프 완료 (R1 + generated state)`);
   console.log(`\n다음 작업:`);
   console.log(`  1. CHANGELOG.md의 ${newVer} 섹션에 변경 내용 기록`);
   console.log(`  2. version.json note 필드 업데이트`);
-  console.log(`  3. git add -p && git commit`);
-  console.log(`  4. node scripts/ci-version-check.mjs  (R1 검증)`);
+  console.log(`  3. node scripts/ci-version-check.mjs  (R1 검증)`);
+  console.log(`  4. 커밋·배포는 사용자가 명시적으로 요청한 경우에만 수행`);
 } else {
   console.error(`\n❌ ${errors.length}개 오류 발생:`);
   errors.forEach(e => console.error(`  • ${e}`));

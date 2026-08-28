@@ -3,6 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { atomicWriteJsonSync } from './lib/atomic-write.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (relativePath) => fs.readFileSync(path.join(root, relativePath), 'utf8');
@@ -175,7 +176,7 @@ const result = {
 
 if (process.argv.includes('--write')) {
   const outputPath = path.join(root, '_artifacts', 'knowledge-encyclopedia-depth-audit.json');
-  fs.writeFileSync(outputPath, `${JSON.stringify(result, null, 2)}\n`, 'utf8');
+  atomicWriteJsonSync(outputPath, result);
   console.log(outputPath);
 }
 

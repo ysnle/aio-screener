@@ -699,7 +699,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Update home date label
   const dlEl = document.getElementById('home-date-label');
-  if (dlEl) dlEl.textContent = fullLabel + ' · 실시간 시세 자동갱신';
+  if (dlEl) dlEl.textContent = fullLabel + ' · 시세·뉴스 상태 확인 중';
   
   // Update version badge
   const vb = document.getElementById('app-version-badge');
@@ -1292,10 +1292,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // 16. v40.9: 동적 가격 업데이트 영역 aria-live 확장
-  document.querySelectorAll('[data-live-price]').forEach(function(el) {
-    if (!el.getAttribute('aria-live')) el.setAttribute('aria-live', 'polite');
-    if (!el.getAttribute('aria-atomic')) el.setAttribute('aria-atomic', 'true');
+  // 16. v54.47: 가격 셀 수백 개를 모두 aria-live로 만들면 시세 갱신마다
+  // 스크린리더가 전체 숫자를 읽어 과도한 알림이 발생한다. 요약 상태 영역만
+  // announce하고 개별 데이터 셀은 일반 텍스트로 남긴다.
+  ['live-quote-ts-topbar','server-data-age','home-risk-regime-badge','score-gauge-val','pf-total-value','pf-total-pnl'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && !el.getAttribute('aria-live')) {
+      el.setAttribute('aria-live', 'polite');
+      el.setAttribute('aria-atomic', 'true');
+    }
   });
 
   // 17. v41: 모든 [role="button"]에 Enter/Space 키보드 핸들링
@@ -1356,9 +1361,21 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // 23. v41.2: 페이지 타이틀에 heading role 보강 (.page-title -> h2)
-  document.querySelectorAll('.page-title').forEach(function(pt) {
-    if (pt.tagName !== 'H2') { pt.setAttribute('role', 'heading'); pt.setAttribute('aria-level', '2'); }
+  // 23. v54.47: route title is the page-level heading; nested widget titles stay
+  // at level 2 so screen-reader navigation follows the visible hierarchy.
+  document.querySelectorAll('.page[id]').forEach(function(pg) {
+    var firstTitle = pg.querySelector('.page-title,h1');
+    if (firstTitle && firstTitle.tagName !== 'H1') {
+      firstTitle.setAttribute('role', 'heading');
+      firstTitle.setAttribute('aria-level', '1');
+    }
+    Array.prototype.slice.call(pg.querySelectorAll('.page-title')).forEach(function(pt) {
+      if (pt === firstTitle || pt.tagName === 'H1') return;
+      if (pt.tagName !== 'H2') {
+        pt.setAttribute('role', 'heading');
+        pt.setAttribute('aria-level', '2');
+      }
+    });
   });
 
   }, 0);

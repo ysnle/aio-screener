@@ -7,11 +7,15 @@ const reconciliation = read('public-data/reconciliation-status.json');
 const readiness = read('architecture/public-readiness.json');
 const headers = fs.readFileSync('_headers', 'utf8');
 
-if (!['CURRENT', 'OPERATOR_REQUIRED'].includes(operations.planes?.durable?.status)) fail('durable plane status is not explicit');
+// Durable data may be correctly marked BLOCKED/STALE when the market-cycle
+// freshness SLA or reconciliation gate is open. This gate verifies that the
+// state is explicit and conservative; it must not require stale data to be
+// mislabeled CURRENT merely to let downstream browser gates run.
+if (!['CURRENT', 'OPERATOR_REQUIRED', 'BLOCKED', 'STALE'].includes(operations.planes?.durable?.status)) fail('durable plane status is not explicit');
 if (operations.planes?.fast?.status !== 'OPERATOR_REQUIRED') fail('fast plane must remain operator-required until endpoint and soak evidence exist');
 if (!/^https:\/\/aio-screener-data-plane\.[^/]+\.workers\.dev$/.test(String(operations.planes?.fast?.endpoint || ''))) fail('fast plane endpoint must identify the deployed data-plane base URL without a path suffix');
 if (operations.planes.fast.health?.status === 'CURRENT' && operations.planes.fast.health?.statusCode !== 200) fail('fast plane current health evidence must be HTTP 200');
-for (const blocker of ['fast_plane_cloudflare_credentials_and_soak_required', 'provider_rights_review_required']) {
+for (const blocker of ['fast_plane_soak_and_rights_review_required', 'provider_rights_review_required']) {
   if (!operations.blockers?.includes(blocker)) fail(`missing blocker ${blocker}`);
 }
 if (reconciliation.overall === 'MATCH' || reconciliation.closure?.complete === true) fail('reconciliation cannot report complete while unresolved categories exist');

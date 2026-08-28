@@ -3,11 +3,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { atomicWriteJsonSync } from './lib/atomic-write.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const reviewedAt = process.env.MASTERS_REVIEW_DATE || '2026-08-18';
 const readJson = (file) => JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
-const writeJson = (file, value) => fs.writeFileSync(path.join(root, file), `${JSON.stringify(value, null, 2)}\n`, 'utf8');
+const writeJson = (file, value) => atomicWriteJsonSync(path.join(root, file), value);
 
 const current = readJson('public-data/masters/holdings.json');
 const history = readJson('public-data/masters/history-holdings.json');

@@ -24,7 +24,7 @@ function startServer() {
 const server = await startServer();
 const browser = await chromium.launch();
 const errors = [];
-let observedRequest = null;
+const observedRequests = [];
 try {
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   await context.addInitScript(() => localStorage.clear());
@@ -43,7 +43,7 @@ try {
       });
     }
     if (url === `${workerBase}/anthropic`) {
-      observedRequest = { headers: request.headers(), body: JSON.parse(request.postData() || '{}') };
+      observedRequests.push({ headers: request.headers(), body: JSON.parse(request.postData() || '{}') });
       const plan = '[AI_ANSWER_PLAN]' + JSON.stringify({
         schemaVersion: 'answer-plan.v1',
         summary: '공용 경로의 완결된 응답입니다.',
@@ -70,7 +70,9 @@ try {
     localStorage.clear();
     await window.AIO.loadPublicConfig();
     const routeState = await window._aioEnsureClaudeRoute('');
-    const streamed = await new Promise((resolveStream, rejectStream) => {
+    const config = window.AIO.getPublicConfig();
+    const routeDisabled = !config?.ai?.workerUrl;
+    const streamed = routeDisabled ? null : await new Promise((resolveStream, rejectStream) => {
       window.callClaude('Answer briefly.', [{ role: 'user', content: '공용 경로 확인' }], () => {}, (raw, completion) => {
         resolveStream({ raw, completion, published: window._aioRunAIResponsePipeline(raw, { entrypoint: 'public-route-browser-fixture', streamPhase: 'complete', completion, record: false }) });
       }, rejectStream, { modelKey: 'haiku' });
@@ -89,22 +91,36 @@ try {
       entrypoint: 'truncated-fixture', streamPhase: 'complete', completion: { stopReason: 'max_tokens', truncated: true }, record: false
     });
     const partial = window._aioRunAIResponsePipeline('[AI_ANSWER_PLAN]{"schemaVersion":"answer-plan.v1"', { entrypoint: 'partial-fixture', streamPhase: 'partial', record: false });
-    return { config: window.AIO.getPublicConfig(), routeState, streamed, unbound, invalid, truncated, partial };
+    return { config, routeState, routeDisabled, streamed, unbound, invalid, truncated, partial };
   });
 
   const failures = [];
   const assert = (label, condition) => { if (!condition) failures.push(label); };
-  assert('fresh config publishes Worker', result.config?.ai?.workerUrl === workerBase && result.config?.ai?.serverMode === 'shared-worker-fallback');
-  assert('fresh browser selects ready public Worker', result.routeState?.ok === true && result.routeState?.target?.source === 'public-config');
-  assert('public request uses Worker cap', observedRequest?.body?.max_tokens === 1500 && !observedRequest?.headers?.['x-api-key']);
-  assert('complete stream publishes useful answer', result.streamed?.published?.blocked === false && /공용 경로의 완결된 응답/.test(result.streamed.published.text) && result.streamed?.completion?.stopReason === 'end_turn');
+  const publicRequest = observedRequests.find((candidate) => JSON.stringify(candidate.body?.messages || '').includes('공용 경로 확인'))
+    || observedRequests.find((candidate) => candidate.body?.max_tokens === 1500)
+    || observedRequests[0]
+    || null;
+  if (result.routeDisabled) {
+    assert('disabled route is explicit and personal-key-only', result.config?.ai?.routeStatus === 'DISABLED'
+      && result.config?.ai?.routeReason
+      && result.config?.ai?.routeEvidence?.status === 'OPERATOR_REQUIRED'
+      && result.config?.ai?.serverMode === 'personal-key-only'
+      && result.config?.ai?.chatPolicy === 'personal-key-only');
+    assert('fresh browser reports no public Worker route', result.routeState?.ok === false && result.routeState?.reason === 'NO_ROUTE');
+    assert('disabled route does not issue a public Worker request', observedRequests.length === 0);
+  } else {
+    assert('fresh config publishes Worker', result.config?.ai?.workerUrl === workerBase && result.config?.ai?.serverMode === 'shared-worker-fallback');
+    assert('fresh browser selects ready public Worker', result.routeState?.ok === true && result.routeState?.target?.source === 'public-config');
+    assert('public request uses Worker cap', publicRequest?.body?.max_tokens === 1500 && !publicRequest?.headers?.['x-api-key']);
+    assert('complete stream publishes useful answer', result.streamed?.published?.blocked === false && /공용 경로의 완결된 응답/.test(result.streamed.published.text) && result.streamed?.completion?.stopReason === 'end_turn');
+  }
   assert('unbound claim is removed but explanation survives', result.unbound?.blocked === false && /변동성과 위험 선호/.test(result.unbound.text) && !/15\.2/.test(result.unbound.text) && result.unbound?.limitations?.includes('answer-plan-claim-degraded'));
   assert('invalid numeric prose is removed but qualitative section survives', result.invalid?.blocked === false && /변동성과 위험 선호/.test(result.invalid.text) && !/15\.2/.test(result.invalid.text));
   assert('truncated JSON recovers prose and reports limitation', result.truncated?.blocked === false && /공급과 수요/.test(result.truncated.text) && result.truncated?.limitations?.includes('model-output-truncated'));
   assert('partial JSON never exposes control payload', result.partial?.text === 'AI 답변을 구성하고 근거를 검증하는 중…' && !/AI_ANSWER_PLAN/.test(result.partial.text));
   assert('no browser runtime errors', errors.length === 0);
-  if (failures.length) throw new Error(`${failures.join(' | ')}\n${JSON.stringify({ result, observedRequest, errors }, null, 2)}`);
-  console.log(JSON.stringify({ ok: true, route: result.routeState.target.source, worker: result.config.ai.workerUrl, maxTokens: observedRequest.body.max_tokens, partialClaimDegradation: true, truncatedRecovery: true, errors }));
+  if (failures.length) throw new Error(`${failures.join(' | ')}\n${JSON.stringify({ result, publicRequest, observedRequests, errors }, null, 2)}`);
+  console.log(JSON.stringify({ ok: true, route: result.routeDisabled ? 'disabled' : result.routeState.target.source, worker: result.config.ai.workerUrl, maxTokens: publicRequest?.body?.max_tokens || null, workerRequestCount: observedRequests.length, partialClaimDegradation: true, truncatedRecovery: true, errors }));
 } catch (error) {
   console.error(JSON.stringify({ ok: false, errors: [...errors, String(error?.stack || error)] }));
   process.exitCode = 1;

@@ -18,6 +18,7 @@ const qa = read('_context/QA-CHECKLIST.md');
 const postmortem = read('_context/BUG-POSTMORTEM.md');
 const index = read('_context/INDEX.md');
 const changelog = read('CHANGELOG.md');
+const contextCatalog = JSON.parse(read('_context/CONTEXT-CATALOG.json'));
 
 function findProjectRoot(start) {
   let dir = resolve(start);
@@ -62,17 +63,23 @@ const skillStats = skillFiles.map((file) => ({
 const governedLargeContextNames = new Set([
   'BUG-POSTMORTEM.md',
   'RULES.md',
-  'QA-CHECKLIST.md'
+  'QA-CHECKLIST.md',
+  'KNOWLEDGE-BASE.md'
 ]);
-const oversizedContext = contextStats.filter((item) => item.bytes > 100_000 && !governedLargeContextNames.has(item.name));
+const defaultLoadedNames = new Set(contextCatalog.documents.filter((doc) => doc.readPolicy === 'required').map((doc) => basename(doc.path)));
+const oversizedContext = contextStats.filter((item) => item.bytes > 100_000 && defaultLoadedNames.has(item.name));
 const governedLargeContext = contextStats.filter((item) => item.bytes > 100_000 && governedLargeContextNames.has(item.name));
 const oversizedSkills = skillStats.filter((item) => item.lines > 300 || item.bytes > 15_000);
+const preflightBytes = ['AGENTS.md', '_context/CURRENT-STATE.md', '_context/WORKFLOW-GOVERNANCE.md', '_context/INDEX.md']
+  .reduce((sum, path) => sum + statSync(join(worktreeRoot, path)).size, 0);
 
 check('workflow compaction rule R220 exists', /R220/.test(rules) && /Workflow memory must be compacted/.test(rules));
 check('workflow compaction QA P514 exists', /P514-Q1/.test(qa) && /ci-workflow-compaction-check\.mjs/.test(qa));
 check('workflow compaction postmortem P514 exists', /P514/.test(postmortem) && /compaction/.test(postmortem));
 check('workflow compaction changelog entry exists', /workflow compaction/i.test(changelog) && /v50\.89/.test(changelog));
-check('context index acknowledges compaction policy', /Workflow Compaction/.test(index) || /WORKFLOW-COMPACTION/.test(index));
+check('context index acknowledges compaction policy', /Workflow Compaction|Context lifecycle/.test(index));
+check('generated state and catalog define progressive disclosure', exists('_context/CURRENT-STATE.md') && /Read Policy/.test(read('_context/CURRENT-STATE.md')) && /explicit-only/.test(read('_context/INDEX.md')));
+check('default preflight remains under 64 KiB', preflightBytes <= 65_536, `${preflightBytes} bytes`);
 check('semantic gate remains present', exists('scripts/ci-semantic-review-check.mjs') && /R219/.test(rules));
 check('governed large context files are routed through INDEX and gates', governedLargeContext.every((item) => index.includes('`' + item.name + '`')) && /ci-workflow-compaction-check\.mjs/.test(qa) && /Postmortem-To-Gate Rule/.test(read('_context/WORKFLOW-GOVERNANCE.md')));
 
@@ -96,6 +103,7 @@ if (errors.length) {
 }
 
 console.log(`Workflow compaction check OK: ${version}.`);
+console.log(`Default preflight: ${preflightBytes} bytes (limit 65536).`);
 console.log('Largest context files:');
 contextStats.slice(0, 5).forEach((item) => console.log(` - ${item.name}: ${item.lines} lines, ${item.bytes} bytes`));
 console.log('Skill compaction candidates:');

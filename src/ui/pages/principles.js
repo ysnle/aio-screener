@@ -6,6 +6,7 @@ import { navigateKnowledgeTarget, parseKnowledgeRouteState, parseKnowledgeTarget
 import { createAppKnowledgeLearningState } from '../../app/knowledge-learning-state.js';
 import { createCurrentObservationBlock, validateCurrentObservationsArtifact } from '../../ui/knowledge/current-observations.js';
 import { createKnowledgeLearningControls } from '../../ui/knowledge/learning-controls.js';
+import { createReferenceCurriculum } from '../../ui/knowledge/reference-curriculum.js';
 import { renderKnowledgeLesson } from '../../ui/knowledge/lesson.js';
 import { applySafeExternalLink } from '../../ui/knowledge/safe-external-link.js';
 import { loadJsonArtifact } from '../../data/artifact-cache.js';
@@ -21,6 +22,7 @@ const KNOWLEDGE_ALIASES_URL = './public-data/knowledge/aliases.json';
 const CURRENT_OBSERVATIONS_URL = './public-data/knowledge/current-observations.json';
 const ROUTE_TARGETS_URL = './public-data/knowledge/route-targets.json';
 const KNOWLEDGE_STATUS_URL = './public-data/knowledge/status-summary.json';
+const REFERENCE_CURRICULUM_URL = './public-data/principles/reference-curriculum.json';
 
 const RESEARCH_NODE_IDS = Object.freeze({
   'ai-era': 'candidate.ai-era',
@@ -1047,7 +1049,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
        const initialLesson = /^[A-O]\d{1,2}$/.test(sharedRoute.lesson || '') ? sharedRoute.lesson : null;
        const learning = createAppKnowledgeLearningState(root);
        const initialView = arrivalChapter ? 'story' : initialLesson ? 'library' : sharedRoute.mode && sharedRoute.mode !== 'story' ? 'map' : 'story';
-       const state = { mode: initialMode, view: initialView, query: '', arrivalContext: arrivalChapter ? arrivalContext : null, selectedId: initialNode, selectedNarrativeChapterId: arrivalChapter || sharedRoute.chapter || 'money-is-choice', pathId: initialPath, step: sharedRoute.step ?? 0, depth: 1, activeLessonId: initialLesson, lessonPage: 1, lessonPanelOpen: Boolean(initialLesson), expandedSections: new Set(['scarcity']), expandedGroups: new Set(['scarcity-choice-path']), narrative: null, research: null, chapters: null, lessonLibrary: null, nodeGuides: null, knowledgeConcepts: null, knowledgeAliases: null, knowledgeArticles: { articles: [] }, routeTargets: null, currentObservations: null, knowledgeStatus: null, narrativeError: false, researchError: false, chaptersError: false, lessonLibraryError: false, nodeGuidesError: false, knowledgeConceptsError: false, knowledgeAliasesError: false, knowledgeArticlesError: false, routeTargetsError: false, currentObservationsError: false, knowledgeStatusError: false, loadingArticleIds: new Set(), articleErrors: new Set() };
+        const state = { mode: initialMode, view: initialView, query: '', arrivalContext: arrivalChapter ? arrivalContext : null, selectedId: initialNode, selectedNarrativeChapterId: arrivalChapter || sharedRoute.chapter || 'money-is-choice', pathId: initialPath, step: sharedRoute.step ?? 0, depth: 1, activeLessonId: initialLesson, lessonPage: 1, lessonPanelOpen: Boolean(initialLesson), activeReferenceStageId: 'stage-00', activeReferenceLessonId: 'bb-learning-contract', expandedSections: new Set(['scarcity']), expandedGroups: new Set(['scarcity-choice-path']), narrative: null, research: null, chapters: null, lessonLibrary: null, nodeGuides: null, knowledgeConcepts: null, knowledgeAliases: null, knowledgeArticles: { articles: [] }, routeTargets: null, currentObservations: null, knowledgeStatus: null, referenceCurriculum: null, narrativeError: false, researchError: false, chaptersError: false, lessonLibraryError: false, nodeGuidesError: false, knowledgeConceptsError: false, knowledgeAliasesError: false, knowledgeArticlesError: false, routeTargetsError: false, currentObservationsError: false, knowledgeStatusError: false, referenceCurriculumError: false, loadingArticleIds: new Set(), articleErrors: new Set() };
       page.dataset.aioArchitectureRoute = 'principles';
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioContentKind = 'REFERENCE';
@@ -1259,9 +1261,24 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
          lessonPanel.open = state.lessonPanelOpen;
          lessonPanel.addEventListener('toggle', () => { state.lessonPanelOpen = lessonPanel.open; });
          lessonPanel.append(element(documentRef, 'summary', 'principles-library-panel-summary', `${state.lessonLibrary?.lessons?.length || 0}개 세부 레슨 보기${state.query ? ` · 검색어 “${state.query}”` : ''}`), createLessonLibrary(documentRef, state.lessonLibrary, state.knowledgeArticles, state.routeTargets, state.query, navigateTarget, { pageNumber: state.lessonPage, pageSize: 20, activeLessonId: state.activeLessonId, loadingArticleIds: state.loadingArticleIds, articleErrors: state.articleErrors }));
-        library.append(chapterPanel, lessonPanel, createLearningTracks(documentRef));
-        return library;
-      }
+         const reference = createReferenceCurriculum(documentRef, state.referenceCurriculum, {
+           activeStageId: state.activeReferenceStageId,
+           activeLessonId: state.activeReferenceLessonId,
+           onStageSelect: (stageId) => {
+             state.activeReferenceStageId = stageId;
+             state.activeReferenceLessonId = state.referenceCurriculum?.stages?.find((stage) => stage.id === stageId)?.lessons?.[0]?.id || state.activeReferenceLessonId;
+             render();
+           },
+           onLessonSelect: (stageId, lessonId) => {
+             state.activeReferenceStageId = stageId;
+             state.activeReferenceLessonId = lessonId;
+             render();
+           },
+           onNavigate: (target) => navigateTarget({ ...target, returnContext: target.returnContext || { route: 'principles', view: 'library' } })
+         });
+         library.append(reference, chapterPanel, lessonPanel, createLearningTracks(documentRef));
+         return library;
+       }
 
       function render() {
         if (!isAlive()) return;
@@ -1364,19 +1381,20 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
            delete page.dataset.aioPrinciplesKnowledgeResearchDossiers;
              delete page.dataset.aioPrinciplesCurrentObservations;
              delete page.dataset.aioPrinciplesRouteTargets;
-             delete page.dataset.aioPrinciplesKnowledgeStatus;
+            delete page.dataset.aioPrinciplesKnowledgeStatus;
+           delete page.dataset.aioPrinciplesReferenceCurriculum;
           delete page.dataset.aioKnowledgeLearningState;
           content.replaceChildren();
         });
         render();
         const fetchFn = root?.fetch || globalThis.fetch;
         if (typeof fetchFn === 'function') {
-          const datasetMap = { narrative: 'aioPrinciplesNarrative', research: 'aioPrinciplesResearch', chapters: 'aioPrinciplesChapters', lessonLibrary: 'aioPrinciplesLessonLibrary', nodeGuides: 'aioPrinciplesNodeGuides', knowledgeConcepts: 'aioPrinciplesKnowledgeConcepts', knowledgeAliases: 'aioPrinciplesKnowledgeAliases', knowledgeSources: 'aioPrinciplesKnowledgeSources', knowledgeClaims: 'aioPrinciplesKnowledgeClaims', knowledgeCoverage: 'aioPrinciplesKnowledgeCoverage', knowledgeResearchDossiers: 'aioPrinciplesKnowledgeResearchDossiers', knowledgeArticles: 'aioPrinciplesKnowledgeArticles', routeTargets: 'aioPrinciplesRouteTargets', currentObservations: 'aioPrinciplesCurrentObservations', knowledgeStatus: 'aioPrinciplesKnowledgeStatus' };
+           const datasetMap = { narrative: 'aioPrinciplesNarrative', research: 'aioPrinciplesResearch', chapters: 'aioPrinciplesChapters', lessonLibrary: 'aioPrinciplesLessonLibrary', nodeGuides: 'aioPrinciplesNodeGuides', knowledgeConcepts: 'aioPrinciplesKnowledgeConcepts', knowledgeAliases: 'aioPrinciplesKnowledgeAliases', knowledgeSources: 'aioPrinciplesKnowledgeSources', knowledgeClaims: 'aioPrinciplesKnowledgeClaims', knowledgeCoverage: 'aioPrinciplesKnowledgeCoverage', knowledgeResearchDossiers: 'aioPrinciplesKnowledgeResearchDossiers', knowledgeArticles: 'aioPrinciplesKnowledgeArticles', routeTargets: 'aioPrinciplesRouteTargets', currentObservations: 'aioPrinciplesCurrentObservations', knowledgeStatus: 'aioPrinciplesKnowledgeStatus', referenceCurriculum: 'aioPrinciplesReferenceCurriculum' };
           const definitionByKey = new Map([
             ['narrative', NARRATIVE_URL],
             ['research', RESEARCH_URL], ['chapters', CHAPTERS_URL], ['lessonLibrary', LESSON_LIBRARY_URL], ['nodeGuides', NODE_GUIDES_URL],
             ['knowledgeConcepts', KNOWLEDGE_CONCEPTS_URL], ['knowledgeAliases', KNOWLEDGE_ALIASES_URL], ['currentObservations', CURRENT_OBSERVATIONS_URL],
-            ['routeTargets', ROUTE_TARGETS_URL], ['knowledgeStatus', KNOWLEDGE_STATUS_URL]
+            ['routeTargets', ROUTE_TARGETS_URL], ['knowledgeStatus', KNOWLEDGE_STATUS_URL], ['referenceCurriculum', REFERENCE_CURRICULUM_URL]
           ]);
           const loading = new Set();
           const updateSearchIndex = () => {
@@ -1409,7 +1427,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
               page.dataset[datasetMap[key]] = result.status;
             }
             updateSearchIndex();
-             page.dataset.aioReviewedAt = [state.knowledgeArticles?.generatedAt, state.knowledgeArticles?.articles?.map((article) => article.reviewedAt).sort().at(-1), state.chapters?.reviewedAt, state.lessonLibrary?.reviewedAt, state.nodeGuides?.reviewedAt, REVIEWED_AT].filter(Boolean).sort().at(-1) || REVIEWED_AT;
+              page.dataset.aioReviewedAt = [state.knowledgeArticles?.generatedAt, state.knowledgeArticles?.articles?.map((article) => article.reviewedAt).sort().at(-1), state.chapters?.reviewedAt, state.lessonLibrary?.reviewedAt, state.nodeGuides?.reviewedAt, state.referenceCurriculum?.revision, REVIEWED_AT].filter(Boolean).sort().at(-1) || REVIEWED_AT;
              if (state.lessonLibrary && state.activeLessonId) {
                const lessonIndex = state.lessonLibrary.lessons?.findIndex((lesson) => lesson.id === state.activeLessonId) ?? -1;
                if (lessonIndex >= 0) {
@@ -1428,7 +1446,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
           ensureSearchCapabilities = () => { if (state.query) loadGroup(searchDefinitions); };
           ensureMapCapabilities = () => loadGroup(mapDefinitions);
           ensurePathCapabilities = () => loadGroup([{ key: 'lessonLibrary', url: LESSON_LIBRARY_URL }]);
-          ensureLibraryCapabilities = () => loadGroup([{ key: 'chapters', url: CHAPTERS_URL }, ...searchDefinitions]);
+           ensureLibraryCapabilities = () => loadGroup([{ key: 'chapters', url: CHAPTERS_URL }, { key: 'referenceCurriculum', url: REFERENCE_CURRICULUM_URL }, ...searchDefinitions]);
           retryCapability = (key) => {
             const url = definitionByKey.get(key);
             if (!url) return;
@@ -1473,4 +1491,4 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
   };
 }
 
-export { CATALOG as MARKET_PRINCIPLES_CATALOG, NARRATIVE_URL, RESEARCH_URL, CHAPTERS_URL, LESSON_LIBRARY_URL, NODE_GUIDES_URL, KNOWLEDGE_CONCEPTS_URL, KNOWLEDGE_ALIASES_URL, ROUTE_TARGETS_URL, CURRENT_OBSERVATIONS_URL, KNOWLEDGE_STATUS_URL };
+export { CATALOG as MARKET_PRINCIPLES_CATALOG, NARRATIVE_URL, RESEARCH_URL, CHAPTERS_URL, LESSON_LIBRARY_URL, NODE_GUIDES_URL, KNOWLEDGE_CONCEPTS_URL, KNOWLEDGE_ALIASES_URL, ROUTE_TARGETS_URL, CURRENT_OBSERVATIONS_URL, KNOWLEDGE_STATUS_URL, REFERENCE_CURRICULUM_URL };

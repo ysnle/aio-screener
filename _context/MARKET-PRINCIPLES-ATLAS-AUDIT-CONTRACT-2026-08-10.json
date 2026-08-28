@@ -4,13 +4,13 @@
   "boundedChangesImplemented": ["public naming", "depth audit", "name regression gates", "handoff and knowledge contracts", "semantic graph gate", "typed edge normalization", "unified evidence resolver", "capability-level artifact loading", "scope-owned abort and liveness", "full-text retrieval", "bookmark and note controls", "S0 topology and product mapping corrections", "canonical ontology manifest", "claim directness registry", "structured article drafts", "learning graph", "shareable learning state", "professional route bridge", "knowledge repository and selectors", "shared knowledge renderers", "encyclopedia product mission", "full sector-domain-category coverage contract", "web research dossier contract", "post-KA content completion track"],
   "knowledgeRebuildStatus": "STRUCTURED_REFERENCE_DRAFTS_PARTIAL_CONTENT_RESEARCH_OPEN",
   "auditedAt": "2026-08-22",
-  "targetVersion": "v54.43",
+  "targetVersion": "v54.63",
   "surfaces": ["principles", "atlas"],
   "latestImplementationUpdate": {
     "version": "v54.40",
     "date": "2026-08-22",
     "structuredCorpus": {"principlesSourceLessons": 112, "atlasFoundationLessons": 48, "structuredArticleDrafts": 160, "inventoryUnits": 427},
-    "researchState": {"researched": 318, "inProgress": 4, "researchRequired": 105},
+    "researchState": {"researched": 298, "inProgress": 4, "researchRequired": 125},
     "learnerFlow": {"capabilityLazyLoading": true, "itemArticleLoading": true, "visibleRetryableArticleFailures": true, "sharedArtifactCacheMaxEntries": 64, "scopeAbortAndLiveness": true, "fullTextRetrieval": true, "bookmarkAndNoteControls": true, "professionalRouteTargets": 199},
     "browserBudgetsBytes": {"principlesCore": 258377, "principlesLibrary": 1478997, "principlesArticle": 25126, "atlasFoundations": 590844, "atlasArticle": 24526, "atlasOverview": 52847, "reentryRepeatedArtifacts": 0},
     "certificationBoundary": "LOCAL_STRUCTURED_AND_BROWSER_CONTRACTS_ONLY; independent human semantic/source-directness review, recruited-user validation and live parity remain open"
@@ -121,7 +121,7 @@
       "id": "KB-S0-04",
       "surface": "shared",
       "kind": "WEB_RESEARCH_AND_SOURCE_PROFILE",
-      "evidence": "427 per-unit dossier contracts now report 318 researched, 4 research-in-progress and 105 research-required units; complete independent claim-by-claim fact-checking and source-directness review remain open",
+      "evidence": "427 per-unit dossier contracts now report 298 researched, 4 research-in-progress and 125 research-required units; complete independent claim-by-claim fact-checking and source-directness review remain open",
       "requiredGate": "web-research-dossier",
       "status": "OPEN"
     },
@@ -217,7 +217,7 @@
     "viewportMatrix": "20 routes x 3 desktop viewports PASS; 60 FULL_INIT combinations, overflow 0, JavaScript errors 0",
     "architectureRatchet": "FAIL_OUT_OF_PACKET: explicitWindowWrites 1092 > baseline 1090 from two existing AI research window assignments",
     "ka11Coverage": "PASS_WITH_BOUNDARY: 427 units inventoried; completionReady false",
-    "ka12Research": "PASS_WITH_BOUNDARY: 318 researched / 4 in progress / 105 required; independent fact-checking open",
+    "ka12Research": "PASS_WITH_BOUNDARY: 298 researched / 4 in progress / 125 required; independent fact-checking open",
     "ka13ArticleUniqueness": "PASS_WITH_BOUNDARY: 160 unique reconstruction seeds; completionReady false",
     "ka14DomainDepth": "PASS_WITH_BOUNDARY: 19 domains / 95 taxonomy nodes / 50 unique deep branches",
     "ka15Quantitative": "PASS_WITH_BOUNDARY: 15 educational labs; completionReady false",

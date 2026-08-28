@@ -67,6 +67,12 @@ async function build() {
   }
   const bad = universe.filter(r => !r || typeof r.sym !== 'string' || !r.sym);
   if (bad.length) throw new Error(`sym 필드 없는 레코드 ${bad.length}건`);
+  const uniqueSymbols = new Set(universe.map((row) => row.sym)).size;
+  meta.recordCount = universe.length;
+  meta.uniqueSymbols = uniqueSymbols;
+  meta.duplicateSymbols = Math.max(0, universe.length - uniqueSymbols);
+  const updatedAt = meta.lastBulkUpdate ? Date.parse(`${meta.lastBulkUpdate}T00:00:00Z`) : NaN;
+  meta.currentness = Number.isFinite(updatedAt) && Number.isFinite(Number(meta.staleAfterDays)) && Date.now() - updatedAt > Number(meta.staleAfterDays) * 86400000 ? 'STALE' : 'CURRENT';
   return { meta, universe, generatedFrom: 'js/aio-data.js:SCREENER_DB', generatedBy: 'scripts/sync-screener-universe.mjs' };
 }
 

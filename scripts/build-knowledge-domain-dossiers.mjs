@@ -3,13 +3,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { atomicWriteJsonSync } from './lib/atomic-write.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
 const write = (file, value) => {
   const target = path.join(root, file);
-  fs.mkdirSync(path.dirname(target), { recursive: true });
-  fs.writeFileSync(target, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
+  atomicWriteJsonSync(target, value);
 };
 const generatedAt = process.env.KNOWLEDGE_RESEARCH_DATE || '2026-08-12';
 const guides = read('public-data/atlas/domain-guides.json').guides || [];

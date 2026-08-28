@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { atomicWriteFile } from './lib/atomic-write.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const knowledgeDir = path.join(root, 'public-data', 'knowledge');
@@ -46,7 +47,5 @@ const output = {
 };
 
 const target = path.join(knowledgeDir, 'status-summary.json');
-const temp = `${target}.tmp`;
-await fs.writeFile(temp, `${JSON.stringify(output, null, 2)}\n`, 'utf8');
-await fs.rename(temp, target);
+await atomicWriteFile(target, `${JSON.stringify(output, null, 2)}\n`, 'utf8');
 console.log(JSON.stringify({ target: path.relative(root, target), bytes: Buffer.byteLength(JSON.stringify(output)), counts: output }, null, 2));

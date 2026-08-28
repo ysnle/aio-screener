@@ -64,8 +64,26 @@ export function allowedUseForStatus(status) {
   return 'none';
 }
 
+const ALLOWED_USE_RANK = Object.freeze({ none: 0, reference: 1, decision: 2 });
+
+/**
+ * Return the most restrictive use in the supplied chain. Freshness and a
+ * successful fetch may downgrade evidence, but must never promote a provider
+ * or rights ceiling from reference to decision use.
+ */
+export function restrictAllowedUse(...values) {
+  const normalized = values
+    .filter((value) => value !== undefined && value !== null && value !== '')
+    .map((value) => normalizeAllowedUse(value, 'none'));
+  if (!normalized.length) return 'none';
+  return normalized.reduce((current, value) => ALLOWED_USE_RANK[value] < ALLOWED_USE_RANK[current] ? value : current, 'decision');
+}
+
 export function createEvidence(input = {}) {
   const status = EVIDENCE_STATUS.includes(input.status) ? input.status : (input.value == null ? 'missing' : 'reference');
+  const statusAllowedUse = allowedUseForStatus(status);
+  const requestedAllowedUse = input.allowedUse == null ? statusAllowedUse : normalizeAllowedUse(input.allowedUse, 'none');
+  const allowedUseCeiling = input.allowedUseCeiling == null ? 'decision' : normalizeAllowedUse(input.allowedUseCeiling, 'none');
   const evidence = {
     evidenceId: input.evidenceId || '',
     metric: String(input.metric || ''),
@@ -79,7 +97,8 @@ export function createEvidence(input = {}) {
     fetchedAt: input.fetchedAt || null,
     lastSuccessfulAt: input.lastSuccessfulAt || null,
     status,
-    allowedUse: normalizeAllowedUse(input.allowedUse, allowedUseForStatus(status)),
+    allowedUse: restrictAllowedUse(statusAllowedUse, requestedAllowedUse, allowedUseCeiling),
+    allowedUseCeiling,
     freshnessMs: Number.isFinite(input.freshnessMs) ? input.freshnessMs : null,
     metadata: input.metadata && typeof input.metadata === 'object' ? { ...input.metadata } : {}
   };
@@ -98,6 +117,7 @@ export function validateEvidence(evidence) {
   if (!evidence?.metric) errors.push('metric_missing');
   if (!EVIDENCE_STATUS.includes(evidence?.status)) errors.push('status_invalid');
   if (!EVIDENCE_ALLOWED_USE.includes(evidence?.allowedUse)) errors.push('allowed_use_invalid');
+  if (!EVIDENCE_ALLOWED_USE.includes(evidence?.allowedUseCeiling)) errors.push('allowed_use_ceiling_invalid');
   if (evidence?.status !== 'missing' && evidence?.status !== 'failed' && evidence?.value == null) errors.push('value_missing');
   for (const field of ['observedAt', 'collectedAt', 'publishedAt', 'fetchedAt']) {
     if (evidence?.[field] != null && Number.isNaN(Date.parse(evidence[field]))) errors.push(`${field}_invalid`);

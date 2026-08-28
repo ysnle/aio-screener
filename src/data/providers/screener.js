@@ -7,9 +7,85 @@ function finite(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
+function numberOrNull(value) {
+  return value == null || value === '' ? null : finite(Number(value));
+}
+
 function asOfIsFresh(asOf, now, maxAgeDays) {
   const timestamp = asOf ? new Date(asOf).getTime() : 0;
   return timestamp > 0 && (now - timestamp) / 86400000 <= maxAgeDays;
+}
+
+const RIGHTS_VALUES = new Set(['VERIFIED', 'REVIEW_REQUIRED', 'UNKNOWN']);
+
+function normalizeRights(value) {
+  const normalized = String(value == null ? '' : value).trim().toUpperCase();
+  return RIGHTS_VALUES.has(normalized) ? normalized : null;
+}
+
+function readRightsOverride(definition, factor, artifact) {
+  const fieldId = definition.fieldId;
+  const rowKey = definition.rowKey;
+  const sources = [factor, artifact, artifact?.metadata].filter((value) => value && typeof value === 'object');
+  for (const source of sources) {
+    for (const mapKey of ['rightsByField', 'fieldRights', 'rights']) {
+      const map = source[mapKey];
+      if (!map || typeof map !== 'object') continue;
+      const explicit = normalizeRights(map[fieldId] ?? map[rowKey]);
+      if (explicit) return explicit;
+    }
+    for (const key of [`${fieldId}Rights`, `${fieldId}RightsId`, `${rowKey}Rights`, `${rowKey}RightsId`]) {
+      const explicit = normalizeRights(source[key]);
+      if (explicit) return explicit;
+    }
+  }
+  return null;
+}
+
+function isOfficialFilingSource(source) {
+  return /(?:sec\s+edgar|\bdart(?:\b|-)|\bofficial\b)/i.test(String(source || ''));
+}
+
+// Rights are a usage/entitlement gate, not a claim that a delayed public feed
+// is exchange-authoritative.  Resolve them from artifact metadata first and
+// use conservative source-family defaults only where the producer has no
+// per-field map yet.  This keeps official SEC fields usable while preserving
+// the REVIEW_REQUIRED gate for the free Yahoo EOD path.
+function resolveFieldRights(definition, factor, artifact, row) {
+  const explicit = readRightsOverride(definition, factor, artifact);
+  if (explicit) return explicit;
+  const fieldId = definition.fieldId;
+  if (fieldId.startsWith('identity.')) return 'VERIFIED';
+  if (fieldId.startsWith('fundamental.') || fieldId.startsWith('quality.')) {
+    const source = String(factor.fundamentalSource || row._fundamentalSource || '').toLowerCase();
+    if (isOfficialFilingSource(source)) return 'VERIFIED';
+    if (source) return 'REVIEW_REQUIRED';
+    return 'UNKNOWN';
+  }
+  if (fieldId === 'valuation.marketCap') return row._mcapSource ? 'REVIEW_REQUIRED' : 'UNKNOWN';
+  if (fieldId.startsWith('valuation.')) {
+    const source = String(factor.fundamentalSource || row._fundamentalSource || '').toLowerCase();
+    if (isOfficialFilingSource(source)) return 'VERIFIED';
+    if (source) return 'REVIEW_REQUIRED';
+    return 'UNKNOWN';
+  }
+  if (fieldId.startsWith('price.') || fieldId.startsWith('technical.')) return 'REVIEW_REQUIRED';
+  if (fieldId.startsWith('news.')) return row.newsSource ? 'REVIEW_REQUIRED' : 'UNKNOWN';
+  if (fieldId.startsWith('breadth.') || fieldId.startsWith('regime.')) return 'VERIFIED';
+  return 'UNKNOWN';
+}
+
+function resolveFieldSourceKind(definition, factor, artifact, row) {
+  const fieldId = definition.fieldId;
+  const explicitMap = factor?.sourceKindByField || artifact?.sourceKindByField || artifact?.metadata?.sourceKindByField;
+  const explicit = explicitMap && typeof explicitMap === 'object' ? explicitMap[fieldId] : null;
+  if (['T1_OFFICIAL', 'T2_LICENSED', 'T3_PUBLIC_DELAYED', 'T4_REFERENCE'].includes(explicit)) return explicit;
+  if (fieldId.startsWith('identity.') || fieldId.startsWith('breadth.') || fieldId.startsWith('regime.')) return 'T4_REFERENCE';
+  if (fieldId.startsWith('fundamental.') || fieldId.startsWith('quality.') || fieldId.startsWith('valuation.')) {
+    const source = String(factor.fundamentalSource || row._fundamentalSource || '').toLowerCase();
+    if (isOfficialFilingSource(source)) return 'T1_OFFICIAL';
+  }
+  return 'T3_PUBLIC_DELAYED';
 }
 
 function liveEnrichment(symbol, readLiveData) {
@@ -55,6 +131,16 @@ export function createScreenerProvider({
       const artifact = artifactResponse.ok && artifactResponse.data && typeof artifactResponse.data === 'object'
         ? artifactResponse.data
         : null;
+      const universePayload = universeResponse.ok && universeResponse.data && typeof universeResponse.data === 'object'
+        ? universeResponse.data
+        : null;
+      const universeMeta = universePayload?.meta && typeof universePayload.meta === 'object' ? universePayload.meta : {};
+      const universeLastBulkUpdate = universeMeta.lastBulkUpdate || null;
+      const universeStaleAfterDays = numberOrNull(universeMeta.staleAfterDays) ?? 30;
+      const universeCurrentness = String(universeMeta.currentness || '').trim().toUpperCase() || 'UNKNOWN';
+      const universeFreshnessStatus = Array.isArray(universePayload?.universe)
+        ? (universeCurrentness === 'STALE' || !asOfIsFresh(universeLastBulkUpdate, now, universeStaleAfterDays) ? 'stale' : universeCurrentness === 'CURRENT' ? 'current' : 'unknown')
+        : 'unknown';
       const unavailable = (revision = null, detail = null) => Object.freeze({
         rows: [],
         filters: {},
@@ -172,12 +258,22 @@ export function createScreenerProvider({
           fetchedAt: factor.fetchedAt || artifact.asOf || null,
           instrumentRef
         };
+        const rightsByField = Object.fromEntries(SCREENER_FIELD_REGISTRY.fields.map((definition) => [
+          definition.fieldId,
+          resolveFieldRights(definition, factor, artifact, baseRow)
+        ]));
+        const sourceKindByField = Object.fromEntries(SCREENER_FIELD_REGISTRY.fields.map((definition) => [
+          definition.fieldId,
+          resolveFieldSourceKind(definition, factor, artifact, baseRow)
+        ]));
         const readiness = buildFieldReadiness(baseRow, {
           registry: SCREENER_FIELD_REGISTRY,
           now,
           revisionId: artifact.asOf || 'unpublished',
           sourceId: factor.source || artifact.source || 'screener-artifact',
-          sourceKind: factor.sourceKind === 'official-filing' ? 'T1_OFFICIAL' : 'T3_PUBLIC_DELAYED'
+          sourceKind: factor.sourceKind === 'official-filing' ? 'T1_OFFICIAL' : 'T3_PUBLIC_DELAYED',
+          rightsByField,
+          sourceKindByField
         });
         return { ...baseRow, fieldReadiness: readiness, fieldObservations: readiness.observations };
       });
@@ -193,8 +289,20 @@ export function createScreenerProvider({
           universe: Number(artifact.universe) || symbols.length,
           artifactRows: Object.keys(artifact.data).length,
           universeRows: universe.length,
+          universeCurrentness,
+          universeLastBulkUpdate,
+          universeStaleAfterDays,
+          universeFreshnessStatus,
           fmpOk: !!artifact.fmpOk,
-          fundamentalCoveragePct: Number(artifact.fundamentalCoveragePct) || 0,
+          fundamentalCoveragePct: numberOrNull(artifact.fundamentalCoveragePct),
+          fundamentalCoverageDenominator: numberOrNull(artifact.fundamentalCoverageDenominator),
+          fundamentalModels: Array.isArray(artifact.fundamentalModels) ? artifact.fundamentalModels.slice() : [],
+          fundamentalCoverageScope: artifact.fundamentalCoverageScope || 'US screener universe; mixed fundamental fields',
+          secFundamentalsCount: numberOrNull(artifact.secFundamentalsCount),
+          secFundamentalsStored: numberOrNull(artifact.secFundamentalsStored),
+          secFundamentalsEligible: numberOrNull(artifact.secFundamentalsEligible),
+          secFundamentalsModel: artifact.secFundamentalsModel || null,
+          secFundamentalsGeneratedAt: artifact.secFundamentalsGeneratedAt || null,
           secFundamentalsOk: !!artifact.secFundamentalsOk,
           rankingContract: artifact.rankingContract || null,
           backtest: artifact.backtest || null,
@@ -207,7 +315,7 @@ export function createScreenerProvider({
         },
         revision: artifact.asOf || null,
         snapshotId,
-        status: rows.some((row) => typeof row.ret3m === 'number') ? 'current' : 'partial',
+        status: rows.some((row) => typeof row.ret3m === 'number') && universeFreshnessStatus !== 'stale' ? 'current' : 'partial',
         updatedAt: artifact.asOf || null
       });
     }

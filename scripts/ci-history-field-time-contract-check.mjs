@@ -105,8 +105,15 @@ const beaFixture = parseBeaPceHtml(`
 if (beaFixture.values.pce !== 3.7 || beaFixture.values.corePce !== 3.3 || beaFixture.values.pceMoM !== -0.1 || beaFixture.observedAt !== '2026-06-01') {
   fail(`BEA PCE parser fixture failed: ${JSON.stringify(beaFixture)}`);
 }
-const lkg = mergeMacroLastKnownGood({ _source: 'fred:no-key', _failedSeries: ['pce'] }, { cpi: 3.5, _asOf_cpi: '2026-06-01', hyOAS: 2.71 });
-if (lkg.cpi !== 3.5 || lkg.hyOAS !== 2.71 || !lkg._failedSeries.includes('pce')) fail(`macro LKG merge fixture failed: ${JSON.stringify(lkg)}`);
+const lkg = mergeMacroLastKnownGood(
+  { _source: 'fred:no-key', _failedSeries: ['pce'] },
+  { cpi: 3.5, _asOf_cpi: '2026-06-01', _source_cpi: 'fred-official-primary', hyOAS: 2.71, _source_hyOAS: 'fred-official-public-csv' }
+);
+if (lkg.cpi !== 3.5 || lkg.hyOAS !== 2.71 || !lkg._failedSeries.includes('pce')
+  || lkg._source_cpi !== 'last-known-good' || lkg._source_hyOAS !== 'last-known-good'
+  || lkg._originSource_cpi !== 'fred-official-primary' || lkg._freshness_cpi !== 'stale-reference') {
+  fail(`macro LKG merge fixture failed: ${JSON.stringify(lkg)}`);
+}
 const nfp = Number(data.macro?.nfp);
 if (Number.isFinite(nfp)) {
   const good = validateMarketAnalysisText(`NFP ${nfp}천명`, data);

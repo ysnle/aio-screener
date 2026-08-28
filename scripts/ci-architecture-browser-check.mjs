@@ -257,9 +257,9 @@ try {
   }));
   if (!themeDetailRoute.panelExists || themeDetailRoute.panelRenderer !== 'native' || themeDetailRoute.panelDisplay !== 'block' || !themeDetailRoute.nativeSummaryExists || themeDetailRoute.nativeSummaryHidden || !themeDetailRoute.nativeCompositionExists || themeDetailRoute.nativeCompositionHidden || !themeDetailRoute.nativeCompositionText.trim() || !themeDetailRoute.nativeLeadersExists || themeDetailRoute.nativeLeadersHidden || themeDetailRoute.nativeLeaderCardCount < 1 || !themeDetailRoute.nativeTemperatureExists || themeDetailRoute.nativeTemperatureHidden || !themeDetailRoute.nativeTemperatureText.trim() || !themeDetailRoute.nativeSpreadExists || themeDetailRoute.nativeSpreadHidden || !themeDetailRoute.nativeSpreadText.trim() || !themeDetailRoute.nativeBreadthHealthExists || themeDetailRoute.nativeBreadthHealthHidden || !themeDetailRoute.nativeBreadthHealthText.trim() || !themeDetailRoute.nativeSubthemeGapExists || themeDetailRoute.nativeSubthemeGapHidden || !themeDetailRoute.nativeSubthemeGapText.trim() || !themeDetailRoute.nativeBenchmarkExists || themeDetailRoute.nativeBenchmarkHidden || !themeDetailRoute.nativeBenchmarkText.trim() || !themeDetailRoute.nativeInsightsExists || themeDetailRoute.nativeInsightsHidden || !themeDetailRoute.nativeInsightsText.trim() || !themeDetailRoute.legacyContentExists || !themeDetailRoute.legacyContentEmpty || themeDetailRoute.renderer !== 'native') throw new Error(`theme-detail native panel/summary/composition/leaders/temperature/spread/breadth-health/subtheme-gap/benchmark/insights/retired-legacy boundary failed: ${JSON.stringify(themeDetailRoute)}`);
   await page.evaluate(() => window.closeThemeDetail?.());
-  await page.evaluate(() => window.showTicker('AAPL'));
+  await page.evaluate(() => window.showTicker('NVDA'));
   await page.waitForFunction(() => document.getElementById('page-ticker')?.dataset.aioArchitectureRoute === 'ticker');
-  await page.waitForFunction(() => document.getElementById('ticker-hero-name')?.textContent === 'AAPL', { timeout: 10000 });
+  await page.waitForFunction(() => document.getElementById('ticker-hero-name')?.textContent === 'NVDA', { timeout: 10000 });
   const tickerRoute = await page.evaluate(() => ({
     pageExists: !!document.getElementById('page-ticker'),
     renderer: document.getElementById('page-ticker')?.dataset.aioArchitectureRenderer || null,
@@ -279,6 +279,28 @@ try {
     entrySymbol: document.getElementById('ticker-entry-symbol')?.textContent || ''
   }));
   if (tickerRoute.chartRenderer !== 'native' || !['unavailable', 'native-runtime'].includes(tickerRoute.chartSourceKind)) throw new Error(`ticker native chart surface failed: ${JSON.stringify(tickerRoute)}`);
+  const relatedTheme = page.locator('#page-ticker [data-action="showThemeDetail"][data-arg]').first();
+  if (await relatedTheme.count() < 1) throw new Error('ticker related-theme action is unavailable for NVDA');
+  const relatedThemeId = await relatedTheme.getAttribute('data-arg');
+  await relatedTheme.click();
+  await page.waitForFunction((themeId) => {
+    const pageNode = document.getElementById('page-themes');
+    const panel = document.getElementById('theme-detail-panel');
+    const summary = document.getElementById('theme-detail-native-summary');
+    return pageNode?.classList.contains('active')
+      && panel?.style.display === 'block'
+      && panel?.dataset.currentTheme === themeId
+      && summary?.hidden === false
+      && summary.textContent.includes('구성 기준일 미검증');
+  }, relatedThemeId, { timeout: 10000 });
+  const tickerThemeBridge = await page.evaluate((themeId) => ({
+    requestedThemeId: themeId,
+    activePage: document.querySelector('.page.active')?.id || null,
+    panelThemeId: document.getElementById('theme-detail-panel')?.dataset.currentTheme || null,
+    summaryText: document.getElementById('theme-detail-native-summary')?.textContent || '',
+    pendingThemeId: window._aioOpenThemeDetailOnThemes || null
+  }), relatedThemeId);
+  if (tickerThemeBridge.activePage !== 'page-themes' || tickerThemeBridge.panelThemeId !== relatedThemeId || tickerThemeBridge.pendingThemeId !== null || !tickerThemeBridge.summaryText.includes('참고 분류')) throw new Error(`ticker-to-theme lazy route handoff failed: ${JSON.stringify(tickerThemeBridge)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('options'));
   await page.waitForFunction(() => document.getElementById('page-options')?.dataset.aioArchitectureRoute === 'options');
   const optionsRoute = await page.evaluate(() => ({
@@ -286,8 +308,10 @@ try {
     renderer: document.getElementById('page-options')?.dataset.aioArchitectureRenderer || null,
     rawPrimarySinkCount: document.querySelectorAll('#page-options #opt-vix-val-secondary, #page-options #opt-pcr-val-secondary, #page-options #opt-skew-val-secondary').length,
     nativePrimarySinkCount: document.querySelectorAll('#page-options[data-aio-architecture-renderer="native"] #opt-vix-val-secondary, #page-options[data-aio-architecture-renderer="native"] #opt-pcr-val-secondary, #page-options[data-aio-architecture-renderer="native"] #opt-skew-val-secondary').length,
-    primaryValues: ['opt-vix-val-secondary', 'opt-pcr-val-secondary', 'opt-skew-val-secondary'].map((id) => document.getElementById(id)?.textContent || null)
+    primaryValues: ['opt-vix-val-secondary', 'opt-pcr-val-secondary', 'opt-skew-val-secondary'].map((id) => document.getElementById(id)?.textContent || null),
+    visibleEvidenceMeta: ['opt-vix-val-secondary-meta', 'opt-pcr-val-secondary-meta', 'opt-skew-val-secondary-meta'].map((id) => document.getElementById(id)?.textContent || '')
   }));
+  if (optionsRoute.visibleEvidenceMeta.some((value) => !value.includes('·') || (!value.includes('참고용') && !value.includes('수신 대기')))) throw new Error(`options visible observedAt/source metadata missing: ${JSON.stringify(optionsRoute)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('fundamental'));
   await page.waitForFunction(() => document.getElementById('page-fundamental')?.dataset.aioArchitectureRoute === 'fundamental');
   const fundamentalRoute = await page.evaluate(() => ({

@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "aio-skill-eval-cases.v1",
+  "boundary": "These are deterministic routing and evidence fixtures. They prepare repeatable behavioral runs but do not by themselves prove model output quality.",
+  "minimumCasesPerSkill": 3,
+  "skills": {
+    "bug-fix": [
+      { "prompt": "포트폴리오에 유효한 시세가 있는데 손익이 -100%로 보여. 원인을 고쳐줘.", "mustInclude": ["producer-transformer-consumer-gate", "BUG-POSTMORTEM", "negative-control"], "mustNotClaim": ["deploy without authorization"] },
+      { "prompt": "페이지 재진입 때 차트가 두 개씩 생기는 회귀를 고쳐줘.", "mustInclude": ["lifecycle owner", "regression gate", "browser boundary"], "mustNotClaim": ["static equals browser"] },
+      { "prompt": "knowledge lint가 새 문서를 놓치는 문제를 근본 수정해줘.", "mustInclude": ["root cause", "workspace gate", "INDEX/catalog"], "mustNotClaim": ["green lint means semantic truth"] }
+    ],
+    "data-refresh": [
+      { "prompt": "시장 데이터가 오래됐는지 확인하고 안전하게 갱신해줘.", "mustInclude": ["sourceKind", "observedAt", "fail closed"], "mustNotClaim": ["current without evidence"] },
+      { "prompt": "SEC 데이터 갱신 실패 시 기존 정상 파일을 보존해줘.", "mustInclude": ["last known good", "producer", "artifact integrity"], "mustNotClaim": ["empty success"] },
+      { "prompt": "뉴스와 시세의 서로 다른 freshness를 대사해줘.", "mustInclude": ["field-level freshness", "consumer", "blocked"], "mustNotClaim": ["one timestamp covers all"] }
+    ],
+    "integrate": [
+      { "prompt": "이 시장 코멘터리를 스크리너 지식과 채팅에 통합해줘.", "mustInclude": ["REFERENCE", "Q1", "invalidation"], "mustNotClaim": ["LIVE promotion"] },
+      { "prompt": "첨부 연구에서 투자 프레임워크를 추출해줘.", "mustInclude": ["attribution", "evidence tier", "target consumer"], "mustNotClaim": ["unsupported fact"] },
+      { "prompt": "오래된 기사 수치를 교육 콘텐츠로 통합해줘.", "mustInclude": ["as-of", "durable principle", "currentness separation"], "mustNotClaim": ["historical number is current"] }
+    ],
+    "knowledge-lint": [
+      { "prompt": "MD와 스킬이 현재 코드와 모순되는지 전수 검사해줘.", "mustInclude": ["eight passes", "agents/hooks", "verified-blocked-unverified"], "mustNotClaim": ["mechanical lint proves semantics"] },
+      { "prompt": "새 문서가 인덱스에서 빠졌는지 확인해줘.", "mustInclude": ["context catalog", "both directions", "executable gate"], "mustNotClaim": ["manual table as second source"] },
+      { "prompt": "규칙과 QA가 반복 실패를 실제로 막는지 점검해줘.", "mustInclude": ["postmortem-to-rule", "rule-to-gate", "frequency"], "mustNotClaim": ["notes equal prevention"] }
+    ],
+    "post-edit-qa": [
+      { "prompt": "공유 렌더러 수정 후 필요한 QA를 실행해줘.", "mustInclude": ["scope matrix", "affected routes", "Tier 13"], "mustNotClaim": ["headless equals live"] },
+      { "prompt": "문서와 훅만 수정했어. 검증해줘.", "mustInclude": ["workspace contract", "hook fixtures", "skill mirror"], "mustNotClaim": ["UI browser required"] },
+      { "prompt": "데이터 생산자와 화면 소비자를 함께 QA해줘.", "mustInclude": ["producer and consumer", "freshness", "regression-specific gate"], "mustNotClaim": ["artifact existence equals correctness"] }
+    ],
+    "autoresearch": [
+      { "prompt": "bug-fix 스킬을 최신 작업 프롬프트로 개선해줘.", "mustInclude": ["baseline", "one variable", "results.tsv"], "mustNotClaim": ["static equals behavioral"] },
+      { "prompt": "스킬 평가 기준을 바이너리로 재설계해줘.", "mustInclude": ["yes/no", "observable evidence", "negative example"], "mustNotClaim": ["subjective score"] },
+      { "prompt": "독립 실행이 불가능한 환경에서 스킬 품질을 평가해줘.", "mustInclude": ["unverified", "static contract", "future behavioral run"], "mustNotClaim": ["behavioral pass"] }
+    ]
+  }
+}

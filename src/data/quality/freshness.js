@@ -1,4 +1,4 @@
-import { allowedUseForStatus } from '../contracts/evidence.js';
+import { allowedUseForStatus, restrictAllowedUse } from '../contracts/evidence.js';
 
 export function classifyFreshness({ observedAt, now = Date.now(), maxAgeMs = 86_400_000 } = {}) {
   if (!observedAt || Number.isNaN(Date.parse(observedAt))) return 'missing';
@@ -11,7 +11,12 @@ export function applyFreshness(evidence, { now = Date.now(), maxAgeMs = 86_400_0
   const status = evidence?.status === 'missing' || evidence?.status === 'failed'
     ? evidence.status
     : classifyFreshness({ observedAt: evidence?.observedAt, now, maxAgeMs });
-  return Object.freeze({ ...evidence, status, allowedUse: allowedUseForStatus(status), freshnessMs: evidence?.observedAt ? Math.max(0, now - Date.parse(evidence.observedAt)) : null });
+  return Object.freeze({
+    ...evidence,
+    status,
+    allowedUse: restrictAllowedUse(evidence?.allowedUse ?? 'none', evidence?.allowedUseCeiling ?? 'decision', allowedUseForStatus(status)),
+    freshnessMs: evidence?.observedAt ? Math.max(0, now - Date.parse(evidence.observedAt)) : null
+  });
 }
 
 export function canUseEvidence(evidence, purpose = 'reference') {
