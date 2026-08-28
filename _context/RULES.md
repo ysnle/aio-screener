@@ -7,6 +7,12 @@ target_version: v54.63
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
 
+## R564. 생성 상태의 텍스트 크기는 checkout 줄바꿈과 무관해야 한다 (v54.63, P998)
+
+**Rule**: `CURRENT-STATE`·`CONTEXT-CATALOG`의 텍스트 바이트 집계는 CRLF/LF 물리 표현을 직접 세지 않고 LF 정규화된 UTF-8 크기를 사용한다. 로컬 작업 폴더 PASS만으로 deterministic generation을 단언하지 않으며 clean checkout에서도 같은 생성물을 요구한다.
+
+**Validation**: workspace contract의 CRLF/LF 동일성 회귀 검사, Windows Node 20 preflight, LF clean checkout Node 20 preflight, exact-SHA GitHub CI.
+
 ## R563. 자동 데이터 merge의 마지막 생성물은 current workspace state다 (v54.63, P997)
 
 **Rule**: 원격 refresh bot의 artifact를 병합하고 bounded projection·reconciliation·operations·release manifest를 재생성한 뒤에는 `generate-workspace-state --write`를 마지막에 실행한다. 병합 전 생성된 CURRENT-STATE를 재사용하거나 Windows 최신 런타임 PASS만으로 푸시하지 않으며, CI와 동일한 최소 Node 버전 preflight를 확인한다.

@@ -3,11 +3,17 @@ verified_by: Codex deterministic gates + browser audit
 last_verified: 2026-08-28
 confidence: high
 latest_version: v54.63
-latest_P_number: P997
-next_P_number: P998
-current_total_entries: 711 (P1~P997, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P987~P997 v54.63 source-to-screen data and research-model reconstruction
+latest_P_number: P998
+next_P_number: P999
+current_total_entries: 712 (P1~P998, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P987~P998 v54.63 source-to-screen data and research-model reconstruction
 ---
+
+## P998 - v54.63 - generated workspace byte inventory가 checkout 줄바꿈에 따라 달라졌다
+
+- **root_cause**: workspace state 생성기가 UTF-8 텍스트의 논리적 크기가 아니라 checkout 파일의 물리적 바이트를 집계했다. Windows CRLF에서 생성한 `CURRENT-STATE`·`CONTEXT-CATALOG`은 Linux LF clean checkout에서 다른 크기로 재계산되어 exact-SHA preflight가 실패했다.
+- **fix/prevention**: 모든 generated workspace byte 집계를 LF 정규화 뒤 UTF-8 바이트로 계산하고, CRLF/LF 입력이 같은 값을 내는 계약 검사를 workspace gate에 추가한다.
+- **verification**: exact SHA의 LF clean checkout에서 실패를 재현하고, Windows checkout과 LF clean checkout의 Node 20 preflight 및 차기 exact-SHA CI를 모두 통과시킨다.
 
 ## P997 - v54.63 - 원격 자동 데이터 병합 뒤 generated workspace state가 병합 전 inventory에 머물렀다
 

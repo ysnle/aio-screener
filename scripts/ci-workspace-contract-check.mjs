@@ -2,7 +2,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildContextCatalog, buildWorkspaceState, renderCurrentState, serializeJson } from './workspace-state-lib.mjs';
+import { buildContextCatalog, buildWorkspaceState, canonicalTextBytes, renderCurrentState, serializeJson } from './workspace-state-lib.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(join(root, path), 'utf8');
@@ -17,6 +17,7 @@ const expectedState = renderCurrentState(state);
 const expectedCatalog = serializeJson(buildContextCatalog(root));
 check('generated current state is present and current', exists('_context/CURRENT-STATE.md') && read('_context/CURRENT-STATE.md') === expectedState);
 check('generated context catalog is present and current', exists('_context/CONTEXT-CATALOG.json') && read('_context/CONTEXT-CATALOG.json') === expectedCatalog);
+check('generated workspace byte accounting is checkout-newline invariant', canonicalTextBytes('alpha\nbeta\n') === canonicalTextBytes('alpha\r\nbeta\r\n'));
 
 for (const guide of ['AGENTS.md', 'CLAUDE.md', '_context/INDEX.md', '_context/CLAUDE.md', '_context/WORKFLOW-GOVERNANCE.md']) {
   const text = read(guide);

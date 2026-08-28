@@ -27,6 +27,7 @@ confidence: high
 - [x] QA-DATA-19: scheduled core refresh owns AAII official-public collection with an explicit bounded relay fallback and Treasury monthly XML curve collection; values remain reference-only/same-date-derived and producer status is visible in Actions summaries.
 - [x] QA-DATA-20: headless lineage expectations move with declared producer automation; breadth and official static macro are both connected, while unknown or blocked categories remain fail-closed.
 - [x] QA-DATA-21: after merging remote refresh-bot artifacts and rebuilding projections, generated workspace state is rebuilt last and passes the Node 20 preflight used by GitHub Actions.
+- [x] QA-DATA-22: generated workspace text-byte accounting normalizes CRLF/LF so Windows and Linux clean checkouts produce identical CURRENT-STATE and CONTEXT-CATALOG artifacts.
 
 ## v54.62 data truth and end-to-end user-flow remediation (2026-08-26)
 

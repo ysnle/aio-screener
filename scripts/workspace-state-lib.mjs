@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { basename, join } from 'node:path';
 
 const GENERATED_CONTEXT = new Set(['CURRENT-STATE.md', 'CONTEXT-CATALOG.json']);
@@ -8,6 +8,7 @@ const TARGETED_CONTEXT = new Set(['CLAUDE.md', 'CODE-MAP.md', 'QA-PIPELINE-ARCHI
 
 export const readUtf8 = (root, path) => readFileSync(join(root, path), 'utf8');
 const lineCount = (text) => text.split(/\r?\n/).length - (text.endsWith('\n') ? 1 : 0);
+export const canonicalTextBytes = (text) => Buffer.byteLength(text.replace(/\r\n?/g, '\n'), 'utf8');
 const json = (root, path) => JSON.parse(readUtf8(root, path));
 
 function extractFrontmatter(text) {
@@ -67,7 +68,7 @@ export function buildContextCatalog(root) {
       title: file.endsWith('.md') ? extractTitle(text, file) : file,
       kind,
       readPolicy: readPolicy(kind),
-      bytes: statSync(path).size,
+      bytes: canonicalTextBytes(text),
       lines: lineCount(text),
       lastVerified: frontmatter?.last_verified || null,
       autoRefresh: frontmatter?.auto_refresh === 'true'
@@ -131,7 +132,7 @@ export function buildWorkspaceState(root) {
   const codeMapFiles = ['index.html', 'js/aio-core.js', 'js/aio-data.js', 'js/aio-ui.js', 'js/aio-chat.js', 'js/aio-tests.js', 'js/aio-glossary.js'];
   const codeFootprint = Object.fromEntries(codeMapFiles.map((path) => {
     const text = readUtf8(root, path);
-    return [path, { lines: lineCount(text), bytes: Buffer.byteLength(text, 'utf8') }];
+    return [path, { lines: lineCount(text), bytes: canonicalTextBytes(text) }];
   }));
 
   return {
@@ -143,7 +144,7 @@ export function buildWorkspaceState(root) {
       architecture: 'hybrid-static-shell-native-esm',
       activeRoutes: routes.counts?.totalRoutes ?? Object.keys(routes.routes || {}).length,
       routeRegistry: 'architecture/route-owners.json',
-      appShell: { lines: lineCount(html), bytes: Buffer.byteLength(html, 'utf8') },
+      appShell: { lines: lineCount(html), bytes: canonicalTextBytes(html) },
       codeFootprint
     },
     workspace: {
