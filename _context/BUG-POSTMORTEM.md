@@ -3,11 +3,17 @@ verified_by: Codex deterministic gates + browser audit
 last_verified: 2026-08-28
 confidence: high
 latest_version: v54.63
-latest_P_number: P996
-next_P_number: P997
-current_total_entries: 710 (P1~P996, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P987~P996 v54.63 source-to-screen data and research-model reconstruction
+latest_P_number: P997
+next_P_number: P998
+current_total_entries: 711 (P1~P997, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P987~P997 v54.63 source-to-screen data and research-model reconstruction
 ---
+
+## P997 - v54.63 - 원격 자동 데이터 병합 뒤 generated workspace state가 병합 전 inventory에 머물렀다
+
+- **root_cause**: 로컬 full QA 뒤 원격의 최신 SEC·13F 자동 커밋을 병합하고 bounded projection을 재생성했지만, 그 변경된 artifact inventory를 `_context/CURRENT-STATE.md`에 다시 생성하지 않은 채 merge commit을 푸시했다.
+- **fix/prevention**: 자동 데이터 커밋 병합·재생성 뒤 `generate-workspace-state --write`를 마지막 생성 단계로 실행하고, Node 20 `preflight --no-cache`의 generated-state/workspace-contract를 push 전 다시 통과시킨다.
+- **verification**: GitHub run 33141412952의 preflight 실패를 Node 20에서 동일 재현하고, 상태 재생성 후 Node 20 preflight와 affected QA 및 차기 exact-SHA CI를 검증한다.
 
 ## P996 - v54.63 - 자동화된 macro lineage를 과거 manual 단언이 회귀 실패로 오판했다
 

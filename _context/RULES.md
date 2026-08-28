@@ -7,6 +7,12 @@ target_version: v54.63
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
 
+## R563. 자동 데이터 merge의 마지막 생성물은 current workspace state다 (v54.63, P997)
+
+**Rule**: 원격 refresh bot의 artifact를 병합하고 bounded projection·reconciliation·operations·release manifest를 재생성한 뒤에는 `generate-workspace-state --write`를 마지막에 실행한다. 병합 전 생성된 CURRENT-STATE를 재사용하거나 Windows 최신 런타임 PASS만으로 푸시하지 않으며, CI와 동일한 최소 Node 버전 preflight를 확인한다.
+
+**Validation**: `node scripts/generate-workspace-state.mjs --check`, Node 20 `qa-runner --group preflight --no-cache`, exact-SHA CI attestation.
+
 ## R562. producer 자동화 상태와 lineage 회귀 계약은 같은 변경에서 이동한다 (v54.63, P996)
 
 **Rule**: 데이터 카테고리를 manual에서 scheduled/server-auto로 승격하거나 그 반대로 강등할 때 producer·source registry·runtime inventory만 수정하고 과거 상태를 고정한 headless/CI 기대값을 남겨두지 않는다. 회귀 테스트는 현재 선언된 producer 연결을 구체적으로 검증하며, 알 수 없는 상태를 `connected`로 묵인하지 않는다.

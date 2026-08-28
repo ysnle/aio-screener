@@ -31,7 +31,7 @@ last_verified: 2026-08-27
 - Context documents: 67; preflight loads only this file, `WORKFLOW-GOVERNANCE.md`, and `INDEX.md`.
 - Skills: 6; command wrappers: 9; agent profiles: 4.
 - Workflows: 9; CI scripts: 109.
-- Ledgers: latest rule R562; latest postmortem P996; open QA 125 unique IDs (132 rows, 4 explicitly superseded).
+- Ledgers: latest rule R563; latest postmortem P997; open QA 125 unique IDs (132 rows, 4 explicitly superseded).
 - Canonical skills: `.claude/skills`; Codex mirror: `.agents/skills`.
 
 ## Knowledge Boundary
@@ -43,7 +43,7 @@ last_verified: 2026-08-27
 
 ## Operations Boundary
 
-- Repository operations artifact: `OPERATOR_REQUIRED` at `2026-08-28T03:44:50.570Z`.
+- Repository operations artifact: `OPERATOR_REQUIRED` at `2026-08-28T04:16:26.487Z`.
 - Public stage: `RESEARCH_BETA_CONDITIONAL`; promotion decision: `BLOCKED_UNTIL_OPERATOR_CRITERIA_CLOSE`.
 - Live deployment, provider health, and edge headers must be measured by live gates. Never infer them from this file.
 
