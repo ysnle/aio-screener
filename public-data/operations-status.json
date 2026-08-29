@@ -7,9 +7,9 @@
     "STALE",
     "RIGHTS_REVIEW_REQUIRED"
   ],
-  "generatedAt": "2026-08-28T22:30:36.585Z",
+  "generatedAt": "2026-08-29T03:23:09.894Z",
   "appRevision": "v54.63",
-  "dataRevision": "market-snapshot:2026-08-28T21:31:55.447Z:ff3174b2",
+  "dataRevision": "market-snapshot:2026-08-29T03:23:05.858Z:ab3cdde9",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
   "overall": "OPERATOR_REQUIRED",
   "planes": {
@@ -17,7 +17,7 @@
       "status": "CURRENT",
       "statusCode": "CONFIGURED_HEALTHY",
       "source": "github-actions",
-      "lastSuccessfulAt": "2026-08-28T21:31:55.447Z",
+      "lastSuccessfulAt": "2026-08-29T03:23:05.858Z",
       "coverage": {
         "required": 16,
         "observed": 16,
@@ -29,9 +29,9 @@
       "freshness": {
         "fresh": true,
         "withinSla": true,
-        "marketClosedGrace": false,
-        "generatedAt": "2026-08-28T21:31:55.447Z",
-        "ageHours": 0.98,
+        "marketClosedGrace": true,
+        "generatedAt": "2026-08-29T03:23:05.858Z",
+        "ageHours": 0,
         "maxAgeHours": 12,
         "reason": null
       },
@@ -52,11 +52,11 @@
         "status": "CURRENT",
         "statusCode": 200,
         "coverage": "16/16",
-        "revision": "fast-quotes:2026-08-28T21:30:45.892Z:855ec234",
+        "revision": "fast-quotes:2026-08-29T03:20:44.079Z:62578ad4",
         "sourceSha": null,
-        "observedAt": "2026-08-28T21:31:58.978Z",
-        "source": "last-observed-live-health",
-        "observationStatus": "NOT_ATTEMPTED",
+        "observedAt": "2026-08-29T03:23:09.894Z",
+        "source": "periodic-live-health",
+        "observationStatus": "SUCCESS",
         "observationError": null
       },
       "soak": {
@@ -87,7 +87,7 @@
       "lastCallSucceeded": "BLOCKED",
       "evidence": {
         "marketAnalysisOk": false,
-        "generatedAt": "2026-08-28T21:31:55.447Z"
+        "generatedAt": "2026-08-29T03:23:05.858Z"
       }
     },
     "publicChat": {
@@ -99,7 +99,7 @@
       "health": {
         "status": "CURRENT",
         "statusCode": 200,
-        "observedAt": "2026-08-28T21:31:58.978Z",
+        "observedAt": "2026-08-29T03:23:09.894Z",
         "revision": "v54.37",
         "sourceSha": null,
         "configured": true,
@@ -109,8 +109,8 @@
         "providerSmokeBoundary": "blocking-deployment-workflow-only",
         "ready": true,
         "note": "Periodic live health observed; provider smoke remains a blocking deployment-workflow gate.",
-        "source": "last-observed-live-health",
-        "observationStatus": "NOT_ATTEMPTED",
+        "source": "periodic-live-health",
+        "observationStatus": "SUCCESS",
         "observationError": null
       },
       "scheduledAnalysisDoesNotImplyChat": true
@@ -121,15 +121,15 @@
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "reference",
-      "lastFetchAt": "2026-08-28T21:31:55.447Z"
+      "lastFetchAt": "2026-08-29T03:23:05.858Z"
     },
     "fred": {
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "official-series",
       "status": "CURRENT",
-      "lastAttemptAt": "2026-08-28T21:31:55.447Z",
-      "lastFetchAt": "2026-08-28T21:31:55.447Z"
+      "lastAttemptAt": "2026-08-29T03:23:05.858Z",
+      "lastFetchAt": "2026-08-29T03:23:05.858Z"
     },
     "sec": {
       "rights": "REVIEW_REQUIRED",
@@ -143,7 +143,7 @@
   "reconciliation": {
     "tier0": {
       "status": "MATCH",
-      "artifact": "market-snapshot:2026-08-28T21:31:55.447Z:ff3174b2",
+      "artifact": "market-snapshot:2026-08-29T03:23:05.858Z:ab3cdde9",
       "uiEvidence": "same-revision-contract",
       "observedAtComplete": true
     },
@@ -277,7 +277,7 @@
           }
         ]
       },
-      "sourceRevision": "market-snapshot:2026-08-28T21:31:55.447Z:ff3174b2",
+      "sourceRevision": "market-snapshot:2026-08-29T03:23:05.858Z:ab3cdde9",
       "sourceArtifacts": [
         "public-data/data.json",
         "public-data/market-snapshot.json",
