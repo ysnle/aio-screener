@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-08-29T15:20:27.305Z",
-  "attemptedAt": "2026-08-29T15:20:27.305Z",
-  "lastSuccessfulAt": "2026-08-29T15:20:27.305Z",
+  "generatedAt": "2026-08-29T18:53:08.595Z",
+  "attemptedAt": "2026-08-29T18:53:08.595Z",
+  "lastSuccessfulAt": "2026-08-29T18:53:08.595Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-08-15T15:20:23.165Z",
-  "until": "2026-08-29T15:20:23.165Z",
+  "since": "2026-08-15T18:53:05.229Z",
+  "until": "2026-08-29T18:53:05.229Z",
   "current24hWindow": {
     "start": "2026-08-27T23:00:00.000Z",
     "end": "2026-08-28T23:00:00.000Z",
@@ -14,7 +14,7 @@
   },
   "current24hCoverage": {
     "observedCount": 154,
-    "eligibleTextCount": 44,
+    "eligibleTextCount": 21,
     "channelCounts": {
       "insidertracking": 82,
       "HANAchina": 39,
@@ -90,12 +90,12 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1115,
-      "freshCount": 40,
-      "eligibleTextCount": 39,
+      "count": 1114,
+      "freshCount": 20,
+      "eligibleTextCount": 20,
       "selectedCount": 128,
       "error": null,
       "lastPostId": 62392
@@ -114,19 +114,19 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 775,
-      "freshCount": 39,
-      "eligibleTextCount": 39,
+      "freshCount": 20,
+      "eligibleTextCount": 20,
       "selectedCount": 124,
       "error": null,
       "lastPostId": 68036
     }
   ],
-  "count": 2340,
-  "retainedItemCount": 460,
+  "count": 2339,
+  "retainedItemCount": 446,
   "observedItems": [
     {
       "id": "insidertracking/62392",
@@ -767,7 +767,7 @@
         "TSM",
         "005930.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68015",
@@ -781,7 +781,7 @@
       "tickers": [
         "NVDA"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/62376",
@@ -806,7 +806,7 @@
         "kr-market"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68011",
@@ -818,7 +818,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/62375",
@@ -844,7 +844,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68009",
@@ -857,7 +857,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/62374",
@@ -905,7 +905,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68006",
@@ -920,7 +920,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/62371",
@@ -946,7 +946,7 @@
         "healthcare"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/62369",
@@ -959,7 +959,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68005",
@@ -973,7 +973,7 @@
       "tickers": [
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68004",
@@ -990,7 +990,7 @@
       "tickers": [
         "NVDA"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19920",
@@ -1021,7 +1021,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19919",
@@ -1049,7 +1049,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68001",
@@ -1061,7 +1061,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/62368",
@@ -1073,7 +1073,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/62367",
@@ -1085,7 +1085,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/62366",
@@ -1097,7 +1097,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/62365",
@@ -1110,7 +1110,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/62364",
@@ -1122,7 +1122,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/62363",
@@ -1134,7 +1134,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/62362",
@@ -1146,7 +1146,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/62361",
@@ -1159,7 +1159,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/62360",
@@ -1183,7 +1183,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/62358",
@@ -1195,7 +1195,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/62357",
@@ -1207,7 +1207,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/62356",
@@ -1247,7 +1247,7 @@
         "MRNA",
         "IONQ"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/62355",
@@ -1286,7 +1286,7 @@
         "NET",
         "MSTR"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/62354",
@@ -1298,7 +1298,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/62353",
@@ -1316,7 +1316,7 @@
         "NVDA",
         "MRVL"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/62352",
@@ -1340,7 +1340,7 @@
         "GOOG",
         "AMZN"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/62351",
@@ -1360,7 +1360,7 @@
       "tickers": [
         "AAPL"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/62350",
@@ -1490,7 +1490,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24846",
@@ -1556,7 +1556,7 @@
         "credit"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/67997",
@@ -1572,7 +1572,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/62341",
@@ -1601,7 +1601,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24843",
@@ -1631,7 +1631,7 @@
       "tickers": [
         "TSM"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/19918",
@@ -1679,7 +1679,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/24841",
@@ -32600,37 +32600,25 @@
       ],
       "tickers": [],
       "hasText": false
-    },
-    {
-      "id": "insidertracking/61215",
-      "channel": "insidertracking",
-      "datetime": "2026-08-15T15:43:42.000Z",
-      "localDateKst": "2026-08-16",
-      "score": 45,
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2340,
-    "eligibleTextCount": 116,
-    "mediaOnlyCount": 2224,
+    "observedCount": 2339,
+    "eligibleTextCount": 78,
+    "mediaOnlyCount": 2261,
     "highSignalCount": 559,
     "broadSignalCount": 1132,
     "selectedRawCount": 420,
-    "selectedRawCoveragePct": 362.1,
+    "selectedRawCoveragePct": 538.5,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
     "credit": 98,
     "macro": 795,
-    "geo": 339,
+    "geo": 338,
     "semi": 697,
     "power": 344,
     "kr-market": 333,
@@ -32842,7 +32830,7 @@
     "Market Notes (597 posts in 14-day research window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크오브아메리카 글로벌 리서치에 따르면 폴리마켓의 미국 중간선거 전망에서 민주당이 상·하원을 모두 장악할 확률이 48%로 가장 높은 수준 기록. 공화당이 상원을 유지하고 민주당이 하원을 장악하는 시나리오는 38%, 공화당의 상·하원 동시 장악은 11%로 집계. 민주당이 상원을...",
     "Earnings/Corporate (501 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라...",
     "AI Power/Grid (344 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라...",
-    "Geopolitics (339 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라...",
+    "Geopolitics (338 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라...",
     "Korea Market (333 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라...",
     "Positioning/Flows (211 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라..."
   ],
@@ -32850,7 +32838,7 @@
     {
       "key": "NVDA",
       "count": 122,
-      "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/08/24 ~ 2026/08/28 1위: MERCK N CO INC (8.35%) 2위: MICROSTRATEGY INC CL A (6.96%) 3위: SCHWAB US DIVIDEND EQUITY ETF (5.43%) 4위: SPACE..."
+      "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/08/24 ~ 2026/08/28 1위: MERCK N CO INC (8.35%) 2위: MICROSTRATEGY INC CL A (6.96%)..."
     },
     {
       "key": "000660.KS",
@@ -32880,7 +32868,7 @@
     {
       "key": "AVGO",
       "count": 48,
-      "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/08/24 ~ 2026/08/28 1위: MERCK N CO INC (8.35%) 2위: MICROSTRATEGY INC CL A (6.96%) 3위: SCHWAB US DIVIDEND EQUITY ETF (5.43%) 4위: SPACE..."
+      "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/08/24 ~ 2026/08/28 1위: MERCK N CO INC (8.35%) 2위: MICROSTRATEGY INC CL A (6.96%)..."
     },
     {
       "key": "META",
@@ -32900,7 +32888,7 @@
     {
       "key": "MRVL",
       "count": 38,
-      "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/08/24 ~ 2026/08/28 1위: MERCK N CO INC (8.35%) 2위: MICROSTRATEGY INC CL A (6.96%) 3위: SCHWAB US DIVIDEND EQUITY ETF (5.43%) 4위: SPACE..."
+      "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/08/24 ~ 2026/08/28 1위: MERCK N CO INC (8.35%) 2위: MICROSTRATEGY INC CL A (6.96%)..."
     },
     {
       "key": "035420.KS",
@@ -32924,7 +32912,7 @@
       "topics": [
         "geo"
       ],
-      "count": 339,
+      "count": 338,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라..."
     },
     {
@@ -32997,7 +32985,7 @@
         "crypto"
       ],
       "count": 16,
-      "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/08/24 ~ 2026/08/28 1위: MERCK N CO INC (8.35%) 2위: MICROSTRATEGY INC CL A (6.96%) 3위: SCHWAB US DIVIDEND EQUITY ETF (5.43%) 4위: SPACE..."
+      "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/08/24 ~ 2026/08/28 1위: MERCK N CO INC (8.35%) 2위: MICROSTRATEGY INC CL A (6.96%)..."
     },
     {
       "id": "earnings",
@@ -33015,7 +33003,7 @@
         "healthcare"
       ],
       "count": 142,
-      "focus": "2026년 8월 28일 서학개미 순매수 미국 주식 TOP 50 1위: NVIDIA CORP (11.37%) 2위: PROSHARES ULTRAPRO QQQ ETF (7.84%) 3위: META PLATFORMS INC CL A (7.40%) 4위: ALPHABET INC CL A (4.68%) 5위: INVESCO..."
+      "focus": "2026년 8월 28일 서학개미 순매수 미국 주식 TOP 50 1위: NVIDIA CORP (11.37%) 2위: PROSHARES ULTRAPRO QQQ ETF (7.84%) 3위: META..."
     },
     {
       "id": "japan",
@@ -33024,7 +33012,7 @@
         "japan"
       ],
       "count": 157,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 💾 반도체 · 데이터센터 · 광통신 • 엔비디아 (NVDA) — 미국 정부가 중국 AI 기업의 해외 데이터센터를 통한 첨단 미국산 칩 원격 이용을 제한하는 신규 규정을 검토 중. 데이터센터 사업자의 고객확인 및 중국 고객 접근 제한 등이..."
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 💾 반도체 · 데이터센터 · 광통신 • 엔비디아 (NVDA) — 미국 정부가 중국 AI 기업의 해외 데이터센터를 통한 첨단 미국산 칩..."
     },
     {
       "id": "flows",
@@ -41638,20 +41626,6 @@
       "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 미국이 방금 베네수엘라와 세계 역사상 최대 규모의 석유 계약을 체결했다&#33; 내 지시에 따라 마코 루비오 국무장관과 피트 헤그세스 전쟁장관은..."
     },
     {
-      "id": "insidertracking/62367",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/62367",
-      "datetime": "2026-08-28T22:02:26.000Z",
-      "localDateKst": "2026-08-29",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "코인베이스 CEO 브라이언 암스트롱은 미국이 가상자산 산업의 명확한 규칙을 마련하기 위해 ‘클래리티 법안(Clarity Act)’을 통과시켜야 한다고 주장. 암스트롱은 가상자산이 기존 금융 시스템보다 더..."
-    },
-    {
       "id": "insidertracking/62366",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/62366",
@@ -41681,48 +41655,6 @@
       "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 워시 의장 2026 잭슨홀 연설 주요 내용 (번역) ━━━━━━━━━━━━━━ 1. AI의 경제적 영향 주시 · AI를 생산성·고용에 상당한 영향을 미칠 수 있는 새로운..."
     },
     {
-      "id": "insidertracking/62364",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/62364",
-      "datetime": "2026-08-28T21:07:09.000Z",
-      "localDateKst": "2026-08-29",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "그리고....최근에 영상 편집도 배워보고있는데 잭슨홀 영상 한번 올려드릴게요."
-    },
-    {
-      "id": "insidertracking/62363",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/62363",
-      "datetime": "2026-08-28T20:58:42.000Z",
-      "localDateKst": "2026-08-29",
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "score": 45,
-      "hasText": true,
-      "summary": "중동 특이사항 없음"
-    },
-    {
-      "id": "insidertracking/62362",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/62362",
-      "datetime": "2026-08-28T20:52:05.000Z",
-      "localDateKst": "2026-08-29",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "미국의 우주 패권"
-    },
-    {
       "id": "insidertracking/62361",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/62361",
@@ -41738,20 +41670,6 @@
       "summary": "파이낸셜타임즈에 따르면 중국이 우크라이나와 이란 전쟁에서 자폭 드론의 치명적인 위력이 부각되면서 수익성이 높은 시장을 겨냥해 3D 프린팅 방식의 요격 드론 생산에 착수. 3D 프린터로 제작되는 요격 드론..."
     },
     {
-      "id": "insidertracking/62360",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/62360",
-      "datetime": "2026-08-28T20:50:22.000Z",
-      "localDateKst": "2026-08-29",
-      "tags": [
-        "media-only"
-      ],
-      "tickers": [],
-      "score": 0,
-      "hasText": false,
-      "summary": ""
-    },
-    {
       "id": "insidertracking/62359",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/62359",
@@ -41764,20 +41682,6 @@
       "score": 50,
       "hasText": true,
       "summary": "미국 전쟁부 장관 피트 헤그세스가 올해 말 수백 명의 군 고위 지휘관을 버지니아주 해병대 콴티코 기지로 다시 소집해 연설하는 방안을 검토 중이라고 미국 당국자들이 밝힘. 헤그세스 장관은 지난해 9월에도 장성..."
-    },
-    {
-      "id": "insidertracking/62358",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/62358",
-      "datetime": "2026-08-28T20:45:23.000Z",
-      "localDateKst": "2026-08-29",
-      "tags": [
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "차주 실적 발표 리스트 팔로알토, 델, 크레도, 브로드컴 같은 네임드 기업들의 실적 발표가 예정되어있습니다."
     },
     {
       "id": "insidertracking/62357",
@@ -41875,20 +41779,6 @@
       "score": 100,
       "hasText": true,
       "summary": "2026년 8월 28일 서학개미 순매수 미국 주식 TOP 50 1위: NVIDIA CORP (11.37%) 2위: PROSHARES ULTRAPRO QQQ ETF (7.84%) 3위: META..."
-    },
-    {
-      "id": "insidertracking/62354",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/62354",
-      "datetime": "2026-08-28T20:37:02.000Z",
-      "localDateKst": "2026-08-29",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "딸원 1,378원"
     },
     {
       "id": "insidertracking/62353",

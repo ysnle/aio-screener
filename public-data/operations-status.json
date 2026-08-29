@@ -7,9 +7,9 @@
     "STALE",
     "RIGHTS_REVIEW_REQUIRED"
   ],
-  "generatedAt": "2026-08-29T16:49:44.317Z",
+  "generatedAt": "2026-08-29T18:53:04.668Z",
   "appRevision": "v54.65",
-  "dataRevision": "market-snapshot:2026-08-29T15:20:18.929Z:e57bb184",
+  "dataRevision": "market-snapshot:2026-08-29T18:53:00.375Z:141f5f93",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
   "overall": "OPERATOR_REQUIRED",
   "planes": {
@@ -17,7 +17,7 @@
       "status": "CURRENT",
       "statusCode": "CONFIGURED_HEALTHY",
       "source": "github-actions",
-      "lastSuccessfulAt": "2026-08-29T15:20:18.929Z",
+      "lastSuccessfulAt": "2026-08-29T18:53:00.375Z",
       "coverage": {
         "required": 16,
         "observed": 16,
@@ -30,8 +30,8 @@
         "fresh": true,
         "withinSla": true,
         "marketClosedGrace": true,
-        "generatedAt": "2026-08-29T15:20:18.929Z",
-        "ageHours": 1.49,
+        "generatedAt": "2026-08-29T18:53:00.375Z",
+        "ageHours": 0,
         "maxAgeHours": 12,
         "reason": null
       },
@@ -52,11 +52,11 @@
         "status": "CURRENT",
         "statusCode": 200,
         "coverage": "16/16",
-        "revision": "fast-quotes:2026-08-29T15:15:28.608Z:1ebab43b",
+        "revision": "fast-quotes:2026-08-29T18:50:28.608Z:0f1a342d",
         "sourceSha": "6ef2561d3cc1cdc010693812a6796556d02c6db4",
-        "observedAt": "2026-08-29T15:20:22.668Z",
-        "source": "last-observed-live-health",
-        "observationStatus": "NOT_ATTEMPTED",
+        "observedAt": "2026-08-29T18:53:04.668Z",
+        "source": "periodic-live-health",
+        "observationStatus": "SUCCESS",
         "observationError": null
       },
       "soak": {
@@ -87,7 +87,7 @@
       "lastCallSucceeded": "BLOCKED",
       "evidence": {
         "marketAnalysisOk": false,
-        "generatedAt": "2026-08-29T15:20:18.929Z"
+        "generatedAt": "2026-08-29T18:53:00.375Z"
       }
     },
     "publicChat": {
@@ -99,7 +99,7 @@
       "health": {
         "status": "CURRENT",
         "statusCode": 200,
-        "observedAt": "2026-08-29T15:20:22.668Z",
+        "observedAt": "2026-08-29T18:53:04.668Z",
         "revision": "v54.37",
         "sourceSha": "6ef2561d3cc1cdc010693812a6796556d02c6db4",
         "configured": true,
@@ -109,8 +109,8 @@
         "providerSmokeBoundary": "blocking-deployment-workflow-only",
         "ready": true,
         "note": "Periodic live health observed; provider smoke remains a blocking deployment-workflow gate.",
-        "source": "last-observed-live-health",
-        "observationStatus": "NOT_ATTEMPTED",
+        "source": "periodic-live-health",
+        "observationStatus": "SUCCESS",
         "observationError": null
       },
       "scheduledAnalysisDoesNotImplyChat": true
@@ -121,15 +121,15 @@
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "reference",
-      "lastFetchAt": "2026-08-29T15:20:18.929Z"
+      "lastFetchAt": "2026-08-29T18:53:00.375Z"
     },
     "fred": {
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "official-series",
       "status": "CURRENT",
-      "lastAttemptAt": "2026-08-29T15:20:18.929Z",
-      "lastFetchAt": "2026-08-29T15:20:18.929Z"
+      "lastAttemptAt": "2026-08-29T18:53:00.375Z",
+      "lastFetchAt": "2026-08-29T18:53:00.375Z"
     },
     "sec": {
       "rights": "REVIEW_REQUIRED",
@@ -143,7 +143,7 @@
   "reconciliation": {
     "tier0": {
       "status": "MATCH",
-      "artifact": "market-snapshot:2026-08-29T15:20:18.929Z:e57bb184",
+      "artifact": "market-snapshot:2026-08-29T18:53:00.375Z:141f5f93",
       "uiEvidence": "same-revision-contract",
       "observedAtComplete": true
     },
@@ -277,7 +277,7 @@
           }
         ]
       },
-      "sourceRevision": "market-snapshot:2026-08-29T15:20:18.929Z:e57bb184",
+      "sourceRevision": "market-snapshot:2026-08-29T18:53:00.375Z:141f5f93",
       "sourceArtifacts": [
         "public-data/data.json",
         "public-data/market-snapshot.json",
