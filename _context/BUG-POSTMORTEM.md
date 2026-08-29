@@ -3,11 +3,19 @@ verified_by: Codex deterministic gates + browser audit
 last_verified: 2026-08-28
 confidence: high
 latest_version: v54.65
-latest_P_number: P1002
-next_P_number: P1003
-current_total_entries: 716 (P1~P1002, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P1002 v54.65 reference provenance and BOK calendar rollover
+latest_P_number: P1003
+next_P_number: P1004
+current_total_entries: 717 (P1~P1003, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P1003 v54.65 independent screener hydration barrier
 ---
+
+## P1003 - v54.65 - market epoch 브라우저 검사가 screener hydration보다 먼저 판정했다
+
+- **root_cause**: reconciliation readiness와 bounded screener artifact hydration은 독립 비동기 경로인데 검사는 reconciliation만 기다렸다. 병렬 Linux CI에서 screener state가 아직 기본 empty slice인 순간 timeline을 읽어 required 세 항목을 UNAVAILABLE로 오판했다.
+- **fix**: market epoch 검사가 screener 800+ rows, ranking available/inputVersion 정합, lastRun/current snapshot 일치를 명시적 hydration barrier로 기다린 뒤 timeline을 판정한다.
+- **violated_rule**: R569 — 서로 독립적으로 hydrate되는 producer의 readiness를 다른 producer 완료 신호로 대체해서는 안 된다.
+- **prevention**: browser-market-epoch가 느린 병렬 CI에서도 native screener state와 ranking epoch가 완성되기 전 audit을 시작하지 않는다.
+- **verification**: focused `ci-page-market-epoch-browser-check.mjs`, browser-runtime shard and exact-SHA CI.
 
 ## P1002 - v54.65 - 유효한 memo 출처 세부표시와 종료된 BOK 일정이 브라우저 회귀를 만들었다
 

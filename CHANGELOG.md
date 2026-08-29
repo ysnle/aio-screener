@@ -1,6 +1,7 @@
 ## v54.65 (2026-08-29)
 - **Reference provenance**: accepts a bounded source label after dated `REFERENCE`/`TG-REFERENCE` kinds while retaining strict date, kind and closing-bracket validation; failing rows now report their symbols.
 - **BOK official rollover**: updated the official-primary reference to the Bank of Korea's 2026-08-27 increase from 2.75% to 3.00% and advanced the next policy meeting to 2026-10-22 across calendar and schedule registries.
+- **Deterministic runtime QA**: waits for the independently hydrated native screener rows, ranking revision and screen snapshot before auditing the cross-page market epoch, removing a parallel-CI startup race.
 - **Verification boundary**: focused browser groups G067/G085 and exact-SHA CI provide the release evidence; provider credentials, quota and live model quality remain external checks.
 - R1 7곳 v54.65
 

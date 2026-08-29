@@ -35,7 +35,18 @@ try {
   });
   await page.route('**/*', (route) => route.request().url().startsWith(`http://127.0.0.1:${port}/`) ? route.continue() : route.abort());
   await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
-  await page.waitForFunction(() => window.AIO?.getPageMarketEpochAudit && window._serverDataMeta?.reconciliation?.status === 'ready', { timeout: 30000 });
+  // Reconciliation and the bounded screener artifact hydrate independently.
+  // Under parallel CI load reconciliation can be ready first, so do not audit
+  // the screener epoch until its native state and ranking snapshot are present.
+  await page.waitForFunction(() => {
+    const screener = window.AIO_ARCH?.getScreenerState?.();
+    return window.AIO?.getPageMarketEpochAudit
+      && window._serverDataMeta?.reconciliation?.status === 'ready'
+      && screener?.rows?.length >= 800
+      && screener?.metadata?.ranking?.available === true
+      && screener?.metadata?.ranking?.inputVersion === screener?.revision
+      && screener?.lastRun?.snapshotId === screener?.snapshotId;
+  }, { timeout: 30000 });
 
   const pageIds = await page.evaluate(() => Object.keys(window.AIO?.PAGE_MARKET_EPOCH_CONTRACT || {}));
   for (const pageId of pageIds) {

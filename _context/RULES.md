@@ -7,6 +7,12 @@ target_version: v54.65
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
 
+## R569. 독립 hydration 경로는 각자의 완성 조건을 기다린다 (v54.65, P1003)
+
+**Rule**: reconciliation, screener, history, knowledge처럼 독립적으로 hydrate되는 producer를 통합 브라우저 검사할 때 한 producer의 ready 신호를 전체 준비 완료로 간주하지 않는다. consumer가 요구하는 각 native slice의 최소 행 수·revision·derived snapshot 정합성을 명시적으로 기다린 뒤 판정한다.
+
+**Validation**: `ci-page-market-epoch-browser-check.mjs` screener hydration barrier and browser-runtime exact-SHA shard.
+
 ## R568. 출처 세부표시와 공식 발표 일정은 의미를 보존하며 함께 전진한다 (v54.65, P1002)
 
 **Rule**: 날짜가 붙은 reference memo는 provenance kind 뒤의 제한된 단일행 출처명을 허용하되 날짜·kind·닫힘 문법을 강제한다. 공식 정책 발표가 끝나면 값·관측일·lastRelease·nextRelease·공식 schedule을 동일 변경에서 갱신하고, 이미 지난 회의를 다음 일정으로 표시하지 않는다.

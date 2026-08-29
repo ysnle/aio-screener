@@ -8,6 +8,7 @@ confidence: high
 
 - [x] QA-DATA-24: 날짜·REFERENCE kind 뒤의 bounded 단일행 출처명은 유효한 provenance로 유지되고, 형식 위반 시 T849가 해당 종목을 직접 보고한다.
 - [x] QA-DATA-25: 한국은행 2026-08-27 공식 결정의 기준금리 3.00%·인상·관측일과 다음 2026-10-22 회의가 manual reference, macro calendar, official schedule에서 일치한다.
+- [x] QA-RUNTIME-01: market epoch 브라우저 검사는 reconciliation뿐 아니라 screener rows·ranking revision·screen snapshot의 독립 hydration 완료를 기다린다.
 
 ## v54.64 AI Web Research, knowledge retrieval and useful-answer boundary (2026-08-28)
 
