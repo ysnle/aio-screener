@@ -7,9 +7,9 @@
     "STALE",
     "RIGHTS_REVIEW_REQUIRED"
   ],
-  "generatedAt": "2026-08-28T04:16:26.487Z",
-  "appRevision": "v54.64",
-  "dataRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
+  "generatedAt": "2026-08-29T03:23:09.894Z",
+  "appRevision": "v54.63",
+  "dataRevision": "market-snapshot:2026-08-29T03:23:05.858Z:ab3cdde9",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
   "overall": "OPERATOR_REQUIRED",
   "planes": {
@@ -17,7 +17,7 @@
       "status": "CURRENT",
       "statusCode": "CONFIGURED_HEALTHY",
       "source": "github-actions",
-      "lastSuccessfulAt": "2026-08-28T03:43:37.585Z",
+      "lastSuccessfulAt": "2026-08-29T03:23:05.858Z",
       "coverage": {
         "required": 16,
         "observed": 16,
@@ -29,9 +29,9 @@
       "freshness": {
         "fresh": true,
         "withinSla": true,
-        "marketClosedGrace": false,
-        "generatedAt": "2026-08-28T03:43:37.585Z",
-        "ageHours": 0.55,
+        "marketClosedGrace": true,
+        "generatedAt": "2026-08-29T03:23:05.858Z",
+        "ageHours": 0,
         "maxAgeHours": 12,
         "reason": null
       },
@@ -45,18 +45,18 @@
     },
     "fast": {
       "status": "OPERATOR_REQUIRED",
-      "statusCode": "STALE",
+      "statusCode": "CONFIGURED_HEALTHY",
       "scheduler": "cloudflare-cron",
       "endpoint": "https://aio-screener-data-plane.zmfhd007.workers.dev",
       "health": {
-        "status": "OPERATOR_REQUIRED",
-        "statusCode": 0,
-        "coverage": null,
-        "revision": null,
+        "status": "CURRENT",
+        "statusCode": 200,
+        "coverage": "16/16",
+        "revision": "fast-quotes:2026-08-29T03:20:44.079Z:62578ad4",
         "sourceSha": null,
-        "observedAt": "2026-08-27T00:06:18.098Z",
-        "source": "last-observed-live-health",
-        "observationStatus": "NOT_ATTEMPTED",
+        "observedAt": "2026-08-29T03:23:09.894Z",
+        "source": "periodic-live-health",
+        "observationStatus": "SUCCESS",
         "observationError": null
       },
       "soak": {
@@ -67,8 +67,8 @@
       "readiness": {
         "secretConfigured": "OPERATOR_REQUIRED",
         "workflowWired": "CURRENT",
-        "lastCallSucceeded": "UNKNOWN",
-        "dataCurrent": "UNKNOWN",
+        "lastCallSucceeded": "CURRENT",
+        "dataCurrent": "CURRENT",
         "licensedForUse": "REVIEW_REQUIRED"
       }
     },
@@ -87,30 +87,30 @@
       "lastCallSucceeded": "BLOCKED",
       "evidence": {
         "marketAnalysisOk": false,
-        "generatedAt": "2026-08-28T03:43:37.585Z"
+        "generatedAt": "2026-08-29T03:23:05.858Z"
       }
     },
     "publicChat": {
-      "status": "NO_ROUTE",
-      "statusCode": "STALE",
+      "status": "CURRENT",
+      "statusCode": "CONFIGURED_HEALTHY",
       "personalKey": "EXPLICIT_USER_CONFIG",
-      "sharedWorker": "OPERATOR_REQUIRED",
+      "sharedWorker": "CURRENT",
       "workerEndpoint": "https://aio-proxy.zmfhd007.workers.dev",
       "health": {
-        "status": "OPERATOR_REQUIRED",
-        "statusCode": null,
-        "observedAt": "2026-08-27T00:06:18.098Z",
-        "revision": null,
+        "status": "CURRENT",
+        "statusCode": 200,
+        "observedAt": "2026-08-29T03:23:09.894Z",
+        "revision": "v54.37",
         "sourceSha": null,
-        "configured": false,
-        "quotaConfigured": false,
-        "authorityReady": false,
-        "authorityJurisdiction": null,
+        "configured": true,
+        "quotaConfigured": true,
+        "authorityReady": true,
+        "authorityJurisdiction": "us",
         "providerSmokeBoundary": "blocking-deployment-workflow-only",
-        "ready": false,
-        "note": "Live health unavailable: TypeError",
-        "source": "last-observed-live-health",
-        "observationStatus": "NOT_ATTEMPTED",
+        "ready": true,
+        "note": "Periodic live health observed; provider smoke remains a blocking deployment-workflow gate.",
+        "source": "periodic-live-health",
+        "observationStatus": "SUCCESS",
         "observationError": null
       },
       "scheduledAnalysisDoesNotImplyChat": true
@@ -121,15 +121,15 @@
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "reference",
-      "lastFetchAt": "2026-08-28T03:43:37.585Z"
+      "lastFetchAt": "2026-08-29T03:23:05.858Z"
     },
     "fred": {
-      "rights": "OPERATOR_REQUIRED",
-      "statusCode": "NOT_CONFIGURED",
+      "rights": "REVIEW_REQUIRED",
+      "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "official-series",
-      "status": "UNAVAILABLE",
-      "lastAttemptAt": "2026-08-28T03:43:37.585Z",
-      "lastFetchAt": null
+      "status": "CURRENT",
+      "lastAttemptAt": "2026-08-29T03:23:05.858Z",
+      "lastFetchAt": "2026-08-29T03:23:05.858Z"
     },
     "sec": {
       "rights": "REVIEW_REQUIRED",
@@ -143,7 +143,7 @@
   "reconciliation": {
     "tier0": {
       "status": "MATCH",
-      "artifact": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
+      "artifact": "market-snapshot:2026-08-29T03:23:05.858Z:ab3cdde9",
       "uiEvidence": "same-revision-contract",
       "observedAtComplete": true
     },
@@ -277,7 +277,7 @@
           }
         ]
       },
-      "sourceRevision": "market-snapshot:2026-08-28T03:43:37.585Z:680b26f6",
+      "sourceRevision": "market-snapshot:2026-08-29T03:23:05.858Z:ab3cdde9",
       "sourceArtifacts": [
         "public-data/data.json",
         "public-data/market-snapshot.json",
@@ -404,7 +404,6 @@
   },
   "blockers": [
     "fast_plane_soak_and_rights_review_required",
-    "provider_rights_review_required",
-    "ai_proxy_deploy_or_readiness_required"
+    "provider_rights_review_required"
   ]
 }
