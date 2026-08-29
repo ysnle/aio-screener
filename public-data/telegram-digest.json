@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-08-29T18:53:08.595Z",
-  "attemptedAt": "2026-08-29T18:53:08.595Z",
-  "lastSuccessfulAt": "2026-08-29T18:53:08.595Z",
+  "generatedAt": "2026-08-29T21:45:09.478Z",
+  "attemptedAt": "2026-08-29T21:45:09.478Z",
+  "lastSuccessfulAt": "2026-08-29T21:45:09.478Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-08-15T18:53:05.229Z",
-  "until": "2026-08-29T18:53:05.229Z",
+  "since": "2026-08-15T21:45:06.603Z",
+  "until": "2026-08-29T21:45:06.603Z",
   "current24hWindow": {
     "start": "2026-08-27T23:00:00.000Z",
     "end": "2026-08-28T23:00:00.000Z",
@@ -93,7 +93,7 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1114,
+      "count": 1107,
       "freshCount": 20,
       "eligibleTextCount": 20,
       "selectedCount": 128,
@@ -125,7 +125,7 @@
       "lastPostId": 68036
     }
   ],
-  "count": 2339,
+  "count": 2332,
   "retainedItemCount": 446,
   "observedItems": [
     {
@@ -32498,154 +32498,52 @@
       ],
       "tickers": [],
       "hasText": false
-    },
-    {
-      "id": "insidertracking/61222",
-      "channel": "insidertracking",
-      "datetime": "2026-08-15T21:42:37.000Z",
-      "localDateKst": "2026-08-16",
-      "score": 45,
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/61221",
-      "channel": "insidertracking",
-      "datetime": "2026-08-15T21:36:15.000Z",
-      "localDateKst": "2026-08-16",
-      "score": 0,
-      "tags": [
-        "media-only"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/61220",
-      "channel": "insidertracking",
-      "datetime": "2026-08-15T21:32:11.000Z",
-      "localDateKst": "2026-08-16",
-      "score": 52,
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/61219",
-      "channel": "insidertracking",
-      "datetime": "2026-08-15T21:31:04.000Z",
-      "localDateKst": "2026-08-16",
-      "score": 45,
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/61218",
-      "channel": "insidertracking",
-      "datetime": "2026-08-15T21:29:22.000Z",
-      "localDateKst": "2026-08-16",
-      "score": 100,
-      "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy",
-        "equity",
-        "crypto",
-        "insider",
-        "earnings"
-      ],
-      "tickers": [
-        "NVDA",
-        "GOOG",
-        "META",
-        "MU",
-        "SNDK",
-        "COIN",
-        "HOOD"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/61217",
-      "channel": "insidertracking",
-      "datetime": "2026-08-15T21:26:32.000Z",
-      "localDateKst": "2026-08-16",
-      "score": 50,
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/61216",
-      "channel": "insidertracking",
-      "datetime": "2026-08-15T21:24:25.000Z",
-      "localDateKst": "2026-08-16",
-      "score": 82,
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power"
-      ],
-      "tickers": [],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2339,
+    "observedCount": 2332,
     "eligibleTextCount": 78,
-    "mediaOnlyCount": 2261,
-    "highSignalCount": 559,
-    "broadSignalCount": 1132,
+    "mediaOnlyCount": 2254,
+    "highSignalCount": 557,
+    "broadSignalCount": 1128,
     "selectedRawCount": 420,
     "selectedRawCoveragePct": 538.5,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
     "credit": 98,
-    "macro": 795,
-    "geo": 338,
-    "semi": 697,
-    "power": 344,
+    "macro": 792,
+    "geo": 334,
+    "semi": 695,
+    "power": 342,
     "kr-market": 333,
-    "earnings": 501,
+    "earnings": 500,
     "flows": 211,
     "japan": 157,
-    "ai-policy": 165,
+    "ai-policy": 164,
     "market-note": 597,
-    "equity": 192,
+    "equity": 191,
     "optical": 56,
-    "insider": 89,
+    "insider": 88,
     "healthcare": 142,
-    "media-only": 93,
-    "crypto": 16
+    "media-only": 92,
+    "crypto": 15
   },
   "tickerCounts": {
-    "SNDK": 27,
+    "SNDK": 26,
     "6600.T": 3,
     "MSFT": 28,
-    "GOOG": 57,
-    "META": 44,
+    "GOOG": 56,
+    "META": 43,
     "AMZN": 60,
     "GOOGL": 21,
     "AMD": 40,
     "TSM": 65,
     "005930.KS": 84,
-    "NVDA": 122,
+    "NVDA": 121,
     "000660.KS": 119,
     "AVGO": 48,
     "MRVL": 38,
@@ -32658,7 +32556,7 @@
     "INTC": 14,
     "PANW": 5,
     "NKE": 4,
-    "COIN": 6,
+    "COIN": 5,
     "VST": 2,
     "MRNA": 11,
     "IONQ": 9,
@@ -32682,7 +32580,7 @@
     "MTK": 9,
     "329180.KS": 1,
     "017670.KS": 2,
-    "MU": 43,
+    "MU": 42,
     "LITE": 17,
     "CVX": 1,
     "298040.KS": 6,
@@ -32707,7 +32605,7 @@
     "STX": 7,
     "HPQ": 1,
     "LLY": 2,
-    "HOOD": 6,
+    "HOOD": 5,
     "FCX": 6,
     "V": 7,
     "KO": 4,
@@ -32825,19 +32723,19 @@
     "APO": 1
   },
   "themes": [
-    "Macro/Rates (795 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라...",
-    "Semiconductors/Memory (697 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라...",
+    "Macro/Rates (792 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라...",
+    "Semiconductors/Memory (695 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라...",
     "Market Notes (597 posts in 14-day research window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크오브아메리카 글로벌 리서치에 따르면 폴리마켓의 미국 중간선거 전망에서 민주당이 상·하원을 모두 장악할 확률이 48%로 가장 높은 수준 기록. 공화당이 상원을 유지하고 민주당이 하원을 장악하는 시나리오는 38%, 공화당의 상·하원 동시 장악은 11%로 집계. 민주당이 상원을...",
-    "Earnings/Corporate (501 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라...",
-    "AI Power/Grid (344 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라...",
-    "Geopolitics (338 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라...",
+    "Earnings/Corporate (500 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라...",
+    "AI Power/Grid (342 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라...",
+    "Geopolitics (334 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라...",
     "Korea Market (333 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라...",
     "Positioning/Flows (211 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 122,
+      "count": 121,
       "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/08/24 ~ 2026/08/28 1위: MERCK N CO INC (8.35%) 2위: MICROSTRATEGY INC CL A (6.96%)..."
     },
     {
@@ -32862,7 +32760,7 @@
     },
     {
       "key": "GOOG",
-      "count": 57,
+      "count": 56,
       "text": ">>AI 습격&#33; 버핏의 가치투자, 여전히 통할까? 전문가는 이런 종목이 큰 타격을 입을 수 있다고 경고 •‘투자의 귀재’ 워런 버핏의 ‘가치투자’가 AI가 주도하는 대규모 자금조달 시대에도 여전히 통할지 관심 확대. 유명 기술 팟캐스터 드와르케시 파텔은 투자 급증에 금리 상승 가능성까지 더해지면서 전통적인..."
     },
     {
@@ -32872,12 +32770,12 @@
     },
     {
       "key": "META",
-      "count": 44,
+      "count": 43,
       "text": ">>AI 습격&#33; 버핏의 가치투자, 여전히 통할까? 전문가는 이런 종목이 큰 타격을 입을 수 있다고 경고 •‘투자의 귀재’ 워런 버핏의 ‘가치투자’가 AI가 주도하는 대규모 자금조달 시대에도 여전히 통할지 관심 확대. 유명 기술 팟캐스터 드와르케시 파텔은 투자 급증에 금리 상승 가능성까지 더해지면서 전통적인..."
     },
     {
       "key": "MU",
-      "count": 43,
+      "count": 42,
       "text": "BofA) 엔비디아; AI 군비 경쟁에서 기준을 한층 더 높이다, 밸류에이션은 더욱 매력적. TP &#036;350 1. 19%~28% EPS 상향, 장기 31달러 이상의 EPS 창출력 NVDA의 실적 상회..."
     },
     {
@@ -32903,7 +32801,7 @@
       "topics": [
         "macro"
       ],
-      "count": 795,
+      "count": 792,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라..."
     },
     {
@@ -32912,7 +32810,7 @@
       "topics": [
         "geo"
       ],
-      "count": 338,
+      "count": 334,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라..."
     },
     {
@@ -32930,7 +32828,7 @@
       "topics": [
         "semi"
       ],
-      "count": 697,
+      "count": 695,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라..."
     },
     {
@@ -32948,7 +32846,7 @@
       "topics": [
         "power"
       ],
-      "count": 344,
+      "count": 342,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라..."
     },
     {
@@ -32957,7 +32855,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 165,
+      "count": 164,
       "focus": ">>AI 습격&#33; 버핏의 가치투자, 여전히 통할까? 전문가는 이런 종목이 큰 타격을 입을 수 있다고 경고 •‘투자의 귀재’ 워런 버핏의 ‘가치투자’가 AI가 주도하는 대규모 자금조달 시대에도 여전히 통할지 관심 확대. 유명 기술 팟캐스터 드와르케시 파텔은 투자 급증에 금리 상승 가능성까지 더해지면서 전통적인..."
     },
     {
@@ -32975,7 +32873,7 @@
       "topics": [
         "equity"
       ],
-      "count": 192,
+      "count": 191,
       "focus": ">>AI 습격&#33; 버핏의 가치투자, 여전히 통할까? 전문가는 이런 종목이 큰 타격을 입을 수 있다고 경고 •‘투자의 귀재’ 워런 버핏의 ‘가치투자’가 AI가 주도하는 대규모 자금조달 시대에도 여전히 통할지 관심 확대. 유명 기술 팟캐스터 드와르케시 파텔은 투자 급증에 금리 상승 가능성까지 더해지면서 전통적인..."
     },
     {
@@ -32984,7 +32882,7 @@
       "topics": [
         "crypto"
       ],
-      "count": 16,
+      "count": 15,
       "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/08/24 ~ 2026/08/28 1위: MERCK N CO INC (8.35%) 2위: MICROSTRATEGY INC CL A (6.96%)..."
     },
     {
@@ -32993,7 +32891,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 501,
+      "count": 500,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라..."
     },
     {
@@ -33029,7 +32927,7 @@
       "topics": [
         "insider"
       ],
-      "count": 89,
+      "count": 88,
       "focus": "JP모건) 엔비디아(NVDA); 견조한 실적 상회 및 상향; FY28 프레임워크는 빠른 성장을 시사(여전히 보수적일 가능성); 메모리 원가 인플레이션으로 매출총이익률 궤적은 하향 조정되었으나 장기 약정이 이를..."
     },
     {
