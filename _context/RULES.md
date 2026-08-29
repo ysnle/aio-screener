@@ -2,10 +2,16 @@
 verified_by: Codex deterministic gates + repository audit
 last_verified: 2026-08-28
 confidence: high
-target_version: v54.64
+target_version: v54.65
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R568. 출처 세부표시와 공식 발표 일정은 의미를 보존하며 함께 전진한다 (v54.65, P1002)
+
+**Rule**: 날짜가 붙은 reference memo는 provenance kind 뒤의 제한된 단일행 출처명을 허용하되 날짜·kind·닫힘 문법을 강제한다. 공식 정책 발표가 끝나면 값·관측일·lastRelease·nextRelease·공식 schedule을 동일 변경에서 갱신하고, 이미 지난 회의를 다음 일정으로 표시하지 않는다.
+
+**Validation**: headless T849/T884, BOK official-primary reference and macro calendar registry.
 
 ## R567. 자동 refresh는 producer가 바꾼 모든 readiness와 generated evidence를 같은 커밋에 수렴시킨다 (v54.64, P1001)
 

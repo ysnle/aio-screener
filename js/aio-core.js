@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v54.64';
+const APP_VERSION = 'v54.65';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -13033,7 +13033,7 @@ window.AIO_MACRO_CALENDAR = {
     'us-fed-rate':  { name: 'Fed Funds Rate',  frequency: 'fomc-decision',        lastRelease: '2026-07-29', nextRelease: '2026-09-16', dataField: 'fedRate', source: 'FOMC 결정' },
     // v49.85 신규: 한국 BOK 금통위 (5/28 신현송 총재 첫 회의 → 다음 7/16)
     // v52.42 (P657/EF-03, WebSearch 재확인): 기존 nextRelease '2026-07-10'은 오류 — 실제 다음 회의는 7/16.
-    'kr-bok':       { name: 'BOK 금통위',      frequency: 'every-6-7-weeks',      lastRelease: '2026-07-16', nextRelease: '2026-08-27', dataField: 'bokRate', source: '한국은행 금통위' } // P713: BOK 공식 2026 일정(2/26·4/10·5/28·7/16·8/27·10/22·11/26) — auto-advance 주기 추정(8/30)이 아닌 공식일 고정
+    'kr-bok':       { name: 'BOK 금통위',      frequency: 'every-6-7-weeks',      lastRelease: '2026-08-27', nextRelease: '2026-10-22', dataField: 'bokRate', source: '한국은행 금통위' } // P1002: 8/27 공식 결정(2.75%→3.00%) 수신 후 10/22 공식 일정으로 이동
   }
 };
 window.AIO_MACRO_OFFICIAL_SCHEDULES = {
@@ -13045,7 +13045,7 @@ window.AIO_MACRO_OFFICIAL_SCHEDULES = {
   'us-retail': ['2026-07-16', '2026-08-14', '2026-09-16'],
   'us-fomc': ['2026-06-17', '2026-07-29', '2026-09-16'],
   'us-fed-rate': ['2026-06-17', '2026-07-29', '2026-09-16'],
-  'kr-bok': ['2026-07-16', '2026-08-27']
+  'kr-bok': ['2026-07-16', '2026-08-27', '2026-10-22', '2026-11-26']
 };
 
 window.AIO.renderMacroNextRelease = function() {
@@ -21682,9 +21682,9 @@ const AIO_MANUAL_REFERENCE = Object.freeze({
     operationalUse: 'reference-only'
   }),
   bokPolicy: Object.freeze({
-    value: 2.75, status: '인상', asOf: '2026-07-16', next: '2026-08-27',
+    value: 3.00, status: '인상', asOf: '2026-08-27', next: '2026-10-22',
     source: 'Bank of Korea', sourceKind: 'official-primary',
-    sourceUrl: 'https://www.bok.or.kr/portal/bbs/P0000559/view.do?menuNo=200690&nttId=11062942',
+    sourceUrl: 'https://www.bok.or.kr/portal/singl/baseRate/list.do?menuNo=200643',
     operationalUse: 'reference-only'
   }),
   krInflation: Object.freeze({

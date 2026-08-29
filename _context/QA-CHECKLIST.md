@@ -4,6 +4,11 @@ last_verified: 2026-08-28
 confidence: high
 ---
 
+## v54.65 reference provenance and official-calendar rollover (2026-08-29)
+
+- [x] QA-DATA-24: 날짜·REFERENCE kind 뒤의 bounded 단일행 출처명은 유효한 provenance로 유지되고, 형식 위반 시 T849가 해당 종목을 직접 보고한다.
+- [x] QA-DATA-25: 한국은행 2026-08-27 공식 결정의 기준금리 3.00%·인상·관측일과 다음 2026-10-22 회의가 manual reference, macro calendar, official schedule에서 일치한다.
+
 ## v54.64 AI Web Research, knowledge retrieval and useful-answer boundary (2026-08-28)
 
 - [x] QA-AUTO01: core/screener refresh가 public readiness와 generated workspace evidence를 최종 데이터 상태에서 재생성해 같은 커밋에 포함한다.

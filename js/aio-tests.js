@@ -2841,16 +2841,19 @@
       'r13=' + (chatSrc.indexOf('13. **[SCREENER_DB Memo] 신선도') >= 0) + ' r14=' + (chatSrc.indexOf('14. **[SCREENER_DB Memo 없음]') >= 0));
     // T849: AIO.assertMemoCoverageAudit + memoCoveragePct ≥ 50 (사용자 정직 질의 1)
     var mc = window.AIO && typeof window.AIO.assertMemoCoverageAudit === 'function' && window.AIO.assertMemoCoverageAudit();
-    var memoProvenanceSafe = (window.SCREENER_DB || []).every(function(row) {
-      if (!row || !row.memo) return true;
-      if (row._telegramMemoOverlay && row.memo.indexOf(row._telegramMemoOverlay) === 0) return true;
-      return /^\[\d{4}-\d{2}-\d{2} (?:REFERENCE|TG-REFERENCE)\]/.test(row.memo);
+    var unsafeMemoRows = (window.SCREENER_DB || []).filter(function(row) {
+      if (!row || !row.memo) return false;
+      if (row._telegramMemoOverlay && row.memo.indexOf(row._telegramMemoOverlay) === 0) return false;
+      // A reference memo may retain a bounded human-readable source label after
+      // its provenance kind (for example, "REFERENCE · Sandisk Investor Day").
+      return !/^\[\d{4}-\d{2}-\d{2} (?:REFERENCE|TG-REFERENCE)(?: · [^\]\r\n]+)?\]/.test(row.memo);
     });
+    var memoProvenanceSafe = unsafeMemoRows.length === 0;
     // v53.7 (P722 클래스): `memoCoveragePct < 10` 상한은 봇 digest가 runtime memo를 10%+ 적용한 날
     // 경계에서 오탐 — 불변식은 "정적 memo 0 = 모든 memo가 runtime overlay 유래"이며 커버리지 %가 아님.
     _assert('T849 memo_coverage_audit_v53_4: source-labelled reference or runtime memo provenance',
       mc && typeof mc.memoCoveragePct === 'number' && memoProvenanceSafe,
-      mc ? ('memoCov=' + mc.memoCoveragePct + '%') : 'audit missing');
+      mc ? ('memoCov=' + mc.memoCoveragePct + '% unsafe=' + unsafeMemoRows.slice(0, 8).map(function(row) { return row && row.sym; }).join(',')) : 'audit missing');
     // T850: 사용자 질의 2 — chatIntegrated + rulesText 활성
     _assert('T850 memo_chat_integration_active_v4971: chatIntegrated + rulesText 모두 true (사용자 질의 2)',
       mc && mc.chatIntegrated === true && mc.rulesText === true,

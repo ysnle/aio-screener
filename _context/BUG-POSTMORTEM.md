@@ -2,12 +2,20 @@
 verified_by: Codex deterministic gates + browser audit
 last_verified: 2026-08-28
 confidence: high
-latest_version: v54.64
-latest_P_number: P1001
-next_P_number: P1002
-current_total_entries: 715 (P1~P1001, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P1001 v54.64 refresh-generated evidence convergence
+latest_version: v54.65
+latest_P_number: P1002
+next_P_number: P1003
+current_total_entries: 716 (P1~P1002, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P1002 v54.65 reference provenance and BOK calendar rollover
 ---
+
+## P1002 - v54.65 - 유효한 memo 출처 세부표시와 종료된 BOK 일정이 브라우저 회귀를 만들었다
+
+- **root_cause**: memo provenance 검사는 `[날짜 REFERENCE]`만 허용해 동일 대괄호 안의 제한된 출처명(`REFERENCE · Sandisk Investor Day`)을 잘못 거부했다. BOK 수동 reference와 공식 일정은 8월 27일 결정 이후에도 7월 16일·2.75%와 종료된 다음 회의를 유지했다.
+- **fix**: provenance kind 뒤의 한 줄 bounded source label을 허용하되 날짜·kind·닫는 대괄호는 계속 강제하고, 한국은행 공식 자료로 2026-08-27 기준금리 3.00% 인상과 다음 2026-10-22 회의를 반영했다.
+- **violated_rule**: R559/R568 — 발표가 수신되면 값·관측일·다음 공식 일정이 함께 이동해야 하며 유효한 출처 상세표시를 provenance 결손으로 오판해서는 안 된다.
+- **prevention**: T849가 source-label 문법과 위반 종목 심볼을 진단하고 T884가 BOK manual/calendar next date 정합성과 미래 일정을 검증한다.
+- **verification**: focused headless G067/G085, data/static preflight 및 exact-SHA CI browser-unit.
 
 ## P1001 - v54.64 - 자동 데이터 커밋이 생성 상태와 FRED readiness를 누락해 exact-SHA CI를 깨뜨렸다
 
