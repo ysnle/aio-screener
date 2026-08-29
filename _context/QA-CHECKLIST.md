@@ -4,6 +4,17 @@ last_verified: 2026-08-28
 confidence: high
 ---
 
+## v54.64 AI Web Research, knowledge retrieval and useful-answer boundary (2026-08-28)
+
+- [x] QA-AUTO01: core/screener refresh가 public readiness와 generated workspace evidence를 최종 데이터 상태에서 재생성해 같은 커밋에 포함한다.
+- [x] QA-AICHAT11: 교육형 매수/매도/비중/옵션 문장은 provider 전에 차단되지 않고, 개인 계좌의 실제 매도 실행 요청은 계속 suitability gate에서 차단된다.
+- [x] QA-AICHAT12: Web Research opt-out/실패는 현재·인과 주장만 limitation으로 강등하고 교육·조건부 답변 경로를 종료하지 않는다.
+- [x] QA-AICHAT13: per-page와 unified chat 모두 시장 원리 112개와 AI 시대 지식 48개의 compact index를 lazy load하며 full 4MB articles monolith를 채팅에서 요청하지 않는다.
+- [x] QA-AICHAT14: retrieval 결과는 article/concept/alias, route/deep-link, authoring/publication, source candidate directness와 `REFERENCE/currentClaimsAllowed=false`를 유지하고 untrusted data block으로 주입된다.
+- [x] QA-AICHAT15: principles/atlas 자체 chat context와 unified panel mapping이 존재하고 한국어 규제 현황·동향·시세 질문은 in-domain current Research로 분류된다.
+- [x] QA-AICHAT16: multi-query evidence는 citation별 실제 provider engine을 보존하고 unified chat은 Claude native citations도 출처 footer에 렌더한다.
+- [ ] QA-AICHAT17: public Worker route/native WebSearch entitlement, quota, live citations, deployed model answer quality are externally verified for the v54.64 exact SHA.
+
 ## v54.63 source-to-screen data and research-model reconstruction (2026-08-28)
 
 - [x] QA-DATA-01: hardcoded March 2026 fundamental valuation/estimate cards are retired; bounded SEC annual facts visibly retain filing/source/reference-only semantics.

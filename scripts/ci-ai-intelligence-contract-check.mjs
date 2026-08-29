@@ -18,6 +18,7 @@ import { createEvidenceDocument, evaluateResearchEvidenceFloor, normalizeResearc
 import { createResearchCapability, validateResearchCapability } from '../src/ai/research/capability.js';
 import { classifyAIConduct, buildScopedConductFallback } from '../src/ai/policy/conduct.js';
 import { createAIAnswerOrchestrator } from '../src/ai/orchestrator/answer-orchestrator.js';
+import { createAIKnowledgeIndex, retrieveAIKnowledge } from '../src/ai/retrieval/knowledge.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
@@ -79,6 +80,12 @@ const educationResult = await actionBoundaryOrchestrator.execute({
   legacyRunner: async () => { educationProviderCalls += 1; return 'ok'; }
 });
 check('educational-request-reaches-provider', educationResult.ok === true && educationProviderCalls === 1);
+for (const query of ['매수 원리를 설명해줘', '매도 기준의 일반적인 방법', '포트폴리오 비중이란?', 'SPY 옵션 매수 조건을 설명해줘']) {
+  const educationalActionPlan = createQuestionPlan({ query, route:'home', now:'2026-07-28T12:00:00Z' });
+  check(`educational-action-vocabulary-is-not-preblocked:${query}`, educationalActionPlan.intent.actionVocabularyPresent === true && educationalActionPlan.suitabilityRequired === false && educationalActionPlan.actionPermission.allowed === true);
+}
+const personalizedActionPlan = createQuestionPlan({ query:'내 계좌에서 NVDA 전량 매도해줘', route:'portfolio', now:'2026-07-28T12:00:00Z' });
+check('personalized-executable-action-remains-preblocked', personalizedActionPlan.suitabilityRequired === true && personalizedActionPlan.actionPermission.allowed === false);
 
 const unknownSession = createMarketSessionEvidence({ market: 'US', now: '2026-07-28T12:00:00Z' });
 check('market-session-unknown-is-not-open', unknownSession.status === 'unknown' && unknownSession.isOpen === null && validateMarketSessionEvidence(unknownSession).ok === false);
@@ -146,6 +153,8 @@ check('composite-question-retains-every-evidence-axis', ['entity-quote','fundame
 check('finance-acronyms-are-not-tickers', createQuestionPlan({ query:'삼성전자 PER와 지난 FOMC 비교', route:'home', now:'2026-07-28T12:00:00Z' }).entities.entities.every((entity) => !['PER','FOMC'].includes(entity.symbol)));
 const outOfScopePlan = createQuestionPlan({ query: 'What is the latest weather in Seoul today?', route: 'home', now: '2026-07-28T12:00:00Z' });
 check('research-out-of-scope-is-explicit', outOfScopePlan.researchDecision?.outOfScope === true && outOfScopePlan.researchDecision.questionClass === 'OUT_OF_SCOPE_RESEARCH');
+const regulationCurrentPlan = createQuestionPlan({ query:'SEC AI 규제 현황을 설명해줘', route:'principles', now:'2026-07-28T12:00:00Z' });
+check('korean-current-regulation-requires-in-domain-research', regulationCurrentPlan.researchDecision?.requirement === 'REQUIRED' && regulationCurrentPlan.researchDecision?.outOfScope === false);
 const conductCases = [
   ['광테마 전망', 'EDUCATIONAL_ALLOWED', 'EDUCATIONAL'],
   ['SEC 규제가 반도체에 미치는 영향 설명', 'EDUCATIONAL_ALLOWED', 'EDUCATIONAL'],
@@ -167,6 +176,13 @@ check('conduct-plan-is-carried-by-question-plan', createQuestionPlan({ query:'�
 check('legal-scope-notice-remains-useful', buildScopedConductFallback(responseDirectiveAudit).includes('전제와 확인 범위') && !buildScopedConductFallback(responseDirectiveAudit).includes('AI 안전 모드'));
 const disabledDecision = createResearchDecision({ questionPlan: causalPlan, userOptOut: true, now: '2026-07-28T12:00:00Z' });
 check('research-optout-fails-closed', disabledDecision.requirement === 'REQUIRED' && disabledDecision.failureMode === 'REQUIRED_BUT_DISABLED' && validateResearchDecision(disabledDecision).ok);
+const knowledgeIndex = createAIKnowledgeIndex([
+  { articleId:'principles:B2', lessonId:'B2', surface:'principles', title:'금리와 자산가격', authoringStatus:'STRUCTURED_REFERENCE_DRAFT', publication:'EDUCATIONAL_REFERENCE_ONLY', reviewedAt:'2026-08-18', summary:{ definition:'금리는 미래 현금흐름의 할인율에 영향을 준다.', mechanism:'정책금리와 장기금리는 자본비용과 밸류에이션 경로로 전달된다.', example:'할인율 상승 시 같은 현금흐름의 현재가치가 낮아진다.', counterScenario:'성장 기대가 더 크게 오르면 가격 방향은 달라질 수 있다.' } },
+  { articleId:'atlas-foundations:energy-and-power', lessonId:'energy-and-power', surface:'atlas-foundations', title:'Energy and power', authoringStatus:'STRUCTURED_REFERENCE_DRAFT', publication:'EDUCATIONAL_REFERENCE_ONLY', reviewedAt:'2026-08-18', summary:{ definition:'에너지는 일을 할 수 있는 능력이고 전력은 시간당 전달 속도다.', mechanism:'AI 계산과 메모리 이동은 전력·열·냉각 병목으로 이어진다.', example:'전력당 성능은 시설 비용에 영향을 준다.', counterScenario:'전력 사용량만으로 기업 수익을 결론낼 수 없다.' } }
+]);
+const knowledgeResult = retrieveAIKnowledge(knowledgeIndex, 'AI 데이터센터 전력과 냉각 병목을 설명해줘', { topK:2, maxChars:2200 });
+check('knowledge-retrieval-routes-ai-era-reference', knowledgeResult.matches[0]?.articleId === 'atlas-foundations:energy-and-power' && knowledgeResult.audit.sourceKind === 'REFERENCE' && knowledgeResult.audit.currentClaimsAllowed === false);
+check('knowledge-context-keeps-current-evidence-boundary', knowledgeResult.context.includes('currentClaimsAllowed=false') && knowledgeResult.context.includes('현재 시장·기업·가격·규제 사실은 별도') && knowledgeResult.context.length <= 2200);
 const evidenceDocument = createEvidenceDocument({ canonicalUrl: 'https://sec.gov/Archives/edgar/data/1/filing.htm', title: 'Official filing', contentDepth: 'FULL_TEXT', rights: 'PUBLIC_REFERENCE' });
 const evidence = normalizeSearchResults([{ url: evidenceDocument.canonicalUrl, title: evidenceDocument.title, content: 'filing evidence', contentDepth: 'FULL_TEXT', rights: 'PUBLIC_REFERENCE', sourceTier: 'PRIMARY_OFFICIAL', primaryOrSecondary: 'PRIMARY' }]);
 check('research-evidence-claim-binding', validateClaimEvidenceBinding({ evidenceIds: [evidence.documents[0].documentId] }, evidence, { currentSensitive: true, minimumIndependentSources: 1, minimumPrimarySources: 1 }).ok);
@@ -193,6 +209,16 @@ const data = read('js/aio-data.js');
 const core = read('js/aio-core.js');
 const bootstrap = read('src/app/bootstrap.js');
 check('single-orchestrator-export', /getAIOrchestrator/.test(bootstrap) && /createAIAnswerOrchestrator/.test(bootstrap));
+check('knowledge-retrieval-is-lazy-and-exposed-by-existing-orchestrator-boundary', /createAIKnowledgeRetriever/.test(bootstrap) && /knowledgeRetriever: aiKnowledgeRetriever/.test(bootstrap) && /buildAIKnowledgeContext/.test(read('src/ai/orchestrator/answer-orchestrator.js')));
+check('both-chat-surfaces-consume-market-principles-and-ai-era-knowledge', /knowledgeOrchestrator\.buildAIKnowledgeContext\(q/.test(chat) && /knowledgeContextStr/.test(chat) && /_uniKnowledgeOrchestrator\.buildAIKnowledgeContext\(q/.test(read('index.html')) && /_uniKnowledgeAudit/.test(read('index.html')));
+check('knowledge-pages-have-chat-contexts-and-unified-panel-mapping', /principles:_aioCreateEvidenceContext/.test(chat) && /atlas:_aioCreateEvidenceContext/.test(chat) && /'principles':'principles','atlas':'atlas'/.test(read('index.html')));
+const publishedKnowledgeIndex = JSON.parse(read('public-data/knowledge/ai-retrieval-index.json'));
+check('knowledge-index-has-full-parity-and-provenance', publishedKnowledgeIndex.schemaVersion === 'ai-knowledge-retrieval-index.v1' && publishedKnowledgeIndex.articles.length === 160 && publishedKnowledgeIndex.counts.withConcepts === 160 && publishedKnowledgeIndex.counts.withRouteTargets === 160 && publishedKnowledgeIndex.articles.every((article) => article.route?.deepLink && article.authoringStatus && article.publication));
+check('knowledge-loader-never-fetches-article-monolith', read('src/ai/retrieval/knowledge.js').includes('ai-retrieval-index.json') && !read('src/ai/retrieval/knowledge.js').includes("indexUrl = './public-data/knowledge/articles.json'"));
+check('knowledge-reference-is-wrapped-as-untrusted-data', /buildAIUntrustedBlock\('KNOWLEDGE_REFERENCE'/.test(chat) && /buildAIUntrustedBlock\('KNOWLEDGE_REFERENCE'/.test(read('index.html')));
+check('unified-chat-renders-native-claude-citations', /_uniCitationResult/.test(read('index.html')) && /engine:'claude'/.test(read('index.html')) && /_aioLastClaudeCitations/.test(read('index.html')));
+check('public-policy-allows-conditional-analysis-without-blanket-refusal', /가격 범위·무효화 수준·손절 기준·포트폴리오 비중은 시나리오와 계산 입력으로 분석할 수 있다/.test(chat) && /답변 전체를 안전 모드로 바꾸지 말고/.test(chat) && !/현재 답변에서는 구체적인 매수·매도·진입·청산 지시/.test(chat));
+check('research-optout-degrades-current-claims-without-ending-chat', /web_research_disabled_by_user/.test(chat) && !/userOptOut\)[\s\S]{0,600}state\._chatSendEntered = 0;[\s\S]{0,180}return;/.test(chat));
 check('chat-dispatches-through-orchestrator', /AIO_ARCH\.getAIOrchestrator/.test(chat) && /_aioOrchestrated/.test(chat));
 check('orchestrator-enforces-action-permission-before-runner', /actionPermission\?\.allowed === false/.test(read('src/ai/orchestrator/answer-orchestrator.js')) && /blocked-action-permission/.test(read('src/ai/orchestrator/answer-orchestrator.js')));
 check('both-chat-surfaces-have-pre-provider-action-boundary', /_aioPreProviderPermission/.test(chat) && /_uniPreProviderPermission/.test(read('index.html')));
@@ -215,6 +241,7 @@ check('research-result-canonical-nesting', /researchEvidence:\s*\{[\s\S]*evidenc
 check('research-failures-retain-subquery-reasons', /subFailures/.test(chat) && /noResults\.failures\s*=\s*subFailures/.test(chat) && /_aioLastResearchAudit/.test(chat));
 check('request-plan-is-explicit-not-global', !chat.includes('_aioActiveQuestionPlan') && !read('index.html').includes('_aioActiveQuestionPlan') && chat.includes('questionPlan: questionPlan') && read('index.html').includes('questionPlan: _uniQuestionPlan'));
 check('research-partial-results-preserve-query-index', /settled\.map\(function\(row, index\)/.test(chat) && /specs\[item\.index\]\.queryId/.test(chat));
+check('research-evidence-preserves-citation-producer-engine', /citationProducer/.test(chat) && /sourceType: citationEngine/.test(chat) && !/sourceType: fulfilled\[0\]\.result\.engine/.test(chat));
 check('fred-official-host-is-correct', read('src/ai/research/evidence.js').includes("'fred.stlouisfed.org'"));
 check('quote-provenance-is-persisted', core.includes('observedAt: observedAt') && core.includes('fetchedAt: fetchedAt') && core.includes('marketState: provenanceOpts.marketState'));
 check('sentiment-does-not-stamp-missing-observation-now', !/raw\[field\.observedAt\]\s*\|\|\s*raw\.now/.test(read('src/data/orchestrators/sentiment.js')));

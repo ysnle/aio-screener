@@ -34,12 +34,17 @@ const PATTERNS = Object.freeze({
   SCREENING: [/(스크리닝|스크리너|후보|골라|뽑아|찾아|어느\s*종목|뭐가\s*좋|저평가|고배당|퀀트|랭킹|screen|top\s*pick|best\s*stock)/i],
   NEWS_SUMMARY: [/(뉴스|헤드라인|속보|기사|공시\s*요약|발표\s*요약|요약|news|headline|what\s*happened|summarize)/i],
   PORTFOLIO_ACTION: [/(내\s*(?:포트폴리오|계좌)|보유\s*종목|리밸런싱|비중|매수|매도|진입|손절|익절|portfolio|my\s*holdings|rebalance|buy|sell|allocation)/i],
-  EDUCATION: [/(무엇|뭐야|뜻|개념|설명해|알려줘|배우|초보|원리|어떻게\s*작동|what\s+is|how\s+does|explain|education)/i]
+  EDUCATION: [/(무엇|뭐야|무슨\s*뜻|이란|뜻|개념|설명해|알려줘|배우|초보|원리|일반적(?:인)?\s*방법|어떻게\s*작동|what\s+is|how\s+does|explain|education)/i]
 });
 
 const CURRENT_PATTERN = /(지금|현재|오늘|장중|장전|장후|방금|최근|실시간|최신|이번\s*주|as\s*of|now|today|current|live|latest|recent)/i;
 const HISTORICAL_PATTERN = /(과거|당시|지난\s*\d+|\b(?:19|20)\d{2}\b|historical|back\s+in)/i;
 const ACTION_PATTERN = /(추천|매수|매도|진입|청산|손절|익절|비중|수량|포지션|리밸런싱|사야|팔아|recommend|buy|sell|entry|exit|stop.?loss|allocation|position)/i;
+// Suitability is a pre-provider boundary for personalized or executable
+// actions, not a vocabulary filter. Educational/conditional discussions may
+// contain the same trading words and must still reach the analysis model.
+const PERSONALIZED_ACTION_PATTERN = /(?:내\s*(?:계좌|포트폴리오|보유\s*종목)|나에게|내가).{0,40}(?:추천|매수|매도|진입|청산|손절|익절|비중|수량|포지션|리밸런싱|사야|팔아|recommend|buy|sell|allocation|position)|(?:추천|매수|매도|진입|청산|손절|익절|비중|수량|포지션|리밸런싱|recommend|buy|sell|allocation|position).{0,40}(?:내\s*(?:계좌|포트폴리오|보유\s*종목)|나에게|내가)/i;
+const EXECUTABLE_ACTION_PATTERN = /(?:주문|체결|계좌\s*변경|실제로\s*주문|대신\s*거래).{0,24}(?:해줘|실행|넣어|매수|매도|청산)|(?:매수|매도|청산|리밸런싱)\s*(?:주문|실행|좀|대신)?\s*(?:해줘|넣어줘|실행해)/i;
 const TICKER_PATTERN = /(?:^|\s|\()(\$?[A-Z]{1,6}(?:\.(?:KS|KQ))?)(?=$|\s|[),?!])/;
 const NON_TICKER_TERMS = new Set(['AI', 'SEC', 'FOMC', 'FED', 'PER', 'PBR', 'ROE', 'RSI', 'MACD', 'CPI', 'PCE', 'NFP', 'GDP', 'VIX', 'ETF', 'FX', 'USD', 'KRW', 'IV', 'GEX']);
 const QUOTE_NOW_PATTERN = /(주가|시세|가격|환율|원달러|달러원|USD.?KRW|VIX).{0,12}(얼마|어때|수준|알려|확인)|(?:얼마|현재가|시세).{0,12}(주가|환율|VIX)/i;
@@ -54,6 +59,8 @@ function matches(intent, text) {
 
 export function classifyQuestionIntent(query, context = {}) {
   const text = normalize(query);
+  const actionVocabularyPresent = ACTION_PATTERN.test(text);
+  const personalizedActionRequested = PERSONALIZED_ACTION_PATTERN.test(text) || EXECUTABLE_ACTION_PATTERN.test(text);
   const scores = Object.fromEntries(AI_INTENTS.map((intent) => [intent, 0]));
   const hit = Object.fromEntries(AI_INTENTS.map((intent) => [intent, matches(intent, text)]));
   Object.keys(PATTERNS).forEach((intent) => { if (hit[intent]) scores[intent] += 2; });
@@ -109,7 +116,11 @@ export function classifyQuestionIntent(query, context = {}) {
     intents: Object.freeze(ranked.slice(0, 6).map((row) => row.intent)),
     scores: Object.freeze({ ...scores }),
     confidence: ranked[0].score >= 7 ? 'high' : ranked[0].score >= 3 ? 'medium' : 'low',
-    actionRequested: ACTION_PATTERN.test(text),
+    // Keep analytical action intent visible to evidence/capability planning,
+    // while separating the much narrower suitability/execution boundary.
+    actionRequested: actionVocabularyPresent,
+    actionVocabularyPresent,
+    personalizedActionRequested,
     currentSensitive,
     explicitCurrent,
     inherentlyCurrent,

@@ -2,10 +2,22 @@
 verified_by: Codex deterministic gates + repository audit
 last_verified: 2026-08-28
 confidence: high
-target_version: v54.63
+target_version: v54.64
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R567. 자동 refresh는 producer가 바꾼 모든 readiness와 generated evidence를 같은 커밋에 수렴시킨다 (v54.64, P1001)
+
+**Rule**: core/screener 자동 refresh가 operations status나 public data를 갱신하면 `architecture/public-readiness.json`을 포함해 producer가 쓴 파생물을 stage하고, 모든 데이터·manifest 생성 뒤 `generate-workspace-state --write`를 실행해 CURRENT-STATE와 CONTEXT-CATALOG를 같은 커밋에 포함한다. 데이터만 최신이고 exact-SHA 계약이 실패하는 커밋을 게시하지 않는다.
+
+**Validation**: 두 refresh workflow, data-pipeline contract, generated-state/workspace/operations preflight와 exact-SHA CI.
+
+## R566. AI 안전·검색·지식 결손은 답변 전체가 아니라 실제 위험·주장 범위에서만 강등한다 (v54.64, P1000)
+
+**Rule**: 매수·매도·손절·비중 같은 어휘 자체를 개인화 행동으로 판정하지 않는다. 교육·조건부 시나리오·시장/규제 영향·법률/세무 분석은 전제·관할·기준일·근거 상태를 표시해 답하며, pre-provider 차단은 개인화 실행·실제 주문/계정 변경·불법 실행법으로 제한한다. Web Research 실패나 opt-out은 current/causal claim만 보류하고 reference 설명을 지우지 않는다. 시장 원리와 AI 시대 지식은 bounded lazy retrieval, `sourceKind=REFERENCE`, `currentClaimsAllowed=false`, authoring/directness 상태, route/source provenance를 보존하며 live/snapshot evidence로 승격하지 않는다.
+
+**Validation**: `src/ai/{intent/taxonomy,research/decision,retrieval/knowledge}.js`, `js/aio-chat.js`, both chat surfaces, `public-data/knowledge/ai-retrieval-index.json`, `scripts/ci-ai-intelligence-contract-check.mjs`, `scripts/ci-ai-chat-reliability-contract-check.mjs`, and `scripts/ci-knowledge-generated-parity-check.mjs`.
 
 ## R565. 텍스트 projection manifest의 digest·bytes는 checkout 줄바꿈에 독립적이어야 한다 (v54.63, P999)
 

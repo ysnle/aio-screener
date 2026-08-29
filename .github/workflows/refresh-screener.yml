@@ -62,12 +62,16 @@ jobs:
            node scripts/ci-data-refresh-audit.mjs
           node scripts/ci-operations-status-check.mjs
 
+      - name: Synchronize generated workspace evidence
+        run: node scripts/generate-workspace-state.mjs --write
+
       - name: Commit only validated screener artifacts
         id: commit
         run: |
           git config user.name "aio-data-bot"
           git config user.email "actions@github.com"
-          git add public-data/screener.json public-data/sec-fundamentals.json public-data/sec-fundamentals-summary.json public-data/sec-fundamentals-summary.manifest.json public-data/screener-validation-gate.json public-data/reconciliation-status.json public-data/operations-status.json public-data/history.json public-config.json
+          git add public-data/screener.json public-data/sec-fundamentals.json public-data/sec-fundamentals-summary.json public-data/sec-fundamentals-summary.manifest.json public-data/screener-validation-gate.json public-data/reconciliation-status.json public-data/operations-status.json public-data/history.json public-config.json architecture/public-readiness.json
+          git add _context/CURRENT-STATE.md _context/CONTEXT-CATALOG.json
           [ -f public-data/backtest-history.json ] && git add public-data/backtest-history.json || true
           if git diff --staged --quiet; then
             echo "No screener changes to commit"

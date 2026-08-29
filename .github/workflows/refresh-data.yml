@@ -70,7 +70,10 @@ jobs:
            node scripts/ci-professional-data-gap-check.mjs
            node scripts/ci-static-data-contract-check.mjs
            node scripts/ci-web-research-contract-check.mjs
-           node scripts/ci-data-refresh-audit.mjs
+            node scripts/ci-data-refresh-audit.mjs
+
+      - name: Synchronize generated workspace evidence
+        run: node scripts/generate-workspace-state.mjs --write
 
       - name: Pipeline status summary
         run: |
@@ -142,7 +145,8 @@ jobs:
           [ -d public-data/masters/managers ] && git add public-data/masters/managers || true
           [ -d public-data/objects/masters ] && git add public-data/objects/masters || true
           [ -d public-data/masters/history/managers ] && git add public-data/masters/history/managers || true
-          git add architecture/asset-manifest.json architecture/release-manifest.json
+          git add architecture/asset-manifest.json architecture/release-manifest.json architecture/public-readiness.json
+          git add _context/CURRENT-STATE.md _context/CONTEXT-CATALOG.json
           if git diff --staged --quiet; then
             echo "No public-data changes to commit"
             echo "changed=false" >> "$GITHUB_OUTPUT"

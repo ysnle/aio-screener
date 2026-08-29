@@ -74,7 +74,10 @@ export function createQuestionPlan({ query = '', route = null, now = new Date(),
     requiredEvidence: Object.freeze([...new Set(requiredEvidence)]),
     optionalEvidence: Object.freeze(intent.intents.includes('FX_ANALYSIS') ? ['news', 'flows', 'policy-comments'] : ['news', 'research-reference']),
     requiredTools: Object.freeze([...new Set(requiredEvidence.filter((item) => item !== 'market-session'))]),
-    suitabilityRequired: intent.actionRequested || intent.primary === 'PORTFOLIO_ACTION',
+    // A portfolio page or trading noun alone is not a request to mutate or
+    // personalize an account. Suitability is required only for the explicit
+    // personalized/executable action mode classified by the intent SSOT.
+    suitabilityRequired: intent.personalizedActionRequested,
     conductPlan: classifyAIConduct({ query: normalized }),
     actionPermission: evaluateQuestionActionPermission({ questionPlan: intent, suitabilityProfile: null, evidenceComplete: false }),
     clarificationQuestions: Object.freeze(entities.ambiguous ? ['어느 시장의 어떤 종목/ETF를 말하는지 티커 또는 거래소를 알려주세요.'] : []),

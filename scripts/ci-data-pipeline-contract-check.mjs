@@ -95,6 +95,7 @@ check('refresh workflow publishes status summary', /GITHUB_STEP_SUMMARY/.test(re
 check('refresh summary exposes automated AAII relay and same-date Treasury producer states', /AAII weekly/.test(refresh) && /aaiiRelayUsed/.test(refresh) && /Treasury curve/.test(refresh) && /treasuryObservedAt/.test(refresh));
 check('core refresh validates evidence-derived reconciliation before commit', /ci-reconciliation-contract-check\.mjs/.test(refresh) && refresh.indexOf('ci-reconciliation-contract-check.mjs') < refresh.indexOf('Commit refreshed public data if changed'));
 check('screener refresh atomically rebuilds and commits reconciliation and operations status', /build-reconciliation-status\.mjs/.test(screenerRefresh) && /build-operations-status\.mjs/.test(screenerRefresh) && /public-data\/reconciliation-status\.json/.test(screenerRefresh) && /public-data\/operations-status\.json/.test(screenerRefresh));
+check('both refresh workflows regenerate and commit workspace/readiness evidence', [refresh, screenerRefresh].every((workflow) => /generate-workspace-state\.mjs --write/.test(workflow) && /architecture\/public-readiness\.json/.test(workflow) && /_context\/CURRENT-STATE\.md _context\/CONTEXT-CATALOG\.json/.test(workflow)));
 check('refresh workflow module summary uses ESM fs import', /node --input-type=module - <<'NODE'[\s\S]*import fs from 'node:fs';/.test(refresh) && !/node --input-type=module - <<'NODE'[\s\S]*const fs = require\(/.test(refresh));
 checkNodeHeredocSyntax('refresh-data workflow', refresh);
 

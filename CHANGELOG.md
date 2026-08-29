@@ -1,3 +1,12 @@
+## v54.64 (2026-08-28)
+- **Refresh convergence**: fixed both scheduled data workflows so public readiness and generated workspace evidence are regenerated and committed with the artifacts that changed them, preventing stale exact-SHA CI failures.
+- **Useful-answer boundary**: aligned the public prompt, conduct policy and pre-provider suitability gate so educational/conditional trading, regulation, legal and tax analysis continues while personalized execution, illegal instructions, external mutations and guarantees remain hard boundaries.
+- **Graceful research degradation**: Web Research opt-out or provider failure now withholds only unsupported current/causal claims instead of ending the whole per-page answer; Korean current-regulation vocabulary is classified as in-domain research.
+- **Knowledge-backed chat**: connected both chat surfaces and the principles/atlas pages to a lazy compact retrieval index covering 112 Market Principles and 48 AI Era foundation articles, with bounded context, alias/concept matching, deep links, source candidates and explicit reference-only provenance.
+- **WebSearch provenance**: preserved the actual provider engine per citation and rendered Claude native citations in the unified chat footer.
+- **Verification boundary**: targeted AI/reliability/knowledge parity, affected browser QA and exact failed-group reruns pass locally; live public Worker/native-search entitlement and deployed model quality remain external evidence.
+- R1 7곳 v54.64
+
 ## v54.63 (2026-08-28)
 - **Source-to-screen fundamentals**: retired hardcoded valuation/estimate cards and default NVDA/provider work; the native fundamental route now renders a bounded SEC annual-facts watchlist with filing/source/reference-only semantics and state-only card selection.
 - **Metric-definition integrity**: separated BLS NSA headline/core CPI from SA analytical companions, bridged official Treasury maturities and same-date 10Y-2Y evidence to browser consumers, and made screener rights/readiness field-specific.

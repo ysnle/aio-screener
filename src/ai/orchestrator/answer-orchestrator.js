@@ -9,7 +9,7 @@ import { createResearchCapability, validateResearchCapability } from '../researc
 
 export const AI_ANSWER_ORCHESTRATOR_VERSION = 'answer-orchestrator.v1';
 
-export function createAIAnswerOrchestrator({ root = globalThis, now = () => new Date() } = {}) {
+export function createAIAnswerOrchestrator({ root = globalThis, now = () => new Date(), knowledgeRetriever = null } = {}) {
   let lastPlan = null;
   const audit = [];
   const domainAnalysis = createDomainAnalysisRegistry();
@@ -75,6 +75,10 @@ export function createAIAnswerOrchestrator({ root = globalThis, now = () => new 
     validateAnswerPlan,
     parseAnswerPlanText,
     renderAnswerPlan,
-    createCapabilityPlan
+    createCapabilityPlan,
+    buildAIKnowledgeContext: (query, options = {}) => knowledgeRetriever?.buildContext
+      ? knowledgeRetriever.buildContext(query, options)
+      : Promise.resolve(Object.freeze({ matches: [], context: '', audit: Object.freeze({ status: 'UNAVAILABLE', returned: 0 }) })),
+    getAIKnowledgeRetrievalAudit: () => knowledgeRetriever?.getAudit?.() || Object.freeze({ status: 'UNAVAILABLE', returned: 0 })
   });
 }

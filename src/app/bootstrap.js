@@ -49,6 +49,7 @@ import { createScreenerOrchestrator } from '../data/orchestrators/screener.js';
 import { createRuntimeReaders } from '../data/runtime-readers.js';
 import { buildEvidenceContext } from '../ai/context-builder.js';
 import { createEvidenceRetriever } from '../ai/retrieval/evidence.js';
+import { createAIKnowledgeRetriever } from '../ai/retrieval/knowledge.js';
 import { createAIAnswerOrchestrator } from '../ai/orchestrator/answer-orchestrator.js';
 import { createEvidenceDocument, evaluateResearchEvidenceFloor, normalizeResearchExecutionResult } from '../ai/research/evidence.js';
 import { createLazyPage, createRouteRegistry, createLifecycleRouter } from './router.js';
@@ -128,11 +129,15 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   let marketSnapshot = null;
   const snapshotEvidence = new Map();
   const aiRetriever = createEvidenceRetriever({ evidenceStore });
+  // Lazy and cached: no knowledge artifact is fetched during application boot.
+  // The compact index is loaded only on the first chat question and always
+  // remains REFERENCE, separate from current market evidence.
+  const aiKnowledgeRetriever = createAIKnowledgeRetriever({ fetchImpl });
   // AIQ-0/AIQ-1: the legacy chat surfaces remain UI adapters, while planning and
   // dispatch ownership lives in one ESM orchestrator. This is deliberately created
   // beside the canonical evidence store so future tool adapters can consume the same
   // state without creating a second chat path.
-  const aiOrchestrator = createAIAnswerOrchestrator({ root, now: () => clock.now() });
+  const aiOrchestrator = createAIAnswerOrchestrator({ root, now: () => clock.now(), knowledgeRetriever: aiKnowledgeRetriever });
 
   function ingestSnapshotEvidence(snapshot) {
     snapshotEvidence.clear();

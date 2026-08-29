@@ -410,10 +410,12 @@ function _aioRunAIResponsePipeline(rawText, meta) {
 }
 
 function _aioPublicAIActionPolicyPrompt() {
-  return '\n\n【공개 AI 베타 안전 정책 — 최우선】\n' +
+  return '\n\n【공개 AI 베타 분석·행동 경계 — 최우선】\n' +
     '이 AI는 "AI 베타 · 교육/리서치 보조"이며 독립 투자자문·검증 시스템·실시간 주문 도구가 아니다.\n' +
-    '현재 답변에서는 구체적인 매수·매도·진입·청산 지시, 가격 목표/손절가, 포트폴리오 비중·수량·포지션을 권고하거나 지시하지 마라.\n' +
-    '대신 조건, 데이터의 한계, 위험요인, 확인해야 할 원문과 재검증 절차를 설명하라. 현재성 주장은 주입된 근거 블록만 사용하고 기준시각과 Evidence 상태를 명시하라.\n' +
+    '교육·시장 원리·상품 구조·규제 영향·법률/세무의 일반 또는 사용자 맥락 분석을 회피하지 마라. 관할·사실관계가 부족하면 합리적 전제를 밝히고 공식 원문·기준일·추가 확인 항목을 제시하라.\n' +
+    '가격 범위·무효화 수준·손절 기준·포트폴리오 비중은 시나리오와 계산 입력으로 분석할 수 있다. 다만 사용자 적합성·현재 근거가 없으면 개인화된 단일 행동 지시로 확정하지 말고 조건별 선택지와 의사결정 체크리스트로 전환하라.\n' +
+    '불법 행위의 구체적 실행법, 실제 주문·계정 변경·외부 전송, 수익 보장만 차단한다. 그 밖의 질문은 답변 전체를 안전 모드로 바꾸지 말고 부족한 현재 주장만 제한하라.\n' +
+    '조건, 데이터의 한계, 위험요인, 확인해야 할 원문과 재검증 절차를 설명하라. 현재성 주장은 주입된 근거 블록만 사용하고 기준시각과 Evidence 상태를 명시하라.\n' +
     '수치·출처·기준시각이 없거나 Evidence가 확인되지 않으면 "확인 필요"로 답하고, 학습 기억이나 정적 문구를 현재 사실처럼 보완하지 마라.\n' +
     '보정(calibration) 모델 ID와 검증된 calibration 메타데이터가 주입되지 않은 경우 Bull/Base/Bear·상승/하락 확률을 숫자(%)로 만들거나 추정하지 마라. 확률 대신 조건·반대 가설·확인할 신호를 제시하라.\n';
 }
@@ -955,6 +957,7 @@ const CHAT_CONTEXTS = {
   briefing:_aioCreateEvidenceContext('AI 브리핑 분석가','briefing'),
   'market-news':_aioCreateEvidenceContext('AI 뉴스 분석가','market-news'),
   principles:_aioCreateEvidenceContext('AI 시장 원리 학습 분석가','principles'),
+  atlas:_aioCreateEvidenceContext('AI 시대 지식 지도 분석가','atlas'),
   options:_aioCreateEvidenceContext('AI 옵션 분석가','options'),
   'kr-themes':_aioCreateEvidenceContext('AI 한국 테마 분석가','themes'),
   'kr-macro':_aioCreateEvidenceContext('AI 한국 매크로 분석가','macro'),
@@ -4185,14 +4188,16 @@ async function _aiResearchPlanSearch(researchPlan) {
     var host = '';
     try { host = new URL(url).hostname.replace(/^www\./, '').toLowerCase(); } catch(_) { host = String(url || ''); }
     sourceHosts[host] = true;
-    var snippetOnly = fulfilled.some(function(item) { return item.result.engine === 'google' && (item.result.citations || []).indexOf(url) >= 0; });
+    var citationProducer = fulfilled.find(function(item) { return (item.result.citations || []).indexOf(url) >= 0; });
+    var citationEngine = citationProducer && citationProducer.result.engine || 'research-plan';
+    var snippetOnly = citationEngine === 'google';
     var documentInput = {
       documentId: 'web:' + index + ':' + host,
       canonicalUrl: url,
       publisher: host,
       contentDepth: snippetOnly ? 'SNIPPET' : 'EXCERPT',
       rights: 'PUBLIC_REFERENCE',
-      sourceType: fulfilled[0].result.engine || 'research-plan'
+      sourceType: citationEngine
     };
     if (window.AIO_ARCH && typeof window.AIO_ARCH.createAIResearchEvidenceDocument === 'function') {
       return window.AIO_ARCH.createAIResearchEvidenceDocument(documentInput);
@@ -5447,10 +5452,10 @@ async function chatSend(ctxId, _aioDispatchOptions) {
     : _needsWebSearch(q, ctxId);
   if (_researchRequiredForChat && _researchDecisionForChat.userOptOut) {
     chatAppendMsg(ctxId, 'ai', '<div style="font-size:11px;color:#fbbf24;padding:6px 8px;background:rgba(255,163,26,0.08);border-left:2px solid #ffa31a;border-radius:4px;margin-bottom:4px;">⚠ 현재성·원인 질문은 웹 리서치 없이는 확정할 수 없습니다. 검색을 다시 활성화하면 재시도할 수 있습니다.</div>');
-    state.streaming = false;
-    state._chatSendEntered = 0;
-    if (btn) { btn.disabled = false; btn.textContent = '전송 ▶'; }
-    return;
+    // User opt-out blocks only unverified current/causal claims. Keep the
+    // conceptual and conditional answer path alive instead of turning a
+    // missing research capability into a full-chat outage.
+    _researchFailureForChat = { code: 'DISABLED_BY_USER', message: 'web_research_disabled_by_user' };
   }
   if (_researchRequiredForChat && _preparedResearchForChat.externalResult) {
     webSearchResult = _preparedResearchForChat.externalResult;
@@ -5524,8 +5529,22 @@ async function chatSend(ctxId, _aioDispatchOptions) {
 
   // v52.78/WP-AI3: let page-scoped research retrieval see the active question.
   window._aioActiveAIQuery = q;
+  var importedResearchContextStr = (typeof _getImportedResearchContext === 'function') ? _getImportedResearchContext(ctxId) : '';
+  var knowledgeContextStr = '';
+  var knowledgeRetrievalAudit = null;
+  try {
+    var knowledgeOrchestrator = window.AIO_ARCH && typeof window.AIO_ARCH.getAIOrchestrator === 'function' ? window.AIO_ARCH.getAIOrchestrator() : null;
+    if (knowledgeOrchestrator && typeof knowledgeOrchestrator.buildAIKnowledgeContext === 'function') {
+      var knowledgeRetrieval = await knowledgeOrchestrator.buildAIKnowledgeContext(q, { topK: 3, maxChars: 5200 });
+      knowledgeContextStr = knowledgeRetrieval && knowledgeRetrieval.context || '';
+      knowledgeRetrievalAudit = knowledgeRetrieval && knowledgeRetrieval.audit || null;
+    }
+  } catch(_knowledgeErr) {}
   // v20+: dynamic system prompts (portfolio injects live data)
   var systemPrompt = typeof ctx.system === 'function' ? ctx.system() : ctx.system;
+  if (importedResearchContextStr) systemPrompt += importedResearchContextStr;
+  if (knowledgeContextStr) systemPrompt += (window.AIO && typeof window.AIO.buildAIUntrustedBlock === 'function')
+    ? window.AIO.buildAIUntrustedBlock('KNOWLEDGE_REFERENCE', knowledgeContextStr, { maxChars: 5600 }) : knowledgeContextStr;
   var chatProvenanceBundle = null;
   var chatEvidenceContext = null;
   var chatProvenanceContextStr = '';
@@ -5730,8 +5749,11 @@ async function chatSend(ctxId, _aioDispatchOptions) {
   // v52.78/WP-AI3: record the full prompt size while the reference block is
   // already bounded by the shared retriever. This provides a P95 input-token
   // sample without trimming live evidence or policy blocks.
-  var _pageRetrievalAudit = (window.AIO && typeof window.AIO.getAIRetrievalAudit === 'function')
+  var _pageImportedRetrievalAudit = (window.AIO && typeof window.AIO.getAIRetrievalAudit === 'function')
     ? window.AIO.getAIRetrievalAudit() : null;
+  var _pageRetrievalAudit = knowledgeRetrievalAudit
+    ? { intent: _pageImportedRetrievalAudit && _pageImportedRetrievalAudit.intent, importedResearch: _pageImportedRetrievalAudit, knowledge: knowledgeRetrievalAudit }
+    : _pageImportedRetrievalAudit;
   var _pageContextBudgetAudit = (window.AIO && typeof window.AIO.recordAIContextBudget === 'function')
     ? window.AIO.recordAIContextBudget(systemPrompt, {
       entrypoint: 'per-page-chat', ctxId: ctxId,

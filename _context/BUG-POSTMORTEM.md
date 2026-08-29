@@ -2,12 +2,28 @@
 verified_by: Codex deterministic gates + browser audit
 last_verified: 2026-08-28
 confidence: high
-latest_version: v54.63
-latest_P_number: P999
-next_P_number: P1000
-current_total_entries: 713 (P1~P999, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P987~P999 v54.63 source-to-screen data and research-model reconstruction
+latest_version: v54.64
+latest_P_number: P1001
+next_P_number: P1002
+current_total_entries: 715 (P1~P1001, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P1001 v54.64 refresh-generated evidence convergence
 ---
+
+## P1001 - v54.64 - 자동 데이터 커밋이 생성 상태와 FRED readiness를 누락해 exact-SHA CI를 깨뜨렸다
+
+- **root_cause**: 두 refresh workflow가 `build-operations-status.mjs`가 함께 갱신한 `architecture/public-readiness.json`을 stage하지 않았고, 데이터·manifest 변경 뒤 `generate-workspace-state --write`를 실행·커밋하지 않았다. 결과적으로 최신 자동 커밋은 데이터는 갱신했지만 operations contract와 generated-state/workspace-contract가 실패했다.
+- **fix**: core/screener refresh 모두 최종 데이터 생성 뒤 workspace evidence를 재생성하고 public readiness, CURRENT-STATE, CONTEXT-CATALOG를 동일 원자적 커밋에 포함한다.
+- **violated_rule**: R563 — 자동 데이터 병합/생성의 마지막 상태는 현재 artifact inventory에서 다시 생성되어야 한다.
+- **prevention**: data-pipeline contract가 두 workflow의 generator 실행과 세 evidence artifact staging을 함께 검사한다.
+- **verification**: `ci-data-pipeline-contract-check.mjs`, `generate-workspace-state --check`, `ci-operations-contract-check.mjs`, workflow YAML/preflight gate 및 차기 exact-SHA CI.
+
+## P1000 - v54.64 - 교육·조건부 금융 질문과 검색 실패가 채팅 전체 차단으로 확대됐다
+
+- **root_cause**: intent의 매수·매도·비중 단어를 개인화/실행 요청과 구분하지 않아 suitability gate가 provider 전에 교육 질문까지 차단했고, per-page chat은 필수 Web Research opt-out에서 즉시 return했다. 동시에 공개 prompt의 전면 금지 문구가 conduct v2의 조건부 분석 허용 정책과 충돌했으며, 시장 원리/AI 시대 article repository는 채팅 retrieval consumer가 없었다.
+- **fix**: 개인화·실행 요청만 pre-provider suitability 대상으로 축소하고 교육·조건부 가격/손절/비중·법률/세무/규제 분석은 전제와 limitation으로 계속 답하게 했다. 검색 opt-out/실패는 현재·인과 주장만 강등하며, 두 채팅에 160개 compact knowledge index를 lazy retrieval로 연결하고 alias/concept, route/deep-link, source candidate, REFERENCE/currentClaimsAllowed=false 경계를 보존했다. Atlas chat context, 한국어 현황/동향/규제 current intent, citation별 provider provenance와 Claude native citation footer도 연결했다.
+- **violated_rule**: R460/R456 — 단어 기반 안전 분류나 evidence 결손은 전체 답변 안전 모드가 아니라 실제 행위·해당 주장 범위에서만 작동해야 하며, reference knowledge와 live evidence를 분리해야 한다.
+- **prevention**: AI intelligence/reliability 계약이 교육형 action 어휘 positive corpus, 개인화 실행 negative control, Web Research opt-out degradation, 두 knowledge surface parity·budget·provenance·untrusted wrapping, current-regulation 분류, native citation UI를 함께 검사한다.
+- **verification**: `ci-ai-intelligence-contract-check.mjs`, `ci-ai-chat-reliability-contract-check.mjs`, `ci-knowledge-generated-parity-check.mjs`, syntax checks and affected QA; live Worker/native entitlement and deployed model quality remain separate external evidence.
 
 ## P999 - v54.63 - SEC runtime projection manifest가 Windows source CRLF digest를 저장했다
 

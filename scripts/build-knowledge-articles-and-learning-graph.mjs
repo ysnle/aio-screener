@@ -144,6 +144,7 @@ function createArticle(lesson, surface, index) {
 
 const principleArticles = principles.map((lesson, index) => createArticle(lesson, 'principles', index));
 const atlasArticles = atlas.map((lesson, index) => createArticle(lesson, 'atlas-foundations', principleArticles.length + index));
+const allArticles = [...principleArticles, ...atlasArticles];
 for (const article of principleArticles) writeJson(`public-data/knowledge/articles/principles/${article.lessonId}.json`, article);
 for (const article of atlasArticles) writeJson(`public-data/knowledge/articles/atlas-foundations/${article.lessonId}.json`, article);
 writeJson('public-data/knowledge/articles.json', {
@@ -152,7 +153,7 @@ writeJson('public-data/knowledge/articles.json', {
   status: 'STRUCTURED_REFERENCE_DRAFT',
   boundary: 'articles are structured reference drafts; semantic review, source directness review, and user validation remain required',
   counts: { total: principleArticles.length + atlasArticles.length, principles: principleArticles.length, atlasFoundations: atlasArticles.length },
-  articles: [...principleArticles, ...atlasArticles]
+  articles: allArticles
 });
 
 const graphNodes = [];

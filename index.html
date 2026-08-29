@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v54.63 — 올인원 투자 터미널</title>
+  <title>AIO Screener v54.64 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -6360,7 +6360,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v54.63</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v54.64</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -13175,9 +13175,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=54.63" defer></script>
-  <script src="./js/aio-data.js?v=54.63" defer></script>
-  <script src="./js/aio-ui.js?v=54.63" defer></script>
+  <script src="./js/aio-core.js?v=54.64" defer></script>
+  <script src="./js/aio-data.js?v=54.64" defer></script>
+  <script src="./js/aio-ui.js?v=54.64" defer></script>
 
 
   <script>
@@ -15680,7 +15680,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=54.63" defer></script>
+<script src="./js/aio-chat.js?v=54.64" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -24528,7 +24528,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=54.63" defer></script>
+<script src="./js/aio-glossary.js?v=54.64" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -27752,7 +27752,7 @@ var _aiCtxMap = {
   'fundamental':'fundamental','themes':'themes','portfolio':'portfolio',
   'signal':'signal','screener':'screener','ticker':'ticker','theme-detail':'theme-detail','briefing':'briefing',
   'market-news':'market-news','breadth':'breadth','sentiment':'sentiment',
-  'options':'options',
+  'options':'options','principles':'principles','atlas':'atlas',
   'kr-themes':'kr-themes','kr-macro':'kr-macro','kr-technical':'kr-tech' // v53.7 (P725): kr-home/kr-supply 퇴역
 };
 var _aiDefaultChips = {
@@ -27771,6 +27771,8 @@ var _aiDefaultChips = {
   'market-news':['오늘 핵심 뉴스','뉴스가 시장에 미친 영향','섹터별 뉴스 흐름','추가 확인할 이슈'],
   'breadth':['시장 폭 건강도','상승/하락 종목 해석','브레드스와 추세 비교','숨은 약세 신호'],
   'sentiment':['공포탐욕 해석','VIX와 심리 연결','지금 과열인지 판단','심리 기반 대응'],
+  'principles':['시장 원리 설명','경제에서 기업까지 연결','반대 시나리오','전문 화면에서 검증'],
+  'atlas':['AI 시스템 원리','AI 가치사슬','전력·메모리 병목','기업·현금흐름 연결'],
   'kr-themes':['K-방산 전망','반도체 수출','조선주 분석','2차전지 반등'],
   'kr-macro':['한은 금리','원/달러 전망','코리아 디스카운트','수출 경기'],
   'kr-tech':['삼성전자 분석','KOSPI 추세','SK하이닉스 RSI','한화에어로 타이밍']
@@ -28014,6 +28016,7 @@ async function chatSendUnified(_aioDispatchOptions) {
   var _uniDomainData = false;
   var _uniDeepData = false;
   var _uniNewsCtx = false;
+  var _uniKnowledgeAudit = null;
   // v47.8: 외부 API hang 방어 — Promise.race 타임아웃 래퍼
   var _withTimeout = function(promise, ms, label, onTimeout) {
     return Promise.race([
@@ -28022,6 +28025,14 @@ async function chatSendUnified(_aioDispatchOptions) {
     ]);
   };
   try {
+    if (typeof _getImportedResearchContext === 'function') sysPrompt += _getImportedResearchContext(ctxId);
+    var _uniKnowledgeOrchestrator = window.AIO_ARCH && typeof window.AIO_ARCH.getAIOrchestrator === 'function' ? window.AIO_ARCH.getAIOrchestrator() : null;
+    if (_uniKnowledgeOrchestrator && typeof _uniKnowledgeOrchestrator.buildAIKnowledgeContext === 'function') {
+      var _uniKnowledge = await _withTimeout(_uniKnowledgeOrchestrator.buildAIKnowledgeContext(q, { topK: 3, maxChars: 5200 }), 5000, 'knowledge-reference');
+      if (_uniKnowledge && _uniKnowledge.context) sysPrompt += (window.AIO && typeof window.AIO.buildAIUntrustedBlock === 'function')
+        ? window.AIO.buildAIUntrustedBlock('KNOWLEDGE_REFERENCE', _uniKnowledge.context, { maxChars: 5600 }) : _uniKnowledge.context;
+      _uniKnowledgeAudit = _uniKnowledge && _uniKnowledge.audit || null;
+    }
     // 1. 티커 감지 + 실시간 시세 (8s 타임아웃)
     var detectedTickers = typeof _extractTickers === 'function' ? _extractTickers(q) : [];
     var _uniFreshPreflight = null;
@@ -28327,8 +28338,11 @@ async function chatSendUnified(_aioDispatchOptions) {
 
   // v52.78/WP-AI3: retain retrieval provenance and record P95 input-token
   // samples without trimming separately injected live evidence blocks.
-  var _uniRetrievalAudit = (window.AIO && typeof window.AIO.getAIRetrievalAudit === 'function')
+  var _uniImportedRetrievalAudit = (window.AIO && typeof window.AIO.getAIRetrievalAudit === 'function')
     ? window.AIO.getAIRetrievalAudit() : null;
+  var _uniRetrievalAudit = _uniKnowledgeAudit
+    ? { intent: _uniImportedRetrievalAudit && _uniImportedRetrievalAudit.intent, importedResearch: _uniImportedRetrievalAudit, knowledge: _uniKnowledgeAudit }
+    : _uniImportedRetrievalAudit;
   var _uniContextBudgetAudit = (window.AIO && typeof window.AIO.recordAIContextBudget === 'function')
     ? window.AIO.recordAIContextBudget(sysPrompt, {
       entrypoint: 'unified-chat', ctxId: ctxId,
@@ -28448,11 +28462,15 @@ async function chatSendUnified(_aioDispatchOptions) {
     }
 
     // v46.10: 웹검색 출처 링크
-    if (_uniWebResult && _uniWebResult.citations && _uniWebResult.citations.length > 0 && typeof _searchCitationsHTML === 'function') {
+    var _uniCitationResult = _uniWebResult;
+    if ((!_uniCitationResult || !_uniCitationResult.citations || !_uniCitationResult.citations.length) && _uniUseClaudeWebSearch && Array.isArray(window._aioLastClaudeCitations) && window._aioLastClaudeCitations.length) {
+      _uniCitationResult = { engine:'claude', citations:window._aioLastClaudeCitations.slice(0, 12) };
+    }
+    if (_uniCitationResult && _uniCitationResult.citations && _uniCitationResult.citations.length > 0 && typeof _searchCitationsHTML === 'function') {
       var citTarget = streamEl || (aiBubble ? aiBubble.parentNode : null);
       if (citTarget) {
         var citDiv = document.createElement('div');
-        citDiv.innerHTML = _searchCitationsHTML(_uniWebResult);
+        citDiv.innerHTML = _searchCitationsHTML(_uniCitationResult);
         citTarget.appendChild(citDiv);
       }
     }
