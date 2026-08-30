@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-08-29T23:38:37.721Z",
-  "attemptedAt": "2026-08-29T23:38:37.721Z",
-  "lastSuccessfulAt": "2026-08-29T23:38:37.721Z",
+  "generatedAt": "2026-08-30T01:41:57.574Z",
+  "attemptedAt": "2026-08-30T01:41:57.574Z",
+  "lastSuccessfulAt": "2026-08-30T01:41:57.574Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-08-15T23:38:33.737Z",
-  "until": "2026-08-29T23:38:33.737Z",
+  "since": "2026-08-16T01:41:52.939Z",
+  "until": "2026-08-30T01:41:52.939Z",
   "current24hWindow": {
     "start": "2026-08-28T23:00:00.000Z",
     "end": "2026-08-29T23:00:00.000Z",
@@ -14,7 +14,7 @@
   },
   "current24hCoverage": {
     "observedCount": 73,
-    "eligibleTextCount": 60,
+    "eligibleTextCount": 68,
     "channelCounts": {
       "insidertracking": 25,
       "HANAchina": 33,
@@ -84,7 +84,7 @@
       "count": 261,
       "freshCount": 19,
       "eligibleTextCount": 19,
-      "selectedCount": 87,
+      "selectedCount": 86,
       "error": null,
       "lastPostId": 24856
     },
@@ -98,36 +98,231 @@
       "eligibleTextCount": 36,
       "selectedCount": 128,
       "error": null,
-      "lastPostId": 62397
+      "lastPostId": 62400
     },
     {
       "channel": "bornlupin",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 189,
-      "freshCount": 19,
-      "eligibleTextCount": 19,
-      "selectedCount": 81,
+      "count": 190,
+      "freshCount": 39,
+      "eligibleTextCount": 39,
+      "selectedCount": 82,
       "error": null,
-      "lastPostId": 19924
+      "lastPostId": 19926
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 772,
-      "freshCount": 20,
-      "eligibleTextCount": 20,
+      "count": 778,
+      "freshCount": 39,
+      "eligibleTextCount": 39,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 68036
+      "lastPostId": 68048
     }
   ],
-  "count": 2330,
-  "retainedItemCount": 456,
+  "count": 2337,
+  "retainedItemCount": 470,
   "observedItems": [
+    {
+      "id": "insidertracking/62400",
+      "channel": "insidertracking",
+      "datetime": "2026-08-30T01:38:08.000Z",
+      "localDateKst": "2026-08-30",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/68048",
+      "channel": "HANAchina",
+      "datetime": "2026-08-30T01:32:07.000Z",
+      "localDateKst": "2026-08-30",
+      "score": 86,
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "earnings"
+      ],
+      "tickers": [
+        "TSLA",
+        "AAPL",
+        "AVGO"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/68047",
+      "channel": "HANAchina",
+      "datetime": "2026-08-30T01:30:23.000Z",
+      "localDateKst": "2026-08-30",
+      "score": 53,
+      "tags": [
+        "geo",
+        "kr-market",
+        "flows"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/68046",
+      "channel": "HANAchina",
+      "datetime": "2026-08-30T01:27:19.000Z",
+      "localDateKst": "2026-08-30",
+      "score": 47,
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/68045",
+      "channel": "HANAchina",
+      "datetime": "2026-08-30T01:25:07.000Z",
+      "localDateKst": "2026-08-30",
+      "score": 48,
+      "tags": [
+        "power"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19926",
+      "channel": "bornlupin",
+      "datetime": "2026-08-30T01:06:32.000Z",
+      "localDateKst": "2026-08-30",
+      "score": 64,
+      "tags": [
+        "semi",
+        "optical",
+        "power"
+      ],
+      "tickers": [
+        "000660.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/68044",
+      "channel": "HANAchina",
+      "datetime": "2026-08-30T00:41:40.000Z",
+      "localDateKst": "2026-08-30",
+      "score": 72,
+      "tags": [
+        "semi",
+        "optical",
+        "power"
+      ],
+      "tickers": [
+        "TSM",
+        "LITE",
+        "000660.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/68043",
+      "channel": "HANAchina",
+      "datetime": "2026-08-30T00:37:34.000Z",
+      "localDateKst": "2026-08-30",
+      "score": 72,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "NVDA",
+        "AMD",
+        "MSFT",
+        "GOOG",
+        "TSM",
+        "MTK"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "bornlupin/19925",
+      "channel": "bornlupin",
+      "datetime": "2026-08-30T00:19:23.000Z",
+      "localDateKst": "2026-08-30",
+      "score": 48,
+      "tags": [
+        "power"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/68042",
+      "channel": "HANAchina",
+      "datetime": "2026-08-30T00:13:48.000Z",
+      "localDateKst": "2026-08-30",
+      "score": 40,
+      "tags": [
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/68040",
+      "channel": "HANAchina",
+      "datetime": "2026-08-30T00:08:48.000Z",
+      "localDateKst": "2026-08-30",
+      "score": 40,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/68039",
+      "channel": "HANAchina",
+      "datetime": "2026-08-30T00:05:17.000Z",
+      "localDateKst": "2026-08-30",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/68038",
+      "channel": "HANAchina",
+      "datetime": "2026-08-30T00:03:29.000Z",
+      "localDateKst": "2026-08-30",
+      "score": 65,
+      "tags": [
+        "macro",
+        "power"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/68037",
+      "channel": "HANAchina",
+      "datetime": "2026-08-30T00:00:02.000Z",
+      "localDateKst": "2026-08-30",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "insidertracking/62397",
       "channel": "insidertracking",
@@ -817,7 +1012,7 @@
         "TSM",
         "005930.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/68015",
@@ -831,7 +1026,7 @@
       "tickers": [
         "NVDA"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/62376",
@@ -856,7 +1051,7 @@
         "kr-market"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/68011",
@@ -868,7 +1063,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/62375",
@@ -894,7 +1089,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/68009",
@@ -907,7 +1102,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/62374",
@@ -955,7 +1150,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/68006",
@@ -970,7 +1165,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/62371",
@@ -1245,7 +1440,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/62357",
@@ -4731,7 +4926,7 @@
         "6981.T",
         "009150.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/24804",
@@ -4991,7 +5186,7 @@
         "NVDA",
         "AMZN"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67917",
@@ -5022,7 +5217,7 @@
         "GOOG",
         "AMZN"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/62225",
@@ -5097,7 +5292,7 @@
       "tickers": [
         "NVDA"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67916",
@@ -5177,7 +5372,7 @@
         "NVDA",
         "MU"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/24801",
@@ -5412,7 +5607,7 @@
         "298040.KS",
         "267260.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/62216",
@@ -5464,7 +5659,7 @@
       "tickers": [
         "NVDA"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19897",
@@ -5479,7 +5674,7 @@
         "NVDA",
         "AMZN"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/62214",
@@ -5507,7 +5702,7 @@
       "tickers": [
         "035420.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/62213",
@@ -5749,7 +5944,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67896",
@@ -5796,7 +5991,7 @@
       "tickers": [
         "AMZN"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19893",
@@ -5811,7 +6006,7 @@
       "tickers": [
         "035420.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67895",
@@ -5839,7 +6034,7 @@
         "NVDA",
         "005930.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67894",
@@ -5938,7 +6133,7 @@
         "GS",
         "WFC"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19890",
@@ -5960,7 +6155,7 @@
         "BAC",
         "MS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67893",
@@ -6088,7 +6283,7 @@
         "CRM",
         "CRWD"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/67888",
@@ -6121,7 +6316,7 @@
       "tickers": [
         "000660.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/62200",
@@ -6344,7 +6539,7 @@
       "tickers": [
         "NVDA"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "bornlupin/19886",
@@ -32379,151 +32574,58 @@
         "APO"
       ],
       "hasText": false
-    },
-    {
-      "id": "HANAchina/67194",
-      "channel": "HANAchina",
-      "datetime": "2026-08-16T01:17:43.000Z",
-      "localDateKst": "2026-08-16",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/67193",
-      "channel": "HANAchina",
-      "datetime": "2026-08-16T00:59:38.000Z",
-      "localDateKst": "2026-08-16",
-      "score": 43,
-      "tags": [
-        "power"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/67192",
-      "channel": "HANAchina",
-      "datetime": "2026-08-16T00:58:10.000Z",
-      "localDateKst": "2026-08-16",
-      "score": 47,
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/19724",
-      "channel": "bornlupin",
-      "datetime": "2026-08-16T00:53:44.000Z",
-      "localDateKst": "2026-08-16",
-      "score": 97,
-      "tags": [
-        "macro",
-        "semi",
-        "ai-policy",
-        "earnings"
-      ],
-      "tickers": [
-        "MU",
-        "SNDK"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/61230",
-      "channel": "insidertracking",
-      "datetime": "2026-08-16T00:39:29.000Z",
-      "localDateKst": "2026-08-16",
-      "score": 0,
-      "tags": [
-        "media-only"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/67191",
-      "channel": "HANAchina",
-      "datetime": "2026-08-16T00:18:06.000Z",
-      "localDateKst": "2026-08-16",
-      "score": 77,
-      "tags": [
-        "macro",
-        "semi",
-        "optical",
-        "earnings"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/67190",
-      "channel": "HANAchina",
-      "datetime": "2026-08-16T00:12:13.000Z",
-      "localDateKst": "2026-08-16",
-      "score": 82,
-      "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy",
-        "equity"
-      ],
-      "tickers": [],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2330,
-    "eligibleTextCount": 94,
-    "mediaOnlyCount": 2236,
-    "highSignalCount": 557,
-    "broadSignalCount": 1130,
+    "observedCount": 2337,
+    "eligibleTextCount": 133,
+    "mediaOnlyCount": 2204,
+    "highSignalCount": 558,
+    "broadSignalCount": 1133,
     "selectedRawCount": 420,
-    "selectedRawCoveragePct": 446.8,
+    "selectedRawCoveragePct": 315.8,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "market-note": 597,
-    "macro": 794,
-    "ai-policy": 165,
-    "geo": 333,
-    "credit": 98,
-    "semi": 695,
-    "power": 342,
-    "kr-market": 333,
+    "market-note": 600,
+    "macro": 793,
+    "geo": 335,
+    "semi": 696,
     "earnings": 500,
-    "flows": 211,
+    "kr-market": 334,
+    "flows": 212,
+    "power": 345,
+    "optical": 57,
+    "ai-policy": 163,
+    "credit": 98,
     "japan": 157,
-    "equity": 190,
-    "optical": 56,
+    "equity": 189,
     "insider": 88,
     "healthcare": 142,
-    "media-only": 91,
+    "media-only": 90,
     "crypto": 15
   },
   "tickerCounts": {
-    "SNDK": 26,
+    "TSLA": 25,
+    "AAPL": 21,
+    "AVGO": 49,
+    "000660.KS": 121,
+    "TSM": 67,
+    "LITE": 18,
+    "NVDA": 122,
+    "AMD": 41,
+    "MSFT": 29,
+    "GOOG": 57,
+    "MTK": 10,
+    "SNDK": 25,
     "6600.T": 3,
-    "MSFT": 28,
-    "GOOG": 56,
     "META": 43,
     "AMZN": 60,
     "GOOGL": 21,
-    "AMD": 40,
-    "TSM": 65,
     "005930.KS": 84,
-    "NVDA": 121,
-    "000660.KS": 119,
-    "AVGO": 48,
     "MRVL": 38,
     "BE": 17,
     "RKLB": 11,
@@ -32538,14 +32640,12 @@
     "VST": 2,
     "MRNA": 11,
     "IONQ": 9,
-    "TSLA": 24,
     "WDC": 7,
     "BRK.B": 6,
     "SMR": 3,
     "VRT": 2,
     "NET": 6,
     "MSTR": 6,
-    "AAPL": 20,
     "ESTC": 1,
     "DINO": 7,
     "MPC": 4,
@@ -32555,11 +32655,9 @@
     "DB": 5,
     "TEAM": 2,
     "035420.KS": 34,
-    "MTK": 9,
     "329180.KS": 1,
     "017670.KS": 2,
-    "MU": 42,
-    "LITE": 17,
+    "MU": 41,
     "CVX": 1,
     "298040.KS": 6,
     "267260.KS": 4,
@@ -32701,24 +32799,24 @@
     "APO": 1
   },
   "themes": [
-    "Macro/Rates (794 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라...",
-    "Semiconductors/Memory (695 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라...",
-    "Market Notes (597 posts in 14-day research window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크오브아메리카 글로벌 리서치에 따르면 폴리마켓의 미국 중간선거 전망에서 민주당이 상·하원을 모두 장악할 확률이 48%로 가장 높은 수준 기록. 공화당이 상원을 유지하고 민주당이 하원을 장악하는 시나리오는 38%, 공화당의 상·하원 동시 장악은 11%로 집계. 민주당이 상원을...",
+    "Macro/Rates (793 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라...",
+    "Semiconductors/Memory (696 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라...",
+    "Market Notes (600 posts in 14-day research window): >>중국지수연구원 : 개인 주택담보대출 최장 40년으로 연장 효과 클것 •개인 주택담보대출 기간을 최장 30년에서 40년으로 연장하면 월 상환액과 당기 상환 부담을 줄여 ‘시간으로 공간을 바꾸는’ 방식으로 구매자의 대출능력을 높일 수 있음. 특히 첫 주택 구입자와 주택 갈아타기 수요자에게 의미가 크며 , 감당...",
     "Earnings/Corporate (500 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라...",
-    "AI Power/Grid (342 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라...",
-    "Geopolitics (333 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라...",
-    "Korea Market (333 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라...",
-    "Positioning/Flows (211 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라..."
+    "AI Power/Grid (345 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라...",
+    "Geopolitics (335 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라...",
+    "Korea Market (334 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라...",
+    "Positioning/Flows (212 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 121,
+      "count": 122,
       "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/08/24 ~ 2026/08/28 1위: MERCK N CO INC (8.35%) 2위: MICROSTRATEGY INC CL A (6.96%)..."
     },
     {
       "key": "000660.KS",
-      "count": 119,
+      "count": 121,
       "text": "미국 레딧 게시물 분석 (2026년 8월 27일 00:00~06:30 기준) > 💾 NVDA - AI 황제 모드 · \"Jensen 또 해냈다\" · 실적 이후 Bull 완승 분위기 · 콜옵션 대박 인증 폭발..."
     },
     {
@@ -32728,7 +32826,7 @@
     },
     {
       "key": "TSM",
-      "count": 65,
+      "count": 67,
       "text": "JP모건 APAC 크레딧 리서치: APAC 데이터센터 리포트 \"A Supply Surprise\" 요약 리포트는 중국을 제외한 APAC 지역에서 AI 주도의 대규모 데이터센터 증설이 진행되어, 용량이 2025년..."
     },
     {
@@ -32738,12 +32836,12 @@
     },
     {
       "key": "GOOG",
-      "count": 56,
+      "count": 57,
       "text": ">>AI 습격&#33; 버핏의 가치투자, 여전히 통할까? 전문가는 이런 종목이 큰 타격을 입을 수 있다고 경고 •‘투자의 귀재’ 워런 버핏의 ‘가치투자’가 AI가 주도하는 대규모 자금조달 시대에도 여전히 통할지 관심 확대. 유명 기술 팟캐스터 드와르케시 파텔은 투자 급증에 금리 상승 가능성까지 더해지면서 전통적인..."
     },
     {
       "key": "AVGO",
-      "count": 48,
+      "count": 49,
       "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/08/24 ~ 2026/08/28 1위: MERCK N CO INC (8.35%) 2위: MICROSTRATEGY INC CL A (6.96%)..."
     },
     {
@@ -32752,14 +32850,14 @@
       "text": ">>AI 습격&#33; 버핏의 가치투자, 여전히 통할까? 전문가는 이런 종목이 큰 타격을 입을 수 있다고 경고 •‘투자의 귀재’ 워런 버핏의 ‘가치투자’가 AI가 주도하는 대규모 자금조달 시대에도 여전히 통할지 관심 확대. 유명 기술 팟캐스터 드와르케시 파텔은 투자 급증에 금리 상승 가능성까지 더해지면서 전통적인..."
     },
     {
-      "key": "MU",
-      "count": 42,
-      "text": "BofA) 엔비디아; AI 군비 경쟁에서 기준을 한층 더 높이다, 밸류에이션은 더욱 매력적. TP &#036;350 1. 19%~28% EPS 상향, 장기 31달러 이상의 EPS 창출력 NVDA의 실적 상회..."
+      "key": "AMD",
+      "count": 41,
+      "text": "2026년 8월 28일 미국 증시 브리핑 미 증시는 S&P 500 +0.72%, 다우 +0.20%, 나스닥 +1.57%, 러셀2000 +0.28%로 상승 마감. VIX는 14.51로 4.60% 하락하며..."
     },
     {
-      "key": "AMD",
-      "count": 40,
-      "text": "2026년 8월 28일 미국 증시 브리핑 미 증시는 S&P 500 +0.72%, 다우 +0.20%, 나스닥 +1.57%, 러셀2000 +0.28%로 상승 마감. VIX는 14.51로 4.60% 하락하며..."
+      "key": "MU",
+      "count": 41,
+      "text": "BofA) 엔비디아; AI 군비 경쟁에서 기준을 한층 더 높이다, 밸류에이션은 더욱 매력적. TP &#036;350 1. 19%~28% EPS 상향, 장기 31달러 이상의 EPS 창출력 NVDA의 실적 상회..."
     },
     {
       "key": "MRVL",
@@ -32769,7 +32867,7 @@
     {
       "key": "035420.KS",
       "count": 34,
-      "text": "[속보] 한은, 경제성장 전망치 '2.6%→3.3%' 수정…5년만에 최고 한국은행이 경제성장 전망치를 2.6%에서 3.3%로 상향 조정했다. 한은은 27일 수정 경제전망을 통해 올해 실질 국내총생산 성장률..."
+      "text": "[속보] 한은, 경제성장 전망치 '2.6%→3.3%' 수정…5년만에 최고 한국은행이 경제성장 전망치를 2.6%에서 3.3%로 상향 조정했다. 한은은 27일 수정 경제전망을 통해 올해 실질 국내총생산 성장률 전망치를 지난 5월 때 제시한 것보다 0.7%포인트 높인 3.3%로 발표했다. 이는 2021년 4.7% 이후..."
     }
   ],
   "categories": [
@@ -32779,7 +32877,7 @@
       "topics": [
         "macro"
       ],
-      "count": 794,
+      "count": 793,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라..."
     },
     {
@@ -32788,7 +32886,7 @@
       "topics": [
         "geo"
       ],
-      "count": 333,
+      "count": 335,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라..."
     },
     {
@@ -32806,7 +32904,7 @@
       "topics": [
         "semi"
       ],
-      "count": 695,
+      "count": 696,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라..."
     },
     {
@@ -32815,7 +32913,7 @@
       "topics": [
         "optical"
       ],
-      "count": 56,
+      "count": 57,
       "focus": "Citi) 엔비디아— \"CY27 매출 전망 기대치 상회, 매수 유지\" 씨티는 매수(Buy) 의견을 유지하고 목표주가를 300달러에서 315달러로 상향했습니다. 목표주가는 CY27 예상 이익의 약 21배(기존..."
     },
     {
@@ -32824,7 +32922,7 @@
       "topics": [
         "power"
       ],
-      "count": 342,
+      "count": 345,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라..."
     },
     {
@@ -32833,7 +32931,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 165,
+      "count": 163,
       "focus": ">>AI 습격&#33; 버핏의 가치투자, 여전히 통할까? 전문가는 이런 종목이 큰 타격을 입을 수 있다고 경고 •‘투자의 귀재’ 워런 버핏의 ‘가치투자’가 AI가 주도하는 대규모 자금조달 시대에도 여전히 통할지 관심 확대. 유명 기술 팟캐스터 드와르케시 파텔은 투자 급증에 금리 상승 가능성까지 더해지면서 전통적인..."
     },
     {
@@ -32842,7 +32940,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 333,
+      "count": 334,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라..."
     },
     {
@@ -32851,7 +32949,7 @@
       "topics": [
         "equity"
       ],
-      "count": 190,
+      "count": 189,
       "focus": ">>AI 습격&#33; 버핏의 가치투자, 여전히 통할까? 전문가는 이런 종목이 큰 타격을 입을 수 있다고 경고 •‘투자의 귀재’ 워런 버핏의 ‘가치투자’가 AI가 주도하는 대규모 자금조달 시대에도 여전히 통할지 관심 확대. 유명 기술 팟캐스터 드와르케시 파텔은 투자 급증에 금리 상승 가능성까지 더해지면서 전통적인..."
     },
     {
@@ -32896,7 +32994,7 @@
       "topics": [
         "flows"
       ],
-      "count": 211,
+      "count": 212,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 8월 29일 > 오전 6시~오후 11시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 베네수엘라와 “세계 역사상 최대 규모의 석유 협정”을 체결했다고 발표. 미국이 베네수엘라 확인 매장량 650억 배럴 이상에 대해 과반 통제권을 확보했다고 밝혀. 베네수엘라..."
     },
     {
@@ -32914,8 +33012,8 @@
       "topics": [
         "market-note"
       ],
-      "count": 597,
-      "focus": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 뱅크오브아메리카 글로벌 리서치에 따르면 폴리마켓의 미국 중간선거 전망에서 민주당이 상·하원을 모두 장악할 확률이 48%로 가장 높은 수준 기록. 공화당이 상원을 유지하고 민주당이 하원을 장악하는 시나리오는 38%, 공화당의 상·하원 동시 장악은 11%로 집계. 민주당이 상원을..."
+      "count": 600,
+      "focus": ">>중국지수연구원 : 개인 주택담보대출 최장 40년으로 연장 효과 클것 •개인 주택담보대출 기간을 최장 30년에서 40년으로 연장하면 월 상환액과 당기 상환 부담을 줄여 ‘시간으로 공간을 바꾸는’ 방식으로 구매자의 대출능력을 높일 수 있음. 특히 첫 주택 구입자와 주택 갈아타기 수요자에게 의미가 크며 , 감당..."
     }
   ],
   "pageMap": {
@@ -34340,6 +34438,117 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "HANAchina/68048",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/68048",
+      "datetime": "2026-08-30T01:32:07.000Z",
+      "localDateKst": "2026-08-30",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "earnings"
+      ],
+      "tickers": [
+        "TSLA",
+        "AAPL",
+        "AVGO"
+      ],
+      "score": 86,
+      "hasText": true,
+      "summary": ">>금주 주요 일정: 중국 PMI·미국 비농업 고용, G20회의, Tesla Cybercab, Broadcom·즈푸 실적 •중국 PMI와 미국 비농업 고용지표가 차례로 발표. 미국 고용지표는 9월 FOMC 전..."
+    },
+    {
+      "id": "HANAchina/68047",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/68047",
+      "datetime": "2026-08-30T01:30:23.000Z",
+      "localDateKst": "2026-08-30",
+      "tags": [
+        "geo",
+        "kr-market",
+        "flows"
+      ],
+      "tickers": [],
+      "score": 53,
+      "hasText": true,
+      "summary": ">>미 언론 폭로: CIA 국장, 비밀 방러 기간 트럼프·푸틴·젤렌스키 3자 회담 제안 •미국 Axios는 현지시간 29일 소식통을 인용해, 미국 CIA 국장 존 랫클리프가 이번 주 초 러시아 모스크바를..."
+    },
+    {
+      "id": "bornlupin/19926",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/19926",
+      "datetime": "2026-08-30T01:06:32.000Z",
+      "localDateKst": "2026-08-30",
+      "tags": [
+        "semi",
+        "optical",
+        "power"
+      ],
+      "tickers": [
+        "000660.KS"
+      ],
+      "score": 64,
+      "hasText": true,
+      "summary": "AI 고속 인터커넥트 전선, 메모리 분야까지 확대 1. 패러다임의 변화: AI 고속 인터커넥트의 적용 범위가 '스위치'에서 '메모리(HBM)' 영역으로 본격 확장되고 있습니다. 해결 과제: AI 서버 설계의..."
+    },
+    {
+      "id": "HANAchina/68044",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/68044",
+      "datetime": "2026-08-30T00:41:40.000Z",
+      "localDateKst": "2026-08-30",
+      "tags": [
+        "semi",
+        "optical",
+        "power"
+      ],
+      "tickers": [
+        "TSM",
+        "LITE",
+        "000660.KS"
+      ],
+      "score": 72,
+      "hasText": true,
+      "summary": ">>AI 고속 인터커넥트 전선, 메모리까지 확대 (대만공상시보) •AI 고속 인터커넥트가 스위치에서 메모리 영역으로 확대되면서, 광 인터커넥트가 프로세서와 HBM 사이에 적용될 가능성이 커지고 있음. AI..."
+    },
+    {
+      "id": "HANAchina/68043",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/68043",
+      "datetime": "2026-08-30T00:37:34.000Z",
+      "localDateKst": "2026-08-30",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [
+        "NVDA",
+        "AMD",
+        "MSFT",
+        "GOOG",
+        "TSM",
+        "MTK"
+      ],
+      "score": 72,
+      "hasText": true,
+      "summary": ">>SEMICON Taiwan 2026, 이번 주 개막 (대만공시보) •글로벌 반도체 연례 행사인 SEMICON Taiwan 2026이 이번 주 개막. ‘칩의 신’으로 불리는 Jim Keller와 대만 반도체..."
+    },
+    {
+      "id": "HANAchina/68038",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/68038",
+      "datetime": "2026-08-30T00:03:29.000Z",
+      "localDateKst": "2026-08-30",
+      "tags": [
+        "macro",
+        "power"
+      ],
+      "tickers": [],
+      "score": 65,
+      "hasText": true,
+      "summary": ">>고급 동박, AI 서버 수요 YoY+260% •AI 서버의 고속 연산·액체냉각·고속 데이터 전송 확대로 구리 수요 급증. 2026년 AI 서버 전용 고급 동박 수요눈 2.4만톤으로 YoY+260% 전망..."
+    },
     {
       "id": "insidertracking/62394",
       "channel": "insidertracking",
@@ -40556,53 +40765,6 @@
       "summary": ">>대만 서버·메모리 수출 호조&#33; 7월 도매업 매출 1조 7,573억 대만달러, YoY+56.4% (대만경제일보) •대만 경제부에 따르면 7월 도매업 매출은 1조 7,573억 대만달러로 역대 월간..."
     },
     {
-      "id": "HANAchina/67807",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/67807",
-      "datetime": "2026-08-25T13:28:16.000Z",
-      "localDateKst": "2026-08-25",
-      "tags": [
-        "power",
-        "ai-policy"
-      ],
-      "tickers": [],
-      "score": 53,
-      "hasText": true,
-      "summary": ">>애플, 신형 Mac Mini에 M6 칩 도입 •애플이 Mac용 신형 M6 칩을 출시하고 M5 Ultra를 공개했으며, 이를 ‘역대 가장 강력한 칩’이라고 표현했음. M5 Ultra는 3D 렌더링과 최첨단..."
-    },
-    {
-      "id": "HANAchina/67806",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/67806",
-      "datetime": "2026-08-25T13:15:44.000Z",
-      "localDateKst": "2026-08-25",
-      "tags": [
-        "geo",
-        "kr-market"
-      ],
-      "tickers": [],
-      "score": 58,
-      "hasText": true,
-      "summary": ">>2022년 위기 재현? 골드만 삭스: 재고 너무 낮아, 유럽 가스 가격 올겨울 100유로 돌파 가능 (중국언론) •골드만 삭스는 호르무즈 해협의 LNG 수출 차질이 지속될 경우 2026년 12월 TTF..."
-    },
-    {
-      "id": "HANAchina/67805",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/67805",
-      "datetime": "2026-08-25T13:05:31.000Z",
-      "localDateKst": "2026-08-25",
-      "tags": [
-        "macro",
-        "ai-policy",
-        "equity",
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 57,
-      "hasText": true,
-      "summary": ">>‘역대 최대 IPO’에 도전하는 Anthropic, 어떤 과제를 보완하고 있나? (중국언론) •Anthropic은 IPO를 가속화하고 있으며, 2026년 가을 상장을 예상하고 있고 기업가치는 2조 달러에..."
-    },
-    {
       "id": "bornlupin/19867",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/19867",
@@ -40666,37 +40828,6 @@
       "score": 100,
       "hasText": true,
       "summary": "미즈호 증권) SemiAnalysis: 메모리 디스펙(De-Spec), WFE, 800V 불확실성과 구리/광학 부문의 상승 여력 당사는 SemiAnalysis(SA)의 대표 더그 오러플린(Doug..."
-    },
-    {
-      "id": "HANAchina/67804",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/67804",
-      "datetime": "2026-08-25T12:27:09.000Z",
-      "localDateKst": "2026-08-25",
-      "tags": [
-        "semi"
-      ],
-      "tickers": [],
-      "score": 57,
-      "hasText": true,
-      "summary": ">>TrendForce: 메모리 계약가격 지속 급등, 2027년 주요 CSP 자본지출에서 차지하는 비중 68%에 달할 것으로 전망 •TrendForce의 최신 메모리 산업 연구에 따르면, 글로벌 주요..."
-    },
-    {
-      "id": "HANAchina/67803",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/67803",
-      "datetime": "2026-08-25T12:24:51.000Z",
-      "localDateKst": "2026-08-25",
-      "tags": [
-        "credit",
-        "semi",
-        "kr-market",
-        "flows"
-      ],
-      "tickers": [],
-      "score": 82,
-      "hasText": true,
-      "summary": ">>엔비디아가 GPU를 ‘주택담보대출’ 증권으로 만들었다, 누가 마지막 바통을 이어받을 것인가? •‘빅쇼트’의 실제 인물 중 한 명인 대니 모지스는 블랙록 CEO 래리 핑크가 이를 1980년대 모기지담보증권..."
     },
     {
       "id": "bornlupin/19866",
@@ -41455,22 +41586,6 @@
       "score": 70,
       "hasText": true,
       "summary": "HYPE 이어 두나무도? 美, 해외 코인기업 러브콜…웹3 '온쇼어' 속도 미국이 해외에서 성장한 가상자산 기업과 거래를 자국 규제체계 안으로 끌어들이는 데 속도를 내고 있다 . 과거 규제 불확실성 탓에..."
-    },
-    {
-      "id": "aetherjapanresearch/24728",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/24728",
-      "datetime": "2026-08-24T00:12:17.000Z",
-      "localDateKst": "2026-08-24",
-      "tags": [
-        "macro",
-        "kr-market",
-        "japan"
-      ],
-      "tickers": [],
-      "score": 65,
-      "hasText": true,
-      "summary": "블룸버그) 일본은행 발언에 주목, 9월 금리 인상 관측 강화－시장은 약 80% 반영 시장에서 일본은행의 9월 금리 인상 관측이 급속히 확산되면서, 금리 스와프 시장 기준 9월까지의 인상 확률은 21일 시점 약..."
     }
   ],
   "current24hItems": [
@@ -42301,6 +42416,20 @@
       "summary": ">>워시의 ‘잭슨홀’ 연설 이후, 연준 9월 금리인상 가능성 급부상 •시장은 워시의 잭슨홀 연설 이후 금리인상 기대를 빠르게 반영. 2년물 미 국채금리는 12bp 급등한 4.35%를 기록하며 6월 첫 기자회견..."
     },
     {
+      "id": "HANAchina/68011",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/68011",
+      "datetime": "2026-08-29T01:37:01.000Z",
+      "localDateKst": "2026-08-29",
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "score": 35,
+      "hasText": true,
+      "summary": ">>젤렌스키, 러시아에 대한 드론 공격 하루 1,000대 목표 설정 •젤렌스키 대통령은 28일 최고통수부 회의를 열고 무기 공급 문제를 논의하면서, 러시아 장거리 공격에 하루 1,000대의 드론을 사용하는..."
+    },
+    {
       "id": "insidertracking/62375",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/62375",
@@ -42329,6 +42458,21 @@
       "score": 55,
       "hasText": true,
       "summary": ">>‘스트레스 테스트’ 일단락, 글로벌 기술주에 다시 자금 유입 (상해증권보) •올여름 글로벌 AI 산업체인은 고강도 ‘스트레스 테스트’. 미국 빅테크부터 아시아 메모리 선두기업, 중국 광통신·고급 PCB..."
+    },
+    {
+      "id": "HANAchina/68009",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/68009",
+      "datetime": "2026-08-29T01:04:00.000Z",
+      "localDateKst": "2026-08-29",
+      "tags": [
+        "power",
+        "earnings"
+      ],
+      "tickers": [],
+      "score": 43,
+      "hasText": true,
+      "summary": ">>연산 수요가 사업 혁신을 견인, 중국 광섬유·광케이블 업종 상반기 물량·가격 동반 상승 •최근 창페이광섬유, 헝퉁광전, 중톈과기 등 광섬유·광케이블 업종의 주요 기업들이 잇따라 반기보고서 발표. 상반기..."
     },
     {
       "id": "insidertracking/62374",
@@ -42371,6 +42515,20 @@
       "score": 47,
       "hasText": true,
       "summary": "잭슨홀 이후 시장은 워시 연준 의장의 명확한 정책 프레임워크를 긍정적으로 평가했지만, 9월 금리 인상 여부는 결국 앞으로 발표될 고용과 물가 지표가 결정할 것이라는 인식이 우세"
+    },
+    {
+      "id": "HANAchina/68008",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/68008",
+      "datetime": "2026-08-29T00:48:16.000Z",
+      "localDateKst": "2026-08-29",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [],
+      "score": 47,
+      "hasText": true,
+      "summary": "•중국 반도체 수출/수입 비율 역대 최고 •자체 조달 증가하고 수출 규모도 상승"
     },
     {
       "id": "HANAchina/68006",
