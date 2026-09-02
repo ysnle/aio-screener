@@ -16,6 +16,11 @@ const TICKER_RE = /\b[A-Z]{1,5}(?:\.[A-Z]{1,3})?\b/;
 
 function text(value) { return String(value == null ? '' : value).replace(/\s+/g, ' ').trim(); }
 
+function validDate(value) {
+  const parsed = new Date(value);
+  return Number.isFinite(parsed.getTime()) ? parsed : new Date(0);
+}
+
 function sourcePolicyId(primary, { currentSensitive, causalSensitive, outOfScope }) {
   if (outOfScope) return 'out-of-scope-current';
   if (causalSensitive || primary === 'MARKET_CAUSAL') return 'market-causal';
@@ -53,6 +58,7 @@ function freezeDecision(decision) {
  * the separate ResearchCapability contract.
  */
 export function createResearchDecision({ questionPlan = {}, userOptOut = false, now = new Date() } = {}) {
+  const decidedAt = validDate(now);
   const query = text(questionPlan.query);
   const primary = questionPlan.intent?.primary || 'UNKNOWN';
   const eventCurrent = /(이번|최근|최신|latest|recent).*(실적|발표|가이던스|공시|뉴스|earnings|filing|guidance|release)/i.test(query);
@@ -119,7 +125,7 @@ export function createResearchDecision({ questionPlan = {}, userOptOut = false, 
     maxResearchBudget,
     failureMode,
     userOptOut: Boolean(userOptOut),
-    decidedAt: new Date(now).toISOString()
+    decidedAt: decidedAt.toISOString()
   });
 }
 
@@ -132,5 +138,5 @@ export function validateResearchDecision(decision) {
   if (!decision?.failureMode) errors.push('failure_mode_missing');
   if (decision?.requirement === 'REQUIRED' && Number(decision?.minimumIndependentSources) < 1) errors.push('required_source_floor_missing');
   if (decision?.userOptOut && decision?.requirement === 'REQUIRED' && decision?.failureMode !== 'REQUIRED_BUT_DISABLED') errors.push('optout_failure_mode_invalid');
-  return Object.freeze({ ok: errors.length === 0, errors: [...new Set(errors)] });
+  return Object.freeze({ ok: errors.length === 0, errors: Object.freeze([...new Set(errors)]) });
 }

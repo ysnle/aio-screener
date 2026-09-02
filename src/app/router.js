@@ -74,9 +74,12 @@ export function createLazyPage({ route, loader, factory, errorMessage } = {}) {
         .catch((error) => {
           if (disposed || context.scope?.disposed || context.scope?.isCurrent?.() === false) return;
           setLazyModuleState({ documentRef: context.documentRef, route, state: 'failed', errorMessage });
-          context.runtimeRoot?.dispatchEvent?.(new context.runtimeRoot.CustomEvent('aio:routeModuleError', {
-            detail: { route, message: String(error?.message || error) }
-          }));
+          const EventConstructor = context.runtimeRoot?.CustomEvent || globalThis.CustomEvent;
+          if (typeof EventConstructor === 'function') {
+            context.runtimeRoot?.dispatchEvent?.(new EventConstructor('aio:routeModuleError', {
+              detail: { route, message: String(error?.message || error) }
+            }));
+          }
         });
       return () => {
         disposed = true;
@@ -139,6 +142,7 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
   let activeDispose = null;
   let activeScope = null;
   let mountSequence = 0;
+  let disposed = false;
 
   function disposeActive() {
     const dispose = activeDispose;
@@ -150,7 +154,7 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
   }
 
   function transition(route, detail = {}) {
-    if (!isRouteId(route)) return false;
+    if (disposed || !isRouteId(route)) return false;
     const nextEntityId = entityIdFor(route, detail);
     if (activeRoute === route && activeScope?.entityId === nextEntityId) return true;
     disposeActive();
@@ -211,12 +215,15 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
   }
 
   function start() {
+    if (disposed) throw new Error('ROUTER_DISPOSED');
     root.addEventListener('aio:pageShown', onPageShown);
     rootBag.add(() => root.removeEventListener('aio:pageShown', onPageShown));
     return Object.freeze({ transition, active: () => activeRoute, activeScope: () => activeScope, dispose });
   }
 
   function dispose() {
+    if (disposed) return;
+    disposed = true;
     disposeActive();
     activeRoute = null;
     rootBag.dispose();

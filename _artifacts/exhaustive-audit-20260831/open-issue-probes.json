@@ -1,0 +1,65 @@
+{
+  "at": "2026-09-01T01:31:36.239Z",
+  "boundary": "Offline regression fixtures only; not provider/data/live measurements",
+  "status": "PASS",
+  "reproduced": 0,
+  "findings": [
+    {
+      "id": "A10",
+      "behavior": "Korean fear diverges from the equivalent English regime",
+      "reproduced": false,
+      "neutral": 0.16,
+      "korean": 0.28,
+      "english": 0.28
+    },
+    {
+      "id": "A12",
+      "behavior": "retry after compute exception returns cached previous-input result",
+      "reproduced": false,
+      "expected": 6,
+      "actual": 6,
+      "calls": 3
+    },
+    {
+      "id": "A11",
+      "behavior": "Headers input silently loses custom header",
+      "reproduced": false
+    },
+    {
+      "id": "A11",
+      "behavior": "abort-ignoring transport remains pending past timeout and later publishes success",
+      "reproduced": false,
+      "deadline": "settled",
+      "lateOk": false
+    },
+    {
+      "id": "A02",
+      "behavior": "snapshot fallback value carries empty canonical source/date",
+      "reproduced": false,
+      "value": 42,
+      "source": "DATA_SNAPSHOT:fear-greed",
+      "date": "2026-08-01"
+    },
+    {
+      "id": "A02",
+      "behavior": "options quote overrides snapshot source kind to live",
+      "reproduced": false
+    },
+    {
+      "id": "A01",
+      "behavior": "KRW market cap is published as a populated USD-billions observation without conversion",
+      "reproduced": false,
+      "currency": null,
+      "capUnit": "USD_bn",
+      "capValue": null,
+      "nativeMarketCap": {
+        "value": 200000000000000,
+        "currency": "KRW",
+        "observedAt": "2026-08-31T00:00:00Z",
+        "source": "fixture-KRW",
+        "allowedUse": "reference-only",
+        "rightsId": "REVIEW_REQUIRED"
+      }
+    }
+  ]
+}

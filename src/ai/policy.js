@@ -1,7 +1,8 @@
 import { evaluateInferredClaim } from './inference.js';
 
 export function evaluateEvidenceUse(evidence, purpose = 'reference') {
-  if (!evidence || evidence.status === 'missing' || evidence.status === 'failed') {
+  const status = String(evidence?.status || '').trim().toLowerCase();
+  if (!evidence || ['missing', 'failed', 'unavailable', 'invalid', 'rejected', 'stale', 'unknown'].includes(status) || (purpose === 'decision' && !status)) {
     return Object.freeze({ allowed: false, reason: 'evidence_unavailable', actionStrength: 'blocked' });
   }
   if (purpose === 'decision' && evidence.allowedUse !== 'decision') {

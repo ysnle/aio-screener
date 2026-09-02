@@ -19,7 +19,7 @@ const { createStore } = await load('src/state/store.js');
 const { createLazyPage, createRouteRegistry, createLifecycleRouter } = await load('src/app/router.js');
 const { ROUTE_IDS } = await load('src/app/routes.js');
 const { getVerticalSliceContract, auditVerticalSliceContracts } = await load('src/app/vertical-slices.js');
-const { createResourceBag, createChartRegistry } = await load('src/app/lifecycle.js');
+const { createResourceBag, createDeferredTaskQueue, coalesceMicrotask, createChartRegistry } = await load('src/app/lifecycle.js');
 const { createEvidenceStore } = await load('src/data/evidence-store.js');
 const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compatibility-facade.js');
 
@@ -64,6 +64,41 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
 }
 
 // ── lifecycle.js (createResourceBag) ────────────────────────────────────────────────────────
+// P1019/P1020: failure must not poison caches, requests or regime inputs.
+{
+  const { createSelector } = await load('src/state/memoize.js');
+  let throwing = false, calls = 0;
+  const select = createSelector([value => value], value => { calls++; if (throwing) throw new Error('fixture'); return value * 2; });
+  select(2); throwing = true;
+  try { select(3); } catch (_) {}
+  throwing = false;
+  if (select(3) !== 6 || calls !== 3) fail('selector: failed compute poisoned the last successful input/result pair');
+  const { deriveFactorWeights } = await load('src/domain/screener/factor-weights.js');
+  const ko = deriveFactorWeights({ marketState: { riskScore: NaN, fgZone: '공포' } });
+  const en = deriveFactorWeights({ marketState: { fgZone: 'extreme fear' } });
+  if (JSON.stringify(ko.weights) !== JSON.stringify(en.weights) || ko.weights.lowvol !== 0.28) fail('factor-weights: equivalent Korean/English regime labels diverged');
+  for (const weights of [{ momentum: NaN }, { momentum: -1 }, { momentum: 0 }, { constructor: 1 }, { momentum: '1' }]) {
+    let rejected = false;
+    try { deriveFactorWeights({ profile: { weights } }); } catch (_) { rejected = true; }
+    if (!rejected) fail('factor-weights: invalid profile was accepted');
+  }
+  const { createHttpClient } = await load('src/platform/http.js');
+  let requestCount = 0, received;
+  const client = createHttpClient({ fetchImpl: async (_, init) => { requestCount++; received = new Headers(init.headers); return { ok: true, status: 200, json: async () => ({ value: 1 }) }; } });
+  for (const headers of [new Headers({ 'x-test': 'kept' }), [['x-test', 'kept']], { 'x-test': 'kept' }]) {
+    if (!(await client.requestJson('fixture', { headers })).ok || received.get('x-test') !== 'kept') fail('http: header input lost');
+  }
+  const controller = new AbortController(); controller.abort();
+  if ((await client.requestJson('fixture', { signal: controller.signal })).error !== 'HTTP_ABORTED' || requestCount !== 3) fail('http: pre-aborted request invoked transport');
+  let complete;
+  const timeout = createHttpClient({ defaultTimeoutMs: 5, fetchImpl: () => new Promise(resolve => { complete = resolve; }) }).requestJson('fixture');
+  const timed = await Promise.race([timeout, new Promise(resolve => setTimeout(() => resolve(null), 150))]);
+  complete({ ok: true, status: 200, json: async () => ({}) });
+  if (timed?.error !== 'HTTP_TIMEOUT' || (await timeout).ok) fail('http: ignored abort published late success or never settled');
+  const bodyTimeout = await createHttpClient({ defaultTimeoutMs: 5, fetchImpl: async () => ({ ok: true, status: 200, json: () => new Promise(() => {}) }) }).requestJson('fixture');
+  if (bodyTimeout.error !== 'HTTP_TIMEOUT') fail('http: deadline excludes JSON body wait');
+}
+
 {
   const order = [];
   const bag = createResourceBag();
@@ -86,6 +121,49 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
   let disposeOfThrowingBagThrew = false;
   try { throwingBag.dispose(); } catch (_) { disposeOfThrowingBagThrew = true; }
   if (disposeOfThrowingBagThrew) fail('lifecycle: one disposer throwing must not stop dispose() or propagate (other resources must still be released)');
+}
+
+// ── lifecycle.js (createDeferredTaskQueue) ───────────────────────────────────────────────────
+{
+  let nextId = 0;
+  const pending = new Map();
+  const queue = createDeferredTaskQueue({
+    setTimeoutImpl: (task, delay) => {
+      const id = ++nextId;
+      pending.set(id, { task, delay });
+      return id;
+    },
+    clearTimeoutImpl: (id) => pending.delete(id)
+  });
+  let calls = 0;
+  queue.defer(() => { calls++; }, 2300);
+  queue.defer(() => { calls++; }, 0);
+  if (queue.size() !== 2 || pending.size !== 2) fail('lifecycle: deferred queue did not retain both pending tasks');
+  queue.stop();
+  if (!queue.stopped || queue.size() !== 0 || pending.size !== 0) fail('lifecycle: stop() did not cancel and release pending tasks');
+  if (queue.defer(() => { calls++; }, 0) !== null) fail('lifecycle: stopped queue accepted new work');
+  if (calls !== 0) fail('lifecycle: stopped queue executed a cancelled task');
+  queue.stop();
+}
+
+// ── lifecycle.js (coalesceMicrotask) ─────────────────────────────────────────────────────────
+{
+  const pending = [];
+  const calls = [];
+  let active = true;
+  const coalesced = coalesceMicrotask((value) => calls.push(value), {
+    isActive: () => active,
+    queueMicrotaskImpl: (task) => pending.push(task)
+  });
+  coalesced('first');
+  coalesced('latest');
+  if (pending.length !== 1 || calls.length !== 0) fail('lifecycle: same-tick calls were not coalesced');
+  pending.shift()();
+  if (calls.join(',') !== 'latest') fail('lifecycle: coalescer did not keep the trailing arguments');
+  coalesced('after-stop');
+  active = false;
+  pending.shift()();
+  if (calls.length !== 1) fail('lifecycle: inactive coalescer published after stop');
 }
 
 // ── lifecycle.js (route-owned chart registry) ────────────────────────────────────────────────
@@ -139,6 +217,10 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
   started.dispose();
   if (disposeLog.join(',') !== 'home,signal,ticker,ticker') fail('router: router.dispose() must dispose the currently active route');
   if (started.active() !== null) fail('router: active() must be null after dispose()');
+  if (started.transition('home') !== false || mountLog.join(',') !== 'home,signal,ticker,ticker') fail('router: disposed router accepted a late transition');
+  let restartThrew = false;
+  try { router.start(); } catch (_) { restartThrew = true; }
+  if (!restartThrew) fail('router: disposed router restarted and could republish route state');
   let missingRootThrew = false;
   try { createLifecycleRouter({ root: null, registry }); } catch (_) { missingRootThrew = true; }
   if (!missingRootThrew) fail('router: createLifecycleRouter accepted a root with no addEventListener');
@@ -175,7 +257,7 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
     fail(`truth-boundary: freshness/status promoted restricted evidence: ${JSON.stringify({ referenceCurrent, impossiblePromotion })}`);
   }
   const evidence = {
-    live: createEvidence({ metric: 'live', value: 1, status: 'live', allowedUse: true }),
+    live: createEvidence({ metric: 'live', value: 1, status: 'live', allowedUse: true, observedAt: '2026-07-19T00:00:00Z' }),
     snapshot: createEvidence({ metric: 'snapshot', value: 2, status: 'snapshot', allowedUse: 'reference-only' }),
     stale: createEvidence({ metric: 'stale', value: 3, status: 'stale', allowedUse: 'reference' }),
     missing: createEvidence({ metric: 'missing', value: null, status: 'missing', allowedUse: false })
@@ -186,6 +268,19 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
   if (selectForDisplay(evidence, 'snapshot')?.value !== 2 || selectLastKnown(evidence, 'stale')?.value !== 3) {
     fail('truth-boundary: display/LKG selectors did not preserve reference evidence');
   }
+  for (const use of ['not-for-decision', 'current-unverified', 'reference-blocked', 'research-unavailable', 'fresh']) {
+    if (normalizeAllowedUse(use) !== 'none') fail(`truth-boundary: descriptive or negated policy granted use: ${use}`);
+  }
+  const undated = createEvidence({ metric: 'undated', value: 42, status: 'fresh', allowedUse: 'decision' });
+  if (selectForDisplay(undated)?.value !== 42 || selectForDecision(undated) !== null || undated.status !== 'reference') fail('truth-boundary: undated data must remain visible as reference without decision promotion');
+  const future = { metric: 'future', value: 42, status: 'fresh', allowedUse: 'decision', observedAt: '2036-01-01T00:00:00Z' };
+  if (selectForDecision(future, undefined, { now: Date.parse('2026-08-31T00:00:00Z') }) !== null) fail('truth-boundary: direct selector admitted a future observation');
+  const blocked = { ...evidence.live, allowedUseCeiling: 'none' };
+  if (selectForDisplay(blocked) || selectForDecision(blocked) || selectLastKnown(blocked)) fail('truth-boundary: selector bypassed a blocked ceiling');
+  const missingTime = applyFreshness({ metric: 'undated', value: 42, status: 'live', allowedUse: 'decision' });
+  if (selectForDisplay(missingTime)?.value !== 42 || selectForDecision(missingTime)) fail('truth-boundary: freshness erased undated reference data or promoted it');
+  if (applyFreshness(future, { now: Date.parse('2026-08-31T00:00:00Z') }).status !== 'stale') fail('truth-boundary: future date became age zero/fresh');
+  if (applyFreshness({ ...evidence.live, allowedUse: undefined }, { now: Date.parse('2026-07-19T00:01:00Z') }).allowedUse !== 'decision') fail('truth-boundary: omitted use lost the valid status default');
   const completeness = selectCompleteness(evidence, ['live', 'snapshot', 'missing']);
   if (completeness.available !== 1 || Math.abs(completeness.coveragePct - (100 / 3)) > 1e-9 || completeness.missing.join(',') !== 'snapshot,missing') {
     fail(`truth-boundary: completeness contract drifted: ${JSON.stringify(completeness)}`);
@@ -331,6 +426,7 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
   if (tiebreak.direction !== 'rising') fail(`breadth: sma5Delta must be used as a fallback direction signal when sma20Delta is absent, got ${JSON.stringify(tiebreak)}`);
   const unavailable = classifyBreadthParticipation({ sma20: null, sma50: 60 });
   if (unavailable.available !== false || unavailable.level !== null) fail(`breadth: a missing required input (sma20) must fail closed to available:false, not guess a level — got ${JSON.stringify(unavailable)}`);
+  if (classifyBreadthParticipation({ sma20: 120, sma50: -1 }).available !== false) fail('breadth: percentages outside 0..100 must fail closed');
 }
 
 // ── domain/market/health.js (P785: technical primary surface model) ─────────────────────────
@@ -352,6 +448,38 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
   if (!defensive.available || defensive.score !== 4 || defensive.grade !== 'F' || defensive.regime !== '극심한 약세') fail(`market-health: defensive thresholds drifted, got ${JSON.stringify(defensive)}`);
   const neutral = computeMarketHealth({ quotes: { SPY: { pct: 0 }, QQQ: { pct: 0 }, '^VIX': { price: 20 } } });
   if (!neutral.available || neutral.score !== 42 || neutral.grade !== 'C' || neutral.bars.spy !== 50 || neutral.bars.qqq !== 50) fail(`market-health: neutral baseline drifted, got ${JSON.stringify(neutral)}`);
+  const invalidOptional = computeMarketHealth({ quotes: { SPY: { pct: 0 }, QQQ: { pct: 0 }, '^VIX': { price: 20 }, AAPL: { pct: null }, XLK: { pct: 'bad' } } });
+  if (invalidOptional.inputs.leaderTotal !== 0 || invalidOptional.inputs.sectorTotal !== 0) fail('market-health: invalid optional quotes were counted as declining observations');
+  if (computeMarketHealth({ quotes: { SPY: { pct: 0 }, QQQ: { pct: 0 }, '^VIX': { price: -1 } } }).available) fail('market-health: impossible negative VIX was accepted');
+}
+
+// ── domain boundary missingness and immutability ─────────────────────────────────────────────
+{
+  const { classifyRRG, computeRelativeRotation } = await load('src/domain/themes/rrg.js');
+  if (classifyRRG(null, null).quadrant !== 'unknown') fail('rrg: missing values became a Lagging quadrant');
+  const invalidRotation = computeRelativeRotation({ history: Array(21).fill(NaN), benchmarkHistory: Array(21).fill(100), hasQuote: true, hasBenchmarkQuote: true });
+  if (invalidRotation.quadrant !== 'unknown') fail('rrg: invalid history produced a quadrant');
+  const { deriveHomeSummary } = await load('src/domain/home/summary.js');
+  if (deriveHomeSummary({ sentiment: { fearGreed: NaN }, signal: { score: Infinity }, newsCount: -2 }).status !== 'unavailable') fail('home: non-finite inputs counted as available');
+  const { deriveSentimentSummary } = await load('src/domain/sentiment/metrics.js');
+  const sentiment = deriveSentimentSummary({ fearGreed: 101, vix9d: -1, vix: 17, vix3m: 20, vix6m: 22 });
+  if (!sentiment.blocked || !Object.isFrozen(sentiment.vixTermStructure.points)) fail('sentiment: out-of-domain inputs were promoted or mutable');
+  const { deriveMacroTransmissionEvidence } = await load('src/domain/macro/transmission.js');
+  const macro = deriveMacroTransmissionEvidence({ treasurySupply: '' });
+  if (macro.observed.issuance || !Object.isFrozen(macro) || !Object.isFrozen(macro.chain)) fail('macro: blank evidence was observed or projection remained mutable');
+  const { computeNewsSentimentScore, computeNewsRiskSignals } = await load('src/domain/news/scoring.js');
+  if (computeNewsSentimentScore({ items: 'bad' }).total !== 0 || computeNewsSentimentScore({ items: [{ pubDate: '2026-01-01' }], now: NaN }).label !== '데이터 부족' || computeNewsRiskSignals({ items: 'bad' }).length !== 0) fail('news: malformed collection/time did not fail closed');
+  const { deriveConcentrationRisk, concentrationPenaltyForWeight } = await load('src/domain/portfolio/concentration.js');
+  const concentration = deriveConcentrationRisk({ positions: [{ ticker: 'BAD', value: -100, qty: -2, price: -5 }] });
+  if (concentration.totalValue < 0 || concentrationPenaltyForWeight(-10) !== 0) fail('portfolio: negative holding inputs produced risk weight');
+  const shareOnlyConcentration = deriveConcentrationRisk({
+    positions: [
+      { ticker: 'AAA', shares: 2, currentPrice: 50 },
+      { ticker: 'BBB', shares: 1, currentPrice: 100 }
+    ]
+  });
+  if (shareOnlyConcentration.modelVersion !== 'portfolio-concentration.v2') fail('portfolio: unified valuation must advertise the v2 contract');
+  if (shareOnlyConcentration.totalValue !== 200 || shareOnlyConcentration.items.some((item) => item.weightPct !== 50)) fail('portfolio: total and holding weights used different valuation formulas');
 }
 
 // ── domain/signal/trading-score.js: signal envelope ──────────────────────────────────────────
@@ -367,6 +495,8 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
   if (partial.status !== 'partial' || partial.displayScore !== '43*' || partial.tier !== 'partial') fail(`signal: partial presentation must remain fail-closed/annotated, got ${JSON.stringify(partial)}`);
   const blocked = deriveSignalDecisionFromTradingScore({ score: computeTradingScoreModel({}), inputVersion: 'unit.v1' });
   if (blocked.status !== 'blocked' || blocked.action !== 'WAIT' || blocked.score !== null || blocked.presentation?.status !== 'blocked' || blocked.presentation?.displayScore !== '—') fail(`signal: missing score inputs must fail closed, got ${JSON.stringify(blocked)}`);
+  const invalidScore = computeTradingScoreModel({ mode: 'swing', vix: -10, vvix: 0, dxy: 10, tnx: -1, oilPrice: -5, fg: 101, maCurrent: true, spx200ma: -1, spx50ma: 0, spxPrice: -10, breadthAvailable: true, breadth200: 150, pcr: -1, hyBp: -2, newsSentimentScore: 101, newsRiskSignals: [{ impact: 'bad' }] });
+  if (invalidScore.total !== null || invalidScore.modelVersion !== 'trading-score.v2' || !Object.isFrozen(invalidScore) || !Object.isFrozen(invalidScore.componentMissing)) fail(`signal: out-of-domain inputs must fail closed in an immutable v2 result, got ${JSON.stringify(invalidScore)}`);
 }
 
 // ── domain/technical/stage.js: deriveTechnicalStageFromOhlcv ───────────────────────────────────
@@ -393,6 +523,8 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
 
   const noInput = deriveTechnicalStageFromOhlcv({});
   if (noInput.status !== 'unavailable' || noInput.symbol !== null || noInput.observedCount !== 0) fail(`technical-stage: no input must fail closed to unavailable/null/0, not throw or guess, got ${JSON.stringify(noInput)}`);
+  const invalidPrices = deriveTechnicalStageFromOhlcv({ symbol: 'bad', ohlcv: [{ close: -1 }, { close: 0 }, { close: 'not-a-price' }] });
+  if (invalidPrices.status !== 'unavailable' || invalidPrices.observedCount !== 0) fail(`technical-stage: non-positive prices must not form a trend, got ${JSON.stringify(invalidPrices)}`);
 }
 
 // ── domain/screener/factor-ranks.js: computeFactorRanks NaN/missing/tie handling ───────────────
@@ -409,16 +541,15 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
     ...(includeKalman ? { kalmanVelConf: seed / 10 } : {})
   });
 
-  // NaN row must count as eligible (has a typeof 'number' ret1m/ret3m, even though the value
-  // itself is NaN) but must not corrupt the sector's mean/stddev used for the OTHER rows' z-scores.
+  // NaN is an invalid observation: keep it in the input audit, outside the rank denominator.
   {
     const cleanRows = [1, 2, 3, 4, 5, 6].map((seed) => baseRow('S' + seed, 'Tech', seed));
     const withNaN = [...cleanRows, { sym: 'NANROW', sector: 'Tech', ret1m: NaN, ret3m: NaN, ret6m: NaN, pctSma50: NaN, pctSma200: NaN, vol: NaN, kalmanVelConf: NaN }];
     const withoutNaN = computeFactorRanks({ rows: cleanRows, now: 0 });
     const withNaNResult = computeFactorRanks({ rows: withNaN, now: 0 });
-    if (withNaNResult.ranked !== 7) fail(`factor-ranks: a NaN-valued row must still count as eligible (typeof NaN === 'number'), got ranked=${withNaNResult.ranked}`);
+    if (withNaNResult.ranked !== 6 || withNaNResult.inputAudit.invalidCoreRows !== 1) fail(`factor-ranks: NaN must be audited outside the rank universe, got ranked=${withNaNResult.ranked}`);
     const nanRowResult = withNaNResult.rows.find((r) => r.sym === 'NANROW');
-    if (!nanRowResult || nanRowResult._z_momentum !== 0) fail(`factor-ranks: a NaN row's own z-score must be winz-guarded to 0, not NaN, got ${JSON.stringify(nanRowResult)}`);
+    if (nanRowResult || JSON.stringify(withNaNResult.rows) !== JSON.stringify(withoutNaN.rows)) fail('factor-ranks: invalid rows must not receive ranks or change peer percentiles');
     const s1Before = withoutNaN.rows.find((r) => r.sym === 'S1');
     const s1After = withNaNResult.rows.find((r) => r.sym === 'S1');
     if (Math.abs(s1Before._compositeZ - s1After._compositeZ) > 1e-9) fail(`factor-ranks: adding a NaN row must not change other rows' z-scores (stats collection must exclude it) — S1 _compositeZ ${s1Before._compositeZ} vs ${s1After._compositeZ}`);
@@ -454,7 +585,7 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
     const tieA = result.rows.find((r) => r.sym === 'TIE_A');
     const tieB = result.rows.find((r) => r.sym === 'TIE_B');
     if (tieA._compositeZ !== tieB._compositeZ) fail(`factor-ranks: test setup expected identical composite scores for the tie check, got ${tieA._compositeZ} vs ${tieB._compositeZ}`);
-    if (tieA.rank > tieB.rank) fail(`factor-ranks: tied rows must keep input order (TIE_A before TIE_B) via a stable sort with no added tiebreaker, got ranks ${tieA.rank}/${tieB.rank}`);
+    if (tieA.rank !== tieB.rank) fail(`factor-ranks: equal composites must receive equal midranks, got ranks ${tieA.rank}/${tieB.rank}`);
   }
 }
 
@@ -483,13 +614,13 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
     pctSma50: 8, pctSma200: 25, rsi: 62, rvol20: 1.8,
     price: 100, adrPct: 5.2, pctFrom52wLow: 85, dollarVolume30d: 20_000_000,
     dollarVolume: 8_000_000, ema8: 102, ema21: 98, ema60: 90,
-    benchmarkRet: 1
+    benchmarkRet: 1, instrumentRef: { currency: 'USD' }
   });
   if (winner.winnerFilter !== 'candidate' || winner.winnerChecks.ema8Above21 !== true) {
     fail(`setup-profile: TradingView winner evidence should pass complete fixture, got ${JSON.stringify(winner)}`);
   }
   const winnerMissing = deriveScreenerSetupProfile({ observedAt: '2026-08-09', price: 100 });
-  if (winnerMissing.winnerFilter !== 'unavailable' || !winnerMissing.missingEvidence.includes('winner-filter:adrAtLeast4_5')) {
+  if (winnerMissing.winnerFilter !== 'unavailable' || winnerMissing.winnerChecks.priceAbove1 !== null || !winnerMissing.missingEvidence.includes('winner-filter:adrAtLeast4_5')) {
     fail(`setup-profile: TradingView winner evidence must fail closed on missing fields, got ${JSON.stringify(winnerMissing)}`);
   }
 
@@ -505,6 +636,7 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
   if (empty.status !== 'unavailable' || empty.label !== '관찰' || empty.relativeStrengthPullback !== 'unavailable') {
     fail(`setup-profile: empty row must remain unavailable, got ${JSON.stringify(empty)}`);
   }
+
 }
 
 // ── data/providers/entity.js ─────────────────────────────────────────────────────────────────
@@ -629,11 +761,15 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
   if (live.modelVersion !== 'portfolio-surface.v1' || live.positionValue !== 24 || live.totalAssets !== 74 || live.totalPnl !== 4 || live.exposureCap !== 50 || live.sectorBreakdown.length !== 2) fail(`portfolio-surface: live/cash derivation drifted, got ${JSON.stringify(live)}`);
   const partial = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: 'ABC', shares: 2, avgCost: 10 }, { symbol: 'XYZ', shares: 1, avgCost: 20 }], cash: null }, liveData: { ABC: { price: 12, pct: 2 } }, vix: 22 });
   if (partial.positionValue !== null || partial.totalPnl !== null || partial.dailyChange !== null || partial.sectorBreakdown.length !== 0) fail(`portfolio-surface: partial holdings must not sum unknown rows as zero, got ${JSON.stringify(partial)}`);
+  const invalidPortfolio = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: 'BAD', shares: -2, avgCost: -10 }], cash: -5 }, liveData: { BAD: { price: 12 } }, vix: -1 });
+  if (invalidPortfolio.positionValue !== null || invalidPortfolio.cash !== null || invalidPortfolio.exposureCap !== null || invalidPortfolio.exposurePolicyStatus !== 'reference-only') fail(`portfolio-surface: invalid balances or VIX entered the portfolio projection, got ${JSON.stringify(invalidPortfolio)}`);
 }
 {
   const { deriveSecReport } = await load('src/domain/fundamental/sec-report.js');
   const report = deriveSecReport({ symbol: 'AAPL', entityName: 'Apple', form: '10-K', coverage: ['revenue', 'margin', 'pe'], revenue: 100, margin: 25, pe: 30, sourceTier: 'official-regulator' });
   if (report.modelVersion !== 'sec-report.v3' || report.status !== 'current' || report.metrics.length !== 3 || report.sourceKind !== 'official-regulator' || report.freshness.state !== 'unknown' || report.decisionEligible !== false || report.pointInTime.status !== 'unavailable') fail(`sec-report: complete official record drifted, got ${JSON.stringify(report)}`);
+  const producerAnomaly = deriveSecReport({ symbol: 'AAPL', coverage: ['revenue', 'unknown'], revenue: 100, anomaly: true, anomalies: [] });
+  if (producerAnomaly.status !== 'quarantined' || !producerAnomaly.anomalies.includes('producer-flagged-anomaly') || producerAnomaly.coverage.includes('unknown')) fail(`sec-report: producer anomaly or unknown coverage escaped quarantine, got ${JSON.stringify(producerAnomaly)}`);
   const pitReport = deriveSecReport({ symbol: 'AAPL', form: '10-K/A', acceptedAt: '2026-08-01T20:30:00Z', coverage: ['revenue'], revenue: 100, pit: { status: 'accepted-time', observationCount: 4, acceptedTimeCount: 4 } });
   if (pitReport.pointInTime.status !== 'accepted-time' || pitReport.pointInTime.observationCount !== 4 || pitReport.pointInTime.acceptedTimeCount !== 4 || pitReport.filingMetadata.acceptedAt !== '2026-08-01T20:30:00Z') fail(`sec-report: PIT metadata contract drifted, got ${JSON.stringify(pitReport)}`);
   const missing = deriveSecReport({ coverage: ['revenue'], revenue: null });
@@ -643,5 +779,48 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
   const old = deriveSecReport({ symbol: 'NVDA', coverage: ['revenue'], revenue: 10, observedAt: '2022-01-01', allowedUse: 'decision' });
   if (old.freshness.state !== 'historical' || old.freshness.ageDays == null || old.decisionEligible !== false) fail(`sec-report: historical filing must fail closed, got ${JSON.stringify(old)}`);
 }
+{
+  const { selectAiInferenceProxies } = await load('src/domain/ai/inference-efficiency.js');
+  const proxies = selectAiInferenceProxies({ NVDA: { pct: 2.5, provider: 'unstamped-provider', observedAt: '2026-08-31' } });
+  if (!Object.isFrozen(proxies) || !Object.isFrozen(proxies[0]) || proxies[0].sourceKind !== 'REFERENCE' || proxies[0].observedAt !== '2026-08-31') fail(`ai-inference: an unstamped provider was promoted to LIVE or projection stayed mutable, got ${JSON.stringify(proxies[0])}`);
+}
 
-console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router', 'evidence-store', 'compatibility-facade', 'orchestrators/screener', 'orchestrators/entity', 'domain/market/breadth', 'domain/technical/stage:deriveTechnicalStageFromOhlcv', 'domain/screener/factor-ranks:computeFactorRanks', 'domain/screener/setup-profile:deriveScreenerSetupProfile', 'domain/portfolio/surface', 'domain/fundamental/sec-report'] }));
+// ── bootstrap.js (stop cancels late startup publication) ─────────────────────────────────────
+{
+  const { createAIOArchitecture } = await load('src/app/bootstrap.js');
+  const runtimeRoot = new EventTarget();
+  const timers = new Map();
+  let nextTimer = 0;
+  let resolveFetch;
+  runtimeRoot.setTimeout = (task, delay) => {
+    const id = ++nextTimer;
+    timers.set(id, { task, delay });
+    return id;
+  };
+  runtimeRoot.clearTimeout = (id) => timers.delete(id);
+  runtimeRoot.location = { hash: '#home' };
+  runtimeRoot.document = runtimeRoot;
+  runtimeRoot.visibilityState = 'visible';
+  runtimeRoot.getElementById = () => null;
+  runtimeRoot.querySelector = () => null;
+  runtimeRoot.querySelectorAll = () => [];
+  const fetchImpl = () => new Promise((resolve) => { resolveFetch = resolve; });
+  const architecture = createAIOArchitecture({ runtimeRoot, root: runtimeRoot, documentRef: runtimeRoot, now: () => Date.parse('2026-09-01T00:00:00Z'), fetchImpl });
+  let lateSnapshotEvents = 0;
+  runtimeRoot.addEventListener('aio:marketSnapshot', () => { lateSnapshotEvents += 1; });
+  const stop = architecture.start();
+  const beforeStop = architecture.getState().marketSnapshot;
+  stop();
+  stop();
+  await Promise.resolve();
+  resolveFetch({ ok: true, status: 200, json: async () => ({ schemaVersion: 'market-snapshot.v1', status: 'published', revision: 'late-fixture', generatedAt: '2026-09-01T00:00:00Z', quotes: [] }) });
+  await stop.ready;
+  await Promise.resolve();
+  for (const { task } of [...timers.values()]) task();
+  await Promise.resolve();
+  if (architecture.getState().marketSnapshot !== beforeStop || lateSnapshotEvents !== 0 || timers.size !== 0) {
+    fail(`bootstrap: stop allowed late startup publication: ${JSON.stringify({ lateSnapshotEvents, pendingTimers: timers.size })}`);
+  }
+}
+
+console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router', 'evidence-store', 'compatibility-facade', 'orchestrators/screener', 'orchestrators/entity', 'domain/market/breadth', 'domain/technical/stage:deriveTechnicalStageFromOhlcv', 'domain/screener/factor-ranks:computeFactorRanks', 'domain/screener/setup-profile:deriveScreenerSetupProfile', 'domain/portfolio/surface', 'domain/fundamental/sec-report', 'bootstrap:stop-lifecycle'] }));

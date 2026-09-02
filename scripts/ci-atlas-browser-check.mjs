@@ -109,6 +109,19 @@ try {
   await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasRegistry === 'connected');
   await page.waitForFunction(() => document.querySelectorAll('#page-atlas .atlas-level-card').length === 7);
   await page.waitForFunction(() => Number(document.querySelector('#page-atlas [data-atlas-taxonomy-domain-total]')?.dataset.atlasTaxonomyDomainTotal) === 19 && Number(document.querySelector('#page-atlas [data-atlas-taxonomy-node-total]')?.dataset.atlasTaxonomyNodeTotal) === 95 && document.querySelectorAll('#page-atlas [data-atlas-action="domain"]').length === 19 && document.querySelectorAll('#page-atlas .atlas-domain-guide').length === 1 && document.querySelectorAll('#page-atlas [data-atlas-action="domain-node"]').length === 5 && document.querySelectorAll('#page-atlas .atlas-node-guide').length === 1);
+  const taxonomySearch = page.locator('#page-atlas .atlas-search-input');
+  await taxonomySearch.fill('Samsung Electronics');
+  await page.waitForTimeout(150);
+  const entitySearch = await page.evaluate(() => ({
+    domains: [...document.querySelectorAll('#page-atlas [data-atlas-action="domain"]')].map((node) => node.dataset.atlasValue),
+    query: document.querySelector('#page-atlas .atlas-search-input')?.value || ''
+  }));
+  if (!entitySearch.domains.includes('domain-memory-storage')) throw new Error(`taxonomy entity search failed: ${JSON.stringify(entitySearch)}`);
+  await page.locator('#page-atlas [data-atlas-action="domain"][data-atlas-value="domain-memory-storage"]').click();
+  await page.locator('#page-atlas [data-atlas-action="domain-node"][data-atlas-value="memory-dram-hbm"]').click();
+  await page.waitForFunction(() => document.querySelector('#page-atlas [data-atlas-player-id="samsung-electronics"]'));
+  await taxonomySearch.fill('');
+  await page.waitForFunction(() => document.querySelectorAll('#page-atlas [data-atlas-action="domain"]').length === 19);
   await page.locator('#page-atlas [data-atlas-action="domain"][data-atlas-value="domain-compute-silicon"]').click();
   await page.locator('#page-atlas [data-atlas-action="domain-node"][data-atlas-value="compute-gpu"]').click();
   await page.waitForFunction(() => document.querySelector('#page-atlas a[data-atlas-domain-guide-source="domain-compute-silicon"]')?.href === 'https://science.osti.gov/ascr' && document.querySelectorAll('#page-atlas .atlas-player-product-map').length === 1 && document.querySelectorAll('#page-atlas [data-atlas-player-id]').length > 0 && document.querySelectorAll('#page-atlas [data-atlas-product-id]').length > 0 && document.querySelectorAll('#page-atlas .atlas-coverage-card').length <= 1 && document.querySelector('#page-atlas [data-atlas-currentness-boundary]')?.dataset.atlasCurrentnessBoundary === 'STALE_REFERENCE_REVIEW_REQUIRED' && document.querySelector('#page-atlas [data-atlas-currentness-boundary]')?.textContent.includes('40행') && document.querySelector('#page-atlas [data-atlas-currentness-boundary]')?.textContent.includes('주장 0개'));
@@ -147,7 +160,15 @@ try {
   }));
   if (!financialTargetObservation.provenance.some((text) => text.includes('회사 IR 미래 목표')) || financialTargetObservation.units.some((text) => /approximately-percent|percent-of-revenue/.test(text))) throw new Error(`financial target semantic labels failed: ${JSON.stringify(financialTargetObservation)}`);
   await page.locator('#page-atlas .atlas-relationship-sources summary').click();
-  await page.waitForFunction(() => document.querySelector('#page-atlas .atlas-relationship-sources')?.open && document.querySelectorAll('#page-atlas .atlas-relationship-sources a').length === 6);
+  const relationshipSourceDisclosure = await page.locator('#page-atlas .atlas-relationship-sources').evaluate((node) => ({
+    open: node.open,
+    links: node.querySelectorAll('a').length,
+    unresolved: node.querySelectorAll('.atlas-reference-source-unresolved').length,
+    summary: node.querySelector('summary')?.textContent?.trim() || ''
+  }));
+  if (!relationshipSourceDisclosure.open || relationshipSourceDisclosure.links !== 6 || relationshipSourceDisclosure.unresolved !== 0 || !relationshipSourceDisclosure.summary.includes('출처 6개')) {
+    throw new Error(`relationship source disclosure failed: ${JSON.stringify(relationshipSourceDisclosure)}`);
+  }
   const relationshipGuideSpecs = [
     ['neutral-rate-policy-gap', 6, 5],
     ['nand-inference-fcf', 9, 8],
@@ -194,7 +215,18 @@ try {
   await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasTelegram === 'connected');
   await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasCurrentEvidenceLedger === 'connected');
   await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasKnowledgeStatus === 'connected');
-  await page.waitForFunction(() => document.querySelectorAll('#page-atlas .atlas-telegram-channel-card').length === 4 && document.querySelector('#page-atlas .atlas-telegram-status') && document.querySelector('#page-atlas .atlas-current-evidence-ledger')?.textContent.includes('기준일이 있는 근거 40개') && document.querySelector('#page-atlas .atlas-publication-readiness')?.dataset.atlasHumanReviewComplete === 'false' && document.querySelector('#page-atlas .atlas-publication-readiness')?.dataset.atlasPublicationReady === 'false' && document.querySelector('#page-atlas .atlas-publication-readiness')?.textContent.includes('사람 검수 미완료') && document.querySelector('#page-atlas .atlas-publication-readiness')?.textContent.includes('출판 준비 미완료'));
+  await page.waitForFunction(() => {
+    const telegram = document.querySelector('#page-atlas .atlas-telegram-reference');
+    return document.querySelectorAll('#page-atlas .atlas-telegram-channel-card').length === 4
+      && document.querySelector('#page-atlas .atlas-telegram-status')?.textContent.includes('수집 상태: 4개 채널 관측 완료')
+      && telegram?.textContent.includes('성공 채널 4/4 · 수집 완료')
+      && !telegram?.textContent.includes('수집 실패·기존 원장 유지')
+      && document.querySelector('#page-atlas .atlas-current-evidence-ledger')?.textContent.includes('기준일이 있는 근거 40개')
+      && document.querySelector('#page-atlas .atlas-publication-readiness')?.dataset.atlasHumanReviewComplete === 'false'
+      && document.querySelector('#page-atlas .atlas-publication-readiness')?.dataset.atlasPublicationReady === 'false'
+      && document.querySelector('#page-atlas .atlas-publication-readiness')?.textContent.includes('사람 검수 미완료')
+      && document.querySelector('#page-atlas .atlas-publication-readiness')?.textContent.includes('출판 준비 미완료');
+  });
   const publicationReadiness = await page.locator('#page-atlas .atlas-publication-readiness').innerText();
   const search = page.locator('#page-atlas .atlas-search-input');
   await search.fill('CPO');

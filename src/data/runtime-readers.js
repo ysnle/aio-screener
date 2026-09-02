@@ -105,6 +105,38 @@ function hySpreadObservation(root, snapshot = {}) {
   };
 }
 
+function fearGreedObservation(root, snapshot = {}) {
+  let canonical = null;
+  try { canonical = root?.AIO?.getCanonicalMetric?.('fg') || null; } catch (_) {}
+  if (finite(canonical?.value) != null) return {
+    value: canonical.value,
+    observedAt: canonical.asOf || canonical.observedAt || null,
+    fetchedAt: canonical.fetchedAt || null,
+    source: canonical.source || canonical.sourceLabel || 'canonical:fear-greed',
+    sourceKind: canonical.sourceKind || 'reference',
+    allowedUse: canonical.decisionUse === true ? 'decision' : 'reference',
+    allowedUseCeiling: canonical.allowedUseCeiling || 'reference'
+  };
+  if (finite(root?._lastFG) != null) {
+    const meta = root._lastFGMeta || {};
+    return { value: root._lastFG, observedAt: meta.sourceTs || null, fetchedAt: meta.fetchedAt || null,
+      source: meta.sourceLabel || 'runtime:fear-greed', sourceKind: meta.sourceKind || 'reference',
+      allowedUse: meta.allowedUse || 'reference', allowedUseCeiling: meta.allowedUseCeiling || 'reference' };
+  }
+  return { value: finite(snapshot.fg), observedAt: snapshot._fieldTs?.fg || snapshot._snapshotDate || snapshot._updated || null,
+    fetchedAt: null, source: 'DATA_SNAPSHOT:fear-greed', sourceKind: finite(snapshot.fg) == null ? 'unavailable' : 'snapshot',
+    allowedUse: 'reference', allowedUseCeiling: 'reference' };
+}
+
+function putCallObservation(root, snapshot = {}) {
+  const payload = root?._lastPutCallPayload || {};
+  if (finite(payload.totalPutCall) != null) return { value: payload.totalPutCall, observedAt: payload.asOf || payload.tradeDate || null,
+    fetchedAt: payload.fetchedAt || null, source: payload.sourceLabel || payload.source || 'CBOE options volume daily', sourceKind: payload.sourceKind || 'delayed' };
+  if (finite(root?._putCallRatio) != null) return { value: root._putCallRatio, observedAt: null, fetchedAt: null, source: 'runtime:put-call-ratio', sourceKind: 'reference' };
+  return { value: finite(snapshot.pcr), observedAt: snapshot._fieldTs?.pcr || snapshot._snapshotDate || snapshot._updated || null,
+    fetchedAt: null, source: 'DATA_SNAPSHOT:put-call', sourceKind: finite(snapshot.pcr) == null ? 'unavailable' : 'snapshot' };
+}
+
 const SCREENER_FACTOR_FIELD_IDS = Object.freeze([
   'price.ret1m', 'price.ret3m', 'price.ret6m', 'price.volatility', 'price.rsi14',
   'price.pctSma50', 'price.pctSma200', 'technical.kalmanVelocity',
@@ -150,24 +182,8 @@ export function buildRuntimeObservationCatalog({ root = globalThis, state = {}, 
   const snapshot = root?.DATA_SNAPSHOT || {};
   const catalog = {};
   Object.keys(root?._liveData || {}).forEach((symbol) => { catalog[`market.${symbol}`] = quoteObservation(root, symbol); });
-  const canonicalFearGreed = root?.AIO?.getCanonicalMetric?.('fg') || null;
-  catalog['sentiment.fearGreed'] = {
-    value: finite(canonicalFearGreed?.value) ?? finite(root?._lastFG) ?? finite(snapshot.fg),
-    observedAt: canonicalFearGreed?.asOf || canonicalFearGreed?.observedAt || root?._lastFGMeta?.sourceTs || snapshot._updated || snapshot._snapshotDate || null,
-    fetchedAt: meta.generatedAt || null,
-    source: canonicalFearGreed?.source || root?._lastFGMeta?.sourceLabel || 'DATA_SNAPSHOT:fear-greed',
-    sourceKind: canonicalFearGreed?.sourceKind || root?._lastFGMeta?.sourceKind || 'snapshot',
-    allowedUse: canonicalFearGreed?.decisionUse === true ? 'decision' : 'reference',
-    allowedUseCeiling: root?._lastFGMeta?.allowedUseCeiling || 'reference'
-  };
-  const putCall = root?._lastPutCallPayload || {};
-  catalog['sentiment.putCall'] = {
-    value: finite(root?._putCallRatio) ?? finite(putCall.totalPutCall) ?? finite(snapshot.pcr),
-    observedAt: putCall.asOf || putCall.tradeDate || meta.putCallAsOf || null,
-    fetchedAt: putCall.fetchedAt || meta.generatedAt || null,
-    source: putCall.sourceLabel || putCall.source || 'CBOE options volume daily',
-    sourceKind: putCall.sourceKind || 'delayed'
-  };
+  catalog['sentiment.fearGreed'] = fearGreedObservation(root, snapshot);
+  catalog['sentiment.putCall'] = putCallObservation(root, snapshot);
   catalog['sentiment.hySpread'] = hySpreadObservation(root, snapshot);
   const breadth = state?.screener?.metadata?.breadth || root?.AIO_ARCH?.getScreenerState?.()?.metadata?.breadth || null;
   for (const market of ['us', 'kr']) {
@@ -339,26 +355,25 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
   const readSentiment = () => {
     const live = readLive();
     const snapshot = readSnapshot();
-    const canonical = typeof root?.AIO?.getCanonicalMetric === 'function' ? root.AIO.getCanonicalMetric('fg') : null;
-    const fg = finite(canonical?.value) ?? finite(root?._lastFG) ?? finite(snapshot.fg);
-    const putCall = root?._lastPutCallPayload || {};
+    const fg = fearGreedObservation(root, snapshot);
+    const putCall = putCallObservation(root, snapshot);
     const quote = (symbol) => live[symbol] || {};
     const hySpread = hySpreadObservation(root, snapshot);
     return Object.freeze({
-      fearGreed: fg,
-      fearGreedSourceKind: canonical?.sourceKind || root?._lastFGMeta?.sourceKind || (fg == null ? 'unavailable' : 'snapshot'),
-      fearGreedSource: canonical?.source || canonical?.sourceLabel || root?._lastFGMeta?.sourceLabel || 'DATA_SNAPSHOT:fear-greed',
-      fearGreedObservedAt: canonical?.asOf || canonical?.observedAt || root?._lastFGMeta?.sourceTs || snapshot._updated || snapshot._snapshotDate || null,
-      fearGreedAllowedUse: canonical?.decisionUse === true ? 'decision' : (root?._lastFGMeta?.allowedUse || 'reference'),
-      fearGreedAllowedUseCeiling: root?._lastFGMeta?.allowedUseCeiling || 'reference',
+      fearGreed: fg.value,
+      fearGreedSourceKind: fg.sourceKind,
+      fearGreedSource: fg.source,
+      fearGreedObservedAt: fg.observedAt,
+      fearGreedAllowedUse: fg.allowedUse,
+      fearGreedAllowedUseCeiling: fg.allowedUseCeiling,
       vix9d: finite(quote('^VIX9D').price), vix9dObservedAt: observedAt(quote('^VIX9D')),
       vix: finite(quote('^VIX').price), vixObservedAt: observedAt(quote('^VIX')),
       vix3m: finite(quote('^VIX3M').price), vix3mObservedAt: observedAt(quote('^VIX3M')),
       vix6m: finite(quote('^VIX6M').price), vix6mObservedAt: observedAt(quote('^VIX6M')),
-      putCall: finite(root?._putCallRatio) ?? finite(putCall.totalPutCall) ?? finite(snapshot.pcr),
-      putCallSourceKind: putCall.sourceKind || (root?._putCallRatio != null ? 'delayed' : 'snapshot'),
-      putCallSource: putCall.sourceLabel || (root?._putCallRatio != null ? 'CBOE options volume daily' : 'DATA_SNAPSHOT'),
-      putCallObservedAt: putCall.asOf || putCall.tradeDate || snapshot._snapshotDate || snapshot._updated || null,
+      putCall: putCall.value,
+      putCallSourceKind: putCall.sourceKind,
+      putCallSource: putCall.source,
+      putCallObservedAt: putCall.observedAt,
       hySpread: hySpread.value,
       hySpreadSourceKind: hySpread.sourceKind,
       hySpreadSource: hySpread.source,
@@ -387,12 +402,9 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
   const readEntity = () => {
     const id = String(root?._currentTickerId || root?._currentTickerSym || '').trim().toUpperCase() || null;
     const quote = id ? quoteObservation(root, id) : null;
-    const pcr = root?._lastPutCallPayload || {};
     const snapshot = readSnapshot();
-    const optionQuote = (symbol) => {
-      const item = quoteObservation(root, symbol);
-      return { ...item, sourceKind: item.value == null ? 'unavailable' : 'live' };
-    };
+    const pcr = putCallObservation(root, snapshot);
+    const optionQuote = (symbol) => quoteObservation(root, symbol);
     return Object.freeze({
       id,
       name: id ? String(root?._currentTickerName || id) : null,
@@ -400,8 +412,8 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
       history: id ? clone(root?._technicalOHLCV?.[id] || root?._tickerHistory?.[id] || []) : [],
       // Fundamentals are replaced by the SEC provider in createEntityProvider.
       fundamentals: null,
-      options: { vix: optionQuote('^VIX'), pcr: { value: finite(root?._putCallRatio) ?? finite(pcr.totalPutCall) ?? finite(snapshot.pcr), observedAt: pcr.asOf || pcr.tradeDate || snapshot._snapshotDate || null, source: pcr.sourceLabel || 'DATA_SNAPSHOT', sourceKind: pcr.sourceKind || 'snapshot' }, skew: optionQuote('^SKEW') },
-      updatedAt: latestIso([quote?.observedAt, lastSeriesObservedAt(id ? root?._technicalOHLCV?.[id] || root?._tickerHistory?.[id] || [] : []), pcr.asOf || pcr.tradeDate])
+      options: { vix: optionQuote('^VIX'), pcr, skew: optionQuote('^SKEW') },
+      updatedAt: latestIso([quote?.observedAt, lastSeriesObservedAt(id ? root?._technicalOHLCV?.[id] || root?._tickerHistory?.[id] || [] : []), pcr.observedAt])
     });
   };
 

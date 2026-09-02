@@ -1,6 +1,9 @@
 /** New code uses this gateway instead of touching Web Storage directly. */
 export function createStorageGateway({ storage, prefix = 'aio' } = {}) {
-  const backing = storage || (typeof globalThis.localStorage !== 'undefined' ? globalThis.localStorage : null);
+  let backing = storage ?? null;
+  if (storage === undefined) {
+    try { backing = globalThis.localStorage ?? null; } catch (_) { /* denied browser storage */ }
+  }
   const keyFor = (key) => `${prefix}:${String(key)}`;
 
   function get(key, fallback = null) {

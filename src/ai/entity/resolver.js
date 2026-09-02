@@ -32,7 +32,7 @@ export function resolveEntities(query, { root = globalThis, route = null } = {})
     const normalized = text(symbol).toUpperCase();
     if (!normalized || NON_TICKER_SYMBOLS.has(normalized) || found.has(normalized)) return;
     const isKr = /\.KS$|\.KQ$/.test(normalized) || /^\^(?:KS11|KQ11)$/i.test(normalized);
-    found.set(normalized, { symbol: normalized, alias: alias || normalized, kind, market: isKr ? 'KR' : normalized.startsWith('^') ? 'INDEX' : 'US' });
+    found.set(normalized, Object.freeze({ symbol: normalized, alias: alias || normalized, kind, market: isKr ? 'KR' : normalized.startsWith('^') ? 'INDEX' : 'US' }));
   };
   const tickerPattern = /\b(?:[A-Z]{1,6}(?:\.(?:KS|KQ|T|TW|HK))?|\^?[A-Z]{2,6}|\d{6}\.(?:KS|KQ))\b/g;
   (source.match(tickerPattern) || []).forEach((symbol) => {
@@ -42,12 +42,15 @@ export function resolveEntities(query, { root = globalThis, route = null } = {})
   Object.entries(ALIASES).forEach(([alias, symbol]) => {
     if (lower.includes(alias.toLowerCase())) add(symbol, alias, alias === symbol.toLowerCase() ? 'ticker' : 'alias');
   });
+  const matchedAliases = Object.keys(ALIASES).map((alias) => alias.toLowerCase()).filter((alias) => lower.includes(alias));
   const sectorTerms = ['반도체', '소프트웨어', 'software', 'semiconductor', '섹터', 'sector', '환율', 'fx'];
+  const resolvedAliases = new Set([...found.values()].map((entity) => text(entity.alias).toLowerCase()).filter(Boolean));
   const unresolvedTerms = source
     .split(/[\s,;!?·]+/)
     .map((term) => term.replace(/[.()\[\]]/g, ''))
     .filter((term) => term.length >= 2 && !/^\d+$/.test(term) && !sectorTerms.includes(term.toLowerCase()))
     .filter((term) => !found.has(term.toUpperCase()))
+    .filter((term) => !resolvedAliases.has(term.toLowerCase()) && !matchedAliases.some((alias) => term.toLowerCase().includes(alias)))
     .filter((term) => !/^(현재|지금|오늘|분석|알려줘|왜|어때|해줘|please|what|why|is|the)$/i.test(term))
     .slice(0, 8);
   return Object.freeze({

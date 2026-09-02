@@ -14,8 +14,9 @@ export function createSelector(inputSelectors, compute) {
     if (hasResult && lastInputs && inputs.every((value, index) => value === lastInputs[index])) {
       return lastResult;
     }
+    const result = compute(...inputs);
     lastInputs = inputs;
-    lastResult = compute(...inputs);
+    lastResult = result;
     hasResult = true;
     return lastResult;
   };

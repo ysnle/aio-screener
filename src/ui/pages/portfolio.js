@@ -1,6 +1,7 @@
 import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
 import { selectPortfolioState } from '../../state/selectors/portfolio.js';
 import { derivePortfolioSurface } from '../../domain/portfolio/surface.js';
+import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 
 // RM-01 (2026-07-19): this module used to fully repaint pf-total-value/pf-total-pnl/etc. and
 // replaceChildren() the pf-positions-tbody table with a 5-column row, while legacy
@@ -126,7 +127,7 @@ function renderPortfolioSurface(documentRef, page, root, state) {
   setSurfaceText(documentRef, 'pf-cash-pct-hero', surface.cashPct == null ? '—' : `${surface.cashPct.toFixed(1)}%`, surface.cashPct, surface);
   const rule = surface.exposureCap == null ? 'VIX 확인 중' : `VIX ${surface.vix.toFixed(1)} · 최대 ${surface.exposureCap}%`;
   setSurfaceText(documentRef, 'pf-exposure-rule', rule, surface.exposureCap, surface);
-  const current = surface.exposurePct == null ? '현재 노출 —' : `현재 노출 ${surface.exposurePct.toFixed(1)}%${surface.exposureExceeded ? ' · 축소 필요' : ''}`;
+  const current = surface.exposurePct == null ? '현재 노출 —' : `현재 노출 ${surface.exposurePct.toFixed(1)}%${surface.exposureExceeded ? ' · 참고 한도 초과' : ''}`;
   setSurfaceText(documentRef, 'pf-exposure-current', current, surface.exposurePct, surface, surface.exposureExceeded ? 'var(--data-red)' : 'var(--text-dim)');
 
   const sectorElement = documentRef?.getElementById('pf-sector-breakdown');
@@ -347,6 +348,15 @@ export function createPortfolioPage({ root = globalThis, documentRef, store } = 
       eventTarget?.addEventListener?.('aio:liveQuotes', renderNow);
       bag.add(() => eventTarget?.removeEventListener?.('aio:liveQuotes', renderNow));
       const page = documentRef?.getElementById('page-portfolio');
+      let suppliedMaterialBridge = page?.querySelector?.('[data-aio-supplied-material-route="portfolio"]') || null;
+      if (page && !suppliedMaterialBridge) {
+        suppliedMaterialBridge = createSuppliedMaterialBridge(documentRef, {
+          routeId: 'portfolio',
+          heading: '포트폴리오 · 노출·기관 시차·AI 자본구조'
+        });
+        page.appendChild(suppliedMaterialBridge);
+        bag.add(() => suppliedMaterialBridge?.remove?.());
+      }
       const table = page?.querySelector?.('#pf-positions-tbody');
       if (page) page.dataset.aioPortfolioSurface = 'native';
       if (page) page.dataset.aioPortfolioChartRenderer = 'native';

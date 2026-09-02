@@ -13,10 +13,11 @@ function text(value) { return String(value == null ? '' : value).trim(); }
 function canonicalUrl(value) {
   try {
     const url = new URL(String(value));
+    if (url.protocol !== 'https:') return '';
     url.hash = '';
     ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'oc'].forEach((key) => url.searchParams.delete(key));
     return url.toString().replace(/\/$/, '');
-  } catch (_) { return text(value); }
+  } catch (_) { return ''; }
 }
 
 function publisherFromUrl(url) {
@@ -120,17 +121,18 @@ export function validateClaimEvidenceBinding(claim, evidence, { currentSensitive
   const primary = documents.filter((doc) => doc.primaryOrSecondary === 'PRIMARY').length;
   if (independent < minimumIndependentSources) errors.push('independent_source_floor_missing');
   if (primary < minimumPrimarySources) errors.push('primary_source_floor_missing');
-  return Object.freeze({ ok: errors.length === 0, errors: [...new Set(errors)], documentCount: documents.length, independentSourceCount: independent, primarySourceCount: primary });
+  return Object.freeze({ ok: errors.length === 0, errors: Object.freeze([...new Set(errors)]), documentCount: documents.length, independentSourceCount: independent, primarySourceCount: primary });
 }
 
 function uniqueCitations(citations = []) {
   const seen = new Set();
   return (Array.isArray(citations) ? citations : []).filter((item) => {
     const url = typeof item === 'string' ? item : item?.url;
-    if (!url || seen.has(url)) return false;
-    seen.add(url);
+    const canonical = canonicalUrl(url);
+    if (!canonical || seen.has(canonical)) return false;
+    seen.add(canonical);
     return true;
-  });
+  }).map((item) => typeof item === 'string' ? canonicalUrl(item) : Object.freeze({ ...item, url: canonicalUrl(item.url) }));
 }
 
 function normalizeDocuments(documents = []) {
@@ -164,9 +166,9 @@ export function normalizeResearchExecutionResult(result = {}) {
   const independentSourceCount = new Set(
     documents.map((document) => document?.publisher || document?.canonicalUrl).filter(Boolean)
   ).size;
-  const primarySourceCount = documents.filter((document) =>
+  const primarySourceCount = new Set(documents.filter((document) =>
     document?.primaryOrSecondary === 'PRIMARY' || document?.sourceTier === 'PRIMARY_OFFICIAL'
-  ).length;
+  ).map((document) => document?.publisher || document?.canonicalUrl).filter(Boolean)).size;
   return Object.freeze({
     ...rest,
     citations: Object.freeze(citations),
@@ -195,17 +197,35 @@ export function normalizeNativeResearchCitations(citations = []) {
   }));
 }
 
-function evidenceFloor(documents, citations, stop, { requireCurrentClaims = false, currentClaimsAllowed = false } = {}) {
-  const independent = new Set(documents.map((document) => document.publisher || document.canonicalUrl).filter(Boolean)).size;
-  const primary = documents.filter((document) =>
-    document.primaryOrSecondary === 'PRIMARY' || document.sourceTier === 'PRIMARY_OFFICIAL'
-  ).length;
-  const snippetFree = documents.length > 0 && documents.every((document) =>
+function eligibleEvidenceDocuments(documents, citations) {
+  const citationSet = new Set((Array.isArray(citations) ? citations : [])
+    .map((citation) => canonicalUrl(typeof citation === 'string' ? citation : citation?.url)).filter(Boolean));
+  // Rights-blocked/invalid documents must never satisfy the source floor, but a
+  // single restricted result must not erase otherwise usable evidence from a
+  // multi-provider response. Keep the exclusion observable through the caller's
+  // document list while evaluating only eligible, citation-bound documents.
+  return documents.filter((document) =>
+    document && document.canonicalUrl && citationSet.has(canonicalUrl(document.canonicalUrl)) &&
+    document.rights !== 'BLOCKED' && document.allowedUse !== 'none' &&
     document.contentDepth !== 'SNIPPET' && document.contentDepth !== 'SUMMARY'
   );
-  return citations.length > 0 && documents.length > 0 && snippetFree &&
-    independent >= Number(stop.minimumIndependentSources || 0) &&
-    primary >= Number(stop.minimumPrimarySources || 0) &&
+}
+
+function evidenceFloor(documents, citations, stop, { requireCurrentClaims = false, currentClaimsAllowed = false } = {}) {
+  const minimumIndependentSources = stop?.minimumIndependentSources;
+  const minimumPrimarySources = stop?.minimumPrimarySources;
+  if (!Number.isInteger(minimumIndependentSources) || minimumIndependentSources < 0 || !Number.isInteger(minimumPrimarySources) || minimumPrimarySources < 0) return false;
+  const eligible = eligibleEvidenceDocuments(documents, citations);
+  const independent = new Set(eligible.map((document) => document.publisher || document.canonicalUrl).filter(Boolean)).size;
+  const primary = new Set(eligible.filter((document) =>
+    document.primaryOrSecondary === 'PRIMARY' || document.sourceTier === 'PRIMARY_OFFICIAL'
+  ).map((document) => document.publisher || document.canonicalUrl).filter(Boolean)).size;
+  const snippetFree = eligible.length > 0 && eligible.every((document) =>
+    document.contentDepth !== 'SNIPPET' && document.contentDepth !== 'SUMMARY'
+  );
+  return citations.length > 0 && eligible.length > 0 && snippetFree &&
+    independent >= minimumIndependentSources &&
+    primary >= minimumPrimarySources &&
     (!requireCurrentClaims || currentClaimsAllowed === true);
 }
 
@@ -232,16 +252,19 @@ export function evaluateResearchEvidenceFloor(input = {}) {
     (externalDocuments.length ? externalDocuments : nativeDocuments);
   const citations = externalReady ? externalCitations : nativeReady ? nativeCitations :
     (externalCitations.length ? externalCitations : nativeCitations);
-  const independentSourceCount = new Set(documents.map((document) => document.publisher || document.canonicalUrl).filter(Boolean)).size;
-  const primarySourceCount = documents.filter((document) =>
+  const eligibleDocuments = eligibleEvidenceDocuments(documents, citations);
+  const independentSourceCount = new Set(eligibleDocuments.map((document) => document.publisher || document.canonicalUrl).filter(Boolean)).size;
+  const primarySourceCount = new Set(eligibleDocuments.filter((document) =>
     document.primaryOrSecondary === 'PRIMARY' || document.sourceTier === 'PRIMARY_OFFICIAL'
-  ).length;
+  ).map((document) => document.publisher || document.canonicalUrl).filter(Boolean)).size;
 
   return Object.freeze({
     required: true,
     ready,
     reason: ready ? 'research-evidence-floor-met' : input.error ? 'research-provider-error' : 'research-evidence-floor-not-met',
     evidenceDocuments: Object.freeze([...documents]),
+    eligibleEvidenceCount: eligibleDocuments.length,
+    excludedEvidenceCount: Math.max(0, documents.length - eligibleDocuments.length),
     citationCount: citations.length,
     independentSourceCount,
     primarySourceCount,

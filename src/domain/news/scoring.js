@@ -35,9 +35,11 @@ function filterByAgeHours(items, maxHours, now) {
 export function briefingWindowKST(now) {
   const KST_OFFSET_MS = 9 * 3600000;
   const DAY_MS = 24 * 3600000;
-  const kstNow = new Date(now + KST_OFFSET_MS);
+  const nowMs = Number(now);
+  if (!Number.isFinite(nowMs)) return Object.freeze({ start: null, end: null });
+  const kstNow = new Date(nowMs + KST_OFFSET_MS);
   let endMs = Date.UTC(kstNow.getUTCFullYear(), kstNow.getUTCMonth(), kstNow.getUTCDate(), 8, 0, 0, 0) - KST_OFFSET_MS;
-  if (now < endMs) endMs -= DAY_MS;
+  if (nowMs < endMs) endMs -= DAY_MS;
   const completedStart = endMs - DAY_MS;
   return Object.freeze({ start: completedStart, end: endMs });
 }
@@ -45,6 +47,7 @@ export function briefingWindowKST(now) {
 function filterByKst0800Cycle(items, now) {
   if (!items) return [];
   const cycleWindow = briefingWindowKST(now);
+  if (cycleWindow.start == null || cycleWindow.end == null) return [];
   return items.filter((item) => {
     if (!item || !item.pubDate) return false;
     const t = new Date(item.pubDate).getTime();
@@ -55,8 +58,11 @@ function filterByKst0800Cycle(items, now) {
 /** @param {object} input @param {Array} input.items @param {number} input.now epoch ms */
 export function computeNewsSentimentScore({ items = [], now = Date.now() } = {}) {
   const empty = (label) => Object.freeze({ modelVersion: NEWS_SCORING_MODEL_VERSION, score: 50, label, bullCount: 0, bearCount: 0, total: 0, bullRatio: 0, bearRatio: 0 });
-  if (!items || items.length === 0) return empty('뉴스 없음');
-  const recent = filterByAgeHours(items, 24, now);
+  const list = Array.isArray(items) ? items : [];
+  const nowMs = Number(now);
+  if (list.length === 0) return empty('뉴스 없음');
+  if (!Number.isFinite(nowMs)) return empty('데이터 부족');
+  const recent = filterByAgeHours(list, 24, nowMs);
   if (recent.length === 0) return empty('데이터 부족');
 
   let bullCount = 0, bearCount = 0;
@@ -81,8 +87,8 @@ export function computeNewsSentimentScore({ items = [], now = Date.now() } = {})
 
 /** @param {object} input @param {Array} input.items @param {number} input.now epoch ms */
 export function computeNewsRiskSignals({ items = [], now = Date.now() } = {}) {
-  if (!items) return Object.freeze([]);
-  const recent = filterByKst0800Cycle(items, now);
+  if (!Array.isArray(items) || !Number.isFinite(Number(now))) return Object.freeze([]);
+  const recent = filterByKst0800Cycle(items, Number(now));
   const riskSignals = [];
 
   const geoNews = recent.filter((i) => i.topic === 'geo');
@@ -103,5 +109,5 @@ export function computeNewsRiskSignals({ items = [], now = Date.now() } = {}) {
   if (earningsBull.length > earningsBear.length + 3) riskSignals.push({ type: 'earnings', level: 'positive', label: '실적 시즌 긍정적', impact: 8 });
   else if (earningsBear.length > earningsBull.length + 3) riskSignals.push({ type: 'earnings', level: 'negative', label: '실적 시즌 부진', impact: -8 });
 
-  return Object.freeze(riskSignals);
+  return Object.freeze(riskSignals.map((signal) => Object.freeze(signal)));
 }

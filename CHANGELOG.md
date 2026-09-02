@@ -1,3 +1,91 @@
+## v54.76 (2026-09-02)
+- **Application lifecycle (P1023)**: cancel deferred timers/microtasks and late snapshot publication on stop, reject post-dispose router transitions, and bound route return context.
+- **Knowledge semantics (P1024)**: separate navigation-only RELATES_TO edges from causal relations, reject unmapped generated edges, and harden graph/learning/route projections against malformed or mutable input.
+- **Domain correctness (P1025)**: reject coercible missing and out-of-domain financial inputs; unify portfolio valuation; distinguish gross and net outcome returns with migration; bound trading-score inputs while preserving valid golden parity; label fixed VIX limits reference-only.
+- **AI evidence and safety (P1026)**: keep causal evidence in one traceable time window, require strict analytical inputs, preserve mixed-market state, block mixed educational/operational prohibited requests, fail closed on malformed research floors and bound internal errors and nested projections.
+- **Atlas evidence resolution (P1027)**: preserve the private evidence registry while giving Atlas a frozen read-only resolver adapter; verify six canonical relationship sources and emit actionable browser failure state.
+- **Atlas collection status semantics (P1028)**: align the Telegram overview with the producer's `ok | partial | failed` vocabulary and make Chromium reject contradictory success/failure copy.
+- **Atlas entity search semantics (P1029)**: use the registry's canonical `taxonomyNodeIds` relation so company/product terms reach their actual industry domains; exercise Samsung Electronics search, node/card connection and reset in Chromium.
+- **Current public-data candidate**: legitimately refreshed the 16/16 tier-0 market snapshot and 78/78 core quote set, then independently rebuilt 849/873 screener factor rows with 844 ready rows, 849 explicit currencies and 76.8% SEC fundamental coverage. Subscription/licensed gaps remain blocked or reference-only.
+- **Browser evidence**: full-init Chromium exercised 20 routes at 1280/1440/1920 with 60 screenshots, zero horizontal overflow, tiny-text observations or JS errors; route soak, outage/SW/network-budget, knowledge flows, Vault and accessibility gates pass. This desktop matrix does not certify mobile/touch or external provider behavior.
+- **Audit boundary**: all current `src/domain` and `src/ai` files and their available Git transitions are semantically reviewed; the current Atlas runtime and complete Atlas Chromium gate received an additional line-level pass. Exact ledger: 155 files / 16,599 current lines and 596 / 4,611 historical code transitions; static parsing covers the wider available tree/history. Whole-tree semantic review, production PIT/outcomes and live AI/provider certification remain incomplete. Commit/deploy status is reported by Git history and the task closeout rather than inferred from this note.
+- R1 7곳 v54.76
+
+## v54.75 (2026-09-01)
+- **Observation identity and units (P1018)**: reconcile only compatible instrument/field/unit/epoch observations, read one live snapshot per provider call, select fallback observations atomically, and keep KRW/native market cap out of USD filters and factors. Missing currency, MIC and asset type remain missing; the next legitimate producer refresh will persist quote currency with price/liquidity fields.
+- **Failure lifecycle (P1019)**: commit memoized inputs only after successful computation; preserve Headers inputs and enforce pre-abort plus independent request/body deadlines even when transport ignores AbortSignal.
+- **Foundation contracts (P1020)**: preserve unknown AI cost, protect control event fields, normalize provider failures, harden response validation, require timestamped revision/MATCH lineage, validate multilingual weights, and prevent future regime observations from holding state. Test-only AI foundations remain explicitly separate from the deployed chat runtime.
+- **Dead and mutable surface cleanup (P1021)**: remove the unreachable legacy observer, USD-only position panel and excluded quantitativeLabs selector; keep knowledge registry indexes private and freeze isolated concept projections.
+- **State projection missingness (P1022)**: keep null/blank portfolio numbers unavailable, distinguish omitted theme fields from explicit null clears, fail closed on malformed news/time inputs, and isolate normalized rows from caller mutation.
+- **Audit boundary**: exact-hash semantic coverage is 101 files / 8,834 current lines and 370 / 4,611 historical code transitions. Structural parsing covers the full available tree/history, but semantic line/history review, upstream freshness, production PIT/outcomes and deployment certification remain incomplete. No commit, push or deployment.
+- R1 7곳 v54.75
+
+## v54.74 (2026-08-31)
+- **Observation/display boundary (P1013)**: keep stale reference rows visible with dates while excluding unusable individual fields from calculations; preserve explicit use ceilings, reject future/undated decision evidence, prefer newer valid quote observations, and remove legacy numeric backfill into native rows.
+- **User-run reproducibility (P1014)**: inject Workbench services directly into the native route; retain up to five full input/definition/model records in IndexedDB, replay after reload, delete records, and preserve frozen results across background quote updates. No new global facade APIs.
+- **Factor correctness (P1015)**: row-level size/fundamental freshness precedes peer statistics; invalid momentum rows cannot alter rank denominators, missing factor scores remain null, and boundary ties cannot manufacture turnover. Five existing golden fixtures remain unchanged.
+- **Lifecycle/storage (P1016)**: abort-before-request and immediate retry isolation, late-response cache exclusion, denied storage, explicit injected storage and migration validation. Remove the unused bootstrap storage import.
+- **Visual conditions (P1017)**: derive chips from actual controls, replace builder-owned AST nodes without repeated accumulation, connect selector/preset through one transition, and fix sticky-column offsets. Browser fixtures exercise deletion, replacement and actual definition selection.
+- **Audit scope**: content-hash line/history ledger and nonexecuting current/all-local-history parsing in `_artifacts/exhaustive-audit-20260831/`. Per-line semantic review, production PIT/outcomes, upstream freshness and deployment certification remain separate and incomplete. No commit, push or deployment.
+- R1 7곳 v54.74
+
+## v54.73 (2026-08-31)
+- **Independent history/code audit**: indexed 1,783 files and all 1,730 available commits (history begins at v38.9); traced postmortem recurrence and distinguished executable features from test-only scaffolding.
+- **Calculation correctness**: equal-score midranks and true low-volatility ordering; immutable hashed definitions; reject LAST_GOOD filter promotion, future PIT observations, fabricated benchmark returns/drawdown/calendar exits, and duplicate/terminal refresh selection.
+- **Missingness and regression integrity**: preserve default evidence coverage for absent configuration and unknown quote baseline/delay; replace five stale headless expectations with current behavior and explicit static/browser boundaries.
+- **Open work**: persisted run replay, production PIT/outcome collection, legacy ownership contraction, data freshness and deployed/provider certification. Audit: `_artifacts/deep-audit-20260831/REPORT.md`. No commit, push or deployment.
+- R1 7곳 v54.73
+
+## v54.72 (2026-08-31)
+- **Deep supplied-materials integration**: centralized source audit, prior/current link registry, 13 reference-only time-series windows, framework source refs, and route mappings in `src/domain/research/supplied-materials.js`.
+- **System/page architecture**: Home, Signal, Technical, Market macro/fxbond/breadth, News, Sentiment, Screener, Ticker, Fundamental, Options, Portfolio, Masters, Principles, and Atlas now consume route-specific research bridges with explicit audit, time-series, observation, and invalidation boundaries.
+- **13F/AI-era controls**: screen definitions and orchestrator metadata retain research framework/time-series IDs without feeding them into factor scores; chat context now separates report-period lag, connected vs billable power, ARR vs revenue/cash, hardware qualification, physical AI operations, and usage/outcome economics.
+- **Evidence discipline**: public repost checks for Northwise, RealSimpleAriel, and tmmrwseoul were used only for durable frameworks; inaccessible Article bodies, dated chart values, targets, supplier names, and current claims remain unpromoted.
+- R1 7곳 v54.72
+
+## v54.71 (2026-08-30)
+- **Supplied research integration**: integrated the 2026-08-30 readable X/AI research packet into reference-only market-confirmation, lagged housing/supply/employment macro, and Jalapeño inference-architecture lenses across Market, Themes, Principles, Atlas, search vocabulary, and chat context.
+- **Evidence boundaries**: audited the supplied images and separated six readable sources from four X Article pointers whose public bodies were unavailable; inaccessible articles, dated chart levels, issuer figures, targets, supplier mappings, and current market claims are not inferred or hardcoded.
+- **13F/AI-era structure**: retained the existing 13F report-period/CUSIP/corporate-action boundary and extended the AI economics frame to billable IT power, cohort pricing, owner FCF/replacement capex, financing waterfall, prefill/decode, locality, communication, energy/request, latency, utilization, and TCO.
+- **Time-series discipline**: separated session reaction, swing trend, 50–200-session structure, event windows, and macro release/observation periods; local market data remains aligned to the latest completed 2026-08-28 US close and monthly macro observations remain distinct.
+- **Accessibility**: expanded the shared theme-detail close target to the 44px minimum touch area; the 20-route automated accessibility matrix passes, while screen-reader, contrast, zoom/reflow, and dialog-focus sessions remain separate manual evidence.
+- R1 7곳 v54.71
+
+## v54.70 (2026-08-30)
+- **User-flow reconstruction (P1010)**: retire duplicate home score/sentiment writers, fabricated risk/futures heuristics, and unconnected ticker financial/action panels. One canonical score model and the existing SEC report now own those flows.
+- **Screener usability**: hidden/unavailable ranks sort last, comparison shows eight shared metrics, and returning from a ticker preserves filters, scroll and keyboard focus; accessible back labels match the actual origin.
+- **Evidence**: real desktop walkthrough and targeted before/after interactions; full semantic review, external quote/history recovery and release certification remain separate open work.
+- R1 7곳 v54.70
+
+## v54.69 (2026-08-30)
+- **Shared transport**: exact request cache identities, explicit stale provenance, upstream-isolated circuit breakers, bounded body/read deadlines and an independent public market-data Worker configuration; consolidate Yahoo/RSS/Telegram/HY relay paths.
+- **Observation integrity**: preserve missing changes/volume/ranges, source observation times and reference FX/Stooq prices; retire fabricated HY spreads, VIX distributions and daily-to-weekly gold substitutions. Quote refresh now follows requested symbols plus core indicators instead of the historical 500+ ticker catalogue.
+- **Automation continuity**: isolate source failures, retain prior FRED success on partial cycles, and atomically replace generated outputs with URL/string-compatible writers. No live timestamps are renewed by config-only generation.
+- **Chat and desktop**: cancellable per-page requests/retries, bounded search/knowledge loading, evidence-object citation support, partial usable evidence and duplicate-search suppression; clear missing market values and retain concise observational theme labels.
+- **Verification**: add proxy/data/chat/desktop offline regression gates. Browser/live/deployment certification remains separate and unperformed for this revision.
+- R1 7곳 v54.69
+
+## v54.68 (2026-08-30)
+- **Screener evidence/search**: separate public delayed research availability from rights certification, require every required observation and prioritize exact ticker queries; preserve client-only raw quotes and retry boot-deferred quote demand.
+- **Entity/timeframe integrity**: isolate stale fundamental/technical responses, clear invalid selections including the factor radar, connect technical views and exact Yahoo day/week/month fallbacks, and use SEC duration frames for quarterly flows.
+- **Observed analytics**: replace invented ADR/EMA/candle/VIX proxies with real observations, preserve missing factor axes, unify selected-symbol price reference lines, and remove unsupported trading prescriptions from options/RRG descriptions.
+- **Simpler desktop UI**: expose native theme details, collapse optional connection settings, limit repeated Telegram summaries and remove unsupported mobile compatibility claims.
+- **Regression/recovery**: add research-flow VM contracts and a resumable partial version-bump path; local evidence remains separate from deployment certification.
+- R1 7곳 v54.68
+
+## v54.67 (2026-08-29)
+- **13F reference ticker lookup**: added a refreshable reference-only CUSIP crosswalk artifact and connected it to the Masters page and chat helper; results expose SEC report-period rows and source links without promoting current ownership, sector weights, or signals.
+- **Page-level research bridge**: connected the supplied market-principles, institutional-flow, and AI-era economics relay to the Principles and Atlas reference surfaces with explicit observe/invalidation gates.
+- **Structural contracts**: added Masters/13F/Principles/Atlas contract assertions for the new consumer paths and preserved the verified security-master and live liquidity producer gaps as blocked states.
+- **Verification boundary**: v54.67 is a local code/data/knowledge update only; no commit, push, Pages/Worker deployment, live market claim, or 13F current-ownership claim was made.
+- R1 7곳 v54.67
+
+## v54.66 (2026-08-29)
+- **Supplied-materials integration**: integrated the user-provided X/GitHub packet and two attachments as reference-only research frameworks across macro funding/liquidity, AI inference and hardware qualification, chart-pattern taxonomy, breadth/positioning, company financing, physical AI and research tooling; transient values, targets, contracts, supplier mappings and issuer claims remain blocked from LIVE/ranking use.
+- **Native reference lenses**: extended the existing market and themes lenses, exposed read-only reference getters through `AIO_ARCH`, and added shared chat guardrails plus routing vocabulary without creating a parallel score or ticker universe.
+- **Verification boundary**: x.com direct reading was unavailable in the source audit, so exact post IDs were cross-checked through public syndication; two JPMorgan links and AI Bottlenecks remained unreadable, and no commit, push or deployment was performed.
+- R1 7곳 v54.66
+
 ## v54.65 (2026-08-29)
 - **Reference provenance**: accepts a bounded source label after dated `REFERENCE`/`TG-REFERENCE` kinds while retaining strict date, kind and closing-bracket validation; failing rows now report their symbols.
 - **BOK official rollover**: updated the official-primary reference to the Bank of Korea's 2026-08-27 increase from 2.75% to 3.00% and advanced the next policy meeting to 2026-10-22 across calendar and schedule registries.
@@ -123,7 +211,11 @@
 - R1 7곳 v54.52
 
 ## v54.51 (2026-08-23)
-- <!-- 변경 내용을 이곳에 기록하세요 -->
+- **Shared transport**: exact request cache identities, explicit stale provenance, upstream-isolated circuit breakers, bounded body/read deadlines and an independent public market-data Worker configuration; consolidate Yahoo/RSS/Telegram/HY relay paths.
+- **Observation integrity**: preserve missing changes/volume/ranges, source observation times and reference FX/Stooq prices; retire fabricated HY spreads, VIX distributions and daily-to-weekly gold substitutions. Quote refresh now follows requested symbols plus core indicators instead of the historical 500+ ticker catalogue.
+- **Automation continuity**: isolate source failures, retain prior FRED success on partial cycles, and atomically replace generated outputs with URL/string-compatible writers. No live timestamps are renewed by config-only generation.
+- **Chat and desktop**: cancellable per-page requests/retries, bounded search/knowledge loading, evidence-object citation support, partial usable evidence and duplicate-search suppression; clear missing market values and retain concise observational theme labels.
+- **Verification**: add proxy/data/chat/desktop offline regression gates. Browser/live/deployment certification remains separate and unperformed for this revision.
 - R1 7곳 v54.51
 
 ## v54.50 (2026-08-23)

@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MARKET_PRINCIPLES_CATALOG } from '../src/ui/pages/principles.js';
 import { createClaimRegistry, createEvidenceRegistry, unresolvedEvidenceIds } from '../src/domain/knowledge/evidence.js';
-import { inspectKnowledgeGraph, normalizeKnowledgeEdges } from '../src/domain/knowledge/graph.js';
+import { EDGE_TYPES, inspectKnowledgeGraph, normalizeKnowledgeEdge, normalizeKnowledgeEdges } from '../src/domain/knowledge/graph.js';
 import { loadKnowledgeCapabilities } from '../src/data/knowledge/load-capabilities.js';
 import { createConceptRegistry } from '../src/domain/knowledge/ontology.js';
 import { safeExternalHref } from '../src/ui/knowledge/safe-external-link.js';
@@ -12,6 +12,15 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readJson = (relativePath) => JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
 const failures = [];
 const assert = (condition, message) => { if (!condition) failures.push(message); };
+
+const malformedEdge = normalizeKnowledgeEdge({ from: 'a', to: 'b', relation: 'requires', type: 'TYPO', direction: 'SIDEWAYS', conditions: 'not-an-array', sourceIds: 'PS-01' });
+assert(malformedEdge.type === 'REQUIRES' && malformedEdge.direction === 'DIRECTED', `Invalid edge enums did not fail closed: ${JSON.stringify(malformedEdge)}`);
+assert(malformedEdge.inferredFields.includes('type') && malformedEdge.inferredFields.includes('direction') && malformedEdge.inferredFields.includes('conditions') && malformedEdge.inferredFields.includes('sourceIds'), `Invalid edge fields were not audited: ${JSON.stringify(malformedEdge.inferredFields)}`);
+assert(Object.isFrozen(EDGE_TYPES) && Array.isArray(EDGE_TYPES), 'Edge type vocabulary exposes a mutable Set');
+assert(EDGE_TYPES.includes('RELATES_TO'), 'Knowledge graph lacks a non-causal navigation edge type');
+let malformedEdgesRejected = false;
+try { normalizeKnowledgeEdges('not-an-array'); } catch (_) { malformedEdgesRejected = true; }
+assert(malformedEdgesRejected, 'Knowledge edge collection accepted a scalar input');
 
 const principlesGraph = inspectKnowledgeGraph({
   nodeIds: MARKET_PRINCIPLES_CATALOG.nodes.map((node) => node.id),
@@ -24,6 +33,9 @@ assert(principlesGraph.components.length === 1, `Principles components: ${princi
 assert(principlesGraph.isolatedNodes.length === 0, `Principles isolated nodes: ${principlesGraph.isolatedNodes.join(',')}`);
 assert(principlesGraph.metadataErrors.length === 0, `Principles edge metadata: ${JSON.stringify(principlesGraph.metadataErrors)}`);
 assert(principlesGraph.inferredEdges.length === 0, `Principles inferred edge metadata: ${JSON.stringify(principlesGraph.inferredEdges)}`);
+assert(!MARKET_PRINCIPLES_CATALOG.edges.some((edge) => edge.conditions.includes('교육용 구조 경로로 연결되며 조건은 원문 관계 설명에 따른다')), 'Generic causal fallback survived in Principles edge semantics');
+const navigationEdge = MARKET_PRINCIPLES_CATALOG.edges.find((edge) => edge.from === 'defense-space' && edge.to === 'biotech-healthcare');
+assert(navigationEdge?.type === 'RELATES_TO' && navigationEdge?.direction === 'BIDIRECTIONAL' && navigationEdge?.reviewStatus === 'STRUCTURAL_NAVIGATION_ONLY', `Cross-industry navigation edge overclaims causality: ${JSON.stringify(navigationEdge)}`);
 assert(MARKET_PRINCIPLES_CATALOG.edges.some((edge) => edge.from === 'compute' && edge.to === 'photonic-link-economics'), 'Principles photonic edge must originate from an in-catalog concept');
 assert(!MARKET_PRINCIPLES_CATALOG.edges.some((edge) => edge.from === 'network-fabric' && edge.to === 'photonic-link-economics'), 'Principles must not reference Atlas-only network-fabric');
 
@@ -78,6 +90,7 @@ const primaryResearchSource = evidence.resolve('PS-01');
 assert(primaryResearchSource?.publishedAt === '2026-06-04', 'Evidence view model must preserve source publication date');
 assert(primaryResearchSource?.verification === 'opened_primary_source', 'Evidence view model must preserve source verification');
 assert(Boolean(primaryResearchSource?.scope), 'Evidence view model must preserve source scope');
+assert(!('byId' in evidence), 'Evidence registry must not expose its mutable Map index');
 assert(safeExternalHref('https://www.sec.gov/Archives/test')?.startsWith('https://www.sec.gov/'), 'HTTPS source URL must be allowed');
 for (const unsafeUrl of ['javascript:alert(1)', 'data:text/html,test', 'http://example.com', 'not a url', '']) assert(safeExternalHref(unsafeUrl) === null, `Unsafe URL must be rejected: ${unsafeUrl}`);
 
@@ -104,6 +117,11 @@ const ontology = createConceptRegistry(conceptsArtifact.concepts, aliasesArtifac
 assert(conceptsArtifact.concepts.length === 155, `Canonical concept count: ${conceptsArtifact.concepts.length}`);
 assert(ontology.errors.length === 0, `Ontology errors: ${JSON.stringify(ontology.errors)}`);
 assert(ontology.resolve('defense-autonomy').length === 2, 'Cross-page duplicate legacy ID must resolve through explicit equivalence');
+assert(!('byId' in ontology), 'Ontology registry must not expose its mutable Map index');
+const mutableConcept = { canonicalId: 'fixture:mutable', title: 'before' };
+const immutableOntology = createConceptRegistry([mutableConcept], [{ alias: 'fixture:mutable', targets: ['fixture:mutable'] }]);
+mutableConcept.title = 'after';
+assert(immutableOntology.resolve('fixture:mutable')[0]?.title === 'before' && Object.isFrozen(immutableOntology.resolve('fixture:mutable')[0]), 'Ontology registry must isolate and freeze caller-owned concept objects');
 
 const knowledgeClaims = readJson('public-data/knowledge/claims.json');
 const unifiedEvidence = createEvidenceRegistry(knowledgeSources);
@@ -111,6 +129,9 @@ const claimRegistry = createClaimRegistry(knowledgeClaims.claims, unifiedEvidenc
 assert(unifiedEvidence.conflicts.length === 0, `Unified evidence conflicts: ${JSON.stringify(unifiedEvidence.conflicts)}`);
 assert(claimRegistry.duplicates.length === 0, `Duplicate claim IDs: ${claimRegistry.duplicates.join(',')}`);
 assert(claimRegistry.unresolved.length === 0, `Unresolved claim sources: ${JSON.stringify(claimRegistry.unresolved)}`);
+assert(!('byId' in claimRegistry), 'Claim registry must not expose its mutable Map index');
+const malformedClaimSources = createClaimRegistry([{ claimId: 'fixture:claim', sourceIds: 'PS-01' }], unifiedEvidence).resolve('fixture:claim');
+assert(malformedClaimSources?.sourceIds.length === 0, 'Claim registry must reject scalar sourceIds instead of splitting them into characters');
 for (const claim of claimRegistry.claims) {
   if (claim.directness === 'DIRECT') {
     assert(claim.sourceIds.length > 0, `DIRECT claim has no source: ${claim.claimId}`);

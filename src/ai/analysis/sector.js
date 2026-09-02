@@ -1,9 +1,9 @@
 export const AI_SECTOR_ENGINE_VERSION = 'sector-decomposition.v1';
 
-function finite(value) { return Number.isFinite(Number(value)) ? Number(value) : null; }
+function finite(value) { return typeof value === 'number' && Number.isFinite(value) ? value : null; }
 
 export function buildSectorDecomposition({ sector = null, constituents = [], observedAt = null, source = null } = {}) {
-  const rows = (Array.isArray(constituents) ? constituents : []).map((row) => ({
+  const rows = (Array.isArray(constituents) ? constituents : []).map((row) => Object.freeze({
     symbol: row?.symbol || row?.ticker || null,
     returnPct: finite(row?.returnPct ?? row?.changePct ?? row?.return),
     weight: finite(row?.weight),
@@ -16,7 +16,8 @@ export function buildSectorDecomposition({ sector = null, constituents = [], obs
   const unchanged = rows.length - advances - declines;
   const averageReturnPct = rows.length ? rows.reduce((sum, row) => sum + row.returnPct, 0) / rows.length : null;
   const ranked = [...rows].sort((a, b) => b.returnPct - a.returnPct);
-  const status = !rows.length ? 'insufficient' : rows.length < 3 ? 'partial' : 'ready';
+  const traceable = rows.length > 0 && rows.every((row) => row.source && row.asOf && row.evidenceId);
+  const status = !rows.length ? 'insufficient' : rows.length < 3 || !traceable ? 'partial' : 'ready';
   return Object.freeze({
     schemaVersion: AI_SECTOR_ENGINE_VERSION,
     status,

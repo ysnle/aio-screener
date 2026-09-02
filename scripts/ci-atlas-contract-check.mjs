@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const atlas = read('src/ui/pages/atlas.js');
+const suppliedMaterials = read('src/domain/research/supplied-materials.js');
 const principles = read('src/ui/pages/principles.js');
 const index = read('index.html');
 const core = read('js/aio-core.js');
@@ -49,6 +50,7 @@ const required = [
   ['telegram discovery digest', atlas.includes('TELEGRAM_REFERENCE_URL') && atlas.includes('createTelegramReferenceView') && data.telegramReferenceArtifact === 'public-data/telegram-digest.json' && atlas.includes('sourceCatalog')],
   ['player/product currentness overlay', atlas.includes('PLAYER_PRODUCT_CURRENTNESS_URL') && atlas.includes('mergePlayerProductCurrentness') && data.playerProductCurrentnessArtifact === 'public-data/atlas/player-product-currentness.json'],
   ['dated primary evidence ledger', atlas.includes('CURRENT_EVIDENCE_LEDGER_URL') && atlas.includes('createCurrentEvidenceLedgerView') && data.currentEvidenceLedgerArtifact === 'public-data/atlas/current-evidence-ledger.json'],
+  ['supplied material bridge', atlas.includes('createSuppliedMaterialBridge') && suppliedMaterials.includes('market-principles') && suppliedMaterials.includes('institutional-flow') && suppliedMaterials.includes('ai-era-economics')],
   ['relationship guide consumer', atlas.includes('KNOWLEDGE_RELATIONSHIP_GUIDES_URL') && atlas.includes('createRelationshipGuidesView') && atlas.includes("['relationships', '관계 지도']") && data.relationshipGuideArtifact === 'public-data/knowledge/relationship-guides.json'],
   ['safe dom', atlas.includes('replaceChildren') && !atlas.includes('innerHTML')]
 ];

@@ -1,8 +1,10 @@
 import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
 import { selectTechnical, selectSignal, selectHomeSummary } from '../../state/selectors/analysis.js';
 import { selectSentimentValues } from '../../state/selectors/sentiment.js';
+import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 
 function finite(value) {
+  if (value == null || typeof value === 'boolean' || String(value).trim() === '') return null;
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
 }
@@ -58,6 +60,22 @@ function renderSignalDecision({ documentRef, signal }) {
 
 function renderHomeSummary({ documentRef, signal }) {
   const presentation = signal?.presentation;
+  const container = documentRef?.getElementById('home-hero-components');
+  if (container) {
+    container.replaceChildren();
+    for (const component of presentation?.components || []) {
+      const row = documentRef.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:14px;';
+      const label = documentRef.createElement('span');
+      label.textContent = component.label;
+      label.style.cssText = 'font-size:11.5px;color:var(--text-muted);';
+      const value = documentRef.createElement('span');
+      value.textContent = `${component.contribution == null ? '—' : component.contribution} / ${component.weight}`;
+      value.style.cssText = 'font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;';
+      row.append(label, value);
+      container.append(row);
+    }
+  }
   if (!presentation?.modelVersion) {
     setText(documentRef, 'home-hero-total', '—', 'var(--text-muted)');
     setText(documentRef, 'home-hero-headline', '판정 보류 — 입력 대기', 'var(--text-muted)');
@@ -82,6 +100,8 @@ function renderHomeFearGreed({ documentRef, sentimentValues }) {
   const element = documentRef?.getElementById('home-fg-score');
   if (!element) return;
   const score = finite(sentimentValues?.fearGreed);
+  const label = documentRef?.getElementById('home-fg-label');
+  if (label) label.textContent = score == null ? '미수신' : score <= 25 ? '극단적 공포' : score <= 45 ? '공포' : score <= 55 ? '중립' : score <= 75 ? '탐욕' : '극단적 탐욕';
   element.textContent = score == null ? '—' : String(Math.round(score));
   element.style.color = score == null
     ? 'var(--text-muted)'
@@ -267,6 +287,9 @@ function render({ root, documentRef, store, route, charts }) {
   const sentimentValues = selectSentimentValues(store.getState());
   const page = documentRef?.getElementById(`page-${route}`);
   if (page) {
+    // Reference quotes remain useful even when the decision score is blocked.
+    // Reuse the shared writer when snapshot hydration completes after first paint.
+    root?.AIO?.applyLiveDataToDom?.({ pageId: route });
     page.dataset.aioArchitectureRoute = route;
     page.dataset.aioArchitectureSlice = 'analysis';
     page.dataset.aioArchitectureStatus = (route === 'home' ? home?.status : route === 'signal' ? signal?.status : technical?.status) || 'unavailable';
@@ -306,9 +329,20 @@ export function createAnalysisPage({ root = globalThis, documentRef, store, rout
       const eventTarget = documentRef || globalThis;
       eventTarget?.addEventListener?.('aio:liveQuotes', renderNow);
       eventTarget?.addEventListener?.('aio:refresh:done', renderNow);
+      eventTarget?.addEventListener?.('aio:serverDataLoaded', renderNow);
       bag.add(() => eventTarget?.removeEventListener?.('aio:liveQuotes', renderNow));
       bag.add(() => eventTarget?.removeEventListener?.('aio:refresh:done', renderNow));
+      bag.add(() => eventTarget?.removeEventListener?.('aio:serverDataLoaded', renderNow));
       const page = documentRef?.getElementById(`page-${route}`);
+      let suppliedMaterialBridge = page?.querySelector?.(`[data-aio-supplied-material-route="${route}"]`) || null;
+      if (page && !suppliedMaterialBridge) {
+        suppliedMaterialBridge = createSuppliedMaterialBridge(documentRef, {
+          routeId: route,
+          heading: route === 'home' ? '홈 · 시장 확인과 거시 시차' : route === 'signal' ? '시그널 · 확인 증거와 리스크 과정' : '기술 · 가격 우선과 다중 시계열'
+        });
+        page.appendChild(suppliedMaterialBridge);
+        bag.add(() => suppliedMaterialBridge?.remove?.());
+      }
       const technicalCandleMeta = route === 'technical'
         ? [documentRef?.getElementById('tech-candle-title'), documentRef?.getElementById('tech-candle-meta')]
         : [];

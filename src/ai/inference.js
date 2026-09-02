@@ -10,23 +10,23 @@ function finite(value) {
 }
 
 function urls(value) {
-  return [...new Set((Array.isArray(value) ? value : []).map((url) => text(url)).filter((url) => /^https?:\/\//i.test(url)))];
+  return [...new Set((Array.isArray(value) ? value : []).map((url) => text(url)).filter((url) => /^https:\/\//i.test(url)))];
 }
 
 function observedWindow(value = {}) {
   const start = text(value.start || value.from || value.observedFrom, '');
   const end = text(value.end || value.to || value.observedTo, '');
-  return Object.freeze({
-    start: start && !Number.isNaN(Date.parse(start)) ? new Date(start).toISOString() : null,
-    end: end && !Number.isNaN(Date.parse(end)) ? new Date(end).toISOString() : null
-  });
+  const normalizedStart = start && !Number.isNaN(Date.parse(start)) ? new Date(start).toISOString() : null;
+  const normalizedEnd = end && !Number.isNaN(Date.parse(end)) ? new Date(end).toISOString() : null;
+  if (normalizedStart && normalizedEnd && Date.parse(normalizedEnd) < Date.parse(normalizedStart)) return Object.freeze({ start: null, end: null });
+  return Object.freeze({ start: normalizedStart, end: normalizedEnd });
 }
 
 function range(value = {}) {
   value = value && typeof value === 'object' ? value : {};
   const min = finite(value.min);
   const max = finite(value.max);
-  if (min == null && max == null) return null;
+  if ((min == null && max == null) || (min != null && max != null && min > max)) return null;
   return Object.freeze({ min, max, unit: text(value.unit, 'unknown') });
 }
 
@@ -35,7 +35,8 @@ function range(value = {}) {
 // decision evidence without an independent provider-backed Evidence envelope.
 export function createInferredClaim(input = {}) {
   const sourceUrls = urls(input.sourceUrls || input.sources);
-  const sourceCount = Math.max(0, Number(input.sourceCount ?? sourceUrls.length) || 0);
+  const requestedSourceCount = input.sourceCount ?? sourceUrls.length;
+  const sourceCount = Number.isInteger(requestedSourceCount) && requestedSourceCount >= 0 ? requestedSourceCount : 0;
   const confidence = INFERENCE_CONFIDENCE.includes(String(input.confidence).toUpperCase())
     ? String(input.confidence).toUpperCase()
     : 'LOW';
@@ -64,14 +65,16 @@ export function validateInferredClaim(claim) {
   if (!INFERENCE_CONFIDENCE.includes(claim?.confidence)) errors.push('confidence_invalid');
   if (!Number.isInteger(claim?.sourceCount) || claim.sourceCount < 1) errors.push('source_count_invalid');
   if (!Array.isArray(claim?.sourceUrls) || claim.sourceUrls.length < 1) errors.push('source_urls_missing');
-  if (claim?.sourceUrls?.some((url) => !/^https?:\/\//i.test(url))) errors.push('source_url_invalid');
+  if (claim?.sourceUrls?.some((url) => !/^https:\/\//i.test(url))) errors.push('source_url_invalid');
   if (claim?.confidence === 'HIGH' && claim.sourceCount < 2) errors.push('high_confidence_requires_two_sources');
   if (claim?.sourceCount < claim?.sourceUrls?.length) errors.push('source_count_below_url_count');
   if (claim?.sourceKind !== 'web-search' || claim?.allowedUse !== 'reference' || claim?.claimClass !== 'INFERRED') errors.push('inference_provenance_invalid');
   const forbiddenNumericKeys = new Set(['value', 'current', 'currentvalue', 'exact', 'exactvalue', 'numeric', 'numericvalue']);
   if (claim && Object.keys(claim).some((key) => forbiddenNumericKeys.has(String(key).toLowerCase()))) errors.push('exact_numeric_search_value_forbidden');
   if (claim?.range && (claim.range.min == null && claim.range.max == null)) errors.push('range_empty');
-  return Object.freeze({ ok: errors.length === 0, errors: [...new Set(errors)] });
+  if (claim?.range && claim.range.min != null && claim.range.max != null && claim.range.min > claim.range.max) errors.push('range_order_invalid');
+  if (claim?.observedWindow?.start && claim?.observedWindow?.end && Date.parse(claim.observedWindow.end) < Date.parse(claim.observedWindow.start)) errors.push('observed_window_order_invalid');
+  return Object.freeze({ ok: errors.length === 0, errors: Object.freeze([...new Set(errors)]) });
 }
 
 export function evaluateInferredClaim(claim) {

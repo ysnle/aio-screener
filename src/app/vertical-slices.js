@@ -1,4 +1,4 @@
-// Wave 3: the page work is delivered as ten vertical slices. This registry is
+// Wave 3: page work is delivered as an ordered set of vertical slices. This registry is
 // the executable boundary for route pairing, required producer intent, and the
 // acceptance checks that every slice must carry before it can be called done.
 // Product scope is desktop-only. Responsive/mobile compatibility remains in the

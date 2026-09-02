@@ -8,6 +8,7 @@ const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const fail = (message) => { throw new Error(`[masters-contract] ${message}`); };
 
 const index = read('index.html');
+const core = read('js/aio-core.js');
 const routes = read('src/app/routes.js');
 const slices = read('src/app/vertical-slices.js');
 const bootstrap = read('src/app/bootstrap.js');
@@ -20,6 +21,7 @@ const holdings = JSON.parse(read('public-data/masters/holdings.json'));
 const runtimeHoldings = JSON.parse(read('public-data/masters/holdings-summary.json'));
 const securityMaster = JSON.parse(read('public-data/masters/security-master.json'));
 const referenceMaster = JSON.parse(read('public-data/masters/security-master-reference.json'));
+const tickerIndexReference = JSON.parse(read('public-data/masters/ticker-index-reference.json'));
 const historyIndex = JSON.parse(read('public-data/masters/history-index.json'));
 const historyRows = JSON.parse(read('public-data/masters/history-holdings.json'));
 const issuerAggregates = JSON.parse(read('public-data/masters/issuer-aggregates.json'));
@@ -40,6 +42,10 @@ for (const [label, source, marker] of [
   ['native page factory', page, 'export function createMastersPage'],
   ['SEC source boundary', page, 'SEC EDGAR'],
   ['reference sector mapping', page, 'createReferenceSectorView'],
+  ['reference ticker lookup page', page, 'TICKER_INDEX_REFERENCE_URL'],
+  ['reference ticker lookup renderer', page, 'createTickerLookup'],
+  ['reference ticker lookup boundary', page, 'mastersTickerLookup'],
+  ['reference ticker lookup', core, 'ticker-index-reference.json'],
   ['filing history', page, 'HISTORY_INDEX_URL'],
   ['manager history shards', page, 'managerShards'],
   ['issuer aggregate renderer', page, 'createIssuerAggregateView'],
@@ -151,6 +157,12 @@ if (mastersIndex.rowPreviewArtifact !== 'public-data/masters/manager-row-preview
 if (securityMaster.status !== 'REFERENCE_NORMALIZATION_PENDING' || securityMaster.sourceArtifact !== 'public-data/masters/holdings.json' || securityMaster.coverage?.rawUniqueCusips !== rawUniqueCusips || securityMaster.coverage?.rawUniqueIssuerNames !== rawUniqueIssuerNames || securityMaster.coverage?.mappedRows !== 0 || securityMaster.coverage?.recordsPublished !== 0 || securityMaster.coverage?.sectorWeightsPublished !== false || securityMaster.records?.length !== 0) fail('security-master artifact boundary drifted');
 if (issuerAggregates.schema !== 'masters-13f-issuer-aggregates.v1' || issuerAggregates.status !== 'RAW_CUSIP_MULTI_QUARTER_CONNECTED' || issuerAggregates.coverage?.inputRows <= 0 || issuerAggregates.coverage?.aggregateRecords !== issuerAggregates.aggregates?.length || issuerAggregates.coverage?.tickerPublished !== 0 || issuerAggregates.coverage?.sectorPublished !== 0 || issuerAggregates.aggregates?.some((record) => !record.managerId || !record.cusipNormalized || !record.periods?.length || record.tickerStatus !== 'NOT_PUBLISHED' || record.sectorStatus !== 'NOT_PUBLISHED' || record.corporateActionStatus !== 'REVIEW_REQUIRED')) fail('issuer aggregate artifact boundary drifted');
 if (referenceMaster.status !== 'REFERENCE_MAPPING_CONNECTED' || referenceMaster.coverage?.rawCompactRows !== 68 || referenceMaster.coverage?.verifiedTickerRows !== 0 || referenceMaster.coverage?.verifiedSectorRows !== 0 || referenceMaster.records?.length !== referenceMaster.coverage?.referenceSectorRows) fail('reference security-master mapping boundary drifted');
+const referenceTickerByCusip = new Map((referenceMaster.records || []).filter((record) => record.cusipNormalized && record.tickerReference).map((record) => [record.cusipNormalized, record]));
+const expectedReferenceTickerMatches = (holdings.allHoldings || []).filter((row) => referenceTickerByCusip.has(row.cusipNormalized || row.cusip)).length;
+if (tickerIndexReference.schema !== 'masters-13f-reference-ticker-index.v1' || tickerIndexReference.artifactRole !== 'REFERENCE_ONLY_TICKER_LOOKUP' || tickerIndexReference.sourceKind !== 'SEC_EDGAR_DERIVED_REFERENCE' || tickerIndexReference.status !== 'REFERENCE_ONLY' || tickerIndexReference.coverage?.sourceCurrentRows !== holdings.allHoldings.length || tickerIndexReference.coverage?.matchedCurrentRows !== expectedReferenceTickerMatches || tickerIndexReference.coverage?.unmappedCurrentRows !== holdings.allHoldings.length - expectedReferenceTickerMatches || tickerIndexReference.coverage?.verifiedTickerRows !== 0 || tickerIndexReference.coverage?.sectorWeightsPublished !== false || tickerIndexReference.records?.length !== tickerIndexReference.coverage?.referenceTickerCount || !tickerIndexReference.policy.includes('Absence') || !tickerIndexReference.boundary.includes('unverified')) fail('reference-only 13F ticker index boundary or coverage drifted');
+if (tickerIndexReference.records?.some((record) => !record.tickerReference || record.mappingStatus !== 'REFERENCE_ONLY' || !record.rows?.length || record.rows.some((row) => !row.managerId || !row.reportPeriod || !row.cusip || row.sourceUrl == null))) fail('reference-only 13F ticker index rows are incomplete');
+if (mastersIndex.tickerIndexArtifact !== 'public-data/masters/ticker-index-reference.json' || mastersIndex.tickerIndexStatus !== 'REFERENCE_ONLY' || mastersIndex.tickerIndexReferenceCount !== tickerIndexReference.records.length || mastersIndex.tickerIndexMatchedRows !== expectedReferenceTickerMatches) fail('masters index does not expose the reference-only 13F ticker index metadata');
+if (!core.includes('mappingStatus') || !core.includes('reference-rows-found') || !core.includes('reference-mapping-not-found') || !core.includes('tickerReference is not SEC-provided')) fail('13F chat reverse lookup lacks explicit reference-only/missing-mapping boundaries');
 if (historyIndex.status !== 'FILING_HISTORY_ROWS_CONNECTED' || historyIndex.connectedManagers !== 7 || historyIndex.historyDepthTarget !== 12 || historyIndex.totalPeriods !== 84 || historyIndex.rowImportedPeriods !== 84 || historyIndex.pendingRowImportPeriods !== 0 || historyIndex.historicalRowsArtifact !== 'public-data/masters/history-holdings.json' || historyIndex.managers.some((manager) => manager.periods.length !== 12 || manager.periods.some((period) => !period.indexUrl || !period.accession || !period.periodOfReport || !period.informationTableXml || !period.rowCount || period.rowImportStatus === 'METADATA_ONLY'))) fail('13F filing history rows boundary drifted');
 if (historyRows.status !== 'RAW_SEC_HISTORY_CONNECTED' || historyRows.periodsImported !== 70 || historyRows.rowsImported <= 0 || historyRows.rows?.some((row) => !row.managerId || !row.reportPeriod || !row.cusipNormalized || !row.sourceUrl)) fail('13F historical row artifact boundary drifted');
 const liveManagers = filings.managers.filter((manager) => manager.cik);

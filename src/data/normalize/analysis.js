@@ -7,7 +7,7 @@ export function normalizeAnalysis(raw = {}) {
   const technical = raw.technical?.health
     ? Object.freeze({ ...technicalBase, health: raw.technical.health })
     : technicalBase;
-  const tradingScore = raw.tradingScore?.modelVersion === 'trading-score.v1'
+  const tradingScore = raw.tradingScore?.modelVersion === 'trading-score.v2'
     ? raw.tradingScore
     : computeTradingScoreModel(raw.tradingScoreInputs || {});
   const signalBase = raw.signal?.modelVersion

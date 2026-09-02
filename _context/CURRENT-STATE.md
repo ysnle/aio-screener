@@ -1,8 +1,8 @@
 ---
 generated_by: scripts/generate-workspace-state.mjs
-generated_from_build: 2026-08-29T15:26:00+09:00
+generated_from_build: 2026-09-02T10:30:00+09:00
 auto_refresh: true
-last_verified: 2026-08-29
+last_verified: 2026-09-02
 ---
 
 # AIO Current State
@@ -11,27 +11,27 @@ last_verified: 2026-08-29
 
 ## Application
 
-- Version: `v54.65`
+- Version: `v54.76`
 - Architecture: `hybrid-static-shell-native-esm`
 - Active routes: 20 (source: `architecture/route-owners.json`)
-- App shell: 28,568 lines / 1,908,647 bytes
+- App shell: 28,205 lines / 1,884,387 bytes
 
 | Source | Lines | Bytes |
 |---|---:|---:|
-| `index.html` | 28,568 | 1,908,647 |
-| `js/aio-core.js` | 27,657 | 1,650,101 |
-| `js/aio-data.js` | 16,725 | 1,013,312 |
-| `js/aio-ui.js` | 4,354 | 272,441 |
-| `js/aio-chat.js` | 7,120 | 503,511 |
-| `js/aio-tests.js` | 9,199 | 700,399 |
-| `js/aio-glossary.js` | 322 | 60,446 |
+| `index.html` | 28,205 | 1,884,387 |
+| `js/aio-core.js` | 27,704 | 1,654,671 |
+| `js/aio-data.js` | 16,437 | 999,234 |
+| `js/aio-ui.js` | 4,343 | 271,792 |
+| `js/aio-chat.js` | 7,587 | 536,532 |
+| `js/aio-tests.js` | 9,202 | 701,048 |
+| `js/aio-glossary.js` | 322 | 60,537 |
 
 ## Workspace
 
-- Context documents: 67; preflight loads only this file, `WORKFLOW-GOVERNANCE.md`, and `INDEX.md`.
+- Context documents: 69; preflight loads only this file, `WORKFLOW-GOVERNANCE.md`, and `INDEX.md`.
 - Skills: 6; command wrappers: 9; agent profiles: 4.
-- Workflows: 9; CI scripts: 109.
-- Ledgers: latest rule R569; latest postmortem P1003; open QA 126 unique IDs (133 rows, 4 explicitly superseded).
+- Workflows: 9; CI scripts: 114.
+- Ledgers: latest rule R580; latest postmortem P1029; open QA 137 unique IDs (144 rows, 4 explicitly superseded).
 - Canonical skills: `.claude/skills`; Codex mirror: `.agents/skills`.
 
 ## Knowledge Boundary
@@ -43,7 +43,7 @@ last_verified: 2026-08-29
 
 ## Operations Boundary
 
-- Repository operations artifact: `OPERATOR_REQUIRED` at `2026-08-29T06:14:27.659Z`.
+- Repository operations artifact: `OPERATOR_REQUIRED` at `2026-09-02T13:56:32.232Z`.
 - Public stage: `RESEARCH_BETA_CONDITIONAL`; promotion decision: `BLOCKED_UNTIL_OPERATOR_CRITERIA_CLOSE`.
 - Live deployment, provider health, and edge headers must be measured by live gates. Never infer them from this file.
 

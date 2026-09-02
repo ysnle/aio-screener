@@ -1,6 +1,7 @@
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { createMarketSnapshot, TIER_0_INSTRUMENTS, tier0Coverage, validateMarketSnapshot } from '../src/data/contracts/market-snapshot.js';
+import { atomicWriteFile } from './lib/atomic-write.mjs';
 
 export const MARKET_SNAPSHOT_OUT = new URL('../public-data/market-snapshot.json', import.meta.url);
 export const MARKET_SNAPSHOT_STATUS_OUT = new URL('../public-data/market-snapshot-status.json', import.meta.url);
@@ -221,11 +222,11 @@ export async function publishMarketSnapshot(options = {}) {
     lastKnownGoodRevision: result.complete ? result.snapshot.revision : existingRevision,
     updatedAt: now
   };
-  await writeFile(MARKET_SNAPSHOT_STATUS_OUT, `${JSON.stringify(statusPayload, null, 2)}\n`);
+  await atomicWriteFile(MARKET_SNAPSHOT_STATUS_OUT, `${JSON.stringify(statusPayload, null, 2)}\n`);
   if (!result.complete) {
     return Object.freeze({ ...result, published: false, retainedRevision: existingRevision });
   }
-  await writeFile(MARKET_SNAPSHOT_OUT, `${JSON.stringify(result.snapshot, null, 2)}\n`);
+  await atomicWriteFile(MARKET_SNAPSHOT_OUT, `${JSON.stringify(result.snapshot, null, 2)}\n`);
   return Object.freeze({ ...result, published: true });
 }
 

@@ -8,15 +8,15 @@ function finite(value) {
 }
 
 function numberOrNull(value) {
-  return value == null || value === '' ? null : finite(Number(value));
+  return value == null || typeof value === 'boolean' || (typeof value === 'string' && !value.trim()) ? null : finite(Number(value));
 }
 
 function asOfIsFresh(asOf, now, maxAgeDays) {
   const timestamp = asOf ? new Date(asOf).getTime() : 0;
-  return timestamp > 0 && (now - timestamp) / 86400000 <= maxAgeDays;
+  return timestamp > 0 && now >= timestamp && (now - timestamp) / 86400000 <= maxAgeDays;
 }
 
-const RIGHTS_VALUES = new Set(['VERIFIED', 'REVIEW_REQUIRED', 'UNKNOWN']);
+const RIGHTS_VALUES = new Set(['VERIFIED', 'REVIEW_REQUIRED', 'UNKNOWN', 'BLOCKED', 'DENIED']);
 
 function normalizeRights(value) {
   const normalized = String(value == null ? '' : value).trim().toUpperCase();
@@ -49,8 +49,8 @@ function isOfficialFilingSource(source) {
 // Rights are a usage/entitlement gate, not a claim that a delayed public feed
 // is exchange-authoritative.  Resolve them from artifact metadata first and
 // use conservative source-family defaults only where the producer has no
-// per-field map yet.  This keeps official SEC fields usable while preserving
-// the REVIEW_REQUIRED gate for the free Yahoo EOD path.
+// per-field map yet. The free Yahoo EOD path retains REVIEW_REQUIRED metadata;
+// its research availability is evaluated separately from rights certification.
 function resolveFieldRights(definition, factor, artifact, row) {
   const explicit = readRightsOverride(definition, factor, artifact);
   if (explicit) return explicit;
@@ -88,8 +88,8 @@ function resolveFieldSourceKind(definition, factor, artifact, row) {
   return 'T3_PUBLIC_DELAYED';
 }
 
-function liveEnrichment(symbol, readLiveData) {
-  const live = readLiveData?.()?.[symbol] || {};
+function liveEnrichment(symbol, liveData) {
+  const live = liveData?.[symbol] || {};
   const envelope = live.quoteEnvelope || {};
   const marketCap = finite(live.marketCap);
   const observedAt = live.observedAt || envelope.observedAt || live.timestamp || live.ts || null;
@@ -98,7 +98,10 @@ function liveEnrichment(symbol, readLiveData) {
   const revision = live.revision || envelope.revision || null;
   return {
     price: finite(live.price),
-    mcap: marketCap != null ? Math.round(marketCap / 1e9) : null,
+    mcap: marketCap != null ? marketCap / 1e9 : null,
+    marketCap,
+    currency: live.currency || envelope.currency || null,
+    marketCapCurrency: live.marketCapCurrency || live.currency || envelope.currency || null,
     priceObservedAt: observedAt,
     priceFetchedAt: fetchedAt,
     priceSource: source,
@@ -120,15 +123,27 @@ export function createScreenerProvider({
   if (!httpClient || typeof httpClient.requestJson !== 'function') throw new Error('SCREENER_HTTP_CLIENT_INVALID');
   const ARTIFACT_STALE_AFTER_DAYS = 2;
   const FACTOR_STALE_AFTER_DAYS = 4;
+  let cachedResponses = null;
+  let fetchGeneration = 0;
+  let pendingResponses = null;
 
   return Object.freeze({
-    async readCurrent({ signal } = {}) {
-      const [artifactResponse, universeResponse] = await Promise.all([
-        httpClient.requestJson(url, { cache: 'no-store', signal }),
-        httpClient.requestJson(universeUrl, { cache: 'no-store', signal })
-      ]);
+    async readCurrent({ signal, refresh = true } = {}) {
+      let responses = !refresh && pendingResponses ? await pendingResponses : cachedResponses;
+      if (refresh || !responses) {
+        const generation = ++fetchGeneration;
+        const pending = Promise.all([
+          httpClient.requestJson(url, { cache: 'no-store', signal }),
+          httpClient.requestJson(universeUrl, { cache: 'no-store', signal })
+        ]);
+        pendingResponses = pending;
+        try { responses = await pending; }
+        finally { if (pendingResponses === pending) pendingResponses = null; }
+        if (generation === fetchGeneration && !signal?.aborted) cachedResponses = responses;
+      }
+      const [artifactResponse, universeResponse] = responses;
       const now = typeof clock.now === 'function' ? clock.now() : Date.now();
-      const artifact = artifactResponse.ok && artifactResponse.data && typeof artifactResponse.data === 'object'
+      const receivedArtifact = artifactResponse.ok && artifactResponse.data && typeof artifactResponse.data === 'object'
         ? artifactResponse.data
         : null;
       const universePayload = universeResponse.ok && universeResponse.data && typeof universeResponse.data === 'object'
@@ -150,15 +165,18 @@ export function createScreenerProvider({
         updatedAt: null
       });
 
-      if (!artifact || !artifact.data || typeof artifact.data !== 'object') {
-        return unavailable(null, artifactResponse.error || 'SCREENER_ARTIFACT_INVALID');
-      }
-      if (!asOfIsFresh(artifact.asOf, now, ARTIFACT_STALE_AFTER_DAYS)) {
-        return unavailable(artifact.asOf || null, 'SCREENER_ARTIFACT_STALE');
-      }
-      if (!asOfIsFresh(artifact.factorObservedAt, now, FACTOR_STALE_AFTER_DAYS)) {
-        return unavailable(artifact.asOf || null, 'SCREENER_FACTOR_OBSERVATION_STALE');
-      }
+      const artifactValid = !!receivedArtifact?.data && typeof receivedArtifact.data === 'object' && !Array.isArray(receivedArtifact.data);
+      if (!artifactValid && !Array.isArray(universePayload?.universe)) return unavailable(null, artifactResponse.error || 'SCREENER_ARTIFACT_INVALID');
+      // Preserve identities and permitted reference fields during stale/partial
+      // refreshes. Per-field readiness, not a file timestamp, gates calculations.
+      const artifact = artifactValid ? receivedArtifact : { data: {} };
+      const artifactFresh = artifactValid && asOfIsFresh(artifact.asOf, now, ARTIFACT_STALE_AFTER_DAYS);
+      const factorsFresh = artifactValid && asOfIsFresh(artifact.factorObservedAt, now, FACTOR_STALE_AFTER_DAYS);
+      const warnings = [
+        ...(!artifactValid ? ['SCREENER_ARTIFACT_INVALID'] : []),
+        ...(artifactValid && !artifactFresh ? ['SCREENER_ARTIFACT_STALE'] : []),
+        ...(artifactValid && !factorsFresh ? ['SCREENER_FACTOR_OBSERVATION_STALE'] : [])
+      ];
 
       const universe = universeResponse.ok && Array.isArray(universeResponse.data?.universe)
         ? universeResponse.data.universe
@@ -169,18 +187,37 @@ export function createScreenerProvider({
         ...Object.keys(artifact.data).map((symbol) => String(symbol).toUpperCase())
       ])];
 
+      let liveData = {};
+      try {
+        const candidate = readLiveData?.();
+        if (candidate && typeof candidate === 'object') liveData = candidate;
+      } catch (_) {
+        warnings.push('SCREENER_LIVE_ENRICHMENT_UNAVAILABLE');
+      }
       const rows = symbols.map((symbol) => {
         const identity = universeBySymbol.get(symbol) || {};
         const factor = artifact.data[symbol] || {};
-        const live = liveEnrichment(symbol, readLiveData);
+        const live = liveEnrichment(symbol, liveData);
         const market = /\.K[QS]$/i.test(symbol) || ['KOSPI', 'KOSDAQ'].includes(String(identity.index || '').toUpperCase()) ? 'KR' : 'US';
+        const artifactCurrency = String(factor.currency || identity.currency || '').trim().toUpperCase() || null;
+        const liveCurrency = String(live.currency || '').trim().toUpperCase() || null;
+        const currencyCompatible = !artifactCurrency || !liveCurrency || artifactCurrency === liveCurrency;
+        const artifactPriceObservedAt = factor.observedAt || artifact.factorObservedAt || null;
+        const artifactPriceTime = Date.parse(artifactPriceObservedAt || '');
+        const livePriceTime = Date.parse(live.priceObservedAt || '');
+        const useLivePrice = currencyCompatible && live.price != null && Number.isFinite(livePriceTime) && livePriceTime <= now
+          && (finite(factor.price) == null || !Number.isFinite(artifactPriceTime) || artifactPriceTime > now || livePriceTime > artifactPriceTime);
+        const useArtifactPrice = !useLivePrice && finite(factor.price) != null;
+        const currency = useLivePrice ? liveCurrency : artifactCurrency;
+        const marketCapCurrency = String(live.marketCapCurrency || currency || '').trim().toUpperCase() || null;
+        const volumeCurrency = String(factor.dollarVolumeCurrency || factor.currency || '').trim().toUpperCase() || null;
         const instrumentRef = createInstrumentRef({
           instrumentId: `${market}:${symbol}`,
           symbol,
           market,
-          mic: market === 'KR' ? 'XKRX' : (String(identity.index || '').toUpperCase() === 'NYSE' ? 'XNYS' : 'XNAS'),
-          currency: market === 'KR' ? 'KRW' : 'USD',
-          assetType: 'EQUITY',
+          mic: identity.mic || factor.mic || null,
+          currency,
+          assetType: identity.assetType || factor.assetType || null,
           validFrom: identity.validFrom,
           validTo: identity.validTo
         });
@@ -195,22 +232,24 @@ export function createScreenerProvider({
           source: factor.source || 'screener-artifact',
           sourceKind: factor.sourceKind || null,
           allowedUse: factor.allowedUse || null,
-          price: finite(factor.price) ?? live.price,
-          priceObservedAt: finite(factor.price) != null ? (factor.observedAt || artifact.factorObservedAt || null) : live.priceObservedAt,
-          priceFetchedAt: finite(factor.price) != null ? (factor.fetchedAt || artifact.asOf || null) : live.priceFetchedAt,
-          priceSource: finite(factor.price) != null ? (factor.source || artifact.source || 'screener-artifact') : live.priceSource,
-          priceRevision: finite(factor.price) != null ? (artifact.asOf || null) : live.priceRevision,
+          price: useArtifactPrice ? factor.price : live.price,
+          priceObservedAt: useArtifactPrice ? artifactPriceObservedAt : live.priceObservedAt,
+          priceFetchedAt: useArtifactPrice ? (factor.fetchedAt || artifact.asOf || null) : live.priceFetchedAt,
+          priceSource: useArtifactPrice ? (factor.source || artifact.source || 'screener-artifact') : live.priceSource,
+          priceRevision: useArtifactPrice ? (artifact.asOf || null) : live.priceRevision,
+          priceCurrencyConflict: !currencyCompatible,
           pctFrom52wLow: finite(factor.pctFrom52wLow),
           pctFrom52wHigh: finite(factor.pctFrom52wHigh),
           adrPct: finite(factor.adrPct),
           avgVolume30d: finite(factor.avgVolume30d),
-          dollarVolume30d: finite(factor.dollarVolume30d),
+          dollarVolume30d: volumeCurrency === 'USD' ? finite(factor.dollarVolume30d) : null,
           lastVolume: finite(factor.lastVolume),
-          dollarVolume: finite(factor.dollarVolume),
+          dollarVolume: volumeCurrency === 'USD' ? finite(factor.dollarVolume) : null,
           ema8: finite(factor.ema8),
           ema21: finite(factor.ema21),
           ema60: finite(factor.ema60),
-          mcap: live.mcap,
+          mcap: marketCapCurrency === 'USD' ? live.mcap : null,
+          nativeMarketCap: live.marketCap == null ? null : { value: live.marketCap, currency: marketCapCurrency, observedAt: live._mcapObservedAt, source: live._mcapSource, allowedUse: 'reference-only' },
           _mcapObservedAt: live._mcapObservedAt,
           _mcapFetchedAt: live._mcapFetchedAt,
           _mcapSource: live._mcapSource,
@@ -251,10 +290,10 @@ export function createScreenerProvider({
           _fundamentalFiledAt: factor.fundamentalFiledAt || null,
           _fundamentalFetchedAt: factor.fundamentalFetchedAt || null,
           _fundamentalAccession: factor.fundamentalAccession || null,
-          identityObservedAt: identity.validFrom || artifact.asOf || null,
-          identityFetchedAt: artifact.asOf || null,
+          identityObservedAt: universeLastBulkUpdate || identity.validFrom || null,
+          identityFetchedAt: universeMeta.fetchedAt || null,
           identitySource: 'public-data/screener-universe.json',
-          observedAt: factor.observedAt || artifact.factorObservedAt || artifact.asOf || null,
+          observedAt: factor.observedAt || artifact.factorObservedAt || null,
           fetchedAt: factor.fetchedAt || artifact.asOf || null,
           instrumentRef
         };
@@ -266,6 +305,7 @@ export function createScreenerProvider({
           definition.fieldId,
           resolveFieldSourceKind(definition, factor, artifact, baseRow)
         ]));
+        if (baseRow.nativeMarketCap) baseRow.nativeMarketCap.rightsId = rightsByField['valuation.marketCap'];
         const readiness = buildFieldReadiness(baseRow, {
           registry: SCREENER_FIELD_REGISTRY,
           now,
@@ -278,12 +318,17 @@ export function createScreenerProvider({
         return { ...baseRow, fieldReadiness: readiness, fieldObservations: readiness.observations };
       });
 
-      const snapshotId = `screener-snapshot-${stableHash({ revision: artifact.asOf, source: artifact.source, universe: symbols })}`;
+      const snapshotId = `screener-snapshot-${stableHash({ revision: artifact.asOf, source: artifact.source, rows })}`;
 
       return Object.freeze({
         rows,
         filters: {},
         metadata: {
+          warnings,
+          artifactFreshnessStatus: artifactValid ? artifactFresh ? 'current' : 'stale' : 'missing',
+          factorFreshnessStatus: factorsFresh ? 'current' : artifactValid ? 'stale' : 'missing',
+          displayPolicy: 'per-field-reference-with-observation-time',
+          calculationPolicy: 'per-field-readiness',
           asOf: artifact.asOf || null,
           factorObservedAt: artifact.factorObservedAt || null,
           universe: Number(artifact.universe) || symbols.length,
@@ -311,11 +356,11 @@ export function createScreenerProvider({
           contractVersion: 'screener-workbench.v1',
           fieldRegistryVersion: SCREENER_FIELD_REGISTRY.version,
           snapshotId,
-          snapshotStatus: 'immutable-local-snapshot'
+          snapshotStatus: 'content-addressed-observation-set'
         },
         revision: artifact.asOf || null,
         snapshotId,
-        status: rows.some((row) => typeof row.ret3m === 'number') && universeFreshnessStatus !== 'stale' ? 'current' : 'partial',
+        status: !rows.length ? 'unavailable' : artifactFresh && factorsFresh && rows.some((row) => typeof row.ret3m === 'number') && universeFreshnessStatus !== 'stale' ? 'current' : 'partial',
         updatedAt: artifact.asOf || null
       });
     }

@@ -6,6 +6,8 @@ export const FIELD_STATUS = Object.freeze([
   'CURRENT', 'DELAYED', 'STALE', 'MISSING', 'UNSUPPORTED',
   'BLOCKED_RIGHTS', 'CONFLICT', 'INFERRED', 'LAST_GOOD'
 ]);
+export const CALCULABLE_FIELD_STATUSES = Object.freeze(['CURRENT', 'DELAYED', 'INFERRED']);
+const DISPLAYABLE_FIELD_STATUSES = new Set([...CALCULABLE_FIELD_STATUSES, 'STALE', 'LAST_GOOD', 'CONFLICT']);
 export const OBSERVATION_SOURCES = Object.freeze(['T1_OFFICIAL', 'T2_LICENSED', 'T3_PUBLIC_DELAYED', 'T4_REFERENCE']);
 export const SCREEN_NODE_TYPES = Object.freeze(['and', 'or', 'not', 'range', 'enum', 'exists']);
 export const NULL_POLICIES = Object.freeze(['reject', 'pass', 'unknown']);
@@ -17,6 +19,13 @@ const DAY = 86_400_000;
 function freeze(value) {
   if (value && typeof value === 'object' && !Object.isFrozen(value)) Object.freeze(value);
   return value;
+}
+
+export function immutableCopy(value) {
+  if (!value || typeof value !== 'object') return value;
+  const copy = Array.isArray(value) ? value.map(immutableCopy)
+    : Object.fromEntries(Object.entries(value).map(([key, child]) => [key, immutableCopy(child)]));
+  return Object.freeze(copy);
 }
 
 function iso(value) {
@@ -123,15 +132,15 @@ export const SCREENER_FIELD_REGISTRY = createFieldRegistry();
 export function createInstrumentRef(input = {}) {
   const symbol = String(input.symbol || input.sym || '').trim().toUpperCase();
   const market = String(input.market || input.index || '').toUpperCase();
-  const assetType = String(input.assetType || 'EQUITY').toUpperCase();
-  const currency = String(input.currency || (market === 'KR' || market === 'KOSPI' || market === 'KOSDAQ' ? 'KRW' : 'USD')).toUpperCase();
+  const assetType = input.assetType ? String(input.assetType).toUpperCase() : null;
+  const currency = input.currency ? String(input.currency).toUpperCase() : null;
   return Object.freeze({
     instrumentId: String(input.instrumentId || `${market || 'UNKNOWN'}:${symbol}`),
     symbol,
-    mic: String(input.mic || (currency === 'KRW' ? 'XKRX' : 'XNAS')),
+    mic: input.mic ? String(input.mic).toUpperCase() : null,
     assetType,
     currency,
-    market: market || (currency === 'KRW' ? 'KR' : 'US'),
+    market: market || null,
     validFrom: iso(input.validFrom) || null,
     validTo: iso(input.validTo) || null
   });
@@ -224,13 +233,37 @@ function fieldObservationContext(row, definition) {
 
 export function classifyFieldStatus({ value, observedAt, now = Date.now(), freshnessBudgetMs = null, supported = true, rights = 'UNKNOWN', conflict = false, sourceKind = 'T3_PUBLIC_DELAYED', lastGood = false } = {}) {
   if (!supported) return 'UNSUPPORTED';
-  if (String(rights) !== 'VERIFIED') return 'BLOCKED_RIGHTS';
+  // A known public delayed source can support research while its redistribution
+  // rights remain under review. UNKNOWN/denied access is still blocked, and the
+  // review flag must never be promoted to VERIFIED or CURRENT.
+  const reviewedPublicReference = String(rights) === 'REVIEW_REQUIRED' && String(sourceKind) === 'T3_PUBLIC_DELAYED';
+  if (String(rights) !== 'VERIFIED' && !reviewedPublicReference) return 'BLOCKED_RIGHTS';
   if (conflict) return 'CONFLICT';
-  if (value == null || value === '') return lastGood ? 'LAST_GOOD' : 'MISSING';
+  if (value == null || value === '' || (typeof value === 'number' && !Number.isFinite(value))) return 'MISSING';
   const observedMs = observedAt ? Date.parse(observedAt) : NaN;
-  if (Number.isNaN(observedMs)) return 'STALE';
-  if (freshnessBudgetMs != null && Math.max(0, now - observedMs) > freshnessBudgetMs) return lastGood ? 'LAST_GOOD' : 'STALE';
-  return String(sourceKind) === 'T3_PUBLIC_DELAYED' ? 'DELAYED' : 'CURRENT';
+  if (!Number.isFinite(observedMs) || !Number.isFinite(now) || observedMs > now) return 'STALE';
+  if (freshnessBudgetMs != null && (!Number.isFinite(freshnessBudgetMs) || freshnessBudgetMs < 0 || now - observedMs > freshnessBudgetMs)) return lastGood ? 'LAST_GOOD' : 'STALE';
+  return reviewedPublicReference || String(sourceKind) === 'T3_PUBLIC_DELAYED' ? 'DELAYED' : 'CURRENT';
+}
+
+/** Field availability is purpose-specific: age can prohibit calculation without
+ * erasing a reference observation. Explicit rights blocks prohibit both uses. */
+export function fieldValueForPurpose(row, fieldId, purpose = 'display') {
+  const definition = SCREENER_FIELD_REGISTRY.get(fieldId);
+  const field = row?.fieldReadiness?.fields?.[fieldId];
+  const value = definition ? rowValue(row, definition) : null;
+  if (value == null || value === '' || (typeof value === 'number' && !Number.isFinite(value))) return null;
+  if (!field) return purpose === 'display' ? value : null;
+  const allowed = purpose === 'calculation' ? CALCULABLE_FIELD_STATUSES.includes(field.status) : DISPLAYABLE_FIELD_STATUSES.has(field.status);
+  return allowed ? value : null;
+}
+
+export function calculationRow(row) {
+  const result = { ...row };
+  for (const definition of SCREENER_FIELD_REGISTRY.fields) {
+    if (definition.type === 'number') result[definition.rowKey] = fieldValueForPurpose(row, definition.fieldId, 'calculation');
+  }
+  return result;
 }
 
 export function buildFieldReadiness(row = {}, { registry = SCREENER_FIELD_REGISTRY, now = Date.now(), revisionId = 'unpublished', supportedFields = null, rightsByField = {}, sourceKindByField = {}, conflictFields = [], sourceId = 'screener-artifact', sourceKind = 'T3_PUBLIC_DELAYED' } = {}) {
@@ -261,7 +294,7 @@ export function buildFieldReadiness(row = {}, { registry = SCREENER_FIELD_REGIST
       sourceKind: fieldSourceKind,
       lastGood: row._lastGoodFields?.includes?.(definition.fieldId)
     });
-    const observation = createObservationEnvelope({ instrumentId: instrumentRef.instrumentId, fieldId: definition.fieldId, value, unit: definition.unit, sourceId: fieldSourceId, observedAt, filedAt, fetchedAt, revisionId: fieldRevisionId, sourceKind: fieldSourceKind, rightsId: fieldRights, qualityStatus: status, allowedUse: definition.allowedUse, evidenceId: row[`${definition.rowKey}EvidenceId`] || '' });
+    const observation = createObservationEnvelope({ instrumentId: instrumentRef.instrumentId, fieldId: definition.fieldId, value, unit: definition.unit, sourceId: fieldSourceId, observedAt, filedAt, fetchedAt, revisionId: fieldRevisionId, sourceKind: fieldSourceKind, rightsId: fieldRights, qualityStatus: status, allowedUse: definition.allowedUse, evidenceId: row[`${definition.rowKey}EvidenceId`] || '', note: fieldRights === 'REVIEW_REQUIRED' ? 'Public delayed research reference; redistribution rights not certified.' : '' });
     observations.push(observation);
     readiness[definition.fieldId] = Object.freeze({ status, value: value ?? null, unit: definition.unit, sourceId: fieldSourceId, sourceKind: fieldSourceKind, rightsId: fieldRights, observedAt: observation.observedAt, filedAt: observation.filedAt, fetchedAt: observation.fetchedAt, revisionId: observation.revisionId, allowedUse: observation.allowedUse, evidenceId: observation.evidenceId });
   }
@@ -272,11 +305,14 @@ export function summarizeFieldReadiness(readiness = {}) {
   const values = Object.values(readiness);
   const counts = Object.fromEntries(FIELD_STATUS.map((status) => [status, 0]));
   values.forEach((field) => { if (counts[field?.status] != null) counts[field.status] += 1; });
-  const usable = counts.CURRENT + counts.DELAYED + counts.LAST_GOOD + counts.INFERRED;
-  return Object.freeze({ total: values.length, usable, coveragePct: values.length ? Math.round(usable / values.length * 1000) / 10 : 0, counts: Object.freeze(counts) });
+  const usable = counts.CURRENT + counts.DELAYED + counts.INFERRED;
+  const displayable = usable + counts.STALE + counts.LAST_GOOD + counts.CONFLICT;
+  return Object.freeze({ total: values.length, usable, displayable, coveragePct: values.length ? Math.round(usable / values.length * 1000) / 10 : 0, displayCoveragePct: values.length ? Math.round(displayable / values.length * 1000) / 10 : 0, counts: Object.freeze(counts) });
 }
 
 export function createScreenDefinition(input = {}) {
+  const structure = definitionStructureErrors(input);
+  if (structure.length) throw new Error(`SCREEN_DEFINITION_INVALID:${structure.join(',')}`);
   const definition = {
     schemaVersion: SCREENER_CONTRACT_VERSION,
     screenId: String(input.screenId || `screen-${stableHash(input)}`),
@@ -290,6 +326,9 @@ export function createScreenDefinition(input = {}) {
     ranking: input.ranking && typeof input.ranking === 'object' ? { ...input.ranking } : { field: 'rank', direction: 'desc' },
     columns: Array.isArray(input.columns) ? [...input.columns] : ['identity.symbol', 'identity.name', 'rank'],
     requiredFields: Array.isArray(input.requiredFields) ? [...new Set(input.requiredFields.map(String))] : [],
+    referenceFrameworkIds: Array.isArray(input.referenceFrameworkIds) ? [...new Set(input.referenceFrameworkIds.map(String).filter(Boolean))] : [],
+    referenceTimeSeriesIds: Array.isArray(input.referenceTimeSeriesIds) ? [...new Set(input.referenceTimeSeriesIds.map(String).filter(Boolean))] : [],
+    referenceBoundary: String(input.referenceBoundary || 'reference-only'),
     minCoverage: Number.isFinite(input.minCoverage) ? Math.max(0, Math.min(1, input.minCoverage)) : 0.8,
     nullPolicy: NULL_POLICIES.includes(input.nullPolicy) ? input.nullPolicy : 'unknown',
     regimePolicy: input.regimePolicy && typeof input.regimePolicy === 'object' ? { ...input.regimePolicy } : { mode: 'fixed', autoPromote: false },
@@ -297,7 +336,23 @@ export function createScreenDefinition(input = {}) {
     createdBy: String(input.createdBy || 'local')
   };
   definition.definitionHash = stableHash({ ...definition, definitionHash: undefined });
-  return Object.freeze(definition);
+  return immutableCopy(definition);
+}
+
+function definitionStructureErrors(input) {
+  const stack = [{ value: input, depth: 0 }];
+  const seen = new WeakSet();
+  let count = 0;
+  while (stack.length) {
+    const { value, depth } = stack.pop();
+    if (++count > 10000 || depth > 32) return ['definition_complexity_exceeded'];
+    if (typeof value === 'function' || typeof value === 'symbol' || typeof value === 'bigint' || (typeof value === 'number' && !Number.isFinite(value))) return ['definition_value_invalid'];
+    if (!value || typeof value !== 'object') continue;
+    if (seen.has(value)) return ['definition_shared_or_cyclic_object'];
+    seen.add(value);
+    for (const child of Object.values(value)) stack.push({ value: child, depth: depth + 1 });
+  }
+  return [];
 }
 
 function validateNode(node, path = 'filtersAST') {
@@ -305,7 +360,7 @@ function validateNode(node, path = 'filtersAST') {
   if (!node || typeof node !== 'object' || !SCREEN_NODE_TYPES.includes(node.type)) return [`${path}:node_invalid`];
   if (node.type === 'and' || node.type === 'or') {
     if (!Array.isArray(node.children)) errors.push(`${path}:children_missing`);
-    (node.children || []).forEach((child, index) => errors.push(...validateNode(child, `${path}.${index}`)));
+    if (Array.isArray(node.children)) node.children.forEach((child, index) => errors.push(...validateNode(child, `${path}.${index}`)));
   } else if (node.type === 'not') {
     errors.push(...validateNode(node.child, `${path}.child`));
   } else {
@@ -313,12 +368,16 @@ function validateNode(node, path = 'filtersAST') {
     if (node.field && !SCREENER_FIELD_REGISTRY.has(node.field) && !['rank', 'score', 'symbol', 'sym'].includes(node.field)) errors.push(`${path}:field_unknown`);
     if (!NULL_POLICIES.includes(node.nullPolicy || 'unknown')) errors.push(`${path}:null_policy_invalid`);
     if (node.type === 'range' && node.min == null && node.max == null) errors.push(`${path}:range_missing`);
+    if (node.type === 'range' && [node.min, node.max].some(value => value != null && finite(value) == null)) errors.push(`${path}:range_not_numeric`);
+    if (node.type === 'range' && node.min != null && node.max != null && node.min > node.max) errors.push(`${path}:range_inverted`);
     if (node.type === 'enum' && (!Array.isArray(node.values) || !node.values.length)) errors.push(`${path}:values_missing`);
   }
   return errors;
 }
 
 export function validateScreenDefinition(definition) {
+  const structure = definitionStructureErrors(definition);
+  if (structure.length) return Object.freeze({ ok: false, errors: structure });
   const errors = [];
   if (!definition || definition.schemaVersion !== SCREENER_CONTRACT_VERSION) errors.push('schema_version_invalid');
   if (!definition?.screenId) errors.push('screen_id_missing');
@@ -326,12 +385,22 @@ export function validateScreenDefinition(definition) {
   if (!definition?.name) errors.push('name_missing');
   if (!OUTCOME_HORIZONS.includes(definition?.horizon)) errors.push('horizon_invalid');
   errors.push(...validateNode(definition?.filtersAST));
-  (definition?.hardGates || []).forEach((gate, index) => errors.push(...validateNode(gate, `hardGates.${index}`)));
+  if (!Array.isArray(definition?.hardGates)) errors.push('hard_gates_invalid');
+  else definition.hardGates.forEach((gate, index) => errors.push(...validateNode(gate, `hardGates.${index}`)));
   const rankingFields = Array.isArray(definition?.ranking?.fields) ? definition.ranking.fields : [definition?.ranking?.field];
   rankingFields.filter(Boolean).forEach((field) => { if (!SCREENER_FIELD_REGISTRY.has(field) && !['rank', 'score', 'symbol', 'sym'].includes(field)) errors.push(`ranking_field_unknown:${field}`); });
-  (definition?.requiredFields || []).forEach((field) => { if (!SCREENER_FIELD_REGISTRY.has(field)) errors.push(`required_field_unknown:${field}`); });
+  if (!rankingFields.length || rankingFields.some(field => !field)) errors.push('ranking_field_missing');
+  const units = rankingFields.map(field => ['rank', 'score'].includes(field) ? 'score' : SCREENER_FIELD_REGISTRY.get(field)?.unit);
+  if (new Set(units).size > 1) errors.push('ranking_units_incompatible');
+  if (rankingFields.some(field => !['rank', 'score'].includes(field) && SCREENER_FIELD_REGISTRY.get(field)?.type !== 'number')) errors.push('ranking_field_not_numeric');
+  if (!Array.isArray(definition?.requiredFields)) errors.push('required_fields_invalid');
+  else definition.requiredFields.forEach((field) => { if (!SCREENER_FIELD_REGISTRY.has(field)) errors.push(`required_field_unknown:${field}`); });
+  if (!Array.isArray(definition?.referenceFrameworkIds)) errors.push('reference_framework_ids_invalid');
+  if (!Array.isArray(definition?.referenceTimeSeriesIds)) errors.push('reference_time_series_ids_invalid');
+  if (definition?.referenceBoundary !== 'reference-only') errors.push('reference_boundary_invalid');
   if (!['asc', 'desc'].includes(definition?.ranking?.direction)) errors.push('ranking_direction_invalid');
-  if (definition?.minCoverage < 0 || definition?.minCoverage > 1) errors.push('min_coverage_invalid');
+  if (finite(definition?.minCoverage) == null || definition.minCoverage < 0 || definition.minCoverage > 1) errors.push('min_coverage_invalid');
+  if (definition?.definitionHash && definition.definitionHash !== stableHash({ ...definition, definitionHash: undefined })) errors.push('definition_hash_mismatch');
   return Object.freeze({ ok: errors.length === 0, errors: [...new Set(errors)] });
 }
 
@@ -371,6 +440,7 @@ export function createScreenRun(input = {}) {
     completedAt: iso(input.completedAt) || null,
     status: RUN_STATUSES.includes(input.status) ? input.status : 'unavailable',
     eligibleCount: Number.isInteger(input.eligibleCount) ? input.eligibleCount : 0,
+    rowCount: Number.isInteger(input.rowCount) ? input.rowCount : (input.passed || 0) + (input.rejected || 0) + (input.unavailable || 0),
     passed: Number.isInteger(input.passed) ? input.passed : 0,
     rejected: Number.isInteger(input.rejected) ? input.rejected : 0,
     unavailable: Number.isInteger(input.unavailable) ? input.unavailable : 0,
@@ -387,7 +457,9 @@ export function validateScreenRun(run) {
   const errors = [];
   for (const field of ['runId', 'screenId', 'definitionHash', 'snapshotId', 'engineVersion']) if (!run?.[field]) errors.push(`${field}_missing`);
   if (!RUN_STATUSES.includes(run?.status)) errors.push('status_invalid');
-  if (run?.passed + run?.rejected + run?.unavailable > run?.eligibleCount) errors.push('counts_exceed_eligible');
+  for (const key of ['rowCount', 'eligibleCount', 'passed', 'rejected', 'unavailable']) if (!Number.isInteger(run?.[key]) || run[key] < 0) errors.push(`${key}_invalid`);
+  if (run?.passed + run?.rejected + run?.unavailable !== run?.rowCount) errors.push('counts_do_not_match_rows');
+  if (run?.passed > run?.eligibleCount || run?.eligibleCount > run?.rowCount) errors.push('eligible_count_inconsistent');
   if (run?.completedAt && Date.parse(run.completedAt) < Date.parse(run.startedAt)) errors.push('completion_before_start');
   return Object.freeze({ ok: errors.length === 0, errors });
 }
@@ -404,6 +476,7 @@ export function createOutcomeObservation(input = {}) {
     entryObservedAt: iso(input.entryObservedAt),
     exitObservedAt: iso(input.exitObservedAt),
     rawReturn: finite(input.rawReturn),
+    netReturn: finite(input.netReturn),
     benchmarkReturn: finite(input.benchmarkReturn),
     maxDrawdown: finite(input.maxDrawdown),
     liquidityFlags: Object.freeze(Array.isArray(input.liquidityFlags) ? [...input.liquidityFlags] : []),
@@ -421,6 +494,7 @@ export function validateOutcomeObservation(outcome) {
   if (!OUTCOME_HORIZONS.includes(outcome?.horizon)) errors.push('horizon_invalid');
   if (outcome?.status === 'observed' && (outcome.rawReturn == null || !outcome.entryObservedAt || !outcome.exitObservedAt)) errors.push('observed_outcome_incomplete');
   if (!outcome?.costsApplied && outcome?.status === 'observed') errors.push('costs_not_applied');
+  if (outcome?.status === 'observed' && outcome?.costsApplied && outcome.netReturn == null) errors.push('net_return_missing');
   return Object.freeze({ ok: errors.length === 0, errors });
 }
 

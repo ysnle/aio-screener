@@ -327,7 +327,7 @@ function tradingEvidenceRows(root) {
 
 function readScreener(root) {
   const nativeRows = typeof root?.AIO_ARCH?.getScreenerRows === 'function' ? root.AIO_ARCH.getScreenerRows() : null;
-  const rows = Array.isArray(nativeRows) && nativeRows.length
+  const rows = Array.isArray(nativeRows)
     ? nativeRows
     : Array.isArray(root?.SCREENER_DB) ? root.SCREENER_DB : Array.isArray(root?._aioScreenerRows) ? root._aioScreenerRows : [];
   const metadata = root?._serverDataMeta?.screener || root?._aioScreenerLoadState || {};

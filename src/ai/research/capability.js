@@ -33,6 +33,8 @@ export function createResearchCapability({
   supportsDomainControl = false,
   checkedAt = new Date()
 } = {}) {
+  const parsedCheckedAt = new Date(checkedAt);
+  const safeCheckedAt = Number.isFinite(parsedCheckedAt.getTime()) ? parsedCheckedAt : new Date(0);
   const dimensions = Object.freeze({
     routeReady: state(routeReady),
     authReady: state(authReady),
@@ -61,7 +63,7 @@ export function createResearchCapability({
     supportsDomainControl: Boolean(supportsDomainControl),
     originReady: dimensions.originReady,
     blockers: Object.freeze(blockers),
-    checkedAt: new Date(checkedAt).toISOString()
+    checkedAt: safeCheckedAt.toISOString()
   });
 }
 
@@ -73,5 +75,5 @@ export function validateResearchCapability(capability) {
     if (!STATES.includes(capability?.[field])) errors.push(`${field}_invalid`);
   }
   if (!capability?.checkedAt || Number.isNaN(new Date(capability.checkedAt).getTime())) errors.push('checked_at_invalid');
-  return Object.freeze({ ok: errors.length === 0, errors: [...new Set(errors)] });
+  return Object.freeze({ ok: errors.length === 0, errors: Object.freeze([...new Set(errors)]) });
 }

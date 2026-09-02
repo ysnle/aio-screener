@@ -1,4 +1,4 @@
-import { normalizeAllowedUse } from '../contracts/evidence.js';
+import { hasObservedPast, restrictAllowedUse } from '../contracts/evidence.js';
 
 function entriesOf(source) {
   if (source instanceof Map) return [...source.entries()];
@@ -16,29 +16,31 @@ function readEvidence(source, metric) {
 
 function normalized(evidence) {
   if (!evidence || typeof evidence !== 'object') return null;
-  return { ...evidence, allowedUse: normalizeAllowedUse(evidence.allowedUse, 'none') };
+  return { ...evidence, allowedUse: restrictAllowedUse(evidence.allowedUse ?? 'none', evidence.allowedUseCeiling ?? 'decision') };
 }
 
 /** Return evidence that may be displayed, including reference-only values. */
 export function selectForDisplay(source, metric) {
   const value = normalized(metric ? readEvidence(source, metric) : source);
   if (!value || value.allowedUse === 'none' || value.status === 'missing' || value.status === 'failed') return null;
+  if (value.value == null || (typeof value.value === 'number' && !Number.isFinite(value.value))) return null;
   return value;
 }
 
 /** Return only current decision evidence. Reference/LKG values never pass. */
-export function selectForDecision(source, metric) {
+export function selectForDecision(source, metric, { now = Date.now() } = {}) {
   const value = normalized(metric ? readEvidence(source, metric) : source);
   if (!value || value.allowedUse !== 'decision') return null;
   if (!['live', 'fresh'].includes(value.status)) return null;
+  if (!hasObservedPast(value, now)) return null;
   if (value.value == null || (typeof value.value === 'number' && !Number.isFinite(value.value))) return null;
   return value;
 }
 
 /** Return the last known value only for an explicitly non-decision context. */
 export function selectLastKnown(source, metric) {
-  const value = normalized(metric ? readEvidence(source, metric) : source);
-  if (!value || value.value == null || value.status === 'missing' || value.status === 'failed') return null;
+  const value = selectForDisplay(source, metric);
+  if (!value || value.value == null) return null;
   return value;
 }
 

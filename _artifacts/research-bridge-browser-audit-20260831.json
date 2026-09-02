@@ -1,0 +1,38 @@
+{
+  "artifact": "research-bridge-browser-audit",
+  "revision": "v54.72",
+  "generatedAt": "2026-08-31T02:05:00+09:00",
+  "evidenceLevel": "LOCAL_CHROMIUM",
+  "status": "PASS_WITH_SHARED_ROUTE_ALIAS",
+  "browserErrors": 0,
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "researchRoutesChecked": 18,
+  "directRouteBridges": 17,
+  "sharedRouteAliases": {
+    "theme-detail": "themes"
+  },
+  "routes": [
+    { "route": "home", "frameworkCards": 3, "timeSeriesCards": 3 },
+    { "route": "signal", "frameworkCards": 3, "timeSeriesCards": 4 },
+    { "route": "technical", "frameworkCards": 2, "timeSeriesCards": 3 },
+    { "route": "macro", "frameworkCards": 3, "timeSeriesCards": 3 },
+    { "route": "fxbond", "frameworkCards": 3, "timeSeriesCards": 3 },
+    { "route": "breadth", "frameworkCards": 3, "timeSeriesCards": 3 },
+    { "route": "briefing", "frameworkCards": 3, "timeSeriesCards": 4 },
+    { "route": "market-news", "frameworkCards": 2, "timeSeriesCards": 2 },
+    { "route": "sentiment", "frameworkCards": 2, "timeSeriesCards": 3 },
+    { "route": "themes", "frameworkCards": 6, "timeSeriesCards": 7 },
+    { "route": "screener", "frameworkCards": 4, "timeSeriesCards": 7 },
+    { "route": "ticker", "frameworkCards": 4, "timeSeriesCards": 4 },
+    { "route": "fundamental", "frameworkCards": 4, "timeSeriesCards": 4 },
+    { "route": "options", "frameworkCards": 2, "timeSeriesCards": 2 },
+    { "route": "portfolio", "frameworkCards": 4, "timeSeriesCards": 4 },
+    { "route": "masters", "frameworkCards": 2, "timeSeriesCards": 2 },
+    { "route": "principles", "frameworkCards": 8, "timeSeriesCards": 6 },
+    { "route": "atlas", "frameworkCards": 8, "timeSeriesCards": 8 }
+  ],
+  "boundary": "Local Chromium verifies mounting and browser errors only. It does not certify current provider freshness, external source rights, AI benchmark truth, deployment parity, or live market claims."
+}

@@ -1,0 +1,96 @@
+{
+  "mutableDefinition": {
+    "before": 1,
+    "after": 0,
+    "sameHash": true
+  },
+  "tiedFactorRanks": [
+    {
+      "sym": "T0",
+      "rank": 0
+    },
+    {
+      "sym": "T1",
+      "rank": 20
+    },
+    {
+      "sym": "T2",
+      "rank": 40
+    },
+    {
+      "sym": "T3",
+      "rank": 60
+    },
+    {
+      "sym": "T4",
+      "rank": 80
+    },
+    {
+      "sym": "T5",
+      "rank": 100
+    }
+  ],
+  "lastGoodFilter": "passed",
+  "lowvolOrdering": [
+    {
+      "sym": "RISKIER",
+      "score": 20
+    },
+    {
+      "sym": "SAFER",
+      "score": 50
+    }
+  ],
+  "futurePit": {
+    "ok": true,
+    "errors": [],
+    "checkedUniverse": 1,
+    "checkedObservations": 1
+  },
+  "missingBenchmark": {
+    "schemaVersion": "screener-workbench.v1",
+    "outcomeId": "outcome-eb12eaa7",
+    "runId": "audit",
+    "instrumentId": "US:A",
+    "horizon": "T+1",
+    "entryConvention": "next-completed-close",
+    "entryObservedAt": "2026-08-28T00:00:00.000Z",
+    "exitObservedAt": "2026-08-31T00:00:00.000Z",
+    "rawReturn": 10.000000000000009,
+    "benchmarkReturn": -100,
+    "maxDrawdown": 0,
+    "liquidityFlags": [],
+    "costsApplied": true,
+    "costBps": 0,
+    "status": "observed",
+    "observedAt": "2026-08-31T00:00:00.000Z",
+    "allowedUse": "research-relative-ranking-only"
+  },
+  "reversedOutcome": {
+    "schemaVersion": "screener-workbench.v1",
+    "outcomeId": "outcome-776ff143",
+    "runId": "audit",
+    "instrumentId": "US:A",
+    "horizon": "T+1",
+    "entryConvention": "next-completed-close",
+    "entryObservedAt": "2026-08-28T00:00:00.000Z",
+    "exitObservedAt": "2026-08-27T00:00:00.000Z",
+    "rawReturn": 10.000000000000009,
+    "benchmarkReturn": -100,
+    "maxDrawdown": 0,
+    "liquidityFlags": [],
+    "costsApplied": true,
+    "costBps": 0,
+    "status": "observed",
+    "observedAt": "2026-08-27T00:00:00.000Z",
+    "allowedUse": "research-relative-ranking-only"
+  },
+  "calendarHorizon": {
+    "friday": "2026-08-28",
+    "exit": "2026-08-29T00:00:00.000Z"
+  },
+  "refreshPlanner": {
+    "inFlightReselected": 1,
+    "terminalReselected": 1
+  }
+}

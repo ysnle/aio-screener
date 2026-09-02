@@ -54,21 +54,21 @@
       ],
       "nativeSecondarySurface": [
         "#page-home #home-fg-score",
+        "#page-home #home-fg-label",
+        "#page-home #home-hero-components",
         "#page-home #home-quality-meter",
         "#page-home #home-quality-score",
         "#page-home #home-quality-label"
       ],
       "contestedIds": [],
       "legacyWriterEvidence": [
-        "js/aio-data.js: _aioRenderHomeHero primary four-sink writes are fenced by _aioIsNativeHomeSummaryElement",
         "js/aio-data.js: refreshHomeDashboard #home-trading-signal writer is fenced by _aioIsNativeHomeSummaryElement",
-        "js/aio-data.js: refreshHomeDashboard home-fg-score writer skips aioHomeFearGreedRenderer; home-fg-label remains legacy",
-        "js/aio-data.js: refreshHomeDashboard legacy quality meter block skips aioHomeQualityRenderer; the native meter fails closed until canonical five-input quality evidence exists"
+        "P1010 DELETE-LEDGER: _aioRenderHomeHero, its callers/export, and legacy Fear & Greed score/label writers removed"
       ],
-      "p787Boundary": "analysis.js owns the four home score/decision summary sinks from trading-score.v1/signal-presentation.v1. Quality meter, Fear & Greed, market regime, factor detail, chart, and narrative remain legacy secondary boundaries.",
-      "p820Boundary": "analysis.js owns the home Fear & Greed score from the normalized sentiment slice with reference-only lineage; the legacy score writer is fenced while the label remains legacy-owned.",
+      "p787Boundary": "analysis.js owns the four home score/decision summary sinks from trading-score.v2/signal-presentation.v1. Quality meter, Fear & Greed, market regime, factor detail, chart, and narrative remain legacy secondary boundaries.",
+      "p820Boundary": "P1010: analysis.js owns both home Fear & Greed score and label from the same normalized sentiment slice; legacy writers are removed.",
       "p821Boundary": "analysis.js owns the complete home quality meter surface and fails closed until canonical five-input quality evidence exists; the legacy trading-score-as-quality writer is fenced.",
-      "notes": "Home's native renderer is route-conditioned and reuses the canonical signal presentation. P820 adds the home Fear & Greed score and P821 removes the misleading trading-score-as-quality display; market regime, factor detail, chart, and narrative remain legacy secondary surfaces."
+      "notes": "P1010: score components now derive from signal-presentation.v1 with null-preserving weights; the duplicate legacy home hero is retired. Market regime, charts and other narratives remain compatibility boundaries. No full-native completion claim."
     },
     "signal": {
       "lifecycleOwner": "native",
@@ -87,7 +87,7 @@
       "legacyWriterEvidence": [
         "index.html:refreshSignalDashboard score-gauge-val/score-decision-badge/score-decision-sub writers are fenced by _aioIsNativeSignalHero()"
       ],
-      "p786Boundary": "analysis.js owns the score display and five-tier decision text from trading-score.v1/signal-presentation.v1. Score timestamp, canvas, factor bars, execution window, risk monitor, and narrative remain legacy secondary boundaries.",
+      "p786Boundary": "analysis.js owns the score display and five-tier decision text from trading-score.v2/signal-presentation.v1. Score timestamp, canvas, factor bars, execution window, risk monitor, and narrative remain legacy secondary boundaries.",
       "notes": "The signal hero is native; legacy refreshSignalDashboard remains responsible for secondary signal widgets and is explicitly fenced from the three primary decision sinks. Home summary has separate ownership and is not remapped by this packet."
     },
     "breadth": {
@@ -351,11 +351,14 @@
         "#page-ticker #ticker-entry-symbol",
         "#page-ticker #ticker-hero-ext",
         "#page-ticker #ticker-hero-pnl",
-        "#page-ticker #ticker-hero-value"
+        "#page-ticker #ticker-hero-value",
+        "#page-ticker #ticker-back-btn-main",
+        "#page-ticker #ticker-breadcrumb-main",
+        "#page-ticker #ticker-fundamental-link"
       ],
       "contestedIds": [],
       "legacyWriterEvidence": [
-        "js/aio-core.js:showTicker retains compatibility action/overview writers; P829 fences its P&L writes behind aioTickerPnlRenderer",
+        "js/aio-core.js:showTicker retains compatibility overview writers; P1010 retires dead action/financial/navigation writers and P829 fences P&L behind aioTickerPnlRenderer",
         "js/aio-data.js: ticker-hero-ext after-hours compatibility writer skips aioTickerExtensionRenderer",
         "index.html:loadTickerChart is fenced while #page-ticker[data-aio-ticker-chart-renderer=\"native\"] is mounted"
       ],

@@ -1,0 +1,66 @@
+#!/usr/bin/env node
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
+import { createAIKnowledgeRetriever } from '../src/ai/retrieval/knowledge.js';
+import { evaluateResearchEvidenceFloor } from '../src/ai/research/evidence.js';
+const source = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8');
+const section = (a,b) => { const start=source.indexOf(a), end=source.indexOf(b,start); assert(start>=0 && end>start); return source.slice(start,end); };
+const states = {}, button = { disabled: true };
+const root = { AbortController, setTimeout, clearTimeout, URL, console, document: { getElementById:()=>button, addEventListener(){} },
+  getChatState: id => states[id] ||= {}, chatState: states, _aioSetChatRuntimeState() {}, _aioLog() {},
+  localStorage: { getItem:()=>null }, _getApiKey:()=> 'fixture', escHtml:String };
+root.window=root;
+vm.createContext(root);
+vm.runInContext(section('function _aioChatAbortError(', '// ── Text processing helpers'), root);
+vm.runInContext(section('function _aioCanonicalResearchUrl(', '/** Perplexity Sonar API'), root);
+vm.runInContext(section('async function _aiWebSearch(', 'function _aioResearchFailureForUser('), root);
+vm.runInContext(section('function _shouldUseClaudeWebSearch(', '/** 검색 쿼리 최적화'), root);
+vm.runInContext(section('function _searchCitationsHTML(', '/** Google Custom Search API'), root);
+const first=root._aioBeginChatRequest('home','old'), second=root._aioBeginChatRequest('home','new');
+assert(first.controller.signal.aborted && !root._aioIsCurrentChatRequest('home', first));
+root._aioReleaseChatRequest(first); assert(states.home.streaming && states.home._activeRequest===second);
+root._aioCancelChatRequest('home','cleared'); assert(!states.home.streaming && second.controller.signal.aborted && !button.disabled);
+let retried=false;
+const third=root._aioBeginChatRequest('home','retry'); third.retryTimer=setTimeout(()=>{retried=true;},10);
+root._aioCancelChatRequest('home','clear'); await new Promise(resolve=>setTimeout(resolve,20)); assert(!retried);
+await assert.rejects(root._aioRunChatTask(()=>new Promise(()=>{}),{timeoutMs:5}),{code:'RESEARCH_TIMEOUT'});
+let googleCalls=0;
+root._perplexitySearch=async()=>({answer:'',citations:[]});
+root._googleSearch=async()=>{googleCalls++; return {answer:'discovery',citations:['https://sec.gov/doc'],engine:'google'};};
+assert.equal((await root._aiWebSearch('test')).engine,'google'); assert.equal(googleCalls,1);
+root._perplexitySearch=()=>new Promise(()=>{});
+assert.equal((await root._aiWebSearch('test',{timeoutMs:5})).engine,'google');
+const controller=new AbortController(); controller.abort();
+await assert.rejects(root._aiWebSearch('test',{signal:controller.signal}),{name:'AbortError'});
+const plan={researchDecision:{requirement:'REQUIRED'},researchPlan:{planId:'p',stopConditions:{minimumIndependentSources:1,minimumPrimarySources:1}}};
+assert.equal(root._shouldUseClaudeWebSearch('today','home',[],plan,{preparation:{planId:'p',externalEvidenceReady:true}}),false);
+assert.equal(root._shouldUseClaudeWebSearch('today','home',[],plan,{preparation:{planId:'old',externalEvidenceReady:true}}),true);
+const doc={canonicalUrl:'https://sec.gov/report',contentDepth:'EXCERPT',rights:'PUBLIC_REFERENCE'};
+const floor=evaluateResearchEvidenceFloor({questionPlan:plan,externalResult:{citations:[{url:doc.canonicalUrl}],researchEvidence:{currentClaimsAllowed:true,evidenceDocuments:[doc,{canonicalUrl:'https://example.org/snippet',contentDepth:'SNIPPET'}]}}});
+assert(floor.ready && floor.eligibleEvidenceCount===1 && floor.excludedEvidenceCount===1);
+assert(!evaluateResearchEvidenceFloor({questionPlan:plan,externalResult:{citations:['https://sec.gov.attacker.test'],researchEvidence:{currentClaimsAllowed:true,evidenceDocuments:[{...doc,canonicalUrl:'https://sec.gov.attacker.test'}]}}}).ready);
+const html=root._searchCitationsHTML({citations:[{url:'https://sec.gov/report'},'javascript:alert(1)']});
+assert(html.includes('https://sec.gov/report') && !html.includes('javascript:'));
+let loads=0;
+const retry=createAIKnowledgeRetriever({timeoutMs:5,fetchImpl:()=>++loads===1 ? new Promise(()=>{}) : Promise.resolve({ok:true,json:async()=>({articles:[]})})});
+assert.equal((await retry.buildContext('금리')).audit.status,'UNAVAILABLE');
+assert.equal((await retry.buildContext('금리')).audit.status,'NO_RELEVANT_MATCH');
+assert.equal(loads,2);
+let resolveLoad; const shared=createAIKnowledgeRetriever({timeoutMs:100,fetchImpl:()=>new Promise(resolve=>{resolveLoad=resolve;})});
+const cancel=new AbortController(); const a=shared.buildContext('금리',{signal:cancel.signal}), b=shared.buildContext('AI');
+await Promise.resolve(); cancel.abort(); assert.equal((await a).audit.status,'CANCELLED');
+resolveLoad({ok:true,json:async()=>({articles:[]})}); assert.equal((await b).audit.status,'NO_RELEVANT_MATCH');
+for(const marker of ['var _pageOnChunk = function(fullText) {','var _pageOnDone = function(fullText, completion) {','var _pageOnError = function(errMsg) {']) {
+  assert(source.slice(source.indexOf(marker),source.indexOf(marker)+150).includes('if (!_isCurrentChatRun()) return;'));
+}
+assert(source.includes("_aioCancelChatRequest(ctxId, 'history-cleared')"));
+vm.runInContext(section('window._aioChatFreshnessInfo = function()', 'async function chatSend('), root);
+root._liveData={AAA:{price:100,observedAt:new Date(Date.now()-60000).toISOString()}};
+assert(!root._aioChatFreshnessInfo().liveStatus.includes('인용 자체 금지'));
+root._liveData={AAA:{price:100}}; root._quoteTimestamps={AAA:Date.now()};
+assert.equal(root._aioChatFreshnessInfo().ldAgeMin,null);
+const shell=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+assert(shell.includes('preparation: _uniPreparedResearch, externalResult: _uniWebResult'));
+assert(shell.includes("typeof _uniPreparedResearch !== 'object'"));
+console.log('Chat resilience PASS: cancellation/epochs/retry, empty+timeout search fallback, evidence objects, source spoofing, safe links, deduplication and shared knowledge retry/cancellation (offline).');

@@ -1,3 +1,5 @@
+import { isRouteId } from './routes.js';
+
 const ROUTE_KEYS = Object.freeze(['mode', 'node', 'path', 'step', 'chapter', 'lesson', 'domain', 'topic', 'guide', 'criticality', 'manager', 'period']);
 
 function locationUrl(locationLike) {
@@ -32,7 +34,7 @@ function parseReturnContext(value) {
   if (!value) return null;
   try {
     const parsed = JSON.parse(value);
-    return parsed && typeof parsed === 'object' ? parsed : null;
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? Object.freeze({ ...parsed }) : null;
   } catch {
     return null;
   }
@@ -40,11 +42,11 @@ function parseReturnContext(value) {
 
 export function parseKnowledgeTargetContext({ root = globalThis, locationLike = root.location } = {}) {
   const active = root?.AIO_KNOWLEDGE_ROUTE_CONTEXT;
-  if (active?.active && active.routeId) return Object.freeze({ ...active });
+  if (active?.active && isRouteId(active.routeId)) return Object.freeze({ ...active });
   const pendingHash = typeof root?._aioPendingRouteHash === 'string' ? root._aioPendingRouteHash : '';
   const hash = pendingHash || locationUrl(locationLike).hash;
   const match = String(hash || '').match(/^#([^?]+)(?:\?(.*))?$/);
-  if (!match) return null;
+  if (!match || !isRouteId(match[1])) return null;
   const params = new URLSearchParams(match[2] || '');
   const knowledgeNode = params.get('knowledgeNode');
   const metric = params.get('metric');
@@ -79,12 +81,16 @@ export function replaceKnowledgeRouteState({ root = globalThis, locationLike = r
 }
 
 export function knowledgeTargetHash(target = {}) {
-  if (!target.routeId) return '';
+  if (!isRouteId(target.routeId)) return '';
   const params = new URLSearchParams();
   if (target.conceptId) params.set('knowledgeNode', target.conceptId);
   if (target.metric) params.set('metric', target.metric);
   if (target.timeframe) params.set('timeframe', target.timeframe);
-  params.set('return', JSON.stringify(target.returnContext || { route: 'principles' }));
+  try {
+    params.set('return', JSON.stringify(target.returnContext || { route: 'principles' }));
+  } catch {
+    return '';
+  }
   return `#${target.routeId}?${params}`;
 }
 

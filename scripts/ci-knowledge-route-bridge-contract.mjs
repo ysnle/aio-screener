@@ -32,4 +32,12 @@ for (const target of artifact.targets) {
 }
 assert.equal(artifact.targets.filter((target) => target.articleId.startsWith('principles:') || target.articleId.startsWith('atlas-foundations:')).every((target) => target.status === 'ROUTE_TARGET'), true, 'all 160 primary articles must have a professional route target');
 for (const scenario of artifact.scenarios) assert(bridge.resolve(scenario.articleId), `scenario target missing ${scenario.articleId}`);
+const mutableTarget = { articleId: 'fixture:immutable', routeId: 'atlas', metric: 'before', timeframe: 'daily' };
+const immutableBridge = createKnowledgeRouteBridge([mutableTarget]);
+mutableTarget.metric = 'after';
+assert.equal(immutableBridge.resolve('fixture:immutable').metric, 'before', 'bridge targets must not retain caller mutation');
+const cycle = {}; cycle.self = cycle;
+assert.doesNotThrow(() => immutableBridge.buildNavigation('fixture:immutable', { returnContext: cycle }));
+assert.equal(new URLSearchParams(immutableBridge.buildNavigation('fixture:immutable', { returnContext: cycle }).url.split('?')[1]).has('return'), false, 'cyclic return context must fail closed');
+assert.equal(createKnowledgeRouteBridge('invalid').targets.length, 0, 'scalar target collections must fail closed');
 console.log(JSON.stringify({ status: 'PASS', targets: artifact.targets.length, articleTargets: artifact.counts.articleTargets, compatibilityTargets: artifact.counts.compatibilityTargets, routeTargets: artifact.targets.filter((target) => target.routeId).length, overviewOnly: artifact.targets.filter((target) => !target.routeId).length, scenarios: artifact.scenarios.length }, null, 2));

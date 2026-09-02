@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MARKET_PRINCIPLES_CATALOG } from '../src/ui/pages/principles.js';
@@ -62,20 +61,25 @@ const profiles = {
   '자금·임차': ['FUNDS', '임차·계약·금융비용이 데이터센터 투자 구조로 전달될 때']
 };
 
-const rows = MARKET_PRINCIPLES_CATALOG.edges.map((edge, index) => {
-  const profile = profiles[edge.relation] || ['CAUSES', '교육용 구조 경로로 연결되며 조건은 원문 관계 설명에 따른다'];
-  return [
-    `edge-${String(index + 1).padStart(3, '0')}`,
-    { type: profile[0], direction: 'DIRECTED', kind: 'PRINCIPLE', strength: 'CORE', polarity: 'CONDITIONAL', conditions: [profile[1]], sourceIds: [], reviewedAt, reviewStatus: 'STRUCTURAL_REFERENCE_REVIEWED', sourceStatus: 'EVIDENCE_REGISTRY_PENDING' }
-  ];
-});
+const navigationRelations = new Set([
+  '전력 제약', '발전 믹스', '계통 접속', '유연성', '수요 안정화', '효율·냉각', '소재 수요',
+  '인접 산업', '고신뢰 응용', '센서·검증', '상용화', '가치 포착', '환율·자금', '정책 전달',
+  '투자 회수', '공급 병목', '현금흐름 검증'
+]);
 
-// Edge IDs are stable by endpoint, so source edits cannot silently reassign a
-// semantic review to another relation.
+function relationSemantics(relation) {
+  const profile = profiles[relation];
+  if (profile) return { type: profile[0], direction: 'DIRECTED', kind: 'PRINCIPLE', strength: 'CORE', polarity: 'CONDITIONAL', conditions: [profile[1]], reviewStatus: 'STRUCTURAL_REFERENCE_REVIEWED' };
+  if (navigationRelations.has(relation)) return { type: 'RELATES_TO', direction: 'BIDIRECTIONAL', kind: 'NAVIGATIONAL', strength: 'REFERENCE', polarity: 'NEUTRAL', conditions: [`${relation} 주제를 함께 탐색하기 위한 분류 연결이며 인과관계를 뜻하지 않음`], reviewStatus: 'STRUCTURAL_NAVIGATION_ONLY' };
+  throw new Error(`PRINCIPLE_EDGE_RELATION_UNMAPPED:${relation || ''}`);
+}
+
+// Endpoint keys keep semantics attached to the intended pair. Display IDs remain
+// catalog-order identifiers and may be renumbered when the catalog order changes.
 const semantics = Object.fromEntries(MARKET_PRINCIPLES_CATALOG.edges.map((edge, index) => {
-  const profile = profiles[edge.relation] || ['CAUSES', '교육용 구조 경로로 연결되며 조건은 원문 관계 설명에 따른다'];
-  return [`${edge.from}->${edge.to}`, { id: `principle-edge-${String(index + 1).padStart(3, '0')}`, type: profile[0], direction: 'DIRECTED', kind: 'PRINCIPLE', strength: 'CORE', polarity: 'CONDITIONAL', conditions: [profile[1]], sourceIds: [], reviewedAt, reviewStatus: 'STRUCTURAL_REFERENCE_REVIEWED', sourceStatus: 'EVIDENCE_REGISTRY_PENDING' }];
+  return [`${edge.from}->${edge.to}`, { id: `principle-edge-${String(index + 1).padStart(3, '0')}`, ...relationSemantics(edge.relation), sourceIds: [], reviewedAt, sourceStatus: 'EVIDENCE_REGISTRY_PENDING' }];
 }));
 const target = path.join(root, 'src/domain/knowledge/principles-edge-semantics.js');
-atomicWriteFileSync(target, `// Generated from the exported Principles catalog; edit the relation profile and regenerate.\nexport const PRINCIPLE_EDGE_SEMANTICS = Object.freeze(${JSON.stringify(semantics, null, 2)});\n`, 'utf8');
-console.log(JSON.stringify({ status: 'PASS', edges: rows.length, target }, null, 2));
+const serialized = JSON.stringify(semantics, null, 2);
+atomicWriteFileSync(target, `// Generated from the exported Principles catalog; edit the relation profile and regenerate.\nconst rows = ${serialized};\nexport const PRINCIPLE_EDGE_SEMANTICS = Object.freeze(Object.fromEntries(Object.entries(rows).map(([key, row]) => [key, Object.freeze({ ...row, conditions: Object.freeze([...row.conditions]), sourceIds: Object.freeze([...row.sourceIds]) })])));\n`, 'utf8');
+console.log(JSON.stringify({ status: 'PASS', edges: Object.keys(semantics).length, target }, null, 2));

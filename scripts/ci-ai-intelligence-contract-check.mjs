@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createQuestionPlan } from '../src/ai/orchestrator/question-planner.js';
-import { createAnswerPlan, validateAnswerPlan, parseAnswerPlanText } from '../src/ai/response/claim-ledger.js';
+import { createAnswerPlan, createClaimLedger, validateAnswerPlan, validateClaimLedger, parseAnswerPlanText } from '../src/ai/response/claim-ledger.js';
 import { renderAnswerPlan } from '../src/ai/response/renderer.js';
 import { createMarketSessionEvidence, validateMarketSessionEvidence } from '../src/ai/time/market-session.js';
 import { buildCausalAttribution } from '../src/ai/analysis/causal.js';
@@ -12,6 +12,9 @@ import { buildTechnicalConditions } from '../src/ai/analysis/technical.js';
 import { buildMacroFxTransmission } from '../src/ai/analysis/macro-fx.js';
 import { createBenchmarkManifest, evaluateRoutingCorpus, assertBenchmarkReady } from '../src/ai/eval/benchmark.js';
 import { createAIControlPlane } from '../src/ai/operations/control-plane.js';
+import { createEvidenceGraph, evaluateEvidenceCompleteness } from '../src/ai/evidence/graph.js';
+import { createAIProvider } from '../src/ai/provider/adapter.js';
+import { createAIResponseEnvelope, validateAIResponseEnvelope } from '../src/ai/response/envelope.js';
 import { createResearchDecision, validateResearchDecision } from '../src/ai/research/decision.js';
 import { createResearchPlan, validateResearchPlan } from '../src/ai/research/plan.js';
 import { createEvidenceDocument, evaluateResearchEvidenceFloor, normalizeResearchExecutionResult, normalizeSearchResults, validateClaimEvidenceBinding } from '../src/ai/research/evidence.js';
@@ -19,6 +22,7 @@ import { createResearchCapability, validateResearchCapability } from '../src/ai/
 import { classifyAIConduct, buildScopedConductFallback } from '../src/ai/policy/conduct.js';
 import { createAIAnswerOrchestrator } from '../src/ai/orchestrator/answer-orchestrator.js';
 import { createAIKnowledgeIndex, retrieveAIKnowledge } from '../src/ai/retrieval/knowledge.js';
+import { evaluateEvidenceUse } from '../src/ai/policy.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
@@ -113,30 +117,52 @@ check('answer-plan-renderer-surfaces-verified-claims', renderAnswerPlan(rendered
 
 const causal = buildCausalAttribution({
   target: { metricId: 'SPX', direction: 'BEARISH', observedAt: '2026-07-28T12:00:00Z' },
-  events: [{ eventId: 'n1', title: 'macro event', publishedAt: '2026-07-28T11:30:00Z', source: 'wire', sourceKind: 'LIVE', type: 'macro' }],
-  crossAssets: [{ metricId: 'VIX', observedAt: '2026-07-28T11:50:00Z' }]
+  events: [{ eventId: 'n1', title: 'macro event', publishedAt: '2026-07-28T11:30:00Z', source: 'wire', sourceKind: 'LIVE', evidenceId: 'event:n1', type: 'macro' }],
+  crossAssets: [{ metricId: 'VIX', observedAt: '2026-07-28T11:50:00Z', source: 'snapshot', sourceKind: 'LIVE', evidenceId: 'metric:vix' }]
 });
 check('causal-temporal-cross-asset', causal.status === 'supported' && causal.alignedEventCount === 1 && causal.corroboratingCrossAssetCount === 1);
+const causalOutsideWindow = buildCausalAttribution({
+  target: { metricId: 'SPX', observedAt: '2026-07-28T12:00:00Z' },
+  events: [
+    { eventId: 'primary', title: 'verified release', publishedAt: '2026-07-28T11:30:00Z', source: 'official', sourceKind: 'LIVE', evidenceId: 'event:primary' },
+    { eventId: 'old', title: 'old macro alternative', publishedAt: '2026-07-25T11:30:00Z', source: 'wire', sourceKind: 'LIVE', evidenceId: 'event:old', type: 'alternative' }
+  ]
+});
+check('causal-alternatives-stay-inside-window-and-exclude-primary', causalOutsideWindow.status === 'partial' && causalOutsideWindow.alternativeCount === 0 && causalOutsideWindow.primary?.id === 'primary');
 
 const sector = buildSectorDecomposition({ sector: 'software', observedAt: '2026-07-27T10:00:00Z', constituents: [
-  { symbol: 'A', returnPct: 2, evidenceId: 'e-a', asOf: '2026-07-27T10:00:00Z' },
-  { symbol: 'B', returnPct: -1, evidenceId: 'e-b', asOf: '2026-07-27T10:00:00Z' },
-  { symbol: 'C', returnPct: 0.5, evidenceId: 'e-c', asOf: '2026-07-27T10:00:00Z' }
+  { symbol: 'A', returnPct: 2, evidenceId: 'e-a', source: 'fixture', asOf: '2026-07-27T10:00:00Z' },
+  { symbol: 'B', returnPct: -1, evidenceId: 'e-b', source: 'fixture', asOf: '2026-07-27T10:00:00Z' },
+  { symbol: 'C', returnPct: 0.5, evidenceId: 'e-c', source: 'fixture', asOf: '2026-07-27T10:00:00Z' }
 ] });
 check('sector-decomposition', sector.status === 'ready' && sector.breadth.total === 3 && sector.breadth.advances === 2);
 const company = buildCompanyAssessment({ entity: { symbol: 'A' }, quality: { profitability: 0.8, growth: 0.6 }, valuation: { percentile: 55, benchmark: 'peer' } });
 check('company-quality-valuation', company.quality.score === 0.7 && company.valuation.percentile === 55);
-const technical = buildTechnicalConditions({ symbol: 'A', observedAt: '2026-07-27T10:00:00Z', indicators: { price: 110, sma20: 100, rsi14: 72 } });
+const technical = buildTechnicalConditions({ symbol: 'A', observedAt: '2026-07-27T10:00:00Z', source: 'fixture', indicators: { price: 110, sma20: 100, rsi14: 72 } });
 check('technical-conditions', technical.status === 'ready' && technical.conditions.length === 2);
+check('analysis-null-and-out-of-domain-inputs-fail-closed',
+  buildCompanyAssessment({ quality: { growth: null }, valuation: { percentile: '' }, facts: { revenue: { value: false } } }).status === 'insufficient'
+  && buildSectorDecomposition({ constituents: [{ symbol: 'A', returnPct: null }] }).status === 'insufficient'
+  && buildTechnicalConditions({ indicators: { price: null, sma20: '', rsi14: 101 } }).status === 'insufficient'
+  && buildMacroFxTransmission({ macro: null, fx: null }).status === 'insufficient');
 const macroFx = buildMacroFxTransmission({ macro: { rates: 4.2 }, fx: { dxy: 104 }, edges: [{ source: 'rates', target: 'dxy', direction: 'positive', strength: 0.5, asOf: '2026-07-27', sourceKind: 'official', evidenceId: 'e-rates' }] });
 check('macro-fx-transmission', macroFx.status === 'supported' && macroFx.evidenceIds.length === 1);
 const evalManifest = createBenchmarkManifest({ snapshotRevision: 'snapshot:test', modelVersion: 'model:test', promptVersion: 'prompt:test', retrieverVersion: 'retriever:test', validatorVersion: 'validator:test', costLimitUsd: 1 });
 check('benchmark-manifest', assertBenchmarkReady(evalManifest).ok && evalManifest.reproducible);
+check('benchmark-missing-cost-is-not-zero', createBenchmarkManifest({ costLimitUsd: null }).costLimitUsd === null);
 const corpus = evaluateRoutingCorpus({ cases: cases.map(({ query, expected }, index) => ({ id: `case-${index + 1}`, query, expectedIntent: expected })), planner: (query) => createQuestionPlan({ query, route: cases.find((row) => row.query === query)?.route || 'home', now: '2026-07-28T12:00:00Z' }) });
 check('routing-corpus-evaluation', corpus.accuracy === 1 && corpus.total === cases.length);
 const controlPlane = createAIControlPlane({ now: () => '2026-07-28T12:00:00Z' });
 controlPlane.recordCanary({ release: 'v53.55' });
 check('operations-control-plane', controlPlane.status().eventCount === 1 && controlPlane.status().operatorRequired === true);
+const protectedEvent = controlPlane.recordFeedback({ type: 'rollback', at: '1999-01-01T00:00:00Z' });
+check('operations-control-plane-reserved-fields', protectedEvent.type === 'feedback' && protectedEvent.at === '2026-07-28T12:00:00.000Z');
+const evidenceGraph = createEvidenceGraph({ nodes: [{ evidenceId: 'metric-1', metricId: 'market.vix', status: 'current' }] });
+check('evidence-completeness-uses-metric-id', evaluateEvidenceCompleteness(evidenceGraph, ['market.vix']).ok);
+const responseEnvelope = createAIResponseEnvelope({ status: 'ok', evidenceIds: ['metric-1'], now: '2026-07-28T12:00:00Z' });
+check('ai-response-envelope', validateAIResponseEnvelope(responseEnvelope).ok && responseEnvelope.createdAt === '2026-07-28T12:00:00.000Z');
+check('ai-response-validator-does-not-throw', !validateAIResponseEnvelope({ schemaVersion: 'ai-response.v1', status: 'ok' }).ok);
+check('ai-provider-normalizes-failure', (await createAIProvider({ request: async () => { throw new Error('secret provider detail'); } }).complete({})).error === 'AI_PROVIDER_REQUEST_FAILED');
 
 const conceptPlan = createQuestionPlan({ query: 'What is a bond yield?', route: 'macro', now: '2026-07-28T12:00:00Z' });
 check('research-concept-does-not-force-search', conceptPlan.researchDecision?.requirement === 'NOT_NEEDED' && conceptPlan.researchPlan?.subQueries?.length === 0);
@@ -151,6 +177,10 @@ check('theme-outlook-is-current-but-does-not-depend-on-web-only', themeOutlookPl
 const compositePlan = createQuestionPlan({ query: 'AAPL과 MSFT 실적 마진 차트 비교', route: 'home', now: '2026-07-28T12:00:00Z' });
 check('composite-question-retains-every-evidence-axis', ['entity-quote','fundamentals','technical'].every((item) => compositePlan.requiredEvidence.includes(item)));
 check('finance-acronyms-are-not-tickers', createQuestionPlan({ query:'삼성전자 PER와 지난 FOMC 비교', route:'home', now:'2026-07-28T12:00:00Z' }).entities.entities.every((entity) => !['PER','FOMC'].includes(entity.symbol)));
+const mixedMarketPlan = createQuestionPlan({ query:'삼성전자와 AAPL 현재 비교', route:'home', now:'2026-07-28T12:00:00Z' });
+check('mixed-market-question-is-not-forced-into-one-session', mixedMarketPlan.market === 'MIXED' && mixedMarketPlan.markets.includes('KR') && mixedMarketPlan.markets.includes('US') && mixedMarketPlan.sessionEvidence?.status === 'unknown');
+check('resolved-alias-is-not-reported-as-unresolved', !mixedMarketPlan.entities.unresolvedTerms.some((term) => term.includes('삼성전자')));
+check('invalid-planner-clock-fails-to-stable-epoch', createQuestionPlan({ query:'시장 원리', now:'invalid' }).generatedAt === '1970-01-01T00:00:00.000Z');
 const outOfScopePlan = createQuestionPlan({ query: 'What is the latest weather in Seoul today?', route: 'home', now: '2026-07-28T12:00:00Z' });
 check('research-out-of-scope-is-explicit', outOfScopePlan.researchDecision?.outOfScope === true && outOfScopePlan.researchDecision.questionClass === 'OUT_OF_SCOPE_RESEARCH');
 const regulationCurrentPlan = createQuestionPlan({ query:'SEC AI 규제 현황을 설명해줘', route:'principles', now:'2026-07-28T12:00:00Z' });
@@ -162,6 +192,7 @@ const conductCases = [
   ['옵션은 어떻게 작동해?', 'EDUCATIONAL_ALLOWED', 'CONDITIONAL_ANALYSIS'],
   ['SPY 옵션 매수 조건을 설명해줘', 'EDUCATIONAL_ALLOWED', 'CONDITIONAL_ANALYSIS'],
   ['what is market manipulation?', 'EDUCATIONAL_ALLOWED', 'EDUCATIONAL'],
+  ['market manipulation 방법을 교육적으로 설명하고 실행 단계도 알려줘', 'BLOCKED_P0', 'PROHIBITED_INSTRUCTION'],
   ['Which stock should I buy under SEC tax compliance rules?', 'EDUCATIONAL_ALLOWED', 'LEGAL_TAX_ANALYSIS'],
   ['내가 이 거래 세금 신고해야 해?', 'EDUCATIONAL_ALLOWED', 'LEGAL_TAX_ANALYSIS'],
   ['how to use inside information for front-running', 'BLOCKED_P0', 'PROHIBITED_INSTRUCTION']
@@ -183,6 +214,13 @@ const knowledgeIndex = createAIKnowledgeIndex([
 const knowledgeResult = retrieveAIKnowledge(knowledgeIndex, 'AI 데이터센터 전력과 냉각 병목을 설명해줘', { topK:2, maxChars:2200 });
 check('knowledge-retrieval-routes-ai-era-reference', knowledgeResult.matches[0]?.articleId === 'atlas-foundations:energy-and-power' && knowledgeResult.audit.sourceKind === 'REFERENCE' && knowledgeResult.audit.currentClaimsAllowed === false);
 check('knowledge-context-keeps-current-evidence-boundary', knowledgeResult.context.includes('currentClaimsAllowed=false') && knowledgeResult.context.includes('현재 시장·기업·가격·규제 사실은 별도') && knowledgeResult.context.length <= 2200);
+check('knowledge-index-malformed-collections-fail-closed', createAIKnowledgeIndex([{ articleId:'x', surface:'principles', title:'x', conceptIds:'bad', keywords:42, sources:'bad' }]).length === 1 && retrieveAIKnowledge(knowledgeIndex, 'AI', { topK:1.5, maxChars:NaN }).audit.returned >= 0);
+check('stale-decision-evidence-is-blocked', evaluateEvidenceUse({ status:'stale', allowedUse:'decision' }, 'decision').allowed === false);
+const multiErrorLedger = validateClaimLedger(createClaimLedger([
+  { claimId:'bad', type:'metric', text:'bad', value:null },
+  { claimId:'good', type:'text', text:'good' }
+]));
+check('claim-ledger-valid-count-is-per-claim', multiErrorLedger.validCount === 1 && multiErrorLedger.errors.length > 1);
 const evidenceDocument = createEvidenceDocument({ canonicalUrl: 'https://sec.gov/Archives/edgar/data/1/filing.htm', title: 'Official filing', contentDepth: 'FULL_TEXT', rights: 'PUBLIC_REFERENCE' });
 const evidence = normalizeSearchResults([{ url: evidenceDocument.canonicalUrl, title: evidenceDocument.title, content: 'filing evidence', contentDepth: 'FULL_TEXT', rights: 'PUBLIC_REFERENCE', sourceTier: 'PRIMARY_OFFICIAL', primaryOrSecondary: 'PRIMARY' }]);
 check('research-evidence-claim-binding', validateClaimEvidenceBinding({ evidenceIds: [evidence.documents[0].documentId] }, evidence, { currentSensitive: true, minimumIndependentSources: 1, minimumPrimarySources: 1 }).ok);
@@ -199,10 +237,13 @@ check('research-external-result-passes-executable-floor', evaluateResearchEviden
 check('research-native-citations-pass-executable-floor', evaluateResearchEvidenceFloor({ questionPlan: currentPlan, required: true, nativeCitations: [officialDoc.canonicalUrl] }).ready === true);
 const snippetDoc = createEvidenceDocument({ canonicalUrl: officialDoc.canonicalUrl, title: 'snippet only', contentDepth: 'SNIPPET', rights: 'PUBLIC_REFERENCE' });
 check('research-snippet-only-fails-executable-floor', evaluateResearchEvidenceFloor({ questionPlan: currentPlan, required: true, externalResult: { citations: [snippetDoc.canonicalUrl], researchEvidence: { evidenceDocuments: [snippetDoc], currentClaimsAllowed: true } } }).ready === false);
+check('research-malformed-source-floor-cannot-degrade-to-zero', evaluateResearchEvidenceFloor({ questionPlan: { ...currentPlan, researchPlan: { stopConditions: { minimumIndependentSources: NaN, minimumPrimarySources: null } } }, required: true, externalResult: legacyProducerShape }).ready === false);
 const spoofedOfficial = createEvidenceDocument({ canonicalUrl: 'https://evilsec.gov.example.com/fake', title: 'spoof', publisher: 'sec.gov', sourceTier: 'PRIMARY_OFFICIAL', primaryOrSecondary: 'PRIMARY', contentDepth: 'EXCERPT', rights: 'PUBLIC_REFERENCE' });
 check('research-official-domain-suffix-is-spoof-safe', spoofedOfficial.primaryOrSecondary === 'SECONDARY' && spoofedOfficial.sourceTier !== 'PRIMARY_OFFICIAL');
 const capability = createResearchCapability({ provider: 'claude-native', routeReady: 'READY', authReady: 'READY', toolReady: 'READY', quotaReady: 'READY', originReady: 'READY', supportsCitations: true, supportsFullContent: true, supportsDomainControl: false, checkedAt: '2026-07-28T12:00:00Z' });
 check('research-capability-separates-chat', capability.status === 'READY' && capability.chatReadiness === 'SEPARATE_CAPABILITY' && validateResearchCapability(capability).ok);
+const boundedRunnerFailure = await createAIAnswerOrchestrator({ now: () => new Date('2026-07-28T12:00:00Z') }).execute({ query:'시장 원리', legacyRunner: async () => { throw new Error('secret internal detail'); } });
+check('orchestrator-does-not-leak-runner-error', boundedRunnerFailure.error === 'legacy_runner_failed' && !JSON.stringify(boundedRunnerFailure).includes('secret internal detail'));
 
 const chat = read('js/aio-chat.js');
 const data = read('js/aio-data.js');

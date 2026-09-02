@@ -7,7 +7,7 @@
     "targeted": "Search or read only when the task touches the named domain.",
     "explicitOnly": "Point-in-time evidence; never load by default or treat as current state."
   },
-  "documentCount": 67,
+  "documentCount": 69,
   "documents": [
     {
       "path": "_context/AI-CHAT-INSTITUTIONAL-AUDIT-2026-07-12.md",
@@ -154,9 +154,9 @@
       "title": "2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.",
       "kind": "ledger",
       "readPolicy": "targeted",
-      "bytes": 524449,
-      "lines": 2636,
-      "lastVerified": "2026-08-28",
+      "bytes": 557056,
+      "lines": 2800,
+      "lastVerified": "2026-09-02",
       "autoRefresh": false
     },
     {
@@ -184,9 +184,9 @@
       "title": "AIO v53.11 CODE-MAP",
       "kind": "targeted-map",
       "readPolicy": "targeted",
-      "bytes": 50049,
-      "lines": 531,
-      "lastVerified": "2026-08-23",
+      "bytes": 50501,
+      "lines": 534,
+      "lastVerified": "2026-08-31",
       "autoRefresh": true
     },
     {
@@ -378,8 +378,8 @@
       "title": "AIO Context Index",
       "kind": "preflight",
       "readPolicy": "required",
-      "bytes": 4602,
-      "lines": 83,
+      "bytes": 5303,
+      "lines": 89,
       "lastVerified": "2026-08-23",
       "autoRefresh": true
     },
@@ -508,9 +508,9 @@
       "title": "2026-07-18 통합/압축: 검증 완료된 버전별 원장(v34.x~v53.4)을 §6 압축 원장으로 축약, 퇴역 표면(KR 독립 5페이지 등) 항목 제거.",
       "kind": "ledger",
       "readPolicy": "targeted",
-      "bytes": 202957,
-      "lines": 1599,
-      "lastVerified": "2026-08-28",
+      "bytes": 215264,
+      "lines": 1672,
+      "lastVerified": "2026-09-02",
       "autoRefresh": false
     },
     {
@@ -584,13 +584,33 @@
       "autoRefresh": false
     },
     {
+      "path": "_context/RESEARCH-INTEGRATION-SUPPLIED-MATERIALS-2026-08-29.md",
+      "title": "사용자 제공 자료 통합 — AI 인프라·자금시장·차트·리스크 프레임",
+      "kind": "research-record",
+      "readPolicy": "targeted",
+      "bytes": 17619,
+      "lines": 147,
+      "lastVerified": "2026-08-29",
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/RESEARCH-INTEGRATION-SUPPLIED-MATERIALS-2026-08-30.md",
+      "title": "2026-08-30 supplied-materials integration record",
+      "kind": "research-record",
+      "readPolicy": "targeted",
+      "bytes": 9080,
+      "lines": 68,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
       "path": "_context/RULES.md",
       "title": "2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.",
       "kind": "ledger",
       "readPolicy": "targeted",
-      "bytes": 334265,
-      "lines": 2683,
-      "lastVerified": "2026-08-28",
+      "bytes": 346373,
+      "lines": 2751,
+      "lastVerified": "2026-09-02",
       "autoRefresh": false
     },
     {

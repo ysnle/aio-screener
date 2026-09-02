@@ -256,6 +256,17 @@ check(
     && /Behavior playbook/.test(chat)
 );
 check(
+  '2026-08-30 supplied material batch preserves readable/unreadable boundaries and durable frames',
+  /AIO_SUPPLIED_MATERIALS_20260830_REFERENCE/.test(chat)
+    && /supplied-materials-2026-08-30/.test(chat)
+    && /unreadableArticlePointers/.test(chat)
+     && /Article body unavailable|Article 본문 미확인/.test(chat)
+    && /Jalapeño/.test(chat)
+    && /energy\/request/.test(chat)
+    && /housing supply lag|주택 수요/.test(data)
+    && /billable IT power/.test(data)
+);
+check(
   'current AI contexts use runtime evidence instead of embedded capex narratives',
   /function _aioCreateEvidenceContext/.test(chat)
     && /현재 검증된 런타임 관측치만 사용합니다/.test(chat)
@@ -512,8 +523,8 @@ check('headless tests cover Batch 1 efficacy fixes (EF-01/02/04/13)', /_testV524
 // v52.41 (P656): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 2 (EF-08/10/11/12/19) structural gates
 check('EF-08: carry-unwind-risk render function has an independent aio:pageShown/aio:liveQuotes trigger, not only the showPage-monkeypatch setTimeout path that live-audit proved unreliable on cold load', /data-carry-unwind-shown/.test(data) && /data-carry-unwind-live/.test(data) && /_aioPageBus\.register\('data-carry-unwind-shown'/.test(data));
 check('EF-08: carry observation proxy discloses the manually verified BOJ input and holds instead of inventing a score when current inputs are absent', /BOJ 수동 확인값 기준/.test(data) && /관측 프록시 보류/.test(data) && /inputsComplete/.test(data));
-check('EF-10: ticker page Key Metrics + Quarterly Results dead slots render an honest na state pointing to the fundamental page instead of a silent permanent dash', /_tickerGapIds/.test(core) && /ticker-m-mcap/.test(core) && /ticker-f-ni/.test(core) && /펀더멘탈.*이동 후/.test(core));
-check('EF-11: risk-monitor VXX-term-structure and RSP/SPY-ratio status slots fall back to an explicit pending state when live inputs are missing', /VXX 또는 VIX 라이브 시세 미수신/.test(html) && /RSP 또는 SPY 라이브 시세 미수신/.test(html));
+check('EF-10/P1010: retired dead ticker metrics and action slots route to the shared SEC report', !/_tickerGapIds|ticker-action-btn|ticker-m-mcap/.test(core) && /id="ticker-fundamental-link"[^>]*data-arg="fundamental"/.test(html) && !/id="ticker-f-ni"|id="tab-financials"/.test(html));
+check('EF-11/P1010: unsupported VXX futures inference is retired while RSP/SPY retains explicit missing state', !/rm-vixstr-status|var rollCost = vxxPct/.test(html) && /RSP 또는 SPY 라이브 시세 미수신/.test(html));
 check('EF-12: TV OHLC fallback strip sync is extracted into a standalone function reachable from page-shown/live-quotes, not only as a loadTVChart side effect', /function _aioSyncTvOhlcFallback/.test(html) && /html-tv-ohlc-fallback-shown/.test(html) && /html-tv-ohlc-fallback-live/.test(html));
 check('EF-19: kr-technical KOSPI/KOSDAQ refresh buttons call analyzeKrIndex with the correct target ids, and the analyzeKrTickerDeep mis-wiring is gone', /data-action="analyzeKrIndex"\s+data-arg="\^KS11"\s+data-arg2="kr-kospi-tech-result"/.test(html) && /data-action="analyzeKrIndex"\s+data-arg="\^KQ11"\s+data-arg2="kr-kosdaq-tech-result"/.test(html) && !/data-action="analyzeKrTickerDeep"\s+data-arg="\^K[SQ]11"/.test(html));
 check('EF-19: _fetchYahooChartData proxy chain includes codetabs.com fallback (live network audit showed corsproxy.io/allorigins alone failing repeatedly for KR tickers)', /api\.codetabs\.com\/v1\/proxy/.test(html));
@@ -522,7 +533,7 @@ check('headless tests cover Batch 2 efficacy fixes (EF-08/10/11/12/19)', /_testV
 // v52.42 (P657): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 3 (EF-06/07/14/15/16) structural gates
 check('EF-06: VIX term-structure seed fallback values render a distinguishable na state instead of the same value state as a live number',
   (/_aioRenderVixTermRegime/.test(core) && /\(정적\)/.test(core) && /라이브 미수신 — DATA_SNAPSHOT 시드값/.test(core))
-  || (sentimentDomain.includes('export function vixTermStructure') && sentimentDomain.includes('blocked: true') && sentimentDomain.includes('points: { short, spot, medium, long }') && sentimentPage.includes('summary.vixTermStructure.regime') && sentimentPage.includes('canvas.dataset.aioRenderer')));
+  || (sentimentDomain.includes('export function vixTermStructure') && sentimentDomain.includes('blocked: true') && /points:\s*(?:Object\.freeze\()?\{ short, spot, medium, long \}/.test(sentimentDomain) && sentimentPage.includes('summary.vixTermStructure.regime') && sentimentPage.includes('canvas.dataset.aioRenderer')));
 check('EF-07: kr-home supply title dates are overridden to an honest fallback label when the failure state renders, instead of coexisting with a confident "N/D 기준" date next to the failure warning', /_showKrSupplyFailureState/.test(html) && /#page-kr-home \.kr-supply-title/.test(html) && /폴백 데이터/.test(html));
 check('EF-14: news source names are guarded by a non-Latin/non-Hangul script check separate from the title translation guard, so an untranslated source name cannot leak raw', /function _aioSafeSourceLabel/.test(data) && /window\._aioSafeSourceLabel\(n\.source\)/.test(core));
 check('EF-15: Fear & Greed delta surfaces are recomputed from the just-fetched CNN previous-day score instead of only a possibly stale server snapshot field', /_fgLiveDelta/.test(data) && /_aioSetDeltaEl\('sentiment-fg-delta', _fgLiveDelta/.test(data) && /_aioSetDeltaEl\('home-fg-delta', _fgLiveDelta/.test(data));
@@ -544,7 +555,7 @@ check('EF-18: kr-supply fetch uses the confirmed-live /api/index/{market}/trend 
 check('headless tests cover Batch 4 efficacy fixes (EF-03/17/18)', /_testV5243Batch4Efficacy/.test(tests) && /T884/.test(tests) && /T885/.test(tests) && /T886/.test(tests));
 
 // v52.44 (P659): B8 Cloudflare Worker anycast 403(forbidden) auto-retry mitigation
-check('B8: shared _aioFetchClaudeWithRetry helper exists with a server-key gate, a 403 status check, and Anthropic-native forbidden-shape detection before retrying', /async function _aioFetchClaudeWithRetry\(url, fetchOpts, serverKey, maxRetries\)/.test(chat) && /serverKey\s*&&\s*res\.status\s*===\s*403/.test(chat) && /_peek\.error\.type\s*===\s*'forbidden'/.test(chat));
+check('B8: shared _aioFetchClaudeWithRetry helper exists with a server-key gate, a 403 status check, and Anthropic-native forbidden-shape detection before retrying', /async function _aioFetchClaudeWithRetry\(url, fetchOpts, serverKey, maxRetries, options\)/.test(chat) && /serverKey\s*&&\s*res\.status\s*===\s*403/.test(chat) && /_peek\.error\.type\s*===\s*'forbidden'/.test(chat));
 check('B8: callClaude routes both its initial request and its 400-beta-header fallback retry through the shared helper instead of a bare fetch to the Worker/Anthropic endpoint', (chat.match(/_aioFetchClaudeWithRetry\(_claudeTarget\.url/g) || []).length === 2);
 check('B8: the remaining aio-data.js Claude translation call site routes through the shared retry helper with a defensive typeof fallback; the retired briefing call site is absent', (data.match(/_aioFetchClaudeWithRetry\s*:\s*fetch\)\(_ct\.url/g) || []).length === 1 && !/function\s+_generateAIBriefing\b/.test(data));
 check('headless tests cover the B8 Worker-retry mitigation', /_testV5244WorkerAnycastRetry/.test(tests) && /T887/.test(tests) && /T888/.test(tests) && /T889/.test(tests) && /T890/.test(tests));
@@ -777,7 +788,7 @@ check('LIVE3-09: quote producers preserve exchange observation time separately f
 check('LIVE3-10: failed client F&G refresh preserves a newer server observation instead of overwriting it with static seed', /\^\(live\|proxy\|delayed\)\$/.test(data) && /외부 관측값이 전혀 없을 때만 정적 snapshot/.test(data));
 
 check('LIVE3-11: every external dependency has an explicit free-only replacement/rights/cadence state and provider availability is not treated as implementation', /getExternalDependencyAudit/.test(core) && /external-dependency-audit\.v1/.test(core) && /provider availability is not implementation status/.test(core) && /free-plan-only/.test(core) && /free_equivalent_unavailable/.test(core) && /free_key_required/.test(core));
-check('LIVE3-12: a core quote outage preserves the last-known-good data artifact and screener refresh can run in isolation', /CORE_QUOTE_COVERAGE_FAILED/.test(fetchScript) && fetchScript.indexOf('CORE_QUOTE_COVERAGE_FAILED') < fetchScript.indexOf('await writeFile(OUT') && /SCREENER_ONLY/.test(fetchScript));
+check('LIVE3-12: a core quote outage preserves the last-known-good data artifact and screener refresh can run in isolation', /CORE_QUOTE_COVERAGE_FAILED/.test(fetchScript) && fetchScript.indexOf('CORE_QUOTE_COVERAGE_FAILED') < fetchScript.indexOf('await atomicWriteFile(OUT') && /SCREENER_ONLY/.test(fetchScript));
 check('WP-10: every route contract carries required/optional producers, coverage, age, failure, and forbidden-claim state',
   /function _pageCompletenessContract\(id\)/.test(core) && /requiredProducers:/.test(core) && /optionalProducers:/.test(core) && /minCoverage:/.test(core) && /maxAge:/.test(core) && /failureState:/.test(core) && /forbiddenClaims:/.test(core));
 check('WP-10: runtime exposes one page completeness API and distinguishes missing/stale/partial/blocked producer states',
@@ -859,16 +870,18 @@ check('P783: blocked-external-network Chromium gate asserts the reference-only s
   /snapshot quote topbar must stay reference-only/.test(read('scripts/ci-architecture-browser-check.mjs')));
 
 check('P784/SA-01: Yahoo chart requests use the shared proxy registry health path', (() => {
-  const start = html.indexOf('async function _fetchYahooChartData(ticker, range)');
+  const start = html.indexOf('async function _fetchYahooChartData(ticker, range, interval)');
   const end = html.indexOf('// Main comprehensive analysis function', start);
   const chartSource = start >= 0 && end > start ? html.slice(start, end) : '';
-  return /fetchViaProxy\(baseUrl/.test(chartSource)
-    && /accept:\s*function/.test(chartSource)
+  const producerStart = data.indexOf('async function _aioFetchYahooChartData(');
+  const producer = data.slice(producerStart, data.indexOf('// 모듈 스코프', producerStart));
+  return /return _aioFetchYahooChartData\(ticker/.test(chartSource)
+    && /fetchViaProxy\(url/.test(producer) && /accept:\s*function/.test(producer)
     && !/proxies\.push|fetch\(proxies/.test(chartSource);
 })());
 check('P784/SA-01: proxy registry opens cooldown after three failures and rejects invalid chart payloads',
   /p\.fails\s*>=\s*3/.test(data)
-    && /markFail\(proxy\.id, ['"]invalid-payload['"]\)/.test(data)
+    && /markFail\(proxy\.id,[^\n]+['"]network-or-payload['"]/.test(data)
     && /typeof opts\.accept === ['"]function['"]/.test(data));
 
 check('W1-04: SEC annual facts expose versioned freshness and fail-closed decision eligibility',

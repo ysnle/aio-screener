@@ -39,11 +39,11 @@ export function classifyAIConduct({ query = '', responseText = '' } = {}) {
   const asksLegalDetermination = LEGAL_DETERMINATION.test(queryText);
   const responseLegalDirective = RESPONSE_LEGAL_DIRECTIVE.test(answerText);
 
-  if (prohibitedCategories.length && operational && !educational) {
+  if (prohibitedCategories.length && operational) {
     return Object.freeze({
       version: AI_CONDUCT_POLICY_VERSION, requestMode: 'PROHIBITED_INSTRUCTION',
       status: 'BLOCKED_P0', severity: 'P0', categories: Object.freeze(categories),
-      execution: true, educational: false, personalized, directAction,
+      execution: true, educational, personalized, directAction,
       legalReviewRequired: false,
       reasons: Object.freeze(prohibitedCategories.map((id) => `prohibited-conduct:${id}`))
     });

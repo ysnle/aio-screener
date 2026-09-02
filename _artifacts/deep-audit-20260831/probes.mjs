@@ -1,0 +1,28 @@
+import fs from 'node:fs';
+import { createScreenDefinition } from '../../src/data/contracts/screener.js';
+import { createDefaultScreenDefinitions, runScreen } from '../../src/domain/screener/screen-engine.js';
+import { computeFactorRanks } from '../../src/domain/screener/factor-ranks.js';
+import { validatePITRun } from '../../src/domain/screener/pit-validation.js';
+import { calculateOutcome, expectedExitDate } from '../../src/domain/screener/outcome-ledger.js';
+import { createRefreshPlanner } from '../../src/domain/screener/refresh-planner.js';
+const result = {};
+const ast={type:'range',field:'rank',min:60};
+const definition=createScreenDefinition({screenId:'audit',filtersAST:ast});
+const before=runScreen({definition,rows:[{sym:'A',rank:70}]}).passed.length;
+const hash=definition.definitionHash;
+try{ast.min=80;}catch{}
+result.mutableDefinition={before,after:runScreen({definition,rows:[{sym:'A',rank:70}]}).passed.length,sameHash:definition.definitionHash===hash};
+const rows=Array.from({length:6},(_,i)=>({sym:`T${i}`,ret1m:10,ret3m:10,pctSma50:5,pctSma200:5,vol:20,sector:'Technology'}));
+result.tiedFactorRanks=computeFactorRanks({rows}).rows.map(r=>({sym:r.sym,rank:r.rank}));
+const d=createScreenDefinition({screenId:'lkg',filtersAST:{type:'range',field:'price.ret3m',min:0}});
+result.lastGoodFilter=runScreen({definition:d,rows:[{sym:'LKG',ret3m:10,rank:80,fieldReadiness:{fields:{'price.ret3m':{value:10,status:'LAST_GOOD'}}}}]}).rows[0].screenStatus;
+const lowvol=createDefaultScreenDefinitions().find(d=>d.screenId==='preset-lowvol');
+result.lowvolOrdering=runScreen({definition:lowvol,rows:[{sym:'SAFER',vol:10,rank:90},{sym:'RISKIER',vol:20,rank:20}].map(r=>({...r,fieldReadiness:{fields:{'price.volatility':{value:r.vol,status:'CURRENT'},'price.rsi14':{value:50,status:'CURRENT'}}}}))}).passed.map(r=>({sym:r.sym,score:r.rankExplanation.totalScore}));
+const pit={asOf:'2026-08-12',universe:[{availableAt:'2026-08-01',validFrom:'2020-01-01',turnover:0,liquidity:100,costBps:0}],observations:[{instrumentId:'US:A',observedAt:'2027-01-01',availableAt:'2027-01-02'}],benchmark:{symbol:'SPY'},costs:0,liquidity:100,liveDefinitionHash:'x',backtestDefinitionHash:'x'};
+result.futurePit=validatePITRun(pit);
+const outcome={runId:'audit',instrumentId:'US:A',horizon:'T+1',entry:{value:100,observedAt:'2026-08-28'},exit:{value:110,observedAt:'2026-08-31'},benchmarkEntry:{value:100},benchmarkExit:{value:null},costBps:0};
+result.missingBenchmark=calculateOutcome(outcome);
+result.reversedOutcome=calculateOutcome({...outcome,exit:{value:110,observedAt:'2026-08-27'}});
+result.calendarHorizon={friday:'2026-08-28',exit:expectedExitDate('2026-08-28','T+1')};
+const planner=createRefreshPlanner({budget:{maxItems:10,maxPerProvider:10}});planner.enqueue({instrumentId:'US:A',fieldGroup:'price',asOfBucket:'2026-08-31'});const first=planner.plan({providerId:'p'});const second=planner.plan({providerId:'p'});planner.acknowledge(first[0],{providerId:'p',reason:'rights blocked'});result.refreshPlanner={inFlightReselected:second.length,terminalReselected:planner.plan({providerId:'p'}).length};
+const output=process.argv[2]||'probes-current.json';fs.writeFileSync(new URL(output,import.meta.url),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result,null,2));

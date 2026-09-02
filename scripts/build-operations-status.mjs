@@ -1,4 +1,5 @@
 import { readFile, rename, writeFile } from 'node:fs/promises';
+import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { createOperationsStatus, validateOperationsStatus } from '../src/data/contracts/operations.js';
 
 export const OPERATIONS_STATUS_OUT = new URL('../public-data/operations-status.json', import.meta.url);
@@ -84,7 +85,12 @@ export function derivePublicAiConfig(previous = {}, {
   const prior = previous && typeof previous === 'object' ? previous : {};
   const priorAi = prior.ai && typeof prior.ai === 'object' ? prior.ai : {};
   const endpoint = String(workerEndpoint || '').trim().replace(/\/+$/, '') || null;
-  const endpointUsable = /^https:\/\/[^\s]+$/i.test(endpoint || '') ? endpoint : null;
+  const endpointUsable = (() => {
+    try {
+      const parsed = new URL(endpoint);
+      return parsed.protocol === 'https:' && !parsed.username && !parsed.password && !parsed.search && !parsed.hash ? endpoint : null;
+    } catch (_) { return null; }
+  })();
   const published = Boolean(endpointUsable && proxyHealthy);
   const failureReason = endpoint && !endpointUsable
     ? 'WORKER_ENDPOINT_INVALID'
@@ -114,6 +120,17 @@ export function derivePublicAiConfig(previous = {}, {
         observedAt: proxyEvidence.proxyHealthObserved || now,
         observationStatus: proxyEvidence.proxyObservationStatus || 'UNKNOWN'
       }
+    },
+    // Market-data relay availability is a separate concern from the AI
+    // entitlement/health branch.  A transient AI health failure must not
+    // erase a configured public-reference route for quote requests, and a
+    // configured endpoint is not evidence that the route is healthy.
+    marketData: {
+      workerUrl: endpointUsable,
+      routeStatus: endpointUsable ? 'CONFIGURED' : 'UNAVAILABLE',
+      healthPath: '/health',
+      policy: 'public-reference',
+      availability: 'verify-per-request'
     },
     privacy: prior.privacy || {
       clientKeysStayBrowserLocal: true,
@@ -432,9 +449,20 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
 }
 
 if (process.argv[1] && new URL(`file://${process.argv[1].replaceAll('\\', '/')}`).href === import.meta.url) {
+  if (process.argv.includes('--config-only')) {
+    const previous = JSON.parse(await readFile(PUBLIC_CONFIG_PATH, 'utf8'));
+    const endpoints = JSON.parse(await readFile(WORKER_ENDPOINTS_PATH, 'utf8'));
+    const version = JSON.parse(await readFile(new URL('../version.json', import.meta.url), 'utf8'));
+    const derived = derivePublicAiConfig(previous, { workerEndpoint: endpoints.proxy?.baseUrl });
+    // Configuration repair is not a health probe. Preserve existing AI evidence
+    // and every observation timestamp when no live observation was made.
+    await atomicWriteFile(PUBLIC_CONFIG_PATH, `${JSON.stringify({ ...previous, appRevision: version.version, marketData: derived.marketData }, null, 2)}\n`);
+    console.log('Public market-data configuration regenerated; health evidence unchanged.');
+  } else {
   const data = JSON.parse(await readFile(new URL('../public-data/data.json', import.meta.url), 'utf8'));
   const marketSnapshot = JSON.parse(await readFile(new URL('../public-data/market-snapshot.json', import.meta.url), 'utf8'));
   let reconciliation = null;
   try { reconciliation = JSON.parse(await readFile(new URL('../public-data/reconciliation-status.json', import.meta.url), 'utf8')); } catch (_) {}
   console.log(JSON.stringify(await writeOperationsStatus({ data, marketSnapshot, reconciliation })));
+  }
 }

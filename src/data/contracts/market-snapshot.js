@@ -59,7 +59,7 @@ function normalizeQuote(quote = {}) {
   const value = Number(quote.value ?? quote.price ?? quote.regularMarketPrice);
   const changePct = quote.changePct ?? quote.pct ?? quote.regularMarketChangePercent;
   const previousValue = quote.previousValue ?? quote.previousClose ?? quote.regularMarketPreviousClose ?? null;
-  const derivedBasis = Number.isFinite(Number(previousValue)) ? 'provider-previous-value' : 'unknown';
+  const derivedBasis = previousValue != null && String(previousValue).trim() !== '' && typeof previousValue !== 'boolean' && Number.isFinite(Number(previousValue)) ? 'provider-previous-value' : 'unknown';
   const normalized = {
     evidenceId: String(quote.evidenceId || ''),
     metricId: String(quote.metricId || instrument?.metricId || ''),
@@ -78,7 +78,7 @@ function normalizeQuote(quote = {}) {
     changeBasis: String(quote.changeBasis || quote.valueBasis || derivedBasis),
     valueBasis: String(quote.valueBasis || quote.changeBasis || derivedBasis),
     allowedUse: String(quote.allowedUse || 'reference'),
-    delayedByMs: Number.isFinite(Number(quote.delayedByMs)) ? Number(quote.delayedByMs) : null,
+    delayedByMs: quote.delayedByMs != null && String(quote.delayedByMs).trim() !== '' && typeof quote.delayedByMs !== 'boolean' && Number.isFinite(Number(quote.delayedByMs)) && Number(quote.delayedByMs) >= 0 ? Number(quote.delayedByMs) : null,
     venue: quote.venue || quote.fullExchangeName || null
   };
   normalized.evidenceId = normalized.evidenceId || `${normalized.metricId}:${normalized.observedAt || 'missing'}`;

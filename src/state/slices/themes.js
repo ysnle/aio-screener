@@ -12,10 +12,11 @@ export function createThemesDataAction(payload = {}, meta = {}) {
 export function themesReducer(state = createInitialThemesState(), action = {}) {
   if (action.type === THEMES_DATA_SET) {
     const payload = action.payload && typeof action.payload === 'object' ? action.payload : {};
+    const has = (key) => Object.prototype.hasOwnProperty.call(payload, key);
     return {
-      items: Array.isArray(payload.items) ? payload.items.slice() : [],
-      selectedId: payload.selectedId || state.selectedId || null,
-      selectedDetail: payload.selectedDetail || state.selectedDetail || null,
+      items: has('items') && Array.isArray(payload.items) ? payload.items.map((item) => item && typeof item === 'object' ? { ...item } : item) : state.items,
+      selectedId: has('selectedId') ? payload.selectedId || null : state.selectedId,
+      selectedDetail: has('selectedDetail') ? (payload.selectedDetail && typeof payload.selectedDetail === 'object' ? { ...payload.selectedDetail } : null) : state.selectedDetail,
       updatedAt: action.meta?.updatedAt || payload.updatedAt || state.updatedAt || null
     };
   }

@@ -30,10 +30,6 @@ export function selectDomainDossier(bundle, domainId) {
   return (bundle?.domainDossiers?.dossiers || []).find((dossier) => dossier.domainId === domainId) || null;
 }
 
-export function selectQuantitativeLab(bundle, labId) {
-  return (bundle?.quantitativeLabs?.labs || []).find((lab) => lab.labId === labId) || null;
-}
-
 export function selectKnowledgeSummary(bundle, articleId) {
   const article = selectArticle(bundle, articleId);
   const learningNode = selectLearningNode(bundle, articleId);

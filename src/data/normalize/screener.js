@@ -30,6 +30,7 @@ export function normalizeScreener(raw = {}) {
     ema21: finite(row?.ema21),
     ema60: finite(row?.ema60),
     mcap: finite(row?.mcap),
+    nativeMarketCap: row?.nativeMarketCap ? { ...row.nativeMarketCap } : null,
     _mcapObservedAt: row?._mcapObservedAt || null,
     _mcapFetchedAt: row?._mcapFetchedAt || null,
     _mcapSource: row?._mcapSource || null,

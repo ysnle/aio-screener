@@ -11,6 +11,7 @@ const routes = read('src/app/routes.js');
 const verticalSlices = read('src/app/vertical-slices.js');
 const bootstrap = read('src/app/bootstrap.js');
 const page = read('src/ui/pages/principles.js');
+const suppliedMaterials = read('src/domain/research/supplied-materials.js');
 const worker = read('sw.js');
 const golden = JSON.parse(read('architecture/golden-routes.json'));
 const research = JSON.parse(read('public-data/atlas/source-packets.json'));
@@ -37,7 +38,9 @@ for (const [label, source, marker] of [
   ['path mode', page, "['path', '선택 학습', 'path']"],
     ['reviewed content', page, 'reviewedAt: REVIEWED_AT'],
     ['deep article renderer', page, 'renderKnowledgeLesson'],
-    ['per-lesson article shard', page, './public-data/knowledge/articles/principles/']
+  ['per-lesson article shard', page, './public-data/knowledge/articles/principles/']
+  ,['supplied material bridge', page, 'createSuppliedMaterialBridge']
+  ,['market/13F/AI reference sections', suppliedMaterials, 'market-principles']
 ]) if (!source.includes(marker)) fail(`${label} missing marker: ${marker}`);
 
 if (/^import\s+\{[^\n]*createPrinciplesPage[^\n]*from\s+['"]\.\.\/ui\/pages\/principles\.js['"]/m.test(bootstrap)) fail('principles page returned to the initial static module graph');

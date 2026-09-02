@@ -50,7 +50,6 @@ export function createEvidenceRegistry(...catalogs) {
   }
   return Object.freeze({
     sources: Object.freeze([...byId.values()]),
-    byId,
     conflicts: Object.freeze(conflicts),
     resolve(sourceId) { return byId.get(sourceId) || null; }
   });
@@ -64,14 +63,14 @@ export function createClaimRegistry(claims = [], evidenceRegistry = null) {
     const id = String(claim?.claimId || claim?.id || '').trim();
     if (!id) continue;
     if (byId.has(id)) duplicates.push(id);
-    const sourceIds = Object.freeze([...(claim.sourceIds || claim.evidence || [])]);
+    const rawSourceIds = Array.isArray(claim.sourceIds) ? claim.sourceIds : Array.isArray(claim.evidence) ? claim.evidence : [];
+    const sourceIds = Object.freeze([...new Set(rawSourceIds.map((sourceId) => String(sourceId || '').trim()).filter(Boolean))]);
     const missingSourceIds = unresolvedEvidenceIds(evidenceRegistry, sourceIds);
     if (missingSourceIds.length) unresolved.push(Object.freeze({ claimId: id, sourceIds: missingSourceIds }));
     byId.set(id, Object.freeze({ ...claim, claimId: id, sourceIds, missingSourceIds: Object.freeze(missingSourceIds) }));
   }
   return Object.freeze({
     claims: Object.freeze([...byId.values()]),
-    byId,
     unresolved: Object.freeze(unresolved),
     duplicates: Object.freeze(duplicates),
     resolve(claimId) { return byId.get(claimId) || null; }

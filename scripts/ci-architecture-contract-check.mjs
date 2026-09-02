@@ -310,12 +310,12 @@ for (const marker of ['breadth-diag-signal', 'breadth-diag-text', 'aioBreadthDia
 }
 const breadthUiSource = read('js/aio-ui.js');
 if (!breadthUiSource.includes("diagEl.dataset.aioBreadthDiagnosticRenderer !== 'native'") || !breadthUiSource.includes("breadthDiagSignal.dataset.aioBreadthDiagnosticRenderer !== 'native'") || !breadthUiSource.includes("breadthDiagText.dataset.aioBreadthDiagnosticRenderer !== 'native'")) fail('legacy breadth diagnostic writer fences missing');
-// P820: analysis.js owns the home Fear & Greed score from normalized sentiment;
-// the legacy dashboard keeps the label but must skip the native score sink.
+// P1010 completes P820: one native owner for score and label.
 for (const marker of ['renderHomeFearGreed', 'home-fg-score', 'aioHomeFearGreedRenderer', 'selectSentimentValues']) {
   if (!analysisPageSource.includes(marker)) fail(`native home Fear & Greed renderer marker missing: ${marker}`);
 }
-if (!dataSource.includes('[id="home-fg-score"]') || !dataSource.includes('aioHomeFearGreedRenderer')) fail('legacy home Fear & Greed writer fence missing');
+if (dataSource.includes('[id="home-fg-score"]') || dataSource.includes("getElementById('home-fg-label')")) fail('retired home Fear & Greed writer returned');
+if (!analysisPageSource.includes("getElementById('home-fg-label')")) fail('native home Fear & Greed label missing');
 // P821: the home quality card must not reuse tradingScore under a different label. Native
 // owns the complete card and displays a fail-closed state until canonical quality inputs exist.
 for (const marker of ['renderHomeQuality', 'home-quality-meter', 'home-quality-score', 'home-quality-label', 'aioHomeQualityRenderer']) {
@@ -411,7 +411,8 @@ if (!htmlSource.includes('function _aioIsNativeSignalHero') || !htmlSource.inclu
 for (const marker of ['renderHomeSummary', "page.dataset.aioHomeRenderer = 'native'", 'home-hero-total', 'home-hero-headline', 'home-hero-desc', 'home-trading-signal']) {
   if (!analysisPageSource.includes(marker)) fail(`native home summary renderer marker missing: ${marker}`);
 }
-if (!dataSource.includes('function _aioIsNativeHomeSummaryElement') || !dataSource.includes('_aioIsNativeHomeSummaryElement(totalEl)') || !dataSource.includes('_aioIsNativeHomeSummaryElement(signalEl)')) fail('legacy home summary writer fence missing');
+if (!dataSource.includes('function _aioIsNativeHomeSummaryElement') || !dataSource.includes('_aioIsNativeHomeSummaryElement(signalEl)')) fail('legacy home summary writer fence missing');
+if (dataSource.includes('function _aioRenderHomeHero') || dataSource.includes("getElementById('home-hero-components')")) fail('retired home score writer returned');
 
 // P788-P797: the derived theme-detail panel keeps an empty compatibility child while
 // explicit native children own the selected summary, composition/breadth, leaders, temperature,
@@ -527,6 +528,7 @@ const { createInitialThemesState, themesReducer } = await import(pathToFileURL(p
 const { createThemesCommands } = await import(pathToFileURL(path.join(root, 'src/app/commands/themes.js')));
 const { createThemesProvider } = await import(pathToFileURL(path.join(root, 'src/data/providers/themes.js')));
 const { createThemesOrchestrator } = await import(pathToFileURL(path.join(root, 'src/data/orchestrators/themes.js')));
+const { normalizePortfolio } = await import(pathToFileURL(path.join(root, 'src/data/normalize/portfolio.js')));
 const { selectThemesItems, selectSelectedThemeDetail } = await import(pathToFileURL(path.join(root, 'src/state/selectors/themes.js')));
 const writerEvidenceStore = createEvidenceStore();
 const writerStore = createStore({ initialState: { sentiment: createInitialSentimentState() }, reducer: (state, action) => ({ ...state, sentiment: sentimentReducer(state.sentiment, action) }) });
@@ -548,11 +550,13 @@ const newsCommands = createNewsCommands({ store: newsStore });
 const newsWriter = createNewsOrchestrator({ provider: createNewsProvider({ read: () => [{ title: 'Fixture headline', source: 'fixture', score: 50 }] }), commands: newsCommands });
 newsWriter.sync();
 if (selectNewsItems(newsStore.getState()).length !== 1 || selectNewsItems(newsStore.getState())[0].source !== 'fixture') fail('news provider/normalize/orchestrator writer contract failed');
+const invalidNewsProjection = createNewsProvider({ read: () => ({ invalid: true }), now: () => 'invalid' }).readCurrent();
+if (invalidNewsProjection.items.length !== 0 || invalidNewsProjection.checkedAt !== null) fail('news provider must fail closed on malformed items/time');
 const marketStore = createStore({ initialState: { market: createInitialMarketState() }, reducer: (state, action) => ({ ...state, market: marketReducer(state.market, action) }) });
 const marketCommands = createMarketCommands({ store: marketStore });
 const marketWriter = createMarketOrchestrator({ provider: createMarketProvider({ read: () => ({ quotes: { '^TNX': { value: 4.2, pct: 0.1 } }, metrics: { fedRate: 5.25 } }) }), commands: marketCommands });
 marketWriter.sync();
-if (selectMarketQuote(marketStore.getState(), '^TNX')?.value !== 4.2) fail('market provider/normalize/orchestrator writer contract failed');
+if (selectMarketQuote(marketStore.getState(), '^TNX')?.value !== 4.2 || !Object.isFrozen(selectMarketQuote(marketStore.getState(), '^TNX'))) fail('market provider/normalize/orchestrator writer contract failed');
 const themesStore = createStore({ initialState: { themes: createInitialThemesState() }, reducer: (state, action) => ({ ...state, themes: themesReducer(state.themes, action) }) });
 const themesCommands = createThemesCommands({ store: themesStore });
 const themesWriter = createThemesOrchestrator({ provider: createThemesProvider({ read: () => ({
@@ -571,10 +575,18 @@ const themesWriter = createThemesOrchestrator({ provider: createThemesProvider({
 }) }), commands: themesCommands });
 themesWriter.sync();
 if (selectThemesItems(themesStore.getState()).length !== 1 || selectThemesItems(themesStore.getState())[0].symbol !== 'ETF' || selectThemesItems(themesStore.getState())[0].weeklyPct !== 2.4 || selectSelectedThemeDetail(themesStore.getState())?.id !== 'fixture-detail' || selectSelectedThemeDetail(themesStore.getState())?.breadth !== 50 || selectSelectedThemeDetail(themesStore.getState())?.quotes?.AAA?.pct !== 1 || selectSelectedThemeDetail(themesStore.getState())?.subThemes?.[0]?.weights?.AAA !== 1) fail('themes provider/normalize/orchestrator writer contract failed');
+const retainedThemeItem = selectThemesItems(themesStore.getState())[0];
+themesCommands.setData({ selectedId: null, selectedDetail: null });
+if (selectSelectedThemeDetail(themesStore.getState()) !== null || selectThemesItems(themesStore.getState())[0] !== retainedThemeItem) fail('themes partial update must clear an explicit selection without erasing omitted items');
+const missingPortfolioNumbers = normalizePortfolio({ holdings: [{ symbol: 'AAA', shares: null, avgCost: '', price: null, value: undefined, weight: null, target: '' }], cash: null, totals: { totalValue: null, cash: '' } });
+if (missingPortfolioNumbers.cash !== null || missingPortfolioNumbers.holdings[0].shares !== null || missingPortfolioNumbers.holdings[0].avgCost !== null || missingPortfolioNumbers.holdings[0].weight !== null || missingPortfolioNumbers.totals.totalValue !== null || !Object.isFrozen(missingPortfolioNumbers.holdings) || !Object.isFrozen(missingPortfolioNumbers.holdings[0])) fail('portfolio normalization must preserve numeric missingness and immutable projections');
 const revision = createRevisionManifest(release);
 if (!validateRevisionManifest(revision).ok) fail('release revision contract failed');
+if (validateRevisionManifest(createRevisionManifest({ appRevision: 'a', dataRevision: 'd', evidenceRevision: 'e' })).ok) fail('revision without generatedAt must fail closed');
 const lineage = createLineageRecord({ metricId: 'market.sentiment.fg', evidenceId: evidence.evidenceId, source: 'fixture', sourceKind: 'fixture', observedAt: evidence.observedAt, fetchedAt: evidence.fetchedAt, unit: evidence.unit, state: 'MATCH' });
 if (!validateLineageRecord(lineage).ok) fail('lineage contract failed');
+if (validateLineageRecord(createLineageRecord({ metricId: 'fixture', evidenceId: 'fixture', source: 'fixture', unit: 'score', state: 'MATCH' })).ok) fail('matched lineage without source kind or timestamps must fail closed');
+if (validateLineageRecord(createLineageRecord({ metricId: 'fixture', evidenceId: 'fixture', source: 'fixture', sourceKind: 'fixture', observedAt: '2026-07-19T00:00:00Z', fetchedAt: '2026-07-18T00:00:00Z', unit: 'score', state: 'MATCH' })).ok) fail('lineage fetched before observation must fail closed');
 const unavailableSnapshot = createMarketSnapshot({ status: 'failed', attemptedAt: '2026-07-18T00:00:00Z', source: 'fixture', coverage: { required: 16, observed: 0 } });
 if (!validateMarketSnapshot(unavailableSnapshot).ok) fail('failed market snapshot must remain a valid fail-closed envelope');
 const partialPublished = createMarketSnapshot({ status: 'published', attemptedAt: '2026-07-18T00:00:00Z', lastSuccessfulAt: '2026-07-17T00:00:00Z', source: 'fixture', coverage: { required: 16, observed: 15 } });

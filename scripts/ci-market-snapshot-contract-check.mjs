@@ -8,6 +8,13 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readJson = (rel) => JSON.parse(fs.readFileSync(path.join(root, rel), 'utf8'));
 const fail = (message) => { throw new Error(`[market-snapshot-contract] ${message}`); };
 
+for (const absent of [null, undefined, '', false]) {
+  const quote = createMarketSnapshot({ quotes: [{ symbol: '^GSPC', price: 100, previousClose: absent, delayedByMs: absent }] }).quotes[0];
+  if (quote.changeBasis !== 'unknown' || quote.delayedByMs !== null) fail('missing baseline/delay was promoted to observed evidence');
+}
+const zeroDelay = createMarketSnapshot({ quotes: [{ symbol: '^GSPC', price: 100, previousClose: 99, delayedByMs: 0 }] }).quotes[0];
+if (zeroDelay.changeBasis !== 'provider-previous-value' || zeroDelay.delayedByMs !== 0) fail('observed baseline/explicit zero delay was lost');
+
 const published = readJson('public-data/market-snapshot.json');
 const validation = validateMarketSnapshot(published);
 if (!validation.ok) fail(`published artifact invalid: ${validation.errors.join(',')}`);

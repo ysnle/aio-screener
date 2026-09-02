@@ -84,4 +84,27 @@ await assert.rejects(
 );
 assert.equal(constraintCalls, 2, 'maxBytes must participate in the artifact cache key');
 
-console.log(JSON.stringify({ ok: true, calls, isolatedCalls, timeoutAborted, allConsumersAborted, integrity: true, byteBudget: true, constraintCalls, contract: 'artifact-cache.v3' }));
+const preAborted = new AbortController();
+preAborted.abort();
+let preAbortedCalls = 0;
+await assert.rejects(loadJsonArtifact(async () => { preAbortedCalls += 1; throw new Error('must not fetch'); }, './pre-aborted.json', { signal: preAborted.signal }), { name: 'AbortError' });
+assert.equal(preAbortedCalls, 0, 'already-aborted consumers must not start orphan requests');
+const completions = [];
+const ignoresAbort = () => new Promise(resolve => completions.push(resolve));
+const oldController = new AbortController();
+const oldPending = loadJsonArtifact(ignoresAbort, './retry.json', { signal: oldController.signal });
+await Promise.resolve();
+oldController.abort();
+await assert.rejects(oldPending, { name: 'AbortError' });
+const newPending = loadJsonArtifact(ignoresAbort, './retry.json');
+await Promise.resolve();
+assert.equal(completions.length, 2, 'a replacement consumer must not join an already-aborted request');
+completions[0]({ ok: true, json: async () => ({ revision: 'old' }) });
+await new Promise(resolve => setImmediate(resolve));
+assert.equal(artifactCacheSnapshot(ignoresAbort).inFlight, 1, 'old cleanup must not delete the replacement request');
+assert.equal(artifactCacheSnapshot(ignoresAbort).resolved, 0, 'an aborted late response must not populate the cache');
+completions[1]({ ok: true, json: async () => ({ revision: 'new' }) });
+assert.deepEqual(await newPending, { revision: 'new' });
+assert.deepEqual(await loadJsonArtifact(ignoresAbort, './retry.json'), { revision: 'new' });
+
+console.log(JSON.stringify({ ok: true, calls, isolatedCalls, timeoutAborted, allConsumersAborted, integrity: true, byteBudget: true, constraintCalls, abortedRetryIsolation: true, contract: 'artifact-cache.v4' }));

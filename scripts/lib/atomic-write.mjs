@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 let sequence = 0;
 const RENAME_RETRY_DELAYS_MS = Object.freeze([10, 25, 50, 100, 200, 400, 800, 1200]);
@@ -39,6 +40,7 @@ async function renameWithRetry(temporary, target) {
 }
 
 export function atomicWriteFileSync(target, data, options = 'utf8') {
+  if (target instanceof URL) target = fileURLToPath(target);
   fs.mkdirSync(path.dirname(target), { recursive: true });
   const temporary = temporaryPath(target);
   try {
@@ -54,6 +56,7 @@ export function atomicWriteJsonSync(target, value) {
 }
 
 export async function atomicWriteFile(target, data, options = 'utf8') {
+  if (target instanceof URL) target = fileURLToPath(target);
   await fsp.mkdir(path.dirname(target), { recursive: true });
   const temporary = temporaryPath(target);
   try {

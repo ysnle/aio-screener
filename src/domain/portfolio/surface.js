@@ -23,7 +23,8 @@ function firstPositive(...values) {
 }
 
 function holdingValue(holding, live) {
-  const shares = finite(holding?.shares);
+  const sharesRaw = finite(holding?.shares);
+  const shares = sharesRaw != null && sharesRaw >= 0 ? sharesRaw : null;
   const livePrice = firstPositive(live?.price, live?.regularMarketPrice);
   const price = firstPositive(livePrice, holding?.price);
   const explicitValue = firstPositive(holding?.value);
@@ -33,7 +34,7 @@ function holdingValue(holding, live) {
 }
 
 function exposureCapForVix(vix) {
-  if (vix == null) return null;
+  if (vix == null || vix <= 0) return null;
   return vix < 15 ? 100 : vix < 20 ? 80 : vix < 25 ? 50 : vix < 30 ? 30 : 15;
 }
 
@@ -48,8 +49,10 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null }
   const rows = holdings.map((holding) => {
     const symbol = String(holding?.symbol || holding?.ticker || '').toUpperCase();
     const quote = holdingValue(holding, live[symbol] || {});
-    const shares = finite(holding?.shares);
-    const avgCost = finite(holding?.avgCost);
+    const sharesValue = finite(holding?.shares);
+    const shares = sharesValue != null && sharesValue >= 0 ? sharesValue : null;
+    const avgCostValue = finite(holding?.avgCost);
+    const avgCost = avgCostValue != null && avgCostValue >= 0 ? avgCostValue : null;
     const cost = shares != null && avgCost != null ? shares * avgCost : null;
     const dailyPct = firstFinite(holding?.dailyPct, live[symbol]?.pct, live[symbol]?.regularMarketChangePercent);
     return Object.freeze({
@@ -65,7 +68,8 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null }
 
   const allRowsValued = rows.length > 0 && rows.every((row) => row.value != null);
   const positionValue = firstPositive(totals.totalValue, totals.positionsValue, totals.equityValue) ?? (allRowsValued ? rows.reduce((sum, row) => sum + row.value, 0) : null);
-  const cash = firstFinite(state?.cash, totals.cash);
+  const cashValue = firstFinite(state?.cash, totals.cash);
+  const cash = cashValue != null && cashValue >= 0 ? cashValue : null;
   const totalAssets = firstPositive(totals.totalAssets, totals.totalValueWithCash) ?? (positionValue != null && cash != null ? positionValue + Math.max(0, cash) : positionValue);
   const allRowsCosted = rows.length > 0 && rows.every((row) => row.cost != null);
   const totalCost = firstPositive(totals.totalCost, totals.costBasis) ?? (allRowsCosted ? rows.reduce((sum, row) => sum + row.cost, 0) : null);
@@ -104,10 +108,11 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null }
     cashPct: cash != null && totalAssets != null && totalAssets > 0 ? cash / totalAssets * 100 : null,
     dailyChange,
     dailyPct,
-    vix: finite(vix),
+    vix: exposureCap == null ? null : finite(vix),
     exposurePct,
     exposureCap,
     exposureExceeded: exposurePct != null && exposureCap != null ? exposurePct > exposureCap : null,
+    exposurePolicyStatus: 'reference-only',
     sectorBreakdown: Object.freeze(sectorBreakdown),
     sourceKind,
     sourceLabel: sourceKind === 'unavailable' ? 'portfolio-surface-unavailable' : 'native-portfolio-surface',

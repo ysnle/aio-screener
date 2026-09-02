@@ -55,6 +55,13 @@ try {
   if (mastersInitial.paths.some((path) => /\/(?:holdings|history-holdings|issuer-aggregates)\.json$/.test(path))) throw new Error(`Masters requested a canonical monolith: ${JSON.stringify(mastersInitial.paths)}`);
   if (mastersInitial.paths.some((path) => path.startsWith('/public-data/masters/managers/'))) throw new Error(`Masters loaded full manager rows before an explicit full-row view: ${JSON.stringify(mastersInitial.paths)}`);
   requests = [];
+  await page.locator('#page-masters [data-masters-action="ticker-search"]').fill('AAPL');
+  await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersTickerIndex === 'connected' && document.querySelector('#page-masters [data-ticker-reference="AAPL"]'));
+  const mastersTickerLookup = await summarize(requests, (path) => path.startsWith('/public-data/masters/'));
+  if (mastersTickerLookup.paths.length !== 1 || mastersTickerLookup.paths[0] !== '/public-data/masters/ticker-index-reference.json' || mastersTickerLookup.bytes > 200_000) throw new Error(`Masters reference-only ticker lookup contract failed: ${JSON.stringify(mastersTickerLookup)}`);
+  const tickerLookupText = await page.locator('#page-masters [data-masters-ticker-lookup="reference-only"]').textContent();
+  if (!tickerLookupText.includes('tickerReference is not SEC-provided') || !tickerLookupText.includes('현재 보유·실시간 매매')) throw new Error('Masters ticker lookup boundary is not visible');
+  requests = [];
   await page.locator('#page-masters [data-masters-action="select-manager"][data-masters-value="fisher-asset-management"]').click();
   await page.waitForFunction(() => document.querySelector('#page-masters .masters-filing-artifact')?.textContent.includes('0000850529'));
   const mastersSelection = await summarize(requests, (path) => path.startsWith('/public-data/objects/masters/'));
@@ -144,7 +151,7 @@ try {
   if (atlasReentry.paths.length) throw new Error(`Atlas re-entry repeated cached artifacts: ${JSON.stringify(atlasReentry.paths)}`);
 
   if (errors.length) throw new Error(`browser errors: ${errors.join(' | ')}`);
-  console.log(JSON.stringify({ ok: true, mastersInitial, mastersSelection, mastersOwnership, mastersFilings, mastersPrinciples, mastersFullRows, mastersQuarter, mastersReentry, principlesInitial, principlesLibrary, principlesArticle, principlesReentry, atlasInitial, atlasArticle, atlasOverview, atlasReentry }));
+  console.log(JSON.stringify({ ok: true, mastersInitial, mastersTickerLookup, mastersSelection, mastersOwnership, mastersFilings, mastersPrinciples, mastersFullRows, mastersQuarter, mastersReentry, principlesInitial, principlesLibrary, principlesArticle, principlesReentry, atlasInitial, atlasArticle, atlasOverview, atlasReentry }));
 } catch (error) {
   console.error(JSON.stringify({ ok: false, errors: [...errors, String(error?.stack || error)] }));
   process.exitCode = 1;

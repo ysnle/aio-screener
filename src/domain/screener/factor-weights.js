@@ -1,19 +1,25 @@
 // P763/ARX-10 follow-up: the factor-weight regime/profile resolver is pure.
 // Storage/profile lookup remains at the compatibility boundary; this module owns only the
 // deterministic weight math so native and legacy screener consumers cannot diverge.
-export const FACTOR_WEIGHTS_MODEL_VERSION = 'factor-weights.v1';
+export const FACTOR_WEIGHTS_MODEL_VERSION = 'factor-weights.v2';
 
 const NEUTRAL = Object.freeze({ momentum: 0.27, trend: 0.20, lowvol: 0.16, size: 0.08, value: 0.10, quality: 0.09, kalman: 0.10 });
 const RISK_OFF = Object.freeze({ momentum: 0.12, trend: 0.18, lowvol: 0.28, size: 0.05, value: 0.10, quality: 0.18, kalman: 0.09 });
 const RISK_ON = Object.freeze({ momentum: 0.33, trend: 0.24, lowvol: 0.09, size: 0.08, value: 0.07, quality: 0.07, kalman: 0.12 });
 
 function normalizeWeights(weights = {}) {
-  const total = Object.keys(weights).reduce((sum, key) => sum + (weights[key] || 0), 0);
+  const keys = Object.keys(weights);
+  if (Array.isArray(weights) || !keys.length || keys.some(key => !Object.hasOwn(NEUTRAL, key) || typeof weights[key] !== 'number' || !Number.isFinite(weights[key]) || weights[key] < 0)) throw new Error('FACTOR_WEIGHTS_INVALID');
+  const total = keys.reduce((sum, key) => sum + weights[key], 0);
+  if (!(total > 0) || !Number.isFinite(total)) throw new Error('FACTOR_WEIGHTS_INVALID');
   if (total > 0 && Math.abs(total - 1) > 0.005) {
-    return Object.fromEntries(Object.keys(weights).map((key) => [key, weights[key] / total]));
+    return Object.freeze(Object.fromEntries(keys.map((key) => [key, weights[key] / total])));
   }
-  return { ...weights };
+  return Object.freeze({ ...weights });
 }
+
+// JS \b only recognizes ASCII word characters; Korean labels need Unicode boundaries.
+const regimeMatches = (text, alternatives) => new RegExp(`(?:^|[^\\p{L}\\p{N}])(?:${alternatives})(?![\\p{L}\\p{N}])`, 'iu').test(text);
 
 function lerpWeights(base, target, t) {
   return Object.fromEntries(Object.keys(base).map((key) => [key, base[key] + t * ((target[key] || 0) - base[key])]));
@@ -33,12 +39,12 @@ export function deriveFactorWeights({ marketState = null, profile = null } = {})
   let regimeLabel = '중립 → 균형 가중';
   try {
     if (marketState) {
-      const risk = typeof marketState.riskScore === 'number' ? marketState.riskScore : null;
+      const risk = typeof marketState.riskScore === 'number' && Number.isFinite(marketState.riskScore) ? marketState.riskScore : null;
       const fg = String(marketState.fgZone || '');
       const vixBand = String(marketState.vixBand || '');
       const riskLevel = String(marketState.riskLevel || '');
-      const textOff = /\b(패닉|경계|panic|caution|elevated)\b/i.test(`${vixBand} ${riskLevel}`) || /\b(극단\s*공포|공포|extreme fear)\b/i.test(fg);
-      const textOn = /\b(탐욕|극단\s*탐욕|extreme greed)\b/i.test(fg);
+      const textOff = regimeMatches(`${vixBand} ${riskLevel}`, '패닉|경계|panic|caution|elevated') || regimeMatches(fg, '극단\\s*공포|공포|extreme fear');
+      const textOn = regimeMatches(fg, '탐욕|극단\\s*탐욕|extreme greed');
       let blend = 0;
       if (risk != null) {
         if (risk >= 65) blend = 1.0;
@@ -55,7 +61,7 @@ export function deriveFactorWeights({ marketState = null, profile = null } = {})
         blend >= 0.3 ? '경계 → 방어 틸트' :
         blend <= -0.7 ? '위험선호 → 모멘텀·추세·칼만 가중↑' :
         blend <= -0.3 ? '낙관 → 공격 틸트' : '중립 → 균형 가중';
-      if (/\b(late|후기|peak|침체|recession)\b/i.test(String(marketState.cyclePhase || ''))) {
+      if (regimeMatches(String(marketState.cyclePhase || ''), 'late|후기|peak|침체|recession')) {
         const shift = Math.min(0.08, weights.value * 0.5);
         weights = { ...weights, value: weights.value + shift, momentum: Math.max(0.05, weights.momentum - shift) };
         regimeLabel += ' · 후기사이클 밸류↑';

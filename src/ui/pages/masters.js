@@ -2,6 +2,7 @@ import { createResourceBag } from '../../app/lifecycle.js';
 import { navigateKnowledgeTarget, parseKnowledgeRouteState, parseKnowledgeTargetContext, replaceKnowledgeRouteState } from '../../app/knowledge-route-state.js';
 import { loadJsonArtifact } from '../../data/artifact-cache.js';
 import { applySafeExternalLink } from '../../ui/knowledge/safe-external-link.js';
+import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 
 const REVIEWED_AT = '2026-08-16';
 const FILINGS_URL = './public-data/masters/filings.json';
@@ -13,6 +14,7 @@ const MANAGER_CATALOG_URL = './public-data/masters/manager-catalog.json';
 const ROW_PREVIEWS_URL = './public-data/masters/manager-row-previews.json';
 const FILING_DISCOVERY_URL = './public-data/masters/filing-discovery.json';
 const MANAGER_PRINCIPLES_URL = './public-data/masters/manager-principles.json';
+const TICKER_INDEX_REFERENCE_URL = './public-data/masters/ticker-index-reference.json';
 
 // MF-05: holding rows are rendered only from a verified SEC EDGAR
 // filer/CIK/filing artifact; the registry itself never invents rows.
@@ -166,6 +168,71 @@ function createMetric(documentRef, label, value) {
   const card = element(documentRef, 'div', 'masters-metric');
   card.append(element(documentRef, 'span', 'masters-metric-label', label), element(documentRef, 'strong', 'masters-metric-value', value));
   return card;
+}
+
+function createTickerLookup(documentRef, tickerIndex, registry, query) {
+  const section = element(documentRef, 'section', 'masters-ticker-lookup');
+  section.dataset.mastersTickerLookup = 'reference-only';
+  section.style.cssText = 'margin:12px 0;padding:12px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);';
+  section.append(
+    element(documentRef, 'span', 'masters-eyebrow', '13F · REFERENCE-ONLY TICKER LOOKUP'),
+    element(documentRef, 'h3', 'masters-ticker-lookup-title', '티커·CUSIP에서 공개 보유 행으로 역조회'),
+    element(documentRef, 'p', 'masters-ticker-lookup-copy', 'SEC 정보표 행에 연결된 제한적 crosswalk를 탐색합니다. 결과는 보고분기 말 신고 주식 수와 SEC 원문으로만 읽으며, 현재 보유·실시간 매매·섹터 비중·추천으로 승격하지 않습니다.')
+  );
+  const label = element(documentRef, 'label', 'masters-search');
+  label.appendChild(element(documentRef, 'span', 'masters-sr-only', '티커 또는 CUSIP 역조회'));
+  const input = element(documentRef, 'input', 'masters-ticker-lookup-input');
+  input.type = 'search';
+  input.placeholder = '예: AAPL 또는 CUSIP';
+  input.value = query;
+  input.autocomplete = 'off';
+  input.setAttribute('aria-label', '티커 또는 CUSIP 역조회');
+  input.dataset.mastersAction = 'ticker-search';
+  label.appendChild(input);
+  section.appendChild(label);
+
+  const body = element(documentRef, 'div', 'masters-ticker-lookup-results');
+  const normalized = String(query || '').trim().toUpperCase();
+  if (!tickerIndex) {
+    body.appendChild(element(documentRef, 'p', 'masters-empty-state', '참조용 티커 원장을 불러오는 중입니다.'));
+  } else if (tickerIndex.status !== 'REFERENCE_ONLY') {
+    body.appendChild(element(documentRef, 'p', 'masters-empty-state', '참조용 티커 원장의 상태를 확인할 수 없어 역조회를 보류합니다.'));
+  } else if (!normalized) {
+    body.appendChild(element(documentRef, 'p', 'masters-ticker-lookup-boundary', `현재 연결 ${tickerIndex.coverage?.sourceCurrentRows || 0}개 행 중 crosswalk 연결 ${tickerIndex.coverage?.matchedCurrentRows || 0}개. 검색 결과가 없더라도 underlying SEC 행에 없다고 단정하지 않습니다.`));
+  } else {
+    const matches = (tickerIndex.records || []).filter((record) => [record.tickerReference, ...(record.issuerReferences || []), ...(record.cusips || [])].join(' ').toUpperCase().includes(normalized));
+    if (!matches.length) {
+      body.appendChild(element(documentRef, 'p', 'masters-empty-state', '참조 crosswalk에서 일치 항목을 찾지 못했습니다. 이는 SEC 원장 전체에서 보유하지 않았다는 뜻이 아닙니다.'));
+    } else {
+      const registryById = new Map(registry.map((manager) => [manager.id, manager]));
+      matches.slice(0, 6).forEach((record) => {
+        const card = element(documentRef, 'article', 'masters-ticker-lookup-card');
+        card.dataset.tickerReference = record.tickerReference;
+        card.append(
+          element(documentRef, 'strong', 'masters-ticker-lookup-symbol', record.tickerReference),
+          element(documentRef, 'span', 'masters-ticker-lookup-issuer', (record.issuerReferences || []).join(' · ') || '발행인명 확인 필요'),
+          element(documentRef, 'span', 'masters-ticker-lookup-meta', `CUSIP ${record.cusips?.join(', ') || '확인 필요'} · 연결 행 ${record.currentRowCount || record.rows?.length || 0}개`)
+        );
+        const rows = element(documentRef, 'ul', 'masters-ticker-lookup-rows');
+        (record.rows || []).slice(0, 8).forEach((row) => {
+          const manager = registryById.get(row.managerId);
+          const item = element(documentRef, 'li', 'masters-ticker-lookup-row');
+          const source = element(documentRef, 'a', 'masters-source-link', 'SEC 원문');
+          applySafeExternalLink(source, row.sourceUrl);
+          item.append(
+            element(documentRef, 'span', '', `${manager?.name || row.managerId} · ${row.reportPeriod} · ${Number(row.shares || 0).toLocaleString('en-US')}주 · ${ACTION_LABELS[row.action] || row.action || '변화 확인 필요'}`),
+            source
+          );
+          rows.appendChild(item);
+        });
+        card.appendChild(rows);
+        body.appendChild(card);
+      });
+    }
+  }
+  body.appendChild(element(documentRef, 'p', 'masters-ticker-lookup-boundary', '경계: tickerReference is not SEC-provided. 이 crosswalk는 탐색용 참고 매핑이며, 검증 security master·corporate-action review·현재 가격과 결합되기 전에는 기관 흐름 신호를 만들지 않습니다.'));
+  section.appendChild(body);
+  return section;
 }
 
 function createSelfGuided13FGuide(documentRef, manager, compactRows, previewRows, fullRows) {
@@ -908,10 +975,19 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
       const page = documentRef?.getElementById('page-masters');
       const content = page?.querySelector('[data-masters-content]');
       if (!page || !content) return () => bag.dispose();
+      let suppliedMaterialBridge = page.querySelector('[data-aio-supplied-material-route="masters"]');
+      if (!suppliedMaterialBridge) {
+        suppliedMaterialBridge = createSuppliedMaterialBridge(documentRef, {
+          routeId: 'masters',
+          heading: 'Masters · 13F 분기 지연과 교차검증'
+        });
+        page.appendChild(suppliedMaterialBridge);
+        bag.add(() => suppliedMaterialBridge.remove());
+      }
        const sharedRoute = parseKnowledgeRouteState(root?.location);
        const arrivalContext = parseKnowledgeTargetContext({ root, locationLike: root?.location });
        const initialView = Object.hasOwn(VIEW_LABELS, sharedRoute.mode) ? sharedRoute.mode : 'changes';
-       const state = { query: '', filter: 'ALL', arrivalContext: arrivalContext?.routeId === 'masters' ? arrivalContext : null, selectedId: sharedRoute.manager || MASTER_REGISTRY[0].id, view: initialView, actionFilter: 'ALL', holdingsQuery: '', page: 1, pageSize: 25, compareIds: [], managerRows: new Map(), managerRowErrors: new Set(), loadingManagers: new Set(), loadingCapabilities: new Set(), quarterBundles: new Map(), loadingQuarterManagers: new Set(), filings: null, holdings: null, catalog: null, previews: null, discovery: null, principles: null, securityMaster: null, referenceMaster: null, history: null, filingsError: false, holdingsError: false, catalogError: false, previewsError: false, discoveryError: false, principlesError: false, securityMasterError: false, referenceMasterError: false, historyError: false, historyRowsError: false, issuerAggregatesError: false };
+       const state = { query: '', tickerQuery: '', filter: 'ALL', arrivalContext: arrivalContext?.routeId === 'masters' ? arrivalContext : null, selectedId: sharedRoute.manager || MASTER_REGISTRY[0].id, view: initialView, actionFilter: 'ALL', holdingsQuery: '', page: 1, pageSize: 25, compareIds: [], managerRows: new Map(), managerRowErrors: new Set(), loadingManagers: new Set(), loadingCapabilities: new Set(), quarterBundles: new Map(), loadingQuarterManagers: new Set(), filings: null, holdings: null, catalog: null, previews: null, discovery: null, principles: null, securityMaster: null, referenceMaster: null, history: null, tickerIndex: null, filingsError: false, holdingsError: false, catalogError: false, previewsError: false, discoveryError: false, principlesError: false, securityMasterError: false, referenceMasterError: false, historyError: false, historyRowsError: false, issuerAggregatesError: false, tickerIndexError: false };
        const isAlive = () => !scope?.disposed && (typeof scope?.isCurrent !== 'function' || scope.isCurrent());
       page.dataset.aioArchitectureRoute = 'masters';
       page.dataset.aioArchitectureRenderer = 'native';
@@ -1032,7 +1108,9 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
            if (typeof root?.history?.back === 'function') root.history.back();
            else if (state.arrivalContext?.returnContext?.route && typeof root?.showPage === 'function') root.showPage(state.arrivalContext.returnContext.route);
          });
-         content.replaceChildren(...[toolbar, arrival].filter(Boolean));
+          const tickerLookup = createTickerLookup(documentRef, state.tickerIndex, registry, state.tickerQuery);
+          page.dataset.aioMastersTickerIndex = state.tickerIndex ? 'connected' : (state.tickerIndexError ? 'fallback' : 'loading');
+          content.replaceChildren(...[toolbar, tickerLookup, arrival].filter(Boolean));
          if (coverage) content.appendChild(coverage);
          content.appendChild(layout);
       };
@@ -1143,25 +1221,30 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
         }
       };
       const onInput = (event) => {
-        const target = event.target.closest?.('[data-masters-action="holdings-search"]');
-        if (!target || !page.contains(target)) return;
-        state.holdingsQuery = String(target.value || '').trim().toLowerCase();
-        state.page = 1;
-        render();
-        queueMicrotask(() => {
-          const nextInput = page.querySelector('.masters-holdings-search');
-          nextInput?.focus({ preventScroll: true });
-          nextInput?.setSelectionRange(nextInput.value.length, nextInput.value.length);
+         const target = event.target.closest?.('[data-masters-action="holdings-search"], [data-masters-action="ticker-search"]');
+         if (!target || !page.contains(target)) return;
+         if (target.dataset.mastersAction === 'ticker-search') {
+           state.tickerQuery = String(target.value || '').trim();
+         } else {
+           state.holdingsQuery = String(target.value || '').trim().toLowerCase();
+         }
+         state.page = 1;
+         render();
+         if (target.dataset.mastersAction === 'ticker-search') loadOptionalArtifact('tickerIndex', TICKER_INDEX_REFERENCE_URL);
+         queueMicrotask(() => {
+           const nextInput = page.querySelector(`[data-masters-action="${target.dataset.mastersAction}"]`);
+           nextInput?.focus({ preventScroll: true });
+           nextInput?.setSelectionRange(nextInput.value.length, nextInput.value.length);
         });
       };
       page.addEventListener('click', onClick);
       page.addEventListener('input', onInput);
       bag.add(() => page.removeEventListener('click', onClick));
       bag.add(() => page.removeEventListener('input', onInput));
-       bag.add(() => { delete page.dataset.aioArchitectureRoute; delete page.dataset.aioArchitectureRenderer; delete page.dataset.aioContentKind; delete page.dataset.aioReviewedAt; delete page.dataset.aioMastersData; delete page.dataset.aioMastersCoverageState; delete page.dataset.aioMastersCurrentFull; delete page.dataset.aioMastersStaleFull; delete page.dataset.aioMastersPreviewOnly; delete page.dataset.aioMastersMetadataOnly; delete page.dataset.aioMastersMethodOnly; delete page.dataset.aioMastersOfficialPrinciples; delete page.dataset.aioMastersVerifiedSecurityRecords; delete page.dataset.aioMastersLatestPeriodMissing; delete page.dataset.aioMastersHoldings; delete page.dataset.aioMastersCatalog; delete page.dataset.aioMastersPreviews; delete page.dataset.aioMastersDiscovery; delete page.dataset.aioMastersPrinciples; delete page.dataset.aioMastersSelectedShard; delete page.dataset.aioMastersSecurityMaster; delete page.dataset.aioMastersReferenceMaster; delete page.dataset.aioMastersHistory; delete page.dataset.aioMastersHistoryRows; delete page.dataset.aioMastersIssuerAggregates; delete page.dataset.aioMastersView; delete page.dataset.aioMastersFullRows; delete page.dataset.aioMastersComparisonRows; delete page.dataset.aioMastersActionFilter; content.replaceChildren(); });
+       bag.add(() => { delete page.dataset.aioArchitectureRoute; delete page.dataset.aioArchitectureRenderer; delete page.dataset.aioContentKind; delete page.dataset.aioReviewedAt; delete page.dataset.aioMastersData; delete page.dataset.aioMastersCoverageState; delete page.dataset.aioMastersCurrentFull; delete page.dataset.aioMastersStaleFull; delete page.dataset.aioMastersPreviewOnly; delete page.dataset.aioMastersMetadataOnly; delete page.dataset.aioMastersMethodOnly; delete page.dataset.aioMastersOfficialPrinciples; delete page.dataset.aioMastersVerifiedSecurityRecords; delete page.dataset.aioMastersLatestPeriodMissing; delete page.dataset.aioMastersHoldings; delete page.dataset.aioMastersCatalog; delete page.dataset.aioMastersPreviews; delete page.dataset.aioMastersDiscovery; delete page.dataset.aioMastersPrinciples; delete page.dataset.aioMastersSelectedShard; delete page.dataset.aioMastersSecurityMaster; delete page.dataset.aioMastersReferenceMaster; delete page.dataset.aioMastersHistory; delete page.dataset.aioMastersHistoryRows; delete page.dataset.aioMastersIssuerAggregates; delete page.dataset.aioMastersTickerIndex; delete page.dataset.aioMastersView; delete page.dataset.aioMastersFullRows; delete page.dataset.aioMastersComparisonRows; delete page.dataset.aioMastersActionFilter; content.replaceChildren(); });
       render();
        if (typeof fetchFn === 'function') {
-         const entries = [['holdings', HOLDINGS_URL], ['catalog', MANAGER_CATALOG_URL]];
+          const entries = [['holdings', HOLDINGS_URL], ['catalog', MANAGER_CATALOG_URL]];
          Promise.allSettled(entries.map(([, url]) => loadJson(url))).then((results) => {
            if (!isAlive()) return;
            results.forEach((result, index) => {
@@ -1185,4 +1268,4 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
   };
 }
 
-export { MASTER_REGISTRY, FILINGS_URL, HOLDINGS_URL, MANAGER_CATALOG_URL, ROW_PREVIEWS_URL, FILING_DISCOVERY_URL, MANAGER_PRINCIPLES_URL, SECURITY_MASTER_URL, SECURITY_MASTER_REFERENCE_URL, HISTORY_INDEX_URL, buildManagerRegistry, deriveCoverageSummary };
+export { MASTER_REGISTRY, FILINGS_URL, HOLDINGS_URL, MANAGER_CATALOG_URL, ROW_PREVIEWS_URL, FILING_DISCOVERY_URL, MANAGER_PRINCIPLES_URL, SECURITY_MASTER_URL, SECURITY_MASTER_REFERENCE_URL, HISTORY_INDEX_URL, TICKER_INDEX_REFERENCE_URL, buildManagerRegistry, deriveCoverageSummary };

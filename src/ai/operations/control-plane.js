@@ -3,7 +3,7 @@ export const AI_OPERATIONS_CONTRACT_VERSION = 'ai-operations.v1';
 export function createAIControlPlane({ now = () => new Date() } = {}) {
   const events = [];
   const record = (type, payload = {}) => {
-    const event = Object.freeze({ type, at: new Date(now()).toISOString(), ...payload });
+    const event = Object.freeze({ ...(payload && typeof payload === 'object' ? payload : {}), type, at: new Date(now()).toISOString() });
     events.push(event);
     if (events.length > 200) events.splice(0, events.length - 200);
     return event;

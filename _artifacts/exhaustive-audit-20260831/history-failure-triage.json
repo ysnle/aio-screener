@@ -1,0 +1,409 @@
+{
+  "generatedAt": "2026-08-31T13:47:57.565Z",
+  "method": "inert HTML parser + nonexecuting JS parser; not historical runtime validation",
+  "results": [
+    {
+      "path": "index.html",
+      "blob": "916b0f9353b6a86a4b8d8d086fec6cefefb0ecd4",
+      "exampleCommit": "12a2e53e28898cbe9cfe7100e1584a7fd95b00d8",
+      "disposition": "inert-html-parse-confirmed",
+      "failures": [
+        {
+          "message": "Unexpected token (351:6)",
+          "line": 22654,
+          "excerpt": "    var _eTk = escHtml(p.ticker); // v46.8: XSS 방어\n    return `<tr style=\"border-bottom:1px solid var(--border);cursor:pointer;\" onclick=\"showTicker('${_eTk}')\">`;\n      <td style=\"padding:6px 8px;\"><b style=\"color:var(--text-primary);\">${escHtml(p.ticker)}</b>${p.memo ? '<div style=\"font-size:9px;color:var(--text-muted);\">'+escHtml(p.memo)+'</div>' : ''}</td>\n      <td style=\"text-align:center;padding:6px;font-family:var(--font-mono);font-size:9px;\">${p.qty}</td>\n      <td style=\"text-align:center;padding:6px;font-family:var(--font-mono);font-size:9px;\">$${p.cost.toFixed(2)}</td>"
+        }
+      ]
+    },
+    {
+      "path": "index.html",
+      "blob": "2c140f459d3543f62319a3bfbf9bd37e918c846d",
+      "exampleCommit": "cfdc6506378785b3bd1a14ab29dcd9f2a7168e6f",
+      "disposition": "inert-html-parse-confirmed",
+      "failures": [
+        {
+          "message": "Unexpected token (351:6)",
+          "line": 22664,
+          "excerpt": "    var _eTk = escHtml(p.ticker); // v46.9: XSS 방어\n    return `<tr style=\"border-bottom:1px solid var(--border);cursor:pointer;\" onclick=\"showTicker('${_eTk}')\">`;\n      <td style=\"padding:6px 8px;\"><b style=\"color:var(--text-primary);\">${escHtml(p.ticker)}</b>${p.memo ? '<div style=\"font-size:9px;color:var(--text-muted);\">'+escHtml(p.memo)+'</div>' : ''}</td>\n      <td style=\"text-align:center;padding:6px;font-family:var(--font-mono);font-size:9px;\">${p.qty}</td>\n      <td style=\"text-align:center;padding:6px;font-family:var(--font-mono);font-size:9px;\">$${p.cost.toFixed(2)}</td>"
+        }
+      ]
+    },
+    {
+      "path": "index.html",
+      "blob": "974a98c1aa2350783cb5d85e04966e9196dadef0",
+      "exampleCommit": "62cb8b4b66bec7b07fcda5b32fde2adffbe60d10",
+      "disposition": "inert-html-parse-confirmed",
+      "failures": [
+        {
+          "message": "Unexpected token (373:6)",
+          "line": 22717,
+          "excerpt": "    var _eTk = escHtml(p.ticker); // v46.9: XSS 방어\n    return `<tr style=\"border-bottom:1px solid var(--border);cursor:pointer;\" onclick=\"showTicker('${_eTk}')\">`;\n      <td style=\"padding:6px 8px;\"><b style=\"color:var(--text-primary);\">${escHtml(p.ticker)}</b>${p.memo ? '<div style=\"font-size:9px;color:var(--text-muted);\">'+escHtml(p.memo)+'</div>' : ''}</td>\n      <td style=\"text-align:center;padding:6px;font-family:var(--font-mono);font-size:9px;\">${p.qty}</td>\n      <td style=\"text-align:center;padding:6px;font-family:var(--font-mono);font-size:9px;\">$${p.cost.toFixed(2)}</td>"
+        }
+      ]
+    },
+    {
+      "path": "index.html",
+      "blob": "203bd1fb852e3ac8c0ef9d3c7b1537277a49f783",
+      "exampleCommit": "1d9200bbae4e5913956c1692921d3325e0982201",
+      "disposition": "inert-html-parse-confirmed",
+      "failures": [
+        {
+          "message": "Unexpected token (373:6)",
+          "line": 40806,
+          "excerpt": "    var _eTk = escHtml(p.ticker); // v46.9: XSS 방어\n    return `<tr style=\"border-bottom:1px solid var(--border);cursor:pointer;\" onclick=\"showTicker('${_eTk}')\">`;\n      <td style=\"padding:6px 8px;\"><b style=\"color:var(--text-primary);\">${escHtml(p.ticker)}</b>${p.memo ? '<div style=\"font-size:9px;color:var(--text-muted);\">'+escHtml(p.memo)+'</div>' : ''}</td>\n      <td style=\"text-align:center;padding:6px;font-family:var(--font-mono);font-size:9px;\">${p.qty}</td>\n      <td style=\"text-align:center;padding:6px;font-family:var(--font-mono);font-size:9px;\">$${p.cost.toFixed(2)}</td>"
+        }
+      ]
+    },
+    {
+      "path": "index.html",
+      "blob": "f4620b2f1b052f0e29e699d45c8404f2c7093ef5",
+      "exampleCommit": "6399e38b0646841dc48fa38ccbe3f22dd7b53b9d",
+      "disposition": "inert-html-parse-confirmed",
+      "failures": [
+        {
+          "message": "Unexpected token (1:6)",
+          "line": 9751,
+          "excerpt": " 추가하여 모듈 1 시작     ║\n// ║  상세: _context/MODULE-BOUNDARIES.md Phase 2                              ║\n// ╚═══════════════════════════════════════════════════════════════════════════╝"
+        }
+      ]
+    },
+    {
+      "path": "index.html",
+      "blob": "fc3f11f02cb9a9753b2f30c0cda298d01f6b3ab0",
+      "exampleCommit": "ccd9a4b5add04e8c615fa4ab41a7c9b366e787fd",
+      "disposition": "inert-html-parse-confirmed",
+      "failures": [
+        {
+          "message": "Unexpected token (1:6)",
+          "line": 9754,
+          "excerpt": " 추가하여 모듈 1 시작     ║\n// ║  상세: _context/MODULE-BOUNDARIES.md Phase 2                              ║\n// ╚═══════════════════════════════════════════════════════════════════════════╝"
+        }
+      ]
+    },
+    {
+      "path": "index.html",
+      "blob": "a426a00781a5a5b3982b80a41d4fdc03cbaeae2e",
+      "exampleCommit": "fd929b41da092a33d1e3604b702ae76c67146ed4",
+      "disposition": "inert-html-parse-confirmed",
+      "failures": [
+        {
+          "message": "Unexpected token (1:6)",
+          "line": 9754,
+          "excerpt": " 추가하여 모듈 1 시작     ║\n// ║  상세: _context/MODULE-BOUNDARIES.md Phase 2                              ║\n// ╚═══════════════════════════════════════════════════════════════════════════╝"
+        }
+      ]
+    },
+    {
+      "path": "index.html",
+      "blob": "9e0d1fe71260a2ebbbaed441d218a92e0e4f44ce",
+      "exampleCommit": "5cd0ed51b62f764b7c33ead18a03abc9cfb41d66",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "c9da28a6c154bb1126cc7aa4b925c86f5e3667bb",
+      "exampleCommit": "40577e2e31d0fd0643e0644ed88c6ec7f12f6f6d",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "ea4f7d2bd520eef0153cb2f79ba13c915f923e73",
+      "exampleCommit": "8ded935332bdcd48ca1ae3c0458f7d5b1873e122",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "15611b114aab7a61c87d6008fdfb9b6b418d5306",
+      "exampleCommit": "e3a7a7bbb012d245c0e02b58bf34a790616eb154",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "6904144ba93f483d563d60c8923fd50d35ff3654",
+      "exampleCommit": "6d6638fa6251beaebb9646cd1ddde3abb6a05bbf",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "e8a4edc784234b1e4e80a7ebe1652a6d644e5e34",
+      "exampleCommit": "ca370e0e5191368b0a0077b9f47ba3b08a040f82",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "d5f5962e551c8dbe4c9fafb4ccd06687037d4a61",
+      "exampleCommit": "9369ea4a81ace85b2c604ef7da931fa7d954a066",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "5b3aa89e11bac467cfc14fd85f8dae83b536715d",
+      "exampleCommit": "2c3a58e5eecb20cf663f107c3c3a9ad9afd44561",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "c8b62aacd6ceb840117e76dd07e1357b41e76da3",
+      "exampleCommit": "01337badb83aee8042ba3b182521752c8ef8f3b1",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "a8bf3ed5a9e55054a23d3148c273460a8f112d0c",
+      "exampleCommit": "8b83aaa7f8882d2dd7fa39c01976edb1b949aba0",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "f2dd8d451bb072de3bc58176967507553427c59a",
+      "exampleCommit": "681950d8e362d65f24604eb2d6b470ce01202d1f",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "8bc5e4f083990e96e1eff428faa6af0decdaa581",
+      "exampleCommit": "c8c29f4a8e9d00530ba27ddb0886a8d37655d60c",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "7b9d3062e755c74430dda6a38cfd86f863c5beb1",
+      "exampleCommit": "149cc6070d0c6433b4883cf30c1237019a667d66",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "52cc5a7231ab53e39f3a2452cc9c0e30cf5890ba",
+      "exampleCommit": "0f4fbb0f6ae3781dbd2b78e3451267e34fe0a2f4",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "2676df4ed2017baacb9443d7d0295e61ae095207",
+      "exampleCommit": "36b8fff8b14ff1876c9de903fcd8fcaa58a74cd2",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "f412f69dff24a21c23886918274ae0aeb9c93ed6",
+      "exampleCommit": "70c047b156dddd0d3caa257b1f34e20e90af6859",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "10cc1701573b0255481dc0d4498f73a506a55618",
+      "exampleCommit": "dc3d3d23e2d8fa46ca195d85a4a5754f8e8e9de5",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "ccf112a30a995de0d9e500a1c491785283184bcd",
+      "exampleCommit": "bad11df993d4000eecb4339540f0706bcae3defe",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "2669ccd21b55478020d84e87be580d74858b2d26",
+      "exampleCommit": "2bc79c9af4ab44007c27426f624646d7a9797f5b",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "9430b8c64f9e01cc3bf16f04429f3f5b8535729d",
+      "exampleCommit": "38d8451b9b64bf874bfd7c30b7e9b45b626845d8",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "829c56811ec8c6531bfc4d95af7f20af5c3045d3",
+      "exampleCommit": "bdf2f581c38cf5177335a7e7a6cf19ee8bc1a84a",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "f7d8691b3cb522bf25b78c85a2d6523b7c146bc1",
+      "exampleCommit": "dca3629224a51b00f56a1454b1e25d21556e6790",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "410d20af868efa4f0addc429089943a6053f0c4f",
+      "exampleCommit": "f60be1bc83d0d63cfc45960d3dc5d9244b735524",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "07d619eea52b5cd15dcb7ad81c89fc8cd7ae8cde",
+      "exampleCommit": "2c38b70d5652ef6b01461d1dc26c290675d558dd",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "d2a637ba6c7c297face23ecb475db1a70b3cf203",
+      "exampleCommit": "5e85f6c72ebdecaf5b45cb25defc0f4ce3136c1f",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "66e1a74594a54e239b5bd807280656c7197bbe50",
+      "exampleCommit": "0106e815de739d3c925a731dc25657361b9c9803",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "f573764d97bafed9f4c00c967db4e1f9fa9f5641",
+      "exampleCommit": "1af638705ce7368f468c289176db62664db9faed",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "332fb8c9d85dc2dd90d56f0ff3da71fc3bd4bc00",
+      "exampleCommit": "7f74d7487e2685d72d9a431bd7730e5959c36806",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "f556eab289779a30e6a05e995da156976621e1ed",
+      "exampleCommit": "98efdaf7570550f52a07a2134a683882eed4d141",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "da39fc32c7d1cf56114d971c734810235e2bdc28",
+      "exampleCommit": "c9546a6146dc25fd1d1ea3af3871f04662211404",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "7af6c58c80d5e6d2835f8e4ec92abeefcc24f555",
+      "exampleCommit": "f77436aed79666df5773316a1d7b261040d1ad60",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "07c06dc68d57fe2f03e4878c9caff305e9eba87a",
+      "exampleCommit": "9248580cb54f39645d8ae302d8beb9c8cbd0a376",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "903de0827107725eb2b10ea5f514b2dee39dc07b",
+      "exampleCommit": "39e0833431fb16364810663a6cdeba0f6c72fcd4",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "49a107890fde8e6671b9fa2b6cc28169ccac79e6",
+      "exampleCommit": "67a639210b35924f5c62368330f306f0f280ae99",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "af7bb2c810d8a4d08049d0a0298d8457da97045a",
+      "exampleCommit": "920ba8b855f5f709e590689b97b106faec4e83a9",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "e4226ab7a28fd5b5a9a57e91422c48a471ff8d91",
+      "exampleCommit": "0e618ac22104753a79b754f46e7418b4c3245493",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "d82d4d24a47f87894c95ef50ad71f64556d766e8",
+      "exampleCommit": "c67d55d07a7b3c65e2c7530f4e078fcc69fa4302",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "67e6ac0bb9cff387543372e1560417d09af97772",
+      "exampleCommit": "da0edf06f3795d5e9da2cebd3544195ff528dac6",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "path": "index.html",
+      "blob": "cd7633ebe21de841694062d5f06f674815aca853",
+      "exampleCommit": "4f165f008440f5b4776ae2635cdf2ec988be202b",
+      "disposition": "lexical-extraction-false-positive",
+      "failures": []
+    },
+    {
+      "blob": "ab80b322a252c0a77cf969700346e189fad60515",
+      "path": "js/aio-data.js",
+      "exampleCommit": "206c795862ee1fa64283da2f5c358d9bfc7a0d49",
+      "sha256": "ccd38c9d558908591115e23ec7d85b91d7f950e141d96c6ad857987f33150bed",
+      "bytes": 806319,
+      "lines": 11618,
+      "status": "parse-failed",
+      "method": null,
+      "error": "Identifier 'ld' has already been declared (11085:12)",
+      "disposition": "source-parser-failure",
+      "semanticReview": "pending"
+    },
+    {
+      "blob": "7825aa4dd905f6b9117226e82654086f858b10cd",
+      "path": ".github/workflows/data-watchdog.yml",
+      "exampleCommit": "40dbef88d10feab3be53127c8cb71885c4e15b8e",
+      "sha256": "cb2b10b012879a22d369ca7ca4379bbbae1f548d46c52466dc461419a9b04472",
+      "bytes": 7730,
+      "lines": 142,
+      "status": "parse-failed",
+      "method": null,
+      "error": "the stream contains non-printable characters (97:7)\n\n 94 |           console.log('public-data fr ...\n 95 |           NODE\n 96 | \n 97 |       # P572/R263: repo freshness alo ...\n------------^\n 98 |       # is actually serving fresh dat ...\n 99 |       # CI validate + Pages deploy +  ...",
+      "disposition": "source-parser-failure",
+      "semanticReview": "pending"
+    },
+    {
+      "blob": "1019aa2775bfc9db4976dc171ec5e2d4bdea9c4a",
+      "path": ".github/workflows/data-watchdog.yml",
+      "exampleCommit": "1e4781c0d71af47caa9e0f25837824c57e03e2df",
+      "sha256": "9fd6186a615870b034a6ed3f9fc08eb8792439d135684c44ab1a6609bc3bea91",
+      "bytes": 8586,
+      "lines": 155,
+      "status": "parse-failed",
+      "method": null,
+      "error": "the stream contains non-printable characters (102:7)\n\n  99 |           console.log('public-data fr ...\n 100 |           NODE\n 101 | \n 102 |       # P572/R263: repo freshness alo ...\n-------------^\n 103 |       # is actually serving fresh dat ...\n 104 |       # CI validate + Pages deploy +  ...",
+      "disposition": "source-parser-failure",
+      "semanticReview": "pending"
+    }
+  ]
+}

@@ -2007,13 +2007,17 @@ window._aioDiagram = (function () {
     var sym = d.sym || '—';
     var f = d.factors || {};
     var axes = [
-      { label: '모멘텀', v: _cl((f.momentum || 50) / 100, 0, 1) },
-      { label: '추세',   v: _cl((f.trend    || 50) / 100, 0, 1) },
-      { label: '저변동', v: _cl((f.lowvol   || 50) / 100, 0, 1) },
-      { label: 'RSI',    v: _cl(1 - Math.abs((f.rsi || 50) - 50) / 50, 0, 1) },
-      { label: '퀄리티', v: _cl((f.quality  || 50) / 100, 0, 1) },
-      { label: '밸류',   v: _cl((f.value    || 50) / 100, 0, 1) },
+      { label: '모멘텀', v: f.momentum },
+      { label: '추세', v: f.trend },
+      { label: '저변동', v: f.lowvol },
+      { label: 'RSI', v: f.rsi },
+      { label: '퀄리티', v: f.quality },
+      { label: '밸류', v: f.value },
     ];
+    axes.forEach(function(ax) {
+      ax.v = typeof ax.v === 'number' && isFinite(ax.v) ? _cl(ax.v / 100, 0, 1) : null;
+      if (ax.v == null) ax.label += ' —';
+    });
     var W = 320, H = 240, cx = 160, cy = 130, R = 80, n = axes.length, out = '';
     out += _r(0, 0, W, H, C.bg, 8, C.border);
     out += _t(W / 2, 16, sym + ' 팩터 레이더', C.text, 10, 700, 'middle');
@@ -2036,8 +2040,9 @@ window._aioDiagram = (function () {
       var a = (i / n) * Math.PI * 2 - Math.PI / 2;
       return (cx + R * ax.v * Math.cos(a)).toFixed(1) + ',' + (cy + R * ax.v * Math.sin(a)).toFixed(1);
     });
-    out += '<polygon points="' + pts.join(' ') + '" fill="' + _alphaRgb(C.cyan, 0.12) + '" stroke="' + C.cyan + '" stroke-width="1.5"/>';
+    if (axes.every(function(ax) { return ax.v != null; })) out += '<polygon points="' + pts.join(' ') + '" fill="' + _alphaRgb(C.cyan, 0.12) + '" stroke="' + C.cyan + '" stroke-width="1.5"/>';
     axes.forEach(function (ax, i) {
+      if (ax.v == null) return;
       var a = (i / n) * Math.PI * 2 - Math.PI / 2;
       var px = cx + R * ax.v * Math.cos(a), py = cy + R * ax.v * Math.sin(a);
       var fc = ax.v >= 0.7 ? C.green : ax.v >= 0.4 ? C.amber : C.red;
@@ -2558,9 +2563,7 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
       if ((pid === 'home' || pid === 'signal') && window.__AIO_ARCH_RUNTIME__) return;
       switch (pid) {
         case 'home':
-          // v52.65: vis-home-score/vis-home-regime(원형게이지+2x2쿼드런트) DOM 제거 —
-          // 시안 1b 히어로(index.html home-hero-*)로 대체, js/aio-data.js _aioRenderHomeHero()가 렌더.
-          try { if (typeof window._aioRenderHomeHero === 'function') window._aioRenderHomeHero(); } catch(_) {}
+          // P1010: the native analysis page exclusively owns the home score.
           break;
         case 'signal':
           // v52.65: vis-signal-score(원형게이지, 이미 DOM 부재) 대체 — 시안 2a 히어로(index.html
@@ -2633,18 +2636,11 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
     var wrap = document.getElementById('vis-fundamental');
     var el   = document.getElementById('vis-fundamental-radar');
     if (!wrap || !el || !window._aioDiagram) return;
-    if (!row) { wrap.style.display = 'none'; return; }
+    if (!row || row.screenStatus === 'unavailable') { wrap.style.display = 'none'; el.textContent = ''; return; }
     wrap.style.display = '';
     window._aioDiagram.render('factor-radar', el, {
       sym: ticker,
-      factors: {
-        momentum: _cl(row.momentum || 50, 0, 100),
-        trend:    _cl(row.trend    || 50, 0, 100),
-        lowvol:   _cl(100 - (row.lowvol || 50), 0, 100),
-        rsi:      _cl(row.rsi     || 50, 0, 100),
-        quality:  _cl(row.quality || 50, 0, 100),
-        value:    _cl(row.value   || 50, 0, 100),
-      },
+      factors: Object.assign({}, row.factorScores || {}, { rsi: row.rsi }),
       rank: (row.quantRank != null) ? row.quantRank : (row.rank != null ? row.rank : null),
     });
   };
@@ -2693,14 +2689,7 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
             data: {
               sym: tickers[0],
               rank: row.quantRank != null ? row.quantRank : null,
-              factors: {
-                momentum: _cl(row.momentum || 50, 0, 100),
-                trend:    _cl(row.trend    || 50, 0, 100),
-                lowvol:   _cl(100 - (row.lowvol || 50), 0, 100),
-                rsi:      _cl(row.rsi      || 50, 0, 100),
-                quality:  _cl(row.quality  || 50, 0, 100),
-                value:    _cl(row.value    || 50, 0, 100),
-              },
+              factors: Object.assign({}, row.factorScores || {}, { rsi: row.rsi }),
             },
           };
         }
@@ -4236,7 +4225,7 @@ var AIO_PAGE_FUNDAMENTALS = {
     ],
     why: [
       `종목 수익의 큰 부분은 소속 섹터의 기류가 결정합니다 — 약한 섹터의 강한 종목보다 강한 섹터의 평범한 종목이 쉬운 경우가 많습니다.`,
-      `로테이션은 연속적입니다: 개선(Improving)→주도(Leading)→약화(Weakening)→지체(Lagging)의 시계방향 회전이 기본 경로라, 위치보다 회전 방향이 중요합니다.`
+      `분면의 이동은 벤치마크 대비 변화입니다. 시계방향 순환이 보장되지는 않으므로 위치와 이동 방향을 실제 수익률과 함께 보세요.`
     ],
     how: [
       `RRG에서 우상(Leading)에 새로 진입하는 테마, 좌상(Improving)에서 우상으로 향하는 꼬리 방향을 보세요.`,
@@ -4245,8 +4234,8 @@ var AIO_PAGE_FUNDAMENTALS = {
       `'테마 히트맵'과 세분화 테마에서 카드를 눌러 상세 패널의 주도/부진 종목 분해를 확인하세요.`
     ],
     action: [
-      `신규 매수는 Improving→Leading 전환 테마 안에서 고르는 것이 기본 전략입니다.`,
-      `Weakening으로 꺾인 주도 테마의 보유 종목은 이익 보호(부분 익절·손절선 상향)를 먼저 겁니다.`
+      `Improving→Leading 전환은 비교 후보를 좁히는 관찰 조건이며, 개별 종목의 가격·거래량·실적 근거를 확인해야 합니다.`,
+      `Weakening은 상대 모멘텀 약화를 뜻합니다. 보유 판단은 종목별 투자 가설과 무효화 조건을 따로 검토하세요.`
     ],
     terms: `RRG (상대회전그래프)`
   },

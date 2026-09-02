@@ -13,7 +13,7 @@
 //   - sector-relative normalization with unknown-sector -> universe fallback;
 //   - row/ensemble confidence that measures evidence coverage, not return probability;
 //   - optional prior-rank/regime stability diagnostics (never used to auto-promote weights).
-export const FACTOR_RANKS_MODEL_VERSION = 'factor-ranks.v2';
+export const FACTOR_RANKS_MODEL_VERSION = 'factor-ranks.v4';
 export const FACTOR_RANKS_ALLOWED_USE = 'research-relative-ranking-only';
 
 const DAY_MS = 86_400_000;
@@ -177,7 +177,7 @@ function readPreviousRankMap(previousRanks) {
     return new Map(previousRanks.map((row) => [String(row?.sym || row?.symbol || '').toUpperCase(), finite(row?.rank)]).filter(([sym, rank]) => sym && rank != null));
   }
   if (previousRanks && typeof previousRanks === 'object') {
-    return new Map(Object.entries(previousRanks).map(([sym, value]) => [String(sym).toUpperCase(), finite(typeof value === 'object' ? value.rank : value)]).filter(([sym, rank]) => sym && rank != null));
+    return new Map(Object.entries(previousRanks).map(([sym, value]) => [String(sym).trim().toUpperCase(), finite(value && typeof value === 'object' ? value.rank : value)]).filter(([sym, rank]) => sym && rank != null));
   }
   return null;
 }
@@ -185,20 +185,28 @@ function readPreviousRankMap(previousRanks) {
 function deriveTurnoverStability(sorted, previousRanks, topPct = 20) {
   const previous = readPreviousRankMap(previousRanks);
   const boundedTopPct = Math.max(1, Math.min(100, Number(topPct) || 20));
-  const topCount = Math.max(1, Math.ceil(sorted.length * boundedTopPct / 100));
-  const currentTop = new Set(sorted.slice(-topCount).map((row) => String(row.sym || row.symbol || '').toUpperCase()).filter(Boolean));
+  const topCount = Math.ceil(sorted.length * boundedTopPct / 100);
+  const topMembers = (entries) => {
+    const ordered = entries.slice().sort((a, b) => b[1] - a[1]);
+    const count = Math.ceil(ordered.length * boundedTopPct / 100);
+    const cutoff = ordered[count - 1]?.[1];
+    return new Set(ordered.filter(([, rank]) => rank >= cutoff).map(([symbol]) => symbol));
+  };
+  // Include every tie at the boundary. Array order must not manufacture turnover.
+  const currentTop = topMembers(sorted.map((row) => [row.sym, row.rank]));
   if (!previous) {
     return freezeRecord({ status: 'unavailable', topCount, topPct: boundedTopPct, currentTopCount: currentTop.size, previousTopCount: null, overlapPct: null, turnoverPct: null, stabilityBand: 'unknown', reason: 'prior ranking snapshot not supplied', usedForRanking: false });
   }
-  const previousTop = new Set([...previous.entries()].sort((a, b) => b[1] - a[1]).slice(0, topCount).map(([sym]) => sym));
+  const previousTop = topMembers([...previous.entries()]);
   const overlap = [...currentTop].filter((sym) => previousTop.has(sym)).length;
-  const replacements = Math.max(currentTop.size, previousTop.size) - overlap;
-  const turnoverPct = Math.round((replacements / Math.max(1, topCount)) * 1000) / 10;
+  const denominator = Math.max(currentTop.size, previousTop.size, 1);
+  const turnoverPct = Math.round((1 - overlap / denominator) * 1000) / 10;
   return freezeRecord({
     status: 'observed', topCount, topPct: boundedTopPct, currentTopCount: currentTop.size, previousTopCount: previousTop.size,
-    overlapPct: Math.round(overlap / Math.max(1, topCount) * 1000) / 10, turnoverPct,
+    overlapPct: Math.round(overlap / denominator * 1000) / 10, turnoverPct,
     stabilityBand: turnoverPct <= 20 ? 'stable' : turnoverPct <= 40 ? 'mixed' : 'high-turnover',
-    reason: 'top-quintile membership overlap; execution turnover/cost/liquidity are not modeled',
+    tiePolicy: 'include-all-boundary-ties', normalization: 'larger-membership-set',
+    reason: 'top-percentile membership overlap including ties; execution turnover/cost/liquidity are not modeled',
     usedForRanking: false
   });
 }
@@ -266,16 +274,17 @@ export function computeFactorRanks({
   const seenSymbols = new Set();
   let duplicateRows = 0;
   let missingIdentityRows = 0;
+  let invalidCoreRows = 0;
   const items = inputRows.filter((row) => {
     if (!row || (typeof row.ret3m !== 'number' && typeof row.ret1m !== 'number')) return false;
     const symbol = String(row.sym || row.symbol || '').trim().toUpperCase();
     if (!symbol) { missingIdentityRows += 1; return false; }
+    if (finite(row.ret3m) == null && finite(row.ret1m) == null) { invalidCoreRows += 1; return false; }
     if (symbol && seenSymbols.has(symbol)) { duplicateRows += 1; return false; }
     if (symbol) seenSymbols.add(symbol);
     return true;
   });
   const validCoreRows = items.filter((row) => finite(row.ret3m) != null || finite(row.ret1m) != null).length;
-  const invalidCoreRows = items.length - validCoreRows;
   if (items.length < 5 || validCoreRows < 5) {
     return emptyResult({
       inputVersion,
@@ -297,9 +306,15 @@ export function computeFactorRanks({
   ];
   const working = items.map((row, index) => ({
     ...row,
+    sym: String(row.sym || row.symbol).trim().toUpperCase(),
     _factorIndex: index,
     _sectorKey: normalizeSector(row.sector),
-    _factorValues: Object.fromEntries(candidateFactors.map((factor) => [factor.key, factor.fn(row)]))
+    _factorValues: Object.fromEntries(candidateFactors.map((factor) => {
+      const dateUsable = factor.key === 'size' ? isFreshPast(row._mcapObservedAt, now, FACTOR_FRESHNESS_MS)
+        : ['value', 'quality'].includes(factor.key) ? isFreshPast(row._fundamentalObservedAt, now, FUNDAMENTAL_FRESHNESS_MS)
+          : true;
+      return [factor.key, dateUsable ? factor.fn(row) : null];
+    }))
   }));
   const bySector = new Map();
   working.forEach((row) => {
@@ -394,11 +409,9 @@ export function computeFactorRanks({
       const finiteGroupRows = group.filter((row) => finite(row._factorValues[factor.key]) != null);
       const vals = finiteGroupRows.map((row) => row._factorValues[factor.key]);
       let groupStats = universeStats;
-      let source = 'universe';
       if (sectorKey !== UNKNOWN_SECTOR) {
         if (vals.length >= MIN_SECTOR_OBSERVATIONS) {
           groupStats = guardedStats(vals);
-          source = 'sector';
         } else if (vals.length >= 2) {
           const sectorStats = guardedStats(vals);
           const blend = vals.length / MIN_SECTOR_OBSERVATIONS;
@@ -409,7 +422,6 @@ export function computeFactorRanks({
             outlierCount: sectorStats.outlierCount,
             outlierIndexes: sectorStats.outlierIndexes
           };
-          source = 'sector+universe-shrinkage';
         }
       }
       if (groupStats.outlierIndexes.length) {
@@ -441,10 +453,10 @@ export function computeFactorRanks({
       composite += z * weight;
       if (observed) observedWeight += weight;
       else missingFactors.push(factor.key);
-      factorScores[factor.key] = z2pct(z);
+      factorScores[factor.key] = observed ? z2pct(z) : null;
     });
-    // Missing factors stay neutral in the composite (compatibility + conservative bias), but
-    // confidence explicitly shrinks so consumers cannot mistake neutral imputation for evidence.
+    // Absent contributions add zero to the composite, but have no displayed score.
+    // Coverage records the imputation; it is not a probability of future returns.
     row._compositeZ = composite;
     row.factorScores = Object.freeze(factorScores);
     row.factorCoverage = FACTORS.length ? observedWeight : 0;
@@ -457,10 +469,17 @@ export function computeFactorRanks({
 
   const sorted = working.slice().sort((a, b) => a._compositeZ - b._compositeZ);
   const n = sorted.length;
-  sorted.forEach((row, index) => {
-    row.rank = n > 1 ? Math.round((index / (n - 1)) * 100) : 50;
-    row.quantSignal = row.rank >= 80 ? '상위 20%' : row.rank >= 60 ? '상위 40%' : row.rank >= 40 ? '중간 20%' : '하위 40%';
-  });
+  // Equal evidence must receive the same percentile, independent of input order.
+  for (let start = 0; start < n;) {
+    let end = start + 1;
+    while (end < n && sorted[end]._compositeZ === sorted[start]._compositeZ) end += 1;
+    const rank = n > 1 ? Math.round(((start + end - 1) / 2 / (n - 1)) * 100) : 50;
+    for (let index = start; index < end; index += 1) {
+      sorted[index].rank = rank;
+      sorted[index].quantSignal = rank >= 80 ? '상위 20%' : rank >= 60 ? '상위 40%' : rank >= 40 ? '중간 20%' : '하위 40%';
+    }
+    start = end;
+  }
 
   const resultRows = working.map((row) => {
     const out = {

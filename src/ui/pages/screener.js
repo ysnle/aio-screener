@@ -1,6 +1,10 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 import { selectScreenerState } from '../../state/selectors/screener.js';
 import { createSavedScreen, exportSavedScreen, importSavedScreen } from '../../domain/screener/saved-screens.js';
+import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
+import { SCREENER_FIELD_REGISTRY, createScreenDefinition, fieldValueForPurpose } from '../../data/contracts/screener.js';
+
+const FIELD_BY_COLUMN = new Map(SCREENER_FIELD_REGISTRY.fields.map(field => [field.rowKey, field.fieldId]));
 
 const PROFILE_DESCRIPTIONS = {
   balanced: '레짐 기반 자동 가중',
@@ -31,7 +35,7 @@ const REGIME_DESCRIPTIONS = {
 // prevents the old header/cell drift (for example, VCP under the wrong label).
 export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   { key: 'watchlist', label: '관심·비교', sortable: false, align: 'center', width: 96, group: 'utility' },
-  { key: 'rank', label: '순위', sortable: true, align: 'center', width: 72, group: 'ranking' },
+  { key: 'rank', label: '상대 점수', sortable: true, align: 'center', width: 72, group: 'ranking' },
   { key: 'grade', label: '등급', sortable: false, align: 'center', width: 48, group: 'ranking' },
   { key: 'sym', label: '종목', sortable: true, align: 'left', width: 142, group: 'identity', sticky: true },
   { key: 'sector', label: '섹터', sortable: true, align: 'left', width: 116, group: 'identity' },
@@ -40,7 +44,7 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   { key: 'lowvol', label: '저변동', sortable: true, align: 'right', width: 78, group: 'factor' },
   { key: 'value', label: '밸류', sortable: true, align: 'right', width: 70, group: 'factor' },
   { key: 'quality', label: '퀄리티', sortable: true, align: 'right', width: 78, group: 'factor' },
-  { key: 'price', label: '현재가', sortable: true, align: 'right', width: 86, group: 'market' },
+  { key: 'price', label: '가격', sortable: true, align: 'right', width: 86, group: 'market' },
   { key: 'ret1m', label: '1M', sortable: true, align: 'right', width: 70, group: 'market' },
   { key: 'ret3m', label: '3M', sortable: true, align: 'right', width: 70, group: 'market' },
   { key: 'ret6m', label: '6M', sortable: true, align: 'right', width: 70, group: 'market' },
@@ -133,22 +137,34 @@ function entryTiming(row) {
 }
 
 function liveRow(row, readLiveData) {
+  if (row.fieldReadiness) {
+    const display = { ...row };
+    for (const definition of SCREENER_FIELD_REGISTRY.fields) {
+      if (!definition.fieldId.startsWith('identity.')) display[definition.rowKey] = fieldValueForPurpose(row, definition.fieldId, 'display');
+    }
+    return display;
+  }
   const live = readLiveData?.()?.[row.sym] || {};
+  const rowCurrency = String(row.instrumentRef?.currency || row.currency || '').trim().toUpperCase() || null;
+  const liveCurrency = String(live.currency || '').trim().toUpperCase() || null;
+  const marketCapCurrency = String(live.marketCapCurrency || liveCurrency || '').trim().toUpperCase() || null;
+  const compatiblePrice = rowCurrency && liveCurrency && rowCurrency === liveCurrency ? finite(live.price) : null;
   return {
     ...row,
-    price: finite(live.price) ?? row.price,
-    mcap: finite(live.marketCap) != null ? Math.round(live.marketCap / 1e9) : row.mcap
+    price: compatiblePrice ?? row.price,
+    mcap: marketCapCurrency === 'USD' && finite(live.marketCap) != null ? Math.round(live.marketCap / 1e9) : row.mcap
   };
 }
 
 function selectedValue(documentRef, id) { return documentRef.getElementById(id)?.value || ''; }
 
-function filterRows(rows, documentRef, { readWatchlist, readAliases } = {}) {
+export function filterRows(rows, documentRef, { readWatchlist, readAliases } = {}) {
   const market = selectedValue(documentRef, 'scr-market');
   const sector = selectedValue(documentRef, 'scr-sector');
   const signal = selectedValue(documentRef, 'scr-signal');
   const cap = selectedValue(documentRef, 'scr-cap');
   const query = selectedValue(documentRef, 'scr-text-search').trim().toLowerCase();
+  const exactSymbol = query && rows.some((row) => row.sym?.toLowerCase() === query) ? query : null;
   const minRank = Number.parseInt(selectedValue(documentRef, 'scr-min-rank'), 10) || 0;
   const rsiMin = Number.parseFloat(selectedValue(documentRef, 'scr-rsi-min'));
   const rsiMax = Number.parseFloat(selectedValue(documentRef, 'scr-rsi-max'));
@@ -170,14 +186,17 @@ function filterRows(rows, documentRef, { readWatchlist, readAliases } = {}) {
     if (market && row.index !== market) return false;
     if (sector && row.sector !== sector) return false;
     if (signal && row.signal !== signal) return false;
+    if (cap && (finite(row.mcap) == null || row.mcap <= 0 || (row.fieldReadiness && fieldValueForPurpose(row, 'valuation.marketCap', 'calculation') == null))) return false;
     if (cap === 'MEGA' && !(row.mcap >= 1000)) return false;
     if (cap === 'LARGE' && !(row.mcap >= 10 && row.mcap < 1000)) return false;
-    if (cap === 'MID' && !(row.mcap >= 2 && row.mcap <= 10)) return false;
+    if (cap === 'MID' && !(row.mcap >= 2 && row.mcap < 10)) return false;
     if (cap === 'SMALL' && !(row.mcap < 2)) return false;
-    if (minRank > 0 && !(finite(row.rank) != null && row.rank >= minRank)) return false;
-    if (Number.isFinite(rsiMin) && rsiMin > 0 && !(finite(row.rsi) != null && row.rsi >= rsiMin)) return false;
-    if (Number.isFinite(rsiMax) && rsiMax < 100 && !(finite(row.rsi) != null && row.rsi <= rsiMax)) return false;
-    if (Number.isFinite(minMomentum) && !(finite(row.ret3m) != null && row.ret3m >= minMomentum)) return false;
+    if (minRank > 0 && !(row.screenStatus === 'passed' && finite(row.rank) != null && row.rank >= minRank)) return false;
+    const rsi = row.fieldReadiness ? fieldValueForPurpose(row, 'price.rsi14', 'calculation') : finite(row.rsi);
+    const momentum = row.fieldReadiness ? fieldValueForPurpose(row, 'price.ret3m', 'calculation') : finite(row.ret3m);
+    if (Number.isFinite(rsiMin) && !(rsi != null && rsi >= rsiMin)) return false;
+    if (Number.isFinite(rsiMax) && !(rsi != null && rsi <= rsiMax)) return false;
+    if (Number.isFinite(minMomentum) && !(momentum != null && momentum >= minMomentum)) return false;
     if (setupFilter === 'WINNER' && row.setupProfile?.winnerFilter !== 'candidate') return false;
     if (setupFilter === 'RSPULLBACK' && row.setupProfile?.relativeStrengthPullback !== 'candidate') return false;
     if (setupFilter === 'SUPPORT200' && row.setupProfile?.support200 !== 'near') return false;
@@ -185,35 +204,50 @@ function filterRows(rows, documentRef, { readWatchlist, readAliases } = {}) {
     if (setupFilter === 'MISSING' && !(row.setupProfile?.winnerFilter === 'unavailable' || (row.setupProfile?.missingEvidence || []).length)) return false;
     if (watchlist && !watchlist.has(row.sym)) return false;
     if (!query) return true;
+    if (exactSymbol) return row.sym?.toLowerCase() === exactSymbol;
     if (signalFromText && row.signal !== signalFromText) return false;
     const setupText = Array.isArray(row.setupProfile?.tags) ? row.setupProfile.tags.join(' ') : '';
     const haystack = `${row.sym} ${row.name} ${row.memo || ''} ${row.newsMemo || ''} ${row.sector || ''} ${setupText}`.toLowerCase();
     const direct = haystack.includes(query);
-    const allWords = words.filter((word) => !aliases[word]).every((word) => haystack.includes(word));
-    return direct || allWords || matchedSymbols.has(row.sym);
+    const residualWords = words.filter((word) => !aliases[word]);
+    const allWords = residualWords.length > 0 && residualWords.every((word) => haystack.includes(word));
+    return direct || allWords || matchedSymbols.has(row.sym) || (!!signalFromText && residualWords.length === 0 && matchedSymbols.size === 0);
   });
 }
 
-function sortRows(rows, sortColumn, ascending, readLiveData) {
-  return rows.slice().sort((left, right) => {
-    const a = liveRow(left, readLiveData);
-    const b = liveRow(right, readLiveData);
+export function visibleRank(row) {
+  return row?.screenStatus === 'unavailable' || row?.screenStatus === 'rejected' ? null : finite(row?.rank);
+}
+
+export function sortRows(rows, sortColumn, ascending, readLiveData) {
+  return rows.map(row => ({ row, view: liveRow(row, readLiveData) })).sort(({ view: a }, { view: b }) => {
     const factorColumn = ['momentum', 'trend', 'lowvol', 'value', 'quality', 'kalman'].includes(sortColumn);
     let av = factorColumn ? a.factorScores?.[sortColumn] : a[sortColumn];
     let bv = factorColumn ? b.factorScores?.[sortColumn] : b[sortColumn];
     if (sortColumn === 'price') { av = a.price; bv = b.price; }
+    if (sortColumn === 'rank') { av = visibleRank(a); bv = visibleRank(b); }
+    const missing = (value) => value == null || value === '' || (typeof value === 'number' && !Number.isFinite(value));
+    if (missing(av) || missing(bv)) return missing(av) === missing(bv) ? 0 : missing(av) ? 1 : -1;
     if (typeof av === 'string') av = av.toUpperCase();
     if (typeof bv === 'string') bv = bv.toUpperCase();
-    if (av == null) av = typeof av === 'string' ? '' : -Infinity;
-    if (bv == null) bv = typeof bv === 'string' ? '' : -Infinity;
     const comparison = av > bv ? 1 : av < bv ? -1 : 0;
     return ascending ? comparison : -comparison;
-  });
+  }).map(entry => entry.row);
+}
+
+export function vcpStageLabel(stage) {
+  return ({ not_stage2: '추세 조건 미충족', breakout: '피벗 돌파', near_pivot: '피벗 근접', contracting: '변동폭 수축', basing: '기반 형성', stage2_only: '추세 조건 충족' })[stage] || '관측';
 }
 
 function createRankNode(documentRef, row) {
   const wrap = documentRef.createElement('div');
-  const rank = finite(row.rank);
+  if (row.screenStatus === 'unavailable' || row.screenStatus === 'rejected') {
+    wrap.textContent = row.screenStatus === 'rejected' ? '조건 미충족' : '근거 부족';
+    wrap.title = '필수 데이터가 모두 준비되기 전에는 순위를 표시하지 않습니다.';
+    wrap.style.cssText = 'font-size:10px;color:var(--text-muted);white-space:nowrap;';
+    return wrap;
+  }
+  const rank = visibleRank(row);
   if (rank == null) wrap.appendChild(text(documentRef, '—'));
   else {
     const value = documentRef.createElement('div');
@@ -237,6 +271,7 @@ function createRankNode(documentRef, row) {
 
 function createColumnContent(documentRef, row, key, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, compareSymbols } = {}) {
   const live = liveRow(row, readLiveData);
+  row = live;
   const inWatchlist = (readWatchlist?.() || []).includes(row.sym);
   if (key === 'watchlist') {
     const wrap = documentRef.createElement('div');
@@ -261,7 +296,7 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     return wrap;
   }
   if (key === 'rank') return createRankNode(documentRef, row);
-  if (key === 'grade') return row.rank == null ? '—' : row.rank >= 80 ? 'A' : row.rank >= 65 ? 'B' : row.rank >= 50 ? 'C' : row.rank >= 35 ? 'D' : 'F';
+  if (key === 'grade') return row.screenStatus === 'unavailable' || row.rank == null ? '—' : row.rank >= 80 ? 'A' : row.rank >= 65 ? 'B' : row.rank >= 50 ? 'C' : row.rank >= 35 ? 'D' : 'F';
   if (key === 'sym') {
     const identity = documentRef.createElement('div');
     const symbol = documentRef.createElement('div');
@@ -275,24 +310,40 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
   }
   if (key === 'sector') return row.sector;
   if (['momentum', 'trend', 'lowvol', 'value', 'quality', 'kalman'].includes(key)) {
+    if (row.screenStatus === 'unavailable') return '—';
     const value = row.factorScores?.[key];
     const node = documentRef.createElement('span');
     node.textContent = value == null ? '—' : Number(value).toFixed(0);
     node.style.color = value == null ? 'var(--text-muted)' : value >= 66 ? 'var(--data-green)' : value >= 40 ? 'var(--data-amber)' : 'var(--data-red)';
     return node;
   }
-  if (key === 'price') return numberText(live.price, 2);
+  if (key === 'price') {
+    const node = text(documentRef, finite(live.price) == null ? '미수신' : numberText(live.price, 2));
+    node.title = finite(live.price) == null ? '가격 미수신' : `관측 가격 ${row.instrumentRef?.currency || '통화 미확인'} · 기준 ${row.priceObservedAt || '미확인'} · ${row.priceSource || '출처 미확인'}`;
+    if (finite(live.price) != null && row.instrumentRef?.currency && row.instrumentRef.currency !== 'USD') node.textContent += ` ${row.instrumentRef.currency}`;
+    return node;
+  }
   if (['ret1m', 'ret3m', 'ret6m'].includes(key)) return returnText(row[key]);
   if (key === 'rsi') return numberText(row.rsi, 1);
   if (key === 'pctSma50') return returnText(row.pctSma50);
   if (key === 'vcpScore') {
     const node = documentRef.createElement('span');
-    node.textContent = row.vcpScore == null ? '—' : `${row.vcpScore} · ${row.vcpStage || '관측'}`;
+    node.textContent = row.vcpScore == null ? '—' : `${row.vcpScore} · ${vcpStageLabel(row.vcpStage)}`;
     node.style.color = row.vcpScore == null ? 'var(--text-muted)' : row.vcpScore >= 70 ? 'var(--data-green)' : row.vcpScore >= 50 ? 'var(--data-amber)' : 'var(--data-red)';
     return node;
   }
-  if (key === 'mcap') return live.mcap == null ? '—' : live.mcap >= 1000 ? `$${(live.mcap / 1000).toFixed(1)}T` : `$${live.mcap}B`;
+  if (key === 'mcap') {
+    if (live.mcap != null) return live.mcap >= 1000 ? `$${(live.mcap / 1000).toFixed(1)}T` : `$${live.mcap}B`;
+    const native = row.nativeMarketCap;
+    if (finite(native?.value) == null || ['BLOCKED', 'DENIED'].includes(native.rightsId)) return '—';
+    const billions = native.value / 1e9;
+    const amount = billions >= 1000 ? `${numberText(billions / 1000, 1)}T` : `${numberText(billions, 2)}B`;
+    const node = text(documentRef, `${native.currency} ${amount} · 참고`);
+    node.title = `${native.source || '출처 미확인'} · 관측 ${native.observedAt || '시각 미확인'} · USD 환산값이 없어 USD 시총 필터/팩터에는 사용하지 않음`;
+    return node;
+  }
   if (key === 'entry') {
+    if (row.screenStatus === 'unavailable') return '판정 보류';
     const entry = entryTiming(row);
     const entryNode = documentRef.createElement('span');
     entryNode.className = `scr-entry-chip ${entry[1]}`;
@@ -301,6 +352,7 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     return entryNode;
   }
   if (key === 'signal') {
+    if (row.screenStatus === 'unavailable') return '근거 부족';
     const signalNode = documentRef.createElement('span');
     signalNode.textContent = signalLabel(row.signal);
     signalNode.style.cssText = `background:${row.signal === 'BUY' ? 'var(--data-green-soft)' : row.signal === 'SELL' ? 'var(--data-red-soft)' : row.signal === 'WATCH' ? 'var(--data-amber-soft)' : 'var(--data-muted-soft)'};color:${signalColor(row.signal)};padding:3px 7px;border-radius:4px;font-size:11px;font-weight:700;`;
@@ -353,8 +405,20 @@ function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatch
     }
     const content = createColumnContent(documentRef, row, column.key, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, compareSymbols });
     td.appendChild(content && content.nodeType ? content : text(documentRef, content));
+    const fieldId = FIELD_BY_COLUMN.get(column.key);
+    const field = fieldId && row.fieldReadiness?.fields?.[fieldId];
+    if (field) {
+      td.dataset.fieldStatus = field.status;
+      td.title = `${field.sourceId || '출처 미확인'} · 관측 ${field.observedAt || '시각 미확인'} · ${field.status}`;
+      if (['STALE', 'LAST_GOOD', 'CONFLICT'].includes(field.status) && fieldValueForPurpose(row, fieldId) != null) {
+        const note = documentRef.createElement('small');
+        note.textContent = field.status === 'CONFLICT' ? '값 충돌 · 참고' : `${field.observedAt ? String(field.observedAt).slice(0, 10) : '시각 미확인'} · 참고`;
+        note.style.cssText = 'display:block;font-size:9px;color:var(--text-muted);';
+        td.appendChild(note);
+      }
+    }
     tr.appendChild(td);
-    if (!column.sticky) stickyLeft += column.width;
+    if (column.sticky) stickyLeft += column.width;
   });
   return tr;
 }
@@ -460,25 +524,6 @@ function renderBacktest(documentRef, metadata) {
   });
 }
 
-function calculatePosition(documentRef, readLiveData) {
-  const capital = Number.parseFloat(documentRef.getElementById('ps-capital')?.value) || 0;
-  const riskPct = Number.parseFloat(documentRef.getElementById('ps-risk')?.value) || 1;
-  const stopPct = Number.parseFloat(documentRef.getElementById('ps-stop')?.value) || 5;
-  const symbol = documentRef.getElementById('ps-sym')?.textContent.trim() || '';
-  const output = documentRef.getElementById('ps-result');
-  if (!output) return;
-  if (capital <= 0 || riskPct <= 0 || stopPct <= 0) {
-    output.textContent = '자본금·리스크%·손절%를 모두 입력하세요.';
-    return;
-  }
-  const maxLoss = capital * riskPct / 100;
-  const position = maxLoss / (stopPct / 100);
-  const price = finite(readLiveData?.()?.[symbol]?.price);
-  const shares = price > 0 ? Math.floor(position / price) : null;
-  const actual = shares != null && shares > 0 ? shares * price : position;
-  output.textContent = `최대 손실 $${maxLoss.toLocaleString('en-US', { maximumFractionDigits: 0 })} · 투자 금액 $${actual.toLocaleString('en-US', { maximumFractionDigits: 0 })} (${(actual / capital * 100).toFixed(1)}% of 자본)${shares ? ` · 추천 주수 ${shares.toLocaleString()}주 @ $${price.toFixed(2)}` : ''} · 참고용 계산 결과입니다.`;
-}
-
 function getVisibleColumns(columnPreset, customColumns = []) {
   const keys = columnPreset === 'custom' ? customColumns : (COLUMN_PRESETS[columnPreset] || COLUMN_PRESETS.discovery);
   const byKey = new Map(SCREENER_COLUMN_REGISTRY.map((column) => [column.key, column]));
@@ -523,7 +568,7 @@ function renderTableHeader(documentRef, table, visibleColumns, sortState) {
       th.appendChild(note);
     }
     row.appendChild(th);
-    if (!column.sticky) stickyLeft += column.width;
+    if (column.sticky) stickyLeft += column.width;
   });
   thead.replaceChildren(row);
   table.dataset.aioColumnRegistry = 'screener-column-registry.v1';
@@ -623,7 +668,8 @@ function renderFunnel(documentRef, { universe = 0, ready = 0, passed = 0, unavai
 }
 
 function render({ documentRef, store, readLiveData, readWatchlist, readAliases, sortState, visibleLimit, onWatchlistToggle, onExplain, onCompare, onVisibleSymbols, selectedSymbols, compareSymbols, columnPreset = 'discovery', customColumns = [], rowsOverride = null, workbenchResult = null }) {
-  const state = selectScreenerState(store?.getState?.() || {});
+  const currentState = selectScreenerState(store?.getState?.() || {});
+  const state = workbenchResult?.run ? { ...currentState, metadata: workbenchResult.snapshotMetadata || {}, status: 'partial', lastRun: workbenchResult.run, readiness: workbenchResult.readiness } : currentState;
   const page = documentRef?.getElementById('page-screener');
   if (!page) return;
   const rows = rowsOverride || state?.rows || [];
@@ -633,15 +679,23 @@ function render({ documentRef, store, readLiveData, readWatchlist, readAliases, 
   renderTableHeader(documentRef, table, visibleColumns, sortState);
   const body = documentRef.getElementById('screener-results-body');
   if (body) {
+    const focusedRow = documentRef.activeElement?.closest?.('[data-aio-screener-ticker]');
+    const focusedSymbol = body.contains(focusedRow) ? focusedRow.dataset.aioScreenerTicker : null;
+    const focusedAction = focusedSymbol && documentRef.activeElement?.getAttribute('aria-label');
     body.replaceChildren();
     const visible = filtered.slice(0, visibleLimit.value);
-    onVisibleSymbols?.(visible.map((row) => row.sym || row.symbol).filter(Boolean));
+    if (!workbenchResult?.run) onVisibleSymbols?.(visible.map((row) => row.sym || row.symbol).filter(Boolean));
     if (!visible.length) {
       const empty = documentRef.createElement('tr');
       empty.appendChild(cell(documentRef, state?.status === 'unavailable' ? '스크리너 산출물 미수신' : '조건에 맞는 종목이 없습니다', '', 'text-align:center;padding:20px;color:var(--text-muted);'));
       empty.firstChild.colSpan = visibleColumns.length;
       body.appendChild(empty);
     } else visible.forEach((row) => body.appendChild(createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, selectedSymbols, compareSymbols, visibleColumns })));
+    if (focusedSymbol) {
+      const row = [...body.querySelectorAll('[data-aio-screener-ticker]')].find((node) => node.dataset.aioScreenerTicker === focusedSymbol);
+      const action = row && [...row.querySelectorAll('button')].find((node) => node.getAttribute('aria-label') === focusedAction);
+      (action || row)?.focus({ preventScroll: true });
+    }
   }
   const count = documentRef.getElementById('screener-result-count');
   if (count) count.textContent = String(filtered.length);
@@ -657,8 +711,8 @@ function render({ documentRef, store, readLiveData, readWatchlist, readAliases, 
   const buy = documentRef.getElementById('scr-kpi-buy');
   const factorCount = documentRef.getElementById('scr-kpi-factors');
   if (total) total.textContent = String(allRows.length);
-  if (top) top.textContent = String(allRows.filter((row) => finite(row.rank) != null && row.rank >= 80).length);
-  if (buy) buy.textContent = String(allRows.filter((row) => row.signal === 'BUY').length);
+  if (top) top.textContent = String(allRows.filter((row) => row.screenStatus === 'passed' && finite(row.rank) != null && row.rank >= 80).length);
+  if (buy) buy.textContent = String(allRows.filter((row) => row.screenStatus === 'passed' && row.signal === 'BUY').length);
   if (factorCount) factorCount.textContent = String(state?.metadata?.ranking?.activeFactors?.length || '—');
   const asOf = page.querySelector('[data-factor-asof]');
   if (asOf) asOf.textContent = workbenchResult?.run?.snapshotId ? `스크린 스냅샷 ${String(workbenchResult.run.snapshotId).slice(0, 18)}` : state?.metadata?.asOf ? `팩터 기준 ${String(state.metadata.asOf).slice(0, 10)}` : '팩터 데이터 대기';
@@ -672,7 +726,11 @@ function render({ documentRef, store, readLiveData, readWatchlist, readAliases, 
     const universeNote = metadata.universeFreshnessStatus === 'stale'
       ? `종목 유니버스 갱신 필요 (${fmtDate(metadata.universeLastBulkUpdate)})`
       : metadata.universeFreshnessStatus === 'unknown' ? '종목 유니버스 최신성 미확인' : '종목 유니버스 최신';
-    provenance.textContent = `연구용 스냅샷 · 팩터 관측 ${fmtDate(metadata.factorObservedAt)} · 생성 ${fmtDate(metadata.asOf)} · ${metadata.source || '출처 확인 대기'} · ${sec} · ${universeNote} · 공식 거래소 breadth 아님`;
+    const research = metadata.researchContext || {};
+    const researchNote = research.referenceId
+      ? `연구 프레임 ${research.frameworkIds?.length || 0}개·시계열 ${research.timeSeriesIds?.length || 0}개 (REFERENCE)`
+      : '연구 프레임 연결 대기';
+    provenance.textContent = `연구용 스냅샷 · 팩터 관측 ${fmtDate(metadata.factorObservedAt)} · 생성 ${fmtDate(metadata.asOf)} · ${metadata.source || '출처 확인 대기'} · ${sec} · ${universeNote} · ${researchNote} · 공식 거래소 breadth 아님`;
     provenance.title = metadata.fundamentalCoverageScope || '관측시각·생성시각·SEC-only 분모를 분리해 표시합니다.';
     provenance.dataset.sourceKind = 'reference';
     provenance.dataset.operationalUse = 'reference-only';
@@ -685,7 +743,7 @@ function render({ documentRef, store, readLiveData, readWatchlist, readAliases, 
   const unavailableCount = run?.unavailable ?? 0;
   if (readiness) readiness.textContent = state?.status === 'unavailable'
     ? '데이터 상태: 산출물 미수신 · 결과와 검증 수치를 표시하지 않습니다.'
-    : `${state?.metadata?.universeFreshnessStatus === 'stale' ? '부분 상태: 종목 유니버스 최신성 확인 필요 · ' : ''}연구 snapshot · 유니버스 ${allRows.length} · 필드 준비 ${readyCount} · 조건 통과 ${passedCount} · 데이터 부족 ${unavailableCount} · 상대 랭킹은 연구용이며 현재 매매 지시가 아닙니다.`;
+    : `${state?.metadata?.artifactFreshnessStatus === 'stale' || state?.metadata?.factorFreshnessStatus === 'stale' ? '갱신 지연: 원자료는 기준일과 함께 표시하고 계산은 필드별로 확인합니다. · ' : ''}${state?.metadata?.universeFreshnessStatus === 'stale' ? '종목 목록 최신성 확인 필요 · ' : ''}연구 snapshot · 종목 ${allRows.length} · 계산 준비 ${readyCount} · 조건 통과 ${passedCount} · 계산 보류 ${unavailableCount} · 상대 랭킹은 연구용이며 현재 매매 지시가 아닙니다.`;
   renderFunnel(documentRef, { universe: allRows.length, ready: readyCount, passed: passedCount, unavailable: unavailableCount, filtered: filtered.length });
   renderFilterChips(documentRef);
   const coverage = documentRef.getElementById('screener-factor-coverage');
@@ -712,7 +770,7 @@ function render({ documentRef, store, readLiveData, readWatchlist, readAliases, 
   if (rankingState.activeFactorRegime && documentRef.getElementById('screener-regime-note')) documentRef.getElementById('screener-regime-note').textContent = rankingState.activeFactorRegime;
 }
 
-export function createScreenerPage({ documentRef, store, root = globalThis, onProfileChange, onTicker, onWatchlistToggle, readWatchlist, readAliases, readLiveData, writeReturnContext } = {}) {
+export function createScreenerPage({ documentRef, store, root = globalThis, workbench = {}, onProfileChange, onTicker, onWatchlistToggle, readWatchlist, readAliases, readLiveData } = {}) {
   // SCR-UX-02: rank is the visible discovery order and is therefore the
   // initial sort. Market-cap remains available through the column header.
   const sortState = { column: 'rank', ascending: false };
@@ -720,7 +778,13 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
   const columnState = { preset: 'discovery', custom: [] };
   const selectedSymbols = new Set();
   const compareSymbols = new Set();
-  const builderConditions = [];
+  // Controls own the visual conditions. A second mutable chip array drifted
+  // from the filters and could keep removed conditions active on the next run.
+  const readBuilderConditions = () => BUILDER_FIELDS.flatMap(definition => {
+    const value = String(documentRef?.getElementById(definition.target)?.value || '').trim();
+    if (!value || (definition.value === 'rank' && value === '0')) return [];
+    return [{ field: definition.value, label: definition.label, value, target: definition.target }];
+  });
   let mounted = false;
   let renderNow = () => {};
   let activeRows = null;
@@ -728,12 +792,24 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
   let activeDefinition = null;
   let activeScreenId = null;
   let activeRow = null;
+  let returnView = null;
   return {
     route: 'screener',
     mount() {
       const bag = createResourceBag();
+      let mountActive = true;
+      bag.add(() => { mountActive = false; });
       const page = documentRef?.getElementById('page-screener');
       if (!page) return () => {};
+      let suppliedMaterialBridge = page.querySelector('[data-aio-supplied-material-route="screener"]');
+      if (!suppliedMaterialBridge) {
+        suppliedMaterialBridge = createSuppliedMaterialBridge(documentRef, {
+          routeId: 'screener',
+          heading: '스크리너 · 시장 확인·AI 용량·qualification 정렬'
+        });
+        page.appendChild(suppliedMaterialBridge);
+        bag.add(() => suppliedMaterialBridge.remove());
+      }
       const liveReader = readLiveData || (() => root?._liveData || {});
       const watchlistReader = readWatchlist || (() => root?._aioWatchlistGet?.() || []);
       const aliasReader = readAliases || (() => root?.SCR_KEYWORD_ALIASES || {});
@@ -747,9 +823,9 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
         const signature = requested.join('|');
         const nowMs = Date.now();
         if (signature === visibleQuoteSignature && nowMs - visibleQuoteRequestedAt < 55_000) return;
+        if (root?._aioBootPhase?.quoteReady === false || typeof root?.AIO?.runScheduledRefresh !== 'function') return;
         visibleQuoteSignature = signature;
         visibleQuoteRequestedAt = nowMs;
-        if (root?._aioBootPhase?.quoteReady === false || typeof root?.AIO?.runScheduledRefresh !== 'function') return;
         Promise.resolve(root.AIO.runScheduledRefresh({
           keys: ['quotes'],
           symbols: requested,
@@ -767,28 +843,13 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
       const operationsState = documentRef.getElementById('scr-ops-state');
        const defaultScreens = () => {
          const stored = selectScreenerState(store.getState())?.savedScreens;
-         return Array.isArray(stored) && stored.length ? stored : (root?.AIO_ARCH?.getDefaultScreenerScreens?.() || []);
+         return Array.isArray(stored) && stored.length ? stored : (workbench.getDefaultScreens?.() || []);
        };
        const setText = (id, value) => {
          const node = documentRef.getElementById(id);
          if (node) node.textContent = value == null || value === '' ? '—' : String(value);
          return node;
        };
-       const persistReturnContext = (symbol) => {
-         try {
-           writeReturnContext?.({
-             from: 'screener',
-             screenId: activeScreenId || activeDefinition?.screenId || null,
-             runId: activeResult?.run?.runId || selectScreenerState(store.getState())?.lastRun?.runId || null,
-             symbol,
-             sort: { ...sortState },
-             filters: Object.fromEntries(Object.keys(FILTER_LABELS).map((id) => [id, documentRef.getElementById(id)?.value || (documentRef.getElementById(id)?.checked ? true : '')])),
-             scrollTop: documentRef.querySelector('.content')?.scrollTop || 0,
-             savedAt: new Date().toISOString()
-           });
-         } catch (_) { /* private browsing/session storage may be unavailable */ }
-       };
-       const getCurrentVisibleColumns = () => getVisibleColumns(columnState.preset, columnState.custom);
       const syncDefinitionEditor = () => {
         if (definitionEditor && activeDefinition) definitionEditor.value = exportSavedScreen({ definition: activeDefinition });
       };
@@ -803,11 +864,12 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
          setText('scr-why-title', `${row.sym || row.symbol || '종목'} · ${title}`);
          setText('scr-why-subtitle', row.name || '연구용 상대 랭킹 설명');
           const factorConfidence = finite(row.confidence);
-          setText('scr-why-status', `${row.screenStatus || 'unavailable'} · rank ${row.rank == null ? '—' : row.rank} · 필드 coverage ${readiness.coveragePct == null ? '—' : `${readiness.coveragePct}%`} · 팩터 근거 ${factorConfidence == null ? '—' : `${Math.round(factorConfidence * 100)}%`} (수익확률 아님)`);
-         setText('scr-why-contrary', contrary.length ? contrary.join(' · ') : '조건을 반대한 근거가 없습니다.');
+          const visibleRank = row.screenStatus === 'passed' && row.rank != null ? row.rank : '—';
+          setText('scr-why-status', `${row.screenStatus || 'unavailable'} · rank ${visibleRank} · 필드 coverage ${readiness.coveragePct == null ? '—' : `${readiness.coveragePct}%`} · 팩터 근거 ${factorConfidence == null ? '—' : `${Math.round(factorConfidence * 100)}%`} (수익확률 아님)`);
+         setText('scr-why-contrary', contrary.length ? contrary.join(' · ') : row.screenStatus === 'unavailable' ? '필수 근거 미수신으로 조건 판단을 보류했습니다.' : '조건을 반대한 근거가 없습니다.');
          setText('scr-why-missing', missing.length ? missing.join(' · ') : '필수 필드 결측 없음');
          setText('scr-why-provenance', row.instrumentRef?.instrumentId ? `instrument ${row.instrumentRef.instrumentId}` : row.source || 'provenance 미수신');
-         setText('scr-why-preview', `${row.sym || row.symbol} · ${title} · ${missing.length ? `결측 ${missing.length}개` : '결측 없음'} · ${contrary.length ? `반대 근거 ${contrary.length}개` : '반대 근거 없음'}`);
+         setText('scr-why-preview', `${row.sym || row.symbol} · ${title} · ${missing.length ? `결측 ${missing.length}개` : '결측 없음'} · ${contrary.length ? `반대 근거 ${contrary.length}개` : row.screenStatus === 'unavailable' ? '판정 보류' : '반대 근거 없음'}`);
          const factorList = documentRef.getElementById('scr-why-factor-list');
          if (factorList) {
            factorList.replaceChildren();
@@ -844,23 +906,73 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
          renderWhyDrawer(row);
          renderNow();
        };
-       const runDefinition = (definition) => {
+       let runGeneration = 0;
+       let archiveGeneration = 0;
+       const refreshRunArchive = async () => {
+         if (!runHistory) return;
+         const generation = ++archiveGeneration;
+         runHistory.dataset.archiveLoaded = 'loading';
+         try {
+           if (typeof workbench.list !== 'function') throw new Error('SCREEN_ARCHIVE_UNAVAILABLE');
+           const entries = await workbench.list();
+           if (!mountActive || generation !== archiveGeneration) return;
+           runHistory.replaceChildren();
+           runHistory.dataset.archiveLoaded = 'true';
+           if (!entries.length) runHistory.textContent = '보관한 사용자 실행 없음 · 실행하면 입력을 이 브라우저에 최대 5개 보관합니다.';
+           for (const entry of entries) {
+             const item = documentRef.createElement('div');
+             const label = documentRef.createElement('span');
+             label.textContent = `${entry.name} · ${entry.savedAt.slice(0, 16)} `;
+             const replay = documentRef.createElement('button');
+             replay.type = 'button'; replay.className = 'aio-btn-table'; replay.textContent = '저장 입력으로 재현';
+             replay.addEventListener('click', async () => {
+               const run = ++runGeneration;
+               try {
+                 const result = await workbench.replay(entry.id);
+                 if (!mountActive || run !== runGeneration) return;
+                 activeDefinition = result.definition; activeScreenId = activeDefinition.screenId;
+                 activeResult = result; activeRows = result.rows;
+                 selectedSymbols.clear(); visibleLimit.value = 12;
+                 if (workbenchStatus) workbenchStatus.textContent = '보관한 입력으로 재현됨 · 현재 시장 상태가 아닌 당시 결과입니다.';
+                 syncDefinitionEditor(); renderWorkbench(); renderNow();
+               } catch (_) { if (mountActive && run === runGeneration && workbenchStatus) workbenchStatus.textContent = '재현 불가 · 모델 버전 또는 보관 데이터가 일치하지 않습니다.'; }
+             });
+             const remove = documentRef.createElement('button');
+             remove.type = 'button'; remove.className = 'aio-btn-table'; remove.textContent = '보관 삭제';
+             remove.addEventListener('click', async () => {
+               try { await workbench.remove(entry.id); if (mountActive) refreshRunArchive(); }
+               catch (_) { if (mountActive && workbenchStatus) workbenchStatus.textContent = '로컬 보관 삭제 실패'; }
+             });
+             item.append(label, replay, remove); runHistory.appendChild(item);
+           }
+         } catch (_) {
+           if (!mountActive || generation !== archiveGeneration) return;
+           runHistory.dataset.archiveLoaded = 'unavailable';
+           runHistory.textContent = '이 브라우저에서는 실행 입력을 보관할 수 없습니다.';
+         }
+       };
+       const runDefinition = async (definition) => {
+         const generation = ++runGeneration;
          try {
            const saved = createSavedScreen({ definition });
            activeDefinition = saved.definition;
            activeScreenId = activeDefinition.screenId;
-           const result = root?.AIO_ARCH?.runScreenerDefinition?.(activeDefinition);
+           if (typeof workbench.run !== 'function') throw new Error('SCREEN_ENGINE_UNAVAILABLE');
+           const result = await workbench.run(activeDefinition);
+           if (generation !== runGeneration || !mountActive) return;
            if (result?.rows) {
              activeResult = result;
              activeRows = result.rows;
              selectedSymbols.clear();
              visibleLimit.value = 12;
-             if (workbenchStatus) workbenchStatus.textContent = `실행 완료 · snapshot ${result.run?.snapshotId || '미수신'} · ${result.run?.passed || 0} 통과 / ${result.run?.unavailable || 0} 데이터 부족`;
+             if (workbenchStatus) workbenchStatus.textContent = `실행 완료 · ${result.persistence?.status === 'persisted' ? '입력 로컬 보관됨' : '입력 보관 실패: 이 화면에서만 유지'} · ${result.run?.passed || 0} 통과 / ${result.run?.unavailable || 0} 데이터 부족`;
              syncDefinitionEditor();
              renderWorkbench();
              renderNow();
+             refreshRunArchive();
            }
          } catch (error) {
+           if (generation !== runGeneration || !mountActive) return;
            if (workbenchStatus) workbenchStatus.textContent = `실행할 수 없습니다 · 정의를 확인하세요.`;
            const detail = documentRef.getElementById('scr-definition-error-detail');
            if (detail) { detail.hidden = false; detail.textContent = error?.message || 'invalid_definition'; }
@@ -868,9 +980,13 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
        };
        const renderWorkbench = () => {
          const state = selectScreenerState(store.getState()) || {};
-         if (activeResult?.run?.snapshotId && state.snapshotId && activeResult.run.snapshotId !== state.snapshotId) {
-           activeResult = null;
-           activeRows = null;
+         if (workbenchStatus) {
+           workbenchStatus.dataset.runId = activeResult?.run?.runId || '';
+           workbenchStatus.dataset.resultHash = activeResult?.resultHash || '';
+           workbenchStatus.dataset.explanationsHash = activeResult?.explanationsHash || '';
+           workbenchStatus.dataset.snapshotId = activeResult?.run?.snapshotId || '';
+           workbenchStatus.dataset.rowCount = String(activeResult?.run?.rowCount || 0);
+           workbenchStatus.dataset.persistence = activeResult?.persistence?.status || '';
          }
          const screens = defaultScreens();
          if (workbenchPresets) {
@@ -906,7 +1022,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
            activeScreenId = activeDefinition.screenId;
          }
          syncDefinitionEditor();
-         renderBuilderConditions(documentRef, builderConditions);
+         renderBuilderConditions(documentRef, readBuilderConditions());
          renderFilterChips(documentRef);
          renderColumnChooser(documentRef, page, columnState.preset, columnState.custom, (columns) => {
            columnState.preset = 'custom';
@@ -915,9 +1031,9 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
          });
          const readiness = activeResult?.readiness || state.readiness;
          if (readinessPreview) readinessPreview.textContent = readiness ? `필드 준비 ${readiness.eligibleCount}/${readiness.rowCount} · ${readiness.coveragePct}% · 필수: ${(readiness.requiredFields || []).map((field) => field.split('.').pop()).join(' · ') || '없음'}` : '필드 준비도 미리보기 대기';
-         if (workbenchStatus && !activeResult) workbenchStatus.textContent = state.lastRun ? `마지막 실행 · ${state.lastRun.passed} 통과 · ${state.lastRun.status}` : '실행 전 미리보기';
-         if (runHistory) runHistory.textContent = state.lastRun ? `사용자 실행 ${state.runHistory?.length || 1}회 · 마지막 ${state.lastRun.status} · ${state.lastRun.passed}/${state.lastRun.eligibleCount}` : '사용자 실행 이력 없음';
-         if (outcomeLab) outcomeLab.textContent = state.outcomes?.length ? `Outcome · ${state.outcomes.length}개 관측 · T+1/T+5/T+21/T+63` : 'Outcome · 실행 후 관측 대기';
+         if (workbenchStatus && !activeResult) workbenchStatus.textContent = state.lastRun ? `현재 데이터 미리보기 · ${state.lastRun.passed} 통과 · 실행 버튼으로 입력 고정` : '실행 전 미리보기';
+         if (runHistory && !runHistory.dataset.archiveLoaded) refreshRunArchive();
+         if (outcomeLab) outcomeLab.textContent = state.outcomes?.length ? `Outcome · ${state.outcomes.length}개 관측 · T+1/T+5/T+21/T+63` : 'Outcome · 자동 추적 미연결 · 보관 입력 재현만 지원';
          if (operationsState) operationsState.textContent = state.refreshPlan ? `Operations · refresh ${state.refreshPlan.queued?.length || 0}건 · quota/circuit` : `Operations · 데이터 sync ${state.snapshotId ? String(state.snapshotId).slice(0, 18) : '미수신'} · 사용자 실행과 분리`;
        };
        const renderCompareTray = () => {
@@ -927,24 +1043,48 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
          const list = documentRef.getElementById('scr-compare-list');
          if (list) {
            list.replaceChildren();
-           [...compareSymbols].forEach((symbol) => {
-             const chip = documentRef.createElement('span');
-             chip.className = 'scr-compare-chip';
-             chip.textContent = symbol;
-             list.appendChild(chip);
-           });
+           if (compareSymbols.size) {
+             const rows = activeRows || selectScreenerState(store.getState())?.rows || [];
+             const compared = [...compareSymbols].map((symbol) => rows.find((row) => (row.sym || row.symbol) === symbol) || { sym: symbol, screenStatus: 'unavailable' });
+             const table = documentRef.createElement('table');
+             table.setAttribute('aria-label', '선택 종목 비교');
+             table.style.cssText = 'width:100%;border-collapse:collapse;font-size:12px;text-align:right;';
+             const heading = documentRef.createElement('tr');
+             const label = documentRef.createElement('th');
+             label.scope = 'col'; label.textContent = '동일 기준 비교'; heading.append(label);
+             for (const row of compared) {
+               const th = documentRef.createElement('th');
+               th.scope = 'col';
+               const button = documentRef.createElement('button');
+               button.type = 'button'; button.className = 'aio-btn-table'; button.textContent = row.sym;
+               button.setAttribute('aria-label', `${row.sym} 종목 상세`);
+               button.addEventListener('click', () => tickerHandler(row.sym));
+               th.append(button); heading.append(th);
+             }
+             const head = documentRef.createElement('thead'); head.append(heading); table.append(head);
+             const body = documentRef.createElement('tbody');
+             for (const key of ['rank', 'price', 'ret1m', 'ret3m', 'rsi', 'vcpScore', 'value', 'quality']) {
+               const tr = documentRef.createElement('tr');
+               const th = documentRef.createElement('th');
+               th.scope = 'row'; th.textContent = SCREENER_COLUMN_REGISTRY.find((column) => column.key === key).label;
+               tr.append(th);
+               for (const row of compared) tr.append(cell(documentRef, createColumnContent(documentRef, row, key, { readLiveData: liveReader })));
+               body.append(tr);
+             }
+             table.append(body); list.append(table);
+           }
          }
          const count = documentRef.getElementById('scr-compare-count');
          if (count) count.textContent = String(compareSymbols.size);
        };
        const saveCurrentScreen = () => {
-         if (!activeDefinition || typeof root?.AIO_ARCH?.setScreenerSavedScreens !== 'function') return;
+         if (!activeDefinition || typeof workbench.setSavedScreens !== 'function') return;
          const state = selectScreenerState(store.getState()) || {};
          const saved = createSavedScreen({ definition: activeDefinition });
          const current = Array.isArray(state.savedScreens) ? state.savedScreens : defaultScreens();
          const next = [...current.filter((screen) => screen.definition?.screenId !== saved.definition.screenId), saved];
-         root.AIO_ARCH.setScreenerSavedScreens(next);
-         if (workbenchStatus) workbenchStatus.textContent = `저장 완료 · ${saved.label}`;
+         workbench.setSavedScreens(next);
+         if (workbenchStatus) workbenchStatus.textContent = `이번 세션에 조건 저장 · ${saved.label} · 영구 보관은 실행 입력 보관 또는 JSON 내보내기`;
        };
        const readVisualCondition = () => {
          const field = documentRef.getElementById('scr-builder-field');
@@ -956,16 +1096,18 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
        };
        const buildVisualDefinition = () => {
          if (!activeDefinition) return null;
-         const nodes = builderConditions.flatMap((condition) => {
+         const nodes = readBuilderConditions().flatMap((condition) => {
            const numeric = Number(condition.value);
            if (condition.field === 'rank' && Number.isFinite(numeric)) return [{ type: 'range', field: 'rank', min: numeric, nullPolicy: 'unknown' }];
            if (condition.field === 'rsi' && Number.isFinite(numeric)) return [{ type: 'range', field: 'price.rsi14', min: numeric, nullPolicy: 'unknown' }];
            if (condition.field === 'momentum' && Number.isFinite(numeric)) return [{ type: 'range', field: 'price.ret3m', min: numeric, nullPolicy: 'unknown' }];
            return [];
          });
-         if (!nodes.length) return activeDefinition;
          const current = activeDefinition.filtersAST?.type === 'and' ? activeDefinition.filtersAST.children || [] : [activeDefinition.filtersAST];
-         return { ...activeDefinition, filtersAST: { type: 'and', children: [...current, ...nodes] } };
+         return createScreenDefinition({ ...activeDefinition, filtersAST: { type: 'and', children: [
+           ...current.filter(node => node?.origin !== 'visual-builder'),
+           ...nodes.map(node => ({ ...node, origin: 'visual-builder' }))
+         ] } });
        };
        const setProfileButtons = () => {
         const active = profileReader();
@@ -975,15 +1117,13 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
         const description = documentRef.getElementById('scr-profile-desc');
         if (description) description.textContent = PROFILE_DESCRIPTIONS[active] || PROFILE_DESCRIPTIONS.balanced;
       };
-      const rerender = () => { setProfileButtons(); renderNow(); };
-       const tickerHandler = (symbol) => {
-         const positionSymbol = documentRef.getElementById('ps-sym');
-         if (positionSymbol) positionSymbol.textContent = symbol;
-         persistReturnContext(symbol);
+       const rerender = () => { setProfileButtons(); renderNow(); };
+        const tickerHandler = (symbol) => {
+          returnView = { symbol, scrollTop: documentRef.querySelector('.content')?.scrollTop || 0 };
          return (onTicker || ((value) => root?.showTicker?.(value)))?.(symbol);
        };
        renderNow = () => {
-         renderBuilderConditions(documentRef, builderConditions);
+         renderBuilderConditions(documentRef, readBuilderConditions());
          render({ documentRef, store, readLiveData: liveReader, readWatchlist: watchlistReader, readAliases: aliasReader, sortState, visibleLimit, onExplain: explainRow, onCompare: (row) => {
            const symbol = row?.sym || row?.symbol;
            if (!symbol) return;
@@ -993,6 +1133,22 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
            renderNow();
          }, onVisibleSymbols: requestVisibleQuotes, selectedSymbols, compareSymbols, columnPreset: columnState.preset, customColumns: columnState.custom, onWatchlistToggle: (symbol) => { (onWatchlistToggle || root?._aioWLToggle)?.(symbol); rerender(); }, rowsOverride: activeRows, workbenchResult: activeResult });
          renderCompareTray();
+       };
+       const selectDefinition = (screenId) => {
+         const screen = defaultScreens().find(item => item.definition.screenId === screenId);
+         if (!screen) return;
+         ++runGeneration;
+         activeDefinition = screen.definition;
+         activeScreenId = screen.definition.screenId;
+         activeResult = null;
+         activeRows = null;
+         Object.keys(FILTER_LABELS).forEach(id => {
+           const control = documentRef.getElementById(id);
+           if (control?.type === 'checkbox') control.checked = false;
+           else if (control) control.value = id === 'scr-min-rank' ? '0' : '';
+         });
+         visibleLimit.value = 12;
+         syncDefinitionEditor(); renderWorkbench(); renderNow();
        };
        const handleClick = (event) => {
          const actionNode = event.target.closest?.('[data-aio-screener-action]');
@@ -1010,13 +1166,10 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
         }
          const action = actionNode.dataset.aioScreenerAction;
          const argument = actionNode.dataset.aioScreenerArg;
-         if (action === 'screen-preset') {
-           const screen = defaultScreens().find((item) => item.definition.screenId === argument);
-           if (screen) { activeDefinition = screen.definition; activeScreenId = screen.definition.screenId; syncDefinitionEditor(); renderWorkbench(); }
-         } else if (action === 'screen-select') {
-           const screen = defaultScreens().find((item) => item.definition.screenId === argument);
-           if (screen) { activeDefinition = screen.definition; activeScreenId = screen.definition.screenId; activeResult = null; activeRows = null; syncDefinitionEditor(); if (workbenchStatus) workbenchStatus.textContent = '화면을 불러왔습니다 · 실행 버튼으로 결과 snapshot을 고정하세요.'; renderNow(); }
+         if (action === 'screen-preset' || action === 'screen-select') {
+           selectDefinition(argument);
          } else if (action === 'screen-new') {
+           ++runGeneration;
            activeDefinition = defaultScreens()[0]?.definition || null;
            activeScreenId = null;
            activeResult = null;
@@ -1031,7 +1184,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
              const visualDefinition = buildVisualDefinition();
              if (!visualDefinition) throw new Error('SCREEN_DRAFT_EMPTY');
              runDefinition(visualDefinition);
-             if (workbenchStatus && builderConditions.some((condition) => ['query', 'setup', 'sector', 'signal'].includes(condition.field))) workbenchStatus.textContent += ' · 검색/근거 조건은 결과 표 필터에도 적용됨';
+             if (workbenchStatus && readBuilderConditions().some((condition) => ['query', 'setup', 'sector', 'signal'].includes(condition.field))) workbenchStatus.textContent += ' · 검색/구조/섹터는 현재 표 필터이며 저장 실행 조건에는 포함되지 않음';
            } catch (error) {
              if (workbenchStatus) workbenchStatus.textContent = '실행할 수 없습니다 · 조건을 확인하세요.';
              const detail = documentRef.getElementById('scr-definition-error-detail');
@@ -1051,6 +1204,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
            try {
              const parsed = JSON.parse(definitionEditor?.value || '');
              const saved = parsed.definition ? importSavedScreen(JSON.stringify(parsed)) : createSavedScreen({ definition: parsed });
+             ++runGeneration;
              activeDefinition = saved.definition;
              activeScreenId = activeDefinition.screenId;
              activeResult = null;
@@ -1108,10 +1262,12 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
            }
            const target = documentRef.getElementById(condition.target);
            if (target) target.value = condition.value;
-           builderConditions.push(condition);
            renderNow();
          } else if (action === 'remove-builder-condition') {
-           builderConditions.splice(Number(argument), 1);
+           const condition = readBuilderConditions()[Number(argument)];
+           const target = condition && documentRef.getElementById(condition.target);
+           if (target) target.value = condition.field === 'rank' ? '0' : '';
+           visibleLimit.value = 12;
            renderNow();
          } else if (action === 'clear-filter') {
            const target = documentRef.getElementById(argument);
@@ -1122,7 +1278,6 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
            ['scr-market', 'scr-sector', 'scr-signal', 'scr-cap', 'scr-text-search', 'scr-setup', 'scr-rsi-min', 'scr-rsi-max', 'scr-min-mom'].forEach((id) => { const field = documentRef.getElementById(id); if (field) field.value = ''; });
            const rank = documentRef.getElementById('scr-min-rank'); if (rank) rank.value = '0';
            const watchlist = documentRef.getElementById('scr-watchlist-only'); if (watchlist) watchlist.checked = false;
-           builderConditions.splice(0);
            visibleLimit.value = 12;
            renderNow();
          } else if (action === 'reset-filters') {
@@ -1146,14 +1301,12 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
          } else if (action === 'focus-mode') {
            documentRef.body.classList.toggle('aio-screener-focus');
            actionNode.setAttribute('aria-pressed', documentRef.body.classList.contains('aio-screener-focus') ? 'true' : 'false');
-         } else if (action === 'calc-position') calculatePosition(documentRef, liveReader);
-         else if (action === 'hide-position') documentRef.getElementById('scr-position-sizer')?.classList.remove('active');
+          }
        };
        const handleInput = (event) => {
          if (!event.target.closest?.('#page-screener')) return;
          if (event.target.matches?.('#scr-screen-select')) {
-           activeScreenId = event.target.value;
-           [...page.querySelectorAll('[data-aio-screener-action="screen-select"]')].find((node) => node.dataset.aioScreenerArg === activeScreenId)?.click();
+           selectDefinition(event.target.value);
          } else if (event.target.matches?.('#scr-column-preset')) {
            columnState.preset = event.target.value || 'discovery';
            columnState.custom = [];
@@ -1162,9 +1315,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
            event.stopPropagation();
            visibleLimit.value = 12;
            renderNow();
-        } else if (event.target.matches?.('#ps-capital, #ps-risk, #ps-stop')) {
-          calculatePosition(documentRef, liveReader);
-        }
+         }
       };
       const fillSelect = (id, key, label) => {
         const select = documentRef.getElementById(id);
@@ -1201,6 +1352,22 @@ export function createScreenerPage({ documentRef, store, root = globalThis, onPr
       });
       mounted = true;
       renderWithControls();
+      renderCompareTray();
+      if (returnView) {
+        const view = returnView;
+        returnView = null;
+        const restore = () => {
+          if (!mounted) return;
+          const row = [...page.querySelectorAll('[data-aio-screener-ticker]')].find((node) => node.dataset.aioScreenerTicker === view.symbol);
+          row?.focus?.({ preventScroll: true });
+          const content = documentRef.querySelector('.content');
+          if (content) content.scrollTop = view.scrollTop;
+        };
+        if (root?.requestAnimationFrame) {
+          const frame = root.requestAnimationFrame(restore);
+          bag.add(() => root.cancelAnimationFrame?.(frame));
+        } else restore();
+      }
       return () => {
         if (!mounted) return;
         mounted = false;

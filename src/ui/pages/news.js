@@ -1,4 +1,5 @@
 import { createResourceBag } from '../../app/lifecycle.js';
+import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { selectNewsItems, selectNewsStatus } from '../../state/selectors/news.js';
 
 function text(documentRef, value, fallback = '—') {
@@ -296,6 +297,14 @@ export function createNewsPage({ root = globalThis, documentRef, store, route = 
       const bag = createResourceBag();
       const renderNow = () => render({ documentRef, root, store, route });
       const page = documentRef?.getElementById(`page-${route}`);
+      const suppliedMaterialBridge = page ? createSuppliedMaterialBridge(documentRef, {
+        routeId: route,
+        heading: route === 'briefing' ? '브리핑 · 시장 확인·거시 시차·이벤트 창' : '시장 뉴스 · 이벤트와 가격 반응 창'
+      }) : null;
+      if (suppliedMaterialBridge) {
+        page.appendChild(suppliedMaterialBridge);
+        bag.add(() => suppliedMaterialBridge.remove());
+      }
       renderNow();
       const unsubscribe = store?.subscribe?.(renderNow);
       if (unsubscribe) bag.add(unsubscribe);

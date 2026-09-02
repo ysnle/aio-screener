@@ -1,4 +1,5 @@
-const EDGE_TYPES = new Set(['CAUSES', 'REQUIRES', 'ENABLES', 'CONSTRAINS', 'FUNDS', 'PRICES', 'MEASURES', 'EVIDENCES', 'EXPOSES_TO']);
+export const EDGE_TYPES = Object.freeze(['CAUSES', 'REQUIRES', 'ENABLES', 'CONSTRAINS', 'FUNDS', 'PRICES', 'MEASURES', 'EVIDENCES', 'EXPOSES_TO', 'RELATES_TO']);
+const EDGE_TYPE_SET = new Set(EDGE_TYPES);
 const DIRECTIONS = new Set(['DIRECTED', 'BIDIRECTIONAL']);
 
 function slug(value) {
@@ -24,22 +25,32 @@ function edgeKey(from, to) {
 export function normalizeKnowledgeEdge(edge, defaults = {}) {
   const from = String(edge?.from || '').trim();
   const to = String(edge?.to || '').trim();
-  const relation = String(edge?.relation || '').trim();
   const explicit = defaults.edgeSemantics?.[edgeKey(from, to)] || null;
   const input = explicit ? { ...edge, ...explicit } : edge;
+  const relation = String(input?.relation || '').trim();
   const inferredFields = [];
   const choose = (field, fallback) => {
     if (input?.[field] != null && input[field] !== '') return input[field];
     inferredFields.push(field);
     return fallback;
   };
-  const type = EDGE_TYPES.has(input?.type) ? input.type : choose('type', inferEdgeType(relation));
-  const direction = DIRECTIONS.has(input?.direction) ? input.direction : choose('direction', 'DIRECTED');
+  const chooseEnum = (field, allowed, fallback) => {
+    if (allowed.has(input?.[field])) return input[field];
+    inferredFields.push(field);
+    return fallback;
+  };
+  const chooseArray = (field, fallback = []) => {
+    if (Array.isArray(input?.[field])) return input[field];
+    inferredFields.push(field);
+    return Array.isArray(fallback) ? fallback : [];
+  };
+  const type = chooseEnum('type', EDGE_TYPE_SET, inferEdgeType(relation));
+  const direction = chooseEnum('direction', DIRECTIONS, 'DIRECTED');
   const kind = choose('kind', defaults.kind || 'STRUCTURAL');
   const strength = choose('strength', defaults.strength || 'CORE');
   const polarity = choose('polarity', defaults.polarity || 'CONDITIONAL');
-  const conditions = Array.isArray(input?.conditions) ? input.conditions : choose('conditions', defaults.conditions || []);
-  const sourceIds = Array.isArray(input?.sourceIds) ? input.sourceIds : choose('sourceIds', defaults.sourceIds || []);
+  const conditions = chooseArray('conditions', defaults.conditions);
+  const sourceIds = chooseArray('sourceIds', defaults.sourceIds);
   const reviewedAt = input?.reviewedAt || choose('reviewedAt', defaults.reviewedAt || null);
   return Object.freeze({
     id: input?.id || `edge-${slug(from)}-${slug(to)}`,
@@ -51,8 +62,8 @@ export function normalizeKnowledgeEdge(edge, defaults = {}) {
     kind,
     strength,
     polarity,
-    conditions: Object.freeze([...conditions]),
-    sourceIds: Object.freeze([...sourceIds]),
+    conditions: Object.freeze(conditions.map((value) => String(value || '').trim()).filter(Boolean)),
+    sourceIds: Object.freeze(sourceIds.map((value) => String(value || '').trim()).filter(Boolean)),
     reviewedAt,
     reviewStatus: input?.reviewStatus || defaults.reviewStatus || null,
     sourceStatus: input?.sourceStatus || defaults.sourceStatus || null,
@@ -62,10 +73,12 @@ export function normalizeKnowledgeEdge(edge, defaults = {}) {
 }
 
 export function normalizeKnowledgeEdges(edges, defaults = {}) {
-  return Object.freeze((edges || []).map((edge) => normalizeKnowledgeEdge(edge, defaults)));
+  if (!Array.isArray(edges)) throw new Error('KNOWLEDGE_EDGES_INVALID');
+  return Object.freeze(edges.map((edge) => normalizeKnowledgeEdge(edge, defaults)));
 }
 
 export function inspectKnowledgeGraph({ nodeIds = [], edges = [] } = {}) {
+  if (!Array.isArray(nodeIds) || !Array.isArray(edges)) throw new Error('KNOWLEDGE_GRAPH_INPUT_INVALID');
   const ids = new Set(nodeIds);
   const invalidEndpoints = [];
   const duplicateEdges = [];
@@ -123,15 +136,13 @@ export function inspectKnowledgeGraph({ nodeIds = [], edges = [] } = {}) {
   return Object.freeze({
     nodeCount: ids.size,
     edgeCount: edges.length,
-    invalidEndpoints: Object.freeze(invalidEndpoints),
+    invalidEndpoints: Object.freeze(invalidEndpoints.map((row) => Object.freeze(row))),
     duplicateEdges: Object.freeze(duplicateEdges),
     metadataErrors: Object.freeze(metadataErrors),
-    inferredEdges: Object.freeze(inferredEdges),
+    inferredEdges: Object.freeze(inferredEdges.map((row) => Object.freeze({ ...row, fields: Object.freeze([...row.fields]) }))),
     components: Object.freeze(components.map((component) => Object.freeze(component))),
     isolatedNodes: Object.freeze([...ids].filter((id) => (adjacency.get(id)?.size || 0) === 0).sort()),
     sourceNodes: Object.freeze([...ids].filter((id) => inDegree.get(id) === 0).sort()),
     sinkNodes: Object.freeze([...ids].filter((id) => outDegree.get(id) === 0).sort())
   });
 }
-
-export { EDGE_TYPES };

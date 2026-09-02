@@ -5,7 +5,7 @@ function finite(value) {
 export function normalizeMarket(raw = {}) {
   const quotes = {};
   Object.entries(raw.quotes || {}).forEach(([symbol, quote]) => {
-    quotes[symbol] = {
+    quotes[symbol] = Object.freeze({
       value: finite(quote?.value),
       pct: finite(quote?.pct),
       observedAt: quote?.observedAt || null,
@@ -15,7 +15,7 @@ export function normalizeMarket(raw = {}) {
       revision: quote?.revision || null,
       changeBasis: quote?.changeBasis || 'unknown',
       directionCompatible: quote?.directionCompatible === true
-    };
+    });
   });
   const metrics = {};
   Object.entries(raw.metrics || {}).forEach(([key, value]) => { metrics[key] = finite(value); });

@@ -625,21 +625,20 @@
     if (typeof _PROXY_REGISTRY !== 'undefined' && Array.isArray(_PROXY_REGISTRY.list)) {
       var originalProxyList1041 = _PROXY_REGISTRY.list;
       var testProxy1041 = { id: '__aio_sa01__', tier: 9, fails: 0, okCount: 0, failCount: 0, lastOk: 0, lastFail: 0, disabled: false };
-      var originalSetTimeout1041 = window.setTimeout;
-      var scheduled1041 = 0;
       _PROXY_REGISTRY.list = originalProxyList1041.concat([testProxy1041]);
       try {
-        window.setTimeout = function() { scheduled1041++; return 0; };
         _PROXY_REGISTRY.markFail(testProxy1041.id, 'fixture');
         _PROXY_REGISTRY.markFail(testProxy1041.id, 'fixture');
         _PROXY_REGISTRY.markFail(testProxy1041.id, 'fixture');
         var failedScore1041 = _PROXY_REGISTRY.getScore(testProxy1041);
         _assert('T1041 proxy_registry_three_failures_open', testProxy1041.disabled === true && testProxy1041.fails === 3);
+        var closed1041 = testProxy1041.retryAt > Date.now() && _PROXY_REGISTRY.claim(testProxy1041) === false;
+        testProxy1041.retryAt = Date.now() - 1;
+        var oneProbe1041 = _PROXY_REGISTRY.claim(testProxy1041) === true && _PROXY_REGISTRY.claim(testProxy1041) === false;
+        _assert('T1041 proxy_registry_cooldown_single_probe', closed1041 && oneProbe1041);
         _PROXY_REGISTRY.markOk(testProxy1041.id);
         _assert('T1041 proxy_registry_success_restores_health', testProxy1041.disabled === false && testProxy1041.fails === 0 && _PROXY_REGISTRY.getScore(testProxy1041) > failedScore1041);
-        _assert('T1041 proxy_registry_cooldown_is_scheduled', scheduled1041 === 1);
       } finally {
-        window.setTimeout = originalSetTimeout1041;
         _PROXY_REGISTRY.list = originalProxyList1041;
       }
       var chartSource1041 = typeof window._fetchYahooChartData === 'function' ? window._fetchYahooChartData.toString() : '';
@@ -647,7 +646,7 @@
     } else {
       _assert('T1041 proxy_registry_three_failures_open (skip)', true);
       _assert('T1041 proxy_registry_success_restores_health (skip)', true);
-      _assert('T1041 proxy_registry_cooldown_is_scheduled (skip)', true);
+      _assert('T1041 proxy_registry_cooldown_single_probe (skip)', true);
       _assert('T1041 yahoo_chart_uses_registry_health_path (skip)', true);
     }
 
@@ -861,16 +860,16 @@
       _assert('T99 timer_registry: _aioTimerRegistry 미존재 (skip)', true);
     }
 
-    // T100: vixToPercentile 단조 증가 확인 (60이상 구간도 증가)
+    // T100: empirical CDF is non-decreasing; insufficient history stays null.
     if (typeof window.vixToPercentile === 'function' || typeof vixToPercentile !== 'undefined') {
       var _vtp = (typeof window.vixToPercentile === 'function') ? window.vixToPercentile : vixToPercentile;
       // 기존 구간 단조 증가
       var _v10 = _vtp(10), _v20 = _vtp(20), _v40 = _vtp(40), _v80 = _vtp(80);
-      _assert('T100 vix_mono: 10<20<40<80', _v10 < _v20 && _v20 < _v40 && _v40 <= _v80, '10=' + _v10 + ',20=' + _v20 + ',40=' + _v40 + ',80=' + _v80);
-      // v49.1: 80초과 단조 증가 (로그 외삽)
+      var _vMissing = [_v10,_v20,_v40,_v80].every(function(v) { return v === null; });
+      _assert('T100 vix_mono: empirical rank or explicitly missing', _vMissing || ([_v10,_v20,_v40,_v80].every(function(v) { return Number.isFinite(v); }) && _v10 <= _v20 && _v20 <= _v40 && _v40 <= _v80), '10=' + _v10 + ',20=' + _v20 + ',40=' + _v40 + ',80=' + _v80);
       var _v90 = _vtp(90), _v100 = _vtp(100);
-      _assert('T100 vix_mono_80plus: 80≤90≤100', _v80 <= _v90 && _v90 <= _v100, '80=' + _v80 + ',90=' + _v90 + ',100=' + _v100);
-      _assert('T100 vix_mono_80plus: 100이하', _v100 <= 100, 'v100pct=' + _v100);
+      _assert('T100 vix_mono_80plus: no invented tail', _vMissing ? _v90 === null && _v100 === null : _v80 <= _v90 && _v90 <= _v100, '80=' + _v80 + ',90=' + _v90 + ',100=' + _v100);
+      _assert('T100 vix_mono_80plus: bounded rank', _v100 === null || (_v100 >= 0 && _v100 <= 100), 'v100pct=' + _v100);
     } else {
       _assert('T100 vix_mono: vixToPercentile 미존재 (skip)', true);
     }
@@ -1181,9 +1180,12 @@
       var inlineHandlers = Array.prototype.slice.call(document.querySelectorAll('[onclick]'));
       var tickerBack = document.getElementById('ticker-back-btn-main');
       var tickerCrumb = document.getElementById('ticker-breadcrumb-main');
-      var tickerNavOk = [tickerBack, tickerCrumb].every(function(el) {
-        return !el || (!el.getAttribute('onclick') && el.getAttribute('data-action') === 'showPage' && !!el.getAttribute('data-arg'));
-      });
+      // Breadcrumb content/actions are hydrated asynchronously by the native route.
+      // This synchronous test owns the no-inline-handler invariant; the desktop
+      // continuity/browser gates own origin, route readiness and return behavior.
+      var tickerNavOk = !!tickerBack && !tickerBack.getAttribute('onclick')
+        && tickerBack.getAttribute('data-action') === 'showPage' && !!tickerBack.getAttribute('data-arg')
+        && (!tickerCrumb || !tickerCrumb.getAttribute('onclick'));
       eventDelegationOk = inlineHandlers.length === 0 && tickerNavOk;
       eventDelegationDetail = 'inlineHandlers=' + inlineHandlers.length + ', tickerNavOk=' + tickerNavOk;
     } catch(e) {
@@ -1301,8 +1303,9 @@
         { ctx:'technical', q:'NVDA 지금 매수해도 돼?', a:'추격매수보다 10EMA와 거래량 확인이 우선입니다.', ts:Date.now() - 60000 }
       ]));
     } catch(_) {}
-    var mem = typeof window._buildChatMemoryContext === 'function' ? window._buildChatMemoryContext('technical', 'NVDA 매수 판단 다시 봐줘') : '';
-    _assert('T160 chat_memory: recent overlapping answer is injected to reduce repetition', /이전 대화/.test(mem) && /NVDA/.test(mem), mem);
+    var mem = typeof window._buildChatMemoryContext === 'function' ? window._buildChatMemoryContext('technical', 'NVDA 지금 매수해도 돼?') : '';
+    var unrelatedMem = typeof window._buildChatMemoryContext === 'function' ? window._buildChatMemoryContext('technical', '유럽 인플레이션 설명') : 'missing';
+    _assert('T160 chat_memory: relevant overlap is included and unrelated recency is excluded', /이전 대화/.test(mem) && /NVDA/.test(mem) && unrelatedMem === '', mem);
     try {
       if (before == null) localStorage.removeItem('aio_chat_history');
       else localStorage.setItem('aio_chat_history', before);
@@ -5687,7 +5690,7 @@
         /RSI\(14\)/.test(fnSrc) && /Stage/.test(fnSrc) && /이동평균/.test(fnSrc);
       // chatSend 배선: v50.38 트랙3 — 티커 감지 시 전 컨텍스트에서 technicalDataStr 주입(기존 technical/signal/ticker 3종 한정 해제)
       var csSrc = (typeof chatSend === 'function') ? String(chatSend) : (typeof window.chatSend === 'function' ? String(window.chatSend) : '');
-      var wiredOk = /_fetchTechnicalDataForChat\(detectedTickers\)/.test(csSrc) && /technicalDataStr/.test(csSrc) &&
+      var wiredOk = /_fetchTechnicalDataForChat\(detectedTickers,\s*\{[^}]*signal:\s*_chatSignal/.test(csSrc) && /technicalDataStr/.test(csSrc) &&
         /systemPrompt \+= technicalDataStr/.test(csSrc);
       t775ok = fnDef && engineOk && reuseOk && wiredOk;
       t775detail = 'fnDef=' + fnDef + ' engine=' + engineOk + ' reuse(snapshot+ohlcv+RSI+Stage)=' + reuseOk + ' wired(detectedTickers>0 전컨텍스트)=' + wiredOk;
@@ -6236,11 +6239,11 @@
     try {
       var csSrc813 = typeof window.chatSend === 'function' ? window.chatSend.toString() : '';
       // 확장 후: 'if (detectedTickers.length > 0) { ... _fetchTechnicalDataForChat' (ctxId 3종 한정 제거)
-      var hasTechCall = csSrc813.indexOf('_fetchTechnicalDataForChat(detectedTickers)') >= 0;
+      var hasTechCall = /_fetchTechnicalDataForChat\(detectedTickers,\s*\{[^}]*signal:\s*_chatSignal/.test(csSrc813);
       var oldGateGone = !/ctxId === 'technical' \|\| ctxId === 'signal' \|\| ctxId === 'ticker'\)\s*\{\s*\n?\s*try \{ technicalDataStr/.test(csSrc813);
       // 확장 마커 코멘트 존재
       var expandMarker = csSrc813.indexOf('기술 데이터 컨텍스트 확장') >= 0;
-      t813ok = hasTechCall && expandMarker;
+      t813ok = hasTechCall && oldGateGone;
       t813detail = 'techCall=' + hasTechCall + ' expandMarker=' + expandMarker + ' oldGateGone=' + oldGateGone;
     } catch(e) { t813detail = 'ERR:' + e.message; }
     _assert('T813 v5038_technical_context_expanded: 티커 감지 시 전 컨텍스트 기술 분석 동반(3종 한정 해제)', t813ok, t813detail);
@@ -7489,31 +7492,31 @@
       }
     } catch (e874) { _assert('T874 carry_unwind_holds_without_live_inputs_v5298 (P712)', false, 'threw: ' + (e874 && e874.message)); }
 
-    // T875 (EF-10): ticker Key Metrics/Quarterly 슬롯이 검색 후 na 상태(정직한 상태)로 렌더되는지
+    // T875 (EF-10/P1010): 미연결 재무 슬롯 대신 동일 종목의 SEC 보고서로 연결
     try {
-      if (typeof window.showTicker === 'function' && document.getElementById('ticker-m-mcap')) {
+      if (typeof window.showTicker === 'function' && document.getElementById('ticker-fundamental-link')) {
         window.showTicker('NVDA');
         var gapIds875 = ['ticker-m-mcap','ticker-m-pe','ticker-m-pb','ticker-m-roe','ticker-m-div','ticker-f-rev','ticker-f-gp','ticker-f-op','ticker-f-ni'];
-        var states875 = gapIds875.map(function(id) { var el = document.getElementById(id); return el ? el.getAttribute('data-value-state') : null; });
-        var allNa875 = states875.every(function(s) { return s === 'na'; });
-        _assert('T875 ticker_data_gap_honest_state_v5241 (EF-10): 9개 미배선 슬롯(Key Metrics 5 + Quarterly 4) 전부 data-value-state="na"로 렌더(무한 "—" 금지)',
-          allNa875, 'states=' + states875.join(','));
+        var allRetired875 = gapIds875.every(function(id) { return !document.getElementById(id); });
+        var link875 = document.getElementById('ticker-fundamental-link');
+        _assert('T875 ticker_data_gap_honest_state_v5241 (EF-10): 미배선 슬롯 퇴역·SEC 공통 보고서 연결',
+          allRetired875 && link875.getAttribute('data-action') === 'showPage' && link875.getAttribute('data-arg') === 'fundamental', 'retired=' + allRetired875);
       } else {
-        _assert('T875 ticker_data_gap_honest_state_v5241 (EF-10)', false, 'showTicker or #ticker-m-mcap missing');
+        _assert('T875 ticker_data_gap_honest_state_v5241 (EF-10)', false, 'showTicker or #ticker-fundamental-link missing');
       }
     } catch (e875) { _assert('T875 ticker_data_gap_honest_state_v5241 (EF-10)', false, 'threw: ' + (e875 && e875.message)); }
 
-    // T876 (EF-11): rm-vixstr/rm-rspratio — 라이브 입력 결측 시 정직한 pending 상태(무한 정적 텍스트 금지)
+    // T876 (EF-11/P1010): RSP/SPY 결측 상태 + 잘못된 VXX 선물구조 표면 퇴역
     try {
-      if (typeof updateRiskMonitor === 'function' && document.getElementById('rm-vixstr-status') && document.getElementById('rm-rspratio-status')) {
+      if (typeof updateRiskMonitor === 'function' && document.getElementById('rm-rspratio-status')) {
         var savedLive876 = window._liveData;
         window._liveData = {}; // VXX/VIX/RSP/SPY 전부 결측 시뮬레이션
         updateRiskMonitor();
-        var vixstrState876 = document.getElementById('rm-vixstr-status').getAttribute('data-value-state');
+        var retiredVix876 = !document.getElementById('rm-vixstr-status');
         var rspState876 = document.getElementById('rm-rspratio-status').getAttribute('data-value-state');
         window._liveData = savedLive876;
-        _assert('T876 risk_monitor_pending_state_v5241 (EF-11): VXX/VIX 또는 RSP/SPY 라이브 결측 시 rm-vixstr/rm-rspratio가 data-value-state="pending"으로 렌더',
-          vixstrState876 === 'pending' && rspState876 === 'pending', 'vixstr=' + vixstrState876 + ' rsp=' + rspState876);
+        _assert('T876 risk_monitor_pending_state_v5241 (EF-11): VXX 추정 퇴역·RSP/SPY 미수신 pending',
+          retiredVix876 && rspState876 === 'pending', 'retiredVix=' + retiredVix876 + ' rsp=' + rspState876);
       } else {
         _assert('T876 risk_monitor_pending_state_v5241 (EF-11)', false, 'updateRiskMonitor or elements missing');
       }

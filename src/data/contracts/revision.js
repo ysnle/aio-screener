@@ -17,6 +17,7 @@ export function validateRevisionManifest(manifest) {
   for (const field of REVISION_FIELDS) {
     if (!manifest?.[field] || manifest[field] === 'unknown') errors.push(`${field}_missing`);
   }
-  if (manifest?.generatedAt && Number.isNaN(Date.parse(manifest.generatedAt))) errors.push('generatedAt_invalid');
+  if (!manifest?.generatedAt) errors.push('generatedAt_missing');
+  else if (Number.isNaN(Date.parse(manifest.generatedAt))) errors.push('generatedAt_invalid');
   return Object.freeze({ ok: errors.length === 0, errors });
 }

@@ -48,7 +48,14 @@ export function importSavedScreen(serialized) {
   if (typeof serialized !== 'string' || serialized.length > 200_000) throw new Error('SAVED_SCREEN_PAYLOAD_INVALID');
   let parsed;
   try { parsed = JSON.parse(serialized); } catch (_) { throw new Error('SAVED_SCREEN_JSON_INVALID'); }
-  return createSavedScreen(migrateSavedScreen(parsed, Number(parsed.schemaVersion || 1)));
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('SAVED_SCREEN_SHAPE_INVALID');
+  const version = parsed.schemaVersion ?? 1;
+  if (![1, SAVED_SCREEN_SCHEMA_VERSION].includes(version)) throw new Error('SAVED_SCREEN_VERSION_UNSUPPORTED');
+  if (parsed.definition?.schemaVersion === SCREENER_CONTRACT_VERSION) {
+    const validation = validateScreenDefinition(parsed.definition);
+    if (!validation.ok) throw new Error(`SAVED_SCREEN_INVALID:${validation.errors.join(',')}`);
+  }
+  return createSavedScreen(migrateSavedScreen(parsed, version));
 }
 
 function base64UrlEncode(text) {
@@ -64,6 +71,7 @@ function base64UrlDecode(text) {
 export function encodeScreenSharePayload(screen) { return `scr1.${base64UrlEncode(exportSavedScreen(screen))}`; }
 export function decodeScreenSharePayload(payload) {
   const value = String(payload || '');
+  if (value.length > 267_000) throw new Error('SCREEN_SHARE_PAYLOAD_TOO_LARGE');
   if (!value.startsWith('scr1.')) throw new Error('SCREEN_SHARE_VERSION_UNSUPPORTED');
   return importSavedScreen(base64UrlDecode(value.slice(5)));
 }
@@ -71,4 +79,3 @@ export function decodeScreenSharePayload(payload) {
 export function findSavedScreen(screens, screenId) {
   return (Array.isArray(screens) ? screens : []).find((screen) => screen.definition?.screenId === screenId || screen.savedId === screenId) || null;
 }
-

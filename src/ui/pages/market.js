@@ -1,7 +1,10 @@
 import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
-import { deriveMacroTransmissionEvidence } from '../../domain/macro/transmission.js';
+import { deriveMacroTransmissionEvidence, MACRO_FUNDING_LIQUIDITY_REFERENCE, MACRO_LAGGED_SUPPLY_DEMAND_REFERENCE } from '../../domain/macro/transmission.js';
+import { MARKET_CONFIRMATION_REFERENCE } from '../../domain/market/breadth.js';
+import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 
 function finite(value) {
+  if (value == null || value === '' || typeof value === 'boolean') return null;
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
 }
@@ -39,6 +42,28 @@ function annotateChangeBasis(node, value) {
   const basis = String(value.changeBasis || 'unknown');
   node.setAttribute('data-change-basis', basis);
   node.setAttribute('title', `변화율 기준: ${basis}`);
+  const observedAt = value.quote.observedAt || null;
+  if (observedAt) node.setAttribute('data-as-of', observedAt);
+  else node.removeAttribute('data-as-of');
+}
+
+function quoteLineage(node, value) {
+  const source = String(value.quote.source || value.quote._source || value.quote.provider || 'unknown');
+  const kind = /snapshot|cache|reference/.test(source) ? 'reference' : 'observed';
+  writeLineage(node, kind, source);
+  annotateChangeBasis(node, value);
+}
+
+function clearRenderedValue(node, title = '현재 관측값 미수신') {
+  if (!node) return;
+  writeText(node, '—');
+  node.classList?.remove('pos', 'neg');
+  node.removeAttribute('data-change-basis');
+  node.removeAttribute('data-as-of');
+  node.removeAttribute('data-release-at');
+  writeLineage(node, 'unavailable', 'native:missing-observation');
+  node.setAttribute('data-operational-use', 'blocked');
+  node.setAttribute('title', title);
 }
 
 function formatPrice(root, symbol, value) {
@@ -53,20 +78,24 @@ function renderLiveQuotes(root, page) {
   page.querySelectorAll('[data-live-price]').forEach((node) => {
     const symbol = node.getAttribute('data-live-price');
     const value = quoteValue(root, symbol);
-    if (!value || value.price == null) return;
+    if (!value || value.price == null) {
+      clearRenderedValue(node, `${symbol || '종목'} 현재 관측값 미수신`);
+      return;
+    }
     writeText(node, formatPrice(root, symbol, value.price));
-    writeLineage(node, 'live', value.quote.source || value.quote.provider || 'live:quote');
-    annotateChangeBasis(node, value);
+    quoteLineage(node, value);
   });
   page.querySelectorAll('[data-live-chg],[data-live-pct]').forEach((node) => {
     const symbol = node.getAttribute('data-live-chg') || node.getAttribute('data-live-pct');
     const value = quoteValue(root, symbol);
-    if (!value || value.pct == null) return;
+    if (!value || value.pct == null) {
+      clearRenderedValue(node, `${symbol || '종목'} 변화율 미수신`);
+      return;
+    }
     writeText(node, `${value.pct >= 0 ? '+' : ''}${value.pct.toFixed(2)}%`);
     node.classList?.toggle('pos', value.pct >= 0);
     node.classList?.toggle('neg', value.pct < 0);
-    writeLineage(node, 'live', value.quote.source || value.quote.provider || 'live:quote');
-    annotateChangeBasis(node, value);
+    quoteLineage(node, value);
   });
 }
 
@@ -174,7 +203,10 @@ function renderSnapshotMetrics(root, page) {
     const key = node.getAttribute('data-snap');
     const metric = readSnapshotMetric(root, key);
     const value = formatSnapshotMetric(key, metric);
-    if (value == null) return;
+    if (value == null) {
+      clearRenderedValue(node, `${key || '지표'} 현재 관측값 미수신`);
+      return;
+    }
     writeText(node, value);
     const source = String(metric?.source || '');
     const sourceKind = source.startsWith('FRED') || source === 'fred-official-primary'
@@ -309,7 +341,7 @@ function renderNativeCurveChart(root, page, charts, canvasId = 'koreaCurveChart'
   setCanvasState(canvas, { rendererKey, sourceKind: 'live', sourceLabel: 'live:^IRX+DGS2+^FVX+^TNX+^TYX', operationalUse: 'reference-only', title: 'US Treasury yield curve · current observed evidence' });
 }
 
-function renderMacroTransmissionLens(root, page) {
+function renderMacroTransmissionLens(documentRef, root, page) {
   const host = page?.querySelector('#macro-transmission-lens');
   if (!host) return;
   const observedNumber = (value) => finite(value);
@@ -335,23 +367,23 @@ function renderMacroTransmissionLens(root, page) {
   host.setAttribute('data-source-kind', 'REFERENCE');
   host.setAttribute('data-operational-use', 'reference-only');
 
-  const header = document.createElement('div');
+  const header = documentRef.createElement('div');
   header.style.cssText = 'display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:6px;';
-  const title = document.createElement('div');
+  const title = documentRef.createElement('div');
   title.textContent = '시장 위험 전이 렌즈';
   title.style.cssText = 'font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);';
-  const status = document.createElement('span');
+  const status = documentRef.createElement('span');
   status.textContent = evidence.status === 'partial-observed' ? '부분 관측 · 결론 보류' : '핵심 근거 미수신 · 판정 보류';
   status.style.cssText = `font-size:11px;font-weight:700;color:${evidence.status === 'partial-observed' ? 'var(--data-amber)' : 'var(--text-muted)'};`;
   header.append(title, status);
   host.appendChild(header);
 
-  const intro = document.createElement('div');
+  const intro = documentRef.createElement('div');
   intro.textContent = '자금 공급·기간 프리미엄 → 장기금리 → 신용·CAPEX → 시장폭·변동성 → 교차자산 헤지 순서로 읽습니다. 연결되지 않은 변수를 현재 사실처럼 보간하지 않습니다.';
   intro.style.cssText = 'font-size:12px;line-height:1.7;color:var(--text-secondary);margin-bottom:12px;';
   host.appendChild(intro);
 
-  const observed = document.createElement('div');
+  const observed = documentRef.createElement('div');
   observed.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;';
   [
     ['2Y', evidence.values.twoYear, '%'],
@@ -361,7 +393,7 @@ function renderMacroTransmissionLens(root, page) {
     ['VIX', evidence.values.vix, ''],
     ['시장폭 50SMA', evidence.values.breadth, '%']
   ].forEach(([label, value, unit]) => {
-    const chip = document.createElement('span');
+    const chip = documentRef.createElement('span');
     chip.textContent = `${label} ${value == null ? '—' : `${value.toFixed(unit === 'bp' ? 0 : 2)}${unit}`}`;
     chip.style.cssText = 'font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:3px;padding:4px 7px;';
     chip.setAttribute('data-source-kind', value == null ? 'UNAVAILABLE' : 'REFERENCE');
@@ -370,18 +402,18 @@ function renderMacroTransmissionLens(root, page) {
   });
   host.appendChild(observed);
 
-  const chain = document.createElement('div');
+  const chain = documentRef.createElement('div');
   chain.style.cssText = 'display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin-bottom:14px;';
   evidence.chain.forEach((item, index) => {
-    const card = document.createElement('div');
+    const card = documentRef.createElement('div');
     card.style.cssText = 'min-height:94px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:5px;padding:9px;';
-    const step = document.createElement('div');
+    const step = documentRef.createElement('div');
     step.textContent = `${index + 1}. ${item.label}`;
     step.style.cssText = 'font-size:11px;font-weight:800;color:var(--text-primary);margin-bottom:5px;';
-    const state = document.createElement('div');
+    const state = documentRef.createElement('div');
     state.textContent = item.status === 'observed' ? '관측 가능' : 'BLOCKED · 근거 미연결';
     state.style.cssText = `font-size:10px;font-weight:700;color:${item.status === 'observed' ? 'var(--data-green)' : 'var(--text-muted)'};margin-bottom:5px;`;
-    const meaning = document.createElement('div');
+    const meaning = documentRef.createElement('div');
     meaning.textContent = item.meaning;
     meaning.style.cssText = 'font-size:10px;line-height:1.55;color:var(--text-muted);';
     card.append(step, state, meaning);
@@ -391,49 +423,53 @@ function renderMacroTransmissionLens(root, page) {
   });
   host.appendChild(chain);
 
-  const lower = document.createElement('div');
+  const lower = documentRef.createElement('div');
   lower.style.cssText = 'display:grid;grid-template-columns:1.1fr 1fr;gap:14px;';
-  const gaps = document.createElement('div');
-  const gapsTitle = document.createElement('div');
+  const gaps = documentRef.createElement('div');
+  const gapsTitle = documentRef.createElement('div');
   gapsTitle.textContent = '현재 개선 필요 데이터';
   gapsTitle.style.cssText = 'font-size:11px;font-weight:800;color:var(--text-secondary);margin-bottom:5px;';
   gaps.appendChild(gapsTitle);
   evidence.gaps.forEach((item) => {
-    const row = document.createElement('div');
+    const row = documentRef.createElement('div');
     row.textContent = `${item.label}: ${item.reason} · 다음 단계: ${item.next}`;
     row.style.cssText = 'font-size:10px;line-height:1.6;color:var(--text-muted);padding:3px 0;';
     row.setAttribute('data-operational-use', 'blocked');
     gaps.appendChild(row);
   });
-  const reference = document.createElement('div');
-  const refTitle = document.createElement('div');
+  const reference = documentRef.createElement('div');
+  const refTitle = documentRef.createElement('div');
   refTitle.textContent = '자료에서 추출한 관찰 프레임 (REFERENCE)';
   refTitle.style.cssText = 'font-size:11px;font-weight:800;color:var(--text-secondary);margin-bottom:5px;';
   reference.appendChild(refTitle);
   [
-    '국채 환매는 통화발행과 동일하지 않으며, 발행구조·만기·수요를 함께 확인해야 합니다.',
-    'AI CAPEX와 기업채 발행은 장기금리·신용·감가상각·현금흐름을 연결하는 가설입니다.',
+    ...MACRO_FUNDING_LIQUIDITY_REFERENCE.checks,
+    ...MACRO_LAGGED_SUPPLY_DEMAND_REFERENCE.timeSeriesChecks,
+    ...MACRO_LAGGED_SUPPLY_DEMAND_REFERENCE.channels.map((item) => `${item.label} · ${item.horizon}: ${item.checks}`),
     '옵션 만기·dealer gamma·낮은 거래량은 변동성의 비선형성을 설명할 수 있지만 현재 포지셔닝 데이터가 필요합니다.',
     '금·BTC가 함께 하락하면 헤지 수요보다 전 자산 디레버리징 가설을 우선 점검합니다.',
     'PCE/GDP → Jackson Hole/Fed 경로 → AI 실적·CAPEX → 월말 기관 리밸런싱은 자료가 제시한 관찰 순서입니다.',
     '삼성전자·SK하이닉스 주주환원·DRAM short squeeze·한국 레버리지는 IR/공시·수급·대차·거래량 확인 전 현재 신호가 아닙니다.'
   ].forEach((value) => {
-    const row = document.createElement('div');
+    const row = documentRef.createElement('div');
     row.textContent = value;
     row.style.cssText = 'font-size:10px;line-height:1.6;color:var(--text-muted);padding:3px 0;';
     row.setAttribute('data-source-kind', 'REFERENCE');
     row.setAttribute('data-operational-use', 'reference-only');
+    row.setAttribute('data-reference-framework', value.includes('주택') || value.includes('고용') || value.includes('물가')
+      ? MACRO_LAGGED_SUPPLY_DEMAND_REFERENCE.id
+      : MACRO_FUNDING_LIQUIDITY_REFERENCE.id);
     reference.appendChild(row);
   });
   lower.append(gaps, reference);
   host.appendChild(lower);
-  const note = document.createElement('div');
+  const note = documentRef.createElement('div');
   note.textContent = '현재 연결된 수치는 관측값이고, 전이 해석은 연구 프레임입니다. 이 패널은 단일 종합점수나 매매 신호를 생성하지 않습니다.';
   note.style.cssText = 'font-size:10px;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border-subtle);margin-top:12px;padding-top:8px;';
   host.appendChild(note);
 }
 
-function renderMacro(root, page, charts) {
+function renderMacro(documentRef, root, page, charts) {
   renderLiveQuotes(root, page);
   renderSnapshotMetrics(root, page);
   const twoYear = finite(root?._live2Y) ?? finite(root?._fredData?.DGS2?.value);
@@ -496,7 +532,7 @@ function renderMacro(root, page, charts) {
     writeLineage(fedMeaningNode, fedMetric ? 'fred' : 'unavailable', fedMetric?.source || 'FEDFUNDS unavailable');
   }
   renderNativeCurveChart(root, page, charts, 'yieldCurveChart', 'aioMacroChartRenderer');
-  renderMacroTransmissionLens(root, page);
+  renderMacroTransmissionLens(documentRef, root, page);
 }
 
 function renderFxbond(root, page, charts) {
@@ -727,6 +763,56 @@ function breadthHistoryEvidence(root) {
   };
 }
 
+function renderBreadthReferenceLens(page) {
+  const documentRef = page?.ownerDocument;
+  if (!documentRef || !page) return;
+  let host = page.querySelector('#breadth-reference-lens');
+  if (!host) {
+    host = documentRef.createElement('section');
+    host.id = 'breadth-reference-lens';
+    host.style.cssText = 'background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:6px;padding:16px 18px;margin-bottom:26px;';
+    page.appendChild(host);
+  }
+  host.replaceChildren();
+  host.setAttribute('data-source-kind', MARKET_CONFIRMATION_REFERENCE.sourceKind);
+  host.setAttribute('data-operational-use', MARKET_CONFIRMATION_REFERENCE.operationalUse);
+  const make = (tag, text = '') => {
+    const node = documentRef.createElement(tag);
+    if (text) node.textContent = text;
+    return node;
+  };
+  const title = make('div', '시장 확인 프로토콜 · 자료에서 추출한 시계열 판독');
+  title.style.cssText = 'font-family:var(--font-display);font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:6px;';
+  const boundary = make('p', MARKET_CONFIRMATION_REFERENCE.boundary);
+  boundary.style.cssText = 'font-size:11px;line-height:1.65;color:var(--text-muted);margin:0 0 11px;';
+  host.append(title, boundary);
+  const grid = make('div');
+  grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:7px;margin-bottom:11px;';
+  MARKET_CONFIRMATION_REFERENCE.sequence.forEach((item, index) => {
+    const card = make('div');
+    card.style.cssText = 'min-height:76px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:5px;padding:8px;';
+    const label = make('div', `${index + 1}. ${item.label}`);
+    label.style.cssText = 'font-size:10px;font-weight:800;color:var(--text-primary);margin-bottom:4px;';
+    const checks = make('div', item.checks);
+    checks.style.cssText = 'font-size:10px;line-height:1.55;color:var(--text-muted);';
+    card.append(label, checks);
+    card.setAttribute('data-source-kind', 'REFERENCE');
+    card.setAttribute('data-operational-use', 'reference-only');
+    grid.appendChild(card);
+  });
+  host.appendChild(grid);
+  const timeline = make('div');
+  timeline.style.cssText = 'display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;';
+  MARKET_CONFIRMATION_REFERENCE.timeSeries.forEach((item) => {
+    const row = make('div', `${item.window} · ${item.purpose}`);
+    row.style.cssText = 'font-size:10px;line-height:1.55;color:var(--data-cyan);border-top:1px solid var(--border-subtle);padding-top:6px;';
+    row.setAttribute('data-source-kind', 'REFERENCE');
+    row.setAttribute('data-operational-use', 'reference-only');
+    timeline.appendChild(row);
+  });
+  host.appendChild(timeline);
+}
+
 function renderBreadth(root, page) {
   const evidence = breadthEvidence(root);
   const historyEvidence = breadthHistoryEvidence(root);
@@ -824,6 +910,7 @@ function renderBreadth(root, page) {
   page.querySelectorAll('#bp-price-chart, #bp-ad-ratio-chart, #bp-5ma-chart, #bp-20ma-chart, #bp-50ma-chart').forEach((canvas) => {
     writeLineage(canvas, chartSourceKind, historyEvidence.source || source);
   });
+  renderBreadthReferenceLens(page);
 }
 
 export function createMarketSlicePage({ root = globalThis, documentRef, store, route } = {}) {
@@ -835,6 +922,12 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
       bag.add(charts.dispose);
       const page = documentRef?.getElementById(`page-${route}`);
       if (!page) return () => bag.dispose();
+      const suppliedMaterialBridge = createSuppliedMaterialBridge(documentRef, {
+        routeId: route,
+        heading: route === 'macro' ? '거시 · 금리·주택·고용의 전달 시차' : route === 'fxbond' ? '금리·환율 · 유동성·이벤트 리스크' : '시장폭 · 가격·breadth·리더십 확인'
+      });
+      page.appendChild(suppliedMaterialBridge);
+      bag.add(() => suppliedMaterialBridge.remove());
       page.dataset.aioArchitectureRoute = route;
       page.dataset.aioArchitectureSlice = 'market';
       if (route === 'macro') {
@@ -896,7 +989,7 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
         });
       }
       const renderNow = () => {
-        if (route === 'macro') renderMacro(root, page, charts);
+        if (route === 'macro') renderMacro(documentRef, root, page, charts);
         if (route === 'fxbond') renderFxbond(root, page, charts);
         if (route === 'breadth') renderBreadth(root, page);
       };
@@ -981,6 +1074,7 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
             if (canvas.dataset.aioBreadthChartRenderer === 'native') delete canvas.dataset.aioBreadthChartRenderer;
             if (canvas.__rendered === 'native' || canvas.__rendered === 'chartjs') delete canvas.__rendered;
           });
+          page.querySelector('#breadth-reference-lens')?.remove();
         }
       });
       return () => bag.dispose();

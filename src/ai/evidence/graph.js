@@ -22,7 +22,12 @@ export function createEvidenceGraph({ questionPlan = null, nodes = [], edges = [
 
 export function evaluateEvidenceCompleteness(graph, requiredEvidence = []) {
   const nodes = Array.isArray(graph?.nodes) ? graph.nodes : [];
-  const present = new Set(nodes.filter((node) => node.status !== 'missing' && node.status !== 'failed').map((node) => node.type || node.metricId));
-  const missing = (Array.isArray(requiredEvidence) ? requiredEvidence : []).filter((required) => !present.has(required));
-  return Object.freeze({ ok: missing.length === 0, required: [...requiredEvidence], present: [...present], missing, status: missing.length === 0 ? 'complete' : present.size ? 'partial' : 'missing' });
+  const present = new Set();
+  for (const node of nodes.filter((item) => item.status !== 'missing' && item.status !== 'failed')) {
+    if (node.type && node.type !== 'unknown') present.add(node.type);
+    if (node.metricId) present.add(node.metricId);
+  }
+  const required = Array.isArray(requiredEvidence) ? requiredEvidence : [];
+  const missing = required.filter((item) => !present.has(item));
+  return Object.freeze({ ok: missing.length === 0, required: Object.freeze([...required]), present: Object.freeze([...present]), missing: Object.freeze(missing), status: missing.length === 0 ? 'complete' : present.size ? 'partial' : 'missing' });
 }

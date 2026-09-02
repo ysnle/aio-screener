@@ -2,19 +2,24 @@ import { createResourceBag } from '../../app/lifecycle.js';
 import { selectSelectedThemeDetail, selectThemesItems } from '../../state/selectors/themes.js';
 import {
   AI_INFERENCE_EFFICIENCY_REFERENCE,
+  AI_INFERENCE_ARCHITECTURE_REFERENCE,
+  AI_INFRASTRUCTURE_REFERENCE_LENSES,
+  AI_HARDWARE_SUPPLY_CHAIN_REFERENCE,
   AI_DEAL_ECOSYSTEM_EDGES,
   AI_DEAL_ECOSYSTEM_NODES,
   selectAiInferenceProxies
 } from '../../domain/ai/inference-efficiency.js';
+import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 
 const QUADRANTS = Object.freeze([
-  { key: 'Leading', label: '선도 Leading', sub: '비중 유지', note: '상대강도·모멘텀 모두 우위' },
-  { key: 'Improving', label: '개선 Improving', sub: '진입 후보', note: '상대모멘텀 개선 중' },
-  { key: 'Weakening', label: '약화 Weakening', sub: '익절 검토', note: '상대강도 대비 모멘텀 둔화' },
-  { key: 'Lagging', label: '후행 Lagging', sub: '회피', note: '상대강도·모멘텀 모두 열위' }
+  { key: 'Leading', label: '선도 Leading', sub: '상대강도 우위', note: '상대강도·모멘텀 모두 우위' },
+  { key: 'Improving', label: '개선 Improving', sub: '개선 관찰', note: '상대모멘텀 개선 중' },
+  { key: 'Weakening', label: '약화 Weakening', sub: '둔화 관찰', note: '상대강도 대비 모멘텀 둔화' },
+  { key: 'Lagging', label: '후행 Lagging', sub: '상대 약세', note: '상대강도·모멘텀 모두 열위' }
 ]);
 
 function finite(value) {
+  if (value == null || value === '' || typeof value === 'boolean') return null;
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
@@ -38,7 +43,7 @@ function renderRRGStatus({ documentRef, root, store, route }) {
   items.forEach((item) => {
     const quadrant = String(item?.quadrant || '');
     if (Object.prototype.hasOwnProperty.call(counts, quadrant)
-      && (finite(item?.rsRatio) != null || finite(item?.rsMomentum) != null)) counts[quadrant] += 1;
+      && finite(item?.rsRatio) != null && finite(item?.rsMomentum) != null) counts[quadrant] += 1;
   });
   const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
   if (!total) {
@@ -282,18 +287,28 @@ function renderThemes({ documentRef, root, store, route, onThemeDetail }) {
   const groups = new Map(QUADRANTS.map((quadrant) => [quadrant.key, []]));
   items.forEach((item) => {
     const quadrant = String(item?.quadrant || 'unknown');
-    if (groups.has(quadrant) && (finite(item?.rsRatio) != null || finite(item?.rsMomentum) != null)) {
+    if (groups.has(quadrant) && finite(item?.rsRatio) != null && finite(item?.rsMomentum) != null) {
       groups.get(quadrant).push(item);
     }
   });
   groups.forEach((group) => group.sort((a, b) => (finite(b?.pct) ?? -Infinity) - (finite(a?.pct) ?? -Infinity)));
   const classifiedCount = [...groups.values()].reduce((count, group) => count + group.length, 0);
   container.replaceChildren();
+  const appendUnclassified = () => {
+    const pending = items.filter((item) => !groups.has(String(item?.quadrant || 'unknown')) || finite(item?.rsRatio) == null || finite(item?.rsMomentum) == null);
+    if (!pending.length) return;
+    const catalog = documentRef.createElement('section');
+    catalog.style.cssText = 'grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap;padding:12px 0;';
+    catalog.setAttribute('aria-label', '회전 지표 미수신 테마 목록');
+    pending.forEach((item) => catalog.appendChild(createChip(documentRef, item, root, onThemeDetail)));
+    container.appendChild(catalog);
+  };
   if (!classifiedCount) {
     const empty = documentRef.createElement('div');
     empty.textContent = 'RRG 판정 보류 · SPY 대비 상대가격 히스토리 20개 이상 필요';
     empty.style.cssText = 'grid-column:span 2;text-align:center;padding:20px;color:var(--text-dim);font-size:12px;';
     container.appendChild(empty);
+    appendUnclassified();
     const read = documentRef.getElementById('rrg-rotation-read');
     if (read) read.textContent = '상대강도·모멘텀 시계열 미수신 — 정적 사분면 시드로 대체하지 않습니다.';
     return;
@@ -324,6 +339,7 @@ function renderThemes({ documentRef, root, store, route, onThemeDetail }) {
     card.appendChild(note);
     container.appendChild(card);
   });
+  appendUnclassified();
   const leading = (groups.get('Leading') || []).map((item) => item.label || item.symbol).join('·') || '없음';
   const improving = (groups.get('Improving') || []).map((item) => item.label || item.symbol).join('·') || '없음';
   const read = documentRef.getElementById('rrg-rotation-read');
@@ -767,6 +783,34 @@ function renderAiInfrastructureLens({ documentRef, root, route }) {
   intro.style.cssText = 'font-size:12px;line-height:1.7;color:var(--text-secondary);margin-bottom:12px;';
   host.appendChild(intro);
 
+  const architectureTitle = documentRef.createElement('div');
+  architectureTitle.textContent = 'Jalapeño / AI 추론 시스템 아키텍처 · REFERENCE';
+  architectureTitle.style.cssText = 'font-size:11px;font-weight:800;color:var(--text-secondary);margin:4px 0 6px;';
+  host.appendChild(architectureTitle);
+  const architectureGrid = documentRef.createElement('div');
+  architectureGrid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:7px;margin-bottom:8px;';
+  AI_INFERENCE_ARCHITECTURE_REFERENCE.layers.forEach((layer) => {
+    const card = documentRef.createElement('div');
+    card.style.cssText = 'min-height:78px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:4px;padding:8px;';
+    const label = documentRef.createElement('div');
+    label.textContent = layer.label;
+    label.style.cssText = 'font-size:10px;font-weight:800;color:var(--text-primary);margin-bottom:4px;';
+    const focus = documentRef.createElement('div');
+    focus.textContent = layer.focus;
+    focus.style.cssText = 'font-size:10px;line-height:1.55;color:var(--text-muted);';
+    card.append(label, focus);
+    card.setAttribute('data-source-kind', 'REFERENCE');
+    card.setAttribute('data-operational-use', 'reference-only');
+    architectureGrid.appendChild(card);
+  });
+  host.appendChild(architectureGrid);
+  const architectureMeta = documentRef.createElement('div');
+  architectureMeta.textContent = `목표: ${AI_INFERENCE_ARCHITECTURE_REFERENCE.objective} · 시계열: ${AI_INFERENCE_ARCHITECTURE_REFERENCE.timeSeriesChecks.map((item) => `${item.window}=${item.metrics}`).join(' | ')}`;
+  architectureMeta.style.cssText = 'font-size:10px;line-height:1.6;color:var(--data-cyan);border-bottom:1px solid var(--border-subtle);padding-bottom:10px;margin-bottom:12px;';
+  architectureMeta.setAttribute('data-source-kind', 'REFERENCE');
+  architectureMeta.setAttribute('data-operational-use', 'reference-only');
+  host.appendChild(architectureMeta);
+
   const topGrid = documentRef.createElement('div');
   topGrid.style.cssText = 'display:grid;grid-template-columns:1.1fr 1fr;gap:14px;margin-bottom:14px;';
   const axes = documentRef.createElement('div');
@@ -879,8 +923,61 @@ function renderAiInfrastructureLens({ documentRef, root, route }) {
   });
   map.append(nodes, edges);
   host.appendChild(map);
+
+  const lensTitle = documentRef.createElement('div');
+  lensTitle.textContent = '추가 검증 렌즈 · 자료 통합 (REFERENCE)';
+  lensTitle.style.cssText = 'font-size:11px;font-weight:800;color:var(--text-secondary);margin:4px 0 6px;';
+  host.appendChild(lensTitle);
+  const lensGrid = documentRef.createElement('div');
+  lensGrid.style.cssText = 'display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-bottom:10px;';
+  AI_INFRASTRUCTURE_REFERENCE_LENSES.forEach((lens) => {
+    const card = documentRef.createElement('div');
+    card.style.cssText = 'background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:4px;padding:8px;';
+    const label = documentRef.createElement('div');
+    label.textContent = lens.label;
+    label.style.cssText = 'font-size:11px;font-weight:800;color:var(--text-primary);margin-bottom:4px;';
+    const thesis = documentRef.createElement('div');
+    thesis.textContent = lens.thesis;
+    thesis.style.cssText = 'font-size:10px;line-height:1.55;color:var(--text-secondary);';
+    const observe = documentRef.createElement('div');
+    observe.textContent = `관측: ${lens.observe}`;
+    observe.style.cssText = 'font-size:10px;line-height:1.5;color:var(--data-cyan);margin-top:4px;';
+    const invalidation = documentRef.createElement('div');
+    invalidation.textContent = `무효화: ${lens.invalidation}`;
+    invalidation.style.cssText = 'font-size:10px;line-height:1.5;color:var(--text-muted);margin-top:3px;';
+    card.append(label, thesis, observe, invalidation);
+    card.setAttribute('data-source-kind', 'REFERENCE');
+    card.setAttribute('data-operational-use', 'reference-only');
+    lensGrid.appendChild(card);
+  });
+  host.appendChild(lensGrid);
+
+  const supplyTitle = documentRef.createElement('div');
+  supplyTitle.textContent = '가속기 밸류체인 역할 map · 첨부 표 해석';
+  supplyTitle.style.cssText = 'font-size:11px;font-weight:800;color:var(--text-secondary);margin:4px 0 6px;';
+  host.appendChild(supplyTitle);
+  const supplyGrid = documentRef.createElement('div');
+  supplyGrid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:7px;margin-bottom:10px;';
+  AI_HARDWARE_SUPPLY_CHAIN_REFERENCE.forEach((item) => {
+    const card = documentRef.createElement('div');
+    card.style.cssText = 'background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:4px;padding:7px;';
+    const label = documentRef.createElement('div');
+    label.textContent = item.label;
+    label.style.cssText = 'font-size:10px;font-weight:800;color:var(--text-primary);';
+    const roles = documentRef.createElement('div');
+    roles.textContent = item.roles;
+    roles.style.cssText = 'font-size:10px;line-height:1.5;color:var(--data-cyan);margin-top:3px;';
+    const question = documentRef.createElement('div');
+    question.textContent = item.question;
+    question.style.cssText = 'font-size:10px;line-height:1.5;color:var(--text-muted);margin-top:3px;';
+    card.append(label, roles, question);
+    card.setAttribute('data-source-kind', 'REFERENCE');
+    card.setAttribute('data-operational-use', 'reference-only');
+    supplyGrid.appendChild(card);
+  });
+  host.appendChild(supplyGrid);
   const note = documentRef.createElement('div');
-  note.textContent = '도식의 원 크기·화살표는 2026-06-08 기준 Bloomberg 참고 이미지의 시각적 관계를 보존한 것이며, 현재 시가총액·계약·투자금액·지배관계를 의미하지 않습니다.';
+  note.textContent = '도식·첨부 표의 업체명·원 크기·화살표·사양은 역할과 검증 질문을 만드는 REFERENCE입니다. 현재 시가총액·계약·투자금액·공급사 매출·성능 순위를 의미하지 않으며, qualification·공시·현금흐름 확인 전 종목 점수에 편입하지 않습니다.';
   note.style.cssText = 'font-size:10px;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border-subtle);padding-top:8px;';
   note.setAttribute('data-source-kind', 'REFERENCE');
   note.setAttribute('data-operational-use', 'reference-only');
@@ -894,6 +991,12 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
       const bag = createResourceBag();
       const page = documentRef?.getElementById(`page-${route}`);
       if (!page) return () => bag.dispose();
+      const suppliedMaterialBridge = createSuppliedMaterialBridge(documentRef, {
+        routeId: route,
+        heading: route === 'theme-detail' ? '테마 상세 · AI 수요·운영·현금 전환' : '테마 · AI 가치사슬·qualification·운영 검증'
+      });
+      page.appendChild(suppliedMaterialBridge);
+      bag.add(() => suppliedMaterialBridge.remove());
       page.dataset.aioArchitectureRoute = route;
       page.dataset.aioArchitectureSlice = 'themes';
       if (route === 'themes') {

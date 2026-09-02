@@ -16,7 +16,7 @@ export function createAIAnswerOrchestrator({ root = globalThis, now = () => new 
   const plan = (input = {}) => {
     const questionPlan = createQuestionPlan({ ...input, root, now: input.now || now() });
     lastPlan = questionPlan;
-    audit.push({ queryId: questionPlan.queryId, route: questionPlan.route, intent: questionPlan.intent.primary, research: questionPlan.researchDecision?.requirement || 'UNKNOWN', generatedAt: questionPlan.generatedAt });
+    audit.push(Object.freeze({ queryId: questionPlan.queryId, route: questionPlan.route, intent: questionPlan.intent.primary, research: questionPlan.researchDecision?.requirement || 'UNKNOWN', generatedAt: questionPlan.generatedAt }));
     if (audit.length > 100) audit.splice(0, audit.length - 100);
     return questionPlan;
   };
@@ -43,7 +43,7 @@ export function createAIAnswerOrchestrator({ root = globalThis, now = () => new 
           reason: 'action-permission-denied',
           permission: actionPermission,
           plan: questionPlan,
-          error: error?.message || 'blocked_runner_failed'
+          error: 'blocked_runner_failed'
         });
       }
     }
@@ -52,7 +52,7 @@ export function createAIAnswerOrchestrator({ root = globalThis, now = () => new 
       const result = await input.legacyRunner(questionPlan);
       return Object.freeze({ ok: true, status: 'dispatched-through-ui-adapter', plan: questionPlan, result: result ?? null });
     } catch (error) {
-      return Object.freeze({ ok: false, status: 'runner-error', plan: questionPlan, error: error?.message || 'legacy_runner_failed' });
+      return Object.freeze({ ok: false, status: 'runner-error', plan: questionPlan, error: 'legacy_runner_failed' });
     }
   };
   const analyze = (questionPlan, inputs = {}) => domainAnalysis.analyze(questionPlan || lastPlan || {}, inputs);
@@ -70,7 +70,7 @@ export function createAIAnswerOrchestrator({ root = globalThis, now = () => new 
     getResearchCapability,
     validateResearchCapability,
     getLastPlan: () => lastPlan,
-    getAudit: () => audit.slice(),
+    getAudit: () => Object.freeze(audit.slice()),
     createAnswerPlan,
     validateAnswerPlan,
     parseAnswerPlanText,

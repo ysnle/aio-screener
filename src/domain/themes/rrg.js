@@ -4,12 +4,20 @@
 // boundaries) is transcribed unchanged — this is code motion, not a new model (R352/F-03).
 export const RRG_MODEL_VERSION = 'rrg.v1';
 
+function positive(value) {
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : null;
+}
+
 export function classifyRRG(rsRatio, rsMom) {
-  const quadrant = rsRatio >= 100 && rsMom >= 100 ? 'Leading'
-    : rsRatio < 100 && rsMom >= 100 ? 'Improving'
-    : rsRatio >= 100 && rsMom < 100 ? 'Weakening'
+  const ratio = positive(rsRatio);
+  const momentum = positive(rsMom);
+  if (ratio == null || momentum == null) return Object.freeze({ rsRatio: null, rsMom: null, quadrant: 'unknown', reason: 'invalid_rotation', modelVersion: RRG_MODEL_VERSION });
+  const quadrant = ratio >= 100 && momentum >= 100 ? 'Leading'
+    : ratio < 100 && momentum >= 100 ? 'Improving'
+    : ratio >= 100 && momentum < 100 ? 'Weakening'
     : 'Lagging';
-  return Object.freeze({ rsRatio, rsMom, quadrant, modelVersion: RRG_MODEL_VERSION });
+  return Object.freeze({ rsRatio: ratio, rsMom: momentum, quadrant, modelVersion: RRG_MODEL_VERSION });
 }
 
 /**
@@ -28,7 +36,9 @@ export function computeRelativeRotation({ history = null, benchmarkHistory = nul
     const n = Math.min(history.length, benchmarkHistory.length);
     const rsVals = [];
     for (let i = 0; i < n; i++) {
-      if (benchmarkHistory[i] > 0) rsVals.push(history[i] / benchmarkHistory[i]);
+      const asset = positive(history[i]);
+      const benchmark = positive(benchmarkHistory[i]);
+      if (asset != null && benchmark != null) rsVals.push(asset / benchmark);
     }
     if (rsVals.length >= 10) {
       const rsLatest = rsVals[rsVals.length - 1];

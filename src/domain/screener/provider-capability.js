@@ -16,10 +16,16 @@ export function selectProviderForField({ catalog, fieldId, market, preferred = [
   return candidates[0] || null;
 }
 
-export function reconcileFieldObservations(observations = [], { tolerance = null, preferredSourceIds = [], rightsRequired = true } = {}) {
+export function reconcileFieldObservations(observations = [], { tolerance = null, preferredSourceIds = [], rightsRequired = true, maxObservationSkewMs = 0 } = {}) {
   const list = Array.isArray(observations) ? observations : [];
   const usable = list.filter((observation) => observation && observation.value != null && (!rightsRequired || observation.rightsId === 'VERIFIED'));
   if (!usable.length) return Object.freeze({ status: 'MISSING', selected: null, candidates: Object.freeze(list), reason: 'no_usable_observation' });
+  const dimensions = new Set(usable.map((observation) => `${observation.instrumentId || ''}|${observation.fieldId || ''}|${observation.unit || ''}`));
+  if (dimensions.size !== 1) return Object.freeze({ status: 'CONFLICT', selected: null, candidates: Object.freeze(usable), reason: 'incompatible_observation_dimensions' });
+  const times = usable.map((observation) => Date.parse(observation.observedAt || '')).filter(Number.isFinite);
+  if (times.length !== usable.length) return Object.freeze({ status: 'CONFLICT', selected: null, candidates: Object.freeze(usable), reason: 'observation_time_missing_or_invalid' });
+  const allowedSkew = typeof maxObservationSkewMs === 'number' && Number.isFinite(maxObservationSkewMs) && maxObservationSkewMs >= 0 ? maxObservationSkewMs : 0;
+  if (Math.max(...times) - Math.min(...times) > allowedSkew) return Object.freeze({ status: 'CONFLICT', selected: null, candidates: Object.freeze(usable), reason: 'observation_epochs_incompatible' });
   const priority = new Map(preferredSourceIds.map((id, index) => [id, index]));
   const numeric = usable.every((observation) => typeof observation.value === 'number' && Number.isFinite(observation.value));
   if (numeric && tolerance != null) {

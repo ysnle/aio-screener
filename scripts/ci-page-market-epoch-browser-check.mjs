@@ -2,6 +2,7 @@ import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.AIO_MARKET_EPOCH_TEST_PORT || 8907);
@@ -28,6 +29,11 @@ const server = await startServer();
 const browser = await chromium.launch();
 try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+  // Fixed artifact-relative clock tests epoch propagation, not live freshness.
+  // The screener browser gate separately advances ten days and asserts stale
+  // display/calculation separation; data-lineage owns wall-clock freshness.
+  const fixtureEpoch = Date.parse(JSON.parse(readFileSync(resolve(root, 'public-data/screener.json'), 'utf8')).asOf) + 3600000;
+  await page.clock.setFixedTime(new Date(fixtureEpoch));
   const runtimeErrors = [];
   page.on('pageerror', (error) => runtimeErrors.push(error.message));
   page.on('console', (message) => {

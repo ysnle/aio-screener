@@ -7,7 +7,7 @@ function text(value) {
 }
 
 export function normalizeNews(raw = {}) {
-  const items = Array.isArray(raw.items) ? raw.items.map((item, index) => ({
+  const items = Array.isArray(raw.items) ? raw.items.map((item, index) => Object.freeze({
     ...item,
     newsId: text(item?.newsId || item?.id || item?.guid || `news-${index}`),
     title: text(item?.title || item?.headline),

@@ -46,7 +46,7 @@ function recencyFor(decision) {
 }
 
 function querySpec(query, purpose, claimTypes, options) {
-  return {
+  return Object.freeze({
     queryId: `rq-${options.index + 1}`,
     purpose,
     query: text(query),
@@ -57,13 +57,15 @@ function querySpec(query, purpose, claimTypes, options) {
     recency: options.recency.mode,
     lookbackDays: options.recency.lookbackDays,
     primaryRequired: Boolean(options.primaryRequired)
-  };
+  });
 }
 
 export function createResearchPlan({ questionPlan = {}, decision = null, now = new Date() } = {}) {
-  const researchDecision = decision || createResearchDecision({ questionPlan, now });
+  const planNow = new Date(now);
+  const safeNow = Number.isFinite(planNow.getTime()) ? planNow : new Date(0);
+  const researchDecision = decision || createResearchDecision({ questionPlan, now: safeNow });
   const query = text(questionPlan.query);
-  const date = dateOnly(now);
+  const date = dateOnly(safeNow);
   const locale = localeFor(questionPlan);
   const recency = recencyFor(researchDecision);
   const entities = entityTokens(questionPlan);
@@ -89,7 +91,8 @@ export function createResearchPlan({ questionPlan = {}, decision = null, now = n
     add(`${subject} recent authoritative reference ${date}`, 'reference-refresh', ['reference'], false);
   }
 
-  const maxQueries = Math.max(0, Number(researchDecision.maxResearchBudget) || 0);
+  const requestedBudget = researchDecision.maxResearchBudget;
+  const maxQueries = Number.isInteger(requestedBudget) && requestedBudget >= 0 ? Math.min(requestedBudget, 10) : 0;
   const boundedQueries = subQueries.slice(0, maxQueries);
   return Object.freeze({
     schemaVersion: AI_RESEARCH_PLAN_VERSION,
@@ -107,7 +110,7 @@ export function createResearchPlan({ questionPlan = {}, decision = null, now = n
       blockedDomains: Object.freeze([...BLOCKED_DOMAINS])
     }),
     budget: Object.freeze({ maxSubQueries: maxQueries, maxResultsPerQuery: 5, providerAttempts: 2 }),
-    generatedAt: new Date(now).toISOString()
+    generatedAt: safeNow.toISOString()
   });
 }
 
@@ -121,5 +124,5 @@ export function validateResearchPlan(plan) {
     if (!Array.isArray(query.allowedDomains) || !Array.isArray(query.blockedDomains)) errors.push('subquery_source_policy_missing');
     if (query.query && /\b20\d{2}\b/.test(query.query) && !query.query.includes(plan.eventWindow.asOf)) errors.push('hardcoded_year_without_current_date');
   }
-  return Object.freeze({ ok: errors.length === 0, errors: [...new Set(errors)] });
+  return Object.freeze({ ok: errors.length === 0, errors: Object.freeze([...new Set(errors)]) });
 }

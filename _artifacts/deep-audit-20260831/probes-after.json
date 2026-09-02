@@ -1,0 +1,101 @@
+{
+  "mutableDefinition": {
+    "before": 1,
+    "after": 1,
+    "sameHash": true
+  },
+  "tiedFactorRanks": [
+    {
+      "sym": "T0",
+      "rank": 50
+    },
+    {
+      "sym": "T1",
+      "rank": 50
+    },
+    {
+      "sym": "T2",
+      "rank": 50
+    },
+    {
+      "sym": "T3",
+      "rank": 50
+    },
+    {
+      "sym": "T4",
+      "rank": 50
+    },
+    {
+      "sym": "T5",
+      "rank": 50
+    }
+  ],
+  "lastGoodFilter": "unavailable",
+  "lowvolOrdering": [
+    {
+      "sym": "SAFER",
+      "score": 10
+    },
+    {
+      "sym": "RISKIER",
+      "score": 20
+    }
+  ],
+  "futurePit": {
+    "ok": false,
+    "errors": [
+      "pit_observation_future_observedAt",
+      "pit_observation_future_availableAt"
+    ],
+    "checkedUniverse": 1,
+    "checkedObservations": 1
+  },
+  "missingBenchmark": {
+    "schemaVersion": "screener-workbench.v1",
+    "outcomeId": "outcome-37379f93",
+    "runId": "audit",
+    "instrumentId": "US:A",
+    "horizon": "T+1",
+    "entryConvention": "next-completed-close",
+    "entryObservedAt": "2026-08-28T00:00:00.000Z",
+    "exitObservedAt": "2026-08-31T00:00:00.000Z",
+    "rawReturn": 10.000000000000009,
+    "benchmarkReturn": null,
+    "maxDrawdown": null,
+    "liquidityFlags": [],
+    "costsApplied": true,
+    "costBps": 0,
+    "status": "observed",
+    "observedAt": "2026-08-31T00:00:00.000Z",
+    "allowedUse": "research-relative-ranking-only"
+  },
+  "reversedOutcome": {
+    "schemaVersion": "screener-workbench.v1",
+    "outcomeId": "outcome-ec2485a1",
+    "runId": "audit",
+    "instrumentId": "US:A",
+    "horizon": "T+1",
+    "entryConvention": "next-completed-close",
+    "entryObservedAt": null,
+    "exitObservedAt": null,
+    "rawReturn": null,
+    "benchmarkReturn": null,
+    "maxDrawdown": null,
+    "liquidityFlags": [
+      "observation_time_invalid"
+    ],
+    "costsApplied": false,
+    "costBps": null,
+    "status": "unavailable",
+    "observedAt": null,
+    "allowedUse": "research-relative-ranking-only"
+  },
+  "calendarHorizon": {
+    "friday": "2026-08-28",
+    "exit": null
+  },
+  "refreshPlanner": {
+    "inFlightReselected": 0,
+    "terminalReselected": 0
+  }
+}

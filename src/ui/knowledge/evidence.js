@@ -10,7 +10,7 @@ export function renderKnowledgeEvidence(documentRef, sourceIds = [], registry = 
   root.appendChild(element(documentRef, 'h5', 'knowledge-evidence-title', '근거와 직접성'));
   const list = element(documentRef, 'ul', 'knowledge-evidence-list');
   for (const sourceId of sourceIds) {
-    const source = registry?.resolve?.(sourceId) || registry?.byId?.get?.(sourceId);
+    const source = registry?.resolve?.(sourceId);
     const item = element(documentRef, 'li', 'knowledge-evidence-item');
     if (!source?.url) item.appendChild(element(documentRef, 'span', 'knowledge-evidence-unresolved', `${sourceId} · 확인 필요`));
     else {

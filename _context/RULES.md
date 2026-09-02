@@ -1,11 +1,79 @@
 ---
 verified_by: Codex deterministic gates + repository audit
-last_verified: 2026-08-28
+last_verified: 2026-09-02
 confidence: high
-target_version: v54.65
+target_version: v54.76
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R580. 검색·필터는 렌더러와 동일한 canonical 관계 필드를 사용한다 (v54.76, P1029)
+
+**Rule**: 동일 artifact의 관계 필드를 검색용으로 별도 이름 추정하지 않는다. 화면 카드가 `taxonomyNodeIds`를 통해 player/product를 연결하면 검색 haystack도 같은 필드를 사용하고, 존재하지 않는 `nodeIds` 같은 shadow alias를 만들지 않는다. 구조 결과 수뿐 아니라 실제 사용자 어휘로 검색해 기대 도메인과 엔티티 카드가 함께 나타나고 초기 집합으로 복원되는 경로를 브라우저에서 검증한다.
+
+**Validation**: `public-data/atlas/player-product-registry.json`, `ci-atlas-contract-check.mjs`, `ci-atlas-browser-check.mjs`의 Samsung Electronics → memory-storage → memory-dram-hbm → player card 경로. 검색 도달성은 레지스트리 연결 무결성 증거이며 기업 사실의 현재성·정확성·투자 판단을 인증하지 않는다.
+
+## R579. producer 상태 vocabulary와 사용자 문구를 같은 실제 렌더에서 검증한다 (v54.76, P1028)
+
+**Rule**: producer가 발행하는 enum을 UI가 임의의 동의어로 다시 해석하지 않는다. `ok | partial | failed`처럼 운영 상태가 있는 경우 요약·배지·상세 문구가 모두 같은 canonical 값을 소비해야 한다. 같은 화면에 올바른 문구 하나가 있다는 사실이나 DOM 요소 존재는 다른 상태 문구의 의미 정확성을 대신하지 않는다. 브라우저 gate는 양성 상태의 기대 문구와 모순되는 음성 문구의 부재를 함께 검사한다.
+
+**Validation**: `public-data/telegram-digest.json`, `scripts/fetch-telegram-digest.mjs`, `ci-atlas-contract-check.mjs`, `ci-atlas-browser-check.mjs`. 정상 수집 표시는 채널 관측 성공 증거일 뿐 Telegram 내용을 현재 사실·공식 근거·투자 판단으로 승격하지 않는다.
+
+## R578. private index 전환은 모든 consumer를 resolver 또는 read-only adapter로 함께 이관한다 (v54.76, P1027)
+
+**Rule**: mutable `Map`/`Set`을 public contract에서 제거할 때 producer만 바꾸지 않는다. 모든 runtime consumer가 canonical `resolve()`나 mutation API가 없는 read-only `get` adapter를 사용하도록 같은 변경에서 이관한다. source registry·claim 정적 검증과 실제 화면 링크 해석은 별도 gate로 둔다. 브라우저 검사는 단순 존재/timeout이 아니라 열린 상태, resolved/unresolved 수, canonical source count와 실패 진단값을 검증한다.
+
+**Validation**: `ci-knowledge-core-semantic-check.mjs`, `ci-atlas-contract-check.mjs`, `ci-atlas-browser-check.mjs`. resolved link 수는 연결 무결성 증거이며 원문 최신성·사실성·권리·투자 적합성 증거가 아니다.
+
+## R577. AI의 분석·검색·응답은 입력 모양이 아니라 추적 가능한 사용 계약으로 승격한다 (v54.76, P1026)
+
+**Rule**: `null`, blank, boolean, 비유한 값은 금융 숫자가 아니다. 인과 주 사건·대안·교차자산은 같은 관측 시간창과 sourceKind/evidenceId를 가져야 하며 reference/untrusted/unknown은 causal support가 아니다. 행 수만으로 ready가 되지 않고 source·asOf·evidence를 함께 확인한다. KR/US 혼합 질문을 한 시장의 verified session으로 표시하지 않는다. prohibited 실행 요청은 ‘교육’ 단어가 섞여도 허용하지 않는다. research minimum source floor와 query budget은 유효한 nonnegative integer가 아니면 fail closed한다. UI에 노출되는 runner/parser/retriever 오류는 bounded code를 사용하고 claim/context/audit collection은 nested row까지 외부 변경에서 격리한다. 근거 coverage는 정확도나 수익 확률이 아니다.
+
+**Validation**: `ci-ai-intelligence-contract-check.mjs`, `ci-inference-contract-check.mjs`, `ci-ai-chat-reliability-contract-check.mjs`, `ci-research-model-contract-check.mjs`, `ci-research-flow-contract-check.mjs`, `ci-knowledge-repository-contract.mjs`. Offline corpus/contract PASS는 live provider, 원문 사실성, 답변 정확도나 최신 시장값 인증이 아니다.
+
+## R576. 앱·지식·금융 계산의 경계는 종료·관계 의미·결측·비용 의미를 보존한다 (v54.76, P1023~P1025)
+
+**Rule**: app stop은 queued timer/microtask와 late snapshot publication을 취소하며 disposed router는 다시 transition하지 않는다. 지식 navigation edge는 causal edge와 다른 relation을 사용하고 명시되지 않은 relation을 generator가 추정하지 않는다. persisted learning/route context는 malformed collection, reserved key, cycle과 과대 payload를 제한한다. 모든 도메인 계산은 값의 물리적/금융적 범위를 검증하고 결측을 중립/0/라벨로 합성하지 않는다. portfolio weight의 분모·분자는 같은 valuation을 사용한다. 성과 원장은 gross return과 cost-adjusted net return을 다른 필드로 저장하고 schema migration으로 과거 의미를 보존한다. reference-only 위험 한도는 사용자 매매 명령으로 렌더링하지 않는다.
+
+**Validation**: `ci-esm-core-unit-check.mjs`, `ci-domain-parity-check.mjs`, `ci-screener-workbench-contract.mjs`, `ci-knowledge-core-semantic-check.mjs`, `ci-knowledge-learning-state-contract.mjs`, `ci-knowledge-route-bridge-contract.mjs`, `ci-principles-contract-check.mjs`, `ci-runtime-contract-check.mjs`. 구조/fixture PASS는 production PIT/outcome, 실제 인과, 경제적 threshold 유효성이나 배포 인증이 아니다.
+
+## R575. 금액·관측·근거 계약은 추정으로 빈칸을 채우지 않고 실제 소비 경계를 밝힌다 (v54.75, P1018~P1022)
+
+**Rule**: 통화·단위·instrument·field·observedAt가 호환된 관측만 같은 값으로 reconcile한다. 원통화 금액은 환율과 변환 관측시각 없이 USD 계산·필터·팩터로 승격하지 않는다. null/blank 금융 입력은 0이 아니다. fallback은 value와 출처·시각·권한을 포함한 관측 객체 전체를 선택한다. state update는 omitted와 explicit null을 구분한다. MATCH lineage와 revision은 식별자뿐 아니라 필수 시각을 가져야 한다. timeout/abort/compute 실패 뒤의 늦은 결과는 cache나 상태에 publish하지 않는다. `Object.freeze`를 불변 계약으로 내세우는 registry는 mutable Map/Set을 외부에 노출하지 않는다. CI·미래 기반으로만 import되는 AI/knowledge 모듈은 현재 사용자 runtime 기능이나 최신성 증거로 설명하지 않는다. 도달 불가능한 UI와 의도적으로 제외된 capability의 selector는 보존 이유가 없으면 제거한다.
+
+**Validation**: `ci-screener-workbench-contract.mjs`, `ci-native-decision-evidence-check.mjs`, `ci-esm-core-unit-check.mjs`, `ci-ai-intelligence-contract-check.mjs`, `ci-knowledge-core-semantic-check.mjs`, `ci-architecture-contract-check.mjs`, `ci-retirement-contract.mjs`, `_artifacts/exhaustive-audit-20260831/open-issue-probes.mjs`. 통과는 offline 반례 계약이며 실제 provider 최신성·권리·시장 정확도·배포 상태를 대신하지 않는다.
+
+## R574. 집합 충족률·개별 유효성·표시·보관 재현을 서로 대신하지 않는다 (v54.74, P1013~P1016)
+
+**Rule**: coverage는 입력 충족률이며 정확도·수익확률이 아니다. stale 참고값은 관측일과 함께 표시할 수 있지만 개별 계산 사용은 별도 판단한다. 집합 기준을 통과해도 부적합 행은 peer 통계를 바꾸지 못한다. native null을 legacy 값으로 덮지 않는다. 사용자 고정 실행은 입력·정의·모델·메타데이터 보관 후 실제 reload replay로 검증하며 자동 sync와 분리한다. 새 native 기능은 서비스 주입으로 연결하고 전역 facade를 늘리지 않는다. 취소된 요청의 cleanup은 후속 요청을 건드리지 않는다.
+
+**Validation**: `ci-esm-core-unit-check.mjs`, `ci-screener-workbench-contract.mjs`, `ci-screener-auto-refresh-browser-check.mjs`, `ci-research-model-contract-check.mjs`, `ci-artifact-cache-check.mjs`, `ci-storage-migration-check.mjs`. 전체 파싱과 코드/이력 의미 검토의 진행률을 분리한다.
+
+**P1017 추가**: 화면 조건 chip은 실제 control에서 파생한다. 조건 교체·삭제·반복 실행은 같은 정의를 누적하지 않고 원래 preset을 보존해야 한다. selector와 preset은 같은 전환 경로를 사용하고 이전 비동기 실행을 무효화한다. `ci-desktop-continuity-check.mjs`의 AST idempotence와 실제 screener browser 조작으로 검증한다.
+
+## R573. 계산 계약은 경계값·시점·상태 전이를 실제 실행으로 검증한다 (v54.73, P1011/P1012)
+
+**Rule**: 같은 증거의 순위는 입력 순서에 따라 달라지지 않는다. 해시가 있는 정의는 내부 변경으로 의미가 바뀌지 않는다. 결측 설정/기준값/지연은 0이나 관측 증거가 아니다. PIT는 availableAt과 모든 관측 시각을 asOf에 비교하며, 거래일·가격 경로가 없으면 exit 일정·MDD를 합성하지 않는다. in-flight/terminal 작업은 재선택하지 않는다. 테스트 전용 모듈 존재를 사용자 기능 완료로 집계하지 않는다.
+
+**Validation**: `ci-screener-workbench-contract.mjs`, `ci-research-model-contract-check.mjs`, `ci-native-decision-evidence-check.mjs`, `ci-market-snapshot-contract-check.mjs`; T1041은 single probe, T160은 관련/무관 memory를 실행 검증한다. 정적 배선 검증과 실제 브라우저/provider 증거를 분리한다.
+
+## R572. 표시·정렬·비교·복귀는 같은 관측과 실제 사용자 문맥을 사용한다 (v54.70, P1010)
+
+**Rule**: 총점과 기여도는 단일 모델에서 파생하며 결측을 0이나 중립점수로 채우지 않는다. 숨긴 점수로 정렬하지 않고 결측은 양방향 정렬 모두 뒤로 보낸다. 비교는 같은 정의의 필드와 기준을 표시한다. 엔티티 이동은 실제 origin·필터·스크롤·포커스를 보존하고 접근성 이름도 갱신한다. 미연결 표는 중복 placeholder를 유지하지 말고 기존 관측 보고서에 연결한다. VXX/spot 수익률 차이를 선물 곡선이나 롤손익으로 대체하지 않는다. DOM 존재·native owner 표시는 전 사용자 흐름 또는 의미 검증 완료가 아니다.
+
+**Validation**: `ci-desktop-continuity-check.mjs`, `ci-runtime-contract-check.mjs`, T875/T876, changed-route desktop browser interactions.
+
+## R571. 요청·캐시·수집 시도·실제 관측의 수명주기를 분리한다 (v54.69, P1006~P1009)
+
+**Rule**: 캐시는 전체 request identity와 source 시각을 보존한다. stale fallback은 명시적으로 요청하고 live로 승격하지 않는다. circuit은 upstream별 단일 회복 probe를 갖는다. 관측 결측은 0이나 다른 기간의 값으로 합성하지 않는다. 부분 수집은 유효한 값을 유지하지만 aggregate last-success를 갱신하지 않는다. 채팅의 완료·취소·clear는 재시도/이전 callback을 무효화한다. 파일 존재·정적 gate 통과를 최신 데이터·사용성·live 공급자 인증으로 주장하지 않는다.
+
+**Validation**: `ci-proxy-continuity-check.mjs`, `ci-data-continuity-check.mjs`, `ci-chat-resilience-check.mjs`, `ci-desktop-continuity-check.mjs`.
+
+## R570. 관측의 종목·주기·출처와 사용 범위를 소비자까지 보존한다 (v54.68, P1004)
+
+**Rule**: 종목 선택 변경은 기존 결과를 초기화하고 모든 비동기 결과를 선택 epoch로 검증한다. 월/주/일봉 fallback은 실제 요청 주기를 유지하고 빈 배열을 성공으로 취급하지 않는다. 관측값 없는 지표를 시총·현재가 상수로 만들지 않는다. 공개 지연 팩터의 연구용 사용 가능성과 재배포 사용권 검토를 분리하되 미수신·stale·출처 불명 값을 검증 완료로 승격하지 않는다.
+
+**Validation**: `ci-research-flow-contract-check.mjs`, `ci-screener-workbench-contract.mjs` and changed-route desktop browser checks.
 
 ## R569. 독립 hydration 경로는 각자의 완성 조건을 기다린다 (v54.65, P1003)
 

@@ -8,34 +8,28 @@
 // real tiers and legacy's own field names (weightPct/concentrationPenalty/topWeightPct) instead of
 // renaming them into something that only looked cleaner.
 //
-// Legacy quirk preserved as-is (do not "fix"): totalValue (when not given explicitly) is computed
-// from `positions` via `value || qty*(price||cost)`, while each position's own value inside
-// calcPositionTechnicalRisk uses a DIFFERENT fallback chain: `qty(or shares) * (price||currentPrice
-// ||cost||avgCost)`. These two formulas can disagree for a position that only sets `shares`/
-// `currentPrice` — that is genuinely how legacy behaves today, not a bug this extraction should
-// silently paper over.
-export const PORTFOLIO_CONCENTRATION_MODEL_VERSION = 'portfolio-concentration.v1';
+// v2 closes a legacy extraction defect: the inferred portfolio total and each holding weight use
+// one position-value formula. The old split formula could produce weights above 100% for valid
+// `{shares,currentPrice}` holdings.
+export const PORTFOLIO_CONCENTRATION_MODEL_VERSION = 'portfolio-concentration.v2';
 
 function finite(value) {
+  if (value == null || value === '') return null;
   const n = Number(value);
   return Number.isFinite(n) ? n : null;
 }
 
 export function concentrationPenaltyForWeight(weightPct) {
-  return weightPct >= 25 ? 18 : weightPct >= 15 ? 10 : weightPct >= 10 ? 5 : 0;
+  const weight = finite(weightPct);
+  if (weight == null || weight < 0) return 0;
+  return weight >= 25 ? 18 : weight >= 15 ? 10 : weight >= 10 ? 5 : 0;
 }
 
-function positionValueForTotal(position) {
+function positionValue(position) {
   const explicit = finite(position?.value);
-  if (explicit) return explicit;
-  const qty = finite(position?.qty) || 0;
-  const price = finite(position?.price) || finite(position?.cost) || 0;
-  return qty * price || 0;
-}
-
-function positionValueForWeight(position) {
-  const qty = finite(position?.qty) || finite(position?.shares) || 0;
-  const price = finite(position?.price) || finite(position?.currentPrice) || finite(position?.cost) || finite(position?.avgCost) || 0;
+  if (explicit != null && explicit >= 0) return explicit;
+  const qty = Math.max(0, finite(position?.qty) ?? finite(position?.shares) ?? 0);
+  const price = Math.max(0, finite(position?.price) ?? finite(position?.currentPrice) ?? finite(position?.cost) ?? finite(position?.avgCost) ?? 0);
   return qty * price;
 }
 
@@ -53,10 +47,11 @@ export function deriveConcentrationRisk({ positions = [], totalValue = null, inp
     return Object.freeze({ modelVersion: PORTFOLIO_CONCENTRATION_MODEL_VERSION, inputVersion, status: 'unavailable', holdingCount: 0, totalValue: 0, topWeightPct: 0, items: Object.freeze([]) });
   }
   const explicitTotal = finite(totalValue);
-  const total = explicitTotal && explicitTotal > 0 ? explicitTotal : list.reduce((sum, position) => sum + positionValueForTotal(position), 0);
+  const total = explicitTotal && explicitTotal > 0 ? explicitTotal : list.reduce((sum, position) => sum + positionValue(position), 0);
   const items = list.map((position) => {
-    const value = positionValueForWeight(position);
-    const weightPct = total > 0 ? (value / total) * 100 : (finite(position?.weightPct) || 0);
+    const value = positionValue(position);
+    const fallbackWeight = finite(position?.weightPct);
+    const weightPct = total > 0 ? (value / total) * 100 : (fallbackWeight != null && fallbackWeight >= 0 ? fallbackWeight : 0);
     return Object.freeze({ ticker: String(position?.ticker || position?.symbol || '').toUpperCase(), weightPct, concentrationPenalty: concentrationPenaltyForWeight(weightPct) });
   });
   const topWeightPct = items.length ? Math.max(...items.map((item) => item.weightPct)) : 0;

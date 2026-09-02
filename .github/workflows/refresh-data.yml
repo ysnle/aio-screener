@@ -54,6 +54,7 @@ jobs:
           node scripts/collect-13f-history-rows.mjs
           node scripts/build-13f-issuer-aggregates.mjs
           node scripts/build-masters-runtime-artifacts.mjs
+          node scripts/build-13f-reference-ticker-index.mjs
           node scripts/ci-13f-currentness-check.mjs
           node scripts/ci-masters-contract-check.mjs
 
@@ -62,6 +63,9 @@ jobs:
 
       - name: Reject silent artifact degradation
         run: node scripts/ci-refresh-artifact-integrity-check.mjs
+
+      - name: Validate source-to-consumer data continuity
+        run: node scripts/ci-data-continuity-check.mjs
 
       - name: Validate evidence-derived 22-category reconciliation
         run: |
@@ -142,6 +146,7 @@ jobs:
           [ -f public-data/masters/history-index.json ] && git add public-data/masters/history-index.json || true
           [ -f public-data/masters/history-holdings.json ] && git add public-data/masters/history-holdings.json || true
           [ -f public-data/masters/issuer-aggregates.json ] && git add public-data/masters/issuer-aggregates.json || true
+          [ -f public-data/masters/ticker-index-reference.json ] && git add public-data/masters/ticker-index-reference.json || true
           [ -d public-data/masters/managers ] && git add public-data/masters/managers || true
           [ -d public-data/objects/masters ] && git add public-data/objects/masters || true
           [ -d public-data/masters/history/managers ] && git add public-data/masters/history/managers || true

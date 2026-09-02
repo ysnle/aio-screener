@@ -10,6 +10,7 @@ import { createReferenceCurriculum } from '../../ui/knowledge/reference-curricul
 import { renderKnowledgeLesson } from '../../ui/knowledge/lesson.js';
 import { applySafeExternalLink } from '../../ui/knowledge/safe-external-link.js';
 import { loadJsonArtifact } from '../../data/artifact-cache.js';
+import { createSuppliedMaterialBridge } from '../../ui/knowledge/supplied-material-bridge.js';
 
 const REVIEWED_AT = '2026-08-18';
 const RESEARCH_URL = './public-data/atlas/source-packets.json';
@@ -789,7 +790,7 @@ function createSvgGraph(documentRef, selectedId, visibleNodes, visibleEdges, dep
   const svg = documentRef.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', '0 0 100 100');
   svg.setAttribute('role', 'img');
-  svg.setAttribute('aria-label', '시장 원리 관계 그래프. 노드 상세는 아래 텍스트 목록에서 확인할 수 있습니다.');
+  svg.setAttribute('aria-label', '시장 원리 관계 그래프. 노드 선택 버튼으로 상세를 확인할 수 있습니다.');
   const visible = new Set(visibleNodes.map((node) => node.id));
   visibleEdges.filter((edge) => visible.has(edge.from) && visible.has(edge.to)).forEach((edge) => {
     const from = NODE_BY_ID.get(edge.from);
@@ -1039,6 +1040,12 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
       if (!page) return () => bag.dispose();
       const content = page.querySelector('[data-principles-content]');
       if (!content) return () => bag.dispose();
+      const suppliedMaterialBridge = createSuppliedMaterialBridge(documentRef, {
+        routeId: 'principles',
+        heading: '시장 원리·13F·AI를 같은 증거 흐름으로 연결하기'
+      });
+      page.appendChild(suppliedMaterialBridge);
+      bag.add(() => suppliedMaterialBridge.remove());
        const isAlive = () => !scope?.disposed && (typeof scope?.isCurrent !== 'function' || scope.isCurrent());
        const sharedRoute = parseKnowledgeRouteState(root?.location);
        const arrivalContext = parseKnowledgeTargetContext({ root, locationLike: root?.location });
@@ -1200,7 +1207,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
         layout.dataset.principlesGraphNodeCount = String(nodes.length);
         layout.dataset.principlesGraphEdgeCount = String(edges.length);
         layout.appendChild(createSvgGraph(documentRef, state.selectedId, nodes, edges, state.depth));
-        const list = element(documentRef, 'div', 'principles-graph-mobile-list');
+        const list = element(documentRef, 'div', 'principles-graph-node-list principles-sr-only');
         list.setAttribute('aria-label', '그래프 노드 텍스트 목록');
          nodes.forEach((node) => list.appendChild(createNodeCard(documentRef, node, state.selectedId === node.id, () => selectNode(node.id), state.research)));
         layout.appendChild(list);
@@ -1276,7 +1283,12 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
            },
            onNavigate: (target) => navigateTarget({ ...target, returnContext: target.returnContext || { route: 'principles', view: 'library' } })
          });
-         library.append(reference, chapterPanel, lessonPanel, createLearningTracks(documentRef));
+          library.append(
+            reference,
+            chapterPanel,
+            lessonPanel,
+            createLearningTracks(documentRef)
+          );
          return library;
        }
 

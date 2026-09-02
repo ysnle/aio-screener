@@ -36,6 +36,9 @@ const safeAudit = auditCapabilityClaims({ claims: CAPABILITY_MANIFEST.map((row) 
 check(safeAudit.ok, `safe capability claims failed: ${JSON.stringify(safeAudit.issues)}`);
 const blockedAudit = auditCapabilityClaims({ claims: [{ dataset: { capability: 'stage', claimMode: 'reference' }, textContent: 'Stage 2 = 매수' }] });
 check(!blockedAudit.ok && blockedAudit.issues.some((issue) => issue.issues.includes('forbidden-claim')), 'forbidden capability claim did not fail closed');
+const malformedAudit = auditCapabilityClaims({ claims: 'not-an-array' });
+check(!malformedAudit.ok && malformedAudit.issues.some((issue) => issue.issues.includes('claims-invalid')), 'malformed capability collection did not fail closed');
+check(Object.isFrozen(blockedAudit.issues) && Object.isFrozen(blockedAudit.checked), 'capability audit projections remain mutable');
 
 if (failures.length) {
   console.error(JSON.stringify({ ok: false, failures }));

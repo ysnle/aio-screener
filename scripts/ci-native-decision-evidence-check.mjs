@@ -11,7 +11,7 @@ const ids = [
 ];
 
 function rows(status) {
-  return ids.map(([id]) => ({ id, value: id === 'spx-price' ? 5000 : 50, source: status === 'verified_current' ? 'fixture-live' : 'DATA_SNAPSHOT', status, decisionUse: 'trading', observedAt: '2026-07-30T00:00:00.000Z' }));
+  return ids.map(([id, , value]) => ({ id, value, source: status === 'verified_current' ? 'fixture-live' : 'DATA_SNAPSHOT', status, decisionUse: 'trading', observedAt: '2026-07-30T00:00:00.000Z' }));
 }
 
 const base = {
@@ -54,4 +54,27 @@ const undatedNews = computeNewsSentimentScore({
 assert.equal(undatedNews.total, 0, 'undated news must not enter freshness-scoped sentiment');
 assert.equal(undatedNews.label, '데이터 부족');
 
-console.log(JSON.stringify({ ok: true, snapshotTotal: blocked.total, snapshotDecisionBlocked: blocked.decisionBlocked, liveTotal: liveScore.total, undatedNewsTotal: undatedNews.total, evidenceKeys: Object.keys(liveInput.decisionEvidence) }));
+const fallbackRoot = {
+  AIO: { getCanonicalMetric: () => ({ value: null, source: 'empty-canonical', observedAt: '2026-08-31' }) },
+  DATA_SNAPSHOT: { fg: 42, pcr: 0.8, _snapshotDate: '2026-08-01' },
+  _lastPutCallPayload: { totalPutCall: null, source: 'empty-pcr', asOf: '2026-08-31' },
+  _liveData: { '^VIX': { price: 20, source: 'snapshot:fixture', observedAt: '2026-08-01' } }
+};
+const fallbackReader = createRuntimeReaders({ root: fallbackRoot });
+const sentimentFallback = fallbackReader.readSentiment();
+assert.equal(sentimentFallback.fearGreed, 42);
+assert.equal(sentimentFallback.fearGreedSource, 'DATA_SNAPSHOT:fear-greed');
+assert.equal(sentimentFallback.fearGreedObservedAt, '2026-08-01');
+assert.equal(sentimentFallback.putCall, 0.8);
+assert.equal(sentimentFallback.putCallObservedAt, '2026-08-01');
+assert.equal(fallbackReader.readEntity().options.vix.sourceKind, 'snapshot');
+assert.equal(fallbackReader.readObservationCatalog()['sentiment.fearGreed'].observedAt, '2026-08-01');
+fallbackRoot._lastPutCallPayload = { totalPutCall: 0, source: 'current-pcr', asOf: '2026-08-31' };
+fallbackRoot.AIO.getCanonicalMetric = () => ({ value: 0, source: 'current-fg', observedAt: '2026-08-31' });
+assert.equal(fallbackReader.readSentiment().fearGreed, 0);
+assert.equal(fallbackReader.readSentiment().fearGreedSource, 'current-fg');
+assert.equal(fallbackReader.readEntity().options.pcr.value, 0);
+assert.equal(fallbackReader.readEntity().options.pcr.source, 'current-pcr');
+fallbackRoot.AIO.getCanonicalMetric = () => { throw new Error('fixture canonical reader failure'); };
+assert.equal(fallbackReader.readSentiment().fearGreed, 42, 'optional canonical reader failure must preserve the snapshot fallback');
+console.log(JSON.stringify({ ok: true, snapshotTotal: blocked.total, snapshotDecisionBlocked: blocked.decisionBlocked, liveTotal: liveScore.total, undatedNewsTotal: undatedNews.total, evidenceKeys: Object.keys(liveInput.decisionEvidence), atomicFallback: true }));

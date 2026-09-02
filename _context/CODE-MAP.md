@@ -1,18 +1,21 @@
 ---
-verified_by: Codex (`ReadAllLines` + `rg -n` full structural remeasurement) + P761-P855 update
-last_verified: 2026-08-23
+verified_by: historical navigation map; current sizes and versions belong to generated CURRENT-STATE.md
+last_verified: 2026-08-31
 confidence: high
 auto_refresh: true
-target_version: v54.57
+target_version: version.json
+size_table_policy: historical-snapshot
 target_file: index.html + js/*.js + src/**/*.js + worker/*.js
 target_lines: refreshed after P892 gate
 current_override: P958 keeps user-supplied market commentary reference-only, blocks missing macro transmission variables rather than substituting proxies, composes cancellation/focus ownership, and separates screener factor/SEC provenance; P950 detail-loading boundary and SEC/knowledge review gates remain active
 current_checkpoint: P963 correlated public-AI browser request plus ticker empty-state/accessibility truth, route-owned native hydration, cancellation/focus ownership, full-row semantic separation, bounded LRU reuse and failed-detail recovery
 ---
 
-> **v54.57 (P761~P964 현행)**: v53.7 KR 5페이지 통합 이후의 ESM architecture/data-plane 경계, native macro transmission and AI inference/deal-loop reference lenses, explicit `REFERENCE`/`BLOCKED` promotion boundaries, and the P954~P964 research-integration, cancellation, focus, screener-provenance, route-ownership, ticker empty-state, portfolio missingness, theme-detail interaction, visible-surface hygiene, correlated browser-request verification and workspace-governance rules are reflected. 아래 historical 표는 감사 문맥이며 수정 전에는 상단 current 표와 `rg -n` 결과를 우선한다.
+> **v54.57 당시 기록 (P761~P964)**: v53.7 KR 5페이지 통합 이후의 ESM architecture/data-plane 경계, native macro transmission and AI inference/deal-loop reference lenses, explicit `REFERENCE`/`BLOCKED` promotion boundaries, and the P954~P964 research-integration, cancellation, focus, screener-provenance, route-ownership, ticker empty-state, portfolio missingness, theme-detail interaction, visible-surface hygiene, correlated browser-request verification and workspace-governance rules are reflected. 아래 historical 표는 감사 문맥이며 수정 전에는 생성된 CURRENT-STATE와 현재 `rg -n` 결과를 우선한다.
 
-## Current machine-verified file-size table (v54.57, 2026-08-23)
+> 현재 버전·파일 크기는 [CURRENT-STATE.md](CURRENT-STATE.md)를 사용한다. 아래 v54.57 표와 후속 함수 위치는 과거 탐색 자료이며 현재 코드 검증 완료를 뜻하지 않는다. 실제 수정 범위는 함수명 검색으로 다시 찾는다. 전수 감사 진행률은 `../_artifacts/exhaustive-audit-20260831/coverage-summary.json`에 별도 기록한다.
+
+## Historical file-size table (v54.57, 2026-08-23)
 
 | File | Lines | Verification |
 |------|------:|--------------|

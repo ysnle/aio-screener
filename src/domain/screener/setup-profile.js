@@ -21,6 +21,7 @@ export function deriveScreenerSetupProfile(row = {}) {
   const rsi = finite(row.rsi);
   const rvol20 = finite(row.rvol20 ?? row.rvol);
   const price = finite(row.price);
+  const dollarPrice = row.instrumentRef?.currency === 'USD' ? price : null;
   const adrPct = finite(row.adrPct);
   const pctFrom52wLow = finite(row.pctFrom52wLow);
   const dollarVolume30d = finite(row.dollarVolume30d);
@@ -48,7 +49,7 @@ export function deriveScreenerSetupProfile(row = {}) {
   // TradingView image #1 is represented as a transparent evidence gate.
   // It must never silently pass on missing ADR, 52-week, liquidity, or EMA data.
   const winnerChecks = {
-    priceAbove1: price != null ? price > 1 : null,
+    priceAbove1: dollarPrice != null ? dollarPrice > 1 : null,
     adrAtLeast4_5: adrPct != null ? adrPct >= 4.5 : null,
     above52wLow70: pctFrom52wLow != null ? pctFrom52wLow >= 70 : null,
     dollarVolume30d10m: dollarVolume30d != null ? dollarVolume30d > 10_000_000 : null,

@@ -12,6 +12,9 @@ function normalizeInput(value, low, high) {
 }
 
 export function deriveRegimeState({ inputs = {}, previous = null, now = Date.now(), minHoldMs = 2 * 86_400_000, enter = { riskOn: 0.35, riskOff: -0.35 }, exit = { riskOn: 0.1, riskOff: -0.1 }, liveBacktestParity = false } = {}) {
+  const nowMs = typeof now === 'number' && Number.isFinite(now) ? now : Date.parse(now || '');
+  if (!Number.isFinite(nowMs)) throw new Error('REGIME_NOW_INVALID');
+  const holdMs = typeof minHoldMs === 'number' && Number.isFinite(minHoldMs) && minHoldMs >= 0 ? minHoldMs : 0;
   const normalized = {
     trend: normalizeInput(inputs.trendScore, -1, 1),
     breadth: normalizeInput(inputs.breadthScore, 0, 100),
@@ -25,7 +28,7 @@ export function deriveRegimeState({ inputs = {}, previous = null, now = Date.now
   const confidence = values.length / Object.keys(normalized).length;
   const priorState = previous?.state && STATES.includes(previous.state) ? previous.state : 'NEUTRAL';
   const priorAt = previous?.observedAt ? Date.parse(previous.observedAt) : NaN;
-  const held = Number.isFinite(priorAt) && now - priorAt < minHoldMs;
+  const held = Number.isFinite(priorAt) && priorAt <= nowMs && nowMs - priorAt < holdMs;
   let state = priorState;
   let transitionReason = 'hysteresis_hold';
   if (score == null || confidence < 0.6) {
@@ -41,8 +44,8 @@ export function deriveRegimeState({ inputs = {}, previous = null, now = Date.now
   }
   if (missingInputs.length || confidence < 1) state = state === 'NEUTRAL' ? 'LOW_CONFIDENCE' : state;
   return createRegimeState({
-    regimeId: `regime-${stableHash({ normalized, state, now: new Date(now).toISOString().slice(0, 10) })}`,
-    observedAt: new Date(now).toISOString(),
+    regimeId: `regime-${stableHash({ normalized, state, now: new Date(nowMs).toISOString().slice(0, 10) })}`,
+    observedAt: new Date(nowMs).toISOString(),
     inputs: { ...inputs, normalized, score },
     state,
     confidence,
@@ -59,7 +62,8 @@ export function replayRegime({ history = [], initial = null, options = {} } = {}
   const transitions = [];
   const states = [];
   for (const point of (Array.isArray(history) ? history : [])) {
-    const next = deriveRegimeState({ ...options, inputs: point.inputs || point, previous, now: Number(point.now || Date.parse(point.observedAt) || Date.now()) });
+    const pointNow = point.now ?? (point.observedAt ? Date.parse(point.observedAt) : null);
+    const next = deriveRegimeState({ ...options, inputs: point.inputs || point, previous, now: pointNow });
     if (previous && previous.state !== next.state) transitions.push({ from: previous.state, to: next.state, at: next.observedAt, reason: next.transitionReason });
     states.push(next);
     previous = next;
@@ -68,4 +72,3 @@ export function replayRegime({ history = [], initial = null, options = {} } = {}
   const adaptive = states.map((state) => state.state === 'RISK_ON' ? 'MOMENTUM_TILT' : state.state === 'RISK_OFF' ? 'DEFENSIVE_TILT' : 'NEUTRAL_TILT');
   return Object.freeze({ modelVersion: REGIME_MODEL_VERSION, states: Object.freeze(states), transitions: Object.freeze(transitions), fixedVsAdaptiveDiff: Object.freeze(states.map((state, index) => ({ at: state.observedAt, fixed: fixed[index], adaptive: adaptive[index], changed: fixed[index] !== adaptive[index] }))), autoWeightPromotion: false, reason: 'performance-improvement-not-established' });
 }
-

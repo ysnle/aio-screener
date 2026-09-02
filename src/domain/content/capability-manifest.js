@@ -78,10 +78,11 @@ export function getCapability(id) {
 }
 
 export function auditCapabilityClaims({ documentRef, claims = null } = {}) {
-  const nodes = claims || (documentRef?.querySelectorAll
+  const malformedClaims = claims != null && !Array.isArray(claims);
+  const nodes = Array.isArray(claims) ? claims : (claims == null && documentRef?.querySelectorAll
     ? [...documentRef.querySelectorAll('[data-aio-capability-claim]')]
     : []);
-  const issues = [];
+  const issues = malformedClaims ? [Object.freeze({ id: null, mode: null, text: '', issues: Object.freeze(['claims-invalid']) })] : [];
   const checked = nodes.map((node) => {
     const id = node?.dataset?.capability || node?.capability || null;
     const mode = node?.dataset?.claimMode || node?.claimMode || null;
@@ -91,15 +92,15 @@ export function auditCapabilityClaims({ documentRef, claims = null } = {}) {
     if (!capability) rowIssues.push('unknown-capability');
     if (!['observation', 'conditional', 'optional', 'reference'].includes(mode)) rowIssues.push('claim-mode-missing');
     if (capability && capability.forbiddenClaims.some((claim) => text.includes(claim))) rowIssues.push('forbidden-claim');
-    if (rowIssues.length) issues.push({ id, mode, text, issues: rowIssues });
-    return { id, mode, text, status: rowIssues.length ? 'blocked' : 'pass' };
+    if (rowIssues.length) issues.push(Object.freeze({ id, mode, text, issues: Object.freeze(rowIssues) }));
+    return Object.freeze({ id, mode, text, status: rowIssues.length ? 'blocked' : 'pass' });
   });
   return Object.freeze({
     version: CAPABILITY_MANIFEST_VERSION,
     ok: issues.length === 0,
     checkedCount: checked.length,
     capabilityCount: CAPABILITY_MANIFEST.length,
-    issues,
-    checked
+    issues: Object.freeze(issues),
+    checked: Object.freeze(checked)
   });
 }

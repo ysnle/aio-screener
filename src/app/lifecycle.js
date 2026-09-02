@@ -27,6 +27,65 @@ export function createResourceBag() {
   return Object.freeze({ add, dispose, size: () => disposers.size });
 }
 
+export function createDeferredTaskQueue({
+  setTimeoutImpl = globalThis.setTimeout?.bind(globalThis),
+  clearTimeoutImpl = globalThis.clearTimeout?.bind(globalThis)
+} = {}) {
+  if (typeof setTimeoutImpl !== 'function' || typeof clearTimeoutImpl !== 'function') {
+    throw new Error('DEFERRED_TASK_TIMER_INVALID');
+  }
+  const timers = new Set();
+  let stopped = false;
+
+  function defer(task, delay = 0) {
+    if (typeof task !== 'function') throw new Error('DEFERRED_TASK_INVALID');
+    if (stopped) return null;
+    let timer = null;
+    timer = setTimeoutImpl(() => {
+      if (timer != null) timers.delete(timer);
+      if (!stopped) task();
+    }, Math.max(0, Number(delay) || 0));
+    timers.add(timer);
+    return timer;
+  }
+
+  function stop() {
+    if (stopped) return;
+    stopped = true;
+    for (const timer of timers) clearTimeoutImpl(timer);
+    timers.clear();
+  }
+
+  return Object.freeze({
+    defer,
+    stop,
+    size: () => timers.size,
+    get stopped() { return stopped; }
+  });
+}
+
+export function coalesceMicrotask(fn, {
+  isActive = () => true,
+  queueMicrotaskImpl = globalThis.queueMicrotask?.bind(globalThis)
+} = {}) {
+  if (typeof fn !== 'function' || typeof isActive !== 'function' || typeof queueMicrotaskImpl !== 'function') {
+    throw new Error('COALESCED_MICROTASK_INVALID');
+  }
+  let scheduled = false;
+  let latestArgs = [];
+  return (...args) => {
+    latestArgs = args;
+    if (scheduled) return;
+    scheduled = true;
+    queueMicrotaskImpl(() => {
+      scheduled = false;
+      const callArgs = latestArgs;
+      latestArgs = [];
+      if (isActive()) fn(...callArgs);
+    });
+  };
+}
+
 function chartFor(entry) {
   return entry?.chart && typeof entry.chart.destroy === 'function' ? entry.chart : entry;
 }

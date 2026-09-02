@@ -1,0 +1,638 @@
+{
+  "schemaVersion": "independent-audit-summary.v1",
+  "recordedAt": "2026-08-31T02:35:13.468Z",
+  "auditBaselineAt": "2026-08-31T02:00:02.068Z",
+  "gitHead": "6ef2561d3cc1cdc010693812a6796556d02c6db4",
+  "version": "v54.73",
+  "releaseCertified": false,
+  "commitPerformed": false,
+  "pushPerformed": false,
+  "deploymentPerformed": false,
+  "diffCheck": {
+    "exitCode": 0,
+    "stdout": ""
+  },
+  "directlyEditedProduction": [
+    {
+      "path": "src/data/contracts/market-snapshot.js",
+      "beforeSha256": "255001e53096ab0dc87de44d4f047e39ae6043ac95f3358a063246b5e04f39d6",
+      "afterSha256": "e297fc16d1addf958780d1596a28ce69ccc2913ae6cd59be7ba735ed9e996942"
+    },
+    {
+      "path": "src/data/contracts/screener.js",
+      "beforeSha256": "5cdf613df60e92504b18e01742d3bf4291ecaa5cf9168b44104d0770274de919",
+      "afterSha256": "84ac7508b0b90ca09366156ce66b30d7a43c7862eac6e673b8b8a0973fa5aa88"
+    },
+    {
+      "path": "src/domain/screener/factor-ranks.js",
+      "beforeSha256": "857e0060e39119f8e9c8f6c941f04102128858acaa4a46d28bbdfa898981a660",
+      "afterSha256": "f84b1a97440de3cd7c87afb3e6e9c4d3f02569a84ed82119ff798192d05817d5"
+    },
+    {
+      "path": "src/domain/screener/outcome-ledger.js",
+      "beforeSha256": "c2ab6bf9e7f60134b2fa5af3661662dd0f204575c806667377baa29741cdd047",
+      "afterSha256": "b05a7a6ee160f900b5163559b1632c8c01d905ef31a724930e9a6529b3771008"
+    },
+    {
+      "path": "src/domain/screener/pit-validation.js",
+      "beforeSha256": "281d0d084f15ec5181de51524b1c1d9a37511d981019268e4a96e11e5b025133",
+      "afterSha256": "cf1a9fdc88336ae689e38e1c740c63a6eb1ef8bd28cc273e033963427b355450"
+    },
+    {
+      "path": "src/domain/screener/refresh-planner.js",
+      "beforeSha256": "bcb25268e4825979cc4ce6ea1f82f18dd64e0f17c04873e5cb6a428cc2214767",
+      "afterSha256": "14e14b84b8d1bf5e032b2586a767863d16634d6353e2a0884aa46d1c2b78b969"
+    },
+    {
+      "path": "src/domain/screener/screen-engine.js",
+      "beforeSha256": "051e3067b4754efa1b3c13093c1b800720018b4a1793625babef81ff1a01045e",
+      "afterSha256": "0cb2c1ea4ed887a926c1354bf9edf3923b393f8b19b28b3e6908fc6a0b68835f"
+    },
+    {
+      "path": "src/domain/signal/trading-score.js",
+      "beforeSha256": "e7615641bf2b2caa476a0312b8c54a7dd63218bda90818699d743f8fb61cfa18",
+      "afterSha256": "92160870e0d4b7f88671e9d081aba5b9d69a6b0138a116836c83645595565f86"
+    }
+  ],
+  "directlyEditedChecks": [
+    {
+      "path": "scripts/ci-market-snapshot-contract-check.mjs",
+      "beforeSha256": "762d0a3fe9738228a48f786e8ce924ad4ce127e98373dd35046e10e5802bd428",
+      "afterSha256": "b5d1cdcc6ebeda3f8e906fea4eda43434c3204a84f2f3624e429dbd64122ba44"
+    },
+    {
+      "path": "scripts/ci-native-decision-evidence-check.mjs",
+      "beforeSha256": "e354ad35ec0fd16a4bc3cb5f971864585db736b69237d67e9053fc43b01bd749",
+      "afterSha256": "557e0c80e2136f203813debe832de96496317c314691b6f429c093ab676f83d0"
+    },
+    {
+      "path": "scripts/ci-research-model-contract-check.mjs",
+      "beforeSha256": "a0f1b3198949078d2e8562a8510357c684bcbfd2259b2fac3f434f9def2b0249",
+      "afterSha256": "cc4d0f86abecd0904ab19e045bf4f4cb0dc5d09b22a10f1fcaca0b0eab6f8598"
+    },
+    {
+      "path": "scripts/ci-screener-workbench-contract.mjs",
+      "beforeSha256": "69ee4808f6f4c956cd88d57bed233350061a0a82c114ad4d4ade952b3d73023d",
+      "afterSha256": "033ed212c131618ddb55cc8fa4dfac9091b22efae7adf0f8ded8ab9f233ffc76"
+    },
+    {
+      "path": "js/aio-tests.js",
+      "beforeSha256": "3c4004913392509765855b2ee7ecfb2727d5f84b875ccd2a496df460d0593efc",
+      "afterSha256": "6e40822cd185ae9a11cd8292701d7c8c6d40a92e85249485b543c35653e20069"
+    }
+  ],
+  "ownershipNote": "Task-owned algorithm/contract/check edits are listed explicitly. Baseline differences, existing user changes, generated version surfaces and concurrent changes must not all be attributed to this audit.",
+  "reports": [
+    {
+      "path": "_artifacts/deep-audit-20260831/qa-browser-runtime/last-run.json",
+      "sha256": "8b1145b30635283f3798530b27734eb742cadebf1824aa3339308a9d5d2fb132",
+      "startedAt": "2026-08-31T02:06:00.844Z",
+      "completedAt": "2026-08-31T02:07:59.246Z",
+      "counts": {
+        "PASS": 4,
+        "FAIL": 2
+      },
+      "results": [
+        {
+          "id": "browser-ai-public",
+          "status": "PASS"
+        },
+        {
+          "id": "browser-market-epoch",
+          "status": "FAIL"
+        },
+        {
+          "id": "browser-screener-refresh",
+          "status": "FAIL"
+        },
+        {
+          "id": "browser-boot",
+          "status": "PASS"
+        },
+        {
+          "id": "browser-architecture",
+          "status": "PASS"
+        },
+        {
+          "id": "browser-vertical",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "path": "_artifacts/deep-audit-20260831/qa-closeout/last-run.json",
+      "sha256": "7d9754b5476b3fc71b9864fce83c34143c4083788950b40ba71270043eb9fe23",
+      "startedAt": "2026-08-31T02:29:59.154Z",
+      "completedAt": "2026-08-31T02:30:13.346Z",
+      "counts": {
+        "PASS": 70,
+        "FAIL": 1,
+        "SKIP": 15
+      },
+      "results": [
+        {
+          "id": "product-charter",
+          "status": "PASS"
+        },
+        {
+          "id": "version",
+          "status": "PASS"
+        },
+        {
+          "id": "native-decision",
+          "status": "PASS"
+        },
+        {
+          "id": "vertical-slice",
+          "status": "PASS"
+        },
+        {
+          "id": "capability-claims",
+          "status": "PASS"
+        },
+        {
+          "id": "operations-contract",
+          "status": "PASS"
+        },
+        {
+          "id": "architecture",
+          "status": "PASS"
+        },
+        {
+          "id": "reference-curriculum",
+          "status": "PASS"
+        },
+        {
+          "id": "workflow-yaml",
+          "status": "PASS"
+        },
+        {
+          "id": "generated-state",
+          "status": "PASS"
+        },
+        {
+          "id": "workspace-contract",
+          "status": "PASS"
+        },
+        {
+          "id": "syntax",
+          "status": "PASS"
+        },
+        {
+          "id": "qa-runner-behavior",
+          "status": "PASS"
+        },
+        {
+          "id": "skill-evals",
+          "status": "PASS"
+        },
+        {
+          "id": "skill-contract",
+          "status": "PASS"
+        },
+        {
+          "id": "workflow-compaction",
+          "status": "PASS"
+        },
+        {
+          "id": "agent-profiles",
+          "status": "PASS"
+        },
+        {
+          "id": "live-header-policy",
+          "status": "PASS"
+        },
+        {
+          "id": "agent-skills",
+          "status": "PASS"
+        },
+        {
+          "id": "doc-currency",
+          "status": "PASS"
+        },
+        {
+          "id": "knowledge-lint",
+          "status": "PASS"
+        },
+        {
+          "id": "qa-pipeline-contract",
+          "status": "PASS"
+        },
+        {
+          "id": "screener-workbench",
+          "status": "PASS"
+        },
+        {
+          "id": "market-snapshot",
+          "status": "PASS"
+        },
+        {
+          "id": "history-time",
+          "status": "PASS"
+        },
+        {
+          "id": "operations-status",
+          "status": "PASS"
+        },
+        {
+          "id": "operations-slo",
+          "status": "PASS"
+        },
+        {
+          "id": "data-plane",
+          "status": "PASS"
+        },
+        {
+          "id": "human-validation",
+          "status": "PASS"
+        },
+        {
+          "id": "source-registry",
+          "status": "PASS"
+        },
+        {
+          "id": "reconciliation",
+          "status": "PASS"
+        },
+        {
+          "id": "screener-benchmark",
+          "status": "PASS"
+        },
+        {
+          "id": "operator-readiness",
+          "status": "PASS"
+        },
+        {
+          "id": "professional-gap",
+          "status": "PASS"
+        },
+        {
+          "id": "static-data",
+          "status": "PASS"
+        },
+        {
+          "id": "data-refresh",
+          "status": "PASS"
+        },
+        {
+          "id": "refresh-integrity",
+          "status": "PASS"
+        },
+        {
+          "id": "release-revision",
+          "status": "PASS"
+        },
+        {
+          "id": "13f-currentness",
+          "status": "PASS"
+        },
+        {
+          "id": "sec-runtime-projection",
+          "status": "PASS"
+        },
+        {
+          "id": "release-generated-parity",
+          "status": "PASS"
+        },
+        {
+          "id": "market-session",
+          "status": "PASS"
+        },
+        {
+          "id": "baseline",
+          "status": "PASS"
+        },
+        {
+          "id": "decomposition",
+          "status": "PASS"
+        },
+        {
+          "id": "headless-group-lifecycle",
+          "status": "PASS"
+        },
+        {
+          "id": "esm-core",
+          "status": "PASS"
+        },
+        {
+          "id": "artifact-cache",
+          "status": "PASS"
+        },
+        {
+          "id": "service-worker-cache-policy",
+          "status": "PASS"
+        },
+        {
+          "id": "research-model",
+          "status": "PASS"
+        },
+        {
+          "id": "domain-parity",
+          "status": "PASS"
+        },
+        {
+          "id": "research-flow",
+          "status": "PASS"
+        },
+        {
+          "id": "ai-intelligence",
+          "status": "PASS"
+        },
+        {
+          "id": "proxy-continuity",
+          "status": "PASS"
+        },
+        {
+          "id": "desktop-continuity",
+          "status": "PASS"
+        },
+        {
+          "id": "chat-resilience",
+          "status": "PASS"
+        },
+        {
+          "id": "storage-migration",
+          "status": "PASS"
+        },
+        {
+          "id": "release-manifest",
+          "status": "PASS"
+        },
+        {
+          "id": "deployment-convergence",
+          "status": "PASS"
+        },
+        {
+          "id": "data-continuity",
+          "status": "PASS"
+        },
+        {
+          "id": "retirement",
+          "status": "PASS"
+        },
+        {
+          "id": "inference",
+          "status": "PASS"
+        },
+        {
+          "id": "csp",
+          "status": "PASS"
+        },
+        {
+          "id": "default-ux",
+          "status": "PASS"
+        },
+        {
+          "id": "desktop-scope",
+          "status": "PASS"
+        },
+        {
+          "id": "structural",
+          "status": "PASS"
+        },
+        {
+          "id": "ai-chat-reliability",
+          "status": "PASS"
+        },
+        {
+          "id": "page-timeline",
+          "status": "PASS"
+        },
+        {
+          "id": "semantic-review",
+          "status": "PASS"
+        },
+        {
+          "id": "data-pipeline",
+          "status": "PASS"
+        },
+        {
+          "id": "runtime",
+          "status": "PASS"
+        },
+        {
+          "id": "data-lineage",
+          "status": "FAIL"
+        },
+        {
+          "id": "headless",
+          "status": "SKIP"
+        },
+        {
+          "id": "browser-ai-public",
+          "status": "SKIP"
+        },
+        {
+          "id": "browser-market-epoch",
+          "status": "SKIP"
+        },
+        {
+          "id": "browser-screener-refresh",
+          "status": "SKIP"
+        },
+        {
+          "id": "browser-boot",
+          "status": "SKIP"
+        },
+        {
+          "id": "browser-architecture",
+          "status": "SKIP"
+        },
+        {
+          "id": "browser-vertical",
+          "status": "SKIP"
+        },
+        {
+          "id": "browser-route-soak",
+          "status": "SKIP"
+        },
+        {
+          "id": "browser-sa02",
+          "status": "SKIP"
+        },
+        {
+          "id": "browser-sa03",
+          "status": "SKIP"
+        },
+        {
+          "id": "browser-sa04",
+          "status": "SKIP"
+        },
+        {
+          "id": "browser-viewport",
+          "status": "SKIP"
+        },
+        {
+          "id": "browser-critical",
+          "status": "SKIP"
+        },
+        {
+          "id": "browser-vault",
+          "status": "SKIP"
+        },
+        {
+          "id": "browser-a11y",
+          "status": "SKIP"
+        }
+      ]
+    },
+    {
+      "path": "_artifacts/deep-audit-20260831/qa-headless/last-run.json",
+      "sha256": "ed92b10cb3b6710e94dd4eab1de4ccc8392953cb953edb0be866345123342b22",
+      "startedAt": "2026-08-31T02:30:38.257Z",
+      "completedAt": "2026-08-31T02:30:48.895Z",
+      "counts": {
+        "PASS": 1
+      },
+      "results": [
+        {
+          "id": "headless",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "path": "_artifacts/deep-audit-20260831/qa-knowledge/last-run.json",
+      "sha256": "49ac4417c3e81ebc97e56cfaae4fe057de592201ab51336f10a5a546cd3e1d2a",
+      "startedAt": "2026-08-31T02:16:54.078Z",
+      "completedAt": "2026-08-31T02:17:25.049Z",
+      "counts": {
+        "PASS": 5
+      },
+      "results": [
+        {
+          "id": "artifact-budget",
+          "status": "PASS"
+        },
+        {
+          "id": "browser-atlas",
+          "status": "PASS"
+        },
+        {
+          "id": "browser-principles",
+          "status": "PASS"
+        },
+        {
+          "id": "browser-masters",
+          "status": "PASS"
+        },
+        {
+          "id": "browser-learning-flow",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "path": "_artifacts/deep-audit-20260831/qa-resilience/last-run.json",
+      "sha256": "c2c39373215ca7381dc52547c121616d8db8b68c7c0f9bd7098845e1643d5e9a",
+      "startedAt": "2026-08-31T02:32:08.211Z",
+      "completedAt": "2026-08-31T02:32:44.463Z",
+      "counts": {
+        "PASS": 4
+      },
+      "results": [
+        {
+          "id": "browser-route-soak",
+          "status": "PASS"
+        },
+        {
+          "id": "browser-sa02",
+          "status": "PASS"
+        },
+        {
+          "id": "browser-sa03",
+          "status": "PASS"
+        },
+        {
+          "id": "browser-sa04",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "path": "_artifacts/deep-audit-20260831/qa-surface/last-run.json",
+      "sha256": "fa2210609930c21e930fc2cd18a3d688950428ab94be71b410d70172c59a57bc",
+      "startedAt": "2026-08-31T02:13:30.437Z",
+      "completedAt": "2026-08-31T02:13:46.929Z",
+      "counts": {
+        "PASS": 3
+      },
+      "results": [
+        {
+          "id": "browser-critical",
+          "status": "PASS"
+        },
+        {
+          "id": "browser-vault",
+          "status": "PASS"
+        },
+        {
+          "id": "browser-a11y",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "path": "_artifacts/deep-audit-20260831/qa-viewport/last-run.json",
+      "sha256": "12db2ecf2369f71c18190face105fb30cedb1be0e16c5908122a65991715c89f",
+      "startedAt": "2026-08-31T02:31:16.655Z",
+      "completedAt": "2026-08-31T02:31:38.571Z",
+      "counts": {
+        "PASS": 1
+      },
+      "results": [
+        {
+          "id": "browser-viewport",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "path": "_artifacts/deep-audit-20260831/qa-workspace/last-run.json",
+      "sha256": "5a51cd8da1c53b8987ec5025a3167f15d89f053f4154837093df4597b3d0585c",
+      "startedAt": "2026-08-31T02:34:27.167Z",
+      "completedAt": "2026-08-31T02:34:27.667Z",
+      "counts": {
+        "PASS": 9
+      },
+      "results": [
+        {
+          "id": "skill-evals",
+          "status": "PASS"
+        },
+        {
+          "id": "skill-contract",
+          "status": "PASS"
+        },
+        {
+          "id": "workflow-compaction",
+          "status": "PASS"
+        },
+        {
+          "id": "agent-profiles",
+          "status": "PASS"
+        },
+        {
+          "id": "live-header-policy",
+          "status": "PASS"
+        },
+        {
+          "id": "agent-skills",
+          "status": "PASS"
+        },
+        {
+          "id": "knowledge-lint",
+          "status": "PASS"
+        },
+        {
+          "id": "doc-currency",
+          "status": "PASS"
+        },
+        {
+          "id": "qa-pipeline-contract",
+          "status": "PASS"
+        }
+      ]
+    }
+  ]
+}

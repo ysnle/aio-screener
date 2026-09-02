@@ -1,5 +1,5 @@
 {
-  "version": "v54.64",
+  "version": "v54.76",
   "viewport": {
     "width": 1024,
     "height": 768
@@ -8,8 +8,8 @@
     {
       "routeId": "home",
       "status": "ok",
-      "focusableCount": 17,
-      "pageTitle": "시장 현황 v54.64",
+      "focusableCount": 14,
+      "pageTitle": "시장 현황 v54.76",
       "audit": {
         "status": "ok",
         "hierarchy": {
@@ -36,10 +36,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "오늘 결론판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 08/28/08:00 KST시점 부분 일치신뢰도 66% 보통 시장 판단은 가격, 심리, 뉴스 신선도를 함께 확인합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI"
+              "headerText": "오늘 결론판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/02/08:00 KST시점 부분 일치신뢰도 66% 보통 시장 판단은 가격, 심리, 뉴스 신선도를 함께 확인합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI"
             }
           ],
-          "generatedAt": "2026-08-28T09:46:57.888Z"
+          "generatedAt": "2026-09-02T14:14:11.874Z"
         },
         "accessibility": {
           "status": "ok",
@@ -62,9 +62,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-08-28T09:46:57.890Z"
+          "generatedAt": "2026-09-02T14:14:11.877Z"
         },
-        "generatedAt": "2026-08-28T09:46:57.890Z"
+        "generatedAt": "2026-09-02T14:14:11.877Z"
       },
       "tabSequence": [
         {
@@ -152,21 +152,15 @@
           "tabindex": "0"
         },
         {
-          "tag": "A",
+          "tag": "SUMMARY",
           "id": "",
-          "name": "매크로▲ 상승Insider·US · 08-262026년 8월 25일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3",
+          "name": "자료 감사 · 이번 시장·AI 자료 · 확인 6 · 미확인/차단 4",
           "tabindex": ""
         },
         {
-          "tag": "A",
+          "tag": "SUMMARY",
           "id": "",
-          "name": "매크로▲ 상승Aether·JP · 08-25미즈호 증권) SemiAnalysis: 메모리 디스펙(De-Spec), WFE, 800V 불확실성과 구리/광학 부문의 상승 여력 당사는 ",
-          "tabindex": ""
-        },
-        {
-          "tag": "A",
-          "id": "",
-          "name": "반도체● 중립Aether·JP · 08-25JP모건 아시아 테크 투어 주요 시사점 J.P. 모건의 제11회 Asia Tech Tour는 37개 기업과 115명의 투자자가 참여한 가",
+          "name": "시계열 정렬 · 3개 관측창",
           "tabindex": ""
         },
         {
@@ -210,13 +204,19 @@
           "id": "",
           "name": "시장 폭",
           "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "투자 심리",
+          "tabindex": "0"
         }
       ]
     },
     {
       "routeId": "signal",
       "status": "ok",
-      "focusableCount": 10,
+      "focusableCount": 7,
       "pageTitle": "지금 거래해야 할까?",
       "audit": {
         "status": "ok",
@@ -244,10 +244,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "신규 매수 가능 여부판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 08/28/08:00 KST시점 부분 일치신뢰도 66% 보통 신규 매수 판단은 거래 점수와 breadth/뉴스 검증을 함께 통과해야 합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury y"
+              "headerText": "신규 매수 가능 여부판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/02/08:00 KST시점 부분 일치신뢰도 66% 보통 신규 매수 판단은 거래 점수와 breadth/뉴스 검증을 함께 통과해야 합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury y"
             }
           ],
-          "generatedAt": "2026-08-28T09:47:02.544Z"
+          "generatedAt": "2026-09-02T14:14:16.680Z"
         },
         "accessibility": {
           "status": "ok",
@@ -270,9 +270,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-08-28T09:47:02.545Z"
+          "generatedAt": "2026-09-02T14:14:16.681Z"
         },
-        "generatedAt": "2026-08-28T09:47:02.545Z"
+        "generatedAt": "2026-09-02T14:14:16.681Z"
       },
       "tabSequence": [
         {
@@ -288,34 +288,16 @@
           "tabindex": ""
         },
         {
-          "tag": "A",
-          "id": "",
-          "name": "매크로▲ 상승Insider·US · 08-262026년 8월 25일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3",
-          "tabindex": ""
-        },
-        {
-          "tag": "A",
-          "id": "",
-          "name": "매크로▲ 상승Aether·JP · 08-25미즈호 증권) SemiAnalysis: 메모리 디스펙(De-Spec), WFE, 800V 불확실성과 구리/광학 부문의 상승 여력 당사는 ",
-          "tabindex": ""
-        },
-        {
-          "tag": "A",
-          "id": "",
-          "name": "반도체● 중립Aether·JP · 08-25JP모건 아시아 테크 투어 주요 시사점 J.P. 모건의 제11회 Asia Tech Tour는 37개 기업과 115명의 투자자가 참여한 가",
-          "tabindex": ""
-        },
-        {
-          "tag": "A",
-          "id": "",
-          "name": "매크로● 중립Aether·JP · 08-25JP모건) 클라우드 경제성 개선이 지속적인 AI 설비투자와 장기화되는 긍정적 반도체 사이클에 대한 논거를 강화하다. 하이퍼스케일러와 클라",
-          "tabindex": ""
-        },
-        {
           "tag": "SPAN",
           "id": "",
           "name": "스윙 환경 설명",
           "tabindex": "0"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "투자 심리에서 확인",
+          "tabindex": ""
         },
         {
           "tag": "BUTTON",
@@ -333,6 +315,24 @@
           "tag": "BUTTON",
           "id": "",
           "name": "투자 심리 → F&G · VIX · AAII",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "자료 감사 · 이번 시장·AI 자료 · 확인 6 · 미확인/차단 4",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "시계열 정렬 · 4개 관측창",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "scroll-top-btn",
+          "name": "맨 위로 스크롤",
           "tabindex": ""
         },
         {
@@ -424,7 +424,7 @@
     {
       "routeId": "breadth",
       "status": "ok",
-      "focusableCount": 4,
+      "focusableCount": 0,
       "pageTitle": "시장 폭 분석",
       "audit": {
         "status": "ok",
@@ -443,7 +443,7 @@
               "decisionHeader": true,
               "compHeaderHidden": true,
               "decisionFirst": true,
-              "firstVisibleSelector": "#tg-feed-breadth",
+              "firstVisibleSelector": "#page-breadth div",
               "conclusion": true,
               "evidenceAndStatus": true,
               "actionAffordance": true,
@@ -452,10 +452,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "시장 폭 판단판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 08/28/08:00 KST시점 부분 일치신뢰도 66% 보통 Breadth는 스냅샷/계산 지표가 섞여 있어 방향성 참고로 낮춰 해석합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield "
+              "headerText": "시장 폭 판단판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/02/08:00 KST시점 부분 일치신뢰도 66% 보통 Breadth는 스냅샷/계산 지표가 섞여 있어 방향성 참고로 낮춰 해석합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield "
             }
           ],
-          "generatedAt": "2026-08-28T09:47:03.627Z"
+          "generatedAt": "2026-09-02T14:14:17.752Z"
         },
         "accessibility": {
           "status": "ok",
@@ -478,11 +478,29 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-08-28T09:47:03.627Z"
+          "generatedAt": "2026-09-02T14:14:17.753Z"
         },
-        "generatedAt": "2026-08-28T09:47:03.627Z"
+        "generatedAt": "2026-09-02T14:14:17.753Z"
       },
       "tabSequence": [
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "자료 감사 · 이번 시장·AI 자료 · 확인 6 · 미확인/차단 4",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "시계열 정렬 · 3개 관측창",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "scroll-top-btn",
+          "name": "맨 위로 스크롤",
+          "tabindex": ""
+        },
         {
           "tag": "BUTTON",
           "id": "",
@@ -608,31 +626,13 @@
           "id": "sidebar-theme-btn",
           "name": "라이트 모드",
           "tabindex": ""
-        },
-        {
-          "tag": "INPUT",
-          "id": "gh-repo-url",
-          "name": "username/repo-name",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "설정",
-          "tabindex": ""
-        },
-        {
-          "tag": "DIV",
-          "id": "llm-switch-track",
-          "name": "AI 도우미 전환",
-          "tabindex": "0"
         }
       ]
     },
     {
       "routeId": "sentiment",
       "status": "ok",
-      "focusableCount": 5,
+      "focusableCount": 1,
       "pageTitle": "투자 심리",
       "audit": {
         "status": "ok",
@@ -651,7 +651,7 @@
               "decisionHeader": true,
               "compHeaderHidden": true,
               "decisionFirst": true,
-              "firstVisibleSelector": "#tg-feed-sentiment",
+              "firstVisibleSelector": "#page-sentiment div",
               "conclusion": true,
               "evidenceAndStatus": true,
               "actionAffordance": true,
@@ -660,10 +660,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "심리 결론판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 08/28/08:00 KST시점 일치신뢰도 66% 보통 F&G/VIX는 현재성 우선, AAII/PutCall류는 발표 주기 차이를 감안합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield "
+              "headerText": "심리 결론판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/02/08:00 KST시점 일치신뢰도 66% 보통 F&G/VIX는 현재성 우선, AAII/PutCall류는 발표 주기 차이를 감안합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield "
             }
           ],
-          "generatedAt": "2026-08-28T09:47:04.763Z"
+          "generatedAt": "2026-09-02T14:14:18.934Z"
         },
         "accessibility": {
           "status": "ok",
@@ -686,9 +686,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-08-28T09:47:04.764Z"
+          "generatedAt": "2026-09-02T14:14:18.935Z"
         },
-        "generatedAt": "2026-08-28T09:47:04.764Z"
+        "generatedAt": "2026-09-02T14:14:18.935Z"
       },
       "tabSequence": [
         {
@@ -696,6 +696,18 @@
           "id": "",
           "name": "VIX 기간구조 설명",
           "tabindex": "0"
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "자료 감사 · 이번 시장·AI 자료 · 확인 6 · 미확인/차단 4",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "시계열 정렬 · 3개 관측창",
+          "tabindex": ""
         },
         {
           "tag": "BUTTON",
@@ -821,18 +833,6 @@
           "tag": "BUTTON",
           "id": "sidebar-theme-btn",
           "name": "라이트 모드",
-          "tabindex": ""
-        },
-        {
-          "tag": "INPUT",
-          "id": "gh-repo-url",
-          "name": "username/repo-name",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "설정",
           "tabindex": ""
         }
       ]
@@ -868,10 +868,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "시장 요약판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 08/28/08:00 KST시점 부분 일치신뢰도 66% 보통 브리핑은 08:00 KST 완료 24h 뉴스와 캐시 지표를 요약합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재"
+              "headerText": "시장 요약판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/02/08:00 KST시점 부분 일치신뢰도 66% 보통 브리핑은 08:00 KST 완료 24h 뉴스와 캐시 지표를 요약합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재"
             }
           ],
-          "generatedAt": "2026-08-28T09:47:06.015Z"
+          "generatedAt": "2026-09-02T14:14:20.302Z"
         },
         "accessibility": {
           "status": "ok",
@@ -894,100 +894,58 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-08-28T09:47:06.016Z"
+          "generatedAt": "2026-09-02T14:14:20.302Z"
         },
-        "generatedAt": "2026-08-28T09:47:06.016Z"
+        "generatedAt": "2026-09-02T14:14:20.302Z"
       },
       "tabSequence": [
         {
           "tag": "A",
           "id": "",
-          "name": "반도체● 중립HANA·China/EM · 08-26>>CXMT 생산능력 중국 기업들이 선점, 애플 공급망 편입 가능성 (대만경제일보) •애플이 중국 DRAM 1위 업체 CXMT를 ",
+          "name": "지정학● 중립Insider·US · 08-29⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 미국이 방금 베네수엘라와 세계 역사상 최대 규모의 석유 계약을 체결했다",
           "tabindex": ""
         },
         {
           "tag": "A",
           "id": "",
-          "name": "매크로● 중립HANA·China/EM · 08-26>>절반 이상 경제학자, 일본은행이 내년 1분기까지 최소 1.50%까지 금리 인상할 것으로 전망 (로이터) •절반이 넘는 경제학자",
+          "name": "시장소식● 중립Insider·US · 08-29코인베이스 CEO 브라이언 암스트롱은 미국이 가상자산 산업의 명확한 규칙을 마련하기 위해 ‘클래리티 법안(Clarity Act)’을 ",
           "tabindex": ""
         },
         {
           "tag": "A",
           "id": "",
-          "name": "반도체▲ 상승HANA·China/EM · 08-26>>엔비디아 호재, 최강 AI 추론 랙 Groq 3 LPX 양산, 폭스콘 수혜 (대만경제일보) •엔비디아가 Groq 3 LPU 칩",
+          "name": "매크로● 중립Insider·US · 08-29예측시장에 따르면 9월 연준 금리 결정 전망이 동결 49%, 25bp 인상 49%로 팽팽하게 양분된 상황.",
           "tabindex": ""
         },
         {
           "tag": "A",
           "id": "",
-          "name": "매크로● 중립HANA·China/EM · 08-26>>LME 구리·뉴욕 구리 모두 사상 최고치 경신, 관세 전망과 재고 ‘엇갈림’이 지속적으로 영향 •미국의 잠재적인 구리 관세로 ",
+          "name": "시장소식● 중립Insider·US · 08-29그리고....최근에 영상 편집도 배워보고있는데 잭슨홀 영상 한번 올려드릴게요.",
           "tabindex": ""
         },
         {
           "tag": "A",
           "id": "",
-          "name": "매크로● 중립HANA·China/EM · 08-26>>Anthropic, 투자자들에게 30조 달러 이상의 시장 잠재력 공개 예정, IPO 목표 기업가치 2조 달러 •Anthropi",
+          "name": "지정학● 중립Insider·US · 08-29중동 특이사항 없음",
           "tabindex": ""
         },
         {
           "tag": "A",
           "id": "",
-          "name": "매크로▲ 상승HANA·China/EM · 08-26>>한국 DRAM 8월 수출가격 YoY+ 401% 폭등 (중국언론 인용) •한국 DRAM 수출가격이 지속적으로 급등하고 있으며, ",
+          "name": "시장소식● 중립Insider·US · 08-29미국의 우주 패권",
           "tabindex": ""
         },
         {
           "tag": "A",
           "id": "",
-          "name": "매크로● 중립HANA·China/EM · 08-26>>Anthropic, 자체 TAM이 30조 달러를 넘어설 것으로 전망 (WSJ) •월스트리트저널 보도에 따르면, Anthropi",
+          "name": "매크로● 중립Insider·US · 08-29파이낸셜타임즈에 따르면 중국이 우크라이나와 이란 전쟁에서 자폭 드론의 치명적인 위력이 부각되면서 수익성이 높은 시장을 겨냥해 3D 프린",
           "tabindex": ""
         },
         {
           "tag": "A",
           "id": "",
-          "name": "반도체● 중립HANA·China/EM · 08-26>>엔비디아, 보급형 피지컬 AI 겨냥, Jetson Orin Nano 2 추론 성능 2배·전력소비 40% 감소 •동일한 컴팩트한",
+          "name": "지정학● 중립Insider·US · 08-29미국 전쟁부 장관 피트 헤그세스가 올해 말 수백 명의 군 고위 지휘관을 버지니아주 해병대 콴티코 기지로 다시 소집해 연설하는 방안을 검",
           "tabindex": ""
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "NVDA 종목 분석",
-          "tabindex": "0"
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "UBS 종목 분석",
-          "tabindex": "0"
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "NVDA 종목 분석",
-          "tabindex": "0"
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "NVDA 종목 분석",
-          "tabindex": "0"
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "CRM 종목 분석",
-          "tabindex": "0"
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "NVDA 종목 분석",
-          "tabindex": "0"
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "NVDA 종목 분석",
-          "tabindex": "0"
         },
         {
           "tag": "SPAN",
@@ -1004,43 +962,85 @@
         {
           "tag": "SPAN",
           "id": "",
-          "name": "$SPX",
-          "tabindex": "0"
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
           "name": "$NVDA",
           "tabindex": "0"
         },
         {
-          "tag": "SPAN",
+          "tag": "BUTTON",
+          "id": "briefing-news-more",
+          "name": "전체 뉴스 보기 ▼",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
           "id": "",
-          "name": "$SPY",
+          "name": "과거 참고 펼치기 ▼",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "자료 감사 · 이번 시장·AI 자료 · 확인 6 · 미확인/차단 4",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "시계열 정렬 · 4개 관측창",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "scroll-top-btn",
+          "name": "맨 위로 스크롤",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "확인했습니다",
+          "tabindex": ""
+        },
+        {
+          "tag": "A",
+          "id": "",
+          "name": "메인 콘텐츠로 건너뛰기",
+          "tabindex": ""
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "오늘의 브리핑",
           "tabindex": "0"
         },
         {
-          "tag": "SPAN",
+          "tag": "DIV",
           "id": "",
-          "name": "$NVDA",
+          "name": "대시보드",
           "tabindex": "0"
         },
         {
-          "tag": "SPAN",
+          "tag": "DIV",
           "id": "",
-          "name": "$NVDA",
+          "name": "시장 뉴스",
           "tabindex": "0"
         },
         {
-          "tag": "SPAN",
+          "tag": "DIV",
           "id": "",
-          "name": "$NVDA",
+          "name": "시장 환경",
           "tabindex": "0"
         },
         {
-          "tag": "SPAN",
+          "tag": "DIV",
           "id": "",
-          "name": "$CRWD",
+          "name": "시장 폭",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "투자 심리",
           "tabindex": "0"
         }
       ]
@@ -1048,7 +1048,7 @@
     {
       "routeId": "technical",
       "status": "ok",
-      "focusableCount": 8,
+      "focusableCount": 5,
       "pageTitle": "차트 · 기술 분석",
       "audit": {
         "status": "ok",
@@ -1067,7 +1067,7 @@
               "decisionHeader": true,
               "compHeaderHidden": true,
               "decisionFirst": true,
-              "firstVisibleSelector": "#tg-feed-technical",
+              "firstVisibleSelector": "#page-technical div",
               "conclusion": true,
               "evidenceAndStatus": true,
               "actionAffordance": true,
@@ -1076,10 +1076,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "차트 판단판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 미수신공통컷 08/28/08:00 KST시점 불일치신뢰도 35% 낮음 기술 점수는 live 가격과 스냅샷 보조지표의 혼합입니다. 단독 매수 신호가 아닙니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield"
+              "headerText": "차트 판단판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 미수신공통컷 09/02/08:00 KST시점 불일치신뢰도 35% 낮음 기술 점수는 live 가격과 스냅샷 보조지표의 혼합입니다. 단독 매수 신호가 아닙니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield"
             }
           ],
-          "generatedAt": "2026-08-28T09:47:07.710Z"
+          "generatedAt": "2026-09-02T14:14:21.439Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1102,9 +1102,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-08-28T09:47:07.711Z"
+          "generatedAt": "2026-09-02T14:14:21.441Z"
         },
-        "generatedAt": "2026-08-28T09:47:07.711Z"
+        "generatedAt": "2026-09-02T14:14:21.441Z"
       },
       "tabSequence": [
         {
@@ -1138,6 +1138,18 @@
           "tabindex": ""
         },
         {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "자료 감사 · 이번 시장·AI 자료 · 확인 6 · 미확인/차단 4",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "시계열 정렬 · 3개 관측창",
+          "tabindex": ""
+        },
+        {
           "tag": "BUTTON",
           "id": "",
           "name": "확인했습니다",
@@ -1238,25 +1250,13 @@
           "id": "",
           "name": "대가의 포트폴리오",
           "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "AI 시대 지식 지도",
-          "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "사용 설명서",
-          "tabindex": "0"
         }
       ]
     },
     {
       "routeId": "macro",
       "status": "ok",
-      "focusableCount": 5,
+      "focusableCount": 0,
       "pageTitle": "거시경제",
       "audit": {
         "status": "ok",
@@ -1275,7 +1275,7 @@
               "decisionHeader": true,
               "compHeaderHidden": true,
               "decisionFirst": true,
-              "firstVisibleSelector": "#tg-feed-macro",
+              "firstVisibleSelector": "#page-macro div",
               "conclusion": true,
               "evidenceAndStatus": true,
               "actionAffordance": true,
@@ -1284,10 +1284,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "오늘 매크로 판단판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 08/28/08:00 KST시점 부분 일치신뢰도 66% 보통 FRED/FMP 키 미수신 구간은 스냅샷 매크로로 표시하고 현재 판단 강도를 낮춥니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury"
+              "headerText": "오늘 매크로 판단판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/02/08:00 KST시점 부분 일치신뢰도 66% 보통 FRED/FMP 키 미수신 구간은 스냅샷 매크로로 표시하고 현재 판단 강도를 낮춥니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury"
             }
           ],
-          "generatedAt": "2026-08-28T09:47:08.635Z"
+          "generatedAt": "2026-09-02T14:14:22.753Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1310,11 +1310,23 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-08-28T09:47:08.636Z"
+          "generatedAt": "2026-09-02T14:14:22.754Z"
         },
-        "generatedAt": "2026-08-28T09:47:08.636Z"
+        "generatedAt": "2026-09-02T14:14:22.754Z"
       },
       "tabSequence": [
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "자료 감사 · 이번 시장·AI 자료 · 확인 6 · 미확인/차단 4",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "시계열 정렬 · 3개 관측창",
+          "tabindex": ""
+        },
         {
           "tag": "BUTTON",
           "id": "",
@@ -1442,18 +1454,6 @@
           "tabindex": ""
         },
         {
-          "tag": "INPUT",
-          "id": "gh-repo-url",
-          "name": "username/repo-name",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "설정",
-          "tabindex": ""
-        },
-        {
           "tag": "DIV",
           "id": "llm-switch-track",
           "name": "AI 도우미 전환",
@@ -1464,7 +1464,7 @@
     {
       "routeId": "fxbond",
       "status": "ok",
-      "focusableCount": 5,
+      "focusableCount": 0,
       "pageTitle": "환율 · 채권",
       "audit": {
         "status": "ok",
@@ -1483,7 +1483,7 @@
               "decisionHeader": true,
               "compHeaderHidden": true,
               "decisionFirst": true,
-              "firstVisibleSelector": "#tg-feed-fxbond",
+              "firstVisibleSelector": "#page-fxbond div",
               "conclusion": true,
               "evidenceAndStatus": true,
               "actionAffordance": true,
@@ -1492,10 +1492,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "FX/Rates 판단판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 08/28/08:00 KST시점 부분 일치신뢰도 66% 보통 금리/달러/유가는 live 우선이나 크레딧/커브 보조값은 캐시가 섞입니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yiel"
+              "headerText": "FX/Rates 판단판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/02/08:00 KST시점 부분 일치신뢰도 66% 보통 금리/달러/유가는 live 우선이나 크레딧/커브 보조값은 캐시가 섞입니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yiel"
             }
           ],
-          "generatedAt": "2026-08-28T09:47:09.571Z"
+          "generatedAt": "2026-09-02T14:14:23.784Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1518,11 +1518,23 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-08-28T09:47:09.572Z"
+          "generatedAt": "2026-09-02T14:14:23.785Z"
         },
-        "generatedAt": "2026-08-28T09:47:09.572Z"
+        "generatedAt": "2026-09-02T14:14:23.785Z"
       },
       "tabSequence": [
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "자료 감사 · 이번 시장·AI 자료 · 확인 6 · 미확인/차단 4",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "시계열 정렬 · 3개 관측창",
+          "tabindex": ""
+        },
         {
           "tag": "BUTTON",
           "id": "",
@@ -1650,18 +1662,6 @@
           "tabindex": ""
         },
         {
-          "tag": "INPUT",
-          "id": "gh-repo-url",
-          "name": "username/repo-name",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "설정",
-          "tabindex": ""
-        },
-        {
           "tag": "DIV",
           "id": "llm-switch-track",
           "name": "AI 도우미 전환",
@@ -1672,7 +1672,7 @@
     {
       "routeId": "fundamental",
       "status": "ok",
-      "focusableCount": 6,
+      "focusableCount": 2,
       "pageTitle": "기업 분석",
       "audit": {
         "status": "ok",
@@ -1691,7 +1691,7 @@
               "decisionHeader": true,
               "compHeaderHidden": true,
               "decisionFirst": true,
-              "firstVisibleSelector": "#tg-feed-fundamental",
+              "firstVisibleSelector": "#page-fundamental div",
               "conclusion": true,
               "evidenceAndStatus": true,
               "actionAffordance": true,
@@ -1700,10 +1700,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "기업 분석 준비판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 미수신공통컷 08/28/08:00 KST시점 불일치신뢰도 35% 낮음 티커 입력 후 SEC/FMP/뉴스 수집 성공 소스만 근거로 사용합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현"
+              "headerText": "기업 분석 준비판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 미수신공통컷 09/02/08:00 KST시점 불일치신뢰도 35% 낮음 티커 입력 후 SEC/FMP/뉴스 수집 성공 소스만 근거로 사용합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현"
             }
           ],
-          "generatedAt": "2026-08-28T09:47:11.005Z"
+          "generatedAt": "2026-09-02T14:14:25.354Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1726,9 +1726,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-08-28T09:47:11.006Z"
+          "generatedAt": "2026-09-02T14:14:25.355Z"
         },
-        "generatedAt": "2026-08-28T09:47:11.006Z"
+        "generatedAt": "2026-09-02T14:14:25.355Z"
       },
       "tabSequence": [
         {
@@ -1741,6 +1741,18 @@
           "tag": "BUTTON",
           "id": "",
           "name": "기업 분석",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "자료 감사 · 이번 시장·AI 자료 · 확인 6 · 미확인/차단 4",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "시계열 정렬 · 4개 관측창",
           "tabindex": ""
         },
         {
@@ -1862,25 +1874,13 @@
           "id": "",
           "name": "용어 사전",
           "tabindex": "0"
-        },
-        {
-          "tag": "BUTTON",
-          "id": "sidebar-theme-btn",
-          "name": "라이트 모드",
-          "tabindex": ""
-        },
-        {
-          "tag": "INPUT",
-          "id": "gh-repo-url",
-          "name": "username/repo-name",
-          "tabindex": ""
         }
       ]
     },
     {
       "routeId": "themes",
       "status": "ok",
-      "focusableCount": 7,
+      "focusableCount": 13,
       "pageTitle": "테마 · 트렌드",
       "audit": {
         "status": "ok",
@@ -1899,7 +1899,7 @@
               "decisionHeader": true,
               "compHeaderHidden": true,
               "decisionFirst": true,
-              "firstVisibleSelector": "#tg-feed-themes",
+              "firstVisibleSelector": "#page-themes div",
               "conclusion": true,
               "evidenceAndStatus": true,
               "actionAffordance": true,
@@ -1908,10 +1908,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "테마 회전 지도판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 미수신공통컷 08/28/08:00 KST시점 불일치신뢰도 35% 낮음 테마 강도는 리더 상대강도, breadth, 뉴스 촉매를 같이 확인합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8"
+              "headerText": "테마 회전 지도판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 미수신공통컷 09/02/08:00 KST시점 불일치신뢰도 35% 낮음 테마 강도는 리더 상대강도, breadth, 뉴스 촉매를 같이 확인합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8"
             }
           ],
-          "generatedAt": "2026-08-28T09:47:12.628Z"
+          "generatedAt": "2026-09-02T14:14:26.997Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1934,9 +1934,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-08-28T09:47:12.637Z"
+          "generatedAt": "2026-09-02T14:14:27.007Z"
         },
-        "generatedAt": "2026-08-28T09:47:12.637Z"
+        "generatedAt": "2026-09-02T14:14:27.007Z"
       },
       "tabSequence": [
         {
@@ -1960,6 +1960,84 @@
         {
           "tag": "BUTTON",
           "id": "",
+          "name": "금융 테마 상세 열기",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "에너지 테마 상세 열기",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "헬스케어 테마 상세 열기",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "산업재 테마 상세 열기",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "소비재 테마 상세 열기",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "필수소비 테마 상세 열기",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "부동산 테마 상세 열기",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "원자재 테마 상세 열기",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "유틸리티 테마 상세 열기",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "통신 테마 상세 열기",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "자료 감사 · 이번 시장·AI 자료 · 확인 6 · 미확인/차단 4",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "시계열 정렬 · 7개 관측창",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "scroll-top-btn",
+          "name": "맨 위로 스크롤",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
           "name": "확인했습니다",
           "tabindex": ""
         },
@@ -2004,89 +2082,11 @@
           "id": "",
           "name": "투자 심리",
           "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "차트 · 기술 분석",
-          "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "거시경제",
-          "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "환율 · 채권",
-          "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "테마 · 트렌드",
-          "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "포트폴리오",
-          "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "기업 분석",
-          "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "퀀트 스크리너",
-          "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "시장 원리",
-          "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "대가의 포트폴리오",
-          "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "AI 시대 지식 지도",
-          "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "사용 설명서",
-          "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "용어 사전",
-          "tabindex": "0"
-        },
-        {
-          "tag": "BUTTON",
-          "id": "sidebar-theme-btn",
-          "name": "라이트 모드",
-          "tabindex": ""
         }
       ]
     }
   ],
   "consoleErrors": [],
-  "generatedAt": "2026-08-28T09:46:55.657Z",
+  "generatedAt": "2026-09-02T14:14:09.229Z",
   "status": "pass"
 }

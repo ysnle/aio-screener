@@ -40,7 +40,8 @@ function detectAnomalies(input, metrics) {
     if (['margin', 'roe'].includes(metric.key) && Math.abs(metric.value) > 1000) anomalies.push(`${metric.key}:outlier`);
     if (metric.key === 'revGrowth' && metric.value < -100) anomalies.push('revGrowth:below-minus-100');
   });
-  if (input.anomaly === true || (Array.isArray(input.anomalies) && input.anomalies.length)) anomalies.push(...(input.anomalies || ['producer-flagged-anomaly']));
+  if (input.anomaly === true) anomalies.push('producer-flagged-anomaly');
+  if (Array.isArray(input.anomalies)) anomalies.push(...input.anomalies.map((value) => String(value || '').trim()).filter(Boolean));
   return [...new Set(anomalies)];
 }
 
@@ -108,12 +109,14 @@ export function selectSecFundamentalsAsOf(record = {}, asOf, { priceAsOf = null 
   ['equity', 'sharesOutstanding', 'revGrowth', 'margin', 'roe', 'pe', 'pb'].forEach((key) => {
     if (finite(result[key]) != null) result.coverage.push(key);
   });
+  result.coverage = Object.freeze(result.coverage);
   return Object.freeze(result);
 }
 
 export function deriveSecReport(fundamentals = null) {
   const input = fundamentals && typeof fundamentals === 'object' ? fundamentals : {};
-  const coverage = Array.isArray(input.coverage) ? input.coverage.filter((field) => typeof field === 'string') : [];
+  const knownMetrics = new Set(METRIC_DEFINITIONS.map(([key]) => key));
+  const coverage = Array.isArray(input.coverage) ? input.coverage.filter((field) => typeof field === 'string' && knownMetrics.has(field)) : [];
   const metrics = METRIC_DEFINITIONS
     .filter(([key]) => coverage.includes(key) && finite(input[key]) != null)
     .map(([key, label, unit]) => Object.freeze({ key, label, unit, value: finite(input[key]) }));
@@ -142,8 +145,8 @@ export function deriveSecReport(fundamentals = null) {
     filingMetadata: Object.freeze({ form: input.form || null, cik: input.cik || null, accession: input.accession || null, filedAt: input.filedAt || null, acceptedAt: input.acceptedAt || null }),
     pointInTime: Object.freeze({
       status: pit?.status || 'unavailable',
-      observationCount: finite(pit?.observationCount) || 0,
-      acceptedTimeCount: finite(pit?.acceptedTimeCount) || 0
+      observationCount: Math.max(0, finite(pit?.observationCount) || 0),
+      acceptedTimeCount: Math.max(0, finite(pit?.acceptedTimeCount) || 0)
     }),
     source: input.source || 'SEC EDGAR companyfacts',
     sourceKind: input.sourceTier || 'official-regulator',

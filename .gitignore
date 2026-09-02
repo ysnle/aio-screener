@@ -33,6 +33,24 @@ _context/archive-reports/
 # Autoresearch outputs are ephemeral working state, not committed artifacts.
 autoresearch-*/
 
+# Exhaustive-audit raw inventories and QA caches are reproducible local working
+# evidence. Commit the concise REPORT/verification/coverage ledger, but do not
+# publish multi-megabyte parser dumps or runner caches with the GitHub Pages site.
+_artifacts/exhaustive-audit-20260831/manifest.json
+_artifacts/exhaustive-audit-20260831/static-audit.json
+_artifacts/exhaustive-audit-20260831/static-current.json
+_artifacts/deep-audit-20260831/inventory.json
+_artifacts/deep-audit-20260831/qa-*/
+
+# Exhaustive-audit raw inventories and QA caches are reproducible local working
+# evidence. Commit the concise REPORT/verification/coverage ledger, but do not
+# publish multi-megabyte parser dumps or runner caches with the GitHub Pages site.
+_artifacts/exhaustive-audit-20260831/manifest.json
+_artifacts/exhaustive-audit-20260831/static-audit.json
+_artifacts/exhaustive-audit-20260831/static-current.json
+_artifacts/deep-audit-20260831/inventory.json
+_artifacts/deep-audit-20260831/qa-*/
+
 # CI-only tooling deps (Phase 2 B5 headless test runner). App itself ships
 # zero dependencies — this is Playwright for scripts/ci-headless-tests.mjs only.
 node_modules/

@@ -1,8 +1,81 @@
 ---
 verified_by: Codex deterministic gates + browser audit
-last_verified: 2026-08-28
+last_verified: 2026-09-02
 confidence: high
 ---
+
+## v54.76 exhaustive audit checkpoint (2026-09-02)
+
+- [x] QA-EXHAUST-01: unknown/future/negated-use evidence and ceilings; stale reference display versus field calculation; missing cap and nonoverlapping cap buckets execute in ESM/workbench fixtures.
+- [x] QA-EXHAUST-02: actual Workbench buttons execute, preserve frozen input across quote refresh, persist/replay 873 rows after reload with identical result/explanation hashes, and delete records; no new global facade methods.
+- [x] QA-EXHAUST-03: stale minority factor values cannot alter peers; invalid core rows stay outside rank denominators; null scores and tie-inclusive turnover; existing golden fixtures are unchanged.
+- [x] QA-EXHAUST-04: already-aborted requests, immediate retry, late cleanup/cache publication, denied storage, raw storage injection, same/future/missing-step migration cases execute deterministically.
+- [x] QA-EXHAUST-07: preset/select change the actual definition; chip deletion clears the actual filter; repeated conditions replace instead of append; unchanged visual execution keeps its hash; one sticky symbol column starts at zero. Desktop VM and screener browser fixtures pass (P1017).
+- [x] QA-EXHAUST-08: KRW/USD, unlabeled amounts, conflicting quote currency, missing MIC/asset type, native-cap display, USD filter exclusion, atomic fallback and one-snapshot-per-provider-call execute as negative/positive fixtures (P1018).
+- [x] QA-EXHAUST-09: memoize throw→retry, Headers preservation, pre-abort without transport, abort-ignoring request/body deadline and late-publication exclusion execute deterministically (P1019).
+- [x] QA-EXHAUST-10: missing benchmark cost, malformed AI response, trusted control event fields, bounded provider failure, lineage timestamps/order, Korean regime labels, invalid weights and future regime timestamp fail closed (P1020).
+- [x] QA-EXHAUST-11: dead legacy observer and USD position UI are absent; excluded quantitativeLabs selector is absent; ontology/evidence Map indexes are private and caller mutation cannot rewrite canonical concepts (P1021).
+- [x] QA-EXHAUST-12: null/blank portfolio numbers remain unavailable, projections are frozen at their declared boundary, malformed news/time fails closed, and theme explicit-null selection clears without erasing omitted items (P1022).
+- [x] QA-EXHAUST-13: app stop cancels queued timer/microtask publication, late snapshot completion cannot publish, disposed routers cannot restart/transition, and route/return context is allowlisted and bounded (P1023).
+- [x] QA-EXHAUST-14: navigation-only knowledge edges use RELATES_TO, unmapped edges fail generation, malformed graph/learning collections fail closed, and nested projections/route targets resist caller mutation (P1024).
+- [x] QA-EXHAUST-15: domain null/out-of-range/negative inputs fail closed; portfolio valuation produces coherent weights; gross/net outcome semantics migrate; trading-score v2 retains valid parity and bounds every input (P1025).
+- [x] QA-EXHAUST-16: AI causal alternatives stay inside one traceable time window; strict company/sector/technical inputs, mixed-market session, mixed prohibited conduct, bounded research floors/errors and immutable claim/context/retrieval projections execute as negative and positive fixtures (P1026).
+- [x] QA-EXHAUST-17: private evidence indexes expose no mutable Map while Atlas resolves all six `financial-targets` sources; the browser gate reports open/link/unresolved/summary state and tests relationship maps at 1280px and 760px (P1027).
+- [x] QA-EXHAUST-18: Atlas Telegram overview maps the producer's canonical `ok | partial | failed` status without aliases; real Chromium requires both 4-channel success messages and rejects a simultaneous failure label (P1028).
+- [x] QA-EXHAUST-19: Atlas taxonomy search uses the same `taxonomyNodeIds` relation as player/product rendering; Chromium searches `Samsung Electronics`, follows memory-storage → memory-dram-hbm to its player card, then restores all 19 domains (P1029).
+- [ ] QA-EXHAUST-05: every current line and historical transition must receive explicit semantic-review coverage; file inventory/AST parsing and selected negative fixtures do not complete this request. Current exact-hash ledger: 155 files / 16,599 lines and 596 / 4,611 code transitions in `_artifacts/exhaustive-audit-20260831/`.
+- [ ] QA-EXHAUST-06: production PIT/outcome collection, all remaining legacy producers, dormant-module publication, every route/control, mobile/touch visual review and paid/shared AI/provider certification remain open until separately verified. Public market/screener refresh and desktop browser matrices are verified for the 2026-09-02 local release candidate.
+
+## v54.73 independent code/history audit (2026-08-31)
+
+- [x] QA-AUDIT-20260831-01: independent fixtures verify equal-evidence midranks, true low-volatility ordering, LAST_GOOD rejection, immutable screen content and hash mismatch rejection.
+- [x] QA-AUDIT-20260831-02: future/unknown availability PIT observations, missing benchmark, reversed times, unsupported drawdown/calendar evidence and duplicate/terminal refresh selection have executable negative controls; these foundation modules are not production PIT certification.
+- [x] QA-AUDIT-20260831-03: missing/blank/boolean signal coverage configuration retains the evidence floor; missing previous-close/delay remain unknown while actual zero delay is retained.
+- [x] QA-AUDIT-20260831-04: stale headless expectations are replaced by single-probe behavior, scoped no-inline-handler checks, relevant/unrelated memory and AbortSignal-aware static wiring; exact failed groups pass.
+- [ ] QA-AUDIT-20260831-05: replayable persisted ScreenRun inputs, session-aware outcome collection, row-level factor freshness, dormant-module retirement, legacy data ownership contraction and complete user-flow/live certification remain open; see `_artifacts/deep-audit-20260831/REPORT.md`.
+- [ ] QA-AUDIT-20260831-06: separate field display from calculation readiness; verify undated/negated-use evidence, stale-artifact whole-table blocking, session-aware freshness and genuine collection recovery. Coverage is input completeness, not measured accuracy.
+
+## v54.72 deep supplied-materials structural pass (2026-08-31)
+
+- [x] QA-REF-20260831-01: source audit, prior/current link registry, readable/blocked boundary, and attachment image audit remain reference-only; inaccessible Article bodies are not inferred.
+- [x] QA-REF-20260831-02: canonical reaction/swing/trend/event, macro release-lag, institutional-quarter, AI request/workload/operations, capital-quarter, qualification, physical-AI, and software-usage windows are attached to route mappings.
+- [x] QA-REF-20260831-03: Home/Signal/Technical/Market/News/Sentiment/Screener/Ticker/Fundamental/Options/Portfolio/Masters plus Principles/Atlas consume route-specific bridges with observation and invalidation text.
+- [x] QA-REF-20260831-04: screener definitions and native orchestrator preserve reference framework/time-series IDs and a reference-only boundary without adding them to factor scores or current-value claims.
+- [x] QA-REF-20260831-05: chat context separates 13F report-period lag, AI capacity conversion, hardware qualification, physical-AI operations, software outcome economics, and time-series discipline.
+- [ ] QA-REF-20260831-06: live browser inspection of every newly mounted bridge, fresh provider reconciliation, deployed parity, and live AI/inference benchmark evidence remain unverified until those environments are available.
+
+## v54.71 supplied research integration (2026-08-30)
+
+- [x] QA-REF-20260830-01: the ten supplied links and attached images are recorded with six readable sources and four unreadable X Article pointers; no inaccessible Article body is inferred or promoted.
+- [x] QA-REF-20260830-02: Market, Themes, Principles, Atlas, search vocabulary, and chat receive reference-only market-confirmation, macro-lag, and Jalapeño inference-architecture frames with explicit time-series windows.
+- [x] QA-REF-20260830-03: 13F remains bounded to report period, CUSIP/share-class normalization, corporate actions, and filing-linked change; current ownership, price, target, supplier, and ranking claims are not created by the supplied packet.
+- [x] QA-REF-20260830-04: local data alignment preserves the latest completed 2026-08-28 US close, late-August daily rates/HY observations, and 2026-07 monthly macro observations as separate frequencies; weekend post values are not hardcoded.
+- [x] QA-A11Y-20260830-01: the shared theme-detail close target is at least 44px and the 20-route automated accessibility matrix passes with zero console errors; screen-reader, contrast, zoom/reflow, and dialog-focus evidence remains manual/unverified.
+- [ ] QA-REF-20260830-05: full text for the four X Articles, independent current-provider reconciliation, deployed parity, and live AI/inference benchmark evidence remain unverified external work.
+
+## v54.70 actual desktop journey (2026-08-30)
+
+- [x] QA-USER-01: offline VM checks canonical score components, F&G reset, missing/zero, missing-last rank sorting, real eight-field comparison, actual-origin/accessibility labels and retired writers.
+- [x] QA-USER-02: desktop Browser exercised home hydration, exact NVDA search → Why → ticker → screener return with retained search/scroll/row focus, two-symbol comparison/final layout, ticker → related theme and ticker → same-symbol SEC report.
+- [x] QA-USER-03: all route identities in the current registry were reached for initial visible inspection, including inline theme-detail and direct-entry options. This is not all-control/all-content semantic certification.
+- [ ] QA-USER-04: quote/history upstream errors, stale/reference narration, glossary policy/teaching claims, remaining legacy charts/narratives and every collapsed section still need separate closure. Record the exact remainder in `_artifacts/user-flow-remediation-20260830.md`.
+- [ ] QA-USER-05: paid/shared AI-provider success, full release/browser-shard certification, production deployment parity and recruited-user validation have not been certified.
+
+## v54.69 continuity repairs (2026-08-30)
+
+- [x] QA-CONT-01: exact cache keys, ticker/interval rejection, cache/network parity, bounded storage, upstream-isolated circuit and caller cancellation tested by offline VM.
+- [x] QA-CONT-02: missing-vs-zero, observation-vs-collection time, empirical VIX and request-owned symbol scope exercised; independent FRED partial-cycle producer contract tested.
+- [x] QA-CONT-03: per-page chat epochs/retry cancellation, search empty/timeout fallback, citation objects and shared knowledge cancellation/retry exercised without provider spending.
+- [x] QA-CONT-04: native market renderer clears missing values and stale lineage; document injection and 20 registry module paths checked offline.
+- [ ] QA-CONT-05: current-revision desktop browser, whole-site real-user flow, deployed external sources and AI end-to-end must be checked separately. Local Browser URL policy blocked access; no alternative browser bypass attempted.
+
+## v54.68 source-to-screen structural repairs (2026-08-30)
+
+- [x] QA-FLOW-01: VM tests confirm exact Yahoo timeframe mapping, late-response isolation, empty-array completion, shared technical selection and invalid fundamental reset.
+- [x] QA-FLOW-02: screener contract requires every required field, distinguishes research rights review from missing observations and prioritizes exact ticker queries over unrelated memo mentions.
+- [x] QA-FLOW-03: generated-free synthetic ADR is removed; ticker EMA/RSI use observed OHLCV; VIX sample rank does not claim ticker IV rank; SEC flow frames use duration periods.
+- [ ] QA-FLOW-04: full shared-shell release certification and deployed exact-SHA/provider tests are separately required before a release claim.
+- [ ] QA-FLOW-05: remaining theme-detail/settings/final-revision desktop interactions are unverified because Browser URL policy blocked local-page reaccess. Before the block, exact ticker search and fundamental/native entity reset were exercised; Yahoo proxy failures left technical OHLCV unavailable. Do not replace this with a static PASS.
 
 ## v54.65 reference provenance and official-calendar rollover (2026-08-29)
 
@@ -508,7 +581,7 @@ confidence: high
 
 ## v54.16 SCR-OS local contract closure and promotion safety (2026-08-13)
 
-- [x] QA-SCR-OS14: PIT validation rejects missing/invalid point-in-time dates, present-day universes, missing filing availability, turnover, liquidity, costs, malformed observations, and live/backtest definition mismatch.
+- [x] QA-SCR-OS14: PIT contract rejects present-day universes, missing/invalid membership availability, turnover/liquidity/cost gaps and live/backtest hash mismatch. P1011 adds independent observation availableAt and future-date cases; production PIT membership, filing knowledge time and data coverage remain unverified.
 - [x] QA-SCR-OS15: a complete PIT evidence fixture validates successfully, while the promotion decision remains `promoted:false`, `autoWeightPromotion:false`, and review-only.
 - [x] QA-SCR-OS16: Outcome Ledger requires an explicit finite non-negative transaction cost; modeled zero cost remains observable, while missing/invalid cost is `unavailable` with `transaction_cost_missing`.
 - [x] QA-SCR-OS17: the screener workbench contract gate covers both blocked and positive PIT paths, 37 registered fields, 6 presets, deterministic scale fixtures, refresh/provider/regime contracts, and T+1/5/21/63 outcomes.

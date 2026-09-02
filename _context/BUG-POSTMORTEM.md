@@ -1,13 +1,177 @@
 ---
 verified_by: Codex deterministic gates + browser audit
-last_verified: 2026-08-28
+last_verified: 2026-09-02
 confidence: high
-latest_version: v54.65
-latest_P_number: P1003
-next_P_number: P1004
-current_total_entries: 717 (P1~P1003, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P1003 v54.65 independent screener hydration barrier
+latest_version: v54.76
+latest_P_number: P1029
+next_P_number: P1030
+current_total_entries: 743 (P1~P1029, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P1013~P1029 exhaustive audit in progress; lifecycle, knowledge semantics, domain/AI boundaries and Atlas evidence/status/search rendering reviewed; full-tree semantic review remains open
 ---
+
+## P1029 - v54.76 - Atlas 기업·제품 검색이 레지스트리의 실제 분류 연결을 읽지 않았다
+
+- Root cause: player/product 레지스트리는 도메인 연결을 `taxonomyNodeIds`로 발행하고 실제 카드 렌더도 그 필드를 사용하지만, 도메인 검색 haystack만 존재하지 않는 `nodeIds`를 읽었다. 구조 용어 검색과 화면 렌더는 정상이라 전체 라우트·카드 존재 검사는 통과했지만 기업명·제품명으로 관련 산업을 찾는 검색은 비어 있을 수 있었다.
+- Fix: 검색도 canonical `taxonomyNodeIds`를 사용해 도메인의 node 집합과 player/product를 결합한다. 별도 alias나 중복 index를 추가하지 않고 레지스트리 계약 하나를 공유한다.
+- Verification: 실제 Chromium Atlas taxonomy에서 다른 검색 원장에는 없는 `Samsung Electronics`를 입력해 `domain-memory-storage`가 나타나는지, `memory-dram-hbm` 선택 뒤 `data-atlas-player-id="samsung-electronics"` 카드가 연결되는지, 검색 해제 뒤 19개 도메인이 복구되는지 확인한다. 검색 연결은 기업의 현재 실적·제품 양산·투자 적합성 증거가 아니다.
+
+## P1028 - v54.76 - 정상 Telegram 원장이 Atlas 요약에서는 수집 실패로 표시됐다
+
+- Root cause: producer와 artifact 계약은 전체 성공 상태를 `collectionStatus: "ok"`로 발행하지만 Atlas의 두 상태 문구 중 하나는 `success`만 성공으로 분기했다. 같은 화면의 첫 문구는 `ok`를 올바르게 처리해 DOM·채널 수·상태 요소 존재 검사가 모두 통과했고, 사용자는 바로 아래 요약에서 정상 4/4 수집을 실패로 읽을 수 있었다.
+- Fix: UI 상태 vocabulary를 producer의 `ok | partial | failed` 계약과 일치시켰다. 실제 Chromium gate는 overview에서 정상 상태 문구 두 개, 성공 채널 4/4와 실패 문구 부재를 함께 검증한다.
+- Verification: `ci-atlas-browser-check.mjs`에서 Telegram artifact 연결, 채널 카드 4개, `수집 상태: 4개 채널 관측 완료`, `성공 채널 4/4 · 수집 완료`, 실패 문구 부재를 실제 렌더 DOM으로 확인한다. 이는 Telegram 내용을 1차 근거나 현재 투자 사실로 승격하지 않으며 discovery-only 경계는 유지한다.
+
+## P1027 - v54.76 - private evidence index 전환 뒤 Atlas 관계 근거 링크가 전부 미해결로 표시됐다
+
+- Root cause: P1021에서 외부 mutable `Map`을 제거해 knowledge evidence registry의 `byId`를 private closure로 바꿨지만, Atlas capability 결합부는 계속 `evidence.byId`를 읽어 `registry.evidenceById`에 `undefined`를 저장했다. 정적 source/claim 계약은 registry의 `resolve()`를 검사해 통과했고 기존 Atlas 브라우저 검사는 실제 상태를 출력하지 않은 채 링크 6개 조건을 30초 기다려 원인을 숨겼다.
+- Fix: Atlas 내부에는 mutation API가 없는 frozen `{ get: evidence.resolve }` adapter만 전달한다. 브라우저 검사는 근거 상세의 open 상태, 링크 6개, unresolved 0개, summary count를 즉시 구조화해 검증하고 실패 시 실제 상태를 출력한다.
+- Verification: `ci-knowledge-core-semantic-check.mjs`에서 registered 169/referenced 74/unresolved 0/conflicts 0, `ci-atlas-contract-check.mjs` PASS, 실제 Chromium `ci-atlas-browser-check.mjs`에서 관계 지도 5개·노드 35개·edge 31개, focused `financial-targets` 근거 링크 6개, 1280/760 overflow 0 및 browser errors 0 PASS. source registry 존재만으로 원문의 현재 사실성이나 투자 판단 적합성을 인증하지 않는다.
+
+## P1026 - v54.76 - AI 분석·리서치·응답 경계가 결측·혼합 문맥·오류 세부를 과신했다
+
+- Root cause: 인과 엔진이 복사된 후보와 원본 사건을 비교해 주 사건을 대안으로 다시 셀 수 있었고 시간창 밖 사건도 대안 근거가 됐다. 기업·섹터·기술 분석은 `Number(null)`/빈 문자열/boolean을 0으로 받아들였다. 교육 문구와 유해 실행 단계가 섞이면 P0 차단을 우회할 수 있었고, 혼합 KR/US 질의는 단일 시장 세션으로 분류됐다. malformed research source floor는 0으로 약화될 수 있었으며 runner/parser/retriever 내부 오류가 그대로 노출되고 일부 nested projection은 mutable했다.
+- Fix: 인과 후보·대안·교차자산을 하나의 시간창과 source/time/evidence 계약으로 통합한다. 금융 분석 입력은 strict finite/domain validation을 사용하고 traceability가 없으면 partial/insufficient로 둔다. prohibited operational intent는 교육 단어와 무관하게 차단한다. mixed market을 명시하고 단일 세션을 검증하지 않는다. research floor·budget·clock을 fail closed로 만들고 오류는 bounded code로 바꾸며 context/claim/audit/retrieval projection을 복제·동결한다.
+- Verification: `ci-ai-intelligence-contract-check.mjs`, `ci-inference-contract-check.mjs`, `ci-research-model-contract-check.mjs`, `ci-research-flow-contract-check.mjs`, `ci-knowledge-repository-contract.mjs`, `ci-esm-core-unit-check.mjs`, `ci-syntax-check.mjs` PASS. 이 결과는 regex intent corpus와 offline contract 검증이며 실제 AI provider 응답 정확도·검색 원문 사실성·현재 시장 데이터 최신성을 인증하지 않는다.
+
+## P1025 - v54.76 - 도메인 계산기가 잘못된 값·단위·비용 의미를 유효한 금융 결과로 만들 수 있었다
+
+- Root cause: market health/breadth, transmission, news, themes, sentiment, technical, portfolio와 SEC projection 여러 곳이 비유한·범위 밖·negative·blank 입력을 정상값 또는 분류로 바꿀 수 있었다. portfolio concentration은 shares/currentPrice 합계와 holding value가 다른 기준을 써 100% 초과 weight를 만들었고, screener outcome은 비용 반영 return을 `rawReturn`에 저장했다. trading score는 caller clamp와 mutable output에 의존했다.
+- Fix: 도메인별 유효 범위와 결측 의미를 직접 검증하고 중첩 결과를 동결한다. concentration v2는 total/holding valuation을 한 기준으로 계산한다. outcome-ledger v3는 gross `rawReturn`과 cost-adjusted `netReturn`을 분리하고 기존 v2 shape를 명시적으로 migration한다. trading-score v2는 모든 numeric domain과 news adjustment를 제한하면서 유효 golden parity를 유지한다. portfolio VIX 한도는 명령이 아닌 `reference-only` 정책으로 표시한다.
+- Verification: `ci-domain-parity-check.mjs`, `ci-esm-core-unit-check.mjs`, `ci-screener-workbench-contract.mjs`, `ci-native-decision-evidence-check.mjs`, `ci-runtime-contract-check.mjs`, `ci-architecture-contract-check.mjs` PASS. 가중치·threshold의 경제적 예측력과 production PIT/outcome collector는 여전히 미검증이다.
+
+## P1024 - v54.76 - 지식 그래프의 탐색 관계와 인과 관계가 섞이고 저장 상태가 외부 변경에 노출됐다
+
+- Root cause: 17개 cross-industry navigation edge가 generic `CAUSES`로 생성돼 교육용 연결이 인과 의미처럼 보였다. graph enum/collection 검증이 느슨했고 learning-state의 persisted collection과 nested snapshot이 malformed 또는 mutable 상태로 남을 수 있었다. route bridge는 allowlist/return context를 외부 mutable shape에 의존했다.
+- Fix: navigation relation `RELATES_TO`를 도입하고 17개 edge를 재생성한다. generator는 명시적 causal profile 또는 선언된 navigation relation이 없는 edge를 거부한다. graph/learning projection을 검증·동결하고 reserved key를 막는다. route bridge는 private allowlist, immutable target과 bounded/cycle-safe return context를 사용한다.
+- Verification: `ci-knowledge-core-semantic-check.mjs`, `ci-knowledge-learning-state-contract.mjs`, `ci-knowledge-route-bridge-contract.mjs`, `ci-principles-contract-check.mjs`, `ci-capability-claim-contract-check.mjs` PASS. curated source가 실제 산업 인과를 입증했다는 뜻은 아니다.
+
+## P1023 - v54.76 - 앱 종료 뒤 deferred 작업과 route transition이 상태를 다시 쓸 수 있었다
+
+- Root cause: application lifecycle은 route resource를 정리했지만 queued timer/microtask와 snapshot load 완료를 앱 stop에 묶지 않았다. router도 dispose 뒤 restart/transition을 명시적으로 거부하지 않아 late callback이 새 route 수명주기를 열 수 있었다. route return context는 허용되지 않은 route·과대/cyclic 값을 충분히 제한하지 않았다.
+- Fix: lifecycle에 cancellable deferred queue와 coalesced microtask를 두고 stop을 idempotent하게 만들어 pending 작업을 취소한다. bootstrap의 startup/snapshot publication은 stop guard를 거치며 router는 dispose 뒤 start/transition을 거부한다. route state는 canonical allowlist와 bounded serialization을 사용한다.
+- Verification: `ci-esm-core-unit-check.mjs`, `ci-runtime-contract-check.mjs`, `ci-architecture-contract-check.mjs`, `ci-knowledge-route-bridge-contract.mjs` PASS. 이미 실행 중인 외부 transport 자체의 중단은 각 producer AbortSignal 계약에 계속 의존한다.
+
+## P1022 - v54.75 - 상태 projection이 결측 숫자와 명시적 초기화를 보존하지 못했다
+
+- Root cause: portfolio normalizer가 `Number(null)`/`Number('')`를 0으로 바꿔 없는 cash·shares·weight·total을 실제 0처럼 저장했다. themes reducer는 `selectedId/detail || oldValue`를 사용해 provider가 null로 selection을 지워도 이전 상세를 유지했다. news provider는 비배열 반환에 `.map()`을 호출하고 잘못된 clock에서 throw할 수 있었다. 여러 normalized item은 frozen 배열 안의 mutable row였다.
+- Fix: null/blank를 먼저 거부하는 numeric parser를 사용하고 portfolio holdings/totals를 동결한다. theme payload는 own-property 기준으로 omitted와 explicit null을 구분한다. news malformed items/time은 empty/null로 fail closed한다. news/theme/market/entity row projection과 reducer 입력을 필요한 수준에서 복제·동결한다.
+- Verification: `ci-architecture-contract-check.mjs`에서 null/blank portfolio 필드, frozen projection, malformed news/time, frozen quote, theme 명시적 clear와 omitted items 보존을 실제 실행해 PASS. nested 임의 객체 전체의 deep immutability나 사용자 portfolio repository의 실데이터 복구를 인증하지 않는다.
+
+## P1021 - v54.75 - 삭제된 기능과 시험용 기반이 현재 제품 기능처럼 남아 있었다
+
+- Root cause: native lifecycle로 대체된 `legacy-observer`와 실제로 도달할 수 없는 USD 전용 포지션 계산 UI가 소스·DOM·서비스워커 공개 목록에 남아 있었다. 지식 repository에서 `quantitativeLabs`는 제품 범위에서 의도적으로 제외됐지만 selector만 남았다. 일부 지식 registry는 외부에 mutable `Map`을 노출해 outer `Object.freeze`의 불변성 표현과 달랐다.
+- Fix: dead observer, position panel·handler·CSS, obsolete selector를 제거했다. 지식 ontology/evidence/claim registry는 Map index를 closure 내부에 두고 canonical projection을 복제·동결한다. UI evidence renderer는 `resolve()` 계약 하나만 사용한다. AI benchmark/provider/envelope 및 일부 knowledge renderer는 실제 채팅/route runtime이 아니라 CI·향후 기반이라는 분류를 감사 원장에 남겼으며 기능 완료로 승격하지 않았다.
+- Verification: `ci-retirement-contract.mjs`, `ci-desktop-continuity-check.mjs`, `ci-knowledge-core-semantic-check.mjs`, `ci-knowledge-ontology-contract.mjs`, `ci-knowledge-renderer-contract.mjs` PASS. 제거는 현재 도달성과 계약을 확인한 범위이며 모든 미도달 후보 제거 완료를 뜻하지 않는다.
+
+## P1020 - v54.75 - 작은 기반 계약들이 누락값·시간·불변성을 성공 상태로 해석했다
+
+- Root cause: AI benchmark의 없는 비용이 0으로 바뀌고 evidence completeness는 metric ID를 놓쳤다. control-plane payload가 trusted type/time을 덮을 수 있었고 provider 예외가 그대로 전파됐다. response validator는 malformed 배열에서 throw할 수 있었다. matched lineage는 sourceKind·시각이 없어도 통과했고 revision은 generatedAt 없이도 유효했다. 한국어 레짐 문구와 비유한 profile weight, 미래 previous regime timestamp도 경계가 없었다.
+- Fix: unknown 비용은 null로 유지하고 type/metricId 양쪽 completeness를 계산한다. control event의 type/time은 시스템이 마지막에 기록하고 provider 실패를 bounded code로 정규화한다. response 배열·시각·citation을 검증한다. MATCH lineage는 sourceKind/observedAt/fetchedAt과 시각 순서를 요구하고 revision generatedAt을 필수화한다. 다국어 레짐과 finite/nonnegative weights를 검증하며 미래 previous timestamp는 hysteresis hold에 쓰지 않는다.
+- Verification: `ci-ai-intelligence-contract-check.mjs`, `ci-knowledge-core-semantic-check.mjs`, `ci-architecture-contract-check.mjs`, `ci-esm-core-unit-check.mjs`, `ci-screener-workbench-contract.mjs`의 반례 PASS. 이 기반 중 일부는 현재 사용자 대화 runtime에 연결되지 않아 답변 정확도·최신성 개선 증거로 사용하지 않는다.
+
+## P1019 - v54.75 - 실패한 계산·취소된 요청이 후속 실행의 상태를 오염했다
+
+- Root cause: memoize가 계산 성공 전에 입력을 저장해 예외 뒤 같은 입력 재시도에서 이전 입력의 결과를 반환할 수 있었다. HTTP client는 `Headers`를 object spread하여 헤더를 잃고, transport/body가 AbortSignal을 무시하면 timeout 이후에도 pending 또는 늦은 성공으로 끝날 수 있었다.
+- Fix: memoize input/result는 compute 성공 후 함께 commit한다. HTTP 입력은 Headers/tuple/object별로 복사하고 pre-abort는 transport를 호출하지 않는다. request와 body read를 독립 deadline에 race하고 timeout/abort 이후 결과 publication을 차단한다.
+- Verification: `ci-esm-core-unit-check.mjs`와 `_artifacts/exhaustive-audit-20260831/open-issue-probes.mjs`의 throw→retry, Headers, pre-abort, abort 무시 transport/body 지연 fixture PASS. 실제 외부 provider 가용성이나 네트워크 성능을 인증하지 않는다.
+
+## P1018 - v54.75 - 서로 다른 통화·관측·출처가 한 스크리너 값으로 합쳐졌다
+
+- Root cause: KRW 시가총액을 10억으로 나눈 뒤 USD_bn으로 표시하고, 시장 코드로 통화·MIC·asset type을 추정했다. 통화가 다른 live quote가 artifact 값을 덮을 수 있었고, value와 metadata를 독립 fallback하여 다른 날짜/출처가 붙었다. 한 provider call 안에서도 live snapshot을 여러 번 읽어 서로 다른 epoch가 섞일 수 있었다.
+- Fix: explicit currency가 일치할 때만 live price를 합치고 USD 표준 시가총액/유동성 계산은 명시적 USD만 허용한다. 원통화 시가총액은 `nativeMarketCap` 참고값으로 표시하며 USD filter/factor에는 참여하지 않는다. 결측 currency/MIC/asset type은 null로 둔다. Fear & Greed/put-call fallback은 관측 객체 전체를 선택하고 provider는 live snapshot을 한 번만 읽는다. producer는 다음 정상 갱신부터 price/liquidity 옆에 currency를 기록한다.
+- Verification: `ci-screener-workbench-contract.mjs`, `ci-native-decision-evidence-check.mjs`, `ci-desktop-continuity-check.mjs`, open-issue probe의 KRW/USD·미표기 금액·통화 충돌·원자 fallback·단일 snapshot 반례 PASS. 현재 생성 artifact는 변경 전 산출물이라 currency 필드가 없고 다음 정상 데이터 갱신 전에는 해당 계산이 보수적으로 unavailable이다.
+
+## P1017 - v54.74 - 화면 조건과 실행 정의가 별개 상태로 누적됐다
+
+- Root cause: builder chip 배열과 실제 filter control이 독립적이라 chip 제거 후에도 조건이 작동했다. 같은 필드 추가는 중복되고, 실행마다 AST에 같은 조건을 덧붙였다. select는 실제로 생성하지 않는 screen-select 버튼을 찾았으며 preset은 이전 실행 결과를 유지했다. sticky offset은 비고정 열의 폭을 더했다.
+- Fix: 조건 chip을 control에서 파생하고 visual AST 노드를 출처별로 교체한다. select/preset은 공통 전환 함수에서 정의·결과·비동기 generation을 함께 변경한다. 고정 열끼리만 offset을 누적한다. 현재 표의 검색/구조/섹터 조건은 영속 실행 AST에 포함되지 않는 잔여 범위로 명시한다.
+- Verification: `ci-desktop-continuity-check.mjs` 실제 builder 함수 반복 hash 불변·삭제 후 원래 preset 보존; `ci-screener-auto-refresh-browser-check.mjs` 실제 select 변경·RSI chip 삭제·재추가·교체·고정 열·보관/reload/replay PASS. 테스트 VM은 실제 계약 import를 주입하고 최종 검사 이전의 PASS 출력도 제거했다.
+
+## P1016 - v54.74 - 취소·재시도와 저장소 실패가 서로의 상태를 오염했다
+
+- Root cause: 이미 취소된 consumer도 artifact 요청을 만들고, 마지막 consumer가 떠난 직후의 재시도가 취소된 in-flight에 합류했다. 구 요청 cleanup이 새 요청을 삭제할 수 있었다. localStorage getter 예외는 gateway 생성 밖에 있었으며 repository는 주입된 raw storage를 무시하고 같은 버전의 잘못된 데이터/미래 버전을 재검증하지 않았다.
+- Fix: 요청 전 abort, 취소된 요청과 새 요청의 identity 분리, 취소 후 late response 캐시 배제; 실패 가능한 storage 접근 보호, raw storage 전달, 같은 버전 검증·미래 버전 보존·누락 migration 명시 오류. 보관소 open 실패 복구와 동일 시각 저장 순서도 보강했다.
+- Verification: `ci-artifact-cache-check.mjs`, `ci-storage-migration-check.mjs`의 실제 비동기/저장 음성·양성 fixture PASS. repository/migrations는 현재 runtime 미사용 기반이며 실제 사용자 데이터 손상이 관측됐다는 뜻은 아니다.
+
+## P1015 - v54.74 - 집합의 80% 충족이 오래된 소수 행까지 유효하게 만들었다
+
+- Root cause: size/value/quality 활성 여부만 집합의 신선도로 판단하고 통계에는 stale/future 행 값을 넣었다. NaN momentum 행은 순위 분모에 남았고, 결측 팩터 표시는 50이었다. top-N turnover는 동점 내부 배열 순서에 의존했다.
+- Fix: 선택 팩터의 개별 관측일 마스킹 후 표본 통계, NaN core 행 audit/순위 제외, 결측 score=null, 동점 경계 전체 포함과 실제 집합 크기 분모. symbol-only 입력도 표준 sym으로 출력한다. 모델 ID `factor-ranks.v4`.
+- Verification: stale 소수 행 값을 극단적으로 바꾸어도 peer 결과가 불변인 fixture, NaN 추가 전후 전체 결과 동등성, 역순 동점 turnover=0, 실제 길이 검증. `ci-research-model-contract-check.mjs`, `ci-esm-core-unit-check.mjs` PASS, 기존 golden 5개를 재생성하지 않고 parity PASS. 수익 예측력 인증은 아니다.
+
+## P1014 - v54.74 - 실행 기능의 내부 존재가 화면 연결·영속 재현을 뜻하지 않았다
+
+- Root cause: 화면은 노출되지 않은 전역 API를 optional 호출하여 실행이 조용히 무시됐다. snapshotId는 값 대신 revision/symbol만 포함했고 자동 sync 요약은 사용자 이력처럼 보였다. 입력 보관이 없어 reload 후 재현할 수 없고, quote sync가 고정 실행을 초기화했다. 시각 조건 변경은 옛 definitionHash를 유지했다.
+- Fix: native route에 최소 Workbench 서비스를 직접 주입한다. 전역 facade 추가는 제거했다. 실제 관측값을 snapshot identity에 포함하고 full input/definition/model/metadata를 최대 5개 IndexedDB 보관·재현·삭제한다. 현재 시세와 고정 결과를 분리하고 직접 조건 수정은 정의를 재생성한다. 자동 outcome 추적과 세션 조건 저장의 범위를 정확히 표시한다.
+- Verification: 실제 화면 실행→quote 변경→reload→보관 재현→삭제 Chromium 검사에서 873개 입력, result/explanation hash 일치, runtime error 0. content hash는 비암호학적 정합성 검사이며 서명/변조 방지/과거 공급자 원본 인증이 아니다. 구 엔진 버전의 재현은 명시적으로 거부한다.
+
+## P1013 - v54.74 - 표시 가능한 과거 관측과 계산 가능한 현재 관측의 정책이 충돌했다
+
+- Root cause: artifact timestamp 하나가 전체 표를 숨겼지만 일반 evidence는 날짜 없는 live를 decision으로 허용했다. 느슨한 allowedUse 문자열 변환은 부정 표현을 승격하고 selector는 ceiling을 놓쳤다. native null을 legacy 숫자로 다시 채웠으며 artifact price가 더 최신인 live quote를 덮었다.
+- Fix: per-field display/calculation 사용 범위, 실제 관측일과 생성일 분리, stale/partial에서 종목 식별·참고값 보존, 계산 전 마스킹, 정확한 use alias/ceiling과 과거 관측일 검증. native row가 유일한 수치 원본이며 quote sync는 현재 fetch와 조율해 중복 다운로드를 피한다.
+- Verification: `ci-esm-core-unit-check.mjs`, `ci-screener-workbench-contract.mjs`, `ci-screener-auto-refresh-browser-check.mjs`. stale 행 표시와 계산 보류, 독립 fresh fundamental, 부정 alias·미래 날짜·rights denial·시총 결측/버킷 경계 fixture. 최신 데이터를 실제로 수집했다는 검증은 별도다.
+
+## P1012 - v54.73 - 현재 동작과 분리된 구식 회귀 기대값이 남았다
+
+- Date: 2026-08-31. 전체 headless 1,124건 중 T1041/T143/T160/T775/T813 다섯 assertion이 실패했다.
+- Root cause: timer 기반 proxy 복구를 요청 시 단일 probe로 바꾼 뒤 timer 횟수 검사를 유지했고, lazy ticker hydration 이전 breadcrumb에 동기 action을 요구했다. 관련성 강화 memory fixture의 토큰 겹침이 부족했으며 기술 데이터 호출은 AbortSignal 인자가 추가돼 정확 문자열 검사가 낡았다.
+- Fix: T1041은 cooldown 거부/단일 probe/성공 복구를 실제 실행한다. T143은 동기 no-inline-handler 범위만 검증하고 origin/복귀는 desktop-continuity와 브라우저 증거로 분리한다. T160은 관련/무관 양쪽을 확인한다. T775/T813은 signal 전달·컨텍스트 제한 제거·주입 경로를 정적 검증한다. 제품 코드를 옛 fixture에 맞춰 되돌리지 않았다.
+- Verification: 실패 그룹 G013/G022/G026/G080 exact rerun PASS. 정적 호출 문자열은 실제 provider 동작 검증이 아니며 이 경계를 유지한다. 최종 전체 결과는 감사 보고서를 참조한다.
+
+## P1011 - v54.73 - 계약 PASS가 스크리너의 재현성·시점·결측 의미를 보증하지 못했다
+
+- Date: 2026-08-31. 독립 재현: 동일 6개 팩터 입력의 rank가 0/20/40/60/80/100, 낮은 변동성 종목이 높은 종목 뒤에 정렬, LAST_GOOD filter PASS, AST를 바꾸어도 definitionHash 유지, 미래 PIT 관측 PASS, missing benchmark=-100%, 역전 entry/exit=observed, 두 점으로 MDD=0, 금요일 T+1=토요일, in-flight/blocked refresh 재선택. 별도 재현에서 null coverage threshold가 80→0이 되어 일부 근거만으로 total=62, null previous-close/delay가 관측된 기준/0ms로 승격됐다.
+- Root cause: 정상 fixture와 구조/문자열 존재 중심 검증이 경계값과 불변성을 검사하지 않았다. P915의 비용 null 보정이 benchmark/coverage/quote 메타데이터의 같은 변환 클래스까지 전파되지 않았다. 원장 QA-SCR-OS14/17의 검증 범위가 실제보다 넓었다.
+- Fix: 기존 모델에서 동점 midrank·저변동 단일 필드 순서·status allowlist, 정의 deep-copy/freeze 및 hash 검증, PIT availableAt/asOf 비교, strict numeric/time outcome·근거 없는 MDD=null·명시적 session calendar, refresh queue in-flight/terminal 상태 전이를 적용했다. signal과 snapshot 숫자 경계에서 null/blank/boolean을 차단했다. 새 parallel 계산 경로는 추가하지 않았다.
+- Reachability: rank/definition/filter/signal/snapshot은 실행 경로다. PIT/outcome/refresh-planner는 현재 테스트에서만 소비되는 기반 모듈이며 실제 서비스 미래수익 누출이나 자동 재시도 장애가 관측됐다는 뜻은 아니다. 거래일·기업행사·성과 경로·영속 실행 저장소가 없는 production PIT/backtest 인증은 계속 미완료다.
+- Prevention: R573, QA-AUDIT-20260831-01~05; 기존 screener-workbench/research-model/native-decision/market-snapshot gate에 독립 음성·양성 fixture를 추가했다. 변경된 screener 모델 ID는 v3, PIT/outcome/planner ID는 v2다.
+- Evidence: `_artifacts/deep-audit-20260831/probes-before.json`, `probes-after.json`, 해당 디렉터리의 `REPORT.md`. 1,783개 파일·1,730개 커밋 색인은 모든 줄의 의미 검토 완료를 뜻하지 않는다. 최신 데이터·배포·provider 권리는 인증하지 않았다.
+
+## P1010 - v54.70 - 구조상 연결과 실제 사용자 흐름 사이에 결측·중복·탐색 단절이 남았다
+
+- Date: 2026-08-30. 증상: 홈 총점은 미수신인데 성분은 0, F&G 값과 상태 불일치, 종목 복귀가 다른 페이지로 이동, 숨겨진 점수 정렬, 이름만 나열한 비교, 미연결 재무 표와 WATCH 버튼, VXX 수익률로 추정한 선물 구조.
+- Root cause: canonical model과 legacy writer가 경쟁했고, route origin은 이동 중 덮어써졌다. return context는 쓰기만 했고, 비교/재무의 UI 존재를 실제 기능 연결로 간주했다. 서로 다른 금융 변수로 곡선·롤손익을 추정했다.
+- Files/fix: `trading-score.js` → `analysis.js` 단일 점수/심리 소유권, `screener.js` 결측 후순위·8필드 비교·포커스/스크롤 복귀, `entity.js` 실제 origin/SEC 보고서 연결. `index.html`·`aio-core.js`·`aio-data.js`·`aio-ui.js`의 중복/미연결 writer와 DOM 제거. native 이전 완료로 과장하지 않도록 route-owners 경계 유지.
+- Prevention: R572, `ci-desktop-continuity-check.mjs` null/zero·상태 전환·정렬·비교·접근성 이름 VM 및 삭제 음성대조, `ci-runtime-contract-check.mjs` EF-10/11, `aio-tests.js` T875/T876. 상세 명령·실브라우저 관측·잔여 범위는 `_artifacts/user-flow-remediation-20260830.md`.
+- Verification boundary: 실제 브라우저에서 홈·스크리너→NVDA→복귀 및 테마 연결을 실행했다. 전 데이터 행/접힌 콘텐츠의 의미 검증·무료 시세/이력 복구·AI 공급자·배포 인증은 별도이며 완료 아님.
+
+## P1009 - v54.69 - 데스크톱 결측값 처리와 문서 참조 연결이 불완전했다
+
+- 원인: 미수신 행을 early return해 이전 텍스트·출처가 남았고, null을 0으로 변환했다. 부분 에이전트 패치의 documentRef 변경이 상위 호출까지 전달되지 않았다.
+- 수정: 값·색상·시각·출처를 함께 지우고 회복 시 새 관측만 렌더링한다. macro 문서 참조를 끝까지 주입하고 reference 시세를 live로 재표시하지 않는다. 반복 페이지 안내 레일은 통합하지 않았다.
+- 회귀: `ci-desktop-continuity-check.mjs`의 실제 renderer VM 상태 전환. 20개 module 존재 검사는 화면/사용성 인증이 아니다.
+
+## P1008 - v54.69 - 취소된 채팅과 검색 실패가 후속 답변을 막거나 덮었다
+
+- 원인: 준비 단계·재시도·스트림 수명주기가 분리되어 이전 요청의 callback이 남았다. 검색 빈 응답·지식 로딩 정지는 폴백을 막고 객체형 citation은 근거에서 탈락했다.
+- 수정: 요청 epoch/AbortSignal과 완료·취소 정리, provider/knowledge deadline, 실패 재시도, 같은 계획의 중복 검색 억제, HTTPS citation 정규화. 사용할 수 있는 근거는 유지하고 제외 근거를 별도 계수한다.
+- 회귀: `ci-chat-resilience-check.mjs`는 취소·stale callback 경계·검색 timeout/empty fallback·공유 지식 load·위장 도메인을 실행한다. 실제 AI 공급자 호출 인증은 별도다.
+
+## P1007 - v54.69 - 관측 결측·출처·주기와 수집 성공시각이 합성 중 바뀌었다
+
+- 원인: null change의 Number 변환, FX 방문 간 변화와 Stooq 시가를 일간 수익률로 사용, HYG 가격 기반 임의 HY spread, daily gold→weekly overwrite, 가상 VIX 분포, 부분 FRED를 전체 성공으로 처리했다.
+- 수정: 결측은 null, 실제 시점 우선, FX/Stooq reference 및 알려진 기준만 사용, 관측 VIX 표본만 사용한다. FRED 공통 순수 함수로 부분 성공과 last-success를 분리하고 원자적 저장의 URL 경로 지원을 보완했다. 고정 전체 티커 fanout을 요청 범위로 축소했다.
+- 회귀: `ci-proxy-continuity-check.mjs`, `ci-data-continuity-check.mjs`; 카테고리 artifact 존재와 실제 최신성은 별도 증거다.
+
+## P1006 - v54.69 - 무료 프록시 요청 식별·회복·설정이 서로 충돌했다
+
+- 원인: URL 앞부분만 자른 캐시 키가 다른 ticker/range와 충돌하고 반복 실패마다 복구 타이머를 누적했다. 공용 AI 상태와 시세 Worker 설정이 결합돼 개인 설정 없는 브라우저는 해당 경로를 못 썼다.
+- 수정: 전체 요청 identity/schema2, payload symbol/interval 검증, explicit stale fallback, source별 circuit/단일 probe/Retry-After, 총 시간 예산 및 body 검증, 민감 query의 공개 relay/저장 차단. 공용 marketData 설정을 AI 가용성과 분리했다.
+- 회귀: `ci-proxy-continuity-check.mjs`의 구 키 충돌 negative control, 캐시 parity, 실패 burst, 취소, 출처/주기 오염 검사. 무료 upstream 가용성을 보장한다는 뜻은 아니다.
+
+## P1005 - v54.68 - 버전 동기화가 권한 오류 후 같은 버전으로 재개되지 않았다
+
+- **root_cause**: bump preflight는 패턴만 검사하므로 일부 파일의 쓰기 권한 실패를 막지 못했다. version.json이 먼저 전진한 상태에서 같은 버전 재실행은 단조 증가 검사에 막혔다.
+- **fix/prevention**: 명시적 `--resume-from <이전버전>` 복구 모드는 이전/목표 버전 표면만 허용하고 이미 동기화된 대상은 보존하면서 누락된 치환을 완료한다. 실제 쓰기 권한은 승인된 실행 환경으로 해결하며 복구 옵션은 권한을 우회하지 않는다.
+- **verification**: 실제 v54.67→v54.68 partial bump를 복구했고 research-flow VM gate가 목표 버전 보존·이전 버전 치환·다른 버전 거부를 검사한다. R1 gate로 최종 표면 일치를 검증한다.
+
+## P1004 - v54.68 - 관측 품질·사용권·종목·주기가 다른 경로에서 섞였다
+
+- **root_cause**: screener required-field readiness가 일부 결손을 통과시키면서 반대로 공개 지연 데이터의 사용권 검토를 결측처럼 취급했다. 별칭 검색의 빈 배열 every는 전체 행을 일치시켰고, 기업/기술 분석의 느린 응답에는 선택 epoch가 없었다. Yahoo 주/월봉 대체 요청은 일봉으로 고정됐으며, ADR·EMA·VIX 백분위 일부는 실제 이력 없이 합성됐다. SEC 분기 매출/순익은 instant frame을 요청했고 테마 상세는 숨겨진 legacy wrapper에 포함됐다.
+- **fix**: 모든 필수 관측값을 요구하되 REVIEW_REQUIRED 공개 지연 팩터는 연구용 DELAYED로 분리했다. 정확한 티커 우선 검색, 종목 epoch·초기화·document event, 주기별 Yahoo 요청과 source/date 보존, 실제 OHLCV EMA/RSI·캔들, VIX 관측 표본 분위수, SEC duration frame, native 테마 상세 독립 표시를 적용했다. 시총 기반 가짜 ADR과 근거 없는 옵션/회전 방향 처방을 제거했다.
+- **violated_rule**: R570 — 값·종목·관측 주기·사용 범위의 identity를 producer부터 consumer까지 보존한다.
+- **prevention**: `ci-research-flow-contract-check.mjs`가 역순 응답, invalid entity, 빈 OHLCV, 주기/source parity와 synthetic indicator 제거를 실행 검사하며 screener contract가 필수 필드·사용권 구분·정확한 티커 검색을 검사한다.
+- **verification**: VM/static focused gates and local desktop browser interactions; full/deployed claims are tracked separately in `_artifacts/structural-rebuild-20260830.md`.
 
 ## P1003 - v54.65 - market epoch 브라우저 검사가 screener hydration보다 먼저 판정했다
 

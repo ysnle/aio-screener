@@ -13,7 +13,7 @@ export function newsReducer(state = createInitialNewsState(), action = {}) {
   if (action.type === NEWS_DATA_SET) {
     const payload = action.payload && typeof action.payload === 'object' ? action.payload : {};
     return {
-      items: Array.isArray(payload.items) ? payload.items.slice() : [],
+      items: Array.isArray(payload.items) ? payload.items.map((item) => item && typeof item === 'object' ? { ...item } : item) : [],
       status: payload.status || (payload.items?.length ? 'current' : 'unavailable'),
       revision: action.meta?.revision || payload.revision || state.revision || null,
       updatedAt: action.meta?.updatedAt || payload.updatedAt || state.updatedAt || null,

@@ -2,6 +2,7 @@ import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
 import { selectEntityState } from '../../state/selectors/entity.js';
 import { selectPortfolioState } from '../../state/selectors/portfolio.js';
 import { deriveSecReport } from '../../domain/fundamental/sec-report.js';
+import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 
 function finite(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
@@ -95,25 +96,35 @@ function renderTickerNavigation(documentRef, state, root) {
   const breadcrumb = tickerElement(documentRef, 'ticker-breadcrumb-main');
   const backButton = tickerElement(documentRef, 'ticker-back-btn-main');
   const hasSelection = !!state?.id || !!String(root?._currentTickerId || '').trim();
+  const fundamentalLink = tickerElement(documentRef, 'ticker-fundamental-link');
+  if (fundamentalLink) {
+    const symbol = String(state?.id || root?._currentTickerId || '').trim();
+    fundamentalLink.disabled = !symbol;
+    fundamentalLink.textContent = symbol ? `${symbol} SEC 재무 보기` : '종목 선택 후 SEC 재무 보기';
+    fundamentalLink.setAttribute('aria-label', fundamentalLink.textContent);
+  }
   if (!hasSelection) {
-    if (breadcrumb) breadcrumb.textContent = '종목 선택 대기';
-    if (backButton) backButton.textContent = '← 돌아가기';
+    if (breadcrumb) { breadcrumb.textContent = '종목 선택 대기'; breadcrumb.setAttribute('aria-label', '종목 선택 대기'); }
+    if (backButton) { backButton.textContent = '← 돌아가기'; backButton.setAttribute('aria-label', '← 돌아가기'); }
     return;
   }
-  // A direct ticker search is an entity-analysis route, not a portfolio
-  // child route. Keep the visible breadcrumb truthful and give keyboard and
-  // pointer users an actionable parent even when no legacy context exists.
+  const origins = { screener: '스크리너', themes: '테마 분석', portfolio: '포트폴리오', fundamental: '기업 분석', technical: '기술 분석', 'market-news': '시장 뉴스', briefing: '오늘의 브리핑', masters: '대가의 포트폴리오', home: '대시보드' };
+  const requestedOrigin = root?.AIO?.state?.tickerReturnRoute;
+  const origin = Object.hasOwn(origins, requestedOrigin) ? requestedOrigin : 'fundamental';
+  const label = origins[origin];
   if (breadcrumb) {
-    breadcrumb.textContent = '종목 분석';
+    breadcrumb.textContent = label;
+    breadcrumb.setAttribute('aria-label', label);
     breadcrumb.setAttribute('data-action', 'showPage');
-    breadcrumb.setAttribute('data-arg', 'fundamental');
+    breadcrumb.setAttribute('data-arg', origin);
     breadcrumb.setAttribute('role', 'button');
     breadcrumb.setAttribute('tabindex', '0');
   }
   if (backButton) {
-    backButton.textContent = '← 기업 분석';
+    backButton.textContent = `← ${label}`;
+    backButton.setAttribute('aria-label', `← ${label}`);
     backButton.setAttribute('data-action', 'showPage');
-    backButton.setAttribute('data-arg', 'fundamental');
+    backButton.setAttribute('data-arg', origin);
   }
 }
 
@@ -480,6 +491,16 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
       });
       eventTarget?.addEventListener?.('aio:pageShown', onPageShown);
       bag.add(() => eventTarget?.removeEventListener?.('aio:pageShown', onPageShown));
+      const page = documentRef?.getElementById(`page-${route}`);
+      let suppliedMaterialBridge = page?.querySelector?.(`[data-aio-supplied-material-route="${route}"]`) || null;
+      if (page && !suppliedMaterialBridge) {
+        suppliedMaterialBridge = createSuppliedMaterialBridge(documentRef, {
+          routeId: route,
+          heading: route === 'ticker' ? '종목 · AI 경제성·자본·13F 맥락' : route === 'fundamental' ? '펀더멘털 · 매출 전환·소프트웨어·Physical AI' : '옵션 · 이벤트·시장 리스크 정렬'
+        });
+        page.appendChild(suppliedMaterialBridge);
+        bag.add(() => suppliedMaterialBridge?.remove?.());
+      }
       if (route === 'ticker') {
         const onRelatedThemeClick = (event) => {
           const trigger = event?.target?.closest?.('[data-action="showThemeDetail"][data-arg]');

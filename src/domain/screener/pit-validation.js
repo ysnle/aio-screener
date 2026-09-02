@@ -1,6 +1,6 @@
 import { stableHash } from '../../data/contracts/screener.js';
 
-export const PIT_VALIDATION_VERSION = 'pit-validation.v1';
+export const PIT_VALIDATION_VERSION = 'pit-validation.v2';
 
 function dateMs(value) { const parsed = Date.parse(value || ''); return Number.isFinite(parsed) ? parsed : NaN; }
 
@@ -14,6 +14,8 @@ export function validatePITObservation({ asOf, effectiveAt, filedAt, availableAt
   const errors = [];
   const asOfMs = dateMs(asOf);
   if (!Number.isFinite(asOfMs)) errors.push('as_of_missing');
+  if (!availableAt) errors.push('availableAt_missing');
+  if (!validFrom) errors.push('valid_from_missing');
   for (const [label, value] of [['effectiveAt', effectiveAt], ['filedAt', filedAt], ['availableAt', availableAt]]) {
     const ms = dateMs(value);
     if (value && !Number.isFinite(ms)) errors.push(`${label}_invalid`);
@@ -38,16 +40,29 @@ export function validatePITObservation({ asOf, effectiveAt, filedAt, availableAt
   else if (!hasFiniteMeasure(liquidity, ['dollarVolume', 'dollarVolume30d', 'capacity', 'adv'])) errors.push('liquidity_invalid');
   if (costBps == null) errors.push('transaction_cost_missing');
   else if (!hasFiniteMeasure(costBps, ['costBps', 'bps', 'roundTripBps'])) errors.push('transaction_cost_invalid');
-  return Object.freeze({ ok: errors.length === 0, errors: [...new Set(errors)] });
+  return Object.freeze({ ok: errors.length === 0, errors: Object.freeze([...new Set(errors)]) });
 }
 
 export function validatePITRun({ universe = [], observations = [], asOf, benchmark = null, costs = null, liquidity = null, liveDefinitionHash = null, backtestDefinitionHash = null } = {}) {
   const errors = [];
+  if (!Number.isFinite(dateMs(asOf))) errors.push('as_of_missing');
   if (!Array.isArray(universe) || !universe.length) errors.push('pit_universe_missing');
   const universeResults = (Array.isArray(universe) ? universe : []).map((row) => validatePITObservation({ ...row, asOf }));
   universeResults.forEach((result) => { if (!result.ok) errors.push(...result.errors); });
   if (!Array.isArray(observations) || !observations.length) errors.push('pit_observations_missing');
-  if (Array.isArray(observations) && observations.some((observation) => !observation?.instrumentId || !Number.isFinite(dateMs(observation.observedAt)))) errors.push('pit_observation_shape_invalid');
+  const cut = dateMs(asOf);
+  for (const observation of Array.isArray(observations) ? observations : []) {
+    if (!observation?.instrumentId || !Number.isFinite(dateMs(observation.observedAt))) errors.push('pit_observation_shape_invalid');
+    // A measured date is not proof that the value was available to this run.
+    if (!observation?.availableAt) errors.push('pit_observation_available_at_missing');
+    for (const field of ['observedAt', 'availableAt', 'filedAt', 'effectiveAt']) {
+      const value = observation?.[field];
+      if (!value) continue;
+      const time = dateMs(value);
+      if (!Number.isFinite(time)) errors.push(`pit_observation_${field}_invalid`);
+      else if (Number.isFinite(cut) && time > cut) errors.push(`pit_observation_future_${field}`);
+    }
+  }
   if (!benchmark) errors.push('benchmark_missing');
   else if (typeof benchmark === 'object' && !benchmark.symbol && !benchmark.instrumentId) errors.push('benchmark_identity_missing');
   if (costs == null) errors.push('costs_missing');
@@ -55,7 +70,7 @@ export function validatePITRun({ universe = [], observations = [], asOf, benchma
   if (liquidity == null) errors.push('liquidity_capacity_missing');
   else if (!hasFiniteMeasure(liquidity, ['dollarVolume', 'dollarVolume30d', 'capacity', 'adv'])) errors.push('liquidity_capacity_invalid');
   if (!liveDefinitionHash || !backtestDefinitionHash || liveDefinitionHash !== backtestDefinitionHash) errors.push('live_backtest_definition_mismatch');
-  return Object.freeze({ ok: errors.length === 0, errors: [...new Set(errors)], checkedUniverse: universeResults.length, checkedObservations: Array.isArray(observations) ? observations.length : 0 });
+  return Object.freeze({ ok: errors.length === 0, errors: Object.freeze([...new Set(errors)]), checkedUniverse: universeResults.length, checkedObservations: Array.isArray(observations) ? observations.length : 0 });
 }
 
 export function createValidationGate(input = {}) {
@@ -82,7 +97,7 @@ export function promotionDecision({ gate, regime, result } = {}) {
     promoted: false,
     promotionReviewReady,
     autoWeightPromotion: false,
-    blockers,
+    blockers: Object.freeze(blockers),
     allowedUse: 'research-relative-ranking-only',
     reason: blockers.length ? 'Promotion prerequisites are incomplete.' : 'Evidence is ready for human review; automatic regime-weight promotion remains disabled.'
   });

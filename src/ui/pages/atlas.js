@@ -7,6 +7,7 @@ import { renderKnowledgeLesson } from '../../ui/knowledge/lesson.js';
 import { createCurrentObservationBlock, validateCurrentObservationsArtifact } from '../../ui/knowledge/current-observations.js';
 import { createKnowledgeLearningControls } from '../../ui/knowledge/learning-controls.js';
 import { loadJsonArtifact } from '../../data/artifact-cache.js';
+import { createSuppliedMaterialBridge } from '../../ui/knowledge/supplied-material-bridge.js';
 import { applySafeExternalLink } from '../../ui/knowledge/safe-external-link.js';
 
 const REVIEWED_AT = '2026-08-18';
@@ -495,7 +496,7 @@ function createTelegramReferenceView(documentRef, telegram, query) {
   const observed = telegram.retainedItemCount ?? telegram.observedItems?.length ?? telegram.count ?? 0;
   const successful = telegram.successfulChannelCount ?? channels.filter((channel) => !channel.error).length;
   const status = telegram.collectionStatus || 'reference_only';
-  const statusLabel = status === 'success' ? '수집 완료' : status === 'partial' ? '일부 수집' : '수집 실패·기존 원장 유지';
+  const statusLabel = status === 'ok' ? '수집 완료' : status === 'partial' ? '일부 수집' : '수집 실패·기존 원장 유지';
   view.append(
     element(documentRef, 'h2', 'atlas-section-title atlas-section-title-spaced', 'Telegram 발견 자료 · 최신 원장과 수집 경계'),
     element(documentRef, 'p', 'atlas-card-copy', `${windowStart} ~ ${windowEnd} · 보존 항목 ${observed}건 · 성공 채널 ${successful}/${channels.length} · ${statusLabel}`),
@@ -1125,8 +1126,8 @@ function createResearchTaxonomyView(documentRef, research, query, registry, doma
     const claims = (claimLedger?.claims || []).filter((claim) => claim.domainId === domain.id || (claim.nodeIds || []).some((id) => nodeIds.has(id)));
     const topics = (deepTaxonomy?.topics || []).filter((topic) => (topic.anchorNodeIds || []).some((id) => nodeIds.has(id)));
     const playerProducts = {
-      players: (registry?.players || []).filter((item) => (item.nodeIds || []).some((id) => nodeIds.has(id))),
-      products: (registry?.products || []).filter((item) => (item.nodeIds || []).some((id) => nodeIds.has(id)))
+      players: (registry?.players || []).filter((item) => (item.taxonomyNodeIds || []).some((id) => nodeIds.has(id))),
+      products: (registry?.products || []).filter((item) => (item.taxonomyNodeIds || []).some((id) => nodeIds.has(id)))
     };
     return [domain.id, domain.title, DOMAIN_LABELS[domain.id], domain.priority, domain.status, (domain.sourceSeeds || []).join(' '), ...(domain.nodes || []).map((node) => `${node.id} ${node.title} ${TAXONOMY_NODE_LABELS[node.id] || ''} ${node.kind}`), JSON.stringify(guide || {}), JSON.stringify(packet || {}), JSON.stringify(claims), JSON.stringify(topics), JSON.stringify(playerProducts)].join(' ').toLowerCase().includes(query);
   });
@@ -1353,6 +1354,12 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
       const page = documentRef?.getElementById('page-atlas');
       const content = page?.querySelector('[data-atlas-content]');
       if (!page || !content) return () => bag.dispose();
+      const suppliedMaterialBridge = createSuppliedMaterialBridge(documentRef, {
+        routeId: 'atlas',
+        heading: 'AI 시대의 산업·자본·기관 증거 브리지'
+      });
+      page.appendChild(suppliedMaterialBridge);
+      bag.add(() => suppliedMaterialBridge.remove());
        const isAlive = () => !scope?.disposed && (typeof scope?.isCurrent !== 'function' || scope.isCurrent());
        const sharedRoute = parseKnowledgeRouteState(root?.location);
        const arrivalContext = parseKnowledgeTargetContext({ root, locationLike: root?.location });
@@ -1489,7 +1496,14 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
           principles.addEventListener('click', () => route('principles'));
           masters.addEventListener('click', () => route('masters'));
           links.append(principles, masters);
-             body.append(readingGuide, readiness, grid, evidenceStatus, note, links);
+              body.append(
+                readingGuide,
+                readiness,
+                grid,
+                evidenceStatus,
+                note,
+                links
+              );
            if (research) body.appendChild(createResearchView(documentRef, research, state.query));
            if (state.currentEvidenceLedger) body.appendChild(createCurrentEvidenceLedgerView(documentRef, state.currentEvidenceLedger, state.query));
            const telegramView = createTelegramReferenceView(documentRef, state.telegram, state.query);
@@ -1602,7 +1616,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
               state.registry = {
                 ...(mergePlayerProductCurrentness(state.registry, state.currentness) || { players: [], products: [], sources: [] }),
                 sources: evidence.sources,
-                evidenceById: evidence.byId,
+                evidenceById: Object.freeze({ get: evidence.resolve }),
                 evidenceConflicts: evidence.conflicts,
                 nodeCoverage: mergeTaxonomyRelationships(state.taxonomyCoverage)
               };

@@ -1,5 +1,5 @@
 function latestItemTime(items = []) {
-  const times = items.map((item) => Date.parse(item?.eventTime || item?.pubDate || item?.publishedAt || '')).filter(Number.isFinite);
+  const times = (Array.isArray(items) ? items : []).map((item) => Date.parse(item?.eventTime || item?.pubDate || item?.publishedAt || '')).filter(Number.isFinite);
   return times.length ? new Date(Math.max(...times)).toISOString() : null;
 }
 
@@ -14,7 +14,7 @@ export function createNewsProvider({ read = () => [], readMeta = () => ({}), now
         fetchedAt: meta.generatedAt || null,
         cycleId: meta.cycleId || null,
         nextRefreshAt: meta.newsNextRefresh || null,
-        checkedAt: new Date(now()).toISOString()
+        checkedAt: (() => { const date = new Date(now()); return Number.isNaN(date.getTime()) ? null : date.toISOString(); })()
       });
     }
   });

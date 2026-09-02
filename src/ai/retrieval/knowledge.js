@@ -25,9 +25,9 @@ function articleText(article) {
   const summary = article?.summary || {};
   return clean([
     article?.articleId, article?.lessonId, article?.surface, article?.title,
-    ...(article?.conceptIds || []),
+    ...(Array.isArray(article?.conceptIds) ? article.conceptIds : []),
     summary.definition, summary.mechanism, summary.example, summary.counterScenario,
-    summary.visualization, ...(article?.keywords || [])
+    summary.visualization, ...(Array.isArray(article?.keywords) ? article.keywords : [])
   ].join(' ')).toLowerCase();
 }
 
@@ -59,11 +59,11 @@ export function createAIKnowledgeIndex(articles = []) {
       lessonId: clean(article.lessonId),
       surface: article.surface,
       title: clean(article.title),
-      conceptIds: Object.freeze((article.conceptIds || []).map(clean).filter(Boolean).slice(0, 8)),
+      conceptIds: Object.freeze((Array.isArray(article.conceptIds) ? article.conceptIds : []).map(clean).filter(Boolean).slice(0, 8)),
       authoringStatus: clean(article.authoringStatus || 'UNREVIEWED_REFERENCE'),
       publication: clean(article.publication || 'EDUCATIONAL_REFERENCE_ONLY'),
       reviewedAt: clean(article.reviewedAt || ''),
-      keywords: Object.freeze((article.keywords || []).map(clean).filter(Boolean).slice(0, 16)),
+      keywords: Object.freeze((Array.isArray(article.keywords) ? article.keywords : []).map(clean).filter(Boolean).slice(0, 16)),
       route: Object.freeze({
         routeId: clean(article.route?.routeId || (article.surface === 'principles' ? 'principles' : 'atlas')),
         deepLink: clean(article.route?.deepLink || ''),
@@ -72,7 +72,7 @@ export function createAIKnowledgeIndex(articles = []) {
         metric: clean(article.route?.metric || ''),
         timeframe: clean(article.route?.timeframe || '')
       }),
-      sources: Object.freeze((article.sources || []).filter((source) => /^https:\/\//i.test(source?.url || '')).slice(0, 3).map((source) => Object.freeze({
+      sources: Object.freeze((Array.isArray(article.sources) ? article.sources : []).filter((source) => /^https:\/\//i.test(source?.url || '')).slice(0, 3).map((source) => Object.freeze({
         id: clean(source.id), publisher: clean(source.publisher), title: clean(source.title), url: clean(source.url), allowedUse: clean(source.allowedUse || 'REFERENCE_ONLY'), directness: clean(source.directness || 'CANDIDATE_REVIEW_REQUIRED')
       }))),
       summary: Object.freeze({
@@ -87,9 +87,10 @@ export function createAIKnowledgeIndex(articles = []) {
 
 export function retrieveAIKnowledge(index, query, { topK = 3, maxChars = 5200 } = {}) {
   const normalizedQuery = clean(query);
-  if (!normalizedQuery) return Object.freeze({ matches: [], context: '', audit: { version: AI_KNOWLEDGE_RETRIEVAL_VERSION, status: 'SKIPPED_EMPTY_QUERY', returned: 0 } });
+  if (!normalizedQuery) return Object.freeze({ matches: Object.freeze([]), context: '', audit: Object.freeze({ version: AI_KNOWLEDGE_RETRIEVAL_VERSION, retrieverVersion: AI_KNOWLEDGE_RETRIEVAL_VERSION, status: 'SKIPPED_EMPTY_QUERY', returned: 0 }) });
   const queryTokens = tokens(normalizedQuery);
-  const limit = Math.min(5, Math.max(1, Number(topK) || 3));
+  const limit = Number.isInteger(topK) && topK > 0 ? Math.min(5, topK) : 3;
+  const contextLimit = Number.isInteger(maxChars) && maxChars >= 500 ? Math.min(20000, maxChars) : 5200;
   const ranked = (Array.isArray(index) ? index : [])
     .map((article) => ({ article, score: scoreArticle(article, normalizedQuery, queryTokens) }))
     .filter((row) => row.score > 0)
@@ -116,7 +117,7 @@ export function retrieveAIKnowledge(index, query, { topK = 3, maxChars = 5200 } 
       article.route.verificationRouteId ? `  전문 화면 검증: route=${article.route.verificationRouteId} metric=${article.route.metric || 'unspecified'} timeframe=${article.route.timeframe || 'unspecified'}` : '',
       article.sources.length ? `  참고 원문 후보(directness 재검토 필요): ${article.sources.map((source) => `${source.id}=${source.url}`).join(' | ')}` : ''
     ].filter(Boolean).join('\n');
-    if (`${lines.join('\n')}\n${block}`.length > maxChars) break;
+    if (`${lines.join('\n')}\n${block}`.length > contextLimit) break;
     lines.push(block);
     matches.push(Object.freeze({ ...article, score: row.score }));
   }
@@ -126,6 +127,7 @@ export function retrieveAIKnowledge(index, query, { topK = 3, maxChars = 5200 } 
     context: matches.length ? `\n\n${lines.join('\n')}\n` : '',
     audit: Object.freeze({
       version: AI_KNOWLEDGE_RETRIEVAL_VERSION,
+      retrieverVersion: AI_KNOWLEDGE_RETRIEVAL_VERSION,
       status,
       queryTokenCount: queryTokens.length,
       indexed: Array.isArray(index) ? index.length : 0,
@@ -137,33 +139,72 @@ export function retrieveAIKnowledge(index, query, { topK = 3, maxChars = 5200 } 
   });
 }
 
-export function createAIKnowledgeRetriever({ fetchImpl = globalThis.fetch, indexUrl = './public-data/knowledge/ai-retrieval-index.json' } = {}) {
+function waitForKnowledge(promise, signal) {
+  if (!signal) return promise;
+  return new Promise((resolve, reject) => {
+    const abort = () => reject(Object.assign(new Error('knowledge_cancelled'), { name: 'AbortError' }));
+    if (signal.aborted) { abort(); return; }
+    signal.addEventListener('abort', abort, { once: true });
+    promise.then(resolve, reject).finally(() => signal.removeEventListener('abort', abort));
+  });
+}
+
+export function createAIKnowledgeRetriever({ fetchImpl = globalThis.fetch, indexUrl = './public-data/knowledge/ai-retrieval-index.json', timeoutMs = 7000 } = {}) {
   let indexPromise = null;
-  let lastAudit = Object.freeze({ version: AI_KNOWLEDGE_RETRIEVAL_VERSION, status: 'NOT_LOADED', returned: 0 });
+  let lastAudit = Object.freeze({ version: AI_KNOWLEDGE_RETRIEVAL_VERSION, retrieverVersion: AI_KNOWLEDGE_RETRIEVAL_VERSION, status: 'NOT_LOADED', returned: 0 });
   const load = async () => {
     if (!indexPromise) {
-      indexPromise = Promise.resolve(fetchImpl(indexUrl, { cache: 'no-cache' }))
+      if (typeof fetchImpl !== 'function') throw new Error('knowledge_fetch_unavailable');
+      const controller = new AbortController();
+      let timer;
+      const pending = Promise.race([Promise.resolve().then(() => fetchImpl(indexUrl, { cache: 'no-cache', signal: controller.signal }))
         .then((response) => {
           if (!response || response.ok === false) throw new Error(`knowledge_index_http_${response?.status || 'unknown'}`);
           return response.json();
         })
-        .then((payload) => createAIKnowledgeIndex(payload?.articles || []))
+        .then((payload) => createAIKnowledgeIndex(payload?.articles || [])),
+      new Promise((_, reject) => { timer = setTimeout(() => {
+        reject(new Error('knowledge_index_timeout'));
+        controller.abort();
+      }, Number.isInteger(timeoutMs) && timeoutMs > 0 ? Math.min(timeoutMs, 60000) : 7000); })])
         .catch((error) => {
-          indexPromise = null;
+          if (indexPromise === pending) indexPromise = null;
           throw error;
-        });
+        }).finally(() => clearTimeout(timer));
+      indexPromise = pending;
     }
     return indexPromise;
   };
   const buildContext = async (query, options = {}) => {
+    const signal = options?.signal;
+    const cancelled = () => Object.freeze({
+      matches: Object.freeze([]),
+      context: '',
+      audit: Object.freeze({ version: AI_KNOWLEDGE_RETRIEVAL_VERSION, retrieverVersion: AI_KNOWLEDGE_RETRIEVAL_VERSION, status: 'CANCELLED', returned: 0 })
+    });
+    if (signal?.aborted) {
+      lastAudit = cancelled().audit;
+      return cancelled();
+    }
     try {
-      const result = retrieveAIKnowledge(await load(), query, options);
+      // A caller can leave promptly without cancelling the shared index load
+      // for another chat. Failed/time-limited loads remain retryable.
+      const result = retrieveAIKnowledge(await waitForKnowledge(load(), signal), query, options);
+      if (signal?.aborted) {
+        lastAudit = cancelled().audit;
+        return cancelled();
+      }
       lastAudit = result.audit;
       return result;
     } catch (error) {
-      lastAudit = Object.freeze({ version: AI_KNOWLEDGE_RETRIEVAL_VERSION, status: 'UNAVAILABLE', returned: 0, error: clean(error?.message || 'knowledge_index_unavailable') });
-      return Object.freeze({ matches: [], context: '', audit: lastAudit });
+      if (signal?.aborted || error?.name === 'AbortError') {
+        lastAudit = cancelled().audit;
+        return cancelled();
+      }
+      lastAudit = Object.freeze({ version: AI_KNOWLEDGE_RETRIEVAL_VERSION, retrieverVersion: AI_KNOWLEDGE_RETRIEVAL_VERSION, status: 'UNAVAILABLE', returned: 0, error: 'knowledge_index_unavailable' });
+      return Object.freeze({ matches: Object.freeze([]), context: '', audit: lastAudit });
     }
   };
-  return Object.freeze({ load, buildContext, getAudit: () => lastAudit });
+  const invalidate = () => { indexPromise = null; lastAudit = Object.freeze({ version: AI_KNOWLEDGE_RETRIEVAL_VERSION, retrieverVersion: AI_KNOWLEDGE_RETRIEVAL_VERSION, status: 'NOT_LOADED', returned: 0 }); };
+  return Object.freeze({ load, buildContext, invalidate, getAudit: () => lastAudit });
 }

@@ -15,7 +15,12 @@ export function createHttpClient({
     const controller = new AbortController();
     const externalSignal = options.signal;
     let abortKind = 'timeout';
+    let rejectAbort;
+    const aborted = new Promise((_, reject) => { rejectAbort = reject; });
+    const onAbort = () => rejectAbort(new Error('HTTP_REQUEST_ABORTED'));
+    controller.signal.addEventListener('abort', onAbort, { once: true });
     const relayExternalAbort = () => {
+      if (controller.signal.aborted) return;
       abortKind = 'external';
       try { controller.abort(externalSignal?.reason); } catch (_) { controller.abort(); }
     };
@@ -25,18 +30,25 @@ export function createHttpClient({
     }
     const timeoutMs = Number.isFinite(options.timeoutMs) ? options.timeoutMs : defaultTimeoutMs;
     const timeoutId = setTimeout(() => {
+      if (controller.signal.aborted) return;
       abortKind = 'timeout';
       try { controller.abort('timeout'); } catch (_) { controller.abort(); }
     }, timeoutMs);
     const startedAt = clock.now();
     try {
-      const response = await fetchImpl(url, {
-        ...options,
-        timeoutMs: undefined,
-        signal: controller.signal,
-        headers: { accept: 'application/json', ...(options.headers || {}) }
+      const operation = Promise.resolve().then(async () => {
+        if (controller.signal.aborted) throw new Error('HTTP_REQUEST_ABORTED');
+        const headers = new Headers(options.headers);
+        if (!headers.has('accept')) headers.set('accept', 'application/json');
+        const response = await fetchImpl(url, {
+          ...options,
+          timeoutMs: undefined,
+          signal: controller.signal,
+          headers
+        });
+        return { response, data: await response.json() };
       });
-      const data = await response.json();
+      const { response, data } = await Promise.race([operation, aborted]);
       return Object.freeze({
         ok: response.ok,
         status: response.status,
@@ -53,11 +65,12 @@ export function createHttpClient({
         fetchedAt: clock.iso(),
         elapsedMs: Math.max(0, clock.now() - startedAt),
         error: controller.signal.aborted
-          ? (abortKind === 'external' || externalSignal?.aborted ? 'HTTP_ABORTED' : 'HTTP_TIMEOUT')
+          ? (abortKind === 'external' ? 'HTTP_ABORTED' : 'HTTP_TIMEOUT')
           : 'HTTP_FAILED'
       });
     } finally {
       clearTimeout(timeoutId);
+      controller.signal.removeEventListener('abort', onAbort);
       if (externalSignal && typeof externalSignal.removeEventListener === 'function') externalSignal.removeEventListener('abort', relayExternalAbort);
     }
   }

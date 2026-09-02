@@ -29,7 +29,8 @@ import { deriveTreasuryCurveEvidence } from '../domain/macro/treasury-curve.js';
 import { deriveConcentrationRisk, concentrationPenaltyForWeight } from '../domain/portfolio/concentration.js';
 import { computeFactorRanks } from '../domain/screener/factor-ranks.js';
 import { deriveFactorWeights } from '../domain/screener/factor-weights.js';
-import { createDefaultScreenDefinitions, runScreen } from '../domain/screener/screen-engine.js';
+import { captureScreenRun, createDefaultScreenDefinitions, replayScreenRun, runScreen } from '../domain/screener/screen-engine.js';
+import { createScreenerRunArchive } from '../storage/screener-runs.js';
 import { createSavedScreenCollection } from '../domain/screener/saved-screens.js';
 import { createMarketSnapshotLoader } from '../data/market-snapshot-loader.js';
 import { createSentimentProvider } from '../data/providers/sentiment.js';
@@ -58,7 +59,6 @@ import { createInitialAnalysisState, analysisReducer, ANALYSIS_DATA_CLEAR, ANALY
 import { createAnalysisCommands } from './commands/analysis.js';
 import { createAnalysisProvider } from '../data/providers/analysis.js';
 import { createAnalysisOrchestrator } from '../data/orchestrators/analysis.js';
-import { createStorageGateway } from '../platform/storage.js';
 import { createLegacyFacade, exposeArchitecture } from '../legacy/compatibility-facade.js';
 import { applyMarketSnapshotToLegacy } from '../legacy/market-snapshot-bridge.js';
 import { ROUTE_IDS } from './routes.js';
@@ -66,22 +66,9 @@ import { VERTICAL_SLICE_CONTRACTS, auditVerticalSliceContracts, getVerticalSlice
 import { PAGE_DATA_TIMELINE_CONTRACTS, auditPageDataTimelines, evaluatePageDataTimeline } from '../data/contracts/page-timeline.js';
 import { CAPABILITY_MANIFEST_VERSION, getCapability, getCapabilityManifest, auditCapabilityClaims } from '../domain/content/capability-manifest.js';
 import { classifyAIConduct, buildScopedConductFallback, getAIConductPolicy } from '../ai/policy/conduct.js';
+import { coalesceMicrotask, createDeferredTaskQueue } from './lifecycle.js';
 
 export const ARCHITECTURE_VERSION = 'AR-01~16.v1';
-
-// RM-02: collapses repeated same-tick event firings into a single trailing
-// microtask flush instead of running `fn` once per firing.
-function coalesceMicrotask(fn) {
-  let scheduled = false;
-  return (...args) => {
-    if (scheduled) return;
-    scheduled = true;
-    queueMicrotask(() => {
-      scheduled = false;
-      fn(...args);
-    });
-  };
-}
 
 function reducer(state, action) {
   if (action.type === SENTIMENT_DATA_SET || action.type === SENTIMENT_DATA_CLEAR) {
@@ -218,7 +205,18 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // through runtimeReaders. Do not create a second consent-only/plaintext store.
   const syncPortfolio = createPortfolioOrchestrator({ provider: createPortfolioProvider({ read: runtimeReaders.readPortfolio }), commands: portfolioCommands });
   const screenerCommands = createScreenerCommands({ store });
-  const screenerSessionStorage = createStorageGateway({ storage: root?.sessionStorage, prefix: 'aio-session' });
+  let screenerArchive = null;
+  const getScreenerArchive = () => screenerArchive || (screenerArchive = createScreenerRunArchive({ indexedDB: root?.indexedDB }));
+  async function runScreenerDefinition(definition) {
+    const state = store.getState()?.screener || {};
+    const input = { definition, rows: state.rows || [], snapshotId: state.snapshotId || 'unknown', providerSet: state.metadata?.source ? [state.metadata.source] : [], metadata: state.metadata || {} };
+    const result = runScreen(input);
+    const record = captureScreenRun(input, result);
+    let persistence;
+    try { persistence = await getScreenerArchive().put(record); }
+    catch (error) { persistence = { status: 'memory-only', reason: error?.message || 'archive-unavailable' }; }
+    return { ...result, snapshotMetadata: record.metadata, persistence };
+  }
   // ARX-10: the native provider/orchestrator feeds the native screener renderer from the
   // published artifact + identity universe. Legacy SCREENER_DB/profile/watchlist helpers remain
   // compatibility boundaries for non-cut-over consumers; the native route does not read legacy
@@ -278,6 +276,14 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       documentRef,
       store,
       root,
+      workbench: Object.freeze({
+        getDefaultScreens: api.getDefaultScreenerScreens,
+        setSavedScreens: api.setScreenerSavedScreens,
+        run: api.runScreenerDefinition,
+        list: api.listScreenerRuns,
+        replay: api.replayScreenerRun,
+        remove: api.deleteScreenerRun
+      }),
       readLiveData: () => root?._liveData || {},
       readWatchlist: () => root?._aioWatchlistGet?.() || [],
       readAliases: () => root?.SCR_KEYWORD_ALIASES || {},
@@ -286,7 +292,6 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         return root?.showTicker?.(symbol);
       },
       onWatchlistToggle: (symbol) => root?._aioWLToggle?.(symbol),
-      writeReturnContext: (context) => screenerSessionStorage.set('screener:return-context', JSON.stringify(context)),
       onProfileChange: (profile) => profile ? syncScreenerData() : null
     })
   });
@@ -295,8 +300,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   modules.technical = createLazyPage({ route: 'technical', loader: () => import('../ui/pages/analysis.js'), factory: ({ createAnalysisPage }) => createAnalysisPage({ root, documentRef, store, route: 'technical' }) });
   const router = createLifecycleRouter({ root: eventTarget, registry: createRouteRegistry({ modules }), context: { store, evidenceStore, legacy, clock, documentRef, runtimeRoot: root } });
 
-  function syncScreenerData({ scope = router.activeScope() } = {}) {
-    return syncScreener.sync({ scope }).then((result) => {
+  function syncScreenerData({ scope = router.activeScope(), refresh = true } = {}) {
+    return syncScreener.sync({ scope, refresh }).then((result) => {
       if (result) {
         eventTarget.dispatchEvent(new CustomEvent('aio:nativeScreenerReady', { detail: result }));
       }
@@ -333,13 +338,17 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     return auditPageDataTimelines(catalog, { now: clock.now(), marketRevision: getCanonicalMarketRevision(catalog) });
   }
 
-  const emitDataTimelineUpdated = coalesceMicrotask((reason = 'state-updated') => {
-    try {
-      eventTarget.dispatchEvent(new CustomEvent('aio:dataTimelineUpdated', { detail: { reason, audit: getPageDataTimelineAudit() } }));
-    } catch (_) {}
-  });
-
   function start() {
+    let disposed = false;
+    const deferredTasks = createDeferredTaskQueue({
+      setTimeoutImpl: root?.setTimeout?.bind(root) || globalThis.setTimeout.bind(globalThis),
+      clearTimeoutImpl: root?.clearTimeout?.bind(root) || globalThis.clearTimeout.bind(globalThis)
+    });
+    const emitDataTimelineUpdated = coalesceMicrotask((reason = 'state-updated') => {
+      try {
+        eventTarget.dispatchEvent(new CustomEvent('aio:dataTimelineUpdated', { detail: { reason, audit: getPageDataTimelineAudit() } }));
+      } catch (_) {}
+    }, { isActive: () => !disposed });
     // P858: the legacy snapshot/DOM shell already provides the first paint.
     // Keep only the small decision-state projections on the critical path;
     // news/entity/themes/portfolio/screener hydration is staged after the
@@ -363,9 +372,9 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         const result = task();
         if (result && typeof result.catch === 'function') result.catch(() => {});
       } catch (_) {}
-      setTimeout(runDeferredStartupSync, 0);
+      deferredTasks.defer(runDeferredStartupSync, 0);
     };
-    setTimeout(runDeferredStartupSync, 2300);
+    deferredTasks.defer(runDeferredStartupSync, 2300);
     // RM-02: aio:liveQuotes previously ran 6 independent listeners (one dispatch each,
     // any of which could be redundant if quotes ticked again before the previous
     // dispatch's subscribers finished reacting). Coalesce them into one microtask-
@@ -380,8 +389,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         Promise.resolve().then(() => syncPortfolio.sync()),
         Promise.resolve().then(() => syncAnalysis.sync())
       ]);
-      emitDataTimelineUpdated('live-quotes');
-    });
+      if (!disposed) emitDataTimelineUpdated('live-quotes');
+    }, { isActive: () => !disposed });
     const stopQuotes = legacy.on('aio:liveQuotes', flushLiveQuoteSyncs);
     const stopRefresh = legacy.on('aio:refresh:done', syncSentimentProjection);
     const stopHistory = legacy.on('aio:historyLoaded', syncSentimentProjection);
@@ -400,8 +409,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         Promise.resolve().then(() => syncScreenerData()),
         Promise.resolve().then(() => syncAnalysis.sync())
       ]);
-      emitDataTimelineUpdated('server-data');
-    });
+      if (!disposed) emitDataTimelineUpdated('server-data');
+    }, { isActive: () => !disposed });
     const stopServerMarketData = legacy.on('aio:serverDataLoaded', syncServerArtifactConsumers);
     const stopMacroUpdated = legacy.on('aio:macroUpdated', syncMarket.sync);
     const stopThemesRefresh = legacy.on('aio:refresh:done', syncThemes.sync);
@@ -418,7 +427,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       const shownRoute = normalizeShownRoute(event);
       if (!routes.has(shownRoute)) return;
       queueMicrotask(() => {
-        if (router.active() !== shownRoute) return;
+        if (disposed || router.active() !== shownRoute) return;
         const scope = router.activeScope();
         return withScope ? sync({ scope }) : sync();
       });
@@ -427,8 +436,12 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopPortfolioShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['portfolio']), syncPortfolio.sync));
     const stopPortfolioChanged = legacy.on('aio:portfolioChanged', syncPortfolio.sync);
     const stopScreenerRefresh = legacy.on('aio:refresh:done', syncScreenerData);
+    const stopScreenerQuotes = legacy.on('aio:liveQuotes', () => {
+      if (String(store.getState()?.route || router.active() || '').replace(/^page-/, '') === 'screener') return syncScreenerData({ refresh: false });
+    });
     const stopScreenerShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['screener']), syncScreenerData, { withScope: true }));
     const stopAnalysisRefresh = legacy.on('aio:refresh:done', syncAnalysis.sync);
+    const stopAnalysisChanged = legacy.on('aio:entityChanged', syncAnalysis.sync);
     const stopAnalysisShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['home', 'signal', 'technical']), syncAnalysis.sync));
     const stopShown = legacy.on('aio:pageShown', (event) => {
       const detail = event?.detail;
@@ -460,14 +473,13 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     if (root?._serverDataMeta) queueMicrotask(syncServerArtifactConsumers);
     router.start();
     let navigation = legacy.installNavigation(router);
-    let disposed = false;
     const retryNavigation = () => {
       if (!disposed && !navigation.installed) navigation = legacy.installNavigation(router);
     };
     queueMicrotask(retryNavigation);
-    const navigationRetryTimer = setTimeout(retryNavigation, 0);
+    deferredTasks.defer(retryNavigation, 0);
     const ready = snapshotLoader.load().then((result) => {
-      if (result.ok) {
+      if (!disposed && result.ok) {
         marketSnapshot = result.snapshot;
         ingestSnapshotEvidence(marketSnapshot);
         store.dispatch({ type: 'market/snapshot', payload: marketSnapshot });
@@ -479,8 +491,9 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       return result;
     }).catch((error) => ({ ok: false, error: error?.message || 'snapshot_loader_failed' }));
     const stop = () => {
+      if (disposed) return;
       disposed = true;
-      clearTimeout(navigationRetryTimer);
+      deferredTasks.stop();
       navigation.restore();
       stopQuotes();
       stopRefresh();
@@ -500,8 +513,10 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopPortfolioShown();
       stopPortfolioChanged();
       stopScreenerRefresh();
+      stopScreenerQuotes();
       stopScreenerShown();
       stopAnalysisRefresh();
+      stopAnalysisChanged();
       stopAnalysisShown();
       stopShown();
       stopTimelineStore();
@@ -537,26 +552,19 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     },
     getDefaultScreenerScreens: () => defaultSavedScreens,
     setScreenerSavedScreens: (savedScreens) => screenerCommands.setSavedScreens(Array.isArray(savedScreens) ? savedScreens : []),
-    runScreenerDefinition: (definition) => runScreen({ definition, rows: store.getState()?.screener?.rows || [], snapshotId: store.getState()?.screener?.snapshotId || 'unknown', providerSet: store.getState()?.screener?.metadata?.source ? [store.getState().screener.metadata.source] : [] }),
+    runScreenerDefinition,
+    listScreenerRuns: () => getScreenerArchive().list(),
+    replayScreenerRun: async (id) => {
+      const record = await getScreenerArchive().get(id);
+      if (!record) throw new Error('SCREEN_ARCHIVE_RECORD_MISSING');
+      return { definition: record.definition, ...replayScreenRun(record), snapshotMetadata: record.metadata, persistence: { status: 'persisted', id }, replay: true };
+    },
+    deleteScreenerRun: (id) => getScreenerArchive().remove(id),
     // ARX-16 compatibility read boundary: non-route consumers may read the
     // canonical native screener rows without reaching into the store shape.
-    // Legacy rows only fill fields the native artifact does not publish yet.
-    getScreenerRows: () => {
-      const nativeRows = store.getState()?.screener?.rows;
-      const legacyRows = Array.isArray(root?.SCREENER_DB) ? root.SCREENER_DB : [];
-      if (!Array.isArray(nativeRows) || nativeRows.length === 0) return legacyRows;
-      const legacyBySymbol = new Map(legacyRows.map((row) => [String(row?.sym || row?.symbol || '').toUpperCase(), row]));
-      return nativeRows.map((row) => {
-        const legacy = legacyBySymbol.get(String(row?.sym || row?.symbol || '').toUpperCase()) || {};
-        const merged = { ...row };
-        for (const key of Object.keys(legacy)) {
-          if (merged[key] == null || (key === 'factorScores' && Object.keys(merged[key] || {}).length === 0)) {
-            merged[key] = legacy[key];
-          }
-        }
-        return merged;
-      });
-    },
+    // Native nulls/readiness are authoritative, including an empty result.
+    // Backfilling legacy numeric values here bypassed the provider's checks.
+    getScreenerRows: () => store.getState()?.screener?.rows || [],
     getEvidence: (metric) => metric ? evidenceStore.get(metric) : evidenceStore.snapshot(),
     selectForDecision: (source, metric) => selectForDecision(source || evidenceStore.snapshot(), metric),
     selectForDisplay: (source, metric) => selectForDisplay(source || evidenceStore.snapshot(), metric),

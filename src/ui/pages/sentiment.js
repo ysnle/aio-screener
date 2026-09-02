@@ -1,4 +1,5 @@
 import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
+import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { deriveSentimentSummary } from '../../domain/sentiment/metrics.js';
 import { selectSentimentValues } from '../../state/selectors/sentiment.js';
 import { subscribeToSlice } from '../../state/memoize.js';
@@ -277,6 +278,12 @@ export function createSentimentPage({ documentRef, evidenceStore, store, chartFa
       bag.add(charts.dispose);
       const root = documentRef?.getElementById('page-sentiment');
       if (root) {
+        const suppliedMaterialBridge = createSuppliedMaterialBridge(documentRef, {
+          routeId: 'sentiment',
+          heading: '심리 · 포지셔닝과 시장 내부 확인'
+        });
+        root.appendChild(suppliedMaterialBridge);
+        bag.add(() => suppliedMaterialBridge.remove());
         root.dataset.aioArchitectureRoute = 'sentiment';
         root.dataset.aioArchitectureRenderer = 'native';
       }

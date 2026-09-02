@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ai-public-config.v1",
-  "appRevision": "v54.65",
+  "appRevision": "v54.76",
   "ai": {
     "chatPolicy": "personal-key-or-public-worker",
     "workerUrl": "https://aio-proxy.zmfhd007.workers.dev",
@@ -12,9 +12,16 @@
     "routeEvidence": {
       "status": "CURRENT",
       "source": "last-observed-live-health",
-      "observedAt": "2026-08-29T03:23:09.894Z",
+      "observedAt": "2026-09-02T13:54:07.105Z",
       "observationStatus": "NOT_ATTEMPTED"
     }
+  },
+  "marketData": {
+    "workerUrl": "https://aio-proxy.zmfhd007.workers.dev",
+    "routeStatus": "CONFIGURED",
+    "healthPath": "/health",
+    "policy": "public-reference",
+    "availability": "verify-per-request"
   },
   "privacy": {
     "clientKeysStayBrowserLocal": true,

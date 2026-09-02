@@ -6,12 +6,36 @@
 // wrapper gated it before. The formula itself (thresholds, weights,
 // corrections, order of operations) is transcribed unchanged — this is code motion, not a new
 // model (R352/F-03: legacy and native must not diverge into two different formulas).
-export const TRADING_SCORE_MODEL_VERSION = 'trading-score.v1';
+export const TRADING_SCORE_MODEL_VERSION = 'trading-score.v2';
 export const SIGNAL_DECISION_MODEL_VERSION = 'signal-from-trading-score.v1';
 export const SIGNAL_PRESENTATION_MODEL_VERSION = 'signal-presentation.v1';
 
 function finiteNumber(value) {
-  return value == null || value === '' || !Number.isFinite(Number(value)) ? null : Number(value);
+  return value == null || typeof value === 'boolean' || String(value).trim() === '' || !Number.isFinite(Number(value)) ? null : Number(value);
+}
+
+function boundedNumber(value, minimum, maximum) {
+  const number = finiteNumber(value);
+  return number != null && number >= minimum && number <= maximum ? number : null;
+}
+
+function freezeEvidenceMap(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  return Object.freeze(Object.fromEntries(Object.entries(value).map(([key, row]) => [
+    key,
+    row && typeof row === 'object' && !Array.isArray(row) ? Object.freeze({ ...row }) : null
+  ])));
+}
+
+// The score and its visible breakdown share one model, including missingness.
+export function deriveTradingScoreComponents(score = {}) {
+  return Object.freeze([
+    ['volScore', '변동성', 25], ['trendScore', '추세', 20],
+    ['momScore', '심리', 25], ['breadthScore', '시장 폭', 20], ['macroScore', '거시', 10]
+  ].map(([key, label, weight]) => {
+    const value = finiteNumber(score[key]);
+    return Object.freeze({ key, label, weight, value, contribution: value == null ? null : Math.round(Math.max(0, Math.min(100, value)) * weight / 100) });
+  }));
 }
 
 /**
@@ -36,32 +60,33 @@ function finiteNumber(value) {
  * @param {Array<{impact:number}>} input.newsRiskSignals  empty array means "skip" (same reason)
  */
 export function computeTradingScoreModel(input = {}) {
-  const { mode, newsSentimentScore, newsRiskSignals } = input;
-  const hasDecisionEvidence = !!input && input.decisionEvidence && typeof input.decisionEvidence === 'object';
-  const decisionValue = (key, fallback) => {
-    if (!hasDecisionEvidence) return finiteNumber(fallback);
+  const { mode, newsRiskSignals } = input;
+  const hasDecisionEvidence = !!input && input.decisionEvidence && typeof input.decisionEvidence === 'object' && !Array.isArray(input.decisionEvidence);
+  const decisionValue = (key, fallback, minimum, maximum) => {
+    if (!hasDecisionEvidence) return boundedNumber(fallback, minimum, maximum);
     const evidence = input.decisionEvidence[key];
     // Runtime evidence uses `verified_current`; older callers may still use
     // `live`/`fresh`.  Accept only those explicitly current statuses and an
     // explicit decision-use grant.  Reference/snapshot/stale values must not
     // silently fall back into the score.
     if (!evidence || evidence.allowedUse !== 'decision' || !['live', 'fresh', 'verified_current'].includes(evidence.status)) return null;
-    return finiteNumber(evidence.value);
+    return boundedNumber(evidence.value, minimum, maximum);
   };
-  const vix = decisionValue('vix', input.vix);
-  const vvix = decisionValue('vvix', input.vvix);
-  const dxy = decisionValue('dxy', input.dxy);
-  const tnx = decisionValue('tnx', input.tnx);
-  const oilPrice = decisionValue('oilPrice', input.oilPrice);
-  const fg = decisionValue('fg', input.fg);
-  const spx200ma = decisionValue('spx200ma', input.spx200ma);
-  const spx50ma = decisionValue('spx50ma', input.spx50ma);
-  const spxPrice = decisionValue('spxPrice', input.spxPrice);
-  const pcr = decisionValue('pcr', input.pcr);
-  const hyBp = decisionValue('hyBp', input.hyBp);
-  const breadth200 = decisionValue('breadth200', input.breadth200);
+  const vix = decisionValue('vix', input.vix, 5, 150);
+  const vvix = decisionValue('vvix', input.vvix, 50, 250);
+  const dxy = decisionValue('dxy', input.dxy, 80, 130);
+  const tnx = decisionValue('tnx', input.tnx, 0, 8);
+  const oilPrice = decisionValue('oilPrice', input.oilPrice, 0, 300);
+  const fg = decisionValue('fg', input.fg, 0, 100);
+  const spx200ma = decisionValue('spx200ma', input.spx200ma, Number.MIN_VALUE, Number.MAX_VALUE);
+  const spx50ma = decisionValue('spx50ma', input.spx50ma, Number.MIN_VALUE, Number.MAX_VALUE);
+  const spxPrice = decisionValue('spxPrice', input.spxPrice, Number.MIN_VALUE, Number.MAX_VALUE);
+  const pcr = decisionValue('pcr', input.pcr, 0, 10);
+  const hyBp = decisionValue('hyBp', input.hyBp, 0, 10_000);
+  const breadth200 = decisionValue('breadth200', input.breadth200, 0, 100);
+  const newsSentimentScore = boundedNumber(input.newsSentimentScore, 0, 100);
   const maCurrent = hasDecisionEvidence
-    ? !!(decisionValue('spx200ma', input.spx200ma) != null && decisionValue('spx50ma', input.spx50ma) != null && decisionValue('spxPrice', input.spxPrice) != null)
+    ? !!(spx200ma != null && spx50ma != null && spxPrice != null)
     : input.maCurrent === true;
   const breadthAvailable = hasDecisionEvidence ? breadth200 != null : input.breadthAvailable === true;
 
@@ -144,8 +169,9 @@ export function computeTradingScoreModel(input = {}) {
   ];
   const availableWeight = weightedComponents.reduce((sum, row) => sum + (row.value == null ? 0 : row.weight), 0);
   const rawCompositeScore = availableWeight ? Math.round(weightedComponents.reduce((sum, row) => sum + (row.value == null ? 0 : row.value * row.weight), 0) / availableWeight) : null;
-  const decisionCoverageThreshold = Number.isFinite(Number(input.decisionCoverageThreshold))
-    ? Math.max(0, Math.min(100, Number(input.decisionCoverageThreshold)))
+  const configuredCoverageThreshold = finiteNumber(input.decisionCoverageThreshold);
+  const decisionCoverageThreshold = configuredCoverageThreshold != null
+    ? Math.max(0, Math.min(100, configuredCoverageThreshold))
     : hasDecisionEvidence ? 80 : 0;
   let compositeScore = hasDecisionEvidence && availableWeight < decisionCoverageThreshold ? null : rawCompositeScore;
 
@@ -162,7 +188,8 @@ export function computeTradingScoreModel(input = {}) {
   if (compositeScore != null && newsSentimentScore != null && newsSentimentScore < 30) compositeScore -= 8;
   else if (compositeScore != null && newsSentimentScore != null && newsSentimentScore > 70) compositeScore += 5;
   if (compositeScore != null && Array.isArray(newsRiskSignals)) {
-    newsRiskSignals.forEach((riskSignal) => { compositeScore += riskSignal.impact; });
+    const newsRiskAdjustment = newsRiskSignals.reduce((sum, riskSignal) => sum + (boundedNumber(riskSignal?.impact, -100, 100) ?? 0), 0);
+    compositeScore += Math.max(-30, Math.min(30, newsRiskAdjustment));
   }
 
   // 최소 5점 보장 — 0점은 "데이터 미수신"으로 오해되므로 바닥값 설정
@@ -175,19 +202,19 @@ export function computeTradingScoreModel(input = {}) {
   if (!breadthAvailable) componentMissing.push('breadth');
   if (macroScore == null) componentMissing.push('macro');
 
-  return {
+  return Object.freeze({
     total,
     score: total,
     modelVersion: TRADING_SCORE_MODEL_VERSION,
     volScore, momScore, trendScore, breadthScore, macroScore,
     componentCoveragePct: availableWeight,
-    componentMissing,
+    componentMissing: Object.freeze(componentMissing),
     partial: availableWeight < 100,
     decisionBlocked: hasDecisionEvidence && total == null,
     decisionCoverageThreshold,
     rawCompositeScore,
-    componentEvidence: hasDecisionEvidence ? Object.freeze({ ...input.decisionEvidence }) : null
-  };
+    componentEvidence: hasDecisionEvidence ? freezeEvidenceMap(input.decisionEvidence) : null
+  });
 }
 
 /**
@@ -206,7 +233,7 @@ export function deriveSignalDecisionFromTradingScore({ score = {}, inputVersion 
       status: 'blocked',
       action: 'WAIT',
       score: null,
-      reasons: missing.length ? ['required-input-missing', ...missing.map((key) => `missing:${key}`)] : ['required-input-missing'],
+      reasons: Object.freeze(missing.length ? ['required-input-missing', ...missing.map((key) => `missing:${key}`)] : ['required-input-missing']),
       presentation
     });
   }
@@ -220,7 +247,7 @@ export function deriveSignalDecisionFromTradingScore({ score = {}, inputVersion 
     status: score?.partial ? 'partial' : 'current',
     action,
     score: total,
-    reasons,
+    reasons: Object.freeze(reasons),
     presentation
   });
 }
@@ -234,6 +261,9 @@ export function deriveSignalDecisionFromTradingScore({ score = {}, inputVersion 
 export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersion = 'unknown' } = {}) {
   const total = finiteNumber(score?.total ?? score?.score);
   const missing = Array.isArray(score?.componentMissing) ? score.componentMissing.slice() : [];
+  const components = deriveTradingScoreComponents(score);
+  const missingLabels = { volatility: '변동성', momentum: '심리', trend: '추세', breadth: '시장 폭', macro: '거시' };
+  const missingText = missing.map((key) => missingLabels[key] || key).join(' · ');
   const reasons = missing.map((key) => `missing:${key}`);
   if (total == null) {
     return Object.freeze({
@@ -244,9 +274,10 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
       action: 'WAIT',
       score: null,
       displayScore: '—',
+      components,
       decision: '판정 보류 — 필수 입력 미수신',
-      description: `필수 구성요소(${missing.join(', ') || '시장 환경'})가 없어 현재 판단을 산출하지 않습니다.`,
-      reasons: ['required-input-missing', ...reasons]
+      description: `${missingText || '시장 환경'} 입력 부족 · 수신된 개별 지표는 아래에서 확인할 수 있습니다.`,
+      reasons: Object.freeze(['required-input-missing', ...reasons])
     });
   }
 
@@ -260,9 +291,10 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
       action: 'WAIT',
       score: total,
       displayScore: `${total}*`,
+      components,
       decision: '판정 보류 — 부분 데이터 점수',
-      description: `미수신 구성요소(${missing.join(', ') || '일부 입력'})를 제외한 부분 점수입니다. 현재 진입 판단에는 사용하지 않습니다.`,
-      reasons: ['partial-inputs', ...reasons]
+      description: `${missingText || '일부 입력'} 제외 · 수신된 입력만 반영한 참고 점수입니다.`,
+      reasons: Object.freeze(['partial-inputs', ...reasons])
     });
   }
 
@@ -298,6 +330,7 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
     ...bands,
     score: total,
     displayScore: String(total),
-    reasons: [`trading-score-tier:${bands.tier}`]
+    components,
+    reasons: Object.freeze([`trading-score-tier:${bands.tier}`])
   });
 }

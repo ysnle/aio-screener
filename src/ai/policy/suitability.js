@@ -6,9 +6,9 @@ export function evaluateQuestionActionPermission({ questionPlan = {}, suitabilit
   const actionRequested = Object.prototype.hasOwnProperty.call(questionPlan || {}, 'personalizedActionRequested')
     ? questionPlan.personalizedActionRequested === true
     : questionPlan?.actionRequested === true;
-  if (!actionRequested) return Object.freeze({ version: AI_SUITABILITY_POLICY_VERSION, status: 'educational', allowed: true, reasons: [] });
+  if (!actionRequested) return Object.freeze({ version: AI_SUITABILITY_POLICY_VERSION, status: 'educational', allowed: true, reasons: Object.freeze([]) });
   const reasons = [];
   if (!suitabilityProfile) reasons.push('suitability-profile-required');
   if (!evidenceComplete) reasons.push('current-evidence-required');
-  return Object.freeze({ version: AI_SUITABILITY_POLICY_VERSION, status: reasons.length ? 'clarification-required' : 'conditional', allowed: reasons.length === 0, reasons });
+  return Object.freeze({ version: AI_SUITABILITY_POLICY_VERSION, status: reasons.length ? 'clarification-required' : 'conditional', allowed: reasons.length === 0, reasons: Object.freeze(reasons) });
 }

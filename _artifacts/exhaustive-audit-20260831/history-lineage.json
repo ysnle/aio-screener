@@ -1,0 +1,254 @@
+{
+  "at": "2026-08-31T14:07:10.229Z",
+  "boundary": "All incoming/outgoing blob transitions including merges. Parser status of a replacement is not proof of complete runtime repair or deployment.",
+  "traces": [
+    {
+      "path": "index.html",
+      "blob": "916b0f9353b6a86a4b8d8d086fec6cefefb0ecd4",
+      "error": [
+        {
+          "message": "Unexpected token (351:6)",
+          "line": 22654,
+          "excerpt": "    var _eTk = escHtml(p.ticker); // v46.8: XSS 방어\n    return `<tr style=\"border-bottom:1px solid var(--border);cursor:pointer;\" onclick=\"showTicker('${_eTk}')\">`;\n      <td style=\"padding:6px 8px;\"><b style=\"color:var(--text-primary);\">${escHtml(p.ticker)}</b>${p.memo ? '<div style=\"font-size:9px;color:var(--text-muted);\">'+escHtml(p.memo)+'</div>' : ''}</td>\n      <td style=\"text-align:center;padding:6px;font-family:var(--font-mono);font-size:9px;\">${p.qty}</td>\n      <td style=\"text-align:center;padding:6px;font-family:var(--font-mono);font-size:9px;\">$${p.cost.toFixed(2)}</td>"
+        }
+      ],
+      "introducedBy": [
+        {
+          "sha": "12a2e53e28898cbe9cfe7100e1584a7fd95b00d8",
+          "subject": "12a2e53 2026-04-14T15:29:01+09:00 v46.8: 심층 QA 76건 수정 + /data-refresh 4/14 — P83~P105 + R30/R31 신설"
+        }
+      ],
+      "replacedBy": [
+        {
+          "sha": "cfdc6506378785b3bd1a14ab29dcd9f2a7168e6f",
+          "subject": "cfdc650 2026-04-14T16:01:36+09:00 v46.9: 8건 통합 (NAND SCA/HDD재평가/광고패권/기업AI3파전) + integrate 스킬 보강 + 홈 뉴스 교체 + 뉴스 파이프라인 검증",
+          "after": "2c140f459d3543f62319a3bfbf9bd37e918c846d",
+          "nextBlobHasConfirmedSyntaxFailure": true
+        }
+      ]
+    },
+    {
+      "path": "index.html",
+      "blob": "2c140f459d3543f62319a3bfbf9bd37e918c846d",
+      "error": [
+        {
+          "message": "Unexpected token (351:6)",
+          "line": 22664,
+          "excerpt": "    var _eTk = escHtml(p.ticker); // v46.9: XSS 방어\n    return `<tr style=\"border-bottom:1px solid var(--border);cursor:pointer;\" onclick=\"showTicker('${_eTk}')\">`;\n      <td style=\"padding:6px 8px;\"><b style=\"color:var(--text-primary);\">${escHtml(p.ticker)}</b>${p.memo ? '<div style=\"font-size:9px;color:var(--text-muted);\">'+escHtml(p.memo)+'</div>' : ''}</td>\n      <td style=\"text-align:center;padding:6px;font-family:var(--font-mono);font-size:9px;\">${p.qty}</td>\n      <td style=\"text-align:center;padding:6px;font-family:var(--font-mono);font-size:9px;\">$${p.cost.toFixed(2)}</td>"
+        }
+      ],
+      "introducedBy": [
+        {
+          "sha": "cfdc6506378785b3bd1a14ab29dcd9f2a7168e6f",
+          "subject": "cfdc650 2026-04-14T16:01:36+09:00 v46.9: 8건 통합 (NAND SCA/HDD재평가/광고패권/기업AI3파전) + integrate 스킬 보강 + 홈 뉴스 교체 + 뉴스 파이프라인 검증"
+        }
+      ],
+      "replacedBy": [
+        {
+          "sha": "62cb8b4b66bec7b07fcda5b32fde2adffbe60d10",
+          "subject": "62cb8b4 2026-04-15T18:51:51+09:00 v47: 전면 보강 — AI채팅 완전 이식 + 환각 제로 정책 + 데이터 전면 최신화 + UX 보강",
+          "after": "974a98c1aa2350783cb5d85e04966e9196dadef0",
+          "nextBlobHasConfirmedSyntaxFailure": true
+        }
+      ]
+    },
+    {
+      "path": "index.html",
+      "blob": "974a98c1aa2350783cb5d85e04966e9196dadef0",
+      "error": [
+        {
+          "message": "Unexpected token (373:6)",
+          "line": 22717,
+          "excerpt": "    var _eTk = escHtml(p.ticker); // v46.9: XSS 방어\n    return `<tr style=\"border-bottom:1px solid var(--border);cursor:pointer;\" onclick=\"showTicker('${_eTk}')\">`;\n      <td style=\"padding:6px 8px;\"><b style=\"color:var(--text-primary);\">${escHtml(p.ticker)}</b>${p.memo ? '<div style=\"font-size:9px;color:var(--text-muted);\">'+escHtml(p.memo)+'</div>' : ''}</td>\n      <td style=\"text-align:center;padding:6px;font-family:var(--font-mono);font-size:9px;\">${p.qty}</td>\n      <td style=\"text-align:center;padding:6px;font-family:var(--font-mono);font-size:9px;\">$${p.cost.toFixed(2)}</td>"
+        }
+      ],
+      "introducedBy": [
+        {
+          "sha": "62cb8b4b66bec7b07fcda5b32fde2adffbe60d10",
+          "subject": "62cb8b4 2026-04-15T18:51:51+09:00 v47: 전면 보강 — AI채팅 완전 이식 + 환각 제로 정책 + 데이터 전면 최신화 + UX 보강"
+        }
+      ],
+      "replacedBy": [
+        {
+          "sha": "9a951b8ca3308c365943099334ef8f057ecb6975",
+          "subject": "9a951b8 2026-04-17T18:52:13+09:00 v48.10: 13-version 전수 보강 (P110~P125, 16건)",
+          "after": "a941aa203a06aa049d60dd76c04db55b5b91068b",
+          "nextBlobHasConfirmedSyntaxFailure": false
+        },
+        {
+          "sha": "1d9200bbae4e5913956c1692921d3325e0982201",
+          "subject": "1d9200b 2026-04-16T17:51:54+09:00 Add files via upload",
+          "after": "203bd1fb852e3ac8c0ef9d3c7b1537277a49f783",
+          "nextBlobHasConfirmedSyntaxFailure": true
+        }
+      ]
+    },
+    {
+      "path": "index.html",
+      "blob": "203bd1fb852e3ac8c0ef9d3c7b1537277a49f783",
+      "error": [
+        {
+          "message": "Unexpected token (373:6)",
+          "line": 40806,
+          "excerpt": "    var _eTk = escHtml(p.ticker); // v46.9: XSS 방어\n    return `<tr style=\"border-bottom:1px solid var(--border);cursor:pointer;\" onclick=\"showTicker('${_eTk}')\">`;\n      <td style=\"padding:6px 8px;\"><b style=\"color:var(--text-primary);\">${escHtml(p.ticker)}</b>${p.memo ? '<div style=\"font-size:9px;color:var(--text-muted);\">'+escHtml(p.memo)+'</div>' : ''}</td>\n      <td style=\"text-align:center;padding:6px;font-family:var(--font-mono);font-size:9px;\">${p.qty}</td>\n      <td style=\"text-align:center;padding:6px;font-family:var(--font-mono);font-size:9px;\">$${p.cost.toFixed(2)}</td>"
+        }
+      ],
+      "introducedBy": [
+        {
+          "sha": "1d9200bbae4e5913956c1692921d3325e0982201",
+          "subject": "1d9200b 2026-04-16T17:51:54+09:00 Add files via upload"
+        }
+      ],
+      "replacedBy": [
+        {
+          "sha": "6049b3b15b62b422eadb2659158cb4bc2cf3981f",
+          "subject": "6049b3b 2026-04-17T17:39:26+09:00 Add files via upload",
+          "after": "adb5d50c263e93070f5f6ee48d3eef226029eeb2",
+          "nextBlobHasConfirmedSyntaxFailure": false
+        }
+      ]
+    },
+    {
+      "path": "index.html",
+      "blob": "f4620b2f1b052f0e29e699d45c8404f2c7093ef5",
+      "error": [
+        {
+          "message": "Unexpected token (1:6)",
+          "line": 9751,
+          "excerpt": " 추가하여 모듈 1 시작     ║\n// ║  상세: _context/MODULE-BOUNDARIES.md Phase 2                              ║\n// ╚═══════════════════════════════════════════════════════════════════════════╝"
+        }
+      ],
+      "introducedBy": [
+        {
+          "sha": "6399e38b0646841dc48fa38ccbe3f22dd7b53b9d",
+          "subject": "6399e38 2026-04-19T12:18:44+09:00 v48.26: P3-5 Phase 4+5 잔여 4차트 + P3-1 Phase 2 단일 script 4모듈 분할 완성"
+        }
+      ],
+      "replacedBy": [
+        {
+          "sha": "ccd9a4b5add04e8c615fa4ab41a7c9b366e787fd",
+          "subject": "ccd9a4b 2026-04-19T12:33:58+09:00 v48.27: 운영 가능성·효율성 전수 감사 후 Critical/Warn 9건 보강",
+          "after": "fc3f11f02cb9a9753b2f30c0cda298d01f6b3ab0",
+          "nextBlobHasConfirmedSyntaxFailure": true
+        }
+      ]
+    },
+    {
+      "path": "index.html",
+      "blob": "fc3f11f02cb9a9753b2f30c0cda298d01f6b3ab0",
+      "error": [
+        {
+          "message": "Unexpected token (1:6)",
+          "line": 9754,
+          "excerpt": " 추가하여 모듈 1 시작     ║\n// ║  상세: _context/MODULE-BOUNDARIES.md Phase 2                              ║\n// ╚═══════════════════════════════════════════════════════════════════════════╝"
+        }
+      ],
+      "introducedBy": [
+        {
+          "sha": "ccd9a4b5add04e8c615fa4ab41a7c9b366e787fd",
+          "subject": "ccd9a4b 2026-04-19T12:33:58+09:00 v48.27: 운영 가능성·효율성 전수 감사 후 Critical/Warn 9건 보강"
+        }
+      ],
+      "replacedBy": [
+        {
+          "sha": "fd929b41da092a33d1e3604b702ae76c67146ed4",
+          "subject": "fd929b4 2026-04-19T12:50:08+09:00 v48.28: P3-1 Phase 3 MODULE 4 외부 분리 + withTimeout 35건 일원화 + 외부링크 보안",
+          "after": "a426a00781a5a5b3982b80a41d4fdc03cbaeae2e",
+          "nextBlobHasConfirmedSyntaxFailure": true
+        }
+      ]
+    },
+    {
+      "path": "index.html",
+      "blob": "a426a00781a5a5b3982b80a41d4fdc03cbaeae2e",
+      "error": [
+        {
+          "message": "Unexpected token (1:6)",
+          "line": 9754,
+          "excerpt": " 추가하여 모듈 1 시작     ║\n// ║  상세: _context/MODULE-BOUNDARIES.md Phase 2                              ║\n// ╚═══════════════════════════════════════════════════════════════════════════╝"
+        }
+      ],
+      "introducedBy": [
+        {
+          "sha": "fd929b41da092a33d1e3604b702ae76c67146ed4",
+          "subject": "fd929b4 2026-04-19T12:50:08+09:00 v48.28: P3-1 Phase 3 MODULE 4 외부 분리 + withTimeout 35건 일원화 + 외부링크 보안"
+        }
+      ],
+      "replacedBy": [
+        {
+          "sha": "5cd0ed51b62f764b7c33ead18a03abc9cfb41d66",
+          "subject": "5cd0ed5 2026-04-19T12:57:54+09:00 v48.29: MODULE 1/2/3/4 모두 외부 .js 분리 완성 (4모듈 100% 외부화)",
+          "after": "9e0d1fe71260a2ebbbaed441d218a92e0e4f44ce",
+          "nextBlobHasConfirmedSyntaxFailure": false
+        }
+      ]
+    },
+    {
+      "path": "js/aio-data.js",
+      "blob": "ab80b322a252c0a77cf969700346e189fad60515",
+      "error": "Identifier 'ld' has already been declared (11085:12)",
+      "introducedBy": [
+        {
+          "sha": "206c795862ee1fa64283da2f5c358d9bfc7a0d49",
+          "subject": "206c795 2026-05-18T17:55:02+09:00 v49.39~v49.42: home 3차 + signal/breadth/sentiment/briefing/technical/macro 1차+2차 점검"
+        }
+      ],
+      "replacedBy": [
+        {
+          "sha": "bd0bea2a8a577868d638a7f9f67f779864bac138",
+          "subject": "bd0bea2 2026-05-19T11:13:25+09:00 v49.44 CRITICAL HOTFIX: aio-data.js const+var 'ld' hoist 충돌 SyntaxError 시정 (P311)",
+          "after": "b2157aee2be2438d5fc299c9bbb0c39612411e45",
+          "nextBlobHasConfirmedSyntaxFailure": false
+        }
+      ]
+    },
+    {
+      "path": ".github/workflows/data-watchdog.yml",
+      "blob": "7825aa4dd905f6b9117226e82654086f858b10cd",
+      "error": "the stream contains non-printable characters (97:7)\n\n 94 |           console.log('public-data fr ...\n 95 |           NODE\n 96 | \n 97 |       # P572/R263: repo freshness alo ...\n------------^\n 98 |       # is actually serving fresh dat ...\n 99 |       # CI validate + Pages deploy +  ...",
+      "introducedBy": [
+        {
+          "sha": "40dbef88d10feab3be53127c8cb71885c4e15b8e",
+          "subject": "40dbef8 2026-07-09T18:26:54+09:00 WIP: auto-save on session end [2026-07-09T18:26] — run /deploy to publish"
+        }
+      ],
+      "replacedBy": [
+        {
+          "sha": "1e4781c0d71af47caa9e0f25837824c57e03e2df",
+          "subject": "1e4781c 2026-07-09T18:51:50+09:00 WIP: auto-save on session end [2026-07-09T18:51] — run /deploy to publish",
+          "after": "1019aa2775bfc9db4976dc171ec5e2d4bdea9c4a",
+          "nextBlobHasConfirmedSyntaxFailure": true
+        }
+      ]
+    },
+    {
+      "path": ".github/workflows/data-watchdog.yml",
+      "blob": "1019aa2775bfc9db4976dc171ec5e2d4bdea9c4a",
+      "error": "the stream contains non-printable characters (102:7)\n\n  99 |           console.log('public-data fr ...\n 100 |           NODE\n 101 | \n 102 |       # P572/R263: repo freshness alo ...\n-------------^\n 103 |       # is actually serving fresh dat ...\n 104 |       # CI validate + Pages deploy +  ...",
+      "introducedBy": [
+        {
+          "sha": "1e4781c0d71af47caa9e0f25837824c57e03e2df",
+          "subject": "1e4781c 2026-07-09T18:51:50+09:00 WIP: auto-save on session end [2026-07-09T18:51] — run /deploy to publish"
+        },
+        {
+          "sha": "9353df79b9878cd00926ebb4d5740f79726c296e",
+          "subject": "9353df7 2026-07-10T09:26:44+09:00 Merge origin/main (automated data refreshes) into v52.40-43 batch work"
+        }
+      ],
+      "replacedBy": [
+        {
+          "sha": "a944e5932f5ed50bbd78178742d1bfbeca36e43d",
+          "subject": "a944e59 2026-07-10T14:15:19+09:00 WIP: auto-save on session end [2026-07-10T14:15] — run /deploy to publish",
+          "after": "0b1c9ede496546375e2dd4e099eff40fc9f13635",
+          "nextBlobHasConfirmedSyntaxFailure": false
+        },
+        {
+          "sha": "7c61d96e5a86efba06b6c43da0418d4c34ba92e6",
+          "subject": "7c61d96 2026-07-10T18:14:14+09:00 Merge origin/main (automated data refreshes) into WO-6/WO-2 batch work",
+          "after": "0b1c9ede496546375e2dd4e099eff40fc9f13635",
+          "nextBlobHasConfirmedSyntaxFailure": false
+        }
+      ]
+    }
+  ]
+}

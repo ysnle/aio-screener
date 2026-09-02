@@ -4,6 +4,14 @@ const NUMERIC_TYPES = new Set(['numeric', 'metric', 'percentage', 'probability']
 
 function text(value) { return value == null ? null : String(value).trim() || null; }
 
+function freezeRecord(value) {
+  return value && typeof value === 'object' && !Array.isArray(value) ? Object.freeze({ ...value }) : null;
+}
+
+function freezeRows(values) {
+  return Object.freeze((Array.isArray(values) ? values : []).map((value) => value && typeof value === 'object' ? Object.freeze({ ...value }) : value));
+}
+
 export function createClaimLedger(claims = []) {
   const normalized = (Array.isArray(claims) ? claims : []).map((claim, index) => Object.freeze({
     claimId: text(claim?.claimId) || `claim:${index + 1}`,
@@ -16,7 +24,7 @@ export function createClaimLedger(claims = []) {
     evidenceIds: Object.freeze(Array.isArray(claim?.evidenceIds) ? claim.evidenceIds.map(String) : []),
     allowedUse: text(claim?.allowedUse) || 'reference',
     status: text(claim?.status) || 'unverified',
-    calibration: claim?.calibration || null
+    calibration: freezeRecord(claim?.calibration)
   }));
   return Object.freeze({ schemaVersion: AI_CLAIM_LEDGER_VERSION, claims: Object.freeze(normalized) });
 }
@@ -40,7 +48,8 @@ export function validateClaimLedger(ledger, { currentSensitive = false, requireC
     if (claim.type === 'probability' && !claim.calibration?.modelId) errors.push(`${prefix}:uncalibrated_probability`);
     if (claim.allowedUse === 'decision' && (!claim.evidenceIds?.length || claim.status !== 'verified')) errors.push(`${prefix}:decision_use_not_verified`);
   });
-  return Object.freeze({ ok: errors.length === 0, errors: [...new Set(errors)], validCount: claims.length - errors.filter((error) => /^claim_/.test(error)).length });
+  const invalidClaims = new Set(errors.map((error) => error.match(/^claim_(\d+):/)?.[1]).filter(Boolean));
+  return Object.freeze({ ok: errors.length === 0, errors: Object.freeze([...new Set(errors)]), validCount: Math.max(0, claims.length - invalidClaims.size) });
 }
 
 export function createAnswerPlan({ questionPlan = null, summary = '', claims = [], sections = [], citations = [], followUps = [], scenario = null } = {}) {
@@ -50,10 +59,10 @@ export function createAnswerPlan({ questionPlan = null, summary = '', claims = [
     intent: questionPlan?.intent?.primary || null,
     summary: String(summary || ''),
     claims: createClaimLedger(claims),
-    sections: Object.freeze(Array.isArray(sections) ? sections : []),
-    citations: Object.freeze(Array.isArray(citations) ? citations : []),
-    followUps: Object.freeze(Array.isArray(followUps) ? followUps : []),
-    scenario: scenario && typeof scenario === 'object' ? Object.freeze({ ...scenario, probabilities: scenario.calibration?.modelId ? scenario.probabilities || null : null }) : null
+    sections: freezeRows(sections),
+    citations: freezeRows(citations),
+    followUps: Object.freeze((Array.isArray(followUps) ? followUps : []).map((value) => String(value == null ? '' : value)).filter(Boolean)),
+    scenario: scenario && typeof scenario === 'object' ? Object.freeze({ ...scenario, calibration: freezeRecord(scenario.calibration), probabilities: scenario.calibration?.modelId ? freezeRecord(scenario.probabilities) : null }) : null
   });
 }
 
@@ -66,27 +75,27 @@ export function validateAnswerPlan(plan, options = {}) {
   if (!ledger.ok) errors.push(...ledger.errors);
   if (hasUntrackedNumericContent) errors.push('untracked_numeric_content');
   if (plan?.scenario?.probabilities && !plan.scenario.calibration?.modelId) errors.push('uncalibrated_scenario_probabilities');
-  return Object.freeze({ ok: errors.length === 0, errors: [...new Set(errors)], claimAudit: ledger });
+  return Object.freeze({ ok: errors.length === 0, errors: Object.freeze([...new Set(errors)]), claimAudit: ledger });
 }
 
 export function parseAnswerPlanText(text, { questionPlan = null, currentSensitive = false } = {}) {
   const source = String(text == null ? '' : text);
   const match = source.match(/\[AI_ANSWER_PLAN\]([\s\S]*?)\[\/AI_ANSWER_PLAN\]/i);
-  if (!match) return Object.freeze({ status: 'not-structured', plan: null, audit: { ok: false, errors: ['answer_plan_missing'] } });
+  if (!match) return Object.freeze({ status: 'not-structured', plan: null, audit: Object.freeze({ ok: false, errors: Object.freeze(['answer_plan_missing']) }) });
   try {
     const payload = JSON.parse(match[1]);
     const claims = Array.isArray(payload.claims)
-      ? createClaimLedger(payload.claims)
+      ? payload.claims
       : payload.claims?.schemaVersion === AI_CLAIM_LEDGER_VERSION
-        ? createClaimLedger(payload.claims.claims)
-        : createClaimLedger([]);
-    const plan = Object.freeze({ ...payload, claims, schemaVersion: 'answer-plan.v1', queryId: payload.queryId || questionPlan?.queryId || null });
+        ? payload.claims.claims
+        : [];
+    const plan = createAnswerPlan({ ...payload, claims, questionPlan: { queryId: payload.queryId || questionPlan?.queryId || null, intent: { primary: payload.intent || questionPlan?.intent?.primary || null } } });
     const audit = validateAnswerPlan(plan, { currentSensitive });
     // Keep a syntactically valid plan available even when one claim or prose
     // field fails validation. The publication boundary can then remove only
     // the unsafe claim instead of erasing the whole otherwise useful answer.
     return Object.freeze({ status: audit.ok ? 'valid' : 'invalid', plan, audit });
-  } catch (error) {
-    return Object.freeze({ status: 'invalid', plan: null, audit: { ok: false, errors: ['answer_plan_json_invalid', error?.message || 'parse_failed'] } });
+  } catch (_) {
+    return Object.freeze({ status: 'invalid', plan: null, audit: Object.freeze({ ok: false, errors: Object.freeze(['answer_plan_json_invalid']) }) });
   }
 }

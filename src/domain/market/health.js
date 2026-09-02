@@ -1,6 +1,7 @@
 export const MARKET_HEALTH_MODEL_VERSION = 'market-health.v1';
 
 function finite(value) {
+  if (value == null || value === '') return null;
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
 }
@@ -39,7 +40,7 @@ export function computeMarketHealth({ quotes = {}, spxMA = {}, spxATH = null } =
   const missing = [];
   if (spyPct == null) missing.push('SPY 등락률');
   if (qqqPct == null) missing.push('QQQ 등락률');
-  if (vix == null) missing.push('VIX');
+  if (vix == null || vix < 0) missing.push('VIX');
   if (missing.length) return unavailable(missing);
 
   let score = 50;
@@ -67,9 +68,10 @@ export function computeMarketHealth({ quotes = {}, spxMA = {}, spxATH = null } =
   let leaderTotal = 0;
   leaders.forEach((symbol) => {
     const row = quotes?.[symbol];
-    if (row) {
+    const pct = finite(row?.pct);
+    if (pct != null) {
       leaderTotal += 1;
-      if ((finite(row.pct) ?? 0) > 0) leaderUp += 1;
+      if (pct > 0) leaderUp += 1;
     }
   });
   if (leaderTotal > 0) {
@@ -82,13 +84,13 @@ export function computeMarketHealth({ quotes = {}, spxMA = {}, spxATH = null } =
   const ma50 = finite(spxMA?.[50]);
   const ma200 = finite(spxMA?.[200]);
   const spyPrice = quoteValue(quotes, 'SPY', 'price');
-  if (ma50 && ma200 && spyPrice) {
+  if (ma50 > 0 && ma200 > 0 && spyPrice > 0) {
     if (ma50 > ma200 && spyPrice > ma50) { score += 8; details.push(`골든 크로스 (50MA>${Math.round(ma50)} > 200MA>${Math.round(ma200)}) + 가격 위`); }
     else if (ma50 > ma200 && spyPrice < ma50) { score += 2; details.push('50MA 위 200MA, 가격 50MA 하회 — 조정 구간'); }
     else if (ma50 < ma200 && spyPrice < ma50) { score -= 10; details.push('데스 크로스 (50MA<200MA) + 가격 아래 — 위험'); }
     else if (ma50 < ma200 && spyPrice > ma50) { score -= 3; details.push('데스 크로스이나 가격 반등 시도 중'); }
     const ath = finite(spxATH);
-    if (ath && spyPrice) {
+    if (ath > 0) {
       const athDistance = ((spyPrice - ath) / ath) * 100;
       if (athDistance > -2) details.push(`ATH 근접 (${athDistance.toFixed(1)}%)`);
       else if (athDistance < -10) { score -= 5; details.push(`ATH 대비 ${athDistance.toFixed(1)}% — 조정 구간`); }
@@ -100,9 +102,10 @@ export function computeMarketHealth({ quotes = {}, spxMA = {}, spxATH = null } =
   let sectorTotal = 0;
   sectors.forEach((symbol) => {
     const row = quotes?.[symbol];
-    if (row) {
+    const pct = finite(row?.pct);
+    if (pct != null) {
       sectorTotal += 1;
-      if ((finite(row.pct) ?? 0) > 0) sectorUp += 1;
+      if (pct > 0) sectorUp += 1;
     }
   });
   if (sectorTotal > 5) {
@@ -125,7 +128,7 @@ export function computeMarketHealth({ quotes = {}, spxMA = {}, spxATH = null } =
   const spyBar = clamp(50 + spyPct * 10);
   const qqqBar = clamp(50 + qqqPct * 10);
   const vixBar = clamp(((vix - 10) / 30) * 100);
-  const trend = ma50 && ma200 && spyPrice
+  const trend = ma50 > 0 && ma200 > 0 && spyPrice > 0
     ? (ma50 > ma200 && spyPrice > ma50 ? 85 : ma50 > ma200 ? 60 : spyPrice > ma50 ? 40 : 20)
     : 50;
   const pressure = vixBar;

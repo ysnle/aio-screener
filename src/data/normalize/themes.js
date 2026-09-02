@@ -72,7 +72,7 @@ function normalizeThemeDetail(detail) {
 }
 
 export function normalizeThemes(raw = {}) {
-  const items = (Array.isArray(raw.items) ? raw.items : []).map((item, index) => ({
+  const items = (Array.isArray(raw.items) ? raw.items : []).map((item, index) => Object.freeze({
     id: String(item?.id || item?.symbol || `theme-${index}`),
     symbol: String(item?.symbol || item?.id || ''),
     label: String(item?.label || item?.name || item?.symbol || 'Theme'),

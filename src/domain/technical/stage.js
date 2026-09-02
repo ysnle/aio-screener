@@ -6,6 +6,25 @@
 export const STAGE_MODEL_VERSION = 'stage.v1';
 export const MTF_MODEL_VERSION = 'mtf.v1';
 
+// Supplied chart-pattern article integration. This is a glossary/taxonomy for
+// analysis and chat context, not a new detector or a fixed hit-rate model.
+export const CHART_PATTERN_REFERENCE = Object.freeze({
+  id: 'chart-pattern-taxonomy-v1',
+  sourceKind: 'REFERENCE',
+  operationalUse: 'reference-only',
+  families: Object.freeze([
+    Object.freeze({ id: 'reversal', label: '반전', patterns: Object.freeze(['double top/bottom', 'triple top/bottom', 'head and shoulders', 'reverse head and shoulders', 'rounding top/bottom', 'Quasimodo']), confirmation: 'neckline·거래량·추세 맥락을 함께 확인', invalidation: 'neckline 실패 또는 기존 추세가 유지되는 경우' }),
+    Object.freeze({ id: 'continuation', label: '지속', patterns: Object.freeze(['wedge', 'flag', 'pennant']), confirmation: '강한 선행 이동·수렴·돌파 후 거래량 확인', invalidation: '돌파 실패 또는 수렴 구조가 무너지는 경우' }),
+    Object.freeze({ id: 'neutral', label: '중립/방향 대기', patterns: Object.freeze(['converging triangle', 'symmetric broadening']), confirmation: '돌파 방향과 종가·거래량 확인 전 방향을 고정하지 않음', invalidation: '구조가 해소되거나 관측창이 부족한 경우' }),
+    Object.freeze({ id: 'special', label: '특수 구조', patterns: Object.freeze(['cup and handle', 'Wolfe Wave']), confirmation: '손잡이 되돌림·파동점·EPA 등 해당 구조의 정의를 충족하는지 확인', invalidation: '필수 pivot/파동/손잡이 조건이 결여된 경우' })
+  ]),
+  constraints: Object.freeze([
+    '패턴 이름만으로 현재 종목의 패턴·방향·목표가를 확정하지 않습니다.',
+    '측정 목표·neckline·EPA는 OHLCV 기반 구조가 확정되고 무효화 조건이 함께 있을 때만 교육적으로 표시합니다.',
+    '고정 적중률·과거 사례의 현재 재현·신호 점수 편입은 이 taxonomy의 기능이 아닙니다.'
+  ])
+});
+
 /**
  * @param {object} input
  * @param {number|null} input.sma5
@@ -18,6 +37,8 @@ export const MTF_MODEL_VERSION = 'mtf.v1';
  * @param {number|null} input.lastClose
  */
 export function classifyMovingAverageStructure({ sma5 = null, sma10 = null, sma20 = null, sma50 = null, sma100 = null, sma200 = null, sma50Prior = null, lastClose = null } = {}) {
+  [sma5, sma10, sma20, sma50, sma100, sma200, sma50Prior, lastClose] = [sma5, sma10, sma20, sma50, sma100, sma200, sma50Prior, lastClose]
+    .map((value) => typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : null);
   const shortBull = !!(sma5 && sma10 && sma20 && sma5 > sma10 && sma10 > sma20);
   const shortBear = !!(sma5 && sma10 && sma20 && sma5 < sma10 && sma10 < sma20);
   const longBull = !!(sma50 && sma100 && sma200 && sma50 > sma100 && sma100 > sma200);
@@ -106,7 +127,7 @@ function sma(closes, period) {
  */
 export function deriveTechnicalStageFromOhlcv({ symbol = null, ohlcv = [], inputVersion = 'unknown' } = {}) {
   const closes = (Array.isArray(ohlcv) ? ohlcv : [])
-    .map((point) => { const value = Number(point?.close); return Number.isFinite(value) ? value : null; })
+    .map((point) => { const value = Number(point?.close); return Number.isFinite(value) && value > 0 ? value : null; })
     .filter((value) => value != null);
   const sma5 = sma(closes, 5), sma10 = sma(closes, 10), sma20 = sma(closes, 20), sma50 = sma(closes, 50), sma100 = sma(closes, 100), sma200 = sma(closes, 200);
   // mirrors calcTechnicalSnapshot's sma50_5d probe (SMA50 five bars ago, for the sma50Rising signal)

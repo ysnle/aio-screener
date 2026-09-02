@@ -45,4 +45,6 @@ const referenceCollector = read('scripts/collect-13f-reference.mjs');
 if (!/ORIGINAL_PLUS_NEW_HOLDINGS/.test(referenceCollector) || !/LATEST_RESTATEMENT_ROWS/.test(referenceCollector) || !/STALE_LAST_KNOWN_GOOD/.test(referenceCollector)) fail('amendment semantics or last-known-good preservation is missing');
 const mastersGate = read('scripts/ci-masters-contract-check.mjs');
 if (!/filing-discovery\.json/.test(mastersGate)) fail('masters gate does not consume filing discovery');
+const tickerIndexBuilder = read('scripts/build-13f-reference-ticker-index.mjs');
+if (!/build-13f-reference-ticker-index\.mjs/.test(workflow) || !/REFERENCE_ONLY_TICKER_LOOKUP/.test(tickerIndexBuilder) || !/Absence from this bounded index does not prove absence/.test(tickerIndexBuilder)) fail('reference-only 13F ticker lookup is not part of the refresh boundary');
 console.log(JSON.stringify({ ok: true, fixture13FForms: 4, ownershipEvents: ownershipRows.length, notice: selected.latestSubmission.form, holdings: selected.latestHoldings.form, priorPeriod: selected.priorHoldings.periodOfReport }));

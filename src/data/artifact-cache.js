@@ -64,6 +64,7 @@ function waitForConsumer(entry, signal) {
 
 export function loadJsonArtifact(fetchFn, url, { signal, maxAgeMs = 15 * 60 * 1000, maxEntries = 64, timeoutMs = 15_000, force = false, integrity = null, maxBytes = null } = {}) {
   if (typeof fetchFn !== 'function') return Promise.reject(new Error('artifact fetch function is unavailable'));
+  if (signal?.aborted) return Promise.reject(createAbortError());
   const requestUrl = String(url);
   const normalizedIntegrity = integrity ? String(integrity).replace(/^sha256[:-]/i, '').toLowerCase() : null;
   const parsedMaxBytes = Number(maxBytes);
@@ -84,7 +85,7 @@ export function loadJsonArtifact(fetchFn, url, { signal, maxAgeMs = 15 * 60 * 10
   }
   if (cached) store.resolved.delete(key);
   const shared = store.inFlight.get(key);
-  if (shared) {
+  if (shared && !shared.controller.signal.aborted) {
     store.shared += 1;
     return waitForConsumer(shared, signal);
   }
@@ -99,13 +100,17 @@ export function loadJsonArtifact(fetchFn, url, { signal, maxAgeMs = 15 * 60 * 10
     }, timeout);
   });
   const fetchPromise = Promise.resolve()
-    .then(() => fetchFn(requestUrl, { signal: controller.signal }))
+    .then(() => {
+      if (controller.signal.aborted) throw createAbortError();
+      return fetchFn(requestUrl, { signal: controller.signal });
+    })
     .then((response) => {
       if (!response?.ok) throw new Error(`Artifact ${response?.status || 'ERR'}: ${requestUrl}`);
       return decodeResponse(response, { requestUrl, integrity: normalizedIntegrity, maxBytes: normalizedMaxBytes });
     });
   entry.promise = Promise.race([fetchPromise, timeoutPromise])
     .then((value) => {
+      if (controller.signal.aborted) throw createAbortError();
       store.resolved.set(key, { value, storedAt: Date.now() });
       const entryLimit = Math.max(1, Number.isFinite(Number(maxEntries)) ? Math.floor(Number(maxEntries)) : 64);
       while (store.resolved.size > entryLimit) {
@@ -118,7 +123,7 @@ export function loadJsonArtifact(fetchFn, url, { signal, maxAgeMs = 15 * 60 * 10
     .finally(() => {
       entry.settled = true;
       clearTimeout(entry.timer);
-      store.inFlight.delete(key);
+      if (store.inFlight.get(key) === entry) store.inFlight.delete(key);
     });
   store.inFlight.set(key, entry);
   return waitForConsumer(entry, signal);

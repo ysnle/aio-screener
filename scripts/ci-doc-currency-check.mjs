@@ -22,6 +22,7 @@ const actualLines = (p) => read(p).split('\n').length - (read(p).endsWith('\n') 
 const DRIFT_WARN_THRESHOLD = 500; // R1 인접 규칙과 동일 임계값(CLAUDE.md: ±500줄 이상 변경 시 CODE-MAP 갱신)
 
 const codeMap = read('_context/CODE-MAP.md');
+const historicalSizeTable = /^size_table_policy: historical-snapshot\s*$/m.test(codeMap);
 const version = JSON.parse(read('version.json')).version;
 
 const warnings = [];
@@ -51,7 +52,8 @@ if (targetVersionMatch) {
 
 // 파일 크기 표 행 파싱: | `파일명` | 숫자(옵션 텍스트) | ...
 const FILES = ['index.html', 'js/aio-core.js', 'js/aio-data.js', 'js/aio-ui.js', 'js/aio-chat.js', 'js/aio-tests.js', 'js/aio-glossary.js'];
-for (const file of FILES) {
+if (historicalSizeTable) info.push('CODE-MAP size table is explicitly historical; generated CURRENT-STATE and workspace checks own current sizes.');
+for (const file of historicalSizeTable ? [] : FILES) {
   const escaped = file.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const rowMatch = codeMap.match(new RegExp('\\|\\s*`' + escaped + '`\\s*\\|\\s*([\\d,]+)'));
   if (!rowMatch) { warnings.push(`CODE-MAP.md에서 ${file}의 파일 크기 표 행을 찾을 수 없음 — 표 형식이 바뀌었을 수 있음`); continue; }
@@ -69,7 +71,7 @@ if (warnings.length) {
   console.warn(`\n[ci-doc-currency-check] ⚠ ${warnings.length} currency warning(s) (non-blocking):`);
   warnings.forEach((w) => console.warn(' - ' + w));
 } else {
-  console.log('\n[ci-doc-currency-check] ✅ no file drifted past the ±500-line threshold since CODE-MAP.md was last verified');
+  console.log(historicalSizeTable ? '\n[ci-doc-currency-check] Historical size table is not treated as current certification.' : '\n[ci-doc-currency-check] ✅ no file drifted past the ±500-line threshold since CODE-MAP.md was last verified');
 }
 // 의도적으로 항상 exit 0 — 위 주석 참조(하드 실패는 게이트 회피를 유발). 드리프트 가시화가 목적.
 process.exit(0);

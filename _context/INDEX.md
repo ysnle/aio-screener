@@ -34,6 +34,10 @@ target_version: version.json
 
 ## Task routing
 
+Independent code/history audit and remaining reconstruction work: [`REPORT.md`](../_artifacts/deep-audit-20260831/REPORT.md). Inventory coverage, semantic review, local browser checks and deployed certification are explicitly separate.
+
+Latest desktop journey evidence and open boundaries: [`user-flow-remediation-20260830.md`](../_artifacts/user-flow-remediation-20260830.md). The route walkthrough is not whole-content semantic or deployment certification (P1010/R572).
+
 정식 스킬 원본은 `.claude/skills/<name>/`, Codex 런타임 미러는 `.agents/skills/<name>/`다. 원본을 고친 뒤 동기화 게이트로 두 표면의 동일성을 검증한다.
 
 | Task | Next read |
@@ -59,6 +63,8 @@ target_version: version.json
 The exact classification for every `_context/*.md|json` file is in `CONTEXT-CATALOG.json`. `ci-knowledge-lint-check.mjs` verifies both filesystem-to-catalog and catalog-to-filesystem parity, frontmatter, references and currentness.
 
 ## Current and live state
+
+- Ongoing all-line/history audit: `../_artifacts/exhaustive-audit-20260831/REPORT.md` and `coverage-summary.json`. Inventory/parse coverage is separate from semantic completion; unresolved work is not closed by a passing gate.
 
 - Repository current state: `CURRENT-STATE.md`.
 - Runtime knowledge state: `public-data/knowledge/status-summary.json`.

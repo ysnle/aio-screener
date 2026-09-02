@@ -1476,6 +1476,10 @@ function _aioInjectTelegramFeed(pageId) {
   try {
     var el = document.getElementById('tg-feed-' + pageId);
     if (!el) return;
+    if (!document.body.classList.contains('aio-dev-mode') && pageId !== 'briefing' && pageId !== 'market-news') {
+      el.replaceChildren();
+      return;
+    }
     var html = _aioRenderTelegramFeedHtml(pageId);
     el.innerHTML = html;
   } catch(_) {}
@@ -1490,23 +1494,6 @@ try {
   window._aioInjectAllTelegramFeeds = _aioInjectAllTelegramFeeds;
 } catch(_) {}
 // ── END v51.36 텔레그램 피드 렌더러 ────────────────────────────────
-
-function getAdrEstimate(r) {
-  var base;
-  if (r.mcap >= 1000) base = 1.5;      // MEGA (1T+)
-  else if (r.mcap >= 100) base = 2.0;  // LARGE (100B-1T)
-  else if (r.mcap >= 10) base = 3.0;   // MID-LARGE (10-100B)
-  else if (r.mcap >= 2) base = 4.5;    // MID (2-10B)
-  else base = 6.0;                     // SMALL (<2B)
-  var sectorMult = {
-    'Technology': 1.2, 'Healthcare': 1.3, 'Energy': 1.1,
-    'Communication Services': 1.1, 'Financials': 0.9,
-    'Industrials': 0.9, 'Materials': 1.0, 'Consumer': 1.0,
-    'Consumer Defensive': 0.7, 'Utilities': 0.6, 'Real Estate': 0.8
-  };
-  var mult = sectorMult[r.sector] || 1.0;
-  return +(base * mult).toFixed(1);
-}
 
 var _scrSortCol = 'mcap';
 var _scrSortAsc = false;
@@ -1533,6 +1520,18 @@ var SCR_KEYWORD_ALIASES = {
   '파운드리': ['TSM','INTC'],
   '메모리': ['MU'],
   'hbm': ['MU','NVDA'],
+  '네오클라우드': ['CRWV','NBIS','IREN','CIFR','WULF','CLSK'],
+  'neocloud': ['CRWV','NBIS','IREN','CIFR','WULF','CLSK'],
+  '상대강도': ['SPY','QQQ','IWM','DIA','SMH','XBI','ARKG','CRWD','PANW','RBRK','VLO','MPC','PSX'],
+  'relative strength': ['SPY','QQQ','IWM','DIA','SMH','XBI','ARKG','CRWD','PANW','RBRK','VLO','MPC','PSX'],
+  '지수확인': ['SPY','QQQ','IWM','DIA','RSP','SMH','SOXX'],
+  '시장확인': ['SPY','QQQ','IWM','DIA','RSP','SMH','SOXX'],
+  'earnings risk': ['NVDA','CRWD','PANW','RBRK','SMH','XBI','ARKG'],
+  '실적리스크': ['NVDA','CRWD','PANW','RBRK','SMH','XBI','ARKG'],
+  'billable it': ['CRWV','NBIS','IREN','CIFR','WULF','CLSK','EQIX','DLR'],
+  'billableit': ['CRWV','NBIS','IREN','CIFR','WULF','CLSK','EQIX','DLR'],
+  'owner fcf': ['CRWV','NBIS','IREN','CIFR','WULF','CLSK'],
+  'replacement capex': ['CRWV','NBIS','IREN','CIFR','WULF','CLSK','VRT','ETN'],
   // 클라우드
   '클라우드': ['AMZN','MSFT','GOOGL','NOW','SNOW','DDOG','MDB','GTLB','ESTC','CFLT','NET'],
   'cloud': ['AMZN','MSFT','GOOGL','NOW','SNOW','DDOG','MDB','GTLB','ESTC','CFLT','NET'],
@@ -1858,7 +1857,7 @@ window._aioWLToggle = function(sym) {
 //   스파크라인(_aioBuildSparklineSvg)·OHLCV 폴백(fetchOHLCVWithFallback)·VIX/HY/SPY 차트가 공통 의존.
 //   Yahoo v8 chart를 fetchViaProxy(CORS 프록시 체인 + stale-cache 폴백) 경유로 받아 OHLCV 배열 반환.
 //   소비자 기대 형태: { closes, opens, highs, lows, volumes, timestamps }(유닉스초). close는 null 포함 가능 → 소비자가 filter.
-window._fetchYahooChartData = async function(symbol, range, interval) {
+async function _aioFetchYahooChartData(symbol, range, interval) {
   if (!symbol) return null;
   range = range || '1mo';
   interval = interval || '1d';
@@ -1867,29 +1866,39 @@ window._fetchYahooChartData = async function(symbol, range, interval) {
   try {
     var json;
     if (typeof fetchViaProxy === 'function') {
-      json = await fetchViaProxy(url, { parseJson: true, timeout: 7000 });
+      json = await fetchViaProxy(url, { parseJson: true, timeout: 5000, totalTimeout: 12000,
+        accept: function(payload) {
+          var candidate = payload && payload.chart && payload.chart.result && payload.chart.result[0];
+          return !!(candidate && candidate.meta && String(candidate.meta.symbol).toUpperCase() === String(symbol).toUpperCase()
+            && Array.isArray(candidate.timestamp) && candidate.timestamp.length && candidate.indicators && candidate.indicators.quote);
+        }
+      });
     } else {
       var r = await fetchWithTimeout(url, {}, 7000);
       json = await r.json();
     }
     var res = json && json.chart && json.chart.result && json.chart.result[0];
-    if (!res) return null;
+    if (!res || !res.meta || String(res.meta.symbol || '').toUpperCase() !== String(symbol).toUpperCase()) return null;
     var q = (res.indicators && res.indicators.quote && res.indicators.quote[0]) || {};
     return {
       symbol: symbol,
+      interval: interval,
       timestamps: res.timestamp || [],
       closes: q.close || [],
       opens: q.open || [],
       highs: q.high || [],
       lows: q.low || [],
       volumes: q.volume || [],
-      meta: res.meta || null
+      meta: res.meta || null,
+      transport: json._aioTransport || null
     };
   } catch(e) {
     if (typeof _aioLog === 'function') _aioLog('warn', 'fetch', '_fetchYahooChartData 실패 ' + symbol + ': ' + (e && e.message || e));
     return null;
   }
-};
+}
+window._aioFetchYahooChartData = _aioFetchYahooChartData;
+window._fetchYahooChartData = _aioFetchYahooChartData;
 // 모듈 스코프에서도 typeof _fetchYahooChartData 가드가 통하도록 로컬 별칭 (aio-ui.js 등 비-window 참조 호환)
 var _fetchYahooChartData = window._fetchYahooChartData;
 
@@ -2016,7 +2025,18 @@ function fetchWithTimeout(url, opts = {}, ms = 8000) {
 }
 
 // ── v30.11 Task 11: CORS 프록시 레지스트리 (단일 진실 원천) ──────────────────
-const _cfWorkerUrl = () => _getApiKey('aio_cf_worker_url') || '';
+const _cfWorkerUrl = () => {
+  var personal = typeof _getApiKey === 'function' ? _getApiKey('aio_cf_worker_url') : '';
+  var config = window.AIO_PUBLIC_CONFIG || {};
+  // The public address is not a credential. Data routing is independent of AI
+  // entitlement/health; a temporarily unavailable AI model must not disable quotes.
+  var address = personal || (config.marketData && config.marketData.workerUrl) || '';
+  try {
+    var parsed = new URL(address);
+    if (parsed.protocol !== 'https:' || parsed.username || parsed.password || parsed.search || parsed.hash) return '';
+    return parsed.href.replace(/\/+$/, '');
+  } catch (_) { return ''; }
+};
 
 // P715: SCREENER_DB signal enum(BUY/HOLD/WATCH/SELL)은 내부 분류 키로만 유지하고,
 // 사용자 표면에는 관측형 라벨만 렌더한다(시스템 발화형 매매 지시 금지 — P714 연장).
@@ -2029,43 +2049,71 @@ const _PROXY_REGISTRY = {
   list: [],
   init: function() {
     var cf = _cfWorkerUrl();
-    this.list = [];
+    var previous = this.list;
+    var next = [];
+    function add(id, label, tier, endpoint, mkUrl) {
+      var existing = previous.find(function(p) { return p.id === id && p.endpoint === endpoint; });
+      next.push(existing || { id:id, label:label, tier:tier, endpoint:endpoint, mkUrl:mkUrl,
+        fails:0, okCount:0, failCount:0, lastOk:0, lastFail:0, disabled:false, retryAt:0, scopes:{} });
+    }
     // Tier 0: 자체 CF Worker (최우선)
-    if (cf) this.list.push({ id:'cf-worker', label:'CF Worker', tier:0, mkUrl: function(u){ return cf+'?url='+encodeURIComponent(u); }, fails:0, okCount:0, failCount:0, lastOk:0, lastFail:0, disabled:false });
+    if (cf) add('cf-worker', 'CF Worker', 0, cf, function(u){ return cf+'?url='+encodeURIComponent(u); });
     // Tier 1: 검증된 공개 프록시
-    this.list.push({ id:'corsproxy', label:'corsproxy.io', tier:1, mkUrl: function(u){ return 'https://corsproxy.io/?'+encodeURIComponent(u); }, fails:0, okCount:0, failCount:0, lastOk:0, lastFail:0, disabled:false });
+    add('corsproxy', 'corsproxy.io', 1, 'https://corsproxy.io/', function(u){ return 'https://corsproxy.io/?'+encodeURIComponent(u); });
     // Tier 2: 보조 프록시
-    this.list.push({ id:'allorigins-raw', label:'allorigins/raw', tier:2, mkUrl: function(u){ return 'https://api.allorigins.win/raw?url='+encodeURIComponent(u); }, fails:0, okCount:0, failCount:0, lastOk:0, lastFail:0, disabled:false });
-    this.list.push({ id:'allorigins-get', label:'allorigins/get', tier:2, mkUrl: function(u){ return 'https://api.allorigins.win/get?url='+encodeURIComponent(u); }, fails:0, okCount:0, failCount:0, lastOk:0, lastFail:0, disabled:false });
-    this.list.push({ id:'codetabs', label:'codetabs.com', tier:2, mkUrl: function(u){ return 'https://api.codetabs.com/v1/proxy/?quest='+encodeURIComponent(u); }, fails:0, okCount:0, failCount:0, lastOk:0, lastFail:0, disabled:false });
+    add('allorigins-raw', 'allorigins/raw', 2, 'https://api.allorigins.win/raw', function(u){ return 'https://api.allorigins.win/raw?url='+encodeURIComponent(u); });
+    add('allorigins-get', 'allorigins/get', 2, 'https://api.allorigins.win/get', function(u){ return 'https://api.allorigins.win/get?url='+encodeURIComponent(u); });
+    add('codetabs', 'codetabs.com', 2, 'https://api.codetabs.com/v1/proxy/', function(u){ return 'https://api.codetabs.com/v1/proxy/?quest='+encodeURIComponent(u); });
+    this.list = next;
   },
-  markOk: function(id) {
-    var p = this.list.find(function(x){ return x.id === id; });
-    if (p) { p.fails = 0; p.okCount = (p.okCount || 0) + 1; p.lastOk = Date.now(); p.disabled = false; p.cooldownLevel = 0; } // v48.14: backoff 리셋
-    if (typeof _reportApiOk === 'function') _reportApiOk('proxy-primary', id + ' 성공');
+  state: function(p, url) {
+    if (!url) return p; // legacy health diagnostics
+    var host;
+    try { host = new URL(url).hostname; } catch (_) { host = 'invalid'; }
+    if (!p.scopes) p.scopes = {};
+    return p.scopes[host] || (p.scopes[host] = { fails:0, okCount:0, failCount:0, lastOk:0, lastFail:0, disabled:false, retryAt:0 });
   },
-  markFail: function(id, reason) {
+  claim: function(p, url) {
+    var state = this.state(p, url);
+    if (state.disabled) {
+      if (Date.now() < state.retryAt || state.probing) return false;
+      state.probing = true; // exactly one half-open probe, no recovery timers
+    }
+    return true;
+  },
+  release: function(p, url) { this.state(p, url).probing = false; },
+  markOk: function(id, url) {
     var p = this.list.find(function(x){ return x.id === id; });
     if (p) {
+      var state = this.state(p, url);
+      state.fails = 0; state.okCount = (state.okCount || 0) + 1; state.lastOk = Date.now();
+      state.disabled = false; state.cooldownLevel = 0; state.retryAt = 0; state.probing = false;
+    }
+    if (typeof _reportApiOk === 'function') _reportApiOk('proxy-primary', id + ' 성공');
+  },
+  markFail: function(id, reason, url, retryAfterMs) {
+    var p = this.list.find(function(x){ return x.id === id; });
+    if (p) {
+      p = this.state(p, url);
+      // Concurrent requests already in flight cannot escalate an open circuit.
+      if (p.disabled && !p.probing) return;
+      var wasProbe = !!p.probing;
+      p.probing = false;
       p.fails++;
       p.failCount = (p.failCount || 0) + 1;
       p.lastFail = Date.now();
       // P784/SA-01: three consecutive chart-proxy failures open cooldown.
-      if (p.fails >= 3) {
+      if (p.fails >= 3 || wasProbe || reason === 429) {
         p.disabled = true;
         // v48.14 (W13): exponential backoff + jitter — 60s → 120s → 240s → 480s → max 1800s
         p.cooldownLevel = (p.cooldownLevel || 0) + 1;
         var baseDelay = T.COOLDOWN * Math.pow(2, Math.min(p.cooldownLevel - 1, 5)); // 최대 32x
         var jitter = Math.random() * 0.3 * baseDelay; // ±30% jitter (thundering herd 방지)
-        var actualDelay = Math.min(baseDelay + jitter, 1800000); // 30분 상한
+        var actualDelay = Math.min(Math.max(baseDelay + jitter, Number(retryAfterMs) || 0), 1800000);
+        p.retryAt = Date.now() + actualDelay;
         if (typeof _aioLog === 'function') {
           _aioLog('warn', 'proxy', 'proxy ' + id + ' disabled (level ' + p.cooldownLevel + ', cooldown ' + Math.round(actualDelay/1000) + 's)', { fails: p.fails });
         }
-        setTimeout(function() {
-          p.disabled = false;
-          p.fails = 2;
-          if (typeof _aioLog === 'function') _aioLog('info', 'proxy', 'proxy ' + id + ' re-enabled', { cooldownLevel: p.cooldownLevel });
-        }, actualDelay);
       }
     }
   },
@@ -2076,32 +2124,29 @@ const _PROXY_REGISTRY = {
     var attempts = ok + fail;
     var rate = attempts ? ok / attempts : 0.5;
     var recency = p.lastOk ? Math.max(0, 1 - ((Date.now() - p.lastOk) / Math.max(1, T.COOLDOWN * 5))) : 0;
-    var tierBias = Math.max(0, 3 - (p.tier || 3)) * 0.08;
+    var tierBias = Math.max(0, 3 - (p.tier == null ? 3 : p.tier)) * 0.08;
     return (rate * 10) + recency + tierBias - ((p.fails || 0) * 0.35);
   },
-  getActive: function() {
+  getActive: function(url) {
     var self = this;
-    return this.list.filter(function(p){ return !p.disabled; }).sort(function(a,b){
+    return this.list.filter(function(p){ var state = self.state(p, url); return !state.disabled || (Date.now() >= state.retryAt && !state.probing); }).sort(function(a,b){
+      // Our controlled route stays first; random rotation never demotes tier 0.
+      if (a.tier === 0 || b.tier === 0) return a.tier - b.tier;
       var scoreDiff = self.getScore(b) - self.getScore(a);
       if (Math.abs(scoreDiff) > 0.001) return scoreDiff;
-      var tierDiff = (a.tier || 9) - (b.tier || 9);
+      var tierDiff = (a.tier == null ? 9 : a.tier) - (b.tier == null ? 9 : b.tier);
       if (tierDiff) return tierDiff;
       return (b.lastOk || 0) - (a.lastOk || 0);
     });
   },
   // 하위 호환: mkUrl 함수 배열 반환 (기존 PROXY_LIST 형태)
-  getMkUrls: function() { return this.getActive().map(function(p){ return p.mkUrl; }); },
+  getMkUrls: function(url) { return this.getActive(url).map(function(p){ return p.mkUrl; }); },
   // v35.7 CF Worker 부하 분산: 라운드로빈 카운터
   _rrIndex: 0,
-  getRotated: function() {
-    var active = this.getActive();
-    if (active.length <= 1) return active;
-    var idx = this._rrIndex % active.length;
-    this._rrIndex++;
-    return active.slice(idx).concat(active.slice(0, idx));
-  }
+  getRotated: function(url) { return this.getActive(url); }
 };
 _PROXY_REGISTRY.init();
+window.addEventListener('aio:publicConfig', function() { _PROXY_REGISTRY.init(); });
 
 // 하위 호환: 기존 코드에서 PROXY_LIST 참조하는 곳 대응
 const PROXY_LIST = _PROXY_REGISTRY.getMkUrls();
@@ -2133,31 +2178,91 @@ function _aioProxyUnwrapJsonText(txt) {
 async function _aioValidateProxyResponse(url, response, opts) {
   opts = opts || {};
   var expectJson = !!opts.expectJson || !!opts.parseJson || _aioProxyUrlExpectsJson(url);
-  if (!expectJson) return { jsonReady: false, json: null };
   var txt = await response.clone().text();
   var probe = txt;
   try {
     var wrapped = JSON.parse(txt);
     if (wrapped && typeof wrapped.contents === 'string') probe = wrapped.contents;
   } catch(_) {}
-  if (_aioProxyResponseLooksHtml(probe)) {
+  if (expectJson && _aioProxyResponseLooksHtml(probe)) {
     var e = new Error('proxy returned HTML for JSON endpoint');
     e.aioProxyBlockedHtml = true;
     throw e;
   }
-  if (opts.parseJson) return { jsonReady: true, json: _aioProxyUnwrapJsonText(txt) };
-  return { jsonReady: false, json: null };
+  var json = expectJson ? _aioProxyUnwrapJsonText(txt) : null;
+  if (/\/v8\/finance\/chart\//.test(url)) {
+    var requestUrl = new URL(url);
+    var symbol = decodeURIComponent(requestUrl.pathname.split('/').pop()).toUpperCase();
+    var result = json && json.chart && json.chart.result && json.chart.result[0];
+    var meta = result && result.meta;
+    if (!meta || String(meta.symbol || '').toUpperCase() !== symbol) throw new Error('chart symbol mismatch');
+    var interval = requestUrl.searchParams.get('interval');
+    if (interval && meta.dataGranularity && meta.dataGranularity !== interval) throw new Error('chart interval mismatch');
+  }
+  return { jsonReady: expectJson, json: json, body: expectJson ? JSON.stringify(json) : probe };
+}
+
+// P1006: exact request identity; deliberately never read the old truncated-key cache.
+function _aioProxyCacheKey(url) {
+  return 'aio_proxy_v2_' + encodeURIComponent(url);
+}
+function _aioSensitiveProxyUrl(url) {
+  try {
+    var parsed = new URL(url);
+    return !!(parsed.username || parsed.password) || Array.from(parsed.searchParams.keys()).some(function(key) {
+      return /^(?:api[-_]?key|key|token|access[-_]?token|client[-_]?secret|auth|authorization|signature|url)$/i.test(key);
+    });
+  } catch (_) { return true; }
+}
+function _aioProxyReadCache(url) {
+  try {
+    var entry = JSON.parse(localStorage.getItem(_aioProxyCacheKey(url)) || 'null');
+    var age = entry && Date.now() - entry.collectedAt;
+    return entry && entry.schema === 2 && entry.url === url && Number.isFinite(age) && age >= 0 && age <= 21600000 && typeof entry.body === 'string' ? entry : null;
+  } catch (_) { return null; }
+}
+function _aioProxyWriteCache(entry) {
+  if (entry.body.length > 262144 || entry.url.length > 2048) return;
+  try {
+    var keys = [];
+    for (var i = 0; i < localStorage.length; i++) {
+      var key = localStorage.key(i);
+      if (key && key.indexOf('aio_proxy_v2_') === 0) keys.push(key);
+    }
+    // Bounded last-good store; remove only this transport's own entries.
+    keys.sort(function(a, b) {
+      try { return JSON.parse(localStorage.getItem(a)).collectedAt - JSON.parse(localStorage.getItem(b)).collectedAt; } catch (_) { return 0; }
+    });
+    var target = _aioProxyCacheKey(entry.url);
+    keys = keys.filter(function(key) { return key !== target; });
+    while (keys.length >= 32) localStorage.removeItem(keys.shift());
+    localStorage.setItem(target, JSON.stringify(entry));
+  } catch (_) { /* storage failure must not discard a valid network response */ }
+}
+async function _aioProxyDeliver(entry, opts, cacheState) {
+  var provenance = { provider:entry.provider, sourceUrl:entry.url, collectedAt:entry.collectedAt,
+    cacheState:cacheState, stale:cacheState === 'stale-cache' };
+  var response = new Response(entry.body, { status:200, headers:{
+    'Content-Type':entry.contentType || 'text/plain', 'X-AIO-Source':entry.provider,
+    'X-AIO-Cache':cacheState, 'X-AIO-Collected-At':String(entry.collectedAt),
+    'X-AIO-Stale':provenance.stale ? 'true' : 'false'
+  } });
+  var validation = await _aioValidateProxyResponse(entry.url, response, opts);
+  var payload = opts.parseJson ? validation.json : opts.parseText ? validation.body : new Response(validation.body, { status:200, headers:response.headers });
+  if (typeof opts.accept === 'function' && !await opts.accept(payload)) throw new Error('invalid-payload');
+  if (payload && typeof payload === 'object') Object.defineProperty(payload, '_aioTransport', { value:provenance, configurable:true });
+  return payload;
 }
 
 async function fetchViaProxy(url, timeout) {
   var opts = (timeout && typeof timeout === 'object') ? timeout : {};
   timeout = (opts.timeout || opts.ms || (typeof timeout === 'number' ? timeout : 8000));
-  // v35.7: 라운드로빈으로 CF Worker 부하 분산
-  var active = _PROXY_REGISTRY.getRotated();
-  // v48.14 (Agent W7/P2-7): stale-cache degradation — 성공 응답을 localStorage에 저장
-  var _sensitiveUrlRe = /[?&](apikey|api_key|token|access_token|client_secret|url)=/i;
-  var _isSensitive = _sensitiveUrlRe.test(url);
-  var cacheKey = _isSensitive ? null : 'aio_proxy_cache_' + btoa(url.slice(0, 150)).replace(/[^A-Za-z0-9]/g, '').substring(0, 64);
+  url = new URL(String(url)).href;
+  var sensitive = _aioSensitiveProxyUrl(url);
+  var active = _PROXY_REGISTRY.getRotated(url);
+  // A public proxy must never receive personal provider keys. Only a Worker
+  // explicitly configured by this user may relay credential-bearing requests.
+  if (sensitive) active = active.filter(function(p) { return p.id === 'cf-worker' && typeof _getApiKey === 'function' && !!_getApiKey('aio_cf_worker_url'); });
   // Per-proxy timeouts are not enough when the registry falls back sequentially.
   // A shared deadline aborts the current attempt and prevents a 5× timeout hang.
   var deadlineCtrl = new AbortController();
@@ -2170,41 +2275,42 @@ async function fetchViaProxy(url, timeout) {
   var totalTimeout = Number(opts.totalTimeout || opts.deadline || 0);
   if (!isFinite(totalTimeout) || totalTimeout <= 0) totalTimeout = Math.max(timeout, Math.min(timeout * Math.max(1, active.length), 15000));
   var deadlineTimer = setTimeout(relayAbort, totalTimeout);
+  var errors = [];
   try {
     for (var i = 0; i < active.length; i++) {
       if (deadlineCtrl.signal.aborted) break;
       var proxy = active[i];
+      if (!_PROXY_REGISTRY.claim(proxy, url)) continue;
+      var attemptCtrl = new AbortController();
+      var attemptAbort = function() { attemptCtrl.abort(); };
+      deadlineCtrl.signal.addEventListener('abort', attemptAbort, { once:true });
+      var attemptTimer = setTimeout(attemptAbort, timeout);
       try {
-        var r = await fetchWithTimeout(proxy.mkUrl(url), { signal: deadlineCtrl.signal }, timeout);
-        if (r.ok) {
-          var validated = await _aioValidateProxyResponse(url, r, opts);
-          var payload = opts.parseJson
-            ? (validated.jsonReady ? validated.json : await r.clone().json())
-            : opts.parseText
-              ? await r.clone().text()
-              : r;
-          if (typeof opts.accept === 'function' && !opts.accept(payload)) {
-            _PROXY_REGISTRY.markFail(proxy.id, 'invalid-payload');
-            continue;
-          }
-          _PROXY_REGISTRY.markOk(proxy.id);
-          // 성공 응답 캐시 (stale 폴백용) — 민감 URL은 저장 안 함
-          if (cacheKey) {
-            try {
-              var rClone = r.clone();
-              rClone.text().then(function(t) {
-                try { localStorage.setItem(cacheKey, JSON.stringify({ body: t, ts: Date.now() })); } catch(e) {}
-              }).catch(function() {});
-            } catch(e) {}
-          }
-          if (opts.parseJson) return payload;
-          if (opts.parseText) return payload;
-          return r;
+        var r = await fetch(proxy.mkUrl(url), { signal:attemptCtrl.signal, credentials:'omit' });
+        if (!r.ok) {
+          var retryHeader = r.headers.get('retry-after');
+          var retryMs = /^\d+$/.test(retryHeader || '') ? Number(retryHeader) * 1000 : Date.parse(retryHeader || '') - Date.now();
+          errors.push({ provider:proxy.id, status:r.status });
+          // A missing ticker/endpoint is not proof the entire relay is broken.
+          if ([400, 404, 422].indexOf(r.status) === -1) _PROXY_REGISTRY.markFail(proxy.id, r.status, url, retryMs);
+          continue;
         }
-        _PROXY_REGISTRY.markFail(proxy.id, r.status);
+        // The attempt timer stays alive while the body is read and validated.
+        var validated = await _aioValidateProxyResponse(url, r, opts);
+        var entry = { schema:2, url:url, body:validated.body, collectedAt:Date.now(), provider:proxy.id,
+          contentType:validated.jsonReady ? 'application/json' : r.headers.get('content-type') };
+        var payload = await _aioProxyDeliver(entry, opts, 'network');
+        if (attemptCtrl.signal.aborted) throw new Error('response deadline exceeded');
+        _PROXY_REGISTRY.markOk(proxy.id, url);
+        if (!sensitive && opts.cache !== false) _aioProxyWriteCache(entry);
+        return payload;
       } catch(e) {
-        _PROXY_REGISTRY.markFail(proxy.id, e && e.aioProxyBlockedHtml ? 'html' : null);
-        if (typeof _aioLog === 'function' && e && e.aioProxyBlockedHtml) _aioLog('warn', 'proxy', proxy.id + ' HTML 차단 응답 — 다음 프록시 시도', { url: String(url).slice(0, 120) });
+        if (!deadlineCtrl.signal.aborted) _PROXY_REGISTRY.markFail(proxy.id, e && e.aioProxyBlockedHtml ? 'html' : 'network-or-payload', url);
+        errors.push({ provider:proxy.id, reason:attemptCtrl.signal.aborted ? 'timeout' : 'network-or-payload' });
+      } finally {
+        clearTimeout(attemptTimer);
+        deadlineCtrl.signal.removeEventListener('abort', attemptAbort);
+        _PROXY_REGISTRY.release(proxy, url);
       }
     }
   } finally {
@@ -2217,30 +2323,15 @@ async function fetchViaProxy(url, timeout) {
     throw callerAbort;
   }
   if (typeof _reportApiError === 'function') _reportApiError('proxy-primary', '전체 프록시 실패');
-  // v48.14: stale-cache 폴백 — 전체 프록시 실패 시 localStorage last-good 응답 반환 (민감 URL 제외)
-  try {
-    var cached = cacheKey ? localStorage.getItem(cacheKey) : null;
-    if (cached) {
-      var parsed = JSON.parse(cached);
-      var ageH = (Date.now() - parsed.ts) / 3600000;
-      if (ageH < 6 && parsed.body) { // 6시간 이내 캐시만 허용
-        if (typeof _aioLog === 'function') _aioLog('warn', 'proxy', 'stale-cache 폴백 (' + Math.round(ageH*60) + '분 전) for ' + url.substring(0, 80));
-        window._aioProxyStaleSince = window._aioProxyStaleSince || Date.now();
-        window._aioProxyStaleAgeMin = Math.round(ageH * 60);
-        if (opts.parseJson) {
-          var cachedPayload = JSON.parse(parsed.body);
-          if (typeof opts.accept === 'function' && !opts.accept(cachedPayload)) throw new Error('stale-cache payload rejected');
-          return cachedPayload;
-        }
-        if (opts.parseText) {
-          if (typeof opts.accept === 'function' && !opts.accept(parsed.body)) throw new Error('stale-cache payload rejected');
-          return parsed.body;
-        }
-        return new Response(parsed.body, { status: 200, statusText: 'OK (stale-cache)', headers: { 'X-AIO-Stale': Math.round(ageH*60) + 'min', 'X-AIO-Source': 'stale-cache' } });
-      }
-    }
-  } catch(cacheErr) {}
-  throw new Error('All proxies failed for: ' + url);
+  // Cached research is opt-in. Legacy callers must not label an old response LIVE.
+  if (!sensitive && opts.allowStale === true) {
+    var cached = _aioProxyReadCache(url);
+    if (cached) { try { return await _aioProxyDeliver(cached, opts, 'stale-cache'); } catch (_) {} }
+  }
+  var failure = new Error('시세/자료 연결 실패: 사용 가능한 중계 경로 없음');
+  failure.code = sensitive && !active.length ? 'PRIVATE_ROUTE_REQUIRED' : 'PROXY_UNAVAILABLE';
+  failure.attempts = errors;
+  throw failure;
 }
 
 // ═══ 1. Finnhub source-confirmed quotes (WebSocket with Enhanced Reconnection) ═════════════════════════
@@ -2517,20 +2608,22 @@ async function fetchOHLCVWithFallback(symbol, interval, bars) {
   try {
     var td = await fetchOHLCV(symbol, interval, bars);
     var norm = _normalizeOHLCVRows(td, bars);
-    if (norm && norm.length >= Math.min(20, bars)) return _attachOHLCVQuality(norm, { source: 'twelvedata-or-primary', timestamp: Date.now() });
+    if (norm && norm.length >= Math.min(20, bars)) return _attachOHLCVQuality(norm, { source: 'twelvedata-or-primary', interval: interval, observedAt: norm[norm.length - 1].time, timestamp: Date.now() });
   } catch(e) {
     if (typeof _aioLog === 'function') _aioLog('warn', 'fetch', 'fetchOHLCV primary failed: ' + (e && e.message || e));
   }
   try {
     if (typeof window._fetchYahooChartData !== 'function') return _attachOHLCVQuality([], { source: 'fallback-empty', missing: true });
-    var y = await window._fetchYahooChartData(symbol, _yahooRangeForOHLCV(interval, bars));
+    var yahooInterval = interval === '1month' ? '1mo' : interval === '1week' ? '1wk' : '1d';
+    var y = await window._fetchYahooChartData(symbol, _yahooRangeForOHLCV(interval, bars), yahooInterval);
     if (!y || !Array.isArray(y.closes)) return _attachOHLCVQuality([], { source: 'yahoo-fallback', missing: true });
     var rows = y.closes.map(function(c, i) {
       var ts = y.timestamps && y.timestamps[i];
       var dt = ts ? new Date(ts * 1000).toISOString().substring(0, 10) : null;
       return { time: dt, open: y.opens && y.opens[i], high: y.highs && y.highs[i], low: y.lows && y.lows[i], close: c, volume: y.volumes && y.volumes[i] };
     });
-    return _attachOHLCVQuality(_normalizeOHLCVRows(rows, bars), { source: 'yahoo-fallback', timestamp: Date.now() });
+    var normalized = _normalizeOHLCVRows(rows, bars);
+    return _attachOHLCVQuality(normalized, { source: 'yahoo-fallback', interval: interval, observedAt: normalized.length ? normalized[normalized.length - 1].time : null, timestamp: Date.now() });
   } catch(e2) {
     if (typeof _aioLog === 'function') _aioLog('warn', 'fetch', 'fetchOHLCV yahoo fallback failed: ' + (e2 && e2.message || e2));
     return _attachOHLCVQuality([], { source: 'fallback-empty', error: true });
@@ -3526,8 +3619,8 @@ async function fetchSentimentHistory() {
     var parsed = _parseYFChartResponse(data);
     if (parsed && parsed.closes.length >= 3) {
       // v30.11: UTC 기반 날짜 라벨 사용 (타임존 밀림 방지)
-      var vixHistory = parsed.labels.map(function(lbl, i) {
-        return { date: lbl, value: parsed.closes[i] };
+      var vixHistory = parsed.timestamps.map(function(timestamp, i) {
+        return { date: new Date(timestamp * 1000).toISOString().slice(0, 10), value: parsed.closes[i] };
       }).slice(-30); // last 30 days
 
       window._vixHistory = vixHistory;
@@ -7362,6 +7455,24 @@ const MACRO_KW = [
   'PCE GDP','GDP second estimate','Jackson Hole','Fed path','month-end rebalancing','passive rebalancing',
   'shareholder return','buyback cancellation','DRAM short squeeze','Korea leverage','central bank UST selling',
   '주주환원','자사주 소각','월말 리밸런싱','DRAM 숏스퀴즈','한국 레버리지','중앙은행 국채 매도',
+  // v54.66 (integrate 2026-08-29): supplied liquidity-channel and conditional-guidance vocabulary.
+  'TGA to reserves','repo market stress','SOFR OIS','SOFR-OIS spread','MMF outflow','FIMA repo',
+  'liquidity depth','duration supply','Treasury corporate supply','AI bond supply','capital bottleneck',
+  // v54.71 (integrate 2026-08-30): market confirmation, lagged housing/employment,
+  // and AI inference-system economics from the latest supplied material batch.
+  'index confirmation','equal-weight confirmation','small-cap confirmation','sector relative strength',
+  'earnings event risk','price acceptance','retest confirmation','QQQ support','SPY confirmation',
+  'housing supply lag','housing demand shock','property tax employment','local government employment',
+  'mortgage lag','supply pipeline','주택 공급 시차','주택 수요 충격','재산세 고용','지방정부 고용',
+  '지수 확인','동일가중 확인','소형주 확인','섹터 상대강도','실적 이벤트 리스크','가격 수용','재테스트 확인',
+  'billable IT power','connected facility power','recognized revenue','revenue per MW','fleet pricing',
+  'owner free cash flow','replacement reserve','contract cohort','financing waterfall','AI inference economics',
+  'billable IT','연결 전력','인식 매출','MW당 매출','fleet pricing','소유자 FCF','대체투자비','계약 코호트',
+  '자금조달 워터폴','AI 추론 경제성','energy per request','tokens per watt','TTLT','TBT',
+  'forward guidance regime','market internals reaction','단기자금시장','레포 스트레스','자금시장 경색',
+  'TGA-은행준비금','기간 프리미엄 분해','장기금리 공급압력','기업채 공급','자본 병목',
+  'geopolitical fragmentation','commodity disruption','persistent volatility','rapid market reversal','retail flow shock',
+  '지정학적 분절','원자재 충격','상시 변동성','급격한 시장 반전','소매 흐름 충격',
 ];
 SCREENER_DB_META.recordCount = SCREENER_DB.length;
 SCREENER_DB_META.uniqueSymbols = new Set(SCREENER_DB.map(function(row) { return row && row.sym; }).filter(Boolean)).size;
@@ -8097,6 +8208,23 @@ const MED_KW = [
   'Cerebras','Groq','Etched','Frozen v2','Frozen v2 hardware','Mistral','Figure AI',
   'OpenAI deals','Anthropic deals','model lab','neocloud workload','KV cache','decode latency',
   '추론 효율','메모리 벽','토큰당 전력','온칩 메모리','트랜스포머 특화','저배치 추론','AI 거래 순환',
+  // v54.66 (integrate 2026-08-29): query-shape, hardware qualification, robotics and pattern taxonomy.
+  'query type economics','inference query mix','tokens per user','token demand relay','query energy',
+  'verification bottleneck','Amdahl law','AI hardware financing','AI overbuild timing','HBF qualification',
+  'HBF standardization','compute tray PCB','NVSwitch tray','midplane PCB','low-Dk CCL','HVLP copper foil',
+  'humanoid deployment','autonomous hours','interventions per hour','task success rate','robotics uptime',
+  'space-based data center','orbital data center','double top pattern','triple top pattern',
+  'head and shoulders pattern','inverse head and shoulders','rounding bottom pattern','rounding top pattern',
+  'Quasimodo pattern','wedge continuation','flag continuation','pennant continuation','symmetric triangle',
+  'broadening formation','Wolfe Wave pattern','이중천장','삼중천장','삼중바닥','머리어깨 패턴','역머리어깨',
+  '둥근바닥','둥근천장','쐐기형 패턴','깃발형 패턴','삼각수렴','대칭확산','컵앤핸들','울프웨이브','콰시모도',
+  'usage-based pricing','outcome-based pricing','AI-native software','profitable growth software','software de-rating',
+  'usage 기반 가격','성과 기반 가격','AI 네이티브 소프트웨어','소프트웨어 수익성장','소프트웨어 재평가',
+  // v54.71 (integrate 2026-08-30): Jalapeño / hardware-software co-design.
+  'Jalapeño','Jalapeno','hardware-software co-design','explicit placement','NUMA locality',
+  'collective communication','compiler mapping search','AI-assisted chip design','energy per request',
+  'GigaKernel','KV locality','prefill decode SLO','hardware software 공동설계','명시적 배치','메모리 locality',
+  '집합 통신','컴파일러 매핑 탐색','AI 칩 설계','요청당 에너지','KV locality','추론 SLO',
 ];
 // ANALYST_KW: 개별 종목 analyst rating → 홈 노출 페널티 (-20점)
 const ANALYST_KW = [
@@ -11556,21 +11684,6 @@ window.AIO.getTelegramPipelineAudit = function() {
 };
 
 // ── RSS 파싱 ─────────────────────────────────────────────────────
-// v29.4: 죽은 프록시 제거 (corsproxy.app 503)
-// v30.11 Task 11: 하위 호환용 — 레거시 코드에서 참조하는 상수 유지 (_PROXY_REGISTRY가 진실 원천)
-const CORS_PROXY  = 'https://api.allorigins.win/get?url=';
-const CORS_PROXY2 = 'https://corsproxy.io/?';
-const CORS_PROXY3 = 'https://api.codetabs.com/v1/proxy?quest=';
-const CORS_PROXY5 = 'https://api.allorigins.win/raw?url=';
-
-// CORS 프록시 우선순위 체인 (RSS용) — v29.4: corsproxy.app 제거
-const PROXY_CHAIN = [
-  u => CORS_PROXY2 + encodeURIComponent(u),
-  u => CORS_PROXY  + encodeURIComponent(u),
-  u => CORS_PROXY3 + encodeURIComponent(u),
-  u => CORS_PROXY5 + encodeURIComponent(u),
-];
-
 
 // v29.3: rss2json 연속 실패 시 세션 내 스킵 플래그
 let _rss2jsonFailed = 0;
@@ -11660,36 +11773,13 @@ async function fetchOneFeed(source) {
     } catch(e) { return []; }
   }
 
-  // v46.6: 프록시 체인 확장 (5→7개) + CF Worker 우선
-  const cfWorker = _getApiKey('aio_cf_worker_url') || '';
-  const proxies = [
-    ...(cfWorker ? [u => cfWorker + '?url=' + encodeURIComponent(u)] : []),
-    u => 'https://corsproxy.io/?' + encodeURIComponent(u),
-    u => 'https://corsproxy.org/?' + encodeURIComponent(u),
-    u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
-    u => 'https://api.allorigins.win/get?url=' + encodeURIComponent(u),
-    u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
-    u => 'https://api.cors.lol/?url=' + encodeURIComponent(u),
-  ];
-  for (const mkProxy of proxies) {
-    try {
-      const resp = await fetchWithTimeout(mkProxy(source.url), {}, 6000); // v46.6: 9s→6s (빠른 실패 → 빠른 다음 프록시)
-      if (!resp.ok) { if (resp.status === 429) await new Promise(r => setTimeout(r, 1500)); continue; }
-      let raw = '';
-      const ct = resp.headers.get('content-type') || '';
-      if (ct.includes('json')) {
-        const w = await resp.json();
-        raw = w.contents ? (typeof w.contents === 'string' ? w.contents : JSON.stringify(w.contents)) : JSON.stringify(w);
-      } else {
-        raw = await resp.text();
-        if (raw.trimStart().startsWith('{')) {
-          try { const w = JSON.parse(raw); raw = w.contents || raw; } catch(e2) {} 
-        }
-      }
-      const items = parseXml(raw);
-      if (items.length > 0) { _rssMarkOk(source.name); return items; } // v30.12 P4
-    } catch(e) {}
-  }
+  try {
+    const raw = await fetchViaProxy(source.url, { parseText:true, timeout:4000, totalTimeout:10000,
+      accept: function(body) { return parseXml(body).length > 0; } });
+    const items = parseXml(raw);
+    _rssMarkOk(source.name);
+    return items;
+  } catch (_) {}
   _rssMarkFail(source.name); // v30.12 P4: 모든 프록시 실패
   if (window.NewsStore) NewsStore.reportDeadFeed(source.url, 'all-proxies-failed');
   return [];
@@ -11836,42 +11926,10 @@ function isTelegramMsgRelevant(text) {
 
 async function fetchTelegramDirect(channelSlug, sourceName) {
   const tgUrl = `https://t.me/s/${channelSlug}`;
-  const cfW = _getApiKey('aio_cf_worker_url') || '';
-  // v46.6: 프록시 체인 확장 (5→7개)
-  const proxies = [
-    ...(cfW ? [u => `${cfW}?url=${encodeURIComponent(u)}`] : []),
-    u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
-    u => `https://corsproxy.org/?${encodeURIComponent(u)}`,
-    u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-    u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
-    u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
-    u => `https://api.cors.lol/?url=${encodeURIComponent(u)}`,
-  ];
   let lastErr = null;
-  for (let pi = 0; pi < proxies.length; pi++) {
-    const mkP = proxies[pi];
     try {
-      const r = await fetchWithTimeout(mkP(tgUrl), {}, 10000);
-      if (!r.ok) { // v27.3: r.ok 검증 추가
-        _debugWarn(`[AIO TG] ${sourceName} proxy ${pi+1}/${proxies.length}: HTTP ${r.status}`);
-        continue;
-      }
-      const ct = r.headers.get('content-type') || '';
-      let raw = '';
-      if (ct.includes('json')) {
-        const d = await r.json();
-        raw = typeof d.contents === 'string' ? d.contents : (typeof d === 'string' ? d : '');
-      } else {
-        raw = await r.text();
-        // allorigins raw 등 JSON 래핑 없이 직접 HTML 반환하는 경우
-        if (raw.trimStart().startsWith('{')) {
-          try { const w = JSON.parse(raw); raw = w.contents || raw; } catch(e2) {}
-        }
-      }
-      if (!raw || raw.length < 500) {
-        _debugWarn(`[AIO TG] ${sourceName} proxy ${pi+1}: 응답 너무 짧음 (${(raw||'').length}자)`);
-        continue;
-      }
+      const raw = await fetchViaProxy(tgUrl, { parseText:true, timeout:4000, totalTimeout:12000,
+        accept: function(body) { return typeof body === 'string' && /tgme_widget_message_wrap|data-post=/.test(body); } });
       const parser = new DOMParser();
       const doc = parser.parseFromString(raw, 'text/html');
       const msgs = doc.querySelectorAll('.tgme_widget_message_wrap');
@@ -11879,8 +11937,7 @@ async function fetchTelegramDirect(channelSlug, sourceName) {
         // Telegram DOM 구조 변경 대비: 대체 셀렉터 시도
         const altMsgs = doc.querySelectorAll('[class*="message_wrap"], [data-post]');
         if (!altMsgs.length) {
-          _debugWarn(`[AIO TG] ${sourceName} proxy ${pi+1}: 메시지 DOM 파싱 실패`);
-          continue;
+          throw new Error('Telegram message markup unavailable');
         }
       }
       const msgEls = msgs.length ? msgs : doc.querySelectorAll('[class*="message_wrap"], [data-post]');
@@ -11904,7 +11961,7 @@ async function fetchTelegramDirect(channelSlug, sourceName) {
           title,
           desc: fullText.slice(0, 280),
           link: linkEl ? (linkEl.getAttribute('href') || tgUrl) : tgUrl,
-          pubDate: dateEl ? dateEl.getAttribute('datetime') : new Date().toISOString(),
+          pubDate: dateEl ? dateEl.getAttribute('datetime') : null,
           source: displaySource,
           feed: sourceName,
           tier: 1,
@@ -11915,15 +11972,14 @@ async function fetchTelegramDirect(channelSlug, sourceName) {
         });
       });
       if (items.length) {
-        console.log(`[AIO TG] ${sourceName}: ${items.length}건 수집 (proxy ${pi+1})`);
+        console.log(`[AIO TG] ${sourceName}: ${items.length}건 수집`);
         return items.reverse(); // 최신 순
       }
     } catch(e) {
       lastErr = e;
-      _debugWarn(`[AIO TG] ${sourceName} proxy ${pi+1}/${proxies.length} 실패:`, e.message || e);
+      _debugWarn(`[AIO TG] ${sourceName} 수집 실패:`, e.message || e);
     }
-  }
-  _aioLog('error', 'fetch', sourceName + ': 모든 프록시(' + proxies.length + '개) 실패 ' + (lastErr?.message || ''));
+  if (lastErr) _aioLog('warn', 'fetch', sourceName + ': 자료 연결 실패 ' + (lastErr.message || ''));
   return [];
 }
 
@@ -12660,18 +12716,10 @@ const LIVE_SYMBOLS = [
 // v49.49 P319/R101 buf fix: LIVE_SYMBOLS를 window.LIVE_SYMBOLS로 노출 — R101 getLiveSymbolsCoverageAudit이 const top-level 변수에 접근 못해 R101_total: 0 보고 (false positive 131 미등록). top-level const는 module scope이므로 window property 아님 — 명시 노출.
 window.LIVE_SYMBOLS = LIVE_SYMBOLS;
 
-// ── Global fetch helper (레거시 — AbortController 미사용, 새 코드는 fetchWithTimeout 권장) ──
-function withTimeout(p, ms) {
-  return Promise.race([
-    p,
-    new Promise(function(_, rej) { setTimeout(function(){ rej(new Error('timeout')); }, ms); })
-  ]);
-}
-
 // ═══ v36: 네이버 파이낸스 — 한국 시장 1차 데이터 소스 ═══════════════════
 // 네이버 API → CORS 프록시 → Yahoo-compatible 포맷 변환
 // 지수(KOSPI/KOSDAQ) + 전 종목(KR_STOCK_DB) 일괄 fetch
-async function fetchKrNaverQuotes() {
+async function fetchKrNaverQuotes(requestedSymbols) {
   var results = [];
   var _startTs = Date.now();
 
@@ -12692,8 +12740,8 @@ async function fetchKrNaverQuotes() {
 
       // m.stock API 응답: closePrice, compareToPreviousClosePrice, fluctuationsRatio
       var price = parseFloat(String(data.closePrice || data.now || '0').replace(/,/g, ''));
-      var chgPct = parseFloat(String(data.fluctuationsRatio || data.cr || '0').replace(/,/g, ''));
-      var chgVal = parseFloat(String(data.compareToPreviousClosePrice || data.cv || '0').replace(/,/g, ''));
+      var chgPct = parseFloat(String(data.fluctuationsRatio ?? data.cr ?? '').replace(/,/g, ''));
+      var chgVal = parseFloat(String(data.compareToPreviousClosePrice ?? data.cv ?? '').replace(/,/g, ''));
 
       if (price > 0) {
         // FABLE-LIVE-AUDIT-2026-07-07 C5/L2-2: Naver의 compareToPreviousClosePrice(부호 포함, 원 단위)로
@@ -12715,6 +12763,10 @@ async function fetchKrNaverQuotes() {
 
   // ── 2. 전 종목 가격 (배치 요청) ──
   var allCodes = (typeof KR_STOCK_DB !== 'undefined') ? Object.keys(KR_STOCK_DB) : [];
+  var scopedCodes = Array.isArray(requestedSymbols) ? new Set(requestedSymbols.map(function(symbol) {
+    return String(symbol || '').replace(/\.(KS|KQ)$/i, '');
+  }).filter(function(code) { return /^\d{6}$/.test(code); })) : null;
+  if (scopedCodes) allCodes = Array.from(scopedCodes);
   var BATCH_SIZE = 20; // polling API 배치 크기
 
   for (var bi = 0; bi < allCodes.length; bi += BATCH_SIZE) {
@@ -12745,15 +12797,15 @@ async function fetchKrNaverQuotes() {
           datas.forEach(function(d) {
             var code = d.cd || d.symbolCode || '';
             var price = parseFloat(String(d.nv || d.closePrice || '0').replace(/,/g, ''));
-            var chgPct = parseFloat(String(d.cr || d.fluctuationsRatio || '0').replace(/,/g, ''));
-            var chgVal = parseFloat(String(d.cv || d.compareToPreviousClosePrice || '0').replace(/,/g, ''));
+            var chgPct = parseFloat(String(d.cr ?? d.fluctuationsRatio ?? '').replace(/,/g, ''));
+            var chgVal = parseFloat(String(d.cv ?? d.compareToPreviousClosePrice ?? '').replace(/,/g, ''));
 
             // v46.4: 가격/등락률 유효성 검증
             if (!isFinite(price)) price = 0;
             if (!isFinite(chgPct) || Math.abs(chgPct) > 30) chgPct = null; // 한국 상한가 ±30%
-            if (!isFinite(chgVal)) chgVal = 0;
+            if (!isFinite(chgVal)) chgVal = null;
 
-            if (code && price > 0) {
+            if (code && batch.includes(String(code)) && price > 0) {
               var yahooSym = krTickerToYahoo(code);
               results.push({
                 symbol: yahooSym,
@@ -12782,8 +12834,8 @@ async function fetchKrNaverQuotes() {
           if (raw.contents) try { data = JSON.parse(raw.contents); } catch(e) { return; }
 
           var price = parseFloat(String(data.closePrice || data.now || '0').replace(/,/g, ''));
-          var chgPct = parseFloat(String(data.fluctuationsRatio || data.cr || '0').replace(/,/g, ''));
-          var chgVal = parseFloat(String(data.compareToPreviousClosePrice || data.cv || '0').replace(/,/g, ''));
+          var chgPct = parseFloat(String(data.fluctuationsRatio ?? data.cr ?? '').replace(/,/g, ''));
+          var chgVal = parseFloat(String(data.compareToPreviousClosePrice ?? data.cv ?? '').replace(/,/g, ''));
 
           if (price > 0) {
             results.push({
@@ -12830,6 +12882,7 @@ async function fetchKrNaverQuotes() {
   var gotSyms = {};
   results.forEach(function(r) { gotSyms[r.symbol] = true; });
   var missing = allCodesFlat.filter(function(c) { return !gotSyms[krTickerToYahoo(c)]; });
+  if (scopedCodes) missing = Array.from(scopedCodes).filter(function(c) { return !gotSyms[krTickerToYahoo(c)]; });
 
   if (missing.length > 0) {
     var today = new Date();
@@ -12955,6 +13008,15 @@ async function fetchKrDynamicData() {
   return results;
 }
 
+function _aioPlanQuoteGroups(requestedSymbols, coreSymbols) {
+  const symbols = Array.from(new Set([].concat(requestedSymbols || [], coreSymbols || [])
+    .map(function(symbol) { return String(symbol || '').trim().toUpperCase(); })
+    .filter(function(symbol) { return /^[A-Z0-9^][A-Z0-9.^=\-]{0,19}$/.test(symbol); })));
+  const groups = [];
+  for (let i = 0; i < symbols.length; i += 5) groups.push(symbols.slice(i, i + 5));
+  return groups;
+}
+
 async function fetchLiveQuotes(requestedSymbols) {
   if (window._aioQuoteInFlight) return;
   window._aioQuoteInFlight = true;
@@ -13022,7 +13084,7 @@ async function fetchLiveQuotes(requestedSymbols) {
   // v48.4: CoinGecko /global (정확한 BTC 도미넌스) + /coins/markets (상위 20 코인) — 무료 티어 확장
   // /simple/price가 끝나고 비동기 병렬 호출. 실패해도 기본 4종 시세에 영향 없음.
   try {
-    const cfW = _getApiKey('aio_cf_worker_url') || '';
+    const cfW = _cfWorkerUrl();
     const _cgDirect = async function(url, ms) {
       try { const r = await fetchWithTimeout(url, {}, ms); if (r.ok) return await r.json(); } catch(e) {}
       if (cfW) {
@@ -13083,33 +13145,8 @@ async function fetchLiveQuotes(requestedSymbols) {
   const fxMap = {KRW:'KRW=X', JPY:'JPY=X', EUR:'EURUSD=X', GBP:'GBPUSD=X', CNY:'CNY=X', AUD:'AUDUSD=X', CAD:'CAD=X', CHF:'CHF=X'};
   const FX_INVERTED = ['EURUSD=X','GBPUSD=X','AUDUSD=X']; // USD 기준 역수 통화 (CAD=X, CHF=X는 USD/CAD, USD/CHF로 역수 불필요)
 
-  // v30.11: 전일 종가 저장소 — localStorage에 일단위 캐시
-  if (!window._fxPrevClose) {
-    try {
-      const stored = localStorage.getItem('aio_fx_prev_close');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        // 24h 이내 데이터만 사용
-        if (parsed._ts && Date.now() - parsed._ts < 48 * 3600000) {
-          window._fxPrevClose = parsed;
-        } else {
-          window._fxPrevClose = {};
-        }
-      } else {
-        window._fxPrevClose = {};
-      }
-    } catch(e) { window._fxPrevClose = {}; }
-  }
-
-  // v30.11: 환율 변동률 계산 헬퍼
-  function _calcFxChange(sym, currentPrice) {
-    const prev = window._fxPrevClose[sym];
-    if (!prev || prev <= 0 || currentPrice <= 0) return null;
-    return ((currentPrice - prev) / prev) * 100;
-  }
-
   // v30.11: 환율 API 결과를 처리하는 공통 함수
-  function _processFxRates(rates, codeMapFn, apiName) {
+  function _processFxRates(rates, codeMapFn, apiName, observedAt) {
     const fxQuotes = [];
     for (const [code, sym] of Object.entries(fxMap)) {
       const rawRate = codeMapFn(code);
@@ -13118,22 +13155,19 @@ async function fetchLiveQuotes(requestedSymbols) {
       if (FX_INVERTED.includes(sym)) price = 1 / price;
       // NaN/극단값 방어
       if (isNaN(price) || price <= 0 || price > 1e6) continue;
-      const pct = _calcFxChange(sym, price);
       fxQuotes.push({
         symbol: sym,
         regularMarketPrice: price,
-        regularMarketChangePercent: pct,
-        regularMarketChange: pct != null ? price * pct / 100 : null,
-        _source: 'fx:' + apiName
+        regularMarketChangePercent: null,
+        regularMarketChange: null,
+        observedAt: observedAt || null,
+        valueBasis: 'daily-reference-rate',
+        changeBasis: 'unavailable',
+        _source: 'reference:fx:' + apiName
       });
     }
-    // 전일 종가 갱신: 첫 세션 로드 시 현재값을 전일 종가로 저장 (다음 세션용)
-    if (fxQuotes.length > 0 && !window._fxPrevCloseSaved) {
-      const toSave = { _ts: Date.now() };
-      fxQuotes.forEach(q => { toSave[q.symbol] = q.regularMarketPrice; });
-      try { localStorage.setItem('aio_fx_prev_close', JSON.stringify(toSave)); } catch(e) {}
-      window._fxPrevCloseSaved = true;
-    }
+    // A previous browser visit is not the prior market close. This source has
+    // no comparable previous-session observation, so it supplies a level only.
     return fxQuotes;
   }
 
@@ -13144,7 +13178,7 @@ async function fetchLiveQuotes(requestedSymbols) {
     if (r.ok) {
       const d = await r.json();
       if (d.result === 'success' && d.rates) {
-        const fxQuotes = _processFxRates(d.rates, code => d.rates[code], 'open.er-api');
+        const fxQuotes = _processFxRates(d.rates, code => d.rates[code], 'open.er-api', d.time_last_update_unix);
         if (fxQuotes.length > 0) {
           allQuotes.push(...fxQuotes);
           fxLoaded = true;
@@ -13159,7 +13193,7 @@ async function fetchLiveQuotes(requestedSymbols) {
     if (r.ok) {
       const d = await r.json();
       if (d.rates) {
-        const fxQuotes = _processFxRates(d.rates, code => d.rates[code], 'exchangerate-api');
+        const fxQuotes = _processFxRates(d.rates, code => d.rates[code], 'exchangerate-api', d.time_last_updated || d.date);
         if (fxQuotes.length > 0) {
           allQuotes.push(...fxQuotes);
           fxLoaded = true;
@@ -13175,7 +13209,7 @@ async function fetchLiveQuotes(requestedSymbols) {
       const d = await r.json();
       if (d.usd) {
         const codeMap = {KRW:'krw', JPY:'jpy', EUR:'eur', GBP:'gbp', CNY:'cny', AUD:'aud', CAD:'cad', CHF:'chf'};
-        const fxQuotes = _processFxRates(d.usd, code => d.usd[codeMap[code]], 'fawazahmed0');
+        const fxQuotes = _processFxRates(d.usd, code => d.usd[codeMap[code]], 'fawazahmed0', d.date);
         if (fxQuotes.length > 0) {
           allQuotes.push(...fxQuotes);
           fxLoaded = true;
@@ -13189,7 +13223,7 @@ async function fetchLiveQuotes(requestedSymbols) {
   // 네이버 성공 시 Yahoo Korean 배치 스킵 → 요청 수 절감 + 데이터 정확도 향상
   let _naverKrLoaded = false;
   try {
-    const naverQuotes = await fetchKrNaverQuotes();
+    const naverQuotes = await fetchKrNaverQuotes(_requestedQuoteSyms);
     if (naverQuotes.length >= 3) {
       allQuotes.push(...naverQuotes);
       _naverKrLoaded = true;
@@ -13201,131 +13235,11 @@ async function fetchLiveQuotes(requestedSymbols) {
 
   // ─── 3. 주식·지수: Yahoo Finance v8/chart (단일 심볼, corsproxy 경유) ──
   // 핵심 심볼을 5개씩 나눠서 순차 요청 (빠른 것부터)
-  const PRIORITY_SYMS = [
-    // 먼저 가져올 핵심 심볼 (홈 화면에 표시)
-    ['^GSPC', '^IXIC', '^VIX', 'CL=F', 'GC=F'],          // 지수·원자재
-    ['DX-Y.NYB', '^TNX', '^TYX', 'HYG', 'SPY'],            // 달러·금리·ETF
-    ['BZ=F', 'NG=F', 'SI=F', 'KRW=X', 'HG=F'],             // v38.3: Brent·원자재·원달러 우선 fetch
-    ['NVDA', 'AAPL', 'TSLA', 'MSFT', 'AMD'],               // 대형주
-    ['XLE', 'XLK', 'XLF', 'GLD', 'TLT'],                   // 섹터 ETF
-    ['ES=F', 'NQ=F', 'YM=F', 'RTY=F', 'VXX', 'UVXY'],      // v48.58: RTY=F 추가 (Russell 선물)
-    ['^RUT', '^VVIX', '^IRX', '^FVX', 'RSP'],              // 추가 지수
-    ['QQQ', 'AMZN', 'META', 'GOOGL', 'MU'],                 // 추가 주식 (v38.4: GOOGL 추가, ARM→후순위)
-    // ── v34.6: 테마 세분화 핵심 종목 우선 fetch (SUB_THEMES leaders) ──
-    ['COIN', 'HOOD', 'MSTR', 'AVGO', 'CEG'],              // 핀테크/크립토 + AI칩 + 원전
-    ['VST', 'NRG', 'CCJ', 'PANW', 'CRWD'],                // 원전/유틸 + 사이버보안
-    ['ZS', 'FTNT', 'IREN', 'CRWV', 'NBIS'],               // 사이버보안 + 네오클라우드
-    ['CIFR', 'WULF', 'VRT', 'ANET', 'ALAB'],              // 네오클라우드 + DC인프라
-    ['CRDO', 'LITE', 'COHR', 'CIEN', 'AAOI'],             // DC인프라 + 광통신
-    ['GLW', 'STX', 'WDC', 'RKLB', 'ASTS'],                // 메모리 + 우주
-    ['GD', 'NOC', 'ROK', 'TER', 'QBTS'],                  // 방산 + 로보틱스 + 양자
-    ['XLV', 'XLI', 'XLY', 'XLP', 'XLRE'],                 // 섹터 ETF 2
-    ['XLB', 'XLU', 'XLC', 'SMH', 'IWM'],                  // v38.4: 누락 섹터 ETF + 반도체/소형주
-    ['LMT', 'RTX', 'XOM', 'CVX', 'ARM'],                   // 방산·에너지·ARM
-    ['LQD', 'DIA', 'SLV', 'USO', 'QCOM'],                 // v38.4: 이전 미수신 ETF + 퀄컴
-    ['^DJI', 'BTC-USD', 'ETH-USD', 'SI=F', '000001.SS'],   // GMO 테이블 필수 심볼
-    ['^GDAXI', '^FTSE', '^FCHI', '^N225', '^HSI'],          // 글로벌 지수 (EMEA + Asia)
-    ['EMB', 'SHY', 'IEF'],                                   // 채권 ETF
-    ['IONQ', 'RGTI', 'QUBT', 'LUNR', 'RDW'],              // 양자·우주
-    ['AFRM', 'SOFI', 'UPST', 'PL'],                          // 핀테크 (LUNR→16507 중복제거)
-    ['IBIT', 'BITO', 'UBER', 'DASH', 'CPNG'],             // BTC ETF + 딜리버리
-    ['LLY', 'NVO', 'INTC', 'GFS', 'UMC'],                 // GLP-1 + 파운드리
-    // ── 한국 주요 종목 (Yahoo Finance .KS/.KQ) ──
-    ['^KS11', '^KQ11', '005930.KS', '000660.KS', '012450.KS'], // KOSPI,KOSDAQ,삼성전자,SK하이닉스,한화에어로
-    ['329180.KS', '042660.KS', '035420.KS', '034020.KS', '298040.KS'], // HD현대중공업,한화오션,NAVER,두산에너빌,효성중공업
-    ['373220.KS', '005380.KS', '207940.KS', '047810.KS', '010120.KS'], // LG에솔,현대차,삼바,한국항공우주,LS일렉
-    ['055550.KS', '068270.KS', '090430.KS', '003230.KS', '277810.KQ'], // 신한지주,셀트리온,아모레,삼양식품,레인보우로보틱스
-    // ── v35.7: 한국 시총 TOP20 + 테마 대장주 추가 (기존 누락분) ──
-    ['000270.KS', '105560.KS', '402340.KS', '005490.KS', '035720.KS'], // 기아,KB금융,SK스퀘어,POSCO홀딩스,카카오
-    ['051910.KS', '006400.KS', '096770.KS', '086790.KS', '316140.KS'], // LG화학,삼성SDI,SK이노베이션,하나금융,우리금융
-    ['009150.KS', '034730.KS', '003550.KS', '028260.KS', '271560.KS'], // 삼성전기,SK,LG,삼성물산,오리온
-    ['323410.KS', '015760.KS', '009830.KS', '192820.KQ', '000720.KS'], // 카카오뱅크,한국전력,한화솔루션,코스맥스,현대건설
-    // ── 한국 방산 테마 ──
-    ['064350.KS', '079550.KS', '272210.KS', '000880.KS', '103140.KS'], // 현대로템,LIG넥스원,한화시스템,한화,풍산
-    // ── 한국 조선 테마 ──
-    ['009540.KS', '010140.KS', '010620.KS', '082740.KS', '267250.KS'], // HD한국조선해양,삼성중공업,HD현대미포,한화엔진,HD현대
-    ['071970.KS', '011210.KS'],                                         // HD현대마린엔진,현대위아
-    // ── 한국 전력인프라 테마 ──
-    ['267260.KS', '103590.KS', '006260.KS', '229640.KS', '000500.KS'], // HD현대일렉트릭,일진전기,LS,LS에코에너지,가온전선
-    ['033100.KS', '259960.KS'],                                         // 제룡전기,크래프톤
-    // ── 한국 반도체·IT ──
-    ['000990.KS', '005290.KS', '018260.KS', '012510.KS', '012330.KS'], // DB하이텍,동진쎄미켐,삼성SDS,더존비즈온,현대모비스
-    // ── 한국 바이오·헬스케어 ──
-    ['000100.KS', '128940.KS', '326030.KS'],                             // 유한양행,한미약품,SK바이오팜 (207940.KS→16514 중복제거)
-    // ── 한국 원전 테마 ──
-    ['052690.KS', '051600.KS', '092200.KS', '083650.KS'],               // 한전기술,한전KPS,디아이씨,비에이치아이
-    // ── 한국 2차전지·소재 ──
-    ['051900.KS', '122870.KS', '138040.KS', '086280.KS'],               // LG이노텍,이녹스첨단소재,메리츠금융,현대글로비스 (005490.KS→16517 중복제거)
-    // ── 한국 ETF 섹터 ──
-    ['091160.KS', '305720.KS', '091220.KS', '244580.KS'],               // KODEX반도체,KODEX2차전지,KODEX은행,KODEX바이오
-    // ── 한국 코스닥 주도주 ──
-    ['315640.KQ', '403870.KQ', '454910.KQ', '950130.KQ', '253450.KQ'], // 뉴로메카,HPSP,에이텐랩,엘앤에프,스튜디오드래곤
-    ['058470.KQ', '066970.KQ', '036930.KQ', '039030.KQ', '145020.KQ'], // 리노공업,엘앤에프,주성엔지니어링,이오테크닉스,휴젤
-    ['131970.KQ', '178320.KQ', '112040.KQ', '240810.KQ', '041020.KQ'], // 테스나,서진시스템,위메이드,엘오티베큠,폴라리스오피스
-    ['304100.KQ', '086520.KQ', '094480.KQ', '056080.KQ', '237880.KQ'], // 솔트룩스,에코프로,나라셀라,유진로봇,클리오
-    ['196170.KQ', '257720.KQ', '278470.KQ', '044820.KQ', '042700.KQ'], // 알테오젠,세아메카닉스,코웨이,코스맥스비티아이,한미반도체
-    ['247540.KQ', '003670.KQ', '028300.KQ', '161890.KQ'],              // 에코프로비엠,포스코퓨처엠,HLB,한국콜마
-    // ── 한국 기타 대형주 ──
-    ['004370.KS', '000810.KS', '035760.KS', '017670.KS', '018880.KS'], // 농심,삼성화재,CJ ENM,SK텔레콤,한온시스템
-    ['030200.KS', '032640.KS', '032830.KS', '041510.KQ'],               // KT,LG유플러스,삼성생명,에스엠 (086280.KS→16536 중복제거)
-    ['280360.KS', '352820.KS', '097950.KS', '251270.KS', '204320.KS'], // 롯데웰푸드,하이브,CJ제일제당,넷마블,만도
-    ['005180.KS', '000080.KS', '004020.KS', '035900.KQ', '030520.KQ'], // 빙그레,하이트진로,현대제철,JYP Ent.,한글과컴퓨터
-    // ── 추가 대형주 (DOW30 + S&P500) ──
-    ['BRK-B', 'MA', 'UNH', 'HD', 'PG'],
-    ['ABBV', 'NFLX', 'PEP', 'KO', 'MCD'],
-    ['ADBE', 'ORCL', 'CSCO', 'IBM', 'INTU'],
-    ['BAC', 'WFC', 'MS', 'BLK', 'AXP'],
-    ['TMO', 'ISRG', 'VRTX', 'REGN', 'GILD'],
-    ['ASML', 'AMAT', 'LRCX', 'KLAC', 'SNPS'],
-    ['MRVL', 'CDNS', 'LOW', 'SBUX', 'DIS'],
-    ['BA', 'NKE', 'VZ'],                                      // NOC,GD→16501 중복제거
-    ['GE', 'HON', 'LIN', 'COP', 'NEE'],
-    ['MELI', 'DDOG', 'SMCI'],                                 // UBER→16509,FTNT→16497 중복제거
-    ['CAVA', 'SOUN'],                                         // SOFI,AFRM→16508,RGTI→16507 중복제거
-    // ── v35.7: S&P 500 Top 50 누락분 추가 ──
-    ['GOOGL', 'JPM', 'V', 'JNJ', 'COST'],
-    ['WMT', 'CRM', 'MRK', 'GS', 'C'],
-    ['QCOM', 'AMGN', 'NOW', 'PM', 'BKNG'],
-    ['TXN', 'ACN', 'SPGI', 'PLTR', 'PYPL'],
-    ['SCHW', 'WM', 'BX', 'KKR', 'APO'],
-    // ── HOT/Trending 종목 ──
-    ['HIMS', 'RDDT', 'PINS', 'SNAP', 'RBLX'],
-    ['SPOT', 'TEM', 'AI', 'PATH', 'CFLT'],
-    ['MDB', 'GTLB', 'ESTC', 'WDAY', 'MNDY'],
-    ['SQ', 'OKLO', 'TLN', 'RIVN', 'LCID'],
-    ['GM', 'F', 'EA', 'TTWO', 'DECK'],
-    ['CELH', 'ONON', 'URI', 'NUE', 'SHOP'],
-    ['ABNB', 'ROKU', 'DUOL', 'APP'],                          // DASH→16509 중복제거
-    ['AXON', 'TOST', 'GRAB', 'SE', 'GME'],
-    ['AMC', 'AEHR', 'VIAV', 'CRSP', 'IWM'],
-    // ── 환율 심볼 (chartPreviousClose 확보용) ──
-    ['KRW=X', 'JPY=X', 'EURUSD=X', 'GBPUSD=X', 'CNY=X'],
-    ['AUDUSD=X'],
-    // ── Top 200 확장 ──
-    ['ABT', 'BSX', 'SYK', 'DHR', 'CI'],
-    ['CME', 'ICE', 'MSI', 'APH', 'EOG'],
-    ['ADP', 'ORLY', 'CTAS', 'SHW', 'CMG'],
-    ['PGR', 'TDG', 'MAR', 'IDXX', 'ROP'],
-    // ── v35.8: 테마 시세 갭 해소 ──
-    ['CAT','UNP','CSX','PCAR','PH'],['WAB','AME','GNRC','JCI','NDSN'],['HII','HWM','LHX','LDOS','TXT'],
-    ['DVN','OXY','FANG','TPL','KMI'],['WMB','TRGP','ET','SLB','HAL'],['BKR','VLO','MPC','PSX','DUK'],
-    ['AEP','EXC','ETR','ES','FE'],['EVRG','XEL','EIX','LNT','PNW'],['ATO','SMR','LEU','ENPH','FSLR'],
-    ['SEDG','RUN','PFE','BMY','MRNA'],['BIIB','AZN','VKTX','MDT','MCK'],['DVA','WAT','A','MASI','KEYS'],
-    ['T','TMUS','MO','PM','SYY'],['ADM','CTVA','ECL','IFF','ADI'],['TJX','DG','CHD','CL','CLX'],
-    ['MNST','EBAY','ETSY','HLT','PSKY'],['TTD','NET','SNOW','FCX','NEM'],['APD','AA','MP','LAC','ALB'],
-    ['NXPI','ON','EMR','DELL','HPE'],['NTAP','EQIX','DLR','AMT','PLD'],['SPG','O','KIM','REG','VTR'],
-    ['TSM','NU','MARA','RIOT','CLSK'],['ACLS','ENTG','FLNC'],['UCTT','ONTO','FLR','XYZ','CYBR'],
-    ['SMH','IGV','XBI','ITA','OIH'],['AMLP','URA','XOP','HACK','GDX'],['BOTZ','ICLN','LIT','JETS','XLB'],
-    ['XLC','XLU','NVO','PLUG','BE'],['JBHT','NSC','ODFL','UPS','S'],['FANUY','STAG','FCEL'],
-    ['AEM','ALL','APTV','CB'],['CCI','CCL','DAL','DE','DKNG'],['EPD','FNV','GFI','GOLD'],
-    ['KGC','LUV','MET','OKE','RCL'],['SBAC','TGT','TRV','UAL'],['WPM'],
-    // ── v35.8: 한국 신규 테마 종목 ──
-    ['006360.KS','375500.KS','028050.KS','139480.KS','069960.KS'],
-    ['007070.KS','282330.KS','030000.KS','011170.KS','010950.KS'],
-    ['000120.KS','003490.KS','180640.KS','023530.KS','078930.KS'],
-    ['006800.KS','041190.KS','047080.KQ','004170.KS','047040.KS'],
-    ['047820.KQ'],  // v35.8: 삼천당제약 (코스닥 시총 1위)
-  ];
+  // The scheduler/request owns scope. Do not download the historical 500+
+  // ticker catalogue on every refresh; the screener has its durable artifact.
+  const PRIORITY_SYMS = _aioPlanQuoteGroups(_requestedQuoteSyms,
+    (window.AIO && window.AIO.CORE_LIVE_SYMBOLS) ||
+    ['^GSPC','^IXIC','^VIX','CL=F','GC=F','KRW=X','DX-Y.NYB','^KS11','^KQ11']);
 
   // Yahoo Finance Chart API — crumb 불필요, 단일 심볼
   // corsproxy.io가 가장 안정적 (무료, CORS 없이)
@@ -13338,7 +13252,7 @@ async function fetchLiveQuotes(requestedSymbols) {
   const _yfBatch = {};
   async function _yfBatchFetch(syms) {
     if (!syms || syms.length === 0) return;
-    const cfW = _getApiKey('aio_cf_worker_url') || '';
+    const cfW = _cfWorkerUrl();
     if (!cfW) return;
     const chunks = [];
     for (let i = 0; i < syms.length; i += 100) chunks.push(syms.slice(i, i + 100));
@@ -13350,7 +13264,7 @@ async function fetchLiveQuotes(requestedSymbols) {
         const d = await r.json();
         const list = d && d.quoteResponse && Array.isArray(d.quoteResponse.result) ? d.quoteResponse.result : [];
         list.forEach(function(q) {
-          if (!q || !q.symbol || !q.regularMarketPrice) return;
+          if (!q || !q.symbol || !chunk.includes(q.symbol) || !q.regularMarketPrice) return;
           if (!_validatePrice(q.symbol, q.regularMarketPrice)) return;
           var _pct = q.regularMarketChangePercent;
           var _prev = q.regularMarketPreviousClose != null ? q.regularMarketPreviousClose : (q.chartPreviousClose || 0);
@@ -13374,6 +13288,9 @@ async function fetchLiveQuotes(requestedSymbols) {
             marketCap: q.marketCap,
             trailingPE: q.trailingPE,
             marketState: q.marketState,
+            regularMarketTime: q.regularMarketTime ?? null,
+            exchangeTimezoneName: q.exchangeTimezoneName ?? null,
+            fullExchangeName: q.fullExchangeName ?? null,
             _source: 'live:yahoo-v7-batch'
           };
           var _ms = (q.marketState || '').toUpperCase();
@@ -13394,23 +13311,6 @@ async function fetchLiveQuotes(requestedSymbols) {
       console.log('[AIO] Yahoo v7 배치: ' + Object.keys(_yfBatch).length + '/' + syms.length + '개 수신 (' + chunks.length + '청크)');
     }
   }
-  // Tier 0: 핵심 26개 심볼 선행 fetch → applyLiveQuotes() 즉시 호출로 체감 속도 개선
-  const TIER0_SYMS = [
-    '^GSPC','^IXIC','DX-Y.NYB','^KS11','^KQ11',
-    'SPY','QQQ','DIA','IWM',
-    'GC=F','CL=F','NG=F','ZB=F','GLD','USO','TLT',
-    'BTC-USD','ETH-USD',
-    'AAPL','MSFT','NVDA','GOOGL','AMZN','META','TSLA',
-    'JPY=X','KRW=X','^VIX','HYG','LQD','DXY'
-  ];
-  try {
-    await _yfBatchFetch(TIER0_SYMS);
-    var _t0results = TIER0_SYMS.map(function(s) { return _yfBatch[s]; }).filter(Boolean);
-    if (_t0results.length > 0) {
-      applyLiveQuotes(_t0results);
-      _aioLog('info', 'fetch', 'Tier 0 선행 적용: ' + _t0results.length + '개');
-    }
-  } catch(e) {}
 
   // PRIORITY_SYMS 전체 평탄화 후 중복 제거 → 1회 배치 호출
   try {
@@ -13418,101 +13318,31 @@ async function fetchLiveQuotes(requestedSymbols) {
     await _yfBatchFetch(_allSymsFlat);
   } catch(e) { _aioLog('warn', 'init', 'v7 배치 초기화 실패: ' + e.message); }
 
-  // v30.11 Task 11: _PROXY_REGISTRY에서 프록시 목록 가져옴 (단일 진실 원천)
-  // v35.7: 매번 getRotated()에서 mkUrl을 가져와 부하 분산
-  const YF_PROXIES = (typeof _PROXY_REGISTRY !== 'undefined') ? _PROXY_REGISTRY.getMkUrls() : [
-    u => 'https://corsproxy.io/?' + encodeURIComponent(u),
-    u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
-  ];
-
   async function fetchYFChart(symbol) {
     // v47.12: v7/quote 배치 캐시 우선 조회 — 진입부에서 이미 수신된 심볼이면 개별 호출 스킵
     if (_yfBatch[symbol]) return _yfBatch[symbol];
     const url = CHART_BASE + encodeURIComponent(symbol) + CHART_PARAMS;
 
-    // v31.5: CF Worker가 있으면 직접 호출 건너뜀 (Yahoo CORS 503 방지 → 요청 절반 감소)
-    const _skipDirect = !!(_getApiKey('aio_cf_worker_url'));
-    if (!_skipDirect) {
-      // 직접 시도 (CORS 해제 환경일 때만)
-      try {
-        const r = await fetchWithTimeout(url, {headers:{'Accept':'application/json'}}, 3000);
-        if (r.ok) {
-          const d = await r.json();
-          const meta = d?.chart?.result?.[0]?.meta;
-          if (meta?.regularMarketPrice && _validatePrice(symbol, meta.regularMarketPrice)) {
-            var _dPrice = meta.regularMarketPrice;
-            var _dPrev = meta.chartPreviousClose || meta.previousClose || 0;
-            var _dPct = meta.regularMarketChangePercent;
-            if (_dPct == null && _dPrev > 0) {  // v38.3 A4: _pct===0 유효값 보존 (변동률 0%도 정상)
-              _dPct = ((_dPrice - _dPrev) / _dPrev) * 100;
-            }
-            // v36.6: 프리/애프터마켓 시세 추출
-            var _extHours = {};
-            var _mState = (meta.marketState || '').toUpperCase();
-            if (_mState === 'PRE' && meta.preMarketPrice > 0) {
-              _extHours = { extPrice: meta.preMarketPrice, extPct: meta.preMarketChangePercent != null ? meta.preMarketChangePercent : null, extSession: 'pre' };
-            } else if ((_mState === 'POST' || _mState === 'POSTPOST') && meta.postMarketPrice > 0) {
-              _extHours = { extPrice: meta.postMarketPrice, extPct: meta.postMarketChangePercent != null ? meta.postMarketChangePercent : null, extSession: 'post' };
-            }
-            return { symbol, ...meta, ..._extHours, regularMarketChangePercent: _dPct != null ? _dPct : null, chartPreviousClose: _dPrev, _source: 'live:yahoo-direct' };
-          }
+    try {
+      const raw = await fetchViaProxy(url, { parseJson:true, timeout:4000, totalTimeout:10000,
+        accept: function(payload) {
+          const meta = payload?.chart?.result?.[0]?.meta;
+          return meta && _validatePrice(symbol, meta.regularMarketPrice);
         }
-      } catch(e) {}
-    }
-
-    // v35.7: 라운드로빈 부하 분산 — 매 호출마다 프록시 순서 회전
-    const orderedProxies = (typeof _PROXY_REGISTRY !== 'undefined') ? _PROXY_REGISTRY.getRotated().map(function(p){ return p.mkUrl; }) : YF_PROXIES;
-
-    for (const mkP of orderedProxies) {
-      try {
-        const r = await fetchWithTimeout(mkP(url), {}, 8000);
-        if (!r.ok) continue;
-        // allorigins는 JSON 래핑, 나머지는 직접
-        let raw;
-        const ct = r.headers.get('content-type') || '';
-        if (ct.includes('json')) {
-          const w = await r.json();
-          raw = w.contents ? JSON.parse(w.contents) : w;
-        } else {
-          const txt = await r.text();
-          try { raw = JSON.parse(txt); } catch(e) {
-            // allorigins JSON 래핑인데 text/plain인 경우
-            try { const w = JSON.parse(txt); raw = w.contents ? JSON.parse(w.contents) : w; } catch(e2) {}
-          }
-        }
-        const meta = raw?.chart?.result?.[0]?.meta;
-        if (meta?.regularMarketPrice && _validatePrice(symbol, meta.regularMarketPrice)) {
-          // v30.13c: chart API에 regularMarketChangePercent 없을 때 직접 계산
-          var _price = meta.regularMarketPrice;
-          var _prevClose = meta.chartPreviousClose || meta.previousClose || 0;
-          var _pct = meta.regularMarketChangePercent;
-          var _chg = meta.regularMarketChange;
-          // chart API는 변화율을 안 주는 경우가 많음 → previousClose로 직접 계산
-          if (_pct == null && _prevClose > 0) {
-            _pct = ((_price - _prevClose) / _prevClose) * 100;
-            _chg = _price - _prevClose;
-          }
-          // v30.14: chartPreviousClose를 반환에 포함 — 환율 _fxPrevClose 보정용
-          // v36.6: 프리/애프터마켓 시세 추출 (proxy 경로)
-          var _extH = {};
-          var _ms = (meta.marketState || '').toUpperCase();
-          if (_ms === 'PRE' && meta.preMarketPrice > 0) {
-            _extH = { extPrice: meta.preMarketPrice, extPct: meta.preMarketChangePercent != null ? meta.preMarketChangePercent : null, extSession: 'pre' };
-          } else if ((_ms === 'POST' || _ms === 'POSTPOST') && meta.postMarketPrice > 0) {
-            _extH = { extPrice: meta.postMarketPrice, extPct: meta.postMarketChangePercent != null ? meta.postMarketChangePercent : null, extSession: 'post' };
-          }
-          return {
-            symbol,
-            regularMarketPrice: _price,
-            regularMarketChangePercent: _pct != null ? _pct : null,
-            regularMarketChange: _chg != null ? _chg : null,
-            chartPreviousClose: _prevClose != null ? _prevClose : null,
-            ..._extH,
-            _source: 'live:yahoo-proxy',
-          };
-        }
-      } catch(e) {}
-    }
+      });
+      const meta = raw.chart.result[0].meta;
+      const price = meta.regularMarketPrice;
+      // previousClose is the prior session; chartPreviousClose may be range-start.
+      const previous = meta.previousClose ?? meta.chartPreviousClose ?? null;
+      const pct = meta.regularMarketChangePercent ?? (previous > 0 ? (price - previous) / previous * 100 : null);
+      const change = meta.regularMarketChange ?? (previous > 0 ? price - previous : null);
+      const state = String(meta.marketState || '').toUpperCase();
+      let extended = {};
+      if (state === 'PRE' && meta.preMarketPrice > 0) extended = { extPrice:meta.preMarketPrice, extPct:meta.preMarketChangePercent ?? null, extSession:'pre' };
+      if ((state === 'POST' || state === 'POSTPOST') && meta.postMarketPrice > 0) extended = { extPrice:meta.postMarketPrice, extPct:meta.postMarketChangePercent ?? null, extSession:'post' };
+      return { ...meta, symbol, ...extended, regularMarketChangePercent:pct, regularMarketChange:change,
+        chartPreviousClose:previous, _source:'live:yahoo-proxy', _transport:raw._aioTransport };
+    } catch (_) {}
     return null;
   }
 
@@ -13716,26 +13546,26 @@ async function fetchLiveQuotes(requestedSymbols) {
             for (var ys in stooqMap) { if (stooqMap[ys] === stSym.toLowerCase()) { yahooSym = ys; break; } }
             if (!yahooSym) return;
             // Stooq CSV: Symbol,Date,Time,Open,High,Low,Close,Volume → cols[6]=Close, cols[3]=Open
-            var close = parseFloat(cols[6]) || parseFloat(cols[7]); // v46.9: Close 우선
-            var open = parseFloat(cols[3]) || parseFloat(cols[4]);   // Open 우선
+            var close = parseFloat(cols[6]);
+            var open = parseFloat(cols[3]);
             // v46.4: CSV 파싱 검증 — NaN/Infinity/음수 방어
-            if (!isFinite(close) || close <= 0 || !isFinite(open) || open <= 0) return;
+            if (!isFinite(close) || close <= 0) return;
             // Stooq copper sometimes reports HG in cents while Yahoo HG=F uses dollars per lb.
             // Normalize before jump validation so a valid live rescue is not rejected as -99%.
             if (yahooSym === 'HG=F' && close > 100 && open > 100) {
               close = close / 100;
               open = open / 100;
             }
-            var prevClose = (window._liveData && window._liveData[yahooSym] && window._liveData[yahooSym].chartPreviousClose > 0)
-              ? window._liveData[yahooSym].chartPreviousClose : open;
-            var pct = prevClose > 0 ? ((close - prevClose) / prevClose * 100) : null;
-            if (pct != null && (!isFinite(pct) || Math.abs(pct) > 50)) pct = null; // 50%+ 변동 = 데이터 오류 가능
+            // This CSV has no previous-session close or timezone. Opening
+            // price and another provider's cached close are not substitutes.
             allQuotes.push({
               symbol: yahooSym,
               regularMarketPrice: close,
-              regularMarketChangePercent: pct != null ? +pct.toFixed(2) : null,
-              regularMarketChange: prevClose > 0 ? +(close - prevClose).toFixed(2) : null,
-              _source: 'live:stooq'
+              regularMarketChangePercent: null,
+              regularMarketChange: null,
+              observedAt: /^\d{4}-\d{2}-\d{2}$/.test(cols[1]) ? cols[1] : null,
+              valueBasis: 'daily-close-reference', changeBasis: 'unknown',
+              _source: 'reference:stooq'
             });
           });
           console.log('[AIO-Stooq] 폴백 배치 ' + (sbi+1) + ':', stBatch.length + '개 시도');
@@ -14042,43 +13872,11 @@ window.AIO.validateQuoteCrossSources = async function(symbols, opts) {
 
 
 // ── Dynamic VIX Percentile ──────────────────────────────────────
-// Historical VIX distribution approximation (1990-2026)
-// v49.1 P186: VIX → 백분위수 변환 (1990-2026 역사적 분포 근사)
-var _VIX_BREAKPOINTS = [
-  [8, 1], [10, 5], [12, 12], [14, 22], [16, 35],
-  [18, 48], [20, 58], [22, 67], [25, 77], [28, 84],
-  [30, 88], [35, 93], [40, 96], [50, 98], [80, 99.5]
-];
+// Compatibility name; only the observed sample distribution is authoritative.
 function vixToPercentile(vix) {
-  // Approximate CDF based on historical VIX distribution
-  var bp = _VIX_BREAKPOINTS;
-  for (var i = 0; i < bp.length - 1; i++) {
-    var v0 = bp[i][0], p0 = bp[i][1], v1 = bp[i+1][0], p1 = bp[i+1][1];
-    if (vix <= v1) {
-      var t = (vix - v0) / (v1 - v0);
-      return Math.round((p0 + t * (p1 - p0)) * 10) / 10;
-    }
-  }
-  // v49.1 P186: 80+ 외삽 개선 — 로그 곡선으로 단조 증가 (기존 99.5 하드캡 제거)
-  // p = 100 - 0.5 * (80/vix)² → VIX=80→99.5, VIX=100→99.68, VIX=150→99.82, ∞→100
-  return Math.min(99.99, Math.round((100 - 0.5 * Math.pow(80 / vix, 2)) * 10) / 10);
+  return _aioVixPercentile(vix);
 }
-// v49.1 P186: AIO.diag.vixDistFit() — VIX 분포 적합 진단
-if (window.AIO && window.AIO.diag) {
-  window.AIO.diag.vixDistFit = function() {
-    var bp = _VIX_BREAKPOINTS;
-    var samples = [10, 15, 20, 25, 30, 40, 50, 60, 80, 100];
-    return {
-      breakpoints: bp,
-      samples: samples.map(function(v) { return { vix: v, pct: vixToPercentile(v) }; }),
-      note: '80이하: 선형보간. 80초과: p=100-0.5*(80/vix)^2 로그외삽'
-    };
-  };
-}
-
-// v50.28/WO-7: VIX 퍼센타일을 "실측 52주 분포"로 — history.json에 60일+ 누적 시 그 분포 내 현재 VIX의
-// 순위(IV Rank 본래 의미)를 계산, 부족하면 null → 호출자는 기존 고정 CDF vixToPercentile로 폴백.
-// (현재 history 1일 → 항상 null → 동작 변화 0. ~60거래일 누적 시 자동으로 실측 기반 전환.)
+// Minimum 60 observed sessions, not a 52-week distribution or ticker IV rank.
 function _aioVixPercentile(vix) {
   try {
     if (typeof vix !== 'number' || !isFinite(vix)) return null;
@@ -14141,9 +13939,9 @@ function applyStaticFallbacks() {
       if (ageHours >= 24) {
         try { localStorage.removeItem('aio_cached_quotes'); } catch(e) {}
         console.log('[AIO v48.2] 캐시 quote TTL(24h) 만료 — 자동 삭제');
-      } else if (parsed.data && parsed.data.length > 50) {
+      } else if (ageHours >= 0 && parsed.schema === 2 && parsed.data && parsed.data.length > 0) {
         var cachedQuotes = parsed.data.map(function(f) {
-          return { symbol: f.symbol, regularMarketPrice: f.regularMarketPrice, regularMarketChangePercent: f.regularMarketChangePercent, regularMarketChange: f.regularMarketPrice * f.regularMarketChangePercent / 100 };
+          return Object.assign({}, f, { _source:'snapshot', _originalSource:f._source, fetchedAt:f.fetchedAt || parsed.ts });
         });
         applyLiveQuotes(cachedQuotes);
         var tsEl = document.getElementById('live-quote-ts');
@@ -14209,6 +14007,7 @@ function _aioLiveDataFor(sym) {
 // _aioLiveNum: Number(v) 변환 후 isFinite — 문자열 "42" 허용 (API 응답 원시값용)
 // window._aioFiniteNum(aio-core.js): typeof v !== 'number' 선가드 — 내부 연산용, 타입 변환 없음
 function _aioLiveNum(v) {
+  if (v == null || typeof v === 'boolean' || String(v).trim() === '') return null;
   var n = Number(v);
   return isFinite(n) ? n : null;
 }
@@ -14464,9 +14263,9 @@ function _aioNormalizeAtomicQuote(input, now) {
   var source = String(input._source || 'live:yahoo');
   var previous = Number(input.regularMarketPreviousClose || input.chartPreviousClose);
   if (!isFinite(previous) || previous <= 0) previous = null;
-  var change = Number(input.regularMarketChange);
+  var change = input.regularMarketChange == null || input.regularMarketChange === '' ? NaN : Number(input.regularMarketChange);
   if (!isFinite(change)) change = previous != null ? price - previous : null;
-  var pct = Number(input.regularMarketChangePercent);
+  var pct = input.regularMarketChangePercent == null || input.regularMarketChangePercent === '' ? NaN : Number(input.regularMarketChangePercent);
   if (!isFinite(pct)) pct = previous != null && isFinite(change) ? (change / previous) * 100 : null;
   if (previous != null) {
     var derivedPct = (price - previous) / previous * 100;
@@ -14480,7 +14279,7 @@ function _aioNormalizeAtomicQuote(input, now) {
     }
     change = price - previous;
   }
-  var observedRaw = input.observedAt || input.regularMarketTime || input.postMarketTime || input.preMarketTime || null;
+  var observedRaw = input.observedAt || input.regularMarketTime || input.cgLastUpdated || input.postMarketTime || input.preMarketTime || null;
   var observedMs = typeof observedRaw === 'string' ? new Date(observedRaw).getTime() : Number(observedRaw);
   if (isFinite(observedMs) && observedMs > 0 && observedMs < 1e12) observedMs *= 1000;
   if (!isFinite(observedMs) || observedMs <= 0) observedMs = null;
@@ -14542,9 +14341,11 @@ function _aioSelectAtomicQuotes(quotes, now) {
     var currentRank = _aioAtomicSourceRank(current.symbol, current._source);
     var candidateScore = rank * 100 + candidate._atomicCompleteness;
     var currentScore = currentRank * 100 + current._atomicCompleteness;
-    var candidateFresh = Date.parse(candidate._atomicObservedAt || candidate._atomicFetchedAt) || 0;
-    var currentFresh = Date.parse(current._atomicObservedAt || current._atomicFetchedAt) || 0;
-    if (candidateScore > currentScore || (candidateScore === currentScore && candidateFresh >= currentFresh)) {
+    var candidateFresh = Date.parse(candidate._atomicObservedAt || '') || 0;
+    var currentFresh = Date.parse(current._atomicObservedAt || '') || 0;
+    // Provider preference breaks ties; it cannot promote an older observation
+    // over a newer one or a collection timestamp over a real observation.
+    if (candidateFresh > currentFresh || (candidateFresh === currentFresh && candidateScore >= currentScore)) {
       selected.set(candidate.symbol, candidate);
     }
   });
@@ -14649,7 +14450,7 @@ function applyLiveQuotes(quotes) {
        // supplies a complete envelope again.
        if (_lsm[1]) window.DATA_SNAPSHOT[_lsm[1]] = hasPct ? parseFloat(pct.toFixed(2)) : null;
       if (q.symbol === 'KRW=X') window.DATA_SNAPSHOT.krwRound = Math.round(price);
-      if (q.symbol === 'GC=F' && hasPct) window.DATA_SNAPSHOT.goldWeeklyPct = parseFloat(pct.toFixed(2));
+      // A daily quote change must never overwrite the separate weekly-return field.
       // FABLE-LIVE-AUDIT-2026-07-07 C5/L2-2: 이 forEach는 Yahoo/Naver 등 여러 소스의 동일 심볼 quote를
       // 순서 구분 없이 훑으며 "나중에 처리되는 쪽이 승리"하는 구조였다. Yahoo의 ^KS11/^KQ11
       // chartPreviousClose는 미국 휴장일 인접 주간에 한 세션 어긋난 값을 반환하는 경우가 실측되어,
@@ -14953,19 +14754,7 @@ function applyLiveQuotes(quotes) {
     }
     // HOME 스냅샷 카드 테두리 색 업데이트
 
-    // Dynamic HY spread from HYG price
-    if (q.symbol === 'HYG') {
-      const hygPrice = q.regularMarketPrice;
-      const spreadBp = Math.round(Math.max(150, (82.5 - hygPrice) * 80 + 240));
-      const hsVal = document.getElementById('hy-spread-val');
-      const hsSub = document.getElementById('hy-spread-sub');
-      if (hsVal) {
-        const hsCol = spreadBp < 300 ? '#00e5a0' : spreadBp < 450 ? '#ffa31a' : '#ff5b50';
-        hsVal.textContent = '+' + spreadBp + 'bp';
-        hsVal.style.color = hsCol;
-        if (hsSub) hsSub.textContent = spreadBp < 300 ? 'Tight' : spreadBp < 450 ? 'Elevated · 경계' : 'Distressed · 위험';
-      }
-    }
+    // HY OAS has its own FRED producer; HYG ETF prices are not a credit spread.
     const snapMap = { '^GSPC':'snap-gspc', '^IXIC':'snap-ixic', 'CL=F':'snap-oil', 'GC=F':'snap-gold', 'BTC-USD':'snap-btc' };
     const cardId = snapMap[q.symbol];
     if (cardId) {
@@ -14997,12 +14786,14 @@ function applyLiveQuotes(quotes) {
     const vrVal = document.getElementById('vol-regime-val');
     const vrSub = document.getElementById('vol-regime-sub');
     if (vrVal) { vrVal.textContent = vixRegime(vp).label; vrVal.style.color = col; }
-    if (vrSub) vrSub.textContent = 'VIX ' + _vixFixed(vp, 2, '—') + ' · ' + vixToPercentile(vp) + '%ile';
+    const observedRank = _aioVixPercentile(vp);
+    const rankLabel = observedRank == null ? '분위 표본 부족' : '관측 표본 ' + observedRank + '%ile';
+    if (vrSub) vrSub.textContent = 'VIX ' + _vixFixed(vp, 2, '—') + ' · ' + rankLabel;
     // v49.64 P334: VIX 파생 sink lineage (snap-vix-lbl/vol-regime-val/sub) — gauge 결과 표시
-    var _vixTs = String(Date.now());
+    var _vixTs = vixQ._atomicObservedAt || (window._liveData['^VIX'] && window._liveData['^VIX'].observedAt) || '';
     [vixLbl, vrVal, vrSub].forEach(function(el) {
       if (!el) return;
-      el.setAttribute('data-operational-use', 'decision');
+      el.setAttribute('data-operational-use', 'reference-only');
       el.setAttribute('data-source-kind', 'derived');
       el.setAttribute('data-source-label', 'derived:vix-regime');
       el.setAttribute('data-source-ts', _vixTs);
@@ -15010,29 +14801,27 @@ function applyLiveQuotes(quotes) {
     // Update VIX %ile cell in radar table
     const vixPctCell = document.getElementById('vix-pct-cell');
     if (vixPctCell) {
-      const pct = vixToPercentile(vp);
-      vixPctCell.textContent = pct + '%ile · ' + vixRegime(vp).label;
+      vixPctCell.textContent = rankLabel + ' · ' + vixRegime(vp).label;
       vixPctCell.style.color = col;
-      vixPctCell.setAttribute('data-operational-use', 'decision');
+      vixPctCell.setAttribute('data-operational-use', 'reference-only');
       vixPctCell.setAttribute('data-source-kind', 'derived');
       vixPctCell.setAttribute('data-source-label', 'derived:vix-percentile');
       vixPctCell.setAttribute('data-source-ts', _vixTs);
     }
     document.querySelectorAll('[data-vix-badge]').forEach(el => el.textContent = 'VIX ' + _vixFixed(vp, 2, '—'));
     // ── Options 페이지 VIX %ile 동적 업데이트 (v14: 하드코딩 90.9%ile 제거) ──
-    const optVixPct = vixToPercentile(vp);
     const optVixLbl = vixRegime(vp).label;
     document.querySelectorAll('.options-vix-pct-label').forEach(el => {
-      el.textContent = optVixLbl + ' · ' + optVixPct + '%ile';
+      el.textContent = optVixLbl + ' · ' + rankLabel;
       el.style.color = col;
     });
     // 추가 하드코딩 셀 업데이트
     const vixPctTableCell = document.getElementById('vix-pct-table-cell');
     if (vixPctTableCell) {
-      vixPctTableCell.textContent = optVixPct + '%ile';
+      vixPctTableCell.textContent = rankLabel;
       vixPctTableCell.style.color = col;
       // v49.64 P334: options 페이지 VIX %ile 셀 lineage
-      vixPctTableCell.setAttribute('data-operational-use', 'decision');
+      vixPctTableCell.setAttribute('data-operational-use', 'reference-only');
       vixPctTableCell.setAttribute('data-source-kind', 'derived');
       vixPctTableCell.setAttribute('data-source-label', 'derived:vix-percentile');
       vixPctTableCell.setAttribute('data-source-ts', _vixTs);
@@ -15060,10 +14849,12 @@ function applyLiveQuotes(quotes) {
 
   // v35.8: 실시간 데이터 localStorage 캐시 — 다음 로드 시 폴백으로 활용
   try {
-    var cacheData = quotes.map(function(q) {
-      return { symbol: q.symbol, regularMarketPrice: q.regularMarketPrice, regularMarketChangePercent: q.regularMarketChangePercent };
+    var cacheData = atomicQuotes.filter(function(q) { return q._source !== 'snapshot' && q._atomicObservedAt; }).map(function(q) {
+      return { symbol:q.symbol, regularMarketPrice:q.regularMarketPrice, regularMarketChangePercent:q.regularMarketChangePercent,
+        regularMarketChange:q.regularMarketChange, regularMarketPreviousClose:q.regularMarketPreviousClose,
+        observedAt:q._atomicObservedAt, fetchedAt:q._atomicFetchedAt, _source:q._source, marketState:q.marketState || null };
     });
-    localStorage.setItem('aio_cached_quotes', JSON.stringify({ ts: Date.now(), data: cacheData }));
+    if (cacheData.length) localStorage.setItem('aio_cached_quotes', JSON.stringify({ schema:2, ts:Date.now(), data:cacheData }));
   } catch(e) { /* localStorage 용량 초과 등 무시 */ }
 
   // Dispatch event for page-specific refresh
@@ -15084,7 +14875,7 @@ function applyLiveQuotes(quotes) {
 
   // v51.66: _fieldTs.prices — 실시간 시세 마지막 적용 시각 기록
   if (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fieldTs) {
-    window.DATA_SNAPSHOT._fieldTs.prices = new Date().toISOString();
+    window.DATA_SNAPSHOT._fieldTs.prices = _batchObservedTimes.length ? new Date(Math.max.apply(null, _batchObservedTimes)).toISOString() : null;
   }
   // v51.66: 가격 갱신 후 신선도 UI 업데이트 (스크리너 듀얼 타임스탬프)
   try { if (typeof _aioRenderDataFreshness === 'function') _aioRenderDataFreshness(); } catch(_) {}
@@ -15100,7 +14891,8 @@ function generateDynamicBriefing() {
   function metric(symbol) {
     var row = live[symbol];
     if (!row || row.price == null || !isFinite(Number(row.price)) || Number(row.price) <= 0) return null;
-    return { symbol:symbol, price:Number(row.price), pct:row.pct == null || !isFinite(Number(row.pct)) ? null : Number(row.pct) };
+    return { symbol:symbol, price:Number(row.price), pct:row.pct == null || !isFinite(Number(row.pct)) ? null : Number(row.pct),
+      observedAt:row.observedAt || null, source:row.source || row._source || '미확인' };
   }
   function esc(v) { return String(v).replace(/[&<>"']/g, function(c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
   function price(v, digits) { return v == null ? '—' : Number(v).toLocaleString('ko-KR', { maximumFractionDigits:digits }); }
@@ -15117,8 +14909,7 @@ function generateDynamicBriefing() {
     el.setAttribute('data-operational-use', 'blocked');
     return;
   }
-  var asOf = new Date().toLocaleString('ko-KR', { hour12:false });
-  var html = '<div style="font-size:10px;color:var(--text-muted);margin-bottom:8px;">라이브 관측치 · ' + esc(asOf) + '</div>';
+  var html = '<div style="font-size:10px;color:var(--text-muted);margin-bottom:8px;">시장 관측 요약 · 각 자료 기준시각</div>';
   html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;">';
   rows.forEach(function(row) {
     var s = row.spec, v = row.value;
@@ -15126,13 +14917,15 @@ function generateDynamicBriefing() {
     html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:10px;">' +
       '<div style="font-size:10px;color:var(--text-muted);">' + esc(s[1]) + '</div>' +
       '<div style="font-size:17px;font-weight:800;font-family:var(--font-mono);color:' + color + ';">' + price(v.price, s[2]) + '</div>' +
-      '<div style="font-size:10px;color:' + color + ';">' + pct(v.pct) + '</div></div>';
+      '<div style="font-size:10px;color:' + color + ';">' + pct(v.pct) + '</div>' +
+      '<div style="font-size:10px;color:var(--text-muted);">' + esc(v.observedAt ? String(v.observedAt).slice(0,16).replace('T',' ') : '관측시각 미확인') + '</div></div>';
   });
   html += '</div>';
   el.innerHTML = html;
-  el.setAttribute('data-source-kind', 'live');
-  el.setAttribute('data-operational-use', 'decision');
-  el.setAttribute('data-source-ts', new Date().toISOString());
+  el.setAttribute('data-source-kind', 'mixed');
+  el.setAttribute('data-operational-use', 'reference-only');
+  var observationTimes = rows.map(function(row) { return Date.parse(row.value.observedAt || ''); }).filter(Number.isFinite);
+  el.setAttribute('data-source-ts', observationTimes.length ? new Date(Math.min.apply(null, observationTimes)).toISOString() : '');
 }
 
 function updateScreenerFromLiveData() {
@@ -15559,56 +15352,8 @@ function _aioIsNativeHomeSummaryElement(el) {
 }
 window._aioIsNativeHomeSummaryElement = _aioIsNativeHomeSummaryElement;
 
-function _aioRenderHomeHero() {
-  var totalEl = document.querySelector('#home-hero-total');
-  if (!totalEl) return;
-  var nativeSummary = _aioIsNativeHomeSummaryElement(totalEl);
-  var sc = {};
-  try { sc = (typeof computeTradingScore === 'function') ? computeTradingScore() : {}; } catch(_) { sc = {}; }
-  var total = Math.round(sc.total != null ? sc.total : (window._tradingScore != null ? window._tradingScore : 50));
-  var clamp = function(v, lo, hi) { var n = Number(v); return Math.max(lo, Math.min(hi, isFinite(n) ? n : lo)); };
-  var band = total >= 75 ? { label: '환경 우호', action: '현재 시장 환경 요약입니다. 종목별 근거·거래량·손익비·무효화 가격을 별도로 확인.' }
-    : total >= 60 ? { label: '환경 양호', action: '점수 단독 진입 금지. 종목 품질과 이벤트 리스크를 추가 확인.' }
-    : total >= 45 ? { label: '중립 · 관망', action: '신규 진입 자제. 기존 포지션 방어선과 손절을 먼저 확인.' }
-    : total >= 30 ? { label: '주의 · 축소', action: '리스크 자산 비중 축소. 현금 비율 높이고 헤지 검토.' }
-    : { label: '위험 · 방어', action: '신규 매수 중단. 방어 운용 후 스코어 45+ 복귀 확인 후 재개.' };
-  if (sc.partial) band = { label: '판정 보류 · 부분 데이터', action: '미수신 구성요소(' + (sc.componentMissing || []).join(', ') + ')는 중립값으로만 계산한 참고 점수입니다. 진입 판단에 사용하지 않습니다.' };
-  var ld = window._liveData || {};
-  var vixPrice = (ld['^VIX'] && ld['^VIX'].price != null) ? ld['^VIX'].price : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : null);
-  var vixTxt = vixPrice != null ? 'VIX ' + Number(vixPrice).toFixed(1) : 'VIX 미수신';
-  var spxPct = (ld['^GSPC'] && ld['^GSPC'].pct != null) ? Number(ld['^GSPC'].pct) : null;
-  var spxTxt = spxPct != null ? ('S&P ' + (spxPct >= 0 ? '+' : '') + spxPct.toFixed(2) + '%') : '지수 방향 확인 중';
-
-  if (!nativeSummary) {
-    totalEl.textContent = String(total) + (sc.partial ? '*' : '');
-    var headEl = document.querySelector('#home-hero-headline');
-    if (headEl) headEl.textContent = band.label;
-    var descEl = document.querySelector('#home-hero-desc');
-    if (descEl) descEl.textContent = spxTxt + ' · ' + vixTxt + '. ' + band.action;
-  }
-
-  var compEl = document.getElementById('home-hero-components');
-  if (compEl) {
-    var comps = [
-      { label: '변동성', v: Math.round(clamp(sc.volScore, 0, 100) * 0.25), max: 25 },
-      { label: '추세', v: sc.trendScore == null ? null : Math.round(clamp(sc.trendScore, 0, 100) * 0.20), max: 20 },
-      { label: '모멘텀', v: Math.round(clamp(sc.momScore, 0, 100) * 0.25), max: 25 },
-      { label: '시장 폭', v: sc.breadthScore == null ? null : Math.round(clamp(sc.breadthScore, 0, 100) * 0.20), max: 20 },
-      { label: '거시', v: Math.round(clamp(sc.macroScore, 0, 100) * 0.10), max: 10 }
-    ];
-    compEl.innerHTML = comps.map(function(c) {
-      return '<div style="display:flex;align-items:center;justify-content:space-between;gap:14px;">' +
-        '<span style="font-size:11.5px;color:var(--text-muted);">' + c.label + '</span>' +
-        '<span style="font-size:12px;font-weight:600;color:' + (c.v == null ? 'var(--text-muted)' : 'var(--text-primary)') + ';font-variant-numeric:tabular-nums;">' + (c.v == null ? '—' : c.v) + ' / ' + c.max + '</span>' +
-        '</div>';
-    }).join('');
-  }
-}
-window._aioRenderHomeHero = _aioRenderHomeHero;
-
 function refreshHomeDashboard() {
   try { if (typeof _aioRenderOperatorNote === 'function') _aioRenderOperatorNote(); } catch(_) {}
-  try { _aioRenderHomeHero(); } catch(_) {}
   const ld = window._liveData || {};
   const spx = ld['^GSPC'] || {};
   const vix = ld['^VIX'] || {};
@@ -15735,16 +15480,7 @@ function refreshHomeDashboard() {
     if (vixStatusEl) vixStatusEl.textContent = vixLabel;
   }
 
-  // Fear & Greed
-  const fgScoreEl = document.querySelector('[id="home-fg-score"]');
-  const fgLabelEl = document.getElementById('home-fg-label');
-  if (fgScoreEl && fgScoreEl.dataset.aioHomeFearGreedRenderer !== 'native') {
-    fgScoreEl.textContent = Math.round(fg);
-    const fgColor = fg <= 25 ? '#dc2626' : fg <= 45 ? '#ffa31a' : fg <= 55 ? '#7b8599' : fg <= 75 ? '#86efac' : '#16a34a';
-    fgScoreEl.style.color = fgColor;
-    const fgLabel = fg <= 25 ? '극단적 공포' : fg <= 45 ? '공포' : fg <= 55 ? '중립' : fg <= 75 ? '탐욕' : '극단적 탐욕';
-    if (fgLabelEl) fgLabelEl.textContent = fgLabel;
-  }
+  // P1010: native analysis owns both the Fear & Greed score and its label.
 
 
   // v27.2: SECTION 4 — newsCache 기반으로 통합 (renderHomeFeed와 동일 메커니즘)
@@ -16153,35 +15889,11 @@ async function fetchHYSpread() {
   if (Date.now() - hyLastFetch < CACHE_MS) return;
 
   const fredUrl = 'https://fred.stlouisfed.org/graph/fredgraph.csv?id=BAMLH0A0HYM2&vintage_date=' + new Date().toISOString().slice(0,10);
-  // v29.4: 죽은 프록시 제거, CF Worker 우선
-  const _cfHy = _getApiKey('aio_cf_worker_url') || '';
-  const hyProxies = [
-    ...(_cfHy ? [`${_cfHy}?url=${encodeURIComponent(fredUrl)}`] : []),
-    'https://corsproxy.io/?' + encodeURIComponent(fredUrl),
-    'https://api.allorigins.win/raw?url=' + encodeURIComponent(fredUrl),
-    'https://api.allorigins.win/get?url=' + encodeURIComponent(fredUrl),
-    'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(fredUrl),
-  ];
-
-  // withTimeout is global
-
-  // v29: 다중 프록시로 CSV 수신 시도 (JSON + raw 텍스트 둘 다 처리)
   let csv = '';
-  for (const pUrl of hyProxies) {
-    try {
-      const resp = await fetchWithTimeout(pUrl, {}, 9000);
-      if (!resp.ok) continue;
-      const ct = resp.headers.get('content-type') || '';
-      if (ct.includes('json')) {
-        const json = await resp.json();
-        csv = json.contents || (typeof json === 'string' ? json : '');
-      } else {
-        csv = await resp.text();
-      }
-      if (csv && csv.length > 20 && csv.includes(',')) break;
-      csv = '';
-    } catch(e) { /* 다음 프록시 시도 */ }
-  }
+  try {
+    csv = await fetchViaProxy(fredUrl, { parseText:true, timeout:4000, totalTimeout:10000,
+      accept: function(body) { return /^\s*(DATE|observation_date),BAMLH0A0HYM2/m.test(body); } });
+  } catch (_) {}
   if (!csv) { showDataError('HY', 'HY 스프레드 프록시 전부 실패 — 정적 데이터 사용 중', 'warn'); }
 
   try {

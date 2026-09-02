@@ -3,7 +3,7 @@ function finite(value) {
 }
 
 export function normalizeEntity(raw = {}) {
-  const quote = raw.quote ? {
+  const quote = raw.quote ? Object.freeze({
     value: finite(raw.quote.value),
     pct: finite(raw.quote.pct),
     directionValue: finite(raw.quote.directionValue ?? raw.quote.pct),
@@ -14,25 +14,25 @@ export function normalizeEntity(raw = {}) {
     revision: raw.quote.revision || null,
     changeBasis: raw.quote.changeBasis || 'unknown',
     directionCompatible: raw.quote.directionCompatible === true
-  } : null;
+  }) : null;
   const history = Array.isArray(raw.history)
-    ? raw.history.map((row) => ({
+    ? raw.history.map((row) => Object.freeze({
       time: row?.time || row?.date || null,
       open: finite(row?.open), high: finite(row?.high), low: finite(row?.low), close: finite(row?.close), volume: finite(row?.volume)
     })).filter((row) => row.time && row.close != null)
     : [];
   const fundamentalsWatchlist = Array.isArray(raw.fundamentalsWatchlist)
-    ? raw.fundamentalsWatchlist.filter((row) => row && typeof row === 'object').map((row) => ({ ...row }))
+    ? raw.fundamentalsWatchlist.filter((row) => row && typeof row === 'object').map((row) => Object.freeze({ ...row }))
     : [];
   return Object.freeze({
     id: raw.id ? String(raw.id).toUpperCase() : null,
     name: raw.name ? String(raw.name) : null,
     quote,
-    history,
-    fundamentals: raw.fundamentals || null,
-    fundamentalsWatchlist,
+    history: Object.freeze(history),
+    fundamentals: raw.fundamentals && typeof raw.fundamentals === 'object' ? Object.freeze({ ...raw.fundamentals }) : null,
+    fundamentalsWatchlist: Object.freeze(fundamentalsWatchlist),
     fundamentalsMeta: raw.fundamentalsMeta && typeof raw.fundamentalsMeta === 'object' ? { ...raw.fundamentalsMeta } : null,
-    options: raw.options || null,
+    options: raw.options && typeof raw.options === 'object' ? Object.freeze({ ...raw.options }) : null,
     updatedAt: raw.updatedAt || null
   });
 }

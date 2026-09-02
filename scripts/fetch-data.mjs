@@ -12,13 +12,15 @@
 // 환경변수(선택): FRED_API_KEY  (없으면 macro 블록은 빈 값 — 사이트는 정적 폴백)
 // ─────────────────────────────────────────────────────────────────────────
 
-import { writeFile, readFile, mkdir } from 'node:fs/promises';
+import { readFile, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runBacktest as runTradingScoreBacktest } from './backtest-trading-score.mjs';
 import { deriveMarketSession, publishMarketSnapshot } from './build-market-snapshot.mjs';
 import { writeOperationsStatus } from './build-operations-status.mjs';
 import { writeReconciliationStatus } from './build-reconciliation-status.mjs';
+import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { deriveFredCycle } from './lib/refresh-continuity.mjs';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const OUT = `${__dir}/../public-data/data.json`;
@@ -313,50 +315,103 @@ async function mapLimit(items, limit, fn) {
 
 // ── FRED ──
 async function fetchFred(key) {
-  if (!key) return { _source: 'fred:no-key' };
+  const attemptedAt = new Date().toISOString();
+  if (!key) return {
+    _source: 'fred:no-key',
+    _attemptedAt: attemptedAt,
+    _successfulSeries: [],
+    _failedSeries: [],
+    _failureReason: 'api-key-not-configured'
+  };
   // P565/R256: a single failed FRED series used to be swallowed with no log and no field-level
   // flag — only the aggregate macroKeyCount dropped by one, with nothing telling anyone WHICH
   // series broke. enrichFundamentals (FMP) already detects and surfaces plan/auth errors
   // explicitly; this brings FRED to the same standard so a stale/broken series (the mechanism
   // behind Fed/BOJ/BOK/BOE rates going 15-62 days stale) is visible instead of silent.
-  const out = { _source: 'fred', _failedSeries: [] };
+  const out = { _source: 'fred', _attemptedAt: attemptedAt, _failedSeries: [], _successfulSeries: [] };
+  const markFailed = (field) => {
+    if (!out._failedSeries.includes(field)) out._failedSeries.push(field);
+  };
   for (const [field, spec] of Object.entries(FRED_SERIES)) {
     try {
       const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${spec.id}` +
         `&api_key=${key}&file_type=json&sort_order=desc&limit=14`;
       const j = await fetchJSON(url);
-      const obs = (j.observations || []).filter(o => o.value !== '.').map(o => ({ d: o.date, v: parseFloat(o.value) }));
-      if (!obs.length) continue;
+      // A provider can return an HTTP-success JSON envelope containing no
+      // usable observations (rate-limit/error payload, '.', or NaN).  Such a
+      // response is a failed series, never a current null/zero observation.
+      const obs = (j.observations || [])
+        .map((o) => ({ d: String(o?.date || ''), v: Number.parseFloat(o?.value) }))
+        .filter((o) => /^\d{4}-\d{2}-\d{2}$/.test(o.d) && Number.isFinite(o.v))
+        .sort((a, b) => b.d.localeCompare(a.d));
+      if (!obs.length) {
+        markFailed(field);
+        continue;
+      }
+      let succeeded = false;
       if (spec.kind === 'level') {
         // v51.97/Phase 2 [B2]: scale — 시리즈 원 단위(예: HOUST=천 단위)를 소비처 단위(백만)로
         // 변환. 미지정 시 1(기존 fedRate/unemployment 등 동작 불변).
         const scale = spec.scale || 1;
-        out[field] = round(obs[0].v * scale, 3);
+        const level = round(obs[0].v * scale, 3);
+        if (level === null) {
+          markFailed(field);
+          continue;
+        }
+        out[field] = level;
+        succeeded = true;
         // MoM delta: 이번 달 레벨 - 지난 달 레벨
-        if (obs.length >= 2) out[field + 'Delta'] = round((obs[0].v - obs[1].v) * scale, 3);
+        if (obs.length >= 2) {
+          const delta = round((obs[0].v - obs[1].v) * scale, 3);
+          if (delta !== null) out[field + 'Delta'] = delta;
+        }
       } else if (spec.kind === 'mom_pct') {
         // v51.97/Phase 2 [B2]: 레벨(예: RSAFS 소매판매 $) 시리즈의 전월 대비 변화율(%).
-        if (obs.length >= 2 && obs[1].v) out[field] = round((obs[0].v / obs[1].v - 1) * 100, 1);
+        if (obs.length >= 2 && obs[1].v !== 0) {
+          const change = round((obs[0].v / obs[1].v - 1) * 100, 1);
+          if (change !== null) {
+            out[field] = change;
+            succeeded = true;
+          }
+        }
       } else if (spec.kind === 'yoy') {
         const cur = obs[0];
-        const yoy = obs.find(o => monthsBetween(o.d, cur.d) >= 12) || obs[obs.length - 1];
-        const curYoY = (yoy && yoy.v) ? round((cur.v / yoy.v - 1) * 100, 1) : null;
-        if (curYoY !== null) out[field] = curYoY;
+        // Do not substitute the oldest available point when an exact
+        // twelve-month comparator is absent: that would label a 13/14-month
+        // change as YoY and silently falsify the observation period.
+        const yoy = obs.find(o => monthsBetween(o.d, cur.d) === 12);
+        const curYoY = (yoy && yoy.v !== 0) ? round((cur.v / yoy.v - 1) * 100, 1) : null;
+        if (curYoY !== null) {
+          out[field] = curYoY;
+          succeeded = true;
+        }
         // MoM delta in YoY rate: 이번 달 YoY - 지난 달 YoY (인플레이션 속도 변화)
         if (obs.length >= 2) {
           const prev = obs[1];
-          const yoyPrev = obs.find(o => monthsBetween(o.d, prev.d) >= 12) || obs[obs.length - 1];
-          const prevYoY = (yoyPrev && yoyPrev.v && yoyPrev.d !== yoy.d) ? round((prev.v / yoyPrev.v - 1) * 100, 1) : null;
+          const yoyPrev = obs.find(o => monthsBetween(o.d, prev.d) === 12);
+          const prevYoY = (yoyPrev && yoyPrev.v !== 0 && yoyPrev.d !== yoy?.d)
+            ? round((prev.v / yoyPrev.v - 1) * 100, 1) : null;
           if (curYoY !== null && prevYoY !== null) out[field + 'Delta'] = round(curYoY - prevYoY, 1);
         }
       } else if (spec.kind === 'mom_diff') {
-        if (obs.length >= 2) out[field] = Math.round(obs[0].v - obs[1].v); // 천명
+        if (obs.length >= 2 && Number.isFinite(obs[0].v - obs[1].v)) {
+          out[field] = Math.round(obs[0].v - obs[1].v); // 천명
+          succeeded = true;
+        }
         // 전월 대비 delta: 이번 달 변화 - 지난 달 변화
-        if (obs.length >= 3) out[field + 'Delta'] = Math.round((obs[0].v - obs[1].v) - (obs[1].v - obs[2].v));
+        if (succeeded && obs.length >= 3) {
+          const delta = Math.round((obs[0].v - obs[1].v) - (obs[1].v - obs[2].v));
+          if (Number.isFinite(delta)) out[field + 'Delta'] = delta;
+        }
       }
-      out['_asOf_' + field] = obs[0].d;
+      if (succeeded) {
+        out._successfulSeries.push(field);
+        out['_asOf_' + field] = obs[0].d;
+      } else {
+        markFailed(field);
+      }
     } catch (e) {
-      out._failedSeries.push(field);
+      markFailed(field);
       console.warn(`[fetch-data] FRED series 실패: ${field} (${spec.id}) — ${e.message}`);
     }
   }
@@ -366,7 +421,7 @@ async function fetchFred(key) {
 export function parseFredHyOasCsv(csv, fetchedAt = new Date().toISOString()) {
   const observations = String(csv || '').trim().split(/\r?\n/).slice(1).map((line) => {
     const [observedAt, rawValue] = line.split(',');
-    const value = Number(rawValue);
+    const value = rawValue == null || rawValue.trim() === '' ? NaN : Number(rawValue);
     return /^\d{4}-\d{2}-\d{2}$/.test(String(observedAt || '').trim()) && Number.isFinite(value)
       ? { observedAt: observedAt.trim(), value }
       : null;
@@ -420,7 +475,8 @@ export function parseTreasuryYieldCurveHtml(html, fetchedAt = new Date().toISOSt
     const pick = (years) => {
       const pattern = new RegExp(`<td\\b[^>]*headers="view-field-bc-${years}year-table-column"[^>]*>([\\s\\S]*?)<\\/td>`, 'i');
       const raw = (row.match(pattern) || [])[1] || '';
-      const value = Number(raw.replace(/<[^>]*>/g, '').trim());
+      const normalized = raw.replace(/<[^>]*>/g, '').trim();
+      const value = normalized === '' ? NaN : Number(normalized);
       return Number.isFinite(value) ? value : null;
     };
     const values = { dgs2: pick(2), dgs5: pick(5), dgs10: pick(10), dgs20: pick(20), dgs30: pick(30) };
@@ -687,7 +743,8 @@ async function fetchBeaPce(previous = null) {
 }
 
 // ── CNN Fear & Greed (봇차단 우회용 브라우저 유사 헤더) ──
-async function fetchFearGreed() {
+async function fetchFearGreed(previous = null) {
+  const attemptedAt = new Date().toISOString();
   const headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
     'Accept': 'application/json, text/plain, */*',
@@ -724,10 +781,23 @@ async function fetchFearGreed() {
         previousScore: typeof fg.previous_close === 'number' ? Math.round(fg.previous_close) : null,
         previousWeek: typeof fg.previous_1_week === 'number' ? Math.round(fg.previous_1_week) : null,
         history,
+        attemptedAt,
+        fetchedAt: attemptedAt,
+        status: 'current-reference',
       };
     }
   } catch (e) {}
-  return { _source: 'cnn:fail' };
+  if (previous && Number.isFinite(Number(previous.score))) {
+    return {
+      ...previous,
+      _source: previous._source || 'cnn:last-known-good',
+      status: 'stale-reference',
+      attemptedAt,
+      fetchedAt: null,
+      failureReason: 'cnn-fear-greed-unavailable'
+    };
+  }
+  return { _source: 'cnn:fail', status: 'unavailable', attemptedAt, fetchedAt: null };
 }
 
 function blsObservationDate(year, period) {
@@ -939,14 +1009,15 @@ export function parseCboePutCallHtml(html) {
 }
 
 async function fetchCboePutCall() {
+  const attemptedAt = new Date().toISOString();
   try {
     const html = await _fetchRss('https://www.cboe.com/data/mktstat.aspx', 18000);
     const parsed = parseCboePutCallHtml(html);
     if (!parsed) throw new Error('official page did not contain ratio/date contract');
-    return parsed;
+    return { ...parsed, attemptedAt, status: 'current-reference' };
   } catch (error) {
     console.warn('[fetch-data] Cboe Put/Call 수집 실패:', error && error.message || error);
-    return { source: 'Cboe Daily Market Statistics', sourceKind: 'unavailable', allowedUse: 'none', fetchedAt: new Date().toISOString(), error: String(error && error.message || error) };
+    return { source: 'Cboe Daily Market Statistics', sourceKind: 'unavailable', allowedUse: 'none', fetchedAt: null, attemptedAt, status: 'unavailable', totalPutCall: null, error: String(error && error.message || error) };
   }
 }
 
@@ -1260,9 +1331,14 @@ async function fetchHistory(symbol, range = '6mo') {
           observedAt: new Date(ts[i] * 1000).toISOString(),
            close: round(c, 2),
            adjClose: (typeof a === 'number' && isFinite(a) && a > 0) ? round(a, 2) : round(c, 2),
-           high:   typeof h === 'number' && isFinite(h) ? round(h, 2)    : round(c, 2),
-           low:    typeof l === 'number' && isFinite(l) ? round(l, 2)    : round(c, 2),
-           volume: typeof v === 'number' && isFinite(v) ? Math.round(v)  : 0,
+           // Missing OHLC bars are unknown.  Falling back to close creates a
+           // fabricated zero-range bar and can make ADR/VCP look complete.
+           high:   typeof h === 'number' && isFinite(h) ? round(h, 2)    : null,
+           low:    typeof l === 'number' && isFinite(l) ? round(l, 2)    : null,
+           // Missing volume is unknown, not zero.  Zero is a real observation
+           // for some instruments and would otherwise corrupt VCP/liquidity
+           // factors while making a partial provider response look complete.
+           volume: typeof v === 'number' && isFinite(v) ? Math.round(v)  : null,
            fetchedAt,
          });
       }
@@ -1465,7 +1541,7 @@ async function updateHistory(data, marketSnapshot = null) {
     if (idx >= 0) hist[idx] = { ...hist[idx], ...rec, fieldMeta: { ...(hist[idx].fieldMeta || {}), ...fieldMeta } }; else hist.push(rec); // 같은 날 = upsert
     hist.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
     if (hist.length > 420) hist = hist.slice(hist.length - 420);  // 14개월 cap
-    await writeFile(HIST, JSON.stringify(hist));
+    await atomicWriteFile(HIST, JSON.stringify(hist));
     return { days: hist.length, today, upsert: idx >= 0 ? 'update' : 'append', backfilled };
   } catch (e) {
     console.warn('[fetch-data] history 갱신 실패(무시):', e && e.message || e);
@@ -1744,7 +1820,7 @@ async function updateBacktestHistory(backtest) {
     if (idx >= 0) hist[idx] = rec; else hist.push(rec);   // 같은 날 재실행 = upsert(최신 실행 우선)
     hist.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
     if (hist.length > 180) hist = hist.slice(hist.length - 180);   // ~6개월 cap (일 단위)
-    await writeFile(BACKTEST_HIST, JSON.stringify(hist));
+    await atomicWriteFile(BACKTEST_HIST, JSON.stringify(hist));
     return { days: hist.length, today, upsert: idx >= 0 ? 'update' : 'append' };
   } catch (e) {
     console.warn('[fetch-data] backtest history 갱신 실패(무시):', e && e.message || e);
@@ -1994,9 +2070,11 @@ async function _enrichPriceFactors(syms) {
       // contraction depth), not total return, and mixing an adjusted close into an otherwise-raw
       // OHLC set would distort swing-depth math against the un-adjusted high/low bars.
       adjCloses: (rows || []).map(r => (typeof r.adjClose === 'number' ? r.adjClose : r.close)),
-      highs:     (rows || []).map(r => r.high   || r.close),
-      lows:      (rows || []).map(r => r.low    || r.close),
-      volumes:   (rows || []).map(r => r.volume || 0),
+      highs:     (rows || []).map(r => (typeof r.high === 'number' && Number.isFinite(r.high) ? r.high : null)),
+      lows:      (rows || []).map(r => (typeof r.low === 'number' && Number.isFinite(r.low) ? r.low : null)),
+      // Preserve unknown volume as null; downstream factor helpers ignore
+      // incomplete volume windows instead of treating missing data as zero.
+      volumes:   (rows || []).map(r => (typeof r.volume === 'number' && Number.isFinite(r.volume) ? r.volume : null)),
       observedAt:(rows && rows.length && rows[rows.length - 1].observedAt) || null,
     };
   });
@@ -2017,6 +2095,11 @@ async function _enrichPriceFactors(syms) {
         r.highs || [], r.lows || [], r.volumes || []
       );
       if (setupFields) Object.assign(f, setupFields);
+      // Yahoo's KR suffix is part of the upstream instrument identifier. Persist
+      // the quote currency with the derived price/liquidity fields so consumers
+      // never have to infer that a numeric amount is USD.
+      f.currency = /\.(KS|KQ)$/i.test(String(r.sym || '')) ? 'KRW' : 'USD';
+      f.dollarVolumeCurrency = f.currency;
       f.observedAt = r.observedAt;
       f.source = 'Yahoo chart 1y adjusted-close history';
       f.sourceKind = 'delayed-eod';
@@ -2222,7 +2305,7 @@ export async function enrichScreener() {
     data,
     backtest,
   };
-  await writeFile(SCREENER_OUT, JSON.stringify(payload));
+  await atomicWriteFile(SCREENER_OUT, JSON.stringify(payload));
   return { count: ok, universe: syms.length, asOf: payload.asOf, backtestIC: backtest && backtest.ic && backtest.ic.composite, tickerNews: tickerNewsOk, fmpOk: fmpResult.ok > 0, fmpCount: fmpResult.ok, fmpHasKey: fmpResult.hasKey, fmpPlanError: fmpResult.planError, secFundamentalsOk: secResult.ok > 0, secFundamentalsCount: secResult.ok, fundamentalCount, fundamentalCoveragePct };
 }
 
@@ -2642,7 +2725,7 @@ async function updateScreenerBreadthHistory(rows) {
   }
   history.sort((a, b) => String(a?.date || '').localeCompare(String(b?.date || '')));
   if (history.length > 420) history = history.slice(-420);
-  await writeFile(HIST, JSON.stringify(history));
+  await atomicWriteFile(HIST, JSON.stringify(history));
   return { updated: true, rows: rows.length, totalHistoryRows: history.length };
 }
 
@@ -2705,8 +2788,12 @@ async function main() {
   let previousMacro = null;
   let previousMarketSurveys = null;
   let previousOfficialWebReferences = null;
+  let previousFearGreed = null;
+  let previousNews = null;
+  let previousMeta = null;
   try {
     const previous = JSON.parse(await readFile(OUT, 'utf8'));
+    previousMeta = previous && previous.meta || null;
     previousBls = previous && previous.macro && previous.macro._bls || null;
     previousBea = previous && previous.macro && previous.macro._bea || null;
     previousTreasury = previous && previous.macro && previous.macro._treasury || null;
@@ -2714,12 +2801,18 @@ async function main() {
     previousMacro = previous && previous.macro || null;
     previousMarketSurveys = previous && previous.marketSurveys || null;
     previousOfficialWebReferences = previous && previous.officialWebReferences || null;
+    previousFearGreed = previous && previous.fearGreed || null;
+    previousNews = previous && Array.isArray(previous.news) ? previous.news : null;
   } catch (_) {}
 
-  const [quotesRaw, macroRaw, fearGreed, news, putCall, bls, bea, treasury, fredHyOas, cryptoCrossCheck, aaii] = await Promise.all([
+  // Keep each source plane independently observable.  A single unexpected
+  // provider exception must not abort the other free-source collectors or
+  // turn a complete cycle into an unlabelled empty artifact.
+  const attemptedAt = new Date().toISOString();
+  const settled = await Promise.allSettled([
     mapLimit(SYMBOLS, 6, fetchQuote),
     fetchFred(process.env.FRED_API_KEY),
-    fetchFearGreed(),
+    fetchFearGreed(previousFearGreed),
     fetchNews(),
     fetchCboePutCall(),
     fetchBlsSeries(previousBls),
@@ -2729,6 +2822,33 @@ async function main() {
     fetchCoinGeckoCrossCheck(),
     fetchAaiiSentiment(previousMarketSurveys?.aaii || null),
   ]);
+  const settledValue = (index, fallback, label) => {
+    const result = settled[index];
+    if (result?.status === 'fulfilled' && result.value != null) return result.value;
+    const reason = result?.reason?.message || String(result?.reason || 'unknown-error');
+    console.warn(`[fetch-data] ${label} plane failed; preserving other planes: ${reason}`);
+    return typeof fallback === 'function' ? fallback(reason) : fallback;
+  };
+  const quotesRaw = settledValue(0, SYMBOLS.map((symbol) => ({ __error: true, item: symbol, msg: 'quote-plane-failed' })), 'quote');
+  const macroRaw = settledValue(1, {
+    _source: 'fred:unavailable', _attemptedAt: attemptedAt,
+    _successfulSeries: [], _failedSeries: Object.keys(FRED_SERIES),
+    _failureReason: 'fred-plane-failed'
+  }, 'FRED');
+  const fearGreed = settledValue(2, {
+    ...(previousFearGreed && typeof previousFearGreed === 'object' ? previousFearGreed : {}),
+    _source: previousFearGreed?.score != null ? 'cnn:last-known-good' : 'cnn:unavailable',
+    status: previousFearGreed?.score != null ? 'stale-reference' : 'unavailable',
+    attemptedAt, fetchedAt: null, failureReason: 'fear-greed-plane-failed'
+  }, 'Fear & Greed');
+  const news = settledValue(3, previousNews && previousNews.length ? previousNews : [], 'news');
+  const putCall = settledValue(4, { source: 'Cboe Daily Market Statistics', sourceKind: 'unavailable', allowedUse: 'none', fetchedAt: null, attemptedAt, totalPutCall: null, error: 'put-call-plane-failed' }, 'Put/Call');
+  const bls = settledValue(5, previousBls?.series ? { ...previousBls, status: 'stale', attemptedAt, failureReason: 'bls-plane-failed' } : { status: 'unavailable', attemptedAt, fetchedAt: null, lastSuccessfulAt: null, values: {}, series: {}, failures: [{ metricId: 'batch', reason: 'bls-plane-failed' }] }, 'BLS');
+  const bea = settledValue(6, previousBea ? { ...previousBea, status: 'last-known-good', attemptedAt, failureReason: 'bea-plane-failed' } : { status: 'unavailable', attemptedAt, fetchedAt: null, lastSuccessfulAt: null, values: {}, failureReason: 'bea-plane-failed' }, 'BEA');
+  const treasury = settledValue(7, previousTreasury?.values ? { ...previousTreasury, status: 'stale', attemptedAt, failureReason: 'treasury-plane-failed' } : { status: 'unavailable', attemptedAt, fetchedAt: null, values: {}, failureReason: 'treasury-plane-failed' }, 'Treasury');
+  const fredHyOas = settledValue(8, previousFredHyOas ? { ...previousFredHyOas, status: 'stale', attemptedAt, failureReason: 'fred-hy-oas-plane-failed' } : { status: 'unavailable', attemptedAt, fetchedAt: null, value: null, failureReason: 'fred-hy-oas-plane-failed' }, 'FRED HY OAS');
+  const cryptoCrossCheck = settledValue(9, { status: 'unavailable', attemptedAt, fetchedAt: null, quotes: [], reason: 'crypto-cross-check-plane-failed' }, 'crypto cross-check');
+  const aaii = settledValue(10, previousMarketSurveys?.aaii ? { ...previousMarketSurveys.aaii, status: 'stale-reference', attemptedAt, failureReason: 'aaii-plane-failed' } : { status: 'unavailable', attemptedAt, fetchedAt: null, observedAt: null, failureReason: 'aaii-plane-failed' }, 'AAII');
   const surveyAttemptedAt = aaii.attemptedAt || new Date().toISOString();
   const marketSurveys = previousMarketSurveys
     ? { ...previousMarketSurveys, automatedCheckedAt: surveyAttemptedAt, aaii }
@@ -2830,16 +2950,26 @@ async function main() {
   // v50.78: fredHasKey(Secret 등록 여부) / fredFetchOk(실제 데이터 수신 여부) 세분화.
   //   fredHasKey=false → GitHub Secrets 미등록. fredHasKey=true && fredFetchOk=false → 키 있으나 API 실패.
   const macroKeys = Object.keys(macro).filter(k => k[0] !== '_');
-  const fredFetchedKeys = Object.keys(macroRaw || {}).filter(k => k[0] !== '_' && Number.isFinite(Number(macroRaw[k])));
-  const fearGreedOk = typeof fearGreed.score === 'number' && isFinite(fearGreed.score);
+  const fredExpectedSeries = Object.keys(FRED_SERIES);
+  const fearGreedOk = fearGreed?.status !== 'stale-reference'
+    && fearGreed?.status !== 'unavailable'
+    && typeof fearGreed?.score === 'number' && isFinite(fearGreed.score);
   const fredHasKey = !!process.env.FRED_API_KEY;
-  const fredFetchOk = fredHasKey && fredFetchedKeys.length > 0;
-  // P565/R256: per-series failures, now tracked instead of silently swallowed (see fetchFred).
-  const fredFailedSeries = Array.isArray(macro._failedSeries) ? macro._failedSeries : [];
+  // A FRED cycle is successful only when every configured series has a finite
+  // value. Partial responses remain usable through per-field LKG merge, but
+  // the cycle cannot claim a fresh aggregate timestamp.
+  const fredCycle = deriveFredCycle({ configured: fredHasKey, expected: fredExpectedSeries,
+    current: macroRaw || {}, previous: previousMacro || {}, previousMeta: previousMeta || {}, attemptedAt });
+  const fredFetchedKeys = fredCycle.successful;
+  const fredFailedSeries = fredCycle.failed;
+  const fredFetchOk = fredCycle.complete;
+  const fredLkgUsed = fredCycle.lkgUsed;
+  const fredLkgSource = fredLkgUsed ? 'previous-public-data-macro' : null;
+  const fredStatus = fredCycle.status;
   const newsScores = Array.isArray(news) ? news.map(n => Number(n.score)).filter(n => isFinite(n)) : [];
   const newsCycle = getKst0800NewsCycle();
   const fredOk = fredFetchOk; // 하위 호환 유지
-  const generatedAt = new Date().toISOString();
+  const generatedAt = attemptedAt;
 
   const data = {
     meta: {
@@ -2856,13 +2986,16 @@ async function main() {
       fredHasKey,
       fredFetchOk,
       fredOk,
-      fredLkgUsed: !fredHasKey && !!previousMacro,
-      fredLkgSource: !fredHasKey && previousMacro ? 'previous-public-data-macro' : null,
+      fredLkgUsed,
+      fredLkgSource,
       macroKeyCount: macroKeys.length,
       fredFetchedKeyCount: fredFetchedKeys.length,
-      fredAttemptedAt: generatedAt,
-      fredLastSuccessfulAt: fredFetchOk ? generatedAt : null,
-       fredFailedSeries,
+      fredAttemptedAt: macroRaw?._attemptedAt || generatedAt,
+      fredLastSuccessfulAt: fredCycle.lastSuccessfulAt,
+      fredStatus,
+      fredExpectedSeriesCount: fredExpectedSeries.length,
+      fredSuccessfulSeries: fredFetchedKeys,
+      fredFailedSeries,
       blsStatus: bls.status,
       blsSeriesCount: Object.keys(bls.values || {}).length,
       blsFailedSeries: (bls.failures || []).map(row => row.metricId),
@@ -2985,7 +3118,7 @@ async function main() {
     quotes: [],
     meta: { ...d.meta, quotesPublished: false, quotePolicy: 'client-direct-fetch-only(P715)' }
   });
-  await writeFile(OUT, JSON.stringify(toPublicPayload(data), null, 1));
+  await atomicWriteFile(OUT, JSON.stringify(toPublicPayload(data), null, 1));
   // WO-7 (ops): 일별 히스토리 누적 (충분한 데이터일 때만 — 아래 <50% 가드와 별개로 핵심 심볼 존재 시)
   const histInfo = await updateHistory(data, marketSnapshotInfo.snapshot);
   // Phase 3 [C3] P599: computeTradingScore 재구성 검증 하네스 — history.json이 방금 갱신됐으니
@@ -3035,7 +3168,7 @@ async function main() {
   await writeOperationsStatus({ data, marketSnapshot: marketSnapshotInfo.snapshot, reconciliation: reconciliationStatus });
 
   // scrInfo 반영 후 data.json 재기록 (fmpHasKey 등 meta 업데이트) — P719: 반드시 스트립 경유
-  await writeFile(OUT, JSON.stringify(toPublicPayload(data), null, 1));
+  await atomicWriteFile(OUT, JSON.stringify(toPublicPayload(data), null, 1));
 
   // P719 read-back 계약 검증: 마지막으로 디스크에 남은 발행본이 P715 계약(quotes=[],
   // quotesPublished:false)을 만족하는지 실제 파일로 확인. 위반이면 커밋 전에 워크플로가 죽는다.

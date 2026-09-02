@@ -28,6 +28,11 @@ const rankRow = (sym, sector, seed, overrides = {}) => ({
 });
 const rankRows = Array.from({ length: 12 }, (_, index) => rankRow(`RM${index + 1}`, index < 6 ? 'Technology' : 'Healthcare', index + 1));
 const rankResult = computeFactorRanks({ rows: rankRows, inputVersion: 'research-gate-fixture.v2', now: Date.parse('2026-08-27T00:00:00Z') });
+const identicalRows = Array.from({ length: 6 }, (_, index) => rankRow(`TIE${index}`, 'Technology', 5));
+const tied = computeFactorRanks({ rows: identicalRows });
+const reversedTies = computeFactorRanks({ rows: identicalRows.slice().reverse() });
+check('identical evidence receives identical midrank independent of row order', tied.ranked === 6 && reversedTies.ranked === 6 && tied.rows.every(row => row.rank === 50)
+  && reversedTies.rows.every(row => row.rank === 50));
 check('factor-ranker model version and research boundary are explicit', rankResult.modelVersion === FACTOR_RANKS_MODEL_VERSION && rankResult.researchBoundary?.allowedUse === FACTOR_RANKS_ALLOWED_USE && rankResult.researchBoundary?.tradingSignal === false && rankResult.researchBoundary?.decisionEligible === false);
 check('factor-ranker exposes factor coverage and confidence as diagnostics', rankResult.factorCoverage?.momentum?.coveragePct === 100 && rankResult.factorCoverage?.trend?.coveragePct === 100 && Number.isFinite(rankResult.compositeConfidence) && rankResult.confidenceMeaning && rankResult.rows.every((row) => Number.isFinite(row.confidence) && row.allowedUse === FACTOR_RANKS_ALLOWED_USE));
 check('factor-ranker uses global fallback for unknown sector', (() => {
@@ -49,8 +54,8 @@ check('factor-ranker gates sparse optional factors instead of treating missing v
 })());
 check('factor-ranker reports invalid core observations without poisoning peer statistics', (() => {
   const result = computeFactorRanks({ rows: [...rankRows, rankRow('RM-NAN', 'Technology', NaN, { ret3m: NaN, ret6m: NaN })], inputVersion: 'invalid-observation-fixture.v2', now: Date.parse('2026-08-27T00:00:00Z') });
-  const invalid = result.rows.find((row) => row.sym === 'RM-NAN');
-  return result.inputAudit?.invalidCoreRows === 1 && invalid?.missingFactors?.includes('momentum') && invalid?.confidence < result.confidence;
+  return result.inputAudit?.invalidCoreRows === 1 && !result.rows.some((row) => row.sym === 'RM-NAN')
+    && result.ranked === rankResult.ranked && JSON.stringify(result.rows) === JSON.stringify(rankResult.rows);
 })());
 check('factor-ranker applies MAD winsorization only for extreme outliers and exposes its use', (() => {
   const result = computeFactorRanks({ rows: rankRows.map((row, index) => index === 11 ? { ...row, ret1m: 1000, ret3m: 800 } : row), inputVersion: 'outlier-fixture.v2', now: Date.parse('2026-08-27T00:00:00Z') });
@@ -60,6 +65,27 @@ check('factor-ranker turnover and regime stability stay diagnostic-only', (() =>
   const previous = Object.fromEntries(rankResult.rows.map((row, index) => [row.sym, index < 2 ? 100 - index : index]));
   const result = computeFactorRanks({ rows: rankRows, previousRanks: previous, previousRegimeLabel: '중립', previousWeights: { momentum: 0.27 }, regimeLabel: '위험회피', inputVersion: 'stability-fixture.v2', now: Date.parse('2026-08-27T00:00:00Z') });
   return result.turnoverStability?.status === 'observed' && Number.isFinite(result.turnoverStability.turnoverPct) && result.turnoverStability.usedForRanking === false && result.regimeStability?.status === 'transition' && result.regimeStability.usedForRanking === false;
+})());
+
+check('an active factor never lets the stale minority move peer statistics', (() => {
+  const rows = rankRows.map((row, index) => ({ ...row, mcap: index + 1, pe: index + 10, roe: index + 5,
+    _mcapObservedAt: index < 10 ? '2026-08-26' : '2026-07-01',
+    _fundamentalObservedAt: index < 10 ? '2026-08-26' : '2025-01-01' }));
+  const input = { rows, now: Date.parse('2026-08-27'), weights: { momentum: 1, size: 1, value: 1, quality: 1 } };
+  const first = computeFactorRanks(input);
+  const second = computeFactorRanks({ ...input, rows: rows.map((row, i) => i < 10 ? row : { ...row, mcap: 1e12, pe: 0.01, roe: -999 }) });
+  return ['size', 'value', 'quality'].every(key => first.activeFactors.includes(key))
+    && JSON.stringify(first.rows) === JSON.stringify(second.rows)
+    && first.rows.slice(10).every(row => ['size', 'value', 'quality'].every(key => row.factorScores[key] === null && row.missingFactors.includes(key)));
+})());
+check('boundary ties and null previous values do not manufacture turnover', (() => {
+  const result = computeFactorRanks({ rows: identicalRows.slice().reverse(), previousRanks: { ...Object.fromEntries(tied.rows.map(row => [row.sym, row.rank])), MISSING: null } });
+  return result.turnoverStability.turnoverPct === 0 && result.turnoverStability.currentTopCount === 6
+    && result.turnoverStability.previousTopCount === 6 && result.turnoverStability.tiePolicy === 'include-all-boundary-ties';
+})());
+check('symbol-only identities survive canonical ranking output', (() => {
+  const result = computeFactorRanks({ rows: rankRows.map(({ sym, ...row }) => ({ ...row, symbol: ` ${sym.toLowerCase()} ` })) });
+  return result.rows.length === 12 && result.rows.every((row, index) => row.sym === rankRows[index].sym);
 })());
 
 if (errors.length) { errors.forEach(error => console.error(' - ' + error)); process.exit(1); }

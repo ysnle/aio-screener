@@ -43,7 +43,10 @@ function write(rel, content) {
 }
 
 function replaceOnce(content, pattern, replacement, label) {
-  if (!pattern.test(content)) throw new Error(`패턴 미발견 (${label}): ${pattern}`);
+  if (!pattern.test(content)) {
+    if (resumeFrom && targetPattern(pattern).test(content)) return content;
+    throw new Error(`패턴 미발견 (${label}): ${pattern}`);
+  }
   const result = content.replace(pattern, replacement);
   if (result === content) throw new Error(`치환 무변화 (${label}): 이미 이 버전인가?`);
   return result;
@@ -74,6 +77,14 @@ function canonicalizeVersion(raw) {
 const newVerInput = process.argv[2];
 const parsedNewVersion = newVerInput ? parseVersion(newVerInput) : null;
 const newVer = parsedNewVersion ? canonicalizeVersion(newVerInput) : null;
+// Recover a partially written bump without rolling back user edits or advancing
+// the version again. Usage: bump-version.mjs v54.68 --resume-from v54.67
+const resumeIndex = process.argv.indexOf('--resume-from');
+const resumeFrom = resumeIndex >= 0 ? canonicalizeVersion(process.argv[resumeIndex + 1] || '') : null;
+if (resumeIndex >= 0 && !resumeFrom) {
+  console.error('Invalid --resume-from version');
+  process.exit(1);
+}
 if (!newVerInput) {
   console.error('사용법: node scripts/bump-version.mjs <버전>  (예: v51.65)');
   process.exit(1);
@@ -99,6 +110,10 @@ let prevVer;
 try {
   const vj = JSON.parse(read('version.json'));
   prevVer = vj.version; // "v51.64"
+  if (resumeFrom) {
+    if (prevVer !== newVer && prevVer !== resumeFrom) throw new Error('Resume requires the source or target version in version.json');
+    prevVer = resumeFrom;
+  }
 } catch (e) {
   console.error('version.json 파싱 실패:', e.message);
   process.exit(1);
@@ -123,8 +138,10 @@ if (prevVer === newVer) {
 // step-by-step writer could update the first R1 surfaces and only then fail on
 // a later handoff regex, leaving a half-bumped worktree that broke commit and
 // deploy checks.
+const targetPattern = (pattern) => new RegExp(pattern.source.replaceAll(escRe(prevVer), escRe(newVer)), pattern.flags);
 const requirePreflight = (rel, pattern, label) => {
-  if (!pattern.test(read(rel))) throw new Error(`${rel}: preflight target missing (${label})`);
+  const content = read(rel);
+  if (!pattern.test(content) && !(resumeFrom && targetPattern(pattern).test(content))) throw new Error(`${rel}: preflight target missing (${label})`);
 };
 try {
   requirePreflight('index.html', new RegExp(`AIO Screener ${escRe(prevVer)}`), 'title');
@@ -188,7 +205,7 @@ try {
   // ?v= 캐시버스터 (모든 인스턴스)
   const prevCb = prevShort.replace('.', '\\.');
   const cbCount = (html.match(new RegExp(`\\?v=${prevCb}`, 'g')) || []).length;
-  if (cbCount === 0) throw new Error(`캐시버스터 ?v=${prevShort} 없음`);
+  if (cbCount === 0 && !(resumeFrom && html.includes(`?v=${shortVer}`))) throw new Error(`캐시버스터 ?v=${prevShort} 없음`);
   html = replaceAll(html, `?v=${prevShort}`, `?v=${shortVer}`);
   console.log(`   캐시버스터 ${cbCount}개 치환`);
 
@@ -255,6 +272,8 @@ try {
     md = md.replace(rootPattern, `현재 버전: **${newVer}**`);
     write('CLAUDE.md', md);
     console.log('   ✓ CLAUDE.md 루트');
+  } else if (resumeFrom && targetPattern(rootPattern).test(md)) {
+    console.log('   ✓ CLAUDE.md already synchronized');
   } else {
     // 대체 패턴: "현재 버전 → v51.XX" 등 찾기
     const altPattern = new RegExp(escRe(prevVer), 'g');
@@ -287,6 +306,8 @@ try {
     ctxMd = ctxMd.replace(ctxPattern, `$1${newVer}`);
     write('_context/CLAUDE.md', ctxMd);
     console.log('   ✓ _context/CLAUDE.md (현재 버전 줄만 치환)');
+  } else if (resumeFrom && targetPattern(ctxPattern).test(ctxMd)) {
+    console.log('   ✓ _context/CLAUDE.md already synchronized');
   } else {
     const ctxOccurrences = (ctxMd.match(new RegExp(escRe(prevVer), 'g')) || []).length;
     if (ctxOccurrences === 0) {

@@ -1,7 +1,10 @@
 import { normalizeScreener } from '../normalize/screener.js';
 import { deriveScreenerSetupProfile } from '../../domain/screener/setup-profile.js';
-import { createScreenDefinition, stableHash } from '../contracts/screener.js';
+import { calculationRow, createScreenDefinition, stableHash } from '../contracts/screener.js';
 import { runScreen, summarizeScreenReadiness, SCREEN_ENGINE_VERSION } from '../../domain/screener/screen-engine.js';
+import { SUPPLIED_MATERIALS_REFERENCE } from '../../domain/research/supplied-materials.js';
+
+const SCREENER_RESEARCH_MAPPING = Object.freeze(SUPPLIED_MATERIALS_REFERENCE.routeMappings?.screener || {});
 
 export function createScreenerOrchestrator({ provider, commands, getState = () => ({}), ranker = null, rankingContext = () => ({}) } = {}) {
   if (!provider?.readCurrent || !commands?.setData) throw new Error('SCREENER_ORCHESTRATOR_DEPENDENCY_INVALID');
@@ -12,15 +15,15 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
   // shared screener artifact to the native consumer.
   let generation = 0;
   let disposed = false;
-  async function sync({ scope } = {}) {
+  async function sync({ scope, refresh = true } = {}) {
     const thisGeneration = ++generation;
-    const raw = await provider.readCurrent({ signal: scope?.signal });
+    const raw = await provider.readCurrent({ signal: scope?.signal, refresh });
     if (disposed || thisGeneration !== generation || (scope && !scope.isCurrent())) return null;
     const normalized = normalizeScreener(raw);
     if (scope && !scope.isCurrent()) return null;
     const context = rankingContext?.() || {};
     const ranking = typeof ranker === 'function' ? ranker({
-      rows: normalized.rows,
+      rows: normalized.rows.map(calculationRow),
       weights: context.weights || null,
       regimeLabel: context.regimeLabel || null,
       fundamentalCoveragePct: Number.isFinite(Number(normalized.metadata.fundamentalCoveragePct)) ? Number(normalized.metadata.fundamentalCoveragePct) : 0,
@@ -32,7 +35,7 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
     const rankedRows = normalized.rows.map((row) => {
       const result = bySymbol.get(row.sym || row.symbol);
       const merged = result ? { ...row, ...result, symbol: row.symbol, sym: row.sym } : row;
-      return { ...merged, setupProfile: deriveScreenerSetupProfile(merged) };
+      return { ...merged, setupProfile: deriveScreenerSetupProfile(calculationRow(merged)) };
     });
     const screenDefinition = createScreenDefinition({
       screenId: 'native-screener-workbench',
@@ -43,6 +46,9 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
       requiredFields: ['price.ret3m', 'price.pctSma200', 'price.rsi14'],
       ranking: { field: 'rank', direction: 'desc' },
       columns: ['identity.symbol', 'identity.name', 'rank', 'price.ret3m', 'price.rsi14'],
+      referenceFrameworkIds: SCREENER_RESEARCH_MAPPING.sectionIds,
+      referenceTimeSeriesIds: SCREENER_RESEARCH_MAPPING.timeSeriesIds,
+      referenceBoundary: SUPPLIED_MATERIALS_REFERENCE.operationalUse,
       minCoverage: 0.8,
       regimePolicy: { mode: 'reference-only', autoPromote: false }
     });
@@ -71,6 +77,14 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
       workbenchHash: stableHash({ screenDefinition: screenDefinition.definitionHash, run: screenResult.run.resultHash }),
       metadata: {
         ...normalized.metadata,
+        researchContext: {
+          referenceId: SUPPLIED_MATERIALS_REFERENCE.id,
+          sourceKind: SUPPLIED_MATERIALS_REFERENCE.sourceKind,
+          operationalUse: SUPPLIED_MATERIALS_REFERENCE.operationalUse,
+          frameworkIds: [...(screenDefinition.referenceFrameworkIds || [])],
+          timeSeriesIds: [...(screenDefinition.referenceTimeSeriesIds || [])],
+          boundary: screenDefinition.referenceBoundary
+        },
         ranking: ranking ? {
           modelVersion: ranking.modelVersion,
           inputVersion: ranking.inputVersion,

@@ -1,0 +1,77 @@
+{
+  "schemaVersion": "aio-exhaustive-audit-verification.v1",
+  "verifiedAt": "2026-09-02T14:36:14Z",
+  "version": "v54.76",
+  "scopeHeadAtStart": "6ef2561d3cc1cdc010693812a6796556d02c6db4",
+  "qa": {
+    "command": "node scripts/qa-runner.mjs affected --session exhaustive-audit-20260831",
+    "profile": "affected",
+    "pass": 110,
+    "fail": 0,
+    "skip": 0,
+    "durationSeconds": 661.2,
+    "headless": {
+      "groups": 109,
+      "assertions": 1124,
+      "pass": 1124
+    },
+    "browser": {
+      "engine": "Chromium",
+      "viewportFullInit": {
+        "routes": 20,
+        "viewports": [1280, 1440, 1920],
+        "combinations": 60,
+        "horizontalOverflowPx": 0,
+        "tinyTextObservations": 0,
+        "javascriptErrors": 0,
+        "screenshotsGenerated": 60
+      },
+      "verifiedFlows": [
+        "Atlas/Principles/Masters learning and evidence flows",
+        "public AI route",
+        "market epoch",
+        "screener run, persistence and replay",
+        "boot interactions",
+        "architecture and 13 vertical slices",
+        "three-lap route soak",
+        "outage, service-worker and network-budget recovery",
+        "critical human surfaces",
+        "portfolio Vault encryption and migration",
+        "20-route accessibility matrix"
+      ]
+    }
+  },
+  "data": {
+    "marketRevision": "market-snapshot:2026-09-02T13:53:48.172Z:bffa8941",
+    "tier0Coverage": "16/16",
+    "coreQuotes": "78/78",
+    "screenerUniverse": 873,
+    "screenerFactorRows": 849,
+    "screenerReadyRows": 844,
+    "screenerCurrencyRows": 849,
+    "secFundamentalCoveragePct": 76.8,
+    "reconciliation": "PARTIAL",
+    "policyBlockedCategories": 2,
+    "note": "Current public artifacts and internal lineage/continuity contracts passed. Subscription, licensed independent quote, official exchange breadth and other declared professional gaps remain blocked or reference-only."
+  },
+  "semanticCoverage": {
+    "currentCodeConfigFiles": 398,
+    "currentCodeConfigLines": 150265,
+    "fullyReviewedFiles": 155,
+    "reviewedLines": 16599,
+    "historyCodeTransitions": 4611,
+    "reviewedHistoryTransitions": 596,
+    "wholeTreeComplete": false
+  },
+  "evidenceBoundary": {
+    "staticContract": "verified",
+    "headlessRuntime": "verified",
+    "localBrowser": "verified",
+    "currentPublicArtifactRefresh": "verified",
+    "deployedLive": "pending at artifact creation",
+    "mobileTouch": "unverified",
+    "paidSharedAiProvider": "unverified",
+    "productionPitOutcome": "unverified",
+    "independentSourceTruth": "unverified"
+  }
+}

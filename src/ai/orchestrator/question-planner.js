@@ -34,6 +34,11 @@ function hash(value) {
   return `q-${(result >>> 0).toString(16)}`;
 }
 
+function validDate(value) {
+  const parsed = new Date(value);
+  return Number.isFinite(parsed.getTime()) ? parsed : new Date(0);
+}
+
 function premise(query, currentSensitive) {
   const text = String(query || '');
   const assertions = [];
@@ -42,20 +47,22 @@ function premise(query, currentSensitive) {
 }
 
 export function createQuestionPlan({ query = '', route = null, now = new Date(), root = globalThis, sessionSchedule = null, userLevel = null, researchOptOut = false } = {}) {
+  const planNow = validDate(now);
   const normalized = String(query || '').trim();
   const intent = classifyQuestionIntent(normalized, { route });
   const entities = resolveEntities(normalized, { root, route });
-  const time = resolveQuestionTime(normalized, now);
+  const time = resolveQuestionTime(normalized, planNow);
   const currentSensitive = intent.currentSensitive || time.currentSensitive;
   // Composite questions must retain every matched analytical axis. The old
   // primary-only lookup silently dropped technical/news/macro requirements.
   const requiredEvidence = [...new Set((intent.intents || [intent.primary]).flatMap((name) => REQUIRED_BY_INTENT[name] || []))];
-  const market = entities.entities.some((entity) => entity.market === 'KR') ? 'KR' : 'US';
-  const sessionScheduleResolved = currentSensitive
-    ? resolveMarketSessionSchedule({ market, now, root, supplied: sessionSchedule })
+  const markets = [...new Set(entities.entities.map((entity) => entity.market).filter((market) => market === 'KR' || market === 'US'))];
+  const market = markets.length === 1 ? markets[0] : markets.length > 1 ? 'MIXED' : 'US';
+  const sessionScheduleResolved = currentSensitive && market !== 'MIXED'
+    ? resolveMarketSessionSchedule({ market, now: planNow, root, supplied: sessionSchedule })
     : null;
   const sessionEvidence = currentSensitive
-    ? createMarketSessionEvidence({ now, schedule: sessionScheduleResolved, market })
+    ? createMarketSessionEvidence({ now: planNow, schedule: sessionScheduleResolved, market })
     : null;
   if (currentSensitive && !requiredEvidence.includes('market-session')) requiredEvidence.unshift('market-session');
   const plan = {
@@ -66,6 +73,7 @@ export function createQuestionPlan({ query = '', route = null, now = new Date(),
     intent,
     entities,
     market,
+    markets: Object.freeze(markets),
     timeframe: time.timeframe,
     requestedDepth: intent.requestedDepth,
     userLevel: userLevel || 'unspecified',
@@ -82,10 +90,10 @@ export function createQuestionPlan({ query = '', route = null, now = new Date(),
     actionPermission: evaluateQuestionActionPermission({ questionPlan: intent, suitabilityProfile: null, evidenceComplete: false }),
     clarificationQuestions: Object.freeze(entities.ambiguous ? ['어느 시장의 어떤 종목/ETF를 말하는지 티커 또는 거래소를 알려주세요.'] : []),
     sessionEvidence,
-    generatedAt: new Date(now).toISOString()
+    generatedAt: planNow.toISOString()
   };
-  plan.researchDecision = createResearchDecision({ questionPlan: plan, userOptOut: researchOptOut, now });
-  plan.researchPlan = createResearchPlan({ questionPlan: plan, decision: plan.researchDecision, now });
+  plan.researchDecision = createResearchDecision({ questionPlan: plan, userOptOut: researchOptOut, now: planNow });
+  plan.researchPlan = createResearchPlan({ questionPlan: plan, decision: plan.researchDecision, now: planNow });
   if (plan.researchDecision.requirement === 'REQUIRED') {
     plan.requiredTools = Object.freeze([...new Set([...plan.requiredTools, 'web-research'])]);
   }
