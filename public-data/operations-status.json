@@ -7,9 +7,9 @@
     "STALE",
     "RIGHTS_REVIEW_REQUIRED"
   ],
-  "generatedAt": "2026-09-03T22:36:12.305Z",
+  "generatedAt": "2026-09-04T00:26:10.071Z",
   "appRevision": "v54.65",
-  "dataRevision": "market-snapshot:2026-09-03T22:36:09.625Z:0742cda9",
+  "dataRevision": "market-snapshot:2026-09-04T00:26:06.946Z:c4b73c31",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
   "overall": "OPERATOR_REQUIRED",
   "planes": {
@@ -17,7 +17,7 @@
       "status": "CURRENT",
       "statusCode": "CONFIGURED_HEALTHY",
       "source": "github-actions",
-      "lastSuccessfulAt": "2026-09-03T22:36:09.625Z",
+      "lastSuccessfulAt": "2026-09-04T00:26:06.946Z",
       "coverage": {
         "required": 16,
         "observed": 16,
@@ -30,7 +30,7 @@
         "fresh": true,
         "withinSla": true,
         "marketClosedGrace": false,
-        "generatedAt": "2026-09-03T22:36:09.625Z",
+        "generatedAt": "2026-09-04T00:26:06.946Z",
         "ageHours": 0,
         "maxAgeHours": 12,
         "reason": null
@@ -52,9 +52,9 @@
         "status": "CURRENT",
         "statusCode": 200,
         "coverage": "16/16",
-        "revision": "fast-quotes:2026-09-03T22:35:26.657Z:92efc32c",
+        "revision": "fast-quotes:2026-09-04T00:25:24.976Z:b12d01d0",
         "sourceSha": "6ef2561d3cc1cdc010693812a6796556d02c6db4",
-        "observedAt": "2026-09-03T22:36:12.305Z",
+        "observedAt": "2026-09-04T00:26:10.071Z",
         "source": "periodic-live-health",
         "observationStatus": "SUCCESS",
         "observationError": null
@@ -87,7 +87,7 @@
       "lastCallSucceeded": "BLOCKED",
       "evidence": {
         "marketAnalysisOk": false,
-        "generatedAt": "2026-09-03T22:36:09.625Z"
+        "generatedAt": "2026-09-04T00:26:06.946Z"
       }
     },
     "publicChat": {
@@ -99,7 +99,7 @@
       "health": {
         "status": "CURRENT",
         "statusCode": 200,
-        "observedAt": "2026-09-03T22:36:12.305Z",
+        "observedAt": "2026-09-04T00:26:10.071Z",
         "revision": "v54.37",
         "sourceSha": "6ef2561d3cc1cdc010693812a6796556d02c6db4",
         "configured": true,
@@ -121,15 +121,15 @@
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "reference",
-      "lastFetchAt": "2026-09-03T22:36:09.625Z"
+      "lastFetchAt": "2026-09-04T00:26:06.946Z"
     },
     "fred": {
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "official-series",
       "status": "CURRENT",
-      "lastAttemptAt": "2026-09-03T22:36:09.625Z",
-      "lastFetchAt": "2026-09-03T22:36:09.625Z"
+      "lastAttemptAt": "2026-09-04T00:26:06.946Z",
+      "lastFetchAt": "2026-09-04T00:26:06.946Z"
     },
     "sec": {
       "rights": "REVIEW_REQUIRED",
@@ -143,7 +143,7 @@
   "reconciliation": {
     "tier0": {
       "status": "MATCH",
-      "artifact": "market-snapshot:2026-09-03T22:36:09.625Z:0742cda9",
+      "artifact": "market-snapshot:2026-09-04T00:26:06.946Z:c4b73c31",
       "uiEvidence": "same-revision-contract",
       "observedAtComplete": true
     },
@@ -277,7 +277,7 @@
           }
         ]
       },
-      "sourceRevision": "market-snapshot:2026-09-03T22:36:09.625Z:0742cda9",
+      "sourceRevision": "market-snapshot:2026-09-04T00:26:06.946Z:c4b73c31",
       "sourceArtifacts": [
         "public-data/data.json",
         "public-data/market-snapshot.json",
