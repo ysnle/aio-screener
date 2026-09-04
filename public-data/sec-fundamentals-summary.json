@@ -3,13 +3,13 @@
   "sourceSchemaVersion": "2.0",
   "artifactRole": "BOUNDED_PAGE_PROJECTION",
   "projectionPolicy": "Latest normalized annual facts plus PIT coverage counters; append-only PIT observations remain producer-side and are not shipped on the interactive path.",
-  "generatedAt": "2026-08-28T22:29:55.157Z",
+  "generatedAt": "2026-09-04T11:31:26.391Z",
   "source": "SEC EDGAR companyfacts",
   "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
   "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
   "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
   "model": "sec-fy-normalized-v2",
-  "eligible": 657,
+  "eligible": 655,
   "stored": 562,
   "data": {
     "A": {

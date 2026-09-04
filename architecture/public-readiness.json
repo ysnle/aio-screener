@@ -61,8 +61,8 @@
     },
     {
       "id": "fred-success-branch",
-      "status": "OPERATOR_REQUIRED",
-      "evidence": "public-data/data.json reports fredHasKey:false, fredFetchOk:false, fredOk:false; current official-series success is not certified."
+      "status": "PASS",
+      "evidence": "public-data/data.json reports fredHasKey:true, fredFetchOk:true and fredOk:true; SA-04 remains release-required."
     }
   ],
   "publicBetaDecision": "BLOCKED_UNTIL_OPERATOR_CRITERIA_CLOSE"

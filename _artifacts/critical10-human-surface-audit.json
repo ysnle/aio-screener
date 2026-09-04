@@ -1,5 +1,5 @@
 {
-  "version": "v54.76",
+  "version": "v54.77",
   "viewport": {
     "width": 1024,
     "height": 768
@@ -9,7 +9,7 @@
       "routeId": "home",
       "status": "ok",
       "focusableCount": 14,
-      "pageTitle": "시장 현황 v54.76",
+      "pageTitle": "시장 현황 v54.77",
       "audit": {
         "status": "ok",
         "hierarchy": {
@@ -36,10 +36,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "오늘 결론판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/02/08:00 KST시점 부분 일치신뢰도 66% 보통 시장 판단은 가격, 심리, 뉴스 신선도를 함께 확인합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI"
+              "headerText": "오늘 결론판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/04/08:00 KST시점 부분 일치신뢰도 66% 보통 시장 판단은 가격, 심리, 뉴스 신선도를 함께 확인합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI"
             }
           ],
-          "generatedAt": "2026-09-02T14:14:11.874Z"
+          "generatedAt": "2026-09-04T16:33:52.946Z"
         },
         "accessibility": {
           "status": "ok",
@@ -62,9 +62,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-09-02T14:14:11.877Z"
+          "generatedAt": "2026-09-04T16:33:52.948Z"
         },
-        "generatedAt": "2026-09-02T14:14:11.877Z"
+        "generatedAt": "2026-09-04T16:33:52.948Z"
       },
       "tabSequence": [
         {
@@ -154,13 +154,25 @@
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "자료 감사 · 이번 시장·AI 자료 · 확인 6 · 미확인/차단 4",
+          "name": "자료 감사 · 2026-09-05 직접 확인 시장·AI·아키텍처 자료 · 확인 18 · 미확인/차단 0",
           "tabindex": ""
         },
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "시계열 정렬 · 3개 관측창",
+          "name": "이미지·미디어 감사 · 4개 항목",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "시계열 정렬 · 6개 관측창",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "scroll-top-btn",
+          "name": "맨 위로 스크롤",
           "tabindex": ""
         },
         {
@@ -198,18 +210,6 @@
           "id": "",
           "name": "시장 환경",
           "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "시장 폭",
-          "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "투자 심리",
-          "tabindex": "0"
         }
       ]
     },
@@ -244,10 +244,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "신규 매수 가능 여부판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/02/08:00 KST시점 부분 일치신뢰도 66% 보통 신규 매수 판단은 거래 점수와 breadth/뉴스 검증을 함께 통과해야 합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury y"
+              "headerText": "신규 매수 가능 여부판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/04/08:00 KST시점 부분 일치신뢰도 66% 보통 신규 매수 판단은 거래 점수와 breadth/뉴스 검증을 함께 통과해야 합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury y"
             }
           ],
-          "generatedAt": "2026-09-02T14:14:16.680Z"
+          "generatedAt": "2026-09-04T16:33:57.613Z"
         },
         "accessibility": {
           "status": "ok",
@@ -270,9 +270,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-09-02T14:14:16.681Z"
+          "generatedAt": "2026-09-04T16:33:57.614Z"
         },
-        "generatedAt": "2026-09-02T14:14:16.681Z"
+        "generatedAt": "2026-09-04T16:33:57.614Z"
       },
       "tabSequence": [
         {
@@ -320,13 +320,19 @@
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "자료 감사 · 이번 시장·AI 자료 · 확인 6 · 미확인/차단 4",
+          "name": "자료 감사 · 2026-09-05 직접 확인 시장·AI·아키텍처 자료 · 확인 18 · 미확인/차단 0",
           "tabindex": ""
         },
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "시계열 정렬 · 4개 관측창",
+          "name": "이미지·미디어 감사 · 4개 항목",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "시계열 정렬 · 7개 관측창",
           "tabindex": ""
         },
         {
@@ -411,12 +417,6 @@
           "tag": "DIV",
           "id": "",
           "name": "포트폴리오",
-          "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "기업 분석",
           "tabindex": "0"
         }
       ]
@@ -452,10 +452,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "시장 폭 판단판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/02/08:00 KST시점 부분 일치신뢰도 66% 보통 Breadth는 스냅샷/계산 지표가 섞여 있어 방향성 참고로 낮춰 해석합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield "
+              "headerText": "시장 폭 판단판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/04/08:00 KST시점 부분 일치신뢰도 66% 보통 Breadth는 스냅샷/계산 지표가 섞여 있어 방향성 참고로 낮춰 해석합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield "
             }
           ],
-          "generatedAt": "2026-09-02T14:14:17.752Z"
+          "generatedAt": "2026-09-04T16:33:58.646Z"
         },
         "accessibility": {
           "status": "ok",
@@ -478,21 +478,27 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-09-02T14:14:17.753Z"
+          "generatedAt": "2026-09-04T16:33:58.647Z"
         },
-        "generatedAt": "2026-09-02T14:14:17.753Z"
+        "generatedAt": "2026-09-04T16:33:58.647Z"
       },
       "tabSequence": [
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "자료 감사 · 이번 시장·AI 자료 · 확인 6 · 미확인/차단 4",
+          "name": "자료 감사 · 2026-09-05 직접 확인 시장·AI·아키텍처 자료 · 확인 18 · 미확인/차단 0",
           "tabindex": ""
         },
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "시계열 정렬 · 3개 관측창",
+          "name": "이미지·미디어 감사 · 4개 항목",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "시계열 정렬 · 5개 관측창",
           "tabindex": ""
         },
         {
@@ -620,12 +626,6 @@
           "id": "",
           "name": "용어 사전",
           "tabindex": "0"
-        },
-        {
-          "tag": "BUTTON",
-          "id": "sidebar-theme-btn",
-          "name": "라이트 모드",
-          "tabindex": ""
         }
       ]
     },
@@ -660,10 +660,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "심리 결론판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/02/08:00 KST시점 일치신뢰도 66% 보통 F&G/VIX는 현재성 우선, AAII/PutCall류는 발표 주기 차이를 감안합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield "
+              "headerText": "심리 결론판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/04/08:00 KST시점 일치신뢰도 66% 보통 F&G/VIX는 현재성 우선, AAII/PutCall류는 발표 주기 차이를 감안합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield "
             }
           ],
-          "generatedAt": "2026-09-02T14:14:18.934Z"
+          "generatedAt": "2026-09-04T16:33:59.789Z"
         },
         "accessibility": {
           "status": "ok",
@@ -686,9 +686,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-09-02T14:14:18.935Z"
+          "generatedAt": "2026-09-04T16:33:59.790Z"
         },
-        "generatedAt": "2026-09-02T14:14:18.935Z"
+        "generatedAt": "2026-09-04T16:33:59.790Z"
       },
       "tabSequence": [
         {
@@ -700,13 +700,25 @@
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "자료 감사 · 이번 시장·AI 자료 · 확인 6 · 미확인/차단 4",
+          "name": "자료 감사 · 2026-09-05 직접 확인 시장·AI·아키텍처 자료 · 확인 18 · 미확인/차단 0",
           "tabindex": ""
         },
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "시계열 정렬 · 3개 관측창",
+          "name": "이미지·미디어 감사 · 4개 항목",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "시계열 정렬 · 5개 관측창",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "scroll-top-btn",
+          "name": "맨 위로 스크롤",
           "tabindex": ""
         },
         {
@@ -822,18 +834,6 @@
           "id": "",
           "name": "사용 설명서",
           "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "용어 사전",
-          "tabindex": "0"
-        },
-        {
-          "tag": "BUTTON",
-          "id": "sidebar-theme-btn",
-          "name": "라이트 모드",
-          "tabindex": ""
         }
       ]
     },
@@ -868,10 +868,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "시장 요약판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/02/08:00 KST시점 부분 일치신뢰도 66% 보통 브리핑은 08:00 KST 완료 24h 뉴스와 캐시 지표를 요약합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재"
+              "headerText": "시장 요약판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/04/08:00 KST시점 부분 일치신뢰도 66% 보통 브리핑은 08:00 KST 완료 24h 뉴스와 캐시 지표를 요약합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재"
             }
           ],
-          "generatedAt": "2026-09-02T14:14:20.302Z"
+          "generatedAt": "2026-09-04T16:34:01.069Z"
         },
         "accessibility": {
           "status": "ok",
@@ -894,75 +894,81 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-09-02T14:14:20.302Z"
+          "generatedAt": "2026-09-04T16:34:01.069Z"
         },
-        "generatedAt": "2026-09-02T14:14:20.302Z"
+        "generatedAt": "2026-09-04T16:34:01.069Z"
       },
       "tabSequence": [
         {
           "tag": "A",
           "id": "",
-          "name": "지정학● 중립Insider·US · 08-29⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 미국이 방금 베네수엘라와 세계 역사상 최대 규모의 석유 계약을 체결했다",
+          "name": "헬스케어● 중립HANA·China/EM · 09-04>>중국 혁신 신약 프로젝트 견적 ‘가격이 물을 타듯 상승’, CRO 업계 하반기 회복세 가속 가능성 •혁신 신약 업계의 경기 ",
           "tabindex": ""
         },
         {
           "tag": "A",
           "id": "",
-          "name": "시장소식● 중립Insider·US · 08-29코인베이스 CEO 브라이언 암스트롱은 미국이 가상자산 산업의 명확한 규칙을 마련하기 위해 ‘클래리티 법안(Clarity Act)’을 ",
+          "name": "매크로● 중립HANA·China/EM · 09-04>>155선이 무너지면 엔화 숏 포지션 청산 위험이 가속화될 수 있음 (JP Morgan) •JP Morgan은 달러·엔 환율이 ",
           "tabindex": ""
         },
         {
           "tag": "A",
           "id": "",
-          "name": "매크로● 중립Insider·US · 08-29예측시장에 따르면 9월 연준 금리 결정 전망이 동결 49%, 25bp 인상 49%로 팽팽하게 양분된 상황.",
+          "name": "자금조달● 중립HANA·China/EM · 09-04>>Anthropic, 150억 달러 규모의 IPO 전 신용대출 약정 체결에 근접 •소식통에 따르면, Anthropic은 IPO",
           "tabindex": ""
         },
         {
           "tag": "A",
           "id": "",
-          "name": "시장소식● 중립Insider·US · 08-29그리고....최근에 영상 편집도 배워보고있는데 잭슨홀 영상 한번 올려드릴게요.",
+          "name": "반도체▲ 상승HANA·China/EM · 09-04>>칩 가격 상승에 중국 스마트폰 가격 인상 확산…‘분해해 칩 추출’까지 등장 (재련사) •화웨이·샤오미·Honor가 최근 여러 ",
           "tabindex": ""
         },
         {
           "tag": "A",
           "id": "",
-          "name": "지정학● 중립Insider·US · 08-29중동 특이사항 없음",
+          "name": "AI정책● 중립BornLupin·KR · 09-04샘 알트먼 GPT-6 Astra가 출시되었습니다. 우리는 이 모델이 새로운 세대의 창업, 과학적 발견, 그리고 무언가를 만들어가는",
           "tabindex": ""
         },
         {
           "tag": "A",
           "id": "",
-          "name": "시장소식● 중립Insider·US · 08-29미국의 우주 패권",
+          "name": "자금조달● 중립HANA·China/EM · 09-04>>휴머노이드 로봇, 더 이상 매력적이지 않은가? Unitree, 자본시장 집중 관심에서 주가 반토막까지… 다시 불거진 거품 우",
           "tabindex": ""
         },
         {
           "tag": "A",
           "id": "",
-          "name": "매크로● 중립Insider·US · 08-29파이낸셜타임즈에 따르면 중국이 우크라이나와 이란 전쟁에서 자폭 드론의 치명적인 위력이 부각되면서 수익성이 높은 시장을 겨냥해 3D 프린",
+          "name": "시장소식● 중립BornLupin·KR · 09-04블룸 에너지 및 이번 달 S&P 500에 편입될 수 있는 7개 종목 ( &#036;BE +8.4%) 블룸 에너지(BE), 아스테라",
           "tabindex": ""
         },
         {
           "tag": "A",
           "id": "",
-          "name": "지정학● 중립Insider·US · 08-29미국 전쟁부 장관 피트 헤그세스가 올해 말 수백 명의 군 고위 지휘관을 버지니아주 해병대 콴티코 기지로 다시 소집해 연설하는 방안을 검",
+          "name": "매크로● 중립HANA·China/EM · 09-04>>애플 폴더블폰, 중국 기업들 사업 기회 확대… Lens Technology·E-An 등 공급망 진입 (대만경제일보) •애플의 ",
           "tabindex": ""
         },
         {
           "tag": "SPAN",
           "id": "",
-          "name": "$NVDA",
+          "name": "$AVGO",
           "tabindex": "0"
         },
         {
           "tag": "SPAN",
           "id": "",
-          "name": "$QQQ",
+          "name": "$CIEN",
           "tabindex": "0"
         },
         {
           "tag": "SPAN",
           "id": "",
-          "name": "$NVDA",
+          "name": "$AVGO",
+          "tabindex": "0"
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "$AVGO",
           "tabindex": "0"
         },
         {
@@ -980,13 +986,19 @@
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "자료 감사 · 이번 시장·AI 자료 · 확인 6 · 미확인/차단 4",
+          "name": "자료 감사 · 2026-09-05 직접 확인 시장·AI·아키텍처 자료 · 확인 18 · 미확인/차단 0",
           "tabindex": ""
         },
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "시계열 정렬 · 4개 관측창",
+          "name": "이미지·미디어 감사 · 4개 항목",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "시계열 정렬 · 6개 관측창",
           "tabindex": ""
         },
         {
@@ -1029,18 +1041,6 @@
           "tag": "DIV",
           "id": "",
           "name": "시장 환경",
-          "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "시장 폭",
-          "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "투자 심리",
           "tabindex": "0"
         }
       ]
@@ -1076,10 +1076,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "차트 판단판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 미수신공통컷 09/02/08:00 KST시점 불일치신뢰도 35% 낮음 기술 점수는 live 가격과 스냅샷 보조지표의 혼합입니다. 단독 매수 신호가 아닙니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield"
+              "headerText": "차트 판단판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 미수신공통컷 09/04/08:00 KST시점 불일치신뢰도 35% 낮음 기술 점수는 live 가격과 스냅샷 보조지표의 혼합입니다. 단독 매수 신호가 아닙니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield"
             }
           ],
-          "generatedAt": "2026-09-02T14:14:21.439Z"
+          "generatedAt": "2026-09-04T16:34:02.183Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1102,9 +1102,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-09-02T14:14:21.441Z"
+          "generatedAt": "2026-09-04T16:34:02.185Z"
         },
-        "generatedAt": "2026-09-02T14:14:21.441Z"
+        "generatedAt": "2026-09-04T16:34:02.185Z"
       },
       "tabSequence": [
         {
@@ -1140,13 +1140,25 @@
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "자료 감사 · 이번 시장·AI 자료 · 확인 6 · 미확인/차단 4",
+          "name": "자료 감사 · 2026-09-05 직접 확인 시장·AI·아키텍처 자료 · 확인 18 · 미확인/차단 0",
           "tabindex": ""
         },
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "시계열 정렬 · 3개 관측창",
+          "name": "이미지·미디어 감사 · 4개 항목",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "시계열 정렬 · 6개 관측창",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "scroll-top-btn",
+          "name": "맨 위로 스크롤",
           "tabindex": ""
         },
         {
@@ -1237,18 +1249,6 @@
           "tag": "DIV",
           "id": "",
           "name": "퀀트 스크리너",
-          "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "시장 원리",
-          "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "대가의 포트폴리오",
           "tabindex": "0"
         }
       ]
@@ -1284,10 +1284,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "오늘 매크로 판단판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/02/08:00 KST시점 부분 일치신뢰도 66% 보통 FRED/FMP 키 미수신 구간은 스냅샷 매크로로 표시하고 현재 판단 강도를 낮춥니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury"
+              "headerText": "오늘 매크로 판단판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/04/08:00 KST시점 부분 일치신뢰도 66% 보통 FRED/FMP 키 미수신 구간은 스냅샷 매크로로 표시하고 현재 판단 강도를 낮춥니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury"
             }
           ],
-          "generatedAt": "2026-09-02T14:14:22.753Z"
+          "generatedAt": "2026-09-04T16:34:03.171Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1310,21 +1310,27 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-09-02T14:14:22.754Z"
+          "generatedAt": "2026-09-04T16:34:03.172Z"
         },
-        "generatedAt": "2026-09-02T14:14:22.754Z"
+        "generatedAt": "2026-09-04T16:34:03.172Z"
       },
       "tabSequence": [
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "자료 감사 · 이번 시장·AI 자료 · 확인 6 · 미확인/차단 4",
+          "name": "자료 감사 · 2026-09-05 직접 확인 시장·AI·아키텍처 자료 · 확인 18 · 미확인/차단 0",
           "tabindex": ""
         },
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "시계열 정렬 · 3개 관측창",
+          "name": "이미지·미디어 감사 · 4개 항목",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "시계열 정렬 · 7개 관측창",
           "tabindex": ""
         },
         {
@@ -1452,12 +1458,6 @@
           "id": "sidebar-theme-btn",
           "name": "라이트 모드",
           "tabindex": ""
-        },
-        {
-          "tag": "DIV",
-          "id": "llm-switch-track",
-          "name": "AI 도우미 전환",
-          "tabindex": "0"
         }
       ]
     },
@@ -1492,10 +1492,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "FX/Rates 판단판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/02/08:00 KST시점 부분 일치신뢰도 66% 보통 금리/달러/유가는 live 우선이나 크레딧/커브 보조값은 캐시가 섞입니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yiel"
+              "headerText": "FX/Rates 판단판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/04/08:00 KST시점 부분 일치신뢰도 66% 보통 금리/달러/유가는 live 우선이나 크레딧/커브 보조값은 캐시가 섞입니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yiel"
             }
           ],
-          "generatedAt": "2026-09-02T14:14:23.784Z"
+          "generatedAt": "2026-09-04T16:34:04.284Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1518,21 +1518,27 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-09-02T14:14:23.785Z"
+          "generatedAt": "2026-09-04T16:34:04.285Z"
         },
-        "generatedAt": "2026-09-02T14:14:23.785Z"
+        "generatedAt": "2026-09-04T16:34:04.285Z"
       },
       "tabSequence": [
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "자료 감사 · 이번 시장·AI 자료 · 확인 6 · 미확인/차단 4",
+          "name": "자료 감사 · 2026-09-05 직접 확인 시장·AI·아키텍처 자료 · 확인 18 · 미확인/차단 0",
           "tabindex": ""
         },
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "시계열 정렬 · 3개 관측창",
+          "name": "이미지·미디어 감사 · 4개 항목",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "시계열 정렬 · 5개 관측창",
           "tabindex": ""
         },
         {
@@ -1660,12 +1666,6 @@
           "id": "sidebar-theme-btn",
           "name": "라이트 모드",
           "tabindex": ""
-        },
-        {
-          "tag": "DIV",
-          "id": "llm-switch-track",
-          "name": "AI 도우미 전환",
-          "tabindex": "0"
         }
       ]
     },
@@ -1700,10 +1700,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "기업 분석 준비판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 미수신공통컷 09/02/08:00 KST시점 불일치신뢰도 35% 낮음 티커 입력 후 SEC/FMP/뉴스 수집 성공 소스만 근거로 사용합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현"
+              "headerText": "기업 분석 준비판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 미수신공통컷 09/04/08:00 KST시점 불일치신뢰도 35% 낮음 티커 입력 후 SEC/FMP/뉴스 수집 성공 소스만 근거로 사용합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현"
             }
           ],
-          "generatedAt": "2026-09-02T14:14:25.354Z"
+          "generatedAt": "2026-09-04T16:34:05.716Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1726,9 +1726,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-09-02T14:14:25.355Z"
+          "generatedAt": "2026-09-04T16:34:05.719Z"
         },
-        "generatedAt": "2026-09-02T14:14:25.355Z"
+        "generatedAt": "2026-09-04T16:34:05.719Z"
       },
       "tabSequence": [
         {
@@ -1746,13 +1746,19 @@
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "자료 감사 · 이번 시장·AI 자료 · 확인 6 · 미확인/차단 4",
+          "name": "자료 감사 · 2026-09-05 직접 확인 시장·AI·아키텍처 자료 · 확인 18 · 미확인/차단 0",
           "tabindex": ""
         },
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "시계열 정렬 · 4개 관측창",
+          "name": "이미지·미디어 감사 · 4개 항목",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "시계열 정렬 · 10개 관측창",
           "tabindex": ""
         },
         {
@@ -1867,12 +1873,6 @@
           "tag": "DIV",
           "id": "",
           "name": "사용 설명서",
-          "tabindex": "0"
-        },
-        {
-          "tag": "DIV",
-          "id": "",
-          "name": "용어 사전",
           "tabindex": "0"
         }
       ]
@@ -1908,10 +1908,10 @@
               "developerSurfaceVisible": 0,
               "blockers": [],
               "warnings": [],
-              "headerText": "테마 회전 지도판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 미수신공통컷 09/02/08:00 KST시점 불일치신뢰도 35% 낮음 테마 강도는 리더 상대강도, breadth, 뉴스 촉매를 같이 확인합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8"
+              "headerText": "테마 회전 지도판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 미수신공통컷 09/04/08:00 KST시점 불일치신뢰도 35% 낮음 테마 강도는 리더 상대강도, breadth, 뉴스 촉매를 같이 확인합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8"
             }
           ],
-          "generatedAt": "2026-09-02T14:14:26.997Z"
+          "generatedAt": "2026-09-04T16:34:07.309Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1934,9 +1934,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-09-02T14:14:27.007Z"
+          "generatedAt": "2026-09-04T16:34:07.329Z"
         },
-        "generatedAt": "2026-09-02T14:14:27.007Z"
+        "generatedAt": "2026-09-04T16:34:07.329Z"
       },
       "tabSequence": [
         {
@@ -2020,19 +2020,19 @@
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "자료 감사 · 이번 시장·AI 자료 · 확인 6 · 미확인/차단 4",
+          "name": "자료 감사 · 2026-09-05 직접 확인 시장·AI·아키텍처 자료 · 확인 18 · 미확인/차단 0",
           "tabindex": ""
         },
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "시계열 정렬 · 7개 관측창",
+          "name": "이미지·미디어 감사 · 4개 항목",
           "tabindex": ""
         },
         {
-          "tag": "BUTTON",
-          "id": "scroll-top-btn",
-          "name": "맨 위로 스크롤",
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "시계열 정렬 · 13개 관측창",
           "tabindex": ""
         },
         {
@@ -2087,6 +2087,6 @@
     }
   ],
   "consoleErrors": [],
-  "generatedAt": "2026-09-02T14:14:09.229Z",
+  "generatedAt": "2026-09-04T16:33:50.399Z",
   "status": "pass"
 }
