@@ -1670,3 +1670,15 @@ Standalone worker security gate also exits deterministically after PASS (`ci-wor
 - [ ] `changeBasis`/`valueBasis` remains present from snapshot builder/schema through bridge, `PriceStore`, `_liveData`, and native chart/title sinks; UI labels the basis.
 - [ ] Service-worker controller takeover performs at most one guarded reload, then confirms SW version equals `APP_VERSION`.
 - [ ] Run runtime/data-plane/lineage/reconciliation/refresh/architecture/headless gates and a 17-route browser soak; browser errors must remain zero.
+
+## P1030 supplied research packet / time-series / architecture (2026-09-05)
+
+- [ ] Source audit contains the 18 unique supplied links, direct-read status, duplicate suppression, and attached `codex-clipboard-c8c338c6-5b5b-4912-8a76-7dce61d65e2b.png` media audit.
+- [ ] Every supplied item keeps publication/read date separate from current observations: event cluster, 1–5-session reaction, 20–60-session swing, 50–200-session trend, release/revision, estimate vintage, order/backlog/delivery, capacity/utilization/cash, and hypothesis-test windows.
+- [ ] Event cluster and oil-shock paths distinguish geopolitical supply shock, domestic demand shock, inflation, growth, policy, FX, rates, credit, and breadth; no dated secondary value becomes a live signal without a producer.
+- [ ] AI CAPEX taxonomy separates semiconductors/WFE, networking/optics, power, cooling, facilities, and equipment-cycle order/backlog/delivery/revenue/FCF; Sankey proportions and supplier mentions remain reference-only.
+- [ ] AI capacity screens separate connected power, billable IT power, energization/acceptance, contract cohort, utilization, recognized revenue, owner FCF, leases, interest, replacement reserve, debt, and dilution.
+- [ ] Treasury surfaces separate front-end secondary price/yield and macro flow from auction/repo/dealer/basis plumbing, with a regime-dependent plumbing-dominance flag rather than a single rate explanation.
+- [ ] Vela-derived chart architecture stays dependency-free: canonical time/bar boundary, provider/script/renderer ports, capability negotiation, provisional tick vs settled bar, fail-soft lifecycle, and no dead legend rows.
+- [ ] Research metadata (`referenceFrameworkIds`, `referenceTimeSeriesIds`, `referenceBoundary`, `researchContext`) is not included in factor ranking or current price/target/position calculations.
+- [ ] Run `ci-research-flow-contract-check.mjs`, syntax, workspace/knowledge/skill contracts, affected QA, and route/browser checks; report verified, blocked, and unverified evidence separately.

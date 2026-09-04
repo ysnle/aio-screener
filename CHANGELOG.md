@@ -1,3 +1,11 @@
+## v54.77 (2026-09-05)
+- **Supplied research integration (P1030)**: directly audited 18 unique links and the attached market-news image, preserving publication/read timestamps, event/reaction/follow-through windows, and source/media status in the centralized reference registry.
+- **Market structure**: added event-cluster, oil-supply-vs-demand branches, Treasury front-end/back-end plumbing, expectation-vintage, seasonality convergence, and explicit hypothesis confirmation/invalidation without promoting dated secondary claims to live signals.
+- **AI infrastructure architecture**: added CAPEX-flow taxonomy, equipment order/backlog/delivery/revenue/FCF cycle, supply-bottleneck graph, capacity/contract cohorts, owner-FCF waterfall, and control-plane operating metrics.
+- **Chart architecture boundary**: captured Vela-derived canonical time/bar, provider/script/renderer ports, capability negotiation, provisional-versus-settled updates, and fail-soft lifecycle as dependency-free reference contracts.
+- **Route/chat/screener integration**: mapped the new frameworks and time series across major pages and route-aware chat context; research metadata remains outside factor ranking and current-value inputs.
+- R1 7곳 v54.77
+
 ## v54.76 (2026-09-02)
 - **Application lifecycle (P1023)**: cancel deferred timers/microtasks and late snapshot publication on stop, reject post-dispose router transitions, and bound route return context.
 - **Knowledge semantics (P1024)**: separate navigation-only RELATES_TO edges from causal relations, reject unmapped generated edges, and harden graph/learning/route projections against malformed or mutable input.

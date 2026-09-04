@@ -1,6 +1,7 @@
 import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
 import { selectTechnical, selectSignal, selectHomeSummary } from '../../state/selectors/analysis.js';
 import { selectSentimentValues } from '../../state/selectors/sentiment.js';
+import { normalizeChartBar } from '../../domain/chart/contract.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 
 function finite(value) {
@@ -225,6 +226,7 @@ function renderTechnicalCharts({ root, page, technical, charts }) {
   const volumeCanvas = page?.querySelector('#tech-candle-volume');
   if (!priceCanvas && !volumeCanvas) return;
   const rows = (Array.isArray(technical?.ohlcv) ? technical.ohlcv : [])
+    .map(normalizeChartBar)
     .filter((row) => row && row.time && finite(row.close) != null)
     .slice(-90);
   const ChartConstructor = root?.Chart;

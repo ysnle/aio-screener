@@ -19,7 +19,7 @@ function appendLabelValue(documentRef, parent, label, value) {
 
 function renderAudit(documentRef, parent) {
   const audits = SUPPLIED_MATERIALS_REFERENCE.sourceAudit || [];
-  const current = audits.find((item) => item.id === 'packet-2026-08-30');
+  const current = audits.find((item) => item.id === 'packet-2026-09-05') || audits.find((item) => item.id === 'packet-2026-08-30');
   const audit = element(documentRef, 'details', 'aio-reference-bridge-audit');
   audit.appendChild(element(documentRef, 'summary', '', `자료 감사 · ${current?.label || 'source packet'} · 확인 ${current?.readableCount ?? '—'} · 미확인/차단 ${current?.blockedCount ?? '—'}`));
   audits.forEach((item) => {
@@ -28,6 +28,20 @@ function renderAudit(documentRef, parent) {
     audit.appendChild(row);
   });
   parent.appendChild(audit);
+}
+
+function renderMediaAudit(documentRef, parent) {
+  const media = SUPPLIED_MATERIALS_REFERENCE.mediaAudit || [];
+  if (!media.length) return;
+  const details = element(documentRef, 'details', 'aio-reference-bridge-media-audit');
+  details.appendChild(element(documentRef, 'summary', '', `이미지·미디어 감사 · ${media.length}개 항목`));
+  media.forEach((item) => {
+    const row = element(documentRef, 'div', 'aio-reference-bridge-media-row');
+    appendLabelValue(documentRef, row, item.label || item.id, `${item.status} · ${item.note}${item.count ? ` · ${item.count}개` : ''}`);
+    if (item.sourceRef) row.dataset.sourceRef = item.sourceRef;
+    details.appendChild(row);
+  });
+  parent.appendChild(details);
 }
 
 function renderTimeSeries(documentRef, parent, timeSeriesIds) {
@@ -105,6 +119,7 @@ export function createSuppliedMaterialBridge(documentRef, { routeId = '', sectio
     element(documentRef, 'p', 'aio-reference-bridge-boundary', SUPPLIED_MATERIALS_REFERENCE.boundary)
   );
   renderAudit(documentRef, section);
+  renderMediaAudit(documentRef, section);
   renderTimeSeries(documentRef, section, resolvedTimeSeriesIds);
   renderFrameworks(documentRef, section, resolvedSectionIds);
   return section;

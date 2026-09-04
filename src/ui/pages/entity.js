@@ -2,6 +2,7 @@ import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
 import { selectEntityState } from '../../state/selectors/entity.js';
 import { selectPortfolioState } from '../../state/selectors/portfolio.js';
 import { deriveSecReport } from '../../domain/fundamental/sec-report.js';
+import { canonicalEpochMs } from '../../domain/chart/contract.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 
 function finite(value) {
@@ -136,7 +137,7 @@ function renderTickerChart({ root, page, state, charts }) {
     .slice(-365);
   const ChartConstructor = root?.Chart;
   const unavailable = rows.length < 2 || typeof ChartConstructor !== 'function';
-  const signature = rows.map((row) => `${row.time}:${row.close}`).join('|');
+  const signature = rows.map((row) => `${canonicalEpochMs(row.epochMs ?? row.time) ?? row.time}:${row.close}`).join('|');
   canvas.dataset.aioTickerChartRenderer = 'native';
   canvas.dataset.sourceKind = unavailable ? 'unavailable' : 'native-runtime';
   canvas.dataset.sourceLabel = unavailable ? 'entity-history-unavailable' : 'native:entity-history';

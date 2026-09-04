@@ -1,3 +1,5 @@
+import { normalizeChartBar } from '../../domain/chart/contract.js';
+
 function finite(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
@@ -16,10 +18,18 @@ export function normalizeEntity(raw = {}) {
     directionCompatible: raw.quote.directionCompatible === true
   }) : null;
   const history = Array.isArray(raw.history)
-    ? raw.history.map((row) => Object.freeze({
-      time: row?.time || row?.date || null,
-      open: finite(row?.open), high: finite(row?.high), low: finite(row?.low), close: finite(row?.close), volume: finite(row?.volume)
-    })).filter((row) => row.time && row.close != null)
+    ? raw.history.map((row) => {
+      const bar = normalizeChartBar(row);
+      return Object.freeze({
+        time: bar.time,
+        epochMs: bar.epochMs,
+        open: bar.open,
+        high: bar.high,
+        low: bar.low,
+        close: bar.close,
+        volume: bar.volume
+      });
+    }).filter((row) => row.time && row.close != null)
     : [];
   const fundamentalsWatchlist = Array.isArray(raw.fundamentalsWatchlist)
     ? raw.fundamentalsWatchlist.filter((row) => row && typeof row === 'object').map((row) => Object.freeze({ ...row }))
