@@ -1,38 +1,14 @@
 {
- "generatedAt": "2026-09-04T22:21:53.472Z",
+ "generatedAt": "2026-09-05T00:24:27.415Z",
  "note": "Phase 3 [C3] P599 — computeTradingScore 재구성 검증 하네스. RM-03(2026-07-19)부터 src/domain/signal/trading-score.js 단일 구현을 호출한다. breadth/pcr/뉴스감성은 history.json에 구조적으로 없어 라이브의 현재 fail-closed 미수신 처리(null/false)를 그대로 따른다 — 예전의 중립 상수 근사(57/0.95)는 제거됨(F-11 드리프트였음). 표본 수가 통계적으로 유의미해질 때까지(대략 n>=30) summary를 \"검증 결과\"가 아니라 \"누적 진행 상황\"으로 취급할 것.",
  "summary": {
-  "n5d": 280,
-  "corr5d": -0.149,
-  "n21d": 264,
-  "corr21d": -0.244,
+  "n5d": 281,
+  "corr5d": -0.148,
+  "n21d": 265,
+  "corr21d": -0.247,
   "statisticallyMeaningful": true
  },
  "records": [
-  {
-   "date": "2026-01-13",
-   "reconstructedScore": 73,
-   "subScores": {
-    "vol": 78,
-    "mom": 74,
-    "trend": null,
-    "breadth": null,
-    "macro": 55
-   },
-   "fwd5dReturn": -1.26541197689747,
-   "fwd21dReturn": -1.8808858458242206,
-   "dataCompleteness": {
-    "vix": true,
-    "dxy": true,
-    "tnx": true,
-    "wti": true,
-    "vvix": true,
-    "trend200maAvailable": false,
-    "breadthPcrFellBackToUnavailable": true,
-    "newsSentimentOmitted": true,
-    "componentCoveragePct": 60
-   }
-  },
   {
    "date": "2026-01-14",
    "reconstructedScore": 73,
@@ -3836,7 +3812,7 @@
     "macro": 45
    },
    "fwd5dReturn": 0.5330229296538568,
-   "fwd21dReturn": null,
+   "fwd21dReturn": -0.5032458324954492,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -4219,7 +4195,7 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": null,
+   "fwd5dReturn": 0.42231861506556,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
@@ -4307,6 +4283,30 @@
   },
   {
    "date": "2026-09-04",
+   "reconstructedScore": 56,
+   "subScores": {
+    "vol": 90,
+    "mom": 34,
+    "trend": 68,
+    "breadth": null,
+    "macro": 45
+   },
+   "fwd5dReturn": null,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-09-05",
    "reconstructedScore": 56,
    "subScores": {
     "vol": 90,
