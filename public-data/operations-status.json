@@ -7,7 +7,7 @@
     "STALE",
     "RIGHTS_REVIEW_REQUIRED"
   ],
-  "generatedAt": "2026-09-08T01:28:53.879Z",
+  "generatedAt": "2026-09-08T04:55:01.652Z",
   "appRevision": "v54.77",
   "dataRevision": "market-snapshot:2026-09-08T01:28:28.529Z:4bf230a0",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
@@ -31,7 +31,7 @@
         "withinSla": true,
         "marketClosedGrace": false,
         "generatedAt": "2026-09-08T01:28:28.529Z",
-        "ageHours": 0.01,
+        "ageHours": 3.44,
         "maxAgeHours": 12,
         "reason": null
       },
@@ -55,8 +55,8 @@
         "revision": "fast-quotes:2026-09-08T01:25:57.792Z:0726511b",
         "sourceSha": "6ef2561d3cc1cdc010693812a6796556d02c6db4",
         "observedAt": "2026-09-08T01:28:53.879Z",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null
       },
       "soak": {
@@ -109,8 +109,8 @@
         "providerSmokeBoundary": "blocking-deployment-workflow-only",
         "ready": true,
         "note": "Periodic live health observed; provider smoke remains a blocking deployment-workflow gate.",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null
       },
       "scheduledAnalysisDoesNotImplyChat": true
@@ -151,9 +151,9 @@
     "categoryCount": 22,
     "overall": "PARTIAL",
     "counts": {
-      "PARTIAL": 15,
+      "PARTIAL": 16,
       "BLOCKED": 4,
-      "MATCH": 3
+      "MATCH": 2
     },
     "closure": {
       "complete": false,
@@ -176,6 +176,7 @@
         "news",
         "commodities-fx",
         "global-indices",
+        "crypto",
         "kr-macro-vkospi-supply"
       ],
       "partialCategories": [
@@ -193,7 +194,8 @@
         "central-bank-policy",
         "macro-calendar",
         "news",
-        "commodities-fx"
+        "commodities-fx",
+        "crypto"
       ],
       "operatorRequiredCategories": [
         "investors-intelligence",
