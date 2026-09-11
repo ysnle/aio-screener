@@ -1034,6 +1034,35 @@ const NEWS_CYCLE_POLICY = 'kst-0800-completed-24h';
 const NEWS_CYCLE_CUTOFF_HOUR_KST = 8;
 const KST_OFFSET_MS = 9 * 3600000;
 const DAY_MS = 24 * 3600000;
+const MINIMUM_CURRENT_NEWS = 10;
+
+export function deriveCyclePublication({
+  marketSnapshotPublished = false,
+  quoteCount = 0,
+  requiredQuoteCount = 0,
+  newsCount = 0,
+  minimumNewsCount = MINIMUM_CURRENT_NEWS,
+  historyUpdated = false
+} = {}) {
+  const blockers = [];
+  if (marketSnapshotPublished !== true) blockers.push('market-snapshot-not-published');
+  if (!(Number(requiredQuoteCount) > 0 && Number(quoteCount) >= Number(requiredQuoteCount))) blockers.push('quote-coverage-incomplete');
+  if (!(Number(newsCount) >= Number(minimumNewsCount))) blockers.push('current-news-below-minimum');
+  if (historyUpdated !== true) blockers.push('history-update-incomplete');
+  return Object.freeze({
+    complete: blockers.length === 0,
+    status: blockers.length === 0 ? 'PUBLISHED' : 'DEGRADED',
+    blockers: Object.freeze(blockers),
+    components: Object.freeze({
+      marketSnapshotPublished: marketSnapshotPublished === true,
+      quoteCount: Number(quoteCount) || 0,
+      requiredQuoteCount: Number(requiredQuoteCount) || 0,
+      newsCount: Number(newsCount) || 0,
+      minimumNewsCount: Number(minimumNewsCount) || MINIMUM_CURRENT_NEWS,
+      historyUpdated: historyUpdated === true
+    })
+  });
+}
 
 function _fmtKstCycleDate(ms) {
   return new Date(ms + KST_OFFSET_MS).toISOString().slice(0, 10);
@@ -3094,14 +3123,19 @@ async function main() {
   data.meta.marketSnapshotCoverage = marketSnapshotInfo.coverage;
   data.meta.marketSnapshotRevision = marketSnapshotInfo.snapshot.revision;
   const cycleId = `kst-0800-${data.meta.newsCycleEnd}`;
-  const cyclePublished = !!marketSnapshotInfo.published && quotes.length >= SYMBOLS.length;
   data.meta.cycleId = cycleId;
-  data.meta.cycleStatus = cyclePublished ? 'PUBLISHED' : 'DEGRADED';
+  data.meta.cycleStatus = 'PENDING';
   data.meta.marketCycleFreshnessSlaHours = 12;
   data.meta.cycleComponents = {
     marketSnapshotRevision:marketSnapshotInfo.snapshot.revision,
+    marketSnapshotPublished:!!marketSnapshotInfo.published,
+    quoteCount:quotes.length,
+    requiredQuoteCount:SYMBOLS.length,
     newsGeneratedAt:data.meta.generatedAt,
+    newsCount:data.meta.newsCount,
+    minimumNewsCount:MINIMUM_CURRENT_NEWS,
     historyCycleEnd:data.meta.newsCycleEnd,
+    historyUpdated:false,
     telegramDigestExpected:true,
   };
   data.meta.cycleManifestRevision = `${cycleId}:${marketSnapshotInfo.snapshot.revision}`;
@@ -3121,6 +3155,20 @@ async function main() {
   await atomicWriteFile(OUT, JSON.stringify(toPublicPayload(data), null, 1));
   // WO-7 (ops): 일별 히스토리 누적 (충분한 데이터일 때만 — 아래 <50% 가드와 별개로 핵심 심볼 존재 시)
   const histInfo = await updateHistory(data, marketSnapshotInfo.snapshot);
+  const cyclePublication = deriveCyclePublication({
+    marketSnapshotPublished: !!marketSnapshotInfo.published,
+    quoteCount: quotes.length,
+    requiredQuoteCount: SYMBOLS.length,
+    newsCount: data.meta.newsCount,
+    historyUpdated: !!histInfo
+  });
+  data.meta.cycleStatus = cyclePublication.status;
+  data.meta.cycleBlockers = [...cyclePublication.blockers];
+  data.meta.cycleComponents = {
+    ...data.meta.cycleComponents,
+    ...cyclePublication.components,
+    historyCycleEnd:data.meta.newsCycleEnd
+  };
   // Phase 3 [C3] P599: computeTradingScore 재구성 검증 하네스 — history.json이 방금 갱신됐으니
   // 그 최신 상태로 재실행(순수 함수, 네트워크 호출 없음, history.json만 읽고 자체 산출물에만 씀).
   let scoreBacktestInfo = null;

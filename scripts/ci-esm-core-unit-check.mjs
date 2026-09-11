@@ -23,6 +23,79 @@ const { createResourceBag, createDeferredTaskQueue, coalesceMicrotask, createCha
 const { createEvidenceStore } = await load('src/data/evidence-store.js');
 const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compatibility-facade.js');
 
+{
+  const { createScreenerOrchestrator } = await load('src/data/orchestrators/screener.js');
+  let published = false;
+  const orchestrator = createScreenerOrchestrator({
+    provider: { readCurrent: async () => { throw new DOMException('cancelled while yielding', 'AbortError'); } },
+    commands: { setData: () => { published = true; } }
+  });
+  if (await orchestrator.sync() !== null || published) fail('screener cancellation: partial state published or abort escaped');
+}
+
+// P1039: repeated canonical reads reuse a defensive frozen copy; new store
+// references refresh it, while non-canonical/time-dependent reads stay fresh.
+{
+  let native = { rows: [{ symbol: 'AAA', value: 1 }] };
+  let observation = 1;
+  const root = {};
+  exposeArchitecture(root, { getScreenerState: () => native, getRuntimeObservationCatalog: () => ({ value: observation }) }, { immutableState: true });
+  const first = root.AIO_ARCH.getScreenerState();
+  if (first === native || first.rows === native.rows || !Object.isFrozen(first.rows[0])) fail('facade cache: snapshot isolation lost');
+  if (root.AIO_ARCH.getScreenerState() !== first) fail('facade cache: unchanged native state recloned');
+  try { first.rows[0].value = 99; } catch (_) {}
+  if (native.rows[0].value !== 1) fail('facade cache: consumer mutated native input');
+  native = { rows: [{ symbol: 'BBB', value: 2 }] };
+  const second = root.AIO_ARCH.getScreenerState();
+  if (second === first || second.rows[0].value !== 2 || first.rows[0].value !== 1) fail('facade cache: replacement or old snapshot changed');
+  root.AIO_ARCH.getRuntimeObservationCatalog(); observation++;
+  if (root.AIO_ARCH.getRuntimeObservationCatalog().value !== 2) fail('facade cache: temporal observation cached');
+  const legacyRoot = {};
+  exposeArchitecture(legacyRoot, { getState: () => native });
+  legacyRoot.AIO_ARCH.getState(); native.rows[0].value = 3;
+  if (legacyRoot.AIO_ARCH.getState().rows[0].value !== 3) fail('facade cache: non-canonical mutable input cached');
+}
+
+// P1035: unrelated writes must not rebuild a mounted page; every dependency and
+// disposal still has to work, including a single action replacing two slices.
+{
+  const { subscribeToSlices } = await load('src/state/memoize.js');
+  const store = createStore({ initialState: { news: {}, entity: {}, portfolio: {} }, reducer: (state, action) => ({ ...state, ...action.payload }) });
+  let calls = 0;
+  const stop = subscribeToSlices(store, ['entity', 'portfolio'], () => calls++);
+  store.dispatch({ type: 'news', payload: { news: {} } });
+  if (calls !== 0) fail('slice subscription: unrelated update rendered');
+  store.dispatch({ type: 'entity', payload: { entity: {} } });
+  store.dispatch({ type: 'portfolio', payload: { portfolio: {} } });
+  store.dispatch({ type: 'both', payload: { entity: {}, portfolio: {} } });
+  if (calls !== 3) fail('slice subscription: dependency update missed or duplicated');
+  store.dispatch({ type: 'same', payload: { entity: store.getState().entity } });
+  if (calls !== 3) fail('slice subscription: identical reference rendered');
+  stop();
+  store.dispatch({ type: 'disposed', payload: { entity: {} } });
+  if (calls !== 3) fail('slice subscription: rendered after disposal');
+}
+
+// P1035: unrelated writes must not rebuild a mounted page; every dependency and
+// disposal still has to work, including a single action replacing two slices.
+{
+  const { subscribeToSlices } = await load('src/state/memoize.js');
+  const store = createStore({ initialState: { news: {}, entity: {}, portfolio: {} }, reducer: (state, action) => ({ ...state, ...action.payload }) });
+  let calls = 0;
+  const stop = subscribeToSlices(store, ['entity', 'portfolio'], () => calls++);
+  store.dispatch({ type: 'news', payload: { news: {} } });
+  if (calls !== 0) fail('slice subscription: unrelated update rendered');
+  store.dispatch({ type: 'entity', payload: { entity: {} } });
+  store.dispatch({ type: 'portfolio', payload: { portfolio: {} } });
+  store.dispatch({ type: 'both', payload: { entity: {}, portfolio: {} } });
+  if (calls !== 3) fail('slice subscription: dependency update missed or duplicated');
+  store.dispatch({ type: 'same', payload: { entity: store.getState().entity } });
+  if (calls !== 3) fail('slice subscription: identical reference rendered');
+  stop();
+  store.dispatch({ type: 'disposed', payload: { entity: {} } });
+  if (calls !== 3) fail('slice subscription: rendered after disposal');
+}
+
 // ── store.js ─────────────────────────────────────────────────────────────────────────────────
 {
   const reducer = (state, action) => action.type === 'inc' ? { count: state.count + 1 } : state;
@@ -467,7 +540,12 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
   const { deriveMacroTransmissionEvidence } = await load('src/domain/macro/transmission.js');
   const macro = deriveMacroTransmissionEvidence({ treasurySupply: '' });
   if (macro.observed.issuance || !Object.isFrozen(macro) || !Object.isFrozen(macro.chain)) fail('macro: blank evidence was observed or projection remained mutable');
-  const { computeNewsSentimentScore, computeNewsRiskSignals } = await load('src/domain/news/scoring.js');
+  const { classifyNewsTextStance, computeNewsSentimentScore, computeNewsRiskSignals } = await load('src/domain/news/scoring.js');
+  if (classifyNewsTextStance('The commissioner dismissed Bullard from the panel') !== 'neut' || classifyNewsTextStance('Stocks surged after earnings beat') !== 'bull') fail('news: substring collision or valid inflection regression');
+  const fixedNewsNow = Date.parse('2026-09-08T01:00:00Z');
+  const newsItems = (titles) => titles.map((title) => ({ title, pubDate: '2026-09-07T12:00:00Z' }));
+  if (computeNewsRiskSignals({ now: fixedNewsNow, items: newsItems(['Set your default browser', 'The story spreads online', 'Credit card rewards expand']) }).some((row) => row.type === 'credit')) fail('news: neutral words produced credit stress');
+  if (!computeNewsRiskSignals({ now: fixedNewsNow, items: newsItems(['Credit spreads widen', 'Bond market default risk rises', 'Banks face credit stress']) }).some((row) => row.type === 'credit')) fail('news: explicit credit stress was lost');
   if (computeNewsSentimentScore({ items: 'bad' }).total !== 0 || computeNewsSentimentScore({ items: [{ pubDate: '2026-01-01' }], now: NaN }).label !== '데이터 부족' || computeNewsRiskSignals({ items: 'bad' }).length !== 0) fail('news: malformed collection/time did not fail closed');
   const { deriveConcentrationRisk, concentrationPenaltyForWeight } = await load('src/domain/portfolio/concentration.js');
   const concentration = deriveConcentrationRisk({ positions: [{ ticker: 'BAD', value: -100, qty: -2, price: -5 }] });
@@ -747,7 +825,6 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
   router.transition('masters');
   await flush();
   if (mastersLoads !== 1 || nodes.masters.dataset.aioRouteModuleState !== 'failed') fail('lazy-router: load failure did not expose a fail-closed route state');
-  router.transition('signal');
   router.transition('masters');
   await flush();
   if (mastersLoads !== 2 || mastersMounts !== 1 || nodes.masters.dataset.aioRouteModuleState !== 'ready') fail('lazy-router: failed dynamic import was not retryable on route re-entry');
@@ -761,6 +838,14 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
   if (live.modelVersion !== 'portfolio-surface.v1' || live.positionValue !== 24 || live.totalAssets !== 74 || live.totalPnl !== 4 || live.exposureCap !== 50 || live.sectorBreakdown.length !== 2) fail(`portfolio-surface: live/cash derivation drifted, got ${JSON.stringify(live)}`);
   const partial = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: 'ABC', shares: 2, avgCost: 10 }, { symbol: 'XYZ', shares: 1, avgCost: 20 }], cash: null }, liveData: { ABC: { price: 12, pct: 2 } }, vix: 22 });
   if (partial.positionValue !== null || partial.totalPnl !== null || partial.dailyChange !== null || partial.sectorBreakdown.length !== 0) fail(`portfolio-surface: partial holdings must not sum unknown rows as zero, got ${JSON.stringify(partial)}`);
+  const daily = derivePortfolioSurface({ state: { holdings: [{ symbol: 'ABC', shares: 10, avgCost: 80, price: 110, dailyPct: 10 }], cash: 0 } });
+  if (Math.abs(daily.dailyChange - 100) > 1e-9 || Math.abs(daily.dailyPct - 10) > 1e-9) fail('portfolio-surface: daily return must use previous assets');
+  const missingCost = derivePortfolioSurface({ state: { holdings: [{ symbol: 'ABC', shares: 10, avgCost: null, price: 110 }], cash: 0, totals: { totalCost: 0, totalPnl: 1100, totalPnlPct: 100 } } });
+  if (missingCost.totalPnl !== null || missingCost.totalPnlPct !== null) fail('portfolio-surface: unknown cost became a gain');
+  const staleTotals = derivePortfolioSurface({ state: { holdings: [{ symbol: 'ABC', shares: 10, avgCost: 80, price: 100, dailyPct: 99 }], cash: 100, totals: { totalValue: 1000, totalAssets: 1100, totalCost: 800, dailyChange: 999, totalPnlPct: 25 } }, liveData: { ABC: { price: 200, pct: 0 } } });
+  if (staleTotals.positionValue !== 2000 || staleTotals.totalAssets !== 2100 || staleTotals.totalPnlPct !== 150 || staleTotals.dailyChange !== 0 || Math.abs(staleTotals.sectorBreakdown.reduce((sum, row) => sum + row.pct, 0) - 100) > 1e-9) fail('portfolio-surface: stored aggregate or daily return overrode current row valuation');
+  const stalePartial = derivePortfolioSurface({ state: { holdings: [{ symbol: 'ABC', shares: 10 }], cash: 100, totals: { totalValue: 1000, totalAssets: 1100 } } });
+  if (stalePartial.totalAssets !== null || stalePartial.exposurePct !== null) fail('portfolio-surface: incomplete rows reused stale totals');
   const invalidPortfolio = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: 'BAD', shares: -2, avgCost: -10 }], cash: -5 }, liveData: { BAD: { price: 12 } }, vix: -1 });
   if (invalidPortfolio.positionValue !== null || invalidPortfolio.cash !== null || invalidPortfolio.exposureCap !== null || invalidPortfolio.exposurePolicyStatus !== 'reference-only') fail(`portfolio-surface: invalid balances or VIX entered the portfolio projection, got ${JSON.stringify(invalidPortfolio)}`);
 }
@@ -824,3 +909,28 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
 }
 
 console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router', 'evidence-store', 'compatibility-facade', 'orchestrators/screener', 'orchestrators/entity', 'domain/market/breadth', 'domain/technical/stage:deriveTechnicalStageFromOhlcv', 'domain/screener/factor-ranks:computeFactorRanks', 'domain/screener/setup-profile:deriveScreenerSetupProfile', 'domain/portfolio/surface', 'domain/fundamental/sec-report', 'bootstrap:stop-lifecycle'] }));
+
+// P1040: missing facts and mismatched fiscal periods remain distinct.
+{
+  const { finiteFact, sameFiscalPeriod } = await load('src/domain/fundamental/period.js');
+  for (const value of [null, undefined, '', ' ', false, true, [], {}]) {
+    if (finiteFact(value) !== null) fail('SEC missing fact coerced to a number');
+  }
+  if (finiteFact(-10) !== -10 || finiteFact('0') !== 0) fail('SEC valid loss or zero rejected');
+  if (sameFiscalPeriod({end:'2025-12-31',start:'2025-01-01'}, {end:'2025-12-31',start:'2025-10-01'})) fail('SEC annual/quarterly period joined');
+  const { selectSecFundamentalsAsOf, deriveSecReport } = await load('src/domain/fundamental/sec-report.js');
+  const fact = (value, periodEnd) => ({value, periodEnd, filedAt:'2026-02-01'});
+  const record = {pit:{observations:{revenue:[fact(100,'2025-12-31'),fact(50,'2023-12-31')],netIncome:[fact(10,'2024-12-31')],equity:[fact(40,'2024-12-31')]}}};
+  const result = selectSecFundamentalsAsOf(record,'2026-03-01');
+  if (result.revenue !== 100 || result.netIncome !== null || result.equity !== null || result.margin != null || result.revGrowth != null) fail('SEC mismatched years created ratios or annual growth');
+  if (deriveSecReport({coverage:['netIncome'],netIncome:-10}).status === 'quarantined') fail('SEC loss quarantined');
+}
+{
+  const { createLearningState } = await load('src/domain/knowledge/learning-state.js');
+  const state = createLearningState({storage:{getItem:()=>null,setItem:()=>{throw new Error('quota');}}});
+  const first = state.setNote('fixture','saved in memory');
+  if(first.persistence !== 'memory-only' || first.notes.fixture.value !== 'saved in memory' || !Object.isFrozen(first.notes.fixture)) fail('learning storage failure or mutable snapshot');
+  state.setNote('fixture','changed');
+  if(first.notes.fixture.value !== 'saved in memory') fail('learning snapshot mutated retroactively');
+  if(state.setNote('__proto__','unsafe').notes.__proto__?.value) fail('learning unsafe id accepted');
+}

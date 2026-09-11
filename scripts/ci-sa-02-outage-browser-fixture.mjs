@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.AIO_SA02_PORT || 8898);
+const port = Number(process.env.AIO_SA02_PORT || 8915);
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 
 function startServer() {

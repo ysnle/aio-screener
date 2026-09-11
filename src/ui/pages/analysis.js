@@ -1,5 +1,6 @@
 import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
 import { selectTechnical, selectSignal, selectHomeSummary } from '../../state/selectors/analysis.js';
+import { subscribeToSlices } from '../../state/memoize.js';
 import { selectSentimentValues } from '../../state/selectors/sentiment.js';
 import { normalizeChartBar } from '../../domain/chart/contract.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
@@ -327,7 +328,7 @@ export function createAnalysisPage({ root = globalThis, documentRef, store, rout
       bag.add(charts.dispose);
       const renderNow = () => render({ root, documentRef, store, route, charts });
       renderNow();
-      bag.add(store.subscribe(renderNow));
+      bag.add(subscribeToSlices(store, ['analysis', 'sentiment', 'marketSnapshot'], renderNow));
       const eventTarget = documentRef || globalThis;
       eventTarget?.addEventListener?.('aio:liveQuotes', renderNow);
       eventTarget?.addEventListener?.('aio:refresh:done', renderNow);

@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v54.77';
+const APP_VERSION = 'v54.88';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -349,6 +349,103 @@ window.AIO.createTypedClaim = function(input) {
   };
 };
 
+function _aioAIQuoteFinite(value) {
+  var number = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function _aioAIQuoteObservation(value) {
+  if (value == null || value === '') return null;
+  var timestamp = typeof value === 'number' ? value : Date.parse(String(value));
+  if (!Number.isFinite(timestamp) || timestamp <= 0) return null;
+  if (timestamp < 100000000000) timestamp *= 1000;
+  return Number.isFinite(timestamp) ? new Date(timestamp).toISOString() : null;
+}
+
+function _aioAIQuoteSourceKind(source, explicitKind) {
+  var explicit = String(explicitKind || '').trim().toUpperCase().replace(/[ _]+/g, '-');
+  var explicitKinds = { LIVE: true, SNAPSHOT: true, 'MARKET-SNAPSHOT': true, 'LEGACY-RUNTIME': true, 'LEGACY-PROJECTION': true };
+  if (explicitKinds[explicit]) return explicit;
+  var raw = String(source || '').trim().toLowerCase();
+  if (!raw) return 'UNKNOWN';
+  if (/^market[-_:]?snapshot(?::|$)/.test(raw)) return 'MARKET-SNAPSHOT';
+  if (/^(?:snapshot|data[_-]?snapshot)(?::|$)/.test(raw)) return 'SNAPSHOT';
+  if (/^(?:reference|delayed):/.test(raw)) return 'SNAPSHOT';
+  if (/^legacy:(?:runtime|projection)(?::|$)/.test(raw)) return raw.indexOf(':projection') >= 0 ? 'LEGACY-PROJECTION' : 'LEGACY-RUNTIME';
+  if (/^(?:live|proxy):/.test(raw)) return 'LIVE';
+  return 'UNKNOWN';
+}
+
+// v54.85/WP-AI-QUOTE: one canonical current-quote evidence tuple for both
+// chat freshness consumers. A quote envelope is authoritative only when its
+// observedAt and price agree with the live row. Fetch/generation timestamps
+// remain metadata and can never become the observation time.
+window.AIO.buildAIQuoteEvidenceRow = function(ticker, quote, options) {
+  options = options || {};
+  quote = quote || {};
+  var symbol = String(ticker || quote.ticker || quote.symbol || '').trim().toUpperCase();
+  var envelope = quote.quoteEnvelope && typeof quote.quoteEnvelope === 'object' ? quote.quoteEnvelope : null;
+  var quotePrice = _aioAIQuoteFinite(quote.price);
+  var envelopePrice = _aioAIQuoteFinite(envelope && envelope.price);
+  var priceMatches = quotePrice != null && envelopePrice != null && quotePrice === envelopePrice;
+  var value = priceMatches ? envelopePrice : (quotePrice != null ? quotePrice : envelopePrice);
+  var observedAt = _aioAIQuoteObservation(envelope && envelope.observedAt);
+  var future = !!(observedAt && Date.parse(observedAt) > Date.now() + 60000);
+  var source = String((envelope && envelope.source) || '').trim();
+  var sourceKind = _aioAIQuoteSourceKind(source, envelope && envelope.sourceKind);
+  var currency = String((envelope && envelope.currency) || '').trim().toUpperCase();
+  var unit = String((envelope && envelope.unit) || '').trim().toUpperCase();
+  var truth = options.truth !== undefined ? options.truth : quote.truth;
+  var truthStatus = String(truth && truth.status || 'unknown').trim().toLowerCase() || 'unknown';
+  var truthDecisionUse = !!(truth && truth.decisionUse === true);
+  var blockers = [];
+  if (!symbol) blockers.push('ticker-missing');
+  if (!envelope || !observedAt) blockers.push('observation-missing');
+  if (!priceMatches) blockers.push('price-envelope-mismatch');
+  if (quote.observedAt && _aioAIQuoteObservation(quote.observedAt) !== observedAt) blockers.push('observation-envelope-mismatch');
+  if (future) blockers.push('observation-future');
+  if (!source) blockers.push('source-missing');
+  if (sourceKind === 'UNKNOWN') blockers.push('source-kind-unknown');
+  if (!currency || currency === 'UNKNOWN') blockers.push('currency-missing');
+  if (!unit || unit === 'UNKNOWN') blockers.push('unit-missing');
+  if (!truth) blockers.push('truth-missing');
+  else if (!/^(verified|current)$/.test(truthStatus) || truthDecisionUse !== true) blockers.push('truth-not-decision-usable');
+  var usable = blockers.length === 0;
+  var slug = symbol.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  var evidenceId = 'ev-chat-quote-' + (slug || 'unknown');
+  return {
+    schemaVersion: 'ai-quote-evidence.v1',
+    evidenceId: evidenceId,
+    ticker: symbol,
+    symbol: symbol,
+    entity: symbol,
+    metric: 'price',
+    key: 'price',
+    value: value,
+    price: value,
+    unit: unit || 'UNKNOWN',
+    currency: currency || 'UNKNOWN',
+    scale: 'raw',
+    asOf: observedAt,
+    observedAt: observedAt,
+    quoteAsOf: observedAt,
+    fetchedAt: envelope && envelope.fetchedAt || null,
+    source: source || 'UNKNOWN',
+    sourceKind: sourceKind,
+    truthStatus: truthStatus,
+    truthIssues: truth ? (truth.issues || []).concat(truth.warnings || []) : ['truth-missing'],
+    decisionUse: usable && truthDecisionUse,
+    status: usable ? truthStatus : 'blocked',
+    allowedUse: usable ? 'decision' : 'none',
+    hasQuote: quotePrice != null,
+    hasLivePrice: quotePrice != null,
+    quotePriceMatches: priceMatches,
+    quoteObservationValid: !!(envelope && observedAt && priceMatches),
+    blockers: blockers,
+    quoteRevision: envelope && envelope.revision || null
+  };
+};
+
 // v53.57/WP-AI2: chat freshness rows historically exposed `price` and a
 // ticker-shaped id while the claim validator consumed typed `value`/`unit`/
 // `scale` evidence. Normalize the adapter at the shared boundary so valid
@@ -358,19 +455,29 @@ window.AIO.normalizeAIChatEvidenceRow = function(input) {
   var ticker = String(input.ticker || input.symbol || '').trim().toUpperCase();
   var rawValue = input.value != null ? input.value : input.price;
   var source = String(input.source || input.sourceLabel || '').trim();
-  var asOf = input.asOf || input.quoteAsOf || input.sourceTs || input.fetchedAt || input.generatedAt || null;
+  var asOf = input.asOf || input.observedAt || input.quoteAsOf || null;
   var evidenceId = String(input.evidenceId || (ticker ? 'ev-chat-quote-' + ticker.toLowerCase().replace(/[^a-z0-9]+/g, '-') : '')).slice(0, 160);
   var statusText = String(input.status || input.truthStatus || '').toLowerCase();
   var status = input.status || (/(blocked|missing|refresh_required|stale|mismatch|invalid)/.test(statusText) ? 'blocked' : (rawValue == null ? 'missing' : 'ok'));
+  var metric = input.metric || input.key || input.ticker || input.symbol || '';
+  var quoteLike = input.price != null || input.quoteEnvelope || String(metric).toLowerCase() === 'price';
+  var unit = String(input.unit || input.units || '').trim().toUpperCase() || (quoteLike ? 'CURRENCY' : '');
+  var sourceKind = _aioAIQuoteSourceKind(source, input.sourceKind) || (source ? 'LIVE' : 'MISSING');
+  if (source && sourceKind === 'UNKNOWN' && !input.sourceKind) sourceKind = 'LIVE';
+  var inferredCurrency = /(?:\.KS|\.KQ|^KRX:)/i.test(ticker) ? 'KRW' : 'USD';
+  var currency = input.currency ? String(input.currency).trim().toUpperCase() : (quoteLike ? inferredCurrency : 'UNKNOWN');
+  if (quoteLike && (!asOf || !source || !unit || unit === 'UNKNOWN' || !currency || currency === 'UNKNOWN')) status = 'blocked';
   var normalized = Object.assign({}, input, {
-    metric: input.metric || input.key || input.ticker || input.symbol || '',
+    metric: metric,
+    entity: input.entity || input.entityId || ticker || null,
     value: rawValue,
-    unit: input.unit || input.units || (input.price != null ? 'currency' : ''),
+    unit: unit || 'UNKNOWN',
+    currency: currency,
     scale: input.scale || 'raw',
     direction: input.direction || 'unknown',
     asOf: asOf,
     source: source,
-    sourceKind: input.sourceKind || (source ? 'LIVE' : 'MISSING'),
+    sourceKind: sourceKind,
     evidenceId: evidenceId,
     status: status
   });
@@ -1984,8 +2091,8 @@ window._aioLRU = function(name, cap) {
         if (tag === 'BUTTON' || tag === 'A' || tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
         if (!el.hasAttribute('role')) el.setAttribute('role', 'button');
         if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
-        if (!el.getAttribute('aria-label')) {
-          var name = (el.textContent || el.getAttribute('title') || el.getAttribute('data-arg') || el.getAttribute('data-action') || '').replace(/\s+/g, ' ').trim();
+        if (!el.getAttribute('aria-label') && !(el.textContent || '').trim()) {
+          var name = (el.getAttribute('title') || el.getAttribute('data-arg') || el.getAttribute('data-action') || '').replace(/\s+/g, ' ').trim();
           if (name) el.setAttribute('aria-label', name.slice(0, 120));
         }
       });
@@ -1994,8 +2101,11 @@ window._aioLRU = function(name, cap) {
   window._aioNormalizeDataActionA11y = normalizeDataActionA11y;
   function dispatch(e) {
     // data-open-url: 단축 패턴 — 외부 링크 새탭 오픈 (onclick="window.open(url,'_blank')" 대체)
+    // A nested data-action is the more specific intent (for example a ticker badge inside
+    // a clickable news card). Only let the URL owner win when it is the innermost target.
+    var actionEl = e.target.closest && e.target.closest('[data-action]');
     var urlEl = e.target.closest && e.target.closest('[data-open-url]');
-    if (urlEl) {
+    if (urlEl && (!actionEl || !urlEl.contains(actionEl))) {
       if (urlEl.dataset.stop === '1') e.stopPropagation();
       try { window.open(urlEl.dataset.openUrl, '_blank', 'noopener,noreferrer'); } catch(_){}
       return;
@@ -2007,7 +2117,7 @@ window._aioLRU = function(name, cap) {
       if (typeof fn === 'function') { try { fn(); } catch(_){} }
       return;
     }
-    var el = e.target.closest && e.target.closest('[data-action]');
+    var el = actionEl;
     if (!el) return;
     var ds = el.dataset;
     var action = ds.action;
@@ -4310,16 +4420,42 @@ if (typeof document !== 'undefined') {
   function _aioRenderMarketSnapshotTopbar(meta) {
     try {
       meta = meta || {};
-      var tb = document.getElementById('live-quote-ts-topbar');
-      if (!tb || !(Number(meta.count) > 0)) return false;
+      var topbar = document.getElementById('live-quote-ts-topbar');
+      var globalTs = document.getElementById('live-quote-ts');
+      var coverage = meta.coverage || meta.marketSnapshotCoverage || {};
+      var count = Number(meta.count || coverage.observed || coverage.tier0Observed || 0);
+      var published = meta.marketSnapshotPublished === true || meta.status === 'published';
+      var hasSnapshotIdentity = !!(meta.revision || meta.marketSnapshotRevision || meta.latestObservedAt || meta.generatedAt);
+      if (!topbar && !globalTs) return false;
+      if (!published || (!(count > 0) && !hasSnapshotIdentity)) {
+        var unavailableTitle = '게시된 기준 스냅샷이 없어 현재 판단에 사용하지 않음';
+        [topbar, globalTs].forEach(function(node) {
+          if (!node) return;
+          node.textContent = '현재 기준 스냅샷 미게시 · 판정 보류';
+          node.className = node.id === 'live-quote-ts' ? '' : 'freshness-badge fb-static';
+          node.setAttribute('title', unavailableTitle);
+        });
+        _aioRenderTopbarLiveBadge('unavailable', 'LIVE 미확인', unavailableTitle);
+        return false;
+      }
       var observed = meta.latestObservedAt ? new Date(meta.latestObservedAt) : null;
+      if (!observed || !isFinite(observed.getTime())) {
+        var generated = meta.generatedAt || meta.marketSnapshotGeneratedAt || null;
+        observed = generated ? new Date(generated) : null;
+      }
       var asOf = observed && isFinite(observed.getTime())
         ? observed.toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
         : '시각 확인 중';
-      tb.textContent = '● 기준 시세 ' + asOf + ' (' + Number(meta.count) + '개)';
-      tb.className = 'freshness-badge fb-static';
-      tb.setAttribute('title', '실시간 시세가 아닌 동일 출처 기준 스냅샷 · 의사결정 참고 전용');
-      _aioRenderTopbarLiveBadge('snapshot', 'SNAPSHOT', tb.getAttribute('title'));
+      var suffix = count > 0 ? ' (' + count + '개)' : '';
+      var text = '● 기준 시세 ' + asOf + suffix;
+      var title = '실시간 시세가 아닌 동일 출처 기준 스냅샷 · 관측시각과 출처 확인 후 참고 전용';
+      [topbar, globalTs].forEach(function(node) {
+        if (!node) return;
+        node.textContent = text;
+        node.className = node.id === 'live-quote-ts' ? '' : 'freshness-badge fb-static';
+        node.setAttribute('title', title);
+      });
+      _aioRenderTopbarLiveBadge('snapshot', 'SNAPSHOT', title);
       return true;
     } catch (_) { return false; }
   }
@@ -4349,25 +4485,57 @@ if (typeof document !== 'undefined') {
       var liveCount = 0;
       for (var k in ld) {
         var row = ld[k];
-        var source = row && String(row.source || '');
-        if (row && row.price != null && source.indexOf('live:') === 0) liveCount++;
+        var source = row && String(row.source || row._source || row.provider || '');
+        var sourceMeta = window._dataSource && window._dataSource[k] || {};
+        if (!source) source = String(sourceMeta.source || '');
+        if (row && row.price != null && /^(?:live:|fx:|quote:)/i.test(source)) liveCount++;
       }
       if (liveCount > 0) {
         var partial = opts.coreCoverageOk === false;
-        tb.textContent = '● ' + (partial ? '일부 실시간 ' : '실시간 ')
+        var liveText = '● ' + (partial ? '일부 실시간 ' : '실시간 ')
           + new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
           + ' (' + liveCount + '개)';
+        var liveTitle = (partial ? '핵심 시장 커버리지 일부 미수신 · ' : '최근 실시간 시세 수신 · ') + liveCount + '개 종목';
         tb.className = 'freshness-badge ' + (partial ? 'fb-static' : 'fb-live');
-        tb.setAttribute('title', (partial ? '핵심 시장 커버리지 일부 미수신 · ' : '최근 실시간 시세 수신 · ') + liveCount + '개 종목');
-        _aioRenderTopbarLiveBadge(partial ? 'partial' : 'live', partial ? '부분 LIVE' : 'LIVE', tb.getAttribute('title'));
+        tb.textContent = liveText;
+        tb.setAttribute('title', liveTitle);
+        var globalTs = document.getElementById('live-quote-ts');
+        if (globalTs) {
+          globalTs.textContent = liveText;
+          globalTs.setAttribute('title', liveTitle);
+        }
+        _aioRenderTopbarLiveBadge(partial ? 'partial' : 'live', partial ? '부분 LIVE' : 'LIVE', liveTitle);
         return true;
       }
-      _aioRenderTopbarLiveBadge('unavailable', 'LIVE 미확인', '실시간 시세 출처가 확인되지 않음 · 현재 판단에 사용하지 않음');
+      var snapshotMeta = window._aioMarketSnapshotMeta || {};
+      var serverMeta = window._serverDataMeta || {};
+      var snapshot = Object.assign({}, snapshotMeta, {
+        coverage: snapshotMeta.coverage || serverMeta.marketSnapshotCoverage,
+        revision: snapshotMeta.revision || serverMeta.marketSnapshotRevision,
+        generatedAt: snapshotMeta.generatedAt || serverMeta.generatedAt,
+        marketSnapshotRevision: snapshotMeta.marketSnapshotRevision || serverMeta.marketSnapshotRevision,
+        marketSnapshotPublished: snapshotMeta.marketSnapshotPublished === true || serverMeta.marketSnapshotPublished === true,
+        status: snapshotMeta.status || (serverMeta.marketSnapshotPublished === true ? 'published' : 'unpublished')
+      });
+      if (_aioRenderMarketSnapshotTopbar(snapshot)) return true;
+      var unavailableTitle = '실시간 시세 출처가 확인되지 않음 · 현재 판단에 사용하지 않음';
+      _aioRenderTopbarLiveBadge('unavailable', 'LIVE 미확인', unavailableTitle);
+      var globalTs = document.getElementById('live-quote-ts');
+      if (globalTs) {
+        globalTs.textContent = '현재 시세 출처 확인 중 · 판정 보류';
+        globalTs.setAttribute('title', unavailableTitle);
+      }
       return false;
     } catch (_) { return false; }
   }
   _aioPageBus.register('core-snapshot-topbar', 'aio:marketSnapshot', function(e) {
     _aioRenderMarketSnapshotTopbar(e && e.detail);
+  });
+  // Server metadata can settle before the native snapshot event or before the
+  // legacy page bus subscribes. Re-evaluate both sinks after that boundary so
+  // a visible value never remains paired with a permanent "connecting" label.
+  _aioPageBus.register('core-server-data-topbar', 'aio:serverDataLoaded', function() {
+    setTimeout(function() { _aioRenderQuoteTopbar(); }, 0);
   });
   _aioPageBus.register('core-quote-topbar', 'aio:quoteTopbar', function(e) {
     _aioRenderQuoteTopbar(e && e.detail);
@@ -4377,6 +4545,12 @@ if (typeof document !== 'undefined') {
   _aioPageBus.register('core-topbar-ts', 'aio:liveQuotes', function(){
     try { _aioRenderQuoteTopbar(); } catch (_) {}
   });
+  _aioPageBus.register('core-live-data-topbar', 'aio:liveDataReceived', function(){
+    try { _aioRenderQuoteTopbar(); } catch (_) {}
+  });
+  setTimeout(function() {
+    try { _aioRenderQuoteTopbar(); } catch (_) {}
+  }, 0);
   // v48.91: 타이머 레지스트리 등록
   window._aioFreshnessTimer = _aioRegisterTimer('freshness', function(){ window._aioUpdateFreshness(); }, 30 * 1000);
 }
@@ -4463,13 +4637,13 @@ window._aioChatHistoryClear = function() {
   window.showConfirmModal('대화 기록 전체 삭제', '모든 대화 기록이 영구 삭제됩니다. 계속하시겠습니까?', function() {
     try { localStorage.removeItem('aio_chat_history'); } catch(_){}
     var ov = document.querySelector('.chat-history-overlay');
-    if (ov) ov.remove();
+    if (ov) { if (ov._aioClose) ov._aioClose(); else ov.remove(); }
   }, '');
 };
 window._aioChatHistoryClose = function(el) {
   if (!el) return;
   var ov = el.closest('.chat-history-overlay');
-  if (ov) ov.remove();
+  if (ov) { if (ov._aioClose) ov._aioClose(); else ov.remove(); }
 };
 window._aioFetchAllNewsForce = function() {
   if (typeof window.isFetching !== 'undefined') window.isFetching = false;
@@ -5561,8 +5735,11 @@ window.AIO.getBriefingCanonicalObservationModel = function() {
     try {
       hasSnapshotFallback = !!(typeof _SNAP_FALLBACK !== 'undefined' && _SNAP_FALLBACK[symbol] && _SNAP_FALLBACK[symbol].price && snapshotGuard.usable && value != null && liveValue == null);
     } catch (_) {}
-    var sourceKind = liveValue != null ? 'LIVE' : hasSnapshotFallback ? 'SNAPSHOT' : value != null ? 'UNKNOWN' : 'MISSING';
-    var asOf = live && (live.asOf || live.ts || live.updated || live.timestamp) || (sourceKind === 'SNAPSHOT' ? (snapshot._updated || snapshot._snapshotDate || null) : null);
+    var source = String(live && (live.source || live._source) || '').toLowerCase();
+    var sourceKind = liveValue != null && isFinite(liveValue)
+      ? (/snapshot|static/.test(source) ? 'SNAPSHOT' : /reference|stooq/.test(source) ? 'REFERENCE' : live.delayed ? 'DELAYED' : /^(live:|yahoo|finnhub|binance|coinbase)/.test(source) ? 'LIVE' : 'UNKNOWN')
+      : hasSnapshotFallback ? 'SNAPSHOT' : value != null ? 'UNKNOWN' : 'MISSING';
+    var asOf = live && (live.observedAt || live.asOf || live.ts || live.updated || live.timestamp) || (sourceKind === 'SNAPSHOT' ? (snapshot._updated || snapshot._snapshotDate || null) : null);
     return { id: id, label: label, symbol: symbol, value: value != null && isFinite(Number(value)) ? Number(value) : null, change: change != null && isFinite(Number(change)) ? Number(change) : null, unit: unit || 'value', sourceKind: sourceKind, asOf: asOf || null };
   }
   var metrics = {
@@ -5631,7 +5808,7 @@ window._aioChatHistoryToggle = function() {
   var next = window.AIO.setChatHistoryEnabled(policy.enabled === false);
   if (typeof window.showToast === 'function') window.showToast(next.enabled ? '채팅 기록 저장을 켰습니다. 이후 대화만 민감정보를 가린 뒤 저장합니다.' : '채팅 기록 저장을 끄고 기존 기록을 삭제했습니다.');
   var ov = document.querySelector('.chat-history-overlay');
-  if (ov) ov.remove();
+  if (ov) { if (ov._aioClose) ov._aioClose(); else ov.remove(); }
 };
 
 // v52.78/WP-AI3: deterministic question-intent retrieval for user-supplied
@@ -6442,6 +6619,7 @@ window._aioRenderMarketHeatmap = function(containerId) {
 // Live/delayed quote overlays may update inside that frame, but a page must not
 // invent its own "today" window from the browser clock.
 window.AIO = window.AIO || {};
+var _aioMarketCutDateFormatter = null;
 window.AIO.getSharedMarketCut = function() {
   var meta = window._serverDataMeta || {};
   var start = meta.newsCycleStart || null;
@@ -6459,9 +6637,10 @@ window.AIO.getSharedMarketCut = function() {
   }
   var endLabel = '';
   try {
-    endLabel = new Intl.DateTimeFormat('ko-KR', {
+    if (!_aioMarketCutDateFormatter) _aioMarketCutDateFormatter = new Intl.DateTimeFormat('ko-KR', {
       timeZone:'Asia/Seoul', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12:false
-    }).format(new Date(end)).replace(/\.\s*/g, '/').replace(/\/$/, '') + ' KST';
+    });
+    endLabel = _aioMarketCutDateFormatter.format(new Date(end)).replace(/\.\s*/g, '/').replace(/\/$/, '') + ' KST';
   } catch (_) { endLabel = String(end); }
   return {
     policy: meta.newsCyclePolicy || 'kst-0800-completed-24h',
@@ -9258,18 +9437,12 @@ window.AIO.getChatEvidenceContext = function(opts) {
   tickers.forEach(function(t) {
     var q = live[t];
     var truth = window.AIO && window.AIO.evaluateDataTruth ? window.AIO.evaluateDataTruth(t, q, { requireDecisionUse: true }) : null;
-    var row = {
-      ticker: t,
-      hasQuote: !!(q && q.price),
-      price: q && q.price || null,
-      asOf: q && (q.asOf || q.ts || q.timestamp) || '',
-      truthStatus: truth && truth.status || (q && q.price ? 'unverified' : 'missing'),
-      evidenceId: q && q.price ? ('ev-chat-quote-' + t.toLowerCase().replace(/[^a-z0-9]+/g, '-')) : '',
-      decisionUse: !!(truth && truth.status === 'verified')
-    };
-    quoteRows.push(window.AIO.normalizeAIChatEvidenceRow ? window.AIO.normalizeAIChatEvidenceRow(row) : row);
+    var row = window.AIO.buildAIQuoteEvidenceRow
+      ? window.AIO.buildAIQuoteEvidenceRow(t, q, { truth: truth })
+      : { ticker: t, hasQuote: false, truthStatus: 'unknown', decisionUse: false, status: 'blocked' };
+    quoteRows.push(row);
   });
-  var blocked = quoteRows.filter(function(r) { return !r.hasQuote || r.truthStatus === 'blocked' || r.decisionUse === false; });
+  var blocked = quoteRows.filter(function(r) { return !r.hasQuote || r.status === 'blocked' || r.truthStatus === 'blocked' || r.decisionUse !== true; });
   return {
     status: blocked.length ? 'warn' : 'pass',
     tickers: quoteRows,
@@ -13098,11 +13271,14 @@ window.AIO.getNamedEntityAudit = function() {
 window.AIO_MACRO_CALENDAR = {
   version: 'v53.4',
   releases: {
-    'us-nfp':       { name: 'BLS NFP',        frequency: 'monthly-first-friday', lastRelease: '2026-08-07', nextRelease: '2026-09-04', dataField: 'usUnemploy', source: 'BLS official schedule' },
+    // v54.77 data hygiene: the 2026-09-04 release is complete; keep it as
+    // lastRelease and point the visible calendar at the verified 2026-10-02
+    // BLS Employment Situation release instead of surfacing a past event.
+    'us-nfp':       { name: 'BLS NFP',        frequency: 'monthly-first-friday', lastRelease: '2026-09-04', nextRelease: '2026-10-02', dataField: 'usUnemploy', source: 'BLS official schedule' },
     'us-cpi':       { name: 'BLS CPI',        frequency: 'monthly-mid',          lastRelease: '2026-08-12', nextRelease: '2026-09-11', dataField: 'cpi', source: 'BLS official schedule' },
     'us-pce':       { name: 'BEA PCE',        frequency: 'monthly-end',          lastRelease: '2026-08-26', nextRelease: '2026-09-30', dataField: 'pce', source: 'BEA official schedule' },
-    'us-ism-mfg':   { name: 'ISM Mfg PMI',    frequency: 'monthly-first',        lastRelease: '2026-08-03', nextRelease: '2026-09-01', dataField: 'ismPmi', source: 'ISM official calendar' },
-    'us-ism-svc':   { name: 'ISM Services',   frequency: 'monthly-third',        lastRelease: '2026-08-05', nextRelease: '2026-09-03', dataField: 'ismSvc', source: 'ISM official calendar' },
+    'us-ism-mfg':   { name: 'ISM Mfg PMI',    frequency: 'official-first-business-day',  lastRelease: '2026-09-01', nextRelease: '2026-10-01', dataField: 'ismPmi', source: 'ISM official calendar' },
+    'us-ism-svc':   { name: 'ISM Services',   frequency: 'official-third-business-day',  lastRelease: '2026-09-03', nextRelease: '2026-10-05', dataField: 'ismSvc', source: 'ISM official calendar' },
     'us-retail':    { name: 'Retail Sales',   frequency: 'monthly-mid',          lastRelease: '2026-08-14', nextRelease: '2026-09-16', dataField: 'retailSales', source: 'U.S. Census official schedule' },
     // v49.41 P296/R77 보강: FOMC 회의 + fed-rate (signal 페이지 CP2 lastUpdated 메타용)
     // v52.42 (P657/EF-03, WebSearch 재확인): 6/17 회의는 이미 지나 결과가 나왔으므로(3.50-3.75% 동결
@@ -13115,11 +13291,11 @@ window.AIO_MACRO_CALENDAR = {
   }
 };
 window.AIO_MACRO_OFFICIAL_SCHEDULES = {
-  'us-nfp': ['2026-07-02', '2026-08-07', '2026-09-04'],
+  'us-nfp': ['2026-07-02', '2026-08-07', '2026-09-04', '2026-10-02'],
   'us-cpi': ['2026-07-14', '2026-08-12', '2026-09-11'],
   'us-pce': ['2026-07-30', '2026-08-26', '2026-09-30'],
-  'us-ism-mfg': ['2026-07-01', '2026-08-03', '2026-09-01'],
-  'us-ism-svc': ['2026-07-06', '2026-08-05', '2026-09-03'],
+  'us-ism-mfg': ['2026-07-01', '2026-08-03', '2026-09-01', '2026-10-01'],
+  'us-ism-svc': ['2026-07-06', '2026-08-05', '2026-09-03', '2026-10-05'],
   'us-retail': ['2026-07-16', '2026-08-14', '2026-09-16'],
   'us-fomc': ['2026-06-17', '2026-07-29', '2026-09-16'],
   'us-fed-rate': ['2026-06-17', '2026-07-29', '2026-09-16'],
@@ -19081,8 +19257,10 @@ if (typeof document !== 'undefined') {
       try { window.AIO._liveSinkObserver.observe(document.body || document.documentElement, { childList: true, subtree: true }); } catch(_) {}
     }
   });
-  document.addEventListener('pageShown', function(e) {
-    var page = e && e.detail ? document.getElementById('page-' + e.detail) : null;
+  document.addEventListener('aio:pageShown', function(e) {
+    var detail = e && e.detail;
+    var pageId = typeof detail === 'string' ? detail : detail && (detail.pageId || detail.id || detail.route);
+    var page = pageId ? document.getElementById('page-' + pageId) : null;
     if (window.AIO && typeof window.AIO.annotateLiveDataSinks === 'function') {
       window.AIO.annotateLiveDataSinks(page || document, { reason: 'pageShown', force: true });
       setTimeout(function() {
@@ -24175,131 +24353,6 @@ function _aioExternalReferenceMap(externalReferences) {
   return out;
 }
 
-function _aioEvidenceStatus(statuses) {
-  if (statuses.indexOf('block') >= 0) return 'block';
-  if (statuses.indexOf('warn') >= 0) return 'warn';
-  if (statuses.indexOf('needs_evidence') >= 0) return 'needs_evidence';
-  return 'pass';
-}
-
-// v50.44 [DEAD/제거] 이 v49.112 정의는 아래 v50.0(buildEvidenceStore 기반, ~L19767)에서 동일 이름으로 override돼
-//   런타임에서 호출되지 않는 dead 정의였다(이중정의 = '한쪽만 고쳐지는' 버그 클래스). canonical 이름 경쟁을 끊기 위해
-//   dead 이름(_deadV49112_*)으로 분리 — 19767이 getCritical10ContentEvidenceMatrix의 유일 정의가 됨. 본문은 무회귀 보존.
-window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
-  opts = opts || {};
-  var pages = opts.pages || window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
-  var tolerancePct = opts.valueTolerancePct || 1.5;
-  var dateWarnDays = opts.dateWarnDays || 14;
-  var inventory = window.AIO.collectCritical10MarketContentInventory({ pages: pages, full: true });
-  var ext = _aioExternalReferenceMap(opts.externalReferences || {});
-  var liveSymbols = [];
-  inventory.pages.forEach(function(p) { (p.liveSinks || []).forEach(function(r) { if (r.symbol) liveSymbols.push(r.symbol); }); });
-  var reference = window.AIO.getMarketSituationReferenceSnapshot({ symbols: _aioUniq((window.AIO.MARKET_SITUATION_REFERENCE_SYMBOLS || []).concat(liveSymbols).concat(Object.keys(ext))).slice(0, opts.symbolLimit || 320), maxAgeMs: opts.maxAgeMs || 15 * 60 * 1000 });
-  var now = Date.now();
-  var allItems = [];
-  var pageRows = inventory.pages.map(function(page) {
-    var items = [];
-    function add(item) {
-      item.evidenceId = item.evidenceId || [item.pageId, item.kind, item.symbol || item.key || item.id || items.length].join(':');
-      items.push(item);
-      allItems.push(item);
-    }
-    (page.liveSinks || []).forEach(function(row) {
-      var statuses = [];
-      var checks = [];
-      var ref = reference.bySymbol && reference.bySymbol[row.symbol];
-      var extRef = ext[row.symbol];
-      var target = extRef && isFinite(extRef.price) && extRef.price > 0 ? extRef : ref;
-      if (!target || !target.price) {
-        statuses.push('warn');
-        checks.push({ type: 'reference-missing', message: 'No current internal/external reference for visible live cell.' });
-      } else if (row.field === 'price' && isFinite(row.parsedValue)) {
-        var diffPct = Math.abs(row.parsedValue - target.price) / target.price * 100;
-        checks.push({ type: extRef ? 'external-price-compare' : 'internal-price-compare', referencePrice: target.price, displayedValue: row.parsedValue, diffPct: Number(diffPct.toFixed(3)), source: target.source || target.sourceKind || '', asOf: target.asOf || '' });
-        if (diffPct > tolerancePct) statuses.push('block');
-      } else if (row.field === 'price') {
-        statuses.push('warn');
-        checks.push({ type: 'display-parse-missing', message: 'Visible price could not be parsed.' });
-      }
-      if (!row.sourceKind) {
-        statuses.push('warn');
-        checks.push({ type: 'source-kind-missing' });
-      }
-      if (row.operationalUse === 'reference-only') {
-        statuses.push('warn');
-        checks.push({ type: 'reference-only' });
-      }
-      if (row.truthStatus === 'blocked') {
-        statuses.push('block');
-        checks.push({ type: 'truth-blocked', issues: row.truthIssues || '' });
-      }
-      add(Object.assign({}, row, { kind: 'live', status: _aioEvidenceStatus(statuses), checks: checks, externalReference: extRef || null, internalReference: ref || null }));
-    });
-    (page.snapSinks || []).forEach(function(row) {
-      var statuses = ['needs_evidence'];
-      var checks = [{ type: 'snapshot-cell', message: 'Snapshot/static cell requires source/date evidence before trading use.' }];
-      if (row.operationalUse === 'reference-only' || /snapshot/i.test(row.sourceKind || '')) checks.push({ type: 'reference-only-or-snapshot' });
-      add(Object.assign({}, row, { kind: 'snapshot', status: _aioEvidenceStatus(statuses), checks: checks }));
-    });
-    (page.snapDates || []).forEach(function(row) {
-      var statuses = [];
-      var checks = [];
-      var m = String(row.text || '').match(/(20\d{2})-(\d{2})-(\d{2})/);
-      if (m) {
-        var ts = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])).getTime();
-        var ageDays = Math.floor((now - ts) / 86400000);
-        checks.push({ type: 'snap-date-age', ageDays: ageDays });
-        if (ageDays > dateWarnDays) statuses.push('warn');
-      } else {
-        statuses.push('needs_evidence');
-        checks.push({ type: 'date-parse-missing' });
-      }
-      add(Object.assign({}, row, { kind: 'snap-date', status: _aioEvidenceStatus(statuses), checks: checks }));
-    });
-    (page.charts || []).forEach(function(row) {
-      add(Object.assign({}, row, { kind: 'chart', status: 'needs_evidence', checks: [{ type: 'chart-series-evidence-required', message: 'Chart container exists; latest series/source audit is still required.' }] }));
-    });
-    (page.numericTextSamples || []).forEach(function(row) {
-      add(Object.assign({}, row, { kind: 'numeric-text', status: 'needs_evidence', checks: [{ type: 'static-number-evidence-required', message: 'Static numeric text requires explicit evidence mapping or threshold classification.' }] }));
-    });
-    (page.narrativeSamples || []).forEach(function(row) {
-      var statuses = [];
-      var checks = [];
-      var text = row.text || '';
-      var reg = reference.regime || {};
-      if (reg.oil === 'oil_high' && /(유가\s*안정|유가\s*약세|oil soft|cheap oil)/i.test(text)) {
-        statuses.push('warn'); checks.push({ type: 'narrative-regime-conflict', regime: reg.oil });
-      }
-      if (reg.volatility === 'low' && /(패닉|고변동|panic|high volatility)/i.test(text)) {
-        statuses.push('warn'); checks.push({ type: 'narrative-regime-conflict', regime: reg.volatility });
-      }
-      if (!checks.length) checks.push({ type: 'narrative-read', regime: reg.riskTone || 'unknown' });
-      add(Object.assign({}, row, { kind: 'narrative', status: _aioEvidenceStatus(statuses), checks: checks }));
-    });
-    var counts = items.reduce(function(acc, item) {
-      acc[item.status] = (acc[item.status] || 0) + 1;
-      acc.total++;
-      return acc;
-    }, { total: 0, pass: 0, warn: 0, block: 0, needs_evidence: 0 });
-    return { pageId: page.pageId, status: counts.block ? 'block' : (counts.warn || counts.needs_evidence ? 'warn' : 'pass'), counts: counts, items: opts.includeItems === false ? [] : items.slice(0, opts.itemLimit || items.length) };
-  });
-  var totals = allItems.reduce(function(acc, item) {
-    acc[item.status] = (acc[item.status] || 0) + 1;
-    acc.total++;
-    acc.byKind[item.kind] = (acc.byKind[item.kind] || 0) + 1;
-    return acc;
-  }, { total: 0, pass: 0, warn: 0, block: 0, needs_evidence: 0, byKind: {} });
-  return {
-    status: totals.block ? 'block' : (totals.warn || totals.needs_evidence || reference.status !== 'ok' ? 'warn' : 'pass'),
-    pagesChecked: pageRows.length,
-    totals: totals,
-    reference: { status: reference.status, missingCount: reference.missingCount, staleCount: reference.staleCount, truthBlockedCount: reference.truthBlockedCount, regime: reference.regime },
-    externalReferenceCount: Object.keys(ext).length,
-    pages: pageRows,
-    generatedAt: new Date().toISOString()
-  };
-};
-
 // v50.0: route-page evidence-first contract layer.
 // This does not pretend snapshots are current market data. It makes that boundary
 // machine-readable so UI, AI chat, audits, and deployment gates share one contract.
@@ -26732,7 +26785,7 @@ function _aioRenderBriefingMarketAnalysis() {
     leadEl.innerHTML = lead;
   }
   var tsEl = document.getElementById('briefing-analysis-ts');
-  if (tsEl) tsEl.textContent = '실시간 갱신 · ' + new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) + ' 기준';
+  if (tsEl) tsEl.textContent = '화면 갱신 · ' + new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
 
   // 오늘 시장을 움직인 것 — 뉴스 상위 스코어 3건
   var driversEl = document.getElementById('briefing-drivers-list');

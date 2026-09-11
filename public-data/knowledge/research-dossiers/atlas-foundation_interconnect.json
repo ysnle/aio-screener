@@ -32,13 +32,6 @@
       "sourceTier": null
     },
     {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
       "sourceId": "WEB-OECD-PRODUCTIVITY-METHODS",
       "url": "https://www.oecd.org/sdd/productivity-stats/OECD-Productivity-Statistics-Methodological-note.pdf",
       "publisher": "OECD",
@@ -68,15 +61,6 @@
     }
   ],
   "selectedSources": [
-    {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
     {
       "sourceId": "WEB-OECD-PRODUCTIVITY-METHODS",
       "url": "https://www.oecd.org/sdd/productivity-stats/OECD-Productivity-Statistics-Methodological-note.pdf",
@@ -127,7 +111,6 @@
     }
   ],
   "researchFactIds": [
-    "fact:nist:ai-rmf-core",
     "fact:oecd:productivity",
     "fact:nvidia:cuda-parallel",
     "fact:tsmc:3dfabric"

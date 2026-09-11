@@ -28,10 +28,20 @@ export function immutableCopy(value) {
   return Object.freeze(copy);
 }
 
+// Canonical timestamps repeat across thousands of field envelopes. Cache only
+// short strings (never mutable Date objects), and bound retained input memory.
+const isoStringCache = new Map();
 function iso(value) {
   if (!value) return null;
+  const cacheable = typeof value === 'string' && value.length <= 64;
+  if (cacheable && isoStringCache.has(value)) return isoStringCache.get(value);
   const parsed = new Date(value);
-  return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
+  const result = Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
+  if (cacheable) {
+    if (isoStringCache.size >= 256) isoStringCache.delete(isoStringCache.keys().next().value);
+    isoStringCache.set(value, result);
+  }
+  return result;
 }
 
 function finite(value) { return typeof value === 'number' && Number.isFinite(value) ? value : null; }
@@ -44,14 +54,82 @@ export function stableSerialize(value) {
   return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${stableSerialize(value[key])}`).join(',')}}`;
 }
 
-export function stableHash(value) {
-  const input = stableSerialize(value);
+function createStableHashState(value) {
   let hash = 2166136261;
-  for (let index = 0; index < input.length; index += 1) {
-    hash ^= input.charCodeAt(index);
-    hash = Math.imul(hash, 16777619);
+  const encodedKeys = new Map();
+  const stack = [];
+  const ancestors = new Set();
+  function emit(text) {
+    for (let i = 0; i < text.length; i++) {
+      hash ^= text.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
+    }
   }
-  return (hash >>> 0).toString(16).padStart(8, '0');
+  function visit(node, missing) {
+    if (node === null || typeof node !== 'object') {
+      const encoded = JSON.stringify(node);
+      emit(encoded === undefined ? missing : encoded);
+      return;
+    }
+    if (ancestors.has(node)) throw new TypeError('CYCLIC_HASH_INPUT');
+    ancestors.add(node);
+    const array = Array.isArray(node);
+    const keys = array ? null : Object.keys(node).sort();
+    emit(array ? '[' : '{');
+    stack.push({ node, keys, array, length: array ? node.length : keys.length, index: 0 });
+  }
+  visit(value);
+  function step(work = Infinity) {
+    let visited = 0;
+    while (stack.length && visited++ < work) {
+      const frame = stack[stack.length - 1];
+      if (frame.index === frame.length) {
+        emit(frame.array ? ']' : '}');
+        ancestors.delete(frame.node);
+        stack.pop();
+        continue;
+      }
+      const index = frame.index++;
+      if (index) emit(',');
+      if (frame.array) {
+        // Preserve stableSerialize's sparse/undefined array and object behavior.
+        if (index in frame.node) visit(frame.node[index], '');
+      } else {
+        const key = frame.keys[index];
+        let encoded = encodedKeys.get(key);
+        if (encoded === undefined) {
+          encoded = JSON.stringify(key);
+          encodedKeys.set(key, encoded);
+        }
+        emit(encoded);
+        emit(':');
+        visit(frame.node[key], 'undefined');
+      }
+    }
+    return stack.length === 0;
+  }
+  return { step, result: () => (hash >>> 0).toString(16).padStart(8, '0') };
+}
+
+export function stableHash(value) {
+  const state = createStableHashState(value);
+  state.step();
+  return state.result();
+}
+
+/** Same UTF-16/FNV contract as stableHash, with injectable macrotask yielding.
+ * Callers own an immutable input for the duration of this operation.
+ */
+export async function stableHashAsync(value, { yieldImpl, signal, workPerChunk = 4096 } = {}) {
+  if (typeof yieldImpl !== 'function' || !Number.isInteger(workPerChunk) || workPerChunk <= 0) throw new Error('HASH_SCHEDULER_INVALID');
+  const checkAborted = () => { if (signal?.aborted) throw new DOMException('Hash cancelled', 'AbortError'); };
+  checkAborted();
+  const state = createStableHashState(value);
+  while (!state.step(workPerChunk)) {
+    await yieldImpl();
+    checkAborted();
+  }
+  return state.result();
 }
 
 const FIELD_ROWS = [
@@ -83,7 +161,7 @@ const FIELD_ROWS = [
   ['valuation.pb', 'PBR', 'number', 'multiple', 'pb', 30],
   ['valuation.evEbitda', 'EV/EBITDA', 'number', 'multiple', 'evEbitda', 30],
   ['quality.roe', 'ROE', 'number', 'percent', 'roe', 90],
-  ['quality.margin', '영업/순이익률', 'number', 'percent', 'margin', 90],
+  ['quality.margin', '순이익률', 'number', 'percent', 'margin', 90],
   ['quality.revGrowth', '매출 성장률', 'number', 'percent', 'revGrowth', 90],
   ['fundamental.filedAt', '재무 보고일', 'date', 'date', '_fundamentalFiledAt', 365],
   ['fundamental.availableAt', '재무 이용 가능일', 'date', 'date', '_fundamentalObservedAt', 365],
@@ -328,6 +406,7 @@ export function createScreenDefinition(input = {}) {
     requiredFields: Array.isArray(input.requiredFields) ? [...new Set(input.requiredFields.map(String))] : [],
     referenceFrameworkIds: Array.isArray(input.referenceFrameworkIds) ? [...new Set(input.referenceFrameworkIds.map(String).filter(Boolean))] : [],
     referenceTimeSeriesIds: Array.isArray(input.referenceTimeSeriesIds) ? [...new Set(input.referenceTimeSeriesIds.map(String).filter(Boolean))] : [],
+    referenceClaimIds: Array.isArray(input.referenceClaimIds) ? [...new Set(input.referenceClaimIds.map(String).filter(Boolean))] : [],
     referenceBoundary: String(input.referenceBoundary || 'reference-only'),
     minCoverage: Number.isFinite(input.minCoverage) ? Math.max(0, Math.min(1, input.minCoverage)) : 0.8,
     nullPolicy: NULL_POLICIES.includes(input.nullPolicy) ? input.nullPolicy : 'unknown',
@@ -397,6 +476,7 @@ export function validateScreenDefinition(definition) {
   else definition.requiredFields.forEach((field) => { if (!SCREENER_FIELD_REGISTRY.has(field)) errors.push(`required_field_unknown:${field}`); });
   if (!Array.isArray(definition?.referenceFrameworkIds)) errors.push('reference_framework_ids_invalid');
   if (!Array.isArray(definition?.referenceTimeSeriesIds)) errors.push('reference_time_series_ids_invalid');
+  if (!Array.isArray(definition?.referenceClaimIds)) errors.push('reference_claim_ids_invalid');
   if (definition?.referenceBoundary !== 'reference-only') errors.push('reference_boundary_invalid');
   if (!['asc', 'desc'].includes(definition?.ranking?.direction)) errors.push('ranking_direction_invalid');
   if (finite(definition?.minCoverage) == null || definition.minCoverage < 0 || definition.minCoverage > 1) errors.push('min_coverage_invalid');

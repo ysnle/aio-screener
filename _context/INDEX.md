@@ -14,9 +14,9 @@ target_version: version.json
 
 | Document | Purpose | Read rule |
 |---|---|---|
-| `CURRENT-STATE.md` | 저장소에서 파생한 현재 기준선과 지식/운영 경계 | 모든 작업 |
-| `WORKFLOW-GOVERNANCE.md` | preflight, evidence level, postmortem-to-gate, 권한 경계 | 모든 작업 |
-| `INDEX.md` | 이 라우터 | 모든 작업 |
+| `CURRENT-STATE.md` | 저장소에서 파생한 현재 기준선과 지식/운영 경계 | 작업 시작에 한 번 |
+| `WORKFLOW-GOVERNANCE.md` | preflight, evidence level, postmortem-to-gate, 권한 경계 | QA·권한·워크플로 상세 필요 시 |
+| `INDEX.md` | 이 라우터 | 문서 위치 탐색 시 |
 | `CODE-MAP.md` | 대형 셸/호환 모듈의 부분 탐색 지도 | 해당 코드 수정 시 |
 | `QA-PIPELINE-ARCHITECTURE.md` | 영향 기반 로컬 QA, CI DAG, Pages/Cloudflare 운영 경계 | QA·CI·배포·watchdog 수정 시 |
 | `AIO-CURRENT-PRODUCT-ARCHITECTURE-CHARTER.md` | 최초 설계 의도에 대한 객관적 판정, 제품 경계, 목표 구조와 단계별 개편 | 제품 방향·범위·아키텍처·신뢰 모델 변경 시 |
@@ -52,7 +52,7 @@ Latest desktop journey evidence and open boundaries: [`user-flow-remediation-202
 
 ## Context lifecycle
 
-- `preflight`: always read; compact and current.
+- `preflight`: consult once at task start; reuse unchanged context. Governance and INDEX are targeted references.
 - `ledger`: append/compact history; targeted search only.
 - `current-handoff` or `research-record`: read when its domain is touched.
 - `machine-contract`: consumed by scripts/gates; inspect when changing its producer or consumer.

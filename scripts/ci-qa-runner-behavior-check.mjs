@@ -1,11 +1,15 @@
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const temp = mkdtempSync(join(tmpdir(), 'aio-qa-runner-'));
+const inputDir = mkdtempSync(join(root, '_artifacts', 'qa-input-fixture-'));
+const inputPath = join(inputDir, 'value.txt');
+const fixtureInput = relative(root, inputPath).replaceAll('\\', '/');
+writeFileSync(inputPath, 'before');
 const cacheDir = join(temp, 'cache');
 const manifestPath = join(temp, 'manifest.json');
 const marker = join(cacheDir, 'expensive-marker.txt');
@@ -21,6 +25,7 @@ const fail = (message, result = null) => {
   console.error(message);
   if (result) console.error(`${result.stdout || ''}\n${result.stderr || ''}`.trim());
   rmSync(temp, { recursive: true, force: true });
+  rmSync(inputDir, { recursive: true, force: true });
   process.exit(1);
 };
 
@@ -31,7 +36,7 @@ try {
       fixture: {
         phase: 0,
         kind: 'static',
-        inputs: ['scripts/fixtures/**'],
+        inputs: ['scripts/fixtures/**', fixtureInput],
         gates: [
           { id: 'fixture-pass', script: fixtureScript, args: ['--mode', 'pass'] },
           { id: 'fixture-fail-a', script: fixtureScript, args: ['--mode', 'fail-a'] },
@@ -41,7 +46,7 @@ try {
       expensive: {
         phase: 1,
         kind: 'browser',
-        inputs: ['scripts/fixtures/**'],
+        inputs: ['scripts/fixtures/**', fixtureInput],
         gates: [{ id: 'fixture-expensive', script: fixtureScript, args: ['--mode', 'marker', '--path', '{cacheDir}/expensive-marker.txt'] }]
       }
     },
@@ -63,7 +68,7 @@ try {
       fixture: {
         phase: 0,
         kind: 'static',
-        inputs: ['scripts/fixtures/**'],
+        inputs: ['scripts/fixtures/**', fixtureInput],
         gates: [
           { id: 'fixture-pass-a', script: fixtureScript, args: ['--mode', 'pass-a'] },
           { id: 'fixture-pass-b', script: fixtureScript, args: ['--mode', 'pass-b'] }
@@ -81,12 +86,17 @@ try {
   const cachedReport = JSON.parse(readFileSync(join(cacheDir, 'last-run.json'), 'utf8'));
   if (cachedReport.counts?.CACHED !== 2 || cachedReport.durationMs > 2_000) fail('runner did not reuse content-keyed successful gates', second);
 
+  // Same-size content changes must invalidate both successes, not just mtime.
+  writeFileSync(inputPath, 'after!');
+  const changedInput = run('test');
+  if (changedInput.status !== 0 || JSON.parse(readFileSync(join(cacheDir, 'last-run.json'), 'utf8')).counts?.PASS !== 2) fail('runner reused stale input content', changedInput);
+
   writeFileSync(manifestPath, JSON.stringify({
     ...base,
     impactRules: [{ patterns: ['scripts/fixtures/**'], groups: ['fixture'] }],
     groups: {
-      preflight: { phase: 0, kind: 'static', inputs: ['scripts/fixtures/**'], gates: [{ id: 'fixture-preflight', script: fixtureScript, args: ['--mode', 'pass'] }] },
-      fixture: { phase: 1, kind: 'static', inputs: ['scripts/fixtures/**'], gates: [{ id: 'fixture-affected', script: fixtureScript, args: ['--mode', 'pass'] }] }
+      preflight: { phase: 0, kind: 'static', inputs: ['scripts/fixtures/**', fixtureInput], gates: [{ id: 'fixture-preflight', script: fixtureScript, args: ['--mode', 'pass'] }] },
+      fixture: { phase: 1, kind: 'static', inputs: ['scripts/fixtures/**', fixtureInput], gates: [{ id: 'fixture-affected', script: fixtureScript, args: ['--mode', 'pass'] }] }
     },
     profiles: { test: ['preflight', 'fixture'] }
   }, null, 2));
@@ -97,7 +107,53 @@ try {
   const sessionStart = run('session-start', '--session', 'behavior-fixture');
   if (sessionStart.status !== 0 || !existsSync(join(cacheDir, 'sessions', 'behavior-fixture.json'))) fail('runner did not create a task-session baseline', sessionStart);
 
-  console.log('QA runner behavior OK: failure aggregation, exact failed-gate rerun, stable cache, explicit affected files, and session baselines passed.');
+  writeFileSync(manifestPath, JSON.stringify({
+    ...base,
+    impactRules: [{ patterns: ['scripts/**', 'index.html'], groups: ['fixture'] }],
+    groups: {
+      preflight: { phase: 0, kind: 'static', inputs: ['scripts/fixtures/**'], gates: [{ id: 'preflight', script: fixtureScript }] },
+      fixture: { phase: 1, kind: 'static', inputs: ['scripts/**'], gates: [
+        { id: 'target', script: 'scripts/ci-domain-parity-check.mjs', dependsOn: ['dependency'] },
+        { id: 'dependency', script: fixtureScript },
+        { id: 'unrelated', script: 'scripts/generate-workspace-state.mjs' }
+      ] },
+      external: { phase: 2, kind: 'external', inputs: ['scripts/**'], gates: [
+        { id: 'live-target', script: 'scripts/ci-domain-parity-check.mjs' }
+      ] }
+    }
+  }, null, 2));
+  const leaf = run('affected', '--files', 'scripts/ci-domain-parity-check.mjs', '--list');
+  if (leaf.status !== 0 || JSON.parse(leaf.stdout).gates.map((gate) => gate.id).join(',') !== 'preflight,target,dependency') fail('test edit lost dependencies or selected unrelated siblings', leaf);
+  for (const files of ['scripts/fetch-data.mjs', 'scripts/generate-workspace-state.mjs', 'scripts/ci-domain-parity-check.mjs,index.html']) {
+    const broad = run('affected', '--files', files, '--list');
+    if (broad.status !== 0 || JSON.parse(broad.stdout).gates.length !== 4) fail('producer or mixed edit lost conservative coverage', broad);
+  }
+
+  writeFileSync(manifestPath, JSON.stringify({
+    ...base, profiles: { test: ['browser'] },
+    groups: { browser: { phase: 0, kind: 'browser', inputs: ['scripts/fixtures/**'], gates: ['a', 'b', 'solo', 'c', 'd'].map((id) => ({
+      id, script: fixtureScript, exclusive: id === 'solo',
+      args: ['--mode', 'timed', '--record', '{cacheDir}/events.jsonl', '--label', id]
+    })) } }
+  }, null, 2));
+  for (const jobs of [2, 1]) {
+    writeFileSync(join(cacheDir, 'events.jsonl'), '');
+    const result = run('test', '--no-cache', '--browser-jobs', String(jobs));
+    if (result.status !== 0) fail('browser scheduling fixture failed', result);
+    const events = readFileSync(join(cacheDir, 'events.jsonl'), 'utf8').trim().split('\n').map((line) => JSON.parse(line));
+    const active = new Set();
+    let peak = 0;
+    for (const { id, event } of events) {
+      if (event === 'start') {
+        if (active.has(id) || active.has('solo') || (id === 'solo' && active.size)) fail('exclusive gate overlapped another gate', result);
+        active.add(id);
+        peak = Math.max(peak, active.size);
+      } else if (!active.delete(id)) fail('gate completion was not paired with a start', result);
+    }
+    if (events.length !== 10 || active.size || peak !== jobs) fail('browser concurrency cap or serial override failed', result);
+  }
+  console.log('QA runner behavior OK: phase barriers, failed-only retry, content cache invalidation, task scope, test dependencies, bounded concurrency and exclusive timing gates.');
 } finally {
   rmSync(temp, { recursive: true, force: true });
+  rmSync(inputDir, { recursive: true, force: true });
 }

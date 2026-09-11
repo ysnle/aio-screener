@@ -1,11 +1,13 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { rawHoldingRow } from './lib/masters-raw-rows.mjs';
+import { atomicWriteFile } from './lib/atomic-write.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dataRoot = path.join(root, 'public-data', 'masters');
 const readJson = async (name) => JSON.parse(await fs.readFile(path.join(dataRoot, name), 'utf8'));
-const writeJson = async (name, value) => fs.writeFile(path.join(dataRoot, name), `${JSON.stringify(value, null, 2)}\n`, 'utf8');
+const writeJson = async (name, value) => atomicWriteFile(path.join(dataRoot, name), `${JSON.stringify(value, null, 2)}\n`, 'utf8');
 
 const [mastersIndex, filings, holdings, historyIndex, historyHoldings] = await Promise.all([
   readJson('index.json'),
@@ -145,17 +147,10 @@ for (const manager of holdings.managers) {
   });
   holdings.allHoldings = holdings.allHoldings.map((row) => {
     if (row.managerId !== manager.id) return row;
-    const comparison = comparisonByKey.get(comparisonKey(row));
-    return {
+    return rawHoldingRow({
       ...row,
-      priorReportPeriod: expectedPrior,
-      priorValue: comparison?.priorValue ?? null,
-      priorShares: comparison?.priorShares ?? null,
-      valueDelta: comparison?.valueDelta ?? null,
-      sharesDelta: comparison?.sharesDelta ?? null,
-      action: comparison?.action || 'UNAVAILABLE',
-      comparisonStatus: 'VERIFIED_PRIOR_PERIOD'
-    };
+      priorReportPeriod: expectedPrior
+    });
   });
   holdings.comparisons = [
     ...holdings.comparisons.filter((row) => row.managerId !== manager.id),
@@ -193,6 +188,7 @@ function restoreManagerOrder() {
 }
 
 restoreManagerOrder();
+holdings.allHoldings = holdings.allHoldings.map(rawHoldingRow);
 
 if (!repaired.length) {
   syncMastersIndex();

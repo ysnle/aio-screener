@@ -45,7 +45,7 @@ check('quote pipeline must update previous-close sinks', /data-live-prev-close/.
 check('KR change sink must derive delta from the same price and previous close', /atomicDelta = price - previousClose/.test(data));
 check('T823 KST/KR regression test must exist', /T823 v5056_kst_kr_index_contract/.test(tests));
 check('T823 must validate numeric KR index consistency', /expectedDelta823 = price823 - prev823/.test(tests));
-check('official NFP/CPI schedule must replace mechanical monthly dates', /'us-nfp': \['2026-07-02', '2026-08-07', '2026-09-04'\]/.test(core) && /'us-cpi': \['2026-07-14', '2026-08-12', '2026-09-11'\]/.test(core));
+check('official NFP/CPI/ISM schedule must replace mechanical monthly dates', /'us-nfp': \['2026-07-02', '2026-08-07', '2026-09-04', '2026-10-02'\]/.test(core) && /'us-cpi': \['2026-07-14', '2026-08-12', '2026-09-11'\]/.test(core) && /'us-ism-mfg': \['2026-07-01', '2026-08-03', '2026-09-01', '2026-10-01'\]/.test(core) && /'us-ism-svc': \['2026-07-06', '2026-08-05', '2026-09-03', '2026-10-05'\]/.test(core));
 check('macro page must expose the next official release', /id="macro-next-release"/.test(html) && /renderMacroNextRelease/.test(core));
 check('VVIX live snapshot and fallback mirror must update together', /DATA_SNAPSHOT\._fallback\.vvix = price/.test(data));
 check('known KR ticker mappings must be corrected', /sym:'011200\.KS', name:'HMM'/.test(data) && /sym:'041510\.KQ', name:'SM엔터테인먼트'/.test(data) && /'403870\.KQ': \{ en: 'HPSP'/.test(core));

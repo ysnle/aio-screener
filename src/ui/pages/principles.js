@@ -415,6 +415,7 @@ function createPathSourceBadge(documentRef, lesson, lessonLibrary) {
       body.appendChild(element(documentRef, 'span', 'principles-source-unlinked', `미해결 source ID · ${sourceId}`));
     }
   });
+  wrap.appendChild(body);
   return wrap;
 }
 
@@ -560,18 +561,18 @@ function createLessonLibrary(documentRef, artifact, knowledgeArticles, routeTarg
       deepPanel.open = true;
       deepPanel.dataset.principlesArticleId = deepArticle.articleId;
       deepPanel.append(
-        element(documentRef, 'summary', 'principles-deep-article-summary', '5분 심층 원고 보기 · 교육용 참고 초안'),
+        element(documentRef, 'summary', 'principles-deep-article-summary', '개념 원문·출처 보기'),
         element(documentRef, 'p', 'principles-deep-article-boundary', '자동 구조화된 참고 원고입니다. 의미 검토·출처 직접성 검토 전이며 현재 수치·매매 판단으로 승격하지 않습니다.'),
         renderKnowledgeLesson(documentRef, deepArticle, { className: 'principles-deep-lesson', routeTarget, onNavigate })
       );
       card.appendChild(deepPanel);
     } else {
-      const loadButton = button(documentRef, 'principles-route-button is-secondary principles-article-load', options.loadingArticleIds?.has(lesson.id) ? '심층 원고 불러오는 중…' : '5분 심층 원고 불러오기', 'load-article', lesson.id);
+      const loadButton = button(documentRef, 'principles-route-button is-secondary principles-article-load', options.loadingArticleIds?.has(lesson.id) ? '개념 원문 불러오는 중…' : '개념 원문·출처 불러오기', 'load-article', lesson.id);
       loadButton.disabled = Boolean(options.loadingArticleIds?.has(lesson.id));
       loadButton.setAttribute('aria-busy', options.loadingArticleIds?.has(lesson.id) ? 'true' : 'false');
       card.appendChild(loadButton);
       if (options.articleErrors?.has(lesson.id)) {
-        const error = element(documentRef, 'p', 'principles-deep-article-boundary', '심층 원고를 불러오지 못했습니다. 연결 상태를 확인한 뒤 다시 시도하세요.');
+        const error = element(documentRef, 'p', 'principles-deep-article-boundary', '개념 원문을 불러오지 못했습니다. 연결 상태를 확인한 뒤 다시 시도하세요.');
         error.setAttribute('role', 'alert');
         card.appendChild(error);
       }
@@ -1217,8 +1218,8 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
 
       function renderPath() {
         const path = CATALOG.paths.find((item) => item.id === state.pathId) || CATALOG.paths[0];
-        const lessonIds = path.lessonIds.filter((id) => lessonMatches(LESSON_BY_ID.get(id), state.query));
-        const lesson = LESSON_BY_ID.get(lessonIds[state.step] || lessonIds[0] || path.lessonIds[0]);
+        const lessonIds = path.lessonIds;
+        const lesson = LESSON_BY_ID.get(lessonIds[state.step] || lessonIds[0]);
         const layout = element(documentRef, 'div', 'principles-path-layout');
         const pathPicker = element(documentRef, 'div', 'principles-path-picker');
         CATALOG.paths.forEach((item) => {

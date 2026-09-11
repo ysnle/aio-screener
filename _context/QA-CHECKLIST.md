@@ -1,8 +1,35 @@
 ---
-verified_by: Codex deterministic gates + browser audit
-last_verified: 2026-09-02
-confidence: high
+verified_by: Codex local source review and affected QA; full semantic audit remains open
+last_verified: 2026-09-06
+confidence: medium
 ---
+
+## v54.85 채팅 가독성과 근거 전달 (2026-09-10)
+
+- [x] QA-AI-RESPONSE-REFLOW: production CSS/renderer의 320/400/768/1280px 검사와 근거 펼침을 통과했다. 이전 구조는 본문 폭이 97px로 압축되고 수정 구조는 371px를 확보하는 반례를 확인했다 (P1056).
+- [x] QA-AI-QUOTE-PROVENANCE: 공통 builder의 관측 tuple, 누락·상충·미확인 truth 반례, 두 소비자 연결 검사 PASS. 수신시각이나 통화 추측으로 누락을 채우지 않는다 (P1057).
+
+## v54.84 AI 및 데이터 의미 검증 (2026-09-09)
+
+- [x] QA-AI-IDENTITY: 수치 claim의 metric/entity/scale/value/unit/asOf/source와 실제 evidence 일치, 잘못된 표시 이름, snippet·출처 위조·독립성 반례를 ci-ai-intelligence-contract-check로 검증한다 (P1052/P1054).
+- [x] QA-AI-KNOWLEDGE-LINK: 원문 concept 연결과 단어 검색 후보를 분리하고 미연결 집계를 원문과 대조한다 (P1053).
+- [x] QA-AI-ANALYSIS-WIRING: 실제 production helper와 orchestrator를 이용하여 두 UI 배선, 정확한 전제 tuple, 기간 없는 quote, 반대·상충 관측, 동일 ID 충돌·미래값을 ci-ai-premise-check 및 ci-ai-chat-analysis-integration-check로 검증했다 (P1055). 실제 provider의 기간 공급·모델 품질은 별도다.
+- [x] QA-AI-STREAM-LIFETIME: Worker/직접 provider 본문 deadline, 취소, 오류 event, 불완전 EOF와 UTF-8 제한 fixture를 실행했다 (P1050).
+- [x] QA-AI-UI-STATE: 격리 Chromium DOM에서 중지·기록 손상·TTL·모달 초점·Escape를 검증했다. 실제 사용자 저장소와 유료 provider 호출은 제외한다 (P1051).
+- [x] QA-DATA-RAW-ATOMIC: 최신 Masters shard 복구 후 계약·브라우저 검사와 원자적 쓰기 실패 주입을 실행했다 (P1046/P1049).
+- [x] QA-MARKET-CALENDAR: 공식 2026 미국 휴일·DST·조기 폐장·미래/오래된 종가·타 시장 fixture를 검증한다 (P1045).
+- [ ] QA-KNOWLEDGE-DEEP-AUTHORING: 160개 교육 원문은 반복 padding을 제거한 reference draft이며 독립적인 심층 집필·원문 직접성·계산·의미 검수 완료가 아니다 (P1047).
+- [ ] QA-AI-LIVE-QUALITY: 공개 Worker·개인키 실제 대화, 반복 후속 질문, blind model benchmark 및 일반 LLM 대비 품질 우위는 미검증이다.
+
+## v54.76 working-tree audit continuation (2026-09-05)
+
+- [x] QA-PORTFOLIO-VALUATION: 이전 평가액 기준 일간 손익, 결측 매입가 보류, 실시간 행과 합계·표·차트의 동일 평가 기준을 도메인 및 격리 브라우저 fixture로 검증한다 (P1044).
+- [x] QA-PERF-OBSERVATION: 1024-row timestamp parsing stays bounded; canonical repeated reads avoid rescans and preserve exact expiry, future activation, clock rollback, row replacement and uncached mutable inputs. Slice subscriptions preserve dependency updates/disposal without unrelated renders (P1034/P1035, ci-native-decision-evidence-check, ci-esm-core-unit-check).
+- [x] QA-PERF-HYDRATION: cooperative snapshot preparation preserves the legacy hash, coherent pre-yield quote cut, cancellation and bounded date cache; cached facade snapshots retain deep mutation isolation and refresh on canonical replacement (P1038/P1039, ci-screener-workbench-contract, ci-esm-core-unit-check).
+- [x] QA-EXHAUST-20: future quote timestamps are quarantined; market publication, operations freshness and weekend grace require full Tier-0/QG/row-quality conditions; fetch-data cycle status names quote/news/history blockers. Targeted snapshot/data-pipeline/operations contracts passed before closeout (P1030).
+- [x] QA-EXHAUST-21: Chart primary/secondary fallback, nested delegated action priority, canonical pageShown parsing and scheduler initial-timer/epoch ownership have targeted runtime, delayed-primary browser fixture and G108 20/20 evidence. The separate boot FCP gate passed at 1908ms in v54.79 after P1034; the stricter long-task targets remain unmet.
+- [x] QA-EXHAUST-22: browser concurrency is separately bounded, all-route gates consume `ROUTE_IDS`, desktop gates share viewport config, and viewport geometry runs after route settle. Pipeline/runner/desktop-scope/fast-profile contracts passed; the full browser matrix was not rerun (P1032).
+- [ ] QA-EXHAUST-23: verify the P1033 page fixes in a real browser: BOJ/HY missingness, five breadth canvas pixel or blocked states, sentiment null-series/needle reset, Principles source/path step, Masters zero-match state, ticker/theme USD·KRW·unknown-currency formatting, one theme-detail action and one render pass. Not run because the user explicitly excluded overall validation/test/QA from this closeout.
 
 ## v54.76 exhaustive audit checkpoint (2026-09-02)
 

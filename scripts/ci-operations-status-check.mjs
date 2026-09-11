@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateOperationsStatus } from '../src/data/contracts/operations.js';
-import { derivePublicAiConfig, deriveRouteOwnership, reuseWorkerHealthEvidence } from './build-operations-status.mjs';
+import { deriveDurableFreshness, derivePublicAiConfig, deriveRouteOwnership, reuseWorkerHealthEvidence } from './build-operations-status.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
@@ -11,6 +11,21 @@ const data = JSON.parse(read('public-data/data.json'));
 const routeOwners = JSON.parse(read('architecture/route-owners.json'));
 const validation = validateOperationsStatus(status);
 if (!validation.ok) throw new Error(`[operations-status] ${validation.errors.join(',')}`);
+const durableQuotes = Array.from({ length: 16 }, (_, index) => ({ instrumentId: `Q${index}`, quality: 'CURRENT', session: 'CURRENT_SESSION' }));
+const durableSnapshot = {
+  status: 'published',
+  coverage: { tier0Required: 16, tier0Observed: 16 },
+  quality: { gate: 'QG-01_PASS' },
+  errors: [],
+  quotes: durableQuotes
+};
+const durableData = { meta: { generatedAt: '2026-08-28T00:00:00.000Z', marketCycleFreshnessSlaHours: 12, cycleStatus: 'PUBLISHED' } };
+const durableFresh = deriveDurableFreshness({ data: durableData, marketSnapshot: durableSnapshot, now: '2026-08-28T01:00:00.000Z' });
+if (!durableFresh.fresh || !durableFresh.coverageComplete || !durableFresh.quoteQualityComplete) throw new Error('[operations-status] valid durable quote set did not become current');
+const staleQuoteFreshness = deriveDurableFreshness({ data: durableData, marketSnapshot: { ...durableSnapshot, quotes: durableQuotes.map((row, index) => index === 0 ? { ...row, quality: 'STALE', session: 'STALE_UNEXPECTED' } : row) }, now: '2026-08-28T01:00:00.000Z' });
+if (staleQuoteFreshness.fresh || staleQuoteFreshness.reason !== 'market-snapshot-quote-quality-blocked') throw new Error('[operations-status] fresh build timestamp promoted a stale quote set');
+const futureCycle = deriveDurableFreshness({ data: { meta: { ...durableData.meta, generatedAt: '2026-08-28T02:00:00.000Z' } }, marketSnapshot: durableSnapshot, now: '2026-08-28T01:00:00.000Z' });
+if (futureCycle.fresh || futureCycle.reason !== 'market-cycle-generatedAt-in-future') throw new Error('[operations-status] future cycle timestamp was promoted');
 const lkgFixture = {
   ai: { publicChat: { health: { statusCode: 200, observedAt: '2026-08-25T00:00:00.000Z', revision: 'v-test', sourceSha: 'a'.repeat(40), configured: true, quotaConfigured: true, authorityReady: true, authorityJurisdiction: 'us', ready: true } } },
   planes: { fast: { health: { statusCode: 200, observedAt: '2026-08-25T00:00:00.000Z', coverage: '16/16', revision: 'v-test', sourceSha: 'b'.repeat(40) } } }

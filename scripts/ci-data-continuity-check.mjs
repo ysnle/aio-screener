@@ -134,6 +134,10 @@ function runProducerChecks() {
     && fetchData.includes('atomicWriteFile(OUT')
     && fetchData.includes('atomicWriteFile(HIST'), 'fetch-data output writers are not all atomic');
   check('producer:fetch-data-no-direct-output-write', !/\bwriteFile\s*\(/.test(fetchData), 'direct writeFile call remains in fetch-data');
+  for (const script of ['reconcile-13f-prior-from-history.mjs', 'collect-13f-reference.mjs', 'build-masters-runtime-artifacts.mjs']) {
+    const source = fs.readFileSync(path.join(ROOT, 'scripts', script), 'utf8');
+    check('producer:masters-atomic:' + script, source.includes("import { atomicWriteFile } from './lib/atomic-write.mjs';") && !/\bfs\.writeFile\(/.test(source), 'Masters producer can truncate published JSON on write failure');
+  }
   check('producer:market-snapshot-uses-atomic-writes', snapshot.includes("import { atomicWriteFile } from './lib/atomic-write.mjs';")
     && snapshot.includes('atomicWriteFile(MARKET_SNAPSHOT_STATUS_OUT')
     && snapshot.includes('atomicWriteFile(MARKET_SNAPSHOT_OUT'), 'market snapshot can be torn during replacement');
@@ -217,6 +221,21 @@ try {
   await atomicWriteFile(pathToFileURL(tempFile), '{"revision":1}');
   atomicWriteFileSync(pathToFileURL(tempFile), '{"revision":2}');
   check('regression:atomic-url-and-replacement', JSON.parse(fs.readFileSync(tempFile, 'utf8')).revision === 2 && fs.readdirSync(tempDir).length === 1, 'atomic URL write/read/replace and temporary cleanup');
+  const fsp = (await import('node:fs/promises')).default;
+  const realWrite = fsp.writeFile;
+  let refused = false;
+  try {
+    fsp.writeFile = async (file, ...args) => {
+      if (String(file).endsWith('.tmp')) {
+        await realWrite(file, 'partial', 'utf8');
+        throw Object.assign(new Error('injected write failure'), { code: 'UNKNOWN' });
+      }
+      return realWrite(file, ...args);
+    };
+    try { await atomicWriteFile(tempFile, '{"revision":3}'); } catch (error) { refused = error.code === 'UNKNOWN'; }
+  } finally { fsp.writeFile = realWrite; }
+  check('regression:failed-write-keeps-published-json', refused && JSON.parse(fs.readFileSync(tempFile, 'utf8')).revision === 2 && fs.readdirSync(tempDir).length === 1, 'partial temp write must never truncate the published artifact');
+
 } finally {
   fs.rmSync(tempFile, { force: true });
   fs.rmdirSync(tempDir);

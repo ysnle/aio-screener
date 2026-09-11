@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { validateKnowledgeAuthoringCorpus, SOURCE_PRESERVED_STATUS, SEMANTIC_REFERENCE_STATUS } from './lib/knowledge-authoring-contract.mjs';
 
 const root = process.cwd();
 const strict = process.argv.includes('--strict');
@@ -38,6 +39,11 @@ const mastersHistoryIndex = json('public-data/masters/history-index.json');
 const mastersHistoryRows = json('public-data/masters/history-holdings.json');
 const principlesLessonLibrary = json('public-data/principles/lesson-library.json');
 const principlesNodeGuides = json('public-data/principles/node-guides.json');
+const knowledgeArticles = json('public-data/knowledge/articles.json');
+const authoringContracts = {
+  principles: validateKnowledgeAuthoringCorpus({ surface: 'principles', artifact: principlesLessonLibrary, articles: (knowledgeArticles.articles || []).filter((article) => article.surface === 'principles') }),
+  atlas: validateKnowledgeAuthoringCorpus({ surface: 'atlas-foundations', artifact: foundationLessons, articles: (knowledgeArticles.articles || []).filter((article) => article.surface === 'atlas-foundations') })
+};
 
 const principlesNodes = count(principlesSource, /Object\.freeze\(\{ id: '[^']+', type:/g);
 const principlesLessons = count(principlesSource, /Object\.freeze\(\{ id: '[^']+', title: '[^']+', level:/g);
@@ -48,7 +54,7 @@ const checks = [
   ...sourceDocs.map((file) => ({ check: `source exists: ${file}`, pass: fs.existsSync(path.join(root, file)) })),
   { check: 'atlas taxonomy node count is 95', pass: atlasIndex.taxonomyNodes === 95 },
   { check: 'atlas foundation module count is 48', pass: atlasIndex.foundationModules === 48 && foundations.moduleIndex.length === 48 },
-  { check: 'atlas authored foundation lessons are 48 and source-linked', pass: atlasIndex.foundationLessonArtifact === 'public-data/atlas/foundation-lessons.json' && atlasIndex.authoredFoundationLessons === 48 && foundationLessons.lessons.length === 48 && Object.keys(foundationLessons.sourceCoverage || {}).length === 18 && foundationLessons.sourceCatalog?.length === 5 && foundationLessons.lessons.every((lesson) => [...new Set([...(lesson.sourceIds || []), ...(foundationLessons.sourceCoverage?.[lesson.id] || [])])].length > 0) && foundationLessons.shortFormStatus === 'AUTHORED_REFERENCE_CONNECTED' && foundationLessons.longFormStatus === 'AUTHORED_REFERENCE_CONNECTED' },
+  { check: 'atlas authored foundation lessons are 48 and source-linked', pass: atlasIndex.foundationLessonArtifact === 'public-data/atlas/foundation-lessons.json' && atlasIndex.authoredFoundationLessons === 48 && foundationLessons.lessons.length === 48 && Object.keys(foundationLessons.sourceCoverage || {}).length === 18 && foundationLessons.sourceCatalog?.length === 5 && foundationLessons.lessons.every((lesson) => [...new Set([...(lesson.sourceIds || []), ...(foundationLessons.sourceCoverage?.[lesson.id] || [])])].length > 0) && foundationLessons.shortFormStatus === 'AUTHORED_REFERENCE_CONNECTED' && [SOURCE_PRESERVED_STATUS, SEMANTIC_REFERENCE_STATUS].includes(foundationLessons.longFormStatus) && authoringContracts.atlas.mode === foundationLessons.longFormStatus },
   { check: 'atlas authored domain guides are 19 and connected', pass: atlasIndex.domainGuideArtifact === 'public-data/atlas/domain-guides.json' && atlasIndex.domainGuides === 19 && atlasDomainGuides.status === 'REFERENCE_CONNECTED' && atlasDomainGuides.guides.length === 19 },
   { check: 'atlas domain source packets are 19 and connected', pass: atlasIndex.domainSourcePacketArtifact === 'public-data/atlas/domain-source-packets.json' && atlasIndex.domainSourcePackets === 19 && atlasDomainPackets.status === 'REFERENCE_CONNECTED' && atlasDomainPackets.packets.length === 19 && atlasDomainPackets.packets.every((packet) => packet.sources?.length === 3) },
   { check: 'atlas domain structural claim ledger is 57 and current claims remain zero', pass: atlasIndex.domainClaimLedgerArtifact === 'public-data/atlas/domain-claim-ledger.json' && atlasIndex.domainStructuralClaims === 57 && atlasIndex.domainCurrentClaims === 0 && atlasDomainClaims.claims.length === 57 && atlasDomainClaims.counts?.currentClaims === 0 },
@@ -70,6 +76,7 @@ const checks = [
   { check: 'principles edge count matches current catalog', pass: principlesEdges === 71 },
   { check: 'principles authored A~O chapter artifact is connected', pass: principlesChapters.status === 'REFERENCE_CONNECTED' && principlesChapters.publication === 'EDUCATIONAL_REFERENCE_ONLY' && principlesChapters.chapters.length === 15 },
   { check: 'principles A~O lesson library is 112 and fully sourced', pass: principlesLessonLibrary.status === 'REFERENCE_CONNECTED' && principlesLessonLibrary.lessons.length === 112 && principlesLessonLibrary.lessons.every((lesson) => lesson.sourceIds?.length && lesson.diagram && lesson.verificationQuestion) },
+  { check: 'knowledge article authoring mode preserves source reference or enforces semantic depth', pass: authoringContracts.principles.failures.length === 0 && authoringContracts.atlas.failures.length === 0 },
   { check: 'principles node guide knowledge base is 60 and individually authored', pass: principlesNodeGuides.status === 'AUTHORED_REFERENCE_CONNECTED' && principlesNodeGuides.publication === 'EDUCATIONAL_REFERENCE_ONLY' && principlesNodeGuides.nodes.length === 60 && new Set(principlesNodeGuides.nodes.map((node) => node.id)).size === 60 && principlesNodeGuides.nodes.every((node) => ['definition', 'intuition', 'mechanism', 'kpi', 'connection', 'risk'].every((field) => node[field])) },
   ...['definition', 'mechanism', 'example', 'counterScenario', 'verificationQuestion', 'diagram'].map((field) => ({ check: `principles ${field} text is unique per lesson`, pass: new Set(principlesLessonLibrary.lessons.map((lesson) => lesson[field])).size === principlesLessonLibrary.lessons.length })),
   { check: 'masters full holdings count is 1290', pass: mastersHoldings.allHoldings?.length === 1290 },

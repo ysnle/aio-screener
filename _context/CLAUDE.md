@@ -10,8 +10,8 @@ target_version: version.json
 
 > Claude/Codex 공용 작업환경의 얇은 구조 설명이다. 변동 숫자는 `_context/CURRENT-STATE.md`, 전체 문서 목록은 `_context/CONTEXT-CATALOG.json`에서 생성된다.
 
-- **현재 버전**: v54.77
-- 공통 preflight: `CURRENT-STATE.md` → `WORKFLOW-GOVERNANCE.md` → `INDEX.md` → 선택된 스킬
+- **현재 버전**: v54.88
+- 공통 preflight: `CURRENT-STATE.md` 한 번 확인; `WORKFLOW-GOVERNANCE.md`·`INDEX.md`·스킬은 필요한 경우만 참조
 - 대형 원장: `RULES.md`, `BUG-POSTMORTEM.md`, `QA-CHECKLIST.md`, `KNOWLEDGE-BASE.md`는 관련 용어/ID 범위만 읽는다.
 
 ## Canonical surfaces

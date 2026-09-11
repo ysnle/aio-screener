@@ -1,7 +1,9 @@
 // v53.91: research-only setup labels and TradingView evidence derived from the published screener factors.
 // This is deliberately not a trading signal. It exposes the user's relative-strength
 // pullback and climax-top framework without inventing benchmark, volume, or intraday data.
-export const SCREENER_SETUP_MODEL_VERSION = 'screener-setup.v1';
+import { SUPPLIED_MATERIAL_CLAIM_IDS } from '../research/supplied-materials.js';
+
+export const SCREENER_SETUP_MODEL_VERSION = 'screener-setup.v2';
 
 function finite(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
@@ -45,6 +47,20 @@ export function deriveScreenerSetupProfile(row = {}) {
   const volumeEvidence = rvol20 == null ? 'unavailable'
     : rvol20 >= 2.5 ? 'surge'
       : rvol20 >= 1.5 ? 'elevated' : 'normal';
+
+  // 2026-09-11 supplied-materials bridge. These fields are deliberately
+  // reference-only: the published screener artifact has no earnings-event
+  // timestamp, wedge geometry, or post-event acceptance series, so the model
+  // must expose the gap instead of inferring a Wedge Pop or post-earnings break.
+  const baseBreakoutEvidence = row.vcpStage === 'breakout' && finite(row.vcpScore) != null
+    ? (rvol20 == null ? 'partial' : 'observed-technical-breakout') : 'unavailable';
+  const structureEvidence = Object.freeze({
+    baseBreakout: baseBreakoutEvidence,
+    wedgePop: 'unavailable',
+    postEarningsBreakout: 'unavailable',
+    supportResponse: support200 === 'near' ? 'location-only' : 'unavailable',
+    requiredForConfirmation: Object.freeze(['event timestamp', 'OHLCV session bars', 'volume', 'acceptance/rejection', 'retest/invalidation'])
+  });
 
   // TradingView image #1 is represented as a transparent evidence gate.
   // It must never silently pass on missing ADR, 52-week, liquidity, or EMA data.
@@ -102,6 +118,9 @@ export function deriveScreenerSetupProfile(row = {}) {
     stretch200,
     rsiOverheat,
     volumeEvidence,
+    structureEvidence,
+    referenceFrameworkIds: Object.freeze(['wedge-pop-retest', 'leverage-exposure-discipline', 'proof-before-exposure']),
+    referenceClaimIds: SUPPLIED_MATERIAL_CLAIM_IDS,
     winnerFilter,
     winnerChecks: Object.freeze(winnerChecks),
     winnerMissing: Object.freeze(winnerMissing),

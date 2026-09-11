@@ -1,0 +1,902 @@
+{
+  "label": "final",
+  "environment": {
+    "browser": "149.0.7827.55",
+    "externalNetwork": "aborted",
+    "viewport": "1440x900"
+  },
+  "boot": {
+    "fcp": 1520,
+    "tasks": [
+      {
+        "start": 121.09999990463257,
+        "duration": 90
+      },
+      {
+        "start": 384.5,
+        "duration": 63
+      },
+      {
+        "start": 613.9000000953674,
+        "duration": 789
+      },
+      {
+        "start": 2727.2000000476837,
+        "duration": 697
+      }
+    ],
+    "resources": [
+      {
+        "path": "/js/aio-core.js",
+        "bytes": 1679203
+      },
+      {
+        "path": "/js/aio-ui.js",
+        "bytes": 275961
+      },
+      {
+        "path": "/js/aio-data.js",
+        "bytes": 1016209
+      },
+      {
+        "path": "/js/aio-chat.js",
+        "bytes": 548921
+      },
+      {
+        "path": "/js/aio-ui.js",
+        "bytes": 275961
+      },
+      {
+        "path": "/js/aio-data.js",
+        "bytes": 1016209
+      },
+      {
+        "path": "/js/aio-core.js",
+        "bytes": 1679203
+      },
+      {
+        "path": "/js/aio-chat.js",
+        "bytes": 548921
+      },
+      {
+        "path": "/js/aio-glossary.js",
+        "bytes": 60846
+      },
+      {
+        "path": "/src/app/bootstrap.js",
+        "bytes": 41014
+      },
+      {
+        "path": "/src/platform/http.js",
+        "bytes": 3138
+      },
+      {
+        "path": "/src/platform/clock.js",
+        "bytes": 207
+      },
+      {
+        "path": "/src/state/store.js",
+        "bytes": 1790
+      },
+      {
+        "path": "/src/state/slices/sentiment.js",
+        "bytes": 969
+      },
+      {
+        "path": "/src/state/slices/news.js",
+        "bytes": 1449
+      },
+      {
+        "path": "/src/state/slices/themes.js",
+        "bytes": 1350
+      },
+      {
+        "path": "/src/state/slices/market.js",
+        "bytes": 1005
+      },
+      {
+        "path": "/src/state/slices/entity.js",
+        "bytes": 1773
+      },
+      {
+        "path": "/src/state/slices/portfolio.js",
+        "bytes": 1311
+      },
+      {
+        "path": "/src/state/slices/screener.js",
+        "bytes": 2962
+      },
+      {
+        "path": "/src/app/commands/sentiment.js",
+        "bytes": 460
+      },
+      {
+        "path": "/src/app/commands/news.js",
+        "bytes": 425
+      },
+      {
+        "path": "/src/app/commands/market.js",
+        "bytes": 439
+      },
+      {
+        "path": "/src/app/commands/themes.js",
+        "bytes": 439
+      },
+      {
+        "path": "/src/app/commands/entity.js",
+        "bytes": 439
+      },
+      {
+        "path": "/src/app/commands/portfolio.js",
+        "bytes": 440
+      },
+      {
+        "path": "/src/app/commands/screener.js",
+        "bytes": 859
+      },
+      {
+        "path": "/src/state/selectors/sentiment.js",
+        "bytes": 612
+      },
+      {
+        "path": "/src/data/evidence-store.js",
+        "bytes": 687
+      },
+      {
+        "path": "/src/data/contracts/evidence.js",
+        "bytes": 6340
+      },
+      {
+        "path": "/src/data/selectors/evidence.js",
+        "bytes": 3246
+      },
+      {
+        "path": "/src/domain/signal/trading-score.js",
+        "bytes": 17478
+      },
+      {
+        "path": "/src/domain/technical/stage.js",
+        "bytes": 10134
+      },
+      {
+        "path": "/src/domain/themes/rrg.js",
+        "bytes": 3210
+      },
+      {
+        "path": "/src/domain/news/scoring.js",
+        "bytes": 6512
+      },
+      {
+        "path": "/src/domain/market/breadth.js",
+        "bytes": 5813
+      },
+      {
+        "path": "/src/domain/market/health.js",
+        "bytes": 6174
+      },
+      {
+        "path": "/src/domain/macro/treasury-curve.js",
+        "bytes": 4400
+      },
+      {
+        "path": "/src/domain/portfolio/concentration.js",
+        "bytes": 3775
+      },
+      {
+        "path": "/src/domain/screener/factor-ranks.js",
+        "bytes": 30537
+      },
+      {
+        "path": "/src/domain/screener/factor-weights.js",
+        "bytes": 4154
+      },
+      {
+        "path": "/src/domain/screener/screen-engine.js",
+        "bytes": 14892
+      },
+      {
+        "path": "/src/storage/screener-runs.js",
+        "bytes": 3454
+      },
+      {
+        "path": "/src/domain/screener/saved-screens.js",
+        "bytes": 4147
+      },
+      {
+        "path": "/src/data/market-snapshot-loader.js",
+        "bytes": 1207
+      },
+      {
+        "path": "/src/data/providers/sentiment.js",
+        "bytes": 300
+      },
+      {
+        "path": "/src/data/orchestrators/sentiment.js",
+        "bytes": 3392
+      },
+      {
+        "path": "/src/data/providers/news.js",
+        "bytes": 947
+      },
+      {
+        "path": "/src/data/orchestrators/news.js",
+        "bytes": 1285
+      },
+      {
+        "path": "/src/data/providers/market.js",
+        "bytes": 544
+      },
+      {
+        "path": "/src/data/orchestrators/market.js",
+        "bytes": 460
+      },
+      {
+        "path": "/src/data/providers/themes.js",
+        "bytes": 8979
+      },
+      {
+        "path": "/src/data/orchestrators/themes.js",
+        "bytes": 460
+      },
+      {
+        "path": "/src/data/providers/entity.js",
+        "bytes": 4694
+      },
+      {
+        "path": "/src/data/orchestrators/entity.js",
+        "bytes": 1303
+      },
+      {
+        "path": "/src/data/providers/portfolio.js",
+        "bytes": 1905
+      },
+      {
+        "path": "/src/data/orchestrators/portfolio.js",
+        "bytes": 475
+      },
+      {
+        "path": "/src/data/providers/screener.js",
+        "bytes": 19680
+      },
+      {
+        "path": "/src/data/orchestrators/screener.js",
+        "bytes": 6637
+      },
+      {
+        "path": "/src/ai/context-builder.js",
+        "bytes": 863
+      },
+      {
+        "path": "/src/data/runtime-readers.js",
+        "bytes": 30063
+      },
+      {
+        "path": "/src/ai/retrieval/evidence.js",
+        "bytes": 312
+      },
+      {
+        "path": "/src/ai/retrieval/knowledge.js",
+        "bytes": 11626
+      },
+      {
+        "path": "/src/ai/orchestrator/answer-orchestrator.js",
+        "bytes": 4061
+      },
+      {
+        "path": "/src/ai/research/evidence.js",
+        "bytes": 14684
+      },
+      {
+        "path": "/src/app/router.js",
+        "bytes": 8889
+      },
+      {
+        "path": "/src/ui/projections/sentiment-summary.js",
+        "bytes": 863
+      },
+      {
+        "path": "/src/state/slices/analysis.js",
+        "bytes": 997
+      },
+      {
+        "path": "/src/app/commands/analysis.js",
+        "bytes": 433
+      },
+      {
+        "path": "/src/data/providers/analysis.js",
+        "bytes": 163
+      },
+      {
+        "path": "/src/data/orchestrators/analysis.js",
+        "bytes": 456
+      },
+      {
+        "path": "/src/legacy/compatibility-facade.js",
+        "bytes": 29465
+      },
+      {
+        "path": "/src/legacy/market-snapshot-bridge.js",
+        "bytes": 2307
+      },
+      {
+        "path": "/src/app/routes.js",
+        "bytes": 355
+      },
+      {
+        "path": "/src/app/vertical-slices.js",
+        "bytes": 4228
+      },
+      {
+        "path": "/src/data/contracts/page-timeline.js",
+        "bytes": 8098
+      },
+      {
+        "path": "/src/domain/content/capability-manifest.js",
+        "bytes": 4764
+      },
+      {
+        "path": "/src/app/lifecycle.js",
+        "bytes": 4347
+      },
+      {
+        "path": "/src/ai/policy/conduct.js",
+        "bytes": 6474
+      },
+      {
+        "path": "/src/domain/sentiment/metrics.js",
+        "bytes": 1762
+      },
+      {
+        "path": "/src/data/contracts/screener.js",
+        "bytes": 34566
+      },
+      {
+        "path": "/src/data/contracts/market-snapshot.js",
+        "bytes": 8452
+      },
+      {
+        "path": "/src/data/quality/freshness.js",
+        "bytes": 1461
+      },
+      {
+        "path": "/src/data/normalize/sentiment.js",
+        "bytes": 1700
+      },
+      {
+        "path": "/src/data/normalize/news.js",
+        "bytes": 1243
+      },
+      {
+        "path": "/src/data/normalize/market.js",
+        "bytes": 1032
+      },
+      {
+        "path": "/src/data/normalize/themes.js",
+        "bytes": 5121
+      },
+      {
+        "path": "/src/data/normalize/entity.js",
+        "bytes": 2101
+      },
+      {
+        "path": "/src/data/normalize/portfolio.js",
+        "bytes": 2561
+      },
+      {
+        "path": "/src/data/normalize/screener.js",
+        "bytes": 5023
+      },
+      {
+        "path": "/src/domain/screener/setup-profile.js",
+        "bytes": 5857
+      },
+      {
+        "path": "/src/domain/research/supplied-materials.js",
+        "bytes": 60869
+      },
+      {
+        "path": "/src/ai/policy.js",
+        "bytes": 1559
+      },
+      {
+        "path": "/src/ai/context/manifest.js",
+        "bytes": 903
+      },
+      {
+        "path": "/src/ai/orchestrator/question-planner.js",
+        "bytes": 5678
+      },
+      {
+        "path": "/src/ai/orchestrator/capability-planner.js",
+        "bytes": 1324
+      },
+      {
+        "path": "/src/ai/response/claim-ledger.js",
+        "bytes": 6598
+      },
+      {
+        "path": "/src/ai/response/renderer.js",
+        "bytes": 2245
+      },
+      {
+        "path": "/src/ai/analysis/registry.js",
+        "bytes": 1255
+      },
+      {
+        "path": "/src/ai/research/decision.js",
+        "bytes": 8245
+      },
+      {
+        "path": "/src/ai/research/plan.js",
+        "bytes": 6326
+      },
+      {
+        "path": "/src/ai/research/capability.js",
+        "bytes": 3213
+      },
+      {
+        "path": "/src/data/normalize/analysis.js",
+        "bytes": 1593
+      },
+      {
+        "path": "/src/domain/chart/contract.js",
+        "bytes": 2442
+      },
+      {
+        "path": "/src/ai/inference.js",
+        "bytes": 5246
+      },
+      {
+        "path": "/src/ai/intent/taxonomy.js",
+        "bytes": 9095
+      },
+      {
+        "path": "/src/ai/entity/resolver.js",
+        "bytes": 3823
+      },
+      {
+        "path": "/src/ai/time/market-session.js",
+        "bytes": 6365
+      },
+      {
+        "path": "/src/ai/policy/suitability.js",
+        "bytes": 1090
+      },
+      {
+        "path": "/src/ai/analysis/causal.js",
+        "bytes": 3149
+      },
+      {
+        "path": "/src/ai/analysis/sector.js",
+        "bytes": 2292
+      },
+      {
+        "path": "/src/ai/analysis/company.js",
+        "bytes": 2980
+      },
+      {
+        "path": "/src/ai/analysis/technical.js",
+        "bytes": 2251
+      },
+      {
+        "path": "/src/ai/analysis/macro-fx.js",
+        "bytes": 1907
+      },
+      {
+        "path": "/src/domain/home/summary.js",
+        "bytes": 696
+      },
+      {
+        "path": "/src/ui/pages/analysis.js",
+        "bytes": 22926
+      },
+      {
+        "path": "/public-data/market-snapshot.json",
+        "bytes": 12601
+      },
+      {
+        "path": "/public-data/data.json",
+        "bytes": 101155
+      },
+      {
+        "path": "/src/state/selectors/analysis.js",
+        "bytes": 361
+      },
+      {
+        "path": "/src/state/memoize.js",
+        "bytes": 1993
+      },
+      {
+        "path": "/src/ui/knowledge/supplied-material-bridge.js",
+        "bytes": 7196
+      },
+      {
+        "path": "/public-data/reconciliation-status.json",
+        "bytes": 63173
+      },
+      {
+        "path": "/public-data/telegram-digest.json",
+        "bytes": 1100726
+      },
+      {
+        "path": "/public-data/history.json",
+        "bytes": 1524868
+      },
+      {
+        "path": "/public-data/operator-note.json",
+        "bytes": 1243
+      },
+      {
+        "path": "/public-data/sec-fundamentals-summary.json",
+        "bytes": 567900
+      },
+      {
+        "path": "/public-data/screener.json",
+        "bytes": 816131
+      },
+      {
+        "path": "/public-data/screener-universe.json",
+        "bytes": 105130
+      },
+      {
+        "path": "/public-data/user-research-digest.json",
+        "bytes": 79040
+      },
+      {
+        "path": "/public-data/screener.json",
+        "bytes": 816131
+      },
+      {
+        "path": "/public-data/screener-universe.json",
+        "bytes": 105130
+      }
+    ]
+  },
+  "routes": [
+    {
+      "route": "home",
+      "syncMs": 5.900000095367432,
+      "paintMs": 19.09999990463257,
+      "nodes": 498,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "signal",
+      "syncMs": 53.799999952316284,
+      "paintMs": 64.29999995231628,
+      "nodes": 811,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "breadth",
+      "syncMs": 18.299999952316284,
+      "paintMs": 24.600000143051147,
+      "nodes": 332,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "sentiment",
+      "syncMs": 25.90000009536743,
+      "paintMs": 32.90000009536743,
+      "nodes": 373,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "briefing",
+      "syncMs": 234.29999995231628,
+      "paintMs": 433.7999999523163,
+      "nodes": 932,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "technical",
+      "syncMs": 23.40000009536743,
+      "paintMs": 35.10000014305115,
+      "nodes": 669,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "macro",
+      "syncMs": 16.700000047683716,
+      "paintMs": 23.300000190734863,
+      "nodes": 951,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "fxbond",
+      "syncMs": 22.5,
+      "paintMs": 30,
+      "nodes": 715,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "themes",
+      "syncMs": 190,
+      "paintMs": 199.80000019073486,
+      "nodes": 3808,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "theme-detail",
+      "syncMs": 194,
+      "paintMs": 212.39999985694885,
+      "nodes": 102,
+      "active": false
+    },
+    {
+      "route": "ticker",
+      "syncMs": 33.10000014305115,
+      "paintMs": 59,
+      "nodes": 387,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "fundamental",
+      "syncMs": 10.899999856948853,
+      "paintMs": 27.59999990463257,
+      "nodes": 658,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "options",
+      "syncMs": 14,
+      "paintMs": 30.40000009536743,
+      "nodes": 185,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "portfolio",
+      "syncMs": 27.799999952316284,
+      "paintMs": 34.700000047683716,
+      "nodes": 517,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "market-news",
+      "syncMs": 40.60000014305115,
+      "paintMs": 48.200000047683716,
+      "nodes": 480,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "screener",
+      "syncMs": 34.200000047683716,
+      "paintMs": 41.80000019073486,
+      "nodes": 343,
+      "module": "loading",
+      "active": true
+    },
+    {
+      "route": "principles",
+      "syncMs": 12.600000143051147,
+      "paintMs": 50.799999952316284,
+      "nodes": 407,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "masters",
+      "syncMs": 13.099999904632568,
+      "paintMs": 20.799999952316284,
+      "nodes": 925,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "atlas",
+      "syncMs": 8.599999904632568,
+      "paintMs": 17.199999809265137,
+      "nodes": 604,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "guide",
+      "syncMs": 68.29999995231628,
+      "paintMs": 78.09999990463257,
+      "nodes": 553,
+      "module": "ready",
+      "active": true
+    }
+  ],
+  "unrelatedDispatch": {
+    "ms": 1.5,
+    "mutations": 20
+  },
+  "cpuSelfMs": [
+    [
+      "(idle) :0",
+      5441.83099999997
+    ],
+    [
+      "(program) :0",
+      882.9990000000003
+    ],
+    [
+      "(anonymous) http://127.0.0.1:8917/src/legacy/compatibility-facade.js:498",
+      534.7160000000003
+    ],
+    [
+      "showPage http://127.0.0.1:8917/js/aio-core.js?v=54.80:26840",
+      426.3310000000003
+    ],
+    [
+      "stableSerialize http://127.0.0.1:8917/src/data/contracts/screener.js:41",
+      336.0669999999998
+    ],
+    [
+      "(garbage collector) :0",
+      169.18200000000004
+    ],
+    [
+      "stableHash http://127.0.0.1:8917/src/data/contracts/screener.js:47",
+      160.98700000000002
+    ],
+    [
+      "createObservationEnvelope http://127.0.0.1:8917/src/data/contracts/screener.js:161",
+      150.04000000000005
+    ],
+    [
+      "freeze http://127.0.0.1:8917/src/legacy/compatibility-facade.js:18",
+      111.732
+    ],
+    [
+      "extractTickers http://127.0.0.1:8917/js/aio-data.js?v=54.80:10743",
+      88.516
+    ],
+    [
+      "fetch :0",
+      87.50899999999997
+    ],
+    [
+      "(anonymous) http://127.0.0.1:8917/js/aio-data.js?v=54.80:11012",
+      71.51000000000002
+    ],
+    [
+      "querySelectorAll :0",
+      46.526
+    ],
+    [
+      "(anonymous) http://127.0.0.1:8917/js/aio-data.js?v=54.80:10758",
+      42.56099999999999
+    ],
+    [
+      "fetchViaProxy http://127.0.0.1:8917/js/aio-data.js?v=54.80:2257",
+      34.581
+    ],
+    [
+      "getBoundingClientRect :0",
+      32.937
+    ],
+    [
+      "readRightsOverride http://127.0.0.1:8917/src/data/providers/screener.js:26",
+      30.035000000000004
+    ],
+    [
+      "window.Chart http://127.0.0.1:8917/:13041",
+      26.560000000000002
+    ],
+    [
+      "_checkAllDeadBanner http://127.0.0.1:8917/js/aio-core.js?v=54.80:16572",
+      24.419
+    ],
+    [
+      "renderRRGCanvas http://127.0.0.1:8917/src/ui/pages/themes.js:63",
+      21.810000000000002
+    ],
+    [
+      "(anonymous) http://127.0.0.1:8917/src/data/contracts/screener.js:44",
+      21.683000000000003
+    ],
+    [
+      "buildRuntimeObservationCatalog http://127.0.0.1:8917/src/data/runtime-readers.js:209",
+      17.13
+    ],
+    [
+      "(anonymous) http://127.0.0.1:8917/js/aio-core.js?v=54.80:2058",
+      15.756
+    ],
+    [
+      "window.AIO.getSharedMarketCut http://127.0.0.1:8917/js/aio-core.js?v=54.80:6513",
+      13.871999999999998
+    ],
+    [
+      "scrollIntoView :0",
+      12.614999999999998
+    ],
+    [
+      "updateAIPanelContext http://127.0.0.1:8917/:27487",
+      12.530000000000001
+    ],
+    [
+      "_aioNewsIsBlacklisted http://127.0.0.1:8917/js/aio-data.js?v=54.80:11007",
+      9.99
+    ],
+    [
+      "screenerObservationCoverage http://127.0.0.1:8917/src/data/runtime-readers.js:151",
+      9.483
+    ],
+    [
+      "pushState :0",
+      9.465
+    ],
+    [
+      "window.AIO.getCrossSourceQuoteValidation http://127.0.0.1:8917/js/aio-core.js?v=54.80:23438",
+      9.065999999999999
+    ],
+    [
+      "buildFieldReadiness http://127.0.0.1:8917/src/data/contracts/screener.js:269",
+      8.809
+    ],
+    [
+      "evaluateQuote http://127.0.0.1:8917/js/aio-core.js?v=54.80:23575",
+      8.709
+    ],
+    [
+      "evaluatePageDataTimeline http://127.0.0.1:8917/src/data/contracts/page-timeline.js:47",
+      7.977
+    ],
+    [
+      "renderSubThemesGrid http://127.0.0.1:8917/:23809",
+      7.97
+    ],
+    [
+      "(anonymous) http://127.0.0.1:8917/js/aio-core.js?v=54.80:14222",
+      7.931
+    ],
+    [
+      "(anonymous) http://127.0.0.1:8917/src/data/runtime-readers.js:213",
+      7.888999999999999
+    ],
+    [
+      "fetchWithTimeout http://127.0.0.1:8917/js/aio-data.js?v=54.80:2011",
+      7.785
+    ],
+    [
+      "querySelector :0",
+      6.395
+    ],
+    [
+      "_tcKey http://127.0.0.1:8917/js/aio-data.js?v=54.80:9634",
+      6.384
+    ],
+    [
+      "_aioNewsPubMs http://127.0.0.1:8917/js/aio-data.js?v=54.80:10961",
+      6.335
+    ],
+    [
+      "addEventListener :0",
+      6.273999999999999
+    ],
+    [
+      "renderKrThemeCardsFromMap http://127.0.0.1:8917/:16950",
+      6.256
+    ],
+    [
+      "calculationRow http://127.0.0.1:8917/src/data/contracts/screener.js:261",
+      6.245000000000001
+    ],
+    [
+      "getAttribute :0",
+      6.208
+    ],
+    [
+      "(anonymous) http://127.0.0.1:8917/src/data/providers/screener.js:197",
+      6.17
+    ]
+  ]
+}

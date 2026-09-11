@@ -39,6 +39,9 @@ export function applyMarketSnapshotToLegacy(root = globalThis, snapshot) {
     count: applied,
     generatedAt: snapshot.generatedAt || null,
     latestObservedAt,
+    status: snapshot.status,
+    marketSnapshotPublished: snapshot.status === 'published',
+    coverage: snapshot.coverage || null,
     sourceKind: 'REFERENCE'
   });
   try {

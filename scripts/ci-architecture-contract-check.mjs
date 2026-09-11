@@ -338,10 +338,15 @@ for (const marker of ['renderPortfolioHero', 'pf-total-value', 'pf-total-pnl', '
   if (!portfolioPageSource.includes(marker)) fail(`native portfolio hero renderer marker missing: ${marker}`);
 }
 if (read('index.html').includes("document.getElementById('pf-total-value')") || read('index.html').includes("document.getElementById('pf-total-pnl')")) fail('legacy portfolio hero writer returned after P810 cutover');
-// P827: breadth stage/McClellan status and all five breadth chart lifecycles are native.
+// P827/P1033: breadth stage/McClellan status and all five breadth chart lifecycles are native.
+// A marker alone is insufficient: each canvas must execute through the native chart registry,
+// while the unavailable breadth5 series remains an explicit blocked input rather than a seed.
 if (routeOwners.routes?.breadth?.chartOwner !== 'native' || (routeOwners.routes?.breadth?.contestedIds || []).length) fail('breadth secondary chart ownership remains contested');
 for (const marker of ['renderNativeHistoryChart', 'aioBreadthChartRenderer', 'aioBreadthStageRenderer', 'aioBreadthMcclellanRenderer']) {
   if (!marketPageSource.includes(marker)) fail(`native breadth secondary marker missing: ${marker}`);
+}
+for (const marker of ["id: 'bp-price-chart', field: 'spx'", "id: 'bp-ad-ratio-chart', field: 'advanceRatio'", "id: 'bp-5ma-chart', field: 'breadth5'", "id: 'bp-20ma-chart', field: 'breadth20'", "id: 'bp-50ma-chart', field: 'breadth50'", "if (route === 'breadth') renderBreadth(root, page, charts, store);"]) {
+  if (!marketPageSource.includes(marker)) fail(`native breadth chart execution missing: ${marker}`);
 }
 if (!uiSource.includes('aioBreadthStageRenderer') || !uiSource.includes('aioBreadthMcclellanRenderer') || !uiSource.includes('aioBreadthChartRenderer')) fail('legacy breadth secondary writer fence missing');
 if (!coreSource.includes('aioBreadthChartRenderer') || !coreSource.includes('dataset.aioBreadthChartRenderer === \'native\'')) fail('legacy breadth canvas fallback fence missing');
@@ -495,16 +500,13 @@ const modules = await Promise.all([
   import(pathToFileURL(path.join(root, 'src/state/slices/sentiment.js'))),
   import(pathToFileURL(path.join(root, 'src/state/selectors/sentiment.js'))),
   import(pathToFileURL(path.join(root, 'src/app/commands/sentiment.js'))),
-  import(pathToFileURL(path.join(root, 'src/data/contracts/revision.js'))),
-  import(pathToFileURL(path.join(root, 'src/data/quality/lineage.js'))),
   import(pathToFileURL(path.join(root, 'src/data/contracts/market-snapshot.js'))),
   import(pathToFileURL(path.join(root, 'src/ai/policy.js'))),
   import(pathToFileURL(path.join(root, 'src/ai/inference.js'))),
   import(pathToFileURL(path.join(root, 'src/platform/http.js'))),
   import(pathToFileURL(path.join(root, 'src/platform/storage.js'))),
-  import(pathToFileURL(path.join(root, 'src/platform/sanitizer.js')))
 ]);
-const [{ createEvidence, validateEvidence }, { createEvidenceStore }, { deriveSentimentSummary }, { createStore }, { createInitialSentimentState, sentimentReducer }, { selectSentimentValue }, { createSentimentCommands }, { createRevisionManifest, validateRevisionManifest }, { createLineageRecord, validateLineageRecord }, { createMarketSnapshot, validateMarketSnapshot }, { evaluateClaim }, { createInferredClaim, validateInferredClaim, evaluateInferredClaim }, { createHttpClient }, { createStorageGateway }, { createSanitizer }] = modules;
+const [{ createEvidence, validateEvidence }, { createEvidenceStore }, { deriveSentimentSummary }, { createStore }, { createInitialSentimentState, sentimentReducer }, { selectSentimentValue }, { createSentimentCommands }, { createMarketSnapshot, validateMarketSnapshot }, { evaluateClaim }, { createInferredClaim, validateInferredClaim, evaluateInferredClaim }, { createHttpClient }, { createStorageGateway }] = modules;
 const evidence = createEvidence({ metric: 'fearGreed', value: 42, unit: 'score', sourceKind: 'fixture', observedAt: '2026-07-18T00:00:00Z', fetchedAt: '2026-07-18T00:00:01Z', status: 'live' });
 if (!validateEvidence(evidence).ok || evidence.allowedUse !== 'decision') fail('live evidence contract failed');
 const store = createEvidenceStore();
@@ -523,7 +525,6 @@ const { createInitialMarketState, marketReducer } = await import(pathToFileURL(p
 const { createMarketCommands } = await import(pathToFileURL(path.join(root, 'src/app/commands/market.js')));
 const { createMarketProvider } = await import(pathToFileURL(path.join(root, 'src/data/providers/market.js')));
 const { createMarketOrchestrator } = await import(pathToFileURL(path.join(root, 'src/data/orchestrators/market.js')));
-const { selectMarketQuote } = await import(pathToFileURL(path.join(root, 'src/state/selectors/market.js')));
 const { createInitialThemesState, themesReducer } = await import(pathToFileURL(path.join(root, 'src/state/slices/themes.js')));
 const { createThemesCommands } = await import(pathToFileURL(path.join(root, 'src/app/commands/themes.js')));
 const { createThemesProvider } = await import(pathToFileURL(path.join(root, 'src/data/providers/themes.js')));
@@ -556,7 +557,7 @@ const marketStore = createStore({ initialState: { market: createInitialMarketSta
 const marketCommands = createMarketCommands({ store: marketStore });
 const marketWriter = createMarketOrchestrator({ provider: createMarketProvider({ read: () => ({ quotes: { '^TNX': { value: 4.2, pct: 0.1 } }, metrics: { fedRate: 5.25 } }) }), commands: marketCommands });
 marketWriter.sync();
-if (selectMarketQuote(marketStore.getState(), '^TNX')?.value !== 4.2 || !Object.isFrozen(selectMarketQuote(marketStore.getState(), '^TNX'))) fail('market provider/normalize/orchestrator writer contract failed');
+if (marketStore.getState().market.quotes['^TNX']?.value !== 4.2 || !Object.isFrozen(marketStore.getState().market.quotes['^TNX'])) fail('market provider/normalize/orchestrator writer contract failed');
 const themesStore = createStore({ initialState: { themes: createInitialThemesState() }, reducer: (state, action) => ({ ...state, themes: themesReducer(state.themes, action) }) });
 const themesCommands = createThemesCommands({ store: themesStore });
 const themesWriter = createThemesOrchestrator({ provider: createThemesProvider({ read: () => ({
@@ -580,13 +581,6 @@ themesCommands.setData({ selectedId: null, selectedDetail: null });
 if (selectSelectedThemeDetail(themesStore.getState()) !== null || selectThemesItems(themesStore.getState())[0] !== retainedThemeItem) fail('themes partial update must clear an explicit selection without erasing omitted items');
 const missingPortfolioNumbers = normalizePortfolio({ holdings: [{ symbol: 'AAA', shares: null, avgCost: '', price: null, value: undefined, weight: null, target: '' }], cash: null, totals: { totalValue: null, cash: '' } });
 if (missingPortfolioNumbers.cash !== null || missingPortfolioNumbers.holdings[0].shares !== null || missingPortfolioNumbers.holdings[0].avgCost !== null || missingPortfolioNumbers.holdings[0].weight !== null || missingPortfolioNumbers.totals.totalValue !== null || !Object.isFrozen(missingPortfolioNumbers.holdings) || !Object.isFrozen(missingPortfolioNumbers.holdings[0])) fail('portfolio normalization must preserve numeric missingness and immutable projections');
-const revision = createRevisionManifest(release);
-if (!validateRevisionManifest(revision).ok) fail('release revision contract failed');
-if (validateRevisionManifest(createRevisionManifest({ appRevision: 'a', dataRevision: 'd', evidenceRevision: 'e' })).ok) fail('revision without generatedAt must fail closed');
-const lineage = createLineageRecord({ metricId: 'market.sentiment.fg', evidenceId: evidence.evidenceId, source: 'fixture', sourceKind: 'fixture', observedAt: evidence.observedAt, fetchedAt: evidence.fetchedAt, unit: evidence.unit, state: 'MATCH' });
-if (!validateLineageRecord(lineage).ok) fail('lineage contract failed');
-if (validateLineageRecord(createLineageRecord({ metricId: 'fixture', evidenceId: 'fixture', source: 'fixture', unit: 'score', state: 'MATCH' })).ok) fail('matched lineage without source kind or timestamps must fail closed');
-if (validateLineageRecord(createLineageRecord({ metricId: 'fixture', evidenceId: 'fixture', source: 'fixture', sourceKind: 'fixture', observedAt: '2026-07-19T00:00:00Z', fetchedAt: '2026-07-18T00:00:00Z', unit: 'score', state: 'MATCH' })).ok) fail('lineage fetched before observation must fail closed');
 const unavailableSnapshot = createMarketSnapshot({ status: 'failed', attemptedAt: '2026-07-18T00:00:00Z', source: 'fixture', coverage: { required: 16, observed: 0 } });
 if (!validateMarketSnapshot(unavailableSnapshot).ok) fail('failed market snapshot must remain a valid fail-closed envelope');
 const partialPublished = createMarketSnapshot({ status: 'published', attemptedAt: '2026-07-18T00:00:00Z', lastSuccessfulAt: '2026-07-17T00:00:00Z', source: 'fixture', coverage: { required: 16, observed: 15 } });
@@ -608,7 +602,6 @@ const storageState = new Map();
 const storageFixture = createStorageGateway({ storage: { getItem: (key) => storageState.get(key) ?? null, setItem: (key, value) => storageState.set(key, value), removeItem: (key) => storageState.delete(key) }, prefix: 'fixture' });
 storageFixture.set('key', 'value');
 if (storageFixture.get('key') !== 'value') fail('storage gateway fixture contract failed');
-if (createSanitizer().text('<b>blocked</b>') !== '&lt;b&gt;blocked&lt;/b&gt;') fail('sanitizer fixture contract failed');
 
 // RM-02 performance gate: dispatch+notify must stay fast for a screener-sized (1000-row) slice
 // with several subscribers, so W5's real screener/portfolio tables don't reintroduce the

@@ -19,11 +19,27 @@ const matrixGates = [
   'scripts/ci-accessibility-matrix-check.mjs',
   'scripts/ci-vertical-slice-browser-check.mjs',
   'scripts/ci-principles-browser-check.mjs',
+  'scripts/ci-three-page-learning-flow-check.mjs',
+  'scripts/ci-critical10-human-surface-check.mjs',
+  'scripts/ci-route-soak-check.mjs',
+  'scripts/ci-architecture-browser-check.mjs',
+  'scripts/ci-boot-interaction-check.mjs',
 ];
 for (const file of matrixGates) {
   const source = read(file);
   check(`${file} imports shared desktop QA config`, /desktop-qa-config\.mjs/.test(source));
   check(`${file} has no mobile/tablet viewport identifiers`, !/mobile390|tablet768|laptop1024|390x844|width:\s*390/.test(source));
+}
+
+const allRouteGates = [
+  'scripts/ci-viewport-matrix-check.mjs',
+  'scripts/ci-accessibility-matrix-check.mjs',
+  'scripts/ci-route-soak-check.mjs',
+  'scripts/ci-architecture-browser-check.mjs',
+];
+for (const file of allRouteGates) {
+  const source = read(file);
+  check(`${file} derives the route set from the canonical registry`, /from ['"]\.\.\/src\/app\/routes\.js['"]/.test(source) && /\bROUTE_IDS\b/.test(source));
 }
 
 const uxGate = read('scripts/ci-ux-default-path-check.mjs');

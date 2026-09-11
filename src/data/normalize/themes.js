@@ -27,6 +27,7 @@ function normalizeThemeDetail(detail) {
         price: finite(quote?.price),
         pct: finite(quote?.pct),
         directionValue: finite(quote?.directionValue ?? quote?.pct),
+        currency: quote?.currency ? String(quote.currency).trim().toUpperCase() : null,
         observedAt: quote?.observedAt || null,
         fetchedAt: quote?.fetchedAt || null,
         source: quote?.source || 'theme-detail-provider',

@@ -1,13 +1,217 @@
 ---
-verified_by: Codex deterministic gates + browser audit
-last_verified: 2026-09-02
-confidence: high
-latest_version: v54.76
-latest_P_number: P1029
-next_P_number: P1030
-current_total_entries: 743 (P1~P1029, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P1013~P1029 exhaustive audit in progress; lifecycle, knowledge semantics, domain/AI boundaries and Atlas evidence/status/search rendering reviewed; full-tree semantic review remains open
+verified_by: Codex local source review and affected QA; full semantic audit remains open
+last_verified: 2026-09-11
+confidence: medium
+latest_version: v54.88
+latest_P_number: P1060
+next_P_number: P1061
+current_total_entries: 774 (P1~P1060, 결번 존재 — 상세 + 압축 원장)
+current_checkpoint: P1013~P1033 exhaustive audit in progress; publication/runtime/QA topology and selected page semantics reviewed; full-tree semantic review remains open
 ---
+
+## P1060 - v54.88 - 정상 가격 evidence fixture가 통화 단위 부재로 차단됐다 (2026-09-11)
+
+- symptom/reproduction: 전체 새로고침 후 affected headless에서 G096/T950이 `unit-mismatch:unknown`과 `evidence-not-current`로 실패했고, G094/T935는 disclosure가 계약의 `기준시각`·`Evidence` 표현을 잃어 실패했다.
+- root_cause: 가격형 legacy chat evidence adapter가 명시적 unit/currency가 없는 기존 `price/source/asOf` 입력을 정상적인 currency quote로 보정하지 않고 `UNKNOWN`으로 차단했으며, disclosure 문자열이 typed-claim 계약의 검증 가능한 표면과 달라졌다.
+- fix: 가격형 adapter에 ticker 기반 통화 기본값(미국 USD, `.KS`/`.KQ` KRW)과 currency unit을 적용하되 명시적 값은 우선하고, disclosure를 `기준시각`·`Evidence`·`원천` 계약으로 복원했다. 실제 quote-envelope 경로의 provenance·fail-closed 검사는 유지했다.
+- prevention: 기존 T935/T950–T952와 headless G094/G096이 정상 quote fixture의 통과, prompt evidence identity, blocked/stale evidence의 차단을 함께 검증한다.
+- violated_rule: R402 및 P851의 lossy field mapping 방지 계약.
+- verification: `node scripts/ci-headless-tests.mjs` 결과 `1127/1127 PASS`; 이후 affected QA에서 변경된 코드/데이터 gate를 다시 실행한다.
+
+## P1057 - v54.85 - 두 채팅 시세 경로가 같은 관측의 근거 정보를 다르게 잃었다 (2026-09-10)
+
+- symptom/reproduction: 동일 종목의 시세가 freshness와 chat evidence 경로에서 다른 source/time/unit으로 전달되어 같은 ID가 충돌하거나 검증에서 제외됐다.
+- root_cause: 독립 row 조립과 normalize 단계의 수신시각·임의 LIVE 기본값이 실제 관측 정보의 부재를 숨겼다.
+- fix: 공통 quote evidence builder에서 가격에 일치하는 관측 시각·통화·출처를 보존하고 두 소비자가 같은 의미 tuple을 사용한다. 실제 provenance가 없으면 현재 근거로 승격하지 않는다.
+- prevention: ci-ai-quote-evidence-check에서 두 production 소비자의 일치와 시각/통화/출처 누락 반례를 검증한다. 일간 수익률의 관측 기간은 추정하지 않는다.
+- violated_rule: R456 및 관측 시각/수신 시각 분리 계약.
+- verification: 해당 회귀 검사와 affected QA 결과를 구조 감사 REPORT.md에 기록한다.
+
+## P1056 - v54.85 - AI 답변 부가 정보가 본문을 가로로 압축했다 (2026-09-10)
+
+- symptom/reproduction: 사용자가 제공한 화면에서 한국어가 한 글자씩 세로로 끊겼고 모델명·검증 안내·출처가 여러 좁은 열로 표시됐다.
+- root_cause: unified AI message의 row flex에 완료 callback이 본문과 모델 배지·disclosure·source badge·feedback·citations를 형제로 계속 추가했다. 본문에 보장된 폭이나 부가 정보의 별도 세로 흐름이 없었다.
+- fix: 답변과 부가 정보의 세로 구조 및 좁은 화면 overflow 계약을 정리한다. 근거는 접근 가능한 details로 제공하고 개발용 용어를 사용자 문장으로 교체한다. 참고 링크는 중복을 제거하고 검증 의미를 구분하며 실제 관측 시각 없이 수신 시각을 표시하지 않는다.
+- prevention: ci-chat-response-layout-browser-check에서 production CSS/renderer로 폭별 완료 답변·긴 링크·표·코드·펼침 동작을 검사하며 이전 row 구조의 negative control을 포함한다. ci-chat-resilience-check는 링크 중복과 관측시각 부재를 검사한다.
+- violated_rule: 공유 채팅 소비자의 가독성·접근성 및 증거 수준 구분 계약.
+- verification: Chromium 및 affected QA 결과와 이미지 산출물을 구조 감사 REPORT.md에 기록한다. 유료 provider 결과 품질을 격리 fixture로 인증하지 않는다.
+
+## P1055 - v54.84 - AI 분석 엔진과 전제 검증이 실제 채팅에서 소비되지 않았다 (2026-09-10)
+
+- symptom/reproduction: 도메인 엔진은 facade에만 노출됐고 상승·하락 전제는 needs-verification 선언에 머물렀다. 같은 evidence ID의 다른 관측은 first-wins로 숨겨졌으며 unified 추천 항목은 키보드 버튼이 아니었다.
+- root_cause: ESM 엔진의 입력 계약과 두 채팅 화면의 typed evidence 조립 사이에 공통 adapter가 없었다.
+- fix: 정확한 관측 tuple로 전제를 검증하고 근거 기반 분석 adapter를 공통 orchestrator에 연결한다. 두 화면에서 같은 helper를 호출하며 불명확·상충 전제는 부분 제한으로 표시한다. 수치 quote로 기간을 추정하지 않고 분석 결과를 검증 claim으로 자동 승격하지 않는다. 상충 ID·미래 관측을 차단하고 추천 항목을 버튼으로 제공한다.
+- prevention: ci-ai-premise-check와 ci-ai-chat-analysis-integration-check에서 실제 production helper·orchestrator·두 UI 연결, 기간 없는 입력, 반대/충돌 전제, 동일 ID 충돌과 미래 관측을 검증한다. 실제 시장 return 기간 제공 범위와 유료 모델 답변 품질은 별도 미검증 항목이다.
+
+## P1054 - v54.84 - AI 숫자의 지표·종목·배율 식별자가 출판 검증에서 사라졌다 (2026-09-09)
+
+- symptom/reproduction: 같은 출처·시각·값·단위를 유지한 채 NVDA 가격을 AAPL 또는 VIX로 바꾼 claim을 배제하지 못했다.
+- root_cause: ClaimLedger가 metric/entity/scale을 보존하지 않고 최종 바인딩도 값·단위만 비교했다. 모델이 작성한 숫자 없는 라벨은 그대로 표시됐다.
+- fix: 의미 식별자를 ledger와 prompt registry에 보존하고 실제 근거와 정확히 대조한다. 표시 이름은 검증한 entity/metric에서 만든다.
+- prevention: ci-ai-intelligence-contract-check의 종목·지표·배율 변경, 누락 식별자, 잘못된 라벨 반례와 정상 claim을 함께 검증한다.
+
+## P1053 - v54.84 - AI 검색 후보를 정식 개념 연결로 표시했다 (2026-09-09)
+
+- symptom/reproduction: 공통 문장 제거 후 concept 연결 수가 160에서 153으로 감소해 인덱스 검사가 실패했다.
+- root_cause: 생성기가 원문 관계 대신 단어 중복을 conceptIds로 승격하고 검사는 모든 문서가 연결됐다고 가정했다.
+- fix: 원문에 명시된 nodeIds/relatedAtlasNodeIds만 SOURCE_LINK로 유지한다. 단어 일치는 TEXT_CANDIDATE, 연결 부재는 UNMAPPED로 별도 기록한다.
+- prevention: ci-ai-intelligence-contract-check에서 각 원문과 인덱스의 연결·전체 문서·경로·미연결 집계를 대조한다. 인덱스는 공식 생성기로 갱신했다.
+
+## P1052 - v54.84 - AI 근거 ID와 출처 이름만으로 내용이 검증됐다 (2026-09-08)
+
+- symptom/reproduction: 존재하는 evidence ID로 다른 숫자를 제시하거나 publisher 이름을 바꿔 출처 등급·독립성을 높일 수 있었다.
+- root_cause: 출판 경계가 주입 근거의 내용과 claim을 대조하지 않고 검색 출처의 표시명을 신뢰했다.
+- fix: 값·단위·출처·관측시각을 실제 주입 행에 바인딩하고 임의 citation URL, snippet 수치, 알 수 없는 상태를 배제한다. 출처 등급·독립성은 실제 hostname으로 계산한다.
+- prevention: ci-ai-intelligence-contract-check의 변조 claim, 미연결 ID, snippet, 출처 이름 위조, 독립성·floor 음성 fixture를 실행한다.
+
+## P1051 - v54.84 - AI 취소·대화 보관의 수명주기와 접근성이 불완전했다 (2026-09-08)
+
+- symptom/reproduction: 취소 뒤 요청 상태·대기 표시가 남고 손상된 저장 행이 정상 기록 조회를 방해했다. 기록 모달에 초점 경계가 없었다.
+- root_cause: 요청 소유권과 정리 경로가 분산됐으며 저장 배열을 행별 검증하지 않았다.
+- fix: 요청 시작/해제/취소를 통합하고 중지 버튼과 키보드 추천 버튼을 제공한다. 기록은 행별 날짜·TTL을 검증하고 저장 정리 실패 시에도 유효 행을 반환한다. 모달 초점 순환·Escape·복원을 적용했다.
+- prevention: ci-chat-ui-state-browser-check와 ci-chat-resilience-check의 격리 fixture에서 취소·손상 저장·초점 동작을 검증한다. 사용자 실제 저장 키는 조작하지 않았다.
+
+## P1050 - v54.84 - AI 스트림 본문에 deadline이 적용되지 않았다 (2026-09-08)
+
+- symptom/reproduction: 헤더 이후 중단된 본문이 계속 대기하고 provider error 또는 불완전 EOF가 정상 완료로 해석될 수 있었다. 한글 본문 제한은 바이트 크기와 달랐다.
+- root_cause: timeout이 응답 헤더에서 해제됐고 SSE terminal 상태와 UTF-8 바이트 길이를 끝까지 검증하지 않았다.
+- fix: Worker·직접 호출의 본문 deadline/abort/cancel 정리를 유지하고 SSE 오류·불완전 종료를 실패로 처리한다. Worker 요청은 UTF-8 200KiB로 제한한다.
+- prevention: ci-worker-anthropic-check와 ci-ai-provider-stream-check에서 늦은 본문·취소·provider error·EOF·줄바꿈 없는 terminal·다중 바이트 제한을 검증한다. 실제 유료 호출·배포 증거는 별도다.
+
+## P1049 - v54.84 - Masters 생성 중 부분 쓰기가 최신 보유 파일을 손상했다 (2026-09-08)
+
+- symptom/reproduction: Windows 쓰기 실패 뒤 holdings.json이 0바이트가 됐다.
+- root_cause: reconcile 생성기가 최종 경로에 직접 쓰고 일부 생성기는 원자적 쓰기 재시도를 공유하지 않았다.
+- fix: 3개 생성기를 공통 atomic writer로 통일했다. 최신 9월 2일 summary와 37개 전체 shard를 검증하여 공식 복구 스크립트로 holdings를 재구성하고 후속 생성기를 실행했다. 과거 HEAD로 대체하지 않았다.
+- prevention: ci-data-continuity-check의 부분 쓰기 실패 주입과 masters 계약·브라우저 검사로 재발·결과를 확인했다. 복구 도구는 비어 있지 않은 파일 덮어쓰기를 거부한다.
+
+## P1048 - v54.84 - 뉴스 단어 일부와 알 수 없는 관계를 과도하게 해석했다 (2026-09-08)
+
+- symptom/reproduction: Bullard·dismissed·일반 browser default가 방향성/신용위기 키워드에 걸리고 미지 관계가 CAUSES가 됐다.
+- root_cause: 부분 문자열 점수와 인과 기본값을 사용했다.
+- fix: 영어 단어 경계와 금융·스트레스 동시 문맥을 요구하고 알 수 없는 관계는 RELATES_TO로 유지한다.
+- prevention: ESM·domain parity·knowledge semantic 검사에서 정상 금융 문맥과 오탐 반례를 함께 검증한다.
+
+## P1047 - v54.84 - 교육 원문의 부족을 반복 문장으로 심층 콘텐츠처럼 채웠다 (2026-09-08)
+
+- symptom/reproduction: 서로 다른 강의의 상세 경제·재무·시장 항목에 같은 일반 문장이 반복됐다.
+- root_cause: 생성기가 원문에 없는 심층 항목을 공통 상용문으로 채웠다.
+- fix: 반복 padding을 제거하고 고유 원문 정의·메커니즘·사례·반례·질문만 보존한다. 비어 있는 심층 항목을 표시하지 않고 UI를 개념 원문·출처로 명명했다.
+- prevention: article 계약·생성 parity와 principles/atlas 브라우저 검사를 적용했다. 160개 원문의 독립 심층 집필 및 strict depth 검수는 미완료이며 자동 PASS로 승격하지 않는다.
+
+## P1046 - v54.84 - 13F 분할 원본 행에 종목 전체 증감이 반복됐다 (2026-09-08)
+
+- symptom/reproduction: Berkshire Apple 분할 행마다 종목 전체 전분기 증감이 반복 표시됐다.
+- root_cause: 종목 합산 비교값을 원본 신고 행에 복사했다.
+- fix: 원본 행은 RAW_ROW_NOT_COMPARABLE로 표기하고 종목 전체 증감·행동 필드를 제거한다. 비교는 합산 원장에서만 제공한다.
+- prevention: 공통 raw-row helper를 collector·reconcile·runtime producer에 적용하고 masters 계약·브라우저에서 원본 열과 합산 경계를 확인한다.
+
+## P1045 - v54.84 - 미국 휴장일의 최신 정규장 종가가 오래된 데이터로 차단됐다 (2026-09-08)
+
+- symptom/reproduction: Labor Day에 직전 금요일의 유효 종가가 일률적인 48시간 기준에 걸렸다.
+- root_cause: snapshot과 lineage가 공식 휴일·조기 폐장 및 가장 최근 완료 세션을 공유하지 않았다.
+- fix: 2026 NYSE/CBOE 일정과 DST를 반영한 최근 완료 정규장 판정을 공유한다. 알려지지 않은 연도는 추정하지 않는다.
+- prevention: market snapshot 계약의 휴일·DST·조기 폐장·미래값·오래된 미국 종가·한국/crypto fixture를 실행한다.
+
+## P1044 - v54.83 - 포트폴리오 평가 기준과 결측 손익의 불일치 (2026-09-07)
+
+- symptom/reproduction: 10주 × 현재가 110, 일수익률 10%에서 일간 손익을 110으로 계산했다. 매입가 null은 hero에서 0으로 변환되어 전액 이익처럼 표시됐다. 실시간 가격 200과 저장 가격 100의 합계가 섞여 섹터 비중이 100%를 넘었다.
+- root_cause: 일수익률의 분모를 현재 평가액으로 잘못 사용하고, hero·표·차트가 도메인 모델과 별도로 값을 계산하며 저장 totals를 우선했다.
+- fix: 이전 평가액을 역산하여 일간 손익·수익률을 산출한다. 모든 표시를 동일 도메인 모델에서 파생하고 누락 매입가·시세·현금은 보류한다. 보유 행이 있으면 저장 집계가 현재 행을 덮지 못한다.
+- prevention: ci-esm-core-unit-check에서 일간 손익, 누락 매입가, 오래된 totals, 불완전 보유 행 회귀 fixture를 실행한다.
+- verification: 검증 결과는 _artifacts/structural-quality-20260906/REPORT.md에 기록한다. 커밋·push·배포 없음.
+
+## P1043 - v54.83 - 작업 범위와 무관한 스킬·hook 반복 실행 (2026-09-07)
+
+- symptom/reproduction: 소규모 수정에도 공통 문서를 반복 로드하고 post-edit hook이 QA를 실행하여 검사 재귀와 timeout을 유발했다.
+- root_cause: 스킬 진입 조건, 작업 범위 결정, 공통 closeout 책임이 라우터·wrapper·hook에 중복됐다.
+- fix: 사용자가 승인한 범위 중심으로 지침·profile·wrapper를 동기화하고 post-edit hook은 작업 단위 closeout 안내만 제공한다. guard와 commit/push/deploy 승인 경계는 유지한다.
+- prevention: workspace hook fixture, skill 계약·eval fixture, workflow compaction 검사로 동기화와 명령 경계를 검증한다.
+- verification: 검증 결과는 _artifacts/structural-quality-20260906/REPORT.md에 기록한다. 전역 플러그인 설정 변경 없음.
+
+## P1042 - v54.82 - 화면 상태와 출처가 실제 근거를 과장했다 (2026-09-06)
+
+- Evidence/root cause: briefing inferred LIVE from the legacy container name; archived Telegram items retained a recent-24h label. Missing chart series left an unexplained canvas. Guide weights duplicated and contradicted the canonical model.
+- Fix: classify actual quote provenance, distinguish display refresh time, describe the digest's collection period, render unavailable chart status, derive guide weights from the domain model and remove unjustified directional guidance. Reference research is grouped in expandable sections with its boundary visible.
+- Prevention: preserve source timestamps and missing-state semantics; browser surface and domain gates verify runtime behavior. Unreviewed research claims remain reference material.
+
+## P1041 - v54.82 - 탐색·학습 UI가 실패 및 재렌더에서 사용자 상태를 잃었다 (2026-09-06)
+
+- Evidence/root cause: generated aria-labels froze initial values; guide search targeted broad containers; denied storage threw during learning initialization, failed writes looked saved, and rerenders discarded drafts. Lazy mount failures retained partial resources.
+- Fix: prefer live text accessible names, target matching paragraphs and open/focus ancestors, retain note drafts, expose memory-only persistence, return isolated learning snapshots, dispose failed route scopes and allow same-route retries.
+- Prevention: ESM fixtures cover snapshot isolation, denied writes and same-route retry; browser checks cover search, notes and accessible UI.
+
+## P1040 - v54.82 - SEC 결측 및 서로 다른 회계기간이 비율로 합성됐다 (2026-09-06)
+
+- Evidence/root cause: numeric coercion treated missing values as zero, the selector fell back to unrelated income/equity periods, and skipped fiscal years could become annual growth. Negative earnings were quarantined despite representing valid losses.
+- Fix: share strict finite-fact and fiscal-period helpers between producer and consumer; preserve partial revenue coverage, join matching periods, require adjacent annual periods, retain share observation dates and valid losses. Screener margin is named net margin.
+- Prevention: executable ESM adversarial fixtures cover null/boolean/blank values, fiscal gaps and mismatched periods. Historical SEC artifacts are not fabricated or manually rewritten.
+
+## P1039 - v54.81 - 변경 없는 canonical 상태를 공개 조회마다 다시 복사했다 (2026-09-06)
+
+- Evidence: route CPU profiles retained roughly 0.5 seconds in defensive facade snapshot calls after the observation scan fix.
+- Fix: canonical structural-sharing store getters opt into last-reference memoization of deep-frozen defensive copies. Unchanged reads reuse the isolated copy; replaced state refreshes it. Temporal evidence and arbitrary legacy mutable inputs remain uncached.
+- Prevention: ci-esm-core-unit-check verifies reuse, replacement, old-snapshot stability, nested mutation isolation and uncached temporal/legacy readers.
+
+## P1038 - v54.81 - 스크리너 준비와 스냅샷 해시가 부팅에서 긴 작업을 만들었다 (2026-09-06)
+
+- Evidence: boot-profile.json records 937/822 ms tasks; stableSerialize/hash and repeated ISO date normalization dominate sampled CPU. Startup also repeated a screener hydration already completed by server data.
+- Fix: incremental UTF-16/FNV hashing preserves identifiers without building a giant serialized string. Provider prepares 32-row batches and cooperatively hashes with cancellation, capturing primitive quote inputs before yielding. A bounded string-only ISO cache avoids repeated conversion; completed startup hydration is not repeated.
+- Prevention: ci-screener-workbench-contract checks 500 deterministic hash parity cases, sparse/undefined/Unicode values, async yielding, cancellation, mutable Date behavior and a coherent live quote cut. Existing orchestrator generation guards suppress superseded work.
+- Local profiled result: maximum boot long task 937 → 97 ms (after-cooperative.json), with first-pass profiling overhead and browser functional verification tracked separately in the performance report.
+
+## P1037 - v54.80 - preload URL이 실행 script와 달라 중복 전송됐다 (2026-09-06)
+
+- Evidence: local resource timing listed core/data/UI/chat twice; head preloads used bare URLs while deferred scripts used ?v=54.80.
+- Fix: all four script preloads now use the exact executed versioned URL. bump-version already replaces every version query instance.
+- Prevention: ci-version-check requires exact preload/script URL parity for each shared module. No cache policy or browser budget relaxation.
+
+## P1036 - v54.80 - 스크리너 데이터 기준일이 9px로 렌더됐다 (2026-09-06)
+
+- Evidence/root cause: ci-accessibility-matrix-check found 48 visible screener date/reference notes at 9px after async rows hydrated. createColumnContent used an inline 9px font.
+- Fix: use 11px for the source/date note so the evidence needed to interpret values remains legible.
+- Prevention: existing browser accessibility matrix enforces the visible-text floor; viewport matrix covers layout. No threshold relaxation.
+
+## P1035 - v54.80 - 페이지 갱신과 관측 집계가 입력 변경 없이 반복됐다 (2026-09-06)
+
+- Evidence: local Chromium 20-route CPU profile attributed 5619.875 ms self time to screenerObservationCoverage; ten sentiment ingests caused 1100 screener DOM mutations. These are local external-network-aborted measurements, not production RUM.
+- Root cause: seven native page modules subscribed to every store action; timeline reads repeatedly rescanned immutable screener observations. News ticker extraction thrashed a regex LRU with absent symbols, and shared market-cut reads constructed identical Intl formatters repeatedly.
+- Fix: slice-scoped subscriptions retain explicit legacy events; per-reader weak observation cache expires at exact future/freshness boundaries and bypasses mutable standalone inputs; native breadth reads its store directly; literal ticker prefilter and reusable date formatter remove redundant work.
+- Prevention: ci-esm-core-unit-check covers dependency updates, unchanged references and disposal; ci-native-decision-evidence-check covers no-rescan, expiry, future activation, clock rollback, row replacement and uncached mutable inputs. Reproduce CPU/route diagnostics with scripts/performance-hunt.mjs.
+- Evidence/remaining architecture work: _artifacts/performance-hunt-20260906/REPORT.md. Full shell decomposition and semantic certification of all research content remain separate work; no commit/deploy in this task.
+
+## P1034 - v54.79 - 스크리너 관측 집계가 부팅에서 중간 객체와 날짜 파싱을 반복했다 (2026-09-05)
+
+- Symptom: QA 효율화 비교 중 단독 boot gate에서도 FCP 3916ms/2884ms가 2500ms 기준을 초과했다. 기존 2초 long task를 CPU profile로 추적했다.
+- Root cause: runtime-readers의 screenerObservationCoverage가 row/field마다 관측 객체를 복사하고 여러 배열을 만든 뒤 같은 snapshot timestamp를 반복 파싱했다. 관측 catalog를 읽는 부팅·라우트 소비자가 같은 비용을 부담했다.
+- Fix: src/data/runtime-readers.js에서 중간 관측/필터/날짜 배열을 삭제하고 count/min/max를 직접 집계한다. 날짜 파싱은 해당 호출 안에서 동일 값에 한 번만 수행하며 호출 간 캐시는 두지 않는다. 최신성·미래 시각·중복 field의 마지막 값 우선 정책은 유지한다.
+- Prevention: scripts/ci-native-decision-evidence-check.mjs가 1024행의 반복 timestamp 작업량과 freshness/invalid/zero/duplicate 경계를 검증한다. 원래 구현을 대입한 negative control은 이 작업량 검사에서 실패했다. 별도 200개 결정적 차등 사례도 기존 결과와 일치했다.
+- Rule/checklist: 기존 runtime evidence 경계를 유지하고 QA-PERF-OBSERVATION 집계 회귀 항목을 추가했다. 부팅 예산과 테스트 timeout은 완화하지 않는다.
+- Verification: native-decision targeted gate PASS; 최종 affected는 105 PASS / 3 cached / 0 FAIL, 222.5초이며 boot FCP 1908ms로 gate PASS다. 더 엄격한 long-task SLO 목표는 미달이다. 결과: _artifacts/qa-efficiency-20260905/final-results.json. 로컬 결과는 live 또는 사람의 시각 검증을 의미하지 않는다.
+
+## P1033 - v54.76 working tree - 페이지 의미·상태·통화·차트 소유권이 실제 데이터와 달랐다
+
+- Root cause: 시장 캐리 판정이 한국은행 금리를 BOJ 금리로 사용하고, FRED 결측을 산술식에서 0으로 바꿨다. breadth canvas는 native marker를 선점했지만 실제 renderer 호출이 없었다. sentiment의 `Number(null)`은 결측 시계열을 0으로 만들고 F&G needle은 결측 전환 뒤 옛 위치를 남겼다. Principles 출처 body는 생성만 하고 DOM에 붙이지 않았으며 검색 결과를 다시 인덱싱해 rail step과 본문이 달라졌다. Masters는 필터 밖 선택을 상세에 유지하고 빈 결과에서도 `selected.id`를 역참조했다. ticker/theme quote의 통화는 정규화 경계에서 소실됐고 테마 상세는 모든 가격에 `$`를 붙였다. 테마 chip과 detail event에는 각각 두 실행·렌더 경로가 남아 있었으며 benchmark renderer는 동일 구현이 복제돼 있었다.
+- Fix: BOJ는 명시적 BOJ reference만 사용하고 HY OAS 결측을 보존한다. breadth의 다섯 canvas는 native registry에서 실제 history renderer를 호출하며 존재하지 않는 5일선 history는 blocked로 둔다. null 시계열과 stale needle을 제거하고, Principles source DOM·고정 step 의미와 Masters filtered selection/empty state를 복구했다. quote currency를 runtime reader→provider→normalizer→ticker/theme UI까지 보존하고 unknown currency는 달러로 추정하지 않는다. 테마의 직접 click listener, event 재렌더 9회, byte-equivalent benchmark 사본을 제거했다.
+- Verification: 이번 마감에서는 변경된 ESM 파일 `node --check`와 해당 파일 `git diff --check`만 통과했다. 사용자 요청에 따라 page/browser/full QA는 실행하지 않았으므로 실제 화면 전환·canvas 픽셀·통화별 렌더는 QA-EXHAUST-23으로 남긴다.
+
+## P1032 - v54.76 working tree - 브라우저 QA가 route registry·paint 완료·자원 예산을 충분히 반영하지 않았다
+
+- Root cause: 일부 browser gate가 route 목록과 desktop viewport를 자체 복사했고, viewport audit은 route 활성화 직후 lifecycle/paint 안정화 전에 geometry를 읽었다. QA runner는 CPU/VM과 브라우저 작업을 같은 동시성으로 실행해 검증 시간과 port 충돌을 키웠다. 세 페이지 학습 flow에는 제품 범위와 다른 mobile 합격 조건도 섞여 있었다.
+- Fix: all-route browser gate는 `src/app/routes.js`의 `ROUTE_IDS`, desktop 범위는 공유 viewport config를 사용한다. viewport audit은 activate→settle→audit 순서로 바꾸고 full-init을 기본값으로 삼는다. 브라우저 작업 동시성은 별도 `--browser-jobs`/환경 변수로 제한하며 중복 포트를 제거했다. 세 페이지 flow는 desktop prose width·overflow·rail을 검사한다.
+- Verification: 수정 중 `ci-qa-pipeline-contract-check`, QA runner behavior, desktop-scope, fast profile 13/13은 통과했다. 전체 viewport/accessibility/soak/browser matrix는 이번 사용자 지시로 실행하지 않았다.
+
+## P1031 - v54.76 working tree - fallback·이벤트·scheduler의 이중 소유권이 지연 응답에서 재실행을 만들었다
+
+- Root cause: Chart 주 CDN과 보조 CDN이 독립적으로 로드돼 늦은 primary가 보조 결과를 덮거나 stub을 실제 Chart처럼 남길 수 있었다. 전역 delegated action은 중첩 control보다 ancestor URL을 먼저 열 수 있었다. pageShown consumer마다 string/object detail 해석이 달랐고 scheduler 초기 timer와 async 재예약이 route hide/show 이후 살아남을 수 있었다.
+- Fix: local stub/primary/secondary를 한 coordinator로 묶고 secondary는 primary error 또는 5초 timeout에만 시작한다. nested action을 우선하며 canonical pageShown detail parser를 사용한다. scheduler는 초기 timer까지 소유하고 epoch로 stale loop와 late async completion을 무효화한다.
+- Verification: runtime contract, delayed-primary Chart fixture, G108 headless 20/20은 수정 중 통과했다. boot-interaction 전체는 FCP 2,536ms로 2,500ms 예산을 36ms 초과했고, 전체 QA는 이번 지시에 따라 재실행하지 않았다.
+
+## P1030 - v54.76 working tree - 부분·미래·저품질 수집이 published/current 상태로 승격될 수 있었다
+
+- Root cause: market snapshot이 미래 관측시각을 age 0으로 취급하고, row별 품질·전체 coverage와 별개로 publication 상태를 만들 수 있었다. operations status와 weekend grace도 cycle QG/full coverage/row quality를 한 원자 조건으로 요구하지 않았다. fetch-data의 최종 상태는 quote·news·history 구성요소의 완결성을 명시적으로 결합하지 않았다.
+- Fix: 5분을 넘는 미래 관측은 quarantine하고 quote별 quality/session/source/value/change basis를 보존한다. published는 full Tier-0 coverage와 모든 row의 publishable quality가 동시에 충족될 때만 허용한다. operations/weekend freshness와 data cycle도 같은 publication tuple 및 news/history blocker를 소비한다.
+- Verification: market snapshot/data pipeline/operations targeted contract는 수정 중 통과했다. 실제 현재 artifact의 data-lineage gate는 stale 상태를 정직하게 실패로 유지했으며 타임스탬프를 조작하지 않았다. 전체 producer refresh와 external QA는 이번 지시로 실행하지 않았다.
 
 ## P1029 - v54.76 - Atlas 기업·제품 검색이 레지스트리의 실제 분류 연결을 읽지 않았다
 
@@ -2798,3 +3002,13 @@ total_entries: 593 (P1~P833, 결번 존재 — 상세 + 압축 원장)
 - violated_rule: R1/R3 and the shared-cut, single-owner, fail-closed freshness principles — a visible surface cannot silently use an older window or an unlabelled basis, and a route cannot retain an orphaned chart owner.
 - prevention: every user-visible market field must carry source, observed/fetched time, and basis metadata; each route must declare one renderer owner and a disposal path; cold-load and shared-cut replay must be tested together; public operational-detail CSS must never hide the canonical evidence lane; CI gates now assert all four boundaries.
 - verification: run syntax, runtime/data-plane/lineage/reconciliation/refresh/architecture/headless gates after v53.69 bump; inspect live GitHub Pages after push for Telegram visibility, macro calendar population, no Chart.js reuse errors, SW/app version agreement, and basis labels.
+
+### P879 - published-snapshot boundary, official calendar rollover, and BOK carry key (2026-09-05)
+
+- motivation: the current terminal must never display a reference quote as decision-ready when publication or coverage is unknown, and macro/carry pages must use the official current schedule and canonical Korean policy-rate field.
+- symptom/reproduction: a snapshot event carrying only a revision/generatedAt could make the shared topbar show `SNAPSHOT`; ISM next-release entries remained on completed dates; the native FX/bond carry path read `DATA_SNAPSHOT.bojRate` even though the canonical field is `bokRate`.
+- root_cause: the topbar treated identity as sufficient evidence without enforcing publication status; calendar exact-date guards covered only part of the official registry; the carry renderer and the runtime snapshot schema used different central-bank keys.
+- fix: enforce `marketSnapshotPublished === true` or `status === 'published'` before showing the visible reference-snapshot label; expose publication/coverage metadata through the bridge; roll NFP/CPI/ISM dates against official BLS/ISM schedules; switch native and legacy carry reads to `bokRate`; add an in-browser unpublished fixture and an executable BOK regression contract; serialize local browser gates to prevent port/resource races.
+- violated_rule: fail-closed evidence, official-source time-series, shared-field naming, and sequential browser-gate policies.
+- prevention: any visible snapshot identity must be paired with an explicit published status and negative browser fixture; each official calendar addition needs an exact date contract; policy-rate aliases must be guarded by source-key contracts; generated Masters projections must be rebuilt from their producer before release QA.
+- verification: market snapshot 16/16 Tier-0, Masters 37/37 shard reconciliation, headless 109/109, architecture browser PASS including published/unpublished snapshot fixture, route soak/viewport/a11y/critical/vault PASS; affected QA 104 PASS + 3 cached + 1 existing boot-performance target miss; no commit, push, or deployment.

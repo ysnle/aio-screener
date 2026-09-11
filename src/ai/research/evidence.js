@@ -13,7 +13,7 @@ function text(value) { return String(value == null ? '' : value).trim(); }
 function canonicalUrl(value) {
   try {
     const url = new URL(String(value));
-    if (url.protocol !== 'https:') return '';
+    if (url.protocol !== 'https:' || url.username || url.password) return '';
     url.hash = '';
     ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'oc'].forEach((key) => url.searchParams.delete(key));
     return url.toString().replace(/\/$/, '');
@@ -29,10 +29,10 @@ function hostMatches(host, suffixes) {
   return suffixes.some((suffix) => normalized === suffix || normalized.endsWith(`.${suffix}`));
 }
 
-function sourceTier(url, source = '') {
+function sourceTier(url) {
   const host = (() => { try { return new URL(url).hostname.replace(/^www\./, ''); } catch (_) { return ''; } })();
   if (hostMatches(host, PRIMARY_OFFICIAL_SUFFIXES)) return 'PRIMARY_OFFICIAL';
-  if (hostMatches(host, TIER_1_SUFFIXES) || /reuters|associated press|ap news/i.test(source)) return 'TIER_1_WIRE';
+  if (hostMatches(host, TIER_1_SUFFIXES)) return 'TIER_1_WIRE';
   if (host) return 'SECONDARY';
   return 'UNKNOWN';
 }
@@ -52,16 +52,15 @@ export function createEvidenceDocument(input = {}) {
     publishedAt: input.publishedAt || null,
     updatedAt: input.updatedAt || null,
     fetchedAt: input.fetchedAt || new Date().toISOString(),
-    sourceTier: canonical ? derivedTier : input.sourceTier || derivedTier,
+    sourceTier: derivedTier,
     sourceType: text(input.sourceType) || 'web-search',
-    primaryOrSecondary: canonical ? (derivedTier === 'PRIMARY_OFFICIAL' ? 'PRIMARY' : 'SECONDARY') :
-      input.primaryOrSecondary || (derivedTier === 'PRIMARY_OFFICIAL' ? 'PRIMARY' : 'SECONDARY'),
+    primaryOrSecondary: derivedTier === 'PRIMARY_OFFICIAL' ? 'PRIMARY' : 'SECONDARY',
     rights,
     contentDepth,
     locale: text(input.locale) || null,
     entities: Object.freeze(Array.isArray(input.entities) ? input.entities.map(text).filter(Boolean) : []),
     eventTime: input.eventTime || input.publishedAt || null,
-    status: input.status || (canonical ? 'RESULTS_FOUND' : 'INVALID')
+    status: canonical ? text(input.status || 'RESULTS_FOUND').toUpperCase() : 'INVALID'
   };
   document.allowedUse = rights === 'BLOCKED' ? 'none' : contentDepth === 'SNIPPET' || contentDepth === 'SUMMARY' ? 'reference-only' : 'research-reference';
   return Object.freeze(document);
@@ -113,12 +112,16 @@ export function normalizeSearchResults(results = [], options = {}) {
 export function validateClaimEvidenceBinding(claim, evidence, { currentSensitive = false, minimumIndependentSources = 0, minimumPrimarySources = 0 } = {}) {
   const errors = [];
   const ids = new Set(Array.isArray(claim?.evidenceIds) ? claim.evidenceIds.map(String) : []);
-  const documents = Array.isArray(evidence?.documents) ? evidence.documents.filter((doc) => ids.has(doc.documentId)) : [];
+  const documents = Array.isArray(evidence?.documents) ? evidence.documents.filter((doc) => ids.has(doc?.documentId)).map(createEvidenceDocument) : [];
+  if ([...ids].some((id) => !documents.some((doc) => doc.documentId === id))) errors.push('claim_evidence_id_unbound');
+  if (documents.some((doc) => !usableDocument(doc))) errors.push('claim_evidence_unavailable');
+  if (![minimumIndependentSources, minimumPrimarySources].every((value) => Number.isInteger(value) && value >= 0)) errors.push('source_floor_invalid');
   if (currentSensitive && documents.length === 0) errors.push('current_claim_evidence_missing');
   if (documents.some((doc) => doc.contentDepth === 'SNIPPET' || doc.contentDepth === 'SUMMARY')) errors.push('snippet_or_summary_not_sufficient_alone');
   if (documents.some((doc) => doc.rights === 'BLOCKED' || doc.allowedUse === 'none')) errors.push('rights_blocked');
-  const independent = new Set(documents.map((doc) => doc.publisher || doc.canonicalUrl).filter(Boolean)).size;
-  const primary = documents.filter((doc) => doc.primaryOrSecondary === 'PRIMARY').length;
+  const usable = documents.filter(usableDocument);
+  const independent = new Set(usable.map((doc) => doc.publisher || doc.canonicalUrl).filter(Boolean)).size;
+  const primary = new Set(usable.filter((doc) => doc.primaryOrSecondary === 'PRIMARY').map((doc) => doc.publisher)).size;
   if (independent < minimumIndependentSources) errors.push('independent_source_floor_missing');
   if (primary < minimumPrimarySources) errors.push('primary_source_floor_missing');
   return Object.freeze({ ok: errors.length === 0, errors: Object.freeze([...new Set(errors)]), documentCount: documents.length, independentSourceCount: independent, primarySourceCount: primary });
@@ -197,6 +200,12 @@ export function normalizeNativeResearchCitations(citations = []) {
   }));
 }
 
+function usableDocument(document) {
+  return !!document?.canonicalUrl && document.status === 'RESULTS_FOUND' &&
+    document.rights !== 'BLOCKED' && document.allowedUse !== 'none' &&
+    document.contentDepth !== 'SNIPPET' && document.contentDepth !== 'SUMMARY';
+}
+
 function eligibleEvidenceDocuments(documents, citations) {
   const citationSet = new Set((Array.isArray(citations) ? citations : [])
     .map((citation) => canonicalUrl(typeof citation === 'string' ? citation : citation?.url)).filter(Boolean));
@@ -205,9 +214,7 @@ function eligibleEvidenceDocuments(documents, citations) {
   // multi-provider response. Keep the exclusion observable through the caller's
   // document list while evaluating only eligible, citation-bound documents.
   return documents.filter((document) =>
-    document && document.canonicalUrl && citationSet.has(canonicalUrl(document.canonicalUrl)) &&
-    document.rights !== 'BLOCKED' && document.allowedUse !== 'none' &&
-    document.contentDepth !== 'SNIPPET' && document.contentDepth !== 'SUMMARY'
+    usableDocument(document) && citationSet.has(canonicalUrl(document.canonicalUrl))
   );
 }
 

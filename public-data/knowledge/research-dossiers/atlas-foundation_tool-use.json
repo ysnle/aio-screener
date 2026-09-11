@@ -25,31 +25,17 @@
       "sourceTier": null
     },
     {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL"
+      "sourceId": "WEB-ARXIV-REACT-2022",
+      "url": "https://arxiv.org/abs/2210.03629",
+      "publisher": "arXiv / Yao et al.",
+      "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD"
     },
     {
       "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
       "url": "https://arxiv.org/abs/1706.03762",
       "publisher": "arXiv / Vaswani et al.",
       "title": "Attention Is All You Need",
-      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD"
-    },
-    {
-      "sourceId": "WEB-GOOGLE-ML-TYPES-2026",
-      "url": "https://developers.google.com/machine-learning/intro-to-ml/what-is-ml",
-      "publisher": "Google for Developers",
-      "title": "What is Machine Learning?",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
-      "sourceId": "WEB-ARXIV-REACT-2022",
-      "url": "https://arxiv.org/abs/2210.03629",
-      "publisher": "arXiv / Yao et al.",
-      "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
       "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD"
     },
     {
@@ -58,15 +44,22 @@
       "publisher": "NIST",
       "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
       "sourceTier": "PRIMARY_OFFICIAL"
-    }
-  ],
-  "selectedSources": [
+    },
     {
       "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
       "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
       "publisher": "NIST AI Resource Center",
       "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    }
+  ],
+  "selectedSources": [
+    {
+      "sourceId": "WEB-ARXIV-REACT-2022",
+      "url": "https://arxiv.org/abs/2210.03629",
+      "publisher": "arXiv / Yao et al.",
+      "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
+      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
       "directness": "DIRECT",
       "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
     },
@@ -77,25 +70,7 @@
       "title": "Attention Is All You Need",
       "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
       "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
-      "sourceId": "WEB-GOOGLE-ML-TYPES-2026",
-      "url": "https://developers.google.com/machine-learning/intro-to-ml/what-is-ml",
-      "publisher": "Google for Developers",
-      "title": "What is Machine Learning?",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
-      "sourceId": "WEB-ARXIV-REACT-2022",
-      "url": "https://arxiv.org/abs/2210.03629",
-      "publisher": "arXiv / Yao et al.",
-      "title": "ReAct: Synergizing Reasoning and Acting in Language Models",
-      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     },
     {
       "sourceId": "WEB-NIST-AI-RMF-2023",
@@ -105,12 +80,21 @@
       "sourceTier": "PRIMARY_OFFICIAL",
       "directness": "DIRECT",
       "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    },
+    {
+      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
+      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
+      "publisher": "NIST AI Resource Center",
+      "title": "AI RMF Core: Govern, Map, Measure, Manage",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
     }
   ],
   "rejectedSources": [],
   "sourceTiers": [
-    "PRIMARY_OFFICIAL",
-    "ACADEMIC_TEXTBOOK_STANDARD"
+    "ACADEMIC_TEXTBOOK_STANDARD",
+    "PRIMARY_OFFICIAL"
   ],
   "claimCoverage": [
     {
@@ -120,10 +104,8 @@
     }
   ],
   "researchFactIds": [
-    "fact:nist:ai-rmf-core",
-    "fact:transformer:attention",
-    "fact:google:learning-types",
-    "fact:react:agent-tools"
+    "fact:react:agent-tools",
+    "fact:nist:ai-rmf-core"
   ],
   "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",

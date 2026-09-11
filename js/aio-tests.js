@@ -5420,16 +5420,21 @@
     }
     var nfpRelease = macroCal && macroCal['us-nfp'] && macroCal['us-nfp'].nextRelease;
     var nfpIsFriday = nfpRelease && new Date(nfpRelease + 'T12:00:00Z').getUTCDay() === 5; // NFP는 항상 첫째주 금요일(R279)
-    _assert('T759 v504_macro_calendar_official_june_dates: NFP/CPI/FOMC/PCE dates are valid, not-in-the-past, and NFP falls on a Friday',
+    var ismMfgRelease = macroCal && macroCal['us-ism-mfg'] && macroCal['us-ism-mfg'].nextRelease;
+    var ismSvcRelease = macroCal && macroCal['us-ism-svc'] && macroCal['us-ism-svc'].nextRelease;
+    _assert('T759 v504_macro_calendar_official_dates: NFP/CPI/FOMC/PCE/ISM dates are valid, not-in-the-past, and NFP falls on a Friday',
       macroCal && _t759ValidFutureDate(nfpRelease) && nfpIsFriday &&
         _t759ValidFutureDate(macroCal['us-cpi'] && macroCal['us-cpi'].nextRelease) &&
         _t759ValidFutureDate(macroCal['us-fomc'] && macroCal['us-fomc'].nextRelease) &&
-        _t759ValidFutureDate(macroCal['us-pce'] && macroCal['us-pce'].nextRelease),
+        _t759ValidFutureDate(macroCal['us-pce'] && macroCal['us-pce'].nextRelease) &&
+        _t759ValidFutureDate(ismMfgRelease) && _t759ValidFutureDate(ismSvcRelease),
       JSON.stringify(macroCal && {
         nfp: macroCal['us-nfp'].nextRelease,
         cpi: macroCal['us-cpi'].nextRelease,
         fomc: macroCal['us-fomc'].nextRelease,
-        pce: macroCal['us-pce'].nextRelease
+        pce: macroCal['us-pce'].nextRelease,
+        ismMfg: ismMfgRelease,
+        ismSvc: ismSvcRelease
       }));
 
     var snapV504 = window.DATA_SNAPSHOT || {};
@@ -6326,9 +6331,9 @@
       // A2 실재 정합: breadth 렌더러 실행 후 verdict sink가 marketState verdict와 일치
       var breadthMatch = false;
       try { window._aioRenderBreadthConsensus(); var bv = document.getElementById('breadth-consensus-verdict'); breadthMatch = !!(bv && ms817.breadthConsensusFull && bv.textContent.indexOf(ms817.breadthConsensusFull.verdict) >= 0); } catch(_) {}
-      // Track B: canonical getCritical10ContentEvidenceMatrix는 buildEvidenceStore 유일 정의 + dead 이름 분리
+      // Track B: canonical evidence store 경로만 유지하고 폐기 구현은 제거한다.
       var canonFn = window.AIO && window.AIO.getCritical10ContentEvidenceMatrix;
-      var dedupOk = !!(canonFn && /buildEvidenceStore/.test(canonFn.toString()) && typeof window.AIO._deadV49112_getCritical10ContentEvidenceMatrix === 'function');
+      var dedupOk = !!(canonFn && /buildEvidenceStore/.test(canonFn.toString()) && typeof window.AIO._deadV49112_getCritical10ContentEvidenceMatrix === 'undefined');
       t817ok = fullOk && consumerOk && breadthMatch && dedupOk;
       t817detail = 'full=' + fullOk + ' consumers4=' + consumerOk + ' breadthMatch=' + breadthMatch + ' dedup=' + dedupOk;
       window._breadthLiveData = oldBreadth817;
@@ -8884,6 +8889,51 @@
     _assert('T1040 scenario_probability_requires_provider: no embedded probability calculator or current narrative',
       typeof window.updateDynamicScenarios === 'undefined' && !!scenarioPolicy1040 && (!scenarioBlocked1040 || /정량 시나리오 공급자/.test(scenarioBlocked1040.textContent || '')),
       'legacyFn=' + typeof window.updateDynamicScenarios + ' policy=' + scenarioPolicy1040 + ' blocked=' + !!scenarioBlocked1040);
+
+    var delegateHost1048 = document.createElement('div');
+    delegateHost1048.dataset.openUrl = 'https://example.com/article';
+    var delegateAction1048 = document.createElement('span');
+    delegateAction1048.dataset.action = '__aioTestNestedAction1048';
+    delegateAction1048.setAttribute('role', 'button');
+    delegateAction1048.setAttribute('tabindex', '0');
+    delegateHost1048.appendChild(delegateAction1048);
+    document.body.appendChild(delegateHost1048);
+    var actionCalls1048 = 0, openCalls1048 = 0;
+    var oldOpen1048 = window.open;
+    window.__aioTestNestedAction1048 = function() { actionCalls1048++; };
+    window.open = function() { openCalls1048++; };
+    try {
+      delegateAction1048.click();
+      delegateAction1048.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      var nestedActionOk1048 = actionCalls1048 === 2 && openCalls1048 === 0;
+      delegateHost1048.click();
+      _assert('T1048 nested_data_action_precedes_url_owner: ticker-like child actions do not open their article ancestor',
+        nestedActionOk1048 && openCalls1048 === 1,
+        JSON.stringify({ actionCalls:actionCalls1048, openCalls:openCalls1048 }));
+    } finally {
+      window.open = oldOpen1048;
+      delete window.__aioTestNestedAction1048;
+      delegateHost1048.remove();
+    }
+
+    var lineageCalls1049 = 0;
+    var oldAnnotate1049 = window.AIO && window.AIO.annotateLiveDataSinks;
+    if (window.AIO) window.AIO.annotateLiveDataSinks = function() { lineageCalls1049++; };
+    try {
+      document.dispatchEvent(new CustomEvent('aio:pageShown', { detail: 'home' }));
+      _assert('T1049 canonical_page_shown_reannotates_lineage: the canonical route event reaches live-sink lineage',
+        typeof oldAnnotate1049 === 'function' && lineageCalls1049 >= 1,
+        'calls=' + lineageCalls1049);
+    } finally {
+      if (window.AIO) window.AIO.annotateLiveDataSinks = oldAnnotate1049;
+    }
+
+    var schedulerSource1050 = typeof startDataScheduler === 'function' ? String(startDataScheduler) : '';
+    var restartSource1050 = typeof restartScheduler === 'function' ? String(restartScheduler) : '';
+    _assert('T1050 scheduler_initial_timer_is_owned_and_epoch_cancelled: visibility pause cannot leave an untracked delayed loop',
+      /cfg\.timer\s*=\s*setTimeout/.test(schedulerSource1050) && /_scheduleEpoch/.test(schedulerSource1050) &&
+        /_schedulerPaused/.test(schedulerSource1050) && /_scheduleEpoch/.test(restartSource1050),
+      JSON.stringify({ startOwned:/cfg\.timer\s*=\s*setTimeout/.test(schedulerSource1050), startEpoch:/_scheduleEpoch/.test(schedulerSource1050), restartEpoch:/_scheduleEpoch/.test(restartSource1050) }));
   }
 
   function _testV5399AIResearchRuntimeContract() {

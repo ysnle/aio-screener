@@ -2,6 +2,8 @@ import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { ROUTE_IDS } from '../src/app/routes.js';
+import { DESKTOP_PRIMARY_VIEWPORT } from './desktop-qa-config.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.AIO_ARCH_TEST_PORT || 8897);
@@ -24,7 +26,7 @@ const server = await startServer();
 const browser = await chromium.launch();
 const errors = [];
 try {
-  const page = await browser.newPage();
+  const page = await browser.newPage({ viewport: DESKTOP_PRIMARY_VIEWPORT });
   page.on('pageerror', (error) => errors.push(error.message));
   page.on('console', (message) => {
     // RM-05: the 17-route round trip visits routes (macro/fxbond/etc.) the original smaller test
@@ -67,6 +69,39 @@ try {
   if (!/기준 시세.+\(16개\)/.test(quoteTopbar.text) || !/\bfb-static\b/.test(quoteTopbar.className) || !/실시간 시세가 아닌/.test(quoteTopbar.title)) {
     throw new Error(`snapshot quote topbar must stay reference-only while external providers are blocked: ${JSON.stringify(quoteTopbar)}`);
   }
+
+  // A snapshot identity/count alone must never make an unpublished or degraded
+  // payload look decision-ready. Exercise the fail-closed boundary in-browser,
+  // then restore the published fixture so the remaining route checks observe
+  // the normal reference snapshot state.
+  await page.evaluate(() => document.dispatchEvent(new CustomEvent('aio:marketSnapshot', {
+    detail: {
+      revision: 'browser-fixture-unpublished',
+      count: 16,
+      generatedAt: '2026-09-05T00:00:00.000Z',
+      marketSnapshotPublished: false,
+      status: 'degraded'
+    }
+  })));
+  await page.waitForFunction(() => document.getElementById('live-quote-ts-topbar')?.textContent?.includes('스냅샷 미게시'));
+  const unpublishedQuoteTopbar = await page.evaluate(() => {
+    const el = document.getElementById('live-quote-ts-topbar');
+    return { text: el?.textContent || '', title: el?.getAttribute('title') || '' };
+  });
+  if (!/스냅샷 미게시/.test(unpublishedQuoteTopbar.text) || !/판단에 사용하지 않음/.test(unpublishedQuoteTopbar.title)) {
+    throw new Error(`unpublished snapshot must fail closed in the visible topbar: ${JSON.stringify(unpublishedQuoteTopbar)}`);
+  }
+  await page.evaluate(() => document.dispatchEvent(new CustomEvent('aio:marketSnapshot', {
+    detail: {
+      revision: 'browser-fixture-published',
+      count: 16,
+      generatedAt: '2026-09-05T00:00:00.000Z',
+      latestObservedAt: '2026-09-05T00:00:00.000Z',
+      marketSnapshotPublished: true,
+      status: 'published'
+    }
+  })));
+  await page.waitForFunction(() => document.getElementById('live-quote-ts-topbar')?.textContent?.includes('기준 시세'));
 
   await page.evaluate(() => window.showPage('sentiment'));
   await page.waitForFunction(() => document.getElementById('page-sentiment')?.dataset.aioArchitectureRoute === 'sentiment');
@@ -355,6 +390,24 @@ try {
     sourceKind: document.getElementById('pf-analysis-status')?.getAttribute('data-source-kind') || null
   }));
   if (portfolioRoute.renderer !== 'native' || portfolioRoute.heroRenderer !== 'native' || !portfolioRoute.heroValue.trim() || !portfolioRoute.heroPnl.trim() || portfolioRoute.tableRenderer !== 'native' || portfolioRoute.surfaceRenderer !== 'native' || portfolioRoute.surfaceModel !== 'portfolio-surface.v1' || portfolioRoute.holdingCountRenderer !== 'native' || portfolioRoute.sectorRenderer !== 'native' || portfolioRoute.exposureRenderer !== 'native' || portfolioRoute.chartRenderer !== 'native' || !['unavailable', 'portfolio-state'].includes(portfolioRoute.chartSourceKind)) throw new Error(`portfolio hero/table/summary/chart native surface failed: ${JSON.stringify(portfolioRoute)}`);
+  const portfolioMath = await page.evaluate(async () => {
+    const { createPortfolioPage } = await import('/src/ui/pages/portfolio.js');
+    function project(portfolio, liveData = {}) {
+      const doc = document.implementation.createHTMLDocument('isolated portfolio fixture');
+      doc.body.innerHTML = '<section id="page-portfolio"><span id="pf-total-value"></span><span id="pf-total-pnl"></span><span id="pf-daily-chg"></span><span id="pf-daily-pct"></span><table><tbody id="pf-positions-tbody"></tbody></table></section>';
+      const store = { getState: () => ({ portfolio }), subscribe: () => () => {} };
+      const dispose = createPortfolioPage({ root: { _liveData: liveData }, documentRef: doc, store }).mount();
+      const result = { value: doc.getElementById('pf-total-value').textContent, pnl: doc.getElementById('pf-total-pnl').textContent, daily: doc.getElementById('pf-daily-chg').textContent, pct: doc.getElementById('pf-daily-pct').textContent, cells: [...doc.querySelectorAll('td')].map((cell) => cell.textContent) };
+      dispose();
+      return result;
+    }
+    return {
+      missing: project({ holdings: [{ symbol: 'ABC', shares: 10, avgCost: null, price: 110 }], cash: 0 }),
+      daily: project({ holdings: [{ symbol: 'ABC', shares: 10, avgCost: 80, price: 110, dailyPct: 10 }], cash: 0 }),
+      live: project({ holdings: [{ symbol: 'ABC', shares: 10, avgCost: 80, price: 100 }], cash: 100, totals: { totalValue: 1000, totalAssets: 1100 } }, { ABC: { price: 200, pct: 0 } })
+    };
+  });
+  if (portfolioMath.missing.pnl !== '—' || portfolioMath.missing.cells[5] !== '—' || portfolioMath.daily.daily !== '$100' || portfolioMath.daily.pct !== '+10.00% today' || portfolioMath.live.value !== '$2,100' || portfolioMath.live.pnl !== '+$1,200' || !portfolioMath.live.cells.includes('$200.00')) throw new Error('portfolio valuation regression: ' + JSON.stringify(portfolioMath));
   await page.evaluate(() => window.AIO_ARCH.navigate('technical'));
   await page.waitForFunction(() => document.getElementById('page-technical')?.dataset.aioArchitectureRoute === 'technical');
   const technicalRoute = await page.evaluate(() => {
@@ -470,7 +523,7 @@ try {
   if (contentRoutes.active !== 'briefing' || contentRoutes.marketRenderer !== 'native' || contentRoutes.marketFeedRenderer !== 'native' || contentRoutes.briefingRenderer !== 'native' || contentRoutes.briefingSlice !== 'news' || contentRoutes.briefingFeedRenderer !== 'native' || contentRoutes.macroRenderer !== 'native' || contentRoutes.macroPrimaryRenderer !== 'native' || contentRoutes.fxbondRenderer !== 'native' || contentRoutes.fxbondPrimaryRenderer !== 'native' || contentRoutes.breadthRenderer !== 'native' || contentRoutes.breadthPrimaryRenderer !== 'native' || contentRoutes.technicalRenderer !== 'native' || contentRoutes.technicalPrimaryRenderer !== 'native' || contentRoutes.signalRenderer !== 'native' || contentRoutes.signalHeroRenderer !== 'native' || contentRoutes.homeRenderer !== 'native' || contentRoutes.homeSummaryRenderer !== 'native' || contentRoutes.themesRenderer !== 'native' || contentRoutes.themesPrimaryRenderer !== 'native' || !contentRoutes.themeDetailNativeSummary || contentRoutes.tickerRenderer !== 'native' || contentRoutes.optionsRenderer !== 'native' || contentRoutes.fundamentalRenderer !== 'native' || contentRoutes.portfolioRenderer !== 'native' || macroRoute.nativeLiveSinkCount < 1 || macroRoute.primarySnapSinkCount < 1 || macroRoute.fedMeaningRenderer !== 'native' || !macroRoute.fedMeaningText.trim() || fxbondRoute.nativeLiveSinkCount < 1 || fxbondRoute.nativeMoveSinkCount < 1 || fxbondRoute.riskRenderer !== 'native' || !fxbondRoute.riskText.trim() || breadthRoute.rawPrimarySinkCount < 1 || breadthRoute.nativePrimarySinkCount !== breadthRoute.rawPrimarySinkCount || breadthRoute.signalRenderer !== 'native' || !breadthRoute.signalText.trim() || breadthRoute.diagnosticRenderer !== 'native' || !breadthRoute.diagnosticSignal.trim() || !breadthRoute.diagnosticText.trim() || themesRoute.rawPrimarySinkCount !== 2 || themesRoute.nativePrimarySinkCount !== 2 || tickerRoute.rawPrimarySinkCount !== 4 || tickerRoute.nativePrimarySinkCount !== 4 || tickerRoute.symbolRenderer !== 'native' || !tickerRoute.candleSymbol.trim() || !tickerRoute.entrySymbol.trim() || tickerRoute.pnlRenderer !== 'native' || tickerRoute.pnlParentRenderer !== 'native' || tickerRoute.extensionRenderer !== 'native' || optionsRoute.rawPrimarySinkCount !== 3 || optionsRoute.nativePrimarySinkCount !== 3 || fundamentalRoute.rawPrimarySinkCount !== 1 || fundamentalRoute.nativePrimarySinkCount !== 1 || fundamentalRoute.summaryRenderer !== 'native' || !fundamentalRoute.summaryText.trim() || !fundamentalRoute.summarySourceKind || fundamentalRoute.reportRenderer !== 'native' || fundamentalRoute.reportModel !== 'sec-report.v3' || !fundamentalRoute.reportTitle.trim() || !fundamentalRoute.reportMeta.trim() || !fundamentalRoute.reportMeta.includes('PIT') || !fundamentalRoute.reportCoverage.trim() || fundamentalRoute.reportGridRenderer !== 'native' || portfolioRoute.rawPrimarySinkCount !== 1 || portfolioRoute.nativePrimarySinkCount !== 1 || portfolioRoute.tableRenderer !== 'native') throw new Error(`content route lifecycle failed: ${JSON.stringify({ contentRoutes, macroRoute, fxbondRoute, breadthRoute, technicalRoute, signalRoute, homeRoute, themesRoute, themeDetailRoute, tickerRoute, optionsRoute, fundamentalRoute, portfolioRoute })}`);
 
   if (fxbondRoute.curveRenderer !== 'native' || !fxbondRoute.curveText.trim() || fxbondRoute.carryRenderer !== 'native' || !fxbondRoute.carryText.trim() || fxbondRoute.carryScoreRenderer !== 'native' || !fxbondRoute.carryScoreText.trim() || !fxbondRoute.carryScoreBar.trim() || !fxbondRoute.carryVerdict.trim() || fxbondRoute.camRenderer !== 'native' || !fxbondRoute.camText.trim() || fxbondRoute.curveStatusRenderer !== 'native' || !fxbondRoute.curveStatusText.trim() || fxbondRoute.twoYearRenderer !== 'native' || !fxbondRoute.twoYearText.trim() || fxbondRoute.nativeChartMarkers.some((marker) => marker !== 'native') || fxbondRoute.chartKinds.some((kind) => !['unavailable', 'server-history', 'live', 'public-information-service'].includes(kind))) throw new Error(`fxbond secondary surface failed: ${JSON.stringify(fxbondRoute)}`);
-  if (breadthRoute.stageRenderer !== 'native' || !breadthRoute.stageText.trim() || breadthRoute.mcclellanRenderer !== 'native' || !breadthRoute.mcclellanText.trim() || breadthRoute.nativeChartMarkers.some((marker) => marker !== 'native') || breadthRoute.chartKinds.some((kind) => !['unavailable', 'server-history', 'live', 'server-history', 'public-information-service', 'derived'].includes(kind))) throw new Error(`breadth secondary surface failed: ${JSON.stringify(breadthRoute)}`);
+  if (breadthRoute.stageRenderer !== 'native' || !breadthRoute.stageText.trim() || breadthRoute.mcclellanRenderer !== 'native' || !breadthRoute.mcclellanText.trim() || breadthRoute.nativeChartMarkers.some((marker) => marker !== 'native') || breadthRoute.chartKinds.some((kind) => !['unavailable', 'server-history', 'live', 'server-history', 'public-information-service', 'derived', 'derived-research'].includes(kind))) throw new Error(`breadth secondary surface failed: ${JSON.stringify(breadthRoute)}`);
 
   // RM-05 item 2: two full 17-route A→B→...→A laps, asserting no resource accumulation between
   // lap 1 and lap 2. Two laps (not one before/after snapshot) because window._aioTimerRegistry
@@ -489,7 +542,7 @@ try {
   // lap 1 starts makes both snapshots observe a stable post-boot state, which is what this
   // assertion was always supposed to compare.
   await page.waitForFunction(() => window._aioTimerRegistry && 'dataStatus' in window._aioTimerRegistry && 'alerts-check' in window._aioTimerRegistry, { timeout: 40000 });
-  const ROUTE_IDS_FOR_ROUNDTRIP = ['home', 'signal', 'breadth', 'sentiment', 'briefing', 'technical', 'macro', 'fxbond', 'themes', 'theme-detail', 'ticker', 'fundamental', 'options', 'portfolio', 'market-news', 'screener', 'principles', 'masters', 'atlas', 'guide'];
+  const ROUTE_IDS_FOR_ROUNDTRIP = ROUTE_IDS;
   async function traverseAllRoutes() {
     for (const route of ROUTE_IDS_FOR_ROUNDTRIP) {
       await page.evaluate((r) => window.AIO_ARCH.navigate(r), route);

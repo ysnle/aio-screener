@@ -1,3 +1,5 @@
+import { finiteFact, sameFiscalPeriod, isPriorAnnualPeriod } from './period.js';
+
 export const SEC_REPORT_MODEL_VERSION = 'sec-report.v3';
 export const SEC_FRESHNESS_POLICY = Object.freeze({
   currentMaxAgeDays: 400,
@@ -6,9 +8,7 @@ export const SEC_FRESHNESS_POLICY = Object.freeze({
 });
 
 function finite(value) {
-  if (value === null || value === undefined || value === '') return null;
-  const number = Number(value);
-  return Number.isFinite(number) ? number : null;
+  return finiteFact(value);
 }
 
 const METRIC_DEFINITIONS = Object.freeze([
@@ -36,7 +36,8 @@ function classifyFreshness(observedAt, now = Date.now()) {
 function detectAnomalies(input, metrics) {
   const anomalies = [];
   metrics.forEach(metric => {
-    if (['revenue', 'netIncome', 'equity'].includes(metric.key) && metric.value < 0) anomalies.push(`${metric.key}:negative`);
+    // Losses and negative equity are valid reported financial facts.
+    if (['revenue', 'sharesOutstanding'].includes(metric.key) && metric.value < 0) anomalies.push(`${metric.key}:negative`);
     if (['margin', 'roe'].includes(metric.key) && Math.abs(metric.value) > 1000) anomalies.push(`${metric.key}:outlier`);
     if (metric.key === 'revGrowth' && metric.value < -100) anomalies.push('revGrowth:below-minus-100');
   });
@@ -49,10 +50,11 @@ function observationEffectiveAt(row) {
   return row?.acceptedAt || row?.effectiveAt || row?.filedAt || null;
 }
 
-function selectObservationAsOf(rows, asOfMs, periodEnd = null) {
+function selectObservationAsOf(rows, asOfMs, period = null) {
   const eligible = (Array.isArray(rows) ? rows : []).filter((row) => {
     const effectiveMs = Date.parse(observationEffectiveAt(row) || '');
-    return Number.isFinite(effectiveMs) && effectiveMs <= asOfMs && finite(row?.value) != null && (!periodEnd || row.periodEnd === periodEnd);
+    const periodMs = Date.parse(row?.periodEnd || '');
+    return Number.isFinite(effectiveMs) && effectiveMs <= asOfMs && Number.isFinite(periodMs) && periodMs <= asOfMs && finite(row?.value) != null && (!period || sameFiscalPeriod(row, period));
   });
   eligible.sort((a, b) => String(b.periodEnd || '').localeCompare(String(a.periodEnd || '')) || Date.parse(observationEffectiveAt(b)) - Date.parse(observationEffectiveAt(a)));
   return eligible[0] || null;
@@ -67,15 +69,12 @@ export function selectSecFundamentalsAsOf(record = {}, asOf, { priceAsOf = null 
   if (!Number.isFinite(asOfMs) || !observations || typeof observations !== 'object') return null;
   const revenue = selectObservationAsOf(observations.revenue, asOfMs);
   if (!revenue) return null;
-  const netIncome = selectObservationAsOf(observations.netIncome, asOfMs, revenue.periodEnd)
-    || selectObservationAsOf(observations.netIncome, asOfMs);
-  if (!netIncome) return null;
-  const equity = selectObservationAsOf(observations.equity, asOfMs, revenue.periodEnd)
-    || selectObservationAsOf(observations.equity, asOfMs);
-  const shares = selectObservationAsOf(observations.sharesOutstanding, asOfMs, revenue.periodEnd)
+  const netIncome = selectObservationAsOf(observations.netIncome, asOfMs, revenue);
+  const equity = selectObservationAsOf(observations.equity, asOfMs, revenue);
+  const shares = selectObservationAsOf(observations.sharesOutstanding, asOfMs, revenue)
     || selectObservationAsOf(observations.sharesOutstanding, asOfMs);
   const priorRevenue = (Array.isArray(observations.revenue) ? observations.revenue : [])
-    .filter((row) => row?.periodEnd && row.periodEnd < revenue.periodEnd && Date.parse(observationEffectiveAt(row) || '') <= asOfMs && finite(row.value) != null)
+    .filter((row) => isPriorAnnualPeriod(revenue, row) && Date.parse(observationEffectiveAt(row) || '') <= asOfMs && finite(row.value) != null)
     .sort((a, b) => String(b.periodEnd).localeCompare(String(a.periodEnd)) || Date.parse(observationEffectiveAt(b)) - Date.parse(observationEffectiveAt(a)))[0] || null;
   const result = {
     symbol: record.symbol || null,
@@ -93,15 +92,16 @@ export function selectSecFundamentalsAsOf(record = {}, asOf, { priceAsOf = null 
     form: revenue.form || null,
     accession: revenue.accession || null,
     revenue: finite(revenue.value),
-    netIncome: finite(netIncome.value),
+    netIncome: finite(netIncome?.value),
     equity: finite(equity?.value),
     sharesOutstanding: finite(shares?.value),
-    coverage: ['revenue', 'netIncome'],
+    sharesObservedAt: shares?.periodEnd || null,
+    coverage: ['revenue', ...(netIncome ? ['netIncome'] : [])],
     pointInTimeStatus: revenue.acceptedAt ? 'accepted-time' : 'filed-date-only'
   };
   if (priorRevenue && finite(priorRevenue.value) > 0) result.revGrowth = Math.round((result.revenue / finite(priorRevenue.value) - 1) * 1000) / 10;
-  if (result.revenue !== 0) result.margin = Math.round(result.netIncome / result.revenue * 1000) / 10;
-  if (result.equity > 0) result.roe = Math.round(result.netIncome / result.equity * 1000) / 10;
+  if (result.netIncome != null && result.revenue !== 0) result.margin = Math.round(result.netIncome / result.revenue * 1000) / 10;
+  if (result.netIncome != null && result.equity > 0) result.roe = Math.round(result.netIncome / result.equity * 1000) / 10;
   const price = finite(priceAsOf);
   const marketCap = price > 0 && result.sharesOutstanding > 0 ? price * result.sharesOutstanding : null;
   if (marketCap && result.netIncome > 0) result.pe = Math.round(marketCap / result.netIncome * 100) / 100;

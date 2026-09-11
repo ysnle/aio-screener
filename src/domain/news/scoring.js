@@ -2,17 +2,23 @@
 // computeNewsRiskSignals. Pure functions: no DOM, no global reads — every value the legacy
 // wrapper read from its own globals (`newsCache`, `Date.now()`) is now an explicit parameter.
 // The formulas (bull/bear keyword scoring, sentiment banding, risk-signal thresholds) are
-// transcribed unchanged — this is code motion, not a new model (R352/F-03).
-export const NEWS_SCORING_MODEL_VERSION = 'news-scoring.v1';
+// originally transcribed unchanged. v2 corrects lexical collisions and requires credit-stress context.
+export const NEWS_SCORING_MODEL_VERSION = 'news-scoring.v2';
 
 const BULL_KEYWORDS = ['surge', 'rally', 'beat', 'outperform', 'upgrade', 'record high', 'soar', 'market boom', 'bull', 'recovery', '급등', '상승', '호재', '상향', '돌파', '신고가', '반등', '회복'];
 const BEAR_KEYWORDS = ['crash', 'plunge', 'miss', 'downgrade', 'sell-off', 'collapse', 'fear', 'crisis', 'trade war', 'default', 'military', 'conflict', 'sanctions', '급락', '하락', '악재', '하향', '폭락', '위기', '전쟁', '부도'];
 
+// English terms match words and common inflections, never substrings in names or unrelated words.
+const keywordPatterns = new Map([...BULL_KEYWORDS, ...BEAR_KEYWORDS].filter((kw) => /^[a-z]/.test(kw)).map((kw) => [kw, new RegExp('(?:^|[^a-z])' + kw + '(?:s|es|d|ed|ing)?(?=$|[^a-z])', 'i')]));
+function hasKeyword(text, keyword) {
+  return keywordPatterns.has(keyword) ? keywordPatterns.get(keyword).test(text) : text.includes(keyword);
+}
+
 export function classifyNewsTextStance(text) {
   const t = String(text || '').toLowerCase();
   let bullScore = 0, bearScore = 0;
-  BULL_KEYWORDS.forEach((kw) => { if (t.includes(kw)) bullScore++; });
-  BEAR_KEYWORDS.forEach((kw) => { if (t.includes(kw)) bearScore++; });
+  BULL_KEYWORDS.forEach((kw) => { if (hasKeyword(t, kw)) bullScore++; });
+  BEAR_KEYWORDS.forEach((kw) => { if (hasKeyword(t, kw)) bearScore++; });
   if (bullScore > bearScore + 1) return 'bull';
   if (bearScore > bullScore + 1) return 'bear';
   if (bearScore > bullScore) return 'warn';
@@ -100,7 +106,9 @@ export function computeNewsRiskSignals({ items = [], now = Date.now() } = {}) {
 
   const creditStress = recent.filter((i) => {
     const t = String(i.title || '').toLowerCase();
-    return t.includes('credit') || t.includes('default') || t.includes('spread') || t.includes('부도') || t.includes('신용');
+    const financialContext = /\b(?:credit|debt|bond|loan|lender|bank|borrower|corporate)\b|신용|채권|채무|대출|은행/.test(t);
+    const stress = /\b(?:defaults?|defaulted|stress|crisis|distress|delinquency|bankrupt(?:cy)?|widen(?:s|ed|ing)?)\b|부도|경색|연체|파산|스프레드.*확대/.test(t);
+    return financialContext && stress;
   });
   if (creditStress.length >= 3) riskSignals.push({ type: 'credit', level: 'high', label: '신용 스트레스 신호', impact: -12 });
 

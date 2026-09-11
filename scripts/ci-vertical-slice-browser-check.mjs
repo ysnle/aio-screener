@@ -1,6 +1,5 @@
-// Wave 3 boundary gate: visit each planned vertical slice under blocked
-// external network, assert the canonical page contract/state, then re-enter the
-// route to prove the slice marker and lifecycle survive a leave/re-enter.
+// Visit each vertical slice with external network blocked and verify its
+// canonical page contract/state. Leave/return coverage belongs to route-soak.
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -58,11 +57,8 @@ try {
         };
       }, { routeId: route, canonical: canonicalRoute, sliceId: slice.id, requiredData: slice.requiredData, sliceRoutes: slice.routes });
       if (first.marker !== slice.id || first.state === null || !first.validState || !first.requiredDataMapped || !first.directEntrySurface) throw new Error(`slice route contract failed: ${JSON.stringify({ slice: slice.id, result: first })}`);
-      await page.evaluate((id) => window.AIO_ARCH.navigate(id), route);
-      await page.waitForFunction((id) => document.getElementById(`page-${id}`)?.dataset.aioVerticalSlice, canonicalRoute);
-      const reentry = await page.evaluate((canonical) => document.getElementById(`page-${canonical}`)?.dataset.aioVerticalSlice || null, canonicalRoute);
-      if (reentry !== slice.id) throw new Error(`slice re-entry marker failed: ${slice.id}/${route}/${reentry}`);
-      routeResults.push({ route, state: first.state, completeness: first.completeness, controls: first.controls, reentry });
+      // Actual leave/return behavior is exercised by ci-route-soak-check.mjs.
+      routeResults.push({ route, state: first.state, completeness: first.completeness, controls: first.controls });
     }
     report.slices.push({ id: slice.id, routes: routeResults, acceptance: slice.acceptance.length });
   }
@@ -74,4 +70,4 @@ try {
   server.kill();
 }
 console.log(JSON.stringify(report, null, 2));
-if (!report.ok || report.errors.length || report.slices.length !== 13) process.exitCode = 1;
+if (!report.ok || report.errors.length || report.slices.length !== VERTICAL_SLICE_CONTRACTS.length) process.exitCode = 1;

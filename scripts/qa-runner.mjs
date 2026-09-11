@@ -29,7 +29,14 @@ const sessionName = option('--session');
 const noCache = has('--no-cache') || process.env.CI === 'true';
 const listOnly = has('--list');
 const explain = has('--explain');
-const maxStaticJobs = Math.max(1, Number(option('--jobs') || process.env.AIO_QA_JOBS || 4));
+const positiveInteger = (value, fallback) => {
+  const number = Number(value);
+  return Number.isFinite(number) && number >= 1 ? Math.floor(number) : fallback;
+};
+const maxStaticJobs = positiveInteger(option('--jobs') || process.env.AIO_QA_JOBS, 4);
+// Browser gates own separate ports and processes. Timing measurements run alone;
+// CI keeps one worker inside each existing matrix shard.
+const maxBrowserJobs = Math.min(4, positiveInteger(option('--browser-jobs') || process.env.AIO_QA_BROWSER_JOBS, process.env.CI === 'true' ? 1 : 2));
 
 function globRegex(pattern) {
   const escaped = String(pattern)
@@ -74,8 +81,13 @@ const validateSelectedFiles = (files, label) => {
   }
   return [...new Set(files)].sort();
 };
+const fileDigests = new Map();
 const fileDigest = (file) => {
-  try { return createHash('sha256').update(readFileSync(join(root, file))).digest('hex'); } catch { return null; }
+  if (!fileDigests.has(file)) {
+    try { fileDigests.set(file, createHash('sha256').update(readFileSync(join(root, file))).digest('hex')); }
+    catch { fileDigests.set(file, null); }
+  }
+  return fileDigests.get(file);
 };
 const sessionId = String(sessionName || 'current').replace(/[^A-Za-z0-9._-]/g, '-').slice(0, 80) || 'current';
 const sessionPath = join(sessionDir, `${sessionId}.json`);
@@ -123,15 +135,33 @@ if (explicitFilesOption != null) {
   changed = changedFiles();
 }
 
+const allGates = Object.entries(manifest.groups).flatMap(([groupName, group]) =>
+  group.gates.map((gate) => ({
+    ...gate,
+    group: groupName,
+    phase: Number(group.phase || 0),
+    kind: group.kind || 'static',
+    cache: gate.cache ?? group.cache ?? true,
+    inputs: gate.inputs || group.inputs || []
+  }))
+);
 let selectedGroups = [];
 let requestedGateIds = null;
 let previousReport = null;
+let changedGateIds = [];
 
 if (requestedGroup) {
   selectedGroups = [requestedGroup];
 } else if (profile === 'affected') {
+  // A registered test edit selects that test, not every product surface it
+  // inspects. Runner/manifest changes retain the infrastructure impact rules.
+  const infrastructure = ['scripts/qa-runner.mjs', 'scripts/ci-qa-runner-behavior-check.mjs', 'scripts/ci-qa-pipeline-contract-check.mjs'];
+  const directScripts = new Set(allGates.filter((gate) => changed.includes(gate.script) && gate.kind !== 'external' && gate.script.startsWith('scripts/ci-') && !infrastructure.includes(gate.script)).map((gate) => gate.script));
+  changedGateIds = allGates.filter((gate) => gate.kind !== 'external' && directScripts.has(gate.script)).map((gate) => gate.id);
+  if (changedGateIds.length && allGates.some((gate) => gate.id === 'qa-pipeline-contract')) changedGateIds.push('qa-pipeline-contract');
+  const productChanges = changed.filter((file) => !directScripts.has(file));
   const impacted = manifest.impactRules
-    .filter((rule) => changed.some((file) => matches(file, rule.patterns)))
+    .filter((rule) => productChanges.some((file) => matches(file, rule.patterns)))
     .flatMap((rule) => rule.groups)
     .filter((group) => group !== 'external');
   selectedGroups = ['preflight', ...impacted];
@@ -150,21 +180,10 @@ if (!selectedGroups.length || invalidGroups.length) {
   process.exit(2);
 }
 
-let selectedGates = selectedGroups.flatMap((groupName) => {
-  const group = manifest.groups[groupName];
-  return group.gates.map((gate) => ({
-    ...gate,
-    group: groupName,
-    phase: Number(group.phase || 0),
-    kind: group.kind || 'static',
-    cache: gate.cache ?? group.cache ?? true,
-    inputs: gate.inputs || group.inputs || []
-  }));
-});
+let selectedGates = allGates.filter((gate) => selectedGroups.includes(gate.group) || changedGateIds.includes(gate.id));
 
-if (requestedGateIds) {
-  const allManifestGates = Object.entries(manifest.groups || {}).flatMap(([groupName, group]) => (group.gates || []).map((gate) => ({ ...gate, group: groupName })));
-  const byId = new Map(allManifestGates.map((gate) => [gate.id, gate]));
+if (requestedGateIds || changedGateIds.length) {
+  const byId = new Map(allGates.map((gate) => [gate.id, gate]));
   const expanded = new Set();
   const visit = (id) => {
     if (expanded.has(id)) return;
@@ -173,19 +192,11 @@ if (requestedGateIds) {
     for (const dependency of gate.dependsOn || []) visit(dependency);
     expanded.add(id);
   };
-  requestedGateIds.forEach(visit);
-  selectedGroups = [...new Set([...expanded].map((id) => byId.get(id)?.group).filter(Boolean))];
-  selectedGates = selectedGroups.flatMap((groupName) => {
-    const group = manifest.groups[groupName];
-    return group.gates.filter((gate) => expanded.has(gate.id)).map((gate) => ({
-      ...gate,
-      group: groupName,
-      phase: Number(group.phase || 0),
-      kind: group.kind || 'static',
-      cache: gate.cache ?? group.cache ?? true,
-      inputs: gate.inputs || group.inputs || []
-    }));
-  });
+  (requestedGateIds || selectedGates.map((gate) => gate.id)).forEach(visit);
+  selectedGates = allGates.filter((gate) => expanded.has(gate.id));
+}
+selectedGroups = [...new Set(selectedGates.map((gate) => gate.group))];
+if (requestedGateIds) {
   const previousById = new Map((previousReport?.results || []).map((result) => [result.id, result]));
   selectedGates = selectedGates.map((gate) => {
     if (gate.script !== 'scripts/ci-headless-tests.mjs') return gate;
@@ -220,7 +231,7 @@ function inputFingerprint(patterns) {
   const hash = createHash('sha256');
   for (const file of allFiles.filter((path) => matches(path, patterns)).sort()) {
     hash.update(`\0${file}\0`);
-    try { hash.update(readFileSync(join(root, file))); } catch { hash.update('MISSING'); }
+    hash.update(fileDigest(file) || 'MISSING');
   }
   const digest = hash.digest('hex');
   inputDigestCache.set(key, digest);
@@ -320,14 +331,23 @@ function runGate(gate) {
 
 async function runPool(gates, concurrency) {
   const results = [];
+  const active = new Set();
   let cursor = 0;
-  const workers = Array.from({ length: Math.min(concurrency, gates.length) }, async () => {
-    while (cursor < gates.length) {
-      const gate = gates[cursor++];
-      results.push(await runGate(gate));
+  let exclusiveRunning = false;
+  while (cursor < gates.length || active.size) {
+    while (cursor < gates.length && active.size < concurrency && !exclusiveRunning) {
+      const gate = gates[cursor];
+      if (gate.exclusive && active.size) break;
+      cursor++;
+      exclusiveRunning = !!gate.exclusive;
+      const task = runGate(gate).then((result) => results.push(result)).finally(() => {
+        active.delete(task);
+        if (gate.exclusive) exclusiveRunning = false;
+      });
+      active.add(task);
     }
-  });
-  await Promise.all(workers);
+    if (active.size) await Promise.race(active);
+  }
   return results;
 }
 
@@ -345,7 +365,7 @@ for (const phase of phases) {
   }
   const browserPhase = gates.some((gate) => gate.kind === 'browser');
   const externalPhase = gates.some((gate) => gate.kind === 'external');
-  const phaseResults = await runPool(gates, browserPhase ? 1 : (externalPhase ? 2 : maxStaticJobs));
+  const phaseResults = await runPool(gates, browserPhase ? maxBrowserJobs : (externalPhase ? 2 : maxStaticJobs));
   results.push(...phaseResults);
   blockedBy = phaseResults.filter((result) => result.status === 'FAIL').map((result) => result.id);
 }
@@ -362,6 +382,7 @@ const report = {
   completedAt: new Date().toISOString(),
   durationMs: Date.now() - startedMs,
   noCache,
+  concurrency: { static: maxStaticJobs, browser: maxBrowserJobs, external: 2 },
   counts,
   results
 };

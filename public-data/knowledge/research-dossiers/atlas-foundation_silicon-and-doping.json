@@ -32,37 +32,14 @@
       "sourceTier": null
     },
     {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
       "sourceId": "WEB-IBM-SEMICONDUCTOR-DOPING",
       "url": "https://www.ibm.com/think/topics/semiconductors/jcr%3Acontent",
       "publisher": "IBM Think",
       "title": "What is a Semiconductor?",
       "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
-    },
-    {
-      "sourceId": "WEB-SEC-GOOGLE-10K-2025",
-      "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
-      "publisher": "U.S. Securities and Exchange Commission / Alphabet",
-      "title": "Alphabet 2025 Form 10-K filing",
-      "sourceTier": "PRIMARY_OFFICIAL"
     }
   ],
   "selectedSources": [
-    {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
     {
       "sourceId": "WEB-IBM-SEMICONDUCTOR-DOPING",
       "url": "https://www.ibm.com/think/topics/semiconductors/jcr%3Acontent",
@@ -71,20 +48,10 @@
       "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
       "directness": "DIRECT",
       "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
-      "sourceId": "WEB-SEC-GOOGLE-10K-2025",
-      "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
-      "publisher": "U.S. Securities and Exchange Commission / Alphabet",
-      "title": "Alphabet 2025 Form 10-K filing",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
     }
   ],
   "rejectedSources": [],
   "sourceTiers": [
-    "PRIMARY_OFFICIAL",
     "COMPANY_TECHNICAL_DOCUMENT"
   ],
   "claimCoverage": [
@@ -95,9 +62,7 @@
     }
   ],
   "researchFactIds": [
-    "fact:nist:ai-rmf-core",
-    "fact:ibm:silicon-doping",
-    "fact:sec:capex-depreciation"
+    "fact:ibm:silicon-doping"
   ],
   "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",

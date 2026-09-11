@@ -3,7 +3,7 @@
 AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + native ESM 투자 리서치 터미널이다. 변동하는 버전·라우트·파일 크기·지식 상태의 정본은 `_context/CURRENT-STATE.md`이며, 이 문서에는 복제하지 않는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v54.77**
+- 현재 버전: **v54.88**
 - **버전 이력 → CHANGELOG.md** (v52.62+ 상세, v52.61 이하는 압축 이력 + git 히스토리). 버그 계보 → `_context/BUG-POSTMORTEM.md`(반복 클래스 표 + 압축 원장), 검증 이력 → `_context/QA-CHECKLIST.md` §6.
 - 이 파일에는 버전별 작업 요약을 **누적하지 않는다** (2026-07-18 통합 — CHANGELOG가 단일 출처).
 - 코드 구조: `index.html` 정적 셸 + `js/` 호환 모듈 + `src/` native ESM. 현재 집계는 `_context/CURRENT-STATE.md`, 구간 탐색은 `_context/CODE-MAP.md`를 사용한다.
@@ -16,7 +16,7 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 | 작업 | 읽을 파일 |
 |------|----------|
 | **index.html 수정** | `_context/CODE-MAP.md` → 해당 line 범위만 Read |
-| **모든 작업** | `_context/CURRENT-STATE.md` → `_context/WORKFLOW-GOVERNANCE.md` → `_context/INDEX.md` |
+| **모든 작업** | `_context/CURRENT-STATE.md` 한 번 확인; governance/index는 관련 상세나 위치 탐색이 필요할 때 |
 | **버그 수정** | `/bug-fix` → 관련 R/P/QA 항목만 검색 → 회귀 게이트 |
 | **새 기능** | 관련 스킬 → `_context/CODE-MAP.md`/도메인 계약의 필요한 범위 |
 | **QA/점검** | `/qa` → 변경 위험에서 tier·라우트 집합 파생 |
@@ -70,5 +70,5 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 - 요청 범위 외 제안/과잉 설계 금지
 - index.html은 CODE-MAP 기반 부분 읽기 · 파일은 한 번만 읽기
 - 모르면 솔직히 말하기 (경로/함수명 날조 금지)
-- 대형 RULES/QA/BUG/KNOWLEDGE 원장은 관련 용어만 검색한다. 기본 컨텍스트는 CURRENT-STATE/GOVERNANCE/INDEX와 선택된 스킬 라우터로 제한한다.
+- 대형 RULES/QA/BUG/KNOWLEDGE 원장은 관련 용어만 검색한다. 기본 컨텍스트는 CURRENT-STATE로 제한하고 GOVERNANCE/INDEX와 스킬은 필요한 부분만 읽는다. 승인·완료·병렬 위임 원칙은 AGENTS.md를 따른다.
 - 자동 커밋 훅을 추가하지 않는다. 훅은 파괴 명령 차단과 advisory 검증만 수행한다.

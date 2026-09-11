@@ -31,11 +31,13 @@ function runtimeQuote(live, symbol) {
   const fetchedAt = row.fetchedAt || envelope.fetchedAt || null;
   const revision = row.revision || envelope.revision || null;
   const changeBasis = row.changeBasis || row.valueBasis || envelope.changeBasis || envelope.valueBasis || 'unknown';
+  const currency = row.currency || envelope.currency || null;
   const directionCompatible = rawPct != null && !!observedAt && changeBasis !== 'unknown';
   return {
     price,
     pct: directionCompatible ? rawPct : null,
     rawPct,
+    currency: currency ? String(currency).trim().toUpperCase() : null,
     observedAt,
     fetchedAt,
     revision,

@@ -1,19 +1,19 @@
 ---
 name: knowledge-lint
-description: AIO Screener knowledge-base consistency lint. Use when checking _context docs, rules, postmortems, QA, commands, and skills for contradictions, stale paths, missing gates, INDEX drift, or repeated failure patterns.
+description: Repair inconsistencies in AIO docs, skills, agents, hooks, and their executable contracts.
 ---
 
 ## AIO Skill Operating Contract
 
-Read `_context/CURRENT-STATE.md`, `_context/WORKFLOW-GOVERNANCE.md`, `_context/INDEX.md`, and `.claude/skills/_shared/operating-contract.md` before acting. Treat `.claude/skills` as canonical and `.agents/skills` as a generated local mirror.
-
-Close every code/data/doc/skill change with evidence. For skill-facing edits run `node scripts/ci-skill-contract-check.mjs` and `node scripts/ci-workflow-compaction-check.mjs`. Keep R1 7 surfaces synchronized with `node scripts/bump-version.mjs <version>` when a version bump is required.
+Follow `.claude/skills/_shared/operating-contract.md`; reuse it if already read. It owns common context loading, version sync, evidence closeout, and generated-mirror rules.
 
 ## Purpose
 
 Detect and repair contradictions between `_context`, skills, commands, rules, postmortems, QA checklists, and executable gates.
 
 ## Reference Loading Map
+
+Read only what the current task needs; this is not an all-files reading checklist.
 
 - Read `references/workflow.md` for the eight lint passes, report contract, and closeout.
 - Use `_context/CONTEXT-CATALOG.json` for exact document coverage.
@@ -23,9 +23,9 @@ Detect and repair contradictions between `_context`, skills, commands, rules, po
 ## Core Workflow
 
 1. Select full or targeted lint scope.
-2. Run the eight lint passes.
+2. Run the applicable lint passes; all eight are required for a full workspace lint.
 3. Auto-fix clear stale paths and index drift.
-4. Escalate contradictory rules or ambiguous ownership.
+4. Resolve contradictions using the user request and canonical ownership; ask only when a material ambiguity remains.
 5. Add or update gates when repeated failures are found.
 6. Report PASS/WARN/FAIL with verified, blocked, and unverified sections.
 
@@ -39,7 +39,7 @@ Detect and repair contradictions between `_context`, skills, commands, rules, po
 | KL4 | Are duplicate or contradictory rules resolved or flagged? |
 | KL5 | Were executable gates run for doc/skill changes? |
 | KL6 | Did the matching command wrapper remain synced? |
-| KL7 | Was Pass 8 (prescriptive drift: reasoning-echo requests, instruction-without-eval) run over `.claude/skills` and `.claude/commands`? |
+| KL7 | For full lint, was Pass 8 (prescriptive drift: reasoning-echo requests, instruction-without-eval) run over `.claude/skills` and `.claude/commands`? |
 | KL8 | Is any local `.agents/skills` mirror byte-synchronized with the canonical skill tree? |
-| KL9 | Were AGENTS/CLAUDE, agents, hooks, workflows and generated current-state/catalog surfaces included? |
+| KL9 | For full workspace lint, were AGENTS/CLAUDE, agents, hooks, workflows and generated current-state/catalog surfaces included? |
 | KL10 | Did the report keep mechanical consistency separate from semantic/human certification? |

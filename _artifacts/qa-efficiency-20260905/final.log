@@ -1,0 +1,330 @@
+[qa] RUN syntax
+[qa] RUN workflow-yaml
+[qa] RUN version
+[qa] RUN product-charter
+[qa] PASS product-charter (135ms)
+[qa] RUN architecture
+[qa] PASS version (210ms)
+[qa] RUN native-decision
+[qa] PASS native-decision (217ms)
+[qa] RUN vertical-slice
+[qa] PASS vertical-slice (225ms)
+[qa] RUN capability-claims
+[qa] PASS capability-claims (210ms)
+[qa] RUN operations-contract
+[qa] PASS architecture (888ms)
+[qa] RUN reference-curriculum
+[qa] PASS operations-contract (286ms)
+[qa] RUN generated-state
+[qa] PASS reference-curriculum (227ms)
+[qa] RUN workspace-contract
+[qa] PASS workflow-yaml (1504ms)
+[qa] RUN qa-runner-behavior
+[qa] PASS generated-state (754ms)
+[qa] PASS workspace-contract (5664ms)
+[qa] PASS syntax (8272ms)
+[qa] PASS qa-runner-behavior (24945ms)
+[qa] RUN market-session
+[qa] RUN decomposition
+[qa] RUN baseline
+[qa] RUN esm-core
+[qa] PASS market-session (107ms)
+[qa] RUN artifact-cache
+[qa] PASS baseline (111ms)
+[qa] RUN headless-group-lifecycle
+[qa] PASS decomposition (137ms)
+[qa] RUN service-worker-cache-policy
+[qa] PASS headless-group-lifecycle (109ms)
+[qa] RUN ai-intelligence
+[qa] PASS service-worker-cache-policy (109ms)
+[qa] RUN domain-parity
+[qa] PASS artifact-cache (227ms)
+[qa] RUN research-model
+[qa] PASS esm-core (314ms)
+[qa] RUN research-flow
+[qa] PASS domain-parity (138ms)
+[qa] RUN proxy-continuity
+[qa] PASS research-model (132ms)
+[qa] RUN data-continuity
+[qa] PASS research-flow (160ms)
+[qa] RUN desktop-continuity
+[qa] PASS ai-intelligence (310ms)
+[qa] RUN chat-resilience
+[qa] PASS proxy-continuity (191ms)
+[qa] RUN storage-migration
+[qa] PASS storage-migration (133ms)
+[qa] RUN release-manifest
+[qa] PASS chat-resilience (191ms)
+[qa] RUN deployment-convergence
+[qa] PASS desktop-continuity (255ms)
+[qa] RUN retirement
+[qa] PASS release-manifest (120ms)
+[qa] RUN inference
+[qa] PASS deployment-convergence (116ms)
+[qa] RUN csp
+[qa] PASS retirement (190ms)
+[qa] RUN structural
+[qa] PASS inference (128ms)
+[qa] RUN default-ux
+[qa] PASS data-continuity (540ms)
+[qa] RUN desktop-scope
+[qa] PASS csp (157ms)
+[qa] RUN runtime
+[qa] PASS desktop-scope (126ms)
+[qa] RUN ai-chat-reliability
+[qa] PASS default-ux (177ms)
+[qa] RUN data-pipeline
+[qa] PASS structural (291ms)
+[qa] RUN page-timeline
+[qa] PASS ai-chat-reliability (158ms)
+[qa] RUN semantic-review
+[qa] PASS page-timeline (117ms)
+[qa] RUN screener-workbench
+[qa] PASS semantic-review (148ms)
+[qa] RUN screener-benchmark
+[qa] PASS data-pipeline (443ms)
+[qa] RUN market-snapshot
+[qa] PASS screener-workbench (231ms)
+[qa] RUN history-time
+[qa] PASS runtime (606ms)
+[qa] RUN data-plane
+[qa] PASS market-snapshot (156ms)
+[qa] RUN operations-status
+[qa] PASS history-time (163ms)
+[qa] RUN operations-slo
+[qa] PASS data-plane (161ms)
+[qa] RUN human-validation
+[qa] PASS operations-status (117ms)
+[qa] RUN reconciliation
+[qa] PASS operations-slo (116ms)
+[qa] RUN source-registry
+[qa] PASS human-validation (119ms)
+[qa] RUN professional-gap
+[qa] PASS screener-benchmark (486ms)
+[qa] RUN operator-readiness
+[qa] PASS source-registry (134ms)
+[qa] RUN data-lineage
+[qa] PASS reconciliation (173ms)
+[qa] RUN sec-runtime-projection
+[qa] PASS operator-readiness (132ms)
+[qa] RUN static-data
+[qa] PASS professional-gap (358ms)
+[qa] RUN data-refresh
+[qa] PASS static-data (306ms)
+[qa] RUN refresh-integrity
+[qa] PASS data-refresh (199ms)
+[qa] RUN release-revision
+[qa] PASS refresh-integrity (244ms)
+[qa] RUN release-generated-parity
+[qa] PASS release-revision (176ms)
+[qa] RUN 13f-currentness
+[qa] PASS 13f-currentness (150ms)
+[qa] RUN knowledge-generated-parity
+[qa] PASS release-generated-parity (247ms)
+[qa] RUN knowledge-ontology
+[qa] PASS sec-runtime-projection (861ms)
+[qa] RUN knowledge-core
+[qa] PASS knowledge-ontology (159ms)
+[qa] RUN knowledge-articles
+[qa] PASS knowledge-core (175ms)
+[qa] RUN knowledge-learning
+[qa] PASS knowledge-learning (118ms)
+[qa] RUN knowledge-routes
+[qa] PASS knowledge-articles (258ms)
+[qa] RUN knowledge-repository
+[qa] PASS knowledge-routes (131ms)
+[qa] RUN knowledge-renderer
+[qa] PASS knowledge-repository (118ms)
+[qa] RUN knowledge-coverage
+[qa] PASS knowledge-renderer (119ms)
+[qa] RUN knowledge-web
+[qa] PASS knowledge-coverage (124ms)
+[qa] RUN knowledge-sector
+[qa] PASS knowledge-web (141ms)
+[qa] RUN knowledge-unique
+[qa] PASS knowledge-sector (116ms)
+[qa] RUN knowledge-transmission
+[qa] PASS knowledge-unique (168ms)
+[qa] RUN knowledge-currentness
+[qa] PASS knowledge-transmission (153ms)
+[qa] RUN knowledge-current-observations
+[qa] PASS knowledge-current-observations (127ms)
+[qa] RUN six-doc-coverage
+[qa] PASS knowledge-currentness (176ms)
+[qa] RUN atlas-contract
+[qa] PASS atlas-contract (180ms)
+[qa] RUN principles-contract
+[qa] PASS six-doc-coverage (243ms)
+[qa] RUN masters-contract
+[qa] PASS principles-contract (323ms)
+[qa] RUN knowledge-lint
+[qa] PASS knowledge-lint (518ms)
+[qa] RUN workflow-compaction
+[qa] PASS workflow-compaction (255ms)
+[qa] RUN skill-contract
+[qa] PASS skill-contract (179ms)
+[qa] RUN skill-evals
+[qa] PASS data-lineage (3443ms)
+[qa] RUN agent-profiles
+[qa] PASS skill-evals (132ms)
+[qa] RUN agent-skills
+[qa] PASS agent-profiles (136ms)
+[qa] RUN live-header-policy
+[qa] PASS live-header-policy (130ms)
+[qa] RUN doc-currency
+[qa] PASS agent-skills (189ms)
+[qa] RUN qa-pipeline-contract
+[qa] PASS doc-currency (137ms)
+[qa] CACHED worker-anthropic (238ms prior)
+[qa] CACHED worker-data-plane (208ms prior)
+[qa] CACHED cloudflare-deployment (162ms prior)
+[qa] PASS qa-pipeline-contract (178ms)
+[qa] PASS masters-contract (1881ms)
+[qa] PASS knowledge-generated-parity (4675ms)
+[qa] RUN headless
+[qa] RUN browser-ai-public
+[qa] PASS browser-ai-public (2445ms)
+[qa] RUN browser-market-epoch
+[qa] [qa-progress] headless shard=1/1 group=G001 1/109
+[qa] [qa-progress] headless shard=1/1 group=G002 2/109
+[qa] [qa-progress] headless shard=1/1 group=G003 3/109
+[qa] [qa-progress] headless shard=1/1 group=G004 4/109
+[qa] [qa-progress] headless shard=1/1 group=G005 5/109
+[qa] [qa-progress] headless shard=1/1 group=G006 6/109
+[qa] [qa-progress] headless shard=1/1 group=G007 7/109
+[qa] [qa-progress] headless shard=1/1 group=G008 8/109
+[qa] [qa-progress] headless shard=1/1 group=G009 9/109
+[qa] [qa-progress] headless shard=1/1 group=G010 10/109
+[qa] [qa-progress] headless shard=1/1 group=G011 11/109
+[qa] [qa-progress] headless shard=1/1 group=G012 12/109
+[qa] [qa-progress] headless shard=1/1 group=G013 13/109
+[qa] [qa-progress] headless shard=1/1 group=G014 14/109
+[qa] [qa-progress] headless shard=1/1 group=G015 15/109
+[qa] [qa-progress] headless shard=1/1 group=G016 16/109
+[qa] [qa-progress] headless shard=1/1 group=G017 17/109
+[qa] [qa-progress] headless shard=1/1 group=G018 18/109
+[qa] [qa-progress] headless shard=1/1 group=G019 19/109
+[qa] [qa-progress] headless shard=1/1 group=G020 20/109
+[qa] [qa-progress] headless shard=1/1 group=G021 21/109
+[qa] [qa-progress] headless shard=1/1 group=G022 22/109
+[qa] [qa-progress] headless shard=1/1 group=G023 23/109
+[qa] [qa-progress] headless shard=1/1 group=G024 24/109
+[qa] [qa-progress] headless group=G024 step=T147-governance-audit-start
+[qa] [qa-progress] headless group=G024 step=T148-full-badges-start
+[qa] [qa-progress] headless group=G024 step=T148-full-badges-done
+[qa] [qa-progress] headless group=G024 step=T149-scheduler-start
+[qa] [qa-progress] headless shard=1/1 group=G025 25/109
+[qa] [qa-progress] headless shard=1/1 group=G026 26/109
+[qa] [qa-progress] headless shard=1/1 group=G027 27/109
+[qa] [qa-progress] headless shard=1/1 group=G028 28/109
+[qa] [qa-progress] headless shard=1/1 group=G029 29/109
+[qa] [qa-progress] headless shard=1/1 group=G030 30/109
+[qa] [qa-progress] headless shard=1/1 group=G031 31/109
+[qa] [qa-progress] headless shard=1/1 group=G032 32/109
+[qa] [qa-progress] headless shard=1/1 group=G033 33/109
+[qa] [qa-progress] headless shard=1/1 group=G034 34/109
+[qa] [qa-progress] headless shard=1/1 group=G035 35/109
+[qa] [qa-progress] headless shard=1/1 group=G036 36/109
+[qa] [qa-progress] headless shard=1/1 group=G037 37/109
+[qa] [qa-progress] headless shard=1/1 group=G038 38/109
+[qa] [qa-progress] headless shard=1/1 group=G039 39/109
+[qa] [qa-progress] headless shard=1/1 group=G040 40/109
+[qa] [qa-progress] headless shard=1/1 group=G041 41/109
+[qa] [qa-progress] headless shard=1/1 group=G042 42/109
+[qa] [qa-progress] headless shard=1/1 group=G043 43/109
+[qa] [qa-progress] headless shard=1/1 group=G044 44/109
+[qa] [qa-progress] headless shard=1/1 group=G045 45/109
+[qa] [qa-progress] headless shard=1/1 group=G046 46/109
+[qa] [qa-progress] headless shard=1/1 group=G047 47/109
+[qa] [qa-progress] headless shard=1/1 group=G048 48/109
+[qa] [qa-progress] headless shard=1/1 group=G049 49/109
+[qa] [qa-progress] headless shard=1/1 group=G050 50/109
+[qa] [qa-progress] headless shard=1/1 group=G051 51/109
+[qa] [qa-progress] headless shard=1/1 group=G052 52/109
+[qa] [qa-progress] headless shard=1/1 group=G053 53/109
+[qa] [qa-progress] headless shard=1/1 group=G054 54/109
+[qa] [qa-progress] headless shard=1/1 group=G055 55/109
+[qa] [qa-progress] headless shard=1/1 group=G056 56/109
+[qa] [qa-progress] headless shard=1/1 group=G057 57/109
+[qa] [qa-progress] headless shard=1/1 group=G058 58/109
+[qa] [qa-progress] headless shard=1/1 group=G059 59/109
+[qa] [qa-progress] headless shard=1/1 group=G060 60/109
+[qa] [qa-progress] headless shard=1/1 group=G061 61/109
+[qa] [qa-progress] headless selection=shard=1/1 elapsed=15s
+[qa] PASS browser-market-epoch (14247ms)
+[qa] RUN browser-screener-refresh
+[qa] [qa-progress] headless shard=1/1 group=G062 62/109
+[qa] [qa-progress] headless shard=1/1 group=G063 63/109
+[qa] [qa-progress] headless shard=1/1 group=G064 64/109
+[qa] [qa-progress] headless shard=1/1 group=G065 65/109
+[qa] [qa-progress] headless shard=1/1 group=G066 66/109
+[qa] [qa-progress] headless shard=1/1 group=G067 67/109
+[qa] [qa-progress] headless shard=1/1 group=G068 68/109
+[qa] [qa-progress] headless shard=1/1 group=G069 69/109
+[qa] [qa-progress] headless shard=1/1 group=G070 70/109
+[qa] [qa-progress] headless shard=1/1 group=G071 71/109
+[qa] [qa-progress] headless shard=1/1 group=G072 72/109
+[qa] [qa-progress] headless shard=1/1 group=G073 73/109
+[qa] [qa-progress] headless shard=1/1 group=G074 74/109
+[qa] [qa-progress] headless shard=1/1 group=G075 75/109
+[qa] [qa-progress] headless shard=1/1 group=G076 76/109
+[qa] [qa-progress] headless shard=1/1 group=G077 77/109
+[qa] [qa-progress] headless shard=1/1 group=G078 78/109
+[qa] [qa-progress] headless shard=1/1 group=G079 79/109
+[qa] [qa-progress] headless shard=1/1 group=G080 80/109
+[qa] [qa-progress] headless selection=shard=1/1 elapsed=30s
+[qa] [qa-progress] headless shard=1/1 group=G081 81/109
+[qa] [qa-progress] headless shard=1/1 group=G082 82/109
+[qa] [qa-progress] headless shard=1/1 group=G083 83/109
+[qa] [qa-progress] headless shard=1/1 group=G084 84/109
+[qa] [qa-progress] headless shard=1/1 group=G085 85/109
+[qa] [qa-progress] headless shard=1/1 group=G086 86/109
+[qa] [qa-progress] headless shard=1/1 group=G087 87/109
+[qa] [qa-progress] headless shard=1/1 group=G088 88/109
+[qa] [qa-progress] headless shard=1/1 group=G089 89/109
+[qa] [qa-progress] headless shard=1/1 group=G090 90/109
+[qa] [qa-progress] headless shard=1/1 group=G091 91/109
+[qa] [qa-progress] headless shard=1/1 group=G092 92/109
+[qa] [qa-progress] headless shard=1/1 group=G093 93/109
+[qa] [qa-progress] headless shard=1/1 group=G094 94/109
+[qa] [qa-progress] headless shard=1/1 group=G095 95/109
+[qa] [qa-progress] headless shard=1/1 group=G096 96/109
+[qa] [qa-progress] headless shard=1/1 group=G097 97/109
+[qa] [qa-progress] headless shard=1/1 group=G098 98/109
+[qa] [qa-progress] headless shard=1/1 group=G099 99/109
+[qa] [qa-progress] headless shard=1/1 group=G100 100/109
+[qa] [qa-progress] headless shard=1/1 group=G101 101/109
+[qa] [qa-progress] headless shard=1/1 group=G102 102/109
+[qa] [qa-progress] headless shard=1/1 group=G103 103/109
+[qa] [qa-progress] headless shard=1/1 group=G104 104/109
+[qa] [qa-progress] headless shard=1/1 group=G105 105/109
+[qa] [qa-progress] headless shard=1/1 group=G106 106/109
+[qa] [qa-progress] headless shard=1/1 group=G107 107/109
+[qa] [qa-progress] headless shard=1/1 group=G108 108/109
+[qa] [qa-progress] headless shard=1/1 group=G109 109/109
+[qa] PASS browser-screener-refresh (23063ms)
+[qa] PASS headless (40174ms)
+[qa] RUN browser-boot
+[qa] PASS browser-boot (18655ms)
+[qa] RUN browser-architecture
+[qa] RUN browser-vertical
+[qa] PASS browser-vertical (10898ms)
+[qa] RUN browser-route-soak
+[qa] PASS browser-route-soak (32301ms)
+[qa] RUN browser-sa02
+[qa] PASS browser-architecture (54408ms)
+[qa] RUN browser-sa03
+[qa] PASS browser-sa03 (3829ms)
+[qa] PASS browser-sa02 (16131ms)
+[qa] RUN browser-sa04
+[qa] PASS browser-sa04 (10213ms)
+[qa] RUN browser-viewport
+[qa] RUN browser-critical
+[qa] PASS browser-critical (14772ms)
+[qa] RUN browser-vault
+[qa] PASS browser-vault (11583ms)
+[qa] RUN browser-a11y
+[qa] PASS browser-a11y (18580ms)
+[qa] PASS browser-viewport (60086ms)
+[qa] SUMMARY profile=affected groups=preflight,core,data,knowledge,workspace,cloudflare,browser-unit,browser-runtime,browser-resilience,browser-viewport,browser-surface pass=105 cached=3 fail=0 skip=0 duration=222.5s
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\last-run.json

@@ -1,4 +1,5 @@
 import { chromium } from 'playwright';
+import { readFileSync } from 'node:fs';
 import { spawn } from 'node:child_process';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -90,7 +91,8 @@ try {
   await page.waitForFunction(() => document.getElementById('page-atlas')?.dataset.aioAtlasKnowledgeArticles === 'connected');
   await page.waitForFunction(() => document.querySelector('#page-atlas [data-atlas-learning-detail-title]')?.textContent === 'Self-Attention' && document.querySelector('#page-atlas .atlas-module-lesson')?.dataset.atlasFoundationId === 'self-attention' && document.querySelector('#page-atlas a[data-atlas-foundation-source="FND-GOOGLE-TRANSFORMER"]') && document.querySelector('#page-atlas .knowledge-professional-bridge-button[data-knowledge-route="themes"][data-knowledge-metric][data-knowledge-timeframe]'));
   const atlasArticleText = await page.locator('#page-atlas .atlas-deep-lesson').innerText();
-  if (atlasArticleText.includes('{"term":') || !atlasArticleText.includes('사례·근거 전개') || !atlasArticleText.includes(' — ')) throw new Error('atlas article must render structured glossary values as readable Korean UI text');
+  const sourceArticle = JSON.parse(readFileSync(resolve(root, 'public-data/knowledge/articles.json'), 'utf8')).articles.find((article) => article.articleId === 'atlas-foundations:self-attention');
+  if (!sourceArticle || !atlasArticleText.includes(sourceArticle.summary.definition) || !atlasArticleText.includes(sourceArticle.summary.mechanism) || !atlasArticleText.includes(sourceArticle.summary.example) || !atlasArticleText.includes('추가 집필 필요') || atlasArticleText.includes('{"term":') || atlasArticleText.includes('5분 심층')) throw new Error('atlas must preserve concept-specific source text without overstating depth');
   await page.locator('#page-atlas .knowledge-professional-bridge-button').click();
   await page.waitForFunction(() => document.getElementById('page-themes')?.classList.contains('active') && window.AIO_KNOWLEDGE_ROUTE_CONTEXT?.routeId === 'themes' && window.AIO_KNOWLEDGE_ROUTE_CONTEXT?.knowledgeNode === 'atlas:compute-gpu' && window.AIO_KNOWLEDGE_ROUTE_CONTEXT?.metric && window.AIO_KNOWLEDGE_ROUTE_CONTEXT?.timeframe && window.AIO_KNOWLEDGE_ROUTE_CONTEXT?.returnContext?.lesson === 'self-attention');
   const bridgeContext = await page.evaluate(() => ({ href: location.href, context: window.AIO_KNOWLEDGE_ROUTE_CONTEXT }));

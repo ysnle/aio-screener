@@ -46,20 +46,6 @@
       "sourceTier": "PRIMARY_OFFICIAL"
     },
     {
-      "sourceId": "WEB-TSMC-3DFABRIC-2026",
-      "url": "https://www.tsmc.com/english/dedicatedFoundry/services/advanced-packaging",
-      "publisher": "TSMC",
-      "title": "3DFabric advanced packaging",
-      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
-    },
-    {
-      "sourceId": "WEB-MICRON-HBM2E-2020",
-      "url": "https://assets.micron.com/adobe/assets/urn%3Aaaid%3Aaem%3A275edf31-79e3-4b6c-8bbd-a233babe9281/renditions/original/as/micron-hbm2e-memory-wp.pdf",
-      "publisher": "Micron",
-      "title": "Integrating and Operating HBM2E Memory",
-      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
-    },
-    {
       "sourceId": "WEB-DOE-DATACENTER-DESIGN-2024",
       "url": "https://www.energy.gov/cmei/femp/articles/best-practices-guide-energy-efficient-data-center-design",
       "publisher": "U.S. Department of Energy",
@@ -87,37 +73,18 @@
       "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
     },
     {
-      "sourceId": "WEB-TSMC-3DFABRIC-2026",
-      "url": "https://www.tsmc.com/english/dedicatedFoundry/services/advanced-packaging",
-      "publisher": "TSMC",
-      "title": "3DFabric advanced packaging",
-      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
-      "sourceId": "WEB-MICRON-HBM2E-2020",
-      "url": "https://assets.micron.com/adobe/assets/urn%3Aaaid%3Aaem%3A275edf31-79e3-4b6c-8bbd-a233babe9281/renditions/original/as/micron-hbm2e-memory-wp.pdf",
-      "publisher": "Micron",
-      "title": "Integrating and Operating HBM2E Memory",
-      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
       "sourceId": "WEB-DOE-DATACENTER-DESIGN-2024",
       "url": "https://www.energy.gov/cmei/femp/articles/best-practices-guide-energy-efficient-data-center-design",
       "publisher": "U.S. Department of Energy",
       "title": "Best Practices Guide for Energy-Efficient Data Center Design",
       "sourceTier": "PRIMARY_OFFICIAL",
       "directness": "DIRECT",
-      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
     }
   ],
   "rejectedSources": [],
   "sourceTiers": [
-    "PRIMARY_OFFICIAL",
-    "COMPANY_TECHNICAL_DOCUMENT"
+    "PRIMARY_OFFICIAL"
   ],
   "claimCoverage": [
     {
@@ -129,8 +96,6 @@
   "researchFactIds": [
     "fact:nist:ai-rmf-core",
     "fact:doe:pue",
-    "fact:tsmc:3dfabric",
-    "fact:micron:hbm2e",
     "fact:doe:datacenter-kpi-denominators"
   ],
   "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",

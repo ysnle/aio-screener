@@ -1,19 +1,19 @@
 ---
 name: integrate
-description: AIO Screener research integration workflow. Use when the user provides analysis, reports, interviews, news, market commentary, or frameworks that should be extracted and integrated into screener data, keywords, chat contexts, rules, or knowledge docs.
+description: Integrate supplied investment research into AIO knowledge and consumers. Use for market material, not agent setup guides.
 ---
 
 ## AIO Skill Operating Contract
 
-Read `_context/CURRENT-STATE.md`, `_context/WORKFLOW-GOVERNANCE.md`, `_context/INDEX.md`, and `.claude/skills/_shared/operating-contract.md` before acting. Treat `.claude/skills` as canonical and `.agents/skills` as a generated local mirror.
-
-Close every code/data/doc/skill change with evidence. For skill-facing edits run `node scripts/ci-skill-contract-check.mjs` and `node scripts/ci-workflow-compaction-check.mjs`. Keep R1 7 surfaces synchronized with `node scripts/bump-version.mjs <version>` when a version bump is required.
+Follow `.claude/skills/_shared/operating-contract.md`; reuse it if already read. It owns common context loading, version sync, evidence closeout, and generated-mirror rules.
 
 ## Purpose
 
 Convert user-provided material into durable AIO framework changes without copying transient prose or unsupported claims into runtime surfaces.
 
 ## Reference Loading Map
+
+Read only what the current task needs; this is not an all-files reading checklist.
 
 - Read `references/workflow.md` for classification, extraction, integration targets, and self-eval.
 - Read `references/framework-extraction.md` for Q1-Q5 framework extraction, multi-source reconciliation, and invalidation boundaries.

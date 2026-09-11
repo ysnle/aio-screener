@@ -1,6 +1,6 @@
 # Data Refresh Inventory
 
-Use this reference to classify all AIO hardcoded or generated data surfaces before refreshing.
+Use this reference to locate the requested AIO data surfaces; all categories are required only for a full freshness audit.
 
 ## Critical Categories
 

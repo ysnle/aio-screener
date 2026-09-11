@@ -648,6 +648,21 @@ check('H3-E: external source state normalizer covers success/partial/timeout/mal
 check('H3-E: Telegram feeds render an explicit external-feed state instead of silently leaving page slots blank', /tg-source-state/.test(data) && /setExternalSourceState/.test(core) && /statusMarkup/.test(data) && /_rssMarkFail/.test(data));
 check('headless tests cover H3-D/E deterministic state fixtures and scroll affordance', /_testV5256ExternalSourceState/.test(tests) && /T907/.test(tests) && /T908/.test(tests) && /T909/.test(tests) && /T910/.test(tests) && /T911/.test(tests));
 check('H3-F: third-party CDN libraries are async progressive enhancements, so an unavailable CDN cannot block the local app defer queue on reload', /chart\.umd\.min\.js"[^>]*async/.test(html) && /purify\.min\.js"[^>]*async/.test(html) && /lightweight-charts\.standalone\.production\.js"[^>]*async/.test(html) && !/chart\.umd\.min\.js"[^>]*defer/.test(html));
+check('H3-F: Chart secondary CDN waits for primary error or a bounded timeout while the local renderer covers DOM-ready',
+  /id="aio-chart-cdn"/.test(html)
+    && /addEventListener\(['"]error['"],\s*loadSecondaryChart/.test(html)
+    && /setTimeout\(loadSecondaryChart,\s*5000\)/.test(html)
+    && /if \(!hasRealChart\(\)\) _chartFallbackTimer/.test(html));
+check('route lineage listens to canonical aio:pageShown and nested actions outrank article URL ancestors',
+  /document\.addEventListener\(['"]aio:pageShown['"][\s\S]{0,500}annotateLiveDataSinks/.test(core)
+    && /var actionEl = e\.target\.closest/.test(core)
+    && /!urlEl\.contains\(actionEl\)/.test(core)
+    && /T1048 nested_data_action_precedes_url_owner/.test(tests)
+    && /T1049 canonical_page_shown_reannotates_lineage/.test(tests));
+check('scheduler owns initial delay and invalidates stale loops across visibility epochs',
+  /cfg\.timer = setTimeout\(\(\) => \{[\s\S]{0,220}cfg\._scheduleEpoch !== scheduleEpoch/.test(data)
+    && /cfg\._scheduleEpoch = \(cfg\._scheduleEpoch \|\| 0\) \+ 1;[\s\S]{0,120}clearTimeout\(cfg\.timer\)/.test(data)
+    && /T1050 scheduler_initial_timer_is_owned_and_epoch_cancelled/.test(tests));
 check('H3-G: route contracts and cell-level data-lineage audit stay executable with zero broken/orphan sink condition', /getPageContractAudit/.test(core) && /expectedRoutePageCount:\s*20/.test(core) && /getDataLineageAudit/.test(core) && /totalOrphans/.test(core));
 check('headless tests cover H3-F/G boot-queue and route/lineage runtime contracts', /T912/.test(tests) && /T913/.test(tests));
 // v52.58 H3-G/H3-H/H3-I: close the handoff's element-level and human-surface gaps

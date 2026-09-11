@@ -1,0 +1,48 @@
+{
+  "before": {
+    "durationMs": 580685,
+    "counts": {
+      "PASS": 86
+    },
+    "gateCount": 86
+  },
+  "sameGateSetBenchmark": {
+    "durationMs": 368690,
+    "counts": {
+      "PASS": 85,
+      "FAIL": 1
+    },
+    "gateCount": 86
+  },
+  "final": {
+    "durationMs": 222522,
+    "counts": {
+      "PASS": 105,
+      "CACHED": 3
+    },
+    "gateCount": 108
+  },
+  "wallTimeReductionPct": 61.679395885893385,
+  "boot": {
+    "fcpMs": 1908,
+    "routeMs": 330,
+    "gateStatus": "PASS",
+    "targetStatus": "TARGET_MISS",
+    "targetFailures": [
+      "max long task 1182 > 200",
+      "total long task 1729 > 1000"
+    ]
+  },
+  "commit": false,
+  "push": false,
+  "deploy": false,
+  "reportOnlyWarm": {
+    "durationMs": 1910,
+    "counts": {
+      "CACHED": 10,
+      "PASS": 3
+    },
+    "syntax": "CACHED",
+    "runnerFixture": "CACHED"
+  }
+}

@@ -1,0 +1,159 @@
+{
+  "schemaVersion": "aio-qa-run.v1",
+  "manifestVersion": "aio-qa-pipeline.v1",
+  "profile": "affected",
+  "groups": [
+    "preflight"
+  ],
+  "changeSource": "explicit-files",
+  "changedFiles": [
+    "_artifacts/qa-efficiency-20260905/REPORT.md"
+  ],
+  "startedAt": "2026-09-05T12:53:58.827Z",
+  "completedAt": "2026-09-05T12:54:00.739Z",
+  "durationMs": 1910,
+  "noCache": false,
+  "concurrency": {
+    "static": 4,
+    "browser": 2,
+    "external": 2
+  },
+  "counts": {
+    "CACHED": 10,
+    "PASS": 3
+  },
+  "results": [
+    {
+      "id": "syntax",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 8272,
+      "fingerprint": "e06f5deb1ab4cfba4e38c84c9f6ab0e88bb652ce577c3c0e8a9a774f1fde809e"
+    },
+    {
+      "id": "version",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 163,
+      "fingerprint": "d0d50fc605ca7f52427d2dc1bd98b3d7e1d618f67b17934d2d7ab1d175f5c30a"
+    },
+    {
+      "id": "architecture",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 554,
+      "fingerprint": "640d6fd5cfd215a02b349d628ff7a544ae58d09512bc54caa779663e2b666562"
+    },
+    {
+      "id": "native-decision",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 217,
+      "fingerprint": "4fc402f9f95ea9285af677adf1ecd199fa6b0091cb17460b34ce274fe1b85fc9"
+    },
+    {
+      "id": "vertical-slice",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 225,
+      "fingerprint": "315ffb30c611b6ff4b61fa49b6519cb01f8fbbe83ddf05ead20c63f480b0bca2"
+    },
+    {
+      "id": "capability-claims",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 210,
+      "fingerprint": "e4525af9b2bde56fbec5d64d918e9506a8bc0deb0711846beff10ac7dbbd9817"
+    },
+    {
+      "id": "reference-curriculum",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 227,
+      "fingerprint": "0e23cb64ab2d49a2cfdc183d95dfcb5c840b75aec84f21dcdaa381b22c106f6a"
+    },
+    {
+      "id": "generated-state",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 381,
+      "fingerprint": "fef529011bf7151fdfb70357527db0658c69c58aee8b9a8a7b78c55e5c23e0ea"
+    },
+    {
+      "id": "workspace-contract",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 3186,
+      "fingerprint": "0cc0d6d50001a35cee14df09031504ce1b59dc6fede34c002bdb3724251be8e8"
+    },
+    {
+      "id": "qa-runner-behavior",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "CACHED",
+      "durationMs": 24945,
+      "fingerprint": "02fc8361681be3ba8f8f967baf66eba88cc416a62ab009b980d03408c1c91ca3"
+    },
+    {
+      "id": "product-charter",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "PASS",
+      "durationMs": 163,
+      "fingerprint": "de6e56fdd94b6a87433493f830da82a7bc08c6205c3f054ba8b29ff7ff5b0993",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "output": "Product charter OK: self-directed-investment-research-and-decision-support, 7 trust planes, 14 audited domains, execution=NONE.",
+      "error": ""
+    },
+    {
+      "id": "operations-contract",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "PASS",
+      "durationMs": 138,
+      "fingerprint": "71e30fefa627b2f23badd9a537aeec2ee0107d1ebfb33b1b98b09530b572c09b",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "output": "{\n  \"ok\": true,\n  \"version\": \"v54.79\",\n  \"workflowCount\": 9,\n  \"actionCount\": 28,\n  \"routeCount\": 20,\n  \"stateCount\": 5,\n  \"routeSoak\": \"pending\",\n  \"errors\": []\n}",
+      "error": ""
+    },
+    {
+      "id": "workflow-yaml",
+      "group": "preflight",
+      "phase": 0,
+      "kind": "static",
+      "status": "PASS",
+      "durationMs": 726,
+      "fingerprint": "9e437ca1ab2494f1ca02b988c6f22416ce870d91a05f8e731a525310ca6a9af4",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "output": "Control character check OK: 9 workflow YAML(s) clean+parseable, 0 file(s) with baseline-tracked pre-existing control chars, 0 regressions.",
+      "error": ""
+    }
+  ]
+}

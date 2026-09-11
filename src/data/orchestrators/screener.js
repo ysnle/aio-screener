@@ -2,7 +2,7 @@ import { normalizeScreener } from '../normalize/screener.js';
 import { deriveScreenerSetupProfile } from '../../domain/screener/setup-profile.js';
 import { calculationRow, createScreenDefinition, stableHash } from '../contracts/screener.js';
 import { runScreen, summarizeScreenReadiness, SCREEN_ENGINE_VERSION } from '../../domain/screener/screen-engine.js';
-import { SUPPLIED_MATERIALS_REFERENCE } from '../../domain/research/supplied-materials.js';
+import { SUPPLIED_MATERIALS_REFERENCE, SUPPLIED_MATERIAL_CLAIM_IDS } from '../../domain/research/supplied-materials.js';
 
 const SCREENER_RESEARCH_MAPPING = Object.freeze(SUPPLIED_MATERIALS_REFERENCE.routeMappings?.screener || {});
 
@@ -17,7 +17,12 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
   let disposed = false;
   async function sync({ scope, refresh = true } = {}) {
     const thisGeneration = ++generation;
-    const raw = await provider.readCurrent({ signal: scope?.signal, refresh });
+    let raw;
+    try { raw = await provider.readCurrent({ signal: scope?.signal, refresh }); }
+    catch (error) {
+      if (disposed || thisGeneration !== generation || scope?.signal?.aborted || error?.name === 'AbortError') return null;
+      throw error;
+    }
     if (disposed || thisGeneration !== generation || (scope && !scope.isCurrent())) return null;
     const normalized = normalizeScreener(raw);
     if (scope && !scope.isCurrent()) return null;
@@ -48,6 +53,7 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
       columns: ['identity.symbol', 'identity.name', 'rank', 'price.ret3m', 'price.rsi14'],
       referenceFrameworkIds: SCREENER_RESEARCH_MAPPING.sectionIds,
       referenceTimeSeriesIds: SCREENER_RESEARCH_MAPPING.timeSeriesIds,
+      referenceClaimIds: SUPPLIED_MATERIAL_CLAIM_IDS,
       referenceBoundary: SUPPLIED_MATERIALS_REFERENCE.operationalUse,
       minCoverage: 0.8,
       regimePolicy: { mode: 'reference-only', autoPromote: false }
@@ -83,6 +89,7 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
           operationalUse: SUPPLIED_MATERIALS_REFERENCE.operationalUse,
           frameworkIds: [...(screenDefinition.referenceFrameworkIds || [])],
           timeSeriesIds: [...(screenDefinition.referenceTimeSeriesIds || [])],
+          claimIds: [...(screenDefinition.referenceClaimIds || [])],
           boundary: screenDefinition.referenceBoundary
         },
         ranking: ranking ? {

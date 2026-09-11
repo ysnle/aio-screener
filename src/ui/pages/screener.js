@@ -1,5 +1,6 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 import { selectScreenerState } from '../../state/selectors/screener.js';
+import { subscribeToSlices } from '../../state/memoize.js';
 import { createSavedScreen, exportSavedScreen, importSavedScreen } from '../../domain/screener/saved-screens.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { SCREENER_FIELD_REGISTRY, createScreenDefinition, fieldValueForPurpose } from '../../data/contracts/screener.js';
@@ -413,7 +414,7 @@ function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatch
       if (['STALE', 'LAST_GOOD', 'CONFLICT'].includes(field.status) && fieldValueForPurpose(row, fieldId) != null) {
         const note = documentRef.createElement('small');
         note.textContent = field.status === 'CONFLICT' ? '값 충돌 · 참고' : `${field.observedAt ? String(field.observedAt).slice(0, 10) : '시각 미확인'} · 참고`;
-        note.style.cssText = 'display:block;font-size:9px;color:var(--text-muted);';
+        note.style.cssText = 'display:block;font-size:11px;color:var(--text-muted);';
         td.appendChild(note);
       }
     }
@@ -728,7 +729,7 @@ function render({ documentRef, store, readLiveData, readWatchlist, readAliases, 
       : metadata.universeFreshnessStatus === 'unknown' ? '종목 유니버스 최신성 미확인' : '종목 유니버스 최신';
     const research = metadata.researchContext || {};
     const researchNote = research.referenceId
-      ? `연구 프레임 ${research.frameworkIds?.length || 0}개·시계열 ${research.timeSeriesIds?.length || 0}개 (REFERENCE)`
+      ? `연구 프레임 ${research.frameworkIds?.length || 0}개·시계열 ${research.timeSeriesIds?.length || 0}개·claim ${research.claimIds?.length || 0}개 (REFERENCE)`
       : '연구 프레임 연결 대기';
     provenance.textContent = `연구용 스냅샷 · 팩터 관측 ${fmtDate(metadata.factorObservedAt)} · 생성 ${fmtDate(metadata.asOf)} · ${metadata.source || '출처 확인 대기'} · ${sec} · ${universeNote} · ${researchNote} · 공식 거래소 breadth 아님`;
     provenance.title = metadata.fundamentalCoverageScope || '관측시각·생성시각·SEC-only 분모를 분리해 표시합니다.';
@@ -805,7 +806,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
       if (!suppliedMaterialBridge) {
         suppliedMaterialBridge = createSuppliedMaterialBridge(documentRef, {
           routeId: 'screener',
-          heading: '스크리너 · 시장 확인·AI 용량·qualification 정렬'
+          heading: '스크리너 · 시장 확인·구조·노출·AI 용량 정렬'
         });
         page.appendChild(suppliedMaterialBridge);
         bag.add(() => suppliedMaterialBridge.remove());
@@ -867,7 +868,11 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
           const visibleRank = row.screenStatus === 'passed' && row.rank != null ? row.rank : '—';
           setText('scr-why-status', `${row.screenStatus || 'unavailable'} · rank ${visibleRank} · 필드 coverage ${readiness.coveragePct == null ? '—' : `${readiness.coveragePct}%`} · 팩터 근거 ${factorConfidence == null ? '—' : `${Math.round(factorConfidence * 100)}%`} (수익확률 아님)`);
          setText('scr-why-contrary', contrary.length ? contrary.join(' · ') : row.screenStatus === 'unavailable' ? '필수 근거 미수신으로 조건 판단을 보류했습니다.' : '조건을 반대한 근거가 없습니다.');
-         setText('scr-why-missing', missing.length ? missing.join(' · ') : '필수 필드 결측 없음');
+          const structureEvidence = row.setupProfile?.structureEvidence || {};
+          const structureNote = structureEvidence.postEarningsBreakout === 'unavailable'
+            ? '실적 후 돌파·Wedge Pop 확인: 이벤트/리테스트 데이터 미수신'
+            : `실적 후 돌파·Wedge Pop: ${structureEvidence.postEarningsBreakout}`;
+          setText('scr-why-missing', `${missing.length ? missing.join(' · ') : '필수 필드 결측 없음'} · ${structureNote}`);
          setText('scr-why-provenance', row.instrumentRef?.instrumentId ? `instrument ${row.instrumentRef.instrumentId}` : row.source || 'provenance 미수신');
          setText('scr-why-preview', `${row.sym || row.symbol} · ${title} · ${missing.length ? `결측 ${missing.length}개` : '결측 없음'} · ${contrary.length ? `반대 근거 ${contrary.length}개` : row.screenStatus === 'unavailable' ? '판정 보류' : '반대 근거 없음'}`);
          const factorList = documentRef.getElementById('scr-why-factor-list');
@@ -1344,7 +1349,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
       bag.add(() => page.removeEventListener('click', handleClick));
       bag.add(() => page.removeEventListener('input', handleInput));
       bag.add(() => page.removeEventListener('change', handleInput));
-      bag.add(store.subscribe(renderWithControls));
+      bag.add(subscribeToSlices(store, ['screener'], renderWithControls));
       const eventTarget = documentRef || root;
       ['aio:refresh:done', 'aio:liveQuotes'].forEach((eventName) => {
         eventTarget?.addEventListener?.(eventName, renderWithControls);

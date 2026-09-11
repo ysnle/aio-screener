@@ -2,6 +2,8 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createSecClient, parse13fAmendmentMetadata } from './lib/sec-edgar.mjs';
+import { rawHoldingRow } from './lib/masters-raw-rows.mjs';
+import { atomicWriteFile } from './lib/atomic-write.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const filingsPath = path.join(root, 'public-data', 'masters', 'filings.json');
@@ -167,9 +169,7 @@ function baseUrl(indexUrl) {
 }
 
 async function writeAtomic(file, value) {
-  const temp = `${file}.tmp`;
-  await fs.writeFile(temp, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
-  await fs.rename(temp, file);
+  await atomicWriteFile(file, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
 }
 
 async function fetchFilingBundle(filing) {
@@ -280,8 +280,7 @@ for (const manager of verified) {
     };
   });
   const fullRows = rows.map((row, index) => {
-    const comparison = comparisonByKey.get(comparisonKey(row));
-    return {
+    return rawHoldingRow({
       managerId: manager.id,
       cik: manager.cik,
       reportPeriod: filing.periodOfReport,
@@ -292,17 +291,9 @@ for (const manager of verified) {
       cusipNormalized: normalizeCusip(row.cusip),
       sourceRowCount: 1,
       priorReportPeriod: manager.priorFiling?.periodOfReport || null,
-      priorValue: comparison?.priorValue ?? null,
-      priorShares: comparison?.priorShares ?? null,
-      valueDelta: comparison?.valueDelta ?? null,
-      sharesDelta: comparison?.sharesDelta ?? null,
-      action: comparison?.action || 'UNAVAILABLE',
-      actionConfidence: comparison ? 'REVIEW_REQUIRED' : 'NOT_AVAILABLE',
-      actionBasis: comparison ? 'REPORTED_SHARE_DELTA' : 'NOT_AVAILABLE',
-      comparisonStatus: manager.priorFiling && priorCountReconciled ? 'VERIFIED_PRIOR_PERIOD' : 'NOT_AVAILABLE',
       evidenceId: `sec.13f.${manager.cik}.${filing.periodOfReport}.${row.cusip}`,
       sourceUrl: filing.informationTableHtml
-    };
+    });
   });
   const comparisonRecords = comparisonRows.map((row, index) => ({
     managerId: manager.id,
@@ -391,7 +382,7 @@ for (const failure of failures) {
   if (!previousManager || managers.some((manager) => manager.id === failure.managerId)) continue;
   managers.push({ ...previousManager, collectorStatus: 'STALE_LAST_KNOWN_GOOD', collectionFailure: failure.reason });
   holdings.push(...(previousHoldings.holdings || []).filter((row) => row.managerId === failure.managerId));
-  allHoldings.push(...(previousHoldings.allHoldings || []).filter((row) => row.managerId === failure.managerId));
+  allHoldings.push(...(previousHoldings.allHoldings || []).filter((row) => row.managerId === failure.managerId).map(rawHoldingRow));
   comparisons.push(...(previousHoldings.comparisons || []).filter((row) => row.managerId === failure.managerId));
   if (previousHoldings.managerShards?.[failure.managerId]) shards[failure.managerId] = previousHoldings.managerShards[failure.managerId];
 }

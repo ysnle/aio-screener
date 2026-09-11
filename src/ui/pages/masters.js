@@ -463,7 +463,10 @@ function createTable(documentRef, headers, rows, rowBuilder, className = 'master
 function createHoldingRow(documentRef, row, index, includeAction = true) {
   const tr = element(documentRef, 'tr', '');
   const formatter = new Intl.NumberFormat('en-US');
-  [String(row.rank || index + 1), row.issuer || '—', row.cusipNormalized || row.cusip || '—', formatReportedValue(row.value), formatter.format(row.shares || 0), formatDelta(row.sharesDelta, formatter), formatDelta(row.valueDelta, formatter), row.putCall || '—'].forEach((value) => tr.appendChild(element(documentRef, 'td', '', value)));
+  const values = [String(row.rank || index + 1), row.issuer || '—', row.cusipNormalized || row.cusip || '—', formatReportedValue(row.value), formatter.format(row.shares || 0)];
+  if (includeAction) values.push(formatDelta(row.sharesDelta, formatter), formatDelta(row.valueDelta, formatter));
+  values.push(row.putCall || '—');
+  values.forEach((value) => tr.appendChild(element(documentRef, 'td', '', value)));
   if (includeAction) {
     const action = row.action || 'UNAVAILABLE';
     const prefix = row.actionConfidence === 'REVIEW_REQUIRED' ? '신고 수량상 ' : '';
@@ -477,7 +480,7 @@ function createTopHoldingTable(documentRef, manager, holdingMeta, rows) {
   const section = element(documentRef, 'section', 'masters-holdings-section');
   const heading = element(documentRef, 'div', 'masters-holdings-heading');
   heading.append(
-    element(documentRef, 'h4', 'masters-holdings-title', '상위 보고 보유 종목'),
+    element(documentRef, 'h4', 'masters-holdings-title', '상위 보고 보유 종목 · CUSIP·주식 유형·Put/Call 집계'),
     element(documentRef, 'p', 'masters-holdings-meta', `${holdingMeta?.verification?.reportPeriod || '보고분기 확인 필요'} · 상위 ${rows.length}개 · 전체 신고 행 ${holdingMeta?.verification?.fullRowCount || '—'}개`)
   );
   const table = createTable(documentRef, ['#', 'Issuer', 'CUSIP', 'Reported value', 'Shares', 'Δ shares', 'Δ value', 'Put/Call', 'Reported change'], rows, (row, index) => createHoldingRow(documentRef, row, index, true));
@@ -498,7 +501,7 @@ function createPagination(documentRef, page, pageCount, total, action = 'detail-
 
 function createChangeLedger(documentRef, comparisonRows, state) {
   const section = element(documentRef, 'section', 'masters-holdings-section masters-change-ledger');
-  section.appendChild(element(documentRef, 'h4', 'masters-holdings-title', '분기 변화 원장'));
+  section.appendChild(element(documentRef, 'h4', 'masters-holdings-title', '분기 변화 원장 · CUSIP·주식 유형·Put/Call 집계'));
   section.appendChild(element(documentRef, 'p', 'masters-holdings-meta', '두 보고분기의 신고 주식 수 차이에서 계산한 분류이며 모든 행은 재검토 대상입니다. 현재 가격, 실제 체결 매매, 매매 신호, 목표가를 뜻하지 않습니다.'));
   const filters = element(documentRef, 'div', 'masters-action-filters');
   ['ALL', 'NEW', 'INCREASED', 'REDUCED', 'UNCHANGED', 'EXITED'].forEach((action) => {
@@ -529,7 +532,8 @@ function createFullHoldingsView(documentRef, fullRows, state, descriptor = null)
   const heading = element(documentRef, 'div', 'masters-holdings-heading');
   heading.append(
     element(documentRef, 'h4', 'masters-holdings-title', '신고 보유 행 웹 투영'),
-    element(documentRef, 'p', 'masters-holdings-meta', `SEC 정보표 중 ${fullRows.length.toLocaleString('en-US')}행 투영 / 전체 ${Number(descriptor?.fullRows || fullRows.length).toLocaleString('en-US')}행 · 페이지당 25개 · 검색은 현재 투영 범위`)
+    element(documentRef, 'p', 'masters-holdings-meta', `SEC 정보표 중 ${fullRows.length.toLocaleString('en-US')}행 투영 / 전체 ${Number(descriptor?.fullRows || fullRows.length).toLocaleString('en-US')}행 · 페이지당 25개 · 검색은 현재 투영 범위`),
+    element(documentRef, 'p', 'masters-holdings-meta masters-raw-row-boundary', '원문 분할행은 이전 분기 행과 일대일 대응이 검증되지 않아 행별 변화를 표시하지 않습니다. 종목 집계 변화는 분기 변화 원장에서 확인하세요.')
   );
   const controls = element(documentRef, 'div', 'masters-holdings-controls');
   const search = element(documentRef, 'input', 'masters-holdings-search');
@@ -544,7 +548,7 @@ function createFullHoldingsView(documentRef, fullRows, state, descriptor = null)
   state.page = Math.min(state.page, pageCount);
   const start = (state.page - 1) * state.pageSize;
   const pageRows = filtered.slice(start, start + state.pageSize);
-  const table = createTable(documentRef, ['#', 'Issuer', 'CUSIP', 'Reported value', 'Shares', 'Δ shares', 'Δ value', 'Put/Call', 'Comparison'], pageRows, (row, index) => createHoldingRow(documentRef, row, start + index, true), 'masters-full-holdings-table masters-holdings-table');
+  const table = createTable(documentRef, ['#', 'Issuer', 'CUSIP', 'Reported value', 'Shares', 'Put/Call'], pageRows, (row, index) => createHoldingRow(documentRef, row, start + index, false), 'masters-full-holdings-table masters-holdings-table');
   section.append(heading, controls, table, createPagination(documentRef, state.page, pageCount, filtered.length));
   return section;
 }
@@ -1032,6 +1036,8 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
         searchLabel.appendChild(input);
         toolbar.append(filters, searchLabel);
          const matchesList = registry.filter((manager) => (state.filter === 'ALL' || manager.type === state.filter) && matches(manager, state.query));
+         const selected = matchesList.find((manager) => manager.id === state.selectedId) || matchesList[0] || null;
+         if (selected) state.selectedId = selected.id;
          const layout = element(documentRef, 'div', 'masters-layout');
          const list = element(documentRef, 'div', 'masters-manager-list');
          matchesList.forEach((manager) => {
@@ -1049,20 +1055,19 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
           ));
         });
         if (!matchesList.length) list.appendChild(element(documentRef, 'div', 'masters-empty-state', '조건에 맞는 프로필이 없습니다.'));
-         const selected = registry.find((manager) => manager.id === state.selectedId) || matchesList[0] || registry[0];
-         if (selected) state.selectedId = selected.id;
-         const catalogMeta = state.catalog?.managers?.find((item) => item.id === selected.id);
-         const filingMeta = state.filings?.managers?.find((item) => item.id === selected.id) || catalogMeta;
-        const holdingMeta = state.holdings?.managers?.find((item) => item.id === selected.id);
-        const compactRows = (state.holdings?.holdings || []).filter((item) => item.managerId === selected.id);
-         const selectedShard = state.managerRows.get(selected.id);
-         const embeddedRows = (state.holdings?.allHoldings || []).filter((item) => item.managerId === selected.id);
+         const catalogMeta = selected ? state.catalog?.managers?.find((item) => item.id === selected.id) : null;
+         const filingMeta = selected ? state.filings?.managers?.find((item) => item.id === selected.id) || catalogMeta : null;
+        const holdingMeta = selected ? state.holdings?.managers?.find((item) => item.id === selected.id) : null;
+        const compactRows = selected ? (state.holdings?.holdings || []).filter((item) => item.managerId === selected.id) : [];
+         const selectedShard = selected ? state.managerRows.get(selected.id) : null;
+         const embeddedRows = selected ? (state.holdings?.allHoldings || []).filter((item) => item.managerId === selected.id) : [];
          const fullRows = selectedShard?.holdings || embeddedRows;
-          const comparisonRows = selectedShard?.comparisons?.length ? selectedShard.comparisons : (state.holdings?.comparisons || []).filter((item) => item.managerId === selected.id).length ? (state.holdings?.comparisons || []).filter((item) => item.managerId === selected.id) : compactRows.filter((item) => item.comparisonStatus === 'VERIFIED_PRIOR_PERIOD');
-          const previewMeta = state.previews?.managers?.find((item) => item.managerId === selected.id);
+          const selectedComparisons = selected ? (state.holdings?.comparisons || []).filter((item) => item.managerId === selected.id) : [];
+          const comparisonRows = selectedShard?.comparisons?.length ? selectedShard.comparisons : selectedComparisons.length ? selectedComparisons : compactRows.filter((item) => item.comparisonStatus === 'VERIFIED_PRIOR_PERIOD');
+          const previewMeta = selected ? state.previews?.managers?.find((item) => item.managerId === selected.id) : null;
           const previewRows = previewMeta?.rows || [];
-          const historyManager = state.history?.managers?.find((item) => item.managerId === selected.id);
-          const quarterBundle = state.quarterBundles.get(selected.id);
+          const historyManager = selected ? state.history?.managers?.find((item) => item.managerId === selected.id) : null;
+          const quarterBundle = selected ? state.quarterBundles.get(selected.id) : null;
           const rowsByManager = new Map(state.managerRows);
           registry.forEach((item) => {
             if (rowsByManager.has(item.id)) return;
@@ -1070,14 +1075,15 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
             const comparisons = (state.holdings?.comparisons || []).filter((row) => row.managerId === item.id);
             if (rows.length || comparisons.length) rowsByManager.set(item.id, { holdings: rows, comparisons });
           });
-          const ownershipDiscovery = state.discovery?.managers?.find((item) => item.managerId === selected.id);
-          layout.append(list, createDetail(documentRef, selected, () => navigateKnowledgeTarget({ root, target: {
+          const ownershipDiscovery = selected ? state.discovery?.managers?.find((item) => item.managerId === selected.id) : null;
+          if (selected) layout.append(list, createDetail(documentRef, selected, () => navigateKnowledgeTarget({ root, target: {
             routeId: 'principles',
             conceptId: 'institutional-position-change',
             metric: '13F_QUARTERLY_CHANGE',
             timeframe: holdingMeta?.verification?.reportPeriod || 'QUARTERLY_LAGGED',
             returnContext: { route: 'masters', manager: selected.id, mode: state.view, period: holdingMeta?.verification?.reportPeriod || null }
           } }), filingMeta, ownershipDiscovery, holdingMeta, compactRows, fullRows, comparisonRows, previewMeta, previewRows, state, state.securityMaster, state.referenceMaster, historyManager, quarterBundle ? { rows: quarterBundle.historyRows || [] } : null, quarterBundle?.issuerAggregates || null, state.principles, registry, state.holdings?.managers || [], rowsByManager));
+          else layout.append(list, element(documentRef, 'div', 'masters-empty-state', '현재 필터에 표시할 상세 프로필이 없습니다. 필터나 검색어를 변경하세요.'));
         if (state.filingsError) layout.appendChild(element(documentRef, 'div', 'masters-empty-state', 'SEC 공시 메타데이터를 불러오지 못했습니다. 기관 소개는 계속 볼 수 있습니다.'));
         if (state.holdingsError) layout.appendChild(element(documentRef, 'div', 'masters-empty-state', 'SEC 보유 행을 불러오지 못했습니다. 공시 메타데이터는 계속 볼 수 있습니다.'));
          if (state.securityMasterError || state.referenceMasterError) layout.appendChild(element(documentRef, 'div', 'masters-empty-state', '종목 분류 원장을 불러오지 못해 섹터를 임의로 추정하지 않습니다.'));

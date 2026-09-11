@@ -12,6 +12,11 @@ const conceptsBundle = read('concepts.json');
 const aliasesBundle = read('aliases.json');
 const sourcesBundle = read('sources.json');
 const routeTargetsBundle = read('route-targets.json');
+const sourceLessons = new Map([
+  ...JSON.parse(fs.readFileSync(path.join(root, 'public-data/principles/lesson-library.json'), 'utf8')).lessons.map((lesson) => [`principles:${lesson.id}`, lesson]),
+  ...JSON.parse(fs.readFileSync(path.join(root, 'public-data/atlas/foundation-lessons.json'), 'utf8')).lessons.map((lesson) => [`atlas-foundations:${lesson.id}`, lesson])
+]);
+const conceptsById = new Map((conceptsBundle.concepts || []).map((concept) => [concept.canonicalId, concept]));
 const compact = (value, limit) => {
   const text = String(value || '').replace(/\s+/g, ' ').trim();
   return text.length <= limit ? text : `${text.slice(0, limit - 1).trim()}…`;
@@ -29,12 +34,17 @@ for (const entry of aliasesBundle.aliases || []) {
 const outputArticles = (articlesBundle.articles || []).map((article) => {
   const haystack = `${article.title} ${Object.values(article.summary || {}).join(' ')}`.toLowerCase();
   const articleWords = words(`${article.title} ${article.summary?.definition} ${article.summary?.mechanism}`);
-  const concepts = (conceptsBundle.concepts || []).map((concept) => {
+  const candidates = (conceptsBundle.concepts || []).map((concept) => {
     if (concept.surface !== article.surface && !(article.surface === 'atlas-foundations' && concept.surface === 'atlas')) return false;
     const titleWords = words(concept.title);
     const overlap = titleWords.filter((word) => haystack.includes(word)).length;
     return overlap ? { concept, score: overlap / Math.max(1, titleWords.length) + overlap } : null;
   }).filter(Boolean).sort((a, b) => b.score - a.score || a.concept.canonicalId.localeCompare(b.concept.canonicalId)).slice(0, 6).map((row) => row.concept);
+  const lesson = sourceLessons.get(article.articleId);
+  const conceptSurface = article.surface === 'principles' ? 'principles' : 'atlas';
+  const explicitIds = [...new Set([...(lesson?.nodeIds || []), ...(lesson?.relatedAtlasNodeIds || [])])].map((id) => `${conceptSurface}:${id}`);
+  const concepts = explicitIds.map((id) => conceptsById.get(id)).filter(Boolean);
+  if (concepts.length !== explicitIds.length) throw new Error(`Unknown source concept link: ${article.articleId}`);
   const candidateSourceIds = [...new Set([...(article.article?.sourceIds || []), ...concepts.flatMap((concept) => concept.sourceIds || [])])];
   const sourceRows = candidateSourceIds.map((id) => sourcesById.get(id)).filter(Boolean).map((source) => {
     const sourceWords = words(`${source.title || ''} ${source.scope || ''}`);
@@ -48,12 +58,15 @@ const outputArticles = (articlesBundle.articles || []).map((article) => {
     articleId: article.articleId,
     lessonId: article.lessonId,
     conceptIds: concepts.map((concept) => concept.canonicalId),
+    conceptLinkStatus: concepts.length ? 'SOURCE_LINK' : 'UNMAPPED',
+    candidateConceptIds: candidates.map((concept) => concept.canonicalId),
+    candidateConceptStatus: 'TEXT_CANDIDATE',
     surface: article.surface,
     title: article.title,
     authoringStatus: article.authoringStatus,
     publication: article.publication,
     reviewedAt: article.reviewedAt,
-    keywords: [...new Set([article.title, ...concepts.map((concept) => concept.title), ...conceptAliases])].filter(Boolean).slice(0, 18),
+    keywords: [...new Set([article.title, ...concepts.map((concept) => concept.title), ...conceptAliases, ...candidates.map((concept) => concept.title)])].filter(Boolean).slice(0, 18),
     route: {
       routeId: route,
       deepLink: `?lesson=${encodeURIComponent(article.lessonId)}#${route}`,
@@ -90,6 +103,7 @@ atomicWriteJsonSync(path.join(root, 'public-data', 'knowledge', 'ai-retrieval-in
     principles: outputArticles.filter((article) => article.surface === 'principles').length,
     atlasFoundations: outputArticles.filter((article) => article.surface === 'atlas-foundations').length,
     withConcepts: outputArticles.filter((article) => article.conceptIds.length).length,
+    unmappedConcepts: outputArticles.filter((article) => !article.conceptIds.length).length,
     withSources: outputArticles.filter((article) => article.sources.length).length,
     withRouteTargets: outputArticles.filter((article) => article.route.verificationRouteId).length
   },

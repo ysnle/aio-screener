@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { validateKnowledgeAuthoringCorpus, SOURCE_PRESERVED_STATUS, SEMANTIC_REFERENCE_STATUS } from './lib/knowledge-authoring-contract.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
@@ -16,6 +17,7 @@ const data = JSON.parse(read('public-data/atlas/index.json'));
 const research = JSON.parse(read('public-data/atlas/source-packets.json'));
 const foundations = JSON.parse(read('public-data/atlas/foundations.json'));
 const foundationLessons = JSON.parse(read('public-data/atlas/foundation-lessons.json'));
+const knowledgeArticles = JSON.parse(read('public-data/knowledge/articles.json'));
 const domainGuides = JSON.parse(read('public-data/atlas/domain-guides.json'));
 const domainPackets = JSON.parse(read('public-data/atlas/domain-source-packets.json'));
 const domainClaims = JSON.parse(read('public-data/atlas/domain-claim-ledger.json'));
@@ -27,6 +29,11 @@ const currentness = JSON.parse(read('public-data/atlas/player-product-currentnes
 const currentEvidenceLedger = JSON.parse(read('public-data/atlas/current-evidence-ledger.json'));
 const relationshipGuides = JSON.parse(read('public-data/knowledge/relationship-guides.json'));
 const knowledgeSources = JSON.parse(read('public-data/knowledge/sources.json'));
+const foundationAuthoringContract = validateKnowledgeAuthoringCorpus({
+  surface: 'atlas-foundations',
+  artifact: foundationLessons,
+  articles: (knowledgeArticles.articles || []).filter((article) => article.surface === 'atlas-foundations')
+});
 const errors = [];
 const required = [
   ['route', routes.includes("'atlas'")],
@@ -60,8 +67,8 @@ if (data.packets !== 11 || data.reviewedNodes !== 0 || data.candidateNodes !== 1
 if (!atlas.includes('createResearchView') || !atlas.includes('RESEARCH_URL') || !atlas.includes('createCurriculumView') || !atlas.includes('FOUNDATIONS_URL') || !atlas.includes('FOUNDATIONS_LESSONS_URL') || !atlas.includes('DOMAIN_GUIDES_URL') || !atlas.includes('createDomainGuide') || !atlas.includes('atlas-module-authored') || !atlas.includes('atlas-domain-guide')) errors.push('research view connection');
 if (!atlas.includes('ATLAS_CONCEPT_GUIDES') || !atlas.includes('createTaxonomyGuide') || !atlas.includes('FOUNDATION_TRACK_DISPLAY') || !atlas.includes('FOUNDATION_TEACHING_FRAME') || !atlas.includes('atlas-module-story') || !atlas.includes('atlas-module-application') || !atlas.includes('atlas-module-visualization') || !atlas.includes('atlas-module-exploration') || !atlas.includes('TELEGRAM_DISCOVERY_BOUNDARY') || !atlas.includes("F0: { title: '문제·학습·시스템의 공통 언어'" ) || !atlas.includes('AI를 이해하는 7단계')) errors.push('user-facing atlas explanations, complete foundation layers, or discovery boundary');
 if (foundations.status !== 'REFERENCE_CONNECTED' || foundations.layers.length !== 7 || foundations.moduleIndex.length !== 48 || foundations.publication !== 'EDUCATIONAL_REFERENCE_ONLY' || foundations.lessonContract?.visualizationStatus !== 'CONCEPT_FRAME_CONNECTED' || foundations.lessonContract?.shortFormStatus !== 'AUTHORED_REFERENCE_CONNECTED' || foundations.lessonContract?.shortFormArtifact !== 'public-data/atlas/foundation-lessons.json' || foundations.lessonContract?.longFormStatus !== 'AUTHORED_REFERENCE_CONNECTED') errors.push('curriculum artifact counts or publication boundary');
-if (data.foundationLessonArtifact !== 'public-data/atlas/foundation-lessons.json' || data.authoredFoundationLessons !== 48 || foundationLessons.status !== 'REFERENCE_CONNECTED' || foundationLessons.publication !== 'EDUCATIONAL_REFERENCE_ONLY' || foundationLessons.shortFormStatus !== 'AUTHORED_REFERENCE_CONNECTED' || foundationLessons.longFormStatus !== 'AUTHORED_REFERENCE_CONNECTED' || foundationLessons.lessons.length !== 48 || foundationLessons.authoringContract?.coverage !== '48/48 modules have an authored definition, mechanism, example, failure boundary, question, visualization and direct sourceIds linkage; sourceCoverage remains a compatibility audit map' || Object.keys(foundationLessons.sourceCoverage || {}).length !== 18 || foundationLessons.sourceCatalog?.length !== 5) errors.push('authored foundation lesson artifact counts or publication boundary');
-if (foundationLessons.deepFormStatus !== 'SEMANTIC_REFERENCE_AUTHORED' || foundationLessons.lessons.some((lesson) => lesson.deepStatus !== 'SEMANTIC_REFERENCE_AUTHORED' || !lesson.title || !lesson.summary?.definition || !lesson.formalModel?.variables?.length || !lesson.workedExample?.inputs?.length || !lesson.workedExample?.steps?.length || !lesson.workedExample?.result || !lesson.workedExample?.failureBoundary || !lesson.realEconomyChannel || !lesson.companyChannel || !lesson.financialStatementChannel || !lesson.valuationChannel || !lesson.marketChannel || !lesson.tradingApplication || !lesson.invalidation || !lesson.glossary?.length || !lesson.claimIds?.length)) errors.push('foundation semantic depth fields or structured worked examples are incomplete');
+if (data.foundationLessonArtifact !== 'public-data/atlas/foundation-lessons.json' || data.authoredFoundationLessons !== 48 || foundationLessons.status !== 'REFERENCE_CONNECTED' || foundationLessons.publication !== 'EDUCATIONAL_REFERENCE_ONLY' || foundationLessons.shortFormStatus !== 'AUTHORED_REFERENCE_CONNECTED' || ![SOURCE_PRESERVED_STATUS, SEMANTIC_REFERENCE_STATUS].includes(foundationLessons.longFormStatus) || foundationAuthoringContract.mode !== foundationLessons.longFormStatus || foundationLessons.lessons.length !== 48 || foundationLessons.authoringContract?.coverage !== '48/48 modules have an authored definition, mechanism, example, failure boundary, question, visualization and direct sourceIds linkage; sourceCoverage remains a compatibility audit map' || Object.keys(foundationLessons.sourceCoverage || {}).length !== 18 || foundationLessons.sourceCatalog?.length !== 5) errors.push('authored foundation lesson artifact counts or publication boundary');
+if (foundationAuthoringContract.failures.length) errors.push(`foundation authoring contract: ${foundationAuthoringContract.failures.join('; ')}`);
 if (data.domainGuideArtifact !== 'public-data/atlas/domain-guides.json' || data.domainGuides !== 19 || domainGuides.status !== 'REFERENCE_CONNECTED' || domainGuides.publication !== 'EDUCATIONAL_REFERENCE_ONLY' || domainGuides.guides.length !== 19) errors.push('domain guide artifact counts or publication boundary');
 if (data.domainSourcePacketArtifact !== 'public-data/atlas/domain-source-packets.json' || data.domainSourcePackets !== 19 || domainPackets.status !== 'REFERENCE_CONNECTED' || domainPackets.packets.length !== 19 || domainPackets.packets.some((packet) => packet.sources?.length !== 3 || !packet.reviewedAt)) errors.push('domain source packet coverage');
 if (data.domainClaimLedgerArtifact !== 'public-data/atlas/domain-claim-ledger.json' || data.domainStructuralClaims !== 57 || data.domainCurrentClaims !== 0 || domainClaims.status !== 'REFERENCE_CONNECTED' || domainClaims.claims.length !== 57 || domainClaims.counts?.currentClaims !== 0 || domainClaims.claims.some((claim) => claim.status !== 'PARTIAL' || claim.asOf !== null || claim.sourceIds?.length !== 3)) errors.push('domain claim ledger coverage');

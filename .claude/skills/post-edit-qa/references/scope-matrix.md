@@ -28,7 +28,7 @@ Use this reference to select the minimum sufficient QA tiers without hardcoding 
 | Release/shared-shell certification | `node scripts/qa-runner.mjs full --no-cache` | Executes the complete local source/runtime boundary once |
 | Deployed GitHub Pages/Cloudflare state | `node scripts/qa-runner.mjs external --no-cache` | Separates external truth from local truth |
 
-Impact selection is conservative: `scripts/**` and broad architecture changes fan out to all static groups. `index.html`, shared JS, shell, service worker and common UI select the relevant browser shards. The manifest, not prose or a frozen page count, is authoritative.
+Registered gate-script edits select that gate, its declared dependencies, preflight and the pipeline contract; they do not imply a change to every product surface the gate reads. Unregistered scripts, producers and QA infrastructure retain conservative group selection. Shared runtime modules, local-server helpers, shell and service worker select browser coverage. The manifest remains authoritative.
 
 ## Route Coverage
 

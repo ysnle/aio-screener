@@ -6,6 +6,7 @@ import { createCapabilityPlan } from './capability-planner.js';
 import { createResearchDecision } from '../research/decision.js';
 import { createResearchPlan } from '../research/plan.js';
 import { classifyAIConduct } from '../policy/conduct.js';
+import { createQuestionPremise } from './premise.js';
 
 export const AI_QUESTION_PLAN_VERSION = 'question-plan.v1';
 
@@ -39,14 +40,7 @@ function validDate(value) {
   return Number.isFinite(parsed.getTime()) ? parsed : new Date(0);
 }
 
-function premise(query, currentSensitive) {
-  const text = String(query || '');
-  const assertions = [];
-  if (/(지금|현재|오늘).*(하락|상승|장중)|하락 중|상승 중/i.test(text)) assertions.push({ text: text.slice(0, 160), status: 'unverified', requires: ['market-session', 'market-snapshot'] });
-  return Object.freeze({ status: assertions.length ? 'needs-verification' : 'none', assertions: Object.freeze(assertions), currentSensitive });
-}
-
-export function createQuestionPlan({ query = '', route = null, now = new Date(), root = globalThis, sessionSchedule = null, userLevel = null, researchOptOut = false } = {}) {
+export function createQuestionPlan({ query = '', route = null, now = new Date(), root = globalThis, sessionSchedule = null, userLevel = null, researchOptOut = false, premiseEvidence = [], premiseAssertions = null, premisePeriod = null } = {}) {
   const planNow = validDate(now);
   const normalized = String(query || '').trim();
   const intent = classifyQuestionIntent(normalized, { route });
@@ -77,7 +71,7 @@ export function createQuestionPlan({ query = '', route = null, now = new Date(),
     timeframe: time.timeframe,
     requestedDepth: intent.requestedDepth,
     userLevel: userLevel || 'unspecified',
-    premise: premise(normalized, currentSensitive),
+    premise: createQuestionPremise({ query: normalized, entities, timeframe: time.timeframe, currentSensitive, assertions: premiseAssertions, evidence: premiseEvidence, requestedPeriod: premisePeriod, now: planNow }),
     currentSensitive,
     requiredEvidence: Object.freeze([...new Set(requiredEvidence)]),
     optionalEvidence: Object.freeze(intent.intents.includes('FX_ANALYSIS') ? ['news', 'flows', 'policy-comments'] : ['news', 'research-reference']),

@@ -53,13 +53,6 @@
       "sourceTier": "PRIMARY_OFFICIAL"
     },
     {
-      "sourceId": "WEB-SEC-GOOGLE-10K-2025",
-      "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
-      "publisher": "U.S. Securities and Exchange Commission / Alphabet",
-      "title": "Alphabet 2025 Form 10-K filing",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
       "sourceId": "WEB-DOE-DATACENTER-DESIGN-2024",
       "url": "https://www.energy.gov/cmei/femp/articles/best-practices-guide-energy-efficient-data-center-design",
       "publisher": "U.S. Department of Energy",
@@ -82,15 +75,6 @@
       "url": "https://www.energy.gov/cmei/femp/cooling-water-efficiency-opportunities-federal-data-centers",
       "publisher": "U.S. Department of Energy",
       "title": "Cooling Water Efficiency Opportunities for Federal Data Centers",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
-      "sourceId": "WEB-SEC-GOOGLE-10K-2025",
-      "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
-      "publisher": "U.S. Securities and Exchange Commission / Alphabet",
-      "title": "Alphabet 2025 Form 10-K filing",
       "sourceTier": "PRIMARY_OFFICIAL",
       "directness": "DIRECT",
       "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
@@ -119,7 +103,6 @@
   "researchFactIds": [
     "fact:nist:ai-rmf-core",
     "fact:doe:pue",
-    "fact:sec:capex-depreciation",
     "fact:doe:datacenter-kpi-denominators"
   ],
   "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",

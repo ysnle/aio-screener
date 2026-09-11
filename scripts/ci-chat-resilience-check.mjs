@@ -41,6 +41,16 @@ const floor=evaluateResearchEvidenceFloor({questionPlan:plan,externalResult:{cit
 assert(floor.ready && floor.eligibleEvidenceCount===1 && floor.excludedEvidenceCount===1);
 assert(!evaluateResearchEvidenceFloor({questionPlan:plan,externalResult:{citations:['https://sec.gov.attacker.test'],researchEvidence:{currentClaimsAllowed:true,evidenceDocuments:[{...doc,canonicalUrl:'https://sec.gov.attacker.test'}]}}}).ready);
 const html=root._searchCitationsHTML({citations:[{url:'https://sec.gov/report'},'javascript:alert(1)']});
+const duplicateHtml=root._searchCitationsHTML({citations:[{url:'https://sec.gov/report',title:'Annual report'},'https://sec.gov/report']});
+assert.equal((duplicateHtml.match(/<a /g)||[]).length,1);
+assert(duplicateHtml.includes('Annual report') && duplicateHtml.includes('검증됐다는 뜻은 아닙니다'));
+root._AIO_PUBLIC_AI_POLICY={label:'AI 베타'};
+vm.runInContext(section('function _aioPublicAIFormatAsOf(', 'function _aioApplyAIActionGate('),root);
+root._serverDataMeta={generatedAt:'2026-09-10T00:00:00Z'};
+const disclosure=root._aioBuildAIResponseDisclosure({freshness:{after:{quoteRows:[{fetchedAt:'2026-09-10T00:00:00Z',truthStatus:'unknown'}]}}});
+assert.equal(disclosure.asOf,'미확인');
+assert.equal(disclosure.status,'확인 필요');
+assert.equal(root._aioBuildAIResponseDisclosure({freshness:{after:{quoteRows:[{truthStatus:'verified',decisionUse:true,source:'Yahoo chart',fetchedAt:new Date().toISOString()}]}}}).status,'확인 필요');
 assert(html.includes('https://sec.gov/report') && !html.includes('javascript:'));
 let loads=0;
 const retry=createAIKnowledgeRetriever({timeoutMs:5,fetchImpl:()=>++loads===1 ? new Promise(()=>{}) : Promise.resolve({ok:true,json:async()=>({articles:[]})})});

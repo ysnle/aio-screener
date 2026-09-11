@@ -3,6 +3,8 @@ import { createCapabilityPlan } from './capability-planner.js';
 import { createAnswerPlan, validateAnswerPlan, parseAnswerPlanText } from '../response/claim-ledger.js';
 import { renderAnswerPlan } from '../response/renderer.js';
 import { createDomainAnalysisRegistry } from '../analysis/registry.js';
+import { buildEvidenceAnalysisInputs } from '../analysis/evidence-inputs.js';
+import { createQuestionPremise } from './premise.js';
 import { validateResearchDecision } from '../research/decision.js';
 import { validateResearchPlan } from '../research/plan.js';
 import { createResearchCapability, validateResearchCapability } from '../research/capability.js';
@@ -56,6 +58,19 @@ export function createAIAnswerOrchestrator({ root = globalThis, now = () => new 
     }
   };
   const analyze = (questionPlan, inputs = {}) => domainAnalysis.analyze(questionPlan || lastPlan || {}, inputs);
+  const withPremiseEvidence = (questionPlan = lastPlan, { evidence = [], requestedPeriod = null, assertions = null } = {}) => {
+    const base = questionPlan || {};
+    const premise = createQuestionPremise({ query: base.query, entities: base.entities, timeframe: base.timeframe, currentSensitive: base.currentSensitive, evidence, requestedPeriod, assertions, now: now() });
+    return Object.freeze({ ...base, premise });
+  };
+  const buildAnalysisContext = (questionPlan = lastPlan, { evidence = [] } = {}) => {
+    const adapted = buildEvidenceAnalysisInputs(questionPlan || {}, { evidence, now: Number(new Date(now())) });
+    const result = domainAnalysis.analyze(questionPlan || {}, adapted.inputs);
+    const analysisAudit = Object.freeze({ ...adapted.audit, status: result.status });
+    const context = result.status === 'not-applicable' ? '' : '\n\n[AI_DOMAIN_ANALYSIS reference-only]\n' +
+      '교육·부분 분석입니다. 계산 결과를 현재 claim evidence로 자동 승격하지 마세요. 입력되지 않은 품질 점수, 인과 경로, 섹터 구성종목을 추정하지 마세요.\n' + JSON.stringify({ result, audit: analysisAudit });
+    return Object.freeze({ result, audit: analysisAudit, context });
+  };
   const validateResearch = (questionPlan = lastPlan) => Object.freeze({
     decision: validateResearchDecision(questionPlan?.researchDecision),
     plan: validateResearchPlan(questionPlan?.researchPlan)
@@ -66,6 +81,8 @@ export function createAIAnswerOrchestrator({ root = globalThis, now = () => new 
     plan,
     execute,
     analyze,
+    withPremiseEvidence,
+    buildAnalysisContext,
     validateResearch,
     getResearchCapability,
     validateResearchCapability,

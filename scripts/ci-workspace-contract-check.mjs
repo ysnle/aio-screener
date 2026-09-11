@@ -76,7 +76,7 @@ const advisoryPostEdit = runHook(
 );
 let advisoryOutput = {};
 try { advisoryOutput = JSON.parse(advisoryPostEdit.stdout || '{}'); } catch { advisoryOutput = {}; }
-check('failing PostToolUse fixture returns valid advisory JSON without blocking the edit', advisoryPostEdit.status === 0 && /^AIO advisory gate:/.test(String(advisoryOutput.systemMessage || '')), advisoryPostEdit.stderr || advisoryPostEdit.stdout);
+check('PostToolUse fixture defers QA to task closeout without blocking the edit', advisoryPostEdit.status === 0 && /^AIO closeout reminder:/.test(String(advisoryOutput.systemMessage || '')), advisoryPostEdit.stderr || advisoryPostEdit.stdout);
 
 for (const dir of ['.codex/hooks', '.claude/hooks']) {
   const shellFiles = exists(dir) ? readdirSync(join(root, dir)).filter((name) => name.endsWith('.sh')) : [];

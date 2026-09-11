@@ -51,6 +51,13 @@ check('generated current state exists', exists('_context/CURRENT-STATE.md'));
 check('skill eval fixture exists', exists('architecture/skill-eval-cases.json'));
 check('skill eval fixture gate exists', exists('scripts/ci-skill-eval-fixture-check.mjs'));
 
+const sharedContract = read('.claude/skills/_shared/operating-contract.md');
+check('shared contract links governance', sharedContract.includes('_context/WORKFLOW-GOVERNANCE.md'));
+check('shared contract links index', sharedContract.includes('_context/INDEX.md'));
+check('shared contract links generated state', sharedContract.includes('_context/CURRENT-STATE.md'));
+check('shared contract owns R1 seven surfaces', /R1 as 7 synchronized surfaces/.test(sharedContract));
+check('shared contract owns skill gates', sharedContract.includes('ci-skill-contract-check.mjs') && sharedContract.includes('ci-workflow-compaction-check.mjs'));
+
 for (const skill of skills) {
   const skillPath = `.claude/skills/${skill}/SKILL.md`;
   check(`skill exists: ${skill}`, exists(skillPath));
@@ -63,12 +70,7 @@ for (const skill of skills) {
   check(`skill frontmatter description exists: ${skill}`, /^description:\s*.+$/m.test(text));
   check(`skill has AIO operating contract: ${skill}`, /AIO Skill Operating Contract/.test(text));
   check(`skill has no frozen contract version: ${skill}`, !/AIO Skill Operating Contract v\d/.test(text));
-  check(`skill links workflow governance: ${skill}`, /_context\/WORKFLOW-GOVERNANCE\.md/.test(text));
-  check(`skill links context index: ${skill}`, /_context\/INDEX\.md/.test(text));
-  check(`skill links generated current state: ${skill}`, /_context\/CURRENT-STATE\.md/.test(text));
   check(`skill links shared contract: ${skill}`, /\.claude\/skills\/_shared\/operating-contract\.md/.test(text));
-  check(`skill uses R1 7-surface wording: ${skill}`, /R1 7/.test(text) || /7 surfaces/.test(text));
-  check(`skill mentions skill contract gate: ${skill}`, /ci-skill-contract-check\.mjs/.test(text));
   check(`skill is a concise router: ${skill}`, lineCount <= 90, `${lineCount} lines`);
   check(`skill stays below compaction threshold: ${skill}`, byteCount <= 12000, `${byteCount} bytes`);
   check(`skill has reference loading map: ${skill}`, /Reference Loading Map/.test(text));

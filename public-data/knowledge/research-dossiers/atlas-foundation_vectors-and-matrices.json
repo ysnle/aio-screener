@@ -25,13 +25,6 @@
       "sourceTier": null
     },
     {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
       "sourceId": "WEB-NVIDIA-CUDA-PROGRAMMING-GUIDE-2026",
       "url": "https://docs.nvidia.com/cuda/cuda-programming-guide/index.html",
       "publisher": "NVIDIA",
@@ -44,26 +37,10 @@
       "publisher": "Google Cloud",
       "title": "Tensor Processing Units and TPU architecture",
       "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
-    },
-    {
-      "sourceId": "WEB-SEC-GOOGLE-10K-2025",
-      "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
-      "publisher": "U.S. Securities and Exchange Commission / Alphabet",
-      "title": "Alphabet 2025 Form 10-K filing",
-      "sourceTier": "PRIMARY_OFFICIAL"
     }
   ],
   "selectedSources": [
     {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
       "sourceId": "WEB-NVIDIA-CUDA-PROGRAMMING-GUIDE-2026",
       "url": "https://docs.nvidia.com/cuda/cuda-programming-guide/index.html",
       "publisher": "NVIDIA",
@@ -78,22 +55,12 @@
       "publisher": "Google Cloud",
       "title": "Tensor Processing Units and TPU architecture",
       "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
-      "sourceId": "WEB-SEC-GOOGLE-10K-2025",
-      "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
-      "publisher": "U.S. Securities and Exchange Commission / Alphabet",
-      "title": "Alphabet 2025 Form 10-K filing",
-      "sourceTier": "PRIMARY_OFFICIAL",
       "directness": "DIRECT",
       "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
     }
   ],
   "rejectedSources": [],
   "sourceTiers": [
-    "PRIMARY_OFFICIAL",
     "COMPANY_TECHNICAL_DOCUMENT"
   ],
   "claimCoverage": [
@@ -104,10 +71,8 @@
     }
   ],
   "researchFactIds": [
-    "fact:nist:ai-rmf-core",
     "fact:nvidia:cuda-parallel",
-    "fact:google:tpu",
-    "fact:sec:capex-depreciation"
+    "fact:google:tpu"
   ],
   "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",

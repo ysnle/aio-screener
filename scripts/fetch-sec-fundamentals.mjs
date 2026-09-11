@@ -8,6 +8,7 @@
 import { readFile, writeFile, rename, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { finiteFact, sameFiscalPeriod, isPriorAnnualPeriod } from '../src/domain/fundamental/period.js';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const ROOT = `${__dir}/..`;
@@ -86,14 +87,14 @@ function dedupeLatestFiled(rows) {
 function annualDurationRows(companyFacts, concepts) {
   const rows = factRows(companyFacts, 'us-gaap', concepts, 'USD').filter(row => {
     const days = durationDays(row);
-    return /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && days != null && days >= 300 && days <= 400 && Number.isFinite(Number(row.val));
+    return /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && days != null && days >= 300 && days <= 400 && finiteFact(row.val) != null;
   });
   return dedupeLatestFiled(rows);
 }
 
 function instantRows(companyFacts, taxonomy, concepts, unit) {
   return dedupeLatestFiled(factRows(companyFacts, taxonomy, concepts, unit).filter(row =>
-    /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && Number.isFinite(Number(row.val))
+    /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && finiteFact(row.val) != null
   ));
 }
 
@@ -111,7 +112,7 @@ function acceptedAtByAccession(submissions) {
 function compactPitRows(rows, field, acceptedMap, maxRows = 40) {
   const seen = new Set();
   return rows
-    .filter(row => row && row.end && row.filed && Number.isFinite(Number(row.val)))
+    .filter(row => row && row.end && row.filed && finiteFact(row.val) != null)
     .sort((a, b) => String(b.end).localeCompare(String(a.end)) || String(b.filed).localeCompare(String(a.filed)))
     .filter(row => {
       const key = `${row.start || ''}|${row.end}|${row.filed}|${row.accn || ''}|${row.val}`;
@@ -176,8 +177,8 @@ function buildPointInTimeFacts(companyFacts, submissions) {
 function legacyPitFacts(record) {
   const observations = {};
   for (const field of ['revenue', 'netIncome', 'equity', 'sharesOutstanding']) {
-    const value = Number(record?.[field]);
-    observations[field] = Number.isFinite(value) && record?.observedAt && record?.filedAt ? [{
+    const value = finiteFact(record?.[field]);
+    observations[field] = value != null && record?.observedAt && record?.filedAt ? [{
       field,
       value,
       periodStart: null,
@@ -220,24 +221,24 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
     'SalesRevenueNet'
   ]);
   const incomes = annualDurationRows(companyFacts, ['NetIncomeLoss', 'ProfitLoss']);
-  if (!revenues.length || !incomes.length) return null;
+  if (!revenues.length) return null;
 
   const currentRevenue = revenues[0];
-  const priorRevenue = revenues.find(row => row.end < currentRevenue.end);
-  const currentIncome = closestEnd(incomes, currentRevenue.end) || incomes[0];
+  const priorRevenue = revenues.find(row => isPriorAnnualPeriod(currentRevenue, row));
+  const currentIncome = incomes.find(row => sameFiscalPeriod(currentRevenue, row)) || null;
   const equities = instantRows(companyFacts, 'us-gaap', [
     'StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest',
     'StockholdersEquity'
   ], 'USD');
   const shares = instantRows(companyFacts, 'dei', ['EntityCommonStockSharesOutstanding'], 'shares');
-  const currentEquity = closestEnd(equities, currentRevenue.end) || equities[0] || null;
+  const currentEquity = closestEnd(equities, currentRevenue.end) || null;
   const currentShares = closestEnd(shares, currentRevenue.end) || shares[0] || null;
   const acceptedMap = acceptedAtByAccession(submissions);
 
   const revenue = Number(currentRevenue.val);
-  const netIncome = Number(currentIncome && currentIncome.val);
-  const equity = Number(currentEquity && currentEquity.val);
-  const sharesOutstanding = Number(currentShares && currentShares.val);
+  const netIncome = finiteFact(currentIncome?.val);
+  const equity = finiteFact(currentEquity?.val);
+  const sharesOutstanding = finiteFact(currentShares?.val);
   const px = Number(price);
   const marketCap = px > 0 && sharesOutstanding > 0 ? px * sharesOutstanding : null;
   const record = {
@@ -258,13 +259,14 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
     netIncome,
     equity: Number.isFinite(equity) ? equity : null,
     sharesOutstanding: Number.isFinite(sharesOutstanding) ? sharesOutstanding : null,
-    coverage: ['revenue', 'netIncome'],
+    sharesObservedAt: currentShares?.end || null,
+    coverage: ['revenue', ...(netIncome != null ? ['netIncome'] : []), ...(equity != null ? ['equity'] : []), ...(sharesOutstanding != null ? ['sharesOutstanding'] : [])],
     pit: buildPointInTimeFacts(companyFacts, submissions)
   };
 
   if (priorRevenue && Number(priorRevenue.val) > 0) record.revGrowth = round((revenue / Number(priorRevenue.val) - 1) * 100, 1);
-  if (revenue !== 0) record.margin = round(netIncome / revenue * 100, 1);
-  if (equity > 0) record.roe = round(netIncome / equity * 100, 1);
+  if (netIncome != null && revenue !== 0) record.margin = round(netIncome / revenue * 100, 1);
+  if (netIncome != null && equity > 0) record.roe = round(netIncome / equity * 100, 1);
   if (marketCap && netIncome > 0) record.pe = round(marketCap / netIncome, 2);
   if (marketCap && equity > 0) record.pb = round(marketCap / equity, 2);
   ['revGrowth', 'margin', 'roe', 'pe', 'pb'].forEach(key => {

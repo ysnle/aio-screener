@@ -14,7 +14,7 @@ Read `_context/CURRENT-STATE.md` first. Automatic commit, push and deployment re
 
 ## Route
 
-This is a deployment workflow wrapper, not a skill replacement. If the deploy is part of bug/data/QA work, first follow the matching skill and then run this deploy closeout.
+This is a deployment workflow wrapper, not a skill replacement. If the deploy is part of bug/data/QA work, reuse completed work and matching validation, then run the outstanding deploy closeout checks.
 
 ## Final Output
 

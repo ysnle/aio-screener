@@ -97,7 +97,7 @@ const measuredFacadeApi = [...facadeBlock.matchAll(/^\s*,?([A-Za-z_$][\w$]*)\s*:
 if (!sameSet(manifest.currentFacadeApi, measuredFacadeApi)) fail(`currentFacadeApi drift: manifest=${manifest.currentFacadeApi?.length || 0}, measured=${measuredFacadeApi.length}`);
 if (measuredFacadeApi.length > manifest.facadeExpansionBudget) fail(`facade expanded beyond ${manifest.facadeExpansionBudget}: ${measuredFacadeApi.length}`);
 for (const api of manifest.approvedFacadeApi) if (!measuredFacadeApi.includes(api)) fail(`target facade API missing from current bridge: ${api}`);
-if (!facadeSource.includes('getState: snapshotCall(api.getState)') || !facadeSource.includes('function readonlySnapshot')) fail('facade getState must return a deep-frozen snapshot');
+if (!facadeSource.includes('getState: stateSnapshotCall(api.getState)') || !facadeSource.includes('const nextSnapshot = readonlySnapshot(value)') || !facadeSource.includes('function readonlySnapshot')) fail('facade getState must return a deep-frozen snapshot');
 
 console.log(JSON.stringify({
   ok: true,

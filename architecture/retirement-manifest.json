@@ -17,6 +17,8 @@
     "status",
     "version",
     "getState",
+    "getSuppliedMaterialsReference",
+    "getSuppliedMaterialClaimIds",
     "getScreenerRows",
     "getScreenerState",
     "getEvidence",
@@ -71,7 +73,7 @@
     "getCapabilityManifest",
     "auditCapabilityClaims"
   ],
-  "facadeExpansionBudget": 56,
+  "facadeExpansionBudget": 58,
   "facadeContractionGate": "Contraction is required as route imports replace global calls; target certification additionally requires route-owners.counts.fullNativeOwner to cover every active route.",
   "nativeLifecycleRoutes": [
     "home",

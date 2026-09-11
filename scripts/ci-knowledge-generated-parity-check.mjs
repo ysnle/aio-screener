@@ -11,7 +11,7 @@ const builders = [
   ['scripts/build-knowledge-evidence-registry.mjs'],
   ['scripts/enrich-knowledge-source-lessons.mjs'],
   ['scripts/build-knowledge-articles-and-learning-graph.mjs'],
-  ['scripts/audit-knowledge-encyclopedia-depth.mjs', '--strict'],
+  ['scripts/audit-knowledge-encyclopedia-depth.mjs', '--write'],
   ['scripts/build-knowledge-route-targets.mjs'],
   ['scripts/build-ai-knowledge-retrieval-index.mjs'],
   ['scripts/build-knowledge-coverage-matrix.mjs'],

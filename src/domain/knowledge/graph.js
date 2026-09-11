@@ -15,7 +15,7 @@ function inferEdgeType(relation) {
   if (/제약|병목|통제|규제|위험|constraint/.test(text)) return 'CONSTRAINS';
   if (/요구|필요|전제|수요|require/.test(text)) return 'REQUIRES';
   if (/구현|연결|적용|통합|공급|enable/.test(text)) return 'ENABLES';
-  return 'CAUSES';
+  return 'RELATES_TO';
 }
 
 function edgeKey(from, to) {

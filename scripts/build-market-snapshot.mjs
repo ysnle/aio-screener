@@ -2,9 +2,15 @@ import { readFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { createMarketSnapshot, TIER_0_INSTRUMENTS, tier0Coverage, validateMarketSnapshot } from '../src/data/contracts/market-snapshot.js';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { isLatestUsRegularClose } from '../src/ai/time/market-session.js';
 
 export const MARKET_SNAPSHOT_OUT = new URL('../public-data/market-snapshot.json', import.meta.url);
 export const MARKET_SNAPSHOT_STATUS_OUT = new URL('../public-data/market-snapshot-status.json', import.meta.url);
+const MINUTE_MS = 60 * 1000;
+const HOUR_MS = 60 * MINUTE_MS;
+const DAY_MS = 24 * HOUR_MS;
+const MAX_CLOCK_SKEW_MS = 5 * MINUTE_MS;
+const PUBLISHABLE_QUALITIES = new Set(['CURRENT', 'CLOSED_CURRENT', 'DELAYED']);
 
 function stableHash(value) {
   const source = JSON.stringify(value);
@@ -73,9 +79,11 @@ function scheduledSession(symbol, observedMs, nowMs) {
 export function deriveMarketSession({ instrumentId, observedAt, providerSession = null, now = Date.now() } = {}) {
   const symbol = String(instrumentId || '');
   const observedMs = Date.parse(observedAt || '');
-  if (!Number.isFinite(observedMs)) return 'SOURCE_UNAVAILABLE';
-  const ageMs = Math.max(0, Number(now) - observedMs);
+  const nowMs = Number(now);
+  if (!Number.isFinite(observedMs) || !Number.isFinite(nowMs) || observedMs - nowMs > MAX_CLOCK_SKEW_MS) return 'SOURCE_UNAVAILABLE';
+  const ageMs = Math.max(0, nowMs - observedMs);
   const provider = String(providerSession || '').toUpperCase();
+  if (isLatestUsRegularClose({ instrumentId: symbol, observedAt, now: nowMs })) return 'MARKET_CLOSED';
   if (provider === 'PRE') return 'PREMARKET';
   if (provider === 'POST' || provider === 'POSTPOST') return 'AFTER_HOURS';
   if (provider === 'REGULAR') {
@@ -123,13 +131,14 @@ export function deriveMarketSession({ instrumentId, observedAt, providerSession 
 
 function quoteQuality(raw, nowMs, session = null) {
   const observedMs = Date.parse(raw?.observedAt || '');
-  if (!Number.isFinite(observedMs)) return 'UNAVAILABLE';
+  if (!Number.isFinite(observedMs) || !Number.isFinite(Number(nowMs))) return 'UNAVAILABLE';
+  if (observedMs - Number(nowMs) > MAX_CLOCK_SKEW_MS) return 'QUARANTINED';
   const ageMs = Math.max(0, nowMs - observedMs);
-  if (session === 'CURRENT_SESSION' && ageMs <= 10 * 60 * 1000) return 'CURRENT';
-  if (session === 'DELAYED_IN_SESSION' && ageMs <= 2 * 60 * 60 * 1000) return 'DELAYED';
-  if (['PREVIOUS_CLOSE_EXPECTED', 'MARKET_CLOSED', 'PREMARKET', 'AFTER_HOURS'].includes(session) && ageMs <= 24 * 60 * 60 * 1000) return 'CLOSED_CURRENT';
-  if (ageMs <= 2 * 60 * 60 * 1000) return 'DELAYED';
-  if (ageMs <= 7 * 24 * 60 * 60 * 1000) return 'STALE';
+  if (session === 'CURRENT_SESSION' && ageMs <= 10 * MINUTE_MS) return 'CURRENT';
+  if (session === 'DELAYED_IN_SESSION' && ageMs <= 2 * HOUR_MS) return 'DELAYED';
+  if (['PREVIOUS_CLOSE_EXPECTED', 'MARKET_CLOSED', 'PREMARKET', 'AFTER_HOURS'].includes(session) && ageMs <= DAY_MS) return 'CLOSED_CURRENT';
+  if (ageMs <= 2 * HOUR_MS) return 'DELAYED';
+  if (ageMs <= 7 * DAY_MS) return 'STALE';
   return 'STALE';
 }
 
@@ -141,9 +150,11 @@ export function buildMarketSnapshot({ quotes = [], attemptedAt = new Date().toIS
     const value = Number(raw.regularMarketPrice ?? raw.value ?? raw.price);
     if (!Number.isFinite(value) || value <= 0) return null;
     const observedAt = iso(raw.observedAt || raw.regularMarketTime && new Date(Number(raw.regularMarketTime) * 1000));
+    if (!observedAt) return null;
     const fetchedAt = iso(raw.fetchedAt) || iso(attemptedAt);
     const session = deriveMarketSession({ instrumentId: instrument.instrumentId, observedAt, providerSession: raw.marketSession || raw.marketState, now });
-    const quality = quoteQuality(raw, now, session);
+    const quality = session === 'MARKET_CLOSED' && isLatestUsRegularClose({ instrumentId: instrument.instrumentId, observedAt, now })
+      ? 'CLOSED_CURRENT' : quoteQuality({ ...raw, observedAt }, now, session);
     const providerPreviousValue = Number(raw.regularMarketPreviousClose ?? raw.chartPreviousClose ?? raw.previousValue);
     const hasProviderPreviousValue = Number.isFinite(providerPreviousValue);
     return {
@@ -159,7 +170,7 @@ export function buildMarketSnapshot({ quotes = [], attemptedAt = new Date().toIS
         : null,
       unit: instrument.unit,
       source: String(raw.source || raw._source || source),
-      sourceKind: 'public-information-service',
+      sourceKind: String(raw.sourceKind || raw.sourceTier || 'public-information-service'),
       observedAt,
       fetchedAt,
       lastSuccessfulAt: observedAt || fetchedAt,
@@ -169,7 +180,7 @@ export function buildMarketSnapshot({ quotes = [], attemptedAt = new Date().toIS
       // the completed daily close used by history.json. Consumers can now
       // compare chart deltas without silently treating unlike bases as equal.
       changeBasis: String(raw.changeBasis || (hasProviderPreviousValue ? 'provider-previous-value' : 'completed-daily-close')),
-      valueBasis: String(raw.valueBasis || (hasProviderPreviousValue ? 'provider-previous-value' : 'completed-daily-close')),
+      valueBasis: String(raw.valueBasis || 'provider-current-value'),
       allowedUse: ['CURRENT_SESSION', 'DELAYED_IN_SESSION'].includes(session) ? 'current-with-session-and-delay-gate' : 'reference-only',
       delayedByMs: Number.isFinite(Number(raw.delayedByMs)) ? Number(raw.delayedByMs) : null,
       venue: raw.venue || raw.fullExchangeName || null
@@ -177,7 +188,8 @@ export function buildMarketSnapshot({ quotes = [], attemptedAt = new Date().toIS
   }).filter(Boolean);
 
   const coverage = tier0Coverage(rows);
-  const complete = coverage.observed === coverage.required && rows.every((row) => row.quality !== 'UNAVAILABLE');
+  const blockedRows = rows.filter((row) => !PUBLISHABLE_QUALITIES.has(row.quality));
+  const complete = coverage.observed === coverage.required && blockedRows.length === 0;
   const generatedAt = iso(attemptedAt) || new Date(now).toISOString();
   const revision = `market-snapshot:${generatedAt}:${stableHash(rows.map((row) => [row.instrumentId, row.value, row.observedAt]))}`;
   const snapshot = createMarketSnapshot({
@@ -193,8 +205,11 @@ export function buildMarketSnapshot({ quotes = [], attemptedAt = new Date().toIS
       tier0Required: coverage.required,
       tier0Observed: coverage.observed
     },
-    quality: { gate: complete ? 'QG-01_PASS' : 'QG-01_BLOCKED', maxAgeMs: 24 * 60 * 60 * 1000 },
-    errors: complete ? [] : [`tier0_coverage:${coverage.observed}/${coverage.required}`],
+    quality: { gate: complete ? 'QG-01_PASS' : 'QG-01_BLOCKED', maxAgeMs: DAY_MS },
+    errors: complete ? [] : [
+      ...(coverage.observed === coverage.required ? [] : [`tier0_coverage:${coverage.observed}/${coverage.required}`]),
+      ...blockedRows.map((row) => `tier0_quality:${row.instrumentId}:${row.quality}:${row.session}`)
+    ],
     quotes: rows
   });
   const validation = validateMarketSnapshot(snapshot);

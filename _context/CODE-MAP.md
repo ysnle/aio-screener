@@ -149,7 +149,7 @@ benchmark-relative-strength remains visible as missing evidence.
 ## Native ESM and data-plane additions (v53.11)
 
 | ARX-06 news state/writer | `src/state/slices/news.js`, `src/state/selectors/news.js`, `src/app/commands/news.js`, `src/data/providers/news.js`, `src/data/normalize/news.js`, `src/data/orchestrators/news.js` | producer cache -> normalized `data/news` state -> native market-news/briefing renderer |
-| ARX-07 market slice | `src/state/slices/market.js`, `src/state/selectors/market.js`, `src/data/providers/market.js`, `src/data/normalize/market.js`, `src/data/orchestrators/market.js`, `src/ui/pages/market.js` | legacy quote/snapshot read model -> normalized market state -> macro/fxbond/breadth slice renderer |
+| ARX-07 market slice | `src/state/slices/market.js`, `src/data/providers/market.js`, `src/data/normalize/market.js`, `src/data/orchestrators/market.js`, `src/ui/pages/market.js` | legacy quote/snapshot read model -> normalized market state -> macro/fxbond/breadth slice renderer |
 | ARX-08 themes slice | `src/state/slices/themes.js`, `src/state/selectors/themes.js`, `src/data/providers/themes.js`, `src/data/normalize/themes.js`, `src/data/orchestrators/themes.js`, `src/ui/pages/themes.js` | RRG/theme read model -> normalized theme state -> bounded native quadrant/rotation-read surface; chart/status and detail remain legacy |
 
 | Area | Files | Contract |
@@ -385,7 +385,7 @@ The tables in this subsection supersede older detailed line snapshots retained b
 | `getDataTruthAudit` | 20798 | DataTruthGate 감사(R195) |
 | `getMarketSituationReferenceSnapshot` | 21164 | 현재 시장 레짐 기준 스냅샷 |
 | `collectCritical10MarketContentInventory` | 21189 | critical-10 가시 콘텐츠 전수 인벤토리 |
-| ~~`getCritical10ContentEvidenceMatrix`~~ | 21398 | **`_deadV49112_getCritical10ContentEvidenceMatrix`로 개명 — v50.44 폐기, `getAllPageContentEvidenceMatrix`가 후속** |
+| `getCritical10ContentEvidenceMatrix` | `rg -n`으로 확인 | `buildEvidenceStore` 기반 현행 경로만 유지. v49.112 폐기 구현과 전용 status helper는 삭제. |
 | `_buildContracts` | 21630 | 22페이지 계약 빌더 |
 | `AIO_PAGE_CONTRACTS` | 21652 | window 노출(빌더 결과 캐시) |
 | `applyPageContractCompatibility` | 21665 | 계약→호환 맵 파생 |

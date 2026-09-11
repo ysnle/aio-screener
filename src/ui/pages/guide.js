@@ -1,4 +1,5 @@
 import { createResourceBag } from '../../app/lifecycle.js';
+import { deriveTradingScoreComponents } from '../../domain/signal/trading-score.js';
 import { CAPABILITY_MANIFEST_VERSION, auditCapabilityClaims } from '../../domain/content/capability-manifest.js';
 
 function closestAction(element, selector) {
@@ -9,6 +10,7 @@ function openAncestors(element) {
   let node = element?.parentElement || null;
   while (node) {
     if (node.tagName === 'DETAILS') node.open = true;
+    if (node.matches?.('.aio-explain, .explain-section')) node.classList.add('is-open');
     node = node.parentElement;
   }
 }
@@ -20,7 +22,7 @@ function createResultItem(documentRef, match, index, onJump) {
   button.style.cssText = 'display:block;width:100%;margin-top:4px;padding:4px 8px;background:var(--surface-3);border:0;border-radius:4px;cursor:pointer;text-align:left;color:var(--text-primary);';
   const label = documentRef.createElement('strong');
   label.style.color = 'var(--data-cyan)';
-  label.textContent = match.label || `Result ${index + 1}`;
+  label.textContent = match.label || `검색 결과 ${index + 1}`;
   const excerpt = documentRef.createElement('span');
   excerpt.style.cssText = 'color:var(--text-muted);margin-left:6px;';
   excerpt.textContent = `${match.text}...`;
@@ -40,27 +42,35 @@ function searchGuide(documentRef, guidePage, result, keyword, onJump) {
   const matches = [];
   const seen = new Set();
   const walker = documentRef.createTreeWalker(guidePage, 4);
+  let nextId = 0;
   let node;
   while ((node = walker.nextNode())) {
     const text = String(node.nodeValue || '').trim();
     if (text.length <= 2 || !text.toLowerCase().includes(normalized)) continue;
-    const element = node.parentElement?.closest?.('.explain-section, .aio-explain, [id]') || node.parentElement;
+    if (result.contains(node) || node.parentElement?.closest?.('script, style, template, [hidden], [aria-hidden="true"]')) continue;
+    // Match the paragraph rather than jumping to the whole page's nearest id.
+    const element = node.parentElement?.closest?.('p, li, td, dd, dt, h2, h3, h4') || node.parentElement;
     if (!element || seen.has(element)) continue;
-    if (!element.id) element.id = `guide-match-${matches.length}`;
+    if (!element.id) {
+      while (documentRef.getElementById(`guide-match-${nextId}`)) nextId++;
+      element.id = `guide-match-${nextId++}`;
+    }
     seen.add(element);
-    const labelElement = element.querySelector?.('.explain-label, .aio-explain-trigger-label span:last-child, h2, h3');
-    matches.push({ element, label: labelElement?.textContent?.trim()?.slice(0, 60) || '', text: text.slice(0, 80) });
+    const container = element.closest?.('.explain-section, .aio-explain, section, article') || element;
+    const labelElement = container.querySelector?.('.explain-label, .aio-explain-trigger-label span:last-child, h2, h3');
+    const offset = Math.max(0, text.toLowerCase().indexOf(normalized) - 25);
+    matches.push({ element, label: labelElement?.textContent?.trim()?.slice(0, 60) || '', text: text.slice(offset, offset + 100) });
     if (matches.length >= 10) break;
   }
   if (!matches.length) {
     const empty = documentRef.createElement('span');
     empty.style.color = 'var(--data-amber)';
-    empty.textContent = `No results for "${keyword}"`;
+    empty.textContent = `“${keyword}” 검색 결과가 없습니다.`;
     result.appendChild(empty);
   } else {
     const summary = documentRef.createElement('strong');
     summary.style.color = 'var(--data-green)';
-    summary.textContent = `${matches.length} result(s) found - click to jump:`;
+    summary.textContent = `${matches.length === 10 ? '최대 ' : ''}${matches.length}건 · 선택하면 해당 내용으로 이동합니다.`;
     result.appendChild(summary);
     matches.forEach((match, index) => result.appendChild(createResultItem(documentRef, match, index, onJump)));
   }
@@ -74,9 +84,12 @@ export function createGuidePage({ documentRef } = {}) {
       const bag = createResourceBag();
       const guidePage = documentRef?.getElementById('page-guide');
       const input = documentRef?.getElementById('guide-search-input');
-      const trigger = documentRef?.querySelector?.('[data-action="_aioGuideSearchTrigger"]');
       const result = documentRef?.getElementById('guide-search-result');
+      result?.setAttribute('role', 'status');
+      result?.setAttribute('aria-live', 'polite');
       if (!guidePage) return () => bag.dispose();
+      const scoreExplanation = guidePage.querySelector('#guide-score-components');
+      if (scoreExplanation) scoreExplanation.textContent = `${deriveTradingScoreComponents().map(({ label, weight }) => `${label} ${weight}%`).join(' · ')}. 필수 입력이 부족하면 종합 판정을 보류합니다. 가중 합산 뒤 보정이 적용될 수 있으며 점수는 매매 승인이나 수익 확률이 아닙니다.`;
       guidePage.dataset.aioArchitectureRoute = 'guide';
       guidePage.dataset.aioArchitectureRenderer = 'native';
       guidePage.dataset.aioCapabilityManifest = CAPABILITY_MANIFEST_VERSION;
@@ -95,6 +108,11 @@ export function createGuidePage({ documentRef } = {}) {
         openAncestors(target);
         target.classList?.add('is-open');
         target.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
+        if (!target.hasAttribute('tabindex')) {
+          target.setAttribute('tabindex', '-1');
+          target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true });
+        }
+        target.focus?.({ preventScroll: true });
       };
       const onSearch = () => searchGuide(documentRef, guidePage, result, input?.value, jump);
       const onTriggerClick = (event) => {
@@ -108,10 +126,8 @@ export function createGuidePage({ documentRef } = {}) {
         else jump(action.getAttribute('data-arg'));
       };
       const onInputKeydown = (event) => { if (event.key === 'Enter') onSearch(); };
-      trigger?.addEventListener('click', onSearch);
       input?.addEventListener('keydown', onInputKeydown);
       guidePage.addEventListener('click', onTriggerClick);
-      bag.add(() => trigger?.removeEventListener('click', onSearch));
       bag.add(() => input?.removeEventListener('keydown', onInputKeydown));
       bag.add(() => guidePage.removeEventListener('click', onTriggerClick));
       bag.add(() => {

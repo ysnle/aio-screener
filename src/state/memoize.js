@@ -37,3 +37,16 @@ export function subscribeToSlice(store, selectSlice, listener) {
     listener(nextSlice);
   });
 }
+
+/** Like store.subscribe (no initial call), but observes structurally shared slices.
+ * Legacy inputs must still be invalidated by their explicit runtime events.
+ */
+export function subscribeToSlices(store, keys, listener) {
+  let previous = keys.map(key => store.getState()?.[key]);
+  return store.subscribe((state, action) => {
+    const next = keys.map(key => state?.[key]);
+    if (next.every((value, index) => Object.is(value, previous[index]))) return;
+    previous = next;
+    listener(state, action);
+  });
+}

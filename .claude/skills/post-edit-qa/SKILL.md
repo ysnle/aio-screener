@@ -1,19 +1,19 @@
 ---
 name: post-edit-qa
-description: AIO Screener deep post-edit QA workflow. Use after code, data, UI, workflow, or skill edits to verify structural integrity, pages, pipelines, layout, security, accessibility, performance, dead DOM, and reportable gates.
+description: Verify AIO changes with risk-scoped gates and truthful evidence. Use for QA or closeout.
 ---
 
 ## AIO Skill Operating Contract
 
-Read `_context/CURRENT-STATE.md`, `_context/WORKFLOW-GOVERNANCE.md`, `_context/INDEX.md`, and `.claude/skills/_shared/operating-contract.md` before acting. Treat `.claude/skills` as canonical and `.agents/skills` as a generated local mirror.
-
-Close every code/data/doc/skill change with evidence. For skill-facing edits run `node scripts/ci-skill-contract-check.mjs` and `node scripts/ci-workflow-compaction-check.mjs`. Keep R1 7 surfaces synchronized with `node scripts/bump-version.mjs <version>` when a version bump is required.
+Follow `.claude/skills/_shared/operating-contract.md`; reuse it if already read. It owns common context loading, version sync, evidence closeout, and generated-mirror rules.
 
 ## Purpose
 
 Run the minimum sufficient QA depth after edits, while preserving the option for full deep QA when shared surfaces or user-facing workflows changed.
 
 ## Reference Loading Map
+
+Read only what the current task needs; this is not an all-files reading checklist.
 
 - Read `references/tiers.md` to choose and execute QA tiers.
 - Read `references/scope-matrix.md` to map touched surfaces and risk to the minimum sufficient tier set.

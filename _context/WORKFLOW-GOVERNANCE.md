@@ -32,8 +32,8 @@ Before changing code, data, docs, or skills:
 
 1. Identify the active workspace or worktree with `git status --short` and read `version.json`.
 2. Capture a task boundary before editing: `node scripts/qa-runner.mjs session-start --session <task-id>`. If work already began, maintain an exact task-owned file list for `affected --files` instead of using the entire dirty tree.
-3. Read `AGENTS.md`, `_context/CURRENT-STATE.md`, `_context/INDEX.md`, and this document.
-4. Read the relevant skill `SKILL.md` completely when a task matches a skill.
+3. Read `AGENTS.md` and `_context/CURRENT-STATE.md` once at task start. Consult `_context/INDEX.md` for routing and this document for QA, authority, or workflow details; reuse unchanged material already read.
+4. Use a skill when its workflow improves this task, then read its entrypoint and only relevant references. Keyword overlap alone is not a trigger. User instructions override skill guidance.
 5. Search only the latest relevant entries in the large ledgers:
    - bugs: matching symptoms/functions and recent P entries in `_context/BUG-POSTMORTEM.md`
    - process/rules: matching R entries in `_context/RULES.md`
@@ -52,7 +52,8 @@ Do not finish by saying "done" unless the work has one of these outcomes:
 - **Blocked**: the exact blocked surface is named, including the command/tool/policy that blocked it.
 - **Scoped partial**: the completed subset and remaining blockers are explicit.
 
-For normal code/data/workspace changes, use the manifest-driven affected set:
+For normal code/data/workspace changes, use the manifest-driven affected set. Do not create implementation-mirroring tests for low-impact reversible edits, or rerun successful checks without new changes, failures, or unresolved risks. Local fixture tests and authorized fixes can proceed without repeated confirmation; explicit commit/push/deploy authorization remains required:
+
 
 ```bash
 node scripts/qa-runner.mjs affected --session <task-id> --explain
@@ -64,7 +65,7 @@ node scripts/qa-runner.mjs rerun-failed
 git diff --check
 ```
 
-The source of truth is `architecture/qa-pipeline.json`. Cheap preflight blocks expensive phases, every gate in the active phase reports before exit, and successful local gates use content-keyed caching. `rerun-failed` selects exact failed gates rather than whole groups. Run `node scripts/qa-runner.mjs full --no-cache` once for release/shared-shell certification, not after each fix.
+The source of truth is `architecture/qa-pipeline.json`. Cheap preflight blocks expensive phases, every gate in the active phase reports before exit, and successful local gates use content-keyed caching. Isolated local browser gates default to two workers; timing-sensitive gates remain exclusive and CI retains one worker per matrix shard. A registered test-only edit selects its gate and dependencies instead of all the product surfaces it inspects. `rerun-failed` selects exact failed gates rather than whole groups. Run `node scripts/qa-runner.mjs full --no-cache` once for release/shared-shell certification, not after each fix.
 
 For docs, skills, agents, hooks, workflows, or task-environment changes, `affected` must select the workspace group, which includes:
 

@@ -57,7 +57,7 @@ The canonical mapping is `architecture/qa-pipeline.json`. Capture `session-start
 
 ## Execution And Retry Policy
 
-- Local: static gates may run concurrently; browser gates run sequentially to avoid port/server/resource collisions.
+- Local: static gates run concurrently; isolated browser gates default to two workers. Manifest `exclusive: true` keeps timing-sensitive measurements alone. Use `--browser-jobs 1` to diagnose contention; CI keeps one worker per existing matrix shard.
 - CI: contract and browser groups run as `fail-fast: false` matrix shards after the preceding phase passes.
 - Cache: only successful local gates are cached, keyed by the gate definition and all declared input contents. CI and release certification use `--no-cache`.
 - Retry: after a failure batch, fix the complete batch and run `rerun-failed`; it selects exact failed gates plus declared dependencies, not all siblings in their groups. Run `affected` again after changing a different surface. Run `full --no-cache` once at the final release boundary, not after every edit.

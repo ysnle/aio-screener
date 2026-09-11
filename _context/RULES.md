@@ -1,11 +1,35 @@
 ---
-verified_by: Codex deterministic gates + repository audit
-last_verified: 2026-09-02
-confidence: high
-target_version: v54.77
+verified_by: Codex local source review + targeted syntax/contracts; full QA pending by user request
+last_verified: 2026-09-05
+confidence: medium
+target_version: v54.88
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R584. 사용자 표면은 결측·선택·통화·렌더러 소유권을 producer 계약 그대로 보존한다 (v54.76 working tree, P1033)
+
+**Rule**: `null`/blank를 0으로 바꾸거나 이전 needle·선택·상세를 남기지 않는다. 검색은 원래 step/index를 재번호화하지 않고 필터 밖 entity를 상세에 유지하지 않는다. 가격과 손익은 provider currency를 소비자까지 보존하며 통화가 없으면 `$`를 추정하지 않는다. native renderer marker는 실제 registry-owned draw 또는 명시적 blocked state와 같은 함수에서 기록한다. 한 action과 한 state 변경에는 한 click owner와 한 store-driven render owner만 둔다. byte-equivalent renderer 사본은 제거한다.
+
+**Validation**: `src/ui/pages/market.js`, `sentiment.js`, `principles.js`, `masters.js`, `themes.js`, `entity.js`와 runtime/provider/normalizer currency chain. 이번 working tree는 syntax/diff만 확인했으며 browser/route/canvas verification은 QA-EXHAUST-23이 닫힐 때까지 미검증이다.
+
+## R583. 브라우저 QA는 canonical route·제품 viewport·settled paint를 검사하고 실행 자원을 분리한다 (v54.76 working tree, P1032)
+
+**Rule**: all-route gate는 `ROUTE_IDS`를 직접 소비하고 desktop 제품 범위는 공유 viewport config를 사용한다. geometry/canvas/overflow는 route lifecycle과 paint settle 뒤에 측정한다. 브라우저 concurrency와 CPU/VM concurrency를 분리하고 각 browser gate의 port를 충돌 없이 소유한다. static/headless/browser/live 증거를 서로 승격하지 않는다.
+
+**Validation**: `scripts/qa-runner.mjs`, `ci-viewport-matrix-check.mjs`, all-route gates, `ci-desktop-scope-check.mjs`, `ci-qa-pipeline-contract-check.mjs`. 전체 browser matrix는 별도 실행 결과가 있어야만 완료로 표시한다.
+
+## R582. 비동기 fallback·delegated action·route scheduler는 하나의 epoch와 owner를 사용한다 (v54.76 working tree, P1031)
+
+**Rule**: primary/secondary CDN은 한 coordinator가 error/timeout 전환을 결정하고 늦은 응답이 확정된 runtime을 덮지 못하게 한다. 중첩 `data-action`은 ancestor open-url보다 우선한다. pageShown detail은 string/object를 한 canonical parser로 해석한다. 초기 timer와 async completion도 scheduler epoch에 속하며 route hide/dispose 뒤 재예약하지 않는다.
+
+**Validation**: runtime contract, G108 headless fixtures, delayed-primary Chart browser fixture. 성능 예산과 전체 route browser certification은 별도다.
+
+## R581. 발행 상태는 완전한 cycle tuple과 유효한 관측시각에서만 current가 된다 (v54.76 working tree, P1030)
+
+**Rule**: 미래 관측은 현재 age 0으로 보정하지 않고 quarantine한다. snapshot `published`, operations freshness와 weekend grace는 Tier-0 full coverage, QG pass, row별 품질/session, news/history cycle 결과를 함께 요구한다. value/change basis와 source tier를 보존하고 실패한 cycle이 last-success를 덮지 않는다.
+
+**Validation**: `build-market-snapshot.mjs`, `build-operations-status.mjs`, `fetch-data.mjs`, data-lineage 및 targeted contract gates. stale artifact 실패는 timestamp 변경으로 통과시키지 않는다.
 
 ## R580. 검색·필터는 렌더러와 동일한 canonical 관계 필드를 사용한다 (v54.76, P1029)
 
@@ -661,7 +685,7 @@ target_version: v54.77
 
 **Rule**: Coverage inventories, research dossiers, structural domain dossiers and quantitative labs may expose structure and educational calculation only. They must retain per-unit research status, source directness, `REFERENCE_ONLY`/`asOf` boundaries, confirmation/invalidation fields and user-validation state. Seed sources or generated drafts must not be promoted to researched articles, current market facts, live certification or recruited-user evidence.
 
-**Validation**: `ci-knowledge-full-corpus-coverage.mjs`, `ci-knowledge-web-research-dossier.mjs`, `ci-knowledge-article-uniqueness.mjs`, `ci-knowledge-sector-domain-depth.mjs`, `ci-knowledge-quantitative-example.mjs`, `ci-knowledge-market-transmission.mjs`, and `ci-knowledge-currentness-separation.mjs` must pass with `completionReady: false` until the human/source/browser/live gates are actually closed.
+**Validation**: `ci-knowledge-full-corpus-coverage.mjs`, `ci-knowledge-web-research-dossier.mjs`, `ci-knowledge-article-uniqueness.mjs`, `ci-knowledge-sector-domain-depth.mjs`, `ci-reference-curriculum-contract-check.mjs`, `ci-knowledge-market-transmission.mjs`, and `ci-knowledge-currentness-separation.mjs` must pass with `completionReady: false` until the human/source/browser/live gates are actually closed.
 
 ## R464. Knowledge concepts require one canonical namespace and explicit overlap equivalence (v54.6)
 
@@ -2692,7 +2716,7 @@ endpoint identity while retaining explicit operator blockers.
 
 ## R456. AI 채팅은 단일 QuestionPlan→Evidence→AnswerPlan 계약으로 종단간 검증한다 (v54.2, P901)
 
-**Rule**: 모든 AI 표면은 같은 `QuestionPlan`의 의도·엔티티·현재성·필수 근거로 소스 fan-out과 Research를 결정하고, 모델은 하나의 `AI_ANSWER_PLAN` 계약을 생산하며, consumer는 각 current claim의 evidence ID가 실제 주입 근거에 존재할 때만 표시한다. 안전 분류는 사용자 query의 행위 요청과 모델 response의 실제 지시를 분리하여 검사하고, 일반적 위험·규제 설명을 법률·세무 자문으로 오인하지 않는다. 무관한 뉴스·Telegram·펼더멘털 fan-out, 히스토리 중복, 재시도 옵션 소실, 실제 수신과 다른 출처 배지, 보정 없는 확률·구체적 매매 지시를 금지한다.
+**Rule**: 모든 AI 표면은 같은 `QuestionPlan`의 의도·엔티티·현재성·필수 근거로 소스 fan-out과 Research를 결정하고, 모델은 하나의 `AI_ANSWER_PLAN` 계약을 생산한다. 각 current claim은 실제 주입 근거의 ID뿐 아니라 metric/entity/value/unit/scale/asOf/source가 일치해야 한다. 동일 ID의 상충 관측을 first-wins로 숨기거나 모델 라벨로 다른 지표처럼 표시하지 않는다. 검색 후보·문서 링크는 현재 숫자를 증명하지 않는다. 안전 분류는 사용자 query의 행위 요청과 모델 response의 실제 지시를 분리하여 검사하고, 일반적 위험·규제 설명을 법률·세무 자문으로 오인하지 않는다. 무관한 fan-out, 히스토리 중복, 재시도 옵션 소실, 실제 수신과 다른 출처 배지, 보정 없는 확률을 금지한다. 조건부 가격·비중 분석과 실제 실행 경계는 후속 R460/R461을 따른다.
 
 **Validation**: `scripts/ci-ai-intelligence-contract-check.mjs` 30-case routing/AnswerPlan fixtures, `scripts/ci-ai-chat-reliability-contract-check.mjs`, `js/aio-tests.js` T934a/T934b/T937a/T990a, `scripts/ci-headless-tests.mjs`, and both chat surfaces' source/follow-up/history assertions.
 

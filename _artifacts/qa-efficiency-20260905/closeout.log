@@ -1,0 +1,190 @@
+[qa] RUN syntax
+[qa] RUN workflow-yaml
+[qa] RUN version
+[qa] RUN product-charter
+[qa] PASS product-charter (158ms)
+[qa] RUN architecture
+[qa] PASS version (230ms)
+[qa] RUN native-decision
+[qa] PASS native-decision (205ms)
+[qa] RUN vertical-slice
+[qa] PASS vertical-slice (217ms)
+[qa] RUN capability-claims
+[qa] PASS capability-claims (237ms)
+[qa] RUN operations-contract
+[qa] PASS architecture (901ms)
+[qa] RUN reference-curriculum
+[qa] PASS operations-contract (259ms)
+[qa] RUN generated-state
+[qa] PASS reference-curriculum (217ms)
+[qa] RUN workspace-contract
+[qa] PASS workflow-yaml (1576ms)
+[qa] RUN qa-runner-behavior
+[qa] PASS generated-state (758ms)
+[qa] PASS workspace-contract (5822ms)
+[qa] PASS syntax (8482ms)
+[qa] PASS qa-runner-behavior (25277ms)
+[qa] RUN market-session
+[qa] RUN decomposition
+[qa] RUN baseline
+[qa] RUN esm-core
+[qa] PASS market-session (111ms)
+[qa] RUN artifact-cache
+[qa] PASS baseline (119ms)
+[qa] RUN headless-group-lifecycle
+[qa] PASS decomposition (148ms)
+[qa] RUN service-worker-cache-policy
+[qa] PASS headless-group-lifecycle (126ms)
+[qa] RUN ai-intelligence
+[qa] PASS service-worker-cache-policy (131ms)
+[qa] RUN domain-parity
+[qa] PASS artifact-cache (250ms)
+[qa] RUN research-model
+[qa] PASS esm-core (344ms)
+[qa] RUN research-flow
+[qa] PASS domain-parity (161ms)
+[qa] RUN proxy-continuity
+[qa] PASS research-model (133ms)
+[qa] RUN data-continuity
+[qa] PASS research-flow (166ms)
+[qa] RUN desktop-continuity
+[qa] PASS ai-intelligence (347ms)
+[qa] RUN chat-resilience
+[qa] PASS proxy-continuity (217ms)
+[qa] RUN storage-migration
+[qa] PASS storage-migration (125ms)
+[qa] RUN release-manifest
+[qa] PASS desktop-continuity (265ms)
+[qa] RUN deployment-convergence
+[qa] PASS chat-resilience (214ms)
+[qa] RUN retirement
+[qa] PASS release-manifest (137ms)
+[qa] RUN inference
+[qa] PASS deployment-convergence (138ms)
+[qa] RUN csp
+[qa] PASS retirement (216ms)
+[qa] RUN structural
+[qa] PASS data-continuity (574ms)
+[qa] RUN default-ux
+[qa] PASS inference (150ms)
+[qa] RUN desktop-scope
+[qa] PASS csp (157ms)
+[qa] RUN runtime
+[qa] PASS desktop-scope (149ms)
+[qa] RUN ai-chat-reliability
+[qa] PASS default-ux (202ms)
+[qa] RUN data-pipeline
+[qa] PASS structural (337ms)
+[qa] RUN page-timeline
+[qa] PASS ai-chat-reliability (184ms)
+[qa] RUN semantic-review
+[qa] PASS page-timeline (133ms)
+[qa] RUN screener-workbench
+[qa] PASS semantic-review (179ms)
+[qa] RUN screener-benchmark
+[qa] PASS runtime (670ms)
+[qa] RUN market-snapshot
+[qa] PASS data-pipeline (535ms)
+[qa] RUN history-time
+[qa] PASS screener-workbench (287ms)
+[qa] RUN data-plane
+[qa] PASS market-snapshot (183ms)
+[qa] RUN operations-status
+[qa] PASS history-time (184ms)
+[qa] RUN operations-slo
+[qa] PASS data-plane (180ms)
+[qa] RUN human-validation
+[qa] PASS operations-status (139ms)
+[qa] RUN reconciliation
+[qa] PASS operations-slo (131ms)
+[qa] RUN source-registry
+[qa] PASS human-validation (132ms)
+[qa] RUN professional-gap
+[qa] PASS screener-benchmark (572ms)
+[qa] RUN operator-readiness
+[qa] PASS source-registry (143ms)
+[qa] RUN data-lineage
+[qa] PASS reconciliation (181ms)
+[qa] RUN sec-runtime-projection
+[qa] PASS operator-readiness (134ms)
+[qa] RUN static-data
+[qa] PASS professional-gap (429ms)
+[qa] RUN data-refresh
+[qa] PASS static-data (375ms)
+[qa] RUN refresh-integrity
+[qa] PASS data-refresh (225ms)
+[qa] RUN release-revision
+[qa] PASS refresh-integrity (273ms)
+[qa] RUN release-generated-parity
+[qa] PASS release-revision (191ms)
+[qa] RUN 13f-currentness
+[qa] PASS 13f-currentness (184ms)
+[qa] RUN knowledge-generated-parity
+[qa] PASS release-generated-parity (286ms)
+[qa] RUN knowledge-ontology
+[qa] PASS sec-runtime-projection (1020ms)
+[qa] RUN knowledge-core
+[qa] PASS knowledge-ontology (163ms)
+[qa] RUN knowledge-articles
+[qa] PASS knowledge-core (186ms)
+[qa] RUN knowledge-learning
+[qa] PASS knowledge-learning (125ms)
+[qa] RUN knowledge-routes
+[qa] PASS knowledge-articles (265ms)
+[qa] RUN knowledge-repository
+[qa] PASS knowledge-routes (143ms)
+[qa] RUN knowledge-renderer
+[qa] PASS knowledge-repository (126ms)
+[qa] RUN knowledge-coverage
+[qa] PASS knowledge-renderer (123ms)
+[qa] RUN knowledge-web
+[qa] PASS knowledge-coverage (144ms)
+[qa] RUN knowledge-sector
+[qa] PASS knowledge-web (171ms)
+[qa] RUN knowledge-unique
+[qa] PASS knowledge-sector (133ms)
+[qa] RUN knowledge-transmission
+[qa] PASS knowledge-unique (167ms)
+[qa] RUN knowledge-currentness
+[qa] PASS knowledge-transmission (164ms)
+[qa] RUN knowledge-current-observations
+[qa] PASS knowledge-current-observations (118ms)
+[qa] RUN six-doc-coverage
+[qa] PASS knowledge-currentness (154ms)
+[qa] RUN atlas-contract
+[qa] PASS atlas-contract (180ms)
+[qa] RUN principles-contract
+[qa] PASS six-doc-coverage (255ms)
+[qa] RUN masters-contract
+[qa] PASS principles-contract (374ms)
+[qa] RUN knowledge-lint
+[qa] PASS knowledge-lint (522ms)
+[qa] RUN workflow-compaction
+[qa] PASS workflow-compaction (291ms)
+[qa] RUN skill-contract
+[qa] PASS skill-contract (174ms)
+[qa] RUN skill-evals
+[qa] PASS skill-evals (125ms)
+[qa] RUN agent-profiles
+[qa] PASS agent-profiles (141ms)
+[qa] RUN agent-skills
+[qa] PASS data-lineage (4121ms)
+[qa] RUN live-header-policy
+[qa] PASS agent-skills (173ms)
+[qa] RUN doc-currency
+[qa] PASS live-header-policy (129ms)
+[qa] RUN qa-pipeline-contract
+[qa] PASS doc-currency (141ms)
+[qa] RUN worker-anthropic
+[qa] PASS masters-contract (1971ms)
+[qa] RUN worker-data-plane
+[qa] PASS qa-pipeline-contract (195ms)
+[qa] RUN cloudflare-deployment
+[qa] PASS worker-data-plane (208ms)
+[qa] PASS worker-anthropic (238ms)
+[qa] PASS cloudflare-deployment (162ms)
+[qa] PASS knowledge-generated-parity (4991ms)
+[qa] RUN browser-vertical
+[qa] PASS browser-vertical (20189ms)
+[qa] SUMMARY profile=affected groups=preflight,core,data,knowledge,workspace,cloudflare,browser-runtime pass=94 cached=0 fail=0 skip=0 duration=55.3s
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\last-run.json

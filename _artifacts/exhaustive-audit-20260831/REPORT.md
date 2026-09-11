@@ -1,6 +1,6 @@
 # AIO Screener 전수 검토 원장 — 진행 중
 
-2026-09-02. 시작본 v54.73, 현재 수정본 v54.76. Git HEAD와 기준 파일 해시는 `manifest.json`을 따른다. 기존 사용자 미커밋 변경은 보존했다. 커밋·배포 여부는 Git history와 최종 task closeout에서 별도 확인한다.
+2026-09-05. 시작본 v54.73, 현재 working tree v54.76(이번 국소 묶음은 버전 미상향). Git HEAD와 기준 파일 해시는 `manifest.json`을 따른다. 기존 사용자 미커밋 변경과 진행 중인 data merge staging은 보존했다. 커밋·배포 여부는 Git history와 최종 task closeout에서 별도 확인한다.
 
 **요청한 모든 줄·모든 과거 변경의 의미 검토는 아직 완료되지 않았다.** 이 보고서는 실제 검토·수정·검사와 남은 작업을 구분한 중간 결과다. 파일을 목록화하거나 파서를 통과시킨 것을 사람 수준의 설계 검토로 계산하지 않는다. `coverage-summary.json`의 최신 숫자가 진행률의 원본이다.
 
@@ -9,6 +9,21 @@
 연구용 스크리너의 목표와 native ESM으로 계산·화면 소유권을 분리하는 방향은 타당하다. 그러나 현재 구현은 데이터 수집, 관측의 유효성, 화면의 상태, 연구 모델 검증을 일관되게 연결했다고 평가할 수 없다. 일부 수정은 실제 결함을 해결했고, 일부는 새 분류·문서·검사만 추가한 채 다른 소비 경로를 남겼다. 따라서 기존 P/R/QA 수와 PASS 개수만으로 제품 완성도나 데이터 정확도를 판단하면 안 된다.
 
 이번 수정에서는 기존 소유권과 관측 경계를 정리했다. native 수치의 legacy 재보충을 제거했고, 화면 실행은 전역 API를 추가하는 대신 서비스를 주입했다. 조건 chip은 실제 control에서 파생한다. stale 표시와 계산 사용을 필드 계약으로 연결하고 통화·instrument·field·관측 epoch가 다른 값을 하나로 합치지 않는다. 도달 불가능한 observer/포지션 UI와 제품 범위에서 제외된 selector는 제거했다. 앱 종료·지식 관계·도메인 금융 계산·AI 근거와 안전 경계를 strict/fail-closed로 보강했고, private evidence index·Telegram 정상 상태·기업 검색 관계가 실제 Atlas에서 잘못 해석된 회귀도 실브라우저에서 찾아 복구했다.
+
+## 2026-09-05 중단 작업 국소 마감
+
+이번 마감은 전수 감사를 완료한 것이 아니라, 앞선 검토에서 이미 재현·확정한 결함의 코드 수정과 문서 동기화다. 사용자의 명시적 범위에 따라 전체 QA·전체 browser matrix·producer refresh·commit·push·deploy는 실행하지 않았다.
+
+| 기록 | 이번 working-tree 수정 | 현재 증거/제한 |
+|---|---|---|
+| P1030 | 미래 quote quarantine, Tier-0/QG/row-quality 기반 snapshot publication, operations/weekend freshness와 quote/news/history cycle 원자화 | 앞서 targeted snapshot/data-pipeline/operations contract 통과. 실제 stale data-lineage는 실패 유지. 전체 refresh/external 미실행 |
+| P1031 | Chart CDN fallback 단일 coordinator, nested action 우선, canonical pageShown, scheduler timer/epoch 소유권 | 앞서 runtime contract, delayed-primary fixture, G108 20/20 통과. boot FCP는 2,536ms로 예산보다 36ms 느림 |
+| P1032 | route/desktop registry 공유, activate→settle→audit, browser concurrency 분리와 port 충돌 제거 | 앞서 QA pipeline/runner/desktop scope/fast 13/13 통과. full browser matrix 미실행 |
+| P1033 | BOJ/BOK·HY null 의미, 실제 breadth chart 연결, sentiment stale state, Principles source/path, Masters zero-match, ticker/theme currency, duplicate theme action/render/renderer 제거 | 이번에 touched ESM `node --check` 및 scoped `git diff --check` 통과. 실제 브라우저·canvas 픽셀·통화 상태는 QA-EXHAUST-23 미검증 |
+
+P1033의 breadth 변경은 marker만 추가한 기존 상태를 완료로 인정하지 않는다. 현재 생성되는 `spx`, `advanceRatio`, `breadth20`, `breadth50` history를 native chart registry에 연결했고, 생성되지 않는 `breadth5`는 합성하지 않고 blocked 상태로 둔다. HTML 제목과 접근성 이름도 실제 AIO universe/S&P 500 단일 series 범위에 맞췄다.
+
+아래 진행률 표는 2026-09-02 exact-hash ledger checkpoint다. 이번 변경으로 해당 파일의 hash가 달라졌으므로 새 전수 검토 완료 수로 자동 가산하지 않았다. 전체 줄·전체 history 전수 완료 상태는 계속 열려 있다.
 
 ## 범위·진행률·불가능한 범위
 

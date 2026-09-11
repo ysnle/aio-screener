@@ -66,7 +66,7 @@ if (mode === 'session-start') {
     state = {
       hookSpecificOutput: {
         hookEventName: 'SessionStart',
-        additionalContext: `AIO preflight: ${version}; working tree ${dirty.length ? `dirty (${dirty.length} paths)` : 'clean'}. Read _context/CURRENT-STATE.md, _context/WORKFLOW-GOVERNANCE.md, and _context/INDEX.md. Search large ledgers only for matching terms. Existing dirty changes belong to the user. Automatic commit/deploy is forbidden. Current-state bytes loaded=${Buffer.byteLength(text, 'utf8')}.`
+        additionalContext: `AIO preflight: ${version}; working tree ${dirty.length ? `dirty (${dirty.length} paths)` : 'clean'}. Read _context/CURRENT-STATE.md once; consult governance/index only when relevant and reuse unchanged context. Search large ledgers only for matching terms. Existing dirty changes belong to the user. Automatic commit/deploy is forbidden. Current-state bytes loaded=${Buffer.byteLength(text, 'utf8')}.`
       }
     };
   } catch (error) {
@@ -79,16 +79,7 @@ if (mode === 'session-start') {
 if (mode === 'post-edit') {
   const touchesWorkspace = /(AGENTS\.md|CLAUDE\.md|_context|\.claude|\.codex|\.agents|\.github[\\/]workflows|scripts[\\/](?:ci-|generate-workspace|sync-agent|agent-hook))/.test(command);
   const touchesVersion = /(index\.html|version\.json|sw\.js|js[\\/]aio-core\.js|CHANGELOG\.md)/.test(command);
-  const failures = [];
-  const configuredTimeout = Number(process.env.AIO_HOOK_GATE_TIMEOUT_MS);
-  const gateTimeout = Number.isFinite(configuredTimeout) && configuredTimeout > 0 ? configuredTimeout : 15000;
-  const run = (script) => {
-    try { execFileSync(process.execPath, [join(root, 'scripts', script)], { cwd: root, encoding: 'utf8', stdio: 'pipe', timeout: gateTimeout }); }
-    catch (error) { failures.push(`${script}: ${String(error.stderr || error.stdout || error.message).trim().split(/\r?\n/)[0]}`); }
-  };
-  if (touchesWorkspace) run('ci-workspace-contract-check.mjs');
-  if (touchesVersion) run('ci-version-check.mjs');
-  if (failures.length) emit({ systemMessage: `AIO advisory gate: ${failures.join(' | ')}. Intermediate edit state is allowed; resolve before closeout.` });
+  if (touchesWorkspace || touchesVersion) emit({ systemMessage: 'AIO closeout reminder: run qa-runner.mjs affected with the task session or explicit owned files after the edit batch. Intermediate edit state is allowed; reuse matching PASS evidence.' });
   process.exit(0);
 }
 

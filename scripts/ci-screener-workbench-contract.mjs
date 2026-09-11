@@ -14,6 +14,8 @@ import {
   createObservationEnvelope,
   createScreenDefinition,
   stableHash,
+  stableHashAsync,
+  stableSerialize,
   validateFieldRegistry,
   validateInstrumentRef,
   validateObservationEnvelope,
@@ -107,6 +109,46 @@ function fixtureRow(symbol, market, offset = 0) {
 }
 
 async function run() {
+  // P1038: hashing optimizations must keep persisted snapshot/replay identifiers
+  // byte-for-byte compatible, including UTF-16 and the old undefined semantics.
+  const referenceHash = value => {
+    const text = stableSerialize(value);
+    let hash = 2166136261;
+    for (let i = 0; i < text.length; i++) hash = Math.imul(hash ^ text.charCodeAt(i), 16777619);
+    return (hash >>> 0).toString(16).padStart(8, '0');
+  };
+  let seed = 17;
+  const random = () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296);
+  const atoms = [null, true, false, undefined, NaN, Infinity, -0, 3.14, '', '한글😀"\n', '\ud800', Symbol('ignored'), () => 1];
+  function hashTree(depth = 0) {
+    if (depth > 3 || random() < .45) return atoms[Math.floor(random() * atoms.length)];
+    const values = Array.from({ length: Math.floor(random() * 8) }, () => hashTree(depth + 1));
+    return random() < .5 ? values : Object.fromEntries(values.map((value, index) => [`k${index}`, value]));
+  }
+  let hashesMatch = true;
+  let hashYields = 0;
+  for (let i = 0; i < 500; i++) {
+    const input = { payload: hashTree(), sparse: [, undefined, , 4] };
+    hashesMatch &&= stableHash(input) === referenceHash(input);
+    if (i < 20) hashesMatch &&= await stableHashAsync(input, { workPerChunk: 3, yieldImpl: async () => { hashYields++; } }) === referenceHash(input);
+  }
+  assert(hashesMatch && hashYields > 0, 'G-SCR-HASH: streaming and cooperative hash preserve legacy serialization across 500 fixtures');
+  const hashAbort = new AbortController();
+  let abortedHash = false;
+  try { await stableHashAsync(Array.from({ length: 50 }, (_, i) => ({ i })), { signal: hashAbort.signal, workPerChunk: 3, yieldImpl: async () => hashAbort.abort() }); }
+  catch (error) { abortedHash = error.name === 'AbortError'; }
+  assert(abortedHash, 'G-SCR-HASH: cooperative hash rejects cancellation without returning a partial identifier');
+  let preAbortRead = false;
+  try { await stableHashAsync({ get value() { preAbortRead = true; return 1; } }, { signal: hashAbort.signal, yieldImpl: async () => {} }); } catch (_) {}
+  assert(!preAbortRead, 'G-SCR-HASH: pre-aborted hash must not touch input');
+  const cyclicHash = {}; cyclicHash.self = cyclicHash;
+  let cycleRejected = false;
+  try { stableHash(cyclicHash); } catch (_) { cycleRejected = true; }
+  assert(cycleRejected, 'G-SCR-HASH: cyclic input terminates with an error');
+  const mutableDate = new Date('2026-08-25T00:00:00Z');
+  const firstDate = createObservationEnvelope({ observedAt: mutableDate }).observedAt;
+  mutableDate.setUTCDate(26);
+  assert(firstDate !== createObservationEnvelope({ observedAt: mutableDate }).observedAt, 'G-SCR-DATE: timestamp cache never retains mutable Date values');
   const registryCheck = validateFieldRegistry(SCREENER_FIELD_REGISTRY);
   assert(registryCheck.ok && registryCheck.size >= 30, 'G-SCR-FIELD: registry has 30+ fields with US/KR coverage', registryCheck);
   assert(FIELD_STATUS.length === 9 && OBSERVATION_SOURCES.length === 4, 'G-SCR-FIELD: status/source vocabulary is closed');
@@ -423,6 +465,28 @@ async function run() {
   });
   await oneSnapshotProvider.readCurrent();
   assert(liveReads === 1, 'G-SCR-SNAPSHOT: one provider read uses one coherent live-data snapshot');
+  const batchSymbols = Array.from({ length: 65 }, (_, index) => `B${index}`);
+  const batchArtifact = { ...providerArtifact, data: Object.fromEntries(batchSymbols.map(symbol => [symbol, { ...providerArtifact.data.AAA, price: 100, currency: 'USD' }])) };
+  const batchUniverse = { ...providerUniverse, universe: batchSymbols.map(sym => ({ sym, currency: 'USD', index: 'NASDAQ100' })) };
+  const liveBatch = Object.fromEntries(batchSymbols.map(sym => [sym, { price: 110, currency: 'USD', observedAt: '2026-08-25T12:30:00Z' }]));
+  let preparationYields = 0;
+  const batchOutput = await createScreenerProvider({
+    httpClient: { requestJson: async url => ({ ok: true, data: url.includes('universe') ? batchUniverse : batchArtifact }) },
+    clock: { now: () => Date.parse('2026-08-26T00:00:00Z') },
+    readLiveData: () => liveBatch,
+    yieldImpl: async () => { preparationYields++; Object.values(liveBatch).forEach(row => { row.price = 999; }); }
+  }).readCurrent();
+  assert(preparationYields >= 2 && batchOutput.rows.every(row => row.price === 110), 'G-SCR-SNAPSHOT: chunked preparation preserves one quote cut across yielding');
+  assert(batchOutput.snapshotId === `screener-snapshot-${referenceHash({ revision: batchArtifact.asOf, source: batchArtifact.source, rows: batchOutput.rows })}`, 'G-SCR-HASH: provider snapshot retains the pre-optimization content identifier');
+  const batchAbort = new AbortController();
+  let cancelledBatch = false;
+  try {
+    await createScreenerProvider({
+      httpClient: { requestJson: async url => ({ ok: true, data: url.includes('universe') ? batchUniverse : batchArtifact }) },
+      yieldImpl: async () => batchAbort.abort()
+    }).readCurrent({ signal: batchAbort.signal });
+  } catch (error) { cancelledBatch = error.name === 'AbortError'; }
+  assert(cancelledBatch, 'G-SCR-SNAPSHOT: cancelled preparation does not publish partial rows');
   assert(filterRows([krCurrency], capDocument('MEGA')).length === 0, 'G-SCR-UNITS: native currency display cannot satisfy USD cap filter');
   assert(filterRows([{ sym: 'MISSING', mcap: null }, { sym: 'SMALL', mcap: 1 }], capDocument('SMALL')).map(row => row.sym).join(',') === 'SMALL', 'G-SCR-FILTER: missing market cap does not become a small cap');
   assert(filterRows([{ sym: 'BOUNDARY', mcap: 10 }], capDocument('MID')).length === 0, 'G-SCR-FILTER: market-cap buckets do not overlap at 10 billion');

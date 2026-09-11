@@ -9,7 +9,10 @@ const readJson = (relativePath) => JSON.parse(fs.readFileSync(path.join(root, re
 const failures = [];
 const assert = (condition, message) => { if (!condition) failures.push(message); };
 const requiredArticleFields = ['intuition', 'formalModelOrRationale', 'workedExampleOrRationale', 'realEconomyChannel', 'companyChannel', 'financialStatementChannel', 'valuationChannel', 'marketChannel', 'tradingApplication', 'invalidation', 'glossary', 'claimIds'];
-const workedFields = ['inputs', 'assumptions', 'steps', 'result', 'interpretation', 'failureBoundary'];
+const lessonsBySurface = new Map([
+  ['principles', readJson('public-data/principles/lesson-library.json').lessons],
+  ['atlas-foundations', readJson('public-data/atlas/foundation-lessons.json').lessons]
+]);
 const articles = [];
 for (const [surface, directory] of [['principles', 'public-data/knowledge/articles/principles'], ['atlas-foundations', 'public-data/knowledge/articles/atlas-foundations']]) {
   const files = fs.readdirSync(path.join(root, directory)).filter((file) => file.endsWith('.json')).sort();
@@ -22,10 +25,19 @@ for (const { surface, file, value } of articles) {
   assert(value.surface === surface, `${file}: surface`);
   assert(!ids.has(value.articleId), `${file}: duplicate articleId`);
   ids.add(value.articleId);
-  for (const field of requiredArticleFields) assert(value.article?.[field] != null && (typeof value.article[field] !== 'string' || value.article[field].trim()), `${file}: missing article.${field}`);
-  for (const field of workedFields) assert(value.article?.workedExampleOrRationale?.[field] != null && (typeof value.article.workedExampleOrRationale[field] !== 'string' || value.article.workedExampleOrRationale[field].trim()), `${file}: missing workedExample.${field}`);
-  assert(value.publication === 'EDUCATIONAL_REFERENCE_ONLY', `${file}: publication boundary`);
-  assert(value.quality?.coreTextCharacters >= 1200, `${file}: core text floor`);
+  for (const field of requiredArticleFields) assert(value.article?.[field] != null, file + ': missing article.' + field);
+  const source = lessonsBySurface.get(surface).find((lesson) => lesson.id === value.lessonId);
+  assert(!!source, file + ': source lesson missing');
+  const short = source?.summary || {};
+  assert(value.article?.intuition === short.definition, file + ': definition altered or padded');
+  assert(value.article?.formalModelOrRationale?.text === short.mechanism, file + ': mechanism altered or padded');
+  assert(JSON.stringify(value.article?.workedExampleOrRationale?.inputs) === JSON.stringify([short.example]), file + ': example altered or padded');
+  assert(value.article?.invalidation === short.counterScenario, file + ': counter scenario altered');
+  assert(value.article?.tradingApplication === short.verificationQuestion, file + ': question altered');
+  assert((source?.sourceIds || []).every((id) => value.article?.sourceIds?.includes(id)), file + ': source IDs lost');
+  assert(value.quality?.contentForm === 'SOURCE_SUMMARY' && value.deepArticle?.status === 'RECONSTRUCTION_REQUIRED', file + ': unreviewed depth promotion');
+  assert(!value.deepArticle?.progressiveDisclosure?.includes('5-minute-core-article'), file + ': inflated reading promise');
+  assert(value.publication === 'EDUCATIONAL_REFERENCE_ONLY', file + ': publication boundary');
   assert(value.authoringStatus === 'STRUCTURED_REFERENCE_DRAFT' || value.authoringStatus === 'AUTHOR_REVIEWED' || value.authoringStatus === 'PUBLISHED_REFERENCE', `${file}: invalid authoring status`);
 }
 const learning = readJson('public-data/knowledge/learning-graph.json');

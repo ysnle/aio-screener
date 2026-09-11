@@ -3,7 +3,7 @@
   "generatedBy": "scripts/generate-workspace-state.mjs",
   "selfExcludedFromSizeAccounting": true,
   "classificationPolicy": {
-    "required": "Read on every task: current facts, governance, and routing only.",
+    "required": "Read current facts once at task start; consult governance and routing only when relevant.",
     "targeted": "Search or read only when the task touches the named domain.",
     "explicitOnly": "Point-in-time evidence; never load by default or treat as current state."
   },
@@ -154,9 +154,9 @@
       "title": "2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.",
       "kind": "ledger",
       "readPolicy": "targeted",
-      "bytes": 557056,
-      "lines": 2800,
-      "lastVerified": "2026-09-02",
+      "bytes": 587725,
+      "lines": 3014,
+      "lastVerified": "2026-09-11",
       "autoRefresh": false
     },
     {
@@ -174,7 +174,7 @@
       "title": "AIO Agent Workspace",
       "kind": "targeted-map",
       "readPolicy": "targeted",
-      "bytes": 2875,
+      "bytes": 2901,
       "lines": 55,
       "lastVerified": "2026-08-23",
       "autoRefresh": true
@@ -184,7 +184,7 @@
       "title": "AIO v53.11 CODE-MAP",
       "kind": "targeted-map",
       "readPolicy": "targeted",
-      "bytes": 50501,
+      "bytes": 50463,
       "lines": 534,
       "lastVerified": "2026-08-31",
       "autoRefresh": true
@@ -376,9 +376,9 @@
     {
       "path": "_context/INDEX.md",
       "title": "AIO Context Index",
-      "kind": "preflight",
-      "readPolicy": "required",
-      "bytes": 5303,
+      "kind": "targeted-map",
+      "readPolicy": "targeted",
+      "bytes": 5419,
       "lines": 89,
       "lastVerified": "2026-08-23",
       "autoRefresh": true
@@ -428,8 +428,8 @@
       "title": "MARKET-PRINCIPLES-ATLAS-HANDOFF-FILE-MANIFEST-2026-08-10.json",
       "kind": "machine-contract",
       "readPolicy": "targeted",
-      "bytes": 6114,
-      "lines": 83,
+      "bytes": 6061,
+      "lines": 82,
       "lastVerified": null,
       "autoRefresh": false
     },
@@ -508,9 +508,9 @@
       "title": "2026-07-18 통합/압축: 검증 완료된 버전별 원장(v34.x~v53.4)을 §6 압축 원장으로 축약, 퇴역 표면(KR 독립 5페이지 등) 항목 제거.",
       "kind": "ledger",
       "readPolicy": "targeted",
-      "bytes": 217310,
-      "lines": 1684,
-      "lastVerified": "2026-09-02",
+      "bytes": 221999,
+      "lines": 1711,
+      "lastVerified": "2026-09-06",
       "autoRefresh": false
     },
     {
@@ -518,8 +518,8 @@
       "title": "QA And Delivery Pipeline Architecture",
       "kind": "targeted-map",
       "readPolicy": "targeted",
-      "bytes": 6022,
-      "lines": 69,
+      "bytes": 6828,
+      "lines": 73,
       "lastVerified": "2026-08-24",
       "autoRefresh": false
     },
@@ -608,9 +608,9 @@
       "title": "2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.",
       "kind": "ledger",
       "readPolicy": "targeted",
-      "bytes": 346373,
-      "lines": 2751,
-      "lastVerified": "2026-09-02",
+      "bytes": 349924,
+      "lines": 2775,
+      "lastVerified": "2026-09-05",
       "autoRefresh": false
     },
     {
@@ -656,10 +656,10 @@
     {
       "path": "_context/WORKFLOW-GOVERNANCE.md",
       "title": "Workflow Governance",
-      "kind": "preflight",
-      "readPolicy": "required",
-      "bytes": 14121,
-      "lines": 234,
+      "kind": "targeted-map",
+      "readPolicy": "targeted",
+      "bytes": 14903,
+      "lines": 235,
       "lastVerified": "2026-08-23",
       "autoRefresh": true
     },

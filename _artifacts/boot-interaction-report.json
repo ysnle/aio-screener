@@ -1,7 +1,7 @@
 {
   "schemaVersion": "aio-boot-performance-evidence.v1",
-  "observedAt": "2026-09-04T16:26:22.794Z",
-  "appRevision": "v54.77",
+  "observedAt": "2026-09-11T02:51:44.930Z",
+  "appRevision": "v54.87",
   "gitHead": "2f5a8cbbdabd16b56ff9240f8db42debe0db77e5",
   "gitClean": false,
   "environment": {
@@ -9,33 +9,36 @@
     "browserVersion": "149.0.7827.55",
     "platform": "win32",
     "node": "v24.18.0",
-    "viewport": "playwright-default"
+    "viewport": "1440x1000"
   },
   "command": "node scripts/ci-boot-interaction-check.mjs",
   "gateStatus": "PASS",
-  "targetStatus": "TARGET_MISS",
-  "targetFailures": [
-    "max long task 1783 > 200",
-    "total long task 1996 > 1000"
-  ],
+  "targetStatus": "TARGET_COMPLIANT",
+  "targetFailures": [],
   "metrics": {
-    "fcpMs": 2420,
-    "dclMs": 354,
-    "loadMs": 4572,
-    "maxLongTaskMs": 1783,
-    "totalLongTaskMs": 1996,
+    "fcpMs": 1520,
+    "dclMs": 377,
+    "loadMs": 380,
+    "maxLongTaskMs": 96,
+    "totalLongTaskMs": 275,
     "longTaskCount": 4,
     "longTaskObservationWindowMs": 2000,
-    "domNodes": 6639,
-    "activeRouteDomNodes": 811,
+    "domNodes": 6884,
+    "activeRouteDomNodes": 1031,
     "activePage": "page-signal",
     "bootStatusPresent": false,
-    "routeMs": 1281,
-    "wallMs": 11074,
-    "totalExternalRequests": 143,
-    "quoteRequests": 51,
+    "routeMs": 57,
+    "wallMs": 8097,
+    "totalExternalRequests": 148,
+    "quoteRequests": 41,
     "initialExternalRequests": 12,
     "initialQuoteRequests": 0,
-    "bootObservationWindowMs": 2000
+    "bootObservationWindowMs": 2000,
+    "delayedPrimaryChart": {
+      "passed": true,
+      "secondaryRequests": 0,
+      "chartName": "DelayedPrimaryChart",
+      "localFallback": false
+    }
   }
 }

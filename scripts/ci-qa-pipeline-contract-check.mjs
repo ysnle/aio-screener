@@ -88,6 +88,21 @@ for (const [groupName, group] of Object.entries(manifest.groups || {})) {
 const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index);
 check(`gate ids are globally unique: ${[...new Set(duplicateIds)].join(', ')}`, duplicateIds.length === 0);
 
+const browserPortOwners = new Map();
+for (const [groupName, group] of Object.entries(manifest.groups || {})) {
+  if (group.kind !== 'browser') continue;
+  for (const gate of group.gates || []) {
+    const source = read(gate.script);
+    const defaultPort = source.match(/process\.env\.[A-Z0-9_]+\s*\|\|\s*(\d+)/)?.[1] || null;
+    const ownsLocalServer = gate.script !== 'scripts/ci-headless-tests.mjs' && gate.usesLocalServer !== false;
+    if (gate.usesLocalServer === false) check(`${groupName}/${gate.id} is a serverless DOM fixture`, source.includes('.setContent(') && !/start-local-node|createServer\(/.test(source));
+    check(`${groupName}/${gate.id} declares an isolated default port`, !ownsLocalServer || defaultPort !== null);
+    if (defaultPort) browserPortOwners.set(defaultPort, [...(browserPortOwners.get(defaultPort) || []), gate.id]);
+  }
+}
+const duplicateBrowserPorts = [...browserPortOwners.entries()].filter(([, owners]) => owners.length > 1);
+check(`browser gate default ports are unique: ${JSON.stringify(duplicateBrowserPorts)}`, duplicateBrowserPorts.length === 0);
+
 const reachableScripts = new Set(Object.values(manifest.groups || {}).flatMap((group) => (group.gates || []).map((gate) => gate.script)));
 const retiredScripts = new Map((manifest.retiredGateScripts || []).map((entry) => [entry.script, entry]));
 for (const entry of manifest.retiredGateScripts || []) {
@@ -118,11 +133,9 @@ check('Pages deployment is serialized without cancellation', /concurrency:[\s\S]
 check('watchdog uses aggregate watchdog profile', /qa-runner\.mjs watchdog --no-cache/.test(watchdogSource));
 check('watchdog preserves failure while uploading rolling SLO evidence', /continue-on-error:\s*true/.test(watchdogSource) && /build-operations-slo-window\.mjs/.test(watchdogSource) && /retention-days:\s*90/.test(watchdogSource) && /steps\.qa\.outcome != 'success'/.test(watchdogSource));
 
-check('runner fingerprints inputs', /gateFingerprint/.test(runnerSource) && /createHash/.test(runnerSource));
-check('runner supports cached success', /success-cache\.json/.test(runnerSource) && /CACHED/.test(runnerSource));
-check('runner supports failed-only reruns', /rerun-failed/.test(runnerSource));
-check('runner has phase barriers', /blockedBy/.test(runnerSource) && /const phases/.test(runnerSource));
-check('runner aggregates gates with a worker pool', /runPool/.test(runnerSource) && /Promise\.all/.test(runnerSource));
+check('viewport matrix executes real route lifecycle by default', /FULL_INIT\s*=\s*process\.env\.AIO_VIEWPORT_FULL_INIT\s*!==\s*['"]0['"]/.test(read('scripts/ci-viewport-matrix-check.mjs')));
+// Scheduler/cache behavior is executed by ci-qa-runner-behavior-check.mjs.
+check('timing-sensitive browser gates remain exclusive', ['browser-boot', 'browser-sa04', 'artifact-budget'].every((id) => Object.values(manifest.groups).flatMap((group) => group.gates).find((gate) => gate.id === id)?.exclusive === true));
 const headlessGates = manifest.groups?.['browser-unit']?.gates || [];
 check('headless registry stays ordered until group isolation is proven',
   headlessGates.length === 1

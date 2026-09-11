@@ -52,6 +52,7 @@ function quoteObservation(root, symbol) {
     value,
     pct: directionValue,
     directionValue,
+    currency: row.currency || envelope.currency || null,
     observedAt: observedAt(row) || envelope.observedAt || null,
     fetchedAt: row.fetchedAt || envelope.fetchedAt || null,
     source: row.source || envelope.source || 'unavailable',
@@ -147,37 +148,65 @@ const SCREENER_FUNDAMENTAL_FIELD_IDS = Object.freeze([
   'valuation.pe', 'valuation.pb', 'valuation.evEbitda', 'quality.roe', 'quality.margin', 'quality.revGrowth'
 ]);
 
-function screenerObservationCoverage(rows, fieldIds, { now = Date.now(), maxAgeMs, minCoverage = 0.8, source } = {}) {
+function screenerObservationCoverage(rows, fieldIds, { now = Date.now(), maxAgeMs, minCoverage = 0.8, source, cache } = {}) {
   const values = Array.isArray(rows) ? rows : [];
-  const observations = [];
-  values.forEach((row) => {
+  const cacheKey = `${fieldIds.join(',')}|${maxAgeMs}|${minCoverage}|${source}`;
+  const cached = cache?.get(values)?.get(cacheKey);
+  if (cached && now >= cached.at && now < cached.until) return cached.result;
+  let validUntil = Infinity;
+  const timestamps = new Map();
+  const timestamp = (value) => {
+    if (!timestamps.has(value)) timestamps.set(value, parseTime(value));
+    return timestamps.get(value);
+  };
+  let observedCount = 0;
+  let currentCount = 0;
+  let oldest = Infinity;
+  let latest = -Infinity;
+  for (const row of values) {
     const byId = new Map((Array.isArray(row?.fieldObservations) ? row.fieldObservations : []).map((item) => [item?.fieldId, item]));
-    fieldIds.forEach((fieldId) => {
+    for (const fieldId of fieldIds) {
       const item = byId.get(fieldId);
-      if (item?.value == null || item.value === '' || !item?.observedAt) return;
-      const observedMs = parseTime(item.observedAt);
-      if (observedMs == null) return;
-      observations.push({ ...item, observedMs, current: maxAgeMs == null || (now - observedMs >= 0 && now - observedMs <= maxAgeMs) });
-    });
-  });
+      if (item?.value == null || item.value === '' || !item?.observedAt) continue;
+      const observedMs = timestamp(item.observedAt);
+      if (observedMs == null) continue;
+      observedCount++;
+      if (maxAgeMs != null) {
+        // Future observations become current at observedMs; current observations
+        // expire just AFTER the inclusive maxAgeMs boundary. No TTL approximation.
+        if (observedMs > now) validUntil = Math.min(validUntil, observedMs);
+        else if (observedMs + maxAgeMs >= now) validUntil = Math.min(validUntil, observedMs + maxAgeMs + 1);
+      }
+      if (maxAgeMs != null && !(now - observedMs >= 0 && now - observedMs <= maxAgeMs)) continue;
+      currentCount++;
+      oldest = Math.min(oldest, observedMs);
+      const fetchedMs = timestamp(item.fetchedAt);
+      if (fetchedMs != null) latest = Math.max(latest, fetchedMs);
+    }
+  }
   const expected = values.length * fieldIds.length;
-  const presentCoverage = expected ? observations.length / expected : 0;
-  const current = observations.filter((item) => item.current);
-  const currentCoverage = expected ? current.length / expected : 0;
+  const presentCoverage = expected ? observedCount / expected : 0;
+  const currentCoverage = expected ? currentCount / expected : 0;
   const available = currentCoverage >= minCoverage;
-  return {
+  const result = {
     value: currentCoverage,
     available,
-    observedAt: oldestIso(current.map((item) => item.observedAt)),
-    fetchedAt: latestIso(current.map((item) => item.fetchedAt)),
+    observedAt: Number.isFinite(oldest) ? new Date(oldest).toISOString() : null,
+    fetchedAt: Number.isFinite(latest) ? new Date(latest).toISOString() : null,
     source: source || 'screener-field-observations',
     sourceKind: available ? 'field-observation-set' : 'partial-field-observation-set',
     reason: available ? null : `currentCoverage=${currentCoverage.toFixed(3)},presentCoverage=${presentCoverage.toFixed(3)},required=${minCoverage.toFixed(3)}`,
-    coverage: { current: currentCoverage, present: presentCoverage, expected, currentCount: current.length, observedCount: observations.length }
+    coverage: { current: currentCoverage, present: presentCoverage, expected, currentCount, observedCount }
   };
+  if (cache && Array.isArray(rows)) {
+    let entries = cache.get(rows);
+    if (!entries) cache.set(rows, entries = new Map());
+    entries.set(cacheKey, { at: now, until: validUntil, result });
+  }
+  return result;
 }
 
-export function buildRuntimeObservationCatalog({ root = globalThis, state = {}, now = Date.now() } = {}) {
+export function buildRuntimeObservationCatalog({ root = globalThis, state = {}, now = Date.now(), observationCache } = {}) {
   const meta = root?._serverDataMeta || {};
   const snapshot = root?.DATA_SNAPSHOT || {};
   const catalog = {};
@@ -226,15 +255,15 @@ export function buildRuntimeObservationCatalog({ root = globalThis, state = {}, 
   };
   const screenerRows = Array.isArray(screenerState.rows) ? screenerState.rows : [];
   catalog['screener.factorCoverage'] = {
-    ...screenerObservationCoverage(screenerRows, SCREENER_FACTOR_FIELD_IDS, { now, maxAgeMs: 4 * 86400000, source: `field-registry:${screenerState.metadata?.fieldRegistryVersion || 'unknown'}:factor` }),
+    ...screenerObservationCoverage(screenerRows, SCREENER_FACTOR_FIELD_IDS, { now, cache: observationCache, maxAgeMs: 4 * 86400000, source: `field-registry:${screenerState.metadata?.fieldRegistryVersion || 'unknown'}:factor` }),
     revision: screenerState.revision || null
   };
   catalog['screener.fundamentalCoverage'] = {
-    ...screenerObservationCoverage(screenerRows, SCREENER_FUNDAMENTAL_FIELD_IDS, { now, maxAgeMs: 180 * 86400000, source: `field-registry:${screenerState.metadata?.fieldRegistryVersion || 'unknown'}:fundamental` }),
+    ...screenerObservationCoverage(screenerRows, SCREENER_FUNDAMENTAL_FIELD_IDS, { now, cache: observationCache, maxAgeMs: 180 * 86400000, source: `field-registry:${screenerState.metadata?.fieldRegistryVersion || 'unknown'}:fundamental` }),
     revision: screenerState.revision || null
   };
   catalog['screener.newsCoverage'] = {
-    ...screenerObservationCoverage(screenerRows, ['news.latest'], { now, maxAgeMs: 2 * 86400000, minCoverage: 0.1, source: `field-registry:${screenerState.metadata?.fieldRegistryVersion || 'unknown'}:news` }),
+    ...screenerObservationCoverage(screenerRows, ['news.latest'], { now, cache: observationCache, maxAgeMs: 2 * 86400000, minCoverage: 0.1, source: `field-registry:${screenerState.metadata?.fieldRegistryVersion || 'unknown'}:news` }),
     revision: screenerState.revision || null
   };
   const ranking = screenerState.metadata?.ranking || {};
@@ -447,6 +476,9 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
 
   const readScreener = () => ({ rows: Array.isArray(root?._aioScreenerRows) ? clone(root._aioScreenerRows) : [], revision: root?._aioScreenerLoadState?.revision || null, updatedAt: root?._aioScreenerLoadState?.asOf || null });
 
-  const readObservationCatalog = (state = {}) => buildRuntimeObservationCatalog({ root, state, now: now() });
+  // Only canonical store rows are structurally shared/immutable. Mutable legacy
+  // fallbacks and the standalone catalog builder deliberately remain uncached.
+  const observationCache = new WeakMap();
+  const readObservationCatalog = (state = {}) => buildRuntimeObservationCatalog({ root, state, now: now(), observationCache: state?.screener?.rows ? observationCache : undefined });
   return Object.freeze({ readSentiment, readMarket, readNews, readEntity, readPortfolio, readAnalysis, readScreener, readObservationCatalog });
 }
