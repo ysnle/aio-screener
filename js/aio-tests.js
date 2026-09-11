@@ -8176,6 +8176,7 @@
 
     var chatQuote950 = window.AIO.normalizeAIChatEvidenceRow({
       ticker: 'AAPL', price: 197.25, asOf: now941, source: 'Yahoo',
+      currency: 'USD', unit: 'USD', sourceKind: 'LIVE',
       truthStatus: 'verified', status: 'ok', evidenceId: 'ev-chat-quote-aapl'
     });
     var chatClaim950 = window.AIO.createTypedClaim({
