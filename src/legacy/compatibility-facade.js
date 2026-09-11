@@ -493,9 +493,26 @@ export function createLegacyFacade(root = globalThis, eventTarget = root?.docume
   });
 }
 
-export function exposeArchitecture(root, api) {
+export function exposeArchitecture(root, api, { immutableState = false } = {}) {
   if (!root || !api) return;
   const snapshotCall = (fn) => (...args) => readonlySnapshot(typeof fn === 'function' ? fn(...args) : null);
+  // Only the canonical structural-sharing store opts in. Time-sensitive evidence
+  // selectors and arbitrary legacy readers still create fresh snapshots.
+  const stateSnapshotCall = (fn) => {
+    if (!immutableState) return snapshotCall(fn);
+    let hasSnapshot = false;
+    let previous;
+    let snapshot;
+    return (...args) => {
+      const value = typeof fn === 'function' ? fn(...args) : null;
+      if (hasSnapshot && value === previous) return snapshot;
+      const nextSnapshot = readonlySnapshot(value);
+      previous = value;
+      snapshot = nextSnapshot;
+      hasSnapshot = true;
+      return snapshot;
+    };
+  };
   Object.defineProperty(root, 'AIO_ARCH', {
     configurable: true,
     enumerable: false,
@@ -503,9 +520,11 @@ export function exposeArchitecture(root, api) {
     value: Object.freeze({
       status: 'MIGRATION_IN_PROGRESS',
       version: api.version,
-       getState: snapshotCall(api.getState),
-       getScreenerRows: snapshotCall(api.getScreenerRows),
-       getScreenerState: snapshotCall(api.getScreenerState),
+       getState: stateSnapshotCall(api.getState),
+       getSuppliedMaterialsReference: snapshotCall(api.getSuppliedMaterialsReference),
+       getSuppliedMaterialClaimIds: snapshotCall(api.getSuppliedMaterialClaimIds),
+       getScreenerRows: stateSnapshotCall(api.getScreenerRows),
+       getScreenerState: stateSnapshotCall(api.getScreenerState),
        getEvidence: snapshotCall(api.getEvidence),
        selectForDecision: snapshotCall(api.selectForDecision),
        selectForDisplay: snapshotCall(api.selectForDisplay),

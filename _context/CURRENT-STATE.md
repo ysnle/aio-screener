@@ -1,8 +1,8 @@
 ---
 generated_by: scripts/generate-workspace-state.mjs
-generated_from_build: 2026-09-05T00:50:00+09:00
+generated_from_build: 2026-09-11T11:57:00+09:00
 auto_refresh: true
-last_verified: 2026-09-05
+last_verified: 2026-09-11
 ---
 
 # AIO Current State
@@ -11,27 +11,27 @@ last_verified: 2026-09-05
 
 ## Application
 
-- Version: `v54.77`
+- Version: `v54.88`
 - Architecture: `hybrid-static-shell-native-esm`
 - Active routes: 20 (source: `architecture/route-owners.json`)
-- App shell: 28,227 lines / 1,885,203 bytes
+- App shell: 28,265 lines / 1,888,461 bytes
 
 | Source | Lines | Bytes |
 |---|---:|---:|
-| `index.html` | 28,227 | 1,885,203 |
-| `js/aio-core.js` | 27,709 | 1,655,064 |
-| `js/aio-data.js` | 16,452 | 1,000,266 |
-| `js/aio-ui.js` | 4,343 | 271,792 |
-| `js/aio-chat.js` | 7,632 | 542,334 |
-| `js/aio-tests.js` | 9,247 | 703,740 |
+| `index.html` | 28,265 | 1,888,461 |
+| `js/aio-core.js` | 27,757 | 1,657,486 |
+| `js/aio-data.js` | 16,472 | 1,001,665 |
+| `js/aio-ui.js` | 4,343 | 271,793 |
+| `js/aio-chat.js` | 7,921 | 564,126 |
+| `js/aio-tests.js` | 9,252 | 704,061 |
 | `js/aio-glossary.js` | 322 | 60,537 |
 
 ## Workspace
 
-- Context documents: 69; preflight loads only this file, `WORKFLOW-GOVERNANCE.md`, and `INDEX.md`.
+- Context documents: 69; preflight reads current state once; governance and INDEX are targeted references.
 - Skills: 6; command wrappers: 9; agent profiles: 4.
-- Workflows: 9; CI scripts: 114.
-- Ledgers: latest rule R584; latest postmortem P1033; open QA 143 unique IDs (150 rows, 4 explicitly superseded).
+- Workflows: 9; CI scripts: 120.
+- Ledgers: latest rule R584; latest postmortem P1060; open QA 145 unique IDs (152 rows, 4 explicitly superseded).
 - Canonical skills: `.claude/skills`; Codex mirror: `.agents/skills`.
 
 ## Knowledge Boundary
@@ -43,13 +43,13 @@ last_verified: 2026-09-05
 
 ## Operations Boundary
 
-- Repository operations artifact: `BLOCKED` at `2026-09-03T02:14:21.191Z`.
+- Repository operations artifact: `OPERATOR_REQUIRED` at `2026-09-11T02:57:29.688Z`.
 - Public stage: `RESEARCH_BETA_CONDITIONAL`; promotion decision: `BLOCKED_UNTIL_OPERATOR_CRITERIA_CLOSE`.
 - Live deployment, provider health, and edge headers must be measured by live gates. Never infer them from this file.
 
 ## Read Policy
 
-1. Read this file, `WORKFLOW-GOVERNANCE.md`, and `INDEX.md` for every task.
+1. Read this file once at task start; consult `WORKFLOW-GOVERNANCE.md` and `INDEX.md` when relevant, and reuse unchanged context.
 2. Search `RULES.md`, `BUG-POSTMORTEM.md`, `QA-CHECKLIST.md`, and `KNOWLEDGE-BASE.md` for matching IDs/terms; do not load the full ledgers by default.
 3. Use `CONTEXT-CATALOG.json` to locate current handoffs and historical snapshots.
 4. Re-run `node scripts/ci-workspace-contract-check.mjs` whenever docs, skills, agents, hooks, or workflows change.

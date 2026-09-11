@@ -1,3 +1,74 @@
+## v54.88 (2026-09-11)
+- P1060: 정상적인 legacy chat 가격 evidence가 unit/currency 누락 때문에 typed claim 검증에서 거짓 차단되던 회귀를 수정하고, `.KS`/`.KQ`는 KRW·그 외 ticker는 USD로 보수적인 기본 통화를 적용했다.
+- AI 공개 disclosure를 `기준시각`·`Evidence`·`원천` 계약에 맞춰 복원했다. G094/G096 회귀를 포함한 headless `1127/1127 PASS`.
+- 2026-09-11 전체 데이터 생산 체인(시장 78/78, Telegram 2,236 observed/1,839 retained, SEC 13F 37/37, 84 history periods, 12,339 history rows)을 갱신했고, 공식 미구성·권리·신선도 경계는 그대로 유지했다.
+- 커밋·push·배포는 QA 후 진행한다.
+- R1 7곳 v54.88
+
+## v54.87 (2026-09-11)
+- P1059: 2026-09-11 사용자 제공 X 8건과 첨부 DELL 차트를 source observation이 아닌 claim-level 원장으로 확장했다. 각 claim에 관찰·논지·패러다임 전환·인과 경로·차트/입력·시계열·확인·무효화·반대 가설·허용/차단 consumer·현재성 경계를 보존한다.
+- canonical claim ledger를 knowledge bridge·native AI retrieval·legacy chat·screener research context에 연결했다. 모든 consumer는 REFERENCE/UNVERIFIED 경계를 유지하고 현재 가격·목표·확률·자동 실행·랭킹 입력으로 승격하지 않는다.
+- claim-level coverage와 source/media/quoted-post 연결을 research-flow 계약에 추가했다.
+- 커밋·push·배포 없음.
+- R1 7곳 v54.87
+
+## v54.86 (2026-09-11)
+- P1058: 2026-09-11 직접 확인 X 8건과 첨부 DELL 차트를 중앙 research registry·route bridge·채팅 reference context에 통합했다.
+- 레버리지 노출, Wedge Pop·실적 후 돌파, 시장 확인, 투자·자금조달·생산성, 달러 배관 프레임은 관찰·무효화 질문으로만 연결하고 현재 가격·목표·확률·점수 입력으로 승격하지 않는다.
+- 스크리너는 이벤트 시각·OHLCV·거래량·수용/거부·리테스트가 없을 때 구조 확인을 `unavailable`로 유지한다.
+- 정적·런타임 계약과 영향 범위 QA를 실행했다. reconciliation·data-refresh·data-lineage는 기존 stale artifact로 남아 별도 WARN/FAIL로 분리했다.
+- 커밋·push·배포 없음.
+- R1 7곳 v54.86
+
+## v54.85 (2026-09-11)
+- P1056: AI 완료 답변과 부가 정보를 세로로 정리하고 좁은 화면의 본문·링크·코드·입력 폭 및 근거 펼침을 보강했다.
+- P1057: 두 채팅 시세 경로에서 실제 관측·출처·통화를 공유하고 누락·상충·미확인 상태를 차단한다.
+- 지식 원문 보존 계약의 실패 4개를 수정했다. 심층 집필 완료와는 구분한다.
+- 커밋·push·배포 없음.
+- R1 7곳 v54.85
+
+## v54.84 (2026-09-09)
+- P1045–P1046: 미국 휴장일의 최신 종가 판정과 13F 원본 행·합산 증감의 구분을 교정했다.
+- P1047–P1049: 교육 문서 반복 padding과 뉴스·관계 오해석을 제거하고 Masters 파일 쓰기를 원자적으로 처리한다.
+- P1050–P1051: AI provider 본문 deadline·SSE 완료·중지·대화 기록·초점 관리를 보강했다.
+- P1052–P1054: AI claim을 실제 근거의 값·단위·시각·출처·지표·종목·배율에 연결하고 검색 후보와 원문 개념 연결을 구분한다.
+- P1055: 두 채팅 화면을 공통 근거 분석·전제 검증에 연결하고 상충 ID·미래 관측·키보드 추천 항목을 보강했다. 기간이 없는 관측과 미검증 분석 결과는 승격하지 않는다.
+- AI 초기 설계 대조와 실제 호출·모델 품질 미검증 항목은 구조 감사 보고서에 별도로 기록한다.
+- R1 7곳 v54.84. 커밋·push·배포 없음.
+
+## v54.83 (2026-09-07)
+- P1043: 스킬을 작업 범위에 따라 선택하고 공통 문서·hook 검사의 반복 실행을 줄였다. 승인 경계와 작업 단위 QA는 유지한다.
+- P1044: 포트폴리오 일간 손익 기준과 누락 매입가를 교정하고 요약·표·차트 평가를 하나의 모델로 통합했다.
+- R1 7곳 v54.83
+
+## v54.82 (2026-09-06)
+- P1040: SEC 누락값·회계기간·손실 처리와 순이익률 명칭을 교정했다.
+- P1041: 가이드 검색·접근성 이름·학습 메모 보존·저장 실패 표시·페이지 실패 정리를 개선했다.
+- P1042: 브리핑 출처와 다이제스트 기간 표시, 차트 결측 설명, 정본 기반 가이드 점수 설명을 개선했다.
+- R1 7곳 v54.82
+
+## v54.81 (2026-09-06)
+- P1038: 스크리너 준비를 32행 단위로 나누고 스냅샷 해시를 중간 양보가 가능한 증분 처리로 전환했다. UTF-16/FNV 해시·시세 기준·취소 계약은 보존하며 중복 startup 준비와 반복 날짜 변환을 줄였다.
+- P1039: canonical 상태의 읽기 전용 사본을 참조가 같은 동안 재사용한다. 시각에 따라 달라지는 증거 및 mutable legacy 입력은 계속 새로 읽는다.
+- R1 7곳 v54.81
+
+## v54.80 (2026-09-06)
+- P1035: 7개 native page 모듈을 데이터 slice별 구독으로 변경하고, 관측 집계는 데이터 교체·정확한 freshness 경계를 반영하는 weak cache로 반복 순회를 제거했다.
+- breadth의 전체 상태 복사, 뉴스의 불필요한 ticker 정규식 캐시 접근, 공통컷 Intl formatter 반복 생성을 줄였다. 회귀 테스트와 20-route CPU/성능 진단을 추가했다.
+- P1036: 브라우저 접근성 검사에서 발견한 스크리너 기준일·참고 표기를 9px에서 11px로 개선했다.
+- P1037: 공통 JS 4개의 preload와 실행 URL을 일치시켜 중복 다운로드를 제거하고 버전 검사에 URL 일치 계약을 추가했다.
+- R1 7곳 v54.80
+
+## v54.79 (2026-09-05)
+- QA: 불필요한 검사 스크립트 2개와 no-op 재진입 검사를 제거하고, 로컬 브라우저 2개 병렬·성능 gate 단독 실행·test-only 영향 선택·입력 해시 재사용을 적용했다.
+- P1034: 스크리너 관측 집계의 중간 객체/배열과 중복 날짜 파싱을 제거했다. 최신성 판정 및 누락값 의미는 차등 검증했다.
+- R1 7곳 v54.79
+
+## v54.78 (2026-09-05)
+- 앱·데이터 빌더 호출처가 없는 기반 모듈 10개와 폐기된 v49.112 evidence audit·전용 status helper를 삭제했다.
+- 삭제된 기반 구현만 검사하던 fixture를 제거하고, 실제 시장 writer·evidence store·AI 연구/응답 경로 검사는 유지했다. 정리 패치 순감소 347줄.
+- R1 7곳 v54.78
+
 ## v54.77 (2026-09-05)
 - **Supplied research integration (P1030)**: directly audited 18 unique links and the attached market-news image, preserving publication/read timestamps, event/reaction/follow-through windows, and source/media status in the centralized reference registry.
 - **Market structure**: added event-cluster, oil-supply-vs-demand branches, Treasury front-end/back-end plumbing, expectation-vintage, seasonality convergence, and explicit hypothesis confirmation/invalidation without promoting dated secondary claims to live signals.
@@ -443,7 +514,8 @@
 - R1 7 surfaces: v54.24
 
 ## v54.23 (2026-08-14)
-- <!-- 변경 내용을 이곳에 기록하세요 -->
+- P1035: 7개 native page 모듈을 데이터 slice별 구독으로 변경하고, 관측 집계는 데이터 교체·정확한 freshness 경계를 반영하는 weak cache로 반복 순회를 제거했다.
+- breadth의 전체 상태 복사, 뉴스의 불필요한 ticker 정규식 캐시 접근, 공통컷 Intl formatter 반복 생성을 줄였다. 회귀 테스트와 20-route CPU/성능 진단을 추가했다.
 - R1 7곳 v54.23
 
 ## v54.23 (2026-08-14)

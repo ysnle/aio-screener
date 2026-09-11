@@ -31,6 +31,56 @@ function articleText(article) {
   ].join(' ')).toLowerCase();
 }
 
+function suppliedMaterialArticles(referenceRegistry) {
+  const claims = referenceRegistry?.claimLedger?.claims;
+  if (!Array.isArray(claims)) return [];
+  const sourceById = new Map([
+    ...(Array.isArray(referenceRegistry.sourceObservations) ? referenceRegistry.sourceObservations : []),
+    ...(Array.isArray(referenceRegistry.mediaAudit) ? referenceRegistry.mediaAudit : [])
+  ].map((source) => [String(source.id || ''), source]));
+  return claims.filter((claim) => claim?.id && claim?.materialElement).map((claim) => Object.freeze({
+    articleId: `supplied-material:${claim.id}`,
+    lessonId: `supplied-materials:${claim.id}`,
+    surface: 'principles',
+    title: claim.materialElement,
+    conceptIds: Object.freeze([]),
+    authoringStatus: claim.status === 'HYPOTHESIS_UNVERIFIED' ? 'UNVERIFIED_REFERENCE' : 'STRUCTURED_REFERENCE',
+    publication: 'EDUCATIONAL_REFERENCE_ONLY',
+    reviewedAt: referenceRegistry.updatedAt || referenceRegistry.reviewedAt || '',
+    keywords: Object.freeze([
+      claim.claimType,
+      ...(Array.isArray(claim.indicatorInputs) ? claim.indicatorInputs : []),
+      ...(Array.isArray(claim.allowedConsumers) ? claim.allowedConsumers : [])
+    ].filter(Boolean).map(String).slice(0, 16)),
+    route: Object.freeze({
+      routeId: 'principles',
+      deepLink: `?researchClaim=${encodeURIComponent(claim.id)}`,
+      verificationRouteId: 'principles',
+      verificationLabel: '공급 자료 claim 원장',
+      metric: 'reference-claim',
+      timeframe: claim.timeframe || ''
+    }),
+    sources: Object.freeze((Array.isArray(claim.sourceRefs) ? claim.sourceRefs : []).map((sourceRef) => {
+      const source = sourceById.get(String(sourceRef));
+      return source?.sourceUrl ? {
+        id: source.id,
+        publisher: source.author || source.label || '',
+        title: source.summary || source.label || '',
+        url: source.sourceUrl,
+        allowedUse: 'REFERENCE_ONLY',
+        directness: source.status === 'DIRECT_READ' ? 'DIRECT_READ' : 'CANDIDATE_REVIEW_REQUIRED'
+      } : null;
+    }).filter(Boolean)),
+    summary: Object.freeze({
+      definition: claim.observation || '',
+      mechanism: claim.mechanism || '',
+      example: claim.chartTechnique || '',
+      counterScenario: [claim.invalidation, claim.counterclaim].filter(Boolean).join(' '),
+      visualization: [claim.indicatorInputs?.join(' · '), claim.timeframe].filter(Boolean).join(' | ')
+    })
+  }));
+}
+
 function surfaceBoost(queryText, surface) {
   const ai = /(ai|인공지능|모델|gpu|hbm|반도체|데이터센터|compute|memory|chip|agent|추론|학습|전력|냉각)/i.test(queryText);
   const principles = /(시장\s*원리|경제|금리|물가|유동성|밸류에이션|재무|현금흐름|포트폴리오|리스크|사이클|거시)/i.test(queryText);
@@ -51,8 +101,12 @@ function scoreArticle(article, query, queryTokens) {
   return score;
 }
 
-export function createAIKnowledgeIndex(articles = []) {
-  return Object.freeze((Array.isArray(articles) ? articles : [])
+export function createAIKnowledgeIndex(articles = [], { suppliedMaterials = null } = {}) {
+  const sourceArticles = [
+    ...(Array.isArray(articles) ? articles : []),
+    ...suppliedMaterialArticles(suppliedMaterials)
+  ];
+  return Object.freeze(sourceArticles
     .filter((article) => article && ALLOWED_SURFACES.has(article.surface) && article.articleId && article.title)
     .map((article) => Object.freeze({
       articleId: clean(article.articleId),
@@ -60,6 +114,9 @@ export function createAIKnowledgeIndex(articles = []) {
       surface: article.surface,
       title: clean(article.title),
       conceptIds: Object.freeze((Array.isArray(article.conceptIds) ? article.conceptIds : []).map(clean).filter(Boolean).slice(0, 8)),
+      conceptLinkStatus: clean(article.conceptLinkStatus || 'UNMAPPED'),
+      candidateConceptIds: Object.freeze((Array.isArray(article.candidateConceptIds) ? article.candidateConceptIds : []).map(clean).filter(Boolean).slice(0, 8)),
+      candidateConceptStatus: 'TEXT_CANDIDATE',
       authoringStatus: clean(article.authoringStatus || 'UNREVIEWED_REFERENCE'),
       publication: clean(article.publication || 'EDUCATIONAL_REFERENCE_ONLY'),
       reviewedAt: clean(article.reviewedAt || ''),
@@ -149,7 +206,7 @@ function waitForKnowledge(promise, signal) {
   });
 }
 
-export function createAIKnowledgeRetriever({ fetchImpl = globalThis.fetch, indexUrl = './public-data/knowledge/ai-retrieval-index.json', timeoutMs = 7000 } = {}) {
+export function createAIKnowledgeRetriever({ fetchImpl = globalThis.fetch, indexUrl = './public-data/knowledge/ai-retrieval-index.json', timeoutMs = 7000, suppliedMaterials = null } = {}) {
   let indexPromise = null;
   let lastAudit = Object.freeze({ version: AI_KNOWLEDGE_RETRIEVAL_VERSION, retrieverVersion: AI_KNOWLEDGE_RETRIEVAL_VERSION, status: 'NOT_LOADED', returned: 0 });
   const load = async () => {
@@ -162,7 +219,7 @@ export function createAIKnowledgeRetriever({ fetchImpl = globalThis.fetch, index
           if (!response || response.ok === false) throw new Error(`knowledge_index_http_${response?.status || 'unknown'}`);
           return response.json();
         })
-        .then((payload) => createAIKnowledgeIndex(payload?.articles || [])),
+        .then((payload) => createAIKnowledgeIndex(payload?.articles || [], { suppliedMaterials })),
       new Promise((_, reject) => { timer = setTimeout(() => {
         reject(new Error('knowledge_index_timeout'));
         controller.abort();

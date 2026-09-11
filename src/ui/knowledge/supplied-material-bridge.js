@@ -19,7 +19,7 @@ function appendLabelValue(documentRef, parent, label, value) {
 
 function renderAudit(documentRef, parent) {
   const audits = SUPPLIED_MATERIALS_REFERENCE.sourceAudit || [];
-  const current = audits.find((item) => item.id === 'packet-2026-09-05') || audits.find((item) => item.id === 'packet-2026-08-30');
+  const current = audits.find((item) => item.id === 'packet-2026-09-11') || audits.find((item) => item.id === 'packet-2026-09-05') || audits.find((item) => item.id === 'packet-2026-08-30');
   const audit = element(documentRef, 'details', 'aio-reference-bridge-audit');
   audit.appendChild(element(documentRef, 'summary', '', `자료 감사 · ${current?.label || 'source packet'} · 확인 ${current?.readableCount ?? '—'} · 미확인/차단 ${current?.blockedCount ?? '—'}`));
   audits.forEach((item) => {
@@ -28,6 +28,34 @@ function renderAudit(documentRef, parent) {
     audit.appendChild(row);
   });
   parent.appendChild(audit);
+}
+
+function renderSourceTimeline(documentRef, parent) {
+  const observations = SUPPLIED_MATERIALS_REFERENCE.sourceObservations || [];
+  if (!observations.length) return;
+  const details = element(documentRef, 'details', 'aio-reference-bridge-source-timeline');
+  details.appendChild(element(documentRef, 'summary', '', `게시 시각·출처 타임라인 · ${observations.length}개 직접 확인`));
+  const grid = element(documentRef, 'div', 'aio-reference-bridge-source-timeline-grid');
+  grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:8px;margin-top:9px;';
+  observations.forEach((item) => {
+    const card = element(documentRef, 'article', 'aio-reference-bridge-source-timeline-card');
+    card.dataset.sourceObservationId = item.id;
+    card.dataset.sourceKind = item.sourceKind || 'REFERENCE';
+    card.style.cssText = 'padding:9px;border:1px solid var(--border);border-radius:5px;background:var(--surface-1);';
+    const link = element(documentRef, 'a', '', item.author || item.id);
+    link.href = item.sourceUrl || '#';
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    card.append(
+      link,
+      element(documentRef, 'p', '', `${item.publishedAtKst || item.publishedAt || '시각 미확인'} KST`),
+      element(documentRef, 'p', '', item.quotedPublishedAtKst ? `인용 원문: ${item.quotedPublishedAtKst} KST` : ''),
+      element(documentRef, 'p', '', item.summary || '—')
+    );
+    grid.appendChild(card);
+  });
+  details.appendChild(grid);
+  parent.appendChild(details);
 }
 
 function renderMediaAudit(documentRef, parent) {
@@ -41,6 +69,42 @@ function renderMediaAudit(documentRef, parent) {
     if (item.sourceRef) row.dataset.sourceRef = item.sourceRef;
     details.appendChild(row);
   });
+  parent.appendChild(details);
+}
+
+function renderClaimLedger(documentRef, parent) {
+  const ledger = SUPPLIED_MATERIALS_REFERENCE.claimLedger;
+  const claims = Array.isArray(ledger?.claims) ? ledger.claims : [];
+  if (!claims.length) return;
+  const details = element(documentRef, 'details', 'aio-reference-bridge-claim-ledger');
+  details.dataset.claimLedgerVersion = ledger.schemaVersion || 'unknown';
+  details.appendChild(element(documentRef, 'summary', '', `claim-level 분석 원장 · ${claims.length}개 요소 · ${ledger.schemaVersion || 'reference'}`));
+  details.appendChild(element(documentRef, 'p', 'aio-reference-bridge-boundary', ledger.coverageBoundary || '현재 패킷의 claim 범위만 포함합니다.'));
+  const grid = element(documentRef, 'div', 'aio-reference-bridge-claim-grid');
+  grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;margin-top:9px;';
+  claims.forEach((claim) => {
+    const card = element(documentRef, 'article', 'aio-reference-bridge-claim-card');
+    card.dataset.claimId = claim.id;
+    card.dataset.claimType = claim.claimType || 'reference';
+    card.dataset.status = claim.status || 'unverified';
+    card.style.cssText = 'padding:11px;border:1px solid var(--border);border-radius:5px;background:var(--surface-1);';
+    card.append(
+      element(documentRef, 'h3', 'aio-reference-bridge-card-title', claim.materialElement || claim.id),
+      element(documentRef, 'p', 'aio-reference-bridge-card-sources', `분류: ${claim.claimType || 'reference'} · 상태: ${claim.status || 'unverified'} · 자료: ${(claim.sourceRefs || []).join(' · ')}`),
+      element(documentRef, 'p', 'aio-reference-bridge-card-thesis', `관찰: ${claim.observation || '—'}`),
+      element(documentRef, 'p', 'aio-reference-bridge-card-thesis', `논리/전환: ${claim.thesisLogic || '—'} / ${claim.paradigmShift || '—'}`),
+      element(documentRef, 'p', 'aio-reference-bridge-card-observe', `전달 경로: ${claim.mechanism || '—'}`),
+      element(documentRef, 'p', 'aio-reference-bridge-card-observe', `차트·전략: ${claim.chartTechnique || '—'}`),
+      element(documentRef, 'p', 'aio-reference-bridge-card-observe', `입력·시계열: ${(claim.indicatorInputs || []).join(' · ')} · ${claim.timeframe || '—'}`),
+      element(documentRef, 'p', 'aio-reference-bridge-card-observe', `확인: ${claim.confirmation || '—'}`),
+      element(documentRef, 'p', 'aio-reference-bridge-card-invalidation', `무효화: ${claim.invalidation || '—'}`),
+      element(documentRef, 'p', 'aio-reference-bridge-card-invalidation', `반대/한계: ${claim.counterclaim || '—'}`),
+      element(documentRef, 'p', 'aio-reference-bridge-card-sources', `소비 허용: ${(claim.allowedConsumers || []).join(' · ')} · 차단: ${(claim.blockedConsumers || []).join(' · ')}`),
+      element(documentRef, 'p', 'aio-reference-bridge-card-invalidation', `현재성 경계: ${claim.currentnessBoundary || '—'}`)
+    );
+    grid.appendChild(card);
+  });
+  details.appendChild(grid);
   parent.appendChild(details);
 }
 
@@ -118,9 +182,16 @@ export function createSuppliedMaterialBridge(documentRef, { routeId = '', sectio
     element(documentRef, 'h2', 'aio-reference-bridge-title', heading),
     element(documentRef, 'p', 'aio-reference-bridge-boundary', SUPPLIED_MATERIALS_REFERENCE.boundary)
   );
-  renderAudit(documentRef, section);
-  renderMediaAudit(documentRef, section);
-  renderTimeSeries(documentRef, section, resolvedTimeSeriesIds);
-  renderFrameworks(documentRef, section, resolvedSectionIds);
+  // Long reference packets are secondary to the route's current observations.
+  // Native details keeps keyboard access and the complete source text intact.
+  const details = element(documentRef, 'details', 'aio-reference-bridge-details');
+  details.appendChild(element(documentRef, 'summary', '', `배경 자료와 확인 질문 보기 · ${unique(resolvedSectionIds).length}개 주제`));
+  renderAudit(documentRef, details);
+  renderSourceTimeline(documentRef, details);
+  renderMediaAudit(documentRef, details);
+  renderClaimLedger(documentRef, details);
+  renderTimeSeries(documentRef, details, resolvedTimeSeriesIds);
+  renderFrameworks(documentRef, details, resolvedSectionIds);
+  section.appendChild(details);
   return section;
 }

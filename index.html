@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v54.77 — 올인원 투자 터미널</title>
+  <title>AIO Screener v54.88 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -32,10 +32,10 @@
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css">
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-  <link rel="preload" as="script" href="./js/aio-core.js">
-  <link rel="preload" as="script" href="./js/aio-data.js">
-  <link rel="preload" as="script" href="./js/aio-ui.js">
-  <link rel="preload" as="script" href="./js/aio-chat.js">
+  <link rel="preload" as="script" href="./js/aio-core.js?v=54.88">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=54.88">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=54.88">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=54.88">
   <!-- v48.31 perf: 3개 CDN defer 스크립트 다운로드 hint — HTML 파싱과 병렬 다운로드, defer 실행 시점 대기 제거 -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
   <link rel="preload" as="script" href="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js">
@@ -6366,7 +6366,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v54.77</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v54.88</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -7012,7 +7012,7 @@ button[data-filter-active="true"] {
         <div style="display:flex;gap:12px;"><span style="font-size:13px;font-weight:600;color:var(--text-dim);font-variant-numeric:tabular-nums;flex-shrink:0;">04</span><span style="font-size:13.5px;color:var(--text-secondary);line-height:1.6;"><b style="color:var(--text-primary);">방향 예측 금지</b> — 역발상·공포·풋콜 지표는 타이밍이나 수익을 보장하지 않습니다.</span></div>
       </div>
       <div style="font-size:11px;color:var(--text-dim);margin-top:10px;border-top:1px solid var(--border-subtle);padding-top:8px;line-height:1.5;">
-        역발상 신호(AAII 극단, Put/Call 스파이크)는 방향은 맞지만 <b style="color:var(--text-secondary);">타이밍 지표가 아님</b>. 바닥 확인 전까지 방어적 유지.
+        AAII 극단값과 Put/Call 변화는 <b style="color:var(--text-secondary);">방향·타이밍을 보장하지 않는 참고 관측</b>입니다. 가격·시장폭·신용과 함께 대조하세요.
       </div>
     </div>
   </div>
@@ -7449,12 +7449,12 @@ button[data-filter-active="true"] {
   <!-- SECTION 5: 가격·폭 차트 — v52.66 아이보리 3a: 시안 2장(SPY/QQQ 추세 + 50일선 비율 추이) 그대로 노출 -->
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:26px;">
     <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:20px 24px;height:220px;">
-      <div class="aio-subhd">SPY vs QQQ (추세)</div>
-      <canvas id="bp-price-chart" role="img" aria-label="SPY·QQQ 가격 추세 차트" style="width:100%;height:170px;"></canvas>
+      <div class="aio-subhd">S&amp;P 500 완료 시장 가격 추세</div>
+      <canvas id="bp-price-chart" role="img" aria-label="S&P 500 완료 시장 가격 추세 차트" style="width:100%;height:170px;"></canvas>
     </div>
     <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:20px 24px;height:220px;">
-      <div class="aio-subhd">50일선 상회 비율 추이 (S&amp;P500·나스닥)</div>
-      <canvas id="bp-50ma-chart" role="img" aria-label="S&P500·나스닥100 50일 이동평균 위 종목 비율 차트" style="width:100%;height:170px;"></canvas>
+      <div class="aio-subhd">AIO 미국 유니버스 50일선 상회 비율 추이</div>
+      <canvas id="bp-50ma-chart" role="img" aria-label="AIO 미국 스크리너 유니버스 50일 이동평균 위 종목 비율 차트" style="width:100%;height:170px;"></canvas>
     </div>
   </div>
   <div id="rally-quality-verdict" style="display:none;" aria-hidden="true"></div>
@@ -7529,7 +7529,7 @@ button[data-filter-active="true"] {
     <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:16px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
         <span style="font-size:10px;font-weight:700;color:var(--text-secondary);">상승/하락 비율 추이 (A-D Ratio)</span>
-        <span style="font-size:11px;color:var(--text-muted);">5SMA 데이터 기반 · 50% 이상 = 상승 우세</span>
+        <span style="font-size:11px;color:var(--text-muted);">AIO 미국 유니버스 · 50% 이상 = 상승 우세</span>
       </div>
       <div style="position:relative;height:140px;"><canvas id="bp-ad-ratio-chart" role="img" aria-label="상승하락 비율 차트"></canvas></div>
     </div>
@@ -7572,12 +7572,12 @@ button[data-filter-active="true"] {
     <!-- 5SMA / 20SMA 차트 -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
       <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;height:220px;">
-        <div class="aio-subhd">5일선 상회 비율 (S&amp;P500·나스닥)</div>
-        <canvas id="bp-5ma-chart" role="img" aria-label="S&P500·나스닥100 5일 이동평균 위 종목 비율 차트" style="width:100%;height:180px;"></canvas>
+        <div class="aio-subhd">AIO 미국 유니버스 5일선 상회 비율 · 이력 생성 대기</div>
+        <canvas id="bp-5ma-chart" role="img" aria-label="AIO 미국 스크리너 유니버스 5일 이동평균 위 종목 비율 차트" style="width:100%;height:180px;"></canvas>
       </div>
       <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:12px;height:220px;">
-        <div class="aio-subhd">20일선 상회 비율 (S&amp;P500·나스닥)</div>
-        <canvas id="bp-20ma-chart" role="img" aria-label="S&P500·나스닥100 20일 이동평균 위 종목 비율 차트" style="width:100%;height:180px;"></canvas>
+        <div class="aio-subhd">AIO 미국 유니버스 20일선 상회 비율</div>
+        <canvas id="bp-20ma-chart" role="img" aria-label="AIO 미국 스크리너 유니버스 20일 이동평균 위 종목 비율 차트" style="width:100%;height:180px;"></canvas>
       </div>
     </div>
 
@@ -11545,7 +11545,7 @@ button[data-filter-active="true"] {
       </div>
       <div style="display:flex;align-items:baseline;gap:12px;">
         <div id="ticker-detail-name" style="display:flex;flex-direction:column;">
-          <div id="ticker-hero-name" class="page-title">—</div>
+          <div id="ticker-hero-name" class="page-title">종목 선택 대기</div>
           <div id="ticker-hero-fullname" class="page-subtitle">종목을 검색하세요 (예: NVDA, AAPL)</div>
         </div>
         <div style="margin-left:auto;text-align:right;">
@@ -12439,7 +12439,7 @@ button[data-filter-active="true"] {
         <div style="font-size:12px;font-weight:800;color:var(--data-cyan);margin-bottom:6px;">종합 (HOME)</div>
         <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
           <b>사용법:</b> 화면 확인만으로 시장 분위기 30초 파악.<br>
-          <b>주요 정보:</b> 거래 적합도(0~100), VIX, F&G, SPY/QQQ/DIA, 뉴스, 브리핑<br>
+          <b>주요 정보:</b> 시장 환경 점수(0~100), VIX, F&G, 지수, 뉴스, 브리핑<br>
            <b>유의사항:</b> 점수 45 미만은 입력과 시장 환경을 다시 확인할 상태입니다. 빨간 배너도 매매 지시가 아니라 확인 항목입니다.
         </div>
       </div>
@@ -12448,7 +12448,7 @@ button[data-filter-active="true"] {
       <div style="background:rgba(34,117,76,0.05);border:1px solid rgba(34,117,76,0.15);border-radius:4px;padding:12px;margin-bottom:10px;">
         <div style="font-size:12px;font-weight:800;color:var(--data-green);margin-bottom:6px;">시그널 (SIGNAL)</div>
         <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
-          <b>사용법:</b> 시장 거래 적합도 점수 + RSI/MACD/시장폭 상태 표시.<br>
+          <b>사용법:</b> 시장 환경 점수와 구성요소·입력 부족 상태를 확인합니다.<br>
           <b>점수 해석:</b> 60~100=환경 우호 | 40~60=중립 | 0~40=환경 불리 (환경 설명값)<br>
           <b>유의사항:</b> 예측/매매 신호 아님 — 부분 백테스트(2016~2026)에서 선행수익률과 음(−)의 상관이 관측됨. 타이밍 근거로 사용 금지.
         </div>
@@ -12654,16 +12654,16 @@ button[data-filter-active="true"] {
     <div class="aio-widget" id="guide-methodology" style="border-left:3px solid var(--data-cyan);">
       <div class="widget-title">판단 방법론 레퍼런스</div>
       <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;margin-bottom:10px;">
-        기본 화면에서는 매매에 필요한 결론과 행동만 남기고, 산식·흐름·고급 프레임워크는 여기에서 확인합니다.
+        기본 화면에서 관측값·입력 부족·확인할 항목을 읽고, 산식과 해석의 한계는 여기에서 확인합니다.
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:8px;">
         <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:10px;">
           <div style="font-size:11px;font-weight:800;color:var(--data-cyan);margin-bottom:5px;">HOME 결론 구조</div>
-          <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">시장 가격(SPX/NASDAQ/VIX) → 주요 이벤트(FOMC·CPI·유가·지정학) → 점수/신뢰도 → 오늘 행동. 결론은 신규 진입보다 포지션 크기와 리스크 우선순위에 사용합니다.</div>
+          <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">시장 가격·기준시각 → 주요 이벤트 → 구성요소와 결측 → 추가 확인 항목 순서로 읽습니다. 점수와 입력 커버리지는 수익 확률이나 포지션 크기 지시가 아닙니다.</div>
         </div>
         <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:10px;">
           <div style="font-size:11px;font-weight:800;color:var(--data-green);margin-bottom:5px;">SIGNAL 점수 산식</div>
-          <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">VIX 리스크 25 · 심리 25 · SPX 추세 20 · 시장폭 20 · 거래량 10. 75+는 적극 검토, 60~75는 선별, 45~60은 관망, 45 미만은 방어 우선입니다.</div>
+          <div id="guide-score-components" style="font-size:11px;color:var(--text-muted);line-height:1.6;">시장 환경 점수의 구성요소를 불러오는 중입니다.</div>
         </div>
         <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:10px;">
           <div style="font-size:11px;font-weight:800;color:var(--data-amber);margin-bottom:5px;">고급 진입 제한</div>
@@ -12683,7 +12683,7 @@ button[data-filter-active="true"] {
         </div>
         <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:10px;">
           <div style="font-size:11px;font-weight:800;color:var(--data-red);margin-bottom:5px;">심리 게이지 해석</div>
-          <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">Fear &amp; Greed, VIX, AAII, NAAIM, Put/Call, HY spread를 함께 봅니다. 극단 공포는 분할 매수 후보이지 즉시 몰빵 신호가 아닙니다.</div>
+          <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">Fear &amp; Greed, VIX, AAII, NAAIM, Put/Call, HY spread의 기준시각을 함께 확인합니다. 극단 공포도 가격 반전이나 매수 적기를 보장하지 않습니다.</div>
         </div>
         <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:10px;">
           <div style="font-size:11px;font-weight:800;color:var(--text-primary);margin-bottom:5px;">종목 발굴/검증 루프</div>
@@ -12988,29 +12988,48 @@ button[data-filter-active="true"] {
   <!-- v48.69: R34 SRI integrity 추가 — supply chain attack 방지 -->
   <!-- v52.57 H3-F/P674: third-party libraries must never hold the local app's defer queue on reload.
        Chart/DOMPurify/LWC are progressively enhanced; the guarded fallback below preserves a usable app. -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous" async></script>
+  <script id="aio-chart-cdn" src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous" async></script>
   <!-- v48.31: DOMPurify CDN (~20KB gzip) — innerHTML 외부 데이터 XSS 방지 sanitize -->
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.9/dist/purify.min.js" integrity="sha384-3HPB1XT51W3gGRxAmZ+qbZwRpRlFQL632y8x+adAqCr4Wp3TaWwCLSTAJJKbyWEK" crossorigin="anonymous" async></script>
   <!-- v48.23 (P3-5): lightweight-charts 통합 — time series 차트 점진 전환용 (Chart.js와 혼합 사용) -->
   <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js" integrity="sha384-OK7vELvjHdhUFi31JYioPIcRHTROLdcDa6ZsNWgvgLaKj+9JqhU0Ad8g4wz3CXjA" crossorigin="anonymous" async></script>
   <script>
-  // P556/R247: this used to run as a plain synchronous inline script, which executes
-  // immediately at parse time — *before* the `defer`red jsDelivr <script> tags above have
-  // had any chance to run (defer explicitly waits until the whole document has parsed).
-  // That made `typeof Chart === 'undefined'` true on essentially every page load regardless
-  // of whether jsDelivr actually succeeded, firing a false "CDN 실패" warning and loading an
-  // unnecessary duplicate cdnjs copy on every visit. Deferring this check to DOMContentLoaded
-  // (which always fires after all `defer` scripts have executed) makes it test the real,
-  // settled state instead of a premature one.
-  document.addEventListener('DOMContentLoaded', function() {
-  if (typeof Chart === 'undefined') {
-    console.warn('[AIO] jsDelivr CDN 실패 — cdnjs 폴백 로드');
-    var _cjsFallback = document.createElement('script');
-    _cjsFallback.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js';
-    document.head.appendChild(_cjsFallback);
+  // Chart.js is async, so DOMContentLoaded does not prove that its request has settled.
+  // Keep the local no-data renderer available at DOM ready, but request the secondary CDN
+  // only after the primary emits error or exceeds the bounded load window.
+  (function coordinateChartDependency() {
+  var _chartPrimary = document.getElementById('aio-chart-cdn');
+  var _chartFallbackTimer = null;
+  var _chartSecondaryStarted = false;
+  function hasRealChart() {
+    return typeof window.Chart !== 'undefined' && !window.Chart.__aioFallback;
   }
+  function clearChartFallbackTimer() {
+    if (_chartFallbackTimer) clearTimeout(_chartFallbackTimer);
+    _chartFallbackTimer = null;
+  }
+  function loadSecondaryChart() {
+    if (hasRealChart() || _chartSecondaryStarted) {
+      if (hasRealChart()) clearChartFallbackTimer();
+      return;
+    }
+    _chartSecondaryStarted = true;
+    console.warn('[AIO] Chart.js primary CDN unavailable — loading secondary CDN');
+    var secondary = document.createElement('script');
+    secondary.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js';
+    secondary.crossOrigin = 'anonymous';
+    secondary.addEventListener('load', clearChartFallbackTimer, { once: true });
+    document.head.appendChild(secondary);
+  }
+  if (_chartPrimary) {
+    _chartPrimary.addEventListener('load', function() {
+      if (hasRealChart()) clearChartFallbackTimer();
+    }, { once: true });
+    _chartPrimary.addEventListener('error', loadSecondaryChart, { once: true });
+  }
+  document.addEventListener('DOMContentLoaded', function() {
   (function installChartFallback() {
-    if (typeof window.Chart !== 'undefined') return;
+    if (hasRealChart() || typeof window.Chart !== 'undefined') return;
     function flattenData(config) {
       var ds = config && config.data && config.data.datasets ? config.data.datasets : [];
       var first = ds && ds[0] ? ds[0].data || [] : [];
@@ -13062,7 +13081,9 @@ button[data-filter-active="true"] {
     // 'font')" crash the first time they visited any Chart.js-backed page. Minimal shape only.
     window.Chart.defaults = { font: { family: '', size: 11 } };
   })();
-  }); // DOMContentLoaded (P556/R247)
+  if (!hasRealChart()) _chartFallbackTimer = setTimeout(loadSecondaryChart, 5000);
+  });
+  })();
   </script>
   <!-- Script blocks -->
   <!-- Phase3[A2] 2단계: defer 전환 — index.html:12385~12394의 3개 CDN 라이브러리와
@@ -13070,9 +13091,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=54.77" defer></script>
-  <script src="./js/aio-data.js?v=54.77" defer></script>
-  <script src="./js/aio-ui.js?v=54.77" defer></script>
+  <script src="./js/aio-core.js?v=54.88" defer></script>
+  <script src="./js/aio-data.js?v=54.88" defer></script>
+  <script src="./js/aio-ui.js?v=54.88" defer></script>
 
 
   <script>
@@ -14828,10 +14849,18 @@ function _getChatHistory() {
   var policy = window.AIO && typeof window.AIO.getChatHistoryPolicy === 'function' ? window.AIO.getChatHistoryPolicy() : { enabled: false, retentionDays: 30 };
   if (policy.enabled === false) return [];
   try {
-    var cutoff = Date.now() - Number(policy.retentionDays || 30) * 86400000;
+    var now = Date.now();
+    var days = Number(policy.retentionDays);
+    var cutoff = now - (Number.isFinite(days) && days > 0 ? Math.min(days, 30) : 30) * 86400000;
     var stored = JSON.parse(localStorage.getItem(CHAT_HISTORY_LS) || '[]');
-    var filtered = Array.isArray(stored) ? stored.filter(function(row) { return !row.ts || Number(row.ts) >= cutoff; }).slice(-CHAT_HISTORY_MAX) : [];
-    if (filtered.length !== stored.length) localStorage.setItem(CHAT_HISTORY_LS, JSON.stringify(filtered));
+    var filtered = Array.isArray(stored) ? stored.filter(function(row) {
+      return row && typeof row === 'object' && typeof row.q === 'string' && typeof row.a === 'string' &&
+        Number.isFinite(Number(row.ts)) && Number(row.ts) >= cutoff && Number(row.ts) <= now;
+    }).slice(-CHAT_HISTORY_MAX) : [];
+    // A failed cleanup write must not hide otherwise valid records.
+    if (!Array.isArray(stored) || filtered.length !== stored.length) {
+      try { localStorage.setItem(CHAT_HISTORY_LS, JSON.stringify(filtered)); } catch (_) {}
+    }
     return filtered;
   }
   catch(e) { return []; }
@@ -14900,24 +14929,37 @@ function saveChatEntry(ctxId, question, answer) {
 function openChatHistory(ctxId) {
   // 기존 오버레이 제거
   let overlay = document.getElementById('chat-history-overlay');
-  if (overlay) overlay.remove();
+  if (overlay) { if (overlay._aioClose) overlay._aioClose(); else overlay.remove(); }
+  const previousFocus = document.activeElement;
 
   const history = _getChatHistory().filter(h => !ctxId || h.ctx === ctxId).reverse();
 
   overlay = document.createElement('div');
   overlay.id = 'chat-history-overlay';
   overlay.className = 'chat-history-overlay open';
-  overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+  overlay._aioClose = function() {
+    overlay.remove();
+    if (previousFocus && previousFocus.isConnected && typeof previousFocus.focus === 'function') previousFocus.focus();
+  };
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay._aioClose(); });
+  overlay.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); overlay._aioClose(); }
+    if (e.key !== 'Tab') return;
+    const controls = Array.from(overlay.querySelectorAll('button:not([disabled]),[tabindex="0"]'));
+    const first = controls[0], last = controls[controls.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
 
   const ctxLabel = ctxId ? ((window.CHAT_CONTEXTS && window.CHAT_CONTEXTS[ctxId] && window.CHAT_CONTEXTS[ctxId].label) || ctxId) : '전체';
   overlay.innerHTML = `
-    <div class="chat-history-panel">
+    <div class="chat-history-panel" role="dialog" aria-modal="true" aria-labelledby="chat-history-title">
       <div class="ch-header">
-        <span class="ch-title">대화 기록 (${escHtml(ctxLabel)}) - ${history.length}건</span>
+        <span class="ch-title" id="chat-history-title">대화 기록 (${escHtml(ctxLabel)}) - ${history.length}건</span>
         <div style="display:flex;gap:6px;">
           ${history.length > 0 ? '<button data-action="_aioChatHistoryClear" style="background:none;border:1px solid rgba(177,58,48,0.3);color:var(--data-red);font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer;">전체 삭제</button>' : ''}
           <button data-action="_aioChatHistoryToggle" style="background:none;border:1px solid rgba(120,140,160,0.35);color:var(--text-muted);font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer;">${window.AIO && typeof window.AIO.getChatHistoryPolicy === 'function' && window.AIO.getChatHistoryPolicy().enabled === false ? '기록 켜기 (선택)' : '기록 끄기·삭제'}</button>
-          <button class="ch-close" data-action="_aioChatHistoryClose" data-pass-el="1">X</button>
+          <button class="ch-close" aria-label="대화 기록 닫기" data-action="_aioChatHistoryClose" data-pass-el="1">X</button>
         </div>
       </div>
       <div class="ch-list">
@@ -14936,6 +14978,7 @@ function openChatHistory(ctxId) {
       </div>
     </div>`;
   document.body.appendChild(overlay);
+  overlay.querySelector('.ch-close').focus();
 }
 
 // ── System prompts per context ─────────────────────────────────────────
@@ -15575,7 +15618,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=54.77" defer></script>
+<script src="./js/aio-chat.js?v=54.88" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -23256,7 +23299,8 @@ function showThemeDetail(themeId) {
             var quote = ld[symbol] || {};
             out[symbol] = {
               price: quote.price != null && isFinite(Number(quote.price)) ? Number(quote.price) : null,
-              pct: quote.pct != null && isFinite(Number(quote.pct)) ? Number(quote.pct) : null
+              pct: quote.pct != null && isFinite(Number(quote.pct)) ? Number(quote.pct) : null,
+              currency: quote.currency ? String(quote.currency).trim().toUpperCase() : null
             };
             return out;
           }, {});
@@ -24165,7 +24209,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=54.77" defer></script>
+<script src="./js/aio-glossary.js?v=54.88" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>
@@ -27314,27 +27358,35 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 <!-- v40.4: 통합 AI 사이드 패널 -->
 <style>
-#ai-panel{position:fixed;right:0;top:0;bottom:0;width:400px;background:var(--bg-surface);border-left:1px solid rgba(33,29,22,0.2);display:flex;flex-direction:column;transition:transform 0.3s cubic-bezier(0.4,0,0.2,1),box-shadow 0.3s;box-shadow:none;z-index:200;}
-#ai-panel .ai-ph,#ai-panel #ai-panel-msgs,#ai-panel .ai-chips,#ai-panel .ai-input-row{min-width:0;}
+#ai-panel{position:fixed;right:0;top:0;bottom:0;width:400px;min-width:0;box-sizing:border-box;background:var(--bg-surface);border-left:1px solid rgba(33,29,22,0.2);display:flex;flex-direction:column;transition:transform 0.3s cubic-bezier(0.4,0,0.2,1),box-shadow 0.3s;box-shadow:none;z-index:200;}
+#ai-panel .ai-ph,#ai-panel #ai-panel-msgs,#ai-panel .ai-chips,#ai-panel .ai-input-row{min-width:0;box-sizing:border-box;}
 .ai-ph{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--border);flex-shrink:0;}
 .ai-ph-title{font-size:14px;font-weight:700;color:var(--text-primary);}
 .ai-ph-badge{font-size:11px;font-family:var(--font-mono);padding:2px 8px;background:rgba(33,29,22,0.12);color:var(--accent);border-radius:4px;}
 .ai-ph-close{margin-left:auto;background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;padding:4px 8px;}
 .ai-ph-close:hover{color:var(--text-primary);}
-#ai-panel-msgs{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px;font-size:13px;line-height:1.7;}
+#ai-panel-msgs{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px;font-size:13px;line-height:1.7;width:100%;}
 /* v52.14 P6/P613: 초기/이력없는 상태가 완전 공백이던 문제 — .acp-messages:empty::before와 동일 패턴 */
 #ai-panel-msgs:empty::before{content:'이 페이지 데이터를 기반으로 질문해보세요';display:block;text-align:center;font-size:12px;color:var(--text-muted);padding:32px 20px;line-height:1.6;}
-.ai-msg{display:flex;gap:8px;max-width:95%;}
-.ai-msg.user{align-self:flex-end;flex-direction:row-reverse;}
-.ai-msg.ai{align-self:flex-start;}
-.ai-bubble{padding:10px 14px;border-radius:4px;font-size:13px;line-height:1.7;word-break:break-word;}
+.ai-msg{display:flex;flex-direction:column;align-items:stretch;gap:0;width:100%;max-width:100%;min-width:0;box-sizing:border-box;}
+.ai-msg.user{align-self:flex-end;align-items:flex-end;width:auto;max-width:95%;}
+.ai-msg.ai{align-self:stretch;width:100%;}
+.ai-msg-content{display:flex;flex-direction:column;align-items:stretch;gap:0;width:100%;max-width:100%;min-width:0;box-sizing:border-box;}
+.ai-msg-content > *{max-width:100%;min-width:0;box-sizing:border-box;overflow-wrap:anywhere;}
+.ai-msg.ai .ai-msg-content > *{width:100%;}
+.ai-msg.user .ai-msg-content{width:auto;max-width:100%;align-self:flex-end;}
+.ai-msg.user .ai-msg-content > *{width:auto;}
+.ai-bubble{width:100%;max-width:100%;min-width:0;box-sizing:border-box;padding:10px 14px;border-radius:4px;font-size:13px;line-height:1.7;word-break:break-word;overflow-wrap:anywhere;white-space:normal;}
+.ai-bubble pre,.ai-msg-content pre{max-width:100%;overflow-x:auto;overflow-y:hidden;white-space:pre;word-break:normal;}
+.ai-bubble table,.ai-msg-content table{display:block;max-width:100%;overflow-x:auto;white-space:normal;}
+.ai-bubble img,.ai-msg-content img{max-width:100%;height:auto;}
 .ai-msg.user .ai-bubble{background:rgba(33,29,22,0.15);color:var(--text-primary);border-bottom-right-radius:4px;}
 .ai-msg.ai .ai-bubble{background:var(--surface-3);color:var(--text-secondary);border-bottom-left-radius:4px;border:1px solid var(--border);}
-.ai-chips{display:flex;flex-wrap:wrap;gap:6px;padding:8px 14px;flex-shrink:0;}
-.ai-chip{font-size:11px;padding:5px 12px;background:rgba(33,29,22,0.08);border:1px solid rgba(33,29,22,0.2);color:var(--accent);border-radius:3px;cursor:pointer;transition:all 0.15s;}
+.ai-chips{display:flex;flex-wrap:wrap;gap:6px;padding:8px 14px;flex-shrink:0;width:100%;}
+.ai-chip{font-size:11px;padding:5px 12px;background:rgba(33,29,22,0.08);border:1px solid rgba(33,29,22,0.2);color:var(--accent);border-radius:3px;cursor:pointer;transition:all 0.15s;max-width:100%;box-sizing:border-box;overflow-wrap:anywhere;white-space:normal;}
 .ai-chip:hover{background:rgba(33,29,22,0.18);transform:translateY(-1px);}
-.ai-input-row{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--border);flex-shrink:0;background:var(--bg-surface);}
-.ai-input-row input{flex:1;padding:10px 14px;background:var(--surface-3);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:13px;outline:none;}
+.ai-input-row{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--border);flex-shrink:0;background:var(--bg-surface);width:100%;}
+.ai-input-row input{flex:1;min-width:0;box-sizing:border-box;padding:10px 14px;background:var(--surface-3);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:13px;outline:none;}
 .ai-input-row input:focus{border-color:var(--accent);}
 .ai-input-row button{padding:10px 18px;background:linear-gradient(135deg,var(--accent),var(--data-purple));color:white;border:none;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;}
 .ai-input-row button:hover{filter:brightness(1.1);}
@@ -27509,7 +27561,7 @@ function updateAIPanelContext(pageId) {
   var chipsEl = document.getElementById('ai-panel-chips');
     if (chipsEl) {
     chipsEl.innerHTML = chips.map(function(c) {
-      return '<div class="ai-chip" data-action="aiChipClick" data-pass-el="1">' + escHtml(c) + '</div>';
+      return '<button type="button" class="ai-chip" data-action="aiChipClick" data-pass-el="1">' + escHtml(c) + '</button>';
     }).join('');
   }
 }
@@ -27520,6 +27572,8 @@ function _appendAIMsg(role, html, id) {
   var msg = document.createElement('div');
   msg.className = 'ai-msg ' + role;
   if (id) msg.id = id;
+  var content = document.createElement('div');
+  content.className = 'ai-msg-content';
   var bubble = document.createElement('div');
   bubble.className = 'ai-bubble';
   // P567/R258: this set innerHTML directly with no DOMPurify pass, unlike the per-page
@@ -27530,7 +27584,8 @@ function _appendAIMsg(role, html, id) {
   // kind of untrusted content this second gate exists to catch — hardening for defense in
   // depth so both chat surfaces meet the same standard.
   bubble.innerHTML = (typeof window.safeHtml === 'function') ? window.safeHtml(html) : html;
-  msg.appendChild(bubble);
+  content.appendChild(bubble);
+  msg.appendChild(content);
   msgsEl.appendChild(msg);
   msgsEl.scrollTop = msgsEl.scrollHeight;
   return bubble;
@@ -27902,6 +27957,11 @@ async function chatSendUnified(_aioDispatchOptions) {
         researchResult: _uniWebResult
       }) : [];
   if (typeof window._aioBuildAIClaimEvidenceRegistry === 'function') sysPrompt += window._aioBuildAIClaimEvidenceRegistry(_uniClaimEvidence);
+  var _uniAnalysisSlice = typeof window._aioBuildChatAnalysisContext === 'function'
+    ? window._aioBuildChatAnalysisContext(_uniQuestionPlan, _uniClaimEvidence) : null;
+  if (_uniAnalysisSlice && _uniAnalysisSlice.questionPlan) _uniQuestionPlan = _uniAnalysisSlice.questionPlan;
+  var _uniAnalysisAudit = _uniAnalysisSlice && _uniAnalysisSlice.audit || null;
+  if (_uniAnalysisSlice && _uniAnalysisSlice.context) sysPrompt += _uniAnalysisSlice.context;
 
   // sysPrompt 방어 — ctx.system() 실패 시 빈 문자열 폴백
   if (!sysPrompt) sysPrompt = '';
@@ -28015,7 +28075,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     if (loadEl) loadEl.parentNode.removeChild(loadEl);
     if (!aiBubble) { aiBubble = _appendAIMsg('ai', '', 'ai-panel-streaming'); }
     var _uniChunkResult = (typeof _aioRunAIResponsePipeline === 'function')
-       ? _aioRunAIResponsePipeline(fullText, { request: _uniAIRequest, questionPlan: _uniQuestionPlan, researchRequired: _uniResearchRequired, entrypoint: 'unified-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: _uniFreshPreflight, evidence: _uniClaimEvidence, provenanceBundle: _uniProvenanceBundle, chatEvidence: typeof _uniEvidence !== 'undefined' ? _uniEvidence : null, researchResult: _uniWebResult, retrievalAudit: _uniRetrievalAudit, contextBudgetAudit: _uniContextBudgetAudit, streamPhase: 'partial', record: false })
+       ? _aioRunAIResponsePipeline(fullText, { request: _uniAIRequest, questionPlan: _uniQuestionPlan, researchRequired: _uniResearchRequired, entrypoint: 'unified-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: _uniFreshPreflight, evidence: _uniClaimEvidence, provenanceBundle: _uniProvenanceBundle, chatEvidence: typeof _uniEvidence !== 'undefined' ? _uniEvidence : null, researchResult: _uniWebResult, retrievalAudit: _uniRetrievalAudit, contextBudgetAudit: _uniContextBudgetAudit, analysisAudit: _uniAnalysisAudit, streamPhase: 'partial', record: false })
       : { blocked: true, text: 'AI 베타 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', actionGate: { blocked: true } };
     var visible = (_uniResearchRequired && !_uniWebResult)
       ? '최신·인과성 주장에 필요한 Web Research 근거를 검증 중입니다. 검증 전 수치와 원인 단정은 표시하지 않습니다.'
@@ -28037,7 +28097,7 @@ async function chatSendUnified(_aioDispatchOptions) {
       ? _aioEvaluateAIResearchGate({ questionPlan: _uniQuestionPlan, required: _uniResearchRequired, externalResult: _uniWebResult, nativeCitations: _uniUseClaudeWebSearch ? (window._aioLastClaudeCitations || []) : [], error: _uniWebResult ? null : (_uniResearchFailure || window._aioLastClaudeResearchError) })
       : { required: _uniResearchRequired, ready: !_uniResearchRequired, reason: 'research-gate-unavailable' };
     var _uniDoneResult = (typeof _aioRunAIResponsePipeline === 'function')
-       ? _aioRunAIResponsePipeline(fullText, { request: _uniAIRequest, questionPlan: _uniQuestionPlan, researchRequired: _uniResearchRequired, researchGate: _uniResearchGate, entrypoint: 'unified-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: _uniFreshPreflight, evidence: _uniClaimEvidence, provenanceBundle: _uniProvenanceBundle, chatEvidence: typeof _uniEvidence !== 'undefined' ? _uniEvidence : null, researchResult: _uniWebResult, retrievalAudit: _uniRetrievalAudit, contextBudgetAudit: _uniContextBudgetAudit, completion: completion || null, streamPhase: 'complete' })
+       ? _aioRunAIResponsePipeline(fullText, { request: _uniAIRequest, questionPlan: _uniQuestionPlan, researchRequired: _uniResearchRequired, researchGate: _uniResearchGate, entrypoint: 'unified-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: _uniFreshPreflight, evidence: _uniClaimEvidence, provenanceBundle: _uniProvenanceBundle, chatEvidence: typeof _uniEvidence !== 'undefined' ? _uniEvidence : null, researchResult: _uniWebResult, retrievalAudit: _uniRetrievalAudit, contextBudgetAudit: _uniContextBudgetAudit, analysisAudit: _uniAnalysisAudit, completion: completion || null, streamPhase: 'complete' })
       : { blocked: true, text: 'AI 베타 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', actionGate: { blocked: true } };
     var visible = _uniDoneResult.text;
     var _publicGate = _uniDoneResult.actionGate;
@@ -28053,7 +28113,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     state.messages.push({ role: 'assistant', content: visible });
 
     // v46.10: 모델 배지
-    var _bubbleParent = (streamEl || (aiBubble ? aiBubble.parentNode : null));
+    var _bubbleParent = (aiBubble ? aiBubble.parentNode : null) || (streamEl ? streamEl.querySelector('.ai-msg-content') : null);
     if (_bubbleParent) {
       var modelColor = selectedModelKey === 'sonnet-thinking' ? 'var(--data-purple)' : selectedModelKey === 'sonnet' ? 'var(--data-cyan)' : 'var(--text-muted)';
       var badgeEl = document.createElement('div');
@@ -28104,7 +28164,7 @@ async function chatSendUnified(_aioDispatchOptions) {
       _uniCitationResult = { engine:'claude', citations:window._aioLastClaudeCitations.slice(0, 12) };
     }
     if (_uniCitationResult && _uniCitationResult.citations && _uniCitationResult.citations.length > 0 && typeof _searchCitationsHTML === 'function') {
-      var citTarget = streamEl || (aiBubble ? aiBubble.parentNode : null);
+      var citTarget = _bubbleParent || (streamEl ? streamEl.querySelector('.ai-msg-content') : null);
       if (citTarget) {
         var citDiv = document.createElement('div');
         citDiv.innerHTML = _searchCitationsHTML(_uniCitationResult);
@@ -28123,7 +28183,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     }
     if (newChips.length > 0) {
       var chipsEl = document.getElementById('ai-panel-chips');
-      if (chipsEl) chipsEl.innerHTML = newChips.map(function(c) { return '<div class="ai-chip" data-action="aiChipClick" data-pass-el="1">' + escHtml(c) + '</div>'; }).join('');
+      if (chipsEl) chipsEl.innerHTML = newChips.map(function(c) { return '<button type="button" class="ai-chip" data-action="aiChipClick" data-pass-el="1">' + escHtml(c) + '</button>'; }).join('');
     }
   };
 
