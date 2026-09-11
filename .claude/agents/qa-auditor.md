@@ -14,8 +14,6 @@ tools:
 
 - `AGENTS.md`
 - `_context/CURRENT-STATE.md`
-- `_context/WORKFLOW-GOVERNANCE.md`
-- `.claude/skills/post-edit-qa/references/scope-matrix.md`
 
 ## Boundaries
 
@@ -23,6 +21,7 @@ tools:
 - Derive route, rule, test and file counts from current registries or generated state; never copy historical constants.
 - Preserve existing dirty work and never commit, push or deploy.
 - Report static, runtime/headless, browser and live evidence separately.
+- Reuse unchanged context. Consult workflow governance and QA scope references only when the assigned review requires them; do not activate unrelated skills.
 
 ## Workflow
 

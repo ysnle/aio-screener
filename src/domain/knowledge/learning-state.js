@@ -46,15 +46,20 @@ function safeRead(storage, key) {
 
 export function createLearningState({ storage = null, key = STORAGE_KEY, now = () => new Date().toISOString() } = {}) {
   let state = safeRead(storage, key);
+  let persistence = storage ? 'not-attempted' : 'memory-only';
   const persist = () => {
     state = { ...state, updatedAt: now() };
     if (typeof storage?.setItem === 'function') {
-      try { storage.setItem(key, JSON.stringify(state)); } catch { /* private browsing/quota is non-fatal */ }
+      try { storage.setItem(key, JSON.stringify(state)); persistence = 'saved'; }
+      catch { persistence = 'memory-only'; }
+    } else {
+      persistence = 'memory-only';
     }
     return snapshot();
   };
   const snapshot = () => Object.freeze({
     ...state,
+    persistence,
     progress: freezeEntries(state.progress),
     bookmarks: Object.freeze([...state.bookmarks]),
     notes: freezeEntries(state.notes),

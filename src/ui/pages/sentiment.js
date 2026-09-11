@@ -64,7 +64,7 @@ function setMetric(documentRef, selector, value, evidence, digits = 1, suffix = 
 
 function drawFallback(canvas, values, label) {
   if (!canvas) return false;
-  const finiteValues = (values || []).map(Number).filter(Number.isFinite);
+  const finiteValues = (values || []).map(finite).filter((value) => value !== null);
   canvas.dataset.sourceKind = finiteValues.length ? 'legacy-projection' : 'unavailable';
   canvas.dataset.operationalUse = finiteValues.length ? 'reference-only' : 'blocked';
   canvas.dataset.aioRenderer = 'sentiment';
@@ -116,7 +116,7 @@ function drawFallback(canvas, values, label) {
 
 function createChart({ canvas, values, labels, chartFactory, charts, bag, label }) {
   if (!canvas) return;
-  const validValues = (values || []).map(Number).filter(Number.isFinite);
+  const validValues = (values || []).map(finite).filter((value) => value !== null);
   const existing = charts.get(canvas.id);
   if (!validValues.length) {
     existing?.destroy?.();
@@ -172,7 +172,16 @@ function createChart({ canvas, values, labels, chartFactory, charts, bag, label 
 function renderNeedle(documentRef, score) {
   const needle = documentRef?.getElementById('fg-needle');
   const normalized = finite(score);
-  if (!needle || normalized == null) return;
+  if (!needle) return;
+  if (normalized == null) {
+    needle.removeAttribute('x2');
+    needle.removeAttribute('y2');
+    needle.hidden = true;
+    needle.setAttribute('aria-hidden', 'true');
+    return;
+  }
+  needle.hidden = false;
+  needle.removeAttribute('aria-hidden');
   const angle = Math.PI - (Math.max(0, Math.min(100, normalized)) / 100) * Math.PI;
   needle.setAttribute('x2', String(120 + Math.cos(angle) * 80));
   needle.setAttribute('y2', String(120 - Math.sin(angle) * 80));

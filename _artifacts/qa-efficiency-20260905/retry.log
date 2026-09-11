@@ -1,0 +1,34 @@
+[qa] RUN browser-boot
+[qa] FAIL browser-boot (21484ms)
+    "total long task 2398 > 1000"
+  ],
+  "metrics": {
+    "fcpMs": 2884,
+    "dclMs": 438,
+    "loadMs": 441,
+    "maxLongTaskMs": 2164,
+    "totalLongTaskMs": 2398,
+    "longTaskCount": 4,
+    "longTaskObservationWindowMs": 2000,
+    "domNodes": 6672,
+    "activeRouteDomNodes": 811,
+    "activePage": "page-signal",
+    "bootStatusPresent": false,
+    "routeMs": 1471,
+    "wallMs": 11842,
+    "totalExternalRequests": 143,
+    "quoteRequests": 51,
+    "initialExternalRequests": 12,
+    "initialQuoteRequests": 0,
+    "bootObservationWindowMs": 2000,
+    "delayedPrimaryChart": {
+      "passed": true,
+      "secondaryRequests": 0,
+      "chartName": "DelayedPrimaryChart",
+      "localFallback": false
+    }
+  }
+}
+
+[qa] SUMMARY profile=rerun-failed groups=browser-runtime pass=0 cached=0 fail=1 skip=0 duration=22.4s
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\last-run.json

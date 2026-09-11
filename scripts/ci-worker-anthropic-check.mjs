@@ -64,6 +64,8 @@ async function main() {
   check('no atomic quota -> 503', noQuota.status === 503, noQuota.status);
   const oversized = await worker.fetch(makeReq({ body: { messages: [{ role: 'user', content: 'x'.repeat(250 * 1024) }] } }), env);
   check('oversized body rejected before quota -> 413', oversized.status === 413, oversized.status);
+  const unicodeOversized = await worker.fetch(makeReq({ body: { messages: [{ role: 'user', content: '한'.repeat(75 * 1024) }] } }), env);
+  check('UTF-8 body bytes rejected before quota -> 413', unicodeOversized.status === 413, unicodeOversized.status);
 
   const quota = atomicQuota(0);
   const concurrentEnv = { ANTHROPIC_API_KEY: 'sk-test', AIO_QUOTA_DO: quota, ANTHROPIC_DAILY_CAP: '3' };
@@ -141,6 +143,67 @@ async function main() {
     body: JSON.stringify({ dayKey: 'claude:fixture', cap: 2, requestId: 'fixture-wrong-jurisdiction', claudeBody: { model: 'claude-haiku-4-5', max_tokens: 8, messages: [] } }),
   }));
   check('non-US Durable Object fails closed before provider fetch', wrongJurisdictionResponse.status === 503, wrongJurisdictionResponse.status);
+
+  // Isolated provider and clock: never wait 60 seconds or contact a real API.
+  const realSetTimeout = globalThis.setTimeout;
+  const realClearTimeout = globalThis.clearTimeout;
+  const deadlines = new Map();
+  globalThis.setTimeout = (callback, delay) => {
+    if (delay !== 60000) return realSetTimeout(callback, delay);
+    const id = {}; deadlines.set(id, callback); return id;
+  };
+  globalThis.clearTimeout = (id) => { if (!deadlines.delete(id)) realClearTimeout(id); };
+  try {
+    let sequence = 0;
+    for (const route of ['direct', 'durable']) {
+      const invoke = (signal) => {
+        sequence += 1;
+        if (route === 'direct') return worker.fetch(new Request('https://worker.example/anthropic', {
+          method: 'POST', headers: { Origin: PROD_ORIGIN, 'cf-connecting-ip': 'stream-' + sequence },
+          body: JSON.stringify({ messages: [] }), signal,
+        }), { ANTHROPIC_API_KEY: 'fixture-only', AIO_QUOTA_DO: atomicQuota() });
+        return durable.fetch(new Request('https://aio-quota.internal/proxy', {
+          method: 'POST', body: JSON.stringify({ dayKey: 'claude:stream', cap: 100, requestId: 'stream-' + sequence, claudeBody: {} }), signal,
+        }));
+      };
+      for (const action of ['timeout', 'caller-abort', 'body-cancel', 'complete', 'fetch-reject']) {
+        let providerSignal;
+        let cancelled = false;
+        globalThis.fetch = async (_url, init) => {
+          providerSignal = init.signal;
+          if (action === 'fetch-reject') throw new Error('fixture provider offline');
+          return new Response(new ReadableStream({
+            start(controller) { if (action === 'complete') { controller.enqueue(new TextEncoder().encode('ok')); controller.close(); } },
+            cancel() { cancelled = true; },
+          }), { headers: { 'content-type': 'text/event-stream' } });
+        };
+        const caller = new AbortController();
+        const response = await invoke(caller.signal);
+        if (action === 'fetch-reject') {
+          check(route + ' rejected fetch clears deadline', response.status === 502 && deadlines.size === 0);
+          continue;
+        }
+        check(route + ' deadline survives response headers: ' + action, deadlines.size === 1, deadlines.size);
+        if (action === 'complete') {
+          check(route + ' complete stream preserved', await response.text() === 'ok');
+        } else if (action === 'body-cancel') {
+          await response.body.cancel('fixture consumer closed');
+          check(route + ' body cancellation reaches provider', providerSignal.aborted && cancelled);
+        } else {
+          const reading = response.text().then(() => false, () => true);
+          if (action === 'timeout') for (const callback of [...deadlines.values()]) callback();
+          else caller.abort();
+          const rejected = await Promise.race([reading, new Promise(resolve => realSetTimeout(() => resolve(false), 100))]);
+          check(route + ' ' + action + ' interrupts stalled body', rejected && providerSignal.aborted && cancelled);
+        }
+        check(route + ' ' + action + ' clears deadline', deadlines.size === 0, deadlines.size);
+      }
+    }
+  } finally {
+    globalThis.fetch = realFetch;
+    globalThis.setTimeout = realSetTimeout;
+    globalThis.clearTimeout = realClearTimeout;
+  }
 
   if (errors.length) {
     console.error('Worker atomic quota check failed:');

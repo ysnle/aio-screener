@@ -79,6 +79,12 @@ check('screener handoff repository_version', new RegExp(`^repository_version:\\s
 check('CHANGELOG latest release header', new RegExp(`^##\\s+${versionRe}\\b`, 'm').test(changelog), `expected ${version} at the current release boundary`);
 
 const cachebusters = [...html.matchAll(/\?v=([\d.]+)"/g)].map((match) => match[1]);
+// Preloads are reusable only when the request URL matches the executed script.
+// A bare preload plus a versioned script silently downloads both resources.
+for (const name of ['aio-core', 'aio-data', 'aio-ui', 'aio-chat']) {
+  const url = `./js/${name}.js?v=${versionNumber}`;
+  check(`${name} preload parity`, html.includes(`rel="preload" as="script" href="${url}"`) && html.includes(`<script src="${url}"`), `preload and script must both use ${url}`);
+}
 const wrongCachebusters = cachebusters.filter((value) => value !== versionNumber);
 check(
   'index cachebusters',

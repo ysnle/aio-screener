@@ -7,11 +7,13 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { ROUTE_IDS } from '../src/app/routes.js';
+import { DESKTOP_PRIMARY_VIEWPORT } from './desktop-qa-config.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.AIO_ROUTE_SOAK_PORT || 8903);
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
-const ROUTES = ['home', 'signal', 'breadth', 'sentiment', 'briefing', 'technical', 'macro', 'fxbond', 'themes', 'theme-detail', 'ticker', 'fundamental', 'options', 'portfolio', 'market-news', 'screener', 'principles', 'masters', 'atlas', 'guide'];
+const ROUTES = ROUTE_IDS;
 const version = JSON.parse(readFileSync(resolve(root, 'version.json'), 'utf8')).version;
 const git = (args) => { try { return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim(); } catch { return null; } };
 const canonical = (route) => route === 'theme-detail' ? 'themes' : route;
@@ -39,12 +41,12 @@ const report = {
   appRevision: version,
   gitHead: git(['rev-parse', 'HEAD']),
   gitClean: (git(['status', '--short']) || '').length === 0,
-  environment: { browser: 'chromium', browserVersion: browser.version(), platform: process.platform, node: process.version, viewport: '1024x900' },
+  environment: { browser: 'chromium', browserVersion: browser.version(), platform: process.platform, node: process.version, viewport: `${DESKTOP_PRIMARY_VIEWPORT.width}x${DESKTOP_PRIMARY_VIEWPORT.height}` },
   command: 'node scripts/ci-route-soak-check.mjs',
   ok: true, routes: ROUTES.length, laps: 3, lapReports: [], errors: [], entityRoundTrip: null
 };
 try {
-  const page = await browser.newPage({ viewport: { width: 1024, height: 900 } });
+  const page = await browser.newPage({ viewport: DESKTOP_PRIMARY_VIEWPORT });
   page.on('pageerror', (error) => report.errors.push(`pageerror:${error.message}`));
   page.on('console', (message) => {
     if (message.type() === 'error' && !isExpectedOfflineConsole(message.text())) report.errors.push(`console:${message.text()}`);

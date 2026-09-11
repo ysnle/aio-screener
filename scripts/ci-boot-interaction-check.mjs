@@ -4,12 +4,14 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { resolve, dirname } from 'node:path';
+import { DESKTOP_PRIMARY_VIEWPORT } from './desktop-qa-config.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.CI_BOOT_PORT || 8898);
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 const BOOT_OBSERVATION_WINDOW_MS = 2000;
 const version = JSON.parse(readFileSync(resolve(root, 'version.json'), 'utf8')).version;
+const indexSource = readFileSync(resolve(root, 'index.html'), 'utf8');
 const operationsSlo = JSON.parse(readFileSync(resolve(root, 'architecture', 'operations-slo.json'), 'utf8'));
 const git = (args) => { try { return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim(); } catch { return null; } };
 
@@ -28,11 +30,44 @@ function startServer() {
   });
 }
 
+async function verifyDelayedPrimaryChart(browserInstance) {
+  const coordinator = indexSource.match(/<script>\s*\/\/ Chart\.js is async, so DOMContentLoaded does not prove that its request has settled\.([\s\S]*?)<\/script>/)?.[1];
+  if (!coordinator) return { passed: false, reason: 'chart coordinator source missing' };
+  const fixture = await browserInstance.newPage();
+  let secondaryRequests = 0;
+  try {
+    await fixture.route('**/*', async (route) => {
+      const url = route.request().url();
+      if (url.includes('cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js')) {
+        await new Promise((resolveDelay) => setTimeout(resolveDelay, 2000));
+        return route.fulfill({ status: 200, contentType: 'application/javascript', body: 'window.Chart=function DelayedPrimaryChart(){};window.Chart.defaults={font:{}};' });
+      }
+      if (url.includes('cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js')) {
+        secondaryRequests++;
+      }
+      return route.abort();
+    });
+    await fixture.setContent(`<script id="aio-chart-cdn" src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" async></script><script>// Chart.js is async, so DOMContentLoaded does not prove that its request has settled.${coordinator}</script>`, { waitUntil: 'domcontentloaded' });
+    await fixture.waitForTimeout(5200);
+    const state = await fixture.evaluate(() => ({
+      chartName: window.Chart?.name || '',
+      localFallback: !!window.Chart?.__aioFallback
+    }));
+    return {
+      passed: secondaryRequests === 0 && state.chartName === 'DelayedPrimaryChart' && state.localFallback === false,
+      secondaryRequests,
+      ...state
+    };
+  } finally {
+    await fixture.close();
+  }
+}
+
 const server = await startServer();
 const browser = await chromium.launch();
 let evidence = null;
 try {
-  const page = await browser.newPage();
+  const page = await browser.newPage({ viewport: DESKTOP_PRIMARY_VIEWPORT });
   const externalRequests = [];
   const quoteRequests = [];
   const initialExternalRequests = [];
@@ -99,12 +134,14 @@ try {
   result.initialExternalRequests = initialExternalRequests.length;
   result.initialQuoteRequests = initialQuoteRequests.length;
   result.bootObservationWindowMs = BOOT_OBSERVATION_WINDOW_MS;
+  result.delayedPrimaryChart = await verifyDelayedPrimaryChart(browser);
   const failures = [];
   if (result.fcpMs == null || result.fcpMs > 2500) failures.push(`FCP ${result.fcpMs}ms > 2500ms`);
   if (result.routeMs > 2000) failures.push(`initial route ${result.routeMs}ms > 2000ms`);
   if (result.maxLongTaskMs > 2500) failures.push(`max long task ${result.maxLongTaskMs}ms > 2500ms`);
   if (result.activePage !== 'page-signal') failures.push(`route did not activate signal (${result.activePage})`);
   if (result.bootStatusPresent) failures.push('boot status did not hard-release');
+  if (!result.delayedPrimaryChart.passed) failures.push(`delayed primary Chart.js triggered a false fallback (${JSON.stringify(result.delayedPrimaryChart)})`);
   const targets = operationsSlo.targets?.bootPerformance || {};
   const targetFailures = [];
   if (result.initialExternalRequests > targets.initialExternalRequestsMax) targetFailures.push(`initial external ${result.initialExternalRequests} > ${targets.initialExternalRequestsMax}`);
@@ -120,7 +157,7 @@ try {
     appRevision: version,
     gitHead: git(['rev-parse', 'HEAD']),
     gitClean: statusLines.length === 0,
-    environment: { browser: 'chromium', browserVersion: browser.version(), platform: process.platform, node: process.version, viewport: 'playwright-default' },
+    environment: { browser: 'chromium', browserVersion: browser.version(), platform: process.platform, node: process.version, viewport: `${DESKTOP_PRIMARY_VIEWPORT.width}x${DESKTOP_PRIMARY_VIEWPORT.height}` },
     command: 'node scripts/ci-boot-interaction-check.mjs',
     gateStatus: failures.length ? 'FAIL' : 'PASS',
     targetStatus: targetFailures.length ? 'TARGET_MISS' : 'TARGET_COMPLIANT',

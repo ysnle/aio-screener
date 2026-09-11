@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import vm from 'node:vm';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createQuestionPlan } from '../src/ai/orchestrator/question-planner.js';
@@ -11,10 +12,6 @@ import { buildCompanyAssessment } from '../src/ai/analysis/company.js';
 import { buildTechnicalConditions } from '../src/ai/analysis/technical.js';
 import { buildMacroFxTransmission } from '../src/ai/analysis/macro-fx.js';
 import { createBenchmarkManifest, evaluateRoutingCorpus, assertBenchmarkReady } from '../src/ai/eval/benchmark.js';
-import { createAIControlPlane } from '../src/ai/operations/control-plane.js';
-import { createEvidenceGraph, evaluateEvidenceCompleteness } from '../src/ai/evidence/graph.js';
-import { createAIProvider } from '../src/ai/provider/adapter.js';
-import { createAIResponseEnvelope, validateAIResponseEnvelope } from '../src/ai/response/envelope.js';
 import { createResearchDecision, validateResearchDecision } from '../src/ai/research/decision.js';
 import { createResearchPlan, validateResearchPlan } from '../src/ai/research/plan.js';
 import { createEvidenceDocument, evaluateResearchEvidenceFloor, normalizeResearchExecutionResult, normalizeSearchResults, validateClaimEvidenceBinding } from '../src/ai/research/evidence.js';
@@ -152,18 +149,6 @@ check('benchmark-manifest', assertBenchmarkReady(evalManifest).ok && evalManifes
 check('benchmark-missing-cost-is-not-zero', createBenchmarkManifest({ costLimitUsd: null }).costLimitUsd === null);
 const corpus = evaluateRoutingCorpus({ cases: cases.map(({ query, expected }, index) => ({ id: `case-${index + 1}`, query, expectedIntent: expected })), planner: (query) => createQuestionPlan({ query, route: cases.find((row) => row.query === query)?.route || 'home', now: '2026-07-28T12:00:00Z' }) });
 check('routing-corpus-evaluation', corpus.accuracy === 1 && corpus.total === cases.length);
-const controlPlane = createAIControlPlane({ now: () => '2026-07-28T12:00:00Z' });
-controlPlane.recordCanary({ release: 'v53.55' });
-check('operations-control-plane', controlPlane.status().eventCount === 1 && controlPlane.status().operatorRequired === true);
-const protectedEvent = controlPlane.recordFeedback({ type: 'rollback', at: '1999-01-01T00:00:00Z' });
-check('operations-control-plane-reserved-fields', protectedEvent.type === 'feedback' && protectedEvent.at === '2026-07-28T12:00:00.000Z');
-const evidenceGraph = createEvidenceGraph({ nodes: [{ evidenceId: 'metric-1', metricId: 'market.vix', status: 'current' }] });
-check('evidence-completeness-uses-metric-id', evaluateEvidenceCompleteness(evidenceGraph, ['market.vix']).ok);
-const responseEnvelope = createAIResponseEnvelope({ status: 'ok', evidenceIds: ['metric-1'], now: '2026-07-28T12:00:00Z' });
-check('ai-response-envelope', validateAIResponseEnvelope(responseEnvelope).ok && responseEnvelope.createdAt === '2026-07-28T12:00:00.000Z');
-check('ai-response-validator-does-not-throw', !validateAIResponseEnvelope({ schemaVersion: 'ai-response.v1', status: 'ok' }).ok);
-check('ai-provider-normalizes-failure', (await createAIProvider({ request: async () => { throw new Error('secret provider detail'); } }).complete({})).error === 'AI_PROVIDER_REQUEST_FAILED');
-
 const conceptPlan = createQuestionPlan({ query: 'What is a bond yield?', route: 'macro', now: '2026-07-28T12:00:00Z' });
 check('research-concept-does-not-force-search', conceptPlan.researchDecision?.requirement === 'NOT_NEEDED' && conceptPlan.researchPlan?.subQueries?.length === 0);
 check('research-concept-contract', validateResearchDecision(conceptPlan.researchDecision).ok && validateResearchPlan(conceptPlan.researchPlan).ok);
@@ -246,6 +231,31 @@ const boundedRunnerFailure = await createAIAnswerOrchestrator({ now: () => new D
 check('orchestrator-does-not-leak-runner-error', boundedRunnerFailure.error === 'legacy_runner_failed' && !JSON.stringify(boundedRunnerFailure).includes('secret internal detail'));
 
 const chat = read('js/aio-chat.js');
+const bindingContext = vm.createContext({ window: {}, URL });
+vm.runInContext(chat.slice(chat.indexOf('function _aioAIClaimEvidenceId('), chat.indexOf('function _aioRunAIResponsePipeline(')), bindingContext);
+const bindingRow = { evidenceId: 'quote:NVDA', metric: 'price', ticker: 'NVDA', scale: 'raw', value: 120, unit: 'USD', asOf: '2026-09-01T12:00:00Z', source: 'exchange', sourceUrl: 'https://nasdaq.com/quote/NVDA', status: 'ok' };
+const bindingClaim = { claimId: 'quote', type: 'metric', metric: 'price', entity: 'NVDA', scale: 'raw', text: '주가', value: 120, unit: 'USD', asOf: bindingRow.asOf, source: 'exchange', evidenceIds: [bindingRow.evidenceId] };
+const bind = (claim, rows = [bindingRow]) => bindingContext._aioBuildPublishableAnswerPlan({ claims: { claims: [claim] }, citations: ['https://evil.example/fake', bindingRow.sourceUrl] }, rows, true);
+check('claim-binding-matching-value-unit-time-source-passes', bind(bindingClaim).plan.claims.claims.length === 1);
+for (const [field, value] of [['metric', 'VIX'], ['entity', 'AAPL'], ['scale', 'millions'], ['metric', null], ['entity', null]]) {
+  check(`claim-binding-rejects-wrong-identity-${field}-${value}`, bind({ ...bindingClaim, [field]: value }).droppedClaims.length === 1);
+}
+check('claim-binding-label-is-derived-from-bound-identity', bind({ ...bindingClaim, text: 'VIX' }).plan.claims.claims[0].text === 'NVDA · price');
+check('claim-ledger-preserves-binding-identity', createClaimLedger([bindingClaim]).claims[0].metric === 'price' && createClaimLedger([bindingClaim]).claims[0].entity === 'NVDA' && createClaimLedger([bindingClaim]).claims[0].scale === 'raw');
+for (const [field, value] of Object.entries({ value: 999, unit: 'KRW', asOf: '2026-09-02T12:00:00Z', source: 'fabricated-source' })) {
+  check(`claim-binding-rejects-forged-${field}`, bind({ ...bindingClaim, [field]: value }).droppedClaims.length === 1);
+}
+check('claim-binding-strips-model-invented-citations', bind(bindingClaim).plan.citations.length === 1 && bind(bindingClaim).plan.citations[0] === bindingRow.sourceUrl);
+check('claim-binding-unknown-status-fails-closed', bind(bindingClaim, [{ ...bindingRow, status: 'unreviewed' }]).plan.claims.claims.length === 0);
+check('claim-binding-document-id-cannot-validate-invented-number', bind(bindingClaim, [{ ...bindingRow, value: null, unit: 'document' }]).plan.claims.claims.length === 0);
+check('claim-binding-snippet-cannot-publish', bind(bindingClaim, [{ ...bindingRow, contentDepth: 'SNIPPET' }]).plan.claims.claims.length === 0);
+check('claim-binding-numeric-prose-cannot-smuggle-conflicting-value', !bind({ ...bindingClaim, text: '주가는 999 USD' }).plan.claims.claims[0].text.includes('999'));
+check('claim-binding-text-type-cannot-bypass-numeric-contract', bind({ ...bindingClaim, type: 'text', text: '현재 주가 999 USD' }).plan.claims.claims.length === 0);
+const relabeledDoc = createEvidenceDocument({ canonicalUrl: 'https://example.com/a', publisher: 'sec.gov', source: 'SEC official', sourceTier: 'PRIMARY_OFFICIAL', contentDepth: 'EXCERPT' });
+check('research-untrusted-label-cannot-promote-host', relabeledDoc.sourceTier === 'SECONDARY' && relabeledDoc.publisher === 'example.com');
+const samePublisher = normalizeSearchResults([{ url: 'https://reuters.com/a', publisher: 'A' }, { url: 'https://reuters.com/b', publisher: 'B' }]);
+check('research-relabeling-cannot-inflate-independence', samePublisher.independentSourceCount === 1);
+check('research-unbound-id-is-rejected', !validateClaimEvidenceBinding({ evidenceIds: ['invented'] }, evidence).ok);
 const data = read('js/aio-data.js');
 const core = read('js/aio-core.js');
 const bootstrap = read('src/app/bootstrap.js');
@@ -254,7 +264,19 @@ check('knowledge-retrieval-is-lazy-and-exposed-by-existing-orchestrator-boundary
 check('both-chat-surfaces-consume-market-principles-and-ai-era-knowledge', /knowledgeOrchestrator\.buildAIKnowledgeContext\(q/.test(chat) && /knowledgeContextStr/.test(chat) && /_uniKnowledgeOrchestrator\.buildAIKnowledgeContext\(q/.test(read('index.html')) && /_uniKnowledgeAudit/.test(read('index.html')));
 check('knowledge-pages-have-chat-contexts-and-unified-panel-mapping', /principles:_aioCreateEvidenceContext/.test(chat) && /atlas:_aioCreateEvidenceContext/.test(chat) && /'principles':'principles','atlas':'atlas'/.test(read('index.html')));
 const publishedKnowledgeIndex = JSON.parse(read('public-data/knowledge/ai-retrieval-index.json'));
-check('knowledge-index-has-full-parity-and-provenance', publishedKnowledgeIndex.schemaVersion === 'ai-knowledge-retrieval-index.v1' && publishedKnowledgeIndex.articles.length === 160 && publishedKnowledgeIndex.counts.withConcepts === 160 && publishedKnowledgeIndex.counts.withRouteTargets === 160 && publishedKnowledgeIndex.articles.every((article) => article.route?.deepLink && article.authoringStatus && article.publication));
+const knowledgeSourceLessons = new Map([
+  ...JSON.parse(read('public-data/principles/lesson-library.json')).lessons.map((lesson) => [`principles:${lesson.id}`, lesson]),
+  ...JSON.parse(read('public-data/atlas/foundation-lessons.json')).lessons.map((lesson) => [`atlas-foundations:${lesson.id}`, lesson])
+]);
+check('knowledge-index-has-full-parity-and-provenance', publishedKnowledgeIndex.schemaVersion === 'ai-knowledge-retrieval-index.v1' && publishedKnowledgeIndex.articles.length === knowledgeSourceLessons.size && publishedKnowledgeIndex.counts.withRouteTargets === knowledgeSourceLessons.size && publishedKnowledgeIndex.articles.every((article) => article.route?.deepLink && article.authoringStatus && article.publication));
+check('knowledge-concept-links-match-explicit-source-not-word-overlap', publishedKnowledgeIndex.articles.every((article) => {
+  const lesson = knowledgeSourceLessons.get(article.articleId);
+  if (!lesson) return false;
+  const surface = article.surface === 'principles' ? 'principles' : 'atlas';
+  const expected = [...new Set([...(lesson.nodeIds || []), ...(lesson.relatedAtlasNodeIds || [])])].map((id) => `${surface}:${id}`);
+  return JSON.stringify(article.conceptIds) === JSON.stringify(expected) && article.conceptLinkStatus === (expected.length ? 'SOURCE_LINK' : 'UNMAPPED') && article.candidateConceptStatus === 'TEXT_CANDIDATE';
+}));
+check('knowledge-concept-coverage-reports-unmapped-truthfully', publishedKnowledgeIndex.counts.withConcepts === publishedKnowledgeIndex.articles.filter((article) => article.conceptIds.length).length && publishedKnowledgeIndex.counts.unmappedConcepts === publishedKnowledgeIndex.articles.filter((article) => !article.conceptIds.length).length);
 check('knowledge-loader-never-fetches-article-monolith', read('src/ai/retrieval/knowledge.js').includes('ai-retrieval-index.json') && !read('src/ai/retrieval/knowledge.js').includes("indexUrl = './public-data/knowledge/articles.json'"));
 check('knowledge-reference-is-wrapped-as-untrusted-data', /buildAIUntrustedBlock\('KNOWLEDGE_REFERENCE'/.test(chat) && /buildAIUntrustedBlock\('KNOWLEDGE_REFERENCE'/.test(read('index.html')));
 check('unified-chat-renders-native-claude-citations', /_uniCitationResult/.test(read('index.html')) && /engine:'claude'/.test(read('index.html')) && /_aioLastClaudeCitations/.test(read('index.html')));

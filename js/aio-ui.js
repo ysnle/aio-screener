@@ -1324,8 +1324,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (el.tagName === 'A') return;
     var text = el.textContent.trim();
     if (text.length <= 2 && emojiLabel[text]) { el.setAttribute('aria-label', emojiLabel[text]); return; }
-    if (text && text.length <= 40) { el.setAttribute('aria-label', text); return; }
-    if (text) el.setAttribute('aria-label', text.substring(0, 30));
+    // Text-bearing controls already have an accessible name. Copying the
+    // initial text into aria-label freezes prices and truncates later labels.
   });
 
   // 20. v41.2: 문서 구조 h1 추가 (스크린리더 페이지 제목)

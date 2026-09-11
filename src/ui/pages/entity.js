@@ -1,5 +1,6 @@
 import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
 import { selectEntityState } from '../../state/selectors/entity.js';
+import { subscribeToSlices } from '../../state/memoize.js';
 import { selectPortfolioState } from '../../state/selectors/portfolio.js';
 import { deriveSecReport } from '../../domain/fundamental/sec-report.js';
 import { canonicalEpochMs } from '../../domain/chart/contract.js';
@@ -15,17 +16,31 @@ function setText(documentRef, id, value) {
   return element;
 }
 
+function formatMoney(value, currency, { maximumFractionDigits = 2 } = {}) {
+  const amount = finite(value);
+  if (amount == null) return '—';
+  const code = String(currency || '').trim().toUpperCase();
+  if (!code) return `${amount.toLocaleString('en-US', { maximumFractionDigits })} · 통화 미확인`;
+  try {
+    return new Intl.NumberFormat(code === 'KRW' ? 'ko-KR' : 'en-US', {
+      style: 'currency', currency: code, maximumFractionDigits: code === 'KRW' ? 0 : maximumFractionDigits
+    }).format(amount);
+  } catch (_) {
+    return `${code} ${amount.toLocaleString('en-US', { maximumFractionDigits })}`;
+  }
+}
+
 function renderTickerHero(documentRef, state, root) {
   const requestedId = String(root?._currentTickerId || '').trim().toUpperCase() || null;
   const id = state?.id || requestedId;
   const quote = state?.quote || {};
   const price = finite(quote.value);
   const pct = finite(quote.pct);
-  setText(documentRef, 'ticker-hero-name', id || '—');
+  setText(documentRef, 'ticker-hero-name', id || '종목 선택 대기');
   setText(documentRef, 'ticker-hero-fullname', id
     ? (state?.name || (state?.id ? id : `${root?._currentTickerName || id} · 시세 수신 대기`))
     : '종목을 검색하세요');
-  setText(documentRef, 'ticker-hero-price', price == null ? '—' : `$${price.toFixed(2)}`);
+  setText(documentRef, 'ticker-hero-price', formatMoney(price, quote.currency));
   const change = setText(documentRef, 'ticker-hero-chg', pct == null ? '—' : `${pct >= 0 ? '▲ +' : '▼ '}${Math.abs(pct).toFixed(2)}%`);
   if (change) change.className = `ticker-chg-big ${pct == null ? '' : pct >= 0 ? 'up' : 'down'}`;
 }
@@ -51,6 +66,7 @@ function renderTickerActivity(documentRef, root, state, portfolioState) {
   const quote = state?.quote || {};
   const live = id ? root?._liveData?.[id] || {} : {};
   const price = finite(quote.value) ?? finite(live.price) ?? finite(live.regularMarketPrice);
+  const currency = quote.currency || live.currency || live.quoteEnvelope?.currency || null;
   const holding = (Array.isArray(portfolioState?.holdings) ? portfolioState.holdings : [])
     .find((item) => String(item?.symbol || '').toUpperCase() === String(id || '').toUpperCase());
   const shares = finite(holding?.shares);
@@ -63,7 +79,7 @@ function renderTickerActivity(documentRef, root, state, portfolioState) {
   if (valueNode) {
     valueNode.textContent = !hasPosition ? '내 포트폴리오 외 종목' : pnl == null
       ? '손익 계산 대기'
-      : `${pnl >= 0 ? '+' : '-'}$${Math.abs(pnl).toLocaleString('en-US', { maximumFractionDigits: 0 })}${pnlPct == null ? '' : ` (${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(1)}%)`}`;
+      : `${pnl >= 0 ? '+' : '-'}${formatMoney(Math.abs(pnl), currency, { maximumFractionDigits: 0 })}${pnlPct == null ? '' : ` (${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(1)}%)`}`;
     valueNode.dataset.aioTickerPnlRenderer = 'native';
     valueNode.setAttribute('data-source-kind', pnl == null ? 'unavailable' : 'portfolio-state');
     valueNode.setAttribute('data-source-label', pnl == null ? 'portfolio position or quote unavailable' : 'portfolio-state+entity-quote');
@@ -83,7 +99,7 @@ function renderTickerActivity(documentRef, root, state, portfolioState) {
     const session = live.extSession === 'pre' || live.extSession === 'after' ? live.extSession : (typeof root?._getUsSession === 'function' ? root._getUsSession() : 'open');
     const visible = (session === 'pre' || session === 'after') && extPrice != null;
     extensionNode.textContent = visible
-      ? `${session === 'pre' ? 'Pre' : 'After'} $${extPrice.toFixed(2)}${extPct == null ? '' : ` (${extPct >= 0 ? '+' : ''}${extPct.toFixed(2)}%)`}`
+      ? `${session === 'pre' ? 'Pre' : 'After'} ${formatMoney(extPrice, currency)}${extPct == null ? '' : ` (${extPct >= 0 ? '+' : ''}${extPct.toFixed(2)}%)`}`
       : '';
     extensionNode.style.display = visible ? '' : 'none';
     extensionNode.dataset.aioTickerExtensionRenderer = 'native';
@@ -478,7 +494,7 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
       bag.add(charts.dispose);
       const renderNow = () => render({ root, documentRef, store, route, charts });
       renderNow();
-      bag.add(store.subscribe(renderNow));
+      bag.add(subscribeToSlices(store, ['entity', 'portfolio'], renderNow));
       const eventTarget = documentRef || globalThis;
       const refresh = () => renderNow();
       const onPageShown = (event) => {

@@ -7,23 +7,23 @@ Use this contract for every canonical AIO skill in `.claude/skills`, every comma
 - Treat `.claude/skills` as the tracked single source of truth.
 - Treat `.agents/skills` as a tracked generated discovery mirror only. Never edit mirror content independently.
 - Materialize or refresh the mirror with `node scripts/sync-agent-skills.mjs`.
-- Run `node scripts/sync-agent-skills.mjs --check` before closeout; absence or drift is a failure.
+- For skill/mirror/workspace changes, run `node scripts/sync-agent-skills.mjs --check` at closeout; absence or drift is a failure.
 - Keep command wrappers thin; route detail through the canonical `SKILL.md` and its directly linked references.
 
 ## Mandatory Preflight
 
 1. Read the triggered `SKILL.md` completely.
-2. Read `_context/CURRENT-STATE.md`, `_context/WORKFLOW-GOVERNANCE.md`, and `_context/INDEX.md` before changing code, data, workflow, or skill files.
-3. Load only the reference files named by the skill router for the current task.
-4. Define the task scope, completion condition, and required evidence before editing.
-5. Route dated market-value updates to `data-refresh`, supplied research to `integrate`, defects to `bug-fix`, and verification to `post-edit-qa` rather than blending their contracts.
+2. Follow AGENTS.md: read `_context/CURRENT-STATE.md` once; consult `_context/WORKFLOW-GOVERNANCE.md` and `_context/INDEX.md` only for relevant details. Reuse unchanged context.
+3. Load only the references needed for the current task; linked files are options, not a requirement to read them all.
+4. Infer scope, completion, and evidence from the user request. User instructions override skill guidance. Carry authorized implementation through verification and related fixes; do not stop for redundant approval.
+5. Route dated market-value updates to `data-refresh`, supplied research to `integrate`, defects to `bug-fix`, and verification to `post-edit-qa` when specialized guidance is needed. These are task boundaries, not an automatic skill chain: the primary workflow can run its required tests directly.
 6. Search large ledgers by relevant term/ID; never load RULES, BUG, QA, or KNOWLEDGE in full by default.
 
 ## Evidence Closeout
 
 Close every change with evidence, not notes only.
 
-- Code/data/doc changes require the relevant executable gate.
+- Code/data/doc changes require the relevant executable gate. Reuse passing evidence until a changed input, failure, or unresolved risk warrants rerunning it. Small reversible edits do not require new tests that mirror implementation.
 - Skill-facing edits require `node scripts/ci-skill-contract-check.mjs` and `node scripts/ci-workflow-compaction-check.mjs`.
 - Skill prompt/eval changes require `node scripts/ci-skill-eval-fixture-check.mjs`; fixture PASS does not count as an independent behavioral run.
 - Codex mirror changes require `node scripts/sync-agent-skills.mjs --check`.
@@ -35,7 +35,7 @@ Use the strongest evidence actually available: static checks, runtime/headless c
 
 ## Binary Self-Eval
 
-Before final response, answer these checks:
+Use applicable checks at closeout; mark unrelated items N/A rather than expanding the task:
 
 | ID | Question |
 |----|----------|

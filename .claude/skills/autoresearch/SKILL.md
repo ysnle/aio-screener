@@ -1,19 +1,19 @@
 ---
 name: autoresearch
-description: AIO Screener skill optimization loop. Use when improving skill quality, benchmarking prompts, defining binary evals, running one-variable experiments, or producing results.tsv/changelog.md for autonomous skill refinement.
+description: Benchmark and refine AIO skills through controlled prompt experiments. Use when experiments are requested.
 ---
 
 ## AIO Skill Operating Contract
 
-Read `_context/CURRENT-STATE.md`, `_context/WORKFLOW-GOVERNANCE.md`, `_context/INDEX.md`, and `.claude/skills/_shared/operating-contract.md` before acting. Treat `.claude/skills` as canonical and `.agents/skills` as a generated local mirror.
-
-Close every code/data/doc/skill change with evidence. For skill-facing edits run `node scripts/ci-skill-contract-check.mjs` and `node scripts/ci-workflow-compaction-check.mjs`. Keep R1 7 surfaces synchronized with `node scripts/bump-version.mjs <version>` when a version bump is required.
+Follow `.claude/skills/_shared/operating-contract.md`; reuse it if already read. It owns common context loading, version sync, evidence closeout, and generated-mirror rules.
 
 ## Purpose
 
 Improve an AIO skill by repeatedly running the same task prompts, scoring with binary evals, changing exactly one variable, and keeping only score-improving changes.
 
 ## Reference Loading Map
+
+Read only what the current task needs; this is not an all-files reading checklist.
 
 - Read `references/workflow.md` for the experiment loop, outputs, dashboard, and stop conditions.
 - Read `references/eval-guide.md` when writing or revising evals.

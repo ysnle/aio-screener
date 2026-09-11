@@ -742,12 +742,12 @@ function createCurriculumView(documentRef, curriculum, query, authoredLessons, k
     const routeTarget = selection.routeTargets?.targets?.find((target) => target.articleId === `atlas-foundations:${selectedModule.id}`) || null;
     detail.append(breadcrumb, title, createModuleLesson(documentRef, selectedModule, authoredLessons, deepArticle, routeTarget, selection.onNavigate));
     if (!deepArticle && allModules.some((module) => module.id === selectedModule.id)) {
-      const loadButton = actionButton(documentRef, 'atlas-route-button is-secondary atlas-article-load', selection.loadingArticleIds?.has(selectedModule.id) ? '심층 원고 불러오는 중…' : '5분 심층 원고 불러오기', 'load-article', selectedModule.id);
+      const loadButton = actionButton(documentRef, 'atlas-route-button is-secondary atlas-article-load', selection.loadingArticleIds?.has(selectedModule.id) ? '개념 원문 불러오는 중…' : '개념 원문·출처 불러오기', 'load-article', selectedModule.id);
       loadButton.disabled = Boolean(selection.loadingArticleIds?.has(selectedModule.id));
       loadButton.setAttribute('aria-busy', selection.loadingArticleIds?.has(selectedModule.id) ? 'true' : 'false');
       detail.appendChild(loadButton);
       if (selection.articleErrors?.has(selectedModule.id)) {
-        const error = element(documentRef, 'p', 'atlas-card-copy atlas-learning-error', '심층 원고를 불러오지 못했습니다. 연결 상태를 확인한 뒤 다시 시도하세요.');
+        const error = element(documentRef, 'p', 'atlas-card-copy atlas-learning-error', '개념 원문을 불러오지 못했습니다. 연결 상태를 확인한 뒤 다시 시도하세요.');
         error.setAttribute('role', 'alert');
         detail.appendChild(error);
       }

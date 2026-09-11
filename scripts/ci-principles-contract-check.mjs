@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { validateKnowledgeAuthoringCorpus } from './lib/knowledge-authoring-contract.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
@@ -20,6 +21,11 @@ const narrative = JSON.parse(read('public-data/principles/narrative-journey.json
 const lessonLibrary = JSON.parse(read('public-data/principles/lesson-library.json'));
 const nodeGuides = JSON.parse(read('public-data/principles/node-guides.json'));
 const knowledgeArticles = JSON.parse(read('public-data/knowledge/articles.json'));
+const principlesAuthoringContract = validateKnowledgeAuthoringCorpus({
+  surface: 'principles',
+  artifact: lessonLibrary,
+  articles: (knowledgeArticles.articles || []).filter((article) => article.surface === 'principles')
+});
 
 for (const [label, source, marker] of [
   ['route registry', routes, "'principles'"],
@@ -71,7 +77,7 @@ const chapterIds = chapters.chapters.map((chapter) => chapter.id);
 if (chapters.status !== 'REFERENCE_CONNECTED' || chapters.publication !== 'EDUCATIONAL_REFERENCE_ONLY' || chapters.chapters.length !== 15 || chapterIds.join(',') !== 'A,B,C,D,E,F,G,H,I,J,K,L,M,N,O') fail('authored A~O chapter artifact counts or ordering drifted');
 const expectedLessonCount = 112;
 if (lessonLibrary.status !== 'REFERENCE_CONNECTED' || lessonLibrary.publication !== 'EDUCATIONAL_REFERENCE_ONLY' || lessonLibrary.lessons.length !== expectedLessonCount || lessonLibrary.counts?.sourceCoverage !== expectedLessonCount || lessonLibrary.lessons.some((lesson) => ['definition', 'mechanism', 'example', 'counterScenario', 'verificationQuestion', 'diagram'].some((field) => !lesson[field]) || !lesson.sourceIds?.length)) fail('A~O lesson library coverage or required fields drifted');
-if (lessonLibrary.deepFormStatus !== 'SEMANTIC_REFERENCE_AUTHORED' || lessonLibrary.lessons.some((lesson) => lesson.deepStatus !== 'SEMANTIC_REFERENCE_AUTHORED' || !lesson.summary?.definition || !lesson.formalModel?.variables?.length || !lesson.workedExample?.inputs?.length || !lesson.workedExample?.steps?.length || !lesson.workedExample?.result || !lesson.workedExample?.failureBoundary || !lesson.realEconomyChannel || !lesson.companyChannel || !lesson.financialStatementChannel || !lesson.valuationChannel || !lesson.marketChannel || !lesson.tradingApplication || !lesson.invalidation || !lesson.glossary?.length || !lesson.claimIds?.length)) fail('A~O semantic depth fields or structured worked examples are incomplete');
+if (principlesAuthoringContract.failures.length) fail(`A~O source-preserved or semantic authoring contract failed: ${principlesAuthoringContract.failures.join('; ')}`);
 if (nodeGuides.status !== 'AUTHORED_REFERENCE_CONNECTED' || nodeGuides.publication !== 'EDUCATIONAL_REFERENCE_ONLY' || nodeGuides.nodes.length !== 60 || new Set(nodeGuides.nodes.map((node) => node.id)).size !== 60 || nodeGuides.nodes.some((node) => ['definition', 'intuition', 'mechanism', 'kpi', 'connection', 'risk'].some((field) => !node[field]))) fail('node guide knowledge base must contain one complete authored guide per catalog node');
 const principlesArticles = knowledgeArticles.articles.filter((article) => article.surface === 'principles');
 const principleLessonIds = new Set(lessonLibrary.lessons.map((lesson) => lesson.id));

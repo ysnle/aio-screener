@@ -1,10 +1,10 @@
 # Data Refresh Workflow
 
-Use this reference after reading `inventory.md`.
+Use `inventory.md` only to locate the relevant categories.
 
 ## Refresh Order
 
-1. Build the 22-category staleness table.
+1. Assess the requested categories; use the full 22-category table only for a complete freshness audit.
 2. Refresh CRITICAL categories first.
 3. Update generated artifacts through the repo's scripts when available.
 4. Keep producer, artifact, consumer, and gate together.

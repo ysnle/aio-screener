@@ -40,6 +40,10 @@ local affected/cache
 | Release certification | `node scripts/qa-runner.mjs full --no-cache` | 전체 로컬 소스·headless 경계를 한 번 실행 |
 | Deployed truth | `node scripts/qa-runner.mjs external --no-cache` | Pages, proxy, fast plane, Actions 상태를 현재 시점에 관찰 |
 
+로컬 브라우저 검사는 서로 다른 포트·프로세스에서 기본 2개씩 실행한다. 부팅 시간 등 성능 측정 gate는 manifest의 `exclusive: true`로 단독 실행하고, CI는 기존 matrix shard 안에서 1개씩 실행한다. `--browser-jobs 1`로 직렬 재현할 수 있다.
+
+등록된 검사 파일만 바꾸면 해당 gate·명시된 의존 gate·preflight·pipeline contract를 선택한다. 제품 코드나 producer가 함께 바뀌면 기존의 넓은 영향 규칙도 유지한다. 무거운 사전 검사는 실제 입력을 별도로 선언하며, 파일 내용 해시는 한 invocation 안에서 공유한다. 보고서 하나가 바뀌었다고 syntax·runner fixture를 다시 실행하지 않는다. 전체 릴리스 프로필과 assertion 기준은 유지한다.
+
 캐시는 PASS만 저장하며 해당 gate 정의, cache schema, Node major, 선언된 입력 파일 내용과 gate script가 같을 때만 유효하다. 관련 없는 manifest 항목이나 runner 문구 변경은 모든 성공 gate를 무효화하지 않는다. CI와 release는 항상 `--no-cache`다. 결과는 `.cache/aio-qa/last-run.json`, task 기준선은 `.cache/aio-qa/sessions/`에 남고 저장소에는 커밋하지 않는다.
 
 ## GitHub Ownership

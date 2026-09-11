@@ -1,4 +1,5 @@
 import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
+import { subscribeToSlices } from '../../state/memoize.js';
 import { deriveMacroTransmissionEvidence, MACRO_FUNDING_LIQUIDITY_REFERENCE, MACRO_LAGGED_SUPPLY_DEMAND_REFERENCE } from '../../domain/macro/transmission.js';
 import { MARKET_CONFIRMATION_REFERENCE } from '../../domain/market/breadth.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
@@ -31,10 +32,22 @@ function writeLineage(node, sourceKind, sourceLabel) {
 function quoteValue(root, symbol) {
   const quote = root?._liveData?.[symbol];
   if (!quote) return null;
+  const envelope = quote.quoteEnvelope || {};
   const price = finite(quote.price ?? quote.regularMarketPrice);
   const pct = finite(quote.pct ?? quote.regularMarketChangePercent);
   const changeBasis = quote.changeBasis || quote.valueBasis || 'unknown';
-  return { quote, price, pct, changeBasis };
+  return {
+    quote,
+    envelope,
+    price,
+    pct,
+    changeBasis,
+    observedAt: envelope.observedAt || quote.observedAt || null,
+    fetchedAt: envelope.fetchedAt || quote.fetchedAt || null,
+    quality: quote.quality || envelope.quality || null,
+    session: quote.marketState || envelope.marketState || null,
+    revision: envelope.revision || quote.revision || null
+  };
 }
 
 function annotateChangeBasis(node, value) {
@@ -42,9 +55,19 @@ function annotateChangeBasis(node, value) {
   const basis = String(value.changeBasis || 'unknown');
   node.setAttribute('data-change-basis', basis);
   node.setAttribute('title', `변화율 기준: ${basis}`);
-  const observedAt = value.quote.observedAt || null;
+  const observedAt = value.observedAt || null;
   if (observedAt) node.setAttribute('data-as-of', observedAt);
   else node.removeAttribute('data-as-of');
+  if (observedAt) node.setAttribute('data-observed-at', observedAt);
+  else node.removeAttribute('data-observed-at');
+  if (value.fetchedAt) node.setAttribute('data-fetched-at', value.fetchedAt);
+  else node.removeAttribute('data-fetched-at');
+  if (value.quality) node.setAttribute('data-market-quality', value.quality);
+  else node.removeAttribute('data-market-quality');
+  if (value.session) node.setAttribute('data-market-session', value.session);
+  else node.removeAttribute('data-market-session');
+  if (value.revision) node.setAttribute('data-market-revision', value.revision);
+  else node.removeAttribute('data-market-revision');
 }
 
 function quoteLineage(node, value) {
@@ -52,6 +75,9 @@ function quoteLineage(node, value) {
   const kind = /snapshot|cache|reference/.test(source) ? 'reference' : 'observed';
   writeLineage(node, kind, source);
   annotateChangeBasis(node, value);
+  const observedAt = value.observedAt ? String(value.observedAt).replace('T', ' ').replace(/\.000Z$|Z$/, ' UTC') : '관측시각 미수신';
+  const fetchedAt = value.fetchedAt ? String(value.fetchedAt).replace('T', ' ').replace(/\.000Z$|Z$/, ' UTC') : '수신시각 미수신';
+  node.setAttribute('title', `${source} · 관측 ${observedAt} · 수신 ${fetchedAt} · 변화율 기준 ${value.changeBasis || 'unknown'}`);
 }
 
 function clearRenderedValue(node, title = '현재 관측값 미수신') {
@@ -60,6 +86,11 @@ function clearRenderedValue(node, title = '현재 관측값 미수신') {
   node.classList?.remove('pos', 'neg');
   node.removeAttribute('data-change-basis');
   node.removeAttribute('data-as-of');
+  node.removeAttribute('data-observed-at');
+  node.removeAttribute('data-fetched-at');
+  node.removeAttribute('data-market-quality');
+  node.removeAttribute('data-market-session');
+  node.removeAttribute('data-market-revision');
   node.removeAttribute('data-release-at');
   writeLineage(node, 'unavailable', 'native:missing-observation');
   node.setAttribute('data-operational-use', 'blocked');
@@ -251,9 +282,21 @@ function setCanvasState(canvas, { rendererKey, sourceKind, sourceLabel, operatio
   canvas.setAttribute('data-source-label', sourceLabel);
   canvas.setAttribute('data-operational-use', operationalUse);
   if (title) canvas.setAttribute('title', title);
+  const statusId = `${canvas.id}-native-status`;
+  let status = canvas.ownerDocument?.getElementById(statusId);
+  if (sourceKind === 'unavailable') {
+    if (!status && canvas.ownerDocument) {
+      status = canvas.ownerDocument.createElement('p');
+      status.id = statusId;
+      status.setAttribute('role', 'status');
+      status.style.cssText = 'padding:10px;color:var(--text-muted);font-size:12px;';
+      canvas.insertAdjacentElement('afterend', status);
+    }
+    if (status) status.textContent = title || '차트 데이터를 아직 받지 못했습니다.';
+  } else status?.remove();
 }
 
-function renderNativeHistoryChart(root, page, charts, { id, field, label, rendererKey, unavailableLabel }) {
+function renderNativeHistoryChart(root, page, charts, { id, field, label, rendererKey, unavailableLabel, valueScale = 1, valueSuffix = '' }) {
   const canvas = page.querySelector(`#${id}`);
   if (!canvas) return;
   const rows = historyRows(root, field);
@@ -273,7 +316,7 @@ function renderNativeHistoryChart(root, page, charts, { id, field, label, render
       type: 'line',
       data: {
         labels: rows.map((row) => row.date.slice(5).replace('-', '/')),
-        datasets: [{ label, data: rows.map((row) => row.value), borderColor: '#4aa3df', backgroundColor: 'transparent', borderWidth: 1.8, pointRadius: 0, tension: 0.15, fill: false }]
+        datasets: [{ label, data: rows.map((row) => row.value * valueScale), borderColor: '#4aa3df', backgroundColor: 'transparent', borderWidth: 1.8, pointRadius: 0, tension: 0.15, fill: false }]
       },
       options: {
         responsive: true,
@@ -282,7 +325,10 @@ function renderNativeHistoryChart(root, page, charts, { id, field, label, render
           x: { ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 5 }, grid: { display: false } },
           y: { ticks: { maxTicksLimit: 4 }, grid: { color: 'rgba(33,29,22,0.08)' } }
         },
-        plugins: { legend: { display: false }, tooltip: { callbacks: { title: (items) => rows[items[0]?.dataIndex]?.date || '' } } }
+        plugins: { legend: { display: false }, tooltip: { callbacks: {
+          title: (items) => rows[items[0]?.dataIndex]?.date || '',
+          label: (context) => `${label}: ${Number(context.parsed.y).toFixed(valueSuffix ? 1 : 2)}${valueSuffix}`
+        } } }
       }
     });
   } catch (_) {
@@ -613,15 +659,17 @@ function renderFxbond(root, page, charts) {
   const carryVerdictNode = page.querySelector('#carry-verdict');
   const jpy = quoteValue(root, 'JPY=X')?.price;
   const vix = quoteValue(root, '^VIX')?.price;
-  const bojRate = finite(root?._bokData?.bokRate?.value);
-  const hyOasBp = finite(root?._hySpreadBp) ?? finite(root?._fredData?.BAMLH0A0HYM2?.value) * 100;
-  const carryEvidence = [jpy, vix, tnx, bojRate, hyOasBp].every((value) => Number.isFinite(value));
+  const bokRate = finite(root?.DATA_SNAPSHOT?.bokRate);
+  const directHyOasBp = finite(root?._hySpreadBp);
+  const fredHyOasPct = finite(root?._fredData?.BAMLH0A0HYM2?.value);
+  const hyOasBp = directHyOasBp ?? (fredHyOasPct == null ? null : fredHyOasPct * 100);
+  const carryEvidence = [jpy, vix, tnx, bokRate, hyOasBp].every((value) => Number.isFinite(value));
   let carryText = '보류';
   let carryColor = 'var(--text-muted)';
   let carryScore = null;
   let carryVerdict = '판정 보류 · USD/JPY·VIX·미일 정책금리·HY OAS 입력 미수신';
   if (carryEvidence) {
-    const rateDiff = tnx - bojRate;
+    const rateDiff = tnx - bokRate;
     let score = 0;
     score += jpy > 158 ? 35 : jpy > 152 ? 25 : jpy > 145 ? 15 : 30;
     score += vix > 30 ? 30 : vix > 22 ? 20 : vix > 15 ? 10 : 5;
@@ -637,20 +685,20 @@ function renderFxbond(root, page, charts) {
   if (carryNode) {
     carryNode.dataset.aioFxbondCarryRenderer = 'native';
     carryNode.style.color = carryColor;
-    writeLineage(carryNode, carryEvidence ? 'live' : 'unavailable', carryEvidence ? 'live:JPY+^VIX+^TNX+BOK+FRED-HY-OAS' : 'carry proxy evidence unavailable');
+    writeLineage(carryNode, carryEvidence ? 'derived-reference' : 'unavailable', carryEvidence ? 'runtime:JPY+^VIX+^TNX · DATA_SNAPSHOT:BOK · FRED:HY-OAS' : 'carry proxy evidence unavailable');
   }
   writeText(carryScoreNode, carryScore == null ? '—' : String(carryScore));
   if (carryBarNode) {
     carryBarNode.style.width = `${carryScore == null ? 0 : carryScore}%`;
     carryBarNode.style.background = carryScore == null ? 'var(--text-muted)' : carryColor;
     carryBarNode.dataset.aioFxbondCarryScoreRenderer = 'native';
-    writeLineage(carryBarNode, carryEvidence ? 'live' : 'unavailable', carryEvidence ? 'live:JPY+^VIX+^TNX+BOK+FRED-HY-OAS' : 'carry proxy evidence unavailable');
+    writeLineage(carryBarNode, carryEvidence ? 'derived-reference' : 'unavailable', carryEvidence ? 'runtime:JPY+^VIX+^TNX · DATA_SNAPSHOT:BOK · FRED:HY-OAS' : 'carry proxy evidence unavailable');
   }
   writeText(carryVerdictNode, carryVerdict);
   [carryScoreNode, carryVerdictNode].forEach((node) => {
     if (!node) return;
     node.dataset.aioFxbondCarryScoreRenderer = 'native';
-    writeLineage(node, carryEvidence ? 'live' : 'unavailable', carryEvidence ? 'live:JPY+^VIX+^TNX+BOK+FRED-HY-OAS' : 'carry proxy evidence unavailable');
+    writeLineage(node, carryEvidence ? 'derived-reference' : 'unavailable', carryEvidence ? 'runtime:JPY+^VIX+^TNX · DATA_SNAPSHOT:BOK · FRED:HY-OAS' : 'carry proxy evidence unavailable');
   });
   const camNode = page.querySelector('#cam-verdict-text');
   const dxyPct = quoteValue(root, 'DX-Y.NYB')?.pct;
@@ -704,14 +752,16 @@ function renderFxbond(root, page, charts) {
   renderNativeCurveChart(root, page, charts);
 }
 
-function breadthEvidence(root) {
+function breadthEvidence(root, store) {
   try {
     const getter = root?.AIO?.getCurrentBreadthEvidence;
     if (typeof getter === 'function') {
       const legacy = getter();
       if (legacy?.available) return legacy;
     }
-    const nativeState = root?.AIO_ARCH?.getScreenerState?.();
+    // Native rendering already owns a read-only store reference. Avoid cloning
+    // the full universe through the public defensive-snapshot facade for 4 values.
+    const nativeState = store?.getState?.()?.screener ?? root?.AIO_ARCH?.getScreenerState?.();
     const segment = nativeState?.metadata?.breadth?.segments?.us;
     const observedAt = segment?.observedAt ? Date.parse(segment.observedAt) : NaN;
     const ageMs = Number.isFinite(observedAt) ? Date.now() - observedAt : Infinity;
@@ -813,8 +863,8 @@ function renderBreadthReferenceLens(page) {
   host.appendChild(timeline);
 }
 
-function renderBreadth(root, page) {
-  const evidence = breadthEvidence(root);
+function renderBreadth(root, page, charts, store) {
+  const evidence = breadthEvidence(root, store);
   const historyEvidence = breadthHistoryEvidence(root);
   const source = evidence.available ? (evidence.source || 'AIO screener universe') : 'breadth source unavailable';
   const sourceKind = evidence.available ? 'server-artifact' : 'unavailable';
@@ -840,6 +890,7 @@ function renderBreadth(root, page) {
       ? '현재 원천 미수신'
       : `관측: ${observedLabel || '현재'} · ${source}`;
     writeText(valueNode, text);
+    if (valueNode) valueNode.title = `${text} · ${freshness}`;
     writeText(labelNode, label);
     if (barNode) {
       barNode.style.width = value == null || !Number.isFinite(value) ? '0%' : `${Math.max(0, Math.min(100, value))}%`;
@@ -909,6 +960,26 @@ function renderBreadth(root, page) {
   const chartSourceKind = evidence.available || historyEvidence.available ? 'server-history' : 'unavailable';
   page.querySelectorAll('#bp-price-chart, #bp-ad-ratio-chart, #bp-5ma-chart, #bp-20ma-chart, #bp-50ma-chart').forEach((canvas) => {
     writeLineage(canvas, chartSourceKind, historyEvidence.source || source);
+  });
+  renderNativeHistoryChart(root, page, charts, {
+    id: 'bp-price-chart', field: 'spx', label: 'S&P 500', rendererKey: 'aioBreadthChartRenderer',
+    unavailableLabel: 'S&P 500 완료 시장 히스토리 미수신'
+  });
+  renderNativeHistoryChart(root, page, charts, {
+    id: 'bp-ad-ratio-chart', field: 'advanceRatio', label: 'AIO 상승 종목 비율', rendererKey: 'aioBreadthChartRenderer',
+    unavailableLabel: 'AIO 유니버스 상승 종목 비율 히스토리 미수신', valueScale: 100, valueSuffix: '%'
+  });
+  renderNativeHistoryChart(root, page, charts, {
+    id: 'bp-5ma-chart', field: 'breadth5', label: 'AIO 5일선 상회 비율', rendererKey: 'aioBreadthChartRenderer',
+    unavailableLabel: 'AIO 유니버스 5일선 상회 비율 히스토리는 아직 생성되지 않습니다', valueSuffix: '%'
+  });
+  renderNativeHistoryChart(root, page, charts, {
+    id: 'bp-20ma-chart', field: 'breadth20', label: 'AIO 20일선 상회 비율', rendererKey: 'aioBreadthChartRenderer',
+    unavailableLabel: 'AIO 유니버스 20일선 상회 비율 히스토리 미수신', valueSuffix: '%'
+  });
+  renderNativeHistoryChart(root, page, charts, {
+    id: 'bp-50ma-chart', field: 'breadth50', label: 'AIO 50일선 상회 비율', rendererKey: 'aioBreadthChartRenderer',
+    unavailableLabel: 'AIO 유니버스 50일선 상회 비율 히스토리 미수신', valueSuffix: '%'
   });
   renderBreadthReferenceLens(page);
 }
@@ -991,10 +1062,10 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
       const renderNow = () => {
         if (route === 'macro') renderMacro(documentRef, root, page, charts);
         if (route === 'fxbond') renderFxbond(root, page, charts);
-        if (route === 'breadth') renderBreadth(root, page);
+        if (route === 'breadth') renderBreadth(root, page, charts, store);
       };
       renderNow();
-      const unsubscribe = store?.subscribe?.(renderNow);
+      const unsubscribe = store && subscribeToSlices(store, ['market', 'marketSnapshot', 'screener'], renderNow);
       if (unsubscribe) bag.add(unsubscribe);
       const eventTarget = documentRef || root;
       ['aio:liveQuotes', 'aio:liveDataReceived', 'aio:refresh:done', 'aio:serverDataLoaded', 'aio:historyLoaded', 'aio:macroUpdated'].forEach((eventName) => {

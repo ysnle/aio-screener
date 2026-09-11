@@ -25,13 +25,6 @@
       "sourceTier": null
     },
     {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
       "sourceId": "WEB-TSMC-3DFABRIC-2026",
       "url": "https://www.tsmc.com/english/dedicatedFoundry/services/advanced-packaging",
       "publisher": "TSMC",
@@ -46,24 +39,22 @@
       "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
     },
     {
-      "sourceId": "WEB-SEC-GOOGLE-10K-2025",
-      "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
-      "publisher": "U.S. Securities and Exchange Commission / Alphabet",
-      "title": "Alphabet 2025 Form 10-K filing",
-      "sourceTier": "PRIMARY_OFFICIAL"
+      "sourceId": "WEB-SIA-MANUFACTURING-2026",
+      "url": "https://www.semiconductors.org/semiconductors-101/how-are-semiconductors-made/",
+      "publisher": "Semiconductor Industry Association",
+      "title": "How are Semiconductors Made?",
+      "sourceTier": "PRIMARY_INDUSTRY_BODY"
+    },
+    {
+      "sourceId": "WEB-OIF-COPACKAGING-2022",
+      "url": "https://www.oiforum.com/wp-content/uploads/OIF-Co-Packaging-FD-01.0.pdf",
+      "publisher": "Optical Internetworking Forum",
+      "title": "Co-Packaging Framework Document",
+      "sourceTier": "PRIMARY_STANDARD"
     }
   ],
   "selectedSources": [
     {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
       "sourceId": "WEB-TSMC-3DFABRIC-2026",
       "url": "https://www.tsmc.com/english/dedicatedFoundry/services/advanced-packaging",
       "publisher": "TSMC",
@@ -82,19 +73,29 @@
       "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
     },
     {
-      "sourceId": "WEB-SEC-GOOGLE-10K-2025",
-      "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
-      "publisher": "U.S. Securities and Exchange Commission / Alphabet",
-      "title": "Alphabet 2025 Form 10-K filing",
-      "sourceTier": "PRIMARY_OFFICIAL",
+      "sourceId": "WEB-SIA-MANUFACTURING-2026",
+      "url": "https://www.semiconductors.org/semiconductors-101/how-are-semiconductors-made/",
+      "publisher": "Semiconductor Industry Association",
+      "title": "How are Semiconductors Made?",
+      "sourceTier": "PRIMARY_INDUSTRY_BODY",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-OIF-COPACKAGING-2022",
+      "url": "https://www.oiforum.com/wp-content/uploads/OIF-Co-Packaging-FD-01.0.pdf",
+      "publisher": "Optical Internetworking Forum",
+      "title": "Co-Packaging Framework Document",
+      "sourceTier": "PRIMARY_STANDARD",
       "directness": "DIRECT",
       "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
     }
   ],
   "rejectedSources": [],
   "sourceTiers": [
-    "PRIMARY_OFFICIAL",
-    "COMPANY_TECHNICAL_DOCUMENT"
+    "COMPANY_TECHNICAL_DOCUMENT",
+    "PRIMARY_INDUSTRY_BODY",
+    "PRIMARY_STANDARD"
   ],
   "claimCoverage": [
     {
@@ -104,10 +105,8 @@
     }
   ],
   "researchFactIds": [
-    "fact:nist:ai-rmf-core",
     "fact:tsmc:3dfabric",
     "fact:micron:hbm2e",
-    "fact:sec:capex-depreciation",
     "fact:sia:semiconductor-value-chain",
     "fact:oif:copackaging-framework"
   ],

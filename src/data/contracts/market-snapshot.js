@@ -75,8 +75,8 @@ function normalizeQuote(quote = {}) {
     lastSuccessfulAt: asIso(quote.lastSuccessfulAt || quote.observedAt || quote.fetchedAt),
     session: String(quote.session || quote.marketSession || 'UNKNOWN'),
     quality: MARKET_QUALITY_STATUS.includes(quote.quality) ? quote.quality : 'UNAVAILABLE',
-    changeBasis: String(quote.changeBasis || quote.valueBasis || derivedBasis),
-    valueBasis: String(quote.valueBasis || quote.changeBasis || derivedBasis),
+    changeBasis: String(quote.changeBasis || derivedBasis),
+    valueBasis: String(quote.valueBasis || 'provider-current-value'),
     allowedUse: String(quote.allowedUse || 'reference'),
     delayedByMs: quote.delayedByMs != null && String(quote.delayedByMs).trim() !== '' && typeof quote.delayedByMs !== 'boolean' && Number.isFinite(Number(quote.delayedByMs)) && Number(quote.delayedByMs) >= 0 ? Number(quote.delayedByMs) : null,
     venue: quote.venue || quote.fullExchangeName || null

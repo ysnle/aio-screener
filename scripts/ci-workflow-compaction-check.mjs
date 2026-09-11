@@ -70,7 +70,7 @@ const defaultLoadedNames = new Set(contextCatalog.documents.filter((doc) => doc.
 const oversizedContext = contextStats.filter((item) => item.bytes > 100_000 && defaultLoadedNames.has(item.name));
 const governedLargeContext = contextStats.filter((item) => item.bytes > 100_000 && governedLargeContextNames.has(item.name));
 const oversizedSkills = skillStats.filter((item) => item.lines > 300 || item.bytes > 15_000);
-const preflightBytes = ['AGENTS.md', '_context/CURRENT-STATE.md', '_context/WORKFLOW-GOVERNANCE.md', '_context/INDEX.md']
+const preflightBytes = ['AGENTS.md', '_context/CURRENT-STATE.md']
   .reduce((sum, path) => sum + statSync(join(worktreeRoot, path)).size, 0);
 
 check('workflow compaction rule R220 exists', /R220/.test(rules) && /Workflow memory must be compacted/.test(rules));

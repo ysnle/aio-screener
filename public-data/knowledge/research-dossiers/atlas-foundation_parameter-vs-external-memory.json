@@ -32,27 +32,6 @@
       "sourceTier": null
     },
     {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
-      "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-      "url": "https://arxiv.org/abs/1706.03762",
-      "publisher": "arXiv / Vaswani et al.",
-      "title": "Attention Is All You Need",
-      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD"
-    },
-    {
-      "sourceId": "WEB-GOOGLE-ML-TYPES-2026",
-      "url": "https://developers.google.com/machine-learning/intro-to-ml/what-is-ml",
-      "publisher": "Google for Developers",
-      "title": "What is Machine Learning?",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
       "sourceId": "WEB-ARXIV-GENERALIZE-MEMORIZE-2018",
       "url": "https://arxiv.org/abs/1805.06822",
       "publisher": "arXiv / Cohen, Sapiro, Giryes",
@@ -65,37 +44,24 @@
       "publisher": "arXiv / Lewis et al.",
       "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
       "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD"
+    },
+    {
+      "sourceId": "WEB-TSMC-3DFABRIC-2026",
+      "url": "https://www.tsmc.com/english/dedicatedFoundry/services/advanced-packaging",
+      "publisher": "TSMC",
+      "title": "3DFabric advanced packaging",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
+    },
+    {
+      "sourceId": "WEB-MICRON-HBM2E-2020",
+      "url": "https://assets.micron.com/adobe/assets/urn%3Aaaid%3Aaem%3A275edf31-79e3-4b6c-8bbd-a233babe9281/renditions/original/as/micron-hbm2e-memory-wp.pdf",
+      "publisher": "Micron",
+      "title": "Integrating and Operating HBM2E Memory",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
     }
   ],
   "selectedSources": [
     {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
-      "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
-      "url": "https://arxiv.org/abs/1706.03762",
-      "publisher": "arXiv / Vaswani et al.",
-      "title": "Attention Is All You Need",
-      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
-      "sourceId": "WEB-GOOGLE-ML-TYPES-2026",
-      "url": "https://developers.google.com/machine-learning/intro-to-ml/what-is-ml",
-      "publisher": "Google for Developers",
-      "title": "What is Machine Learning?",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
       "sourceId": "WEB-ARXIV-GENERALIZE-MEMORIZE-2018",
       "url": "https://arxiv.org/abs/1805.06822",
       "publisher": "arXiv / Cohen, Sapiro, Giryes",
@@ -111,13 +77,31 @@
       "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
       "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
       "directness": "DIRECT",
-      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-TSMC-3DFABRIC-2026",
+      "url": "https://www.tsmc.com/english/dedicatedFoundry/services/advanced-packaging",
+      "publisher": "TSMC",
+      "title": "3DFabric advanced packaging",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
+      "sourceId": "WEB-MICRON-HBM2E-2020",
+      "url": "https://assets.micron.com/adobe/assets/urn%3Aaaid%3Aaem%3A275edf31-79e3-4b6c-8bbd-a233babe9281/renditions/original/as/micron-hbm2e-memory-wp.pdf",
+      "publisher": "Micron",
+      "title": "Integrating and Operating HBM2E Memory",
+      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
     }
   ],
   "rejectedSources": [],
   "sourceTiers": [
-    "PRIMARY_OFFICIAL",
-    "ACADEMIC_TEXTBOOK_STANDARD"
+    "ACADEMIC_TEXTBOOK_STANDARD",
+    "COMPANY_TECHNICAL_DOCUMENT"
   ],
   "claimCoverage": [
     {
@@ -127,9 +111,6 @@
     }
   ],
   "researchFactIds": [
-    "fact:nist:ai-rmf-core",
-    "fact:transformer:attention",
-    "fact:google:learning-types",
     "fact:ml:generalization-memory",
     "fact:rag:parametric-external-memory",
     "fact:tsmc:3dfabric",

@@ -2,17 +2,16 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
+import { rawHoldingRow } from './lib/masters-raw-rows.mjs';
+import { atomicWriteFile } from './lib/atomic-write.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const mastersDir = path.join(root, 'public-data', 'masters');
 const readJson = async (name) => JSON.parse(await fs.readFile(path.join(mastersDir, name), 'utf8'));
 
 async function writeAtomic(file, value, { pretty = true } = {}) {
-  await fs.mkdir(path.dirname(file), { recursive: true });
-  const temp = `${file}.tmp`;
   const serialized = pretty ? JSON.stringify(value, null, 2) : JSON.stringify(value);
-  await fs.writeFile(temp, `${serialized}\n`, 'utf8');
-  await fs.rename(temp, file);
+  await atomicWriteFile(file, `${serialized}\n`, 'utf8');
 }
 
 const [holdings, historyIndex, historyRows, issuerAggregates, mastersIndex, filingDiscovery, managerPrinciples, securityMaster] = await Promise.all([
@@ -68,21 +67,21 @@ for (const manager of holdings.managers || []) {
     }
     managerRows = existing.holdings;
     managerComparisons = existing.comparisons;
-  } else {
-    await writeAtomic(file, {
-      schema: 'masters-13f-manager-rows.v1',
-      sourceKind: holdings.sourceKind,
-      reviewedAt: holdings.reviewedAt,
-      generatedAt,
-      managerId: manager.id,
-      cik: manager.cik,
-      latestFiling: manager.latestFiling,
-      priorFiling: manager.priorFiling || null,
-      verification: manager.verification,
-      holdings: managerRows,
-      comparisons: managerComparisons
-    });
   }
+  managerRows = managerRows.map(rawHoldingRow);
+  await writeAtomic(file, {
+    schema: 'masters-13f-manager-rows.v1',
+    sourceKind: holdings.sourceKind,
+    reviewedAt: holdings.reviewedAt,
+    generatedAt,
+    managerId: manager.id,
+    cik: manager.cik,
+    latestFiling: manager.latestFiling,
+    priorFiling: manager.priorFiling || null,
+    verification: manager.verification,
+    holdings: managerRows,
+    comparisons: managerComparisons
+  });
   if (descriptor && (managerRows.length !== descriptor.fullRows || managerComparisons.length !== descriptor.comparisonRows)) {
     throw new Error(`manager shard descriptor drift for ${manager.id}: expected ${descriptor.fullRows}/${descriptor.comparisonRows}, got ${managerRows.length}/${managerComparisons.length}`);
   }

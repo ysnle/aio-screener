@@ -46,13 +46,6 @@
       "sourceTier": null
     },
     {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
       "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
       "url": "https://arxiv.org/abs/1706.03762",
       "publisher": "arXiv / Vaswani et al.",
@@ -83,15 +76,6 @@
   ],
   "selectedSources": [
     {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
       "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
       "url": "https://arxiv.org/abs/1706.03762",
       "publisher": "arXiv / Vaswani et al.",
@@ -119,6 +103,15 @@
       "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
     },
     {
+      "sourceId": "WEB-ARXIV-PAGEDATTENTION-2023",
+      "url": "https://arxiv.org/abs/2309.06180",
+      "publisher": "arXiv / UC Berkeley",
+      "title": "Efficient Memory Management for Large Language Model Serving with PagedAttention",
+      "sourceTier": "PRIMARY_RESEARCH",
+      "directness": "DIRECT",
+      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
+    },
+    {
       "sourceId": "WEB-NIST-AI-RMF-2023",
       "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-ai-rmf-10",
       "publisher": "NIST",
@@ -130,9 +123,10 @@
   ],
   "rejectedSources": [],
   "sourceTiers": [
-    "PRIMARY_OFFICIAL",
     "ACADEMIC_TEXTBOOK_STANDARD",
-    "COMPANY_TECHNICAL_DOCUMENT"
+    "COMPANY_TECHNICAL_DOCUMENT",
+    "PRIMARY_RESEARCH",
+    "PRIMARY_OFFICIAL"
   ],
   "claimCoverage": [
     {
@@ -142,7 +136,6 @@
     }
   ],
   "researchFactIds": [
-    "fact:nist:ai-rmf-core",
     "fact:transformer:attention",
     "fact:tsmc:3dfabric",
     "fact:micron:hbm2e",

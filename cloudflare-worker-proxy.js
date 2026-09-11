@@ -332,6 +332,67 @@ async function deriveRequestId(request, bodyText) {
 
 const QUOTA_STATE_RETENTION_MS = 3 * 24 * 60 * 60 * 1000;
 
+// Keep the deadline and caller cancellation alive until the body is consumed.
+// Fetch resolving only means headers arrived; an SSE body may still stall.
+async function fetchAnthropicWithDeadline(apiKey, body, callerSignal) {
+  const controller = new AbortController();
+  let reader;
+  let streamController;
+  let finished = false;
+  let timeout;
+  const cleanup = () => {
+    clearTimeout(timeout);
+    callerSignal?.removeEventListener('abort', cancelFromCaller);
+  };
+  const abort = (reason) => {
+    if (finished) return;
+    finished = true;
+    controller.abort(reason);
+    if (streamController) streamController.error(reason);
+    if (reader) void reader.cancel(reason).catch(() => {});
+    cleanup();
+  };
+  const cancelFromCaller = () => abort(new DOMException('AI request cancelled', 'AbortError'));
+  timeout = setTimeout(() => abort(new DOMException('Claude timeout', 'AbortError')), 60000);
+  callerSignal?.addEventListener('abort', cancelFromCaller, { once: true });
+  if (callerSignal?.aborted) cancelFromCaller();
+  try {
+    if (controller.signal.aborted) throw controller.signal.reason;
+    const upstream = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify(body), signal: controller.signal,
+    });
+    if (controller.signal.aborted) {
+      void upstream.body?.cancel().catch(() => {});
+      throw controller.signal.reason;
+    }
+    if (!upstream.body) { finished = true; cleanup(); return upstream; }
+    reader = upstream.body.getReader();
+    const streamedBody = new ReadableStream({
+      start(value) { streamController = value; },
+      async pull(value) {
+        try {
+          const chunk = await reader.read();
+          if (finished) return;
+          if (chunk.done) { finished = true; cleanup(); value.close(); }
+          else value.enqueue(chunk.value);
+        } catch (error) {
+          if (!finished) { finished = true; cleanup(); value.error(error); }
+        }
+      },
+      cancel(reason) {
+        if (finished) return;
+        finished = true;
+        controller.abort(reason);
+        cleanup();
+        return reader.cancel(reason);
+      },
+    });
+    return new Response(streamedBody, { status: upstream.status, headers: upstream.headers });
+  } catch (error) { finished = true; cleanup(); throw error; }
+}
+
 /**
  * Single Durable Object quota authority. The state lock makes reserve/release
  * atomic across concurrent Worker requests; request IDs make retries idempotent.
@@ -435,14 +496,7 @@ export class AIOQuotaDurableObject {
       if (reservation.duplicate) return Response.json({ error: { type: 'idempotency_conflict', message: 'duplicate request is already reserved; retry with a new request id' } }, { status: 409, headers: { 'X-AIO-Upstream-Authority': 'durable-object-us' } });
       const ownedReservation = !reservation.duplicate;
       try {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 60000);
-        const upstream = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json', 'x-api-key': this.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
-          body: JSON.stringify(body.claudeBody || {}), signal: controller.signal,
-        });
-        clearTimeout(timeout);
+        const upstream = await fetchAnthropicWithDeadline(this.env.ANTHROPIC_API_KEY, body.claudeBody || {}, request.signal);
         if (upstream.status >= 400 && ownedReservation) await this.mutateQuota('release', body);
         return new Response(upstream.body, { status: upstream.status, headers: {
           'Content-Type': upstream.headers.get('content-type') || 'application/json',
@@ -458,12 +512,13 @@ export class AIOQuotaDurableObject {
   }
 }
 
-async function fetchAnthropicThroughDurableObject(env, payload) {
+async function fetchAnthropicThroughDurableObject(env, payload, signal) {
   const stub = aiAuthorityDurableObjectStub(env);
   return stub.fetch('https://aio-quota.internal/proxy', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(payload),
+    signal,
   });
 }
 
@@ -492,7 +547,7 @@ async function handleAnthropic(request, env, origin) {
   const maxBodyBytes = 200 * 1024;
   let bodyText;
   try { bodyText = await request.text(); } catch { return errorResponse('Failed to read request body', 400, origin, aiError, env); }
-  if (bodyText.length > maxBodyBytes) return errorResponse('Request body too large', 413, origin, aiError, env);
+  if (new TextEncoder().encode(bodyText).byteLength > maxBodyBytes) return errorResponse('Request body too large', 413, origin, aiError, env);
   let body;
   try { body = JSON.parse(bodyText); } catch { return errorResponse('Invalid JSON body', 400, origin, aiError, env); }
   if (!body || typeof body !== 'object' || Array.isArray(body)) return errorResponse('JSON object required', 400, origin, aiError, env);
@@ -504,7 +559,7 @@ async function handleAnthropic(request, env, origin) {
   if (!body.max_tokens || body.max_tokens > maxTokens) body.max_tokens = maxTokens;
   if (hasDurableObjectNamespace(env)) {
     try {
-      const upstream = await fetchAnthropicThroughDurableObject(env, { dayKey, cap, requestId, claudeBody: body });
+      const upstream = await fetchAnthropicThroughDurableObject(env, { dayKey, cap, requestId, claudeBody: body }, request.signal);
       return new Response(upstream.body, { status: upstream.status, headers: {
         'Content-Type': upstream.headers.get('content-type') || 'application/json',
         ...getCorsHeaders(origin, env), ...SECURITY_HEADERS,
@@ -525,14 +580,7 @@ async function handleAnthropic(request, env, origin) {
     ownedReservation = !reservation.duplicate;
   } catch { return errorResponse('AI quota unavailable', 503, origin, aiError, env); }
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 60000);
-    const upstream = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify(body), signal: controller.signal,
-    });
-    clearTimeout(timeout);
+    const upstream = await fetchAnthropicWithDeadline(env.ANTHROPIC_API_KEY, body, request.signal);
     if (upstream.status >= 400 && ownedReservation) await releaseAnthropicQuota(env, dayKey, requestId);
     return new Response(upstream.body, { status: upstream.status, headers: {
       'Content-Type': upstream.headers.get('content-type') || 'application/json',

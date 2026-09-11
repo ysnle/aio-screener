@@ -1,0 +1,40 @@
+[qa] CACHED syntax (8272ms prior)
+[qa] RUN workflow-yaml
+[qa] RUN version
+[qa] RUN product-charter
+[qa] RUN architecture
+[qa] PASS product-charter (117ms)
+[qa] CACHED native-decision (217ms prior)
+[qa] CACHED vertical-slice (225ms prior)
+[qa] CACHED capability-claims (210ms prior)
+[qa] RUN operations-contract
+[qa] PASS version (163ms)
+[qa] CACHED reference-curriculum (227ms prior)
+[qa] RUN generated-state
+[qa] PASS operations-contract (151ms)
+[qa] RUN workspace-contract
+[qa] PASS generated-state (381ms)
+[qa] CACHED qa-runner-behavior (24945ms prior)
+[qa] PASS architecture (554ms)
+[qa] PASS workflow-yaml (798ms)
+[qa] PASS workspace-contract (3186ms)
+[qa] RUN knowledge-lint
+[qa] RUN workflow-compaction
+[qa] RUN skill-contract
+[qa] RUN skill-evals
+[qa] PASS skill-evals (118ms)
+[qa] RUN agent-profiles
+[qa] PASS skill-contract (170ms)
+[qa] RUN agent-skills
+[qa] PASS workflow-compaction (242ms)
+[qa] RUN live-header-policy
+[qa] PASS agent-profiles (128ms)
+[qa] RUN doc-currency
+[qa] PASS agent-skills (148ms)
+[qa] RUN qa-pipeline-contract
+[qa] PASS live-header-policy (120ms)
+[qa] PASS doc-currency (123ms)
+[qa] PASS knowledge-lint (466ms)
+[qa] PASS qa-pipeline-contract (148ms)
+[qa] SUMMARY profile=affected groups=preflight,workspace pass=16 cached=6 fail=0 skip=0 duration=5.3s
+[qa] REPORT C:\Projects\AIO\.cache\aio-qa\last-run.json

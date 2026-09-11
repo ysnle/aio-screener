@@ -6,6 +6,7 @@ import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { DESKTOP_PRIMARY_VIEWPORT } from './desktop-qa-config.mjs';
 import { dirname, resolve } from 'node:path';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
@@ -40,7 +41,7 @@ async function main() {
   const result = { version: null, viewport: null, routes: [], consoleErrors: [], generatedAt: new Date().toISOString() };
   let exitCode = 0;
   try {
-    const page = await browser.newPage({ viewport: { width: 1024, height: 768 } });
+    const page = await browser.newPage({ viewport: DESKTOP_PRIMARY_VIEWPORT });
     result.viewport = await page.evaluate(() => ({ width: window.innerWidth, height: window.innerHeight }));
     page.on('pageerror', (error) => result.consoleErrors.push(`[pageerror] ${error.message}`));
     page.on('console', (msg) => {

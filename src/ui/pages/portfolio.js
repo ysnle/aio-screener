@@ -1,5 +1,6 @@
 import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
 import { selectPortfolioState } from '../../state/selectors/portfolio.js';
+import { subscribeToSlices } from '../../state/memoize.js';
 import { derivePortfolioSurface } from '../../domain/portfolio/surface.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 
@@ -28,6 +29,7 @@ function renderPortfolioStatus(documentRef, state) {
 }
 
 function finite(value) {
+  if (value === null || value === undefined || value === '') return null;
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
 }
@@ -36,32 +38,12 @@ function formatMoney(value) {
   return value == null ? '—' : `$${Math.abs(value).toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
 }
 
-function renderPortfolioHero(documentRef, state) {
+function renderPortfolioHero(documentRef, surface) {
   const valueElement = documentRef?.getElementById('pf-total-value');
   const pnlElement = documentRef?.getElementById('pf-total-pnl');
   if (!valueElement && !pnlElement) return;
-  const holdings = Array.isArray(state?.holdings) ? state.holdings : [];
-  const rowValues = holdings.map((holding) => {
-    const shares = finite(holding?.shares);
-    const price = finite(holding?.price);
-    const explicitValue = finite(holding?.value);
-    if (shares != null && shares > 0 && price != null && price > 0) return price * shares;
-    return explicitValue != null && explicitValue > 0 ? explicitValue : null;
-  });
-  const holdingValue = rowValues.reduce((sum, value) => sum + (value ?? 0), 0);
-  const cash = finite(state?.cash) ?? 0;
-  const completeQuotes = holdings.length > 0 && rowValues.every((value) => value != null);
-  const totalValue = completeQuotes
-    ? holdingValue + Math.max(0, cash)
-    : null;
-  const holdingCost = holdings.reduce((sum, holding) => {
-    const shares = finite(holding?.shares);
-    const avgCost = finite(holding?.avgCost);
-    return sum + (shares != null && avgCost != null ? shares * avgCost : 0);
-  }, 0);
-  const totalPnl = completeQuotes
-    ? holdingValue - holdingCost
-    : null;
+  const totalValue = surface.totalAssets;
+  const totalPnl = surface.totalPnl;
   if (valueElement) {
     valueElement.textContent = formatMoney(totalValue);
     valueElement.setAttribute('data-aio-portfolio-hero-renderer', 'native');
@@ -112,11 +94,8 @@ function sectorLabel(name) {
   return labels[name] || name;
 }
 
-function renderPortfolioSurface(documentRef, page, root, state) {
+function renderPortfolioSurface(documentRef, page, surface) {
   if (!page) return;
-  const liveData = root?._liveData || {};
-  const vix = finite(liveData?.['^VIX']?.price);
-  const surface = derivePortfolioSurface({ state, liveData, vix });
   page.dataset.aioPortfolioSurface = 'native';
   page.dataset.aioPortfolioSurfaceModel = surface.modelVersion;
   setSurfaceText(documentRef, 'pf-holding-count', surface.holdingCount ? `${surface.holdingCount} 종목` : '—', surface.holdingCount || null, surface);
@@ -172,26 +151,19 @@ function tableCell(documentRef, headerId, value, style = '') {
   return cell;
 }
 
-function renderPortfolioTable(documentRef, page, state) {
+function renderPortfolioTable(documentRef, page, state, surface) {
   const tbody = page?.querySelector?.('#pf-positions-tbody');
   if (!tbody) return;
   const holdings = Array.isArray(state?.holdings) ? state.holdings : [];
-  const rows = holdings.map((holding) => {
-    const symbol = String(holding?.symbol || '').toUpperCase();
-    const shares = finite(holding?.shares);
-    const avgCost = finite(holding?.avgCost);
-    const priceValue = finite(holding?.price);
-    const price = priceValue != null && priceValue > 0 ? priceValue : null;
-    const explicitValue = finite(holding?.value);
-    const value = price != null && shares != null && shares > 0
-      ? price * shares
-      : (explicitValue != null && explicitValue > 0 ? explicitValue : null);
-    const costValue = avgCost != null && shares != null ? avgCost * shares : null;
+  const sourceHoldings = holdings.filter((entry) => entry?.symbol || entry?.ticker);
+  const rows = surface.rows.map((item, index) => {
+    const holding = sourceHoldings[index];
+    const { symbol, shares, avgCost, price, value, cost: costValue } = item;
     const pnl = value != null && costValue != null ? value - costValue : null;
     const pnlPct = pnl != null && costValue > 0 ? pnl / costValue * 100 : null;
     return { holding, symbol, shares, avgCost, price, value, costValue, pnl, pnlPct };
   });
-  const totalValue = rows.reduce((sum, row) => sum + (row.value != null ? row.value : 0), 0);
+  const totalValue = surface.positionValue;
   tbody.replaceChildren();
   tbody.dataset.aioPortfolioTableRenderer = 'native';
   tbody.setAttribute('data-source-kind', rows.length ? 'portfolio-state' : 'unavailable');
@@ -279,14 +251,10 @@ function renderPortfolioTable(documentRef, page, state) {
   });
 }
 
-function renderPortfolioChart({ root, page, state, charts }) {
+function renderPortfolioChart({ root, page, surface, charts }) {
   const canvas = page?.querySelector?.('#pf-position-donut');
   if (!canvas) return;
-  const holdings = (Array.isArray(state?.holdings) ? state.holdings : []).map((holding) => {
-    const shares = finite(holding?.shares);
-    const price = finite(holding?.price);
-    return { symbol: String(holding?.symbol || '').toUpperCase(), value: shares != null && price != null && price > 0 ? shares * price : null };
-  }).filter((item) => item.symbol && item.value != null && item.value > 0);
+  const holdings = surface.positionValue == null ? [] : surface.rows.filter((item) => item.value > 0);
   const total = holdings.reduce((sum, item) => sum + item.value, 0);
   const ChartConstructor = root?.Chart;
   const unavailable = !holdings.length || !(total > 0) || typeof ChartConstructor !== 'function';
@@ -327,11 +295,13 @@ function render({ root, documentRef, store, charts }) {
     page.dataset.aioArchitectureStatus = state?.status || 'unavailable';
     page.dataset.aioArchitectureRenderer = 'native';
   }
-  renderPortfolioSurface(documentRef, page, root, state);
-  renderPortfolioHero(documentRef, state);
+  const liveData = root?._liveData || {};
+  const surface = derivePortfolioSurface({ state, liveData, vix: finite(liveData?.['^VIX']?.price) });
+  renderPortfolioSurface(documentRef, page, surface);
+  renderPortfolioHero(documentRef, surface);
   renderPortfolioStatus(documentRef, state);
-  renderPortfolioTable(documentRef, page, state);
-  renderPortfolioChart({ root, page, state, charts });
+  renderPortfolioTable(documentRef, page, state, surface);
+  renderPortfolioChart({ root, page, surface, charts });
 }
 
 export function createPortfolioPage({ root = globalThis, documentRef, store } = {}) {
@@ -343,7 +313,7 @@ export function createPortfolioPage({ root = globalThis, documentRef, store } = 
       bag.add(charts.dispose);
       const renderNow = () => render({ root, documentRef, store, charts });
       renderNow();
-      bag.add(store.subscribe(renderNow));
+      bag.add(subscribeToSlices(store, ['portfolio'], renderNow));
       const eventTarget = documentRef || globalThis;
       eventTarget?.addEventListener?.('aio:liveQuotes', renderNow);
       bag.add(() => eventTarget?.removeEventListener?.('aio:liveQuotes', renderNow));

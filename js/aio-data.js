@@ -1381,7 +1381,7 @@ function _aioRenderTelegramFeedHtml(pageId) {
         ? window.AIO.normalizeExternalSourceState({ status: state, count: count, expected: expected })
         : { status: state, label: state === 'success' ? '정상 수신' : '외부 수집 실패', allowedUse: state === 'success' ? 'decision' : 'none' };
       var cls = n.status === 'success' ? 'is-ok' : n.status === 'partial' ? 'is-partial' : 'is-fail';
-      var note = n.status === 'success' ? '서버 24시간 다이제스트 확인' : n.status === 'partial' ? '일부 채널만 수신 · 참고용' : '서버 다이제스트 실패 · 기존 데이터 유지';
+      var note = n.status === 'success' ? '서버 수집 자료 · 관측 기간 확인' : n.status === 'partial' ? '표시 자료 일부 · 참고용' : '표시 가능한 서버 자료 없음';
       return '<div class="tg-source-state ' + cls + '" data-external-source="telegram:' + escHtml(pageId) + '" data-state="' + n.status + '" title="' + escHtml(note) + '">' +
         '<span class="tg-source-state-dot"></span>' + escHtml(n.label) + ' · ' + escHtml(note) + '</div>';
     };
@@ -1435,7 +1435,7 @@ function _aioRenderTelegramFeedHtml(pageId) {
           + '<span class="tg-live-dot"></span>'
           + '<span class="tg-live-hd-label">' + feedLabel + '</span>'
           + (sentBar ? '<span class="tg-sent-bar">' + sentBar + '</span>' : '')
-          + '<span class="tg-live-hd-ts" title="' + escHtml(windowLabel) + '">' + latestDate + ' · ' + filtered.length + '건 · 최근 24시간</span>'
+          + '<span class="tg-live-hd-ts" title="' + escHtml(windowLabel) + '">' + latestDate + ' · ' + filtered.length + '건 · 수집 당시 24시간 자료</span>'
           + '</div>';
 
     // 카드 렌더
@@ -3920,14 +3920,22 @@ function startDataScheduler() {
     if (cfg.fn && cfg.interval > 0) {
       // 첫 실행도 랜덤 딜레이 후 시작 (0~30초)
       const initialDelay = Math.floor(Math.random() * 30000);
-      setTimeout(() => {
+      const scheduleEpoch = (cfg._scheduleEpoch || 0) + 1;
+      cfg._scheduleEpoch = scheduleEpoch;
+      cfg.nextDue = Date.now() + initialDelay;
+      cfg.timer = setTimeout(() => {
+        cfg.timer = null;
+        if (_schedulerPaused || cfg._scheduleEpoch !== scheduleEpoch) return;
         // setInterval 대신 재귀 setTimeout으로 매번 지터 적용
         function scheduleNext() {
+          if (_schedulerPaused || cfg._scheduleEpoch !== scheduleEpoch || cfg.timer) return;
           const nextInterval = jitteredInterval(cfg.interval);
           cfg.nextDue = Date.now() + nextInterval;
           cfg.timer = setTimeout(async () => {
+            cfg.timer = null;
+            if (_schedulerPaused || cfg._scheduleEpoch !== scheduleEpoch) return;
             await _runScheduledTask(key, cfg, true);
-            scheduleNext();
+            if (!_schedulerPaused && cfg._scheduleEpoch === scheduleEpoch) scheduleNext();
           }, nextInterval);
         }
         scheduleNext();
@@ -4111,13 +4119,18 @@ try {
 function restartScheduler() {
   Object.entries(REFRESH_SCHEDULE).forEach(([key, cfg]) => {
     if (cfg.fn && cfg.interval > 0 && !cfg.timer) {
+      var scheduleEpoch = (cfg._scheduleEpoch || 0) + 1;
+      cfg._scheduleEpoch = scheduleEpoch;
       function jit(base) { var j = base * 0.15; return base + Math.floor(Math.random() * j * 2 - j); }
       function scheduleNext() {
+        if (_schedulerPaused || cfg._scheduleEpoch !== scheduleEpoch || cfg.timer) return;
         var delay = jit(cfg.interval);
         cfg.nextDue = Date.now() + delay;
         cfg.timer = setTimeout(async () => {
+          cfg.timer = null;
+          if (_schedulerPaused || cfg._scheduleEpoch !== scheduleEpoch) return;
           await _runScheduledTask(key, cfg, false);
-          scheduleNext();
+          if (!_schedulerPaused && cfg._scheduleEpoch === scheduleEpoch) scheduleNext();
         }, delay);
       }
       scheduleNext();
@@ -4131,6 +4144,7 @@ document.addEventListener('visibilitychange', () => {
     _schedulerPaused = true;
     _lastVisibleTime = Date.now(); // v46.9: 숨김 시점 기록 → 복귀 시 정확한 elapsed 계산 (P92)
     Object.values(REFRESH_SCHEDULE).forEach(cfg => {
+      cfg._scheduleEpoch = (cfg._scheduleEpoch || 0) + 1;
       if (cfg.timer) { clearTimeout(cfg.timer); cfg.timer = null; }
     });
     if (window._dataStatusInterval) { clearInterval(window._dataStatusInterval); window._dataStatusInterval = null; }
@@ -4699,32 +4713,29 @@ window.AIO.getChatAnswerFreshnessAudit = function(scope) {
   var plan = window.AIO.getAutoFreshnessPlan ? window.AIO.getAutoFreshnessPlan(Object.assign({}, scope, { reason: 'chat', tickers: tickers, forceFresh: true, symbolLimit: scope.symbolLimit || 999 })) : null;
   var quoteRows = tickers.map(function(t) {
     var live = window._liveData && window._liveData[t];
-    var ageMs = _aioTickerQuoteAgeMs(t);
     var truth = null;
     try { truth = window.AIO && typeof window.AIO.evaluateDataTruth === 'function' ? window.AIO.evaluateDataTruth(t, live || {}, (window._dataSource && window._dataSource[t]) || {}) : null; } catch(_) {}
     var cross = truth && truth.crossSource ? truth.crossSource : null;
     try {
       if (!cross && window.AIO && typeof window.AIO.getCrossSourceQuoteValidation === 'function') cross = window.AIO.getCrossSourceQuoteValidation(t);
     } catch(_crossAudit) {}
-    var quoteOk = !!(live && live.price && ageMs <= 2 * 60 * 1000 && (!truth || truth.decisionUse === true));
-    var row = {
-      ticker: t,
-      hasLivePrice: !!(live && live.price),
-      price: live && live.price != null ? live.price : null,
-      quoteAgeMs: isFinite(ageMs) ? ageMs : null,
-      quoteAgeSec: isFinite(ageMs) ? Math.round(ageMs / 1000) : null,
-      source: live && live.source || '',
-      truthStatus: truth && truth.status || 'unknown',
-      truthIssues: truth ? (truth.issues || []).concat(truth.warnings || []) : [],
+    var evidence = window.AIO && typeof window.AIO.buildAIQuoteEvidenceRow === 'function'
+      ? window.AIO.buildAIQuoteEvidenceRow(t, live, { truth: truth })
+      : { ticker: t, hasQuote: false, hasLivePrice: false, truthStatus: 'unknown', decisionUse: false, status: 'blocked', blockers: ['quote-evidence-helper-missing'] };
+    var observedMs = evidence.observedAt ? Date.parse(evidence.observedAt) : NaN;
+    var ageMs = Number.isFinite(observedMs) ? Math.max(0, Date.now() - observedMs) : NaN;
+    var quoteOk = evidence.status !== 'blocked' && evidence.decisionUse === true && Number.isFinite(ageMs) && ageMs <= 2 * 60 * 1000;
+    var row = Object.assign({}, evidence, {
+      hasLivePrice: evidence.hasQuote === true,
+      quoteAgeMs: Number.isFinite(ageMs) ? ageMs : null,
+      quoteAgeSec: Number.isFinite(ageMs) ? Math.round(ageMs / 1000) : null,
+      truthIssues: (evidence.truthIssues || []).concat(evidence.blockers || []),
       crossSourceStatus: cross && cross.status || 'unknown',
       crossSourceCount: cross && typeof cross.independentCount === 'number' ? cross.independentCount : 0,
       crossSourceMismatches: cross ? [].concat(cross.blockingMismatches || [], cross.warningMismatches || []) : [],
-      decisionUse: !truth || truth.decisionUse === true,
-      status: quoteOk ? 'ok' : (truth && truth.status === 'blocked' ? 'blocked' : 'refresh_required')
-    };
-    return window.AIO && typeof window.AIO.normalizeAIChatEvidenceRow === 'function'
-      ? window.AIO.normalizeAIChatEvidenceRow(row)
-      : row;
+      status: evidence.status === 'blocked' ? 'blocked' : (quoteOk ? 'ok' : 'refresh_required')
+    });
+    return row;
   });
   var staleQuotes = quoteRows.filter(function(r) { return r.status !== 'ok'; });
   var fundCache = {};
@@ -4923,6 +4934,7 @@ let _aioMarketSnapshotMeta = null;
 try {
   window.addEventListener('aio:marketSnapshot', function(e) {
     _aioMarketSnapshotMeta = e && e.detail ? e.detail : null;
+    window._aioMarketSnapshotMeta = _aioMarketSnapshotMeta;
   });
 } catch (_) {}
 
@@ -5376,6 +5388,11 @@ async function _aioLoadServerData() {
       newsCycleLabel: d.meta.newsCycleLabel || null,
       newsNextRefresh: d.meta.newsNextRefresh || null,
       marketSnapshotRevision: d.meta.marketSnapshotRevision || null,
+      // Keep the published quote coverage beside the revision so shell-level
+      // status consumers can distinguish a loaded reference snapshot from an
+      // empty/unknown state without reaching into the loader's local scope.
+      marketSnapshotCoverage: _marketCoverage,
+      marketSnapshotPublished: d.meta.marketSnapshotPublished === true,
       cycleId: d.meta.cycleId || null,
       cycleStatus: d.meta.cycleStatus || 'unknown',
       marketCycleFreshnessSlaHours: _marketCycleFreshnessSlaHours,
@@ -6649,8 +6666,9 @@ window._aioSchedulePublicReadiness = _aioSchedulePublicReadiness;
 try {
   window.addEventListener('aio:liveQuotes', function() { _aioSchedulePublicReadiness(250); });
   window.addEventListener('aio:pageShown', function(e) {
-    var pageId = e && e.detail && e.detail.pageId;
-    if (!pageId || pageId === 'home') _aioSchedulePublicReadiness(100);
+    var detail = e && e.detail;
+    var pageId = typeof detail === 'string' ? detail : detail && (detail.pageId || detail.id || detail.route);
+    if (pageId === 'home') _aioSchedulePublicReadiness(100);
   });
   _aioSchedulePublicReadiness(1500);
 } catch(_) {}
@@ -10736,6 +10754,9 @@ function extractTickers(item) {
   if (typeof KNOWN_TICKERS !== 'undefined') {
     KNOWN_TICKERS.forEach(function(ticker) {
       if (found.has(ticker) || found.size >= 5) return;
+      // Every escaped ticker regex requires this literal substring. Reject
+      // absent symbols before touching the bounded regex LRU (universe > cache).
+      if (!text.includes(ticker)) return;
       // 1~2자 티커(A, F, V, C, U 등)는 $접두사 없으면 건너뜀
       if (ticker.length <= 2 && !text.includes('$' + ticker)) return;
       // v39.2: 영단어와 완전히 겹치는 티커 — $접두사 또는 (TICKER) 형태만 허용
@@ -14283,6 +14304,8 @@ function _aioNormalizeAtomicQuote(input, now) {
   var observedMs = typeof observedRaw === 'string' ? new Date(observedRaw).getTime() : Number(observedRaw);
   if (isFinite(observedMs) && observedMs > 0 && observedMs < 1e12) observedMs *= 1000;
   if (!isFinite(observedMs) || observedMs <= 0) observedMs = null;
+  var currency = String(input.currency || input.currencyCode || '').trim().toUpperCase() || null;
+  var unit = String(input.unit || input.units || (currency || '')).trim().toUpperCase() || null;
   var fetchedRaw = input.fetchedAt || now || Date.now();
   var fetchedMs = typeof fetchedRaw === 'string' ? new Date(fetchedRaw).getTime() : Number(fetchedRaw);
   if (!isFinite(fetchedMs) || fetchedMs <= 0) fetchedMs = now || Date.now();
@@ -14302,6 +14325,8 @@ function _aioNormalizeAtomicQuote(input, now) {
     regularMarketChange: change,
     regularMarketChangePercent: pct,
     _source: source,
+    currency: currency,
+    unit: unit,
     _atomicRevision: source + '|' + (observedMs || fetchedMs) + '|' + price + '|' + (previous == null ? 'na' : previous),
     _atomicObservedAt: observedMs ? new Date(observedMs).toISOString() : null,
     _atomicFetchedAt: new Date(fetchedMs).toISOString(),
@@ -14512,7 +14537,13 @@ function applyLiveQuotes(quotes) {
     var _parsedObsMs = typeof _rawObsTs === 'string' ? new Date(_rawObsTs).getTime() : Number(_rawObsTs);
     var _obsMs = _parsedObsMs ? (_parsedObsMs < 1e12 ? _parsedObsMs * 1000 : _parsedObsMs) : null;
     window._liveData[q.symbol] = window._liveData[q.symbol] || {};
-    Object.assign(window._liveData[q.symbol], { quoteEnvelope: {
+    var _existingLiveQuote = window._liveData[q.symbol] || {};
+    var _quoteCurrency = q.currency || _existingLiveQuote.currency || null;
+    var _quoteUnit = q.unit || _existingLiveQuote.unit || _quoteCurrency || null;
+    Object.assign(window._liveData[q.symbol], {
+      currency: _quoteCurrency,
+      unit: _quoteUnit,
+      quoteEnvelope: {
       revision: _quoteBatchRevision,
       source: q._source,
       price: price,
@@ -14521,6 +14552,8 @@ function applyLiveQuotes(quotes) {
       previousClose: isFinite(q.regularMarketPreviousClose) ? q.regularMarketPreviousClose : null,
       observedAt: q._atomicObservedAt,
       fetchedAt: q._atomicFetchedAt,
+      currency: _quoteCurrency,
+      unit: _quoteUnit,
       changeBasis: _quoteChangeBasis,
       valueBasis: q.valueBasis || _quoteChangeBasis
     } });
@@ -14549,6 +14582,8 @@ function applyLiveQuotes(quotes) {
       previousClose: isFinite(q.regularMarketPreviousClose) ? q.regularMarketPreviousClose : null,
       rawQuoteTs: _rawObsTs,
       observedAt: _obsMs && isFinite(_obsMs) ? new Date(_obsMs).toISOString() : null,
+      currency: _quoteCurrency,
+      unit: _quoteUnit,
       marketState: q.marketState || null,
       exchangeTimezoneName: q.exchangeTimezoneName || null,
       exchange: q.fullExchangeName || q.venue || null,
@@ -16012,16 +16047,16 @@ function _aioRenderCarryUnwindRisk() {
   var tnx = Number(ld['^TNX'] && ld['^TNX'].price);
   // P576/P713 계열 4번째 표면(2026-07-18): HYG 달러 가격("가격 프록시" 자체 라벨) 대신 FRED HY OAS(bp) 실측 사용
   var hyOasBp = Number(window._hySpreadBp);
-  // DATA_SNAPSHOT의 BOJ 정책금리는 수동 확인 필드이며 fieldTS(60일)로 별도 검증된다.
-  var bojRate = Number(window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.bojRate);
-  var inputsComplete = [jpy, vix, tnx, hyOasBp, bojRate].every(Number.isFinite);
+  // DATA_SNAPSHOT의 BOK 정책금리는 수동 확인 필드이며 fieldTS(60일)로 별도 검증된다.
+  var bokRate = Number(window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.bokRate);
+  var inputsComplete = [jpy, vix, tnx, hyOasBp, bokRate].every(Number.isFinite);
   if (!inputsComplete) {
     var missing = [];
     if (!Number.isFinite(jpy)) missing.push('USD/JPY');
     if (!Number.isFinite(vix)) missing.push('VIX');
     if (!Number.isFinite(tnx)) missing.push('미 10Y');
     if (!Number.isFinite(hyOasBp)) missing.push('HY OAS');
-    if (!Number.isFinite(bojRate)) missing.push('BOJ 정책금리');
+    if (!Number.isFinite(bokRate)) missing.push('BOK 정책금리');
     var missingText = '관측 프록시 보류 — 현재 입력 미수신: ' + missing.join(' · ');
     var e;
     e = document.getElementById('carry-jpy-risk');   if (e) e.textContent = Number.isFinite(jpy) ? 'USD/JPY ' + jpy.toFixed(1) : '—';
@@ -16033,7 +16068,7 @@ function _aioRenderCarryUnwindRisk() {
     return;
   }
 
-  var rateDiff = parseFloat(tnx) - bojRate;
+  var rateDiff = parseFloat(tnx) - bokRate;
 
   // 스코어 (0~100, 높을수록 언와인드 위험 높음)
   var score = 0;

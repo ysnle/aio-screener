@@ -1,4 +1,4 @@
-import { buildFieldReadiness, createInstrumentRef, SCREENER_FIELD_REGISTRY, stableHash } from '../contracts/screener.js';
+import { buildFieldReadiness, createInstrumentRef, SCREENER_FIELD_REGISTRY, stableHashAsync } from '../contracts/screener.js';
 
 // ARX-10/ARX-16 + SCR-OS-01: the native screener reads the published artifact and generated identity
 // universe through the platform HTTP gateway. Legacy SCREENER_DB remains only as a
@@ -118,7 +118,10 @@ export function createScreenerProvider({
   url = './public-data/screener.json',
   universeUrl = './public-data/screener-universe.json',
   readLiveData = () => ({}),
-  clock = { now: () => Date.now(), iso: () => new Date().toISOString() }
+  clock = { now: () => Date.now(), iso: () => new Date().toISOString() },
+  yieldImpl = () => typeof globalThis.scheduler?.yield === 'function'
+    ? globalThis.scheduler.yield()
+    : new Promise(resolve => setTimeout(resolve, 0))
 } = {}) {
   if (!httpClient || typeof httpClient.requestJson !== 'function') throw new Error('SCREENER_HTTP_CLIENT_INVALID');
   const ARTIFACT_STALE_AFTER_DAYS = 2;
@@ -129,6 +132,8 @@ export function createScreenerProvider({
 
   return Object.freeze({
     async readCurrent({ signal, refresh = true } = {}) {
+      const checkAborted = () => { if (signal?.aborted) throw new DOMException('Screener read cancelled', 'AbortError'); };
+      checkAborted();
       let responses = !refresh && pendingResponses ? await pendingResponses : cachedResponses;
       if (refresh || !responses) {
         const generation = ++fetchGeneration;
@@ -142,6 +147,7 @@ export function createScreenerProvider({
         if (generation === fetchGeneration && !signal?.aborted) cachedResponses = responses;
       }
       const [artifactResponse, universeResponse] = responses;
+      checkAborted();
       const now = typeof clock.now === 'function' ? clock.now() : Date.now();
       const receivedArtifact = artifactResponse.ok && artifactResponse.data && typeof artifactResponse.data === 'object'
         ? artifactResponse.data
@@ -194,10 +200,14 @@ export function createScreenerProvider({
       } catch (_) {
         warnings.push('SCREENER_LIVE_ENRICHMENT_UNAVAILABLE');
       }
-      const rows = symbols.map((symbol) => {
+      // Capture primitive quote projections before yielding: the legacy map can
+      // mutate during a provider turn, but one snapshot must keep one quote cut.
+      const liveBySymbol = new Map(symbols.map(symbol => [symbol, liveEnrichment(symbol, liveData)]));
+      const rows = [];
+      for (const symbol of symbols) {
         const identity = universeBySymbol.get(symbol) || {};
         const factor = artifact.data[symbol] || {};
-        const live = liveEnrichment(symbol, liveData);
+        const live = liveBySymbol.get(symbol);
         const market = /\.K[QS]$/i.test(symbol) || ['KOSPI', 'KOSDAQ'].includes(String(identity.index || '').toUpperCase()) ? 'KR' : 'US';
         const artifactCurrency = String(factor.currency || identity.currency || '').trim().toUpperCase() || null;
         const liveCurrency = String(live.currency || '').trim().toUpperCase() || null;
@@ -315,10 +325,14 @@ export function createScreenerProvider({
           rightsByField,
           sourceKindByField
         });
-        return { ...baseRow, fieldReadiness: readiness, fieldObservations: readiness.observations };
-      });
+        rows.push({ ...baseRow, fieldReadiness: readiness, fieldObservations: readiness.observations });
+        if (rows.length % 32 === 0 && rows.length < symbols.length) {
+          await yieldImpl();
+          checkAborted();
+        }
+      }
 
-      const snapshotId = `screener-snapshot-${stableHash({ revision: artifact.asOf, source: artifact.source, rows })}`;
+      const snapshotId = `screener-snapshot-${await stableHashAsync({ revision: artifact.asOf, source: artifact.source, rows }, { yieldImpl, signal })}`;
 
       return Object.freeze({
         rows,

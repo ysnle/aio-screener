@@ -1,5 +1,6 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 import { selectSelectedThemeDetail, selectThemesItems } from '../../state/selectors/themes.js';
+import { subscribeToSlices } from '../../state/memoize.js';
 import {
   AI_INFERENCE_EFFICIENCY_REFERENCE,
   AI_INFERENCE_ARCHITECTURE_REFERENCE,
@@ -258,7 +259,7 @@ function resolveThemeDetailId(root, item) {
   return theme?.id ? String(theme.id) : null;
 }
 
-function createChip(documentRef, item, root, onThemeDetail) {
+function createChip(documentRef, item, root) {
   const detailId = resolveThemeDetailId(root, item);
   const chip = documentRef.createElement(detailId ? 'button' : 'span');
   const pct = finite(item?.pct);
@@ -273,13 +274,12 @@ function createChip(documentRef, item, root, onThemeDetail) {
     chip.dataset.passEl = '1';
     chip.setAttribute('aria-label', `${String(item?.label || symbol)} 테마 상세 열기`);
     chip.title = '테마 상세 열기';
-    chip.addEventListener('click', () => onThemeDetail?.(detailId));
   }
   if (pct != null) chip.style.color = pct >= 0 ? 'var(--data-green)' : 'var(--data-red)';
   return chip;
 }
 
-function renderThemes({ documentRef, root, store, route, onThemeDetail }) {
+function renderThemes({ documentRef, root, store, route }) {
   if (route !== 'themes') return;
   const container = documentRef?.getElementById('rrg-quadrant-cards');
   if (!container) return;
@@ -300,7 +300,7 @@ function renderThemes({ documentRef, root, store, route, onThemeDetail }) {
     const catalog = documentRef.createElement('section');
     catalog.style.cssText = 'grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap;padding:12px 0;';
     catalog.setAttribute('aria-label', '회전 지표 미수신 테마 목록');
-    pending.forEach((item) => catalog.appendChild(createChip(documentRef, item, root, onThemeDetail)));
+    pending.forEach((item) => catalog.appendChild(createChip(documentRef, item, root)));
     container.appendChild(catalog);
   };
   if (!classifiedCount) {
@@ -325,7 +325,7 @@ function renderThemes({ documentRef, root, store, route, onThemeDetail }) {
     const chips = documentRef.createElement('div');
     chips.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;';
     const group = groups.get(quadrant.key) || [];
-    if (group.length) group.forEach((item) => chips.appendChild(createChip(documentRef, item, root, onThemeDetail)));
+    if (group.length) group.forEach((item) => chips.appendChild(createChip(documentRef, item, root)));
     else {
       const empty = documentRef.createElement('span');
       empty.textContent = '해당 섹터 없음';
@@ -346,10 +346,10 @@ function renderThemes({ documentRef, root, store, route, onThemeDetail }) {
   if (read) read.textContent = `선도 사분면: ${leading}. 개선 사분면: ${improving}. 차트는 별도 레거시 secondary surface입니다.`;
 }
 
-function renderThemeDetailSummary({ documentRef, root, store, themeId = null, detailOverride = null }) {
+function renderThemeDetailSummary({ documentRef, root, store, themeId = null }) {
   const host = documentRef?.getElementById('theme-detail-native-summary');
   if (!host) return;
-  const detail = detailOverride || selectSelectedThemeDetail(store?.getState?.() || {});
+  const detail = selectSelectedThemeDetail(store?.getState?.() || {});
   const requestedId = String(themeId || root?._currentThemeId || detail?.id || '');
   if (!detail || !requestedId || String(detail.id) !== requestedId) {
     host.replaceChildren();
@@ -395,7 +395,21 @@ function detailQuote(detail, symbol) {
   if (!quote || typeof quote !== 'object') return null;
   const price = finite(quote.price);
   const pct = finite(quote.pct);
-  return price == null && pct == null ? null : { price, pct };
+  const currency = quote.currency ? String(quote.currency).trim().toUpperCase() : null;
+  return price == null && pct == null ? null : { price, pct, currency };
+}
+
+function formatQuotePrice(value, currency) {
+  if (value == null) return '가격 대기';
+  const code = String(currency || '').trim().toUpperCase();
+  if (!code) return `${value.toLocaleString('en-US', { maximumFractionDigits: 2 })} · 통화 미확인`;
+  try {
+    return new Intl.NumberFormat(code === 'KRW' ? 'ko-KR' : 'en-US', {
+      style: 'currency', currency: code, maximumFractionDigits: code === 'KRW' ? 0 : 2
+    }).format(value);
+  } catch (_) {
+    return `${code} ${value.toLocaleString('en-US', { maximumFractionDigits: 2 })}`;
+  }
 }
 
 function compositeDetailPct(detail, subTheme) {
@@ -416,10 +430,10 @@ function compositeDetailPct(detail, subTheme) {
   return pcts.length ? pcts.reduce((sum, value) => sum + value, 0) / pcts.length : null;
 }
 
-function renderThemeDetailComposition({ documentRef, root, store, themeId = null, detailOverride = null }) {
+function renderThemeDetailComposition({ documentRef, root, store, themeId = null }) {
   const host = documentRef?.getElementById('theme-detail-native-composition');
   if (!host) return;
-  const detail = detailOverride || selectSelectedThemeDetail(store?.getState?.() || {});
+  const detail = selectSelectedThemeDetail(store?.getState?.() || {});
   const requestedId = String(themeId || root?._currentThemeId || detail?.id || '');
   if (!detail || !requestedId || String(detail.id) !== requestedId) {
     host.replaceChildren();
@@ -493,10 +507,10 @@ function renderThemeDetailComposition({ documentRef, root, store, themeId = null
   host.hidden = false;
 }
 
-function renderThemeDetailLeaders({ documentRef, root, store, themeId = null, detailOverride = null }) {
+function renderThemeDetailLeaders({ documentRef, root, store, themeId = null }) {
   const host = documentRef?.getElementById('theme-detail-native-leaders');
   if (!host) return;
-  const detail = detailOverride || selectSelectedThemeDetail(store?.getState?.() || {});
+  const detail = selectSelectedThemeDetail(store?.getState?.() || {});
   const requestedId = String(themeId || root?._currentThemeId || detail?.id || '');
   if (!detail || !requestedId || String(detail.id) !== requestedId) {
     host.replaceChildren();
@@ -521,7 +535,7 @@ function renderThemeDetailLeaders({ documentRef, root, store, themeId = null, de
     ticker.textContent = symbol;
     ticker.style.cssText = 'display:block;font-size:12px;font-weight:800;font-family:var(--font-mono);color:var(--accent);';
     const price = documentRef.createElement('span');
-    price.textContent = quote?.price == null ? '가격 대기' : `$${quote.price.toFixed(2)}`;
+    price.textContent = formatQuotePrice(quote?.price, quote?.currency);
     price.style.cssText = 'display:block;font-size:11px;font-family:var(--font-mono);color:var(--text-secondary);margin-top:2px;';
     const pct = documentRef.createElement('span');
     pct.textContent = quote?.pct == null ? '등락률 대기' : `${quote.pct >= 0 ? '+' : ''}${quote.pct.toFixed(2)}%`;
@@ -539,10 +553,10 @@ function renderThemeDetailLeaders({ documentRef, root, store, themeId = null, de
   host.hidden = false;
 }
 
-function renderThemeDetailTemperature({ documentRef, root, store, themeId = null, detailOverride = null }) {
+function renderThemeDetailTemperature({ documentRef, root, store, themeId = null }) {
   const host = documentRef?.getElementById('theme-detail-native-temperature');
   if (!host) return;
-  const detail = detailOverride || selectSelectedThemeDetail(store?.getState?.() || {});
+  const detail = selectSelectedThemeDetail(store?.getState?.() || {});
   const requestedId = String(themeId || root?._currentThemeId || detail?.id || '');
   if (!detail || !requestedId || String(detail.id) !== requestedId) {
     host.replaceChildren();
@@ -565,10 +579,10 @@ function renderThemeDetailTemperature({ documentRef, root, store, themeId = null
   host.hidden = false;
 }
 
-function renderThemeDetailSpread({ documentRef, root, store, themeId = null, detailOverride = null }) {
+function renderThemeDetailSpread({ documentRef, root, store, themeId = null }) {
   const host = documentRef?.getElementById('theme-detail-native-spread');
   if (!host) return;
-  const detail = detailOverride || selectSelectedThemeDetail(store?.getState?.() || {});
+  const detail = selectSelectedThemeDetail(store?.getState?.() || {});
   const requestedId = String(themeId || root?._currentThemeId || detail?.id || '');
   if (!detail || !requestedId || String(detail.id) !== requestedId) {
     host.replaceChildren();
@@ -599,10 +613,10 @@ function renderThemeDetailSpread({ documentRef, root, store, themeId = null, det
   host.hidden = false;
 }
 
-function renderThemeDetailBreadthHealth({ documentRef, root, store, themeId = null, detailOverride = null }) {
+function renderThemeDetailBreadthHealth({ documentRef, root, store, themeId = null }) {
   const host = documentRef?.getElementById('theme-detail-native-breadth-health');
   if (!host) return;
-  const detail = detailOverride || selectSelectedThemeDetail(store?.getState?.() || {});
+  const detail = selectSelectedThemeDetail(store?.getState?.() || {});
   const requestedId = String(themeId || root?._currentThemeId || detail?.id || '');
   if (!detail || !requestedId || String(detail.id) !== requestedId) {
     host.replaceChildren();
@@ -623,10 +637,10 @@ function renderThemeDetailBreadthHealth({ documentRef, root, store, themeId = nu
   host.hidden = false;
 }
 
-function renderThemeDetailSubthemeGap({ documentRef, root, store, themeId = null, detailOverride = null }) {
+function renderThemeDetailSubthemeGap({ documentRef, root, store, themeId = null }) {
   const host = documentRef?.getElementById('theme-detail-native-subtheme-gap');
   if (!host) return;
-  const detail = detailOverride || selectSelectedThemeDetail(store?.getState?.() || {});
+  const detail = selectSelectedThemeDetail(store?.getState?.() || {});
   const requestedId = String(themeId || root?._currentThemeId || detail?.id || '');
   if (!detail || !requestedId || String(detail.id) !== requestedId) {
     host.replaceChildren();
@@ -655,10 +669,10 @@ function renderThemeDetailSubthemeGap({ documentRef, root, store, themeId = null
   host.hidden = false;
 }
 
-function renderThemeDetailBenchmarkLegacyCopy({ documentRef, root, store, themeId = null, detailOverride = null }) {
+function renderThemeDetailBenchmark({ documentRef, root, store, themeId = null }) {
   const host = documentRef?.getElementById('theme-detail-native-benchmark');
   if (!host) return;
-  const detail = detailOverride || selectSelectedThemeDetail(store?.getState?.() || {});
+  const detail = selectSelectedThemeDetail(store?.getState?.() || {});
   const requestedId = String(themeId || root?._currentThemeId || detail?.id || '');
   if (!detail || !requestedId || String(detail.id) !== requestedId) {
     host.replaceChildren();
@@ -685,40 +699,10 @@ function renderThemeDetailBenchmarkLegacyCopy({ documentRef, root, store, themeI
   host.hidden = false;
 }
 
-function renderThemeDetailBenchmark({ documentRef, root, store, themeId = null, detailOverride = null }) {
-  const host = documentRef?.getElementById('theme-detail-native-benchmark');
-  if (!host) return;
-  const detail = detailOverride || selectSelectedThemeDetail(store?.getState?.() || {});
-  const requestedId = String(themeId || root?._currentThemeId || detail?.id || '');
-  if (!detail || !requestedId || String(detail.id) !== requestedId) {
-    host.replaceChildren();
-    host.hidden = true;
-    return;
-  }
-  const heading = documentRef.createElement('div');
-  heading.textContent = 'ETF·기준자산 벤치마크 비교';
-  heading.style.cssText = 'font-size:12px;font-weight:800;color:var(--text-secondary);margin:8px 0 4px;';
-  const body = documentRef.createElement('div');
-  body.style.cssText = 'font-size:11px;line-height:1.7;color:var(--text-secondary);';
-  const benchmarkSymbol = detail.etf || detail.compositeBase || null;
-  const themePct = finite(detail.pct);
-  const benchmarkPct = benchmarkSymbol ? finite(detailQuote(detail, benchmarkSymbol)?.pct) : null;
-  if (!benchmarkSymbol || themePct == null || benchmarkPct == null) {
-    body.textContent = '시세 대기 — 테마와 벤치마크의 등락률이 확인되면 비교합니다.';
-  } else {
-    const diff = themePct - benchmarkPct;
-    const direction = diff > 0.5 ? '상회' : diff < -0.5 ? '하회' : '유사';
-    const context = direction === '상회' ? '구성 테마의 상대 모멘텀이 우세합니다.' : direction === '하회' ? '벤치마크 대비 상대 약세를 확인하세요.' : '테마와 벤치마크가 유사하게 움직였습니다.';
-    body.textContent = `${benchmarkSymbol} 대비 ${diff >= 0 ? '+' : ''}${diff.toFixed(2)}%p · 테마 ${themePct >= 0 ? '+' : ''}${themePct.toFixed(2)}% / 벤치마크 ${benchmarkPct >= 0 ? '+' : ''}${benchmarkPct.toFixed(2)}% · ${direction} — ${context}`;
-  }
-  host.replaceChildren(heading, body);
-  host.hidden = false;
-}
-
-function renderThemeDetailInsights({ documentRef, root, store, themeId = null, detailOverride = null }) {
+function renderThemeDetailInsights({ documentRef, root, store, themeId = null }) {
   const host = documentRef?.getElementById('theme-detail-native-insights');
   if (!host) return;
-  const detail = detailOverride || selectSelectedThemeDetail(store?.getState?.() || {});
+  const detail = selectSelectedThemeDetail(store?.getState?.() || {});
   const requestedId = String(themeId || root?._currentThemeId || detail?.id || '');
   if (!detail || !requestedId || String(detail.id) !== requestedId) {
     host.replaceChildren();
@@ -1017,7 +1001,6 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         const subthemeGapHost = documentRef.getElementById('theme-detail-native-subtheme-gap');
         const benchmarkHost = documentRef.getElementById('theme-detail-native-benchmark');
         const insightsHost = documentRef.getElementById('theme-detail-native-insights');
-         let activeThemeDetail = null;
          const requestThemeDetail = (themeId) => {
            const id = String(themeId || '').trim();
            if (!id) return;
@@ -1036,25 +1019,25 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
          if (performanceBarsHost) performanceBarsHost.dataset.aioThemePerformanceBarsRenderer = 'native';
          if (detailPanel) detailPanel.dataset.aioThemeDetailPanelRenderer = 'native';
         const renderNow = () => {
-           renderThemes({ documentRef, root, store, route, onThemeDetail: requestThemeDetail });
+           renderThemes({ documentRef, root, store, route });
           renderRRGStatus({ documentRef, root, store, route });
           renderRRGCanvas({ documentRef, root, store, route });
           renderThemeCyclePill({ documentRef, root, store, route });
            renderThemePerformanceNarrative({ documentRef, root, store, route });
            renderThemePerformanceBars({ documentRef, root, store, route });
-          renderThemeDetailSummary({ documentRef, root, store, detailOverride: activeThemeDetail });
-          renderThemeDetailComposition({ documentRef, root, store, detailOverride: activeThemeDetail });
-          renderThemeDetailLeaders({ documentRef, root, store, detailOverride: activeThemeDetail });
-          renderThemeDetailTemperature({ documentRef, root, store, detailOverride: activeThemeDetail });
-          renderThemeDetailSpread({ documentRef, root, store, detailOverride: activeThemeDetail });
-          renderThemeDetailBreadthHealth({ documentRef, root, store, detailOverride: activeThemeDetail });
-           renderThemeDetailSubthemeGap({ documentRef, root, store, detailOverride: activeThemeDetail });
-           renderThemeDetailBenchmark({ documentRef, root, store, detailOverride: activeThemeDetail });
-           renderThemeDetailInsights({ documentRef, root, store, detailOverride: activeThemeDetail });
+          renderThemeDetailSummary({ documentRef, root, store });
+          renderThemeDetailComposition({ documentRef, root, store });
+          renderThemeDetailLeaders({ documentRef, root, store });
+          renderThemeDetailTemperature({ documentRef, root, store });
+          renderThemeDetailSpread({ documentRef, root, store });
+          renderThemeDetailBreadthHealth({ documentRef, root, store });
+           renderThemeDetailSubthemeGap({ documentRef, root, store });
+           renderThemeDetailBenchmark({ documentRef, root, store });
+           renderThemeDetailInsights({ documentRef, root, store });
            renderAiInfrastructureLens({ documentRef, root, route });
          };
         renderNow();
-        const unsubscribe = store?.subscribe?.(renderNow);
+        const unsubscribe = store && subscribeToSlices(store, ['themes'], renderNow);
         if (unsubscribe) bag.add(unsubscribe);
         const eventTarget = documentRef || root;
         ['aio:themesViewChanged', 'aio:themesHistoryLoaded', 'aio:historyLoaded', 'aio:refresh:done', 'aio:liveQuotes', 'aio:sectorPerfChanged'].forEach((eventName) => {
@@ -1064,77 +1047,15 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         const onThemeDetailShown = (event) => {
           // P800: the native detail surfaces consume the normalized store selection;
           // the legacy event payload remains a compatibility notification only.
-          activeThemeDetail = selectSelectedThemeDetail(store?.getState?.() || {});
           if (detailPanel) {
             detailPanel.style.display = 'block';
             if (event?.detail?.themeId) detailPanel.dataset.currentTheme = String(event.detail.themeId);
           }
-          renderThemeDetailSummary({
-            documentRef,
-            root,
-            store,
-            themeId: event?.detail?.themeId,
-            detailOverride: activeThemeDetail
-          });
-          renderThemeDetailComposition({
-            documentRef,
-            root,
-            store,
-            themeId: event?.detail?.themeId,
-            detailOverride: activeThemeDetail
-          });
-          renderThemeDetailLeaders({
-            documentRef,
-            root,
-            store,
-            themeId: event?.detail?.themeId,
-            detailOverride: activeThemeDetail
-          });
-          renderThemeDetailTemperature({
-            documentRef,
-            root,
-            store,
-            themeId: event?.detail?.themeId,
-            detailOverride: activeThemeDetail
-          });
-          renderThemeDetailSpread({
-            documentRef,
-            root,
-            store,
-            themeId: event?.detail?.themeId,
-            detailOverride: activeThemeDetail
-          });
-          renderThemeDetailBreadthHealth({
-            documentRef,
-            root,
-            store,
-            themeId: event?.detail?.themeId,
-            detailOverride: activeThemeDetail
-          });
-          renderThemeDetailSubthemeGap({
-            documentRef,
-            root,
-            store,
-            themeId: event?.detail?.themeId,
-            detailOverride: activeThemeDetail
-          });
-          renderThemeDetailBenchmark({
-            documentRef,
-            root,
-            store,
-            themeId: event?.detail?.themeId,
-            detailOverride: activeThemeDetail
-          });
-          renderThemeDetailInsights({
-            documentRef,
-            root,
-            store,
-            themeId: event?.detail?.themeId,
-            detailOverride: activeThemeDetail
-          });
+          // The architecture listener synchronously refreshes the store before this
+          // compatibility event reaches the mounted page. The store subscription is
+          // the sole detail renderer; this listener owns visibility only.
         };
         const onThemeDetailClosed = () => {
-          activeThemeDetail = null;
           if (detailPanel) {
             detailPanel.style.display = 'none';
             delete detailPanel.dataset.currentTheme;
@@ -1180,7 +1101,6 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           queueMicrotask(() => requestThemeDetail(pendingThemeId));
         }
         bag.add(() => {
-          activeThemeDetail = null;
           if (page.dataset.aioArchitectureRenderer === 'native') delete page.dataset.aioArchitectureRenderer;
           if (container?.dataset.aioThemesRenderer === 'native') delete container.dataset.aioThemesRenderer;
           if (rrgStatusHost?.dataset.aioRrgStatusRenderer === 'native') delete rrgStatusHost.dataset.aioRrgStatusRenderer;

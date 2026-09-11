@@ -32,13 +32,6 @@
       "sourceTier": null
     },
     {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
       "sourceId": "WEB-NVIDIA-CUDA-PROGRAMMING-GUIDE-2026",
       "url": "https://docs.nvidia.com/cuda/cuda-programming-guide/index.html",
       "publisher": "NVIDIA",
@@ -50,27 +43,11 @@
       "url": "https://docs.cloud.google.com/tpu/docs/system-architecture-tpu-vm",
       "publisher": "Google Cloud",
       "title": "Tensor Processing Units and TPU architecture",
-      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
-    },
-    {
-      "sourceId": "WEB-TSMC-3DFABRIC-2026",
-      "url": "https://www.tsmc.com/english/dedicatedFoundry/services/advanced-packaging",
-      "publisher": "TSMC",
-      "title": "3DFabric advanced packaging",
       "sourceTier": "COMPANY_TECHNICAL_DOCUMENT"
     }
   ],
   "selectedSources": [
     {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
       "sourceId": "WEB-NVIDIA-CUDA-PROGRAMMING-GUIDE-2026",
       "url": "https://docs.nvidia.com/cuda/cuda-programming-guide/index.html",
       "publisher": "NVIDIA",
@@ -84,15 +61,6 @@
       "url": "https://docs.cloud.google.com/tpu/docs/system-architecture-tpu-vm",
       "publisher": "Google Cloud",
       "title": "Tensor Processing Units and TPU architecture",
-      "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
-      "sourceId": "WEB-TSMC-3DFABRIC-2026",
-      "url": "https://www.tsmc.com/english/dedicatedFoundry/services/advanced-packaging",
-      "publisher": "TSMC",
-      "title": "3DFabric advanced packaging",
       "sourceTier": "COMPANY_TECHNICAL_DOCUMENT",
       "directness": "DIRECT",
       "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
@@ -100,7 +68,6 @@
   ],
   "rejectedSources": [],
   "sourceTiers": [
-    "PRIMARY_OFFICIAL",
     "COMPANY_TECHNICAL_DOCUMENT"
   ],
   "claimCoverage": [
@@ -111,10 +78,8 @@
     }
   ],
   "researchFactIds": [
-    "fact:nist:ai-rmf-core",
     "fact:nvidia:cuda-parallel",
-    "fact:google:tpu",
-    "fact:tsmc:3dfabric"
+    "fact:google:tpu"
   ],
   "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",

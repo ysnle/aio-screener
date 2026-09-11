@@ -10,6 +10,8 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { deriveMarketSession } from './build-market-snapshot.mjs';
+import { isLatestUsRegularClose } from '../src/ai/time/market-session.js';
 
 const ROOT = join(fileURLToPath(new URL('..', import.meta.url)));
 const DATA_DIR = join(ROOT, 'public-data');
@@ -21,17 +23,28 @@ function readJsonIfPresent(file) {
 }
 
 const MARKET_SNAPSHOT_CONTEXT = readJsonIfPresent('market-snapshot.json');
+const DATA_CONTEXT = readJsonIfPresent('data.json');
+const PUBLISHABLE_QUOTE_QUALITIES = new Set(['CURRENT', 'CLOSED_CURRENT', 'DELAYED']);
 
-function marketClosedGraceEligible(name) {
+function marketClosedGraceEligible(name, { now = NOW, snapshot = MARKET_SNAPSHOT_CONTEXT, data = DATA_CONTEXT } = {}) {
   if (name !== 'data.json' && name !== 'market-snapshot.json') return false;
-  const day = NOW.getUTCDay();
-  if (day !== 0 && day !== 6) return false;
-  const snapshot = MARKET_SNAPSHOT_CONTEXT;
   const coverage = snapshot?.coverage;
   const quality = snapshot?.quality;
+  const quotes = Array.isArray(snapshot?.quotes) ? snapshot.quotes : [];
+  if (!quotes.some((row) => isLatestUsRegularClose({ instrumentId: row?.instrumentId, observedAt: row?.observedAt, now: now.getTime() }))) return false;
+  const quoteQualityComplete = Number(coverage?.tier0Required) > 0
+    && quotes.length === Number(coverage.tier0Required)
+    && quotes.every((row) => PUBLISHABLE_QUOTE_QUALITIES.has(row?.quality)
+      && !['SOURCE_UNAVAILABLE', 'STALE_UNEXPECTED', 'UNKNOWN'].includes(String(row?.session || 'UNKNOWN'))
+      // P1045: publication-time labels cannot certify observation freshness
+      // at audit time. Reuse the producer policy without a stale provider hint;
+      // in particular, 24/7 crypto must not inherit an equity weekend grace.
+      && ['CURRENT_SESSION', 'DELAYED_IN_SESSION', 'MARKET_CLOSED', 'PREVIOUS_CLOSE_EXPECTED'].includes(
+        deriveMarketSession({ instrumentId: row?.instrumentId, observedAt: row?.observedAt, now: now.getTime() })));
+  if (snapshot?.status !== 'published' || data?.meta?.cycleStatus !== 'PUBLISHED') return false;
   if (!coverage || coverage.tier0Observed !== coverage.tier0Required || quality?.gate !== 'QG-01_PASS') return false;
   if (Array.isArray(snapshot.errors) && snapshot.errors.length) return false;
-  return true;
+  return quoteQualityComplete;
 }
 
 const fail = (message, detail = '') => ({ status: 'FAIL', message, detail });
@@ -204,6 +217,35 @@ function evaluateArtifact(name, data) {
 }
 
 function runContractSelfTests() {
+  const weekendNow = new Date('2026-09-05T12:00:00Z');
+  const graceFixture = {
+    now: weekendNow,
+    data: { meta: { cycleStatus: 'PUBLISHED' } },
+    snapshot: { status: 'published', coverage: { tier0Required: 2, tier0Observed: 2 }, quality: { gate: 'QG-01_PASS' }, errors: [], quotes: [
+      { instrumentId: '^GSPC', observedAt: '2026-09-04T20:00:00Z', quality: 'CLOSED_CURRENT', session: 'MARKET_CLOSED' },
+      { instrumentId: 'BTC-USD', observedAt: '2026-09-05T11:59:00Z', quality: 'CURRENT', session: 'CURRENT_SESSION' }
+    ] }
+  };
+  if (!marketClosedGraceEligible('market-snapshot.json', graceFixture)) throw new Error('self-test: valid closed-session reference was rejected');
+  for (const observedAt of ['2026-09-05T01:18:53Z', null, '2026-09-05T13:00:00Z']) {
+    const stale = structuredClone(graceFixture);
+    stale.snapshot.quotes[1].observedAt = observedAt;
+    if (marketClosedGraceEligible('data.json', stale)) throw new Error('self-test: stale/missing/future crypto received weekend grace');
+  }
+  const oldClose = structuredClone(graceFixture);
+  oldClose.snapshot.quotes[0].observedAt = '2026-08-28T20:00:00Z';
+  if (marketClosedGraceEligible('market-snapshot.json', oldClose)) throw new Error('self-test: old equity close received weekend grace');
+  const reopened = structuredClone(graceFixture);
+  reopened.now = new Date('2026-09-08T13:30:00Z');
+  reopened.snapshot.quotes[1].observedAt = '2026-09-08T13:29:00Z';
+  if (marketClosedGraceEligible('data.json', reopened)) throw new Error('self-test: weekday received blanket weekend grace');
+  const holiday = structuredClone(graceFixture);
+  holiday.now = new Date('2026-09-07T16:00:00Z');
+  holiday.snapshot.quotes[1].observedAt = '2026-09-07T15:59:00Z';
+  if (!marketClosedGraceEligible('data.json', holiday)) throw new Error('self-test: latest close on Labor Day was rejected');
+  const staleKorea = structuredClone(holiday);
+  staleKorea.snapshot.quotes[1] = { instrumentId: '^KS11', observedAt: '2026-09-04T06:30:00Z', quality: 'CLOSED_CURRENT', session: 'MARKET_CLOSED' };
+  if (marketClosedGraceEligible('data.json', staleKorea)) throw new Error('self-test: stale Korea inherited US holiday grace');
   const fixture = { meta: { generatedAt: '2026-07-15T00:00:00Z', releaseAt: '2026-07-01T00:00:00Z' } };
   const selected = extractTimestamp(fixture, POLICIES['data.json']);
   if (selected.path !== 'meta.generatedAt') throw new Error('self-test: generatedAt selector drifted');

@@ -2,9 +2,9 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { basename, join } from 'node:path';
 
 const GENERATED_CONTEXT = new Set(['CURRENT-STATE.md', 'CONTEXT-CATALOG.json']);
-const PREFLIGHT_CONTEXT = new Set(['CURRENT-STATE.md', 'WORKFLOW-GOVERNANCE.md', 'INDEX.md']);
+const PREFLIGHT_CONTEXT = new Set(['CURRENT-STATE.md']);
 const LEDGER_CONTEXT = new Set(['RULES.md', 'BUG-POSTMORTEM.md', 'QA-CHECKLIST.md', 'KNOWLEDGE-BASE.md']);
-const TARGETED_CONTEXT = new Set(['CLAUDE.md', 'CODE-MAP.md', 'QA-PIPELINE-ARCHITECTURE.md']);
+const TARGETED_CONTEXT = new Set(['CLAUDE.md', 'CODE-MAP.md', 'QA-PIPELINE-ARCHITECTURE.md', 'WORKFLOW-GOVERNANCE.md', 'INDEX.md']);
 
 export const readUtf8 = (root, path) => readFileSync(join(root, path), 'utf8');
 const lineCount = (text) => text.split(/\r?\n/).length - (text.endsWith('\n') ? 1 : 0);
@@ -79,7 +79,7 @@ export function buildContextCatalog(root) {
     generatedBy: 'scripts/generate-workspace-state.mjs',
     selfExcludedFromSizeAccounting: true,
     classificationPolicy: {
-      required: 'Read on every task: current facts, governance, and routing only.',
+      required: 'Read current facts once at task start; consult governance and routing only when relevant.',
       targeted: 'Search or read only when the task touches the named domain.',
       explicitOnly: 'Point-in-time evidence; never load by default or treat as current state.'
     },
@@ -215,7 +215,7 @@ ${codeRows}
 
 ## Workspace
 
-- Context documents: ${state.workspace.contextDocuments}; preflight loads only this file, \`WORKFLOW-GOVERNANCE.md\`, and \`INDEX.md\`.
+- Context documents: ${state.workspace.contextDocuments}; preflight reads current state once; governance and INDEX are targeted references.
 - Skills: ${state.workspace.skills}; command wrappers: ${state.workspace.commandWrappers}; agent profiles: ${state.workspace.agentProfiles}.
 - Workflows: ${state.workspace.workflows}; CI scripts: ${state.workspace.ciScripts}.
 - Ledgers: latest rule R${state.workspace.latestRule}; latest postmortem P${state.workspace.latestPostmortem}; open QA ${q.uniqueOpenIds} unique IDs (${q.openItems} rows, ${q.supersededOpenIds} explicitly superseded).
@@ -236,7 +236,7 @@ ${codeRows}
 
 ## Read Policy
 
-1. Read this file, \`WORKFLOW-GOVERNANCE.md\`, and \`INDEX.md\` for every task.
+1. Read this file once at task start; consult \`WORKFLOW-GOVERNANCE.md\` and \`INDEX.md\` when relevant, and reuse unchanged context.
 2. Search \`RULES.md\`, \`BUG-POSTMORTEM.md\`, \`QA-CHECKLIST.md\`, and \`KNOWLEDGE-BASE.md\` for matching IDs/terms; do not load the full ledgers by default.
 3. Use \`CONTEXT-CATALOG.json\` to locate current handoffs and historical snapshots.
 4. Re-run \`node scripts/ci-workspace-contract-check.mjs\` whenever docs, skills, agents, hooks, or workflows change.

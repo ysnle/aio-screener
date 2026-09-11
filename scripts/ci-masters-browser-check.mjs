@@ -79,6 +79,7 @@ try {
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersView === 'holdings');
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersSelectedShard === 'connected');
   if (await page.locator('#page-masters .masters-full-holdings-table tbody tr').count() !== 25) throw new Error('full holdings pagination failed');
+  if (await page.locator('#page-masters .masters-full-holdings-table th').count() !== 6 || await page.locator('#page-masters .masters-full-holdings-table .masters-action').count() || !(await page.locator('#page-masters .masters-raw-row-boundary').textContent()).includes('일대일 대응')) throw new Error('raw split rows must omit aggregate changes and disclose the comparison boundary');
   await page.locator('#page-masters [data-masters-action="view"][data-masters-value="changes"]').click();
   await page.locator('#page-masters [data-masters-action="change-filter"][data-masters-value="EXITED"]').click();
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersActionFilter === 'EXITED');

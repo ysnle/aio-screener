@@ -1,6 +1,49 @@
 export const AI_MARKET_SESSION_VERSION = 'market-session-evidence.v1';
 export const AI_MARKET_TIME_VERSION = 'market-time-evidence.v1';
 
+// Published 2026 US equity calendar, verified 2026-09-08:
+// https://www.nyse.com/trade/hours-calendars
+// https://www.cboe.com/about/hours
+// Unknown years fail closed instead of assuming that weekdays are sessions.
+export const US_REGULAR_CALENDAR_2026 = Object.freeze({
+  holidays: Object.freeze(['2026-01-01', '2026-01-19', '2026-02-16', '2026-04-03', '2026-05-25', '2026-06-19', '2026-07-03', '2026-09-07', '2026-11-26', '2026-12-25']),
+  halfDays: Object.freeze({ '2026-11-27': '13:00', '2026-12-24': '13:00' })
+});
+
+export function isLatestUsRegularClose({ instrumentId, observedAt, now = Date.now() } = {}) {
+  if (!/^\^(GSPC|IXIC|DJI|RUT|VIX|VIX3M|TNX|IRX)$/.test(String(instrumentId || ''))) return false;
+  const observedMs = Date.parse(observedAt || '');
+  const nowMs = Number(now);
+  if (!Number.isFinite(observedMs) || !Number.isFinite(nowMs) || observedMs > nowMs) return false;
+  const parts = (ms) => {
+    const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(ms)).map((x) => [x.type, x.value]));
+    return { date: `${p.year}-${p.month}-${p.day}`, minute: Number(p.hour) * 60 + Number(p.minute) };
+  };
+  const current = parts(nowMs);
+  const observed = parts(observedMs);
+  const session = (date) => date.startsWith('2026-') ? resolveMarketCalendarSession({ market: 'US', date, calendar: US_REGULAR_CALENDAR_2026, ...US_REGULAR_CALENDAR_2026 }) : { status: 'unknown' };
+  const today = session(current.date);
+  if (today.status === 'unknown') return false;
+  const closeMinute = (s) => Number(s.close.slice(0, 2)) * 60 + Number(s.close.slice(3));
+  // A previous close cannot certify current evidence once regular trading resumes.
+  if (today.status === 'open' && current.minute >= 570 && current.minute < closeMinute(today)) return false;
+  let lastDate = current.date;
+  if (today.status !== 'open' || current.minute < 570) {
+    for (let i = 0; i < 10; i++) {
+      lastDate = new Date(Date.parse(`${lastDate}T12:00:00Z`) - 86400000).toISOString().slice(0, 10);
+      const prior = session(lastDate);
+      if (prior.status === 'unknown') return false;
+      if (prior.status === 'open') break;
+    }
+  }
+  const lastSession = session(lastDate);
+  if (lastSession.status !== 'open' || observed.date !== lastDate) return false;
+  // Yahoo Treasury index observations end around 14:59 ET. Accept only a
+  // bounded closing observation window, never a stale morning tick.
+  const minimumMinute = /^\^(TNX|IRX)$/.test(instrumentId) ? Math.min(895, closeMinute(lastSession) - 5) : closeMinute(lastSession) - 5;
+  return observed.minute >= minimumMinute;
+}
+
 export const MARKET_CALENDAR_ADAPTERS = Object.freeze({
   NYSE: Object.freeze({ market: 'US', timezone: 'America/New_York', regularOpen: '09:30', regularClose: '16:00', dstAware: true }),
   KRX: Object.freeze({ market: 'KR', timezone: 'Asia/Seoul', regularOpen: '09:00', regularClose: '15:30', dstAware: false }),

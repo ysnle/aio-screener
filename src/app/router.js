@@ -73,6 +73,9 @@ export function createLazyPage({ route, loader, factory, errorMessage } = {}) {
         })
         .catch((error) => {
           if (disposed || context.scope?.disposed || context.scope?.isCurrent?.() === false) return;
+          // A mount can register resources before throwing. Release them and
+          // permit the same route to be retried without visiting another page.
+          context.scope?.dispose?.();
           setLazyModuleState({ documentRef: context.documentRef, route, state: 'failed', errorMessage });
           const EventConstructor = context.runtimeRoot?.CustomEvent || globalThis.CustomEvent;
           if (typeof EventConstructor === 'function') {
@@ -156,7 +159,7 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
   function transition(route, detail = {}) {
     if (disposed || !isRouteId(route)) return false;
     const nextEntityId = entityIdFor(route, detail);
-    if (activeRoute === route && activeScope?.entityId === nextEntityId) return true;
+    if (activeRoute === route && !activeScope?.disposed && activeScope?.entityId === nextEntityId) return true;
     disposeActive();
     const page = routes[route];
     const scope = createRouteScope({

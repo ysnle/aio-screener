@@ -1,0 +1,513 @@
+diff --git a/js/aio-core.js b/js/aio-core.js
+index 6c174b1..216c7b0 100644
+--- a/js/aio-core.js
++++ b/js/aio-core.js
+@@ -24247,131 +24247,6 @@ function _aioExternalReferenceMap(externalReferences) {
+   return out;
+ }
+
+-function _aioEvidenceStatus(statuses) {
+-  if (statuses.indexOf('block') >= 0) return 'block';
+-  if (statuses.indexOf('warn') >= 0) return 'warn';
+-  if (statuses.indexOf('needs_evidence') >= 0) return 'needs_evidence';
+-  return 'pass';
+-}
+-
+-// v50.44 [DEAD/제거] 이 v49.112 정의는 아래 v50.0(buildEvidenceStore 기반, ~L19767)에서 동일 이름으로 override돼
+-//   런타임에서 호출되지 않는 dead 정의였다(이중정의 = '한쪽만 고쳐지는' 버그 클래스). canonical 이름 경쟁을 끊기 위해
+-//   dead 이름(_deadV49112_*)으로 분리 — 19767이 getCritical10ContentEvidenceMatrix의 유일 정의가 됨. 본문은 무회귀 보존.
+-window.AIO._deadV49112_getCritical10ContentEvidenceMatrix = function(opts) {
+-  opts = opts || {};
+-  var pages = opts.pages || window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
+-  var tolerancePct = opts.valueTolerancePct || 1.5;
+-  var dateWarnDays = opts.dateWarnDays || 14;
+-  var inventory = window.AIO.collectCritical10MarketContentInventory({ pages: pages, full: true });
+-  var ext = _aioExternalReferenceMap(opts.externalReferences || {});
+-  var liveSymbols = [];
+-  inventory.pages.forEach(function(p) { (p.liveSinks || []).forEach(function(r) { if (r.symbol) liveSymbols.push(r.symbol); }); });
+-  var reference = window.AIO.getMarketSituationReferenceSnapshot({ symbols: _aioUniq((window.AIO.MARKET_SITUATION_REFERENCE_SYMBOLS || []).concat(liveSymbols).concat(Object.keys(ext))).slice(0, opts.symbolLimit || 320), maxAgeMs: opts.maxAgeMs || 15 * 60 * 1000 });
+-  var now = Date.now();
+-  var allItems = [];
+-  var pageRows = inventory.pages.map(function(page) {
+-    var items = [];
+-    function add(item) {
+-      item.evidenceId = item.evidenceId || [item.pageId, item.kind, item.symbol || item.key || item.id || items.length].join(':');
+-      items.push(item);
+-      allItems.push(item);
+-    }
+-    (page.liveSinks || []).forEach(function(row) {
+-      var statuses = [];
+-      var checks = [];
+-      var ref = reference.bySymbol && reference.bySymbol[row.symbol];
+-      var extRef = ext[row.symbol];
+-      var target = extRef && isFinite(extRef.price) && extRef.price > 0 ? extRef : ref;
+-      if (!target || !target.price) {
+-        statuses.push('warn');
+-        checks.push({ type: 'reference-missing', message: 'No current internal/external reference for visible live cell.' });
+-      } else if (row.field === 'price' && isFinite(row.parsedValue)) {
+-        var diffPct = Math.abs(row.parsedValue - target.price) / target.price * 100;
+-        checks.push({ type: extRef ? 'external-price-compare' : 'internal-price-compare', referencePrice: target.price, displayedValue: row.parsedValue, diffPct: Number(diffPct.toFixed(3)), source: target.source || target.sourceKind || '', asOf: target.asOf || '' });
+-        if (diffPct > tolerancePct) statuses.push('block');
+-      } else if (row.field === 'price') {
+-        statuses.push('warn');
+-        checks.push({ type: 'display-parse-missing', message: 'Visible price could not be parsed.' });
+-      }
+-      if (!row.sourceKind) {
+-        statuses.push('warn');
+-        checks.push({ type: 'source-kind-missing' });
+-      }
+-      if (row.operationalUse === 'reference-only') {
+-        statuses.push('warn');
+-        checks.push({ type: 'reference-only' });
+-      }
+-      if (row.truthStatus === 'blocked') {
+-        statuses.push('block');
+-        checks.push({ type: 'truth-blocked', issues: row.truthIssues || '' });
+-      }
+-      add(Object.assign({}, row, { kind: 'live', status: _aioEvidenceStatus(statuses), checks: checks, externalReference: extRef || null, internalReference: ref || null }));
+-    });
+-    (page.snapSinks || []).forEach(function(row) {
+-      var statuses = ['needs_evidence'];
+-      var checks = [{ type: 'snapshot-cell', message: 'Snapshot/static cell requires source/date evidence before trading use.' }];
+-      if (row.operationalUse === 'reference-only' || /snapshot/i.test(row.sourceKind || '')) checks.push({ type: 'reference-only-or-snapshot' });
+-      add(Object.assign({}, row, { kind: 'snapshot', status: _aioEvidenceStatus(statuses), checks: checks }));
+-    });
+-    (page.snapDates || []).forEach(function(row) {
+-      var statuses = [];
+-      var checks = [];
+-      var m = String(row.text || '').match(/(20\d{2})-(\d{2})-(\d{2})/);
+-      if (m) {
+-        var ts = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])).getTime();
+-        var ageDays = Math.floor((now - ts) / 86400000);
+-        checks.push({ type: 'snap-date-age', ageDays: ageDays });
+-        if (ageDays > dateWarnDays) statuses.push('warn');
+-      } else {
+-        statuses.push('needs_evidence');
+-        checks.push({ type: 'date-parse-missing' });
+-      }
+-      add(Object.assign({}, row, { kind: 'snap-date', status: _aioEvidenceStatus(statuses), checks: checks }));
+-    });
+-    (page.charts || []).forEach(function(row) {
+-      add(Object.assign({}, row, { kind: 'chart', status: 'needs_evidence', checks: [{ type: 'chart-series-evidence-required', message: 'Chart container exists; latest series/source audit is still required.' }] }));
+-    });
+-    (page.numericTextSamples || []).forEach(function(row) {
+-      add(Object.assign({}, row, { kind: 'numeric-text', status: 'needs_evidence', checks: [{ type: 'static-number-evidence-required', message: 'Static numeric text requires explicit evidence mapping or threshold classification.' }] }));
+-    });
+-    (page.narrativeSamples || []).forEach(function(row) {
+-      var statuses = [];
+-      var checks = [];
+-      var text = row.text || '';
+-      var reg = reference.regime || {};
+-      if (reg.oil === 'oil_high' && /(유가\s*안정|유가\s*약세|oil soft|cheap oil)/i.test(text)) {
+-        statuses.push('warn'); checks.push({ type: 'narrative-regime-conflict', regime: reg.oil });
+-      }
+-      if (reg.volatility === 'low' && /(패닉|고변동|panic|high volatility)/i.test(text)) {
+-        statuses.push('warn'); checks.push({ type: 'narrative-regime-conflict', regime: reg.volatility });
+-      }
+-      if (!checks.length) checks.push({ type: 'narrative-read', regime: reg.riskTone || 'unknown' });
+-      add(Object.assign({}, row, { kind: 'narrative', status: _aioEvidenceStatus(statuses), checks: checks }));
+-    });
+-    var counts = items.reduce(function(acc, item) {
+-      acc[item.status] = (acc[item.status] || 0) + 1;
+-      acc.total++;
+-      return acc;
+-    }, { total: 0, pass: 0, warn: 0, block: 0, needs_evidence: 0 });
+-    return { pageId: page.pageId, status: counts.block ? 'block' : (counts.warn || counts.needs_evidence ? 'warn' : 'pass'), counts: counts, items: opts.includeItems === false ? [] : items.slice(0, opts.itemLimit || items.length) };
+-  });
+-  var totals = allItems.reduce(function(acc, item) {
+-    acc[item.status] = (acc[item.status] || 0) + 1;
+-    acc.total++;
+-    acc.byKind[item.kind] = (acc.byKind[item.kind] || 0) + 1;
+-    return acc;
+-  }, { total: 0, pass: 0, warn: 0, block: 0, needs_evidence: 0, byKind: {} });
+-  return {
+-    status: totals.block ? 'block' : (totals.warn || totals.needs_evidence || reference.status !== 'ok' ? 'warn' : 'pass'),
+-    pagesChecked: pageRows.length,
+-    totals: totals,
+-    reference: { status: reference.status, missingCount: reference.missingCount, staleCount: reference.staleCount, truthBlockedCount: reference.truthBlockedCount, regime: reference.regime },
+-    externalReferenceCount: Object.keys(ext).length,
+-    pages: pageRows,
+-    generatedAt: new Date().toISOString()
+-  };
+-};
+-
+ // v50.0: route-page evidence-first contract layer.
+ // This does not pretend snapshots are current market data. It makes that boundary
+ // machine-readable so UI, AI chat, audits, and deployment gates share one contract.
+diff --git a/js/aio-tests.js b/js/aio-tests.js
+index 00859be..8d51892 100644
+--- a/js/aio-tests.js
++++ b/js/aio-tests.js
+@@ -6331,9 +6331,9 @@
+       // A2 실재 정합: breadth 렌더러 실행 후 verdict sink가 marketState verdict와 일치
+       var breadthMatch = false;
+       try { window._aioRenderBreadthConsensus(); var bv = document.getElementById('breadth-consensus-verdict'); breadthMatch = !!(bv && ms817.breadthConsensusFull && bv.textContent.indexOf(ms817.breadthConsensusFull.verdict) >= 0); } catch(_) {}
+-      // Track B: canonical getCritical10ContentEvidenceMatrix는 buildEvidenceStore 유일 정의 + dead 이름 분리
++      // Track B: canonical evidence store 경로만 유지하고 폐기 구현은 제거한다.
+       var canonFn = window.AIO && window.AIO.getCritical10ContentEvidenceMatrix;
+-      var dedupOk = !!(canonFn && /buildEvidenceStore/.test(canonFn.toString()) && typeof window.AIO._deadV49112_getCritical10ContentEvidenceMatrix === 'function');
++      var dedupOk = !!(canonFn && /buildEvidenceStore/.test(canonFn.toString()) && typeof window.AIO._deadV49112_getCritical10ContentEvidenceMatrix === 'undefined');
+       t817ok = fullOk && consumerOk && breadthMatch && dedupOk;
+       t817detail = 'full=' + fullOk + ' consumers4=' + consumerOk + ' breadthMatch=' + breadthMatch + ' dedup=' + dedupOk;
+       window._breadthLiveData = oldBreadth817;
+diff --git a/scripts/ci-ai-intelligence-contract-check.mjs b/scripts/ci-ai-intelligence-contract-check.mjs
+index 1710f1b..ca46aa9 100644
+--- a/scripts/ci-ai-intelligence-contract-check.mjs
++++ b/scripts/ci-ai-intelligence-contract-check.mjs
+@@ -11,10 +11,6 @@ import { buildCompanyAssessment } from '../src/ai/analysis/company.js';
+ import { buildTechnicalConditions } from '../src/ai/analysis/technical.js';
+ import { buildMacroFxTransmission } from '../src/ai/analysis/macro-fx.js';
+ import { createBenchmarkManifest, evaluateRoutingCorpus, assertBenchmarkReady } from '../src/ai/eval/benchmark.js';
+-import { createAIControlPlane } from '../src/ai/operations/control-plane.js';
+-import { createEvidenceGraph, evaluateEvidenceCompleteness } from '../src/ai/evidence/graph.js';
+-import { createAIProvider } from '../src/ai/provider/adapter.js';
+-import { createAIResponseEnvelope, validateAIResponseEnvelope } from '../src/ai/response/envelope.js';
+ import { createResearchDecision, validateResearchDecision } from '../src/ai/research/decision.js';
+ import { createResearchPlan, validateResearchPlan } from '../src/ai/research/plan.js';
+ import { createEvidenceDocument, evaluateResearchEvidenceFloor, normalizeResearchExecutionResult, normalizeSearchResults, validateClaimEvidenceBinding } from '../src/ai/research/evidence.js';
+@@ -152,18 +148,6 @@ check('benchmark-manifest', assertBenchmarkReady(evalManifest).ok && evalManifes
+ check('benchmark-missing-cost-is-not-zero', createBenchmarkManifest({ costLimitUsd: null }).costLimitUsd === null);
+ const corpus = evaluateRoutingCorpus({ cases: cases.map(({ query, expected }, index) => ({ id: `case-${index + 1}`, query, expectedIntent: expected })), planner: (query) => createQuestionPlan({ query, route: cases.find((row) => row.query === query)?.route || 'home', now: '2026-07-28T12:00:00Z' }) });
+ check('routing-corpus-evaluation', corpus.accuracy === 1 && corpus.total === cases.length);
+-const controlPlane = createAIControlPlane({ now: () => '2026-07-28T12:00:00Z' });
+-controlPlane.recordCanary({ release: 'v53.55' });
+-check('operations-control-plane', controlPlane.status().eventCount === 1 && controlPlane.status().operatorRequired === true);
+-const protectedEvent = controlPlane.recordFeedback({ type: 'rollback', at: '1999-01-01T00:00:00Z' });
+-check('operations-control-plane-reserved-fields', protectedEvent.type === 'feedback' && protectedEvent.at === '2026-07-28T12:00:00.000Z');
+-const evidenceGraph = createEvidenceGraph({ nodes: [{ evidenceId: 'metric-1', metricId: 'market.vix', status: 'current' }] });
+-check('evidence-completeness-uses-metric-id', evaluateEvidenceCompleteness(evidenceGraph, ['market.vix']).ok);
+-const responseEnvelope = createAIResponseEnvelope({ status: 'ok', evidenceIds: ['metric-1'], now: '2026-07-28T12:00:00Z' });
+-check('ai-response-envelope', validateAIResponseEnvelope(responseEnvelope).ok && responseEnvelope.createdAt === '2026-07-28T12:00:00.000Z');
+-check('ai-response-validator-does-not-throw', !validateAIResponseEnvelope({ schemaVersion: 'ai-response.v1', status: 'ok' }).ok);
+-check('ai-provider-normalizes-failure', (await createAIProvider({ request: async () => { throw new Error('secret provider detail'); } }).complete({})).error === 'AI_PROVIDER_REQUEST_FAILED');
+-
+ const conceptPlan = createQuestionPlan({ query: 'What is a bond yield?', route: 'macro', now: '2026-07-28T12:00:00Z' });
+ check('research-concept-does-not-force-search', conceptPlan.researchDecision?.requirement === 'NOT_NEEDED' && conceptPlan.researchPlan?.subQueries?.length === 0);
+ check('research-concept-contract', validateResearchDecision(conceptPlan.researchDecision).ok && validateResearchPlan(conceptPlan.researchPlan).ok);
+diff --git a/scripts/ci-architecture-contract-check.mjs b/scripts/ci-architecture-contract-check.mjs
+index f3b7a20..baf387e 100644
+--- a/scripts/ci-architecture-contract-check.mjs
++++ b/scripts/ci-architecture-contract-check.mjs
+@@ -500,16 +500,13 @@ const modules = await Promise.all([
+   import(pathToFileURL(path.join(root, 'src/state/slices/sentiment.js'))),
+   import(pathToFileURL(path.join(root, 'src/state/selectors/sentiment.js'))),
+   import(pathToFileURL(path.join(root, 'src/app/commands/sentiment.js'))),
+-  import(pathToFileURL(path.join(root, 'src/data/contracts/revision.js'))),
+-  import(pathToFileURL(path.join(root, 'src/data/quality/lineage.js'))),
+   import(pathToFileURL(path.join(root, 'src/data/contracts/market-snapshot.js'))),
+   import(pathToFileURL(path.join(root, 'src/ai/policy.js'))),
+   import(pathToFileURL(path.join(root, 'src/ai/inference.js'))),
+   import(pathToFileURL(path.join(root, 'src/platform/http.js'))),
+   import(pathToFileURL(path.join(root, 'src/platform/storage.js'))),
+-  import(pathToFileURL(path.join(root, 'src/platform/sanitizer.js')))
+ ]);
+-const [{ createEvidence, validateEvidence }, { createEvidenceStore }, { deriveSentimentSummary }, { createStore }, { createInitialSentimentState, sentimentReducer }, { selectSentimentValue }, { createSentimentCommands }, { createRevisionManifest, validateRevisionManifest }, { createLineageRecord, validateLineageRecord }, { createMarketSnapshot, validateMarketSnapshot }, { evaluateClaim }, { createInferredClaim, validateInferredClaim, evaluateInferredClaim }, { createHttpClient }, { createStorageGateway }, { createSanitizer }] = modules;
++const [{ createEvidence, validateEvidence }, { createEvidenceStore }, { deriveSentimentSummary }, { createStore }, { createInitialSentimentState, sentimentReducer }, { selectSentimentValue }, { createSentimentCommands }, { createMarketSnapshot, validateMarketSnapshot }, { evaluateClaim }, { createInferredClaim, validateInferredClaim, evaluateInferredClaim }, { createHttpClient }, { createStorageGateway }] = modules;
+ const evidence = createEvidence({ metric: 'fearGreed', value: 42, unit: 'score', sourceKind: 'fixture', observedAt: '2026-07-18T00:00:00Z', fetchedAt: '2026-07-18T00:00:01Z', status: 'live' });
+ if (!validateEvidence(evidence).ok || evidence.allowedUse !== 'decision') fail('live evidence contract failed');
+ const store = createEvidenceStore();
+@@ -528,7 +525,6 @@ const { createInitialMarketState, marketReducer } = await import(pathToFileURL(p
+ const { createMarketCommands } = await import(pathToFileURL(path.join(root, 'src/app/commands/market.js')));
+ const { createMarketProvider } = await import(pathToFileURL(path.join(root, 'src/data/providers/market.js')));
+ const { createMarketOrchestrator } = await import(pathToFileURL(path.join(root, 'src/data/orchestrators/market.js')));
+-const { selectMarketQuote } = await import(pathToFileURL(path.join(root, 'src/state/selectors/market.js')));
+ const { createInitialThemesState, themesReducer } = await import(pathToFileURL(path.join(root, 'src/state/slices/themes.js')));
+ const { createThemesCommands } = await import(pathToFileURL(path.join(root, 'src/app/commands/themes.js')));
+ const { createThemesProvider } = await import(pathToFileURL(path.join(root, 'src/data/providers/themes.js')));
+@@ -561,7 +557,7 @@ const marketStore = createStore({ initialState: { market: createInitialMarketSta
+ const marketCommands = createMarketCommands({ store: marketStore });
+ const marketWriter = createMarketOrchestrator({ provider: createMarketProvider({ read: () => ({ quotes: { '^TNX': { value: 4.2, pct: 0.1 } }, metrics: { fedRate: 5.25 } }) }), commands: marketCommands });
+ marketWriter.sync();
+-if (selectMarketQuote(marketStore.getState(), '^TNX')?.value !== 4.2 || !Object.isFrozen(selectMarketQuote(marketStore.getState(), '^TNX'))) fail('market provider/normalize/orchestrator writer contract failed');
++if (marketStore.getState().market.quotes['^TNX']?.value !== 4.2 || !Object.isFrozen(marketStore.getState().market.quotes['^TNX'])) fail('market provider/normalize/orchestrator writer contract failed');
+ const themesStore = createStore({ initialState: { themes: createInitialThemesState() }, reducer: (state, action) => ({ ...state, themes: themesReducer(state.themes, action) }) });
+ const themesCommands = createThemesCommands({ store: themesStore });
+ const themesWriter = createThemesOrchestrator({ provider: createThemesProvider({ read: () => ({
+@@ -585,13 +581,6 @@ themesCommands.setData({ selectedId: null, selectedDetail: null });
+ if (selectSelectedThemeDetail(themesStore.getState()) !== null || selectThemesItems(themesStore.getState())[0] !== retainedThemeItem) fail('themes partial update must clear an explicit selection without erasing omitted items');
+ const missingPortfolioNumbers = normalizePortfolio({ holdings: [{ symbol: 'AAA', shares: null, avgCost: '', price: null, value: undefined, weight: null, target: '' }], cash: null, totals: { totalValue: null, cash: '' } });
+ if (missingPortfolioNumbers.cash !== null || missingPortfolioNumbers.holdings[0].shares !== null || missingPortfolioNumbers.holdings[0].avgCost !== null || missingPortfolioNumbers.holdings[0].weight !== null || missingPortfolioNumbers.totals.totalValue !== null || !Object.isFrozen(missingPortfolioNumbers.holdings) || !Object.isFrozen(missingPortfolioNumbers.holdings[0])) fail('portfolio normalization must preserve numeric missingness and immutable projections');
+-const revision = createRevisionManifest(release);
+-if (!validateRevisionManifest(revision).ok) fail('release revision contract failed');
+-if (validateRevisionManifest(createRevisionManifest({ appRevision: 'a', dataRevision: 'd', evidenceRevision: 'e' })).ok) fail('revision without generatedAt must fail closed');
+-const lineage = createLineageRecord({ metricId: 'market.sentiment.fg', evidenceId: evidence.evidenceId, source: 'fixture', sourceKind: 'fixture', observedAt: evidence.observedAt, fetchedAt: evidence.fetchedAt, unit: evidence.unit, state: 'MATCH' });
+-if (!validateLineageRecord(lineage).ok) fail('lineage contract failed');
+-if (validateLineageRecord(createLineageRecord({ metricId: 'fixture', evidenceId: 'fixture', source: 'fixture', unit: 'score', state: 'MATCH' })).ok) fail('matched lineage without source kind or timestamps must fail closed');
+-if (validateLineageRecord(createLineageRecord({ metricId: 'fixture', evidenceId: 'fixture', source: 'fixture', sourceKind: 'fixture', observedAt: '2026-07-19T00:00:00Z', fetchedAt: '2026-07-18T00:00:00Z', unit: 'score', state: 'MATCH' })).ok) fail('lineage fetched before observation must fail closed');
+ const unavailableSnapshot = createMarketSnapshot({ status: 'failed', attemptedAt: '2026-07-18T00:00:00Z', source: 'fixture', coverage: { required: 16, observed: 0 } });
+ if (!validateMarketSnapshot(unavailableSnapshot).ok) fail('failed market snapshot must remain a valid fail-closed envelope');
+ const partialPublished = createMarketSnapshot({ status: 'published', attemptedAt: '2026-07-18T00:00:00Z', lastSuccessfulAt: '2026-07-17T00:00:00Z', source: 'fixture', coverage: { required: 16, observed: 15 } });
+@@ -613,7 +602,6 @@ const storageState = new Map();
+ const storageFixture = createStorageGateway({ storage: { getItem: (key) => storageState.get(key) ?? null, setItem: (key, value) => storageState.set(key, value), removeItem: (key) => storageState.delete(key) }, prefix: 'fixture' });
+ storageFixture.set('key', 'value');
+ if (storageFixture.get('key') !== 'value') fail('storage gateway fixture contract failed');
+-if (createSanitizer().text('<b>blocked</b>') !== '&lt;b&gt;blocked&lt;/b&gt;') fail('sanitizer fixture contract failed');
+
+ // RM-02 performance gate: dispatch+notify must stay fast for a screener-sized (1000-row) slice
+ // with several subscribers, so W5's real screener/portfolio tables don't reintroduce the
+diff --git a/_context/CODE-MAP.md b/_context/CODE-MAP.md
+index 139184a..bd25274 100644
+--- a/_context/CODE-MAP.md
++++ b/_context/CODE-MAP.md
+@@ -149,7 +149,7 @@ benchmark-relative-strength remains visible as missing evidence.
+ ## Native ESM and data-plane additions (v53.11)
+
+ | ARX-06 news state/writer | `src/state/slices/news.js`, `src/state/selectors/news.js`, `src/app/commands/news.js`, `src/data/providers/news.js`, `src/data/normalize/news.js`, `src/data/orchestrators/news.js` | producer cache -> normalized `data/news` state -> native market-news/briefing renderer |
+-| ARX-07 market slice | `src/state/slices/market.js`, `src/state/selectors/market.js`, `src/data/providers/market.js`, `src/data/normalize/market.js`, `src/data/orchestrators/market.js`, `src/ui/pages/market.js` | legacy quote/snapshot read model -> normalized market state -> macro/fxbond/breadth slice renderer |
++| ARX-07 market slice | `src/state/slices/market.js`, `src/data/providers/market.js`, `src/data/normalize/market.js`, `src/data/orchestrators/market.js`, `src/ui/pages/market.js` | legacy quote/snapshot read model -> normalized market state -> macro/fxbond/breadth slice renderer |
+ | ARX-08 themes slice | `src/state/slices/themes.js`, `src/state/selectors/themes.js`, `src/data/providers/themes.js`, `src/data/normalize/themes.js`, `src/data/orchestrators/themes.js`, `src/ui/pages/themes.js` | RRG/theme read model -> normalized theme state -> bounded native quadrant/rotation-read surface; chart/status and detail remain legacy |
+
+ | Area | Files | Contract |
+@@ -385,7 +385,7 @@ The tables in this subsection supersede older detailed line snapshots retained b
+ | `getDataTruthAudit` | 20798 | DataTruthGate 감사(R195) |
+ | `getMarketSituationReferenceSnapshot` | 21164 | 현재 시장 레짐 기준 스냅샷 |
+ | `collectCritical10MarketContentInventory` | 21189 | critical-10 가시 콘텐츠 전수 인벤토리 |
+-| ~~`getCritical10ContentEvidenceMatrix`~~ | 21398 | **`_deadV49112_getCritical10ContentEvidenceMatrix`로 개명 — v50.44 폐기, `getAllPageContentEvidenceMatrix`가 후속** |
++| `getCritical10ContentEvidenceMatrix` | `rg -n`으로 확인 | `buildEvidenceStore` 기반 현행 경로만 유지. v49.112 폐기 구현과 전용 status helper는 삭제. |
+ | `_buildContracts` | 21630 | 22페이지 계약 빌더 |
+ | `AIO_PAGE_CONTRACTS` | 21652 | window 노출(빌더 결과 캐시) |
+ | `applyPageContractCompatibility` | 21665 | 계약→호환 맵 파생 |
+diff --git a/src/platform/telemetry.js b/src/platform/telemetry.js
+deleted file mode 100644
+--- a/src/platform/telemetry.js
++++ /dev/null
+@@ -1,8 +0,0 @@
+-export function createTelemetry({ maxEntries = 100, clock = { iso: () => new Date().toISOString() } } = {}) {
+-  const entries = [];
+-  function record(event, fields = {}) {
+-    entries.push(Object.freeze({ event: String(event), at: clock.iso(), fields: { ...fields } }));
+-    if (entries.length > maxEntries) entries.splice(0, entries.length - maxEntries);
+-  }
+-  return Object.freeze({ record, snapshot: () => entries.map((entry) => ({ ...entry, fields: { ...entry.fields } })) });
+-}
+diff --git a/src/platform/sanitizer.js b/src/platform/sanitizer.js
+deleted file mode 100644
+--- a/src/platform/sanitizer.js
++++ /dev/null
+@@ -1,17 +0,0 @@
+-export function escapeHtml(value) {
+-  return String(value ?? '')
+-    .replaceAll('&', '&amp;')
+-    .replaceAll('<', '&lt;')
+-    .replaceAll('>', '&gt;')
+-    .replaceAll('"', '&quot;')
+-    .replaceAll("'", '&#39;');
+-}
+-
+-/** A conservative renderer boundary for new modules. */
+-export function createSanitizer({ sanitize } = {}) {
+-  const clean = typeof sanitize === 'function' ? sanitize : escapeHtml;
+-  return Object.freeze({
+-    text: (value) => escapeHtml(value),
+-    html: (value) => clean(String(value ?? ''), { USE_PROFILES: { html: true } })
+-  });
+-}
+diff --git a/src/data/quality/lineage.js b/src/data/quality/lineage.js
+deleted file mode 100644
+--- a/src/data/quality/lineage.js
++++ /dev/null
+@@ -1,36 +0,0 @@
+-export const LINEAGE_STATES = Object.freeze(['MATCH', 'PARTIAL', 'BLOCKED', 'NOT_APPLICABLE']);
+-
+-export function createLineageRecord(input = {}) {
+-  return Object.freeze({
+-    metricId: String(input.metricId || ''),
+-    evidenceId: String(input.evidenceId || ''),
+-    source: String(input.source || ''),
+-    sourceKind: String(input.sourceKind || ''),
+-    observedAt: input.observedAt || null,
+-    fetchedAt: input.fetchedAt || null,
+-    unit: String(input.unit || ''),
+-    state: LINEAGE_STATES.includes(input.state) ? input.state : 'BLOCKED',
+-    note: String(input.note || '')
+-  });
+-}
+-
+-export function validateLineageRecord(record) {
+-  const errors = [];
+-  if (!record?.metricId) errors.push('metric_id_missing');
+-  if (!record?.evidenceId) errors.push('evidence_id_missing');
+-  if (!record?.source) errors.push('source_missing');
+-  if (!record?.sourceKind) errors.push('source_kind_missing');
+-  if (!record?.unit) errors.push('unit_missing');
+-  if (!LINEAGE_STATES.includes(record?.state)) errors.push('state_invalid');
+-  for (const field of ['observedAt', 'fetchedAt']) {
+-    if (record?.[field] != null && Number.isNaN(Date.parse(record[field]))) errors.push(`${field}_invalid`);
+-  }
+-  if (record?.state === 'MATCH') {
+-    if (!record.observedAt) errors.push('observedAt_missing');
+-    if (!record.fetchedAt) errors.push('fetchedAt_missing');
+-  }
+-  const observedMs = Date.parse(record?.observedAt || '');
+-  const fetchedMs = Date.parse(record?.fetchedAt || '');
+-  if (Number.isFinite(observedMs) && Number.isFinite(fetchedMs) && fetchedMs < observedMs) errors.push('fetchedAt_before_observedAt');
+-  return Object.freeze({ ok: errors.length === 0, errors });
+-}
+diff --git a/src/data/contracts/revision.js b/src/data/contracts/revision.js
+deleted file mode 100644
+--- a/src/data/contracts/revision.js
++++ /dev/null
+@@ -1,23 +0,0 @@
+-export const REVISION_FIELDS = Object.freeze(['appRevision', 'dataRevision', 'evidenceRevision']);
+-
+-export function createRevisionManifest(input = {}) {
+-  const manifest = {
+-    schemaVersion: String(input.schemaVersion || 'revision-v1'),
+-    appRevision: String(input.appRevision || 'unknown'),
+-    dataRevision: String(input.dataRevision || 'unknown'),
+-    evidenceRevision: String(input.evidenceRevision || 'unknown'),
+-    generatedAt: input.generatedAt || null,
+-    source: String(input.source || 'local')
+-  };
+-  return Object.freeze(manifest);
+-}
+-
+-export function validateRevisionManifest(manifest) {
+-  const errors = [];
+-  for (const field of REVISION_FIELDS) {
+-    if (!manifest?.[field] || manifest[field] === 'unknown') errors.push(`${field}_missing`);
+-  }
+-  if (!manifest?.generatedAt) errors.push('generatedAt_missing');
+-  else if (Number.isNaN(Date.parse(manifest.generatedAt))) errors.push('generatedAt_invalid');
+-  return Object.freeze({ ok: errors.length === 0, errors });
+-}
+diff --git a/src/ai/websearch/claims.js b/src/ai/websearch/claims.js
+deleted file mode 100644
+--- a/src/ai/websearch/claims.js
++++ /dev/null
+@@ -1,7 +0,0 @@
+-import { createInferredClaim, validateInferredClaim } from '../inference.js';
+-
+-export function createSearchClaim(input = {}) {
+-  const claim = createInferredClaim(input);
+-  const validation = validateInferredClaim(claim);
+-  return Object.freeze({ claim, validation, status: validation.ok ? 'reference-only' : 'blocked' });
+-}
+diff --git a/src/state/selectors/market.js b/src/state/selectors/market.js
+deleted file mode 100644
+--- a/src/state/selectors/market.js
++++ /dev/null
+@@ -1,19 +0,0 @@
+-export function selectMarketState(state) {
+-  return state?.market || null;
+-}
+-
+-export function selectMarketQuotes(state) {
+-  return selectMarketState(state)?.quotes || {};
+-}
+-
+-export function selectMarketMetrics(state) {
+-  return selectMarketState(state)?.metrics || {};
+-}
+-
+-export function selectMarketQuote(state, symbol) {
+-  return selectMarketQuotes(state)[symbol] || null;
+-}
+-
+-export function selectMarketMetric(state, key) {
+-  return selectMarketMetrics(state)[key] ?? null;
+-}
+diff --git a/src/ai/provider/adapter.js b/src/ai/provider/adapter.js
+deleted file mode 100644
+--- a/src/ai/provider/adapter.js
++++ /dev/null
+@@ -1,12 +0,0 @@
+-export function createAIProvider({ request = async () => ({ ok: false, error: 'AI_PROVIDER_UNAVAILABLE' }) } = {}) {
+-  return Object.freeze({
+-    async complete(envelope, options = {}) {
+-      try {
+-        const result = await request(envelope, options);
+-        return result && typeof result === 'object' ? result : { ok: false, error: 'AI_PROVIDER_INVALID_RESPONSE' };
+-      } catch (error) {
+-        return { ok: false, error: error?.name === 'AbortError' ? 'AI_PROVIDER_ABORTED' : 'AI_PROVIDER_REQUEST_FAILED' };
+-      }
+-    }
+-  });
+-}
+diff --git a/src/ai/operations/control-plane.js b/src/ai/operations/control-plane.js
+deleted file mode 100644
+--- a/src/ai/operations/control-plane.js
++++ /dev/null
+@@ -1,20 +0,0 @@
+-export const AI_OPERATIONS_CONTRACT_VERSION = 'ai-operations.v1';
+-
+-export function createAIControlPlane({ now = () => new Date() } = {}) {
+-  const events = [];
+-  const record = (type, payload = {}) => {
+-    const event = Object.freeze({ ...(payload && typeof payload === 'object' ? payload : {}), type, at: new Date(now()).toISOString() });
+-    events.push(event);
+-    if (events.length > 200) events.splice(0, events.length - 200);
+-    return event;
+-  };
+-  return Object.freeze({
+-    version: AI_OPERATIONS_CONTRACT_VERSION,
+-    recordCanary: (payload) => record('canary', payload),
+-    recordFeedback: (payload) => record('feedback', payload),
+-    recordDrift: (payload) => record('drift', payload),
+-    recordRollback: (payload) => record('rollback', payload),
+-    getEvents: () => events.slice(),
+-    status: () => Object.freeze({ version: AI_OPERATIONS_CONTRACT_VERSION, eventCount: events.length, rollbackAvailable: events.some((event) => event.type === 'rollback'), operatorRequired: true })
+-  });
+-}
+diff --git a/src/ai/evidence/graph.js b/src/ai/evidence/graph.js
+deleted file mode 100644
+--- a/src/ai/evidence/graph.js
++++ /dev/null
+@@ -1,33 +0,0 @@
+-export const AI_EVIDENCE_GRAPH_VERSION = 'evidence-graph.v1';
+-
+-function clean(value) { return value == null ? null : String(value).trim() || null; }
+-
+-export function createEvidenceGraph({ questionPlan = null, nodes = [], edges = [] } = {}) {
+-  const normalizedNodes = (Array.isArray(nodes) ? nodes : []).map((node, index) => Object.freeze({
+-    evidenceId: clean(node?.evidenceId) || `evidence:${index + 1}`,
+-    type: clean(node?.type) || 'unknown',
+-    metricId: clean(node?.metricId || node?.metric),
+-    value: node?.value ?? null,
+-    unit: clean(node?.unit),
+-    asOf: clean(node?.asOf || node?.observedAt),
+-    source: clean(node?.source),
+-    sourceKind: clean(node?.sourceKind) || 'unknown',
+-    allowedUse: clean(node?.allowedUse) || 'reference',
+-    status: clean(node?.status) || 'unknown'
+-  }));
+-  const ids = new Set(normalizedNodes.map((node) => node.evidenceId));
+-  const normalizedEdges = (Array.isArray(edges) ? edges : []).filter((edge) => ids.has(edge?.from) && ids.has(edge?.to)).map((edge) => Object.freeze({ from: edge.from, to: edge.to, relation: clean(edge.relation) || 'supports' }));
+-  return Object.freeze({ schemaVersion: AI_EVIDENCE_GRAPH_VERSION, queryId: questionPlan?.queryId || null, nodes: Object.freeze(normalizedNodes), edges: Object.freeze(normalizedEdges) });
+-}
+-
+-export function evaluateEvidenceCompleteness(graph, requiredEvidence = []) {
+-  const nodes = Array.isArray(graph?.nodes) ? graph.nodes : [];
+-  const present = new Set();
+-  for (const node of nodes.filter((item) => item.status !== 'missing' && item.status !== 'failed')) {
+-    if (node.type && node.type !== 'unknown') present.add(node.type);
+-    if (node.metricId) present.add(node.metricId);
+-  }
+-  const required = Array.isArray(requiredEvidence) ? requiredEvidence : [];
+-  const missing = required.filter((item) => !present.has(item));
+-  return Object.freeze({ ok: missing.length === 0, required: Object.freeze([...required]), present: Object.freeze([...present]), missing: Object.freeze(missing), status: missing.length === 0 ? 'complete' : present.size ? 'partial' : 'missing' });
+-}
+diff --git a/src/ai/response/envelope.js b/src/ai/response/envelope.js
+deleted file mode 100644
+--- a/src/ai/response/envelope.js
++++ /dev/null
+@@ -1,19 +0,0 @@
+-export const AI_RESPONSE_SCHEMA_VERSION = 'ai-response.v1';
+-
+-export function createAIResponseEnvelope({ requestId = null, route = 'home', status = 'blocked', text = '', citations = [], evidenceIds = [], policy = null, model = null, now = Date.now() } = {}) {
+-  const createdAt = new Date(now);
+-  return Object.freeze({ schemaVersion: AI_RESPONSE_SCHEMA_VERSION, requestId, route, status, text: String(text || ''), citations: Object.freeze(Array.isArray(citations) ? citations.filter((url) => /^https:\/\//i.test(String(url))).map(String) : []), evidenceIds: Object.freeze(Array.isArray(evidenceIds) ? evidenceIds.map(String) : []), policy: Object.freeze(policy && typeof policy === 'object' ? { ...policy } : { allowed: status === 'ok' }), model: model || null, createdAt: Number.isNaN(createdAt.getTime()) ? null : createdAt.toISOString() });
+-}
+-
+-export function validateAIResponseEnvelope(envelope) {
+-  const errors = [];
+-  if (!envelope || envelope.schemaVersion !== AI_RESPONSE_SCHEMA_VERSION) errors.push('schema_version_invalid');
+-  if (!['ok', 'partial', 'blocked', 'unavailable'].includes(envelope?.status)) errors.push('status_invalid');
+-  const evidenceIds = Array.isArray(envelope?.evidenceIds) ? envelope.evidenceIds : [];
+-  const citations = Array.isArray(envelope?.citations) ? envelope.citations : [];
+-  if (!Array.isArray(envelope?.evidenceIds)) errors.push('evidence_ids_invalid');
+-  if (!Array.isArray(envelope?.citations)) errors.push('citations_invalid');
+-  if (!envelope?.createdAt || Number.isNaN(Date.parse(envelope.createdAt))) errors.push('created_at_invalid');
+-  if (envelope?.status === 'ok' && !evidenceIds.length && !citations.length) errors.push('traceability_missing');
+-  return Object.freeze({ ok: errors.length === 0, errors });
+-}

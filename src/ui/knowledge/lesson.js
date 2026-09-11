@@ -26,17 +26,18 @@ function list(documentRef, values, className) {
 export function renderKnowledgeLesson(documentRef, article, { className = 'knowledge-lesson', routeTarget = null, onNavigate = null } = {}) {
   const root = element(documentRef, 'article', className);
   if (!article?.article) {
-    root.appendChild(element(documentRef, 'p', 'knowledge-empty', '심층 원고를 아직 불러오지 못했습니다. 요약·근거 경계를 유지합니다.'));
+    root.appendChild(element(documentRef, 'p', 'knowledge-empty', '개념 원문을 아직 불러오지 못했습니다. 요약과 출처를 먼저 확인하세요.'));
     return root;
   }
-  root.append(element(documentRef, 'h4', 'knowledge-lesson-title', article.title), element(documentRef, 'p', 'knowledge-lesson-boundary', '교육용 reference draft · 현재 주장·매매 지시 아님'));
+  root.append(element(documentRef, 'h4', 'knowledge-lesson-title', article.title), element(documentRef, 'p', 'knowledge-lesson-boundary', '개념별 짧은 참고 원문 · 심층 설명은 추가 집필 필요'));
   const fields = [
-    ['직관', article.article.intuition], ['형식 모델 또는 정성적 근거', article.article.formalModelOrRationale?.text],
+    ['정의', article.article.intuition], ['작동 원리', article.article.formalModelOrRationale?.text],
     ['실물경제 전달', article.article.realEconomyChannel], ['기업 전달', article.article.companyChannel],
     ['재무제표 전달', article.article.financialStatementChannel], ['밸류에이션 전달', article.article.valuationChannel],
     ['시장 전달', article.article.marketChannel], ['관찰 적용', article.article.tradingApplication], ['무효화 조건', article.article.invalidation]
   ];
   for (const [label, value] of fields) {
+    if (!value) continue;
     const section = element(documentRef, 'section', 'knowledge-lesson-section');
     section.append(element(documentRef, 'h5', 'knowledge-lesson-section-title', label), element(documentRef, 'p', 'knowledge-lesson-copy', value || '확인 필요'));
     root.appendChild(section);
@@ -45,6 +46,7 @@ export function renderKnowledgeLesson(documentRef, article, { className = 'knowl
   const exampleSection = element(documentRef, 'section', 'knowledge-lesson-section knowledge-worked-example');
   exampleSection.append(element(documentRef, 'h5', 'knowledge-lesson-section-title', '사례·근거 전개'));
   for (const [label, value] of [['입력', example?.inputs], ['가정', example?.assumptions], ['단계', example?.steps], ['결과', example?.result], ['해석', example?.interpretation], ['실패 경계', example?.failureBoundary]]) {
+    if (!value || (Array.isArray(value) && !value.length)) continue;
     const block = element(documentRef, 'div', 'knowledge-example-block');
     block.appendChild(element(documentRef, 'strong', 'knowledge-example-label', label));
     if (Array.isArray(value)) block.appendChild(list(documentRef, value, 'knowledge-example-list'));
@@ -54,7 +56,7 @@ export function renderKnowledgeLesson(documentRef, article, { className = 'knowl
   root.appendChild(exampleSection);
   const glossary = element(documentRef, 'section', 'knowledge-lesson-section');
   glossary.append(element(documentRef, 'h5', 'knowledge-lesson-section-title', '용어'), list(documentRef, article.article.glossary, 'knowledge-glossary-list'));
-  root.appendChild(glossary);
+  if (article.article.glossary?.length) root.appendChild(glossary);
   if (routeTarget?.routeId && typeof onNavigate === 'function') {
     const bridge = element(documentRef, 'section', 'knowledge-professional-bridge');
     bridge.append(

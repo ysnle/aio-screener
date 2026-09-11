@@ -9,6 +9,7 @@ const WORKER_ENDPOINTS_PATH = new URL('../architecture/worker-endpoints.json', i
 const PUBLIC_READINESS_PATH = new URL('../architecture/public-readiness.json', import.meta.url);
 const PUBLIC_CONFIG_PATH = new URL('../public-config.json', import.meta.url);
 const WORKER_HEALTH_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+const DURABLE_QUOTE_QUALITIES = new Set(['CURRENT', 'CLOSED_CURRENT', 'DELAYED']);
 
 export function deriveOperationalState({ configured = false, healthy = false, stale = false, rightsReview = false } = {}) {
   if (rightsReview) return 'RIGHTS_REVIEW_REQUIRED';
@@ -158,21 +159,47 @@ export function deriveDurableFreshness({ data = {}, marketSnapshot = {}, now = n
   const coverage = marketSnapshot?.coverage || {};
   const coverageComplete = Number(coverage.tier0Required) > 0
     && Number(coverage.tier0Observed) === Number(coverage.tier0Required)
+    && marketSnapshot?.quality?.gate === 'QG-01_PASS'
     && (!Array.isArray(marketSnapshot?.errors) || marketSnapshot.errors.length === 0);
+  const quotes = Array.isArray(marketSnapshot?.quotes) ? marketSnapshot.quotes : [];
+  const blockedQuotes = quotes.filter((quote) => !DURABLE_QUOTE_QUALITIES.has(quote?.quality)
+    || ['SOURCE_UNAVAILABLE', 'STALE_UNEXPECTED', 'UNKNOWN'].includes(String(quote?.session || 'UNKNOWN')));
+  const quoteQualityComplete = Number(coverage.tier0Required) > 0
+    && quotes.length === Number(coverage.tier0Required)
+    && blockedQuotes.length === 0;
   const utcDay = Number.isFinite(nowMs) ? new Date(nowMs).getUTCDay() : null;
   const marketClosedGrace = (utcDay === 0 || utcDay === 6)
     && marketSnapshot?.status === 'published'
     && data?.meta?.cycleStatus === 'PUBLISHED'
-    && coverageComplete;
+    && coverageComplete
+    && quoteQualityComplete;
   const withinSla = ageHours != null && ageHours >= 0 && ageHours <= maxAgeHours;
+  const timeFresh = withinSla || marketClosedGrace;
   return Object.freeze({
-    fresh: withinSla || marketClosedGrace,
+    fresh: timeFresh && coverageComplete && quoteQualityComplete,
     withinSla,
     marketClosedGrace,
+    coverageComplete,
+    quoteQualityComplete,
+    blockedQuotes: Object.freeze(blockedQuotes.map((quote) => Object.freeze({
+      instrumentId: quote?.instrumentId || null,
+      quality: quote?.quality || null,
+      session: quote?.session || null
+    }))),
     generatedAt,
     ageHours: ageHours == null ? null : Math.round(ageHours * 100) / 100,
     maxAgeHours,
-    reason: withinSla || marketClosedGrace ? null : (ageHours == null ? 'generatedAt-missing-or-invalid' : 'market-cycle-freshness-sla-exceeded')
+    reason: !coverageComplete
+      ? 'market-snapshot-quality-gate-blocked'
+      : !quoteQualityComplete
+        ? 'market-snapshot-quote-quality-blocked'
+        : timeFresh
+          ? null
+          : (ageHours == null
+            ? 'generatedAt-missing-or-invalid'
+            : ageHours < 0
+              ? 'market-cycle-generatedAt-in-future'
+              : 'market-cycle-freshness-sla-exceeded')
   });
 }
 

@@ -1,0 +1,756 @@
+{
+  "label": "after-subscriptions",
+  "environment": {
+    "browser": "149.0.7827.55",
+    "externalNetwork": "aborted",
+    "viewport": "1440x900"
+  },
+  "boot": {
+    "fcp": 2004,
+    "tasks": [
+      {
+        "start": 125.09999990463257,
+        "duration": 103
+      },
+      {
+        "start": 420.7999999523163,
+        "duration": 67
+      },
+      {
+        "start": 524.1999998092651,
+        "duration": 70
+      },
+      {
+        "start": 705,
+        "duration": 1245
+      },
+      {
+        "start": 1987.1999998092651,
+        "duration": 341
+      },
+      {
+        "start": 2330.0999999046326,
+        "duration": 82
+      },
+      {
+        "start": 2745.199999809265,
+        "duration": 177
+      },
+      {
+        "start": 2922.7999999523163,
+        "duration": 199
+      },
+      {
+        "start": 3123.0999999046326,
+        "duration": 186
+      },
+      {
+        "start": 3311.2999999523163,
+        "duration": 55
+      },
+      {
+        "start": 3366.699999809265,
+        "duration": 181
+      },
+      {
+        "start": 3567.899999856949,
+        "duration": 923
+      },
+      {
+        "start": 4539.399999856949,
+        "duration": 170
+      }
+    ],
+    "resources": [
+      {
+        "path": "/js/aio-core.js",
+        "bytes": 1679074
+      },
+      {
+        "path": "/js/aio-ui.js",
+        "bytes": 275961
+      },
+      {
+        "path": "/js/aio-chat.js",
+        "bytes": 548921
+      },
+      {
+        "path": "/js/aio-data.js",
+        "bytes": 1016011
+      },
+      {
+        "path": "/js/aio-core.js",
+        "bytes": 1679074
+      },
+      {
+        "path": "/js/aio-ui.js",
+        "bytes": 275961
+      },
+      {
+        "path": "/js/aio-data.js",
+        "bytes": 1016011
+      },
+      {
+        "path": "/js/aio-chat.js",
+        "bytes": 548921
+      },
+      {
+        "path": "/js/aio-glossary.js",
+        "bytes": 60846
+      },
+      {
+        "path": "/src/app/bootstrap.js",
+        "bytes": 41014
+      },
+      {
+        "path": "/src/platform/clock.js",
+        "bytes": 207
+      },
+      {
+        "path": "/src/platform/http.js",
+        "bytes": 3138
+      },
+      {
+        "path": "/src/state/store.js",
+        "bytes": 1790
+      },
+      {
+        "path": "/src/state/slices/sentiment.js",
+        "bytes": 969
+      },
+      {
+        "path": "/src/state/slices/news.js",
+        "bytes": 1449
+      },
+      {
+        "path": "/src/state/slices/market.js",
+        "bytes": 1005
+      },
+      {
+        "path": "/src/state/slices/themes.js",
+        "bytes": 1350
+      },
+      {
+        "path": "/src/state/slices/entity.js",
+        "bytes": 1773
+      },
+      {
+        "path": "/src/state/slices/portfolio.js",
+        "bytes": 1311
+      },
+      {
+        "path": "/src/state/slices/screener.js",
+        "bytes": 2962
+      },
+      {
+        "path": "/src/app/commands/sentiment.js",
+        "bytes": 460
+      },
+      {
+        "path": "/src/app/commands/news.js",
+        "bytes": 425
+      },
+      {
+        "path": "/src/app/commands/market.js",
+        "bytes": 439
+      },
+      {
+        "path": "/src/app/commands/themes.js",
+        "bytes": 439
+      },
+      {
+        "path": "/src/app/commands/entity.js",
+        "bytes": 439
+      },
+      {
+        "path": "/src/app/commands/portfolio.js",
+        "bytes": 440
+      },
+      {
+        "path": "/src/app/commands/screener.js",
+        "bytes": 859
+      },
+      {
+        "path": "/src/state/selectors/sentiment.js",
+        "bytes": 612
+      },
+      {
+        "path": "/src/data/evidence-store.js",
+        "bytes": 687
+      },
+      {
+        "path": "/src/data/contracts/evidence.js",
+        "bytes": 6340
+      },
+      {
+        "path": "/src/data/selectors/evidence.js",
+        "bytes": 3246
+      },
+      {
+        "path": "/src/domain/signal/trading-score.js",
+        "bytes": 17478
+      },
+      {
+        "path": "/src/domain/technical/stage.js",
+        "bytes": 10134
+      },
+      {
+        "path": "/src/domain/themes/rrg.js",
+        "bytes": 3210
+      },
+      {
+        "path": "/src/domain/news/scoring.js",
+        "bytes": 6512
+      },
+      {
+        "path": "/src/domain/market/breadth.js",
+        "bytes": 5813
+      },
+      {
+        "path": "/src/domain/market/health.js",
+        "bytes": 6174
+      },
+      {
+        "path": "/src/domain/macro/treasury-curve.js",
+        "bytes": 4400
+      },
+      {
+        "path": "/src/domain/portfolio/concentration.js",
+        "bytes": 3775
+      },
+      {
+        "path": "/src/domain/screener/factor-ranks.js",
+        "bytes": 30537
+      },
+      {
+        "path": "/src/domain/screener/factor-weights.js",
+        "bytes": 4154
+      },
+      {
+        "path": "/src/domain/screener/screen-engine.js",
+        "bytes": 14892
+      },
+      {
+        "path": "/src/storage/screener-runs.js",
+        "bytes": 3454
+      },
+      {
+        "path": "/src/domain/screener/saved-screens.js",
+        "bytes": 4147
+      },
+      {
+        "path": "/src/data/market-snapshot-loader.js",
+        "bytes": 1207
+      },
+      {
+        "path": "/src/data/providers/sentiment.js",
+        "bytes": 300
+      },
+      {
+        "path": "/src/data/orchestrators/sentiment.js",
+        "bytes": 3392
+      },
+      {
+        "path": "/src/data/providers/news.js",
+        "bytes": 947
+      },
+      {
+        "path": "/src/data/orchestrators/news.js",
+        "bytes": 1285
+      },
+      {
+        "path": "/src/data/providers/market.js",
+        "bytes": 544
+      },
+      {
+        "path": "/src/data/orchestrators/market.js",
+        "bytes": 460
+      },
+      {
+        "path": "/src/data/providers/themes.js",
+        "bytes": 8979
+      },
+      {
+        "path": "/src/data/orchestrators/themes.js",
+        "bytes": 460
+      },
+      {
+        "path": "/src/data/providers/entity.js",
+        "bytes": 4694
+      },
+      {
+        "path": "/src/data/orchestrators/entity.js",
+        "bytes": 1303
+      },
+      {
+        "path": "/src/data/providers/portfolio.js",
+        "bytes": 1905
+      },
+      {
+        "path": "/src/data/orchestrators/portfolio.js",
+        "bytes": 475
+      },
+      {
+        "path": "/src/data/providers/screener.js",
+        "bytes": 19680
+      },
+      {
+        "path": "/src/data/orchestrators/screener.js",
+        "bytes": 6637
+      },
+      {
+        "path": "/src/data/runtime-readers.js",
+        "bytes": 28843
+      },
+      {
+        "path": "/src/ai/context-builder.js",
+        "bytes": 863
+      },
+      {
+        "path": "/src/ai/retrieval/evidence.js",
+        "bytes": 312
+      },
+      {
+        "path": "/src/ai/retrieval/knowledge.js",
+        "bytes": 11626
+      },
+      {
+        "path": "/src/ai/orchestrator/answer-orchestrator.js",
+        "bytes": 4061
+      },
+      {
+        "path": "/src/ai/research/evidence.js",
+        "bytes": 14684
+      },
+      {
+        "path": "/src/app/router.js",
+        "bytes": 8889
+      },
+      {
+        "path": "/src/ui/projections/sentiment-summary.js",
+        "bytes": 863
+      },
+      {
+        "path": "/src/state/slices/analysis.js",
+        "bytes": 997
+      },
+      {
+        "path": "/src/app/commands/analysis.js",
+        "bytes": 433
+      },
+      {
+        "path": "/src/data/providers/analysis.js",
+        "bytes": 163
+      },
+      {
+        "path": "/src/data/orchestrators/analysis.js",
+        "bytes": 456
+      },
+      {
+        "path": "/src/legacy/compatibility-facade.js",
+        "bytes": 29465
+      },
+      {
+        "path": "/src/legacy/market-snapshot-bridge.js",
+        "bytes": 2307
+      },
+      {
+        "path": "/src/app/routes.js",
+        "bytes": 355
+      },
+      {
+        "path": "/src/app/vertical-slices.js",
+        "bytes": 4228
+      },
+      {
+        "path": "/src/data/contracts/page-timeline.js",
+        "bytes": 8098
+      },
+      {
+        "path": "/src/domain/content/capability-manifest.js",
+        "bytes": 4764
+      },
+      {
+        "path": "/src/ai/policy/conduct.js",
+        "bytes": 6474
+      },
+      {
+        "path": "/src/app/lifecycle.js",
+        "bytes": 4347
+      },
+      {
+        "path": "/src/domain/sentiment/metrics.js",
+        "bytes": 1762
+      },
+      {
+        "path": "/src/data/contracts/screener.js",
+        "bytes": 34566
+      },
+      {
+        "path": "/src/data/contracts/market-snapshot.js",
+        "bytes": 8452
+      },
+      {
+        "path": "/src/data/quality/freshness.js",
+        "bytes": 1461
+      },
+      {
+        "path": "/src/data/normalize/sentiment.js",
+        "bytes": 1700
+      },
+      {
+        "path": "/src/data/normalize/news.js",
+        "bytes": 1243
+      },
+      {
+        "path": "/src/data/normalize/market.js",
+        "bytes": 1032
+      },
+      {
+        "path": "/src/data/normalize/themes.js",
+        "bytes": 5121
+      },
+      {
+        "path": "/src/data/normalize/entity.js",
+        "bytes": 2101
+      },
+      {
+        "path": "/src/data/normalize/portfolio.js",
+        "bytes": 2561
+      },
+      {
+        "path": "/src/data/normalize/screener.js",
+        "bytes": 5023
+      },
+      {
+        "path": "/src/domain/screener/setup-profile.js",
+        "bytes": 5857
+      },
+      {
+        "path": "/src/domain/research/supplied-materials.js",
+        "bytes": 60869
+      },
+      {
+        "path": "/src/ai/policy.js",
+        "bytes": 1559
+      },
+      {
+        "path": "/src/ai/context/manifest.js",
+        "bytes": 903
+      },
+      {
+        "path": "/src/ai/orchestrator/capability-planner.js",
+        "bytes": 1324
+      },
+      {
+        "path": "/src/ai/orchestrator/question-planner.js",
+        "bytes": 5678
+      },
+      {
+        "path": "/src/ai/response/claim-ledger.js",
+        "bytes": 6598
+      },
+      {
+        "path": "/src/ai/response/renderer.js",
+        "bytes": 2245
+      },
+      {
+        "path": "/src/ai/analysis/registry.js",
+        "bytes": 1255
+      },
+      {
+        "path": "/src/ai/research/decision.js",
+        "bytes": 8245
+      },
+      {
+        "path": "/src/ai/research/capability.js",
+        "bytes": 3213
+      },
+      {
+        "path": "/src/ai/research/plan.js",
+        "bytes": 6326
+      },
+      {
+        "path": "/src/data/normalize/analysis.js",
+        "bytes": 1593
+      },
+      {
+        "path": "/src/domain/chart/contract.js",
+        "bytes": 2442
+      },
+      {
+        "path": "/src/ai/inference.js",
+        "bytes": 5246
+      },
+      {
+        "path": "/src/ai/intent/taxonomy.js",
+        "bytes": 9095
+      },
+      {
+        "path": "/src/ai/time/market-session.js",
+        "bytes": 6365
+      },
+      {
+        "path": "/src/ai/entity/resolver.js",
+        "bytes": 3823
+      },
+      {
+        "path": "/src/ai/policy/suitability.js",
+        "bytes": 1090
+      },
+      {
+        "path": "/src/ai/analysis/causal.js",
+        "bytes": 3149
+      },
+      {
+        "path": "/src/ai/analysis/sector.js",
+        "bytes": 2292
+      },
+      {
+        "path": "/src/ai/analysis/company.js",
+        "bytes": 2980
+      },
+      {
+        "path": "/src/ai/analysis/technical.js",
+        "bytes": 2251
+      },
+      {
+        "path": "/src/ai/analysis/macro-fx.js",
+        "bytes": 1907
+      },
+      {
+        "path": "/src/domain/home/summary.js",
+        "bytes": 696
+      },
+      {
+        "path": "/src/ui/pages/analysis.js",
+        "bytes": 22926
+      },
+      {
+        "path": "/public-data/market-snapshot.json",
+        "bytes": 12601
+      },
+      {
+        "path": "/public-data/data.json",
+        "bytes": 101155
+      },
+      {
+        "path": "/src/state/memoize.js",
+        "bytes": 1993
+      },
+      {
+        "path": "/src/state/selectors/analysis.js",
+        "bytes": 361
+      },
+      {
+        "path": "/src/ui/knowledge/supplied-material-bridge.js",
+        "bytes": 7196
+      },
+      {
+        "path": "/public-data/reconciliation-status.json",
+        "bytes": 63173
+      },
+      {
+        "path": "/public-data/telegram-digest.json",
+        "bytes": 1100726
+      },
+      {
+        "path": "/public-data/history.json",
+        "bytes": 1524868
+      },
+      {
+        "path": "/public-data/operator-note.json",
+        "bytes": 1243
+      },
+      {
+        "path": "/public-data/sec-fundamentals-summary.json",
+        "bytes": 567900
+      },
+      {
+        "path": "/public-data/screener.json",
+        "bytes": 816131
+      },
+      {
+        "path": "/public-data/screener-universe.json",
+        "bytes": 105130
+      },
+      {
+        "path": "/public-data/user-research-digest.json",
+        "bytes": 79040
+      },
+      {
+        "path": "/public-data/screener.json",
+        "bytes": 816131
+      },
+      {
+        "path": "/public-data/screener-universe.json",
+        "bytes": 105130
+      }
+    ]
+  },
+  "routes": [
+    {
+      "route": "home",
+      "syncMs": 26.90000009536743,
+      "paintMs": 223.90000009536743,
+      "nodes": 498,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "signal",
+      "syncMs": 67.20000004768372,
+      "paintMs": 253.80000019073486,
+      "nodes": 811,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "breadth",
+      "syncMs": 45.39999985694885,
+      "paintMs": 322.89999985694885,
+      "nodes": 332,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "sentiment",
+      "syncMs": 49.5,
+      "paintMs": 256.5,
+      "nodes": 373,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "briefing",
+      "syncMs": 227.30000019073486,
+      "paintMs": 641.7000000476837,
+      "nodes": 555,
+      "module": "loading",
+      "active": true
+    },
+    {
+      "route": "technical",
+      "syncMs": 44.90000009536743,
+      "paintMs": 279.40000009536743,
+      "nodes": 652,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "macro",
+      "syncMs": 35.299999952316284,
+      "paintMs": 248.79999995231628,
+      "nodes": 951,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "fxbond",
+      "syncMs": 40.5,
+      "paintMs": 226,
+      "nodes": 715,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "themes",
+      "syncMs": 197.59999990463257,
+      "paintMs": 407.2000000476837,
+      "nodes": 3825,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "theme-detail",
+      "syncMs": 206,
+      "paintMs": 401.09999990463257,
+      "nodes": 102,
+      "active": false
+    },
+    {
+      "route": "ticker",
+      "syncMs": 60,
+      "paintMs": 476.5,
+      "nodes": 387,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "fundamental",
+      "syncMs": 30.5,
+      "paintMs": 383.89999985694885,
+      "nodes": 675,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "options",
+      "syncMs": 31.90000009536743,
+      "paintMs": 425.7999999523163,
+      "nodes": 185,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "portfolio",
+      "syncMs": 42.799999952316284,
+      "paintMs": 313.59999990463257,
+      "nodes": 517,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "market-news",
+      "syncMs": 53.799999952316284,
+      "paintMs": 318.60000014305115,
+      "nodes": 480,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "screener",
+      "syncMs": 54.5,
+      "paintMs": 244.5,
+      "nodes": 343,
+      "module": "loading",
+      "active": true
+    },
+    {
+      "route": "principles",
+      "syncMs": 32.19999980926514,
+      "paintMs": 253.5,
+      "nodes": 407,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "masters",
+      "syncMs": 29.90000009536743,
+      "paintMs": 243.60000014305115,
+      "nodes": 925,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "atlas",
+      "syncMs": 27,
+      "paintMs": 227.59999990463257,
+      "nodes": 604,
+      "module": "ready",
+      "active": true
+    },
+    {
+      "route": "guide",
+      "syncMs": 72.60000014305115,
+      "paintMs": 260.10000014305115,
+      "nodes": 553,
+      "module": "ready",
+      "active": true
+    }
+  ],
+  "unrelatedDispatch": {
+    "ms": 1.2999999523162842,
+    "mutations": 20
+  }
+}

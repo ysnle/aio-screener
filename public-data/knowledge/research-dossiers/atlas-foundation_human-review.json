@@ -39,13 +39,6 @@
       "sourceTier": "PRIMARY_OFFICIAL"
     },
     {
-      "sourceId": "WEB-SEC-GOOGLE-10K-2025",
-      "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
-      "publisher": "U.S. Securities and Exchange Commission / Alphabet",
-      "title": "Alphabet 2025 Form 10-K filing",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
       "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
       "url": "https://arxiv.org/abs/1706.03762",
       "publisher": "arXiv / Vaswani et al.",
@@ -66,15 +59,6 @@
       "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
       "publisher": "NIST AI Resource Center",
       "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
-    {
-      "sourceId": "WEB-SEC-GOOGLE-10K-2025",
-      "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
-      "publisher": "U.S. Securities and Exchange Commission / Alphabet",
-      "title": "Alphabet 2025 Form 10-K filing",
       "sourceTier": "PRIMARY_OFFICIAL",
       "directness": "DIRECT",
       "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
@@ -111,8 +95,7 @@
     }
   ],
   "researchFactIds": [
-    "fact:nist:ai-rmf-core",
-    "fact:sec:capex-depreciation"
+    "fact:nist:ai-rmf-core"
   ],
   "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
   "disagreement": "Not assessed until independent source comparison is complete.",

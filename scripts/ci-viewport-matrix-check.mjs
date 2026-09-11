@@ -7,22 +7,20 @@ import { mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DESKTOP_QA_VIEWPORTS } from './desktop-qa-config.mjs';
+import { ROUTE_IDS } from '../src/app/routes.js';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const root = resolve(scriptDir, '..');
 const PORT = Number(process.env.CI_VIEWPORT_PORT || 8892);
 const BASE_URL = `http://127.0.0.1:${PORT}/index.html`;
 const SCREENSHOTS = process.env.AIO_VIEWPORT_SCREENSHOTS === '1';
-const FULL_INIT = process.env.AIO_VIEWPORT_FULL_INIT === '1';
+// Real route lifecycle is the default evidence. Set AIO_VIEWPORT_FULL_INIT=0
+// only for a deliberately structural DOM/layout probe.
+const FULL_INIT = process.env.AIO_VIEWPORT_FULL_INIT !== '0';
 const VIEWPORT_FILTER = new Set(String(process.env.AIO_VIEWPORT_NAMES || '').split(',').map((v) => v.trim()).filter(Boolean));
 const OUT_DIR = resolve(root, '_artifacts', 'viewport-matrix');
 
-// v53.7 (P725): KR 전용 5라우트 퇴역 — 콘텐츠는 themes/macro/technical의 통합 섹션(라우트 방문으로 함께 검사됨)
-const ROUTES = [
-  'home','signal','breadth','sentiment','briefing','market-news','technical','screener',
-  'ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','options',
-  'guide','principles','masters','atlas'
-];
+const ROUTES = ROUTE_IDS;
 
 const VIEWPORTS = DESKTOP_QA_VIEWPORTS
   .filter((viewport) => !VIEWPORT_FILTER.size || VIEWPORT_FILTER.has(viewport.name));
@@ -45,7 +43,7 @@ function startServer() {
   });
 }
 
-async function auditRoute(page, routeId) {
+async function activateRoute(page, routeId) {
   return page.evaluate((id) => {
     const targetPageId = id === 'theme-detail' ? 'themes' : id;
     const targetPage = document.getElementById('page-' + targetPageId);
@@ -56,6 +54,15 @@ async function auditRoute(page, routeId) {
       document.querySelectorAll('.page').forEach((p) => p.classList.remove('active'));
       targetPage.classList.add('active');
     }
+    return { routeId: id, fatal: null };
+  }, routeId);
+}
+
+async function auditRoute(page, routeId) {
+  return page.evaluate((id) => {
+    const targetPageId = id === 'theme-detail' ? 'themes' : id;
+    const targetPage = document.getElementById('page-' + targetPageId);
+    if (!targetPage) return { routeId: id, fatal: 'page element missing' };
     const pageEl = targetPage;
     const ownText = (el) => (el.getAttribute('aria-label') || el.getAttribute('title') || el.textContent || el.value || '').trim();
     const badTextRe = /\[번역 대기\]|SNAPSHOT\s*·\s*reference|\bundefined\b|\bNaN\b|\[object Object\]/;
@@ -264,7 +271,9 @@ async function main() {
       for (const routeId of ROUTES) {
         const errCountBefore = jsErrors.length;
         currentRouteId = routeId;
-        const r = await auditRoute(page, routeId);
+        const activation = await activateRoute(page, routeId);
+        let settleFailure = null;
+        let settleTimedOutButActive = false;
         if (FULL_INIT) {
           try { await settleRoute(page, routeId); }
           catch (e) {
@@ -280,26 +289,33 @@ async function main() {
               return !!panel && panel.style.display !== 'none' && !!panel.dataset.currentTheme
                 && (panel.textContent || '').trim().length > 40;
             }, routeId);
-            if (!activeAfterTimeout) r.fatal = r.fatal || `route settle timeout: ${e.message}`;
-            else r.settleTimedOutButActive = true;
+            if (!activeAfterTimeout) settleFailure = `route settle timeout: ${e.message}`;
+            else settleTimedOutButActive = true;
           }
-          r.routeSemanticReady = await page.evaluate((id) => {
-            const targetId = id === 'theme-detail' ? 'themes' : id;
-            const pageEl = document.getElementById('page-' + targetId);
-            if (!pageEl || !pageEl.classList.contains('active')) return false;
-            if (id !== 'theme-detail') return true;
-            const panel = document.getElementById('theme-detail-panel');
-            return !!panel && panel.style.display !== 'none' && !!panel.dataset.currentTheme
-              && (panel.textContent || '').trim().length > 40;
-          }, routeId);
-          // let async post-showPage errors surface before attributing to the next route
-          await page.waitForTimeout(150);
-          const late = await page.evaluate(() => Array.isArray(window.__AIO_UNHANDLED_REJECTIONS__)
-            ? window.__AIO_UNHANDLED_REJECTIONS__.splice(0, 20) : []);
-          if (late.length) {
-            r.unhandledRejectionCount = (r.unhandledRejectionCount || 0) + late.length;
-            r.samples.unhandledRejections = (r.samples.unhandledRejections || []).concat(late).slice(0, 20);
-          }
+        }
+        // Geometry, rendered canvases, labels and overflow are measured only after the
+        // route lifecycle has reached its semantic predicate and yielded a paint.
+        const r = await auditRoute(page, routeId);
+        if (!r.samples) r.samples = { unhandledRejections: [] };
+        if (activation?.fatal) r.fatal = activation.fatal;
+        if (settleFailure) r.fatal = r.fatal || settleFailure;
+        if (settleTimedOutButActive) r.settleTimedOutButActive = true;
+        if (FULL_INIT) r.routeSemanticReady = await page.evaluate((id) => {
+          const targetId = id === 'theme-detail' ? 'themes' : id;
+          const pageEl = document.getElementById('page-' + targetId);
+          if (!pageEl || !pageEl.classList.contains('active')) return false;
+          if (id !== 'theme-detail') return true;
+          const panel = document.getElementById('theme-detail-panel');
+          return !!panel && panel.style.display !== 'none' && !!panel.dataset.currentTheme
+            && (panel.textContent || '').trim().length > 40;
+        }, routeId);
+        // let async post-showPage errors surface before attributing to the next route
+        await page.waitForTimeout(150);
+        const late = await page.evaluate(() => Array.isArray(window.__AIO_UNHANDLED_REJECTIONS__)
+          ? window.__AIO_UNHANDLED_REJECTIONS__.splice(0, 20) : []);
+        if (late.length) {
+          r.unhandledRejectionCount = (r.unhandledRejectionCount || 0) + late.length;
+          r.samples.unhandledRejections = (r.samples.unhandledRejections || []).concat(late).slice(0, 20);
         }
         r.viewport = vp.name;
         r.jsErrorCount = jsErrors.length - errCountBefore;

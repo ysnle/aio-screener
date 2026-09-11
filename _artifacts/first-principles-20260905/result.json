@@ -1,0 +1,38 @@
+{
+  "status": "APPLIED_VALIDATED",
+  "version": "v54.78",
+  "cleanup": {
+    "removedModules": 10,
+    "insertions": 6,
+    "deletions": 353,
+    "netLinesRemoved": 347,
+    "coreBytesRemoved": 6780
+  },
+  "independentChecks": {
+    "nativeModules": 164,
+    "relativeImports": 236,
+    "missingImports": 0,
+    "canonicalSourceIdentical": true,
+    "canonicalBehaviorCases": 3
+  },
+  "qa": {
+    "command": "node scripts/qa-runner.mjs affected --session first-principles-apply-20260905",
+    "passed": 86,
+    "failed": 0,
+    "skipped": 0,
+    "cached": 0,
+    "staticGates": 71,
+    "browserGates": 15,
+    "durationMs": 580685,
+    "headlessGroups": 109
+  },
+  "blocked": [],
+  "unverified": [
+    "live deployment/provider state",
+    "human visual/accessibility review",
+    "line-by-line semantic certification of the entire repository"
+  ],
+  "commit": false,
+  "push": false,
+  "deployment": false
+}

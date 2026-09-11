@@ -1,6 +1,7 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { selectNewsItems, selectNewsStatus } from '../../state/selectors/news.js';
+import { subscribeToSlices } from '../../state/memoize.js';
 
 function text(documentRef, value, fallback = '—') {
   const node = documentRef.createElement('span');
@@ -306,7 +307,7 @@ export function createNewsPage({ root = globalThis, documentRef, store, route = 
         bag.add(() => suppliedMaterialBridge.remove());
       }
       renderNow();
-      const unsubscribe = store?.subscribe?.(renderNow);
+      const unsubscribe = store && subscribeToSlices(store, ['news'], renderNow);
       if (unsubscribe) bag.add(unsubscribe);
       const eventTarget = documentRef || root;
       ['aio:newsUpdated', 'aio:newsSurfaceInvalidated', 'aio:refresh:done', 'aio:serverDataLoaded'].forEach((eventName) => {

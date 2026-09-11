@@ -13,6 +13,10 @@ const readJson = (relativePath) => JSON.parse(fs.readFileSync(path.join(root, re
 const failures = [];
 const assert = (condition, message) => { if (!condition) failures.push(message); };
 
+const unspecifiedEdge = normalizeKnowledgeEdge({ from: 'a', to: 'b', relation: '참고 관계' });
+if (unspecifiedEdge.type !== 'RELATES_TO' || !unspecifiedEdge.inferredFields.includes('type')) fail('unknown edge relation must not imply causality');
+const explicitCause = normalizeKnowledgeEdge({ from: 'a', to: 'b', relation: 'explicit reviewed cause', type: 'CAUSES' });
+if (explicitCause.type !== 'CAUSES') fail('explicit causal relationship was lost');
 const malformedEdge = normalizeKnowledgeEdge({ from: 'a', to: 'b', relation: 'requires', type: 'TYPO', direction: 'SIDEWAYS', conditions: 'not-an-array', sourceIds: 'PS-01' });
 assert(malformedEdge.type === 'REQUIRES' && malformedEdge.direction === 'DIRECTED', `Invalid edge enums did not fail closed: ${JSON.stringify(malformedEdge)}`);
 assert(malformedEdge.inferredFields.includes('type') && malformedEdge.inferredFields.includes('direction') && malformedEdge.inferredFields.includes('conditions') && malformedEdge.inferredFields.includes('sourceIds'), `Invalid edge fields were not audited: ${JSON.stringify(malformedEdge.inferredFields)}`);

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "knowledge-encyclopedia-depth-audit.v1",
-  "auditedAt": "2026-08-22",
-  "status": "STRUCTURED_DEPTH_CERTIFIED_USER_VALIDATION_PENDING",
+  "auditedAt": "2026-09-11",
+  "status": "ENCYCLOPEDIA_DEPTH_BLOCKED",
   "completionReady": false,
   "interpretation": "현재 required-field 존재 여부와 백과사전급 설명 깊이는 다른 계약이다. 문자 수는 하한선일 뿐이며 semantic field 충족과 구조화된 worked example을 함께 통과해야 한다.",
   "naming": {
@@ -22,32 +22,32 @@
         "diagram"
       ],
       "currentCoreTextCharacters": {
-        "minimum": 1764,
-        "median": 1832,
-        "p90": 1871,
-        "maximum": 2251,
-        "mean": 1835
+        "minimum": 284,
+        "median": 325,
+        "p90": 351,
+        "maximum": 750,
+        "mean": 330
       },
       "targetMinimumChars": 1200,
-      "meetsLengthFloor": 112,
-      "belowLengthFloor": 0,
-      "digitBearingExampleCount": 16,
-      "structuredWorkedExamples": 112,
+      "meetsLengthFloor": 0,
+      "belowLengthFloor": 112,
+      "digitBearingExampleCount": 8,
+      "structuredWorkedExamples": 0,
       "targetSemanticFieldCoverage": {
-        "intuition": 112,
-        "formalModel": 112,
-        "workedExample": 112,
-        "realEconomyChannel": 112,
-        "companyChannel": 112,
-        "financialStatementChannel": 112,
-        "valuationChannel": 112,
-        "marketChannel": 112,
-        "tradingApplication": 112,
-        "invalidation": 112,
-        "glossary": 112,
+        "intuition": 0,
+        "formalModel": 0,
+        "workedExample": 0,
+        "realEconomyChannel": 0,
+        "companyChannel": 0,
+        "financialStatementChannel": 0,
+        "valuationChannel": 0,
+        "marketChannel": 0,
+        "tradingApplication": 0,
+        "invalidation": 0,
+        "glossary": 0,
         "claimIds": 112
       },
-      "semanticComplete": 112,
+      "semanticComplete": 0,
       "sourceConcentration": [
         {
           "sourceId": "MP-SEC",
@@ -82,7 +82,7 @@
           "lessonCount": 12
         }
       ],
-      "certification": "PASS"
+      "certification": "FAIL"
     },
     {
       "id": "ai-knowledge-map-foundations",
@@ -96,32 +96,32 @@
         "visualization"
       ],
       "currentCoreTextCharacters": {
-        "minimum": 1637,
-        "median": 1718,
-        "p90": 1749,
-        "maximum": 2350,
-        "mean": 1725
+        "minimum": 208,
+        "median": 275,
+        "p90": 298,
+        "maximum": 896,
+        "mean": 285
       },
       "targetMinimumChars": 1200,
-      "meetsLengthFloor": 48,
-      "belowLengthFloor": 0,
+      "meetsLengthFloor": 0,
+      "belowLengthFloor": 48,
       "digitBearingExampleCount": 1,
-      "structuredWorkedExamples": 48,
+      "structuredWorkedExamples": 0,
       "targetSemanticFieldCoverage": {
-        "intuition": 48,
-        "formalModel": 48,
-        "workedExample": 48,
-        "realEconomyChannel": 48,
-        "companyChannel": 48,
-        "financialStatementChannel": 48,
-        "valuationChannel": 48,
-        "marketChannel": 48,
-        "tradingApplication": 48,
-        "invalidation": 48,
-        "glossary": 48,
+        "intuition": 0,
+        "formalModel": 0,
+        "workedExample": 0,
+        "realEconomyChannel": 0,
+        "companyChannel": 0,
+        "financialStatementChannel": 0,
+        "valuationChannel": 0,
+        "marketChannel": 0,
+        "tradingApplication": 0,
+        "invalidation": 0,
+        "glossary": 0,
         "claimIds": 48
       },
-      "semanticComplete": 48,
+      "semanticComplete": 0,
       "sourceConcentration": [
         {
           "sourceId": "PS-01",
@@ -156,7 +156,7 @@
           "lessonCount": 5
         }
       ],
-      "certification": "PASS"
+      "certification": "FAIL"
     }
   ],
   "uiCapabilities": {
@@ -221,6 +221,9 @@
     }
   ],
   "blockers": [
+    "KB-S0-01: 160/160 core lessons are below the 1,200-character encyclopedia floor.",
+    "KB-S0-02: 0/160 lessons implement the complete semantic depth contract.",
+    "KB-S0-03: 0/160 source lesson summaries contain a structured workedExample object; generated drafts are separate and remain review-required.",
     "KB-S0-05: actual recruited-user validation has not been conducted.",
     "KB-S0-06: structured drafts still require independent semantic and source-directness review before publication-quality certification."
   ],

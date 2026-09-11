@@ -1,4 +1,5 @@
 import { chromium } from 'playwright';
+import { readFileSync } from 'node:fs';
 import { spawn } from 'node:child_process';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -166,7 +167,7 @@ try {
   if (referenceStageTen.selected !== 'true' || referenceStageTen.title !== '실전 매매일지' || referenceStageTen.lesson !== '거래 전·후 기록' || !referenceStageTen.route.includes('portfolio')) throw new Error(`reference curriculum stage selection failed: ${JSON.stringify(referenceStageTen)}`);
   await page.locator('#page-principles .principles-library-panel-summary').nth(1).click();
   await page.waitForFunction(() => document.querySelectorAll('#page-principles [data-principles-lesson-id]').length === 20);
-  await search.fill('상관·구조 설명은 인과');
+  await search.fill('희소성은 원하는 것보다');
   await page.waitForFunction(() => document.querySelector('#page-principles [data-principles-lesson-id="A1"]'));
   await search.fill('');
   if (await page.locator('#page-principles .principles-deep-article').count()) throw new Error('deep articles must not load before an explicit lesson request');
@@ -195,9 +196,10 @@ try {
     deepBoundary: document.querySelector('.principles-deep-article .principles-deep-article-boundary')?.textContent || '',
     professionalBridges: document.querySelectorAll('#page-principles .knowledge-professional-bridge-button[data-knowledge-metric][data-knowledge-timeframe]').length
   }));
-  await page.waitForFunction(() => document.querySelectorAll('#page-principles .principles-deep-lesson .knowledge-lesson-section').length >= 8);
+  await page.waitForFunction(() => document.querySelector('#page-principles .principles-deep-lesson .knowledge-lesson-boundary')?.textContent.includes('추가 집필 필요'));
   const principlesArticleText = await page.locator('#page-principles .principles-deep-lesson').innerText();
-  if (principlesArticleText.includes('{"term":') || !principlesArticleText.includes('사례·근거 전개') || !principlesArticleText.includes(' — ')) throw new Error('principles article must render structured glossary values as readable Korean UI text');
+  const sourceArticle = JSON.parse(readFileSync(resolve(root, 'public-data/knowledge/articles.json'), 'utf8')).articles.find((article) => article.articleId === 'principles:A1');
+  if (!sourceArticle || !principlesArticleText.includes(sourceArticle.summary.definition) || !principlesArticleText.includes(sourceArticle.summary.mechanism) || !principlesArticleText.includes(sourceArticle.summary.example) || !principlesArticleText.includes('추가 집필 필요') || principlesArticleText.includes('{"term":') || principlesArticleText.includes('5분 심층')) throw new Error('principles must preserve concept-specific source text without overstating depth');
   if (library.chapters !== 15 || library.lessons !== 20 || library.deepArticles !== 1 || library.professionalBridges !== 1 || !library.deepBoundary.includes('검토')) throw new Error(`library contract failed: ${JSON.stringify(library)}`);
   await page.locator('#page-principles [data-principles-action="library-page"][data-principles-value="2"]').click();
   await page.waitForFunction(() => document.querySelector('#page-principles .principles-library-page-status')?.textContent?.startsWith('2/'));

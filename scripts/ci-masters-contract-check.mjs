@@ -2,10 +2,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
+import { rawHoldingRow } from './lib/masters-raw-rows.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const fail = (message) => { throw new Error(`[masters-contract] ${message}`); };
+const rawRowComparable = (row) => ['priorValue', 'priorShares', 'valueDelta', 'sharesDelta'].some((key) => row[key] != null) || row.action !== 'UNAVAILABLE' || row.comparisonStatus !== 'RAW_ROW_NOT_COMPARABLE' || row.actionConfidence !== 'NOT_AVAILABLE' || row.actionBasis !== 'NOT_AVAILABLE';
+const splitFixture = [10, 20].map((value) => ({ issuer: 'APPLE INC', value, shares: value * 2, priorValue: 5, priorShares: 10, valueDelta: 8107036430, sharesDelta: 50, action: 'INCREASED', comparisonStatus: 'VERIFIED_PRIOR_PERIOD' }));
+if (!splitFixture.every(rawRowComparable) || splitFixture.map(rawHoldingRow).some(rawRowComparable) || splitFixture.map(rawHoldingRow).reduce((sum, row) => sum + row.value, 0) !== 30) fail('raw split-row normalization must reject aggregate deltas and preserve reported values');
 
 const index = read('index.html');
 const core = read('js/aio-core.js');
@@ -113,11 +117,13 @@ if (!/^REFERENCE_ROWS_(?:CONNECTED|PARTIAL)$/.test(holdings.status) || holdings.
 if (runtimeHoldings.schema !== 'masters-13f-runtime-summary.v1' || runtimeHoldings.artifactRole !== 'PAGE_BOOTSTRAP' || runtimeHoldings.allHoldings || runtimeHoldings.fullRowsAvailable !== holdings.fullRowsAvailable || Object.keys(runtimeHoldings.managerShards || {}).length !== holdings.managers.length || runtimeHoldings.shardIntegrityStatus !== 'VERIFIED' || runtimeHoldings.shardsVerified !== holdings.managers.length || runtimeHoldings.comparisonRowsPublished !== runtimeHoldings.topRowsWithComparison || runtimeHoldings.comparisonRowsScope !== 'COMPACT_TOP_HOLDINGS_ONLY' || runtimeHoldings.fullComparisonRowsAvailable !== holdings.fullComparisonRowsAvailable || runtimeHoldings.managerProjectionPolicy?.artifactRole !== 'BOUNDED_WEB_PROJECTION' || runtimeHoldings.managerProjectionPolicy?.rowLimitPerCollection !== 200 || runtimeHoldings.managerProjectionPolicy?.maxBytes !== 512 * 1024 || runtimeHoldings.managerProjectionPolicy?.fullRowStore !== 'BULK_OBJECT_STORAGE_REQUIRED' || Buffer.byteLength(JSON.stringify(runtimeHoldings)) > 280 * 1024 || !page.includes("holdings-summary.json") || !page.includes('integrity: descriptor.sha256') || !page.includes('bounded 웹 투영')) fail('Masters runtime summary does not enforce the verified-shard, bounded projection, integrity, and initial payload budget');
 if (page.includes("history-holdings.json") || page.includes("issuer-aggregates.json")) fail('Masters browser consumer must not request monolithic history or issuer artifacts');
 if (holdings.managerShards) {
+  if ((holdings.allHoldings || []).some(rawRowComparable)) fail('embedded raw rows carry unverified aggregate comparisons');
   for (const [managerId, descriptor] of Object.entries(holdings.managerShards)) {
     if (!descriptor.url || descriptor.fullRows <= 0 || descriptor.comparisonRows < 0 || !descriptor.accession) fail(`manager row shard descriptor incomplete for ${managerId}`);
     const shardFile = descriptor.url.replace(/^\.\//, '');
     if (!fs.existsSync(path.join(root, shardFile))) fail(`manager row shard missing for ${managerId}`);
     const shard = JSON.parse(read(shardFile));
+    if ((shard.holdings || []).some(rawRowComparable)) fail(`raw manager rows carry unverified aggregate comparisons for ${managerId}`);
     if (shard.managerId !== managerId || shard.latestFiling?.accession !== descriptor.accession || shard.holdings?.length !== descriptor.fullRows || shard.comparisons?.length !== descriptor.comparisonRows) fail(`manager row shard content drift for ${managerId}: declared ${descriptor.fullRows}/${descriptor.comparisonRows}, actual ${shard.holdings?.length || 0}/${shard.comparisons?.length || 0}`);
   }
   if (holdings.fullRowsAvailable < holdings.embeddedFullRowsAvailable || holdings.fullComparisonRowsAvailable < holdings.embeddedFullComparisonRowsAvailable) fail('manager shard totals are below embedded totals');
@@ -127,6 +133,7 @@ for (const [managerId, descriptor] of Object.entries(runtimeHoldings.managerShar
   const shardFile = descriptor.url.replace(/^\.\//, '');
   const shardText = read(shardFile);
   const shard = JSON.parse(shardText);
+  if ((shard.holdings || []).some(rawRowComparable)) fail(`raw projection rows carry unverified aggregate comparisons for ${managerId}`);
   if (createHash('sha256').update(shardText).digest('hex') !== descriptor.sha256 || Buffer.byteLength(shardText) !== descriptor.bytes) fail(`bounded projection digest/bytes drift for ${managerId}`);
   if (shard.managerId !== managerId || shard.artifactRole !== descriptor.artifactRole || shard.latestFiling?.accession !== descriptor.accession || shard.holdings?.length !== descriptor.projectionRows || shard.comparisons?.length !== descriptor.comparisonProjectionRows || shard.fullRowsAvailable !== descriptor.fullRows || shard.fullComparisonsAvailable !== descriptor.comparisonRows) fail(`bounded projection content drift for ${managerId}`);
 }

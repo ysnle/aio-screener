@@ -1,0 +1,2167 @@
+{
+  "generatedAt": "2026-09-11T02:52:43.046Z",
+  "routes": [
+    {
+      "id": "home",
+      "exists": true,
+      "moduleState": "ready",
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "name": "오늘 브리핑시장 요약부터"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 환경지표 한눈에"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "학습 가이드용어·사용법"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시작 안내 닫기"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Trader Jesse"
+        },
+        {
+          "tag": "A",
+          "name": "Mark Minervini"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Humble"
+        },
+        {
+          "tag": "A",
+          "name": "김두한"
+        },
+        {
+          "tag": "A",
+          "name": "ProblemSniper"
+        },
+        {
+          "tag": "A",
+          "name": "세력연구소 | Wyckoff Lab"
+        }
+      ],
+      "headings": [
+        "시장 현황 v54.87",
+        "홈 · 시장 확인과 거시 시차",
+        "금융 레버리지·저비용 조달·방향성 레버리지를 분리하자는 주장",
+        "Wedge Pop·기반/수렴 이후 이동평균 reclaim과 거래량 동반 돌파",
+        "약화된 breadth/momentum 속 선택성, IWM 약세, 반도체·데이터센터와 소비·주택·금융·농업·에너지 간 회전 관찰",
+        "일일 변동성과 수년 성과의 간극, 소셜 비교·FOMO·과매매·손실 만회·레버리지 확대 루프",
+        "Investment Surge → Financing Surge → 은행/딜러 대차대조표 여력 → AI·인프라 CAPEX → Productivity Surge",
+        "달러 약세·패권 서사와 결제/담보/repo 배관, 프론트엔드 자산가격을 분리",
+        "SPY·QQQ·SMH 구조와 고용·Fed 이벤트를 연결한 방향성 가설 및 게시물 내 775/800/760 레벨",
+        "CBRS 박스 지지 → 매수 반응 → PS/채널 중간 저항 → 후속 확인·리테스트",
+        "첨부 DELL 일봉의 earnings → post-earnings breakout, 이동평균 정렬·거래량",
+        "시장 원리 · 금리·유동성·가격발견",
+        "시장 확인 · 지수·상대강도·이벤트",
+        "금리 · 주택 공급 · 고용의 시차",
+        "이벤트 군집 · 교차자산 전달",
+        "오일 공급충격 · 인플레이션과 성장의 분기",
+        "계절성 · 가격·금리·원유·리더십 수렴",
+        "시장 증명 전 노출·리더십 회전",
+        "FOMO·과매매·레버리지 행동 루프"
+      ]
+    },
+    {
+      "id": "signal",
+      "exists": true,
+      "moduleState": "ready",
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "name": "스윙"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "데이트레이딩"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "투자 심리에서 확인"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 폭 분석 →\n      5·20·50SMA · A-D 비율 · McClellan · Weinstein"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "섹터 로테이션 RRG →\n      11섹터 · 서브섹터 · 45 세분화 테마"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "투자 심리 →\n      F&G · VIX · AAII · Put/Call · HY OAS"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Trader Jesse"
+        },
+        {
+          "tag": "A",
+          "name": "Mark Minervini"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Humble"
+        },
+        {
+          "tag": "A",
+          "name": "김두한"
+        },
+        {
+          "tag": "A",
+          "name": "ProblemSniper"
+        },
+        {
+          "tag": "A",
+          "name": "세력연구소 | Wyckoff Lab"
+        }
+      ],
+      "headings": [
+        "지금 거래해야 할까?",
+        "시그널 · 확인 증거와 리스크 과정",
+        "금융 레버리지·저비용 조달·방향성 레버리지를 분리하자는 주장",
+        "Wedge Pop·기반/수렴 이후 이동평균 reclaim과 거래량 동반 돌파",
+        "약화된 breadth/momentum 속 선택성, IWM 약세, 반도체·데이터센터와 소비·주택·금융·농업·에너지 간 회전 관찰",
+        "일일 변동성과 수년 성과의 간극, 소셜 비교·FOMO·과매매·손실 만회·레버리지 확대 루프",
+        "Investment Surge → Financing Surge → 은행/딜러 대차대조표 여력 → AI·인프라 CAPEX → Productivity Surge",
+        "달러 약세·패권 서사와 결제/담보/repo 배관, 프론트엔드 자산가격을 분리",
+        "SPY·QQQ·SMH 구조와 고용·Fed 이벤트를 연결한 방향성 가설 및 게시물 내 775/800/760 레벨",
+        "CBRS 박스 지지 → 매수 반응 → PS/채널 중간 저항 → 후속 확인·리테스트",
+        "첨부 DELL 일봉의 earnings → post-earnings breakout, 이동평균 정렬·거래량",
+        "13F · 공개 보유에서 흐름 검증까지",
+        "시장 확인 · 지수·상대강도·이벤트",
+        "시장 리스크 · 노출·확인·무효화",
+        "이벤트 군집 · 교차자산 전달",
+        "국채시장 · 프론트엔드 가격과 백엔드 배관",
+        "계절성 · 가격·금리·원유·리더십 수렴",
+        "조달 레버리지와 방향성 노출 분리",
+        "Wedge Pop · 지지 반응 · 실적 후 돌파 확인",
+        "시장 증명 전 노출·리더십 회전"
+      ]
+    },
+    {
+      "id": "breadth",
+      "exists": true,
+      "moduleState": "ready",
+      "controls": [
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Trader Jesse"
+        },
+        {
+          "tag": "A",
+          "name": "Mark Minervini"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Humble"
+        },
+        {
+          "tag": "A",
+          "name": "김두한"
+        },
+        {
+          "tag": "A",
+          "name": "ProblemSniper"
+        },
+        {
+          "tag": "A",
+          "name": "세력연구소 | Wyckoff Lab"
+        }
+      ],
+      "headings": [
+        "시장 폭 분석",
+        "시장폭 · 가격·breadth·리더십 확인",
+        "금융 레버리지·저비용 조달·방향성 레버리지를 분리하자는 주장",
+        "Wedge Pop·기반/수렴 이후 이동평균 reclaim과 거래량 동반 돌파",
+        "약화된 breadth/momentum 속 선택성, IWM 약세, 반도체·데이터센터와 소비·주택·금융·농업·에너지 간 회전 관찰",
+        "일일 변동성과 수년 성과의 간극, 소셜 비교·FOMO·과매매·손실 만회·레버리지 확대 루프",
+        "Investment Surge → Financing Surge → 은행/딜러 대차대조표 여력 → AI·인프라 CAPEX → Productivity Surge",
+        "달러 약세·패권 서사와 결제/담보/repo 배관, 프론트엔드 자산가격을 분리",
+        "SPY·QQQ·SMH 구조와 고용·Fed 이벤트를 연결한 방향성 가설 및 게시물 내 775/800/760 레벨",
+        "CBRS 박스 지지 → 매수 반응 → PS/채널 중간 저항 → 후속 확인·리테스트",
+        "첨부 DELL 일봉의 earnings → post-earnings breakout, 이동평균 정렬·거래량",
+        "시장 확인 · 지수·상대강도·이벤트",
+        "가격 우선 · 패턴은 분류 도구",
+        "시장 리스크 · 노출·확인·무효화",
+        "이벤트 군집 · 교차자산 전달",
+        "계절성 · 가격·금리·원유·리더십 수렴",
+        "Wedge Pop · 지지 반응 · 실적 후 돌파 확인",
+        "시장 증명 전 노출·리더십 회전"
+      ]
+    },
+    {
+      "id": "sentiment",
+      "exists": true,
+      "moduleState": "ready",
+      "controls": [
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Trader Jesse"
+        },
+        {
+          "tag": "A",
+          "name": "Mark Minervini"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Humble"
+        },
+        {
+          "tag": "A",
+          "name": "김두한"
+        },
+        {
+          "tag": "A",
+          "name": "ProblemSniper"
+        },
+        {
+          "tag": "A",
+          "name": "세력연구소 | Wyckoff Lab"
+        }
+      ],
+      "headings": [
+        "투자 심리",
+        "심리 · 포지셔닝과 시장 내부 확인",
+        "금융 레버리지·저비용 조달·방향성 레버리지를 분리하자는 주장",
+        "Wedge Pop·기반/수렴 이후 이동평균 reclaim과 거래량 동반 돌파",
+        "약화된 breadth/momentum 속 선택성, IWM 약세, 반도체·데이터센터와 소비·주택·금융·농업·에너지 간 회전 관찰",
+        "일일 변동성과 수년 성과의 간극, 소셜 비교·FOMO·과매매·손실 만회·레버리지 확대 루프",
+        "Investment Surge → Financing Surge → 은행/딜러 대차대조표 여력 → AI·인프라 CAPEX → Productivity Surge",
+        "달러 약세·패권 서사와 결제/담보/repo 배관, 프론트엔드 자산가격을 분리",
+        "SPY·QQQ·SMH 구조와 고용·Fed 이벤트를 연결한 방향성 가설 및 게시물 내 775/800/760 레벨",
+        "CBRS 박스 지지 → 매수 반응 → PS/채널 중간 저항 → 후속 확인·리테스트",
+        "첨부 DELL 일봉의 earnings → post-earnings breakout, 이동평균 정렬·거래량",
+        "시장 확인 · 지수·상대강도·이벤트",
+        "시장 리스크 · 노출·확인·무효화",
+        "이벤트 군집 · 교차자산 전달",
+        "오일 공급충격 · 인플레이션과 성장의 분기",
+        "계절성 · 가격·금리·원유·리더십 수렴",
+        "시장 증명 전 노출·리더십 회전",
+        "FOMO·과매매·레버리지 행동 루프"
+      ]
+    },
+    {
+      "id": "briefing",
+      "exists": true,
+      "moduleState": "ready",
+      "controls": [
+        {
+          "tag": "A",
+          "name": "매크로● 중립Insider·US · 09-11레딧 최대 관심사는 유가;;"
+        },
+        {
+          "tag": "A",
+          "name": "시장소식● 중립HANA·China/EM · 09-11>>사우디 석유 생산량 1990년 이후 최저 수준으로 하락, OPEC 내부 균열 •사우디아라비아가 OPEC에 8월 원유 생산량이 다시 큰 폭으로 "
+        },
+        {
+          "tag": "A",
+          "name": "반도체● 중립HANA·China/EM · 09-11>>젠슨 황, AI의 다음 활용처로 사이버보안에 베팅하며 “문제를 만들어야 수요가 생긴다”고 솔직히 언급 •엔비디아 CEO 젠슨 황은 골드만삭스 기"
+        },
+        {
+          "tag": "A",
+          "name": "매크로▲ 상승HANA·China/EM · 09-11>>오라클 급등&#33; 클라우드 사업 매출 121% 증가하며 예상 상회, RPO 6,640억달러로 확대, 연간 실적 가이던스 상향 •오라클 1분기"
+        },
+        {
+          "tag": "A",
+          "name": "반도체● 중립HANA·China/EM · 09-11\"엔비디아·브로드컴 CPO 나와라\"… 화웨이, 차세대 AI 기술 'NPO' 독자 표준 공개 ▶ 기사 원문 보기: [글로벌이코노믹]"
+        },
+        {
+          "tag": "A",
+          "name": "시장소식● 중립HANA·China/EM · 09-11"
+        },
+        {
+          "tag": "A",
+          "name": "전력인프라● 중립HANA·China/EM · 09-11>>연산 능력 부족이 AI 인프라 확장을 압박, 마이크로소프트 데이터센터 용량 38GW로 두 배 확대 계획 •마이크로소프트가 계획한 2032년 "
+        },
+        {
+          "tag": "A",
+          "name": "전력인프라● 중립BornLupin·KR · 09-11마이크로소프트, 컴퓨팅 파워를 3배로 늘리기 위한 데이터센터 확장 용량 부족으로 일부 AI·클라우드 사업을 거절해야 했던 마이크로소프트가, 이제는"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "전체 뉴스 보기 ▼"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "과거 참고 펼치기 ▼"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Trader Jesse"
+        },
+        {
+          "tag": "A",
+          "name": "Mark Minervini"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Humble"
+        },
+        {
+          "tag": "A",
+          "name": "김두한"
+        },
+        {
+          "tag": "A",
+          "name": "ProblemSniper"
+        },
+        {
+          "tag": "A",
+          "name": "세력연구소 | Wyckoff Lab"
+        }
+      ],
+      "headings": [
+        "오늘의 브리핑",
+        "브리핑 · 시장 확인·거시 시차·이벤트 창",
+        "금융 레버리지·저비용 조달·방향성 레버리지를 분리하자는 주장",
+        "Wedge Pop·기반/수렴 이후 이동평균 reclaim과 거래량 동반 돌파",
+        "약화된 breadth/momentum 속 선택성, IWM 약세, 반도체·데이터센터와 소비·주택·금융·농업·에너지 간 회전 관찰",
+        "일일 변동성과 수년 성과의 간극, 소셜 비교·FOMO·과매매·손실 만회·레버리지 확대 루프",
+        "Investment Surge → Financing Surge → 은행/딜러 대차대조표 여력 → AI·인프라 CAPEX → Productivity Surge",
+        "달러 약세·패권 서사와 결제/담보/repo 배관, 프론트엔드 자산가격을 분리",
+        "SPY·QQQ·SMH 구조와 고용·Fed 이벤트를 연결한 방향성 가설 및 게시물 내 775/800/760 레벨",
+        "CBRS 박스 지지 → 매수 반응 → PS/채널 중간 저항 → 후속 확인·리테스트",
+        "첨부 DELL 일봉의 earnings → post-earnings breakout, 이동평균 정렬·거래량",
+        "시장 원리 · 금리·유동성·가격발견",
+        "시장 확인 · 지수·상대강도·이벤트",
+        "금리 · 주택 공급 · 고용의 시차",
+        "이벤트 군집 · 교차자산 전달",
+        "오일 공급충격 · 인플레이션과 성장의 분기",
+        "계절성 · 가격·금리·원유·리더십 수렴"
+      ]
+    },
+    {
+      "id": "technical",
+      "exists": true,
+      "moduleState": "ready",
+      "controls": [
+        {
+          "tag": "INPUT",
+          "name": "미국 종목 간이 분석 티커 입력"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "차트 분석"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Trader Jesse"
+        },
+        {
+          "tag": "A",
+          "name": "Mark Minervini"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Humble"
+        },
+        {
+          "tag": "A",
+          "name": "김두한"
+        },
+        {
+          "tag": "A",
+          "name": "ProblemSniper"
+        },
+        {
+          "tag": "A",
+          "name": "세력연구소 | Wyckoff Lab"
+        }
+      ],
+      "headings": [
+        "차트 · 기술 분석",
+        "기술 · 가격 우선과 다중 시계열",
+        "금융 레버리지·저비용 조달·방향성 레버리지를 분리하자는 주장",
+        "Wedge Pop·기반/수렴 이후 이동평균 reclaim과 거래량 동반 돌파",
+        "약화된 breadth/momentum 속 선택성, IWM 약세, 반도체·데이터센터와 소비·주택·금융·농업·에너지 간 회전 관찰",
+        "일일 변동성과 수년 성과의 간극, 소셜 비교·FOMO·과매매·손실 만회·레버리지 확대 루프",
+        "Investment Surge → Financing Surge → 은행/딜러 대차대조표 여력 → AI·인프라 CAPEX → Productivity Surge",
+        "달러 약세·패권 서사와 결제/담보/repo 배관, 프론트엔드 자산가격을 분리",
+        "SPY·QQQ·SMH 구조와 고용·Fed 이벤트를 연결한 방향성 가설 및 게시물 내 775/800/760 레벨",
+        "CBRS 박스 지지 → 매수 반응 → PS/채널 중간 저항 → 후속 확인·리테스트",
+        "첨부 DELL 일봉의 earnings → post-earnings breakout, 이동평균 정렬·거래량",
+        "시장 확인 · 지수·상대강도·이벤트",
+        "가격 우선 · 패턴은 분류 도구",
+        "AI 장비 사이클 · 제품 매출보다 앞선 주문",
+        "계절성 · 가격·금리·원유·리더십 수렴",
+        "차트 코어 · 데이터·스크립트·렌더러 포트",
+        "Wedge Pop · 지지 반응 · 실적 후 돌파 확인",
+        "시장 증명 전 노출·리더십 회전"
+      ]
+    },
+    {
+      "id": "macro",
+      "exists": true,
+      "moduleState": "ready",
+      "controls": [
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Trader Jesse"
+        },
+        {
+          "tag": "A",
+          "name": "Mark Minervini"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Humble"
+        },
+        {
+          "tag": "A",
+          "name": "김두한"
+        },
+        {
+          "tag": "A",
+          "name": "ProblemSniper"
+        },
+        {
+          "tag": "A",
+          "name": "세력연구소 | Wyckoff Lab"
+        }
+      ],
+      "headings": [
+        "거시경제",
+        "거시 · 금리·주택·고용의 전달 시차",
+        "금융 레버리지·저비용 조달·방향성 레버리지를 분리하자는 주장",
+        "Wedge Pop·기반/수렴 이후 이동평균 reclaim과 거래량 동반 돌파",
+        "약화된 breadth/momentum 속 선택성, IWM 약세, 반도체·데이터센터와 소비·주택·금융·농업·에너지 간 회전 관찰",
+        "일일 변동성과 수년 성과의 간극, 소셜 비교·FOMO·과매매·손실 만회·레버리지 확대 루프",
+        "Investment Surge → Financing Surge → 은행/딜러 대차대조표 여력 → AI·인프라 CAPEX → Productivity Surge",
+        "달러 약세·패권 서사와 결제/담보/repo 배관, 프론트엔드 자산가격을 분리",
+        "SPY·QQQ·SMH 구조와 고용·Fed 이벤트를 연결한 방향성 가설 및 게시물 내 775/800/760 레벨",
+        "CBRS 박스 지지 → 매수 반응 → PS/채널 중간 저항 → 후속 확인·리테스트",
+        "첨부 DELL 일봉의 earnings → post-earnings breakout, 이동평균 정렬·거래량",
+        "시장 원리 · 금리·유동성·가격발견",
+        "시장 확인 · 지수·상대강도·이벤트",
+        "금리 · 주택 공급 · 고용의 시차",
+        "이벤트 군집 · 교차자산 전달",
+        "오일 공급충격 · 인플레이션과 성장의 분기",
+        "국채시장 · 프론트엔드 가격과 백엔드 배관",
+        "실현 이익 · 기대치 · CAPEX·신용 사이클",
+        "Investment Surge · Financing Surge · Productivity Surge",
+        "달러 배관은 원인·결과·증폭기를 구분"
+      ]
+    },
+    {
+      "id": "fxbond",
+      "exists": true,
+      "moduleState": "ready",
+      "controls": [
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Trader Jesse"
+        },
+        {
+          "tag": "A",
+          "name": "Mark Minervini"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Humble"
+        },
+        {
+          "tag": "A",
+          "name": "김두한"
+        },
+        {
+          "tag": "A",
+          "name": "ProblemSniper"
+        },
+        {
+          "tag": "A",
+          "name": "세력연구소 | Wyckoff Lab"
+        }
+      ],
+      "headings": [
+        "환율 · 채권",
+        "금리·환율 · 유동성·이벤트 리스크",
+        "금융 레버리지·저비용 조달·방향성 레버리지를 분리하자는 주장",
+        "Wedge Pop·기반/수렴 이후 이동평균 reclaim과 거래량 동반 돌파",
+        "약화된 breadth/momentum 속 선택성, IWM 약세, 반도체·데이터센터와 소비·주택·금융·농업·에너지 간 회전 관찰",
+        "일일 변동성과 수년 성과의 간극, 소셜 비교·FOMO·과매매·손실 만회·레버리지 확대 루프",
+        "Investment Surge → Financing Surge → 은행/딜러 대차대조표 여력 → AI·인프라 CAPEX → Productivity Surge",
+        "달러 약세·패권 서사와 결제/담보/repo 배관, 프론트엔드 자산가격을 분리",
+        "SPY·QQQ·SMH 구조와 고용·Fed 이벤트를 연결한 방향성 가설 및 게시물 내 775/800/760 레벨",
+        "CBRS 박스 지지 → 매수 반응 → PS/채널 중간 저항 → 후속 확인·리테스트",
+        "첨부 DELL 일봉의 earnings → post-earnings breakout, 이동평균 정렬·거래량",
+        "시장 원리 · 금리·유동성·가격발견",
+        "금리 · 주택 공급 · 고용의 시차",
+        "시장 리스크 · 노출·확인·무효화",
+        "이벤트 군집 · 교차자산 전달",
+        "오일 공급충격 · 인플레이션과 성장의 분기",
+        "국채시장 · 프론트엔드 가격과 백엔드 배관",
+        "Investment Surge · Financing Surge · Productivity Surge",
+        "달러 배관은 원인·결과·증폭기를 구분"
+      ]
+    },
+    {
+      "id": "themes",
+      "exists": true,
+      "moduleState": "ready",
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "name": "금융 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "에너지 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "헬스케어 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "산업재 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "소비재 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "필수소비 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "부동산 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "원자재 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "유틸리티 테마 상세 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "통신 테마 상세 열기"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Trader Jesse"
+        },
+        {
+          "tag": "A",
+          "name": "Mark Minervini"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Humble"
+        },
+        {
+          "tag": "A",
+          "name": "김두한"
+        },
+        {
+          "tag": "A",
+          "name": "ProblemSniper"
+        },
+        {
+          "tag": "A",
+          "name": "세력연구소 | Wyckoff Lab"
+        }
+      ],
+      "headings": [
+        "테마 · 트렌드",
+        "테마 · AI 가치사슬·qualification·운영 검증",
+        "금융 레버리지·저비용 조달·방향성 레버리지를 분리하자는 주장",
+        "Wedge Pop·기반/수렴 이후 이동평균 reclaim과 거래량 동반 돌파",
+        "약화된 breadth/momentum 속 선택성, IWM 약세, 반도체·데이터센터와 소비·주택·금융·농업·에너지 간 회전 관찰",
+        "일일 변동성과 수년 성과의 간극, 소셜 비교·FOMO·과매매·손실 만회·레버리지 확대 루프",
+        "Investment Surge → Financing Surge → 은행/딜러 대차대조표 여력 → AI·인프라 CAPEX → Productivity Surge",
+        "달러 약세·패권 서사와 결제/담보/repo 배관, 프론트엔드 자산가격을 분리",
+        "SPY·QQQ·SMH 구조와 고용·Fed 이벤트를 연결한 방향성 가설 및 게시물 내 775/800/760 레벨",
+        "CBRS 박스 지지 → 매수 반응 → PS/채널 중간 저항 → 후속 확인·리테스트",
+        "첨부 DELL 일봉의 earnings → post-earnings breakout, 이동평균 정렬·거래량",
+        "AI 시대 · workload에서 현금흐름까지",
+        "AI 추론 아키텍처 · 시스템 공동설계",
+        "AI 용량 → 매출·현금 전환",
+        "AI 하드웨어 · qualification에서 양산까지",
+        "Physical AI · 시연에서 반복 운영까지",
+        "소프트웨어 · seat에서 outcome·현금까지",
+        "AI CAPEX 흐름 · 병목 계층 지도",
+        "AI 장비 사이클 · 제품 매출보다 앞선 주문",
+        "AI 컨트롤 플레인 · 토큰 공장의 운영 계층",
+        "AI 용량 · 계약 코호트·소유자 FCF",
+        "미확인 가설 · 공시·계약·배치 테스트",
+        "AI 공급망 · 병목·qualification 그래프",
+        "Investment Surge · Financing Surge · Productivity Surge"
+      ]
+    },
+    {
+      "id": "theme-detail",
+      "exists": true,
+      "moduleState": null,
+      "controls": [],
+      "headings": [
+        "AI·반도체"
+      ]
+    },
+    {
+      "id": "ticker",
+      "exists": true,
+      "moduleState": "ready",
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "name": "← 돌아가기"
+        },
+        {
+          "tag": "INPUT",
+          "name": "종목 티커 검색"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "분석 →"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "재무 공시"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "가격 이력"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "종목 선택 후 SEC 재무 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "패턴 감지 ↻"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "관측값 불러오기 ↻"
+        },
+        {
+          "tag": "INPUT",
+          "name": "진입품질 현재가"
+        },
+        {
+          "tag": "INPUT",
+          "name": "진입품질 20일 EMA"
+        },
+        {
+          "tag": "INPUT",
+          "name": "진입품질 14일 RSI"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "계산하기"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Trader Jesse"
+        },
+        {
+          "tag": "A",
+          "name": "Mark Minervini"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Humble"
+        },
+        {
+          "tag": "A",
+          "name": "김두한"
+        },
+        {
+          "tag": "A",
+          "name": "ProblemSniper"
+        },
+        {
+          "tag": "A",
+          "name": "세력연구소 | Wyckoff Lab"
+        }
+      ],
+      "headings": [
+        "종목 선택 대기",
+        "종목 · AI 경제성·자본·13F 맥락",
+        "금융 레버리지·저비용 조달·방향성 레버리지를 분리하자는 주장",
+        "Wedge Pop·기반/수렴 이후 이동평균 reclaim과 거래량 동반 돌파",
+        "약화된 breadth/momentum 속 선택성, IWM 약세, 반도체·데이터센터와 소비·주택·금융·농업·에너지 간 회전 관찰",
+        "일일 변동성과 수년 성과의 간극, 소셜 비교·FOMO·과매매·손실 만회·레버리지 확대 루프",
+        "Investment Surge → Financing Surge → 은행/딜러 대차대조표 여력 → AI·인프라 CAPEX → Productivity Surge",
+        "달러 약세·패권 서사와 결제/담보/repo 배관, 프론트엔드 자산가격을 분리",
+        "SPY·QQQ·SMH 구조와 고용·Fed 이벤트를 연결한 방향성 가설 및 게시물 내 775/800/760 레벨",
+        "CBRS 박스 지지 → 매수 반응 → PS/채널 중간 저항 → 후속 확인·리테스트",
+        "첨부 DELL 일봉의 earnings → post-earnings breakout, 이동평균 정렬·거래량",
+        "13F · 공개 보유에서 흐름 검증까지",
+        "AI 시대 · workload에서 현금흐름까지",
+        "AI 추론 아키텍처 · 시스템 공동설계",
+        "AI 용량 → 매출·현금 전환",
+        "실현 이익 · 기대치 · CAPEX·신용 사이클",
+        "AI 장비 사이클 · 제품 매출보다 앞선 주문",
+        "AI 컨트롤 플레인 · 토큰 공장의 운영 계층",
+        "AI 용량 · 계약 코호트·소유자 FCF",
+        "미확인 가설 · 공시·계약·배치 테스트",
+        "보고 세그먼트 변경 · 시계열 단절",
+        "조달 레버리지와 방향성 노출 분리",
+        "Wedge Pop · 지지 반응 · 실적 후 돌파 확인",
+        "Investment Surge · Financing Surge · Productivity Surge"
+      ]
+    },
+    {
+      "id": "fundamental",
+      "exists": true,
+      "moduleState": "ready",
+      "controls": [
+        {
+          "tag": "INPUT",
+          "name": "기업 분석 종목 티커 입력"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "기업 분석"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Trader Jesse"
+        },
+        {
+          "tag": "A",
+          "name": "Mark Minervini"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Humble"
+        },
+        {
+          "tag": "A",
+          "name": "김두한"
+        },
+        {
+          "tag": "A",
+          "name": "ProblemSniper"
+        },
+        {
+          "tag": "A",
+          "name": "세력연구소 | Wyckoff Lab"
+        }
+      ],
+      "headings": [
+        "기업 분석",
+        "펀더멘털 · 매출 전환·소프트웨어·Physical AI",
+        "금융 레버리지·저비용 조달·방향성 레버리지를 분리하자는 주장",
+        "Wedge Pop·기반/수렴 이후 이동평균 reclaim과 거래량 동반 돌파",
+        "약화된 breadth/momentum 속 선택성, IWM 약세, 반도체·데이터센터와 소비·주택·금융·농업·에너지 간 회전 관찰",
+        "일일 변동성과 수년 성과의 간극, 소셜 비교·FOMO·과매매·손실 만회·레버리지 확대 루프",
+        "Investment Surge → Financing Surge → 은행/딜러 대차대조표 여력 → AI·인프라 CAPEX → Productivity Surge",
+        "달러 약세·패권 서사와 결제/담보/repo 배관, 프론트엔드 자산가격을 분리",
+        "SPY·QQQ·SMH 구조와 고용·Fed 이벤트를 연결한 방향성 가설 및 게시물 내 775/800/760 레벨",
+        "CBRS 박스 지지 → 매수 반응 → PS/채널 중간 저항 → 후속 확인·리테스트",
+        "첨부 DELL 일봉의 earnings → post-earnings breakout, 이동평균 정렬·거래량",
+        "13F · 공개 보유에서 흐름 검증까지",
+        "AI 용량 → 매출·현금 전환",
+        "Physical AI · 시연에서 반복 운영까지",
+        "소프트웨어 · seat에서 outcome·현금까지",
+        "실현 이익 · 기대치 · CAPEX·신용 사이클",
+        "AI 컨트롤 플레인 · 토큰 공장의 운영 계층",
+        "AI 용량 · 계약 코호트·소유자 FCF",
+        "미확인 가설 · 공시·계약·배치 테스트",
+        "보고 세그먼트 변경 · 시계열 단절",
+        "Investment Surge · Financing Surge · Productivity Surge"
+      ]
+    },
+    {
+      "id": "options",
+      "exists": true,
+      "moduleState": "ready",
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "name": "투자 심리 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "매매 신호 보기"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Trader Jesse"
+        },
+        {
+          "tag": "A",
+          "name": "Mark Minervini"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Humble"
+        },
+        {
+          "tag": "A",
+          "name": "김두한"
+        },
+        {
+          "tag": "A",
+          "name": "ProblemSniper"
+        },
+        {
+          "tag": "A",
+          "name": "세력연구소 | Wyckoff Lab"
+        }
+      ],
+      "headings": [
+        "옵션 분석",
+        "옵션 · 이벤트·시장 리스크 정렬",
+        "금융 레버리지·저비용 조달·방향성 레버리지를 분리하자는 주장",
+        "Wedge Pop·기반/수렴 이후 이동평균 reclaim과 거래량 동반 돌파",
+        "약화된 breadth/momentum 속 선택성, IWM 약세, 반도체·데이터센터와 소비·주택·금융·농업·에너지 간 회전 관찰",
+        "일일 변동성과 수년 성과의 간극, 소셜 비교·FOMO·과매매·손실 만회·레버리지 확대 루프",
+        "Investment Surge → Financing Surge → 은행/딜러 대차대조표 여력 → AI·인프라 CAPEX → Productivity Surge",
+        "달러 약세·패권 서사와 결제/담보/repo 배관, 프론트엔드 자산가격을 분리",
+        "SPY·QQQ·SMH 구조와 고용·Fed 이벤트를 연결한 방향성 가설 및 게시물 내 775/800/760 레벨",
+        "CBRS 박스 지지 → 매수 반응 → PS/채널 중간 저항 → 후속 확인·리테스트",
+        "첨부 DELL 일봉의 earnings → post-earnings breakout, 이동평균 정렬·거래량",
+        "시장 원리 · 금리·유동성·가격발견",
+        "시장 리스크 · 노출·확인·무효화",
+        "이벤트 군집 · 교차자산 전달",
+        "오일 공급충격 · 인플레이션과 성장의 분기",
+        "국채시장 · 프론트엔드 가격과 백엔드 배관",
+        "계절성 · 가격·금리·원유·리더십 수렴"
+      ]
+    },
+    {
+      "id": "portfolio",
+      "exists": true,
+      "moduleState": "ready",
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "name": "종목 추가"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "내보내기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "⟳ 시세 갱신"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "전체 삭제"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "첫 종목 추가"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Trader Jesse"
+        },
+        {
+          "tag": "A",
+          "name": "Mark Minervini"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Humble"
+        },
+        {
+          "tag": "A",
+          "name": "김두한"
+        },
+        {
+          "tag": "A",
+          "name": "ProblemSniper"
+        },
+        {
+          "tag": "A",
+          "name": "세력연구소 | Wyckoff Lab"
+        }
+      ],
+      "headings": [
+        "포트폴리오",
+        "포트폴리오 · 노출·기관 시차·AI 자본구조",
+        "금융 레버리지·저비용 조달·방향성 레버리지를 분리하자는 주장",
+        "Wedge Pop·기반/수렴 이후 이동평균 reclaim과 거래량 동반 돌파",
+        "약화된 breadth/momentum 속 선택성, IWM 약세, 반도체·데이터센터와 소비·주택·금융·농업·에너지 간 회전 관찰",
+        "일일 변동성과 수년 성과의 간극, 소셜 비교·FOMO·과매매·손실 만회·레버리지 확대 루프",
+        "Investment Surge → Financing Surge → 은행/딜러 대차대조표 여력 → AI·인프라 CAPEX → Productivity Surge",
+        "달러 약세·패권 서사와 결제/담보/repo 배관, 프론트엔드 자산가격을 분리",
+        "SPY·QQQ·SMH 구조와 고용·Fed 이벤트를 연결한 방향성 가설 및 게시물 내 775/800/760 레벨",
+        "CBRS 박스 지지 → 매수 반응 → PS/채널 중간 저항 → 후속 확인·리테스트",
+        "첨부 DELL 일봉의 earnings → post-earnings breakout, 이동평균 정렬·거래량",
+        "시장 원리 · 금리·유동성·가격발견",
+        "13F · 공개 보유에서 흐름 검증까지",
+        "AI 용량 → 매출·현금 전환",
+        "시장 리스크 · 노출·확인·무효화",
+        "오일 공급충격 · 인플레이션과 성장의 분기",
+        "국채시장 · 프론트엔드 가격과 백엔드 배관",
+        "실현 이익 · 기대치 · CAPEX·신용 사이클",
+        "계절성 · 가격·금리·원유·리더십 수렴",
+        "조달 레버리지와 방향성 노출 분리",
+        "시장 증명 전 노출·리더십 회전",
+        "FOMO·과매매·레버리지 행동 루프",
+        "달러 배관은 원인·결과·증폭기를 구분"
+      ]
+    },
+    {
+      "id": "market-news",
+      "exists": true,
+      "moduleState": "ready",
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "name": "새로고침"
+        },
+        {
+          "tag": "A",
+          "name": "매크로● 중립Insider·US · 09-11레딧 최대 관심사는 유가;;"
+        },
+        {
+          "tag": "A",
+          "name": "시장소식● 중립HANA·China/EM · 09-11>>사우디 석유 생산량 1990년 이후 최저 수준으로 하락, OPEC 내부 균열 •사우디아라비아가 OPEC에 8월 원유 생산량이 다시 큰 폭으로 "
+        },
+        {
+          "tag": "A",
+          "name": "반도체● 중립HANA·China/EM · 09-11>>젠슨 황, AI의 다음 활용처로 사이버보안에 베팅하며 “문제를 만들어야 수요가 생긴다”고 솔직히 언급 •엔비디아 CEO 젠슨 황은 골드만삭스 기"
+        },
+        {
+          "tag": "A",
+          "name": "매크로▲ 상승HANA·China/EM · 09-11>>오라클 급등&#33; 클라우드 사업 매출 121% 증가하며 예상 상회, RPO 6,640억달러로 확대, 연간 실적 가이던스 상향 •오라클 1분기"
+        },
+        {
+          "tag": "A",
+          "name": "반도체● 중립HANA·China/EM · 09-11\"엔비디아·브로드컴 CPO 나와라\"… 화웨이, 차세대 AI 기술 'NPO' 독자 표준 공개 ▶ 기사 원문 보기: [글로벌이코노믹]"
+        },
+        {
+          "tag": "A",
+          "name": "시장소식● 중립HANA·China/EM · 09-11"
+        },
+        {
+          "tag": "A",
+          "name": "전력인프라● 중립HANA·China/EM · 09-11>>연산 능력 부족이 AI 인프라 확장을 압박, 마이크로소프트 데이터센터 용량 38GW로 두 배 확대 계획 •마이크로소프트가 계획한 2032년 "
+        },
+        {
+          "tag": "A",
+          "name": "전력인프라● 중립BornLupin·KR · 09-11마이크로소프트, 컴퓨팅 파워를 3배로 늘리기 위한 데이터센터 확장 용량 부족으로 일부 AI·클라우드 사업을 거절해야 했던 마이크로소프트가, 이제는"
+        },
+        {
+          "tag": "A",
+          "name": "시장소식● 중립Insider·US · 09-11⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 브렌트유 &#036;109, WTI 104 돌파"
+        },
+        {
+          "tag": "A",
+          "name": "지정학▼ 하락Insider·US · 09-11⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 베센트, 월요일에 대형 은행에 대한 제재 조치를 취할 예정"
+        },
+        {
+          "tag": "A",
+          "name": "AI정책● 중립Insider·US · 09-11오픈AI가 양방향 음성 에이전트용 모델 GPT-Live-1을 API와 오픈AI 플랫폼에 출시. GPT-Live-1은 사용자의 음성을 들으면서 동시에 말"
+        },
+        {
+          "tag": "A",
+          "name": "매크로● 중립Insider·US · 09-11GPT-6 아스트라 사용 수요 급증으로 인해 오픈AI가 월 200달러 규모의 ChatGPT Pro 신규 가입 및 업그레이드를 일시 중단. 기존 월 200"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "최신순"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "중요도순"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "전체"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 뉴스"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "기업 뉴스"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "카테고리별"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "12개 더 보기"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Trader Jesse"
+        },
+        {
+          "tag": "A",
+          "name": "Mark Minervini"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Humble"
+        },
+        {
+          "tag": "A",
+          "name": "김두한"
+        },
+        {
+          "tag": "A",
+          "name": "ProblemSniper"
+        },
+        {
+          "tag": "A",
+          "name": "세력연구소 | Wyckoff Lab"
+        }
+      ],
+      "headings": [
+        "시장 뉴스",
+        "시장 뉴스 · 이벤트와 가격 반응 창",
+        "금융 레버리지·저비용 조달·방향성 레버리지를 분리하자는 주장",
+        "Wedge Pop·기반/수렴 이후 이동평균 reclaim과 거래량 동반 돌파",
+        "약화된 breadth/momentum 속 선택성, IWM 약세, 반도체·데이터센터와 소비·주택·금융·농업·에너지 간 회전 관찰",
+        "일일 변동성과 수년 성과의 간극, 소셜 비교·FOMO·과매매·손실 만회·레버리지 확대 루프",
+        "Investment Surge → Financing Surge → 은행/딜러 대차대조표 여력 → AI·인프라 CAPEX → Productivity Surge",
+        "달러 약세·패권 서사와 결제/담보/repo 배관, 프론트엔드 자산가격을 분리",
+        "SPY·QQQ·SMH 구조와 고용·Fed 이벤트를 연결한 방향성 가설 및 게시물 내 775/800/760 레벨",
+        "CBRS 박스 지지 → 매수 반응 → PS/채널 중간 저항 → 후속 확인·리테스트",
+        "첨부 DELL 일봉의 earnings → post-earnings breakout, 이동평균 정렬·거래량",
+        "시장 확인 · 지수·상대강도·이벤트",
+        "시장 리스크 · 노출·확인·무효화",
+        "이벤트 군집 · 교차자산 전달",
+        "오일 공급충격 · 인플레이션과 성장의 분기",
+        "계절성 · 가격·금리·원유·리더십 수렴"
+      ]
+    },
+    {
+      "id": "screener",
+      "exists": true,
+      "moduleState": "loading",
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "name": "집중 모드"
+        },
+        {
+          "tag": "SELECT",
+          "name": "저장된 스크리너 화면 선택"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "새 화면"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "저장"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "조건 실행"
+        },
+        {
+          "tag": "SELECT",
+          "name": "추가할 조건 필드"
+        },
+        {
+          "tag": "INPUT",
+          "name": "조건 값"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "조건 추가"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "전체 초기화"
+        },
+        {
+          "tag": "TEXTAREA",
+          "name": "ScreenDefinition JSON 편집기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "정의 실행"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "정의 불러오기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "현재 정의 내보내기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "균형 (기본)"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "모멘텀"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "스윙"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "가치"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "저리스크"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "고급 필터"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "랭킹"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "팩터·레짐"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "백테스트 IC"
+        },
+        {
+          "tag": "SELECT",
+          "name": "시장 지수 필터"
+        },
+        {
+          "tag": "SELECT",
+          "name": "섹터 필터"
+        },
+        {
+          "tag": "SELECT",
+          "name": "구조 분류 필터"
+        },
+        {
+          "tag": "SELECT",
+          "name": "시가총액 필터"
+        },
+        {
+          "tag": "INPUT",
+          "name": "스크리너 티커 이름 메모 검색"
+        },
+        {
+          "tag": "SELECT",
+          "name": "스크리너 컬럼 프리셋"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "컬럼 선택"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "상세 IC 보기"
+        }
+      ],
+      "headings": [
+        "퀀트 스크리너"
+      ]
+    },
+    {
+      "id": "principles",
+      "exists": true,
+      "moduleState": "ready",
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "name": "이어 읽기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "개념 지도"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "관계 지도"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "선택 학습"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "참고 자료실"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "1. 돈은 숫자가 아니라 미래의 선택권이다"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "2. 물가가 오르면 돈이 줄지 않아도 가난해진다"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "3. 금리는 기다림과 위험에 붙는 가격이다"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "4. 중앙은행은 금리로 경제의 속도를 바꾼다"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "5. 미국채는 수익률이면서 금융시스템의 기준점이다"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "6. 돈이 풀려도 모든 곳으로 같은 속도로 가지 않는다"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "7. 기업은 자본을 투입해 현금흐름을 만드는 기계다"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "8. 좋은 기업과 좋은 가격은 같은 말이 아니다"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "9. 돈은 빠르지만 공장과 전력망은 느리다"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "10. 기술의 혁신성과 주주의 수익성은 따로 검증해야 한다"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "11. 시장은 합리성과 비합리성을 동시에 가진다"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "12. 리스크 관리는 미래를 맞히는 기술이 아니라 살아남는 구조다"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "A1 심화 원고"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "A3 심화 원고"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "G1 심화 원고"
+        },
+        {
+          "tag": "A",
+          "name": "Federal Reserve · Economic education"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "처음입니다"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "다음 · 물가가 오르면 돈이 줄지 않아도 가난해진다"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "☆ 북마크"
+        },
+        {
+          "tag": "TEXTAREA",
+          "name": "돈은 숫자가 아니라 미래의 선택권이다 개인 메모"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "메모 저장"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Trader Jesse"
+        },
+        {
+          "tag": "A",
+          "name": "Mark Minervini"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Humble"
+        },
+        {
+          "tag": "A",
+          "name": "김두한"
+        },
+        {
+          "tag": "A",
+          "name": "ProblemSniper"
+        },
+        {
+          "tag": "A",
+          "name": "세력연구소 | Wyckoff Lab"
+        }
+      ],
+      "headings": [
+        "세상을 움직이는 원리",
+        "돈의 가치에서 주식의 가치까지",
+        "돈은 숫자가 아니라 미래의 선택권이다",
+        "시장 원리·13F·AI를 같은 증거 흐름으로 연결하기",
+        "금융 레버리지·저비용 조달·방향성 레버리지를 분리하자는 주장",
+        "Wedge Pop·기반/수렴 이후 이동평균 reclaim과 거래량 동반 돌파",
+        "약화된 breadth/momentum 속 선택성, IWM 약세, 반도체·데이터센터와 소비·주택·금융·농업·에너지 간 회전 관찰",
+        "일일 변동성과 수년 성과의 간극, 소셜 비교·FOMO·과매매·손실 만회·레버리지 확대 루프",
+        "Investment Surge → Financing Surge → 은행/딜러 대차대조표 여력 → AI·인프라 CAPEX → Productivity Surge",
+        "달러 약세·패권 서사와 결제/담보/repo 배관, 프론트엔드 자산가격을 분리",
+        "SPY·QQQ·SMH 구조와 고용·Fed 이벤트를 연결한 방향성 가설 및 게시물 내 775/800/760 레벨",
+        "CBRS 박스 지지 → 매수 반응 → PS/채널 중간 저항 → 후속 확인·리테스트",
+        "첨부 DELL 일봉의 earnings → post-earnings breakout, 이동평균 정렬·거래량",
+        "시장 원리 · 금리·유동성·가격발견",
+        "13F · 공개 보유에서 흐름 검증까지",
+        "AI 시대 · workload에서 현금흐름까지",
+        "시장 확인 · 지수·상대강도·이벤트",
+        "금리 · 주택 공급 · 고용의 시차",
+        "AI 추론 아키텍처 · 시스템 공동설계",
+        "AI 용량 → 매출·현금 전환",
+        "시장 리스크 · 노출·확인·무효화",
+        "이벤트 군집 · 교차자산 전달",
+        "오일 공급충격 · 인플레이션과 성장의 분기",
+        "국채시장 · 프론트엔드 가격과 백엔드 배관",
+        "실현 이익 · 기대치 · CAPEX·신용 사이클",
+        "계절성 · 가격·금리·원유·리더십 수렴",
+        "미확인 가설 · 공시·계약·배치 테스트",
+        "차트 코어 · 데이터·스크립트·렌더러 포트",
+        "조달 레버리지와 방향성 노출 분리",
+        "Wedge Pop · 지지 반응 · 실적 후 돌파 확인",
+        "시장 증명 전 노출·리더십 회전",
+        "FOMO·과매매·레버리지 행동 루프",
+        "Investment Surge · Financing Surge · Productivity Surge",
+        "달러 배관은 원인·결과·증폭기를 구분"
+      ]
+    },
+    {
+      "id": "masters",
+      "exists": true,
+      "moduleState": "ready",
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "name": "전체"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "13F 연결"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "방법론 전용"
+        },
+        {
+          "tag": "INPUT",
+          "name": "투자자 검색"
+        },
+        {
+          "tag": "INPUT",
+          "name": "티커 또는 CUSIP 역조회"
+        },
+        {
+          "tag": "A",
+          "name": "SEC 13F 데이터셋"
+        },
+        {
+          "tag": "A",
+          "name": "텔레그램 발견 원문"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Warren Buffett 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Stanley Druckenmiller 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Ken Fisher 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Bill Ackman 2026-03-31 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "David Tepper 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Seth Klarman 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Michael Burry 2025-09-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "BlackRock 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Citi 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Goldman Sachs 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "JPMorgan Asset Management 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "State Street Investment Management 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Vanguard 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Capital Group 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Fidelity / FMR 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "T. Rowe Price 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Wellington Management 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Dimensional Fund Advisors 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "George Soros / Dawn Fitzpatrick 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Ray Dalio 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Howard Marks 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Ken Griffin / Seth Levy 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Millennium Management 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Renaissance Technologies 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Two Sigma 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Tudor Investment 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Starboard Value 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Trian Fund Management 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ValueAct 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Daniel Loeb 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Paul Singer 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Chris Hohn 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Andreas Halvorsen 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Chase Coleman 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Cathie Wood 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Harvard Management Company 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Leopold Aschenbrenner 2026-06-30 13F 보기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Mark Minervini 방법론 전용 보기"
+        },
+        {
+          "tag": "A",
+          "name": "SEC EDGAR"
+        },
+        {
+          "tag": "A",
+          "name": "SEC filing index"
+        },
+        {
+          "tag": "A",
+          "name": "Information table XML"
+        },
+        {
+          "tag": "A",
+          "name": "Primary document"
+        },
+        {
+          "tag": "A",
+          "name": "이전 분기 정보표"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "비교에 추가"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "핵심 변화"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "전체 보유"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "섹터 구성"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "분기 추이"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "투자자 비교"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "투자 원칙"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "13D/G 소유권"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "원본 공시"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "전체"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "신규 편입"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "증가"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "감소"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "변화 없음"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "전량 제외"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "이전"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "다음"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "시장 원리 페이지에서 검증 프레임 보기"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Trader Jesse"
+        },
+        {
+          "tag": "A",
+          "name": "Mark Minervini"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Humble"
+        },
+        {
+          "tag": "A",
+          "name": "김두한"
+        },
+        {
+          "tag": "A",
+          "name": "ProblemSniper"
+        },
+        {
+          "tag": "A",
+          "name": "세력연구소 | Wyckoff Lab"
+        }
+      ],
+      "headings": [
+        "대가의 포트폴리오",
+        "티커·CUSIP에서 공개 보유 행으로 역조회",
+        "Warren Buffett",
+        "Masters · 13F 분기 지연과 교차검증",
+        "금융 레버리지·저비용 조달·방향성 레버리지를 분리하자는 주장",
+        "Wedge Pop·기반/수렴 이후 이동평균 reclaim과 거래량 동반 돌파",
+        "약화된 breadth/momentum 속 선택성, IWM 약세, 반도체·데이터센터와 소비·주택·금융·농업·에너지 간 회전 관찰",
+        "일일 변동성과 수년 성과의 간극, 소셜 비교·FOMO·과매매·손실 만회·레버리지 확대 루프",
+        "Investment Surge → Financing Surge → 은행/딜러 대차대조표 여력 → AI·인프라 CAPEX → Productivity Surge",
+        "달러 약세·패권 서사와 결제/담보/repo 배관, 프론트엔드 자산가격을 분리",
+        "SPY·QQQ·SMH 구조와 고용·Fed 이벤트를 연결한 방향성 가설 및 게시물 내 775/800/760 레벨",
+        "CBRS 박스 지지 → 매수 반응 → PS/채널 중간 저항 → 후속 확인·리테스트",
+        "첨부 DELL 일봉의 earnings → post-earnings breakout, 이동평균 정렬·거래량",
+        "시장 원리 · 금리·유동성·가격발견",
+        "13F · 공개 보유에서 흐름 검증까지",
+        "이벤트 군집 · 교차자산 전달",
+        "국채시장 · 프론트엔드 가격과 백엔드 배관",
+        "실현 이익 · 기대치 · CAPEX·신용 사이클",
+        "미확인 가설 · 공시·계약·배치 테스트",
+        "시장 증명 전 노출·리더십 회전",
+        "Investment Surge · Financing Surge · Productivity Surge"
+      ]
+    },
+    {
+      "id": "atlas",
+      "exists": true,
+      "moduleState": "ready",
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "name": "학습 지도"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "관계 지도"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "산업·가치사슬"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "근거 자료실"
+        },
+        {
+          "tag": "INPUT",
+          "name": "AI 시대 지식 지도 검색"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "☆ 북마크"
+        },
+        {
+          "tag": "TEXTAREA",
+          "name": "에너지와 전력 개인 메모"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "메모 저장"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "1문제·학습·시스템의 공통 언어6개 개념"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "2물리·수학·반도체의 출발점7개 개념"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "3AI는 어떻게 학습하는가8개 개념"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "4Transformer와 LLM의 생애주기10개 개념"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "5RAG·Agent·World Model7개 개념"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "6칩에서 데이터센터·전력망까지9개 개념"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "7산업 경제성과 투자 검증8개 개념"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "01에너지와 전력"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "02벡터와 행렬"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "03확률과 통계"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "04병렬처리"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "05실리콘과 도핑"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "06병목과 희소성"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "07CAPEX와 감가상각"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "개념 원문·출처 불러오기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "벡터와 행렬 →"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Trader Jesse"
+        },
+        {
+          "tag": "A",
+          "name": "Mark Minervini"
+        },
+        {
+          "tag": "A",
+          "name": "Nathan | Factomind"
+        },
+        {
+          "tag": "A",
+          "name": "Humble"
+        },
+        {
+          "tag": "A",
+          "name": "김두한"
+        },
+        {
+          "tag": "A",
+          "name": "ProblemSniper"
+        },
+        {
+          "tag": "A",
+          "name": "세력연구소 | Wyckoff Lab"
+        }
+      ],
+      "headings": [
+        "AI 시대 지식 지도",
+        "AI 분류와 공통 언어",
+        "15분 · AI는 어떻게 작동하는가",
+        "30분 · 물리적 AI 인프라",
+        "World Model과 Agent",
+        "45분 · 경제성·산업·자본",
+        "지도에서 전문 페이지로 이동",
+        "검증과 공개 기준",
+        "AI를 이해하는 7단계",
+        "물리·수학·반도체의 출발점",
+        "에너지와 전력",
+        "AI 시대의 산업·자본·기관 증거 브리지",
+        "금융 레버리지·저비용 조달·방향성 레버리지를 분리하자는 주장",
+        "Wedge Pop·기반/수렴 이후 이동평균 reclaim과 거래량 동반 돌파",
+        "약화된 breadth/momentum 속 선택성, IWM 약세, 반도체·데이터센터와 소비·주택·금융·농업·에너지 간 회전 관찰",
+        "일일 변동성과 수년 성과의 간극, 소셜 비교·FOMO·과매매·손실 만회·레버리지 확대 루프",
+        "Investment Surge → Financing Surge → 은행/딜러 대차대조표 여력 → AI·인프라 CAPEX → Productivity Surge",
+        "달러 약세·패권 서사와 결제/담보/repo 배관, 프론트엔드 자산가격을 분리",
+        "SPY·QQQ·SMH 구조와 고용·Fed 이벤트를 연결한 방향성 가설 및 게시물 내 775/800/760 레벨",
+        "CBRS 박스 지지 → 매수 반응 → PS/채널 중간 저항 → 후속 확인·리테스트",
+        "첨부 DELL 일봉의 earnings → post-earnings breakout, 이동평균 정렬·거래량",
+        "시장 원리 · 금리·유동성·가격발견",
+        "13F · 공개 보유에서 흐름 검증까지",
+        "AI 시대 · workload에서 현금흐름까지",
+        "시장 확인 · 지수·상대강도·이벤트",
+        "금리 · 주택 공급 · 고용의 시차",
+        "AI 추론 아키텍처 · 시스템 공동설계",
+        "AI 용량 → 매출·현금 전환",
+        "AI 하드웨어 · qualification에서 양산까지",
+        "이벤트 군집 · 교차자산 전달",
+        "오일 공급충격 · 인플레이션과 성장의 분기",
+        "국채시장 · 프론트엔드 가격과 백엔드 배관",
+        "실현 이익 · 기대치 · CAPEX·신용 사이클",
+        "AI CAPEX 흐름 · 병목 계층 지도",
+        "AI 장비 사이클 · 제품 매출보다 앞선 주문",
+        "AI 컨트롤 플레인 · 토큰 공장의 운영 계층",
+        "AI 용량 · 계약 코호트·소유자 FCF",
+        "미확인 가설 · 공시·계약·배치 테스트",
+        "보고 세그먼트 변경 · 시계열 단절",
+        "차트 코어 · 데이터·스크립트·렌더러 포트",
+        "AI 공급망 · 병목·qualification 그래프",
+        "Wedge Pop · 지지 반응 · 실적 후 돌파 확인",
+        "Investment Surge · Financing Surge · Productivity Surge",
+        "달러 배관은 원인·결과·증폭기를 구분"
+      ]
+    },
+    {
+      "id": "guide",
+      "exists": true,
+      "moduleState": "ready",
+      "controls": [
+        {
+          "tag": "A",
+          "name": "GitHub Issues"
+        },
+        {
+          "tag": "INPUT",
+          "name": "가이드 검색"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "검색"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "10단계 루틴"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "밸류체인"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "판단 방법론"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "용어사전"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "매매 전략"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "FAQ"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "API 설정"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "초보자 시작: 홈 대시보드"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "?\n        AIO Screener 핵심 사용 루틴\n      \n      ▼"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "용어 사전 열기"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "중앙 로그 버퍼 JSON 파일로 다운로드"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "중앙 로그 버퍼 초기화"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "데이터 상태 갱신"
+        }
+      ],
+      "headings": [
+        "AIO Screener 사용 설명서"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "name": "route shell home",
+      "ok": true
+    },
+    {
+      "name": "route shell signal",
+      "ok": true
+    },
+    {
+      "name": "route shell breadth",
+      "ok": true
+    },
+    {
+      "name": "route shell sentiment",
+      "ok": true
+    },
+    {
+      "name": "route shell briefing",
+      "ok": true
+    },
+    {
+      "name": "route shell technical",
+      "ok": true
+    },
+    {
+      "name": "route shell macro",
+      "ok": true
+    },
+    {
+      "name": "route shell fxbond",
+      "ok": true
+    },
+    {
+      "name": "route shell themes",
+      "ok": true
+    },
+    {
+      "name": "route shell theme-detail",
+      "ok": true
+    },
+    {
+      "name": "route shell ticker",
+      "ok": true
+    },
+    {
+      "name": "route shell fundamental",
+      "ok": true
+    },
+    {
+      "name": "route shell options",
+      "ok": true
+    },
+    {
+      "name": "route shell portfolio",
+      "ok": true
+    },
+    {
+      "name": "route shell market-news",
+      "ok": true
+    },
+    {
+      "name": "route shell screener",
+      "ok": true
+    },
+    {
+      "name": "route shell principles",
+      "ok": true
+    },
+    {
+      "name": "route shell masters",
+      "ok": true
+    },
+    {
+      "name": "route shell atlas",
+      "ok": true
+    },
+    {
+      "name": "route shell guide",
+      "ok": true
+    },
+    {
+      "name": "guide results",
+      "ok": true
+    },
+    {
+      "name": "guide focused paragraph",
+      "ok": true
+    },
+    {
+      "name": "guide canonical weights",
+      "ok": true
+    },
+    {
+      "name": "draft",
+      "ok": true
+    },
+    {
+      "name": "memory",
+      "ok": true
+    },
+    {
+      "name": "source",
+      "ok": true
+    },
+    {
+      "name": "cleaned",
+      "ok": true
+    },
+    {
+      "name": "retried",
+      "ok": true
+    }
+  ],
+  "errors": []
+}

@@ -9,6 +9,7 @@ export function normalizeEntity(raw = {}) {
     value: finite(raw.quote.value),
     pct: finite(raw.quote.pct),
     directionValue: finite(raw.quote.directionValue ?? raw.quote.pct),
+    currency: raw.quote.currency ? String(raw.quote.currency).trim().toUpperCase() : null,
     observedAt: raw.quote.observedAt || null,
     fetchedAt: raw.quote.fetchedAt || null,
     source: raw.quote.source || 'entity-provider',

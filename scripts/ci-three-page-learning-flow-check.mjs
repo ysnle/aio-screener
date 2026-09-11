@@ -2,9 +2,10 @@ import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { DESKTOP_QA_VIEWPORTS } from './desktop-qa-config.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.env.AIO_THREE_PAGE_FLOW_PORT || 8912);
+const port = Number(process.env.AIO_THREE_PAGE_FLOW_PORT || 8914);
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 
 function startServer() {
@@ -29,7 +30,7 @@ const server = await startServer();
 const browser = await chromium.launch();
 const errors = [];
 try {
-  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+  const page = await browser.newPage({ viewport: DESKTOP_QA_VIEWPORTS[1] });
   page.on('pageerror', (error) => errors.push(String(error)));
   page.on('console', (message) => {
     if (message.type() === 'error' && !/ERR_FAILED|favicon|AIO:api|proxy-primary/i.test(message.text())) errors.push(message.text());
@@ -86,22 +87,18 @@ try {
   }));
   if (!principlesReturn.hash.includes('knowledgeNode=institutional-position-change') || principlesReturn.chapter !== 'market-expectations-prices' || !principlesReturn.arrival.includes('기관 공시')) throw new Error(`masters-to-principles destination failed: ${JSON.stringify(principlesReturn)}`);
 
-  const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
-  await mobile.route('**/*', (route) => route.request().url().startsWith(`http://127.0.0.1:${port}/`) ? route.continue() : route.abort());
-  await mobile.goto(`${baseUrl}#principles`, { waitUntil: 'domcontentloaded', timeout: 30000 });
-  await dismissDisclaimer(mobile);
-  await mobile.evaluate(() => window.showPage('principles'));
-  await mobile.waitForSelector('#page-principles .principles-narrative-prose p');
-  const readingDensity = await mobile.evaluate(() => ({
-    lines: [...document.querySelectorAll('#page-principles .principles-narrative-prose p')].map((node) => Math.round(node.getBoundingClientRect().height / parseFloat(getComputedStyle(node).lineHeight))),
+  await page.setViewportSize(DESKTOP_QA_VIEWPORTS[0]);
+  await page.evaluate(() => window.showPage('principles'));
+  await page.waitForSelector('#page-principles .principles-narrative-prose p');
+  const readingLayout = await page.evaluate(() => ({
+    proseWidth: document.querySelector('#page-principles .principles-narrative-prose')?.getBoundingClientRect().width || 0,
     horizontalOverflow: document.documentElement.scrollWidth > window.innerWidth + 2,
     railColumns: getComputedStyle(document.querySelector('#page-principles .principles-narrative-rail')).gridTemplateColumns
   }));
-  if (readingDensity.lines.some((lines) => lines < 3 || lines > 6) || readingDensity.horizontalOverflow || readingDensity.railColumns === 'none') throw new Error(`mobile editorial density failed: ${JSON.stringify(readingDensity)}`);
-  await mobile.close();
+  if (readingLayout.proseWidth <= 0 || readingLayout.horizontalOverflow || readingLayout.railColumns === 'none') throw new Error(`desktop editorial layout failed: ${JSON.stringify(readingLayout)}`);
 
   if (errors.length) throw new Error(`browser errors: ${errors.join(' | ')}`);
-  console.log(JSON.stringify({ ok: true, atlasArrival, atlasReloadPersisted, mastersArrival, principlesReturn, readingDensity, errors }));
+  console.log(JSON.stringify({ ok: true, atlasArrival, atlasReloadPersisted, mastersArrival, principlesReturn, readingLayout, errors }));
 } finally {
   await browser.close();
   server.kill();

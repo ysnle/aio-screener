@@ -54,9 +54,13 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null }
     const avgCostValue = finite(holding?.avgCost);
     const avgCost = avgCostValue != null && avgCostValue >= 0 ? avgCostValue : null;
     const cost = shares != null && avgCost != null ? shares * avgCost : null;
-    const dailyPct = firstFinite(holding?.dailyPct, live[symbol]?.pct, live[symbol]?.regularMarketChangePercent);
+    const dailyPct = quote.sourceKind === 'live-quote'
+      ? firstFinite(live[symbol]?.pct, live[symbol]?.regularMarketChangePercent)
+      : finite(holding?.dailyPct);
     return Object.freeze({
       symbol,
+      shares,
+      avgCost,
       value: quote.value,
       price: quote.price,
       cost,
@@ -67,19 +71,20 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null }
   }).filter((row) => row.symbol);
 
   const allRowsValued = rows.length > 0 && rows.every((row) => row.value != null);
-  const positionValue = firstPositive(totals.totalValue, totals.positionsValue, totals.equityValue) ?? (allRowsValued ? rows.reduce((sum, row) => sum + row.value, 0) : null);
+  const positionValue = rows.length ? (allRowsValued ? rows.reduce((sum, row) => sum + row.value, 0) : null) : null;
   const cashValue = firstFinite(state?.cash, totals.cash);
   const cash = cashValue != null && cashValue >= 0 ? cashValue : null;
-  const totalAssets = firstPositive(totals.totalAssets, totals.totalValueWithCash) ?? (positionValue != null && cash != null ? positionValue + Math.max(0, cash) : positionValue);
+  const totalAssets = positionValue != null && cash != null ? positionValue + cash : null;
   const allRowsCosted = rows.length > 0 && rows.every((row) => row.cost != null);
-  const totalCost = firstPositive(totals.totalCost, totals.costBasis) ?? (allRowsCosted ? rows.reduce((sum, row) => sum + row.cost, 0) : null);
-  const totalPnl = positionValue != null && totalCost != null && totalCost > 0
-    ? firstFinite(totals.totalPnl, totals.pnl, totals.profitLoss) ?? (positionValue - totalCost)
+  const totalCost = allRowsCosted ? rows.reduce((sum, row) => sum + row.cost, 0) : null;
+  const totalPnl = positionValue != null && totalCost != null
+    ? positionValue - totalCost
     : null;
-  const totalPnlPct = firstFinite(totals.totalPnlPct, totals.pnlPct) ?? (totalPnl != null && totalCost > 0 ? totalPnl / totalCost * 100 : null);
-  const allRowsDaily = rows.length > 0 && rows.every((row) => row.value != null && row.dailyPct != null);
-  const dailyChange = firstFinite(totals.dailyChange, totals.totalDailyChg, totals.dailyPnl) ?? (allRowsDaily ? rows.reduce((sum, row) => sum + row.value * row.dailyPct / 100, 0) : null);
-  const dailyPct = firstFinite(totals.dailyPct) ?? (dailyChange != null && totalAssets > 0 ? dailyChange / totalAssets * 100 : null);
+  const totalPnlPct = totalPnl != null && totalCost > 0 ? totalPnl / totalCost * 100 : null;
+  const allRowsDaily = rows.length > 0 && rows.every((row) => row.value != null && row.dailyPct != null && row.dailyPct > -100);
+  const dailyChange = allRowsDaily ? rows.reduce((sum, row) => sum + row.value - row.value / (1 + row.dailyPct / 100), 0) : null;
+  const previousAssets = dailyChange != null && totalAssets != null ? totalAssets - dailyChange : null;
+  const dailyPct = previousAssets > 0 ? dailyChange / previousAssets * 100 : null;
   const exposurePct = totalAssets != null && totalAssets > 0 && positionValue != null ? positionValue / totalAssets * 100 : null;
   const exposureCap = exposureCapForVix(finite(vix));
   const sectors = new Map();

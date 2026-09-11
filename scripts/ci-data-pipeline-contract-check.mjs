@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
+import { deriveCyclePublication } from './fetch-data.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(join(root, path), 'utf8');
@@ -11,6 +12,18 @@ const errors = [];
 const check = (label, condition, detail = '') => {
   if (!condition) errors.push(label + (detail ? ': ' + detail : ''));
 };
+
+const completeCycle = deriveCyclePublication({ marketSnapshotPublished: true, quoteCount: 78, requiredQuoteCount: 78, newsCount: 10, historyUpdated: true });
+check('cycle publication requires every declared component', completeCycle.status === 'PUBLISHED' && completeCycle.blockers.length === 0, JSON.stringify(completeCycle));
+for (const [label, input, blocker] of [
+  ['snapshot', { marketSnapshotPublished: false, quoteCount: 78, requiredQuoteCount: 78, newsCount: 10, historyUpdated: true }, 'market-snapshot-not-published'],
+  ['quotes', { marketSnapshotPublished: true, quoteCount: 77, requiredQuoteCount: 78, newsCount: 10, historyUpdated: true }, 'quote-coverage-incomplete'],
+  ['news', { marketSnapshotPublished: true, quoteCount: 78, requiredQuoteCount: 78, newsCount: 9, historyUpdated: true }, 'current-news-below-minimum'],
+  ['history', { marketSnapshotPublished: true, quoteCount: 78, requiredQuoteCount: 78, newsCount: 10, historyUpdated: false }, 'history-update-incomplete']
+]) {
+  const cycle = deriveCyclePublication(input);
+  check(`cycle publication fails closed for ${label}`, cycle.status === 'DEGRADED' && cycle.blockers.includes(blocker), JSON.stringify(cycle));
+}
 const extractNodeHeredocs = (text) => {
   const blocks = [];
   const re = /node(\s+--input-type=module)? - <<'NODE'\r?\n([\s\S]*?)\r?\n\s*NODE/g;
@@ -158,6 +171,8 @@ check('AAII weekly reference refresh is automated with bounded publisher-direct/
 check('HY OAS has a keyless official FRED public-download adapter with LKG and typed lineage',
   /parseFredHyOasCsv/.test(fetchData) && /fetchFredHyOasPublic/.test(fetchData) && /fredgraph\.csv\?id=BAMLH0A0HYM2/.test(fetchData) &&
   /FRED_HY_OAS_CACHE_MAX_AGE_MS/.test(fetchData) && /fred-official-public-csv/.test(fetchData) && /fredHyOasObservedAt/.test(fetchData));
+check('FX/bond carry uses the canonical BOK policy-rate field and cannot regress to BOJ',
+  /DATA_SNAPSHOT\?\.bokRate/.test(marketPage) && /DATA_SNAPSHOT:BOK/.test(marketPage) && !/DATA_SNAPSHOT\?\.bojRate/.test(marketPage));
 {
   let ok = false;
   let detail = '';

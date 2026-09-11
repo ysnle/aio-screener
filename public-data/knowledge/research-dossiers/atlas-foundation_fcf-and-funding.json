@@ -39,13 +39,6 @@
       "sourceTier": null
     },
     {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL"
-    },
-    {
       "sourceId": "WEB-FED-FINANCIAL-STABILITY",
       "url": "https://www.federalreserve.gov/financial-stability/what-is-financial-stability.htm",
       "publisher": "Federal Reserve",
@@ -82,15 +75,6 @@
     }
   ],
   "selectedSources": [
-    {
-      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
-      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
-      "publisher": "NIST AI Resource Center",
-      "title": "AI RMF Core: Govern, Map, Measure, Manage",
-      "sourceTier": "PRIMARY_OFFICIAL",
-      "directness": "DIRECT",
-      "selectionReason": "dated fact attached to the structured lesson article; directness remains limited to the stated scope"
-    },
     {
       "sourceId": "WEB-FED-FINANCIAL-STABILITY",
       "url": "https://www.federalreserve.gov/financial-stability/what-is-financial-stability.htm",
@@ -150,7 +134,6 @@
     }
   ],
   "researchFactIds": [
-    "fact:nist:ai-rmf-core",
     "fact:fed:financial-stability",
     "fact:sec:capex-depreciation",
     "fact:sandisk:2026-investor-day-model"
