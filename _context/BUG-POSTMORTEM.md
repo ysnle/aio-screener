@@ -2,12 +2,21 @@
 verified_by: Codex local source review and affected QA; full semantic audit remains open
 last_verified: 2026-09-11
 confidence: medium
-latest_version: v54.88
-latest_P_number: P1060
-next_P_number: P1061
-current_total_entries: 774 (P1~P1060, 결번 존재 — 상세 + 압축 원장)
+latest_version: v54.89
+latest_P_number: P1061
+next_P_number: P1062
+current_total_entries: 775 (P1~P1061, 결번 존재 — 상세 + 압축 원장)
 current_checkpoint: P1013~P1033 exhaustive audit in progress; publication/runtime/QA topology and selected page semantics reviewed; full-tree semantic review remains open
 ---
+
+## P1061 - v54.89 - legacy chat 가격 evidence가 출처·통화를 과잉 추론했다 (2026-09-11)
+
+- symptom/reproduction: GitHub CI `Contracts / core`의 `ai-quote-evidence`가 임의 `source`를 LIVE로 승격하는 정규화와 명시적 통화·단위가 없는 가격 행의 통과를 검출했다.
+- root_cause: P1060 보정이 legacy `price/source/asOf` 행의 누락 정보를 ticker·source 문자열로 추론해, 관측·출처·단위·통화가 실제로 제공되지 않은 행을 typed claim 검증에 사용할 수 있게 했다.
+- fix: `_aioAIQuoteSourceKind`의 인증된 source 패턴만 허용하고, 명시적 `currency`·`unit`·관측 시각·source kind가 없거나 미확인인 가격 행은 blocked로 유지한다.
+- prevention: `ci-ai-quote-evidence-check`가 임의 source, currency/unit 누락, fetched/source timestamp 오용, duplicate conflict를 모두 fail-closed로 검증한다.
+- violated_rule: R402 및 P1057의 관측·출처·단위 손실 방지와 현재성 승격 금지 계약.
+- verification: GitHub CI에서 실패한 core gate를 원인 수정 후 로컬 core QA `34/34 PASS`, quote evidence gate PASS. 새 패치 커밋의 원격 CI 재실행이 배포 전 필수다.
 
 ## P1060 - v54.88 - 정상 가격 evidence fixture가 통화 단위 부재로 차단됐다 (2026-09-11)
 

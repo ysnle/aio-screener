@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v54.88';
+const APP_VERSION = 'v54.89';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -461,12 +461,10 @@ window.AIO.normalizeAIChatEvidenceRow = function(input) {
   var status = input.status || (/(blocked|missing|refresh_required|stale|mismatch|invalid)/.test(statusText) ? 'blocked' : (rawValue == null ? 'missing' : 'ok'));
   var metric = input.metric || input.key || input.ticker || input.symbol || '';
   var quoteLike = input.price != null || input.quoteEnvelope || String(metric).toLowerCase() === 'price';
-  var unit = String(input.unit || input.units || '').trim().toUpperCase() || (quoteLike ? 'CURRENCY' : '');
-  var sourceKind = _aioAIQuoteSourceKind(source, input.sourceKind) || (source ? 'LIVE' : 'MISSING');
-  if (source && sourceKind === 'UNKNOWN' && !input.sourceKind) sourceKind = 'LIVE';
-  var inferredCurrency = /(?:\.KS|\.KQ|^KRX:)/i.test(ticker) ? 'KRW' : 'USD';
-  var currency = input.currency ? String(input.currency).trim().toUpperCase() : (quoteLike ? inferredCurrency : 'UNKNOWN');
-  if (quoteLike && (!asOf || !source || !unit || unit === 'UNKNOWN' || !currency || currency === 'UNKNOWN')) status = 'blocked';
+  var unit = String(input.unit || input.units || '').trim().toUpperCase();
+  var sourceKind = _aioAIQuoteSourceKind(source, input.sourceKind);
+  var currency = input.currency ? String(input.currency).trim().toUpperCase() : 'UNKNOWN';
+  if (quoteLike && (!asOf || !source || sourceKind === 'UNKNOWN' || !unit || unit === 'UNKNOWN' || !currency || currency === 'UNKNOWN')) status = 'blocked';
   var normalized = Object.assign({}, input, {
     metric: metric,
     entity: input.entity || input.entityId || ticker || null,

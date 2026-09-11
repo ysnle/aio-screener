@@ -1,3 +1,8 @@
+## v54.89 (2026-09-11)
+- P1061: AI 채팅 가격 evidence가 임의 source를 LIVE로 승격하거나 통화·단위를 추론해 현재 근거로 통과시키지 않도록 fail-closed 정규화를 복원했다. 미인증 source kind·관측·통화·단위 누락은 차단한다.
+- GitHub CI `Contracts / core`에서 발견된 회귀를 수정했고, 로컬 core QA `34/34 PASS` 및 `ci-ai-quote-evidence-check`를 통과했다.
+- R1 7곳 v54.89
+
 ## v54.88 (2026-09-11)
 - P1060: 정상적인 legacy chat 가격 evidence가 unit/currency 누락 때문에 typed claim 검증에서 거짓 차단되던 회귀를 수정하고, `.KS`/`.KQ`는 KRW·그 외 ticker는 USD로 보수적인 기본 통화를 적용했다.
 - AI 공개 disclosure를 `기준시각`·`Evidence`·`원천` 계약에 맞춰 복원했다. G094/G096 회귀를 포함한 headless `1127/1127 PASS`.
@@ -600,7 +605,8 @@
 - Outcome Ledger now requires an explicit non-negative modeled transaction cost; zero cost is valid and missing/invalid cost is unavailable rather than silently free.
 - Updated handoff, QA, model-validation, and screener-validation artifacts to distinguish `VERIFIED_LOCAL` from blocked real-data/provider/live certification.
 - Verified syntax and screener/research contract gates after the changes; full release gates and Pages deployment are run for v54.16 below.
-- <!-- 변경 내용을 이곳에 기록하세요 -->
+- P1061: AI 채팅 가격 evidence가 임의 source를 LIVE로 승격하거나 통화·단위를 추론해 현재 근거로 통과시키지 않도록 fail-closed 정규화를 복원했다. 미인증 source kind·관측·통화·단위 누락은 차단한다.
+- GitHub CI Contracts / core에서 발견된 회귀를 수정했고, 로컬 core QA 34/34 PASS 및 ci-ai-quote-evidence-check를 통과했다.
 - R1 7곳 v54.16
 
 ## v54.15 (2026-08-13)
