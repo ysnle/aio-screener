@@ -7,9 +7,9 @@
     "STALE",
     "RIGHTS_REVIEW_REQUIRED"
   ],
-  "generatedAt": "2026-09-12T04:48:17.504Z",
+  "generatedAt": "2026-09-12T06:32:11.209Z",
   "appRevision": "v54.89",
-  "dataRevision": "market-snapshot:2026-09-12T01:34:47.146Z:27b65a77",
+  "dataRevision": "market-snapshot:2026-09-12T06:31:47.849Z:d1aebe5b",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
   "overall": "OPERATOR_REQUIRED",
   "planes": {
@@ -17,7 +17,7 @@
       "status": "CURRENT",
       "statusCode": "CONFIGURED_HEALTHY",
       "source": "github-actions",
-      "lastSuccessfulAt": "2026-09-12T01:34:47.146Z",
+      "lastSuccessfulAt": "2026-09-12T06:31:47.849Z",
       "coverage": {
         "required": 16,
         "observed": 16,
@@ -33,8 +33,8 @@
         "coverageComplete": true,
         "quoteQualityComplete": true,
         "blockedQuotes": [],
-        "generatedAt": "2026-09-12T01:34:47.146Z",
-        "ageHours": 3.23,
+        "generatedAt": "2026-09-12T06:31:47.849Z",
+        "ageHours": 0.01,
         "maxAgeHours": 12,
         "reason": null
       },
@@ -55,11 +55,11 @@
         "status": "CURRENT",
         "statusCode": 200,
         "coverage": "16/16",
-        "revision": "fast-quotes:2026-09-12T01:30:59.394Z:2f588863",
+        "revision": "fast-quotes:2026-09-12T06:31:13.911Z:c186a299",
         "sourceSha": "6ef2561d3cc1cdc010693812a6796556d02c6db4",
-        "observedAt": "2026-09-12T01:34:59.924Z",
-        "source": "last-observed-live-health",
-        "observationStatus": "NOT_ATTEMPTED",
+        "observedAt": "2026-09-12T06:32:11.209Z",
+        "source": "periodic-live-health",
+        "observationStatus": "SUCCESS",
         "observationError": null
       },
       "soak": {
@@ -90,7 +90,7 @@
       "lastCallSucceeded": "BLOCKED",
       "evidence": {
         "marketAnalysisOk": false,
-        "generatedAt": "2026-09-12T01:34:47.146Z"
+        "generatedAt": "2026-09-12T06:31:47.849Z"
       }
     },
     "publicChat": {
@@ -102,7 +102,7 @@
       "health": {
         "status": "CURRENT",
         "statusCode": 200,
-        "observedAt": "2026-09-12T01:34:59.924Z",
+        "observedAt": "2026-09-12T06:32:11.209Z",
         "revision": "v54.37",
         "sourceSha": "6ef2561d3cc1cdc010693812a6796556d02c6db4",
         "configured": true,
@@ -112,8 +112,8 @@
         "providerSmokeBoundary": "blocking-deployment-workflow-only",
         "ready": true,
         "note": "Periodic live health observed; provider smoke remains a blocking deployment-workflow gate.",
-        "source": "last-observed-live-health",
-        "observationStatus": "NOT_ATTEMPTED",
+        "source": "periodic-live-health",
+        "observationStatus": "SUCCESS",
         "observationError": null
       },
       "scheduledAnalysisDoesNotImplyChat": true
@@ -124,15 +124,15 @@
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "reference",
-      "lastFetchAt": "2026-09-12T01:34:47.146Z"
+      "lastFetchAt": "2026-09-12T06:31:47.849Z"
     },
     "fred": {
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "official-series",
       "status": "CURRENT",
-      "lastAttemptAt": "2026-09-12T01:34:47.205Z",
-      "lastFetchAt": "2026-09-12T01:34:47.205Z"
+      "lastAttemptAt": "2026-09-12T06:31:47.914Z",
+      "lastFetchAt": "2026-09-12T06:31:47.914Z"
     },
     "sec": {
       "rights": "REVIEW_REQUIRED",
@@ -146,7 +146,7 @@
   "reconciliation": {
     "tier0": {
       "status": "MATCH",
-      "artifact": "market-snapshot:2026-09-12T01:34:47.146Z:27b65a77",
+      "artifact": "market-snapshot:2026-09-12T06:31:47.849Z:d1aebe5b",
       "uiEvidence": "same-revision-contract",
       "observedAtComplete": true
     },
@@ -154,8 +154,8 @@
     "categoryCount": 22,
     "overall": "PARTIAL",
     "counts": {
-      "PARTIAL": 14,
-      "MATCH": 6,
+      "PARTIAL": 13,
+      "MATCH": 7,
       "BLOCKED": 2
     },
     "closure": {
@@ -175,7 +175,6 @@
         "news",
         "commodities-fx",
         "global-indices",
-        "crypto",
         "kr-macro-vkospi-supply"
       ],
       "partialCategories": [
@@ -191,8 +190,7 @@
         "macro-calendar",
         "news",
         "commodities-fx",
-        "global-indices",
-        "crypto"
+        "global-indices"
       ],
       "operatorRequiredCategories": [
         "investors-intelligence",
@@ -282,7 +280,7 @@
           }
         ]
       },
-      "sourceRevision": "market-snapshot:2026-09-12T01:34:47.146Z:27b65a77",
+      "sourceRevision": "market-snapshot:2026-09-12T06:31:47.849Z:d1aebe5b",
       "sourceArtifacts": [
         "public-data/data.json",
         "public-data/market-snapshot.json",
