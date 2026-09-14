@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-09-14T13:59:20.708Z",
-  "attemptedAt": "2026-09-14T13:59:20.708Z",
-  "lastSuccessfulAt": "2026-09-14T13:59:20.708Z",
+  "generatedAt": "2026-09-14T14:05:08.552Z",
+  "attemptedAt": "2026-09-14T14:05:08.552Z",
+  "lastSuccessfulAt": "2026-09-14T14:05:08.552Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-08-31T13:59:15.008Z",
-  "until": "2026-09-14T13:59:15.008Z",
+  "since": "2026-08-31T14:05:03.658Z",
+  "until": "2026-09-14T14:05:03.658Z",
   "current24hWindow": {
     "start": "2026-09-12T23:00:00.000Z",
     "end": "2026-09-13T23:00:00.000Z",
@@ -14,7 +14,7 @@
   },
   "current24hCoverage": {
     "observedCount": 95,
-    "eligibleTextCount": 16,
+    "eligibleTextCount": 10,
     "channelCounts": {
       "HANAchina": 37,
       "insidertracking": 42,
@@ -81,33 +81,33 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 308,
-      "freshCount": 38,
-      "eligibleTextCount": 37,
+      "count": 311,
+      "freshCount": 37,
+      "eligibleTextCount": 36,
       "selectedCount": 96,
       "error": null,
-      "lastPostId": 25219
+      "lastPostId": 25223
     },
     {
       "channel": "insidertracking",
-      "pages": 3,
-      "reachedOlder": false,
-      "reachedKnown": true,
-      "count": 1090,
-      "freshCount": 57,
-      "eligibleTextCount": 54,
-      "selectedCount": 125,
-      "error": null,
-      "lastPostId": 63672
-    },
-    {
-      "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
+      "count": 1092,
+      "freshCount": 39,
+      "eligibleTextCount": 38,
+      "selectedCount": 125,
+      "error": null,
+      "lastPostId": 63674
+    },
+    {
+      "channel": "bornlupin",
+      "pages": 1,
+      "reachedOlder": false,
+      "reachedKnown": true,
       "count": 191,
-      "freshCount": 36,
-      "eligibleTextCount": 36,
+      "freshCount": 20,
+      "eligibleTextCount": 20,
       "selectedCount": 72,
       "error": null,
       "lastPostId": 20150
@@ -117,17 +117,116 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 706,
-      "freshCount": 38,
-      "eligibleTextCount": 38,
+      "count": 709,
+      "freshCount": 39,
+      "eligibleTextCount": 39,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 68886
+      "lastPostId": 68889
     }
   ],
-  "count": 2295,
-  "retainedItemCount": 525,
+  "count": 2303,
+  "retainedItemCount": 487,
   "observedItems": [
+    {
+      "id": "insidertracking/63674",
+      "channel": "insidertracking",
+      "datetime": "2026-09-14T14:04:42.000Z",
+      "localDateKst": "2026-09-14",
+      "score": 52,
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/25223",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-09-14T14:03:17.000Z",
+      "localDateKst": "2026-09-14",
+      "score": 40,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/25221",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-09-14T14:02:47.000Z",
+      "localDateKst": "2026-09-14",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/68889",
+      "channel": "HANAchina",
+      "datetime": "2026-09-14T14:02:20.000Z",
+      "localDateKst": "2026-09-14",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/25220",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-09-14T14:01:48.000Z",
+      "localDateKst": "2026-09-14",
+      "score": 43,
+      "tags": [
+        "power"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/68888",
+      "channel": "HANAchina",
+      "datetime": "2026-09-14T14:01:16.000Z",
+      "localDateKst": "2026-09-14",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/68887",
+      "channel": "HANAchina",
+      "datetime": "2026-09-14T14:00:07.000Z",
+      "localDateKst": "2026-09-14",
+      "score": 61,
+      "tags": [
+        "semi",
+        "ai-policy"
+      ],
+      "tickers": [
+        "PLTR"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/63673",
+      "channel": "insidertracking",
+      "datetime": "2026-09-14T13:59:28.000Z",
+      "localDateKst": "2026-09-14",
+      "score": 48,
+      "tags": [
+        "power"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "aetherjapanresearch/25219",
       "channel": "aetherjapanresearch",
@@ -264,7 +363,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63671",
@@ -1209,7 +1308,7 @@
         "healthcare"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63629",
@@ -1245,7 +1344,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63626",
@@ -1260,7 +1359,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25199",
@@ -1330,7 +1429,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68865",
@@ -1371,7 +1470,7 @@
       "tickers": [
         "TSM"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68863",
@@ -1395,7 +1494,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25198",
@@ -1419,7 +1518,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68862",
@@ -1470,7 +1569,7 @@
         "power"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63620",
@@ -1482,7 +1581,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63619",
@@ -1494,7 +1593,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63618",
@@ -1506,7 +1605,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63617",
@@ -1518,7 +1617,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/20142",
@@ -1768,7 +1867,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63615",
@@ -1781,7 +1880,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68848",
@@ -1793,7 +1892,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68847",
@@ -1805,7 +1904,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68846",
@@ -1833,7 +1932,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63613",
@@ -1847,7 +1946,7 @@
         "kr-market"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68845",
@@ -1908,7 +2007,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68842",
@@ -2920,7 +3019,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63575",
@@ -2946,7 +3045,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25182",
@@ -2958,7 +3057,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63574",
@@ -3028,7 +3127,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63571",
@@ -3192,7 +3291,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25180",
@@ -3205,7 +3304,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63565",
@@ -3901,7 +4000,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68790",
@@ -3930,7 +4029,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63540",
@@ -4023,7 +4122,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68788",
@@ -4624,7 +4723,7 @@
         "ORCL",
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63524",
@@ -4766,7 +4865,7 @@
         "AVGO",
         "AMZN"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68753",
@@ -5418,7 +5517,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63480",
@@ -5623,7 +5722,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63471",
@@ -6355,7 +6454,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25154",
@@ -6628,7 +6727,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63423",
@@ -6837,7 +6936,7 @@
       "tickers": [
         "035420.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68715",
@@ -6903,7 +7002,7 @@
       "tickers": [
         "CRWV"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63414",
@@ -7028,7 +7127,7 @@
         "PLTR",
         "CRWV"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68714",
@@ -7214,7 +7313,7 @@
       "tickers": [
         "MSFT"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63403",
@@ -7610,7 +7709,7 @@
       "tickers": [
         "ORCL"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68705",
@@ -31343,22 +31442,22 @@
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2295,
-    "eligibleTextCount": 165,
-    "mediaOnlyCount": 2130,
+    "observedCount": 2303,
+    "eligibleTextCount": 133,
+    "mediaOnlyCount": 2170,
     "highSignalCount": 498,
-    "broadSignalCount": 1071,
+    "broadSignalCount": 1073,
     "selectedRawCount": 413,
-    "selectedRawCoveragePct": 250.3,
+    "selectedRawCoveragePct": 310.5,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
-    "market-note": 653,
-    "semi": 530,
-    "ai-policy": 196,
-    "macro": 826,
-    "geo": 401,
-    "power": 324,
+    "macro": 827,
+    "market-note": 656,
+    "geo": 402,
+    "power": 326,
+    "semi": 531,
+    "ai-policy": 197,
     "kr-market": 293,
     "flows": 191,
     "earnings": 374,
@@ -31372,6 +31471,7 @@
     "crypto": 10
   },
   "tickerCounts": {
+    "PLTR": 13,
     "MSFT": 17,
     "AMZN": 48,
     "ORCL": 24,
@@ -31434,7 +31534,6 @@
     "HPQ": 1,
     "SWKS": 1,
     "MFG": 3,
-    "PLTR": 12,
     "ABBV": 4,
     "SNDK": 10,
     "8035.T": 1,
@@ -31548,14 +31647,14 @@
     "UBS": 1
   },
   "themes": [
-    "Macro/Rates (826 posts in 14-day research window): Citi) \"지속 학습(Continual Learning)이 HBM과 eSSD 수요를 견인한다 (AI 학습/추론)\" 요약.(9월 14일) 씨티는 최근의 메모리 디스펙(de-spec) 이슈와 AI 안전성 우려에도 불구하고 AI의 지속 학습이 장기 메모리 수요를 재편할 것으로 전망합니다. 지속 학습이란 새로운 과제와...",
-    "Market Notes (653 posts in 14-day research window): [ 집라인과 월마트 합작 드론 배송 ] 드론의 셀프 충전이 가능하다는 영상 과 함께 소개 드렸던 미국의 드론 배송기업 집라인(Zipline)을 기억하시나요? 😉 😉 월마트와 함께 미국에서는 이렇게 배달을 하고 있다고 하네요 🙏 월마트는 이미 구글(Alphabet)의 드론 배송업체 자회사 Wing 2027년까지...",
-    "Semiconductors/Memory (530 posts in 14-day research window): Citi) \"지속 학습(Continual Learning)이 HBM과 eSSD 수요를 견인한다 (AI 학습/추론)\" 요약.(9월 14일) 씨티는 최근의 메모리 디스펙(de-spec) 이슈와 AI 안전성 우려에도 불구하고 AI의 지속 학습이 장기 메모리 수요를 재편할 것으로 전망합니다. 지속 학습이란 새로운 과제와...",
-    "Geopolitics (401 posts in 14-day research window): Citi) \"지속 학습(Continual Learning)이 HBM과 eSSD 수요를 견인한다 (AI 학습/추론)\" 요약.(9월 14일) 씨티는 최근의 메모리 디스펙(de-spec) 이슈와 AI 안전성 우려에도 불구하고 AI의 지속 학습이 장기 메모리 수요를 재편할 것으로 전망합니다. 지속 학습이란 새로운 과제와...",
+    "Macro/Rates (827 posts in 14-day research window): Citi) \"지속 학습(Continual Learning)이 HBM과 eSSD 수요를 견인한다 (AI 학습/추론)\" 요약.(9월 14일) 씨티는 최근의 메모리 디스펙(de-spec) 이슈와 AI 안전성 우려에도 불구하고 AI의 지속 학습이 장기 메모리 수요를 재편할 것으로 전망합니다. 지속 학습이란 새로운 과제와...",
+    "Market Notes (656 posts in 14-day research window): [ 집라인과 월마트 합작 드론 배송 ] 드론의 셀프 충전이 가능하다는 영상 과 함께 소개 드렸던 미국의 드론 배송기업 집라인(Zipline)을 기억하시나요? 😉 😉 월마트와 함께 미국에서는 이렇게 배달을 하고 있다고 하네요 🙏 월마트는 이미 구글(Alphabet)의 드론 배송업체 자회사 Wing 2027년까지...",
+    "Semiconductors/Memory (531 posts in 14-day research window): Citi) \"지속 학습(Continual Learning)이 HBM과 eSSD 수요를 견인한다 (AI 학습/추론)\" 요약.(9월 14일) 씨티는 최근의 메모리 디스펙(de-spec) 이슈와 AI 안전성 우려에도 불구하고 AI의 지속 학습이 장기 메모리 수요를 재편할 것으로 전망합니다. 지속 학습이란 새로운 과제와...",
+    "Geopolitics (402 posts in 14-day research window): Citi) \"지속 학습(Continual Learning)이 HBM과 eSSD 수요를 견인한다 (AI 학습/추론)\" 요약.(9월 14일) 씨티는 최근의 메모리 디스펙(de-spec) 이슈와 AI 안전성 우려에도 불구하고 AI의 지속 학습이 장기 메모리 수요를 재편할 것으로 전망합니다. 지속 학습이란 새로운 과제와...",
     "Earnings/Corporate (374 posts in 14-day research window): JP모건 글로벌 주식 전략 (2026년 9월 14일) \"고금리가 주식 펀더멘털, 밸류에이션, 포지셔닝에 미치는 영향\" 요약 지난 1년 사이 시장의 기대는 금리 인하에서 인상으로 전환되었고, 이에 따라 장기 국채는 약 10% 하락하고 선행 PER은 약 3배 압축되었습니다. 그럼에도 불구하고 주식은 예상을 크게 웃도는...",
-    "AI Power/Grid (324 posts in 14-day research window): Citi) \"지속 학습(Continual Learning)이 HBM과 eSSD 수요를 견인한다 (AI 학습/추론)\" 요약.(9월 14일) 씨티는 최근의 메모리 디스펙(de-spec) 이슈와 AI 안전성 우려에도 불구하고 AI의 지속 학습이 장기 메모리 수요를 재편할 것으로 전망합니다. 지속 학습이란 새로운 과제와...",
+    "AI Power/Grid (326 posts in 14-day research window): Citi) \"지속 학습(Continual Learning)이 HBM과 eSSD 수요를 견인한다 (AI 학습/추론)\" 요약.(9월 14일) 씨티는 최근의 메모리 디스펙(de-spec) 이슈와 AI 안전성 우려에도 불구하고 AI의 지속 학습이 장기 메모리 수요를 재편할 것으로 전망합니다. 지속 학습이란 새로운 과제와...",
     "Korea Market (293 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 데이터센터 • 럼 그룹 (RUM) — 앤트로픽과 6년간 총 137억 달러 규모의 AI 컴퓨팅 공급 계약을 체결한 것으로 전해짐. 앤트로픽은 조지아주 메이스빌 데이터센터의 컴퓨팅 용량을 임차하며, 해당 시설은 120MW의...",
-    "AI Policy/Export Controls (196 posts in 14-day research window): Citi) \"지속 학습(Continual Learning)이 HBM과 eSSD 수요를 견인한다 (AI 학습/추론)\" 요약.(9월 14일) 씨티는 최근의 메모리 디스펙(de-spec) 이슈와 AI 안전성 우려에도 불구하고 AI의 지속 학습이 장기 메모리 수요를 재편할 것으로 전망합니다. 지속 학습이란 새로운 과제와..."
+    "AI Policy/Export Controls (197 posts in 14-day research window): Citi) \"지속 학습(Continual Learning)이 HBM과 eSSD 수요를 견인한다 (AI 학습/추론)\" 요약.(9월 14일) 씨티는 최근의 메모리 디스펙(de-spec) 이슈와 AI 안전성 우려에도 불구하고 AI의 지속 학습이 장기 메모리 수요를 재편할 것으로 전망합니다. 지속 학습이란 새로운 과제와..."
   ],
   "catalysts": [
     {
@@ -31581,12 +31680,12 @@
     {
       "key": "AMZN",
       "count": 48,
-      "text": "2026년 9월 14일 미국 프리마켓 브리핑 이번 주 글로벌 증시는 FOMC와 AI 투자심리, 중동발 에너지 충격이 동시에 가격을 결정하는 구조. 미국 8월 물가가 예상보다 강하게 나오면서 9월 25bp 인상 확률이 85% 이상으로 상승했고, 골드만삭스·JP모건·HSBC도 9월 인상 전망으로 전환. 시장이 이미..."
+      "text": "2026년 9월 14일 미국 프리마켓 브리핑 이번 주 글로벌 증시는 FOMC와 AI 투자심리, 중동발 에너지 충격이 동시에 가격을 결정하는 구조. 미국 8월 물가가 예상보다 강하게 나오면서 9월 25bp 인상..."
     },
     {
       "key": "GOOG",
       "count": 44,
-      "text": "다음주 일정 14일: 한국 애프터마켓 개장 15일: FOMC (~16일), 미국 9월 뉴욕 제조업 지수, 상원 클래리티 법안 표결, 중국 8월 산업생산, 소매판매, AI Infra Summit 2026 (~17일, 삼성, SK하이닉스, Micron, Nebius, 엔비디아, Dell, 인텔, 코어위브, AWS,..."
+      "text": "다음주 일정 14일: 한국 애프터마켓 개장 15일: FOMC (~16일), 미국 9월 뉴욕 제조업 지수, 상원 클래리티 법안 표결, 중국 8월 산업생산, 소매판매, AI Infra Summit 2026..."
     },
     {
       "key": "AVGO",
@@ -31601,7 +31700,7 @@
     {
       "key": "AMD",
       "count": 30,
-      "text": "다음주 일정 14일: 한국 애프터마켓 개장 15일: FOMC (~16일), 미국 9월 뉴욕 제조업 지수, 상원 클래리티 법안 표결, 중국 8월 산업생산, 소매판매, AI Infra Summit 2026 (~17일, 삼성, SK하이닉스, Micron, Nebius, 엔비디아, Dell, 인텔, 코어위브, AWS,..."
+      "text": "다음주 일정 14일: 한국 애프터마켓 개장 15일: FOMC (~16일), 미국 9월 뉴욕 제조업 지수, 상원 클래리티 법안 표결, 중국 8월 산업생산, 소매판매, AI Infra Summit 2026..."
     },
     {
       "key": "BE",
@@ -31611,7 +31710,7 @@
     {
       "key": "035420.KS",
       "count": 27,
-      "text": "* 메모리 공장 얼마나 더 지으려고…마이크론, 건설사도 ‘장기계약’ - 5일 대만 정보기술(IT) 전문매체 디지타임스에 따르면 마이크론은 대만의 건설•시설 엔지니어링 업체들과 장기 계약 및 생산능력 예약을..."
+      "text": "최태원 \"한일 에너지 공동구매하자..송전망·가스관도 연결\" 조달·비축 공동 설계해 비용 절감 AI 공동펀드·통합 보험도 제안 \"韓 CPTPP 가입해 日과 주도해야\" 최태원 대한상공회의소 회장 겸 SK그룹..."
     },
     {
       "key": "ORCL",
@@ -31626,7 +31725,7 @@
       "topics": [
         "macro"
       ],
-      "count": 826,
+      "count": 827,
       "focus": "Citi) \"지속 학습(Continual Learning)이 HBM과 eSSD 수요를 견인한다 (AI 학습/추론)\" 요약.(9월 14일) 씨티는 최근의 메모리 디스펙(de-spec) 이슈와 AI 안전성 우려에도 불구하고 AI의 지속 학습이 장기 메모리 수요를 재편할 것으로 전망합니다. 지속 학습이란 새로운 과제와..."
     },
     {
@@ -31635,7 +31734,7 @@
       "topics": [
         "geo"
       ],
-      "count": 401,
+      "count": 402,
       "focus": "Citi) \"지속 학습(Continual Learning)이 HBM과 eSSD 수요를 견인한다 (AI 학습/추론)\" 요약.(9월 14일) 씨티는 최근의 메모리 디스펙(de-spec) 이슈와 AI 안전성 우려에도 불구하고 AI의 지속 학습이 장기 메모리 수요를 재편할 것으로 전망합니다. 지속 학습이란 새로운 과제와..."
     },
     {
@@ -31653,7 +31752,7 @@
       "topics": [
         "semi"
       ],
-      "count": 530,
+      "count": 531,
       "focus": "Citi) \"지속 학습(Continual Learning)이 HBM과 eSSD 수요를 견인한다 (AI 학습/추론)\" 요약.(9월 14일) 씨티는 최근의 메모리 디스펙(de-spec) 이슈와 AI 안전성 우려에도 불구하고 AI의 지속 학습이 장기 메모리 수요를 재편할 것으로 전망합니다. 지속 학습이란 새로운 과제와..."
     },
     {
@@ -31671,7 +31770,7 @@
       "topics": [
         "power"
       ],
-      "count": 324,
+      "count": 326,
       "focus": "Citi) \"지속 학습(Continual Learning)이 HBM과 eSSD 수요를 견인한다 (AI 학습/추론)\" 요약.(9월 14일) 씨티는 최근의 메모리 디스펙(de-spec) 이슈와 AI 안전성 우려에도 불구하고 AI의 지속 학습이 장기 메모리 수요를 재편할 것으로 전망합니다. 지속 학습이란 새로운 과제와..."
     },
     {
@@ -31680,7 +31779,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 196,
+      "count": 197,
       "focus": "Citi) \"지속 학습(Continual Learning)이 HBM과 eSSD 수요를 견인한다 (AI 학습/추론)\" 요약.(9월 14일) 씨티는 최근의 메모리 디스펙(de-spec) 이슈와 AI 안전성 우려에도 불구하고 AI의 지속 학습이 장기 메모리 수요를 재편할 것으로 전망합니다. 지속 학습이란 새로운 과제와..."
     },
     {
@@ -31699,7 +31798,7 @@
         "equity"
       ],
       "count": 140,
-      "focus": "2026년 9월 14일 미국 프리마켓 브리핑 이번 주 글로벌 증시는 FOMC와 AI 투자심리, 중동발 에너지 충격이 동시에 가격을 결정하는 구조. 미국 8월 물가가 예상보다 강하게 나오면서 9월 25bp 인상 확률이 85% 이상으로 상승했고, 골드만삭스·JP모건·HSBC도 9월 인상 전망으로 전환. 시장이 이미..."
+      "focus": "2026년 9월 14일 미국 프리마켓 브리핑 이번 주 글로벌 증시는 FOMC와 AI 투자심리, 중동발 에너지 충격이 동시에 가격을 결정하는 구조. 미국 8월 물가가 예상보다 강하게 나오면서 9월 25bp 인상..."
     },
     {
       "id": "crypto",
@@ -31761,7 +31860,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 653,
+      "count": 656,
       "focus": "[ 집라인과 월마트 합작 드론 배송 ] 드론의 셀프 충전이 가능하다는 영상 과 함께 소개 드렸던 미국의 드론 배송기업 집라인(Zipline)을 기억하시나요? 😉 😉 월마트와 함께 미국에서는 이렇게 배달을 하고 있다고 하네요 🙏 월마트는 이미 구글(Alphabet)의 드론 배송업체 자회사 Wing 2027년까지..."
     }
   ],
@@ -33169,6 +33268,37 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/63674",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/63674",
+      "datetime": "2026-09-14T14:04:42.000Z",
+      "localDateKst": "2026-09-14",
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "score": 52,
+      "hasText": true,
+      "summary": "US10y 5%"
+    },
+    {
+      "id": "HANAchina/68887",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/68887",
+      "datetime": "2026-09-14T14:00:07.000Z",
+      "localDateKst": "2026-09-14",
+      "tags": [
+        "semi",
+        "ai-policy"
+      ],
+      "tickers": [
+        "PLTR"
+      ],
+      "score": 61,
+      "hasText": true,
+      "summary": ">>엔비디아·팔란티어 등이 OpenAI·Anthropic 최신 AI 모델 사용 제한 (The Information) •엔비디아, 팔란티어, Booz Allen Hamilton은 OpenAI와..."
+    },
     {
       "id": "aetherjapanresearch/25218",
       "channel": "aetherjapanresearch",
@@ -38310,24 +38440,6 @@
       "summary": "TSMC 2026년 8월 매출 약 5,148억 1,000만 대만달러 mom +10.1%, yoy +53.3% 2026년 1월부터 8월까지의 누적 매출은 총 3조 3,868억 7,000만 대만달러로, 2025년..."
     },
     {
-      "id": "insidertracking/63333",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/63333",
-      "datetime": "2026-09-10T05:33:04.000Z",
-      "localDateKst": "2026-09-10",
-      "tags": [
-        "macro",
-        "semi",
-        "earnings"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "score": 68,
-      "hasText": true,
-      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ TSMC의 2026년 8월 연결 기준 매출은 약 5,148억1,000만 대만달러로 집계. 전월 대비 10.1%, 전년 동월 대비..."
-    },
-    {
       "id": "bornlupin/20107",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20107",
@@ -38895,21 +39007,6 @@
       "score": 57,
       "hasText": true,
       "summary": ">>중앙은행, 유가만 주시하는 게 아님…‘정제마진’이 인플레이션 경고음 •정제마진은 휘발유·경유 등 정유제품과 원유 간의 가격 차이로, 중앙은행이 인플레이션 압력을 판단하는 중요한 지표로 부상. 중동 및..."
-    },
-    {
-      "id": "HANAchina/68651",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/68651",
-      "datetime": "2026-09-09T22:03:23.000Z",
-      "localDateKst": "2026-09-10",
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "score": 62,
-      "hasText": true,
-      "summary": ">>미국 30년 만기 모기지 금리 6.85%로 상승, 1년여 만에 최고치 •미·이란 충돌 발생 이후 미국 30년 만기 고정 모기지 계약금리는 누적으로 75bp 상승했으며, 에너지 가격 상승에 따른 인플레이션..."
     },
     {
       "id": "aetherjapanresearch/25120",
@@ -40612,48 +40709,6 @@
       "score": 35,
       "hasText": true,
       "summary": "10월부터 S26시리즈 가격 인상예정 S26: 125.4만 → 140.36만 S26+: 145.2만 → 160.16만 S26울트라: 179.74만 → 194.7만"
-    },
-    {
-      "id": "bornlupin/20130",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20130",
-      "datetime": "2026-09-13T09:21:50.000Z",
-      "localDateKst": "2026-09-13",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "AI \"안전성 속도 조절(slowdown)\"의 가장 큰 문제점: 중국은 어떻게 되는가? AI의 안전성과 그 진화 속도에 대한 타당한 우려들이 존재하지만, AI 경쟁은 전 세계적인 양상을 띠고 있습니다. 그리고..."
-    },
-    {
-      "id": "aetherjapanresearch/25183",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25183",
-      "datetime": "2026-09-13T09:08:00.000Z",
-      "localDateKst": "2026-09-13",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "AI감속해요~ 이러면서 뒤에선 다들 몰래몰래 계속 개발할듯"
-    },
-    {
-      "id": "aetherjapanresearch/25182",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25182",
-      "datetime": "2026-09-13T09:07:12.000Z",
-      "localDateKst": "2026-09-13",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "주말에 AI개발 감속이야기가 활발한데... 일단 OAI/앤스로픽/그록은 감속 찬성 그동안 쫒아올 메타/구글/알리바바 사야하나?"
     },
     {
       "id": "insidertracking/63574",
