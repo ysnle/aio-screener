@@ -12,6 +12,8 @@ const conceptsBundle = read('concepts.json');
 const aliasesBundle = read('aliases.json');
 const sourcesBundle = read('sources.json');
 const routeTargetsBundle = read('route-targets.json');
+const nathanFrameworkBundle = read('nathan-frameworks.json');
+const integratedFrameworkBundle = read('integrated-market-ai-frameworks.json');
 const sourceLessons = new Map([
   ...JSON.parse(fs.readFileSync(path.join(root, 'public-data/principles/lesson-library.json'), 'utf8')).lessons.map((lesson) => [`principles:${lesson.id}`, lesson]),
   ...JSON.parse(fs.readFileSync(path.join(root, 'public-data/atlas/foundation-lessons.json'), 'utf8')).lessons.map((lesson) => [`atlas-foundations:${lesson.id}`, lesson])
@@ -93,21 +95,90 @@ const outputArticles = (articlesBundle.articles || []).map((article) => {
   };
 });
 
+const frameworkArticles = (nathanFrameworkBundle.articles || []).map((article) => ({
+  articleId: article.articleId,
+  lessonId: article.lessonId,
+  conceptIds: [...new Set(article.conceptIds || [])],
+  conceptLinkStatus: 'SOURCE_LINK',
+  candidateConceptIds: [],
+  candidateConceptStatus: 'NOT_APPLICABLE',
+  surface: article.surface,
+  title: article.title,
+  authoringStatus: article.authoringStatus,
+  publication: article.publication,
+  reviewedAt: article.reviewedAt,
+  keywords: [...new Set([article.title, ...(article.keywords || [])])].filter(Boolean).slice(0, 24),
+  route: {
+    routeId: article.route?.routeId || 'principles',
+    deepLink: article.route?.deepLink || '',
+    verificationRouteId: article.route?.verificationRouteId || null,
+    verificationLabel: article.route?.verificationLabel || null,
+    metric: article.route?.metric || null,
+    timeframe: article.route?.timeframe || null
+  },
+  // Source titles remain in the canonical pack, but direct X URLs are not
+  // copied into the user-facing retrieval index. The registry retains the
+  // audit trail for internal provenance checks.
+  sources: [],
+  summary: {
+    definition: compact(article.summary?.definition, 620),
+    mechanism: compact(article.summary?.mechanism, 720),
+    example: compact(article.summary?.example, 440),
+    counterScenario: compact(article.summary?.counterScenario, 440),
+    visualization: compact(article.summary?.visualization, 220)
+  }
+}));
+
+const integratedFrameworkArticles = (integratedFrameworkBundle.articles || []).map((article) => ({
+  articleId: article.articleId,
+  lessonId: article.lessonId,
+  conceptIds: [...new Set(article.conceptIds || [])],
+  conceptLinkStatus: 'SOURCE_LINK',
+  candidateConceptIds: [],
+  candidateConceptStatus: 'NOT_APPLICABLE',
+  surface: article.surface,
+  title: article.title,
+  authoringStatus: article.authoringStatus,
+  publication: article.publication,
+  reviewedAt: article.reviewedAt,
+  keywords: [...new Set([article.title, ...(article.keywords || [])])].filter(Boolean).slice(0, 24),
+  route: {
+    routeId: article.route?.routeId || article.page || 'principles',
+    deepLink: article.route?.deepLink || '',
+    verificationRouteId: article.route?.verificationRouteId || article.page || 'principles',
+    verificationLabel: article.route?.verificationLabel || '통합 구조 프레임에서 검증',
+    metric: article.route?.metric || 'reference-framework',
+    timeframe: article.route?.timeframe || '구조'
+  },
+  sources: [],
+  summary: {
+    definition: compact(article.summary?.definition, 620),
+    mechanism: compact(article.summary?.mechanism, 720),
+    example: compact(article.summary?.example, 440),
+    counterScenario: compact(article.summary?.counterScenario, 440),
+    visualization: compact(article.summary?.visualization, 220)
+  }
+}));
+
+const allOutputArticles = [...outputArticles, ...frameworkArticles, ...integratedFrameworkArticles];
+
 atomicWriteJsonSync(path.join(root, 'public-data', 'knowledge', 'ai-retrieval-index.json'), {
   schemaVersion: 'ai-knowledge-retrieval-index.v1',
   generatedAt: [articlesBundle.generatedAt, conceptsBundle.generatedAt, sourcesBundle.generatedAt, routeTargetsBundle.generatedAt].filter(Boolean).sort().at(-1),
   status: 'REFERENCE_ONLY',
   boundary: 'Compact AI retrieval index for Market Principles and AI Era Knowledge Map. Current claims and trade decisions require separate live evidence.',
   counts: {
-    total: outputArticles.length,
-    principles: outputArticles.filter((article) => article.surface === 'principles').length,
-    atlasFoundations: outputArticles.filter((article) => article.surface === 'atlas-foundations').length,
-    withConcepts: outputArticles.filter((article) => article.conceptIds.length).length,
-    unmappedConcepts: outputArticles.filter((article) => !article.conceptIds.length).length,
-    withSources: outputArticles.filter((article) => article.sources.length).length,
-    withRouteTargets: outputArticles.filter((article) => article.route.verificationRouteId).length
+    total: allOutputArticles.length,
+    principles: allOutputArticles.filter((article) => article.surface === 'principles').length,
+    atlasFoundations: allOutputArticles.filter((article) => article.surface === 'atlas-foundations').length,
+    nathanFrameworks: allOutputArticles.filter((article) => article.surface === 'nathan-frameworks').length,
+    integratedFrameworks: allOutputArticles.filter((article) => article.surface === 'integrated-frameworks').length,
+    withConcepts: allOutputArticles.filter((article) => article.conceptIds.length).length,
+    unmappedConcepts: allOutputArticles.filter((article) => !article.conceptIds.length).length,
+    withSources: allOutputArticles.filter((article) => article.sources.length).length,
+    withRouteTargets: allOutputArticles.filter((article) => article.route.verificationRouteId).length
   },
-  articles: outputArticles
+  articles: allOutputArticles
 });
 
-console.log(JSON.stringify({ status: 'PASS', ...outputArticles.reduce((acc, article) => ({ total: acc.total + 1, concepts: acc.concepts + article.conceptIds.length, sources: acc.sources + article.sources.length }), { total: 0, concepts: 0, sources: 0 }) }, null, 2));
+console.log(JSON.stringify({ status: 'PASS', ...allOutputArticles.reduce((acc, article) => ({ total: acc.total + 1, concepts: acc.concepts + article.conceptIds.length, sources: acc.sources + article.sources.length }), { total: 0, concepts: 0, sources: 0 }) }, null, 2));

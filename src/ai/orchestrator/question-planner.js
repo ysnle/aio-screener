@@ -7,6 +7,7 @@ import { createResearchDecision } from '../research/decision.js';
 import { createResearchPlan } from '../research/plan.js';
 import { classifyAIConduct } from '../policy/conduct.js';
 import { createQuestionPremise } from './premise.js';
+import { buildNathanAnalysisContext } from '../../domain/knowledge/nathan-framework-pack.js';
 
 export const AI_QUESTION_PLAN_VERSION = 'question-plan.v1';
 
@@ -58,6 +59,7 @@ export function createQuestionPlan({ query = '', route = null, now = new Date(),
   const sessionEvidence = currentSensitive
     ? createMarketSessionEvidence({ now: planNow, schedule: sessionScheduleResolved, market })
     : null;
+  const referenceContext = buildNathanAnalysisContext(normalized, { routeId: route });
   if (currentSensitive && !requiredEvidence.includes('market-session')) requiredEvidence.unshift('market-session');
   const plan = {
     schemaVersion: AI_QUESTION_PLAN_VERSION,
@@ -75,6 +77,10 @@ export function createQuestionPlan({ query = '', route = null, now = new Date(),
     currentSensitive,
     requiredEvidence: Object.freeze([...new Set(requiredEvidence)]),
     optionalEvidence: Object.freeze(intent.intents.includes('FX_ANALYSIS') ? ['news', 'flows', 'policy-comments'] : ['news', 'research-reference']),
+    // Structural reference is a protocol hint, not evidence and never a
+    // current signal. It lets downstream analysis keep mechanism, observation,
+    // counter-scenario and action boundaries separate.
+    referenceContext,
     requiredTools: Object.freeze([...new Set(requiredEvidence.filter((item) => item !== 'market-session'))]),
     // A portfolio page or trading noun alone is not a request to mutate or
     // personalize an account. Suitability is required only for the explicit

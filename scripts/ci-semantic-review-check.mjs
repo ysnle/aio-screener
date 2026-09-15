@@ -22,6 +22,13 @@ const rules = read('_context/RULES.md');
 const qa = read('_context/QA-CHECKLIST.md');
 const postmortem = read('_context/BUG-POSTMORTEM.md');
 const changelog = read('CHANGELOG.md');
+const coveragePath = '_artifacts/exhaustive-audit-20260831/coverage-summary.json';
+let coverage = null;
+try { coverage = JSON.parse(read(coveragePath)); } catch (_) {}
+const currentCoveragePct = coverage && Number.isFinite(coverage.codeConfigCurrentLines) && coverage.codeConfigCurrentLines > 0
+  ? (Number(coverage.currentSemanticallyReviewedLines || 0) / coverage.codeConfigCurrentLines) * 100 : null;
+const historyCoveragePct = coverage && Number.isFinite(coverage.codeHistoryTransitions) && coverage.codeHistoryTransitions > 0
+  ? (Number(coverage.historyReviewedTransitions || 0) / coverage.codeHistoryTransitions) * 100 : null;
 
 const auditDefPattern = /(?:window\.AIO\.)?(?:get|assert)[A-Za-z0-9_]*(?:Audit|Readiness)\s*=\s*function|function\s+(?:get|assert)[A-Za-z0-9_]*(?:Audit|Readiness)/g;
 const auditDefs = (core.match(auditDefPattern) || []).length;
@@ -35,7 +42,18 @@ const report = {
   totalAssertLabels: assertLabels.length,
   auditLikeAssertLabels: auditLikeLabels.length,
   shapeOrCoverageAuditLabels: shapeOnlyLabels.length,
-  sampleShapeOrCoverageLabels: shapeOnlyLabels.slice(0, 16)
+  sampleShapeOrCoverageLabels: shapeOnlyLabels.slice(0, 16),
+  semanticCoverage: {
+    artifact: coveragePath,
+    currentLines: coverage?.codeConfigCurrentLines ?? null,
+    reviewedCurrentLines: coverage?.currentSemanticallyReviewedLines ?? null,
+    currentCoveragePct,
+    historyTransitions: coverage?.codeHistoryTransitions ?? null,
+    reviewedHistoryTransitions: coverage?.historyReviewedTransitions ?? null,
+    historyCoveragePct,
+    releaseCertified: coverage?.releaseCertified === true,
+    status: coverage?.releaseCertified === true ? 'CERTIFIED' : 'OPEN'
+  }
 };
 
 check('semantic review script exists', exists('scripts/ci-semantic-review-check.mjs'));
@@ -45,6 +63,15 @@ check('P513 semantic QA checklist exists', /P513-Q1/.test(qa) && /ci-semantic-re
 check('P513 postmortem exists', /P513/.test(postmortem) && /audit-only/.test(postmortem) && /semantic review/.test(postmortem));
 check('v50.89 changelog records semantic review gate', /## v50\.89/.test(changelog) && /semantic review/.test(changelog));
 check('runtime contract gate references semantic review', /ci-semantic-review-check\.mjs/.test(runtimeGate) && /semantic review/.test(runtimeGate));
+check('line-level semantic coverage ledger exists and stays fail-closed until certified',
+  !!coverage
+  && coverage.releaseCertified === false
+  && Number.isFinite(currentCoveragePct) && currentCoveragePct >= 0 && currentCoveragePct <= 100
+  && Number.isFinite(historyCoveragePct) && historyCoveragePct >= 0 && historyCoveragePct <= 100
+  && Number(coverage.currentSemanticallyReviewedLines || 0) <= Number(coverage.codeConfigCurrentLines || 0)
+  && Number(coverage.historyReviewedTransitions || 0) <= Number(coverage.codeHistoryTransitions || 0),
+  JSON.stringify(report.semanticCoverage));
+warnings.push(`SEMANTIC_REVIEW_OPEN current=${currentCoveragePct === null ? 'unknown' : currentCoveragePct.toFixed(2)}% (${coverage?.currentSemanticallyReviewedLines || 0}/${coverage?.codeConfigCurrentLines || 0} lines), history=${historyCoveragePct === null ? 'unknown' : historyCoveragePct.toFixed(2)}% (${coverage?.historyReviewedTransitions || 0}/${coverage?.codeHistoryTransitions || 0} transitions); structural/audit PASS is not semantic certification.`);
 
 // P553: aligned with the same relaxation in ci-runtime-contract-check.mjs — the object literal
 // no longer has to be the literal return expression (computeTradingScore builds it into a
@@ -80,6 +107,7 @@ if (errors.length) {
 }
 
 console.log(`Semantic review check OK: ${version}, audit defs ${auditDefs}, audit-like asserts ${auditLikeLabels.length}, shape/coverage audit asserts ${shapeOnlyLabels.length}.`);
+console.log(`SEMANTIC_REVIEW_OPEN current=${currentCoveragePct === null ? 'unknown' : currentCoveragePct.toFixed(2)}% history=${historyCoveragePct === null ? 'unknown' : historyCoveragePct.toFixed(2)}% releaseCertified=${coverage?.releaseCertified === true ? 'true' : 'false'}`);
 console.log('Semantic review backlog sample:');
 shapeOnlyLabels.slice(0, 8).forEach((label) => console.log(' - ' + label));
 if (warnings.length) warnings.forEach((warning) => console.warn('WARN: ' + warning));

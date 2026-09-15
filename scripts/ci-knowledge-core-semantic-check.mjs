@@ -118,7 +118,7 @@ assert(invalidCapability.validated.status === 'fallback' && invalidCapability.va
 const conceptsArtifact = readJson('public-data/knowledge/concepts.json');
 const aliasesArtifact = readJson('public-data/knowledge/aliases.json');
 const ontology = createConceptRegistry(conceptsArtifact.concepts, aliasesArtifact.aliases);
-assert(conceptsArtifact.concepts.length === 155, `Canonical concept count: ${conceptsArtifact.concepts.length}`);
+assert(conceptsArtifact.concepts.length === 212, `Canonical concept count: ${conceptsArtifact.concepts.length}`);
 assert(ontology.errors.length === 0, `Ontology errors: ${JSON.stringify(ontology.errors)}`);
 assert(ontology.resolve('defense-autonomy').length === 2, 'Cross-page duplicate legacy ID must resolve through explicit equivalence');
 assert(!('byId' in ontology), 'Ontology registry must not expose its mutable Map index');

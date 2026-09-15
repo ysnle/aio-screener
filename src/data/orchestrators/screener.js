@@ -3,8 +3,18 @@ import { deriveScreenerSetupProfile } from '../../domain/screener/setup-profile.
 import { calculationRow, createScreenDefinition, stableHash } from '../contracts/screener.js';
 import { runScreen, summarizeScreenReadiness, SCREEN_ENGINE_VERSION } from '../../domain/screener/screen-engine.js';
 import { SUPPLIED_MATERIALS_REFERENCE, SUPPLIED_MATERIAL_CLAIM_IDS } from '../../domain/research/supplied-materials.js';
+import { NATHAN_PREVIOUS_THREADS_REFERENCE } from '../../domain/research/nathan-previous-threads.js';
+import { NATHAN_ANALYSIS_PROTOCOL, NATHAN_KNOWLEDGE_CONCEPTS } from '../../domain/knowledge/nathan-framework-pack.js';
+import { CONDITIONAL_EVIDENCE_VERSION } from '../../domain/screener/conditional-evidence.js';
+import { EVIDENCE_LINEAGE_VERSION } from '../../domain/screener/evidence-lineage.js';
 
 const SCREENER_RESEARCH_MAPPING = Object.freeze(SUPPLIED_MATERIALS_REFERENCE.routeMappings?.screener || {});
+const SCREENER_REFERENCE_FRAMEWORK_IDS = Object.freeze([
+  ...new Set([
+    ...(SCREENER_RESEARCH_MAPPING.sectionIds || []),
+    ...(SCREENER_RESEARCH_MAPPING.nathanFrameworkIds || [])
+  ])
+]);
 
 export function createScreenerOrchestrator({ provider, commands, getState = () => ({}), ranker = null, rankingContext = () => ({}) } = {}) {
   if (!provider?.readCurrent || !commands?.setData) throw new Error('SCREENER_ORCHESTRATOR_DEPENDENCY_INVALID');
@@ -51,7 +61,10 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
       requiredFields: ['price.ret3m', 'price.pctSma200', 'price.rsi14'],
       ranking: { field: 'rank', direction: 'desc' },
       columns: ['identity.symbol', 'identity.name', 'rank', 'price.ret3m', 'price.rsi14'],
-      referenceFrameworkIds: SCREENER_RESEARCH_MAPPING.sectionIds,
+      referenceFrameworkIds: SCREENER_REFERENCE_FRAMEWORK_IDS,
+      referenceConceptIds: NATHAN_KNOWLEDGE_CONCEPTS.map((concept) => concept.canonicalId),
+      referenceQuestionIds: NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks.flatMap((framework) => [`${framework.id}:confirmation`, `${framework.id}:invalidation`]),
+      referenceProcessingStages: NATHAN_ANALYSIS_PROTOCOL.stages,
       referenceTimeSeriesIds: SCREENER_RESEARCH_MAPPING.timeSeriesIds,
       referenceClaimIds: SUPPLIED_MATERIAL_CLAIM_IDS,
       referenceBoundary: SUPPLIED_MATERIALS_REFERENCE.operationalUse,
@@ -88,9 +101,19 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
           sourceKind: SUPPLIED_MATERIALS_REFERENCE.sourceKind,
           operationalUse: SUPPLIED_MATERIALS_REFERENCE.operationalUse,
           frameworkIds: [...(screenDefinition.referenceFrameworkIds || [])],
+          conceptIds: [...(screenDefinition.referenceConceptIds || [])],
+          questionIds: [...(screenDefinition.referenceQuestionIds || [])],
+          processingStages: [...(screenDefinition.referenceProcessingStages || [])],
           timeSeriesIds: [...(screenDefinition.referenceTimeSeriesIds || [])],
           claimIds: [...(screenDefinition.referenceClaimIds || [])],
-          boundary: screenDefinition.referenceBoundary
+          sourceExtensionPacketId: SUPPLIED_MATERIALS_REFERENCE.sourceExtensions?.packetId || null,
+          pipelineVersion: SUPPLIED_MATERIALS_REFERENCE.sourceExtensions?.pipeline?.version || null,
+          conditionalEvidenceVersion: CONDITIONAL_EVIDENCE_VERSION,
+          evidenceLineageVersion: EVIDENCE_LINEAGE_VERSION,
+          requiredLineage: [...(SUPPLIED_MATERIALS_REFERENCE.sourceExtensions?.pipeline?.requiredLineage || [])],
+          boundary: screenDefinition.referenceBoundary,
+          currentClaimsAllowed: false,
+          rankingUse: 'none'
         },
         ranking: ranking ? {
           modelVersion: ranking.modelVersion,

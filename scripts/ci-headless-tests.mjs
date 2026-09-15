@@ -11,9 +11,10 @@
 
 import { chromium } from 'playwright';
 import { spawn, spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { resolve, dirname } from 'node:path';
+import { resolve, dirname, join } from 'node:path';
+import { tmpdir } from 'node:os';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const root = resolve(scriptDir, '..');
@@ -101,6 +102,35 @@ function matchesAllowlist(error, entry) {
   return scopeMatches && entry.pattern.test(`${error.text} ${error.source || ''}`);
 }
 
+function writeQaReport(payload) {
+  const reportDir = process.env.AIO_QA_REPORT_DIR || process.env.RUNNER_TEMP || join(tmpdir(), 'aio-qa-reports');
+  const reportPath = join(reportDir, `aio-headless-${SHARD_INDEX}-${SHARD_COUNT}.json`);
+  try {
+    mkdirSync(reportDir, { recursive: true });
+    writeFileSync(reportPath, `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
+    console.log(`[ci-headless-tests] QA report: ${reportPath}`);
+    return reportPath;
+  } catch (error) {
+    console.error(`[ci-headless-tests] QA report write failed (${reportPath}): ${error.message}`);
+    return null;
+  }
+}
+
+async function readBrowserFailureState(page) {
+  if (!page) return null;
+  try {
+    return await page.evaluate(() => ({
+      readyState: document.readyState,
+      url: location.href,
+      testResults: window.AIO?.getTestResults?.() || null,
+      groupRegistry: window.AIO?.getTestGroupRegistry?.() || null,
+      runState: window.AIO?.getHeadlessRunState?.() || null
+    }));
+  } catch (error) {
+    return { evaluateError: error.message };
+  }
+}
+
 function startServer() {
   return new Promise((resolvePromise, reject) => {
     const child = spawn(process.execPath, ['scripts/start-local-node.mjs', String(PORT)], {
@@ -125,9 +155,13 @@ async function main() {
   const browser = await chromium.launch();
   activeBrowser = browser;
   let exitCode = 0;
+  let page = null;
+  let runResult = null;
+  let sentinelResult = null;
+  let reportPath = null;
 
   try {
-    const page = await browser.newPage();
+    page = await browser.newPage();
     const runtimeErrors = [];
     const expectedBlockedNetwork = [];
     const abortedExternalUrls = new Set();
@@ -185,30 +219,54 @@ async function main() {
 
     const heartbeatStartedAt = Date.now();
     const heartbeat = setInterval(() => console.log(`[qa-progress] headless selection=${SELECTION_LABEL} elapsed=${Math.round((Date.now() - heartbeatStartedAt) / 1000)}s`), 15000);
-    let result;
     try {
-      result = await page.evaluate(async ({ shardIndex, shardCount, groupIds }) => {
+      runResult = await page.evaluate(async ({ shardIndex, shardCount, groupIds }) => {
       await window.AIO.loadTests();
         return window.AIO.runTests({ shardIndex, shardCount, groupIds, progress: true });
       }, { shardIndex: SHARD_INDEX, shardCount: SHARD_COUNT, groupIds: GROUP_IDS });
+    } catch (error) {
+      const browserState = await readBrowserFailureState(page);
+      reportPath = writeQaReport({
+        schemaVersion: 'aio-headless-qa-report.v1',
+        selection: { shard: SHARD_LABEL, groups: GROUP_IDS },
+        status: 'runner-error',
+        error: { message: error.message, stack: error.stack || null },
+        browserState,
+        runtimeErrors,
+        expectedBlockedNetwork
+      });
+      throw new Error(`AIO.runTests failed before a result ledger was returned: ${error.message}; browserState=${JSON.stringify(browserState)}; report=${reportPath || 'unavailable'}`);
     } finally {
       clearInterval(heartbeat);
     }
 
-    if (result?.shard?.index !== SHARD_INDEX || result?.shard?.count !== SHARD_COUNT || result?.shard?.selectedGroups < 1) {
-      throw new Error(`headless shard coverage mismatch: ${JSON.stringify(result?.shard || null)}`);
+    if (!runResult || !Array.isArray(runResult.results)) {
+      const browserState = await readBrowserFailureState(page);
+      reportPath = writeQaReport({
+        schemaVersion: 'aio-headless-qa-report.v1',
+        selection: { shard: SHARD_LABEL, groups: GROUP_IDS },
+        status: 'missing-result-ledger',
+        result: runResult || null,
+        browserState,
+        runtimeErrors,
+        expectedBlockedNetwork
+      });
+      throw new Error(`headless runner returned no attributable test ledger: ${JSON.stringify(runResult || null)}; browserState=${JSON.stringify(browserState)}; report=${reportPath || 'unavailable'}`);
     }
-    if (GROUP_IDS.length && (result?.selection?.mode !== 'groups' || result.shard.selectedGroups !== GROUP_IDS.length || GROUP_IDS.some((id) => !result.selection.requestedGroups.includes(id)))) {
-      throw new Error(`headless group coverage mismatch: ${JSON.stringify(result?.selection || null)}`);
+    if (runResult?.shard?.index !== SHARD_INDEX || runResult?.shard?.count !== SHARD_COUNT || runResult?.shard?.selectedGroups < 1) {
+      throw new Error(`headless shard coverage mismatch: ${JSON.stringify(runResult?.shard || null)}`);
+    }
+    if (GROUP_IDS.length && (runResult?.selection?.mode !== 'groups' || runResult.shard.selectedGroups !== GROUP_IDS.length || GROUP_IDS.some((id) => !runResult.selection.requestedGroups.includes(id)))) {
+      throw new Error(`headless group coverage mismatch: ${JSON.stringify(runResult?.selection || null)}`);
     }
 
-    const sentinel = await page.evaluate(() => window.AIO.runGroupContractSelfTest?.() || null);
+    sentinelResult = await page.evaluate(() => window.AIO.runGroupContractSelfTest?.() || null);
 
-    console.log(`\n[ci-headless-tests] selection=${SELECTION_LABEL} groups=${result.shard.selectedGroups}/${result.shard.registryGroups} ${result.summary}`);
+    console.log(`\n[ci-headless-tests] selection=${SELECTION_LABEL} groups=${runResult.shard.selectedGroups}/${runResult.shard.registryGroups} ${runResult.summary}`);
 
     const unexpected = [];
     const expectedSkipped = [];
-    for (const entry of result.results) {
+    for (const entry of runResult.results) {
       if (entry.ok) continue;
       const idMatch = entry.label.match(/^T\d+/);
       const testId = idMatch ? idMatch[0] : entry.label;
@@ -216,11 +274,11 @@ async function main() {
       else unexpected.push(entry);
     }
 
-    if (!result.groups || result.groups.exceptionGroups !== 0 || result.groups.plannedGroups !== result.groups.completedGroups) {
-      unexpected.push({ label: 'GROUP_REGISTRY', detail: JSON.stringify(result.groups || null) });
+    if (!runResult.groups || runResult.groups.exceptionGroups !== 0 || runResult.groups.plannedGroups !== runResult.groups.completedGroups) {
+      unexpected.push({ label: 'GROUP_REGISTRY', detail: JSON.stringify(runResult.groups || null) });
     }
-    if (!sentinel || sentinel.plannedGroups !== 2 || sentinel.completedGroups !== 1 || sentinel.exceptionGroups !== 1 || sentinel.allPass !== false) {
-      unexpected.push({ label: 'GROUP_SENTINEL', detail: JSON.stringify(sentinel) });
+    if (!sentinelResult || sentinelResult.plannedGroups !== 2 || sentinelResult.completedGroups !== 1 || sentinelResult.exceptionGroups !== 1 || sentinelResult.allPass !== false) {
+      unexpected.push({ label: 'GROUP_SENTINEL', detail: JSON.stringify(sentinelResult) });
     }
 
     const allowlistedRuntime = runtimeErrors.filter((error) => runtimeAllowlist.some((entry) => matchesAllowlist(error, entry)));
@@ -254,17 +312,49 @@ async function main() {
     if (unexpected.length) {
       const failedGroups = [...new Set([
         ...unexpected.map((entry) => entry.groupId).filter((id) => /^G\d{3}$/.test(id || '')),
-        ...(result.groupResults || []).filter((group) => group.status === 'exception').map((group) => group.id).filter((id) => /^G\d{3}$/.test(id || ''))
+        ...(runResult.groupResults || []).filter((group) => group.status === 'exception').map((group) => group.id).filter((id) => /^G\d{3}$/.test(id || ''))
       ])];
       if (failedGroups.length) console.error(`[ci-headless-tests] AIO_FAILED_GROUPS=${failedGroups.join(',')}`);
       console.error(`\n[ci-headless-tests] ❌ 예상 밖 실패 ${unexpected.length}건 (skip-list에 없음):`);
       for (const e of unexpected) console.error(`  - ${e.groupId || 'unscoped'} | ${e.label} | ${e.detail}`);
+      // Keep the complete attributable ledger in stdout as well as the
+      // human-readable lines above. CI wrappers that truncate stderr can still
+      // recover exact test names, group ids and details from this one record.
+      console.log(`[ci-headless-tests] FAILURE_LEDGER_JSON=${JSON.stringify({
+        selection: SELECTION_LABEL,
+        unexpected,
+        failedGroups,
+        groupResults: runResult.groupResults || []
+      })}`);
       exitCode = 1;
     } else {
       console.log('\n[ci-headless-tests] ✅ skip-list 밖 실패 없음');
     }
+    reportPath = writeQaReport({
+      schemaVersion: 'aio-headless-qa-report.v1',
+      selection: { shard: SHARD_LABEL, groups: GROUP_IDS, label: SELECTION_LABEL },
+      status: exitCode === 0 ? 'pass' : 'fail',
+      result: runResult,
+      sentinel: sentinelResult,
+      unexpected,
+      expectedSkipped,
+      runtimeErrors,
+      expectedBlockedNetwork,
+      runtime: { allowlisted: allowlistedRuntime, unexpected: unexpectedRuntime, unusedAllowlist: unusedRuntimeAllowlist }
+    });
   } catch (e) {
+    const browserState = await readBrowserFailureState(page);
+    if (!reportPath) reportPath = writeQaReport({
+      schemaVersion: 'aio-headless-qa-report.v1',
+      selection: { shard: SHARD_LABEL, groups: GROUP_IDS, label: SELECTION_LABEL },
+      status: 'runner-error',
+      error: { message: e.message, stack: e.stack || null },
+      result: runResult,
+      sentinel: sentinelResult,
+      browserState
+    });
     console.error(`[ci-headless-tests] 실행 오류: ${e.stack || e.message}`);
+    console.error(`[ci-headless-tests] failure report=${reportPath || 'unavailable'} result=${JSON.stringify(runResult?.summary || null)} groups=${JSON.stringify(runResult?.groupResults || null)}`);
     exitCode = 1;
   } finally {
     await cleanup();

@@ -4,10 +4,10 @@ import fs from 'node:fs';
 import { createHash } from 'node:crypto';
 const dir = '_artifacts/exhaustive-audit-20260831';
 const files = {
-  'src/data/contracts/evidence.js': 'All lines; P1013 aliases, time, ceilings. IDs are noncryptographic; nested metadata is not fully immutable.',
+  'src/data/contracts/evidence.js': 'All lines; P1013/P1064 aliases, observation/fetch times, ceilings, revisionId and rightsId. Metadata is recursively copied and frozen with cyclic input rejected; evidence IDs remain noncryptographic.',
   'src/data/selectors/evidence.js': 'All lines; P1013 display/calculation and explicit ceilings, null/finite values. Completeness is cardinality only.',
   'src/data/quality/freshness.js': 'All lines; past-only clocks, missing versus undated reference, delegated usage selector.',
-  'src/data/contracts/screener.js': 'All lines; field readiness, immutable definitions, structural validation, run accounting and distinct gross/net outcome fields. Open: broader unit semantics and descriptive-only definition knobs; this schema is research-only and does not establish predictive validity.',
+  'src/data/contracts/screener.js': 'All lines; field readiness, immutable definitions, canonical fail-closed source tiers, structural validation, run accounting and distinct gross/net outcome fields. Open: broader unit semantics and descriptive-only definition knobs; this schema is research-only and does not establish predictive validity.',
   'src/data/providers/screener.js': 'All lines; independent identity/factor failure, one live snapshot per call, explicit currency compatibility and observation recency. Native market cap remains reference-only and never becomes USD; missing MIC/asset/currency stay missing. Open: current generated artifact predates currency fields, and registry-quality instrument identity remains upstream work.',
   'src/data/orchestrators/screener.js': 'All lines; generation and scope, masked ranker input, selective rank output merge preserving original observations, setup model and state. Automatic sync history is not an outcome collector.',
   'src/data/normalize/screener.js': 'All lines; explicit numeric projection and copied source fields. Shallow nested metadata remains; caller-owned noncanonical arrays are not a separate validation boundary.',
@@ -15,7 +15,7 @@ const files = {
   'src/state/slices/screener.js': 'All lines; spread reducer and array bounds. Nested immutable convention required.',
   'src/domain/screener/saved-screens.js': 'All lines; P1014 pre-migration validation, import/share size and forward-version rejection. Direct migration API still normalizes input and is not itself an untrusted import validator.',
   'src/domain/screener/screen-engine.js': 'All lines; filter truth table, required readiness, compatible ranking units, snapshot/run/explanations, default definitions and canonical replay. Replay uses captured ranked rows, not the original historical upstream response or a recomputed factor model.',
-  'src/domain/screener/factor-ranks.js': 'All lines; P1015 row freshness before samples, invalid core denominator, missing factor scores, robust clipping, peer grouping and tie-aware turnover. Remaining missing contribution uses zero z with explicit coverage; not predictive certification.',
+  'src/domain/screener/factor-ranks.js': 'All lines; P1015/P1063 row freshness before samples, invalid core denominator, null-preserving missing factors, observed-weight renormalization, robust clipping, peer grouping and tie-aware turnover. Rows with no valid factors are excluded from ranks; this is not predictive certification.',
   'src/domain/screener/factor-weights.js': 'All lines; Korean/English labels, finite risk and finite nonnegative profile validation now fail closed. Sparse profiles are normalized only after at least one valid weight; economic weight policy remains unvalidated by outcomes.',
   'src/domain/screener/setup-profile.js': 'All lines; null propagation and reference-only labels. USD price threshold is evaluated only for explicit USD instruments; no benchmark-relative evidence is synthesized.',
   'src/platform/http.js': 'All lines; Headers/array/object inputs preserved, pre-abort avoids transport, and independent request/body deadlines settle even when transport ignores AbortSignal. This normalizes local behavior but does not certify provider availability.',
@@ -28,11 +28,13 @@ const files = {
   'src/storage/screener-runs.js': 'All lines; IndexedDB transaction completion, bounded sequences, retry and blocked-open cleanup. list/put read all retained input records; performance follow-up.',
   'src/data/artifact-cache.js': 'All lines; P1016 abort/retry identity, deadline and integrity/size constraints. Cached objects intentionally share references; byte limit is checked after body materialization.',
   'src/app/lifecycle.js': 'All lines; disposer/chart ownership plus cancellable deferred-task queue and trailing-argument microtask coalescer. Stop is idempotent, cancels pending timers and prevents post-stop publication; already-running external work still needs its producer guard.',
-  'src/state/store.js': 'All lines; reducer validation, synchronous listeners, optional freeze. Open: pre-frozen outer object skips nested freeze; throwing listener prevents later subscribers.',
+  'src/state/store.js': 'All lines; reducer validation, cycle-safe recursive freezing even below pre-frozen containers, synchronous snapshot listeners and AggregateError isolation after all subscribers run.',
   'src/state/memoize.js': 'All lines; cache inputs/results commit only after successful compute, so throw/retry cannot return an older result. Initial subscribe callback still precedes subscription by contract.',
-  'src/data/evidence-store.js': 'All lines; Map last-write wins per metric, validation. No observation/revision ordering or multi-source reconciliation.',
+  'src/data/evidence-store.js': 'All lines; deterministic observation/source/fetch/revision ordering, explicit rights revocation precedence, validation and recursively frozen snapshot projections. Equal-revision conflicting values still need a separate conflict ledger.',
   'src/ui/pages/screener.js': 'All lines; display/calculation separation, frozen runs, service injection, condition state, comparison and lifecycle. Native-currency market cap is labelled reference-only and blocked amounts are hidden. The unreachable USD-only position sizing UI was retired. Open: nonnumeric table filters are not saved in run AST and entry timing retains descriptive heuristics.',
-  'src/app/bootstrap.js': 'All lines; provider/service/router/event wiring, frozen screener run archive, cancellable startup queue and post-stop snapshot/microtask guards. Global legacy producers remain compatibility dependencies; external transports are allowed to finish but cannot publish after stop.',
+  'src/app/bootstrap.js': 'All lines; provider/service/router/event wiring, frozen screener run archive, cancellable startup queue and post-stop guards. Window/document compatibility events are canonicalized with stable nested-detail dedupe, and direct theme-detail entry resolves through the themes route while preserving identity. Global legacy producers remain compatibility dependencies.',
+  'src/data/contracts/source-kind.js': 'All lines; canonical source tiers, explicit legacy aliases, fail-closed unknown labels and separate reference/decision eligibility helpers. Compatibility live labels still depend on upstream provider and rights validation.',
+  'src/ui/knowledge/capability-loader.js': 'All lines; shared capability batch loading, in-flight dedupe, partial failure isolation, retry and disposed-late-result suppression for Atlas and Principles.',
   'src/app/router.js': 'All lines; route scope abort/disposal, lazy import retry, vertical-slice ownership and entity remount identity. Disposed routers now reject restart/transition and lazy errors use a guarded CustomEvent constructor.',
   'src/app/routes.js': 'All lines; the canonical 20-route allowlist and exact membership check.',
   'src/app/vertical-slices.js': 'All lines; 13 ordered slices cover all 20 routes once with shared acceptance and immutable route/data arrays. Acceptance labels are declared policy and do not themselves prove browser behavior.',
@@ -163,7 +165,12 @@ const files = {
 const ledger = `${dir}/reviews.jsonl`;
 const existing = fs.readFileSync(ledger, 'utf8').trim().split('\n').filter(Boolean).map(JSON.parse);
 const entries = [];
+const selectedPaths = new Set(String(process.env.AIO_REVIEW_PATHS || '')
+  .split(',')
+  .map((value) => value.trim())
+  .filter(Boolean));
 for (const [path, note] of Object.entries(files)) {
+  if (selectedPaths.size && !selectedPaths.has(path)) continue;
   const bytes = fs.readFileSync(path);
   const sha256 = createHash('sha256').update(bytes).digest('hex');
   if (existing.some(row => row.type === 'current-lines' && row.path === path && row.sha256 === sha256 && row.note === note)) continue;
@@ -368,9 +375,10 @@ const historyNotes = {
 };
 for (const commit of manifest.commits) for (const change of commit.changes) {
   if (!reviewedHistoryPaths.has(change.path)) continue;
+  if (selectedPaths.size && !selectedPaths.has(change.path)) continue;
   if (existing.some(row => row.type === 'history-transition' && row.commit === commit.sha && row.path === change.path && row.before === change.before && row.after === change.after)) continue;
   if (entries.some(row => row.type === 'history-transition' && row.commit === commit.sha && row.path === change.path && row.before === change.before && row.after === change.after)) continue;
   entries.push({ type: 'history-transition', at: new Date().toISOString(), commit: commit.sha, ...change, semanticReview: 'reviewed', note: historyNotes[change.path] || 'The complete added blob or changed hunk, its immediate file context and the current successor were reviewed. This credits only this exact transition; it does not certify the rest of the commit or the runtime feature.' });
 }
 fs.appendFileSync(ledger, entries.map(row=>JSON.stringify(row)).join('\n') + (entries.length ? '\n' : ''));
-console.log(JSON.stringify({ recorded: entries.length, currentFiles: Object.keys(files).length }));
+console.log(JSON.stringify({ recorded: entries.length, currentFiles: selectedPaths.size || Object.keys(files).length }));

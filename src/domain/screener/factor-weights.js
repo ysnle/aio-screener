@@ -1,7 +1,7 @@
 // P763/ARX-10 follow-up: the factor-weight regime/profile resolver is pure.
 // Storage/profile lookup remains at the compatibility boundary; this module owns only the
 // deterministic weight math so native and legacy screener consumers cannot diverge.
-export const FACTOR_WEIGHTS_MODEL_VERSION = 'factor-weights.v2';
+export const FACTOR_WEIGHTS_MODEL_VERSION = 'factor-weights.v3';
 
 const NEUTRAL = Object.freeze({ momentum: 0.27, trend: 0.20, lowvol: 0.16, size: 0.08, value: 0.10, quality: 0.09, kalman: 0.10 });
 const RISK_OFF = Object.freeze({ momentum: 0.12, trend: 0.18, lowvol: 0.28, size: 0.05, value: 0.10, quality: 0.18, kalman: 0.09 });
@@ -25,18 +25,22 @@ function lerpWeights(base, target, t) {
   return Object.fromEntries(Object.keys(base).map((key) => [key, base[key] + t * ((target[key] || 0) - base[key])]));
 }
 
-export function deriveFactorWeights({ marketState = null, profile = null } = {}) {
+export function deriveFactorWeights({ marketState = null, profile = null, promotion = null } = {}) {
   if (profile?.weights && typeof profile.weights === 'object') {
     const weights = normalizeWeights(profile.weights);
     return Object.freeze({
       modelVersion: FACTOR_WEIGHTS_MODEL_VERSION,
       weights,
-      regimeLabel: `${profile.label || '사용자 프로필'} — ${profile.desc || ''}`.trim()
+      proposedWeights: weights,
+      regimeLabel: `${profile.label || '사용자 프로필'} — ${profile.desc || ''}`.trim(),
+      proposedRegimeLabel: `${profile.label || '사용자 프로필'} — ${profile.desc || ''}`.trim(),
+      adaptiveApplied: false,
+      source: 'explicit-user-profile'
     });
   }
 
-  let weights = NEUTRAL;
-  let regimeLabel = '중립 → 균형 가중';
+  let proposedWeights = NEUTRAL;
+  let proposedRegimeLabel = '중립 → 균형 가중';
   try {
     if (marketState) {
       const risk = typeof marketState.riskScore === 'number' && Number.isFinite(marketState.riskScore) ? marketState.riskScore : null;
@@ -56,17 +60,35 @@ export function deriveFactorWeights({ marketState = null, profile = null } = {})
       else if (risk == null && textOn) blend = -1.0;
       if (textOff && blend < 0.7) blend = 0.7;
       if (textOn && blend > -0.5) blend = -0.5;
-      weights = blend >= 0 ? lerpWeights(NEUTRAL, RISK_OFF, blend) : lerpWeights(NEUTRAL, RISK_ON, -blend);
-      regimeLabel = blend >= 0.7 ? '위험회피 → 저변동·퀄리티 가중↑' :
+      proposedWeights = blend >= 0 ? lerpWeights(NEUTRAL, RISK_OFF, blend) : lerpWeights(NEUTRAL, RISK_ON, -blend);
+      proposedRegimeLabel = blend >= 0.7 ? '위험회피 → 저변동·퀄리티 가중↑' :
         blend >= 0.3 ? '경계 → 방어 틸트' :
         blend <= -0.7 ? '위험선호 → 모멘텀·추세·칼만 가중↑' :
         blend <= -0.3 ? '낙관 → 공격 틸트' : '중립 → 균형 가중';
       if (regimeMatches(String(marketState.cyclePhase || ''), 'late|후기|peak|침체|recession')) {
-        const shift = Math.min(0.08, weights.value * 0.5);
-        weights = { ...weights, value: weights.value + shift, momentum: Math.max(0.05, weights.momentum - shift) };
-        regimeLabel += ' · 후기사이클 밸류↑';
+        const shift = Math.min(0.08, proposedWeights.value * 0.5);
+        proposedWeights = { ...proposedWeights, value: proposedWeights.value + shift, momentum: Math.max(0.05, proposedWeights.momentum - shift) };
+        proposedRegimeLabel += ' · 후기사이클 밸류↑';
       }
     }
   } catch (_) {}
-  return Object.freeze({ modelVersion: FACTOR_WEIGHTS_MODEL_VERSION, weights: normalizeWeights(weights), regimeLabel });
+  const normalizedProposal = normalizeWeights(proposedWeights);
+  // An adaptive proposal may change production ranks only after an explicit
+  // promotion record proves live/backtest definition parity and human review.
+  // The current repository intentionally has no such promoted record.
+  const adaptiveApplied = promotion?.status === 'PROMOTED'
+    && promotion?.liveBacktestParity === true
+    && promotion?.reviewApproved === true;
+  const weights = adaptiveApplied ? normalizedProposal : NEUTRAL;
+  return Object.freeze({
+    modelVersion: FACTOR_WEIGHTS_MODEL_VERSION,
+    weights,
+    proposedWeights: normalizedProposal,
+    regimeLabel: adaptiveApplied ? proposedRegimeLabel : proposedRegimeLabel === '중립 → 균형 가중'
+      ? proposedRegimeLabel
+      : `중립 고정 · 미검증 후보: ${proposedRegimeLabel}`,
+    proposedRegimeLabel,
+    adaptiveApplied,
+    source: adaptiveApplied ? 'reviewed-adaptive-promotion' : 'fixed-neutral-until-promotion'
+  });
 }

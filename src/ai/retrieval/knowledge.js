@@ -1,6 +1,6 @@
 export const AI_KNOWLEDGE_RETRIEVAL_VERSION = 'ai-knowledge-retrieval.v1';
 
-const ALLOWED_SURFACES = Object.freeze(new Set(['principles', 'atlas-foundations']));
+const ALLOWED_SURFACES = Object.freeze(new Set(['principles', 'atlas-foundations', 'nathan-frameworks', 'integrated-frameworks']));
 const STOP_WORDS = Object.freeze(new Set([
   '그리고', '하지만', '대한', '대해', '에서', '으로', '하는', '어떻게', '무엇', '설명', '분석', '알려줘',
   'the', 'and', 'for', 'with', 'what', 'how', 'does', 'explain', 'analysis'
@@ -33,12 +33,14 @@ function articleText(article) {
 
 function suppliedMaterialArticles(referenceRegistry) {
   const claims = referenceRegistry?.claimLedger?.claims;
-  if (!Array.isArray(claims)) return [];
+  const nathanThreads = referenceRegistry?.nathanThreads;
   const sourceById = new Map([
-    ...(Array.isArray(referenceRegistry.sourceObservations) ? referenceRegistry.sourceObservations : []),
-    ...(Array.isArray(referenceRegistry.mediaAudit) ? referenceRegistry.mediaAudit : [])
+    ...(Array.isArray(referenceRegistry?.sourceObservations) ? referenceRegistry.sourceObservations : []),
+    ...(Array.isArray(referenceRegistry?.sourceExtensions?.observations) ? referenceRegistry.sourceExtensions.observations : []),
+    ...(Array.isArray(referenceRegistry?.mediaAudit) ? referenceRegistry.mediaAudit : []),
+    ...(Array.isArray(nathanThreads?.threads) ? nathanThreads.threads : [])
   ].map((source) => [String(source.id || ''), source]));
-  return claims.filter((claim) => claim?.id && claim?.materialElement).map((claim) => Object.freeze({
+  const claimArticles = (Array.isArray(claims) ? claims : []).filter((claim) => claim?.id && claim?.materialElement).map((claim) => Object.freeze({
     articleId: `supplied-material:${claim.id}`,
     lessonId: `supplied-materials:${claim.id}`,
     surface: 'principles',
@@ -79,10 +81,85 @@ function suppliedMaterialArticles(referenceRegistry) {
       visualization: [claim.indicatorInputs?.join(' · '), claim.timeframe].filter(Boolean).join(' | ')
     })
   }));
+  const frameworkArticles = (Array.isArray(nathanThreads?.frameworks) ? nathanThreads.frameworks : []).map((framework) => Object.freeze({
+    articleId: `nathan-frameworks:${framework.id}`,
+    lessonId: `nathan-framework:${framework.id}`,
+    surface: 'nathan-frameworks',
+    title: framework.title,
+    conceptIds: Object.freeze([`nathan-frameworks:${framework.id}`]),
+    authoringStatus: 'STRUCTURED_REFERENCE',
+    publication: 'EDUCATIONAL_REFERENCE_ONLY',
+    reviewedAt: nathanThreads.reviewedAt || referenceRegistry.updatedAt || referenceRegistry.reviewedAt || '',
+    keywords: Object.freeze([
+      framework.claimType,
+      ...(Array.isArray(framework.inputs) ? framework.inputs : []),
+      ...(Array.isArray(framework.allowedConsumers) ? framework.allowedConsumers : [])
+    ].filter(Boolean).map(String).slice(0, 16)),
+    route: Object.freeze({
+      routeId: 'principles',
+      deepLink: `?nathanFramework=${encodeURIComponent(framework.id)}`,
+      verificationRouteId: 'screener',
+      verificationLabel: 'Nathan Previous Threads 구조 프레임',
+      metric: 'reference-framework',
+      timeframe: framework.timeframe || ''
+    }),
+    sources: Object.freeze((Array.isArray(framework.sourceRefs) ? framework.sourceRefs : []).map((sourceRef) => {
+      const source = sourceById.get(String(sourceRef));
+      return source?.xUrl ? {
+        id: source.id,
+        publisher: source.author || 'Nathan | Factomind',
+        title: source.title || source.id,
+        url: source.xUrl,
+        allowedUse: 'REFERENCE_ONLY',
+        directness: source.directRead ? 'DIRECT_READ' : 'CANDIDATE_REVIEW_REQUIRED'
+      } : null;
+    }).filter(Boolean)),
+    summary: Object.freeze({
+      definition: framework.thesis || '',
+      mechanism: framework.mechanism || '',
+      example: Array.isArray(framework.inputs) ? framework.inputs.join(' · ') : '',
+      counterScenario: [framework.invalidation, framework.counterclaim].filter(Boolean).join(' '),
+      visualization: [framework.timeframe, framework.confirmation].filter(Boolean).join(' | ')
+    })
+  }));
+  const extensionObservationIds = new Set((referenceRegistry?.sourceExtensions?.observations || []).map((source) => String(source.id || '')));
+  const extensionArticles = (Array.isArray(referenceRegistry?.sections) ? referenceRegistry.sections : [])
+    .filter((section) => section?.id && Array.isArray(section.sourceRefs) && section.sourceRefs.some((sourceRef) => extensionObservationIds.has(String(sourceRef))))
+    .map((section) => Object.freeze({
+      articleId: `supplied-framework:${section.id}`,
+      lessonId: `supplied-frameworks:${section.id}`,
+      surface: 'principles',
+      title: section.title,
+      conceptIds: Object.freeze([]),
+      authoringStatus: 'STRUCTURED_REFERENCE',
+      publication: 'EDUCATIONAL_REFERENCE_ONLY',
+      reviewedAt: referenceRegistry.updatedAt || referenceRegistry.reviewedAt || '',
+      keywords: Object.freeze([
+        ...(Array.isArray(section.timeSeriesIds) ? section.timeSeriesIds : []),
+        ...(Array.isArray(section.sourceRefs) ? section.sourceRefs : [])
+      ].filter(Boolean).map(String).slice(0, 16)),
+      route: Object.freeze({
+        routeId: 'principles',
+        deepLink: `?researchSection=${encodeURIComponent(section.id)}`,
+        verificationRouteId: 'screener',
+        verificationLabel: '통합 시장 데이터·증거 파이프라인',
+        metric: 'reference-framework',
+        timeframe: (section.timeSeriesIds || []).join(' · ')
+      }),
+      sources: Object.freeze([]),
+      summary: Object.freeze({
+        definition: section.thesis || '',
+        mechanism: Array.isArray(section.steps) ? section.steps.join(' → ') : '',
+        example: section.observe || '',
+        counterScenario: section.invalidation || '',
+        visualization: Array.isArray(section.timeSeriesIds) ? section.timeSeriesIds.join(' · ') : ''
+      })
+    }));
+  return [...claimArticles, ...frameworkArticles, ...extensionArticles];
 }
 
 function surfaceBoost(queryText, surface) {
-  const ai = /(ai|인공지능|모델|gpu|hbm|반도체|데이터센터|compute|memory|chip|agent|추론|학습|전력|냉각)/i.test(queryText);
+  const ai = /(ai|인공지능|모델|gpu|hbm|반도체|데이터센터|compute|memory|chip|agent|추론|학습|전력|냉각|capex|roic|가동률|수익화|병목)/i.test(queryText);
   const principles = /(시장\s*원리|경제|금리|물가|유동성|밸류에이션|재무|현금흐름|포트폴리오|리스크|사이클|거시)/i.test(queryText);
   if (surface === 'atlas-foundations' && ai) return 6;
   if (surface === 'principles' && principles) return 6;
@@ -106,8 +183,15 @@ export function createAIKnowledgeIndex(articles = [], { suppliedMaterials = null
     ...(Array.isArray(articles) ? articles : []),
     ...suppliedMaterialArticles(suppliedMaterials)
   ];
+  const seen = new Set();
   return Object.freeze(sourceArticles
     .filter((article) => article && ALLOWED_SURFACES.has(article.surface) && article.articleId && article.title)
+    .filter((article) => {
+      const id = clean(article.articleId);
+      if (seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    })
     .map((article) => Object.freeze({
       articleId: clean(article.articleId),
       lessonId: clean(article.lessonId),
@@ -155,7 +239,7 @@ export function retrieveAIKnowledge(index, query, { topK = 3, maxChars = 5200 } 
     .slice(0, limit);
   const lines = [
     '[AIO KNOWLEDGE REFERENCE v1]',
-    'sourceKind=REFERENCE | currentClaimsAllowed=false | surfaces=시장 원리,AI 시대 지식 지도',
+    'sourceKind=REFERENCE | currentClaimsAllowed=false | surfaces=시장 원리,AI 시대 지식 지도,구조 분석 프레임',
     'Rule: 아래 자료는 구조·개념·전달 경로를 설명하는 교육용 reference다. 현재 시장·기업·가격·규제 사실은 별도 LIVE/SNAPSHOT/Web Research 근거로 확인하라.',
     'Rule: authoringStatus가 검토 완료를 뜻하지 않으므로 반대 시나리오와 확인 항목을 함께 제시하고, 현재 사실이나 매매 결론으로 승격하지 마라.'
     ,'Rule: 참고 원문은 directness 후보 링크이며 개별 요약을 직접 입증한다고 간주하지 마라. 인용 전 원문 범위와 기준일을 다시 확인하라.'
@@ -163,7 +247,7 @@ export function retrieveAIKnowledge(index, query, { topK = 3, maxChars = 5200 } 
   const matches = [];
   for (const row of ranked) {
     const article = row.article;
-    const surfaceLabel = article.surface === 'principles' ? '시장 원리' : 'AI 시대 지식 지도';
+    const surfaceLabel = article.surface === 'principles' ? '시장 원리' : article.surface === 'atlas-foundations' ? 'AI 시대 지식 지도' : article.surface === 'integrated-frameworks' ? '통합 구조 프레임' : '구조 분석 프레임';
     const block = [
       `- [${surfaceLabel} · ${article.articleId}] ${article.title} | status=${article.authoringStatus} | reviewedAt=${article.reviewedAt || '미확인'}`,
       `  정의: ${article.summary.definition}`,
@@ -172,7 +256,7 @@ export function retrieveAIKnowledge(index, query, { topK = 3, maxChars = 5200 } 
       article.summary.counterScenario ? `  반대/한계: ${article.summary.counterScenario}` : '',
       `  지식 문서: ${article.route.deepLink || `route=${article.route.routeId} lesson=${article.lessonId}`}`,
       article.route.verificationRouteId ? `  전문 화면 검증: route=${article.route.verificationRouteId} metric=${article.route.metric || 'unspecified'} timeframe=${article.route.timeframe || 'unspecified'}` : '',
-      article.sources.length ? `  참고 원문 후보(directness 재검토 필요): ${article.sources.map((source) => `${source.id}=${source.url}`).join(' | ')}` : ''
+      article.sources.length ? `  출처 감사: ${article.sources.length}개 후보·직접성은 별도 검토` : ''
     ].filter(Boolean).join('\n');
     if (`${lines.join('\n')}\n${block}`.length > contextLimit) break;
     lines.push(block);

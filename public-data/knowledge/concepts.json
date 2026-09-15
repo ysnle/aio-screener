@@ -4,9 +4,11 @@
   "status": "CANONICAL_REFERENCE_MANIFEST",
   "compatibility": "legacy page IDs remain valid only through aliases.json",
   "counts": {
-    "concepts": 155,
+    "concepts": 212,
     "principles": 60,
     "atlas": 95,
+    "nathanFrameworks": 28,
+    "integratedFrameworks": 29,
     "equivalenceGroups": 4
   },
   "concepts": [
@@ -3023,6 +3025,1804 @@
         "AT-FT-01",
         "AT-FT-02",
         "AT-FT-03"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-liquidity-extremes",
+      "legacyId": "nathan-liquidity-extremes",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "유동성·극단·강제 디레버리징",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1914877841801437672",
+        "nathan-x-1906968123401703631",
+        "nathan-x-1906506810380673532",
+        "nathan-x-1897811632728031535",
+        "nathan-x-1782558858243866839"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-liquidity-extremes",
+        "유동성·극단·강제 디레버리징",
+        "MOVE/VIX 성격의 변동성",
+        "repo·담보·마진",
+        "credit spread",
+        "forced selling",
+        "현물·선물 괴리",
+        "유동성",
+        "극단",
+        "강제 디레버리징"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-leverage-survival",
+      "legacyId": "nathan-leverage-survival",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "레버리지의 총비용과 생존성",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1810563648261382390",
+        "nathan-x-1730853002519736420",
+        "nathan-x-1898198841771671624",
+        "nathan-x-1903717211824324872"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-leverage-survival",
+        "레버리지의 총비용과 생존성",
+        "gross/net exposure",
+        "financing cost",
+        "collateral",
+        "margin headroom",
+        "drawdown",
+        "recovery time",
+        "담보",
+        "담보자산"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-forecast-falsifiability",
+      "legacyId": "nathan-forecast-falsifiability",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "예측보다 불변식·메커니즘·무효화",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1909162905809072508",
+        "nathan-x-1808834880517910742",
+        "nathan-x-1818264457967264077",
+        "nathan-x-1743459856932290834",
+        "nathan-x-1743200309508502004"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-forecast-falsifiability",
+        "예측보다 불변식·메커니즘·무효화",
+        "timestamp",
+        "mechanism",
+        "expected value",
+        "new information",
+        "invalidation",
+        "outcome log",
+        "예측보다 불변식",
+        "메커니즘",
+        "무효화"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-policy-second-order",
+      "legacyId": "nathan-policy-second-order",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "정책의 1차·2차·부작용 전달경로",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1910448699811258608",
+        "nathan-x-1908104699582251101",
+        "nathan-x-1896760622089695364",
+        "nathan-x-1895999273332056287"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-policy-second-order",
+        "정책의 1차·2차·부작용 전달경로",
+        "policy text",
+        "retaliation",
+        "elasticity",
+        "FX",
+        "producer/consumer prices",
+        "financial conditions",
+        "정책의 1차",
+        "2차",
+        "부작용 전달경로"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-etf-flow-channel",
+      "legacyId": "nathan-etf-flow-channel",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "ETF flow는 신호가 아니라 전달 채널",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1762773425473609810",
+        "nathan-x-1785117632875946307",
+        "nathan-x-1743999186243354898",
+        "nathan-x-1725816574249169390",
+        "nathan-x-1716675880775455186",
+        "nathan-x-1738348106427867640"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-etf-flow-channel",
+        "ETF flow는 신호가 아니라 전달 채널",
+        "AUM",
+        "net flow",
+        "creation/redemption",
+        "NAV premium/discount",
+        "AP activity",
+        "settlement rail",
+        "생성환매",
+        "생성·환매"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-market-structure-execution",
+      "legacyId": "nathan-market-structure-execution",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "시장구조·유동성 공급·실행비용",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1813791726609613067",
+        "nathan-x-1813016554986172663",
+        "nathan-x-1902181741764444483",
+        "nathan-x-1740986493982875725",
+        "nathan-x-1905118531341230308"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-market-structure-execution",
+        "시장구조·유동성 공급·실행비용",
+        "bid-ask spread",
+        "displayed depth",
+        "slippage",
+        "inventory",
+        "funding",
+        "orderbook liquidity",
+        "liquidation flow",
+        "시장구조",
+        "유동성 공급",
+        "실행비용"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-retail-flow-edge-decay",
+      "legacyId": "nathan-retail-flow-edge-decay",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "관심·flow·전략의 적응과 edge decay",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1872113816512958850",
+        "nathan-x-1823578073125806432",
+        "nathan-x-1800132910722568580",
+        "nathan-x-1758740704216686786",
+        "nathan-x-1716767578968965573"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-retail-flow-edge-decay",
+        "관심·flow·전략의 적응과 edge decay",
+        "attention",
+        "flow",
+        "sentiment",
+        "turnover",
+        "breadth",
+        "strategy decay",
+        "holding horizon",
+        "관심",
+        "전략의 적응과 edge decay"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-bubble-diagnostics",
+      "legacyId": "nathan-bubble-diagnostics",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "버블 판독: 가격이 아니라 가정의 지속성",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1763799601440833551",
+        "nathan-x-1795613940455748010",
+        "nathan-x-1719724910690648280"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-bubble-diagnostics",
+        "버블 판독: 가격이 아니라 가정의 지속성",
+        "valuation/cash flow",
+        "assumption durability",
+        "new participants",
+        "optimism",
+        "leverage",
+        "expectation purchases",
+        "버블 판독",
+        "가격이 아니라 가정의 지속성",
+        "레버리지",
+        "차입"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-crypto-fundamentals",
+      "legacyId": "nathan-crypto-fundamentals",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "크립토 실사용·수익과 투기성 수요 분리",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1887813679284126110",
+        "nathan-x-1886039036474892735",
+        "nathan-x-1730105900818735323",
+        "nathan-x-1782558858243866839",
+        "nathan-x-1785117632875946307"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-crypto-fundamentals",
+        "크립토 실사용·수익과 투기성 수요 분리",
+        "protocol revenue",
+        "real usage",
+        "TVL composition",
+        "stablecoin premium",
+        "spot/derivatives liquidity",
+        "counterparty risk",
+        "크립토 실사용",
+        "수익과 투기성 수요 분리"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-tokenomics-value-link",
+      "legacyId": "nathan-tokenomics-value-link",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "토큰의 직접적 가치 연결고리",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1913230207642984661",
+        "nathan-x-1888909942519914535",
+        "nathan-x-1894265723507413359",
+        "nathan-x-1913226386015482162",
+        "nathan-x-1894276956184875485",
+        "nathan-x-1888938155853910209"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-tokenomics-value-link",
+        "토큰의 직접적 가치 연결고리",
+        "utility",
+        "value capture",
+        "token supply",
+        "emission/reward",
+        "redemption/exchange",
+        "IP linkage"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-counterparty-custody",
+      "legacyId": "nathan-counterparty-custody",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "거래상대방·보관·결제 위험",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1782558858243866839",
+        "nathan-x-1711350916119675363",
+        "nathan-x-1905118531341230308",
+        "nathan-x-1902181741764444483"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-counterparty-custody",
+        "거래상대방·보관·결제 위험",
+        "custody",
+        "collateral segregation",
+        "settlement",
+        "counterparty",
+        "liquidation waterfall",
+        "withdrawal conditions",
+        "거래상대방",
+        "보관",
+        "결제 위험",
+        "결제",
+        "세틀먼트",
+        "상대방 위험"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-investor-protection",
+      "legacyId": "nathan-investor-protection",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "투자자 보호와 의사결정 위생",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1708331079218975112",
+        "nathan-x-1879121296384196920",
+        "nathan-x-1795613940455748010",
+        "nathan-x-1885729674984407283"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-investor-protection",
+        "투자자 보호와 의사결정 위생",
+        "disclosed risks",
+        "conflicts",
+        "source quality",
+        "fact vs. narrative",
+        "incentives",
+        "invalidation",
+        "사실과 서사",
+        "사실·해석 분리"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-credit-stress-gates",
+      "legacyId": "nathan-credit-stress-gates",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "매크로 신용·자금조달 스트레스 게이트",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1909759146532241429",
+        "nathan-x-1909072201363661235",
+        "nathan-x-1899330960589738426",
+        "nathan-x-1895254461578432637",
+        "nathan-x-1910503804040364385"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-credit-stress-gates",
+        "매크로 신용·자금조달 스트레스 게이트",
+        "front-end yields",
+        "long yields",
+        "HYG/JNK",
+        "MBB/SPMB",
+        "credit spreads",
+        "FX",
+        "repo/funding",
+        "매크로 신용",
+        "자금조달 스트레스 게이트"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-product-monetization",
+      "legacyId": "nathan-product-monetization",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "AI 제품의 지불의사와 업그레이드 전환",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1802207116188696962"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-product-monetization",
+        "AI 제품의 지불의사와 업그레이드 전환",
+        "feature utility",
+        "willingness to pay",
+        "upgrade rate",
+        "pricing",
+        "retention",
+        "usage",
+        "지불의사",
+        "지불 의사"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-treasury-supply-demand",
+      "legacyId": "nathan-treasury-supply-demand",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "국채 수급·듀레이션·텀프리미엄 전달경로",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1725482289545798140",
+        "nathan-x-1899330960589738426",
+        "nathan-x-1914877841801437672",
+        "nathan-x-1709225406463873037"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-treasury-supply-demand",
+        "국채 수급·듀레이션·텀프리미엄 전달경로",
+        "net issuance",
+        "foreign demand/holdings",
+        "auction tails",
+        "term premium",
+        "front-end vs. long-end yields",
+        "QT",
+        "FX",
+        "국채 수급",
+        "듀레이션",
+        "텀프리미엄 전달경로",
+        "순발행",
+        "국채 발행",
+        "해외수요",
+        "해외 보유",
+        "경매 테일",
+        "국채 경매",
+        "텀프리미엄",
+        "기간 프리미엄",
+        "단기금리",
+        "장기금리",
+        "단기금리 장기금리",
+        "장단기 금리"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-macro-risk-asset-divergence",
+      "legacyId": "nathan-macro-risk-asset-divergence",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "실물경제와 위험자산의 괴리",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1899330960589738426",
+        "nathan-x-1909072201363661235"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-macro-risk-asset-divergence",
+        "실물경제와 위험자산의 괴리",
+        "real activity",
+        "consumption mix",
+        "exports",
+        "credit conditions",
+        "risk-asset breadth",
+        "policy expectations",
+        "실물경제",
+        "실물활동",
+        "위험자산 폭",
+        "시장 breadth"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-nonbank-regulatory-arbitrage",
+      "legacyId": "nathan-nonbank-regulatory-arbitrage",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "은행에서 비은행으로 이동하는 규제·시스템 리스크",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1905118531341230308",
+        "nathan-x-1711350916119675363",
+        "nathan-x-1906968123401703631"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-nonbank-regulatory-arbitrage",
+        "은행에서 비은행으로 이동하는 규제·시스템 리스크",
+        "dealer inventory",
+        "bank capital constraints",
+        "NBFI share",
+        "leverage",
+        "collateral",
+        "margin",
+        "disclosure quality",
+        "liquidation waterfall",
+        "은행에서 비은행으로 이동하는 규제",
+        "시스템 리스크",
+        "은행 자본 제약",
+        "은행 자본",
+        "비은행 금융기관",
+        "NBFI",
+        "레버리지",
+        "차입",
+        "담보",
+        "담보자산",
+        "마진",
+        "증거금"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-etf-nav-basket-integrity",
+      "legacyId": "nathan-etf-nav-basket-integrity",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "ETF 바스켓·NAV·생성환매의 무결성",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1914945578221625667",
+        "nathan-x-1744320571452924329",
+        "nathan-x-1740986493982875725",
+        "nathan-x-1738348106427867640",
+        "nathan-x-1725816574249169390"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-etf-nav-basket-integrity",
+        "ETF 바스켓·NAV·생성환매의 무결성",
+        "basket composition",
+        "partial-basket representativeness",
+        "NAV methodology",
+        "creation/redemption",
+        "AP/LP",
+        "premium/discount",
+        "settlement",
+        "underlying liquidity",
+        "ETF 바스켓",
+        "NAV",
+        "생성환매의 무결성",
+        "부분 바스켓 대표성",
+        "ETF 바스켓 대표성",
+        "생성환매",
+        "생성·환매",
+        "프리미엄 디스카운트",
+        "괴리",
+        "결제",
+        "세틀먼트"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-market-impersonal-tail-risk",
+      "legacyId": "nathan-market-impersonal-tail-risk",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "시장은 비인격적이며 테일리스크는 제거되지 않는다",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1809436338275627243",
+        "nathan-x-1898198841771671624",
+        "nathan-x-1730853002519736420",
+        "nathan-x-1719724910690648280"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-market-impersonal-tail-risk",
+        "시장은 비인격적이며 테일리스크는 제거되지 않는다",
+        "correlation",
+        "concentration",
+        "tail loss",
+        "liquidity",
+        "cash buffer",
+        "leverage",
+        "recovery time",
+        "테일 손실",
+        "꼬리위험",
+        "현금 여력",
+        "현금 버퍼",
+        "레버리지",
+        "차입"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-research-provenance",
+      "legacyId": "nathan-research-provenance",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "정의·출처·서사와 사실의 분리",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1712639485828386862",
+        "nathan-x-1724815764501475508",
+        "nathan-x-1790676887343370306",
+        "nathan-x-1708331079218975112"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-research-provenance",
+        "정의·출처·서사와 사실의 분리",
+        "claim text",
+        "definition",
+        "source tier",
+        "timestamp",
+        "derivation",
+        "missing context",
+        "invalidation",
+        "conflicts",
+        "정의",
+        "출처",
+        "서사와 사실의 분리",
+        "출처 등급",
+        "출처 계층"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-specialized-edge-luck",
+      "legacyId": "nathan-specialized-edge-luck",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "전문성·네트워크·기회와 운의 분리",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1911417101954228508",
+        "nathan-x-1723647460348993907",
+        "nathan-x-1909464712770994432",
+        "nathan-x-1731819466281853207",
+        "nathan-x-1895720638129828113"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-specialized-edge-luck",
+        "전문성·네트워크·기회와 운의 분리",
+        "domain knowledge",
+        "network",
+        "problem proximity",
+        "execution",
+        "timing",
+        "luck",
+        "out-of-sample persistence",
+        "전문성",
+        "네트워크",
+        "기회와 운의 분리",
+        "표본 밖 지속성",
+        "재현성"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-problem-friction-opportunity",
+      "legacyId": "nathan-problem-friction-opportunity",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "거시적 마찰에서 제품·사업 기회 찾기",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1702143255088071042",
+        "nathan-x-1900046641404797272",
+        "nathan-x-1802207116188696962",
+        "nathan-x-1723647460348993907"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-problem-friction-opportunity",
+        "거시적 마찰에서 제품·사업 기회 찾기",
+        "market friction",
+        "policy constraint",
+        "legal eligibility",
+        "stakeholder incentives",
+        "unit economics",
+        "willingness to pay",
+        "adoption",
+        "execution",
+        "거시적 마찰에서 제품",
+        "사업 기회 찾기",
+        "시장 마찰",
+        "거래 마찰",
+        "지불의사",
+        "지불 의사"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-analysis-workflow-clarity",
+      "legacyId": "nathan-analysis-workflow-clarity",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "분석 워크플로의 재현성·명료성·도구 위생",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1713130461650919478",
+        "nathan-x-1713423305284428038",
+        "nathan-x-1724815764501475508",
+        "nathan-x-1804884017210077385",
+        "nathan-x-1701049361046946137"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-analysis-workflow-clarity",
+        "분석 워크플로의 재현성·명료성·도구 위생",
+        "source data",
+        "formula references",
+        "hidden rows",
+        "duplicates",
+        "dynamic ranges",
+        "definition",
+        "reproducibility",
+        "communication",
+        "분석 워크플로의 재현성",
+        "명료성",
+        "도구 위생",
+        "동적 범위",
+        "동적 레인지"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-asset-class-allocation",
+      "legacyId": "nathan-asset-class-allocation",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "자산군·위험프리미엄·포트폴리오 역할 분해",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1553649451914653696",
+        "nathan-x-1555470207925497856",
+        "nathan-x-1560861082079883265",
+        "nathan-x-1564637949207412738",
+        "nathan-x-1719724910690648280"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-asset-class-allocation",
+        "자산군·위험프리미엄·포트폴리오 역할 분해",
+        "cash flow",
+        "risk premia",
+        "duration",
+        "credit risk",
+        "liquidity",
+        "correlation",
+        "portfolio role",
+        "holding horizon",
+        "자산군",
+        "위험프리미엄",
+        "포트폴리오 역할 분해"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-relative-value-hedging",
+      "legacyId": "nathan-relative-value-hedging",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "헤징·베이시스·OTC의 위험변환 구조",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1581542610543730696",
+        "nathan-x-1566371297139249152",
+        "nathan-x-1902181741764444483",
+        "nathan-x-1610596214025908225",
+        "nathan-x-1701225730263441732",
+        "nathan-x-1535849386672295936"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-relative-value-hedging",
+        "헤징·베이시스·OTC의 위험변환 구조",
+        "hedge ratio",
+        "basis",
+        "funding",
+        "margin",
+        "counterparty",
+        "liquidity",
+        "settlement",
+        "execution cost",
+        "헤징",
+        "베이시스",
+        "OTC의 위험변환 구조",
+        "헤지비율",
+        "헤지 비율",
+        "기초자산 괴리",
+        "마진",
+        "증거금",
+        "거래상대방",
+        "상대방 위험",
+        "결제",
+        "세틀먼트"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-institutional-intermediation",
+      "legacyId": "nathan-institutional-intermediation",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "기관·중개자·시장 현대화의 전달경로",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1584078463128195072",
+        "nathan-x-1585218453920952320",
+        "nathan-x-1695813564341362743",
+        "nathan-x-1652510927194050562",
+        "nathan-x-1537294936445698048",
+        "nathan-x-1609765746942566402"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-institutional-intermediation",
+        "기관·중개자·시장 현대화의 전달경로",
+        "institution type",
+        "capital constraint",
+        "inventory",
+        "fee model",
+        "market share",
+        "regulation",
+        "settlement",
+        "disclosure",
+        "기관",
+        "중개자",
+        "시장 현대화의 전달경로",
+        "기관 유형",
+        "금융기관 역할",
+        "결제",
+        "세틀먼트"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-valuation-price-formation",
+      "legacyId": "nathan-valuation-price-formation",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "가치평가·가격발견·평가손익의 분리",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1675438704595472385",
+        "nathan-x-1601965650838441984",
+        "nathan-x-1548974302728691712",
+        "nathan-x-1546444364603596800",
+        "nathan-x-1595348262810443778",
+        "nathan-x-1595684818725265408"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-valuation-price-formation",
+        "가치평가·가격발견·평가손익의 분리",
+        "cash flow",
+        "discount rate",
+        "earnings multiple",
+        "mark-to-market",
+        "liquidity",
+        "premium/discount",
+        "realized P&L",
+        "expectations",
+        "가치평가",
+        "가격발견",
+        "평가손익의 분리",
+        "시가평가",
+        "평가손익",
+        "프리미엄 디스카운트",
+        "괴리"
+      ]
+    },
+    {
+      "canonicalId": "nathan-frameworks:nathan-regulation-market-access",
+      "legacyId": "nathan-regulation-market-access",
+      "surface": "nathan-frameworks",
+      "equivalenceGroup": null,
+      "title": "규제·판결·상품승인과 시장접근성",
+      "kind": "analytical-framework",
+      "layer": "L1",
+      "domainId": "screener",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/research/nathan-previous-threads.js",
+        "locator": "NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [
+        "nathan-x-1684545885177511941",
+        "nathan-x-1534106474947162117",
+        "nathan-x-1534115620610281474",
+        "nathan-x-1679684091204235264",
+        "nathan-x-1670373404069994496",
+        "nathan-x-1641270079223627776",
+        "nathan-x-1669929298856398848",
+        "nathan-x-1497424287481102340"
+      ],
+      "routeIds": [
+        "screener"
+      ],
+      "aliases": [
+        "nathan-regulation-market-access",
+        "규제·판결·상품승인과 시장접근성",
+        "primary legal text",
+        "jurisdiction",
+        "approval status",
+        "licensing",
+        "custody",
+        "disclosure",
+        "venue access",
+        "settlement",
+        "규제",
+        "판결",
+        "상품승인과 시장접근성",
+        "법률 원문",
+        "규제 원문",
+        "시장 접근성",
+        "거래소 접근",
+        "결제",
+        "세틀먼트"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:real-vs-nominal-purchasing-power",
+      "legacyId": "real-vs-nominal-purchasing-power",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "명목값과 구매력의 분리",
+      "kind": "integrated-analytical-framework",
+      "layer": "L5",
+      "domainId": "principles",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "principles:money-purchasing-power",
+        "principles:inflation-deflation"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:inflation-expectations-transmission",
+      "legacyId": "inflation-expectations-transmission",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "물가의 관성과 기대 전달",
+      "kind": "integrated-analytical-framework",
+      "layer": "L5",
+      "domainId": "principles",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "principles:inflation-deflation",
+        "principles:interest-central-bank"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:rates-as-time-and-money-price",
+      "legacyId": "rates-as-time-and-money-price",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "금리는 시간과 자금의 가격",
+      "kind": "integrated-analytical-framework",
+      "layer": "L5",
+      "domainId": "principles",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "principles:interest-central-bank",
+        "principles:bonds-dollar-currency"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:liquidity-credit-risk-appetite",
+      "legacyId": "liquidity-credit-risk-appetite",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "유동성은 돈보다 넓은 금융조건",
+      "kind": "integrated-analytical-framework",
+      "layer": "L5",
+      "domainId": "principles",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "principles:credit-banks-debt",
+        "principles:cycles-allocation"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:qe-qt-financial-conditions",
+      "legacyId": "qe-qt-financial-conditions",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "QE·QT는 금융조건의 조정",
+      "kind": "integrated-analytical-framework",
+      "layer": "L5",
+      "domainId": "principles",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "principles:interest-central-bank",
+        "principles:credit-banks-debt"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:yield-decomposition-and-curve-cause",
+      "legacyId": "yield-decomposition-and-curve-cause",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "수익률곡선은 모양보다 원인",
+      "kind": "integrated-analytical-framework",
+      "layer": "L5",
+      "domainId": "principles",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "principles:bonds-dollar-currency",
+        "principles:interest-central-bank"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:collateral-trust-feedback",
+      "legacyId": "collateral-trust-feedback",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "담보와 신뢰의 피드백",
+      "kind": "integrated-analytical-framework",
+      "layer": "L5",
+      "domainId": "principles",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "principles:credit-banks-debt",
+        "principles:bonds-dollar-currency"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:leverage-survival-optionality",
+      "legacyId": "leverage-survival-optionality",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "레버리지는 생존과 선택권의 문제",
+      "kind": "integrated-analytical-framework",
+      "layer": "L5",
+      "domainId": "principles",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "principles:investment-risk",
+        "principles:credit-banks-debt"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:price-value-expectation-gap",
+      "legacyId": "price-value-expectation-gap",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "가격·가치·기대의 간격",
+      "kind": "integrated-analytical-framework",
+      "layer": "L5",
+      "domainId": "principles",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "principles:company-stock-valuation",
+        "principles:market-price-discovery"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:roic-cost-capital-fcf",
+      "legacyId": "roic-cost-capital-fcf",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "성장보다 ROIC와 현금흐름",
+      "kind": "integrated-analytical-framework",
+      "layer": "L5",
+      "domainId": "principles",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "principles:company-stock-valuation",
+        "principles:industry-value-chain"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:cash-as-opportunity-cost",
+      "legacyId": "cash-as-opportunity-cost",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "현금은 대기자산이 아니라 선택권",
+      "kind": "integrated-analytical-framework",
+      "layer": "L5",
+      "domainId": "principles",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "principles:investment-risk",
+        "principles:company-stock-valuation"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:risk-driver-diversification-and-compounding",
+      "legacyId": "risk-driver-diversification-and-compounding",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "종목 수가 아닌 위험요인 분산",
+      "kind": "integrated-analytical-framework",
+      "layer": "L5",
+      "domainId": "principles",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "principles:investment-risk",
+        "principles:cycles-allocation"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:agent-workflow-productivity",
+      "legacyId": "agent-workflow-productivity",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "챗봇에서 에이전트로: 생산성의 단위",
+      "kind": "integrated-analytical-framework",
+      "layer": "F6",
+      "domainId": "atlas",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "atlas:application-finance",
+        "atlas:application-manufacturing",
+        "atlas:application-roi-payer"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:inference-economics-and-rebound",
+      "legacyId": "inference-economics-and-rebound",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "학습에서 추론으로: 효율과 수요의 반동",
+      "kind": "integrated-analytical-framework",
+      "layer": "F6",
+      "domainId": "atlas",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "atlas:compute-gpu",
+        "atlas:compute-asic",
+        "atlas:economics-revenue-model",
+        "atlas:power-it-load"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:system-throughput-and-data-movement",
+      "legacyId": "system-throughput-and-data-movement",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "GPU가 아닌 시스템 처리량",
+      "kind": "integrated-analytical-framework",
+      "layer": "F6",
+      "domainId": "atlas",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "atlas:memory-dram-hbm",
+        "atlas:network-fabric",
+        "atlas:network-optical-module",
+        "atlas:compute-interconnect"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:power-as-compute-input",
+      "legacyId": "power-as-compute-input",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "전력은 컴퓨트의 외부 조건이 아니다",
+      "kind": "integrated-analytical-framework",
+      "layer": "F6",
+      "domainId": "atlas",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "atlas:power-it-load",
+        "atlas:power-generation",
+        "atlas:power-transmission",
+        "atlas:power-transformer"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:ai-capex-financing-and-credit",
+      "legacyId": "ai-capex-financing-and-credit",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "AI CAPEX와 신용시장",
+      "kind": "integrated-analytical-framework",
+      "layer": "F6",
+      "domainId": "atlas",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "atlas:economics-capex",
+        "atlas:economics-fcf",
+        "atlas:economics-roic",
+        "principles:credit-banks-debt"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:ai-moat-strength-or-erosion",
+      "legacyId": "ai-moat-strength-or-erosion",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "AI는 해자를 강화하기도 없애기도 한다",
+      "kind": "integrated-analytical-framework",
+      "layer": "F6",
+      "domainId": "atlas",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "atlas:economics-revenue-model",
+        "atlas:application-finance",
+        "atlas:application-manufacturing",
+        "atlas:future-uncertainty-gate"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:financial-vs-physical-capital-speed",
+      "legacyId": "financial-vs-physical-capital-speed",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "금융 자본과 물리 자본의 속도 차이",
+      "kind": "integrated-analytical-framework",
+      "layer": "F6",
+      "domainId": "atlas",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "atlas:economics-capex",
+        "atlas:power-interconnection",
+        "atlas:compute-gpu"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:bottleneck-duration-substitutability",
+      "legacyId": "bottleneck-duration-substitutability",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "병목의 지속기간과 대체 가능성",
+      "kind": "integrated-analytical-framework",
+      "layer": "F6",
+      "domainId": "atlas",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "atlas:memory-dram-hbm",
+        "atlas:power-transformer",
+        "atlas:foundry-capacity-yield"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:capital-cycle-supply-response",
+      "legacyId": "capital-cycle-supply-response",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "AI 인프라의 자본 사이클",
+      "kind": "integrated-analytical-framework",
+      "layer": "F6",
+      "domainId": "atlas",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "atlas:foundry-capacity-yield",
+        "atlas:economics-capex",
+        "atlas:economics-roic"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:ai-value-chain-to-cashflow",
+      "legacyId": "ai-value-chain-to-cashflow",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "AI 가치사슬에서 현금흐름까지",
+      "kind": "integrated-analytical-framework",
+      "layer": "F6",
+      "domainId": "atlas",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "atlas:compute-gpu",
+        "atlas:memory-dram-hbm",
+        "atlas:power-it-load",
+        "atlas:economics-fcf"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:buildout-inflation-longrun-deflation",
+      "legacyId": "buildout-inflation-longrun-deflation",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "AI 구축 인플레이션과 장기 디플레이션",
+      "kind": "integrated-analytical-framework",
+      "layer": "F6",
+      "domainId": "atlas",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "atlas:power-generation",
+        "atlas:power-it-load",
+        "atlas:economics-revenue-model"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:monetization-and-unit-economics",
+      "legacyId": "monetization-and-unit-economics",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "AI의 수익화는 사용량보다 지불 구조",
+      "kind": "integrated-analytical-framework",
+      "layer": "F6",
+      "domainId": "atlas",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "atlas:economics-revenue-model",
+        "atlas:economics-fcf",
+        "atlas:physical-ai-unit-economics"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:capex-utilization-depreciation-fcf",
+      "legacyId": "capex-utilization-depreciation-fcf",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "CAPEX·가동률·감가상각·FCF 연결",
+      "kind": "integrated-analytical-framework",
+      "layer": "F6",
+      "domainId": "atlas",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "atlas:economics-capex",
+        "atlas:economics-depreciation",
+        "atlas:cloud-utilization",
+        "atlas:economics-fcf"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:liquidity-concentration-flow-reversal",
+      "legacyId": "liquidity-concentration-flow-reversal",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "AI 유동성 집중과 되돌림",
+      "kind": "integrated-analytical-framework",
+      "layer": "F6",
+      "domainId": "atlas",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "atlas:economics-capex",
+        "atlas:economics-revenue-model",
+        "principles:cycles-allocation"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:labor-productivity-distribution",
+      "legacyId": "labor-productivity-distribution",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "AI 생산성의 귀속과 노동 충격",
+      "kind": "integrated-analytical-framework",
+      "layer": "F6",
+      "domainId": "atlas",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "atlas:application-manufacturing",
+        "atlas:application-finance",
+        "atlas:application-roi-payer"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:ai-cycle-stop-signals",
+      "legacyId": "ai-cycle-stop-signals",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "AI 사이클의 종료 조건",
+      "kind": "integrated-analytical-framework",
+      "layer": "F6",
+      "domainId": "atlas",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "atlas:economics-capex",
+        "atlas:economics-depreciation",
+        "atlas:economics-roic",
+        "atlas:future-uncertainty-gate"
+      ]
+    },
+    {
+      "canonicalId": "integrated-frameworks:information-parity-thesis-ownership",
+      "legacyId": "information-parity-thesis-ownership",
+      "surface": "integrated-frameworks",
+      "equivalenceGroup": null,
+      "title": "정보 평준화 이후의 분석 소유권",
+      "kind": "integrated-analytical-framework",
+      "layer": "F6",
+      "domainId": "atlas",
+      "status": "CANONICAL_REFERENCE",
+      "source": {
+        "artifact": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+        "locator": "INTEGRATED_MARKET_AI_FRAMEWORKS",
+        "field": "frameworks[]"
+      },
+      "sourceIds": [],
+      "linkedConceptIds": [
+        "atlas:future-uncertainty-gate",
+        "principles:market-price-discovery"
       ]
     }
   ]

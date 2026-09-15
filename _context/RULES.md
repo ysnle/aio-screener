@@ -1,11 +1,55 @@
 ---
 verified_by: Codex local source review + targeted syntax/contracts; full QA pending by user request
-last_verified: 2026-09-05
+last_verified: 2026-09-12
 confidence: medium
-target_version: v54.89
+target_version: v54.97
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R595. Refresh producer는 push 전 fail-closed gate와 exact-SHA attestation을 함께 요구한다 (v54.96, P1073)
+
+**Rule**: data/screener producer workflow는 commit/push 전에 해당 artifact·continuity·ownership 계약을 `continue-on-error` 없이 통과시켜야 한다. generated workspace state는 고빈도 data promotion commit에 결합하지 않는다. push 뒤 dispatch하는 CI는 반드시 `release_sha`로 같은 commit을 검사하고 Pages는 그 attestation을 기다린다. 이 경계는 staging promotion의 대체가 아니며 main에 미검증 revision이 잠시 존재할 수 있다는 잔여 위험을 숨기지 않는다.
+
+## R594. 자동 PASS와 line-by-line semantic coverage는 서로 다른 증거다 (v54.96, P1072)
+
+**Rule**: AST·문자열·fixture·browser gate의 PASS는 실행 계약의 증거일 뿐이며 현재 코드와 역사 전환의 사람 검토를 완료로 승격하지 않는다. exact-hash coverage ledger의 reviewed/total과 `releaseCertified`를 함께 보고하고, `releaseCertified=false`인 동안 semantic review 상태는 OPEN으로 표시한다.
+
+## R593. 운영 실패 알림은 signature·failed gate·notification budget을 보존한다 (v54.96, P1071)
+
+**Rule**: 동일 workflow와 동일 failure signature의 연속 실패는 durable issue body를 갱신하되 매번 댓글·알림을 만들지 않는다. 최초 escalation, 재오픈, signature 변경에서만 댓글을 허용하고, Actions API가 제공하는 failed job/step 또는 명시적 unavailable 상태를 body에 남긴다.
+
+## R592. fast data plane은 no-op publish와 liveness write를 분리하고 KV budget을 계약화한다 (v54.96, P1069)
+
+**Rule**: 같은 snapshot revision은 `quotes:current`를 다시 쓰지 않는다. heartbeat는 `checkedAt`(관찰), `publishedAt`(snapshot 발행), `writtenAt`(heartbeat KV 기록)을 분리하며 status change 또는 15분 liveness에서만 기록한다. 5분 cadence 기준 정상 상한은 384 writes/day(<500 warning target), status flapping 최악 상한은 576/day(<1000 free-tier limit)로 fixture가 검증한다.
+
+## R591. company-primary 출처는 registry 검증된 issuer identity 없이는 승격하지 않는다 (v54.96, P1068)
+
+**Rule**: SEC registrant/issuer IR identity만 company-primary의 primary floor를 채울 수 있다. `investors.com`, `nasdaq.com`과 단순 `ir.`/`investor.` substring은 secondary context일 뿐이며, registry의 검증 상태·verification method·owned IR domain이 명시되지 않으면 primary로 사용할 수 없다.
+
+## R590. AI decision premise는 common evidence contract의 명시적 사용·권리·revision·freshness를 요구한다 (v54.96, P1068)
+
+**Rule**: `status=verified/current`나 sourceKind만으로 전제를 VERIFIED로 승격하지 않는다. `allowedUse=decision`, `allowedUseCeiling=decision`, current-claim use, rightsId, revisionId, quality status, 관측시각과 명시적 freshness SLA를 공통 `evaluateEvidence(... purpose:'decision')`로 통과시켜야 하며 하나라도 없으면 UNVERIFIED다.
+
+## R589. QA gate의 실제 읽기·쓰기 범위는 manifest 입력·영향 규칙·격리 경로와 일치해야 한다 (v54.95, P1067)
+
+**Rule**: cacheable gate가 읽는 파일은 gate-level `inputs` 또는 정확한 그룹 입력에 포함하고, 그 파일의 변경은 해당 gate가 속한 그룹을 선택해야 한다. 생성 parity는 producer가 쓰는 모든 tracked 산출물을 비교하며 검사 과정의 임시 파일은 workspace가 아닌 `AIO_QA_CACHE_DIR` 또는 OS 임시 경로에 격리한다. 정적 문자열 검사는 실제 builder 실행의 대체물이 아니다.
+
+## R588. 레거시 이벤트와 파생 route는 native 경계에서 한 번만 정규화한다 (v54.95, P1066)
+
+**Rule**: window/document로 분열된 동일 논리 이벤트는 공통 호환 adapter가 양쪽을 수신하고 반대 타깃의 mirror만 bounded dedupe한다. 소비자마다 별도 이중 listener를 만들지 않는다. `theme-detail`처럼 독립 renderer가 없는 파생 route는 초기 진입에서도 canonical owner로 전환하고 선택 identity를 잃지 않는다.
+
+## R587. 출처 등급·관측시각·수집시각·revision은 서로 대신할 수 없다 (v54.95, P1064/P1065)
+
+**Rule**: provider별 `sourceKind`는 중앙 정규화 계약으로 T1~T4 authority tier를 판정하며 알 수 없는 값은 null/invalid로 fail closed한다. 더 늦게 도착하거나 더 최근에 fetch됐다는 이유로 오래된 관측, 낮은 권한 출처, 권리 철회 상태를 덮지 않는다. 뉴스 currentness는 기사 publication/observed 시각으로만 판정하고 fetch 시각은 별도 보존한다.
+
+## R586. 결측 팩터는 중립값이 아니며 순위 분모를 희석하지 않는다 (v54.95, P1063)
+
+**Rule**: 개별 행의 결측·stale·비유한 factor는 z=0 또는 score=50으로 대치하지 않는다. 관측된 양의 가중치만 합산해 그 가중치로 재정규화하고, 유효 가중치가 0인 행은 `composite/rank/quantSignal=null`로 유지해 percentile·turnover 분모에서 제외한다. coverage/confidence는 미래 수익 확률이 아니다.
+
+## R585. 저장소 불변성과 구독 알림은 바깥 객체 상태나 한 구독자 실패에 의존하지 않는다 (v54.95, P1062)
+
+**Rule**: 개발 모드의 deep-freeze는 바깥 객체가 이미 frozen이어도 모든 own data-property 자식을 순환해 동결한다. dispatch는 reducer 결과를 먼저 커밋하고 dispatch 시작 시점의 구독자 스냅샷 전체를 통지한다. 한 구독자 예외는 다른 구독자를 굶기지 않으며, 통지 완료 후 `STORE_LISTENER_FAILED` AggregateError로 호출자에게 보고한다. 동일 회귀 블록을 복제해 검사 수를 부풀리지 않는다.
 
 ## R584. 사용자 표면은 결측·선택·통화·렌더러 소유권을 producer 계약 그대로 보존한다 (v54.76 working tree, P1033)
 

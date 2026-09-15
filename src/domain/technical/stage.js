@@ -3,7 +3,7 @@
 // every value the legacy call site read from its own locals is now an explicit parameter. The
 // formulas (MA-stack thresholds, stage enum, MTF trend thresholds) are transcribed unchanged —
 // this is code motion, not a new model (R352/F-03: legacy and native must not diverge).
-export const STAGE_MODEL_VERSION = 'stage.v1';
+export const STAGE_MODEL_VERSION = 'stage.v2';
 export const MTF_MODEL_VERSION = 'mtf.v1';
 
 // Supplied chart-pattern article integration. This is a glossary/taxonomy for
@@ -125,10 +125,28 @@ function sma(closes, period) {
  *   provider already supplies via compatibility-facade.js readAnalysis)
  * @param {string} input.inputVersion
  */
-export function deriveTechnicalStageFromOhlcv({ symbol = null, ohlcv = [], inputVersion = 'unknown' } = {}) {
-  const closes = (Array.isArray(ohlcv) ? ohlcv : [])
-    .map((point) => { const value = Number(point?.close); return Number.isFinite(value) && value > 0 ? value : null; })
-    .filter((value) => value != null);
+export function deriveTechnicalStageFromOhlcv({ symbol = null, ohlcv = [], inputVersion = 'unknown', now = Date.now(), maxAgeMs = 7 * 86_400_000 } = {}) {
+  const points = Array.isArray(ohlcv) ? ohlcv : [];
+  const timeValue = (point) => point?.observedAt ?? point?.date ?? point?.time ?? point?.timestamp ?? null;
+  const timestamped = points.some((point) => timeValue(point) != null && String(timeValue(point)).trim() !== '');
+  // Moving windows require one contiguous, chronologically ordered tail. Dropping
+  // an invalid middle bar and stitching older/newer observations together shifts
+  // every MA period and can create a stage that never existed at one time cut.
+  const closes = [];
+  let nextObservedMs = Infinity;
+  let latestObservedMs = null;
+  for (let index = points.length - 1; index >= 0; index -= 1) {
+    const point = points[index];
+    const close = Number(point?.close);
+    if (!Number.isFinite(close) || close <= 0) break;
+    const rawTime = timeValue(point);
+    const observedMs = rawTime == null || String(rawTime).trim() === '' ? null : Date.parse(rawTime);
+    if (timestamped && !Number.isFinite(observedMs)) break;
+    if (observedMs != null && observedMs >= nextObservedMs) break;
+    if (latestObservedMs == null && observedMs != null) latestObservedMs = observedMs;
+    nextObservedMs = observedMs ?? nextObservedMs;
+    closes.unshift(close);
+  }
   const sma5 = sma(closes, 5), sma10 = sma(closes, 10), sma20 = sma(closes, 20), sma50 = sma(closes, 50), sma100 = sma(closes, 100), sma200 = sma(closes, 200);
   // mirrors calcTechnicalSnapshot's sma50_5d probe (SMA50 five bars ago, for the sma50Rising signal)
   const sma50Prior = closes.length >= 55 ? sma(closes.slice(0, -5), 50) : null;
@@ -137,7 +155,10 @@ export function deriveTechnicalStageFromOhlcv({ symbol = null, ohlcv = [], input
   const changePct = current != null && previous ? ((current - previous) / previous) * 100 : null;
   const structure = classifyMovingAverageStructure({ sma5, sma10, sma20, sma50, sma100, sma200, sma50Prior, lastClose: current });
   const trend = structure.trendState === 'UPTREND' ? 'above-ma20' : structure.trendState === 'DOWNTREND' ? 'below-ma20' : null;
-  const status = closes.length < 2 ? 'unavailable' : closes.length >= 200 ? 'current' : 'partial';
+  const nowMs = Number(now);
+  const ageMs = latestObservedMs == null || !Number.isFinite(nowMs) ? null : nowMs - latestObservedMs;
+  const freshness = ageMs == null ? 'unknown' : ageMs >= 0 && ageMs <= maxAgeMs ? 'fresh' : 'stale';
+  const status = closes.length < 2 ? 'unavailable' : closes.length >= 200 && freshness === 'fresh' ? 'current' : 'partial';
   return Object.freeze({
     modelVersion: STAGE_MODEL_VERSION,
     inputVersion,
@@ -145,6 +166,8 @@ export function deriveTechnicalStageFromOhlcv({ symbol = null, ohlcv = [], input
     status,
     indicators: Object.freeze({ current, changePct, ma20: sma20, ma50: sma50, trend }),
     structure,
-    observedCount: closes.length
+    observedCount: closes.length,
+    observedAt: latestObservedMs == null ? null : new Date(latestObservedMs).toISOString(),
+    freshness
   });
 }

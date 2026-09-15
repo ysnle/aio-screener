@@ -7,8 +7,13 @@ const manifest = JSON.parse(read('architecture/qa-pipeline.json'));
 const ciSource = read('.github/workflows/ci.yml');
 const pagesSource = read('.github/workflows/pages-deploy.yml');
 const watchdogSource = read('.github/workflows/data-watchdog.yml');
+const refreshDataSource = read('.github/workflows/refresh-data.yml');
+const refreshScreenerSource = read('.github/workflows/refresh-screener.yml');
 const runnerSource = read('scripts/qa-runner.mjs');
 const headlessSource = read('scripts/ci-headless-tests.mjs');
+const knowledgeParitySource = read('scripts/ci-knowledge-generated-parity-check.mjs');
+const continuitySource = read('scripts/ci-data-continuity-check.mjs');
+const dataRefreshAuditSource = read('scripts/ci-data-refresh-audit.mjs');
 const workflowSyntaxSource = read('scripts/ci-control-char-check.mjs');
 const errors = [];
 const check = (label, ok) => { if (!ok) errors.push(label); };
@@ -22,6 +27,16 @@ check('fast profile is preflight-only', JSON.stringify(manifest.profiles?.fast) 
 check('preflight contains no browser startup', (manifest.groups?.preflight?.gates || []).every((gate) => !/(?:from ['"]playwright['"]|chromium\.launch|start-local-node)/.test(read(gate.script))));
 check('full profile contains every browser shard', ['browser-unit', 'browser-runtime', 'browser-knowledge', 'browser-resilience', 'browser-viewport', 'browser-surface'].every((group) => manifest.profiles?.full?.includes(group)));
 check('watchdog profile covers local and external state', ['watchdog-local', 'external'].every((group) => manifest.profiles?.watchdog?.includes(group)));
+check('knowledge parity tracks domain dossier outputs without depth-audit workspace writes', knowledgeParitySource.includes("'public-data/knowledge/domain-dossiers.json'")
+  && knowledgeParitySource.includes("'public-data/knowledge/domain-dossiers'")
+  && !/audit-knowledge-encyclopedia-depth\.mjs',\s*'--write'/.test(knowledgeParitySource));
+check('data continuity temp writes are isolated from the workspace cache', continuitySource.includes('process.env.AIO_QA_CACHE_DIR ? path.resolve(process.env.AIO_QA_CACHE_DIR) : os.tmpdir()')
+  && !continuitySource.includes("path.join(ROOT, '.cache')"));
+check('data refresh audit uses published snapshot lineage instead of attempted metadata', dataRefreshAuditSource.includes("json('public-data/market-snapshot-status.json')")
+  && dataRefreshAuditSource.includes('snapshotAudit.publishedAt')
+  && dataRefreshAuditSource.includes('snapshotAudit.publishedRevision')
+  && dataRefreshAuditSource.includes('snapshotAudit.currentCyclePublished')
+  && dataRefreshAuditSource.includes('failed attempt was promoted over the published LKG artifact'));
 
 const reachableScriptsForProfile = (profileName, candidateManifest = manifest) => new Set(
   (candidateManifest.profiles?.[profileName] || []).flatMap((groupName) =>
@@ -88,6 +103,53 @@ for (const [groupName, group] of Object.entries(manifest.groups || {})) {
 const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index);
 check(`gate ids are globally unique: ${[...new Set(duplicateIds)].join(', ')}`, duplicateIds.length === 0);
 
+const gateById = new Map(Object.values(manifest.groups || {}).flatMap((group) => group.gates || []).map((gate) => [gate.id, gate]));
+const gateInputContracts = [
+  {
+    id: 'data-continuity',
+    group: 'core',
+    inputs: ['js/aio-data.js', 'public-data/data.json', 'public-data/history.json', 'public-data/market-snapshot.json', 'public-data/reconciliation-status.json', 'public-data/screener.json', 'public-data/structural-data-research.json', 'public-data/telegram-digest.json', 'public-config.json', '.github/workflows/refresh-data.yml', 'scripts/fetch-data.mjs', 'scripts/backtest-trading-score.mjs', 'scripts/build-market-snapshot.mjs', 'scripts/build-operations-status.mjs', 'scripts/build-reconciliation-status.mjs', 'scripts/lib/refresh-continuity.mjs', 'scripts/lib/atomic-write.mjs', 'src/ai/time/market-session.js', 'src/data/contracts/market-snapshot.js', 'src/data/contracts/operations.js', 'src/data/contracts/reconciliation.js', 'src/data/contracts/source-registry.js', 'src/domain/signal/trading-score.js'],
+    impactPaths: ['js/aio-data.js', 'public-data/data.json', 'public-data/history.json', 'public-data/market-snapshot.json', 'public-data/reconciliation-status.json', 'public-data/screener.json', 'public-data/structural-data-research.json', 'public-data/telegram-digest.json', 'public-config.json', '.github/workflows/refresh-data.yml', 'scripts/fetch-data.mjs', 'scripts/backtest-trading-score.mjs', 'scripts/build-market-snapshot.mjs', 'scripts/build-operations-status.mjs', 'scripts/build-reconciliation-status.mjs', 'scripts/lib/refresh-continuity.mjs', 'scripts/lib/atomic-write.mjs', 'src/ai/time/market-session.js', 'src/data/contracts/market-snapshot.js', 'src/data/contracts/operations.js', 'src/data/contracts/reconciliation.js', 'src/data/contracts/source-registry.js', 'src/domain/signal/trading-score.js']
+  },
+  {
+    id: 'release-manifest',
+    group: 'core',
+    inputs: ['architecture/asset-manifest.json', 'version.json', 'architecture/release-manifest.json', 'public-data/market-snapshot.json', 'sw.js'],
+    impactPaths: ['architecture/asset-manifest.json', 'version.json', 'architecture/release-manifest.json', 'public-data/market-snapshot.json', 'sw.js']
+  },
+  {
+    id: 'deployment-convergence',
+    group: 'core',
+    inputs: ['architecture/deployment-convergence.json', '.github/workflows/pages-deploy.yml', '.github/workflows/deploy-ai-proxy.yml', '.github/workflows/deploy-data-plane.yml', 'cloudflare-worker-proxy.js', 'worker/data-plane.js', 'scripts/ci-external-pipeline-check.mjs', 'scripts/ci-live-invariant-check.mjs', 'scripts/build-operations-status.mjs'],
+    impactPaths: ['architecture/deployment-convergence.json', '.github/workflows/pages-deploy.yml', '.github/workflows/deploy-ai-proxy.yml', '.github/workflows/deploy-data-plane.yml', 'cloudflare-worker-proxy.js', 'worker/data-plane.js', 'scripts/ci-external-pipeline-check.mjs', 'scripts/ci-live-invariant-check.mjs', 'scripts/build-operations-status.mjs']
+  }
+];
+const sameSet = (left, right) => left.length === right.length && [...left].sort().every((value, index) => value === [...right].sort()[index]);
+const impactPatternCovers = (pattern, file) => {
+  const escaped = (value) => value.replace(/[.+^${}()|[\]\\]/g, '\\$&');
+  const regex = `^${pattern.split('**').map((part) => escaped(part).replaceAll('*', '[^/]*')).join('.*')}$`;
+  return new RegExp(regex).test(file);
+};
+for (const contract of gateInputContracts) {
+  const gate = gateById.get(contract.id);
+  check(`${contract.id} declares exact cache inputs`, Boolean(gate) && sameSet(gate.inputs || [], contract.inputs));
+  check(`${contract.id} inputs have core impact coverage`, contract.impactPaths.every((file) => manifest.impactRules.some((rule) => rule.groups?.includes(contract.group) && (rule.patterns || []).some((pattern) => impactPatternCovers(pattern, file)))));
+}
+
+const literalDependencyContracts = [
+  { id: 'market-snapshot', paths: ['src/ai/time/market-session.js', 'src/data/market-snapshot-loader.js', 'src/legacy/market-snapshot-bridge.js', '.github/workflows/refresh-data.yml'] },
+  { id: 'operator-readiness', paths: ['_headers'] },
+  { id: 'data-lineage', paths: ['src/ai/time/market-session.js'] },
+  { id: 'data-refresh', paths: ['index.html'] },
+  { id: 'release-revision', paths: ['index.html', 'js/aio-core.js', 'sw.js', 'public-artifact-manifest.json', 'public-config.json', '.github/workflows/pages-deploy.yml'] },
+  { id: '13f-currentness', paths: ['index.html', '.github/workflows/refresh-data.yml'] }
+];
+for (const contract of literalDependencyContracts) {
+  const gate = gateById.get(contract.id);
+  check(`${contract.id} declares literal read dependencies`, Boolean(gate) && contract.paths.every((file) => (gate.inputs || []).includes(file)));
+  check(`${contract.id} literal dependencies trigger its data group`, contract.paths.every((file) => manifest.impactRules.some((rule) => rule.groups?.includes('data') && (rule.patterns || []).some((pattern) => impactPatternCovers(pattern, file)))));
+}
+
 const browserPortOwners = new Map();
 for (const [groupName, group] of Object.entries(manifest.groups || {})) {
   if (group.kind !== 'browser') continue;
@@ -125,6 +187,42 @@ check('browser matrix aggregates shard failures', /browser:[\s\S]*?fail-fast:\s*
 check('Pages waits only for CI attestation', /workflows:\s*\['CI'\]/.test(pagesSource) && !/Refresh market data|Refresh screener and SEC fundamentals/.test(pagesSource));
 check('CI accepts exact refresh SHA and emits immutable attestation', /release_sha:/.test(ciSource) && /aio-release-attestation\.v1/.test(ciSource) && /actions\/upload-artifact@[0-9a-f]{40}/.test(ciSource));
 check('refresh workflows dispatch exact produced SHA', ['refresh-data.yml', 'refresh-screener.yml'].every((file) => { const source = read(`.github/workflows/${file}`); return /git rev-parse HEAD/.test(source) && /gh workflow run ci\.yml/.test(source) && /release_sha=/.test(source); }));
+const refreshSources = [['refresh-data.yml', refreshDataSource], ['refresh-screener.yml', refreshScreenerSource]];
+check('refresh-screener owns only screener/SEC validation', !/ci-web-research-contract-check\.mjs/.test(refreshScreenerSource)
+  && !/ci-data-refresh-audit\.mjs/.test(refreshScreenerSource)
+  && /ci-screener-workbench-contract\.mjs/.test(refreshScreenerSource));
+const refreshDataOrder = ['Fetch market data', 'Fetch Telegram digest', 'Promote one data release revision', 'Reject silent artifact degradation', 'Validate source-to-consumer data continuity'];
+check('refresh-data runs all producers before rebuild/integrity gates', refreshDataOrder.every((step, index, steps) => {
+  const position = refreshDataSource.indexOf(`name: ${step}`);
+  return position >= 0 && (index === 0 || position > refreshDataSource.indexOf(`name: ${steps[index - 1]}`));
+}));
+const refreshScreenerOrder = ['Refresh bounded SEC companyfacts batch', 'Build bounded SEC runtime projection', 'Refresh screener independently', 'Validate semantic artifact contract'];
+check('refresh-screener runs SEC producer, projection, screener producer, then validation', refreshScreenerOrder.every((step, index, steps) => {
+  const position = refreshScreenerSource.indexOf(`name: ${step}`);
+  return position >= 0 && (index === 0 || position > refreshScreenerSource.indexOf(`name: ${steps[index - 1]}`));
+}));
+for (const [name, source] of refreshSources) {
+  const dispatchAt = source.indexOf('gh workflow run ci.yml');
+  const commitAt = source.indexOf('git commit -m');
+  const pushAt = source.indexOf('until git push');
+  const prePushAt = source.indexOf('Fail-closed promotion candidate gate before push');
+  const producerGateTokens = name === 'refresh-data.yml'
+    ? ['ci-refresh-artifact-integrity-check.mjs', 'ci-data-continuity-check.mjs', 'ci-data-refresh-audit.mjs']
+    : ['ci-sec-runtime-projection-check.mjs', 'validate-screener-artifact.mjs', 'ci-screener-workbench-contract.mjs'];
+  check(`${name} has a fail-closed producer gate before publish`, prePushAt >= 0
+    && producerGateTokens.every((token) => source.slice(prePushAt, commitAt >= 0 ? commitAt : source.length).includes(token))
+    && commitAt > prePushAt
+    && pushAt > prePushAt
+    && !/continue-on-error:\s*true/.test(source.slice(prePushAt, commitAt)));
+  // Workspace state is produced by its own producer and must not be coupled
+  // to a 30-minute data revision. The exact pushed SHA remains the CI input;
+  // Pages still waits for that CI attestation before deployment.
+  check(`${name} keeps generated workspace state out of the data promotion commit`, !/generate-workspace-state\.mjs\s+--write/.test(source)
+    && !/git add[^\n]*_context\/(?:CURRENT-STATE|CONTEXT-CATALOG)/.test(source));
+  const summaryBlock = source.slice(source.indexOf('Pipeline status summary'), dispatchAt >= 0 ? dispatchAt : source.length);
+  check(`${name} summary does not mark Generated/Elapsed unconditionally OK`, !/Generated\s*\([^\n]*\)\s*\|\s*OK\s*\|/.test(summaryBlock) && !/\|\s*Elapsed\s*\|\s*OK\s*\|/.test(summaryBlock));
+  check(`${name} summary failure is not swallowed as non-fatal`, !/summary generation failed \(non-fatal\)/.test(summaryBlock));
+}
 check('Pages downloads and validates the CI attestation', /actions\/download-artifact@[0-9a-f]{40}/.test(pagesSource) && /aio-release-attestation\.v1/.test(pagesSource) && /steps\.release\.outputs\.sha/.test(pagesSource));
 check('Pages has no mutable branch checkout or refresh-deploy bypass', !/ref:\s*\$\{\{[^\r\n]*head_branch/.test(pagesSource) && !/--mode refresh-deploy/.test(pagesSource));
 check('Pages has post-deploy external verification', /--mode release/.test(pagesSource));
@@ -132,6 +230,7 @@ check('external workflow observations use scoped Actions read token', [pagesSour
 check('Pages deployment is serialized without cancellation', /concurrency:[\s\S]*?cancel-in-progress:\s*false/.test(pagesSource));
 check('watchdog uses aggregate watchdog profile', /qa-runner\.mjs watchdog --no-cache/.test(watchdogSource));
 check('watchdog preserves failure while uploading rolling SLO evidence', /continue-on-error:\s*true/.test(watchdogSource) && /build-operations-slo-window\.mjs/.test(watchdogSource) && /retention-days:\s*90/.test(watchdogSource) && /steps\.qa\.outcome != 'success'/.test(watchdogSource));
+check('watchdog captures failed gate ids and details before final failure', /AIO_QA_CACHE_DIR:\s*\$\{\{ runner\.temp \}\}\/aio-qa/.test(watchdogSource) && /Summarize failed watchdog gates/.test(watchdogSource) && /Failed gates:/.test(watchdogSource) && /Failed gate details:/.test(watchdogSource));
 
 check('viewport matrix executes real route lifecycle by default', /FULL_INIT\s*=\s*process\.env\.AIO_VIEWPORT_FULL_INIT\s*!==\s*['"]0['"]/.test(read('scripts/ci-viewport-matrix-check.mjs')));
 // Scheduler/cache behavior is executed by ci-qa-runner-behavior-check.mjs.
@@ -146,6 +245,10 @@ check('failed headless groups have an independent rerun lifecycle',
   headlessSource.includes('AIO_FAILED_GROUPS=')
   && runnerSource.includes('`--groups=${failedGroups}`')
   && manifest.groups?.core?.gates?.some((gate) => gate.id === 'headless-group-lifecycle'));
+check('headless failures keep exact test details in stdout and a local report',
+  headlessSource.includes('FAILURE_LEDGER_JSON=')
+  && headlessSource.includes('writeQaReport')
+  && headlessSource.includes('groupResults'));
 check('runner streams long-gate progress and terminates Windows child trees', /\[qa-progress\]/.test(runnerSource) && /taskkill\.exe/.test(runnerSource) && /['"]\/T['"]/.test(runnerSource));
 
 if (errors.length) {

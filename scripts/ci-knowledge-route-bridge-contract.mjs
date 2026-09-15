@@ -8,9 +8,9 @@ import { createKnowledgeRouteBridge, ALLOWED_ROUTES } from '../src/domain/knowle
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const artifact = JSON.parse(fs.readFileSync(path.join(root, 'public-data/knowledge/route-targets.json'), 'utf8'));
-assert.equal(artifact.counts.articleTargets, 160);
+assert.equal(artifact.counts.articleTargets, 188);
 assert.equal(artifact.counts.compatibilityTargets, 39);
-assert.equal(artifact.targets.length, 199);
+assert.equal(artifact.targets.length, 227);
 assert.equal(artifact.scenarios.length, 18);
 assert.equal(artifact.scenarios.some((scenario) => /mobile|tablet|touch/i.test(String(scenario.persona || ''))), false, 'desktop-only knowledge scenarios must not restore mobile personas');
 const bridge = createKnowledgeRouteBridge(artifact.targets);
@@ -31,6 +31,7 @@ for (const target of artifact.targets) {
   else assert.equal(navigation.status, 'OVERVIEW_ONLY');
 }
 assert.equal(artifact.targets.filter((target) => target.articleId.startsWith('principles:') || target.articleId.startsWith('atlas-foundations:')).every((target) => target.status === 'ROUTE_TARGET'), true, 'all 160 primary articles must have a professional route target');
+assert.equal(artifact.targets.filter((target) => target.articleId.startsWith('nathan-frameworks:')).length, 28, 'all Nathan framework articles must have route targets');
 for (const scenario of artifact.scenarios) assert(bridge.resolve(scenario.articleId), `scenario target missing ${scenario.articleId}`);
 const mutableTarget = { articleId: 'fixture:immutable', routeId: 'atlas', metric: 'before', timeframe: 'daily' };
 const immutableBridge = createKnowledgeRouteBridge([mutableTarget]);

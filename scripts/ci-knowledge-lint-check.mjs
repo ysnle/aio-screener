@@ -60,6 +60,16 @@ const rules = read('_context/RULES.md');
 const qa = read('_context/QA-CHECKLIST.md');
 const postmortem = read('_context/BUG-POSTMORTEM.md');
 const governance = read('_context/WORKFLOW-GOVERNANCE.md');
+const duplicateValues = (values) => Object.entries(values.reduce((counts, value) => ({ ...counts, [value]: (counts[value] || 0) + 1 }), {}))
+  .filter(([, count]) => count > 1)
+  .map(([value, count]) => `${value} x${count}`);
+const duplicatePostmortemHeadings = duplicateValues([...postmortem.matchAll(/^##\s+(P\d+\s+-[^\r\n]+)$/gm)].map((match) => match[1]));
+const duplicateQaRows = duplicateValues(qa.split(/\r?\n/).map((line) => line.trim()).filter((line) => /^- \[[ x]\]\s+QA-[^:]+:/.test(line)));
+const ruleIds = [...rules.matchAll(/^##\s+(R\d+)\./gm)].map((match) => match[1]);
+const duplicateRuleIds = duplicateValues(ruleIds).filter((entry) => !/^R(?:230|301)\s+x/.test(entry));
+check('postmortem does not repeat an exact P heading', duplicatePostmortemHeadings.length === 0, duplicatePostmortemHeadings.join(', '));
+check('QA checklist does not repeat an exact row', duplicateQaRows.length === 0, duplicateQaRows.join(', '));
+check('duplicate rule IDs are explicit historical exceptions only', duplicateRuleIds.length === 0, duplicateRuleIds.join(', '));
 check('postmortem-to-rule workflow is explicit', /Postmortem-To-Gate Rule/.test(governance));
 check('generated-state rule is present', /R520/.test(rules) && /CURRENT-STATE/.test(rules));
 check('hook authority rule is present', /R521/.test(rules) && /automatic commit|자동 커밋/i.test(rules));

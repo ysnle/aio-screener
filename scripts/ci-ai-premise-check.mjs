@@ -5,10 +5,36 @@ import { createQuestionPlan } from '../src/ai/orchestrator/question-planner.js';
 const now = new Date('2026-09-08T21:00:00Z');
 const period = { start: '2026-09-07T20:00:00Z', end: '2026-09-08T20:00:00Z' };
 const assertion = { entityId: 'NVDA', metricId: 'price-change-pct', unit: '%', timeframe: 'session', period, direction: 'down' };
-const row = { ...assertion, value: -2, observedAt: period.end, source: 'fixture-exchange', sourceKind: 'exchange', evidenceId: 'fixture:nvda-change', status: 'verified' };
+const row = {
+  ...assertion,
+  value: -2,
+  observedAt: period.end,
+  source: 'fixture-exchange',
+  sourceKind: 'exchange',
+  evidenceId: 'fixture:nvda-change',
+  status: 'verified',
+  allowedUse: 'decision',
+  allowedUseCeiling: 'decision',
+  currentClaim: true,
+  claimUse: 'current-claim',
+  qualityStatus: 'CURRENT',
+  quality: { status: 'CURRENT' },
+  freshnessStatus: 'fresh',
+  freshnessMs: 24 * 60 * 60 * 1000,
+  revisionId: 'fixture-revision-2026-09-08',
+  rightsId: 'fixture-rights-verified'
+};
 const evaluate = (rows, overrides = {}) => evaluateDirectionalPremise({ ...assertion, ...overrides }, rows, { now });
 assert.equal(evaluate([]).status, 'UNVERIFIED');
 assert.equal(evaluate([row]).status, 'VERIFIED');
+assert.equal(evaluate([{ ...row, sourceKind: 'T1_OFFICIAL' }]).status, 'VERIFIED');
+assert.equal(evaluate([{ ...row, sourceKind: 'licensed-api' }]).status, 'VERIFIED');
+assert.equal(evaluate([{ ...row, sourceKind: 'delayed-eod' }]).status, 'UNVERIFIED');
+assert.equal(evaluate([{ ...row, allowedUse: 'reference' }]).status, 'UNVERIFIED');
+assert.equal(evaluate([{ ...row, currentClaim: false }]).status, 'UNVERIFIED');
+assert.equal(evaluate([{ ...row, qualityStatus: 'unknown' }]).status, 'UNVERIFIED');
+assert.equal(evaluate([{ ...row, freshnessStatus: 'stale' }]).status, 'UNVERIFIED');
+assert.equal(evaluate([{ ...row, freshnessMaxAgeMs: 1, observedAt: '2026-09-07T20:00:00Z' }]).status, 'UNVERIFIED');
 assert.equal(evaluate([{ ...row, value: 2 }]).status, 'CONTRADICTED');
 assert.equal(evaluate([{ ...row, value: 0 }]).observedDirection, 'flat');
 assert.equal(evaluate([{ ...row, value: 0 }]).status, 'CONTRADICTED');

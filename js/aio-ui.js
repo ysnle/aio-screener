@@ -511,6 +511,18 @@ function getLLMRouteReadiness() {
   return { ready: false, reason: 'WORKER_NOT_CHECKED', label: 'Worker 확인 필요' };
 }
 
+// P1070/R592: switch state, route readiness, and quota are independent
+// dimensions. A missing route must never be represented by mutating the
+// user's ON/OFF switch, and callers can use this snapshot for fail-closed
+// dispatch decisions.
+function getLLMAvailability() {
+  var enabled = getLLMState();
+  var route = getLLMRouteReadiness();
+  return { enabled: enabled, routeReady: !!route.ready, usable: !!enabled && !!route.ready, route: route };
+}
+window._aioGetLLMAvailability = getLLMAvailability;
+window._aioGetLLMRouteReadiness = getLLMRouteReadiness;
+
 function getQuota() {
   const today = _aioGetKstDateParts(new Date()).isoDate;
   let stored;
@@ -565,7 +577,7 @@ function updateQuotaBadge() {
   const route = getLLMRouteReadiness();
 
   if (isOn && !route.ready) {
-    if (track) track.classList.remove('on');
+    // Keep the switch state intact: route health is not user intent.
     if (swLabel) { swLabel.textContent = route.label; swLabel.className = 'llm-switch-label'; }
     if (capEl) capEl.textContent = '—';
     if (remEl) { remEl.textContent = '—'; remEl.className = 'llm-quota-val empty'; }
@@ -624,23 +636,31 @@ function toggleLLM() {
 
 // Call this every time an LLM query is actually made
 function consumeLLMQuery() {
-  if (!getLLMState()) return true; // OFF → always allowed, unlimited
+  // Fail closed before the OFF/unlimited quota shortcut. OFF controls the
+  // local budget policy; it cannot turn a missing provider route into a call.
+  var route = getLLMRouteReadiness();
+  if (!route.ready) {
+    if (typeof updateQuotaBadge === 'function') updateQuotaBadge();
+    return false;
+  }
+  if (!getLLMState()) return true; // OFF → no local quota charge
   const quota = getQuota();
   const dailyLimit = calcDailyLimit();
   const model = getModelConfig();
 
   if (quota.used >= dailyLimit) {
     return new Promise(function(resolve) {
+      var settled = false;
+      function settle(value) { if (settled) return; settled = true; resolve(value); }
       showConfirmModal('일일 한도 초과',
         '일일 사용 한도(' + dailyLimit + '회)를 모두 사용했습니다.\n공급자 가격·환율 원천이 연결되지 않아 추가 비용은 이 화면에서 계산하지 않습니다.\n계속 질문하시겠습니까?',
         function() {
           quota.overBudget = (quota.overBudget || 0) + 1;
           quota.used += 1;
-          resolve(true);
-        }, '');
-      // Cancel case — modal close without confirm
-      var cancelBtn = document.getElementById('aio-confirm-cancel');
-      if (cancelBtn) cancelBtn.addEventListener('click', function() { resolve(false); }, { once: true });
+          saveQuota(quota);
+          updateQuotaBadge();
+          settle(true);
+        }, '', function() { settle(false); });
     });
   }
   quota.used += 1;
@@ -1841,7 +1861,22 @@ async function runInstitutionalTechnicalBrief(arg) {
       rspVsSpyRS_5d: (rspSnap.dayGainPct || 0) - (spySnap.dayGainPct || 0),
       smhSidewaysNotDown: !!(smhSnap && smhSnap.ok && smhSnap.dayGainPct > -1)
     }) : null;
-    var portfolioExposure = { score: semiHeat ? Math.min(100, (semiHeat.score || 0) + (semiHeat.aiInfraHeat ? (semiHeat.aiInfraHeat.score || 0) * 0.35 : 0)) : 0, flags: semiHeat && semiHeat.state ? ['SEMI_CONTEXT_' + semiHeat.state] : [] };
+    // Missing reference context must remain missing.  In particular, an
+    // unavailable AI-infrastructure basket is not evidence of zero heat and
+    // must not silently lower the lockout score or appear as a numeric signal.
+    var semiScore = semiHeat && semiHeat.state !== 'DATA_INSUFFICIENT' && typeof semiHeat.score === 'number' && isFinite(semiHeat.score) ? semiHeat.score : null;
+    var aiHeat = semiHeat && semiHeat.aiInfraHeat ? semiHeat.aiInfraHeat : null;
+    var aiScore = aiHeat && aiHeat.scoreAvailable === true && typeof aiHeat.score === 'number' && isFinite(aiHeat.score) ? aiHeat.score : null;
+    var portfolioExposureFlags = semiHeat && semiHeat.state ? ['SEMI_CONTEXT_' + semiHeat.state] : [];
+    if (semiScore == null) portfolioExposureFlags.push('SEMI_DATA_INSUFFICIENT');
+    if (aiHeat && aiScore == null) portfolioExposureFlags.push('AI_INFRA_DATA_INSUFFICIENT');
+    var portfolioExposure = {
+      score: semiScore == null ? null : Math.min(100, semiScore + (aiScore == null ? 0 : aiScore * 0.35)),
+      scoreAvailable: semiScore != null,
+      allowedUse: 'reference',
+      referenceOnly: true,
+      flags: portfolioExposureFlags
+    };
     var lockoutAction = window.calcLockoutAction ? window.calcLockoutAction({ extension: extensionHeat, candle: candleRisk, opexGamma: opexGammaRisk, breadth: breadthRotation, portfolioExposure: portfolioExposure }) : null;
     var blowoffTop = window.calcBlowoffTopChecklist ? window.calcBlowoffTopChecklist(snapshot, {
       semiHeat: semiHeat,
@@ -4052,7 +4087,7 @@ var AIO_PAGE_FUNDAMENTALS = {
     ],
     action: [
       `점수가 낮아지는 구간에서는 신규 진입 축소·현금 비중 확대가 우선이고, 보유 종목 손절 기준을 좁힙니다.`,
-      `점수 급등 첫날 추격보다, 점수가 유지되는지 2~3일 확인 후 비중을 올리는 편이 승률이 높습니다.`
+      `점수 급등 첫날 추격하기보다 점수가 2~3일 유지되는지 확인하는 관찰 절차를 둘 수 있습니다. 다만 이 절차가 승률을 높인다는 근거는 검증되지 않았으므로 성과 보장이나 매매 승인으로 해석하지 마세요.`
     ],
     terms: `ZBT (브레드쓰 스러스트)`
   },
@@ -4328,9 +4363,9 @@ var AIO_PAGE_FUNDAMENTALS = {
       `팩터별로 잘 작동하는 국면이 다릅니다 — 상승 추세에선 모멘텀, 바닥 반전에선 밸류가 상대적으로 유리한 경향. 그래서 시장 국면(시그널 페이지)과 함께 써야 합니다.`
     ],
     how: [
-      `상단 레짐 표시(현재 시장 국면과 그에 따른 팩터 가중)를 먼저 확인하세요 — 이 스크리너는 국면에 따라 팩터 가중을 바꿉니다.`,
+      `상단 레짐 표시는 현재 시장 국면에 따른 가중 후보를 설명합니다. 표본 밖 검증·비용·유동성·라이브/백테스트 일치와 검토 승격 전에는 실제 순위가 중립 고정 가중치를 유지합니다.`,
       `헤더 클릭 정렬로 기준을 바꿔 가며 상위에 반복 등장하는 종목(멀티팩터 합의)을 관심 목록으로 올리세요.`,
-      `'팩터 검증 · 백테스트 IC' 탭은 각 팩터가 실제로 수익률을 설명해 왔는지의 증거입니다 — 랭킹을 맹신하기 전에 한 번 보세요.`
+      `'팩터 검증 · 백테스트 IC' 탭은 각 팩터의 과거 관계를 표본·기간·비용 조건과 함께 점검하는 참고 화면입니다 — 예측력이나 수익률 설명력을 인증하는 증거가 아니므로 랭킹을 맹신하지 마세요.`
     ],
     action: [
       `스크리너 상위 종목도 차트(진입 시점)와 어닝 일정(이벤트)을 확인한 뒤에만 진입 — 랭킹은 타이밍을 말해주지 않습니다.`,

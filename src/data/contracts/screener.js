@@ -1,6 +1,8 @@
 // SCR-OS-01/02/05/07/09: the screener workbench contract is intentionally
 // dependency-free so providers, the browser engine, AI adapters and scripts
 // can consume the same immutable shapes without importing the legacy shell.
+import { CANONICAL_SOURCE_TIERS, canonicalSourceTier } from './source-kind.js';
+
 export const SCREENER_CONTRACT_VERSION = 'screener-workbench.v1';
 export const FIELD_STATUS = Object.freeze([
   'CURRENT', 'DELAYED', 'STALE', 'MISSING', 'UNSUPPORTED',
@@ -8,7 +10,7 @@ export const FIELD_STATUS = Object.freeze([
 ]);
 export const CALCULABLE_FIELD_STATUSES = Object.freeze(['CURRENT', 'DELAYED', 'INFERRED']);
 const DISPLAYABLE_FIELD_STATUSES = new Set([...CALCULABLE_FIELD_STATUSES, 'STALE', 'LAST_GOOD', 'CONFLICT']);
-export const OBSERVATION_SOURCES = Object.freeze(['T1_OFFICIAL', 'T2_LICENSED', 'T3_PUBLIC_DELAYED', 'T4_REFERENCE']);
+export const OBSERVATION_SOURCES = CANONICAL_SOURCE_TIERS;
 export const SCREEN_NODE_TYPES = Object.freeze(['and', 'or', 'not', 'range', 'enum', 'exists']);
 export const NULL_POLICIES = Object.freeze(['reject', 'pass', 'unknown']);
 export const RUN_STATUSES = Object.freeze(['completed', 'partial', 'blocked', 'unavailable']);
@@ -238,7 +240,7 @@ export function validateInstrumentRef(ref) {
 
 export function createObservationEnvelope(input = {}) {
   const status = FIELD_STATUS.includes(input.qualityStatus) ? input.qualityStatus : 'MISSING';
-  const sourceKind = OBSERVATION_SOURCES.includes(input.sourceKind) ? input.sourceKind : 'T3_PUBLIC_DELAYED';
+  const sourceKind = canonicalSourceTier(input.sourceKind);
   return Object.freeze({
     observationId: String(input.observationId || `${input.instrumentId || 'unknown'}:${input.fieldId || 'unknown'}:${stableHash({ value: input.value, observedAt: input.observedAt, sourceId: input.sourceId })}`),
     instrumentId: String(input.instrumentId || ''),
@@ -252,9 +254,11 @@ export function createObservationEnvelope(input = {}) {
     effectiveAt: iso(input.effectiveAt || input.observedAt),
     revisionId: String(input.revisionId || 'unpublished'),
     sourceKind,
-    rightsId: String(input.rightsId || 'unknown'),
+    rightsId: String(input.rightsId || 'UNKNOWN'),
     qualityStatus: status,
-    allowedUse: String(input.allowedUse || (status === 'CURRENT' ? 'research-relative-ranking-only' : 'reference-only')),
+    // Quality/currentness does not grant research or trading use. Producers
+    // must state the allowed use explicitly; absent grants are blocked.
+    allowedUse: input.allowedUse == null ? 'none' : String(input.allowedUse),
     evidenceId: String(input.evidenceId || ''),
     note: String(input.note || '')
   });
@@ -267,6 +271,8 @@ export function validateObservationEnvelope(observation) {
   if (!FIELD_STATUS.includes(observation?.qualityStatus)) errors.push('quality_status_invalid');
   if (!OBSERVATION_SOURCES.includes(observation?.sourceKind)) errors.push('source_kind_invalid');
   if (observation?.qualityStatus === 'CURRENT' && observation.value == null) errors.push('current_value_missing');
+  if (observation?.qualityStatus === 'CURRENT' && !observation.observedAt) errors.push('current_observed_at_missing');
+  if (observation?.qualityStatus === 'CURRENT' && observation.allowedUse === 'none') errors.push('current_allowed_use_missing');
   if (observation?.qualityStatus === 'CURRENT' && observation.rightsId !== 'VERIFIED') errors.push('current_rights_unverified');
   for (const field of ['observedAt', 'filedAt', 'fetchedAt', 'effectiveAt']) if (observation?.[field] && Number.isNaN(Date.parse(observation[field]))) errors.push(`${field}_invalid`);
   return Object.freeze({ ok: errors.length === 0, errors: [...new Set(errors)] });
@@ -405,6 +411,9 @@ export function createScreenDefinition(input = {}) {
     columns: Array.isArray(input.columns) ? [...input.columns] : ['identity.symbol', 'identity.name', 'rank'],
     requiredFields: Array.isArray(input.requiredFields) ? [...new Set(input.requiredFields.map(String))] : [],
     referenceFrameworkIds: Array.isArray(input.referenceFrameworkIds) ? [...new Set(input.referenceFrameworkIds.map(String).filter(Boolean))] : [],
+    referenceConceptIds: Array.isArray(input.referenceConceptIds) ? [...new Set(input.referenceConceptIds.map(String).filter(Boolean))] : [],
+    referenceQuestionIds: Array.isArray(input.referenceQuestionIds) ? [...new Set(input.referenceQuestionIds.map(String).filter(Boolean))] : [],
+    referenceProcessingStages: Array.isArray(input.referenceProcessingStages) ? [...new Set(input.referenceProcessingStages.map(String).filter(Boolean))] : [],
     referenceTimeSeriesIds: Array.isArray(input.referenceTimeSeriesIds) ? [...new Set(input.referenceTimeSeriesIds.map(String).filter(Boolean))] : [],
     referenceClaimIds: Array.isArray(input.referenceClaimIds) ? [...new Set(input.referenceClaimIds.map(String).filter(Boolean))] : [],
     referenceBoundary: String(input.referenceBoundary || 'reference-only'),
@@ -475,6 +484,9 @@ export function validateScreenDefinition(definition) {
   if (!Array.isArray(definition?.requiredFields)) errors.push('required_fields_invalid');
   else definition.requiredFields.forEach((field) => { if (!SCREENER_FIELD_REGISTRY.has(field)) errors.push(`required_field_unknown:${field}`); });
   if (!Array.isArray(definition?.referenceFrameworkIds)) errors.push('reference_framework_ids_invalid');
+  if (!Array.isArray(definition?.referenceConceptIds)) errors.push('reference_concept_ids_invalid');
+  if (!Array.isArray(definition?.referenceQuestionIds)) errors.push('reference_question_ids_invalid');
+  if (!Array.isArray(definition?.referenceProcessingStages)) errors.push('reference_processing_stages_invalid');
   if (!Array.isArray(definition?.referenceTimeSeriesIds)) errors.push('reference_time_series_ids_invalid');
   if (!Array.isArray(definition?.referenceClaimIds)) errors.push('reference_claim_ids_invalid');
   if (definition?.referenceBoundary !== 'reference-only') errors.push('reference_boundary_invalid');

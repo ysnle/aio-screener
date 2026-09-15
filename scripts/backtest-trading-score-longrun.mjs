@@ -35,6 +35,7 @@ import { writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { reconstructScore } from './backtest-trading-score.mjs';
+import { spearmanWithCI } from './lib/rank-statistics.mjs';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 
@@ -125,30 +126,9 @@ function forwardReturn(series, idx, daysAhead, field = 'spx') {
   return (fut - cur) / cur * 100;
 }
 
-// ── Spearman 순위상관 + Fisher-z 근사 신뢰구간(단순 tie 처리, 표본이 클 때 충분 — 기존 하네스와
-//    동일한 근사 수준 유지, n>=4에서만 CI 계산) ──
-export function spearmanWithCI(pairs) {
-  const clean = pairs.filter(p => p[0] != null && p[1] != null && isFinite(p[0]) && isFinite(p[1]));
-  const n = clean.length;
-  if (n < 3) return { n, rho: null, ci95: null };
-  const rank = (arr) => {
-    const sorted = arr.map((v, i) => [v, i]).sort((a, b) => a[0] - b[0]);
-    const r = new Array(arr.length);
-    sorted.forEach(([, i], rankIdx) => { r[i] = rankIdx + 1; });
-    return r;
-  };
-  const xs = clean.map(p => p[0]), ys = clean.map(p => p[1]);
-  const rx = rank(xs), ry = rank(ys);
-  const dSq = rx.reduce((s, r, i) => s + (r - ry[i]) ** 2, 0);
-  const rho = 1 - (6 * dSq) / (n * (n * n - 1));
-  let ci95 = null;
-  if (n >= 4 && Math.abs(rho) < 1) {
-    const z = Math.atanh(rho);
-    const se = 1 / Math.sqrt(n - 3);
-    ci95 = [Math.tanh(z - 1.96 * se), Math.tanh(z + 1.96 * se)].map(v => Math.round(v * 1000) / 1000);
-  }
-  return { n, rho: Math.round(rho * 1000) / 1000, ci95 };
-}
+// Re-export the shared tie-aware implementation for the factor long-run
+// producer, which historically imported this helper from this module.
+export { spearmanWithCI };
 
 // ── A-1 (2026-07-17, REMAINING-WORK §A1): percentile/레짐 상대화 변형 "relative-v1" ──
 // 왜: WO-2 원결과(21일 rho=-0.165, 63일 -0.255)의 유력 가설이 "dxy>107/tnx>4.5 같은 절대
@@ -255,6 +235,34 @@ function quantileSplit(records, scoreField, returnField, buckets = 3) {
   };
 }
 
+// Daily T+n forward returns overlap for n>1, so treating every row as an independent
+// observation makes Fisher intervals too narrow. Retain the pooled estimate for descriptive
+// continuity, but evaluate every possible non-overlapping phase separately. Promotion may use
+// only the conservative phase-stability result, never the pooled IID interval alone.
+export function nonOverlappingPhaseCorrelations(records, scoreField, returnField, horizonDays) {
+  const step = Math.max(1, Math.trunc(Number(horizonDays) || 1));
+  const phases = Array.from({ length: step }, (_, phase) => {
+    const pairs = records.filter((_, index) => index % step === phase).map((row) => [row?.[scoreField], row?.[returnField]]);
+    return { phase, ...spearmanWithCI(pairs) };
+  }).filter((result) => result.n >= 3 && result.rho != null);
+  const positive = phases.filter((result) => result.rho > 0).length;
+  const negative = phases.filter((result) => result.rho < 0).length;
+  const significantPositive = phases.filter((result) => Array.isArray(result.ci95) && result.ci95[0] > 0).length;
+  const significantNegative = phases.filter((result) => Array.isArray(result.ci95) && result.ci95[1] < 0).length;
+  return {
+    horizonDays: step,
+    phaseCount: phases.length,
+    phases,
+    positivePhasePct: phases.length ? Math.round(positive / phases.length * 1000) / 10 : null,
+    negativePhasePct: phases.length ? Math.round(negative / phases.length * 1000) / 10 : null,
+    significantPositivePhases: significantPositive,
+    significantNegativePhases: significantNegative,
+    signStablePositive: phases.length === step && positive === phases.length,
+    signStableNegative: phases.length === step && negative === phases.length,
+    allowedUse: 'validation-diagnostic-only'
+  };
+}
+
 // ── regime 분류: 서술형 역사적 날짜 대신 데이터 자체에서 계산되는 VIX·trailing 1y drawdown으로
 //    산출 — 과거 사건의 정확한 날짜를 기억에 의존해 재현하는 위험을 피한다. ──
 export function classifyRegime(record, series, idx) {
@@ -316,8 +324,14 @@ export async function runLongrunBacktest(range, outPath) {
   const subScores = ['composite', 'vol', 'trend', 'macro', 'compositeRel', 'volRel', 'macroRel'];
 
   const overall = {};
+  const nonOverlapping = {};
   for (const h of horizons) {
     overall[h] = Object.fromEntries(subScores.map(s => [s, spearmanWithCI(records.map(r => [r[s], r[h]]))]));
+    const days = Number(h.match(/\d+/)?.[0] || 1);
+    nonOverlapping[h] = {
+      composite: nonOverlappingPhaseCorrelations(records, 'composite', h, days),
+      compositeRel: nonOverlappingPhaseCorrelations(records, 'compositeRel', h, days)
+    };
   }
 
   // walk-forward: 시간순 70/30 분할(reference/holdout) — "train"이 아님, 위 메모 참조.
@@ -367,9 +381,11 @@ export async function runLongrunBacktest(range, outPath) {
       fixedRuleNotFittedModel: 'computeTradingScore weights/thresholds are hand-set constants, not parameters fit to data. "referencePeriod"/"holdoutPeriod" below check temporal stability of a FIXED rule, not generalization of a fitted model — deliberately not called "train/test".',
       regimeClassification: 'Computed from the fetched data itself (trailing VIX level + trailing-252-day drawdown from rolling ATH) — not from hardcoded historical narrative dates, to avoid relying on memorized calendar boundaries.',
       dataSource: 'Yahoo Finance public chart API (query1/query2.finance.yahoo.com/v8/finance/chart), same endpoint pattern already used in production by scripts/fetch-data.mjs fetchHistory().',
+      dependenceControl: 'Pooled daily correlations are descriptive only because T+n returns overlap. nonOverlappingPhaseCorrelations evaluates every start phase at n-session spacing; promotion requires sign stability across all phases plus holdout consistency.',
     },
     dataRange: { from: series[0].date, to: series[series.length - 1].date, tradingDays: series.length, perSymbolFetchCount: fetchCounts },
     overallCorrelations: overall,
+    nonOverlappingPhaseCorrelations: nonOverlapping,
     walkForward,
     regimes,
     ablationNote: 'overallCorrelations above already reports vol/trend/macro sub-scores individually alongside the composite — that IS the ablation (isolates which sub-score, if any, carries signal vs the blended total).',
@@ -377,7 +393,7 @@ export async function runLongrunBacktest(range, outPath) {
       name: 'relative-v1 (A-1, 2026-07-17)',
       hypothesis: 'R298 — absolute thresholds (dxy>107, tnx>4.5, vix bands) fail to track structural regime shifts over 10y; replacing them with trailing rolling percentiles (window ≤2520d, warm-up ≥252d, trailing-only → no look-ahead) may restore a positive score↔forward-return relationship.',
       design: 'Same band structure, same weights, same neutral constants for mom/breadth as baseline. Only the threshold *units* change (absolute level → trailing percentile). Percentile band edges ([0.20,0.40,0.60,0.80,0.95]) are hand-set a priori to preserve the ordinal structure of the original bands — NOT fitted to returns. HYG price-band credit corrections are excluded (live already removed them in P713/P714 as duration-polluted).',
-      passCriterion: 'Statistically significant POSITIVE rho (95% CI excluding 0) for compositeRel vs fwd21d/fwd63d, consistent sign across walk-forward reference/holdout. Anything else → the confirmed policy stands: keep the live score labeled as an environment-descriptive value, no live formula change.',
+      passCriterion: 'Positive rho must remain sign-stable across every non-overlapping T+21/T+63 start phase and consistent across walk-forward reference/holdout. A pooled daily 95% CI alone is ineligible because forward-return windows overlap. Anything else keeps the live score environment-descriptive and blocks formula promotion.',
       warmupExcludedDays: records.filter(r => r.compositeRel == null).length,
     },
     quantileSpread: { fwd5d: quantile5d, fwd21d: quantile21d, rel_fwd21d: quantileRel21d, rel_fwd63d: quantileRel63d },

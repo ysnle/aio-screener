@@ -6,6 +6,7 @@ import { validateKnowledgeAuthoringCorpus, SOURCE_PRESERVED_STATUS, SEMANTIC_REF
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const atlas = read('src/ui/pages/atlas.js');
+const capabilityLoader = read('src/ui/knowledge/capability-loader.js');
 const suppliedMaterials = read('src/domain/research/supplied-materials.js');
 const principles = read('src/ui/pages/principles.js');
 const index = read('index.html');
@@ -48,7 +49,7 @@ const required = [
   ['telegram discovery boundary', atlas.includes('discovery only') && data.telegram.role === 'DISCOVERY'],
   ['player/product reference registry', atlas.includes('PLAYER_PRODUCT_URL') && atlas.includes('createPlayerProductView') && data.playerProductArtifact === 'public-data/atlas/player-product-registry.json' && playerProduct.status === 'ROLE_REFERENCE_ONLY'],
   ['unified source-linked player/product references', atlas.includes('createReferenceSourceLinks') && atlas.includes('createEvidenceRegistry') && atlas.includes('evidenceById') && atlas.includes('atlas-reference-source-link')],
-  ['capability-level artifact loading', atlas.includes('loadKnowledgeCapabilities') && !atlas.includes('Promise.all([')],
+  ['capability-level artifact loading', atlas.includes('createKnowledgeCapabilityBatchLoader') && capabilityLoader.includes('loadKnowledgeCapabilities') && !atlas.includes('Promise.all([')],
   ['no current promotion', atlas.includes('publishedCurrentClaims') || data.publishedCurrentClaims === 0],
   ['domain source packets', atlas.includes('DOMAIN_PACKETS_URL') && atlas.includes('domainPackets') && data.domainSourcePacketArtifact === 'public-data/atlas/domain-source-packets.json'],
   ['domain claim ledger', atlas.includes('DOMAIN_CLAIMS_URL') && atlas.includes('claimLedger') && data.domainClaimLedgerArtifact === 'public-data/atlas/domain-claim-ledger.json'],

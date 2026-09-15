@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v54.89';
+const APP_VERSION = 'v54.97';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -3485,14 +3485,29 @@ if (typeof document !== 'undefined') {
   };
 
   window._aioRegimeNow = function(){
-    var ld = window._liveData || {};
-    var ds = window.DATA_SNAPSHOT || {};
-    var spx = (ld['^GSPC'] && _num(ld['^GSPC'].price)) || _num(ds.spx);
-    var vix = (ld['^VIX'] && _num(ld['^VIX'].price)) || _num(ds.vix);
-    var fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
-    var fg  = fgMetric && fgMetric.value != null ? _num(fgMetric.value) : _num(window._lastFG);
-    if (fg === null && !fgMetric) fg = _num(ds.fg);
-    return { spx: spx, vix: vix, fg: fg };
+    // A numeric row is not a current observation by itself.  Regime/risk
+    // consumers must use the same source + timestamp + decision-use gate as
+    // the trading evidence registry; DATA_SNAPSHOT remains reference-only.
+    var current = function(symbol) {
+      try {
+        var metric = _aioDecisionMetric(symbol, 'price', null);
+        return metric && metric.allowedUse === true
+          && (metric.sourceKind === window.AIO_SOURCE_KIND.LIVE || metric.sourceKind === window.AIO_SOURCE_KIND.DELAYED)
+          ? metric : null;
+      } catch(_) { return null; }
+    };
+    var spxMetric = current('^GSPC');
+    var vixMetric = current('^VIX');
+    var fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function'
+      ? window.AIO.getCanonicalMetric('fg') : null;
+    var fgAllowed = fgMetric && fgMetric.allowedUse === true && fgMetric.value != null;
+    return {
+      spx: spxMetric ? _num(spxMetric.value) : null,
+      vix: vixMetric ? _num(vixMetric.value) : null,
+      fg: fgAllowed ? _num(fgMetric.value) : null,
+      evidence: { spx: spxMetric, vix: vixMetric, fg: fgAllowed ? fgMetric : null },
+      current: !!(spxMetric || vixMetric || fgAllowed)
+    };
   };
 
   function _vixBand(v){ if (v == null) return null; return v < 18 ? 0 : v < 25 ? 1 : v < 32 ? 2 : 3; }
@@ -3850,7 +3865,11 @@ if (typeof document !== 'undefined') {
     opts = opts || {};
     try {
       var items = window._allNewsItems || window.newsCache || [];
-      if (!items.length) return { available: false, sentimentScore: 0, bull: 0, bear: 0, warn: 0, neut: 0, total: 0, eventFlags: {}, dominantTopics: [], freshCount: 0, ts: Date.now() };
+      if (!items.length) return {
+        available: false, allowedUse: false, referenceOnly: true, sentimentScore: 0,
+        bull: 0, bear: 0, warn: 0, neut: 0, total: 0, rejectedCount: 0,
+        eventFlags: {}, dominantTopics: [], freshCount: 0, ts: null, observedAt: null
+      };
       var cap = opts.limit || 150;
       var rows = items.slice(0, cap);
       var now = Date.now();
@@ -3861,15 +3880,60 @@ if (typeof document !== 'undefined') {
       var topicAgg = {};                  // topic → { count, w, bull, bear }
       var eventFlags = { geopolitical: 0, earnings: 0, policy: 0, macro: 0, supply: 0 };
       var freshCount = 0;
+      var rejectedCount = 0;
+      var latestTs = null;
       rows.forEach(function(it){
-        if (!it) return;
+        if (!it) { rejectedCount++; return; }
+        // News can be rendered as reference material without being safe for
+        // market risk.  Only a dated, non-future publication from a named
+        // source (or an explicitly verified primary/official feed) enters the
+        // decision aggregate.  Undated/server-generated rows are reference-only.
+        var pubRaw = it.pubDate != null ? it.pubDate : it.publishedAt != null ? it.publishedAt : it.date != null ? it.date : it.timestamp;
+        var publishedTs = _aioMetricTs(pubRaw);
+        var source = String(it.source || it.publisher || it.feed || it.sourceLabel || '').trim();
+        var link = String(it.link || it.url || '').trim();
+        // A URL, publisher name, `current:true`, or a provider label is only
+        // descriptive metadata.  It cannot manufacture the evidence envelope
+        // required for a risk/action aggregate.  Producers must explicitly
+        // publish use authorization, source tier, rights and a quality/freshness
+        // envelope.  Rows that do not satisfy every field remain display-only
+        // reference news.
+        var declaredUse = it.allowedUse != null ? it.allowedUse
+          : it.decisionUse != null ? it.decisionUse : it.operationalUse;
+        var explicitDecisionUse = _aioExplicitDecisionUse(declaredUse);
+        var quality = it.quality || it.dataQuality || it.qualityEnvelope || it.currentEvidence || null;
+        var qualityReady = _aioDecisionQualityReady(quality);
+        var sourceTierRaw = it.sourceTier != null ? it.sourceTier
+          : it.tier != null ? it.tier : quality && quality.sourceTier;
+        var sourceTierText = String(sourceTierRaw == null ? '' : sourceTierRaw).toLowerCase().replace(/[\s-]+/g, '_');
+        var sourceTierReady = /^(t1_official|t2_licensed|official_regulator|official_government|official_exchange|licensed_api|licensed_quote_provider)$/.test(sourceTierText);
+        var rightsId = String(it.rightsId || (it.rights && it.rights.id) || '').trim();
+        var rights = !!rightsId && !/^(unknown|unspecified|null|none|review_required|denied|blocked|revoked)$/i.test(rightsId);
+        var revisionId = String(it.revisionId || it.revision || '').trim();
+        var allowedUseCeiling = it.allowedUseCeiling != null ? it.allowedUseCeiling
+          : quality && quality.allowedUseCeiling;
+        var explicitCeiling = _aioExplicitDecisionUse(allowedUseCeiling);
+        var qualityFreshnessMs = Number(quality && (quality.freshnessMs || quality.maxAgeMs));
+        var qualityAgeReady = Number.isFinite(qualityFreshnessMs) && qualityFreshnessMs > 0
+          && (!quality.ageMs || (Number(quality.ageMs) >= 0 && Number(quality.ageMs) <= qualityFreshnessMs));
+        var kindText = String(it.sourceKind || it.dataSource || it.provenance || '').toLowerCase().replace(/[\s-]+/g, '_');
+        var sourceKindReady = /^(live|delayed|official_primary|primary_official|t1|t1_official)$/.test(kindText);
+        var verifiedSource = !!source && explicitDecisionUse && explicitCeiling && String(allowedUseCeiling).toLowerCase() === 'decision'
+          && sourceTierReady && rights && !!revisionId && qualityReady && qualityAgeReady && sourceKindReady;
+        var serverTs = _aioMetricTs(it.serverGeneratedAt);
+        if (!publishedTs || !verifiedSource || !Number.isFinite(publishedTs)
+          || publishedTs > now || now - publishedTs > 72 * 60 * 60 * 1000
+          || (it._serverBackstop === true && serverTs != null && serverTs === publishedTs)) {
+          rejectedCount++;
+          return;
+        }
+        var ageH = (now - publishedTs) / 3600000;
+        var w = ageH < 6 ? 1.0 : ageH < 24 ? 0.7 : 0.4;
+        if (latestTs == null || publishedTs > latestTs) latestTs = publishedTs;
         var text = (it.title || '') + ' ' + (it.desc || '');
         var topic = it.topic || (_classify ? _classify(it) : 'general');
         var sent = _sentiment ? _sentiment(text) : (it.sentiment || 'neut');
-        // 신선도 가중: <6h=1.0, <24h=0.7, <72h=0.4, 그 외 0.2 (pubDate 없으면 0.5)
-        var w = 0.5, ageH = null;
-        if (it.pubDate) { var t = new Date(it.pubDate).getTime(); if (isFinite(t)) { ageH = (now - t) / 3600000; w = ageH < 6 ? 1.0 : ageH < 24 ? 0.7 : ageH < 72 ? 0.4 : 0.2; } }
-        if (ageH != null && ageH < 24) freshCount++;
+        if (ageH < 24) freshCount++;
         var sv = sent === 'bull' ? 1 : sent === 'bear' ? -1 : sent === 'warn' ? -0.5 : 0;
         if (sent === 'bull') bull++; else if (sent === 'bear') bear++; else if (sent === 'warn') warn++; else neut++;
         sScore += sv * w; wSum += w;
@@ -3881,7 +3945,7 @@ if (typeof document !== 'undefined') {
         if (topic === 'macro') { eventFlags.macro += w; if (/(fed|fomc|rate|금리|연준|cpi|pce|관세|tariff)/i.test(text)) eventFlags.policy += w; }
         if (topic === 'semi' || topic === 'energy') eventFlags.supply += w;
       });
-      var total = rows.length;
+      var total = bull + bear + warn + neut;
       var sentimentScore = wSum > 0 ? Math.max(-100, Math.min(100, Math.round((sScore / wSum) * 100))) : 0;
       var dominantTopics = Object.keys(topicAgg).filter(function(k){ return k !== 'general' && k !== 'analyst'; })
         .map(function(k){ var t = topicAgg[k]; return { topic: k, count: t.count, weight: Math.round(t.w * 10) / 10, sentiment: t.bull > t.bear ? 'bull' : t.bear > t.bull ? 'bear' : 'mixed' }; })
@@ -3890,14 +3954,20 @@ if (typeof document !== 'undefined') {
       var flags = {};
       Object.keys(eventFlags).forEach(function(k){ flags[k] = eventFlags[k] >= 1.0; });
       return {
-        available: true, sentimentScore: sentimentScore,
+        available: rows.length > 0, allowedUse: total > 0, decisionEligible: total > 0,
+        referenceOnly: total === 0, sentimentScore: sentimentScore,
         bull: bull, bear: bear, warn: warn, neut: neut, total: total,
         bias: sentimentScore > 12 ? 'bullish' : sentimentScore < -12 ? 'bearish' : 'neutral',
         eventFlags: flags, dominantTopics: dominantTopics,
         dominantTopic: dominantTopics.length ? dominantTopics[0].topic : null,
-        freshCount: freshCount, ts: Date.now()
+        freshCount: freshCount, rejectedCount: rejectedCount, referenceCount: rows.length - total,
+        ts: latestTs, observedAt: latestTs != null ? new Date(latestTs).toISOString() : null
       };
-    } catch(e) { return { available: false, sentimentScore: 0, bias: 'neutral', eventFlags: {}, dominantTopics: [], total: 0, ts: Date.now(), error: e && e.message }; }
+    } catch(e) {
+      return { available: false, allowedUse: false, decisionEligible: false, referenceOnly: true, sentimentScore: 0,
+        bias: 'neutral', eventFlags: {}, dominantTopics: [], total: 0,
+        rejectedCount: 0, referenceCount: 0, ts: null, observedAt: null, error: e && e.message };
+    }
   };
 
   // ════════════════════════════════════════════════════════════════
@@ -3922,6 +3992,10 @@ if (typeof document !== 'undefined') {
       var vb = _vixBand(vix), fz = _fgZone(fg);
       // v50.45 [자율 루프] 뉴스 신호 흡수 — risk/dominantTopic/action을 뉴스 인지로.
       var newsSignal = (typeof window._aioComputeNewsSignal === 'function') ? window._aioComputeNewsSignal() : null;
+      // News may remain visible as reference material, but it can affect
+      // risk/action only when its own publication/source gate is satisfied.
+      var newsDecisionSignal = newsSignal && newsSignal.available === true && newsSignal.allowedUse === true
+        ? newsSignal : null;
       var breadthEvidence = typeof A.getCurrentBreadthEvidence === 'function' ? A.getCurrentBreadthEvidence() : { available:false };
       var bSma5 = breadthEvidence.available ? breadthEvidence.sma5 : null;
       var bSma20 = breadthEvidence.available ? breadthEvidence.sma20 : null;
@@ -3948,37 +4022,30 @@ if (typeof document !== 'undefined') {
       var breadthNum = breadth ? breadth.consensus : null;
       var curveEvidence = typeof A.getUsTreasuryCurveEvidence === 'function' ? A.getUsTreasuryCurveEvidence() : null;
       var spread = curveEvidence && curveEvidence.available ? curveEvidence.spread2s10s : null;
-      var spxTrend = (ld['^GSPC'] && ld['^GSPC'].pct != null) ? (ld['^GSPC'].pct >= 0 ? 'up' : 'down') : null;
+      var spxPctMetric = (typeof _aioDecisionMetric === 'function') ? _aioDecisionMetric('^GSPC', 'pct', null) : null;
+      var spxTrend = spxPctMetric && spxPctMetric.allowedUse === true && _aioStrictFinite(spxPctMetric.value) != null
+        ? (spxPctMetric.value >= 0 ? 'up' : 'down') : null;
       var cycle = (typeof A.getCycleFromMacro === 'function') ? A.getCycleFromMacro({ vix: vix, breadth50: bSma50, yield2s10s: spread, spxTrend: spxTrend }) : null;
       // v50.45: getActionPlan에 newsSignal 전달 — bear 우위 시 보수 tilt(1C에서 사용, 폴백 무회귀).
-      var action = (window.AIO_ACTION_RULES && typeof window.AIO_ACTION_RULES.getActionPlan === 'function') ? window.AIO_ACTION_RULES.getActionPlan({ vix: vix, fg: fg, breadth50: bSma50, newsSignal: newsSignal }) : null;
+      var action = (window.AIO_ACTION_RULES && typeof window.AIO_ACTION_RULES.getActionPlan === 'function') ? window.AIO_ACTION_RULES.getActionPlan({ vix: vix, fg: fg, breadth50: bSma50, newsSignal: newsDecisionSignal }) : null;
       // v50.46 [알고리즘 재작성] 종합 리스크 — 비선형 가정 → 정규화 합성(0~100). 각 성분 0(저위험)~1(고위험) 가중합.
       //   F&G는 U자(양극단=froth/panic 모두 고위험) — 이전 "극단공포만 고위험" 비대칭 가정 시정. 뉴스 성분 포함(v50.45 고리).
       var rParts = [], rW = [];
       if (vb != null) { rParts.push(vb / 3); rW.push(0.35); }                              // VIX 밴드 0~3 → 0~1
       if (fg != null) { rParts.push(Math.min(1, Math.abs(fg - 50) / 45)); rW.push(0.20); } // |F&G-50| U자(양극단 고위험)
       if (breadthNum != null) { rParts.push(Math.min(1, Math.max(0, (0.2 - breadthNum) / 1.2))); rW.push(0.25); } // 약세 합의→고위험
-      if (newsSignal && newsSignal.available) {
-        var nrisk = Math.min(1, Math.max(0, (-newsSignal.sentimentScore + 40) / 140));     // bear 감성→고위험
-        if (newsSignal.eventFlags && newsSignal.eventFlags.geopolitical) nrisk = Math.min(1, nrisk + 0.2);
+      if (newsDecisionSignal) {
+        var nrisk = Math.min(1, Math.max(0, (-newsDecisionSignal.sentimentScore + 40) / 140));     // bear 감성→고위험
+        if (newsDecisionSignal.eventFlags && newsDecisionSignal.eventFlags.geopolitical) nrisk = Math.min(1, nrisk + 0.2);
         rParts.push(nrisk); rW.push(0.20);
       }
       var rWsum = rW.reduce(function(a, b){ return a + b; }, 0);
       var riskScore = rWsum ? Math.round(rParts.reduce(function(a, p, i){ return a + p * rW[i]; }, 0) / rWsum * 100) : null;
       var riskLevel = riskScore == null ? 'unknown' : riskScore >= 70 ? 'high' : riskScore >= 45 ? 'elevated' : riskScore >= 25 ? 'moderate' : 'low';
-      // 주도 뉴스 토픽: v50.45 newsSignal(신선도 가중) 우선, 폴백으로 단순 빈도.
-      var dominantTopic = (newsSignal && newsSignal.dominantTopic) ? newsSignal.dominantTopic : null;
-      if (!dominantTopic) {
-        try {
-          var items = window._allNewsItems || window.newsCache || [];
-          if (items.length) {
-            var counts = {};
-            items.slice(0, 120).forEach(function(it){ var t = it && it.topic; if (!t || t === 'general' || t === 'analyst') return; counts[t] = (counts[t] || 0) + 1; });
-            var best = null, bn = 0; Object.keys(counts).forEach(function(k){ if (counts[k] > bn) { bn = counts[k]; best = k; } });
-            dominantTopic = best;
-          }
-        } catch(_){}
-      }
+      // 주도 뉴스 토픽은 신선도·출처·날짜 게이트를 통과한 행에서만
+      // 계산한다. 원시 배열 빈도 폴백은 오래된/무기한 뉴스가 현재 시장
+      // 상태를 승격시키므로 사용하지 않는다.
+      var dominantTopic = (newsDecisionSignal && newsDecisionSignal.dominantTopic) ? newsDecisionSignal.dominantTopic : null;
       var state = {
         spx: spx, vix: vix, fg: fg,
         vixBand: vb, vixBandLabel: _vixBandLabel(vb), fgZone: fz, fgZoneLabel: _fgZoneLabel(fz),
@@ -3991,6 +4058,7 @@ if (typeof document !== 'undefined') {
         riskScore: riskScore,            // v50.46 정규화 리스크 0~100
         dominantTopic: dominantTopic,
         newsSignal: newsSignal,          // v50.45 자율 루프 — 뉴스 감성/이벤트 신호(텍스트 합성·audit가 읽음)
+        newsDecisionSignal: newsDecisionSignal,
         actionPlan: action,
         driftFromSnapshot: (typeof window._aioRegimeDrift === 'function') ? window._aioRegimeDrift().severity : null,
         ts: Date.now()
@@ -4920,19 +4988,137 @@ function _aioTruncateAtWord(str, maxLen) {
   return str.slice(0, maxLen).replace(/\s+\S*$/, '') + '…';
 }
 
+// Shared strict parser for financial observations. Number('') and Number(false)
+// are coercions, not observations: a blank/boolean must never become a valid 0.
+// Numeric zero remains valid and is intentionally preserved.
+function _aioStrictFinite(value) {
+  if (value == null || typeof value === 'boolean') return null;
+  if (typeof value !== 'number' && typeof value !== 'string') return null;
+  if (typeof value === 'string' && value.trim() === '') return null;
+  var number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function _aioDecisionSourceKind(sourceKind) {
+  var text = String(sourceKind == null ? '' : sourceKind).toLowerCase().replace(/[\s-]+/g, '_');
+  if (/snapshot|static|seed|fallback/.test(text)) return window.AIO_SOURCE_KIND.SNAPSHOT;
+  if (/reference|manual|estimate|educational|archive|history/.test(text)) return window.AIO_SOURCE_KIND.REFERENCE;
+  if (/delay|daily|close/.test(text)) return window.AIO_SOURCE_KIND.DELAYED;
+  if (/live|realtime|real_time|yahoo|cboe|naver|proxy/.test(text)) return window.AIO_SOURCE_KIND.LIVE;
+  return window.AIO_SOURCE_KIND.UNAVAILABLE;
+}
+
+// A source name, URL, or a successful fetch is not a decision grant.  The
+// producer must explicitly authorize decision/trading use and the observation
+// must still pass the evaluated freshness/quality gate.  Keep this parser
+// intentionally narrow: descriptive/negative strings fail closed.
+function _aioExplicitDecisionUse(value) {
+  if (value === true) return true;
+  return typeof value === 'string' && /^(decision|trading)$/i.test(value.trim());
+}
+
+function _aioDecisionQualityReady(quality) {
+  if (!quality || typeof quality !== 'object') return false;
+  var freshness = String(quality.freshness || '').toLowerCase();
+  var status = String(quality.status || '').toLowerCase();
+  var timestampValid = quality.timestampValid === true
+    || (quality.ts != null && Number.isFinite(_aioMetricTs(quality.ts)));
+  var ageMs = quality.ageMs != null ? Number(quality.ageMs) : null;
+  var ageReady = ageMs == null || (Number.isFinite(ageMs) && ageMs >= 0);
+  var qualityUse = quality.allowedUse != null ? quality.allowedUse : quality.decisionUse;
+  var explicitlyBlocked = qualityUse === false || /^(none|blocked|reference|reference-only)$/i.test(String(qualityUse || ''));
+  var freshnessReady = /^(live|delayed|fresh|current|ok)$/i.test(freshness)
+    || status === 'ok' || status === 'current' || status === 'verified_current';
+  return timestampValid && ageReady && freshnessReady
+    && quality.stale !== true && quality.hardStale !== true && !explicitlyBlocked
+    && !/^(blocked|missing|unavailable|reference|reference_only|failed)$/i.test(status);
+}
+
+function _aioCanonicalDecisionEnvelopeReady(envelope, now, maxAgeMs) {
+  if (!envelope || typeof envelope !== 'object') return false;
+  var declaredUse = envelope.allowedUse != null ? envelope.allowedUse : envelope.decisionUse;
+  var ceiling = envelope.allowedUseCeiling;
+  var sourceTier = String(envelope.sourceTier || '').trim().toUpperCase();
+  var sourceTierEligible = sourceTier === 'T1_OFFICIAL' || sourceTier === 'T2_LICENSED';
+  var rightsId = String(envelope.rightsId || '').trim();
+  var rightsEligible = !!rightsId && !/^(UNKNOWN|UNSPECIFIED|NULL|NONE|REVIEW_REQUIRED|DENIED|BLOCKED|REVOKED)$/i.test(rightsId);
+  var revisionId = String(envelope.revisionId || envelope.revision || '').trim();
+  var observedAt = envelope.observedAt != null ? envelope.observedAt : envelope.asOf;
+  var observedTs = _aioMetricTs(observedAt);
+  var ageMs = observedTs != null ? Number(now) - observedTs : null;
+  var quality = envelope.quality || envelope.qualityEnvelope || null;
+  var freshnessMs = Number(envelope.freshnessMs != null ? envelope.freshnessMs : quality && (quality.freshnessMs || quality.maxAgeMs));
+  var qualityReady = _aioDecisionQualityReady(quality);
+  return _aioExplicitDecisionUse(declaredUse)
+    && _aioExplicitDecisionUse(ceiling)
+    && String(ceiling).toLowerCase() === 'decision'
+    && sourceTierEligible && rightsEligible && !!revisionId
+    && observedTs != null && Number.isFinite(ageMs) && ageMs >= 0
+    && Number.isFinite(freshnessMs) && freshnessMs > 0 && ageMs <= Math.min(Number(maxAgeMs), freshnessMs)
+    && qualityReady;
+}
+
+function _aioDecisionMetricEnvelope(rawValue, sourceKind, source, tsRaw, quality, explicitAllowed) {
+  var value = _aioStrictFinite(rawValue);
+  var declaredKind = _aioDecisionSourceKind(sourceKind || source);
+  var ts = typeof _aioMetricTs === 'function' ? _aioMetricTs(tsRaw) : null;
+  var timestampValid = ts != null && Number.isFinite(ts);
+  var ageMs = timestampValid ? Date.now() - ts : null;
+  var evaluated = typeof evaluateMetric === 'function'
+    ? evaluateMetric(Object.assign({}, quality && typeof quality === 'object' ? quality : {}, {
+        value: value, source: source || 'unknown', ts: tsRaw,
+        policyKey: quality && quality.policyKey || 'quote'
+      }))
+    : (quality && typeof quality === 'object' ? quality : null);
+  var freshness = evaluated && evaluated.freshness || null;
+  var freshnessAllowed = /^(live|delayed)$/i.test(String(freshness || ''));
+  var qualityBlocked = !_aioDecisionQualityReady(evaluated) || !freshnessAllowed
+    || evaluated.allowedUse === false || /^(reference|reference-only|none|blocked)$/i.test(String(evaluated.allowedUse || ''))
+    || /^(reference_only|blocked|missing|unavailable)$/i.test(String(evaluated.status || ''));
+  // A source label and a recent timestamp are necessary but not sufficient.
+  // The producer must explicitly grant decision/trading use for this row.
+  var explicitDecisionUse = _aioExplicitDecisionUse(explicitAllowed);
+  var operationalSource = declaredKind === window.AIO_SOURCE_KIND.LIVE || declaredKind === window.AIO_SOURCE_KIND.DELAYED;
+  var allowedUse = value != null && operationalSource && timestampValid && ageMs >= 0 && !qualityBlocked && explicitDecisionUse;
+  var effectiveKind = declaredKind;
+  if (operationalSource && !allowedUse) {
+    effectiveKind = !timestampValid || ageMs < 0 ? window.AIO_SOURCE_KIND.UNAVAILABLE : window.AIO_SOURCE_KIND.DELAYED;
+  }
+  return {
+    value: value,
+    sourceKind: value == null ? window.AIO_SOURCE_KIND.UNAVAILABLE : effectiveKind,
+    source: source || 'unavailable',
+    ts: timestampValid ? ts : null,
+    ageMs: ageMs,
+    timestampValid: timestampValid,
+    freshness: freshness || (timestampValid && ageMs >= 0 ? 'delayed' : 'fallback'),
+    quality: evaluated || null,
+    allowedUse: allowedUse,
+    status: allowedUse ? (effectiveKind === window.AIO_SOURCE_KIND.LIVE ? 'current' : 'delayed')
+      : (declaredKind === window.AIO_SOURCE_KIND.SNAPSHOT || declaredKind === window.AIO_SOURCE_KIND.REFERENCE ? 'reference' : 'unavailable')
+  };
+}
+
 function _aioDecisionMetric(sym, field, snapKey) {
   field = field || 'price';
   var ld = window._liveData || {};
   var row = ld[sym];
-  if (row && row[field] != null && isFinite(Number(row[field]))) {
-    return { value: Number(row[field]), sourceKind: window.AIO_SOURCE_KIND.LIVE, source: row.source || 'live', ts: row.ts || row.time || Date.now() };
+  if (row) {
+    var liveValue = _aioStrictFinite(row[field]);
+    if (liveValue != null) {
+      var liveTs = row.ts != null ? row.ts : row.time != null ? row.time : row.updatedAt != null ? row.updatedAt : row.lastUpdated;
+      var liveQuality = row.quality || row.metric || row.dataQuality || null;
+      var liveAllowed = row.allowedUse != null ? row.allowedUse : row.decisionUse;
+      return _aioDecisionMetricEnvelope(liveValue, row.sourceKind || row.source || row.provider || 'unknown', row.source || row.provider || 'liveData', liveTs, liveQuality, liveAllowed);
+    }
   }
   var snap = window.DATA_SNAPSHOT || {};
   var raw = snapKey ? snap[snapKey] : null;
-  if (raw != null && isFinite(Number(raw))) {
-    return { value: Number(raw), sourceKind: window.AIO_SOURCE_KIND.SNAPSHOT, source: 'DATA_SNAPSHOT', ts: snap._updated || snap._snapshotDate || null };
+  if (_aioStrictFinite(raw) != null) {
+    var snapshotTs = snap._updated != null ? snap._updated : snap._snapshotDate;
+    return _aioDecisionMetricEnvelope(raw, window.AIO_SOURCE_KIND.SNAPSHOT, 'DATA_SNAPSHOT', snapshotTs, null, false);
   }
-  return { value: null, sourceKind: window.AIO_SOURCE_KIND.UNAVAILABLE, source: 'unavailable', ts: null };
+  return _aioDecisionMetricEnvelope(null, window.AIO_SOURCE_KIND.UNAVAILABLE, 'unavailable', null, null, false);
 }
 
 function _aioMergeSourceKind(a, b) {
@@ -5075,19 +5261,30 @@ function _aioDefaultDecision(pageId) {
   var wti = _aioDecisionMetric('CL=F', 'price', 'wti');
   var sourceKind = _aioMergeSourceKind(_aioMergeSourceKind(vix.sourceKind, spx.sourceKind), _aioMergeSourceKind(tnx.sourceKind, wti.sourceKind));
   var vixTxt = vix.value != null ? 'VIX ' + _aioDecisionNum(vix.value, 1) : 'VIX 미수신';
-  var spxPct = snap.spxPct != null ? 'S&P ' + (Number(snap.spxPct) >= 0 ? '+' : '') + _aioDecisionNum(snap.spxPct, 2) + '%' : '지수 방향 확인';
+  var _spxPctValue = _aioStrictFinite(snap.spxPct);
+  var spxPct = _spxPctValue != null ? 'S&P ' + (_spxPctValue >= 0 ? '+' : '') + _aioDecisionNum(_spxPctValue, 2) + '%' : '지수 방향 확인';
   var tnxTxt = tnx.value != null ? '10Y ' + _aioDecisionNum(tnx.value, 2) + '%' : '10Y 미수신';
   var wtiTxt = wti.value != null ? 'WTI $' + _aioDecisionNum(wti.value, 1) : '유가 미수신';
 
   // 기존 refreshHomeDashboard 5밴드와 동일 기준으로 라이브 스코어 읽기
-  var _sc = 50;
+  var _sc = null;
   var _scoreCaveat = '';
-  var _scoreBlocked = false;
+  var _scoreBlocked = true;
+  var _scorePredictiveValidation = 'not-established';
   var _scoreEvidenceBundle = null;
   try {
     if (typeof computeTradingScore === 'function') {
       var _scResult = computeTradingScore(_scoreMode);
-      _sc = _scResult.total;
+      var _scoreTotal = _scResult && _aioStrictFinite(_scResult.total);
+      _sc = _scoreTotal;
+      _scorePredictiveValidation = _scResult.predictiveValidation || 'not-established';
+      // total=null and decisionBlocked are the score model's single source of truth.
+      // A missing score is not a low score and must never enter a risk band.
+      _scoreBlocked = !_scResult || _scResult.decisionBlocked === true || _scoreTotal == null
+        || _scResult.decisionEligible !== true || _scorePredictiveValidation !== 'established';
+      if (_scorePredictiveValidation !== 'established') {
+        _scoreCaveat = '점수는 현재 시장환경 관찰용입니다. 예측 검증이 확립되지 않아 행동 결론으로 승격하지 않습니다.';
+      }
       _scoreEvidenceBundle = _scResult.provenanceBundle || null;
       // v52.49/WO-6: 화면(sourceKind/confidence)과 score가 같은 provenance를 소비하도록 —
       // computeTradingScore() 내부 13개 입력 중 trading-use 결측/스테일 개수로 별도 sourceKind를
@@ -5096,7 +5293,7 @@ function _aioDefaultDecision(pageId) {
       // 반대 방향 오탐(신선한데 스테일로 표시)을 피한다.
       var _audit = _scResult.evidenceAudit;
       var _missing = (_audit && Array.isArray(_audit.criticalMissing)) ? _audit.criticalMissing : [];
-       _scoreBlocked = _missing.length >= 3;
+       _scoreBlocked = _scoreBlocked || _missing.length >= 3;
       var _scoreEvidenceKind = _missing.length >= 3 ? 'SNAPSHOT' : (_missing.length >= 1 ? 'DELAYED' : 'LIVE');
       sourceKind = _aioMergeSourceKind(sourceKind, _scoreEvidenceKind);
       if (_missing.length) {
@@ -5105,9 +5302,14 @@ function _aioDefaultDecision(pageId) {
           + (_missing.length > 4 ? ' 외 ' + (_missing.length - 4) + '개' : '');
       }
     }
-    else if (window._tradingScore != null) { _sc = window._tradingScore; }
-  } catch(_) { _sc = window._tradingScore != null ? window._tradingScore : 50; }
-  var _band = _sc >= 75 ? { label:'환경 우호', action:'현재 시장 환경 요약입니다. 종목별 근거·거래량·손익비·무효화 가격을 별도로 확인.' }
+    else if (_aioStrictFinite(window._tradingScore) != null) { _sc = _aioStrictFinite(window._tradingScore); _scoreBlocked = false; }
+  } catch(_) { _sc = null; _scoreBlocked = true; }
+  // A numeric legacy fallback never carries a predictive-validation grant.
+  // Keep it descriptive/reference-only even when the old scalar exists.
+  if (_scorePredictiveValidation !== 'established') _scoreBlocked = true;
+  var _scoreText = _sc == null ? '산출 보류' : Math.round(_sc) + '/100';
+  var _band = _scoreBlocked || _sc == null ? { label:'시장환경 관찰', action:'현재 입력 조합을 참고용으로만 관찰합니다. 예측 검증 미확립으로 매매·비중 결론을 생성하지 않습니다.' }
+    : _sc >= 75 ? { label:'환경 우호', action:'현재 시장 환경 요약입니다. 종목별 근거·거래량·손익비·무효화 가격을 별도로 확인.' }
     : _sc >= 60 ? { label:'환경 양호', action:'점수 단독 진입 금지. 종목 품질과 이벤트 리스크를 추가 확인.' }
     : _sc >= 45 ? { label:'중립 · 관망', action:'신규 진입 자제. 기존 포지션 방어선과 손절을 먼저 확인.' }
     : _sc >= 30 ? { label:'주의 · 축소', action:'리스크 자산 비중 축소. 현금 비율 높이고 헤지 검토.' }
@@ -5126,26 +5328,26 @@ function _aioDefaultDecision(pageId) {
     : _iranReg.eventDate ? (_iranReg.label || '이란/유가') + ' 과거 참고(' + (_iranState.ageDays != null ? _iranState.ageDays + '일 경과' : '경과일 미상') + ') · WTI와 최신 헤드라인 재확인 필요' : '이란/호르무즈 리스크 모니터: ' + wtiTxt + '와 헤드라인 재반전 확인';
 
   var commonReasons = [
-    spxPct + ' · ' + vixTxt + ' · 스코어 ' + Math.round(_sc) + '/100 (' + _band.label + ')',
+    spxPct + ' · ' + vixTxt + ' · 스코어 ' + _scoreText + ' (' + _band.label + ')',
     _fomcReason,
     _iranReason
   ];
   var map = {
     home: {
       title: '오늘 결론',
-      decision: _band.label + ' (스코어 ' + Math.round(_sc) + '/100)',
+      decision: _band.label + ' (스코어 ' + _scoreText + ')',
       reasons: commonReasons,
       action: _band.action + ' 신규 진입은 ATR 손절선과 이벤트 리스크를 먼저 정한다.'
     },
     signal: {
       title: '신규 매수 가능 여부',
-      decision: _sc >= 75 ? '매수 우호 · 분할 진입 검토' : _sc >= 60 ? '선별 진입 가능' : _sc >= 45 ? '신규 진입 보류' : '진입 금지 · 방어',
+      decision: _sc == null ? '판단 보류 · 핵심 입력 부족' : _sc >= 75 ? '매수 우호 · 분할 진입 검토' : _sc >= 60 ? '선별 진입 가능' : _sc >= 45 ? '신규 진입 보류' : '진입 금지 · 방어',
       reasons: [
-        '스코어 ' + Math.round(_sc) + '/100 → ' + _band.label,
+        '스코어 ' + _scoreText + ' → ' + _band.label,
         'Lockout/OPEX 같은 고급 조건보다 손절·헤지가 먼저',
         _fomcReason
       ],
-      action: _sc >= 60
+      action: _sc != null && _sc >= 60
         ? '분할 매수, 손절선 타이트, VIX 20 상향 돌파 시 신규 매수 중단.'
         : '신규 매수 자제. 스코어 60+ 복귀와 VIX 안정 확인 후 재진입.'
     },
@@ -5157,8 +5359,8 @@ function _aioDefaultDecision(pageId) {
     },
     sentiment: {
       title: '심리 결론',
-      decision: _sc >= 60 ? '공포 완화 · 과열 아님' : _sc >= 45 ? '혼합 심리 · 관망' : '공포 심화 · 방어',
-      reasons: ['F&G ' + (snap.fg || '미수신') + ' · ' + vixTxt, 'AAII/PutCall은 보조 확인 지표로만 사용', 'SNAPSHOT 값은 신뢰도 감점 후 결론에 반영'],
+      decision: _sc == null ? '판단 보류 · 심리 입력 부족' : _sc >= 60 ? '공포 완화 · 과열 아님' : _sc >= 45 ? '혼합 심리 · 관망' : '공포 심화 · 방어',
+      reasons: ['F&G ' + (_aioStrictFinite(snap.fg) != null ? _aioStrictFinite(snap.fg) : '미수신') + ' · ' + vixTxt, 'AAII/PutCall은 보조 확인 지표로만 사용', 'SNAPSHOT 값은 신뢰도 감점 후 결론에 반영'],
       action: '공포 구간은 분할, 과열 구간은 추격 금지. 심리만으로 매수/매도하지 않는다.'
     },
     briefing: {
@@ -5176,7 +5378,7 @@ function _aioDefaultDecision(pageId) {
     technical: {
       title: '차트 판단',
       decision: '종목 입력 후 레벨·진입·무효화부터 확인',
-      reasons: ['차트/보조지표/거래량은 종목별 수집 성공 여부가 핵심', '셋업 교육은 상세 영역으로 분리', '시장 ' + vixTxt + ' · 스코어 ' + Math.round(_sc) + '/100 환경을 차트 판단에 함께 반영'],
+      reasons: ['차트/보조지표/거래량은 종목별 수집 성공 여부가 핵심', '셋업 교육은 상세 영역으로 분리', '시장 ' + vixTxt + ' · 스코어 ' + _scoreText + ' 환경을 차트 판단에 함께 반영'],
       action: '티커를 입력하고 진입가, 무효화 가격, 손절, 기간을 한 번에 확인한다.'
     },
     screener: {
@@ -5252,12 +5454,15 @@ function _aioDefaultDecision(pageId) {
   }
   // H3-C: quorum 미달이면 수치 밴드가 있어도 현재 행동 결론을 생성하지 않는다.
   if (_scoreBlocked && map[pageId]) {
-    map[pageId].decision = '판단 보류 · 핵심 입력 부족 (스코어 ' + Math.round(_sc) + '/100)';
-    map[pageId].action = '핵심 시장 데이터가 부족하거나 오래되었습니다. 입력을 새로고침한 뒤 진입·축소·헤지 결론을 다시 확인하세요.';
+    map[pageId].decision = _sc == null
+      ? '판단 보류 · 필수 입력 미수신 (스코어 ' + _scoreText + ')'
+      : '시장환경 관찰 · 예측 검증 미확립 (스코어 ' + _scoreText + ')';
+    map[pageId].action = '시장환경 상태만 확인합니다. 예측 검증과 종목별 근거가 확립되기 전에는 매매·비중 결론을 생성하지 않습니다.';
+    map[pageId].reasons = [_sc == null ? '핵심 시장 데이터가 부족하거나 오래되어 스코어를 산출하지 않았습니다.' : '점수는 설명형 시장환경 지표이며 예측 검증이 확립되지 않았습니다.', _scoreCaveat || '현재성·품질·허용 사용 여부를 확인할 수 없습니다.'];
   }
   if (_tickerGateBlocked && map[pageId]) {
     map[pageId].decision = '판단 보류 · 티커 근거 부족';
-    map[pageId].action = '현재 티커의 시세·시장 건강도 근거가 확보되기 전에는 WATCH/진입 행동을 생성하지 않습니다.';
+    map[pageId].action = '현재 티커의 시세·시장 건강도 근거가 확보되기 전에는 매매·비중 결론을 생성하지 않습니다.';
     map[pageId].caveat = '필수 티커 근거 미수신: ' + _tickerGateMissing.join(', ');
   }
   var d = map[pageId] || {
@@ -5268,6 +5473,8 @@ function _aioDefaultDecision(pageId) {
   };
   d.pageId = pageId;
   d.decisionBlocked = _scoreBlocked || _tickerGateBlocked;
+  d.decisionEligible = !_scoreBlocked && !_tickerGateBlocked && _scorePredictiveValidation === 'established';
+  d.predictiveValidation = _scorePredictiveValidation;
   d.sourceKind = d.sourceKind || sourceKind || 'SNAPSHOT';
   d.asOf = _aioDecisionAsOf(d.sourceKind);
   d.confidence = _aioDecisionConfidence(d.sourceKind, pageId.indexOf('kr-') === 0 ? 70 : 84);
@@ -5295,7 +5502,7 @@ window._aioBuildPageDecision = function(pageId) {
     }
   }
   if (d.decisionBlocked) {
-    d.action = '핵심 시장 데이터가 부족하거나 오래되었습니다. 입력을 새로고침한 뒤 진입·축소·헤지 결론을 다시 확인하세요.';
+    d.action = '시장환경 상태만 확인합니다. 필수 현재성·예측 검증 근거가 확립되기 전에는 매매·비중 결론을 생성하지 않습니다.';
   }
   while (d.reasons.length < 3) d.reasons.push('추가 데이터 확인 필요');
   d.reasons = d.reasons.slice(0, 3);
@@ -5305,6 +5512,16 @@ window._aioBuildPageDecision = function(pageId) {
     d.sourceKind = evidence.sourceKind || d.sourceKind;
     d.asOf = evidence.asOf || d.asOf;
     d.confidence = evidence.confidence || d.confidence;
+    var evidenceBlocked = evidence.sourceKind === 'UNAVAILABLE'
+      || (Array.isArray(evidence.blockers) && evidence.blockers.length > 0)
+      || evidence.marketEpoch?.status === 'BLOCKED';
+    if (evidenceBlocked) {
+      d.decisionBlocked = true;
+      d.decision = '판단 보류 · 필수 현재성 근거 미수신';
+      d.action = '필수 현재성 근거가 확인되기 전에는 시장환경 관찰만 표시하고 매매·비중 결론을 생성하지 않습니다.';
+      d.reasons.unshift('현재성·필수 입력이 확인되지 않아 행동 결론을 보류합니다.');
+      d.reasons = d.reasons.slice(0, 3);
+    }
     // v52.49/WO-6: 페이지 계약의 정적 caveat와 score의 동적 결측 caveat는 서로 다른 정보이므로
     // 덮어쓰지 않고 병기한다(정적 caveat만 있으면 그대로, 동적 caveat만 있으면 그대로, 둘 다 있으면 결합).
     d.caveat = (evidence.caveat && d.caveat && evidence.caveat !== d.caveat)
@@ -5333,6 +5550,8 @@ window._aioBuildPageDecision = function(pageId) {
     sourceKind: d.sourceKind || 'SNAPSHOT',
     caveat: d.caveat || '',
     decisionBlocked: !!d.decisionBlocked,
+    decisionEligible: d.decisionEligible === true,
+    predictiveValidation: d.predictiveValidation || 'not-established',
     evidenceId: d.evidenceId || '',
     provenance: d.provenance || null,
     provenanceBundle: d.provenanceBundle || null,
@@ -6477,7 +6696,11 @@ window.AIO.evaluateAIActionPermission = function(options) {
     var kind = String(row && row.sourceKind || '').toUpperCase();
     var truth = String(row && row.truthStatus || '').toLowerCase();
     var allowedUse = String(row && row.allowedUse || '').toLowerCase();
-    return (kind === 'LIVE' || (!kind && row && row.hasLivePrice === true)) && row.hasLivePrice !== false && (!allowedUse || allowedUse === 'decision') && !/stale|missing|blocked|mismatch|invalid/.test(truth);
+    var observedTs = _aioMetricTs(row && (row.observedAt != null ? row.observedAt : row.ts));
+    var qualityReady = !!(row && row.quality && _aioDecisionQualityReady(row.quality));
+    return (kind === 'LIVE' || kind === 'DELAYED') && row.hasLivePrice !== false
+      && allowedUse === 'decision' && observedTs != null && qualityReady
+      && !/stale|missing|blocked|mismatch|invalid/.test(truth);
   });
   var stale = rows.some(function(row) { return /stale|missing|blocked|mismatch|invalid/i.test(String(row && (row.truthStatus || row.status || '')).toLowerCase()) || row && row.hasLivePrice === false; });
   var suitability = options.suitabilityProfile || null;
@@ -13300,6 +13523,54 @@ window.AIO_MACRO_OFFICIAL_SCHEDULES = {
   'kr-bok': ['2026-07-16', '2026-08-27', '2026-10-22', '2026-11-26']
 };
 
+// The schedule arrays above are an official-calendar artifact, not a promise
+// that the last committed date is still current.  A release date is allowed to
+// reach the visible calendar only when the artifact contains a valid date on or
+// after today's UTC date.  Once an artifact has expired, keep the historical
+// lastRelease for context but expose nextRelease=null and an explicit
+// unavailable state until the producer publishes a refreshed official artifact.
+function _aioMacroIsoDate(value) {
+  var text = String(value == null ? '' : value).trim().slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) return null;
+  var parsed = Date.parse(text + 'T00:00:00Z');
+  return Number.isFinite(parsed) ? text : null;
+}
+function _aioMacroTodayIso(now) {
+  var ts = now == null ? Date.now() : (now instanceof Date ? now.getTime() : Number(now));
+  if (!Number.isFinite(ts)) ts = Date.now();
+  var d = new Date(ts);
+  return d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0') + '-' + String(d.getUTCDate()).padStart(2, '0');
+}
+window.AIO.refreshMacroCalendarFromOfficialSchedule = function(now) {
+  var registry = window.AIO_MACRO_CALENDAR && window.AIO_MACRO_CALENDAR.releases;
+  var artifact = window.AIO_MACRO_OFFICIAL_SCHEDULES || {};
+  var today = _aioMacroTodayIso(now);
+  var updated = [];
+  if (!registry) return { status: 'unavailable', today: today, updated: updated };
+  Object.keys(registry).forEach(function(key) {
+    var entry = registry[key] || {};
+    var dates = Array.isArray(artifact[key]) ? artifact[key].map(_aioMacroIsoDate).filter(Boolean).sort() : [];
+    var last = dates.filter(function(date) { return date < today; }).pop() || _aioMacroIsoDate(entry.lastRelease);
+    var next = dates.find(function(date) { return date >= today; }) || null;
+    entry.lastRelease = last || null;
+    entry.nextRelease = next;
+    entry.scheduleArtifact = dates.length ? 'AIO_MACRO_OFFICIAL_SCHEDULES' : null;
+    entry.scheduleState = next ? 'official-current' : 'unavailable-expired';
+    entry.scheduleAsOf = dates.length ? dates[dates.length - 1] : null;
+    updated.push({ key: key, nextRelease: next, state: entry.scheduleState });
+  });
+  return {
+    status: updated.some(function(item) { return item.state === 'unavailable-expired'; }) ? 'stale' : 'ok',
+    today: today,
+    artifact: 'AIO_MACRO_OFFICIAL_SCHEDULES',
+    updated: updated
+  };
+};
+// Resolve once at boot and again only when an official artifact refresh calls
+// the public helper.  No mechanical month advance or Date.now-as-release-date
+// fallback is permitted.
+window.AIO.refreshMacroCalendarFromOfficialSchedule();
+
 window.AIO.renderMacroNextRelease = function() {
   var el = document.getElementById('macro-next-release');
   var releases = window.AIO_MACRO_CALENDAR && window.AIO_MACRO_CALENDAR.releases;
@@ -13336,9 +13607,13 @@ window.AIO.getMacroReleaseStaleAudit = function() {
   var reg = window.AIO_MACRO_CALENDAR;
   if (!reg) return { status: 'error', staleReleaseCount: 0, issues: ['MACRO_CALENDAR undefined'] };
   var now = Date.now();
-  var stale = [];
+  var stale = [], unavailable = [];
   Object.keys(reg.releases).forEach(function(key) {
     var r = reg.releases[key];
+    if (!r.nextRelease) {
+      unavailable.push({ key: key, name: r.name, lastRelease: r.lastRelease, reason: 'official schedule artifact expired or unavailable', dataField: r.dataField });
+      return;
+    }
     var nextTs = new Date(r.nextRelease).getTime();
     if (isNaN(nextTs)) return;
     // 다음 발표일이 이미 지났는데 DATA_SNAPSHOT은 lastRelease 기준 그대로 → stale
@@ -13348,9 +13623,11 @@ window.AIO.getMacroReleaseStaleAudit = function() {
     }
   });
   return {
-    status: stale.length ? 'warn' : 'ok',
+    status: stale.length || unavailable.length ? 'warn' : 'ok',
     staleReleaseCount: stale.length,
     stale: stale,
+    unavailableReleaseCount: unavailable.length,
+    unavailable: unavailable,
     totalReleases: Object.keys(reg.releases).length,
     generatedAt: new Date(now).toISOString()
   };
@@ -16174,6 +16451,15 @@ window._aioSaveCashPosition = function(el) {
 window._aioFilterGlossary = function(el) {
   if (typeof window.filterGlossary === 'function') window.filterGlossary(el ? el.value : '');
 };
+window._aioUppercaseInput = function(el) {
+  if (!el || typeof el.value !== 'string') return;
+  var start = typeof el.selectionStart === 'number' ? el.selectionStart : null;
+  var end = typeof el.selectionEnd === 'number' ? el.selectionEnd : null;
+  el.value = el.value.toUpperCase();
+  if (start !== null && end !== null && typeof el.setSelectionRange === 'function') {
+    try { el.setSelectionRange(start, end); } catch(_) {}
+  }
+};
 // 확장: change/input 이벤트도 동일 디스패처로 위임
 (function() {
   if (window.__aioChangeDelegate) return;
@@ -16182,15 +16468,39 @@ window._aioFilterGlossary = function(el) {
     var el = e.target.closest && e.target.closest('[data-on-change]');
     if (!el) return;
     var fn = window[el.dataset.onChange];
-    if (typeof fn !== 'function') return;
-    try { fn(el, e); } catch(_){}
+    var action = el.dataset.onChange || '';
+    if (typeof fn !== 'function') {
+      if (window._aioLog) window._aioLog('error', 'delegate', 'missing data-on-change handler: ' + action);
+      if (typeof window.showDataError === 'function') {
+        try { window.showDataError('입력 처리', '변경 핸들러를 찾지 못했습니다: ' + action, 'error'); } catch(_) {}
+      }
+      return;
+    }
+    try { fn(el, e); } catch(err) {
+      if (window._aioLog) window._aioLog('error', 'delegate', 'data-on-change failed: ' + action, { err: String(err && err.message || err) });
+      if (typeof window.showDataError === 'function') {
+        try { window.showDataError('입력 처리', '변경 핸들러 실행 실패: ' + action, 'error'); } catch(_) {}
+      }
+    }
   }
   function dispatchInput(e) {
     var el = e.target.closest && e.target.closest('[data-on-input]');
     if (!el) return;
     var fn = window[el.dataset.onInput];
-    if (typeof fn !== 'function') return;
-    try { fn(el, e); } catch(_){}
+    var action = el.dataset.onInput || '';
+    if (typeof fn !== 'function') {
+      if (window._aioLog) window._aioLog('error', 'delegate', 'missing data-on-input handler: ' + action);
+      if (typeof window.showDataError === 'function') {
+        try { window.showDataError('입력 처리', '입력 핸들러를 찾지 못했습니다: ' + action, 'error'); } catch(_) {}
+      }
+      return;
+    }
+    try { fn(el, e); } catch(err) {
+      if (window._aioLog) window._aioLog('error', 'delegate', 'data-on-input failed: ' + action, { err: String(err && err.message || err) });
+      if (typeof window.showDataError === 'function') {
+        try { window.showDataError('입력 처리', '입력 핸들러 실행 실패: ' + action, 'error'); } catch(_) {}
+      }
+    }
   }
   document.addEventListener('change', dispatchChange);
   document.addEventListener('input', dispatchInput);
@@ -16549,17 +16859,29 @@ window.AIO.normalizeExternalSourceState = function(input) {
   else if (raw === 'partial' || (Number(x.count) > 0 && Number(x.expected) > Number(x.count))) status = 'partial';
   else if (raw === 'timeout' || /timeout|timed out|abort/.test(raw + ' ' + msg)) status = 'timeout';
   else if (raw === 'malformed' || raw === 'parse-error' || /malformed|parse|invalid|html|content-type/.test(raw + ' ' + msg)) status = 'malformed';
+  var declaredUse = x.allowedUse != null ? x.allowedUse : x.decisionUse != null ? x.decisionUse : x.operationalUse;
+  var explicitDecisionUse = _aioExplicitDecisionUse(declaredUse);
+  var observedTs = _aioMetricTs(x.observedAt != null ? x.observedAt : x.asOf != null ? x.asOf : x.ts);
+  var quality = x.quality || x.dataQuality || x.qualityEnvelope || null;
+  var qualityReady = _aioDecisionQualityReady(quality);
+  // A fetch-success status is transport evidence only.  It becomes a
+  // decision-use state only when the producer supplies an explicit grant,
+  // an observation timestamp/freshness envelope, and a passing quality gate.
+  var successDecisionReady = status === 'success' && explicitDecisionUse && observedTs != null && qualityReady;
   var policy = {
-    success:   { label: '정상 수신', allowedUse: 'decision', usable: true },
+    success:   { label: '정상 수신', allowedUse: successDecisionReady ? 'decision' : 'reference-only', usable: true },
     partial:   { label: '부분 수신', allowedUse: 'reference-only', usable: true },
     timeout:   { label: '응답 시간 초과', allowedUse: 'none', usable: false },
     malformed: { label: '응답 형식 오류', allowedUse: 'none', usable: false },
     unavailable:{ label: '외부 수집 실패', allowedUse: 'none', usable: false }
   }[status];
   return { status: status, label: policy.label, allowedUse: policy.allowedUse, usable: policy.usable,
+    decisionUse: policy.allowedUse === 'decision', explicitDecisionUse: explicitDecisionUse,
+    observedAt: observedTs != null ? new Date(observedTs).toISOString() : null,
+    qualityReady: qualityReady, promotionBlocked: status === 'success' && !successDecisionReady,
     count: x.count != null && Number.isFinite(Number(x.count)) ? Number(x.count) : null,
     expected: x.expected != null && Number.isFinite(Number(x.expected)) ? Number(x.expected) : null,
-    reason: x.reason || x.message || null };
+    reason: x.reason || x.message || (status === 'success' && !successDecisionReady ? 'explicit decision authorization, observation freshness, and quality evidence are required' : null) };
 };
 window.AIO.setExternalSourceState = function(source, input, detail) {
   var key = String(source || 'unknown');
@@ -18867,10 +19189,33 @@ const PriceStore = {
         return false;
       }
     }
-    const ts = Date.now();
-    var metric = (typeof makeMetric === 'function') ? makeMetric(price, source || 'unknown', ts, 'quote', { pct: pct, pctMissing: pctMissing }) : null;
+    // The provider observation is the only timestamp that can promote a quote.
+    // Fetch/receive time is provenance, not market time: using Date.now() here
+    // made an old provider quote look live merely because it was fetched again.
+    const ts = (typeof _aioMetricTs === 'function') ? _aioMetricTs(opts.observedAt) : null;
+    const policyKey = opts.policyKey || 'quote';
+    var metric = (typeof makeMetric === 'function') ? makeMetric(price, source || 'unknown', ts, policyKey, { pct: pct, pctMissing: pctMissing }) : null;
+    var sourceKind = (typeof _aioDecisionSourceKind === 'function')
+      ? _aioDecisionSourceKind(source || 'unknown')
+      : (window.AIO_SOURCE_KIND && window.AIO_SOURCE_KIND.UNAVAILABLE) || 'UNAVAILABLE';
+    var metricFresh = metric && /^(live|delayed)$/i.test(String(metric.freshness || ''))
+      && metric.timestampValid === true && metric.ageMs >= 0;
+    var explicitDecisionUse = _aioExplicitDecisionUse(opts.allowedUse != null ? opts.allowedUse : opts.decisionUse);
+    var qualityReady = _aioDecisionQualityReady(metric)
+      && (opts.quality == null || _aioDecisionQualityReady(opts.quality));
+    var explicitBlocked = opts.allowedUse === false || opts.decisionUse === false
+      || /^(none|blocked|reference|reference-only)$/i.test(String(opts.allowedUse || opts.decisionUse || ''));
+    var decisionAllowed = !!(metricFresh && qualityReady && explicitDecisionUse && !explicitBlocked
+      && (sourceKind === ((window.AIO_SOURCE_KIND || {}).LIVE || 'LIVE') || sourceKind === ((window.AIO_SOURCE_KIND || {}).DELAYED || 'DELAYED')));
+    var allowedUse = decisionAllowed ? 'decision' : 'none';
+    var stale = !metric || !!metric.stale || !decisionAllowed;
+    if (metric) {
+      metric.allowedUse = allowedUse;
+      metric.decisionUse = allowedUse;
+      metric.sourceKind = sourceKind;
+    }
     this._data[sym] = {
-      price, pct, source: source || 'unknown', ts: ts, stale: false, pctMissing: pctMissing, metric: metric, quality: metric,
+      price, pct, source: source || 'unknown', sourceKind: sourceKind, ts: ts, stale: stale, allowedUse: allowedUse, decisionUse: allowedUse, pctMissing: pctMissing, metric: metric, quality: metric,
       observedAt: opts.observedAt || null,
       fetchedAt: opts.fetchedAt || null,
       marketState: opts.marketState || null,
@@ -18878,7 +19223,8 @@ const PriceStore = {
       regularMarketPreviousClose: opts.regularMarketPreviousClose ?? opts.previousClose ?? null,
       changeBasis: opts.changeBasis || opts.valueBasis || 'unknown',
       valueBasis: opts.valueBasis || opts.changeBasis || 'unknown',
-      revision: opts.revision || null
+      revision: opts.revision || null,
+      policyKey: policyKey
     };
     this._prev[sym] = price;
     this._stats.accepted++;
@@ -18887,8 +19233,11 @@ const PriceStore = {
       price: price,
       pct: pct,
       source: source || 'unknown',
+      sourceKind: sourceKind,
       ts: ts,
-      stale: false,
+      stale: stale,
+      allowedUse: allowedUse,
+      decisionUse: allowedUse,
       pctMissing: pctMissing,
       metric: metric,
       quality: metric,
@@ -18899,13 +19248,15 @@ const PriceStore = {
       regularMarketPreviousClose: opts.regularMarketPreviousClose ?? opts.previousClose ?? null,
       changeBasis: opts.changeBasis || opts.valueBasis || 'unknown',
       valueBasis: opts.valueBasis || opts.changeBasis || 'unknown',
-      revision: opts.revision || null
+      revision: opts.revision || null,
+      policyKey: policyKey
     });
     window._quoteTimestamps = window._quoteTimestamps || {};
-    window._quoteTimestamps[sym] = ts;
+    if (ts != null) window._quoteTimestamps[sym] = ts;
+    else delete window._quoteTimestamps[sym];
     window._dataSource = window._dataSource || {};
     window._dataSource[sym] = {
-      source: source || 'live:yahoo', ts: ts, pctMissing: pctMissing, policyKey: 'quote', metric: metric,
+      source: source || 'live:yahoo', sourceKind: sourceKind, ts: ts, allowedUse: allowedUse, decisionUse: allowedUse, pctMissing: pctMissing, policyKey: policyKey, metric: metric,
       observedAt: opts.observedAt || null, fetchedAt: opts.fetchedAt || null,
       marketState: opts.marketState || null, venue: opts.venue || null,
       changeBasis: opts.changeBasis || opts.valueBasis || 'unknown',
@@ -18922,7 +19273,7 @@ const PriceStore = {
     if (!d) return null;
     var evaluated = (typeof evaluateMetric === 'function') ? evaluateMetric(d.metric || { value: d.price, source: d.source, ts: d.ts, policyKey: 'quote' }) : null;
     d.quality = evaluated || d.quality || null;
-    d.stale = evaluated ? evaluated.stale : (Date.now() - d.ts) > 300000;
+    d.stale = evaluated ? (evaluated.stale || d.allowedUse !== 'decision') : (d.ts == null || (Date.now() - d.ts) > 300000 || d.allowedUse !== 'decision');
     return d;
   },
   _reject(sym, price, source, reason, detail) {
@@ -18938,8 +19289,8 @@ const PriceStore = {
     for (const [sym, d] of Object.entries(this._data)) {
       total++;
       var q = (typeof evaluateMetric === 'function') ? evaluateMetric(d.metric || { value: d.price, source: d.source, ts: d.ts, policyKey: 'quote' }, now) : null;
-      if (q) { d.quality = q; d.stale = q.stale; }
-      if (d.stale || (!q && (now - d.ts) > 300000)) { stale++; d.stale = true; } else fresh++;
+      if (q) { d.quality = q; d.stale = q.stale || d.allowedUse !== 'decision'; }
+      if (d.stale || (!q && (d.ts == null || now - d.ts > 300000)) || d.allowedUse !== 'decision') { stale++; d.stale = true; } else fresh++;
       sources[d.source] = (sources[d.source] || 0) + 1;
     }
     this._stats.staleCount = stale;
@@ -18981,16 +19332,17 @@ const MacroStore = {
       }
       if (val > range.warnMax) _aioLog('warn', 'macro', '경고: ' + id + '(' + range.label + ') = ' + val + ' — 이상 고값');
     }
-    const dataAge = date ? Math.floor((Date.now() - new Date(date).getTime()) / 86400000) : null;
+    const observationTs = (typeof _aioMetricTs === 'function') ? _aioMetricTs(date) : null;
+    const dataAge = observationTs == null ? null : Math.floor((Date.now() - observationTs) / 86400000);
     var policyKey = ['CPIAUCSL','UNRATE','ICSA','FEDFUNDS'].indexOf(id) >= 0 ? 'macro_monthly' : 'macro_daily';
-    var metric = (typeof makeMetric === 'function') ? makeMetric(val, 'fred', Date.now(), policyKey, { seriesId: id, dataDate: date, prevValue: prev }) : null;
-    this._data[id] = { value: val, prevValue: prev, date, ts: Date.now(), dataAgeDays: dataAge, stale: false, policyKey: policyKey, metric: metric, quality: metric };
+    var metric = (typeof makeMetric === 'function') ? makeMetric(val, 'fred', observationTs, policyKey, { seriesId: id, dataDate: date, observedAt: date || null, prevValue: prev }) : null;
+    this._data[id] = { value: val, prevValue: prev, date, ts: observationTs, dataAgeDays: dataAge, stale: !metric || !!metric.stale, policyKey: policyKey, metric: metric, quality: metric };
     this._stats.accepted++;
     window._fredData = window._fredData || {};
     window._fredData[id] = { value: val, prevValue: prev, date };
     return true;
   },
-  get(id) { const d = this._data[id]; if (!d) return null; var q = (typeof evaluateMetric === 'function') ? evaluateMetric(d.metric || { value: d.value, source: 'fred', ts: d.ts, policyKey: d.policyKey || 'macro_daily' }) : null; d.quality = q || d.quality || null; d.stale = q ? q.stale : (Date.now() - d.ts) > 7200000; return d; },
+  get(id) { const d = this._data[id]; if (!d) return null; var q = (typeof evaluateMetric === 'function') ? evaluateMetric(d.metric || { value: d.value, source: 'fred', ts: d.ts, policyKey: d.policyKey || 'macro_daily' }) : null; d.quality = q || d.quality || null; d.stale = q ? q.stale : (d.ts == null || (Date.now() - d.ts) > 7200000); return d; },
   _reject(id, value, reason, detail) {
     this._stats.rejected++;
     if (this._rejected.length >= 30) this._rejected.shift();
@@ -19004,7 +19356,7 @@ const MacroStore = {
       total++;
       var q = (typeof evaluateMetric === 'function') ? evaluateMetric(d.metric || { value: d.value, source: 'fred', ts: d.ts, policyKey: d.policyKey || 'macro_daily' }, now) : null;
       if (q) { d.quality = q; d.stale = q.stale; }
-      if (d.stale || (!q && (now - d.ts) > 7200000)) { stale++; d.stale = true; } else fresh++;
+      if (d.stale || (!q && (d.ts == null || (now - d.ts) > 7200000))) { stale++; d.stale = true; } else fresh++;
     }
     return { total, fresh, stale, accepted: this._stats.accepted, rejected: this._stats.rejected,
       lastRejects: this._rejected.slice(-5),
@@ -19024,7 +19376,9 @@ const NewsStore = {
       if (key && this._seen.has(key)) { this._stats.duplicates++; continue; }
       const title = a.title || '';
       if (title.trim().length < 5) { this._stats.filtered++; continue; }
-      if (!a.pubDate && !a.isoDate) a.pubDate = new Date().toISOString();
+      // Do not manufacture a publication time.  Undated articles may remain
+      // visible as reference material, but _aioComputeNewsSignal must reject
+      // them from the current decision aggregate.
       if (key) this._seen.add(key);
       result.push(a);
     }
@@ -19075,8 +19429,8 @@ const SnapshotStore = {
   _data: {},
   set(sym, price, pct, ts, meta) {
     if (!sym || price == null || !isFinite(Number(price))) return false;
-    var metric = (typeof makeMetric === 'function') ? makeMetric(Number(price), 'snapshot', ts || Date.now(), 'static_snapshot', Object.assign({ pct: pct, pctMissing: pct == null }, meta || {})) : null;
-    this._data[sym] = { price: Number(price), pct: pct != null ? Number(pct) : null, pctMissing: pct == null, source: 'snapshot', ts: metric ? metric.ts : (ts || Date.now()), metric: metric, quality: metric };
+    var metric = (typeof makeMetric === 'function') ? makeMetric(Number(price), 'snapshot', ts, 'static_snapshot', Object.assign({ pct: pct, pctMissing: pct == null }, meta || {})) : null;
+    this._data[sym] = { price: Number(price), pct: pct != null ? Number(pct) : null, pctMissing: pct == null, source: 'snapshot', ts: metric ? metric.ts : _aioMetricTs(ts), metric: metric, quality: metric };
     return true;
   },
   get(sym) {
@@ -19272,12 +19626,16 @@ window._aioSetLiveData = function(sym, data, meta) {
   data = data || {};
   meta = meta || {};
   var source = meta.source || data.source || data._source || 'unknown';
-  var price = Number(data.price != null ? data.price : data.regularMarketPrice);
+  var price = _aioStrictFinite(data.price != null ? data.price : data.regularMarketPrice);
   var pct = data.pct != null ? data.pct : data.regularMarketChangePercent;
-  if (!sym || !isFinite(price) || price <= 0) return false;
+  if (!sym || price == null || price <= 0) return false;
+  var observedAt = data.observedAt || data.regularMarketTime || data.timestamp || data.lastUpdated || meta.observedAt || null;
+  if (typeof observedAt === 'number' && observedAt > 0 && observedAt < 1e12) observedAt = new Date(observedAt * 1000).toISOString();
+  var observedTs = (typeof _aioMetricTs === 'function') ? _aioMetricTs(observedAt) : null;
+  var fetchedAt = data.fetchedAt || meta.fetchedAt || null;
   try {
     if (window.AIO && typeof window.AIO.recordCrossSourceQuote === 'function') {
-      window.AIO.recordCrossSourceQuote(sym, source, price, pct, meta.ts || data.ts || Date.now(), {
+      window.AIO.recordCrossSourceQuote(sym, source, price, pct, observedTs, {
         previousClose: data.regularMarketPreviousClose || data.chartPreviousClose || meta.previousClose || null,
         policyKey: meta.policyKey || data.policyKey || null,
         reason: meta.reason || data.reason || null,
@@ -19285,9 +19643,6 @@ window._aioSetLiveData = function(sym, data, meta) {
       });
     }
   } catch(_crossRecordSetLive) {}
-  var observedAt = data.observedAt || data.regularMarketTime || data.timestamp || data.lastUpdated || meta.observedAt || null;
-  if (typeof observedAt === 'number' && observedAt > 0 && observedAt < 1e12) observedAt = new Date(observedAt * 1000).toISOString();
-  var fetchedAt = data.fetchedAt || meta.fetchedAt || null;
   var provenanceOpts = {
     revision: data.revision || meta.revision || null,
     observedAt: observedAt,
@@ -19297,7 +19652,9 @@ window._aioSetLiveData = function(sym, data, meta) {
     regularMarketPreviousClose: data.regularMarketPreviousClose || data.chartPreviousClose || data.previousClose || meta.previousClose || null,
     previousClose: data.previousClose || meta.previousClose || null,
     changeBasis: data.changeBasis || data.valueBasis || meta.changeBasis || meta.valueBasis || 'unknown',
-    valueBasis: data.valueBasis || data.changeBasis || meta.valueBasis || meta.changeBasis || 'unknown'
+    valueBasis: data.valueBasis || data.changeBasis || meta.valueBasis || meta.changeBasis || 'unknown',
+    policyKey: meta.policyKey || data.policyKey || null,
+    allowedUse: data.allowedUse != null ? data.allowedUse : meta.allowedUse != null ? meta.allowedUse : data.decisionUse != null ? data.decisionUse : meta.decisionUse
   };
   if (source.indexOf('live:') === 0 && !meta.bypassPriceStore && window.PriceStore && typeof window.PriceStore.set === 'function') {
     return window.PriceStore.set(sym, price, pct, source, provenanceOpts);
@@ -19306,15 +19663,29 @@ window._aioSetLiveData = function(sym, data, meta) {
     ? window.AIO.isOperationalQuoteSource(source)
     : (source && source !== 'snapshot' && source.indexOf('fallback') === -1);
   var policyKey = meta.policyKey || (source === 'snapshot' ? 'static_snapshot' : operationalQuoteSource ? 'quote' : 'static_snapshot');
-  var ts = meta.ts || data.ts || Date.now();
+  // A non-PriceStore path still gets an observation timestamp when one was
+  // supplied, but never receives a fetch-time timestamp as a freshness grant.
+  var ts = observedTs != null ? observedTs : ((typeof _aioMetricTs === 'function') ? _aioMetricTs(meta.ts != null ? meta.ts : data.ts) : null);
   var metric = (typeof makeMetric === 'function') ? makeMetric(price, source, ts, policyKey, { pct: pct, pctMissing: pct == null, reason: meta.reason || data.reason || null }) : null;
+  var sourceKind = (typeof _aioDecisionSourceKind === 'function') ? _aioDecisionSourceKind(source) : ((window.AIO_SOURCE_KIND || {}).UNAVAILABLE || 'UNAVAILABLE');
+  var metricFresh = metric && /^(live|delayed)$/i.test(String(metric.freshness || '')) && metric.timestampValid === true && metric.ageMs >= 0;
+  var explicitDecisionUse = _aioExplicitDecisionUse(provenanceOpts.allowedUse != null ? provenanceOpts.allowedUse : provenanceOpts.decisionUse);
+  var qualityReady = _aioDecisionQualityReady(metric);
+  var explicitBlocked = provenanceOpts.allowedUse === false || provenanceOpts.decisionUse === false
+    || /^(none|blocked|reference|reference-only)$/i.test(String(provenanceOpts.allowedUse || provenanceOpts.decisionUse || ''));
+  var allowedUse = metricFresh && qualityReady && explicitDecisionUse && !explicitBlocked
+    && (sourceKind === ((window.AIO_SOURCE_KIND || {}).LIVE || 'LIVE') || sourceKind === ((window.AIO_SOURCE_KIND || {}).DELAYED || 'DELAYED')) ? 'decision' : 'none';
+  if (metric) { metric.allowedUse = allowedUse; metric.decisionUse = allowedUse; metric.sourceKind = sourceKind; }
   window._liveData = window._liveData || {};
   window._liveData[sym] = Object.assign({}, window._liveData[sym] || {}, {
     price: price,
     pct: pct != null && isFinite(Number(pct)) ? Number(pct) : null,
     source: source,
+    sourceKind: sourceKind,
     ts: metric ? metric.ts : ts,
-    stale: metric ? metric.stale : !!meta.stale,
+    stale: metric ? (metric.stale || allowedUse !== 'decision') : true,
+    allowedUse: allowedUse,
+    decisionUse: allowedUse,
     pctMissing: pct == null || !isFinite(Number(pct)),
     metric: metric,
     quality: metric,
@@ -19329,7 +19700,7 @@ window._aioSetLiveData = function(sym, data, meta) {
   });
   window._dataSource = window._dataSource || {};
   window._dataSource[sym] = {
-    source: source, ts: metric ? metric.ts : ts, pctMissing: pct == null || !isFinite(Number(pct)), policyKey: policyKey, metric: metric,
+    source: source, sourceKind: sourceKind, ts: metric ? metric.ts : ts, allowedUse: allowedUse, decisionUse: allowedUse, pctMissing: pct == null || !isFinite(Number(pct)), policyKey: policyKey, metric: metric,
     reason: meta.reason || null, observedAt: observedAt, fetchedAt: fetchedAt,
     marketState: provenanceOpts.marketState, venue: provenanceOpts.venue,
     changeBasis: provenanceOpts.changeBasis, valueBasis: provenanceOpts.valueBasis, revision: provenanceOpts.revision
@@ -20696,7 +21067,7 @@ function calcSellPressure(ohlcvOrSnapshot, context) {
   var snapshot = ohlcvOrSnapshot && ohlcvOrSnapshot.ok !== undefined ? ohlcvOrSnapshot : calcTechnicalSnapshot(ohlcvOrSnapshot);
   var flags = [], score = 0;
   function add(points, flag) { score += points; flags.push(flag); }
-  if (!snapshot || !snapshot.ok) return { score: 0, action: 'HOLD_CORE', flags: ['DATA_INSUFFICIENT'], snapshot: snapshot };
+  if (!snapshot || !snapshot.ok) return { score: null, action: 'WAIT', flags: ['DATA_INSUFFICIENT'], snapshot: snapshot };
   if (snapshot.dist50Atr !== null && snapshot.dist50Atr >= 3) add(12, 'DIST_50SMA_PLUS_3ATR_WARNING');
   if (snapshot.dist50Atr !== null && snapshot.dist50Atr >= 4) add(12, 'DIST_50SMA_PLUS_4ATR_NO_ADD_TRIM_CANDIDATE');
   if (snapshot.dist50Atr !== null && snapshot.dist50Atr >= 6) add(20, 'DIST_50SMA_PLUS_6ATR_STRONG_TRIM_HEDGE');
@@ -20780,23 +21151,37 @@ var FRESHNESS_POLICY = {
 };
 
 function _aioMetricTs(ts) {
-  if (ts == null) return Date.now();
-  if (typeof ts === 'number') return ts > 1e12 ? ts : ts * 1000;
+  if (ts == null || typeof ts === 'boolean') return null;
+  if (typeof ts === 'number') {
+    if (!Number.isFinite(ts)) return null;
+    return Math.abs(ts) < 1e12 ? ts * 1000 : ts;
+  }
+  if (typeof ts !== 'string' || ts.trim() === '') return null;
+  var numeric = Number(ts);
+  if (Number.isFinite(numeric)) return Math.abs(numeric) < 1e12 ? numeric * 1000 : numeric;
   var parsed = Date.parse(ts);
-  return isFinite(parsed) ? parsed : Date.now();
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 function evaluateMetric(metric, now) {
   metric = metric || {};
-  now = now || Date.now();
+  now = Number.isFinite(Number(now)) ? Number(now) : Date.now();
   var policyKey = metric.policyKey || 'unknown';
   var policy = FRESHNESS_POLICY[policyKey] || FRESHNESS_POLICY.unknown;
-  var ts = _aioMetricTs(metric.ts || metric.timestamp || metric.updatedAt);
+  var tsRaw = metric.ts != null ? metric.ts : metric.timestamp != null ? metric.timestamp : metric.updatedAt;
+  var ts = _aioMetricTs(tsRaw);
   var source = (metric.source || 'unknown').toString();
-  var ageMs = Math.max(0, now - ts);
+  var timestampValid = ts != null && Number.isFinite(ts);
+  var ageMs = timestampValid ? now - ts : null;
   var freshness = 'fresh';
   var reason = [];
-  if (/snapshot|static/i.test(source) || policyKey === 'static_snapshot' || policyKey === 'static_memo') { freshness = 'static'; reason.push('static_source'); }
+  if (!timestampValid) {
+    freshness = 'fallback';
+    reason.push('timestamp_missing_or_invalid');
+  } else if (ageMs < 0) {
+    freshness = 'fallback';
+    reason.push('future_timestamp');
+  } else if (/snapshot|static/i.test(source) || policyKey === 'static_snapshot' || policyKey === 'static_memo') { freshness = 'static'; reason.push('static_source'); }
   else if (/manual/i.test(source) || policyKey === 'manual') { freshness = 'manual'; reason.push('manual_source'); }
   else if (/estimated/i.test(source) || policyKey === 'estimated') { freshness = 'estimated'; reason.push('estimated_value'); }
   else if (/fallback/i.test(source)) { freshness = 'fallback'; reason.push('fallback_source'); }
@@ -20809,7 +21194,7 @@ function evaluateMetric(metric, now) {
   if (freshness === 'delayed' || freshness === 'static' || freshness === 'manual') confidence = 'medium';
   if (freshness === 'stale' || freshness === 'fallback' || freshness === 'estimated') confidence = 'low';
   if (freshness === 'hard_stale') confidence = 'low';
-  return Object.assign({}, metric, { ts: ts, policyKey: policyKey, ageMs: ageMs, freshness: freshness, confidence: confidence, stale: freshness === 'stale' || freshness === 'hard_stale', hardStale: freshness === 'hard_stale', reason: reason.length ? reason : (metric.reason ? [].concat(metric.reason) : []) });
+  return Object.assign({}, metric, { ts: ts, timestampValid: timestampValid, policyKey: policyKey, ageMs: ageMs, freshness: freshness, confidence: confidence, stale: freshness === 'stale' || freshness === 'hard_stale', hardStale: freshness === 'hard_stale', reason: reason.length ? reason : (metric.reason ? [].concat(metric.reason) : []) });
 }
 
 function makeMetric(value, source, ts, policyKey, meta) {
@@ -20879,66 +21264,112 @@ function calcAIInfraHeat(basketSnaps, qqqSnap, spySnap) {
     var s = snaps[k];
     return s && s.ok ? Object.assign({ symbol: k }, s) : null;
   }).filter(Boolean);
-  if (!vals.length) return { state: 'DATA_INSUFFICIENT', score: 0, flags: [], count: 0 };
+  if (!vals.length) return { state: 'DATA_INSUFFICIENT', score: null, scoreAvailable: false, allowedUse: 'none', referenceOnly: true, flags: [], count: 0 };
+  var finite = function(value) { return _aioStrictFinite(value); };
   var base = [qqqSnap, spySnap].filter(function(s) { return s && s.ok; });
-  var baseGain = base.length ? _statMean(base.map(function(s) { return s.dayGainPct || 0; })) : 0;
-  var avgGain = _statMean(vals.map(function(s) { return s.dayGainPct || 0; }));
-  var maxExt = Math.max.apply(null, vals.map(function(s) { return s.dist50Atr === null ? -999 : s.dist50Atr; }));
-  var maxRsi = Math.max.apply(null, vals.map(function(s) { return s.rsi14 === null ? 0 : s.rsi14; }));
-  var maxRvol = Math.max.apply(null, vals.map(function(s) { return s.rvol20 === null ? 0 : s.rvol20; }));
-  var overheatCount = vals.filter(function(s) { return (s.dist50Atr || 0) >= 3 || (s.rsi14 || 0) >= 80; }).length;
+  var baseGains = base.map(function(s) { return finite(s.dayGainPct); }).filter(function(v) { return v != null; });
+  var basketGains = vals.map(function(s) { return finite(s.dayGainPct); }).filter(function(v) { return v != null; });
+  var baseGain = baseGains.length ? _statMean(baseGains) : null;
+  var avgGain = basketGains.length ? _statMean(basketGains) : null;
+  var relativeStrengthPct = avgGain != null && baseGain != null ? avgGain - baseGain : null;
+  var extValues = vals.map(function(s) { return finite(s.dist50Atr); }).filter(function(v) { return v != null; });
+  var rsiValues = vals.map(function(s) { return finite(s.rsi14); }).filter(function(v) { return v != null; });
+  var rvolValues = vals.map(function(s) { return finite(s.rvol20); }).filter(function(v) { return v != null; });
+  var maxExt = extValues.length ? Math.max.apply(null, extValues) : null;
+  var maxRsi = rsiValues.length ? Math.max.apply(null, rsiValues) : null;
+  var maxRvol = rvolValues.length ? Math.max.apply(null, rvolValues) : null;
+  var heatRows = vals.filter(function(s) { return finite(s.dist50Atr) != null || finite(s.rsi14) != null; });
+  var overheatCount = heatRows.filter(function(s) {
+    var ext = finite(s.dist50Atr), rsi = finite(s.rsi14);
+    return (ext != null && ext >= 3) || (rsi != null && rsi >= 80);
+  }).length;
+  var metricCoverage = extValues.length + rsiValues.length + rvolValues.length + basketGains.length;
+  if (!metricCoverage) return { state: 'DATA_INSUFFICIENT', score: null, scoreAvailable: false, allowedUse: 'none', referenceOnly: true, flags: [], count: vals.length, overheatCount: 0, relativeStrengthPct: null, avgGainPct: null, baseGainPct: null, maxDist50Atr: null, maxRsi: null, maxRvol: null, snapshots: snaps };
   var score = 0, flags = [];
-  if (avgGain - baseGain >= 1) { score += 15; flags.push('AI_INFRA_RS_OUTPERFORMING_INDEXES'); }
-  if (maxExt >= 3) { score += 16; flags.push('AI_INFRA_50SMA_PLUS_3ATR'); }
-  if (maxExt >= 4) { score += 16; flags.push('AI_INFRA_50SMA_PLUS_4ATR'); }
-  if (maxExt >= 6) { score += 20; flags.push('AI_INFRA_50SMA_PLUS_6ATR_MANIA'); }
-  if (maxRsi >= 80) { score += 12; flags.push('AI_INFRA_RSI_80_PLUS'); }
-  if (maxRsi >= 85) { score += 10; flags.push('AI_INFRA_RSI_85_PLUS'); }
-  if (maxRvol >= 2) { score += 8; flags.push('AI_INFRA_RVOL_2_PLUS'); }
-  if (overheatCount >= Math.max(2, Math.ceil(vals.length * 0.35))) { score += 12; flags.push('AI_INFRA_BREADTH_OVERHEATED'); }
+  if (relativeStrengthPct != null && relativeStrengthPct >= 1) { score += 15; flags.push('AI_INFRA_RS_OUTPERFORMING_INDEXES'); }
+  if (maxExt != null && maxExt >= 3) { score += 16; flags.push('AI_INFRA_50SMA_PLUS_3ATR'); }
+  if (maxExt != null && maxExt >= 4) { score += 16; flags.push('AI_INFRA_50SMA_PLUS_4ATR'); }
+  if (maxExt != null && maxExt >= 6) { score += 20; flags.push('AI_INFRA_50SMA_PLUS_6ATR_MANIA'); }
+  if (maxRsi != null && maxRsi >= 80) { score += 12; flags.push('AI_INFRA_RSI_80_PLUS'); }
+  if (maxRsi != null && maxRsi >= 85) { score += 10; flags.push('AI_INFRA_RSI_85_PLUS'); }
+  if (maxRvol != null && maxRvol >= 2) { score += 8; flags.push('AI_INFRA_RVOL_2_PLUS'); }
+  if (heatRows.length >= 2 && heatRows.length / vals.length >= 0.5 && overheatCount >= Math.max(2, Math.ceil(heatRows.length * 0.35))) { score += 12; flags.push('AI_INFRA_BREADTH_OVERHEATED'); }
   score = Math.max(0, Math.min(100, Math.round(score)));
-  return { state: score >= 70 ? 'AI_INFRA_MANIA' : score >= 40 ? 'AI_INFRA_HEATED' : 'NORMAL', score: score, flags: flags, count: vals.length, overheatCount: overheatCount, relativeStrengthPct: avgGain - baseGain, avgGainPct: avgGain, baseGainPct: baseGain, maxDist50Atr: maxExt === -999 ? null : maxExt, maxRsi: maxRsi, maxRvol: maxRvol, snapshots: snaps };
+  return { state: score >= 70 ? 'AI_INFRA_MANIA' : score >= 40 ? 'AI_INFRA_HEATED' : 'NORMAL', score: score, scoreAvailable: true, allowedUse: 'reference', referenceOnly: true, flags: flags, count: vals.length, overheatCount: overheatCount, relativeStrengthPct: relativeStrengthPct, avgGainPct: avgGain, baseGainPct: baseGain, maxDist50Atr: maxExt, maxRsi: maxRsi, maxRvol: maxRvol, snapshots: snaps };
 }
 
 function calcPositionTechnicalRisk(position, ohlcvOrSnapshot, portfolioContext) {
   position = position || {};
   portfolioContext = portfolioContext || {};
   var snapshot = ohlcvOrSnapshot && ohlcvOrSnapshot.ok !== undefined ? ohlcvOrSnapshot : calcTechnicalSnapshot(ohlcvOrSnapshot || []);
+  var finite = function(value) { return _aioStrictFinite(value); };
+  var qtyRaw = position.qty != null ? position.qty : position.shares;
+  var qty = finite(qtyRaw);
+  var cost = finite(position.cost != null ? position.cost : position.avgCost);
+  var quoteAllowed = position.currentQuoteAllowedUse === true || position.allowedUse === 'decision'
+    || position.quoteSourceKind === 'live-quote' || position.priceSource === 'live-quote';
+  var px = quoteAllowed ? finite(position.price) : null;
+  if (px == null && quoteAllowed) px = finite(position.currentPrice);
+  if (px == null && snapshot && snapshot.ok === true) px = finite(snapshot.price);
+  var hasTechnicalSnapshot = !!(snapshot && snapshot.ok === true);
+  var totalValue = finite(portfolioContext.totalValue);
+  var value = qty != null && qty >= 0 && px != null && px > 0 ? qty * px : null;
+  var weightPct = value != null && totalValue != null && totalValue > 0 ? (value / totalValue) * 100 : null;
+  var pnlPct = cost != null && cost > 0 && px != null && px > 0 ? ((px - cost) / cost) * 100 : null;
+  // Cost basis is historical context only. It must never stand in for a
+  // missing quote/current exposure or a missing portfolio denominator.
+  if (!hasTechnicalSnapshot || value == null || totalValue == null || totalValue <= 0 || weightPct == null) {
+    return {
+      ticker: (position.ticker || position.symbol || '').toString().toUpperCase(),
+      score: null, action: 'WAIT', state: 'DATA_INSUFFICIENT', weightPct: null,
+      pnlPct: pnlPct, value: null, snapshot: snapshot,
+      sellPressure: { score: null, action: 'WAIT', flags: ['DATA_INSUFFICIENT'], snapshot: snapshot },
+      flags: ['DATA_INSUFFICIENT'], dataQuality: position.dataQuality || null,
+      reason: !hasTechnicalSnapshot ? 'current technical snapshot unavailable' : !value ? 'current quote/exposure unavailable' : 'portfolio total value unavailable'
+    };
+  }
   var sellPressure = calcSellPressure(snapshot, portfolioContext);
-  var qty = Number(position.qty || position.shares || 0);
-  var cost = Number(position.cost || position.avgCost || 0);
-  var px = Number(position.price || position.currentPrice || (snapshot && snapshot.price) || 0);
-  var value = qty * (px || cost || 0);
-  var totalValue = Number(portfolioContext.totalValue || 0);
-  var weightPct = totalValue > 0 ? (value / totalValue) * 100 : Number(position.weightPct || 0);
-  var pnlPct = cost > 0 && px > 0 ? ((px - cost) / cost) * 100 : null;
   // RM-03 continued (2026-07-21, P758): single-implementation call — the concentration-penalty
   // tier ladder lives in src/domain/portfolio/concentration.js (concentrationPenaltyForWeight),
   // exposed via window.AIO_ARCH (R352/F-03: no parallel formula).
   var _concFn = window.AIO_ARCH && typeof window.AIO_ARCH.concentrationPenaltyForWeight === 'function' ? window.AIO_ARCH.concentrationPenaltyForWeight : null;
   var concentrationPenalty = _concFn ? _concFn(weightPct) : (weightPct >= 25 ? 18 : weightPct >= 15 ? 10 : weightPct >= 10 ? 5 : 0);
-  var score = Math.max(0, Math.min(100, Math.round((sellPressure.score || 0) + concentrationPenalty)));
+  var score = sellPressure && finite(sellPressure.score) != null ? Math.max(0, Math.min(100, Math.round(sellPressure.score + concentrationPenalty))) : null;
+  if (score == null) return { ticker: (position.ticker || position.symbol || '').toString().toUpperCase(), score: null, action: 'WAIT', state: 'DATA_INSUFFICIENT', weightPct: weightPct, pnlPct: pnlPct, value: value, snapshot: snapshot, sellPressure: sellPressure, flags: ['DATA_INSUFFICIENT'], dataQuality: position.dataQuality || null };
   var action = score >= 75 ? 'EXIT_OR_HEDGE' : score >= 58 ? 'TRIM_50' : score >= 38 ? 'TRIM_25_33' : score >= 18 ? 'NO_ADD_RAISE_STOP' : 'HOLD_CORE';
   var flags = (sellPressure.flags || []).slice();
   if (concentrationPenalty) flags.push('POSITION_CONCENTRATION_' + Math.round(weightPct) + 'PCT');
-  return { ticker: (position.ticker || position.symbol || '').toString().toUpperCase(), score: score, action: action, weightPct: weightPct, pnlPct: pnlPct, value: value, snapshot: snapshot, sellPressure: sellPressure, flags: flags, dataQuality: position.dataQuality || null };
+  return { ticker: (position.ticker || position.symbol || '').toString().toUpperCase(), score: score, action: action, state: 'CURRENT', weightPct: weightPct, pnlPct: pnlPct, value: value, snapshot: snapshot, sellPressure: sellPressure, flags: flags, dataQuality: position.dataQuality || null };
 }
 
 function calcPortfolioTechnicalRisk(positions, riskItems, context) {
   positions = positions || [];
   riskItems = riskItems || [];
   context = context || {};
-  if (!positions.length) return { state: 'EMPTY', heatScore: 0, action: 'HOLD_CORE', items: [] };
-  var totalValue = Number(context.totalValue || positions.reduce(function(s, p) {
-    return s + Number(p.value || (Number(p.qty || 0) * Number(p.price || p.cost || 0)) || 0);
-  }, 0));
-  var items = riskItems.map(function(item) {
+  if (!positions.length) return { state: 'EMPTY', heatScore: null, action: 'WAIT', items: [] };
+  var finite = function(value) { return _aioStrictFinite(value); };
+  var explicitTotal = finite(context.totalValue);
+  var positionValues = positions.map(function(p) {
+    var quoteAllowed = !!(p && (p.currentQuoteAllowedUse === true || p.allowedUse === 'decision'
+      || p.quoteSourceKind === 'live-quote' || p.valueSource === 'live-quote' || p.priceSource === 'live-quote'));
+    var declared = quoteAllowed ? finite(p && p.value) : null;
+    if (declared != null && declared >= 0) return declared;
+    var qty = finite(p && (p.qty != null ? p.qty : p.shares));
+    var price = quoteAllowed ? finite(p && (p.price != null ? p.price : p.currentPrice)) : null;
+    return qty != null && qty >= 0 && price != null && price > 0 ? qty * price : null;
+  });
+  var totalValue = explicitTotal != null ? explicitTotal : (positionValues.every(function(v) { return v != null; }) ? positionValues.reduce(function(s, v) { return s + v; }, 0) : null);
+  var itemsInput = riskItems.length ? riskItems : positions;
+  var items = itemsInput.map(function(item) {
     if (item && item.action && item.score !== undefined) return item;
     return calcPositionTechnicalRisk(item, item && item.snapshot, { totalValue: totalValue });
   });
-  var avg = items.length ? _statMean(items.map(function(i) { return i.score || 0; })) : 0;
-  var max = items.length ? Math.max.apply(null, items.map(function(i) { return i.score || 0; })) : 0;
-  var topWeight = items.length ? Math.max.apply(null, items.map(function(i) { return i.weightPct || 0; })) : 0;
+  var complete = totalValue != null && totalValue > 0 && items.length === positions.length
+    && items.every(function(i) { return i && i.state !== 'DATA_INSUFFICIENT' && finite(i.score) != null && finite(i.weightPct) != null; });
+  if (!complete) return { state: 'DATA_INSUFFICIENT', heatScore: null, action: 'WAIT', items: items, totalValue: totalValue, topWeightPct: null, avgSellPressure: null, maxSellPressure: null, reason: 'current position exposure or technical evidence unavailable' };
+  var avg = _statMean(items.map(function(i) { return finite(i.score); }));
+  var max = Math.max.apply(null, items.map(function(i) { return finite(i.score); }));
+  var topWeight = Math.max.apply(null, items.map(function(i) { return finite(i.weightPct); }));
   var heatScore = Math.max(0, Math.min(100, Math.round(avg * 0.45 + max * 0.35 + Math.min(100, topWeight * 2) * 0.20)));
   var action = heatScore >= 75 ? 'EXIT_OR_HEDGE' : heatScore >= 58 ? 'TRIM_50' : heatScore >= 38 ? 'TRIM_25_33' : heatScore >= 18 ? 'NO_ADD_RAISE_STOP' : 'HOLD_CORE';
   var state = heatScore >= 75 ? 'PORTFOLIO_HEAT_EXTREME' : heatScore >= 58 ? 'PORTFOLIO_HEAT_HIGH' : heatScore >= 38 ? 'PORTFOLIO_HEAT_ELEVATED' : 'PORTFOLIO_HEAT_NORMAL';
@@ -21959,6 +22390,16 @@ const AIO_MANUAL_REFERENCE = Object.freeze({
 
 // 수동 편집 금지: 변동 데이터는 data.json에서 자동 파생하고 런타임 공급자로 보강한다.
 // 공식 일정·정책처럼 수동 검증이 필요한 값만 AIO_MANUAL_REFERENCE에 출처와 기준일을 함께 둔다.
+function _aioFutureReferenceDate(value) {
+  var text = String(value || '').trim();
+  var date = text.slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
+  var parsed = Date.parse(date + 'T00:00:00Z');
+  if (!Number.isFinite(parsed)) return null;
+  var today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
+  return parsed >= today.getTime() ? date : null;
+}
 const DATA_SNAPSHOT = {
   _updated: null,
   _snapshotDate: null,
@@ -21992,7 +22433,7 @@ const DATA_SNAPSHOT = {
   bokNext: AIO_MANUAL_REFERENCE.bokPolicy.next,
   krCpi: AIO_MANUAL_REFERENCE.krInflation.headline,
   krCoreCpi: AIO_MANUAL_REFERENCE.krInflation.core,
-  cpiNext: AIO_MANUAL_REFERENCE.usCpiCalendar.next.slice(0, 10),
+  cpiNext: _aioFutureReferenceDate(AIO_MANUAL_REFERENCE.usCpiCalendar.next),
 
   // Runtime-populated volatile fields. Explicit nulls prevent zero coercion.
   spx:null, spxPct:null, spxATH:null, nasdaq:null, nasdaqPct:null,
@@ -22007,7 +22448,7 @@ const DATA_SNAPSHOT = {
   nikkei:null, nikkeiPct:null, hangseng:null, hangsengPct:null,
   shanghai:null, shanghaiPct:null, dax:null, daxPct:null,
   ftse:null, ftsePct:null, cac:null, cacPct:null,
-  tnx:null, tnx2y:null, t10y2y:null, irx:null, fvx:null, tyx:null, hySpread:null, hyOAS:null,
+  tnx:null, tnxPct:null, tnx2y:null, t10y2y:null, irx:null, fvx:null, tyx:null, hySpread:null, hyOAS:null,
   cpi:null, coreCpi:null, cpiYoy:null, coreCpiYoy:null,
   pce:null, corePce:null, pceYoy:null, corePceYoy:null,
   nfp:null, usNfp:null, usUnemploy:null, usWageGrowth:null,
@@ -22447,15 +22888,16 @@ window._dateEngineInterval = _aioRegisterTimer('dateEngine', function() { try { 
 window.AIO = window.AIO || {};
 window.AIO.getCurrentBreadthEvidence = function(maxAgeMs) {
   var b = window._breadthLiveData || {};
-  var tsRaw = b.ts || b.generatedAt || b.asOf;
-  var ts = typeof tsRaw === 'number' ? tsRaw : Date.parse(tsRaw || '');
+  var tsRaw = b.ts != null ? b.ts : b.generatedAt != null ? b.generatedAt : b.asOf;
+  var ts = typeof _aioMetricTs === 'function' ? _aioMetricTs(tsRaw) : null;
   var maxAge = Number(maxAgeMs) > 0 ? Number(maxAgeMs) : 4 * 24 * 60 * 60 * 1000;
-  var sma5 = Number(b.sma5 != null ? b.sma5 : b.above5);
-  var sma20 = Number(b.sma20 != null ? b.sma20 : b.above20);
-  var sma50 = Number(b.sma50 != null ? b.sma50 : b.above50);
+  var sma5 = _aioStrictFinite(b.sma5 != null ? b.sma5 : b.above5);
+  var sma20 = _aioStrictFinite(b.sma20 != null ? b.sma20 : b.above20);
+  var sma50 = _aioStrictFinite(b.sma50 != null ? b.sma50 : b.above50);
   var ageMs = Number.isFinite(ts) ? Date.now() - ts : Infinity;
-  var available = Number.isFinite(sma5) && Number.isFinite(sma20) && Number.isFinite(sma50) && ageMs >= 0 && ageMs <= maxAge;
-  return { available: available, sma5: available ? sma5 : null, sma20: available ? sma20 : null, sma50: available ? sma50 : null, advances: available && b.advances != null && Number.isFinite(Number(b.advances)) ? Number(b.advances) : null, declines: available && b.declines != null && Number.isFinite(Number(b.declines)) ? Number(b.declines) : null, advanceRatio: available && b.advanceRatio != null && Number.isFinite(Number(b.advanceRatio)) ? Number(b.advanceRatio) : null, coveragePct: available && b.coveragePct != null && Number.isFinite(Number(b.coveragePct)) ? Number(b.coveragePct) : null, eligible: available && b.eligible != null && Number.isFinite(Number(b.eligible)) ? Number(b.eligible) : null, ts: Number.isFinite(ts) ? ts : null, ageMs: ageMs, source: available ? (b.source || 'breadth-live-producer') : null, reason: available ? null : '현재 timestamp·출처가 있는 5/20/50일선 breadth 원천 미수신' };
+  var available = sma5 != null && sma20 != null && sma50 != null && Number.isFinite(ts) && ageMs >= 0 && ageMs <= maxAge;
+  var strictOptional = function(value) { return _aioStrictFinite(value); };
+  return { available: available, sma5: available ? sma5 : null, sma20: available ? sma20 : null, sma50: available ? sma50 : null, advances: available ? strictOptional(b.advances) : null, declines: available ? strictOptional(b.declines) : null, advanceRatio: available ? strictOptional(b.advanceRatio) : null, coveragePct: available ? strictOptional(b.coveragePct) : null, eligible: available ? strictOptional(b.eligible) : null, ts: Number.isFinite(ts) ? ts : null, ageMs: Number.isFinite(ts) ? ageMs : null, source: available ? (b.source || 'breadth-live-producer') : null, reason: available ? null : '현재 timestamp·출처가 있는 유한 5/20/50일선 breadth 원천 미수신' };
 };
 window._aioSyncBreadth50Readout = function() {
   var ev = window.AIO.getCurrentBreadthEvidence();
@@ -22516,9 +22958,9 @@ function applyDataSnapshot() {
       'vix':           _snap.fixed(S.vix, 2),
       'vix-pct':       _snap.pct(S.vixPct),
       'vvix':          _snap.fixed(S.vvix, 2),
-      'vvix-pct':      _snap.pct(S.vvixChg || 0),
+      'vvix-pct':      _snap.pct(S.vvixChg),
       'skew':          '—', // current ^SKEW observation required
-      'skew-pct':      _snap.pct(S.skewChg || 0),
+      'skew-pct':      _snap.pct(S.skewChg),
       'pcr':           _snap.fixed(S.putCallRatio || S.pcr, 2),
       // v52.16 P5m/P618: HY 스프레드 HTML 하드코딩(289bp)이 DATA_SNAPSHOT.hySpread(275bp)와
       // applyDataSnapshot()에 배선이 없어 서로 다른 값으로 독립 표류하던 문제 — 매핑 추가.
@@ -22680,22 +23122,27 @@ function applyDataSnapshot() {
     } catch(regErr) { _aioLog('warn', 'regime', 'auto-update 실패: ' + regErr.message); }
 
     // v48.14: Breadth 36px 카드 bar 너비·레이블·색상 동적 갱신 (Agent P1-04)
+    // Current breadth is the only source for these cards. Snapshot/fallback seeds and
+    // the retired 200SMA card must never manufacture a regime when the source is absent.
     try {
       if (typeof NARRATIVE_ENGINE !== 'undefined' && NARRATIVE_ENGINE.getBreadthRegime) {
-        ['5sma','20sma','50sma','200sma'].forEach(function(period) {
-          var key = 'breadth_' + period.replace('sma','') + 'sma';
-          var val = S[key] || S['breadth' + period.replace('sma','').toUpperCase() + 'sma'] || ((S._fallback||{})['breadth' + period.replace('sma','')]) ||
-                    (period === '5sma' ? 68 : period === '20sma' ? 75 : period === '50sma' ? 46 : 55);
-          val = _snap.num(val, 50);
-          var reg = NARRATIVE_ENGINE.getBreadthRegime(val);
+        [['5sma', 'sma5'], ['20sma', 'sma20'], ['50sma', 'sma50']].forEach(function(pair) {
+          var period = pair[0];
+          var raw = currentBreadth.available ? currentBreadth[pair[1]] : null;
+          var val = raw != null && isFinite(Number(raw)) ? Number(raw) : null;
+          var reg = val == null ? null : NARRATIVE_ENGINE.getBreadthRegime(val);
           var bar = document.getElementById('breadth-' + period + '-bar');
           var label = document.getElementById('breadth-' + period + '-label');
           var big = document.getElementById('breadth-' + period + '-big');
-          if (bar) { bar.style.width = val + '%'; if (reg && reg.color) bar.style.background = reg.color; }
-          if (big && reg && reg.color) { big.style.color = reg.color; }
-          if (label && reg) {
-            label.textContent = reg.label;
-            label.style.color = reg.color;
+          if (bar) {
+            bar.style.width = val == null ? '0%' : Math.max(0, Math.min(100, val)) + '%';
+            if (reg && reg.color) bar.style.background = reg.color;
+            else bar.style.background = 'var(--text-muted)';
+          }
+          if (big) { big.style.color = reg && reg.color ? reg.color : 'var(--text-muted)'; }
+          if (label) {
+            label.textContent = reg ? reg.label : '판정 보류 · 현재 breadth 원천 미수신';
+            label.style.color = reg && reg.color ? reg.color : 'var(--text-muted)';
           }
         });
       }
@@ -22750,7 +23197,8 @@ function applyDataSnapshot() {
     // v48.99 P181: 독립 try-catch — _liveData seed 실패가 staleness 체크를 막지 않음
     try {
     window._dataSource = window._dataSource || {};
-    const snapTs = S._updated ? new Date(S._updated).getTime() : Date.now();
+    const snapTsRaw = S._updated || S._marketDataUpdated;
+    const snapTs = snapTsRaw ? new Date(snapTsRaw).getTime() : null;
     const snapSymMap = {
       '^GSPC': { price: S.spx, pct: S.spxPct },
       '^IXIC': { price: S.nasdaq, pct: S.nasdaqPct },
@@ -22764,7 +23212,7 @@ function applyDataSnapshot() {
       '^KS11': { price: S.kospi, pct: S.kospiPct },
       '^KQ11': { price: S.kosdaq, pct: S.kosdaqPct },
       // v34.5: GMO 테이블 누락 심볼 fallback
-      '^TNX': { price: 4.31, pct: +0.54 },
+      '^TNX': { price: S.tnx, pct: S.tnxPct },
       'SI=F': { price: S.silver, pct: S.silverPct },
       'BTC-USD': { price: S.btc, pct: S.btcPct },
       'ETH-USD': { price: S.eth, pct: S.ethPct },
@@ -22777,18 +23225,22 @@ function applyDataSnapshot() {
       // v34.6: 한국 채권·변동성 fallback
       'VKOSPI': { price: S.vkospi, pct: null },
     };
-    if (window.SnapshotStore && typeof window.SnapshotStore.seedFromMap === 'function') {
-      window.SnapshotStore.seedFromMap(snapSymMap, snapTs, { snapshotDate: S._snapshotDate, note: S._note });
-    }
-    window._liveData = window._liveData || {};
-    for (const [sym, val] of Object.entries(snapSymMap)) {
-      if (val.price != null && !window._dataSource[sym]) {
-        // 실시간 데이터가 아직 없는 심볼만 seed
-        if (typeof window._aioSetLiveData === 'function') {
-          window._aioSetLiveData(sym, val, { source: 'snapshot', ts: snapTs, policyKey: 'static_snapshot', reason: 'DATA_SNAPSHOT fallback seed' });
-        } else {
-          window._liveData[sym] = window._liveData[sym] || { price: val.price, pct: val.pct != null ? val.pct : null, pctMissing: val.pct == null, source: 'snapshot', ts: snapTs };
-          window._dataSource[sym] = { source: 'snapshot', ts: snapTs, pctMissing: val.pct == null, policyKey: 'static_snapshot' };
+    if (!Number.isFinite(snapTs)) {
+      if (typeof _aioLog === 'function') _aioLog('warn', 'snap', 'snapshot timestamp unavailable; fallback seed skipped');
+    } else {
+      if (window.SnapshotStore && typeof window.SnapshotStore.seedFromMap === 'function') {
+        window.SnapshotStore.seedFromMap(snapSymMap, snapTs, { snapshotDate: S._snapshotDate, note: S._note });
+      }
+      window._liveData = window._liveData || {};
+      for (const [sym, val] of Object.entries(snapSymMap)) {
+        if (val.price != null && !window._dataSource[sym]) {
+          // 실시간 데이터가 아직 없는 심볼만 seed
+          if (typeof window._aioSetLiveData === 'function') {
+            window._aioSetLiveData(sym, val, { source: 'snapshot', ts: snapTs, policyKey: 'static_snapshot', reason: 'DATA_SNAPSHOT fallback seed' });
+          } else {
+            window._liveData[sym] = window._liveData[sym] || { price: val.price, pct: val.pct != null ? val.pct : null, pctMissing: val.pct == null, source: 'snapshot', ts: snapTs };
+            window._dataSource[sym] = { source: 'snapshot', ts: snapTs, pctMissing: val.pct == null, policyKey: 'static_snapshot' };
+          }
         }
       }
     }
@@ -23207,7 +23659,9 @@ function classifyMarketRegime() {
     breadthEvidence = _ba.rows.find(function(x) { return x.id === 'breadth200-participation'; });
   } catch(_) {}
   const breadthCurrent = !!(breadthEvidence && breadthEvidence.status === 'verified_current');
-  const breadth200 = breadthCurrent && typeof window._breadth200 === 'number' ? window._breadth200 : 50;
+  // Missing breadth is unknown, not neutral. A synthetic 50% would change the
+  // regime branch while the source is unavailable and make the score look complete.
+  const breadth200 = breadthCurrent && typeof window._breadth200 === 'number' && Number.isFinite(window._breadth200) ? window._breadth200 : null;
 
   let regime = 'CHOP';
   let label = '횡보·혼조';
@@ -23383,25 +23837,34 @@ window.AIO_OPERATIONAL_DATA_CONTRACT = {
     metric = metric || {};
     var kind = this.classifySource(metric.sourceKind || metric.source || metric.sourceType);
     var policy = this.policies[kind] || this.policies.snapshot;
-    var ts = metric.ts || metric.timestamp || metric.generatedAt || metric.asOf || null;
-    var ageMs = null;
-    if (ts) {
-      var parsed = typeof ts === 'number' ? ts : new Date(ts).getTime();
-      if (isFinite(parsed)) ageMs = Date.now() - parsed;
-    }
-    var stale = ageMs != null && isFinite(policy.maxAgeMs) && ageMs > policy.maxAgeMs;
-    var allowedUse = !!policy.decisionUse && stale !== true;
+    var tsRaw = metric.ts != null ? metric.ts : metric.timestamp != null ? metric.timestamp : metric.generatedAt != null ? metric.generatedAt : metric.asOf;
+    var ts = typeof _aioMetricTs === 'function' ? _aioMetricTs(tsRaw) : null;
+    var timestampValid = ts != null && Number.isFinite(ts);
+    var ageMs = timestampValid ? Date.now() - ts : null;
+    var future = ageMs != null && ageMs < 0;
+    var stale = ageMs != null && !future && isFinite(policy.maxAgeMs) && ageMs > policy.maxAgeMs;
+    var valueValid = _aioStrictFinite(metric.value) != null;
+    var declaredUse = metric.allowedUse != null ? metric.allowedUse : metric.decisionUse;
+    var explicitDecisionUse = _aioExplicitDecisionUse(declaredUse);
+    var qualityPresent = !!(metric.quality && typeof metric.quality === 'object');
+    var qualityBlocked = !qualityPresent || !_aioDecisionQualityReady(metric.quality);
+    var allowedUse = !!policy.decisionUse && explicitDecisionUse && timestampValid && !future && !stale && valueValid && !qualityBlocked;
+    var reason = !valueValid ? 'value missing or invalid' : !timestampValid ? 'timestamp missing or invalid' : future ? 'future timestamp' : stale ? 'stale source' : !explicitDecisionUse ? 'explicit decision authorization missing' : qualityBlocked ? (qualityPresent ? 'quality evidence failed' : 'quality evidence missing') : 'fresh operational source';
     return {
       status: allowedUse ? 'ok' : 'reference_only',
       sourceKind: kind,
       sourceLabel: metric.sourceLabel || metric.source || '',
-      confidence: policy.confidence,
-      decisionUse: !!policy.decisionUse,
+      confidence: allowedUse ? policy.confidence : 'low',
+      decisionUse: allowedUse,
       allowedUse: allowedUse,
+      explicitDecisionUse: explicitDecisionUse,
       stale: !!stale,
+      future: !!future,
+      timestampValid: timestampValid,
+      valueValid: valueValid,
       ageMs: ageMs,
       maxAgeMs: policy.maxAgeMs,
-      reason: allowedUse ? 'fresh operational source' : (stale ? 'stale source' : 'non-operational source')
+      reason: reason
     };
   }
 };
@@ -23412,7 +23875,7 @@ window.AIO.makeOperationalMetric = function(name, value, sourceKind, ts, sourceL
     value: value,
     sourceKind: sourceKind || 'snapshot',
     sourceLabel: sourceLabel || '',
-    ts: ts || Date.now()
+    ts: ts == null ? null : ts
   }, extra || {});
   metric.contract = window.AIO_OPERATIONAL_DATA_CONTRACT.evaluateMetric(metric);
   metric.allowedUse = metric.contract.allowedUse;
@@ -23435,34 +23898,50 @@ window.AIO.getCanonicalMetric = function(metricId, opts) {
   var raw = id === 'fg' ? window._lastFG : null;
   var liveValue = raw != null && isFinite(Number(raw)) ? Number(raw) : null;
   var sourceKind = String(meta.sourceKind || '').toLowerCase();
-  var declaredUse = String(meta.allowedUse || meta.operationalUse || '').toLowerCase();
-  var decisionAllowed = /^(decision|trading)$/.test(declaredUse) && String(meta.allowedUseCeiling || 'decision').toLowerCase() === 'decision';
+  var declaredUse = meta.allowedUse != null ? meta.allowedUse : meta.operationalUse;
+  var explicitDecisionUse = _aioExplicitDecisionUse(declaredUse);
+  var decisionAllowed = explicitDecisionUse && String(meta.allowedUseCeiling || 'decision').toLowerCase() === 'decision';
   var currentSource = /^(live|proxy|delayed)$/.test(sourceKind);
-  var clock = meta.freshnessClock || (sourceKind === 'delayed' ? 'observation' : 'fetch');
-  var ts = clock === 'observation' ? (meta.sourceTs || meta.asOf || meta.fetchedAt) : (meta.fetchedAt || meta.sourceTs);
+  // Fetched-at is transport provenance, not market observation time.  The
+  // canonical selector therefore accepts only sourceTs/asOf and a producer
+  // quality envelope for current decision use.
+  var ts = meta.sourceTs || meta.asOf || null;
   var parsedTs = ts != null ? (typeof ts === 'number' && ts < 100000000000 ? ts * 1000 : new Date(ts).getTime()) : null;
-  var ageMs = parsedTs != null && isFinite(parsedTs) ? Math.max(0, now - parsedTs) : null;
+  var ageMs = parsedTs != null && isFinite(parsedTs) ? now - parsedTs : null;
+  var quality = meta.quality || meta.dataQuality || meta.qualityEnvelope || null;
+  var qualityReady = _aioDecisionQualityReady(quality);
+  var canonicalEnvelopeReady = _aioCanonicalDecisionEnvelopeReady({
+    value: liveValue, sourceKind: sourceKind, sourceTier: meta.sourceTier,
+    rightsId: meta.rightsId, revisionId: meta.revisionId || meta.revision,
+    allowedUse: declaredUse, allowedUseCeiling: meta.allowedUseCeiling,
+    observedAt: ts, freshnessMs: meta.freshnessMs, quality: quality
+  }, now, maxAgeMs);
   var snapshot = window.DATA_SNAPSHOT || {};
   var snapshotValue = id === 'fg' && snapshot.fg != null && isFinite(Number(snapshot.fg)) ? Number(snapshot.fg) : null;
   var result = {
     id: id, value: null, source: 'none', sourceKind: 'missing', sourceLabel: '',
     asOf: null, fetchedAt: null, ageMs: null, freshness: 'missing', status: 'MISSING',
-    confidence: 'none', allowedUse: false, decisionUse: false, reason: 'current observation unavailable'
+    confidence: 'none', allowedUse: false, decisionUse: false, explicitDecisionUse: explicitDecisionUse,
+    qualityReady: qualityReady, canonicalEnvelopeReady: canonicalEnvelopeReady, reason: 'current observation unavailable'
   };
-  if (liveValue != null && currentSource && ageMs != null && ageMs <= maxAgeMs) {
+  if (liveValue != null && currentSource && ageMs != null && ageMs >= 0 && ageMs <= maxAgeMs
+    && decisionAllowed && qualityReady && canonicalEnvelopeReady) {
     result.value = liveValue; result.source = meta.source || sourceKind; result.sourceKind = sourceKind;
     result.sourceLabel = meta.sourceLabel || result.source; result.asOf = meta.sourceTs || meta.asOf || null;
     result.fetchedAt = meta.fetchedAt || null; result.ageMs = ageMs; result.freshness = 'current';
-    result.status = decisionAllowed ? 'VALID' : 'REFERENCE_CURRENT'; result.confidence = sourceKind === 'live' || sourceKind === 'proxy' ? 'high' : 'medium';
-    result.allowedUse = decisionAllowed; result.decisionUse = decisionAllowed;
-    result.reason = decisionAllowed ? 'current evidence within SLA' : 'current observation is capped at reference use by source policy';
+    result.status = 'VALID'; result.confidence = sourceKind === 'live' || sourceKind === 'proxy' ? 'high' : 'medium';
+    result.allowedUse = true; result.decisionUse = true;
+    result.reason = 'current evidence within SLA with explicit tier/rights/revision/quality/use grant';
     return result;
   }
   if (liveValue != null && currentSource) {
     result.value = liveValue; result.source = meta.source || sourceKind; result.sourceKind = sourceKind;
     result.sourceLabel = meta.sourceLabel || result.source; result.asOf = meta.sourceTs || meta.asOf || null;
     result.fetchedAt = meta.fetchedAt || null; result.ageMs = ageMs; result.freshness = 'stale';
-    result.status = 'STALE'; result.confidence = 'low'; result.reason = 'current source exceeded SLA';
+    result.status = ageMs != null && ageMs >= 0 && ageMs <= maxAgeMs ? 'REFERENCE_CURRENT' : 'STALE';
+    result.confidence = 'low';
+    result.reason = ageMs == null ? 'observation timestamp missing; fetch time cannot promote currentness'
+      : ageMs < 0 ? 'future observation timestamp' : ageMs <= maxAgeMs ? 'explicit quality/use grant missing' : 'current source exceeded SLA';
     return result;
   }
   if (snapshotValue != null) {
@@ -23503,9 +23982,10 @@ window.AIO.recordCrossSourceQuote = function(symbol, source, price, pct, ts, met
   var sym = String(symbol || '').trim().toUpperCase();
   var px = Number(price);
   if (!sym || !isFinite(px) || px <= 0) return false;
-  var stamp = ts || Date.now();
-  var parsedTs = typeof stamp === 'number' ? stamp : new Date(stamp).getTime();
-  if (!isFinite(parsedTs)) parsedTs = Date.now();
+  // A cross-source row is evidence about an observation, not about when the
+  // browser received it.  Never manufacture observation time from Date.now;
+  // an undated row must remain unavailable to freshness/decision checks.
+  var parsedTs = typeof _aioMetricTs === 'function' ? _aioMetricTs(ts) : null;
   var src = String(source || 'unknown');
   var family = window.AIO.normalizeQuoteSourceFamily(src);
   window.AIO_CROSS_SOURCE_QUOTE_CACHE = window.AIO_CROSS_SOURCE_QUOTE_CACHE || {};
@@ -23553,6 +24033,10 @@ window.AIO.getCrossSourceQuoteValidation = function(symbol, opts) {
   if (!sym || !isFinite(primaryPrice) || primaryPrice <= 0) {
     return { symbol: sym, status: 'unavailable', independentCount: 0, issue: 'missing_primary_price', sources: [], generatedAt: new Date(now).toISOString() };
   }
+  var primaryTs = typeof _aioMetricTs === 'function' ? _aioMetricTs(primary.ts) : null;
+  if (primaryTs == null) {
+    return { symbol: sym, status: 'unavailable', independentCount: 0, issue: 'missing_primary_observation_time', sources: [], generatedAt: new Date(now).toISOString() };
+  }
   var primaryFamily = window.AIO.normalizeQuoteSourceFamily(primary.source);
   var gate = window.AIO_DATA_TRUTH_GATE;
   var baseMaxAge = gate && typeof gate.maxAgeMs === 'function' ? gate.maxAgeMs(sym) : 15 * 60 * 1000;
@@ -23562,7 +24046,9 @@ window.AIO.getCrossSourceQuoteValidation = function(symbol, opts) {
     Object.keys(bucket.sources).forEach(function(k) {
       var row = bucket.sources[k];
       if (!row || !isFinite(Number(row.price)) || Number(row.price) <= 0) return;
-      var rowAge = now - Number(row.ts || row.recordedAt || 0);
+      var rowTs = typeof _aioMetricTs === 'function' ? _aioMetricTs(row.ts) : null;
+      if (rowTs == null) return;
+      var rowAge = now - rowTs;
       var rowMaxAge = row.meta && row.meta.delayed ? Math.max(baseMaxAge, 36 * 60 * 60 * 1000) : Math.max(baseMaxAge, 20 * 60 * 1000);
       if (rowAge < 0 || rowAge > rowMaxAge) return;
       rows.push(row);
@@ -23680,15 +24166,13 @@ window.AIO_DATA_TRUTH_GATE = {
     sourceMeta = sourceMeta || {};
     var price = Number(data.price != null ? data.price : data.regularMarketPrice);
     var pct = data.pct != null ? Number(data.pct) : (data.changePct != null ? Number(data.changePct) : (data.regularMarketChangePercent != null ? Number(data.regularMarketChangePercent) : null));
-    var ts = sourceMeta.ts || data.ts || data.timestamp || null;
+    var ts = sourceMeta.ts != null ? sourceMeta.ts : (data.ts != null ? data.ts : (data.timestamp != null ? data.timestamp : null));
     var source = sourceMeta.source || data.source || data._source || '';
     var policyKey = sourceMeta.policyKey || data.policyKey || 'quote';
     var now = Date.now();
+    var parsedTs = typeof _aioMetricTs === 'function' ? _aioMetricTs(ts) : null;
     var ageMs = null;
-    if (ts) {
-      var parsed = typeof ts === 'number' ? ts : new Date(ts).getTime();
-      if (isFinite(parsed)) ageMs = Math.max(0, now - parsed);
-    }
+    if (parsedTs != null) ageMs = now - parsedTs;
     var maxAgeMs = this.maxAgeMs(sym);
     var issues = [];
     var warnings = [];
@@ -23696,6 +24180,7 @@ window.AIO_DATA_TRUTH_GATE = {
     if (!isFinite(price) || price <= 0) issues.push('missing_or_invalid_price');
     if (!this.sourceAllowed(source, policyKey)) issues.push('non_operational_source:' + (source || 'unknown'));
     if (ageMs == null) issues.push('missing_timestamp');
+    else if (ageMs < 0) issues.push('future_timestamp');
     else if (ageMs > maxAgeMs) issues.push('stale_quote:' + Math.round(ageMs / 1000) + 's');
     if (isFinite(price)) {
       var r = this.rangeFor(sym);
@@ -23713,7 +24198,7 @@ window.AIO_DATA_TRUTH_GATE = {
     try {
       if (window.AIO && typeof window.AIO.getCrossSourceQuoteValidation === 'function') {
         crossSource = window.AIO.getCrossSourceQuoteValidation(sym, {
-          primary: { price: price, pct: pct, source: source, ts: ts || now }
+          primary: { price: price, pct: pct, source: source, ts: parsedTs }
         });
         if (crossSource.status === 'mismatch') {
           issues.push('cross_source_mismatch:' + crossSource.blockingMismatches.map(function(m) { return m.family + ':' + m.diffPct + '%'; }).join('|'));
@@ -25432,18 +25917,6 @@ function _aioExternalReferenceMap(externalReferences) {
     { id:'aaii-bearish', globalVar:'_aaiiBearish', snapshotKey:'aaiiBear', label:'AAII bearish %', family:'sentiment', maxAgeMin:10080, decisionUse:'reference' }
   ];
 
-  function _aioGetLastFetchTs(symbol) {
-    var lf = window._lastFetch || {};
-    var direct = lf[symbol] || lf[String(symbol || '').replace(/[^A-Za-z0-9]/g, '')] || null;
-    if (!direct && lf.liveQuotes) direct = lf.liveQuotes;
-    if (!direct && lf.quotes) direct = lf.quotes;
-    if (typeof direct === 'number') return direct;
-    if (direct && typeof direct === 'object') {
-      return direct.ts || direct.time || direct.updatedAt || direct.lastUpdated || direct.startedAt || null;
-    }
-    return null;
-  }
-
   // v52.49/WO-6: 심볼 시세(window._liveData[symbol].price) 입력 전용 경로. 기존 7개 입력이 사용.
   function _aioQuoteRuntimeEvidence(input) {
     var ld = window._liveData || {};
@@ -25454,20 +25927,45 @@ function _aioExternalReferenceMap(externalReferences) {
       'DX-Y.NYB':'dxy', 'CL=F':'wti', QQQ:'qqq', RSP:'rsp', '^VVIX':'vvix'
     };
     var snapKey = fallbackMap[input.symbol];
-    var ts = row && (row.ts || row._ts || row.updatedAt || row.lastUpdated) || _aioGetLastFetchTs(input.symbol);
-    var ageMin = ts ? Math.round((Date.now() - new Date(ts).getTime()) / 60000) : null;
-    var hasLiveValue = !!(row && row.price != null && isFinite(Number(row.price)));
-    var hasSnapshotValue = snapKey && snap[snapKey] != null && isFinite(Number(snap[snapKey]));
+    // `_lastFetch` is transport telemetry.  It is deliberately not a market
+    // observation clock; only the producer's row-level observed timestamp may
+    // satisfy the currentness gate.
+    var tsRaw = row && (row.observedAt != null ? row.observedAt
+      : row.ts != null ? row.ts : row._ts != null ? row._ts
+      : row.updatedAt != null ? row.updatedAt : row.lastUpdated);
+    var ts = _aioMetricTs(tsRaw);
+    var timestampValid = ts != null && Number.isFinite(ts);
+    var ageMs = timestampValid ? Date.now() - ts : null;
+    var ageMin = timestampValid ? Math.round(ageMs / 60000) : null;
+    var liveValue = row ? _aioStrictFinite(row.price) : null;
+    var hasLiveValue = liveValue != null;
+    var snapshotValue = snapKey ? _aioStrictFinite(snap[snapKey]) : null;
+    var hasSnapshotValue = snapshotValue != null;
+    var source = row && (row.source || row.provider || row.sourceLabel) || 'liveData';
+    var sourceKind = _aioDecisionSourceKind(row && (row.sourceKind || row.source || row.provider) || 'unknown');
+    var quality = row && (row.quality || row.metric || row.dataQuality) || null;
+    var qualityFreshness = quality && String(quality.freshness || quality.status || '').toLowerCase();
+    var qualityReady = _aioDecisionQualityReady(quality);
+    var qualityBlocked = !qualityReady || !!(quality && (quality.allowedUse === false || /^(reference|reference-only|none|blocked)$/i.test(String(quality.allowedUse || ''))
+      || /^(reference_only|blocked|missing|unavailable)$/.test(String(quality.status || '').toLowerCase()) || /^(fallback|estimated|stale|hard_stale|unavailable)/.test(qualityFreshness)));
+    var declaredAllowed = row && (row.allowedUse != null ? row.allowedUse : row.decisionUse);
+    // Missing authorization is not authorization.  Keep this envelope
+    // fail-closed in parity with _aioDecisionMetricEnvelope.
+    var explicitDecisionUse = declaredAllowed === true || declaredAllowed === 'decision' || declaredAllowed === 'trading';
+    var decisionRequested = input.decisionUse !== 'reference';
+    var sourceOperational = sourceKind === window.AIO_SOURCE_KIND.LIVE || sourceKind === window.AIO_SOURCE_KIND.DELAYED;
+    var allowedUse = hasLiveValue && sourceOperational && timestampValid && ageMs >= 0 && ageMs <= (Number(input.maxAgeMin) * 60000)
+      && !qualityBlocked && explicitDecisionUse && decisionRequested;
     var status = 'unavailable';
-    var source = 'none';
     var remediation = '';
-    if (hasLiveValue && (ageMin == null || ageMin <= input.maxAgeMin)) {
+    if (allowedUse) {
       status = 'verified_current';
-      source = row.source || row.provider || 'liveData';
-    } else if (hasLiveValue) {
+    } else if (hasLiveValue && sourceOperational && timestampValid && ageMs > (Number(input.maxAgeMin) * 60000)) {
       status = 'stale_live';
-      source = row.source || row.provider || 'liveData';
       remediation = 'refresh live quote before using for trading decision';
+    } else if (hasLiveValue && (sourceKind === window.AIO_SOURCE_KIND.SNAPSHOT || sourceKind === window.AIO_SOURCE_KIND.REFERENCE || !timestampValid || qualityBlocked || !decisionRequested)) {
+      status = sourceKind === window.AIO_SOURCE_KIND.SNAPSHOT || sourceKind === window.AIO_SOURCE_KIND.REFERENCE || !decisionRequested ? 'snapshot_reference' : 'unavailable';
+      remediation = !timestampValid ? 'observation timestamp missing or invalid; obtain a timestamped live quote before trading use' : 'promote through a current, decision-authorized evidence source before trading use';
     } else if (hasSnapshotValue) {
       status = 'snapshot_reference';
       source = 'DATA_SNAPSHOT';
@@ -25476,17 +25974,24 @@ function _aioExternalReferenceMap(externalReferences) {
       remediation = 'fetch live source and cross-check before trading use';
     }
     return {
-      value: hasLiveValue ? Number(row.price) : (hasSnapshotValue ? Number(snap[snapKey]) : null),
+      value: hasLiveValue ? liveValue : (hasSnapshotValue ? snapshotValue : null),
       source: source,
+      sourceKind: hasLiveValue ? sourceKind : hasSnapshotValue ? window.AIO_SOURCE_KIND.SNAPSHOT : window.AIO_SOURCE_KIND.UNAVAILABLE,
       status: status,
       ageMin: ageMin,
+      ageMs: ageMs,
+      timestampValid: timestampValid,
+      quality: quality,
+      allowedUse: allowedUse,
+      qualityReady: qualityReady,
       remediation: remediation
     };
   }
 
   // v52.49/WO-6: computeTradingScore()가 심볼 시세가 아닌 전역 변수로 읽는 입력(F&G/breadth/PCR/HY스프레드/AAII) 전용 경로.
-  // 이 값들은 window._lastFetch[fetchKey](_markFetch 레지스트리, P594 계열)로만 신선도를 알 수 있다 —
-  // fetchKey가 없는 입력(AAII)은 서버에서 갱신되더라도 클라이언트 실시간 경로는 없으므로 snapshot_reference로 보고한다.
+  // `_lastFetch` is a transport/cache timestamp, not an observation envelope.
+  // Global values become decision-eligible only when their producer publishes
+  // one canonical envelope with explicit use, observedAt, source kind and quality.
   function _aioGlobalRuntimeEvidence(input) {
     if (input && input.id === 'fg-sentiment' && window.AIO && typeof window.AIO.getCanonicalMetric === 'function') {
       var canonical = window.AIO.getCanonicalMetric('fg', { maxAgeMs: (input.maxAgeMin || 240) * 60000 });
@@ -25494,44 +25999,119 @@ function _aioExternalReferenceMap(externalReferences) {
       return {
         value: canonical.value,
         source: canonical.source,
+        sourceKind: canonical.sourceKind || (canonical.allowedUse ? window.AIO_SOURCE_KIND.LIVE : window.AIO_SOURCE_KIND.REFERENCE),
         status: canonicalStatus,
         ageMin: canonical.ageMs != null ? Math.round(canonical.ageMs / 60000) : null,
+        ageMs: canonical.ageMs,
+        timestampValid: canonical.ageMs != null,
+        allowedUse: canonical.allowedUse === true,
+        explicitDecisionUse: canonical.explicitDecisionUse === true,
+        qualityReady: canonical.qualityReady === true,
+        canonicalEnvelopeReady: canonical.canonicalEnvelopeReady === true,
         remediation: canonical.allowedUse ? '' : (canonical.reason || 'refresh current Fear & Greed evidence before trading use')
       };
     }
     var snap = window.DATA_SNAPSHOT || {};
     var raw = window[input.globalVar];
-    var hasValue = raw != null && isFinite(Number(raw));
-    var ts = input.fetchKey ? _aioGetLastFetchTs(input.fetchKey) : null;
-    var ageMin = ts ? Math.round((Date.now() - new Date(ts).getTime()) / 60000) : null;
-    var hasSnapshotValue = input.snapshotKey && snap[input.snapshotKey] != null && isFinite(Number(snap[input.snapshotKey]));
+    var rawValue = _aioStrictFinite(raw);
+    var evidence = null;
+    if (input && input.id === 'pcr-putcall') {
+      var pcrPayload = window._lastPutCallPayload || {};
+      var pcrMetric = pcrPayload.metric || null;
+      evidence = {
+        value: pcrMetric && pcrMetric.value != null ? pcrMetric.value : pcrPayload.totalPutCall,
+        source: pcrMetric && (pcrMetric.sourceLabel || pcrMetric.source) || pcrPayload.sourceLabel || null,
+        sourceKind: pcrMetric && (pcrMetric.sourceKind || pcrMetric.source) || pcrPayload.sourceKind || null,
+        sourceTier: pcrMetric && pcrMetric.sourceTier || pcrPayload.sourceTier || null,
+        rightsId: pcrMetric && pcrMetric.rightsId || pcrPayload.rightsId || null,
+        revisionId: pcrMetric && (pcrMetric.revisionId || pcrMetric.revision) || pcrPayload.revisionId || null,
+        allowedUseCeiling: pcrMetric && pcrMetric.allowedUseCeiling || pcrPayload.allowedUseCeiling || null,
+        allowedUse: pcrMetric && (pcrMetric.allowedUse != null ? pcrMetric.allowedUse : pcrMetric.decisionUse),
+        observedAt: pcrPayload.asOf || (pcrMetric && pcrMetric.ts) || null,
+        freshnessMs: pcrMetric && pcrMetric.freshnessMs || pcrPayload.freshnessMs || null,
+        quality: pcrMetric && (pcrMetric.quality || pcrMetric.contract) || pcrPayload.quality || null
+      };
+    } else if (input && input.id === 'breadth200-participation') {
+      var breadthState = window._aioScreenerBreadthState || {};
+      var breadthData = window._breadthLiveData || {};
+      evidence = {
+        value: breadthData.sma20 != null ? breadthData.sma20 : null,
+        source: breadthData.source || breadthState.source || null,
+        sourceKind: breadthData.sourceKind || breadthState.sourceKind || null,
+        sourceTier: breadthData.sourceTier || breadthState.sourceTier || null,
+        rightsId: breadthData.rightsId || breadthState.rightsId || null,
+        revisionId: breadthData.revisionId || breadthState.revisionId || null,
+        allowedUseCeiling: breadthData.allowedUseCeiling || breadthState.allowedUseCeiling || null,
+        allowedUse: breadthData.allowedUse != null ? breadthData.allowedUse : breadthState.allowedUse,
+        observedAt: breadthData.observedAt || breadthState.observedAt || null,
+        freshnessMs: breadthData.freshnessMs || breadthState.freshnessMs || null,
+        quality: breadthData.quality || breadthState.quality || null
+      };
+    } else if (input && input.id === 'hy-spread-bp') {
+      evidence = window._hySpreadEvidence || window._hySpreadMeta || null;
+    } else if (input && input.id === 'aaii-bearish') {
+      evidence = window._serverDataMeta && window._serverDataMeta.marketSurveys && window._serverDataMeta.marketSurveys.aaii || null;
+    }
+    evidence = evidence && typeof evidence === 'object' ? evidence : null;
+    // A global variable may be useful for a reference display, but it cannot
+    // be grafted onto another row's provenance.  Decision use requires the
+    // value and every envelope field to come from the same evidence object.
+    var envelopeValue = evidence && _aioStrictFinite(evidence.value);
+    var evidenceValue = envelopeValue != null ? envelopeValue : null;
+    var hasValue = evidenceValue != null;
+    var referenceValue = envelopeValue != null ? envelopeValue : rawValue;
+    var hasReferenceValue = referenceValue != null;
+    var evidenceSource = evidence && (evidence.source || evidence.sourceLabel || evidence.provider) || null;
+    var evidenceKind = evidence && (evidence.sourceKind || evidence.sourceType || evidence.kind) || null;
+    var declaredAllowed = evidence && (evidence.allowedUse != null ? evidence.allowedUse : evidence.decisionUse);
+    var tsRaw = evidence && (evidence.observedAt != null ? evidence.observedAt : evidence.asOf != null ? evidence.asOf : evidence.ts);
+    var ts = _aioMetricTs(tsRaw);
+    var timestampValid = ts != null && Number.isFinite(ts);
+    var ageMs = timestampValid ? Date.now() - ts : null;
+    var ageMin = timestampValid ? Math.round(ageMs / 60000) : null;
+    var snapshotValue = input.snapshotKey ? _aioStrictFinite(snap[input.snapshotKey]) : null;
+    var hasSnapshotValue = snapshotValue != null;
+    var sourceKind = _aioDecisionSourceKind(evidenceKind || evidenceSource || 'unknown');
+    var sourceOperational = sourceKind === window.AIO_SOURCE_KIND.LIVE || sourceKind === window.AIO_SOURCE_KIND.DELAYED;
+    var explicitDecisionUse = _aioExplicitDecisionUse(declaredAllowed);
+    var qualityReady = !!(evidence && _aioDecisionQualityReady(evidence.quality || evidence.contract || null));
+    var canonicalEnvelopeReady = !!(evidence && _aioCanonicalDecisionEnvelopeReady(evidence, Date.now(), input.maxAgeMin * 60000));
     var status = 'unavailable';
     var source = 'none';
     var remediation = '';
-    if (hasValue && input.fetchKey && ts && ageMin != null && ageMin <= input.maxAgeMin) {
+    var allowedUse = false;
+    if (hasValue && sourceOperational && timestampValid && ageMs >= 0 && ageMs <= input.maxAgeMin * 60000
+      && input.decisionUse === 'trading' && explicitDecisionUse && qualityReady && canonicalEnvelopeReady) {
       status = 'verified_current';
-      source = input.fetchKey;
-    } else if (hasValue && input.fetchKey && ts) {
+      source = evidenceSource || 'canonical-evidence';
+      allowedUse = true;
+    } else if (hasValue && sourceOperational && timestampValid && ageMs > input.maxAgeMin * 60000) {
       status = 'stale_live';
-      source = input.fetchKey;
-      remediation = 'refresh live source before using for trading decision';
-    } else if (hasValue) {
-      // 값은 있으나 fetch 타임스탬프가 없음(수동/주간 갱신 스냅샷류) — snapshot_reference로 취급.
-      status = 'snapshot_reference';
-      source = 'DATA_SNAPSHOT';
-      remediation = input.decisionUse === 'trading' ? 'promote through live/evidence source before trading use' : '';
+      source = evidenceSource || sourceKind;
+      remediation = 'refresh observed evidence before using for trading decision';
+    } else if (hasReferenceValue) {
+      status = !timestampValid || !explicitDecisionUse || !qualityReady || !canonicalEnvelopeReady || !sourceOperational || input.decisionUse !== 'trading' ? 'snapshot_reference' : 'unavailable';
+      source = evidenceSource || 'canonical-evidence';
+      remediation = !timestampValid ? 'observation timestamp missing or invalid; obtain a timestamped evidence envelope before trading use' : 'promote through a current, explicitly authorized, tiered, rights-verified quality evidence envelope before trading use';
     } else if (hasSnapshotValue) {
       status = 'snapshot_reference';
       source = 'DATA_SNAPSHOT';
       remediation = 'promote through live/evidence source before trading use';
     } else {
-      remediation = 'fetch live source and cross-check before trading use';
+      remediation = 'fetch live source and publish a canonical evidence envelope before trading use';
     }
     return {
-      value: hasValue ? Number(raw) : (hasSnapshotValue ? Number(snap[input.snapshotKey]) : null),
+      value: hasValue ? evidenceValue : (hasReferenceValue ? referenceValue : (hasSnapshotValue ? snapshotValue : null)),
       source: source,
       status: status,
       ageMin: ageMin,
+      ageMs: ageMs,
+      timestampValid: timestampValid,
+      sourceKind: status === 'verified_current' || status === 'stale_live' ? sourceKind : hasSnapshotValue || hasValue ? (sourceKind === window.AIO_SOURCE_KIND.UNAVAILABLE ? window.AIO_SOURCE_KIND.SNAPSHOT : sourceKind) : window.AIO_SOURCE_KIND.UNAVAILABLE,
+      allowedUse: allowedUse,
+      explicitDecisionUse: explicitDecisionUse,
+      qualityReady: qualityReady,
+      canonicalEnvelopeReady: canonicalEnvelopeReady,
       remediation: remediation
     };
   }
@@ -25546,7 +26126,14 @@ function _aioExternalReferenceMap(externalReferences) {
       value: r.value,
       source: r.source,
       status: r.status,
+      sourceKind: r.sourceKind || window.AIO_SOURCE_KIND.UNAVAILABLE,
       ageMin: r.ageMin,
+      ageMs: r.ageMs,
+      timestampValid: r.timestampValid === true,
+      allowedUse: r.allowedUse === true,
+      explicitDecisionUse: r.explicitDecisionUse === true,
+      qualityReady: r.qualityReady === true,
+      canonicalEnvelopeReady: r.canonicalEnvelopeReady === true,
       maxAgeMin: input.maxAgeMin,
       decisionUse: input.decisionUse,
       remediation: r.remediation
@@ -26230,13 +26817,13 @@ window.PAGES = {
   'technical':      { label: '차트·기술',        init: null, chatCtx: 'technical' },
   'macro':          { label: '거시경제',         init: null, chatCtx: 'macro' },
   'fxbond':         { label: '환율·채권',        init: null, chatCtx: 'fxbond' },
-  'fundamental':    { label: '기업 분석',        init: null, chatCtx: 'fundamental' },
+  'fundamental':    { label: '기업 분석',        init: null, chatCtx: 'fundamental', contextScope: 'entity' },
   'themes':         { label: '테마/섹터',        init: null, chatCtx: 'themes' },
   'theme-detail':   { label: '테마 상세',        init: null, chatCtx: 'theme-detail' },
   'portfolio':      { label: '포트폴리오',       init: null, chatCtx: 'portfolio' },
-  'ticker':         { label: '티커 상세',        init: null, chatCtx: null },
+  'ticker':         { label: '티커 상세',        init: null, chatCtx: null, contextScope: 'entity' },
   'market-news':    { label: '시장 뉴스',        init: null, chatCtx: null },
-  'options':        { label: '옵션 분석',        init: null, chatCtx: null },
+  'options':        { label: '옵션 분석',        init: null, chatCtx: null, contextScope: 'entity' },
   // v53.7 (P725): kr-home/kr-supply/kr-themes/kr-macro/kr-technical 라우트 퇴역 —
   // 콘텐츠는 themes/macro/technical의 "한국 시장" 통합 섹션으로 이관(요소 id 보존),
   // 구 해시는 showPage의 _hashAlias가 리다이렉트. KR 매크로 배지는 macro init에서 호출.
@@ -26953,16 +27540,17 @@ function showPage(id, navEl) {
     } catch(_) {}
     id = 'themes';
   }
-  // v49.58 R106: 페이지 진입 시 ticker-related 마커 자동 sync — ticker/fundamental/options/portfolio 등
-  // CHAT_CONTEXTS가 활성 종목 자동 인지하여 환각 차단
+  // v49.58 R106: 페이지 진입 시 ticker-related 마커 자동 sync.
+  // The route table is the single owner of context scope: only entity routes
+  // may retain the selected ticker for CHAT_CONTEXTS. Every other route must
+  // clear it, otherwise a prior entity can silently leak into shared AI input.
   try {
-    if (id !== 'ticker' && id !== 'fundamental' && id !== 'options') {
-      // ticker context를 벗어나면 _currentTickerId clear (themes/macro 등에서 잔존 방지)
-      // ticker/fundamental/options 진입은 showTicker 또는 fundamentalSearch에서 별도 set
-      if (id === 'themes' || id === 'theme-detail') {
-        // themes 계열은 _currentThemeId만 유지, ticker는 clear
-        window._currentTickerId = null;
-      }
+    var _routeMeta = window.PAGES && window.PAGES[id];
+    var _entityScopedRoute = !!(_routeMeta && _routeMeta.contextScope === 'entity');
+    if (!_entityScopedRoute) {
+      window._currentTickerId = null;
+      window._currentTickerSym = '';
+      if (window.AIO && window.AIO.state) window.AIO.state._currentTickerSym = '';
     }
   } catch(_markerErr) {}
   // v30.10: 이전 페이지 차트 정리 (메모리 누수 방지)
@@ -27288,18 +27876,38 @@ function showTicker(tkr) {
 
 /**
  * 일별 수익률 계산 (종가 배열 → 수익률 배열)
- * Yahoo Finance API는 공휴일에 null을 반환하므로 null/NaN 필터링 포함
+ * Yahoo Finance API의 null bar는 관측 단절이다. 단순 필터링으로
+ * 단절 양 끝을 1일 수익률로 연결하지 않는다.
  * @param {number[]} prices - 종가 배열 (오름차순, 최소 2개)
  * @returns {number[]} 일별 수익률 배열
  */
-function _calcDailyReturns(prices) {
+function _calcDailyReturns(prices, timestamps) {
   if (!prices || prices.length < 2) return [];
-  // null/undefined/NaN 제거 (공휴일 갭 처리)
-  var valid = prices.filter(function(p) { return p !== null && p !== undefined && !isNaN(p) && p > 0; });
-  if (valid.length < 2) return [];
   var returns = [];
-  for (var i = 1; i < valid.length; i++) {
-    returns.push((valid[i] - valid[i - 1]) / valid[i - 1]);
+  var previous = null;
+  var previousTs = null;
+  for (var i = 0; i < prices.length; i++) {
+    var current = prices[i];
+    var valid = current !== null && current !== undefined && !isNaN(current) && current > 0;
+    var currentTs = timestamps && timestamps[i] != null ? _aioBtTimestampMs(timestamps[i]) : null;
+    if (!valid) {
+      // Reset at a missing/invalid bar. A later observation starts a new
+      // segment; it is not a one-day return across an unknown interval.
+      previous = null;
+      previousTs = null;
+      continue;
+    }
+    if (previous != null) {
+      var adjacent = true;
+      if (currentTs != null && previousTs != null) {
+        // Permit ordinary weekends/holidays (up to three calendar days), but
+        // never compress a multi-day gap into one daily observation.
+        adjacent = currentTs > previousTs && currentTs - previousTs <= 3 * 24 * 60 * 60 * 1000;
+      }
+      if (adjacent) returns.push((Number(current) - previous) / previous);
+    }
+    previous = Number(current);
+    previousTs = currentTs;
   }
   return returns;
 }
@@ -27355,13 +27963,15 @@ function _calcPortfolioVaR(returns, confidence) {
 /**
  * Sharpe Ratio (연율화, 거래일 252일 기준)
  * @param {number[]} returns - 일별 수익률 배열
- * @param {number} rfRate - 연간 무위험수익률 (기본 0.043 = 4.3% US 3M T-bill)
+ * @param {number} rfRate - 연간 무위험수익률 (명시하지 않으면 null)
  * @returns {number|null}
  */
 function _calcSharpe(returns, rfRate) {
-  if (!returns || returns.length < 10) return null;
-  var rfDaily = ((typeof rfRate === 'number') ? rfRate : 0.043) / 252;
-  var excess = returns.map(function(r) { return r - rfDaily; });
+  if (!returns || returns.length < 10 || typeof rfRate !== 'number' || !isFinite(rfRate) || rfRate <= -1) return null;
+  var clean = returns.filter(function(r) { return typeof r === 'number' && isFinite(r); });
+  if (clean.length < 10) return null;
+  var rfDaily = Math.pow(1 + rfRate, 1 / 252) - 1;
+  var excess = clean.map(function(r) { return r - rfDaily; });
   var mean = _statMean(excess);
   var std = _statStdDev(excess);
   if (std < 1e-10) return null;  // v48.95 P1-9: near-zero std → null (division-by-zero 방지)
@@ -27429,9 +28039,17 @@ function _aioBtFinite(v) {
 }
 
 function _aioBtMonthKeyFromTs(ts) {
-  var d = new Date(Number(ts) * 1000);
+  var numeric = typeof ts === 'number' || (typeof ts === 'string' && /^\d+(?:\.\d+)?$/.test(ts)) ? Number(ts) : NaN;
+  var epochMs = Number.isFinite(numeric) ? (numeric < 100000000000 ? numeric * 1000 : numeric) : Date.parse(String(ts || ''));
+  var d = new Date(epochMs);
   if (isNaN(d.getTime())) return null;
   return d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0');
+}
+
+function _aioBtTimestampMs(ts) {
+  var numeric = typeof ts === 'number' || (typeof ts === 'string' && /^\d+(?:\.\d+)?$/.test(ts)) ? Number(ts) : NaN;
+  var epochMs = Number.isFinite(numeric) ? (numeric < 100000000000 ? numeric * 1000 : numeric) : Date.parse(String(ts || ''));
+  return Number.isFinite(epochMs) ? epochMs : null;
 }
 
 function _aioBtMonthDiff(a, b) {
@@ -27443,13 +28061,16 @@ function _aioBtMonthDiff(a, b) {
 function _aioBtMonthEnds(series) {
   var out = {};
   var ts = series && series.timestamps || [];
-  var closes = series && series.closes || [];
+  // The portfolio lab is total-return research.  Raw closes and ambiguous
+  // aliases are intentionally excluded; the producer must provide the
+  // explicit adjustedCloses field alongside the observation timestamps.
+  var closes = series && Array.isArray(series.adjustedCloses) ? series.adjustedCloses : [];
   for (var i = 0; i < Math.min(ts.length, closes.length); i++) {
     var close = _aioBtFinite(closes[i]);
     if (close === null || close <= 0) continue;
     var key = _aioBtMonthKeyFromTs(ts[i]);
     if (!key) continue;
-    out[key] = close;
+    out[key] = { value: close, tsMs: _aioBtTimestampMs(ts[i]) };
   }
   return out;
 }
@@ -27460,8 +28081,8 @@ function _aioBtCompound(returns) {
 
 function _aioBtSortino(returns, rfAnnual) {
   var clean = (returns || []).filter(function(v) { return typeof v === 'number' && isFinite(v); });
-  if (clean.length < 10) return null;
-  var rfMonthly = ((typeof rfAnnual === 'number') ? rfAnnual : 0.043) / 12;
+  if (clean.length < 10 || typeof rfAnnual !== 'number' || !isFinite(rfAnnual) || rfAnnual <= -1) return null;
+  var rfMonthly = Math.pow(1 + rfAnnual, 1 / 12) - 1;
   var excess = clean.map(function(r) { return r - rfMonthly; });
   var downside = excess.filter(function(r) { return r < 0; });
   if (downside.length < 2) return null;  // 하방 관측이 최소 2개는 있어야 의미
@@ -27535,58 +28156,172 @@ function _aioBtShouldRebalance(type, monthKey) {
 window.AIO.buildPortfolioBacktestLab = function(priceMap, positions, options) {
   options = options || {};
   var initialAmount = Math.max(1, Number(options.initialAmount) || 10000);
-  var rfAnnual = (typeof options.rfAnnual === 'number') ? options.rfAnnual : 0.043;
+  var rfProvided = options.rfAnnual != null;
+  var rfAnnual = (typeof options.rfAnnual === 'number' && isFinite(options.rfAnnual)
+    && options.rfAnnual > -1 && options.rfAnnual <= 1) ? options.rfAnnual : null;
+  var rfInvalid = rfProvided && rfAnnual == null;
   var benchmarkSymbol = String(options.benchmarkSymbol || 'SPY').trim().toUpperCase() || 'SPY';
   var rebalanceType = String(options.rebalanceType || 'annual').toLowerCase();
+  var maxAlignmentGapDays = Number.isFinite(Number(options.maxAlignmentGapDays)) && Number(options.maxAlignmentGapDays) >= 0
+    ? Number(options.maxAlignmentGapDays) : 3;
   var startYear = Number(options.startYear) || 2017;
   var endYear = Number(options.endYear) || 2099;
   var raw = (positions || []).filter(function(p) {
     return p && p.ticker && Number(p.qty) > 0 && Number(p.cost) > 0;
   }).map(function(p) {
-    return { ticker: String(p.ticker).trim().toUpperCase(), value: Number(p.qty) * Number(p.cost) };
+    return {
+      ticker: String(p.ticker).trim().toUpperCase(), value: Number(p.qty) * Number(p.cost), qty: Number(p.qty),
+      targetWeight: typeof p.targetWeight === 'number' && isFinite(p.targetWeight) && p.targetWeight >= 0 ? p.targetWeight : null
+    };
   });
   var byTicker = {};
-  raw.forEach(function(p) { byTicker[p.ticker] = (byTicker[p.ticker] || 0) + p.value; });
+  var byTickerQty = {};
+  var byTickerTargetWeight = {};
+  raw.forEach(function(p) {
+    byTicker[p.ticker] = (byTicker[p.ticker] || 0) + p.value;
+    byTickerQty[p.ticker] = (byTickerQty[p.ticker] || 0) + p.qty;
+    if (p.targetWeight != null) byTickerTargetWeight[p.ticker] = (byTickerTargetWeight[p.ticker] || 0) + p.targetWeight;
+  });
   var tickers = Object.keys(byTicker).filter(function(t) { return priceMap && priceMap[t]; });
   var totalValue = tickers.reduce(function(s, t) { return s + byTicker[t]; }, 0);
   if (!tickers.length || totalValue <= 0) return { ok: false, reason: 'no valid portfolio price series', warnings: ['가격 이력이 있는 포지션이 없습니다.'] };
   if (!priceMap || !priceMap[benchmarkSymbol]) return { ok: false, reason: 'missing benchmark', warnings: [benchmarkSymbol + ' 벤치마크 가격 이력이 없습니다.'] };
 
+  // Returns require a corporate-action-adjusted series.  A raw close is still
+  // useful for charting, but silently substituting it here would understate
+  // dividends/splits and present a non-comparable performance result.
+  var requiredSeries = tickers.concat([benchmarkSymbol]);
+  var missingAdjusted = requiredSeries.filter(function(t) {
+    var series = priceMap[t] || {};
+    var adjusted = series.adjustedCloses;
+    return !Array.isArray(adjusted) || adjusted.length !== (series.timestamps || []).length
+      || series.backtestEligible !== true
+      || series.backtestPriceBasis !== 'adjusted-close';
+  });
+  if (missingAdjusted.length) {
+    return {
+      ok: false, status: 'PARTIAL', allowedUse: 'reference-only', decisionUse: false,
+      decisionEligible: false, promotionEligible: false,
+      promotionBlockers: ['adjusted-close-required', 'current-composition-retrospective', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-not-modeled'],
+      reason: 'adjusted-close series required',
+      model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
+      priceBasis: 'adjusted-close-required',
+      compositionDisclosure: 'current-composition-retrospective',
+      warnings: ['조정주가(adjusted close) 이력이 없어 성과 계산을 보류합니다: ' + missingAdjusted.join(', ') + '.', '원가·raw close를 조정주가 대신 사용하지 않습니다.', '거래비용·슬리피지·회전율을 모델링하지 않은 결과는 승격할 수 없습니다.']
+    };
+  }
+  // Do not invent a risk-free rate. Gross return rows can still be shown,
+  // while RF-dependent statistics remain unavailable. The input is a decimal
+  // annual rate in (-1, 1]; values such as 4.3 are rejected as percent units.
+
   var monthEnds = {};
   tickers.concat([benchmarkSymbol]).forEach(function(t) { monthEnds[t] = _aioBtMonthEnds(priceMap[t]); });
   var common = Object.keys(monthEnds[benchmarkSymbol]).filter(function(k) {
     var y = Number(k.slice(0, 4));
-    return y >= startYear && y <= endYear && tickers.every(function(t) { return monthEnds[t][k] != null; });
+    var benchmarkPoint = monthEnds[benchmarkSymbol][k];
+    return y >= startYear && y <= endYear && benchmarkPoint && benchmarkPoint.tsMs != null
+      && tickers.every(function(t) {
+        var point = monthEnds[t][k];
+        return point && point.tsMs != null
+          && Math.abs(point.tsMs - benchmarkPoint.tsMs) <= maxAlignmentGapDays * 24 * 60 * 60 * 1000;
+      });
   }).sort();
   if (common.length < 14) {
-    return { ok: false, reason: 'insufficient aligned monthly data', warnings: ['공통 월말 가격 이력이 14개월 미만입니다.'] };
+    return {
+      ok: false, status: 'PARTIAL', allowedUse: 'reference-only', decisionUse: false,
+      decisionEligible: false, promotionEligible: false,
+      promotionBlockers: ['synchronous-month-end-alignment-required', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-not-modeled'],
+      reason: 'insufficient synchronously aligned monthly data', model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
+      priceBasis: 'adjusted-close-required', compositionDisclosure: 'current-composition-retrospective',
+      warnings: ['동일 월 키라도 관측일 차이가 ' + maxAlignmentGapDays + '일을 넘는 자산은 결합하지 않습니다. 공통 동시 월말이 14개월 미만입니다.']
+    };
   }
 
+  // Weights represent the stated current composition, not historical cost
+  // basis. Prefer an explicit targetWeight contract; otherwise use the latest
+  // common adjusted-close market value (qty × terminal adjusted close).
+  var explicitTargetWeights = tickers.every(function(t) { return byTickerTargetWeight[t] != null; });
   var targetWeights = {};
-  tickers.forEach(function(t) { targetWeights[t] = byTicker[t] / totalValue; });
+  var targetWeightBasis = explicitTargetWeights ? 'explicit-target-weight' : 'terminal-adjusted-close-market-value';
+  var targetWeightDenominator = 0;
+  if (explicitTargetWeights) {
+    tickers.forEach(function(t) { targetWeightDenominator += byTickerTargetWeight[t]; });
+    if (!(targetWeightDenominator > 0)) explicitTargetWeights = false;
+  }
+  if (explicitTargetWeights) {
+    tickers.forEach(function(t) { targetWeights[t] = byTickerTargetWeight[t] / targetWeightDenominator; });
+  } else {
+    tickers.forEach(function(t) {
+      var terminalPoint = monthEnds[t][common[common.length - 1]];
+      var marketValue = terminalPoint && terminalPoint.value > 0 ? byTickerQty[t] * terminalPoint.value : null;
+      targetWeightDenominator += marketValue || 0;
+      targetWeights[t] = marketValue;
+    });
+    if (!(targetWeightDenominator > 0) || tickers.some(function(t) { return !(targetWeights[t] > 0); })) {
+      return {
+        ok: false, status: 'PARTIAL', allowedUse: 'reference-only', decisionUse: false,
+        decisionEligible: false, promotionEligible: false,
+        promotionBlockers: ['target-weight-basis-unavailable', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-not-modeled'],
+        reason: 'target weight basis unavailable', model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
+        priceBasis: 'adjusted-close-required', compositionDisclosure: 'current-composition-retrospective',
+        warnings: ['원가 비중을 목표비중으로 대체하지 않습니다. 명시적 targetWeight 또는 종점 조정주가×수량이 필요합니다.']
+      };
+    }
+    tickers.forEach(function(t) { targetWeights[t] = targetWeights[t] / targetWeightDenominator; });
+  }
   var assetBalances = {};
   tickers.forEach(function(t) { assetBalances[t] = initialAmount * targetWeights[t]; });
   var benchBalance = initialAmount;
   var monthlyRows = [];
   var assetReturnMap = {};
-  tickers.forEach(function(t) { assetReturnMap[t] = []; });
+  var realizedWeightedReturnMap = {};
+  var realizedWeightMap = {};
+  var returnContributionMap = {};
+  tickers.forEach(function(t) { assetReturnMap[t] = []; realizedWeightedReturnMap[t] = []; realizedWeightMap[t] = []; });
+  tickers.forEach(function(t) { returnContributionMap[t] = 0; });
 
   for (var i = 1; i < common.length; i++) {
     var prevMonth = common[i - 1], month = common[i];
     var before = tickers.reduce(function(s, t) { return s + assetBalances[t]; }, 0);
     var assetReturns = {};
+    var startWeights = {};
     tickers.forEach(function(t) {
-      var r = (monthEnds[t][month] / monthEnds[t][prevMonth]) - 1;
+      startWeights[t] = before > 0 ? assetBalances[t] / before : null;
+      realizedWeightMap[t].push(startWeights[t]);
+    });
+    tickers.forEach(function(t) {
+      var r = (monthEnds[t][month].value / monthEnds[t][prevMonth].value) - 1;
       assetReturns[t] = r;
       assetReturnMap[t].push(r);
-      assetBalances[t] *= (1 + r);
+      realizedWeightedReturnMap[t].push((startWeights[t] == null ? 0 : startWeights[t]) * r);
+      // Arithmetic dollar contribution uses the holding balance at the start
+      // of this interval.  It remains additive through rebalances and is not
+      // mislabeled as initial-weight × standalone return.
+      var delta = assetBalances[t] * r;
+      returnContributionMap[t] += delta;
+      assetBalances[t] += delta;
     });
     var balance = tickers.reduce(function(s, t) { return s + assetBalances[t]; }, 0);
     var pfRet = before > 0 ? (balance / before) - 1 : 0;
-    var bRet = (monthEnds[benchmarkSymbol][month] / monthEnds[benchmarkSymbol][prevMonth]) - 1;
+    var bRet = (monthEnds[benchmarkSymbol][month].value / monthEnds[benchmarkSymbol][prevMonth].value) - 1;
     benchBalance *= (1 + bRet);
-    monthlyRows.push({ month: month, return: pfRet, balance: balance, benchmarkReturn: bRet, benchmarkBalance: benchBalance, assetReturns: assetReturns });
-    if (_aioBtShouldRebalance(rebalanceType, month)) {
+    var rebalanced = _aioBtShouldRebalance(rebalanceType, month);
+    var endWeights = {};
+    tickers.forEach(function(t) { endWeights[t] = balance > 0 ? assetBalances[t] / balance : null; });
+    var turnover = 0;
+    if (rebalanced) {
+      // Turnover is measured on the drifted end-of-period holdings that are
+      // actually traded, after the interval return has been realized.
+      turnover = tickers.reduce(function(sum, t) { return sum + Math.abs(targetWeights[t] - (endWeights[t] || 0)); }, 0) / 2;
+    }
+    var monthlyRow = {
+      month: month, return: pfRet, balance: balance, benchmarkReturn: bRet, benchmarkBalance: benchBalance,
+      assetReturns: assetReturns, realizedWeights: startWeights, endWeights: endWeights, turnover: turnover,
+      rebalanced: rebalanced,
+      returnContributionBasis: 'realized-beginning-weighted-arithmetic-return'
+    };
+    monthlyRows.push(monthlyRow);
+    if (rebalanced) {
       tickers.forEach(function(t) { assetBalances[t] = balance * targetWeights[t]; });
     }
   }
@@ -27619,14 +28354,25 @@ window.AIO.buildPortfolioBacktestLab = function(priceMap, positions, options) {
   var benchCagr = Math.pow(benchEndBalance / initialAmount, 12 / nMonths) - 1;
   var stdev = _statStdDev(monthlyReturns) * Math.sqrt(12);
   var benchStdev = _statStdDev(benchmarkReturns) * Math.sqrt(12);
-  var sharpe = stdev > 1e-10 ? (cagr - rfAnnual) / stdev : null;
-  var sortino = _aioBtSortino(monthlyReturns, rfAnnual);
+  var rfMonthly = rfAnnual != null && rfAnnual > -1 ? Math.pow(1 + rfAnnual, 1 / 12) - 1 : null;
+  var excessMonthly = rfMonthly == null ? null : monthlyReturns.map(function(r) { return r - rfMonthly; });
+  var excessStdev = excessMonthly ? _statStdDev(excessMonthly) : null;
+  // Sharpe is the mean monthly arithmetic excess return divided by its
+  // monthly sample deviation, annualized by sqrt(12). CAGR is geometric and
+  // cannot be mixed into this denominator.
+  var sharpe = excessMonthly && excessStdev > 1e-10 ? (_statMean(excessMonthly) / excessStdev) * Math.sqrt(12) : null;
+  var sortino = rfAnnual != null ? _aioBtSortino(monthlyReturns, rfAnnual) : null;
   var activeMonthly = monthlyReturns.map(function(r, idx) { return r - benchmarkReturns[idx]; });
   var trackingError = _statStdDev(activeMonthly) * Math.sqrt(12);
-  var infoRatio = trackingError > 1e-10 ? (cagr - benchCagr) / trackingError : null;
+  var infoRatio = trackingError > 1e-10 ? (_statMean(activeMonthly) / _statStdDev(activeMonthly)) * Math.sqrt(12) : null;
   var corr = _pearsonCorr(monthlyReturns, benchmarkReturns);
-  var beta = _aioBtCovariance(monthlyReturns, benchmarkReturns) / Math.max(1e-12, Math.pow(_statStdDev(benchmarkReturns), 2));
-  var alpha = cagr - (rfAnnual + beta * (benchCagr - rfAnnual));
+  var benchmarkVariance = Math.pow(_statStdDev(benchmarkReturns), 2);
+  var beta = benchmarkVariance > 1e-12 ? _aioBtCovariance(monthlyReturns, benchmarkReturns) / benchmarkVariance : null;
+  var benchmarkExcessMonthly = rfMonthly == null ? null : benchmarkReturns.map(function(r) { return r - rfMonthly; });
+  // Jensen alpha is estimated in the same monthly arithmetic-return space as
+  // beta and annualized by 12; it is not a CAGR-minus-CAGR hybrid.
+  var alpha = rfMonthly != null && beta != null
+    ? (_statMean(excessMonthly) - beta * _statMean(benchmarkExcessMonthly)) * 12 : null;
   var annualReturns = annualRows.map(function(r) { return r.return; });
   var cleanMonthly = monthlyReturns.slice().sort(function(a, b) { return a - b; });
   var var5 = cleanMonthly.length ? Math.max(0, -_quantileR7(cleanMonthly, 0.05)) : null;
@@ -27642,19 +28388,55 @@ window.AIO.buildPortfolioBacktestLab = function(priceMap, positions, options) {
   var mddRows = _aioBtWorstDrawdowns(monthlyRows, common[0], initialAmount);
   var mdd = mddRows.length ? mddRows[0].drawdown : 0;
   var portVar = Math.pow(_statStdDev(monthlyReturns), 2);
+  var netGain = endBalance - initialAmount;
+  var totalTurnover = monthlyRows.reduce(function(sum, row) { return sum + Number(row.turnover || 0); }, 0);
   var components = tickers.map(function(t) {
     var standalone = _aioBtCompound(assetReturnMap[t]);
-    var contribution = initialAmount * targetWeights[t] * standalone;
-    var cov = _aioBtCovariance(assetReturnMap[t], monthlyReturns);
-    var riskContribution = portVar > 1e-12 ? targetWeights[t] * cov / portVar : null;
-    return { ticker: t, weight: targetWeights[t], standaloneReturn: standalone, returnContribution: contribution, riskContribution: riskContribution };
+    var contribution = returnContributionMap[t];
+    var cov = _aioBtCovariance(realizedWeightedReturnMap[t], monthlyReturns);
+    var realizedWeights = realizedWeightMap[t].filter(function(v) { return typeof v === 'number' && isFinite(v); });
+    var averageRealizedWeight = realizedWeights.length ? _statMean(realizedWeights) : null;
+    var riskContribution = portVar > 1e-12 ? cov / portVar : null;
+    return {
+      ticker: t, weight: targetWeights[t], targetWeight: targetWeights[t], averageRealizedWeight: averageRealizedWeight,
+      standaloneReturn: standalone, returnContribution: contribution,
+      returnContributionPct: netGain !== 0 ? contribution / netGain : null,
+      contributionBasis: 'arithmetic-period-start-dollar',
+      riskContribution: riskContribution,
+      riskContributionBasis: 'realized-beginning-weighted-monthly-return'
+    };
   }).sort(function(a, b) { return Math.abs(b.riskContribution || 0) - Math.abs(a.riskContribution || 0); });
 
   return {
     ok: true,
     sourceKind: 'DELAYED',
-    model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V1',
-    settings: { initialAmount: initialAmount, startMonth: common[0], endMonth: common[common.length - 1], months: nMonths, rebalanceType: rebalanceType, benchmarkSymbol: benchmarkSymbol, rfAnnual: rfAnnual },
+    status: 'PARTIAL',
+    allowedUse: 'reference-only',
+    decisionUse: false,
+    decisionEligible: false,
+    promotionEligible: false,
+    promotion: 'trading-performance-prohibited',
+    promotionBlockers: [
+      'transaction-costs-not-modeled',
+      'slippage-not-modeled',
+      'turnover-not-modeled',
+      'current-composition-retrospective',
+      'survivorship-and-membership-history-unavailable'
+    ],
+    model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
+    priceBasis: 'adjusted-close',
+    compositionDisclosure: 'current-composition-retrospective',
+    rfAnnualUnit: 'decimal',
+    rfInputStatus: rfInvalid ? 'invalid-rejected' : rfAnnual == null ? 'not-supplied' : 'accepted',
+    settings: {
+      initialAmount: initialAmount, startMonth: common[0], endMonth: common[common.length - 1], months: nMonths,
+      rebalanceType: rebalanceType, benchmarkSymbol: benchmarkSymbol, rfAnnual: rfAnnual,
+      rfAnnualUnit: 'decimal', rfInputStatus: rfInvalid ? 'invalid-rejected' : rfAnnual == null ? 'not-supplied' : 'accepted',
+      transactionCostBps: null, slippageBps: null, turnoverModeled: false,
+      maxAlignmentGapDays: maxAlignmentGapDays, observedTargetTurnover: totalTurnover,
+      turnoverBasis: 'half-sum-absolute-target-minus-realized-end-weight-at-rebalance',
+      targetWeightBasis: targetWeightBasis
+    },
     tickers: tickers,
     weights: targetWeights,
     monthlyRows: monthlyRows,
@@ -27667,26 +28449,35 @@ window.AIO.buildPortfolioBacktestLab = function(priceMap, positions, options) {
       benchmarkEndBalance: benchEndBalance,
       cagr: cagr,
       benchmarkCagr: benchCagr,
+      returnBasis: 'geometric-compounded-monthly-adjusted-close',
       stdev: stdev,
       benchmarkStdev: benchStdev,
       bestYear: annualReturns.length ? Math.max.apply(null, annualReturns) : null,
       worstYear: annualReturns.length ? Math.min.apply(null, annualReturns) : null,
       maxDrawdown: mdd,
       sharpe: sharpe,
+      sharpeBasis: rfAnnual == null ? 'unavailable-risk-free-rate-not-supplied' : 'monthly-arithmetic-excess-return-over-monthly-sample-stdev-annualized-sqrt12',
       sortino: sortino,
       activeReturn: cagr - benchCagr,
+      activeReturnBasis: 'geometric-cagr-difference',
       trackingError: trackingError,
       informationRatio: infoRatio,
+      informationRatioBasis: 'monthly-arithmetic-active-return-over-monthly-sample-tracking-error-annualized-sqrt12',
       benchmarkCorrelation: corr,
       beta: beta,
       alpha: alpha,
+      alphaBasis: alpha == null ? 'unavailable-risk-free-rate-or-benchmark-variance' : 'monthly-arithmetic-jensen-alpha-annualized-12',
       historicalVar5: var5,
       conditionalVar5: cvar5,
       upsideCapture: upCapture,
       downsideCapture: downCapture
     },
     warnings: [
-      '월말 수정주가 기반 추정치입니다. 세금, 슬리피지, 수수료, 생존편향 보정은 포함하지 않습니다.',
+      '조정주가 기반 총수익률의 참고용 추정치입니다. 세금·수수료·거래비용·슬리피지·회전율을 모델링하지 않았으며 gross 성과입니다. 이 누락은 승격 차단 사유입니다.',
+      '현재 보유 구성의 명시적 목표비중 또는 종점 조정주가×수량 비중을 과거에 소급한 current-composition retrospective이며 원가 비중을 시장가 비중으로 오인하지 않습니다. 생존편향·구성 변경·상장 전 구간은 교정하지 않습니다.',
+      '월말 관측일이 자산 간 ' + maxAlignmentGapDays + '일을 초과하는 월은 비동시성 편향 방지를 위해 제외했습니다.',
+      rfInvalid ? '무위험수익률(RF)은 연간 소수(decimal) 단위(-1, 1]만 허용합니다. 입력 단위가 잘못되어 Sharpe·Sortino·Alpha를 산출하지 않았습니다.' : rfAnnual == null ? '무위험수익률(RF)을 입력하지 않아 Sharpe·Sortino·Alpha를 산출하지 않았습니다.' : ('RF 가정: 연 소수 ' + rfAnnual.toFixed(6) + ' (' + (rfAnnual * 100).toFixed(2) + '%).'),
+      '거래 가능한 실현 성과·매매 지시로 승격하지 않습니다.',
       '무료 Yahoo chart 데이터 범위와 각 종목 상장일에 따라 시작 월이 자동 제한됩니다.'
     ]
   };

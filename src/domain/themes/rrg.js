@@ -2,7 +2,7 @@
 // global reads — every value the legacy wrapper read from its own live-quote/price-history
 // globals is now an explicit parameter. The formula (RS-Ratio/RS-Momentum thresholds, quadrant
 // boundaries) is transcribed unchanged — this is code motion, not a new model (R352/F-03).
-export const RRG_MODEL_VERSION = 'rrg.v1';
+export const RRG_MODEL_VERSION = 'rrg.v2';
 
 function positive(value) {
   const number = Number(value);
@@ -34,10 +34,15 @@ export function computeRelativeRotation({ history = null, benchmarkHistory = nul
   }
   if (Array.isArray(history) && history.length > 20 && Array.isArray(benchmarkHistory) && benchmarkHistory.length > 20) {
     const n = Math.min(history.length, benchmarkHistory.length);
+    // Histories end at the current observation. Align the overlapping tail;
+    // pairing an asset's newest N bars with a longer benchmark's oldest N bars
+    // creates a non-contemporaneous relative-strength series.
+    const assetHistory = history.slice(-n);
+    const alignedBenchmarkHistory = benchmarkHistory.slice(-n);
     const rsVals = [];
     for (let i = 0; i < n; i++) {
-      const asset = positive(history[i]);
-      const benchmark = positive(benchmarkHistory[i]);
+      const asset = positive(assetHistory[i]);
+      const benchmark = positive(alignedBenchmarkHistory[i]);
       if (asset != null && benchmark != null) rsVals.push(asset / benchmark);
     }
     if (rsVals.length >= 10) {

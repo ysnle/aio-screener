@@ -1,6 +1,8 @@
 // Durable bridges extracted from the 2026-08-29 supplied research packet.
 // This module is deliberately reference-only: it contains no current values,
 // issuer rankings, prices, targets, or investment recommendations.
+import { NATHAN_PREVIOUS_THREADS_REFERENCE } from './nathan-previous-threads.js';
+
 export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
   id: 'supplied-materials-2026-08-29',
   sourceKind: 'REFERENCE',
@@ -9,6 +11,7 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
   updatedAt: '2026-09-11',
   sourcePackets: Object.freeze([
     Object.freeze({ id: '2026-09-11-supplied-materials', reviewedAt: '2026-09-11', sourceKind: 'REFERENCE', linkCount: 8, readableSources: 8, unreadableSources: 0, mediaAuditCount: 1, note: 'X 8건과 DELL 실적 후 돌파 첨부 차트를 직접 확인. UTC/KST 게시시각, 인용 게시물, 미디어 상태와 시계열을 분리하고 현재 데이터로 승격하지 않음' }),
+    Object.freeze({ id: '2026-09-12-open-source-market-tooling', reviewedAt: '2026-09-12', sourceKind: 'REFERENCE', linkCount: 10, readableSources: 10, unreadableSources: 0, mediaAuditCount: 0, note: '0x1Rosy X 2건·LuxAlgo X 1건과 Neuberg·Edge Stats GitHub 및 라이선스/아키텍처 문서를 직접 확인. 합법적 데이터·차트·조건부 통계·실행 경계만 구조적으로 추출하고 라이선스 우회/배포물은 통합하지 않음' }),
     Object.freeze({ id: '2026-09-05-supplied-materials', reviewedAt: '2026-09-05', sourceKind: 'REFERENCE', linkCount: 18, readableSources: 18, unreadableSources: 0, mediaAuditCount: 11, note: '사용자 제공 X 17건·Vela GitHub 1건과 첨부 고노고 일보 이미지를 직접 확인. 게시시각·본문·이미지·시계열을 분리하고 현재 데이터로 승격하지 않음' }),
     Object.freeze({ id: '2026-08-30-market-research', reviewedAt: '2026-08-30', sourceKind: 'REFERENCE', readableSources: 6, unreadableSources: 4, note: 'X Article 포인터 4건은 공개 본문이 404로 반환되어 추측하지 않음' }),
     Object.freeze({ id: '2026-08-30-jalapeno', reviewedAt: '2026-08-30', sourceKind: 'REFERENCE', note: '공식 OpenAI 설명은 primary confirmation 후보, zartbot의 세부 마이크로아키텍처는 inferred reference' }),
@@ -16,6 +19,7 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
   ]),
   sourceAudit: Object.freeze([
     Object.freeze({ id: 'packet-2026-09-11', label: '2026-09-11 직접 확인 기술·리스크·매크로 자료', linkCount: 8, readableCount: 8, blockedCount: 0, status: 'DIRECT_READ', note: 'X 8건의 본문·UTC 게시시각·KST 환산·인용 게시물과 첨부 DELL 차트를 직접 확인. 날짜 종속 수치·목표·방향성 주장은 REFERENCE로 제한' }),
+    Object.freeze({ id: 'packet-2026-09-12', label: '오픈소스 시장 터미널·통계·차트 자료', linkCount: 10, readableCount: 10, blockedCount: 1, status: 'DIRECT_READ_WITH_RIGHTS_BOUNDARY', note: 'X 스레드와 GitHub README·아키텍처·데이터 소스·라이선스를 직접 확인. Rosy의 라이선스 우회/키젠·다운로드 경로는 권리·보안 감사로만 기록하고 내용·자격증명·실행 코드는 보존하지 않음. Neuberg BSL-1.1은 코드 복사 없이 개념만 참고하고, Edge Stats MIT는 알고리즘 계약 후보로 한정' }),
     Object.freeze({ id: 'packet-2026-09-05', label: '2026-09-05 직접 확인 시장·AI·아키텍처 자료', linkCount: 18, readableCount: 18, blockedCount: 0, status: 'DIRECT_READ', note: 'X 17건과 LuxAlgo/Vela README·architecture·API 문서를 직접 읽고, Melvin/Trader/StockAnalyst 이미지와 첨부 고노고 일보를 시각 확인. 게시 시점과 현재 관측값을 분리' }),
     Object.freeze({ id: 'packet-2026-08-30', label: '이번 시장·AI 자료', linkCount: 10, readableCount: 6, blockedCount: 4, status: 'MIXED_ACCESS', note: '본문 확인 자료만 프레임 추출에 사용하고, Article pointer 4건은 내용 추측을 금지' }),
     Object.freeze({ id: 'packet-2026-08-29', label: '이전 시장·금융·AI 자료', linkCount: 17, readableCount: 0, blockedCount: 0, status: 'REFERENCE_PACKET', note: 'ParadisLabs·Yonsei·Minervini·Future Walker·KKDW·ZeroHedge·Micron·NVIDIA·Fed·Goldman Sachs gs-quant·첨부 도표 등을 읽기 상태별로 기록' }),
@@ -75,7 +79,17 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
     'https://x.com/Trader_Jesse_/status/2094389217782849928',
     'https://x.com/markminervini/status/2094407591006724563',
     'https://x.com/kishawn07/status/2093815152193970510',
-    'https://x.com/StockAnalystPro/status/2093890963865473043'
+    'https://x.com/StockAnalystPro/status/2093890963865473043',
+    'https://x.com/0x1Rosy/status/2096202208811384911',
+    'https://x.com/0x1Rosy/status/2091275293981884547',
+    'https://x.com/LuxAlgo/status/2095899328661410038',
+    'https://github.com/KoNananachan/Neuberg',
+    'https://github.com/LuxAlgo/edge-stats',
+    'https://github.com/LuxAlgo/edge-stats/blob/main/ARCHITECTURE.md',
+    'https://github.com/LuxAlgo/edge-stats/blob/main/docs/data-sources.md',
+    'https://github.com/LuxAlgo/edge-stats/blob/main/docs/catalog.md',
+    'https://raw.githubusercontent.com/KoNananachan/Neuberg/main/LICENSE',
+    'https://raw.githubusercontent.com/LuxAlgo/edge-stats/main/LICENSE'
   ]),
   sourceObservations: Object.freeze([
     Object.freeze({ id: 'NathanYJLee-2097957777922793710', author: 'Nathan | Factomind', sourceUrl: 'https://x.com/NathanYJLee/status/2097957777922793710', publishedAt: '2026-09-10T07:58:07.000Z', publishedAtKst: '2026-09-10T16:58:07+09:00', sourceKind: 'REFERENCE', status: 'DIRECT_READ', summary: '금융 레버리지와 방향성 레버리지를 분리하고, 예측보다 자금조달·노출 한도·리스크 관리를 우선' }),
@@ -87,6 +101,30 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
     Object.freeze({ id: 'ProblemSniper-2096672934828093812', author: 'ProblemSniper', sourceUrl: 'https://x.com/ProblemSniper/status/2096672934828093812', publishedAt: '2026-09-06T18:52:36.000Z', publishedAtKst: '2026-09-07T03:52:36+09:00', sourceKind: 'REFERENCE', status: 'DIRECT_READ', summary: 'SPY·QQQ·SMH 구조와 고용·Fed 이벤트를 연결한 방향성 가설; 수치·확률·목표는 dated secondary claim으로 보류' }),
     Object.freeze({ id: 'BTC-WyckoffLab-2095358094956245419', author: '세력연구소 | Wyckoff Lab', sourceUrl: 'https://x.com/BTC_WyckoffLab/status/2095358094956245419', publishedAt: '2026-09-03T03:47:54.000Z', publishedAtKst: '2026-09-03T12:47:54+09:00', quotedPublishedAt: '2026-09-02T00:40:47.000Z', quotedPublishedAtKst: '2026-09-02T09:40:47+09:00', sourceKind: 'REFERENCE', status: 'DIRECT_READ', summary: '박스 지지에서 실제 매수 반응을 확인한 뒤 채널 중단·이전 저항과 재테스트를 순서대로 확인' })
   ]),
+  sourceExtensions: Object.freeze({
+    schemaVersion: 'supplied-material-source-extension.v1',
+    packetId: 'packet-2026-09-12',
+    observations: Object.freeze([
+      Object.freeze({ id: '0x1Rosy-2096202208811384911', sourceUrl: 'https://x.com/0x1Rosy/status/2096202208811384911', sourceKind: 'REFERENCE', status: 'DIRECT_READ', allowedUse: 'rights-and-product-boundary-reference', summary: '에이전트 연결·백테스트 자동화·브로커 연동을 주장하는 제품 서술. 실행 자동화나 배포물의 안전성은 확인하지 않음' }),
+      Object.freeze({ id: '0x1Rosy-2091275293981884547', sourceUrl: 'https://x.com/0x1Rosy/status/2091275293981884547', sourceKind: 'REFERENCE', status: 'DIRECT_READ_RIGHTS_BLOCKED', allowedUse: 'security-and-rights-audit-only', summary: 'TradingView 라이선스 검사를 우회하는 실행·키젠·배포 절차가 포함된 자료. 코드·다운로드 경로·비밀번호·실행 지침은 통합·보존하지 않음' }),
+      Object.freeze({ id: 'LuxAlgo-2095899328661410038', sourceUrl: 'https://x.com/LuxAlgo/status/2095899328661410038', sourceKind: 'REFERENCE', status: 'DIRECT_READ', allowedUse: 'reference-only', summary: 'Vela 차트 코어를 Edge Stats, 시장 추적기, 옵션 플로우, 거래 저널의 검증 표면으로 사용하는 제품 구조' }),
+      Object.freeze({ id: 'Neuberg-github', sourceUrl: 'https://github.com/KoNananachan/Neuberg', sourceKind: 'REFERENCE', status: 'DIRECT_READ_LICENSE_RESTRICTED', allowedUse: 'architecture-reference-only', summary: '멀티자산·다중 패널 터미널의 데이터 제공자·AI/뉴스·차트·거래 UI 구성. BSL-1.1로 코드 이식·호스팅 서비스 복사는 제외' }),
+      Object.freeze({ id: 'edge-stats-github', sourceUrl: 'https://github.com/LuxAlgo/edge-stats', sourceKind: 'REFERENCE', status: 'DIRECT_READ', allowedUse: 'algorithm-and-contract-reference', summary: '로컬 우선 조건부 통계 P(outcome | conditions), 표본·Wilson 구간·세션 캘린더·어댑터·DuckDB/Parquet·DSL/레지스트리 구조' })
+    ]),
+    rightsBoundaries: Object.freeze([
+      Object.freeze({ id: 'rosy-license-circumvention', sourceRefs: Object.freeze(['0x1Rosy-2096202208811384911', '0x1Rosy-2091275293981884547']), status: 'BLOCKED', persistedContent: 'none', integration: 'none', reason: 'license-circumvention, keygen, untrusted distribution and credential-like instructions' }),
+      Object.freeze({ id: 'neuberg-bsl-1-1', sourceRefs: Object.freeze(['Neuberg-github']), status: 'REFERENCE_ONLY', license: 'BSL-1.1', codeUse: 'not-integrated', conceptUse: 'architecture-only' }),
+      Object.freeze({ id: 'edge-stats-mit', sourceRefs: Object.freeze(['edge-stats-github']), status: 'ALGORITHM_CANDIDATE', license: 'MIT', dataUse: 'own-or-licensed-data-only', engineUse: 'contract-and-concept-port-only' }),
+      Object.freeze({ id: 'vela-apache-2-0', sourceRefs: Object.freeze(['LuxAlgo-2095899328661410038', 'LuxAlgo-Vela', 'Vela-architecture', 'Vela-API']), status: 'REFERENCE_ONLY', license: 'Apache-2.0', codeUse: 'existing-aio-chart-contract-only', attribution: 'required-if-code-is-ever-adopted' })
+    ]),
+    pipeline: Object.freeze({
+      version: 'market-evidence-pipeline.v1',
+      stages: Object.freeze(['provider-or-adapter', 'rights-check', 'canonical-time-bar', 'exchange-calendar', 'session-feature-derivation', 'conditional-query', 'statistical-envelope', 'chart-drilldown', 'human-review']),
+      requiredLineage: Object.freeze(['sourceId', 'rightsId', 'observedAt', 'fetchedAt', 'availableAt', 'revisionId', 'watermark', 'timezone', 'calendarId', 'calendarStatus']),
+      defaultUse: 'reference-only',
+      blockedPromotions: Object.freeze(['current-price-without-observation', 'future-leaking-statistic', 'raw-source-replay', 'auto-ranking', 'auto-order', 'credential-routing'])
+    })
+  }),
   mediaAudit: Object.freeze([
     Object.freeze({ id: 'attachment-dell-post-earnings-breakout-20260911', kind: 'attached-image', label: '첨부 DELL 실적 후 돌파 차트', status: 'DIRECT_READ', sourceRef: 'user-attachment-codex-clipboard-e7613f98-dc6e-4980-88ee-a57e8ef79608', observedWindow: 'visible Nov–Jun daily chart window; publication timestamp not embedded', note: 'Dell Technologies 일봉에서 Earnings → Post-earnings breakout, 이동평균 정렬·거래량을 관찰. 눈금·가격·날짜를 현재 수치로 OCR/복사하지 않고 이벤트 후 확인 프레임으로만 사용' }),
     Object.freeze({ id: 'attachment-gonnogo-daily-20260904', kind: 'attached-image', label: '고노고 일보 2026-09-04', status: 'DIRECT_READ', note: '원유·금리·FX·고용·AI·중국/G20 뉴스 군집의 구조와 당시 시점을 추출. 헤더 수치와 기사 결론은 current data로 복사하지 않음' }),
@@ -326,6 +364,9 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
     ,Object.freeze({ id: 'behavior-horizon', label: '투자자 행동·성과 지평창', window: 'daily noise ↔ multi-year outcome cycle', cadence: 'daily/monthly/annual', metrics: Object.freeze(['turnover', 'FOMO', 'leverage', 'drawdown', 'recovery', 'holding horizon', 'real purchasing power']), alignment: '일봉 변동성과 수년 성과를 같은 성과평가 단위로 오인하지 않음', sourceKind: 'REFERENCE', operationalUse: 'reference-only' })
     ,Object.freeze({ id: 'investment-financing-productivity', label: '투자·자금조달·생산성 전달창', window: 'investment surge → financing capacity → deployment → productivity → inflation/debt', cadence: 'monthly/quarterly/annual', metrics: Object.freeze(['private CAPEX', 'bank balance sheet', 'credit supply', 'long rates', 'utilization', 'labor productivity', 'inflation', 'debt/GDP']), alignment: '정책 발언·민간 투자·신용공급·실물 생산성·물가를 발표일·관측기간으로 분리', sourceKind: 'REFERENCE', operationalUse: 'reference-only' })
     ,Object.freeze({ id: 'dollar-rails', label: '달러 배관·프론트엔드 증폭창', window: 'settlement/collateral/repo → liquidity stress → price transmission', cadence: 'daily/event/quarterly', metrics: Object.freeze(['collateral quality', 'settlement rail', 'repo/reserves', 'margin call', 'liquidity premium', 'FX/dollar', 'asset price']), alignment: '달러 약세·패권·결제 인프라·시장 가격과 예외적 배관 스트레스를 같은 원인으로 합치지 않음', sourceKind: 'REFERENCE', operationalUse: 'reference-only' })
+    ,Object.freeze({ id: 'session-conditional-evidence', label: '세션 조건부 증거창', window: 'session/event condition → eligible set → outcome window', cadence: '1m/session/daily', metrics: Object.freeze(['eligible denominator', 'success count', 'sample size', 'Wilson 95% CI', 'half-split stability', 'recency', 'per-year', 'quantiles']), alignment: '1분봉·거래소 세션 캘린더·PIT availableAt을 고정하고 조건·분모·결과·통계 봉투를 함께 보존', sourceKind: 'REFERENCE', operationalUse: 'reference-only' })
+    ,Object.freeze({ id: 'data-lineage-watermark', label: '시장 데이터 원천·워터마크창', window: 'provider fetch → normalize → derive → publish', cadence: 'fetch/incremental/session', metrics: Object.freeze(['sourceId', 'rightsId', 'observedAt', 'fetchedAt', 'availableAt', 'revisionId', 'watermark', 'timezone', 'calendarId', 'calendarStatus']), alignment: '제공자·권리·관측·수집·가용·개정·증분 경계를 한 레코드에 묶고 세션 feature는 한 번만 파생', sourceKind: 'REFERENCE', operationalUse: 'reference-only' })
+    ,Object.freeze({ id: 'agent-research-audit', label: '에이전트 연구·시뮬레이션 감사창', window: 'request → query/AST → evidence → human review', cadence: 'request/session/backtest', metrics: Object.freeze(['request', 'query echo', 'AST/DSL', 'data lineage', 'simulation result', 'review decision', 'execution boundary']), alignment: '자연어 연구·조건부 통계·차트 검증과 브로커 주문/자격증명을 분리하고 실행은 기본 차단', sourceKind: 'REFERENCE', operationalUse: 'reference-only' })
   ]),
   sections: Object.freeze([
     Object.freeze({
@@ -792,21 +833,98 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
       ]),
       observe: '달러 약세를 패권 붕괴로 번역하지 않고, backend plumbing이 front-end price를 증폭한 사건인지 순서를 기록',
       invalidation: 'settlement·collateral·repo·margin 관측이 없으면 배관을 현재 시장 방향의 독립 원인으로 사용하지 않음'
+    }),
+    Object.freeze({
+      id: 'conditional-evidence-envelope',
+      sourceRefs: Object.freeze(['LuxAlgo-2095899328661410038', 'edge-stats-github']),
+      timeSeriesIds: Object.freeze(['session-conditional-evidence', 'market-reaction', 'structure-confirmation']),
+      title: '조건부 통계 · 분모·표본·안정성 봉투',
+      thesis: '조건부 확률이나 승률은 숫자 하나가 아니라 조건을 만족한 분모, 성공 정의, 표본 수, 신뢰구간, 시기별 안정성, 분포와 실제 매칭 사례를 함께 가진 evidence envelope일 때만 의미가 있습니다.',
+      steps: Object.freeze([
+        '조건·eligible denominator·success/outcome을 서로 다른 필드로 정의',
+        '정규화된 1분봉과 거래소 세션 캘린더에서 session feature를 한 번 파생하고 재사용',
+        'field/predicate/outcome registry를 통해 조건을 조합하고 query echo/AST를 보존',
+        'N·Wilson 95% CI·최소 표본·전후반 안정성·최근성·연도별 결과·분포를 함께 계산',
+        '실제 일치 세션으로 차트를 드릴다운하고 과거 빈도와 미래 예측을 분리'
+      ]),
+      observe: 'opening-range gap·ORB·세션 계절성 같은 질문을 데이터 원천·세션·PIT 가용시각·표본과 함께 재현',
+      invalidation: '분모가 없거나 N이 거부 기준 미만이거나, 전후반 불안정·미래 누출·캘린더 오류·권리 미확인·결과 정의 불명확이면 통계를 표시하지 않음'
+    }),
+    Object.freeze({
+      id: 'market-data-lineage-pipeline',
+      sourceRefs: Object.freeze(['edge-stats-github', 'Neuberg-github', 'LuxAlgo-Vela', 'Vela-architecture']),
+      timeSeriesIds: Object.freeze(['data-lineage-watermark', 'session-conditional-evidence', 'market-trend']),
+      title: '시장 데이터 원천 · 세션 캘린더 · 파생 피처 파이프라인',
+      thesis: '데이터 제공자·권리·관측시각·수집시각·가용시각·개정·증분 워터마크·거래소 캘린더를 먼저 계약하고, 그 위에서 canonical bar와 파생 feature를 만든 뒤 스크리너·통계·차트가 같은 관측을 소비해야 합니다.',
+      steps: Object.freeze([
+        'provider/adapter별 원천·권리·필드·지연·재현 범위를 등록',
+        '1분봉/일봉을 UTC epoch-ms와 instrument/session identity로 정규화하고 watermark로 증분 수집',
+        '거래소 현지 시간·DST·휴일·반일·야간장·롤오버를 캘린더 ID로 고정',
+        'session feature를 한 번 생성해 조건부 통계·스크리너·차트 드릴다운이 재사용',
+        '현재성은 observedAt/availableAt/revision과 rights/calendar 상태가 확인된 경우에만 승격'
+      ]),
+      observe: 'adapter → canonical bar → calendar/session → feature → query → statistical envelope → chart evidence의 데이터 계보를 유지',
+      invalidation: '공급자 권리·워터마크·기준시각·캘린더·개정이 없거나 stale/future data가 섞이면 현재 값·신호·확률로 사용하지 않음'
+    }),
+    Object.freeze({
+      id: 'chart-evidence-drilldown',
+      sourceRefs: Object.freeze(['LuxAlgo-2095899328661410038', 'LuxAlgo-Vela', 'Vela-architecture', 'edge-stats-github']),
+      timeSeriesIds: Object.freeze(['data-lineage-watermark', 'session-conditional-evidence', 'event-window']),
+      title: '차트 · 세션 드릴다운 · 숫자를 관측으로 되돌리기',
+      thesis: '차트는 장식이나 단일 신호판이 아니라 조건부 통계의 분모·일치 세션·이벤트·옵션/내부자/저널 관측을 검증하는 evidence surface여야 합니다.',
+      steps: Object.freeze([
+        '통계 결과에서 실제 매칭 세션과 제외 사유를 조회',
+        '갭·ORB·이벤트·거래량·수용/거부·리테스트를 canonical chart overlay로 표시',
+        'provider·feature·script·renderer를 좁은 neutral port로 연결하고 데이터 부재는 fail-soft 처리',
+        '세션 드릴다운은 필요할 때만 지연 로딩해 기본 스크리너의 계산·렌더 비용을 제한'
+      ]),
+      observe: '숫자 → 조건/분모 → 실제 세션 → OHLCV·이벤트·거래량 → 확인/무효화의 역방향 검증 경로를 제공',
+      invalidation: '차트가 기준시각·원천·세션을 숨기거나 단일 패턴 라벨만 보여주면 증거 확인 표면으로 사용하지 않음'
+    }),
+    Object.freeze({
+      id: 'terminal-panel-capability-registry',
+      sourceRefs: Object.freeze(['Neuberg-github', 'LuxAlgo-Vela']),
+      timeSeriesIds: Object.freeze(['data-lineage-watermark', 'ai-control-plane', 'market-trend']),
+      title: '멀티자산 패널 · capability registry · 선택형 지연 로딩',
+      thesis: 'Bloomberg형 터미널의 핵심은 패널 숫자를 복제하는 것이 아니라 자산군·기능·데이터 권리·제공자 상태를 capability로 등록하고 사용자가 필요한 분석 층을 선택하게 하는 탐색 구조입니다.',
+      steps: Object.freeze([
+        '가격·기술·거시·뉴스·옵션·내부자·통계·저널을 별도 패널 capability로 분해',
+        '각 패널에 필요한 provider·권리·관측창·지연·현재성 상태를 연결',
+        '기본 화면은 스크리너 핵심만 로드하고 차트·조건부 통계·세션 사례는 선택 시 지연 로딩',
+        '패널 실패·권리 부재·데이터 공백은 전체 터미널이 아닌 해당 capability만 보류'
+      ]),
+      observe: '사용자 선택 → 필요한 데이터 계약 → 해당 분석 패널 → 확인 가능한 결과의 트리 구조를 유지',
+      invalidation: '외부 터미널의 패널 수·코드·상표를 복제하거나 provider/권리 상태 없는 패널을 현재 정보처럼 노출하면 통합하지 않음'
+    }),
+    Object.freeze({
+      id: 'agent-research-execution-boundary',
+      sourceRefs: Object.freeze(['0x1Rosy-2096202208811384911', 'LuxAlgo-2095899328661410038']),
+      timeSeriesIds: Object.freeze(['agent-research-audit', 'session-conditional-evidence', 'data-lineage-watermark']),
+      title: '에이전트 · 백테스트 · 브로커 실행 분리',
+      thesis: '에이전트는 자연어 질문을 재현 가능한 query/AST와 시뮬레이션으로 변환할 수 있지만, 데이터 권리·PIT·비용·유동성·사람 검토가 없는 브로커 실행이나 자격증명 전달로 이어져서는 안 됩니다.',
+      steps: Object.freeze([
+        '자연어 질문을 조건·분모·결과·시간창으로 구조화하고 query echo를 남김',
+        '허용된 데이터 원천과 lineage를 사용해 결정론적 통계/백테스트를 생성',
+        '표본·CI·안정성·비용·슬리피지·유동성·무효화 조건을 사용자 검토 대상으로 제시',
+        '브로커 연결과 주문은 별도 capability·명시적 승인·감사 로그가 있을 때만 고려하고 기본값은 차단'
+      ]),
+      observe: 'request → query/AST → evidence artifact → chart review → human decision의 감사 경로를 보존',
+      invalidation: '공개 앱에 자격증명을 넣거나, 라이선스 우회·키젠·비공개 배포물·무승인 자동주문을 전제로 하면 기능·코드·데이터를 통합하지 않음'
     })
   ]),
   routeMappings: Object.freeze({
     home: Object.freeze({ sectionIds: Object.freeze(['market-confirmation', 'market-principles', 'macro-lagged-supply', 'event-cluster-regime', 'oil-shock-policy-branch', 'seasonality-convergence', 'proof-before-exposure', 'investor-behavior-loop']), timeSeriesIds: Object.freeze(['market-reaction', 'market-trend', 'macro-release-lag', 'event-cluster', 'seasonal-convergence', 'treasury-plumbing', 'behavior-horizon']) }),
     signal: Object.freeze({ sectionIds: Object.freeze(['market-confirmation', 'market-risk-process', 'institutional-flow', 'event-cluster-regime', 'seasonality-convergence', 'treasury-front-back-plumbing', 'leverage-exposure-discipline', 'proof-before-exposure', 'wedge-pop-retest']), timeSeriesIds: Object.freeze(['market-reaction', 'market-swing', 'event-window', 'event-cluster', 'institutional-quarter', 'seasonal-convergence', 'treasury-plumbing', 'exposure-leverage', 'structure-confirmation']) }),
-    technical: Object.freeze({ sectionIds: Object.freeze(['price-first-confirmation', 'market-confirmation', 'chart-core-ports', 'ai-equipment-cycle', 'seasonality-convergence', 'wedge-pop-retest', 'proof-before-exposure']), timeSeriesIds: Object.freeze(['market-reaction', 'market-swing', 'market-trend', 'event-window', 'equipment-cycle', 'seasonal-convergence', 'structure-confirmation']) }),
-    market: Object.freeze({ sectionIds: Object.freeze(['market-confirmation', 'market-principles', 'macro-lagged-supply', 'market-risk-process', 'event-cluster-regime', 'oil-shock-policy-branch', 'treasury-front-back-plumbing', 'seasonality-convergence', 'proof-before-exposure', 'dollar-rails-amplifier', 'investment-financing-productivity']), timeSeriesIds: Object.freeze(['market-reaction', 'market-swing', 'market-trend', 'macro-release-lag', 'event-window', 'event-cluster', 'treasury-plumbing', 'seasonal-convergence', 'dollar-rails', 'investment-financing-productivity']) }),
+    technical: Object.freeze({ sectionIds: Object.freeze(['price-first-confirmation', 'market-confirmation', 'chart-core-ports', 'chart-evidence-drilldown', 'market-data-lineage-pipeline', 'conditional-evidence-envelope', 'ai-equipment-cycle', 'seasonality-convergence', 'wedge-pop-retest', 'proof-before-exposure']), timeSeriesIds: Object.freeze(['market-reaction', 'market-swing', 'market-trend', 'event-window', 'equipment-cycle', 'seasonal-convergence', 'structure-confirmation', 'data-lineage-watermark', 'session-conditional-evidence']) }),
+    market: Object.freeze({ sectionIds: Object.freeze(['market-confirmation', 'market-principles', 'macro-lagged-supply', 'market-risk-process', 'event-cluster-regime', 'oil-shock-policy-branch', 'treasury-front-back-plumbing', 'seasonality-convergence', 'proof-before-exposure', 'dollar-rails-amplifier', 'investment-financing-productivity', 'market-data-lineage-pipeline', 'conditional-evidence-envelope']), timeSeriesIds: Object.freeze(['market-reaction', 'market-swing', 'market-trend', 'macro-release-lag', 'event-window', 'event-cluster', 'treasury-plumbing', 'seasonal-convergence', 'dollar-rails', 'investment-financing-productivity', 'data-lineage-watermark', 'session-conditional-evidence']) }),
     macro: Object.freeze({ sectionIds: Object.freeze(['market-principles', 'macro-lagged-supply', 'market-confirmation', 'event-cluster-regime', 'oil-shock-policy-branch', 'treasury-front-back-plumbing', 'expectation-credit-cycle', 'investment-financing-productivity', 'dollar-rails-amplifier']), timeSeriesIds: Object.freeze(['macro-release-lag', 'market-reaction', 'market-trend', 'event-cluster', 'treasury-plumbing', 'expectation-vintage', 'capital-quarter', 'investment-financing-productivity', 'dollar-rails']) }),
     fxbond: Object.freeze({ sectionIds: Object.freeze(['market-principles', 'market-risk-process', 'macro-lagged-supply', 'event-cluster-regime', 'oil-shock-policy-branch', 'treasury-front-back-plumbing', 'investment-financing-productivity', 'dollar-rails-amplifier']), timeSeriesIds: Object.freeze(['macro-release-lag', 'market-reaction', 'event-window', 'event-cluster', 'treasury-plumbing', 'investment-financing-productivity', 'dollar-rails']) }),
     breadth: Object.freeze({ sectionIds: Object.freeze(['market-confirmation', 'price-first-confirmation', 'market-risk-process', 'event-cluster-regime', 'seasonality-convergence', 'proof-before-exposure', 'wedge-pop-retest']), timeSeriesIds: Object.freeze(['market-reaction', 'market-swing', 'market-trend', 'event-cluster', 'seasonal-convergence', 'structure-confirmation']) }),
     themes: Object.freeze({ sectionIds: Object.freeze(['ai-era-economics', 'ai-inference-architecture', 'ai-capacity-conversion', 'ai-hardware-qualification', 'physical-ai-validation', 'software-outcome-economics', 'ai-capex-flow', 'ai-equipment-cycle', 'ai-control-plane', 'capacity-cohort-waterfall', 'supply-bottleneck-graph', 'hypothesis-event-test', 'investment-financing-productivity']), timeSeriesIds: Object.freeze(['ai-request', 'ai-workload-cohort', 'ai-operations', 'capital-quarter', 'qualification-milestones', 'physical-ai-operations', 'software-usage-cohort', 'ai-capex-flow', 'equipment-cycle', 'ai-control-plane', 'capacity-cohort', 'owner-fcf-waterfall', 'hypothesis-test', 'investment-financing-productivity']) }),
     'theme-detail': Object.freeze({ sectionIds: Object.freeze(['ai-era-economics', 'ai-capacity-conversion', 'physical-ai-validation', 'software-outcome-economics', 'ai-capex-flow', 'ai-equipment-cycle', 'ai-control-plane', 'capacity-cohort-waterfall', 'supply-bottleneck-graph', 'hypothesis-event-test', 'investment-financing-productivity']), timeSeriesIds: Object.freeze(['ai-workload-cohort', 'ai-operations', 'capital-quarter', 'physical-ai-operations', 'software-usage-cohort', 'ai-capex-flow', 'equipment-cycle', 'ai-control-plane', 'capacity-cohort', 'owner-fcf-waterfall', 'hypothesis-test', 'investment-financing-productivity']) }),
-    principles: Object.freeze({ sectionIds: Object.freeze(['market-principles', 'market-confirmation', 'macro-lagged-supply', 'institutional-flow', 'ai-era-economics', 'ai-inference-architecture', 'ai-capacity-conversion', 'market-risk-process', 'event-cluster-regime', 'oil-shock-policy-branch', 'treasury-front-back-plumbing', 'expectation-credit-cycle', 'seasonality-convergence', 'chart-core-ports', 'hypothesis-event-test', 'leverage-exposure-discipline', 'wedge-pop-retest', 'proof-before-exposure', 'investor-behavior-loop', 'investment-financing-productivity', 'dollar-rails-amplifier']), timeSeriesIds: Object.freeze(['market-reaction', 'market-trend', 'macro-release-lag', 'institutional-quarter', 'ai-workload-cohort', 'capital-quarter', 'event-cluster', 'expectation-vintage', 'treasury-plumbing', 'seasonal-convergence', 'hypothesis-test', 'exposure-leverage', 'structure-confirmation', 'behavior-horizon', 'investment-financing-productivity', 'dollar-rails']) }),
-    atlas: Object.freeze({ sectionIds: Object.freeze(['ai-era-economics', 'ai-inference-architecture', 'ai-capacity-conversion', 'ai-hardware-qualification', 'market-principles', 'market-confirmation', 'macro-lagged-supply', 'institutional-flow', 'event-cluster-regime', 'oil-shock-policy-branch', 'treasury-front-back-plumbing', 'expectation-credit-cycle', 'ai-capex-flow', 'ai-equipment-cycle', 'ai-control-plane', 'capacity-cohort-waterfall', 'supply-bottleneck-graph', 'chart-core-ports', 'hypothesis-event-test', 'reporting-segment-break', 'wedge-pop-retest', 'investment-financing-productivity', 'dollar-rails-amplifier']), timeSeriesIds: Object.freeze(['market-reaction', 'market-trend', 'macro-release-lag', 'institutional-quarter', 'ai-request', 'ai-workload-cohort', 'capital-quarter', 'qualification-milestones', 'event-cluster', 'expectation-vintage', 'ai-capex-flow', 'equipment-cycle', 'treasury-plumbing', 'ai-control-plane', 'capacity-cohort', 'owner-fcf-waterfall', 'hypothesis-test', 'reporting-break', 'structure-confirmation', 'investment-financing-productivity', 'dollar-rails']) }),
-    screener: Object.freeze({ sectionIds: Object.freeze(['market-confirmation', 'ai-era-economics', 'ai-capacity-conversion', 'ai-hardware-qualification', 'expectation-credit-cycle', 'ai-capex-flow', 'ai-equipment-cycle', 'ai-control-plane', 'capacity-cohort-waterfall', 'supply-bottleneck-graph', 'market-risk-process', 'chart-core-ports', 'wedge-pop-retest', 'leverage-exposure-discipline', 'proof-before-exposure', 'investment-financing-productivity']), timeSeriesIds: Object.freeze(['market-reaction', 'market-swing', 'market-trend', 'event-window', 'ai-workload-cohort', 'ai-operations', 'capital-quarter', 'qualification-milestones', 'expectation-vintage', 'ai-capex-flow', 'equipment-cycle', 'ai-control-plane', 'capacity-cohort', 'owner-fcf-waterfall', 'structure-confirmation', 'exposure-leverage', 'investment-financing-productivity']) }),
+    principles: Object.freeze({ sectionIds: Object.freeze(['market-principles', 'market-confirmation', 'macro-lagged-supply', 'institutional-flow', 'ai-era-economics', 'ai-inference-architecture', 'ai-capacity-conversion', 'market-risk-process', 'event-cluster-regime', 'oil-shock-policy-branch', 'treasury-front-back-plumbing', 'expectation-credit-cycle', 'seasonality-convergence', 'chart-core-ports', 'conditional-evidence-envelope', 'market-data-lineage-pipeline', 'chart-evidence-drilldown', 'agent-research-execution-boundary', 'hypothesis-event-test', 'leverage-exposure-discipline', 'wedge-pop-retest', 'proof-before-exposure', 'investor-behavior-loop', 'investment-financing-productivity', 'dollar-rails-amplifier']), timeSeriesIds: Object.freeze(['market-reaction', 'market-trend', 'macro-release-lag', 'institutional-quarter', 'ai-workload-cohort', 'capital-quarter', 'event-cluster', 'expectation-vintage', 'treasury-plumbing', 'seasonal-convergence', 'hypothesis-test', 'exposure-leverage', 'structure-confirmation', 'behavior-horizon', 'investment-financing-productivity', 'dollar-rails', 'data-lineage-watermark', 'session-conditional-evidence', 'agent-research-audit']) }),
+    atlas: Object.freeze({ sectionIds: Object.freeze(['ai-era-economics', 'ai-inference-architecture', 'ai-capacity-conversion', 'ai-hardware-qualification', 'market-principles', 'market-confirmation', 'macro-lagged-supply', 'institutional-flow', 'event-cluster-regime', 'oil-shock-policy-branch', 'treasury-front-back-plumbing', 'expectation-credit-cycle', 'ai-capex-flow', 'ai-equipment-cycle', 'ai-control-plane', 'capacity-cohort-waterfall', 'supply-bottleneck-graph', 'chart-core-ports', 'market-data-lineage-pipeline', 'conditional-evidence-envelope', 'chart-evidence-drilldown', 'terminal-panel-capability-registry', 'agent-research-execution-boundary', 'hypothesis-event-test', 'reporting-segment-break', 'wedge-pop-retest', 'investment-financing-productivity', 'dollar-rails-amplifier']), timeSeriesIds: Object.freeze(['market-reaction', 'market-trend', 'macro-release-lag', 'institutional-quarter', 'ai-request', 'ai-workload-cohort', 'capital-quarter', 'qualification-milestones', 'event-cluster', 'expectation-vintage', 'ai-capex-flow', 'equipment-cycle', 'treasury-plumbing', 'ai-control-plane', 'capacity-cohort', 'owner-fcf-waterfall', 'hypothesis-test', 'reporting-break', 'structure-confirmation', 'investment-financing-productivity', 'dollar-rails', 'data-lineage-watermark', 'session-conditional-evidence', 'agent-research-audit']) }),
+    screener: Object.freeze({ sectionIds: Object.freeze(['market-confirmation', 'ai-era-economics', 'ai-capacity-conversion', 'ai-hardware-qualification', 'expectation-credit-cycle', 'ai-capex-flow', 'ai-equipment-cycle', 'ai-control-plane', 'capacity-cohort-waterfall', 'supply-bottleneck-graph', 'market-risk-process', 'chart-core-ports', 'market-data-lineage-pipeline', 'conditional-evidence-envelope', 'chart-evidence-drilldown', 'terminal-panel-capability-registry', 'agent-research-execution-boundary', 'wedge-pop-retest', 'leverage-exposure-discipline', 'proof-before-exposure', 'investment-financing-productivity']), timeSeriesIds: Object.freeze(['market-reaction', 'market-swing', 'market-trend', 'event-window', 'ai-workload-cohort', 'ai-operations', 'capital-quarter', 'qualification-milestones', 'expectation-vintage', 'ai-capex-flow', 'equipment-cycle', 'ai-control-plane', 'capacity-cohort', 'owner-fcf-waterfall', 'structure-confirmation', 'exposure-leverage', 'investment-financing-productivity', 'data-lineage-watermark', 'session-conditional-evidence', 'agent-research-audit']), nathanFrameworkIds: Object.freeze(NATHAN_PREVIOUS_THREADS_REFERENCE.frameworks.map((framework) => framework.id)) }),
     ticker: Object.freeze({ sectionIds: Object.freeze(['ai-era-economics', 'ai-capacity-conversion', 'ai-inference-architecture', 'institutional-flow', 'ai-control-plane', 'ai-equipment-cycle', 'expectation-credit-cycle', 'capacity-cohort-waterfall', 'hypothesis-event-test', 'reporting-segment-break', 'wedge-pop-retest', 'leverage-exposure-discipline', 'investment-financing-productivity']), timeSeriesIds: Object.freeze(['ai-request', 'ai-operations', 'capital-quarter', 'institutional-quarter', 'ai-control-plane', 'equipment-cycle', 'expectation-vintage', 'capacity-cohort', 'owner-fcf-waterfall', 'hypothesis-test', 'reporting-break', 'structure-confirmation', 'exposure-leverage', 'investment-financing-productivity']) }),
     fundamental: Object.freeze({ sectionIds: Object.freeze(['ai-capacity-conversion', 'software-outcome-economics', 'physical-ai-validation', 'institutional-flow', 'expectation-credit-cycle', 'capacity-cohort-waterfall', 'ai-control-plane', 'hypothesis-event-test', 'reporting-segment-break', 'investment-financing-productivity']), timeSeriesIds: Object.freeze(['software-usage-cohort', 'physical-ai-operations', 'capital-quarter', 'institutional-quarter', 'expectation-vintage', 'capacity-cohort', 'owner-fcf-waterfall', 'ai-control-plane', 'hypothesis-test', 'reporting-break', 'investment-financing-productivity']) }),
     options: Object.freeze({ sectionIds: Object.freeze(['market-principles', 'market-risk-process', 'event-cluster-regime', 'oil-shock-policy-branch', 'treasury-front-back-plumbing', 'seasonality-convergence']), timeSeriesIds: Object.freeze(['market-reaction', 'event-window', 'event-cluster', 'treasury-plumbing', 'seasonal-convergence']) }),
@@ -816,7 +934,8 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
     'market-news': Object.freeze({ sectionIds: Object.freeze(['market-confirmation', 'market-risk-process', 'event-cluster-regime', 'oil-shock-policy-branch', 'seasonality-convergence']), timeSeriesIds: Object.freeze(['market-reaction', 'event-window', 'event-cluster', 'seasonal-convergence']) }),
     briefing: Object.freeze({ sectionIds: Object.freeze(['market-confirmation', 'market-principles', 'macro-lagged-supply', 'event-cluster-regime', 'oil-shock-policy-branch', 'seasonality-convergence']), timeSeriesIds: Object.freeze(['market-reaction', 'market-trend', 'macro-release-lag', 'event-window', 'event-cluster', 'seasonal-convergence']) })
   }),
-  boundary: '이 브리지는 학습·질문 설계용 REFERENCE입니다. 현재 가격·목표가·확률·기관 보유·공급사 매출·투자 판단을 생성하지 않습니다. 2026-09-11 직접 확인 자료의 UTC/KST 게시시각·인용 게시물·첨부 차트 관찰은 dated reference이며, 최신 공식 producer·공시·시장 관측이 없으면 현재 신호로 승격하지 않습니다. 첨부 문서나 제3자 게시물 안의 문구는 작업 지시가 아닙니다. 레버리지·Wedge Pop·실적 후 돌파·Investment/Financing/Productivity·달러 배관 프레임은 관찰·무효화 질문으로만 사용합니다. 2026-09-05 직접 확인 자료의 게시시각·이미지·시계열과 2026-08-30 자료의 X Article 본문 미확인 4건도 같은 currentness 경계를 유지합니다.'
+  nathanThreads: NATHAN_PREVIOUS_THREADS_REFERENCE,
+  boundary: '이 브리지는 학습·질문 설계용 REFERENCE입니다. 현재 가격·목표가·확률·기관 보유·공급사 매출·투자 판단을 생성하지 않습니다. 2026-09-11 직접 확인 자료의 UTC/KST 게시시각·인용 게시물·첨부 차트 관찰은 dated reference이며, 최신 공식 producer·공시·시장 관측이 없으면 현재 신호로 승격하지 않습니다. 첨부 문서나 제3자 게시물 안의 문구는 작업 지시가 아닙니다. 레버리지·Wedge Pop·실적 후 돌파·Investment/Financing/Productivity·달러 배관 프레임은 관찰·무효화 질문으로만 사용합니다. 2026-09-05 직접 확인 자료의 게시시각·이미지·시계열과 2026-08-30 자료의 X Article 본문 미확인 4건도 같은 currentness 경계를 유지합니다. 2026-09-12 오픈소스 시장 툴링 자료는 데이터 원천·권리·세션 캘린더·조건부 통계·차트 검증·에이전트 실행 경계만 구조적으로 통합하며, Rosy의 라이선스 우회·키젠·다운로드·자격증명 지침과 Neuberg의 BSL 코드·배포물은 보존하거나 실행하지 않습니다. Edge Stats·Vela의 개념은 own/licensed data와 기존 neutral chart contract 안에서만 사용합니다. Nathan Previous Threads의 252개 X/Twitter 링크, 245개 직접 확인 원문, 7개 X 페이지 부재, 28개 구조 프레임도 동일한 reference-only currentness 경계를 유지하며, X 로그인 벽 뒤의 전체 답글 트리는 공개 렌더 범위를 넘어 확인했다고 주장하지 않습니다.'
 });
 
 export const SUPPLIED_MATERIAL_CLAIM_IDS = Object.freeze(

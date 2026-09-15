@@ -19,7 +19,7 @@ function appendLabelValue(documentRef, parent, label, value) {
 
 function renderAudit(documentRef, parent) {
   const audits = SUPPLIED_MATERIALS_REFERENCE.sourceAudit || [];
-  const current = audits.find((item) => item.id === 'packet-2026-09-11') || audits.find((item) => item.id === 'packet-2026-09-05') || audits.find((item) => item.id === 'packet-2026-08-30');
+  const current = audits.find((item) => item.id === 'packet-2026-09-12') || audits.find((item) => item.id === 'packet-2026-09-11') || audits.find((item) => item.id === 'packet-2026-09-05') || audits.find((item) => item.id === 'packet-2026-08-30');
   const audit = element(documentRef, 'details', 'aio-reference-bridge-audit');
   audit.appendChild(element(documentRef, 'summary', '', `자료 감사 · ${current?.label || 'source packet'} · 확인 ${current?.readableCount ?? '—'} · 미확인/차단 ${current?.blockedCount ?? '—'}`));
   audits.forEach((item) => {
@@ -166,32 +166,103 @@ function renderFrameworks(documentRef, parent, sectionIds) {
   parent.appendChild(grid);
 }
 
-export function createSuppliedMaterialBridge(documentRef, { routeId = '', sectionIds = null, timeSeriesIds = null, heading = '이번 연구자료에서 추가된 구조 브리지' } = {}) {
+function renderNathanThreads(documentRef, parent, routeId) {
+  if (routeId !== 'screener') return;
+  const reference = SUPPLIED_MATERIALS_REFERENCE.nathanThreads;
+  const threads = Array.isArray(reference?.threads) ? reference.threads : [];
+  const frameworks = Array.isArray(reference?.frameworks) ? reference.frameworks : [];
+  if (!threads.length && !frameworks.length) return;
+  const details = element(documentRef, 'details', 'aio-reference-bridge-nathan-threads');
+  details.dataset.nathanThreadsReferenceId = reference.id || 'unknown';
+  details.appendChild(element(documentRef, 'summary', '', `Nathan's Previous Threads · X 링크 ${reference.catalog?.xLinkCount ?? threads.length}개 · 직접 확인 ${reference.catalog?.directReadCount ?? '—'}개 · 원문 부재 ${reference.catalog?.xNotFoundCount ?? '—'}개 · 로딩 미검증 ${reference.catalog?.xUnverifiedLoadingCount ?? '—'}개`));
+  details.appendChild(element(documentRef, 'p', 'aio-reference-bridge-boundary', reference.boundary || '원문과 구조 프레임은 reference-only입니다.'));
+  const contentAudit = reference.contentAudit;
+  if (contentAudit) {
+    details.appendChild(element(documentRef, 'p', 'aio-reference-bridge-card-observe', `원문 요소 감사: 직접 확인 ${contentAudit.directReadThreadCount ?? '—'}개 · 렌더된 게시물/답글 ${contentAudit.visibleThreadPostElements ?? '—'}개 · 링크 ${contentAudit.visibleLinkElements ?? '—'}개 · 미디어/이미지 ${contentAudit.visibleMediaAndImageElements ?? '—'}개 · 동작 요소 ${contentAudit.visibleActionElements ?? '—'}개. ${contentAudit.method || ''}`));
+  }
+  const audit = element(documentRef, 'div', 'aio-reference-bridge-nathan-audit');
+  audit.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin-top:9px;';
+  (reference.sourceAudit || []).forEach((item) => {
+    const card = element(documentRef, 'article', 'aio-reference-bridge-nathan-audit-card');
+    card.style.cssText = 'padding:9px;border:1px solid var(--border);border-radius:5px;background:var(--surface-1);';
+    card.append(
+      element(documentRef, 'strong', '', item.label),
+      element(documentRef, 'p', '', `Notion ${item.notionPageCount}/${item.notionBadgeCount} 페이지 · X ${item.xLinkCount}개`),
+      element(documentRef, 'p', '', `직접 확인 ${item.directReadCount} · 원문 부재/미확인 ${item.blockedCount} · X 링크 없음 ${item.noXLinkCount}`)
+    );
+    audit.appendChild(card);
+  });
+  details.appendChild(audit);
+
+  const frameworkDetails = element(documentRef, 'details', 'aio-reference-bridge-nathan-frameworks');
+  frameworkDetails.appendChild(element(documentRef, 'summary', '', `반복 구조에서 추출한 프레임워크 ${frameworks.length}개`));
+  const frameworkGrid = element(documentRef, 'div', 'aio-reference-bridge-nathan-framework-grid');
+  frameworkGrid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;margin-top:9px;';
+  frameworks.forEach((framework) => {
+    const card = element(documentRef, 'article', 'aio-reference-bridge-nathan-framework-card');
+    card.dataset.nathanFrameworkId = framework.id;
+    card.dataset.sourceKind = 'REFERENCE';
+    card.style.cssText = 'padding:11px;border:1px solid var(--border);border-radius:5px;background:var(--surface-1);';
+    card.append(
+      element(documentRef, 'h3', 'aio-reference-bridge-card-title', framework.title || framework.id),
+      element(documentRef, 'p', 'aio-reference-bridge-card-thesis', `논지: ${framework.thesis || '—'}`),
+      element(documentRef, 'p', 'aio-reference-bridge-card-observe', `전달 구조: ${framework.mechanism || '—'}`),
+      element(documentRef, 'p', 'aio-reference-bridge-card-observe', `입력·창: ${(framework.inputs || []).join(' · ')} · ${framework.timeframe || '—'}`),
+      element(documentRef, 'p', 'aio-reference-bridge-card-observe', `확인: ${framework.confirmation || '—'}`),
+      element(documentRef, 'p', 'aio-reference-bridge-card-invalidation', `무효화·반대: ${[framework.invalidation, framework.counterclaim].filter(Boolean).join(' ') || '—'}`),
+      element(documentRef, 'p', 'aio-reference-bridge-card-sources', `자료 추적: ${(framework.sourceRefs || []).join(' · ')}`),
+      element(documentRef, 'p', 'aio-reference-bridge-card-invalidation', `현재성 경계: ${framework.currentnessBoundary || 'reference-only'}`)
+    );
+    frameworkGrid.appendChild(card);
+  });
+  frameworkDetails.appendChild(frameworkGrid);
+  details.appendChild(frameworkDetails);
+
+  const linkDetails = element(documentRef, 'details', 'aio-reference-bridge-nathan-links');
+  linkDetails.appendChild(element(documentRef, 'summary', '', `X 원문 링크 인덱스 ${threads.length}개`));
+  const linkList = element(documentRef, 'ol', 'aio-reference-bridge-nathan-link-list');
+  linkList.style.cssText = 'margin:9px 0 0;padding-left:23px;columns:2;column-gap:24px;';
+  threads.forEach((thread) => {
+    const row = element(documentRef, 'li', 'aio-reference-bridge-nathan-link-item');
+    row.dataset.nathanThreadId = thread.id;
+    row.dataset.accessStatus = thread.accessStatus;
+    row.style.cssText = 'break-inside:avoid;margin:0 0 6px;';
+    const accessLabel = thread.accessStatus === 'DIRECT_READ'
+      ? '직접 확인'
+      : thread.accessStatus === 'X_NOT_FOUND'
+        ? 'X 원문 부재'
+        : '원문 미검증';
+    const link = element(documentRef, 'a', '', `${thread.title} · ${accessLabel}`);
+    link.href = thread.xUrl;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    row.append(link, element(documentRef, 'small', '', ` · ${thread.category} · Notion ${thread.notionDate}${thread.observedPostCount != null ? ` · 확인된 게시물 요소 ${thread.observedPostCount}개` : ''}`));
+    linkList.appendChild(row);
+  });
+  linkDetails.appendChild(linkList);
+  details.appendChild(linkDetails);
+  parent.appendChild(details);
+}
+
+export function createSuppliedMaterialBridge(documentRef, { routeId = '', sectionIds = null, timeSeriesIds = null, heading = '' } = {}) {
   const mapping = SUPPLIED_MATERIALS_REFERENCE.routeMappings?.[routeId] || {};
-  const resolvedSectionIds = sectionIds == null ? mapping.sectionIds : sectionIds;
-  const resolvedTimeSeriesIds = timeSeriesIds == null ? mapping.timeSeriesIds : timeSeriesIds;
-  const section = element(documentRef, 'section', 'aio-reference-bridge');
+  const resolvedSectionIds = unique(sectionIds == null ? mapping.sectionIds : sectionIds);
+  const resolvedTimeSeriesIds = unique(timeSeriesIds == null ? mapping.timeSeriesIds : timeSeriesIds);
+  const section = element(documentRef, 'aside', 'aio-integrated-analysis-context');
+  // External material is consumed by the internal knowledge/protocol layer;
+  // it is not a second user-facing research page or a raw-link index.
+  section.hidden = true;
+  section.setAttribute('aria-hidden', 'true');
   section.dataset.sourceKind = SUPPLIED_MATERIALS_REFERENCE.sourceKind;
   section.dataset.operationalUse = SUPPLIED_MATERIALS_REFERENCE.operationalUse;
   section.dataset.referenceId = SUPPLIED_MATERIALS_REFERENCE.id;
+  section.dataset.integrationMode = 'internal-protocol-only';
+  section.dataset.referenceFrameworkCount = String(mapping.nathanFrameworkIds?.length || 0);
+  section.dataset.referenceSectionCount = String(resolvedSectionIds.length);
+  section.dataset.referenceTimeSeriesCount = String(resolvedTimeSeriesIds.length);
+  section.dataset.processingBoundary = 'current-observation-separated-from-structural-reference';
   if (routeId) section.dataset.aioSuppliedMaterialRoute = routeId;
-  if (resolvedTimeSeriesIds?.length) section.dataset.aioSuppliedMaterialTimeseries = unique(resolvedTimeSeriesIds).join(',');
-  section.style.cssText = 'margin:14px 0;padding:14px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);';
-  section.append(
-    element(documentRef, 'div', 'aio-reference-bridge-eyebrow', 'SUPPLIED MATERIALS · REFERENCE ONLY'),
-    element(documentRef, 'h2', 'aio-reference-bridge-title', heading),
-    element(documentRef, 'p', 'aio-reference-bridge-boundary', SUPPLIED_MATERIALS_REFERENCE.boundary)
-  );
-  // Long reference packets are secondary to the route's current observations.
-  // Native details keeps keyboard access and the complete source text intact.
-  const details = element(documentRef, 'details', 'aio-reference-bridge-details');
-  details.appendChild(element(documentRef, 'summary', '', `배경 자료와 확인 질문 보기 · ${unique(resolvedSectionIds).length}개 주제`));
-  renderAudit(documentRef, details);
-  renderSourceTimeline(documentRef, details);
-  renderMediaAudit(documentRef, details);
-  renderClaimLedger(documentRef, details);
-  renderTimeSeries(documentRef, details, resolvedTimeSeriesIds);
-  renderFrameworks(documentRef, details, resolvedSectionIds);
-  section.appendChild(details);
+  if (resolvedTimeSeriesIds.length) section.dataset.aioSuppliedMaterialTimeseries = resolvedTimeSeriesIds.join(',');
+  section.textContent = `${heading || '구조 분석 프로토콜'}: 현재 데이터·구조적 참고·추론·행동 경계를 분리합니다.`;
   return section;
 }

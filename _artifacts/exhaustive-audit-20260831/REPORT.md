@@ -4,6 +4,12 @@
 
 **요청한 모든 줄·모든 과거 변경의 의미 검토는 아직 완료되지 않았다.** 이 보고서는 실제 검토·수정·검사와 남은 작업을 구분한 중간 결과다. 파일을 목록화하거나 파서를 통과시킨 것을 사람 수준의 설계 검토로 계산하지 않는다. `coverage-summary.json`의 최신 숫자가 진행률의 원본이다.
 
+## 2026-09-12 최신 코드 감사 재개
+
+- A12의 남은 store 경계를 현재 코드에서 다시 재현했다. pre-frozen outer 아래 mutable child가 devMode freeze를 우회하고, 첫 listener 예외가 이후 subscriber를 차단하는 문제를 P1062/R585로 수정했다. 동일한 P1035 fixture 한 벌도 제거했다.
+- A09의 Atlas/Principles capability loading 상태 머신을 `src/ui/knowledge/capability-loader.js`로 통합했다. pending dedupe, partial failure, retry, dispose 후 late result 차단과 dataset/error 반영은 공통 소유하고, 페이지별 검색 색인·정합화·render만 각 route에 남겼다.
+- 이 재개 배치는 현재 `v54.94` working tree를 별도 content-hash session으로 고정한 뒤 시작했다. 아래 2026-09-02 exact-hash 진행률은 새 변경을 자동으로 완료 처리하지 않으며, 최신 ledger 재계산 전까지 역사적 checkpoint로만 읽는다.
+
 ## 현재 판정
 
 연구용 스크리너의 목표와 native ESM으로 계산·화면 소유권을 분리하는 방향은 타당하다. 그러나 현재 구현은 데이터 수집, 관측의 유효성, 화면의 상태, 연구 모델 검증을 일관되게 연결했다고 평가할 수 없다. 일부 수정은 실제 결함을 해결했고, 일부는 새 분류·문서·검사만 추가한 채 다른 소비 경로를 남겼다. 따라서 기존 P/R/QA 수와 PASS 개수만으로 제품 완성도나 데이터 정확도를 판단하면 안 된다.

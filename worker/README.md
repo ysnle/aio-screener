@@ -3,9 +3,16 @@
 `data-plane.js` is the AR-07 Batch 1 Cloudflare Worker. Its scheduled handler
 fetches the bounded Tier 0 allowlist every five minutes, validates the shared
 `src/data/contracts/market-snapshot.js` contract, and writes `quotes:current`
-only after QG-01 reaches 100%. Failed runs write a heartbeat and retain the
-last-known-good KV object. This deployment is intentionally KV-only; R2 is not
-required or configured.
+only after QG-01 reaches 100% and the semantic revision changes. An unchanged
+snapshot is a successful observation but a KV no-op; the heartbeat is throttled
+to one liveness write per 15 minutes (or an immediate status change). The
+normal upper bound is 384 successful KV writes/day and the status-flapping
+worst case is 576/day, both below the 1,000/day free-tier limit and its 500/day
+warning target. Heartbeats distinguish `checkedAt` (the run observation),
+`publishedAt` (a changed `quotes:current` snapshot), and `writtenAt` (the last
+heartbeat KV write), so liveness cannot masquerade as a snapshot publication.
+Failed runs write a heartbeat and retain the last-known-good KV object. This
+deployment is intentionally KV-only; R2 is not required or configured.
 
 Required operator setup:
 

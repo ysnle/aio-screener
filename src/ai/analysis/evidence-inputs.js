@@ -1,3 +1,5 @@
+import { canonicalSourceTier, isReferenceEligibleSourceKind } from '../../data/contracts/source-kind.js';
+
 // Observations cannot establish sector membership, scores or causal edges.
 export const AI_EVIDENCE_INPUTS_VERSION = 'analysis-evidence-inputs.v1';
 const text = (v) => typeof v === 'string' ? v.trim() : '';
@@ -5,7 +7,6 @@ const entityId = (v) => text(typeof v === 'object' ? v?.symbol || v?.ticker : v)
 const technical = new Set(['price', 'sma20', 'sma50', 'rsi14', 'macd', 'signal']);
 const macro = /^(?:market\.(?:rates|fx|commodity|volatility)\.|vix$|vix9d$|vix3m$|vix6m$|hySpread$|tnx$|us10y$|usdkrw$|dxy$)/i;
 const badSource = /^(?:unknown|missing|reference|untrusted|unavailable|seed|fallback|manual)$/i;
-const sourceKinds = new Set(['LIVE', 'SNAPSHOT', 'MARKET-SNAPSHOT', 'LEGACY-RUNTIME', 'LEGACY-PROJECTION']);
 
 export function buildEvidenceAnalysisInputs(plan = {}, { evidence = [], now = Date.now() } = {}) {
   const intent = plan?.intent?.primary || plan?.intent || 'UNKNOWN';
@@ -27,10 +28,10 @@ export function buildEvidenceAnalysisInputs(plan = {}, { evidence = [], now = Da
     const source = text(row?.source);
     const unit = text(row?.unit);
     const at = Date.parse(asOf);
-    if (!row?.evidenceId || !entity || !metric || !source || badSource.test(source) || !sourceKinds.has(text(row.sourceKind).toUpperCase()) || !unit || !Number.isFinite(at) || at > Number(now) || typeof row.value !== 'number' || !Number.isFinite(row.value)) { reject(row, 'typed-observation-invalid'); continue; }
+    if (!row?.evidenceId || !entity || !metric || !source || badSource.test(source) || !isReferenceEligibleSourceKind(row.sourceKind) || !unit || !Number.isFinite(at) || at > Number(now) || typeof row.value !== 'number' || !Number.isFinite(row.value)) { reject(row, 'typed-observation-invalid'); continue; }
     if (!['verified', 'live', 'fresh', 'snapshot', 'ok', 'current'].includes(text(row.status || row.truthStatus).toLowerCase()) || row.stale === true || row.future === true || row.allowedUse === 'none' || row.allowedUseCeiling === 'none' || row.operationalUse === 'none') { reject(row, 'observation-not-usable'); continue; }
     if (row.scale && row.scale !== 'raw') { reject(row, 'non-raw-scale'); continue; }
-    rows.push(Object.freeze({ evidenceId: String(row.evidenceId), entity, metric, value: row.value, unit, asOf, source, sourceKind: row.sourceKind }));
+    rows.push(Object.freeze({ evidenceId: String(row.evidenceId), entity, metric, value: row.value, unit, asOf, source, sourceKind: row.sourceKind, sourceTier: canonicalSourceTier(row.sourceKind) }));
   }
   const groups = new Map();
   rows.forEach((row) => { const key = `${row.entity}|${row.metric}`; groups.set(key, [...(groups.get(key) || []), row]); });
@@ -67,5 +68,5 @@ export function buildEvidenceAnalysisInputs(plan = {}, { evidence = [], now = Da
     reason = 'observations-only-no-verified-transmission-edges';
   } else if (intent === 'SECTOR_ANALYSIS') reason = 'verified-sector-membership-and-universe-missing';
   else if (intent === 'MARKET_CAUSAL') reason = 'verified-time-aligned-event-links-missing';
-  return Object.freeze({ inputs, audit: Object.freeze({ schemaVersion: AI_EVIDENCE_INPUTS_VERSION, intent, reason, inputCount: Array.isArray(evidence) ? evidence.length : 0, usedCount: used.length, evidenceIds: Object.freeze(used.map((row) => row.evidenceId)), rejected: Object.freeze(rejected), allowedUse: 'reference', currentClaimEligible: false }) });
+  return Object.freeze({ inputs, audit: Object.freeze({ schemaVersion: AI_EVIDENCE_INPUTS_VERSION, intent, reason, inputCount: Array.isArray(evidence) ? evidence.length : 0, usedCount: used.length, evidenceIds: Object.freeze(used.map((row) => row.evidenceId)), rejected: Object.freeze(rejected), allowedUse: 'reference', currentClaimEligible: false, referenceFrameworkIds: Object.freeze([...(plan?.referenceContext?.frameworkIds || [])]), processingStages: Object.freeze([...(plan?.referenceContext?.stages || [])]), currentClaimsAllowed: false }) });
 }

@@ -155,8 +155,14 @@ async function run() {
   const usRef = createInstrumentRef({ instrumentId: 'US:AAA', symbol: 'AAA', market: 'US', mic: 'XNAS', currency: 'USD', assetType: 'EQUITY' });
   const krRef = createInstrumentRef({ instrumentId: 'KR:BBB', symbol: 'BBB', market: 'KR', mic: 'XKRX', currency: 'KRW', assetType: 'EQUITY' });
   assert(validateInstrumentRef(usRef).ok && validateInstrumentRef(krRef).ok, 'G-SCR-IDENTITY: US/KR instrument references validate');
-  const observation = createObservationEnvelope({ instrumentId: usRef.instrumentId, fieldId: 'price.close', value: 100, unit: 'USD', sourceId: 'fixture', sourceKind: 'T1_OFFICIAL', qualityStatus: 'CURRENT', rightsId: 'VERIFIED', observedAt: '2026-08-12T00:00:00.000Z', fetchedAt: '2026-08-12T00:01:00.000Z', revisionId: 'fixture-v1' });
+  const observation = createObservationEnvelope({ instrumentId: usRef.instrumentId, fieldId: 'price.close', value: 100, unit: 'USD', sourceId: 'fixture', sourceKind: 'T1_OFFICIAL', qualityStatus: 'CURRENT', rightsId: 'VERIFIED', allowedUse: 'research-relative-ranking-only', observedAt: '2026-08-12T00:00:00.000Z', fetchedAt: '2026-08-12T00:01:00.000Z', revisionId: 'fixture-v1' });
   assert(validateObservationEnvelope(observation).ok, 'G-SCR-FIELD: ObservationEnvelope validates with four timestamps');
+  const delayedAlias = createObservationEnvelope({ ...observation, sourceKind: 'delayed-eod' });
+  assert(delayedAlias.sourceKind === 'T3_PUBLIC_DELAYED', 'G-SCR-SOURCE: known provider aliases normalize through the canonical source-tier contract');
+  const unknownSource = createObservationEnvelope({ ...observation, sourceKind: 'invented-provider-kind' });
+  assert(unknownSource.sourceKind === null && validateObservationEnvelope(unknownSource).errors.includes('source_kind_invalid'), 'G-SCR-SOURCE: unknown source kinds fail closed instead of defaulting to public delayed');
+  const freshnessIsNotAuthority = createObservationEnvelope({ ...observation, sourceKind: 'live' });
+  assert(freshnessIsNotAuthority.sourceKind === null, 'G-SCR-SOURCE: a freshness label cannot manufacture a licensed authority tier');
 
   const rows = [fixtureRow('AAA', 'US', 0), fixtureRow('BBB', 'KR', 2)];
   const lineageRow = fixtureRow('LINEAGE', 'US', 1);
@@ -316,15 +322,27 @@ async function run() {
   const lateFiling = validatePITRun({ ...temporalFixture, observations: [{ instrumentId: 'US:AAA', observedAt: '2026-08-01', availableAt: '2026-08-13' }] });
   assert(!future.ok && !unavailableTime.ok && !lateFiling.ok, 'G-SCR-PIT: future observations and unknown/late availability fail even when universe and costs pass');
   assert(reviewDecision.promotionReviewReady && reviewDecision.promoted === false && reviewDecision.autoWeightPromotion === false, 'G-SCR-PROMOTION: ready evidence still requires human review and keeps auto promotion disabled');
-  const outcomes = OUTCOME_HORIZONS.map((horizon) => calculateOutcome({ runId: result.run.runId, instrumentId: 'US:AAA', horizon, entry: { value: 100, observedAt: '2026-08-12T00:00:00.000Z' }, exit: { value: 105, low: 98, observedAt: '2026-08-20T00:00:00.000Z' }, benchmarkEntry: { value: 100 }, benchmarkExit: { value: 102 }, costBps: 15 }));
+  const outcomeSessionDates = Array.from({ length: 70 }, (_, index) => new Date(Date.UTC(2026, 7, 12 + index)).toISOString());
+  const horizonOffset = { 'T+1': 1, 'T+5': 5, 'T+21': 21, 'T+63': 63 };
+  const outcomes = OUTCOME_HORIZONS.map((horizon) => {
+    const exitObservedAt = outcomeSessionDates[horizonOffset[horizon]];
+    return calculateOutcome({ runId: result.run.runId, instrumentId: 'US:AAA', horizon, entry: { value: 100, observedAt: outcomeSessionDates[0] }, exit: { value: 105, low: 98, observedAt: exitObservedAt }, benchmarkEntry: { value: 100, observedAt: outcomeSessionDates[0] }, benchmarkExit: { value: 102, observedAt: exitObservedAt }, costBps: 15, sessionDates: outcomeSessionDates });
+  });
   assert(outcomes.length === 4 && outcomes.every((outcome) => outcome.status === 'observed' && outcome.costsApplied), 'G-SCR-OUTCOME: T+1/5/21/63 outcomes carry cost flags');
   assert(outcomes.every((outcome) => Math.abs(outcome.rawReturn - 5) < 1e-9 && Math.abs(outcome.netReturn - 4.85) < 1e-9), 'G-SCR-OUTCOME: gross and cost-adjusted returns must remain distinct');
-  const zeroCostOutcome = calculateOutcome({ runId: result.run.runId, instrumentId: 'US:AAA', horizon: 'T+1', entry: { value: 100, observedAt: '2026-08-12T00:00:00.000Z' }, exit: { value: 105, observedAt: '2026-08-13T00:00:00.000Z' }, costBps: 0 });
+  const zeroCostOutcome = calculateOutcome({ runId: result.run.runId, instrumentId: 'US:AAA', horizon: 'T+1', entry: { value: 100, observedAt: outcomeSessionDates[0] }, exit: { value: 105, observedAt: outcomeSessionDates[1] }, costBps: 0, sessionDates: outcomeSessionDates });
   const missingCostOutcome = calculateOutcome({ runId: result.run.runId, instrumentId: 'US:AAA', horizon: 'T+1', entry: { value: 100 }, exit: { value: 105 } });
   assert(zeroCostOutcome.status === 'observed' && zeroCostOutcome.costsApplied && missingCostOutcome.status === 'unavailable' && missingCostOutcome.liquidityFlags.includes('transaction_cost_missing'), 'G-SCR-COST: explicit zero cost is modeled while missing cost is unavailable');
-  const endpointFixture = { runId: 'endpoint', instrumentId: 'US:AAA', horizon: 'T+1', entry: { value: 100, observedAt: '2026-08-28' }, exit: { value: 105, low: 98, observedAt: '2026-08-31' }, costBps: 0 };
+  const endpointSessions = ['2026-08-28', '2026-08-31'];
+  const endpointFixture = { runId: 'endpoint', instrumentId: 'US:AAA', horizon: 'T+1', entry: { value: 100, observedAt: '2026-08-28' }, exit: { value: 105, low: 98, observedAt: '2026-08-31' }, costBps: 0, sessionDates: endpointSessions };
   const missingBenchmark = calculateOutcome({ ...endpointFixture, benchmarkEntry: { value: 100 }, benchmarkExit: { value: null } });
   assert(missingBenchmark.benchmarkReturn === null && missingBenchmark.maxDrawdown === null, 'G-SCR-OUTCOME: missing benchmark and missing price path do not fabricate return or drawdown');
+  const mismatchedHorizon = calculateOutcome({ ...endpointFixture, horizon: 'T+1', sessionDates: outcomeSessionDates.slice(0, 2) });
+  const missingCalendar = calculateOutcome({ ...endpointFixture, sessionDates: [] });
+  assert(mismatchedHorizon.status === 'unavailable' && mismatchedHorizon.liquidityFlags.includes('session_calendar_missing_or_entry_unaligned')
+    && missingCalendar.status === 'unavailable', 'G-SCR-OUTCOME: an entry outside the supplied session calendar cannot produce a labeled horizon return');
+  const wrongExit = calculateOutcome({ runId: 'wrong-exit', instrumentId: 'US:AAA', horizon: 'T+5', entry: { value: 100, observedAt: outcomeSessionDates[0] }, exit: { value: 105, observedAt: outcomeSessionDates[1] }, costBps: 0, sessionDates: outcomeSessionDates });
+  assert(wrongExit.status === 'unavailable' && wrongExit.liquidityFlags.includes('horizon_exit_mismatch'), 'G-SCR-OUTCOME: an observed return cannot be relabeled as another T+n horizon');
   assert(calculateOutcome({ ...endpointFixture, exit: { value: 105, observedAt: '2026-08-27' } }).status === 'unavailable', 'G-SCR-OUTCOME: exit cannot precede entry');
   assert(expectedExitDate('2026-08-28', 'T+1') === null
     && expectedExitDate('2026-08-28', 'T+1', { sessionDates: ['2026-08-28', '2026-08-31'] }) === '2026-08-31T00:00:00.000Z',
@@ -437,9 +455,9 @@ async function run() {
       ? { ...providerUniverse, universe: [...providerUniverse.universe, { sym: '005930.KS', name: 'KR fixture', index: 'KOSPI' }, { sym: 'MISMATCH', name: 'Currency conflict fixture', index: 'NASDAQ100' }] }
       : { ...providerArtifact, data: { ...providerArtifact.data, '005930.KS': { ...providerArtifact.data.AAA, currency: 'KRW', dollarVolume30d: 20e9, dollarVolume: 10e9 }, MISMATCH: { ...providerArtifact.data.AAA, price: 100, currency: 'USD' } } } }) },
     readLiveData: () => ({
-      AAA: { price: 10, marketCap: 2e9, currency: 'USD', observedAt: providerArtifact.factorObservedAt },
-      '005930.KS': { price: 70000, marketCap: 200e12, currency: 'KRW', observedAt: providerArtifact.factorObservedAt },
-      MISMATCH: { price: 70000, currency: 'KRW', observedAt: '2026-08-25T23:00:00Z' }
+      AAA: { price: 10, marketCap: 2e9, currency: 'USD', observedAt: '2026-08-25T23:55:00Z', fetchedAt: '2026-08-25T23:56:00Z', revisionId: 'fixture-live-v1', freshnessMs: 15 * 60 * 1000, rightsId: 'VERIFIED', sourceKind: 'T2_LICENSED', allowedUse: 'decision', allowedUseCeiling: 'decision', quality: { allowedUse: true, decisionUse: true, status: 'current', stale: false } },
+      '005930.KS': { price: 70000, marketCap: 200e12, currency: 'KRW', observedAt: '2026-08-25T23:55:00Z', fetchedAt: '2026-08-25T23:56:00Z', revisionId: 'fixture-live-v1', freshnessMs: 15 * 60 * 1000, rightsId: 'VERIFIED', sourceKind: 'T2_LICENSED', allowedUse: 'decision', allowedUseCeiling: 'decision', quality: { allowedUse: true, decisionUse: true, status: 'current', stale: false } },
+      MISMATCH: { price: 70000, currency: 'KRW', observedAt: '2026-08-25T23:55:00Z', fetchedAt: '2026-08-25T23:56:00Z', revisionId: 'fixture-live-v1', freshnessMs: 15 * 60 * 1000, rightsId: 'VERIFIED', sourceKind: 'T2_LICENSED', allowedUse: 'decision', allowedUseCeiling: 'decision', quality: { allowedUse: true, decisionUse: true, status: 'current', stale: false } }
     }),
     clock: { now: () => Date.parse('2026-08-26T00:00:00Z') }
   });
@@ -457,6 +475,25 @@ async function run() {
     clock: { now: () => Date.parse('2026-08-26T00:00:00Z') }
   }).readCurrent();
   assert(noCurrency.rows[0].instrumentRef.currency === null && noCurrency.rows[0].dollarVolume30d === null, 'G-SCR-UNITS: an unlabeled historical amount cannot be promoted to USD by market inference');
+  const validationAware = await createScreenerProvider({
+    httpClient: { requestJson: async url => ({ ok: true, data: url.includes('model-validation')
+      ? { status: 'BLOCKED', allowedUse: 'research-relative-ranking-only', pointInTimeUniverse: false, transactionCostsModeled: false, liquidityCapacityModeled: false, liveBacktestParity: false, blockers: ['pit-universe-missing'] }
+      : url.includes('screener-universe') ? providerUniverse : providerArtifact }) },
+    clock: { now: () => Date.parse('2026-08-26T00:00:00Z') }
+  }).readCurrent();
+  assert(validationAware.metadata.modelValidation.status === 'BLOCKED' && validationAware.metadata.modelValidation.liveBacktestParity === false && validationAware.metadata.modelValidation.blockers.includes('pit-universe-missing'), 'G-SCR-VALIDATION: runtime metadata carries the independent fail-closed model promotion status');
+  const ineligibleLive = await createScreenerProvider({
+    httpClient: { requestJson: async url => ({ ok: true, data: url.includes('screener-universe') ? providerUniverse : { ...providerArtifact, data: { AAA: { ...providerArtifact.data.AAA, price: null } } } }) },
+    readLiveData: () => ({ AAA: { price: 999, currency: 'USD', observedAt: '2026-08-25T23:59:00Z', sourceKind: 'T3_PUBLIC_DELAYED' } }),
+    clock: { now: () => Date.parse('2026-08-26T00:00:00Z') }
+  }).readCurrent();
+  assert(ineligibleLive.rows[0].price === null && ineligibleLive.rows[0].livePriceRejectedReason === 'decision-evidence-ineligible', 'G-SCR-LIVE: a recent number without explicit quality, rights-tier and decision-use evidence cannot fill a missing price');
+  const staleLicensedLive = await createScreenerProvider({
+    httpClient: { requestJson: async url => ({ ok: true, data: url.includes('screener-universe') ? providerUniverse : { ...providerArtifact, data: { AAA: { ...providerArtifact.data.AAA, price: null } } } }) },
+    readLiveData: () => ({ AAA: { price: 999, currency: 'USD', observedAt: '2026-08-25T22:00:00Z', sourceKind: 'T2_LICENSED', allowedUse: 'decision', allowedUseCeiling: 'decision', rightsId: 'VERIFIED', revisionId: 'fixture-live-v1', freshnessMs: 15 * 60 * 1000, quality: { allowedUse: true, decisionUse: true, status: 'current', stale: false } } }),
+    clock: { now: () => Date.parse('2026-08-26T00:00:00Z') }
+  }).readCurrent();
+  assert(staleLicensedLive.rows[0].price === null, 'G-SCR-LIVE: collection-time freshness cannot promote an old market observation into the live screener price');
   let liveReads = 0;
   const oneSnapshotProvider = createScreenerProvider({
     httpClient: { requestJson: async url => ({ ok: true, data: url.includes('screener-universe') ? providerUniverse : providerArtifact }) },
@@ -468,7 +505,7 @@ async function run() {
   const batchSymbols = Array.from({ length: 65 }, (_, index) => `B${index}`);
   const batchArtifact = { ...providerArtifact, data: Object.fromEntries(batchSymbols.map(symbol => [symbol, { ...providerArtifact.data.AAA, price: 100, currency: 'USD' }])) };
   const batchUniverse = { ...providerUniverse, universe: batchSymbols.map(sym => ({ sym, currency: 'USD', index: 'NASDAQ100' })) };
-  const liveBatch = Object.fromEntries(batchSymbols.map(sym => [sym, { price: 110, currency: 'USD', observedAt: '2026-08-25T12:30:00Z' }]));
+  const liveBatch = Object.fromEntries(batchSymbols.map(sym => [sym, { price: 110, currency: 'USD', observedAt: '2026-08-25T23:55:00Z', fetchedAt: '2026-08-25T23:56:00Z', revisionId: 'fixture-live-v1', freshnessMs: 15 * 60 * 1000, rightsId: 'VERIFIED', sourceKind: 'T2_LICENSED', allowedUse: 'decision', allowedUseCeiling: 'decision', quality: { allowedUse: true, decisionUse: true, status: 'current', stale: false } }]));
   let preparationYields = 0;
   const batchOutput = await createScreenerProvider({
     httpClient: { requestJson: async url => ({ ok: true, data: url.includes('universe') ? batchUniverse : batchArtifact }) },

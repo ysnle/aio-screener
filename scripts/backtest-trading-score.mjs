@@ -21,7 +21,9 @@
 // (Fear&Greed)는 24일치뿐이고 전부 최근 2026-06-10~07-03 구간 — forward 21일 수익률 확인
 // 가능한 표본은 현재 1~3개뿐이다. 이 스크립트는 그 사실을 감추지 않고 summary에 표본 수를
 // 그대로 노출한다. 재튜닝 근거로 쓰기엔 표본이 턱없이 부족 — 인프라만 구축, 시간이 지나며
-// history.json이 30분마다 계속 쌓이는 대로 표본이 자동으로 커진다.
+// history.json이 30분마다 계속 쌓이는 대로 표본이 자동으로 커진다. 표본 수 충분성은
+// 통계적 유의성 검정과 별개이며, 이 짧은 하네스는 CI/p-value를 계산하지 않으므로
+// `statisticallyMeaningful`을 절대 true로 승격하지 않는다.
 //
 // 실행: node scripts/backtest-trading-score.mjs [--history=path] [--out=path]
 //       (public-data/history.json은 이미 커밋된 로컬 파일 — 네트워크 호출 없음, 안전)
@@ -31,6 +33,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { computeTradingScoreModel } from '../src/domain/signal/trading-score.js';
+import { spearman as spearmanWithMidranks } from './lib/rank-statistics.mjs';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 
@@ -106,6 +109,22 @@ function forwardReturn(series, idx, daysAhead) {
   return (fut - cur) / cur * 100;
 }
 
+// A sample-size floor is not a significance test. Keep the legacy boolean fail-closed until
+// this producer emits an actual CI or p-value with an explicitly reviewed method.
+export function summarizeTradingScoreBacktest(corr5d = {}, corr21d = {}) {
+  const n5d = Number.isInteger(corr5d.n) ? corr5d.n : 0;
+  const n21d = Number.isInteger(corr21d.n) ? corr21d.n : 0;
+  return {
+    n5d,
+    corr5d: corr5d.rho ?? null,
+    n21d,
+    corr21d: corr21d.rho ?? null,
+    sampleSizeSufficient: n5d >= 30 && n21d >= 30,
+    significanceStatus: 'UNKNOWN',
+    statisticallyMeaningful: false
+  };
+}
+
 export async function runBacktest(historyPath, outPath) {
   const history = JSON.parse(await readFile(historyPath, 'utf8'));
   const tradingDays = buildTradingDaySeries(history);
@@ -137,22 +156,11 @@ export async function runBacktest(historyPath, outPath) {
     });
   }
 
-  // Spearman 순위상관 (동순위는 평균순위로 처리하지 않는 단순 근사 — 표본이 이 정도로 작을 땐 충분)
+  // Spearman 순위상관 — 동점은 평균순위(midrank)로 처리한다.
   function spearman(pairs) {
-    const clean = pairs.filter(p => p[0] != null && p[1] != null);
-    const n = clean.length;
-    if (n < 3) return { n, rho: null };
-    const rank = (arr) => {
-      const sorted = arr.map((v, i) => [v, i]).sort((a, b) => a[0] - b[0]);
-      const r = new Array(arr.length);
-      sorted.forEach(([, i], rankIdx) => { r[i] = rankIdx + 1; });
-      return r;
-    };
-    const xs = clean.map(p => p[0]), ys = clean.map(p => p[1]);
-    const rx = rank(xs), ry = rank(ys);
-    const dSq = rx.reduce((s, r, i) => s + (r - ry[i]) ** 2, 0);
-    const rho = 1 - (6 * dSq) / (n * (n * n - 1));
-    return { n, rho: Math.round(rho * 1000) / 1000 };
+    const clean = pairs.filter(p => Array.isArray(p) && p[0] != null && p[1] != null);
+    const rho = spearmanWithMidranks(clean.map(p => p[0]), clean.map(p => p[1]));
+    return { n: clean.length, rho: rho == null ? null : Math.round(rho * 1000) / 1000 };
   }
 
   const corr5d = spearman(records.map(r => [r.reconstructedScore, r.fwd5dReturn]));
@@ -168,8 +176,8 @@ export async function runBacktest(historyPath, outPath) {
 
   const output = {
     generatedAt: new Date().toISOString(),
-    note: 'Phase 3 [C3] P599 — computeTradingScore 재구성 검증 하네스. RM-03(2026-07-19)부터 src/domain/signal/trading-score.js 단일 구현을 호출한다. breadth/pcr/뉴스감성은 history.json에 구조적으로 없어 라이브의 현재 fail-closed 미수신 처리(null/false)를 그대로 따른다 — 예전의 중립 상수 근사(57/0.95)는 제거됨(F-11 드리프트였음). 표본 수가 통계적으로 유의미해질 때까지(대략 n>=30) summary를 "검증 결과"가 아니라 "누적 진행 상황"으로 취급할 것.',
-    summary: { n5d: corr5d.n, corr5d: corr5d.rho, n21d: corr21d.n, corr21d: corr21d.rho, statisticallyMeaningful: corr5d.n >= 30 && corr21d.n >= 30 },
+    note: 'Phase 3 [C3] P599 — computeTradingScore 재구성 검증 하네스. RM-03(2026-07-19)부터 src/domain/signal/trading-score.js 단일 구현을 호출한다. breadth/pcr/뉴스감성은 history.json에 구조적으로 없어 라이브의 현재 fail-closed 미수신 처리(null/false)를 그대로 따른다 — 예전의 중립 상수 근사(57/0.95)는 제거됨(F-11 드리프트였음). summary의 sampleSizeSufficient는 관측 수 바닥일 뿐이며, 이 하네스는 CI/p-value를 계산하지 않아 statistical significance는 UNKNOWN, statisticallyMeaningful은 false로 fail-closed한다.',
+    summary: summarizeTradingScoreBacktest(corr5d, corr21d),
     records: merged,
   };
   await writeFile(outPath, JSON.stringify(output, null, 1) + '\n', 'utf8');

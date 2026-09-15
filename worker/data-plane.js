@@ -3,6 +3,28 @@ import { createMarketSnapshot, TIER_0_INSTRUMENTS, validateMarketSnapshot, tier0
 const YAHOO_HOSTS = ['https://query1.finance.yahoo.com', 'https://query2.finance.yahoo.com'];
 const DEFAULT_ORIGIN = 'https://ysnle.github.io';
 const MAX_QUOTE_AGE_MS = 24 * 60 * 60 * 1000;
+const SCHEDULE_INTERVAL_MS = 5 * 60 * 1000;
+const HEARTBEAT_WRITE_INTERVAL_MS = 15 * 60 * 1000;
+const KV_TTL_SECONDS = 7 * 24 * 60 * 60;
+const HEARTBEAT_WRITE_POLICY = 'revision-change-or-15m-liveness';
+const KV_FREE_TIER_DAILY_LIMIT = 1000;
+const KV_WARNING_DAILY_TARGET = 500;
+const SCHEDULED_RUNS_PER_DAY = Math.ceil(24 * 60 * 60 * 1000 / SCHEDULE_INTERVAL_MS);
+const HEARTBEAT_LIVENESS_WRITES_PER_DAY = Math.ceil(24 * 60 * 60 * 1000 / HEARTBEAT_WRITE_INTERVAL_MS);
+
+export const FAST_PLANE_WRITE_POLICY = Object.freeze({
+  schedule: '*/5 * * * *',
+  scheduleIntervalMs: SCHEDULE_INTERVAL_MS,
+  heartbeatIntervalMs: HEARTBEAT_WRITE_INTERVAL_MS,
+  kvFreeTierDailyLimit: KV_FREE_TIER_DAILY_LIMIT,
+  warningDailyTarget: KV_WARNING_DAILY_TARGET,
+  // Normal upper bound: every run changes the current snapshot and the
+  // heartbeat is written only at its 15-minute liveness interval.
+  maxSuccessfulKvWritesPerDay: SCHEDULED_RUNS_PER_DAY + HEARTBEAT_LIVENESS_WRITES_PER_DAY,
+  // Worst case: every run changes the snapshot and also flips heartbeat
+  // status, so both keys are written on every 5-minute invocation.
+  maxSuccessfulKvWritesPerDayWorstCase: SCHEDULED_RUNS_PER_DAY * 2
+});
 
 function origins(env) {
   return String(env?.ALLOWED_ORIGINS || DEFAULT_ORIGIN).split(',').map((value) => value.trim()).filter(Boolean);
@@ -108,9 +130,20 @@ async function readLatest(env) {
   return await env?.AIO_QUOTES_KV?.get?.('quotes:current', 'json') || null;
 }
 
-async function writeHeartbeat(env, payload) {
-  if (!env?.AIO_QUOTES_KV?.put) return;
-  await env.AIO_QUOTES_KV.put('quotes:heartbeat', JSON.stringify(payload), { expirationTtl: 7 * 24 * 60 * 60 });
+async function readHeartbeat(env) {
+  return await env?.AIO_QUOTES_KV?.get?.('quotes:heartbeat', 'json') || null;
+}
+
+async function writeHeartbeat(env, payload, { now = Date.now(), force = false } = {}) {
+  if (!env?.AIO_QUOTES_KV?.put) return Object.freeze({ written: false, reason: 'kv-unavailable' });
+  const previous = await readHeartbeat(env);
+  const previousAt = Date.parse(previous?.writtenAt || previous?.publishedAt || previous?.attemptedAt || '');
+  const statusChanged = previous?.status !== payload.status;
+  const due = !Number.isFinite(previousAt) || now - previousAt >= HEARTBEAT_WRITE_INTERVAL_MS;
+  if (!force && !statusChanged && !due) return Object.freeze({ written: false, reason: 'liveness-throttled', previousAt: Number.isFinite(previousAt) ? previousAt : null, writtenAt: previous?.writtenAt || null });
+  const body = { ...payload, writtenAt: new Date(now).toISOString(), writePolicy: HEARTBEAT_WRITE_POLICY };
+  await env.AIO_QUOTES_KV.put('quotes:heartbeat', JSON.stringify(body), { expirationTtl: KV_TTL_SECONDS });
+  return Object.freeze({ written: true, reason: statusChanged ? 'status-changed' : force ? 'forced' : 'liveness-due', writtenAt: body.writtenAt });
 }
 
 export async function publishQuotes({ env, now = Date.now() } = {}) {
@@ -119,15 +152,16 @@ export async function publishQuotes({ env, now = Date.now() } = {}) {
   const quotes = results.filter((quote) => Number.isFinite(quote?.value) && quote.value > 0);
   const coverage = tier0Coverage(quotes);
   const complete = coverage.observed === coverage.required;
+  const snapshotRevision = shaLike(quotes.map((quote) => [quote.instrumentId, quote.value, quote.observedAt]));
   const snapshot = createMarketSnapshot({
     status: complete ? 'published' : 'failed',
-    revision: `fast-quotes:${attemptedAt}:${shaLike(quotes.map((quote) => [quote.instrumentId, quote.value, quote.observedAt]))}`,
+    revision: `fast-quotes:${snapshotRevision}`,
     generatedAt: complete ? attemptedAt : null,
     attemptedAt,
     lastSuccessfulAt: complete ? attemptedAt : null,
     source: 'cloudflare-cron:yahoo-chart',
     coverage: { required: coverage.required, observed: coverage.observed, tier0Required: coverage.required, tier0Observed: coverage.observed },
-    quality: { gate: complete ? 'QG-01_PASS' : 'QG-01_BLOCKED', scheduler: 'cloudflare-cron', cadence: '*/5 * * * *' },
+    quality: { gate: complete ? 'QG-01_PASS' : 'QG-01_BLOCKED', scheduler: 'cloudflare-cron', cadence: FAST_PLANE_WRITE_POLICY.schedule, kvWritePolicy: 'current-on-revision-change; heartbeat-on-status-change-or-15m-liveness' },
     errors: complete ? [] : results.filter((quote) => quote.error).map((quote) => `${quote.instrumentId}:${quote.error}`),
     quotes
   });
@@ -136,21 +170,34 @@ export async function publishQuotes({ env, now = Date.now() } = {}) {
     const retained = await readLatest(env);
     const failure = {
       schemaVersion: 'fast-quotes-heartbeat-v1',
-      attemptedAt,
+      checkedAt: attemptedAt,
       status: !env?.AIO_QUOTES_KV?.put ? 'operator_required' : 'failed',
       coverage,
       errors: validation.errors.concat(snapshot.errors),
       retainedRevision: retained?.revision || null
     };
-    await writeHeartbeat(env, failure);
-    return Object.freeze({ ok: false, published: false, snapshot, heartbeat: failure });
+    const heartbeatWrite = await writeHeartbeat(env, failure, { now });
+    return Object.freeze({ ok: false, published: false, snapshot, heartbeat: failure, heartbeatWritten: heartbeatWrite.written, heartbeatWrittenAt: heartbeatWrite.writtenAt || null, heartbeatWriteReason: heartbeatWrite.reason });
   }
 
-  const body = JSON.stringify(snapshot);
-  await env.AIO_QUOTES_KV.put('quotes:current', body, { expirationTtl: 7 * 24 * 60 * 60 });
-  const heartbeat = { schemaVersion: 'fast-quotes-heartbeat-v1', attemptedAt, publishedAt: attemptedAt, status: 'published', coverage, revision: snapshot.revision, consecutiveMisses: 0 };
-  await writeHeartbeat(env, heartbeat);
-  return Object.freeze({ ok: true, published: true, snapshot, heartbeat });
+  const retained = await readLatest(env);
+  const snapshotChanged = retained?.revision !== snapshot.revision;
+  if (snapshotChanged) await env.AIO_QUOTES_KV.put('quotes:current', JSON.stringify(snapshot), { expirationTtl: KV_TTL_SECONDS });
+  const heartbeat = {
+    schemaVersion: 'fast-quotes-heartbeat-v1',
+    checkedAt: attemptedAt,
+    // publishedAt is deliberately tied to a changed current snapshot. A
+    // throttled heartbeat is only a liveness check and must not masquerade as
+    // a KV snapshot publication.
+    publishedAt: snapshotChanged ? attemptedAt : retained?.generatedAt || retained?.publishedAt || null,
+    status: 'published',
+    coverage,
+    revision: snapshot.revision,
+    snapshotWritten: snapshotChanged,
+    consecutiveMisses: 0
+  };
+  const heartbeatWrite = await writeHeartbeat(env, heartbeat, { now });
+  return Object.freeze({ ok: true, published: true, snapshot, heartbeat, snapshotWritten: snapshotChanged, heartbeatWritten: heartbeatWrite.written, heartbeatWrittenAt: heartbeatWrite.writtenAt || null, heartbeatWriteReason: heartbeatWrite.reason });
 }
 
 export default {

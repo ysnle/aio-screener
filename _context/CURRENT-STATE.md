@@ -1,8 +1,8 @@
 ---
 generated_by: scripts/generate-workspace-state.mjs
-generated_from_build: 2026-09-11T12:32:00+09:00
+generated_from_build: 2026-09-15T10:49:00+09:00
 auto_refresh: true
-last_verified: 2026-09-11
+last_verified: 2026-09-15
 ---
 
 # AIO Current State
@@ -11,39 +11,39 @@ last_verified: 2026-09-11
 
 ## Application
 
-- Version: `v54.89`
+- Version: `v54.97`
 - Architecture: `hybrid-static-shell-native-esm`
 - Active routes: 20 (source: `architecture/route-owners.json`)
-- App shell: 28,265 lines / 1,888,461 bytes
+- App shell: 28,563 lines / 1,906,342 bytes
 
 | Source | Lines | Bytes |
 |---|---:|---:|
-| `index.html` | 28,265 | 1,888,461 |
-| `js/aio-core.js` | 27,755 | 1,657,253 |
-| `js/aio-data.js` | 16,472 | 1,001,665 |
-| `js/aio-ui.js` | 4,343 | 271,793 |
-| `js/aio-chat.js` | 7,921 | 564,126 |
-| `js/aio-tests.js` | 9,253 | 704,117 |
+| `index.html` | 28,563 | 1,906,342 |
+| `js/aio-core.js` | 28,546 | 1,713,119 |
+| `js/aio-data.js` | 16,646 | 1,015,000 |
+| `js/aio-ui.js` | 4,378 | 273,894 |
+| `js/aio-chat.js` | 8,153 | 581,749 |
+| `js/aio-tests.js` | 9,315 | 712,493 |
 | `js/aio-glossary.js` | 322 | 60,537 |
 
 ## Workspace
 
 - Context documents: 69; preflight reads current state once; governance and INDEX are targeted references.
 - Skills: 6; command wrappers: 9; agent profiles: 4.
-- Workflows: 9; CI scripts: 120.
-- Ledgers: latest rule R584; latest postmortem P1061; open QA 145 unique IDs (152 rows, 4 explicitly superseded).
+- Workflows: 9; CI scripts: 122.
+- Ledgers: latest rule R595; latest postmortem P1073; open QA 146 unique IDs (150 rows, 4 explicitly superseded).
 - Canonical skills: `.claude/skills`; Codex mirror: `.agents/skills`.
 
 ## Knowledge Boundary
 
 - Runtime status: `REFERENCE_PROGRESS_ONLY`.
-- 427 units: 298 researched, 4 in progress, 125 research required; 160 articles.
+- 455 units: 313 researched, 4 in progress, 138 research required; 160 articles.
 - Human review complete: `false`; publication ready: `false`.
 - These counts are structural/runtime evidence, not semantic or investment certification.
 
 ## Operations Boundary
 
-- Repository operations artifact: `OPERATOR_REQUIRED` at `2026-09-15T00:58:08.400Z`.
+- Repository operations artifact: `OPERATOR_REQUIRED` at `2026-09-15T01:46:53.242Z`.
 - Public stage: `RESEARCH_BETA_CONDITIONAL`; promotion decision: `BLOCKED_UNTIL_OPERATOR_CRITERIA_CLOSE`.
 - Live deployment, provider health, and edge headers must be measured by live gates. Never infer them from this file.
 

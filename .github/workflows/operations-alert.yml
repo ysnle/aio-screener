@@ -47,6 +47,28 @@ jobs:
             const runUrl = run.html_url;
             const sha = String(run.head_sha || '').slice(0, 12);
             const timestamp = new Date(run.updated_at || Date.now()).toISOString();
+            let failedJobs = [];
+            try {
+              const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun, {
+                owner, repo, run_id: run.id, per_page: 100
+              });
+              failedJobs = jobs
+                .filter((job) => job.conclusion && job.conclusion !== 'success' && job.conclusion !== 'skipped')
+                .map((job) => ({
+                  name: job.name,
+                  conclusion: job.conclusion,
+                  steps: (job.steps || [])
+                    .filter((step) => step.conclusion && step.conclusion !== 'success' && step.conclusion !== 'skipped')
+                    .map((step) => step.name)
+                }))
+                .sort((left, right) => left.name.localeCompare(right.name));
+            } catch (error) {
+              failedJobs = [{ name: 'job-observation-unavailable', conclusion: `api:${error.status || 'error'}`, steps: [] }];
+            }
+            const failedGateSummary = failedJobs.length
+              ? failedJobs.map((job) => `${job.name}${job.steps.length ? ` [${job.steps.join(', ')}]` : ''}`).join('; ')
+              : 'no failed job detail reported by Actions API';
+            const failureSignature = Buffer.from(JSON.stringify({ conclusion: run.conclusion || 'unknown', failedJobs }), 'utf8').toString('base64url').slice(0, 96);
 
             if (succeeded) {
               if (existing && existing.state === 'open') {
@@ -74,10 +96,26 @@ jobs:
             if (consecutiveFailures < 2) return;
 
             const title = `[Operations] ${workflow} is ${run.conclusion || 'not successful'}`;
-            const body = `${marker}\n## Automated recovery alert\n\n- Workflow: **${workflow}**\n- Conclusion: **${run.conclusion || 'unknown'}**\n- Consecutive failures: **${consecutiveFailures}**\n- Branch: \`${run.head_branch || 'unknown'}\`\n- Revision: \`${sha || 'unknown'}\`\n- Updated: ${timestamp}\n- Run: ${runUrl}\n\nThis issue is updated/reopened on repeated failures and closes only when the same workflow succeeds. It does not authorize an automatic source change, commit, dispatch, or deployment.`;
+            const body = `${marker}\n<!-- aio-operations-alert-signature:${failureSignature} -->\n## Automated recovery alert\n\n- Workflow: **${workflow}**\n- Conclusion: **${run.conclusion || 'unknown'}**\n- Consecutive failures: **${consecutiveFailures}**\n- Branch: \`${run.head_branch || 'unknown'}\`\n- Revision: \`${sha || 'unknown'}\`\n- Updated: ${timestamp}\n- Run: ${runUrl}\n- Failed jobs/gates: ${failedGateSummary}\n- Failure signature: \`${failureSignature}\`\n\nThis issue is updated/reopened on repeated failures and closes only when the same workflow succeeds. Repeated identical failures update this body without adding a notification comment. It does not authorize an automatic source change, commit, dispatch, or deployment.`;
             if (existing) {
+              const comments = await github.paginate(github.rest.issues.listComments, {
+                owner, repo, issue_number: existing.number, per_page: 100
+              });
+              // The current body is itself durable state. Include it in the
+              // comparison so a newly-created issue does not emit a delayed
+              // duplicate comment on the next identical run merely because
+              // the first run had no comment yet.
+              const signatureMarker = `aio-operations-alert-signature:${failureSignature}`;
+              const sameSignatureSeen = String(existing.body || '').includes(signatureMarker)
+                || comments.some((comment) => String(comment.body || '').includes(signatureMarker));
+              const reopened = existing.state !== 'open';
+              const escalation = consecutiveFailures === 2;
+              const signatureChanged = !sameSignatureSeen;
               await github.rest.issues.update({ owner, repo, issue_number: existing.number, title, body, state: 'open' });
-              await github.rest.issues.createComment({ owner, repo, issue_number: existing.number, body: `Still failing: [run ${run.id}](${runUrl}) concluded **${run.conclusion || 'unknown'}** at ${timestamp}.` });
+              if (reopened || escalation || signatureChanged) {
+                const reason = reopened ? 'reopened' : escalation ? 'escalation-threshold' : 'failure-signature-changed';
+                await github.rest.issues.createComment({ owner, repo, issue_number: existing.number, body: `<!-- aio-operations-alert-signature:${failureSignature} -->\nOperations alert **${reason}**: [run ${run.id}](${runUrl}) concluded **${run.conclusion || 'unknown'}** at ${timestamp}. Failed jobs/gates: ${failedGateSummary}.` });
+              }
             } else {
               await github.rest.issues.create({ owner, repo, title, body, labels: [label] });
             }

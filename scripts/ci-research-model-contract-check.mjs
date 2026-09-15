@@ -1,13 +1,21 @@
 import { readFile } from 'node:fs/promises';
 import { computeFactorRanks, FACTOR_RANKS_ALLOWED_USE, FACTOR_RANKS_MODEL_VERSION } from '../src/domain/screener/factor-ranks.js';
+import { summarizeTradingScoreBacktest } from './backtest-trading-score.mjs';
+import { nonOverlappingPhaseCorrelations } from './backtest-trading-score-longrun.mjs';
 
 const errors = [];
 const check = (label, condition, detail) => { if (!condition) errors.push(label + (detail ? ': ' + detail : '')); };
 const factor = await readFile(new URL('./backtest-factors-longrun.mjs', import.meta.url), 'utf8');
 const score = await readFile(new URL('./backtest-trading-score-longrun.mjs', import.meta.url), 'utf8');
+const scoreHarness = await readFile(new URL('./backtest-trading-score.mjs', import.meta.url), 'utf8');
 const status = JSON.parse(await readFile(new URL('../public-data/model-validation-status.json', import.meta.url), 'utf8'));
+const scoreSummary = summarizeTradingScoreBacktest({ n: 280, rho: -0.146 }, { n: 264, rho: -0.25 });
 check('factor backtest has temporal reference/holdout split', /walk-forward/.test(factor) && /holdoutPeriod/.test(factor));
 check('model artifact exposes IC/ICIR/hit-rate/decile/drawdown/CI metrics', ['IC', 'ICIR', 'hitRate', 'quantileSpread', 'drawdown', 'CI'].every(token => factor.includes(token) || score.includes(token)));
+const phaseFixture = Array.from({ length: 20 }, (_, index) => ({ score: index, fwd5d: index }));
+const phaseResult = nonOverlappingPhaseCorrelations(phaseFixture, 'score', 'fwd5d', 5);
+check('overlapping forward returns cannot use pooled IID significance for promotion', phaseResult.phaseCount === 5 && phaseResult.signStablePositive === true && /pooled daily 95% CI alone is ineligible/.test(score));
+check('score backtest separates sample sufficiency from statistical significance', scoreSummary.sampleSizeSufficient === true && scoreSummary.significanceStatus === 'UNKNOWN' && scoreSummary.statisticallyMeaningful === false && /sampleSizeSufficient/.test(scoreHarness) && /statisticallyMeaningful:\s*false/.test(scoreHarness));
 check('point-in-time/survivorship limitation remains explicit', /survivorshipBiasCaveat/.test(factor) && /Not resolvable without paid point-in-time/.test(factor));
 check('cost/liquidity and live parity cannot silently promote the model', status.status === 'BLOCKED' && status.allowedUse === 'research-relative-ranking-only' && status.turnoverModeled === false && status.transactionCostsModeled === false && status.liquidityCapacityModeled === false && status.liveBacktestParity === false);
 
@@ -23,14 +31,19 @@ const rankRow = (sym, sector, seed, overrides = {}) => ({
   ret6m: seed * 0.5,
   pctSma50: seed,
   pctSma200: seed * 0.6,
+  observedAt: '2026-08-26T00:00:00.000Z',
+  factorObservedAt: '2026-08-26T00:00:00.000Z',
+  factorSourceKind: 'T3_PUBLIC_DELAYED',
+  factorAllowedUse: 'research-relative-ranking-only',
+  factorQuality: { status: 'CURRENT', stale: false, decisionUse: false },
   vol: 20 - seed / 10,
   ...overrides
 });
 const rankRows = Array.from({ length: 12 }, (_, index) => rankRow(`RM${index + 1}`, index < 6 ? 'Technology' : 'Healthcare', index + 1));
 const rankResult = computeFactorRanks({ rows: rankRows, inputVersion: 'research-gate-fixture.v2', now: Date.parse('2026-08-27T00:00:00Z') });
 const identicalRows = Array.from({ length: 6 }, (_, index) => rankRow(`TIE${index}`, 'Technology', 5));
-const tied = computeFactorRanks({ rows: identicalRows });
-const reversedTies = computeFactorRanks({ rows: identicalRows.slice().reverse() });
+const tied = computeFactorRanks({ rows: identicalRows, now: Date.parse('2026-08-27T00:00:00Z') });
+const reversedTies = computeFactorRanks({ rows: identicalRows.slice().reverse(), now: Date.parse('2026-08-27T00:00:00Z') });
 check('identical evidence receives identical midrank independent of row order', tied.ranked === 6 && reversedTies.ranked === 6 && tied.rows.every(row => row.rank === 50)
   && reversedTies.rows.every(row => row.rank === 50));
 check('factor-ranker model version and research boundary are explicit', rankResult.modelVersion === FACTOR_RANKS_MODEL_VERSION && rankResult.researchBoundary?.allowedUse === FACTOR_RANKS_ALLOWED_USE && rankResult.researchBoundary?.tradingSignal === false && rankResult.researchBoundary?.decisionEligible === false);
@@ -70,7 +83,8 @@ check('factor-ranker turnover and regime stability stay diagnostic-only', (() =>
 check('an active factor never lets the stale minority move peer statistics', (() => {
   const rows = rankRows.map((row, index) => ({ ...row, mcap: index + 1, pe: index + 10, roe: index + 5,
     _mcapObservedAt: index < 10 ? '2026-08-26' : '2026-07-01',
-    _fundamentalObservedAt: index < 10 ? '2026-08-26' : '2025-01-01' }));
+    _mcapSourceKind: 'T2_LICENSED', _mcapAllowedUse: 'research-relative-ranking-only', _mcapQuality: { status: 'CURRENT', stale: false },
+    _fundamentalObservedAt: index < 10 ? '2026-08-26' : '2025-01-01', _fundamentalSourceKind: 'T1_OFFICIAL', _fundamentalAllowedUse: 'research-relative-ranking-only', _fundamentalQuality: { status: 'CURRENT', stale: false } }));
   const input = { rows, now: Date.parse('2026-08-27'), weights: { momentum: 1, size: 1, value: 1, quality: 1 } };
   const first = computeFactorRanks(input);
   const second = computeFactorRanks({ ...input, rows: rows.map((row, i) => i < 10 ? row : { ...row, mcap: 1e12, pe: 0.01, roe: -999 }) });
@@ -79,12 +93,12 @@ check('an active factor never lets the stale minority move peer statistics', (()
     && first.rows.slice(10).every(row => ['size', 'value', 'quality'].every(key => row.factorScores[key] === null && row.missingFactors.includes(key)));
 })());
 check('boundary ties and null previous values do not manufacture turnover', (() => {
-  const result = computeFactorRanks({ rows: identicalRows.slice().reverse(), previousRanks: { ...Object.fromEntries(tied.rows.map(row => [row.sym, row.rank])), MISSING: null } });
+  const result = computeFactorRanks({ rows: identicalRows.slice().reverse(), previousRanks: { ...Object.fromEntries(tied.rows.map(row => [row.sym, row.rank])), MISSING: null }, now: Date.parse('2026-08-27T00:00:00Z') });
   return result.turnoverStability.turnoverPct === 0 && result.turnoverStability.currentTopCount === 6
     && result.turnoverStability.previousTopCount === 6 && result.turnoverStability.tiePolicy === 'include-all-boundary-ties';
 })());
 check('symbol-only identities survive canonical ranking output', (() => {
-  const result = computeFactorRanks({ rows: rankRows.map(({ sym, ...row }) => ({ ...row, symbol: ` ${sym.toLowerCase()} ` })) });
+  const result = computeFactorRanks({ rows: rankRows.map(({ sym, ...row }) => ({ ...row, symbol: ` ${sym.toLowerCase()} ` })), now: Date.parse('2026-08-27T00:00:00Z') });
   return result.rows.length === 12 && result.rows.every((row, index) => row.sym === rankRows[index].sym);
 })());
 

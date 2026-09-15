@@ -175,7 +175,7 @@ export async function runFactorLongrunBacktest(range, topN, outPath) {
       survivorshipBiasCaveat: 'Uses TODAY\'s top-mcap universe applied retroactively over the full lookback window — any ticker that would have been delisted/acquired/failed during this period is entirely absent from the sample. This systematically tends to overstate momentum/quality-style factor performance in the finance literature. Not resolvable without paid point-in-time index-constituent history; NOT claimed as resolved or "passed" here.',
       subsetNotFullUniverse: `Uses top ${topN} by market cap, not the full ${universe.length}-ticker universe, to bound Yahoo Finance request volume (this repo's own fetch-data.mjs/ci.yml comments document a prior Yahoo IP-blocking incident from excess request volume).`,
       icIRNote: 'ICIR = mean(IC across rebalance dates) / stddev(IC across rebalance dates), with a t-stat and approximate 95% CI via the standard IC-IR normal approximation (t = ICIR * sqrt(dates), CI = mean ± 1.96*stddev/sqrt(dates)) — this is what Codex\'s WO-3 gate means by "IC/ICIR/t-stat", distinct from the pooled-cross-section Fisher-z CI used in the WO-2 score backtest.',
-      liveModelParity: 'This still validates only 4 of the live _aioComputeFactorRanks() model\'s 7 factors, always at NEUTRAL-regime weights (same limitation already documented in fetch-data.mjs backtestFactors() since P586/C2) — RISK_OFF/RISK_ON adaptive weight blending remains unvalidated here.',
+      liveModelParity: 'This still validates only 4 of the live _aioComputeFactorRanks() model\'s 7 factors, always at the production-fixed NEUTRAL weights (same limitation already documented in fetch-data.mjs backtestFactors() since P586/C2) — marketState proposal tilts are not promoted or validated here.',
     },
     universe: { requestedTop: topN, fetchedTickers: stockData.length, fullUniverseSize: universe.length, dataRange: range },
     rebalanceDates: { count: offsetsAsc.length, comparedToProductionBacktest: 6 },
@@ -186,7 +186,7 @@ export async function runFactorLongrunBacktest(range, topN, outPath) {
       'Survivorship bias is NOT resolved (see methodology.survivorshipBiasCaveat) — treat all IC/ICIR figures here as an upper-bound-leaning estimate, not a clean out-of-sample figure.',
       'Only 4 of 7 live-model factors covered (size/value/quality excluded — pre-existing limitation, not new to this script).',
       'Top-mcap subset, not the full 873-ticker universe.',
-      'Live adaptive regime-weight blending (RISK_OFF/RISK_ON) is not validated — only the fixed NEUTRAL-weight composite.',
+      'MarketState regime-weight tilts remain proposal-only and are not validated or applied — only the fixed NEUTRAL-weight composite is measured.',
     ],
   };
 

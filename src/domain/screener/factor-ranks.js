@@ -13,13 +13,20 @@
 //   - sector-relative normalization with unknown-sector -> universe fallback;
 //   - row/ensemble confidence that measures evidence coverage, not return probability;
 //   - optional prior-rank/regime stability diagnostics (never used to auto-promote weights).
-export const FACTOR_RANKS_MODEL_VERSION = 'factor-ranks.v4';
+import { normalizeAllowedUse } from '../../data/contracts/evidence.js';
+import { canonicalSourceTier } from '../../data/contracts/source-kind.js';
+
+export const FACTOR_RANKS_MODEL_VERSION = 'factor-ranks.v5';
 export const FACTOR_RANKS_ALLOWED_USE = 'research-relative-ranking-only';
 
 const DAY_MS = 86_400_000;
 const FACTOR_FRESHNESS_MS = 4 * DAY_MS;
 const FUNDAMENTAL_FRESHNESS_MS = 180 * DAY_MS;
 const MIN_CROSS_SECTION_COVERAGE = 0.8;
+// A cross-sectionally active factor can still be absent for an individual security. Do not
+// compare a materially different residual model against complete rows: keep the row visible,
+// but require at least 80% of the configured active weight before assigning a rank.
+const MIN_ROW_WEIGHT_COVERAGE = 0.8;
 const MIN_SECTOR_OBSERVATIONS = 6;
 // Six observations is the minimum sector bucket size used by the shrinkage rule, so the robust
 // guard must also be able to protect a full-size sector bucket of six.
@@ -133,9 +140,9 @@ function guardedStats(values) {
 
 function winz(x, mu, sd) {
   const numeric = finite(x);
-  if (numeric == null) return 0;
+  if (numeric == null) return null;
   const z = (numeric - mu) / sd;
-  return Number.isFinite(z) ? Math.max(-3, Math.min(3, z)) : 0;
+  return Number.isFinite(z) ? Math.max(-3, Math.min(3, z)) : null;
 }
 
 function z2pct(z) { return Math.max(0, Math.min(100, Math.round(50 + z * 16.67))); }
@@ -153,6 +160,33 @@ function isoMs(value) {
 function isFreshPast(value, now, budgetMs) {
   const observed = isoMs(value);
   return Number.isFinite(observed) && Number.isFinite(now) && now >= observed && now - observed <= budgetMs;
+}
+
+const PRICE_FACTOR_KEYS = new Set(['momentum', 'trend', 'lowvol', 'kalman']);
+
+function factorLineage(row, key) {
+  const priceFactor = PRICE_FACTOR_KEYS.has(key);
+  const fundamentalFactor = key === 'value' || key === 'quality';
+  const prefix = key === 'size' ? '_mcap' : fundamentalFactor ? '_fundamental' : 'factor';
+  const observedAt = row?.[`${prefix}ObservedAt`] || (priceFactor ? row?.observedAt : null) || null;
+  const sourceKind = row?.[`${prefix}SourceKind`] || (priceFactor ? row?.factorSourceKind : null) || (priceFactor ? row?.sourceKind : null) || null;
+  const allowedUse = row?.[`${prefix}AllowedUse`] || (priceFactor ? row?.factorAllowedUse : null) || (priceFactor ? row?.allowedUse : null) || null;
+  const quality = row?.[`${prefix}Quality`] || (priceFactor ? row?.factorQuality : null) || (priceFactor ? row?.quality : null) || null;
+  return { observedAt, sourceKind, sourceTier: canonicalSourceTier(sourceKind), allowedUse, quality };
+}
+
+function factorEvidenceUsable(row, key, now) {
+  const lineage = factorLineage(row, key);
+  const budget = key === 'size' ? FACTOR_FRESHNESS_MS : ['value', 'quality'].includes(key) ? FUNDAMENTAL_FRESHNESS_MS : FACTOR_FRESHNESS_MS;
+  const reasons = [];
+  if (!lineage.observedAt) reasons.push('observedAt_missing');
+  if (!lineage.sourceKind || !lineage.sourceTier) reasons.push('source_tier_missing_or_unknown');
+  if (!lineage.allowedUse) reasons.push('allowedUse_missing');
+  if (normalizeAllowedUse(lineage.allowedUse, 'none') === 'none') reasons.push('allowedUse_blocked');
+  if (!lineage.quality || typeof lineage.quality !== 'object') reasons.push('quality_missing');
+  else if (lineage.quality.stale === true || lineage.quality.blocked === true || lineage.quality.status === 'STALE' || lineage.quality.status === 'MISSING') reasons.push('quality_stale_or_blocked');
+  if (!isFreshPast(lineage.observedAt, now, budget)) reasons.push('observedAt_stale_or_future');
+  return { ok: reasons.length === 0, lineage, reasons };
 }
 
 function freezeRecord(record) { return Object.freeze({ ...record }); }
@@ -309,11 +343,10 @@ export function computeFactorRanks({
     sym: String(row.sym || row.symbol).trim().toUpperCase(),
     _factorIndex: index,
     _sectorKey: normalizeSector(row.sector),
+    _factorEvidence: Object.fromEntries(candidateFactors.map((factor) => [factor.key, factorEvidenceUsable(row, factor.key, now)])),
     _factorValues: Object.fromEntries(candidateFactors.map((factor) => {
-      const dateUsable = factor.key === 'size' ? isFreshPast(row._mcapObservedAt, now, FACTOR_FRESHNESS_MS)
-        : ['value', 'quality'].includes(factor.key) ? isFreshPast(row._fundamentalObservedAt, now, FUNDAMENTAL_FRESHNESS_MS)
-          : true;
-      return [factor.key, dateUsable ? factor.fn(row) : null];
+      const evidence = factorEvidenceUsable(row, factor.key, now);
+      return [factor.key, evidence.ok ? factor.fn(row) : null];
     }))
   }));
   const bySector = new Map();
@@ -327,9 +360,11 @@ export function computeFactorRanks({
   candidateFactors.forEach((factor) => {
     const observed = working.filter((row) => finite(row._factorValues[factor.key]) != null).length;
     const coverage = items.length ? observed / items.length : 0;
+    const lineageBlocked = working.filter((row) => !row._factorEvidence[factor.key]?.ok).length;
     factorCoverage[factor.key] = freezeRecord({
       observations: observed,
       eligibleRows: items.length,
+      lineageBlocked,
       coveragePct: Math.round(coverage * 1000) / 10,
       minCoveragePct: MIN_CROSS_SECTION_COVERAGE * 100,
       active: coverage >= MIN_CROSS_SECTION_COVERAGE,
@@ -337,11 +372,11 @@ export function computeFactorRanks({
     });
   });
 
-  const mcapCurrentCount = working.filter((row) => sizeRaw(row) != null && isFreshPast(row._mcapObservedAt, now, FACTOR_FRESHNESS_MS)).length;
+  const mcapCurrentCount = working.filter((row) => sizeRaw(row) != null && row._factorEvidence.size?.ok).length;
   const sizeActive = mcapCurrentCount >= Math.ceil(items.length * MIN_CROSS_SECTION_COVERAGE) && factorCoverage.size.coveragePct >= MIN_CROSS_SECTION_COVERAGE * 100;
   const fundamentalCurrentCount = working.filter((row) => {
     const hasInput = valueRaw(row) != null || qualityRaw(row) != null;
-    return hasInput && isFreshPast(row._fundamentalObservedAt, now, FUNDAMENTAL_FRESHNESS_MS);
+    return hasInput && (row._factorEvidence.value?.ok || row._factorEvidence.quality?.ok);
   }).length;
   const fundamentalCurrentPct = items.length ? fundamentalCurrentCount / items.length * 100 : 0;
   const fundamentalCurrent = fundamentalCurrentCount >= Math.ceil(items.length * MIN_CROSS_SECTION_COVERAGE);
@@ -378,9 +413,9 @@ export function computeFactorRanks({
     momentum: factorCoverage.momentum.active ? null : `모멘텀 유효값 커버리지 80% 미만 (${factorCoverage.momentum.coveragePct.toFixed(1)}%)`,
     trend: factorCoverage.trend.active ? null : `추세 유효값 커버리지 80% 미만 (${factorCoverage.trend.coveragePct.toFixed(1)}%)`,
     lowvol: factorCoverage.lowvol.active ? null : `변동성 유효값 커버리지 80% 미만 (${factorCoverage.lowvol.coveragePct.toFixed(1)}%)`,
-    size: sizeActive ? null : '시가총액 관측시각·80% 커버리지 미확보',
-    value: valueActive ? null : `재무 관측시각·180일 신선도 또는 유효값 커버리지 80% 미만 (${fundamentalCurrentPct.toFixed(1)}%; 산출물 ${Number(fundamentalCoveragePct || 0).toFixed(1)}%)`,
-    quality: qualityActive ? null : `재무 관측시각·180일 신선도 또는 유효값 커버리지 80% 미만 (${fundamentalCurrentPct.toFixed(1)}%; 산출물 ${Number(fundamentalCoveragePct || 0).toFixed(1)}%)`,
+    size: sizeActive ? null : '시가총액 관측시각·출처 tier·quality·허용용도 또는 80% 커버리지 미확보',
+    value: valueActive ? null : `재무 관측시각·출처 tier·quality·허용용도·180일 신선도 또는 유효값 커버리지 80% 미만 (${fundamentalCurrentPct.toFixed(1)}%; 산출물 ${Number(fundamentalCoveragePct || 0).toFixed(1)}%)`,
+    quality: qualityActive ? null : `재무 관측시각·출처 tier·quality·허용용도·180일 신선도 또는 유효값 커버리지 80% 미만 (${fundamentalCurrentPct.toFixed(1)}%; 산출물 ${Number(fundamentalCoveragePct || 0).toFixed(1)}%)`,
     kalman: factorCoverage.kalman.active ? null : `칼만 유효값 커버리지 80% 미만 (${factorCoverage.kalman.coveragePct.toFixed(1)}%)`
   };
   // Preserve the established reason text when only the freshness gate is responsible. Existing
@@ -442,32 +477,41 @@ export function computeFactorRanks({
   const crossSectionConfidence = Math.min(1, items.length / 30);
   let totalCompositeConfidence = 0;
   working.forEach((row) => {
-    let composite = 0;
+    let weightedComposite = 0;
     let observedWeight = 0;
     const factorScores = {};
     const missingFactors = [];
     FACTORS.forEach((factor) => {
       const observed = finite(row._factorValues[factor.key]) != null;
-      const z = finite(row['_z_' + factor.key]) || 0;
+      const z = finite(row['_z_' + factor.key]);
       const weight = appliedFactorWeights[factor.key] || 0;
-      composite += z * weight;
-      if (observed) observedWeight += weight;
-      else missingFactors.push(factor.key);
-      factorScores[factor.key] = observed ? z2pct(z) : null;
+      const usable = observed && z != null;
+      if (usable && weight > 0) {
+        weightedComposite += z * weight;
+        observedWeight += weight;
+      }
+      if (!usable) missingFactors.push(factor.key);
+      factorScores[factor.key] = usable ? z2pct(z) : null;
     });
-    // Absent contributions add zero to the composite, but have no displayed score.
-    // Coverage records the imputation; it is not a probability of future returns.
-    row._compositeZ = composite;
+    // Renormalization is safe only for immaterial gaps. Below the row-level evidence floor the
+    // security would effectively be ranked by a different model, which creates missingness
+    // selection bias. Preserve the diagnostics and display row, but fail closed on rank.
+    row._compositeZ = observedWeight + Number.EPSILON >= MIN_ROW_WEIGHT_COVERAGE
+      ? weightedComposite / observedWeight
+      : null;
     row.factorScores = Object.freeze(factorScores);
     row.factorCoverage = FACTORS.length ? observedWeight : 0;
     row.missingFactors = Object.freeze(missingFactors);
+    row.rankingEligibility = row._compositeZ == null ? 'insufficient-row-factor-coverage' : 'eligible';
     const sectorGroup = bySector.get(row._sectorKey) || [];
     const rowSectorConfidence = row._sectorKey === UNKNOWN_SECTOR ? 0 : Math.min(1, sectorGroup.length / MIN_SECTOR_OBSERVATIONS);
     row.confidence = Math.max(0, Math.min(1, 0.55 * row.factorCoverage + 0.25 * crossSectionConfidence + 0.20 * rowSectorConfidence));
-    totalCompositeConfidence += row.confidence;
+    if (row._compositeZ != null) totalCompositeConfidence += row.confidence;
   });
 
-  const sorted = working.slice().sort((a, b) => a._compositeZ - b._compositeZ);
+  // Rows with no usable weighted evidence stay visible with null score/rank but must not
+  // alter the percentile denominator or the turnover universe.
+  const sorted = working.filter((row) => finite(row._compositeZ) != null).sort((a, b) => a._compositeZ - b._compositeZ);
   const n = sorted.length;
   // Equal evidence must receive the same percentile, independent of input order.
   for (let start = 0; start < n;) {
@@ -486,11 +530,21 @@ export function computeFactorRanks({
       sym: row.sym,
       _compositeZ: row._compositeZ,
       factorScores: row.factorScores,
-      rank: row.rank,
-      quantSignal: row.quantSignal,
+      rank: row.rank ?? null,
+      quantSignal: row.quantSignal || null,
       factorCoverage: Math.round(row.factorCoverage * 1000) / 1000,
       missingFactors: row.missingFactors,
       confidence: Math.round(row.confidence * 1000) / 1000,
+      rankingEligibility: row.rankingEligibility,
+      minimumFactorCoverage: MIN_ROW_WEIGHT_COVERAGE,
+      factorEvidence: Object.freeze(Object.fromEntries(Object.entries(row._factorEvidence).map(([key, evidence]) => [key, Object.freeze({
+        eligible: !!evidence.ok,
+        observedAt: evidence.lineage?.observedAt || null,
+        sourceKind: evidence.lineage?.sourceKind || null,
+        sourceTier: evidence.lineage?.sourceTier || null,
+        allowedUse: evidence.lineage?.allowedUse || null,
+        blockedReasons: Object.freeze(evidence.reasons || [])
+      })]))),
       allowedUse: FACTOR_RANKS_ALLOWED_USE,
       decisionEligible: false
     };
@@ -500,12 +554,14 @@ export function computeFactorRanks({
 
   const maxAbsMeanCompositeZ = Math.max(0, ...sectorCounts.filter((entry) => entry.known).map((entry) => {
     const group = bySector.get(entry.sector);
-    return Math.abs(avg(group.map((row) => row._compositeZ)) || 0);
+    const composites = group.map((row) => row._compositeZ).filter((value) => finite(value) != null);
+    return composites.length ? Math.abs(avg(composites)) : 0;
   }));
   const activeCoverage = FACTORS.length ? avg(FACTORS.map((factor) => factorCoverage[factor.key].coveragePct / 100)) : 0;
   const compositeConfidence = Math.max(0, Math.min(1, 0.55 * (activeCoverage || 0) + 0.25 * crossSectionConfidence + 0.20 * sectorConfidence));
   const outlierTotal = Object.values(outlierByFactor).reduce((sum, entry) => sum + entry.count, 0);
-  const qualityStatus = compositeConfidence >= 0.8 && invalidCoreRows === 0 && duplicateRows === 0 && outlierTotal === 0 ? 'ready' : 'partial';
+  const rowCoverageBlocked = working.filter((row) => row.rankingEligibility !== 'eligible').length;
+  const qualityStatus = compositeConfidence >= 0.8 && invalidCoreRows === 0 && duplicateRows === 0 && outlierTotal === 0 && rowCoverageBlocked === 0 ? 'ready' : 'partial';
   const smallSectorGroups = sectorCounts.filter((entry) => entry.known && entry.count < MIN_SECTOR_OBSERVATIONS);
   const unknownRows = sectorCounts.find((entry) => !entry.known)?.count || 0;
   const sectorNeutrality = freezeRecord({
@@ -525,6 +581,8 @@ export function computeFactorRanks({
     invalidCoreRows,
     duplicateRows,
     missingIdentityRows,
+    rowCoverageBlocked,
+    minimumRowWeightCoverage: MIN_ROW_WEIGHT_COVERAGE,
     fundamentalCurrentRows: fundamentalCurrentCount,
     fundamentalArtifactCoveragePct: finite(Number(fundamentalCoveragePct)),
     fmpOk: fmpOk === true,

@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
 import { createRuntimeReaders, buildRuntimeObservationCatalog } from '../src/data/runtime-readers.js';
 import { computeTradingScoreModel } from '../src/domain/signal/trading-score.js';
 import { computeNewsSentimentScore } from '../src/domain/news/scoring.js';
@@ -77,6 +79,26 @@ assert.equal(fallbackReader.readEntity().options.pcr.value, 0);
 assert.equal(fallbackReader.readEntity().options.pcr.source, 'current-pcr');
 fallbackRoot.AIO.getCanonicalMetric = () => { throw new Error('fixture canonical reader failure'); };
 assert.equal(fallbackReader.readSentiment().fearGreed, 42, 'optional canonical reader failure must preserve the snapshot fallback');
+
+const coreSource = fs.readFileSync(new URL('../js/aio-core.js', import.meta.url), 'utf8');
+const coreContext = vm.createContext({
+  window: { AIO_SOURCE_KIND: { LIVE: 'LIVE', DELAYED: 'DELAYED', SNAPSHOT: 'SNAPSHOT', REFERENCE: 'REFERENCE', UNAVAILABLE: 'UNAVAILABLE' } },
+  Date, Number, Object, String, RegExp, Math, isFinite
+});
+const freshnessStart = coreSource.indexOf('var FRESHNESS_POLICY =');
+const freshnessEnd = coreSource.indexOf('function makeMetric(', freshnessStart);
+const decisionStart = coreSource.indexOf('function _aioStrictFinite(');
+const decisionEnd = coreSource.indexOf('function _aioMergeSourceKind(', decisionStart);
+assert.ok(freshnessStart >= 0 && freshnessEnd > freshnessStart && decisionStart >= 0 && decisionEnd > decisionStart);
+vm.runInContext(coreSource.slice(freshnessStart, freshnessEnd), coreContext);
+vm.runInContext(coreSource.slice(decisionStart, decisionEnd), coreContext);
+const decisionNow = Date.now();
+const evaluateLegacyEnvelope = (ts, allowedUse, sourceKind = 'live') => vm.runInContext(`_aioDecisionMetricEnvelope(18, ${JSON.stringify(sourceKind)}, 'fixture-provider', ${JSON.stringify(ts)}, { policyKey:'quote' }, ${JSON.stringify(allowedUse)})`, coreContext);
+assert.equal(evaluateLegacyEnvelope(decisionNow, 'decision').allowedUse, true, 'current operational evidence with an explicit decision grant remains usable');
+assert.equal(evaluateLegacyEnvelope(decisionNow, null).allowedUse, false, 'a recent raw number without an explicit decision grant must fail closed');
+assert.equal(evaluateLegacyEnvelope(null, 'decision').allowedUse, false, 'an undated operational number must fail closed');
+assert.equal(evaluateLegacyEnvelope(decisionNow - 60 * 60 * 1000, 'decision').allowedUse, false, 'a stale quote must fail closed even when a shallow quality object exists');
+assert.equal(evaluateLegacyEnvelope(decisionNow, 'decision', 'snapshot').allowedUse, false, 'snapshot evidence cannot become a current decision input');
 console.log(JSON.stringify({ ok: true, snapshotTotal: blocked.total, snapshotDecisionBlocked: blocked.decisionBlocked, liveTotal: liveScore.total, undatedNewsTotal: undatedNews.total, evidenceKeys: Object.keys(liveInput.decisionEvidence), atomicFallback: true }));
 
 // Repeated snapshot timestamps should cost one parse per distinct timestamp,

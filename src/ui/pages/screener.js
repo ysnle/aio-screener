@@ -4,11 +4,13 @@ import { subscribeToSlices } from '../../state/memoize.js';
 import { createSavedScreen, exportSavedScreen, importSavedScreen } from '../../domain/screener/saved-screens.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { SCREENER_FIELD_REGISTRY, createScreenDefinition, fieldValueForPurpose } from '../../data/contracts/screener.js';
+import { CONDITIONAL_EVIDENCE_DISCLAIMER, CONDITIONAL_EVIDENCE_VERSION } from '../../domain/screener/conditional-evidence.js';
+import { EVIDENCE_LINEAGE_VERSION } from '../../domain/screener/evidence-lineage.js';
 
 const FIELD_BY_COLUMN = new Map(SCREENER_FIELD_REGISTRY.fields.map(field => [field.rowKey, field.fieldId]));
 
 const PROFILE_DESCRIPTIONS = {
-  balanced: '레짐 기반 자동 가중',
+  balanced: '중립 고정 가중 · 레짐 후보는 진단만',
   momentum: '단기 추세·모멘텀 중심',
   swing: '중기 기술적 매매',
   value: '저평가·장기 보유',
@@ -26,9 +28,9 @@ const FACTOR_LABELS = {
 };
 
 const REGIME_DESCRIPTIONS = {
-  '중립 · 균형 가중': '시장 신호가 혼재된 구간입니다. 기본 균형 가중을 적용합니다.',
-  '위험회피 · 저변동·퀄리티 가중': '시장 불안 구간입니다. 저변동성과 퀄리티 가중을 높입니다.',
-  '위험선호 · 모멘텀·추세·칼만 가중': '시장 위험선호 구간입니다. 모멘텀과 추세 가중을 높입니다.'
+  '중립 · 균형 가중': '시장 신호가 혼재된 구간입니다. 검증된 중립 고정 가중치를 유지합니다.',
+  '위험회피 · 저변동·퀄리티 가중': '시장 불안 구간의 방어 틸트 후보입니다. 검증·승인 전에는 실제 순위에 적용하지 않습니다.',
+  '위험선호 · 모멘텀·추세·칼만 가중': '시장 위험선호 구간의 공격 틸트 후보입니다. 검증·승인 전에는 실제 순위에 적용하지 않습니다.'
 };
 
 // SCR-UX-00/02: the table header, cell renderer, sorting contract and visual
@@ -457,7 +459,7 @@ function renderFactorTab(documentRef, metadata) {
   const regimeNode = documentRef.getElementById('screener-regime-note');
   if (regimeNode) regimeNode.textContent = regime;
   const desc = documentRef.getElementById('scr-regime-desc');
-  if (desc) desc.textContent = REGIME_DESCRIPTIONS[regime] || '현재 레짐에 맞는 팩터 가중치를 적용했습니다.';
+  if (desc) desc.textContent = REGIME_DESCRIPTIONS[regime] || '검증·승인 전에는 중립 고정 가중치를 적용하고 레짐 틸트는 후보 진단으로만 표시합니다.';
   const confidenceNode = documentRef.getElementById('screener-factor-confidence');
   if (confidenceNode) {
     const confidence = finite(ranking.confidence);
@@ -506,7 +508,7 @@ function renderBacktest(documentRef, metadata) {
     ? backtest.excludedFactors.join(' · ')
     : 'size · value · quality';
   const disclosure = documentRef.createElement('div');
-  disclosure.textContent = `검증 범위: ${excluded} 제외 · 고정 레짐 ${backtest.weightRegime || 'NEUTRAL'} · 실시간 적응형 종합 랭크 검증 아님`;
+  disclosure.textContent = `검증 범위: ${excluded} 제외 · 고정 레짐 ${backtest.weightRegime || 'NEUTRAL'} · 레짐 틸트 후보는 검증·적용되지 않음`;
   disclosure.style.cssText = 'font-size:10px;color:var(--text-muted);line-height:1.45;margin-bottom:6px;';
   panel.appendChild(disclosure);
   const labels = { momentum: '모멘텀', trend: '추세', lowvol: '저변동', kalman: 'K-vel', composite: '종합' };
@@ -523,6 +525,95 @@ function renderBacktest(documentRef, metadata) {
     row.append(left, right);
     panel.appendChild(row);
   });
+}
+
+function renderConditionalEvidence(documentRef, metadata) {
+  const panel = documentRef.getElementById('screener-conditional-evidence-panel');
+  if (!panel) return;
+  panel.replaceChildren();
+  const evidence = metadata?.conditionalEvidence;
+  const researchContext = metadata?.researchContext || {};
+  const evidenceContractValid = evidence && typeof evidence === 'object'
+    && evidence.version === CONDITIONAL_EVIDENCE_VERSION
+    && evidence.lineageVersion === EVIDENCE_LINEAGE_VERSION
+    && evidence.decisionEligible === false
+    && evidence.sample && typeof evidence.sample === 'object'
+    && (evidence.lineage?.status === 'CURRENT_CANDIDATE' || evidence.status === 'NO_DATA');
+  const statusLabels = {
+    READY: '연구용 표시 가능',
+    LOW_SAMPLE: '표본 경고',
+    LOW_SAMPLE_BLOCKED: '표본 부족으로 보류',
+    BLOCKED: '계보·권리·캘린더 차단',
+    NO_DATA: '산출물 대기'
+  };
+  const status = statusLabels[evidenceContractValid ? evidence.status : evidence ? 'BLOCKED' : 'NO_DATA'] || '조건부 evidence 미수신';
+  panel.dataset.statusCode = evidenceContractValid ? evidence.status : evidence ? 'BLOCKED' : 'NO_CONDITIONAL_EVIDENCE';
+  const header = documentRef.createElement('div');
+  header.style.cssText = 'display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:6px;';
+  const title = documentRef.createElement('strong');
+  title.textContent = evidence?.conditionLabel || '조건부 증거 봉투';
+  title.style.color = 'var(--text-secondary)';
+  const badge = documentRef.createElement('span');
+  badge.textContent = status;
+  badge.style.cssText = `font-size:10px;font-weight:700;color:${evidence?.status === 'READY' ? 'var(--data-green)' : 'var(--data-amber)'};`;
+  header.append(title, badge);
+  panel.appendChild(header);
+  if (!evidenceContractValid) {
+    const message = documentRef.createElement('div');
+    message.className = 'scr-empty-state';
+    message.dataset.statusCode = evidence ? 'BLOCKED' : 'NO_CONDITIONAL_EVIDENCE';
+    message.textContent = evidence ? '조건부 통계 계약 검증 실패·표시 보류' : '세션 조건부 통계 artifact 없음';
+    const detail = documentRef.createElement('div');
+    detail.className = 'scr-empty-detail';
+    detail.textContent = evidence
+      ? 'version·lineage·결정 적격성·권리/캘린더 상태가 계약과 일치할 때만 표시합니다. 현재 수치로 대체하지 않습니다.'
+      : `1분봉·거래소 세션 캘린더·PIT availableAt·데이터 권리 확인 후 표시합니다. 현재 스크리너 값으로 확률을 대체하지 않습니다. 파이프라인 ${researchContext.pipelineVersion || 'market-evidence-pipeline.v1'} · lineage ${researchContext.evidenceLineageVersion || EVIDENCE_LINEAGE_VERSION}`;
+    message.appendChild(detail);
+    panel.appendChild(message);
+    return;
+  }
+  const query = documentRef.createElement('div');
+  query.style.cssText = 'font-size:10px;color:var(--text-muted);line-height:1.45;margin-bottom:8px;';
+  query.textContent = `조건: ${evidence.queryEcho || '구조화 query echo 미수신'} · 관측 종료: ${evidence.lastObservedAt ? String(evidence.lastObservedAt).slice(0, 16).replace('T', ' ') : '—'} · source ${evidence.lineage?.sourceIds?.join(' · ') || '—'}`;
+  panel.appendChild(query);
+  const grid = documentRef.createElement('div');
+  grid.style.cssText = 'display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:8px;';
+  const sample = evidence.sample || {};
+  const ci = sample.confidenceInterval;
+  const metricValues = [
+    ['분모 N', sample.trials ?? '—'],
+    ['성공', sample.successes ?? '—'],
+    ['빈도', sample.estimate == null ? '—' : `${(sample.estimate * 100).toFixed(1)}%`],
+    ['Wilson 95%', ci ? `${(ci.low * 100).toFixed(1)}~${(ci.high * 100).toFixed(1)}%` : '—']
+  ];
+  metricValues.forEach(([label, value]) => {
+    const card = documentRef.createElement('div');
+    card.style.cssText = 'padding:7px;border:1px solid var(--border);border-radius:4px;background:var(--surface-1);';
+    const name = documentRef.createElement('div');
+    name.textContent = label;
+    name.style.cssText = 'font-size:9px;color:var(--text-muted);';
+    const result = documentRef.createElement('strong');
+    result.textContent = String(value);
+    result.style.cssText = 'display:block;font-size:12px;color:var(--text-primary);margin-top:2px;';
+    card.append(name, result);
+    grid.appendChild(card);
+  });
+  panel.appendChild(grid);
+  const details = documentRef.createElement('div');
+  details.style.cssText = 'font-size:10px;line-height:1.55;color:var(--text-muted);';
+  const stability = evidence.stability || {};
+  const recency = evidence.recency || {};
+  const distribution = evidence.distribution || {};
+  details.textContent = `전후반 안정성 ${stability.status || '—'}${stability.intervalOverlap == null ? '' : ` · CI 중첩 ${stability.intervalOverlap ? '예' : '아니오'}`} · 최근 표본 ${recency.trials ?? '—'} · 최근 빈도 ${recency.estimate == null ? '—' : `${(recency.estimate * 100).toFixed(1)}%`} · 성공 결과 분포 p25/중앙/p75 ${[distribution.p25, distribution.median, distribution.p75].map((value) => value == null ? '—' : Number(value).toFixed(3)).join(' / ')} · 제외 ${evidence.excludedObservationCount ?? 0}건`;
+  panel.appendChild(details);
+  const boundary = documentRef.createElement('div');
+  boundary.style.cssText = 'margin-top:7px;padding-top:7px;border-top:1px solid var(--border);font-size:10px;line-height:1.5;color:var(--text-muted);';
+  boundary.textContent = `${evidence.lineage?.status || 'LINEAGE_UNCONFIRMED'} · 권리 ${evidence.lineage?.rightsIds?.join(' · ') || '미확인'} · 캘린더 ${evidence.lineage?.calendarIds?.join(' · ') || '미확인'} · ${evidence.allowedUse || 'reference-only'} · ${evidence.blockedReasons?.length ? `차단 사유 ${evidence.blockedReasons.join(' · ')}` : '현재성 경계 확인'}`;
+  panel.appendChild(boundary);
+  const disclaimer = documentRef.createElement('div');
+  disclaimer.style.cssText = 'margin-top:6px;font-size:10px;color:var(--data-amber);';
+  disclaimer.textContent = evidence.disclaimer || CONDITIONAL_EVIDENCE_DISCLAIMER;
+  panel.appendChild(disclaimer);
 }
 
 function getVisibleColumns(columnPreset, customColumns = []) {
@@ -731,7 +822,11 @@ function render({ documentRef, store, readLiveData, readWatchlist, readAliases, 
     const researchNote = research.referenceId
       ? `연구 프레임 ${research.frameworkIds?.length || 0}개·시계열 ${research.timeSeriesIds?.length || 0}개·claim ${research.claimIds?.length || 0}개 (REFERENCE)`
       : '연구 프레임 연결 대기';
-    provenance.textContent = `연구용 스냅샷 · 팩터 관측 ${fmtDate(metadata.factorObservedAt)} · 생성 ${fmtDate(metadata.asOf)} · ${metadata.source || '출처 확인 대기'} · ${sec} · ${universeNote} · ${researchNote} · 공식 거래소 breadth 아님`;
+    const validation = metadata.modelValidation || {};
+    const validationNote = validation.status === 'READY'
+      ? '모델 검증 READY(별도 승격 승인 필요)'
+      : `모델 검증 ${validation.status || 'BLOCKED'} · 거래용 승격 금지${validation.blockers?.length ? ` (${validation.blockers.length} blockers)` : ''}`;
+    provenance.textContent = `연구용 스냅샷 · 팩터 관측 ${fmtDate(metadata.factorObservedAt)} · 생성 ${fmtDate(metadata.asOf)} · ${metadata.source || '출처 확인 대기'} · ${sec} · ${universeNote} · ${researchNote} · ${validationNote} · 공식 거래소 breadth 아님`;
     provenance.title = metadata.fundamentalCoverageScope || '관측시각·생성시각·SEC-only 분모를 분리해 표시합니다.';
     provenance.dataset.sourceKind = 'reference';
     provenance.dataset.operationalUse = 'reference-only';
@@ -744,7 +839,7 @@ function render({ documentRef, store, readLiveData, readWatchlist, readAliases, 
   const unavailableCount = run?.unavailable ?? 0;
   if (readiness) readiness.textContent = state?.status === 'unavailable'
     ? '데이터 상태: 산출물 미수신 · 결과와 검증 수치를 표시하지 않습니다.'
-    : `${state?.metadata?.artifactFreshnessStatus === 'stale' || state?.metadata?.factorFreshnessStatus === 'stale' ? '갱신 지연: 원자료는 기준일과 함께 표시하고 계산은 필드별로 확인합니다. · ' : ''}${state?.metadata?.universeFreshnessStatus === 'stale' ? '종목 목록 최신성 확인 필요 · ' : ''}연구 snapshot · 종목 ${allRows.length} · 계산 준비 ${readyCount} · 조건 통과 ${passedCount} · 계산 보류 ${unavailableCount} · 상대 랭킹은 연구용이며 현재 매매 지시가 아닙니다.`;
+    : `${state?.metadata?.artifactFreshnessStatus === 'stale' || state?.metadata?.factorFreshnessStatus === 'stale' ? '갱신 지연: 원자료는 기준일과 함께 표시하고 계산은 필드별로 확인합니다. · ' : ''}${state?.metadata?.universeFreshnessStatus === 'stale' ? '종목 목록 최신성 확인 필요 · ' : ''}${state?.metadata?.modelValidation?.status !== 'READY' ? `모델 검증 ${state?.metadata?.modelValidation?.status || 'BLOCKED'} · ` : ''}연구 snapshot · 종목 ${allRows.length} · 계산 준비 ${readyCount} · 조건 통과 ${passedCount} · 계산 보류 ${unavailableCount} · 상대 랭킹은 연구용이며 현재 매매 지시가 아닙니다.`;
   renderFunnel(documentRef, { universe: allRows.length, ready: readyCount, passed: passedCount, unavailable: unavailableCount, filtered: filtered.length });
   renderFilterChips(documentRef);
   const coverage = documentRef.getElementById('screener-factor-coverage');
@@ -758,6 +853,7 @@ function render({ documentRef, store, readLiveData, readWatchlist, readAliases, 
   const rankingState = state?.metadata?.ranking || {};
   renderFactorTab(documentRef, state?.metadata);
   renderBacktest(documentRef, state?.metadata);
+  renderConditionalEvidence(documentRef, state?.metadata);
   page.querySelectorAll('[data-scr-sort]').forEach((header) => {
     const arrow = header.querySelector('.scr-arrow');
     const active = header.dataset.scrSort === sortState.column;
@@ -1247,7 +1343,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            const chooser = documentRef.getElementById('scr-column-chooser');
            if (chooser) chooser.hidden = !chooser.hidden;
          } else if (action === 'tab') {
-           ['ranking', 'factors', 'backtest'].forEach((tab) => {
+           ['ranking', 'factors', 'backtest', 'evidence'].forEach((tab) => {
              const panel = documentRef.getElementById(`scr-tab-${tab}`);
              if (panel) { panel.style.display = tab === argument ? '' : 'none'; panel.hidden = tab !== argument; }
              page.querySelectorAll(`[data-aio-screener-action="tab"][data-aio-screener-arg="${tab}"]`).forEach((button) => {

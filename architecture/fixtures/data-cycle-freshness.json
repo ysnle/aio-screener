@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "data-cycle-freshness.v1",
+  "policy": "A generated attempt timestamp cannot renew a market observation clock unless the producer published a complete market cycle.",
+  "failedAttempt": {
+    "now": "2026-09-12T15:20:00.000Z",
+    "generatedAt": "2026-09-12T15:16:10.361Z",
+    "cycleStatus": "DEGRADED",
+    "marketSnapshotPublished": false,
+    "coverage": { "tier0Required": 16, "tier0Observed": 16 },
+    "expected": { "marketCyclePublished": false, "liveCoreEligible": false, "snapshotClockAdvances": false }
+  },
+  "publishedCycle": {
+    "now": "2026-09-12T15:20:00.000Z",
+    "generatedAt": "2026-09-12T15:16:10.361Z",
+    "cycleStatus": "PUBLISHED",
+    "marketSnapshotPublished": true,
+    "coverage": { "tier0Required": 16, "tier0Observed": 16 },
+    "expected": { "marketCyclePublished": true, "liveCoreEligible": true, "snapshotClockAdvances": true }
+  }
+}

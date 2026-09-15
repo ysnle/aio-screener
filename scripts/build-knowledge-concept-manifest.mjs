@@ -4,6 +4,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MARKET_PRINCIPLES_CATALOG } from '../src/ui/pages/principles.js';
+import { NATHAN_KNOWLEDGE_CONCEPTS, NATHAN_KNOWLEDGE_ALIASES } from '../src/domain/knowledge/nathan-framework-pack.js';
+import { INTEGRATED_KNOWLEDGE_CONCEPTS, INTEGRATED_KNOWLEDGE_ALIASES } from '../src/domain/knowledge/integrated-market-ai-framework-pack.js';
 import { atomicWriteJsonSync } from './lib/atomic-write.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -44,7 +46,9 @@ function concept(surface, node, source) {
 
 const concepts = [
   ...principles.map((node) => concept('principles', node, { artifact: 'src/ui/pages/principles.js', locator: 'MARKET_PRINCIPLES_CATALOG.nodes' })),
-  ...atlas.map((node) => concept('atlas', node, { artifact: 'public-data/atlas/taxonomy-node-coverage.json', locator: 'nodes' }))
+  ...atlas.map((node) => concept('atlas', node, { artifact: 'public-data/atlas/taxonomy-node-coverage.json', locator: 'nodes' })),
+  ...NATHAN_KNOWLEDGE_CONCEPTS,
+  ...INTEGRATED_KNOWLEDGE_CONCEPTS
 ];
 const conceptsByLegacyId = new Map();
 for (const item of concepts) {
@@ -66,13 +70,15 @@ for (const [legacyId, targets] of [...conceptsByLegacyId.entries()].sort(([left]
     resolution: targets.length === 1 ? 'unique' : 'explicit-equivalence'
   });
 }
+for (const item of NATHAN_KNOWLEDGE_ALIASES) aliases.push(item);
+for (const item of INTEGRATED_KNOWLEDGE_ALIASES) aliases.push(item);
 
 writeJson('public-data/knowledge/concepts.json', {
   schemaVersion: 'knowledge-concepts.v1',
   generatedAt,
   status: 'CANONICAL_REFERENCE_MANIFEST',
   compatibility: 'legacy page IDs remain valid only through aliases.json',
-  counts: { concepts: concepts.length, principles: principles.length, atlas: atlas.length, equivalenceGroups: overlap.size },
+  counts: { concepts: concepts.length, principles: principles.length, atlas: atlas.length, nathanFrameworks: NATHAN_KNOWLEDGE_CONCEPTS.length, integratedFrameworks: INTEGRATED_KNOWLEDGE_CONCEPTS.length, equivalenceGroups: overlap.size },
   concepts
 });
 writeJson('public-data/knowledge/aliases.json', {
@@ -81,4 +87,4 @@ writeJson('public-data/knowledge/aliases.json', {
   status: 'CANONICAL_REFERENCE_MANIFEST',
   aliases
 });
-console.log(JSON.stringify({ status: 'PASS', concepts: concepts.length, principles: principles.length, atlas: atlas.length, equivalenceGroups: overlap.size }, null, 2));
+console.log(JSON.stringify({ status: 'PASS', concepts: concepts.length, principles: principles.length, atlas: atlas.length, nathanFrameworks: NATHAN_KNOWLEDGE_CONCEPTS.length, integratedFrameworks: INTEGRATED_KNOWLEDGE_CONCEPTS.length, equivalenceGroups: overlap.size }, null, 2));

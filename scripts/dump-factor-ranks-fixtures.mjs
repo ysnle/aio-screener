@@ -43,6 +43,11 @@ function startServer() {
 
 const SECTORS_3 = ['Technology', 'Healthcare', 'Financials'];
 function makeRow(sym, sector, i, opts = {}) {
+  // The extracted model intentionally excludes values with no explicit provenance. Keep the
+  // synthetic legacy-parity universe representative of a permitted research-relative ranking
+  // input instead of relying on timestamp/status labels to manufacture eligibility.
+  const observedAt = new Date().toISOString();
+  const quality = { status: 'CURRENT', stale: false, blocked: false };
   return {
     sym, sector,
     ret1m: opts.ret1m !== undefined ? opts.ret1m : (i % 7) - 3,
@@ -52,8 +57,18 @@ function makeRow(sym, sector, i, opts = {}) {
     pctSma200: opts.pctSma200 !== undefined ? opts.pctSma200 : (i % 15) - 7,
     vol: opts.vol !== undefined ? opts.vol : 15 + (i % 20),
     mcap: opts.mcap !== undefined ? opts.mcap : 1e9 * (1 + (i % 10)),
-    _mcapObservedAt: opts.hasOwnProperty('_mcapObservedAt') ? opts._mcapObservedAt : new Date().toISOString(),
-    _fundamentalObservedAt: opts.hasOwnProperty('_fundamentalObservedAt') ? opts._fundamentalObservedAt : new Date().toISOString(),
+    factorObservedAt: opts.hasOwnProperty('factorObservedAt') ? opts.factorObservedAt : observedAt,
+    factorSourceKind: opts.hasOwnProperty('factorSourceKind') ? opts.factorSourceKind : 'T3_PUBLIC_DELAYED',
+    factorAllowedUse: opts.hasOwnProperty('factorAllowedUse') ? opts.factorAllowedUse : 'research-relative-ranking-only',
+    factorQuality: opts.hasOwnProperty('factorQuality') ? opts.factorQuality : quality,
+    _mcapObservedAt: opts.hasOwnProperty('_mcapObservedAt') ? opts._mcapObservedAt : observedAt,
+    _mcapSourceKind: opts.hasOwnProperty('_mcapSourceKind') ? opts._mcapSourceKind : 'T3_PUBLIC_DELAYED',
+    _mcapAllowedUse: opts.hasOwnProperty('_mcapAllowedUse') ? opts._mcapAllowedUse : 'research-relative-ranking-only',
+    _mcapQuality: opts.hasOwnProperty('_mcapQuality') ? opts._mcapQuality : quality,
+    _fundamentalObservedAt: opts.hasOwnProperty('_fundamentalObservedAt') ? opts._fundamentalObservedAt : observedAt,
+    _fundamentalSourceKind: opts.hasOwnProperty('_fundamentalSourceKind') ? opts._fundamentalSourceKind : 'T3_PUBLIC_DELAYED',
+    _fundamentalAllowedUse: opts.hasOwnProperty('_fundamentalAllowedUse') ? opts._fundamentalAllowedUse : 'research-relative-ranking-only',
+    _fundamentalQuality: opts.hasOwnProperty('_fundamentalQuality') ? opts._fundamentalQuality : quality,
     pe: opts.pe !== undefined ? opts.pe : 10 + (i % 30),
     pb: opts.pb !== undefined ? opts.pb : 1 + (i % 5),
     evEbitda: opts.evEbitda !== undefined ? opts.evEbitda : 8 + (i % 15),

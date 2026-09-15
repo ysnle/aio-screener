@@ -35,6 +35,30 @@ try {
     // the existing proxy-primary allowance generalized to any tracked API name.
     if (message.type() === 'error' && !/net::ERR_FAILED/.test(message.text()) && !/^\[AIO:api\] [\w-]+: warn → error/.test(message.text())) errors.push(message.text());
   });
+  const waitForTopbar = async (needle, label, timeout = 30000) => {
+    try {
+      await page.waitForFunction((expected) => document.getElementById('live-quote-ts-topbar')?.textContent?.includes(expected), needle, { timeout });
+    } catch (error) {
+      const diagnostic = await page.evaluate(() => {
+        const el = document.getElementById('live-quote-ts-topbar');
+        return {
+          text: el?.textContent || '',
+          title: el?.getAttribute('title') || '',
+          className: el?.className || '',
+          snapshotMeta: window._aioMarketSnapshotMeta || null,
+          serverMeta: window._serverDataMeta || null,
+          readyState: document.readyState
+        };
+      });
+      throw new Error(`${label} topbar did not reach ${JSON.stringify(needle)}: ${JSON.stringify(diagnostic)}; cause=${error.message}`);
+    }
+  };
+  const dispatchMarketSnapshot = async (detail) => page.evaluate((payload) => {
+    // aio-data retains metadata on window while the core page bus renders the
+    // document event; publish on both targets to mirror the production bridge.
+    document.dispatchEvent(new CustomEvent('aio:marketSnapshot', { detail: payload }));
+    window.dispatchEvent(new CustomEvent('aio:marketSnapshot', { detail: payload }));
+  }, detail);
   await page.route('**/*', (route) => route.request().url().startsWith(`http://127.0.0.1:${port}/`) ? route.continue() : route.abort());
   await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
   try {
@@ -54,10 +78,7 @@ try {
   if (boot.status !== 'MIGRATION_IN_PROGRESS') throw new Error(`unexpected architecture status: ${boot.status}`);
   if (!boot.navigationInstalled || !boot.hasNavigate) throw new Error(`typed navigation facade not installed: ${JSON.stringify(boot)}`);
   if (!boot.summaryBlocked) throw new Error('offline sentiment must remain blocked');
-  await page.waitForFunction(() => {
-    const el = document.getElementById('live-quote-ts-topbar');
-    return el?.textContent?.includes('기준 시세');
-  }, { timeout: 15000 });
+  await waitForTopbar('기준 시세', 'initial snapshot', 15000);
   const quoteTopbar = await page.evaluate(() => {
     const el = document.getElementById('live-quote-ts-topbar');
     return {
@@ -74,16 +95,14 @@ try {
   // payload look decision-ready. Exercise the fail-closed boundary in-browser,
   // then restore the published fixture so the remaining route checks observe
   // the normal reference snapshot state.
-  await page.evaluate(() => document.dispatchEvent(new CustomEvent('aio:marketSnapshot', {
-    detail: {
-      revision: 'browser-fixture-unpublished',
-      count: 16,
-      generatedAt: '2026-09-05T00:00:00.000Z',
-      marketSnapshotPublished: false,
-      status: 'degraded'
-    }
-  })));
-  await page.waitForFunction(() => document.getElementById('live-quote-ts-topbar')?.textContent?.includes('스냅샷 미게시'));
+  await dispatchMarketSnapshot({
+    revision: 'browser-fixture-unpublished',
+    count: 16,
+    generatedAt: '2026-09-05T00:00:00.000Z',
+    marketSnapshotPublished: false,
+    status: 'degraded'
+  });
+  await waitForTopbar('스냅샷 미게시', 'unpublished snapshot');
   const unpublishedQuoteTopbar = await page.evaluate(() => {
     const el = document.getElementById('live-quote-ts-topbar');
     return { text: el?.textContent || '', title: el?.getAttribute('title') || '' };
@@ -91,17 +110,15 @@ try {
   if (!/스냅샷 미게시/.test(unpublishedQuoteTopbar.text) || !/판단에 사용하지 않음/.test(unpublishedQuoteTopbar.title)) {
     throw new Error(`unpublished snapshot must fail closed in the visible topbar: ${JSON.stringify(unpublishedQuoteTopbar)}`);
   }
-  await page.evaluate(() => document.dispatchEvent(new CustomEvent('aio:marketSnapshot', {
-    detail: {
-      revision: 'browser-fixture-published',
-      count: 16,
-      generatedAt: '2026-09-05T00:00:00.000Z',
-      latestObservedAt: '2026-09-05T00:00:00.000Z',
-      marketSnapshotPublished: true,
-      status: 'published'
-    }
-  })));
-  await page.waitForFunction(() => document.getElementById('live-quote-ts-topbar')?.textContent?.includes('기준 시세'));
+  await dispatchMarketSnapshot({
+    revision: 'browser-fixture-published',
+    count: 16,
+    generatedAt: '2026-09-05T00:00:00.000Z',
+    latestObservedAt: '2026-09-05T00:00:00.000Z',
+    marketSnapshotPublished: true,
+    status: 'published'
+  });
+  await waitForTopbar('기준 시세', 'published snapshot restore');
 
   await page.evaluate(() => window.showPage('sentiment'));
   await page.waitForFunction(() => document.getElementById('page-sentiment')?.dataset.aioArchitectureRoute === 'sentiment');
@@ -387,9 +404,10 @@ try {
     rawPrimarySinkCount: document.querySelectorAll('#page-portfolio #pf-analysis-status').length,
     nativePrimarySinkCount: document.querySelectorAll('#page-portfolio[data-aio-architecture-renderer="native"] #pf-analysis-status').length,
     statusValue: document.getElementById('pf-analysis-status')?.textContent || null,
-    sourceKind: document.getElementById('pf-analysis-status')?.getAttribute('data-source-kind') || null
+    sourceKind: document.getElementById('pf-analysis-status')?.getAttribute('data-source-kind') || null,
+    surfaceUse: document.getElementById('page-portfolio')?.dataset.aioPortfolioSurfaceUse || null
   }));
-  if (portfolioRoute.renderer !== 'native' || portfolioRoute.heroRenderer !== 'native' || !portfolioRoute.heroValue.trim() || !portfolioRoute.heroPnl.trim() || portfolioRoute.tableRenderer !== 'native' || portfolioRoute.surfaceRenderer !== 'native' || portfolioRoute.surfaceModel !== 'portfolio-surface.v1' || portfolioRoute.holdingCountRenderer !== 'native' || portfolioRoute.sectorRenderer !== 'native' || portfolioRoute.exposureRenderer !== 'native' || portfolioRoute.chartRenderer !== 'native' || !['unavailable', 'portfolio-state'].includes(portfolioRoute.chartSourceKind)) throw new Error(`portfolio hero/table/summary/chart native surface failed: ${JSON.stringify(portfolioRoute)}`);
+  if (portfolioRoute.renderer !== 'native' || portfolioRoute.heroRenderer !== 'native' || !portfolioRoute.heroValue.trim() || !portfolioRoute.heroPnl.trim() || portfolioRoute.tableRenderer !== 'native' || portfolioRoute.surfaceRenderer !== 'native' || portfolioRoute.surfaceModel !== 'portfolio-surface.v2' || portfolioRoute.surfaceUse !== 'reference-only' || portfolioRoute.holdingCountRenderer !== 'native' || portfolioRoute.sectorRenderer !== 'native' || portfolioRoute.exposureRenderer !== 'native' || portfolioRoute.chartRenderer !== 'native' || !['unavailable', 'portfolio-state'].includes(portfolioRoute.chartSourceKind)) throw new Error(`portfolio hero/table/summary/chart native surface failed: ${JSON.stringify(portfolioRoute)}`);
   const portfolioMath = await page.evaluate(async () => {
     const { createPortfolioPage } = await import('/src/ui/pages/portfolio.js');
     function project(portfolio, liveData = {}) {
@@ -404,10 +422,10 @@ try {
     return {
       missing: project({ holdings: [{ symbol: 'ABC', shares: 10, avgCost: null, price: 110 }], cash: 0 }),
       daily: project({ holdings: [{ symbol: 'ABC', shares: 10, avgCost: 80, price: 110, dailyPct: 10 }], cash: 0 }),
-      live: project({ holdings: [{ symbol: 'ABC', shares: 10, avgCost: 80, price: 100 }], cash: 100, totals: { totalValue: 1000, totalAssets: 1100 } }, { ABC: { price: 200, pct: 0 } })
+      live: project({ holdings: [{ symbol: 'ABC', shares: 10, avgCost: 80, price: 100 }], cash: 100, totals: { totalValue: 1000, totalAssets: 1100 } }, { ABC: { price: 200, pct: 0, dailyPct: 0, changeBasis: 'previous-close', observedAt: new Date(Date.now() - 1000).toISOString(), source: 'runtime-test-provider', sourceKind: 'LIVE', sourceTier: 'T2_LICENSED', rightsId: 'runtime-test-rights', revisionId: 'runtime-test-r1', allowedUse: 'decision', allowedUseCeiling: 'decision', quality: { status: 'live', freshness: 'live', timestampValid: true, ageMs: 1000, freshnessMs: 15 * 60 * 1000 } } })
     };
   });
-  if (portfolioMath.missing.pnl !== '—' || portfolioMath.missing.cells[5] !== '—' || portfolioMath.daily.daily !== '$100' || portfolioMath.daily.pct !== '+10.00% today' || portfolioMath.live.value !== '$2,100' || portfolioMath.live.pnl !== '+$1,200' || !portfolioMath.live.cells.includes('$200.00')) throw new Error('portfolio valuation regression: ' + JSON.stringify(portfolioMath));
+  if (portfolioMath.missing.pnl !== '—' || portfolioMath.missing.cells[5] !== '—' || portfolioMath.daily.daily !== '—' || portfolioMath.daily.pct !== '—' || portfolioMath.live.value !== '$2,100' || portfolioMath.live.pnl !== '+$1,200' || portfolioMath.live.daily !== '$0' || !portfolioMath.live.cells.includes('$200.00')) throw new Error('portfolio valuation regression: ' + JSON.stringify(portfolioMath));
   await page.evaluate(() => window.AIO_ARCH.navigate('technical'));
   await page.waitForFunction(() => document.getElementById('page-technical')?.dataset.aioArchitectureRoute === 'technical');
   const technicalRoute = await page.evaluate(() => {

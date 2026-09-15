@@ -68,8 +68,144 @@ import { CAPABILITY_MANIFEST_VERSION, getCapability, getCapabilityManifest, audi
 import { classifyAIConduct, buildScopedConductFallback, getAIConductPolicy } from '../ai/policy/conduct.js';
 import { coalesceMicrotask, createDeferredTaskQueue } from './lifecycle.js';
 import { SUPPLIED_MATERIALS_REFERENCE, SUPPLIED_MATERIAL_CLAIM_IDS } from '../domain/research/supplied-materials.js';
+import { NATHAN_PREVIOUS_THREADS_REFERENCE, NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS } from '../domain/research/nathan-previous-threads.js';
+import { NATHAN_FRAMEWORK_PACK, NATHAN_ANALYSIS_PROTOCOL, NATHAN_KNOWLEDGE_ALIASES } from '../domain/knowledge/nathan-framework-pack.js';
 
 export const ARCHITECTURE_VERSION = 'AR-01~16.v1';
+
+const COMPATIBILITY_EVENT_DEDUPE_WINDOW_MS = 250;
+
+function serializeCompatibilityEventDetail(detail) {
+  if (!detail || typeof detail !== 'object') return null;
+  const seen = new WeakSet();
+  const serialize = (value) => {
+    if (value === null || typeof value !== 'object') return JSON.stringify(value);
+    if (seen.has(value)) throw new TypeError('cyclic event detail');
+    seen.add(value);
+    const serialized = Array.isArray(value)
+      ? `[${value.map((entry) => serialize(entry)).join(',')}]`
+      : `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${serialize(value[key])}`).join(',')}}`;
+    seen.delete(value);
+    return serialized;
+  };
+  try {
+    return serialize(detail);
+  } catch (_) {
+    return null;
+  }
+}
+
+/**
+ * Subscribe to a legacy event on both the document and its window without
+ * making every native consumer know which target the legacy producer chose.
+ * Refresh/history producers have not always agreed on that target. A short
+ * detail-fingerprint window collapses the two dispatches of one logical event
+ * while still allowing two events from the same target through.
+ */
+export function createCompatibilityEventAdapter({ root = globalThis, eventTarget = root?.document, now = () => Date.now() } = {}) {
+  const primaryTarget = eventTarget || root;
+  const secondaryTarget = root && root !== primaryTarget ? root : null;
+  const targets = [...new Set([primaryTarget, secondaryTarget]
+    .filter((target) => typeof target?.addEventListener === 'function'))];
+  const subscriptions = new Map();
+  const recentEvents = new Map();
+  const eventTokens = new WeakMap();
+  let nextEventToken = 0;
+  let disposed = false;
+
+  const readNow = () => {
+    try {
+      const value = Number(now());
+      if (Number.isFinite(value)) return value;
+    } catch (_) {}
+    return Date.now();
+  };
+  const eventKey = (eventName, event) => {
+    const serializedDetail = serializeCompatibilityEventDetail(event?.detail);
+    if (serializedDetail != null) return `${eventName}:detail:${serializedDetail}`;
+    if (event && typeof event === 'object') {
+      if (!eventTokens.has(event)) eventTokens.set(event, ++nextEventToken);
+      return `${eventName}:event:${eventTokens.get(event)}`;
+    }
+    return null;
+  };
+  const isDuplicate = (key, source, at) => {
+    if (!key) return false;
+    const previous = recentEvents.get(key);
+    return !!previous && previous.expiresAt > at && previous.source !== source;
+  };
+  const remember = (key, source, at) => {
+    if (!key) return;
+    for (const [seenKey, record] of recentEvents) {
+      if (record.expiresAt <= at) recentEvents.delete(seenKey);
+    }
+    recentEvents.set(key, { source, expiresAt: at + COMPATIBILITY_EVENT_DEDUPE_WINDOW_MS });
+  };
+
+  const on = (eventName, listener) => {
+    const name = String(eventName || '').trim();
+    if (disposed || !name || typeof listener !== 'function' || !targets.length) return () => {};
+    let subscription = subscriptions.get(name);
+    if (!subscription) {
+      subscription = { name, listeners: new Set(), handlers: [] };
+      const dispatch = (event, source) => {
+        if (disposed) return;
+        const at = readNow();
+        const key = eventKey(name, event);
+        const duplicate = isDuplicate(key, source, at);
+        remember(key, source, at);
+        if (duplicate) return;
+        [...subscription.listeners].forEach((callback) => callback(event));
+      };
+      targets.forEach((target) => {
+        const handler = (event) => dispatch(event, target);
+        target.addEventListener(name, handler);
+        subscription.handlers.push({ target, handler });
+      });
+      subscriptions.set(name, subscription);
+    }
+    subscription.listeners.add(listener);
+    let active = true;
+    return () => {
+      if (!active) return;
+      active = false;
+      subscription.listeners.delete(listener);
+      if (subscription.listeners.size) return;
+      subscription.handlers.forEach(({ target, handler }) => target.removeEventListener(name, handler));
+      subscriptions.delete(name);
+    };
+  };
+
+  const dispose = () => {
+    if (disposed) return;
+    disposed = true;
+    subscriptions.forEach((subscription) => {
+      subscription.handlers.forEach(({ target, handler }) => target.removeEventListener(subscription.name, handler));
+    });
+    subscriptions.clear();
+    recentEvents.clear();
+  };
+
+  return Object.freeze({ on, dispose });
+}
+
+export function resolveInitialRoute({ root = globalThis, hash = root?.location?.hash } = {}) {
+  const rawRoute = String(hash || '').replace(/^#/, '').split('?')[0].trim();
+  const canonicalRoute = root?.AIO_ROUTE_REGISTRY?.canonical?.[rawRoute]
+    || (rawRoute === 'theme-detail' ? 'themes' : rawRoute);
+  if (rawRoute === 'theme-detail') {
+    const themeId = String(
+      root?._aioOpenThemeDetailOnThemes
+      || root?._currentThemeId
+      || root?.THEME_MAP?.[0]?.id
+      || ''
+    ).trim();
+    if (themeId && !root?._aioOpenThemeDetailOnThemes) {
+      try { root._aioOpenThemeDetailOnThemes = themeId; } catch (_) {}
+    }
+  }
+  return ROUTE_IDS.includes(canonicalRoute) ? canonicalRoute : 'home';
+}
 
 function reducer(state, action) {
   if (action.type === SENTIMENT_DATA_SET || action.type === SENTIMENT_DATA_CLEAR) {
@@ -347,6 +483,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       setTimeoutImpl: root?.setTimeout?.bind(root) || globalThis.setTimeout.bind(globalThis),
       clearTimeoutImpl: root?.clearTimeout?.bind(root) || globalThis.clearTimeout.bind(globalThis)
     });
+    const compatibilityEvents = createCompatibilityEventAdapter({ root, eventTarget, now: clock.now });
     const emitDataTimelineUpdated = coalesceMicrotask((reason = 'state-updated') => {
       try {
         eventTarget.dispatchEvent(new CustomEvent('aio:dataTimelineUpdated', { detail: { reason, audit: getPageDataTimelineAudit() } }));
@@ -397,11 +534,13 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       if (!disposed) emitDataTimelineUpdated('live-quotes');
     }, { isActive: () => !disposed });
     const stopQuotes = legacy.on('aio:liveQuotes', flushLiveQuoteSyncs);
-    const stopRefresh = legacy.on('aio:refresh:done', syncSentimentProjection);
-    const stopHistory = legacy.on('aio:historyLoaded', syncSentimentProjection);
+    const stopRefresh = compatibilityEvents.on('aio:refresh:done', syncSentimentProjection);
+    const stopHistory = compatibilityEvents.on('aio:historyLoaded', syncSentimentProjection);
     const stopSentiment = legacy.on('aio:sentimentUpdated', syncSentimentProjection);
     const stopNews = legacy.on('aio:newsUpdated', syncNews.sync);
-    const stopMarketRefresh = legacy.on('aio:refresh:done', syncMarket.sync);
+    const stopNewsRefresh = compatibilityEvents.on('aio:refresh:done', syncNews.sync);
+    const stopMarketRefresh = compatibilityEvents.on('aio:refresh:done', syncMarket.sync);
+    const stopMarketHistory = compatibilityEvents.on('aio:historyLoaded', syncMarket.sync);
     const stopMarketSnapshot = legacy.on('aio:marketSnapshot', syncMarket.sync);
     const syncServerArtifactConsumers = coalesceMicrotask(async () => {
       await Promise.allSettled([
@@ -418,10 +557,10 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     }, { isActive: () => !disposed });
     const stopServerMarketData = legacy.on('aio:serverDataLoaded', syncServerArtifactConsumers);
     const stopMacroUpdated = legacy.on('aio:macroUpdated', syncMarket.sync);
-    const stopThemesRefresh = legacy.on('aio:refresh:done', syncThemes.sync);
+    const stopThemesRefresh = compatibilityEvents.on('aio:refresh:done', syncThemes.sync);
     const stopThemesHistory = legacy.on('aio:themesHistoryLoaded', syncThemes.sync);
     const stopThemeDetail = legacy.on('aio:themeDetailShown', syncThemes.sync);
-    const stopEntityRefresh = legacy.on('aio:refresh:done', syncEntity.sync);
+    const stopEntityRefresh = compatibilityEvents.on('aio:refresh:done', syncEntity.sync);
     const stopEntityChanged = legacy.on('aio:entityChanged', syncEntity.sync);
     const normalizeShownRoute = (event) => {
       const detail = event?.detail;
@@ -440,12 +579,12 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopEntityShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['ticker', 'fundamental', 'options']), syncEntity.sync, { withScope: true }));
     const stopPortfolioShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['portfolio']), syncPortfolio.sync));
     const stopPortfolioChanged = legacy.on('aio:portfolioChanged', syncPortfolio.sync);
-    const stopScreenerRefresh = legacy.on('aio:refresh:done', syncScreenerData);
+    const stopScreenerRefresh = compatibilityEvents.on('aio:refresh:done', syncScreenerData);
     const stopScreenerQuotes = legacy.on('aio:liveQuotes', () => {
       if (String(store.getState()?.route || router.active() || '').replace(/^page-/, '') === 'screener') return syncScreenerData({ refresh: false });
     });
     const stopScreenerShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['screener']), syncScreenerData, { withScope: true }));
-    const stopAnalysisRefresh = legacy.on('aio:refresh:done', syncAnalysis.sync);
+    const stopAnalysisRefresh = compatibilityEvents.on('aio:refresh:done', syncAnalysis.sync);
     const stopAnalysisChanged = legacy.on('aio:entityChanged', syncAnalysis.sync);
     const stopAnalysisShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['home', 'signal', 'technical']), syncAnalysis.sync));
     const stopShown = legacy.on('aio:pageShown', (event) => {
@@ -472,8 +611,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // MP-02/KG-07: a direct hash entry can fire the legacy pageShown event
     // before this ESM listener is attached. Replay the canonical initial route
     // once so deep links mount the same native surface as sidebar navigation.
-    const initialHashRoute = String(root?.location?.hash || '').replace(/^#/, '').split('?')[0].trim();
-    const initialRoute = ROUTE_IDS.includes(initialHashRoute) ? initialHashRoute : 'home';
+    const initialRoute = resolveInitialRoute({ root });
     if (!router.active()) router.transition(initialRoute, { source: 'initial-load', directEntry: true });
     if (root?._serverDataMeta) queueMicrotask(syncServerArtifactConsumers);
     router.start();
@@ -505,7 +643,9 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopHistory();
       stopSentiment();
       stopNews();
+      stopNewsRefresh();
       stopMarketRefresh();
+      stopMarketHistory();
       stopMarketSnapshot();
       stopServerMarketData();
       stopMacroUpdated();
@@ -525,6 +665,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopAnalysisShown();
       stopShown();
       stopTimelineStore();
+      compatibilityEvents.dispose();
       clearInterval(timelineWatchdog);
       documentRef?.removeEventListener?.('visibilitychange', onVisibilityTimelineCheck);
       router.dispose();
@@ -646,6 +787,11 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   root.AIO = root.AIO || {};
   root.AIO.SUPPLIED_MATERIALS_REFERENCE = SUPPLIED_MATERIALS_REFERENCE;
   root.AIO.SUPPLIED_MATERIAL_CLAIM_IDS = SUPPLIED_MATERIAL_CLAIM_IDS;
+  root.AIO.NATHAN_PREVIOUS_THREADS_REFERENCE = NATHAN_PREVIOUS_THREADS_REFERENCE;
+  root.AIO.NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS = NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS;
+  root.AIO.NATHAN_FRAMEWORK_PACK = NATHAN_FRAMEWORK_PACK;
+  root.AIO.NATHAN_ANALYSIS_PROTOCOL = NATHAN_ANALYSIS_PROTOCOL;
+  root.AIO.NATHAN_KNOWLEDGE_ALIASES = NATHAN_KNOWLEDGE_ALIASES;
   return Object.freeze({ ...api, store, evidenceStore });
 }
 

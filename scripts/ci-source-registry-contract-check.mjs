@@ -6,12 +6,17 @@ import {
   DATA_SOURCE_REGISTRY,
   SOURCE_REGISTRY_CATEGORY_IDS
 } from '../src/data/contracts/source-registry.js';
+import { canonicalSourceTier } from '../src/data/contracts/source-kind.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (relativePath) => fs.readFileSync(path.join(root, relativePath), 'utf8');
 const reconciliation = JSON.parse(read('public-data/reconciliation-status.json'));
 const history = JSON.parse(read('public-data/history.json'));
 const fail = (message) => { throw new Error(`[source-registry-contract] ${message}`); };
+
+for (const forbidden of ['verified-current', 'official', 'primary', 'live', 'fresh']) {
+  if (canonicalSourceTier(forbidden) !== null) fail(`freshness/status or generic authority label manufactured a source tier: ${forbidden}`);
+}
 
 if (SOURCE_REGISTRY_CATEGORY_IDS.length !== 22) fail(`expected 22 categories, got ${SOURCE_REGISTRY_CATEGORY_IDS.length}`);
 if (new Set(SOURCE_REGISTRY_CATEGORY_IDS).size !== SOURCE_REGISTRY_CATEGORY_IDS.length) fail('duplicate category ids');
@@ -35,6 +40,7 @@ for (const [categoryId, contract] of Object.entries(DATA_SOURCE_REGISTRY)) {
     }
     if (!/^https:\/\//.test(origin.url)) fail(`${categoryId}/${origin.id} origin URL must be HTTPS`);
     if (!Array.isArray(origin.fields) || origin.fields.length === 0) fail(`${categoryId}/${origin.id} fields missing`);
+    if (!canonicalSourceTier(origin.sourceKind)) fail(`${categoryId}/${origin.id} sourceKind is not mapped to a canonical authority tier`);
   }
   if (contract.structuralLimit && (!contract.structuralLimit.kind || !contract.structuralLimit.reason || !contract.structuralLimit.remediation)) {
     fail(`${categoryId} structural limit is incomplete`);

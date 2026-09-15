@@ -109,6 +109,26 @@ function acceptedAtByAccession(submissions) {
   return new Map(accessions.map((accession, index) => [String(accession || ''), accepted[index] || null]));
 }
 
+/**
+ * SEC ticker membership is not a data-capability claim. Foreign issuers often
+ * have a SEC ticker entry but publish IFRS facts (or no comparable annual
+ * concepts), while this normalizer intentionally consumes a bounded US-GAAP
+ * concept set. Classify that boundary before scheduling so terminally
+ * unsupported issuers do not occupy every future retry batch.
+ */
+export function classifyIssuerCapability(companyFacts, submissions = null) {
+  const taxonomies = Object.keys(companyFacts?.facts || {});
+  const hasUsGaap = taxonomies.includes('us-gaap');
+  const hasIfrs = taxonomies.includes('ifrs-full');
+  const recentForms = Array.isArray(submissions?.filings?.recent?.form) ? submissions.filings.recent.form : [];
+  const foreignForm = recentForms.some(form => /^(20-F|40-F)(\/A)?$/.test(String(form || '')));
+  const domesticForm = recentForms.some(form => /^(10-K)(\/A)?$/.test(String(form || '')));
+  if (!hasUsGaap && hasIfrs) return { status: 'TERMINAL_UNSUPPORTED', reasonCode: 'ifrs-taxonomy-not-supported-by-us-gaap-normalizer', issuerTaxonomy: 'IFRS', filingForms: foreignForm ? ['20-F/40-F'] : [] };
+  if (!hasUsGaap && foreignForm) return { status: 'TERMINAL_UNSUPPORTED', reasonCode: 'foreign-issuer-without-us-gaap-taxonomy', issuerTaxonomy: 'FOREIGN_NON_US_GAAP', filingForms: ['20-F/40-F'] };
+  if (!hasUsGaap) return { status: 'TERMINAL_UNSUPPORTED', reasonCode: 'required-us-gaap-taxonomy-missing', issuerTaxonomy: foreignForm ? 'FOREIGN_UNKNOWN' : 'UNKNOWN', filingForms: foreignForm ? ['20-F/40-F'] : [] };
+  return { status: 'SUPPORTED_US_GAAP', reasonCode: null, issuerTaxonomy: foreignForm && !domesticForm ? 'FOREIGN_US_GAAP' : 'US_GAAP', filingForms: [...new Set(recentForms.filter(form => /^(10-K|20-F|40-F)(\/A)?$/.test(String(form || ''))))] };
+}
+
 function compactPitRows(rows, field, acceptedMap, maxRows = 40) {
   const seen = new Set();
   return rows
@@ -246,12 +266,18 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
     cik: String(companyFacts.cik || '').padStart(10, '0'),
     entityName: companyFacts.entityName || null,
     source: 'SEC EDGAR companyfacts',
-    sourceTier: 'official-regulator',
+    sourceTier: 'T1_OFFICIAL',
+    sourceKind: 'T1_OFFICIAL',
+    rightsId: 'PUBLIC_REFERENCE',
     model: 'sec-fy-normalized-v2',
     periodType: 'FY',
     observedAt: currentRevenue.end || null,
     filedAt: currentRevenue.filed || null,
     acceptedAt: acceptedMap.get(String(currentRevenue.accn || '')) || null,
+    availableAt: acceptedMap.get(String(currentRevenue.accn || '')) || currentRevenue.filed || null,
+    allowedUse: 'research-relative-ranking-only',
+    qualityStatus: acceptedMap.get(String(currentRevenue.accn || '')) ? 'CURRENT' : 'REFERENCE',
+    quality: { status: acceptedMap.get(String(currentRevenue.accn || '')) ? 'CURRENT' : 'REFERENCE', stale: false, decisionUse: false, allowedUse: 'reference' },
     fetchedAt: new Date().toISOString(),
     form: currentRevenue.form || null,
     accession: currentRevenue.accn || null,
@@ -291,11 +317,12 @@ function buildTickerMap(payload) {
   const tickerIndex = fields.indexOf('ticker');
   const cikIndex = fields.indexOf('cik');
   const nameIndex = fields.indexOf('name');
+  const exchangeIndex = fields.indexOf('exchange');
   const map = new Map();
   (payload && payload.data || []).forEach(row => {
     const ticker = tickerKey(row[tickerIndex]);
     if (!ticker) return;
-    map.set(ticker, { cik: String(row[cikIndex]).padStart(10, '0'), name: row[nameIndex] || null });
+    map.set(ticker, { cik: String(row[cikIndex]).padStart(10, '0'), name: row[nameIndex] || null, exchange: exchangeIndex >= 0 ? row[exchangeIndex] || null : null });
   });
   return map;
 }
@@ -338,27 +365,33 @@ export async function refreshSecFundamentals() {
   const limit = Math.max(1, Math.min(100, Number(process.env.SEC_BATCH_LIMIT) || DEFAULT_BATCH_LIMIT));
   const force = process.env.SEC_REFRESH === '1';
   const retryFailedNow = process.env.SEC_RETRY_FAILED === '1';
-  const previousFailureAt = new Map((previous.failures || []).map(row => [
-    row && row.symbol,
+  const previousFailureRecords = new Map((previous.failures || []).map(row => [row && row.symbol, row]).filter(([symbol]) => symbol));
+  const previousFailureAt = new Map([...previousFailureRecords.entries()].map(([symbol, row]) => [
+    symbol,
     row && (row.attemptedAt || row.failedAt || previous.generatedAt || null)
   ]));
+  const recheckUnsupported = process.env.SEC_RECHECK_UNSUPPORTED === '1';
   const targets = eligible
     .map(symbol => ({
       symbol,
       fetchedAt: previous.data && previous.data[symbol] && previous.data[symbol].fetchedAt,
-      lastFailureAt: previousFailureAt.get(symbol) || null
+      lastFailureAt: previousFailureAt.get(symbol) || null,
+      priorFailure: previousFailureRecords.get(symbol) || null
     }))
     .filter(row => {
       if (force) return true;
+      if (row.priorFailure?.status === 'TERMINAL_UNSUPPORTED' && !recheckUnsupported) return false;
       const dataDue = !row.fetchedAt || now - new Date(row.fetchedAt).getTime() >= REFRESH_AFTER_MS;
       const retryDue = retryFailedNow || !row.lastFailureAt || now - new Date(row.lastFailureAt).getTime() >= FAILURE_RETRY_AFTER_MS;
       return dataDue && retryDue;
     })
-    .sort((a, b) => Number(Boolean(a.lastFailureAt)) - Number(Boolean(b.lastFailureAt)) || String(a.fetchedAt || '').localeCompare(String(b.fetchedAt || '')) || a.symbol.localeCompare(b.symbol))
+    // Prefer never-attempted and retryable candidates. Terminal taxonomy
+    // failures remain in the audit but cannot starve fresh coverage.
+    .sort((a, b) => Number(Boolean(a.priorFailure)) - Number(Boolean(b.priorFailure)) || String(a.fetchedAt || '').localeCompare(String(b.fetchedAt || '')) || a.symbol.localeCompare(b.symbol))
     .slice(0, limit);
 
   const data = { ...(previous.data || {}) };
-  const failures = [];
+  const failuresBySymbol = new Map([...previousFailureRecords.entries()]);
   let updated = 0;
   const attemptedAt = new Date(now).toISOString();
   for (const target of targets) {
@@ -369,12 +402,39 @@ export async function refreshSecFundamentals() {
         fetchJSON(`${SEC_SUBMISSIONS_BASE}${meta.cik}.json`, 2)
       ]);
       const price = screener.data && screener.data[target.symbol] && screener.data[target.symbol].price;
+      const capability = classifyIssuerCapability(facts, submissions);
+      if (capability.status === 'TERMINAL_UNSUPPORTED') {
+        failuresBySymbol.set(target.symbol, {
+          symbol: target.symbol,
+          status: 'TERMINAL_UNSUPPORTED',
+          reasonCode: capability.reasonCode,
+          reason: `${capability.reasonCode}; issuerTaxonomy=${capability.issuerTaxonomy}`,
+          issuerTaxonomy: capability.issuerTaxonomy,
+          filingForms: capability.filingForms,
+          attemptedAt,
+          retryPolicy: 'manual-or-explicit-SEC_RECHECK_UNSUPPORTED'
+        });
+        continue;
+      }
       const normalized = normalizeSecCompanyFacts(target.symbol, facts, price, submissions);
-      if (!normalized) throw new Error('no comparable annual US-GAAP revenue/net-income facts');
+      if (!normalized) {
+        failuresBySymbol.set(target.symbol, {
+          symbol: target.symbol,
+          status: 'TERMINAL_UNSUPPORTED',
+          reasonCode: 'required-us-gaap-annual-concepts-unavailable',
+          reason: 'no comparable annual US-GAAP revenue/net-income facts',
+          issuerTaxonomy: capability.issuerTaxonomy,
+          filingForms: capability.filingForms,
+          attemptedAt,
+          retryPolicy: 'manual-or-explicit-SEC_RECHECK_UNSUPPORTED'
+        });
+        continue;
+      }
       data[target.symbol] = normalized;
+      failuresBySymbol.delete(target.symbol);
       updated++;
     } catch (error) {
-      failures.push({ symbol: target.symbol, reason: String(error && error.message || error), attemptedAt });
+      failuresBySymbol.set(target.symbol, { symbol: target.symbol, status: 'TRANSIENT_PROVIDER_FAILURE', reasonCode: 'provider-or-network-error', reason: String(error && error.message || error), attemptedAt, retryAfterMs: FAILURE_RETRY_AFTER_MS });
     }
     await new Promise(resolve => setTimeout(resolve, 150));
   }
@@ -391,15 +451,18 @@ export async function refreshSecFundamentals() {
     stored: Object.keys(data).length,
     attempted: targets.length,
     updated,
-    failures,
+    failures: [...failuresBySymbol.values()].sort((a, b) => String(a.symbol).localeCompare(String(b.symbol))),
+    terminalUnsupported: [...failuresBySymbol.values()].filter(row => row.status === 'TERMINAL_UNSUPPORTED').map(row => row.symbol),
+    retryableFailures: [...failuresBySymbol.values()].filter(row => row.status !== 'TERMINAL_UNSUPPORTED').map(row => row.symbol),
     pointInTimeCoverage: Object.values(data).filter(row => row?.pit?.observationCount > 0).length,
     pointInTimeAcceptedCoverage: Object.values(data).filter(row => row?.pit?.acceptedTimeCount > 0).length,
     batchLimit: limit,
+    unsupportedRecheckPolicy: 'SEC_RECHECK_UNSUPPORTED=1 required for explicit recheck; terminal unsupported rows remain auditable and out of normal batches',
     nextRefreshCandidates: Math.max(0, eligible.length - Object.keys(data).length),
     data
   };
   await atomicWrite(OUT, payload);
-  console.log(`[sec-fundamentals] stored=${payload.stored}/${payload.eligible} attempted=${payload.attempted} updated=${updated} failed=${failures.length}`);
+  console.log(`[sec-fundamentals] stored=${payload.stored}/${payload.eligible} attempted=${payload.attempted} updated=${updated} failed=${payload.failures.length} terminalUnsupported=${payload.terminalUnsupported.length}`);
   return payload;
 }
 

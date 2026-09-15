@@ -9,7 +9,7 @@ const read = (file) => JSON.parse(fs.readFileSync(path.join(root, file), 'utf8')
 const matrix = read('public-data/knowledge/coverage-matrix.json');
 const failures = [];
 const assert = (condition, message) => { if (!condition) failures.push(message); };
-const expected = { CORE_LESSON: 112, FOUNDATION_LESSON: 48, CONCEPT_GUIDE: 60, TAXONOMY_NODE: 95, DEEP_BRANCH: 50, DOMAIN: 19, PLAYER: 21, PRODUCT: 22 };
+const expected = { CORE_LESSON: 112, FOUNDATION_LESSON: 48, CONCEPT_GUIDE: 60, STRUCTURAL_FRAMEWORK: 28, TAXONOMY_NODE: 95, DEEP_BRANCH: 50, DOMAIN: 19, PLAYER: 21, PRODUCT: 22 };
 const ids = new Set();
 assert(matrix.schemaVersion === 'knowledge-coverage-matrix.v1', 'schemaVersion');
 assert(Array.isArray(matrix.units), 'units missing');
@@ -21,7 +21,7 @@ for (const unit of matrix.units || []) {
   assert(['RESEARCH_REQUIRED', 'RESEARCH_IN_PROGRESS', 'RESEARCHED'].includes(unit.researchStatus), `${unit.unitId}: invalid research status`);
   assert(['MISSING', 'STRUCTURED_REFERENCE_DRAFT', 'AUTHOR_REVIEWED', 'PUBLISHED_REFERENCE'].includes(unit.articleStatus), `${unit.unitId}: invalid article status`);
 }
-assert(matrix.counts.units === 427, `total unit count ${matrix.counts.units} !== 427`);
+assert(matrix.counts.units === 455, `total unit count ${matrix.counts.units} !== 455`);
 const report = {
   status: failures.length ? 'FAIL' : 'PASS',
   inventory: matrix.counts,

@@ -4,7 +4,7 @@ function formatScore(value) {
 
 function setText(documentRef, id, value) {
   const element = documentRef?.getElementById(id);
-  if (element) element.textContent = value;
+  if (element && element.textContent !== value) element.textContent = value;
 }
 
 // Small cross-route projection kept outside the sentiment route chunk. Bootstrap can

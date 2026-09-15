@@ -7,6 +7,7 @@
 // workspace; it does not turn a static artifact into live-source evidence.
 
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { SOURCE_REGISTRY_CATEGORY_IDS, DATA_SOURCE_REGISTRY } from '../src/data/contracts/source-registry.js';
@@ -212,9 +213,9 @@ function runArtifactChecks() {
 check('regression:hy-empty-csv-not-zero', parseFredHyOasCsv('DATE,BAMLH0A0HYM2\n2026-08-28,') === null, 'blank HY observation must not be 0%');
 check('regression:hy-zero-csv-preserved', parseFredHyOasCsv('DATE,BAMLH0A0HYM2\n2026-08-28,0')?.value === 0, 'numeric zero is an observation');
 check('regression:treasury-empty-cells-not-zero', parseTreasuryYieldCurveHtml('<tr><time datetime="2026-08-28T00:00:00Z"></time></tr>') === null, 'missing maturities must not generate a zero yield curve');
-const tempParent = path.join(ROOT, '.cache');
+const tempParent = process.env.AIO_QA_CACHE_DIR ? path.resolve(process.env.AIO_QA_CACHE_DIR) : os.tmpdir();
 fs.mkdirSync(tempParent, { recursive: true });
-const tempDir = fs.mkdtempSync(path.join(tempParent, 'continuity-test-'));
+const tempDir = fs.mkdtempSync(path.join(tempParent, 'aio-continuity-test-'));
 const tempFile = path.join(tempDir, 'record.json');
 try {
   const { pathToFileURL } = await import('node:url');
@@ -237,8 +238,7 @@ try {
   check('regression:failed-write-keeps-published-json', refused && JSON.parse(fs.readFileSync(tempFile, 'utf8')).revision === 2 && fs.readdirSync(tempDir).length === 1, 'partial temp write must never truncate the published artifact');
 
 } finally {
-  fs.rmSync(tempFile, { force: true });
-  fs.rmdirSync(tempDir);
+  fs.rmSync(tempDir, { recursive: true, force: true });
 }
 runFocusedRegression();
 runProducerChecks();

@@ -4,6 +4,26 @@ last_verified: 2026-09-06
 confidence: medium
 ---
 
+## v54.96 QA 계약·감사 경계 (2026-09-15)
+
+- [x] QA-EXHAUST-31: AI decision premise는 common evidence evaluator를 통해 decision/current-claim use, ceiling, rights, revision, quality, freshness SLA를 모두 요구하고 self-labeled `verified/current`만으로 승격하지 않는다 (P1068/R590, `ci-ai-premise-check.mjs`).
+- [x] QA-EXHAUST-32: company-primary는 SEC 또는 registry-verified issuer IR만 primary로 허용하며 investors.com/nasdaq.com과 substring hint는 secondary로 격리한다. registry 미검증 malicious IR negative control을 실행한다 (P1068/R591, `ci-ai-intelligence-contract-check.mjs`).
+- [x] QA-EXHAUST-33: fast plane no-op snapshot, 15분 liveness/status-change heartbeat, checked/published/written timestamp와 정상 384·최악 576 writes/day budget을 fixture로 검증한다 (P1069/R592, `ci-data-plane-contract-check.mjs`).
+- [x] QA-EXHAUST-34: headless 실패 ledger/report와 browser event wait diagnostic이 실패 이름·세부 상태를 보존한다. CI 원격 artifact 업로드는 보안 승인 경계로 미완료다 (P1070/R593, `ci-headless-group-lifecycle-check.mjs`).
+- [x] QA-EXHAUST-35: operations alert는 body signature를 포함해 동일 실패 댓글을 dedupe하고 failed job/step 요약과 escalation/reopen/signature-change만 notification을 허용한다 (P1071/R593, workspace contract).
+- [x] QA-EXHAUST-36: refresh-data/refresh-screener는 producer별 `Fail-closed promotion candidate gate before push`와 exact `release_sha` CI dispatch를 갖고 generated workspace state를 data commit에서 분리한다. [ ] staging→CI attestation→promotion 경계는 아직 없어 CI 실패 시 main에 revision이 남을 수 있다 (P1073/R595, `ci-qa-pipeline-contract-check.mjs`).
+- [ ] QA-EXHAUST-37: exact-hash semantic ledger는 자동 gate PASS와 분리해 기록한다. 현재 10,838/157,206 current lines (6.89%), 596/4,611 historical transitions (12.93%), `releaseCertified=false`; 사람 검토·live/provider/production outcome은 미완료다 (P1072/R594).
+
+## v54.95 상태 저장소 불변성·구독 격리 (2026-09-12)
+
+- [x] QA-EXHAUST-24: devMode는 이미 frozen인 outer 아래의 mutable child까지 동결한다. 한 listener가 throw해도 이후 listener는 동일한 committed state/action을 받고, 완료 뒤 AggregateError가 호출자에게 보고된다. 중복돼 있던 slice subscription fixture 한 벌은 제거한다 (P1062/R585, `ci-esm-core-unit-check.mjs`).
+- [x] QA-EXHAUST-25: Atlas와 Principles의 capability batch는 공통 loader가 pending dedupe, partial failure, retry, route dispose 후 late completion 차단, dataset/error 상태 반영을 소유한다. 페이지는 각자의 검색 색인·후처리·render만 소유한다 (`ci-esm-core-unit-check.mjs`).
+- [x] QA-EXHAUST-26: 부분 결측 factor는 관측 가중치로 재정규화하고, 전부 결측·stale factor 행은 rank 분모에 들어가지 않는다. 기존 factor golden parity는 유지한다 (P1063/R586).
+- [x] QA-EXHAUST-27: registry origin 40개는 중앙 authority tier에 매핑되고 unknown은 invalid다. AI decision은 T1/T2만, reference analysis는 인식된 T1~T4만 사용하며 늦은 구 revision·낮은 권한·권리 철회 반례를 store에서 실행한다 (P1064/R587).
+- [x] QA-EXHAUST-28: 최근 fetch가 오래되거나 날짜 없는 RSS 기사를 fresh하게 만들지 않는다. `newsObservedAt`과 `newsFetchedAt`이 producer→provider→field readiness에서 분리된다 (P1065/R587).
+- [x] QA-EXHAUST-29: refresh/history mirror event는 한 번만 소비되고 실제 같은 타깃 반복은 보존된다. `#theme-detail` 직접 진입은 `#themes` native owner와 선택된 detail panel로 수렴함을 unit+실브라우저에서 확인한다 (P1066/R588).
+- [x] QA-EXHAUST-30: 배포·data continuity·release gate의 실제 read 집합이 cache inputs/impact와 일치하고 임시 write는 workspace 밖이다. [ ] 전체 knowledge generated parity 재생성 비교는 dirty workspace/쓰기 권한 경계 때문에 미검증이다 (P1067/R589).
+
 ## v54.85 채팅 가독성과 근거 전달 (2026-09-10)
 
 - [x] QA-AI-RESPONSE-REFLOW: production CSS/renderer의 320/400/768/1280px 검사와 근거 펼침을 통과했다. 이전 구조는 본문 폭이 97px로 압축되고 수정 구조는 371px를 확보하는 반례를 확인했다 (P1056).
@@ -50,7 +70,7 @@ confidence: medium
 - [x] QA-EXHAUST-17: private evidence indexes expose no mutable Map while Atlas resolves all six `financial-targets` sources; the browser gate reports open/link/unresolved/summary state and tests relationship maps at 1280px and 760px (P1027).
 - [x] QA-EXHAUST-18: Atlas Telegram overview maps the producer's canonical `ok | partial | failed` status without aliases; real Chromium requires both 4-channel success messages and rejects a simultaneous failure label (P1028).
 - [x] QA-EXHAUST-19: Atlas taxonomy search uses the same `taxonomyNodeIds` relation as player/product rendering; Chromium searches `Samsung Electronics`, follows memory-storage → memory-dram-hbm to its player card, then restores all 19 domains (P1029).
-- [ ] QA-EXHAUST-05: every current line and historical transition must receive explicit semantic-review coverage; file inventory/AST parsing and selected negative fixtures do not complete this request. Current exact-hash ledger: 155 files / 16,599 lines and 596 / 4,611 code transitions in `_artifacts/exhaustive-audit-20260831/`.
+- [ ] QA-EXHAUST-05: every current line and historical transition must receive explicit semantic-review coverage; file inventory/AST parsing and selected negative fixtures do not complete this request. Current exact-hash ledger: 427 code/config files / 157,206 current lines (10,838 reviewed, 6.89%) and 596 / 4,611 historical code transitions (12.93%); `releaseCertified=false`.
 - [ ] QA-EXHAUST-06: production PIT/outcome collection, all remaining legacy producers, dormant-module publication, every route/control, mobile/touch visual review and paid/shared AI/provider certification remain open until separately verified. Public market/screener refresh and desktop browser matrices are verified for the 2026-09-02 local release candidate.
 
 ## v54.73 independent code/history audit (2026-08-31)
@@ -311,11 +331,6 @@ confidence: medium
 - [x] QA-TRUST-02: operator notes expose age and stale notes include an explicit `reference-only` boundary; Macro labels distinguish EFFR/FOMC and BLS SA/NSA meanings.
 - [x] QA-RUNTIME-01: visible/added-root observer work is scoped; proxy and dynamic ticker requests support total deadlines and abort propagation; chart disposal remains required.
 - [x] QA-A11Y-01: route title/heading semantics and summary-only `aria-live` sinks are asserted; form/button touch-size floors are present for coarse pointers.
-- [ ] QA-TIER13-03: in-app Browser full-page/tabs/modal/focus-return certification remains blocked by the local browser blocker; standalone Chromium gates are the local substitute.
-- [ ] QA-DEPLOY-05: deployed GitHub Pages/Worker parity remains unverified because this task performs no commit or deployment.
-- [ ] QA-HUMAN-01: recruited-user usability/reliability validation remains an external human gate; automated route matrices do not count as user recruitment.
-
-
 ## v54.43 narrative-first three-page closure (2026-08-22)
 
 - [x] Principles opens on the six-part, 12-chapter money→inflation→rates→liquidity→company→AI CAPEX→market→risk story; maps, paths and long-form references remain optional deeper layers.

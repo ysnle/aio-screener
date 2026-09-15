@@ -18,7 +18,7 @@
     "options"
   ],
   "counts": {
-    "articleTargets": 160,
+    "articleTargets": 188,
     "compatibilityTargets": 39
   },
   "targets": [
@@ -2258,6 +2258,398 @@
       "returnContext": {
         "route": "atlas",
         "lesson": "human-review"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-liquidity-extremes",
+      "conceptId": "nathan-frameworks:nathan-liquidity-extremes",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "event-window / stress-window",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-liquidity-extremes"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-leverage-survival",
+      "conceptId": "nathan-frameworks:nathan-leverage-survival",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "position-life / drawdown-window",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-leverage-survival"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-forecast-falsifiability",
+      "conceptId": "nathan-frameworks:nathan-forecast-falsifiability",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "forecast-window / event-window",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-forecast-falsifiability"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-policy-second-order",
+      "conceptId": "nathan-frameworks:nathan-policy-second-order",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "policy-event / macro-lag",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-policy-second-order"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-etf-flow-channel",
+      "conceptId": "nathan-frameworks:nathan-etf-flow-channel",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "daily-flow / launch-window",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-etf-flow-channel"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-market-structure-execution",
+      "conceptId": "nathan-frameworks:nathan-market-structure-execution",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "execution-window / stress-window",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-market-structure-execution"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-retail-flow-edge-decay",
+      "conceptId": "nathan-frameworks:nathan-retail-flow-edge-decay",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "cycle-window / strategy-life",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-retail-flow-edge-decay"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-bubble-diagnostics",
+      "conceptId": "nathan-frameworks:nathan-bubble-diagnostics",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "cycle-window",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-bubble-diagnostics"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-crypto-fundamentals",
+      "conceptId": "nathan-frameworks:nathan-crypto-fundamentals",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "cycle-window / stress-window",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-crypto-fundamentals"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-tokenomics-value-link",
+      "conceptId": "nathan-frameworks:nathan-tokenomics-value-link",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "design-review / product-life",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-tokenomics-value-link"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-counterparty-custody",
+      "conceptId": "nathan-frameworks:nathan-counterparty-custody",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "product-life / stress-window",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-counterparty-custody"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-investor-protection",
+      "conceptId": "nathan-frameworks:nathan-investor-protection",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "decision-window",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-investor-protection"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-credit-stress-gates",
+      "conceptId": "nathan-frameworks:nathan-credit-stress-gates",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "macro-release-lag / stress-window",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-credit-stress-gates"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-product-monetization",
+      "conceptId": "nathan-frameworks:nathan-product-monetization",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "product-cycle / cohort-window",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-product-monetization"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-treasury-supply-demand",
+      "conceptId": "nathan-frameworks:nathan-treasury-supply-demand",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "auction-window / macro-lag",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-treasury-supply-demand"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-macro-risk-asset-divergence",
+      "conceptId": "nathan-frameworks:nathan-macro-risk-asset-divergence",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "macro-lag / cycle-window",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-macro-risk-asset-divergence"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-nonbank-regulatory-arbitrage",
+      "conceptId": "nathan-frameworks:nathan-nonbank-regulatory-arbitrage",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "structural / stress-window",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-nonbank-regulatory-arbitrage"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-etf-nav-basket-integrity",
+      "conceptId": "nathan-frameworks:nathan-etf-nav-basket-integrity",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "product-design / launch-window / stress-window",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-etf-nav-basket-integrity"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-market-impersonal-tail-risk",
+      "conceptId": "nathan-frameworks:nathan-market-impersonal-tail-risk",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "portfolio-life / stress-window",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-market-impersonal-tail-risk"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-research-provenance",
+      "conceptId": "nathan-frameworks:nathan-research-provenance",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "decision-window",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-research-provenance"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-specialized-edge-luck",
+      "conceptId": "nathan-frameworks:nathan-specialized-edge-luck",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "career-cycle / strategy-life",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-specialized-edge-luck"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-problem-friction-opportunity",
+      "conceptId": "nathan-frameworks:nathan-problem-friction-opportunity",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "product-cycle / macro-lag",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-problem-friction-opportunity"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-analysis-workflow-clarity",
+      "conceptId": "nathan-frameworks:nathan-analysis-workflow-clarity",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "analysis-window / decision-window",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-analysis-workflow-clarity"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-asset-class-allocation",
+      "conceptId": "nathan-frameworks:nathan-asset-class-allocation",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "portfolio-life / cycle-window",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-asset-class-allocation"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-relative-value-hedging",
+      "conceptId": "nathan-frameworks:nathan-relative-value-hedging",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "position-life / stress-window",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-relative-value-hedging"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-institutional-intermediation",
+      "conceptId": "nathan-frameworks:nathan-institutional-intermediation",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "structural / stress-window",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-institutional-intermediation"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-valuation-price-formation",
+      "conceptId": "nathan-frameworks:nathan-valuation-price-formation",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "valuation-window / stress-window",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-valuation-price-formation"
+      },
+      "status": "ROUTE_TARGET",
+      "reviewedAt": "2026-08-11"
+    },
+    {
+      "articleId": "nathan-frameworks:nathan-regulation-market-access",
+      "conceptId": "nathan-frameworks:nathan-regulation-market-access",
+      "routeId": "screener",
+      "routeLabel": "구조적 분석 맥락에서 확인",
+      "metric": "reference-framework",
+      "timeframe": "policy-event / product-life",
+      "returnContext": {
+        "route": "principles",
+        "nathanFramework": "nathan-frameworks:nathan-regulation-market-access"
       },
       "status": "ROUTE_TARGET",
       "reviewedAt": "2026-08-11"

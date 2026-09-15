@@ -8,7 +8,10 @@ export function createNewsOrchestrator({ provider, commands } = {}) {
     const nextRefreshMs = Date.parse(normalized.nextRefreshAt || '');
     const fetchedMs = Date.parse(normalized.fetchedAt || '');
     const expiredBySchedule = Number.isFinite(nextRefreshMs) && checkedMs > nextRefreshMs;
-    const staleByFetch = Number.isFinite(fetchedMs) && checkedMs - fetchedMs > 36 * 60 * 60 * 1000;
+    // A populated feed without a collection timestamp cannot establish freshness. Keep the
+    // headlines displayable, but fail closed for the currentness status until the producer
+    // supplies a real fetch time.
+    const staleByFetch = !Number.isFinite(fetchedMs) || checkedMs - fetchedMs > 36 * 60 * 60 * 1000;
     const status = !normalized.items.length
       ? 'unavailable'
       : (expiredBySchedule || staleByFetch ? 'stale' : 'current');

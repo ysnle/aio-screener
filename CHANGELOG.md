@@ -1,3 +1,58 @@
+## v54.97 (2026-09-15)
+- 여러 세션의 미커밋 변경을 최신 2026-09-15 시장 데이터 위에 통합했다. 가격·뉴스·AI·포트폴리오·팩터는 출처 tier, 권리, revision, 관측시각, freshness가 없으면 의사결정에 승격하지 않는다.
+- 조정주가·공통 거래일·drift turnover·비용/유동성/PIT 경계를 백테스트에 반영하고, 현재 점수의 예측 유의성이 미확립이면 `NO_ACTION`으로 제한한다.
+- SEC US-GAAP/IFRS capability와 영구 미지원 issuer를 분리하고, refresh producer 순서·screener/AAII 소유권·watchdog 진단·operations issue dedupe·Cloudflare KV write budget을 보강했다.
+- 채팅 ticker fresh 경로와 technical enrichment wiring을 복구하고, 근거 없는 READY/실시간/승률 및 현재시각 기준일 fallback을 제거했다.
+- R1 7곳 v54.97
+
+## v54.96 (2026-09-15)
+- P1068~P1073: AI premise와 company-primary source 권한, fast-plane KV write budget/timestamp 의미, browser/headless failure observability, operations alert dedupe, semantic coverage OPEN 경계, refresh producer의 fail-closed pre-push/ exact-SHA attestation을 계약·회귀 gate로 보강했다.
+- refresh-data/refresh-screener는 이제 producer-owned validation을 push 전에 강제하고 generated workspace state를 고빈도 data commit에서 분리한다. 독립 CI 전 main mutation을 없애는 staging promotion은 여전히 별도 미완료 위험이다.
+- refresh workflow는 producer 검증 후에도 main push 뒤 별도 CI dispatch 경계가 남아 있어 미검증 revision이 main에 남을 수 있다. staging→attestation→promotion 개편은 QA-EXHAUST-36으로 명시한 미완료 위험이다.
+- 현재 semantic ledger는 current 10,838/157,206 lines (6.89%), history 596/4,611 transitions (12.93%)이며 `releaseCertified=false`; 자동 PASS는 사람의 line-by-line semantic review 완료를 뜻하지 않는다.
+- CI artifact upload는 내부 실패 payload의 외부 저장 승인 경계로 미구현이다. 커밋·push·배포는 root closeout에서만 수행한다.
+
+## v54.95 (2026-09-12)
+- P1062~P1067: store nested 불변성·listener 격리, 결측 factor 순위 분모, source authority/revision 선택, 뉴스 publication/fetch 시각, refresh/history 이벤트 타깃, `theme-detail` 직접 진입, QA cache/input/parity 신뢰성을 근본 계약과 회귀 fixture로 보강했다.
+- Atlas·Principles의 중복 capability loader를 공통 모듈로 통합해 pending dedupe, partial failure, retry, dispose 후 late completion 차단을 한 소유자로 정리했다.
+- 로컬 스크리너에서 873개 universe/844개 계산 준비, DELL 검색→1행, WhyRanked drawer와 source/observed 상태를 확인했다. 데이터 lineage는 `data.json`·`market-snapshot.json`이 각각 SLA를 초과해 FAIL이며, 8개 전문 데이터 gap과 외부 provider 권리/독립 대조는 완료로 승격하지 않는다.
+- 커밋·push·배포 없음.
+- R1 7곳 v54.95
+
+## v54.94 (2026-09-12)
+- 0x1Rosy·LuxAlgo X 및 Neuberg·Edge Stats 자료를 원문 복제 없이 데이터 원천·권리·PIT·세션 캘린더·워터마크·조건부 통계·차트 드릴다운·에이전트 실행 경계로 추출했다. Rosy의 라이선스 우회/키젠/배포물은 권리·보안 감사로만 차단하고, Neuberg BSL 코드는 이식하지 않았다.
+- `evidence-lineage.v1`과 `conditional-evidence.v1`을 추가해 provider → canonical bar → calendar/session feature → query → Wilson 95% CI·표본·안정성·최근성 → chart evidence 계보를 계약화했다. 현재 스크리너에는 `조건부 증거` 탭을 연결하되, 합법적 1분봉·세션 캘린더·PIT artifact가 없으면 확률을 만들지 않고 보류한다.
+- 5개 구조 프레임과 3개 관측창을 연구 브리지·AI retrieval·스크리너 research metadata에 연결했다. 조건부 통계는 연구용 상대 비교만 허용하고 현재 신호·자동랭킹·자동주문으로 승격하지 않는다.
+- 커밋·push·배포 없음.
+- R1 7곳 v54.94
+
+## v54.93 (2026-09-12)
+- 2026년 9월 최신 통합 원고의 추가 축을 기존 시장 원리·AI 시대 지식 계층에 재투영했다. 에이전트 업무 생산성, 추론 경제성·반등효과, 시스템 처리량·데이터 이동, 전력·물리적 병목, AI CAPEX 금융·신용, 해자 강화/침식과 정보우위 프레임을 원칙 12개·아틀라스 17개 구조 카드로 연결했다.
+- 총 29개 통합 프레임을 AI retrieval, concept/alias ontology, Principles·Atlas 화면, 스크리너 research metadata에 연결했다. 문서 원문·저자·X 링크는 사용자-facing 출력과 랭킹 입력에 복제하지 않는다.
+- 원고의 최신 수치·모델명·기업 사례는 2026-09-12 기준 `REFERENCE_CANDIDATE_REQUIRES_PRIMARY_RECONCILIATION`으로 격리했다. 1차 출처와 기준시각을 확인하기 전 현재값·신호·랭킹·주문 입력으로 승격하지 않는다.
+- 커밋·push·배포 없음.
+- R1 7곳 v54.93
+
+## v54.92 (2026-09-12)
+- Nathan 자료를 사용자-facing 원문 패널이 아닌 `nathan-frameworks` 구조 지식 계층으로 통합했다. 28개 canonical framework, 183개 concept, 881개 alias, 188개 AI retrieval article, 455개 coverage unit, 227개 route target을 생성·연결했다.
+- 질문 계획·research plan·domain analysis·evidence inputs·스크리너 setup metadata에 범위→메커니즘→관측지표→확인/무효화→반대 시나리오→현재성 검증 순서를 연결했다. 현재 가격·목표·확률·랭킹·자동주문 입력은 허용하지 않는다.
+- supplied-material bridge는 상세 원문·X 링크·미디어·claim ledger를 화면에 그리지 않고 reference-only 내부 컨텍스트만 유지하도록 닫았다. 252개 X 링크, 공개 렌더 직접 확인 245개, 페이지 부재 7개의 원문 감사 경계는 별도로 보존했다.
+- 커밋·push·배포 없음.
+- R1 7곳 v54.92
+
+## v54.91 (2026-09-12)
+- Nathan | Factomind Previous Threads Notion 목록 249페이지를 다시 판독해 252개 X/Twitter 링크를 전수 인덱스화했다. 구형 `twitter.com` 147개를 포함해 245개 원문을 직접 확인하고, X가 페이지 부재를 반환한 7개는 별도 원문 부재 상태로 보존했다.
+- 공개 X 화면에서 렌더된 스레드·답글 `article` 1,573개, 미디어/이미지 1,962개, 링크 9,268개, 동작 요소 8,413개를 감사하고 링크별 관찰 게시물 수를 기록했다. X 로그인 벽 뒤의 미노출 답글은 확인 완료로 승격하지 않았다.
+- 자산군 배분, 헤징·베이시스·OTC, 기관 중개, 가치평가·가격발견, 규제·시장접근성 등 5개 프레임을 추가해 총 28개 구조 프레임을 스크리너 참고 메타데이터와 AI 검색에 연결했다. 현재 가격·목표·확률·랭킹·자동주문 입력으로는 사용하지 않는다.
+- 커밋·push·배포 없음.
+- R1 7곳 v54.91
+
+## v54.90 (2026-09-12)
+- Notion의 Nathan | Factomind Previous Threads에서 확인한 105개 X 링크를 원문 인덱스에 등록하고, 직접 읽은 80개에서 유동성·레버리지·예측 검증·ETF 시장구조·크립토 토크노믹스·매크로 스트레스 등 14개 구조 프레임을 추출했다.
+- 스크리너 참고 패널과 AI 지식 검색에 구조 프레임을 연결했으며, X 미검증 25개·Notion X 링크 없음 144개·페이지 누락 3개와 모든 현재성 경계를 보존했다. 현재 가격·랭킹·목표·자동매매 입력으로 승격하지 않는다.
+- 커밋·push·배포 없음.
+- R1 7곳 v54.90
+
 ## v54.89 (2026-09-11)
 - P1061: AI 채팅 가격 evidence가 임의 source를 LIVE로 승격하거나 통화·단위를 추론해 현재 근거로 통과시키지 않도록 fail-closed 정규화를 복원했다. 미인증 source kind·관측·통화·단위 누락은 차단한다.
 - GitHub CI `Contracts / core`에서 발견된 회귀를 수정했고, 로컬 core QA `34/34 PASS` 및 `ci-ai-quote-evidence-check`를 통과했다.

@@ -42,7 +42,17 @@ jobs:
         env:
           AIO_LIVE_MAX_AGE_MIN: ${{ github.event.inputs.max_age_minutes || '360' }}
           LIVE_HEADER_POLICY: operator-required
-        run: node scripts/qa-runner.mjs watchdog --no-cache --jobs 2
+          AIO_QA_CACHE_DIR: ${{ runner.temp }}/aio-qa
+        run: |
+          set -o pipefail
+          node scripts/qa-runner.mjs watchdog --no-cache --jobs 2 2>&1 | tee "$RUNNER_TEMP/watchdog-qa.log"
+
+      - name: Summarize failed watchdog gates
+        if: always() && steps.qa.outcome != 'success'
+        env:
+          AIO_QA_CACHE_DIR: ${{ runner.temp }}/aio-qa
+        run: |
+          node --input-type=module -e "import fs from 'node:fs'; const reportPath=process.env.AIO_QA_CACHE_DIR + '/last-run.json'; let report=null; try { report=JSON.parse(fs.readFileSync(reportPath,'utf8')); } catch (error) { report={error:'qa report unavailable: '+error.message}; } const failed=(report.results||[]).filter((entry)=>entry.status==='FAIL'); const skipped=(report.results||[]).filter((entry)=>entry.status==='SKIP'); const lines=['## Watchdog failure detail','',`- Failed gates: ${failed.map((entry)=>entry.id).join(', ') || 'unavailable'}`,`- Failed gate details: ${failed.map((entry)=>entry.id+': '+(entry.error||entry.output||'no detail').split('\\n').slice(-3).join(' | ')).join(' ; ') || 'unavailable'}`,`- Blocked/skipped gates: ${skipped.map((entry)=>entry.id).join(', ') || 'none'}`,`- QA report: ${reportPath}`,'']; fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join('\\n')+'\\n'); console.log(lines.join('\\n'));"
 
       - name: Build rolling 7/30-day operations evidence
         if: always()

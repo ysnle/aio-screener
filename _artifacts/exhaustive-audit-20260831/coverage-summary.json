@@ -1,16 +1,16 @@
 {
-  "asOf": "2026-09-02T14:36:14.675Z",
+  "asOf": "2026-09-12T15:14:32.071Z",
   "scopeHead": "6ef2561d3cc1cdc010693812a6796556d02c6db4",
   "files": 1810,
-  "addedFiles": 1,
-  "codeConfigFiles": 398,
+  "addedFiles": 488,
+  "codeConfigFiles": 427,
   "codeConfigBaselineLines": 149031,
-  "codeConfigCurrentLines": 150265,
+  "codeConfigCurrentLines": 157206,
   "commits": 1733,
   "historyTransitions": 22273,
   "codeHistoryTransitions": 4611,
-  "currentSemanticallyReviewedLines": 16599,
-  "currentFullyReviewedFiles": 155,
+  "currentSemanticallyReviewedLines": 10838,
+  "currentFullyReviewedFiles": 118,
   "historyReviewedTransitions": 596,
   "releaseCertified": false,
   "filesWithReview": [
@@ -23,26 +23,10 @@
       "changedSinceBaseline": true
     },
     {
-      "path": "src/domain/research/supplied-materials.js",
-      "baselineLines": 270,
-      "currentLines": 270,
-      "coveredLines": 270,
-      "fullyReviewed": true,
-      "changedSinceBaseline": false
-    },
-    {
       "path": "scripts/build-principles-edge-semantics.mjs",
       "baselineLines": 81,
       "currentLines": 85,
       "coveredLines": 85,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
-    },
-    {
-      "path": "scripts/ci-atlas-browser-check.mjs",
-      "baselineLines": 225,
-      "currentLines": 257,
-      "coveredLines": 257,
       "fullyReviewed": true,
       "changedSinceBaseline": true
     },
@@ -55,17 +39,9 @@
       "changedSinceBaseline": true
     },
     {
-      "path": "scripts/ci-screener-auto-refresh-browser-check.mjs",
-      "baselineLines": 101,
-      "currentLines": 153,
-      "coveredLines": 153,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
-    },
-    {
       "path": "scripts/fetch-data.mjs",
       "baselineLines": 3193,
-      "currentLines": 3198,
+      "currentLines": 3290,
       "coveredLines": 53,
       "fullyReviewed": false,
       "changedSinceBaseline": true
@@ -93,14 +69,6 @@
       "coveredLines": 28,
       "fullyReviewed": true,
       "changedSinceBaseline": true
-    },
-    {
-      "path": "src/ai/analysis/registry.js",
-      "baselineLines": 20,
-      "currentLines": 20,
-      "coveredLines": 20,
-      "fullyReviewed": true,
-      "changedSinceBaseline": false
     },
     {
       "path": "src/ai/analysis/sector.js",
@@ -151,14 +119,6 @@
       "changedSinceBaseline": true
     },
     {
-      "path": "src/ai/evidence/graph.js",
-      "baselineLines": 28,
-      "currentLines": 33,
-      "coveredLines": 33,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
-    },
-    {
       "path": "src/ai/inference.js",
       "baselineLines": 81,
       "currentLines": 84,
@@ -175,36 +135,12 @@
       "changedSinceBaseline": false
     },
     {
-      "path": "src/ai/operations/control-plane.js",
-      "baselineLines": 20,
-      "currentLines": 20,
-      "coveredLines": 20,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
-    },
-    {
-      "path": "src/ai/orchestrator/answer-orchestrator.js",
-      "baselineLines": 84,
-      "currentLines": 84,
-      "coveredLines": 84,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
-    },
-    {
       "path": "src/ai/orchestrator/capability-planner.js",
       "baselineLines": 22,
       "currentLines": 22,
       "coveredLines": 22,
       "fullyReviewed": true,
       "changedSinceBaseline": false
-    },
-    {
-      "path": "src/ai/orchestrator/question-planner.js",
-      "baselineLines": 94,
-      "currentLines": 102,
-      "coveredLines": 102,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
     },
     {
       "path": "src/ai/policy.js",
@@ -231,14 +167,6 @@
       "changedSinceBaseline": true
     },
     {
-      "path": "src/ai/provider/adapter.js",
-      "baselineLines": 8,
-      "currentLines": 12,
-      "coveredLines": 12,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
-    },
-    {
       "path": "src/ai/research/capability.js",
       "baselineLines": 77,
       "currentLines": 79,
@@ -251,38 +179,6 @@
       "baselineLines": 136,
       "currentLines": 142,
       "coveredLines": 142,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
-    },
-    {
-      "path": "src/ai/research/evidence.js",
-      "baselineLines": 271,
-      "currentLines": 274,
-      "coveredLines": 274,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
-    },
-    {
-      "path": "src/ai/research/plan.js",
-      "baselineLines": 125,
-      "currentLines": 128,
-      "coveredLines": 128,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
-    },
-    {
-      "path": "src/ai/response/claim-ledger.js",
-      "baselineLines": 92,
-      "currentLines": 101,
-      "coveredLines": 101,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
-    },
-    {
-      "path": "src/ai/response/envelope.js",
-      "baselineLines": 14,
-      "currentLines": 19,
-      "coveredLines": 19,
       "fullyReviewed": true,
       "changedSinceBaseline": true
     },
@@ -303,34 +199,10 @@
       "changedSinceBaseline": true
     },
     {
-      "path": "src/ai/retrieval/knowledge.js",
-      "baselineLines": 208,
-      "currentLines": 210,
-      "coveredLines": 210,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
-    },
-    {
-      "path": "src/ai/time/market-session.js",
-      "baselineLines": 113,
-      "currentLines": 113,
-      "coveredLines": 113,
-      "fullyReviewed": true,
-      "changedSinceBaseline": false
-    },
-    {
-      "path": "src/ai/websearch/claims.js",
-      "baselineLines": 7,
-      "currentLines": 7,
-      "coveredLines": 7,
-      "fullyReviewed": true,
-      "changedSinceBaseline": false
-    },
-    {
       "path": "src/app/bootstrap.js",
       "baselineLines": 645,
-      "currentLines": 653,
-      "coveredLines": 653,
+      "currentLines": 811,
+      "coveredLines": 811,
       "fullyReviewed": true,
       "changedSinceBaseline": true
     },
@@ -399,14 +271,6 @@
       "changedSinceBaseline": false
     },
     {
-      "path": "src/app/knowledge-learning-state.js",
-      "baselineLines": 6,
-      "currentLines": 6,
-      "coveredLines": 6,
-      "fullyReviewed": true,
-      "changedSinceBaseline": false
-    },
-    {
       "path": "src/app/knowledge-route-state.js",
       "baselineLines": 99,
       "currentLines": 105,
@@ -419,14 +283,6 @@
       "baselineLines": 106,
       "currentLines": 165,
       "coveredLines": 165,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
-    },
-    {
-      "path": "src/app/router.js",
-      "baselineLines": 226,
-      "currentLines": 233,
-      "coveredLines": 233,
       "fullyReviewed": true,
       "changedSinceBaseline": true
     },
@@ -457,8 +313,8 @@
     {
       "path": "src/data/contracts/evidence.js",
       "baselineLines": 126,
-      "currentLines": 135,
-      "coveredLines": 135,
+      "currentLines": 150,
+      "coveredLines": 150,
       "fullyReviewed": true,
       "changedSinceBaseline": true
     },
@@ -479,18 +335,10 @@
       "changedSinceBaseline": false
     },
     {
-      "path": "src/data/contracts/revision.js",
-      "baselineLines": 22,
-      "currentLines": 23,
-      "coveredLines": 23,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
-    },
-    {
       "path": "src/data/contracts/screener.js",
       "baselineLines": 504,
-      "currentLines": 560,
-      "coveredLines": 560,
+      "currentLines": 648,
+      "coveredLines": 648,
       "fullyReviewed": true,
       "changedSinceBaseline": true
     },
@@ -505,16 +353,8 @@
     {
       "path": "src/data/evidence-store.js",
       "baselineLines": 27,
-      "currentLines": 27,
-      "coveredLines": 27,
-      "fullyReviewed": true,
-      "changedSinceBaseline": false
-    },
-    {
-      "path": "src/data/knowledge/repository.js",
-      "baselineLines": 27,
-      "currentLines": 27,
-      "coveredLines": 27,
+      "currentLines": 61,
+      "coveredLines": 61,
       "fullyReviewed": true,
       "changedSinceBaseline": true
     },
@@ -523,14 +363,6 @@
       "baselineLines": 24,
       "currentLines": 24,
       "coveredLines": 24,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
-    },
-    {
-      "path": "src/data/normalize/entity.js",
-      "baselineLines": 38,
-      "currentLines": 38,
-      "coveredLines": 38,
       "fullyReviewed": true,
       "changedSinceBaseline": true
     },
@@ -575,14 +407,6 @@
       "changedSinceBaseline": false
     },
     {
-      "path": "src/data/normalize/themes.js",
-      "baselineLines": 101,
-      "currentLines": 101,
-      "coveredLines": 101,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
-    },
-    {
       "path": "src/data/orchestrators/analysis.js",
       "baselineLines": 7,
       "currentLines": 7,
@@ -621,14 +445,6 @@
       "coveredLines": 11,
       "fullyReviewed": true,
       "changedSinceBaseline": false
-    },
-    {
-      "path": "src/data/orchestrators/screener.js",
-      "baselineLines": 125,
-      "currentLines": 125,
-      "coveredLines": 125,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
     },
     {
       "path": "src/data/orchestrators/sentiment.js",
@@ -687,14 +503,6 @@
       "changedSinceBaseline": false
     },
     {
-      "path": "src/data/providers/screener.js",
-      "baselineLines": 323,
-      "currentLines": 368,
-      "coveredLines": 368,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
-    },
-    {
       "path": "src/data/providers/sentiment.js",
       "baselineLines": 11,
       "currentLines": 11,
@@ -703,34 +511,10 @@
       "changedSinceBaseline": false
     },
     {
-      "path": "src/data/providers/themes.js",
-      "baselineLines": 183,
-      "currentLines": 183,
-      "coveredLines": 183,
-      "fullyReviewed": true,
-      "changedSinceBaseline": false
-    },
-    {
       "path": "src/data/quality/freshness.js",
       "baselineLines": 26,
       "currentLines": 28,
       "coveredLines": 28,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
-    },
-    {
-      "path": "src/data/quality/lineage.js",
-      "baselineLines": 28,
-      "currentLines": 36,
-      "coveredLines": 36,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
-    },
-    {
-      "path": "src/data/runtime-readers.js",
-      "baselineLines": 440,
-      "currentLines": 452,
-      "coveredLines": 452,
       "fullyReviewed": true,
       "changedSinceBaseline": true
     },
@@ -759,14 +543,6 @@
       "changedSinceBaseline": true
     },
     {
-      "path": "src/domain/fundamental/sec-report.js",
-      "baselineLines": 157,
-      "currentLines": 160,
-      "coveredLines": 160,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
-    },
-    {
       "path": "src/domain/home/summary.js",
       "baselineLines": 6,
       "currentLines": 7,
@@ -779,22 +555,6 @@
       "baselineLines": 83,
       "currentLines": 82,
       "coveredLines": 82,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
-    },
-    {
-      "path": "src/domain/knowledge/graph.js",
-      "baselineLines": 137,
-      "currentLines": 148,
-      "coveredLines": 148,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
-    },
-    {
-      "path": "src/domain/knowledge/learning-state.js",
-      "baselineLines": 74,
-      "currentLines": 94,
-      "coveredLines": 94,
       "fullyReviewed": true,
       "changedSinceBaseline": true
     },
@@ -863,14 +623,6 @@
       "changedSinceBaseline": true
     },
     {
-      "path": "src/domain/news/scoring.js",
-      "baselineLines": 107,
-      "currentLines": 113,
-      "coveredLines": 113,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
-    },
-    {
       "path": "src/domain/portfolio/concentration.js",
       "baselineLines": 73,
       "currentLines": 68,
@@ -879,18 +631,10 @@
       "changedSinceBaseline": true
     },
     {
-      "path": "src/domain/portfolio/surface.js",
-      "baselineLines": 116,
-      "currentLines": 121,
-      "coveredLines": 121,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
-    },
-    {
       "path": "src/domain/screener/factor-ranks.js",
       "baselineLines": 553,
-      "currentLines": 565,
-      "coveredLines": 565,
+      "currentLines": 571,
+      "coveredLines": 571,
       "fullyReviewed": true,
       "changedSinceBaseline": true
     },
@@ -959,14 +703,6 @@
       "changedSinceBaseline": true
     },
     {
-      "path": "src/domain/screener/setup-profile.js",
-      "baselineLines": 113,
-      "currentLines": 114,
-      "coveredLines": 114,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
-    },
-    {
       "path": "src/domain/sentiment/metrics.js",
       "baselineLines": 36,
       "currentLines": 36,
@@ -999,14 +735,6 @@
       "changedSinceBaseline": true
     },
     {
-      "path": "src/legacy/compatibility-facade.js",
-      "baselineLines": 562,
-      "currentLines": 562,
-      "coveredLines": 562,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
-    },
-    {
       "path": "src/platform/clock.js",
       "baselineLines": 7,
       "currentLines": 7,
@@ -1023,34 +751,10 @@
       "changedSinceBaseline": true
     },
     {
-      "path": "src/platform/sanitizer.js",
-      "baselineLines": 17,
-      "currentLines": 17,
-      "coveredLines": 17,
-      "fullyReviewed": true,
-      "changedSinceBaseline": false
-    },
-    {
       "path": "src/platform/storage.js",
       "baselineLines": 37,
       "currentLines": 40,
       "coveredLines": 40,
-      "fullyReviewed": true,
-      "changedSinceBaseline": true
-    },
-    {
-      "path": "src/platform/telemetry.js",
-      "baselineLines": 8,
-      "currentLines": 8,
-      "coveredLines": 8,
-      "fullyReviewed": true,
-      "changedSinceBaseline": false
-    },
-    {
-      "path": "src/state/memoize.js",
-      "baselineLines": 38,
-      "currentLines": 39,
-      "coveredLines": 39,
       "fullyReviewed": true,
       "changedSinceBaseline": true
     },
@@ -1064,14 +768,6 @@
     },
     {
       "path": "src/state/selectors/entity.js",
-      "baselineLines": 19,
-      "currentLines": 19,
-      "coveredLines": 19,
-      "fullyReviewed": true,
-      "changedSinceBaseline": false
-    },
-    {
-      "path": "src/state/selectors/market.js",
       "baselineLines": 19,
       "currentLines": 19,
       "coveredLines": 19,
@@ -1185,10 +881,10 @@
     {
       "path": "src/state/store.js",
       "baselineLines": 45,
-      "currentLines": 45,
-      "coveredLines": 45,
+      "currentLines": 53,
+      "coveredLines": 53,
       "fullyReviewed": true,
-      "changedSinceBaseline": false
+      "changedSinceBaseline": true
     },
     {
       "path": "src/storage/migrations.js",
@@ -1249,24 +945,32 @@
     {
       "path": "src/ui/pages/atlas.js",
       "baselineLines": 1696,
-      "currentLines": 1696,
-      "coveredLines": 1523,
+      "currentLines": 1694,
+      "coveredLines": 1521,
       "fullyReviewed": false,
       "changedSinceBaseline": true
     },
     {
       "path": "src/ui/pages/portfolio.js",
       "baselineLines": 397,
-      "currentLines": 397,
+      "currentLines": 367,
       "coveredLines": 17,
       "fullyReviewed": false,
       "changedSinceBaseline": true
     },
     {
-      "path": "src/ui/pages/screener.js",
-      "baselineLines": 1289,
-      "currentLines": 1381,
-      "coveredLines": 1381,
+      "path": "src/data/contracts/source-kind.js",
+      "baselineLines": 0,
+      "currentLines": 58,
+      "coveredLines": 58,
+      "fullyReviewed": true,
+      "changedSinceBaseline": true
+    },
+    {
+      "path": "src/ui/knowledge/capability-loader.js",
+      "baselineLines": 0,
+      "currentLines": 45,
+      "coveredLines": 45,
       "fullyReviewed": true,
       "changedSinceBaseline": true
     },
@@ -1297,12 +1001,12 @@
     },
     {
       "path": "scripts/ci-chat-resilience-check.mjs",
-      "currentLines": 66,
+      "currentLines": 76,
       "coveredLines": 0
     },
     {
       "path": "scripts/ci-data-continuity-check.mjs",
-      "currentLines": 245,
+      "currentLines": 264,
       "coveredLines": 0
     },
     {
@@ -1312,7 +1016,7 @@
     },
     {
       "path": "scripts/ci-research-flow-contract-check.mjs",
-      "currentLines": 121,
+      "currentLines": 176,
       "coveredLines": 0
     },
     {
@@ -1321,28 +1025,33 @@
       "coveredLines": 0
     },
     {
+      "path": "src/domain/research/supplied-materials.js",
+      "currentLines": 953,
+      "coveredLines": 0
+    },
+    {
       "path": "src/ui/knowledge/supplied-material-bridge.js",
-      "currentLines": 111,
+      "currentLines": 268,
       "coveredLines": 0
     },
     {
       "path": ".codex/agents/accessibility-auditor.toml",
-      "currentLines": 30,
+      "currentLines": 29,
       "coveredLines": 0
     },
     {
       "path": ".codex/agents/code-reviewer.toml",
-      "currentLines": 30,
+      "currentLines": 29,
       "coveredLines": 0
     },
     {
       "path": ".codex/agents/performance-analyzer.toml",
-      "currentLines": 30,
+      "currentLines": 29,
       "coveredLines": 0
     },
     {
       "path": ".codex/agents/qa-auditor.toml",
-      "currentLines": 30,
+      "currentLines": 29,
       "coveredLines": 0
     },
     {
@@ -1487,27 +1196,27 @@
     },
     {
       "path": "cloudflare-worker-proxy.js",
-      "currentLines": 676,
+      "currentLines": 724,
       "coveredLines": 0
     },
     {
       "path": "index.html",
-      "currentLines": 28205,
+      "currentLines": 28283,
       "coveredLines": 0
     },
     {
       "path": "js/aio-chat.js",
-      "currentLines": 7587,
+      "currentLines": 7921,
       "coveredLines": 0
     },
     {
       "path": "js/aio-core.js",
-      "currentLines": 27704,
+      "currentLines": 27755,
       "coveredLines": 0
     },
     {
       "path": "js/aio-data.js",
-      "currentLines": 16437,
+      "currentLines": 16472,
       "coveredLines": 0
     },
     {
@@ -1517,7 +1226,7 @@
     },
     {
       "path": "js/aio-tests.js",
-      "currentLines": 9202,
+      "currentLines": 9253,
       "coveredLines": 0
     },
     {
@@ -1527,7 +1236,7 @@
     },
     {
       "path": "scripts/agent-hook.mjs",
-      "currentLines": 95,
+      "currentLines": 86,
       "coveredLines": 0
     },
     {
@@ -1562,7 +1271,7 @@
     },
     {
       "path": "scripts/build-ai-knowledge-retrieval-index.mjs",
-      "currentLines": 99,
+      "currentLines": 184,
       "coveredLines": 0
     },
     {
@@ -1572,17 +1281,17 @@
     },
     {
       "path": "scripts/build-knowledge-articles-and-learning-graph.mjs",
-      "currentLines": 203,
+      "currentLines": 179,
       "coveredLines": 0
     },
     {
       "path": "scripts/build-knowledge-concept-manifest.mjs",
-      "currentLines": 84,
+      "currentLines": 90,
       "coveredLines": 0
     },
     {
       "path": "scripts/build-knowledge-coverage-matrix.mjs",
-      "currentLines": 119,
+      "currentLines": 127,
       "coveredLines": 0
     },
     {
@@ -1607,7 +1316,7 @@
     },
     {
       "path": "scripts/build-knowledge-route-targets.mjs",
-      "currentLines": 51,
+      "currentLines": 63,
       "coveredLines": 0
     },
     {
@@ -1617,12 +1326,12 @@
     },
     {
       "path": "scripts/build-market-snapshot.mjs",
-      "currentLines": 239,
+      "currentLines": 254,
       "coveredLines": 0
     },
     {
       "path": "scripts/build-masters-runtime-artifacts.mjs",
-      "currentLines": 303,
+      "currentLines": 302,
       "coveredLines": 0
     },
     {
@@ -1632,7 +1341,7 @@
     },
     {
       "path": "scripts/build-operations-status.mjs",
-      "currentLines": 468,
+      "currentLines": 495,
       "coveredLines": 0
     },
     {
@@ -1662,7 +1371,7 @@
     },
     {
       "path": "scripts/ci-accessibility-matrix-check.mjs",
-      "currentLines": 99,
+      "currentLines": 100,
       "coveredLines": 0
     },
     {
@@ -1677,17 +1386,17 @@
     },
     {
       "path": "scripts/ci-ai-intelligence-contract-check.mjs",
-      "currentLines": 296,
+      "currentLines": 337,
       "coveredLines": 0
     },
     {
       "path": "scripts/ci-architecture-browser-check.mjs",
-      "currentLines": 554,
+      "currentLines": 607,
       "coveredLines": 0
     },
     {
       "path": "scripts/ci-architecture-contract-check.mjs",
-      "currentLines": 635,
+      "currentLines": 628,
       "coveredLines": 0
     },
     {
@@ -1696,8 +1405,13 @@
       "coveredLines": 0
     },
     {
+      "path": "scripts/ci-atlas-browser-check.mjs",
+      "currentLines": 259,
+      "coveredLines": 0
+    },
+    {
       "path": "scripts/ci-atlas-contract-check.mjs",
-      "currentLines": 198,
+      "currentLines": 206,
       "coveredLines": 0
     },
     {
@@ -1707,7 +1421,7 @@
     },
     {
       "path": "scripts/ci-boot-interaction-check.mjs",
-      "currentLines": 136,
+      "currentLines": 173,
       "coveredLines": 0
     },
     {
@@ -1727,7 +1441,7 @@
     },
     {
       "path": "scripts/ci-critical10-human-surface-check.mjs",
-      "currentLines": 113,
+      "currentLines": 114,
       "coveredLines": 0
     },
     {
@@ -1737,12 +1451,12 @@
     },
     {
       "path": "scripts/ci-data-lineage-audit.mjs",
-      "currentLines": 262,
+      "currentLines": 304,
       "coveredLines": 0
     },
     {
       "path": "scripts/ci-data-pipeline-contract-check.mjs",
-      "currentLines": 515,
+      "currentLines": 560,
       "coveredLines": 0
     },
     {
@@ -1767,7 +1481,7 @@
     },
     {
       "path": "scripts/ci-desktop-scope-check.mjs",
-      "currentLines": 57,
+      "currentLines": 73,
       "coveredLines": 0
     },
     {
@@ -1777,7 +1491,7 @@
     },
     {
       "path": "scripts/ci-esm-core-unit-check.mjs",
-      "currentLines": 826,
+      "currentLines": 1086,
       "coveredLines": 0
     },
     {
@@ -1822,7 +1536,7 @@
     },
     {
       "path": "scripts/ci-knowledge-article-contract.mjs",
-      "currentLines": 42,
+      "currentLines": 54,
       "coveredLines": 0
     },
     {
@@ -1832,7 +1546,7 @@
     },
     {
       "path": "scripts/ci-knowledge-core-semantic-check.mjs",
-      "currentLines": 154,
+      "currentLines": 158,
       "coveredLines": 0
     },
     {
@@ -1852,7 +1566,7 @@
     },
     {
       "path": "scripts/ci-knowledge-generated-parity-check.mjs",
-      "currentLines": 94,
+      "currentLines": 100,
       "coveredLines": 0
     },
     {
@@ -1867,17 +1581,17 @@
     },
     {
       "path": "scripts/ci-knowledge-market-transmission.mjs",
-      "currentLines": 26,
+      "currentLines": 34,
       "coveredLines": 0
     },
     {
       "path": "scripts/ci-knowledge-ontology-contract.mjs",
-      "currentLines": 74,
+      "currentLines": 79,
       "coveredLines": 0
     },
     {
       "path": "scripts/ci-knowledge-quantitative-example.mjs",
-      "currentLines": 29,
+      "currentLines": 0,
       "coveredLines": 0
     },
     {
@@ -1887,12 +1601,12 @@
     },
     {
       "path": "scripts/ci-knowledge-repository-contract.mjs",
-      "currentLines": 37,
+      "currentLines": 40,
       "coveredLines": 0
     },
     {
       "path": "scripts/ci-knowledge-route-bridge-contract.mjs",
-      "currentLines": 43,
+      "currentLines": 44,
       "coveredLines": 0
     },
     {
@@ -1922,22 +1636,22 @@
     },
     {
       "path": "scripts/ci-market-snapshot-contract-check.mjs",
-      "currentLines": 71,
+      "currentLines": 113,
       "coveredLines": 0
     },
     {
       "path": "scripts/ci-masters-browser-check.mjs",
-      "currentLines": 137,
+      "currentLines": 138,
       "coveredLines": 0
     },
     {
       "path": "scripts/ci-masters-contract-check.mjs",
-      "currentLines": 205,
+      "currentLines": 212,
       "coveredLines": 0
     },
     {
       "path": "scripts/ci-native-decision-evidence-check.mjs",
-      "currentLines": 80,
+      "currentLines": 136,
       "coveredLines": 0
     },
     {
@@ -1952,7 +1666,7 @@
     },
     {
       "path": "scripts/ci-operations-status-check.mjs",
-      "currentLines": 95,
+      "currentLines": 110,
       "coveredLines": 0
     },
     {
@@ -1977,12 +1691,12 @@
     },
     {
       "path": "scripts/ci-principles-browser-check.mjs",
-      "currentLines": 252,
+      "currentLines": 254,
       "coveredLines": 0
     },
     {
       "path": "scripts/ci-principles-contract-check.mjs",
-      "currentLines": 95,
+      "currentLines": 102,
       "coveredLines": 0
     },
     {
@@ -1997,12 +1711,12 @@
     },
     {
       "path": "scripts/ci-qa-pipeline-contract-check.mjs",
-      "currentLines": 143,
+      "currentLines": 196,
       "coveredLines": 0
     },
     {
       "path": "scripts/ci-qa-runner-behavior-check.mjs",
-      "currentLines": 103,
+      "currentLines": 159,
       "coveredLines": 0
     },
     {
@@ -2042,12 +1756,12 @@
     },
     {
       "path": "scripts/ci-route-soak-check.mjs",
-      "currentLines": 110,
+      "currentLines": 112,
       "coveredLines": 0
     },
     {
       "path": "scripts/ci-runtime-contract-check.mjs",
-      "currentLines": 923,
+      "currentLines": 938,
       "coveredLines": 0
     },
     {
@@ -2066,8 +1780,13 @@
       "coveredLines": 0
     },
     {
+      "path": "scripts/ci-screener-auto-refresh-browser-check.mjs",
+      "currentLines": 159,
+      "coveredLines": 0
+    },
+    {
       "path": "scripts/ci-screener-workbench-contract.mjs",
-      "currentLines": 438,
+      "currentLines": 506,
       "coveredLines": 0
     },
     {
@@ -2077,7 +1796,7 @@
     },
     {
       "path": "scripts/ci-second-pass-baseline.mjs",
-      "currentLines": 67,
+      "currentLines": 0,
       "coveredLines": 0
     },
     {
@@ -2092,12 +1811,12 @@
     },
     {
       "path": "scripts/ci-six-doc-coverage-check.mjs",
-      "currentLines": 100,
+      "currentLines": 107,
       "coveredLines": 0
     },
     {
       "path": "scripts/ci-skill-contract-check.mjs",
-      "currentLines": 155,
+      "currentLines": 157,
       "coveredLines": 0
     },
     {
@@ -2107,7 +1826,7 @@
     },
     {
       "path": "scripts/ci-source-registry-contract-check.mjs",
-      "currentLines": 73,
+      "currentLines": 75,
       "coveredLines": 0
     },
     {
@@ -2137,7 +1856,7 @@
     },
     {
       "path": "scripts/ci-three-page-learning-flow-check.mjs",
-      "currentLines": 108,
+      "currentLines": 105,
       "coveredLines": 0
     },
     {
@@ -2147,12 +1866,12 @@
     },
     {
       "path": "scripts/ci-version-check.mjs",
-      "currentLines": 101,
+      "currentLines": 107,
       "coveredLines": 0
     },
     {
       "path": "scripts/ci-vertical-slice-browser-check.mjs",
-      "currentLines": 77,
+      "currentLines": 73,
       "coveredLines": 0
     },
     {
@@ -2162,7 +1881,7 @@
     },
     {
       "path": "scripts/ci-viewport-matrix-check.mjs",
-      "currentLines": 363,
+      "currentLines": 379,
       "coveredLines": 0
     },
     {
@@ -2172,7 +1891,7 @@
     },
     {
       "path": "scripts/ci-worker-anthropic-check.mjs",
-      "currentLines": 154,
+      "currentLines": 217,
       "coveredLines": 0
     },
     {
@@ -2202,7 +1921,7 @@
     },
     {
       "path": "scripts/collect-13f-reference.mjs",
-      "currentLines": 515,
+      "currentLines": 506,
       "coveredLines": 0
     },
     {
@@ -2247,17 +1966,17 @@
     },
     {
       "path": "scripts/enrich-knowledge-source-lessons.mjs",
-      "currentLines": 353,
+      "currentLines": 70,
       "coveredLines": 0
     },
     {
       "path": "scripts/fetch-data.mjs",
-      "currentLines": 3198,
+      "currentLines": 3290,
       "coveredLines": 53
     },
     {
       "path": "scripts/fetch-sec-fundamentals.mjs",
-      "currentLines": 410,
+      "currentLines": 412,
       "coveredLines": 0
     },
     {
@@ -2267,7 +1986,7 @@
     },
     {
       "path": "scripts/fixtures/qa-gate-fixture.mjs",
-      "currentLines": 15,
+      "currentLines": 22,
       "coveredLines": 0
     },
     {
@@ -2292,12 +2011,12 @@
     },
     {
       "path": "scripts/qa-runner.mjs",
-      "currentLines": 371,
+      "currentLines": 392,
       "coveredLines": 0
     },
     {
       "path": "scripts/reconcile-13f-prior-from-history.mjs",
-      "currentLines": 216,
+      "currentLines": 212,
       "coveredLines": 0
     },
     {
@@ -2361,6 +2080,81 @@
       "coveredLines": 0
     },
     {
+      "path": "src/ai/analysis/registry.js",
+      "currentLines": 22,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/ai/evidence/graph.js",
+      "currentLines": 0,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/ai/operations/control-plane.js",
+      "currentLines": 0,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/ai/orchestrator/answer-orchestrator.js",
+      "currentLines": 101,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/ai/orchestrator/question-planner.js",
+      "currentLines": 102,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/ai/provider/adapter.js",
+      "currentLines": 0,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/ai/research/evidence.js",
+      "currentLines": 281,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/ai/research/plan.js",
+      "currentLines": 136,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/ai/response/claim-ledger.js",
+      "currentLines": 104,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/ai/response/envelope.js",
+      "currentLines": 0,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/ai/retrieval/knowledge.js",
+      "currentLines": 351,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/ai/time/market-session.js",
+      "currentLines": 156,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/ai/websearch/claims.js",
+      "currentLines": 0,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/app/knowledge-learning-state.js",
+      "currentLines": 8,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/app/router.js",
+      "currentLines": 236,
+      "coveredLines": 0
+    },
+    {
       "path": "src/data/contracts/market-snapshot.js",
       "currentLines": 142,
       "coveredLines": 0
@@ -2371,8 +2165,18 @@
       "coveredLines": 0
     },
     {
+      "path": "src/data/contracts/revision.js",
+      "currentLines": 0,
+      "coveredLines": 0
+    },
+    {
       "path": "src/data/knowledge/load-capabilities.js",
       "currentLines": 16,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/data/knowledge/repository.js",
+      "currentLines": 29,
       "coveredLines": 0
     },
     {
@@ -2381,8 +2185,98 @@
       "coveredLines": 0
     },
     {
-      "path": "src/legacy/market-snapshot-bridge.js",
+      "path": "src/data/normalize/entity.js",
       "currentLines": 49,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/data/normalize/themes.js",
+      "currentLines": 102,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/data/orchestrators/screener.js",
+      "currentLines": 155,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/data/providers/screener.js",
+      "currentLines": 395,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/data/providers/themes.js",
+      "currentLines": 185,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/data/quality/lineage.js",
+      "currentLines": 0,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/data/runtime-readers.js",
+      "currentLines": 484,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/domain/fundamental/sec-report.js",
+      "currentLines": 160,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/domain/knowledge/graph.js",
+      "currentLines": 148,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/domain/knowledge/learning-state.js",
+      "currentLines": 99,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/domain/news/scoring.js",
+      "currentLines": 121,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/domain/portfolio/surface.js",
+      "currentLines": 126,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/domain/screener/setup-profile.js",
+      "currentLines": 136,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/legacy/compatibility-facade.js",
+      "currentLines": 581,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/legacy/market-snapshot-bridge.js",
+      "currentLines": 52,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/platform/sanitizer.js",
+      "currentLines": 0,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/platform/telemetry.js",
+      "currentLines": 0,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/state/memoize.js",
+      "currentLines": 52,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/state/selectors/market.js",
+      "currentLines": 0,
       "coveredLines": 0
     },
     {
@@ -2392,12 +2286,12 @@
     },
     {
       "path": "src/ui/knowledge/learning-controls.js",
-      "currentLines": 42,
+      "currentLines": 61,
       "coveredLines": 0
     },
     {
       "path": "src/ui/knowledge/lesson.js",
-      "currentLines": 74,
+      "currentLines": 76,
       "coveredLines": 0
     },
     {
@@ -2412,22 +2306,22 @@
     },
     {
       "path": "src/ui/pages/analysis.js",
-      "currentLines": 404,
+      "currentLines": 407,
       "coveredLines": 0
     },
     {
       "path": "src/ui/pages/atlas.js",
-      "currentLines": 1696,
-      "coveredLines": 1523
+      "currentLines": 1694,
+      "coveredLines": 1521
     },
     {
       "path": "src/ui/pages/entity.js",
-      "currentLines": 607,
+      "currentLines": 624,
       "coveredLines": 0
     },
     {
       "path": "src/ui/pages/guide.js",
-      "currentLines": 130,
+      "currentLines": 146,
       "coveredLines": 0
     },
     {
@@ -2437,22 +2331,22 @@
     },
     {
       "path": "src/ui/pages/market.js",
-      "currentLines": 1083,
+      "currentLines": 1154,
       "coveredLines": 0
     },
     {
       "path": "src/ui/pages/masters.js",
-      "currentLines": 1271,
+      "currentLines": 1277,
       "coveredLines": 0
     },
     {
       "path": "src/ui/pages/news.js",
-      "currentLines": 342,
+      "currentLines": 343,
       "coveredLines": 0
     },
     {
       "path": "src/ui/pages/portfolio.js",
-      "currentLines": 397,
+      "currentLines": 367,
       "coveredLines": 17
     },
     {
@@ -2461,13 +2355,18 @@
       "coveredLines": 0
     },
     {
+      "path": "src/ui/pages/screener.js",
+      "currentLines": 1478,
+      "coveredLines": 0
+    },
+    {
       "path": "src/ui/pages/sentiment.js",
-      "currentLines": 313,
+      "currentLines": 322,
       "coveredLines": 0
     },
     {
       "path": "src/ui/pages/themes.js",
-      "currentLines": 1229,
+      "currentLines": 1149,
       "coveredLines": 0
     },
     {
@@ -2493,6 +2392,141 @@
     {
       "path": "worker/wrangler.proxy.toml",
       "currentLines": 25,
+      "coveredLines": 0
+    },
+    {
+      "path": "scripts/build-integrated-market-ai-framework-knowledge.mjs",
+      "currentLines": 115,
+      "coveredLines": 0
+    },
+    {
+      "path": "scripts/build-nathan-framework-knowledge.mjs",
+      "currentLines": 19,
+      "coveredLines": 0
+    },
+    {
+      "path": "scripts/ci-conditional-evidence-contract.mjs",
+      "currentLines": 87,
+      "coveredLines": 0
+    },
+    {
+      "path": "scripts/ci-integrated-framework-contract.mjs",
+      "currentLines": 41,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/domain/knowledge/integrated-market-ai-framework-pack.js",
+      "currentLines": 507,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/domain/knowledge/nathan-framework-pack.js",
+      "currentLines": 241,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/domain/research/nathan-previous-threads.js",
+      "currentLines": 795,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/domain/screener/conditional-evidence.js",
+      "currentLines": 258,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/domain/screener/evidence-lineage.js",
+      "currentLines": 97,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/ui/knowledge/integrated-framework-spine.js",
+      "currentLines": 90,
+      "coveredLines": 0
+    },
+    {
+      "path": "_artifacts/performance-hunt-20260906/hash-experiment.mjs",
+      "currentLines": 119,
+      "coveredLines": 0
+    },
+    {
+      "path": "scripts/ci-ai-analysis-evidence-check.mjs",
+      "currentLines": 45,
+      "coveredLines": 0
+    },
+    {
+      "path": "scripts/ci-ai-chat-analysis-integration-check.mjs",
+      "currentLines": 121,
+      "coveredLines": 0
+    },
+    {
+      "path": "scripts/ci-ai-premise-check.mjs",
+      "currentLines": 46,
+      "coveredLines": 0
+    },
+    {
+      "path": "scripts/ci-ai-provider-stream-check.mjs",
+      "currentLines": 78,
+      "coveredLines": 0
+    },
+    {
+      "path": "scripts/ci-ai-quote-evidence-check.mjs",
+      "currentLines": 162,
+      "coveredLines": 0
+    },
+    {
+      "path": "scripts/ci-chat-response-layout-browser-check.mjs",
+      "currentLines": 263,
+      "coveredLines": 0
+    },
+    {
+      "path": "scripts/ci-chat-ui-state-browser-check.mjs",
+      "currentLines": 86,
+      "coveredLines": 0
+    },
+    {
+      "path": "scripts/ci-user-journey-quality-check.mjs",
+      "currentLines": 66,
+      "coveredLines": 0
+    },
+    {
+      "path": "scripts/lib/knowledge-authoring-contract.mjs",
+      "currentLines": 230,
+      "coveredLines": 0
+    },
+    {
+      "path": "scripts/lib/masters-raw-rows.mjs",
+      "currentLines": 15,
+      "coveredLines": 0
+    },
+    {
+      "path": "scripts/performance-hunt.mjs",
+      "currentLines": 81,
+      "coveredLines": 0
+    },
+    {
+      "path": "scripts/recover-masters-holdings-from-shards.mjs",
+      "currentLines": 75,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/ai/analysis/evidence-inputs.js",
+      "currentLines": 72,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/ai/orchestrator/premise.js",
+      "currentLines": 73,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/domain/chart/contract.js",
+      "currentLines": 59,
+      "coveredLines": 0
+    },
+    {
+      "path": "src/domain/fundamental/period.js",
+      "currentLines": 24,
       "coveredLines": 0
     }
   ]

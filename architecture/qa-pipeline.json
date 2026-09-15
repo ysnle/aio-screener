@@ -23,10 +23,10 @@
       "workflow": ".github/workflows/refresh-screener.yml",
       "mode": "direct",
       "requiredScripts": [
+        "scripts/ci-screener-workbench-contract.mjs",
         "scripts/ci-source-registry-contract-check.mjs",
         "scripts/ci-professional-data-gap-check.mjs",
         "scripts/ci-static-data-contract-check.mjs",
-        "scripts/ci-data-refresh-audit.mjs",
         "scripts/ci-sec-runtime-projection-check.mjs"
       ],
       "requiredTokens": ["public-data/history.json"]
@@ -93,13 +93,13 @@
         { "id": "research-model", "script": "scripts/ci-research-model-contract-check.mjs" },
         { "id": "research-flow", "script": "scripts/ci-research-flow-contract-check.mjs" },
         { "id": "proxy-continuity", "script": "scripts/ci-proxy-continuity-check.mjs" },
-        { "id": "data-continuity", "script": "scripts/ci-data-continuity-check.mjs" },
+        { "id": "data-continuity", "script": "scripts/ci-data-continuity-check.mjs", "inputs": ["js/aio-data.js", "public-data/data.json", "public-data/history.json", "public-data/market-snapshot.json", "public-data/reconciliation-status.json", "public-data/screener.json", "public-data/structural-data-research.json", "public-data/telegram-digest.json", "public-config.json", ".github/workflows/refresh-data.yml", "scripts/fetch-data.mjs", "scripts/backtest-trading-score.mjs", "scripts/build-market-snapshot.mjs", "scripts/build-operations-status.mjs", "scripts/build-reconciliation-status.mjs", "scripts/lib/refresh-continuity.mjs", "scripts/lib/atomic-write.mjs", "src/ai/time/market-session.js", "src/data/contracts/market-snapshot.js", "src/data/contracts/operations.js", "src/data/contracts/reconciliation.js", "src/data/contracts/source-registry.js", "src/domain/signal/trading-score.js"] },
         { "id": "desktop-continuity", "script": "scripts/ci-desktop-continuity-check.mjs" },
         { "id": "chat-resilience", "script": "scripts/ci-chat-resilience-check.mjs" },
         { "id": "ai-provider-stream", "script": "scripts/ci-ai-provider-stream-check.mjs" },
         { "id": "storage-migration", "script": "scripts/ci-storage-migration-check.mjs" },
-        { "id": "release-manifest", "script": "scripts/ci-release-manifest-contract.mjs" },
-        { "id": "deployment-convergence", "script": "scripts/ci-deployment-convergence-check.mjs" },
+        { "id": "release-manifest", "script": "scripts/ci-release-manifest-contract.mjs", "inputs": ["architecture/asset-manifest.json", "version.json", "architecture/release-manifest.json", "public-data/market-snapshot.json", "sw.js"] },
+        { "id": "deployment-convergence", "script": "scripts/ci-deployment-convergence-check.mjs", "inputs": ["architecture/deployment-convergence.json", ".github/workflows/pages-deploy.yml", ".github/workflows/deploy-ai-proxy.yml", ".github/workflows/deploy-data-plane.yml", "cloudflare-worker-proxy.js", "worker/data-plane.js", "scripts/ci-external-pipeline-check.mjs", "scripts/ci-live-invariant-check.mjs", "scripts/build-operations-status.mjs"] },
         { "id": "retirement", "script": "scripts/ci-retirement-contract.mjs" },
         { "id": "inference", "script": "scripts/ci-inference-contract-check.mjs" },
         { "id": "csp", "script": "scripts/ci-csp-ratchet-check.mjs" },
@@ -119,8 +119,9 @@
       "inputs": ["public-data/**", "architecture/**", "scripts/**", "src/data/**", "src/domain/**", "src/state/**", "js/aio-data.js", "version.json"],
       "gates": [
         { "id": "screener-workbench", "script": "scripts/ci-screener-workbench-contract.mjs" },
+        { "id": "conditional-evidence", "script": "scripts/ci-conditional-evidence-contract.mjs" },
         { "id": "screener-benchmark", "script": "scripts/benchmark-screener-workbench.mjs", "args": ["--out", "{cacheDir}/screener-scale-benchmark.json"], "timeoutMs": 120000 },
-        { "id": "market-snapshot", "script": "scripts/ci-market-snapshot-contract-check.mjs" },
+        { "id": "market-snapshot", "script": "scripts/ci-market-snapshot-contract-check.mjs", "inputs": ["public-data/**", "architecture/**", "scripts/**", "src/data/**", "src/domain/**", "src/state/**", "js/aio-data.js", "version.json", "src/ai/time/market-session.js", "src/data/market-snapshot-loader.js", "src/legacy/market-snapshot-bridge.js", ".github/workflows/refresh-data.yml"] },
         { "id": "history-time", "script": "scripts/ci-history-field-time-contract-check.mjs" },
         { "id": "data-plane", "script": "scripts/ci-data-plane-contract-check.mjs" },
         { "id": "operations-status", "script": "scripts/ci-operations-status-check.mjs" },
@@ -129,15 +130,15 @@
         { "id": "reconciliation", "script": "scripts/ci-reconciliation-contract-check.mjs" },
         { "id": "source-registry", "script": "scripts/ci-source-registry-contract-check.mjs" },
         { "id": "professional-gap", "script": "scripts/ci-professional-data-gap-check.mjs" },
-        { "id": "operator-readiness", "script": "scripts/ci-operator-readiness-check.mjs" },
-        { "id": "data-lineage", "script": "scripts/ci-data-lineage-audit.mjs" },
+        { "id": "operator-readiness", "script": "scripts/ci-operator-readiness-check.mjs", "inputs": ["public-data/**", "architecture/**", "scripts/**", "src/data/**", "src/domain/**", "src/state/**", "js/aio-data.js", "version.json", "_headers"] },
+        { "id": "data-lineage", "script": "scripts/ci-data-lineage-audit.mjs", "inputs": ["public-data/**", "architecture/**", "scripts/**", "src/data/**", "src/domain/**", "src/state/**", "js/aio-data.js", "version.json", "src/ai/time/market-session.js"] },
         { "id": "sec-runtime-projection", "script": "scripts/ci-sec-runtime-projection-check.mjs" },
         { "id": "static-data", "script": "scripts/ci-static-data-contract-check.mjs" },
-        { "id": "data-refresh", "script": "scripts/ci-data-refresh-audit.mjs" },
+        { "id": "data-refresh", "script": "scripts/ci-data-refresh-audit.mjs", "inputs": ["public-data/**", "architecture/**", "scripts/**", "src/data/**", "src/domain/**", "src/state/**", "js/aio-data.js", "version.json", "index.html"] },
         { "id": "refresh-integrity", "script": "scripts/ci-refresh-artifact-integrity-check.mjs" },
-        { "id": "release-revision", "script": "scripts/ci-release-revision-check.mjs" },
+        { "id": "release-revision", "script": "scripts/ci-release-revision-check.mjs", "inputs": ["public-data/**", "architecture/**", "scripts/**", "src/data/**", "src/domain/**", "src/state/**", "js/aio-data.js", "version.json", "index.html", "js/aio-core.js", "sw.js", "public-artifact-manifest.json", "public-config.json", ".github/workflows/pages-deploy.yml"] },
         { "id": "release-generated-parity", "script": "scripts/ci-generated-release-parity-check.mjs" }
-        ,{ "id": "13f-currentness", "script": "scripts/ci-13f-currentness-check.mjs" }
+         ,{ "id": "13f-currentness", "script": "scripts/ci-13f-currentness-check.mjs", "inputs": ["public-data/**", "architecture/**", "scripts/**", "src/data/**", "src/domain/**", "src/state/**", "js/aio-data.js", "version.json", "index.html", ".github/workflows/refresh-data.yml"] }
       ]
     },
     "knowledge": {
@@ -146,6 +147,7 @@
       "inputs": ["public-data/knowledge/**", "public-data/principles/**", "public-data/atlas/**", "public-data/masters/**", "src/domain/knowledge/**", "src/ui/pages/principles.js", "src/ui/pages/atlas.js", "src/ui/pages/masters.js", "src/ui/knowledge/**", "scripts/**", "_context/**"],
       "gates": [
         { "id": "knowledge-generated-parity", "script": "scripts/ci-knowledge-generated-parity-check.mjs", "timeoutMs": 180000 },
+        { "id": "integrated-framework", "script": "scripts/ci-integrated-framework-contract.mjs" },
         { "id": "knowledge-ontology", "script": "scripts/ci-knowledge-ontology-contract.mjs" },
         { "id": "knowledge-core", "script": "scripts/ci-knowledge-core-semantic-check.mjs" },
         { "id": "knowledge-articles", "script": "scripts/ci-knowledge-article-contract.mjs" },
@@ -283,7 +285,10 @@
     }
   },
   "impactRules": [
+    { "patterns": ["version.json"], "groups": ["core"] },
     { "patterns": ["AGENTS.md", "CLAUDE.md", ".agents/**", ".claude/**", ".codex/**", ".github/**", "_context/**", "architecture/qa-pipeline.json", "architecture/agent-profiles.json", "architecture/skill-eval-cases.json"], "groups": ["workspace"] },
+    { "patterns": [".github/workflows/refresh-data.yml"], "groups": ["core", "data"] },
+    { "patterns": [".github/workflows/pages-deploy.yml", ".github/workflows/deploy-ai-proxy.yml", ".github/workflows/deploy-data-plane.yml", "cloudflare-worker-proxy.js", "worker/data-plane.js", "architecture/deployment-convergence.json"], "groups": ["core", "cloudflare"] },
     { "patterns": ["public-data/knowledge/**", "public-data/principles/**", "public-data/atlas/**", "public-data/masters/**", "src/domain/knowledge/**", "src/ui/pages/principles.js", "src/ui/pages/atlas.js", "src/ui/pages/masters.js", "src/ui/knowledge/**"], "groups": ["knowledge", "browser-knowledge", "browser-unit", "browser-viewport"] },
     { "patterns": ["public-data/**", "scripts/fetch-*.mjs", "scripts/sync-*.mjs", "src/data/**", "src/domain/**", "src/state/**", "js/aio-data.js"], "groups": ["data", "core", "browser-unit", "browser-runtime"] },
     { "patterns": ["index.html", "js/**", "src/app/**", "src/ui/**", "src/ai/**", "src/platform/**", "src/storage/**", "src/legacy/**", "scripts/start-local-node.mjs", "scripts/desktop-qa-config.mjs", "sw.js", "public-config.json"], "groups": ["core", "browser-unit", "browser-runtime", "browser-resilience", "browser-viewport", "browser-surface"] },
@@ -294,6 +299,7 @@
     { "patterns": ["scripts/*worker*.mjs", "scripts/*cloudflare*.mjs", "scripts/*data-plane*.mjs"], "groups": ["cloudflare"] },
     { "patterns": ["scripts/*workspace*.mjs", "scripts/*skill*.mjs", "scripts/*agent*.mjs", "scripts/*workflow*.mjs", "scripts/*doc*.mjs", "scripts/*header-policy*.mjs", "architecture/agent-profiles.json", "architecture/skill-eval-cases.json"], "groups": ["workspace"] },
     { "patterns": ["scripts/**"], "groups": ["core"] },
-    { "patterns": ["architecture/**"], "groups": ["core", "data"] }
+    { "patterns": ["architecture/**"], "groups": ["core", "data"] },
+    { "patterns": ["index.html", "js/aio-core.js", "sw.js", "public-config.json", "public-artifact-manifest.json", ".github/workflows/pages-deploy.yml", "_headers", "src/ai/time/market-session.js", "src/legacy/market-snapshot-bridge.js"], "groups": ["data"] }
   ]
 }

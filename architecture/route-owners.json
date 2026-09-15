@@ -65,7 +65,7 @@
         "js/aio-data.js: refreshHomeDashboard #home-trading-signal writer is fenced by _aioIsNativeHomeSummaryElement",
         "P1010 DELETE-LEDGER: _aioRenderHomeHero, its callers/export, and legacy Fear & Greed score/label writers removed"
       ],
-      "p787Boundary": "analysis.js owns the four home score/decision summary sinks from trading-score.v2/signal-presentation.v1. Quality meter, Fear & Greed, market regime, factor detail, chart, and narrative remain legacy secondary boundaries.",
+      "p787Boundary": "analysis.js owns the four home score/decision summary sinks from trading-score.v3/signal-presentation.v1. Quality meter, Fear & Greed, market regime, factor detail, chart, and narrative remain legacy secondary boundaries.",
       "p820Boundary": "P1010: analysis.js owns both home Fear & Greed score and label from the same normalized sentiment slice; legacy writers are removed.",
       "p821Boundary": "analysis.js owns the complete home quality meter surface and fails closed until canonical five-input quality evidence exists; the legacy trading-score-as-quality writer is fenced.",
       "notes": "P1010: score components now derive from signal-presentation.v1 with null-preserving weights; the duplicate legacy home hero is retired. Market regime, charts and other narratives remain compatibility boundaries. No full-native completion claim."
@@ -87,7 +87,7 @@
       "legacyWriterEvidence": [
         "index.html:refreshSignalDashboard score-gauge-val/score-decision-badge/score-decision-sub writers are fenced by _aioIsNativeSignalHero()"
       ],
-      "p786Boundary": "analysis.js owns the score display and five-tier decision text from trading-score.v2/signal-presentation.v1. Score timestamp, canvas, factor bars, execution window, risk monitor, and narrative remain legacy secondary boundaries.",
+      "p786Boundary": "analysis.js owns the score display and five-tier decision text from trading-score.v3/signal-presentation.v1. Score timestamp, canvas, factor bars, execution window, risk monitor, and narrative remain legacy secondary boundaries.",
       "notes": "The signal hero is native; legacy refreshSignalDashboard remains responsible for secondary signal widgets and is explicitly fenced from the three primary decision sinks. Home summary has separate ownership and is not remapped by this packet."
     },
     "breadth": {

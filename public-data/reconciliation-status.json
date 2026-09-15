@@ -1,6 +1,6 @@
 {
   "schemaVersion": "reconciliation-status-v2",
-  "generatedAt": "2026-09-15T00:58:08.392Z",
+  "generatedAt": "2026-09-15T01:46:04.136Z",
   "revision": "reconciliation:market-snapshot:2026-09-15T00:58:01.529Z:ebc8a78f:1fb23785",
   "overall": "PARTIAL",
   "counts": {
@@ -15,7 +15,7 @@
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: independent-provider-reconciliation.",
       "marketSnapshotRevision": "market-snapshot:2026-09-15T00:58:01.529Z:ebc8a78f",
-      "checkedAt": "2026-09-15T00:58:08.392Z",
+      "checkedAt": "2026-09-15T01:46:04.136Z",
       "refresh": {
         "cadence": "30m",
         "mode": "scheduled",
@@ -103,7 +103,7 @@
       "sourceClass": "OBSERVED",
       "reason": "All executable source, freshness, and scope checks passed.",
       "marketSnapshotRevision": "market-snapshot:2026-09-15T00:58:01.529Z:ebc8a78f",
-      "checkedAt": "2026-09-15T00:58:08.392Z",
+      "checkedAt": "2026-09-15T01:46:04.136Z",
       "refresh": {
         "cadence": "30m",
         "mode": "scheduled",
@@ -176,7 +176,7 @@
       "sourceClass": "OBSERVED",
       "reason": "All executable source, freshness, and scope checks passed.",
       "marketSnapshotRevision": "market-snapshot:2026-09-15T00:58:01.529Z:ebc8a78f",
-      "checkedAt": "2026-09-15T00:58:08.392Z",
+      "checkedAt": "2026-09-15T01:46:04.136Z",
       "refresh": {
         "cadence": "30m",
         "mode": "scheduled",
@@ -249,7 +249,7 @@
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: daily-observation-current.",
       "marketSnapshotRevision": "market-snapshot:2026-09-15T00:58:01.529Z:ebc8a78f",
-      "checkedAt": "2026-09-15T00:58:08.392Z",
+      "checkedAt": "2026-09-15T01:46:04.136Z",
       "refresh": {
         "cadence": "daily",
         "mode": "scheduled",
@@ -268,7 +268,7 @@
         {
           "id": "cboe-daily-statistics",
           "authority": "official-exchange",
-          "sourceKind": "official-primary",
+          "sourceKind": "T1_OFFICIAL",
           "access": "public-web-terms-apply",
           "url": "https://www.cboe.com/us/options/market_statistics/daily/",
           "fields": [
@@ -317,7 +317,7 @@
       "sourceClass": "PARTIAL",
       "reason": "Public AAII observation is available but rights keep it reference-only. Missing: redistribution-rights-for-trading.",
       "marketSnapshotRevision": "market-snapshot:2026-09-15T00:58:01.529Z:ebc8a78f",
-      "checkedAt": "2026-09-15T00:58:08.392Z",
+      "checkedAt": "2026-09-15T01:46:04.136Z",
       "refresh": {
         "cadence": "weekly",
         "mode": "scheduled",
@@ -399,7 +399,7 @@
       "sourceClass": "PARTIAL",
       "reason": "Last public NAAIM observation is available, but it is stale/reference-only. Missing: current-freshness, redistribution-rights-for-trading.",
       "marketSnapshotRevision": "market-snapshot:2026-09-15T00:58:01.529Z:ebc8a78f",
-      "checkedAt": "2026-09-15T00:58:08.392Z",
+      "checkedAt": "2026-09-15T01:46:04.136Z",
       "refresh": {
         "cadence": "weekly",
         "mode": "operator-web-research",
@@ -469,7 +469,7 @@
       "sourceClass": "UNAVAILABLE",
       "reason": "Subscriber Investors Intelligence data is unavailable and must not be synthesized. Missing: subscriber-current.",
       "marketSnapshotRevision": "market-snapshot:2026-09-15T00:58:01.529Z:ebc8a78f",
-      "checkedAt": "2026-09-15T00:58:08.392Z",
+      "checkedAt": "2026-09-15T01:46:04.136Z",
       "refresh": {
         "cadence": "weekly",
         "mode": "operator",
@@ -525,7 +525,7 @@
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: official-exchange-breadth.",
       "marketSnapshotRevision": "market-snapshot:2026-09-15T00:58:01.529Z:ebc8a78f",
-      "checkedAt": "2026-09-15T00:58:08.392Z",
+      "checkedAt": "2026-09-15T01:46:04.136Z",
       "refresh": {
         "cadence": "6h",
         "mode": "derived",
@@ -600,7 +600,7 @@
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: official-kr-exchange-breadth.",
       "marketSnapshotRevision": "market-snapshot:2026-09-15T00:58:01.529Z:ebc8a78f",
-      "checkedAt": "2026-09-15T00:58:08.392Z",
+      "checkedAt": "2026-09-15T01:46:04.136Z",
       "refresh": {
         "cadence": "6h",
         "mode": "derived",
@@ -634,7 +634,7 @@
         {
           "id": "krx-market-data",
           "authority": "official-exchange",
-          "sourceKind": "official-primary",
+          "sourceKind": "T1_OFFICIAL",
           "access": "operator-rights-required",
           "url": "https://data.krx.co.kr/",
           "fields": [
@@ -685,7 +685,7 @@
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: mcclellan-advance-decline-source.",
       "marketSnapshotRevision": "market-snapshot:2026-09-15T00:58:01.529Z:ebc8a78f",
-      "checkedAt": "2026-09-15T00:58:08.392Z",
+      "checkedAt": "2026-09-15T01:46:04.136Z",
       "refresh": {
         "cadence": "6h",
         "mode": "derived",
@@ -751,7 +751,7 @@
       "sourceClass": "OBSERVED",
       "reason": "All executable source, freshness, and scope checks passed.",
       "marketSnapshotRevision": "market-snapshot:2026-09-15T00:58:01.529Z:ebc8a78f",
-      "checkedAt": "2026-09-15T00:58:08.392Z",
+      "checkedAt": "2026-09-15T01:46:04.136Z",
       "refresh": {
         "cadence": "daily",
         "mode": "scheduled",
@@ -771,7 +771,7 @@
         {
           "id": "us-treasury-daily-par-curve",
           "authority": "official-government",
-          "sourceKind": "official-primary",
+          "sourceKind": "T1_OFFICIAL",
           "access": "public-web",
           "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve",
           "fields": [
@@ -786,7 +786,7 @@
         {
           "id": "fred-h15-treasury",
           "authority": "official-government-relay",
-          "sourceKind": "official-primary",
+          "sourceKind": "T1_OFFICIAL",
           "access": "api-key",
           "url": "https://fred.stlouisfed.org/docs/api/fred/series_observations.html",
           "fields": [
@@ -858,7 +858,7 @@
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: fred-source-identified, independent-spread-reconciliation.",
       "marketSnapshotRevision": "market-snapshot:2026-09-15T00:58:01.529Z:ebc8a78f",
-      "checkedAt": "2026-09-15T00:58:08.392Z",
+      "checkedAt": "2026-09-15T01:46:04.136Z",
       "refresh": {
         "cadence": "daily",
         "mode": "scheduled",
@@ -877,7 +877,7 @@
         {
           "id": "fred-baml-hy-oas",
           "authority": "official-government-relay",
-          "sourceKind": "official-primary",
+          "sourceKind": "T1_OFFICIAL",
           "access": "api-key",
           "url": "https://fred.stlouisfed.org/series/BAMLH0A0HYM2",
           "fields": [
@@ -887,7 +887,7 @@
         {
           "id": "fred-baml-hy-oas-public-csv",
           "authority": "official-government-relay",
-          "sourceKind": "official-primary",
+          "sourceKind": "T1_OFFICIAL",
           "access": "public-download",
           "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=BAMLH0A0HYM2",
           "fields": [
@@ -938,7 +938,7 @@
       "sourceClass": "OBSERVED",
       "reason": "All executable source, freshness, and scope checks passed.",
       "marketSnapshotRevision": "market-snapshot:2026-09-15T00:58:01.529Z:ebc8a78f",
-      "checkedAt": "2026-09-15T00:58:08.392Z",
+      "checkedAt": "2026-09-15T01:46:04.136Z",
       "refresh": {
         "cadence": "release",
         "mode": "scheduled",
@@ -957,7 +957,7 @@
         {
           "id": "bls-public-data",
           "authority": "official-government",
-          "sourceKind": "official-primary",
+          "sourceKind": "T1_OFFICIAL",
           "access": "public-api",
           "url": "https://www.bls.gov/bls/api_features.htm",
           "fields": [
@@ -968,7 +968,7 @@
         {
           "id": "bea-nipa-api",
           "authority": "official-government",
-          "sourceKind": "official-primary",
+          "sourceKind": "T1_OFFICIAL",
           "access": "public-api",
           "url": "https://apps.bea.gov/api/",
           "fields": [
@@ -979,7 +979,7 @@
         {
           "id": "fred-macro-relay",
           "authority": "official-government-relay",
-          "sourceKind": "official-primary",
+          "sourceKind": "T1_OFFICIAL",
           "access": "api-key",
           "url": "https://fred.stlouisfed.org/docs/api/fred/series_observations.html",
           "fields": [
@@ -1022,7 +1022,7 @@
       "sourceClass": "OBSERVED",
       "reason": "All executable source, freshness, and scope checks passed.",
       "marketSnapshotRevision": "market-snapshot:2026-09-15T00:58:01.529Z:ebc8a78f",
-      "checkedAt": "2026-09-15T00:58:08.392Z",
+      "checkedAt": "2026-09-15T01:46:04.136Z",
       "refresh": {
         "cadence": "release",
         "mode": "scheduled",
@@ -1040,7 +1040,7 @@
         {
           "id": "bls-public-data",
           "authority": "official-government",
-          "sourceKind": "official-primary",
+          "sourceKind": "T1_OFFICIAL",
           "access": "public-api",
           "url": "https://www.bls.gov/bls/api_features.htm",
           "fields": [
@@ -1090,7 +1090,7 @@
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: release-aware-ism.",
       "marketSnapshotRevision": "market-snapshot:2026-09-15T00:58:01.529Z:ebc8a78f",
-      "checkedAt": "2026-09-15T00:58:08.392Z",
+      "checkedAt": "2026-09-15T01:46:04.136Z",
       "refresh": {
         "cadence": "release",
         "mode": "scheduled",
@@ -1108,7 +1108,7 @@
         {
           "id": "fred-retail-housing",
           "authority": "official-government-relay",
-          "sourceKind": "official-primary",
+          "sourceKind": "T1_OFFICIAL",
           "access": "api-key",
           "url": "https://fred.stlouisfed.org/docs/api/fred/series_observations.html",
           "fields": [
@@ -1171,7 +1171,7 @@
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: multi-central-bank-current-registry.",
       "marketSnapshotRevision": "market-snapshot:2026-09-15T00:58:01.529Z:ebc8a78f",
-      "checkedAt": "2026-09-15T00:58:08.392Z",
+      "checkedAt": "2026-09-15T01:46:04.136Z",
       "refresh": {
         "cadence": "daily-audit/event-refresh",
         "mode": "scheduled-and-operator",
@@ -1190,7 +1190,7 @@
         {
           "id": "fred-fedfunds",
           "authority": "official-government-relay",
-          "sourceKind": "official-primary",
+          "sourceKind": "T1_OFFICIAL",
           "access": "api-key",
           "url": "https://fred.stlouisfed.org/series/FEDFUNDS",
           "fields": [
@@ -1200,7 +1200,7 @@
         {
           "id": "federal-reserve-fomc",
           "authority": "official-central-bank",
-          "sourceKind": "official-primary",
+          "sourceKind": "T1_OFFICIAL",
           "access": "public-web",
           "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
           "fields": [
@@ -1210,7 +1210,7 @@
         {
           "id": "bok-ecb-boj-boe",
           "authority": "official-central-banks",
-          "sourceKind": "official-primary",
+          "sourceKind": "T1_OFFICIAL",
           "access": "partially-configured",
           "url": "https://www.bis.org/cbanks.htm",
           "fields": [
@@ -1257,7 +1257,7 @@
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: multi-agency-release-aware-calendar.",
       "marketSnapshotRevision": "market-snapshot:2026-09-15T00:58:01.529Z:ebc8a78f",
-      "checkedAt": "2026-09-15T00:58:08.392Z",
+      "checkedAt": "2026-09-15T01:46:04.136Z",
       "refresh": {
         "cadence": "daily-audit/event-refresh",
         "mode": "scheduled-and-static-registry",
@@ -1276,7 +1276,7 @@
         {
           "id": "fomc-calendar",
           "authority": "official-central-bank",
-          "sourceKind": "official-primary",
+          "sourceKind": "T1_OFFICIAL",
           "access": "public-web",
           "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
           "fields": [
@@ -1286,7 +1286,7 @@
         {
           "id": "bls-release-calendar",
           "authority": "official-government",
-          "sourceKind": "official-primary",
+          "sourceKind": "T1_OFFICIAL",
           "access": "public-web",
           "url": "https://www.bls.gov/schedule/",
           "fields": [
@@ -1297,7 +1297,7 @@
         {
           "id": "bea-release-schedule",
           "authority": "official-government",
-          "sourceKind": "official-primary",
+          "sourceKind": "T1_OFFICIAL",
           "access": "public-web",
           "url": "https://www.bea.gov/news/schedule",
           "fields": [
@@ -1342,7 +1342,7 @@
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: full-content-evidence.",
       "marketSnapshotRevision": "market-snapshot:2026-09-15T00:58:01.529Z:ebc8a78f",
-      "checkedAt": "2026-09-15T00:58:08.392Z",
+      "checkedAt": "2026-09-15T01:46:04.136Z",
       "refresh": {
         "cadence": "30m",
         "mode": "scheduled",
@@ -1430,7 +1430,7 @@
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: settlement-vs-spot-contract.",
       "marketSnapshotRevision": "market-snapshot:2026-09-15T00:58:01.529Z:ebc8a78f",
-      "checkedAt": "2026-09-15T00:58:08.392Z",
+      "checkedAt": "2026-09-15T01:46:04.136Z",
       "refresh": {
         "cadence": "30m",
         "mode": "scheduled",
@@ -1507,7 +1507,7 @@
       "sourceClass": "PARTIAL",
       "reason": "Some executable checks passed, but the category is not fully reconciled. Missing: non-us-major-indices-current.",
       "marketSnapshotRevision": "market-snapshot:2026-09-15T00:58:01.529Z:ebc8a78f",
-      "checkedAt": "2026-09-15T00:58:08.392Z",
+      "checkedAt": "2026-09-15T01:46:04.136Z",
       "refresh": {
         "cadence": "30m",
         "mode": "scheduled",
@@ -1579,7 +1579,7 @@
       "sourceClass": "OBSERVED",
       "reason": "All executable source, freshness, and scope checks passed.",
       "marketSnapshotRevision": "market-snapshot:2026-09-15T00:58:01.529Z:ebc8a78f",
-      "checkedAt": "2026-09-15T00:58:08.392Z",
+      "checkedAt": "2026-09-15T01:46:04.136Z",
       "refresh": {
         "cadence": "30m",
         "mode": "scheduled",
@@ -1662,7 +1662,7 @@
       "sourceClass": "UNAVAILABLE",
       "reason": "Korean licensed market data cannot be promoted without provider rights. Missing: approved-krx-koscom-rights.",
       "marketSnapshotRevision": "market-snapshot:2026-09-15T00:58:01.529Z:ebc8a78f",
-      "checkedAt": "2026-09-15T00:58:08.392Z",
+      "checkedAt": "2026-09-15T01:46:04.136Z",
       "refresh": {
         "cadence": "daily",
         "mode": "operator-and-browser",
@@ -1681,7 +1681,7 @@
         {
           "id": "bok-ecos",
           "authority": "official-central-bank",
-          "sourceKind": "official-primary",
+          "sourceKind": "T1_OFFICIAL",
           "access": "api-key-or-public",
           "url": "https://ecos.bok.or.kr/api/",
           "fields": [
@@ -1693,7 +1693,7 @@
         {
           "id": "kosis",
           "authority": "official-government",
-          "sourceKind": "official-primary",
+          "sourceKind": "T1_OFFICIAL",
           "access": "api-key-or-public",
           "url": "https://kosis.kr/openapi/",
           "fields": [
@@ -1703,7 +1703,7 @@
         {
           "id": "krx-koscom",
           "authority": "official-exchange",
-          "sourceKind": "official-primary",
+          "sourceKind": "T1_OFFICIAL",
           "access": "operator-rights-required",
           "url": "https://data.krx.co.kr/",
           "fields": [

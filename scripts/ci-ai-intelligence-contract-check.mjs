@@ -152,6 +152,45 @@ check('routing-corpus-evaluation', corpus.accuracy === 1 && corpus.total === cas
 const conceptPlan = createQuestionPlan({ query: 'What is a bond yield?', route: 'macro', now: '2026-07-28T12:00:00Z' });
 check('research-concept-does-not-force-search', conceptPlan.researchDecision?.requirement === 'NOT_NEEDED' && conceptPlan.researchPlan?.subQueries?.length === 0);
 check('research-concept-contract', validateResearchDecision(conceptPlan.researchDecision).ok && validateResearchPlan(conceptPlan.researchPlan).ok);
+const companyPlan = createQuestionPlan({ query: 'NVDA 현재 어때?', route: 'home', now: '2026-07-28T12:00:00Z' });
+const companyQueries = companyPlan.researchPlan?.subQueries || [];
+check('company research source policy separates official primary from aggregators', companyPlan.researchDecision?.sourcePolicyId === 'company-primary'
+  && companyQueries.length > 0
+  && companyQueries.every((query) => query.sourcePolicyId === 'company-primary'
+    && query.sourcePolicy?.primary?.tier === 'T1_OFFICIAL'
+    && query.sourcePolicy?.primary?.purpose === 'sec-filing-or-issuer-ir-announcement'
+    && query.sourcePolicy.primary.domains.includes('sec.gov')
+    && !query.sourcePolicy.primary.domains.includes('investors.com')
+    && !query.sourcePolicy.primary.domains.includes('nasdaq.com')
+    && query.sourcePolicy.secondary?.tier === 'T3_PUBLIC_DELAYED'
+    && query.sourcePolicy.secondary.domains.includes('investors.com')
+    && query.sourcePolicy.secondary.domains.includes('nasdaq.com')));
+check('company research plan validates source tier policy', validateResearchPlan(companyPlan.researchPlan).ok);
+const unverifiedIssuerPlan = createResearchPlan({
+  questionPlan: companyPlan,
+  decision: companyPlan.researchDecision,
+  now: '2026-07-28T12:00:00Z',
+  issuerRegistry: { NVDA: { verified: false, verification: 'user-supplied', issuerIrDomains: ['ir.evil.example'] } }
+});
+const verifiedIssuerPlan = createResearchPlan({
+  questionPlan: companyPlan,
+  decision: companyPlan.researchDecision,
+  now: '2026-07-28T12:00:00Z',
+  issuerRegistry: { NVDA: { verified: true, verification: 'sec-registrant-issuer-ir', issuerIrDomains: ['https://investor.nvidia.com/news'] } }
+});
+check('company IR domain requires verified issuer registry',
+  unverifiedIssuerPlan.subQueries.every((query) => !query.sourcePolicy.primary.domains.includes('ir.evil.example'))
+  && verifiedIssuerPlan.subQueries.every((query) => query.sourcePolicy.primary.domains.includes('investor.nvidia.com')
+    && query.sourcePolicy.primary.verifiedIssuerDomains.includes('investor.nvidia.com')
+    && query.sourcePolicy.primary.issuerRegistryVerification === 'sec-registrant-issuer-ir')
+  && validateResearchPlan(verifiedIssuerPlan).ok);
+const newsPlan = createQuestionPlan({ query: '지난 FOMC 요약', route: 'market-news', now: '2026-07-28T12:00:00Z' });
+check('news policy allows secondary context without inventing a primary floor',
+  newsPlan.researchPlan?.subQueries?.every((query) => query.primaryRequired === false
+    && query.sourcePolicy.primary.domains.length === 0
+    && query.sourcePolicy.secondary.domains.length > 0
+    && query.sourcePolicy.secondary.purpose === 'independent-news-report')
+  && validateResearchPlan(newsPlan.researchPlan).ok);
 const causalPlan = createQuestionPlan({ query: 'Why did semiconductor stocks fall today?', route: 'home', now: '2026-07-28T12:00:00Z' });
 check('research-causal-is-required', causalPlan.researchDecision?.requirement === 'REQUIRED' && causalPlan.researchDecision.causalSensitive === true && causalPlan.researchPlan.subQueries.length >= 2);
 check('research-causal-tool-is-required', causalPlan.requiredTools.includes('web-research'));
@@ -268,9 +307,28 @@ const knowledgeSourceLessons = new Map([
   ...JSON.parse(read('public-data/principles/lesson-library.json')).lessons.map((lesson) => [`principles:${lesson.id}`, lesson]),
   ...JSON.parse(read('public-data/atlas/foundation-lessons.json')).lessons.map((lesson) => [`atlas-foundations:${lesson.id}`, lesson])
 ]);
-check('knowledge-index-has-full-parity-and-provenance', publishedKnowledgeIndex.schemaVersion === 'ai-knowledge-retrieval-index.v1' && publishedKnowledgeIndex.articles.length === knowledgeSourceLessons.size && publishedKnowledgeIndex.counts.withRouteTargets === knowledgeSourceLessons.size && publishedKnowledgeIndex.articles.every((article) => article.route?.deepLink && article.authoringStatus && article.publication));
+const nathanFrameworkArticles = new Map(JSON.parse(read('public-data/knowledge/nathan-frameworks.json')).articles.map((article) => [article.articleId, article]));
+const integratedFrameworkArticles = new Map(JSON.parse(read('public-data/knowledge/integrated-market-ai-frameworks.json')).articles.map((article) => [article.articleId, article]));
+const expectedKnowledgeArticleCount = knowledgeSourceLessons.size + nathanFrameworkArticles.size + integratedFrameworkArticles.size;
+check('knowledge-index-has-full-parity-and-provenance', publishedKnowledgeIndex.schemaVersion === 'ai-knowledge-retrieval-index.v1' && publishedKnowledgeIndex.articles.length === expectedKnowledgeArticleCount && publishedKnowledgeIndex.counts.withRouteTargets === expectedKnowledgeArticleCount && publishedKnowledgeIndex.articles.every((article) => article.route?.deepLink && article.authoringStatus && article.publication));
 check('knowledge-concept-links-match-explicit-source-not-word-overlap', publishedKnowledgeIndex.articles.every((article) => {
   const lesson = knowledgeSourceLessons.get(article.articleId);
+  const framework = nathanFrameworkArticles.get(article.articleId);
+  const integrated = integratedFrameworkArticles.get(article.articleId);
+  if (framework) {
+    return article.surface === 'nathan-frameworks'
+      && JSON.stringify(article.conceptIds) === JSON.stringify([...new Set(framework.conceptIds || [])])
+      && article.conceptLinkStatus === 'SOURCE_LINK'
+      && article.candidateConceptStatus === 'NOT_APPLICABLE'
+      && article.sources.length === 0;
+  }
+  if (integrated) {
+    return article.surface === 'integrated-frameworks'
+      && JSON.stringify(article.conceptIds) === JSON.stringify([...new Set(integrated.conceptIds || [])])
+      && article.conceptLinkStatus === 'SOURCE_LINK'
+      && article.candidateConceptStatus === 'NOT_APPLICABLE'
+      && article.sources.length === 0;
+  }
   if (!lesson) return false;
   const surface = article.surface === 'principles' ? 'principles' : 'atlas';
   const expected = [...new Set([...(lesson.nodeIds || []), ...(lesson.relatedAtlasNodeIds || [])])].map((id) => `${surface}:${id}`);

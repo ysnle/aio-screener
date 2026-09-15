@@ -115,10 +115,9 @@
     var r3 = _calcDailyReturns([100]);
     _assert('T3 원소 1개 → 빈 수익률', r3.length === 0);
 
-    // T4: null/NaN 포함 → 필터링
+    // T4: null/NaN은 관측 단절이므로 양 끝을 한 기간 수익률로 연결하지 않음
     var r4 = _calcDailyReturns([100, null, null, 110]);
-    _assert('T4 null 필터 후 수익률 1건', r4.length === 1);
-    _assertApprox('T4 수익률 값', r4[0], 0.1);
+    _assert('T4 null 관측 단절 → 연결 수익률 없음', r4.length === 0);
 
     // T5: 선형 상승 — n개 가격 → n-1개 수익률
     var r5 = _calcDailyReturns(_prices50);
@@ -129,10 +128,9 @@
     var r6 = _calcDailyReturns(_pricesFlat);
     _assert('T6 동일 가격 → 0 수익률', r6.every(function(v){ return v === 0; }));
 
-    // T7: 음수 가격 제거 (방어)
+    // T7: 음수 가격은 관측 단절로 취급해 이후 값과 연결하지 않음
     var r7 = _calcDailyReturns([100, -5, 110]);
-    _assert('T7 음수 가격 필터', r7.length === 1);
-    _assertApprox('T7 값', r7[0], 0.1);
+    _assert('T7 음수 가격 단절 → 연결 수익률 없음', r7.length === 0);
   }
 
   // ══════════════════════════════════════════════════════════════════════
@@ -207,6 +205,9 @@
     for (var m = 0; m < 60; m++) highRets.push(m % 2 === 0 ? 0.02 : 0.01);
     var sh = _calcSharpe(highRets, 0.043);
     _assert('T22 양수 초과수익 → 양수 Sharpe', sh !== null && sh > 0, 'got=' + sh);
+
+    // T22b: RF를 임의로 발명하지 않음
+    _assertNull('T22b RF 누락 → Sharpe null', _calcSharpe(highRets));
 
     // T23: 마이너스 초과수익 → 음수 Sharpe
     var lowRets = _makeConstReturns(-0.005, 30);
@@ -3836,9 +3837,15 @@
       'chatFresh=' + !!chatFreshSrc703);
 
     var tickerFetchSrc704 = (typeof _fetchTickerDataForChat === 'function') ? _fetchTickerDataForChat.toString() : '';
+    // P626-style contract hardening: the call was reformatted from a one-line
+    // object literal to a multiline options object. Assert the meaning of the
+    // force-fresh path with whitespace-tolerant source checks instead of
+    // coupling the regression gate to formatting.
+    var tickerForceFresh704 = /dynamicTickerLookup\(\s*t\s*,\s*\{\s*forceFresh\s*:\s*_forceQuoteLookup/.test(tickerFetchSrc704);
+    var tickerAnswerReason704 = /opts\.reason\s*===\s*['"]chat-answer['"]/.test(tickerFetchSrc704);
     _assert('T704 chat_ticker_cache_bypass_v49104: ticker data block can bypass 5m cache for AI answers',
-      tickerFetchSrc704.indexOf('opts') >= 0 && tickerFetchSrc704.indexOf('_bypassChatTickerCache') >= 0 && tickerFetchSrc704.indexOf('_forceQuoteLookup') >= 0 && tickerFetchSrc704.indexOf('dynamicTickerLookup(t, { forceFresh') >= 0 && tickerFetchSrc704.indexOf('chat-answer') >= 0,
-      'tickerFetchOpts=' + (tickerFetchSrc704.indexOf('opts') >= 0));
+      tickerFetchSrc704.indexOf('opts') >= 0 && tickerFetchSrc704.indexOf('_bypassChatTickerCache') >= 0 && tickerFetchSrc704.indexOf('_forceQuoteLookup') >= 0 && tickerForceFresh704 && tickerAnswerReason704,
+      'tickerFetchOpts=' + (tickerFetchSrc704.indexOf('opts') >= 0) + ' forceFresh=' + tickerForceFresh704 + ' chatAnswerReason=' + tickerAnswerReason704);
 
     var chatSendSrc705 = (typeof chatSend === 'function') ? chatSend.toString() : '';
     var unifiedSrc705 = (typeof chatSendUnified === 'function') ? chatSendUnified.toString() : '';
@@ -4755,8 +4762,8 @@
       !!brConsensus && !!brVerdict,
       brConsensus ? 'found' : 'missing');
 
-    // T233: breadth 20SMA 색상 — 75%에 amber 기대. 라이브 데이터에 따라 색상 동적 변경 가능 (>70 → amber, 50~70 → green, <50 → red).
-    // v49.59 보정: element 존재 + 텍스트가 75% (또는 75± 범위) 시 amber 또는 amber 인근 색상 OR THRESHOLD.BREADTH 정합 확인
+    // T233: breadth 20SMA 색상 — current evidence가 있으면 threshold palette와
+    // 정합해야 하고, 원천 미수신이면 숫자·색상 모두 명시적 unavailable이어야 한다.
     var b20 = document.getElementById('breadth-20sma-big');
     var color20 = b20 ? b20.style.color : '';
     var text20 = b20 ? (b20.textContent || '').trim() : '';
@@ -4769,9 +4776,11 @@
         thresholdLabel = bl && bl.color;
       }
     }
-    _assert('T233 breadth_20sma_color: 20SMA 색상 THRESHOLD.BREADTH 정합 (v49.59 보정)',
-      !!b20 && (/amber|255,\s*163|data-amber/.test(color20) || (thresholdLabel === 'data-amber') || /green|229,\s*160|red|255,\s*91/.test(color20)),
-      b20 ? 'color=' + color20 + ' text=' + text20 + ' threshold=' + thresholdLabel : 'missing');
+    var unavailable20 = !!b20 && text20 === '—' && /text-muted/.test(color20) && thresholdLabel === '';
+    var observed20 = !!b20 && text20 !== '—' && (/amber|255,\s*163|data-amber|green|229,\s*160|red|255,\s*91/.test(color20) || thresholdLabel === 'data-amber');
+    _assert('T233 breadth_20sma_color: current threshold palette 또는 명시적 unavailable 상태',
+      observed20 || unavailable20,
+      b20 ? 'color=' + color20 + ' text=' + text20 + ' threshold=' + thresholdLabel + ' unavailable=' + unavailable20 : 'missing');
 
     // T234 (v52.65 구조): 중복 상단 블록 제거 + 현재 브리핑의 시장/행동/뉴스/일정 흐름 존재
     var top5 = document.getElementById('briefing-top-5-watch');
@@ -5403,12 +5412,9 @@
       textAudit && gateWithText && gateWithText.textSurface && gateWithText.textSurface.pageCount >= 17 /* v53.7 P725 */,
       JSON.stringify(gateWithText && gateWithText.textSurface && { status:gateWithText.textSurface.status, blocks:gateWithText.textSurface.blockingCount, warns:gateWithText.textSurface.warningCount }));
 
-    // P626-followup/R279: this pinned the exact June-cycle date literals that were current when
-    // written, contradicting its own name's claim that the auto-advance hook is allowed to move
-    // us-nfp forward — the code never actually tolerated that (or the other 3 fields rolling
-    // forward the same way once their own dates passed). Same class R279 already documents and
-    // prescribes the fix for (assert the structural property — validity + not-in-the-past, and a
-    // weekday anchor where one is known — not a specific date literal that will itself go stale).
+    // P626-followup/R279: dates come from the official schedule artifact.  An
+    // expired artifact must not be mechanically advanced or displayed as a
+    // current date; it is explicitly unavailable until refreshed.
     var macroCal = window.AIO_MACRO_CALENDAR && window.AIO_MACRO_CALENDAR.releases;
     function _t759ValidFutureDate(iso) {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(String(iso || ''))) return false;
@@ -5422,12 +5428,17 @@
     var nfpIsFriday = nfpRelease && new Date(nfpRelease + 'T12:00:00Z').getUTCDay() === 5; // NFP는 항상 첫째주 금요일(R279)
     var ismMfgRelease = macroCal && macroCal['us-ism-mfg'] && macroCal['us-ism-mfg'].nextRelease;
     var ismSvcRelease = macroCal && macroCal['us-ism-svc'] && macroCal['us-ism-svc'].nextRelease;
-    _assert('T759 v504_macro_calendar_official_dates: NFP/CPI/FOMC/PCE/ISM dates are valid, not-in-the-past, and NFP falls on a Friday',
-      macroCal && _t759ValidFutureDate(nfpRelease) && nfpIsFriday &&
-        _t759ValidFutureDate(macroCal['us-cpi'] && macroCal['us-cpi'].nextRelease) &&
-        _t759ValidFutureDate(macroCal['us-fomc'] && macroCal['us-fomc'].nextRelease) &&
-        _t759ValidFutureDate(macroCal['us-pce'] && macroCal['us-pce'].nextRelease) &&
-        _t759ValidFutureDate(ismMfgRelease) && _t759ValidFutureDate(ismSvcRelease),
+    function _t759ArtifactState(key) {
+      var row = macroCal && macroCal[key];
+      var artifact = window.AIO_MACRO_OFFICIAL_SCHEDULES && window.AIO_MACRO_OFFICIAL_SCHEDULES[key];
+      if (!row || !Array.isArray(artifact) || row.scheduleArtifact !== 'AIO_MACRO_OFFICIAL_SCHEDULES') return false;
+      if (row.nextRelease) return _t759ValidFutureDate(row.nextRelease);
+      return row.scheduleState === 'unavailable-expired' && row.nextRelease === null;
+    }
+    _assert('T759 v504_macro_calendar_official_artifact_expiry: official schedule dates are future when present and expire to explicit unavailable',
+      macroCal && _t759ArtifactState('us-nfp') && nfpIsFriday &&
+        _t759ArtifactState('us-cpi') && _t759ArtifactState('us-fomc') &&
+        _t759ArtifactState('us-pce') && _t759ArtifactState('us-ism-mfg') && _t759ArtifactState('us-ism-svc'),
       JSON.stringify(macroCal && {
         nfp: macroCal['us-nfp'].nextRelease,
         cpi: macroCal['us-cpi'].nextRelease,
@@ -5438,7 +5449,7 @@
       }));
 
     var snapV504 = window.DATA_SNAPSHOT || {};
-    _assert('T760 snapshot_has_calendar_fields_without_embedded_current_topic', /^\d{4}-\d{2}-\d{2}$/.test(String(DATA_SNAPSHOT._snapshotDate || '')) && /^\d{4}-\d{2}-\d{2}$/.test(String(DATA_SNAPSHOT.cpiNext || '')) && !('currentTopic' in DATA_SNAPSHOT), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
+    _assert('T760 snapshot_has_calendar_fields_without_embedded_current_topic', /^\d{4}-\d{2}-\d{2}$/.test(String(DATA_SNAPSHOT._snapshotDate || '')) && (!DATA_SNAPSHOT.cpiNext || _t759ValidFutureDate(DATA_SNAPSHOT.cpiNext)) && !('currentTopic' in DATA_SNAPSHOT), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     var homeWeeklyV504 = window.HOME_WEEKLY_NEWS || [];
     _assert('T761 home_weekly_news_runtime_only: embedded news digest stays empty',
@@ -5695,10 +5706,12 @@
         /RSI\(14\)/.test(fnSrc) && /Stage/.test(fnSrc) && /이동평균/.test(fnSrc);
       // chatSend 배선: v50.38 트랙3 — 티커 감지 시 전 컨텍스트에서 technicalDataStr 주입(기존 technical/signal/ticker 3종 한정 해제)
       var csSrc = (typeof chatSend === 'function') ? String(chatSend) : (typeof window.chatSend === 'function' ? String(window.chatSend) : '');
+      var technicalPromptWrapped = /_aioWrapChatExternalContext\(\s*['"]TECHNICAL_ENRICHMENT['"]\s*,\s*technicalDataStr/.test(csSrc);
+      var technicalPromptLegacy = /systemPrompt \+= technicalDataStr/.test(csSrc);
       var wiredOk = /_fetchTechnicalDataForChat\(detectedTickers,\s*\{[^}]*signal:\s*_chatSignal/.test(csSrc) && /technicalDataStr/.test(csSrc) &&
-        /systemPrompt \+= technicalDataStr/.test(csSrc);
+        (technicalPromptWrapped || technicalPromptLegacy);
       t775ok = fnDef && engineOk && reuseOk && wiredOk;
-      t775detail = 'fnDef=' + fnDef + ' engine=' + engineOk + ' reuse(snapshot+ohlcv+RSI+Stage)=' + reuseOk + ' wired(detectedTickers>0 전컨텍스트)=' + wiredOk;
+      t775detail = 'fnDef=' + fnDef + ' engine=' + engineOk + ' reuse(snapshot+ohlcv+RSI+Stage)=' + reuseOk + ' wired(detectedTickers>0 전컨텍스트,prompt=' + (technicalPromptWrapped ? 'wrapped' : technicalPromptLegacy ? 'legacy' : 'missing') + ')=' + wiredOk;
     } catch(e) { t775detail = 'err: ' + (e && e.message); }
     _assert('T775 v5012_technical_chat_data: _fetchTechnicalDataForChat 엔진 재사용 + chatSend technical 배선', t775ok, t775detail);
 
@@ -6346,6 +6359,16 @@
     try {
       var hasSignalFn = typeof window._aioComputeNewsSignal === 'function';
       var sig = hasSignalFn ? window._aioComputeNewsSignal() : null;
+      var oldNewsAll818 = window._allNewsItems, oldNewsCache818 = window.newsCache;
+      var approvedNewsTs818 = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+      window._allNewsItems = [
+        { title:'URL-only current headline', source:'Reuters', url:'https://example.test/story', current:true, pubDate:approvedNewsTs818, sentiment:'bull' },
+        { title:'Explicit evidence headline', source:'primary-feed', sourceKind:'LIVE', sourceTier:'T2_LICENSED', rightsId:'news-test-rights', revisionId:'news-test-revision', allowedUseCeiling:'decision',
+          allowedUse:'decision', pubDate:approvedNewsTs818, quality:{ status:'live', freshness:'live', timestampValid:true, ageMs:60 * 60 * 1000, freshnessMs:72 * 60 * 60 * 1000 }, sentiment:'bear' }
+      ];
+      var gatedNews818 = hasSignalFn ? window._aioComputeNewsSignal() : null;
+      var newsGate = !!(gatedNews818 && gatedNews818.total === 1 && gatedNews818.referenceCount === 1 && gatedNews818.rejectedCount === 1 && gatedNews818.allowedUse === true);
+      window._allNewsItems = oldNewsAll818; window.newsCache = oldNewsCache818;
       // 신호 구조: 핵심 키 존재(데이터 의존이라 값은 키/타입만 검증)
       var sigShapeOk = !!(sig && ('sentimentScore' in sig) && ('bias' in sig) && sig.eventFlags && Array.isArray(sig.dominantTopics) && ('available' in sig));
       // marketState가 newsSignal을 흡수하는지
@@ -6358,8 +6381,8 @@
       var planBear = window.AIO_ACTION_RULES.getActionPlan({ vix: 16, fg: 60, breadth50: 60, newsSignal: { available: true, bias: 'bearish', sentimentScore: -40, eventFlags: { geopolitical: true } } });
       var planNeutral = window.AIO_ACTION_RULES.getActionPlan({ vix: 16, fg: 60, breadth50: 60 });
       var actionNewsAware = !!(planBear && planBear.newsTilt === 'defensive' && planBear.actions.length > planNeutral.actions.length);
-      t818ok = hasSignalFn && sigShapeOk && brainAbsorb && mcRealOk && actionNewsAware;
-      t818detail = 'fn=' + hasSignalFn + ' shape=' + sigShapeOk + ' absorb=' + brainAbsorb + ' mcReal=' + mcRealOk + ' actionAware=' + actionNewsAware;
+      t818ok = hasSignalFn && sigShapeOk && brainAbsorb && mcRealOk && actionNewsAware && newsGate;
+      t818detail = 'fn=' + hasSignalFn + ' shape=' + sigShapeOk + ' absorb=' + brainAbsorb + ' mcReal=' + mcRealOk + ' actionAware=' + actionNewsAware + ' newsGate=' + newsGate;
     } catch(e) { t818detail = 'ERR:' + e.message; }
     _assert('T818 v5045_news_signal_loop: 뉴스 신호 집계 + 두뇌 흡수 + risk/action 뉴스 인지 + 실측 McClellan', t818ok, t818detail);
 
@@ -7098,14 +7121,14 @@
     // T841: v50.74 structural fix — decision engine reads live score, FOMC uses registry, footer is conditional.
     var t841ok = false, t841detail = '';
     try {
-      var validBands841 = { '환경 우호':1, '환경 양호':1, '중립 · 관망':1, '주의 · 축소':1, '위험 · 방어':1, '판단 보류 · 핵심 입력 부족':1 };
       var homeDecision841 = typeof window._aioBuildPageDecision === 'function' ? window._aioBuildPageDecision('home') : null;
-      // decision 문구가 5밴드 중 하나를 포함해야 함 (정적 고정 문구 제거 검증)
-      var bandInDecision841 = homeDecision841 && Object.keys(validBands841).some(function(b) {
-        return homeDecision841.decision.indexOf(b) >= 0;
-      });
+      // score-backtest validation is not established; the page must expose a
+      // descriptive condition state rather than a five-band trading action.
+      var descriptiveDecision841 = homeDecision841 && /시장환경 관찰|판단 보류/.test(homeDecision841.decision);
+      var noPrescriptiveAction841 = homeDecision841 && !/(매수 우호|진입 가능|진입 금지|비중 축소|WATCH\/진입)/.test(homeDecision841.action || '');
       // score 표기 포함 여부
       var scoreInDecision841 = homeDecision841 && /스코어\s*\d/.test(homeDecision841.decision);
+      var validationBlocked841 = homeDecision841 && homeDecision841.decisionEligible === false && homeDecision841.predictiveValidation === 'not-established';
       // FOMC 이유가 하드코딩 날짜 대신 레지스트리에서 왔는지 — commonReasons는 레지스트리 result 슬라이스
       var reg841 = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).fomc || {};
       var fomcReasonDynamic841 = homeDecision841 && reg841.result &&
@@ -7120,8 +7143,8 @@
       var fomcFooterOnMacro841 = !macroFooter841 || macroFooter841.textContent.length > 5;
       // _aioRenderAllPageDecisionHeaders가 AIO_ALL_ROUTE_PAGE_IDS를 참조
       var routeIds841 = window.AIO_ALL_ROUTE_PAGE_IDS && window.AIO_ALL_ROUTE_PAGE_IDS.length > 0;
-      t841ok = !!(bandInDecision841 && scoreInDecision841 && fomcReasonDynamic841 && noFomcFooter841 && routeIds841);
-      t841detail = JSON.stringify({ band:bandInDecision841, score:scoreInDecision841, fomcDynamic:fomcReasonDynamic841, noFomcPortfolio:noFomcFooter841, fomcMacro:fomcFooterOnMacro841, routeIds:routeIds841 });
+      t841ok = !!(descriptiveDecision841 && noPrescriptiveAction841 && scoreInDecision841 && validationBlocked841 && fomcReasonDynamic841 && noFomcFooter841 && routeIds841);
+      t841detail = JSON.stringify({ descriptive:descriptiveDecision841, noPrescriptive:noPrescriptiveAction841, score:scoreInDecision841, validationBlocked:validationBlocked841, fomcDynamic:fomcReasonDynamic841, noFomcPortfolio:noFomcFooter841, fomcMacro:fomcFooterOnMacro841, routeIds:routeIds841 });
     } catch(e) { t841detail = 'ERR:' + e.message; }
     _assert('T841 decision_header_works_without_static_event_registry', typeof window._aioBuildPageDecision === 'function' && Object.keys(window.AIO_EVENT_FRESHNESS_REGISTRY).length === 0, 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
@@ -7204,10 +7227,10 @@
         spy845.push(100 + i845 * 1.4);
       }
       var model845 = window.AIO && typeof window.AIO.buildPortfolioBacktestLab === 'function'
-        ? window.AIO.buildPortfolioBacktestLab({
-            A845: { timestamps: ts845, closes: a845 },
-            B845: { timestamps: ts845, closes: b845 },
-            SPY: { timestamps: ts845, closes: spy845 }
+         ? window.AIO.buildPortfolioBacktestLab({
+            A845: { timestamps: ts845, closes: a845, adjustedCloses: a845.slice(), backtestEligible: true, backtestPriceBasis: 'adjusted-close' },
+            B845: { timestamps: ts845, closes: b845, adjustedCloses: b845.slice(), backtestEligible: true, backtestPriceBasis: 'adjusted-close' },
+            SPY: { timestamps: ts845, closes: spy845, adjustedCloses: spy845.slice(), backtestEligible: true, backtestPriceBasis: 'adjusted-close' }
           }, [
             { ticker: 'A845', qty: 6, cost: 90 },
             { ticker: 'B845', qty: 4, cost: 75 }
@@ -7217,9 +7240,39 @@
         model845.annualRows && model845.annualRows.length >= 2 &&
         model845.drawdowns && Array.isArray(model845.drawdowns) &&
         model845.components && model845.components.length === 2 &&
+        model845.model === 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2' &&
+        model845.priceBasis === 'adjusted-close' &&
+        model845.allowedUse === 'reference-only' && model845.decisionEligible === false &&
+        model845.promotionEligible === false && Array.isArray(model845.promotionBlockers) &&
+        model845.promotionBlockers.indexOf('transaction-costs-not-modeled') >= 0 &&
+        model845.settings && model845.settings.targetWeightBasis === 'terminal-adjusted-close-market-value' &&
+        model845.settings.turnoverBasis === 'half-sum-absolute-target-minus-realized-end-weight-at-rebalance' &&
+        model845.monthlyRows[0].returnContributionBasis === 'realized-beginning-weighted-arithmetic-return' &&
+        model845.components.every(function(c) { return c.riskContributionBasis === 'realized-beginning-weighted-monthly-return'; }) &&
         model845.performance && typeof model845.performance.trackingError === 'number' &&
         typeof model845.performance.informationRatio === 'number');
-      t845detail = JSON.stringify({ ok:model845 && model845.ok, months:model845 && model845.monthlyRows && model845.monthlyRows.length, years:model845 && model845.annualRows && model845.annualRows.length, components:model845 && model845.components && model845.components.length });
+      var noRf845 = window.AIO.buildPortfolioBacktestLab({
+        A845: { timestamps: ts845, closes: a845, adjustedCloses: a845.slice(), backtestEligible: true, backtestPriceBasis: 'adjusted-close' },
+        B845: { timestamps: ts845, closes: b845, adjustedCloses: b845.slice(), backtestEligible: true, backtestPriceBasis: 'adjusted-close' },
+        SPY: { timestamps: ts845, closes: spy845, adjustedCloses: spy845.slice(), backtestEligible: true, backtestPriceBasis: 'adjusted-close' }
+      }, [{ ticker: 'A845', qty: 6, cost: 90 }, { ticker: 'B845', qty: 4, cost: 75 }], { initialAmount: 10000, startYear: 2025, endYear: 2026, benchmarkSymbol: 'SPY' });
+      var rawOnly845 = window.AIO.buildPortfolioBacktestLab({
+        A845: { timestamps: ts845, closes: a845 }, B845: { timestamps: ts845, closes: b845 }, SPY: { timestamps: ts845, closes: spy845 }
+      }, [{ ticker: 'A845', qty: 6, cost: 90 }], { startYear: 2025, endYear: 2026, benchmarkSymbol: 'SPY', rfAnnual: 0 });
+      var contributionSum845 = model845 && model845.components ? model845.components.reduce(function(sum, c) { return sum + Number(c.returnContribution || 0); }, 0) : null;
+      var netGain845 = model845 && model845.performance ? model845.performance.endBalance - model845.performance.startBalance : null;
+      var turnoverObserved845 = model845 && model845.monthlyRows && model845.monthlyRows.some(function(row) { return row.rebalanced && row.turnover > 0; });
+      var invalidRf845 = window.AIO.buildPortfolioBacktestLab({
+        A845: { timestamps: ts845, closes: a845, adjustedCloses: a845.slice(), backtestEligible: true, backtestPriceBasis: 'adjusted-close' },
+        B845: { timestamps: ts845, closes: b845, adjustedCloses: b845.slice(), backtestEligible: true, backtestPriceBasis: 'adjusted-close' },
+        SPY: { timestamps: ts845, closes: spy845, adjustedCloses: spy845.slice(), backtestEligible: true, backtestPriceBasis: 'adjusted-close' }
+      }, [{ ticker: 'A845', qty: 6, cost: 90 }, { ticker: 'B845', qty: 4, cost: 75 }], { initialAmount: 10000, startYear: 2025, endYear: 2026, benchmarkSymbol: 'SPY', rfAnnual: 4.3 });
+      t845ok = t845ok && noRf845 && noRf845.performance.sharpe === null && noRf845.performance.sortino === null && noRf845.performance.alpha === null
+        && rawOnly845 && rawOnly845.ok === false && rawOnly845.decisionEligible === false
+        && contributionSum845 != null && Math.abs(contributionSum845 - netGain845) < 1e-7
+        && turnoverObserved845
+        && invalidRf845 && invalidRf845.rfInputStatus === 'invalid-rejected' && invalidRf845.performance.sharpe === null;
+      t845detail = JSON.stringify({ ok:model845 && model845.ok, months:model845 && model845.monthlyRows && model845.monthlyRows.length, years:model845 && model845.annualRows && model845.annualRows.length, components:model845 && model845.components && model845.components.length, contributionSum:contributionSum845, netGain:netGain845, turnoverObserved:turnoverObserved845, noRf:noRf845 && noRf845.performance && noRf845.performance.sharpe, rawOnly:rawOnly845 && rawOnly845.reason, invalidRf:invalidRf845 && invalidRf845.rfInputStatus });
     } catch(e) { t845detail = 'ERR:' + e.message; }
     _assert('T845 v5179_portfolio_backtest_lab: monthly returns, annual table, drawdown table, active risk, and attribution are produced', t845ok, t845detail);
 
@@ -7882,6 +7935,13 @@
       var zero902 = window.AIO.getCanonicalMetric('fg');
       _assert('T902 canonical_preserves_reference_zero (H3-A)', zero902.value === 0 && zero902.status === 'REFERENCE_CURRENT' && zero902.allowedUse === false, JSON.stringify(zero902));
       window._lastFG = 49;
+      window._lastFGMeta = { value:49, source:'cnn', sourceKind:'live', sourceTier:'T2_LICENSED', rightsId:'test-rights', revisionId:'test-revision', sourceLabel:'test-decision', sourceTs:new Date().toISOString(), fetchedAt:Date.now(), freshnessClock:'fetch', allowedUse:'decision', allowedUseCeiling:'decision', freshnessMs:4 * 60 * 60 * 1000, quality:{ status:'live', freshness:'live', timestampValid:true, ageMs:1000, freshnessMs:4 * 60 * 60 * 1000 } };
+      var decision902b = window.AIO.getCanonicalMetric('fg');
+      _assert('T902b canonical_requires_explicit_quality_envelope (H3-A)', decision902b.status === 'VALID' && decision902b.allowedUse === true && decision902b.qualityReady === true, JSON.stringify(decision902b));
+      window._lastFGMeta = { value:49, source:'cnn', sourceKind:'live', sourceLabel:'fetch-only', fetchedAt:Date.now(), allowedUse:'decision', allowedUseCeiling:'decision', quality:{ status:'ok', freshness:'live', timestampValid:true, ageMs:1000 } };
+      var fetchOnly902c = window.AIO.getCanonicalMetric('fg');
+      _assert('T902c fetch_timestamp_cannot_promote_observation (H3-A)', fetchOnly902c.allowedUse === false && fetchOnly902c.status !== 'VALID', JSON.stringify(fetchOnly902c));
+      window._lastFG = 49;
       window._lastFGMeta = { value:49, source:'cnn', sourceKind:'snapshot', sourceLabel:'test-snapshot', sourceTs:'2026-07-03T00:00:00Z', fetchedAt:null, freshnessClock:'observation' };
       var ref903 = window.AIO.getCanonicalMetric('fg');
       _assert('T903 snapshot_not_decision_use (H3-A)', ref903.value === 31 && ref903.status === 'SNAPSHOT_REFERENCE' && ref903.allowedUse === false, JSON.stringify(ref903));
@@ -7914,11 +7974,13 @@
       _assert('T907 external_source_state_contract (H3-E)', false, 'normalizeExternalSourceState missing');
       return;
     }
-    var ok907 = window.AIO.normalizeExternalSourceState({ status:'success', count:5, expected:5 });
+    var ok907 = window.AIO.normalizeExternalSourceState({ status:'success', count:5, expected:5, allowedUse:'decision', observedAt:new Date().toISOString(), quality:{ status:'ok', freshness:'live', timestampValid:true, ageMs:1000 } });
+    var missingGrant907 = window.AIO.normalizeExternalSourceState({ status:'success', count:5, expected:5, observedAt:new Date().toISOString(), quality:{ status:'ok', freshness:'live', timestampValid:true, ageMs:1000 } });
     var partial908 = window.AIO.normalizeExternalSourceState({ count:2, expected:5 });
     var timeout909 = window.AIO.normalizeExternalSourceState({ message:'AbortError: timeout' });
     var malformed910 = window.AIO.normalizeExternalSourceState({ status:'malformed', message:'HTML block page' });
     _assert('T907 external_source_success_fixture (H3-E)', ok907.status === 'success' && ok907.allowedUse === 'decision' && ok907.usable === true, JSON.stringify(ok907));
+    _assert('T907b external_source_missing_authorization_fails_closed (H3-E)', missingGrant907.status === 'success' && missingGrant907.allowedUse === 'reference-only' && missingGrant907.promotionBlocked === true, JSON.stringify(missingGrant907));
     _assert('T908 external_source_partial_fixture (H3-E)', partial908.status === 'partial' && partial908.allowedUse === 'reference-only', JSON.stringify(partial908));
     _assert('T909 external_source_timeout_fixture (H3-E)', timeout909.status === 'timeout' && timeout909.allowedUse === 'none' && timeout909.usable === false, JSON.stringify(timeout909));
     _assert('T910 external_source_malformed_fixture (H3-E)', malformed910.status === 'malformed' && malformed910.allowedUse === 'none', JSON.stringify(malformed910));

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { createAIAnswerOrchestrator } from '../src/ai/orchestrator/answer-orchestrator.js';
+import { buildEvidenceAnalysisInputs } from '../src/ai/analysis/evidence-inputs.js';
 
 const ai = createAIAnswerOrchestrator({ now: () => new Date('2026-09-10T12:00:00Z') });
 const plan = (intent) => ({ intent: { primary: intent }, entities: { entities: [{ symbol: 'NVDA' }] } });
@@ -17,6 +18,8 @@ assert.equal(conditions.result.conditions[0].status, 'above');
 assert.equal(run('TECHNICAL_ANALYSIS', [row('price', 100), row('sma20', 90, { asOf: '2026-09-09T10:00:00Z' })]).result.status, 'insufficient');
 assert.equal(run('TECHNICAL_ANALYSIS', [row('price', 100), row('sma20', 90, { unit: 'KRW' })]).result.status, 'insufficient');
 assert.equal(run('ENTITY_FACT', [row('price', 100, { entity: undefined, entityId: 'NVDA' })]).result.facts[0].value, 100);
+assert.equal(buildEvidenceAnalysisInputs(plan('ENTITY_FACT'), { evidence: [row('price', 100, { sourceKind: 'T1_OFFICIAL' })], now: Date.parse('2026-09-10T12:00:00Z') }).inputs.facts.price.sourceTier, 'T1_OFFICIAL');
+assert.equal(buildEvidenceAnalysisInputs(plan('ENTITY_FACT'), { evidence: [row('price', 100, { sourceKind: 'delayed-eod' })], now: Date.parse('2026-09-10T12:00:00Z') }).inputs.facts.price.sourceTier, 'T3_PUBLIC_DELAYED');
 for (const bad of [{ sourceKind: 'IMAGINARY' }, { status: 'stale' }, { asOf: null }, { unit: '' }, { value: '100' }, { scale: 'million' }, { asOf: '2026-09-11T10:00:00Z' }]) {
   assert.equal(run('ENTITY_FACT', [row('price', 100, bad)]).result.status, 'insufficient');
 }

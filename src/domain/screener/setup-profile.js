@@ -2,8 +2,10 @@
 // This is deliberately not a trading signal. It exposes the user's relative-strength
 // pullback and climax-top framework without inventing benchmark, volume, or intraday data.
 import { SUPPLIED_MATERIAL_CLAIM_IDS } from '../research/supplied-materials.js';
+import { NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS } from '../research/nathan-previous-threads.js';
+import { NATHAN_ANALYSIS_PROTOCOL } from '../knowledge/nathan-framework-pack.js';
 
-export const SCREENER_SETUP_MODEL_VERSION = 'screener-setup.v2';
+export const SCREENER_SETUP_MODEL_VERSION = 'screener-setup.v3';
 
 function finite(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
@@ -31,18 +33,24 @@ export function deriveScreenerSetupProfile(row = {}) {
   const ema8 = finite(row.ema8);
   const ema21 = finite(row.ema21);
   const ema60 = finite(row.ema60);
+  const explicitRelativeStrength = finite(row.benchmarkRelativeStrength);
+  const benchmarkReturn = finite(row.benchmarkRet);
+  const benchmarkRelativeStrength = explicitRelativeStrength != null
+    ? explicitRelativeStrength
+    : ret3m != null && benchmarkReturn != null ? ret3m - benchmarkReturn : null;
 
   const support200 = pctSma200 == null ? 'unavailable'
     : pctSma200 >= -3 && pctSma200 <= 3 ? 'near'
       : pctSma200 > 3 ? 'above' : 'below';
   const mediumTrendPositive = (ret3m != null && ret3m > 0) || (ret6m != null && ret6m > 0);
-  const relativeStrengthPullback = rank != null && rank >= 60 && ret1m != null && ret1m <= 0
+  const relativeStrengthPullback = rank != null && rank >= 60 && benchmarkRelativeStrength != null && benchmarkRelativeStrength > 0
+    && ret1m != null && ret1m <= 0
     && mediumTrendPositive && pctSma200 != null && pctSma200 >= -5
     && pctSma50 != null && pctSma50 <= 5;
   const stretch200 = pctSma200 != null && pctSma200 >= 70;
   const rsiOverheat = rsi != null && rsi >= 80;
   const climaxRisk = stretch200 || rsiOverheat;
-  const relativeStrengthEvidenceAvailable = rank != null && ret1m != null
+  const relativeStrengthEvidenceAvailable = rank != null && benchmarkRelativeStrength != null && ret1m != null
     && (ret3m != null || ret6m != null) && pctSma200 != null && pctSma50 != null;
   const volumeEvidence = rvol20 == null ? 'unavailable'
     : rvol20 >= 2.5 ? 'surge'
@@ -83,7 +91,7 @@ export function deriveScreenerSetupProfile(row = {}) {
   if (rank == null) missingEvidence.push('relative-rank');
   if (pctSma200 == null) missingEvidence.push('200SMA-distance');
   if (rvol20 == null) missingEvidence.push('RVOL');
-  if (row.benchmarkRet == null && row.benchmarkRelativeStrength == null) missingEvidence.push('benchmark-relative-strength');
+  if (benchmarkRelativeStrength == null) missingEvidence.push('benchmark-relative-strength');
   winnerMissing.forEach((key) => missingEvidence.push(`winner-filter:${key}`));
 
   const tags = [];
@@ -114,12 +122,14 @@ export function deriveScreenerSetupProfile(row = {}) {
     support200,
     relativeStrengthPullback: !relativeStrengthEvidenceAvailable ? 'unavailable'
       : relativeStrengthPullback ? 'candidate' : 'not-confirmed',
+    benchmarkRelativeStrength,
     climaxRisk: climaxRisk ? 'watch' : (pctSma200 == null && rsi == null ? 'unavailable' : 'none'),
     stretch200,
     rsiOverheat,
     volumeEvidence,
     structureEvidence,
-    referenceFrameworkIds: Object.freeze(['wedge-pop-retest', 'leverage-exposure-discipline', 'proof-before-exposure']),
+    referenceFrameworkIds: NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS,
+    referenceProcessingStages: NATHAN_ANALYSIS_PROTOCOL.stages,
     referenceClaimIds: SUPPLIED_MATERIAL_CLAIM_IDS,
     winnerFilter,
     winnerChecks: Object.freeze(winnerChecks),

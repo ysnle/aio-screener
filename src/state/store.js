@@ -1,12 +1,12 @@
 function deepFreeze(value, seen = new WeakSet()) {
   if (value === null || (typeof value !== 'object' && typeof value !== 'function')) return value;
-  if (seen.has(value) || Object.isFrozen(value)) return value;
+  if (seen.has(value)) return value;
   seen.add(value);
-  Object.freeze(value);
-  for (const key of Object.getOwnPropertyNames(value)) {
-    deepFreeze(value[key], seen);
+  for (const key of Reflect.ownKeys(value)) {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    if (descriptor && 'value' in descriptor) deepFreeze(descriptor.value, seen);
   }
-  return value;
+  return Object.isFrozen(value) ? value : Object.freeze(value);
 }
 
 /**
@@ -31,7 +31,15 @@ export function createStore({ initialState = {}, reducer = (state) => state, dev
     const next = reducer(state, action);
     if (next === undefined) throw new Error('STORE_REDUCER_RETURNED_UNDEFINED');
     state = devMode ? deepFreeze(next) : next;
-    listeners.forEach((listener) => listener(state, action));
+    const listenerErrors = [];
+    for (const listener of [...listeners]) {
+      try {
+        listener(state, action);
+      } catch (error) {
+        listenerErrors.push(error);
+      }
+    }
+    if (listenerErrors.length) throw new AggregateError(listenerErrors, 'STORE_LISTENER_FAILED');
     return state;
   }
 

@@ -5,6 +5,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MARKET_PRINCIPLES_CATALOG } from '../src/ui/pages/principles.js';
 import { createConceptRegistry } from '../src/domain/knowledge/ontology.js';
+import { NATHAN_KNOWLEDGE_CONCEPTS } from '../src/domain/knowledge/nathan-framework-pack.js';
+import { INTEGRATED_KNOWLEDGE_CONCEPTS } from '../src/domain/knowledge/integrated-market-ai-framework-pack.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readJson = (relativePath) => JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
@@ -19,14 +21,16 @@ const aliases = aliasesArtifact.aliases || [];
 const registry = createConceptRegistry(concepts, aliases);
 const expected = [
   ...MARKET_PRINCIPLES_CATALOG.nodes.map((node) => ({ surface: 'principles', legacyId: node.id })),
-  ...taxonomy.nodes.map((node) => ({ surface: 'atlas', legacyId: node.nodeId }))
+  ...taxonomy.nodes.map((node) => ({ surface: 'atlas', legacyId: node.nodeId })),
+  ...NATHAN_KNOWLEDGE_CONCEPTS.map((concept) => ({ surface: concept.surface, legacyId: concept.legacyId })),
+  ...INTEGRATED_KNOWLEDGE_CONCEPTS.map((concept) => ({ surface: concept.surface, legacyId: concept.legacyId }))
 ];
 const expectedKeys = new Set(expected.map((item) => `${item.surface}:${item.legacyId}`));
 const conceptKeys = new Set(concepts.map((item) => item.canonicalId));
 
 assert(conceptsArtifact.schemaVersion === 'knowledge-concepts.v1', 'concepts schema version mismatch');
 assert(aliasesArtifact.schemaVersion === 'knowledge-aliases.v1', 'aliases schema version mismatch');
-assert(concepts.length === 155, `concept count ${concepts.length} !== 155`);
+assert(concepts.length === 212, `concept count ${concepts.length} !== 212`);
 assert(new Set(concepts.map((item) => item.canonicalId)).size === concepts.length, 'duplicate canonical concept ID');
 assert(expectedKeys.size === conceptKeys.size && [...expectedKeys].every((key) => conceptKeys.has(key)), 'canonical concepts drift from live source inventories');
 assert(registry.errors.length === 0, `ontology registry errors: ${JSON.stringify(registry.errors)}`);
@@ -52,8 +56,9 @@ for (const alias of aliases) {
   assert(alias.targets.every((target) => conceptKeys.has(target)), `alias target missing: ${alias.alias}`);
   if (alias.targets.length > 1) {
     const targets = alias.targets.map((target) => concepts.find((concept) => concept.canonicalId === target));
-    assert(alias.resolution === 'explicit-equivalence', `ambiguous alias is not explicit: ${alias.alias}`);
-    assert(targets.every((target) => target?.equivalenceGroup) && new Set(targets.map((target) => target.equivalenceGroup)).size === 1, `ambiguous alias lacks shared equivalence: ${alias.alias}`);
+    const structural = targets.every((target) => target?.surface === 'nathan-frameworks');
+    assert(structural ? alias.resolution === 'multi-framework' : alias.resolution === 'explicit-equivalence', `ambiguous alias is not explicit: ${alias.alias}`);
+    if (!structural) assert(targets.every((target) => target?.equivalenceGroup) && new Set(targets.map((target) => target.equivalenceGroup)).size === 1, `ambiguous alias lacks shared equivalence: ${alias.alias}`);
   }
 }
 for (const concept of concepts) {

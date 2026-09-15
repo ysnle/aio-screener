@@ -1,6 +1,6 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 import { normalizeKnowledgeEdges } from '../../domain/knowledge/graph.js';
-import { loadKnowledgeCapabilities } from '../../data/knowledge/load-capabilities.js';
+import { createKnowledgeCapabilityBatchLoader } from '../knowledge/capability-loader.js';
 import { PRINCIPLE_EDGE_SEMANTICS } from '../../domain/knowledge/principles-edge-semantics.js';
 import { navigateKnowledgeTarget, parseKnowledgeRouteState, parseKnowledgeTargetContext, replaceKnowledgeRouteState } from '../../app/knowledge-route-state.js';
 import { createAppKnowledgeLearningState } from '../../app/knowledge-learning-state.js';
@@ -11,6 +11,7 @@ import { renderKnowledgeLesson } from '../../ui/knowledge/lesson.js';
 import { applySafeExternalLink } from '../../ui/knowledge/safe-external-link.js';
 import { loadJsonArtifact } from '../../data/artifact-cache.js';
 import { createSuppliedMaterialBridge } from '../../ui/knowledge/supplied-material-bridge.js';
+import { createIntegratedFrameworkSpine } from '../../ui/knowledge/integrated-framework-spine.js';
 
 const REVIEWED_AT = '2026-08-18';
 const RESEARCH_URL = './public-data/atlas/source-packets.json';
@@ -1285,6 +1286,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
            onNavigate: (target) => navigateTarget({ ...target, returnContext: target.returnContext || { route: 'principles', view: 'library' } })
          });
           library.append(
+            createIntegratedFrameworkSpine(documentRef, { page: 'principles', query: state.query, onNavigate: route }),
             reference,
             chapterPanel,
             lessonPanel,
@@ -1307,7 +1309,8 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
           if (typeof root?.history?.back === 'function') root.history.back();
           else if (state.arrivalContext?.returnContext?.route && typeof root?.showPage === 'function') root.showPage(state.arrivalContext.returnContext.route);
         });
-        const children = state.view === 'story' ? [renderToolbar(), arrival, primary, controls, status].filter(Boolean) : [renderToolbar(), arrival, controls, status].filter(Boolean);
+         const integrated = state.view === 'library' ? null : createIntegratedFrameworkSpine(documentRef, { page: 'principles', query: state.query, compact: true, onNavigate: route });
+         const children = state.view === 'story' ? [renderToolbar(), arrival, integrated, primary, controls, status].filter(Boolean) : [renderToolbar(), arrival, integrated, controls, status].filter(Boolean);
         if (errors) children.push(errors);
         if (state.view !== 'story') children.push(primary);
         content.replaceChildren(...children);
@@ -1409,7 +1412,6 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
             ['knowledgeConcepts', KNOWLEDGE_CONCEPTS_URL], ['knowledgeAliases', KNOWLEDGE_ALIASES_URL], ['currentObservations', CURRENT_OBSERVATIONS_URL],
             ['routeTargets', ROUTE_TARGETS_URL], ['knowledgeStatus', KNOWLEDGE_STATUS_URL], ['referenceCurriculum', REFERENCE_CURRICULUM_URL]
           ]);
-          const loading = new Set();
           const updateSearchIndex = () => {
             NODE_SEARCH_EXTRA.clear();
             LESSON_SEARCH_EXTRA.clear();
@@ -1425,20 +1427,17 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
               (lesson.nodeIds || []).forEach((nodeId) => NODE_SEARCH_EXTRA.set(nodeId, `${NODE_SEARCH_EXTRA.get(nodeId) || ''} ${extra}`));
             });
           };
+          const capabilityLoader = createKnowledgeCapabilityBatchLoader({
+            fetchFn,
+            state,
+            dataset: page.dataset,
+            datasetMap,
+            signal: scope?.signal,
+            isActive: isAlive,
+            validators: { currentObservations: validateCurrentObservationsArtifact }
+          });
           const loadGroup = async (definitions) => {
-            const pending = definitions
-              .filter(({ key }) => state[key] == null && !loading.has(key))
-              .map((definition) => definition.key === 'currentObservations' ? { ...definition, validate: validateCurrentObservationsArtifact } : definition);
-            if (!pending.length) return;
-            pending.forEach(({ key }) => loading.add(key));
-            const capabilities = await loadKnowledgeCapabilities(fetchFn, pending, { signal: scope?.signal });
-            if (!isAlive()) return;
-            for (const [key, result] of Object.entries(capabilities)) {
-              loading.delete(key);
-              state[key] = result.value;
-              state[`${key}Error`] = result.status !== 'connected';
-              page.dataset[datasetMap[key]] = result.status;
-            }
+            if (!await capabilityLoader.load(definitions)) return;
             updateSearchIndex();
               page.dataset.aioReviewedAt = [state.knowledgeArticles?.generatedAt, state.knowledgeArticles?.articles?.map((article) => article.reviewedAt).sort().at(-1), state.chapters?.reviewedAt, state.lessonLibrary?.reviewedAt, state.nodeGuides?.reviewedAt, state.referenceCurriculum?.revision, REVIEWED_AT].filter(Boolean).sort().at(-1) || REVIEWED_AT;
              if (state.lessonLibrary && state.activeLessonId) {

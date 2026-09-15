@@ -1856,7 +1856,10 @@ window._aioWLToggle = function(sym) {
 // v50.38 트랙1: 누락됐던 _fetchYahooChartData 복구 (핵심 버그 — 8곳에서 호출되나 정의 부재였음).
 //   스파크라인(_aioBuildSparklineSvg)·OHLCV 폴백(fetchOHLCVWithFallback)·VIX/HY/SPY 차트가 공통 의존.
 //   Yahoo v8 chart를 fetchViaProxy(CORS 프록시 체인 + stale-cache 폴백) 경유로 받아 OHLCV 배열 반환.
-//   소비자 기대 형태: { closes, opens, highs, lows, volumes, timestamps }(유닉스초). close는 null 포함 가능 → 소비자가 filter.
+//   소비자 기대 형태: { closes, adjustedCloses, opens, highs, lows, volumes, timestamps }(유닉스초).
+//   기술분석/OHLC는 raw close를 유지하고, 총수익/월말 백테스트는 별도 adjustedCloses를
+//   명시적으로 선택해야 한다. Yahoo가 adjusted series를 생략하면 partial/unavailable로
+//   표시하며 raw close를 adjusted로 위장하지 않는다.
 async function _aioFetchYahooChartData(symbol, range, interval) {
   if (!symbol) return null;
   range = range || '1mo';
@@ -1879,18 +1882,44 @@ async function _aioFetchYahooChartData(symbol, range, interval) {
     }
     var res = json && json.chart && json.chart.result && json.chart.result[0];
     if (!res || !res.meta || String(res.meta.symbol || '').toUpperCase() !== String(symbol).toUpperCase()) return null;
-    var q = (res.indicators && res.indicators.quote && res.indicators.quote[0]) || {};
+    var indicators = res.indicators || {};
+    var q = (indicators.quote && indicators.quote[0]) || {};
+    var adjusted = (indicators.adjclose && indicators.adjclose[0] && indicators.adjclose[0].adjclose) || null;
+    var timestamps = Array.isArray(res.timestamp) ? res.timestamp : [];
+    var closes = Array.isArray(q.close) ? q.close : [];
+    var hasAlignedAdjusted = Array.isArray(adjusted) && adjusted.length === timestamps.length;
+    var comparableBars = 0;
+    var adjustedBars = 0;
+    for (var ai = 0; ai < Math.min(timestamps.length, closes.length); ai++) {
+      var rawClose = closes[ai];
+      if (typeof rawClose !== 'number' || !isFinite(rawClose) || rawClose <= 0) continue;
+      comparableBars++;
+      if (hasAlignedAdjusted && typeof adjusted[ai] === 'number' && isFinite(adjusted[ai]) && adjusted[ai] > 0) adjustedBars++;
+    }
+    var adjustedCloseStatus = !Array.isArray(adjusted) ? 'unavailable'
+      : (hasAlignedAdjusted && comparableBars > 0 && adjustedBars === comparableBars ? 'complete' : 'partial');
     return {
       symbol: symbol,
       interval: interval,
-      timestamps: res.timestamp || [],
-      closes: q.close || [],
+      timestamps: timestamps,
+      closes: closes,
+      // Keep provider index alignment and nulls. Never filter this array
+      // independently from timestamps: portfolio month-end selection depends
+      // on the exact bar/date relationship.
+      adjustedCloses: Array.isArray(adjusted) ? adjusted.slice() : null,
+      adjCloses: Array.isArray(adjusted) ? adjusted.slice() : null,
+      adjustedCloseStatus: adjustedCloseStatus,
+      adjustedCloseCoveragePct: comparableBars ? Math.round(adjustedBars / comparableBars * 1000) / 10 : 0,
+      backtestEligible: adjustedCloseStatus === 'complete',
+      backtestPriceBasis: adjustedCloseStatus === 'complete' ? 'adjusted-close' : null,
       opens: q.open || [],
       highs: q.high || [],
       lows: q.low || [],
       volumes: q.volume || [],
       meta: res.meta || null,
-      transport: json._aioTransport || null
+      transport: json._aioTransport || null,
+      sourceKind: 'T3_PUBLIC_DELAYED',
+      allowedUse: adjustedCloseStatus === 'complete' ? 'research-history-adjusted-close' : 'research-history-raw-only'
     };
   } catch(e) {
     if (typeof _aioLog === 'function') _aioLog('warn', 'fetch', '_fetchYahooChartData 실패 ' + symbol + ': ' + (e && e.message || e));
@@ -2418,7 +2447,9 @@ function initFinnhubWebSocket() {
               _finnhubPrices[sym] = price;
               // Route through PriceStore for validation & global sync
               if (window.PriceStore) {
-                PriceStore.set(sym, price, null, 'live:finnhub');
+                // Finnhub trade `t` is provider observation time (ms).  Do
+                // not let the receive time promote an undated quote.
+                PriceStore.set(sym, price, null, 'live:finnhub', { observedAt: trade.t || null, fetchedAt: Date.now(), policyKey: 'quote' });
               } else {
                 if (typeof window._aioSetLiveData === 'function') {
                   window._aioSetLiveData(sym, { price: price, pct: null }, { source: 'live:finnhub', bypassPriceStore: true, policyKey: 'quote', reason: 'PriceStore unavailable' });
@@ -5235,7 +5266,7 @@ function _aioApplyServerTreasuryEvidence(macro, metadata) {
       observedAt,
       fetchedAt,
       source,
-      sourceKind: 'official-primary',
+      sourceKind: 'T1_OFFICIAL',
       allowedUse: 'reference-only',
       freshness,
       _source: source
@@ -5254,7 +5285,7 @@ function _aioApplyServerTreasuryEvidence(macro, metadata) {
         observedAt,
         fetchedAt,
         source,
-        sourceKind: 'official-primary',
+        sourceKind: 'T1_OFFICIAL',
         allowedUse: 'reference-only',
         freshness,
         seriesId: definition.fredId,
@@ -5352,7 +5383,14 @@ async function _aioLoadServerData() {
     var ageMin = isFinite(_serverGeneratedMs) ? Math.round((Date.now() - _serverGeneratedMs) / 60000) : null;
     var _marketCycleFreshnessSlaHours = Number(d.meta.marketCycleFreshnessSlaHours || 12);
     var _liveCoreAgeHours = ageMin == null ? Infinity : ageMin / 60;
-    var _marketCoverage = d.meta.marketSnapshotCoverage || {};
+    var _marketCoverageRaw = d.meta.marketSnapshotCoverage || {};
+    // Older producers returned {required, observed, ratio}; newer snapshot
+    // contracts also expose tier0Required/tier0Observed. Normalize both forms
+    // here so a complete published cycle is not blocked merely by schema shape.
+    var _marketCoverage = Object.assign({}, _marketCoverageRaw, {
+      tier0Required: Number(_marketCoverageRaw.tier0Required ?? _marketCoverageRaw.required),
+      tier0Observed: Number(_marketCoverageRaw.tier0Observed ?? _marketCoverageRaw.observed)
+    });
     var _marketCoverageComplete = Number(_marketCoverage.tier0Required) > 0
       && Number(_marketCoverage.tier0Observed) === Number(_marketCoverage.tier0Required)
       && (!Array.isArray(d.meta.failedSymbols) || d.meta.failedSymbols.length === 0);
@@ -5361,11 +5399,21 @@ async function _aioLoadServerData() {
       && d.meta.cycleStatus === 'PUBLISHED'
       && _marketCoverageComplete;
     var _liveCoreFresh = isFinite(_liveCoreAgeHours) && _liveCoreAgeHours >= 0 && _liveCoreAgeHours <= _marketCycleFreshnessSlaHours;
-    var _liveCoreEligible = _liveCoreFresh || _marketClosedGrace;
+    // generatedAt is an attempt/payload timestamp. It is not permission to promote
+    // an incomplete market cycle: a failed refresh can have a fresh generatedAt while
+    // its quotes remain last-known-good. Require the producer's publication gate and
+    // complete tier-0 coverage before the live quote plane or snapshot clock advances.
+    var _marketCyclePublished = d.meta.cycleStatus === 'PUBLISHED'
+      && d.meta.marketSnapshotPublished === true
+      && _marketCoverageComplete;
+    var _liveCoreEligible = _marketCyclePublished && (_liveCoreFresh || _marketClosedGrace);
     var _liveCoreStaleReason = _liveCoreEligible ? null
-      : (!isFinite(_liveCoreAgeHours) ? 'generatedAt-missing-or-invalid' : 'market-cycle-freshness-sla-exceeded');
+      : (!_marketCyclePublished ? 'market-cycle-not-published'
+        : (!isFinite(_liveCoreAgeHours) ? 'generatedAt-missing-or-invalid' : 'market-cycle-freshness-sla-exceeded'));
     window._serverDataMeta = {
       generatedAt: d.meta.generatedAt,
+      attemptedAt: d.meta.attemptedAt || d.meta.generatedAt || null,
+      artifactGeneratedAt: d.meta.artifactGeneratedAt || d.meta.generatedAt || null,
       ageMin: ageMin,
       symbolsOk: d.meta.symbolsOk,
       symbolsFail: d.meta.symbolsFail,
@@ -5388,11 +5436,16 @@ async function _aioLoadServerData() {
       newsCycleLabel: d.meta.newsCycleLabel || null,
       newsNextRefresh: d.meta.newsNextRefresh || null,
       marketSnapshotRevision: d.meta.marketSnapshotRevision || null,
+      marketSnapshotAttemptRevision: d.meta.marketSnapshotAttemptRevision || null,
+      marketSnapshotAttemptedAt: d.meta.marketSnapshotAttemptedAt || null,
+      marketSnapshotPublishedAt: d.meta.marketSnapshotPublishedAt || null,
+      marketSnapshotLastSuccessfulAt: d.meta.marketSnapshotLastSuccessfulAt || null,
       // Keep the published quote coverage beside the revision so shell-level
       // status consumers can distinguish a loaded reference snapshot from an
       // empty/unknown state without reaching into the loader's local scope.
       marketSnapshotCoverage: _marketCoverage,
       marketSnapshotPublished: d.meta.marketSnapshotPublished === true,
+      marketCyclePublished: _marketCyclePublished,
       cycleId: d.meta.cycleId || null,
       cycleStatus: d.meta.cycleStatus || 'unknown',
       marketCycleFreshnessSlaHours: _marketCycleFreshnessSlaHours,
@@ -5402,6 +5455,7 @@ async function _aioLoadServerData() {
       marketClosedGrace: _marketClosedGrace,
       liveCoreStaleReason: _liveCoreStaleReason,
       cycleManifestRevision: d.meta.cycleManifestRevision || null,
+      cycleManifestAttemptRevision: d.meta.cycleManifestAttemptRevision || null,
       cycleComponents: d.meta.cycleComponents || null,
       putCallOk: !!d.meta.putCallOk,
       putCallAsOf: d.meta.putCallAsOf || (d.putCall && d.putCall.asOf) || null,
@@ -5436,12 +5490,30 @@ async function _aioLoadServerData() {
     // the payload, not every field; per-field timestamps remain authoritative.
     if (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fieldTs && d.meta.generatedAt) {
       window.DATA_SNAPSHOT._fieldTs.serverData = d.meta.generatedAt;
+      // Keep the artifact fetch/attempt lineage separate from market observation
+      // lineage. A failed or degraded cycle must not relabel an older LKG market
+      // snapshot as fresh merely because its payload was generated now.
       var _existingSnapshotMs = new Date(window.DATA_SNAPSHOT._updated || window.DATA_SNAPSHOT._marketDataUpdated || 0).getTime();
-      if (!isFinite(_existingSnapshotMs) || _serverGeneratedMs >= _existingSnapshotMs) {
+      if (_liveCoreEligible && (!isFinite(_existingSnapshotMs) || _serverGeneratedMs >= _existingSnapshotMs)) {
         window.DATA_SNAPSHOT._updated = d.meta.generatedAt;
         window.DATA_SNAPSHOT._marketDataUpdated = d.meta.generatedAt;
         window.DATA_SNAPSHOT._snapshotDate = String(d.meta.generatedAt).slice(0, 10);
         window.DATA_SNAPSHOT._marketDataDate = window.DATA_SNAPSHOT._snapshotDate;
+      }
+      // A degraded/LKG artifact still needs a dated reference envelope for
+      // freshness audits. This date is explicitly non-promoted artifact
+      // provenance; it must never clear _isFallback or advance market data
+      // freshness, and it is not an observation permission.
+      if (!_liveCoreEligible && !window.DATA_SNAPSHOT._snapshotDate) {
+        var _referenceArtifactDate = d.meta.marketSnapshotLastSuccessfulAt || d.meta.generatedAt || d.meta.artifactGeneratedAt || null;
+        var _referenceArtifactMs = _referenceArtifactDate ? new Date(_referenceArtifactDate).getTime() : NaN;
+        if (isFinite(_referenceArtifactMs)) {
+          var _referenceArtifactIso = new Date(_referenceArtifactMs).toISOString();
+          window.DATA_SNAPSHOT._snapshotDate = _referenceArtifactIso.slice(0, 10);
+          window.DATA_SNAPSHOT._marketDataDate = window.DATA_SNAPSHOT._snapshotDate;
+          window.DATA_SNAPSHOT._marketDataDateKind = 'artifact-reference-fallback';
+          window.DATA_SNAPSHOT._fieldTs.serverData = d.meta.generatedAt;
+        }
       }
     }
 
@@ -5504,7 +5576,7 @@ async function _aioLoadServerData() {
           observedAt: d.macro._asOf_hyOAS || null,
           fetchedAt: _serverHyOfficial ? d.meta.generatedAt || null : null,
           source: _serverHySource,
-          sourceKind: _serverHyOfficial ? 'official-primary' : 'snapshot',
+          sourceKind: _serverHyOfficial ? 'T1_OFFICIAL' : 'T3_PUBLIC_DELAYED',
           allowedUse: _serverHyOfficial ? 'reference-until-freshness-gate' : 'reference'
         };
         Object.assign(window, {
@@ -5544,7 +5616,7 @@ async function _aioLoadServerData() {
       if (window._serverDataMeta) {
         window._serverDataMeta.bls = _blsEvidence ? {
           status: _blsEvidence.status || 'unavailable',
-          sourceKind: _blsEvidence.sourceKind || 'official-primary',
+          sourceKind: _blsEvidence.sourceKind || 'T1_OFFICIAL',
           attemptedAt: _blsEvidence.attemptedAt || null,
           fetchedAt: _blsEvidence.fetchedAt || null,
           lastSuccessfulAt: _blsEvidence.lastSuccessfulAt || null,
@@ -5554,7 +5626,7 @@ async function _aioLoadServerData() {
         } : null;
         window._serverDataMeta.bea = _beaEvidence ? {
           status: _beaEvidence.status || 'unavailable',
-          sourceKind: _beaEvidence.sourceKind || 'official-primary',
+          sourceKind: _beaEvidence.sourceKind || 'T1_OFFICIAL',
           attemptedAt: _beaEvidence.attemptedAt || null,
           fetchedAt: _beaEvidence.fetchedAt || null,
           lastSuccessfulAt: _beaEvidence.lastSuccessfulAt || null,
@@ -5595,7 +5667,7 @@ async function _aioLoadServerData() {
             value: standardValue,
             observedAt: standard.observedAt || null,
             source: standard.source || 'BLS Public Data API v1',
-            sourceKind: standard.sourceKind || 'official-primary',
+            sourceKind: standard.sourceKind || 'T1_OFFICIAL',
             seasonalAdjustment: 'NSA',
             definition: standard.definition || null,
             allowedUse: standard.allowedUse || 'macro-evidence-with-observation-date'
@@ -5691,7 +5763,7 @@ async function _aioLoadServerData() {
     // 3) Fear & Greed
     if (d.fearGreed && typeof d.fearGreed.score === 'number' && isFinite(d.fearGreed.score)) {
       if (typeof _applyFearGreedScore === 'function') {
-        _applyFearGreedScore({ score: d.fearGreed.score, sourceKind: 'delayed', sourceLabel: 'cnn-via-github-actions', sourceTs: d.fearGreed.asOf || d.meta.generatedAt, operationalUse: 'reference-only' });
+        _applyFearGreedScore({ score: d.fearGreed.score, sourceKind: 'T3_PUBLIC_DELAYED', sourceLabel: 'cnn-via-github-actions', sourceTs: d.fearGreed.asOf || d.meta.generatedAt, operationalUse: 'reference-only' });
       }
       // v51.66: _fieldTs.fearGreed — Fear & Greed 마지막 적용 시각 기록
       if (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fieldTs) {
@@ -5705,7 +5777,7 @@ async function _aioLoadServerData() {
         totalPutCall: d.putCall.totalPutCall,
         equityPutCall: d.putCall.equityPutCall,
         indexPutCall: d.putCall.indexPutCall,
-        sourceKind: 'delayed',
+        sourceKind: 'T1_OFFICIAL',
         sourceLabel: 'Cboe Daily Market Statistics',
         asOf: d.putCall.asOf || d.meta.generatedAt
       });
@@ -6238,14 +6310,16 @@ function _aioApplyNewsBackstop(force) {
     var clientEmpty = (!Array.isArray(window._allNewsItems) || window._allNewsItems.length === 0) &&
                       (typeof newsCache === 'undefined' || !newsCache || newsCache.length === 0);
     if (!force && !clientEmpty) return false; // 자체 뉴스가 있으면 손대지 않음
-    var nowIso = new Date().toISOString();
     var serverMeta = window._serverDataMeta || {};
     var items = bs.map(function(n) {
       var it = {
         title: n.title, headline: n.title,
         link: n.link, url: n.link,
         source: n.source || 'News', feed: n.source || 'News',
-        pubDate: n.pubDate || nowIso,
+        // Missing publication time is undated reference material, not a
+        // current event. Never manufacture `now` here: doing so lets an old
+        // LKG headline enter the current-news score/window.
+        pubDate: n.pubDate || null,
         desc: n.desc || n.description || '',
         summary: n.summary || n.ko_summary || '',
         country: n.country || 'us',
@@ -6325,13 +6399,20 @@ function _aioRenderServerDataAge() {
     if (!el) return;
     var meta = window._serverDataMeta;
     if (!meta || !meta.generatedAt) { el.style.display = 'none'; return; }
-    var age = Math.max(0, Math.round((Date.now() - new Date(meta.generatedAt).getTime()) / 60000));
+    var generatedMs = new Date(meta.generatedAt).getTime();
+    if (!isFinite(generatedMs)) { el.style.display = 'none'; return; }
+    var age = Math.max(0, Math.round((Date.now() - generatedMs) / 60000));
     // KST 시각 포맷 (UTC+9)
     var d = new Date(new Date(meta.generatedAt).getTime() + 9 * 3600000);
     var kst = (d.getUTCMonth()+1) + '-' + String(d.getUTCDate()).padStart(2,'0')
             + ' ' + String(d.getUTCHours()).padStart(2,'0') + ':' + String(d.getUTCMinutes()).padStart(2,'0') + ' KST';
     var txt, cls, title;
-    if (age < 60)       { txt = '🟢 ' + kst + ' 갱신'; cls = 'fb-live';   title = '서버(GitHub Actions)가 ' + age + '분 전 수집한 데이터 — 신선\n' + kst + ' | 시세 ' + (meta.symbolsOk||'?') + '개'; }
+    if (meta.marketCyclePublished !== true) {
+      txt = '🟠 ' + kst + ' 시도';
+      cls = 'fb-static';
+      title = '최근 서버 시도는 시장 스냅샷으로 발행되지 않았습니다. 현재 시세는 마지막 성공본(LKG) 참고자료일 수 있습니다.\n'
+        + kst + ' | cycle=' + (meta.cycleStatus || 'unknown');
+    } else if (age < 60)       { txt = '🟢 ' + kst + ' 갱신'; cls = 'fb-live';   title = '서버(GitHub Actions)가 ' + age + '분 전 수집한 데이터 — 신선\n' + kst + ' | 시세 ' + (meta.symbolsOk||'?') + '개'; }
     else if (age < 180) { txt = '🟡 ' + kst + ' 갱신'; cls = 'fb-static'; title = '서버 데이터 ' + age + '분 경과 (자동 갱신 대기)\n' + kst + ' | 시세 ' + (meta.symbolsOk||'?') + '개'; }
     else {
       var h = Math.floor(age / 60);
@@ -6358,6 +6439,9 @@ function _aioRenderPipelineStatus() {
     if (!meta) { bar.style.display = 'none'; return; }
 
     var msgs = [];
+    if (meta.marketCyclePublished !== true) {
+      msgs.push({ icon: '⚠️', text: '시장 스냅샷 미발행', detail: '최근 refresh 시도는 완전한 시장 cycle로 발행되지 않았습니다. 현재 시세는 마지막 성공본 참고자료입니다.', color: '#ef4444' });
+    }
     if (meta.marketAnalysisOk === false) {
       msgs.push({ icon: '🤖', text: 'AI 시장 분석 비활성', detail: 'GitHub Secrets → ANTHROPIC_API_KEY 등록 시 자동 활성화', color: '#f59e0b' });
     }
@@ -6526,6 +6610,9 @@ function _aioBuildPublicShareReadiness(opts) {
     else if (ageMin > 180) warnings.push('public-data가 3시간 이상 지연');
   } else {
     warnings.push('public-data 기준 시각 미수신');
+  }
+  if (meta && meta.marketCyclePublished !== true) {
+    blockers.push('시장 스냅샷 cycle 미발행 — 시도 시각을 시장 관측 시각으로 사용하지 않음');
   }
   if (!pageAudit) warnings.push('페이지 현재성 감사 미수신');
   else if (pageAudit.status !== 'pass') warnings.push('페이지 현재성 주의: ' + (pageAudit.missingCaveat || []).slice(0, 3).join(', '));
@@ -9001,14 +9088,16 @@ const TW_HOME_H     = 24;    // v51.31: 전체 뉴스/소식은 08:00 KST 기준
 const TW_MARKET_H   = 24;    // v51.31: 시장 소식도 일간 사이클로 통일
 const TW_BRIEFING_H = 24;    // 데일리 브리핑: 24시간 이내
 
-// pubDate 기반 나이 필터 (pubDate 없으면 최신으로 간주)
+// pubDate 기반 나이 필터. 날짜가 없거나 해석되지 않는 항목은 현재성
+// 근거가 없으므로 current window에 넣지 않는다(참고 화면에서는 별도 노출 가능).
 function filterByAge(items, maxHours) {
   if (!maxHours || !items) return items || [];
-  const cutoff = Date.now() - maxHours * 3600000;
+  const nowMs = Date.now();
+  const cutoff = nowMs - maxHours * 3600000;
   return items.filter(i => {
-    if (!i.pubDate) return true;
+    if (!i || !i.pubDate) return false;
     const t = new Date(i.pubDate).getTime();
-    return isNaN(t) ? true : t >= cutoff;
+    return Number.isFinite(t) && t <= nowMs && t >= cutoff;
   });
 }
 
@@ -10956,7 +11045,8 @@ window.AIO.getNewsSelectionAudit = function(items) {
 };
 
 function _aioNewsPubMs(item) {
-  var t = item && item.pubDate ? new Date(item.pubDate).getTime() : 0;
+  var raw = item && (item.pubDate || item.eventTime || item.publishedAt || item.observedAt);
+  var t = raw ? new Date(raw).getTime() : 0;
   return isNaN(t) ? 0 : t;
 }
 
@@ -11038,7 +11128,16 @@ function _aioNewsCycleWindowForContract(contract, opts) {
     var smAgeH = meta.generatedAt ? (Date.now() - new Date(meta.generatedAt).getTime()) / 3600000 : Infinity;
     var sharedCut = null;
     try { sharedCut = window.AIO && typeof window.AIO.getSharedMarketCut === 'function' ? window.AIO.getSharedMarketCut() : null; } catch(_) {}
-    var serverCutFresh = sharedCut ? sharedCut.usable === true : smAgeH <= Number(meta.marketCycleFreshnessSlaHours || 12);
+    // A fresh generatedAt is only the refresh attempt clock. The news window
+    // may use the shared cut only after the market cycle itself was published;
+    // otherwise a failed publish/LKG snapshot could relabel old headlines as
+    // current simply because the payload was fetched now.
+    var publishedCycle = meta.marketCyclePublished === true
+      && meta.marketSnapshotPublished === true
+      && meta.cycleStatus === 'PUBLISHED';
+    var serverCutFresh = publishedCycle && (sharedCut
+      ? sharedCut.usable === true
+      : meta.liveCoreEligible === true && smAgeH <= Number(meta.marketCycleFreshnessSlaHours || 12));
     if (isFinite(smStart) && isFinite(smEnd) && smEnd > smStart && serverCutFresh) {
       return { start: smStart, end: smEnd, anchorDate: meta.newsCycleLabel || '' };
     }
@@ -11058,7 +11157,8 @@ function _aioNewsInclusionReason(row, surfaceId) {
 
 function _aioNormalizeNewsItem(surfaceId, item, contract, nowMs, cycleWindow) {
   var pubMs = _aioNewsPubMs(item);
-  var ageHours = pubMs ? Math.max(0, Math.round((nowMs - pubMs) / 3600000 * 10) / 10) : Infinity;
+  var futurePublication = pubMs > nowMs + 5 * 60 * 1000;
+  var ageHours = pubMs && !futurePublication ? Math.max(0, Math.round((nowMs - pubMs) / 3600000 * 10) / 10) : Infinity;
   var inNewsCycle = !!(cycleWindow && pubMs && pubMs >= cycleWindow.start && pubMs < cycleWindow.end);
   var itemCycleStart = item && item.newsCycleStart ? new Date(item.newsCycleStart).getTime() : 0;
   var itemCycleEnd = item && item.newsCycleEnd ? new Date(item.newsCycleEnd).getTime() : 0;
@@ -11094,6 +11194,23 @@ function _aioNormalizeNewsItem(surfaceId, item, contract, nowMs, cycleWindow) {
   row.inclusionReason = _aioNewsInclusionReason(row, surfaceId);
   row.eligibleForAi = row.contentDepth !== 'headline-only'
     && (row.verificationStatus === 'verified-current' || (row.verificationStatus === 'current' && row.sourceTier <= 2));
+  var windowHours = Number(contract.windowHours || 48);
+  var withinWindow = !futurePublication && (inNewsCycle || (isFinite(ageHours) && ageHours <= windowHours));
+  var currentStatus = row.verificationStatus !== 'stale'
+    && row.verificationStatus !== 'unverified'
+    && row.verificationStatus !== 'secondary-only'
+    && withinWindow;
+  row.currentEvidence = {
+    observedAt: pubMs && !futurePublication ? new Date(pubMs).toISOString() : null,
+    fetchedAt: row.newsFetchedAt || row.serverGeneratedAt || null,
+    ageHours: isFinite(ageHours) ? ageHours : null,
+    inNewsCycle: inNewsCycle,
+    withinWindow: withinWindow,
+    current: currentStatus,
+    verificationStatus: row.verificationStatus,
+    eligibleForAi: row.eligibleForAi,
+    reason: futurePublication ? 'publication-time-in-future' : !pubMs ? 'publication-time-missing' : !withinWindow ? 'publication-outside-current-window' : row.verificationStatus
+  };
   return row;
 }
 
@@ -12157,7 +12274,9 @@ async function fetchAllNews(forceRefresh = false) {
                           title: fullText.slice(0, 200),
                           desc: fullText.slice(0, 280),
                           link: linkEl ? (linkEl.getAttribute('href') || tgUrl2) : tgUrl2,
-                          pubDate: dateEl ? dateEl.getAttribute('datetime') : new Date().toISOString(),
+                          // Telegram markup may omit datetime. Preserve the
+                          // omission so current-window consumers exclude it.
+                          pubDate: dateEl ? dateEl.getAttribute('datetime') : null,
                           source: originalSrc ? `${originalSrc} (TG)` : s.name,
                           feed: s.name, tier: 1, flag: '', _tgChannel: slug,
                         });
@@ -12350,7 +12469,7 @@ async function fetchAllNews(forceRefresh = false) {
         .slice(0, 3)
         .map(function(n){
           return { title: n.title, headline: n.title, link: n.link, url: n.link,
-                   source: n.source || 'Google News', pubDate: n.pubDate || new Date().toISOString(),
+                   source: n.source || 'Google News', pubDate: n.pubDate || null,
                    desc: '', summary: '', country: n.country || 'kr', topic: n.topic || 'kr',
                    score: n.score || 40, selectionReason: n.selectionReason || '',
                    flag: typeof getCountryFlag === 'function' ? getCountryFlag('kr') : '',
@@ -12776,7 +12895,7 @@ async function fetchKrNaverQuotes(requestedSymbols) {
           regularMarketChangePercent: chgPct,
           regularMarketChange: chgVal,
           regularMarketPreviousClose: (_prevClose > 0 ? _prevClose : undefined),
-          _source: 'live:naver'
+           _source: 'live:naver', sourceKind: 'T3_PUBLIC_DELAYED', allowedUse: 'reference-only', allowedUseCeiling: 'reference', rightsId: 'PUBLIC_REFERENCE', qualityStatus: 'CURRENT', quality: { status: 'CURRENT', stale: false, decisionUse: false, allowedUse: 'reference' }
         });
       }
     } catch(e) { _aioLog('warn', 'fetch', 'KR-Naver 지수 ' + idx.naver + ' 실패: ' + e.message); }
@@ -12833,7 +12952,7 @@ async function fetchKrNaverQuotes(requestedSymbols) {
                 regularMarketPrice: price,
                 regularMarketChangePercent: chgPct,
                 regularMarketChange: chgVal,
-                _source: 'live:naver'
+                 _source: 'live:naver', sourceKind: 'T3_PUBLIC_DELAYED', allowedUse: 'reference-only', allowedUseCeiling: 'reference', rightsId: 'PUBLIC_REFERENCE', qualityStatus: 'CURRENT', quality: { status: 'CURRENT', stale: false, decisionUse: false, allowedUse: 'reference' }
               });
             }
           });
@@ -12864,7 +12983,7 @@ async function fetchKrNaverQuotes(requestedSymbols) {
               regularMarketPrice: price,
               regularMarketChangePercent: chgPct,
               regularMarketChange: chgVal,
-              _source: 'live:naver-fb'
+               _source: 'live:naver-fb', sourceKind: 'T3_PUBLIC_DELAYED', allowedUse: 'reference-only', allowedUseCeiling: 'reference', rightsId: 'PUBLIC_REFERENCE', qualityStatus: 'CURRENT', quality: { status: 'CURRENT', stale: false, decisionUse: false, allowedUse: 'reference' }
             });
             // v35.7: 시가총액 동적 추출
             if (typeof _enrichMarketCap === 'function') _enrichMarketCap(code, data);
@@ -12958,7 +13077,7 @@ async function fetchKrNaverQuotes(requestedSymbols) {
               regularMarketPrice: price,
               regularMarketChangePercent: pct != null ? +pct.toFixed(2) : null,
               regularMarketChange: prev ? (price - prev.close) : null,
-              _source: ep.tag
+              _source: ep.tag, sourceKind: 'T3_PUBLIC_DELAYED', allowedUse: 'reference-only', allowedUseCeiling: 'reference', rightsId: 'PUBLIC_REFERENCE', qualityStatus: 'CURRENT', quality: { status: 'CURRENT', stale: false, decisionUse: false, allowedUse: 'reference' }
             });
           }
         } catch(e) {}
@@ -13088,7 +13207,7 @@ async function fetchLiveQuotes(requestedSymbols) {
             marketCap: d[cgId].usd_market_cap != null ? d[cgId].usd_market_cap : null,
             volume24h: d[cgId].usd_24h_vol != null ? d[cgId].usd_24h_vol : null,
             cgLastUpdated: d[cgId].last_updated_at || null,
-            _source: 'live:coingecko',
+            _source: 'live:coingecko', sourceKind: 'T3_PUBLIC_DELAYED', allowedUse: 'reference-only', allowedUseCeiling: 'reference', rightsId: 'PUBLIC_REFERENCE', qualityStatus: 'CURRENT', quality: { status: 'CURRENT', stale: false, decisionUse: false, allowedUse: 'reference' },
           });
         }
       }
@@ -13184,7 +13303,7 @@ async function fetchLiveQuotes(requestedSymbols) {
         observedAt: observedAt || null,
         valueBasis: 'daily-reference-rate',
         changeBasis: 'unavailable',
-        _source: 'reference:fx:' + apiName
+        _source: 'reference:fx:' + apiName, sourceKind: 'T4_REFERENCE', allowedUse: 'reference-only', allowedUseCeiling: 'reference', rightsId: 'PUBLIC_REFERENCE', qualityStatus: 'CURRENT', quality: { status: 'CURRENT', stale: false, decisionUse: false, allowedUse: 'reference' }
       });
     }
     // A previous browser visit is not the prior market close. This source has
@@ -13312,7 +13431,7 @@ async function fetchLiveQuotes(requestedSymbols) {
             regularMarketTime: q.regularMarketTime ?? null,
             exchangeTimezoneName: q.exchangeTimezoneName ?? null,
             fullExchangeName: q.fullExchangeName ?? null,
-            _source: 'live:yahoo-v7-batch'
+            _source: 'live:yahoo-v7-batch', sourceKind: 'T3_PUBLIC_DELAYED', allowedUse: 'reference-only', allowedUseCeiling: 'reference', rightsId: 'PUBLIC_REFERENCE', qualityStatus: 'CURRENT', quality: { status: 'CURRENT', stale: false, decisionUse: false, allowedUse: 'reference' }
           };
           var _ms = (q.marketState || '').toUpperCase();
           if (_ms === 'PRE' && q.preMarketPrice > 0) {
@@ -13362,7 +13481,7 @@ async function fetchLiveQuotes(requestedSymbols) {
       if (state === 'PRE' && meta.preMarketPrice > 0) extended = { extPrice:meta.preMarketPrice, extPct:meta.preMarketChangePercent ?? null, extSession:'pre' };
       if ((state === 'POST' || state === 'POSTPOST') && meta.postMarketPrice > 0) extended = { extPrice:meta.postMarketPrice, extPct:meta.postMarketChangePercent ?? null, extSession:'post' };
       return { ...meta, symbol, ...extended, regularMarketChangePercent:pct, regularMarketChange:change,
-        chartPreviousClose:previous, _source:'live:yahoo-proxy', _transport:raw._aioTransport };
+        chartPreviousClose:previous, _source:'live:yahoo-proxy', sourceKind:'T3_PUBLIC_DELAYED', allowedUse:'reference-only', allowedUseCeiling:'reference', rightsId:'PUBLIC_REFERENCE', qualityStatus:'CURRENT', quality:{ status:'CURRENT', stale:false, decisionUse:false, allowedUse:'reference' }, _transport:raw._aioTransport };
     } catch (_) {}
     return null;
   }
@@ -13586,7 +13705,7 @@ async function fetchLiveQuotes(requestedSymbols) {
               regularMarketChange: null,
               observedAt: /^\d{4}-\d{2}-\d{2}$/.test(cols[1]) ? cols[1] : null,
               valueBasis: 'daily-close-reference', changeBasis: 'unknown',
-              _source: 'reference:stooq'
+              _source: 'reference:stooq', sourceKind: 'T4_REFERENCE', allowedUse: 'reference-only', allowedUseCeiling: 'reference', rightsId: 'PUBLIC_REFERENCE', qualityStatus: 'CURRENT', quality: { status: 'CURRENT', stale: false, decisionUse: false, allowedUse: 'reference' }
             });
           });
           console.log('[AIO-Stooq] 폴백 배치 ' + (sbi+1) + ':', stBatch.length + '개 시도');
@@ -14072,9 +14191,11 @@ function _aioMarkLiveSink(el, sym, d, policyKey, unavailable) {
   try {
     truth = window.AIO && typeof window.AIO.evaluateDataTruth === 'function' ? window.AIO.evaluateDataTruth(sym, d, ds) : null;
   } catch(_) {}
-  var truthOk = !truth || truth.decisionUse === true;
-  el.setAttribute('data-source-kind', unavailable ? 'unavailable' : (contract && contract.sourceKind ? contract.sourceKind : (/snapshot|cache/i.test(source) ? 'snapshot' : 'live')));
-  el.setAttribute('data-operational-use', (!unavailable && truthOk && contract && contract.allowedUse) ? 'decision' : (!unavailable && truthOk && !contract ? 'decision' : 'reference-only'));
+  var truthOk = !!(truth && truth.decisionUse === true);
+  var explicitSourceKind = ds.sourceKind || (d && d.sourceKind) || (d && d.quoteEnvelope && d.quoteEnvelope.sourceKind) || null;
+  var explicitAllowedUse = ds.allowedUse || (d && d.allowedUse) || (d && d.quoteEnvelope && d.quoteEnvelope.allowedUse) || null;
+  el.setAttribute('data-source-kind', unavailable ? 'unavailable' : (contract && contract.sourceKind ? contract.sourceKind : (explicitSourceKind || 'unavailable')));
+  el.setAttribute('data-operational-use', (!unavailable && truthOk && contract && contract.allowedUse && explicitAllowedUse) ? 'decision' : 'reference-only');
   el.setAttribute('data-source-label', source);
   if (ts) el.setAttribute('data-source-ts', String(ts));
   if (truth) {
@@ -14304,6 +14425,16 @@ function _aioNormalizeAtomicQuote(input, now) {
   var observedMs = typeof observedRaw === 'string' ? new Date(observedRaw).getTime() : Number(observedRaw);
   if (isFinite(observedMs) && observedMs > 0 && observedMs < 1e12) observedMs *= 1000;
   if (!isFinite(observedMs) || observedMs <= 0) observedMs = null;
+  // Source tier and allowed-use grants must be explicit producer fields. A
+  // raw/live/current label is presentation metadata, not licensing or trading
+  // authority. Missing fields remain missing so native decision consumers can
+  // fail closed instead of manufacturing a grant from `_source`.
+  var sourceKind = String(input.sourceKind || '').trim().toUpperCase() || null;
+  var allowedUse = input.allowedUse == null || input.allowedUse === '' ? null : input.allowedUse;
+  var allowedUseCeiling = input.allowedUseCeiling == null || input.allowedUseCeiling === '' ? null : input.allowedUseCeiling;
+  var quality = input.quality && typeof input.quality === 'object' ? input.quality : null;
+  var qualityStatus = input.qualityStatus || (quality && quality.status) || null;
+  var rightsId = input.rightsId == null || input.rightsId === '' ? null : String(input.rightsId);
   var currency = String(input.currency || input.currencyCode || '').trim().toUpperCase() || null;
   var unit = String(input.unit || input.units || (currency || '')).trim().toUpperCase() || null;
   var fetchedRaw = input.fetchedAt || now || Date.now();
@@ -14327,6 +14458,12 @@ function _aioNormalizeAtomicQuote(input, now) {
     _source: source,
     currency: currency,
     unit: unit,
+    sourceKind: sourceKind,
+    allowedUse: allowedUse,
+    allowedUseCeiling: allowedUseCeiling,
+    quality: quality,
+    qualityStatus: qualityStatus,
+    rightsId: rightsId,
     _atomicRevision: source + '|' + (observedMs || fetchedMs) + '|' + price + '|' + (previous == null ? 'na' : previous),
     _atomicObservedAt: observedMs ? new Date(observedMs).toISOString() : null,
     _atomicFetchedAt: new Date(fetchedMs).toISOString(),
@@ -14447,8 +14584,15 @@ function applyLiveQuotes(quotes) {
     const _quoteChangeBasis = q.changeBasis || q.valueBasis || ((q.regularMarketPreviousClose || q.chartPreviousClose) > 0 ? 'provider-previous-value' : 'unknown');
     const accepted = PriceStore.set(q.symbol, price, pct, q._source || 'live:yahoo', { deferDomAnnotation: true,
       revision: _quoteBatchRevision,
+      revisionId: _quoteBatchRevision,
       observedAt: q._atomicObservedAt || q.observedAt || null,
       fetchedAt: q._atomicFetchedAt || q.fetchedAt || null,
+      sourceKind: q.sourceKind || null,
+      allowedUse: q.allowedUse || null,
+      allowedUseCeiling: q.allowedUseCeiling || null,
+      quality: q.quality || null,
+      qualityStatus: q.qualityStatus || null,
+      rightsId: q.rightsId || null,
       marketState: q.marketState || null,
       venue: q.fullExchangeName || q.exchangeName || null,
       regularMarketPreviousClose: q.regularMarketPreviousClose || q.chartPreviousClose || null,
@@ -14544,15 +14688,21 @@ function applyLiveQuotes(quotes) {
       currency: _quoteCurrency,
       unit: _quoteUnit,
       quoteEnvelope: {
-      revision: _quoteBatchRevision,
+      revisionId: _quoteBatchRevision,
       source: q._source,
       price: price,
       change: isFinite(q.regularMarketChange) ? q.regularMarketChange : null,
       pct: hasPct ? pct : null,
       previousClose: isFinite(q.regularMarketPreviousClose) ? q.regularMarketPreviousClose : null,
       observedAt: q._atomicObservedAt,
-      fetchedAt: q._atomicFetchedAt,
-      currency: _quoteCurrency,
+       fetchedAt: q._atomicFetchedAt,
+       sourceKind: q.sourceKind || null,
+       allowedUse: q.allowedUse || null,
+       allowedUseCeiling: q.allowedUseCeiling || null,
+       quality: q.quality || null,
+       qualityStatus: q.qualityStatus || null,
+       rightsId: q.rightsId || null,
+       currency: _quoteCurrency,
       unit: _quoteUnit,
       changeBasis: _quoteChangeBasis,
       valueBasis: q.valueBasis || _quoteChangeBasis
@@ -14589,7 +14739,12 @@ function applyLiveQuotes(quotes) {
       exchange: q.fullExchangeName || q.venue || null,
       fetchedAt: q.fetchedAt || null,
       delayedByMs: typeof q.delayedByMs === 'number' ? q.delayedByMs : null,
-      allowedUse: q.allowedUse || null
+       sourceKind: q.sourceKind || null,
+       allowedUse: q.allowedUse || null,
+       allowedUseCeiling: q.allowedUseCeiling || null,
+       quality: q.quality || null,
+       qualityStatus: q.qualityStatus || null,
+       rightsId: q.rightsId || null
     };
     try {
       if (window.AIO && typeof window.AIO.recordCrossSourceQuote === 'function') {
@@ -15079,9 +15234,9 @@ window._aioApplyScreenerBreadth = _aioApplyScreenerBreadth;
 //   momentum(ret1/3/6m) · trend(가격 vs SMA50/200) · low-vol(연율 변동성, 역방향) · size(log mcap).
 //   각 팩터를 섹터 상대 z-score(표본<5면 유니버스 상대) + winsorize(±3σ) → 가중합 → 0~100 percentile 랭크.
 //   팩터 데이터(screener.json) 없으면 null → 소비자는 정적 signal 폴백(무회귀).
-// v50.54 3A: 레짐 적응형 팩터 가중 — marketState(위험회피/선호/후기사이클)에 따라 가중 틸트.
-//   위험회피: 저변동·퀄리티↑·모멘텀↓ / 위험선호: 모멘텀·추세↑·저변동↓ / 후기사이클: 밸류↑.
-//   가중은 합=1 불요(_aioComputeFactorRanks가 present 팩터로 정규화). marketState 없으면 기본(무회귀).
+// v50.54 3A: marketState 기반 가중은 검토용 proposal로만 산출한다.
+//   위험회피/선호/후기사이클 틸트는 live/backtest 정의 패리티와 사람 검토를 거쳐
+//   명시적으로 승격하기 전까지 실제 랭크에 적용하지 않고 NEUTRAL 가중을 유지한다.
 window._aioFactorWeights = function(ms) {
   // P763/ARX-10 follow-up: storage/profile lookup remains here, but deterministic weight math
   // belongs to the native pure module and is shared by native + compatibility consumers.
@@ -15108,7 +15263,11 @@ function _aioComputeFactorRanks() {
   if (!_rankFn) return null;
   var serverFundamentals = window._aioServerScreener || {};
   var W = (typeof _aioFactorWeights === 'function') ? _aioFactorWeights(window.AIO && window.AIO.marketState) : null;
-  var weights = (W && W.weights) ? W.weights : { momentum:0.32, trend:0.23, lowvol:0.18, size:0.18, value:0, quality:0, kalman:0.09 };
+  // Keep the compatibility fallback exactly aligned with the native resolver's
+  // current production policy. Adaptive/regime proposal weights are metadata
+  // until an explicit promotion record is supplied; they must not leak through
+  // a missing-module fallback.
+  var weights = (W && W.weights) ? W.weights : { momentum:0.27, trend:0.20, lowvol:0.16, size:0.08, value:0.10, quality:0.09, kalman:0.10 };
   var result = _rankFn({
     rows: SCREENER_DB,
     weights: weights,
@@ -15131,11 +15290,26 @@ function _aioComputeFactorRanks() {
     (result.activeFactors || []).forEach(function(key){ row['_z_' + key] = ranked['_z_' + key]; });
   });
   window._aioActiveFactorRegime = result.activeFactorRegime;
-  window._aioActiveFactorWeights = result.activeFactorWeights;
+  window._aioAppliedFactorWeights = result.appliedFactorWeights || result.activeFactorWeights || weights;
+  window._aioActiveFactorWeights = window._aioAppliedFactorWeights;
+  window._aioFactorWeightPolicy = {
+    source: W && W.source || 'fixed-neutral-until-promotion',
+    adaptiveApplied: !!(W && W.adaptiveApplied === true),
+    regimeLabel: W && W.regimeLabel || null,
+    proposedRegimeLabel: W && W.proposedRegimeLabel || null,
+    proposedWeights: W && W.proposedWeights || null,
+    appliedWeights: result.appliedFactorWeights || result.activeFactorWeights || weights,
+    promotionRequired: true
+  };
   window._aioActiveFactors = result.activeFactors;
   window._aioInactiveFactorReasons = result.inactiveFactorReasons;
   window._aioFactorRanksAsOf = window._aioScreenerFactorAsOf || null;
-  return { ranked: result.ranked, asOf: window._aioFactorRanksAsOf };
+  return {
+    ranked: result.ranked,
+    asOf: window._aioFactorRanksAsOf,
+    weightPolicy: window._aioFactorWeightPolicy || null,
+    activeFactorWeights: window._aioAppliedFactorWeights || result.appliedFactorWeights || result.activeFactorWeights || null
+  };
 }
 window._aioComputeFactorRanks = _aioComputeFactorRanks;
 
@@ -15884,7 +16058,7 @@ async function fetchPutCall() {
         _aioUpdatePutCallDom({
           totalPutCall: pcr,
           equityPutCall: _aioPickNumber(latest, ['equity_pcr', 'equityPcr', 'equityPCR', 'equity_put_call_ratio', 'pcr_equity']),
-          sourceKind: 'delayed',
+          sourceKind: 'T3_PUBLIC_DELAYED',
           sourceLabel: 'CBOE options volume daily',
           asOf: latest.date || latest.tradeDate || latest.trade_date || latest.bizdate || new Date().toISOString()
         });

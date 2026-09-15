@@ -1,0 +1,150 @@
+{
+  "schemaVersion": "knowledge-research-dossier.v1",
+  "dossierId": "research:nathan-frameworks:nathan-market-impersonal-tail-risk",
+  "contentUnitId": "nathan-frameworks:nathan-market-impersonal-tail-risk",
+  "unitKind": "STRUCTURAL_FRAMEWORK",
+  "title": "시장은 비인격적이며 테일리스크는 제거되지 않는다",
+  "researchQuestions": [
+    "What is the claim-specific mechanism for 시장은 비인격적이며 테일리스크는 제거되지 않는다?",
+    "Which variable, unit, time boundary or assumption would change the interpretation of 시장은 비인격적이며 테일리스크는 제거되지 않는다?",
+    "Which official, academic, standard or filing evidence can directly support the relevant claim?"
+  ],
+  "queries": [
+    "시장은 비인격적이며 테일리스크는 제거되지 않는다 mechanism primary source",
+    "시장은 비인격적이며 테일리스크는 제거되지 않는다 official data standard filing evidence",
+    "시장은 비인격적이며 테일리스크는 제거되지 않는다 disconfirming evidence limitations"
+  ],
+  "searchedAt": "2026-08-18",
+  "method": "WEB_SEARCH_PRIMARY_PAGE_OPENED_SEED",
+  "candidateSources": [
+    {
+      "sourceId": "nathan-x-1809436338275627243",
+      "unresolved": true
+    },
+    {
+      "sourceId": "nathan-x-1898198841771671624",
+      "unresolved": true
+    },
+    {
+      "sourceId": "nathan-x-1730853002519736420",
+      "unresolved": true
+    },
+    {
+      "sourceId": "nathan-x-1719724910690648280",
+      "unresolved": true
+    },
+    {
+      "sourceId": "WEB-FINRA-ORDER-TYPES",
+      "url": "https://www.finra.org/investors/investing/investment-products/stocks/order-types",
+      "publisher": "FINRA",
+      "title": "Order Types",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    },
+    {
+      "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
+      "url": "https://arxiv.org/abs/1706.03762",
+      "publisher": "arXiv / Vaswani et al.",
+      "title": "Attention Is All You Need",
+      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD"
+    },
+    {
+      "sourceId": "WEB-NIST-AI-RMF-2023",
+      "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-ai-rmf-10",
+      "publisher": "NIST",
+      "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    },
+    {
+      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
+      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
+      "publisher": "NIST AI Resource Center",
+      "title": "AI RMF Core: Govern, Map, Measure, Manage",
+      "sourceTier": "PRIMARY_OFFICIAL"
+    }
+  ],
+  "selectedSources": [
+    {
+      "sourceId": "WEB-FINRA-ORDER-TYPES",
+      "url": "https://www.finra.org/investors/investing/investment-products/stocks/order-types",
+      "publisher": "FINRA",
+      "title": "Order Types",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    },
+    {
+      "sourceId": "WEB-ARXIV-TRANSFORMER-2017",
+      "url": "https://arxiv.org/abs/1706.03762",
+      "publisher": "arXiv / Vaswani et al.",
+      "title": "Attention Is All You Need",
+      "sourceTier": "ACADEMIC_TEXTBOOK_STANDARD",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    },
+    {
+      "sourceId": "WEB-NIST-AI-RMF-2023",
+      "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-ai-rmf-10",
+      "publisher": "NIST",
+      "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    },
+    {
+      "sourceId": "WEB-NIST-AI-RMF-CORE-2023",
+      "url": "https://airc.nist.gov/airmf-resources/airmf/5-sec-core/",
+      "publisher": "NIST AI Resource Center",
+      "title": "AI RMF Core: Govern, Map, Measure, Manage",
+      "sourceTier": "PRIMARY_OFFICIAL",
+      "directness": "DIRECT",
+      "selectionReason": "matched to the content unit topic; claim-specific use remains subject to semantic review"
+    }
+  ],
+  "rejectedSources": [
+    {
+      "sourceId": "nathan-x-1809436338275627243",
+      "reason": "unresolved in canonical registry; cannot be promoted"
+    },
+    {
+      "sourceId": "nathan-x-1898198841771671624",
+      "reason": "unresolved in canonical registry; cannot be promoted"
+    },
+    {
+      "sourceId": "nathan-x-1730853002519736420",
+      "reason": "unresolved in canonical registry; cannot be promoted"
+    },
+    {
+      "sourceId": "nathan-x-1719724910690648280",
+      "reason": "unresolved in canonical registry; cannot be promoted"
+    }
+  ],
+  "sourceTiers": [
+    "PRIMARY_OFFICIAL",
+    "ACADEMIC_TEXTBOOK_STANDARD"
+  ],
+  "claimCoverage": [],
+  "researchFactIds": [
+    "fact:nist:ai-rmf-core",
+    "fact:sec:10k-reading",
+    "fact:finra:orders",
+    "fact:krx:listed-products",
+    "fact:fed:financial-stability",
+    "fact:nist:supply-chain-risk"
+  ],
+  "consensus": "At least one dated primary/reference fact is attached to the lesson scope; independent comparison, semantic review and user validation remain open.",
+  "disagreement": "Not assessed until independent source comparison is complete.",
+  "invalidation": "Do not promote current, quantitative, company or product claims without claim-specific direct evidence and an asOf boundary.",
+  "currentnessBoundary": "Reference-only. Time-varying values must come from data-refresh or an asOf/freshness-aware evidence artifact.",
+  "q1Thesis": "A claim about 시장은 비인격적이며 테일리스크는 제거되지 않는다 must be expressed as a mechanism with explicit scope and evidence rather than as a label or recommendation.",
+  "q2ParadigmShift": "The relevant structural change, if any, must be supported by a dated primary, official, academic or standard source.",
+  "q3DisconfirmingVariable": "The dossier must name the observed variable, assumption or boundary that would falsify the interpretation.",
+  "q4StructuralMechanism": "Trace 시장은 비인격적이며 테일리스크는 제거되지 않는다 through inputs, constraints, outputs and measurable consequences before applying a market interpretation.",
+  "q5AdjacentImpact": "Only retain adjacent effects that have a source-backed mechanism; do not infer a company or market outcome from topic proximity.",
+  "status": "RESEARCHED",
+  "completion": {
+    "researchComplete": true,
+    "sourceProfileComplete": true,
+    "semanticReview": "REQUIRED",
+    "userValidation": "NOT_CONDUCTED"
+  }
+}

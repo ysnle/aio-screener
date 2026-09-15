@@ -2,7 +2,8 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
-import { deriveCyclePublication } from './fetch-data.mjs';
+import { backtestFactors, deriveCyclePublication, deriveTickerNewsLineage } from './fetch-data.mjs';
+import { percentileRank01, spearman } from './lib/rank-statistics.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(join(root, path), 'utf8');
@@ -24,6 +25,14 @@ for (const [label, input, blocker] of [
   const cycle = deriveCyclePublication(input);
   check(`cycle publication fails closed for ${label}`, cycle.status === 'DEGRADED' && cycle.blockers.includes(blocker), JSON.stringify(cycle));
 }
+// P1069/R591: factor/score ties require average ranks. The no-tie d-squared
+// shortcut produces a different answer for this fixture and is not acceptable
+// for percentile factors or IC reporting.
+const tieFixture = JSON.parse(read('architecture/fixtures/backtest-ranking-ties.json'));
+const tiePercentiles = percentileRank01(tieFixture.values.percentileInput);
+const tieRho = spearman(tieFixture.values.factor, tieFixture.values.outcome);
+check('tie-aware percentile ranking uses midranks', tiePercentiles.every((value, index) => Math.abs(value - tieFixture.expected.percentile01[index]) < 1e-12), JSON.stringify(tiePercentiles));
+check('tie-aware Spearman uses Pearson on midranks', Math.abs(tieRho - tieFixture.expected.spearmanRho) < 1e-9, String(tieRho));
 const extractNodeHeredocs = (text) => {
   const blocks = [];
   const re = /node(\s+--input-type=module)? - <<'NODE'\r?\n([\s\S]*?)\r?\n\s*NODE/g;
@@ -108,7 +117,10 @@ check('refresh workflow publishes status summary', /GITHUB_STEP_SUMMARY/.test(re
 check('refresh summary exposes automated AAII relay and same-date Treasury producer states', /AAII weekly/.test(refresh) && /aaiiRelayUsed/.test(refresh) && /Treasury curve/.test(refresh) && /treasuryObservedAt/.test(refresh));
 check('core refresh validates evidence-derived reconciliation before commit', /ci-reconciliation-contract-check\.mjs/.test(refresh) && refresh.indexOf('ci-reconciliation-contract-check.mjs') < refresh.indexOf('Commit refreshed public data if changed'));
 check('screener refresh atomically rebuilds and commits reconciliation and operations status', /build-reconciliation-status\.mjs/.test(screenerRefresh) && /build-operations-status\.mjs/.test(screenerRefresh) && /public-data\/reconciliation-status\.json/.test(screenerRefresh) && /public-data\/operations-status\.json/.test(screenerRefresh));
-check('both refresh workflows regenerate and commit workspace/readiness evidence', [refresh, screenerRefresh].every((workflow) => /generate-workspace-state\.mjs --write/.test(workflow) && /architecture\/public-readiness\.json/.test(workflow) && /_context\/CURRENT-STATE\.md _context\/CONTEXT-CATALOG\.json/.test(workflow)));
+check('both refresh workflows keep generated workspace state outside data promotion while committing readiness artifacts', [refresh, screenerRefresh].every((workflow) => !/generate-workspace-state\.mjs --write/.test(workflow)
+  && !/git add[^\n]*_context\/(?:CURRENT-STATE|CONTEXT-CATALOG)/.test(workflow)
+  && /Fail-closed promotion candidate gate before push/.test(workflow)
+  && /architecture\/public-readiness\.json/.test(workflow)));
 check('refresh workflow module summary uses ESM fs import', /node --input-type=module - <<'NODE'[\s\S]*import fs from 'node:fs';/.test(refresh) && !/node --input-type=module - <<'NODE'[\s\S]*const fs = require\(/.test(refresh));
 checkNodeHeredocSyntax('refresh-data workflow', refresh);
 
@@ -142,6 +154,7 @@ check('fetch-data queries current Korea AI/semi market movers', /KOSPI Samsung E
 check('fetch-data enforces KST 08:00 completed 24h news cycle', /NEWS_CYCLE_POLICY\s*=\s*'kst-0800-completed-24h'/.test(fetchData) && /getKst0800NewsCycle/.test(fetchData) && /newsCycleStart/.test(fetchData) && /newsCycleEnd/.test(fetchData) && /newsCycleLabel/.test(fetchData));
 check('BEA PCE adapter is keyless official-primary evidence with observation/release/fetch separation', /parseBeaPceHtml/.test(fetchData) && /fetchBeaPce/.test(fetchData) && /www\.bea\.gov\/news\/current-releases/.test(fetchData) && /bea-official-primary/.test(fetchData) && /nextReleaseAt/.test(fetchData));
 check('history stores completed closes and carries the shared market-cut revision', /completed-market-cut/.test(fetchData) && /previous-completed-close/.test(fetchData) && /deriveMarketSession/.test(fetchData) && /marketSnapshotRevision/.test(fetchData));
+check('failed market publication keeps attempt and LKG snapshot lineage separate', /marketSnapshotAttemptRevision/.test(fetchData) && /marketSnapshotPublishedAt/.test(fetchData) && /marketSnapshotLastSuccessfulAt/.test(fetchData) && /MARKET_SNAPSHOT_OUT/.test(fetchData) && /marketSnapshotInfo\.retainedRevision/.test(fetchData) && /marketSnapshotForConsumers/.test(fetchData));
 check('screener Kalman factor uses comparable log percent scale', /Math\.log\(v\)/.test(fetchData) && /Math\.expm1\(s1\)\s*\*\s*100/.test(fetchData) && /scale:\s*'log_pct_day'/.test(fetchData) && /kalmanScale/.test(fetchData) && /kalmanScale:\s*'log_pct_day'/.test(fetchData));
 check('screener pipeline emits timestamped universe breadth and a research-only ranking contract', /computeScreenerBreadth/.test(fetchData) && /factorObservedAt/.test(fetchData) && /coveragePct/.test(fetchData) && /rankingContract/.test(fetchData) && /research-relative-ranking-only/.test(fetchData));
 check('fetch-data preserves the last-known-good artifact on core quote outage', /CORE_QUOTE_COVERAGE_FAILED/.test(fetchData) && fetchData.indexOf('CORE_QUOTE_COVERAGE_FAILED') < fetchData.indexOf('await atomicWriteFile(OUT'));
@@ -149,10 +162,11 @@ check('22-category reconciliation is computed from executable artifact checks, n
 check('browser reloads reconciliation with data polling and rejects market revision drift', /reconciliation-status\.json\?t=/.test(data) && /reconciliation-status-v2/.test(data) && /sourceRevisionMatches/.test(data) && /market snapshot revision mismatch/.test(data) && /getDataReconciliationStatus/.test(data));
 check('all market-sensitive pages share one category-to-epoch contract', /PAGE_MARKET_EPOCH_CONTRACT/.test(core) && /getPageMarketEpochState/.test(core) && /applyPageMarketEpoch/.test(core) && /getPageMarketEpochAudit/.test(core));
 check('page evidence is fail-closed by shared market epoch and revision state', /market-epoch-blocked/.test(core) && /market-epoch-partial/.test(core) && /data-market-revision/.test(core) && /data-market-cut-end/.test(core) && /aio:marketEpochUpdated/.test(core));
-check('server quote rows emit explicit observation/fetch/delay/session/venue/use lineage', /observedAt:\s*Number\.isFinite\(m\.regularMarketTime\)/.test(fetchData) && /fetchedAt:\s*new Date\(\)\.toISOString\(\)/.test(fetchData) && /delayedByMs:/.test(fetchData) && /marketSession:/.test(fetchData) && /venue:/.test(fetchData) && /current-with-session-and-delay-gate/.test(fetchData));
+  check('server quote rows emit explicit observation/fetch/delay/session/venue/use lineage', /observedAt:\s*Number\.isFinite\(m\.regularMarketTime\)/.test(fetchData) && /fetchedAt:\s*new Date\(\)\.toISOString\(\)/.test(fetchData) && /delayedByMs:/.test(fetchData) && /marketSession:/.test(fetchData) && /venue:/.test(fetchData) && /sourceKind:\s*'T3_PUBLIC_DELAYED'/.test(fetchData) && /allowedUse:\s*'reference-only'/.test(fetchData));
 check('fetch-data exposes an isolated screener-only refresh path', /SCREENER_ONLY/.test(fetchData) && /export async function enrichScreener/.test(fetchData));
-check('screener rows retain per-symbol observation/source/use lineage', /f\.observedAt\s*=\s*r\.observedAt/.test(fetchData) && /f\.sourceKind\s*=\s*'delayed-eod'/.test(fetchData) && /f\.allowedUse\s*=\s*'research-relative-ranking-only'/.test(fetchData));
-check('core refresh ingests official delayed Cboe statistics without a public CORS proxy', /parseCboePutCallHtml/.test(fetchData) && /Cboe Daily Market Statistics/.test(fetchData) && /sourceKind:\s*'delayed'/.test(fetchData) && /fetchCboePutCall\(\)/.test(fetchData));
+  check('screener rows retain per-symbol observation/source/use lineage', /f\.observedAt\s*=\s*r\.observedAt/.test(fetchData) && /f\.sourceKind\s*=\s*'T3_PUBLIC_DELAYED'/.test(fetchData) && /f\.allowedUse\s*=\s*'research-relative-ranking-only'/.test(fetchData));
+check('ticker news keeps publication and fetch timestamps separate and provider prioritizes explicit lineage', /deriveTickerNewsLineage/.test(fetchData) && /newsObservedAt\s*=\s*lineage\.newsObservedAt/.test(fetchData) && /newsFetchedAt\s*=\s*lineage\.newsFetchedAt/.test(fetchData) && !/newsTs\s*=\s*Date\.now\(\)/.test(fetchData) && /newsObservedAt:\s*newsObservedAt/.test(screenerProvider) && /newsFetchedAt:\s*newsFetchedAt/.test(screenerProvider));
+check('core refresh ingests official delayed Cboe statistics without a public CORS proxy', /parseCboePutCallHtml/.test(fetchData) && /Cboe Daily Market Statistics/.test(fetchData) && /sourceKind:\s*'T3_PUBLIC_DELAYED'/.test(fetchData) && /fetchCboePutCall\(\)/.test(fetchData));
 check('client applies server Cboe data first and protects it from failed legacy proxy fallback', /d\.putCall\.totalPutCall/.test(data) && /sourceLabel:\s*'Cboe Daily Market Statistics'/.test(data) && /must not overwrite a fresher official/.test(data));
 check('client preserves the server shared cycle and retries a saved personal FRED key when server FRED failed', /newsCycleStart:\s*d\.meta\.newsCycleStart/.test(data) && /marketSnapshotRevision:\s*d\.meta\.marketSnapshotRevision/.test(data) && /cycleManifestRevision:\s*d\.meta\.cycleManifestRevision/.test(data) && /marketCycleFreshnessSlaHours/.test(data) && /if \(!d\.meta\.fredFetchOk\)/.test(data) && /authentication:'VERIFIED'/.test(data));
 check('cold server-data projection performs a bounded full-loader replay until DATA_SNAPSHOT exists', /_snapshotBridgeWait\s*<\s*60/.test(data) && /_aioServerDataBridgeAttempts\s*<=\s*5/.test(data) && /_aioLoadServerData\(\)/.test(data) && /waiting-for-snapshot/.test(data));
@@ -277,11 +291,23 @@ check('FX/bond carry uses the canonical BOK policy-rate field and cannot regress
   let ok = false;
   let detail = '';
   try {
+    const { classifyIssuerCapability } = await import('./fetch-sec-fundamentals.mjs');
+    const ifrs = classifyIssuerCapability({ facts: { 'ifrs-full': {} } }, { filings: { recent: { form: ['20-F'] } } });
+    const usGaap = classifyIssuerCapability({ facts: { 'us-gaap': {} } }, { filings: { recent: { form: ['10-K'] } } });
+    ok = ifrs.status === 'TERMINAL_UNSUPPORTED' && ifrs.issuerTaxonomy === 'IFRS' && /ifrs-taxonomy/.test(ifrs.reasonCode) && usGaap.status === 'SUPPORTED_US_GAAP';
+    detail = JSON.stringify({ ifrs, usGaap });
+  } catch (error) { detail = error.message; }
+  check('SEC scheduler classifies IFRS/foreign issuers as terminal unsupported while retaining US-GAAP capability', ok, detail);
+}
+{
+  let ok = false;
+  let detail = '';
+  try {
     const { parseTreasuryYieldCurveXml } = await import('./fetch-data.mjs');
     const entry = (date, values) => `<entry><content><m:properties><d:NEW_DATE m:type="Edm.DateTime">${date}T00:00:00</d:NEW_DATE>${Object.entries(values).map(([year, value]) => `<d:BC_${year}YEAR m:type="Edm.Double">${value}</d:BC_${year}YEAR>`).join('')}</m:properties></content></entry>`;
     const xml = `<feed>${entry('2026-08-11', { 2: 4.10, 5: 4.25, 10: 4.60, 20: 5.10, 30: 5.20 })}${entry('2026-08-12', { 2: 4.20, 5: 4.38, 10: 4.68, 20: 5.24, 30: 5.24 })}</feed>`;
     const curve = parseTreasuryYieldCurveXml(xml, '2026-08-13T00:00:00.000Z');
-    ok = curve?.status === 'ok' && curve.observedAt === '2026-08-12' && curve.values.dgs2 === 4.2 && curve.values.dgs30 === 5.24 && curve.values.t10y2y === 0.48 && curve.sourceKind === 'official-primary';
+    ok = curve?.status === 'ok' && curve.observedAt === '2026-08-12' && curve.values.dgs2 === 4.2 && curve.values.dgs30 === 5.24 && curve.values.t10y2y === 0.48 && curve.sourceKind === 'T1_OFFICIAL';
     detail = JSON.stringify(curve);
   } catch (error) { detail = error.message; }
   check('Treasury curve parser selects the latest complete dated row and derives only a same-date spread', ok, detail);
@@ -343,10 +369,39 @@ check('FX/bond carry uses the canonical BOK policy-rate field and cannot regress
   try {
     const { parseCboePutCallHtml } = await import('./fetch-data.mjs');
     const row = parseCboePutCallHtml('{\\"name\\":\\"TOTAL PUT/CALL RATIO\\",\\"value\\":\\"0.93\\"},{\\"name\\":\\"INDEX PUT/CALL RATIO\\",\\"value\\":\\"1.01\\"},{\\"name\\":\\"EQUITY PUT/CALL RATIO\\",\\"value\\":\\"0.62\\"},{\\"selectedDate\\":\\"2026-07-14\\"}');
-    ok = row && row.totalPutCall === 0.93 && row.indexPutCall === 1.01 && row.equityPutCall === 0.62 && row.asOf === '2026-07-14' && row.sourceKind === 'delayed';
+    ok = row && row.totalPutCall === 0.93 && row.indexPutCall === 1.01 && row.equityPutCall === 0.62 && row.asOf === '2026-07-14' && row.sourceKind === 'T3_PUBLIC_DELAYED';
     detail = JSON.stringify(row);
   } catch (error) { detail = error.message; }
   check('Cboe official page parser binds total/equity/index ratios to selected trading date', ok, detail);
+}
+{
+  let detail = '';
+  let ok = false;
+  try {
+    const { classifyFieldStatus } = await import('../src/data/contracts/screener.js');
+    const now = Date.now();
+    const fetchedAt = new Date(now).toISOString();
+    const oldPublication = new Date(now - 3 * 86400000).toISOString();
+    const lineage = deriveTickerNewsLineage([
+      { title: 'older publication', pubDate: new Date(now - 8 * 86400000).toISOString() },
+      { title: 'latest publication', ts: Date.parse(oldPublication) },
+      { title: 'invalid publication', pubDate: 'not-a-date', ts: 0 }
+    ], fetchedAt);
+    const undated = deriveTickerNewsLineage([{ title: 'no publication timestamp' }], fetchedAt);
+    const oldStatus = classifyFieldStatus({
+      value: 'headline-only memo', observedAt: lineage.newsObservedAt, now,
+      freshnessBudgetMs: 2 * 86400000, rights: 'REVIEW_REQUIRED', sourceKind: 'T3_PUBLIC_DELAYED'
+    });
+    const undatedStatus = classifyFieldStatus({
+      value: 'headline-only memo', observedAt: undated.newsObservedAt, now,
+      freshnessBudgetMs: 2 * 86400000, rights: 'REVIEW_REQUIRED', sourceKind: 'T3_PUBLIC_DELAYED'
+    });
+    ok = lineage.newsObservedAt === oldPublication && lineage.newsTs === oldPublication && lineage.newsFetchedAt === fetchedAt
+      && oldStatus === 'STALE' && undated.newsObservedAt === null && undated.newsTs === null
+      && undated.newsFetchedAt === fetchedAt && undatedStatus === 'STALE';
+    detail = JSON.stringify({ lineage, undated, oldStatus, undatedStatus });
+  } catch (error) { detail = error.message; }
+  check('recent ticker-news fetch cannot make an old or undated publication look fresh', ok, detail);
 }
 {
   let detail = '';
@@ -369,20 +424,79 @@ check('FX/bond carry uses the canonical BOK policy-rate field and cannot regress
   } catch (error) { detail = error.message; }
   check('screener breadth calculation separates US/KR and computes MA/advance ratios', ok, detail.slice(0, 400));
 }
+{
+  let detail = '';
+  let ok = false;
+  try {
+    const dates = Array.from({ length: 260 }, (_, index) => new Date(Date.UTC(2025, 0, 1 + index)).toISOString().slice(0, 10));
+    const stocks = Array.from({ length: 12 }, (_, index) => {
+      const closes = dates.map((_, day) => 100 + index + day * 0.2 + Math.sin((day + index) / 7));
+      return {
+        sym: `DATE${index}`,
+        dates,
+        closes,
+        adjCloses: closes.map((value) => value * (1 + index / 100)),
+        volumes: closes.map(() => 100000),
+        adjustedCloseStatus: 'complete'
+      };
+    });
+    // One series skips a bar; the common-date contract must still select one
+    // shared rebalance date and map +FWD by that symbol's own next sessions.
+    stocks[1] = {
+      ...stocks[1],
+      dates: stocks[1].dates.filter((_, index) => index !== 5),
+      closes: stocks[1].closes.filter((_, index) => index !== 5),
+      adjCloses: stocks[1].adjCloses.filter((_, index) => index !== 5),
+      volumes: stocks[1].volumes.filter((_, index) => index !== 5)
+    };
+    const aligned = backtestFactors(stocks, { offsets: [42], fwdDays: 5, transactionCostBps: 20 });
+    const missingAdjusted = backtestFactors([
+      { ...stocks[0], adjCloses: stocks[0].adjCloses.map(() => null), adjustedCloseStatus: 'unavailable' },
+      ...stocks.slice(1)
+    ], { offsets: [42], fwdDays: 5, transactionCostBps: 20 });
+    const noDates = backtestFactors(stocks.map(({ dates: _dates, ...stock }) => stock), { offsets: [42], fwdDays: 5 });
+    ok = ['COMPLETE', 'PARTIAL'].includes(aligned.calculationStatus)
+      && aligned.status === aligned.calculationStatus
+      && aligned.dateAlignment?.mode === 'aligned'
+      && aligned.dateAlignment?.commonDateCount === 259
+      && aligned.dateAlignment?.calendarPolicy === 'minimum-coverage'
+      && aligned.dateAlignment?.calendarDateCount === 260
+      && aligned.rebalanceDates?.length === 1
+      && aligned.executionModel?.transactionCostBps === 20
+      && aligned.liquidity?.unitPolicy?.includes('USD and KRW')
+      && aligned.universePolicy?.lookaheadBias === 'historical-membership-not-available'
+      && aligned.universePolicy?.survivorshipBias === 'uncontrolled-current-membership-only'
+      && aligned.readiness?.status === 'BLOCKED'
+      && aligned.readiness?.blockers?.includes('historical-universe-point-in-time-not-available')
+      && aligned.readiness?.blockers?.includes('execution-liquidity-filter-not-applied')
+      && aligned.readiness?.blockers?.includes('transaction-costs-scenario-only')
+      && aligned.dateAlignment?.forwardMapping?.includes('common-calendar exact')
+      && missingAdjusted.adjustedCloseExcluded === 1
+      && missingAdjusted.status === 'PARTIAL'
+      && missingAdjusted.adjustedCloseStatus === 'partial'
+      && noDates.status === 'BLOCKED'
+      && noDates.readiness?.status === 'BLOCKED'
+      && noDates.blockingReason === 'rebalance-calendar-required';
+    detail = JSON.stringify({ aligned: { status: aligned.status, dateAlignment: aligned.dateAlignment, rebalanceDates: aligned.rebalanceDates }, missingAdjusted: { status: missingAdjusted.status, adjustedCloseStatus: missingAdjusted.adjustedCloseStatus, adjustedCloseExcluded: missingAdjusted.adjustedCloseExcluded }, noDates: { status: noDates.status, blockingReason: noDates.blockingReason } });
+  } catch (error) { detail = error.message; }
+  check('factor backtest aligns cross-sections by common dates and fails closed without dates', ok, detail.slice(0, 1400));
+}
 // P586/C2: backtest must self-disclose that it does not cover the live model's size/value/quality
 // factors or its regime-adaptive weights, and the client panel must actually surface that disclosure
 // rather than implying the full live composite rank is validated.
 check('server backtest discloses its excluded factors and fixed weight regime', /excludedFactors/.test(fetchData) && /weightRegime:\s*'NEUTRAL'/.test(fetchData) && /excludedFactorsReason/.test(fetchData));
 check('server backtest accumulates an IC time series artifact', /updateBacktestHistory/.test(fetchData) && /public-data\/backtest-history\.json/.test(fetchData));
-check('client backtest panel surfaces the excluded-factors/weight-regime disclosure, not a blanket "validated" claim', /backtest\.excludedFactors/.test(screenerPage) && /backtest\.weightRegime/.test(screenerPage) && /실시간 적응형 종합 랭크 검증 아님/.test(screenerPage) && !/종합 랭크가 검증 기반/.test(data + screenerPage));
+check('client backtest panel surfaces the excluded-factors/weight-regime disclosure, not a blanket "validated" claim', /backtest\.excludedFactors/.test(screenerPage) && /backtest\.weightRegime/.test(screenerPage) && (/실시간 적응형 종합 랭크 검증 아님/.test(screenerPage) || /레짐 틸트 후보는 검증·적용되지 않음/.test(screenerPage)) && !/종합 랭크가 검증 기반/.test(data + screenerPage));
 
 // P587/R265/C6: dividend-unadjusted close systematically understates momentum/trend for
 // high-yield names (measured: KO 6m return understated by 1.56pp raw vs adjusted). Factor/backtest
 // math must consume the adjusted series; VCP stays on raw OHLC (price-structure pattern, not return).
 check('fetchHistory exposes adjusted close alongside raw OHLCV', /adjClose:/.test(fetchData) && /indicators\?\.adjclose\?\.\[0\]\?\.adjclose/.test(fetchData));
-check('screener factor enrichment scores returns/trend/RSI/kalman on adjusted close, not raw', /adjCloses:/.test(fetchData) && /closesToFactors\(r\.adjCloses/.test(fetchData));
+check('screener factor enrichment keeps adjusted/raw price basis explicit', /adjCloses:/.test(fetchData) && /hasCompleteAdjusted/.test(fetchData) && /factorPriceSeries/.test(fetchData) && /backtestEligible/.test(fetchData));
 check('VCP pattern recognition stays on raw OHLC (not adjusted close)', /_calcVCPServer\(r\.closes, r\.highs, r\.lows, r\.volumes\)/.test(fetchData));
-check('backtest cross-sectional scoring prefers adjusted close', /s\.adjCloses && s\.adjCloses\.length === s\.closes\.length\) \? s\.adjCloses : s\.closes/.test(fetchData));
+check('backtest cross-sectional scoring is adjusted-close-only and fail-closed', /adjustedCloseStatus/.test(fetchData) && /priceBasis:\s*'adjusted-close-required'/.test(fetchData) && /adjustedCloseExcluded/.test(fetchData) && !/s\.adjCloses.*\? s\.adjCloses : s\.closes/.test(fetchData));
+check('backtest publishes native liquidity/cost/rebalance disclosures', /transactionCostBps/.test(fetchData) && /executionModel/.test(fetchData) && /liquidityWindowDays/.test(fetchData) && /rebalanceDates/.test(fetchData) && /uncontrolled-current-membership-only/.test(fetchData));
+  check('browser chart preserves raw OHLC and separate adjusted series', /adjustedCloses:/.test(data) && /adjustedCloseStatus/.test(data) && /backtestEligible/.test(data) && /sourceKind:\s*'T3_PUBLIC_DELAYED'/.test(data) && /research-history-raw-only/.test(data));
 
 // P584/R265/C1: server screener.json RSI and the client's own displayed RSI must agree —
 // previously the server used Cutler's RSI (windowed simple average) while the client used

@@ -146,6 +146,8 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
   let activeScope = null;
   let mountSequence = 0;
   let disposed = false;
+  let started = false;
+  let startedHandle = null;
 
   function disposeActive() {
     const dispose = activeDispose;
@@ -219,9 +221,12 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
 
   function start() {
     if (disposed) throw new Error('ROUTER_DISPOSED');
+    if (started) return startedHandle;
     root.addEventListener('aio:pageShown', onPageShown);
     rootBag.add(() => root.removeEventListener('aio:pageShown', onPageShown));
-    return Object.freeze({ transition, active: () => activeRoute, activeScope: () => activeScope, dispose });
+    started = true;
+    startedHandle = Object.freeze({ transition, active: () => activeRoute, activeScope: () => activeScope, dispose });
+    return startedHandle;
   }
 
   function dispose() {

@@ -51,8 +51,12 @@ const covered = source.map(file => {
   const actualHash = fs.existsSync(file.path) ? digest(fs.readFileSync(file.path)) : null;
   const currentLines = actualHash ? lines(fs.readFileSync(file.path, 'utf8')) : 0;
   const ranges = reviews.filter(r => r.type === 'current-lines' && r.path === file.path && r.sha256 === actualHash).flatMap(r => r.ranges);
-  if (ranges.some(([start, end]) => !Number.isInteger(start) || !Number.isInteger(end) || start < 1 || start > end || end > currentLines)) throw new Error(`Invalid review range: ${file.path}`);
-  const coveredLines = new Set(ranges.flatMap(([start, end]) => Array.from({ length: end - start + 1 }, (_, i) => start + i)));
+  if (ranges.some(([start, end]) => !Number.isInteger(start) || !Number.isInteger(end) || start < 1 || start > end)) throw new Error(`Invalid review range: ${file.path}`);
+  // Some early hand-recorded entries overshot the physical EOF while naming
+  // the exact current content hash. Clip only the nonexistent tail; a range
+  // whose starting line is outside the file still earns no coverage.
+  const boundedRanges = ranges.filter(([start]) => start <= currentLines).map(([start, end]) => [start, Math.min(end, currentLines)]);
+  const coveredLines = new Set(boundedRanges.flatMap(([start, end]) => Array.from({ length: end - start + 1 }, (_, i) => start + i)));
   return { path: file.path, baselineLines: file.lines, currentLines, coveredLines: coveredLines.size, fullyReviewed: currentLines > 0 && coveredLines.size === currentLines, changedSinceBaseline: actualHash !== file.sha256 };
 });
 const transitionKey = row => `${row.commit}:${row.path}:${row.before}:${row.after}`;

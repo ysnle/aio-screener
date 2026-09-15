@@ -50,7 +50,11 @@ jobs:
           node scripts/ci-screener-workbench-contract.mjs
           node scripts/ci-page-data-timeline-contract-check.mjs
 
-      - name: Reconcile refreshed screener with current market artifacts
+      # The screener refresh owns SEC fundamentals, factor rows and their
+      # reconciliation only.  Market-survey/news freshness (notably AAII) is
+      # produced by refresh-data; running its web-research/data-cycle gates
+      # here made a valid screener refresh fail on an unrelated stale lane.
+      - name: Validate screener-owned reconciliation artifacts
         run: |
           node scripts/build-reconciliation-status.mjs
           node scripts/build-operations-status.mjs
@@ -58,12 +62,17 @@ jobs:
           node scripts/ci-source-registry-contract-check.mjs
            node scripts/ci-professional-data-gap-check.mjs
            node scripts/ci-static-data-contract-check.mjs
-           node scripts/ci-web-research-contract-check.mjs
-           node scripts/ci-data-refresh-audit.mjs
           node scripts/ci-operations-status-check.mjs
 
-      - name: Synchronize generated workspace evidence
-        run: node scripts/generate-workspace-state.mjs --write
+      - name: Fail-closed promotion candidate gate before push
+        # Screener/SEC artifacts are validated before the bot commit. The
+        # independent CI dispatch below remains pinned to that exact SHA.
+        run: |
+          set -euo pipefail
+          git diff --check
+          node scripts/ci-sec-runtime-projection-check.mjs
+          node scripts/validate-screener-artifact.mjs public-data/screener.json
+          node scripts/ci-screener-workbench-contract.mjs
 
       - name: Commit only validated screener artifacts
         id: commit
@@ -71,7 +80,6 @@ jobs:
           git config user.name "aio-data-bot"
           git config user.email "actions@github.com"
           git add public-data/screener.json public-data/sec-fundamentals.json public-data/sec-fundamentals-summary.json public-data/sec-fundamentals-summary.manifest.json public-data/screener-validation-gate.json public-data/reconciliation-status.json public-data/operations-status.json public-data/history.json public-config.json architecture/public-readiness.json
-          git add _context/CURRENT-STATE.md _context/CONTEXT-CATALOG.json
           [ -f public-data/backtest-history.json ] && git add public-data/backtest-history.json || true
           if git diff --staged --quiet; then
             echo "No screener changes to commit"

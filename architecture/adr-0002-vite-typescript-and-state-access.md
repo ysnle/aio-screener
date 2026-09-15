@@ -39,6 +39,11 @@ not scale to the screener/portfolio slices RM-06/W5 will add (hundreds of rows).
    and must never be paid by end users; `src/app/bootstrap.js` is the only caller
    that decides `devMode`, and it does so from an explicit, non-default signal
    (e.g. a debug query flag), never a bare environment guess.
+5. A dispatch commits reducer output before notification and snapshots the current
+   listener set. Every listener in that snapshot receives the same committed state
+   even if an earlier listener throws. Listener failures are collected and reported
+   to the caller as `AggregateError('STORE_LISTENER_FAILED')` after notification;
+   they never roll back a committed state or starve sibling subscribers.
 
 ### Rejected alternative: `getState()`/selectors split
 
@@ -58,8 +63,11 @@ mutation incident that freeze alone did not catch.
 - Selectors (`src/state/selectors/*.js`) remain the primary, safe read path;
   `getState()` is documented as returning a live reference callers must not mutate.
 - `devMode` freeze must be exercised by at least one test (fixture in
-  `ci-architecture-contract-check.mjs`) so the guardrail itself does not silently
-  bit-rot.
+  `ci-esm-core-unit-check.mjs`), including a pre-frozen outer object with a mutable
+  child, so the guardrail itself does not silently bit-rot.
+- Listener isolation must exercise both error reporting and delivery to later
+  subscribers; swallowing failures and aborting the remaining notification pass are
+  both contract violations.
 - A future packet may still revisit the `getStateUnsafe` rename or a selectors-only
   public surface; this appendix records why it was not done now, not that it can
   never be done.

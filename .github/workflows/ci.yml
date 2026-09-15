@@ -65,6 +65,12 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
       - name: Run all gates in shard
+        env:
+          # Failed headless shards emit FAILURE_LEDGER_JSON and a local JSON
+          # report. Keep the cache/report paths outside the checkout so a
+          # future approved artifact step can collect them without mutating
+          # the tested revision.
+          AIO_QA_CACHE_DIR: ${{ runner.temp }}/aio-qa
         run: node scripts/qa-runner.mjs --group ${{ matrix.group }} --no-cache
 
   browser:

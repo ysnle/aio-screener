@@ -12,10 +12,11 @@
     "LIVE_VERIFIED"
   ],
   "counts": {
-    "units": 427,
+    "units": 455,
     "coreLessons": 112,
     "foundationLessons": 48,
     "conceptGuides": 60,
+    "structuralFrameworks": 28,
     "taxonomyNodes": 95,
     "deepBranches": 50,
     "domains": 19,
@@ -5424,6 +5425,792 @@
       "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
       "missing": [
         "source-profile",
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-liquidity-extremes",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "유동성·극단·강제 디레버리징",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-liquidity-extremes",
+      "dossierId": "research:nathan-frameworks:nathan-liquidity-extremes",
+      "sourceIds": [
+        "nathan-x-1914877841801437672",
+        "nathan-x-1906968123401703631",
+        "nathan-x-1906506810380673532",
+        "nathan-x-1897811632728031535",
+        "nathan-x-1782558858243866839"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCHED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-leverage-survival",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "레버리지의 총비용과 생존성",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-leverage-survival",
+      "dossierId": "research:nathan-frameworks:nathan-leverage-survival",
+      "sourceIds": [
+        "nathan-x-1810563648261382390",
+        "nathan-x-1730853002519736420",
+        "nathan-x-1898198841771671624",
+        "nathan-x-1903717211824324872"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCHED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-forecast-falsifiability",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "예측보다 불변식·메커니즘·무효화",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-forecast-falsifiability",
+      "dossierId": "research:nathan-frameworks:nathan-forecast-falsifiability",
+      "sourceIds": [
+        "nathan-x-1909162905809072508",
+        "nathan-x-1808834880517910742",
+        "nathan-x-1818264457967264077",
+        "nathan-x-1743459856932290834",
+        "nathan-x-1743200309508502004"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCH_REQUIRED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
+        "independent-research-dossier",
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-policy-second-order",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "정책의 1차·2차·부작용 전달경로",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-policy-second-order",
+      "dossierId": "research:nathan-frameworks:nathan-policy-second-order",
+      "sourceIds": [
+        "nathan-x-1910448699811258608",
+        "nathan-x-1908104699582251101",
+        "nathan-x-1896760622089695364",
+        "nathan-x-1895999273332056287"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCHED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-etf-flow-channel",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "ETF flow는 신호가 아니라 전달 채널",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-etf-flow-channel",
+      "dossierId": "research:nathan-frameworks:nathan-etf-flow-channel",
+      "sourceIds": [
+        "nathan-x-1762773425473609810",
+        "nathan-x-1785117632875946307",
+        "nathan-x-1743999186243354898",
+        "nathan-x-1725816574249169390",
+        "nathan-x-1716675880775455186",
+        "nathan-x-1738348106427867640"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCHED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-market-structure-execution",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "시장구조·유동성 공급·실행비용",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-market-structure-execution",
+      "dossierId": "research:nathan-frameworks:nathan-market-structure-execution",
+      "sourceIds": [
+        "nathan-x-1813791726609613067",
+        "nathan-x-1813016554986172663",
+        "nathan-x-1902181741764444483",
+        "nathan-x-1740986493982875725",
+        "nathan-x-1905118531341230308"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCHED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-retail-flow-edge-decay",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "관심·flow·전략의 적응과 edge decay",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-retail-flow-edge-decay",
+      "dossierId": "research:nathan-frameworks:nathan-retail-flow-edge-decay",
+      "sourceIds": [
+        "nathan-x-1872113816512958850",
+        "nathan-x-1823578073125806432",
+        "nathan-x-1800132910722568580",
+        "nathan-x-1758740704216686786",
+        "nathan-x-1716767578968965573"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCHED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-bubble-diagnostics",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "버블 판독: 가격이 아니라 가정의 지속성",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-bubble-diagnostics",
+      "dossierId": "research:nathan-frameworks:nathan-bubble-diagnostics",
+      "sourceIds": [
+        "nathan-x-1763799601440833551",
+        "nathan-x-1795613940455748010",
+        "nathan-x-1719724910690648280"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCH_REQUIRED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
+        "independent-research-dossier",
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-crypto-fundamentals",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "크립토 실사용·수익과 투기성 수요 분리",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-crypto-fundamentals",
+      "dossierId": "research:nathan-frameworks:nathan-crypto-fundamentals",
+      "sourceIds": [
+        "nathan-x-1887813679284126110",
+        "nathan-x-1886039036474892735",
+        "nathan-x-1730105900818735323",
+        "nathan-x-1782558858243866839",
+        "nathan-x-1785117632875946307"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCH_REQUIRED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
+        "independent-research-dossier",
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-tokenomics-value-link",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "토큰의 직접적 가치 연결고리",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-tokenomics-value-link",
+      "dossierId": "research:nathan-frameworks:nathan-tokenomics-value-link",
+      "sourceIds": [
+        "nathan-x-1913230207642984661",
+        "nathan-x-1888909942519914535",
+        "nathan-x-1894265723507413359",
+        "nathan-x-1913226386015482162",
+        "nathan-x-1894276956184875485",
+        "nathan-x-1888938155853910209"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCHED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-counterparty-custody",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "거래상대방·보관·결제 위험",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-counterparty-custody",
+      "dossierId": "research:nathan-frameworks:nathan-counterparty-custody",
+      "sourceIds": [
+        "nathan-x-1782558858243866839",
+        "nathan-x-1711350916119675363",
+        "nathan-x-1905118531341230308",
+        "nathan-x-1902181741764444483"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCH_REQUIRED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
+        "independent-research-dossier",
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-investor-protection",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "투자자 보호와 의사결정 위생",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-investor-protection",
+      "dossierId": "research:nathan-frameworks:nathan-investor-protection",
+      "sourceIds": [
+        "nathan-x-1708331079218975112",
+        "nathan-x-1879121296384196920",
+        "nathan-x-1795613940455748010",
+        "nathan-x-1885729674984407283"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCH_REQUIRED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
+        "independent-research-dossier",
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-credit-stress-gates",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "매크로 신용·자금조달 스트레스 게이트",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-credit-stress-gates",
+      "dossierId": "research:nathan-frameworks:nathan-credit-stress-gates",
+      "sourceIds": [
+        "nathan-x-1909759146532241429",
+        "nathan-x-1909072201363661235",
+        "nathan-x-1899330960589738426",
+        "nathan-x-1895254461578432637",
+        "nathan-x-1910503804040364385"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCHED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-product-monetization",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "AI 제품의 지불의사와 업그레이드 전환",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-product-monetization",
+      "dossierId": "research:nathan-frameworks:nathan-product-monetization",
+      "sourceIds": [
+        "nathan-x-1802207116188696962"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCHED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-treasury-supply-demand",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "국채 수급·듀레이션·텀프리미엄 전달경로",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-treasury-supply-demand",
+      "dossierId": "research:nathan-frameworks:nathan-treasury-supply-demand",
+      "sourceIds": [
+        "nathan-x-1725482289545798140",
+        "nathan-x-1899330960589738426",
+        "nathan-x-1914877841801437672",
+        "nathan-x-1709225406463873037"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCH_REQUIRED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
+        "independent-research-dossier",
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-macro-risk-asset-divergence",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "실물경제와 위험자산의 괴리",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-macro-risk-asset-divergence",
+      "dossierId": "research:nathan-frameworks:nathan-macro-risk-asset-divergence",
+      "sourceIds": [
+        "nathan-x-1899330960589738426",
+        "nathan-x-1909072201363661235"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCHED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-nonbank-regulatory-arbitrage",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "은행에서 비은행으로 이동하는 규제·시스템 리스크",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-nonbank-regulatory-arbitrage",
+      "dossierId": "research:nathan-frameworks:nathan-nonbank-regulatory-arbitrage",
+      "sourceIds": [
+        "nathan-x-1905118531341230308",
+        "nathan-x-1711350916119675363",
+        "nathan-x-1906968123401703631"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCHED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-etf-nav-basket-integrity",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "ETF 바스켓·NAV·생성환매의 무결성",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-etf-nav-basket-integrity",
+      "dossierId": "research:nathan-frameworks:nathan-etf-nav-basket-integrity",
+      "sourceIds": [
+        "nathan-x-1914945578221625667",
+        "nathan-x-1744320571452924329",
+        "nathan-x-1740986493982875725",
+        "nathan-x-1738348106427867640",
+        "nathan-x-1725816574249169390"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCHED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-market-impersonal-tail-risk",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "시장은 비인격적이며 테일리스크는 제거되지 않는다",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-market-impersonal-tail-risk",
+      "dossierId": "research:nathan-frameworks:nathan-market-impersonal-tail-risk",
+      "sourceIds": [
+        "nathan-x-1809436338275627243",
+        "nathan-x-1898198841771671624",
+        "nathan-x-1730853002519736420",
+        "nathan-x-1719724910690648280"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCHED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-research-provenance",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "정의·출처·서사와 사실의 분리",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-research-provenance",
+      "dossierId": "research:nathan-frameworks:nathan-research-provenance",
+      "sourceIds": [
+        "nathan-x-1712639485828386862",
+        "nathan-x-1724815764501475508",
+        "nathan-x-1790676887343370306",
+        "nathan-x-1708331079218975112"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCH_REQUIRED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
+        "independent-research-dossier",
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-specialized-edge-luck",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "전문성·네트워크·기회와 운의 분리",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-specialized-edge-luck",
+      "dossierId": "research:nathan-frameworks:nathan-specialized-edge-luck",
+      "sourceIds": [
+        "nathan-x-1911417101954228508",
+        "nathan-x-1723647460348993907",
+        "nathan-x-1909464712770994432",
+        "nathan-x-1731819466281853207",
+        "nathan-x-1895720638129828113"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCH_REQUIRED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
+        "independent-research-dossier",
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-problem-friction-opportunity",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "거시적 마찰에서 제품·사업 기회 찾기",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-problem-friction-opportunity",
+      "dossierId": "research:nathan-frameworks:nathan-problem-friction-opportunity",
+      "sourceIds": [
+        "nathan-x-1702143255088071042",
+        "nathan-x-1900046641404797272",
+        "nathan-x-1802207116188696962",
+        "nathan-x-1723647460348993907"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCH_REQUIRED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
+        "independent-research-dossier",
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-analysis-workflow-clarity",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "분석 워크플로의 재현성·명료성·도구 위생",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-analysis-workflow-clarity",
+      "dossierId": "research:nathan-frameworks:nathan-analysis-workflow-clarity",
+      "sourceIds": [
+        "nathan-x-1713130461650919478",
+        "nathan-x-1713423305284428038",
+        "nathan-x-1724815764501475508",
+        "nathan-x-1804884017210077385",
+        "nathan-x-1701049361046946137"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCH_REQUIRED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
+        "independent-research-dossier",
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-asset-class-allocation",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "자산군·위험프리미엄·포트폴리오 역할 분해",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-asset-class-allocation",
+      "dossierId": "research:nathan-frameworks:nathan-asset-class-allocation",
+      "sourceIds": [
+        "nathan-x-1553649451914653696",
+        "nathan-x-1555470207925497856",
+        "nathan-x-1560861082079883265",
+        "nathan-x-1564637949207412738",
+        "nathan-x-1719724910690648280"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCH_REQUIRED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
+        "independent-research-dossier",
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-relative-value-hedging",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "헤징·베이시스·OTC의 위험변환 구조",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-relative-value-hedging",
+      "dossierId": "research:nathan-frameworks:nathan-relative-value-hedging",
+      "sourceIds": [
+        "nathan-x-1581542610543730696",
+        "nathan-x-1566371297139249152",
+        "nathan-x-1902181741764444483",
+        "nathan-x-1610596214025908225",
+        "nathan-x-1701225730263441732",
+        "nathan-x-1535849386672295936"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCH_REQUIRED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
+        "independent-research-dossier",
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-institutional-intermediation",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "기관·중개자·시장 현대화의 전달경로",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-institutional-intermediation",
+      "dossierId": "research:nathan-frameworks:nathan-institutional-intermediation",
+      "sourceIds": [
+        "nathan-x-1584078463128195072",
+        "nathan-x-1585218453920952320",
+        "nathan-x-1695813564341362743",
+        "nathan-x-1652510927194050562",
+        "nathan-x-1537294936445698048",
+        "nathan-x-1609765746942566402"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCH_REQUIRED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
+        "independent-research-dossier",
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-valuation-price-formation",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "가치평가·가격발견·평가손익의 분리",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-valuation-price-formation",
+      "dossierId": "research:nathan-frameworks:nathan-valuation-price-formation",
+      "sourceIds": [
+        "nathan-x-1675438704595472385",
+        "nathan-x-1601965650838441984",
+        "nathan-x-1548974302728691712",
+        "nathan-x-1546444364603596800",
+        "nathan-x-1595348262810443778",
+        "nathan-x-1595684818725265408"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCHED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
+        "semantic-review",
+        "browser-certification"
+      ]
+    },
+    {
+      "unitId": "nathan-frameworks:nathan-regulation-market-access",
+      "kind": "STRUCTURAL_FRAMEWORK",
+      "surface": "nathan-frameworks",
+      "parentId": null,
+      "title": "규제·판결·상품승인과 시장접근성",
+      "sourceArtifact": "src/domain/research/nathan-previous-threads.js",
+      "articleId": "nathan-frameworks:nathan-regulation-market-access",
+      "dossierId": "research:nathan-frameworks:nathan-regulation-market-access",
+      "sourceIds": [
+        "nathan-x-1684545885177511941",
+        "nathan-x-1534106474947162117",
+        "nathan-x-1534115620610281474",
+        "nathan-x-1679684091204235264",
+        "nathan-x-1670373404069994496",
+        "nathan-x-1641270079223627776",
+        "nathan-x-1669929298856398848",
+        "nathan-x-1497424287481102340"
+      ],
+      "coverageState": "INVENTORIED",
+      "researchStatus": "RESEARCHED",
+      "articleStatus": "STRUCTURED_REFERENCE_DRAFT",
+      "semanticStatus": "REFERENCE_PROTOCOL",
+      "browserStatus": "NOT_RUN",
+      "currentness": "REFERENCE_ONLY",
+      "currentnessBoundary": "REFERENCE_ONLY: inventory metadata contains no current market, company, product or live value.",
+      "missing": [
         "semantic-review",
         "browser-certification"
       ]

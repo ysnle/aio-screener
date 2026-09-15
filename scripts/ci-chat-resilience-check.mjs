@@ -6,8 +6,11 @@ import { createAIKnowledgeRetriever } from '../src/ai/retrieval/knowledge.js';
 import { evaluateResearchEvidenceFloor } from '../src/ai/research/evidence.js';
 const source = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8');
 const section = (a,b) => { const start=source.indexOf(a), end=source.indexOf(b,start); assert(start>=0 && end>start); return source.slice(start,end); };
-const states = {}, button = { disabled: true };
-const root = { AbortController, setTimeout, clearTimeout, URL, console, document: { getElementById:()=>button, addEventListener(){} },
+const states = {}, button = { disabled: true }, documentListeners = {};
+const root = { AbortController, setTimeout, clearTimeout, URL, console, document: {
+  getElementById:()=>button,
+  addEventListener:(name, handler)=>{ documentListeners[name] = handler; }
+},
   getChatState: id => states[id] ||= {}, chatState: states, _aioSetChatRuntimeState() {}, _aioLog() {},
   localStorage: { getItem:()=>null }, _getApiKey:()=> 'fixture', escHtml:String };
 root.window=root;
@@ -24,7 +27,18 @@ root._aioCancelChatRequest('home','cleared'); assert(!states.home.streaming && s
 let retried=false;
 const third=root._aioBeginChatRequest('home','retry'); third.retryTimer=setTimeout(()=>{retried=true;},10);
 root._aioCancelChatRequest('home','clear'); await new Promise(resolve=>setTimeout(resolve,20)); assert(!retried);
-await assert.rejects(root._aioRunChatTask(()=>new Promise(()=>{}),{timeoutMs:5}),{code:'RESEARCH_TIMEOUT'});
+const unifiedRun=root._aioBeginChatRequest('home','unified',{entrypoint:'unified-chat',routeId:'fundamental',buttonId:'ai-panel-btn',loadingId:'ai-panel-loading',streamingId:'ai-panel-streaming'});
+assert.equal(unifiedRun.entrypoint,'unified-chat'); assert(states.home.streaming && states.home._activeRequest===unifiedRun);
+documentListeners['aio:pageShown']({detail:'technical'});
+assert(unifiedRun.controller.signal.aborted && !root._aioIsCurrentChatRequest('home', unifiedRun));
+root._aiCtxMap={'kr-technical':'kr-tech','kr-tech':'kr-tech'};
+const aliasRun=root._aioBeginChatRequest('kr-tech','alias',{entrypoint:'unified-chat',routeId:'kr-tech',buttonId:'ai-panel-btn',loadingId:'ai-panel-loading',streamingId:'ai-panel-streaming'});
+documentListeners['aio:pageShown']({detail:'kr-technical'});
+assert(!aliasRun.controller.signal.aborted && root._aioIsCurrentChatRequest('kr-tech', aliasRun));
+root._aioCancelChatRequest('kr-tech','route-test');
+let timedOutSignal;
+await assert.rejects(root._aioRunChatTask(signal => { timedOutSignal = signal; return new Promise(()=>{}); },{timeoutMs:5}),{code:'RESEARCH_TIMEOUT'});
+assert(timedOutSignal && timedOutSignal.aborted);
 let googleCalls=0;
 root._perplexitySearch=async()=>({answer:'',citations:[]});
 root._googleSearch=async()=>{googleCalls++; return {answer:'discovery',citations:['https://sec.gov/doc'],engine:'google'};};
@@ -71,6 +85,33 @@ assert(!root._aioChatFreshnessInfo().liveStatus.includes('인용 자체 금지')
 root._liveData={AAA:{price:100}}; root._quoteTimestamps={AAA:Date.now()};
 assert.equal(root._aioChatFreshnessInfo().ldAgeMin,null);
 const shell=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+const ui=readFileSync(new URL('../js/aio-ui.js',import.meta.url),'utf8');
 assert(shell.includes('preparation: _uniPreparedResearch, externalResult: _uniWebResult'));
 assert(shell.includes("typeof _uniPreparedResearch !== 'object'"));
-console.log('Chat resilience PASS: cancellation/epochs/retry, empty+timeout search fallback, evidence objects, source spoofing, safe links, deduplication and shared knowledge retry/cancellation (offline).');
+const unifiedChat=shell.slice(shell.indexOf('async function chatSendUnified('),shell.indexOf('function aiChipClick('));
+assert(unifiedChat.includes('window._aioBeginChatRequest') && unifiedChat.includes("entrypoint: 'unified-chat'"));
+assert(unifiedChat.includes('_uniSignal') && unifiedChat.includes('if (!_isCurrentUnifiedRun()) return;'));
+assert(unifiedChat.includes('signal: _uniSignal') && shell.includes("_aioCancelChatRequest(_aiCurrentCtx, 'context-changed')"));
+assert(unifiedChat.includes('_uniRun.quotaPending = true') && source.includes("closeConfirmModal('chat-cancelled')"));
+assert(shell.includes('function showConfirmModal(title, msg, onConfirm, icon, onCancel)'));
+assert(shell.includes('_confirmCancelCallback') && shell.includes("closeConfirmModal('escape')"));
+assert(ui.includes('function getLLMAvailability()') && ui.includes('window._aioGetLLMRouteReadiness'));
+const quotaUi=ui.slice(ui.indexOf('function updateQuotaBadge()'),ui.indexOf('function toggleLLM()'));
+assert(quotaUi.includes('if (isOn && !route.ready)') && !quotaUi.includes("track.classList.remove('on')"));
+const consumeUi=ui.slice(ui.indexOf('function consumeLLMQuery()'),ui.indexOf('// Init on load'));
+assert(consumeUi.indexOf('if (!route.ready)') >= 0 && consumeUi.indexOf('if (!getLLMState()) return true') > consumeUi.indexOf('if (!route.ready)'));
+assert(consumeUi.includes('settle(false)') && consumeUi.includes('saveQuota(quota)'));
+const pageChat=section('async function chatSend(', '// ── Click a suggestion chip');
+assert(pageChat.includes('_aioChatRun.quotaPending = true') && pageChat.includes('_chatQuotaAllowed = await consumeLLMQuery();'));
+const quotaAwait=pageChat.indexOf('_chatQuotaAllowed = await consumeLLMQuery();');
+assert(pageChat.indexOf('if (!_isCurrentChatRun())', quotaAwait) > quotaAwait && pageChat.indexOf('if (!_isCurrentChatRun())', quotaAwait) < pageChat.indexOf("inp.value = '';", quotaAwait));
+assert(!/Promise\.race\(\[[\s\S]{0,500}ensureFreshChatAnswerData/.test(pageChat));
+assert(pageChat.includes('ensureFreshChatAnswerData') && pageChat.includes('timeoutMs: 6500') && pageChat.includes('ensureFreshDataForUse') && pageChat.includes('timeoutMs: 4500'));
+const tickerChat=section('async function _fetchTickerDataForChat(', 'function _detectDeepCompareIntent(');
+assert(tickerChat.includes('signal: opts.signal || null') && tickerChat.includes('_aioThrowIfChatAborted(opts.signal)'));
+assert(!source.includes('function _aioChatAbortPromise('));
+assert(source.includes('function _aioCanonicalSuppliedMaterialsContext(') && source.includes('var canonicalRegistry = window.AIO && window.AIO.SUPPLIED_MATERIALS_REFERENCE;'));
+assert(source.includes("'kr-tech': 'technical'") && source.includes("'kr-macro': 'macro'"));
+assert(source.includes('function _aioWrapChatExternalContext(') && source.includes("_aioWrapChatExternalContext('TECHNICAL_ENRICHMENT'"));
+assert(unifiedChat.includes('_wrapUnifiedExternal') && unifiedChat.includes("_wrapUnifiedExternal('DEEP_COMPARISON'"));
+console.log('Chat resilience PASS: shared cancellation/epochs across unified+per-page, retry, route/quota fail-closed, modal liveness, empty+timeout search fallback, evidence objects, source spoofing, safe links, deduplication and shared knowledge retry/cancellation (offline).');

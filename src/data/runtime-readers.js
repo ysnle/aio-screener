@@ -1,3 +1,6 @@
+import { isDecisionQuality, isValidRightsId, normalizeAllowedUse, hasObservedPast, parseEvidenceTime } from './contracts/evidence.js';
+import { canonicalSourceTier, isDecisionEligibleSourceKind } from './contracts/source-kind.js';
+
 // Native runtime readers.  These readers are deliberately kept in the data
 // layer so route providers do not depend on the legacy compatibility facade.
 // The legacy shell still owns the mutable runtime globals, but the native data
@@ -42,22 +45,61 @@ function lastSeriesObservedAt(rows) {
   return row.observedAt || row.date || row.time || row.timestamp || null;
 }
 
-function quoteObservation(root, symbol) {
+function quoteObservation(root, symbol, nowMs = Date.now()) {
   const row = root?._liveData?.[symbol] || {};
-  const envelope = row.quoteEnvelope || {};
-  const value = finite(row.price ?? envelope.price);
-  const directionValue = finite(row.pct ?? envelope.pct);
-  const changeBasis = row.changeBasis || row.valueBasis || envelope.changeBasis || envelope.valueBasis || 'unknown';
+  const hasEnvelope = !!(row.quoteEnvelope && typeof row.quoteEnvelope === 'object');
+  // When a producer supplies an envelope, its authority fields are read only
+  // from that envelope. A raw row may be accepted as a legacy envelope only
+  // when it carries the same explicit fields; source labels never fill them.
+  const envelope = hasEnvelope ? row.quoteEnvelope : row;
+  const value = finite(hasEnvelope ? envelope.price : (envelope.price ?? row.price));
+  const directionValue = finite(hasEnvelope ? envelope.pct : (envelope.pct ?? row.pct));
+  const changeBasis = envelope.changeBasis || envelope.valueBasis || 'unknown';
+  const observed = envelope.observedAt || null;
+  const sourceKind = canonicalSourceTier(envelope.sourceKind);
+  const sourceTier = sourceKind;
+  const allowedUse = envelope.allowedUse == null ? null : normalizeAllowedUse(envelope.allowedUse, 'none');
+  const allowedUseCeiling = envelope.allowedUseCeiling == null ? null : normalizeAllowedUse(envelope.allowedUseCeiling, 'none');
+  const quality = envelope.quality && typeof envelope.quality === 'object' ? envelope.quality : null;
+  const rightsId = String(envelope.rightsId || '').trim() || null;
+  const rawPrice = finite(row.price);
+  const rawIdentityMismatch = hasEnvelope && rawPrice != null && value != null && Math.abs(rawPrice - value) > Math.max(1e-9, Math.abs(value) * 1e-8);
+  const freshnessMs = Number(envelope.freshnessMs ?? quality?.maxAgeMs ?? envelope.maxAgeMs);
+  const observedMs = parseEvidenceTime(observed);
+  const clockNow = Number.isFinite(Number(nowMs)) ? Number(nowMs) : Date.now();
+  const freshEnough = Number.isFinite(observedMs) && Number.isFinite(freshnessMs) && freshnessMs > 0 && clockNow - observedMs >= 0 && clockNow - observedMs <= freshnessMs;
+  const decisionEligible = !!(value != null
+    && !rawIdentityMismatch
+    && isDecisionEligibleSourceKind(sourceTier)
+    && allowedUse === 'decision'
+    && allowedUseCeiling === 'decision'
+    && isValidRightsId(rightsId)
+    && quality
+    && isDecisionQuality(quality, envelope.qualityStatus)
+    && hasObservedPast({ observedAt: observed })
+    && freshEnough
+    && !!envelope.revisionId);
+  const revisionId = envelope.revisionId || null;
+  const envelopeComplete = value != null && !rawIdentityMismatch && !!sourceTier && !!observed && !!quality && !!allowedUse && !!allowedUseCeiling && !!revisionId;
   return {
     value,
     pct: directionValue,
     directionValue,
-    currency: row.currency || envelope.currency || null,
-    observedAt: observedAt(row) || envelope.observedAt || null,
-    fetchedAt: row.fetchedAt || envelope.fetchedAt || null,
-    source: row.source || envelope.source || 'unavailable',
-    sourceKind: value == null ? 'unavailable' : String(row.source || envelope.source || '').startsWith('snapshot') ? 'snapshot' : 'runtime-quote',
-    revision: row.revision || envelope.revision || null,
+    currency: hasEnvelope ? (envelope.currency || null) : (envelope.currency || row.currency || null),
+    observedAt: observed,
+    fetchedAt: envelope.fetchedAt || null,
+    source: hasEnvelope ? (envelope.source || null) : (envelope.source || row.source || 'unavailable'),
+    sourceKind: sourceKind || (value == null ? 'unavailable' : null),
+    sourceTier,
+    allowedUse,
+    allowedUseCeiling,
+    rightsId,
+    quality,
+    freshnessMs: Number.isFinite(freshnessMs) ? freshnessMs : null,
+    rawIdentityMismatch,
+    envelopeComplete,
+    decisionEligible,
+    revisionId,
     changeBasis,
     directionCompatible: directionValue != null && changeBasis !== 'unknown',
     directionReason: directionValue == null ? 'quote-change-missing' : changeBasis === 'unknown' ? 'quote-change-basis-unknown' : null
@@ -95,14 +137,14 @@ function hySpreadObservation(root, snapshot = {}) {
   const value = finite(root?._hySpreadBp) ?? finite(snapshot.hySpread);
   const source = evidence.source || root?._hySpreadSource || snapshot._hySpreadSource || 'DATA_SNAPSHOT';
   const sourceKind = evidence.sourceKind
-    || (String(source).includes('last-known-good') || value == null ? (value == null ? 'unavailable' : 'snapshot') : 'official-primary');
+    || (String(source).includes('last-known-good') || value == null ? (value == null ? 'unavailable' : 'T4_REFERENCE') : null);
   return {
     value,
     observedAt: evidence.observedAt || root?._hySpreadDate || snapshot._fieldTs?.hySpread || snapshot._snapshotDate || snapshot._updated || null,
     fetchedAt: evidence.fetchedAt || null,
     source,
     sourceKind,
-    allowedUse: value == null ? 'none' : evidence.allowedUse || (sourceKind === 'official-primary' ? 'reference' : 'reference')
+    allowedUse: value == null ? 'none' : evidence.allowedUse || 'reference'
   };
 }
 
@@ -132,7 +174,7 @@ function fearGreedObservation(root, snapshot = {}) {
 function putCallObservation(root, snapshot = {}) {
   const payload = root?._lastPutCallPayload || {};
   if (finite(payload.totalPutCall) != null) return { value: payload.totalPutCall, observedAt: payload.asOf || payload.tradeDate || null,
-    fetchedAt: payload.fetchedAt || null, source: payload.sourceLabel || payload.source || 'CBOE options volume daily', sourceKind: payload.sourceKind || 'delayed' };
+    fetchedAt: payload.fetchedAt || null, source: payload.sourceLabel || payload.source || 'CBOE options volume daily', sourceKind: payload.sourceKind || 'T3_PUBLIC_DELAYED' };
   if (finite(root?._putCallRatio) != null) return { value: root._putCallRatio, observedAt: null, fetchedAt: null, source: 'runtime:put-call-ratio', sourceKind: 'reference' };
   return { value: finite(snapshot.pcr), observedAt: snapshot._fieldTs?.pcr || snapshot._snapshotDate || snapshot._updated || null,
     fetchedAt: null, source: 'DATA_SNAPSHOT:put-call', sourceKind: finite(snapshot.pcr) == null ? 'unavailable' : 'snapshot' };
@@ -210,7 +252,7 @@ export function buildRuntimeObservationCatalog({ root = globalThis, state = {}, 
   const meta = root?._serverDataMeta || {};
   const snapshot = root?.DATA_SNAPSHOT || {};
   const catalog = {};
-  Object.keys(root?._liveData || {}).forEach((symbol) => { catalog[`market.${symbol}`] = quoteObservation(root, symbol); });
+  Object.keys(root?._liveData || {}).forEach((symbol) => { catalog[`market.${symbol}`] = quoteObservation(root, symbol, now); });
   catalog['sentiment.fearGreed'] = fearGreedObservation(root, snapshot);
   catalog['sentiment.putCall'] = putCallObservation(root, snapshot);
   catalog['sentiment.hySpread'] = hySpreadObservation(root, snapshot);
@@ -284,17 +326,17 @@ export function buildRuntimeObservationCatalog({ root = globalThis, state = {}, 
   const visibleSymbols = [...(root?.document?.querySelectorAll?.('#screener-results-body [data-aio-screener-ticker]') || [])]
     .map((node) => String(node?.dataset?.aioScreenerTicker || '').toUpperCase()).filter(Boolean);
   const visibleQuotes = visibleSymbols.map((symbol) => {
-    const quote = quoteObservation(root, symbol);
-    return { price: quote.value, observedAt: quote.observedAt, fetchedAt: quote.fetchedAt, revision: quote.revision, changeBasis: quote.changeBasis, dailyPct: quote.directionValue };
+    const quote = quoteObservation(root, symbol, now);
+    return { price: quote.value, observedAt: quote.observedAt, fetchedAt: quote.fetchedAt, revisionId: quote.revisionId, changeBasis: quote.changeBasis, dailyPct: quote.directionValue };
   });
   catalog['screener.visibleQuotes'] = coverageObservation(visibleQuotes, { source: 'screener-visible-runtime-quotes' });
   const entity = state?.entity || {};
-  const entityQuote = entity.quote || quoteObservation(root, entity.id || root?._currentTickerId || root?._currentTickerSym || '');
+  const entityQuote = entity.quote || quoteObservation(root, entity.id || root?._currentTickerId || root?._currentTickerSym || '', now);
   catalog['entity.quote'] = {
     value: finite(entityQuote?.value), directionValue: finite(entityQuote?.pct ?? entityQuote?.directionValue),
     observedAt: entityQuote?.observedAt || null, fetchedAt: entityQuote?.fetchedAt || null,
     source: entityQuote?.source || 'unavailable', sourceKind: entityQuote?.sourceKind || 'runtime-quote',
-    revision: entityQuote?.revision || null, changeBasis: entityQuote?.changeBasis || 'unknown',
+    revisionId: entityQuote?.revisionId || null, changeBasis: entityQuote?.changeBasis || 'unknown',
     directionCompatible: entityQuote?.directionCompatible !== false && !!entityQuote?.changeBasis && entityQuote.changeBasis !== 'unknown'
   };
   const entityHistory = Array.isArray(entity.history) ? entity.history : [];
@@ -310,7 +352,7 @@ export function buildRuntimeObservationCatalog({ root = globalThis, state = {}, 
   catalog['themeDetail.quoteCoverage'] = coverageObservation(detailQuotes, { source: 'theme-detail-quotes' });
   const macroRecord = (key, valueKey = key) => {
     const evidence = root?._serverMacroEvidence?.[key] || {};
-    return { value: finite(snapshot[valueKey]), observedAt: evidence.observedAt || null, fetchedAt: evidence.fetchedAt || null, source: evidence.source || snapshot[`_${key}_src`] || 'DATA_SNAPSHOT', sourceKind: evidence.source ? 'official-primary' : 'snapshot' };
+    return { value: finite(snapshot[valueKey]), observedAt: evidence.observedAt || null, fetchedAt: evidence.fetchedAt || null, source: evidence.source || snapshot[`_${key}_src`] || 'DATA_SNAPSHOT', sourceKind: evidence.sourceKind || (evidence.source ? null : 'T4_REFERENCE') };
   };
   catalog['macro.cpi'] = macroRecord('cpi');
   catalog['macro.pce'] = macroRecord('pce');
@@ -319,13 +361,60 @@ export function buildRuntimeObservationCatalog({ root = globalThis, state = {}, 
   return Object.freeze(catalog);
 }
 
+function decisionEvidenceForRow(row, nowMs = Date.now()) {
+  const candidate = row?.quoteEnvelope && typeof row.quoteEnvelope === 'object' ? row.quoteEnvelope : row;
+  if (!candidate || typeof candidate !== 'object') return { evidence: null, ok: false, errors: ['evidence_missing'] };
+  const sourceTier = canonicalSourceTier(candidate.sourceKind);
+  const allowedUse = candidate.allowedUse == null ? 'none' : normalizeAllowedUse(candidate.allowedUse, 'none');
+  const allowedUseCeiling = candidate.allowedUseCeiling == null ? 'none' : normalizeAllowedUse(candidate.allowedUseCeiling, 'none');
+  const evidence = {
+    ...candidate,
+    sourceKind: candidate.sourceKind || '',
+    sourceTier,
+    rightsId: candidate.rightsId || '',
+    allowedUse,
+    allowedUseCeiling,
+    allowedUseExplicit: candidate.allowedUse != null,
+    allowedUseCeilingExplicit: candidate.allowedUseCeiling != null,
+    quality: candidate.quality && typeof candidate.quality === 'object' ? candidate.quality : null,
+    qualityStatus: candidate.qualityStatus || candidate.quality?.status || null,
+    qualityExplicit: candidate.quality != null || candidate.qualityStatus != null,
+    authorityExplicit: candidate.sourceKind != null
+  };
+  const freshnessMs = Number(candidate.freshnessMs ?? candidate.quality?.maxAgeMs ?? candidate.maxAgeMs);
+  const observedMs = parseEvidenceTime(evidence.observedAt);
+  const age = Number.isFinite(observedMs) ? nowMs - observedMs : NaN;
+  const ok = !!(sourceTier && isDecisionEligibleSourceKind(sourceTier)
+    && allowedUse === 'decision' && allowedUseCeiling === 'decision'
+    && isValidRightsId(evidence.rightsId)
+    && isDecisionQuality(evidence.quality, evidence.qualityStatus)
+    && hasObservedPast(evidence, nowMs)
+    && !!evidence.revisionId
+    && Number.isFinite(freshnessMs) && freshnessMs > 0 && Number.isFinite(age) && age >= 0 && age <= freshnessMs
+    && Number.isFinite(Number(evidence.value)));
+  const errors = [];
+  if (!sourceTier) errors.push('source_tier_missing_or_unknown');
+  if (!isDecisionEligibleSourceKind(sourceTier)) errors.push('source_tier_not_decision_eligible');
+  if (allowedUse !== 'decision') errors.push('allowed_use_not_decision');
+  if (allowedUseCeiling !== 'decision') errors.push('allowed_use_ceiling_not_decision');
+  if (!isValidRightsId(evidence.rightsId)) errors.push('rights_id_missing_or_invalid');
+  if (!isDecisionQuality(evidence.quality, evidence.qualityStatus)) errors.push('quality_missing_or_invalid');
+  if (!hasObservedPast(evidence, nowMs)) errors.push('observed_at_missing_or_invalid');
+  if (!evidence.revisionId) errors.push('revision_id_missing');
+  if (!Number.isFinite(freshnessMs) || freshnessMs <= 0 || !Number.isFinite(age) || age < 0 || age > freshnessMs) errors.push('freshness_sla_missing_or_exceeded');
+  if (!Number.isFinite(Number(evidence.value))) errors.push('value_missing_or_invalid');
+  return { evidence, ok, errors };
+}
+
 function decisionInputs(root, nowMs = Date.now()) {
   let rows = [];
   try { rows = root?.AIO?.getTradingDecisionInputEvidence?.()?.rows || []; } catch (_) {}
   const byId = new Map(rows.map((row) => [row.id, row]));
+  const evaluated = new Map();
   const currentRow = (id) => {
-    const row = byId.get(id);
-    return row && row.status === 'verified_current' && row.decisionUse === 'trading' ? row : null;
+    if (!evaluated.has(id)) evaluated.set(id, decisionEvidenceForRow(byId.get(id), nowMs));
+    const result = evaluated.get(id);
+    return result?.ok ? result.evidence : null;
   };
   const value = (id) => finite(currentRow(id)?.value);
   const input = {
@@ -342,19 +431,20 @@ function decisionInputs(root, nowMs = Date.now()) {
     pcr: value('pcr-putcall'),
     hyBp: value('hy-spread-bp')
   };
-  // MA values are not part of the generic critical-input registry, but the
-  // legacy fetcher stamps them with a freshness timestamp and source.  Only
-  // promote them when that timestamp is inside the same four-day decision SLA.
-  const maTs = Number(root?._spxMATs);
-  const maCurrent = Number.isFinite(maTs) && nowMs - maTs >= 0 && nowMs - maTs <= 4 * 24 * 60 * 60 * 1000;
+  // MAs are derived evidence, not a free decision grant. Only a producer
+  // supplied envelope with tier/rights/quality/allowedUse may pass; a bare
+  // timestamp and source label is display/reference data.
   const maEvidence = {};
-  if (maCurrent) {
-    for (const [key, period] of [['spx50ma', 50], ['spx200ma', 200]]) {
-      const value = finite(root?._spxMA?.[period]);
-      if (value != null) {
-        input[key] = value;
-        maEvidence[key] = { value, source: root?._spxMASource || 'native-runtime-ma', status: 'verified_current', allowedUse: 'decision', observedAt: new Date(maTs).toISOString() };
-      }
+  const maSource = root?._spxMAEvidence && typeof root._spxMAEvidence === 'object' ? root._spxMAEvidence : {};
+  for (const [key, period] of [['spx50ma', 50], ['spx200ma', 200]]) {
+    const candidate = maSource[key] || maSource[String(period)] || null;
+    const checked = decisionEvidenceForRow(candidate, nowMs);
+    const maValue = finite(checked.evidence?.value ?? root?._spxMA?.[period]);
+    if (checked.ok && maValue != null) {
+      input[key] = maValue;
+      maEvidence[key] = { ...checked.evidence, value: maValue };
+    } else {
+      maEvidence[key] = { value: maValue, source: candidate?.source || root?._spxMASource || 'native-runtime-ma', status: 'blocked', allowedUse: 'none', observedAt: candidate?.observedAt || null, blockedReasons: checked.errors };
     }
   }
   const evidenceKeys = {
@@ -365,9 +455,11 @@ function decisionInputs(root, nowMs = Date.now()) {
   const decisionEvidence = {};
   Object.entries(evidenceKeys).forEach(([key, id]) => {
     const row = byId.get(id);
+    const checked = evaluated.get(id) || decisionEvidenceForRow(row, nowMs);
+    evaluated.set(id, checked);
     decisionEvidence[key] = row
-      ? { value: finite(row.value), source: row.source || 'unknown', status: row.status || 'unavailable', allowedUse: row.status === 'verified_current' && row.decisionUse === 'trading' ? 'decision' : 'reference', observedAt: row.observedAt || null }
-      : { value: null, source: 'unavailable', status: 'unavailable', allowedUse: 'blocked', observedAt: null };
+      ? { value: finite(row.value), source: row.source || 'unknown', sourceKind: checked.evidence?.sourceKind || null, sourceTier: checked.evidence?.sourceTier || null, status: row.status || 'unavailable', allowedUse: checked.ok ? 'decision' : 'none', allowedUseCeiling: checked.evidence?.allowedUseCeiling || null, observedAt: row.observedAt || null, quality: checked.evidence?.quality || null, rightsId: checked.evidence?.rightsId || null, blockedReasons: checked.ok ? [] : checked.errors }
+      : { value: null, source: 'unavailable', sourceKind: null, sourceTier: null, status: 'unavailable', allowedUse: 'none', allowedUseCeiling: null, observedAt: null, blockedReasons: ['evidence_missing'] };
   });
   Object.assign(decisionEvidence, maEvidence);
   input.decisionEvidence = decisionEvidence;
@@ -419,7 +511,7 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
   const readMarket = () => {
     const snapshot = readSnapshot();
     const symbols = ['CL=F', 'GC=F', '^TNX', 'DX-Y.NYB', 'KRW=X', 'JPY=X', 'HYG', '^GSPC', '^IXIC', 'SPY', 'QQQ'];
-    const quotes = Object.fromEntries(symbols.map((symbol) => [symbol, quoteObservation(root, symbol)]));
+    const quotes = Object.fromEntries(symbols.map((symbol) => [symbol, quoteObservation(root, symbol, now())]));
     const metrics = {};
     ['fedRate', 'cpi', 'coreCpi', 'pce', 'corePce', 'unemployment', 'nfp', 'consConf', 'breadth5sma', 'breadth20sma', 'breadth50sma', 'breadthAdvanceRatio'].forEach((key) => { metrics[key] = finite(snapshot[key]); });
     const observationTimes = Object.values(quotes).map((row) => row.observedAt);
@@ -430,10 +522,10 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
 
   const readEntity = () => {
     const id = String(root?._currentTickerId || root?._currentTickerSym || '').trim().toUpperCase() || null;
-    const quote = id ? quoteObservation(root, id) : null;
+    const quote = id ? quoteObservation(root, id, now()) : null;
     const snapshot = readSnapshot();
     const pcr = putCallObservation(root, snapshot);
-    const optionQuote = (symbol) => quoteObservation(root, symbol);
+    const optionQuote = (symbol) => quoteObservation(root, symbol, now());
     return Object.freeze({
       id,
       name: id ? String(root?._currentTickerName || id) : null,
@@ -455,9 +547,8 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
         const symbol = String(position?.ticker || position?.symbol || position?.sym || '').toUpperCase();
         const shares = Number(position?.qty ?? position?.shares);
         const avgCost = Number(position?.cost ?? position?.avgCost);
-        const quote = live[symbol] || {};
-        const price = Number(quote.price);
-        return { symbol, shares: Number.isFinite(shares) ? shares : null, avgCost: Number.isFinite(avgCost) ? avgCost : null, price: Number.isFinite(price) && price > 0 ? price : null, dailyPct: finite(quote.pct), quoteObservedAt: observedAt(quote), fetchedAt: quote.fetchedAt || quote.quoteEnvelope?.fetchedAt || null, revision: quote.revision || quote.quoteEnvelope?.revision || null, changeBasis: quote.changeBasis || quote.valueBasis || quote.quoteEnvelope?.changeBasis || 'unknown', sector: position?.sector || null, target: finite(Number(position?.target)), memo: position?.memo || '', addedAt: position?.addedAt || null, updatedAt: position?.updatedAt || null, source: quote.source || 'native-runtime-vault' };
+        const quote = quoteObservation(root, symbol, now());
+        return { symbol, shares: Number.isFinite(shares) ? shares : null, avgCost: Number.isFinite(avgCost) ? avgCost : null, price: quote.value != null && quote.value > 0 ? quote.value : null, dailyPct: quote.pct, quoteObservedAt: quote.observedAt, fetchedAt: quote.fetchedAt, revisionId: quote.revisionId, changeBasis: quote.changeBasis, sourceKind: quote.sourceKind, sourceTier: quote.sourceTier, allowedUse: quote.allowedUse, allowedUseCeiling: quote.allowedUseCeiling, quality: quote.quality, rightsId: quote.rightsId, quoteEnvelopeComplete: quote.envelopeComplete, decisionEligible: quote.decisionEligible, blockedReasons: quote.decisionEligible ? [] : ['quote-envelope-not-decision-eligible'], sector: position?.sector || null, target: finite(Number(position?.target)), memo: position?.memo || '', addedAt: position?.addedAt || null, updatedAt: position?.updatedAt || null, source: quote.source || 'native-runtime-vault' };
       }).filter((item) => item.symbol) : [];
       return { ...state, holdings, cash: state?.cash ?? null, totals: state?.totals ?? null, privacy: state?.privacy || 'opt-in', status: holdings.length ? 'current' : 'empty', updatedAt: latestIso([...holdings.map((row) => row.quoteObservedAt), state?.updatedAt]) || null };
     } catch (_) { return { holdings: [], privacy: 'opt-in', status: 'unavailable', updatedAt: null }; }

@@ -21,10 +21,12 @@ import { writeOperationsStatus } from './build-operations-status.mjs';
 import { writeReconciliationStatus } from './build-reconciliation-status.mjs';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { deriveFredCycle } from './lib/refresh-continuity.mjs';
+import { percentileRank01, spearman } from './lib/rank-statistics.mjs';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const OUT = `${__dir}/../public-data/data.json`;
 const HIST = `${__dir}/../public-data/history.json`;
+const MARKET_SNAPSHOT_OUT = `${__dir}/../public-data/market-snapshot.json`;
 const SEC_FUNDAMENTALS_OUT = `${__dir}/../public-data/sec-fundamentals.json`;
 
 // ── 수집 심볼 (v1 핵심셋). 더 넣으려면 배열에 추가만 하면 됨 (배치 처리 자동) ──
@@ -221,6 +223,14 @@ async function fetchQuote(symbol) {
         observedAt: Number.isFinite(m.regularMarketTime) ? new Date(m.regularMarketTime * 1000).toISOString() : null,
         fetchedAt: new Date().toISOString(),
         delayedByMs: Number.isFinite(m.regularMarketTime) ? Math.max(0, Date.now() - m.regularMarketTime * 1000) : null,
+        delayProvenance: {
+          observedField: 'Yahoo chart.meta.regularMarketTime',
+          measuredAtField: 'fetch-time Date.now()',
+          unit: 'milliseconds',
+          method: 'max(0, fetchedAt-observedAt)',
+          policyOwner: 'scripts/build-market-snapshot.mjs:deriveMarketSession',
+          qualityPolicy: 'provider-observation-is-not-current-without-session-and-delay-gate'
+        },
         marketState: m.marketState || null,
         marketSession: m.marketState || null,
         exchangeTimezoneName: m.exchangeTimezoneName || null,
@@ -228,8 +238,16 @@ async function fetchQuote(symbol) {
         venue: m.fullExchangeName || m.exchangeName || null,
         currency: m.currency || null,
         source: 'Yahoo chart',
-        sourceTier: 'public-information-service',
-        allowedUse: Number.isFinite(m.regularMarketTime) ? 'current-with-session-and-delay-gate' : 'reference-only',
+        // Yahoo/TwelveData are public delayed/reference feeds. Their observed
+        // timestamp is useful lineage but cannot create a licensed decision
+        // grant; session/delay gates remain explicit downstream evidence.
+        sourceTier: 'T3_PUBLIC_DELAYED',
+        sourceKind: 'T3_PUBLIC_DELAYED',
+        allowedUse: 'reference-only',
+        allowedUseCeiling: 'reference',
+        rightsId: 'PUBLIC_REFERENCE',
+        qualityStatus: Number.isFinite(m.regularMarketTime) ? 'CURRENT' : 'MISSING',
+        quality: { status: Number.isFinite(m.regularMarketTime) ? 'CURRENT' : 'MISSING', stale: false, decisionUse: false, allowedUse: 'reference' },
       };
     } catch (e) { lastErr = e; }
   }
@@ -287,6 +305,14 @@ async function fetchQuoteTwelveData(symbol, apiKey) {
     observedAt: j && j.timestamp ? new Date(Number(j.timestamp) * 1000).toISOString() : null,
     fetchedAt: new Date().toISOString(),
     delayedByMs: j && j.timestamp ? Math.max(0, Date.now() - Number(j.timestamp) * 1000) : null,
+    delayProvenance: {
+      observedField: 'Twelve Data quote.timestamp',
+      measuredAtField: 'fetch-time Date.now()',
+      unit: 'milliseconds',
+      method: 'max(0, fetchedAt-observedAt)',
+      policyOwner: 'scripts/build-market-snapshot.mjs:deriveMarketSession',
+      qualityPolicy: 'fallback-observation-is-not-current-without-session-and-delay-gate'
+    },
     marketState: j && j.is_market_open === true ? 'REGULAR' : (j && j.is_market_open === false ? 'CLOSED' : null),
     marketSession: j && j.is_market_open === true ? 'REGULAR' : (j && j.is_market_open === false ? 'CLOSED' : null),
     exchangeTimezoneName: j && j.timezone || null,
@@ -294,8 +320,13 @@ async function fetchQuoteTwelveData(symbol, apiKey) {
     venue: j && j.exchange || null,
     currency: j && j.currency || null,
     source: 'Twelve Data quote fallback',
-    sourceTier: 'public-api-plan',
-    allowedUse: j && j.timestamp ? 'current-with-session-and-delay-gate' : 'reference-only',
+    sourceTier: 'T3_PUBLIC_DELAYED',
+    sourceKind: 'T3_PUBLIC_DELAYED',
+    allowedUse: 'reference-only',
+    allowedUseCeiling: 'reference',
+    rightsId: 'PUBLIC_REFERENCE',
+    qualityStatus: j && j.timestamp ? 'CURRENT' : 'MISSING',
+    quality: { status: j && j.timestamp ? 'CURRENT' : 'MISSING', stale: false, decisionUse: false, allowedUse: 'reference' },
   };
 }
 
@@ -489,7 +520,7 @@ export function parseTreasuryYieldCurveHtml(html, fetchedAt = new Date().toISOSt
     schemaVersion: 'us-treasury-curve.v1',
     status: 'ok',
     source: 'U.S. Treasury Daily Par Yield Curve Rates',
-    sourceKind: 'official-primary',
+    sourceKind: 'T1_OFFICIAL',
     sourceUrl: TREASURY_CURVE_URL,
     observedAt: latest.observedAt,
     fetchedAt,
@@ -518,7 +549,7 @@ export function parseTreasuryYieldCurveXml(xml, fetchedAt = new Date().toISOStri
     schemaVersion: 'us-treasury-curve.v1',
     status: 'ok',
     source: 'U.S. Treasury Daily Par Yield Curve Rates XML Feed',
-    sourceKind: 'official-primary',
+    sourceKind: 'T1_OFFICIAL',
     sourceUrl: TREASURY_CURVE_URL,
     observedAt: latest.observedAt,
     fetchedAt,
@@ -544,7 +575,7 @@ export async function fetchTreasuryYieldCurve(previous = null) {
     if (previous?.values && previous?.observedAt) return { ...previous, status: 'stale', attemptedAt: nowIso, failureReason, cacheHit: false };
     return {
       schemaVersion: 'us-treasury-curve.v1', status: 'unavailable', source: 'U.S. Treasury Daily Par Yield Curve Rates',
-      sourceKind: 'official-primary', sourceUrl: TREASURY_CURVE_URL, observedAt: null, fetchedAt: null,
+      sourceKind: 'T1_OFFICIAL', sourceUrl: TREASURY_CURVE_URL, observedAt: null, fetchedAt: null,
       attemptedAt: nowIso, values: {}, failureReason, allowedUse: 'none', decisionUse: false
     };
   }
@@ -697,7 +728,7 @@ export function parseBeaPceHtml(html, releaseUrl = null, fetchedAt = new Date().
   return {
     status: 'ok',
     source: 'U.S. Bureau of Economic Analysis',
-    sourceKind: 'official-primary',
+    sourceKind: 'T1_OFFICIAL',
     allowedUse: 'macro-evidence-with-observation-release-and-fetch-time',
     releaseUrl,
     observationPeriod: `${title[1]} ${title[2]}`,
@@ -730,7 +761,7 @@ async function fetchBeaPce(previous = null) {
     return {
       status: previous && previous.status === 'ok' ? 'last-known-good' : 'unavailable',
       source: 'U.S. Bureau of Economic Analysis',
-      sourceKind: 'official-primary',
+    sourceKind: 'T1_OFFICIAL',
       allowedUse: 'reference-only',
       attemptedAt,
       fetchedAt: null,
@@ -853,7 +884,7 @@ export function normalizeBlsSeriesResponse(payload, fetchedAt = new Date().toISO
       displayRole: config.displayRole || null,
       definition: config.definition || null,
       source: 'BLS Public Data API v1',
-      sourceKind: 'official-primary',
+    sourceKind: 'T1_OFFICIAL',
       sourceUrl: 'https://www.bls.gov/developers/',
       fetchedAt,
       releaseAt: null,
@@ -910,7 +941,7 @@ export function normalizeBlsSeriesResponse(payload, fetchedAt = new Date().toISO
   return {
     schemaVersion: 'bls-evidence.v1',
     source: 'BLS Public Data API v1',
-    sourceKind: 'official-primary',
+    sourceKind: 'T1_OFFICIAL',
     sourceUrl: BLS_ENDPOINT,
     fetchedAt,
     lastSuccessfulAt: successful ? fetchedAt : null,
@@ -962,7 +993,7 @@ export async function fetchBlsSeries(previous = null) {
     return {
       schemaVersion: 'bls-evidence.v1',
       source: 'BLS Public Data API v1',
-      sourceKind: 'official-primary',
+    sourceKind: 'T1_OFFICIAL',
       sourceUrl: BLS_ENDPOINT,
       fetchedAt: null,
       lastSuccessfulAt: null,
@@ -1003,7 +1034,7 @@ export function parseCboePutCallHtml(html) {
     fetchedAt: new Date().toISOString(),
     source: 'Cboe Daily Market Statistics',
     sourceUrl: 'https://www.cboe.com/data/mktstat.aspx',
-    sourceKind: 'delayed',
+    sourceKind: 'T3_PUBLIC_DELAYED',
     allowedUse: 'decision-with-daily-delay'
   };
 }
@@ -1320,6 +1351,43 @@ function _fmtTickerNewsMemo(items) {
   }).join(' · ');
 }
 
+function _tickerNewsTimestampMs(value) {
+  if (typeof value === 'number' && Number.isFinite(value) && value > 0) {
+    const timestamp = value < 1e12 ? value * 1000 : value;
+    return Number.isFinite(timestamp) && timestamp > 0 ? timestamp : null;
+  }
+  if (typeof value === 'string' && value.trim()) {
+    const text = value.trim();
+    if (/^\d+(?:\.\d+)?$/.test(text)) {
+      const numeric = Number(text);
+      const timestamp = numeric < 1e12 ? numeric * 1000 : numeric;
+      return Number.isFinite(timestamp) && timestamp > 0 ? timestamp : null;
+    }
+    const timestamp = Date.parse(text);
+    return Number.isFinite(timestamp) && timestamp > 0 ? timestamp : null;
+  }
+  if (value instanceof Date) {
+    const timestamp = value.getTime();
+    return Number.isFinite(timestamp) && timestamp > 0 ? timestamp : null;
+  }
+  return null;
+}
+
+// Keep publication/observation time separate from collection time. The RSS parser normally
+// supplies `ts` derived from pubDate, but accepting either field keeps this boundary fail-closed
+// when an upstream parser omits one representation or returns an invalid date.
+export function deriveTickerNewsLineage(items, fetchedAt = new Date().toISOString()) {
+  const timestamps = (Array.isArray(items) ? items : []).flatMap((item) => [
+    _tickerNewsTimestampMs(item?.ts),
+    _tickerNewsTimestampMs(item?.pubDate)
+  ]).filter((timestamp) => timestamp != null);
+  const latest = timestamps.length ? Math.max(...timestamps) : null;
+  const newsObservedAt = latest == null ? null : new Date(latest).toISOString();
+  const fetchedTimestamp = _tickerNewsTimestampMs(fetchedAt);
+  const newsFetchedAt = fetchedTimestamp == null ? null : new Date(fetchedTimestamp).toISOString();
+  return { newsObservedAt, newsTs: newsObservedAt, newsFetchedAt };
+}
+
 const round = (v, d) => (typeof v === 'number' && isFinite(v)) ? Number(v.toFixed(d)) : null;
 function monthsBetween(a, b) {
   const da = new Date(a), db = new Date(b);
@@ -1359,7 +1427,9 @@ async function fetchHistory(symbol, range = '6mo') {
           date: new Date(ts[i] * 1000).toISOString().slice(0, 10),
           observedAt: new Date(ts[i] * 1000).toISOString(),
            close: round(c, 2),
-           adjClose: (typeof a === 'number' && isFinite(a) && a > 0) ? round(a, 2) : round(c, 2),
+          // Missing adjusted-close evidence stays missing. A raw-close fallback
+          // would silently turn a total-return backtest into a price-only test.
+          adjClose: (typeof a === 'number' && isFinite(a) && a > 0) ? round(a, 2) : null,
            // Missing OHLC bars are unknown.  Falling back to close creates a
            // fabricated zero-range bar and can make ADR/VCP look complete.
            high:   typeof h === 'number' && isFinite(h) ? round(h, 2)    : null,
@@ -1406,7 +1476,7 @@ async function backfillHistory(hist) {
         fetchedAt: row.fetchedAt || null,
         lastSuccessfulAt: row.fetchedAt || null,
         source: 'Yahoo chart',
-        sourceKind: 'delayed-eod',
+        sourceKind: 'T3_PUBLIC_DELAYED',
         allowedUse: 'research-history',
       };
     }
@@ -1584,6 +1654,9 @@ async function updateHistory(data, marketSnapshot = null) {
 //     떨군다(일 1회 자가 스로틀). 클라가 병합 → 멀티팩터 랭킹의 입력. value/quality(P/E·마진)는
 //     무료 대규모 소스 없음 → 가격 파생 4팩터부터(정직). 심볼은 SCREENER_DB에서 런타임 추출(단일 출처).
 const SCREENER_OUT = `${__dir}/../public-data/screener.json`;
+const BACKTEST_DEFAULT_TRANSACTION_COST_BPS = 20;
+const BACKTEST_DEFAULT_LIQUIDITY_WINDOW_DAYS = 20;
+const BACKTEST_MIN_LIQUIDITY_OBSERVATIONS = 10;
 
 // v51.94/Phase 2 [B6]: 심볼 목록을 js/aio-data.js 소스 텍스트 정규식 스크래핑 대신
 // public-data/screener-universe.json(scripts/sync-screener-universe.mjs가 SCREENER_DB에서
@@ -1591,13 +1664,25 @@ const SCREENER_OUT = `${__dir}/../public-data/screener.json`;
 // 찾아 취약했다(배열 안 어딘가에 그 정확한 바이트열이 나타나면 조기 종료) — JSON은 그런
 // 경계 추측이 필요 없다. screener-universe.json이 오래됐거나 없으면(sync 누락) CI의
 // ci-data-pipeline-contract-check.mjs가 drift를 잡아낸다.
-async function getScreenerSymbols() {
+async function getScreenerUniverse() {
   try {
     const raw = await readFile(`${__dir}/../public-data/screener-universe.json`, 'utf8');
     const j = JSON.parse(raw);
     const syms = (j.universe || []).map(r => r && r.sym).filter(Boolean);
-    return [...new Set(syms)];
-  } catch (e) { console.warn('[fetch-data] screener-universe.json 읽기 실패:', e && e.message); return []; }
+    return {
+      symbols: [...new Set(syms)],
+      meta: j.meta && typeof j.meta === 'object' ? j.meta : {},
+      generatedFrom: j.generatedFrom || 'unknown',
+      generatedBy: j.generatedBy || 'unknown'
+    };
+  } catch (e) {
+    console.warn('[fetch-data] screener-universe.json 읽기 실패:', e && e.message);
+    return { symbols: [], meta: {}, generatedFrom: null, generatedBy: null };
+  }
+}
+
+async function getScreenerSymbols() {
+  return (await getScreenerUniverse()).symbols;
 }
 // Yahoo 심볼 정규화: 클래스주 BRK.B→BRK-B. KR(.KS/.KQ)·일반은 보존.
 const _yhSym = (s) => s.replace(/^([A-Z]+)\.([A-Z])$/, '$1-$2');
@@ -1617,6 +1702,45 @@ function _annVol(closes, n) {
   if (mu == null || rets.length < 2) return null;
   const v = rets.reduce((s, r) => s + (r - mu) * (r - mu), 0) / (rets.length - 1);
   return round(Math.sqrt(v) * Math.sqrt(252) * 100, 2);   // 연율화 %
+}
+
+// Historical liquidity is an observation, not a tradability guarantee. Keep the
+// native quote currency and the number of usable bars so a cross-sectional
+// backtest cannot silently compare KRW notionals with USD notionals or treat a
+// sparse volume series as liquid. Execution impact/borrow/spread are deliberately
+// outside this helper; the backtest reports the coverage and applies only its
+// explicitly-labelled transaction-cost scenario.
+function _historicalLiquidity(stock, endIndex, window) {
+  const closes = Array.isArray(stock?.closes) ? stock.closes : [];
+  const volumes = Array.isArray(stock?.volumes) ? stock.volumes : [];
+  if (closes.length !== volumes.length || !Number.isInteger(endIndex) || endIndex < 0) return null;
+  const lookback = Math.max(1, Number(window) || BACKTEST_DEFAULT_LIQUIDITY_WINDOW_DAYS);
+  const start = Math.max(0, endIndex - lookback + 1);
+  const values = [];
+  for (let index = start; index <= endIndex; index += 1) {
+    const close = Number(closes[index]);
+    const volume = Number(volumes[index]);
+    if (Number.isFinite(close) && close > 0 && Number.isFinite(volume) && volume > 0) values.push(close * volume);
+  }
+  if (values.length < Math.min(BACKTEST_MIN_LIQUIDITY_OBSERVATIONS, lookback)) return null;
+  return {
+    averageNotional: _mean(values),
+    observationCount: values.length,
+    windowDays: lookback,
+    currency: stock?.currency || (/\.(KS|KQ)$/i.test(String(stock?.sym || '')) ? 'KRW' : 'USD')
+  };
+}
+
+function _normaliseBacktestDate(value) {
+  const date = String(value == null ? '' : value).trim();
+  return /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : null;
+}
+
+function _hasCompleteAdjustedSeries(stock, dateCount) {
+  const adjusted = Array.isArray(stock?.adjCloses) ? stock.adjCloses : null;
+  const expected = Number.isInteger(dateCount) && dateCount > 0 ? dateCount : null;
+  if (!adjusted || (expected != null && adjusted.length !== expected) || !adjusted.length) return false;
+  return adjusted.every((value) => typeof value === 'number' && Number.isFinite(value) && value > 0);
 }
 // v51.91 P584/R265/C1: switched from Cutler's RSI (simple average over only the last 14 bars,
 // recomputed fresh each call) to Wilder's RSI (initial 14-bar average, then recursively smoothed
@@ -1709,11 +1833,7 @@ export function closesToFactors(closes) {
 //   끝(today)에서 N일 전 리밸 시점마다 전 종목을 팩터로 랭크 → forward 21일 수익률과의 Spearman IC,
 //   종합 랭크 상-하위 분위 스프레드, 방향 적중률. 누적 대기 불요(enrich 시점 1패스 계산).
 function _spearman(xs, ys) {
-  var n = xs.length; if (n < 3 || ys.length !== n) return null;
-  function ranks(a) { var idx = a.map(function(v, i){ return [v, i]; }); idx.sort(function(p, q){ return p[0] - q[0]; }); var r = new Array(n); for (var k = 0; k < n; k++) r[idx[k][1]] = k + 1; return r; }
-  var rx = ranks(xs), ry = ranks(ys), d2 = 0;
-  for (var i = 0; i < n; i++) { var d = rx[i] - ry[i]; d2 += d * d; }
-  return 1 - (6 * d2) / (n * (n * n - 1));
+  return spearman(xs, ys);
 }
 // v52.50/WO-3: opts.offsets/opts.fwdDays는 선택적 override — 생략 시 기존 6개월 프로덕션
 // 리밸런스 세트+21일 forward 그대로(호출부 무변화, 하위호환). scripts/backtest-factors-longrun.mjs가
@@ -1722,13 +1842,86 @@ export function backtestFactors(stockData, opts) {
   opts = opts || {};
   var OFFSETS = opts.offsets || [147, 126, 105, 84, 63, 42], FWD = opts.fwdDays || 21;     // 끝에서 N일 전 리밸 시점들
   var isNum = function(v){ return typeof v === 'number' && isFinite(v); };
+  var transactionCostBps = isNum(Number(opts.transactionCostBps))
+    ? Math.max(0, Number(opts.transactionCostBps))
+    : BACKTEST_DEFAULT_TRANSACTION_COST_BPS;
+  var liquidityWindowDays = Math.max(1, Number(opts.liquidityWindowDays) || BACKTEST_DEFAULT_LIQUIDITY_WINDOW_DAYS);
+  var universeMeta = opts.universeMeta && typeof opts.universeMeta === 'object' ? opts.universeMeta : {};
+  var rawStocks = Array.isArray(stockData) ? stockData.filter(function(s){ return s && typeof s === 'object'; }) : [];
+  // A tail offset is not a market date. Different IPO histories, missing bars,
+  // and exchange holidays otherwise put different real dates into one
+  // cross-section. Keep only rows with a strictly increasing, date-aligned
+  // series and derive the rebalance calendar from their date intersection.
+  var datedStocks = [], excludedWithoutDates = 0;
+  rawStocks.forEach(function(stock) {
+    var rawDates = Array.isArray(stock.dates) ? stock.dates : null;
+    var dates = rawDates ? rawDates.map(_normaliseBacktestDate) : null;
+    var closes = Array.isArray(stock.closes) ? stock.closes : null;
+    // Adjusted-close coverage is tracked separately below. A stock with a
+    // valid date/price calendar but missing corporate-action data belongs in
+    // the date-aligned universe and must be reported as adjusted-data
+    // excluded, not misclassified as a missing-calendar row.
+    var valid = !!(dates && dates.length && closes && dates.length === closes.length);
+    if (valid) {
+      for (var di = 0; di < dates.length; di++) {
+        if (!dates[di] || (di > 0 && dates[di] <= dates[di - 1])) { valid = false; break; }
+      }
+    }
+    if (!valid) { excludedWithoutDates++; return; }
+    var dateIndex = new Map();
+    dates.forEach(function(date, index){ dateIndex.set(date, index); });
+    datedStocks.push({ stock: stock, dates: dates, dateIndex: dateIndex });
+  });
+  var dateAlignmentMode = !rawStocks.length || excludedWithoutDates === 0 ? 'aligned'
+    : datedStocks.length ? 'minimum-coverage' : 'blocked';
+  var commonDateSet = null;
+  datedStocks.forEach(function(record) {
+    var ownDates = new Set(record.dates);
+    if (commonDateSet == null) commonDateSet = ownDates;
+    else commonDateSet = new Set(Array.from(commonDateSet).filter(function(date){ return ownDates.has(date); }));
+  });
+  var commonDates = commonDateSet ? Array.from(commonDateSet).sort() : [];
+  // The strict all-symbol intersection is retained as a diagnostic only. It
+  // can collapse the sample when one symbol misses a holiday/bar. Rebalance
+  // on observed market dates that meet a declared minimum symbol coverage,
+  // and require each symbol to have both the exact rebalance and target date.
+  var minDateCoverage = isNum(Number(opts.minDateCoverage))
+    ? Math.max(0, Math.min(1, Number(opts.minDateCoverage))) : 0.8;
+  var dateCounts = new Map();
+  datedStocks.forEach(function(record) {
+    record.dates.forEach(function(date) { dateCounts.set(date, (dateCounts.get(date) || 0) + 1); });
+  });
+  var suppliedCalendarDates = Array.isArray(opts.calendarDates)
+    ? opts.calendarDates.map(_normaliseBacktestDate).filter(Boolean)
+    : null;
+  var calendarDates = suppliedCalendarDates && suppliedCalendarDates.length
+    ? Array.from(new Set(suppliedCalendarDates)).sort()
+    : Array.from(dateCounts.entries())
+      .filter(function(entry) { return datedStocks.length > 0 && entry[1] / datedStocks.length >= minDateCoverage; })
+      .map(function(entry) { return entry[0]; })
+      .sort();
+  var calendarDateSet = new Set(calendarDates);
+  var calendarIndex = new Map(calendarDates.map(function(date, index) { return [date, index]; }));
+  var requestedRebalanceDates = Array.isArray(opts.rebalanceDates)
+    ? opts.rebalanceDates.map(_normaliseBacktestDate).filter(Boolean)
+    : OFFSETS.map(function(offset) {
+        var number = Number(offset);
+        if (!Number.isInteger(number) || number < 0 || number >= calendarDates.length) return null;
+        // Offset zero means the final completed minimum-coverage calendar date;
+        // it is never a per-symbol tail lookup.
+        return calendarDates[calendarDates.length - 1 - number];
+      }).filter(Boolean);
+  requestedRebalanceDates = Array.from(new Set(requestedRebalanceDates));
+  var rebalanceDates = requestedRebalanceDates.filter(function(date){ return calendarDateSet.has(date); }).sort();
+  var droppedRebalanceDates = requestedRebalanceDates.filter(function(date){ return rebalanceDates.indexOf(date) < 0; });
+  var dateReadyRecords = datedStocks;
   // v51.91 P586/C2: this backtest validates a *fixed* 4-factor subset, not the live ranking model
-  // (js/aio-data.js:_aioComputeFactorRanks), which uses 7 factors with regime-adaptive weights
-  // (_aioFactorWeights: NEUTRAL/RISK_OFF/RISK_ON, lerp-blended by current market risk score). The
-  // UI previously implied "종합 랭크가 검증 기반" (the live composite rank is what's validated) —
-  // that was not accurate. What IS validated here: momentum/trend/lowvol/kalman, always at the
-  // live model's NEUTRAL-regime weights (never risk-off/risk-on), because this script has no
-  // access to the live market-state signal that drives the regime blend.
+  // (js/aio-data.js:_aioComputeFactorRanks), whose marketState tilts are currently
+  // proposal-only; production ranks remain fixed at NEUTRAL until an explicit
+  // promotion record proves live/backtest parity and receives human review. The UI
+  // previously implied "종합 랭크가 검증 기반" (the live composite rank is what's validated) —
+  // that was not accurate. What IS validated here: momentum/trend/lowvol/kalman at
+  // the fixed NEUTRAL weights; proposal tilts are not validated or applied.
   //   size/value/quality are excluded — not because they don't matter, but because backtesting
   //   them here would either be infeasible or methodologically unsound with data this pipeline
   //   actually has: size needs historical shares-outstanding (not fetched anywhere — mcap is a
@@ -1750,24 +1943,42 @@ export function backtestFactors(stockData, opts) {
   // gate asks for explicitly and which a single averaged IC number cannot support.
   var icByDate = {};
   IC_FACTORS.forEach(function(k){ icS[k]=0; icN[k]=0; icByDate[k]=[]; });
-  var spreadSum = 0, spreadN = 0, hit = 0, hitN = 0;
-  function rank01(vals) { // 값→0..1 percentile(null=0.5)
-    var idx = vals.map(function(v, i){ return [v, i]; }).filter(function(p){ return isNum(p[0]); });
-    idx.sort(function(a, b){ return a[0] - b[0]; });
-    var out = vals.map(function(){ return 0.5; });
-    idx.forEach(function(p, r){ out[p[1]] = idx.length > 1 ? r / (idx.length - 1) : 0.5; });
-    return out;
+  var spreadSum = 0, spreadNetSum = 0, costSum = 0, spreadN = 0, hit = 0, netHit = 0, hitN = 0;
+  var turnoverValues = [], liquidityCoverageValues = [], liquidityObservedRows = 0, liquidityEligibleRows = 0;
+  var previousPositions = null;
+  var adjustedCloseEligible = dateReadyRecords.filter(function(record){ return _hasCompleteAdjustedSeries(record.stock, record.dates.length); }).length;
+  var adjustedCloseExcluded = Math.max(0, dateReadyRecords.length - adjustedCloseEligible);
+  var adjustedCloseEligibleRows = 0, adjustedCloseExcludedRows = 0;
+  var missingRebalanceRows = 0, missingForwardRows = 0;
+  var compositeWeightCoverageMin = 0.8;
+  function rank01(vals) { // 값→0..1 percentile(null=0.5), 동점은 평균순위
+    return percentileRank01(vals);
   }
-  OFFSETS.forEach(function(off) {
+  rebalanceDates.forEach(function(rebalanceDate) {
     var rows = [];
-    stockData.forEach(function(s) {
-      // v51.91 P587/R265/C6: prefer adjusted close for return-based factor scoring (see
-      // _enrichPriceFactors) — falls back to raw close if adjCloses is absent/mismatched length.
-      var c = (s.adjCloses && s.adjCloses.length === s.closes.length) ? s.adjCloses : s.closes;
-      if (!c || c.length < off + 1) return;
-      var p = c.length - off; if (p < 63 || p + FWD > c.length - 1) return;
+    dateReadyRecords.forEach(function(record) {
+      var s = record.stock;
+      // Return-based factor/backtest math is adjusted-close-only. Raw close is
+      // retained for technical/OHLC consumers but is not a silent substitute:
+      // without a complete aligned adjusted series, this symbol is excluded and
+      // the output reports partial coverage instead of fabricating a result.
+      var hasAdjusted = _hasCompleteAdjustedSeries(s, record.dates.length)
+        && (!s.adjustedCloseStatus || s.adjustedCloseStatus === 'complete');
+      if (!hasAdjusted) {
+        adjustedCloseExcludedRows++;
+        return;
+      }
+      adjustedCloseEligibleRows++;
+      var c = s.adjCloses;
+      var p = record.dateIndex.get(rebalanceDate);
+      var rebalanceCalendarIndex = calendarIndex.get(rebalanceDate);
+      var forwardDate = Number.isInteger(rebalanceCalendarIndex) ? calendarDates[rebalanceCalendarIndex + FWD] || null : null;
+      var forwardIndex = forwardDate ? record.dateIndex.get(forwardDate) : null;
+      if (!Number.isInteger(p)) { missingRebalanceRows++; return; }
+      if (p < 63) { missingRebalanceRows++; return; }
+      if (!Number.isInteger(forwardIndex) || forwardIndex <= p || forwardIndex > c.length - 1) { missingForwardRows++; return; }
       var f = closesToFactors(c.slice(0, p + 1)); if (!f) return;
-      var fwd = (c[p] > 0) ? (c[p + FWD] / c[p] - 1) : null; if (!isNum(fwd)) return;
+      var fwd = (c[p] > 0) ? (c[forwardIndex] / c[p] - 1) : null; if (!isNum(fwd) || !forwardDate) return;
       // 모멘텀: 1M(40%)+3M(40%)+6M(20%) — 6M은 추세(trend)와 중복 크므로 가중 축소
       var momParts = [
         isNum(f.ret1m) ? { v: f.ret1m, w: 0.4 } : null,
@@ -1778,7 +1989,16 @@ export function backtestFactors(stockData, opts) {
       var mom = momParts.length ? momParts.reduce(function(s,p){return s+p.v*p.w;},0)/momSum : null;
       var tr = [f.pctSma50, f.pctSma200].filter(isNum); tr = tr.length ? _mean(tr) : null;
       var kalman = isNum(f.kalmanVelConf) ? f.kalmanVelConf : (isNum(f.kalmanVel) ? f.kalmanVel : null);
-      rows.push({ mom: mom, trend: tr, lowvol: isNum(f.vol) ? -f.vol : null, kalman: kalman, fwd: fwd });
+      var liquidity = _historicalLiquidity(s, p, liquidityWindowDays);
+      rows.push({
+        sym: s.sym || s.symbol || null,
+        rebalanceDate: rebalanceDate,
+        forwardDate: forwardDate,
+        mom: mom, trend: tr, lowvol: isNum(f.vol) ? -f.vol : null, kalman: kalman, fwd: fwd,
+        liquidity: liquidity && isNum(liquidity.averageNotional) ? liquidity.averageNotional : null,
+        liquidityObservations: liquidity ? liquidity.observationCount : 0,
+        liquidityCurrency: liquidity ? liquidity.currency : (s.currency || (/\.(KS|KQ)$/i.test(String(s.sym || '')) ? 'KRW' : 'USD'))
+      });
     });
     if (rows.length < 10) return;
     // 단일 팩터 Spearman IC
@@ -1794,29 +2014,170 @@ export function backtestFactors(stockData, opts) {
     var rl  = rank01(rows.map(function(r){ return r.lowvol; }));
     var rk  = rank01(rows.map(function(r){ return r.kalman; }));
     rows.forEach(function(r, i){
-      var wTotal = COMP_W.mom + COMP_W.trend + COMP_W.lowvol
-                 + (isNum(r.kalman) ? COMP_W.kalman : 0);
-      r.comp = (COMP_W.mom * rm[i] + COMP_W.trend * rt[i] + COMP_W.lowvol * rl[i]
-               + (isNum(r.kalman) ? COMP_W.kalman * rk[i] : 0)) / wTotal;
+      // A missing factor is absent evidence, not the neutral percentile 0.5.
+      // Exclude its weight from this row so partial coverage cannot dilute the
+      // observed composite toward the cross-sectional midpoint.
+      var composite = 0, wTotal = 0;
+      if (isNum(r.mom)) { composite += COMP_W.mom * rm[i]; wTotal += COMP_W.mom; }
+      if (isNum(r.trend)) { composite += COMP_W.trend * rt[i]; wTotal += COMP_W.trend; }
+      if (isNum(r.lowvol)) { composite += COMP_W.lowvol * rl[i]; wTotal += COMP_W.lowvol; }
+      if (isNum(r.kalman)) { composite += COMP_W.kalman * rk[i]; wTotal += COMP_W.kalman; }
+      r.compositeWeightCoverage = wTotal;
+      r.comp = wTotal >= compositeWeightCoverageMin ? composite / wTotal : null;
     });
     var icC = _spearman(rows.map(function(r){ return r.comp; }), rows.map(function(r){ return r.fwd; }));
     if (isNum(icC)) { icS.composite += icC; icN.composite++; icByDate.composite.push(icC); }
-    // 상하위 20% 분위 스프레드 & 방향 적중률
-    var sorted = rows.slice().sort(function(a, b){ return a.comp - b.comp; });
+    // 상하위 20% 분위 스프레드 & 방향 적중률. Rows without any observed
+    // composite are excluded from portfolio construction; they cannot become
+    // a hidden neutral holding through rank01's display fallback.
+    var rankedRows = rows.filter(function(r){ return isNum(r.comp); });
+    if (rankedRows.length < 2) return;
+    var sorted = rankedRows.slice().sort(function(a, b){ return a.comp - b.comp; });
     var q = Math.max(1, Math.floor(sorted.length / 5));
     var botM = _mean(sorted.slice(0, q).map(function(r){ return r.fwd; }));
     var topM = _mean(sorted.slice(-q).map(function(r){ return r.fwd; }));
-    if (isNum(topM) && isNum(botM)) { spreadSum += (topM - botM); spreadN++; hitN++; if (topM > botM) hit++; }
+    if (isNum(topM) && isNum(botM)) {
+      var grossSpread = topM - botM;
+      var positions = new Map();
+      var longWeight = 0.5 / q, shortWeight = -0.5 / q;
+      sorted.slice(-q).forEach(function(r){ if (r.sym) positions.set(r.sym, longWeight); });
+      sorted.slice(0, q).forEach(function(r){ if (r.sym) positions.set(r.sym, shortWeight); });
+      var turnover = previousPositions == null
+        ? [...positions.values()].reduce(function(sum, value){ return sum + Math.abs(value); }, 0)
+        : [...new Set([...previousPositions.keys(), ...positions.keys()])].reduce(function(sum, sym){
+            return sum + Math.abs((positions.get(sym) || 0) - (previousPositions.get(sym) || 0));
+          }, 0);
+      var cost = turnover * transactionCostBps / 10000;
+      var netSpread = grossSpread - cost;
+      var selectedLiquidity = sorted.slice(0, q).concat(sorted.slice(-q));
+      var selectedWithLiquidity = selectedLiquidity.filter(function(r){ return isNum(r.liquidity) && r.liquidityObservations >= BACKTEST_MIN_LIQUIDITY_OBSERVATIONS; }).length;
+      var liquidityCoverage = selectedLiquidity.length ? selectedWithLiquidity / selectedLiquidity.length : null;
+      var observedLiquidity = rankedRows.filter(function(r){ return isNum(r.liquidity); }).length;
+      liquidityObservedRows += observedLiquidity;
+      liquidityEligibleRows += rankedRows.length;
+      if (liquidityCoverage != null) liquidityCoverageValues.push(liquidityCoverage);
+      spreadSum += grossSpread;
+      spreadNetSum += netSpread;
+      costSum += cost;
+      spreadN++;
+      turnoverValues.push(turnover);
+      hitN++;
+      if (grossSpread > 0) hit++;
+      if (netSpread > 0) netHit++;
+      previousPositions = positions;
+    }
   });
   var ic = {}; IC_FACTORS.forEach(function(k){ ic[k] = icN[k] ? round(icS[k] / icN[k], 3) : null; });
+  var calculationStatus = !calendarDates.length || !rebalanceDates.length || !spreadN
+    ? 'BLOCKED'
+    : (adjustedCloseExcluded > 0 || missingRebalanceRows > 0 || missingForwardRows > 0 ? 'PARTIAL' : 'COMPLETE');
+  var validationBlockers = [
+    'historical-universe-point-in-time-not-available',
+    'survivorship-bias-uncontrolled-current-membership',
+    'corporate-action-event-audit-not-available',
+    'execution-liquidity-filter-not-applied',
+    'transaction-costs-scenario-only'
+  ];
+  if (adjustedCloseExcluded > 0) validationBlockers.push('adjusted-close-coverage-incomplete');
+  if (!calendarDates.length || !rebalanceDates.length) validationBlockers.push('rebalance-calendar-insufficient');
+  var validationReadiness = {
+    status: 'BLOCKED',
+    predictiveValidation: 'BLOCKED',
+    tradingValidation: 'BLOCKED',
+    allowedUse: 'research-reference-only',
+    blockers: Array.from(new Set(validationBlockers)),
+    reason: 'calculation output is descriptive research evidence; promotion requires PIT universe, corporate-action audit, execution liquidity and full cost model'
+  };
   return {
     asOf: new Date().toISOString(), fwdDays: FWD, dates: spreadN,
-    n: stockData.filter(function(s){ return s.closes && s.closes.length >= 148; }).length,
+    status: calculationStatus,
+    calculationStatus: calculationStatus,
+    readiness: validationReadiness,
+    validationReadiness: validationReadiness,
+    blockingReason: calculationStatus === 'BLOCKED' ? (!calendarDates.length ? 'rebalance-calendar-required' : 'insufficient-calculation-observations') : null,
+    blockingReasons: validationReadiness.blockers,
+    rebalanceDates: rebalanceDates,
+    dateAlignment: {
+      mode: dateAlignmentMode,
+      contract: 'explicit-rebalance-dates-or-minimum-coverage-calendar-offsets',
+      commonDateCount: commonDates.length,
+      strictCommonDateCount: commonDates.length,
+      calendarDateCount: calendarDates.length,
+      calendarDates: calendarDates,
+      calendarPolicy: suppliedCalendarDates && suppliedCalendarDates.length ? 'supplied-calendar' : 'minimum-coverage',
+      minimumDateCoverage: minDateCoverage,
+      dateCoverage: Object.fromEntries(calendarDates.map(function(date) { return [date, dateCounts.get(date) || 0]; })),
+      requestedCount: requestedRebalanceDates.length,
+      usedCount: rebalanceDates.length,
+      droppedRequestedDates: droppedRebalanceDates,
+      excludedStocksWithoutDateSeries: excludedWithoutDates,
+      forwardMapping: 'common-calendar exact rebalance date plus T+n target date; symbols missing either date are excluded'
+    },
+    n: adjustedCloseEligible,
+    priceBasis: 'adjusted-close-required',
+      adjustedCloseStatus: adjustedCloseExcluded > 0 ? (adjustedCloseEligible > 0 ? 'partial' : 'unavailable') : (!calendarDates.length ? 'unavailable' : 'complete'),
+    adjustedCloseEligible: adjustedCloseEligible,
+    adjustedCloseExcluded: adjustedCloseExcluded,
+    adjustedCloseEligibleRows: adjustedCloseEligibleRows,
+      adjustedCloseExcludedRows: adjustedCloseExcludedRows,
+    missingRebalanceRows: missingRebalanceRows,
+    missingForwardRows: missingForwardRows,
+    corporateActions: {
+      priceBasis: 'adjusted-close-only',
+      eventAudit: 'not-available',
+      validationStatus: 'BLOCKED',
+      blockedReasons: ['corporate-action-event-audit-not-available']
+    },
     ic: ic,
     icByDate: icByDate,
     quantileSpread: spreadN ? round(spreadSum / spreadN * 100, 2) : null,
+    quantileSpreadNet: spreadN ? round(spreadNetSum / spreadN * 100, 2) : null,
+    transactionCostPct: spreadN ? round(costSum / spreadN * 100, 3) : null,
     hitRate: hitN ? round(hit / hitN * 100, 1) : null,
+    netHitRate: hitN ? round(netHit / hitN * 100, 1) : null,
+    turnover: {
+      rebalanceCount: turnoverValues.length,
+      average: turnoverValues.length ? round(_mean(turnoverValues), 4) : null,
+      maximum: turnoverValues.length ? round(Math.max(...turnoverValues), 4) : null,
+      unit: 'absolute portfolio-weight change; long/short equal-weight quintiles'
+    },
+    compositeWeightCoverageMin: compositeWeightCoverageMin,
+    liquidity: {
+      windowDays: liquidityWindowDays,
+      minimumObservations: BACKTEST_MIN_LIQUIDITY_OBSERVATIONS,
+      observedRows: liquidityObservedRows,
+      eligibleRows: liquidityEligibleRows,
+      coveragePct: liquidityEligibleRows ? round(liquidityObservedRows / liquidityEligibleRows * 100, 1) : null,
+      selectedCoveragePct: liquidityCoverageValues.length ? round(_mean(liquidityCoverageValues) * 100, 1) : null,
+      unitPolicy: 'native-close-times-volume; USD and KRW are not cross-converted',
+      executionFilterApplied: false,
+      validationStatus: 'BLOCKED',
+      blockedReasons: ['execution-liquidity-filter-not-applied', 'fill-capacity-and-market-impact-not-modeled'],
+      allowedUse: 'research-only; liquidity is diagnostic, not a fill guarantee'
+    },
+    executionModel: {
+      rebalance: 'each supplied rebalance date; equal-weight long top quintile / short bottom quintile',
+      transactionCostBps,
+      costBasis: 'scenario one-way bps multiplied by absolute portfolio-weight turnover',
+      excludedCosts: ['bid-ask spread', 'market impact', 'borrow fee/availability', 'taxes', 'FX conversion'],
+      status: 'scenario-only-not-live-execution',
+      validationStatus: 'BLOCKED',
+      blockedReasons: ['transaction-costs-scenario-only', 'spread-impact-borrow-tax-and-fx-not-modeled']
+    },
+    universePolicy: {
+      membership: 'current-configured-universe-applied-retrospectively',
+      selectionAsOf: universeMeta.lastBulkUpdate || null,
+      currentness: universeMeta.currentness || 'unknown',
+      generatedFrom: universeMeta.generatedFrom || 'public-data/screener-universe.json',
+      lookaheadBias: 'historical-membership-not-available',
+      survivorshipBias: 'uncontrolled-current-membership-only',
+      pointInTimeStatus: 'BLOCKED',
+      validationStatus: 'BLOCKED',
+      blockedReasons: ['historical-universe-point-in-time-not-available', 'survivorship-bias-uncontrolled-current-membership'],
+      allowedUse: 'research-reference-not-predictive-validation'
+    },
     compWeights: COMP_W,
+    weightPolicy: 'fixed-neutral-until-explicit-promotion',
     weightRegime: 'NEUTRAL',
     excludedFactors: EXCLUDED_FACTORS,
     excludedFactorsReason: EXCLUDED_FACTORS_REASON,
@@ -1842,7 +2203,14 @@ async function updateBacktestHistory(backtest) {
       dates: backtest.dates,
       ic: backtest.ic,
       quantileSpread: backtest.quantileSpread,
+      quantileSpreadNet: backtest.quantileSpreadNet,
+      transactionCostPct: backtest.transactionCostPct,
       hitRate: backtest.hitRate,
+      netHitRate: backtest.netHitRate,
+      turnover: backtest.turnover,
+      liquidity: backtest.liquidity,
+      executionModel: backtest.executionModel,
+      universePolicy: backtest.universePolicy,
       weightRegime: backtest.weightRegime,
     };
     const idx = hist.findIndex((h) => h && h.date === today);
@@ -1915,7 +2283,19 @@ async function enrichFundamentals(syms) {
       if (e && typeof e.actualEarningResult === 'number' && typeof e.estimatedEarning === 'number' && e.estimatedEarning !== 0) {
         rec.epsSurprise = round((e.actualEarningResult - e.estimatedEarning) / Math.abs(e.estimatedEarning) * 100, 1);
       }
-      if (Object.keys(rec).length) { out[sym] = rec; ok++; }
+      if (Object.keys(rec).length) {
+        // FMP ratios are a convenience/public API observation. The response
+        // carries no point-in-time availability or redistributable rights
+        // proof, so preserve the values for display but keep ranking use
+        // explicitly blocked until a producer supplies that evidence.
+        Object.assign(rec, {
+          fundamentalSourceKind: 'T3_PUBLIC_DELAYED',
+          fundamentalAllowedUse: 'none',
+          fundamentalQuality: { status: 'MISSING', stale: true, decisionUse: false, allowedUse: 'none' },
+          fundamentalUseBlockedReason: 'point-in-time availability and rights evidence missing'
+        });
+        out[sym] = rec; ok++;
+      }
     } catch (e) { console.warn(`[fetch-data] FMP ${sym} 처리 오류:`, e && e.message); }
   });
   console.log(`[fetch-data] FMP fundamentals: ${ok}/${us.length} 심볼 enriched`);
@@ -1944,10 +2324,22 @@ async function enrichSecFundamentals(syms, priceData) {
         fundamentalSource: 'SEC EDGAR companyfacts',
         fundamentalModel: row.model || payload.model || 'sec-fy-normalized-v2',
         fundamentalPeriod: row.periodType || 'FY',
-        fundamentalObservedAt: row.observedAt || null,
+        // Period end is not availability. Ranking may use only the first time
+        // the filing was public; retain period end separately for display.
+        fundamentalPeriodEnd: row.observedAt || null,
+        fundamentalObservedAt: row.availableAt || row.acceptedAt || row.filedAt || null,
         fundamentalFiledAt: row.filedAt || null,
         fundamentalFetchedAt: row.fetchedAt,
-        fundamentalAccession: row.accession || null
+        fundamentalAccession: row.accession || null,
+        fundamentalSourceKind: 'T1_OFFICIAL',
+        fundamentalAllowedUse: 'research-relative-ranking-only',
+        fundamentalQuality: {
+          status: row.availableAt || row.acceptedAt || row.filedAt ? 'CURRENT' : 'MISSING',
+          stale: !(row.availableAt || row.acceptedAt || row.filedAt),
+          decisionUse: false,
+          allowedUse: 'reference'
+        },
+        fundamentalRightsId: 'PUBLIC_REFERENCE'
       });
       out[sym] = rec;
       available++;
@@ -2093,25 +2485,33 @@ async function _enrichPriceFactors(syms) {
       dates:     (rows || []).map(r => r.date),
       observedAts:(rows || []).map(r => r.observedAt || null),
       closes:    (rows || []).map(r => r.close),
-      // v51.91 P587/R265/C6: separate adjusted-close series for return/momentum/trend/RSI/kalman
-      // factor math (see fetchHistory) — raw `closes`/`highs`/`lows`/`volumes` stay untouched for
-      // VCP pattern recognition below, which is about price *structure* (swing highs/lows,
-      // contraction depth), not total return, and mixing an adjusted close into an otherwise-raw
-      // OHLC set would distort swing-depth math against the un-adjusted high/low bars.
-      adjCloses: (rows || []).map(r => (typeof r.adjClose === 'number' ? r.adjClose : r.close)),
+      // Keep adjusted closes separate from raw OHLC. Return/factor/backtest
+      // consumers must opt into this series explicitly; a missing adjusted value
+      // remains null instead of silently becoming a raw close.
+      adjCloses: (rows || []).map(r => (typeof r.adjClose === 'number' && Number.isFinite(r.adjClose) ? r.adjClose : null)),
       highs:     (rows || []).map(r => (typeof r.high === 'number' && Number.isFinite(r.high) ? r.high : null)),
       lows:      (rows || []).map(r => (typeof r.low === 'number' && Number.isFinite(r.low) ? r.low : null)),
       // Preserve unknown volume as null; downstream factor helpers ignore
       // incomplete volume windows instead of treating missing data as zero.
       volumes:   (rows || []).map(r => (typeof r.volume === 'number' && Number.isFinite(r.volume) ? r.volume : null)),
       observedAt:(rows && rows.length && rows[rows.length - 1].observedAt) || null,
+      adjustedCloseStatus: (rows || []).length > 0 && (rows || []).every(r => typeof r.adjClose === 'number' && Number.isFinite(r.adjClose) && r.adjClose > 0)
+        ? 'complete'
+        : (rows || []).some(r => typeof r.adjClose === 'number' && Number.isFinite(r.adjClose) && r.adjClose > 0) ? 'partial' : 'unavailable',
     };
   });
   const data = {};
   let ok = 0;
   for (const r of results) {
     if (!r || r.__error || !r.closes) continue;
-    const f = closesToFactors(r.adjCloses && r.adjCloses.length === r.closes.length ? r.adjCloses : r.closes);
+    const hasCompleteAdjusted = r.adjustedCloseStatus === 'complete'
+      && r.adjCloses && r.adjCloses.length === r.closes.length
+      && r.adjCloses.every(v => typeof v === 'number' && Number.isFinite(v) && v > 0);
+    // The screener may still expose a raw-price technical snapshot when the
+    // provider omits adjusted closes, but it is explicitly partial and never
+    // enters the adjusted-close backtest below.
+    const factorPriceSeries = hasCompleteAdjusted ? r.adjCloses : r.closes;
+    const f = closesToFactors(factorPriceSeries);
     if (f) {
       // v51.68: VCP 패턴 인식 — OHLCV 60봉 이상일 때 계산 (raw close, 조정종가 아님 — 위 주석 참조)
       if (r.closes.length >= 60 && r.highs && r.lows && r.volumes) {
@@ -2120,7 +2520,7 @@ async function _enrichPriceFactors(syms) {
       }
       const setupFields = _calcSetupScreenFields(
         r.closes,
-        r.adjCloses && r.adjCloses.length === r.closes.length ? r.adjCloses : r.closes,
+        hasCompleteAdjusted ? r.adjCloses : r.closes,
         r.highs || [], r.lows || [], r.volumes || []
       );
       if (setupFields) Object.assign(f, setupFields);
@@ -2129,10 +2529,21 @@ async function _enrichPriceFactors(syms) {
       // never have to infer that a numeric amount is USD.
       f.currency = /\.(KS|KQ)$/i.test(String(r.sym || '')) ? 'KRW' : 'USD';
       f.dollarVolumeCurrency = f.currency;
+      f.priceBasis = hasCompleteAdjusted ? 'adjusted-close' : 'raw-close-partial-no-adjusted-series';
+      f.adjustedCloseStatus = r.adjustedCloseStatus;
+      f.backtestEligible = hasCompleteAdjusted;
       f.observedAt = r.observedAt;
-      f.source = 'Yahoo chart 1y adjusted-close history';
-      f.sourceKind = 'delayed-eod';
+      f.source = hasCompleteAdjusted
+        ? 'Yahoo chart 1y adjusted-close history'
+        : 'Yahoo chart 1y raw-close history (adjusted-close unavailable)';
+      f.sourceKind = 'T3_PUBLIC_DELAYED';
       f.allowedUse = 'research-relative-ranking-only';
+      f.allowedUseCeiling = 'reference';
+      f.rightsId = 'PUBLIC_REFERENCE';
+      f.factorObservedAt = r.observedAt;
+      f.factorSourceKind = 'T3_PUBLIC_DELAYED';
+      f.factorAllowedUse = 'research-relative-ranking-only';
+      f.factorQuality = { status: r.observedAt ? 'CURRENT' : 'MISSING', stale: !r.observedAt, decisionUse: false, allowedUse: 'reference' };
       data[r.sym] = f; ok++;
     }
   }
@@ -2144,9 +2555,16 @@ async function _enrichPriceFactors(syms) {
 // This output is explicitly the AIO screener universe, not official exchange breadth.
 export function computeScreenerBreadth(syms, results) {
   const isKr = (sym) => /\.(KS|KQ)$/i.test(String(sym || ''));
-  const validRows = (results || []).filter(r => r && !r.__error && Array.isArray(r.adjCloses) && r.adjCloses.length >= 2);
+  const validRows = (results || []).filter(r => r && !r.__error && Array.isArray(r.adjCloses) && r.adjCloses.length >= 2
+    && r.adjustedCloseStatus !== 'unavailable'
+    && Number.isFinite(Number(r.adjCloses[r.adjCloses.length - 1]))
+    && Number.isFinite(Number(r.adjCloses[r.adjCloses.length - 2])));
   const pct = (n, d) => d > 0 ? round(n / d * 100, 1) : null;
-  const meanLast = (arr, n) => arr.length >= n ? _mean(arr.slice(-n)) : null;
+  const meanLast = (arr, n) => {
+    if (!Array.isArray(arr) || arr.length < n) return null;
+    const values = arr.slice(-n).map(Number);
+    return values.every(Number.isFinite) ? _mean(values) : null;
+  };
 
   function buildSegment(id, label, include) {
     const segmentSymbols = (syms || []).filter(include);
@@ -2203,13 +2621,20 @@ async function _enrichTickerNews(prioSyms, data) {
   const newsTargets = [...new Set([...prioSyms, ...extraSyms])].slice(0, 90);
   const tickerNewsResults = await mapLimit(newsTargets, 3, async (sym) => {
     const items = await fetchTickerNewsItems(sym, 3);
-    return { sym, items };
+    return { sym, items, fetchedAt: new Date().toISOString() };
   });
   let ok = 0;
   for (const nr of tickerNewsResults) {
     if (!nr || nr.__error) continue;
     const memo = _fmtTickerNewsMemo(nr.items);
-    if (memo && data[nr.sym]) { data[nr.sym].newsMemo = memo; data[nr.sym].newsTs = Date.now(); ok++; }
+    if (memo && data[nr.sym]) {
+      const lineage = deriveTickerNewsLineage(nr.items, nr.fetchedAt);
+      data[nr.sym].newsMemo = memo;
+      data[nr.sym].newsTs = lineage.newsTs;
+      data[nr.sym].newsObservedAt = lineage.newsObservedAt;
+      data[nr.sym].newsFetchedAt = lineage.newsFetchedAt;
+      ok++;
+    }
   }
   return ok;
 }
@@ -2224,8 +2649,21 @@ export async function enrichScreener() {
       }
     } catch { /* 최초 실행 */ }
   }
-  const syms = await getScreenerSymbols();
+  const universeInfo = await getScreenerUniverse();
+  const syms = universeInfo.symbols;
   if (!syms.length) return { skipped: true, count: 0, reason: 'no-symbols' };
+  // The configured catalogue is a current membership snapshot, not a point-in-time
+  // research universe. Preserve its lineage beside every derived result so consumers
+  // cannot mistake retrospective ranking for a predictive, survivorship-correct test.
+  const universeLineage = {
+    ...(universeInfo.meta || {}),
+    generatedFrom: universeInfo.generatedFrom || 'public-data/screener-universe.json',
+    generatedBy: universeInfo.generatedBy || null,
+    membershipPolicy: 'current-configured-universe-applied-retrospectively',
+    lookaheadBias: 'historical-membership-not-available',
+    survivorshipBias: 'uncontrolled-current-membership-only',
+    allowedUse: 'research-reference-not-predictive-validation'
+  };
 
   // 1단계: 가격 팩터 계산
   const { data, results, ok } = await _enrichPriceFactors(syms);
@@ -2254,14 +2692,14 @@ export async function enrichScreener() {
       if (typeof data[sym][key] !== 'number' && typeof sec[key] === 'number') data[sym][key] = sec[key];
     });
     if (!data[sym].fundamentalSource) {
-      ['fundamentalSource','fundamentalModel','fundamentalPeriod','fundamentalObservedAt','fundamentalFiledAt','fundamentalFetchedAt','fundamentalAccession'].forEach(key => {
+      ['fundamentalSource','fundamentalModel','fundamentalPeriod','fundamentalPeriodEnd','fundamentalObservedAt','fundamentalFiledAt','fundamentalFetchedAt','fundamentalAccession','fundamentalSourceKind','fundamentalAllowedUse','fundamentalQuality','fundamentalRightsId','fundamentalUseBlockedReason'].forEach(key => {
         if (sec[key] != null) data[sym][key] = sec[key];
       });
     }
   }
 
   // 4단계: 개별 종목 뉴스 메모 (지수/선물/FX/크립토/KR 제외)
-  const prioSyms = SYMBOLS.filter(s => !/^\^|=F$|=X$|-USD$|\.KS$|\.KQ$/i.test(s));
+  const prioSyms = syms.filter(s => !/^\^|=F$|=X$|-USD$|\.KS$|\.KQ$/i.test(s));
   let tickerNewsOk = 0;
   try { tickerNewsOk = await _enrichTickerNews(prioSyms, data); }
   catch (e) { console.warn('[fetch-data] ticker news 실패(무시):', e && e.message || e); }
@@ -2269,7 +2707,11 @@ export async function enrichScreener() {
 
   // 5단계: 횡단면 팩터 백테스트(closes 재사용 — 1패스)
   let backtest = null;
-  try { backtest = backtestFactors(results.filter(r => r && r.closes && r.closes.length >= 148)); }
+  try {
+    backtest = backtestFactors(results.filter(r => r && r.closes && r.closes.length >= 148), {
+      universeMeta: universeLineage
+    });
+  }
   catch (e) { console.warn('[fetch-data] backtest 실패(무시):', e && e.message || e); }
   const breadth = computeScreenerBreadth(syms, results);
   const breadthHistory = computeScreenerBreadthHistory(syms, results);
@@ -2328,9 +2770,15 @@ export async function enrichScreener() {
       tradingSignal: false,
       predictiveValidation: 'not-established',
       liveModelParity: false,
-      reason: 'long-run composite IC is not positive/stable; backtest covers only fixed NEUTRAL momentum/trend/lowvol/kalman subset and excludes live adaptive weights',
-      evidenceArtifact: 'public-data/factor-backtest-longrun.json'
+      validationReadiness: backtest && backtest.validationReadiness || { status: 'BLOCKED', blockers: ['backtest-not-produced'] },
+      reason: 'long-run composite IC is not positive/stable; backtest covers only fixed NEUTRAL momentum/trend/lowvol/kalman subset and excludes unpromoted proposal tilts',
+      evidenceArtifact: 'public-data/factor-backtest-longrun.json',
+      weightPolicy: 'fixed-neutral-until-explicit-promotion',
+      universePolicy: backtest && backtest.universePolicy || universeLineage,
+      executionModel: backtest && backtest.executionModel || null,
+      liquidityPolicy: backtest && backtest.liquidity || null
     },
+    universeLineage,
     data,
     backtest,
   };
@@ -2404,8 +2852,8 @@ export function buildMarketAnalysisEvidence(data) {
       collectedAt: data?.meta?.generatedAt || null,
       asOf,
       source,
-      sourceTier: blsMatchesValue ? (bls.sourceKind || 'official-primary') : 'official-primary',
-      sourceKind: blsMatchesValue ? (bls.sourceKind || 'official-primary') : 'official-primary',
+      sourceTier: blsMatchesValue ? (bls.sourceKind || 'T1_OFFICIAL') : 'T1_OFFICIAL',
+      sourceKind: blsMatchesValue ? (bls.sourceKind || 'T1_OFFICIAL') : 'T1_OFFICIAL',
       allowedUse: blsMatchesValue ? (bls.allowedUse || 'macro-evidence-with-observation-date') : 'macro-evidence-with-observation-date',
       status: 'observed',
     });
@@ -3064,6 +3512,11 @@ async function main() {
       marketSurveysStatus: marketSurveys ? 'web-research-captured-reference' : null,
       marketSurveysCheckedAt: marketSurveys?.checkedAt || null,
       elapsedMs: Date.now() - t0,
+      // `generatedAt` is the payload/attempt clock for macro/news planes. Keep
+      // market publication lineage in separate fields; a failed publish must
+      // never be read as a fresh LKG market observation.
+      attemptedAt,
+      artifactGeneratedAt: generatedAt,
       schema: 1,
     },
     quotes,
@@ -3119,15 +3572,34 @@ async function main() {
     attemptedAt: data.meta.generatedAt,
     source: 'github-actions:fetch-data'
   });
+  // publishMarketSnapshot deliberately returns the failed attempt alongside a
+  // retainedRevision. Do not pass that failed attempt to history/reconciliation
+  // consumers: load the actual on-disk LKG snapshot when publication is
+  // blocked, and keep the attempt lineage in separate metadata fields.
+  let marketSnapshotForConsumers = marketSnapshotInfo.published ? marketSnapshotInfo.snapshot : null;
+  if (!marketSnapshotForConsumers && marketSnapshotInfo.retainedRevision) {
+    try { marketSnapshotForConsumers = JSON.parse(await readFile(MARKET_SNAPSHOT_OUT, 'utf8')); }
+    catch (_) { marketSnapshotForConsumers = null; }
+  }
+  const marketSnapshotAttemptRevision = marketSnapshotInfo.snapshot.revision || null;
+  const marketSnapshotPublishedRevision = marketSnapshotForConsumers?.revision || marketSnapshotInfo.retainedRevision || null;
   data.meta.marketSnapshotPublished = !!marketSnapshotInfo.published;
-  data.meta.marketSnapshotCoverage = marketSnapshotInfo.coverage;
-  data.meta.marketSnapshotRevision = marketSnapshotInfo.snapshot.revision;
+  data.meta.marketSnapshotAttemptedAt = marketSnapshotInfo.snapshot.attemptedAt || data.meta.attemptedAt;
+  data.meta.marketSnapshotPublishedAt = marketSnapshotInfo.published ? marketSnapshotInfo.snapshot.generatedAt : null;
+  data.meta.marketSnapshotAttemptRevision = marketSnapshotAttemptRevision;
+  data.meta.marketSnapshotLastSuccessfulAt = marketSnapshotForConsumers?.generatedAt || null;
+  data.meta.marketSnapshotCoverage = {
+    ...(marketSnapshotInfo.coverage || {}),
+    tier0Required: Number(marketSnapshotInfo.coverage?.tier0Required ?? marketSnapshotInfo.coverage?.required ?? 0),
+    tier0Observed: Number(marketSnapshotInfo.coverage?.tier0Observed ?? marketSnapshotInfo.coverage?.observed ?? 0)
+  };
+  data.meta.marketSnapshotRevision = marketSnapshotPublishedRevision;
   const cycleId = `kst-0800-${data.meta.newsCycleEnd}`;
   data.meta.cycleId = cycleId;
   data.meta.cycleStatus = 'PENDING';
   data.meta.marketCycleFreshnessSlaHours = 12;
   data.meta.cycleComponents = {
-    marketSnapshotRevision:marketSnapshotInfo.snapshot.revision,
+    marketSnapshotRevision:marketSnapshotPublishedRevision,
     marketSnapshotPublished:!!marketSnapshotInfo.published,
     quoteCount:quotes.length,
     requiredQuoteCount:SYMBOLS.length,
@@ -3138,7 +3610,8 @@ async function main() {
     historyUpdated:false,
     telegramDigestExpected:true,
   };
-  data.meta.cycleManifestRevision = `${cycleId}:${marketSnapshotInfo.snapshot.revision}`;
+  data.meta.cycleManifestRevision = `${cycleId}:${marketSnapshotInfo.published ? marketSnapshotPublishedRevision || 'published-unknown' : 'unpublished:' + (marketSnapshotAttemptRevision || 'unknown')}`;
+  data.meta.cycleManifestAttemptRevision = marketSnapshotAttemptRevision;
 
   await mkdir(dirname(OUT), { recursive: true });
   // P715 (사용자 결정 "클라이언트 직접 fetch 전환"): 공개 data.json에서 종목별 시세 재배포를
@@ -3154,7 +3627,7 @@ async function main() {
   });
   await atomicWriteFile(OUT, JSON.stringify(toPublicPayload(data), null, 1));
   // WO-7 (ops): 일별 히스토리 누적 (충분한 데이터일 때만 — 아래 <50% 가드와 별개로 핵심 심볼 존재 시)
-  const histInfo = await updateHistory(data, marketSnapshotInfo.snapshot);
+  const histInfo = await updateHistory(data, marketSnapshotForConsumers);
   const cyclePublication = deriveCyclePublication({
     marketSnapshotPublished: !!marketSnapshotInfo.published,
     quoteCount: quotes.length,
@@ -3212,8 +3685,8 @@ async function main() {
     data.meta.secFundamentalsCount = scrInfo.secFundamentalsCount || 0;
     data.meta.fundamentalCoveragePct = scrInfo.fundamentalCoveragePct || 0;
   }
-  const reconciliationStatus = await writeReconciliationStatus({ data, marketSnapshot: marketSnapshotInfo.snapshot });
-  await writeOperationsStatus({ data, marketSnapshot: marketSnapshotInfo.snapshot, reconciliation: reconciliationStatus });
+  const reconciliationStatus = await writeReconciliationStatus({ data, marketSnapshot: marketSnapshotForConsumers });
+  await writeOperationsStatus({ data, marketSnapshot: marketSnapshotForConsumers, reconciliation: reconciliationStatus });
 
   // scrInfo 반영 후 data.json 재기록 (fmpHasKey 등 meta 업데이트) — P719: 반드시 스트립 경유
   await atomicWriteFile(OUT, JSON.stringify(toPublicPayload(data), null, 1));

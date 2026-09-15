@@ -1,11 +1,55 @@
+import { createEvidence, evaluateEvidence } from '../../data/contracts/evidence.js';
+
 export const AI_PREMISE_VERSION = 'premise-evidence.v1';
 
 const METRICS = Object.freeze({ 'price-change-pct': '%', 'price-change': null });
-const OBSERVED_SOURCE_KINDS = new Set(['exchange', 'market-data', 'quote-provider', 'official', 'primary', 'verified-current', 'live']);
 function timestamp(value) { return typeof value === 'string' && value.trim() && Number.isFinite(Date.parse(value)) ? Date.parse(value) : null; }
 function period(value) {
   const start = timestamp(value?.start), end = timestamp(value?.end);
   return start !== null && end !== null && start < end ? { start, end } : null;
+}
+
+function normalized(value) { return String(value == null ? '' : value).trim().toLowerCase(); }
+
+/**
+ * A verified/current row is not automatically a current claim.  The premise
+ * path is allowed to compare a directional observation only when the
+ * producer has independently granted decision use, current-claim use,
+ * quality, and freshness.  This deliberately does not infer any grant from
+ * source authority or the generic `status` field.
+ */
+function hasExplicitDecisionGrant(row, nowMs) {
+  const claimUse = normalized(row?.claimUse ?? row?.currentClaimUse ?? (row?.currentClaim === true ? 'current' : ''));
+  const quality = normalized(row?.qualityStatus ?? row?.quality?.status ?? row?.quality?.qualityStatus);
+  const freshness = normalized(row?.freshnessStatus ?? row?.freshness?.status ?? (typeof row?.freshness === 'string' ? row.freshness : ''));
+  if (row?.allowedUse !== 'decision' || row?.allowedUseCeiling !== 'decision') return false;
+  if (Object.hasOwn(Object(row || {}), 'currentClaim') && row.currentClaim !== true) return false;
+  if (!['current', 'current-claim'].includes(claimUse) || !['current', 'fresh', 'live'].includes(freshness)) return false;
+  const freshnessMs = Number(row?.freshnessMs ?? row?.freshnessMaxAgeMs ?? row?.maxAgeMs);
+  const qualityInput = row?.quality && typeof row.quality === 'object'
+    ? { ...row.quality, ...(row.qualityStatus != null ? { status: row.qualityStatus } : {}) }
+    : (quality ? { status: row.qualityStatus } : null);
+  const evidence = createEvidence({
+    evidenceId: row.evidenceId,
+    metric: row.metricId,
+    value: row.value,
+    unit: row.unit,
+    sourceKind: row.sourceKind,
+    source: row.source,
+    revisionId: row.revisionId ?? row.revision,
+    rightsId: row.rightsId,
+    observedAt: row.observedAt,
+    collectedAt: row.collectedAt,
+    fetchedAt: row.fetchedAt,
+    status: ['verified', 'current'].includes(normalized(row.status)) ? 'fresh' : row.status,
+    allowedUse: row.allowedUse,
+    allowedUseCeiling: row.allowedUseCeiling,
+    quality: qualityInput,
+    qualityStatus: row.qualityStatus,
+    freshnessMs,
+    metadata: { ...(row.metadata && typeof row.metadata === 'object' ? row.metadata : {}), ...(Number.isFinite(freshnessMs) ? { maxAgeMs: freshnessMs } : {}) }
+  }, { now: nowMs });
+  return evaluateEvidence(evidence, { purpose: 'decision', now: nowMs }).ok;
 }
 
 /** Compare an explicit directional assertion only with the same observed tuple.
@@ -38,8 +82,8 @@ export function evaluateDirectionalPremise(assertion = {}, evidence = [], { now 
       (row.metricId !== 'price-change-pct' || row.value >= -100) &&
       typeof row.evidenceId === 'string' && row.evidenceId.trim() && typeof row.source === 'string' && row.source.trim() &&
       ['verified', 'current'].includes(String(row.status).toLowerCase()) &&
-      OBSERVED_SOURCE_KINDS.has(String(row.sourceKind || '').trim().toLowerCase()) &&
-      at !== null && at >= requestedPeriod.end && at <= nowMs;
+      at !== null && at >= requestedPeriod.end && at <= nowMs &&
+      hasExplicitDecisionGrant(row, nowMs);
   });
   if (!usable.length) { reasons.push(candidates.length ? 'matching-evidence-invalid' : 'matching-evidence-unavailable'); return result('UNVERIFIED'); }
   const directions = new Set(usable.map((row) => row.value > 0 ? 'up' : row.value < 0 ? 'down' : 'flat'));

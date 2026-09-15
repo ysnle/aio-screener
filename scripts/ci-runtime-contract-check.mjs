@@ -136,6 +136,12 @@ check('legacy conclusion bar is hidden when decision header exists', /has-aio-de
 check('audit widget is hidden by default and only shown in dev mode', /\.aio-audit-widget\s*\{\s*display:none\s*!important;?\s*\}/.test(html) && /body\.aio-dev-mode\s+\.aio-audit-widget/.test(html) && /classList\.toggle\('aio-dev-mode'/.test(core));
 check('portfolio blocks unverified ticker before saving', /검증되지 않은 티커라 저장하지 않았습니다/.test(html) && /if\s*\(!isKnown\)\s*\{[\s\S]*?return;\s*\}[\s\S]*?const positions = getPortfolioData\(\)/.test(html));
 check('data-action accessibility normalizer is installed', /_aioNormalizeDataActionA11y/.test(core) && /setAttribute\('role', 'button'\)/.test(core) && /setAttribute\('tabindex', '0'\)/.test(core));
+check('data-on-change/input delegation reports missing and throwing handlers', /data-on-change/.test(core) && /data-on-input/.test(core) && /missing data-on-change handler/.test(core) && /data-on-change failed/.test(core) && /missing data-on-input handler/.test(core) && /data-on-input failed/.test(core) && /showDataError\('입력 처리'/.test(core));
+check('ticker direct search uses the delegated uppercase input handler', /window\._aioUppercaseInput\s*=/.test(core) && /id="ticker-direct-search"[\s\S]{0,600}data-on-input="_aioUppercaseInput"/.test(html) && !/id="ticker-direct-search"[\s\S]{0,600}\boninput\s*=/.test(html));
+check('snapshot percentage fields preserve missingness and breadth narrative fails closed to current 5/20/50 evidence', !/vvix-pct[^\n]*S\.vvixChg\s*\|\|\s*0/.test(core) && !/skew-pct[^\n]*S\.skewChg\s*\|\|\s*0/.test(core) && /\[\['5sma', 'sma5'\], \['20sma', 'sma20'\], \['50sma', 'sma50'\]\]/.test(core) && !/\['5sma','20sma','50sma','200sma'\]/.test(core) && /현재 breadth 원천 미수신/.test(core));
+check('snapshot fallback seeds require a valid producer timestamp and TNX stays source-backed', /const snapTsRaw = S\._updated \|\| S\._marketDataUpdated/.test(core) && /snapshot timestamp unavailable; fallback seed skipped/.test(core) && !/const snapTs = S\._updated \? new Date\(S\._updated\)\.getTime\(\) : Date\.now\(\)/.test(core) && /'\^TNX': \{ price: S\.tnx, pct: S\.tnxPct \}/.test(core) && !/price: 4\.31, pct: \+0\.54/.test(core));
+check('manual CPI next date is consumed only when it is valid and not in the past', /function _aioFutureReferenceDate/.test(core) && /cpiNext: _aioFutureReferenceDate\(AIO_MANUAL_REFERENCE\.usCpiCalendar\.next\)/.test(core) && /\(!DATA_SNAPSHOT\.cpiNext \|\| _t759ValidFutureDate\(DATA_SNAPSHOT\.cpiNext\)\)/.test(tests));
+check('page decisions fail closed when evidence is unavailable or market epoch is blocked', /var evidenceBlocked = evidence\.sourceKind === 'UNAVAILABLE'/.test(core) && /evidence\.marketEpoch\?\.status === 'BLOCKED'/.test(core) && /d\.decisionBlocked = true/.test(core) && /status: d\.decisionBlocked \? 'blocked' : 'ok'/.test(core));
 // P553: the returned object literal no longer has to sit directly after the `return` keyword
 // (computeTradingScore now builds it into a variable first so it can be cached), so this only
 // requires the `{ total, score: total` alias shape to exist somewhere in the function, not that
@@ -176,6 +182,14 @@ check('decision header renders page evidence caveat', /aio-decision-caveat/.test
 check('high-risk pages are capped below raw LIVE when data is mixed', /technical:\s*\{[\s\S]{0,120}maxSourceKind:\s*'DELAYED'/.test(core) && /'market-news':\s*\{[\s\S]{0,120}maxSourceKind:\s*'DELAYED'/.test(core) && /ticker:\s*\{[\s\S]{0,160}emptyKind:\s*'UNAVAILABLE'/.test(core));
 check('home public readiness audit remains available only in developer mode', /id="aio-public-readiness"/.test(html) && /_aioBuildPublicShareReadiness/.test(data) && /getPublicShareReadiness/.test(data) && /getShareReadinessAudit/.test(core) && /body\.aio-dev-mode \.aio-public-readiness/.test(html) && /classList\.contains\('aio-dev-mode'\)/.test(data));
 check('visible static labels do not overstate live/action state', !/\u25cf\s*LIVE|LIVE RSS|BUY\s*\/\s*LONG|공격적 매매|\(실시간\)|실시간 감지|실시간 수급|FMP 실시간|FINNHUB\s*실시간/.test(visibleHtml));
+check('runtime evidence labels start unavailable and recent-news copy does not claim realtime', /id="breadth-source"[^>]*>원천 미수신 · 판정 보류<\/div>/.test(html)
+  && !/id="breadth-source"[^>]*>\s*Live Data\s*<\/div>/i.test(html)
+  && !/최근 7일 뉴스\s*\(실시간/.test(html)
+  && !/Finnhub \(실시간 시세\)/.test(html));
+check('educational copy does not claim unverified win-rate or factor explanatory power', !/2~3일 확인 후 비중을 올리는 편이 승률이 높습니다/.test(ui)
+  && /승률을 높인다는 근거는 검증되지 않았으므로/.test(ui)
+  && !/팩터가 실제로 수익률을 설명해 왔는지의 증거/.test(ui)
+  && /예측력이나 수익률 설명력을 인증하는 증거가 아니/.test(ui));
 check('news fallback titles must not expose translation-pending placeholder text', !/return\s+['"`]\[번역 대기\]/.test(data) && !/\[번역 대기\]\s*['"`]\s*\+/.test(data));
 check('put/call badge renders localized source state instead of raw enum labels', /스냅샷\s*·\s*참고/.test(data) && !/SNAPSHOT\s*·\s*reference/.test(data));
 check('public readiness exposes page-level source/asOf matrix with localized labels', /pageEvidenceRows/.test(data) && /weakPages/.test(data) && /aio-public-readiness-pages/.test(data) && /aio-public-page-source/.test(html) && /_aioPublicReadinessSourceText/.test(data) && /_aioPublicReadinessPageText/.test(data) && /시각 확인 중/.test(data));
@@ -193,7 +207,11 @@ check(
     && /Return \/ Risk Attribution/.test(html)
     && /백테스트 Lab/.test(html)
     && /buildPortfolioBacktestLab/.test(core)
-    && /AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V1/.test(core)
+    && /AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2/.test(core)
+    && /adjusted-close/.test(core)
+    && /current-composition-retrospective/.test(core)
+    && /transaction-costs-not-modeled/.test(core)
+    && /turnoverModeled:\s*false/.test(core)
     && /monthlyRows/.test(core)
     && /annualRows/.test(core)
     && /drawdowns/.test(core)
@@ -429,10 +447,16 @@ try {
 const compWMatch = fetchScript.match(/var\s+COMP_W\s*=\s*\{([^}]+)\}/);
 if (compWMatch) {
   const compWKeys = [...compWMatch[1].matchAll(/(\w+)\s*:/g)].map(m => m[1]);
+  // The runtime declares `wTotal` beside `composite`; do not search for an
+  // impossible standalone `var wTotal` declaration.
+  const compositeFormulaIdx = fetchScript.indexOf('var composite = 0, wTotal = 0');
+  const compositeFormula = compositeFormulaIdx >= 0
+    ? fetchScript.slice(compositeFormulaIdx, compositeFormulaIdx + 1800)
+    : '';
   for (const key of compWKeys) {
     check(
       `COMP_W.${key} is used in wTotal formula`,
-      new RegExp(`COMP_W\\.${key}`).test(fetchScript.slice(fetchScript.indexOf('var wTotal'))),
+      new RegExp(`wTotal\\s*\\+=\\s*COMP_W\\.${key}`).test(compositeFormula),
       `COMP_W.${key} declared but not used in wTotal computation — dead weight key`
     );
   }
@@ -603,7 +627,10 @@ check('headless tests cover the WO-6 score-provenance contract', /_testV5249Scor
 // concurrency-capped, top-mcap-subset longrun script added. See WO-2 (P665) for the analogous
 // trading-score validation this mirrors.
 const backtestFactorsIdx = fetchScript.indexOf('function backtestFactors(stockData, opts)');
-const backtestFactorsBody = backtestFactorsIdx >= 0 ? fetchScript.slice(backtestFactorsIdx, backtestFactorsIdx + 3000) : '';
+// `icByDate` is initialized after the calendar/coverage guards, beyond the
+// old 3,000-character heuristic window. Keep the full calculation body in
+// scope so the implemented WO-3 ledger is actually checked.
+const backtestFactorsBody = backtestFactorsIdx >= 0 ? fetchScript.slice(backtestFactorsIdx, backtestFactorsIdx + 12000) : '';
 check('WO-3: backtestFactors() accepts optional offsets/fwdDays that default to the original production constants (backward compatible with the existing 30-min-cron call site)', /var OFFSETS = opts\.offsets \|\| \[147, 126, 105, 84, 63, 42\], FWD = opts\.fwdDays \|\| 21/.test(backtestFactorsBody));
 check('WO-3: backtestFactors() additionally returns a per-rebalance-date IC list (icByDate) needed to compute ICIR/t-stat, not just the averaged IC', /icByDate/.test(backtestFactorsBody));
 check('WO-3: fetch-data.mjs guards its direct execution and allows an isolated screener-only task without import side effects', /const __entryArg = process\.argv\[1\] \? process\.argv\[1\]\.replace/.test(fetchScript) && /if \(__entryArg && \(import\.meta\.url === `file:\/\/\$\{__entryArg\}`/.test(fetchScript) && /process\.env\.SCREENER_ONLY === '1' \? enrichScreener\(\) : main\(\)/.test(fetchScript) && /task\.catch\(e => \{ console\.error\('\[fetch-data\] 치명적 오류:', e\); process\.exit\(1\); \}\);\s*\}/.test(fetchScript));
@@ -618,7 +645,7 @@ if (exists('scripts/backtest-factors-longrun.mjs')) {
 }
 if (exists('scripts/backtest-trading-score-longrun.mjs')) {
   const scoreLongrun = read('scripts/backtest-trading-score-longrun.mjs');
-  check('WO-3: classifyRegime/spearmanWithCI/trailingMax are exported from the WO-2 longrun script for reuse', /export function classifyRegime/.test(scoreLongrun) && /export function spearmanWithCI/.test(scoreLongrun) && /export function trailingMax/.test(scoreLongrun));
+  check('WO-3: classifyRegime/spearmanWithCI/trailingMax are exported from the WO-2 longrun script for reuse', /export function classifyRegime/.test(scoreLongrun) && (/export function spearmanWithCI/.test(scoreLongrun) || /export \{\s*spearmanWithCI\s*\}/.test(scoreLongrun)) && /export function trailingMax/.test(scoreLongrun));
 }
 
 // v52.5x (P667/WO-4): viewport-matrix promoted from a report-only, FULL_INIT=0-by-default check
@@ -735,7 +762,16 @@ check('WP-AI4: untrusted external text is normalized, injection-audited, and wra
 check('WP-AI4: chat history has explicit off mode, 30-day retention, bounded entries, and sanitized storage', /getChatHistoryPolicy/.test(core) && /setChatHistoryEnabled/.test(core) && /prepareChatHistoryEntry/.test(core) && /CHAT_HISTORY_MAX = 50/.test(html) && /retentionDays/.test(html) && /_aioChatHistoryToggle/.test(core));
 check('WP-AI5: portfolio AI uses a field allowlist, redaction preview, and session-only opt-in before unified send', /redactPortfolioForAI/.test(core) && /getPortfolioAIPrivacyPreview/.test(core) && /setPortfolioAIConsent/.test(core) && /포트폴리오 AI 전송 미리보기/.test(html) && /계좌ID.*제외/.test(html));
 check('WP-AI5: prohibited conduct and unsupported personalized direct action block while probability gaps remain explicit limitations', /evaluateAIActionPermission/.test(core) && /conductAudit/.test(chat) && /prohibited-conduct/.test(core) && /suitability-context-missing/.test(core) && /current-evidence-limited/.test(core) && /decision-grade/.test(core) && /uncalibrated-probability-claim/.test(core));
-check('WP-AI5: action permission runs before provider quota/retrieval and again before publication', /_aioPreProviderPermission/.test(chat) && chat.indexOf('_aioPreProviderPermission') < chat.indexOf('consumeLLMQuery()') && /evaluateAIActionPermission\([\s\S]*?conductAudit/.test(chat));
+const preProviderPermissionIdx = chat.indexOf('var _aioPreProviderPermission');
+const quotaAwaitIdx = chat.indexOf('await consumeLLMQuery()');
+const publicationPermissionIdx = chat.indexOf('var conductAudit');
+const publicationGateIdx = chat.indexOf('if (conductAudit.blocked === true)');
+check('WP-AI5: action permission runs before provider quota/retrieval and again before publication',
+  preProviderPermissionIdx >= 0 && quotaAwaitIdx > preProviderPermissionIdx && publicationPermissionIdx >= 0 && publicationGateIdx > publicationPermissionIdx && /evaluateAIActionPermission\(/.test(chat.slice(publicationPermissionIdx, publicationPermissionIdx + 700)));
+check('WP-AI5: legacy chat awaits the async quota confirmation and rejects a cancelled epoch before provider work',
+  /var _chatQuotaAllowed\s*;[\s\S]{0,220}await consumeLLMQuery\(\)/.test(chat) && quotaAwaitIdx >= 0 && chat.indexOf('if (!_isCurrentChatRun())', quotaAwaitIdx) > quotaAwaitIdx && chat.indexOf('if (!_isCurrentChatRun())', quotaAwaitIdx) - quotaAwaitIdx < 320);
+check('WP-AI5: per-page freshness preflight uses abortable bounded tasks and no uncancelled race', /_aioRunChatTask\(function\(signal\)[\s\S]{0,420}ensureFreshChatAnswerData[\s\S]{0,220}timeoutMs: 6500/.test(chat) && /_aioRunChatTask\(function\(signal\)[\s\S]{0,420}ensureFreshDataForUse[\s\S]{0,220}timeoutMs: 4500/.test(chat) && !/Promise\.race\(\[[\s\S]{0,500}ensureFreshChatAnswerData/.test(chat));
+check('WP-AI5: ticker quote lookup carries the active chat AbortSignal and ignores cancelled cache paths', /async function _fetchTickerDataForChat\([\s\S]{0,600}_aioThrowIfChatAborted\(opts\.signal\)/.test(chat) && /dynamicTickerLookup\(t,[\s\S]{0,220}signal: opts\.signal/.test(chat));
 check('WP-AI4/5: page and unified entry points pass the active query to the common policy and untrusted wrappers', /query: q/.test(chat) && /query: q/.test(html) && /buildAIUntrustedBlock/.test(chat) && /buildAIUntrustedBlock/.test(html));
 check('WP-AI4/5: deterministic regression fixtures cover injection, redaction, consent, history off, conduct, evidence, pipeline, and calibration', /_testAIUntrustedSecurityAndConduct/.test(tests) && /T958/.test(tests) && /T959/.test(tests) && /T960/.test(tests) && /T961/.test(tests) && /T962/.test(tests) && /T963/.test(tests) && /T964/.test(tests) && /T965/.test(tests) && /T966/.test(tests));
 

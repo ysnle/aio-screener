@@ -1,6 +1,6 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 import { createEvidenceRegistry } from '../../domain/knowledge/evidence.js';
-import { loadKnowledgeCapabilities } from '../../data/knowledge/load-capabilities.js';
+import { createKnowledgeCapabilityBatchLoader } from '../knowledge/capability-loader.js';
 import { navigateKnowledgeTarget, parseKnowledgeRouteState, parseKnowledgeTargetContext, replaceKnowledgeRouteState } from '../../app/knowledge-route-state.js';
 import { createAppKnowledgeLearningState } from '../../app/knowledge-learning-state.js';
 import { renderKnowledgeLesson } from '../../ui/knowledge/lesson.js';
@@ -9,6 +9,7 @@ import { createKnowledgeLearningControls } from '../../ui/knowledge/learning-con
 import { loadJsonArtifact } from '../../data/artifact-cache.js';
 import { createSuppliedMaterialBridge } from '../../ui/knowledge/supplied-material-bridge.js';
 import { applySafeExternalLink } from '../../ui/knowledge/safe-external-link.js';
+import { createIntegratedFrameworkSpine } from '../../ui/knowledge/integrated-framework-spine.js';
 
 const REVIEWED_AT = '2026-08-18';
 const RESEARCH_URL = './public-data/atlas/source-packets.json';
@@ -1425,8 +1426,9 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
         });
         searchLabel.appendChild(input);
         toolbar.append(tabs, searchLabel);
-        const body = element(documentRef, 'div', 'atlas-body');
-        if (state.tab === 'relationships') {
+         const body = element(documentRef, 'div', 'atlas-body');
+         body.appendChild(createIntegratedFrameworkSpine(documentRef, { page: 'atlas', query: state.query, compact: state.tab !== 'foundations', onNavigate: route }));
+         if (state.tab === 'relationships') {
            if (state.relationshipGuides) body.appendChild(createRelationshipGuidesView(documentRef, state.relationshipGuides, state.query, state.registry, { guideId: state.selectedRelationshipGuideId, nodeId: state.selectedRelationshipNodeId, criticality: state.relationshipCriticality, currentObservations: state.currentObservations }));
           if (state.relationshipGuidesError) body.appendChild(element(documentRef, 'div', 'atlas-empty', '관계 지도 artifact를 불러오지 못했습니다. 다른 학습·산업 지도는 계속 사용할 수 있습니다.'));
         } else if (state.tab === 'taxonomy') {
@@ -1605,7 +1607,6 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
             registry: 'aioAtlasRegistry', currentness: 'aioAtlasCurrentness', currentEvidenceLedger: 'aioAtlasCurrentEvidenceLedger',
             knowledgeSources: 'aioAtlasKnowledgeSources', knowledgeStatus: 'aioAtlasKnowledgeStatus', relationshipGuides: 'aioAtlasRelationshipGuides', currentObservations: 'aioAtlasCurrentObservations'
           };
-          const loading = new Set();
           const finalizeCapabilities = () => {
             const sourceCoverage = state.foundationLessons?.sourceCoverage || {};
             if (state.foundationLessons && !state.foundationLessons.byId) {
@@ -1634,20 +1635,17 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
             }
             page.dataset.aioReviewedAt = [state.research?.reviewedAt, state.foundations?.reviewedAt, state.foundationLessons?.reviewedAt, state.taxonomyCoverage?.reviewedAt, state.deepTaxonomy?.reviewedAt, state.relationshipGuides?.reviewedAt, REVIEWED_AT].filter(Boolean).sort().at(-1) || REVIEWED_AT;
           };
+          const capabilityLoader = createKnowledgeCapabilityBatchLoader({
+            fetchFn,
+            state,
+            dataset: page.dataset,
+            datasetMap,
+            signal: scope?.signal,
+            isActive: isAlive,
+            validators: { currentObservations: validateCurrentObservationsArtifact }
+          });
           const loadGroup = async (definitions) => {
-            const pending = definitions
-              .filter(({ key }) => state[key] == null && !loading.has(key))
-              .map((definition) => definition.key === 'currentObservations' ? { ...definition, validate: validateCurrentObservationsArtifact } : definition);
-            if (!pending.length) return;
-            pending.forEach(({ key }) => loading.add(key));
-            const capabilities = await loadKnowledgeCapabilities(fetchFn, pending, { signal: scope?.signal });
-            if (!isAlive()) return;
-            for (const [key, result] of Object.entries(capabilities)) {
-              loading.delete(key);
-              state[key] = result.value;
-              state[`${key}Error`] = result.status !== 'connected';
-              page.dataset[datasetMap[key]] = result.status;
-            }
+            if (!await capabilityLoader.load(definitions)) return;
             finalizeCapabilities();
             render();
           };

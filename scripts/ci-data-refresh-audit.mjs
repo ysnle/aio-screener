@@ -11,8 +11,10 @@ const json = (file) => JSON.parse(read(file));
 const now = Date.now();
 const data = json('public-data/data.json');
 const snapshot = json('public-data/market-snapshot.json');
+const snapshotStatus = json('public-data/market-snapshot-status.json');
 const screener = json('public-data/screener.json');
 const history = json('public-data/history.json');
+const dataRuntime = read('js/aio-data.js');
 const rows = [];
 
 function ageDays(value) {
@@ -34,18 +36,91 @@ function add(id, category, observedAt, cadence, detail, forced = null, maxAgeDay
   rows.push({ id, category, observedAt: observedAt || null, ageDays: ageDays(observedAt), cadence, status: statusFor(observedAt, cadence, forced, maxAgeDays), detail });
 }
 
+function assessPublishedSnapshot({ dataArtifact, snapshotArtifact, statusArtifact }) {
+  const publishedAt = snapshotArtifact?.generatedAt || statusArtifact?.lastSuccessfulAt || null;
+  const publishedRevision = snapshotArtifact?.revision || statusArtifact?.lastKnownGoodRevision || null;
+  const statusRevisionMatches = Boolean(
+    publishedRevision
+    && statusArtifact?.lastKnownGoodRevision === publishedRevision
+    && Date.parse(statusArtifact?.lastSuccessfulAt || '') === Date.parse(publishedAt || '')
+  );
+  const statusIsSuccessful = statusArtifact?.schemaVersion === 'market-snapshot-status-v1'
+    && statusArtifact?.attemptStatus === 'published'
+    && (!Array.isArray(statusArtifact?.errors) || statusArtifact.errors.length === 0);
+  const dataCycleIsPublished = dataArtifact?.meta?.cycleStatus === 'PUBLISHED'
+    && dataArtifact?.meta?.marketSnapshotPublished === true
+    && dataArtifact?.meta?.cycleComponents?.marketSnapshotPublished === true;
+  const snapshotIsPublished = snapshotArtifact?.status === 'published'
+    && (!Array.isArray(snapshotArtifact?.errors) || snapshotArtifact.errors.length === 0)
+    && Number(snapshotArtifact?.coverage?.tier0Observed) === Number(snapshotArtifact?.coverage?.tier0Required);
+  return {
+    publishedAt,
+    publishedRevision,
+    attemptedRevision: dataArtifact?.meta?.marketSnapshotRevision || statusArtifact?.attemptedAt || null,
+    attemptStatus: statusArtifact?.attemptStatus || 'unknown',
+    currentCyclePublished: statusIsSuccessful && statusRevisionMatches && dataCycleIsPublished && snapshotIsPublished
+  };
+}
+
+// Regression fixture: a failed new attempt must not promote its attempted
+// timestamp/revision over the older last-known-good published artifact.
+const failedAttemptFixture = assessPublishedSnapshot({
+  dataArtifact: { meta: { marketSnapshotRevision: 'attempted-revision', marketSnapshotPublished: false, cycleStatus: 'DEGRADED', cycleComponents: { marketSnapshotPublished: false } } },
+  snapshotArtifact: { status: 'published', revision: 'lkg-revision', generatedAt: '2026-09-11T02:36:03.988Z', coverage: { tier0Required: 16, tier0Observed: 16 }, errors: [] },
+  statusArtifact: { schemaVersion: 'market-snapshot-status-v1', attemptedAt: '2026-09-12T15:16:10.361Z', attemptStatus: 'failed', lastSuccessfulAt: '2026-09-11T02:36:03.988Z', lastKnownGoodRevision: 'lkg-revision', errors: ['tier0_quality:^KS11:STALE:STALE_UNEXPECTED'] }
+});
+if (failedAttemptFixture.publishedAt !== '2026-09-11T02:36:03.988Z'
+  || failedAttemptFixture.publishedRevision !== 'lkg-revision'
+  || failedAttemptFixture.currentCyclePublished) {
+  throw new Error('snapshot lineage regression: failed attempt was promoted over the published LKG artifact');
+}
+
+// P1069/R591: mirror the runtime publication gate with a fixed fixture. A
+// fresh generatedAt plus complete *attempted* coverage is still not eligible
+// when the producer reports DEGRADED/marketSnapshotPublished=false.
+const cycleFixture = json('architecture/fixtures/data-cycle-freshness.json');
+function assessRuntimeCycle(fixture) {
+  const coverage = fixture.coverage || {};
+  const coverageComplete = Number(coverage.tier0Required) > 0
+    && Number(coverage.tier0Observed) === Number(coverage.tier0Required);
+  const published = fixture.cycleStatus === 'PUBLISHED'
+    && fixture.marketSnapshotPublished === true
+    && coverageComplete;
+  const generatedMs = Date.parse(fixture.generatedAt || '');
+  const nowMs = Date.parse(fixture.now || '');
+  const fresh = Number.isFinite(generatedMs) && Number.isFinite(nowMs)
+    && nowMs >= generatedMs && nowMs - generatedMs <= 12 * 60 * 60 * 1000;
+  const day = new Date(nowMs).getUTCDay();
+  const closedGrace = (day === 0 || day === 6) && published && coverageComplete;
+  return { marketCyclePublished: published, liveCoreEligible: published && (fresh || closedGrace) };
+}
+for (const name of ['failedAttempt', 'publishedCycle']) {
+  const assessed = assessRuntimeCycle(cycleFixture[name]);
+  const expected = cycleFixture[name].expected;
+  if (assessed.marketCyclePublished !== expected.marketCyclePublished
+    || assessed.liveCoreEligible !== expected.liveCoreEligible) {
+    throw new Error(`runtime cycle fixture mismatch (${name}): ${JSON.stringify(assessed)}`);
+  }
+}
+if (!/var _marketCyclePublished = d\.meta\.cycleStatus === 'PUBLISHED'[\s\S]{0,180}d\.meta\.marketSnapshotPublished === true[\s\S]{0,100}_marketCoverageComplete/.test(dataRuntime)
+  || !/if \(_liveCoreEligible && \(!isFinite\(_existingSnapshotMs\)/.test(dataRuntime)) {
+  throw new Error('runtime cycle regression: loader publication/clock gate is missing');
+}
+
 const quote = (symbol) => (snapshot.quotes || []).find((row) => row.instrumentId === symbol) || null;
 const macro = data.macro || {};
 const utcDay = new Date(now).getUTCDay();
+const snapshotAudit = assessPublishedSnapshot({ dataArtifact: data, snapshotArtifact: snapshot, statusArtifact: snapshotStatus });
 const marketClosedGrace = (utcDay === 0 || utcDay === 6)
-  && data.meta?.cycleStatus === 'PUBLISHED'
-  && snapshot.status === 'published'
+  && snapshotAudit.currentCyclePublished
   && Number(snapshot.coverage?.tier0Required) > 0
   && Number(snapshot.coverage?.tier0Observed) === Number(snapshot.coverage?.tier0Required)
   && (!Array.isArray(snapshot.errors) || snapshot.errors.length === 0);
 
-// The 22 durable categories defined by the data-refresh contract.
-add('A1', 'DATA_SNAPSHOT / durable market artifact', data.meta?.generatedAt, 'daily', `revision=${data.meta?.marketSnapshotRevision || snapshot.revision}; SLA=12h${marketClosedGrace ? '; market-closed grace' : ''}`, marketClosedGrace ? 'OK' : null, 0.5);
+// The 22 durable categories defined by the data-refresh contract. A1 uses the
+// published artifact's generatedAt/revision; data.meta values describe the
+// latest refresh attempt and must not renew an older LKG snapshot.
+add('A1', 'DATA_SNAPSHOT / durable market artifact', snapshotAudit.publishedAt, 'daily', `revision=${snapshotAudit.publishedRevision || '—'} attemptedRevision=${snapshotAudit.attemptedRevision || '—'} attempt=${snapshotAudit.attemptStatus}; SLA=12h${marketClosedGrace ? '; market-closed grace' : ''}`, marketClosedGrace ? 'OK' : null, 0.5);
 add('A2', 'Fear & Greed', data.fearGreed?.asOf || data.meta?.generatedAt, 'daily', `score=${data.fearGreed?.score ?? '—'} source=${data.fearGreed?._source || 'unknown'}`);
 add('A3', 'VIX + HY OAS shared evidence', quote('^VIX')?.observedAt || macro._asOf_hyOAS, 'daily', `vix=${quote('^VIX')?.value ?? '—'} hyOAS=${macro.hyOAS ?? '—'} hyAsOf=${macro._asOf_hyOAS || '—'}; session=${quote('^VIX')?.session || 'missing'}`, ageDays(macro._asOf_hyOAS) != null && ageDays(macro._asOf_hyOAS) > 3 ? 'STALE' : null);
 const surveys = data.marketSurveys || {};
@@ -105,7 +180,7 @@ const policyStateOk = auditState.B1 === 'OK'
   && auditState.B2 === 'BLOCKED'
   && auditState.B3 === 'BLOCKED'
   && auditState.C4 === 'DYNAMIC';
-const structuralOk = rows.length === 22 && snapshot.status === 'published' && Number(snapshot.coverage?.observed) >= Number(snapshot.coverage?.required) && unknownSessions.length === 0 && policyStateOk;
+const structuralOk = rows.length === 22 && snapshotAudit.currentCyclePublished && Number(snapshot.coverage?.observed) >= Number(snapshot.coverage?.required) && unknownSessions.length === 0 && policyStateOk;
 
 console.log('| # | Category | Observed | Age(d) | Cadence | Status | Detail |');
 console.log('|---|---|---|---:|---|---|---|');

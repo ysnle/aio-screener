@@ -20,8 +20,10 @@ const deep = read('public-data/atlas/deep-taxonomy.json');
 const domains = read('public-data/atlas/domain-guides.json');
 const registry = read('public-data/atlas/player-product-registry.json');
 const articles = read('public-data/knowledge/articles.json');
+const nathanFrameworks = read('public-data/knowledge/nathan-frameworks.json');
 const research = read('public-data/knowledge/research-dossiers.json');
 const dossierByUnit = new Map((research.dossiers || []).map((dossier) => [dossier.contentUnitId, dossier]));
+const articleIds = new Set([...(articles.articles || []).map((article) => article.articleId), ...(nathanFrameworks.articles || []).map((article) => article.articleId)]);
 
 const units = [];
 const add = (unit) => {
@@ -45,7 +47,7 @@ const add = (unit) => {
   sourceIds: [...new Set(unit.sourceIds || [])],
   coverageState: authored ? 'AUTHORED' : 'INVENTORIED',
   researchStatus,
-  articleStatus: unit.articleId && articles.articles?.some((article) => article.articleId === unit.articleId)
+  articleStatus: unit.articleId && articleIds.has(unit.articleId)
     ? 'STRUCTURED_REFERENCE_DRAFT'
     : 'MISSING',
   semanticStatus: unit.semanticStatus || 'REQUIRED',
@@ -68,6 +70,11 @@ for (const concept of (concepts.concepts || []).filter((item) => item.surface ==
   unitId: concept.canonicalId, kind: 'CONCEPT_GUIDE', surface: concept.surface, title: concept.title,
   sourceArtifact: concept.source?.artifact || 'public-data/knowledge/concepts.json', sourceIds: concept.sourceIds
 });
+for (const concept of (concepts.concepts || []).filter((item) => item.surface === 'nathan-frameworks')) add({
+  unitId: concept.canonicalId, kind: 'STRUCTURAL_FRAMEWORK', surface: concept.surface, title: concept.title,
+  sourceArtifact: concept.source?.artifact || 'public-data/knowledge/nathan-frameworks.json', sourceIds: concept.sourceIds,
+  articleId: concept.canonicalId, semanticStatus: 'REFERENCE_PROTOCOL'
+});
 for (const node of taxonomy.nodes || []) add({
   unitId: `taxonomy:${node.nodeId}`, kind: 'TAXONOMY_NODE', surface: 'atlas', title: node.title,
   parentId: node.domainId, sourceArtifact: 'public-data/atlas/taxonomy-node-coverage.json', sourceIds: node.sourceIds
@@ -89,7 +96,7 @@ for (const product of registry.products || []) add({
   parentId: product.playerId, sourceArtifact: 'public-data/atlas/player-product-registry.json', sourceIds: product.sourceIds
 });
 
-const counts = Object.fromEntries(['CORE_LESSON', 'FOUNDATION_LESSON', 'CONCEPT_GUIDE', 'TAXONOMY_NODE', 'DEEP_BRANCH', 'DOMAIN', 'PLAYER', 'PRODUCT']
+const counts = Object.fromEntries(['CORE_LESSON', 'FOUNDATION_LESSON', 'CONCEPT_GUIDE', 'STRUCTURAL_FRAMEWORK', 'TAXONOMY_NODE', 'DEEP_BRANCH', 'DOMAIN', 'PLAYER', 'PRODUCT']
   .map((kind) => [kind, units.filter((unit) => unit.kind === kind).length]));
 write('public-data/knowledge/coverage-matrix.json', {
   schemaVersion: 'knowledge-coverage-matrix.v1',
@@ -102,6 +109,7 @@ write('public-data/knowledge/coverage-matrix.json', {
     coreLessons: counts.CORE_LESSON,
     foundationLessons: counts.FOUNDATION_LESSON,
     conceptGuides: counts.CONCEPT_GUIDE,
+    structuralFrameworks: counts.STRUCTURAL_FRAMEWORK,
     taxonomyNodes: counts.TAXONOMY_NODE,
     deepBranches: counts.DEEP_BRANCH,
     domains: counts.DOMAIN,

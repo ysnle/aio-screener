@@ -2,12 +2,120 @@
 verified_by: Codex local source review and affected QA; full semantic audit remains open
 last_verified: 2026-09-11
 confidence: medium
-latest_version: v54.89
-latest_P_number: P1061
-next_P_number: P1062
-current_total_entries: 775 (P1~P1061, 결번 존재 — 상세 + 압축 원장)
+latest_version: v54.96
+latest_P_number: P1073
+next_P_number: P1074
+current_total_entries: 781 (P1~P1067, 결번 존재 — 상세 + 압축 원장)
 current_checkpoint: P1013~P1033 exhaustive audit in progress; publication/runtime/QA topology and selected page semantics reviewed; full-tree semantic review remains open
 ---
+
+## P1073 - v54.96 - refresh producer contract가 안전한 pre-push 경계를 표현하지 못했다 (2026-09-15)
+
+- symptom/reproduction: refresh-data/screener가 producer-side checks를 수행하고 exact pushed SHA를 CI로 dispatch해도 QA contract가 “independent CI 전 publish 금지”만 검사해 항상 FAIL했다. 반대로 generated workspace state를 30분 data commit에 결합해 불필요한 충돌/노이즈를 만들고 있었다.
+- root_cause: producer validation boundary와 independent CI/Pages deployment boundary를 하나의 순서 규칙으로 오인했고 workspace-state producer를 data promotion에 포함했다.
+- fix: 두 workflow에 `Fail-closed promotion candidate gate before push`를 추가해 관련 artifact/continuity/screener checks와 `git diff --check`가 commit보다 앞서도록 했다. workspace state 생성/commit은 제거하고 exact `release_sha` dispatch와 Pages attestation 계약은 유지했다.
+- violated_rule: R595.
+- prevention: `ci-qa-pipeline-contract-check.mjs`가 workflow별 producer token, pre-push 위치, `continue-on-error` 부재, workspace-state 분리, exact-SHA dispatch를 실행 가능한 계약으로 검사한다.
+- residual_risk: staging→CI attestation→promotion 구조가 아니므로 독립 CI 실패 시 main에 revision이 남을 수 있다. Pages deployment는 여전히 attestation 전에는 차단된다.
+- verification: `node scripts/ci-qa-pipeline-contract-check.mjs` PASS (133 gates); workflow syntax/control-character and `git diff --check` PASS.
+
+## P1072 - v54.96 - 자동 gate PASS가 전수 semantic coverage 완료로 오인될 수 있었다 (2026-09-15)
+
+- motivation: 전체 코드베이스 감사의 구조·fixture·browser PASS와 사람의 line-by-line semantic review 진행률이 같은 완료 신호로 읽히지 않는지 점검했다.
+- symptom/reproduction: coverage ledger의 exact-hash reviewed 범위가 전체 current/history보다 작아도 일반 QA PASS와 함께 기록되면 release-ready처럼 해석될 수 있었다.
+- root_cause: semantic coverage를 QA gate의 boolean 결과와 별도 상태로 보고하지 않았고 current/history 비율과 `releaseCertified`를 요약에 고정하지 않았다.
+- fix: `ci-semantic-review-check.mjs`가 current/history reviewed·total 비율과 `releaseCertified=false`를 출력하고 QA 문서는 OPEN 상태를 유지한다. 자동 gate 통과는 사람 검토 완료로 승격하지 않는다.
+- violated_rule: R594.
+- prevention: coverage summary가 없거나 수치가 비유한·범위를 벗어나면 gate가 실패하고, 유효한 낮은 coverage는 경고와 OPEN으로 통과한다.
+- verification: `node scripts/ci-semantic-review-check.mjs` PASS with explicit OPEN warning; current 10,838/157,206 (6.89%), history 596/4,611 (12.93%).
+
+## P1071 - v54.96 - 운영 실패 issue가 동일 signature 댓글을 무한 누적할 수 있었다 (2026-09-15)
+
+- symptom/reproduction: durable issue가 이미 같은 signature의 body를 보유해도 댓글만 검색해 동일 실패마다 `Still failing` 알림을 추가할 수 있었다.
+- fix: body marker와 댓글을 함께 비교하고 failed job/step 요약을 body에 기록한다. 최초 escalation·재오픈·signature 변경만 댓글을 남긴다.
+- violated_rule: R593.
+- verification: `ci-workspace-contract-check.mjs` and workflow source assertions.
+
+## P1070 - v54.96 - browser/headless 실패가 원격에서 원인별로 보존되지 않았다 (2026-09-15)
+
+- symptom/reproduction: headless harness가 실패 테스트명과 세부 정보를 stdout/report로 남기지 않아 원격 matrix 실패가 요약 숫자로만 보였다. browser fixture는 event target/settled state를 기다리지 않고 고정 텍스트를 읽었다.
+- fix: `FAILURE_LEDGER_JSON`과 local machine-readable report를 기록하고, browser wait helper가 document/window event bridge와 runtime diagnostic을 확인한다. CI artifact upload는 보안 승인 경계로 별도 미완료다.
+- violated_rule: R589/R594.
+- verification: `ci-headless-tests.mjs --groups=G001` 9/9 PASS; architecture browser gate는 기존 navigationInstalled 실패에서 중단되어 full fixture verification은 미검증이다.
+
+## P1069 - v54.96 - fast plane heartbeat가 무변경 cadence마다 KV write를 소비했다 (2026-09-15)
+
+- symptom/reproduction: 5분 cron에서 `quotes:current`와 heartbeat를 매번 기록해 최대 576 writes/day로 Free 1,000/day 예산과 경고 목표를 잠식했다.
+- fix: snapshot revision no-op, status-change/15m heartbeat liveness, checked/published/written timestamp 분리를 도입하고 normal/worst budget fixture를 추가했다.
+- violated_rule: R592.
+- verification: `node scripts/ci-data-plane-contract-check.mjs` PASS; live KV quota/remote freshness remains unverified.
+
+## P1068 - v54.96 - AI premise와 company-primary source classification이 자체 라벨을 권한 근거로 사용했다 (2026-09-15)
+
+- symptom/reproduction: decision-eligible/verified/current만으로 premise를 VERIFIED로 올리고, investors.com/nasdaq.com 및 `ir.` substring을 issuer primary처럼 분류할 수 있었다.
+- fix: premise는 common evidence evaluator의 explicit decision/current-claim use, ceiling, rights, revision, quality, freshness를 요구한다. research plan은 SEC 또는 registry-verified issuer IR만 primary로 허용하고 aggregator/exchange는 secondary로 고정한다.
+- violated_rule: R590/R591.
+- verification: `ci-ai-premise-check.mjs` and `ci-ai-intelligence-contract-check.mjs` PASS; live issuer registry/provider authority remains separate.
+
+## P1067 - v54.95 - cacheable QA가 실제 의존 파일 변경을 놓치고 parity 실행이 workspace를 변경했다 (2026-09-12)
+
+- motivation: 전수 코드 감사에서 PASS 자체의 신뢰성을 먼저 재검증했다.
+- symptom/reproduction: 배포 workflow/worker/proxy 또는 `public-data/market-snapshot.json`을 바꿔도 `deployment-convergence`, `data-continuity`, `release-manifest`의 fingerprint와 affected selection이 변하지 않을 수 있었다. knowledge parity는 domain dossier 산출물을 만들고도 비교하지 않았고 depth audit를 `--write`로 실행했다. continuity fixture는 workspace `.cache`에 임시 파일을 썼다.
+- root_cause: gate script의 실제 read/write 집합과 `qa-pipeline.json`의 입력·impact 선언이 별도로 유지됐고, parity target도 builder 산출물과 수동으로 어긋났다.
+- fix: 세 gate에 정확한 gate-level inputs와 impact rule을 추가했다. parity에 domain dossier aggregate/directory를 포함하고 depth audit write를 제거했다. continuity fixture는 QA cache/OS temp에 격리했으며 pipeline contract가 이 경계를 검사한다.
+- violated_rule: R589.
+- prevention: `ci-qa-pipeline-contract-check.mjs`가 exact inputs, impact coverage, parity target, no-write temp 경로를 검증한다. 향후 builder 산출물 자동 선언은 별도 구조 개선으로 남긴다.
+- verification: QA pipeline/deployment/release/data-continuity/syntax gate PASS. 전체 knowledge generated parity의 실제 재생성 비교는 dirty workspace와 생성물 쓰기 권한 때문에 이번 배치에서 미검증으로 분리한다.
+
+## P1066 - v54.95 - refresh/history 이벤트 타깃과 theme-detail 직접 진입 route 소유권이 분열됐다 (2026-09-12)
+
+- motivation: 로컬 사이트 직접 진입·갱신 경로가 native renderer와 같은 상태를 만드는지 검증했다.
+- symptom/reproduction: 일부 producer는 `aio:refresh:done`/`aio:historyLoaded`를 window에 발행하지만 bootstrap facade는 document만 구독해 native sync가 누락됐다. `#theme-detail` 직접 진입은 derived wrapper를 route로 유지해 themes native renderer가 마운트되지 않았다.
+- root_cause: 레거시 producer의 이벤트 타깃 규약과 native consumer 규약이 일치하지 않았고, 초기 hash만 canonical route 변환을 거치지 않았다.
+- fix: 공통 compatibility event adapter가 window/document 양쪽을 수신하고 동일 detail의 반대 타깃 mirror를 bounded dedupe한다. 초기 `theme-detail`은 `themes`로 canonicalize하면서 pending/current/fallback theme identity를 보존한다.
+- violated_rule: R588.
+- prevention: ESM fixture가 양방향 순서, mirror dedupe, 같은 타깃 반복, expiry, cleanup과 direct-route identity를 실행한다.
+- verification: ESM/architecture/runtime/syntax PASS. 실제 브라우저 direct entry가 `#themes`, native themes renderer, visible detail panel과 보존된 방산/항공우주 detail을 표시했다.
+
+## P1065 - v54.95 - 스크리너 뉴스가 fetch 시각을 기사 관측시각으로 사용했다 (2026-09-12)
+
+- motivation: 개별 데이터 원천에서 producer→provider→field freshness까지 시각 의미를 대조했다.
+- symptom/reproduction: 며칠 전 RSS 기사도 오늘 fetch하면 `newsTs=Date.now()`가 되어 2일 freshness budget 안의 뉴스처럼 분류됐다.
+- root_cause: collection time과 publication/observation time을 한 필드에 저장했고 provider가 그 값을 `newsObservedAt`으로 복제했다.
+- fix: 최신 유효 RSS `ts/pubDate`를 ISO `newsObservedAt/newsTs`로, 수집 시각을 `newsFetchedAt`으로 별도 기록한다. 유효 publication이 없거나 숫자형 legacy `newsTs`만 있으면 observed는 null로 fail closed한다.
+- violated_rule: R587.
+- prevention: data-pipeline fixture가 오래된 publication+최근 fetch와 undated headline을 모두 STALE로 검증한다.
+- verification: data-pipeline, screener-workbench, syntax 및 diff check PASS.
+
+## P1064 - v54.95 - sourceKind 허용 목록 분열과 evidence last-arrival-wins가 권한·revision을 왜곡했다 (2026-09-12)
+
+- motivation: 스크리너·일반 evidence·AI 전제 판정이 같은 출처를 같은 권한으로 해석하는지 검증했다.
+- symptom/reproduction: 알 수 없는 screener sourceKind가 T3 공개 지연으로 자동 승격됐고, AI adapter마다 서로 다른 문자열 allowlist를 사용했다. evidence store는 오래된 관측이 늦게 도착해도 최신 metric을 덮었다.
+- root_cause: provider label과 authority tier가 분리되지 않았고 store replacement에 observedAt/source priority/rights/revision 정책이 없었다.
+- fix: 중앙 `source-kind` 계약이 40/40 registry origin과 기존 provider alias를 T1~T4로 정규화하고 unknown을 null 처리한다. AI reference/decision 판정과 screener envelope가 이를 공유한다. evidence는 revision/rights와 nested immutable metadata를 보존하고 store는 observation epoch→source authority→fetch/revision 순으로 선택하며 권리 철회는 즉시 fail closed한다.
+- violated_rule: R587.
+- prevention: source-registry, screener, AI analysis/premise, evidence-store fixture가 unknown/alias/낮은 권한/늦은 구 revision/권리 철회/중첩 mutation을 실행한다.
+- verification: source-registry 22 categories/40 origins, screener-workbench, AI analysis/premise, ESM, architecture, native-decision/quote evidence PASS.
+
+## P1063 - v54.95 - 결측 factor가 z=0으로 순위에 참여해 composite와 percentile을 희석했다 (2026-09-12)
+
+- motivation: 실제 스크리너의 factor→composite→rank 계산을 결측·stale 반례로 재검토했다.
+- symptom/reproduction: 양의 가중치 근거가 전혀 없는 행도 `composite=0`, `rank=40`으로 6개 percentile 분모에 포함됐다. 부분 결측 행은 관측되지 않은 팩터가 중립 기여로 들어가 composite가 0 쪽으로 축소됐다.
+- root_cause: `winz(null)`과 비유한 z를 0으로 바꾸고 전체 고정 가중치 합을 사용했다.
+- fix: 결측 z는 null로 보존하고 관측된 양의 가중치 합으로 composite를 재정규화한다. 유효 근거가 없는 행은 rank/signal null로 percentile·turnover 분모에서 제외한다.
+- violated_rule: R586.
+- prevention: 부분 결측, 전부 결측, stale size factor와 기존 golden parity를 함께 검증한다.
+- verification: ESM, domain parity, research-model, screener-workbench, syntax/runtime/data-pipeline PASS.
+
+## P1062 - v54.95 - pre-frozen state가 nested mutation을 허용하고 listener 예외가 후속 구독자를 차단했다 (2026-09-12)
+
+- symptom/reproduction: `createStore({ devMode: true })`에 `Object.freeze({ child: mutableObject })`를 넣으면 `child.value` 변경이 성공했다. 또한 첫 listener가 throw하면 두 번째 listener는 호출되지 않았지만 reducer 결과는 이미 커밋돼, 같은 dispatch를 소비하는 화면 간 상태 전달이 부분 완료됐다. `ci-esm-core-unit-check.mjs`에는 동일한 P1035 slice-subscription 블록이 두 번 있어 검사 수만 중복됐다.
+- root_cause: `deepFreeze`가 `Object.isFrozen(value)`인 순간 순회를 종료해 outer freeze를 전체 tree freeze로 오인했다. listener 통지는 `Set.forEach`에 예외 격리·오류 집계 정책이 없어 첫 예외에서 중단됐다. 회귀 fixture 복제는 완전 동일 블록을 의미 중복으로 잡는 소유자가 없었던 결과다.
+- fix: deep-freeze를 cycle-safe own data-property 순회 후 조건부 freeze로 바꿔 pre-frozen outer와 symbol key를 포함한 nested data를 검사한다. dispatch는 시작 시점 listener snapshot을 전부 통지하고 오류를 모아 `AggregateError('STORE_LISTENER_FAILED')`로 보고한다. 중복 P1035 fixture 한 벌을 제거하고 불변성·listener 격리 반례를 store 단위 게이트에 추가했다.
+- files_changed: `src/state/store.js`, `scripts/ci-esm-core-unit-check.mjs`, `architecture/adr-0002-vite-typescript-and-state-access.md`, `_context/BUG-POSTMORTEM.md`, `_context/RULES.md`, `_context/QA-CHECKLIST.md`, `CHANGELOG.md` 및 R1 버전 표면.
+- violated_rule: A12 미완료 경계, R585.
+- prevention: `ci-esm-core-unit-check.mjs`가 pre-frozen outer/mutable child와 throwing listener/후속 listener/committed state/집계 오류를 함께 실행한다. 동일 검사 블록 복제는 향후 QA 스크립트 의미 중복 감사에서 제거한다.
+- verification: `node scripts/ci-esm-core-unit-check.mjs`, `node scripts/ci-architecture-contract-check.mjs`, affected QA와 `git diff --check` 결과를 closeout에 기록한다.
 
 ## P1061 - v54.89 - legacy chat 가격 evidence가 출처·통화를 과잉 추론했다 (2026-09-11)
 
@@ -1829,8 +1937,6 @@ total_entries: 593 (P1~P833, 결번 존재 — 상세 + 압축 원장)
 
 ## P840 - v53.49 - stale SEC facts, entity-free ticker actions, and unversioned Vault ciphertext needed explicit boundaries
 
-## P840 - v53.49 - stale SEC facts, entity-free ticker actions, and unversioned Vault ciphertext needed explicit boundaries
-
 - **motivation**: the remediation plan requires dated SEC facts to disclose freshness, ticker narratives to require entity evidence before producing action language, and Vault ciphertext to support a stronger KDF without abandoning existing user data.
 - **symptom/reproduction**: SEC reports with metrics were always labelled `current` even when the filing was historical; the ticker decision map could produce WATCH/action wording without a selected quote or market-health result; and the Vault envelope had no version marker, so future KDF changes had no safe migration path.
 - **root_cause**: report availability, evidence freshness, narrative gating, and encryption compatibility were represented as implicit flags rather than versioned contracts.
@@ -1838,8 +1944,6 @@ total_entries: 593 (P1~P833, 결번 존재 — 상세 + 압축 원장)
 - **violated_rule**: R381 evidence purpose/freshness separation, R383 action narratives require entity evidence, and R384 versioned KDF migration must preserve legacy decrypt while writing only the current envelope.
 - **prevention**: SEC fixtures must include recent and historical observations; ticker action tests must cover missing entity/quote/health; every future Vault envelope must carry an explicit version marker and a legacy migration fixture.
 - **verification**: targeted syntax, ESM, runtime-contract, architecture-contract, and portfolio Vault Chromium checks pass; PFE2-09 proves a legacy encrypted key is decrypted and re-encrypted with the v2 header. Wave 1·2 full verification also passes headless 1102/1102, architecture/browser 17-route with browserErrors 0, FULL_INIT 68/68, Critical-10, Vault PFE2-01~09, accessibility, and SA-02/SA-03. SA-04 remains operator-required because the public snapshot reports `fredHasKey:false` and `fredFetchOk:false`.
-
-## P839 - v53.48 - route transitions and chart/key resources could outlive their owning surface
 
 ## P839 - v53.48 - route transitions and chart/key resources could outlive their owning surface
 

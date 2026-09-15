@@ -6,9 +6,16 @@
 // wrapper gated it before. The formula itself (thresholds, weights,
 // corrections, order of operations) is transcribed unchanged — this is code motion, not a new
 // model (R352/F-03: legacy and native must not diverge into two different formulas).
-export const TRADING_SCORE_MODEL_VERSION = 'trading-score.v2';
+export const TRADING_SCORE_MODEL_VERSION = 'trading-score.v3';
 export const SIGNAL_DECISION_MODEL_VERSION = 'signal-from-trading-score.v1';
-export const SIGNAL_PRESENTATION_MODEL_VERSION = 'signal-presentation.v1';
+export const SIGNAL_PRESENTATION_MODEL_VERSION = 'signal-presentation.v2';
+
+// The score is currently a descriptive market-condition index.  The long-run
+// validation artifact is explicitly non-significant, so no score band may be
+// promoted to a portfolio action until a future provider supplies an
+// independently established predictive-validation contract.
+const PREDICTIVE_VALIDATION_NOT_ESTABLISHED = 'not-established';
+const PREDICTIVE_VALIDATION_ESTABLISHED = 'established';
 
 function finiteNumber(value) {
   return value == null || typeof value === 'boolean' || String(value).trim() === '' || !Number.isFinite(Number(value)) ? null : Number(value);
@@ -23,7 +30,14 @@ function freezeEvidenceMap(value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
   return Object.freeze(Object.fromEntries(Object.entries(value).map(([key, row]) => [
     key,
-    row && typeof row === 'object' && !Array.isArray(row) ? Object.freeze({ ...row }) : null
+    row && typeof row === 'object' && !Array.isArray(row)
+      ? Object.freeze({
+          ...row,
+          value: Array.isArray(row.value)
+            ? Object.freeze(row.value.map((item) => item && typeof item === 'object' ? Object.freeze({ ...item }) : item))
+            : row.value
+        })
+      : null
   ])));
 }
 
@@ -61,6 +75,9 @@ export function deriveTradingScoreComponents(score = {}) {
  */
 export function computeTradingScoreModel(input = {}) {
   const { mode, newsRiskSignals } = input;
+  const predictiveValidation = input.predictiveValidation === PREDICTIVE_VALIDATION_ESTABLISHED
+    ? PREDICTIVE_VALIDATION_ESTABLISHED
+    : PREDICTIVE_VALIDATION_NOT_ESTABLISHED;
   const hasDecisionEvidence = !!input && input.decisionEvidence && typeof input.decisionEvidence === 'object' && !Array.isArray(input.decisionEvidence);
   const decisionValue = (key, fallback, minimum, maximum) => {
     if (!hasDecisionEvidence) return boundedNumber(fallback, minimum, maximum);
@@ -71,6 +88,12 @@ export function computeTradingScoreModel(input = {}) {
     // silently fall back into the score.
     if (!evidence || evidence.allowedUse !== 'decision' || !['live', 'fresh', 'verified_current'].includes(evidence.status)) return null;
     return boundedNumber(evidence.value, minimum, maximum);
+  };
+  const decisionCollection = (key, fallback) => {
+    if (!hasDecisionEvidence) return Array.isArray(fallback) ? fallback : [];
+    const evidence = input.decisionEvidence[key];
+    if (!evidence || evidence.allowedUse !== 'decision' || !['live', 'fresh', 'verified_current'].includes(evidence.status) || !Array.isArray(evidence.value)) return [];
+    return evidence.value;
   };
   const vix = decisionValue('vix', input.vix, 5, 150);
   const vvix = decisionValue('vvix', input.vvix, 50, 250);
@@ -84,7 +107,11 @@ export function computeTradingScoreModel(input = {}) {
   const pcr = decisionValue('pcr', input.pcr, 0, 10);
   const hyBp = decisionValue('hyBp', input.hyBp, 0, 10_000);
   const breadth200 = decisionValue('breadth200', input.breadth200, 0, 100);
-  const newsSentimentScore = boundedNumber(input.newsSentimentScore, 0, 100);
+  // Keyword-count news heuristics are reference-only unless a producer supplies
+  // an independently current, decision-authorized evidence envelope. Raw news
+  // output must not bypass the same contract required from market observations.
+  const newsSentimentScore = decisionValue('newsSentimentScore', input.newsSentimentScore, 0, 100);
+  const decisionNewsRiskSignals = decisionCollection('newsRiskSignals', newsRiskSignals);
   const maCurrent = hasDecisionEvidence
     ? !!(spx200ma != null && spx50ma != null && spxPrice != null)
     : input.maCurrent === true;
@@ -187,8 +214,8 @@ export function computeTradingScoreModel(input = {}) {
   // 뉴스 감성/리스크 보정 — null/[] means the legacy gather step failed and applied no adjustment
   if (compositeScore != null && newsSentimentScore != null && newsSentimentScore < 30) compositeScore -= 8;
   else if (compositeScore != null && newsSentimentScore != null && newsSentimentScore > 70) compositeScore += 5;
-  if (compositeScore != null && Array.isArray(newsRiskSignals)) {
-    const newsRiskAdjustment = newsRiskSignals.reduce((sum, riskSignal) => sum + (boundedNumber(riskSignal?.impact, -100, 100) ?? 0), 0);
+  if (compositeScore != null && decisionNewsRiskSignals.length) {
+    const newsRiskAdjustment = decisionNewsRiskSignals.reduce((sum, riskSignal) => sum + (boundedNumber(riskSignal?.impact, -100, 100) ?? 0), 0);
     compositeScore += Math.max(-30, Math.min(30, newsRiskAdjustment));
   }
 
@@ -213,6 +240,15 @@ export function computeTradingScoreModel(input = {}) {
     decisionBlocked: hasDecisionEvidence && total == null,
     decisionCoverageThreshold,
     rawCompositeScore,
+    newsAdjustmentApplied: newsSentimentScore != null || decisionNewsRiskSignals.length > 0,
+    // A complete input vector is not the same thing as a validated predictive
+    // model.  Keep this false unless an explicit future validation contract is
+    // supplied; current score-backtest evidence is descriptive/reference-only.
+    decisionEligible: input.decisionEligible === true
+      && predictiveValidation === PREDICTIVE_VALIDATION_ESTABLISHED
+      && total != null && !((hasDecisionEvidence && availableWeight < decisionCoverageThreshold) || componentMissing.length),
+    predictiveValidation,
+    researchBoundary: 'market-condition-index-reference-only',
     componentEvidence: hasDecisionEvidence ? freezeEvidenceMap(input.decisionEvidence) : null
   });
 }
@@ -225,28 +261,36 @@ export function computeTradingScoreModel(input = {}) {
 export function deriveSignalDecisionFromTradingScore({ score = {}, inputVersion = 'unknown' } = {}) {
   const total = finiteNumber(score?.total ?? score?.score);
   const missing = Array.isArray(score?.componentMissing) ? score.componentMissing.slice() : [];
+  const predictiveValidation = score?.predictiveValidation === PREDICTIVE_VALIDATION_ESTABLISHED
+    ? PREDICTIVE_VALIDATION_ESTABLISHED
+    : PREDICTIVE_VALIDATION_NOT_ESTABLISHED;
+  const decisionEligible = score?.decisionEligible === true && predictiveValidation === PREDICTIVE_VALIDATION_ESTABLISHED;
   const presentation = deriveTradingScoreDecisionPresentation({ score, inputVersion });
   if (total == null) {
     return Object.freeze({
       modelVersion: SIGNAL_DECISION_MODEL_VERSION,
       inputVersion,
       status: 'blocked',
-      action: 'WAIT',
+      action: 'NO_ACTION',
       score: null,
+      decisionEligible: false,
+      predictiveValidation,
       reasons: Object.freeze(missing.length ? ['required-input-missing', ...missing.map((key) => `missing:${key}`)] : ['required-input-missing']),
       presentation
     });
   }
-  const action = total >= 60 ? 'WATCH' : total <= 30 ? 'REDUCE' : 'WAIT';
-  const band = total >= 60 ? 'favorable' : total <= 30 ? 'defensive' : 'neutral';
-  const reasons = [`trading-score-band:${band}`];
+  const band = total >= 75 ? 'favorable' : total >= 60 ? 'constructive' : total >= 45 ? 'neutral' : total >= 30 ? 'caution' : 'defensive';
+  const reasons = [`market-condition-band:${band}`];
   if (missing.length) reasons.push(...missing.map((key) => `missing:${key}`));
+  if (!decisionEligible) reasons.push('predictive-validation-not-established');
   return Object.freeze({
     modelVersion: SIGNAL_DECISION_MODEL_VERSION,
     inputVersion,
-    status: score?.partial ? 'partial' : 'current',
-    action,
+    status: !decisionEligible ? 'reference-only' : score?.partial ? 'partial' : 'current',
+    action: decisionEligible ? (total >= 60 ? 'WATCH' : total <= 30 ? 'REDUCE' : 'WAIT') : 'NO_ACTION',
     score: total,
+    decisionEligible,
+    predictiveValidation,
     reasons: Object.freeze(reasons),
     presentation
   });
@@ -262,6 +306,10 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
   const total = finiteNumber(score?.total ?? score?.score);
   const missing = Array.isArray(score?.componentMissing) ? score.componentMissing.slice() : [];
   const components = deriveTradingScoreComponents(score);
+  const predictiveValidation = score?.predictiveValidation === PREDICTIVE_VALIDATION_ESTABLISHED
+    ? PREDICTIVE_VALIDATION_ESTABLISHED
+    : PREDICTIVE_VALIDATION_NOT_ESTABLISHED;
+  const decisionEligible = score?.decisionEligible === true && predictiveValidation === PREDICTIVE_VALIDATION_ESTABLISHED;
   const missingLabels = { volatility: '변동성', momentum: '심리', trend: '추세', breadth: '시장 폭', macro: '거시' };
   const missingText = missing.map((key) => missingLabels[key] || key).join(' · ');
   const reasons = missing.map((key) => `missing:${key}`);
@@ -271,9 +319,11 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
       inputVersion,
       status: 'blocked',
       tier: 'blocked',
-      action: 'WAIT',
+      action: 'NO_ACTION',
       score: null,
       displayScore: '—',
+      decisionEligible: false,
+      predictiveValidation,
       components,
       decision: '판정 보류 — 필수 입력 미수신',
       description: `${missingText || '시장 환경'} 입력 부족 · 수신된 개별 지표는 아래에서 확인할 수 있습니다.`,
@@ -282,6 +332,28 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
   }
 
   const partial = score?.partial === true;
+  // Until predictive validation is established, expose only a descriptive
+  // condition band.  In particular, do not emit WATCH/REDUCE or language that
+  // can be consumed as an entry, sizing, or de-risking instruction.
+  if (!decisionEligible) {
+    const conditionBand = total >= 75 ? 'favorable' : total >= 60 ? 'constructive' : total >= 45 ? 'neutral' : total >= 30 ? 'caution' : 'defensive';
+    return Object.freeze({
+      modelVersion: SIGNAL_PRESENTATION_MODEL_VERSION,
+      inputVersion,
+      status: partial ? 'partial' : 'reference-only',
+      tier: 'reference-only',
+      action: 'NO_ACTION',
+      score: total,
+      displayScore: partial ? `${total}*` : String(total),
+      conditionBand,
+      decisionEligible: false,
+      predictiveValidation,
+      components,
+      decision: `시장환경 관찰 — ${conditionBand} 구간 · 예측 검증 미확립`,
+      description: `${missingText || '현재 입력 조합'}의 상태를 요약한 참고 지표입니다. 예측 신호·매매 권고로 사용하지 않습니다.`,
+      reasons: Object.freeze(['predictive-validation-not-established', ...reasons])
+    });
+  }
   if (partial) {
     return Object.freeze({
       modelVersion: SIGNAL_PRESENTATION_MODEL_VERSION,
@@ -291,6 +363,8 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
       action: 'WAIT',
       score: total,
       displayScore: `${total}*`,
+      decisionEligible: false,
+      predictiveValidation,
       components,
       decision: '판정 보류 — 부분 데이터 점수',
       description: `${missingText || '일부 입력'} 제외 · 수신된 입력만 반영한 참고 점수입니다.`,
@@ -330,6 +404,8 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
     ...bands,
     score: total,
     displayScore: String(total),
+    decisionEligible: true,
+    predictiveValidation,
     components,
     reasons: Object.freeze([`trading-score-tier:${bands.tier}`])
   });

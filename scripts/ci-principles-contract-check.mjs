@@ -12,6 +12,7 @@ const routes = read('src/app/routes.js');
 const verticalSlices = read('src/app/vertical-slices.js');
 const bootstrap = read('src/app/bootstrap.js');
 const page = read('src/ui/pages/principles.js');
+const capabilityLoader = read('src/ui/knowledge/capability-loader.js');
 const suppliedMaterials = read('src/domain/research/supplied-materials.js');
 const worker = read('sw.js');
 const golden = JSON.parse(read('architecture/golden-routes.json'));
@@ -61,7 +62,7 @@ if (!/data-principles-content/.test(index)) fail('page markup lacks renderer mou
 if (!/sourceUrl/.test(page) || !/status: 'PARTIAL'/.test(page) || !/status: 'REVIEWED_CANDIDATE'/.test(page)) fail('content packet must carry source URLs and review status badges');
 if (!/RESEARCH_URL/.test(page) || !/CHAPTERS_URL/.test(page) || !/LESSON_LIBRARY_URL/.test(page) || !/NODE_GUIDES_URL/.test(page) || !/createChapterCurriculum/.test(page) || !/createLessonLibrary/.test(page) || !/createEvidenceBlock/.test(page) || !/createResearchAnalysis/.test(page) || !/aioPrinciplesResearch/.test(page) || !/aioPrinciplesChapters/.test(page) || !/aioPrinciplesLessonLibrary/.test(page) || !/aioPrinciplesNodeGuides/.test(page) || !/aioPrinciplesKnowledgeArticles/.test(page)) fail('principles page is not connected to the authored A~O curriculum, node knowledge base, deep article corpus, and reconciled evidence registry');
 if (!page.includes('article identity mismatch') || !page.includes('validateCurrentObservationsArtifact') || !page.includes('applySafeExternalLink')) fail('principles runtime artifact identity/schema/URL safety gates are missing');
-if (!/normalizeKnowledgeEdges/.test(page) || !/loadKnowledgeCapabilities/.test(page) || /Promise\.all\(\[loadJson/.test(page)) fail('principles must use typed edge normalization and capability-level artifact loading');
+if (!/normalizeKnowledgeEdges/.test(page) || !/createKnowledgeCapabilityBatchLoader/.test(page) || !/loadKnowledgeCapabilities/.test(capabilityLoader) || /Promise\.all\(\[loadJson/.test(page)) fail('principles must use typed edge normalization and shared capability-level artifact loading');
 if (!/principles-analysis-claim/.test(page) || !/principles-reading-frame/.test(page) || !/createSelfGuidedExploration/.test(page) || !/observations/.test(page)) fail('principles page must render claim summaries, observations, and self-guided reading paths');
 if (!/createNodeExplanation/.test(page) || !/NODE_EXPLANATIONS/.test(page) || !/LEARNING_TRACKS/.test(page) || !/15·30·45분/.test(page)) fail('principles page must render user-facing concept explanations and learning tracks');
 if (!/MARKET_EXPANSION/.test(page) || !/SYSTEMS_EXPANSION/.test(page) || !/scarcity-choice/.test(page) || !/power-electricity-system/.test(page) || !/market-foundations/.test(page) || !/industry-and-korea/.test(page)) fail('market principles economic and systems spine is missing');

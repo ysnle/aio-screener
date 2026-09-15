@@ -550,7 +550,7 @@ const newsStore = createStore({ initialState: { news: createInitialNewsState() }
 const newsCommands = createNewsCommands({ store: newsStore });
 const newsWriter = createNewsOrchestrator({ provider: createNewsProvider({ read: () => [{ title: 'Fixture headline', source: 'fixture', score: 50 }] }), commands: newsCommands });
 newsWriter.sync();
-if (selectNewsItems(newsStore.getState()).length !== 1 || selectNewsItems(newsStore.getState())[0].source !== 'fixture') fail('news provider/normalize/orchestrator writer contract failed');
+if (selectNewsItems(newsStore.getState()).length !== 1 || selectNewsItems(newsStore.getState())[0].source !== 'fixture' || newsStore.getState().news.status !== 'stale') fail('news provider/normalize/orchestrator writer contract failed');
 const invalidNewsProjection = createNewsProvider({ read: () => ({ invalid: true }), now: () => 'invalid' }).readCurrent();
 if (invalidNewsProjection.items.length !== 0 || invalidNewsProjection.checkedAt !== null) fail('news provider must fail closed on malformed items/time');
 const marketStore = createStore({ initialState: { market: createInitialMarketState() }, reducer: (state, action) => ({ ...state, market: marketReducer(state.market, action) }) });

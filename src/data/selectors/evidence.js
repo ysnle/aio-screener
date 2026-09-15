@@ -1,4 +1,4 @@
-import { hasObservedPast, restrictAllowedUse } from '../contracts/evidence.js';
+import { evaluateEvidence, normalizeAllowedUse, restrictAllowedUse } from '../contracts/evidence.js';
 
 function entriesOf(source) {
   if (source instanceof Map) return [...source.entries()];
@@ -16,7 +16,15 @@ function readEvidence(source, metric) {
 
 function normalized(evidence) {
   if (!evidence || typeof evidence !== 'object') return null;
-  return { ...evidence, allowedUse: restrictAllowedUse(evidence.allowedUse ?? 'none', evidence.allowedUseCeiling ?? 'decision') };
+  const requestedUse = normalizeAllowedUse(evidence.allowedUse, 'none');
+  const allowedUseCeiling = normalizeAllowedUse(evidence.allowedUseCeiling, requestedUse === 'reference' ? 'reference' : 'none');
+  return {
+    ...evidence,
+    allowedUseCeiling,
+    // Missing grants are not inferred from status, freshness, source labels,
+    // or a legacy boolean. The contract creator may supply an explicit grant.
+    allowedUse: restrictAllowedUse(requestedUse, allowedUseCeiling)
+  };
 }
 
 /** Return evidence that may be displayed, including reference-only values. */
@@ -30,9 +38,7 @@ export function selectForDisplay(source, metric) {
 /** Return only current decision evidence. Reference/LKG values never pass. */
 export function selectForDecision(source, metric, { now = Date.now() } = {}) {
   const value = normalized(metric ? readEvidence(source, metric) : source);
-  if (!value || value.allowedUse !== 'decision') return null;
-  if (!['live', 'fresh'].includes(value.status)) return null;
-  if (!hasObservedPast(value, now)) return null;
+  if (!value || !evaluateEvidence(value, { purpose: 'decision', now }).ok) return null;
   if (value.value == null || (typeof value.value === 'number' && !Number.isFinite(value.value))) return null;
   return value;
 }

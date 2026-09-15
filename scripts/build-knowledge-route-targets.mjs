@@ -15,8 +15,9 @@ const writeJson = (relativePath, value) => {
 const reviewedAt = process.env.KNOWLEDGE_MANIFEST_DATE || '2026-08-11';
 const principles = readJson('public-data/principles/lesson-library.json').lessons || [];
 const atlas = readJson('public-data/atlas/foundation-lessons.json').lessons || [];
+const nathanFrameworks = readJson('public-data/knowledge/nathan-frameworks.json').articles || [];
 const catalogById = new Map(MARKET_PRINCIPLES_CATALOG.lessons.map((lesson) => [lesson.id, lesson]));
-const articleTargetCount = principles.length + atlas.length;
+const articleTargetCount = principles.length + atlas.length + nathanFrameworks.length;
 const targets = [];
 const PRINCIPLES_ROUTE_BY_CHAPTER = Object.freeze({
   A: ['macro', '생산성·실질성장', '장기'], B: ['macro', '통화·물가', '경기순환'], C: ['fxbond', '신용스프레드·유동성', '경기순환'],
@@ -39,6 +40,17 @@ for (const lesson of principles) {
   targets.push({ articleId: `principles:${lesson.id}`, conceptId: (lesson.nodeIds || [])[0] ? `principles:${lesson.nodeIds[0]}` : null, ...professional, returnContext: { route: 'principles', lesson: lesson.id }, status: 'ROUTE_TARGET', reviewedAt });
 }
 for (const lesson of atlas) targets.push({ articleId: `atlas-foundations:${lesson.id}`, conceptId: (lesson.relatedAtlasNodeIds || [])[0] ? `atlas:${lesson.relatedAtlasNodeIds[0]}` : null, ...routeTarget(ATLAS_ROUTE_BY_LAYER, lesson.layer), returnContext: { route: 'atlas', lesson: lesson.id }, status: 'ROUTE_TARGET', reviewedAt });
+for (const framework of nathanFrameworks) targets.push({
+  articleId: framework.articleId,
+  conceptId: (framework.conceptIds || [])[0] || null,
+  routeId: framework.route?.routeId || 'principles',
+  routeLabel: framework.route?.verificationLabel || '구조적 분석 맥락에서 검증',
+  metric: framework.route?.metric || 'reference-framework',
+  timeframe: framework.route?.timeframe || '구조',
+  returnContext: { route: 'principles', nathanFramework: framework.articleId },
+  status: 'ROUTE_TARGET',
+  reviewedAt
+});
 for (const lesson of MARKET_PRINCIPLES_CATALOG.lessons) {
   const sourceLesson = principles.find((item) => item.id === lesson.id);
   const professional = routeTarget(PRINCIPLES_ROUTE_BY_CHAPTER, sourceLesson?.chapterId);

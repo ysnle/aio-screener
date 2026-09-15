@@ -3,6 +3,8 @@ import { loadKnowledgeCapabilities } from './load-capabilities.js';
 export const KNOWLEDGE_CAPABILITY_DEFINITIONS = Object.freeze([
   Object.freeze({ key: 'concepts', url: './public-data/knowledge/concepts.json' }),
   Object.freeze({ key: 'aliases', url: './public-data/knowledge/aliases.json' }),
+  Object.freeze({ key: 'nathanFrameworks', url: './public-data/knowledge/nathan-frameworks.json' }),
+  Object.freeze({ key: 'integratedFrameworks', url: './public-data/knowledge/integrated-market-ai-frameworks.json' }),
   Object.freeze({ key: 'sources', url: './public-data/knowledge/sources.json' }),
   Object.freeze({ key: 'claims', url: './public-data/knowledge/claims.json' }),
   Object.freeze({ key: 'articles', url: './public-data/knowledge/articles.json' }),

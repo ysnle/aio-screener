@@ -6,12 +6,14 @@ import { fileURLToPath } from 'node:url';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const builders = [
+  ['scripts/build-integrated-market-ai-framework-knowledge.mjs'],
+  ['scripts/build-nathan-framework-knowledge.mjs'],
   ['scripts/build-knowledge-concept-manifest.mjs'],
   ['scripts/build-principles-edge-semantics.mjs'],
   ['scripts/build-knowledge-evidence-registry.mjs'],
   ['scripts/enrich-knowledge-source-lessons.mjs'],
   ['scripts/build-knowledge-articles-and-learning-graph.mjs'],
-  ['scripts/audit-knowledge-encyclopedia-depth.mjs', '--write'],
+  ['scripts/audit-knowledge-encyclopedia-depth.mjs'],
   ['scripts/build-knowledge-route-targets.mjs'],
   ['scripts/build-ai-knowledge-retrieval-index.mjs'],
   ['scripts/build-knowledge-coverage-matrix.mjs'],
@@ -22,7 +24,9 @@ const builders = [
   ['scripts/build-13f-issuer-aggregates.mjs']
 ];
 const targets = [
+  'public-data/knowledge/integrated-market-ai-frameworks.json',
   'public-data/knowledge/concepts.json',
+  'public-data/knowledge/nathan-frameworks.json',
   'public-data/knowledge/aliases.json',
   'src/domain/knowledge/principles-edge-semantics.js',
   'public-data/knowledge/sources.json',
@@ -35,6 +39,8 @@ const targets = [
   'public-data/knowledge/articles',
   'public-data/knowledge/route-targets.json',
   'public-data/knowledge/coverage-matrix.json',
+  'public-data/knowledge/domain-dossiers.json',
+  'public-data/knowledge/domain-dossiers',
   'public-data/knowledge/research-dossiers.json',
   'public-data/knowledge/research-dossiers',
   'public-data/knowledge/status-summary.json',

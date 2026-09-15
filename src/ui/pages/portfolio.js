@@ -13,17 +13,19 @@ import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bri
 // readiness text. P810 adds a bounded native hero projection for total value and total P/L;
 // P830 transfers the Vault-backed nine-column holdings table. Prices, risk, AI workbench,
 // and chart surfaces remain separately legacy-owned.
-function renderPortfolioStatus(documentRef, state) {
+function renderPortfolioStatus(documentRef, state, surface) {
   const element = documentRef?.getElementById('pf-analysis-status');
   if (!element) return;
   const holdings = Array.isArray(state?.holdings) ? state.holdings : [];
   const current = state?.status === 'current' && holdings.length > 0;
   element.textContent = current
-    ? `리스크 계산 입력 수신 · ${holdings.length}개 포지션`
+    ? `포트폴리오 참고용 입력 수신 · ${holdings.length}개 포지션 · 현재 시세 증거 없이는 의사결정 승격 불가`
     : state?.status === 'empty' ? '포트폴리오 등록 후 자동 계산됩니다.' : '포트폴리오 데이터 수신 대기';
   element.setAttribute('data-source-kind', current ? 'portfolio-state' : 'unavailable');
   element.setAttribute('data-source-label', current ? 'native-portfolio-slice' : 'portfolio-state-unavailable');
   element.setAttribute('data-operational-use', 'reference-only');
+  element.setAttribute('data-decision-eligible', surface?.decisionEligible === true ? 'true' : 'false');
+  element.setAttribute('data-promotion-status', surface?.promotionBlocked === false ? 'eligible' : 'blocked');
   if (state?.updatedAt) element.setAttribute('data-observed-at', state.updatedAt);
   else element.removeAttribute('data-observed-at');
 }
@@ -98,6 +100,8 @@ function renderPortfolioSurface(documentRef, page, surface) {
   if (!page) return;
   page.dataset.aioPortfolioSurface = 'native';
   page.dataset.aioPortfolioSurfaceModel = surface.modelVersion;
+  page.dataset.aioPortfolioSurfaceUse = surface.allowedUse || 'reference-only';
+  page.dataset.aioPortfolioPromotion = surface.promotionBlocked === false ? 'eligible' : 'blocked';
   setSurfaceText(documentRef, 'pf-holding-count', surface.holdingCount ? `${surface.holdingCount} 종목` : '—', surface.holdingCount || null, surface);
   setSurfaceText(documentRef, 'pf-total-pnl-pct', surface.totalPnlPct == null ? '—' : `${surface.totalPnlPct >= 0 ? '+' : ''}${surface.totalPnlPct.toFixed(1)}%`, surface.totalPnlPct, surface, surface.totalPnl == null ? 'var(--text-dim)' : surface.totalPnl >= 0 ? 'var(--green)' : 'var(--red)');
   setSurfaceText(documentRef, 'pf-daily-chg', formatSurfaceMoney(surface.dailyChange), surface.dailyChange, surface, surface.dailyChange == null ? 'var(--text-dim)' : surface.dailyChange >= 0 ? 'var(--green)' : 'var(--red)');
@@ -296,10 +300,10 @@ function render({ root, documentRef, store, charts }) {
     page.dataset.aioArchitectureRenderer = 'native';
   }
   const liveData = root?._liveData || {};
-  const surface = derivePortfolioSurface({ state, liveData, vix: finite(liveData?.['^VIX']?.price) });
+  const surface = derivePortfolioSurface({ state, liveData, vix: liveData?.['^VIX'] || null });
   renderPortfolioSurface(documentRef, page, surface);
   renderPortfolioHero(documentRef, surface);
-  renderPortfolioStatus(documentRef, state);
+  renderPortfolioStatus(documentRef, state, surface);
   renderPortfolioTable(documentRef, page, state, surface);
   renderPortfolioChart({ root, page, surface, charts });
 }
@@ -353,6 +357,8 @@ export function createPortfolioPage({ root = globalThis, documentRef, store } = 
         if (page?.dataset.aioPortfolioSurface === 'native') delete page.dataset.aioPortfolioSurface;
         if (page?.dataset.aioPortfolioChartRenderer === 'native') delete page.dataset.aioPortfolioChartRenderer;
         if (page?.dataset.aioPortfolioSurfaceModel) delete page.dataset.aioPortfolioSurfaceModel;
+        if (page?.dataset.aioPortfolioSurfaceUse) delete page.dataset.aioPortfolioSurfaceUse;
+        if (page?.dataset.aioPortfolioPromotion) delete page.dataset.aioPortfolioPromotion;
         page?.querySelectorAll?.('[data-aio-portfolio-surface-renderer="native"], [data-aioPortfolioSurfaceRenderer="native"]')?.forEach((element) => {
           delete element.dataset.aioPortfolioSurfaceRenderer;
           delete element.dataset.sourceKind;

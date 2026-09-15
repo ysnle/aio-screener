@@ -7,6 +7,8 @@ import { selectKnowledgeSummary } from '../src/domain/knowledge/selectors.js';
 const fixtures = {
   '/public-data/knowledge/concepts.json': { concepts: [{ canonicalId: 'principles:A1' }] },
   '/public-data/knowledge/aliases.json': { aliases: [] },
+  '/public-data/knowledge/nathan-frameworks.json': { articles: [], concepts: [], aliases: [] },
+  '/public-data/knowledge/integrated-market-ai-frameworks.json': { articles: [], concepts: [], aliases: [] },
   '/public-data/knowledge/sources.json': { sources: [] },
   '/public-data/knowledge/claims.json': { claims: [] },
   '/public-data/knowledge/articles.json': { articles: [{ articleId: 'principles:A1', authoringStatus: 'STRUCTURED_REFERENCE_DRAFT' }] },
@@ -31,6 +33,7 @@ assert.equal(summary.status, 'STRUCTURED_REFERENCE_DRAFT');
 assert.equal(summary.learningNode.id, 'principles:A1');
 assert.equal(summary.routeTarget.articleId, 'principles:A1');
 assert.equal(repository.status('coverageMatrix'), 'connected');
+assert.equal(repository.status('integratedFrameworks'), 'connected');
 assert.equal(repository.status('researchDossiers'), 'connected');
 assert.equal(repository.status('domainDossiers'), 'connected');
 assert.equal(repository.status('currentObservations'), 'connected');
