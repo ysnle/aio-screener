@@ -13,7 +13,25 @@ const ids = [
 ];
 
 function rows(status) {
-  return ids.map(([id, , value]) => ({ id, value, source: status === 'verified_current' ? 'fixture-live' : 'DATA_SNAPSHOT', status, decisionUse: 'trading', observedAt: '2026-07-30T00:00:00.000Z' }));
+  const decision = status === 'verified_current';
+  const quality = decision
+    ? { status: 'CURRENT', stale: false, blocked: false, maxAgeMs: 6 * 60 * 60 * 1000 }
+    : { status: 'SNAPSHOT', stale: true, blocked: true };
+  return ids.map(([id, , value]) => ({
+    id,
+    value,
+    source: decision ? 'fixture-live' : 'DATA_SNAPSHOT',
+    sourceKind: decision ? 'T1_OFFICIAL' : 'T4_REFERENCE',
+    status,
+    decisionUse: 'trading',
+    allowedUse: decision ? 'decision' : 'reference',
+    allowedUseCeiling: decision ? 'decision' : 'reference',
+    rightsId: decision ? 'FIXTURE-RIGHTS-V1' : 'FIXTURE-REFERENCE-V1',
+    revisionId: decision ? 'fixture-revision-v1' : 'fixture-snapshot-v1',
+    quality,
+    freshnessMs: 6 * 60 * 60 * 1000,
+    observedAt: '2026-07-30T00:00:00.000Z'
+  }));
 }
 
 const base = {
@@ -22,6 +40,34 @@ const base = {
   _spxMA: { 50: 4900, 200: 4600 },
   _spxMATs: Date.parse('2026-07-30T00:00:00.000Z'),
   _spxMASource: 'fixture-live-ma',
+  _spxMAEvidence: {
+    spx50ma: {
+      value: 4900,
+      source: 'fixture-live-ma',
+      sourceKind: 'T1_OFFICIAL',
+      status: 'verified_current',
+      allowedUse: 'decision',
+      allowedUseCeiling: 'decision',
+      rightsId: 'FIXTURE-RIGHTS-V1',
+      revisionId: 'fixture-ma-revision-v1',
+      quality: { status: 'CURRENT', stale: false, blocked: false, maxAgeMs: 6 * 60 * 60 * 1000 },
+      freshnessMs: 6 * 60 * 60 * 1000,
+      observedAt: '2026-07-30T00:00:00.000Z'
+    },
+    spx200ma: {
+      value: 4600,
+      source: 'fixture-live-ma',
+      sourceKind: 'T1_OFFICIAL',
+      status: 'verified_current',
+      allowedUse: 'decision',
+      allowedUseCeiling: 'decision',
+      rightsId: 'FIXTURE-RIGHTS-V1',
+      revisionId: 'fixture-ma-revision-v1',
+      quality: { status: 'CURRENT', stale: false, blocked: false, maxAgeMs: 6 * 60 * 60 * 1000 },
+      freshnessMs: 6 * 60 * 60 * 1000,
+      observedAt: '2026-07-30T00:00:00.000Z'
+    }
+  },
   AIO: { getTradingDecisionInputEvidence: () => ({ rows: rows('snapshot_reference') }) }
 };
 const readers = createRuntimeReaders({ root: base, now: () => Date.parse('2026-07-30T00:00:00.000Z') });
@@ -60,7 +106,7 @@ const fallbackRoot = {
   AIO: { getCanonicalMetric: () => ({ value: null, source: 'empty-canonical', observedAt: '2026-08-31' }) },
   DATA_SNAPSHOT: { fg: 42, pcr: 0.8, _snapshotDate: '2026-08-01' },
   _lastPutCallPayload: { totalPutCall: null, source: 'empty-pcr', asOf: '2026-08-31' },
-  _liveData: { '^VIX': { price: 20, source: 'snapshot:fixture', observedAt: '2026-08-01' } }
+  _liveData: { '^VIX': { price: 20, source: 'snapshot:fixture', sourceKind: 'T4_REFERENCE', observedAt: '2026-08-01' } }
 };
 const fallbackReader = createRuntimeReaders({ root: fallbackRoot });
 const sentimentFallback = fallbackReader.readSentiment();
@@ -69,7 +115,7 @@ assert.equal(sentimentFallback.fearGreedSource, 'DATA_SNAPSHOT:fear-greed');
 assert.equal(sentimentFallback.fearGreedObservedAt, '2026-08-01');
 assert.equal(sentimentFallback.putCall, 0.8);
 assert.equal(sentimentFallback.putCallObservedAt, '2026-08-01');
-assert.equal(fallbackReader.readEntity().options.vix.sourceKind, 'snapshot');
+assert.equal(fallbackReader.readEntity().options.vix.sourceKind, 'T4_REFERENCE');
 assert.equal(fallbackReader.readObservationCatalog()['sentiment.fearGreed'].observedAt, '2026-08-01');
 fallbackRoot._lastPutCallPayload = { totalPutCall: 0, source: 'current-pcr', asOf: '2026-08-31' };
 fallbackRoot.AIO.getCanonicalMetric = () => ({ value: 0, source: 'current-fg', observedAt: '2026-08-31' });

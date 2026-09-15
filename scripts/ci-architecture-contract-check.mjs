@@ -507,8 +507,16 @@ const modules = await Promise.all([
   import(pathToFileURL(path.join(root, 'src/platform/storage.js'))),
 ]);
 const [{ createEvidence, validateEvidence }, { createEvidenceStore }, { deriveSentimentSummary }, { createStore }, { createInitialSentimentState, sentimentReducer }, { selectSentimentValue }, { createSentimentCommands }, { createMarketSnapshot, validateMarketSnapshot }, { evaluateClaim }, { createInferredClaim, validateInferredClaim, evaluateInferredClaim }, { createHttpClient }, { createStorageGateway }] = modules;
-const evidence = createEvidence({ metric: 'fearGreed', value: 42, unit: 'score', sourceKind: 'fixture', observedAt: '2026-07-18T00:00:00Z', fetchedAt: '2026-07-18T00:00:01Z', status: 'live' });
-if (!validateEvidence(evidence).ok || evidence.allowedUse !== 'decision') fail('live evidence contract failed');
+const evidenceNow = Date.now();
+const evidenceObservedAt = new Date(evidenceNow - 2_000).toISOString();
+const evidence = createEvidence({
+  metric: 'fearGreed', value: 42, unit: 'score', sourceKind: 'exchange',
+  observedAt: evidenceObservedAt, fetchedAt: new Date(evidenceNow - 1_000).toISOString(),
+  status: 'live', allowedUse: 'decision', allowedUseCeiling: 'decision',
+  revisionId: 'fixture-revision-current', rightsId: 'fixture-rights-verified',
+  qualityStatus: 'CURRENT', quality: { status: 'CURRENT' }, freshnessMs: 24 * 60 * 60 * 1000
+}, { now: evidenceNow });
+if (!validateEvidence(evidence, { now: evidenceNow }).ok || evidence.allowedUse !== 'decision') fail('live evidence contract failed');
 const store = createEvidenceStore();
 store.ingest(evidence);
 if (store.get('fearGreed')?.evidenceId !== evidence.evidenceId) fail('evidence store read-back failed');
