@@ -7,9 +7,9 @@
     "STALE",
     "RIGHTS_REVIEW_REQUIRED"
   ],
-  "generatedAt": "2026-09-15T11:56:33.910Z",
+  "generatedAt": "2026-09-15T12:39:02.532Z",
   "appRevision": "v54.97",
-  "dataRevision": "market-snapshot:2026-09-15T11:45:26.874Z:3a538882",
+  "dataRevision": "market-snapshot:2026-09-15T12:38:42.827Z:9e4ac7cb",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
   "overall": "OPERATOR_REQUIRED",
   "planes": {
@@ -17,7 +17,7 @@
       "status": "CURRENT",
       "statusCode": "CONFIGURED_HEALTHY",
       "source": "github-actions",
-      "lastSuccessfulAt": "2026-09-15T11:45:26.874Z",
+      "lastSuccessfulAt": "2026-09-15T12:38:42.827Z",
       "coverage": {
         "required": 16,
         "observed": 16,
@@ -33,8 +33,8 @@
         "coverageComplete": true,
         "quoteQualityComplete": true,
         "blockedQuotes": [],
-        "generatedAt": "2026-09-15T11:45:26.874Z",
-        "ageHours": 0.19,
+        "generatedAt": "2026-09-15T12:38:42.827Z",
+        "ageHours": 0.01,
         "maxAgeHours": 12,
         "reason": null
       },
@@ -55,11 +55,11 @@
         "status": "CURRENT",
         "statusCode": 200,
         "coverage": "16/16",
-        "revision": "fast-quotes:0df499b2",
+        "revision": "fast-quotes:6e6192be",
         "sourceSha": "ac98ec1fa1a58781f9dccd7632af84c4a39428d8",
-        "observedAt": "2026-09-15T11:45:34.734Z",
-        "source": "last-observed-live-health",
-        "observationStatus": "NOT_ATTEMPTED",
+        "observedAt": "2026-09-15T12:39:02.532Z",
+        "source": "periodic-live-health",
+        "observationStatus": "SUCCESS",
         "observationError": null
       },
       "soak": {
@@ -90,7 +90,7 @@
       "lastCallSucceeded": "BLOCKED",
       "evidence": {
         "marketAnalysisOk": false,
-        "generatedAt": "2026-09-15T11:45:26.874Z"
+        "generatedAt": "2026-09-15T12:38:42.827Z"
       }
     },
     "publicChat": {
@@ -102,7 +102,7 @@
       "health": {
         "status": "CURRENT",
         "statusCode": 200,
-        "observedAt": "2026-09-15T11:45:34.734Z",
+        "observedAt": "2026-09-15T12:39:02.532Z",
         "revision": "v54.37",
         "sourceSha": "6ef2561d3cc1cdc010693812a6796556d02c6db4",
         "configured": true,
@@ -112,8 +112,8 @@
         "providerSmokeBoundary": "blocking-deployment-workflow-only",
         "ready": true,
         "note": "Periodic live health observed; provider smoke remains a blocking deployment-workflow gate.",
-        "source": "last-observed-live-health",
-        "observationStatus": "NOT_ATTEMPTED",
+        "source": "periodic-live-health",
+        "observationStatus": "SUCCESS",
         "observationError": null
       },
       "scheduledAnalysisDoesNotImplyChat": true
@@ -124,15 +124,15 @@
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "reference",
-      "lastFetchAt": "2026-09-15T11:45:26.874Z"
+      "lastFetchAt": "2026-09-15T12:38:42.827Z"
     },
     "fred": {
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "official-series",
       "status": "CURRENT",
-      "lastAttemptAt": "2026-09-15T11:45:26.936Z",
-      "lastFetchAt": "2026-09-15T11:45:26.936Z"
+      "lastAttemptAt": "2026-09-15T12:38:42.889Z",
+      "lastFetchAt": "2026-09-15T12:38:42.889Z"
     },
     "sec": {
       "rights": "REVIEW_REQUIRED",
@@ -146,7 +146,7 @@
   "reconciliation": {
     "tier0": {
       "status": "MATCH",
-      "artifact": "market-snapshot:2026-09-15T11:45:26.874Z:3a538882",
+      "artifact": "market-snapshot:2026-09-15T12:38:42.827Z:9e4ac7cb",
       "uiEvidence": "same-revision-contract",
       "observedAtComplete": true
     },
@@ -280,7 +280,7 @@
           }
         ]
       },
-      "sourceRevision": "market-snapshot:2026-09-15T11:45:26.874Z:3a538882",
+      "sourceRevision": "market-snapshot:2026-09-15T12:38:42.827Z:9e4ac7cb",
       "sourceArtifacts": [
         "public-data/data.json",
         "public-data/market-snapshot.json",
