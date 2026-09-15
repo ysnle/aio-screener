@@ -27,6 +27,10 @@ import { classifyBreadthParticipation } from '../domain/market/breadth.js';
 import { computeMarketHealth } from '../domain/market/health.js';
 import { deriveTreasuryCurveEvidence } from '../domain/macro/treasury-curve.js';
 import { deriveConcentrationRisk, concentrationPenaltyForWeight } from '../domain/portfolio/concentration.js';
+// Portfolio statistics/backtest is a native ESM module; importing it during
+// bootstrap keeps the classic regression surface available before lazy route
+// navigation while leaving the implementation out of aio-core.js.
+import '../domain/portfolio/backtest.js';
 import { computeFactorRanks } from '../domain/screener/factor-ranks.js';
 import { deriveFactorWeights } from '../domain/screener/factor-weights.js';
 import { captureScreenRun, createDefaultScreenDefinitions, replayScreenRun, runScreen } from '../domain/screener/screen-engine.js';

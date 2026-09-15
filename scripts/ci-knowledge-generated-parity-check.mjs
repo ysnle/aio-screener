@@ -1,7 +1,8 @@
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
+import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
@@ -64,37 +65,52 @@ for (const [script] of builders) {
   }
 }
 
-function filesUnder(path) {
-  const absolute = join(root, path);
+function filesUnder(baseRoot, path) {
+  const absolute = join(baseRoot, path);
   if (!existsSync(absolute)) return [];
   if (!statSync(absolute).isDirectory()) return [absolute];
-  return readdirSync(absolute, { withFileTypes: true }).flatMap((entry) => filesUnder(relative(root, join(absolute, entry.name))));
+  return readdirSync(absolute, { withFileTypes: true }).flatMap((entry) => filesUnder(baseRoot, relative(baseRoot, join(absolute, entry.name))));
 }
 
-function snapshot() {
+function snapshot(baseRoot) {
   const rows = new Map();
-  for (const file of [...new Set(targets.flatMap(filesUnder))].sort()) {
-    rows.set(relative(root, file).replaceAll('\\', '/'), createHash('sha256').update(readFileSync(file)).digest('hex'));
+  for (const file of [...new Set(targets.flatMap((target) => filesUnder(baseRoot, target)))].sort()) {
+    rows.set(relative(baseRoot, file).replaceAll('\\', '/'), createHash('sha256').update(readFileSync(file)).digest('hex'));
   }
   return rows;
 }
 
-const before = snapshot();
-for (const [script, ...args] of builders) {
-  const result = spawnSync(process.execPath, [script, ...args], { cwd: root, encoding: 'utf8', stdio: 'pipe' });
-  if (result.status !== 0) {
-    console.error(`Knowledge generated parity failed while running ${script}:`);
-    console.error(String(result.stderr || result.stdout || 'unknown builder failure').trim());
-    process.exit(1);
+// Producers resolve their workspace from their own script location and write through the shared
+// atomic writer, so merely changing cwd cannot isolate them. Run every producer in a disposable
+// workspace copy instead. This keeps parallel QA invocations from racing on published artifacts
+// (and turns this check into a read-only operation against the caller's workspace).
+const before = snapshot(root);
+const isolatedRoot = mkdtempSync(join(tmpdir(), 'aio-knowledge-parity-'));
+const ignoredDirectories = new Set(['.git', '.cache', '.claude', '.codex', 'node_modules']);
+const copyFilter = (source) => {
+  const basename = source.slice(Math.max(source.lastIndexOf('\\'), source.lastIndexOf('/')) + 1);
+  return !ignoredDirectories.has(basename) && !basename.startsWith('_codex-qa-cache-');
+};
+try {
+  cpSync(root, isolatedRoot, { recursive: true, filter: copyFilter });
+  for (const [script, ...args] of builders) {
+    const result = spawnSync(process.execPath, [join(isolatedRoot, script), ...args], { cwd: isolatedRoot, encoding: 'utf8', stdio: 'pipe' });
+    if (result.status !== 0) {
+      console.error(`Knowledge generated parity failed while running ${script}:`);
+      console.error(String(result.stderr || result.stdout || 'unknown builder failure').trim());
+      throw new Error(`knowledge producer failed: ${script}`);
+    }
   }
+  const after = snapshot(isolatedRoot);
+  const paths = [...new Set([...before.keys(), ...after.keys()])].sort();
+  const changed = paths.filter((path) => before.get(path) !== after.get(path));
+  if (changed.length) {
+    console.error('Knowledge generated parity failed: builders changed generated outputs. Review the regenerated files, then rerun.');
+    changed.slice(0, 50).forEach((path) => console.error(` - ${path}`));
+    if (changed.length > 50) console.error(` - ... ${changed.length - 50} more`);
+    throw new Error('knowledge generated outputs drifted');
+  }
+  console.log(`Knowledge generated parity OK: ${builders.length} builders, ${after.size} generated files unchanged.`);
+} finally {
+  rmSync(isolatedRoot, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
 }
-const after = snapshot();
-const paths = [...new Set([...before.keys(), ...after.keys()])].sort();
-const changed = paths.filter((path) => before.get(path) !== after.get(path));
-if (changed.length) {
-  console.error('Knowledge generated parity failed: builders changed generated outputs. Review the regenerated files, then rerun.');
-  changed.slice(0, 50).forEach((path) => console.error(` - ${path}`));
-  if (changed.length > 50) console.error(` - ... ${changed.length - 50} more`);
-  process.exit(1);
-}
-console.log(`Knowledge generated parity OK: ${builders.length} builders, ${after.size} generated files unchanged.`);

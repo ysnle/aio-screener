@@ -6,7 +6,9 @@ import { fileURLToPath } from 'node:url';
 import { createAIAnswerOrchestrator } from '../src/ai/orchestrator/answer-orchestrator.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const read = file => fs.readFileSync(path.join(root, file), 'utf8');
+// Keep source-slice contracts independent of the checkout's CRLF/LF mode.
+// The assertion is about wiring and evidence semantics, not line endings.
+const read = file => fs.readFileSync(path.join(root, file), 'utf8').replace(/\r\n?/g, '\n');
 const chat = read('js/aio-chat.js');
 const html = read('index.html');
 
@@ -62,8 +64,21 @@ const evidence = {
   observedAt: period.end,
   evidenceId: 'fixture:nvda-session-change',
   source: 'fixture-exchange',
-  sourceKind: 'exchange',
-  status: 'verified'
+  // Matching premise fixtures must carry the same explicit grants as a
+  // production current/decision observation.  Freshness or `verified` alone
+  // is intentionally insufficient under the strict evidence contract.
+  sourceKind: 'T1_OFFICIAL',
+  revisionId: 'fixture-revision-20260908-nvda-session-change',
+  rightsId: 'fixture-exchange-public-rights',
+  status: 'verified',
+  allowedUse: 'decision',
+  allowedUseCeiling: 'decision',
+  claimUse: 'current',
+  currentClaim: true,
+  freshnessStatus: 'current',
+  freshnessMs: 24 * 60 * 60 * 1000,
+  qualityStatus: 'CURRENT',
+  quality: { status: 'CURRENT', stale: false, blocked: false, decisionUse: true }
 };
 const orchestrator = createAIAnswerOrchestrator({ root: sandbox.window, now: () => now });
 sandbox.window.AIO_ARCH = { getAIOrchestrator: () => orchestrator };

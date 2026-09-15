@@ -22,6 +22,7 @@ const ui = read('js/aio-ui.js');
 const chat = read('js/aio-chat.js');
 const tests = read('js/aio-tests.js');
 const bootstrap = read('src/app/bootstrap.js');
+const portfolioBacktest = read('src/domain/portfolio/backtest.js');
 const screenerProvider = read('src/data/providers/screener.js');
 const sentimentPage = read('src/ui/pages/sentiment.js');
 const screenerPage = read('src/ui/pages/screener.js');
@@ -206,17 +207,17 @@ check(
     && /Worst Drawdowns/.test(html)
     && /Return \/ Risk Attribution/.test(html)
     && /백테스트 Lab/.test(html)
-    && /buildPortfolioBacktestLab/.test(core)
-    && /AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2/.test(core)
-    && /adjusted-close/.test(core)
-    && /current-composition-retrospective/.test(core)
-    && /transaction-costs-not-modeled/.test(core)
-    && /turnoverModeled:\s*false/.test(core)
-    && /monthlyRows/.test(core)
-    && /annualRows/.test(core)
-    && /drawdowns/.test(core)
-    && /trackingError/.test(core)
-    && /informationRatio/.test(core)
+    && /buildPortfolioBacktestLab/.test(portfolioBacktest)
+    && /AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2/.test(portfolioBacktest)
+    && /adjusted-close/.test(portfolioBacktest)
+    && /current-composition-retrospective/.test(portfolioBacktest)
+    && /transaction-costs-not-modeled/.test(portfolioBacktest)
+    && /turnoverModeled:\s*false/.test(portfolioBacktest)
+    && /monthlyRows/.test(portfolioBacktest)
+    && /annualRows/.test(portfolioBacktest)
+    && /drawdowns/.test(portfolioBacktest)
+    && /trackingError/.test(portfolioBacktest)
+    && /informationRatio/.test(portfolioBacktest)
     && /window\._lastPortfolioBacktestLab/.test(html)
     && /T845 v5179_portfolio_backtest_lab/.test(tests)
 );

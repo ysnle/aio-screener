@@ -4,7 +4,31 @@ import { buildEvidenceAnalysisInputs } from '../src/ai/analysis/evidence-inputs.
 
 const ai = createAIAnswerOrchestrator({ now: () => new Date('2026-09-10T12:00:00Z') });
 const plan = (intent) => ({ intent: { primary: intent }, entities: { entities: [{ symbol: 'NVDA' }] } });
-const row = (metric, value, extra = {}) => ({ evidenceId: `test:${metric}`, metric, entity: 'NVDA', value, unit: 'USD', asOf: '2026-09-10T10:00:00Z', source: 'fixture-provider', sourceKind: 'LIVE', status: 'verified', scale: 'raw', ...extra });
+const row = (metric, value, extra = {}) => {
+  const defaultAsOf = '2026-09-10T10:00:00Z';
+  const asOf = Object.prototype.hasOwnProperty.call(extra, 'asOf') ? extra.asOf : defaultAsOf;
+  return {
+    evidenceId: `test:${metric}`,
+    metric,
+    entity: 'NVDA',
+    value,
+    unit: 'USD',
+    asOf,
+    observedAt: Object.prototype.hasOwnProperty.call(extra, 'observedAt') ? extra.observedAt : asOf,
+    fetchedAt: '2026-09-10T10:05:00Z',
+    source: 'fixture-provider',
+    sourceKind: 'T3_PUBLIC_DELAYED',
+    status: 'verified',
+    rightsId: 'FIXTURE-RIGHTS-V1',
+    revisionId: 'fixture-revision-v1',
+    quality: { status: 'CURRENT', stale: false, blocked: false, maxAgeMs: 24 * 60 * 60 * 1000 },
+    freshnessMs: 24 * 60 * 60 * 1000,
+    allowedUse: 'reference',
+    allowedUseCeiling: 'reference',
+    scale: 'raw',
+    ...extra
+  };
+};
 const run = (intent, evidence) => ai.buildAnalysisContext(plan(intent), { evidence });
 const company = run('ENTITY_ANALYSIS', [row('price', 100)]);
 assert.equal(company.result.facts[0].value, 100);
