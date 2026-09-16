@@ -3145,3 +3145,13 @@ total_entries: 593 (P1~P833, 결번 존재 — 상세 + 압축 원장)
 - prevention: content invalidation now swaps two immutable, equal-size tracked fixtures; the gate no longer mutates the checkout or depends on artifact-directory permissions.
 - violated_rule: executable QA fixtures must not depend on user-output ACLs or mutate shared repository inputs when an immutable fixture can prove the same contract.
 - verification: `node scripts/ci-qa-runner-behavior-check.mjs` and `node scripts/qa-runner.mjs --group preflight --no-cache` must pass.
+
+### P882 — knowledge generators used host-locale alias ordering (2026-09-16)
+
+- version: v54.97.
+- symptom: knowledge parity passed on Windows but Linux CI regenerated `aliases.json`, `nathan-frameworks.json`, and `integrated-market-ai-frameworks.json` in a different order.
+- root_cause: three canonical alias builders used `localeCompare`, whose collation order depends on the host ICU/locale implementation.
+- files_changed: `src/domain/knowledge/order.js`, both framework-pack producers, `scripts/build-knowledge-concept-manifest.mjs`, regenerated knowledge artifacts, `_context/BUG-POSTMORTEM.md`.
+- prevention: every canonical knowledge alias sequence now uses one locale-independent code-unit comparator shared by domain packs and the manifest producer.
+- violated_rule: generated artifact ordering must be deterministic across supported operating systems and Node runtimes.
+- verification: official knowledge producers, `node scripts/ci-knowledge-generated-parity-check.mjs`, and the remote Linux knowledge shard must pass.

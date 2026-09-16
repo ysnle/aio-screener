@@ -2,6 +2,7 @@
 // The projection intentionally keeps mechanisms, observables, counter-scenarios,
 // and provenance boundaries; it does not copy post prose or promote dated claims.
 import { NATHAN_PREVIOUS_THREADS_REFERENCE } from '../research/nathan-previous-threads.js';
+import { compareStableText } from './order.js';
 
 export const NATHAN_FRAMEWORK_PACK_VERSION = 'nathan-framework-pack.v1';
 
@@ -122,7 +123,7 @@ for (const framework of NATHAN_FRAMEWORKS) {
 }
 
 export const NATHAN_KNOWLEDGE_ALIASES = Object.freeze([...aliasTargetMap.entries()]
-  .sort(([left], [right]) => left.localeCompare(right))
+  .sort(([left], [right]) => compareStableText(left, right))
   .map(([alias, targets]) => Object.freeze({
     alias,
     targets: Object.freeze(unique(targets)),

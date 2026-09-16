@@ -1181,6 +1181,1606 @@
       "resolution": "unique"
     },
     {
+      "alias": "AI 제품의 지불의사와 업그레이드 전환",
+      "targets": [
+        "nathan-frameworks:nathan-product-monetization"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "AP activity",
+      "targets": [
+        "nathan-frameworks:nathan-etf-flow-channel"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "AP/LP",
+      "targets": [
+        "nathan-frameworks:nathan-etf-nav-basket-integrity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "AUM",
+      "targets": [
+        "nathan-frameworks:nathan-etf-flow-channel"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "ETF flow는 신호가 아니라 전달 채널",
+      "targets": [
+        "nathan-frameworks:nathan-etf-flow-channel"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "ETF 바스켓",
+      "targets": [
+        "nathan-frameworks:nathan-etf-nav-basket-integrity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "ETF 바스켓 대표성",
+      "targets": [
+        "nathan-frameworks:nathan-etf-nav-basket-integrity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "ETF 바스켓·NAV·생성환매의 무결성",
+      "targets": [
+        "nathan-frameworks:nathan-etf-nav-basket-integrity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "FX",
+      "targets": [
+        "nathan-frameworks:nathan-policy-second-order",
+        "nathan-frameworks:nathan-credit-stress-gates",
+        "nathan-frameworks:nathan-treasury-supply-demand"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "multi-framework"
+    },
+    {
+      "alias": "HYG/JNK",
+      "targets": [
+        "nathan-frameworks:nathan-credit-stress-gates"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "IP linkage",
+      "targets": [
+        "nathan-frameworks:nathan-tokenomics-value-link"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "MBB/SPMB",
+      "targets": [
+        "nathan-frameworks:nathan-credit-stress-gates"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "MOVE/VIX 성격의 변동성",
+      "targets": [
+        "nathan-frameworks:nathan-liquidity-extremes"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "NAV",
+      "targets": [
+        "nathan-frameworks:nathan-etf-nav-basket-integrity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "NAV methodology",
+      "targets": [
+        "nathan-frameworks:nathan-etf-nav-basket-integrity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "NAV premium/discount",
+      "targets": [
+        "nathan-frameworks:nathan-etf-flow-channel"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "NBFI",
+      "targets": [
+        "nathan-frameworks:nathan-nonbank-regulatory-arbitrage"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "NBFI share",
+      "targets": [
+        "nathan-frameworks:nathan-nonbank-regulatory-arbitrage"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "OTC의 위험변환 구조",
+      "targets": [
+        "nathan-frameworks:nathan-relative-value-hedging"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "QT",
+      "targets": [
+        "nathan-frameworks:nathan-treasury-supply-demand"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "TVL composition",
+      "targets": [
+        "nathan-frameworks:nathan-crypto-fundamentals"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "adoption",
+      "targets": [
+        "nathan-frameworks:nathan-problem-friction-opportunity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "approval status",
+      "targets": [
+        "nathan-frameworks:nathan-regulation-market-access"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "assumption durability",
+      "targets": [
+        "nathan-frameworks:nathan-bubble-diagnostics"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "attention",
+      "targets": [
+        "nathan-frameworks:nathan-retail-flow-edge-decay"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "auction tails",
+      "targets": [
+        "nathan-frameworks:nathan-treasury-supply-demand"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "bank capital constraints",
+      "targets": [
+        "nathan-frameworks:nathan-nonbank-regulatory-arbitrage"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "basis",
+      "targets": [
+        "nathan-frameworks:nathan-relative-value-hedging"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "basket composition",
+      "targets": [
+        "nathan-frameworks:nathan-etf-nav-basket-integrity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "bid-ask spread",
+      "targets": [
+        "nathan-frameworks:nathan-market-structure-execution"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "breadth",
+      "targets": [
+        "nathan-frameworks:nathan-retail-flow-edge-decay"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "capital constraint",
+      "targets": [
+        "nathan-frameworks:nathan-institutional-intermediation"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "cash buffer",
+      "targets": [
+        "nathan-frameworks:nathan-market-impersonal-tail-risk"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "cash flow",
+      "targets": [
+        "nathan-frameworks:nathan-asset-class-allocation",
+        "nathan-frameworks:nathan-valuation-price-formation"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "multi-framework"
+    },
+    {
+      "alias": "claim text",
+      "targets": [
+        "nathan-frameworks:nathan-research-provenance"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "collateral",
+      "targets": [
+        "nathan-frameworks:nathan-leverage-survival",
+        "nathan-frameworks:nathan-nonbank-regulatory-arbitrage"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "multi-framework"
+    },
+    {
+      "alias": "collateral segregation",
+      "targets": [
+        "nathan-frameworks:nathan-counterparty-custody"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "communication",
+      "targets": [
+        "nathan-frameworks:nathan-analysis-workflow-clarity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "concentration",
+      "targets": [
+        "nathan-frameworks:nathan-market-impersonal-tail-risk"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "conflicts",
+      "targets": [
+        "nathan-frameworks:nathan-investor-protection",
+        "nathan-frameworks:nathan-research-provenance"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "multi-framework"
+    },
+    {
+      "alias": "consumption mix",
+      "targets": [
+        "nathan-frameworks:nathan-macro-risk-asset-divergence"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "correlation",
+      "targets": [
+        "nathan-frameworks:nathan-market-impersonal-tail-risk",
+        "nathan-frameworks:nathan-asset-class-allocation"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "multi-framework"
+    },
+    {
+      "alias": "counterparty",
+      "targets": [
+        "nathan-frameworks:nathan-counterparty-custody",
+        "nathan-frameworks:nathan-relative-value-hedging"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "multi-framework"
+    },
+    {
+      "alias": "counterparty risk",
+      "targets": [
+        "nathan-frameworks:nathan-crypto-fundamentals"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "creation/redemption",
+      "targets": [
+        "nathan-frameworks:nathan-etf-flow-channel",
+        "nathan-frameworks:nathan-etf-nav-basket-integrity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "multi-framework"
+    },
+    {
+      "alias": "credit conditions",
+      "targets": [
+        "nathan-frameworks:nathan-macro-risk-asset-divergence"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "credit risk",
+      "targets": [
+        "nathan-frameworks:nathan-asset-class-allocation"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "credit spread",
+      "targets": [
+        "nathan-frameworks:nathan-liquidity-extremes"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "credit spreads",
+      "targets": [
+        "nathan-frameworks:nathan-credit-stress-gates"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "custody",
+      "targets": [
+        "nathan-frameworks:nathan-counterparty-custody",
+        "nathan-frameworks:nathan-regulation-market-access"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "multi-framework"
+    },
+    {
+      "alias": "dealer inventory",
+      "targets": [
+        "nathan-frameworks:nathan-nonbank-regulatory-arbitrage"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "definition",
+      "targets": [
+        "nathan-frameworks:nathan-research-provenance",
+        "nathan-frameworks:nathan-analysis-workflow-clarity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "multi-framework"
+    },
+    {
+      "alias": "derivation",
+      "targets": [
+        "nathan-frameworks:nathan-research-provenance"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "disclosed risks",
+      "targets": [
+        "nathan-frameworks:nathan-investor-protection"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "disclosure",
+      "targets": [
+        "nathan-frameworks:nathan-institutional-intermediation",
+        "nathan-frameworks:nathan-regulation-market-access"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "multi-framework"
+    },
+    {
+      "alias": "disclosure quality",
+      "targets": [
+        "nathan-frameworks:nathan-nonbank-regulatory-arbitrage"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "discount rate",
+      "targets": [
+        "nathan-frameworks:nathan-valuation-price-formation"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "displayed depth",
+      "targets": [
+        "nathan-frameworks:nathan-market-structure-execution"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "domain knowledge",
+      "targets": [
+        "nathan-frameworks:nathan-specialized-edge-luck"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "drawdown",
+      "targets": [
+        "nathan-frameworks:nathan-leverage-survival"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "duplicates",
+      "targets": [
+        "nathan-frameworks:nathan-analysis-workflow-clarity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "duration",
+      "targets": [
+        "nathan-frameworks:nathan-asset-class-allocation"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "dynamic ranges",
+      "targets": [
+        "nathan-frameworks:nathan-analysis-workflow-clarity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "earnings multiple",
+      "targets": [
+        "nathan-frameworks:nathan-valuation-price-formation"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "elasticity",
+      "targets": [
+        "nathan-frameworks:nathan-policy-second-order"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "emission/reward",
+      "targets": [
+        "nathan-frameworks:nathan-tokenomics-value-link"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "execution",
+      "targets": [
+        "nathan-frameworks:nathan-specialized-edge-luck",
+        "nathan-frameworks:nathan-problem-friction-opportunity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "multi-framework"
+    },
+    {
+      "alias": "execution cost",
+      "targets": [
+        "nathan-frameworks:nathan-relative-value-hedging"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "expectation purchases",
+      "targets": [
+        "nathan-frameworks:nathan-bubble-diagnostics"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "expectations",
+      "targets": [
+        "nathan-frameworks:nathan-valuation-price-formation"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "expected value",
+      "targets": [
+        "nathan-frameworks:nathan-forecast-falsifiability"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "exports",
+      "targets": [
+        "nathan-frameworks:nathan-macro-risk-asset-divergence"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "fact vs. narrative",
+      "targets": [
+        "nathan-frameworks:nathan-investor-protection"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "feature utility",
+      "targets": [
+        "nathan-frameworks:nathan-product-monetization"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "fee model",
+      "targets": [
+        "nathan-frameworks:nathan-institutional-intermediation"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "financial conditions",
+      "targets": [
+        "nathan-frameworks:nathan-policy-second-order"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "financing cost",
+      "targets": [
+        "nathan-frameworks:nathan-leverage-survival"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "flow",
+      "targets": [
+        "nathan-frameworks:nathan-retail-flow-edge-decay"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "forced selling",
+      "targets": [
+        "nathan-frameworks:nathan-liquidity-extremes"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "foreign demand/holdings",
+      "targets": [
+        "nathan-frameworks:nathan-treasury-supply-demand"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "formula references",
+      "targets": [
+        "nathan-frameworks:nathan-analysis-workflow-clarity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "front-end vs. long-end yields",
+      "targets": [
+        "nathan-frameworks:nathan-treasury-supply-demand"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "front-end yields",
+      "targets": [
+        "nathan-frameworks:nathan-credit-stress-gates"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "funding",
+      "targets": [
+        "nathan-frameworks:nathan-market-structure-execution",
+        "nathan-frameworks:nathan-relative-value-hedging"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "multi-framework"
+    },
+    {
+      "alias": "gross/net exposure",
+      "targets": [
+        "nathan-frameworks:nathan-leverage-survival"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "hedge ratio",
+      "targets": [
+        "nathan-frameworks:nathan-relative-value-hedging"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "hidden rows",
+      "targets": [
+        "nathan-frameworks:nathan-analysis-workflow-clarity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "holding horizon",
+      "targets": [
+        "nathan-frameworks:nathan-retail-flow-edge-decay",
+        "nathan-frameworks:nathan-asset-class-allocation"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "multi-framework"
+    },
+    {
+      "alias": "incentives",
+      "targets": [
+        "nathan-frameworks:nathan-investor-protection"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "institution type",
+      "targets": [
+        "nathan-frameworks:nathan-institutional-intermediation"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "invalidation",
+      "targets": [
+        "nathan-frameworks:nathan-forecast-falsifiability",
+        "nathan-frameworks:nathan-investor-protection",
+        "nathan-frameworks:nathan-research-provenance"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "multi-framework"
+    },
+    {
+      "alias": "inventory",
+      "targets": [
+        "nathan-frameworks:nathan-market-structure-execution",
+        "nathan-frameworks:nathan-institutional-intermediation"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "multi-framework"
+    },
+    {
+      "alias": "jurisdiction",
+      "targets": [
+        "nathan-frameworks:nathan-regulation-market-access"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "legal eligibility",
+      "targets": [
+        "nathan-frameworks:nathan-problem-friction-opportunity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "leverage",
+      "targets": [
+        "nathan-frameworks:nathan-bubble-diagnostics",
+        "nathan-frameworks:nathan-nonbank-regulatory-arbitrage",
+        "nathan-frameworks:nathan-market-impersonal-tail-risk"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "multi-framework"
+    },
+    {
+      "alias": "licensing",
+      "targets": [
+        "nathan-frameworks:nathan-regulation-market-access"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "liquidation flow",
+      "targets": [
+        "nathan-frameworks:nathan-market-structure-execution"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "liquidation waterfall",
+      "targets": [
+        "nathan-frameworks:nathan-counterparty-custody",
+        "nathan-frameworks:nathan-nonbank-regulatory-arbitrage"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "multi-framework"
+    },
+    {
+      "alias": "liquidity",
+      "targets": [
+        "nathan-frameworks:nathan-market-impersonal-tail-risk",
+        "nathan-frameworks:nathan-asset-class-allocation",
+        "nathan-frameworks:nathan-relative-value-hedging",
+        "nathan-frameworks:nathan-valuation-price-formation"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "multi-framework"
+    },
+    {
+      "alias": "long yields",
+      "targets": [
+        "nathan-frameworks:nathan-credit-stress-gates"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "luck",
+      "targets": [
+        "nathan-frameworks:nathan-specialized-edge-luck"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "margin",
+      "targets": [
+        "nathan-frameworks:nathan-nonbank-regulatory-arbitrage",
+        "nathan-frameworks:nathan-relative-value-hedging"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "multi-framework"
+    },
+    {
+      "alias": "margin headroom",
+      "targets": [
+        "nathan-frameworks:nathan-leverage-survival"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "mark-to-market",
+      "targets": [
+        "nathan-frameworks:nathan-valuation-price-formation"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "market friction",
+      "targets": [
+        "nathan-frameworks:nathan-problem-friction-opportunity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "market share",
+      "targets": [
+        "nathan-frameworks:nathan-institutional-intermediation"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "mechanism",
+      "targets": [
+        "nathan-frameworks:nathan-forecast-falsifiability"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "missing context",
+      "targets": [
+        "nathan-frameworks:nathan-research-provenance"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-analysis-workflow-clarity",
+      "targets": [
+        "nathan-frameworks:nathan-analysis-workflow-clarity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-asset-class-allocation",
+      "targets": [
+        "nathan-frameworks:nathan-asset-class-allocation"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-bubble-diagnostics",
+      "targets": [
+        "nathan-frameworks:nathan-bubble-diagnostics"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-counterparty-custody",
+      "targets": [
+        "nathan-frameworks:nathan-counterparty-custody"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-credit-stress-gates",
+      "targets": [
+        "nathan-frameworks:nathan-credit-stress-gates"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-crypto-fundamentals",
+      "targets": [
+        "nathan-frameworks:nathan-crypto-fundamentals"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-etf-flow-channel",
+      "targets": [
+        "nathan-frameworks:nathan-etf-flow-channel"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-etf-nav-basket-integrity",
+      "targets": [
+        "nathan-frameworks:nathan-etf-nav-basket-integrity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-forecast-falsifiability",
+      "targets": [
+        "nathan-frameworks:nathan-forecast-falsifiability"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-institutional-intermediation",
+      "targets": [
+        "nathan-frameworks:nathan-institutional-intermediation"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-investor-protection",
+      "targets": [
+        "nathan-frameworks:nathan-investor-protection"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-leverage-survival",
+      "targets": [
+        "nathan-frameworks:nathan-leverage-survival"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-liquidity-extremes",
+      "targets": [
+        "nathan-frameworks:nathan-liquidity-extremes"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-macro-risk-asset-divergence",
+      "targets": [
+        "nathan-frameworks:nathan-macro-risk-asset-divergence"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-market-impersonal-tail-risk",
+      "targets": [
+        "nathan-frameworks:nathan-market-impersonal-tail-risk"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-market-structure-execution",
+      "targets": [
+        "nathan-frameworks:nathan-market-structure-execution"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-nonbank-regulatory-arbitrage",
+      "targets": [
+        "nathan-frameworks:nathan-nonbank-regulatory-arbitrage"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-policy-second-order",
+      "targets": [
+        "nathan-frameworks:nathan-policy-second-order"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-problem-friction-opportunity",
+      "targets": [
+        "nathan-frameworks:nathan-problem-friction-opportunity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-product-monetization",
+      "targets": [
+        "nathan-frameworks:nathan-product-monetization"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-regulation-market-access",
+      "targets": [
+        "nathan-frameworks:nathan-regulation-market-access"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-relative-value-hedging",
+      "targets": [
+        "nathan-frameworks:nathan-relative-value-hedging"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-research-provenance",
+      "targets": [
+        "nathan-frameworks:nathan-research-provenance"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-retail-flow-edge-decay",
+      "targets": [
+        "nathan-frameworks:nathan-retail-flow-edge-decay"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-specialized-edge-luck",
+      "targets": [
+        "nathan-frameworks:nathan-specialized-edge-luck"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-tokenomics-value-link",
+      "targets": [
+        "nathan-frameworks:nathan-tokenomics-value-link"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-treasury-supply-demand",
+      "targets": [
+        "nathan-frameworks:nathan-treasury-supply-demand"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nathan-valuation-price-formation",
+      "targets": [
+        "nathan-frameworks:nathan-valuation-price-formation"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "net flow",
+      "targets": [
+        "nathan-frameworks:nathan-etf-flow-channel"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "net issuance",
+      "targets": [
+        "nathan-frameworks:nathan-treasury-supply-demand"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "network",
+      "targets": [
+        "nathan-frameworks:nathan-specialized-edge-luck"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "new information",
+      "targets": [
+        "nathan-frameworks:nathan-forecast-falsifiability"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "new participants",
+      "targets": [
+        "nathan-frameworks:nathan-bubble-diagnostics"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "optimism",
+      "targets": [
+        "nathan-frameworks:nathan-bubble-diagnostics"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "orderbook liquidity",
+      "targets": [
+        "nathan-frameworks:nathan-market-structure-execution"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "out-of-sample persistence",
+      "targets": [
+        "nathan-frameworks:nathan-specialized-edge-luck"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "outcome log",
+      "targets": [
+        "nathan-frameworks:nathan-forecast-falsifiability"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "partial-basket representativeness",
+      "targets": [
+        "nathan-frameworks:nathan-etf-nav-basket-integrity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "policy constraint",
+      "targets": [
+        "nathan-frameworks:nathan-problem-friction-opportunity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "policy expectations",
+      "targets": [
+        "nathan-frameworks:nathan-macro-risk-asset-divergence"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "policy text",
+      "targets": [
+        "nathan-frameworks:nathan-policy-second-order"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "portfolio role",
+      "targets": [
+        "nathan-frameworks:nathan-asset-class-allocation"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "premium/discount",
+      "targets": [
+        "nathan-frameworks:nathan-etf-nav-basket-integrity",
+        "nathan-frameworks:nathan-valuation-price-formation"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "multi-framework"
+    },
+    {
+      "alias": "pricing",
+      "targets": [
+        "nathan-frameworks:nathan-product-monetization"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "primary legal text",
+      "targets": [
+        "nathan-frameworks:nathan-regulation-market-access"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "problem proximity",
+      "targets": [
+        "nathan-frameworks:nathan-specialized-edge-luck"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "producer/consumer prices",
+      "targets": [
+        "nathan-frameworks:nathan-policy-second-order"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "protocol revenue",
+      "targets": [
+        "nathan-frameworks:nathan-crypto-fundamentals"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "real activity",
+      "targets": [
+        "nathan-frameworks:nathan-macro-risk-asset-divergence"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "real usage",
+      "targets": [
+        "nathan-frameworks:nathan-crypto-fundamentals"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "realized P&L",
+      "targets": [
+        "nathan-frameworks:nathan-valuation-price-formation"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "recovery time",
+      "targets": [
+        "nathan-frameworks:nathan-leverage-survival",
+        "nathan-frameworks:nathan-market-impersonal-tail-risk"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "multi-framework"
+    },
+    {
+      "alias": "redemption/exchange",
+      "targets": [
+        "nathan-frameworks:nathan-tokenomics-value-link"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "regulation",
+      "targets": [
+        "nathan-frameworks:nathan-institutional-intermediation"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "repo/funding",
+      "targets": [
+        "nathan-frameworks:nathan-credit-stress-gates"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "repo·담보·마진",
+      "targets": [
+        "nathan-frameworks:nathan-liquidity-extremes"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "reproducibility",
+      "targets": [
+        "nathan-frameworks:nathan-analysis-workflow-clarity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "retaliation",
+      "targets": [
+        "nathan-frameworks:nathan-policy-second-order"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "retention",
+      "targets": [
+        "nathan-frameworks:nathan-product-monetization"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "risk premia",
+      "targets": [
+        "nathan-frameworks:nathan-asset-class-allocation"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "risk-asset breadth",
+      "targets": [
+        "nathan-frameworks:nathan-macro-risk-asset-divergence"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "sentiment",
+      "targets": [
+        "nathan-frameworks:nathan-retail-flow-edge-decay"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "settlement",
+      "targets": [
+        "nathan-frameworks:nathan-counterparty-custody",
+        "nathan-frameworks:nathan-etf-nav-basket-integrity",
+        "nathan-frameworks:nathan-relative-value-hedging",
+        "nathan-frameworks:nathan-institutional-intermediation",
+        "nathan-frameworks:nathan-regulation-market-access"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "multi-framework"
+    },
+    {
+      "alias": "settlement rail",
+      "targets": [
+        "nathan-frameworks:nathan-etf-flow-channel"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "slippage",
+      "targets": [
+        "nathan-frameworks:nathan-market-structure-execution"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "source data",
+      "targets": [
+        "nathan-frameworks:nathan-analysis-workflow-clarity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "source quality",
+      "targets": [
+        "nathan-frameworks:nathan-investor-protection"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "source tier",
+      "targets": [
+        "nathan-frameworks:nathan-research-provenance"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "spot/derivatives liquidity",
+      "targets": [
+        "nathan-frameworks:nathan-crypto-fundamentals"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "stablecoin premium",
+      "targets": [
+        "nathan-frameworks:nathan-crypto-fundamentals"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "stakeholder incentives",
+      "targets": [
+        "nathan-frameworks:nathan-problem-friction-opportunity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "strategy decay",
+      "targets": [
+        "nathan-frameworks:nathan-retail-flow-edge-decay"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "tail loss",
+      "targets": [
+        "nathan-frameworks:nathan-market-impersonal-tail-risk"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "term premium",
+      "targets": [
+        "nathan-frameworks:nathan-treasury-supply-demand"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "timestamp",
+      "targets": [
+        "nathan-frameworks:nathan-forecast-falsifiability",
+        "nathan-frameworks:nathan-research-provenance"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "multi-framework"
+    },
+    {
+      "alias": "timing",
+      "targets": [
+        "nathan-frameworks:nathan-specialized-edge-luck"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "token supply",
+      "targets": [
+        "nathan-frameworks:nathan-tokenomics-value-link"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "turnover",
+      "targets": [
+        "nathan-frameworks:nathan-retail-flow-edge-decay"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "underlying liquidity",
+      "targets": [
+        "nathan-frameworks:nathan-etf-nav-basket-integrity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "unit economics",
+      "targets": [
+        "nathan-frameworks:nathan-problem-friction-opportunity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "upgrade rate",
+      "targets": [
+        "nathan-frameworks:nathan-product-monetization"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "usage",
+      "targets": [
+        "nathan-frameworks:nathan-product-monetization"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "utility",
+      "targets": [
+        "nathan-frameworks:nathan-tokenomics-value-link"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "valuation/cash flow",
+      "targets": [
+        "nathan-frameworks:nathan-bubble-diagnostics"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "value capture",
+      "targets": [
+        "nathan-frameworks:nathan-tokenomics-value-link"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "venue access",
+      "targets": [
+        "nathan-frameworks:nathan-regulation-market-access"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "willingness to pay",
+      "targets": [
+        "nathan-frameworks:nathan-product-monetization",
+        "nathan-frameworks:nathan-problem-friction-opportunity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "multi-framework"
+    },
+    {
+      "alias": "withdrawal conditions",
+      "targets": [
+        "nathan-frameworks:nathan-counterparty-custody"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
       "alias": "가격발견",
       "targets": [
         "nathan-frameworks:nathan-valuation-price-formation"
@@ -1791,6 +3391,14 @@
       "resolution": "unique"
     },
     {
+      "alias": "시장 breadth",
+      "targets": [
+        "nathan-frameworks:nathan-macro-risk-asset-divergence"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
       "alias": "시장 마찰",
       "targets": [
         "nathan-frameworks:nathan-problem-friction-opportunity"
@@ -1810,14 +3418,6 @@
       "alias": "시장 현대화의 전달경로",
       "targets": [
         "nathan-frameworks:nathan-institutional-intermediation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "시장 breadth",
-      "targets": [
-        "nathan-frameworks:nathan-macro-risk-asset-divergence"
       ],
       "kind": "STRUCTURAL_TERM",
       "resolution": "unique"
@@ -2312,1606 +3912,6 @@
       "alias": "현물·선물 괴리",
       "targets": [
         "nathan-frameworks:nathan-liquidity-extremes"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "adoption",
-      "targets": [
-        "nathan-frameworks:nathan-problem-friction-opportunity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "AI 제품의 지불의사와 업그레이드 전환",
-      "targets": [
-        "nathan-frameworks:nathan-product-monetization"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "AP activity",
-      "targets": [
-        "nathan-frameworks:nathan-etf-flow-channel"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "AP/LP",
-      "targets": [
-        "nathan-frameworks:nathan-etf-nav-basket-integrity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "approval status",
-      "targets": [
-        "nathan-frameworks:nathan-regulation-market-access"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "assumption durability",
-      "targets": [
-        "nathan-frameworks:nathan-bubble-diagnostics"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "attention",
-      "targets": [
-        "nathan-frameworks:nathan-retail-flow-edge-decay"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "auction tails",
-      "targets": [
-        "nathan-frameworks:nathan-treasury-supply-demand"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "AUM",
-      "targets": [
-        "nathan-frameworks:nathan-etf-flow-channel"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "bank capital constraints",
-      "targets": [
-        "nathan-frameworks:nathan-nonbank-regulatory-arbitrage"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "basis",
-      "targets": [
-        "nathan-frameworks:nathan-relative-value-hedging"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "basket composition",
-      "targets": [
-        "nathan-frameworks:nathan-etf-nav-basket-integrity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "bid-ask spread",
-      "targets": [
-        "nathan-frameworks:nathan-market-structure-execution"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "breadth",
-      "targets": [
-        "nathan-frameworks:nathan-retail-flow-edge-decay"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "capital constraint",
-      "targets": [
-        "nathan-frameworks:nathan-institutional-intermediation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "cash buffer",
-      "targets": [
-        "nathan-frameworks:nathan-market-impersonal-tail-risk"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "cash flow",
-      "targets": [
-        "nathan-frameworks:nathan-asset-class-allocation",
-        "nathan-frameworks:nathan-valuation-price-formation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "multi-framework"
-    },
-    {
-      "alias": "claim text",
-      "targets": [
-        "nathan-frameworks:nathan-research-provenance"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "collateral",
-      "targets": [
-        "nathan-frameworks:nathan-leverage-survival",
-        "nathan-frameworks:nathan-nonbank-regulatory-arbitrage"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "multi-framework"
-    },
-    {
-      "alias": "collateral segregation",
-      "targets": [
-        "nathan-frameworks:nathan-counterparty-custody"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "communication",
-      "targets": [
-        "nathan-frameworks:nathan-analysis-workflow-clarity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "concentration",
-      "targets": [
-        "nathan-frameworks:nathan-market-impersonal-tail-risk"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "conflicts",
-      "targets": [
-        "nathan-frameworks:nathan-investor-protection",
-        "nathan-frameworks:nathan-research-provenance"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "multi-framework"
-    },
-    {
-      "alias": "consumption mix",
-      "targets": [
-        "nathan-frameworks:nathan-macro-risk-asset-divergence"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "correlation",
-      "targets": [
-        "nathan-frameworks:nathan-market-impersonal-tail-risk",
-        "nathan-frameworks:nathan-asset-class-allocation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "multi-framework"
-    },
-    {
-      "alias": "counterparty",
-      "targets": [
-        "nathan-frameworks:nathan-counterparty-custody",
-        "nathan-frameworks:nathan-relative-value-hedging"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "multi-framework"
-    },
-    {
-      "alias": "counterparty risk",
-      "targets": [
-        "nathan-frameworks:nathan-crypto-fundamentals"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "creation/redemption",
-      "targets": [
-        "nathan-frameworks:nathan-etf-flow-channel",
-        "nathan-frameworks:nathan-etf-nav-basket-integrity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "multi-framework"
-    },
-    {
-      "alias": "credit conditions",
-      "targets": [
-        "nathan-frameworks:nathan-macro-risk-asset-divergence"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "credit risk",
-      "targets": [
-        "nathan-frameworks:nathan-asset-class-allocation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "credit spread",
-      "targets": [
-        "nathan-frameworks:nathan-liquidity-extremes"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "credit spreads",
-      "targets": [
-        "nathan-frameworks:nathan-credit-stress-gates"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "custody",
-      "targets": [
-        "nathan-frameworks:nathan-counterparty-custody",
-        "nathan-frameworks:nathan-regulation-market-access"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "multi-framework"
-    },
-    {
-      "alias": "dealer inventory",
-      "targets": [
-        "nathan-frameworks:nathan-nonbank-regulatory-arbitrage"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "definition",
-      "targets": [
-        "nathan-frameworks:nathan-research-provenance",
-        "nathan-frameworks:nathan-analysis-workflow-clarity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "multi-framework"
-    },
-    {
-      "alias": "derivation",
-      "targets": [
-        "nathan-frameworks:nathan-research-provenance"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "disclosed risks",
-      "targets": [
-        "nathan-frameworks:nathan-investor-protection"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "disclosure",
-      "targets": [
-        "nathan-frameworks:nathan-institutional-intermediation",
-        "nathan-frameworks:nathan-regulation-market-access"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "multi-framework"
-    },
-    {
-      "alias": "disclosure quality",
-      "targets": [
-        "nathan-frameworks:nathan-nonbank-regulatory-arbitrage"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "discount rate",
-      "targets": [
-        "nathan-frameworks:nathan-valuation-price-formation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "displayed depth",
-      "targets": [
-        "nathan-frameworks:nathan-market-structure-execution"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "domain knowledge",
-      "targets": [
-        "nathan-frameworks:nathan-specialized-edge-luck"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "drawdown",
-      "targets": [
-        "nathan-frameworks:nathan-leverage-survival"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "duplicates",
-      "targets": [
-        "nathan-frameworks:nathan-analysis-workflow-clarity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "duration",
-      "targets": [
-        "nathan-frameworks:nathan-asset-class-allocation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "dynamic ranges",
-      "targets": [
-        "nathan-frameworks:nathan-analysis-workflow-clarity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "earnings multiple",
-      "targets": [
-        "nathan-frameworks:nathan-valuation-price-formation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "elasticity",
-      "targets": [
-        "nathan-frameworks:nathan-policy-second-order"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "emission/reward",
-      "targets": [
-        "nathan-frameworks:nathan-tokenomics-value-link"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "ETF 바스켓",
-      "targets": [
-        "nathan-frameworks:nathan-etf-nav-basket-integrity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "ETF 바스켓 대표성",
-      "targets": [
-        "nathan-frameworks:nathan-etf-nav-basket-integrity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "ETF 바스켓·NAV·생성환매의 무결성",
-      "targets": [
-        "nathan-frameworks:nathan-etf-nav-basket-integrity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "ETF flow는 신호가 아니라 전달 채널",
-      "targets": [
-        "nathan-frameworks:nathan-etf-flow-channel"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "execution",
-      "targets": [
-        "nathan-frameworks:nathan-specialized-edge-luck",
-        "nathan-frameworks:nathan-problem-friction-opportunity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "multi-framework"
-    },
-    {
-      "alias": "execution cost",
-      "targets": [
-        "nathan-frameworks:nathan-relative-value-hedging"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "expectation purchases",
-      "targets": [
-        "nathan-frameworks:nathan-bubble-diagnostics"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "expectations",
-      "targets": [
-        "nathan-frameworks:nathan-valuation-price-formation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "expected value",
-      "targets": [
-        "nathan-frameworks:nathan-forecast-falsifiability"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "exports",
-      "targets": [
-        "nathan-frameworks:nathan-macro-risk-asset-divergence"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "fact vs. narrative",
-      "targets": [
-        "nathan-frameworks:nathan-investor-protection"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "feature utility",
-      "targets": [
-        "nathan-frameworks:nathan-product-monetization"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "fee model",
-      "targets": [
-        "nathan-frameworks:nathan-institutional-intermediation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "financial conditions",
-      "targets": [
-        "nathan-frameworks:nathan-policy-second-order"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "financing cost",
-      "targets": [
-        "nathan-frameworks:nathan-leverage-survival"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "flow",
-      "targets": [
-        "nathan-frameworks:nathan-retail-flow-edge-decay"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "forced selling",
-      "targets": [
-        "nathan-frameworks:nathan-liquidity-extremes"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "foreign demand/holdings",
-      "targets": [
-        "nathan-frameworks:nathan-treasury-supply-demand"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "formula references",
-      "targets": [
-        "nathan-frameworks:nathan-analysis-workflow-clarity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "front-end vs. long-end yields",
-      "targets": [
-        "nathan-frameworks:nathan-treasury-supply-demand"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "front-end yields",
-      "targets": [
-        "nathan-frameworks:nathan-credit-stress-gates"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "funding",
-      "targets": [
-        "nathan-frameworks:nathan-market-structure-execution",
-        "nathan-frameworks:nathan-relative-value-hedging"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "multi-framework"
-    },
-    {
-      "alias": "FX",
-      "targets": [
-        "nathan-frameworks:nathan-policy-second-order",
-        "nathan-frameworks:nathan-credit-stress-gates",
-        "nathan-frameworks:nathan-treasury-supply-demand"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "multi-framework"
-    },
-    {
-      "alias": "gross/net exposure",
-      "targets": [
-        "nathan-frameworks:nathan-leverage-survival"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "hedge ratio",
-      "targets": [
-        "nathan-frameworks:nathan-relative-value-hedging"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "hidden rows",
-      "targets": [
-        "nathan-frameworks:nathan-analysis-workflow-clarity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "holding horizon",
-      "targets": [
-        "nathan-frameworks:nathan-retail-flow-edge-decay",
-        "nathan-frameworks:nathan-asset-class-allocation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "multi-framework"
-    },
-    {
-      "alias": "HYG/JNK",
-      "targets": [
-        "nathan-frameworks:nathan-credit-stress-gates"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "incentives",
-      "targets": [
-        "nathan-frameworks:nathan-investor-protection"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "institution type",
-      "targets": [
-        "nathan-frameworks:nathan-institutional-intermediation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "invalidation",
-      "targets": [
-        "nathan-frameworks:nathan-forecast-falsifiability",
-        "nathan-frameworks:nathan-investor-protection",
-        "nathan-frameworks:nathan-research-provenance"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "multi-framework"
-    },
-    {
-      "alias": "inventory",
-      "targets": [
-        "nathan-frameworks:nathan-market-structure-execution",
-        "nathan-frameworks:nathan-institutional-intermediation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "multi-framework"
-    },
-    {
-      "alias": "IP linkage",
-      "targets": [
-        "nathan-frameworks:nathan-tokenomics-value-link"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "jurisdiction",
-      "targets": [
-        "nathan-frameworks:nathan-regulation-market-access"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "legal eligibility",
-      "targets": [
-        "nathan-frameworks:nathan-problem-friction-opportunity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "leverage",
-      "targets": [
-        "nathan-frameworks:nathan-bubble-diagnostics",
-        "nathan-frameworks:nathan-nonbank-regulatory-arbitrage",
-        "nathan-frameworks:nathan-market-impersonal-tail-risk"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "multi-framework"
-    },
-    {
-      "alias": "licensing",
-      "targets": [
-        "nathan-frameworks:nathan-regulation-market-access"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "liquidation flow",
-      "targets": [
-        "nathan-frameworks:nathan-market-structure-execution"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "liquidation waterfall",
-      "targets": [
-        "nathan-frameworks:nathan-counterparty-custody",
-        "nathan-frameworks:nathan-nonbank-regulatory-arbitrage"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "multi-framework"
-    },
-    {
-      "alias": "liquidity",
-      "targets": [
-        "nathan-frameworks:nathan-market-impersonal-tail-risk",
-        "nathan-frameworks:nathan-asset-class-allocation",
-        "nathan-frameworks:nathan-relative-value-hedging",
-        "nathan-frameworks:nathan-valuation-price-formation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "multi-framework"
-    },
-    {
-      "alias": "long yields",
-      "targets": [
-        "nathan-frameworks:nathan-credit-stress-gates"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "luck",
-      "targets": [
-        "nathan-frameworks:nathan-specialized-edge-luck"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "margin",
-      "targets": [
-        "nathan-frameworks:nathan-nonbank-regulatory-arbitrage",
-        "nathan-frameworks:nathan-relative-value-hedging"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "multi-framework"
-    },
-    {
-      "alias": "margin headroom",
-      "targets": [
-        "nathan-frameworks:nathan-leverage-survival"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "mark-to-market",
-      "targets": [
-        "nathan-frameworks:nathan-valuation-price-formation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "market friction",
-      "targets": [
-        "nathan-frameworks:nathan-problem-friction-opportunity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "market share",
-      "targets": [
-        "nathan-frameworks:nathan-institutional-intermediation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "MBB/SPMB",
-      "targets": [
-        "nathan-frameworks:nathan-credit-stress-gates"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "mechanism",
-      "targets": [
-        "nathan-frameworks:nathan-forecast-falsifiability"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "missing context",
-      "targets": [
-        "nathan-frameworks:nathan-research-provenance"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "MOVE/VIX 성격의 변동성",
-      "targets": [
-        "nathan-frameworks:nathan-liquidity-extremes"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-analysis-workflow-clarity",
-      "targets": [
-        "nathan-frameworks:nathan-analysis-workflow-clarity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-asset-class-allocation",
-      "targets": [
-        "nathan-frameworks:nathan-asset-class-allocation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-bubble-diagnostics",
-      "targets": [
-        "nathan-frameworks:nathan-bubble-diagnostics"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-counterparty-custody",
-      "targets": [
-        "nathan-frameworks:nathan-counterparty-custody"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-credit-stress-gates",
-      "targets": [
-        "nathan-frameworks:nathan-credit-stress-gates"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-crypto-fundamentals",
-      "targets": [
-        "nathan-frameworks:nathan-crypto-fundamentals"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-etf-flow-channel",
-      "targets": [
-        "nathan-frameworks:nathan-etf-flow-channel"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-etf-nav-basket-integrity",
-      "targets": [
-        "nathan-frameworks:nathan-etf-nav-basket-integrity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-forecast-falsifiability",
-      "targets": [
-        "nathan-frameworks:nathan-forecast-falsifiability"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-institutional-intermediation",
-      "targets": [
-        "nathan-frameworks:nathan-institutional-intermediation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-investor-protection",
-      "targets": [
-        "nathan-frameworks:nathan-investor-protection"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-leverage-survival",
-      "targets": [
-        "nathan-frameworks:nathan-leverage-survival"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-liquidity-extremes",
-      "targets": [
-        "nathan-frameworks:nathan-liquidity-extremes"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-macro-risk-asset-divergence",
-      "targets": [
-        "nathan-frameworks:nathan-macro-risk-asset-divergence"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-market-impersonal-tail-risk",
-      "targets": [
-        "nathan-frameworks:nathan-market-impersonal-tail-risk"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-market-structure-execution",
-      "targets": [
-        "nathan-frameworks:nathan-market-structure-execution"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-nonbank-regulatory-arbitrage",
-      "targets": [
-        "nathan-frameworks:nathan-nonbank-regulatory-arbitrage"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-policy-second-order",
-      "targets": [
-        "nathan-frameworks:nathan-policy-second-order"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-problem-friction-opportunity",
-      "targets": [
-        "nathan-frameworks:nathan-problem-friction-opportunity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-product-monetization",
-      "targets": [
-        "nathan-frameworks:nathan-product-monetization"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-regulation-market-access",
-      "targets": [
-        "nathan-frameworks:nathan-regulation-market-access"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-relative-value-hedging",
-      "targets": [
-        "nathan-frameworks:nathan-relative-value-hedging"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-research-provenance",
-      "targets": [
-        "nathan-frameworks:nathan-research-provenance"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-retail-flow-edge-decay",
-      "targets": [
-        "nathan-frameworks:nathan-retail-flow-edge-decay"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-specialized-edge-luck",
-      "targets": [
-        "nathan-frameworks:nathan-specialized-edge-luck"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-tokenomics-value-link",
-      "targets": [
-        "nathan-frameworks:nathan-tokenomics-value-link"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-treasury-supply-demand",
-      "targets": [
-        "nathan-frameworks:nathan-treasury-supply-demand"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nathan-valuation-price-formation",
-      "targets": [
-        "nathan-frameworks:nathan-valuation-price-formation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "NAV",
-      "targets": [
-        "nathan-frameworks:nathan-etf-nav-basket-integrity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "NAV methodology",
-      "targets": [
-        "nathan-frameworks:nathan-etf-nav-basket-integrity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "NAV premium/discount",
-      "targets": [
-        "nathan-frameworks:nathan-etf-flow-channel"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "NBFI",
-      "targets": [
-        "nathan-frameworks:nathan-nonbank-regulatory-arbitrage"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "NBFI share",
-      "targets": [
-        "nathan-frameworks:nathan-nonbank-regulatory-arbitrage"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "net flow",
-      "targets": [
-        "nathan-frameworks:nathan-etf-flow-channel"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "net issuance",
-      "targets": [
-        "nathan-frameworks:nathan-treasury-supply-demand"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "network",
-      "targets": [
-        "nathan-frameworks:nathan-specialized-edge-luck"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "new information",
-      "targets": [
-        "nathan-frameworks:nathan-forecast-falsifiability"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "new participants",
-      "targets": [
-        "nathan-frameworks:nathan-bubble-diagnostics"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "optimism",
-      "targets": [
-        "nathan-frameworks:nathan-bubble-diagnostics"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "orderbook liquidity",
-      "targets": [
-        "nathan-frameworks:nathan-market-structure-execution"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "OTC의 위험변환 구조",
-      "targets": [
-        "nathan-frameworks:nathan-relative-value-hedging"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "out-of-sample persistence",
-      "targets": [
-        "nathan-frameworks:nathan-specialized-edge-luck"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "outcome log",
-      "targets": [
-        "nathan-frameworks:nathan-forecast-falsifiability"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "partial-basket representativeness",
-      "targets": [
-        "nathan-frameworks:nathan-etf-nav-basket-integrity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "policy constraint",
-      "targets": [
-        "nathan-frameworks:nathan-problem-friction-opportunity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "policy expectations",
-      "targets": [
-        "nathan-frameworks:nathan-macro-risk-asset-divergence"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "policy text",
-      "targets": [
-        "nathan-frameworks:nathan-policy-second-order"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "portfolio role",
-      "targets": [
-        "nathan-frameworks:nathan-asset-class-allocation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "premium/discount",
-      "targets": [
-        "nathan-frameworks:nathan-etf-nav-basket-integrity",
-        "nathan-frameworks:nathan-valuation-price-formation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "multi-framework"
-    },
-    {
-      "alias": "pricing",
-      "targets": [
-        "nathan-frameworks:nathan-product-monetization"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "primary legal text",
-      "targets": [
-        "nathan-frameworks:nathan-regulation-market-access"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "problem proximity",
-      "targets": [
-        "nathan-frameworks:nathan-specialized-edge-luck"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "producer/consumer prices",
-      "targets": [
-        "nathan-frameworks:nathan-policy-second-order"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "protocol revenue",
-      "targets": [
-        "nathan-frameworks:nathan-crypto-fundamentals"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "QT",
-      "targets": [
-        "nathan-frameworks:nathan-treasury-supply-demand"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "real activity",
-      "targets": [
-        "nathan-frameworks:nathan-macro-risk-asset-divergence"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "real usage",
-      "targets": [
-        "nathan-frameworks:nathan-crypto-fundamentals"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "realized P&L",
-      "targets": [
-        "nathan-frameworks:nathan-valuation-price-formation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "recovery time",
-      "targets": [
-        "nathan-frameworks:nathan-leverage-survival",
-        "nathan-frameworks:nathan-market-impersonal-tail-risk"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "multi-framework"
-    },
-    {
-      "alias": "redemption/exchange",
-      "targets": [
-        "nathan-frameworks:nathan-tokenomics-value-link"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "regulation",
-      "targets": [
-        "nathan-frameworks:nathan-institutional-intermediation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "repo·담보·마진",
-      "targets": [
-        "nathan-frameworks:nathan-liquidity-extremes"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "repo/funding",
-      "targets": [
-        "nathan-frameworks:nathan-credit-stress-gates"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "reproducibility",
-      "targets": [
-        "nathan-frameworks:nathan-analysis-workflow-clarity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "retaliation",
-      "targets": [
-        "nathan-frameworks:nathan-policy-second-order"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "retention",
-      "targets": [
-        "nathan-frameworks:nathan-product-monetization"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "risk premia",
-      "targets": [
-        "nathan-frameworks:nathan-asset-class-allocation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "risk-asset breadth",
-      "targets": [
-        "nathan-frameworks:nathan-macro-risk-asset-divergence"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "sentiment",
-      "targets": [
-        "nathan-frameworks:nathan-retail-flow-edge-decay"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "settlement",
-      "targets": [
-        "nathan-frameworks:nathan-counterparty-custody",
-        "nathan-frameworks:nathan-etf-nav-basket-integrity",
-        "nathan-frameworks:nathan-relative-value-hedging",
-        "nathan-frameworks:nathan-institutional-intermediation",
-        "nathan-frameworks:nathan-regulation-market-access"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "multi-framework"
-    },
-    {
-      "alias": "settlement rail",
-      "targets": [
-        "nathan-frameworks:nathan-etf-flow-channel"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "slippage",
-      "targets": [
-        "nathan-frameworks:nathan-market-structure-execution"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "source data",
-      "targets": [
-        "nathan-frameworks:nathan-analysis-workflow-clarity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "source quality",
-      "targets": [
-        "nathan-frameworks:nathan-investor-protection"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "source tier",
-      "targets": [
-        "nathan-frameworks:nathan-research-provenance"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "spot/derivatives liquidity",
-      "targets": [
-        "nathan-frameworks:nathan-crypto-fundamentals"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "stablecoin premium",
-      "targets": [
-        "nathan-frameworks:nathan-crypto-fundamentals"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "stakeholder incentives",
-      "targets": [
-        "nathan-frameworks:nathan-problem-friction-opportunity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "strategy decay",
-      "targets": [
-        "nathan-frameworks:nathan-retail-flow-edge-decay"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "tail loss",
-      "targets": [
-        "nathan-frameworks:nathan-market-impersonal-tail-risk"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "term premium",
-      "targets": [
-        "nathan-frameworks:nathan-treasury-supply-demand"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "timestamp",
-      "targets": [
-        "nathan-frameworks:nathan-forecast-falsifiability",
-        "nathan-frameworks:nathan-research-provenance"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "multi-framework"
-    },
-    {
-      "alias": "timing",
-      "targets": [
-        "nathan-frameworks:nathan-specialized-edge-luck"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "token supply",
-      "targets": [
-        "nathan-frameworks:nathan-tokenomics-value-link"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "turnover",
-      "targets": [
-        "nathan-frameworks:nathan-retail-flow-edge-decay"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "TVL composition",
-      "targets": [
-        "nathan-frameworks:nathan-crypto-fundamentals"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "underlying liquidity",
-      "targets": [
-        "nathan-frameworks:nathan-etf-nav-basket-integrity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "unit economics",
-      "targets": [
-        "nathan-frameworks:nathan-problem-friction-opportunity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "upgrade rate",
-      "targets": [
-        "nathan-frameworks:nathan-product-monetization"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "usage",
-      "targets": [
-        "nathan-frameworks:nathan-product-monetization"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "utility",
-      "targets": [
-        "nathan-frameworks:nathan-tokenomics-value-link"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "valuation/cash flow",
-      "targets": [
-        "nathan-frameworks:nathan-bubble-diagnostics"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "value capture",
-      "targets": [
-        "nathan-frameworks:nathan-tokenomics-value-link"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "venue access",
-      "targets": [
-        "nathan-frameworks:nathan-regulation-market-access"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "willingness to pay",
-      "targets": [
-        "nathan-frameworks:nathan-product-monetization",
-        "nathan-frameworks:nathan-problem-friction-opportunity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "multi-framework"
-    },
-    {
-      "alias": "withdrawal conditions",
-      "targets": [
-        "nathan-frameworks:nathan-counterparty-custody"
       ],
       "kind": "STRUCTURAL_TERM",
       "resolution": "unique"

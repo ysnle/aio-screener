@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { MARKET_PRINCIPLES_CATALOG } from '../src/ui/pages/principles.js';
 import { NATHAN_KNOWLEDGE_CONCEPTS, NATHAN_KNOWLEDGE_ALIASES } from '../src/domain/knowledge/nathan-framework-pack.js';
 import { INTEGRATED_KNOWLEDGE_CONCEPTS, INTEGRATED_KNOWLEDGE_ALIASES } from '../src/domain/knowledge/integrated-market-ai-framework-pack.js';
+import { compareStableText } from '../src/domain/knowledge/order.js';
 import { atomicWriteJsonSync } from './lib/atomic-write.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -62,7 +63,7 @@ for (const item of concepts) {
   aliases.push({ alias: item.canonicalId, targets: [item.canonicalId], kind: 'CANONICAL_ID', resolution: 'unique' });
   aliases.push({ alias: `${item.surface}/${item.legacyId}`, targets: [item.canonicalId], kind: 'NAMESPACE_ID', resolution: 'unique' });
 }
-for (const [legacyId, targets] of [...conceptsByLegacyId.entries()].sort(([left], [right]) => left.localeCompare(right))) {
+for (const [legacyId, targets] of [...conceptsByLegacyId.entries()].sort(([left], [right]) => compareStableText(left, right))) {
   aliases.push({
     alias: legacyId,
     targets,

@@ -3,6 +3,8 @@
 // page cross-links, observables, and failure boundaries; it never carries the
 // manuscript title, author identity, or raw external-post references.
 
+import { compareStableText } from './order.js';
+
 export const INTEGRATED_MARKET_AI_FRAMEWORK_PACK_VERSION = 'integrated-market-ai-framework-pack.v1';
 
 const clean = (value) => String(value == null ? '' : value).replace(/\s+/g, ' ').trim();
@@ -451,7 +453,7 @@ export const INTEGRATED_KNOWLEDGE_CONCEPTS = Object.freeze(frameworks.map((frame
   sourceIds: [],
   linkedConceptIds: Object.freeze([...framework.linkedConceptIds])
 })));
-export const INTEGRATED_KNOWLEDGE_ALIASES = Object.freeze([...aliasMap.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([alias, targets]) => Object.freeze({ alias, targets: Object.freeze(unique(targets)), kind: 'STRUCTURAL_TERM', resolution: targets.length === 1 ? 'unique' : 'multi-framework' })));
+export const INTEGRATED_KNOWLEDGE_ALIASES = Object.freeze([...aliasMap.entries()].sort(([a], [b]) => compareStableText(a, b)).map(([alias, targets]) => Object.freeze({ alias, targets: Object.freeze(unique(targets)), kind: 'STRUCTURAL_TERM', resolution: targets.length === 1 ? 'unique' : 'multi-framework' })));
 export const INTEGRATED_MARKET_AI_ARTICLES = Object.freeze(frameworks.map((framework) => Object.freeze({
   schemaVersion: 'knowledge-framework-article.v1',
   articleId: framework.conceptId,

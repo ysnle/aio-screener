@@ -2291,6 +2291,718 @@
   ],
   "aliases": [
     {
+      "alias": "AI CAPEX와 신용시장",
+      "targets": [
+        "integrated-frameworks:ai-capex-financing-and-credit"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "AI capex financing",
+      "targets": [
+        "integrated-frameworks:ai-capex-financing-and-credit"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "AI moat erosion",
+      "targets": [
+        "integrated-frameworks:ai-moat-strength-or-erosion"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "AI 가치사슬",
+      "targets": [
+        "integrated-frameworks:ai-value-chain-to-cashflow"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "AI 가치사슬에서 현금흐름까지",
+      "targets": [
+        "integrated-frameworks:ai-value-chain-to-cashflow"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "AI 구축 인플레이션과 장기 디플레이션",
+      "targets": [
+        "integrated-frameworks:buildout-inflation-longrun-deflation"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "AI 노동시장",
+      "targets": [
+        "integrated-frameworks:labor-productivity-distribution"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "AI 사이클 종료",
+      "targets": [
+        "integrated-frameworks:ai-cycle-stop-signals"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "AI 사이클의 종료 조건",
+      "targets": [
+        "integrated-frameworks:ai-cycle-stop-signals"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "AI 생산성의 귀속과 노동 충격",
+      "targets": [
+        "integrated-frameworks:labor-productivity-distribution"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "AI 수익화",
+      "targets": [
+        "integrated-frameworks:monetization-and-unit-economics"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "AI 유동성 집중과 되돌림",
+      "targets": [
+        "integrated-frameworks:liquidity-concentration-flow-reversal"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "AI 인프라의 자본 사이클",
+      "targets": [
+        "integrated-frameworks:capital-cycle-supply-response"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "AI 인플레이션",
+      "targets": [
+        "integrated-frameworks:buildout-inflation-longrun-deflation"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "AI 자금조달",
+      "targets": [
+        "integrated-frameworks:ai-capex-financing-and-credit"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "AI 정보 평준화",
+      "targets": [
+        "integrated-frameworks:information-parity-thesis-ownership"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "AI 해자",
+      "targets": [
+        "integrated-frameworks:ai-moat-strength-or-erosion"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "AI는 해자를 강화하기도 없애기도 한다",
+      "targets": [
+        "integrated-frameworks:ai-moat-strength-or-erosion"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "AI의 수익화는 사용량보다 지불 구조",
+      "targets": [
+        "integrated-frameworks:monetization-and-unit-economics"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "CAPEX 검증",
+      "targets": [
+        "integrated-frameworks:ai-cycle-stop-signals"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "CAPEX·가동률·감가상각·FCF 연결",
+      "targets": [
+        "integrated-frameworks:capex-utilization-depreciation-fcf"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "CAPEX와 FCF",
+      "targets": [
+        "integrated-frameworks:capex-utilization-depreciation-fcf"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "FCF",
+      "targets": [
+        "integrated-frameworks:roic-cost-capital-fcf"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "GPU가 아닌 시스템 처리량",
+      "targets": [
+        "integrated-frameworks:system-throughput-and-data-movement"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "HBM 대역폭",
+      "targets": [
+        "integrated-frameworks:system-throughput-and-data-movement"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "QE",
+      "targets": [
+        "integrated-frameworks:qe-qt-financial-conditions"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "QE·QT는 금융조건의 조정",
+      "targets": [
+        "integrated-frameworks:qe-qt-financial-conditions"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "QT",
+      "targets": [
+        "integrated-frameworks:qe-qt-financial-conditions"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "ROIC",
+      "targets": [
+        "integrated-frameworks:roic-cost-capital-fcf"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "SaaS 대체",
+      "targets": [
+        "integrated-frameworks:ai-moat-strength-or-erosion"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "agent workflow productivity",
+      "targets": [
+        "integrated-frameworks:agent-workflow-productivity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "agent-workflow-productivity",
+      "targets": [
+        "integrated-frameworks:agent-workflow-productivity"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "ai-capex-financing-and-credit",
+      "targets": [
+        "integrated-frameworks:ai-capex-financing-and-credit"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "ai-cycle-stop-signals",
+      "targets": [
+        "integrated-frameworks:ai-cycle-stop-signals"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "ai-moat-strength-or-erosion",
+      "targets": [
+        "integrated-frameworks:ai-moat-strength-or-erosion"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "ai-value-chain-to-cashflow",
+      "targets": [
+        "integrated-frameworks:ai-value-chain-to-cashflow"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "bottleneck",
+      "targets": [
+        "integrated-frameworks:bottleneck-duration-substitutability"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "bottleneck-duration-substitutability",
+      "targets": [
+        "integrated-frameworks:bottleneck-duration-substitutability"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "buildout inflation",
+      "targets": [
+        "integrated-frameworks:buildout-inflation-longrun-deflation"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "buildout-inflation-longrun-deflation",
+      "targets": [
+        "integrated-frameworks:buildout-inflation-longrun-deflation"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "capacity cycle",
+      "targets": [
+        "integrated-frameworks:capital-cycle-supply-response"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "capex-utilization-depreciation-fcf",
+      "targets": [
+        "integrated-frameworks:capex-utilization-depreciation-fcf"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "capital cycle",
+      "targets": [
+        "integrated-frameworks:capital-cycle-supply-response"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "capital-cycle-supply-response",
+      "targets": [
+        "integrated-frameworks:capital-cycle-supply-response"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "cash option",
+      "targets": [
+        "integrated-frameworks:cash-as-opportunity-cost"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "cash-as-opportunity-cost",
+      "targets": [
+        "integrated-frameworks:cash-as-opportunity-cost"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "collateral feedback",
+      "targets": [
+        "integrated-frameworks:collateral-trust-feedback"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "collateral-trust-feedback",
+      "targets": [
+        "integrated-frameworks:collateral-trust-feedback"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "cost-to-serve",
+      "targets": [
+        "integrated-frameworks:monetization-and-unit-economics"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "cycle stop signals",
+      "targets": [
+        "integrated-frameworks:ai-cycle-stop-signals"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "discount rate",
+      "targets": [
+        "integrated-frameworks:rates-as-time-and-money-price"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "financial conditions",
+      "targets": [
+        "integrated-frameworks:qe-qt-financial-conditions"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "financial vs physical capital",
+      "targets": [
+        "integrated-frameworks:financial-vs-physical-capital-speed"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "financial-vs-physical-capital-speed",
+      "targets": [
+        "integrated-frameworks:financial-vs-physical-capital-speed"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "flow concentration",
+      "targets": [
+        "integrated-frameworks:liquidity-concentration-flow-reversal"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "inference economics",
+      "targets": [
+        "integrated-frameworks:inference-economics-and-rebound"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "inference-economics-and-rebound",
+      "targets": [
+        "integrated-frameworks:inference-economics-and-rebound"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "inflation expectations",
+      "targets": [
+        "integrated-frameworks:inflation-expectations-transmission"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "inflation-expectations-transmission",
+      "targets": [
+        "integrated-frameworks:inflation-expectations-transmission"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "information-parity-thesis-ownership",
+      "targets": [
+        "integrated-frameworks:information-parity-thesis-ownership"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "labor displacement",
+      "targets": [
+        "integrated-frameworks:labor-productivity-distribution"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "labor-productivity-distribution",
+      "targets": [
+        "integrated-frameworks:labor-productivity-distribution"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "leverage-survival-optionality",
+      "targets": [
+        "integrated-frameworks:leverage-survival-optionality"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "liquidity",
+      "targets": [
+        "integrated-frameworks:liquidity-credit-risk-appetite"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "liquidity-concentration-flow-reversal",
+      "targets": [
+        "integrated-frameworks:liquidity-concentration-flow-reversal"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "liquidity-credit-risk-appetite",
+      "targets": [
+        "integrated-frameworks:liquidity-credit-risk-appetite"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "monetization-and-unit-economics",
+      "targets": [
+        "integrated-frameworks:monetization-and-unit-economics"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "nominal vs real",
+      "targets": [
+        "integrated-frameworks:real-vs-nominal-purchasing-power"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "opportunity cost",
+      "targets": [
+        "integrated-frameworks:cash-as-opportunity-cost"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "power as compute",
+      "targets": [
+        "integrated-frameworks:power-as-compute-input"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "power-as-compute-input",
+      "targets": [
+        "integrated-frameworks:power-as-compute-input"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "price value expectations",
+      "targets": [
+        "integrated-frameworks:price-value-expectation-gap"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "price-value-expectation-gap",
+      "targets": [
+        "integrated-frameworks:price-value-expectation-gap"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "purchasing power",
+      "targets": [
+        "integrated-frameworks:real-vs-nominal-purchasing-power"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "qe-qt-financial-conditions",
+      "targets": [
+        "integrated-frameworks:qe-qt-financial-conditions"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "rates-as-time-and-money-price",
+      "targets": [
+        "integrated-frameworks:rates-as-time-and-money-price"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "real-vs-nominal-purchasing-power",
+      "targets": [
+        "integrated-frameworks:real-vs-nominal-purchasing-power"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "risk factor diversification",
+      "targets": [
+        "integrated-frameworks:risk-driver-diversification-and-compounding"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "risk-driver-diversification-and-compounding",
+      "targets": [
+        "integrated-frameworks:risk-driver-diversification-and-compounding"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "roic-cost-capital-fcf",
+      "targets": [
+        "integrated-frameworks:roic-cost-capital-fcf"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "scarcity duration",
+      "targets": [
+        "integrated-frameworks:bottleneck-duration-substitutability"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "survival optionality",
+      "targets": [
+        "integrated-frameworks:leverage-survival-optionality"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "system-throughput-and-data-movement",
+      "targets": [
+        "integrated-frameworks:system-throughput-and-data-movement"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "term premium",
+      "targets": [
+        "integrated-frameworks:yield-decomposition-and-curve-cause"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "thesis ownership",
+      "targets": [
+        "integrated-frameworks:information-parity-thesis-ownership"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "utilization depreciation",
+      "targets": [
+        "integrated-frameworks:capex-utilization-depreciation-fcf"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "value chain cashflow",
+      "targets": [
+        "integrated-frameworks:ai-value-chain-to-cashflow"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "who pays",
+      "targets": [
+        "integrated-frameworks:monetization-and-unit-economics"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
+      "alias": "yield-decomposition-and-curve-cause",
+      "targets": [
+        "integrated-frameworks:yield-decomposition-and-curve-cause"
+      ],
+      "kind": "STRUCTURAL_TERM",
+      "resolution": "unique"
+    },
+    {
       "alias": "가격·가치·기대의 간격",
       "targets": [
         "integrated-frameworks:price-value-expectation-gap"
@@ -2966,718 +3678,6 @@
       "alias": "회사채와 AI",
       "targets": [
         "integrated-frameworks:ai-capex-financing-and-credit"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "agent workflow productivity",
-      "targets": [
-        "integrated-frameworks:agent-workflow-productivity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "agent-workflow-productivity",
-      "targets": [
-        "integrated-frameworks:agent-workflow-productivity"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "AI 가치사슬",
-      "targets": [
-        "integrated-frameworks:ai-value-chain-to-cashflow"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "AI 가치사슬에서 현금흐름까지",
-      "targets": [
-        "integrated-frameworks:ai-value-chain-to-cashflow"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "AI 구축 인플레이션과 장기 디플레이션",
-      "targets": [
-        "integrated-frameworks:buildout-inflation-longrun-deflation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "AI 노동시장",
-      "targets": [
-        "integrated-frameworks:labor-productivity-distribution"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "AI 사이클 종료",
-      "targets": [
-        "integrated-frameworks:ai-cycle-stop-signals"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "AI 사이클의 종료 조건",
-      "targets": [
-        "integrated-frameworks:ai-cycle-stop-signals"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "AI 생산성의 귀속과 노동 충격",
-      "targets": [
-        "integrated-frameworks:labor-productivity-distribution"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "AI 수익화",
-      "targets": [
-        "integrated-frameworks:monetization-and-unit-economics"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "AI 유동성 집중과 되돌림",
-      "targets": [
-        "integrated-frameworks:liquidity-concentration-flow-reversal"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "AI 인프라의 자본 사이클",
-      "targets": [
-        "integrated-frameworks:capital-cycle-supply-response"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "AI 인플레이션",
-      "targets": [
-        "integrated-frameworks:buildout-inflation-longrun-deflation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "AI 자금조달",
-      "targets": [
-        "integrated-frameworks:ai-capex-financing-and-credit"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "AI 정보 평준화",
-      "targets": [
-        "integrated-frameworks:information-parity-thesis-ownership"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "AI 해자",
-      "targets": [
-        "integrated-frameworks:ai-moat-strength-or-erosion"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "AI capex financing",
-      "targets": [
-        "integrated-frameworks:ai-capex-financing-and-credit"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "AI CAPEX와 신용시장",
-      "targets": [
-        "integrated-frameworks:ai-capex-financing-and-credit"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "AI moat erosion",
-      "targets": [
-        "integrated-frameworks:ai-moat-strength-or-erosion"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "ai-capex-financing-and-credit",
-      "targets": [
-        "integrated-frameworks:ai-capex-financing-and-credit"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "ai-cycle-stop-signals",
-      "targets": [
-        "integrated-frameworks:ai-cycle-stop-signals"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "ai-moat-strength-or-erosion",
-      "targets": [
-        "integrated-frameworks:ai-moat-strength-or-erosion"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "ai-value-chain-to-cashflow",
-      "targets": [
-        "integrated-frameworks:ai-value-chain-to-cashflow"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "AI는 해자를 강화하기도 없애기도 한다",
-      "targets": [
-        "integrated-frameworks:ai-moat-strength-or-erosion"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "AI의 수익화는 사용량보다 지불 구조",
-      "targets": [
-        "integrated-frameworks:monetization-and-unit-economics"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "bottleneck",
-      "targets": [
-        "integrated-frameworks:bottleneck-duration-substitutability"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "bottleneck-duration-substitutability",
-      "targets": [
-        "integrated-frameworks:bottleneck-duration-substitutability"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "buildout inflation",
-      "targets": [
-        "integrated-frameworks:buildout-inflation-longrun-deflation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "buildout-inflation-longrun-deflation",
-      "targets": [
-        "integrated-frameworks:buildout-inflation-longrun-deflation"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "capacity cycle",
-      "targets": [
-        "integrated-frameworks:capital-cycle-supply-response"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "CAPEX 검증",
-      "targets": [
-        "integrated-frameworks:ai-cycle-stop-signals"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "capex-utilization-depreciation-fcf",
-      "targets": [
-        "integrated-frameworks:capex-utilization-depreciation-fcf"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "CAPEX·가동률·감가상각·FCF 연결",
-      "targets": [
-        "integrated-frameworks:capex-utilization-depreciation-fcf"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "CAPEX와 FCF",
-      "targets": [
-        "integrated-frameworks:capex-utilization-depreciation-fcf"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "capital cycle",
-      "targets": [
-        "integrated-frameworks:capital-cycle-supply-response"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "capital-cycle-supply-response",
-      "targets": [
-        "integrated-frameworks:capital-cycle-supply-response"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "cash option",
-      "targets": [
-        "integrated-frameworks:cash-as-opportunity-cost"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "cash-as-opportunity-cost",
-      "targets": [
-        "integrated-frameworks:cash-as-opportunity-cost"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "collateral feedback",
-      "targets": [
-        "integrated-frameworks:collateral-trust-feedback"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "collateral-trust-feedback",
-      "targets": [
-        "integrated-frameworks:collateral-trust-feedback"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "cost-to-serve",
-      "targets": [
-        "integrated-frameworks:monetization-and-unit-economics"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "cycle stop signals",
-      "targets": [
-        "integrated-frameworks:ai-cycle-stop-signals"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "discount rate",
-      "targets": [
-        "integrated-frameworks:rates-as-time-and-money-price"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "FCF",
-      "targets": [
-        "integrated-frameworks:roic-cost-capital-fcf"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "financial conditions",
-      "targets": [
-        "integrated-frameworks:qe-qt-financial-conditions"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "financial vs physical capital",
-      "targets": [
-        "integrated-frameworks:financial-vs-physical-capital-speed"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "financial-vs-physical-capital-speed",
-      "targets": [
-        "integrated-frameworks:financial-vs-physical-capital-speed"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "flow concentration",
-      "targets": [
-        "integrated-frameworks:liquidity-concentration-flow-reversal"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "GPU가 아닌 시스템 처리량",
-      "targets": [
-        "integrated-frameworks:system-throughput-and-data-movement"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "HBM 대역폭",
-      "targets": [
-        "integrated-frameworks:system-throughput-and-data-movement"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "inference economics",
-      "targets": [
-        "integrated-frameworks:inference-economics-and-rebound"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "inference-economics-and-rebound",
-      "targets": [
-        "integrated-frameworks:inference-economics-and-rebound"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "inflation expectations",
-      "targets": [
-        "integrated-frameworks:inflation-expectations-transmission"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "inflation-expectations-transmission",
-      "targets": [
-        "integrated-frameworks:inflation-expectations-transmission"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "information-parity-thesis-ownership",
-      "targets": [
-        "integrated-frameworks:information-parity-thesis-ownership"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "labor displacement",
-      "targets": [
-        "integrated-frameworks:labor-productivity-distribution"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "labor-productivity-distribution",
-      "targets": [
-        "integrated-frameworks:labor-productivity-distribution"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "leverage-survival-optionality",
-      "targets": [
-        "integrated-frameworks:leverage-survival-optionality"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "liquidity",
-      "targets": [
-        "integrated-frameworks:liquidity-credit-risk-appetite"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "liquidity-concentration-flow-reversal",
-      "targets": [
-        "integrated-frameworks:liquidity-concentration-flow-reversal"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "liquidity-credit-risk-appetite",
-      "targets": [
-        "integrated-frameworks:liquidity-credit-risk-appetite"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "monetization-and-unit-economics",
-      "targets": [
-        "integrated-frameworks:monetization-and-unit-economics"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "nominal vs real",
-      "targets": [
-        "integrated-frameworks:real-vs-nominal-purchasing-power"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "opportunity cost",
-      "targets": [
-        "integrated-frameworks:cash-as-opportunity-cost"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "power as compute",
-      "targets": [
-        "integrated-frameworks:power-as-compute-input"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "power-as-compute-input",
-      "targets": [
-        "integrated-frameworks:power-as-compute-input"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "price value expectations",
-      "targets": [
-        "integrated-frameworks:price-value-expectation-gap"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "price-value-expectation-gap",
-      "targets": [
-        "integrated-frameworks:price-value-expectation-gap"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "purchasing power",
-      "targets": [
-        "integrated-frameworks:real-vs-nominal-purchasing-power"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "QE",
-      "targets": [
-        "integrated-frameworks:qe-qt-financial-conditions"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "qe-qt-financial-conditions",
-      "targets": [
-        "integrated-frameworks:qe-qt-financial-conditions"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "QE·QT는 금융조건의 조정",
-      "targets": [
-        "integrated-frameworks:qe-qt-financial-conditions"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "QT",
-      "targets": [
-        "integrated-frameworks:qe-qt-financial-conditions"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "rates-as-time-and-money-price",
-      "targets": [
-        "integrated-frameworks:rates-as-time-and-money-price"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "real-vs-nominal-purchasing-power",
-      "targets": [
-        "integrated-frameworks:real-vs-nominal-purchasing-power"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "risk factor diversification",
-      "targets": [
-        "integrated-frameworks:risk-driver-diversification-and-compounding"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "risk-driver-diversification-and-compounding",
-      "targets": [
-        "integrated-frameworks:risk-driver-diversification-and-compounding"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "ROIC",
-      "targets": [
-        "integrated-frameworks:roic-cost-capital-fcf"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "roic-cost-capital-fcf",
-      "targets": [
-        "integrated-frameworks:roic-cost-capital-fcf"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "SaaS 대체",
-      "targets": [
-        "integrated-frameworks:ai-moat-strength-or-erosion"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "scarcity duration",
-      "targets": [
-        "integrated-frameworks:bottleneck-duration-substitutability"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "survival optionality",
-      "targets": [
-        "integrated-frameworks:leverage-survival-optionality"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "system-throughput-and-data-movement",
-      "targets": [
-        "integrated-frameworks:system-throughput-and-data-movement"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "term premium",
-      "targets": [
-        "integrated-frameworks:yield-decomposition-and-curve-cause"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "thesis ownership",
-      "targets": [
-        "integrated-frameworks:information-parity-thesis-ownership"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "utilization depreciation",
-      "targets": [
-        "integrated-frameworks:capex-utilization-depreciation-fcf"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "value chain cashflow",
-      "targets": [
-        "integrated-frameworks:ai-value-chain-to-cashflow"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "who pays",
-      "targets": [
-        "integrated-frameworks:monetization-and-unit-economics"
-      ],
-      "kind": "STRUCTURAL_TERM",
-      "resolution": "unique"
-    },
-    {
-      "alias": "yield-decomposition-and-curve-cause",
-      "targets": [
-        "integrated-frameworks:yield-decomposition-and-curve-cause"
       ],
       "kind": "STRUCTURAL_TERM",
       "resolution": "unique"
