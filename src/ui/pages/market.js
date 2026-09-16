@@ -942,10 +942,18 @@ function renderBreadth(root, page, charts, store) {
   const participation = evidence.available && typeof root?.AIO_ARCH?.classifyBreadthParticipation === 'function'
     ? root.AIO_ARCH.classifyBreadthParticipation({ sma20: evidence.sma20, sma50: evidence.sma50, sma20Delta: historyEvidence.available ? historyEvidence.sma20Delta : null })
     : { available: false };
-  writeText(stageNode, participation.available ? `${participation.level}${participation.direction ? ` · ${participation.direction}` : ''}` : '현재 참여도 미수신');
+  // Internal enum tokens must not reach the Korean UI. Share the legacy mapping
+  // (js/aio-ui.js) so both breadth writers describe the same states (P1078).
+  const PARTICIPATION_LEVEL = { broad: '광범위 참여', neutral: '중립', narrow: '쏠림 장세' };
+  const PARTICIPATION_DIRECTION = { rising: ' · 확대', falling: ' · 위축', flat: ' · 보합' };
+  const PARTICIPATION_TONE = { broad: 'var(--data-green)', neutral: 'var(--data-amber)', narrow: 'var(--data-red)' };
+  const participationLabel = participation.available
+    ? (PARTICIPATION_LEVEL[participation.level] || String(participation.level || '')) + (participation.direction ? (PARTICIPATION_DIRECTION[participation.direction] || '') : '')
+    : '현재 참여도 미수신';
+  writeText(stageNode, participationLabel);
   if (stageNode) {
     stageNode.dataset.aioBreadthStageRenderer = 'native';
-    stageNode.style.color = participation.available ? 'var(--text-primary)' : 'var(--text-muted)';
+    stageNode.style.color = participation.available ? (PARTICIPATION_TONE[participation.level] || 'var(--text-primary)') : 'var(--text-muted)';
     writeLineage(stageNode, participation.available ? sourceKind : 'unavailable', participation.available ? source : 'breadth participation unavailable');
   }
   const mcclellanNode = page.querySelector('#breadth-mcclellan-summary');

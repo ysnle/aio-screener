@@ -1,0 +1,15 @@
+# Byte-exact artifact contracts must survive checkout unchanged.
+#
+# `public-data/objects/**` files are named by the sha256 of their own bytes and
+# are re-verified in the browser (src/ui/pages/masters.js) and by
+# scripts/ci-masters-contract-check.mjs. `core.autocrlf=true` rewrote them to
+# CRLF on Windows, which broke both the gate and the page (P1074). `-text`
+# disables every line-ending and encoding conversion for these paths.
+#
+# The broader `* text=auto eol=lf` normalization is intentionally NOT applied
+# here: it rewrites the working tree of every tracked text file and must land as
+# its own reviewed renormalization commit rather than ride along with a fix.
+public-data/objects/** -text
+
+# Binary artifacts that must never be normalized either.
+*.png binary

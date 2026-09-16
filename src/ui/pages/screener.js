@@ -140,22 +140,41 @@ function entryTiming(row) {
 }
 
 function liveRow(row, readLiveData) {
+  const live = readLiveData?.()?.[row.sym] || {};
+  const rowCurrency = String(row.instrumentRef?.currency || row.currency || '').trim().toUpperCase() || null;
+  const liveCurrency = String(live.currency || '').trim().toUpperCase() || null;
+  const marketCapCurrency = String(live.marketCapCurrency || liveCurrency || '').trim().toUpperCase() || null;
+  // `_liveData[sym]` is keyed by symbol, so a live entry that does not declare a
+  // currency is still this instrument's own quote. Only an explicitly
+  // conflicting currency keeps the price out of the row (P1074).
+  const currencyConflict = !!liveCurrency && !!rowCurrency && liveCurrency !== rowCurrency;
+  const livePrice = rowCurrency && !currencyConflict ? finite(live.price) : null;
+  const liveMcap = marketCapCurrency === 'USD' && finite(live.marketCap) != null ? Math.round(live.marketCap / 1e9) : null;
+  // A live quote is quoted evidence in its own right, so it carries the basis the
+  // price cell renders in its title. Without this the overlay would show a value
+  // whose observation time and source read as unknown (P1074).
+  const liveBasis = livePrice != null
+    ? { priceObservedAt: live.observedAt || live.ts || null, priceSource: live.source || null, priceRevision: live.revision || null }
+    : null;
+
   if (row.fieldReadiness) {
     const display = { ...row };
     for (const definition of SCREENER_FIELD_REGISTRY.fields) {
       if (!definition.fieldId.startsWith('identity.')) display[definition.rowKey] = fieldValueForPurpose(row, definition.fieldId, 'display');
     }
+    // The field-readiness contract gates what a row may display; it does not own
+    // the live quote projection. Without this overlay the price column has no
+    // owner at all between the narrowed legacy updater (mcap only) and native
+    // state, so every row would read 미수신 forever (P1074).
+    if (display.price == null && livePrice != null) Object.assign(display, { price: livePrice }, liveBasis);
+    if (display.mcap == null && liveMcap != null) display.mcap = liveMcap;
     return display;
   }
-  const live = readLiveData?.()?.[row.sym] || {};
-  const rowCurrency = String(row.instrumentRef?.currency || row.currency || '').trim().toUpperCase() || null;
-  const liveCurrency = String(live.currency || '').trim().toUpperCase() || null;
-  const marketCapCurrency = String(live.marketCapCurrency || liveCurrency || '').trim().toUpperCase() || null;
-  const compatiblePrice = rowCurrency && liveCurrency && rowCurrency === liveCurrency ? finite(live.price) : null;
   return {
     ...row,
-    price: compatiblePrice ?? row.price,
-    mcap: marketCapCurrency === 'USD' && finite(live.marketCap) != null ? Math.round(live.marketCap / 1e9) : row.mcap
+    price: livePrice ?? row.price,
+    mcap: liveMcap ?? row.mcap,
+    ...(livePrice != null && row.price == null ? liveBasis : {})
   };
 }
 
@@ -220,6 +239,29 @@ export function filterRows(rows, documentRef, { readWatchlist, readAliases } = {
 
 export function visibleRank(row) {
   return row?.screenStatus === 'unavailable' || row?.screenStatus === 'rejected' ? null : finite(row?.rank);
+}
+
+// Single source of truth for the displayed grade. A rejected row keeps its raw
+// rank, so the grade cell must read the same visible rank the rank cell shows —
+// otherwise a row labelled 조건 미충족 displays a grade (P1078).
+export function rankGrade(rank) {
+  const value = finite(rank);
+  return value == null ? null : value >= 80 ? 'A' : value >= 65 ? 'B' : value >= 50 ? 'C' : value >= 35 ? 'D' : 'F';
+}
+
+// The rank filter used to label thresholds with a different grade scale than the
+// grade column (60 → "B" while the column renders C). Derive the labels from
+// rankGrade so the page cannot offer two definitions of the same grade (P1078).
+export function syncRankFilterLabels(documentRef) {
+  const select = documentRef?.getElementById?.('scr-min-rank');
+  if (!select || !select.options) return false;
+  Array.prototype.slice.call(select.options).forEach((option) => {
+    const threshold = Number(option.value || 0);
+    if (!Number.isFinite(threshold) || threshold <= 0) return;
+    const grade = rankGrade(threshold);
+    if (grade) option.textContent = `${threshold} (${grade})`;
+  });
+  return true;
 }
 
 export function sortRows(rows, sortColumn, ascending, readLiveData) {
@@ -299,7 +341,7 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     return wrap;
   }
   if (key === 'rank') return createRankNode(documentRef, row);
-  if (key === 'grade') return row.screenStatus === 'unavailable' || row.rank == null ? '—' : row.rank >= 80 ? 'A' : row.rank >= 65 ? 'B' : row.rank >= 50 ? 'C' : row.rank >= 35 ? 'D' : 'F';
+  if (key === 'grade') return rankGrade(visibleRank(row)) || '—';
   if (key === 'sym') {
     const identity = documentRef.createElement('div');
     const symbol = documentRef.createElement('div');
@@ -908,6 +950,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
         bag.add(() => suppliedMaterialBridge.remove());
       }
       const liveReader = readLiveData || (() => root?._liveData || {});
+      syncRankFilterLabels(documentRef);
       const watchlistReader = readWatchlist || (() => root?._aioWatchlistGet?.() || []);
       const aliasReader = readAliases || (() => root?.SCR_KEYWORD_ALIASES || {});
       const profileReader = () => root?._aioGetActiveProfile?.() || 'balanced';

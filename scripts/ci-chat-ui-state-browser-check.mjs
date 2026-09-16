@@ -35,7 +35,7 @@ try {
     aborted: fixtureRun.controller.signal.aborted,
     active: getChatState('home').streaming,
     messages: getChatState('home').messages.length,
-    pending: document.querySelectorAll('.chat-dots,.chat-cursor,#chat-home-stop,#chat-home-streaming').length,
+    pending: document.querySelectorAll('.chat-dots,.chat-cursor,#chat-home-btn-stop,#chat-home-streaming').length,
     status: document.querySelector('[role="status"]')?.textContent,
   })), { aborted: true, active: false, messages: 2, pending: 0, status: '답변 생성이 중지되었습니다.' });
   assert(await page.evaluate(() => {
@@ -48,9 +48,9 @@ try {
     const old = _aioBeginChatRequest('home', '이전');
     const fresh = _aioBeginChatRequest('home', '새 요청');
     _aioReleaseChatRequest(old);
-    const isolated = old.controller.signal.aborted && _aioIsCurrentChatRequest('home', fresh) && document.querySelectorAll('#chat-home-stop').length === 1;
+    const isolated = old.controller.signal.aborted && _aioIsCurrentChatRequest('home', fresh) && document.querySelectorAll('#chat-home-btn-stop').length === 1;
     _aioReleaseChatRequest(fresh);
-    return isolated && !document.querySelector('#chat-home-stop') && !getChatState('home').streaming;
+    return isolated && !document.querySelector('#chat-home-btn-stop') && !getChatState('home').streaming;
   }));
   const shell = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
   const historyStart = shell.indexOf("const CHAT_HISTORY_LS =");

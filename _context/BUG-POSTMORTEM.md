@@ -1,13 +1,68 @@
 ---
 verified_by: Codex local source review and affected QA; full semantic audit remains open
-last_verified: 2026-09-11
+last_verified: 2026-09-16
 confidence: medium
-latest_version: v54.96
-latest_P_number: P1073
-next_P_number: P1074
-current_total_entries: 781 (P1~P1067, 결번 존재 — 상세 + 압축 원장)
-current_checkpoint: P1013~P1033 exhaustive audit in progress; publication/runtime/QA topology and selected page semantics reviewed; full-tree semantic review remains open
+latest_version: v54.98
+latest_P_number: P1078
+next_P_number: P1079
+current_total_entries: 493 tracked entries (320 headings + 173 compacted lines, P1~P1078, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
+current_checkpoint: P1013~P1033 exhaustive audit in progress; publication/runtime/QA topology and selected page semantics reviewed; full-tree semantic review remains open (current coverage 6.89%, releaseCertified=false)
 ---
+
+## P1078 - v54.98 - 같은 라벨이 두 정의를 가리키던 수치 표면 6건 (2026-09-16)
+
+- symptom/reproduction: (1) 스크리너 `등급` 셀이 `row.rank`를 직접 읽어, 순위 셀이 `조건 미충족`을 표시하는 rejected 행에도 `A`가 나왔다(`visibleRank`는 rejected/unavailable을 null로 만드는데 등급만 이를 무시). (2) 같은 페이지의 랭크 필터가 `60 (B)`, `70 (B+)`, `40 (C등급)`으로 라벨링됐지만 실제 등급 임계는 ≥80 A·≥65 B·≥50 C·≥35 D라서 선택값과 표시 등급이 어긋났다. (3) breadth `시장 참여도`에 내부 enum(`broad · rising` 등)이 그대로 노출됐다. (4) `시장 폭 시그널 (RSP/SPY)` 라벨을 단 요소는 native에서 `advanceRatio`(0.55/0.45)로 계산되고 있었다. (5) technical `마켓 폭` 라벨의 값은 50일선 상회율이 아니라 **당일 섹터 ETF 상승 비율**이었다(코드 주석이 이미 인정). (6) technical `MACD` 카드가 writer에 따라 MACD 라인(2자리, 부호 없음)과 히스토그램(1자리, 부호 있음)을 같은 셀에 썼다.
+- root_cause: 하나의 사용자 라벨에 대해 두 개의 정의·기저·단위가 병존했다. 등급은 셀과 필터가 각자 임계를 하드코딩했고, breadth 시그널 라벨은 native 소유권 이전 이전의 legacy 기준(RSP/SPY)을 유지했고, MACD는 두 writer가 서로 다른 필드를 읽었다.
+- fix: `screener.js`에 `rankGrade()`를 단일 등급 함수로 추가하고 등급 셀이 `rankGrade(visibleRank(row))`를 쓰도록 했으며, `syncRankFilterLabels()`가 필터 라벨을 같은 함수에서 파생하게 했다(정적 라벨도 실제 경계 40/50/65/80으로 교정). breadth 참여도는 legacy와 동일한 한국어 매핑·색을 native에서 사용한다. 라벨 2건을 실제 기저(`상승/하락 비율`, `섹터 ETF 상승 비율`)로 교정했다. MACD는 히스토그램(`macd − signal`)을 기저로 통일하고, 제공자가 히스토그램을 주지 않아 라인으로 폴백할 때는 title에 `히스토그램 아님`을 명시한다.
+- violated_rule: R602.
+- prevention: `_artifacts/full-review-20260916/tools/probe-screener-grade.mjs`가 rejected/unavailable 행에 등급이 붙지 않는지, 경계 65/50/35가 맞는지, 필터 라벨이 `rankGrade`에서 파생되는지를 순수 함수 + DOM 양쪽에서 검증한다.
+- 실측 결과: rejected/unavailable → `visibleRank=null`, grade `—`; 경계 65/50/35 → B/C/D; 필터 라벨 `40 (D) · 50 (C) · 65 (B) · 80 (A)`로 불일치 0; 렌더된 12행 위반 0.
+- residual_risk: `"반도체 섹터 어때?"` 같은 섹터 현황 질문의 가드(P1075 잔여), `runAllPageDeepAudits`의 키 21개 순회, `AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY`의 stale lineRange는 여전히 미수정이다. 등급 경계 자체(80/65/50/35)가 투자 기준으로 타당한지는 이번 검토 범위가 아니다.
+- verification: `probe-screener-grade.mjs` 전체 PASS, `qa-runner affected` 112 PASS + 8 CACHED / 0 FAIL / 0 SKIP (11개 그룹), `ci-version-check.mjs` PASS.
+
+## P1077 - v54.98 - 게이트가 죽은 코드 안 문자열을 사용자 출력 증거로 단언했다 (2026-09-16)
+
+- symptom/reproduction: `ci-research-flow-contract-check.mjs`가 같은 파일에 대해 **서로 모순되는 두 계약**을 동시에 단언하고 있었다. `:160`은 "공급 자료는 숨김 프로토콜 메타데이터로만 소비되고 표시 패널이 아니다"를 요구했고, `:123`·`:146`은 브리지가 자료 감사·시계열 정렬·claim 원장을 **렌더한다**고 요구했다. 후자는 `src/ui/knowledge/supplied-material-bridge.js`의 `renderAudit`·`renderSourceTimeline`·`renderMediaAudit`·`renderClaimLedger`·`renderTimeSeries`·`renderFrameworks`·`renderNathanThreads` **7개 함수 안에만 존재하는 문자열**로 충족되고 있었고, 그 함수들은 호출부가 0건인 죽은 코드였다.
+- root_cause: 렌더러가 실제로 호출되는지가 아니라 소스 파일에 특정 문자열이 있는지를 출력 증거로 삼았다. 브리지가 이전 설계의 표시 패널을 그리던 시절의 단언이 그대로 남아, 설계가 "숨김 프로토콜 메타데이터"로 바뀐 뒤에도 통과했다. 그 결과 게이트는 사용자 출력에 대해 아무것도 증명하지 않으면서 증명한 것처럼 보고했다(66개 경계 단언 중 2건).
+- fix: 죽은 렌더러 7종과 그 전용 헬퍼를 삭제하고(약 230줄), 두 단언을 실제 계약으로 교체했다. 이제 `:123`은 프로토콜 메타데이터(route·timeseries count·processing boundary)의 존재와 **렌더러 부재**를, `:146`은 claim 원장이 내부 API(`getSuppliedMaterialClaims`·`SUPPLIED_MATERIAL_CLAIM_IDS`)로만 도달하고 사용자 패널로 렌더되지 않음을 단언한다.
+- 설계 확인: 숨김은 결함이 아니라 의도였다. `supplied-material-bridge.js`의 주석과 `dataset.integrationMode = 'internal-protocol-only'`가 "외부 자료는 내부 지식/프로토콜 계층이 소비하며 사용자용 리서치 페이지나 raw-link 인덱스가 아니다"를 명시한다. 초기 의미 검토(H5)는 이를 "출처가 사용자에게 도달하지 않는 결함"으로 분류했으나, **그 분류는 설계 의도를 결함으로 오독한 것이었고 이번에 정정한다**.
+- violated_rule: R601.
+- prevention: `:123`·`:146`이 이제 각각 렌더러 부재를 음성 단언으로 포함하므로, 누군가 표시 패널을 되살리면 게이트가 즉시 실패한다.
+- residual_risk: 공급 자료의 실제 provenance(패킷 id·기준일·직접확인/미확인 건수)는 설계대로 사용자 화면에 나타나지 않는다. 사용자에게 노출할 필요가 생기면 `internal-protocol-only` 경계를 먼저 바꾸고 그때 표시 계약을 새로 작성해야 한다.
+- verification: `ci-research-flow-contract-check.mjs` PASS 66 assertions, browser-knowledge 6/6, browser-surface 3/3.
+- 참고: `scripts/ci-atlas-contract-check.mjs`는 공급 자료 **원본 데이터**(`market-principles` 등)와 mount 호출을 검사하므로 영향 없음.
+
+## P1076 - v54.98 - 계약 감사가 자기 부작용을 검증해 항상 통과했다 (2026-09-16)
+
+- symptom/reproduction: `getPageContractAudit()`가 라우트별 profile·refresh map·deep audit·sequential registry 누락을 검사했지만, 같은 함수가 먼저 호출하는 `applyPageContractCompatibility()`가 그 네 레지스트리를 전부 자동 생성하므로 `missing*`가 항상 빈 배열이었다. 즉 라우트에 페이지 고유 계약이 하나도 없어도 status는 `ok`가 되고, 배포 게이트(`runEvidenceDeploymentGate`)의 "route-page contract/profile/refresh/deep-audit contract incomplete" 차단 조건은 **구조적으로 발화 불가능**했다. headless T913도 이 공허한 `status === 'ok'`를 고정하고 있었다.
+- root_cause: 감사가 "작성된 계약"이 아니라 "자신이 방금 채운 결과"를 검사했다. 파생 항목과 작성 항목을 구분하는 신호가 어디에도 없었고, 항목을 만든 주체(호환 레이어)와 검사하는 주체(감사)가 같았다.
+- fix: 호환 레이어가 항목을 **합성하는 시점에** `window.AIO._aioDerivedContractIds`에 id를 기록하고, 감사는 그 원장으로 작성/파생을 구분해 `derivedDeepAudit`·`derivedSequentialRegistry`·`authoredCoverage`를 반환한다. 파생만 있는 라우트는 `warn`이며 배포 게이트가 경고로 노출하되 차단하지는 않는다(런타임 계약 자체는 충족 가능하므로). T913은 `status ∈ {ok,warn}`을 허용하는 대신 파생 커버리지 보고와 `authoredCoverage === 20 - derived` 일관성을 **추가로** 요구하도록 강화했다.
+- 시행착오(기록): 처음에는 감사 진입 시점에 레지스트리를 스냅샷해 파생 여부를 추론했으나 브라우저 실측에서 `derivedDeepAudit: []`가 나왔다. 부팅 중에 이미 호환 레이어가 실행되어 첫 호출 시점에는 전부 채워져 있었기 때문이며, 이 방식은 최초 호출 순서에 의존해 무효였다. 생성 시점 기록으로 교체한 뒤에야 측정이 맞았다.
+- violated_rule: R600.
+- prevention: `_artifacts/full-review-20260916/tools/probe-page-contract-audit.mjs`가 브라우저에서 감사·배포 게이트·deep audit 요약을 함께 출력해 파생 커버리지가 실제로 보고되는지 검증한다.
+- 실측 결과: `status=warn`, `authoredCoverage.deepAudit=15/20`, `sequentialRegistry=16/20`, `derivedDeepAudit=[market-news, principles, masters, atlas, screener]`, `derivedSequentialRegistry=[principles, masters, atlas, screener]`, `missing*=[]`. 배포 게이트는 `warn`/`deployable=true`로 두 건의 파생 경고를 노출한다.
+- residual_risk: 파생 5개 라우트에 **페이지 고유 계약을 작성하는 것**은 아직 하지 않았다(감사가 이제 그 부재를 보고할 뿐이다). `AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY`의 `lineRange`가 `index.html` 실측과 어긋나고 퇴역 KR 라우트가 `done`으로 남은 문제, `runAllPageDeepAudits`가 라우트 20개 대신 레지스트리 키 21개를 순회하는 문제는 이번 범위 밖이다. `js/aio-core.js`가 27,984/28,000줄로 hotspot 예산이 사실상 소진되어 이 파일의 추가 수정은 감축이나 분해를 강제한다.
+- verification: `probe-page-contract-audit.mjs` 실측(위), preflight 13/13, core 34/34, browser-unit 1/1(headless T913 포함), `ci-decomp-hotspot-check.mjs` PASS.
+
+## P1075 - v54.98 - 질문 분류 축이 수치·현재성 가드의 유일한 스위치였다 (2026-09-16)
+
+- symptom/reproduction: `"삼성전자 실적 어때?"`, `"AAPL PER 얼마야?"`, `"AAPL 밸류에이션 분석해줘"`, `"삼성전자 목표가 어떻게 봐?"`에서 `currentSensitive=false`가 되어 산문 수치 스트립·typed claim drop·market-session 한계 고지·수치 미검증 고지·`untracked_numeric_content` 검증이 **전부** 꺼졌다. 라틴 대문자 티커가 없는 한글 종목명 질문은 `TICKER_PATTERN`에 걸리지 않는데, 퍼지 해석(별칭표)은 같은 질문에서 실시간 시세·재무를 실제로 주입하고 있었다.
+- root_cause: 계측 어휘(`ENTITY_FACT`)는 이미 계산돼 있었지만 `inherentlyCurrent`가 그것을 쓰지 않고 티커 유무·인용 패턴·OUTLOOK에만 의존했다. 즉 가드 스위치가 "가드 대상 콘텐츠"가 아니라 "질문에 라틴 티커가 있는가"라는 대리 변수였다.
+- fix: `inherentlyCurrent`에 계측 질문 조건을 추가하되 EDUCATION-primary 순수 개념 질문(`"PER이 뭐야?"`)은 제외했다. 계측 어휘에 `EPS|FCF|밸류에이션|valuation`을 보강했다.
+- violated_rule: R599.
+- prevention: `_artifacts/full-review-20260916/tools/probe-taxonomy.mjs`가 양성 8건·음성 5건(개념 질문 오탐 방지)을 표로 검증한다.
+- residual_risk: `"반도체 섹터 어때?"` 같은 섹터 현황 질문, 그리고 `hasTicker && 주가` 경로가 HISTORICAL을 검사하지 않는 점은 이번 범위 밖으로 남긴다. 모델이 실제로 계약을 위반하는 빈도는 미측정이다.
+- verification: `probe-taxonomy.mjs` 13/13 기대 충족, preflight 13/13, core 34/34.
+
+## P1074 - v54.98 - 배포를 멈춘 gate 3건, 표시 단위·소유권, 체크아웃 개행 (2026-09-16)
+
+- symptom/reproduction: CI가 2026-09-11 21:21Z 이후 28회 연속 실패해 `Deploy GitHub Pages`가 계속 skipped였고 라이브 사이트가 v54.89(SHA 68bb0713, 2026-09-11)에 5일간 고정됐다. 실패 shard는 `Browser / browser-runtime` 단 1개였고 나머지 shard와 contracts는 모두 success였다. 로컬에서는 `masters-contract`가 phase 1에서 실패해 브라우저 게이트 23개가 전부 SKIP되어 재현 경로 자체가 없었다.
+- root_cause: (1) `ci-chat-ui-state-browser-check.mjs`가 앱에 존재한 적 없는 `#chat-home-stop`을 단언했고 실제 정지 버튼 id는 `chat-home-btn-stop`이었다(git 이력상 앱에는 전무). (2) `ci-architecture-browser-check.mjs`의 `chartKinds` 허용목록이 런타임이 방출하는 정본 tier(`T3_PUBLIC_DELAYED`)를 포함하지 않았다. (3) 스크리너 가격 컬럼은 field-readiness 마이그레이션과 legacy updater 축소(mcap만 유지) 사이에서 live quote 투영 소유자가 사라져 모든 행이 영구히 `미수신`이었고, 게이트의 "quote tick은 새 snapshotId를 만들어야 한다"는 단언은 overlay 이전 설계를 고정한 것이었다. (4) `.gitattributes` 부재로 `core.autocrlf=true` 체크아웃에서 content-addressed 객체 37건이 CRLF로 변환돼 sha256 계약이 깨졌다(Linux CI는 LF라 통과). (5) NFP delta를 서버 단위(천명)에서 다시 `/1000`했다. (6) `_aioUpdatePutCallDom`이 관측 Equity/Index P/C를 `DATA_SNAPSHOT`에 저장하지 않아 OPEX 패널이 total 파생 추정값을 표시했다. (7) carry-unwind 라벨이 실제 입력(미 10Y − 한국 기준금리)과 다른 국가쌍·기준을 주장했다. (8) research degrade 경로가 이미 차단된 답변의 `blocked`를 강제 해제해 차단 본문 아래에 실행 카드를 재부착했다. (9) 뉴스 staleness 배너가 공개 모드 CSS로 차단되고 헤더가 "45분 자동 갱신"을 상시 주장했다.
+- fix: 9건을 근본원인 수준에서 수정했다. gate 2건은 정본 계약(`src/data/contracts/source-kind.js`)과 실제 DOM id를 참조하도록 바꾸고, 스크리너는 `liveRow`가 field-readiness 경로에서도 live quote를 관측시각·출처와 함께 overlay하도록 했으며, `.gitattributes`로 `public-data/objects/**` 변환을 금지하고 555개 객체를 LF로 재적용했다. NFP 이중 환산 제거, 관측 P/C 보존 및 `estimated`를 실제 합성 여부로 정정, carry 라벨 정정, 뉴스 배너 노출·헤더 하향, 차단 게이트 불변식 복원.
+- violated_rule: R596, R597.
+- prevention: `chartKinds` 검증이 정본 어휘 모듈을 참조하므로 tier가 추가되면 gate가 자동으로 따라간다. `ci-screener-auto-refresh-browser-check.mjs`가 quote tick 후 랭킹 스냅샷·frozen hash 불변과 가격 overlay 유지를 함께 단언한다. `.gitattributes`가 바이트 계약 아티팩트를 체크아웃 설정으로부터 보호한다.
+- residual_risk: main 보호 규칙과 staging→attestation 승격은 여전히 미구현이라(QA-EXHAUST-36) 검증 전 revision이 main에 남을 수 있다. semantic coverage는 6.89%로 OPEN이며 본 수정은 표본 심층 검토 결과다. 뉴스 수집 지연은 구조적(GitHub Actions cron 스로틀)이라 문구 하향으로 완화했을 뿐 해소하지 않았다.
+- verification: `masters-contract` PASS, `browser-runtime` 8/8 PASS, `browser-knowledge` 6/6 PASS, preflight 13/13, workspace 9/9, core 34/34, data 21/21. 555개 객체 LF·digest 일치 실측.
 
 ## P1073 - v54.96 - refresh producer contract가 안전한 pre-push 경계를 표현하지 못했다 (2026-09-15)
 

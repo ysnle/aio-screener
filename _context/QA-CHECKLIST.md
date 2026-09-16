@@ -1,6 +1,6 @@
 ---
 verified_by: Codex local source review and affected QA; full semantic audit remains open
-last_verified: 2026-09-06
+last_verified: 2026-09-16
 confidence: medium
 ---
 
@@ -13,6 +13,12 @@ confidence: medium
 - [x] QA-EXHAUST-35: operations alert는 body signature를 포함해 동일 실패 댓글을 dedupe하고 failed job/step 요약과 escalation/reopen/signature-change만 notification을 허용한다 (P1071/R593, workspace contract).
 - [x] QA-EXHAUST-36: refresh-data/refresh-screener는 producer별 `Fail-closed promotion candidate gate before push`와 exact `release_sha` CI dispatch를 갖고 generated workspace state를 data commit에서 분리한다. [ ] staging→CI attestation→promotion 경계는 아직 없어 CI 실패 시 main에 revision이 남을 수 있다 (P1073/R595, `ci-qa-pipeline-contract-check.mjs`).
 - [ ] QA-EXHAUST-37: exact-hash semantic ledger는 자동 gate PASS와 분리해 기록한다. 현재 10,838/157,206 current lines (6.89%), 596/4,611 historical transitions (12.93%), `releaseCertified=false`; 사람 검토·live/provider/production outcome은 미완료다 (P1072/R594).
+- [x] QA-EXHAUST-38: 바이트 계약 아티팩트(`public-data/objects/**`)는 `.gitattributes`로 개행 변환을 금지하고, 런타임 어휘를 검증하는 gate는 손 목록 대신 정본 계약 모듈(`src/data/contracts/source-kind.js`)을 참조하며, 표시 단위 환산은 단일 소유이고 관측값과 합성 추정값이 sink 안에서 구분된다. 스크리너 가격 컬럼은 field-readiness 경로에서도 live quote를 관측시각·출처와 함께 overlay하고, quote tick은 랭킹 스냅샷과 frozen run hash를 바꾸지 않는다 (P1074/R596·R597, `ci-screener-auto-refresh-browser-check.mjs`·`ci-architecture-browser-check.mjs`).
+- [ ] QA-EXHAUST-39: 남은 미검토 의미 표면 — `index.html` 인라인 스크립트 20380~24351·24355~27500, 서사 페이지 본문, `scripts/fetch-data.mjs` 잔여 약 3,200줄, `cloudflare-worker-proxy.js`, `js/aio-tests.js`. semantic coverage 6.89%는 여전히 OPEN이다 (P1074/R594).
+- [x] QA-EXHAUST-40: 수치·현재성 가드의 스위치는 guard 대상 콘텐츠에서 파생한다. `"삼성전자 실적 어때?"`·`"AAPL PER 얼마야?"`·`"AAPL 밸류에이션 분석해줘"`·`"삼성전자 목표가 어떻게 봐?"`는 가드 ON, `"PER이 뭐야?"`·`"PEG가 뭐야?"`·`"RSI가 뭐야?"`·`"이동평균 개념 설명해줘"`는 OFF (P1075/R599, `_artifacts/full-review-20260916/tools/probe-taxonomy.mjs`).
+- [x] QA-EXHAUST-41: 계약 감사는 "작성된 계약"과 "파생 계약"을 구분해 보고하고 자기 부작용을 검증하지 않는다. 실측 라우트 20개 중 deep-audit 작성 커버리지 15, sequential registry 16이며 파생 라우트(시장뉴스·principles·masters·atlas·screener)가 명시된다. 배포 게이트는 이를 경고로 노출하고 차단하지 않는다. [ ] 파생 5개 라우트의 고유 계약 작성과 sequential registry의 stale lineRange·퇴역 라우트 정리는 미완료 (P1076/R600, `_artifacts/full-review-20260916/tools/probe-page-contract-audit.mjs`).
+- [x] QA-EXHAUST-42: 사용자 출력 계약은 렌더된 결과로 단언한다. `ci-research-flow-contract-check.mjs`의 공급 자료 브리지 단언 2건이 죽은 렌더러 문자열 대신 "프로토콜 메타데이터 존재 + 표시 렌더러 부재(음성)"와 "claim 원장은 내부 API로만 도달"을 검사하며, 66개 경계 단언이 PASS한다. 브리지의 `internal-protocol-only` 경계는 유지된다 (P1077/R601).
+- [x] QA-EXHAUST-43: 한 라벨이 두 정의를 가리키지 않는다. 스크리너 등급은 `rankGrade(visibleRank(row))` 단일 함수에서 파생하고 rejected/unavailable 행에는 등급이 없으며, 랭크 필터 라벨도 같은 함수에서 파생된다(실측 `40 (D)·50 (C)·65 (B)·80 (A)`). breadth 참여도는 한국어 매핑, `시장 폭 시그널`은 advance ratio, technical `마켓 폭`은 섹터 ETF 상승 비율, MACD는 히스토그램 기저로 통일됐다 (P1078/R602, `_artifacts/full-review-20260916/tools/probe-screener-grade.mjs`).
 
 ## v54.95 상태 저장소 불변성·구독 격리 (2026-09-12)
 

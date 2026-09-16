@@ -6807,8 +6807,11 @@ async function chatSend(ctxId, _aioDispatchOptions) {
       var _researchEvidenceReady = !_researchRequiredForChat || _pageResearchGate.ready;
       var _publicGate = _pageDoneResult.actionGate;
       if (_researchRequiredForChat && !_researchEvidenceReady) {
+        // Research degradation is a reason to disclose, never a reason to unblock
+        // an answer the claim pipeline already blocked: the early return below
+        // depends on this flag, and its own comment requires that a blocked answer
+        // keep no actionable meaning (P1074).
         _publicGate = Object.assign({}, _publicGate || {}, {
-          blocked: false,
           degraded: true,
           reason: (_researchFailureForChat && _researchFailureForChat.code) || 'RESEARCH_EVIDENCE_UNAVAILABLE'
         });

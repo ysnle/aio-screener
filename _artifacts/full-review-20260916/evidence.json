@@ -1,0 +1,341 @@
+{
+  "schemaVersion": "aio-review-evidence.v1",
+  "reviewId": "full-review-20260916",
+  "reviewedAt": "2026-09-16",
+  "evidenceLevels": ["static", "local-runtime", "github-api"],
+  "notCertified": ["deployed-certification", "full-browser-tier-local", "live-worker-edge-headers"],
+
+  "repository": {
+    "localSha": "9fccf5ff3af4d038c356fe408dd5a7756fc91d44",
+    "branch": "main",
+    "appRevision": "v54.97",
+    "versionNote": "v54.97 — 전체 세션 통합, 증거·백테스트·채팅·데이터 자동화 및 배포 계약 보강",
+    "origin": "https://github.com/ysnle/aio-screener.git",
+    "workingTreeTrackedChanges": 0,
+    "untracked": [".commandcode/"],
+    "localVsRemote": { "ahead": 0, "behind": 0, "diffStat": "" }
+  },
+
+  "github": {
+    "repository": "ysnle/aio-screener",
+    "visibility": "public",
+    "defaultBranch": "main",
+    "pushedAt": "2026-09-16T00:44:56Z",
+    "openIssues": 3,
+    "openAlerts": [
+      { "number": 2, "title": "[Operations] CI is failure", "label": "aio-operations-alert", "createdAt": "2026-09-16T00:48:43Z" },
+      { "number": 3, "title": "[Operations] Deploy GitHub Pages is skipped", "label": "aio-operations-alert", "createdAt": "2026-09-16T00:48:45Z" },
+      { "number": 4, "title": "[Operations] Data freshness watchdog is failure", "label": "aio-operations-alert", "createdAt": "2026-09-16T00:31:57Z" }
+    ],
+    "pages": {
+      "status": "built",
+      "buildType": "workflow",
+      "htmlUrl": "https://ysnle.github.io/aio-screener/",
+      "httpsEnforced": true
+    },
+    "staleRemoteBranches": [
+      { "name": "origin/codex/v54.37-ai-reliability", "behindMain": 424, "aheadMain": 0, "fullyMerged": true }
+    ]
+  },
+
+  "deployment": {
+    "liveAppRevision": "v54.89",
+    "liveSourceSha": "68bb071301960921484110ecce7b0c7a8b0ae273",
+    "liveDeployedAt": "2026-09-11T03:55:53.217Z",
+    "liveDeploymentRunId": 34560256326,
+    "lastSuccessfulPagesDeployRunId": 34560256326,
+    "lastSuccessfulCiRunId": 34647687029,
+    "lastSuccessfulCiAt": "2026-09-11T21:06:23Z",
+    "consecutiveCiFailures": 28,
+    "revisionsBehind": 8,
+    "freezeDays": 5
+  },
+
+  "ciFailureChain": {
+    "failingShard": "Browser / browser-runtime",
+    "failingRunId": 35041284404,
+    "shardSummary": "pass=5 cached=0 fail=3 skip=0 duration=52.7s",
+    "mechanism": [
+      "browser-runtime gate failures -> CI job fail",
+      "attest job not run -> no aio-release-attestation artifact",
+      "pages-deploy.yml:17 requires workflow_run.conclusion == 'success' -> skipped",
+      "live site frozen at v54.89",
+      "watchdog external-pipeline fails on deployed SHA mismatch -> ops alert issue"
+    ],
+    "gates": [
+      {
+        "id": "browser-chat-ui-state",
+        "script": "scripts/ci-chat-ui-state-browser-check.mjs",
+        "scriptLine": 47,
+        "ciError": "AssertionError [ERR_ASSERTION]: false == true",
+        "localReproduced": true,
+        "verdict": "gate-defect (stale selector); product logic correct",
+        "rootCause": "gate asserts #chat-home-stop, which has never existed in the app; _aioBeginChatRequest creates buttonId + '-stop' = 'chat-home-btn-stop'",
+        "evidence": {
+          "appCreatesId": "js/aio-chat.js:1612 (options.stopButtonId || (buttonId + '-stop')), buttonId from js/aio-chat.js:1576 ('chat-' + ctxId + '-btn')",
+          "aiPanelOverride": "index.html:27820 stopButtonId: 'ai-panel-stop'",
+          "historySearch": "git log -S chat-home-stop -- js/aio-chat.js index.html js/aio-core.js js/aio-ui.js => no output (never existed)",
+          "introducedIn": "487d181c (2026-09-11 12:06:36 +0900, 'release: publish complete workspace refresh and integration')",
+          "abTest": {
+            "originalStatus": 1,
+            "patchedStatus": 0,
+            "patch": "#chat-home-stop -> #chat-home-btn-stop",
+            "isolationProbe": { "isolated": true, "leftoverStop": 0, "streaming": false, "oldAborted": true }
+          }
+        }
+      },
+      {
+        "id": "browser-architecture",
+        "script": "scripts/ci-architecture-browser-check.mjs",
+        "scriptLine": 543,
+        "ciError": "fxbond secondary surface failed",
+        "localReproduced": true,
+        "verdict": "gate/vocabulary drift",
+        "rootCause": "chartKinds is read from DOM data-source-kind (script line 212) and compared against allow-list ['unavailable','server-history','live','public-information-service']; runtime emits source-tier token T3_PUBLIC_DELAYED",
+        "observed": { "chartKinds": ["T3_PUBLIC_DELAYED", "unavailable", "unavailable"] },
+        "unaffectedFields": "curveRenderer/carryRenderer/camRenderer/twoYearRenderer/nativeChartMarkers all 'native'; texts non-empty",
+        "tokenUsageElsewhere": ["js/aio-data.js:12898", "js/aio-data.js:13434", "architecture/fixtures/factor-ranks-golden.json"]
+      },
+      {
+        "id": "browser-screener-refresh",
+        "script": "scripts/ci-screener-auto-refresh-browser-check.mjs",
+        "scriptLine": 90,
+        "ciError": "visible prices not rendered: [\"미수신\" x12]",
+        "localReproduced": true,
+        "verdict": "gate-defect (fixture predates quote evidence contract); product fails closed correctly",
+        "rootCause": "fixture injects window._liveData rows lacking quote authority fields; src/data/runtime-readers.js quoteObservation rejects them (evidence_missing) -> live.price null -> '미수신'",
+        "evidence": {
+          "renderPath": "src/ui/pages/screener.js:323-327 (finite(live.price) == null ? '미수신')",
+          "liveRowBranch": "src/ui/pages/screener.js:142-150 (row.fieldReadiness absent -> readLiveData()?.[row.sym]) ; public-data/screener.json fieldReadiness count = 0",
+          "gate": "src/data/runtime-readers.js:48-59 quoteObservation (canonicalSourceTier(envelope.sourceKind)); blocked shape at src/data/runtime-readers.js:462",
+          "fixtureProvides": ["price", "pct", "marketCap", "observedAt", "fetchedAt", "source", "revision", "changeBasis"],
+          "fixtureMissing": ["sourceKind", "allowedUse", "rightsId", "quality/qualityStatus"],
+          "realRowHasThem": "js/aio-data.js:12898",
+          "registrationCheckPassed": "line 89 (registered/visible = 12/12) so quote demand is correct",
+          "unconfirmed": "not yet re-run with a corrected fixture"
+        }
+      }
+    ]
+  },
+
+  "localQaRun": {
+    "command": "node scripts/qa-runner.mjs full --no-cache",
+    "session": "full-review-20260916",
+    "baselineFiles": 2409,
+    "summary": "profile=full pass=99 cached=0 fail=1 skip=23 duration=21.1s",
+    "failures": [
+      {
+        "id": "masters-contract",
+        "script": "scripts/ci-masters-contract-check.mjs",
+        "scriptLine": 137,
+        "error": "[masters-contract] bounded projection digest/bytes drift for blackrock-inc",
+        "ciResult": "PASS on Linux CI",
+        "verdict": "environment-dependent (Windows checkout only); masks the entire browser tier locally",
+        "rootCause": "core.autocrlf=true with no .gitattributes; content-addressed objects are checked out with CRLF so the byte-exact sha256 contract cannot match",
+        "measurements": {
+          "coreAutocrlf": "true",
+          "gitattributesTracked": false,
+          "managersWithShards": 37,
+          "digestMismatches": "37/37",
+          "sampleManager": "blackrock-inc",
+          "crlfPairsPerObject": 10477,
+          "loneLfCount": 0,
+          "diskSha256Prefix": "ccf1fb0fe708",
+          "diskBytes": 370039,
+          "declaredSha256Prefix": "ee8a67440674",
+          "declaredBytes": 359562,
+          "crlfToLfNormalizedSha256Prefix": "ee8a67440674",
+          "normalizedBytes": 359562
+        },
+        "runtimeImpact": "src/ui/pages/masters.js:1151 verifies integrity: descriptor.sha256 client-side and throws 'manager shard integrity mismatch' on failure",
+        "productionUnaffected": {
+          "url": "https://ysnle.github.io/aio-screener/public-data/objects/masters/7594e4c6482287d8291d0b6e8aa4aa2857a52d72e0d1bab8672a81390356c165.json",
+          "status": 200,
+          "crlfPairs": 0,
+          "sha256MatchesDeclared": true,
+          "bytesMatchesDeclared": true
+        },
+        "secondaryProducerDefect": "scripts/build-masters-runtime-artifacts.mjs:105-110 hashes/measures projectionText but writes the object (writeAtomic(projectionFile, projection)) - serialization duplicated"
+      }
+    ],
+    "skippedGates": {
+      "count": 23,
+      "blockedBy": "masters-contract",
+      "reason": "phase 2 gates blocked after phase 1 failure; not produced by _context/gate-baseline-skip-list.json (knownFailures is empty)"
+    }
+  },
+
+  "healthyVerifications": [
+    "local == origin/main == 9fccf5ff, tracked working tree clean",
+    "version.json satisfies all 8 enumerated R1 surfaces plus R419 artifacts",
+    "route set identical across 5 sources (20 routes), zero circular imports",
+    "sync-agent-profiles / sync-agent-skills / generate-workspace-state are locale, newline and ordering deterministic",
+    "qa-runner never launders SKIP into PASS; phase barrier and FAIL propagation enforced",
+    "no secret leakage into public-data or artifacts; Cloudflare deploys are workflow_dispatch only",
+    "knowledge boundary counts 455/313/4/138/160/19-95-73 match produced artifacts exactly (drift 0)",
+    "_context/CURRENT-STATE.md and CONTEXT-CATALOG.json are byte-identical to generator output",
+    "P1071/P1072/P1073 each resolved to a RULES entry, a QA row and an executable gate",
+    "data artifacts belong to a single refresh cycle (2026-09-16T00:27:56Z ... 00:28:12Z)",
+    "backtests use trailing windows only; survivorship/PIT gaps declared in blockers rather than claimed as PASS",
+    "live masters object integrity contract verified end-to-end against the deployed site"
+  ],
+
+  "unverifiedBoundaries": [
+    "20 of 23 browser gates were not executed locally (blocked by masters-contract)",
+    "full CI profile currently red, so no green-CI claim",
+    "live worker, edge headers and provider rights cannot be certified locally",
+    "corrected screener fixture PASS not yet confirmed",
+    "contrast ratios are static sRGB computations, not measured pixels",
+    "some UI/algorithm findings are code-path inferences, not measured real-user frequency",
+    "semantic review was code-path and stored-artifact based; no runtime DOM measurement",
+    "semantic coverage certification is NOT claimed (releaseCertified=false unchanged)"
+  ],
+
+  "browserGateSweep": {
+    "tool": "_artifacts/full-review-20260916/tools/sweep-browser-gates.mjs",
+    "rawResult": "_artifacts/full-review-20260916/browser-gate-sweep.json",
+    "sweptAt": "2026-09-16T01:30:12.274Z",
+    "total": 23,
+    "pass": 18,
+    "fail": 5,
+    "failedIds": ["artifact-budget", "browser-masters", "browser-chat-ui-state", "browser-screener-refresh", "browser-architecture"],
+    "ciRunCrossCheck": {
+      "runId": 35041284404,
+      "note": "every shard passed except Browser / browser-runtime; browser-knowledge passed in CI",
+      "jobs": {
+        "Preflight (cheap blocking gate)": "success",
+        "Contracts / core": "success",
+        "Contracts / data": "success",
+        "Contracts / knowledge": "success",
+        "Contracts / workspace": "success",
+        "Contracts / cloudflare": "success",
+        "Browser / browser-knowledge": "success",
+        "Browser / browser-runtime": "failure",
+        "Browser / browser-unit": "success",
+        "Browser / browser-surface": "success",
+        "Browser / browser-viewport": "success",
+        "Browser / browser-resilience": "success",
+        "Attest exact tested release": "skipped"
+      }
+    },
+    "localOnlyFailures": [
+      {
+        "id": "browser-masters",
+        "script": "scripts/ci-masters-browser-check.mjs",
+        "scriptLine": 80,
+        "ci": "success (browser-knowledge shard)",
+        "localError": "page.waitForFunction: Timeout 30000ms exceeded",
+        "waitsFor": "document.getElementById('page-masters')?.dataset.aioMastersSelectedShard === 'connected'",
+        "rootCause": "CRLF checkout breaks the content-addressed projection sha256 verified client-side at src/ui/pages/masters.js:1151"
+      },
+      {
+        "id": "artifact-budget",
+        "script": "scripts/ci-three-page-artifact-budget-check.mjs",
+        "scriptLine": 87,
+        "ci": "success (browser-knowledge shard)",
+        "localError": "page.waitForFunction: Timeout 30000ms exceeded",
+        "waitsFor": "same aioMastersSelectedShard === 'connected' state; line 89 also asserts the /public-data/objects/masters/<64hex>.json request",
+        "rootCause": "same CRLF masters-object integrity defect"
+      }
+    ],
+    "ciBlockingFailures": ["browser-chat-ui-state", "browser-architecture", "browser-screener-refresh"]
+  },
+
+  "semanticReview": {
+    "standard": "_context/RULES.md:2011-2028 (R219: Audit/gate is not semantic review)",
+    "report": "_artifacts/full-review-20260916/SEMANTIC-REVIEW.md",
+    "declaredBoundary": {
+      "currentSemanticallyReviewedLines": 10838,
+      "codeConfigCurrentLines": 157206,
+      "currentCoveragePct": 6.89,
+      "historyReviewedTransitions": 596,
+      "codeHistoryTransitions": 4611,
+      "historyCoveragePct": 12.93,
+      "releaseCertified": false,
+      "fullyReviewedFiles": 118,
+      "codeConfigFiles": 427,
+      "ledgerAsOf": "2026-09-12T15:14:32.071Z",
+      "ledgerScopeHead": "6ef2561d3cc1cdc010693812a6796556d02c6db4",
+      "ledgerMatchesHead": false,
+      "ledgerFreshnessGate": "absent"
+    },
+    "zeroCoverageRuntimeSurfaces": {
+      "index.html": 28283,
+      "js/aio-core.js": 27755,
+      "js/aio-data.js": 16472,
+      "js/aio-tests.js": 9253,
+      "js/aio-chat.js": 7921,
+      "js/aio-ui.js": 4343,
+      "cloudflare-worker-proxy.js": 724
+    },
+    "blockers": [
+      {
+        "id": "B1-nfp-delta",
+        "verifiedByPrimaryAgent": true,
+        "title": "NFP MoM delta always renders 0 due to double unit conversion",
+        "evidence": {
+          "write": "js/aio-data.js:5562-5563 (dynamic key '_' + k + 'Delta')",
+          "value": "public-data/data.json:157 nfpDelta=141 (thousands)",
+          "render": "js/aio-data.js:6015 divides by 1000 with suffix 'K vs 전월'",
+          "math": "141/1000=0.141 -> toFixed(0) -> '0'",
+          "asymmetry": "js/aio-data.js:6011-6018 renders the other deltas without conversion"
+        }
+      },
+      {
+        "id": "B2-news-stale-banner-hidden",
+        "verifiedByPrimaryAgent": true,
+        "title": "News staleness warning is suppressed by CSS in public mode while the header claims 45-minute auto refresh",
+        "evidence": {
+          "hiddenRule": "index.html:4971 body:not(.aio-dev-mode) #news-stale-banner",
+          "inlineDefault": "index.html:11820 style=\"display:none\"",
+          "jsAttemptsToShow": "js/aio-data.js:6369, js/aio-data.js:12501",
+          "headerClaims": "index.html:11781,11829,11831",
+          "selfContradictingTooltip": "index.html:6385",
+          "storedCapture": "_artifacts/desktop-browser-audit/report.json:1449"
+        }
+      }
+    ],
+    "highFindings": [
+      { "id": "H1-chat-blocked-gate-override", "verifiedByPrimaryAgent": true, "detail": "js/aio-chat.js:6808-6815 forces blocked=false on a copy, defeating the early return at :6836; the file's own comment at :6833-6835 states the invariant it breaks" },
+      { "id": "H2-currentSensitive-single-axis", "verifiedByPrimaryAgent": true, "detail": "src/ai/intent/taxonomy.js:105-109 misses Korean tickers, 실적/밸류에이션/PER/EPS/목표가; the single flag gates 5 guards in js/aio-chat.js:239,250,268,274,302,304,306,430,436 and src/ai/response/claim-ledger.js:76" },
+      { "id": "H3-synthetic-equity-index-pcr", "verifiedByPrimaryAgent": true, "detail": "js/aio-data.js:2695-2700 synthesizes from total PCR because DATA_SNAPSHOT.equityPutCall/indexPutCall is never written (:16015 writes only .pcr); observed data.json:1875-1876 values are discarded; consumed via js/aio-ui.js:1846-1847 -> js/aio-core.js:20760-20767" },
+      { "id": "H4-carry-unwind-label-mismatch", "verifiedByPrimaryAgent": true, "detail": "js/aio-data.js:16245 computes US 10Y minus BOK policy rate but :16264 labels it '미일 정책금리 차 (BOJ 수동 확인값 기준)'; scoring at :16254 depends on it" },
+      { "id": "H5-supplied-material-provenance-unreachable", "verifiedByPrimaryAgent": true, "detail": "createSuppliedMaterialBridge is mounted by 10+ pages but its renderers (renderClaimLedger/renderMediaAudit/renderSourceTimeline/renderNathanThreads) have zero call sites; visible output is one hidden sentence (src/ui/knowledge/supplied-material-bridge.js:247-267)" },
+      { "id": "H6-H7-screener-grade-vs-rank", "verifiedByPrimaryAgent": true, "detail": "src/ui/pages/screener.js:302 grades from row.rank without checking screenStatus, while rank hides as 조건 미충족 (:222,247-248); index.html:12166-12167 filter labels use a different grade scale" },
+      { "id": "H8-H11-native-quant-surface-definitions", "verifiedByPrimaryAgent": true, "detail": "Breadth participation enum leaked raw (src/ui/pages/market.js:941-945), 시장 폭 시그널 (RSP/SPY) label vs advanceRatio basis (:906-921 vs js/aio-data.js:3583,3609-3615), technical 마켓 폭 = sector ETF advance share (index.html:24845-24859), MACD cell written as line or histogram depending on writer (js/aio-data.js:4990-4994 vs index.html:15883-15898)" },
+      { "id": "H12-H14-currentness-labels", "verifiedByPrimaryAgent": true, "detail": "topbar badge labels possibly-delayed quotes 실시간 (js/aio-core.js:4561, js/aio-data.js:13785 vs index.html:9726,11147); fxbond detail shows both 실시간 and 15분 지연 가능 (index.html:9723 vs 9726); briefing analysis timestamp is render time not observation time (js/aio-core.js:27373)" },
+      { "id": "H15-briefing-archive-advice", "verifiedByPrimaryAgent": false, "detail": "static archive carries price targets and beneficiary calls (index.html:8057-8059,8046)" },
+      { "id": "H16-aio-core-vacuous-contract-audit", "verifiedByPrimaryAgent": false, "detail": "getPageContractAudit auto-fills the very things it checks (js/aio-core.js:25260-25289 + :25211-25247); 16 of 20 routes have deep audits (PAGE_DEEP_AUDIT_SYSTEMS :16116-16134 vs 20 routes :24846-24851); sequential registry line ranges and retired routes are stale (:9803,10116,10183-10264)" }
+    ],
+    "gateSemantics": {
+      "semanticCoverageIsAdvisory": "scripts/ci-semantic-review-check.mjs:66-73 asserts only that the ledger exists, is not certified and is in range; the 6.89% figure is a warning (:74,110) and does not affect exit code (by design per P1072/R594)",
+      "qualityAssertionIsCountBased": "scripts/ci-semantic-review-check.mjs:60 requires >=50 audit-like and >=50 shape/coverage assertion labels",
+      "researchFlowContractIsShapeOnly": "scripts/ci-research-flow-contract-check.mjs:123,146 assert strings that exist only inside dead renderer functions; :160 asserts the literal 'section.hidden = true'; :138/150/151 restate registry literals",
+      "ungatedDefects": ["NFP unit", "synthetic PCR", "carry-unwind label", "screener grade/rank", "MACD basis", "breadth label/basis", "news stale banner visibility"]
+    },
+    "correctionToAgentReport": "#news-risk-label default colour is var(--data-red) at index.html:11792, not green; the false all-clear conclusion stands",
+    "auditClassification": {
+      "defined": 103,
+      "deeplyReviewed": 31,
+      "shapeOnly": 16,
+      "semantic": 15
+    },
+    "reviewedSurfaces": [
+      "js/aio-core.js audit/readiness surface + routing lifecycle",
+      "js/aio-data.js freshness/quality/fallback/derived/screener layer (~1900 lines)",
+      "js/aio-chat.js answer pipeline, guards, disclosure and render path",
+      "index.html screener/breadth/technical/signal sections",
+      "index.html home/briefing/news/sentiment/macro/fxbond/portfolio narrative surfaces",
+      "declared-unreviewed modules: supplied materials, portfolio page, atlas gaps, fetch-data semantic layer"
+    ],
+    "notReviewed": [
+      "index.html inline script 20380-24351 and 24355-27500 (most)",
+      "sentiment/briefing/fundamental/themes/ticker/portfolio/macro/fxbond page bodies",
+      "js/aio-chat.js non-answer ranges (660-2695, 2755-4260, 4699-5120, 7420-7921)",
+      "scripts/fetch-data.mjs remaining ~3200 lines",
+      "cloudflare-worker-proxy.js (724 lines)",
+      "js/aio-tests.js (9253 lines)",
+      "runtime DOM measurement (no browser/server run)"
+    ]
+  }
+}

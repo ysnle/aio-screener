@@ -1,0 +1,2010 @@
+diff --git a/_artifacts/accessibility-matrix-audit.json b/_artifacts/accessibility-matrix-audit.json
+index 0cbda2e6..6f8def98 100644
+--- a/_artifacts/accessibility-matrix-audit.json
++++ b/_artifacts/accessibility-matrix-audit.json
+@@ -1,6 +1,6 @@
+ {
+   "schemaVersion": "aio-accessibility-evidence.v2",
+-  "observedAt": "2026-09-12T03:33:54.664Z",
++  "observedAt": "2026-09-16T01:29:14.567Z",
+   "scope": "desktop-only",
+   "viewport": {
+     "name": "desktop1440",
+@@ -21,65 +21,8 @@
+       "fontUnder10": [],
+       "smallTargetViolationCount": 0,
+       "smallTargetViolations": [],
+-      "smallTargetExceptionCount": 8,
+-      "smallTargetExceptions": [
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Trader Jesse",
+-          "width": 63,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Mark Minervini",
+-          "width": 80,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Humble",
+-          "width": 42,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "김두한",
+-          "width": 36,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "ProblemSniper",
+-          "width": 78,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "세력연구소 | Wyckoff Lab",
+-          "width": 135,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        }
+-      ],
++      "smallTargetExceptionCount": 0,
++      "smallTargetExceptions": [],
+       "skipLink": true,
+       "modalContracts": []
+     },
+@@ -96,65 +39,8 @@
+       "fontUnder10": [],
+       "smallTargetViolationCount": 0,
+       "smallTargetViolations": [],
+-      "smallTargetExceptionCount": 8,
+-      "smallTargetExceptions": [
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Trader Jesse",
+-          "width": 63,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Mark Minervini",
+-          "width": 80,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Humble",
+-          "width": 42,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "김두한",
+-          "width": 36,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "ProblemSniper",
+-          "width": 78,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "세력연구소 | Wyckoff Lab",
+-          "width": 135,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        }
+-      ],
++      "smallTargetExceptionCount": 0,
++      "smallTargetExceptions": [],
+       "skipLink": true,
+       "modalContracts": []
+     },
+@@ -171,65 +57,8 @@
+       "fontUnder10": [],
+       "smallTargetViolationCount": 0,
+       "smallTargetViolations": [],
+-      "smallTargetExceptionCount": 8,
+-      "smallTargetExceptions": [
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Trader Jesse",
+-          "width": 63,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Mark Minervini",
+-          "width": 80,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Humble",
+-          "width": 42,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "김두한",
+-          "width": 36,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "ProblemSniper",
+-          "width": 78,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "세력연구소 | Wyckoff Lab",
+-          "width": 135,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        }
+-      ],
++      "smallTargetExceptionCount": 0,
++      "smallTargetExceptions": [],
+       "skipLink": true,
+       "modalContracts": []
+     },
+@@ -246,65 +75,8 @@
+       "fontUnder10": [],
+       "smallTargetViolationCount": 0,
+       "smallTargetViolations": [],
+-      "smallTargetExceptionCount": 8,
+-      "smallTargetExceptions": [
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Trader Jesse",
+-          "width": 63,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Mark Minervini",
+-          "width": 80,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Humble",
+-          "width": 42,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "김두한",
+-          "width": 36,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "ProblemSniper",
+-          "width": 78,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "세력연구소 | Wyckoff Lab",
+-          "width": 135,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        }
+-      ],
++      "smallTargetExceptionCount": 0,
++      "smallTargetExceptions": [],
+       "skipLink": true,
+       "modalContracts": []
+     },
+@@ -321,65 +93,8 @@
+       "fontUnder10": [],
+       "smallTargetViolationCount": 0,
+       "smallTargetViolations": [],
+-      "smallTargetExceptionCount": 8,
+-      "smallTargetExceptions": [
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Trader Jesse",
+-          "width": 63,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Mark Minervini",
+-          "width": 80,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Humble",
+-          "width": 42,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "김두한",
+-          "width": 36,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "ProblemSniper",
+-          "width": 78,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "세력연구소 | Wyckoff Lab",
+-          "width": 135,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        }
+-      ],
++      "smallTargetExceptionCount": 0,
++      "smallTargetExceptions": [],
+       "skipLink": true,
+       "modalContracts": []
+     },
+@@ -396,65 +111,8 @@
+       "fontUnder10": [],
+       "smallTargetViolationCount": 0,
+       "smallTargetViolations": [],
+-      "smallTargetExceptionCount": 8,
+-      "smallTargetExceptions": [
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Trader Jesse",
+-          "width": 63,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Mark Minervini",
+-          "width": 80,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Humble",
+-          "width": 42,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "김두한",
+-          "width": 36,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "ProblemSniper",
+-          "width": 78,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "세력연구소 | Wyckoff Lab",
+-          "width": 135,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        }
+-      ],
++      "smallTargetExceptionCount": 0,
++      "smallTargetExceptions": [],
+       "skipLink": true,
+       "modalContracts": []
+     },
+@@ -471,65 +129,8 @@
+       "fontUnder10": [],
+       "smallTargetViolationCount": 0,
+       "smallTargetViolations": [],
+-      "smallTargetExceptionCount": 8,
+-      "smallTargetExceptions": [
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Trader Jesse",
+-          "width": 63,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Mark Minervini",
+-          "width": 80,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Humble",
+-          "width": 42,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "김두한",
+-          "width": 36,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "ProblemSniper",
+-          "width": 78,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "세력연구소 | Wyckoff Lab",
+-          "width": 135,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        }
+-      ],
++      "smallTargetExceptionCount": 0,
++      "smallTargetExceptions": [],
+       "skipLink": true,
+       "modalContracts": []
+     },
+@@ -546,65 +147,8 @@
+       "fontUnder10": [],
+       "smallTargetViolationCount": 0,
+       "smallTargetViolations": [],
+-      "smallTargetExceptionCount": 8,
+-      "smallTargetExceptions": [
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Trader Jesse",
+-          "width": 63,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Mark Minervini",
+-          "width": 80,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Humble",
+-          "width": 42,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "김두한",
+-          "width": 36,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "ProblemSniper",
+-          "width": 78,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "세력연구소 | Wyckoff Lab",
+-          "width": 135,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        }
+-      ],
++      "smallTargetExceptionCount": 0,
++      "smallTargetExceptions": [],
+       "skipLink": true,
+       "modalContracts": []
+     },
+@@ -621,65 +165,8 @@
+       "fontUnder10": [],
+       "smallTargetViolationCount": 0,
+       "smallTargetViolations": [],
+-      "smallTargetExceptionCount": 8,
+-      "smallTargetExceptions": [
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Trader Jesse",
+-          "width": 63,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Mark Minervini",
+-          "width": 80,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Humble",
+-          "width": 42,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "김두한",
+-          "width": 36,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "ProblemSniper",
+-          "width": 78,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "세력연구소 | Wyckoff Lab",
+-          "width": 135,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        }
+-      ],
++      "smallTargetExceptionCount": 0,
++      "smallTargetExceptions": [],
+       "skipLink": true,
+       "modalContracts": []
+     },
+@@ -696,65 +183,8 @@
+       "fontUnder10": [],
+       "smallTargetViolationCount": 0,
+       "smallTargetViolations": [],
+-      "smallTargetExceptionCount": 8,
+-      "smallTargetExceptions": [
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Trader Jesse",
+-          "width": 63,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Mark Minervini",
+-          "width": 80,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Humble",
+-          "width": 42,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "김두한",
+-          "width": 36,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "ProblemSniper",
+-          "width": 78,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "세력연구소 | Wyckoff Lab",
+-          "width": 135,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        }
+-      ],
++      "smallTargetExceptionCount": 0,
++      "smallTargetExceptions": [],
+       "skipLink": true,
+       "modalContracts": []
+     },
+@@ -771,65 +201,8 @@
+       "fontUnder10": [],
+       "smallTargetViolationCount": 0,
+       "smallTargetViolations": [],
+-      "smallTargetExceptionCount": 8,
+-      "smallTargetExceptions": [
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Trader Jesse",
+-          "width": 63,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Mark Minervini",
+-          "width": 80,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Humble",
+-          "width": 42,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "김두한",
+-          "width": 36,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "ProblemSniper",
+-          "width": 78,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "세력연구소 | Wyckoff Lab",
+-          "width": 135,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        }
+-      ],
++      "smallTargetExceptionCount": 0,
++      "smallTargetExceptions": [],
+       "skipLink": true,
+       "modalContracts": []
+     },
+@@ -846,65 +219,8 @@
+       "fontUnder10": [],
+       "smallTargetViolationCount": 0,
+       "smallTargetViolations": [],
+-      "smallTargetExceptionCount": 8,
+-      "smallTargetExceptions": [
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Trader Jesse",
+-          "width": 63,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Mark Minervini",
+-          "width": 80,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Humble",
+-          "width": 42,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "김두한",
+-          "width": 36,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "ProblemSniper",
+-          "width": 78,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "세력연구소 | Wyckoff Lab",
+-          "width": 135,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        }
+-      ],
++      "smallTargetExceptionCount": 0,
++      "smallTargetExceptions": [],
+       "skipLink": true,
+       "modalContracts": []
+     },
+@@ -921,65 +237,8 @@
+       "fontUnder10": [],
+       "smallTargetViolationCount": 0,
+       "smallTargetViolations": [],
+-      "smallTargetExceptionCount": 8,
+-      "smallTargetExceptions": [
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Trader Jesse",
+-          "width": 63,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Mark Minervini",
+-          "width": 80,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Humble",
+-          "width": 42,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "김두한",
+-          "width": 36,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "ProblemSniper",
+-          "width": 78,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "세력연구소 | Wyckoff Lab",
+-          "width": 135,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        }
+-      ],
++      "smallTargetExceptionCount": 0,
++      "smallTargetExceptions": [],
+       "skipLink": true,
+       "modalContracts": []
+     },
+@@ -996,65 +255,8 @@
+       "fontUnder10": [],
+       "smallTargetViolationCount": 0,
+       "smallTargetViolations": [],
+-      "smallTargetExceptionCount": 8,
+-      "smallTargetExceptions": [
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Trader Jesse",
+-          "width": 63,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Mark Minervini",
+-          "width": 80,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Humble",
+-          "width": 42,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "김두한",
+-          "width": 36,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "ProblemSniper",
+-          "width": 78,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "세력연구소 | Wyckoff Lab",
+-          "width": 135,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        }
+-      ],
++      "smallTargetExceptionCount": 0,
++      "smallTargetExceptions": [],
+       "skipLink": true,
+       "modalContracts": []
+     },
+@@ -1071,65 +273,8 @@
+       "fontUnder10": [],
+       "smallTargetViolationCount": 0,
+       "smallTargetViolations": [],
+-      "smallTargetExceptionCount": 8,
+-      "smallTargetExceptions": [
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Trader Jesse",
+-          "width": 63,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Mark Minervini",
+-          "width": 80,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Humble",
+-          "width": 42,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "김두한",
+-          "width": 36,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "ProblemSniper",
+-          "width": 78,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "세력연구소 | Wyckoff Lab",
+-          "width": 135,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        }
+-      ],
++      "smallTargetExceptionCount": 0,
++      "smallTargetExceptions": [],
+       "skipLink": true,
+       "modalContracts": []
+     },
+@@ -1200,65 +345,8 @@
+       "fontUnder10": [],
+       "smallTargetViolationCount": 0,
+       "smallTargetViolations": [],
+-      "smallTargetExceptionCount": 8,
+-      "smallTargetExceptions": [
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Trader Jesse",
+-          "width": 63,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Mark Minervini",
+-          "width": 80,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Nathan | Factomind",
+-          "width": 104,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "Humble",
+-          "width": 42,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "김두한",
+-          "width": 36,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "ProblemSniper",
+-          "width": 78,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        },
+-        {
+-          "id": "",
+-          "text": "세력연구소 | Wyckoff Lab",
+-          "width": 135,
+-          "height": 16,
+-          "exception": "wcag-inline-text"
+-        }
+-      ],
++      "smallTargetExceptionCount": 0,
++      "smallTargetExceptions": [],
+       "skipLink": true,
+       "modalContracts": []
+     },
+diff --git a/_artifacts/boot-interaction-report.json b/_artifacts/boot-interaction-report.json
+index 51fd4da3..036e960a 100644
+--- a/_artifacts/boot-interaction-report.json
++++ b/_artifacts/boot-interaction-report.json
+@@ -1,8 +1,8 @@
+ {
+   "schemaVersion": "aio-boot-performance-evidence.v1",
+-  "observedAt": "2026-09-11T02:51:44.930Z",
+-  "appRevision": "v54.87",
+-  "gitHead": "2f5a8cbbdabd16b56ff9240f8db42debe0db77e5",
++  "observedAt": "2026-09-16T01:28:43.131Z",
++  "appRevision": "v54.97",
++  "gitHead": "9fccf5ff3af4d038c356fe408dd5a7756fc91d44",
+   "gitClean": false,
+   "environment": {
+     "browser": "chromium",
+@@ -16,19 +16,19 @@
+   "targetStatus": "TARGET_COMPLIANT",
+   "targetFailures": [],
+   "metrics": {
+-    "fcpMs": 1520,
+-    "dclMs": 377,
+-    "loadMs": 380,
+-    "maxLongTaskMs": 96,
+-    "totalLongTaskMs": 275,
+-    "longTaskCount": 4,
++    "fcpMs": 1504,
++    "dclMs": 349,
++    "loadMs": 353,
++    "maxLongTaskMs": 87,
++    "totalLongTaskMs": 225,
++    "longTaskCount": 3,
+     "longTaskObservationWindowMs": 2000,
+-    "domNodes": 6884,
+-    "activeRouteDomNodes": 1031,
++    "domNodes": 6487,
++    "activeRouteDomNodes": 661,
+     "activePage": "page-signal",
+     "bootStatusPresent": false,
+-    "routeMs": 57,
+-    "wallMs": 8097,
++    "routeMs": 66,
++    "wallMs": 8079,
+     "totalExternalRequests": 148,
+     "quoteRequests": 41,
+     "initialExternalRequests": 12,
+diff --git a/_artifacts/critical10-human-surface-audit.json b/_artifacts/critical10-human-surface-audit.json
+index 5ecaf52b..79d738d2 100644
+--- a/_artifacts/critical10-human-surface-audit.json
++++ b/_artifacts/critical10-human-surface-audit.json
+@@ -1,5 +1,5 @@
+ {
+-  "version": "v54.87",
++  "version": "v54.97",
+   "viewport": {
+     "width": 1440,
+     "height": 1000
+@@ -8,8 +8,8 @@
+     {
+       "routeId": "home",
+       "status": "ok",
+-      "focusableCount": 22,
+-      "pageTitle": "시장 현황 v54.87",
++      "focusableCount": 14,
++      "pageTitle": "시장 현황 v54.97",
+       "audit": {
+         "status": "ok",
+         "hierarchy": {
+@@ -36,10 +36,10 @@
+               "developerSurfaceVisible": 0,
+               "blockers": [],
+               "warnings": [],
+-              "headerText": "오늘 결론판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/11/08:00 KST시점 부분 일치신뢰도 66% 보통 시장 판단은 가격, 심리, 뉴스 신선도를 함께 확인합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI"
++              "headerText": "오늘 결론판단 보류 · 필수 현재성 근거 미수신 데이터: 미수신공통컷 09/16/08:00 KST시점 불일치신뢰도 35% 낮음 시장 판단은 가격, 심리, 뉴스 신선도를 함께 확인합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI 분석"
+             }
+           ],
+-          "generatedAt": "2026-09-11T02:53:19.353Z"
++          "generatedAt": "2026-09-16T01:29:01.455Z"
+         },
+         "accessibility": {
+           "status": "ok",
+@@ -62,9 +62,9 @@
+               "chartIssues": []
+             }
+           ],
+-          "generatedAt": "2026-09-11T02:53:19.356Z"
++          "generatedAt": "2026-09-16T01:29:01.458Z"
+         },
+-        "generatedAt": "2026-09-11T02:53:19.356Z"
++        "generatedAt": "2026-09-16T01:29:01.458Z"
+       },
+       "tabSequence": [
+         {
+@@ -151,12 +151,6 @@
+           "name": "비트코인",
+           "tabindex": "0"
+         },
+-        {
+-          "tag": "SUMMARY",
+-          "id": "",
+-          "name": "배경 자료와 확인 질문 보기 · 8개 주제",
+-          "tabindex": ""
+-        },
+         {
+           "tag": "BUTTON",
+           "id": "",
+@@ -210,13 +204,19 @@
+           "id": "",
+           "name": "차트 · 기술 분석 페이지",
+           "tabindex": "0"
++        },
++        {
++          "tag": "DIV",
++          "id": "",
++          "name": "거시경제 페이지",
++          "tabindex": "0"
+         }
+       ]
+     },
+     {
+       "routeId": "signal",
+       "status": "ok",
+-      "focusableCount": 15,
++      "focusableCount": 7,
+       "pageTitle": "지금 거래해야 할까?",
+       "audit": {
+         "status": "ok",
+@@ -244,10 +244,10 @@
+               "developerSurfaceVisible": 0,
+               "blockers": [],
+               "warnings": [],
+-              "headerText": "신규 매수 가능 여부판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/11/08:00 KST시점 부분 일치신뢰도 66% 보통 신규 매수 판단은 거래 점수와 breadth/뉴스 검증을 함께 통과해야 합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury y"
++              "headerText": "신규 매수 가능 여부판단 보류 · 필수 현재성 근거 미수신 데이터: 미수신공통컷 09/16/08:00 KST시점 불일치신뢰도 35% 낮음 신규 매수 판단은 거래 점수와 breadth/뉴스 검증을 함께 통과해야 합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개"
+             }
+           ],
+-          "generatedAt": "2026-09-11T02:53:19.827Z"
++          "generatedAt": "2026-09-16T01:29:01.874Z"
+         },
+         "accessibility": {
+           "status": "ok",
+@@ -270,9 +270,9 @@
+               "chartIssues": []
+             }
+           ],
+-          "generatedAt": "2026-09-11T02:53:19.829Z"
++          "generatedAt": "2026-09-16T01:29:01.875Z"
+         },
+-        "generatedAt": "2026-09-11T02:53:19.829Z"
++        "generatedAt": "2026-09-16T01:29:01.875Z"
+       },
+       "tabSequence": [
+         {
+@@ -317,12 +317,6 @@
+           "name": "투자 심리 → F&G · VIX · AAII · Put/Call · HY OAS",
+           "tabindex": ""
+         },
+-        {
+-          "tag": "SUMMARY",
+-          "id": "",
+-          "name": "배경 자료와 확인 질문 보기 · 9개 주제",
+-          "tabindex": ""
+-        },
+         {
+           "tag": "BUTTON",
+           "id": "",
+@@ -418,13 +412,19 @@
+           "id": "",
+           "name": "시장 원리 페이지",
+           "tabindex": "0"
++        },
++        {
++          "tag": "DIV",
++          "id": "",
++          "name": "대가의 포트폴리오 페이지",
++          "tabindex": "0"
+         }
+       ]
+     },
+     {
+       "routeId": "breadth",
+       "status": "ok",
+-      "focusableCount": 8,
++      "focusableCount": 0,
+       "pageTitle": "시장 폭 분석",
+       "audit": {
+         "status": "ok",
+@@ -452,10 +452,10 @@
+               "developerSurfaceVisible": 0,
+               "blockers": [],
+               "warnings": [],
+-              "headerText": "시장 폭 판단판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/11/08:00 KST시점 부분 일치신뢰도 66% 보통 Breadth는 스냅샷/계산 지표가 섞여 있어 방향성 참고로 낮춰 해석합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield "
++              "headerText": "시장 폭 판단판단 보류 · 필수 현재성 근거 미수신 데이터: 스냅샷공통컷 09/16/08:00 KST시점 부분 일치신뢰도 66% 보통 Breadth는 스냅샷/계산 지표가 섞여 있어 방향성 참고로 낮춰 해석합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 "
+             }
+           ],
+-          "generatedAt": "2026-09-11T02:53:20.204Z"
++          "generatedAt": "2026-09-16T01:29:02.240Z"
+         },
+         "accessibility": {
+           "status": "ok",
+@@ -478,17 +478,11 @@
+               "chartIssues": []
+             }
+           ],
+-          "generatedAt": "2026-09-11T02:53:20.206Z"
++          "generatedAt": "2026-09-16T01:29:02.240Z"
+         },
+-        "generatedAt": "2026-09-11T02:53:20.206Z"
++        "generatedAt": "2026-09-16T01:29:02.240Z"
+       },
+       "tabSequence": [
+-        {
+-          "tag": "SUMMARY",
+-          "id": "",
+-          "name": "배경 자료와 확인 질문 보기 · 7개 주제",
+-          "tabindex": ""
+-        },
+         {
+           "tag": "BUTTON",
+           "id": "",
+@@ -626,13 +620,19 @@
+           "id": "sidebar-api-key",
+           "name": "sk-ant-api03-…",
+           "tabindex": ""
++        },
++        {
++          "tag": "BUTTON",
++          "id": "",
++          "name": "저장",
++          "tabindex": ""
+         }
+       ]
+     },
+     {
+       "routeId": "sentiment",
+       "status": "ok",
+-      "focusableCount": 9,
++      "focusableCount": 1,
+       "pageTitle": "투자 심리",
+       "audit": {
+         "status": "ok",
+@@ -660,10 +660,10 @@
+               "developerSurfaceVisible": 0,
+               "blockers": [],
+               "warnings": [],
+-              "headerText": "심리 결론판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/11/08:00 KST시점 일치신뢰도 66% 보통 F&G/VIX는 현재성 우선, AAII/PutCall류는 발표 주기 차이를 감안합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield "
++              "headerText": "심리 결론판단 보류 · 필수 현재성 근거 미수신 데이터: 미수신공통컷 09/16/08:00 KST시점 불일치신뢰도 35% 낮음 F&G/VIX는 현재성 우선, AAII/PutCall류는 발표 주기 차이를 감안합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재"
+             }
+           ],
+-          "generatedAt": "2026-09-11T02:53:20.580Z"
++          "generatedAt": "2026-09-16T01:29:02.607Z"
+         },
+         "accessibility": {
+           "status": "ok",
+@@ -686,9 +686,9 @@
+               "chartIssues": []
+             }
+           ],
+-          "generatedAt": "2026-09-11T02:53:20.582Z"
++          "generatedAt": "2026-09-16T01:29:02.608Z"
+         },
+-        "generatedAt": "2026-09-11T02:53:20.582Z"
++        "generatedAt": "2026-09-16T01:29:02.608Z"
+       },
+       "tabSequence": [
+         {
+@@ -697,12 +697,6 @@
+           "name": "VIX 기간구조 설명",
+           "tabindex": "0"
+         },
+-        {
+-          "tag": "SUMMARY",
+-          "id": "",
+-          "name": "배경 자료와 확인 질문 보기 · 7개 주제",
+-          "tabindex": ""
+-        },
+         {
+           "tag": "BUTTON",
+           "id": "",
+@@ -834,13 +828,19 @@
+           "id": "llm-switch-track",
+           "name": "AI 어시스턴트 ON/OFF",
+           "tabindex": "0"
++        },
++        {
++          "tag": "INPUT",
++          "id": "sidebar-api-key",
++          "name": "sk-ant-api03-…",
++          "tabindex": ""
+         }
+       ]
+     },
+     {
+       "routeId": "briefing",
+       "status": "ok",
+-      "focusableCount": 23,
++      "focusableCount": 19,
+       "pageTitle": "오늘의 브리핑",
+       "audit": {
+         "status": "ok",
+@@ -868,10 +868,10 @@
+               "developerSurfaceVisible": 0,
+               "blockers": [],
+               "warnings": [],
+-              "headerText": "시장 요약판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/11/08:00 KST시점 부분 일치신뢰도 66% 보통 브리핑은 08:00 KST 완료 24h 뉴스와 캐시 지표를 요약합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재"
++              "headerText": "시장 요약판단 보류 · 필수 현재성 근거 미수신 데이터: 미수신공통컷 09/16/08:00 KST시점 불일치신뢰도 35% 낮음 브리핑은 08:00 KST 완료 24h 뉴스와 캐시 지표를 요약합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 AI 분"
+             }
+           ],
+-          "generatedAt": "2026-09-11T02:53:21.222Z"
++          "generatedAt": "2026-09-16T01:29:03.188Z"
+         },
+         "accessibility": {
+           "status": "ok",
+@@ -894,57 +894,57 @@
+               "chartIssues": []
+             }
+           ],
+-          "generatedAt": "2026-09-11T02:53:21.224Z"
++          "generatedAt": "2026-09-16T01:29:03.189Z"
+         },
+-        "generatedAt": "2026-09-11T02:53:21.224Z"
++        "generatedAt": "2026-09-16T01:29:03.189Z"
+       },
+       "tabSequence": [
+         {
+           "tag": "A",
+           "id": "",
+-          "name": "매크로● 중립Insider·US · 09-11레딧 최대 관심사는 유가;;",
++          "name": "매크로● 중립Aether·JP · 09-16OpenAI, 기업가치 1.2조 달러 규모의 신규 투자 유치 검토 OpenAI가 기업가치를 약 1조 2,000억 달러 로 평가받는 새로운",
+           "tabindex": ""
+         },
+         {
+           "tag": "A",
+           "id": "",
+-          "name": "시장소식● 중립HANA·China/EM · 09-11>>사우디 석유 생산량 1990년 이후 최저 수준으로 하락, OPEC 내부 균열 •사우디아라비아가 OPEC에 8월 원유 생산량이",
++          "name": "반도체● 중립HANA·China/EM · 09-16• 애플의 iPhone 18 Pro 시리즈 신제품이 미국과 중국 시장 사전 예약에서 초기 흥행 부진을 겪고 있음 • 미국은 사전 ",
+           "tabindex": ""
+         },
+         {
+           "tag": "A",
+           "id": "",
+-          "name": "반도체● 중립HANA·China/EM · 09-11>>젠슨 황, AI의 다음 활용처로 사이버보안에 베팅하며 “문제를 만들어야 수요가 생긴다”고 솔직히 언급 •엔비디아 CEO 젠슨 ",
++          "name": "매크로● 중립HANA·China/EM · 09-16>>일본, 방위비 GDP 3.5%로 두 배 확대 추진 보도…방위성은 부인, 일본 국채 금리는 30년 만에 최고치 경신 •보도에 따",
+           "tabindex": ""
+         },
+         {
+           "tag": "A",
+           "id": "",
+-          "name": "매크로▲ 상승HANA·China/EM · 09-11>>오라클 급등&#33; 클라우드 사업 매출 121% 증가하며 예상 상회, RPO 6,640억달러로 확대, 연간 실적 가이던스 상",
++          "name": "시장소식● 중립HANA·China/EM · 09-16",
+           "tabindex": ""
+         },
+         {
+           "tag": "A",
+           "id": "",
+-          "name": "반도체● 중립HANA·China/EM · 09-11\"엔비디아·브로드컴 CPO 나와라\"… 화웨이, 차세대 AI 기술 'NPO' 독자 표준 공개 ▶ 기사 원문 보기: [글로벌이코노믹]",
++          "name": "시장소식● 중립HANA·China/EM · 09-16•미국 하원이 찬성 232표, 반대 147표로 텍사스주 민주당 하원의원 알 그린이 발의한 트럼프 대통령 탄핵안 부결. 이는 2년",
+           "tabindex": ""
+         },
+         {
+           "tag": "A",
+           "id": "",
+-          "name": "시장소식● 중립HANA·China/EM · 09-11",
++          "name": "매크로▲ 상승HANA·China/EM · 09-16>>미·이란 전쟁, 내년 1분기 미국 인플레이션 0.5%p 상승시킬 전망, CBO: 이미 380억 달러 지출, 매월 추가로 30억",
+           "tabindex": ""
+         },
+         {
+           "tag": "A",
+           "id": "",
+-          "name": "전력인프라● 중립HANA·China/EM · 09-11>>연산 능력 부족이 AI 인프라 확장을 압박, 마이크로소프트 데이터센터 용량 38GW로 두 배 확대 계획 •마이크로소프트가 ",
++          "name": "시장소식● 중립Insider·US · 09-16트럼프 행정부 고위 관계자들이 화요일 앤트로픽 워싱턴 주재 임원들과 회동해 인공지능 안전 위험을 논의. 소식통에 따르면 앤트로픽 최고",
+           "tabindex": ""
+         },
+         {
+           "tag": "A",
+           "id": "",
+-          "name": "전력인프라● 중립BornLupin·KR · 09-11마이크로소프트, 컴퓨팅 파워를 3배로 늘리기 위한 데이터센터 확장 용량 부족으로 일부 AI·클라우드 사업을 거절해야 했던 마이크",
++          "name": "지정학● 중립Insider·US · 09-16💡 💡 💡 이스라엘 전투기들이 이날 이란을 상대로 여러 차례 모의 비행을 실시했으며, 일부 전투기는 이란 북서부 영공까지 진입한 ",
+           "tabindex": ""
+         },
+         {
+@@ -956,25 +956,49 @@
+         {
+           "tag": "SPAN",
+           "id": "",
+-          "name": "ORCL 종목 분석",
++          "name": "NVDA 종목 분석",
+           "tabindex": "0"
+         },
+         {
+           "tag": "SPAN",
+           "id": "",
+-          "name": "ORCL 종목 분석",
++          "name": "ANET 종목 분석",
+           "tabindex": "0"
+         },
+         {
+           "tag": "SPAN",
+           "id": "",
+-          "name": "ORCL 종목 분석",
++          "name": "SMCI 종목 분석",
+           "tabindex": "0"
+         },
+         {
+           "tag": "SPAN",
+           "id": "",
+-          "name": "WFC 종목 분석",
++          "name": "DELL 종목 분석",
++          "tabindex": "0"
++        },
++        {
++          "tag": "SPAN",
++          "id": "",
++          "name": "NVDA 종목 분석",
++          "tabindex": "0"
++        },
++        {
++          "tag": "SPAN",
++          "id": "",
++          "name": "TSM 종목 분석",
++          "tabindex": "0"
++        },
++        {
++          "tag": "SPAN",
++          "id": "",
++          "name": "IPG 종목 분석",
++          "tabindex": "0"
++        },
++        {
++          "tag": "SPAN",
++          "id": "",
++          "name": "QQQ 종목 분석",
+           "tabindex": "0"
+         },
+         {
+@@ -989,12 +1013,6 @@
+           "name": "과거 참고 펼치기 ▼",
+           "tabindex": ""
+         },
+-        {
+-          "tag": "SUMMARY",
+-          "id": "",
+-          "name": "배경 자료와 확인 질문 보기 · 6개 주제",
+-          "tabindex": ""
+-        },
+         {
+           "tag": "BUTTON",
+           "id": "scroll-top-btn",
+@@ -1024,31 +1042,13 @@
+           "id": "",
+           "name": "대시보드 페이지",
+           "tabindex": "0"
+-        },
+-        {
+-          "tag": "DIV",
+-          "id": "",
+-          "name": "시장 뉴스 페이지",
+-          "tabindex": "0"
+-        },
+-        {
+-          "tag": "DIV",
+-          "id": "",
+-          "name": "시장 환경 페이지",
+-          "tabindex": "0"
+-        },
+-        {
+-          "tag": "DIV",
+-          "id": "",
+-          "name": "시장 폭 페이지",
+-          "tabindex": "0"
+         }
+       ]
+     },
+     {
+       "routeId": "technical",
+       "status": "ok",
+-      "focusableCount": 12,
++      "focusableCount": 4,
+       "pageTitle": "차트 · 기술 분석",
+       "audit": {
+         "status": "ok",
+@@ -1076,10 +1076,10 @@
+               "developerSurfaceVisible": 0,
+               "blockers": [],
+               "warnings": [],
+-              "headerText": "차트 판단판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 미수신공통컷 09/11/08:00 KST시점 불일치신뢰도 35% 낮음 기술 점수는 live 가격과 스냅샷 보조지표의 혼합입니다. 단독 매수 신호가 아닙니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield"
++              "headerText": "차트 판단판단 보류 · 필수 현재성 근거 미수신 데이터: 미수신공통컷 09/16/08:00 KST시점 불일치신뢰도 35% 낮음 기술 점수는 live 가격과 스냅샷 보조지표의 혼합입니다. 단독 매수 신호가 아닙니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재"
+             }
+           ],
+-          "generatedAt": "2026-09-11T02:53:21.669Z"
++          "generatedAt": "2026-09-16T01:29:03.647Z"
+         },
+         "accessibility": {
+           "status": "ok",
+@@ -1102,9 +1102,9 @@
+               "chartIssues": []
+             }
+           ],
+-          "generatedAt": "2026-09-11T02:53:21.672Z"
++          "generatedAt": "2026-09-16T01:29:03.649Z"
+         },
+-        "generatedAt": "2026-09-11T02:53:21.672Z"
++        "generatedAt": "2026-09-16T01:29:03.649Z"
+       },
+       "tabSequence": [
+         {
+@@ -1131,12 +1131,6 @@
+           "name": "차트 분석",
+           "tabindex": ""
+         },
+-        {
+-          "tag": "SUMMARY",
+-          "id": "",
+-          "name": "배경 자료와 확인 질문 보기 · 7개 주제",
+-          "tabindex": ""
+-        },
+         {
+           "tag": "BUTTON",
+           "id": "",
+@@ -1250,13 +1244,19 @@
+           "id": "",
+           "name": "사용 설명서 페이지",
+           "tabindex": "0"
++        },
++        {
++          "tag": "DIV",
++          "id": "",
++          "name": "용어 사전 페이지",
++          "tabindex": "0"
+         }
+       ]
+     },
+     {
+       "routeId": "macro",
+       "status": "ok",
+-      "focusableCount": 8,
++      "focusableCount": 0,
+       "pageTitle": "거시경제",
+       "audit": {
+         "status": "ok",
+@@ -1284,10 +1284,10 @@
+               "developerSurfaceVisible": 0,
+               "blockers": [],
+               "warnings": [],
+-              "headerText": "오늘 매크로 판단판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/11/08:00 KST시점 부분 일치신뢰도 66% 보통 FRED/FMP 키 미수신 구간은 스냅샷 매크로로 표시하고 현재 판단 강도를 낮춥니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury"
++              "headerText": "오늘 매크로 판단판단 보류 · 필수 현재성 근거 미수신 데이터: 미수신공통컷 09/16/08:00 KST시점 불일치신뢰도 35% 낮음 FRED/FMP 키 미수신 구간은 스냅샷 매크로로 표시하고 현재 판단 강도를 낮춥니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 "
+             }
+           ],
+-          "generatedAt": "2026-09-11T02:53:22.148Z"
++          "generatedAt": "2026-09-16T01:29:06.053Z"
+         },
+         "accessibility": {
+           "status": "ok",
+@@ -1310,17 +1310,11 @@
+               "chartIssues": []
+             }
+           ],
+-          "generatedAt": "2026-09-11T02:53:22.150Z"
++          "generatedAt": "2026-09-16T01:29:06.054Z"
+         },
+-        "generatedAt": "2026-09-11T02:53:22.150Z"
++        "generatedAt": "2026-09-16T01:29:06.054Z"
+       },
+       "tabSequence": [
+-        {
+-          "tag": "SUMMARY",
+-          "id": "",
+-          "name": "배경 자료와 확인 질문 보기 · 9개 주제",
+-          "tabindex": ""
+-        },
+         {
+           "tag": "BUTTON",
+           "id": "",
+@@ -1458,13 +1452,19 @@
+           "id": "sidebar-api-key",
+           "name": "sk-ant-api03-…",
+           "tabindex": ""
++        },
++        {
++          "tag": "BUTTON",
++          "id": "",
++          "name": "저장",
++          "tabindex": ""
+         }
+       ]
+     },
+     {
+       "routeId": "fxbond",
+       "status": "ok",
+-      "focusableCount": 8,
++      "focusableCount": 0,
+       "pageTitle": "환율 · 채권",
+       "audit": {
+         "status": "ok",
+@@ -1492,10 +1492,10 @@
+               "developerSurfaceVisible": 0,
+               "blockers": [],
+               "warnings": [],
+-              "headerText": "FX/Rates 판단판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 스냅샷공통컷 09/11/08:00 KST시점 부분 일치신뢰도 66% 보통 금리/달러/유가는 live 우선이나 크레딧/커브 보조값은 캐시가 섞입니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yiel"
++              "headerText": "FX/Rates 판단판단 보류 · 필수 현재성 근거 미수신 데이터: 미수신공통컷 09/16/08:00 KST시점 불일치신뢰도 35% 낮음 금리/달러/유가는 live 우선이나 크레딧/커브 보조값은 캐시가 섞입니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 "
+             }
+           ],
+-          "generatedAt": "2026-09-11T02:53:22.564Z"
++          "generatedAt": "2026-09-16T01:29:07.282Z"
+         },
+         "accessibility": {
+           "status": "ok",
+@@ -1518,17 +1518,11 @@
+               "chartIssues": []
+             }
+           ],
+-          "generatedAt": "2026-09-11T02:53:22.566Z"
++          "generatedAt": "2026-09-16T01:29:07.282Z"
+         },
+-        "generatedAt": "2026-09-11T02:53:22.566Z"
++        "generatedAt": "2026-09-16T01:29:07.282Z"
+       },
+       "tabSequence": [
+-        {
+-          "tag": "SUMMARY",
+-          "id": "",
+-          "name": "배경 자료와 확인 질문 보기 · 8개 주제",
+-          "tabindex": ""
+-        },
+         {
+           "tag": "BUTTON",
+           "id": "",
+@@ -1666,13 +1660,19 @@
+           "id": "sidebar-api-key",
+           "name": "sk-ant-api03-…",
+           "tabindex": ""
++        },
++        {
++          "tag": "BUTTON",
++          "id": "",
++          "name": "저장",
++          "tabindex": ""
+         }
+       ]
+     },
+     {
+       "routeId": "fundamental",
+       "status": "ok",
+-      "focusableCount": 10,
++      "focusableCount": 2,
+       "pageTitle": "기업 분석",
+       "audit": {
+         "status": "ok",
+@@ -1700,10 +1700,10 @@
+               "developerSurfaceVisible": 0,
+               "blockers": [],
+               "warnings": [],
+-              "headerText": "기업 분석 준비판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 미수신공통컷 09/11/08:00 KST시점 불일치신뢰도 35% 낮음 티커 입력 후 SEC/FMP/뉴스 수집 성공 소스만 근거로 사용합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현"
++              "headerText": "기업 분석 준비판단 보류 · 필수 현재성 근거 미수신 데이터: 미수신공통컷 09/16/08:00 KST시점 불일치신뢰도 35% 낮음 티커 입력 후 SEC/FMP/뉴스 수집 성공 소스만 근거로 사용합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로 A"
+             }
+           ],
+-          "generatedAt": "2026-09-11T02:53:22.963Z"
++          "generatedAt": "2026-09-16T01:29:07.708Z"
+         },
+         "accessibility": {
+           "status": "ok",
+@@ -1726,9 +1726,9 @@
+               "chartIssues": []
+             }
+           ],
+-          "generatedAt": "2026-09-11T02:53:22.966Z"
++          "generatedAt": "2026-09-16T01:29:07.709Z"
+         },
+-        "generatedAt": "2026-09-11T02:53:22.966Z"
++        "generatedAt": "2026-09-16T01:29:07.709Z"
+       },
+       "tabSequence": [
+         {
+@@ -1743,12 +1743,6 @@
+           "name": "기업 분석",
+           "tabindex": ""
+         },
+-        {
+-          "tag": "SUMMARY",
+-          "id": "",
+-          "name": "배경 자료와 확인 질문 보기 · 10개 주제",
+-          "tabindex": ""
+-        },
+         {
+           "tag": "BUTTON",
+           "id": "",
+@@ -1874,13 +1868,19 @@
+           "id": "sidebar-theme-btn",
+           "name": "라이트 모드",
+           "tabindex": ""
++        },
++        {
++          "tag": "DIV",
++          "id": "llm-switch-track",
++          "name": "AI 어시스턴트 ON/OFF",
++          "tabindex": "0"
+         }
+       ]
+     },
+     {
+       "routeId": "themes",
+       "status": "ok",
+-      "focusableCount": 21,
++      "focusableCount": 13,
+       "pageTitle": "테마 · 트렌드",
+       "audit": {
+         "status": "ok",
+@@ -1908,10 +1908,10 @@
+               "developerSurfaceVisible": 0,
+               "blockers": [],
+               "warnings": [],
+-              "headerText": "테마 회전 지도판단 보류 · 핵심 입력 부족 (스코어 0/100) 데이터: 미수신공통컷 09/11/08:00 KST시점 불일치신뢰도 35% 낮음 테마 강도는 리더 상대강도, breadth, 뉴스 촉매를 같이 확인합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8"
++              "headerText": "테마 회전 지도판단 보류 · 필수 현재성 근거 미수신 데이터: 미수신공통컷 09/16/08:00 KST시점 불일치신뢰도 35% 낮음 테마 강도는 리더 상대강도, breadth, 뉴스 촉매를 같이 확인합니다. · 스코어 입력 확인 필요(12/13): S&P 500 price, SPY price/benchmark, VIX risk state, 10Y Treasury yield 외 8개현재 결과로"
+             }
+           ],
+-          "generatedAt": "2026-09-11T02:53:23.347Z"
++          "generatedAt": "2026-09-16T01:29:08.261Z"
+         },
+         "accessibility": {
+           "status": "ok",
+@@ -1934,9 +1934,9 @@
+               "chartIssues": []
+             }
+           ],
+-          "generatedAt": "2026-09-11T02:53:23.358Z"
++          "generatedAt": "2026-09-16T01:29:08.271Z"
+         },
+-        "generatedAt": "2026-09-11T02:53:23.358Z"
++        "generatedAt": "2026-09-16T01:29:08.271Z"
+       },
+       "tabSequence": [
+         {
+@@ -2017,12 +2017,6 @@
+           "name": "통신 테마 상세 열기",
+           "tabindex": ""
+         },
+-        {
+-          "tag": "SUMMARY",
+-          "id": "",
+-          "name": "배경 자료와 확인 질문 보기 · 13개 주제",
+-          "tabindex": ""
+-        },
+         {
+           "tag": "BUTTON",
+           "id": "",
+@@ -2082,11 +2076,17 @@
+           "id": "",
+           "name": "거시경제 페이지",
+           "tabindex": "0"
++        },
++        {
++          "tag": "DIV",
++          "id": "",
++          "name": "환율 · 채권 페이지",
++          "tabindex": "0"
+         }
+       ]
+     }
+   ],
+   "consoleErrors": [],
+-  "generatedAt": "2026-09-11T02:53:17.407Z",
++  "generatedAt": "2026-09-16T01:28:59.835Z",
+   "status": "pass"
+ }
+diff --git a/_artifacts/route-soak-report.json b/_artifacts/route-soak-report.json
+index 98e05bf7..42235f86 100644
+--- a/_artifacts/route-soak-report.json
++++ b/_artifacts/route-soak-report.json
+@@ -1,8 +1,8 @@
+ {
+   "schemaVersion": "aio-route-soak-evidence.v1",
+-  "observedAt": "2026-09-11T02:52:49.245Z",
+-  "appRevision": "v54.87",
+-  "gitHead": "2f5a8cbbdabd16b56ff9240f8db42debe0db77e5",
++  "observedAt": "2026-09-16T01:27:22.871Z",
++  "appRevision": "v54.97",
++  "gitHead": "9fccf5ff3af4d038c356fe408dd5a7756fc91d44",
+   "gitClean": false,
+   "environment": {
+     "browser": "chromium",
+diff --git a/_artifacts/structural-quality-20260906/browser.json b/_artifacts/structural-quality-20260906/browser.json
+index 2da8c36f..ff70bd1b 100644
+--- a/_artifacts/structural-quality-20260906/browser.json
++++ b/_artifacts/structural-quality-20260906/browser.json
+@@ -1,5 +1,5 @@
+ {
+-  "generatedAt": "2026-09-12T15:21:06.882Z",
++  "generatedAt": "2026-09-16T01:35:23.740Z",
+   "routes": [
+     {
+       "id": "home",
+@@ -24,7 +24,7 @@
+         }
+       ],
+       "headings": [
+-        "시장 현황 v54.95"
++        "시장 현황 v54.97"
+       ]
+     },
+     {
+@@ -86,35 +86,35 @@
+       "controls": [
+         {
+           "tag": "A",
+-          "name": "시장소식● 중립Insider·US · 09-12⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 사우디아라비아 남부 지역에 경보 발령."
++          "name": "매크로● 중립Aether·JP · 09-16OpenAI, 기업가치 1.2조 달러 규모의 신규 투자 유치 검토 OpenAI가 기업가치를 약 1조 2,000억 달러 로 평가받는 새로운 비공개 투자 유치"
+         },
+         {
+           "tag": "A",
+-          "name": "한국장● 중립Insider·US · 09-12⚡️ ⚡️ ⚡️ 북한, 동해상으로 미상 발사체 발사…23일 만의 탄도미사일 가능성NAVER"
++          "name": "반도체● 중립HANA·China/EM · 09-16• 애플의 iPhone 18 Pro 시리즈 신제품이 미국과 중국 시장 사전 예약에서 초기 흥행 부진을 겪고 있음 • 미국은 사전 예약 시작 30분이"
+         },
+         {
+           "tag": "A",
+-          "name": "시장소식● 중립Insider·US · 09-12⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 월스트리트저널에 따르면 오픈AI가 테스트 중이던 AI 에이전트들이 지난 5월 루비젬스에 과도한 부하를 일으켜 신규 계정"
++          "name": "매크로● 중립HANA·China/EM · 09-16>>일본, 방위비 GDP 3.5%로 두 배 확대 추진 보도…방위성은 부인, 일본 국채 금리는 30년 만에 최고치 경신 •보도에 따르면 일본 방위 당"
+         },
+         {
+           "tag": "A",
+-          "name": "시장소식● 중립Insider·US · 09-12찰리 커크 암살 1주기를 맞아 트럼프 대통령이 추모 메시지 발표. “찰리에게 일어난 일을 생각하면 나라 전체에 슬픈 구름이 드리워진 것 같습니다. 찰리"
++          "name": "시장소식● 중립HANA·China/EM · 09-16"
+         },
+         {
+           "tag": "A",
+-          "name": "시장소식● 중립Insider·US · 09-12인도네시아 지진 발생"
++          "name": "시장소식● 중립HANA·China/EM · 09-16•미국 하원이 찬성 232표, 반대 147표로 텍사스주 민주당 하원의원 알 그린이 발의한 트럼프 대통령 탄핵안 부결. 이는 2년 내 세 번째 탄핵"
+         },
+         {
+           "tag": "A",
+-          "name": "시장소식● 중립Insider·US · 09-12미국 민주당 하원의원 알렉산드리아 오카시오코르테스와 뉴욕시장 조란 맘다니가 그라운드 제로에서 열린 9·11 희생자 명단 낭독 행사 도중 웃는 모습이 포"
++          "name": "매크로▲ 상승HANA·China/EM · 09-16>>미·이란 전쟁, 내년 1분기 미국 인플레이션 0.5%p 상승시킬 전망, CBO: 이미 380억 달러 지출, 매월 추가로 30억 달러 증가 예상 "
+         },
+         {
+           "tag": "A",
+-          "name": "지정학● 중립Insider·US · 09-12CNN에 따르면 사우디아라비아의 전략적 석유 파이프라인이 공격받은 것으로 확인. 미국 당국자들에 따르면 동서(East–West) 파이프라인 시스템의 펌프"
++          "name": "시장소식● 중립Insider·US · 09-16트럼프 행정부 고위 관계자들이 화요일 앤트로픽 워싱턴 주재 임원들과 회동해 인공지능 안전 위험을 논의. 소식통에 따르면 앤트로픽 최고컴퓨팅책임자 톰 브"
+         },
+         {
+           "tag": "A",
+-          "name": "시장소식● 중립Insider·US · 09-12뉴욕타임즈에 따르면 미국 중앙정보국(CIA)이 9·11 테러 이전부터 알카에다의 미국 공격 위협을 경고했던 것으로 나타남. CIA가 기밀 해제한 69건"
++          "name": "지정학● 중립Insider·US · 09-16💡 💡 💡 이스라엘 전투기들이 이날 이란을 상대로 여러 차례 모의 비행을 실시했으며, 일부 전투기는 이란 북서부 영공까지 진입한 것으로 알려짐. 앞"
+         },
+         {
+           "tag": "BUTTON",
+@@ -359,51 +359,51 @@
+         },
+         {
+           "tag": "A",
+-          "name": "시장소식● 중립Insider·US · 09-12⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 사우디아라비아 남부 지역에 경보 발령."
++          "name": "매크로● 중립Aether·JP · 09-16OpenAI, 기업가치 1.2조 달러 규모의 신규 투자 유치 검토 OpenAI가 기업가치를 약 1조 2,000억 달러 로 평가받는 새로운 비공개 투자 유치"
+         },
+         {
+           "tag": "A",
+-          "name": "한국장● 중립Insider·US · 09-12⚡️ ⚡️ ⚡️ 북한, 동해상으로 미상 발사체 발사…23일 만의 탄도미사일 가능성NAVER"
++          "name": "반도체● 중립HANA·China/EM · 09-16• 애플의 iPhone 18 Pro 시리즈 신제품이 미국과 중국 시장 사전 예약에서 초기 흥행 부진을 겪고 있음 • 미국은 사전 예약 시작 30분이"
+         },
+         {
+           "tag": "A",
+-          "name": "시장소식● 중립Insider·US · 09-12⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 월스트리트저널에 따르면 오픈AI가 테스트 중이던 AI 에이전트들이 지난 5월 루비젬스에 과도한 부하를 일으켜 신규 계정"
++          "name": "매크로● 중립HANA·China/EM · 09-16>>일본, 방위비 GDP 3.5%로 두 배 확대 추진 보도…방위성은 부인, 일본 국채 금리는 30년 만에 최고치 경신 •보도에 따르면 일본 방위 당"
+         },
+         {
+           "tag": "A",
+-          "name": "시장소식● 중립Insider·US · 09-12찰리 커크 암살 1주기를 맞아 트럼프 대통령이 추모 메시지 발표. “찰리에게 일어난 일을 생각하면 나라 전체에 슬픈 구름이 드리워진 것 같습니다. 찰리"
++          "name": "시장소식● 중립HANA·China/EM · 09-16"
+         },
+         {
+           "tag": "A",
+-          "name": "시장소식● 중립Insider·US · 09-12인도네시아 지진 발생"
++          "name": "시장소식● 중립HANA·China/EM · 09-16•미국 하원이 찬성 232표, 반대 147표로 텍사스주 민주당 하원의원 알 그린이 발의한 트럼프 대통령 탄핵안 부결. 이는 2년 내 세 번째 탄핵"
+         },
+         {
+           "tag": "A",
+-          "name": "시장소식● 중립Insider·US · 09-12미국 민주당 하원의원 알렉산드리아 오카시오코르테스와 뉴욕시장 조란 맘다니가 그라운드 제로에서 열린 9·11 희생자 명단 낭독 행사 도중 웃는 모습이 포"
++          "name": "매크로▲ 상승HANA·China/EM · 09-16>>미·이란 전쟁, 내년 1분기 미국 인플레이션 0.5%p 상승시킬 전망, CBO: 이미 380억 달러 지출, 매월 추가로 30억 달러 증가 예상 "
+         },
+         {
+           "tag": "A",
+-          "name": "지정학● 중립Insider·US · 09-12CNN에 따르면 사우디아라비아의 전략적 석유 파이프라인이 공격받은 것으로 확인. 미국 당국자들에 따르면 동서(East–West) 파이프라인 시스템의 펌프"
++          "name": "시장소식● 중립Insider·US · 09-16트럼프 행정부 고위 관계자들이 화요일 앤트로픽 워싱턴 주재 임원들과 회동해 인공지능 안전 위험을 논의. 소식통에 따르면 앤트로픽 최고컴퓨팅책임자 톰 브"
+         },
+         {
+           "tag": "A",
+-          "name": "시장소식● 중립Insider·US · 09-12뉴욕타임즈에 따르면 미국 중앙정보국(CIA)이 9·11 테러 이전부터 알카에다의 미국 공격 위협을 경고했던 것으로 나타남. CIA가 기밀 해제한 69건"
++          "name": "지정학● 중립Insider·US · 09-16💡 💡 💡 이스라엘 전투기들이 이날 이란을 상대로 여러 차례 모의 비행을 실시했으며, 일부 전투기는 이란 북서부 영공까지 진입한 것으로 알려짐. 앞"
+         },
+         {
+           "tag": "A",
+-          "name": "지정학● 중립Insider·US · 09-12중동은 특이사항 없고..."
++          "name": "헬스케어● 중립HANA·China/EM · 09-16>>젠슨 황: AI 안전을 위해 새로운 입법은 필요 없으며, 시장의 힘만으로도 충분함 •젠슨 황은 세일즈포스 드림포스 행사에서 AI 혁신과 안전은"
+         },
+         {
+           "tag": "A",
+-          "name": "시장소식● 중립Insider·US · 09-12여기도 더 파봐야겠어요."
++          "name": "시장소식● 중립Insider·US · 09-16예멘 정부군 vs 예멘 후티 반군 차이"
+         },
+         {
+           "tag": "A",
+-          "name": "매크로● 중립Insider·US · 09-12⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 인텔이 과거 인수했던 알테라가 올해 말 기업공개를 통해 20억 달러 이상을 조달하는 방안을 추진 중. 로이터에 따르면 알"
++          "name": "시장소식● 중립Insider·US · 09-16⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 사우디아라비아군과 예멘 정부군이 예멘 남서부 알모카, 알와지이야, 알마프라크 지역을 공격 중."
+         },
+         {
+           "tag": "A",
+-          "name": "매크로● 중립Insider·US · 09-12마이크론의 대만 직원들이 AI 호황에 따른 이익을 공유받으며 2026 회계연도 보너스로 최대 68개월치 급여를 받게 될 전망. 로이터에 따르면 마이크론이"
++          "name": "자금조달● 중립HANA·China/EM · 09-16•OpenAI가 IPO에 앞서 1조2,000억 달러 기업가치를 목표로 한 신규 자금조달을 검토하고 있음. 최근 OpenAI는 새로운 자본 확충 계"
+         },
+         {
+           "tag": "BUTTON",
+diff --git a/_artifacts/structural-quality-20260906/guide.png b/_artifacts/structural-quality-20260906/guide.png
+index 63ae40af..1cf87079 100644
+Binary files a/_artifacts/structural-quality-20260906/guide.png and b/_artifacts/structural-quality-20260906/guide.png differ

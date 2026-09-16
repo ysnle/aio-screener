@@ -1,3 +1,19 @@
+## v54.98 (2026-09-16)
+- 5일간 CI를 red로 고정하고 Pages 배포를 정지시킨 gate 3건의 근본원인을 수정했다. `ci-chat-ui-state-browser-check.mjs`는 앱에 존재한 적 없는 셀렉터 대신 실제 정지 버튼 id를 검사하고, `ci-architecture-browser-check.mjs`는 `chartKinds`를 손으로 관리하는 목록이 아니라 `src/data/contracts/source-kind.js`의 정본 어휘로 검증하며, `ci-screener-auto-refresh-browser-check.mjs`는 quote tick에 새 스냅샷을 요구하는 대신 설계가 실제로 보장하는 불변성(랭킹 스냅샷·frozen run hash 불변, 가격 overlay 유지)을 검증한다.
+- 스크리너 가격 컬럼의 소유권 공백을 메웠다. field-readiness 계약은 표시 자격만 gate하고 live quote 투영은 어느 계층도 소유하지 않아 모든 행이 영구히 `미수신`이었다. `liveRow`가 field-readiness 경로에서도 live quote를 overlay하고 관측시각·출처를 값과 함께 싣는다.
+- `.gitattributes`로 content-addressed 아티팩트(`public-data/objects/**`)의 개행 변환을 금지했다. `core.autocrlf=true` 체크아웃에서 37개 매니저 projection의 sha256이 전부 어긋나 `masters-contract`·브라우저 게이트 2건이 실패하고 Masters 페이지가 클라이언트 무결성 검증에서 막혔는데, Linux CI는 통과하므로 로컬에서만 재현되지 않던 결함이었다. 재적용 후 555개 객체 전부 LF·digest 일치를 확인했다.
+- P0 의미 결함을 수정했다. NFP 전월대비 델타의 이중 단위 환산 제거(항상 0으로 표시되던 문제), Cboe 관측 Equity/Index P/C를 `DATA_SNAPSHOT`에 보존하고 합성 추정이 관측값을 덮어쓰지 못하게 하며 `estimated` 플래그를 실제 합성 여부로 정정, 엔캐리 라벨을 실제 입력(미 10Y − 한국 기준금리)에 일치, 뉴스 staleness 배너를 공개 모드에서도 노출하고 헤더의 "45분 자동 갱신" 주장을 실제 수집 동작에 맞게 하향, 리스크 뉴스 기본값의 false all-clear 제거.
+- AI 답변의 research degrade 경로가 이미 차단된 답변의 `blocked`를 강제 해제해 차단 본문 아래에 실행 카드를 재부착하던 fail-open을 제거했다. 해당 코드의 자체 주석이 선언한 불변식을 이제 실제로 지킨다.
+- 검증: preflight 13/13, workspace 9/9, core 34/34, data 21/21, browser-runtime 8/8, browser-knowledge 6/6. gate 실행을 위해 `masters-contract`로 차단돼 있던 브라우저 tier를 전수 스윕했다.
+- 커밋·push·배포 없음. semantic coverage는 `releaseCertified=false`(current 6.89%)로 계속 OPEN이며, 본 릴리스는 그 미검토 영역의 표본 심층 검토에서 나온 수정이다.
+- AI 답변의 수치·현재성 가드 스위치가 질문 문면의 대리 변수(라틴 티커 유무)에 묶여 한글 종목명·지표 질문에서 5개 가드가 전부 꺼지던 문제를 수정했다. "삼성전자 실적 어때?", "AAPL PER 얼마야?", "AAPL 밸류에이션 분석해줘"가 이제 가드를 켜고, "PER이 뭐야?" 같은 개념 질문은 그대로 둔다.
+- 2026-09-16 후속 세션에서 핸드오프 기록 규칙(R598)과 `_context/INDEX.md`의 핸드오프 포인터를 추가해, 다음 에이전트가 `_artifacts/full-review-20260916/HANDOFF.md`에서 미완료 백로그를 발견할 수 있게 했다.
+- 계약 감사가 자기 부작용을 검증해 항상 통과하던 문제를 수정했다. 호환 레이어가 네 레지스트리를 자동 생성한 **뒤** 그 결과를 검사했기 때문에 라우트에 페이지 고유 계약이 없어도 `ok`였고, 배포 게이트의 "contract incomplete" 차단 조건은 구조적으로 발화 불가능했다. 이제 파생 항목을 생성 시점에 기록해 작성/파생을 구분하고 `authoredCoverage`로 보고한다(실측 deep-audit 15/20, sequential registry 16/20, 파생 라우트 market-news·principles·masters·atlas·screener 명시). 파생만 있는 라우트는 경고이며 배포는 차단하지 않는다. headless T913은 이 보고를 요구하도록 강화했다.
+- 구조 관측: `js/aio-core.js`가 27,984/28,000줄로 hotspot 예산이 소진 직전이다. `ci-decomp-hotspot-check.mjs`의 하드 상한 때문에 이 파일의 추가 수정은 감축이나 분해를 강제하며, 이번 수정도 중간에 상한을 초과해 압축 후 통과했다.
+- 게이트가 죽은 코드 안 문자열을 사용자 출력 증거로 단언하던 문제를 수정했다. `ci-research-flow-contract-check.mjs`가 같은 파일에 "숨김 프로토콜 메타데이터(표시 패널 아님)"와 "감사·claim 원장을 렌더한다"를 동시에 요구하고 있었고, 후자는 호출부 0건인 렌더러 7종 안의 문자열로만 충족됐다. 죽은 렌더러 약 230줄을 삭제하고 두 단언을 실제 계약(프로토콜 메타데이터 존재 + 렌더러 부재 음성 단언, claim 원장은 내부 API로만 도달)으로 교체했다. 초기 의미 검토가 "출처가 사용자에게 도달하지 않는 결함"으로 본 것은 설계 의도(내부 프로토콜 전용)를 오독한 것이었고 이번에 정정했다.
+- 같은 라벨이 두 정의를 가리키던 수치 표면 6건을 수정했다. 스크리너 등급 셀이 rejected 행에도 `A`를 붙이던 문제(이제 `rankGrade(visibleRank(row))` 단일 함수), 랭크 필터 라벨과 실제 등급 임계 불일치(60 `B` → 실제 C), breadth `시장 참여도`의 영문 enum 노출, `시장 폭 시그널 (RSP/SPY)` 라벨(실제로는 advance ratio 기반), technical `마켓 폭` 라벨(실제로는 당일 섹터 ETF 상승 비율), MACD 카드가 writer에 따라 라인/히스토그램을 오가던 문제(히스토그램 기저로 통일, 폴백 시 title에 명시).
+- R1 7곳 v54.98
+
 ## v54.97 (2026-09-15)
 - 여러 세션의 미커밋 변경을 최신 2026-09-15 시장 데이터 위에 통합했다. 가격·뉴스·AI·포트폴리오·팩터는 출처 tier, 권리, revision, 관측시각, freshness가 없으면 의사결정에 승격하지 않는다.
 - 조정주가·공통 거래일·drift turnover·비용/유동성/PIT 경계를 백테스트에 반영하고, 현재 점수의 예측 유의성이 미확립이면 `NO_ACTION`으로 제한한다.

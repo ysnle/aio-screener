@@ -25,7 +25,7 @@ const PATTERNS = Object.freeze({
   OUTLOOK: [/(전망|앞으로|향후|반등할까|오를까|내릴까|예상|outlook|forecast|prospect|will\s+.*(?:rise|fall|rebound))/i],
   SECTOR_ANALYSIS: [/(테마|섹터|업종|산업|밸류체인|반도체|소프트웨어|광통신|광테마|전력|원전|방산|바이오|sector|industry|theme|semiconductor|software|SMH|SOXX|IGV)/i],
   ENTITY_ANALYSIS: [/(기업\s*분석|종목\s*분석|회사\s*분석|사업\s*모델|투자\s*포인트|분석해|어때|company\s*analysis|stock\s*analysis)/i],
-  ENTITY_FACT: [/(주가|시세|가격|시가총액|PER|PBR|PSR|PEG|ROE|매출|영업이익|순이익|배당|실적|목표가|price|market\s*cap|revenue|earnings|dividend)/i],
+  ENTITY_FACT: [/(주가|시세|가격|시가총액|PER|PBR|PSR|PEG|ROE|EPS|FCF|매출|영업이익|순이익|배당|실적|목표가|밸류에이션|price|market\s*cap|revenue|earnings|dividend|valuation)/i],
   COMPARISON: [/(비교|대비|차이|어느\s*(?:쪽|것)|vs\.?|versus|compare|comparison|better)/i],
   TECHNICAL_ANALYSIS: [/(차트|기술적|기술\s*분석|RSI|MACD|이동평균|이평|지지|저항|돌파|추세|OHLCV|technical|chart|support|resistance|breakout)/i],
   OPTIONS_ANALYSIS: [/(옵션|내재변동성|변동성\s*스큐|감마|델타|세타|IV|GEX|0DTE|콜옵션|풋옵션|options?|implied\s*volatility|gamma|delta|theta)/i],
@@ -103,9 +103,17 @@ export function classifyQuestionIntent(query, context = {}) {
 
   const primary = ranked[0].intent;
   const explicitCurrent = CURRENT_PATTERN.test(text) && !HISTORICAL_PATTERN.test(text);
+  // Asking for a company metric (실적·PER·매출·목표가…) is a question about a value
+  // that moves with the market, so the numeric/currentness guards must stay on even
+  // though the Korean company name never matches TICKER_PATTERN. A pure concept
+  // question ("PER이 뭐야?") is EDUCATION-primary and is deliberately excluded
+  // (P1074).
+  const educationOnly = primary === 'EDUCATION' && !hit.ENTITY_ANALYSIS && !hit.COMPARISON && !hit.SCREENING;
+  const metricFactQuestion = hit.ENTITY_FACT && !HISTORICAL_PATTERN.test(text) && !educationOnly;
   const inherentlyCurrent = QUOTE_NOW_PATTERN.test(text) ||
     (hasTicker && /(?:주가|시세|가격|현재가|price|quote)/i.test(text)) ||
-    (!HISTORICAL_PATTERN.test(text) && ranked.some((row) => row.intent === 'OUTLOOK'));
+    (!HISTORICAL_PATTERN.test(text) && ranked.some((row) => row.intent === 'OUTLOOK')) ||
+    metricFactQuestion;
   const currentSensitive = explicitCurrent || inherentlyCurrent || (primary === 'MARKET_STATUS' && !HISTORICAL_PATTERN.test(text));
   const requestedDepth = /(깊이|심층|자세히|종합|deep|detailed|comprehensive)/i.test(text)
     ? 'deep' : /(간단|짧게|요약|한줄|brief|short)/i.test(text) ? 'brief' : 'standard';

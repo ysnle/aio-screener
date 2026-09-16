@@ -114,13 +114,27 @@ try {
   await page.locator('[data-aio-screener-action="screen-run-visual"]').click();
   await page.waitForFunction(() => document.getElementById('scr-workbench-status')?.dataset.persistence === 'persisted');
   const recorded = await page.locator('#scr-workbench-status').evaluate(node => ({ ...node.dataset }));
-  await page.evaluate(() => {
+  // A quote tick is view-layer evidence: it must refresh visible prices without
+  // minting a new ranked snapshot or replacing a user-frozen run. Screener state
+  // is deliberately re-synced on `aio:refresh:done` (src/app/bootstrap.js), not on
+  // quote ticks, so immutability under quote churn is the contract the design
+  // actually offers. Asserting "a tick must mint a new snapshotId" encoded the
+  // pre-overlay design and can no longer hold (P1074).
+  const afterQuoteTick = await page.evaluate(async () => {
     const row = window.AIO_ARCH.getScreenerState().rows.find(row => window._liveData?.[row.sym]?.price);
     window._liveData[row.sym].price += 1;
     document.dispatchEvent(new CustomEvent('aio:liveQuotes', { detail: { source: 'frozen-run-fixture' } }));
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    const status = document.getElementById('scr-workbench-status');
+    return {
+      snapshotId: window.AIO_ARCH.getScreenerState().snapshotId,
+      resultHash: status?.getAttribute('data-result-hash'),
+      prices: [...document.querySelectorAll('#screener-results-body td[data-column-key="price"]')].map((node) => node.textContent.trim())
+    };
   });
-  await page.waitForFunction(snapshot => window.AIO_ARCH.getScreenerState().snapshotId !== snapshot, recorded.snapshotId);
-  if (await page.locator('#scr-workbench-status').getAttribute('data-result-hash') !== recorded.resultHash) throw new Error('background quote refresh replaced a user-frozen run');
+  if (afterQuoteTick.snapshotId !== recorded.snapshotId) throw new Error('background quote tick replaced the ranked snapshot');
+  if (afterQuoteTick.resultHash !== recorded.resultHash) throw new Error('background quote refresh replaced a user-frozen run');
+  if (afterQuoteTick.prices.some((value) => !value || value === '미수신')) throw new Error(`price column lost its live overlay after a quote tick: ${JSON.stringify(afterQuoteTick.prices)}`);
   await page.reload({ waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => window.AIO_ARCH?.getScreenerState?.()?.rows?.length >= 800);
   await page.evaluate(() => window.showPage('screener'));

@@ -2696,9 +2696,10 @@ async function fetchPutCallRatios() {
   var index = Number(snap.indexPutCall || snap.indexPcr);
   var source = 'snapshot-or-live-put-call';
   if (!isFinite(total)) total = null;
-  if (!isFinite(equity)) equity = total !== null ? Math.max(0.35, total * 0.72) : null;
-  if (!isFinite(index)) index = total !== null ? Math.min(1.8, total * 1.18) : null;
-  var q = window.makeMetric ? window.makeMetric(total, source, Date.now(), 'option', { estimated: equity !== null || index !== null }) : null;
+  var estimated = false;
+  if (!isFinite(equity)) { equity = total !== null ? Math.max(0.35, total * 0.72) : null; estimated = equity !== null; }
+  if (!isFinite(index)) { index = total !== null ? Math.min(1.8, total * 1.18) : null; estimated = estimated || index !== null; }
+  var q = window.makeMetric ? window.makeMetric(total, source, Date.now(), 'option', { estimated: estimated }) : null;
   return { totalPutCall: total, equityPutCall: equity, indexPutCall: index, dataQuality: q };
 }
 window.fetchPutCallRatios = fetchPutCallRatios;
@@ -4986,12 +4987,24 @@ function applyTechIndicators(data) {
       }
     }
     // MACD — v48.94 P161: NaN 가드
+    // One card must not mean two things: index.html's OHLCV writer publishes the
+    // histogram (macd − signal) with an explicit sign, so this provider writer uses
+    // the same basis when available and labels the line-only fallback (P1078).
     if (data.macd?.values?.[0]) {
-      const macd = parseFloat(data.macd.values[0].macd);
+      const point = data.macd.values[0];
       const el = document.getElementById('tech-macd-val');
-      if (el) {
-        el.textContent = window._aioRenderNum ? window._aioRenderNum(macd, '', 2) : (Number.isFinite(macd) ? macd.toFixed(2) : '—');
-        el.style.color = macd > 0 ? 'var(--data-green)' : 'var(--data-red)';
+      const line = parseFloat(point.macd);
+      const signal = parseFloat(point.signal);
+      const hist = parseFloat(point.histogram != null ? point.histogram : point.hist);
+      const basis = Number.isFinite(hist) ? hist : (Number.isFinite(line) && Number.isFinite(signal) ? line - signal : null);
+      const value = basis != null ? basis : (Number.isFinite(line) ? line : null);
+      if (el && value != null) {
+        const isHist = basis != null;
+        el.textContent = window._aioRenderNum
+          ? window._aioRenderNum(value, isHist && value >= 0 ? '+' : '', isHist ? 1 : 2)
+          : value.toFixed(isHist ? 1 : 2);
+        el.style.color = value > 0 ? 'var(--data-green)' : 'var(--data-red)';
+        el.title = isHist ? '관측 MACD − 시그널(히스토그램) · 시그널선 대비' : 'MACD 라인(제로선 기준) — 히스토그램 아님';
       }
     }
     // Stochastic — v48.94 P161: NaN 가드
@@ -6012,7 +6025,9 @@ function _aioRenderDeltas() {
   _aioSetDeltaEl('core-cpi-yoy-delta', snap._coreCpiDelta,    _AIO_DELTA_POLARITY.coreCpi,      { suffix: 'pp', decimals: 1 });
   _aioSetDeltaEl('pce-yoy-delta',      snap._pceDelta,        _AIO_DELTA_POLARITY.pce,          { suffix: 'pp', decimals: 1 });
   _aioSetDeltaEl('core-pce-yoy-delta', snap._corePceDelta,    _AIO_DELTA_POLARITY.corePce,      { suffix: 'pp', decimals: 1 });
-  _aioSetDeltaEl('nfp-delta-tag',      snap._nfpDelta != null ? snap._nfpDelta / 1000 : null,
+  // The server already publishes this delta in thousands ("141" = 141K). Dividing
+  // again rendered every NFP delta as 0 (P1074).
+  _aioSetDeltaEl('nfp-delta-tag',      snap._nfpDelta,
                                                                _AIO_DELTA_POLARITY.nfp,          { suffix: 'K vs 전월', decimals: 0 });
   _aioSetDeltaEl('unemployment-delta', snap._unemploymentDelta, _AIO_DELTA_POLARITY.unemployment, { suffix: 'pp', decimals: 2 });
   _aioSetDeltaEl('fed-rate-delta',     snap._fedRateDelta,    _AIO_DELTA_POLARITY.fedRate,      { suffix: 'pp', decimals: 2 });
@@ -16012,7 +16027,17 @@ function _aioUpdatePutCallDom(payload) {
     detail.setAttribute('data-operational-use', metric.allowedUse ? 'decision' : 'reference-only');
   }
 
-  if (typeof DATA_SNAPSHOT !== 'undefined') DATA_SNAPSHOT.pcr = pcr;
+  if (typeof DATA_SNAPSHOT !== 'undefined') {
+    DATA_SNAPSHOT.pcr = pcr;
+    // The observed Cboe equity/index ratios are authoritative whenever the
+    // producer supplies them. Previously only `pcr` was stored, so the OPEX/Gamma
+    // panel always fell back to a total-derived estimate and displayed 1.10 for
+    // an observed 0.96 (P1074).
+    var observedEquity = Number(payload.equityPutCall);
+    var observedIndex = Number(payload.indexPutCall);
+    if (isFinite(observedEquity)) DATA_SNAPSHOT.equityPutCall = observedEquity;
+    if (isFinite(observedIndex)) DATA_SNAPSHOT.indexPutCall = observedIndex;
+  }
   window._putCallRatio = pcr;
   window._lastPutCallPayload = Object.assign({}, payload, {
     totalPutCall: pcr,

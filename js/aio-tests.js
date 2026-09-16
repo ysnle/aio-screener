@@ -7990,7 +7990,14 @@
     _assert('T912 external_cdn_does_not_block_local_boot_queue (H3-F)', bootCdn912.length === 3 && bootCdn912.every(function(el) { return el.async === true && el.defer === false; }), bootCdn912.map(function(el) { return { src: el.src, async: el.async, defer: el.defer }; }));
     var contract913 = window.AIO.getPageContractAudit && window.AIO.getPageContractAudit();
     var lineage913 = window.AIO.getDataLineageAudit && window.AIO.getDataLineageAudit();
-      _assert('T913 route_contract_and_lineage_no_orphan_sink (H3-G)', !!contract913 && contract913.status === 'ok' && contract913.routePageCount === 20 && !!lineage913 && lineage913.broken === 0 && lineage913.cellLevel && lineage913.cellLevel.totalOrphans === 0, JSON.stringify({ contracts:contract913 && contract913.status, routes:contract913 && contract913.routePageCount, broken:lineage913 && lineage913.broken, orphans:lineage913 && lineage913.cellLevel && lineage913.cellLevel.totalOrphans }));
+    // P1076: the contract audit must REPORT authored-vs-derived coverage instead of
+    // only inspecting the registries its own compatibility layer just filled. This
+    // assertion is stronger than the previous `status === 'ok'`, which passed even
+    // when a route had no page-specific contract at all.
+    var coverage913 = contract913 && contract913.authoredCoverage;
+    var derivedAudit913 = (contract913 && contract913.derivedDeepAudit) || [];
+    var derivedSeq913 = (contract913 && contract913.derivedSequentialRegistry) || [];
+      _assert('T913 route_contract_and_lineage_no_orphan_sink (H3-G)', !!contract913 && (contract913.status === 'ok' || contract913.status === 'warn') && contract913.routePageCount === 20 && Array.isArray(contract913.derivedDeepAudit) && Array.isArray(contract913.derivedSequentialRegistry) && Array.isArray(contract913.missingDeepAudit) && contract913.missingDeepAudit.length === 0 && contract913.missingSequentialRegistry.length === 0 && !!coverage913 && coverage913.deepAudit === 20 - derivedAudit913.length && coverage913.sequentialRegistry === 20 - derivedSeq913.length && !!lineage913 && lineage913.broken === 0 && lineage913.cellLevel && lineage913.cellLevel.totalOrphans === 0, JSON.stringify({ contracts:contract913 && contract913.status, routes:contract913 && contract913.routePageCount, authoredDeepAudit:coverage913 && coverage913.deepAudit, derivedDeepAudit:derivedAudit913, broken:lineage913 && lineage913.broken, orphans:lineage913 && lineage913.cellLevel && lineage913.cellLevel.totalOrphans }));
   }
 
   // Group91: v52.58 H3-G element lineage + H3-H/I human surface contracts.

@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v54.97';
+const APP_VERSION = 'v54.98';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -19696,7 +19696,9 @@ window._aioSetLiveData = function(sym, data, meta) {
     regularMarketPreviousClose: provenanceOpts.regularMarketPreviousClose,
     changeBasis: provenanceOpts.changeBasis,
     valueBasis: provenanceOpts.valueBasis,
-    revision: provenanceOpts.revision
+    revision: provenanceOpts.revision,
+    // Symbol-scoped store: recording the currency lets consumers detect a real conflict (P1074).
+    currency: String(data.currency || meta.currency || '').trim().toUpperCase() || null
   });
   window._dataSource = window._dataSource || {};
   window._dataSource[sym] = {
@@ -25229,6 +25231,7 @@ function _aioExternalReferenceMap(externalReferences) {
     contracts.routePageIds.concat(contracts.nonRouteOverlayIds || []).forEach(function(id) {
       if (!window.AIO.PAGE_DEEP_AUDIT_SYSTEMS[id]) {
         window.AIO.PAGE_DEEP_AUDIT_SYSTEMS[id] = ['getFullSurfaceAudit','getCellLevelDataAudit','getEvidenceStoreAudit'];
+        (window.AIO._aioDerivedContractIds = window.AIO._aioDerivedContractIds || { deepAudit: [], sequential: [] }).deepAudit.push(id);
       }
     });
     window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY = window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY || { version: 'v50.0', axes: ['freshness','accuracy','consistency','logic','usability','decision-use'], pages: {} };
@@ -25244,6 +25247,7 @@ function _aioExternalReferenceMap(externalReferences) {
           }),
           auditStatus: { evidence: 'pending-runtime-audit' }
         };
+        (window.AIO._aioDerivedContractIds = window.AIO._aioDerivedContractIds || { deepAudit: [], sequential: [] }).sequential.push(id);
       }
     });
     return {
@@ -25260,29 +25264,34 @@ function _aioExternalReferenceMap(externalReferences) {
   window.AIO.getPageContractAudit = function() {
     window.AIO.applyPageContractCompatibility();
     var contracts = window.AIO_PAGE_CONTRACTS;
-    var missingDom = [];
-    var missingProfile = [];
-    var missingRefresh = [];
-    var missingAudit = [];
-    var missingSequential = [];
+    // Recorded by applyPageContractCompatibility whenever it had to synthesize an
+    // entry. Inspecting the registries after it filled them made this audit verify
+    // its own side effects, so a route with no page-specific contract reported ok.
+    var derivedIds = window.AIO._aioDerivedContractIds || { deepAudit: [], sequential: [] };
+    var inRoute = function(id) { return contracts.routePageIds.indexOf(id) !== -1; };
+    var missingDom = [], missingProfile = [], missingRefresh = [], missingAudit = [], missingSequential = [];
     contracts.routePageIds.forEach(function(id) {
-      try { if (!document.getElementById('page-' + id)) missingDom.push(id); } catch(_) {}
-      if (!window.AIO.DATA_REQUIREMENT_PROFILES || !window.AIO.DATA_REQUIREMENT_PROFILES[id]) missingProfile.push(id);
       var c = contracts.pages[id];
-      if (c && c.refreshTasks && c.refreshTasks.length && (!window.AIO_PAGE_REFRESH_MAP || !window.AIO_PAGE_REFRESH_MAP[id])) missingRefresh.push(id);
-      if (!window.AIO.PAGE_DEEP_AUDIT_SYSTEMS || !window.AIO.PAGE_DEEP_AUDIT_SYSTEMS[id]) missingAudit.push(id);
-      if (!window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY || !window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages || !window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages[id]) missingSequential.push(id);
+      try { if (!document.getElementById('page-' + id)) missingDom.push(id); } catch(_) {}
+      if (!window.AIO.DATA_REQUIREMENT_PROFILES[id]) missingProfile.push(id);
+      if (c && c.refreshTasks && c.refreshTasks.length && !window.AIO_PAGE_REFRESH_MAP[id]) missingRefresh.push(id);
+      if (!window.AIO.PAGE_DEEP_AUDIT_SYSTEMS[id]) missingAudit.push(id);
+      if (!window.AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY.pages[id]) missingSequential.push(id);
     });
-    var status = missingProfile.length || missingRefresh.length || missingAudit.length || missingSequential.length ? 'fail' : (missingDom.length ? 'warn' : 'ok');
+    var n = contracts.routePageIds.length;
+    var derivedDeepAudit = derivedIds.deepAudit.filter(inRoute);
+    var derivedSequential = derivedIds.sequential.filter(inRoute);
+    var incomplete = missingProfile.length || missingRefresh.length || missingAudit.length || missingSequential.length;
+    // A route carrying only the derived fallback is covered by convention, not by an
+    // authored page review, so this warns instead of reporting a complete contract.
     return {
-      status: status,
-      routePageCount: contracts.routePageIds.length,
+      status: incomplete ? 'fail' : (missingDom.length || derivedDeepAudit.length || derivedSequential.length ? 'warn' : 'ok'),
+      routePageCount: n,
       expectedRoutePageCount: 20,  // v53.72 (AI-ERA): Atlas reference route 추가
-      missingDom: missingDom,
-      missingProfile: missingProfile,
-      missingRefreshMap: missingRefresh,
-      missingDeepAudit: missingAudit,
-      missingSequentialRegistry: missingSequential,
+      missingDom: missingDom, missingProfile: missingProfile, missingRefreshMap: missingRefresh,
+      missingDeepAudit: missingAudit, missingSequentialRegistry: missingSequential,
+      derivedDeepAudit: derivedDeepAudit, derivedSequentialRegistry: derivedSequential,
+      authoredCoverage: { deepAudit: n - derivedDeepAudit.length, sequentialRegistry: n - derivedSequential.length, routePageCount: n },
       baseline: contracts.baseline,
       generatedAt: new Date().toISOString()
     };
@@ -26323,6 +26332,9 @@ function _aioExternalReferenceMap(externalReferences) {
         (contracts ? contracts.routePageCount + '/' + expectedRoutePageCount : 'audit unavailable') + ')');
     }
     if (sources && sources.missingCrossChecks && sources.missingCrossChecks.length) warnings.push('source adapter cross-check peer missing: ' + sources.missingCrossChecks.length);
+    // P1076: routes with no page-specific contract are reported, not silently passed.
+    if (contracts && contracts.derivedDeepAudit && contracts.derivedDeepAudit.length) warnings.push('route(s) covered only by the generic derived deep-audit fallback: ' + contracts.derivedDeepAudit.join(','));
+    if (contracts && contracts.derivedSequentialRegistry && contracts.derivedSequentialRegistry.length) warnings.push('route(s) covered only by the derived sequential registry: ' + contracts.derivedSequentialRegistry.join(','));
     if (!registry || registry.auditCount < 7) blocking.push('audit registry incomplete');
     if (evidence.unclassifiedCount) blocking.push('unclassified evidence item(s): ' + evidence.unclassifiedCount);
     if (criticalBlocks.length) blocking.push('critical page blocked evidence: ' + criticalBlocks.map(function(p) { return p.pageId + ':' + p.counts.block; }).join(','));
