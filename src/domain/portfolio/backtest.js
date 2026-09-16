@@ -2,7 +2,7 @@
  * Portfolio monthly backtest engine.
  *
  * Native ESM owner for the reference-only adjusted-close research calculation.
- * The legacy shell receives a compatibility binding from portfolio.js.
+ * The app bootstrap installs the classic-shell compatibility binding.
  */
 function _statMean(arr) {
   if (!arr || !arr.length) return 0;
@@ -570,19 +570,13 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
   };
 };
 
-// The classic shell and legacy regression fixtures still call these pure
-// portfolio-statistics helpers by name.  Keep one native implementation and
-// bind the compatibility surface only when the browser is present.
-if (typeof window !== 'undefined') {
-  window._statMean = _statMean;
-  window._statStdDev = _statStdDev;
-  window._calcDailyReturns = _calcDailyReturns;
-  window._quantileR7 = _quantileR7;
-  window._calcSharpe = _calcSharpe;
-  window._calcMaxDrawdown = _calcMaxDrawdown;
-  window._pearsonCorr = _pearsonCorr;
-  window._calcCorrelationMatrix = _calcCorrelationMatrix;
-  window.AIO = window.AIO || {};
-  window.AIO.buildPortfolioBacktestLab = buildPortfolioBacktestLab;
-  window._aioBuildPortfolioBacktestLab = buildPortfolioBacktestLab;
-}
+export {
+  _statMean,
+  _statStdDev,
+  _calcDailyReturns,
+  _quantileR7,
+  _calcSharpe,
+  _calcMaxDrawdown,
+  _pearsonCorr,
+  _calcCorrelationMatrix
+};

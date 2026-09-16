@@ -43,7 +43,7 @@ last_verified: 2026-09-15
 
 ## Operations Boundary
 
-- Repository operations artifact: `OPERATOR_REQUIRED` at `2026-09-15T01:46:53.242Z`.
+- Repository operations artifact: `OPERATOR_REQUIRED` at `2026-09-16T00:28:05.815Z`.
 - Public stage: `RESEARCH_BETA_CONDITIONAL`; promotion decision: `BLOCKED_UNTIL_OPERATOR_CRITERIA_CLOSE`.
 - Live deployment, provider health, and edge headers must be measured by live gates. Never infer them from this file.
 

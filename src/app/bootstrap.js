@@ -30,7 +30,17 @@ import { deriveConcentrationRisk, concentrationPenaltyForWeight } from '../domai
 // Portfolio statistics/backtest is a native ESM module; importing it during
 // bootstrap keeps the classic regression surface available before lazy route
 // navigation while leaving the implementation out of aio-core.js.
-import '../domain/portfolio/backtest.js';
+import {
+  buildPortfolioBacktestLab,
+  _statMean,
+  _statStdDev,
+  _calcDailyReturns,
+  _quantileR7,
+  _calcSharpe,
+  _calcMaxDrawdown,
+  _pearsonCorr,
+  _calcCorrelationMatrix
+} from '../domain/portfolio/backtest.js';
 import { computeFactorRanks } from '../domain/screener/factor-ranks.js';
 import { deriveFactorWeights } from '../domain/screener/factor-weights.js';
 import { captureScreenRun, createDefaultScreenDefinitions, replayScreenRun, runScreen } from '../domain/screener/screen-engine.js';
@@ -58,6 +68,22 @@ import { createAIKnowledgeRetriever } from '../ai/retrieval/knowledge.js';
 import { createAIAnswerOrchestrator } from '../ai/orchestrator/answer-orchestrator.js';
 import { createEvidenceDocument, evaluateResearchEvidenceFloor, normalizeResearchExecutionResult } from '../ai/research/evidence.js';
 import { createLazyPage, createRouteRegistry, createLifecycleRouter } from './router.js';
+
+// Classic-shell compatibility belongs at the app boundary. Domain modules
+// remain pure and reusable in Node/worker contexts without browser globals.
+if (typeof window !== 'undefined') {
+  window._statMean = _statMean;
+  window._statStdDev = _statStdDev;
+  window._calcDailyReturns = _calcDailyReturns;
+  window._quantileR7 = _quantileR7;
+  window._calcSharpe = _calcSharpe;
+  window._calcMaxDrawdown = _calcMaxDrawdown;
+  window._pearsonCorr = _pearsonCorr;
+  window._calcCorrelationMatrix = _calcCorrelationMatrix;
+  window.AIO = window.AIO || {};
+  window.AIO.buildPortfolioBacktestLab = buildPortfolioBacktestLab;
+  window._aioBuildPortfolioBacktestLab = buildPortfolioBacktestLab;
+}
 import { renderSentimentSummaryProjection } from '../ui/projections/sentiment-summary.js';
 import { createInitialAnalysisState, analysisReducer, ANALYSIS_DATA_CLEAR, ANALYSIS_DATA_SET } from '../state/slices/analysis.js';
 import { createAnalysisCommands } from './commands/analysis.js';

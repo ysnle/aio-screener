@@ -3125,3 +3125,23 @@ total_entries: 593 (P1~P833, 결번 존재 — 상세 + 압축 원장)
 - violated_rule: fail-closed evidence, official-source time-series, shared-field naming, and sequential browser-gate policies.
 - prevention: any visible snapshot identity must be paired with an explicit published status and negative browser fixture; each official calendar addition needs an exact date contract; policy-rate aliases must be guarded by source-key contracts; generated Masters projections must be rebuilt from their producer before release QA.
 - verification: market snapshot 16/16 Tier-0, Masters 37/37 shard reconciliation, headless 109/109, architecture browser PASS including published/unpublished snapshot fixture, route soak/viewport/a11y/critical/vault PASS; affected QA 104 PASS + 3 cached + 1 existing boot-performance target miss; no commit, push, or deployment.
+
+### P880 — portfolio backtest extraction crossed the domain/app boundary (2026-09-16)
+
+- version: v54.97.
+- symptom: CI preflight rejected `src/domain/portfolio/backtest.js` because the extracted native ESM implementation wrote classic-shell globals through `window`.
+- root_cause: the hotspot extraction moved both pure portfolio mathematics and its browser compatibility adapter into the domain layer, coupling a reusable domain module to the browser runtime.
+- files_changed: `src/domain/portfolio/backtest.js`, `src/app/bootstrap.js`, `_context/BUG-POSTMORTEM.md`.
+- prevention: the existing architecture contract rejects `document` or `window` access under `src/domain`; the compatibility adapter now lives once at the app bootstrap boundary.
+- violated_rule: domain modules are pure computation and may not own browser-global integration.
+- verification: `node scripts/qa-runner.mjs --group preflight --no-cache`, `node scripts/ci-runtime-contract-check.mjs`, and `node scripts/ci-esm-core-unit-check.mjs` must pass before the release commit.
+
+### P881 — QA runner behavior fixture depended on a user-owned artifact directory (2026-09-16)
+
+- version: v54.97.
+- symptom: local preflight could not create its content-fingerprint fixture when `_artifacts` was readable but not writable, even though the product gates themselves passed.
+- root_cause: the runner behavior check placed an ephemeral repository input under `_artifacts`, coupling CI infrastructure to an unrelated user-output directory and its host ACL.
+- files_changed: `scripts/ci-qa-runner-behavior-check.mjs`, `_context/BUG-POSTMORTEM.md`.
+- prevention: content invalidation now swaps two immutable, equal-size tracked fixtures; the gate no longer mutates the checkout or depends on artifact-directory permissions.
+- violated_rule: executable QA fixtures must not depend on user-output ACLs or mutate shared repository inputs when an immutable fixture can prove the same contract.
+- verification: `node scripts/ci-qa-runner-behavior-check.mjs` and `node scripts/qa-runner.mjs --group preflight --no-cache` must pass.

@@ -1,15 +1,13 @@
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, relative, resolve } from 'node:path';
+import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const temp = mkdtempSync(join(tmpdir(), 'aio-qa-runner-'));
-const inputDir = mkdtempSync(join(root, '_artifacts', 'qa-input-fixture-'));
-const inputPath = join(inputDir, 'value.txt');
-const fixtureInput = relative(root, inputPath).replaceAll('\\', '/');
-writeFileSync(inputPath, 'before');
+const fixtureInputBefore = 'scripts/fixtures/qa-input-before.txt';
+const fixtureInputAfter = 'scripts/fixtures/qa-input-after.txt';
 const cacheDir = join(temp, 'cache');
 const manifestPath = join(temp, 'manifest.json');
 const marker = join(cacheDir, 'expensive-marker.txt');
@@ -25,7 +23,6 @@ const fail = (message, result = null) => {
   console.error(message);
   if (result) console.error(`${result.stdout || ''}\n${result.stderr || ''}`.trim());
   rmSync(temp, { recursive: true, force: true });
-  rmSync(inputDir, { recursive: true, force: true });
   process.exit(1);
 };
 
@@ -36,7 +33,7 @@ try {
       fixture: {
         phase: 0,
         kind: 'static',
-        inputs: ['scripts/fixtures/**', fixtureInput],
+        inputs: [fixtureScript, fixtureInputBefore],
         gates: [
           { id: 'fixture-pass', script: fixtureScript, args: ['--mode', 'pass'] },
           { id: 'fixture-fail-a', script: fixtureScript, args: ['--mode', 'fail-a'] },
@@ -46,7 +43,7 @@ try {
       expensive: {
         phase: 1,
         kind: 'browser',
-        inputs: ['scripts/fixtures/**', fixtureInput],
+        inputs: [fixtureScript, fixtureInputBefore],
         gates: [{ id: 'fixture-expensive', script: fixtureScript, args: ['--mode', 'marker', '--path', '{cacheDir}/expensive-marker.txt'] }]
       }
     },
@@ -68,7 +65,7 @@ try {
       fixture: {
         phase: 0,
         kind: 'static',
-        inputs: ['scripts/fixtures/**', fixtureInput],
+        inputs: [fixtureScript, fixtureInputBefore],
         gates: [
           { id: 'fixture-pass-a', script: fixtureScript, args: ['--mode', 'pass-a'] },
           { id: 'fixture-pass-b', script: fixtureScript, args: ['--mode', 'pass-b'] }
@@ -86,8 +83,11 @@ try {
   const cachedReport = JSON.parse(readFileSync(join(cacheDir, 'last-run.json'), 'utf8'));
   if (cachedReport.counts?.CACHED !== 2 || cachedReport.durationMs > 2_000) fail('runner did not reuse content-keyed successful gates', second);
 
-  // Same-size content changes must invalidate both successes, not just mtime.
-  writeFileSync(inputPath, 'after!');
+  // Same-size content differences must invalidate both successes. Swapping
+  // immutable tracked fixtures avoids mutating the checkout during the gate.
+  const changedManifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+  changedManifest.groups.fixture.inputs = [fixtureScript, fixtureInputAfter];
+  writeFileSync(manifestPath, JSON.stringify(changedManifest, null, 2));
   const changedInput = run('test');
   if (changedInput.status !== 0 || JSON.parse(readFileSync(join(cacheDir, 'last-run.json'), 'utf8')).counts?.PASS !== 2) fail('runner reused stale input content', changedInput);
 
@@ -95,8 +95,8 @@ try {
     ...base,
     impactRules: [{ patterns: ['scripts/fixtures/**'], groups: ['fixture'] }],
     groups: {
-      preflight: { phase: 0, kind: 'static', inputs: ['scripts/fixtures/**', fixtureInput], gates: [{ id: 'fixture-preflight', script: fixtureScript, args: ['--mode', 'pass'] }] },
-      fixture: { phase: 1, kind: 'static', inputs: ['scripts/fixtures/**', fixtureInput], gates: [{ id: 'fixture-affected', script: fixtureScript, args: ['--mode', 'pass'] }] }
+      preflight: { phase: 0, kind: 'static', inputs: [fixtureScript, fixtureInputBefore], gates: [{ id: 'fixture-preflight', script: fixtureScript, args: ['--mode', 'pass'] }] },
+      fixture: { phase: 1, kind: 'static', inputs: [fixtureScript, fixtureInputBefore], gates: [{ id: 'fixture-affected', script: fixtureScript, args: ['--mode', 'pass'] }] }
     },
     profiles: { test: ['preflight', 'fixture'] }
   }, null, 2));
@@ -155,5 +155,4 @@ try {
   console.log('QA runner behavior OK: phase barriers, failed-only retry, content cache invalidation, task scope, test dependencies, bounded concurrency and exclusive timing gates.');
 } finally {
   rmSync(temp, { recursive: true, force: true });
-  rmSync(inputDir, { recursive: true, force: true });
 }
