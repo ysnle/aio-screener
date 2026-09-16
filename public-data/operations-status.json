@@ -7,9 +7,9 @@
     "STALE",
     "RIGHTS_REVIEW_REQUIRED"
   ],
-  "generatedAt": "2026-09-16T11:52:17.782Z",
+  "generatedAt": "2026-09-16T12:35:20.023Z",
   "appRevision": "v54.98",
-  "dataRevision": "market-snapshot:2026-09-16T10:18:36.102Z:cca2812b",
+  "dataRevision": "market-snapshot:2026-09-16T12:34:58.141Z:03efdd11",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
   "overall": "OPERATOR_REQUIRED",
   "planes": {
@@ -17,7 +17,7 @@
       "status": "CURRENT",
       "statusCode": "CONFIGURED_HEALTHY",
       "source": "github-actions",
-      "lastSuccessfulAt": "2026-09-16T10:18:36.102Z",
+      "lastSuccessfulAt": "2026-09-16T12:34:58.141Z",
       "coverage": {
         "required": 16,
         "observed": 16,
@@ -33,8 +33,8 @@
         "coverageComplete": true,
         "quoteQualityComplete": true,
         "blockedQuotes": [],
-        "generatedAt": "2026-09-16T10:18:36.102Z",
-        "ageHours": 1.56,
+        "generatedAt": "2026-09-16T12:34:58.141Z",
+        "ageHours": 0.01,
         "maxAgeHours": 12,
         "reason": null
       },
@@ -55,11 +55,11 @@
         "status": "CURRENT",
         "statusCode": 200,
         "coverage": "16/16",
-        "revision": "fast-quotes:d8d68fa0",
+        "revision": "fast-quotes:f502e17c",
         "sourceSha": "ac98ec1fa1a58781f9dccd7632af84c4a39428d8",
-        "observedAt": "2026-09-16T10:18:45.572Z",
-        "source": "last-observed-live-health",
-        "observationStatus": "NOT_ATTEMPTED",
+        "observedAt": "2026-09-16T12:35:20.023Z",
+        "source": "periodic-live-health",
+        "observationStatus": "SUCCESS",
         "observationError": null
       },
       "soak": {
@@ -90,7 +90,7 @@
       "lastCallSucceeded": "BLOCKED",
       "evidence": {
         "marketAnalysisOk": false,
-        "generatedAt": "2026-09-16T10:18:36.102Z"
+        "generatedAt": "2026-09-16T12:34:58.141Z"
       }
     },
     "publicChat": {
@@ -102,7 +102,7 @@
       "health": {
         "status": "CURRENT",
         "statusCode": 200,
-        "observedAt": "2026-09-16T10:18:45.572Z",
+        "observedAt": "2026-09-16T12:35:20.023Z",
         "revision": "v54.37",
         "sourceSha": "6ef2561d3cc1cdc010693812a6796556d02c6db4",
         "configured": true,
@@ -112,8 +112,8 @@
         "providerSmokeBoundary": "blocking-deployment-workflow-only",
         "ready": true,
         "note": "Periodic live health observed; provider smoke remains a blocking deployment-workflow gate.",
-        "source": "last-observed-live-health",
-        "observationStatus": "NOT_ATTEMPTED",
+        "source": "periodic-live-health",
+        "observationStatus": "SUCCESS",
         "observationError": null
       },
       "scheduledAnalysisDoesNotImplyChat": true
@@ -124,15 +124,15 @@
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "reference",
-      "lastFetchAt": "2026-09-16T10:18:36.102Z"
+      "lastFetchAt": "2026-09-16T12:34:58.141Z"
     },
     "fred": {
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "official-series",
       "status": "CURRENT",
-      "lastAttemptAt": "2026-09-16T10:18:36.166Z",
-      "lastFetchAt": "2026-09-16T10:18:36.166Z"
+      "lastAttemptAt": "2026-09-16T12:34:58.202Z",
+      "lastFetchAt": "2026-09-16T12:34:58.202Z"
     },
     "sec": {
       "rights": "REVIEW_REQUIRED",
@@ -146,7 +146,7 @@
   "reconciliation": {
     "tier0": {
       "status": "MATCH",
-      "artifact": "market-snapshot:2026-09-16T10:18:36.102Z:cca2812b",
+      "artifact": "market-snapshot:2026-09-16T12:34:58.141Z:03efdd11",
       "uiEvidence": "same-revision-contract",
       "observedAtComplete": true
     },
@@ -154,8 +154,8 @@
     "categoryCount": 22,
     "overall": "PARTIAL",
     "counts": {
-      "PARTIAL": 13,
-      "MATCH": 7,
+      "PARTIAL": 14,
+      "MATCH": 6,
       "BLOCKED": 2
     },
     "closure": {
@@ -169,6 +169,7 @@
         "kr-breadth",
         "breadth-history",
         "hy-oas",
+        "cpi-pce",
         "retail-housing-ism",
         "central-bank-policy",
         "macro-calendar",
@@ -185,6 +186,7 @@
         "kr-breadth",
         "breadth-history",
         "hy-oas",
+        "cpi-pce",
         "retail-housing-ism",
         "central-bank-policy",
         "macro-calendar",
@@ -280,7 +282,7 @@
           }
         ]
       },
-      "sourceRevision": "market-snapshot:2026-09-16T10:18:36.102Z:cca2812b",
+      "sourceRevision": "market-snapshot:2026-09-16T12:34:58.141Z:03efdd11",
       "sourceArtifacts": [
         "public-data/data.json",
         "public-data/market-snapshot.json",
