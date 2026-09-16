@@ -7,7 +7,7 @@
     "STALE",
     "RIGHTS_REVIEW_REQUIRED"
   ],
-  "generatedAt": "2026-09-16T18:55:16.949Z",
+  "generatedAt": "2026-09-16T21:33:12.914Z",
   "appRevision": "v54.98",
   "dataRevision": "market-snapshot:2026-09-16T18:54:53.948Z:1df72068",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
@@ -34,7 +34,7 @@
         "quoteQualityComplete": true,
         "blockedQuotes": [],
         "generatedAt": "2026-09-16T18:54:53.948Z",
-        "ageHours": 0.01,
+        "ageHours": 2.64,
         "maxAgeHours": 12,
         "reason": null
       },
@@ -58,8 +58,8 @@
         "revision": "fast-quotes:79969338",
         "sourceSha": "ac98ec1fa1a58781f9dccd7632af84c4a39428d8",
         "observedAt": "2026-09-16T18:55:16.949Z",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null
       },
       "soak": {
@@ -112,8 +112,8 @@
         "providerSmokeBoundary": "blocking-deployment-workflow-only",
         "ready": true,
         "note": "Periodic live health observed; provider smoke remains a blocking deployment-workflow gate.",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null
       },
       "scheduledAnalysisDoesNotImplyChat": true
@@ -154,8 +154,8 @@
     "categoryCount": 22,
     "overall": "PARTIAL",
     "counts": {
-      "PARTIAL": 13,
-      "MATCH": 7,
+      "PARTIAL": 14,
+      "MATCH": 6,
       "BLOCKED": 2
     },
     "closure": {
@@ -175,6 +175,7 @@
         "news",
         "commodities-fx",
         "global-indices",
+        "crypto",
         "kr-macro-vkospi-supply"
       ],
       "partialCategories": [
@@ -190,7 +191,8 @@
         "macro-calendar",
         "news",
         "commodities-fx",
-        "global-indices"
+        "global-indices",
+        "crypto"
       ],
       "operatorRequiredCategories": [
         "investors-intelligence",
