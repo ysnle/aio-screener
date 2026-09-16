@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-09-16T15:11:00.512Z",
-  "attemptedAt": "2026-09-16T15:11:00.512Z",
-  "lastSuccessfulAt": "2026-09-16T15:11:00.512Z",
+  "generatedAt": "2026-09-16T18:55:21.264Z",
+  "attemptedAt": "2026-09-16T18:55:21.264Z",
+  "lastSuccessfulAt": "2026-09-16T18:55:21.264Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-09-02T15:10:55.610Z",
-  "until": "2026-09-16T15:10:55.610Z",
+  "since": "2026-09-02T18:55:17.600Z",
+  "until": "2026-09-16T18:55:17.600Z",
   "current24hWindow": {
     "start": "2026-09-14T23:00:00.000Z",
     "end": "2026-09-15T23:00:00.000Z",
@@ -14,7 +14,7 @@
   },
   "current24hCoverage": {
     "observedCount": 173,
-    "eligibleTextCount": 21,
+    "eligibleTextCount": 0,
     "channelCounts": {
       "aetherjapanresearch": 31,
       "HANAchina": 38,
@@ -78,12 +78,12 @@
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 332,
-      "freshCount": 38,
-      "eligibleTextCount": 37,
+      "freshCount": 19,
+      "eligibleTextCount": 19,
       "selectedCount": 101,
       "error": null,
       "lastPostId": 25291
@@ -102,12 +102,12 @@
     },
     {
       "channel": "bornlupin",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 180,
-      "freshCount": 40,
-      "eligibleTextCount": 40,
+      "freshCount": 20,
+      "eligibleTextCount": 20,
       "selectedCount": 66,
       "error": null,
       "lastPostId": 20182
@@ -117,17 +117,29 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 696,
+      "count": 697,
       "freshCount": 36,
       "eligibleTextCount": 36,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 69008
+      "lastPostId": 69009
     }
   ],
-  "count": 2326,
-  "retainedItemCount": 480,
+  "count": 2327,
+  "retainedItemCount": 458,
   "observedItems": [
+    {
+      "id": "HANAchina/69009",
+      "channel": "HANAchina",
+      "datetime": "2026-09-16T15:15:45.000Z",
+      "localDateKst": "2026-09-17",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "HANAchina/69008",
       "channel": "HANAchina",
@@ -1257,7 +1269,7 @@
       "tickers": [
         "PLTR"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63850",
@@ -1338,7 +1350,7 @@
       "tickers": [
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/20172",
@@ -1912,7 +1924,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63822",
@@ -1939,7 +1951,7 @@
       "tickers": [
         "035420.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68968",
@@ -2065,7 +2077,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/20163",
@@ -2100,7 +2112,7 @@
         "TSM",
         "005930.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68963",
@@ -2324,7 +2336,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63815",
@@ -2387,7 +2399,7 @@
         "power"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25266",
@@ -2402,7 +2414,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68945",
@@ -3087,7 +3099,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25264",
@@ -3107,7 +3119,7 @@
         "AVGO",
         "AMZN"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68937",
@@ -3154,7 +3166,7 @@
         "META",
         "TSM"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68935",
@@ -3210,7 +3222,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25261",
@@ -3222,7 +3234,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25260",
@@ -3234,7 +3246,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25259",
@@ -3248,7 +3260,7 @@
       "tickers": [
         "AMD"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68932",
@@ -3287,7 +3299,7 @@
         "power"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63772",
@@ -3342,7 +3354,7 @@
       "tickers": [
         "035420.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63769",
@@ -3373,7 +3385,7 @@
         "NVDA",
         "AVGO"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63768",
@@ -3436,7 +3448,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25255",
@@ -3450,7 +3462,7 @@
       "tickers": [
         "AVGO"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25253",
@@ -3478,7 +3490,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25251",
@@ -4042,7 +4054,7 @@
         "GOOG",
         "AVGO"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63737",
@@ -4226,7 +4238,7 @@
         "healthcare"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63732",
@@ -4270,7 +4282,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68918",
@@ -4472,7 +4484,7 @@
         "LITE",
         "SNDK"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68910",
@@ -4590,7 +4602,7 @@
       "tickers": [
         "298040.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/20154",
@@ -4603,7 +4615,7 @@
         "healthcare"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63718",
@@ -4715,7 +4727,7 @@
         "TSM",
         "BE"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68907",
@@ -4840,7 +4852,7 @@
         "power"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/20151",
@@ -4852,7 +4864,7 @@
         "power"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68903",
@@ -6017,7 +6029,7 @@
         "ai-policy"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25212",
@@ -6121,7 +6133,7 @@
       "tickers": [
         "META"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25205",
@@ -6171,7 +6183,7 @@
         "healthcare"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63662",
@@ -6494,7 +6506,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63645",
@@ -6779,7 +6791,7 @@
         "ai-policy"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68869",
@@ -6842,7 +6854,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63630",
@@ -6949,7 +6961,7 @@
         "NVDA",
         "TSM"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/68866",
@@ -7103,7 +7115,7 @@
         "ai-policy"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/63621",
@@ -31763,16 +31775,17 @@
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2326,
-    "eligibleTextCount": 132,
-    "mediaOnlyCount": 2194,
+    "observedCount": 2327,
+    "eligibleTextCount": 94,
+    "mediaOnlyCount": 2233,
     "highSignalCount": 492,
     "broadSignalCount": 1090,
     "selectedRawCount": 416,
-    "selectedRawCoveragePct": 315.2,
+    "selectedRawCoveragePct": 442.6,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
+    "market-note": 670,
     "macro": 809,
     "semi": 531,
     "earnings": 360,
@@ -31783,7 +31796,6 @@
     "power": 318,
     "ai-policy": 215,
     "healthcare": 134,
-    "market-note": 669,
     "media-only": 61,
     "optical": 45,
     "insider": 29,
@@ -31973,7 +31985,7 @@
   },
   "themes": [
     "Macro/Rates (809 posts in 14-day research window): BofA) 미국 반도체; 추정치 상향. 2030년 산업 TAM을 &#036;3.2T로 대폭상향 1. CY26-30 CAGR 18%로 상향(기존 14%), 메모리/서버 영향 저희는 AI 산업이 이전에 투자수익률(ROI)을 방어해야 했던 국면에서 벗어나, 구조적·물리적(칩, 전력) 제약을 해소하는 국면으로 이동하고...",
-    "Market Notes (669 posts in 14-day research window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 예멘군 성명: 아람코 얀부 시설과 하미스 무샤이트 공군기지를 수십 발의 탄도미사일과 무인기로 타격 — 2026년 9월 16일 자비롭고 자애로우신 하나님의 이름으로. 전능하신 하나님께서 말씀하셨다. “너희를 공격한 자에게는 그들이 너희를 공격한 것과...",
+    "Market Notes (670 posts in 14-day research window): ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 예멘군 성명: 아람코 얀부 시설과 하미스 무샤이트 공군기지를 수십 발의 탄도미사일과 무인기로 타격 — 2026년 9월 16일 자비롭고 자애로우신 하나님의 이름으로. 전능하신 하나님께서 말씀하셨다. “너희를 공격한 자에게는 그들이 너희를 공격한 것과...",
     "Semiconductors/Memory (531 posts in 14-day research window): BofA) 미국 반도체; 추정치 상향. 2030년 산업 TAM을 &#036;3.2T로 대폭상향 1. CY26-30 CAGR 18%로 상향(기존 14%), 메모리/서버 영향 저희는 AI 산업이 이전에 투자수익률(ROI)을 방어해야 했던 국면에서 벗어나, 구조적·물리적(칩, 전력) 제약을 해소하는 국면으로 이동하고...",
     "Geopolitics (412 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 세일즈포스 (CRM) — 미즈호가 투자의견 ‘Outperform’을 유지하고 목표주가를 265달러에서 280달러로 상향. AIforce가 성장에 기여하고 FY2027 하반기 유기적 매출 성장률이 완만하게...",
     "Earnings/Corporate (360 posts in 14-day research window): BofA) 미국 반도체; 추정치 상향. 2030년 산업 TAM을 &#036;3.2T로 대폭상향 1. CY26-30 CAGR 18%로 상향(기존 14%), 메모리/서버 영향 저희는 AI 산업이 이전에 투자수익률(ROI)을 방어해야 했던 국면에서 벗어나, 구조적·물리적(칩, 전력) 제약을 해소하는 국면으로 이동하고...",
@@ -32185,7 +32197,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 669,
+      "count": 670,
       "focus": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 예멘군 성명: 아람코 얀부 시설과 하미스 무샤이트 공군기지를 수십 발의 탄도미사일과 무인기로 타격 — 2026년 9월 16일 자비롭고 자애로우신 하나님의 이름으로. 전능하신 하나님께서 말씀하셨다. “너희를 공격한 자에게는 그들이 너희를 공격한 것과..."
     }
   ],
@@ -40858,20 +40870,6 @@
       "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 9월 16일 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국과 중국은 농업·에너지 분야 관세 인하를 논의 중이며, 일부 중국산 제조 투입재에 대한 관세 인하 및..."
     },
     {
-      "id": "aetherjapanresearch/25265",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25265",
-      "datetime": "2026-09-15T15:45:56.000Z",
-      "localDateKst": "2026-09-16",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "DDR5가격 독일에서 다시 최고치 갱신"
-    },
-    {
       "id": "aetherjapanresearch/25264",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25264",
@@ -40997,48 +40995,6 @@
       "summary": ">>Meta: 내년 상반기 AI 칩 Arke 배치, 하반기 차세대 제품 Astrid 출시 •Meta는 내년 상반기부터 데이터센터에 새로운 자체 개발 AI 칩을 배치해 AI 모델 실행 시 비용과 에너지를 절감할..."
     },
     {
-      "id": "aetherjapanresearch/25262",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25262",
-      "datetime": "2026-09-15T13:52:45.000Z",
-      "localDateKst": "2026-09-15",
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "score": 45,
-      "hasText": true,
-      "summary": "왜 이란이라고 말을 못하니"
-    },
-    {
-      "id": "aetherjapanresearch/25261",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25261",
-      "datetime": "2026-09-15T13:51:53.000Z",
-      "localDateKst": "2026-09-15",
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "score": 47,
-      "hasText": true,
-      "summary": "베선트, 화요일 채권 금리 상승에 대한 질문에 \"글로벌 문제\" 때문이라고 답변"
-    },
-    {
-      "id": "aetherjapanresearch/25260",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25260",
-      "datetime": "2026-09-15T13:50:46.000Z",
-      "localDateKst": "2026-09-15",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "항공자위대 무인정찰기 '글로벌 호크' 추락 톳토리현 앞바다에서 기체 일부 발견 항공자위대는 15일, 대형 무인정찰기 '글로벌 호크'가 15일 오후 1시경 톳토리현 앞바다 북쪽 약 50km 해상에서 비행 중..."
-    },
-    {
       "id": "aetherjapanresearch/25259",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25259",
@@ -41119,22 +41075,6 @@
       "summary": "2026년 9월 15일 프리마켓 주요 종목 동향 ━━━━━━━━━━━━━━ 상승 종목 VERA (+15.20%) 2년간 IgAN 임상시험에서 모든 평가지표 달성. WAY (+13.65%) 회사 매각을 포함한..."
     },
     {
-      "id": "aetherjapanresearch/25257",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25257",
-      "datetime": "2026-09-15T12:36:26.000Z",
-      "localDateKst": "2026-09-15",
-      "tags": [
-        "kr-market"
-      ],
-      "tickers": [
-        "035420.KS"
-      ],
-      "score": 47,
-      "hasText": true,
-      "summary": "[속보]이형일 경제부총리 겸 재정경제부 장관 후보자 “내년부터 가상자산 과세…충격 크지 않을 것”"
-    },
-    {
       "id": "bornlupin/20160",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20160",
@@ -41169,50 +41109,6 @@
       "score": 60,
       "hasText": true,
       "summary": "스페이스X 사장 그윈 숏웰이 우주 데이터센터 구축 필요성을 강조. “지상에 데이터센터를 구축하는 데도 비용이 들어갑니다. 부지를 매입해야 하는데, 슈퍼컴퓨팅 센터가 들어선다는 사실이 알려지는 순간 에이커당..."
-    },
-    {
-      "id": "aetherjapanresearch/25256",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25256",
-      "datetime": "2026-09-15T11:47:12.000Z",
-      "localDateKst": "2026-09-15",
-      "tags": [
-        "japan"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "태풍 25호 일본에 또 올 예정"
-    },
-    {
-      "id": "aetherjapanresearch/25255",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25255",
-      "datetime": "2026-09-15T11:40:14.000Z",
-      "localDateKst": "2026-09-15",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [
-        "AVGO"
-      ],
-      "score": 39,
-      "hasText": true,
-      "summary": "어렵네 1. 가방 귀찮아서 안들고다니거나 책가방에 노트북 넣어서 출근함 2. 투명케이스 TPU재질 변색됨 3. 고기좋아 치킨좋아 4. 지나가다 보이면 사는거 7. 귀찮음 10. 손으로 뜯거나 칼 푹찍어서 뜯음..."
-    },
-    {
-      "id": "aetherjapanresearch/25253",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25253",
-      "datetime": "2026-09-15T11:36:52.000Z",
-      "localDateKst": "2026-09-15",
-      "tags": [
-        "media-only"
-      ],
-      "tickers": [],
-      "score": 0,
-      "hasText": false,
-      "summary": ""
     },
     {
       "id": "aetherjapanresearch/25252",
