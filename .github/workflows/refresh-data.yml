@@ -21,6 +21,9 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    # Includes waiting for the dispatched CI run to produce its attestation
+    # before handing the run id to Pages (see ensure-live-convergence.mjs).
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -31,6 +34,7 @@ jobs:
           node-version: '20'
 
       - name: Fetch market data
+        id: fetch-market
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -39,12 +43,19 @@ jobs:
         run: node scripts/fetch-data.mjs
 
       - name: Fetch Telegram digest
+        id: fetch-telegram
+        # P1085: an unavailable quote plane used to abort the whole job, so this
+        # independent lane and the 13F lane produced nothing and their gates never
+        # ran — one provider outage looked like a total pipeline outage. Each lane
+        # now runs and reports on its own; publication stays fail-closed below.
+        if: ${{ !cancelled() }}
         env:
           TG_PAGE_LIMIT: 50
         run: node scripts/fetch-telegram-digest.mjs --days=14 --out=public-data/telegram-digest.json
 
       - name: Refresh SEC 13F and 13D-G discovery with connected rows
-        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '13 7 * * *'
+        id: masters
+        if: ${{ !cancelled() && (github.event_name == 'workflow_dispatch' || github.event.schedule == '13 7 * * *') }}
         env:
           SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
         run: |
@@ -59,15 +70,19 @@ jobs:
           node scripts/ci-masters-contract-check.mjs
 
       - name: Promote one data release revision
+        if: ${{ !cancelled() }}
         run: node scripts/sync-data-release-manifests.mjs
 
       - name: Reject silent artifact degradation
+        if: ${{ !cancelled() }}
         run: node scripts/ci-refresh-artifact-integrity-check.mjs
 
       - name: Validate source-to-consumer data continuity
+        if: ${{ !cancelled() }}
         run: node scripts/ci-data-continuity-check.mjs
 
       - name: Validate evidence-derived 22-category reconciliation
+        if: ${{ !cancelled() }}
         run: |
           node scripts/ci-reconciliation-contract-check.mjs
           node scripts/ci-source-registry-contract-check.mjs
@@ -80,6 +95,7 @@ jobs:
         # The bot may publish a data commit before the independent CI run, but
         # only after the complete producer-side artifact boundary passes. CI
         # still receives the exact pushed SHA and Pages waits for its attestation.
+        if: ${{ !cancelled() }}
         run: |
           set -euo pipefail
           git diff --check
@@ -88,6 +104,7 @@ jobs:
           node scripts/ci-data-refresh-audit.mjs
 
       - name: Pipeline status summary
+        if: ${{ !cancelled() }}
         run: |
           node --input-type=module - <<'NODE'
           import fs from 'node:fs';
@@ -129,6 +146,10 @@ jobs:
 
       - name: Commit refreshed public data if changed
         id: commit
+        # Publication stays deliberately fail-closed: every producer lane must have
+        # succeeded (or been legitimately skipped) before anything reaches main.
+        # Lane isolation above changes attribution and diagnostics, not this gate.
+        if: ${{ !cancelled() && steps.fetch-market.outcome == 'success' && steps.fetch-telegram.outcome == 'success' && (steps.masters.outcome == 'success' || steps.masters.outcome == 'skipped') }}
         # P564/R255: this used to `git push` once with no pull/rebase beforehand. main is also
         # updated directly by humans (e.g. editing operator-note.json via the GitHub web UI)
         # and by other sessions/workflows while this job's two fetch steps run for minutes —
@@ -194,11 +215,32 @@ jobs:
           echo "Pushed refreshed public-data files"
 
       - name: Dispatch exact produced commit to CI
-        if: steps.commit.outputs.changed == 'true'
+        if: ${{ !cancelled() && steps.commit.outputs.changed == 'true' }}
+        id: dispatch
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           final_sha="$(git rev-parse HEAD)"
           gh workflow run ci.yml --ref main -f release_sha="$final_sha" -f origin="refresh-data"
+          echo "sha=$final_sha" >> "$GITHUB_OUTPUT"
           echo "Dispatched CI for exact refresh commit $final_sha"
+
+      - name: Converge live deployment to the attested revision
+        # R606: a workflow_dispatch run created with the built-in GITHUB_TOKEN does
+        # not emit workflow_run, so this run's attestation had no consumer and data
+        # commits stopped reaching the live site (2026-09-17: 5 commits / 13.4h
+        # stale). This step waits for the run it just created and hands the exact
+        # run id to pages-deploy, which still validates the attestation artifact.
+        # `!cancelled()` so a lost hand-off self-heals on the next scheduled cycle
+        # even when this cycle failed before committing.
+        if: ${{ !cancelled() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [ -n "${{ steps.dispatch.outputs.sha }}" ]; then
+            node scripts/ensure-live-convergence.mjs --await-sha "${{ steps.dispatch.outputs.sha }}"
+          else
+            node scripts/ensure-live-convergence.mjs
+          fi

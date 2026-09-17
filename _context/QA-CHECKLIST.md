@@ -1733,3 +1733,50 @@ Standalone worker security gate also exits deterministically after PASS (`ci-wor
 - [ ] Vela-derived chart architecture stays dependency-free: canonical time/bar boundary, provider/script/renderer ports, capability negotiation, provisional tick vs settled bar, fail-soft lifecycle, and no dead legend rows.
 - [ ] Research metadata (`referenceFrameworkIds`, `referenceTimeSeriesIds`, `referenceBoundary`, `researchContext`) is not included in factor ranking or current price/target/position calculations.
 - [ ] Run `ci-research-flow-contract-check.mjs`, syntax, workspace/knowledge/skill contracts, affected QA, and route/browser checks; report verified, blocked, and unverified evidence separately.
+
+## P1083~P1089 automation continuity (2026-09-17)
+
+자동화·지속 운영 감사(`_artifacts/automation-audit-20260917/REPORT.md`)에서 도출한 회귀 게이트. 아래 항목은 모두 실행 가능한 계약으로 닫혀 있다.
+
+- **P1083-Q1**: 워치독 실패 요약이 셸 확장으로 죽지 않고 프로필·카운트·실패 게이트 id·상세 tail·`blocked by`를 Step Summary에 남긴다 — `scripts/report-qa-failures.mjs` + `ci-qa-pipeline-contract-check.mjs`의 인라인 템플릿 리터럴 금지 (R610).
+- **P1084-Q1**: 에이전트 편집 훅이 Claude `file_path`/`notebook_path`와 Codex `command` 양쪽에서 대상을 판정하고, 각 클라이언트 픽스처(archive deny·backup deny·정상 allow·workspace/version post-edit·무관 파일 무음)가 이를 고정한다 — `ci-workspace-contract-check.mjs` (R611).
+- **P1084-Q2**: 두 에이전트 클라이언트가 `guard-command`·`guard-edit`·`post-edit`·`session-start` 동일 가드 모드를 배선한다 — `ci-workspace-contract-check.mjs` (R611).
+- **P1085-Q1**: 시세 레인 실패가 Telegram·13F·게이트·요약·커밋·수렴을 스킵시키지 않으면서, 발행은 모든 프로듀서 성공 시에만 일어난다 — `ci-qa-pipeline-contract-check.mjs`의 `refresh-data isolates producer lanes without loosening the publish boundary` (R609).
+- **P1086-Q1**: 서비스워커 폴백이 읽기 시점에 나이를 판정하고, 상한 초과분을 현재 값으로 반환하지 않으며 stale을 응답 본문에서 구분한다 — `ci-service-worker-cache-policy-check.mjs` (R608).
+- **P1087-Q1**: 봇이 디스패치한 CI의 attestation이 실제로 소비된다 — 프로듀서가 run id를 넘기고 배포 워크플로가 결론·브랜치·SHA와 아티팩트를 재검증한다 — `ci-qa-pipeline-contract-check.mjs`의 hand-over 단언 (R606).
+- **P1087-Q2**: 라이브 수렴이 매 refresh 주기마다 멱등하게 확인되고, 실패만 있는 리비전에는 배포를 요청하지 않는다 — `scripts/ensure-live-convergence.mjs` (R606).
+- **P1088-Q1**: 모든 워크플로 job이 `timeout-minutes`를 선언한다 — `ci-qa-pipeline-contract-check.mjs`의 `every workflow job declares timeout-minutes` (R607).
+- **P1089-Q1**: 워크플로가 참조하는 모든 `secrets.*`/`vars.*`가 운영자 런북에 문서화되고, 수동 전용 배포 워크플로가 워크플로/문서 중 한쪽만 바뀌지 않는다 — `scripts/ci-operator-secrets-contract-check.mjs` (R612).
+
+### 미검증으로 남긴 것 (자동화로 닫지 않음)
+
+- [ ] 라이브 Pages 배포 실행: 수렴 경로를 실제로 디스패치해 `deployment.json.sourceSha`가 origin/main과 일치하는지 관측하지 않았다. 로컬에서는 드라이런으로 목표 탐색까지만 확인했다.
+- [ ] 오프라인 실사용에서 서비스워커 stale 폴백이 앱의 기존 `_offline` 처리와 함께 의도대로 동작하는지 브라우저 검증.
+- [ ] Cloudflare Worker 소스↔라이브 리비전 격차(관측: 저장소 v54.98 대비 라이브 프록시 v54.37)는 수동 배포 경계를 자동화하거나 승격 정책을 바꾸지 않는 한 남는다.
+- [ ] GitHub Actions에서의 스킵/`!cancelled()` 실제 동작은 원격 워크플로 실행으로만 최종 확인된다.
+
+## 의미·정합성 검토 미해결 항목 (2026-09-17)
+
+`_artifacts/automation-audit-20260917/REPORT.md` §10에서 직접 계산·대조로 확인한 결함. 모두 **미수정**이며 P 항목이 아직 없다.
+
+- [ ] S1 `history.json`의 dxy·wti·gold·kospi·kosdaq·btc가 `valueBasis: previous-completed-close`인데 `fieldMeta.observedAt`은 현재 관측 시각이다(dxy/wti/gold는 스냅샷과 동일, kospi/kosdaq/btc는 `00:00:00Z`로 정규화되어 소스 시각과도 불일치). 이전 세션 종가가 현재 시각에 찍혀 14개 필드 중 6개 필드의 시간축이 한 세션 어긋난다. 게이트 공백: `valueBasis`와 `observedAt`의 정합성을 검사하는 게이트가 없다.
+- [ ] S2 `scripts/fetch-data.mjs:2831`의 `MARKET_ANALYSIS_QUOTE_DEFS`가 `^TNX`를 `unit: 'index'`로 하드코딩해, 같은 산출물의 `market.rates.us10y`(`unit: "percent"`)와 모순된다. 라이브 서술이 `10Y=5.006 index`로 표시된다. metricId도 `market.us10y` vs `market.rates.us10y`로 어긋나고, claim `evidenceIds`(`market-analysis:^TNX:…`)가 스냅샷 evidenceId(`market.rates.us10y:09ea45e1`)로 해석되지 않아 주장↔근거 역추적이 id로 불가능하다.
+- [ ] S3 `index.html:11828`("주기: 45분 자동 갱신 (GitHub Actions)")과 `index.html:11780`("수집 주기 45분")이 실제와 다르다. GitHub Actions 뉴스 cron은 30분(`17,47 * * * *`)이고 뉴스 사이클은 `kst-0800-completed-24h`로 일 1회 갱신이다. 45분은 `js/aio-data.js:3686`의 브라우저 자체 갱신 타이머(`interval: 2700000`)이며 이를 수집 주기로 잘못 귀속했다. 같은 패널의 사이클 문구는 정확하다.
+- [ ] S4 `macro._freshness_*` 19개가 전부 `stale-reference`인데 `_source_*`는 모두 1차 정식 출처(`bls/bea/fred/us-treasury-official-primary`)다. `fetch-data.mjs:682`가 LKG 병합에서만 플래그를 설정하고 `mergeMacroLastKnownGood`가 현재 값 존재 시 `continue`하므로 한 번 stale이 되면 복구 후에도 지워지지 않는다(sticky). 앱은 이 필드를 읽지 않아 현재 사용자 영향은 없으나, 기계 계약이 거짓 신호를 발행하고 진짜 LKG와 구분할 수 없다.
+- [ ] S5 `operations-status.json`의 `statusVocabulary`가 실제 `status`/`overall` 값(`CURRENT`/`OPERATOR_REQUIRED`/`BLOCKED`/`MATCH`/`PARTIAL`)과 교집합이 0이다. 선언된 어휘는 `statusCode`에만 해당한다(`build-operations-status.mjs:376`).
+- [ ] S6 `operations-status.planes.durable.freshness`가 빌드 시점에 동결된다(`ageHours: 0.02`, `fresh: true`). 발행 후 경과 시간을 반영하지 않으므로 소비자가 `generatedAt`으로 재계산해야 한다. 앱은 이 파일을 읽지 않는다.
+
+### 검토 중 정정한 오판 (기록)
+
+- [ ] 초기 구조 probe 출력 절단으로 "`macro`에 `_treasury`/`dgs*`가 없다"고 판단할 뻔했으나 실제로는 존재한다(REPORT §10.3). 검토 절차에서 출력 상한을 신뢰한 것이 원인이므로, 아티팩트 존재 여부는 전용 키 조회로 확인한다.
+
+## semantic fix residuals (v55.01, 2026-09-17)
+
+P1090~P1095로 수정했으나 남은 항목. 게이트는 새 형식이 산출물에 전파되면 자동으로 조여진다.
+
+- [ ] 전환 전파 확인: `data.json.macro._freshness_*`, `history.json.fieldMeta.*.observedAtSource`, `data.json.marketAnalysis.metricEvidence[].canonicalMetricId`는 다음 refresh 사이클에 발행된다. 전파 후 `ci-artifact-semantics-check.mjs`의 전환 안내가 사라지고 산출물 단언이 무조건 적용되는지 확인한다.
+- [ ] `history.json` 이전 종가 필드의 `observedAt`이 null이 된 뒤 앱(`_aioHistorySeries` → 차트·신선도 표시)이 의도대로 동작하는지 실브라우저 검증. `carryForwardHistoryEvidence`는 `observedAt`이 없는 행을 건너뛰므로 해당 필드의 후속 carry가 달라질 수 있다.
+- [ ] signal 페이지가 `scoreBreakdown.adjustments`를 별도 행으로 렌더해 배분 합계와 총점의 차액을 화면에서 설명하도록 수정(현재는 산출물에만 존재).
+- [ ] `js/aio-core.js:25058`이 `evidenceIds:['data.json:quotes']`로 quote 평면을 `loaded`로 보고한다. `data.json.quotes`는 P715로 비어 있으므로 근거 인용을 `market-snapshot.json`으로 정정한다.
+- [ ] S9(미수정): `isMarketAnalysisNewsEligible`이 40자 이상 본문을 요구하는데 뉴스 파이프라인은 헤드라인만 저장해 인과 근거가 항상 0건이다. 그 결과 인과 표현이 있는 LLM 서술은 상시 차단되고, 라이브 서술은 영구히 `blocked` 폴백이다. 피드가 제공하는 발췌를 보존할지(그리고 출처 권리상 허용되는지)는 제품·권리 판단이 필요하다.
+- [ ] S1/P1095 수정으로 `history.json`의 6개 필드가 `observedAt: null`이 되는데, 이 값이 `reference-only`/`observedAt` 미상으로 소비자에게 표시되는지 확인한다(현재 게이트는 시각이 없으면 통과).

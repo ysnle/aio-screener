@@ -80,6 +80,41 @@ let advisoryOutput = {};
 try { advisoryOutput = JSON.parse(advisoryPostEdit.stdout || '{}'); } catch { advisoryOutput = {}; }
 check('PostToolUse fixture defers QA to task closeout without blocking the edit', advisoryPostEdit.status === 0 && /^AIO closeout reminder:/.test(String(advisoryOutput.systemMessage || '')), advisoryPostEdit.stderr || advisoryPostEdit.stdout);
 
+// P1084: every fixture above uses the Codex apply_patch shape, where the patch
+// text arrives in `tool_input.command`. Claude Code's Edit/Write tools send
+// `tool_input.file_path` and no `command` key, so a hook that reads only
+// `command` passed every Codex fixture while being completely inert on Claude.
+// These fixtures pin the Claude payload shape so that regression cannot return.
+const claudeArchiveGuard = runHook('guard-edit', { cwd: root, hook_event_name: 'PreToolUse', tool_name: 'Edit', tool_input: { file_path: '_archive/evidence.md', old_string: 'a', new_string: 'b' } });
+let claudeArchiveOutput = {};
+try { claudeArchiveOutput = JSON.parse(claudeArchiveGuard.stdout || '{}'); } catch { claudeArchiveOutput = {}; }
+check('Claude file_path edit fixture denies archive mutation', claudeArchiveGuard.status === 0 && claudeArchiveOutput.hookSpecificOutput?.permissionDecision === 'deny', claudeArchiveGuard.stderr);
+const claudeBackupGuard = runHook('guard-edit', { cwd: root, hook_event_name: 'PreToolUse', tool_name: 'Write', tool_input: { file_path: '_backup/index.html', content: 'x' } });
+let claudeBackupOutput = {};
+try { claudeBackupOutput = JSON.parse(claudeBackupGuard.stdout || '{}'); } catch { claudeBackupOutput = {}; }
+check('Claude file_path write fixture denies backup mutation', claudeBackupOutput.hookSpecificOutput?.permissionDecision === 'deny');
+const claudeSafeGuard = runHook('guard-edit', { cwd: root, hook_event_name: 'PreToolUse', tool_name: 'Edit', tool_input: { file_path: 'src/app/bootstrap.js', old_string: 'a', new_string: 'b' } });
+check('Claude file_path edit fixture allows normal source edits', claudeSafeGuard.status === 0 && claudeSafeGuard.stdout === '', claudeSafeGuard.stderr);
+const claudeAdvisory = runHook('post-edit', { cwd: root, hook_event_name: 'PostToolUse', tool_name: 'Edit', tool_input: { file_path: '_context/RULES.md', old_string: 'a', new_string: 'b' } });
+let claudeAdvisoryOutput = {};
+try { claudeAdvisoryOutput = JSON.parse(claudeAdvisory.stdout || '{}'); } catch { claudeAdvisoryOutput = {}; }
+check('Claude file_path post-edit fixture flags workspace surfaces', claudeAdvisory.status === 0 && /^AIO closeout reminder:/.test(String(claudeAdvisoryOutput.systemMessage || '')), claudeAdvisory.stderr || claudeAdvisory.stdout);
+const claudeVersionAdvisory = runHook('post-edit', { cwd: root, hook_event_name: 'PostToolUse', tool_name: 'Edit', tool_input: { file_path: 'sw.js', old_string: 'a', new_string: 'b' } });
+let claudeVersionOutput = {};
+try { claudeVersionOutput = JSON.parse(claudeVersionAdvisory.stdout || '{}'); } catch { claudeVersionOutput = {}; }
+check('Claude file_path post-edit fixture flags version surfaces', /^AIO closeout reminder:/.test(String(claudeVersionOutput.systemMessage || '')));
+const claudeNoise = runHook('post-edit', { cwd: root, hook_event_name: 'PostToolUse', tool_name: 'Edit', tool_input: { file_path: 'notes.txt', old_string: 'a', new_string: 'b' } });
+check('Claude file_path post-edit fixture stays silent on unrelated files', claudeNoise.status === 0 && claudeNoise.stdout === '', claudeNoise.stderr);
+
+const claudeSettings = JSON.parse(read('.claude/settings.json'));
+const claudeCommands = Object.values(claudeSettings.hooks || {})
+  .flatMap((groups) => groups)
+  .flatMap((group) => group.hooks || [])
+  .map((handler) => String(handler.command || ''));
+check('Claude hooks wire the same guard modes as Codex', ['guard-command', 'guard-edit', 'post-edit', 'session-start'].every((mode) => claudeCommands.some((entry) => entry.includes(`agent-hook.mjs ${mode}`))));
+check('Claude hooks contain no automatic commit/deploy command', claudeCommands.every((entry) => !/(auto-commit|git\s+commit|git\s+push|\/deploy)/i.test(entry)));
+check('Claude SessionStart hook receives the generated preflight', claudeCommands.some((entry) => entry.includes('agent-hook.mjs session-start')));
+
 for (const dir of ['.codex/hooks', '.claude/hooks']) {
   const shellFiles = exists(dir) ? readdirSync(join(root, dir)).filter((name) => name.endsWith('.sh')) : [];
   check(`${dir} contains no legacy shell hooks`, shellFiles.length === 0, shellFiles.join(', '));
@@ -122,7 +157,7 @@ check('data watchdog declares the GitHub Pages header policy', /LIVE_HEADER_POLI
 check('header limitations cannot silently become publication-ready', /OPERATOR_REQUIRED|PUBLIC_DEPLOY.*OPERATOR_REQUIRED/s.test(liveInvariant));
 check('live header policy has a deterministic behavior gate', exists('scripts/ci-live-header-policy-contract-check.mjs') && qaScripts.includes('scripts/ci-live-header-policy-contract-check.mjs'));
 
-const noAutoCommitSurfaces = ['AGENTS.md', 'CLAUDE.md', '_context/WORKFLOW-GOVERNANCE.md', '.codex/hooks.json'];
+const noAutoCommitSurfaces = ['AGENTS.md', 'CLAUDE.md', '_context/WORKFLOW-GOVERNANCE.md', '_context/OPERATOR-RUNBOOK.md', '.codex/hooks.json'];
 for (const file of noAutoCommitSurfaces) {
   const text = read(file);
   check(`${file} forbids automatic commit/deploy`, /automatic commit|자동 커밋|auto-commit|never commit|commit.*explicit|커밋.*명시/i.test(text));

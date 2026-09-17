@@ -13,4 +13,18 @@ const installBlock = source.slice(source.indexOf("self.addEventListener('install
 if (!/cache\.addAll\(CRITICAL_SHELL_ASSETS\)/.test(installBlock)) fail('critical assets are not installed atomically');
 if (/Promise\.allSettled|PUBLISHED_RUNTIME_ASSETS/.test(installBlock)) fail('install path still fans out to the full runtime registry or hides partial failures');
 if (!/RUNTIME_SHELL_PATH_RE/.test(source) || !/isRuntimeShell/.test(source)) fail('requested js/src modules are not runtime cached');
+
+// P1086: TTL was enforced only by purge-on-write, so the network-failure fallback
+// returned `caches.match(...)` regardless of age and an offline client could be
+// served arbitrarily old market data as if it were current. The read path must
+// bound the age itself and must not silently return an expired entry.
+const dataFallback = source.slice(source.indexOf('const isData = DATA_URL_PATTERNS'));
+if (!dataFallback) fail('data cache branch not found');
+if (!/cachedWithinMaxAge\(request, isReference\)/.test(dataFallback)) fail('data/news/reference fallback does not apply the maximum-age bound');
+if (!/if \(entry\.stale\) return staleResponse\(/.test(dataFallback)) fail('data fallback can still return an expired cache entry');
+if (!/STALE_MAX_AGE_MULTIPLIER/.test(source)) fail('data/news cache fallback has no maximum-age multiplier');
+if (!/REFERENCE_MAX_AGE_MS/.test(source)) fail('reference cache fallback has no absolute maximum age');
+if (!/_stale:\s*true/.test(source)) fail('a stale cache response is indistinguishable from a current one');
+if (!/x-cache-time/.test(source) || !/x-cache-ttl/.test(source)) fail('cache entries do not carry the timestamp/ttl headers the age bound needs');
+
 console.log(`Service-worker cache policy OK: ${critical.length} critical assets; route modules are request-driven.`);

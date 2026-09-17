@@ -24,6 +24,8 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
+    # Bounded so a hung gate cannot occupy a runner for the 360-minute default.
+    timeout-minutes: 30
     env:
       GITHUB_TOKEN: ${{ github.token }}
     steps:
@@ -48,11 +50,14 @@ jobs:
           node scripts/qa-runner.mjs watchdog --no-cache --jobs 2 2>&1 | tee "$RUNNER_TEMP/watchdog-qa.log"
 
       - name: Summarize failed watchdog gates
+        # P1083: this used to inline a JS template literal into `node -e "..."`,
+        # which bash expanded first — every run died with `bad substitution` and
+        # published an empty Step Summary, hiding which gate was red. The logic
+        # now lives in a file that is unit-testable and shell-expansion free.
         if: always() && steps.qa.outcome != 'success'
         env:
           AIO_QA_CACHE_DIR: ${{ runner.temp }}/aio-qa
-        run: |
-          node --input-type=module -e "import fs from 'node:fs'; const reportPath=process.env.AIO_QA_CACHE_DIR + '/last-run.json'; let report=null; try { report=JSON.parse(fs.readFileSync(reportPath,'utf8')); } catch (error) { report={error:'qa report unavailable: '+error.message}; } const failed=(report.results||[]).filter((entry)=>entry.status==='FAIL'); const skipped=(report.results||[]).filter((entry)=>entry.status==='SKIP'); const lines=['## Watchdog failure detail','',`- Failed gates: ${failed.map((entry)=>entry.id).join(', ') || 'unavailable'}`,`- Failed gate details: ${failed.map((entry)=>entry.id+': '+(entry.error||entry.output||'no detail').split('\\n').slice(-3).join(' | ')).join(' ; ') || 'unavailable'}`,`- Blocked/skipped gates: ${skipped.map((entry)=>entry.id).join(', ') || 'none'}`,`- QA report: ${reportPath}`,'']; fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join('\\n')+'\\n'); console.log(lines.join('\\n'));"
+        run: node scripts/report-qa-failures.mjs --title Watchdog
 
       - name: Build rolling 7/30-day operations evidence
         if: always()

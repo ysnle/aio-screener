@@ -2,10 +2,58 @@
 verified_by: Codex local source review + affected QA (workspace/deployment regression); full semantic audit remains open
 last_verified: 2026-09-17
 confidence: medium
-target_version: v54.98
+target_version: v55.01
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R613. 발행 산출물은 값·단위·시각·어휘가 스스로 정합해야 한다 (v55.01, P1090~P1095)
+
+**Rule**: 발행되는 아티팩트는 스키마와 신선도만 맞으면 되는 것이 아니다. 같은 산출물 안에서 값과 라벨이 서로 모순되어서는 안 되며, 다음을 실행 가능한 게이트로 고정한다. (1) 출처가 살아있는 1차 출처인데 신선도 플래그가 stale이면 실패한다 — 플래그는 설정만 하지 말고 복구 시 해제한다. (2) 어떤 값의 관측 시각은 그 값의 관측 시각이어야 한다: 이전 세션 종가를 현재 관측 시각으로 스탬프하지 말고, 모르면 null로 fail-closed하며 `observationRelation`·`observedAtSource`로 관계를 드러낸다. (3) 서술·주장의 `evidenceIds`는 발행 산출물 안에서 해소되어야 하고, 단위와 metricId는 중복 정의하지 않고 정본 스냅샷에서 가져온다. (4) 화면이 명시한 계산식(가중치 등)은 표시값으로 재구성 가능해야 한다 — 총점을 사후에 바꾸는 조정(보정·클램프)은 반드시 항목으로 노출한다. (5) 어휘를 선언하는 필드는 그 이름이 가리키는 축의 값 전부를 포함해야 하며, 서로 다른 축(status/statusCode)은 다른 이름으로 선언한다. (6) 빌드 시점에 계산해 동결되는 판정에는 `evaluatedAt`을 남겨 점시점 판정임을 드러낸다.
+
+**Validation**: `scripts/ci-artifact-semantics-check.mjs`(data 그룹 `artifact-semantics`), `src/data/contracts/operations.js`의 어휘 순회 검증, `scripts/ci-domain-parity-check.mjs`(총점 파리티 유지).
+
+## R612. 운영자 프로비저닝 경계는 문서-계약으로 검사한다 (v54.99, P1089)
+
+**Rule**: 워크플로가 참조하는 모든 `secrets.*`/`vars.*`는 운영자 런북(`_context/OPERATOR-RUNBOOK.md`)에 이름·용도·결손 시 결과가 문서화되어야 하고, 그 일치를 CI가 검사한다. 수동 전용 배포 워크플로는 워크플로와 문서가 함께 움직여야 하며 한쪽만 바뀌면 실패한다. 런북에는 시크릿 값을 기록하지 않는다 — 이름과 결과만 기록하므로 실제 프로비저닝 상태는 라이브 게이트로만 판정한다.
+
+**Validation**: `_context/OPERATOR-RUNBOOK.md`, `scripts/ci-operator-secrets-contract-check.mjs`(workspace 그룹 `operator-provisioning`), `scripts/workspace-state-lib.mjs`의 `TARGETED_CONTEXT`.
+
+## R611. 클라이언트별 훅 페이로드는 각각 픽스처로 고정한다 (v54.99, P1084)
+
+**Rule**: 하나의 훅 구현을 여러 에이전트 클라이언트가 공유하면 페이로드 스키마가 클라이언트마다 다르다는 전제를 명시적으로 다룬다. 편집 대상 경로는 Codex `apply_patch`의 `tool_input.command`뿐 아니라 Claude `Edit`/`Write`의 `file_path`·`notebook_path`에서도 읽어야 한다. 각 클라이언트 형태를 각각 픽스처로 고정하며, 한 형태만 검사하는 픽스처는 다른 클라이언트에서 훅이 무력해도 영원히 green이다. 모든 클라이언트가 동일한 가드 모드를 배선했는지도 함께 검사한다.
+
+**Validation**: `scripts/agent-hook.mjs`, `scripts/ci-workspace-contract-check.mjs`의 Claude `file_path` 픽스처 6건과 가드 모드 대칭 단언, `.claude/settings.json`.
+
+## R610. 진단·요약 스텝은 셸 확장을 거치지 않는 파일에서 실행한다 (v54.99, P1083)
+
+**Rule**: 워크플로 스텝에서 JS 템플릿 리터럴(`${...}`)을 `node -e "..."`로 넘기지 않는다. bash가 `node` 실행 전에 확장을 시도해 스텝이 죽고, 그 결과 실패 상세가 Step Summary에 남지 않아 운영자가 원인을 파악할 수 없다. 요약·리포트 로직은 스크립트 파일로 분리하고, 입력 리포트가 없거나 깨져도 안전하게 종료하며 그 사실 자체를 출력에 남긴다. 실패 결론은 이후 스텝이 담당하게 한다.
+
+**Validation**: `scripts/report-qa-failures.mjs`, `scripts/ci-qa-pipeline-contract-check.mjs`의 인라인 템플릿 리터럴 금지 단언, `data-watchdog.yml`.
+
+## R609. 레인 격리는 진단을 위한 것이고, 발행 경계는 fail-closed로 유지한다 (v54.99, P1085)
+
+**Rule**: 하나의 프로듀서 레인 실패가 다른 레인의 실행·게이트·요약·수렴을 스킵시키지 않도록 각 레인과 후속 검증을 `!cancelled()`로 실행한다. 그러나 발행(커밋·푸시)은 모든 프로듀서 레인이 성공했거나 정당하게 스킵됐을 때만 수행한다. 격리는 실패의 귀속과 진단을 바꾸는 것이며 발행 조건을 완화하는 것이 아니다 — 두 성질은 같은 게이트에서 함께 고정한다.
+
+**Validation**: `.github/workflows/refresh-data.yml`의 레인 id와 step outcome 발행 조건, `scripts/ci-qa-pipeline-contract-check.mjs`의 `refresh-data isolates producer lanes without loosening the publish boundary`.
+
+## R608. 캐시 폴백은 읽기 시점에 스스로 나이를 판정한다 (v54.99, P1086)
+
+**Rule**: 캐시 TTL을 쓰기 시점 정리로만 강제하지 않는다. 폴백 읽기 경로는 캐시 항목의 나이를 판정해 상한을 넘긴 항목을 "현재 값"으로 반환하지 않고, 오래된 응답임을 응답 본문에서 구분 가능하게 표시한다. 오프라인·네트워크 실패가 반복되는 클라이언트가 임의로 오래된 시세를 현재가로 보는 상태를 허용하지 않는다. 나이를 알 수 없는 항목만 예외로 통과시킨다.
+
+**Validation**: `sw.js`의 `cachedWithinMaxAge`·`staleResponse`·`STALE_MAX_AGE_MULTIPLIER`·`REFERENCE_MAX_AGE_MS`, `scripts/ci-service-worker-cache-policy-check.mjs`.
+
+## R607. 모든 워크플로 job은 실행 상한을 선언한다 (v54.99, P1088)
+
+**Rule**: GitHub Actions job에 `timeout-minutes`를 선언한다. 기본 상한 360분은 행 걸린 fetch·install이 러너를 점유하게 두고, 같은 `concurrency` 그룹을 공유하는 스케줄 워크플로에서는 이후 주기를 직렬로 막아 데이터가 조용히 멈추는 경로가 된다. 상한은 해당 job의 실측 소요에 여유를 둔 값으로 정하고, 값의 적정성은 사람이 판단한다.
+
+**Validation**: `scripts/ci-qa-pipeline-contract-check.mjs`의 `every workflow job declares timeout-minutes`(전 워크플로 파싱, 누락 job 나열).
+
+## R606. 봇이 유발한 이벤트는 워크플로 체인을 잇지 못한다 — 수렴을 명시적으로 구동한다 (v54.99, P1087)
+
+**Rule**: 기본 `GITHUB_TOKEN`으로 만든 `workflow_dispatch` 실행은 `workflow_run` 이벤트를 발생시키지 않는다. 따라서 "봇 커밋 → CI 검증 → attestation → Pages 배포"는 봇 경로에서 자동으로 성립하지 않는다. 프로듀서가 방금 만든 CI 실행 id를 확인해 배포 워크플로에 명시적으로 넘기고, 매 주기마다 origin/main 리비전과 라이브 `deployment.json`의 `sourceSha`를 멱등하게 비교해 수렴시킨다. 명시 경로는 우회로가 되어서는 안 된다: 배포 워크플로는 그 경로에서도 attestation 아티팩트와 SHA 일치, 그리고 런의 결론·브랜치·SHA를 다시 검증한다. 실패만 있는 리비전에는 배포를 요청하지 않는다.
+
+**Validation**: `scripts/ensure-live-convergence.mjs`, `.github/workflows/pages-deploy.yml`의 `workflow_dispatch` 입력과 재검증 스텝, `refresh-data.yml`·`refresh-screener.yml`의 수렴 스텝, `scripts/ci-qa-pipeline-contract-check.mjs`의 hand-over 단언 4건.
 
 ## R605. 정적 DB는 data-refresh 주기에 맞춰 갱신하거나 명시적으로 보류한다 (v54.98, P1081)
 

@@ -134,6 +134,7 @@
         { "id": "data-lineage", "script": "scripts/ci-data-lineage-audit.mjs", "inputs": ["public-data/**", "architecture/**", "scripts/**", "src/data/**", "src/domain/**", "src/state/**", "js/aio-data.js", "version.json", "src/ai/time/market-session.js"] },
         { "id": "sec-runtime-projection", "script": "scripts/ci-sec-runtime-projection-check.mjs" },
         { "id": "static-data", "script": "scripts/ci-static-data-contract-check.mjs" },
+        { "id": "artifact-semantics", "script": "scripts/ci-artifact-semantics-check.mjs", "inputs": ["public-data/data.json", "public-data/history.json", "public-data/market-snapshot.json", "public-data/operations-status.json", "src/domain/signal/trading-score.js", "src/data/contracts/operations.js", "scripts/fetch-data.mjs", "scripts/build-operations-status.mjs", "architecture/fixtures/trading-score-golden.json"] },
         { "id": "static-db-expiry", "script": "scripts/ci-static-db-expiry-check.mjs", "inputs": ["js/aio-core.js", "js/aio-data.js", "index.html", "public-data/screener-universe.json"] },
         { "id": "data-refresh", "script": "scripts/ci-data-refresh-audit.mjs", "inputs": ["public-data/**", "architecture/**", "scripts/**", "src/data/**", "src/domain/**", "src/state/**", "js/aio-data.js", "version.json", "index.html"] },
         { "id": "refresh-integrity", "script": "scripts/ci-refresh-artifact-integrity-check.mjs" },
@@ -181,6 +182,7 @@
         { "id": "agent-profiles", "script": "scripts/sync-agent-profiles.mjs", "args": ["--check"] },
         { "id": "agent-skills", "script": "scripts/sync-agent-skills.mjs", "args": ["--check"] },
         { "id": "live-header-policy", "script": "scripts/ci-live-header-policy-contract-check.mjs" },
+        { "id": "operator-provisioning", "script": "scripts/ci-operator-secrets-contract-check.mjs", "inputs": [".github/workflows/**", "_context/OPERATOR-RUNBOOK.md", "_context/CONTEXT-CATALOG.json"] },
         { "id": "doc-currency", "script": "scripts/ci-doc-currency-check.mjs" },
         { "id": "qa-pipeline-contract", "script": "scripts/ci-qa-pipeline-contract-check.mjs" }
       ]
@@ -288,6 +290,8 @@
   "impactRules": [
     { "patterns": ["version.json"], "groups": ["core"] },
     { "patterns": ["AGENTS.md", "CLAUDE.md", ".agents/**", ".claude/**", ".codex/**", ".github/**", "_context/**", "architecture/qa-pipeline.json", "architecture/agent-profiles.json", "architecture/skill-eval-cases.json"], "groups": ["workspace"] },
+    { "patterns": ["scripts/ci-operator-secrets-contract-check.mjs"], "groups": ["workspace"] },
+    { "patterns": ["scripts/ci-artifact-semantics-check.mjs"], "groups": ["data", "core"] },
     { "patterns": [".github/workflows/refresh-data.yml"], "groups": ["core", "data"] },
     { "patterns": [".github/workflows/pages-deploy.yml", ".github/workflows/deploy-ai-proxy.yml", ".github/workflows/deploy-data-plane.yml", "cloudflare-worker-proxy.js", "worker/data-plane.js", "architecture/deployment-convergence.json"], "groups": ["core", "cloudflare"] },
     { "patterns": ["public-data/knowledge/**", "public-data/principles/**", "public-data/atlas/**", "public-data/masters/**", "src/domain/knowledge/**", "src/ui/pages/principles.js", "src/ui/pages/atlas.js", "src/ui/pages/masters.js", "src/ui/knowledge/**"], "groups": ["knowledge", "browser-knowledge", "browser-unit", "browser-viewport"] },

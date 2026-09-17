@@ -5,8 +5,8 @@
 
 // R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
 // v48.80/P150: operational hardening adds an explicit build marker and health message.
-const SW_VERSION = 'v54.98';
-const SW_BUILD = '2026-09-16T10:57:00+09:00';
+const SW_VERSION = 'v55.01';
+const SW_BUILD = '2026-09-17T23:43:00+09:00';
 const SHELL_CACHE = 'aio-shell-' + SW_VERSION;
 const DATA_CACHE  = 'aio-data-'  + SW_VERSION;
 
@@ -267,6 +267,56 @@ async function purgeExpiredData(cache) {
   } catch(e) {}
 }
 
+// 읽기 경로의 최대 허용 나이. TTL은 쓰기 시점 정리에만 쓰였고, 폴백 읽기는
+// `caches.match` 결과를 나이와 무관하게 그대로 반환했다 — 오프라인이거나
+// 네트워크 실패가 반복되면 임의로 오래된 시세가 "현재 값"으로 무기한 표시될
+// 수 있었다. 삭제만으로는 부족하므로(오프라인에서는 재확인 경로가 없다)
+// 읽을 때 나이를 판정하고, 초과분은 현재 데이터로 서빙하지 않는다.
+const STALE_MAX_AGE_MULTIPLIER = 4;                  // data/news: TTL의 4배까지
+const REFERENCE_MAX_AGE_MS = 7 * 24 * 3600 * 1000;   // reference: 최대 7일
+
+function offlineResponse() {
+  return new Response(JSON.stringify({
+    _offline: true,
+    _sw_version: SW_VERSION,
+    _message: 'Offline and no cached data available'
+  }), {
+    status: 503,
+    statusText: 'Service Unavailable (offline)',
+    headers: { 'Content-Type': 'application/json' }
+  });
+}
+
+function staleResponse(ageMs, maxAgeMs) {
+  return new Response(JSON.stringify({
+    _offline: true,
+    _stale: true,
+    _sw_version: SW_VERSION,
+    _cache_age_seconds: Math.round(ageMs / 1000),
+    _cache_max_age_seconds: Math.round(maxAgeMs / 1000),
+    _message: 'Cached copy exceeded its maximum age and is not served as current data'
+  }), {
+    status: 503,
+    statusText: 'Service Unavailable (stale cache)',
+    headers: { 'Content-Type': 'application/json' }
+  });
+}
+
+// 나이를 알 수 있는 항목(x-cache-time/ttl)에만 상한을 적용한다. 헤더가 없는
+// 구버전 캐시 항목은 나이 판정이 불가능하므로 그대로 사용한다.
+async function cachedWithinMaxAge(request, isReference) {
+  const cached = await caches.match(request);
+  if (!cached) return { cached: null };
+  const cachedAt = parseInt(cached.headers.get('x-cache-time') || '0', 10);
+  const ttlSeconds = parseInt(cached.headers.get('x-cache-ttl') || '0', 10);
+  if (!cachedAt || !ttlSeconds) return { cached };
+  const ageMs = Date.now() - cachedAt;
+  const maxAgeMs = isReference
+    ? Math.max(REFERENCE_MAX_AGE_MS, ttlSeconds * 1000)
+    : ttlSeconds * 1000 * STALE_MAX_AGE_MULTIPLIER;
+  return { cached, stale: ageMs > maxAgeMs, ageMs, maxAgeMs };
+}
+
 // RSS 뉴스 피드 URL 패턴 (별도 — 짧은 TTL)
 const NEWS_URL_PATTERNS = [
   /\/rss|\/feed|\.xml|\.rss/i,
@@ -373,19 +423,12 @@ self.addEventListener('fetch', function(event) {
         }
         return resp;
       }).catch(function() {
-        // offline or 네트워크 실패 → 캐시 폴백
-        return caches.match(request).then(function(cached) {
-          if (cached) return cached;
-          // 캐시도 없으면 기본 offline 응답
-          return new Response(JSON.stringify({
-            _offline: true,
-            _sw_version: SW_VERSION,
-            _message: 'Offline and no cached data available'
-          }), {
-            status: 503,
-            statusText: 'Service Unavailable (offline)',
-            headers: { 'Content-Type': 'application/json' }
-          });
+        // offline or 네트워크 실패 → 캐시 폴백.
+        // 최대 허용 나이를 넘긴 캐시는 "현재 값"으로 반환하지 않는다.
+        return cachedWithinMaxAge(request, isReference).then(function(entry) {
+          if (!entry.cached) return offlineResponse();
+          if (entry.stale) return staleResponse(entry.ageMs, entry.maxAgeMs);
+          return entry.cached;
         });
       })
     );

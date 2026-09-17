@@ -33,6 +33,17 @@
           }
         ]
       }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/agent-hook.mjs session-start",
+            "timeout": 10
+          }
+        ]
+      }
     ]
   }
 }

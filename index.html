@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v54.98 — 올인원 투자 터미널</title>
+  <title>AIO Screener v55.01 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -32,10 +32,10 @@
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css">
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-  <link rel="preload" as="script" href="./js/aio-core.js?v=54.98">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=54.98">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=54.98">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=54.98">
+  <link rel="preload" as="script" href="./js/aio-core.js?v=55.01">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=55.01">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=55.01">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=55.01">
   <!-- v48.31 perf: 3개 CDN defer 스크립트 다운로드 hint — HTML 파싱과 병렬 다운로드, defer 실행 시점 대기 제거 -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
   <link rel="preload" as="script" href="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js">
@@ -6374,7 +6374,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v54.98</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v55.01</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -11777,7 +11777,7 @@ button[data-filter-active="true"] {
   <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--border-strong);padding-bottom:20px;margin-bottom:22px;">
     <div>
       <div class="page-title">시장 뉴스</div>
-      <div class="page-subtitle"><span data-news-source-count>—</span>개 등록 소스 · 08:00 KST 수집분 기준 · 중요도 30점 이상 · 수집 주기 45분(실제 수집은 지연될 수 있음) · 한국어 요약·자동 번역</div>
+      <div class="page-subtitle"><span data-news-source-count>—</span>개 등록 소스 · 08:00 KST 수집분 기준 · 중요도 30점 이상 · 수집 30분 주기(지연될 수 있음) · 화면 갱신 45분 · 한국어 요약·자동 번역</div>
     </div>
     <button id="news-refresh-btn" class="is-interactive" data-action="_aioFetchAllNewsForce" style="font-size:13px;font-weight:600;color:var(--bg-base);background:var(--text-primary);border:none;border-radius:8px;padding:9px 20px;cursor:pointer;">새로고침</button>
   </div>
@@ -11825,7 +11825,7 @@ button[data-filter-active="true"] {
       <span>캐시 갱신:</span>
       <span id="news-cache-ts" style="font-family:var(--font-mono);color:var(--text-secondary);">캐시 확인 중...</span>
       <span style="color:var(--border);">|</span>
-      <span>주기: 45분 자동 갱신 (GitHub Actions)</span>
+      <span>수집: GitHub Actions 30분 주기 · 화면 자동 갱신: 45분(브라우저)</span>
       <span style="color:var(--border);">|</span>
       <span>필터: 08:00~08:00 KST 완료 24h · 중요도 30점+</span>
     </div>
@@ -13108,9 +13108,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=54.98" defer></script>
-  <script src="./js/aio-data.js?v=54.98" defer></script>
-  <script src="./js/aio-ui.js?v=54.98" defer></script>
+  <script src="./js/aio-core.js?v=55.01" defer></script>
+  <script src="./js/aio-data.js?v=55.01" defer></script>
+  <script src="./js/aio-ui.js?v=55.01" defer></script>
 
 
   <script>
@@ -15725,7 +15725,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=54.98" defer></script>
+<script src="./js/aio-chat.js?v=55.01" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -24351,7 +24351,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=54.98" defer></script>
+<script src="./js/aio-glossary.js?v=55.01" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>

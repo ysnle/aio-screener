@@ -3,10 +3,30 @@ name: Deploy GitHub Pages
 # Every release deploys only the immutable SHA attested by a successful CI run.
 # Data refresh jobs explicitly dispatch CI with the commit they produced; Pages
 # never resolves a mutable branch after validation.
+#
+# R606: a workflow_dispatch run created with the built-in GITHUB_TOKEN does not
+# emit a workflow_run event, so the attestation produced by a bot-dispatched CI
+# run had no consumer — the refresh bot kept committing while the live site
+# stopped publishing (observed 2026-09-17: five bot commits, live artifact 13.4h
+# stale, watchdog red). The `workflow_dispatch` path below lets the producer hand
+# over the exact CI run id it just created. It does NOT relax the gate: the same
+# attestation artifact is downloaded from that run and the same SHA equality is
+# asserted, and the run's own conclusion/branch/sha are re-asserted via the API
+# so a dispatched hand-over is exactly as strict as a workflow_run.
 on:
   workflow_run:
     workflows: ['CI']
     types: [completed]
+  workflow_dispatch:
+    inputs:
+      ci_run_id:
+        description: Completed CI run that produced the release attestation
+        required: true
+        type: string
+      expected_sha:
+        description: Exact lowercase 40-hex SHA that CI attested
+        required: true
+        type: string
 
 concurrency:
   group: aio-pages-production
@@ -14,8 +34,11 @@ concurrency:
 
 jobs:
   deploy:
-    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
+    if: >-
+      github.event_name == 'workflow_dispatch'
+      || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       actions: read
       contents: read
@@ -27,18 +50,54 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ github.token }}
     steps:
+      - name: Resolve attested release source
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
+          WORKFLOW_SHA: ${{ github.event.workflow_run.head_sha }}
+          DISPATCH_RUN_ID: ${{ github.event.inputs.ci_run_id }}
+          DISPATCH_SHA: ${{ github.event.inputs.expected_sha }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = 'workflow_run' ]; then
+            run_id="$WORKFLOW_RUN_ID"
+            expected_sha="$WORKFLOW_SHA"
+          else
+            run_id="$DISPATCH_RUN_ID"
+            expected_sha="$DISPATCH_SHA"
+          fi
+          case "$run_id" in ''|null) echo "::error::deploy requires a CI run id"; exit 1;; esac
+          case "$expected_sha" in *[!0-9a-f]*) echo "::error::expected sha must be lowercase hex: $expected_sha"; exit 1;; esac
+          [ "${#expected_sha}" -eq 40 ] || { echo "::error::expected sha must be 40 hex characters: $expected_sha"; exit 1; }
+
+          # A dispatched hand-over is re-checked against the same conditions the
+          # workflow_run path enforces, so the extra entry point cannot publish a
+          # revision that CI never validated.
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run_id" \
+            --jq '[.conclusion, (.head_branch // ""), (.head_sha // "")] | @tsv' > "$RUNNER_TEMP/ci-run.tsv"
+          IFS="$(printf '\t')" read -r ci_conclusion ci_branch ci_sha < "$RUNNER_TEMP/ci-run.tsv"
+          [ "$ci_conclusion" = 'success' ] || { echo "::error::CI run $run_id concluded '$ci_conclusion', expected success"; exit 1; }
+          [ "$ci_branch" = 'main' ] || { echo "::error::CI run $run_id ran on '$ci_branch', expected main"; exit 1; }
+          [ "$ci_sha" = "$expected_sha" ] || { echo "::error::CI run $run_id tested '$ci_sha', expected $expected_sha"; exit 1; }
+
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+          echo "expected_sha=$expected_sha" >> "$GITHUB_OUTPUT"
+          echo "Resolved attested release: run=$run_id sha=$expected_sha branch=$ci_branch"
+
       - name: Download CI release attestation
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: aio-release-attestation
           path: ${{ runner.temp }}/release-attestation
           github-token: ${{ github.token }}
-          run-id: ${{ github.event.workflow_run.id }}
+          run-id: ${{ steps.source.outputs.run_id }}
 
       - name: Validate release attestation
         id: release
         env:
-          WORKFLOW_SHA: ${{ github.event.workflow_run.head_sha }}
+          WORKFLOW_SHA: ${{ steps.source.outputs.expected_sha }}
         run: |
           set -euo pipefail
           file="$RUNNER_TEMP/release-attestation/aio-release-attestation.json"
@@ -63,7 +122,7 @@ jobs:
       - name: Stage explicit public artifact allowlist
         env:
           AIO_SOURCE_SHA: ${{ steps.release.outputs.sha }}
-          AIO_ATTESTATION_RUN_ID: ${{ github.event.workflow_run.id }}
+          AIO_ATTESTATION_RUN_ID: ${{ steps.source.outputs.run_id }}
           AIO_DEPLOYMENT_RUN_ID: ${{ github.run_id }}
         run: |
           set -euo pipefail

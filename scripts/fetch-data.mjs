@@ -674,7 +674,16 @@ export function mergeMacroLastKnownGood(current, previous) {
   for (const field of Object.keys(FRED_SERIES)) {
     const currentValue = Number(current?.[field]);
     const previousValue = Number(previous?.[field]);
-    if (Number.isFinite(currentValue)) continue;
+    if (Number.isFinite(currentValue)) {
+      // P1090: `_freshness_*` is published as the field's CURRENT freshness, but the
+      // old code only ever set it — never cleared it. Once a field had been carried
+      // forward in any earlier cycle it kept reading `stale-reference` forever, even
+      // after every source recovered. All 19 macro fields were published as stale
+      // while `_source_*` named a live official primary fetch, which made a real
+      // last-known-good indistinguishable from a refreshed value.
+      if (previous?.[`_freshness_${field}`]) merged[`_freshness_${field}`] = 'observed';
+      continue;
+    }
     if (!Number.isFinite(previousValue)) continue;
     const previousSource = previous?.[`_source_${field}`] || previous?._source || 'unknown';
     merged[`_originSource_${field}`] = previous?.[`_originSource_${field}`] || previousSource;
@@ -1555,7 +1564,19 @@ async function updateHistory(data, marketSnapshot = null) {
       bySym[q.symbol] = usePreviousClose ? previousClose : q.regularMarketPrice;
       bySymQuote[q.symbol] = {
         ...q,
-        observedAt: usePreviousClose ? (previousObservedAt || q.observedAt) : q.observedAt,
+        // P1095: a previous-completed-close value must not inherit the CURRENT
+        // observation's timestamp. The old fallback (`previousObservedAt || q.observedAt`)
+        // did exactly that whenever the provider omitted
+        // `regularMarketPreviousCloseObservedAt`, so history.json published the prior
+        // session's close stamped with the current cut (dxy/wti/gold/kospi/kosdaq/btc):
+        // 14 fields split across two time conventions, six of them shifted by a session,
+        // with nothing marking the substitution. Fail closed instead — no timestamp means
+        // a consumer must not read the value as a current observation.
+        observedAt: usePreviousClose ? previousObservedAt : q.observedAt,
+        observationRelation: usePreviousClose ? 'previous-completed-close' : 'latest-completed-close',
+        observedAtSource: usePreviousClose
+          ? (previousObservedAt ? 'provider-previous-close' : 'unavailable')
+          : 'provider-current',
         marketSession: 'COMPLETED',
         observedMarketSession: session,
         valueBasis: usePreviousClose ? 'previous-completed-close' : 'latest-completed-close',
@@ -2844,27 +2865,41 @@ function _validIsoDate(value) {
   return value && Number.isFinite(new Date(value).getTime()) ? new Date(value).toISOString() : null;
 }
 
-export function buildMarketAnalysisEvidence(data) {
+export function buildMarketAnalysisEvidence(data, options = {}) {
   const evidence = [];
+  // P1093: the narrative's evidence must be derived from the artifact that actually
+  // publishes it. `data.quotes` is stripped by toPublicPayload (P715), so a claim
+  // built from it cited a quote plane the published data.json no longer contains —
+  // and `MARKET_ANALYSIS_QUOTE_DEFS` duplicated unit/metricId values that disagreed
+  // with the canonical snapshot (^TNX was `index` here and `percent` in
+  // market-snapshot.json). Prefer the canonical snapshot rows so unit, metricId and
+  // evidenceId all resolve inside the published artifact.
+  const snapshotQuotes = new Map();
+  for (const row of (options.snapshot?.quotes || [])) {
+    if (row && row.instrumentId) snapshotQuotes.set(row.instrumentId, row);
+  }
   const quotes = new Map((data?.quotes || []).filter(row => row && row.symbol).map(row => [row.symbol, row]));
   for (const def of MARKET_ANALYSIS_QUOTE_DEFS) {
+    const canonical = snapshotQuotes.get(def.symbol) || null;
     const row = quotes.get(def.symbol);
-    const value = Number(row?.regularMarketPrice);
-    const asOf = _validIsoDate(row?.observedAt || row?.fetchedAt);
-    if (!Number.isFinite(value) || !asOf || !row?.source) continue;
+    const value = Number(canonical ? canonical.value : row?.regularMarketPrice);
+    const asOf = _validIsoDate(canonical ? canonical.observedAt : (row?.observedAt || row?.fetchedAt));
+    const source = canonical ? canonical.source : row?.source;
+    if (!Number.isFinite(value) || !asOf || !source) continue;
     evidence.push({
-      evidenceId: `market-analysis:${def.symbol}:${asOf}`,
+      evidenceId: canonical?.evidenceId || `market-analysis:${def.symbol}:${asOf}`,
       metricId: def.metricId,
+      canonicalMetricId: canonical?.metricId || null,
       label: def.label,
       value,
-      unit: def.unit,
+      unit: canonical?.unit || def.unit,
       observedAt: asOf,
       collectedAt: data?.meta?.generatedAt || null,
       asOf,
-      source: row.source,
-      sourceTier: row.sourceTier || 'unknown',
-      sourceKind: row.sourceKind || 'market-quote',
-      allowedUse: row.allowedUse || 'reference-only',
+      source,
+      sourceTier: row?.sourceTier || 'unknown',
+      sourceKind: (canonical ? canonical.sourceKind : row?.sourceKind) || 'market-quote',
+      allowedUse: (canonical ? canonical.allowedUse : row?.allowedUse) || 'reference-only',
       status: 'observed',
     });
   }
@@ -2927,11 +2962,11 @@ function _analysisNumberAfterLabel(body, labels) {
   return Number.isFinite(value) ? value : null;
 }
 
-export function validateMarketAnalysisText(text, data) {
+export function validateMarketAnalysisText(text, data, snapshot = null) {
   const issues = [];
   const value = Number(data?.macro?.nfp);
   const body = String(text || '').trim();
-  const metricEvidence = buildMarketAnalysisEvidence(data);
+  const metricEvidence = buildMarketAnalysisEvidence(data, { snapshot });
   if (!body) issues.push('empty');
   if (metricEvidence.length < 2) issues.push('metric-evidence-insufficient');
   if (/(?:VIX[\s\S]{0,60}(?:Fear\s*&?\s*Greed|fear\s+and\s+greed)|(?:Fear\s*&?\s*Greed|fear\s+and\s+greed)[\s\S]{0,60}VIX)/i.test(body)) {
@@ -2942,7 +2977,9 @@ export function validateMarketAnalysisText(text, data) {
     if (!row) continue;
     const mentioned = _analysisNumberAfterLabel(body, [def.label, ...(def.aliases || [])]);
     if (mentioned == null) continue;
-    const tolerance = Math.max(def.unit === 'percent' ? 0.15 : 0.5, Math.abs(Number(row.value)) * 0.05);
+    // Tolerance follows the unit the evidence actually carries (canonical snapshot
+    // unit when available), not the duplicated def table.
+    const tolerance = Math.max(row.unit === 'percent' ? 0.15 : 0.5, Math.abs(Number(row.value)) * 0.05);
     if (Math.abs(mentioned - Number(row.value)) > tolerance) issues.push(`metric-value-mismatch:${def.metricId}`);
   }
   // PAYEMS delta is stored in thousands. A model may mention NFP without a
@@ -3253,8 +3290,8 @@ function buildMarketAnalysisFallback(data, reason, metricEvidence = buildMarketA
   return buildStructuredMarketAnalysis({ data, text: summary, model: 'none', status: 'blocked', reason, metricEvidence, newsEvidence, semantic: { ok: false, issues: [reason], causalEvidenceCount: 0 } });
 }
 
-export async function genMarketAnalysis(data) {
-  const metricEvidence = buildMarketAnalysisEvidence(data);
+export async function genMarketAnalysis(data, snapshot = null) {
+  const metricEvidence = buildMarketAnalysisEvidence(data, { snapshot });
   const newsEvidence = buildMarketAnalysisNewsEvidence(data);
   if (metricEvidence.length < 2) return buildMarketAnalysisFallback(data, 'metric-evidence-insufficient', metricEvidence, newsEvidence);
   const key = process.env.ANTHROPIC_API_KEY;
@@ -3285,7 +3322,7 @@ export async function genMarketAnalysis(data) {
     if (!response.ok) return buildMarketAnalysisFallback(data, `provider-http-${response.status}`, metricEvidence, newsEvidence);
     const payload = await response.json();
     const text = (payload.content || []).filter(block => block.type === 'text').map(block => block.text).join('\n').trim();
-    const semantic = validateMarketAnalysisText(text, data);
+    const semantic = validateMarketAnalysisText(text, data, snapshot);
     if (!text || !semantic.ok) return buildMarketAnalysisFallback(data, semantic.issues.join(','), metricEvidence, newsEvidence);
     return buildStructuredMarketAnalysis({ data, text: semantic.text || text, model, status: 'verified', reason: null, metricEvidence, newsEvidence, semantic });
   } catch (error) {
@@ -3572,23 +3609,6 @@ async function main() {
     news,
   };
 
-  // v50.48/Phase 4: 선택적 서버 LLM 분석문 (키 있을 때만; 실패해도 data.json 정상 — 클라 템플릿 폴백)
-  const marketAnalysis = await genMarketAnalysis(data);
-  if (marketAnalysis) {
-    data.marketAnalysis = marketAnalysis;
-    data.meta.marketAnalysisOk = marketAnalysis.status === 'verified';
-    data.meta.marketAnalysisSemanticOk = marketAnalysis.status === 'verified' && marketAnalysis.semanticStatus === 'verified' && Array.isArray(marketAnalysis.metricEvidence) && marketAnalysis.metricEvidence.length >= 2 && (!marketAnalysis.semanticIssues || marketAnalysis.semanticIssues.length === 0);
-    data.meta.marketAnalysisEvidenceCount = Array.isArray(marketAnalysis.metricEvidence) ? marketAnalysis.metricEvidence.length : 0;
-    data.meta.marketAnalysisNewsEvidenceCount = Array.isArray(marketAnalysis.newsEvidence) ? marketAnalysis.newsEvidence.length : 0;
-  } else {
-    data.meta.marketAnalysisOk = false;
-    data.meta.marketAnalysisSemanticOk = false;
-    data.meta.marketAnalysisEvidenceCount = 0;
-    data.meta.marketAnalysisNewsEvidenceCount = 0;
-  }
-
-  if (!fearGreedOk) console.warn('[fetch-data] 경고: F&G 수집 실패 (사이트는 정적 폴백 사용)');
-  if (!fredHasKey) console.warn('[fetch-data] 경고: FRED_API_KEY GitHub Secret 미등록 — 일반 FRED 매크로 갱신은 LKG/클라이언트 키로 보완하며 HY OAS는 공식 공개 CSV로 별도 갱신.');
   if (fredHasKey && !fredFetchOk) console.warn('[fetch-data] 경고: FRED 키 있으나 매크로 0건 — 키 유효성/레이트리밋 확인');
   // P565/R256: fredFetchOk only requires macroKeys.length > 0, so a partial failure (e.g. 6 of
   // 9 series succeed) previously passed this check silently — the exact mechanism that let
@@ -3622,6 +3642,24 @@ async function main() {
   }
   const marketSnapshotAttemptRevision = marketSnapshotInfo.snapshot.revision || null;
   const marketSnapshotPublishedRevision = marketSnapshotForConsumers?.revision || marketSnapshotInfo.retainedRevision || null;
+
+  // v50.48/Phase 4: 선택적 서버 LLM 분석문 (키 있을 때만; 실패해도 data.json 정상 — 클라 템플릿 폴백)
+  // P1093: this runs AFTER the canonical snapshot is resolved, because the narrative's
+  // evidence must be sourced from the published snapshot (unit/metricId/evidenceId)
+  // rather than from `data.quotes`, which toPublicPayload strips before publishing.
+  const marketAnalysis = await genMarketAnalysis(data, marketSnapshotForConsumers);
+  if (marketAnalysis) {
+    data.marketAnalysis = marketAnalysis;
+    data.meta.marketAnalysisOk = marketAnalysis.status === 'verified';
+    data.meta.marketAnalysisSemanticOk = marketAnalysis.status === 'verified' && marketAnalysis.semanticStatus === 'verified' && Array.isArray(marketAnalysis.metricEvidence) && marketAnalysis.metricEvidence.length >= 2 && (!marketAnalysis.semanticIssues || marketAnalysis.semanticIssues.length === 0);
+    data.meta.marketAnalysisEvidenceCount = Array.isArray(marketAnalysis.metricEvidence) ? marketAnalysis.metricEvidence.length : 0;
+    data.meta.marketAnalysisNewsEvidenceCount = Array.isArray(marketAnalysis.newsEvidence) ? marketAnalysis.newsEvidence.length : 0;
+  } else {
+    data.meta.marketAnalysisOk = false;
+    data.meta.marketAnalysisSemanticOk = false;
+    data.meta.marketAnalysisEvidenceCount = 0;
+    data.meta.marketAnalysisNewsEvidenceCount = 0;
+  }
   data.meta.marketSnapshotPublished = !!marketSnapshotInfo.published;
   data.meta.marketSnapshotAttemptedAt = marketSnapshotInfo.snapshot.attemptedAt || data.meta.attemptedAt;
   data.meta.marketSnapshotPublishedAt = marketSnapshotInfo.published ? marketSnapshotInfo.snapshot.generatedAt : null;

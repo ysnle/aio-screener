@@ -15,6 +15,8 @@ const knowledgeParitySource = read('scripts/ci-knowledge-generated-parity-check.
 const continuitySource = read('scripts/ci-data-continuity-check.mjs');
 const dataRefreshAuditSource = read('scripts/ci-data-refresh-audit.mjs');
 const workflowSyntaxSource = read('scripts/ci-control-char-check.mjs');
+const convergenceSource = read('scripts/ensure-live-convergence.mjs');
+const reportQaFailuresSource = read('scripts/report-qa-failures.mjs');
 const errors = [];
 const check = (label, ok) => { if (!ok) errors.push(label); };
 
@@ -185,9 +187,39 @@ check('contract matrix aggregates shard failures', /contracts:[\s\S]*?fail-fast:
 check('browser matrix aggregates shard failures', /browser:[\s\S]*?fail-fast:\s*false/.test(ciSource));
 
 check('Pages waits only for CI attestation', /workflows:\s*\['CI'\]/.test(pagesSource) && !/Refresh market data|Refresh screener and SEC fundamentals/.test(pagesSource));
+// R606: GITHUB_TOKEN-dispatched CI runs emit no workflow_run event, so the
+// producer hands the exact run id over explicitly. The hand-over must not become
+// a bypass, so the deploy workflow re-asserts the same conditions and keeps
+// validating the attestation artifact.
+check('Pages explicit hand-over re-asserts attestation conditions',
+  /workflow_dispatch:[\s\S]*?ci_run_id/.test(pagesSource)
+  && /workflow_dispatch:[\s\S]*?expected_sha/.test(pagesSource)
+  && /actions\/runs\/\$run_id/.test(pagesSource)
+  && /aio-release-attestation\.v1/.test(pagesSource)
+  && /test "\$sha" = "\$WORKFLOW_SHA"/.test(pagesSource));
+check('convergence driver cannot bypass attestation or mutate repository state',
+  /pages-deploy\.yml/.test(convergenceSource)
+  && /aio-release-attestation/.test(convergenceSource)
+  && !/deploy-pages@/.test(convergenceSource)
+  && !/writeFileSync\([^)]*'\.\//.test(convergenceSource)
+  && !/git\s+push/.test(convergenceSource));
 check('CI accepts exact refresh SHA and emits immutable attestation', /release_sha:/.test(ciSource) && /aio-release-attestation\.v1/.test(ciSource) && /actions\/upload-artifact@[0-9a-f]{40}/.test(ciSource));
 check('refresh workflows dispatch exact produced SHA', ['refresh-data.yml', 'refresh-screener.yml'].every((file) => { const source = read(`.github/workflows/${file}`); return /git rev-parse HEAD/.test(source) && /gh workflow run ci\.yml/.test(source) && /release_sha=/.test(source); }));
 const refreshSources = [['refresh-data.yml', refreshDataSource], ['refresh-screener.yml', refreshScreenerSource]];
+check('refresh workflows converge the live revision through the attested hand-over',
+  refreshSources.every(([, source]) => /ensure-live-convergence\.mjs/.test(source) && /--await-sha/.test(source)));
+// P1085: a single unavailable quote plane used to skip the Telegram, 13F and
+// release-manifest lanes plus every gate, so one provider outage looked like a
+// total pipeline outage. Lanes are isolated now, but publication must stay
+// fail-closed — this pins both halves so neither can drift alone.
+check('refresh-data isolates producer lanes without loosening the publish boundary',
+  /id:\s*fetch-market/.test(refreshDataSource)
+  && /id:\s*fetch-telegram/.test(refreshDataSource)
+  && /id:\s*masters/.test(refreshDataSource)
+  && /steps\.fetch-market\.outcome == 'success'/.test(refreshDataSource)
+  && /steps\.fetch-telegram\.outcome == 'success'/.test(refreshDataSource)
+  && /steps\.masters\.outcome == 'success' \|\| steps\.masters\.outcome == 'skipped'/.test(refreshDataSource)
+  && (refreshDataSource.match(/if: \$\{\{ !cancelled\(\) \}\}/g) || []).length >= 6);
 check('refresh-screener owns only screener/SEC validation', !/ci-web-research-contract-check\.mjs/.test(refreshScreenerSource)
   && !/ci-data-refresh-audit\.mjs/.test(refreshScreenerSource)
   && /ci-screener-workbench-contract\.mjs/.test(refreshScreenerSource));
@@ -230,7 +262,25 @@ check('external workflow observations use scoped Actions read token', [pagesSour
 check('Pages deployment is serialized without cancellation', /concurrency:[\s\S]*?cancel-in-progress:\s*false/.test(pagesSource));
 check('watchdog uses aggregate watchdog profile', /qa-runner\.mjs watchdog --no-cache/.test(watchdogSource));
 check('watchdog preserves failure while uploading rolling SLO evidence', /continue-on-error:\s*true/.test(watchdogSource) && /build-operations-slo-window\.mjs/.test(watchdogSource) && /retention-days:\s*90/.test(watchdogSource) && /steps\.qa\.outcome != 'success'/.test(watchdogSource));
-check('watchdog captures failed gate ids and details before final failure', /AIO_QA_CACHE_DIR:\s*\$\{\{ runner\.temp \}\}\/aio-qa/.test(watchdogSource) && /Summarize failed watchdog gates/.test(watchdogSource) && /Failed gates:/.test(watchdogSource) && /Failed gate details:/.test(watchdogSource));
+check('watchdog captures failed gate ids and details before final failure', /AIO_QA_CACHE_DIR:\s*\$\{\{ runner\.temp \}\}\/aio-qa/.test(watchdogSource) && /report-qa-failures\.mjs/.test(watchdogSource) && /Summarize failed watchdog gates/.test(watchdogSource) && /Failed gates:/.test(reportQaFailuresSource) && /Failed gate details:/.test(reportQaFailuresSource) && /steps\.qa\.outcome != 'success'/.test(watchdogSource));
+
+// P1083: the summarize step used to inline a JS template literal into `node -e`,
+// so bash expanded `${...}` first and every run published an empty summary. Keep
+// the shell-expansion-hostile form out of workflows entirely.
+check('no workflow inlines a JS template literal through node -e', !/\$\{.*\.map\(/.test(watchdogSource));
+
+// R607: GitHub's default job ceiling is 360 minutes, and refresh-data /
+// refresh-screener share a non-cancelling concurrency group — one hung job would
+// block every later scheduled cycle behind it and silently freeze live data.
+const unboundedJobs = [];
+const workflowDir = (await import('node:fs')).readdirSync('.github/workflows').filter((name) => /\.ya?ml$/.test(name));
+for (const file of workflowDir) {
+  const parsed = load(read(`.github/workflows/${file}`));
+  for (const [jobName, job] of Object.entries(parsed?.jobs || {})) {
+    if (!Number.isInteger(job?.['timeout-minutes'])) unboundedJobs.push(`${file}:${jobName}`);
+  }
+}
+check(`every workflow job declares timeout-minutes: ${unboundedJobs.join(', ')}`, unboundedJobs.length === 0);
 
 check('viewport matrix executes real route lifecycle by default', /FULL_INIT\s*=\s*process\.env\.AIO_VIEWPORT_FULL_INIT\s*!==\s*['"]0['"]/.test(read('scripts/ci-viewport-matrix-check.mjs')));
 // Scheduler/cache behavior is executed by ci-qa-runner-behavior-check.mjs.

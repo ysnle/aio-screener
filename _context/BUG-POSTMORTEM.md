@@ -2,12 +2,168 @@
 verified_by: Codex local source review and affected QA; full semantic audit remains open
 last_verified: 2026-09-17
 confidence: medium
-latest_version: v54.98
-latest_P_number: P1082
-next_P_number: P1083
-current_total_entries: 497 tracked entries (324 headings + 173 compacted lines, P1~P1082, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
+latest_version: v55.01
+latest_P_number: P1095
+next_P_number: P1096
+current_total_entries: 510 tracked entries (337 headings + 173 compacted lines, P1~P1095, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
 current_checkpoint: P1013~P1033 exhaustive audit in progress; publication/runtime/QA topology and selected page semantics reviewed; full-tree semantic review remains open (current coverage 6.89%, releaseCertified=false)
 ---
+
+## P1095 - v55.01 - 이전 종가가 현재 관측 시각을 상속해 히스토리 시간축이 한 세션 어긋났다 (2026-09-17)
+
+- symptom/reproduction: `history.json` 마지막 레코드와 `market-snapshot.json`이 같은 리비전을 주장하는데 dxy·wti·gold·kospi·kosdaq·btc의 `valueBasis`는 `previous-completed-close`이고 `observedAt`은 현재 관측 시각이었다(dxy/wti/gold는 스냅샷과 동일 값, kospi/kosdaq/btc는 `00:00:00Z`로 정규화되어 소스 `00:13:20Z`/`00:33:19Z`와도 불일치). 값은 스냅샷 `previousValue`와 소수점 7자리까지 일치했다(105.83 = 105.83000183105469).
+- root_cause: `fetch-data.mjs`의 히스토리 적재가 `observedAt: usePreviousClose ? (previousObservedAt || q.observedAt) : q.observedAt`로 폴백했다. provider가 `regularMarketPreviousCloseObservedAt`를 주지 않으면 **현재 관측 시각이 이전 종가의 시각으로 조용히 대체**됐고, 대체 사실을 기록하는 필드가 없었다. 14개 필드가 두 가지 시각 규약으로 갈라졌고 게이트는 `valueBasis`와 `observedAt`의 정합성을 보지 않았다.
+- fix: 폴백 제거 — `observedAt: usePreviousClose ? previousObservedAt : q.observedAt`(모르면 null로 fail-closed), `observationRelation`·`observedAtSource`(`provider-previous-close`|`unavailable`|`provider-current`)를 함께 발행해 대체 여부를 드러냈다.
+- violated_rule: R613 (신규).
+- prevention: `ci-artifact-semantics-check.mjs`가 `observedAtSource === 'unavailable'`인데 시각이 있거나, `provider-previous-close`인데 완료 컷 이후 시각이면 실패시킨다. 프로듀서 계약(`observationRelation`/`observedAtSource` 존재, 폴백 부재)은 코드에서 무조건 단언한다.
+- 실측 결과: 변경 전 6개 필드가 위반, 게이트가 그 6건을 정확히 검출하는 것을 확인. 산출물 단언은 새 형식 전파 후 자동으로 조여진다(전환 중에는 명시적 안내 출력).
+- residual_risk: 커밋된 `history.json`은 다음 refresh 사이클에야 새 형식이 된다. 그 전까지 앱은 해당 필드의 `observedAt`을 null로 보게 되며, 실브라우저 검증은 아직 하지 않았다.
+- verification: 게이트 PASS(전환 안내 포함), `ci-domain-parity-check.mjs` PASS. 커밋·배포 없음.
+-
+
+## P1094 - v55.01 - 점수 배분이 총점을 재구성할 수 없었다 (2026-09-17)
+
+- symptom/reproduction: 화면은 가중치를 명시한다(`index.html:6645` "변동성 25% · 모멘텀 25% · 추세 20% · 시장폭 20% · 거시 10% 가중 합산"). 그런데 `deriveTradingScoreComponents`가 내놓는 배분을 더하면 총점과 달랐다: 구성요소 22/74/32/90/55 → 배분 6+6+19+18+6=55, 총점 54. 골든 픽스처 `bear_crisis_full_data`는 총점 5 대 구성요소 합 13으로 8점 차이였다.
+- root_cause: 두 가지가 겹쳤다. (1) 배분은 구성요소별로 독립 반올림하고 총점은 가중합을 먼저 반올림해 ±1이 구조적으로 생긴다. (2) 총점은 구성요소 합 이후에 신용 스트레스·유가·뉴스 조정과 [5,100] 클램프를 받는데 그 항목이 하나도 노출되지 않아, 차액을 설명할 근거가 산출물에 없었다.
+- fix: 조정을 `adjustments[{key,delta}]`로 수집하고 `scoreBreakdown`에 `componentWeights`·`availableWeight`·`weightedSumRaw`·`rawCompositeScore`·`adjustmentsTotal`·`unclampedScore`·`floorApplied`·`ceilingApplied`·`total`을 발행했다. 이제 `total = clamp(round(weightedSumRaw/availableWeight) + adjustmentsTotal)` 항등식이 성립한다.
+- violated_rule: R613 (신규).
+- prevention: `ci-artifact-semantics-check.mjs`가 도메인 모듈을 직접 import해 7개 골든 픽스처 전부에서 항등식을 검증한다.
+- 실측 결과: 항등식이 7/7 픽스처에서 성립. `ci-domain-parity-check.mjs`도 PASS — 리팩터가 총점 값을 바꾸지 않았음(파리티 유지)을 확인했다.
+- residual_risk: UI는 아직 조정 항목을 별도 행으로 렌더하지 않는다. 배분 목록과 총점의 차액을 화면에서 설명하려면 signal 페이지의 배분 렌더 수정이 남아 있다.
+- verification: `ci-artifact-semantics-check.mjs` PASS, `ci-domain-parity-check.mjs` PASS. 커밋·배포 없음.
+-
+
+## P1093 - v55.01 - 서술의 근거가 발행 산출물에 존재하지 않았다 (2026-09-17)
+
+- symptom/reproduction: 게시된 서술이 `10Y=5.006 index`라고 표기했다. 같은 산출물 `market-snapshot.json`의 동일 지표 `market.rates.us10y`(`^TNX`)는 `unit: "percent"`다. claim의 `evidenceIds`는 `market-analysis:^TNX:…` 형식인데 스냅샷 evidenceId는 `market.rates.us10y:09ea45e1` 형식이라 주장↔근거를 id로 역추적할 수 없었다. 또한 `js/aio-core.js:25058`은 `evidenceIds:['data.json:quotes']`로 quote 평면을 `loaded`로 보고했지만 `data.json.quotes`는 비어 있다(`quotesPublished:false`, P715).
+- root_cause: `buildMarketAnalysisEvidence`가 `data.quotes`에서 근거를 만들었는데 `toPublicPayload`가 발행 직전에 `quotes: []`로 스트립한다(P715). 즉 근거가 **스트립 이전 객체**에서 만들어져 발행본에 남지 않았다. 게다가 서술 전용 `MARKET_ANALYSIS_QUOTE_DEFS`가 단위·metricId를 중복 정의하고 스냅샷과 어긋났다.
+- fix: 분석 호출을 스냅샷 확보 **이후**로 옮기고(`fetch-data.mjs`), `buildMarketAnalysisEvidence(data, { snapshot })`가 정본 스냅샷 행에서 `value`·`unit`·`metricId`·`evidenceId`를 가져오도록 재설계했다. 폴백(레거시/테스트)은 기존 경로를 유지한다. 검증기 tolerance도 중복 표가 아니라 실제 증거의 `unit`을 따른다.
+- violated_rule: R613 (신규).
+- prevention: `ci-artifact-semantics-check.mjs`가 (a) claim의 모든 evidenceId가 `data.json`∪`market-snapshot.json`에서 해소되는지, (b) canonical 근거 행의 `unit`/`value`가 인용한 스냅샷 행과 일치하는지 검사한다.
+- 실측 결과: 변경 전 수집 가능한 근거는 4행(CPI/FedRate/NFP/F&G)뿐이었고 quote 근거 0행이었다(스트립). 스냅샷 정본 경로로 전환하면 quote 7행이 canonical 단위로 복구된다 — 산출물 전파 후 게이트가 검증한다.
+- residual_risk: 커밋된 `data.json.marketAnalysis`는 다음 refresh까지 옛 형식이므로 전환 안내로 통과시킨다. `data.json:quotes`를 인용하는 커버리지 감사(`js/aio-core.js:25058`)는 아직 수정하지 않았다.
+- verification: `ci-artifact-semantics-check.mjs` PASS, `ci-data-pipeline-contract-check.mjs` 대상. 커밋·배포 없음.
+-
+
+## P1092 - v55.01 - 동결된 freshness 판정이 현재 상태로 읽혔다 (2026-09-17)
+
+- symptom/reproduction: `operations-status.json`의 `planes.durable.freshness`가 `ageHours: 0.02`, `fresh: true`를 발행했다. 파일이 13.6시간 지난 뒤에도 그대로여서, 소비자는 최신 상태로 읽을 수 있었다.
+- root_cause: `deriveDurableFreshness`가 빌드 시각(`now`) 기준으로 계산한 값을 그대로 발행하고, 그 값이 **언제의 판정인지**를 기록하지 않았다. 계약 검사는 함수를 주입된 `now`로만 시험해 이 동결을 볼 수 없었다.
+- fix: `freshness.evaluatedAt`을 추가해 판정 시각을 명시했다. 소비자는 `generatedAt`으로 재계산하거나 점시점 판정임을 알 수 있다.
+- violated_rule: R613 (신규).
+- prevention: `ci-artifact-semantics-check.mjs`가 `evaluatedAt` 존재와 `evaluatedAt >= generatedAt`을 단언한다.
+- 실측 결과: 재생성된 산출물에서 `evaluatedAt: 2026-09-17T14:31:03.458Z`, `ageHours: 13.96`, `fresh: false` — 동결 문제와 함께 상태도 실제로 정정됐다.
+- residual_risk: 앱은 이 파일을 읽지 않으므로 사용자 영향은 없었다.
+- verification: `ci-artifact-semantics-check.mjs` PASS, `ci-operations-status-check.mjs` PASS. 커밋·배포 없음.
+-
+
+## P1091 - v55.01 - statusVocabulary가 실제 status 값과 교집합이 0이었다 (2026-09-17)
+
+- symptom/reproduction: 선언된 어휘는 `NOT_CONFIGURED/CONFIGURED_HEALTHY/CONFIGURED_BROKEN/STALE/RIGHTS_REVIEW_REQUIRED`인데 실제 `status`/`overall` 값은 `CURRENT/OPERATOR_REQUIRED/BLOCKED/MATCH/PARTIAL`이었다. 교집합 0. `ai.publicChat.status`의 `NO_ROUTE`는 어느 어휘에도 없었다.
+- root_cause: `createOperationsStatus`가 `statusVocabulary: OPERATIONAL_STATE_CODES`로 **다른 축의 어휘**(statusCode용)를 `status`라는 이름으로 발행했다. `status`와 `statusCode`는 서로 다른 두 축인데 하나의 이름만 존재했다.
+- fix: `statusVocabulary`는 `OPERATIONS_STATUS`(실제 status 값 어휘)로, `statusCodeVocabulary`를 새로 도입해 `OPERATIONAL_STATE_CODES`를 담았다. `NO_ROUTE`를 `OPERATIONS_STATUS`에 추가했다. 검증기가 overall·planes·ai를 순회하며 선언되지 않은 `status`/`statusCode`를 찾으면 실패시킨다.
+- violated_rule: R613 (신규).
+- prevention: `ci-artifact-semantics-check.mjs`가 발행본을 순회해 미선언 값을 검출하고, `validateOperationsStatus`도 같은 순회를 수행한다.
+- 실측 결과: 재생성 후 어휘 6개/5개, 순회 위반 0건. `ci-operations-status-check.mjs` PASS.
+- residual_risk: 어휘 필드명이 바뀌므로 외부 소비자가 `statusVocabulary`를 statusCode용으로 쓰고 있었다면 의미가 달라진다. 저장소 내 소비자는 계약 모듈뿐임을 확인했다.
+- verification: `ci-artifact-semantics-check.mjs` PASS, `ci-operations-status-check.mjs` PASS. 커밋·배포 없음.
+-
+
+## P1090 - v55.01 - macro 신선도 플래그가 19개 전부 거짓 stale이었다 (2026-09-17)
+
+- symptom/reproduction: `data.json.macro`의 `_freshness_*` 19개가 전부 `stale-reference`였다. 그런데 같은 필드의 `_source_*`는 `bls-official-primary`, `bea-official-primary`, `fred-official-primary`, `us-treasury-official-primary`이고 `_asOf_*`는 최신 관측기였다. 즉 정상 1차 출처로 갱신된 값에 stale 표시가 붙어 있었다.
+- root_cause: `mergeMacroLastKnownGood`만 `_freshness_*`를 설정하고(`fetch-data.mjs:682`), 그 함수는 `if (Number.isFinite(currentValue)) continue;`로 현재 값이 있으면 **아무것도 하지 않는다**. 이전 사이클에 한 번 LKG가 되면 이후 정상 복구돼도 플래그가 지워지지 않는 sticky 상태였다. 플래그를 읽는 코드가 없어 UI는 영향받지 않았지만, 기계 계약이 거짓을 발행하고 진짜 LKG와 구분할 수 없게 됐다.
+- fix: 현재 값이 유한하면 `_freshness_<field> = 'observed'`로 명시적으로 정정한다.
+- violated_rule: R613 (신규).
+- prevention: `ci-artifact-semantics-check.mjs`가 `_source_*`와 `_freshness_*`의 짝을 검사한다 — `last-known-good`이면 `stale-reference`, 그 외 살아있는 1차 출처면 `observed`여야 한다.
+- 실측 결과: 변경 전 19개 필드 전부 위반, 게이트가 19건을 모두 검출. 프로듀서 계약(정정 코드 존재)은 즉시 단언된다.
+- residual_risk: 커밋된 `data.json`은 다음 refresh까지 옛 형식이라 전환 안내로 통과시킨다.
+- verification: `ci-artifact-semantics-check.mjs` PASS(전환 안내 포함). 커밋·배포 없음.
+-
+
+## P1089 - v54.99 - 운영자 프로비저닝이 어떤 정본 문서에도 없었다 (2026-09-17)
+
+- symptom/reproduction: 워크플로가 참조하는 `secrets.*`/`vars.*` 10건 중 한곳에 문서화된 것은 Cloudflare 계열뿐이었다. `FRED_API_KEY`·`TWELVE_DATA_API_KEY`·`FINNHUB_API_KEY`·`SEC_USER_AGENT`는 스크립트 본문·워크플로·흩어진 핸드오프 노트에만 존재했다. `SEC_USER_AGENT`는 없을 때 SEC 레인이 `operator_configuration_required`를 쓰고 수집을 건너뛰면서도 통과한다 — 조용한 결손이다.
+- root_cause: 프로비저닝 경계가 사람 기억과 개별 문서에 분산돼 있었고, 그 일치를 검사하는 게이트가 없었다. 문서를 안 써도 아무것도 실패하지 않았다.
+- fix: `_context/OPERATOR-RUNBOOK.md` 신설(targeted-map): 시크릿 7종·변수 3종 표(사용 워크플로·결손 시 결과), Cloudflare 대시보드 전용 설정, 의도적 수동 배포 2건, 운영자 주기 작업 5건, 자동화가 담당하는 범위. `scripts/ci-operator-secrets-contract-check.mjs` 신설로 워크플로 참조 → 런북 문서화를 CI가 강제하고, 수동 전용 배포 워크플로가 워크플로/문서 중 한쪽만 바뀌는 것을 막는다. `scripts/workspace-state-lib.mjs`의 `TARGETED_CONTEXT`에 런북 등록, `qa-pipeline.json` workspace 그룹에 `operator-provisioning` 배선.
+- violated_rule: R612 (신규).
+- prevention: `operator-provisioning` 게이트 + `ci-workspace-contract-check.mjs`의 무단 커밋 금지 표면 목록에 런북 포함 + 음성 대조(미문서 시크릿 실제 검출).
+- 실측 결과: 정상 트리 10건 문서화 PASS. 임시 트리에 미문서 `secrets.UNDOCUMENTED_KEY`를 넣은 음성 대조에서 해당 항목을 검출해 exit 1.
+- residual_risk: 런북은 시크릿 **이름**만 다룬다. 값·토큰·계정 식별자는 의도적으로 기록하지 않으므로 실제 프로비저닝 상태는 여전히 라이브 게이트로만 확인된다.
+- verification: `ci-operator-secrets-contract-check.mjs`, `ci-workspace-contract-check.mjs`, `ci-knowledge-lint-check.mjs`, `ci-qa-pipeline-contract-check.mjs` PASS. 커밋·배포 없음.
+-
+
+## P1088 - v54.99 - 워크플로 job에 실행 상한이 없어 주기 전체가 막힐 수 있었다 (2026-09-17)
+
+- symptom/reproduction: `.github/workflows/*` 9개 어디에도 `timeout-minutes`가 없었다(전수 검색 0건). 모든 job이 GitHub 기본 상한 360분을 그대로 사용했다. `refresh-data.yml`과 `refresh-screener.yml`은 `concurrency.group: refresh-data`(`cancel-in-progress: false`)를 공유한다.
+- root_cause: 상한을 선언하지 않은 것이 기본값에 의존하는 무의식적 선택이었고, 이를 검사하는 계약이 없었다. 행 걸린 단일 fetch·install이 러너를 최대 6시간 점유하면 같은 그룹의 다음 스케줄 주기가 그 뒤에 직렬로 대기한다 — 데이터가 조용히 멈추는 경로다.
+- fix: 9개 워크플로 10개 job 전부에 `timeout-minutes`를 부여(ci 20/45/60/15, refresh 45, watchdog 30, lint 20, alert 15, cloudflare deploy 25, pages deploy 30). 상한 값은 해당 job의 실측 소요(CI 4~5분, refresh 1~3분+CI 대기)에 여유를 둔 값이다.
+- violated_rule: R607 (신규).
+- prevention: `ci-qa-pipeline-contract-check.mjs`에 전 워크플로를 파싱해 job별 `timeout-minutes` 정수를 요구하는 단언 추가(누락 job 이름을 메시지에 나열).
+- 실측 결과: 9개 파일 전부 YAML 파싱 OK, job별 상한 확인 완료(누락 0).
+- residual_risk: 상한은 넉넉한 편이라 비정상적으로 오래 걸리는 새 게이트가 추가되면 조정이 필요하다. 게이트가 누락은 막지만 값의 적정성은 사람 판단이다.
+- verification: `ci-qa-pipeline-contract-check.mjs` PASS(135 gates), 워크플로 YAML 파싱 전수 OK. 커밋·배포 없음.
+-
+
+## P1087 - v54.99 - 봇이 디스패치한 CI의 attestation에 소비자가 없어 라이브 배포가 정지했다 (2026-09-17)
+
+- symptom/reproduction: 라이브 `deployment.json.sourceSha = da4d711a`(01:43 커밋)인데 origin/main은 `cb18382a`(12:36 커밋). 02:00Z 이후 5건이 푸시됐고 각 건은 CI dispatch로 preflight→contracts→browser→attest를 전부 통과했는데, `Deploy GitHub Pages` 실행이 **한 번도 생성되지 않았다**(저장소 전체 `created=>2026-09-17T02:00:00Z` 조회 19건 중 0건). 라이브 `data.json` age 805분(>360 제한).
+- root_cause: `pages-deploy.yml`이 `workflow_run: workflows: ['CI']`로만 트리거된다. 기본 `GITHUB_TOKEN`으로 만든 `workflow_dispatch` 실행은 `workflow_run` 이벤트를 발생시키지 않는다(GitHub의 재귀 억제). 실행 시각 대조로 확정: `Operations failure escalation`은 `schedule`로 시작된 refresh 계열 완료 직후(1~11초)에만 발생하고, CI 완료 시점(각 +4분)에는 전무하다. 즉 refresh의 "Dispatch exact produced commit to CI" 단계는 검증만 하고 배포에는 아무 효과가 없었다. 결과적으로 라이브 데이터는 **사람이 푸시할 때만** 갱신됐다. P572/R263(`[skip ci]` 제거)로 CI는 살렸지만 배포 경계는 살아나지 않은 상태의 재발이다.
+- fix: (1) `pages-deploy.yml`에 `workflow_dispatch` 입력(`ci_run_id`/`expected_sha`)을 추가하되 검증을 완화하지 않았다 — 같은 attestation 아티팩트를 그 run에서 내려받고, 추가로 `gh api`로 run의 conclusion·head_branch·head_sha를 재확인한 뒤 SHA 일치를 단언한다. (2) `scripts/ensure-live-convergence.mjs` 신설: origin/main 목표 리비전에 대해 "성공 + attestation 아티팩트 보유" CI 실행을 찾아, 라이브 `sourceSha`와 다르면 그 run id를 배포 워크플로에 넘긴다. run이 아예 없으면 CI를 디스패치하고, 실패만 있으면 배포를 요청하지 않는다(무한 재시도 방지). 멱등이며 저장소를 변경하지 않는다. (3) `refresh-data.yml`·`refresh-screener.yml`이 방금 만든 SHA로 `--await-sha` 대기 후 수렴을 수행하고, `!cancelled()`라 실패 사이클에서도 다음 주기에 자기치유한다.
+- violated_rule: R606 (신규).
+- prevention: `ci-qa-pipeline-contract-check.mjs`에 hand-over 재검증·수렴 배선·우회 불가 단언 4건. `refresh-data.yml`의 "Fail-closed promotion candidate gate before push"는 그대로 유지된다.
+- 실측 결과: 드라이런(`--dry-run --json`)이 목표 `cb18382a`와 attested CI 런 `35222057355`를 정확히 찾아내고 라이브 `da4d711a`와의 격차를 `DISPATCHED_DEPLOY`로 보고했다. 배포는 실행하지 않았다(프로덕션 변경은 명시 요청 사항).
+- residual_risk: 워치독 `pages-source-matches-attested-ci` 검사는 참조 CI run이 조회 창을 벗어나면 `observed=missing`을 낸다 — 수렴 후에도 이 항목이 남으면 검사 창 로직을 별도로 봐야 한다. 배포 자체는 검증되지 않았다(디스패치 미실행).
+- verification: `ci-qa-pipeline-contract-check.mjs` PASS, 9개 워크플로 YAML 파싱 OK, 수렴 드라이버 라이브 API 검증. 커밋·배포 없음.
+-
+
+## P1086 - v54.99 - 서비스워커 폴백이 나이 상한 없이 오래된 시세를 현재 값으로 서빙했다 (2026-09-17)
+
+- symptom/reproduction: `sw.js` 데이터/뉴스/reference 폴백 경로가 `caches.match(request)` 결과를 나이와 무관하게 그대로 반환했다. TTL은 쓰기 시점의 `purgeExpiredData`로만 강제됐고 읽기 시점에는 검사가 없었다.
+- root_cause: TTL을 "정리"로만 구현하고 "읽기 판정"으로 구현하지 않았다. 오프라인이거나 네트워크 실패가 반복되는 클라이언트는 재확인 경로가 없으므로 임의로 오래된 시세를 무기한 현재 값으로 표시할 수 있었다. 볼륨 상한(500건 FIFO)만으로는 나이를 제한하지 못한다.
+- fix: `cachedWithinMaxAge()`가 `x-cache-time`/`x-cache-ttl`로 나이를 판정하고 — data/news는 TTL×4, reference는 최대 7일 — 초과 시 `staleResponse()`를 반환한다. `_stale:true`·`_cache_age_seconds`·`_cache_max_age_seconds`로 오래된 응답임을 구분 가능하게 했고, 상태 코드는 기존 `_offline` 경로와 같은 503을 유지해 앱의 기존 폴백 처리를 그대로 탄다. 나이를 알 수 없는 구버전 항목은 판정 불가이므로 그대로 통과시킨다.
+- violated_rule: R608 (신규).
+- prevention: `ci-service-worker-cache-policy-check.mjs`에 폴백이 나이 상한을 적용하고 만료 항목을 반환하지 않으며 stale을 구분 표시한다는 단언 6건 추가.
+- 실측 결과: `ci-service-worker-cache-policy-check.mjs` PASS(10 critical assets).
+- residual_risk: 상한 배수(×4)와 reference 7일은 정책 판단값이며 근거는 "TTL 15분/30분 기준 수 시간 이내"다. 브라우저에서의 오프라인 실사용 검증은 미실시.
+- verification: `ci-service-worker-cache-policy-check.mjs` PASS, `ci-syntax-check.mjs`(sw.js 포함) 대상. 커밋·배포 없음.
+-
+
+## P1085 - v54.99 - 시세 레인 하나의 실패가 데이터 사이클 전체를 중단시켰다 (2026-09-17)
+
+- symptom/reproduction: `fetch-data.mjs`가 `<50% quotes`에서 `CORE_QUOTE_COVERAGE_FAILED`를 던지면(=data.json은 보존되지만 step이 실패) 이후 단계가 `if:` 조건 없이 전부 스킵됐다. Telegram 다이제스트·13F/masters 체인·release-manifest 동기화·22범주 게이트·파이프라인 요약·커밋·디스패치·수렴이 **한 번에** 사라졌다.
+- root_cause: 워크플로를 "모든 단계가 성공하는 한 사이클"로만 설계했다. 실패는 곧 나머지 레인의 미실행이었고, 그래서 시세 공급자 장애가 파이프라인 전체 장애처럼 보였고 원인 귀속도 불가능했다.
+- fix: 독립 레인(Telegram·13F)과 후속 검증·요약·커밋·디스패치·수렴을 `${{ !cancelled() }}`로 실행해 각 레인이 자기 결과를 남기게 했다. 발행 경계는 오히려 명시적으로 조였다 — 커밋 스텝은 `fetch-market`·`fetch-telegram`이 success이고 `masters`가 success 또는 skipped일 때만 실행된다. 즉 시세 장애 시 부분 발행은 여전히 금지되고(저장소의 기존 fail-closed 철학 유지), 귀속·진단·자기치유만 개선된다.
+- violated_rule: R609 (신규).
+- prevention: `ci-qa-pipeline-contract-check.mjs`에 레인 id·outcome 조건·`!cancelled()` 개수를 함께 요구하는 단언 추가(격리와 발행 경계를 동시에 고정해 한쪽만 변형되지 않게 함).
+- 실측 결과: `refresh-data.yml` YAML 파싱 OK, 계약 단언 PASS.
+- residual_risk: 시세 장애가 지속되면 Telegram 갱신도 발행되지 않아 두 레인이 red로 보인다. 이는 의도적 선택(부분 발행 금지)이며, 완전 해소는 레인별 커밋 분리가 필요하다. GitHub Actions에서의 실제 스킵 동작은 워크플로 실행으로만 최종 확인된다.
+- verification: `ci-qa-pipeline-contract-check.mjs` PASS, `refresh-data.yml` 파싱 OK. 커밋·배포 없음.
+-
+
+## P1084 - v54.99 - 에이전트 편집 훅이 Claude 페이로드에서 무력했다 (2026-09-17)
+
+- symptom/reproduction: `scripts/agent-hook.mjs:30`이 `tool_input.command`만 읽었다. Claude Code의 `Edit`/`Write`는 `{file_path, old_string, new_string}`를 넘기고 `command` 키가 없다. 따라서 `guard-edit`의 `_backup/`·`_archive/` 편집 차단과 `post-edit`의 QA 리마인더가 빈 문자열에 대해 평가돼 **사실상 항상 통과**했다. `.claude/settings.json`에는 `SessionStart` 훅도 없어 Codex가 받는 생성 상태 프리플라이트가 Claude에는 주입되지 않았다.
+- root_cause: 두 클라이언트가 같은 훅 구현을 공유한다는 사실과 페이로드 스키마가 다르다는 사실을 분리해 다루지 않았다. `ci-workspace-contract-check.mjs`의 훅 픽스처가 Codex apply_patch 형태만 사용했기 때문에, Claude에서 무력해도 게이트는 영원히 green이었다.
+- fix: `editTargets = [file_path, notebook_path, path]`를 `command`와 합친 `editText`로 `guard-edit`·`post-edit`를 평가하도록 수정(거부 사유에 대상 경로 포함). `.claude/settings.json`에 `SessionStart` 훅 추가로 두 클라이언트 대칭화.
+- violated_rule: R611 (신규).
+- prevention: `ci-workspace-contract-check.mjs`에 Claude `file_path` 픽스처 5건(archive deny / backup deny / 정상 allow / workspace post-edit / version post-edit / 무관 파일 무음)과 두 클라이언트 가드 모드 대칭 단언 추가.
+- 실측 결과: 신규 픽스처 전부 PASS. 기존 Codex 형태 픽스처도 그대로 PASS(양쪽 스키마 동시 지원 확인).
+- residual_risk: `Guard`는 자기 클라이언트의 페이로드만 본다. 향후 세 번째 클라이언트가 추가되면 그 스키마 픽스처도 함께 추가해야 한다.
+- verification: `ci-workspace-contract-check.mjs` PASS(70 context docs, 6 skills, 4 agent profiles, 9 workflows). 커밋·배포 없음.
+-
+
+## P1083 - v54.99 - 워치독 실패 요약 스텝이 셸 확장으로 죽어 진단이 유실됐다 (2026-09-17)
+
+- symptom/reproduction: `data-watchdog.yml`의 "Summarize failed watchdog gates" 스텝이 실행 로그에서 `line 1: ${failed.map((entry)=>entry.id).join(', ') || 'unavailable'}: bad substitution` 3건과 `-: command not found`를 남기고, GitHub Step Summary를 **빈 채로** 발행했다. 20회 연속 red였다. 실패 상세는 `qa-runner`의 200KB stdout 마지막 30줄로만 남는데 그것도 잘려서, 운영자가 어떤 게이트가 깨졌는지 즉시 알 수 없었다.
+- root_cause: JS 템플릿 리터럴(`${...}`)을 `node -e "..."` 큰따옴표 안에 넣었다. bash가 `node` 실행 전에 `${...}`를 확장하려다 실패했다. 즉 요약 로직이 셸 인용 규칙에 종속됐고, 실패해도 스텝 자체는 `if: always()`라 조용히 넘어갔다.
+- fix: 로직을 `scripts/report-qa-failures.mjs`로 분리(셸 확장 무관). 리포트 부재·파싱 실패에도 exit 0으로 안전하게 종료하고 그 사실을 Summary에 남긴다 — 실패 결론은 뒤따르는 "Preserve watchdog failure conclusion" 스텝이 담당한다. 프로필·카운트·실패 게이트 id·상세 tail·`blocked by`·변경 출처를 함께 출력한다.
+- violated_rule: R610 (신규).
+- prevention: `ci-qa-pipeline-contract-check.mjs`에 요약 스크립트 사용 + 상세 라벨 존재 + `node -e` 인라인 템플릿 리터럴 금지 단언 추가.
+- 실측 결과: 합성 `aio-qa-run.v1` 리포트 픽스처로 실행해 `Failed gates: external-pipeline`, 상세 tail, `watchdog-data-refresh(blocked by external-pipeline)`, 카운트·리비전을 정상 출력. 리포트 부재 경로도 exit 0. (동일 픽스처를 실제 2026-09-17 워치독 실패 3건 — `pages-data-freshness`/`pages-telegram-freshness`/`pages-source-matches-attested-ci` — 과 대조해 형식을 확인했다.)
+- residual_risk: 실제 워치독 실행에서의 출력은 다음 스케줄 이후에만 확인된다.
+- verification: `ci-qa-pipeline-contract-check.mjs` PASS, `report-qa-failures.mjs` 픽스처 실행(정상/부재 경로). 커밋·배포 없음.
+-
 
 ## P1082 - v54.98 - 이벤트 레지스트리 등록이 빈-레지스트리 단언 4건을 깨뜨렸다 (2026-09-17)
 

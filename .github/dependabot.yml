@@ -1,0 +1,27 @@
+version: 2
+
+# Every GitHub Actions dependency in this repository is pinned to a full commit
+# SHA with a trailing version comment. That prevents a mutable tag from changing
+# what CI runs, but it also means nothing ever refreshes those pins — they drift
+# silently until GitHub forces a runtime change. Dependabot keeps the SHA pins
+# current and rewrites the version comment with them.
+#
+# Scope is deliberately narrow: the application ships zero runtime dependencies
+# (index.html is a dependency-free static SPA), and npm here only carries the CI
+# browser-test toolchain. Action pins are the drift that was actually observed.
+# Pull requests opened here still have to pass the normal push/PR CI gate.
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '04:40'
+      timezone: Asia/Seoul
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: 'chore(actions)'
+    groups:
+      github-actions:
+        patterns:
+          - '*'

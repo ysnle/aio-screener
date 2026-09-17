@@ -4,7 +4,7 @@ import { basename, join } from 'node:path';
 const GENERATED_CONTEXT = new Set(['CURRENT-STATE.md', 'CONTEXT-CATALOG.json']);
 const PREFLIGHT_CONTEXT = new Set(['CURRENT-STATE.md']);
 const LEDGER_CONTEXT = new Set(['RULES.md', 'BUG-POSTMORTEM.md', 'QA-CHECKLIST.md', 'KNOWLEDGE-BASE.md']);
-const TARGETED_CONTEXT = new Set(['CLAUDE.md', 'CODE-MAP.md', 'QA-PIPELINE-ARCHITECTURE.md', 'WORKFLOW-GOVERNANCE.md', 'INDEX.md']);
+const TARGETED_CONTEXT = new Set(['CLAUDE.md', 'CODE-MAP.md', 'QA-PIPELINE-ARCHITECTURE.md', 'WORKFLOW-GOVERNANCE.md', 'INDEX.md', 'OPERATOR-RUNBOOK.md']);
 
 export const readUtf8 = (root, path) => readFileSync(join(root, path), 'utf8');
 const lineCount = (text) => text.split(/\r?\n/).length - (text.endsWith('\n') ? 1 : 0);

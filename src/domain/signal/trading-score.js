@@ -195,32 +195,48 @@ export function computeTradingScoreModel(input = {}) {
     { value: macroScore, weight: 10 }
   ];
   const availableWeight = weightedComponents.reduce((sum, row) => sum + (row.value == null ? 0 : row.weight), 0);
-  const rawCompositeScore = availableWeight ? Math.round(weightedComponents.reduce((sum, row) => sum + (row.value == null ? 0 : row.value * row.weight), 0) / availableWeight) : null;
+  const weightedSumRaw = weightedComponents.reduce((sum, row) => sum + (row.value == null ? 0 : row.value * row.weight), 0);
+  const rawCompositeScore = availableWeight ? Math.round(weightedSumRaw / availableWeight) : null;
   const configuredCoverageThreshold = finiteNumber(input.decisionCoverageThreshold);
   const decisionCoverageThreshold = configuredCoverageThreshold != null
     ? Math.max(0, Math.min(100, configuredCoverageThreshold))
     : hasDecisionEvidence ? 80 : 0;
   let compositeScore = hasDecisionEvidence && availableWeight < decisionCoverageThreshold ? null : rawCompositeScore;
 
+  // P1094: post-composite adjustments and the [5,100] clamp move the published total
+  // AFTER the weighted component sum. They were never exposed, so the visible
+  // breakdown could not explain the visible total: independently rounded
+  // contributions drift by ±1, and the golden `bear_crisis_full_data` case publishes
+  // total 5 against components that sum to 13 with nothing naming the difference.
+  // Record every term so the identity is reconstructible.
+  const adjustments = [];
+  const applyAdjustment = (key, delta) => {
+    if (compositeScore == null || !delta) return;
+    compositeScore += delta;
+    adjustments.push({ key, delta });
+  };
+
   // Credit Stress 보정 (HY Spread bp, 실측 우선)
-  if (compositeScore != null && hyBp != null && hyBp > 500) compositeScore -= 15;
-  else if (compositeScore != null && hyBp != null && hyBp > 400) compositeScore -= 8;
-  else if (compositeScore != null && hyBp != null && hyBp > 350) compositeScore -= 3;
+  if (compositeScore != null && hyBp != null && hyBp > 500) applyAdjustment('credit-stress', -15);
+  else if (compositeScore != null && hyBp != null && hyBp > 400) applyAdjustment('credit-stress', -8);
+  else if (compositeScore != null && hyBp != null && hyBp > 350) applyAdjustment('credit-stress', -3);
 
   // 지정학 위험 보정 (유가)
-  if (compositeScore != null && oilPrice != null && oilPrice > 100) compositeScore -= 10;
-  else if (compositeScore != null && oilPrice != null && oilPrice > 90) compositeScore -= 5;
+  if (compositeScore != null && oilPrice != null && oilPrice > 100) applyAdjustment('geopolitical-oil', -10);
+  else if (compositeScore != null && oilPrice != null && oilPrice > 90) applyAdjustment('geopolitical-oil', -5);
 
   // 뉴스 감성/리스크 보정 — null/[] means the legacy gather step failed and applied no adjustment
-  if (compositeScore != null && newsSentimentScore != null && newsSentimentScore < 30) compositeScore -= 8;
-  else if (compositeScore != null && newsSentimentScore != null && newsSentimentScore > 70) compositeScore += 5;
+  if (compositeScore != null && newsSentimentScore != null && newsSentimentScore < 30) applyAdjustment('news-sentiment', -8);
+  else if (compositeScore != null && newsSentimentScore != null && newsSentimentScore > 70) applyAdjustment('news-sentiment', +5);
   if (compositeScore != null && decisionNewsRiskSignals.length) {
     const newsRiskAdjustment = decisionNewsRiskSignals.reduce((sum, riskSignal) => sum + (boundedNumber(riskSignal?.impact, -100, 100) ?? 0), 0);
-    compositeScore += Math.max(-30, Math.min(30, newsRiskAdjustment));
+    applyAdjustment('news-risk', Math.max(-30, Math.min(30, newsRiskAdjustment)));
   }
 
   // 최소 5점 보장 — 0점은 "데이터 미수신"으로 오해되므로 바닥값 설정
+  const unclampedScore = compositeScore;
   const total = compositeScore == null ? null : Math.max(5, Math.min(100, compositeScore));
+  const adjustmentsTotal = adjustments.reduce((sum, row) => sum + row.delta, 0);
 
   const componentMissing = [];
   if (volScore == null) componentMissing.push('volatility');
@@ -240,6 +256,20 @@ export function computeTradingScoreModel(input = {}) {
     decisionBlocked: hasDecisionEvidence && total == null,
     decisionCoverageThreshold,
     rawCompositeScore,
+    // P1094: the exact terms behind `total`, so the visible breakdown can be
+    // reconciled: total = clamp(round(weightedSumRaw / availableWeight) + Σadjustments).
+    scoreBreakdown: Object.freeze({
+      componentWeights: Object.freeze({ volScore: 25, momScore: 25, trendScore: 20, breadthScore: 20, macroScore: 10 }),
+      availableWeight,
+      weightedSumRaw,
+      rawCompositeScore,
+      adjustments: Object.freeze(adjustments.map((row) => Object.freeze({ ...row }))),
+      adjustmentsTotal,
+      unclampedScore,
+      floorApplied: unclampedScore != null && unclampedScore < 5,
+      ceilingApplied: unclampedScore != null && unclampedScore > 100,
+      total
+    }),
     newsAdjustmentApplied: newsSentimentScore != null || decisionNewsRiskSignals.length > 0,
     // A complete input vector is not the same thing as a validated predictive
     // model.  Keep this false unless an explicit future validation contract is

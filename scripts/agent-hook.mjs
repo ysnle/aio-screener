@@ -28,6 +28,16 @@ function findRoot(start) {
 const root = findRoot(input.cwd || process.cwd());
 const toolInput = input.tool_input && typeof input.tool_input === 'object' ? input.tool_input : {};
 const command = String(toolInput.command || '');
+// P1084: this hook used to read only `tool_input.command`. That is the Codex
+// apply_patch shape; Claude Code's Edit/Write tools pass `file_path` (and
+// NotebookEdit passes `notebook_path`) with no `command` key at all, so
+// guard-edit and post-edit were evaluated against an empty string and were
+// silently inert on Claude for as long as both clients existed. Inspect every
+// documented target field instead of assuming one client's payload.
+const editTargets = [toolInput.file_path, toolInput.notebook_path, toolInput.path]
+  .filter((value) => typeof value === 'string' && value.trim())
+  .join('\n');
+const editText = [command, editTargets].filter(Boolean).join('\n') || command;
 const emit = (value) => process.stdout.write(JSON.stringify(value));
 const deny = (reason) => emit({
   hookSpecificOutput: {
@@ -51,8 +61,9 @@ if (mode === 'guard-command') {
 }
 
 if (mode === 'guard-edit') {
-  if (/(?:^|[^A-Za-z0-9_-])(?:_backup|_archive)[\\/]/i.test(command)) {
-    deny('Backup/archive evidence is read-only. Create a new current document instead of mutating history.');
+  const match = editText.match(/(?:^|[^A-Za-z0-9_-])((?:_backup|_archive)[\\/][^\s"']*)/i);
+  if (match) {
+    deny(`Backup/archive evidence is read-only (${match[1]}). Create a new current document instead of mutating history.`);
   }
   process.exit(0);
 }
@@ -77,8 +88,8 @@ if (mode === 'session-start') {
 }
 
 if (mode === 'post-edit') {
-  const touchesWorkspace = /(AGENTS\.md|CLAUDE\.md|_context|\.claude|\.codex|\.agents|\.github[\\/]workflows|scripts[\\/](?:ci-|generate-workspace|sync-agent|agent-hook))/.test(command);
-  const touchesVersion = /(index\.html|version\.json|sw\.js|js[\\/]aio-core\.js|CHANGELOG\.md)/.test(command);
+  const touchesWorkspace = /(AGENTS\.md|CLAUDE\.md|_context|\.claude|\.codex|\.agents|\.github[\\/]workflows|scripts[\\/](?:ci-|generate-workspace|sync-agent|agent-hook))/.test(editText);
+  const touchesVersion = /(index\.html|version\.json|sw\.js|js[\\/]aio-core\.js|CHANGELOG\.md)/.test(editText);
   if (touchesWorkspace || touchesVersion) emit({ systemMessage: 'AIO closeout reminder: run qa-runner.mjs affected with the task session or explicit owned files after the edit batch. Intermediate edit state is allowed; reuse matching PASS evidence.' });
   process.exit(0);
 }

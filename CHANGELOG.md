@@ -1,3 +1,32 @@
+## v55.01 (2026-09-17)
+- 의미·정합성 검토에서 직접 계산·대조로 확인한 6개 결함을 구조적으로 수정하고, 각각을 실행 가능한 게이트(`scripts/ci-artifact-semantics-check.mjs`, data 그룹 `artifact-semantics`)로 고정했다.
+- **P1095 (R613) — 히스토리 빈티지 시각.** `history.json`의 dxy·wti·gold·kospi·kosdaq·btc가 `valueBasis: previous-completed-close`인데 `observedAt`은 현재 관측 시각이었다. provider가 `regularMarketPreviousCloseObservedAt`를 주지 않으면 현재 시각이 조용히 대체됐고, 값은 스냅샷 `previousValue`와 소수점 7자리까지 일치했다(wti 105.83 = 105.83000183105469). 폴백을 제거해 모르면 null로 fail-closed하고 `observationRelation`·`observedAtSource`로 관계를 발행한다.
+- **P1094 (R613) — 점수 배분이 총점을 재구성하지 못했다.** 화면은 가중치를 명시하는데(`index.html:6645`) 배분 합계는 총점과 달랐다(구성요소 22/74/32/90/55 → 배분 55, 총점 54; 골든 `bear_crisis_full_data`는 5 대 13). 독립 반올림과, 노출되지 않던 사후 조정(신용 스트레스·유가·뉴스) 및 [5,100] 클램프가 원인이었다. `scoreBreakdown`에 `componentWeights`·`weightedSumRaw`·`adjustments[]`·`adjustmentsTotal`·`unclampedScore`·`floorApplied`를 발행해 `total = clamp(round(weightedSumRaw/availableWeight) + adjustmentsTotal)` 항등식이 성립한다.
+- **P1093 (R613) — 서술 근거가 발행 산출물에 없었다.** 서술은 `10Y=5.006 index`로 표기했지만 같은 산출물의 `market.rates.us10y`는 `unit: percent`였다. 근거를 `data.quotes`에서 만들었는데 `toPublicPayload`가 발행 직전 `quotes: []`로 스트립한다(P715). 분석 호출을 스냅샷 확보 이후로 옮기고 `buildMarketAnalysisEvidence(data, { snapshot })`가 정본 스냅샷에서 value·unit·metricId·evidenceId를 가져오도록 재설계했다.
+- **P1092 (R613) — 동결된 freshness 판정.** `planes.durable.freshness`가 `ageHours: 0.02`/`fresh: true`를 발행하고 발행 후에도 그대로였다. `evaluatedAt`을 추가해 점시점 판정임을 드러냈다. 재생성 후 `ageHours: 13.96`/`fresh: false`/`overall: BLOCKED`로 실제 상태도 정정됐다.
+- **P1091 (R613) — statusVocabulary 불일치.** 선언 어휘와 실제 status/overall 값의 교집합이 0이었다. `statusVocabulary`를 실제 status 어휘(`OPERATIONS_STATUS`, `NO_ROUTE` 추가)로, `statusCodeVocabulary`를 신설해 statusCode 축을 분리했고, 계약이 overall·planes·ai를 순회해 미선언 값을 검출한다.
+- **P1090 (R613) — macro 신선도 플래그가 19개 전부 거짓 stale.** `_source_*`는 살아있는 1차 출처(bls/bea/fred/us-treasury)인데 `_freshness_*`는 전부 `stale-reference`였다. `mergeMacroLastKnownGood`가 플래그를 설정만 하고 복구 시 해제하지 않는 sticky 구조였다. 현재 값이 유한하면 observed로 정정한다.
+- 사용자 노출 문구도 정정했다(S3): `index.html`의 "주기: 45분 자동 갱신 (GitHub Actions)"은 실제로 브라우저 자체 타이머(45분)였고, 수집은 GitHub Actions 30분 주기 + 08:00 KST 완료 24h 사이클이다.
+- 검증: `ci-artifact-semantics-check.mjs` PASS, `ci-domain-parity-check.mjs` PASS(7개 골든 픽스처 총점 유지 → 리팩터가 점수를 바꾸지 않음), `ci-operations-status-check.mjs` PASS, preflight 13/13, core 34/34, knowledge 20/20, workspace 10/10, browser-unit PASS. `data` 그룹은 22 PASS / 1 FAIL이며 그 FAIL은 `data-lineage`(로컬 체크아웃이 origin/main보다 5커밋 뒤처져 data.json age가 12h SLA를 넘김)로 이번 변경과 무관하다.
+- 미수정으로 남긴 것: S9(헤드라인 전용 뉴스로 인과 근거가 항상 0건이라 LLM 서술이 상시 차단), signal 페이지의 조정 항목 렌더, `js/aio-core.js:25058`의 `data.json:quotes` 인용. 커밋·push·배포하지 않았다.
+
+## v55 (2026-09-17)
+- <!-- 변경 내용을 이곳에 기록하세요 -->
+- R1 7곳 v55
+
+## v54.99 (2026-09-17)
+- 자동화·지속 운영 감사(`_artifacts/automation-audit-20260917/REPORT.md`)에서 도출한 7개 구조 결함을 수정하고, 각각을 실행 가능한 회귀 게이트로 닫았다.
+- **P1087 (R606) — 라이브 배포 경계 복구.** 봇이 디스패치한 CI의 attestation에는 소비자가 없었다. 기본 `GITHUB_TOKEN`으로 만든 `workflow_dispatch` 실행은 `workflow_run`을 발생시키지 않기 때문이다. 관측된 결과: 02:00Z 이후 5커밋이 CI를 전부 통과했는데 `Deploy GitHub Pages` 실행이 0건 생성됐고, 라이브 `data.json` age 805분(제한 360분). `pages-deploy.yml`에 `ci_run_id`/`expected_sha` `workflow_dispatch` 경로를 추가하되 검증은 완화하지 않았다 — 같은 attestation 아티팩트를 그 run에서 받고, `gh api`로 런의 결론·브랜치·SHA를 재확인한 뒤 SHA 일치를 단언한다. 신설 `scripts/ensure-live-convergence.mjs`는 origin/main 목표 리비전에 대해 attested CI 런을 찾아 라이브 `sourceSha`와 다르면 그 런 id를 넘기고, 런이 아예 없으면 CI를 디스패치하며, 실패만 있으면 배포를 요청하지 않는다. `refresh-data.yml`·`refresh-screener.yml`이 `--await-sha`로 방금 만든 런을 기다린 뒤 수렴하고, `!cancelled()`라 실패 사이클에서도 다음 주기에 자기치유한다.
+- **P1085 (R609) — 레인 격리.** 시세 게이트 실패가 Telegram·13F·release-manifest·22범주 게이트·요약·커밋·디스패치·수렴을 한 번에 스킵시켰다. 각 레인과 후속 검증을 `!cancelled()`로 실행해 귀속과 진단을 살리되, 발행은 `fetch-market`·`fetch-telegram` success 그리고 `masters` success|skipped일 때만 일어나도록 명시적으로 조였다 — 부분 발행 금지 철학은 유지된다.
+- **P1086 (R608) — 서비스워커 캐시 나이 판정.** TTL이 쓰기 시점 정리로만 강제돼 폴백 읽기가 나이와 무관하게 캐시를 반환했다. 오프라인 클라이언트가 임의로 오래된 시세를 현재가로 볼 수 있었다. `cachedWithinMaxAge()`가 data/news는 TTL×4, reference는 최대 7일로 판정하고 초과분은 `_stale:true`·`_cache_age_seconds`를 담은 503으로 반환한다(기존 `_offline` 경로 재사용).
+- **P1084 (R611) — 에이전트 편집 훅.** `agent-hook.mjs`가 `tool_input.command`만 읽어 Claude `Edit`/`Write`(`file_path`)에서 `guard-edit`·`post-edit`가 무력했다. 픽스처가 Codex 형태만 써서 영원히 green이었다. `file_path`·`notebook_path`·`path`를 함께 판정하도록 고치고, Claude 페이로드 픽스처 6건과 두 클라이언트 가드 모드 대칭 단언을 추가했으며, `.claude/settings.json`에 `SessionStart` 훅을 넣어 Codex와 대칭화했다.
+- **P1083 (R610) — 워치독 진단.** 요약 스텝이 JS 템플릿 리터럴을 `node -e "..."`로 넘겨 bash `bad substitution`으로 죽고 Step Summary를 빈 채로 발행했다. `scripts/report-qa-failures.mjs`로 분리해 프로필·카운트·실패 게이트 id·상세 tail·`blocked by`를 남기고, 리포트 부재·파싱 실패에도 exit 0으로 안전하게 종료한다.
+- **P1088 (R607) — 실행 상한.** 9개 워크플로 어디에도 `timeout-minutes`가 없어 행 걸린 job이 기본 360분을 점유하고 공유 concurrency 그룹의 다음 주기를 막을 수 있었다. 10개 job 전부에 상한을 부여했고, 전 워크플로를 파싱해 누락을 검출하는 단언을 추가했다.
+- **P1089 (R612) — 운영자 프로비저닝 정본.** 워크플로가 참조하는 `secrets.*`/`vars.*` 10건이 어떤 정본에도 없었다(`SEC_USER_AGENT`는 없을 때 조용히 수집을 건너뛰고 통과한다). `_context/OPERATOR-RUNBOOK.md`를 신설하고, 워크플로 참조 → 런북 문서화를 `scripts/ci-operator-secrets-contract-check.mjs`가 CI로 강제하며 수동 전용 배포 2건이 한쪽만 바뀌지 않게 고정했다. 음성 대조로 미문서 시크릿이 실제 검출됨을 확인했다.
+- 배포 경계 수렴은 드라이런으로 라이브 검증했다 — 목표 `cb18382a`, attested CI 런 `35222057355`, 라이브 `da4d711a`를 정확히 식별하고 `DISPATCHED_DEPLOY`를 보고했다.
+- 검증: `ci-qa-pipeline-contract-check.mjs`(135 gates), `ci-workspace-contract-check.mjs`, `ci-knowledge-lint-check.mjs`, `ci-service-worker-cache-policy-check.mjs`, `ci-operator-secrets-contract-check.mjs`, `ci-version-check.mjs` PASS. 9개 워크플로 YAML 파싱 OK.
+- **커밋·push·배포하지 않았다.** 라이브 Pages는 여전히 `da4d711a`(v54.98 직후 리비전)에 머물러 있고, Cloudflare Worker 수동 배포 경계와 semantic coverage(`releaseCertified=false`)는 그대로 OPEN이다.
+
 ## v54.98 (2026-09-16)
 - 5일간 CI를 red로 고정하고 Pages 배포를 정지시킨 gate 3건의 근본원인을 수정했다. `ci-chat-ui-state-browser-check.mjs`는 앱에 존재한 적 없는 셀렉터 대신 실제 정지 버튼 id를 검사하고, `ci-architecture-browser-check.mjs`는 `chartKinds`를 손으로 관리하는 목록이 아니라 `src/data/contracts/source-kind.js`의 정본 어휘로 검증하며, `ci-screener-auto-refresh-browser-check.mjs`는 quote tick에 새 스냅샷을 요구하는 대신 설계가 실제로 보장하는 불변성(랭킹 스냅샷·frozen run hash 불변, 가격 overlay 유지)을 검증한다.
 - 스크리너 가격 컬럼의 소유권 공백을 메웠다. field-readiness 계약은 표시 자격만 gate하고 live quote 투영은 어느 계층도 소유하지 않아 모든 행이 영구히 `미수신`이었다. `liveRow`가 field-readiness 경로에서도 live quote를 overlay하고 관측시각·출처를 값과 함께 싣는다.

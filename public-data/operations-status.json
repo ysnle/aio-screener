@@ -1,14 +1,22 @@
 {
   "schemaVersion": "operations-status-v1",
   "statusVocabulary": [
+    "CURRENT",
+    "DEGRADED",
+    "BLOCKED",
+    "OPERATOR_REQUIRED",
+    "NO_ROUTE",
+    "UNKNOWN"
+  ],
+  "statusCodeVocabulary": [
     "NOT_CONFIGURED",
     "CONFIGURED_HEALTHY",
     "CONFIGURED_BROKEN",
     "STALE",
     "RIGHTS_REVIEW_REQUIRED"
   ],
-  "generatedAt": "2026-09-17T12:34:28.554Z",
-  "appRevision": "v54.98",
+  "generatedAt": "2026-09-17T14:37:02.220Z",
+  "appRevision": "v55.01",
   "dataRevision": "market-snapshot:2026-09-17T12:34:20.413Z:3de67b19",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
   "overall": "OPERATOR_REQUIRED",
@@ -34,8 +42,9 @@
         "quoteQualityComplete": true,
         "blockedQuotes": [],
         "generatedAt": "2026-09-17T12:34:20.413Z",
-        "ageHours": 0,
+        "ageHours": 2.04,
         "maxAgeHours": 12,
+        "evaluatedAt": "2026-09-17T14:37:02.220Z",
         "reason": null
       },
       "readiness": {
@@ -58,8 +67,8 @@
         "revision": "fast-quotes:de5d80b2",
         "sourceSha": "ac98ec1fa1a58781f9dccd7632af84c4a39428d8",
         "observedAt": "2026-09-17T12:34:28.554Z",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null
       },
       "soak": {
@@ -79,7 +88,7 @@
       "status": "CURRENT",
       "statusCode": "CONFIGURED_HEALTHY",
       "source": "static-pages+service-worker",
-      "revision": "v54.98"
+      "revision": "v55.01"
     }
   },
   "ai": {
@@ -112,8 +121,8 @@
         "providerSmokeBoundary": "blocking-deployment-workflow-only",
         "ready": true,
         "note": "Periodic live health observed; provider smoke remains a blocking deployment-workflow gate.",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null
       },
       "scheduledAnalysisDoesNotImplyChat": true

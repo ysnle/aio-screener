@@ -7,7 +7,7 @@
     "targeted": "Search or read only when the task touches the named domain.",
     "explicitOnly": "Point-in-time evidence; never load by default or treat as current state."
   },
-  "documentCount": 69,
+  "documentCount": 70,
   "documents": [
     {
       "path": "_context/AI-CHAT-INSTITUTIONAL-AUDIT-2026-07-12.md",
@@ -154,8 +154,8 @@
       "title": "2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.",
       "kind": "ledger",
       "readPolicy": "targeted",
-      "bytes": 632568,
-      "lines": 3259,
+      "bytes": 659187,
+      "lines": 3415,
       "lastVerified": "2026-09-17",
       "autoRefresh": false
     },
@@ -484,6 +484,16 @@
       "autoRefresh": false
     },
     {
+      "path": "_context/OPERATOR-RUNBOOK.md",
+      "title": "Operator runbook",
+      "kind": "targeted-map",
+      "readPolicy": "targeted",
+      "bytes": 6410,
+      "lines": 74,
+      "lastVerified": "2026-09-17",
+      "autoRefresh": false
+    },
+    {
       "path": "_context/OPUS-HANDOFF-STRUCTURAL-AUDIT-2026-06-10.md",
       "title": "AIO Screener 구조 전수 감사 + Opus 작업 지시서 (2026-06-10)",
       "kind": "historical-snapshot",
@@ -508,8 +518,8 @@
       "title": "2026-07-18 통합/압축: 검증 완료된 버전별 원장(v34.x~v53.4)을 §6 압축 원장으로 축약, 퇴역 표면(KR 독립 5페이지 등) 항목 제거.",
       "kind": "ledger",
       "readPolicy": "targeted",
-      "bytes": 230326,
-      "lines": 1735,
+      "bytes": 238667,
+      "lines": 1782,
       "lastVerified": "2026-09-17",
       "autoRefresh": false
     },
@@ -608,8 +618,8 @@
       "title": "2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.",
       "kind": "ledger",
       "readPolicy": "targeted",
-      "bytes": 363009,
-      "lines": 2859,
+      "bytes": 370582,
+      "lines": 2907,
       "lastVerified": "2026-09-17",
       "autoRefresh": false
     },

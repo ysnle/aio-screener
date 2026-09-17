@@ -189,6 +189,12 @@ export function deriveDurableFreshness({ data = {}, marketSnapshot = {}, now = n
     generatedAt,
     ageHours: ageHours == null ? null : Math.round(ageHours * 100) / 100,
     maxAgeHours,
+    // P1092: ageHours/fresh/withinSla are evaluated at build time and then frozen
+    // into the published artifact, which keeps serving them long after they stop
+    // being true. `evaluatedAt` makes the evaluation instant explicit so a consumer
+    // can tell a point-in-time judgement from a live one and recompute from
+    // `generatedAt` when it needs current state.
+    evaluatedAt: now,
     reason: !coverageComplete
       ? 'market-snapshot-quality-gate-blocked'
       : !quoteQualityComplete

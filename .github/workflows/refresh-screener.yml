@@ -16,6 +16,8 @@ concurrency:
 jobs:
   refresh-screener:
     runs-on: ubuntu-latest
+    # Includes waiting for the dispatched CI run to produce its attestation.
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -110,10 +112,27 @@ jobs:
 
       - name: Dispatch exact produced commit to CI
         if: steps.commit.outputs.changed == 'true'
+        id: dispatch
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           final_sha="$(git rev-parse HEAD)"
           gh workflow run ci.yml --ref main -f release_sha="$final_sha" -f origin="refresh-screener"
+          echo "sha=$final_sha" >> "$GITHUB_OUTPUT"
           echo "Dispatched CI for exact screener refresh commit $final_sha"
+
+      - name: Converge live deployment to the attested revision
+        # R606: this run owns the SEC/screener revision, so it must also hand the
+        # attested CI run id to the Pages deploy workflow. See refresh-data.yml for
+        # the full GITHUB_TOKEN/workflow_run explanation.
+        if: ${{ !cancelled() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [ -n "${{ steps.dispatch.outputs.sha }}" ]; then
+            node scripts/ensure-live-convergence.mjs --await-sha "${{ steps.dispatch.outputs.sha }}"
+          else
+            node scripts/ensure-live-convergence.mjs
+          fi
