@@ -406,7 +406,14 @@ async function run() {
         fundamentalModel: 'sec-fy-normalized-v2',
         fundamentalObservedAt: '2026-08-20T00:00:00.000Z',
         fundamentalFiledAt: '2026-08-19T00:00:00.000Z',
-        fundamentalFetchedAt: '2026-08-25T11:00:00.000Z'
+        fundamentalFetchedAt: '2026-08-25T11:00:00.000Z',
+        pe: 25,
+        pePrice: 100,
+        pePriceBasis: 'adjusted-close',
+        pbPrice: 100,
+        pbPriceBasis: 'adjusted-close',
+        valuationSharesOutstanding: 1000000,
+        valuationSharesObservedAt: '2026-06-30T00:00:00.000Z'
       }
     }
   };
@@ -429,6 +436,7 @@ async function run() {
   const providerStatuses = Object.values(providerReadiness?.fields || {}).map((field) => field.status);
   assert(providerOutput.rows.length === 1 && providerStatuses.some((status) => status !== 'BLOCKED_RIGHTS'), 'G-SCR-RIGHTS: provider fixture does not turn every populated readiness field into BLOCKED_RIGHTS', { statuses: providerStatuses });
   assert(providerReadiness?.fields?.['identity.symbol']?.status !== 'BLOCKED_RIGHTS' && providerReadiness?.fields?.['quality.roe']?.status !== 'BLOCKED_RIGHTS' && providerReadiness?.fields?.['quality.roe']?.rightsId === 'VERIFIED' && providerReadiness?.observations?.some((observation) => observation.fieldId === 'quality.roe' && observation.rightsId === 'VERIFIED'), 'G-SCR-RIGHTS: identity and SEC fundamental fields preserve verified rights', providerReadiness?.fields?.['quality.roe']);
+  assert(providerOutput.rows[0]?._valuationPePrice === 100 && providerOutput.rows[0]?._valuationPePriceBasis === 'adjusted-close' && providerOutput.rows[0]?._valuationSharesOutstanding === 1000000 && providerOutput.rows[0]?.price !== 100, 'G-SCR-VALUATION: memory-only valuation basis survives provider+normalize without publishing a raw price');
 
   const readFixture = async ({ artifact = providerArtifact, now = '2026-09-10T00:00:00Z', ok = true } = {}) => createScreenerProvider({
     httpClient: { requestJson: async url => url.includes('screener-universe') ? { ok: true, data: providerUniverse } : { ok, data: artifact } },

@@ -1,6 +1,6 @@
 ---
 verified_by: Codex local source review and affected QA; full semantic audit remains open
-last_verified: 2026-09-16
+last_verified: 2026-09-17
 confidence: medium
 ---
 
@@ -19,6 +19,9 @@ confidence: medium
 - [x] QA-EXHAUST-41: 계약 감사는 "작성된 계약"과 "파생 계약"을 구분해 보고하고 자기 부작용을 검증하지 않는다. 실측 라우트 20개 중 deep-audit 작성 커버리지 15, sequential registry 16이며 파생 라우트(시장뉴스·principles·masters·atlas·screener)가 명시된다. 배포 게이트는 이를 경고로 노출하고 차단하지 않는다. [ ] 파생 5개 라우트의 고유 계약 작성과 sequential registry의 stale lineRange·퇴역 라우트 정리는 미완료 (P1076/R600, `_artifacts/full-review-20260916/tools/probe-page-contract-audit.mjs`).
 - [x] QA-EXHAUST-42: 사용자 출력 계약은 렌더된 결과로 단언한다. `ci-research-flow-contract-check.mjs`의 공급 자료 브리지 단언 2건이 죽은 렌더러 문자열 대신 "프로토콜 메타데이터 존재 + 표시 렌더러 부재(음성)"와 "claim 원장은 내부 API로만 도달"을 검사하며, 66개 경계 단언이 PASS한다. 브리지의 `internal-protocol-only` 경계는 유지된다 (P1077/R601).
 - [x] QA-EXHAUST-43: 한 라벨이 두 정의를 가리키지 않는다. 스크리너 등급은 `rankGrade(visibleRank(row))` 단일 함수에서 파생하고 rejected/unavailable 행에는 등급이 없으며, 랭크 필터 라벨도 같은 함수에서 파생된다(실측 `40 (D)·50 (C)·65 (B)·80 (A)`). breadth 참여도는 한국어 매핑, `시장 폭 시그널`은 advance ratio, technical `마켓 폭`은 섹터 ETF 상승 비율, MACD는 히스토그램 기저로 통일됐다 (P1078/R602, `_artifacts/full-review-20260916/tools/probe-screener-grade.mjs`).
+- [x] QA-EXHAUST-44: 생성된 현재 상태는 고빈도 데이터 refresh가 바꾸는 휘발값을 고정하지 않는다. 렌더된 `## Operations Boundary`는 `overall`·public stage·promotion decision만 담고 데이터 refresh 유래 ISO 타임스탬프(`generatedAt`)를 담지 않으며, 최신 `operations-status.json`을 넣어도 `generate-workspace-state.mjs --check`가 PASS한다. `ci-workspace-contract-check.mjs`가 재도입을 단언으로 막는다 (P1079/R603).
+- [x] QA-EXHAUST-45: 데이터 파이프라인 구조 4건이 수정됐다. hy-oas `fred-source-identified`는 `fred-official-primary`·`fred-official-public-csv`를 모두 인정하고(화해 재생성 실측 PASS), SEC pe/pb 결측 행은 같은 실행의 메모리 adjusted close로만 재계산하며 계산 근거를 행에 남긴다(P715 공개 계약 유지, `G-SCR-VALUATION`), 상태 빌더 3곳은 `atomicWriteFile`로 쓰고 연속성 게이트가 단언한다, 정적 테마맵의 시점 박힌 시총 서술 74건은 제거되고 정적 계약이 재도입을 금지한다 (P1080/R604).
+- [x] QA-EXHAUST-46: 정적 DB가 data-refresh 주기에 묶였다. 스킬 인벤토리에 S1~S6(파일·동기화 명령·게이트·주기), 어닝 캘린더 서버 수집(`fetch-earnings-calendar.mjs` + refresh-screener 배선), `conf-gtc-dc` 등록(관심 윈도우 ~60일, 2027년 일정은 진입 시 등록), FOMC 9/16 결정 등록, 만료 일정 4건 승격(CPI 10/14·소매 10/15·FOMC 10/28·금리 3.75-4.00%), `static-db-expiry` 게이트(data 그룹). 만료 이벤트는 자동 삭제 없이 명시적 제거만 허용한다 (P1081/R605).
 
 ## v54.95 상태 저장소 불변성·구독 격리 (2026-09-12)
 

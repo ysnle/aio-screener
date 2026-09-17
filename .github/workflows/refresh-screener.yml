@@ -31,6 +31,11 @@ jobs:
           SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
         run: node scripts/fetch-sec-fundamentals.mjs
 
+      - name: Refresh weekly earnings calendar (Finnhub free tier)
+        env:
+          FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
+        run: node scripts/fetch-earnings-calendar.mjs
+
       - name: Build bounded SEC runtime projection
         run: |
           node scripts/build-sec-runtime-projection.mjs
@@ -80,6 +85,7 @@ jobs:
           git config user.name "aio-data-bot"
           git config user.email "actions@github.com"
           git add public-data/screener.json public-data/sec-fundamentals.json public-data/sec-fundamentals-summary.json public-data/sec-fundamentals-summary.manifest.json public-data/screener-validation-gate.json public-data/reconciliation-status.json public-data/operations-status.json public-data/history.json public-config.json architecture/public-readiness.json
+          [ -f public-data/earnings-calendar.json ] && git add public-data/earnings-calendar.json || true
           [ -f public-data/backtest-history.json ] && git add public-data/backtest-history.json || true
           if git diff --staged --quiet; then
             echo "No screener changes to commit"

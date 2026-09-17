@@ -14,24 +14,24 @@ last_verified: 2026-09-16
 - Version: `v54.98`
 - Architecture: `hybrid-static-shell-native-esm`
 - Active routes: 20 (source: `architecture/route-owners.json`)
-- App shell: 28,562 lines / 1,906,336 bytes
+- App shell: 28,565 lines / 1,905,583 bytes
 
 | Source | Lines | Bytes |
 |---|---:|---:|
-| `index.html` | 28,562 | 1,906,336 |
-| `js/aio-core.js` | 27,984 | 1,685,352 |
+| `index.html` | 28,565 | 1,905,583 |
+| `js/aio-core.js` | 27,989 | 1,686,060 |
 | `js/aio-data.js` | 16,671 | 1,016,599 |
 | `js/aio-ui.js` | 4,378 | 273,894 |
 | `js/aio-chat.js` | 8,156 | 582,017 |
-| `js/aio-tests.js` | 9,322 | 713,548 |
+| `js/aio-tests.js` | 9,322 | 713,943 |
 | `js/aio-glossary.js` | 322 | 60,537 |
 
 ## Workspace
 
 - Context documents: 69; preflight reads current state once; governance and INDEX are targeted references.
 - Skills: 6; command wrappers: 9; agent profiles: 4.
-- Workflows: 9; CI scripts: 122.
-- Ledgers: latest rule R602; latest postmortem P1078; open QA 147 unique IDs (151 rows, 4 explicitly superseded).
+- Workflows: 9; CI scripts: 123.
+- Ledgers: latest rule R605; latest postmortem P1082; open QA 147 unique IDs (151 rows, 4 explicitly superseded).
 - Canonical skills: `.claude/skills`; Codex mirror: `.agents/skills`.
 
 ## Knowledge Boundary
@@ -43,7 +43,7 @@ last_verified: 2026-09-16
 
 ## Operations Boundary
 
-- Repository operations artifact: `OPERATOR_REQUIRED` at `2026-09-16T00:28:05.815Z`.
+- Repository operations artifact status: `OPERATOR_REQUIRED` (refresh timestamp and data revision are data-refresh-scoped; not pinned — R603).
 - Public stage: `RESEARCH_BETA_CONDITIONAL`; promotion decision: `BLOCKED_UNTIL_OPERATOR_CRITERIA_CLOSE`.
 - Live deployment, provider health, and edge headers must be measured by live gates. Never infer them from this file.
 

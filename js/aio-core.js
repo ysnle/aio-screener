@@ -4947,7 +4947,10 @@ window.AIO_SOURCE_KIND = {
   UNAVAILABLE: 'UNAVAILABLE'
 };
 
-window.AIO_EVENT_FRESHNESS_REGISTRY = {};
+window.AIO_EVENT_FRESHNESS_REGISTRY = {
+  // P1081: 끝난 이벤트 결과만 등록. 관심 윈도우 ~60일, 만료 시 data-refresh에서 명시적 제거(R605).
+  fomc: { eventDate: '2026-09-16', label: 'FOMC', result: '25bp 인상 · 3.75-4.00% (12-0 만장일치)', nextCheckpoint: '10/28 FOMC', maxClaimAgeDays: 42, source: 'Fed official statement (CNBC 2026-09-16 확인)' }
+};
 
 // v52.55/H3-B: 사건 서사는 결과를 보존하되 현재 행동 주장으로 자동 승격하지 않는다.
 window.AIO.getEventClaimState = function(eventId, nowTs) {
@@ -13496,30 +13499,32 @@ window.AIO_MACRO_CALENDAR = {
     // lastRelease and point the visible calendar at the verified 2026-10-02
     // BLS Employment Situation release instead of surfacing a past event.
     'us-nfp':       { name: 'BLS NFP',        frequency: 'monthly-first-friday', lastRelease: '2026-09-04', nextRelease: '2026-10-02', dataField: 'usUnemploy', source: 'BLS official schedule' },
-    'us-cpi':       { name: 'BLS CPI',        frequency: 'monthly-mid',          lastRelease: '2026-08-12', nextRelease: '2026-09-11', dataField: 'cpi', source: 'BLS official schedule' },
+    'us-cpi':       { name: 'BLS CPI',        frequency: 'monthly-mid',          lastRelease: '2026-09-11', nextRelease: '2026-10-14', dataField: 'cpi', source: 'BLS official schedule' },
     'us-pce':       { name: 'BEA PCE',        frequency: 'monthly-end',          lastRelease: '2026-08-26', nextRelease: '2026-09-30', dataField: 'pce', source: 'BEA official schedule' },
     'us-ism-mfg':   { name: 'ISM Mfg PMI',    frequency: 'official-first-business-day',  lastRelease: '2026-09-01', nextRelease: '2026-10-01', dataField: 'ismPmi', source: 'ISM official calendar' },
     'us-ism-svc':   { name: 'ISM Services',   frequency: 'official-third-business-day',  lastRelease: '2026-09-03', nextRelease: '2026-10-05', dataField: 'ismSvc', source: 'ISM official calendar' },
-    'us-retail':    { name: 'Retail Sales',   frequency: 'monthly-mid',          lastRelease: '2026-08-14', nextRelease: '2026-09-16', dataField: 'retailSales', source: 'U.S. Census official schedule' },
+    'us-retail':    { name: 'Retail Sales',   frequency: 'monthly-mid',          lastRelease: '2026-09-16', nextRelease: '2026-10-15', dataField: 'retailSales', source: 'U.S. Census official schedule' },
     // v49.41 P296/R77 보강: FOMC 회의 + fed-rate (signal 페이지 CP2 lastUpdated 메타용)
     // v52.42 (P657/EF-03, WebSearch 재확인): 6/17 회의는 이미 지나 결과가 나왔으므로(3.50-3.75% 동결
     // 유지, 확인됨) lastRelease로 승격. 7/28-29 회의도 종료되어 다음 결정일(9/16)로 이동.
-    'us-fomc':      { name: 'FOMC 회의',       frequency: 'every-6-7-weeks',      lastRelease: '2026-07-29', nextRelease: '2026-09-16', dataField: 'fomc', sepMeeting: true },
-    'us-fed-rate':  { name: 'Fed Funds Rate',  frequency: 'fomc-decision',        lastRelease: '2026-07-29', nextRelease: '2026-09-16', dataField: 'fedRate', source: 'FOMC 결정' },
+    'us-fomc':      { name: 'FOMC 회의',       frequency: 'every-6-7-weeks',      lastRelease: '2026-09-16', nextRelease: '2026-10-28', dataField: 'fomc', sepMeeting: true },
+    'us-fed-rate':  { name: 'Fed Funds Rate',  frequency: 'fomc-decision',        lastRelease: '2026-09-16', nextRelease: '2026-10-28', dataField: 'fedRate', source: 'FOMC 결정' },
     // v49.85 신규: 한국 BOK 금통위 (5/28 신현송 총재 첫 회의 → 다음 7/16)
-    // v52.42 (P657/EF-03, WebSearch 재확인): 기존 nextRelease '2026-07-10'은 오류 — 실제 다음 회의는 7/16.
-    'kr-bok':       { name: 'BOK 금통위',      frequency: 'every-6-7-weeks',      lastRelease: '2026-08-27', nextRelease: '2026-10-22', dataField: 'bokRate', source: '한국은행 금통위' } // P1002: 8/27 공식 결정(2.75%→3.00%) 수신 후 10/22 공식 일정으로 이동
+    // v52.42: 기존 nextRelease '2026-07-10'은 오류 — 실제 다음 회의는 7/16.
+    'kr-bok':       { name: 'BOK 금통위',      frequency: 'every-6-7-weeks',      lastRelease: '2026-08-27', nextRelease: '2026-10-22', dataField: 'bokRate', source: '한국은행 금통위' }, // P1002: 8/27 공식 결정(2.75%→3.00%) 수신 후 10/22 공식 일정으로 이동
+    // P1081: 시장 핵심 이벤트 — 관심 윈도우 ~60일. 값은 넣지 않고 일정만 둔다(R605).
+    'conf-gtc-dc':  { name: 'NVIDIA GTC Washington DC', frequency: 'annual-december', lastRelease: null,    nextRelease: '2026-11-30', dataField: 'event', source: 'NVIDIA official (nvidia.com/gtc/dc)' }
   }
 };
 window.AIO_MACRO_OFFICIAL_SCHEDULES = {
   'us-nfp': ['2026-07-02', '2026-08-07', '2026-09-04', '2026-10-02'],
-  'us-cpi': ['2026-07-14', '2026-08-12', '2026-09-11'],
+  'us-cpi': ['2026-07-14', '2026-08-12', '2026-09-11', '2026-10-14'],
   'us-pce': ['2026-07-30', '2026-08-26', '2026-09-30'],
   'us-ism-mfg': ['2026-07-01', '2026-08-03', '2026-09-01', '2026-10-01'],
   'us-ism-svc': ['2026-07-06', '2026-08-05', '2026-09-03', '2026-10-05'],
-  'us-retail': ['2026-07-16', '2026-08-14', '2026-09-16'],
-  'us-fomc': ['2026-06-17', '2026-07-29', '2026-09-16'],
-  'us-fed-rate': ['2026-06-17', '2026-07-29', '2026-09-16'],
+  'us-retail': ['2026-07-16', '2026-08-14', '2026-09-16', '2026-10-15'],
+  'us-fomc': ['2026-06-17', '2026-07-29', '2026-09-16', '2026-10-28', '2026-12-09'],
+  'us-fed-rate': ['2026-06-17', '2026-07-29', '2026-09-16', '2026-10-28', '2026-12-09'],
   'kr-bok': ['2026-07-16', '2026-08-27', '2026-10-22', '2026-11-26']
 };
 
@@ -22364,7 +22369,7 @@ if (typeof window !== 'undefined') {
 // this schema; missing or stale producers must render unavailable.
 const AIO_MANUAL_REFERENCE = Object.freeze({
   fedPolicy: Object.freeze({
-    value: '3.50-3.75', status: '동결', asOf: '2026-07-29', next: '2026-09-15~16',
+    value: '3.75-4.00', status: '인상', asOf: '2026-09-16', next: '2026-10-28',
     source: 'Federal Reserve', sourceKind: 'official-primary',
     sourceUrl: 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm',
     operationalUse: 'reference-only'

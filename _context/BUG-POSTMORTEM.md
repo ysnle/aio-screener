@@ -1,13 +1,60 @@
 ---
 verified_by: Codex local source review and affected QA; full semantic audit remains open
-last_verified: 2026-09-16
+last_verified: 2026-09-17
 confidence: medium
 latest_version: v54.98
-latest_P_number: P1078
-next_P_number: P1079
-current_total_entries: 493 tracked entries (320 headings + 173 compacted lines, P1~P1078, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
+latest_P_number: P1082
+next_P_number: P1083
+current_total_entries: 497 tracked entries (324 headings + 173 compacted lines, P1~P1082, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
 current_checkpoint: P1013~P1033 exhaustive audit in progress; publication/runtime/QA topology and selected page semantics reviewed; full-tree semantic review remains open (current coverage 6.89%, releaseCertified=false)
 ---
+
+## P1082 - v54.98 - 이벤트 레지스트리 등록이 빈-레지스트리 단언 4건을 깨뜨렸다 (2026-09-17)
+
+- symptom/reproduction: P1081에서 `AIO_EVENT_FRESHNESS_REGISTRY`에 FOMC 9/16 결정을 등록했더니 `browser-unit` headless 1125/1129로 4건 FAIL했다. 실패 라벨 T837/T841/T872/T905는 전부 `Object.keys(REGISTRY).length === 0`을 단언했다.
+- root_cause: 테스트가 "레지스트리가 비어 있다"를 곧 "정적 서사가 현재로 둔갑하지 않는다"와 동일시했다. 레지스트리에 만료 구조(`eventDate`+`maxClaimAgeDays`+`getEventClaimState` 격리)가 들어선 뒤에도 단언이 옛 전제를 그대로 뒀다.
+- fix: T837/T841/T872는 "등록된 전 항목이 `eventDate`+`maxClaimAgeDays`를 갖는다"로 변경했다. T905는 고정 과거 시각(06-20/07-20)의 MISSING 기대를 실제 등록값 기준(09-17 CURRENT / 11-20 EXPIRED)으로 변경했다.
+- violated_rule: 없음(신규 설계에 맞춘 테스트 갱신). R605 관련.
+- prevention: `browser-unit` headless PASS(1129/1129).
+- 실측 결과: 수정 전 1125/1129(4 FAIL: G080·G082·G090) → 수정 후 `browser-unit` PASS.
+- residual_risk: 없음.
+- verification: `qa-runner --group browser-unit --no-cache` PASS, `affected` 63 PASS + 10 CACHED / 0 FAIL.
+-
+
+## P1081 - v54.98 - 정적 DB data-refresh 분리·일정 커버리지 확장·만료 정책 (2026-09-17)
+
+- symptom/reproduction: (1) data-refresh 스킬(`references/inventory.md`)에 정적 DB 6종이 없어서 "매일 최신화"가 사람 기억에 의존했다. (2) 매크로 일정은 있었지만 어닝 캘린더는 브라우저 키 의존이라 키 없는 사용자에게 일정이 없었고, CES/GTC/MWC/잭슨홀 같은 대형 컨퍼런스 일정은 코드베이스에 0건이었다. (3) `AIO_EVENT_FRESHNESS_REGISTRY`가 `{}`라서 끝난 FOMC(9/16 25bp 인상) 같은 현재 컨텍스트가 의사결정 풋터에 안 나왔다. (4) 만료된 `nextRelease` 4건(us-cpi 09-11, us-retail·us-fomc·us-fed-rate 09-16)이 등록에 남아 있었다.
+- root_cause: 정적 DB는 스스로 최신화되지 않는데 주기·주체·게이트가 어디에도 명시돼 있지 않았다. 어닝은 클라이언트 키 경로만 있었고, 컨퍼런스는 등록 그릇 자체가 없었고, 이벤트 레지스트리는 구조만 있고 내용이 없었다.
+- fix: (1) 스킬 `references/inventory.md`에 Static Databases 섹션 추가(S1~S6: 파일·동기화 명령·게이트·주기). (2) `scripts/fetch-earnings-calendar.mjs` 신설(Finnhub 무료 60req/min, 주 2호출) + `refresh-screener.yml`에 배선 + 커밋 목록에 `earnings-calendar.json` 추가. 키 없으면 `operator-key-required`로 보존. (3) `AIO_MACRO_CALENDAR`에 `conf-gtc-dc`(11/30, 공식 확정) 등록. 관심 윈도우는 ~60일이라 2027년 일정(CES·MWC·GTC SJ)은 윈도우 진입 시 등록한다. 잭슨홀 2027은 미발표라 추정 기입 금지. (4) `EVENT_FRESHNESS_REGISTRY.fomc`에 9/16 결정 등록(42일 claim window). (5) 만료 `nextRelease` 4건 승격: CPI 09-11→10/14, 소매 09-16→10/15, FOMC 09-16→10/28, `fedPolicy` 3.50-3.75% 동결→3.75-4.00% 인상 + 스케줄 배열에 10/28·12/09 추가. (6) `ci-static-db-expiry-check.mjs` 신설: 유니버스 `replaceAfterDays` 하드 FAIL + 과거 `nextRelease` FAIL + 관심 윈도우(+60일) 초과 이벤트 명시적 제거 FAIL. `qa-pipeline.json` data 그룹에 `static-db-expiry` 배선. 만료 이벤트는 자동 삭제하지 않는다 — 과거 결정이 "뭐 결정됐지?" 질문의 근거라서 명시적 제거만 허용한다.
+- violated_rule: R605 (신규).
+- prevention: `static-db-expiry` 게이트(data 그룹) + 스킬 인벤토리 S1~S6 + T759/EF-03 기존 단언.
+- 실측 결과: 게이트 첫 실행에서 만료 4건을 정확히 검출 → 승격 후 PASS(경고 1건: 유니버스 63일 STALE). 관심 윈도우 결정: 2027년 일정은 등록하지 않음.
+- residual_risk: 유니버스가 `replaceAfterDays:90`에 27일 남았다(10월 중순까지 멤버십 리뷰 필요). 어닝 수집은 `FINNHUB_API_KEY` 시크릿 등록 후 첫 사이클부터 동작한다. 잭슨홀 2027은 KC Fed 발표 후 등록.
+- verification: `ci-static-db-expiry-check.mjs` PASS, `fetch-earnings-calendar.mjs` 키-없음 경로 확인, `qa-runner affected` 전 항목 PASS / 0 FAIL(연령 2건 제외).
+-
+
+## P1080 - v54.98 - 데이터 파이프라인 구조 4건: hy-oas 허용목록·SEC pe/pb·상태 쓰기·정적 시총 서술 (2026-09-17)
+
+- symptom/reproduction: (1) `reconciliation-status.json`의 `hy-oas`가 `fred-source-identified FAIL`로 상시 PARTIAL이었다. `_source_hyOAS='fred-official-public-csv'`(정확한 키리스 공식 릴레이 값)인데 게이트가 `'fred-official-primary'`만 인정했다. (2) `screener.json` 849행 전체에 `pe/pb`가 없었다. SEC 정규화는 가격을 인자로 받는데, 호출부가 읽는 `screener.json`은 P715 스트립으로 가격이 항상 비어 있었다. (3) `build-reconciliation-status.mjs:376`·`build-operations-status.mjs:466,220`이 `writeFile` 직접 쓰기로 상태 산출물을 갱신했다. 크래시 시 torn JSON이 `reconciliation-status.json`·`operations-status.json`에 남는다. (4) `index.html`의 `KR_THEME_MAP` 주석에 `"시총 ~50조"` 같은 시점 박힌 수치 74건이 박혀 있었다.
+- root_cause: (1) 허용목록 드리프트 — 프로듀서가 키리스 CSV로 전환됐는데 게이트가 API 전용 값을 요구했다. (2) P715 가격 스트립과 SEC 밸류에이션 병합의 모순 — 같은 `enrichScreener` 실행 안에 메모리 가격(`_enrichPriceFactors`의 `results`)이 있는데도, SEC 배치는 스트립된 발행 아티팩트에서 가격을 읽었다. (3) 상태 빌더만 원자 쓰기에서 빠져 있었다. (4) 정적 DB 정책(`AIO_STATIC_DATA_POLICY`)은 값이 아니라 주석의 수치까지 막지 못했다.
+- fix: (1) `build-reconciliation-status.mjs:251` 허용목록에 `fred-official-public-csv` 추가. (2) `enrichSecFundamentals(syms, data, results)`에 메모리 adjusted close를 전달해 pe/pb 결측 행만 재계산하고, 계산 근거(`pePrice/pePriceBasis/pbPrice/pbPriceBasis/valuationSharesOutstanding/valuationSharesObservedAt`)를 행에 함께 남긴다. `fetch-sec-fundamentals.mjs`의 `refreshSecFundamentals(priceHints)`도 같은 폴백을 받는다. 발행 아티팩트에 원시가를 기록하지 않으므로 P715 계약은 유지된다. provider·normalize에 `_valuation*` passthrough를 추가했다. (3) 세 곳을 `atomicWriteFile`로 전환하고 `ci-data-continuity-check.mjs`에 `producer:status-builders-use-atomic-writes` 단언을 추가했다. (4) 시점 박힌 시총 서술 74건 제거 + `ci-static-data-contract-check.mjs`에 `시총 ~N조` 금지 패턴 추가.
+- violated_rule: R604 (신규, 정적 DB 구성 한정). R596(정본 어휘)·R595(원자성 분리) 관련.
+- prevention: `ci-screener-workbench-contract.mjs`의 `G-SCR-VALUATION`(메모리 한정 근거가 provider+normalize를 통과하고 원시가는 발행되지 않음), `producer:status-builders-use-atomic-writes`, 정적 계약의 시총 서술 금지 패턴.
+- 실측 결과: `build-reconciliation-status.mjs` 재생성 → `fred-source-identified PASS`(hy-oas 잔여 FAIL은 `independent-spread-reconciliation` 1건만). `sec-fundamentals.json` 562행 중 기존 pe 보유 0행, shares+income 갖춰 재계산 가능 445행. 연속성 57/57 PASS, 정적 계약 22/22 PASS, 워크벤치 계약 PASS(G-SCR-VALUATION 포함).
+- residual_risk: pe/pb 재계산은 다음 6시간 SEC·스크리너 사이클에서 실제 행에 반영된다(로컬에서 네트워크 수집 미실행). 117행은 발행주식·순이익 결측이라 계속 null이다. `KR_THEME_MAP` 역할 서술("대장" 등)은 정성 서술이라 남겼고, 시총 코멘트만 제거했다. Stooq는 서버에서 404라 교차검증 후보에서 제외.
+- verification: 화해 재생성 전후 A/B, `ci-data-continuity-check.mjs` 57/57, `ci-static-data-contract-check.mjs` 22/22, `ci-screener-workbench-contract.mjs` PASS, `qa-runner affected` 전 항목 PASS / 0 FAIL.
+-
+
+## P1079 - v54.98 - 생성된 현재 상태가 데이터 refresh 휘발값을 고정해 배포를 재차단했다 (2026-09-17)
+
+- symptom/reproduction: v54.98 배포(`0733dbc4`) 성공 직후부터 데이터 refresh가 트리거한 CI run이 **10건 연속 실패**했다(`9d5338be`…`ae02bb42`, 2026-09-16T05:01Z~22:12Z). 실패 job은 `Preflight (cheap blocking gate)` 하나뿐이고 Contracts/Browser/Attest는 전부 `skipped`였다(run `35156432276`). 라이브 Pages는 `deployment.json` 기준 `0733dbc4`(v54.98)에 고정돼 그 뒤 데이터 refresh 10건이 사이트에 반영되지 않았고, 실측 data·telegram age가 1417분(상한 360분)으로 초과했다.
+- root_cause: `scripts/workspace-state-lib.mjs`가 `public-data/operations-status.json`의 `generatedAt`을 `repositoryArtifactGeneratedAt`으로 상태에 넣고 `renderCurrentState`가 `## Operations Boundary`에 렌더했다. 데이터 refresh는 `operations-status.json`의 `generatedAt`·`dataRevision`을 갱신하지만 `_context/`는 갱신하지 않는다(R595가 의도적으로 분리한 경계). 그래서 `generate-workspace-state.mjs --check`가 **매 데이터 push마다** "`_context/CURRENT-STATE.md` is stale"로 실패했다. 원인은 코드 버그 하나가 아니라 **R595(데이터 커밋과 생성 상태 분리)와 "생성물은 매 리비전 byte-current"라는 preflight가 같은 값에서 정면 충돌**한 것이다.
+- fix: 상태에서 `repositoryArtifactGeneratedAt`을 제거하고, Operations Boundary는 refresh와 무관하게 안정한 분류(`overall`, public stage, promotion decision)만 렌더한다. `ci-workspace-contract-check.mjs`에 "렌더된 Operations Boundary는 데이터 refresh 유래 ISO 타임스탬프를 포함하지 않는다" 단언을 넣어 재도입을 막는다.
+- violated_rule: R603 (신규). R595와의 충돌 해소를 포함한다.
+- prevention: `node scripts/ci-workspace-contract-check.mjs`가 렌더된 Operations Boundary 섹션에 ISO-8601 타임스탬프가 없는지 검사한다. 이 단언은 preflight 그룹에 이미 등록돼 있어 별도 파이프라인 변경이 없다.
+- 실측 결과: 최신 `operations-status.json`(origin/main `generatedAt 2026-09-16T22:11:35.380Z`)을 워킹 트리에 넣고 `generate-workspace-state.mjs --check` 실행 → 수정 전 `CURRENT-STATE.md is stale`, 수정 후 PASS. 검증 후 파일은 `git checkout --`로 원복했고 blob 해시 일치(`40be3b03`)를 확인했다.
+- residual_risk: 이미 생성된 원격 CI run 10건은 실패 상태로 남고, 원격 main에는 데이터 커밋 10건이 미검증으로 남아 있다(P1073/R595의 잔여 위험). `pages-source-matches-attested-ci`의 attestation 조회는 `observed=missing`으로 남아 별도 확인이 필요하다. 데이터 refresh 이외의 새 휘발 입력이 생성물에 추가되면 같은 정지가 재발한다.
+- verification: 재현 A/B(수정 전 FAIL → 수정 후 PASS, 파일 원복·해시 일치), `ci-workspace-contract-check.mjs`·`ci-knowledge-lint-check.mjs`·`generate-workspace-state.mjs --check` PASS, `qa-runner affected` 전 항목 PASS / 0 FAIL.
 
 ## P1078 - v54.98 - 같은 라벨이 두 정의를 가리키던 수치 표면 6건 (2026-09-16)
 

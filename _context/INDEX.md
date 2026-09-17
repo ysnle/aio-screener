@@ -1,6 +1,6 @@
 ---
 verified_by: generated-workspace-contract
-last_verified: 2026-09-16
+last_verified: 2026-09-17
 confidence: high
 auto_refresh: true
 target_version: version.json
@@ -66,7 +66,7 @@ The exact classification for every `_context/*.md|json` file is in `CONTEXT-CATA
 
 - Ongoing all-line/history audit: `../_artifacts/exhaustive-audit-20260831/REPORT.md` and `coverage-summary.json`. Inventory/parse coverage is separate from semantic completion; unresolved work is not closed by a passing gate.
 
-- **Agent handoff (current): `../_artifacts/full-review-20260916/HANDOFF.md`** — 마지막 작업, 열린 항목과 우선순위, 다음 행동, 반복 금지. 같은 디렉터리에 `REPORT.md`(구조·CI·6개 영역), `SEMANTIC-REVIEW.md`(R219 의미 검토), `FIX-REPORT.md`(v54.98 수정·검증), `evidence.json`(기계 판독). 커밋되지 않은 v54.98 변경분과 미수정 백로그가 이 핸드오프에 있다.
+- **Agent handoff (current): `../_artifacts/full-review-20260916/HANDOFF.md`** — 마지막 작업, 열린 항목과 우선순위, 다음 행동, 반복 금지. 같은 디렉터리에 `REPORT.md`(구조·CI·6개 영역), `SEMANTIC-REVIEW.md`(R219 의미 검토), `FIX-REPORT.md`(v54.98 수정·검증), `evidence.json`(기계 판독). v54.98은 `0733dbc4`로 커밋·배포됐고(라이브 `deployment.json` exact-SHA 수렴), 이 핸드오프의 §2에 미수정 백로그가 남아 있다.
 
 - Repository current state: `CURRENT-STATE.md`.
 - Runtime knowledge state: `public-data/knowledge/status-summary.json`.

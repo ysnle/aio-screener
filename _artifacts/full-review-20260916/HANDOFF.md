@@ -5,9 +5,11 @@
 | 항목 | 값 |
 |---|---|
 | 최종 작업 | 2026-09-16 (v54.98) |
-| 최종 커밋 | `9fccf5ff` (수정 전). **v54.98 변경분은 아직 커밋되지 않았다** |
-| 라이브 상태 | v54.89 / SHA `68bb0713` / 2026-09-11 배포 — 5일 정지 |
-| 커밋·push·배포 | **하지 않음** (명시적 요청 필요) |
+| 최종 커밋 | `0733dbc4` — v54.98 커밋 완료(`043c4923` 릴리스 + `0733dbc4` 릴리스 노트 확정). 이후 데이터 봇 커밋 10건이 main을 진행시켰다(`ae02bb42`, 2026-09-16T22:11Z 관측) |
+| 라이브 상태 | **v54.98 / SHA `0733dbc4` / `deployedAt 2026-09-16T03:04:49.790Z`** — 5일 정지 해제 |
+| 커밋·push·배포 | **완료**. Pages `deployment.json`이 exact-SHA로 수렴(attestation run `35050132582`, deploy run `35050391438`) |
+| CI 상태 | **원격 red — 재발**. v54.98 배포 직후부터 데이터 봇 run 10건이 연속 실패(§2 #0). 배포는 attest 부재로 차단. **수정은 로컬에만 있고 미커밋·미push이므로 원격 CI는 그대로 red다** |
+| 기록 기준 | 이 표는 `0733dbc4` 시점의 측정값이다. 이후 변경은 §2 백로그로만 추적한다 |
 
 ## 1. 이번 작업(2026-09-16)에서 한 것
 
@@ -22,12 +24,15 @@
 7. **핸드오프 인프라**: R598 규칙 + `_context/INDEX.md` "Current and live state"에 이 디렉터리 포인터 + `CLAUDE.md` 표에 "작업 이어받기" 행. 이전에는 산출물이 `_artifacts/`에만 있어 다음 에이전트가 발견할 수 없었다.
 8. **감사 무결성**: 계약 감사가 자기 부작용을 검증하던 문제를 수정(P1076/R600). 파생 항목을 생성 시점에 기록하고 `authoredCoverage`로 보고(deep-audit 15/20, sequential 16/20). 배포 게이트가 파생 라우트를 경고로 노출. **주의: `js/aio-core.js`가 27,984/28,000줄이라 이 파일은 더 늘릴 수 없다** — 추가 수정은 감축 또는 분해가 필요하다.
 
-결과: CI를 막던 `browser-runtime` **8/8**, `browser-knowledge` **6/6**, `masters-contract` PASS, `qa-runner affected` **91 PASS + 3 CACHED / 0 FAIL**.
+결과: CI를 막던 `browser-runtime` **8/8**, `browser-knowledge` **6/6**, `masters-contract` PASS, `qa-runner affected` **91 PASS + 3 CACHED / 0 FAIL**. 이후 사용자 명시 요청으로 `043c4923`·`0733dbc4`를 push하고 Pages를 배포했으며, 라이브 `deployment.json`이 `sourceSha 0733dbc4…`로 exact-SHA 수렴했다(v54.89 → v54.98).
 
 ## 2. 열린 항목 (우선순위 순)
 
 | # | 항목 | 근거 | 상태 |
 |---|---|---|---|
+| 0 | **배포 정지 재발 (HIGH)**: v54.98 배포 직후부터 데이터 봇이 트리거한 CI run **10건 연속 실패**(`9d5338be`…`ae02bb42`, 2026-09-16T05:01Z~22:12Z). 실패 지점은 `Preflight (cheap blocking gate)` → `generated-state`·`workspace-contract`의 **`_context/CURRENT-STATE.md is stale`**. `CURRENT-STATE.md`는 `public-data/operations-status.json`을 읽어 Operations Boundary를 렌더하는데, 데이터 refresh 커밋은 그 파일을 갱신하지 않는다(`git diff --name-only 0733dbc4..origin/main -- _context/` = 0건). 결과: 데이터 push마다 preflight FAIL → Contracts/Browser/Attest 전부 SKIP → attestation 부재 → Pages 배포 차단. R595("generated workspace state를 고빈도 data promotion에 결합하지 않는다")와 "CURRENT-STATE는 매 리비전 byte-current여야 한다"는 preflight가 **직접 충돌**한다. **수정(v54.98 로컬)**: 생성물에서 휘발 타임스탬프를 제거하고 Operations Boundary가 안정 분류만 렌더하게 했으며, `ci-workspace-contract-check.mjs`가 재도입을 단언으로 막는다 | CI run `35156432276` 로그, `scripts/workspace-state-lib.mjs:124,183` | **로컬 수정 (P1079/R603/QA-EXHAUST-44)** |
+| 0b | **데이터 파이프라인 구조 4건 (HIGH, 로컬 수정)**: (1) hy-oas 허용목록 드리프트 → 수정·화해 재생성 실측 PASS. (2) SEC pe/pb 0행(P715 모순) → 메모리 adjusted close 재계산 경로 추가·`G-SCR-VALUATION` 게이트. 다음 6시간 사이클에서 실제 반영. (3) 상태 빌더 비원자 쓰기 3곳 → `atomicWriteFile` 전환·연속성 게이트 단언. (4) 정적 테마맵 시총 서술 74건 → 제거·정적 계약 금지 패턴 | P1080/R604/QA-EXHAUST-45 | **로컬 수정** |
+| 0c | **정적 DB data-refresh 분리·일정 확장 (HIGH, 로컬 수정)**: 스킬 인벤토리 S1~S6, 어닝 서버 수집+워크플로우 배선, GTC DC(11/30) 등록, FOMC 9/16 결정 등록, 만료 일정 4건 승격(FOMC 25bp 인상 확인), `static-db-expiry` 게이트 신설·data 그룹 배선. 관심 윈도우 ~60일(2027년 일정은 진입 시 등록). 만료 이벤트는 자동 삭제 없이 명시적 제거. 부수 수정: 빈-레지스트리 단언 4건(T837/T841/T872/T905)을 만료 구조 단언으로 갱신 | P1081/R605/QA-EXHAUST-46 + P1082(테스트 갱신) | **로컬 수정** |
 | 1 | ~~`currentSensitive` 단일 축~~ → **수정 완료** (v54.98, P1075/R599). 잔여: 섹터 현황 질문(`"반도체 섹터 어때?"`)과 `hasTicker && 주가` 경로의 HISTORICAL 미검사 | `SEMANTIC-REVIEW.md` H2, `src/ai/intent/taxonomy.js` | **v54.98 수정** |
 | 2 | ~~`js/aio-core.js`의 `getPageContractAudit` 공허화~~ → **부분 수정** (v54.98, P1076/R600). 감사가 작성/파생 커버리지를 보고한다(deep-audit **15/20**, sequential **16/20**, 파생 라우트 명시). 잔여: 파생 5개 라우트의 고유 계약 작성, `AIO_PAGE_SEQUENTIAL_AUDIT_REGISTRY`의 stale `lineRange`·퇴역 KR 라우트, `runAllPageDeepAudits`가 라우트 20개 대신 키 21개를 순회 | `SEMANTIC-REVIEW.md` §3, `js/aio-core.js` | **v54.98 부분 수정** |
 | 3 | ~~공급 리서치 provenance 렌더러 4종이 죽은 코드~~ → **수정·분류 정정 완료** (v54.98, P1077/R601). 숨김은 **설계 의도**(`internal-protocol-only`)였고, 죽은 렌더러 7종(~230줄)을 삭제하고 게이트를 "문자열 존재"→"메타데이터 존재 + 렌더러 부재(음성 단언)"으로 교체 | `SEMANTIC-REVIEW.md` H5(정정됨), `ci-research-flow-contract-check.mjs` | **v54.98 수정** |
@@ -46,6 +51,7 @@
 - `index.html`은 `_context/CODE-MAP.md`로 구간을 찾아 부분 수정.
 - 게이트가 grep하는 문구(QA-CHECKLIST §7 마커, RULES 특정 문장, CHANGELOG v50.89 섹션)는 **삭제 금지**.
 - 로컬 브라우저 게이트는 `masters-contract` 실패 시 phase 차단으로 전부 SKIP된다. 이제 `.gitattributes`로 해소됐지만, 유사 환경 결함이 다시 생기면 같은 증상이 재현된다.
+- **생성물에 고빈도 데이터 refresh가 바꾸는 휘발값(`generatedAt`, 데이터 리비전, 관측 시각, age)을 다시 넣지 말 것.** `_context/CURRENT-STATE.md`는 매 리비전 byte-current여야 하므로, 휘발값을 고정하면 데이터 push마다 preflight가 FAIL하고 attestation이 사라져 배포가 조용히 멈춘다(R603/P1079).
 
 ## 4. 재개 방법
 
@@ -55,6 +61,9 @@ node scripts/qa-runner.mjs session-start --session <task-id>
 node scripts/qa-runner.mjs affected --session <task-id>
 node scripts/qa-runner.mjs --group browser-runtime --no-cache
 node scripts/ci-semantic-review-check.mjs
+node scripts/ci-external-pipeline-check.mjs
 ```
+
+**주의: 이 문서의 §1 표는 `0733dbc4` 시점 스냅샷이다.** 커밋·배포 사실은 여기 적힌 값을 복사하지 말고 `git log`·라이브 `deployment.json`으로 매번 다시 측정한다.
 
 산출물: `REPORT.md`(구조·CI·6개 영역), `SEMANTIC-REVIEW.md`(R219 의미 검토), `FIX-REPORT.md`(수정·검증), `evidence.json`(기계 판독), `browser-gate-sweep.json`(게이트 23개 원시 결과), `tools/`(재현 도구).

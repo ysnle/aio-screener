@@ -18,6 +18,8 @@ const expectedCatalog = serializeJson(buildContextCatalog(root));
 check('generated current state is present and current', exists('_context/CURRENT-STATE.md') && read('_context/CURRENT-STATE.md') === expectedState);
 check('generated context catalog is present and current', exists('_context/CONTEXT-CATALOG.json') && read('_context/CONTEXT-CATALOG.json') === expectedCatalog);
 check('generated workspace byte accounting is checkout-newline invariant', canonicalTextBytes('alpha\nbeta\n') === canonicalTextBytes('alpha\r\nbeta\r\n'));
+const renderedOperationsSection = expectedState.split('## Operations Boundary')[1]?.split('## Read Policy')[0] || '';
+check('generated operations boundary pins no data-refresh-scoped timestamp', renderedOperationsSection.length > 0 && !/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(renderedOperationsSection), 'a data-refresh timestamp here makes preflight fail on every data promotion (R603/P1079)');
 
 for (const guide of ['AGENTS.md', 'CLAUDE.md', '_context/INDEX.md', '_context/CLAUDE.md', '_context/WORKFLOW-GOVERNANCE.md']) {
   const text = read(guide);

@@ -134,6 +134,7 @@
         { "id": "data-lineage", "script": "scripts/ci-data-lineage-audit.mjs", "inputs": ["public-data/**", "architecture/**", "scripts/**", "src/data/**", "src/domain/**", "src/state/**", "js/aio-data.js", "version.json", "src/ai/time/market-session.js"] },
         { "id": "sec-runtime-projection", "script": "scripts/ci-sec-runtime-projection-check.mjs" },
         { "id": "static-data", "script": "scripts/ci-static-data-contract-check.mjs" },
+        { "id": "static-db-expiry", "script": "scripts/ci-static-db-expiry-check.mjs", "inputs": ["js/aio-core.js", "js/aio-data.js", "index.html", "public-data/screener-universe.json"] },
         { "id": "data-refresh", "script": "scripts/ci-data-refresh-audit.mjs", "inputs": ["public-data/**", "architecture/**", "scripts/**", "src/data/**", "src/domain/**", "src/state/**", "js/aio-data.js", "version.json", "index.html"] },
         { "id": "refresh-integrity", "script": "scripts/ci-refresh-artifact-integrity-check.mjs" },
         { "id": "release-revision", "script": "scripts/ci-release-revision-check.mjs", "inputs": ["public-data/**", "architecture/**", "scripts/**", "src/data/**", "src/domain/**", "src/state/**", "js/aio-data.js", "version.json", "index.html", "js/aio-core.js", "sw.js", "public-artifact-manifest.json", "public-config.json", ".github/workflows/pages-deploy.yml"] },

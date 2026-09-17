@@ -2305,13 +2305,24 @@ async function enrichFundamentals(syms) {
   return { data: out, hasKey: true, ok, total: us.length, planError: false };
 }
 
-async function enrichSecFundamentals(syms, priceData) {
+async function enrichSecFundamentals(syms, priceData, priceResults = null) {
   try {
     const payload = JSON.parse(await readFile(SEC_FUNDAMENTALS_OUT, 'utf8'));
     const rows = payload && payload.data || {};
     const out = {};
     let available = 0;
     const maxFetchAge = 45 * 86400000;
+    // P715 공개 계약 때문에 sec-fundamentals.json의 pe/pb는 가격이 없어 비어 있다.
+    // 같은 실행의 메모리 한정 priceResults(adjusted close)로만 재계산한다.
+    // 발행 아티팩트에 가격을 기록하지 않으며, 계산 근거(가격·발행주식·관측일)를
+    // rec에 함께 남겨 PIT 재현이 가능하게 한다.
+    const priceBySym = new Map();
+    for (const r of (Array.isArray(priceResults) ? priceResults : [])) {
+      if (!r || r.__error || typeof r.sym !== 'string') continue;
+      const series = Array.isArray(r.adjCloses) && r.adjCloses.length ? r.adjCloses : r.closes;
+      const last = Array.isArray(series) ? series[series.length - 1] : null;
+      if (typeof last === 'number' && Number.isFinite(last) && last > 0) priceBySym.set(r.sym, last);
+    }
     for (const sym of syms) {
       const row = rows[sym];
       if (!row || !row.fetchedAt || Date.now() - new Date(row.fetchedAt).getTime() > maxFetchAge) continue;
@@ -2319,6 +2330,29 @@ async function enrichSecFundamentals(syms, priceData) {
       ['pe','pb','roe','margin','revGrowth'].forEach(key => {
         if (typeof row[key] === 'number' && Number.isFinite(row[key])) rec[key] = row[key];
       });
+      if (rec.pe == null || rec.pb == null) {
+        const px = priceBySym.get(sym);
+        const shares = Number(row.sharesOutstanding);
+        const netIncome = Number(row.netIncome);
+        const equity = Number(row.equity);
+        if (Number.isFinite(px) && px > 0 && Number.isFinite(shares) && shares > 0) {
+          const mcap = px * shares;
+          if (rec.pe == null && Number.isFinite(netIncome) && netIncome > 0) {
+            rec.pe = Math.round(mcap / netIncome * 100) / 100;
+            rec.pePrice = px;
+            rec.pePriceBasis = 'adjusted-close';
+          }
+          if (rec.pb == null && Number.isFinite(equity) && equity > 0) {
+            rec.pb = Math.round(mcap / equity * 100) / 100;
+            rec.pbPrice = px;
+            rec.pbPriceBasis = 'adjusted-close';
+          }
+          if (rec.pePrice != null || rec.pbPrice != null) {
+            rec.valuationSharesOutstanding = shares;
+            rec.valuationSharesObservedAt = row.sharesObservedAt || null;
+          }
+        }
+      }
       if (!Object.keys(rec).length) continue;
       Object.assign(rec, {
         fundamentalSource: 'SEC EDGAR companyfacts',
@@ -2681,7 +2715,7 @@ export async function enrichScreener() {
 
   // 3단계: 무료 공식 SEC annual facts를 FMP 결측 필드에 병합.
   // SEC는 annual filing facts이고 FMP는 TTM이므로 서로 같은 모델처럼 섞지 않는다.
-  const secResult = await enrichSecFundamentals(syms, data);
+  const secResult = await enrichSecFundamentals(syms, data, results);
   for (const sym in secResult.data) {
     // A screener row represents a successfully derived factor observation. A
     // filing-only row belongs in sec-fundamentals.json, not in this factor map.
@@ -2693,6 +2727,11 @@ export async function enrichScreener() {
     });
     if (!data[sym].fundamentalSource) {
       ['fundamentalSource','fundamentalModel','fundamentalPeriod','fundamentalPeriodEnd','fundamentalObservedAt','fundamentalFiledAt','fundamentalFetchedAt','fundamentalAccession','fundamentalSourceKind','fundamentalAllowedUse','fundamentalQuality','fundamentalRightsId','fundamentalUseBlockedReason'].forEach(key => {
+        if (sec[key] != null) data[sym][key] = sec[key];
+      });
+      // 메모리 한정 가격으로 재계산한 pe/pb는 계산 근거(가격·기저·발행주식·관측일)를
+      // 행에 함께 남긴다. 발행 아티팩트에 원시가를 기록하지 않는다.
+      ['pePrice','pePriceBasis','pbPrice','pbPriceBasis','valuationSharesOutstanding','valuationSharesObservedAt'].forEach(key => {
         if (sec[key] != null) data[sym][key] = sec[key];
       });
     }

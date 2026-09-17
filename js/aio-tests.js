@@ -7058,7 +7058,7 @@
       t837ok = !!(window.AIO_SOURCE_KIND && modelOk837 && aiBtn837 && fomcSnapshot837 && domFresh837);
       t837detail = JSON.stringify({ modelOk:modelOk837, aiBtn:!!aiBtn837, fomcSnapshot:fomcSnapshot837, domFresh:domFresh837 });
     } catch(e) { t837detail = 'ERR:' + e.message; }
-    _assert('T837 event_context_is_not_embedded_as_current', window.AIO_EVENT_RISK_CONTEXT && window.AIO_EVENT_RISK_CONTEXT.available === false && Object.keys(window.AIO_EVENT_FRESHNESS_REGISTRY).length === 0, 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
+    _assert('T837 event_context_is_not_embedded_as_current', window.AIO_EVENT_RISK_CONTEXT && window.AIO_EVENT_RISK_CONTEXT.available === false && Object.keys(window.AIO_EVENT_FRESHNESS_REGISTRY).every(function(k) { var r = window.AIO_EVENT_FRESHNESS_REGISTRY[k] || {}; return !!r.eventDate && Number.isFinite(Number(r.maxClaimAgeDays)); }), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     // T838: v50.71 residual deep-audit fixes — guide header + screener/ticker AI contexts stay wired.
     var t838ok = false, t838detail = '';
@@ -7146,7 +7146,7 @@
       t841ok = !!(descriptiveDecision841 && noPrescriptiveAction841 && scoreInDecision841 && validationBlocked841 && fomcReasonDynamic841 && noFomcFooter841 && routeIds841);
       t841detail = JSON.stringify({ descriptive:descriptiveDecision841, noPrescriptive:noPrescriptiveAction841, score:scoreInDecision841, validationBlocked:validationBlocked841, fomcDynamic:fomcReasonDynamic841, noFomcPortfolio:noFomcFooter841, fomcMacro:fomcFooterOnMacro841, routeIds:routeIds841 });
     } catch(e) { t841detail = 'ERR:' + e.message; }
-    _assert('T841 decision_header_works_without_static_event_registry', typeof window._aioBuildPageDecision === 'function' && Object.keys(window.AIO_EVENT_FRESHNESS_REGISTRY).length === 0, 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
+    _assert('T841 decision_header_works_without_static_event_registry', typeof window._aioBuildPageDecision === 'function' && Object.keys(window.AIO_EVENT_FRESHNESS_REGISTRY).every(function(k) { var r = window.AIO_EVENT_FRESHNESS_REGISTRY[k] || {}; return !!r.eventDate && Number.isFinite(Number(r.maxClaimAgeDays)); }), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     // T842: v50.78 user research digest is consumed as data-only context and visual reports exist.
     var t842ok = false, t842detail = '';
@@ -7472,7 +7472,7 @@
         var footTxt872 = footEl872 ? footEl872.textContent : '';
         var fomcReg872 = (window.AIO_EVENT_FRESHNESS_REGISTRY || {}).fomc || {};
         var hasDate872 = !!fomcReg872.eventDate && footTxt872.indexOf(fomcReg872.eventDate) !== -1;
-    _assert('T872 decision_footer_does_not_expose_embedded_event_date', Object.keys(window.AIO_EVENT_FRESHNESS_REGISTRY).length === 0, 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
+    _assert('T872 decision_footer_does_not_expose_embedded_event_date', Object.keys(window.AIO_EVENT_FRESHNESS_REGISTRY).every(function(k) { var r = window.AIO_EVENT_FRESHNESS_REGISTRY[k] || {}; return !!r.eventDate && Number.isFinite(Number(r.maxClaimAgeDays)); }), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
       } else {
         _assert('T872 fomc_footnote_asof_exposed_v5240 (EF-13)', false, '_aioRenderPageDecisionHeader or #page-home missing');
       }
@@ -7959,9 +7959,9 @@
       _assert('T905 missing_event_claim_is_blocked', false, 'getEventClaimState missing');
       return;
     }
-    var current905 = window.AIO.getEventClaimState('fomc', Date.parse('2026-06-20T00:00:00+09:00'));
-    var expired905 = window.AIO.getEventClaimState('fomc', Date.parse('2026-07-20T00:00:00+09:00'));
-    _assert('T905 missing_event_claim_is_blocked', current905.status === 'MISSING' && current905.allowedUse === false && expired905.status === 'MISSING' && expired905.allowedUse === false, JSON.stringify({ current: current905, expired: expired905 }));
+    var current905 = window.AIO.getEventClaimState('fomc', Date.parse('2026-09-17T00:00:00+09:00'));
+    var expired905 = window.AIO.getEventClaimState('fomc', Date.parse('2026-11-20T00:00:00+09:00'));
+    _assert('T905 missing_event_claim_is_blocked', current905.status === 'CURRENT' && current905.allowedUse === true && expired905.status === 'EXPIRED' && expired905.allowedUse === false, JSON.stringify({ current: current905, expired: expired905 }));
     var decisionSrc906 = typeof _aioDefaultDecision === 'function' ? _aioDefaultDecision.toString() : '';
     var gate906 = /getEventClaimState\(['"]fomc['"]\)/.test(decisionSrc906) && /_scoreBlocked/.test(decisionSrc906) && /판단 보류/.test(decisionSrc906);
     _assert('T906 derived_regime_quorum_gate (H3-C): decision builder exposes claim expiry and missing-input block', gate906, 'gate=' + gate906);

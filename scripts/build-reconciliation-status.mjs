@@ -1,4 +1,5 @@
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
+import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { createReconciliationStatus, validateReconciliationStatus } from '../src/data/contracts/reconciliation.js';
 import { CRITICAL_DATA_GAP_REGISTRY, DATA_SOURCE_REGISTRY, sourceContractFor } from '../src/data/contracts/source-registry.js';
 
@@ -248,7 +249,7 @@ export function buildReconciliationStatus({ data = {}, marketSnapshot = {}, scre
 
     categoryDefinition('hy-oas', [
       evidenceCheck('fred-hy-oas-current', finite(macro.hyOAS) && fresh(macro._asOf_hyOAS, 5 * DAY, nowMs), 'public-data/data.json', macro._asOf_hyOAS),
-      evidenceCheck('fred-source-identified', macro._source_hyOAS === 'fred-official-primary', 'public-data/data.json', data?.meta?.fredLastSuccessfulAt),
+      evidenceCheck('fred-source-identified', ['fred-official-primary', 'fred-official-public-csv'].includes(macro._source_hyOAS), 'public-data/data.json', data?.meta?.fredLastSuccessfulAt),
       evidenceCheck('independent-spread-reconciliation', false, 'secondary-credit-spread-provider', null, 'No independent spread-level cross-check is configured.')
     ], { gate: 'fred-current-plus-cross-check' }),
 
@@ -373,7 +374,7 @@ export async function writeReconciliationStatus(input = {}) {
     now: input.now || new Date().toISOString()
   };
   const status = buildReconciliationStatus(resolved);
-  await writeFile(RECONCILIATION_STATUS_OUT, `${JSON.stringify(status, null, 2)}\n`);
+  await atomicWriteFile(RECONCILIATION_STATUS_OUT, `${JSON.stringify(status, null, 2)}\n`);
   return status;
 }
 

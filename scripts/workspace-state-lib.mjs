@@ -175,7 +175,6 @@ export function buildWorkspaceState(root) {
       source: 'public-data/knowledge/status-summary.json'
     },
     operations: {
-      repositoryArtifactGeneratedAt: operations.generatedAt || null,
       overall: operations.overall || null,
       publicStage: readiness.currentStage,
       publicBetaDecision: readiness.publicBetaDecision,
@@ -230,7 +229,7 @@ ${codeRows}
 
 ## Operations Boundary
 
-- Repository operations artifact: \`${state.operations.overall}\` at \`${state.operations.repositoryArtifactGeneratedAt}\`.
+- Repository operations artifact status: \`${state.operations.overall}\` (refresh timestamp and data revision are data-refresh-scoped; not pinned — R603).
 - Public stage: \`${state.operations.publicStage}\`; promotion decision: \`${state.operations.publicBetaDecision}\`.
 - Live deployment, provider health, and edge headers must be measured by live gates. Never infer them from this file.
 

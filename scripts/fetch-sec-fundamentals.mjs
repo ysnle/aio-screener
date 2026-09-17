@@ -327,7 +327,7 @@ function buildTickerMap(payload) {
   return map;
 }
 
-export async function refreshSecFundamentals() {
+export async function refreshSecFundamentals(priceHints = null) {
   const universePayload = await readJSON(UNIVERSE_PATH, { universe: [] });
   const screener = await readJSON(SCREENER_PATH, { data: {} });
   let previousExists = true;
@@ -401,7 +401,14 @@ export async function refreshSecFundamentals() {
         fetchJSON(`${SEC_FACTS_BASE}${meta.cik}.json`, 2),
         fetchJSON(`${SEC_SUBMISSIONS_BASE}${meta.cik}.json`, 2)
       ]);
-      const price = screener.data && screener.data[target.symbol] && screener.data[target.symbol].price;
+      // P715 공개 계약 때문에 screener.json에는 원시가가 없다. 같은 파이프라인
+      // 실행에서 전달받은 메모리 한정 priceHints(adjusted close)를 우선 쓰고,
+      // 없으면 종전대로 screener.json 값을 본다. 어느 경로도 발행 아티팩트에
+      // 가격을 기록하지 않는다.
+      const hintedPrice = priceHints && typeof priceHints.get === 'function' ? priceHints.get(target.symbol) : null;
+      const price = Number.isFinite(Number(hintedPrice)) && Number(hintedPrice) > 0
+        ? Number(hintedPrice)
+        : screener.data && screener.data[target.symbol] && screener.data[target.symbol].price;
       const capability = classifyIssuerCapability(facts, submissions);
       if (capability.status === 'TERMINAL_UNSUPPORTED') {
         failuresBySymbol.set(target.symbol, {

@@ -217,7 +217,7 @@ export async function syncFredReadinessCriterion(data = {}) {
   } : criterion);
   if (!next.some((criterion) => criterion?.id === 'fred-success-branch')) return null;
   const updated = { ...readiness, criteria: next };
-  await writeFile(PUBLIC_READINESS_PATH, `${JSON.stringify(updated, null, 2)}\n`);
+  await atomicWriteFile(PUBLIC_READINESS_PATH, `${JSON.stringify(updated, null, 2)}\n`);
   return updated;
 }
 
@@ -463,7 +463,7 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
   });
   const validation = validateOperationsStatus(status);
   if (!validation.ok) throw new Error(`OPERATIONS_STATUS_INVALID:${validation.errors.join(',')}`);
-  await writeFile(OPERATIONS_STATUS_OUT, `${JSON.stringify(status, null, 2)}\n`);
+  await atomicWriteFile(OPERATIONS_STATUS_OUT, `${JSON.stringify(status, null, 2)}\n`);
   await syncPublicAiConfig({
     appRevision: version.version,
     workerEndpoint: workerEndpoints.proxy?.baseUrl || null,

@@ -129,6 +129,7 @@ function runProducerChecks() {
   const fetchData = readText('scripts/fetch-data.mjs');
   const snapshot = readText('scripts/build-market-snapshot.mjs');
   const operations = readText('scripts/build-operations-status.mjs');
+  const reconciliation = readText('scripts/build-reconciliation-status.mjs');
   const workflow = readText('.github/workflows/refresh-data.yml');
 
   check('producer:fetch-data-uses-atomic-writes', fetchData.includes("import { atomicWriteFile } from './lib/atomic-write.mjs';")
@@ -143,6 +144,11 @@ function runProducerChecks() {
     && snapshot.includes('atomicWriteFile(MARKET_SNAPSHOT_STATUS_OUT')
     && snapshot.includes('atomicWriteFile(MARKET_SNAPSHOT_OUT'), 'market snapshot can be torn during replacement');
   check('producer:market-snapshot-no-direct-output-write', !/\bwriteFile\s*\(/.test(snapshot), 'direct writeFile call remains in market snapshot builder');
+  check('producer:status-builders-use-atomic-writes', operations.includes("import { atomicWriteFile } from './lib/atomic-write.mjs';")
+    && operations.includes('atomicWriteFile(OPERATIONS_STATUS_OUT')
+    && operations.includes('atomicWriteFile(PUBLIC_READINESS_PATH')
+    && reconciliation.includes("import { atomicWriteFile } from './lib/atomic-write.mjs';")
+    && reconciliation.includes('atomicWriteFile(RECONCILIATION_STATUS_OUT'), 'status builders can tear published JSON on write failure (P1080)');
   check('producer:source-failure-isolated', fetchData.includes('Promise.allSettled') && fetchData.includes('settledValue'), 'source planes still share a fail-fast Promise.all');
   check('producer:fred-requires-complete-series', fetchData.includes('deriveFredCycle({')
     && fetchData.includes('fredExpectedSeries.length')

@@ -1,11 +1,23 @@
 ---
-verified_by: Codex local source review + targeted syntax/contracts; full QA pending by user request
-last_verified: 2026-09-16
+verified_by: Codex local source review + affected QA (workspace/deployment regression); full semantic audit remains open
+last_verified: 2026-09-17
 confidence: medium
 target_version: v54.98
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R605. 정적 DB는 data-refresh 주기에 맞춰 갱신하거나 명시적으로 보류한다 (v54.98, P1081)
+
+**Rule**: `SCREENER_DB`·`KR_STOCK_DB`·`KR_THEME_MAP`·`AIO_MACRO_CALENDAR`·`AIO_MANUAL_REFERENCE`·채널 allowlist는 관측값이 아니라 구성이다. 스스로 최신화되지 않으므로 data-refresh 실행이 주기마다 점검한다: 유니버스 멤버십(월간, `staleAfterDays:30`·`replaceAfterDays:90`), 테마 구성(월간, 시점 박힌 수치 제거), 발표 일정(매 릴리스 후 공식 캘린더 대조, 만료된 `nextRelease`는 `lastRelease`로 승격), 정책 참조(매 결정·CPI 발표 후). 갱신하지 않으면 BLOCKED/DEFERRED 사유를 기록하고, `replaceAfterDays`를 넘긴 유니버스는 하드 FAIL이다. 정적 DB 목록의 정본은 data-refresh 스킬의 `references/inventory.md`다.
+
+## R604. 정적 DB는 구성만 보관하고 시점 박힌 수치를 남기지 않는다 (v54.98, P1080)
+
+**Rule**: `KR_THEME_MAP`·`SCREENER_DB`·`KR_STOCK_DB` 같은 정적 DB는 구성(코드·테마 소속·심볼·이름·섹터)만 보관한다. 시총·주도주 서술·가중치·가격 같은 시점 박힌 값은 주석을 포함해 남기지 않고 런타임 산출물로만 채운다. 주석의 수치도 현재값으로 오해되므로 제거 대상이다. `ci-static-data-contract-check.mjs`가 재도입을 금지 패턴으로 막는다.
+
+## R603. 생성물은 고빈도 데이터 refresh가 바꾸는 휘발값을 고정하지 않는다 (v54.98, P1079)
+
+**Rule**: 생성된 현재 상태 문서(`_context/CURRENT-STATE.md`)는 매 리비전 byte-current여야 한다는 preflight와, generated workspace state를 고빈도 data promotion commit에 결합하지 않는다는 R595가 **같은 값 위에서 충돌해서는 안 된다**. 따라서 생성물은 데이터 refresh가 갱신하는 휘발값(가공 시각, 데이터 리비전, 관측 시각, age)을 렌더하지 않고, refresh와 무관하게 안정한 분류·상태만 렌더한다. 휘발값을 고정하면 데이터 push마다 `generated-state`·`workspace-contract`가 FAIL하고, 그 결과 preflight 실패 → Contracts/Browser/Attest SKIP → attestation 부재 → Pages 배포가 조용히 정지한다. 휘발값이 필요하면 생성물에 복사하지 말고 생성 시점에 원본에서 읽는다.
 
 ## R602. 같은 라벨이 두 정의를 가리키면 정의나 라벨을 하나로 만든다 (v54.98, P1078)
 
