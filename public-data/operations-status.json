@@ -15,7 +15,7 @@
     "STALE",
     "RIGHTS_REVIEW_REQUIRED"
   ],
-  "generatedAt": "2026-09-17T19:17:59.703Z",
+  "generatedAt": "2026-09-17T21:33:39.270Z",
   "appRevision": "v55.01",
   "dataRevision": "market-snapshot:2026-09-17T19:17:50.957Z:89575b36",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
@@ -42,9 +42,9 @@
         "quoteQualityComplete": true,
         "blockedQuotes": [],
         "generatedAt": "2026-09-17T19:17:50.957Z",
-        "ageHours": 0,
+        "ageHours": 2.26,
         "maxAgeHours": 12,
-        "evaluatedAt": "2026-09-17T19:17:59.703Z",
+        "evaluatedAt": "2026-09-17T21:33:39.270Z",
         "reason": null
       },
       "readiness": {
@@ -67,8 +67,8 @@
         "revision": "fast-quotes:56373fb5",
         "sourceSha": "ac98ec1fa1a58781f9dccd7632af84c4a39428d8",
         "observedAt": "2026-09-17T19:17:59.703Z",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null
       },
       "soak": {
@@ -121,8 +121,8 @@
         "providerSmokeBoundary": "blocking-deployment-workflow-only",
         "ready": true,
         "note": "Periodic live health observed; provider smoke remains a blocking deployment-workflow gate.",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null
       },
       "scheduledAnalysisDoesNotImplyChat": true
@@ -163,8 +163,8 @@
     "categoryCount": 22,
     "overall": "PARTIAL",
     "counts": {
-      "PARTIAL": 13,
-      "MATCH": 7,
+      "PARTIAL": 14,
+      "MATCH": 6,
       "BLOCKED": 2
     },
     "closure": {
@@ -184,6 +184,7 @@
         "news",
         "commodities-fx",
         "global-indices",
+        "crypto",
         "kr-macro-vkospi-supply"
       ],
       "partialCategories": [
@@ -199,7 +200,8 @@
         "macro-calendar",
         "news",
         "commodities-fx",
-        "global-indices"
+        "global-indices",
+        "crypto"
       ],
       "operatorRequiredCategories": [
         "investors-intelligence",
