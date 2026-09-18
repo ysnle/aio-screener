@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-09-18T18:30:39.231Z",
-  "attemptedAt": "2026-09-18T18:30:39.231Z",
-  "lastSuccessfulAt": "2026-09-18T18:30:39.231Z",
+  "generatedAt": "2026-09-18T21:16:37.267Z",
+  "attemptedAt": "2026-09-18T21:16:37.267Z",
+  "lastSuccessfulAt": "2026-09-18T21:16:37.267Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-09-04T18:30:37.126Z",
-  "until": "2026-09-18T18:30:37.126Z",
+  "since": "2026-09-04T21:16:34.962Z",
+  "until": "2026-09-18T21:16:34.962Z",
   "current24hWindow": {
     "start": "2026-09-16T23:00:00.000Z",
     "end": "2026-09-17T23:00:00.000Z",
@@ -93,7 +93,7 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1130,
+      "count": 1120,
       "freshCount": 20,
       "eligibleTextCount": 20,
       "selectedCount": 133,
@@ -125,7 +125,7 @@
       "lastPostId": 69096
     }
   ],
-  "count": 2303,
+  "count": 2293,
   "retainedItemCount": 456,
   "observedItems": [
     {
@@ -31170,171 +31170,36 @@
         "GOOG"
       ],
       "hasText": false
-    },
-    {
-      "id": "insidertracking/62896",
-      "channel": "insidertracking",
-      "datetime": "2026-09-04T21:14:29.000Z",
-      "localDateKst": "2026-09-05",
-      "score": 44,
-      "tags": [
-        "healthcare"
-      ],
-      "tickers": [
-        "DELL"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/62895",
-      "channel": "insidertracking",
-      "datetime": "2026-09-04T21:12:20.000Z",
-      "localDateKst": "2026-09-05",
-      "score": 40,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/62894",
-      "channel": "insidertracking",
-      "datetime": "2026-09-04T21:11:24.000Z",
-      "localDateKst": "2026-09-05",
-      "score": 48,
-      "tags": [
-        "kr-market"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/62893",
-      "channel": "insidertracking",
-      "datetime": "2026-09-04T21:10:14.000Z",
-      "localDateKst": "2026-09-05",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/62891",
-      "channel": "insidertracking",
-      "datetime": "2026-09-04T21:09:29.000Z",
-      "localDateKst": "2026-09-05",
-      "score": 40,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/62890",
-      "channel": "insidertracking",
-      "datetime": "2026-09-04T21:07:22.000Z",
-      "localDateKst": "2026-09-05",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/62889",
-      "channel": "insidertracking",
-      "datetime": "2026-09-04T21:06:54.000Z",
-      "localDateKst": "2026-09-05",
-      "score": 57,
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/62888",
-      "channel": "insidertracking",
-      "datetime": "2026-09-04T21:06:15.000Z",
-      "localDateKst": "2026-09-05",
-      "score": 45,
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/62887",
-      "channel": "insidertracking",
-      "datetime": "2026-09-04T21:04:29.000Z",
-      "localDateKst": "2026-09-05",
-      "score": 93,
-      "tags": [
-        "macro",
-        "geo",
-        "power",
-        "ai-policy",
-        "kr-market",
-        "flows",
-        "healthcare"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/62886",
-      "channel": "insidertracking",
-      "datetime": "2026-09-04T21:03:00.000Z",
-      "localDateKst": "2026-09-05",
-      "score": 93,
-      "tags": [
-        "macro",
-        "geo",
-        "power",
-        "ai-policy",
-        "kr-market",
-        "flows",
-        "healthcare",
-        "japan"
-      ],
-      "tickers": [],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2303,
+    "observedCount": 2293,
     "eligibleTextCount": 78,
-    "mediaOnlyCount": 2225,
-    "highSignalCount": 475,
-    "broadSignalCount": 1058,
+    "mediaOnlyCount": 2215,
+    "highSignalCount": 473,
+    "broadSignalCount": 1055,
     "selectedRawCount": 426,
     "selectedRawCoveragePct": 546.2,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715)."
   },
   "topicCounts": {
     "semi": 505,
-    "power": 309,
-    "macro": 805,
-    "geo": 401,
+    "power": 307,
+    "macro": 802,
+    "geo": 398,
     "credit": 45,
-    "ai-policy": 212,
+    "ai-policy": 210,
     "equity": 147,
-    "japan": 156,
-    "kr-market": 281,
+    "japan": 155,
+    "kr-market": 278,
     "earnings": 329,
-    "flows": 190,
-    "market-note": 674,
+    "flows": 188,
+    "market-note": 670,
     "insider": 30,
-    "healthcare": 128,
+    "healthcare": 125,
     "media-only": 67,
     "optical": 45,
     "crypto": 6
@@ -31366,7 +31231,7 @@
     "SNPS": 3,
     "IONQ": 12,
     "SMR": 2,
-    "DELL": 11,
+    "DELL": 10,
     "O": 2,
     "QQQ": 3,
     "SNDK": 12,
@@ -31510,14 +31375,14 @@
     "BLDR": 1
   },
   "themes": [
-    "Macro/Rates (805 posts in 14-day research window): JP모건) 트럼프-시진핑 정상회담: 낮은 기대치, 높은 판돈 (2026년 9월 18일) 시진핑 주석은 9월 23~25일경 워싱턴을 방문해 올해 두 번째 트럼프 대통령과의 정상회담에 나설 예정이며, 이는 2015년 9월 이후 첫 미국 국빈 방문입니다. 그간 11년 동안 관세 마찰은 무역·기술 전쟁으로 번졌고, 제재와...",
-    "Market Notes (674 posts in 14-day research window): Citi, 월별 AI 토큰 사용량 추이 (Monthly AI Token Usage Trend) 월평균 복합 성장률 (MoM CAGR, 25년 1월~26년 8월): 31% 2026년 8월 전년 동기 대비 성장률 (YoY growth): 2,434% ( 최근에 더 가속되는 중: 7월에서 8월은 약 +53% 로,...",
+    "Macro/Rates (802 posts in 14-day research window): JP모건) 트럼프-시진핑 정상회담: 낮은 기대치, 높은 판돈 (2026년 9월 18일) 시진핑 주석은 9월 23~25일경 워싱턴을 방문해 올해 두 번째 트럼프 대통령과의 정상회담에 나설 예정이며, 이는 2015년 9월 이후 첫 미국 국빈 방문입니다. 그간 11년 동안 관세 마찰은 무역·기술 전쟁으로 번졌고, 제재와...",
+    "Market Notes (670 posts in 14-day research window): Citi, 월별 AI 토큰 사용량 추이 (Monthly AI Token Usage Trend) 월평균 복합 성장률 (MoM CAGR, 25년 1월~26년 8월): 31% 2026년 8월 전년 동기 대비 성장률 (YoY growth): 2,434% ( 최근에 더 가속되는 중: 7월에서 8월은 약 +53% 로,...",
     "Semiconductors/Memory (505 posts in 14-day research window): JP모건) 트럼프-시진핑 정상회담: 낮은 기대치, 높은 판돈 (2026년 9월 18일) 시진핑 주석은 9월 23~25일경 워싱턴을 방문해 올해 두 번째 트럼프 대통령과의 정상회담에 나설 예정이며, 이는 2015년 9월 이후 첫 미국 국빈 방문입니다. 그간 11년 동안 관세 마찰은 무역·기술 전쟁으로 번졌고, 제재와...",
-    "Geopolitics (401 posts in 14-day research window): JP모건) 트럼프-시진핑 정상회담: 낮은 기대치, 높은 판돈 (2026년 9월 18일) 시진핑 주석은 9월 23~25일경 워싱턴을 방문해 올해 두 번째 트럼프 대통령과의 정상회담에 나설 예정이며, 이는 2015년 9월 이후 첫 미국 국빈 방문입니다. 그간 11년 동안 관세 마찰은 무역·기술 전쟁으로 번졌고, 제재와...",
+    "Geopolitics (398 posts in 14-day research window): JP모건) 트럼프-시진핑 정상회담: 낮은 기대치, 높은 판돈 (2026년 9월 18일) 시진핑 주석은 9월 23~25일경 워싱턴을 방문해 올해 두 번째 트럼프 대통령과의 정상회담에 나설 예정이며, 이는 2015년 9월 이후 첫 미국 국빈 방문입니다. 그간 11년 동안 관세 마찰은 무역·기술 전쟁으로 번졌고, 제재와...",
     "Earnings/Corporate (329 posts in 14-day research window): JP모건) 트럼프-시진핑 정상회담: 낮은 기대치, 높은 판돈 (2026년 9월 18일) 시진핑 주석은 9월 23~25일경 워싱턴을 방문해 올해 두 번째 트럼프 대통령과의 정상회담에 나설 예정이며, 이는 2015년 9월 이후 첫 미국 국빈 방문입니다. 그간 11년 동안 관세 마찰은 무역·기술 전쟁으로 번졌고, 제재와...",
-    "AI Power/Grid (309 posts in 14-day research window): 2026년 9월17일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (61.38%) 2위: PROSHARES ULTRAPRO...",
-    "Korea Market (281 posts in 14-day research window): JP모건) 트럼프-시진핑 정상회담: 낮은 기대치, 높은 판돈 (2026년 9월 18일) 시진핑 주석은 9월 23~25일경 워싱턴을 방문해 올해 두 번째 트럼프 대통령과의 정상회담에 나설 예정이며, 이는 2015년 9월 이후 첫 미국 국빈 방문입니다. 그간 11년 동안 관세 마찰은 무역·기술 전쟁으로 번졌고, 제재와...",
-    "AI Policy/Export Controls (212 posts in 14-day research window): JP모건) 트럼프-시진핑 정상회담: 낮은 기대치, 높은 판돈 (2026년 9월 18일) 시진핑 주석은 9월 23~25일경 워싱턴을 방문해 올해 두 번째 트럼프 대통령과의 정상회담에 나설 예정이며, 이는 2015년 9월 이후 첫 미국 국빈 방문입니다. 그간 11년 동안 관세 마찰은 무역·기술 전쟁으로 번졌고, 제재와..."
+    "AI Power/Grid (307 posts in 14-day research window): 2026년 9월17일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (61.38%) 2위: PROSHARES ULTRAPRO...",
+    "Korea Market (278 posts in 14-day research window): JP모건) 트럼프-시진핑 정상회담: 낮은 기대치, 높은 판돈 (2026년 9월 18일) 시진핑 주석은 9월 23~25일경 워싱턴을 방문해 올해 두 번째 트럼프 대통령과의 정상회담에 나설 예정이며, 이는 2015년 9월 이후 첫 미국 국빈 방문입니다. 그간 11년 동안 관세 마찰은 무역·기술 전쟁으로 번졌고, 제재와...",
+    "AI Policy/Export Controls (210 posts in 14-day research window): JP모건) 트럼프-시진핑 정상회담: 낮은 기대치, 높은 판돈 (2026년 9월 18일) 시진핑 주석은 9월 23~25일경 워싱턴을 방문해 올해 두 번째 트럼프 대통령과의 정상회담에 나설 예정이며, 이는 2015년 9월 이후 첫 미국 국빈 방문입니다. 그간 11년 동안 관세 마찰은 무역·기술 전쟁으로 번졌고, 제재와..."
   ],
   "catalysts": [
     {
@@ -31588,7 +31453,7 @@
       "topics": [
         "macro"
       ],
-      "count": 805,
+      "count": 802,
       "focus": "JP모건) 트럼프-시진핑 정상회담: 낮은 기대치, 높은 판돈 (2026년 9월 18일) 시진핑 주석은 9월 23~25일경 워싱턴을 방문해 올해 두 번째 트럼프 대통령과의 정상회담에 나설 예정이며, 이는 2015년 9월 이후 첫 미국 국빈 방문입니다. 그간 11년 동안 관세 마찰은 무역·기술 전쟁으로 번졌고, 제재와..."
     },
     {
@@ -31597,7 +31462,7 @@
       "topics": [
         "geo"
       ],
-      "count": 401,
+      "count": 398,
       "focus": "JP모건) 트럼프-시진핑 정상회담: 낮은 기대치, 높은 판돈 (2026년 9월 18일) 시진핑 주석은 9월 23~25일경 워싱턴을 방문해 올해 두 번째 트럼프 대통령과의 정상회담에 나설 예정이며, 이는 2015년 9월 이후 첫 미국 국빈 방문입니다. 그간 11년 동안 관세 마찰은 무역·기술 전쟁으로 번졌고, 제재와..."
     },
     {
@@ -31633,7 +31498,7 @@
       "topics": [
         "power"
       ],
-      "count": 309,
+      "count": 307,
       "focus": "2026년 9월17일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (61.38%) 2위: PROSHARES ULTRAPRO..."
     },
     {
@@ -31642,7 +31507,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 212,
+      "count": 210,
       "focus": "JP모건) 트럼프-시진핑 정상회담: 낮은 기대치, 높은 판돈 (2026년 9월 18일) 시진핑 주석은 9월 23~25일경 워싱턴을 방문해 올해 두 번째 트럼프 대통령과의 정상회담에 나설 예정이며, 이는 2015년 9월 이후 첫 미국 국빈 방문입니다. 그간 11년 동안 관세 마찰은 무역·기술 전쟁으로 번졌고, 제재와..."
     },
     {
@@ -31651,7 +31516,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 281,
+      "count": 278,
       "focus": "JP모건) 트럼프-시진핑 정상회담: 낮은 기대치, 높은 판돈 (2026년 9월 18일) 시진핑 주석은 9월 23~25일경 워싱턴을 방문해 올해 두 번째 트럼프 대통령과의 정상회담에 나설 예정이며, 이는 2015년 9월 이후 첫 미국 국빈 방문입니다. 그간 11년 동안 관세 마찰은 무역·기술 전쟁으로 번졌고, 제재와..."
     },
     {
@@ -31687,7 +31552,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 128,
+      "count": 125,
       "focus": "2026년 9월17일 서학개미 순매수 미국 주식 TOP 50 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (61.38%) 2위: PROSHARES ULTRAPRO..."
     },
     {
@@ -31696,7 +31561,7 @@
       "topics": [
         "japan"
       ],
-      "count": 156,
+      "count": 155,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) > 오후 2시~9시 기준 ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 세일즈포스 (CRM) — JP모건은 투자의견 ‘비중확대’와 목표주가..."
     },
     {
@@ -31705,7 +31570,7 @@
       "topics": [
         "flows"
       ],
-      "count": 190,
+      "count": 188,
       "focus": "JP모건) 트럼프-시진핑 정상회담: 낮은 기대치, 높은 판돈 (2026년 9월 18일) 시진핑 주석은 9월 23~25일경 워싱턴을 방문해 올해 두 번째 트럼프 대통령과의 정상회담에 나설 예정이며, 이는 2015년 9월 이후 첫 미국 국빈 방문입니다. 그간 11년 동안 관세 마찰은 무역·기술 전쟁으로 번졌고, 제재와..."
     },
     {
@@ -31723,7 +31588,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 674,
+      "count": 670,
       "focus": "Citi, 월별 AI 토큰 사용량 추이 (Monthly AI Token Usage Trend) 월평균 복합 성장률 (MoM CAGR, 25년 1월~26년 8월): 31% 2026년 8월 전년 동기 대비 성장률 (YoY growth): 2,434% ( 최근에 더 가속되는 중: 7월에서 8월은 약 +53% 로,..."
     }
   ],
