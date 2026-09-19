@@ -1,6 +1,6 @@
 {
   "schemaVersion": "market-snapshot-status-v1",
-  "attemptedAt": "2026-09-19T20:41:57.618Z",
+  "attemptedAt": "2026-09-19T22:30:24.540Z",
   "attemptStatus": "failed",
   "coverage": {
     "required": 16,
@@ -12,9 +12,12 @@
   },
   "errors": [
     "tier0_quality:^KS11:STALE:STALE_UNEXPECTED",
-    "tier0_quality:^KQ11:STALE:STALE_UNEXPECTED"
+    "tier0_quality:^KQ11:STALE:STALE_UNEXPECTED",
+    "tier0_quality:DX-Y.NYB:STALE:STALE_UNEXPECTED",
+    "tier0_quality:CL=F:STALE:STALE_UNEXPECTED",
+    "tier0_quality:GC=F:STALE:STALE_UNEXPECTED"
   ],
   "lastSuccessfulAt": "2026-09-19T06:39:46.292Z",
   "lastKnownGoodRevision": "market-snapshot:2026-09-19T06:39:46.292Z:e878ec21",
-  "updatedAt": "2026-09-19T20:42:03.218Z"
+  "updatedAt": "2026-09-19T22:30:58.379Z"
 }
