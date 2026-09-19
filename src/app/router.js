@@ -95,14 +95,38 @@ export function createLazyPage({ route, loader, factory, errorMessage } = {}) {
 
 const ENTITY_ROUTES = new Set(['ticker', 'fundamental', 'options']);
 
+function normalizeEntityId(candidate) {
+  if (candidate == null) return null;
+  if (typeof candidate === 'object') return null;
+  const normalized = String(candidate).trim().toUpperCase();
+  if (!normalized || !/^[A-Z0-9][A-Z0-9.\-=]*$/.test(normalized)) return null;
+  return normalized;
+}
+
 function entityIdFor(route, detail = {}) {
   if (!ENTITY_ROUTES.has(route)) return null;
-  const candidate = detail?.entityId
-    ?? detail?.ticker
-    ?? detail?.symbol
-    ?? (Array.isArray(detail?.args) ? detail.args[0] : null);
-  const normalized = candidate == null ? '' : String(candidate).trim().toUpperCase();
-  return normalized || null;
+  if (detail?.entityId != null || detail?.ticker != null || detail?.symbol != null) {
+    return normalizeEntityId(detail.entityId ?? detail.ticker ?? detail.symbol);
+  }
+  if (Array.isArray(detail?.args) && detail.args.length) {
+    return normalizeEntityId(detail.args[0]);
+  }
+  return null;
+}
+
+export function normalizeNavigationCommand(input = {}) {
+  const route = typeof input === 'string' ? input : input.routeId || input.route || input.pageId || null;
+  const canonical = route === 'theme-detail' ? 'themes' : route;
+  if (!isRouteId(canonical)) return null;
+  const entityId = entityIdFor(canonical, typeof input === 'object' ? input : {});
+  const viewState = input && typeof input === 'object' && input.viewState && typeof input.viewState === 'object' ? input.viewState : null;
+  return Object.freeze({
+    routeId: canonical,
+    entityId,
+    viewState,
+    source: typeof input?.source === 'string' ? input.source : 'unknown',
+    historyMode: input?.historyMode === 'replace' ? 'replace' : 'push'
+  });
 }
 
 function createRouteScope({ route, detail, mountId, isCurrent, slice } = {}) {
@@ -159,30 +183,39 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
   }
 
   function transition(route, detail = {}) {
-    if (disposed || !isRouteId(route)) return false;
-    const nextEntityId = entityIdFor(route, detail);
-    if (activeRoute === route && !activeScope?.disposed && activeScope?.entityId === nextEntityId) return true;
+    if (disposed) return false;
+    // W00-A: one typed command owns identity — DOM elements never become ids.
+    const command = normalizeNavigationCommand(
+      typeof route === 'string' && detail && typeof detail === 'object' && !Array.isArray(detail) && (detail.routeId || detail.entityId || detail.ticker || detail.symbol || detail.viewState || detail.source)
+        ? { routeId: route, ...detail }
+        : (typeof detail === 'string' || typeof detail === 'number' ? { routeId: route, entityId: detail } : { routeId: route, ...(detail && typeof detail === 'object' ? detail : {}) })
+    );
+    if (!command) return false;
+    const normalizedRoute = command.routeId;
+    const nextEntityId = command.entityId;
+    const normalizedDetail = Object.freeze({ ...detail, routeId: command.routeId, entityId: command.entityId, viewState: command.viewState, source: command.source, historyMode: command.historyMode });
+    if (activeRoute === normalizedRoute && !activeScope?.disposed && activeScope?.entityId === nextEntityId) return true;
     disposeActive();
-    const page = routes[route];
+    const page = routes[normalizedRoute];
     const scope = createRouteScope({
-      route,
-      detail,
+      route: normalizedRoute,
+      detail: normalizedDetail,
       mountId: ++mountSequence,
       isCurrent: () => activeScope === scope && !scope.disposed,
-      slice: getVerticalSliceContract(route)
+      slice: getVerticalSliceContract(normalizedRoute)
     });
     activeScope = scope;
-    activeRoute = route;
-    const pageNode = context.documentRef?.getElementById?.(`page-${route}`);
-    const slice = getVerticalSliceContract(route);
+    activeRoute = normalizedRoute;
+    const pageNode = context.documentRef?.getElementById?.(`page-${normalizedRoute}`);
+    const slice = getVerticalSliceContract(normalizedRoute);
     if (pageNode && slice) {
       pageNode.dataset.aioVerticalSlice = slice.id;
       pageNode.dataset.aioVerticalSliceOrder = String(slice.order);
       pageNode.dataset.aioVerticalSliceRoutes = slice.routes.join(',');
       pageNode.dataset.aioVerticalSliceRequired = slice.requiredData.join(',');
-      pageNode.dataset.aioVerticalSliceFailureState = context.runtimeRoot?.AIO?.getPageContract?.(route)?.failureState || 'partial';
+      pageNode.dataset.aioVerticalSliceFailureState = context.runtimeRoot?.AIO?.getPageContract?.(normalizedRoute)?.failureState || 'partial';
       const updateSliceState = () => {
-        const completeness = context.runtimeRoot?.AIO?.getPageDataCompleteness?.(route);
+        const completeness = context.runtimeRoot?.AIO?.getPageDataCompleteness?.(normalizedRoute);
         pageNode.dataset.aioVerticalSliceState = completeness?.status || pageNode.dataset.aioVerticalSliceFailureState;
         pageNode.dataset.aioVerticalSliceIssues = JSON.stringify((completeness?.issues || []).map((issue) => issue.producer));
       };
@@ -202,7 +235,7 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
       });
     }
     try {
-      const result = page.mount({ ...context, route, detail, scope });
+      const result = page.mount({ ...context, route: normalizedRoute, detail: normalizedDetail, scope });
       activeDispose = typeof result === 'function' ? result : () => {};
     } catch (error) {
       scope.dispose();

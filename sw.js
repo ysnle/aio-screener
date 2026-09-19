@@ -5,8 +5,8 @@
 
 // R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
 // v48.80/P150: operational hardening adds an explicit build marker and health message.
-const SW_VERSION = 'v55.21';
-const SW_BUILD = '2026-09-19T14:41:00+09:00';
+const SW_VERSION = 'v55.22';
+const SW_BUILD = '2026-09-19T22:44:00+09:00';
 const SHELL_CACHE = 'aio-shell-' + SW_VERSION;
 const DATA_CACHE  = 'aio-data-'  + SW_VERSION;
 
@@ -50,7 +50,8 @@ const DATA_URL_PATTERNS = [
   /api\.coingecko\.com/,                  // CoinGecko
   /fredgraph\.csv|fredapi/,               // FRED
   /cdn\.cboe\.com/,                       // CBOE
-  /unusualwhales\.com/,                   // Unusual Whales
+  // P1142: unusualwhales.com 패턴 제거 — 어디서도 fetch하지 않는 유일한 패턴이었다(P1112와 같은
+  // "캐시 구성이 실제 소비를 거짓 설명" 클래스).
   /finnhub\.io/,                          // Finnhub
   /alphavantage\.co/,                     // Alpha Vantage
   /financialmodelingprep\.com/,           // FMP

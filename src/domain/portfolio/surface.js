@@ -1,4 +1,7 @@
-export const PORTFOLIO_SURFACE_MODEL_VERSION = 'portfolio-surface.v2';
+export const PORTFOLIO_SURFACE_MODEL_VERSION = 'portfolio-surface.v3';
+
+export const PORTFOLIO_READ_STATES = Object.freeze(['loading', 'locked', 'ready', 'failed']);
+export const PORTFOLIO_VALUATION_STATES = Object.freeze(['empty', 'cash-only', 'complete', 'partial', 'unavailable']);
 
 function finite(value) {
   if (value === null || value === undefined || value === '') return null;
@@ -164,9 +167,12 @@ function exposureCapForVix(vix) {
 /**
  * Derives the deterministic, non-chart portion of the portfolio surface.
  * Missing canonical inputs remain null so the UI cannot turn unavailable data into a zero.
+ * Read state never becomes a valuation: only an explicit read distinguishes empty/cash-only.
  */
 export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, now = Date.now() } = {}) {
-  const holdings = Array.isArray(state?.holdings) ? state.holdings : [];
+  const readState = PORTFOLIO_READ_STATES.includes(state?.readState) ? state.readState : (state?.status === 'locked' ? 'locked' : state?.status === 'loading' ? 'loading' : state?.status === 'failed' ? 'failed' : state?.status === 'unavailable' ? 'unavailable' : 'ready');
+  const holdingsKnown = Array.isArray(state?.holdings) && (readState === 'ready' || state?.holdingsKnown === true);
+  const holdings = holdingsKnown ? state.holdings : [];
   const totals = state?.totals && typeof state.totals === 'object' ? state.totals : {};
   const live = liveData && typeof liveData === 'object' ? liveData : {};
   const rows = holdings.map((holding) => {
@@ -197,10 +203,12 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
   }).filter((row) => row.symbol);
 
   const allRowsValued = rows.length > 0 && rows.every((row) => row.value != null);
-  const positionValue = rows.length ? (allRowsValued ? rows.reduce((sum, row) => sum + row.value, 0) : null) : null;
+  const someRowsValued = rows.some((row) => row.value != null);
   const cashValue = firstFinite(state?.cash, totals.cash);
-  const cash = cashValue != null && cashValue >= 0 ? cashValue : null;
-  const totalAssets = positionValue != null && cash != null ? positionValue + cash : null;
+  const cashKnown = readState === 'ready' && (state?.cashKnown === true || cashValue != null || holdingsKnown);
+  const cash = cashKnown && cashValue != null && cashValue >= 0 ? cashValue : (cashValue === 0 ? 0 : null);
+  const positionValue = readState === 'ready' && rows.length === 0 && holdingsKnown ? 0 : (rows.length ? (allRowsValued ? rows.reduce((sum, row) => sum + row.value, 0) : null) : null);
+  const totalAssets = readState === 'ready' && positionValue != null && cash != null ? positionValue + cash : null;
   const allRowsCosted = rows.length > 0 && rows.every((row) => row.cost != null);
   const totalCost = allRowsCosted ? rows.reduce((sum, row) => sum + row.cost, 0) : null;
   const totalPnl = positionValue != null && totalCost != null
@@ -225,13 +233,19 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
   const sectorBreakdown = [...sectors.entries()]
     .map(([name, pct]) => Object.freeze({ name, pct }))
     .sort((a, b) => b.pct - a.pct);
-  const sourceKind = rows.some((row) => row.sourceKind === 'live-quote') ? 'portfolio-state+live-quote' : rows.length ? 'portfolio-state' : 'unavailable';
-  const hasCanonicalValue = positionValue != null && (rows.length > 0 || cash != null);
+  const sourceKind = rows.some((row) => row.sourceKind === 'live-quote') ? 'portfolio-state+live-quote' : rows.length ? 'portfolio-state' : cash != null ? 'portfolio-state:cash-only' : 'unavailable';
+  const valuationState = readState !== 'ready' ? 'unavailable' : rows.length === 0 ? (cash != null ? (cash > 0 ? 'cash-only' : 'empty') : 'empty') : allRowsValued ? 'complete' : someRowsValued ? 'partial' : 'unavailable';
+  const hasCanonicalValue = valuationState === 'cash-only' || valuationState === 'complete' || (valuationState === 'empty' && totalAssets === 0);
   const decisionReadyQuoteCount = rows.filter((row) => row.sourceKind === 'live-quote' && row.quoteAllowedUse === 'decision').length;
   const snapshotFallbackBlocked = true;
   const costFallbackBlocked = true;
   return Object.freeze({
     modelVersion: PORTFOLIO_SURFACE_MODEL_VERSION,
+    readState,
+    valuationState,
+    holdingsKnown,
+    cashKnown,
+    valuedHoldingCount: rows.filter((row) => row.value != null).length,
     status: hasCanonicalValue ? 'current' : (state?.status || 'unavailable'),
     holdingCount: rows.length,
     rows: Object.freeze(rows),
@@ -257,7 +271,7 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     costFallbackBlocked,
     promotionBlocked: true,
     promotionBlockers: Object.freeze(['portfolio-surface-is-reference-only', 'snapshot-fallback-blocked', 'cost-fallback-blocked']),
-    sectorBreakdown: Object.freeze(sectorBreakdown),
+    sectorBreakdown: Object.freeze(sectorBreakdown.map((row) => Object.freeze({ ...row, basis: row.name === 'CASH' ? 'total-assets-including-cash' : 'total-assets-including-cash' }))),
     sourceKind,
     sourceLabel: sourceKind === 'unavailable' ? 'portfolio-surface-unavailable' : 'native-portfolio-surface-reference-only',
     observedAt: rows.some((row) => row.sourceKind === 'live-quote')

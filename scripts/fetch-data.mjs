@@ -668,6 +668,12 @@ export async function fetchAaiiSentiment(previous = null) {
 export function mergeMacroLastKnownGood(current, previous) {
   if (!previous || typeof previous !== 'object') return current || {};
   const merged = { ...previous, ...(current || {}) };
+  // P1142: `_failureReason`은 no-key/plane-fail 런에서만 설정되고 keyed 성공 런은 이 필드를
+  // 쓰지 않는다. spread는 previous-only 키를 보존하므로, 키를 등록한 뒤 성공한 런에서도 과거
+  // `api-key-not-configured`가 완성된 FRED 런 옆에 계속 게시되는 모순이 생겼다(data.json:599 vs meta).
+  // keyed 런(`_source: 'fred'`)이면 이전 런의 실패 사유를 지운다 — no-key/plane-fail 런은
+  // 자신의 `_failureReason`이 spread에서 current 쪽으로 이기므로 그대로 유지된다.
+  if (current?._source === 'fred' && merged._failureReason) delete merged._failureReason;
   // A retained value keeps its original observation date, but it must not keep
   // the source/status of the failed current fetch. Otherwise downstream readers
   // can mistake an LKG carry-forward for a newly observed official value.

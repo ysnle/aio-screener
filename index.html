@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v55.21 — 올인원 투자 터미널</title>
+  <title>AIO Screener v55.22 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -32,14 +32,14 @@
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css">
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-<script src="./js/aio-workspace.js?v=55.21" defer></script>
-<script src="./js/aio-macro-tech.js?v=55.21" defer></script>
-<script src="./js/aio-kr-data.js?v=55.21" defer></script>
-<script src="./js/aio-pages.js?v=55.21" defer></script>
-  <link rel="preload" as="script" href="./js/aio-core.js?v=55.21">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=55.21">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=55.21">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=55.21">
+<script src="./js/aio-workspace.js?v=55.22" defer></script>
+<script src="./js/aio-macro-tech.js?v=55.22" defer></script>
+<script src="./js/aio-kr-data.js?v=55.22" defer></script>
+<script src="./js/aio-pages.js?v=55.22" defer></script>
+  <link rel="preload" as="script" href="./js/aio-core.js?v=55.22">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=55.22">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=55.22">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=55.22">
   <!-- v48.31 perf: 3개 CDN defer 스크립트 다운로드 hint — HTML 파싱과 병렬 다운로드, defer 실행 시점 대기 제거 -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
   <link rel="preload" as="script" href="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js">
@@ -6378,11 +6378,11 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v55.21</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v55.22</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-      <span id="home-risk-regime-badge" class="status-pill sp-neutral">시장 국면 분석중</span>
+      <span id="home-risk-regime-badge" class="status-pill sp-neutral">고점 대비 확인 중 · 참고 관측</span>
       <span id="live-source-static-badge" class="freshness-badge fb-static">시세 source 확인</span>
       <span id="live-quote-ts-topbar" class="freshness-badge fb-static" style="font-size:11px;" title="외부 API 연결 필요 — CORS 프록시 사용">시세 연결 중...</span>
       <span id="server-data-age" class="freshness-badge fb-static" style="font-size:11px;display:none;" title="서버(GitHub Actions)가 받아둔 데이터의 나이 — cron 정의는 30분 주기이나 실제 발화는 환경상 1~4시간 소요될 수 있음">서버 데이터 확인 중...</span>
@@ -6497,8 +6497,8 @@ button[data-filter-active="true"] {
     <div class="aio-card aio-card-secondary has-stripe-top stripe-data-amber" data-card-level="secondary" data-weight-key="MARKET_REGIME"
          title="Market Regime (4단계) = 200MA 기울기 30점 + 가격 vs 200MA 25점 + Breadth 25점 + VIX 20점">
       <div class="aio-card-title">시장 국면 (Regime)</div>
-      <div class="aio-metric-value is-sm" id="home-market-regime" style="color:var(--data-green);margin-bottom:4px;letter-spacing:0.02em;font-size:20px;font-weight:800;">UPTREND</div>
-      <div id="home-regime-explanation" style="font-size:var(--fs-xs);color:var(--text-secondary);line-height:var(--lh-body);">ATH 근접 · VIX 18↓ (정상 Risk-On) · 단기 과열 경계</div>
+      <div class="aio-metric-value is-sm" id="home-market-regime" style="color:var(--data-green);margin-bottom:4px;letter-spacing:0.02em;font-size:20px;font-weight:800;">판정 보류</div>
+      <div id="home-regime-explanation" style="font-size:var(--fs-xs);color:var(--text-secondary);line-height:var(--lh-body);">고점 대비 거리 확인 중 · 참고 관측</div>
     </div>
   </div>
 
@@ -7647,13 +7647,13 @@ button[data-filter-active="true"] {
           <text x="25" y="125" font-size="11" fill="var(--text-dim)">공포</text>
           <text x="192" y="125" font-size="11" fill="var(--text-dim)">탐욕</text>
         </svg>
-        <div id="fg-h1" style="font-size:11px;font-weight:600;margin:4px 0 2px;color:var(--text-secondary);">극단 공포 구간</div>
+        <div id="fg-h1" style="font-size:11px;font-weight:600;margin:4px 0 2px;color:var(--text-secondary);">판정 보류</div>
         <div style="display:flex;align-items:baseline;gap:12px;margin-top:6px;">
-          <span id="fg-score-big" style="font-family:var(--font-display);font-size:44px;font-weight:600;color:var(--text-primary);line-height:1;font-variant-numeric:tabular-nums;">18</span>
+          <span id="fg-score-big" style="font-family:var(--font-display);font-size:44px;font-weight:600;color:var(--text-primary);line-height:1;font-variant-numeric:tabular-nums;">—</span>
           <span id="sentiment-fg-delta" class="aio-metric-delta" style="display:none;font-size:14px;font-weight:600;" title="전일 대비 변화"></span>
-          <span id="fg-rating-text" style="font-size:14px;font-weight:600;color:var(--text-secondary);">극단 공포</span>
+          <span id="fg-rating-text" style="font-size:14px;font-weight:600;color:var(--text-secondary);">판정 보류</span>
         </div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">점수: <span id="fg-score-val">18</span>/100</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">점수: <span id="fg-score-val">—</span>/100</div>
         <div id="fg-live-badge" style="font-size:12px;color:var(--text-dim);margin-top:8px;">● source 확인</div>
         <div id="fg-historical-ref" style="font-size:12px;color:var(--text-muted);margin-top:2px;"></div>
         <div id="fg-signal-link" style="margin-top:8px;display:none;"><span class="cross-link" data-action="showPage" data-arg="signal">진입 체크리스트 확인 →</span></div>
@@ -7730,14 +7730,16 @@ button[data-filter-active="true"] {
       </div>
       <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:18px 22px;">
         <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;"><span class="term-tooltip">AAII 개인심리<span class="tip-icon">?</span><span class="tip-body">개인투자자 극단비관=저점신호</span></span></div>
-        <div style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">약세 <span id="aaii-bear-val">36.1%</span> <span style="font-size:12px;font-weight:600;color:var(--text-dim);">강세 <span id="aaii-bull-val">44.9%</span></span></div>
+        <div style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">약세 <span id="aaii-bear-val">—</span> <span style="font-size:12px;font-weight:600;color:var(--text-dim);">강세 <span id="aaii-bull-val">—</span></span></div>
+        <!-- P1142: 2026-02경 하드코딩된 AAII 시드(36.1/44.9)는 volatileValues 'runtime-only' 정책 위반 —
+             네이티브 렌더러(src/ui/pages/sentiment.js)가 스냅샷 evidence로 채우므로 fail-closed 시드 '—'만 남긴다. -->
         <div id="aaii-signal-badge" style="font-size:12px;color:var(--text-secondary);margin-top:4px;">주간 설문 참고값 · 현재 매매판정 제외</div>
         <div id="aaii-date-label" style="font-size:11px;color:var(--text-dim);margin-top:3px;">AAII 주간 · 현재 공식 원천 미수신 · 판단 제외</div>
       </div>
       <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:18px 22px;">
         <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;"><span class="term-tooltip">Put/Call 비율<span class="tip-icon">?</span><span class="tip-body">1.2↑=공포</span></span></div>
-        <div id="pc-score-big" style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">1.08</div>
-        <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">Needle: <span id="pc-needle-pos">Neutral</span> <span id="pc-live-badge">● source 확인</span></div>
+        <div id="pc-score-big" style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">Needle: <span id="pc-needle-pos">판정 보류</span> <span id="pc-live-badge">● source 확인</span></div>
       </div>
       <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:18px 22px;">
         <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;"><span class="term-tooltip">SKEW (꼬리위험)<span class="tip-icon">?</span><span class="tip-body">테일 리스크 헤지 수요. 130+=극단적 하방 우려</span></span></div>
@@ -8617,7 +8619,7 @@ button[data-filter-active="true"] {
             <span style="color:var(--text-muted);">KOSPI 추세:</span> <span id="kr-health-trend" style="color:var(--text-muted);font-weight:700;">수신 대기</span>
           </div>
           <div style="padding:4px 6px;background:rgba(177,58,48,0.08);border-radius:4px;">
-            <span style="color:var(--text-muted);">VKOSPI:</span> <span style="color:var(--text-muted);font-weight:700;" id="kr-health-vkospi" title="VKOSPI(한국 변동성지수) — 실시간 원천 수신 성공 시 표시">—</span>
+            <span style="color:var(--text-muted);">VKOSPI:</span> <span style="color:var(--text-muted);font-weight:700;" id="kr-health-vkospi" title="VKOSPI(한국 변동성지수) — Naver 비공식 릴레이(공식 KRX/Koscom 승인 전 참고용) · 실시간 수신 성공 시 표시">—</span>
           </div>
           <div style="padding:4px 6px;background:rgba(177,58,48,0.08);border-radius:4px;">
             <span style="color:var(--text-muted);">외국인 수급:</span> <span id="kr-health-foreign-streak" style="color:var(--text-muted);font-weight:700;">수신 대기</span>
@@ -8875,13 +8877,8 @@ button[data-filter-active="true"] {
 
   <!-- 인플레이션·고용 5열 — v52.70 아이보리 3d: 시안 구조(4카드→5카드, 기존 data-snap 재사용) -->
   <div id="macro-fred-stale-banner" data-runtime-state="unavailable" data-operational-use="blocked" style="font-size:12px;color:var(--data-amber);background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:4px;padding:8px 14px;margin-bottom:12px;">CPI/PCE: FRED·BLS 원천 수신 대기 · 미수신 값은 현재 판단에 사용하지 않습니다.</div>
-  <script>
-    (function(){
-      var fredOk = !!(window._fredData && (window._fredData.CPIAUCNS || window._fredData.PCEPI));
-      var banner = document.getElementById('macro-fred-stale-banner');
-      if (banner && fredOk) banner.style.display = 'none';
-    })();
-  </script>
+  <!-- P1142: 파싱 시점에 window._fredData가 아직 비어 있어 결코 실행 효과가 없던 인라인 은닉 스크립트를 제거했다.
+       배너는 정적 fail-closed 상태(unavailable/blocked)로 항상 표시되며, 현재 이 상태를 동적으로 갱신하는 코드는 없다. -->
   <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:26px;">
     <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:18px 22px;"><div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">CPI-U YoY · 공식 보도 기준 (NSA)</div><div style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;"><span data-snap="cpi-yoy" title="BLS CUUR0000SA0 · 비계절조정 CPI-U 전년비">—</span> <span id="cpi-yoy-delta" class="aio-metric-delta" style="display:none;font-size:12px;"></span></div><div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">BLS NSA headline · 분석용 SA 전년비 <span data-snap="cpi-sa-yoy" title="BLS CUSR0000SA0 · 계절조정 지수 전년비">—</span></div></div>
     <div style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:8px;padding:18px 22px;"><div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">근원 CPI-U YoY · 공식 보도 기준 (NSA)</div><div style="font-size:19px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;"><span data-snap="core-cpi-yoy" title="BLS CUUR0000SA0L1E · 비계절조정 근원 CPI-U 전년비">—</span> <span id="core-cpi-yoy-delta" class="aio-metric-delta" style="display:none;font-size:12px;"></span></div><div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">BLS NSA core · 분석용 SA 전년비 <span data-snap="core-cpi-sa-yoy" title="BLS CUSR0000SA0L1E · 계절조정 근원 지수 전년비">—</span></div></div>
@@ -9283,9 +9280,9 @@ button[data-filter-active="true"] {
       </div>
       <div class="kr-idx-card up">
         <div class="kr-idx-label">VKOSPI</div>
-        <div class="kr-idx-val" id="kr-vkospi-val" style="color:var(--text-muted)" title="VKOSPI(한국 변동성지수) — 실시간 원천 수신 성공 시 표시">—</div>
+        <div class="kr-idx-val" id="kr-vkospi-val" style="color:var(--text-muted)" title="VKOSPI(한국 변동성지수) — Naver 비공식 릴레이(공식 KRX/Koscom 승인 전 참고용) · 실시간 수신 성공 시 표시">—</div>
         <div class="kr-idx-chg" style="color:var(--text-muted)">현재 원천 수신 대기</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">변동성 지수 (KRX 공포지수)</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">변동성 지수 (KRX 공포지수 · 비공식 릴레이)</div>
         <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">15~20: 정상 · 30 이상: 극단적 공포</div>
       </div>
     </div>
@@ -11250,7 +11247,7 @@ button[data-filter-active="true"] {
       </div>
       <!-- 섹터 브레이크다운 -->
       <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;">
-        <div style="font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:12px;">섹터 배분<span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="섹터 배분 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">섹터 분산 기준</span>단일 섹터 &lt;40% 권장. <strong>Tech 50%+</strong>은 금리 민감도 과다. Defensive(헬스케어·생필품) 10~20% 혼합이 Sharpe 개선. 섹터 ETF 비교 → ETF는 별도 섹터로 간주.</span></span></div>
+        <div style="font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:12px;">섹터 배분(현금 포함 자산 비중)<span class="aio-tooltip" data-action="_aioTooltipToggle" role="button" tabindex="0" aria-label="섹터 배분 설명">?<span class="aio-tooltip-body"><span class="aio-tooltip-title">섹터 분산 기준</span>단일 섹터 &lt;40% 권장. <strong>Tech 50%+</strong>은 금리 민감도 과다. Defensive(헬스케어·생필품) 10~20% 혼합이 Sharpe 개선. 섹터 ETF 비교 → ETF는 별도 섹터로 간주.</span></span></div>
         <div id="pf-sector-breakdown" style="padding:4px 0;font-size:12px;">포지션을 추가하면 섹터별 비중이 표시됩니다</div>
       </div>
     </div>
@@ -11451,7 +11448,7 @@ button[data-filter-active="true"] {
             <th id="pf-th-pnl" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">손익 ($)</th>
             <th id="pf-th-pct" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">수익률</th>
             <th id="pf-th-target" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">목표가</th>
-            <th id="pf-th-weight" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">비중</th>
+            <th id="pf-th-weight" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">비중(주식 내)</th>
             <th id="pf-th-manage" style="text-align:center;padding:10px 6px;color:var(--text-secondary);font-size:11px;font-weight:700;">관리</th>
           </tr>
         </thead>
@@ -13116,17 +13113,17 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=55.21" defer></script>
-  <script src="./js/aio-data.js?v=55.21" defer></script>
-  <script src="./js/aio-ui.js?v=55.21" defer></script>
+  <script src="./js/aio-core.js?v=55.22" defer></script>
+  <script src="./js/aio-data.js?v=55.22" defer></script>
+  <script src="./js/aio-ui.js?v=55.22" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
   <!-- 이 블록은 core보다 먼저 실행되어 core가 평가 시점에 읽는 전역을 만들므로, 그 파일은 defer 그룹 맨 앞에 놓인다(R622). -->
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=55.21" defer></script>
+<script src="./js/aio-chat.js?v=55.22" defer></script>
 
-  <!-- P1135: 블록 B(매크로/기술 렌더 1,175줄)는 js/aio-pages.js로 이동했다. -->
+  <!-- P1135: 블록 B(매크로/기술 렌더 1,175줄)는 js/aio-macro-tech.js로 이동했다. -->
 
   <!-- P1134: 블록 C(KR/SEC 데이터 플레인 3,473줄)는 js/aio-kr-data.js로 이동했다. -->
   <!-- 이 블록은 파싱 시점 실행이었고 뒤에 오는 인라인 블록이 없으므로 defer로 옮겨도 안전하다. -->
@@ -13186,7 +13183,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=55.21" defer></script>
+<script src="./js/aio-glossary.js?v=55.22" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->

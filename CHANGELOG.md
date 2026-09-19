@@ -1,3 +1,7 @@
+## v55.22 (2026-09-19)
+- **구조 개편 W01/W01-C/W02/W00 구현 (P1143).** sentiment 카드·서술 단일 ViewModel revision, legacy 서술 선언 삭제 + 200ms 타이머 제거, 무근거 시드 placeholder화. home 배지 `고점 대비 -x.x% · 참고 관측` + 보류 동시 초기화. 포트폴리오 surface v3(read/valuation 분리, cash-only·partial·분모 라벨). 내비게이션 typed command + 단일 transition commit.
+- R1 7곳 v55.22
+
 ## v55.21 (2026-09-19)
 - **"매번 같은 문제"를 규칙과 도구로 고정했습니다 (R626/P1141).** 스케줄 데이터 봇이 1~2시간마다 데이터를 커밋해 장시간 작업하는 브랜치를 계속 추월하고, 그때마다 **같은 3개 파일이 충돌**했습니다.
 - **원인**: 충돌을 의미 충돌로 오해했습니다. 실제로는 같은 생성 문서를 **두 생산자가 서로 다른 필드로** 갱신한 것입니다 — 봇은 `dataRevision`/`generatedAt`, 코드 커밋은 `appRevision`/`workerRevision`. 한쪽을 통째로 고르면 나머지 축이 깨집니다.

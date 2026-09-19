@@ -387,6 +387,26 @@ const { renderSentimentSummaryProjection } = await load('src/ui/projections/sent
   if (secondDestroyed !== 1 || registry.size() !== 0 || canvas.style.maxHeight !== '' || canvas.dataset.aioChartRegistry) fail('chart-registry: dispose did not destroy, clear, and restore the canvas ownership marker');
 }
 
+// ── W00/P1143: typed navigation — DOM elements never become entity ids ─────
+// A sidebar click passes a DOM node via data-pass-el; the typed command must
+// reject it to null instead of mounting a scope keyed by "[OBJECT HTMLDIVELEMENT]".
+{
+  const { createLifecycleRouter, createRouteRegistry, normalizeNavigationCommand } = await load('src/app/router.js');
+  if (normalizeNavigationCommand({ routeId: 'ticker', args: [{}] })?.entityId !== null) fail('W00/P1143 navigation: a DOM-like arg became an entity id');
+  if (normalizeNavigationCommand({ routeId: 'ticker', entityId: 'aapl' })?.entityId !== 'AAPL') fail('W00/P1143 navigation: explicit string identity was not normalized');
+  if (normalizeNavigationCommand({ routeId: 'theme-detail' })?.routeId !== 'themes') fail('W00/P1143 navigation: theme-detail was not canonicalized to themes');
+  if (normalizeNavigationCommand({ routeId: 'not-a-real-route' }) !== null) fail('W00/P1143 navigation: unknown route was accepted');
+  const mounts = [];
+  const registry = createRouteRegistry({ modules: { fundamental: { route: 'fundamental', mount: ({ scope }) => { mounts.push(scope); return () => {}; } } } });
+  const target = new EventTarget();
+  const router = createLifecycleRouter({ root: target, registry, context: {} });
+  const handle = router.start();
+  handle.transition('fundamental', { source: 'architecture-navigation', entityId: null });
+  target.dispatchEvent(new CustomEvent('aio:pageShown', { detail: { pageId: 'fundamental', args: [target] } }));
+  if (mounts.length !== 1 || mounts[0]?.entityId !== null) fail(`W00/P1143 navigation: one click must commit one scope without DOM identity, got mounts=${mounts.length}, entityId=${mounts[0]?.entityId}`);
+  handle.dispose();
+}
+
 // ── router.js ────────────────────────────────────────────────────────────────────────────────
 {
   const mountLog = [];
@@ -868,6 +888,24 @@ const { renderSentimentSummaryProjection } = await load('src/ui/projections/sent
 // ── domain/portfolio/surface.js + domain/fundamental/sec-report.js ─────────────────────────────
 // P831/P832: deterministic native secondary projections must preserve null/unavailable inputs,
 // finite quote derivation, and official-SEC provenance rather than converting missing facts to 0.
+// W01/P1143: sentiment ViewModel — one revision renders the P/C card and the narratives
+// together. Missing P/C withholds, missing SPY never becomes 0% flat, and a missing
+// trading score withholds while a valid 0 stays 0.
+{
+  const { deriveSentimentViewModel, putCallBand, putCallNeedlePosition, spyMoveState, tradingScoreLink } = await load('src/domain/sentiment/narrative.js');
+  const observed = deriveSentimentViewModel({ values: { fearGreed: 42, vix9d: 18, vix: 17, vix3m: 20, vix6m: 22, putCall: 0.79, spyChg: 0.4, tradingScoreTotal: 55 }, evidenceByMetric: {}, revision: null, now: '2026-09-19T00:00:00Z' });
+  const pcNarrative = observed.narratives.find((row) => row.claimId === 'sentiment.put-call');
+  if (!/0\.79/.test(pcNarrative?.text || '') || !/균형 구간/.test(pcNarrative?.text || '') || putCallNeedlePosition(0.79) !== '중립') fail(`W01/P1143 sentiment ViewModel: 0.79 must render the same band in card and narrative, got ${JSON.stringify(pcNarrative)}`);
+  const moved = deriveSentimentViewModel({ values: { fearGreed: 42, vix9d: 18, vix: 17, vix3m: 20, vix6m: 22, putCall: 1.21, spyChg: 0.4, tradingScoreTotal: 55 }, evidenceByMetric: {}, revision: null, now: '2026-09-19T00:00:00Z' });
+  if (moved.revision === observed.revision || !/1\.21/.test(moved.narratives.find((row) => row.claimId === 'sentiment.put-call')?.text || '')) fail('W01/P1143 sentiment ViewModel: a new 1.21 observation must move card and narrative to one new revision');
+  const missingPc = deriveSentimentViewModel({ values: { fearGreed: 42, vix9d: 18, vix: 17, vix3m: 20, vix6m: 22, putCall: null }, evidenceByMetric: {}, revision: null, now: '2026-09-19T00:00:00Z' });
+  const missingPcNarrative = missingPc.narratives.find((row) => row.claimId === 'sentiment.put-call');
+  if (putCallBand(null)?.blocked !== true || putCallNeedlePosition(null) !== '판정 보류' || missingPcNarrative?.status !== 'withheld') fail(`W01/P1143 sentiment ViewModel: missing P/C must withhold, got ${JSON.stringify(missingPcNarrative)}`);
+  const missingSpy = deriveSentimentViewModel({ values: { fearGreed: 42, vix: 17, spyChg: null }, evidenceByMetric: {}, revision: null, now: '2026-09-19T00:00:00Z' });
+  if (spyMoveState(null)?.state !== 'missing' || spyMoveState(0)?.state !== 'observed' || missingSpy.narratives.find((row) => row.claimId === 'sentiment.spy-vix-divergence')?.status !== 'withheld') fail('W01/P1143 sentiment ViewModel: missing SPY move must stay missing, never 0% flat');
+  if (tradingScoreLink(null)?.state !== 'withheld' || tradingScoreLink(0)?.state !== 'observed' || tradingScoreLink(0)?.value !== 0) fail('W01/P1143 sentiment ViewModel: trading-score null must withhold while a valid 0 stays 0');
+  if (!Object.isFrozen(observed) || !Object.isFrozen(observed.metrics) || !Object.isFrozen(observed.narratives)) fail('W01/P1143 sentiment ViewModel: projection must be immutable');
+}
 {
 // ── domain/screener/setup-profile.js: reference-only setup labels fail closed ────────────────
 // v53.91: setup observations and TradingView evidence are research overlays only;
@@ -1039,7 +1077,7 @@ const { renderSentimentSummaryProjection } = await load('src/ui/projections/sent
   const quoteNow = Date.parse('2026-09-12T15:00:00Z');
   const currentQuote = (price, extra = {}) => ({ price, observedAt: '2026-09-12T14:55:00Z', source: 'runtime-test-provider', sourceKind: 'LIVE', sourceTier: 'T2_LICENSED', rightsId: 'runtime-test-rights', revisionId: 'runtime-test-r1', allowedUse: 'decision', allowedUseCeiling: 'decision', quality: { status: 'live', freshness: 'live', timestampValid: true, ageMs: 5 * 60 * 1000, freshnessMs: 15 * 60 * 1000 }, ...extra, dailyPct: extra.dailyPct ?? extra.pct ?? null, changeBasis: extra.changeBasis || 'previous-close' });
   const live = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: 'ABC', shares: 2, avgCost: 10, sector: 'Technology' }], cash: 50 }, liveData: { ABC: currentQuote(12, { pct: 2 }) }, vix: currentQuote(22), now: quoteNow });
-  if (live.modelVersion !== 'portfolio-surface.v2' || live.positionValue !== 24 || live.totalAssets !== 74 || live.totalPnl !== 4 || live.exposureCap !== 50 || live.sectorBreakdown.length !== 2 || live.allowedUse !== 'reference-only' || live.decisionEligible !== false || live.snapshotFallbackBlocked !== true || live.costFallbackBlocked !== true) fail(`portfolio-surface: live/cash derivation or reference boundary drifted, got ${JSON.stringify(live)}`);
+  if (live.modelVersion !== 'portfolio-surface.v3' || live.positionValue !== 24 || live.totalAssets !== 74 || live.totalPnl !== 4 || live.exposureCap !== 50 || live.sectorBreakdown.length !== 2 || live.valuationState !== 'complete' || live.allowedUse !== 'reference-only' || live.decisionEligible !== false || live.snapshotFallbackBlocked !== true || live.costFallbackBlocked !== true) fail(`portfolio-surface: live/cash derivation or reference boundary drifted, got ${JSON.stringify(live)}`);
   const partial = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: 'ABC', shares: 2, avgCost: 10 }, { symbol: 'XYZ', shares: 1, avgCost: 20 }], cash: null }, liveData: { ABC: currentQuote(12, { pct: 2 }) }, vix: currentQuote(22), now: quoteNow });
   if (partial.positionValue !== null || partial.totalPnl !== null || partial.dailyChange !== null || partial.sectorBreakdown.length !== 0) fail(`portfolio-surface: partial holdings must not sum unknown rows as zero, got ${JSON.stringify(partial)}`);
   const daily = derivePortfolioSurface({ state: { holdings: [{ symbol: 'ABC', shares: 10, avgCost: 80, price: 110, dailyPct: 10 }], cash: 0 } });
@@ -1057,6 +1095,13 @@ const { renderSentimentSummaryProjection } = await load('src/ui/projections/sent
   const staleRuntime = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: 'ABC', shares: 2, avgCost: 10, price: 11 }], cash: 0 }, liveData: { ABC: { price: 99, observedAt: '2026-09-12T13:00:00Z', source: 'runtime-test-provider' } }, vix: { price: 40, observedAt: '2026-09-12T14:55:00Z', source: 'snapshot:last-known-good' }, now: quoteNow });
   if (staleRuntime.rows[0]?.price !== 11 || staleRuntime.sourceKind !== 'portfolio-state' || staleRuntime.exposureCap !== null) throw new Error('portfolio surface must reject stale quotes and snapshot VIX as current runtime evidence');
   if (invalidPortfolio.positionValue !== null || invalidPortfolio.cash !== null || invalidPortfolio.exposureCap !== null || invalidPortfolio.exposurePolicyStatus !== 'reference-only') fail(`portfolio-surface: invalid balances or VIX entered the portfolio projection, got ${JSON.stringify(invalidPortfolio)}`);
+  // W02/P1143: cash-only reads as total=cash, partial never sums unknown rows as zero.
+  const cashOnly = derivePortfolioSurface({ state: { readState: 'ready', holdingsKnown: true, holdings: [], cash: 10000, cashKnown: true }, liveData: {}, vix: null });
+  if (cashOnly.modelVersion !== 'portfolio-surface.v3' || cashOnly.valuationState !== 'cash-only' || cashOnly.positionValue !== 0 || cashOnly.totalAssets !== 10000 || cashOnly.cashPct !== 100 || cashOnly.status !== 'current') fail(`W02/P1143 portfolio-surface: cash-only must read total=cash, got ${JSON.stringify(cashOnly)}`);
+  const lockedCash = derivePortfolioSurface({ state: { readState: 'locked', holdings: [], cash: 10000 }, liveData: {}, vix: null });
+  if (lockedCash.totalAssets === 0 || lockedCash.totalAssets === 10000 || lockedCash.valuationState !== 'unavailable') fail(`W02/P1143 portfolio-surface: locked/failed must never read as $0 or cash, got ${JSON.stringify(lockedCash)}`);
+  const w02Partial = derivePortfolioSurface({ state: { readState: 'ready', holdingsKnown: true, status: 'current', holdings: [{ symbol: 'AAA', shares: 1, avgCost: 10 }, { symbol: 'BBB', shares: 1, avgCost: 10 }], cash: 100, cashKnown: true }, liveData: { AAA: currentQuote(12, { pct: 2 }) }, vix: currentQuote(22), now: quoteNow });
+  if (w02Partial.valuationState !== 'partial' || w02Partial.totalAssets !== null || w02Partial.valuedHoldingCount !== 1) fail(`W02/P1143 portfolio-surface: partial must withhold totals with n/m state, got ${JSON.stringify(w02Partial)}`);
 }
 {
   const { deriveSecReport } = await load('src/domain/fundamental/sec-report.js');

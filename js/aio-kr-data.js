@@ -1016,6 +1016,9 @@ var _vkospiFailCount = 0;
 var _vkospiLastOkTs = null;
 function _vkospiIsFailedState() { return _vkospiFailCount >= AIO_VKOSPI_FAIL_THRESHOLD; }
 function _showVkospiFailureState(reason) {
+  // P1142: 실패 상태 진입 시 라이브 플래그를 해제한다 — 성공 시 켜진 _vkospiLiveOk가
+  // 실패 후에도 true로 남아 배너/채팅이 정지된 스냅샷 값을 현재값처럼 인용하는 것을 방지(P713 계약 유지).
+  window._vkospiLiveOk = false;
   var lastOkText = _vkospiLastOkTs ? ('마지막 성공 ' + new Date(_vkospiLastOkTs).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })) : '성공 이력 없음';
   var fullReason = (reason || '프록시/데이터 실패') + ' · ' + lastOkText;
   var vEl = document.getElementById('kr-vkospi-val');
@@ -2063,29 +2066,28 @@ async function fetchStooqData(ticker, days) {
     var stooqTicker = ticker.toLowerCase();
     if (!stooqTicker.includes('.')) stooqTicker += '.us';
     var url = 'https://stooq.com/q/d/l/?s=' + stooqTicker + '&d1=' + d1 + '&d2=' + d2 + '&i=d';
-    var proxy = 'https://corsproxy.io/?url=';
-    var r = await fetchWithTimeout(proxy + encodeURIComponent(url), {}, 10000);
-    if (r.ok) {
-      var csv = await r.text();
-      var lines = csv.trim().split('\n');
-      if (lines.length < 2) return null;
-      var headers = lines[0].toLowerCase().split(',');
-      var data = [];
-      for (var i = 1; i < lines.length; i++) {
-        var cols = lines[i].split(',');
-        if (cols.length >= 5) {
-          data.push({
-            date: cols[0],
-            open: parseFloat(cols[1]),
-            high: parseFloat(cols[2]),
-            low: parseFloat(cols[3]),
-            close: parseFloat(cols[4]),
-            volume: parseInt(cols[5]) || 0
-          });
-        }
+    // P1142: corsproxy.io 하드코딩 단일 경로 → 레지스트리 fetchViaProxy(헬스 추적·쿨다운·순회 적용).
+    var r = await fetchViaProxy(url, 10000);
+    if (!r || !r.ok) return null;
+    var csv = await r.text();
+    var lines = csv.trim().split('\n');
+    if (lines.length < 2) return null;
+    var headers = lines[0].toLowerCase().split(',');
+    var data = [];
+    for (var i = 1; i < lines.length; i++) {
+      var cols = lines[i].split(',');
+      if (cols.length >= 5) {
+        data.push({
+          date: cols[0],
+          open: parseFloat(cols[1]),
+          high: parseFloat(cols[2]),
+          low: parseFloat(cols[3]),
+          close: parseFloat(cols[4]),
+          volume: parseInt(cols[5]) || 0
+        });
       }
-      return { ticker: ticker, source: 'stooq', data: data };
     }
+    return { ticker: ticker, source: 'stooq', data: data };
   } catch(e) { _aioLog('warn', 'fetch', 'Stooq fetch error for ' + ticker + ': ' + e.message); }
   return null;
 }
@@ -2138,10 +2140,11 @@ async function dynamicTickerLookup(ticker, opts) {
   try {
     var url = 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(ticker) + '?interval=1d&range=5d';
     var proxies = [
+      // P1142: thingproxy.freeboard.io(서비스 종료) 제거 — 응답 불가 프록시가 매 조회마다
+      // 반드시 실패하는 시도 하나를 보장하고, 레지스트리 추적 밖의 트래픽을 만들었다.
       { name: 'codetabs',   fn: function(u) { return 'https://api.codetabs.com/v1/proxy/?quest=' + encodeURIComponent(u); } },
       { name: 'allorigins', fn: function(u) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); } },
       { name: 'corsproxy',  fn: function(u) { return 'https://corsproxy.io/?' + encodeURIComponent(u); } },
-      { name: 'thingproxy', fn: function(u) { return 'https://thingproxy.freeboard.io/fetch/' + u; } },
       { name: 'cors-sh',    fn: function(u) { return 'https://proxy.cors.sh/' + u; } }
     ];
     var _PROXY_TIMEOUT = 3500; // 8s → 3.5s
@@ -3052,201 +3055,7 @@ function _generatePortfolioAnalysis(positions, ld, stats) {
 
 
 // ── 5) 심리지표 복합 분석 ──
-// v38.8: 개별 지표별 행동 가이드 동적 표시
-function _updateSentimentActionGuides() {
-  let ld = window._liveData || {};
-  var vix = ld['^VIX'] ? ld['^VIX'].price : null;
-  var fgEl = document.getElementById('fg-score-big');
-  var fgScore = fgEl ? parseInt(fgEl.textContent) : null;
-  var pcEl = document.getElementById('pc-score-big');
-  var pcr = pcEl ? parseFloat(pcEl.textContent) : null;
-
-  // VIX 행동 가이드
-  var vixGuide = document.getElementById('vix-action-guide');
-  if (!vixGuide) {
-    var vixCard = document.querySelector('#page-sentiment .data-widget');
-    if (vixCard) { var g = document.createElement('div'); g.id = 'vix-action-guide'; g.style.cssText = 'padding:6px 10px;margin-top:6px;border-radius:4px;font-size:11px;line-height:1.5;'; vixCard.appendChild(g); vixGuide = g; }
-  }
-  if (vixGuide && vix) {
-    var vMsg, vBg;
-    if (vix >= 30) { vMsg = ' <b>환경 관측:</b> 극단 변동성 — 역사적으로 신규 위험 확대가 회피되고 헤지가 검토되던 환경입니다(지시 아님).'; vBg = 'rgba(177,58,48,0.08)'; }
-    else if (vix >= 20) { vMsg = '<b>환경 관측:</b> 변동성 상승 구간 — 프레임워크상 노출 축소·분할 접근이 논의되던 환경입니다.'; vBg = 'rgba(33,29,22,0.08)'; }
-    else { vMsg = '<b>환경 관측:</b> 낮은 변동성 — 프레임워크상 정상 노출로 분류되는 환경입니다.'; vBg = 'rgba(34,117,76,0.08)'; }
-    vixGuide.innerHTML = vMsg; vixGuide.style.background = vBg;
-  }
-
-  // F&G 행동 가이드
-  var fgGuide = document.getElementById('fg-action-guide');
-  if (!fgGuide) {
-    var fgCard = document.getElementById('fg-score-big');
-    if (fgCard) { var fgWidget = fgCard.closest('.data-widget'); if (fgWidget) { var g2 = document.createElement('div'); g2.id = 'fg-action-guide'; g2.style.cssText = 'padding:6px 10px;margin-top:6px;border-radius:4px;font-size:11px;line-height:1.5;'; fgWidget.appendChild(g2); fgGuide = g2; } }
-  }
-  if (fgGuide && fgScore != null && !isNaN(fgScore)) { // v46.9: fgScore=0 falsy 방지
-    var fMsg, fBg;
-    if (fgScore <= 25) { fMsg = ' <b>관측:</b> 극단 공포 구간. 바닥·향후 수익률을 단독 예측하지 않고 가격·신용·시장폭을 교차 확인합니다.'; fBg = 'rgba(34,117,76,0.08)'; }
-    else if (fgScore <= 45) { fMsg = ' <b>관측:</b> 공포 구간. 심리 위축 상태이며 진입 판단은 추세·실적·수급 근거가 필요합니다.'; fBg = 'rgba(33,29,22,0.08)'; }
-    else if (fgScore <= 75) { fMsg = ' <b>관측:</b> 중립~탐욕 구간. 방향 신호가 아니며 과열 여부는 밸류에이션·시장폭과 별도 확인합니다.'; fBg = 'var(--surface-3)'; }
-    else { fMsg = ' <b>관측:</b> 극단 탐욕 구간. 조정 시점이나 매도 신호로 자동 변환하지 않습니다.'; fBg = 'rgba(177,58,48,0.08)'; }
-    fgGuide.innerHTML = fMsg; fgGuide.style.background = fBg;
-  }
-}
-
-function _generateSentimentAnalysis() {
-  _updateSentimentActionGuides(); // v38.8: 행동 가이드도 함께 업데이트
-  var el = document.getElementById('sent-analysis-text'); if (!el) return;
-  let ld = window._liveData || {};
-  var fgEl = document.getElementById('fg-score-big');
-  var fgScore = fgEl ? parseInt(fgEl.textContent) : NaN;
-  var vix = ld['^VIX'] ? ld['^VIX'].price : NaN;
-  var pcEl = document.getElementById('pc-score-big');
-  var pcr = pcEl ? parseFloat(pcEl.textContent) : NaN;
-  var h = '';
-  if (!isNaN(fgScore)) {
-    h += '<b>Fear & Greed ' + fgScore + '</b> — ';
-    h += fgScore < 25 ? '<span style="color:var(--data-red);">극단 공포 구간. 향후 수익률·바닥 시점은 단독 예측하지 않습니다.</span>' :
-         fgScore < 45 ? '<span style="color:var(--yellow);">공포 구간. 심리 위축을 뜻하며 가격·신용·수급과 교차 확인합니다.</span>' :
-         fgScore < 56 ? '<span>중립 구간. 센티먼트가 방향을 결정하지 않는 구간입니다.</span>' :
-         fgScore < 75 ? '<span style="color:var(--yellow);">탐욕 구간. 과열 여부는 밸류에이션·시장 폭과 별도 확인합니다.</span>' :
-         '<span style="color:var(--red);">극단 탐욕 구간. 조정 시점이나 매도 신호로 단독 사용하지 않습니다.</span>';
-    h += '<br>';
-  }
-  if (!isNaN(vix)) {
-    h += '<b>VIX ' + vix.toFixed(1) + '</b> — ';
-    h += vix > 35 ? '<span style="color:var(--red);">고변동 구간. 옵션 내재변동성 상승 상태입니다.</span>' :
-         vix > 25 ? '<span style="color:var(--yellow);">변동성 경계 구간. 방향 신호가 아니라 위험 범위 확대를 뜻합니다.</span>' :
-         vix > 16 ? '<span>통상 범위. 방향성은 가격 추세·실현변동성과 별도 확인합니다.</span>' :
-         '<span style="color:var(--green);">저변동 구간. 향후 급등·안정을 단독 예측하지 않습니다.</span>';
-    h += '<br>';
-  }
-  if (!isNaN(pcr)) {
-    h += '<b>P/C비율 ' + pcr.toFixed(2) + '</b> — ';
-    h += pcr > 1.3 ? '<span style="color:var(--yellow);">풋 거래 비중이 높은 구간. 헤지와 방향성 거래를 구분해야 하며 역발상 매수 신호는 아닙니다.</span>' :
-         pcr > 1.0 ? '<span style="color:var(--yellow);">풋 우세 구간. 하방 헤지 수요 가능성을 보여주지만 방향은 확정하지 않습니다.</span>' :
-         pcr > 0.7 ? '<span>균형 구간. 시장 방향성 미확정.</span>' :
-         '<span style="color:var(--yellow);">콜 거래 비중이 높은 구간. 조정 시점을 단독 예측하지 않습니다.</span>';
-    h += '<br>';
-  }
-  // v38.4: VIX-S&P 디커플링 감지 (매크로 시그널 레퍼런스 ②)
-  var spy = ld['SPY'];
-  var spyChg = spy ? (spy.pct != null ? spy.pct : 0) : 0;
-  if (!isNaN(vix) && spy) {
-    h += '<br><b>【공포지수 vs 주가 — 엇갈림 진단】</b> ';
-    h += '<span style="color:var(--text-muted);font-size:0.9em;">동행·역행 여부만 관측하며 참여자 의도나 향후 방향을 추정하지 않습니다.</span><br>';
-    var vixChg = ld['^VIX'] ? (ld['^VIX'].pct != null ? ld['^VIX'].pct : 0) : 0;
-    if (spyChg > 0.3 && vixChg > 3) {
-      h += '<span style="color:var(--yellow);font-weight:700;">SPY 상승과 VIX 상승이 동행했습니다 (VIX +' + vixChg.toFixed(1) + '%). 원인은 옵션 만기·이벤트·헤지 흐름을 별도 확인해야 합니다.</span>';
-    } else if (spyChg < -0.5 && vixChg < -2) {
-      h += '<span style="color:var(--yellow);font-weight:700;">SPY 하락과 VIX 하락이 동행했습니다. 바닥 신호로 단정하지 않고 실현변동성·옵션 만기·거래량을 확인합니다.</span>';
-    } else {
-      h += '<span>정상. 주가와 공포지수가 서로 반대로 움직이고 있어 특이 신호 없음.</span>';
-    }
-    h += '<br>';
-  }
-
-  // v38.4: 항복적 매도 시그널 (매크로 시그널 레퍼런스 ①)
-  if (!isNaN(fgScore) && !isNaN(vix)) {
-    h += '<br><b>【항복적 매도(Capitulation) 진단】</b> ';
-    var capitulationScore = 0;
-    if (fgScore < 15) capitulationScore++;
-    if (vix > 35) capitulationScore++;
-    if (!isNaN(pcr) && pcr > 1.4) capitulationScore++;
-    if (spyChg < -2.5) capitulationScore++;
-    if (capitulationScore >= 3) {
-      h += '<span style="color:var(--yellow);font-weight:700;">항복성 조건 ' + capitulationScore + '/4 동시 충족. 강제청산 여부나 이후 수익률은 확인되지 않았으므로 거래량·신용·시장 폭 후속 관측이 필요합니다.</span>';
-    } else if (capitulationScore >= 2) {
-      h += '<span style="color:var(--yellow);">항복성 조건 ' + capitulationScore + '/4 충족. 현재는 부분 관측이며 진입 신호로 사용하지 않습니다.</span>';
-    } else {
-      h += '<span>항복 신호 미충족. 정상적인 시장 변동 범위 내.</span>';
-    }
-    h += '<br>';
-  }
-
-  // v38.4: 극단 센티멘트 클러스터 (매크로 시그널 레퍼런스 ⑨)
-  if (!isNaN(fgScore) && !isNaN(vix) && !isNaN(pcr)) {
-    h += '<br><b>【센티멘트 클러스터 분석】</b> ';
-    var fearCluster = (fgScore < 30 ? 1 : 0) + (vix > 25 ? 1 : 0) + (pcr > 1.1 ? 1 : 0);
-    var greedCluster = (fgScore > 70 ? 1 : 0) + (vix < 14 ? 1 : 0) + (pcr < 0.7 ? 1 : 0);
-    if (fearCluster >= 3) {
-      h += '<span style="color:var(--green);font-weight:700;">3중 공포 클러스터 활성 (F&G ' + fgScore + ', VIX ' + vix.toFixed(1) + ', P/C ' + pcr.toFixed(2) + '). ';
-      h += '서사("시장 망한다")와 현실의 괴리를 점검하세요: ';
-      h += '①S&P 500 기업 실적이 실제로 하향 조정 중인가? ②실업률이 급등하고 있는가? ③신용 스프레드(HY-IG)가 급확대 중인가? ';
-      h += '세 지표로 서사와 펀더멘털의 괴리를 점검하되 매수 구간으로 자동 변환하지 않습니다.</span>';
-    } else if (greedCluster >= 3) {
-      h += '<span style="color:var(--red);font-weight:700;">3중 탐욕 클러스터 활성 (F&G ' + fgScore + ', VIX ' + vix.toFixed(1) + ', P/C ' + pcr.toFixed(2) + '). ';
-      h += '"말 vs 물리학" 점검: ①현재 EPS 성장률이 PE 배수를 정당화하는가? ②매출 성장이 가속 중인가? ③가이던스 상향이 이어지고 있는가? ';
-      h += '세 지표로 낙관과 실적의 괴리를 점검하되 차익실현 시점으로 자동 변환하지 않습니다.</span>';
-    } else {
-      h += '<span>극단 클러스터 미형성. 개별 지표 기반 판단이 적합한 구간.</span>';
-    }
-    h += '<br>';
-  }
-
-  // v38.4: 포지셔닝 정리 → 강제 매수 프레임 (매크로 시그널 레퍼런스 ⑩)
-  // v38.4d: wasExtremeFear를 활용하여 "극단 공포 회복 중" 프레임 추가
-  if (!isNaN(fgScore) && !isNaN(vix) && !isNaN(pcr)) {
-    var wasExtremeFear = (fgScore < 25 && vix > 28);
-    var isRecovering = (fgScore > 35 && fgScore < 55 && vix < 22);
-    if (wasExtremeFear) {
-      h += '<br><b>【극단 공포 구간】</b> ';
-      h += '<span style="color:var(--green);font-weight:700;">현재 F&G ' + fgScore + ' + VIX ' + vix.toFixed(1) + ' = 극단 공포 조건. 역발상 참고 구간일 뿐 바닥·매수 신호가 아니며 가격 추세와 신용·시장폭 확인이 필요합니다.</span><br>';
-    } else if (isRecovering) {
-      h += '<br><b>【F&G·VIX 중간 구간】</b> ';
-      h += '<span style="color:var(--accent);">F&G ' + fgScore + ', VIX ' + vix.toFixed(1) + '의 조합은 이 규칙상 중간 범주입니다. 시계열 추세·포지셔닝·선물·옵션 flow가 없으므로 심리 전환이나 원인을 판정하지 않습니다.</span><br>';
-    }
-  }
-
-  // 복합 판단 (v38.4 강화)
-  if (!isNaN(fgScore) && !isNaN(vix)) {
-    h += '<br><b>【복합 판단】</b> ';
-    if (fgScore < 25 && vix > 28) h += '<span style="color:var(--green);font-weight:700;">극단 공포+고변동. 반전과 추세 지속이 모두 가능한 구간이므로 확인 전 행동 판정 보류.</span>';
-    else if (fgScore > 75 && vix < 15) h += '<span style="color:var(--red);font-weight:700;">과열+저변동. 헤지 비용·보유 위험을 점검하되 방향 전환을 단정하지 않음.</span>';
-    else if (fgScore < 40 && vix > 20) h += '<span style="color:var(--yellow);font-weight:700;">공포 확산 구간. 반등 임박을 뜻하지 않으므로 가격·시장폭 확인 필요.</span>';
-    else h += '<span>특이 신호 없음. 펀더멘털·기술적 분석 병행 판단.</span>';
-  }
-
-  // v40.4: 역사적 참고점 비교
-  if (!isNaN(fgScore) && !isNaN(vix)) {
-    h += '<br><br><b>【역사적 참고점 비교】</b> ';
-    var closest = '';
-    if (fgScore <= 10 && vix >= 40) closest = '2020.03의 극단 패닉과 지표 수준이 비슷할 수 있으나 시장 구조·정책 환경은 별도입니다.';
-    else if (fgScore <= 20 && vix >= 30) closest = '2022.10의 공포 구간과 지표 수준이 비슷할 수 있으나 이후 수익률을 재현한다고 볼 수 없습니다.';
-    else if (fgScore <= 25 && vix >= 25) closest = '2023.03의 국지적 공포 구간과 지표 수준을 참고하되 반등 시점은 추정하지 않습니다.';
-    else if (fgScore >= 75 && vix <= 15) closest = '2021.11의 탐욕·저변동 조합과 지표 수준을 참고하되 조정 시점은 추정하지 않습니다.';
-    else closest = '뚜렷한 역사적 극단 사례 매칭 없음. 개별 지표 판단 우선.';
-    h += '<span style="color:var(--accent);">현재 F&G ' + fgScore + ', VIX ' + vix.toFixed(1) + ' → ' + closest + '</span><br>';
-  }
-
-  // v40.4: 행동경제학 편향 진단
-  if (!isNaN(fgScore)) {
-    h += '<br><b>【행동편향 진단】</b> ';
-    var biases = [];
-    if (fgScore >= 70 && !isNaN(vix) && vix < 16) biases.push('<span style="color:var(--red);">자만(Complacency)</span> — 모두가 "이번엔 다르다"고 확신. 가장 위험한 시장은 아무도 위험하다고 생각하지 않는 시장');
-    if (fgScore >= 75) biases.push('<span style="color:var(--red);">FOMO</span> — "나만 못 탄다" 심리. 신고가 추격의 결과는 종목·밸류에이션·수급별로 별도 검증');
-    if (fgScore >= 60 && fgScore <= 80) biases.push('<span style="color:var(--yellow);">확증편향</span> — 좋은 뉴스만 보이는 구간. 리스크 요인 의도적 점검 필요');
-    if (fgScore <= 30 && !isNaN(vix) && vix > 25) biases.push('<span style="color:var(--green);">손실회피</span> — -5% 고통 > +5% 기쁨 2.5배. 과매도 구간에서 투매 유발. 공포가 편향인지 실체인지 구분 필수');
-    if (fgScore <= 20) biases.push('<span style="color:var(--green);">앵커링</span> — 이전 고점에 고정되어 "50% 할인"으로 착각 위험. 실적 기반 적정가로 재앵커링 필요');
-    if (biases.length > 0) {
-      h += biases.join(' | ');
-    } else {
-      h += '<span>심리 극단값 미달 — 뚜렷한 편향 미감지.</span>';
-    }
-    h += '<br>';
-  }
-
-  // v40.4: 트레이딩 스코어 연동
-  var tsVal2 = null;
-  try { if (typeof computeTradingScore === 'function') { var tsRead2 = computeTradingScore(); tsVal2 = Number(tsRead2 && tsRead2.total); if (!isFinite(tsVal2)) tsVal2 = null; } } catch(e) {}
-  h += '<br><b>【시장 환경 연동】</b> ';
-  if (tsVal2 === null) h += '트레이딩 스코어 근거 미수신 — 연동 판정 보류.';
-  else {
-    h += '트레이딩 스코어 <b style="color:' + (tsVal2 >= 55 ? 'var(--green)' : tsVal2 >= 35 ? 'var(--yellow)' : 'var(--red)') + ';">' + tsVal2 + '/100</b> — ';
-    h += tsVal2 >= 55 ? '현재 입력상 환경 점수는 높지만 반등을 예측하거나 진입을 허가하지 않습니다.' :
-         tsVal2 >= 35 ? '시장 환경 중립. 심리 지표 단독으로 방향 결정 어려움.' :
-         '현재 입력상 환경 점수가 낮습니다. 가격·시장폭·신용 근거를 우선 확인합니다.';
-  }
-
-  el.innerHTML = h || '심리 지표 데이터 대기 중...';
-}
+// W01-B: retired — native ViewModel owns sent-analysis-text from one revision.
 
 // ── 6) 옵션 환경 분석 ──
 function _generateOptionsAnalysis(vix, vvix, vixPctile, ivRank) {

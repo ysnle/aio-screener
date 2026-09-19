@@ -27,8 +27,8 @@
     "sector-perf-bars"
   ],
   "domWriterIntersectionAllowlistNotes": {
-    "fg-score-big": "js/aio-data.js's dormant-until-deferred _generateSentimentAnalysis (called via setTimeout from js/aio-data.js:16811/16819/16825) only READS this via getElementById+textContent to build its analysis text; sentiment.js is the sole WRITER. Legitimate read dependency, not a write race.",
-    "pc-score-big": "Same function/relationship as fg-score-big — read-only legacy consumer, sentiment.js is the sole writer.",
+    "fg-score-big": "W01-B (2026-09-19): legacy `_generateSentimentAnalysis` retired to an inert entry point and its aio-data.js deferred timers removed; sentiment.js is the sole writer of fg-score-big/pc-score-big/sent-analysis-text from one ViewModel revision.",
+    "pc-score-big": "W01-B (2026-09-19): same single-writer cutover as fg-score-big — legacy only retired stubs remain, not readers.",
     "ticker-hero-name": "js/aio-core.js:_aioDetectTickerPattern and _aioFillEntryFromTicker read textContent only; entity.js is the sole writer after P777.",
     "theme-detail-panel": "After P818, themes.js is the sole panel display/current-theme writer; index.html showThemeDetail/closeThemeDetail only read the panel to retain selection/event compatibility. Legitimate read dependency, not a write race."
     ,"tech-candle-chart": "P833: analysis.js owns the native technical price chart; index.html loadTechCandleChart is fenced by the mounted native technical chart marker.",
@@ -133,12 +133,12 @@
       "rendererOwner": "native",
       "dataOwner": "native",
       "chartOwner": "native",
-      "narrativeOwner": "legacy",
+      "narrativeOwner": "native",
       "nativeModule": "src/ui/pages/sentiment.js (createSentimentPage)",
       "loadingStrategy": "route-dynamic-import",
       "contestedIds": [],
       "legacyWriterEvidence": [],
-      "notes": "RM-01 (2026-07-19) found and closed two contests this route's earlier 'fully clean' verification (P736/P738/P739) missed: (1) renderSentimentSummaryProjection() cross-page-wrote home-fg-score, which js/aio-data.js:16609 also writes — removed the native write, legacy keeps that cross-page id. (2) sent-analysis-text was written by both this module and an ACTIVE legacy function (index.html `_generateSentimentAnalysis`, deferred via setTimeout from js/aio-data.js:16811/16819/16825 — materially richer capitulation/decoupling/cluster analysis) — removed the native write per the RM-01 default action, so narrativeOwner is now honestly 'legacy', not 'native'. fg-score-big/pc-score-big are a legitimate exception: legacy's function only READS them (to build its analysis) and this module remains the sole writer (route-owners.json domWriterIntersectionAllowlist). P833 moves sentiment data ownership to the data-layer runtime reader; narrative remains legacy until the analysis text writer is cut over."
+      "notes": "W01-B (2026-09-19): sentiment narrative cut over to the single ViewModel (src/domain/sentiment/narrative.js + src/ui/pages/sentiment.js). Legacy `_generateSentimentAnalysis`/`_updateSentimentActionGuides` are inert stubs and the aio-data.js deferred timers are removed; sent-analysis-text is native from the same revision as the P/C card. Static numeric seeds replaced with fail-closed placeholders."
     },
     "briefing": {
       "lifecycleOwner": "native",
@@ -595,8 +595,8 @@
       "portfolio",
       "ticker"
     ],
-    "narrativeNative": 1,
-    "narrativeNativeRoutes": ["theme-detail"],
+    "narrativeNative": 2,
+    "narrativeNativeRoutes": ["sentiment", "theme-detail"],
     "lazyLoadedRoutes": [
       "home",
       "signal",
@@ -619,7 +619,13 @@
       "guide",
       "screener"
     ],
-    "fullNativeOwner": ["principles", "masters", "atlas", "guide"]
+    "fullNativeOwner": [
+      "sentiment",
+      "principles",
+      "masters",
+      "atlas",
+      "guide"
+    ]
   },
   "legacySymbolsMustBeAbsent": {
     "sentiment": [

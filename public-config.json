@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ai-public-config.v1",
-  "appRevision": "v55.21",
+  "appRevision": "v55.22",
   "ai": {
     "chatPolicy": "personal-key-or-public-worker",
     "workerUrl": "https://aio-proxy.zmfhd007.workers.dev",
@@ -11,9 +11,9 @@
     "routeReason": null,
     "routeEvidence": {
       "status": "CURRENT",
-      "source": "periodic-live-health",
+      "source": "last-observed-live-health",
       "observedAt": "2026-09-19T11:55:18.128Z",
-      "observationStatus": "SUCCESS"
+      "observationStatus": "NOT_ATTEMPTED"
     }
   },
   "marketData": {

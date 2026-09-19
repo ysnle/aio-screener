@@ -1,13 +1,30 @@
 ---
-verified_by: 데이터 파이프라인 전수 의미·정합성 감사(로컬 재계산) + affected QA; 중첩 산출물 의미 검토는 open
+verified_by: 구조 개편 W01/W02/W00 구현 + affected QA(진행 중); 브라우저·live는 별도 보고
 last_verified: 2026-09-19
 confidence: medium
 latest_version: v55.21
-latest_P_number: P1141
-next_P_number: P1142
-current_total_entries: 556 tracked entries (383 headings + 173 compacted lines, P1~P1141, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
+latest_P_number: P1143
+next_P_number: P1144
+current_total_entries: 557 tracked entries (384 headings + 173 compacted lines, P1~P1142, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
 current_checkpoint: 사용자 판단(지인용 사설 스크리너)으로 **차단 경계를 공시로 재배치**했다 — 개인화 지시·현재증거 부족·수치 주장 불일치·헤드라인 전용 인과를 하드 차단에서 경고/공시로 강등(P1120~P1122). 조작 방지(값·단위·NFP 배율), 금지 행위 P0, 포트폴리오 동의, 도구 경계는 그대로 차단이다. 남은 OPEN: 날짜 없는 중첩 산출물 12건(P1110 측정면이 노출), `objects/**` 592/629 미참조 blob의 보존 정책, 캐시 라우팅 밖의 실제 소비 산출물 오프라인 폴백 (semantic coverage 6.89%, releaseCertified=false)
 ---
+
+## P1143 - v55.21 - 구조 개편 W01/W01-C/W02/W00: 화면 정합성·포트폴리오 상태·내비게이션 단일화 (2026-09-19)
+
+- symptom/reproduction: `_artifacts/structural-handoff-20260919` 01(S01~S04)·02(P01~P04)·00(A01·A02)의 확정 경로. sentiment 카드 0.79 vs 복합판단 1.08, home `판정 보류` 옆 녹색 `상승 추세` 배지, `Number(null)=0`의 0점 오표시, cash-only 총자산 미수신, facade의 DOM element entity 오염.
+- root_cause: (1) 카드와 서술이 서로 다른 입력 경계(DOM 텍스트 vs state)를 읽었다. (2) ATH 거리 배지의 보류 전환이 regime early-return에 닿지 않았다. (3) 결측→0 변환이 소비 경계(`Number(tsRead.total)`, `spy.pct ?? 0`)에 있었다. (4) 빈 holdings가 positionValue null을 강제하고 status가 읽기/평가를 겸했다. (5) facade가 raw args를 identity로 재전달하고 router가 `args[0]`을 ticker로 읽었다.
+- fix: (1) `src/domain/sentiment/narrative.js` 순수 ViewModel + `sentiment.js` 단일 revision 렌더, legacy 서술 2함수 inert + `aio-data.js` 200ms 타이머 3곳 제거, 무근거 시드(18/1.08) placeholder화. (2) ATH 배지를 `고점 대비 -x.x% · 참고 관측`으로 축소 + 보류 동시 초기화. (3) runtime reader/normalize에 null-preserving 수치 + trading-score null은 보류. (4) surface v3 `readState/valuationState` + cash-only/partial/empty 분리 + 분모 라벨. (5) `normalizeNavigationCommand` typed 경계 + facade 명시적 문자열만 전달 + 초기 진입 단일 commit.
+- violated_rule: R352(이중 writer), F-09(의미 단위 정합성) — 신규 규칙 승격은 후속 회귀 관찰 후 판단.
+- prevention: `scripts/ci-esm-core-unit-check.mjs`에 W01(0.79/1.21 revision 일치, P/C·SPY·trading-score null 대조)·W02(cash-only=현금, locked 비노출, partial 보류)·W00(DOM 오염 거부, 단일클릭 단일scope) 게이트, `ci-architecture-contract-check.mjs`에 W02 valuation 마커 게이트.
+- verification: `node scripts/ci-esm-core-unit-check.mjs` PASS(아래 affected 전체는 closeout에서 보고). 브라우저·live는 미검증으로 분리 보고.
+
+## P1142 - v55.21 - 데이터 파이프라인 전수 재감사에서 나온 결함 12건 (2026-09-19)
+
+- symptom/reproduction: v49.x(5월) 이후 첫 파이프라인 전수 재감사(v55.21 코드 기준, 수집/가공/연결/분배/의미·정합성 5축 + 데이터 CI 게이트 7개 실측). 감사 결과 중 코드로 고칠 수 있는 결함 12건을 이번 회차에서 수정했다.
+- root_cause: (1) **VKOSPI 라이브 플래그 단방향** — `js/aio-kr-data.js`의 `window._vkospiLiveOk`는 성공 시 true가 되지만 이후 실패가 임계(3회, P649)에 도달해 실패 UI가 떠도 리셋되지 않아, 플래그를 신뢰하는 배너/채팅 컨텍스트가 정지된 `DATA_SNAPSHOT.vkospi` 값을 현재값처럼 인용할 수 있었다(P713 계약의 반대편 누락). (2) **죽은 인라인 스크립트** — `index.html`의 `macro-fred-stale-banner` 은닉 스크립트는 파싱 시점에 `window._fredData`를 읽는데 이 전역은 defer 스크립트+비동기 fetch 이후에만 채워지므로 실행 효과가 0이었다. (3) **R626 소유권 표 미완성** — P1141 도구의 `CODE_KEYS`가 실제 매니페스트 필드 집합보다 작아 `evidenceRevision`/`rollback.*`/`status` 등 코드 전용 필드가 충돌하면 exit 3 수동 개입이 재발 예정이었다(쓰기 주체 전수 확인: 봇 `sync-data-release-manifests.mjs`는 데이터 필드 5개만, `bump-version.mjs`는 `appRevision`/`workerRevision`만 기록). (4) **문서 drift** — `worker/README.md`와 프록시 헤더 주석이 이미 fail-closed로 거부되는 KV `AIO_QUOTA` 바인딩을 설정법으로 안내했고, `index.html` P1135 주석은 블록 B의 실제 이동처(`aio-macro-tech.js`)와 달랐으며, `_headers` CSP에 lightweight-charts CDN(`unpkg.com`)이 누락돼 CSP를 지원하는 호스트 이전 시 차트 로드가 깨질 예재였다.
+- fix: (1) `_showVkospiFailureState` 진입 시 `_vkospiLiveOk = false`로 해제(성공 재수신 시 true 복원). (2) 죽은 인라인 블록 제거 후 배너는 정적 fail-closed(unavailable/blocked) 상태 유지임을 주석으로 명시 — 배너 요소 자체는 T836 계약(aio-tests.js:7030)이 요구하므로 보존. (3) `resolve-data-manifest-merge.mjs`를 **파일별 소유권**으로 확장: 두 아키텍처 매니페스트에 한해 코드 전용 정적 필드 12개(`evidenceRevision`, `schemaVersion`, `publicSource`, `assetManifest`, `serviceWorker`, `immutableRuntime`, `status`, `rollback`, `strategy`, `appDataIndependent`, `workerCacheIndependent`, `lastKnownGood`)를 코드 소유로 분류. 같은 키가 봇 소유인 다른 파일(예: `market-snapshot.json`의 `status`)로 분류가 새지 않도록 파일별 테이블로 격리했고, 미분류 필드는 기존대로 exit 3(R626(4) 유지). (4) README·헤더 주석을 DO(`AIO_QUOTA_DO`, SQLite-backed) 기준으로 갱신, P1135 주석 이동처 수정, `_headers` script-src에 `https://unpkg.com` 추가.
+- fix(2차 — 의미·정합성/수집 축 후속): (5) **AAII stale 시드 제거** — 감정 페이지 하드코딩 36.1/44.9%는 volatileValues 'runtime-only' 위반이었고 실제 작성자는 네이티브 렌더러(src/ui/pages/sentiment.js:259, js/ 한정 grep이 놓쳤던 것)다. markup 시드를 '—'로 fail-closed화. (6) **채팅 컨텍스트 NFP 단위 명시** `+ 'K(천 명, 전월 대비 순증감)'` — P735 10배 클래스의 마지막 미방어 경로 차단. (7) **실업률 키 drift 통합** — 서버 매크로 루프가 선언 필드 `usUnemploy`에 미러 기록, FRED live write-back도 동일(기존 'unemploy'는 data-snap DOM 계약 유지), 채팅은 선언 키 우선. (8) **CBOE put/call + CNN F&G의 죽은 프록시 폴백 부활** — 정의 없는 `CORS_PROXY` 참조(ReferenceError가 catch에 흡수돼 매 주기 조용히 실패)를 레지스트리 `fetchViaProxy`로 교체하고, F&G는 응답에서 fear_and_greed를 못 읽으면 가짜 성공 대신 snapshot 폴백 규칙대로 실패 처리. (9) **FRED sticky `_failureReason`** — mergeMacroLastKnownGood가 keyed 성공 런(`_source:'fred'`)에서 이전 런의 실패 사유를 삭제(모순 게시 제거). (10) **채팅 2s10s 공식 스냅샷(FRED T10Y2Y) 우선 + 혼합 재계산은 기준 라벨링** — 계층 12.4(3) instrument 혼합 계약. (11) **kr-data 프록시 정리** — Stooq 하드코딩 corsproxy 단일 경로 → fetchViaProxy, 죽은 thingproxy 레이스 엔트리 제거. (12) **sw.js 미사용 unusualwhales 패턴 제거**(P1112 클래스), **VKOSPI 비공식 릴레이 출처 고지**(타이틀·라벨), **5월 감사 문서 superseded 배너**.
+- verification: `node --check` 5파일(aio-data/chat/kr-data, sw.js, fetch-data) 전부 0, `ci-version-check` OK(v55.21), `ci-csp-ratchet-check`/`ci-worker-anthropic-check`/`ci-runtime-contract-check` OK, 리졸버 합성 픽스처 재검 — 매니페스트 충돌 exit 0 + 코드 쪽 값 선택 + 유효 JSON, 동일 키 `status`가 있는 일반 파일은 exit 3 유지, `ci-service-worker-cache-policy-check`/`ci-static-data-contract-check`(22/22)/`ci-data-pipeline-contract-check`/`ci-ledger-integrity-check`/`ci-workspace-contract-check`/`ci-knowledge-lint-check` OK, decomp ratchet 기록 갱신(index.html 13279, kr-data 3490 등, R620 `--write --allow-growth`), 최종 `qa-runner affected` **95 PASS / 0 FAIL / 0 SKIP**(브라우저 게이트 포함). 미커밋 상태이며 커밋·배포는 사용자 지시 시에만.
 
 ## P1141 - v55.21 - 리베이스 해소를 규칙과 도구로 고정하고, QA 낭비를 실측했다 (2026-09-19)
 

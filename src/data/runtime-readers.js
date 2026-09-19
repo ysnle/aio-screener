@@ -480,6 +480,15 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
     const putCall = putCallObservation(root, snapshot);
     const quote = (symbol) => live[symbol] || {};
     const hySpread = hySpreadObservation(root, snapshot);
+    const spyRow = live.SPY || {};
+    const spyRaw = spyRow.pct;
+    const spyChg = spyRaw == null || typeof spyRaw === 'boolean' || (typeof spyRaw === 'string' && !spyRaw.trim()) ? null : finite(Number(spyRaw));
+    let tradingScoreTotal = null;
+    try {
+      const raw = root?.computeTradingScore?.()?.total;
+      tradingScoreTotal = raw == null || typeof raw === 'boolean' || (typeof raw === 'string' && !raw.trim()) ? null : Number(raw);
+      if (!Number.isFinite(tradingScoreTotal)) tradingScoreTotal = null;
+    } catch (_) { tradingScoreTotal = null; }
     return Object.freeze({
       fearGreed: fg.value,
       fearGreedSourceKind: fg.sourceKind,
@@ -503,6 +512,8 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
       hySpreadAllowedUse: hySpread.allowedUse,
       aaiiBear: finite(snapshot.aaiiBear), aaiiBull: finite(snapshot.aaiiBull),
       aaiiObservedAt: snapshot._fieldTs?.aaii || root?._serverDataMeta?.marketSurveys?.aaii?.observedAt || null,
+      spyChg,
+      tradingScoreTotal,
       vixHistory: Array.isArray(root?._vixHistory) ? root._vixHistory.slice(-30).map((point) => ({ date: point?.date || null, value: finite(point?.value) })) : [],
       now: isoNow()
     });
@@ -540,8 +551,14 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
 
   const readPortfolio = () => {
     try {
+      const locked = typeof root?.isPortfolioLocked === 'function' ? root.isPortfolioLocked() : false;
+      const hasVaultState = typeof root?.getPortfolioState === 'function' || root?._portfolioState != null;
+      const hasPositionsFn = typeof root?.getPortfolioData === 'function';
+      if (!hasVaultState && !hasPositionsFn) return { holdings: [], holdingsKnown: false, cash: null, cashKnown: false, readState: 'loading', privacy: 'opt-in', status: 'unavailable', updatedAt: null };
+      if (locked) return { holdings: [], holdingsKnown: false, cash: null, cashKnown: false, readState: 'locked', privacy: 'opt-in', status: 'locked', updatedAt: null };
       const state = typeof root?.getPortfolioState === 'function' ? clone(root.getPortfolioState()) : clone(root?._portfolioState) || {};
-      const positions = Array.isArray(state?.holdings) && state.holdings.length ? state.holdings : typeof root?.getPortfolioData === 'function' ? root.getPortfolioData() : [];
+      const storedHoldings = Array.isArray(state?.holdings) ? state.holdings : null;
+      const positions = storedHoldings != null ? storedHoldings : typeof root?.getPortfolioData === 'function' ? root.getPortfolioData() : [];
       const live = readLive();
       const holdings = Array.isArray(positions) ? positions.map((position) => {
         const symbol = String(position?.ticker || position?.symbol || position?.sym || '').toUpperCase();
@@ -550,8 +567,21 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
         const quote = quoteObservation(root, symbol, now());
         return { symbol, shares: Number.isFinite(shares) ? shares : null, avgCost: Number.isFinite(avgCost) ? avgCost : null, price: quote.value != null && quote.value > 0 ? quote.value : null, dailyPct: quote.pct, quoteObservedAt: quote.observedAt, fetchedAt: quote.fetchedAt, revisionId: quote.revisionId, changeBasis: quote.changeBasis, sourceKind: quote.sourceKind, sourceTier: quote.sourceTier, allowedUse: quote.allowedUse, allowedUseCeiling: quote.allowedUseCeiling, quality: quote.quality, rightsId: quote.rightsId, quoteEnvelopeComplete: quote.envelopeComplete, decisionEligible: quote.decisionEligible, blockedReasons: quote.decisionEligible ? [] : ['quote-envelope-not-decision-eligible'], sector: position?.sector || null, target: finite(Number(position?.target)), memo: position?.memo || '', addedAt: position?.addedAt || null, updatedAt: position?.updatedAt || null, source: quote.source || 'native-runtime-vault' };
       }).filter((item) => item.symbol) : [];
-      return { ...state, holdings, cash: state?.cash ?? null, totals: state?.totals ?? null, privacy: state?.privacy || 'opt-in', status: holdings.length ? 'current' : 'empty', updatedAt: latestIso([...holdings.map((row) => row.quoteObservedAt), state?.updatedAt]) || null };
-    } catch (_) { return { holdings: [], privacy: 'opt-in', status: 'unavailable', updatedAt: null }; }
+      let cash = null;
+      let cashKnown = false;
+      try {
+        const rawCash = root?.localStorage?.getItem?.('aio_portfolio_cash');
+        if (rawCash != null && String(rawCash).trim() !== '') {
+          const parsedCash = Number(rawCash);
+          if (Number.isFinite(parsedCash) && parsedCash >= 0) { cash = parsedCash; cashKnown = true; }
+        }
+      } catch (_) {}
+      if (state?.cash != null && String(state.cash).trim?.() !== '') {
+        const parsedStateCash = Number(state.cash);
+        if (Number.isFinite(parsedStateCash) && parsedStateCash >= 0) { cash = parsedStateCash; cashKnown = true; }
+      }
+      return { ...state, holdings, holdingsKnown: true, cash, cashKnown, readState: 'ready', totals: state?.totals ?? null, privacy: state?.privacy || 'opt-in', status: holdings.length ? 'current' : 'empty', updatedAt: latestIso([...holdings.map((row) => row.quoteObservedAt), state?.updatedAt]) || null };
+    } catch (_) { return { holdings: [], holdingsKnown: false, cash: null, cashKnown: false, readState: 'failed', privacy: 'opt-in', status: 'unavailable', updatedAt: null }; }
   };
 
   const readAnalysis = () => {

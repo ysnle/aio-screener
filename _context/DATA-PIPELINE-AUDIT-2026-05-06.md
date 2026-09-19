@@ -3,7 +3,16 @@ verified_by: codex
 last_verified: 2026-05-09
 confidence: high
 target_version: v49.1
+superseded: true
 ---
+
+> **[P1142, 2026-09-19] 이 문서의 계보·계층 표는 v49.x 시점 기록이며 현재 코드와 불일치한다.**
+> 검증된 현황: CPI/PCE/NFP/AAII/글로벌지수는 서버 자동화(BLS/BEA/FRED/Cboe)로 편입됐고, HY OAS는
+> 키 없는 서버 FRED artifact, BTC/ETH는 Yahoo Tier-0(CoinGecko는 교차검증), 시장폭(breadth)은
+> AIO 유니버스 서버 산출로 전환됐다. VKOSPI는 reconciliation BLOCKED(공식 권리 승인 전, 런타임은
+> 비공식 릴레이)다. 현재 감사 기준은 `_context/AUTOMATED-DATA-RELIABILITY-HANDOFF-2026-07-18.md`
+> 와 v55.21 재감사(P1142)를 따른다. "Runtime Audit API" 섹션(`AIO.getDataPipelineAudit()` 등)은
+> v55.21에서도 유효하다.
 
 # Data Pipeline Audit - 2026-05-06
 

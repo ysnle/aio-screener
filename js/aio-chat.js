@@ -2947,7 +2947,12 @@ function _fetchDomainContextForChat(ctxId) {
     var reg = (typeof window._aioRegimeNow === 'function') ? (function(){ try { return window._aioRegimeNow(); } catch(_){ return null; } })() : null;
     var tnx = liveNum('^TNX', 'price');                                  // 10Y (%)
     var twoY = num(pick('tnx2y', 'us2y', 'twoYear'));                    // 2Y 무료 라이브 없음 → 스냅샷
-    var spread = (tnx != null && twoY != null) ? (tnx - twoY) : null;    // 2s10s (% 단위)
+    // P1142: 공식 same-date 스프레드(FRED T10Y2Y 스냅샷)를 우선한다 — 라이브 ^TNX와 스냅샷 2Y의
+    // 혼합 재계산은 계층 12.4(3) 계약상 조용한 instrument 혼합이고, 실측에서 0.238 vs 공식 0.25 불일치를 냈다.
+    var officialSpread = num(pick('t10y2y'));
+    var spread = (officialSpread != null) ? officialSpread : ((tnx != null && twoY != null) ? (tnx - twoY) : null);
+    var spreadBasis = (spread != null) ? ((officialSpread != null) ? '공식 FRED 관측' : '혼합 기준 참고: 라이브 10Y−스냅샷 2Y') : null;
+    var spreadBp = (spread != null) ? ((spread >= 0 ? '+' : '') + (spread * 100).toFixed(0) + 'bp') : null;
     var spxPct = liveNum('^GSPC', 'pct');
     var br50 = num(pick('breadth50sma', 'breadth50'));
     var lines = [];
@@ -2957,10 +2962,12 @@ function _fetchDomainContextForChat(ctxId) {
       var cpi = num(pick('cpi','cpiYoy')), core = num(pick('coreCpi','coreCpiYoy')), pce = num(pick('pce','pceYoy')), cpce = num(pick('corePce','corePceYoy'));
       var infl = []; if (cpi != null) infl.push('CPI ' + cpi + '%'); if (core != null) infl.push('Core CPI ' + core + '%'); if (pce != null) infl.push('PCE ' + pce + '%'); if (cpce != null) infl.push('Core PCE ' + cpce + '%');
       if (infl.length) lines.push('• 인플레(FRED/스냅샷): ' + infl.join(' · '));
-      var fed = pick('fedRate','fed-rate'), nfp = pick('nfp'), unemp = num(pick('unemployment')), fomc = pick('fomc');
-      var pol = []; if (fed != null) pol.push('Fed 연방기금금리 월평균 ' + fed + (String(fed).indexOf('%') < 0 ? '%' : '')); if (nfp != null) pol.push('NFP ' + nfp); if (unemp != null) pol.push('실업률 ' + unemp + '%'); if (fomc) pol.push('다음 FOMC ' + fomc);
+      var fed = pick('fedRate','fed-rate'), nfp = pick('nfp'), unemp = num(pick('usUnemploy','unemployment')), fomc = pick('fomc');
+      // P1142: NFP 단위(천 명)를 문맥에 명시한다 — P735 10배 오류 클래스의 마지막 미방어 경로가
+      // 단위 없는 raw 숫자 주입이었다(게이트는 게시 분석과 typed claim만 방어).
+      var pol = []; if (fed != null) pol.push('Fed 연방기금금리 월평균 ' + fed + (String(fed).indexOf('%') < 0 ? '%' : '')); if (nfp != null) pol.push('NFP ' + nfp + 'K(천 명, 전월 대비 순증감)'); if (unemp != null) pol.push('실업률 ' + unemp + '%'); if (fomc) pol.push('다음 FOMC ' + fomc);
       if (pol.length) lines.push('• 정책/고용: ' + pol.join(' · '));
-      if (tnx != null || twoY != null) lines.push('• 금리: ' + (tnx != null ? '10Y ' + tnx.toFixed(2) + '%' : '') + (twoY != null ? ' · 2Y ' + twoY.toFixed(2) + '%' : '') + (spread != null ? ' · 2s10s ' + (spread >= 0 ? '+' : '') + (spread * 100).toFixed(0) + 'bp' + (spread < 0 ? ' (역전·침체 선행)' : ' (정상)') : ''));
+      if (tnx != null || twoY != null) lines.push('• 금리: ' + (tnx != null ? '10Y ' + tnx.toFixed(2) + '%' : '') + (twoY != null ? ' · 2Y ' + twoY.toFixed(2) + '%' : '') + (spreadBp != null ? ' · 2s10s ' + spreadBp + ' (' + spreadBasis + (spread < 0 ? ' · 역전·침체 선행' : '') + ')' : ''));
       try { if (window.AIO && typeof window.AIO.getCycleFromMacro === 'function') { var cyc = window.AIO.getCycleFromMacro({ vix: reg && reg.vix, breadth50: br50, yield2s10s: spread, spxTrend: (spxPct || 0) >= 0 ? 'up' : 'down' }); if (cyc && cyc.phase) lines.push('• 경기 사이클 국면(동적): ' + cyc.phase + (cyc.label ? ' — ' + cyc.label : '')); } } catch(_) {}
       if (lines.length) { lines.unshift('【매크로 도메인 혼합 데이터 (FRED 스냅샷 + 라이브 금리/레짐 + 동적 사이클) · ' + timeLabel + '】'); }
     } else if (ctxId === 'fxbond') {
@@ -2970,7 +2977,7 @@ function _fetchDomainContextForChat(ctxId) {
       // HYG 가격은 듀레이션(금리) 노출이 섞여 있어 AI가 신용 레벨로 오인용할 위험이 있음.
       var hyOasBpChat = Number(window._hySpreadBp);
       if (dxy != null) lines.push('• 달러(DXY): ' + dxy.toFixed(2) + (dxy >= 100 ? ' (강세권·EM 압박)' : ' (약세권·원자재/EM 우호)'));
-      if (tnx != null || twoY != null) lines.push('• 미 국채: ' + (tnx != null ? '10Y ' + tnx.toFixed(2) + '%' : '') + (twoY != null ? ' · 2Y ' + twoY.toFixed(2) + '%' : '') + (spread != null ? ' · 2s10s ' + (spread >= 0 ? '+' : '') + (spread * 100).toFixed(0) + 'bp' + (spread < 0 ? ' (역전)' : '') : ''));
+      if (tnx != null || twoY != null) lines.push('• 미 국채: ' + (tnx != null ? '10Y ' + tnx.toFixed(2) + '%' : '') + (twoY != null ? ' · 2Y ' + twoY.toFixed(2) + '%' : '') + (spreadBp != null ? ' · 2s10s ' + spreadBp + ' (' + spreadBasis + (spread < 0 ? ' · 역전' : '') + ')' : ''));
       if (isFinite(hyOasBpChat)) lines.push('• 크레딧(HY OAS): ' + Math.round(hyOasBpChat) + 'bp' + (hyg != null ? ' · HYG $' + hyg.toFixed(2) + '(참고 가격)' : ''));
       else if (hyg != null) lines.push('• 크레딧(HYG 가격, OAS 미수신): ' + hyg.toFixed(2) + ' — 절대 스프레드 수준 아님, 방향 참고만');
       var kr3 = num(pick('krBond3y','kr-bond-3y','krBond3Y')), kr10 = num(pick('krBond10y','kr-bond-10y','krBond10Y'));

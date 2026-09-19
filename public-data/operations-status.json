@@ -22,8 +22,8 @@
     "UNAVAILABLE",
     "UNKNOWN"
   ],
-  "generatedAt": "2026-09-19T11:55:18.128Z",
-  "appRevision": "v55.21",
+  "generatedAt": "2026-09-19T13:50:44.605Z",
+  "appRevision": "v55.22",
   "dataRevision": "market-snapshot:2026-09-19T06:39:46.292Z:e878ec21",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
   "overall": "BLOCKED",
@@ -49,9 +49,9 @@
         "quoteQualityComplete": true,
         "blockedQuotes": [],
         "generatedAt": "2026-09-19T11:54:54.403Z",
-        "ageHours": 0.01,
+        "ageHours": 1.93,
         "maxAgeHours": 12,
-        "evaluatedAt": "2026-09-19T11:55:18.128Z",
+        "evaluatedAt": "2026-09-19T13:50:44.605Z",
         "reason": null
       },
       "readiness": {
@@ -74,11 +74,11 @@
         "revision": "fast-quotes:f9f35f71",
         "sourceSha": "ac98ec1fa1a58781f9dccd7632af84c4a39428d8",
         "observedAt": "2026-09-19T11:55:18.128Z",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-09-19T11:55:18.128Z"
+        "evidenceEvaluatedAt": "2026-09-19T13:50:44.605Z"
       },
       "soak": {
         "requiredDays": 7,
@@ -97,7 +97,7 @@
       "status": "CURRENT",
       "statusCode": "CONFIGURED_HEALTHY",
       "source": "static-pages+service-worker",
-      "revision": "v55.21"
+      "revision": "v55.22"
     }
   },
   "ai": {
@@ -130,11 +130,11 @@
         "providerSmokeBoundary": "blocking-deployment-workflow-only",
         "ready": true,
         "note": "Periodic live health observed; provider smoke remains a blocking deployment-workflow gate.",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-09-19T11:55:18.128Z"
+        "evidenceEvaluatedAt": "2026-09-19T13:50:44.605Z"
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }
@@ -314,6 +314,7 @@
   "routes": {
     "supported": 20,
     "nativeOwner": [
+      "sentiment",
       "principles",
       "masters",
       "atlas",
@@ -397,6 +398,7 @@
       "ticker"
     ],
     "nativeNarrativeOwner": [
+      "sentiment",
       "theme-detail"
     ],
     "nativeLazyOwner": [

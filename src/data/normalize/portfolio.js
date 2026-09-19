@@ -49,7 +49,10 @@ export function normalizePortfolio(raw = {}) {
   }) : null;
   return Object.freeze({
     holdings: Object.freeze(holdings),
+    holdingsKnown: raw.holdingsKnown === true || Array.isArray(raw.holdings),
     cash: numeric(raw.cash),
+    cashKnown: raw.cashKnown === true || numeric(raw.cash) != null,
+    readState: ['loading', 'locked', 'ready', 'failed'].includes(raw.readState) ? raw.readState : (raw.status === 'locked' ? 'locked' : raw.status === 'loading' ? 'loading' : raw.status === 'failed' ? 'failed' : 'ready'),
     totals,
     privacy: raw.privacy || 'opt-in',
     status: raw.status || (holdings.length ? 'current' : 'empty'),

@@ -1,6 +1,7 @@
 import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { deriveSentimentSummary } from '../../domain/sentiment/metrics.js';
+import { deriveSentimentViewModel, putCallNeedlePosition } from '../../domain/sentiment/narrative.js';
 import { selectSentimentValues } from '../../state/selectors/sentiment.js';
 import { subscribeToSlice } from '../../state/memoize.js';
 import { renderSentimentSummaryProjection } from '../projections/sentiment-summary.js';
@@ -217,6 +218,12 @@ function renderSentiment(documentRef, state, evidenceStore, chartFactory, charts
   const summary = deriveSentimentSummary(sentiment);
   renderSentimentSummaryProjection(documentRef, summary);
   const getEvidence = (metric) => evidenceStore?.get?.(metric) || null;
+  const viewModel = deriveSentimentViewModel({
+    values: sentiment,
+    evidenceByMetric: { fearGreed: getEvidence('fearGreed'), vix: getEvidence('vix'), putCall: getEvidence('putCall') },
+    revision: state?.revision || null,
+    now: sentiment?.now || null
+  });
   const badge = documentRef?.getElementById('sent-overall-badge');
   const presentation = badgePresentation(summary);
   if (badge) {
@@ -263,18 +270,25 @@ function renderSentiment(documentRef, state, evidenceStore, chartFactory, charts
   setText(documentRef, 'aaii-date-label', aaiiBearEvidence?.observedAt ? `AAII 주간 · ${String(aaiiBearEvidence.observedAt).slice(0, 10)} · 현재 판정 제외` : 'AAII 주간 · 현재 공식 원천 미수신 · 판단 제외');
 
   const pcEvidence = getEvidence('putCall');
-  const pcScore = setText(documentRef, 'pc-score-big', formatNumber(sentiment.putCall, 2));
-  const pcPosition = setText(documentRef, 'pc-needle-pos', finite(sentiment.putCall) == null ? '판정 보류' : sentiment.putCall >= 1.2 ? '공포' : sentiment.putCall <= 0.7 ? '탐욕' : '중립');
+  const pcMetric = viewModel.metrics.find((row) => row.metricId === 'putCall');
+  const pcScore = setText(documentRef, 'pc-score-big', formatNumber(pcMetric?.value, 2));
+  const pcPosition = setText(documentRef, 'pc-needle-pos', putCallNeedlePosition(pcMetric?.value));
   const pcBadge = setText(documentRef, 'pc-live-badge', pcEvidence?.allowedUse === 'decision' ? '● 현재 관측' : '● 참고값 · 판정 제외');
   [pcScore, pcPosition, pcBadge].forEach((element) => annotate(element, pcEvidence));
 
-  // RM-01 (2026-07-19): sent-analysis-text is NOT written here — js/aio-data.js:16811/16819/16825
-  // defer an active legacy function (index.html `_generateSentimentAnalysis`, v38.4~v38.8) that
-  // reads fg-score-big/pc-score-big (which this module does write) and renders a materially
-  // richer capitulation/decoupling/sentiment-cluster analysis into sent-analysis-text. This was a
-  // genuine contested write this route's earlier "fully clean" verification (P736/P738/P739)
-  // missed; removing native's simpler placeholder here is the RM-01 default action (delete
-  // native, not legacy) applied consistently with every other contested id in this batch.
+  const analysis = documentRef?.getElementById('sent-analysis-text');
+  if (analysis) {
+    const lines = viewModel.narratives.map((row) => row.text).filter(Boolean);
+    const next = lines.length ? lines.join(' ') : '심리 지표 수신 대기...';
+    if (analysis.textContent !== next) analysis.textContent = next;
+    analysis.dataset.aioSentimentNarrativeRenderer = 'native';
+    analysis.dataset.aioSentimentRevision = viewModel.revision;
+    analysis.dataset.sourceKind = viewModel.narratives.every((row) => row.status === 'withheld') ? 'unavailable' : 'sentiment-view-model';
+    analysis.dataset.operationalUse = 'reference-only';
+  }
+
+  // W01-B: sent-analysis-text is owned here from one ViewModel revision.
+  // The legacy writer and its deferred timers were retired in the same change.
   renderCanvasStates(documentRef, sentiment, chartFactory, charts, bag);
 }
 

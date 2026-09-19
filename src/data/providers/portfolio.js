@@ -8,7 +8,9 @@ export function createPortfolioProvider({ read = () => ({}), repository = null }
       const stored = repository?.read?.(null) || {};
       const runtime = read() || {};
       const runtimeBySymbol = new Map((runtime.holdings || []).map((row) => [String(row?.symbol || '').toUpperCase(), row]));
-      const sourceHoldings = Array.isArray(stored.holdings) && stored.holdings.length ? stored.holdings : runtime.holdings || [];
+      // W02-A: explicit empty stored list is a read result, not missing.
+      const hasStoredHoldings = Array.isArray(stored.holdings);
+      const sourceHoldings = hasStoredHoldings ? stored.holdings : runtime.holdings || [];
       const holdings = sourceHoldings.map((row) => {
         const symbol = String(row?.symbol || row?.ticker || row?.sym || '').toUpperCase();
         const live = runtimeBySymbol.get(symbol) || {};
@@ -31,7 +33,10 @@ export function createPortfolioProvider({ read = () => ({}), repository = null }
       }).filter((row) => row.symbol);
       return Object.freeze({
         holdings,
+        holdingsKnown: hasStoredHoldings || Array.isArray(runtime.holdings),
         cash: stored.cash ?? runtime.cash,
+        cashKnown: stored.cashKnown === true || runtime.cashKnown === true || stored.cash != null || runtime.cash != null,
+        readState: stored.readState || runtime.readState || 'ready',
         totals: stored.totals ?? runtime.totals,
         privacy: stored.privacy || runtime.privacy,
         status: holdings.length ? 'current' : stored.status || runtime.status || 'empty',

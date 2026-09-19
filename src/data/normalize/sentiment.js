@@ -14,9 +14,17 @@ function finite(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
+function nullPreserving(value) {
+  if (value == null || typeof value === 'boolean' || (typeof value === 'string' && !value.trim())) return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
 export function normalizeSentiment(raw = {}) {
   const result = { ...raw };
   for (const field of SENTIMENT_FIELDS) result[field.metric] = finite(raw[field.metric]);
+  result.spyChg = nullPreserving(raw.spyChg);
+  result.tradingScoreTotal = nullPreserving(raw.tradingScoreTotal);
   result.vixHistory = Array.isArray(raw.vixHistory)
     ? raw.vixHistory.map((point) => ({ date: point?.date || null, value: finite(point?.value) })).filter((point) => point.value != null)
     : [];

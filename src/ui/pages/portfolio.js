@@ -16,14 +16,30 @@ import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bri
 function renderPortfolioStatus(documentRef, state, surface) {
   const element = documentRef?.getElementById('pf-analysis-status');
   if (!element) return;
-  const holdings = Array.isArray(state?.holdings) ? state.holdings : [];
-  const current = state?.status === 'current' && holdings.length > 0;
-  element.textContent = current
-    ? `포트폴리오 참고용 입력 수신 · ${holdings.length}개 포지션 · 현재 시세 증거 없이는 의사결정 승격 불가`
-    : state?.status === 'empty' ? '포트폴리오 등록 후 자동 계산됩니다.' : '포트폴리오 데이터 수신 대기';
-  element.setAttribute('data-source-kind', current ? 'portfolio-state' : 'unavailable');
-  element.setAttribute('data-source-label', current ? 'native-portfolio-slice' : 'portfolio-state-unavailable');
+  const readState = surface?.readState || state?.readState || 'unavailable';
+  const valuation = surface?.valuationState || 'unavailable';
+  if (readState === 'locked') {
+    element.textContent = '포트폴리오 잠김 — 잠금 해제 후 금액을 표시합니다.';
+  } else if (readState === 'loading') {
+    element.textContent = '포트폴리오 불러오는 중...';
+  } else if (readState === 'failed') {
+    element.textContent = '포트폴리오 읽기 실패 — 입력 유무를 단정하지 않습니다. 재시도해 주세요.';
+  } else if (valuation === 'cash-only') {
+    element.textContent = `현금 전용 계정 · 총자산과 현금 일치 · 주식 보유 없음 · 현재 시세 증거 없이는 의사결정 승격 불가`;
+  } else if (valuation === 'empty') {
+    element.textContent = '포트폴리오 등록 후 자동 계산됩니다.';
+  } else if (valuation === 'partial') {
+    element.textContent = `부분 평가 · ${surface?.valuedHoldingCount ?? 0}/${surface?.holdingCount ?? 0} 종목 확인 · 미확인분은 총자산에 합산하지 않습니다 · 현재 시세 증거 없이는 의사결정 승격 불가`;
+  } else if (valuation === 'complete') {
+    element.textContent = `포트폴리오 참고용 입력 수신 · ${surface?.holdingCount ?? 0}개 포지션 · 현재 시세 증거 없이는 의사결정 승격 불가`;
+  } else {
+    element.textContent = '포트폴리오 데이터 수신 대기';
+  }
+  element.setAttribute('data-source-kind', valuation === 'complete' || valuation === 'cash-only' ? 'portfolio-state' : 'unavailable');
+  element.setAttribute('data-source-label', valuation === 'complete' || valuation === 'cash-only' ? 'native-portfolio-slice' : 'portfolio-state-unavailable');
   element.setAttribute('data-operational-use', 'reference-only');
+  element.setAttribute('data-read-state', readState);
+  element.setAttribute('data-valuation-state', valuation);
   element.setAttribute('data-decision-eligible', surface?.decisionEligible === true ? 'true' : 'false');
   element.setAttribute('data-promotion-status', surface?.promotionBlocked === false ? 'eligible' : 'blocked');
   if (state?.updatedAt) element.setAttribute('data-observed-at', state.updatedAt);
@@ -44,8 +60,8 @@ function renderPortfolioHero(documentRef, surface) {
   const valueElement = documentRef?.getElementById('pf-total-value');
   const pnlElement = documentRef?.getElementById('pf-total-pnl');
   if (!valueElement && !pnlElement) return;
-  const totalValue = surface.totalAssets;
-  const totalPnl = surface.totalPnl;
+  const totalValue = surface.valuationState === 'cash-only' || surface.valuationState === 'complete' ? surface.totalAssets : null;
+  const totalPnl = surface.valuationState === 'complete' ? surface.totalPnl : null;
   if (valueElement) {
     valueElement.textContent = formatMoney(totalValue);
     valueElement.setAttribute('data-aio-portfolio-hero-renderer', 'native');
@@ -125,7 +141,8 @@ function renderPortfolioSurface(documentRef, page, surface) {
         const row = documentRef.createElement('div');
         row.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:5px;';
         const label = documentRef.createElement('span');
-        label.textContent = sectorLabel(sector.name);
+        label.textContent = `${sectorLabel(sector.name)} · 현금 포함 자산 비중`;
+        label.title = `분모: ${sector.basis || 'total-assets-including-cash'}`;
         label.style.cssText = 'width:56px;font-size:11px;color:var(--text-secondary);text-align:right;flex-shrink:0;font-weight:600;';
         const track = documentRef.createElement('div');
         track.style.cssText = 'flex:1;height:14px;background:var(--surface-3);border-radius:4px;overflow:hidden;';
@@ -235,7 +252,7 @@ function renderPortfolioTable(documentRef, page, state, surface) {
       targetCell.appendChild(upsideNode);
     }
     row.appendChild(targetCell);
-    row.appendChild(tableCell(documentRef, 'pf-th-weight', totalValue > 0 && value != null ? `${(value / totalValue * 100).toFixed(1)}%` : '—', 'text-align:center;padding:8px 6px;font-size:11px;font-weight:700;'));
+    row.appendChild(tableCell(documentRef, 'pf-th-weight', totalValue > 0 && value != null ? `${(value / totalValue * 100).toFixed(1)}% · 주식 내` : '—', 'text-align:center;padding:8px 6px;font-size:11px;font-weight:700;'));
     const manageCell = documentRef.createElement('td');
     manageCell.setAttribute('headers', 'pf-th-manage');
     manageCell.style.cssText = 'text-align:center;padding:8px 6px;white-space:nowrap;';

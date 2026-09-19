@@ -619,8 +619,10 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopAnalysisShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['home', 'signal', 'technical']), syncAnalysis.sync));
     const stopShown = legacy.on('aio:pageShown', (event) => {
       const detail = event?.detail;
+      // W00-B: the store route follows the committed router route.
       const route = typeof detail === 'string' ? detail : detail?.pageId || detail?.route;
-      if (route) store.dispatch({ type: 'route/changed', payload: route });
+      const committed = router.active() || route;
+      if (committed) store.dispatch({ type: 'route/changed', payload: committed });
     });
     const stopTimelineStore = store.subscribe(() => emitDataTimelineUpdated('store-updated'));
     const refreshStaleActivePage = () => {
@@ -638,13 +640,16 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       if (documentRef?.visibilityState !== 'hidden') refreshStaleActivePage();
     };
     documentRef?.addEventListener?.('visibilitychange', onVisibilityTimelineCheck);
-    // MP-02/KG-07: a direct hash entry can fire the legacy pageShown event
-    // before this ESM listener is attached. Replay the canonical initial route
-    // once so deep links mount the same native surface as sidebar navigation.
+    // W00-B: the initial route commits through the same typed boundary.
+    // router.start() first so pageShown observes the commit.
     const initialRoute = resolveInitialRoute({ root });
-    if (!router.active()) router.transition(initialRoute, { source: 'initial-load', directEntry: true });
-    if (root?._serverDataMeta) queueMicrotask(syncServerArtifactConsumers);
     router.start();
+    if (!router.active()) {
+      router.transition(initialRoute, { source: 'initial-load', directEntry: true });
+      const committedInitial = router.active() || initialRoute;
+      if (store.getState()?.route == null) store.dispatch({ type: 'route/changed', payload: committedInitial });
+    }
+    if (root?._serverDataMeta) queueMicrotask(syncServerArtifactConsumers);
     let navigation = legacy.installNavigation(router);
     const retryNavigation = () => {
       if (!disposed && !navigation.installed) navigation = legacy.installNavigation(router);

@@ -38,10 +38,12 @@
  *          자동화 남용을 거르는 최소 방어선일 뿐, 소스를 직접 읽는 공격자는 우회 가능(WO-1B 한계).
  *        - (선택, WO-1B) 변수 ANTHROPIC_KILL_SWITCH = '1' — 값을 실제 API 키를 지우지 않고도
  *          /anthropic 라우트 전체를 즉시 차단하고 싶을 때(예: 남용 급증 대응) 사용.
- *   2) (v52.47부터 필수 — WO-1B fail-closed) 일일 캡 강제용 KV Namespace 생성 → Worker에
- *        바인딩 이름 AIO_QUOTA 로 추가. **KV 미바인딩이면 서버 키 모드 자체가 503으로 비활성화된다**
- *        (v52.46 이전엔 캡 없이 그냥 통과하는 fail-open이었음 — 무제한 비용 노출 방지를 위해 정책
- *        변경). 개인 Claude 키 입력 경로는 KV와 무관하게 항상 정상 동작.
+ *   2) (v52.47부터 필수, 현재는 DO 기반) 일일 캡 강제용 Durable Object 바인딩 AIO_QUOTA_DO
+ *        (AIOQuotaDurableObject, SQLite-backed)를 Worker에 추가. **DO 미바인딩이면 서버 키 모드
+ *        자체가 503으로 비활성화된다**(v52.46 이전엔 캡 없이 통과하는 fail-open이었음 — 무제한 비용
+ *        노출 방지를 위해 정책 변경). 구버전 KV Namespace 바인딩(AIO_QUOTA)은 더 이상 지원하지 않는다
+ *        — legacy KV는 fail-closed로 거부된다(architecture/worker-endpoints.json 참조).
+ *        개인 Claude 키 입력 경로는 DO와 무관하게 항상 정상 동작.
  *   3) 사이트에서: 사이드바 "CF Worker URL" 입력 + localStorage 'aio_claude_server_mode'='1'
  *        (개인 키를 입력하면 개인 키가 우선 — 서버 키는 개인 키 없을 때/서버모드 토글 시 사용)
  * 비용 보호: 모델 haiku/sonnet만 허용(opus 차단), max_tokens 상한, 일일 호출 캡.

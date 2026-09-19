@@ -440,13 +440,10 @@ export function createLegacyFacade(root = globalThis, eventTarget = root?.docume
     originalShowPage = candidate;
     const facade = function architectureShowPage(pageId, ...args) {
       const result = originalShowPage.apply(this, [pageId, ...args]);
-      // P826: showPage('theme-detail') canonicalizes the derived panel to the
-      // themes page before emitting aio:pageShown.  Replaying the raw route
-      // here would immediately dispose the themes mount and leave the inline
-      // native detail panel hidden. Keep the compatibility transition on the
-      // same canonical route as the legacy navigation call.
+      // W00-A: the typed command owns identity — DOM args never become entity ids.
       const canonicalRoute = root?.AIO_ROUTE_REGISTRY?.canonical?.[pageId] || pageId;
-      router?.transition?.(canonicalRoute, { source: 'architecture-navigation', args });
+      const explicitEntity = args.find((arg) => typeof arg === 'string' && arg.trim() && !/^[<>]/.test(arg.trim())) || null;
+      router?.transition?.(canonicalRoute, { source: 'architecture-navigation', entityId: explicitEntity });
       return result;
     };
     Object.defineProperty(facade, '__aioArchitectureNavigation', { value: true, enumerable: false });

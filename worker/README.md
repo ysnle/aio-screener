@@ -17,8 +17,11 @@ deployment is intentionally KV-only; R2 is not required or configured.
 Required operator setup:
 
 1. Create a dedicated KV namespace for this Worker, for example
-   `aio-quotes-prod`. Do not reuse the existing `aio-quota-prod` namespace:
-   the `aio-proxy` Worker uses it for `AIO_QUOTA` counters.
+   `aio-quotes-prod`. Do not reuse the old `aio-quota-prod` namespace:
+   the `aio-proxy` Worker no longer reads a KV `AIO_QUOTA` binding — its daily
+   quota counters run on the `AIO_QUOTA_DO` Durable Object
+   (`AIOQuotaDurableObject`, SQLite-backed; legacy KV is unsupported and
+   fail-closed, per `architecture/worker-endpoints.json`).
 2. Configure repository secrets `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`,
    and `AIO_QUOTES_KV_ID`.
 3. Configure Worker secret `AIO_CRON_SECRET`; verify provider terms/rights and

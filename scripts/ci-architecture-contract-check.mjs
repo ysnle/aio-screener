@@ -399,9 +399,12 @@ for (const marker of ['renderPortfolioTable', 'pf-positions-tbody', 'aioPortfoli
 }
 // P1136/R620: the legacy portfolio table and its change event moved with block A to js/aio-workspace.js.
 if (!workspaceSource.includes('_nativePortfolioTable') || !workspaceSource.includes('aio:portfolioChanged') || !read('src/legacy/compatibility-facade.js').includes('getPortfolioData')) fail('legacy portfolio table/Vault boundary missing');
-// P831: portfolio.js owns the deterministic summary/cash/exposure/sector projection. The
-// legacy summary and sector writers remain compatibility paths but must consult the native
-// surface marker before touching those ids.
+// W02/P1143: portfolio hero/status read one valuation — locked/failed never show
+// $0, cash-only shows total=cash, partial withholds totals with n/m state.
+for (const marker of ['valuationState', 'cash-only', 'data-valuation-state']) {
+  if (!portfolioPageSource.includes(marker)) fail(`W02/P1143 native portfolio valuation marker missing: ${marker}`);
+}
+if (!read('src/domain/portfolio/surface.js').includes('PORTFOLIO_VALUATION_STATES')) fail('W02/P1143 portfolio valuation states missing');
 for (const marker of ['derivePortfolioSurface', 'renderPortfolioSurface', 'pf-holding-count', 'pf-sector-breakdown', 'aioPortfolioSurfaceRenderer']) {
   if (!portfolioPageSource.includes(marker)) fail(`native portfolio surface marker missing: ${marker}`);
 }

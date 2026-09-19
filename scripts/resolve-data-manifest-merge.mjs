@@ -7,10 +7,15 @@
 // ~40 minutes doing it commit by commit. The conflict is not semantic — the two sides own
 // DIFFERENT FIELDS of the same generated documents:
 //
-//   code side (this branch)  : appRevision, workerRevision
+//   code side (this branch)  : appRevision, workerRevision (+ manifest-only static fields)
 //   data side (bot, upstream): dataRevision, generatedAt, data-cycle ids, everything else
 //
 // So the correct merge is a field-level union, not a pick-a-side. That rule is encoded here once.
+// Ownership is per-file: the two architecture manifests carry code-only static fields (evidenceRevision,
+// schemaVersion, status, rollback.*, ...) that no automated writer touches — they are pinned by
+// ci-architecture-contract-check.mjs and change only through code commits. The same key names can be
+// bot-owned in other files (e.g. "status" in public-data/market-snapshot.json), so those extensions
+// must never leak into the generic table.
 // Note the rebase polarity: during `git rebase`, `--ours` is the UPSTREAM (the bot) and `--theirs`
 // is the commit being replayed (this branch). This script reads the conflict markers directly, so
 // it does not depend on which side git happens to call which.
@@ -26,6 +31,12 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 
 const CODE_KEYS = new Set(['appRevision', 'workerRevision']);
+const DATA_KEYS = ['dataRevision', 'generatedAt', 'dataGeneratedAt', 'dataCycleId', 'dataCycleManifestRevision', 'revision'];
+// Fields only ever changed by code commits in the two architecture manifests. Classified deliberately
+// (R626(4)) after verifying writers: sync-data-release-manifests.mjs writes only DATA_KEYS, and
+// bump-version.mjs touches only appRevision/workerRevision here.
+const MANIFEST_CODE_KEYS = new Set(['evidenceRevision', 'schemaVersion', 'publicSource', 'assetManifest', 'serviceWorker', 'immutableRuntime', 'status', 'rollback', 'strategy', 'appDataIndependent', 'workerCacheIndependent', 'lastKnownGood']);
+const MANIFEST_PATHS = new Set(['asset-manifest.json', 'release-manifest.json']);
 const START = /^<{7} /;
 const MID = /^={7}$/;
 const END = /^>{7} /;
@@ -38,6 +49,8 @@ if (!paths.length) {
 
 let totalBlocks = 0;
 for (const path of paths) {
+  const isManifest = MANIFEST_PATHS.has(path.replace(/\\/g, '/').split('/').pop());
+  const codeKeys = isManifest ? new Set([...CODE_KEYS, ...MANIFEST_CODE_KEYS]) : CODE_KEYS;
   const text = readFileSync(path, 'utf8');
   const eol = text.includes('\r\n') ? '\r\n' : '\n';
   const lines = text.split(/\r?\n/);
@@ -55,7 +68,7 @@ for (const path of paths) {
     const value = (list, key) => list.find((line) => line.trim().startsWith(`"${key}"`)) || null;
     const keys = new Set([...ours, ...theirs].map((line) => (/^\s*"([A-Za-z][\w-]*)"/.exec(line) || [])[1]).filter(Boolean));
     for (const key of keys) {
-      if (CODE_KEYS.has(key) || ['dataRevision', 'generatedAt', 'dataGeneratedAt', 'dataCycleId', 'dataCycleManifestRevision', 'revision'].includes(key)) continue;
+      if (codeKeys.has(key) || DATA_KEYS.includes(key)) continue;
       console.error(`${path}: unclassified field "${key}" in a conflict block — decide which side owns it before merging`);
       process.exit(3);
     }
@@ -66,7 +79,7 @@ for (const path of paths) {
       const key = (/^\s*"([A-Za-z][\w-]*)"/.exec(line) || [])[1];
       if (!key) { out.push(line); continue; }
       seen.add(key);
-      const chosen = CODE_KEYS.has(key) ? value(theirs, key) : line;
+      const chosen = codeKeys.has(key) ? value(theirs, key) : line;
       out.push(chosen === null ? line : chosen);
     }
     for (const line of theirs) {

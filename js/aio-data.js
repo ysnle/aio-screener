@@ -3146,7 +3146,12 @@ function applyFredToUI(data) {
         _setLiveSnap('nfp', Math.round(data['PAYEMS'].value - data['PAYEMS'].prevValue));
       }
       if (data['FEDFUNDS'] && typeof data['FEDFUNDS'].value === 'number') _setLiveSnap('fedRate', +data['FEDFUNDS'].value.toFixed(2));
-      if (data['UNRATE'] && typeof data['UNRATE'].value === 'number') _setLiveSnap('unemploy', +data['UNRATE'].value.toFixed(1));
+      if (data['UNRATE'] && typeof data['UNRATE'].value === 'number') {
+        // P1142: 선언 키 usUnemploy에도 기록(기존 'unemploy'는 data-snap DOM 계약 유지).
+        var _unrate = +data['UNRATE'].value.toFixed(1);
+        _setLiveSnap('unemploy', _unrate);
+        _setLiveSnap('usUnemploy', _unrate);
+      }
     }
   } catch(_fredWb) { if (window._aioLog) window._aioLog('warn', 'render', 'FRED→DATA_SNAPSHOT write-back: ' + (_fredWb && _fredWb.message)); }
   if (data['UNRATE']) {
@@ -5538,6 +5543,10 @@ async function _aioLoadServerData() {
           && String(_blsCanonicalCpi.seasonalAdjustment || '').toUpperCase() !== 'NSA';
         if (!_canonicalCpiDefinitionBlocked && typeof d.macro[k] === 'number' && isFinite(d.macro[k])) {
           window.DATA_SNAPSHOT[k] = d.macro[k];
+          // P1142: 선언된 스냅샷 필드는 `usUnemploy`(aio-core DATA_SNAPSHOT 키)지만 서버 매크로 키는
+          // `unemployment`라 미러가 없었고, 선언 키를 읽는 가용성 소비자(aio-ui 매크로 컨텍스트)는
+          // 데이터가 있어도 null을 봤다 — 감사에서 발견된 키 3중 drift 통합.
+          if (k === 'unemployment') window.DATA_SNAPSHOT.usUnemploy = d.macro[k];
           var _macroSource = d.macro['_' + 'source_' + k]
             || ((k === 'pce' || k === 'corePce') && d.macro._bea && d.macro._bea.status === 'ok' ? 'bea-official-primary' : null)
             || (d.meta.fredFetchOk ? 'fred-official-primary' : 'last-known-good');
@@ -15637,13 +15646,17 @@ function refreshHomeDashboard() {
   // Market Regime
   const regimeEl = document.getElementById('home-market-regime');
   const regimeExplEl = document.getElementById('home-regime-explanation');
+  var riskBadgeEl = document.getElementById('home-risk-regime-badge');
+  const setHomeRegime = (text, color, expl, badge, badgeClass) => {
+    if (regimeEl) { regimeEl.textContent = text; regimeEl.style.color = color; }
+    if (regimeExplEl) regimeExplEl.textContent = expl;
+    if (riskBadgeEl) { riskBadgeEl.textContent = badge; riskBadgeEl.className = badgeClass; }
+  };
   if (regimeEl) {
     const SPX_ATH = _aioSpxAthFloor();  // v50.24/WO-2: 단일 출처 헬퍼 (L12303과 동일 floor — 레짐 오표시 방지)
     const spxPrice = Number(spx.price || (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.spx));
     if (!Number.isFinite(SPX_ATH) || !Number.isFinite(spxPrice) || SPX_ATH <= 0 || spxPrice <= 0) {
-      regimeEl.textContent = '판정 보류';
-      regimeEl.style.color = 'var(--text-muted)';
-      if (regimeExplEl) regimeExplEl.textContent = 'S&P 500 현재값 또는 관측 ATH 미수신';
+      setHomeRegime('판정 보류', 'var(--text-muted)', 'S&P 500 현재값 또는 관측 ATH 미수신', '판정 보류', 'status-pill sp-neutral');
       return;
     }
     const pctFromATH = ((spxPrice - SPX_ATH) / SPX_ATH * 100);
@@ -15674,13 +15687,12 @@ function refreshHomeDashboard() {
     // v51.07: G×L 성장×유동성 판단 프레임
     try { if (typeof window._aioRenderGxLFrame === 'function') window._aioRenderGxLFrame(); } catch(_) {}
 
-    // v34.5: 홈 상단 리스크 뱃지 동적 업데이트
-    var riskBadge = document.getElementById('home-risk-regime-badge');
-    if (riskBadge) {
-      if (regime === 'DOWNTREND') { riskBadge.textContent = ' 하락추세'; riskBadge.className = 'status-pill sp-risk-off'; }
-      else if (regime === 'CORRECTION') { riskBadge.textContent = ' 조정 국면'; riskBadge.className = 'status-pill sp-risk-off'; }
-      else if (regime === 'PULLBACK') { riskBadge.textContent = ' 눌림 구간'; riskBadge.className = 'status-pill sp-neutral'; }
-      else { riskBadge.textContent = ' 상승 추세'; riskBadge.className = 'status-pill sp-risk-on'; }
+    // 홈 상단 리스크 뱃지 동적 업데이트 — ATH 거리 참고 관측이며 추세 모델이 아니다.
+    if (riskBadgeEl) {
+      if (regime === 'DOWNTREND') { riskBadgeEl.textContent = '고점 대비 -20% 이상 · 참고 관측'; riskBadgeEl.className = 'status-pill sp-risk-off'; }
+      else if (regime === 'CORRECTION') { riskBadgeEl.textContent = '고점 대비 -10% 이상 · 참고 관측'; riskBadgeEl.className = 'status-pill sp-risk-off'; }
+      else if (regime === 'PULLBACK') { riskBadgeEl.textContent = '고점 대비 -5% 이상 · 참고 관측'; riskBadgeEl.className = 'status-pill sp-neutral'; }
+      else { riskBadgeEl.textContent = '고점 대비 ' + (pctFromATH >= -0.5 ? '근접' : pctFromATH.toFixed(1) + '%') + ' · 참고 관측'; riskBadgeEl.className = 'status-pill sp-neutral'; }
     }
   }
 
@@ -15880,22 +15892,21 @@ async function fetchFearGreed() {
     _applyFearGreedScore({ score: score, sourceKind: 'live', sourceLabel: 'cnn-fear-greed-api', sourceTs: fg.timestamp || data.timestamp || new Date().toISOString(), operationalUse: 'reference-only' });
     return true;
   } catch(e) {
-    // Try CORS proxy
+    // Try CORS proxy — P1142: 정의 없는 CORS_PROXY 참조(ReferenceError)로 이 폴백은 한 번도
+    // 실행된 적 없는 죽은 경로였다. 레지스트리 fetchViaProxy로 부활하고, 응답에서 fear_and_greed를
+    // 못 읽으면 가짜 성공(true) 대신 실패로 처리해 아래 snapshot 폴백이 규칙대로 작동하게 한다.
     try {
-      const proxy = CORS_PROXY + encodeURIComponent(url);
-      const r2    = await fetchWithTimeout(proxy, {}, 9000);
-      const w     = await r2.json();
-      var _fgRaw; try { _fgRaw = JSON.parse(w.contents || '{}'); } catch(pe) { _fgRaw = {}; }
+      const r2 = await fetchViaProxy(url, 9000);
+      if (!r2 || !r2.ok) throw new Error('proxy status ' + (r2 && r2.status));
+      const w2 = await r2.json();
+      var _fgRaw = (w2 && typeof w2.contents === 'string') ? (function(){ try { return JSON.parse(w2.contents); } catch(pe) { return {}; } })() : (w2 || {});
       const data2 = _fgRaw;
       const fg2   = data2.fear_and_greed;
-      if (fg2) {
-        const score2 = Math.round(fg2.score);
-        _aioRenderLiveFearGreedDelta(score2, fg2.previous_close);
-        // v49.64 P334: helper 통합 (proxy 경로)
-        _applyFearGreedScore({ score: score2, sourceKind: 'proxy', sourceLabel: 'cnn-fear-greed-proxy', sourceTs: fg2.timestamp || data2.timestamp || new Date().toISOString(), operationalUse: 'reference-only' });
-      }
-      // v37.8: 심리 복합 분석 갱신
-      if (typeof _generateSentimentAnalysis === 'function') setTimeout(_generateSentimentAnalysis, 200);
+      if (!fg2 || fg2.score == null) throw new Error('no fear_and_greed in proxy response');
+      const score2 = Math.round(fg2.score);
+      _aioRenderLiveFearGreedDelta(score2, fg2.previous_close);
+      // v49.64 P334: helper 통합 (proxy 경로)
+      _applyFearGreedScore({ score: score2, sourceKind: 'proxy', sourceLabel: 'cnn-fear-greed-proxy', sourceTs: fg2.timestamp || data2.timestamp || new Date().toISOString(), operationalUse: 'reference-only' });
       return true;
     } catch(e2) {
       // 서버 스냅샷이 이미 적용된 뒤 브라우저 직결/proxy가 실패해도 더 오래된 정적 seed로
@@ -15903,13 +15914,11 @@ async function fetchFearGreed() {
       var _fgExistingMeta = window._lastFGMeta || {};
       var _fgExistingKind = String(_fgExistingMeta.sourceKind || '').toLowerCase();
       if (/^(live|proxy|delayed)$/.test(_fgExistingKind) && window._lastFG != null && isFinite(Number(window._lastFG))) {
-        if (typeof _generateSentimentAnalysis === 'function') setTimeout(_generateSentimentAnalysis, 200);
         return false;
       }
       // 외부 관측값이 전혀 없을 때만 정적 snapshot을 참고값으로 표시한다.
       var _snapFg = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.fg != null) ? DATA_SNAPSHOT.fg : ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.fg : null);
       _applyFearGreedScore({ score: _snapFg, sourceKind: 'snapshot', sourceLabel: 'DATA_SNAPSHOT:fear-greed', sourceTs: (typeof DATA_SNAPSHOT !== 'undefined' && (DATA_SNAPSHOT._updated || DATA_SNAPSHOT._snapshotDate)) || null, operationalUse: 'reference-only' });
-      if (typeof _generateSentimentAnalysis === 'function') setTimeout(_generateSentimentAnalysis, 200);
       return false;
     }
   }
@@ -16062,8 +16071,10 @@ async function fetchPutCall() {
   }
   const cboeUrl = 'https://cdn.cboe.com/api/global/us_options_volume/options_volume.json';
   try {
-    const proxy = CORS_PROXY + encodeURIComponent(cboeUrl);
-    const resp = await fetchWithTimeout(proxy, {}, 8000);
+    // P1142: 정의 없는 CORS_PROXY 참조(ReferenceError → catch 흡수)로 서버 스냅샷이 없을 때의
+    // 브라우저 CBOE 라이브 수집이 매 주기 조용히 실패했다. 레지스트리 fetchViaProxy로 부활.
+    const resp = await fetchViaProxy(cboeUrl, 8000);
+    if (!resp || !resp.ok) throw new Error('CBOE proxy status ' + (resp && resp.status));
     const w = await resp.json();
     var raw;
     try { raw = typeof w.contents === 'string' ? JSON.parse(w.contents || '{}') : w; } catch(pe) { raw = {}; }
