@@ -86,12 +86,16 @@ root._liveData={AAA:{price:100}}; root._quoteTimestamps={AAA:Date.now()};
 assert.equal(root._aioChatFreshnessInfo().ldAgeMin,null);
 const shell=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const ui=readFileSync(new URL('../js/aio-ui.js',import.meta.url),'utf8');
-assert(shell.includes('preparation: _uniPreparedResearch, externalResult: _uniWebResult'));
-assert(shell.includes("typeof _uniPreparedResearch !== 'object'"));
-const unifiedChat=shell.slice(shell.indexOf('async function chatSendUnified('),shell.indexOf('function aiChipClick('));
+// P1131/R619: the unified chat surface (inline block G) moved from index.html into js/aio-chat.js, so
+// the assertions that read it now read the chat module. showConfirmModal/_confirmCancelCallback below
+// still live in index.html and keep using `shell`.
+const chatShell=readFileSync(new URL('../js/aio-chat.js',import.meta.url),'utf8');
+assert(chatShell.includes('preparation: _uniPreparedResearch, externalResult: _uniWebResult'));
+assert(chatShell.includes("typeof _uniPreparedResearch !== 'object'"));
+const unifiedChat=chatShell.slice(chatShell.indexOf('async function chatSendUnified('),chatShell.indexOf('function aiChipClick('));
 assert(unifiedChat.includes('window._aioBeginChatRequest') && unifiedChat.includes("entrypoint: 'unified-chat'"));
 assert(unifiedChat.includes('_uniSignal') && unifiedChat.includes('if (!_isCurrentUnifiedRun()) return;'));
-assert(unifiedChat.includes('signal: _uniSignal') && shell.includes("_aioCancelChatRequest(_aiCurrentCtx, 'context-changed')"));
+assert(unifiedChat.includes('signal: _uniSignal') && chatShell.includes("_aioCancelChatRequest(_aiCurrentCtx, 'context-changed')"));
 assert(unifiedChat.includes('_uniRun.quotaPending = true') && source.includes("closeConfirmModal('chat-cancelled')"));
 assert(shell.includes('function showConfirmModal(title, msg, onConfirm, icon, onCancel)'));
 assert(shell.includes('_confirmCancelCallback') && shell.includes("closeConfirmModal('escape')"));

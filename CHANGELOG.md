@@ -1,3 +1,11 @@
+## v55.12 (2026-09-19)
+- **2단계 본편 1편 — 인라인 블록 G(1,006줄)를 js/aio-chat.js로 이관했다 (R619/R620/P1131).** index.html **28,397 → 27,391**, aio-chat.js 8,161 → 9,176.
+- **왜 블록 G부터인가** — 문서상 **마지막 클래식 블록**이라 뒤에 오는 인라인 블록이 없어 파싱 순서 의존 위험이 가장 낮습니다. 옮긴 9개 최상위 심볼은 전역 함수 선언으로 남으므로 index.html의 `data-action` 위임과 core의 호출부가 그대로 동작합니다(호출은 모두 DOMContentLoaded 이후).
+- **비용 추정이 7.5배 틀렸고, 그게 이 작업의 핵심 교훈입니다.** P1130의 정적 grep은 `ci-runtime-contract-check`의 참조를 2곳으로 셌지만 실제는 **11곳**, 4개 게이트 합계 **15곳**이었습니다. 이유는 (1) 단언이 심볼명이 아니라 **인접한 임의 텍스트**(`extractChips(visible)`, `query: q`, `'home': 'home'`, `p.setAttribute('inert', '')`)를 검사하고, (2) 한 줄 `check()`가 **여러 파일을 섞어** 검사해 일부만 재지정해야 하기 때문입니다(15곳 중 5곳). → **사전 추정 대신 "이동 → 게이트 실행 → 실패한 단언의 소유자만 재지정"** 경험적 루프를 씁니다.
+- **제 가정을 게이트가 두 번 반박했습니다.** (a) 칩 마크업이 셸에 있다고 봤지만 `_aiDefaultChips`가 **생성**하고 있었고, (b) `updateAIPanelContext`는 **정의만** 옮겨졌고 호출부는 index.html 블록 A에 남아 있었습니다. 둘 다 정의/호출을 각자의 실제 위치에서 단언하도록 고쳤습니다.
+- 검증: headless **1,133/1,133 PASS(110/110 그룹)**. 실브라우저 **3개 PASS** — `ci-architecture-browser-check`(20 라우트, `browserErrors:0`, `routeRoundTrip:true`, 캔버스/타이머 누수 없음), `ci-chat-response-layout-browser-check`, `ci-chat-ui-state-browser-check`. `ci-runtime-contract-check`(15곳 재지정 후), `ci-chat-resilience-check`, `ci-ai-chat-analysis-integration-check`, `ci-architecture-contract-check`, `ci-structural-check`(R280 중복 전역 0), decomp(27,391 / 9,176 — 증가는 `--allow-growth`로 기록), version, workspace, syntax PASS.
+- 남은 것: 블록 A~D·F(14,122줄 — QA-EXHAUST-89에 권장 순서와 정정된 비용 구조 기록), 3단계(QA-EXHAUST-90), QA-EXHAUST-85·88. **push·배포하지 않았습니다.**
+
 ## v55.11 (2026-09-19)
 - **2단계 파일럿 — 인라인 블록 E를 새 파일 없이 기존 등록 파일로 이관했다 (R619/R620/P1130).** index.html −178, `js/aio-ui.js` +184.
 - **왜 새 파일을 만들지 않았는가** — 새 `js/aio-*.js`는 **여섯 곳**을 함께 고쳐야 합니다: `asset-manifest.immutableRuntime`, `public-artifact-manifest` allowlist, `sw.js CRITICAL_SHELL_ASSETS`, `pages-deploy.yml` cp 목록, 그리고 `ci-structural-check`·`ci-live-invariant`의 하드코딩된 `RUNTIME_SCRIPT_FILES` **2곳**. 마지막 둘을 빠뜨리면 R280 중복 전역 검사가 그 파일에 대해 **눈이 먼다** — P605가 정확히 그 사각에서 수십 버전 동안 미탐지됐습니다. 즉 "왜 인라인인가"의 답은 성능이 아니라 **등록면 회피**였고, 새 파일 추출은 이 저장소에서 가장 취약한 지점을 늘리는 방향입니다. 이미 등록된 `js/aio-ui.js`에 접어넣으면 등록 비용이 **0**입니다.

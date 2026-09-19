@@ -300,8 +300,10 @@ const core = read('js/aio-core.js');
 const bootstrap = read('src/app/bootstrap.js');
 check('single-orchestrator-export', /getAIOrchestrator/.test(bootstrap) && /createAIAnswerOrchestrator/.test(bootstrap));
 check('knowledge-retrieval-is-lazy-and-exposed-by-existing-orchestrator-boundary', /createAIKnowledgeRetriever/.test(bootstrap) && /knowledgeRetriever: aiKnowledgeRetriever/.test(bootstrap) && /buildAIKnowledgeContext/.test(read('src/ai/orchestrator/answer-orchestrator.js')));
-check('both-chat-surfaces-consume-market-principles-and-ai-era-knowledge', /knowledgeOrchestrator\.buildAIKnowledgeContext\(q/.test(chat) && /knowledgeContextStr/.test(chat) && /_uniKnowledgeOrchestrator\.buildAIKnowledgeContext\(q/.test(read('index.html')) && /_uniKnowledgeAudit/.test(read('index.html')));
-check('knowledge-pages-have-chat-contexts-and-unified-panel-mapping', /principles:_aioCreateEvidenceContext/.test(chat) && /atlas:_aioCreateEvidenceContext/.test(chat) && /'principles':'principles','atlas':'atlas'/.test(read('index.html')));
+// P1131/R619: the unified chat surface moved from index.html's inline block G into js/aio-chat.js,
+// so every `_uni*` assertion in this file now reads the chat module.
+check('both-chat-surfaces-consume-market-principles-and-ai-era-knowledge', /knowledgeOrchestrator\.buildAIKnowledgeContext\(q/.test(chat) && /knowledgeContextStr/.test(chat) && /_uniKnowledgeOrchestrator\.buildAIKnowledgeContext\(q/.test(chat) && /_uniKnowledgeAudit/.test(chat));
+check('knowledge-pages-have-chat-contexts-and-unified-panel-mapping', /principles:_aioCreateEvidenceContext/.test(chat) && /atlas:_aioCreateEvidenceContext/.test(chat) && /'principles':'principles','atlas':'atlas'/.test(chat));
 const publishedKnowledgeIndex = JSON.parse(read('public-data/knowledge/ai-retrieval-index.json'));
 const knowledgeSourceLessons = new Map([
   ...JSON.parse(read('public-data/principles/lesson-library.json')).lessons.map((lesson) => [`principles:${lesson.id}`, lesson]),
@@ -336,31 +338,36 @@ check('knowledge-concept-links-match-explicit-source-not-word-overlap', publishe
 }));
 check('knowledge-concept-coverage-reports-unmapped-truthfully', publishedKnowledgeIndex.counts.withConcepts === publishedKnowledgeIndex.articles.filter((article) => article.conceptIds.length).length && publishedKnowledgeIndex.counts.unmappedConcepts === publishedKnowledgeIndex.articles.filter((article) => !article.conceptIds.length).length);
 check('knowledge-loader-never-fetches-article-monolith', read('src/ai/retrieval/knowledge.js').includes('ai-retrieval-index.json') && !read('src/ai/retrieval/knowledge.js').includes("indexUrl = './public-data/knowledge/articles.json'"));
-check('knowledge-reference-is-wrapped-as-untrusted-data', /buildAIUntrustedBlock\('KNOWLEDGE_REFERENCE'/.test(chat) && /buildAIUntrustedBlock\('KNOWLEDGE_REFERENCE'/.test(read('index.html')));
-check('unified-chat-renders-native-claude-citations', /_uniCitationResult/.test(read('index.html')) && /engine:'claude'/.test(read('index.html')) && /_aioLastClaudeCitations/.test(read('index.html')));
+// Both the per-page and the unified surface now live in js/aio-chat.js, so the invariant is that the
+// wrapper appears at least twice there rather than once per file.
+check('knowledge-reference-is-wrapped-as-untrusted-data', (chat.match(/buildAIUntrustedBlock\('KNOWLEDGE_REFERENCE'/g) || []).length >= 2);
+check('unified-chat-renders-native-claude-citations', /_uniCitationResult/.test(chat) && /engine:'claude'/.test(chat) && /_aioLastClaudeCitations/.test(chat));
 check('public-policy-allows-conditional-analysis-without-blanket-refusal', /가격 범위·무효화 수준·손절 기준·포트폴리오 비중은 시나리오와 계산 입력으로 분석할 수 있다/.test(chat) && /답변 전체를 안전 모드로 바꾸지 말고/.test(chat) && !/현재 답변에서는 구체적인 매수·매도·진입·청산 지시/.test(chat));
 check('research-optout-degrades-current-claims-without-ending-chat', /web_research_disabled_by_user/.test(chat) && !/userOptOut\)[\s\S]{0,600}state\._chatSendEntered = 0;[\s\S]{0,180}return;/.test(chat));
 check('chat-dispatches-through-orchestrator', /AIO_ARCH\.getAIOrchestrator/.test(chat) && /_aioOrchestrated/.test(chat));
 check('orchestrator-downgrades-action-permission-to-a-disclosure', /actionPermission\.allowed === false/.test(read('src/ai/orchestrator/answer-orchestrator.js')) && /actionLimitations/.test(read('src/ai/orchestrator/answer-orchestrator.js')) && !/blocked-action-permission/.test(read('src/ai/orchestrator/answer-orchestrator.js')));
-check('both-chat-surfaces-have-pre-provider-action-boundary', /_aioPreProviderPermission/.test(chat) && /_uniPreProviderPermission/.test(read('index.html')));
-check('both-chat-surfaces-hide-unverified-research-streams', /Web Research 검증 중/.test(chat) && /Web Research 근거를 검증 중/.test(read('index.html')));
+check('both-chat-surfaces-have-pre-provider-action-boundary', /_aioPreProviderPermission/.test(chat) && /_uniPreProviderPermission/.test(chat));
+check('both-chat-surfaces-hide-unverified-research-streams', /Web Research 검증 중/.test(chat) && /Web Research 근거를 검증 중/.test(chat));
 check('no-confirmed-verdict', !/verdict\s*=\s*[^;]*CONFIRMED/.test(data) && /RESEARCH_CANDIDATE/.test(data) && /research-relative-ranking-only/.test(data));
 check('producer-observed-time', /producer observation time/.test(data) && /관측시각 미확인/.test(data));
 check('probability-policy-is-strict', /calibrated !== true/.test(core) && /보정\(calibration\).*확률/.test(chat));
 
 check('answer-format-is-question-adaptive', !/반드시 \*\*Bull\/Base\/Bear 3 시나리오/.test(chat) && /질문 복잡도에 맞춘다/.test(chat));
-check('research-outage-degrades-instead-of-erasing-answer', /research-evidence-unavailable/.test(chat) && !/RESEARCH_REQUIRED_BUT_UNAVAILABLE/.test(chat) && /RESEARCH_EVIDENCE_UNAVAILABLE/.test(read('index.html')));
+check('research-outage-degrades-instead-of-erasing-answer', /research-evidence-unavailable/.test(chat) && !/RESEARCH_REQUIRED_BUT_UNAVAILABLE/.test(chat) && /RESEARCH_EVIDENCE_UNAVAILABLE/.test(chat));
 check('research-decision-is-key-independent', /createResearchDecision/.test(read('src/ai/research/decision.js')) && /provider keys,[\s\S]*deliberately not read/i.test(read('src/ai/research/decision.js')));
 check('research-plan-is-wired-to-chat', /_aiResearchPlanSearch/.test(chat) && /researchPlan/.test(chat) && /RESEARCH_RESULTS_EMPTY/.test(chat));
 check('research-capability-is-separate', /getAIResearchCapability/.test(bootstrap) && /validateAIResearchCapability/.test(bootstrap) && /chatReadiness/.test(read('src/ai/research/capability.js')));
-check('research-capability-drives-shared-preparation', /_aioPrepareAIResearch/.test(chat) && /externalSearchReady/.test(chat) && /externalEvidenceReady/.test(chat) && /nativeFallbackRequired/.test(chat) && /_aioPrepareAIResearch/.test(read('index.html')));
+// Both surfaces live in js/aio-chat.js now, so "shared" is asserted by occurrence count, not by file.
+check('research-capability-drives-shared-preparation', (chat.match(/_aioPrepareAIResearch/g) || []).length >= 2 && /externalSearchReady/.test(chat) && /externalEvidenceReady/.test(chat) && /nativeFallbackRequired/.test(chat));
 check('research-document-classification-is-centralized', /createAIResearchEvidenceDocument/.test(chat) && /createAIResearchEvidenceDocument/.test(bootstrap) && /createAIResearchEvidenceDocument/.test(read('src/legacy/compatibility-facade.js')));
 check('research-native-tool-errors-are-promoted', /web_search_tool_result_error/.test(chat) && /_aioLastClaudeResearchError/.test(chat));
 check('deep-search-has-no-fixed-year', !/(latest news earnings|policy outlook|geopolitical risk latest|investment trend latest) 2026/.test(chat));
-check('research-gate-shared-by-both-surfaces', /evaluateAIResearchEvidenceFloor/.test(chat) && /_aioEvaluateAIResearchGate/.test(read('index.html')) && /_aioPrepareAIResearch/.test(read('index.html')));
+check('research-gate-shared-by-both-surfaces', /evaluateAIResearchEvidenceFloor/.test(chat) && /_aioEvaluateAIResearchGate/.test(chat) && /_aioPrepareAIResearch/.test(chat));
 check('research-result-canonical-nesting', /researchEvidence:\s*\{[\s\S]*evidenceDocuments:\s*evidenceDocuments/.test(chat) && !/\n\s*evidenceDocuments:\s*evidenceDocuments,\n\s*researchPlanId/.test(chat));
 check('research-failures-retain-subquery-reasons', /subFailures/.test(chat) && /noResults\.failures\s*=\s*subFailures/.test(chat) && /_aioLastResearchAudit/.test(chat));
-check('request-plan-is-explicit-not-global', !chat.includes('_aioActiveQuestionPlan') && !read('index.html').includes('_aioActiveQuestionPlan') && chat.includes('questionPlan: questionPlan') && read('index.html').includes('questionPlan: _uniQuestionPlan'));
+// The absence check stays pinned to index.html on purpose: the shell must never hold a global plan
+// again even though the unified surface (which passes its own plan explicitly) now lives in chat.
+check('request-plan-is-explicit-not-global', !chat.includes('_aioActiveQuestionPlan') && !read('index.html').includes('_aioActiveQuestionPlan') && chat.includes('questionPlan: questionPlan') && chat.includes('questionPlan: _uniQuestionPlan'));
 check('research-partial-results-preserve-query-index', /settled\.map\(function\(row, index\)/.test(chat) && /specs\[item\.index\]\.queryId/.test(chat));
 check('research-evidence-preserves-citation-producer-engine', /citationProducer/.test(chat) && /sourceType: citationEngine/.test(chat) && !/sourceType: fulfilled\[0\]\.result\.engine/.test(chat));
 check('fred-official-host-is-correct', read('src/ai/research/evidence.js').includes("'fred.stlouisfed.org'"));

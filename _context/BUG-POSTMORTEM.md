@@ -2,12 +2,23 @@
 verified_by: 데이터 파이프라인 전수 의미·정합성 감사(로컬 재계산) + affected QA; 중첩 산출물 의미 검토는 open
 last_verified: 2026-09-19
 confidence: medium
-latest_version: v55.11
-latest_P_number: P1130
-next_P_number: P1131
-current_total_entries: 545 tracked entries (372 headings + 173 compacted lines, P1~P1130, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
+latest_version: v55.12
+latest_P_number: P1131
+next_P_number: P1132
+current_total_entries: 546 tracked entries (373 headings + 173 compacted lines, P1~P1131, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
 current_checkpoint: 사용자 판단(지인용 사설 스크리너)으로 **차단 경계를 공시로 재배치**했다 — 개인화 지시·현재증거 부족·수치 주장 불일치·헤드라인 전용 인과를 하드 차단에서 경고/공시로 강등(P1120~P1122). 조작 방지(값·단위·NFP 배율), 금지 행위 P0, 포트폴리오 동의, 도구 경계는 그대로 차단이다. 남은 OPEN: 날짜 없는 중첩 산출물 12건(P1110 측정면이 노출), `objects/**` 592/629 미참조 blob의 보존 정책, 캐시 라우팅 밖의 실제 소비 산출물 오프라인 폴백 (semantic coverage 6.89%, releaseCertified=false)
 ---
+
+## P1131 - v55.12 - 블록 G 이관에서 게이트 고정 텍스트가 예상의 7.5배였다 (2026-09-19)
+
+- symptom/reproduction: 블록 G(index.html 27,382~28,389 = 1,006줄: 사이드바·AI 패널 토글 + `chatSendUnified` + `aiChipClick`)를 `js/aio-chat.js`로 옮겼다. index.html **28,397 → 27,391(−1,006)**, aio-chat.js 8,161 → 9,176. 재지정 실측: **6개 게이트, 25개 단언 줄**(조건 기준 약 37개). 게이트별로는 `ci-runtime-contract-check` 9줄, `ci-ai-intelligence-contract-check` 10줄, `ci-chat-resilience-check` 1줄(5조건), `ci-ai-chat-analysis-integration-check` 3줄, `ci-chat-reliability-contract-check` 3줄, `ci-chat-response-layout-browser-check` 1줄(3조건)이다. P1130의 사전 grep은 이 중 `ci-runtime-contract-check`를 **2곳**으로 셌다 — 실제는 9줄이었다.
+- root_cause: 블록의 이동 비용은 **"그 블록의 텍스트를 게이트가 얼마나 단언하는가"** 에 비례하는데, 그 수는 정적 grep으로 정확히 셀 수 없다. 이유는 두 가지다. (1) 단언이 심볼 이름이 아니라 **인접한 임의 텍스트**를 검사한다 — 예를 들어 `_aiCtxMap`의 리터럴(`'home': 'home'`), `extractChips(visible)`, `query: q`, `buildAIUntrustedBlock`, `p.setAttribute('inert', '')`처럼 그 블록 안에만 있는 문자열이다. (2) 한 줄짜리 `check()`가 **여러 파일을 섞어** 검사하므로 일부만 옮겨야 한다 — 25줄 중 5줄은 "일부만 재지정"이었다.
+- 실측 오류 2건(게이트가 잡음): (a) 칩 **마크업**(`<button type="button" class="ai-chip">`)이 셸에 작성돼 있다고 가정했지만 `_aiDefaultChips`가 **생성**하고 있었다 — 게이트가 `AssertionError`로 즉시 반박했다. (b) `updateAIPanelContext`는 **정의만** 옮겨졌고 호출부는 index.html 블록 A(portfolio 섹션)에 남아 있었다 — 정의와 호출을 각각의 실제 위치에서 단언하도록 고쳤다.
+- fix: 25줄을 "정의는 chat, 호출/마크업은 html" 원칙에 따라 재지정하고, 각 수정에 왜 그 파일인지 주석으로 근거를 남겼다. 재지정 중 중복 조건(`X && X`)이 생긴 3곳은 정리했다.
+- violated_rule: R619(2항 — 옮긴 코드의 단언 소유자는 함께 옮긴다), R620(3항).
+- prevention: **사전 grep으로 비용을 추정하지 말고, 이동 후 게이트를 실행해 소유자를 고치는 경험적 루프를 쓴다.** 이번에 정적 추정은 2줄, 실제는 25줄이었고, 개별 게이트를 직접 돌리기 전에는 `ci-ai-intelligence-contract-check`·`ci-ai-chat-reliability-contract-check`의 존재를 몰랐다(`affected` 프로파일이 이들을 함께 실행해 드러냈다). 블록별 비용은 일정하지 않으며 게이트 고정 텍스트의 양에 비례한다(QA-EXHAUST-89에 반영).
+- verification: headless **1,133/1,133 PASS(110/110 그룹)**. 실브라우저 3개 PASS — `ci-architecture-browser-check`(20 라우트, `browserErrors:0`, `routeRoundTrip:true`), `ci-chat-response-layout-browser-check`, `ci-chat-ui-state-browser-check`. `ci-runtime-contract-check`·`ci-ai-intelligence-contract-check`·`ci-chat-reliability-contract-check`(25줄 재지정 후 PASS), `ci-chat-resilience-check`, `ci-ai-chat-analysis-integration-check`, `ci-architecture-contract-check`, `ci-structural-check`(R280 중복 전역 0), `ci-decomp-hotspot-check`(index.html 27,391 / aio-chat.js 9,176 — 증가는 `--write --allow-growth`로 기록), `ci-version-check`, `ci-workspace-contract-check`, `ci-syntax-check` PASS. affected QA 88 PASS / 2 FAIL(신선도 SLA, 환경 요인). 커밋만 수행, push·배포 없음.
+- 잔여: 블록 A~D·F(14,122줄)는 QA-EXHAUST-89, 3단계는 QA-EXHAUST-90.
 
 ## P1130 - v55.11 - 인라인 셸 코드를 새 파일 없이 기존 등록 파일로 이관했다 (2026-09-19)
 

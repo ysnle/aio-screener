@@ -21,10 +21,12 @@ const styleEnd = shell.indexOf('</style>', styleStart);
 assert(styleAnchor >= 0 && styleStart > styleAnchor && styleEnd > styleStart, 'could not extract AI panel CSS');
 const aiPanelCss = shell.slice(styleStart + '<style>'.length, styleEnd);
 assert(/\.ai-msg\{display:flex;flex-direction:column;/.test(aiPanelCss), 'production AI message CSS must use a column layout');
-assert(/var _bubbleParent = \(aiBubble \? aiBubble\.parentNode : null\) \|\| \(streamEl \? streamEl\.querySelector\('\.ai-msg-content'\) : null\);/.test(shell), 'unified completion must append metadata to the content wrapper');
-assert(/var citTarget = _bubbleParent \|\| \(streamEl \? streamEl\.querySelector\('\.ai-msg-content'\) : null\);/.test(shell), 'unified citations must use the content wrapper');
+// P1131/R619: _appendAIMsg and the chatSendUnified completion/citation writers moved from
+// index.html's inline block G into js/aio-chat.js. Only the AI-panel CSS above stays in the shell.
+assert(/var _bubbleParent = \(aiBubble \? aiBubble\.parentNode : null\) \|\| \(streamEl \? streamEl\.querySelector\('\.ai-msg-content'\) : null\);/.test(chat), 'unified completion must append metadata to the content wrapper');
+assert(/var citTarget = _bubbleParent \|\| \(streamEl \? streamEl\.querySelector\('\.ai-msg-content'\) : null\);/.test(chat), 'unified citations must use the content wrapper');
 
-const appendAIMsg = sliceBetween(shell, 'function _appendAIMsg(', '\n\nasync function chatSendUnified', '_appendAIMsg');
+const appendAIMsg = sliceBetween(chat, 'function _appendAIMsg(', '\n\nasync function chatSendUnified', '_appendAIMsg');
 
 // Use the shared disclosure helper from the production chat module. Its small
 // dependency slice is self-contained and keeps this gate offline/provider-free.

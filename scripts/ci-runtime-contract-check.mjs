@@ -233,8 +233,12 @@ check(
     && /function\s+_aioBuildPortfolioActionPrompt/.test(html)
     && /window\._aioPortfolioAsk/.test(html)
     && /window\._aioSavePortfolioJournal/.test(html)
+    // P1131/R619: updateAIPanelContext is now DEFINED in js/aio-chat.js (inline block G) while its
+    // portfolio call site stayed in index.html block A. Assert the definition and the call, each in
+    // its real home, so the invariant "portfolio workflow routes into the unified panel" is kept.
     && /updateAIPanelContext\('portfolio'\)/.test(html)
-    && /chatSendUnified\(\)/.test(html)
+    && /function updateAIPanelContext/.test(chat)
+    && /chatSendUnified\(\)/.test(html + chat)
 );
 check(
   'trader tactical framework is centralized as REFERENCE and exposed through AIO',
@@ -306,7 +310,8 @@ for (const pageId of ['home','signal','market-news','technical','screener','tick
 }
 check('non-primary market-news/screener/signal controls are folded behind advanced details', /_aioFoldDensePageControls/.test(core) && /market-news/.test(core) && /screener-backtest-panel/.test(core) && /signal-lockout-control/.test(core));
 check('core news and screener filters remain active on the main screen', !/#news-country-chips|#news-topic-chips|#news-type-tabs|#scr-market/.test(core));
-check('unified AI panel covers home/screener/ticker/KR contexts (v53.7 P725)', /'home'\s*:\s*'home'/.test(html) && /'screener'\s*:\s*'screener'/.test(html) && /'ticker'\s*:\s*'ticker'/.test(html) && /'kr-themes'\s*:\s*'kr-themes'/.test(html) && /'kr-macro'\s*:\s*'kr-macro'/.test(html));
+// P1131/R619: the _aiCtxMap literals moved with inline block G into js/aio-chat.js.
+check('unified AI panel covers home/screener/ticker/KR contexts (v53.7 P725)', /'home'\s*:\s*'home'/.test(chat) && /'screener'\s*:\s*'screener'/.test(chat) && /'ticker'\s*:\s*'ticker'/.test(chat) && /'kr-themes'\s*:\s*'kr-themes'/.test(chat) && /'kr-macro'\s*:\s*'kr-macro'/.test(chat));
 check('CHAT_CONTEXTS includes kr-home for unified KR landing AI', /'kr-home'\s*:\s*_aioCreateEvidenceContext/.test(chat));
 check('safe numeric formatter is available for live/default-path renderers', /window\._aioSafeFixed\s*=\s*function/.test(core));
 check('ticker live price renderer does not call live.price.toFixed directly', !/live\.price\.toFixed\(/.test(core));
@@ -348,7 +353,7 @@ check('value slot renderer encodes value/pending/failed/na states and touched ma
 })());
 check('briefing decision summary F&G uses canonical currentness source, not dead snap fields', (data.match(/getCanonicalMetric\('fg'\)/g) || []).length >= 2 && !/snap\.fg\.value|snap\.fearGreed/.test(data) && /T867 briefing_decision_summary_fg_canonical_v5234/.test(tests));
 check('VKOSPI failure state is surfaced after repeated failures and calcKrHealthScore does not overwrite it', /function _showVkospiFailureState/.test(html) && /function _vkospiIsFailedState/.test(html) && /_vkospiIsFailedState\(\)/.test(html.slice(html.indexOf('function calcKrHealthScore'), html.indexOf('function calcKrHealthScore') + 4000)) && /T868 vkospi_failure_state_contract_v5234/.test(tests));
-check('AI chat key gates accept configured server-key route and disclose personal-key boundary', /function _aioHasClaudeRoute/.test(chat) && /window\._aioHasClaudeRoute/.test(chat) && /_aioHasClaudeRoute\(_chatApiKey\)/.test(chat) && /_aioHasClaudeRoute\(_uniClaudeKey\)/.test(html) && /브리핑\/번역은 운영자 서버키/.test(chat + html) && /T865 claude_chat_route_server_key_awareness_v5230/.test(tests));
+check('AI chat key gates accept configured server-key route and disclose personal-key boundary', /function _aioHasClaudeRoute/.test(chat) && /window\._aioHasClaudeRoute/.test(chat) && /_aioHasClaudeRoute\(_chatApiKey\)/.test(chat) && /_aioHasClaudeRoute\(_uniClaudeKey\)/.test(chat) && /브리핑\/번역은 운영자 서버키/.test(chat + html) && /T865 claude_chat_route_server_key_awareness_v5230/.test(tests));
 check(
   'breadth surfaces share canonical regime color and zero delta renders neutral',
   /function\s+_bbRegime/.test(ui)
@@ -528,7 +533,7 @@ const optionsAt = html.indexOf('id="page-options"');
 check('news progressive reveal belongs to the market-news page rather than screener', newsMoreAt > marketNewsAt && newsMoreAt < optionsAt && /id="live-news-feed"[\s\S]{0,800}id="news-load-more-wrap"/.test(html));
 check('fundamental search has one bounded total deadline and parallel bounded primary providers', /var _fundDeadline = Date\.now\(\) \+ 8000/.test(chat) && /Promise\.all\(\[[\s\S]{0,500}dynamicTickerLookup[\s\S]{0,500}fetchSECFilings[\s\S]{0,500}fetchSECFinancials/.test(chat) && /_fundRemaining\(5200\)/.test(chat) && /_fundRemaining\(1400\)/.test(chat));
 check('all news acquisition paths converge on one visible summary state updater', /function _aioUpdateNewsSummaryFromItems\(items, meta\)/.test(data) && (data.match(/_aioUpdateNewsSummaryFromItems\(/g) || []).length >= 4 && /kind: 'server-cache'/.test(data) && /kind: 'idb-cache'/.test(data) && /kind: 'direct'/.test(data));
-check('closed AI panel is inert and its trigger owns expanded state and focus return', /id="topbar-ai-btn"[\s\S]{0,300}aria-expanded="false"[\s\S]{0,300}aria-controls="ai-panel"/.test(html) && /id="ai-panel"[\s\S]{0,220}aria-hidden="true" inert/.test(html) && /p\.setAttribute\('inert', ''\)/.test(html) && /p\.removeAttribute\('inert'\)/.test(html) && /btn\.focus\(\)/.test(html));
+check('closed AI panel is inert and its trigger owns expanded state and focus return', /id="topbar-ai-btn"[\s\S]{0,300}aria-expanded="false"[\s\S]{0,300}aria-controls="ai-panel"/.test(html) && /id="ai-panel"[\s\S]{0,220}aria-hidden="true" inert/.test(html) && /p\.setAttribute\('inert', ''\)/.test(chat) && /p\.removeAttribute\('inert'\)/.test(chat) && /btn\.focus\(\)/.test(chat));
 check('KR theme cards preserve progressive density after live updates', /stockIdx < 5/.test(html) && /kr-theme-card-more/.test(html) && /catalyst\.length > 260/.test(html) && /catFullEl\.textContent = catalyst/.test(html) && /closest\('\.kr-ticker-pill, details, summary, \[data-stop\]'\)/.test(html));
 check('KR supply requests are bounded and failure copy has a single owner', /sorted\.slice\(0, 24\)/.test(html) && /종목별 공용 프록시 연쇄 호출 생략/.test(html) && !/top100\.slice\(0, 6\)/.test(html) && /_krInvestorFetchState/.test(html) && /_investorState\.inFlight/.test(html) && /10 \* 60 \* 1000/.test(html) && /querySelectorAll\('\.kr-supply-fallback-notice'\)[\s\S]{0,180}\.remove\(\)/.test(html));
 check('empty portfolio hides non-computable panels and exposes one first-position CTA', /var _pfEmpty = positions\.length === 0/.test(html) && /el\.hidden = _pfEmpty/.test(html) && /class="pf-empty-state"/.test(html) && />첫 종목 추가</.test(html));
@@ -728,7 +733,7 @@ check('PERF-BOOT-06: shell FCP is presented before synthetic route timing and al
 
 // v52.75 (WP-AI0): public AI beta safety boundary + unverified auto-analysis block.
 check('WP-AI0: one shared public AI policy exposes beta/research wording, action gate, and Evidence/as-of disclosure helpers', /_AIO_PUBLIC_AI_POLICY/.test(chat) && /_aioPublicAIActionPolicyPrompt/.test(chat) && /_aioApplyAIActionGate/.test(chat) && /_aioBuildAIResponseDisclosure/.test(chat) && /_aioAppendAIPublicDisclosure/.test(chat));
-check('WP-AI0: embedded and unified chat paths gate streaming/final output and persist gated text only', (/_publicChunkGate|_pageChunkResult/.test(chat)) && (/_publicGate|_pageDoneResult/.test(chat)) && /state\.messages\.push\(\{ role: 'assistant', content: visible \}\)/.test(chat) && /state\.messages\.push\(\{ role: 'assistant', content: visible \}\)/.test(html) && /extractChips\(visible\)/.test(chat) && /extractChips\(visible\)/.test(html));
+check('WP-AI0: embedded and unified chat paths gate streaming/final output and persist gated text only', (/_publicChunkGate|_pageChunkResult/.test(chat)) && (/_publicGate|_pageDoneResult/.test(chat)) && /state\.messages\.push\(\{ role: 'assistant', content: visible \}\)/.test(chat) && /extractChips\(visible\)/.test(chat));
 check('R460/P905: public surfaces identify read-only conditional analysis scope and current-data recheck', /id="ai-panel-policy"/.test(html) && /AI 베타 · 읽기 전용 리서치/.test(html) && /투자·법률·세무 조건부 분석/.test(html) && /불법 실행 절차·주문 실행·확정적 보장/.test(html) && /data-ai-public-policy="beta-research"/.test(chat));
 check('WP-AI0: server market prose requires explicit semantic verification before sink selection', /marketAnalysisSemanticOk/.test(data) && /status: _serverMarketAnalysisVerified \? 'verified' : 'blocked-unverified'/.test(data) && /_serverMarketAnalysis\.status === 'verified'/.test(core));
 check('WP-AI0: regression fixtures cover action block, educational pass, strong wording, disclosure metadata, and unverified market prose', /_testV5275PublicAIContract/.test(tests) && /T932/.test(tests) && /T933/.test(tests) && /T934/.test(tests) && /T935/.test(tests) && /T936/.test(tests));
@@ -737,7 +742,8 @@ check('WP-AI0: regression fixtures cover action block, educational pass, strong 
 // AI entry points; retries must reuse the named completion handlers/request.
 check('WP-AI1: shared request envelope records pipeline, validator, block-policy versions and bounded audit metadata', /_AIO_AI_PIPELINE_VERSION/.test(chat) && /_aioCreateAIRequestObject/.test(chat) && /_aioBeginAIRequestAttempt/.test(chat) && /_aioRunAIResponsePipeline/.test(chat) && /getAIResponsePipelineAudit/.test(chat));
 check('WP-AI1: embedded retry reuses one completion callback contract and request object', /var _pageOnChunk = function/.test(chat) && /var _pageOnDone = function/.test(chat) && /callClaude\(systemPrompt, state\.messages, _pageOnChunk, _pageOnDone/.test(chat) && /_aioBeginAIRequestAttempt\(_pageAIRequest, nextModel\)/.test(chat));
-check('WP-AI1: unified retry reuses one completion callback contract and request object', /var _uniOnChunk = function/.test(html) && /var _uniOnDone = function/.test(html) && /callClaude\(sysPrompt, state\.messages, _uniOnChunk, _uniOnDone/.test(html) && /_aioBeginAIRequestAttempt\(_uniAIRequest, nextModel\)/.test(html));
+// P1131/R619: the unified retry/completion contract moved with inline block G into js/aio-chat.js.
+check('WP-AI1: unified retry reuses one completion callback contract and request object', /var _uniOnChunk = function/.test(chat) && /var _uniOnDone = function/.test(chat) && /callClaude\(sysPrompt, state\.messages, _uniOnChunk, _uniOnDone/.test(chat) && /_aioBeginAIRequestAttempt\(_uniAIRequest, nextModel\)/.test(chat));
 check('WP-AI1: translation uses the shared response pipeline and fails closed to local/deterministic fallback while briefing is owned by the native news renderer', /_translationRequest/.test(data) && /_aioRunAIResponsePipeline/.test(data) && /auto-translation/.test(data) && /AI response pipeline unavailable/.test(data) && /route === 'briefing'/.test(newsPage) && /buildNewsSurfaceModel/.test(newsPage) && !/_briefingRequest/.test(data));
 check('WP-AI1: briefing route is defined in the unified context map and regression tests cover all entry points', /briefing:\s*_aioCreateEvidenceContext/.test(chat) && /T937/.test(tests) && /T938/.test(tests) && /T939/.test(tests) && /T940/.test(tests));
 
@@ -746,7 +752,7 @@ check('WP-AI2: typed claim schema exposes metric/unit/scale/direction/asOf/sourc
 check('WP-AI2: structured claim envelopes are parsed and validated by the shared response pipeline', /extractAIClaimEnvelope/.test(core) && /validateAIClaimEnvelope/.test(core) && /validateAIResponseClaims/.test(core) && /claimAudit/.test(chat) && /typed-claim-validation/.test(chat));
 check('WP-AI2: per-page and unified AI responses merge injected evidence once and pass the canonical registry into the shared typed-claim audit',
   /var _pageClaimEvidence = _aioCollectAIClaimEvidence/.test(chat) && /evidence: _pageClaimEvidence/.test(chat)
-  && /var _uniClaimEvidence = typeof window\._aioCollectAIClaimEvidence/.test(html) && /evidence: _uniClaimEvidence/.test(html));
+  && /var _uniClaimEvidence = typeof window\._aioCollectAIClaimEvidence/.test(chat) && /evidence: _uniClaimEvidence/.test(chat));
 check('WP-AI2: counterexample fixtures cover F&G/VIX, NFP 10x, bp/percent, sign, FX inversion, missing evidence, parser, and pipeline block', /_testV5277TypedClaimContract/.test(tests) && /T941/.test(tests) && /T942/.test(tests) && /T943/.test(tests) && /T944/.test(tests) && /T945/.test(tests) && /T946/.test(tests) && /T947/.test(tests) && /T948/.test(tests) && /T949/.test(tests));
 
 // v52.78 (WP-AI3): intent-aware reference retrieval, deterministic compaction,
@@ -754,7 +760,7 @@ check('WP-AI2: counterexample fixtures cover F&G/VIX, NFP 10x, bp/percent, sign,
 check('WP-AI3: shared retriever exposes intent classification, required evidence, route aliases, and bounded top-k reference retrieval', /classifyAIQueryIntent/.test(core) && /retrieveImportedResearch/.test(core) && /requiredEvidence/.test(core) && /topK/.test(core) && /sourceKind: 'REFERENCE'/.test(core));
 check('WP-AI3: reference context is deterministically compacted within the 2K-6K token contract and preserves the reference-only rule', /compactAIContext/.test(core) && /budgetTokens/.test(core) && /deterministic line trim/.test(core) && /sourceKind policy=REFERENCE/.test(core) && /estimatedInputTokens/.test(core));
 check('WP-AI3: P95 input-token and cost measurement audit is exposed with a stated +/-10 percent target', /recordAIContextBudget/.test(core) && /p95InputTokens/.test(core) && /targetErrorPct: 10/.test(core));
-check('WP-AI3: page and unified entry points bind the active query and carry retrieval/context audits through the shared response pipeline', /_aioActiveAIQuery = q/.test(chat) && /_aioActiveAIQuery = q/.test(html) && /retrievalAudit: _pageRetrievalAudit/.test(chat) && /retrievalAudit: _uniRetrievalAudit/.test(html) && /contextBudgetAudit/.test(chat + html));
+check('WP-AI3: page and unified entry points bind the active query and carry retrieval/context audits through the shared response pipeline', /_aioActiveAIQuery = q/.test(chat) && /retrievalAudit: _pageRetrievalAudit/.test(chat) && /retrievalAudit: _uniRetrievalAudit/.test(chat) && /contextBudgetAudit/.test(chat + html));
 check('WP-AI3: regression fixtures cover intent, relevance, deterministic order, live/reference separation, recall, trim, P95 meter, and pipeline audit', /_testV5278AIRetrievalCompression/.test(tests) && /T950/.test(tests) && /T951/.test(tests) && /T952/.test(tests) && /T953/.test(tests) && /T954/.test(tests) && /T955/.test(tests) && /T956/.test(tests) && /T957/.test(tests));
 
 // v52.79 (WP-AI4/5): external data boundary, portfolio privacy consent, and
@@ -773,7 +779,8 @@ check('WP-AI5: legacy chat awaits the async quota confirmation and rejects a can
   /var _chatQuotaAllowed\s*;[\s\S]{0,220}await consumeLLMQuery\(\)/.test(chat) && quotaAwaitIdx >= 0 && chat.indexOf('if (!_isCurrentChatRun())', quotaAwaitIdx) > quotaAwaitIdx && chat.indexOf('if (!_isCurrentChatRun())', quotaAwaitIdx) - quotaAwaitIdx < 320);
 check('WP-AI5: per-page freshness preflight uses abortable bounded tasks and no uncancelled race', /_aioRunChatTask\(function\(signal\)[\s\S]{0,420}ensureFreshChatAnswerData[\s\S]{0,220}timeoutMs: 6500/.test(chat) && /_aioRunChatTask\(function\(signal\)[\s\S]{0,420}ensureFreshDataForUse[\s\S]{0,220}timeoutMs: 4500/.test(chat) && !/Promise\.race\(\[[\s\S]{0,500}ensureFreshChatAnswerData/.test(chat));
 check('WP-AI5: ticker quote lookup carries the active chat AbortSignal and ignores cancelled cache paths', /async function _fetchTickerDataForChat\([\s\S]{0,600}_aioThrowIfChatAborted\(opts\.signal\)/.test(chat) && /dynamicTickerLookup\(t,[\s\S]{0,220}signal: opts\.signal/.test(chat));
-check('WP-AI4/5: page and unified entry points pass the active query to the common policy and untrusted wrappers', /query: q/.test(chat) && /query: q/.test(html) && /buildAIUntrustedBlock/.test(chat) && /buildAIUntrustedBlock/.test(html));
+// P1131/R619: both the page and the unified entry points now live in js/aio-chat.js.
+check('WP-AI4/5: page and unified entry points pass the active query to the common policy and untrusted wrappers', /query: q/.test(chat) && /buildAIUntrustedBlock/.test(chat));
 check('WP-AI4/5: deterministic regression fixtures cover injection, redaction, consent, history off, conduct, evidence, pipeline, and calibration', /_testAIUntrustedSecurityAndConduct/.test(tests) && /T958/.test(tests) && /T959/.test(tests) && /T960/.test(tests) && /T961/.test(tests) && /T962/.test(tests) && /T963/.test(tests) && /T964/.test(tests) && /T965/.test(tests) && /T966/.test(tests));
 
 // v52.80 (WP-AI6/7): automated publish fallback and derived 22-route AI page contracts.

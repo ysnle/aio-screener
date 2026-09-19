@@ -125,12 +125,16 @@ assert.equal(numericOnlyQuote.audit.requestedPeriod, null, 'numeric quote cannot
 
 assert.ok(/_pageClaimEvidence[\s\S]{0,900}_aioBuildChatAnalysisContext/.test(chat), 'per-page chat calls the shared helper after evidence collection');
 assert.ok(/_pageAnalysisSlice\.questionPlan/.test(chat) && /systemPrompt \+= _pageAnalysisSlice\.context/.test(chat), 'per-page chat adopts the updated plan and context');
-assert.ok(/_uniClaimEvidence[\s\S]{0,900}_aioBuildChatAnalysisContext/.test(html), 'unified chat calls the shared helper after evidence collection');
-assert.ok(/_uniAnalysisSlice\.questionPlan/.test(html) && /sysPrompt \+= _uniAnalysisSlice\.context/.test(html), 'unified chat adopts the updated plan and context');
+// P1131/R619: the unified chat surface moved from index.html's inline block G into js/aio-chat.js.
+// All three assertions below follow the code there — including the chip markup, which is emitted by
+// _aiDefaultChips (also block G) rather than authored in the shell. The gate caught that assumption
+// when it failed on the stale index.html read.
+assert.ok(/_uniClaimEvidence[\s\S]{0,900}_aioBuildChatAnalysisContext/.test(chat), 'unified chat calls the shared helper after evidence collection');
+assert.ok(/_uniAnalysisSlice\.questionPlan/.test(chat) && /sysPrompt \+= _uniAnalysisSlice\.context/.test(chat), 'unified chat adopts the updated plan and context');
 assert.ok(/premise-['"] \+ premiseStatus\.toLowerCase\(\)/.test(chat) && /CONTRADICTED/.test(chat), 'pipeline adds premise limitations without a blanket block');
 assert.ok(/_aioAIClaimEvidenceTuple/.test(chat) && /status: 'conflict'/.test(chat), 'claim registry marks conflicting tuples explicitly');
-assert.ok((html.match(/<button type="button" class="ai-chip"/g) || []).length >= 2 && !/<div class="ai-chip"/.test(html), 'unified chat chips are keyboard-activatable buttons');
-assert.ok(/function aiChipClick\(el\)[\s\S]{0,220}chatSendUnified\(\)/.test(html), 'keyboard chip activation retains the unified send path');
+assert.ok((chat.match(/<button type="button" class="ai-chip"/g) || []).length >= 2 && !/<div class="ai-chip"/.test(chat), 'unified chat chips are keyboard-activatable buttons');
+assert.ok(/function aiChipClick\(el\)[\s\S]{0,220}chatSendUnified\(\)/.test(chat), 'keyboard chip activation retains the unified send path');
 assert.ok(boundaryKinds.filter(kind => kind === 'DOMAIN_ANALYSIS').length >= 4, 'all analysis contexts use the untrusted boundary');
 
 console.log('PASS ai-chat-analysis-integration: production helper, orchestrator premise states, period safety, both chat surfaces and limitation pipeline');
