@@ -1925,8 +1925,11 @@ window._aioDiagram = (function () {
     cyan:   '#00bcd4', blue:   '#3b82f6', muted:  'rgba(255,255,255,0.35)',
     text:   '#dce6f0', bg:     'transparent', bgSolid:'#0d1828', surface:'#0d1828', border: 'rgba(255,255,255,0.10)',
   };
+  // P1126/R619: aio-data.js가 먼저 로드되므로 escHtml이 항상 존재한다. 여기서 따로
+  // 재구현하지 않는다 — 3-char 버전과 4-char 정본이 갈라지면 SVG/오류 문구만
+  // 다른 규칙으로 이스케이프되는 조용한 불일치가 된다.
   function _esc(s) {
-    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return escHtml(String(s || ''));
   }
   function _n(v, d) { return (typeof v === 'number' && isFinite(v)) ? v.toFixed(d || 0) : '—'; }
   function _cl(v, lo, hi) { return Math.max(lo, Math.min(hi, v || 0)); }

@@ -2,12 +2,22 @@
 verified_by: 데이터 파이프라인 전수 의미·정합성 감사(로컬 재계산) + affected QA; 중첩 산출물 의미 검토는 open
 last_verified: 2026-09-19
 confidence: medium
-latest_version: v55.06
-latest_P_number: P1125
-next_P_number: P1126
-current_total_entries: 540 tracked entries (367 headings + 173 compacted lines, P1~P1125, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
+latest_version: v55.07
+latest_P_number: P1126
+next_P_number: P1127
+current_total_entries: 541 tracked entries (368 headings + 173 compacted lines, P1~P1126, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
 current_checkpoint: 사용자 판단(지인용 사설 스크리너)으로 **차단 경계를 공시로 재배치**했다 — 개인화 지시·현재증거 부족·수치 주장 불일치·헤드라인 전용 인과를 하드 차단에서 경고/공시로 강등(P1120~P1122). 조작 방지(값·단위·NFP 배율), 금지 행위 P0, 포트폴리오 동의, 도구 경계는 그대로 차단이다. 남은 OPEN: 날짜 없는 중첩 산출물 12건(P1110 측정면이 노출), `objects/**` 592/629 미참조 blob의 보존 정책, 캐시 라우팅 밖의 실제 소비 산출물 오프라인 폴백 (semantic coverage 6.89%, releaseCertified=false)
 ---
+
+## P1126 - v55.07 - HTML 이스케이프가 최대 8벌로 갈라져 있었다 (2026-09-19)
+
+- symptom/reproduction: 구조 감사에서 서로 다른 이스케이프 구현이 확인됐다. 정본 격인 `escHtml`(`js/aio-data.js:7130`, 호출 265회) 외에 (a) `_aioPublicReadinessEsc`(`aio-data.js:6534`, 11회), (b) `_aioRenderOperatorNote` 내부 `_esc`(`aio-data.js:6227`), (c) `_aioDiagram` 내부 `_esc`(`js/aio-ui.js:1928`, 3회)가 각자 `& < > "` 또는 `& < >`를 다시 구현했고, 추가로 `typeof escHtml === 'function' ? escHtml(x) : <인라인 이스케이프>` 형태의 **방어 폴백**이 `aio-core.js:4139/4189/27162`, `aio-data.js:11630`, `index.html:14133`에 있었다. 즉 "이스케이프는 한 곳"이라는 전제가 코드 어디에도 없었다.
+- root_cause: 초기 분할(P3-1 PHASE 2, v48.26)이 하나의 번들을 4개 파일로 자를 때 공용 유틸을 **복사**했고, 이후 로드 순서를 우려한 방어적 `typeof` 가드가 인라인 사본을 하나 더 늘렸다. 재구현은 서로 다른 문자 집합을 가질 수 있는데(ui 사본은 `"`를 이스케이프하지 않음) 그 차이를 아무도 검사하지 않아, 한쪽만 고치면 조용한 보안 드리프트가 된다.
+- fix: 문자 집합이 **동일한** 재구현 2건(`_aioPublicReadinessEsc`, `aio-data.js` 내부 `_esc`)을 `escHtml` 위임으로 교체해 **출력 바이트가 변하지 않게** 했다. 문자 집합이 **다른** 1건(`aio-ui.js`의 3-char `_esc`)은 동작 변경으로 취급해 4-char 정본으로 수렴시키고 헤드리스 1,129개 단언으로 출력 회귀가 없음을 확인했다. 상한 압박이 있는 `aio-core.js`는 이번에 건드리지 않았고, 그 결과 라인 수는 data −4 / ui +1로 **순감**했다.
+- violated_rule: R619(신규).
+- prevention: 수렴 대상 개수와 남은 폴백 4곳을 QA-EXHAUST-85로 명시했다. 다음 세션이 "이스케이프가 몇 벌인지"를 다시 세지 않아도 되도록 정본 위치와 잔여 목록을 고정한다.
+- residual_risk: `aio-core.js`의 `typeof escHtml` 폴백 3곳과 `index.html:14133`·`aio-data.js:11630`의 인라인 사본은 남아 있다. core는 상한까지 1줄, index.html은 인라인 블록이 게이트 문자열 단언에 묶여 있어 2단계 추출 이후에 다루는 것이 안전하다.
+- verification: headless 1,129/1,129 PASS(109/109 그룹), `ci-runtime-contract-check.mjs` PASS, `ci-decomp-hotspot-check.mjs` PASS, `ci-structural-check.mjs` PASS, `ci-syntax-check.mjs` PASS(386 파일). 커밋만 수행, push·배포 없음.
 
 ## P1125 - v55.06 - 문서 신선도 검사가 대부분의 문서를 보지 않았고, 분류 충돌을 숨겼다 (2026-09-19)
 

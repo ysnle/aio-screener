@@ -6224,7 +6224,6 @@ function _aioRenderOperatorNote() {
   if (!el) return;
   var note = window._aioOperatorNote;
   if (!note || note.visible === false || _aioIsOperatorNotePlaceholder(note)) { el.style.display = 'none'; return; }
-  function _esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
   function _isPlaceholderTag(t) {
     var text = String(t || '').trim();
     return !text || /^(sample|placeholder|tag)\d*$/i.test(text) || /placeholder|예시|작성|샘플/i.test(text);
@@ -6232,7 +6231,7 @@ function _aioRenderOperatorNote() {
   var tags = (Array.isArray(note.tags) ? note.tags : []).filter(function(t) {
     return !_isPlaceholderTag(t);
   }).map(function(t) {
-    return '<span class="aio-operator-note-tag">' + _esc(t) + '</span>';
+    return '<span class="aio-operator-note-tag">' + escHtml(t) + '</span>';
   }).join('');
   var bodyText = String(note.body || '').trim();
   var normalizedBody = bodyText.replace(/\s+/g, ' ');
@@ -6531,12 +6530,11 @@ function _aioRenderPipelineStatus() {
 }
 window._aioRenderPipelineStatus = _aioRenderPipelineStatus;
 
+// P1126/R619: 이스케이프 구현은 escHtml 하나만 둔다. 여기 있던 5줄짜리 재구현은
+// escHtml과 문자 집합이 동일해( & < > " ) 분기할 이유가 없었고, 둘이 갈라지면
+// 한쪽만 고치는 조용한 보안 드리프트가 된다.
 function _aioPublicReadinessEsc(s) {
-  return String(s == null ? '' : s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+  return escHtml(s == null ? '' : s);
 }
 
 function _aioKstShortFromIso(iso) {
