@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v55.17';
+const APP_VERSION = 'v55.18';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -24863,9 +24863,9 @@ function _aioExternalReferenceMap(externalReferences) {
     'theme-detail','portfolio','ticker','market-news','options',
     'principles','masters','atlas','guide','screener'
   ];
-  var CRITICAL_5 = ['home','signal','breadth','sentiment','briefing'];
-  var ANALYSIS_5 = ['technical','macro','fxbond','fundamental','themes'];
-  var WORKFLOW_5 = ['theme-detail','portfolio','ticker','market-news','options'];
+  var CRITICAL_5 = ROUTE_PAGE_IDS.slice(0, 5);   // P1137/R623: 세 5라우트 그룹은 canonical 목록의 연속 구간이다 — 같은 20개를 다시 적지 않는다.
+  var ANALYSIS_5 = ROUTE_PAGE_IDS.slice(5, 10);
+  var WORKFLOW_5 = ROUTE_PAGE_IDS.slice(10, 15);
   var KR_5 = [];
   var EDUCATION = ['guide','principles','masters','atlas','glossary'];
 
@@ -26522,7 +26522,7 @@ var breadcrumbMap = {
   // P1129/R619: 퇴역한 KR 5라우트 항목 제거(DOM 0개, AIO_ROUTE_REGISTRY REMOVED).
   portfolio: ['AIO','포트폴리오'], macro: ['AIO','매크로'],
   technical: ['AIO','기술적 분석'], fundamental: ['AIO','기업 분석'],
-  briefing: ['AIO','데일리 브리핑'], sectors: ['AIO','섹터 로테이션'],
+  briefing: ['AIO','데일리 브리핑'], fxbond: ['AIO','FX·채권'],
   options: ['AIO','옵션 대시보드'],
   'market-news': ['AIO','시장 소식'], signal: ['AIO','매매 시그널'], breadth: ['AIO','시장 흐름'], sentiment: ['AIO','투자 심리'],
   guide: ['AIO','입문 가이드'], principles: ['AIO','시장 원리'], masters: ['AIO','대가의 포트폴리오'], atlas: ['AIO','AI 시대 지식 지도'],
@@ -26865,7 +26865,7 @@ window.PAGES = {
 window.AIO_ROUTE_REGISTRY = window.AIO_ROUTE_REGISTRY || {
   version: 'v52.59',
   classes: {
-    NAV_ROUTE: ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','macro','fxbond','fundamental','themes','portfolio','principles','masters','atlas','guide'],
+    NAV_ROUTE: [],
     DERIVED_VIEW: ['ticker','theme-detail'],
     REFERENCE: ['options'],
     // v53.7 (P725): KR 전용 5라우트 퇴역 — themes/macro/technical 통합 섹션으로 이관, _hashAlias 리다이렉트
@@ -26875,6 +26875,8 @@ window.AIO_ROUTE_REGISTRY = window.AIO_ROUTE_REGISTRY || {
   canonical: { 'theme-detail': 'themes', options: 'options', 'kr-home': 'macro', 'kr-supply': 'macro', 'kr-themes': 'themes', 'kr-macro': 'macro', 'kr-technical': 'technical' },
   registrySources: ['AIO_PAGE_CONTRACTS.routePageIds','AIO_ALL_ROUTE_PAGE_IDS','PAGES','showPage','history.state.page','location.hash','guide TOC']
 };
+// P1137/R623: NAV_ROUTE is the canonical 20 minus the derived-view and reference classes — derived, not re-listed.
+window.AIO_ROUTE_REGISTRY.classes.NAV_ROUTE = (window.AIO_ALL_ROUTE_PAGE_IDS || []).filter(function(id) { var c = window.AIO_ROUTE_REGISTRY.classes; return (c.DERIVED_VIEW || []).indexOf(id) < 0 && (c.REFERENCE || []).indexOf(id) < 0; });
 window.AIO_ROUTE_CANONICAL_CONTRACT = window.AIO_ROUTE_CANONICAL_CONTRACT || {
   themeDetail: 'themes',
   historyPushState: true,

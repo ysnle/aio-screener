@@ -266,6 +266,33 @@
       "p814Boundary": "market.js owns the bounded yc-chart-status label from explicit 3M/10Y curve evidence with a fail-closed state; P828 transfers the TNX/JPY trend and current Treasury curve canvases with source-labelled blocked fallbacks.",
       "notes": "P814 extends P772/P804 only to the fxbond risk/carry/CAM/curve-status bounded labels and score surface. P828 transfers chart lifecycle ownership; JPY history or incomplete curve evidence remains visibly unavailable rather than inferred."
     },
+    "fundamental": {
+      "lifecycleOwner": "native",
+      "rendererOwner": "native",
+      "dataOwner": "native",
+      "chartOwner": "legacy",
+      "narrativeOwner": "legacy",
+      "nativeModule": "src/ui/pages/entity.js (createEntityPage route=fundamental)",
+      "loadingStrategy": "route-dynamic-import",
+      "nativePrimarySurface": [
+        "#page-fundamental #fund-data-status"
+      ],
+      "nativeSecondarySurface": [
+        "#page-fundamental #fund-analysis-text",
+        "#page-fundamental #fund-native-sec-report",
+        "#page-fundamental #fund-native-sec-title",
+        "#page-fundamental #fund-native-sec-meta",
+        "#page-fundamental #fund-native-sec-coverage",
+        "#page-fundamental #fund-native-sec-grid"
+      ],
+      "legacyWriterEvidence": [
+        "index.html:_generateFundamentalAnalysis (former aggregate report entry point is inert after P815; multi-source report sections and AI narrative remain legacy-owned)"
+      ],
+      "p779Boundary": "entity.js owns the SEC annual-data availability/source badge from the normalized sec-fundamentals artifact.",
+      "p815Boundary": "entity.js now owns only the bounded SEC-derived fund-analysis-text summary line from normalized fundamentals; the former inline aggregate report is inert and the multi-source report sections, charts, and AI narrative remain legacy-owned.",
+        "p832Boundary": "entity.js owns the bounded SEC annual-fact core report from sec-report.v3: filing identity, period/submission/acceptance metadata, point-in-time status/counts, coverage count, finite observed metrics, and explicit freshness state. The multi-source report sections, peer/news/external panels, charts, and AI narrative remain legacy-owned.",
+      "notes": "Shares entity.js render() with ticker/options; P832 is a bounded official-SEC core report cutover, not a full multi-source fundamental-report cutover."
+    },
     "themes": {
       "lifecycleOwner": "native",
       "rendererOwner": "native",
@@ -334,89 +361,6 @@
       "p818Boundary": "themes.js owns the bounded detail-panel open/close display and current-theme marker after the compatibility event; showThemeDetail/closeThemeDetail retain selection/event behavior but skip native panel writes.",
       "notes": "theme-detail is a derived inline view, not a separate user route: showPage('theme-detail') redirects to themes and opens the panel. P788-P797 add native summary, composition, detailed-leader, temperature, spread, breadth-health, subtheme-gap, benchmark, and insights children, P800 moves selected-detail data to the native themes provider, and P818 transfers panel display/selection marker ownership. The dead renderPageThemeDetail() declaration and static page-theme-detail title writer were retired in P776; chart ownership remains legacy."
     },
-    "ticker": {
-      "lifecycleOwner": "native",
-      "rendererOwner": "native",
-      "dataOwner": "native",
-      "chartOwner": "native",
-      "narrativeOwner": "legacy",
-      "nativeModule": "src/ui/pages/entity.js (createEntityPage route=ticker)",
-      "loadingStrategy": "route-dynamic-import",
-      "nativePrimarySurface": [
-        "#page-ticker #ticker-hero-name",
-        "#page-ticker #ticker-hero-fullname",
-        "#page-ticker #ticker-hero-price",
-        "#page-ticker #ticker-hero-chg"
-      ],
-      "nativeSecondarySurface": [
-        "#page-ticker #ticker-candle-symbol",
-        "#page-ticker #ticker-entry-symbol",
-        "#page-ticker #ticker-hero-ext",
-        "#page-ticker #ticker-hero-pnl",
-        "#page-ticker #ticker-hero-value",
-        "#page-ticker #ticker-back-btn-main",
-        "#page-ticker #ticker-breadcrumb-main",
-        "#page-ticker #ticker-fundamental-link"
-      ],
-      "contestedIds": [],
-      "legacyWriterEvidence": [
-        "js/aio-core.js:showTicker retains compatibility overview writers; P1010 retires dead action/financial/navigation writers and P829 fences P&L behind aioTickerPnlRenderer",
-        "js/aio-data.js: ticker-hero-ext after-hours compatibility writer skips aioTickerExtensionRenderer",
-        "index.html:loadTickerChart is fenced while #page-ticker[data-aio-ticker-chart-renderer=\"native\"] is mounted"
-      ],
-      "p777Boundary": "entity.js owns the ticker hero identity/name/price/change primary surface from the normalized entity state.",
-      "p817Boundary": "entity.js owns the bounded candle/entry symbol labels from normalized entity id; P829 also owns the after-hours and portfolio P&L hero sinks with fail-closed output when quote or position evidence is missing.",
-      "p834Boundary": "entity.js owns the ticker price-chart canvas lifecycle from normalized entity history with a blocked fallback; legacy Stooq/Chart.js loading is fenced while the native marker is mounted."
-    },
-    "fundamental": {
-      "lifecycleOwner": "native",
-      "rendererOwner": "native",
-      "dataOwner": "native",
-      "chartOwner": "legacy",
-      "narrativeOwner": "legacy",
-      "nativeModule": "src/ui/pages/entity.js (createEntityPage route=fundamental)",
-      "loadingStrategy": "route-dynamic-import",
-      "nativePrimarySurface": [
-        "#page-fundamental #fund-data-status"
-      ],
-      "nativeSecondarySurface": [
-        "#page-fundamental #fund-analysis-text",
-        "#page-fundamental #fund-native-sec-report",
-        "#page-fundamental #fund-native-sec-title",
-        "#page-fundamental #fund-native-sec-meta",
-        "#page-fundamental #fund-native-sec-coverage",
-        "#page-fundamental #fund-native-sec-grid"
-      ],
-      "legacyWriterEvidence": [
-        "index.html:_generateFundamentalAnalysis (former aggregate report entry point is inert after P815; multi-source report sections and AI narrative remain legacy-owned)"
-      ],
-      "p779Boundary": "entity.js owns the SEC annual-data availability/source badge from the normalized sec-fundamentals artifact.",
-      "p815Boundary": "entity.js now owns only the bounded SEC-derived fund-analysis-text summary line from normalized fundamentals; the former inline aggregate report is inert and the multi-source report sections, charts, and AI narrative remain legacy-owned.",
-        "p832Boundary": "entity.js owns the bounded SEC annual-fact core report from sec-report.v3: filing identity, period/submission/acceptance metadata, point-in-time status/counts, coverage count, finite observed metrics, and explicit freshness state. The multi-source report sections, peer/news/external panels, charts, and AI narrative remain legacy-owned.",
-      "notes": "Shares entity.js render() with ticker/options; P832 is a bounded official-SEC core report cutover, not a full multi-source fundamental-report cutover."
-    },
-    "options": {
-      "lifecycleOwner": "native",
-      "rendererOwner": "native",
-      "dataOwner": "native",
-      "chartOwner": "legacy",
-      "narrativeOwner": "legacy",
-      "nativeModule": "src/ui/pages/entity.js (createEntityPage route=options)",
-      "loadingStrategy": "route-dynamic-import",
-      "nativePrimarySurface": [
-        "#page-options #opt-vix-val-secondary",
-        "#page-options #opt-pcr-val-secondary",
-        "#page-options #opt-skew-val-secondary"
-      ],
-      "legacyWriterEvidence": [
-        "js/aio-data.js: _aioIsNativeMacroElement fences generic live quote/PCR writers when the options page is native",
-        "js/aio-core.js: applyDataSnapshot skips data-snap sinks under the native options page",
-        "index.html: initOptionsPage PCR fallback skips native options elements"
-      ],
-      "p778Boundary": "entity.js owns only the three current replacement-metric values (VIX/PCR/SKEW) from the normalized entity options projection. The page is explicitly not an options-chain source: explanatory copy, old IV/VVIX/GEX/narrative handlers, and any future chain/chart surface remain legacy/reference-only.",
-      "contestedIds": [],
-      "notes": "Shares entity.js render() with ticker/fundamental; options renderer cutover is bounded to the three current replacement-metric sinks."
-    },
     "portfolio": {
       "lifecycleOwner": "native",
       "rendererOwner": "native",
@@ -457,6 +401,40 @@
       "p835Boundary": "portfolio.js owns the pf-position-donut chart lifecycle from normalized holding value evidence with an unavailable fallback; legacy drawPositionDonut is fenced while the native portfolio chart marker is mounted.",
       "notes": "The native module owns pf-analysis-status, the bounded total-value/P&L hero, the nine-column Vault-backed holdings table, the deterministic summary/allocation/exposure surface, and the position allocation chart. Legacy CRUD commands remain compatibility actions through data-action buttons; risk metrics, benchmark/holding charts, AI workbench, and narrative remain separately legacy-owned."
     },
+    "ticker": {
+      "lifecycleOwner": "native",
+      "rendererOwner": "native",
+      "dataOwner": "native",
+      "chartOwner": "native",
+      "narrativeOwner": "legacy",
+      "nativeModule": "src/ui/pages/entity.js (createEntityPage route=ticker)",
+      "loadingStrategy": "route-dynamic-import",
+      "nativePrimarySurface": [
+        "#page-ticker #ticker-hero-name",
+        "#page-ticker #ticker-hero-fullname",
+        "#page-ticker #ticker-hero-price",
+        "#page-ticker #ticker-hero-chg"
+      ],
+      "nativeSecondarySurface": [
+        "#page-ticker #ticker-candle-symbol",
+        "#page-ticker #ticker-entry-symbol",
+        "#page-ticker #ticker-hero-ext",
+        "#page-ticker #ticker-hero-pnl",
+        "#page-ticker #ticker-hero-value",
+        "#page-ticker #ticker-back-btn-main",
+        "#page-ticker #ticker-breadcrumb-main",
+        "#page-ticker #ticker-fundamental-link"
+      ],
+      "contestedIds": [],
+      "legacyWriterEvidence": [
+        "js/aio-core.js:showTicker retains compatibility overview writers; P1010 retires dead action/financial/navigation writers and P829 fences P&L behind aioTickerPnlRenderer",
+        "js/aio-data.js: ticker-hero-ext after-hours compatibility writer skips aioTickerExtensionRenderer",
+        "index.html:loadTickerChart is fenced while #page-ticker[data-aio-ticker-chart-renderer=\"native\"] is mounted"
+      ],
+      "p777Boundary": "entity.js owns the ticker hero identity/name/price/change primary surface from the normalized entity state.",
+      "p817Boundary": "entity.js owns the bounded candle/entry symbol labels from normalized entity id; P829 also owns the after-hours and portfolio P&L hero sinks with fail-closed output when quote or position evidence is missing.",
+      "p834Boundary": "entity.js owns the ticker price-chart canvas lifecycle from normalized entity history with a blocked fallback; legacy Stooq/Chart.js loading is fenced while the native marker is mounted."
+    },
     "market-news": {
       "lifecycleOwner": "native",
       "rendererOwner": "native",
@@ -469,30 +447,27 @@
       "legacyWriterEvidence": [],
       "notes": "P769/P770: native news.js owns the primary live-news-feed and briefing-live-news-list DOM, counts, completed 08:00 KST empty states/timestamps, and reveal controls from canonical news state. Legacy RSS/filter/translation/model handlers remain compatibility producers; the secondary Korean rewrite, briefing digest/AI narrative, and data pipeline remain legacy-owned for the next content packet."
     },
-    "screener": {
+    "options": {
       "lifecycleOwner": "native",
       "rendererOwner": "native",
       "dataOwner": "native",
       "chartOwner": "legacy",
       "narrativeOwner": "legacy",
-      "nativeModule": "src/ui/pages/screener.js (createScreenerPage)",
+      "nativeModule": "src/ui/pages/entity.js (createEntityPage route=options)",
       "loadingStrategy": "route-dynamic-import",
+      "nativePrimarySurface": [
+        "#page-options #opt-vix-val-secondary",
+        "#page-options #opt-pcr-val-secondary",
+        "#page-options #opt-skew-val-secondary"
+      ],
+      "legacyWriterEvidence": [
+        "js/aio-data.js: _aioIsNativeMacroElement fences generic live quote/PCR writers when the options page is native",
+        "js/aio-core.js: applyDataSnapshot skips data-snap sinks under the native options page",
+        "index.html: initOptionsPage PCR fallback skips native options elements"
+      ],
+      "p778Boundary": "entity.js owns only the three current replacement-metric values (VIX/PCR/SKEW) from the normalized entity options projection. The page is explicitly not an options-chain source: explanatory copy, old IV/VVIX/GEX/narrative handlers, and any future chain/chart surface remain legacy/reference-only.",
       "contestedIds": [],
-      "legacyWriterEvidence": [],
-      "notes": "ARX-10/ARX-16: screener.js is the sole visible DOM owner and the native provider/orchestrator owns the canonical screener state and single artifact fetch. Non-route readers use AIO_ARCH.getScreenerRows() through the compatibility boundary; legacy profile/watchlist storage and identity/memo overlays remain as explicit compatibility producers."
-    },
-    "guide": {
-      "lifecycleOwner": "native",
-      "rendererOwner": "native",
-      "dataOwner": "native",
-      "chartOwner": "not-applicable",
-      "narrativeOwner": "not-applicable",
-      "nativeModule": "src/ui/pages/guide.js (createGuidePage)",
-      "loadingStrategy": "route-dynamic-import",
-      "notApplicableFields": ["chartOwner", "narrativeOwner"],
-      "contestedIds": [],
-      "legacyWriterEvidence": [],
-      "notes": "No competing legacy _aioGuideSearchTrigger/_aioGuideJump function definitions found anywhere in js/*.js — genuinely uncontested. dataOwner is native because the route is served by the canonical runtime state boundary; chartOwner/narrativeOwner remain legacy only as not-applicable (static reference content, with no chart or generated narrative surface)."
+      "notes": "Shares entity.js render() with ticker/fundamental; options renderer cutover is bounded to the three current replacement-metric sinks."
     },
     "principles": {
       "lifecycleOwner": "native",
@@ -532,6 +507,31 @@
       "contestedIds": [],
       "legacyWriterEvidence": [],
       "notes": "Native learner-first AI knowledge route with foundations, relationship, taxonomy and evidence views. Capability groups load by tab under route abort scope; search covers authored body/evidence; learning state and professional-route bridges are interactive. Structural role/product coverage stays separate from dated currentness and no unverified shipment, yield, valuation or trading claim is promoted."
+    },
+    "guide": {
+      "lifecycleOwner": "native",
+      "rendererOwner": "native",
+      "dataOwner": "native",
+      "chartOwner": "not-applicable",
+      "narrativeOwner": "not-applicable",
+      "nativeModule": "src/ui/pages/guide.js (createGuidePage)",
+      "loadingStrategy": "route-dynamic-import",
+      "notApplicableFields": ["chartOwner", "narrativeOwner"],
+      "contestedIds": [],
+      "legacyWriterEvidence": [],
+      "notes": "No competing legacy _aioGuideSearchTrigger/_aioGuideJump function definitions found anywhere in js/*.js — genuinely uncontested. dataOwner is native because the route is served by the canonical runtime state boundary; chartOwner/narrativeOwner remain legacy only as not-applicable (static reference content, with no chart or generated narrative surface)."
+    },
+    "screener": {
+      "lifecycleOwner": "native",
+      "rendererOwner": "native",
+      "dataOwner": "native",
+      "chartOwner": "legacy",
+      "narrativeOwner": "legacy",
+      "nativeModule": "src/ui/pages/screener.js (createScreenerPage)",
+      "loadingStrategy": "route-dynamic-import",
+      "contestedIds": [],
+      "legacyWriterEvidence": [],
+      "notes": "ARX-10/ARX-16: screener.js is the sole visible DOM owner and the native provider/orchestrator owns the canonical screener state and single artifact fetch. Non-route readers use AIO_ARCH.getScreenerRows() through the compatibility boundary; legacy profile/watchlist storage and identity/memo overlays remain as explicit compatibility producers."
     }
   },
   "counts": {
@@ -547,18 +547,18 @@
       "technical",
       "macro",
       "fxbond",
+      "fundamental",
       "themes",
       "theme-detail",
-      "ticker",
-      "fundamental",
-      "options",
       "portfolio",
+      "ticker",
       "market-news",
-      "screener",
-      "guide",
+      "options",
       "principles",
       "masters",
-      "atlas"
+      "atlas",
+      "guide",
+      "screener"
     ],
     "rendererLegacyRoutes": [],
     "dataNative": 20,
@@ -571,18 +571,18 @@
       "technical",
       "macro",
       "fxbond",
+      "fundamental",
       "themes",
       "theme-detail",
-      "ticker",
-      "fundamental",
-      "options",
       "portfolio",
+      "ticker",
       "market-news",
-      "screener",
-      "guide",
+      "options",
       "principles",
       "masters",
-      "atlas"
+      "atlas",
+      "guide",
+      "screener"
     ],
     "chartNative": 8,
     "chartNativeRoutes": [
@@ -592,13 +592,34 @@
       "macro",
       "fxbond",
       "themes",
-      "ticker",
-      "portfolio"
+      "portfolio",
+      "ticker"
     ],
     "narrativeNative": 1,
     "narrativeNativeRoutes": ["theme-detail"],
-    "lazyLoadedRoutes": ["home", "signal", "breadth", "sentiment", "briefing", "technical", "macro", "fxbond", "themes", "theme-detail", "ticker", "fundamental", "options", "portfolio", "market-news", "screener", "guide", "principles", "masters", "atlas"],
-    "fullNativeOwner": ["guide", "principles", "masters", "atlas"]
+    "lazyLoadedRoutes": [
+      "home",
+      "signal",
+      "breadth",
+      "sentiment",
+      "briefing",
+      "technical",
+      "macro",
+      "fxbond",
+      "fundamental",
+      "themes",
+      "theme-detail",
+      "portfolio",
+      "ticker",
+      "market-news",
+      "options",
+      "principles",
+      "masters",
+      "atlas",
+      "guide",
+      "screener"
+    ],
+    "fullNativeOwner": ["principles", "masters", "atlas", "guide"]
   },
   "legacySymbolsMustBeAbsent": {
     "sentiment": [

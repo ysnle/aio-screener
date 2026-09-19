@@ -2,12 +2,24 @@
 verified_by: 데이터 파이프라인 전수 의미·정합성 감사(로컬 재계산) + affected QA; 중첩 산출물 의미 검토는 open
 last_verified: 2026-09-19
 confidence: medium
-latest_version: v55.17
-latest_P_number: P1136
-next_P_number: P1137
-current_total_entries: 551 tracked entries (378 headings + 173 compacted lines, P1~P1136, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
+latest_version: v55.18
+latest_P_number: P1137
+next_P_number: P1138
+current_total_entries: 552 tracked entries (379 headings + 173 compacted lines, P1~P1137, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
 current_checkpoint: 사용자 판단(지인용 사설 스크리너)으로 **차단 경계를 공시로 재배치**했다 — 개인화 지시·현재증거 부족·수치 주장 불일치·헤드라인 전용 인과를 하드 차단에서 경고/공시로 강등(P1120~P1122). 조작 방지(값·단위·NFP 배율), 금지 행위 P0, 포트폴리오 동의, 도구 경계는 그대로 차단이다. 남은 OPEN: 날짜 없는 중첩 산출물 12건(P1110 측정면이 노출), `objects/**` 592/629 미참조 blob의 보존 정책, 캐시 라우팅 밖의 실제 소비 산출물 오프라인 폴백 (semantic coverage 6.89%, releaseCertified=false)
 ---
+
+## P1137 - v55.18 - 3단계: 라우트 20개가 다섯 곳에 다섯 순서로 있었다 (2026-09-19)
+
+- symptom/reproduction: 같은 20개 라우트가 **다섯 표면에 다섯 가지 순서로** 손으로 적혀 있었다 — `js/aio-core.js ROUTE_PAGE_IDS`(그룹 순서), `src/app/routes.js ROUTE_IDS`(screener가 16번째), `architecture/route-owners.json counts.*`(guide/principles/masters/atlas가 뒤바뀜), `architecture/golden-routes.json routes`(routes.js 순서), `AIO_ROUTE_REGISTRY.classes.NAV_ROUTE`(또 다른 순서). 집합은 같았기 때문에 **개수만 세는 게이트는 전부 통과**했고, "두 목록이 같은가"라는 질문의 답이 어느 파일을 읽느냐에 따라 달라졌다.
+- root_cause: **개수 동등성만 검사하고 순서는 검사하지 않았다.** 재정렬은 조용한 변경이라 게이트가 볼 수 없었고, 그래서 다섯 목록이 각자 표류했다. P1130 계열(측정면이 실제 위험을 못 봄)의 재현이다.
+- fix: 정본을 **core의 `ROUTE_PAGE_IDS` 한 곳**으로 정하고 나머지를 파생시켰다. (1) 같은 파일: `CRITICAL_5/ANALYSIS_5/WORKFLOW_5`를 `slice(0,5)`·`slice(5,10)`·`slice(10,15)`로 파생(동작 동일 — 원래 연속 구간이었다), `AIO_ROUTE_REGISTRY.classes.NAV_ROUTE`를 canonical에서 DERIVED_VIEW/REFERENCE를 뺀 것으로 파생(17개 유지). (2) 다른 파일: 새 생성기 `scripts/generate-route-registry.mjs`(`--write`/`--check`)가 `src/app/routes.js`와 `route-owners.json`의 `routes` 키 순서 + `counts.*`를 생성. QA 파이프라인 등록(**139개**).
+- **게이트가 순서에서 기대값을 계산한다는 사실을 발견했다**: `ci-architecture-contract-check`는 `Object.entries(route-owners.routes)`의 **키 순서**로 `counts.*` 배열 순서를 기대한다. 그래서 생성기가 키 순서까지 소유하지 않으면 게이트가 "재정렬"을 "드리프트"로 잘못 보고한다 — 생성기에 `routes` 키 재정렬을 추가해 둘을 일치시켰다.
+- **부수 버그 1(사용자 가시)**: `breadcrumbMap`에 `fxbond`가 없고 라우트가 아닌 `sectors`가 있었다. fallback이 `['AIO', id]`라 **fxbond 페이지의 브레드크럼이 "AIO / fxbond"로 노출**되고 있었다. fxbond 라벨을 추가하고 죽은 `sectors` 키를 제거했으며, 생성기가 이제 "canonical 라우트 전부에 라벨이 있는가"를 검사한다.
+- **부수 발견 2(도구)**: 생성기의 첫 두 시도가 `route-owners.json`을 **깨뜨렸다**. 원인은 (a) 파일이 **CRLF**인데 `indexOf('\n  },\n  "counts"')`로 경계를 찾아 `-1`이 나왔고, 그 결과 region이 파일 끝까지 넓어져 `counts`가 21번째 라우트로 섞였다. (b) `indexOf('  "routes": {')`는 **헤더의 시작**을 반환하므로 그대로 자르면 **여는 중괄호가 사라져** 문서가 한 단계 일찍 닫혔다. (c) 원본 마지막 항목만 쉼표가 없어, 블록을 그대로 옮기면 `},` 뒤에 `},`가 생겼다. 세 번 모두 `JSON.parse`가 즉시 잡았고, 수정 후 생성기는 멱등이다(`--check` 통과).
+- violated_rule: R620(측정면), **R623(신규 — 같은 집합을 여러 곳에 손으로 적지 않는다)**.
+- verification: **실브라우저 `ci-architecture-browser-check` PASS**(20 라우트 왕복), headless **1,133/1,133 PASS(110/110 그룹)**, `ci-route-soak-check`·`ci-desktop-continuity-check`·`ci-desktop-scope-check`·`ci-esm-core-unit-check`·`ci-vertical-slice-contract-check`·`ci-accessibility-matrix-check`·`ci-user-journey-quality-check`(라우트 소비자 전부), `ci-architecture-contract-check`·`ci-runtime-contract-check`(NAV_ROUTE 파생 단언 재지정)·`ci-structural-check`·`ci-data-pipeline-contract-check`·`ci-research-flow-contract-check`, `ci-reference-curriculum-contract-check`·`ci-atlas/masters/principles-contract-check`, `ci-qa-pipeline-contract-check`(139 게이트), `ci-decomp-hotspot-check`(11개 파일, core 27,999/28,000 — `--allow-growth` +2 기록: 중복 제거를 위한 파생 도입), `ci-ledger-integrity-check`, `ci-assertion-trace-check`, `ci-workspace-contract-check`, `ci-version-check`, `ci-release-revision-check`, `ci-syntax-check` PASS. affected QA 93 PASS / 2 FAIL(신선도 SLA). 커밋만 수행, push·배포 없음.
+- **비고(파생하지 못한 표면)**: `EDUCATION`은 순서가 아니라 분류 집합(overlay `glossary` 포함)이라 합치지 않고 생성기가 멤버십만 검사한다. `AIO_ROUTE_REGISTRY.classes.NAV_ROUTE`처럼 core가 줄 상한(28,000)에 붙어 있어 파생 코드를 늘리기 어려운 표면은 파생으로 처리했다(정확히 +1줄). 앞으로 core가 더 분해되면 `EDUCATION`도 파생 대상이다.
 
 ## P1136 - v55.17 - 2단계 완결: 블록 A 이관, 인라인 15,308줄 → 154줄 (2026-09-19)
 

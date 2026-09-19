@@ -2,10 +2,16 @@
 verified_by: Codex local source review + affected QA (workspace/deployment regression); full semantic audit remains open
 last_verified: 2026-09-19
 confidence: medium
-target_version: v55.17
+target_version: v55.18
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R623. 같은 집합을 여러 곳에 손으로 적지 않는다 — 순서까지 파생시킨다 (v55.18, P1137)
+
+**Rule**: 같은 식별자 집합이 여러 표면에 등장하면 **한 곳만 손으로 적고 나머지는 파생**시킨다. 개수만 세는 게이트로는 **재정렬을 볼 수 없다** — 그래서 20개 라우트가 다섯 곳(`js/aio-core.js ROUTE_PAGE_IDS`, `src/app/routes.js ROUTE_IDS`, `architecture/route-owners.json counts.*`, `architecture/golden-routes.json routes`, `AIO_ROUTE_REGISTRY.classes`)에 **다섯 가지 순서로** 존재했고, "이 둘이 같은 라우트 집합인가"라는 질문의 답이 어느 목록을 읽느냐에 따라 달라졌다. 따라서 (1) 정본은 **한 곳**에 둔다(여기서는 core의 `ROUTE_PAGE_IDS` — 운영 그룹 순서를 담은 유일한 손 목록). (2) 같은 파일 안의 파생물은 **런타임에 계산**한다(그룹은 `slice`, `NAV_ROUTE`는 정본에서 derived/reference를 뺀 것). (3) 다른 파일의 파생물은 **생성기로 생성**하고 `--check` 모드를 CI 게이트로 등록한다(R1의 버전 7표면과 같은 방식). (4) 게이트가 파생물의 **순서에서 기대값을 계산**한다면 그 순서 자체가 계약이므로 생성기가 그 순서도 소유해야 한다 — 아니면 게이트가 "재정렬"을 "드리프트"로 잘못 보고한다. (5) 파일 줄 수 상한 때문에 파생 코드를 늘리기 어려운 표면은 파생을 최소화하고 **게이트로 고정**하며 그 이유를 기록한다. (6) 왜 다른 순서를 유지해야 하는 집합(예: `EDUCATION`은 라우트 순서가 아니라 overlay `glossary`를 포함한 분류 집합)은 합치지 않고 **왜 다른지 기록**한다(R619(1)).
+
+**Validation**: `scripts/generate-route-registry.mjs --check`(정본 목록·그룹 파생·레지스트리 분할·breadcrumb 커버리지·golden 집합·생성 표면 동기), `scripts/ci-architecture-contract-check.mjs`(counts 배열 순서), `scripts/ci-structural-check.mjs`(정본 목록 판독), `scripts/ci-esm-core-unit-check.mjs` + `scripts/ci-architecture-browser-check.mjs`(ESM 소비자 20라우트 왕복).
 
 ## R622. 인라인 코드의 추출은 실행 "위치"를 보존한다 (v55.16, P1135)
 

@@ -534,7 +534,10 @@ check('fundamental route entry remains a free bounded SEC surface without automa
     && !/aioDefaultCompany/.test(core)
     && !/var\s+_initFundamentalPage\s*=\s*function\(\)[\s\S]{0,700}fundamentalSearch\s*\(/.test(core));
 check('remaining user surfaces reuse the comp hierarchy without new parallel data paths', /(?:(?:function\s+_aioPolishRemainingPages\(pageId\))|(?:(?:var|let|const)\s+_aioPolishRemainingPages\s*=\s*function\(pageId\)))/.test(core) && /aio-guide-chapter/.test(core) && /aio-theme-progressive/.test(core) && /aio-comp-secondary-feed/.test(html));
-check('route terminology separates 20 user surfaces from 22 internal QA routes', /NAV_ROUTE:\s*\[[^\]]+\]/.test(core) && /DERIVED_VIEW:\s*\['ticker','theme-detail'\]/.test(core) && /REFERENCE:\s*\['options'\]/.test(core) && /OVERLAY:\s*\['glossary'\]/.test(core));
+// P1137/R623: NAV_ROUTE is no longer a re-listed array — it is derived from the canonical
+// `AIO_ALL_ROUTE_PAGE_IDS` minus the derived-view and reference classes. Assert the derivation
+// itself, so re-introducing a hand-listed copy fails here as well as in the registry gate.
+check('route terminology separates 20 user surfaces from 22 internal QA routes', /NAV_ROUTE:\s*\[\]/.test(core) && /classes\.NAV_ROUTE = \(window\.AIO_ALL_ROUTE_PAGE_IDS \|\| \[\]\)\.filter/.test(core) && /DERIVED_VIEW:\s*\['ticker','theme-detail'\]/.test(core) && /REFERENCE:\s*\['options'\]/.test(core) && /OVERLAY:\s*\['glossary'\]/.test(core));
 check('guide chapters and KR secondary groups are explicit progressive-disclosure controls', /#kr-integrated-themes \.aio-theme-progressive \.kr-theme-card:nth-child\(n\+4\)/.test(html) && /\.aio-comp-secondary[\s\S]{0,1200}\.aio-guide-chapter/.test(html));
 check('glossary renders countable semantic rows and a readable comp modal', /class="aio-glossary-item"/.test(ui) && /class="aio-glossary-term"/.test(ui) && /GLOSSARY\.length/.test(ui));
 check('headless tests cover the redesigned default path', /T869 redesign_default_path_v5289/.test(tests));

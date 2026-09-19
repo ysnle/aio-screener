@@ -1,3 +1,13 @@
+## v55.18 (2026-09-19)
+- **3단계 완료 — 라우트 20개가 다섯 곳에 다섯 순서로 적혀 있던 것을 단일 원천에서 파생시켰습니다 (R623/P1137).**
+- **원인**: **개수만 세는 게이트는 재정렬을 볼 수 없습니다.** 그래서 `ROUTE_PAGE_IDS`(core)·`ROUTE_IDS`(routes.js)·`route-owners counts.*`·`golden-routes.json`·`AIO_ROUTE_REGISTRY.classes`가 각자 표류했고, "두 목록이 같은가"의 답이 어느 파일을 읽느냐에 따라 달라졌습니다.
+- **정본은 `js/aio-core.js`의 `ROUTE_PAGE_IDS` 한 곳**입니다. 같은 파일에서 `CRITICAL_5/ANALYSIS_5/WORKFLOW_5`는 `slice`(원래 연속 구간이라 **동작 동일**), `NAV_ROUTE`는 canonical에서 derived/reference를 뺀 17개로 파생했습니다. 다른 파일은 새 생성기 `scripts/generate-route-registry.mjs`(`--check`가 QA **139번째** 게이트)가 생성합니다 — `src/app/routes.js`와 `route-owners.json`의 `routes` 키 순서 + `counts.*`.
+- **게이트가 순서에서 기대값을 계산한다는 걸 발견했습니다**: `ci-architecture-contract-check`는 `route-owners.routes`의 **키 순서**로 `counts.*` 배열 순서를 기대합니다. 그래서 생성기가 키 순서까지 소유하지 않으면 게이트가 "재정렬"을 "드리프트"로 잘못 보고합니다 — 생성기에 키 재정렬을 추가해 일치시켰습니다.
+- **부수적으로 실제 버그를 하나 잡았습니다**: `breadcrumbMap`에 `fxbond` 라벨이 없어 **fxbond 페이지 브레드크럼이 "AIO / fxbond"로 노출**되고 있었습니다(fallback이 raw id). 라벨을 추가하고 라우트가 아닌 `sectors` 키를 제거했으며, 이제 생성기가 "canonical 라우트 전부에 라벨이 있는가"를 검사합니다.
+- **도구 실수 3건을 스스로 잡았습니다** — 생성기 첫 시도가 `route-owners.json`을 깨뜨렸습니다: (a) 파일이 **CRLF**인데 LF로 경계를 찾아 region이 파일 끝까지 넓어지고 `counts`가 21번째 라우트로 섞였고, (b) `indexOf`가 헤더 **시작**을 반환해 그대로 자르면 **여는 중괄호가 사라져** 문서가 한 단계 일찍 닫혔고, (c) 원본 마지막 항목만 쉼표가 없어 블록을 옮기면 `},` 가 중복됐습니다. 세 번 다 `JSON.parse`가 즉시 잡았고, 수정 후 생성기는 멱등입니다.
+- 검증: **실브라우저 PASS**(20 라우트 왕복), headless **1,133/1,133 PASS**, 라우트 소비자 게이트 7종(route-soak·desktop-continuity·desktop-scope·esm-core-unit·vertical-slice·accessibility-matrix·user-journey) 전부 PASS, architecture/runtime/structural/data-pipeline/research-flow/reference-curriculum/atlas/masters/principles PASS, `ci-decomp-hotspot-check`(11개 파일, core **27,999/28,000** — `--allow-growth` +2를 커밋에 기록), 139 게이트 PASS. affected QA **93 PASS / 2 FAIL**(신선도 SLA).
+- **파생하지 못한 것**: `EDUCATION`은 순서가 아니라 overlay `glossary`를 포함한 분류 집합이라 멤버십만 검사합니다(R619(1) — 왜 다른지 기록). **push·배포하지 않았습니다.**
+
 ## v55.17 (2026-09-19)
 - **2단계 완결 — 인라인 블록 A(사용자 상태·워크스페이스, 실측 2,608줄)를 `js/aio-workspace.js`로 추출했다 (R620/P1136).** index.html **15,892 → 13,284(−2,608)**. 2단계(블록 E·G·F·D·C·B·A)가 끝났습니다.
 - **측정 정정**: 오래 "블록 A = 1,993줄"로 알고 있었지만 실제는 **2,608줄**이었습니다. 블록 A 선두 주석 안에 리터럴 `<script>` 텍스트가 있어 스캐너가 시작점을 614줄 뒤로 밀었습니다 — **P1129에서 "인라인 JS 14,870"이 틀렸던 것과 같은 원인**입니다. 이번엔 본문 고유 마커 4개를 요구하는 방식으로 재측정해 확정했습니다.
