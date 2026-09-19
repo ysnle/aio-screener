@@ -1,3 +1,11 @@
+## v55.11 (2026-09-19)
+- **2단계 파일럿 — 인라인 블록 E를 새 파일 없이 기존 등록 파일로 이관했다 (R619/R620/P1130).** index.html −178, `js/aio-ui.js` +184.
+- **왜 새 파일을 만들지 않았는가** — 새 `js/aio-*.js`는 **여섯 곳**을 함께 고쳐야 합니다: `asset-manifest.immutableRuntime`, `public-artifact-manifest` allowlist, `sw.js CRITICAL_SHELL_ASSETS`, `pages-deploy.yml` cp 목록, 그리고 `ci-structural-check`·`ci-live-invariant`의 하드코딩된 `RUNTIME_SCRIPT_FILES` **2곳**. 마지막 둘을 빠뜨리면 R280 중복 전역 검사가 그 파일에 대해 **눈이 먼다** — P605가 정확히 그 사각에서 수십 버전 동안 미탐지됐습니다. 즉 "왜 인라인인가"의 답은 성능이 아니라 **등록면 회피**였고, 새 파일 추출은 이 저장소에서 가장 취약한 지점을 늘리는 방향입니다. 이미 등록된 `js/aio-ui.js`에 접어넣으면 등록 비용이 **0**입니다.
+- **실행 시점 변경은 안전합니다** — 파싱 시점 → `defer`(파싱 후·DOMContentLoaded 전). 옮긴 코드는 (a) 이미 파싱된 `#glossary-btn`에 리스너를 붙이고 (b) `DOMContentLoaded`에서 pageBus를 등록하므로 둘 다 defer가 더 안전합니다. 파싱 시점에 이 블록 심볼을 호출하는 경로가 없음을 사전 확인했습니다(`initOptionsPage` 참조는 core의 `typeof` 가드 1곳뿐).
+- **이동이 게이트를 하나 깨뜨렸고, 그게 옳은 동작이었습니다** — `ci-architecture-contract-check`가 옵션 페이지 native fence를 **index.html에서** 찾고 있었는데 fence가 함께 옮겨졌습니다. 단언을 `uiSource`로 옮겼습니다. 이전 파일에 고정된 단언은 실패하거나(이번 경우), 더 나쁘게는 **오래된 사본을 검사하며 통과**할 수 있습니다.
+- 검증: **실브라우저 sink PASS** — `optionsRoute`가 네이티브 sink 3개와 실제 값(VIX 15.63 · PCR 0.98)을 렌더했고 `browserErrors:0`, `routeRoundTrip:true`, 캔버스/타이머 42/12로 누수 없음. headless **1,133/1,133 PASS(110/110 그룹)**, decomp(28,397 / 4,566 — 증가는 `--allow-growth`로 기록), structural(R280 중복 전역 0), version(캐시버스터 9 유지), architecture, runtime, workspace, knowledge-lint, syntax PASS.
+- **확정된 블록당 비용**: 추출 1 + 그 블록 텍스트를 단언하는 게이트 소유자 수정 1 + 래칫 기록 1. 남은 A~D·F·G(15,128줄)는 파싱 시점 의존을 블록별로 확인해야 합니다(QA-EXHAUST-89). 3단계는 QA-EXHAUST-90. **push·배포하지 않았습니다.**
+
 ## v55.10 (2026-09-19)
 - **1단계 정비 완료 — 중복 선언·죽은 코드·문서 수치를 정리했다 (R619/R620/P1129).**
 - **중복 선언 1건.** `AIO_CRITICAL_10_PAGE_IDS`가 두 번 선언돼 있었다 — `aio-core.js:25037`이 `CRITICAL_5.concat(ANALYSIS_5)`로 파생하는데 `aio-data.js:3999`가 하드코딩 리터럴로 무조건 덮어썼다(내용은 우연히 같았을 뿐). data 쪽을 제거해 core 파생값을 단일 원천으로 만들었다.

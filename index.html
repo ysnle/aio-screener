@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v55.10 — 올인원 투자 터미널</title>
+  <title>AIO Screener v55.11 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -32,10 +32,10 @@
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css">
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-  <link rel="preload" as="script" href="./js/aio-core.js?v=55.10">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=55.10">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=55.10">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=55.10">
+  <link rel="preload" as="script" href="./js/aio-core.js?v=55.11">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=55.11">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=55.11">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=55.11">
   <!-- v48.31 perf: 3개 CDN defer 스크립트 다운로드 hint — HTML 파싱과 병렬 다운로드, defer 실행 시점 대기 제거 -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
   <link rel="preload" as="script" href="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js">
@@ -6374,7 +6374,7 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v55.10</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v55.11</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -13112,9 +13112,9 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=55.10" defer></script>
-  <script src="./js/aio-data.js?v=55.10" defer></script>
-  <script src="./js/aio-ui.js?v=55.10" defer></script>
+  <script src="./js/aio-core.js?v=55.11" defer></script>
+  <script src="./js/aio-data.js?v=55.11" defer></script>
+  <script src="./js/aio-ui.js?v=55.11" defer></script>
 
 
   <script>
@@ -15729,7 +15729,7 @@ function _getV48IntegratedContext(pageFocus) {
 
   </script>
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=55.10" defer></script>
+<script src="./js/aio-chat.js?v=55.11" defer></script>
 
   <script>
 // ═══════════════════════════════════════════════════════════════
@@ -24175,186 +24175,8 @@ _aioPageBus.register('html-themes-live', 'aio:liveQuotes', function() {
 <!-- v27.2: Draggable glossary floating button -->
 <!-- v40.6: 용어 사전 플로팅 버튼 제거 — 사이드바 '용어 사전' 페이지와 중복 -->
 <button id="glossary-btn" aria-label="용어 사전 열기" title="용어 사전 열기" style="display:none;"></button>
-<script>
-(function(){
-  var btn=document.getElementById('glossary-btn');
-  if(!btn) return;
-  var isDragging=false, hasMoved=false, startX=0, startY=0, origX=0, origY=0;
-  function onStart(e){
-    isDragging=true; hasMoved=false;
-    var t=e.touches?e.touches[0]:e;
-    startX=t.clientX; startY=t.clientY;
-    var r=btn.getBoundingClientRect();
-    origX=r.left; origY=r.top;
-    btn.style.cursor='grabbing';
-    btn.style.transition='box-shadow .2s';
-    btn.style.boxShadow='0 6px 25px rgba(33,29,22,0.6)';
-    e.preventDefault();
-  }
-  function onMove(e){
-    if(!isDragging) return;
-    var t=e.touches?e.touches[0]:e;
-    var dx=t.clientX-startX, dy=t.clientY-startY;
-    if(Math.abs(dx)>3||Math.abs(dy)>3) hasMoved=true;
-    if(!hasMoved) return;
-    var nx=origX+dx, ny=origY+dy;
-    nx=Math.max(0,Math.min(window.innerWidth-52,nx));
-    ny=Math.max(0,Math.min(window.innerHeight-52,ny));
-    btn.style.left=nx+'px'; btn.style.top=ny+'px';
-    btn.style.right='auto'; btn.style.bottom='auto';
-    e.preventDefault();
-  }
-  function onEnd(){
-    if(!isDragging) return;
-    isDragging=false;
-    btn.style.cursor='grab';
-    btn.style.boxShadow='0 4px 15px rgba(33,29,22,0.4)';
-    if(!hasMoved) openGlossary();
-  }
-  btn.addEventListener('mousedown',onStart);
-  btn.addEventListener('touchstart',onStart,{passive:false});
-  document.addEventListener('mousemove',onMove);
-  document.addEventListener('touchmove',onMove,{passive:true}); /* v48.68 P139: 글로서리 버튼 display:none → isDragging 항상 false → preventDefault() 미호출 → passive:true 안전 (브라우저 터치 스크롤 최적화 허용) */
-  document.addEventListener('mouseup',onEnd);
-  document.addEventListener('touchend',onEnd);
-})();
-
-// ═══════════════ v31.9: OPTIONS 페이지 실시간 연동 ═══════════════
-function initOptionsPage() {
-  var vix = typeof _ldSafe === 'function' ? _ldSafe('^VIX','price') : 0;
-  var vvix = typeof _ldSafe === 'function' ? _ldSafe('^VVIX','price') : 0;
-
-  // ── VIX 기반 파생 지표 계산 ──
-  if (vix > 0) {
-    // Observed VIX window only: never invent a 52-week band or call this ticker IV.
-    var _vixPoints = Array.isArray(window._vixHistory) ? window._vixHistory.filter(function(point) {
-      return point && point.date && point.value != null && Number.isFinite(Number(point.value)) && Number(point.value) > 0;
-    }) : [];
-    var _vixSeries = _vixPoints.map(function(point) { return Number(point.value); });
-    var _vixLow = _vixSeries.length ? Math.min.apply(null, _vixSeries) : null;
-    var _vixHigh = _vixSeries.length ? Math.max.apply(null, _vixSeries) : null;
-    var _vixWindowReady = _vixSeries.length >= 20 && _vixHigh > _vixLow;
-    var vixPctile = _vixWindowReady ? Math.round(_vixSeries.filter(function(value) { return value <= vix; }).length / _vixSeries.length * 100) : null;
-    var ivRank = _vixWindowReady ? Math.max(0, Math.min(100, Math.round((vix - _vixLow) / (_vixHigh - _vixLow) * 100))) : null;
-    window._vixIvRankEvidence = {
-      source: _vixWindowReady ? 'dated-vix-history-window' : 'unavailable',
-      sampleCount: _vixSeries.length,
-      low: _vixLow, high: _vixHigh,
-      asOf: _vixPoints.length ? _vixPoints[_vixPoints.length - 1].date : null,
-      decisionUse: 'reference-only'
-    };
-    ['opt-vix-pctile','opt-ivpct-val'].forEach(function(id) {
-      var node = document.getElementById(id);
-      if (node) { node.textContent = vixPctile == null ? '—' : vixPctile + '%'; node.title = '수신 VIX 표본 내 백분위 · 개별 종목 IV 아님'; }
-    });
-    var ivRankEl = document.getElementById('opt-ivrank-val');
-    if (ivRankEl) { ivRankEl.textContent = ivRank == null ? '—' : ivRank + '%'; ivRankEl.title = '수신 VIX 표본의 고저 범위 내 위치 · 1년 IV Rank 아님'; }
-    ['opt-ivrank-desc','opt-ivpct-desc'].forEach(function(id) {
-      var node = document.getElementById(id);
-      if (node) node.textContent = _vixWindowReady ? '수신 ' + _vixSeries.length + '일 VIX 참고값 · 개별 옵션 IV 미제공' : '날짜가 있는 VIX 이력 20일 필요 · 임의 추정 안 함';
-    });
-
-    // VVIX 설명 업데이트
-    var vvixDesc = document.getElementById('opt-vvix-desc');
-    if (vvixDesc && vvix > 0) {
-      var vvixLevel = vvix >= 120 ? '매우 높음 · 변동성 급등 경고' :
-                      vvix >= 100 ? '높음 · 시장 긴장' :
-                      vvix >= 80 ? '보통 · 정상 범위' : '낮음 · 안정';
-      var vvixColor = vvix >= 120 ? 'var(--data-red)' : vvix >= 100 ? 'var(--data-amber)' : vvix >= 80 ? 'var(--data-amber)' : 'var(--data-green)';
-      vvixDesc.textContent = vvixLevel;
-      vvixDesc.style.color = vvixColor;
-    }
-
-    // VVIX/VIX 비율 — v36.7: 연구 기반 임계값 적용
-    var ratioEl = document.getElementById('opt-vvix-ratio');
-    if (ratioEl && vvix > 0 && vix > 0) {
-      var ratio = vvix / vix;
-      var ratioStr = ratio.toFixed(2);
-      var ratioColor, ratioLabel;
-      ratioColor = 'var(--text-secondary)';
-      ratioLabel = '관측 비율 · 감마·주문 방향 추정 안 함';
-      ratioEl.innerHTML = ratioStr + ' <span style="font-size:11px;color:' + ratioColor + ';font-weight:400;">' + ratioLabel + '</span>';
-      ratioEl.style.color = ratioColor;
-      // 전역 저장 (Risk Monitor, LLM용)
-      window._vvixVixRatio = { ratio: ratio, label: ratioLabel, color: ratioColor };
-    }
-
-    // VIX 수준별 상태 색상
-    var vixColor = vix >= 30 ? 'var(--data-red)' : vix >= 20 ? 'var(--data-amber)' : vix >= 15 ? 'var(--data-amber)' : 'var(--data-green)';
-    var vixSentiment = vix >= 30 ? '극도 긴장' : vix >= 25 ? '높은 긴장' : vix >= 20 ? '경계' : vix >= 15 ? '보통' : '안정';
-
-    // Sentiment strip VIX 설명 업데이트
-    var vixDescEls = document.querySelectorAll('#page-options div[style*="font-size:11px"][style*="color:#211d16"]');
-    if (vixDescEls.length > 0) {
-      vixDescEls[0].textContent = (vixPctile == null ? '표본 이력 미수신' : '수신 표본 ' + vixPctile + '%ile') + ' · ' + vixSentiment;
-      vixDescEls[0].style.color = vixColor;
-    }
-  }
-
-  // 업데이트 시간 표시
-  var timeEl = document.getElementById('opt-update-time');
-  if (timeEl) {
-    var vixObservation = window._liveData && window._liveData['^VIX'];
-    var observedAt = vixObservation && (vixObservation.observedAt || vixObservation.quoteEnvelope && vixObservation.quoteEnvelope.observedAt);
-    timeEl.textContent = observedAt ? 'VIX 관측: ' + String(observedAt).slice(0, 16).replace('T', ' ') : 'VIX 관측시각 미수신';
-  }
-
-  // v38.8: PCR 동적 연결 — data-live-price="PCR" 요소에 실시간 값 반영
-  var pcrVal = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.pcr) ? DATA_SNAPSHOT.pcr : null;
-  if (pcrVal && !(window._lastPutCallPayload && window._lastPutCallPayload.metric && window._lastPutCallPayload.metric.allowedUse)) {
-    if (typeof _aioUpdatePutCallDom === 'function') {
-      _aioUpdatePutCallDom({
-        totalPutCall: pcrVal,
-        sourceKind: 'snapshot',
-        sourceLabel: 'DATA_SNAPSHOT',
-        asOf: (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._snapshotDate) || new Date().toISOString()
-      });
-    } else {
-    var pcrEls = document.querySelectorAll('#page-options [data-live-price="PCR"]');
-    pcrEls.forEach(function(el) {
-      if (typeof _aioIsNativeMacroElement === 'function' && _aioIsNativeMacroElement(el)) return;
-      el.textContent = parseFloat(pcrVal).toFixed(2);
-      el.style.color = pcrVal > 1.2 ? 'var(--data-red)' : pcrVal > 0.9 ? 'var(--data-amber)' : 'var(--data-green)';
-      el.setAttribute('data-operational-use', 'reference-only');
-    });
-    }
-  }
-
-  // v38.8: GEX 스냅샷 명시
-  var gexEl = document.getElementById('opt-gex-val');
-  var gexDesc = document.getElementById('opt-gex-desc');
-  if (gexEl && gexEl.textContent !== '—' && !gexEl.dataset.marked) {
-    gexEl.dataset.marked = '1';
-  }
-  if (gexDesc && !gexDesc.dataset.marked) {
-    gexDesc.textContent = '실시간 API 미제공 · 참고용 스냅샷 · 의사결정 제외';
-    gexDesc.dataset.marked = '1';
-  }
-
-  // v37.8: 동적 옵션 분석
-  if (typeof _generateOptionsAnalysis === 'function') _generateOptionsAnalysis(vix, vvix, vixPctile, ivRank);
-  console.log('[AIO] Options page init — VIX:', vix, 'VVIX:', vvix);
-}
-
-// Options 페이지 이벤트 리스너
-// v48.99: _aioPageBus 마이그 (P180)
-// v51.99/Phase3[A2]: DOMContentLoaded 래핑(P556/R247 템플릿).
-document.addEventListener('DOMContentLoaded', function() {
-_aioPageBus.register('html-options-shown', 'aio:pageShown', function(e) {
-  if (e.detail === 'options') {
-    try { initOptionsPage(); } catch(err) { _aioLog('warn', 'init', 'Options pageShown error: ' + (err && err.message || err)); }
-  }
-});
-_aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
-  var optPage = document.getElementById('page-options');
-  if (optPage && optPage.classList.contains('active')) {
-    try { initOptionsPage(); } catch(err) {}
-  }
-});
-});
-// ═══════════════ END OPTIONS ═══════════════
-
-</script>
+<!-- P1130: 블록 E(용어사전 플로팅 버튼 + 옵션 페이지 연동)는 js/aio-ui.js 끝으로 이동했다. -->
+<!-- 파싱 시점 실행이던 것을 defer로 옮겼으므로 여기에는 아무 것도 남기지 않는다. -->
 <button id="scroll-top-btn" data-action="_aioScrollContentTop" aria-label="맨 위로 스크롤">↑</button>
 
 <!-- Risk Warning Banner -->
@@ -24365,7 +24187,7 @@ _aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=55.10" defer></script>
+<script src="./js/aio-glossary.js?v=55.11" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <script>

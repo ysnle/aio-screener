@@ -4379,3 +4379,187 @@ var AIO_PAGE_FUNDAMENTALS = {
   // v53.7 (P725): KR 전용 5페이지 교육 블록 제거 — 페이지 퇴역(콘텐츠는 git 이력 보존)
   _krEduRetired: true
 };
+
+// P1130/R619: index.html 인라인 블록 E(용어사전 플로팅 버튼 드래그 + 옵션 페이지 연동)를 이 파일로 옮겼다.
+// 새 js 파일을 만들면 매니페스트 4곳·RUNTIME_SCRIPT_FILES 2곳 등록이 필요해지고, 그 등록 누락이 과거
+// P605(중복 전역 섀도잉이 수십 버전 동안 미탐지) 같은 사고의 원인이었다. 이미 등록된 이 파일에 접어넣으면
+// 등록 비용이 0이다. 실행 시점은 파싱 시점 → defer(파싱 후·DOMContentLoaded 전)로 바뀌는데, 옮긴 코드는
+// (a) 이미 파싱된 #glossary-btn에 리스너를 붙이고 (b) DOMContentLoaded에서 pageBus를 등록하므로
+// 둘 다 defer가 더 안전하다. 파싱 시점에 이 블록의 심볼을 호출하는 경로가 없음을 확인했다.
+(function(){
+  var btn=document.getElementById('glossary-btn');
+  if(!btn) return;
+  var isDragging=false, hasMoved=false, startX=0, startY=0, origX=0, origY=0;
+  function onStart(e){
+    isDragging=true; hasMoved=false;
+    var t=e.touches?e.touches[0]:e;
+    startX=t.clientX; startY=t.clientY;
+    var r=btn.getBoundingClientRect();
+    origX=r.left; origY=r.top;
+    btn.style.cursor='grabbing';
+    btn.style.transition='box-shadow .2s';
+    btn.style.boxShadow='0 6px 25px rgba(33,29,22,0.6)';
+    e.preventDefault();
+  }
+  function onMove(e){
+    if(!isDragging) return;
+    var t=e.touches?e.touches[0]:e;
+    var dx=t.clientX-startX, dy=t.clientY-startY;
+    if(Math.abs(dx)>3||Math.abs(dy)>3) hasMoved=true;
+    if(!hasMoved) return;
+    var nx=origX+dx, ny=origY+dy;
+    nx=Math.max(0,Math.min(window.innerWidth-52,nx));
+    ny=Math.max(0,Math.min(window.innerHeight-52,ny));
+    btn.style.left=nx+'px'; btn.style.top=ny+'px';
+    btn.style.right='auto'; btn.style.bottom='auto';
+    e.preventDefault();
+  }
+  function onEnd(){
+    if(!isDragging) return;
+    isDragging=false;
+    btn.style.cursor='grab';
+    btn.style.boxShadow='0 4px 15px rgba(33,29,22,0.4)';
+    if(!hasMoved) openGlossary();
+  }
+  btn.addEventListener('mousedown',onStart);
+  btn.addEventListener('touchstart',onStart,{passive:false});
+  document.addEventListener('mousemove',onMove);
+  document.addEventListener('touchmove',onMove,{passive:true}); /* v48.68 P139: 글로서리 버튼 display:none → isDragging 항상 false → preventDefault() 미호출 → passive:true 안전 (브라우저 터치 스크롤 최적화 허용) */
+  document.addEventListener('mouseup',onEnd);
+  document.addEventListener('touchend',onEnd);
+})();
+
+// ═══════════════ v31.9: OPTIONS 페이지 실시간 연동 ═══════════════
+function initOptionsPage() {
+  var vix = typeof _ldSafe === 'function' ? _ldSafe('^VIX','price') : 0;
+  var vvix = typeof _ldSafe === 'function' ? _ldSafe('^VVIX','price') : 0;
+
+  // ── VIX 기반 파생 지표 계산 ──
+  if (vix > 0) {
+    // Observed VIX window only: never invent a 52-week band or call this ticker IV.
+    var _vixPoints = Array.isArray(window._vixHistory) ? window._vixHistory.filter(function(point) {
+      return point && point.date && point.value != null && Number.isFinite(Number(point.value)) && Number(point.value) > 0;
+    }) : [];
+    var _vixSeries = _vixPoints.map(function(point) { return Number(point.value); });
+    var _vixLow = _vixSeries.length ? Math.min.apply(null, _vixSeries) : null;
+    var _vixHigh = _vixSeries.length ? Math.max.apply(null, _vixSeries) : null;
+    var _vixWindowReady = _vixSeries.length >= 20 && _vixHigh > _vixLow;
+    var vixPctile = _vixWindowReady ? Math.round(_vixSeries.filter(function(value) { return value <= vix; }).length / _vixSeries.length * 100) : null;
+    var ivRank = _vixWindowReady ? Math.max(0, Math.min(100, Math.round((vix - _vixLow) / (_vixHigh - _vixLow) * 100))) : null;
+    window._vixIvRankEvidence = {
+      source: _vixWindowReady ? 'dated-vix-history-window' : 'unavailable',
+      sampleCount: _vixSeries.length,
+      low: _vixLow, high: _vixHigh,
+      asOf: _vixPoints.length ? _vixPoints[_vixPoints.length - 1].date : null,
+      decisionUse: 'reference-only'
+    };
+    ['opt-vix-pctile','opt-ivpct-val'].forEach(function(id) {
+      var node = document.getElementById(id);
+      if (node) { node.textContent = vixPctile == null ? '—' : vixPctile + '%'; node.title = '수신 VIX 표본 내 백분위 · 개별 종목 IV 아님'; }
+    });
+    var ivRankEl = document.getElementById('opt-ivrank-val');
+    if (ivRankEl) { ivRankEl.textContent = ivRank == null ? '—' : ivRank + '%'; ivRankEl.title = '수신 VIX 표본의 고저 범위 내 위치 · 1년 IV Rank 아님'; }
+    ['opt-ivrank-desc','opt-ivpct-desc'].forEach(function(id) {
+      var node = document.getElementById(id);
+      if (node) node.textContent = _vixWindowReady ? '수신 ' + _vixSeries.length + '일 VIX 참고값 · 개별 옵션 IV 미제공' : '날짜가 있는 VIX 이력 20일 필요 · 임의 추정 안 함';
+    });
+
+    // VVIX 설명 업데이트
+    var vvixDesc = document.getElementById('opt-vvix-desc');
+    if (vvixDesc && vvix > 0) {
+      var vvixLevel = vvix >= 120 ? '매우 높음 · 변동성 급등 경고' :
+                      vvix >= 100 ? '높음 · 시장 긴장' :
+                      vvix >= 80 ? '보통 · 정상 범위' : '낮음 · 안정';
+      var vvixColor = vvix >= 120 ? 'var(--data-red)' : vvix >= 100 ? 'var(--data-amber)' : vvix >= 80 ? 'var(--data-amber)' : 'var(--data-green)';
+      vvixDesc.textContent = vvixLevel;
+      vvixDesc.style.color = vvixColor;
+    }
+
+    // VVIX/VIX 비율 — v36.7: 연구 기반 임계값 적용
+    var ratioEl = document.getElementById('opt-vvix-ratio');
+    if (ratioEl && vvix > 0 && vix > 0) {
+      var ratio = vvix / vix;
+      var ratioStr = ratio.toFixed(2);
+      var ratioColor, ratioLabel;
+      ratioColor = 'var(--text-secondary)';
+      ratioLabel = '관측 비율 · 감마·주문 방향 추정 안 함';
+      ratioEl.innerHTML = ratioStr + ' <span style="font-size:11px;color:' + ratioColor + ';font-weight:400;">' + ratioLabel + '</span>';
+      ratioEl.style.color = ratioColor;
+      // 전역 저장 (Risk Monitor, LLM용)
+      window._vvixVixRatio = { ratio: ratio, label: ratioLabel, color: ratioColor };
+    }
+
+    // VIX 수준별 상태 색상
+    var vixColor = vix >= 30 ? 'var(--data-red)' : vix >= 20 ? 'var(--data-amber)' : vix >= 15 ? 'var(--data-amber)' : 'var(--data-green)';
+    var vixSentiment = vix >= 30 ? '극도 긴장' : vix >= 25 ? '높은 긴장' : vix >= 20 ? '경계' : vix >= 15 ? '보통' : '안정';
+
+    // Sentiment strip VIX 설명 업데이트
+    var vixDescEls = document.querySelectorAll('#page-options div[style*="font-size:11px"][style*="color:#211d16"]');
+    if (vixDescEls.length > 0) {
+      vixDescEls[0].textContent = (vixPctile == null ? '표본 이력 미수신' : '수신 표본 ' + vixPctile + '%ile') + ' · ' + vixSentiment;
+      vixDescEls[0].style.color = vixColor;
+    }
+  }
+
+  // 업데이트 시간 표시
+  var timeEl = document.getElementById('opt-update-time');
+  if (timeEl) {
+    var vixObservation = window._liveData && window._liveData['^VIX'];
+    var observedAt = vixObservation && (vixObservation.observedAt || vixObservation.quoteEnvelope && vixObservation.quoteEnvelope.observedAt);
+    timeEl.textContent = observedAt ? 'VIX 관측: ' + String(observedAt).slice(0, 16).replace('T', ' ') : 'VIX 관측시각 미수신';
+  }
+
+  // v38.8: PCR 동적 연결 — data-live-price="PCR" 요소에 실시간 값 반영
+  var pcrVal = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.pcr) ? DATA_SNAPSHOT.pcr : null;
+  if (pcrVal && !(window._lastPutCallPayload && window._lastPutCallPayload.metric && window._lastPutCallPayload.metric.allowedUse)) {
+    if (typeof _aioUpdatePutCallDom === 'function') {
+      _aioUpdatePutCallDom({
+        totalPutCall: pcrVal,
+        sourceKind: 'snapshot',
+        sourceLabel: 'DATA_SNAPSHOT',
+        asOf: (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._snapshotDate) || new Date().toISOString()
+      });
+    } else {
+    var pcrEls = document.querySelectorAll('#page-options [data-live-price="PCR"]');
+    pcrEls.forEach(function(el) {
+      if (typeof _aioIsNativeMacroElement === 'function' && _aioIsNativeMacroElement(el)) return;
+      el.textContent = parseFloat(pcrVal).toFixed(2);
+      el.style.color = pcrVal > 1.2 ? 'var(--data-red)' : pcrVal > 0.9 ? 'var(--data-amber)' : 'var(--data-green)';
+      el.setAttribute('data-operational-use', 'reference-only');
+    });
+    }
+  }
+
+  // v38.8: GEX 스냅샷 명시
+  var gexEl = document.getElementById('opt-gex-val');
+  var gexDesc = document.getElementById('opt-gex-desc');
+  if (gexEl && gexEl.textContent !== '—' && !gexEl.dataset.marked) {
+    gexEl.dataset.marked = '1';
+  }
+  if (gexDesc && !gexDesc.dataset.marked) {
+    gexDesc.textContent = '실시간 API 미제공 · 참고용 스냅샷 · 의사결정 제외';
+    gexDesc.dataset.marked = '1';
+  }
+
+  // v37.8: 동적 옵션 분석
+  if (typeof _generateOptionsAnalysis === 'function') _generateOptionsAnalysis(vix, vvix, vixPctile, ivRank);
+  console.log('[AIO] Options page init — VIX:', vix, 'VVIX:', vvix);
+}
+
+// Options 페이지 이벤트 리스너
+// v48.99: _aioPageBus 마이그 (P180)
+// v51.99/Phase3[A2]: DOMContentLoaded 래핑(P556/R247 템플릿).
+document.addEventListener('DOMContentLoaded', function() {
+_aioPageBus.register('html-options-shown', 'aio:pageShown', function(e) {
+  if (e.detail === 'options') {
+    try { initOptionsPage(); } catch(err) { _aioLog('warn', 'init', 'Options pageShown error: ' + (err && err.message || err)); }
+  }
+});
+_aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
+  var optPage = document.getElementById('page-options');
+  if (optPage && optPage.classList.contains('active')) {
+    try { initOptionsPage(); } catch(err) {}
+  }
+});
+});
+// ═══════════════ END OPTIONS ═══════════════

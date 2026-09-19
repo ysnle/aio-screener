@@ -2,12 +2,23 @@
 verified_by: 데이터 파이프라인 전수 의미·정합성 감사(로컬 재계산) + affected QA; 중첩 산출물 의미 검토는 open
 last_verified: 2026-09-19
 confidence: medium
-latest_version: v55.10
-latest_P_number: P1129
-next_P_number: P1130
-current_total_entries: 544 tracked entries (371 headings + 173 compacted lines, P1~P1129, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
+latest_version: v55.11
+latest_P_number: P1130
+next_P_number: P1131
+current_total_entries: 545 tracked entries (372 headings + 173 compacted lines, P1~P1130, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
 current_checkpoint: 사용자 판단(지인용 사설 스크리너)으로 **차단 경계를 공시로 재배치**했다 — 개인화 지시·현재증거 부족·수치 주장 불일치·헤드라인 전용 인과를 하드 차단에서 경고/공시로 강등(P1120~P1122). 조작 방지(값·단위·NFP 배율), 금지 행위 P0, 포트폴리오 동의, 도구 경계는 그대로 차단이다. 남은 OPEN: 날짜 없는 중첩 산출물 12건(P1110 측정면이 노출), `objects/**` 592/629 미참조 blob의 보존 정책, 캐시 라우팅 밖의 실제 소비 산출물 오프라인 폴백 (semantic coverage 6.89%, releaseCertified=false)
 ---
+
+## P1130 - v55.11 - 인라인 셸 코드를 새 파일 없이 기존 등록 파일로 이관했다 (2026-09-19)
+
+- symptom/reproduction: 2단계(인라인 추출)의 비용을 먼저 재기 위해 가장 작은 자립 블록인 **블록 E**(index.html 24178~24357 = 180줄: 용어사전 플로팅 버튼 드래그 IIFE + `initOptionsPage` + pageBus 등록)를 대상으로 삼았다. 이관 전 확인한 제약: 새 `js/aio-*.js`를 만들면 ① `architecture/asset-manifest.json` `immutableRuntime` ② `public-artifact-manifest.json` allowlist ③ `sw.js` `CRITICAL_SHELL_ASSETS`(≤12) ④ `.github/workflows/pages-deploy.yml` cp 목록 ⑤ `ci-structural-check.mjs` `RUNTIME_SCRIPT_FILES` ⑥ `ci-live-invariant-check.mjs` `RUNTIME_SCRIPT_FILES` **여섯 곳**을 함께 고쳐야 한다. ⑤⑥을 빠뜨리면 R280 중복 전역 검사가 그 파일에 대해 **눈이 먼다**(P605가 정확히 그 사각에서 발생했다).
+- root_cause: 인라인이 기본값이 된 이유가 이 등록 비용이다. 즉 "왜 이 코드가 인라인인가"의 답은 성능이 아니라 **등록면 회피**였다. 따라서 새 파일을 만드는 추출은 이 저장소에서 가장 취약한 지점(등록 누락)을 늘리는 방향이다.
+- fix: **새 파일을 만들지 않고 이미 등록된 `js/aio-ui.js`에 접어넣었다.** 그러면 ①②③④⑤⑥이 모두 불변이고 등록 비용이 0이다. index.html −178 / aio-ui.js +184. 실행 시점은 파싱 시점 → `defer`(파싱 후·DOMContentLoaded 전)로 바뀌는데, 옮긴 코드는 (a) 이미 파싱된 `#glossary-btn`에 리스너를 붙이고 (b) `DOMContentLoaded`에서 pageBus를 등록하므로 두 동작 모두 defer가 오히려 더 안전하다. 파싱 시점에 이 블록의 심볼을 호출하는 경로가 없음을 사전 확인했다(`initOptionsPage` 참조는 core의 `_initOptionsPage`가 `typeof` 가드로 감싸 호출하는 1곳뿐).
+- 이동이 게이트를 하나 깨뜨렸고, 그것이 옳은 동작이었다: `ci-architecture-contract-check.mjs`가 "legacy options native-element writer fence"를 **index.html에서** 찾고 있었는데 fence(`_aioIsNativeMacroElement(el)` 호출)가 함께 옮겨졌다. 단언을 `uiSource`로 옮겼다 — 이전 파일에 고정된 단언은 실패하거나(이번 경우), 더 나쁘게는 **오래된 사본을 검사하며 통과**할 수 있다.
+- violated_rule: R620(3항 — 커버리지를 빠뜨리면 압력은 옆으로 샌다: 새 무제한 구역을 만들지 않는 분해 방식), R619(3항 — 상한이 있는 파일은 순증 0 이하).
+- prevention: 이관 경로가 실증됐다 — **"기존 등록 파일에 접어넣기"** 가 이 저장소에서 새 파일 생성보다 안전하다. 블록별 비용도 확정됐다(추출 1 + fence 소유자 단언 수정 1 + 래칫 기록 1).
+- verification: **실브라우저 sink PASS**(`ci-architecture-browser-check.mjs`) — `optionsRoute`가 네이티브 sink 3개와 실제 값(VIX 15.63 · PCR 0.98)을 렌더했고 `browserErrors:0`, `routeRoundTrip:true`, 캔버스/타이머 42/12로 누수 없음. headless **1,133/1,133 PASS(110/110 그룹)**, `ci-decomp-hotspot-check`(index.html 28,397 / aio-ui.js 4,566 — 증가는 `--write --allow-growth`로 기록), `ci-structural-check`(R280 중복 전역 0), `ci-version-check`(캐시버스터 9 유지), `ci-architecture-contract-check`, `ci-runtime-contract-check`, `ci-workspace-contract-check`, `ci-knowledge-lint-check`, `ci-syntax-check` PASS. 커밋만 수행, push·배포 없음.
+- 잔여: 블록 A~D·F·G(합계 15,128줄)와 3단계(라우트 표 단일화)는 별도 항목(QA-EXHAUST-89·90)으로 남겼다. A~D·F·G는 서로 파싱 시점 순서에 의존하는지 블록별로 확인이 필요하다.
 
 ## P1129 - v55.10 - 중복 선언·죽은 코드·3중으로 어긋난 문서 수치 (2026-09-19)
 

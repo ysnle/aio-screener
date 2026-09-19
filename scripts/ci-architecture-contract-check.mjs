@@ -390,7 +390,10 @@ for (const marker of ['derivePortfolioSurface', 'renderPortfolioSurface', 'pf-ho
 }
 if (!read('src/domain/portfolio/surface.js').includes('PORTFOLIO_SURFACE_MODEL_VERSION')) fail('portfolio surface model missing');
 if (indexHtmlSource.includes("document.getElementById('pf-holding-count')") || indexHtmlSource.includes("document.getElementById('pf-sector-breakdown')") || !indexHtmlSource.includes('P831: sector allocation is owned by src/ui/pages/portfolio.js.')) fail('legacy portfolio surface writer retirement missing');
-if (!dataSource.includes('function _aioIsNativeMacroElement') || !dataSource.includes('#page-options[data-aio-architecture-renderer="native"]') || !coreSource.includes('#page-options[data-aio-architecture-renderer="native"]') || !read('index.html').includes('_aioIsNativeMacroElement(el)')) fail('legacy options native-element writer fence missing');
+// P1130/R619: the options renderer moved from index.html's inline block E into js/aio-ui.js, so the
+// fence is now consulted there. The marker's owner must move with it — an assertion pinned to the old
+// file would either fail loudly (as this one did) or, worse, keep passing against a stale copy.
+if (!dataSource.includes('function _aioIsNativeMacroElement') || !dataSource.includes('#page-options[data-aio-architecture-renderer="native"]') || !coreSource.includes('#page-options[data-aio-architecture-renderer="native"]') || !uiSource.includes('_aioIsNativeMacroElement(el)')) fail('legacy options native-element writer fence missing');
 // P835: portfolio position allocation chart lifecycle is native from normalized holding
 // values and drawPositionDonut remains a compatibility fallback behind the route marker.
 if (routeOwners.routes?.portfolio?.chartOwner !== 'native' || !portfolioPageSource.includes('renderPortfolioChart') || !portfolioPageSource.includes('aioPortfolioChartRenderer') || !indexHtmlSource.includes('aio-portfolio-chart-renderer="native"')) fail('native portfolio chart ownership/fence missing');
