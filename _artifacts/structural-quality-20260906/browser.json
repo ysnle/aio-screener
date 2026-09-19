@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-19T05:22:48.417Z",
+  "generatedAt": "2026-09-19T05:26:43.972Z",
   "routes": [
     {
       "id": "home",
@@ -1122,7 +1122,7 @@
     {
       "id": "screener",
       "exists": true,
-      "moduleState": "loading",
+      "moduleState": "ready",
       "controls": [
         {
           "tag": "BUTTON",
@@ -1143,6 +1143,30 @@
         {
           "tag": "BUTTON",
           "name": "조건 실행"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "균형 상대 랭킹"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "모멘텀 지속"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "추세 정렬"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "저변동 방어"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "퀄리티 결합"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "돌파 관찰"
         },
         {
           "tag": "SELECT",
@@ -1243,6 +1267,134 @@
         {
           "tag": "BUTTON",
           "name": "컬럼 선택"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "상대 점수 정렬 내림차순"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "종목 정렬 적용"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "가격 정렬 적용"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "1M 정렬 적용"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "3M 정렬 적용"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "RSI 정렬 적용"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "VCP 구조 정렬 적용"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "워치리스트 추가 DELL"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "DELL 비교 추가"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "워치리스트 추가 DINO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "DINO 비교 추가"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "워치리스트 추가 VLO"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "VLO 비교 추가"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "워치리스트 추가 MPC"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "MPC 비교 추가"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "워치리스트 추가 ARKG"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ARKG 비교 추가"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "워치리스트 추가 HPE"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "HPE 비교 추가"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "워치리스트 추가 GTLB"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "GTLB 비교 추가"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "워치리스트 추가 ILMN"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "ILMN 비교 추가"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "워치리스트 추가 TEAM"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "TEAM 비교 추가"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "워치리스트 추가 UMC"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "UMC 비교 추가"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "워치리스트 추가 044820.KQ"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "044820.KQ 비교 추가"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "워치리스트 추가 192820.KQ"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "192820.KQ 비교 추가"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "12개 더 보기"
         },
         {
           "tag": "BUTTON",
