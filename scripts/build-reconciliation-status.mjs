@@ -265,15 +265,18 @@ export function buildReconciliationStatus({ data = {}, marketSnapshot = {}, scre
     // P1140/QA-P1103: `rights` is an axis of RIGHTS_STATUS, not of RECONCILIATION_STATUS. These two
     // categories declared `'CURRENT'` — a status word — which the artifact's own published
     // rightsVocabulary does not contain, so the rights axis was unreadable to any consumer holding
-    // only the artifact. Both origins are official-government (T1_OFFICIAL) public APIs and the
-    // REVIEW_REQUIRED default was overridden deliberately, so the intended value is VERIFIED.
-    ], { gate: 'bls-bea-official-release', rights: 'VERIFIED' }),
+    // only the artifact. P1140 set VERIFIED, but VERIFIED is the recorded-verification state
+    // and ci-artifact-semantics-check forbids promotable categories while any rights
+    // blocker is published — the committed artifact then failed its own gate (P1144).
+    // Keep the REVIEW_REQUIRED default: official-government origin is recorded in the
+    // source contract, and promotion waits for the recorded operator verification.
+    ], { gate: 'bls-bea-official-release', rights: 'REVIEW_REQUIRED' }),
 
     categoryDefinition('employment-wages', [
       evidenceCheck('bls-unemployment', finite(bls?.series?.unemployment?.value) && !!bls?.series?.unemployment?.observedAt, 'public-data/data.json', bls?.series?.unemployment?.observedAt),
       evidenceCheck('bls-nonfarm-payroll', finite(bls?.series?.nonfarmPayroll?.value) && !!bls?.series?.nonfarmPayroll?.observedAt, 'public-data/data.json', bls?.series?.nonfarmPayroll?.observedAt),
       evidenceCheck('bls-average-hourly-earnings', finite(bls?.series?.averageHourlyEarnings?.value) && !!bls?.series?.averageHourlyEarnings?.observedAt, 'public-data/data.json', bls?.series?.averageHourlyEarnings?.observedAt)
-    ], { gate: 'bls-employment-wages', rights: 'VERIFIED' }),
+    ], { gate: 'bls-employment-wages', rights: 'REVIEW_REQUIRED' }),
 
     categoryDefinition('retail-housing-ism', [
       evidenceCheck('fred-retail-sales', finite(macro.retailSales) && !!macro._asOf_retailSales, 'public-data/data.json', macro._asOf_retailSales),

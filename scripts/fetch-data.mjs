@@ -1635,26 +1635,41 @@ async function updateHistory(data, marketSnapshot = null) {
       const previousObservedAt = q.regularMarketPreviousCloseObservedAt || null;
       const usePreviousClose = isOpenPoint && Number.isFinite(previousClose) && previousClose > 0;
       bySym[q.symbol] = usePreviousClose ? previousClose : q.regularMarketPrice;
-      bySymQuote[q.symbol] = {
+      // A history row is a completed daily close, not the provider's intraday
+      // previous-value anchor. BTC-USD is CURRENT_SESSION 24/7, so the market
+      // lane always takes the previousClose branch while the snapshot keeps the
+      // live value — the two artifacts then disagree by one session and both the
+      // history-time and artifact-semantics gates fail (2026-09-19: 80901.46 vs
+      // 76403.77). A 24/7 quote has no "previous completed day" distinct from the
+      // current observation; record the observed value with its own timestamp.
+      const isContinuousQuote = /-USD$/i.test(q.symbol);
+      if (isContinuousQuote) {
+        bySym[q.symbol] = q.regularMarketPrice;
+      }
+      // P1095: a previous-completed-close value must not inherit the CURRENT
+      // observation's timestamp. The old fallback (`previousObservedAt || q.observedAt`)
+      // did exactly that whenever the provider omitted
+      // `regularMarketPreviousCloseObservedAt`, so history.json published the prior
+      // session's close stamped with the current cut (dxy/wti/gold/kospi/kosdaq/btc):
+      // 14 fields split across two time conventions, six of them shifted by a session,
+      // with nothing marking the substitution. Fail closed instead — no timestamp means
+      // a consumer must not read the value as a current observation.
+      // Continuous 24/7 quotes share the observed value/timestamp above, so the
+      // completed-cut stamp below can never fire for them.
+      const effectiveUsePreviousClose = usePreviousClose && !isContinuousQuote;
+      const bySymQuoteEntry = {
         ...q,
-        // P1095: a previous-completed-close value must not inherit the CURRENT
-        // observation's timestamp. The old fallback (`previousObservedAt || q.observedAt`)
-        // did exactly that whenever the provider omitted
-        // `regularMarketPreviousCloseObservedAt`, so history.json published the prior
-        // session's close stamped with the current cut (dxy/wti/gold/kospi/kosdaq/btc):
-        // 14 fields split across two time conventions, six of them shifted by a session,
-        // with nothing marking the substitution. Fail closed instead — no timestamp means
-        // a consumer must not read the value as a current observation.
-        observedAt: usePreviousClose ? previousObservedAt : q.observedAt,
-        observationRelation: usePreviousClose ? 'previous-completed-close' : 'latest-completed-close',
-        observedAtSource: usePreviousClose
+        observedAt: effectiveUsePreviousClose ? previousObservedAt : q.observedAt,
+        observationRelation: effectiveUsePreviousClose ? 'previous-completed-close' : 'latest-completed-close',
+        observedAtSource: effectiveUsePreviousClose
           ? (previousObservedAt ? 'provider-previous-close' : 'unavailable')
           : 'provider-current',
         marketSession: 'COMPLETED',
         observedMarketSession: session,
-        valueBasis: usePreviousClose ? 'previous-completed-close' : 'latest-completed-close',
+        valueBasis: effectiveUsePreviousClose ? 'previous-completed-close' : 'latest-completed-close',
         allowedUse: 'completed-market-series',
       };
+      bySymQuote[q.symbol] = bySymQuoteEntry;
     }
     const pick = (s) => (typeof bySym[s] === 'number' && isFinite(bySym[s])) ? round(bySym[s], 2) : null;
     if (pick('^GSPC') === null && pick('^VIX') === null) {

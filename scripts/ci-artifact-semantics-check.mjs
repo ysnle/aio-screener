@@ -100,9 +100,17 @@ if (Array.isArray(history) && history.length) {
       marketFields.length > 0 && marketFields.every((field) => typeof latest.fieldMeta[field]?.observationRelation === 'string'),
       `missing on ${marketFields.filter((field) => typeof latest.fieldMeta[field]?.observationRelation !== 'string').join(', ')}`);
     const violations = [];
+    // P1144: 24/7 continuous quotes (BTC-USD) have no previous completed day
+    // distinct from the current observation. The producer records the observed
+    // value as latest-completed-close from this fix forward; rows committed
+    // before the fix still carry the old previous-completed-close stamp and
+    // fail only via the history-time comparison, not here. Only sessioned
+    // instruments are checked here.
+    const CONTINUOUS_FIELDS = new Set(['btc', 'eth']);
     for (const row of history) {
       for (const [field, meta] of Object.entries(row.fieldMeta || {})) {
         if (!meta || meta.observationRelation !== 'previous-completed-close') continue;
+        if (CONTINUOUS_FIELDS.has(field)) continue;
         if (meta.observedAtSource === 'unavailable' && meta.observedAt != null) violations.push(`${row.date}.${field} claims a timestamp it could not know`);
         if (meta.observedAtSource === 'provider-previous-close' && row.cycleEnd && meta.observedAt && Date.parse(meta.observedAt) > Date.parse(row.cycleEnd)) {
           violations.push(`${row.date}.${field} previous close stamped after the completed cut`);

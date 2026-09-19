@@ -1,13 +1,23 @@
 ---
-verified_by: 구조 개편 W01/W02/W00 구현 + affected QA(진행 중); 브라우저·live는 별도 보고
+verified_by: P1144 데이터 게이트 3건 수정 + affected QA(진행 중); 브라우저·live는 별도 보고
 last_verified: 2026-09-19
 confidence: medium
-latest_version: v55.21
-latest_P_number: P1143
-next_P_number: P1144
+latest_version: v55.22
+latest_P_number: P1144
+next_P_number: P1145
 current_total_entries: 557 tracked entries (384 headings + 173 compacted lines, P1~P1142, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
 current_checkpoint: 사용자 판단(지인용 사설 스크리너)으로 **차단 경계를 공시로 재배치**했다 — 개인화 지시·현재증거 부족·수치 주장 불일치·헤드라인 전용 인과를 하드 차단에서 경고/공시로 강등(P1120~P1122). 조작 방지(값·단위·NFP 배율), 금지 행위 P0, 포트폴리오 동의, 도구 경계는 그대로 차단이다. 남은 OPEN: 날짜 없는 중첩 산출물 12건(P1110 측정면이 노출), `objects/**` 592/629 미참조 blob의 보존 정책, 캐시 라우팅 밖의 실제 소비 산출물 오프라인 폴백 (semantic coverage 6.89%, releaseCertified=false)
 ---
+
+## P1144 - v55.22 - CI data 게이트 3건: 24/7 BTC 종가축 어긋남 + 권리 미검증 승격 (2026-09-19)
+
+- symptom/reproduction: push `e55eef47`의 CI(`35447089694`)가 `Contracts / data`에서 실패해 Pages 배포 skip, live `version.json`이 `v55.21`에 정체. 실패 3건: (1) `history-time` — history 최신 BTC `80901.46` vs 스냅샷 completed 값 `76403.77` (CURRENT_SESSION). (2) `artifact-semantics` — `2026-09-19.btc previous close stamped after the completed cut`. (3) `artifact-semantics` — `cpi-pce, employment-wages promotable while blockers=[durable_tier0_publish_blocked, ...]`.
+- root_cause: (1·2) BTC-USD는 24/7 CURRENT_SESSION이라 market lane이 항상 previousClose 분기를 타는데 스냅샷은 live 값을 유지했다 — 두 산출물이 한 세션 어긋난 구조적 불일치(P1095의 세션형 자산 가정이 24/7 자산에 틀렸다). history 행은 관측값이 아니라 provider intraday previous-value 앵커(`76403.77`)를 기록했다. (3) P1140이 두 카테고리 `rights`를 `VERIFIED`로 바로잡았는데, VERIFIED는 기록된 검증 상태라 promotable이 되면서 `ci-artifact-semantics-check`의 "권리 차단 중 승격 금지" 단언과 충돌했다 — P1103의 원래 의도(미선언 축 해소)는 맞았지만 게이트 조합에서는 REVIEW_REQUIRED가 정합하다.
+- fix: (1·2) `fetch-data.mjs` market lane에서 `/-USD$/` 연속 시세는 관측값·관측시각 그대로 `latest-completed-close`로 기록(previousClose 분기 제외). 양 게이트도 연속 시세는 스냅샷 `value`와 비교하고 `previous-completed-close` 사용을 위반으로 처리한다. (3) `build-reconciliation-status.mjs` 두 카테고리를 `rights: 'REVIEW_REQUIRED'`로 복귀(공식 출처는 source contract에 기록, 승격은 운영자 검증 기록 후).
+- violated_rule: R613(값·시각 정합), R614(게이트 조합 정합).
+- prevention: `ci-history-field-time-contract-check.mjs`(연속 시세 스냅샷 값 비교)·`ci-artifact-semantics-check.mjs`(연속 필드의 previous-completed-close 위반 처리)의 P1144 단언. `history-time`·`data-refresh` 통과가 선행 조건.
+- verification: 아래 affected QA에서 보고. 커밋·배포는 아래 검증 후 수행.
+- residual_risk: 커밋된 `history.json` 최신 BTC 행은 다음 refresh까지 옛 값이다. ETH-USD도 같은 규칙 적용 대상이나 현재 history 필드에는 없어 btc와 함께 게이트에만 등록했다.
 
 ## P1143 - v55.21 - 구조 개편 W01/W01-C/W02/W00: 화면 정합성·포트폴리오 상태·내비게이션 단일화 (2026-09-19)
 
