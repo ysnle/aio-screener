@@ -14,6 +14,9 @@ const ui = read('js/aio-ui.js');
 const data = read('js/aio-data.js');
 const chat = read('js/aio-chat.js');
 const glossary = read('js/aio-glossary.js');
+// P1133/R620: js/aio-pages.js is a registered runtime file. Omitting it here would make the R280
+// duplicate-global scan blind to it — the exact gap P605 exploited.
+const pages = read('js/aio-pages.js');
 const tests = read('js/aio-tests.js');
 const html = read('index.html');
 
@@ -75,6 +78,7 @@ const RUNTIME_SCRIPT_FILES = {
   'js/aio-ui.js': ui,
   'js/aio-chat.js': chat,
   'js/aio-glossary.js': glossary,
+  'js/aio-pages.js': pages,
 };
 // Column-0-anchored on purpose: only true top-level declarations share the global scope this way.
 // Functions nested inside an IIFE/closure (indented, not column 0) are scoped to that closure and

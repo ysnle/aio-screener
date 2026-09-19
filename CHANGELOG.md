@@ -1,3 +1,12 @@
+## v55.14 (2026-09-19)
+- **2단계 본편 3편 — 인라인 블록 D(3,750줄)를 *새 파일* `js/aio-pages.js`로 추출했다 (R619/R620/P1133).** index.html **24,285 → 20,538(−3,747)**, 새 파일 3,761줄.
+- **왜 이번엔 새 파일인가** — 앞선 세 회차는 등록 비용을 피해 기존 파일에 접어넣었지만, 그대로 두면 index.html이 줄어드는 대신 `aio-ui.js`가 새 모놀리스가 됩니다. **R620(3)의 "압력은 옆으로 샌다"를 제가 재현할 뻔했습니다.** 압력을 옆으로 옮기는 것은 분해가 아닙니다.
+- **등록 8곳을 전부 수행** — `asset-manifest.immutableRuntime` · `public-artifact-manifest` allowlist · `sw.js CRITICAL_SHELL_ASSETS` · `pages-deploy.yml` cp 목록 · `ci-structural-check`와 `ci-live-invariant-check`의 `RUNTIME_SCRIPT_FILES`(각 1·3곳) · 래칫 `measuredFiles`+`recordedLines` · `ci-doc-currency-check` FILES. 여기에 `CODE-MAP` §1 행까지. **래칫의 CODE-MAP 커버리지 검사가 미등록을 실제로 한 번 잡았습니다**(`CODE-MAP does not cover measured hotspot(s): js/aio-pages.js`).
+- **P1130의 "새 파일은 취약하다" 판단을 정정합니다.** 그 근거는 *등록을 건너뛰는* 경우였고, 등록을 전부 하면 `ci-release-revision-check`의 allowlist↔sw↔Pages 3자 일치 검사와 래칫이 누락을 조용히 지나가지 못하게 합니다.
+- **게이트 재지정 16곳** — `ci-architecture-contract-check` 10, `ci-runtime-contract-check` 4, `ci-data-pipeline-contract-check` 2. 그중 2곳은 한 검사가 두 블록에 걸쳐 일부만 고쳤고, **부재 검사 4곳**은 index.html에 두면 공허하게 통과하므로 함께 재지정했습니다.
+- 검증: headless **1,133/1,133 PASS(110/110 그룹)** — 새 파일이 실제 페이지에서 로드·동작함을 확인. 실브라우저 `ci-architecture-browser-check` PASS(20 라우트, `browserErrors:0`). architecture / runtime / data-pipeline / structural(R280 중복 전역 0) / decomp(**8개 파일** 래칫 — 20,538 / 3,761) / version(캐시버스터 10) / syntax(387 파일) / workspace PASS. affected QA **88 PASS / 2 FAIL**(신선도 SLA).
+- **누적**: 2단계로 index.html **28,575 → 20,538 (−8,037, −28%)**. 남은 인라인은 **A~C 6,644줄**입니다 — A는 core보다 먼저 실행되어 core가 나중에 읽는 전역을 만들므로 비-defer 배치가 필요합니다(QA-EXHAUST-89). 3단계는 QA-EXHAUST-90. **push·배포하지 않았습니다.**
+
 ## v55.13 (2026-09-19)
 - **2단계 본편 2편 — 인라인 블록 F(3,108줄)를 js/aio-ui.js로 이관했다 (R619/R620/P1132).** index.html **27,391 → 24,285**, aio-ui.js 4,566 → 7,687. **최상위 심볼 74개**가 이동했습니다(용어사전, 모바일 메뉴/스크롤탑, GMO 개요, 키보드 단축키, 티커·KR 차트, 종합 기술적 분석 엔진, KR 기술 페이지, 가격 알림, 테마 토글, 서비스워커 등록, 온보딩).
 - **블록 F를 먼저 고른 이유** — 직전 커밋에서 블록 G가 빠진 뒤 이 블록이 **문서상 마지막 인라인 클래식 블록**이 되어, 뒤에 오는 인라인 블록이 이 블록의 전역을 파싱 시점에 읽는 경로가 없습니다.

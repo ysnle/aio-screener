@@ -127,6 +127,8 @@ if (Number.isFinite(burnDown.explicitWindowWritesMax) && current.explicitWindowW
 const dataSource = read('js/aio-data.js');
 const coreSource = read('js/aio-core.js');
 const uiSource = read('js/aio-ui.js');
+// P1133/R620: page-level renderers extracted from index.html's inline block D live in js/aio-pages.js.
+const pagesSource = read('js/aio-pages.js');
 const chatSource = read('js/aio-chat.js');
 const inferenceEfficiencySource = read('src/domain/ai/inference-efficiency.js');
 const marketPageContractSource = read('src/ui/pages/market.js');
@@ -208,14 +210,15 @@ for (const marker of ['isNewsAnalysisEligible', '헤드라인 전용 · 단독 �
 if (!marketPageSource.includes("page.dataset.aioArchitectureRenderer = 'native'") || !marketPageSource.includes('renderLiveQuotes') || !marketPageSource.includes('renderSnapshotMetrics')) fail('market.js native macro primary renderer marker missing');
 if (!marketPageSource.includes("page.dataset.aioFxbondRenderer = 'native'") || !marketPageSource.includes('renderFxbond')) fail('market.js native fxbond primary renderer marker missing');
 if (!dataSource.includes('function _aioIsNativeMacroElement') || !dataSource.includes('_aioIsNativeMacroElement(el)') || !dataSource.includes('function _aioIsNativeFxbondElement')) fail('legacy macro/fxbond native-element writer fence missing');
-if (!read('index.html').includes("el.closest('#page-fxbond[data-aio-architecture-renderer=\"native\"]')")) fail('legacy inline MOVE snapshot writer fence missing');
+// P1133/R620: the fxbond MOVE snapshot writer moved from index.html's inline block D to js/aio-pages.js.
+if (!pagesSource.includes("el.closest('#page-fxbond[data-aio-architecture-renderer=\"native\"]')")) fail('legacy inline MOVE snapshot writer fence missing');
 // P804: market.js owns the bounded FX/bond risk pill from DXY and US 10Y evidence;
 // the legacy fxbond updater remains a fenced compatibility path.
 if (!marketPageSource.includes('fxbond-risk-pill') || !marketPageSource.includes('aioFxbondRiskRenderer')) fail('native fxbond risk renderer marker missing');
-if (!read('index.html').includes("pill.dataset.aioFxbondRiskRenderer !== 'native'")) fail('legacy fxbond risk pill writer fence missing');
+if (!pagesSource.includes("pill.dataset.aioFxbondRiskRenderer !== 'native'")) fail('legacy fxbond risk pill writer fence missing');
 // P805: market.js owns the bounded 3M/10Y curve inversion badge; the legacy curve updater is fenced.
 if (!marketPageSource.includes('yc-inversion-badge') || !marketPageSource.includes('aioFxbondCurveRenderer')) fail('native fxbond curve renderer marker missing');
-if (!read('index.html').includes("invBadge.dataset.aioFxbondCurveRenderer !== 'native'")) fail('legacy fxbond inversion writer fence missing');
+if (!pagesSource.includes("invBadge.dataset.aioFxbondCurveRenderer !== 'native'")) fail('legacy fxbond inversion writer fence missing');
 // P807: market.js owns only the bounded carry-risk-level label; the legacy composite proxy is fenced.
 if (!marketPageSource.includes('carry-risk-level') || !marketPageSource.includes('aioFxbondCarryRenderer')) fail('native fxbond carry renderer marker missing');
 if (!dataSource.includes('aioFxbondCarryRenderer') || !dataSource.includes("dataset.aioFxbondCarryRenderer !== 'native'")) fail('legacy fxbond carry writer fence missing');
@@ -230,11 +233,11 @@ if (dataSource.includes("document.getElementById('carry-score-text')") || dataSo
 // P813: the integrated cross-asset verdict is native; the legacy matrix keeps its
 // individual compatibility cells but no longer writes the aggregate verdict.
 if (!marketPageSource.includes('cam-verdict-text') || !marketPageSource.includes('aioFxbondCamRenderer')) fail('native fxbond CAM renderer marker missing');
-if (read('index.html').includes("document.getElementById('cam-verdict-text')")) fail('legacy fxbond CAM verdict writer returned after P813 cutover');
+if (pagesSource.includes("document.getElementById('cam-verdict-text')")) fail('legacy fxbond CAM verdict writer returned after P813 cutover');
 // P814: the fxbond curve chart status label is native; the chart canvas itself remains
 // a legacy compatibility surface and the old status writer must stay deleted.
 if (!marketPageSource.includes('yc-chart-status') || !marketPageSource.includes('aioFxbondCurveStatusRenderer')) fail('native fxbond curve status marker missing');
-if (read('index.html').includes("document.getElementById('yc-chart-status')")) fail('legacy fxbond curve status writer returned after P814 cutover');
+if (pagesSource.includes("document.getElementById('yc-chart-status')")) fail('legacy fxbond curve status writer returned after P814 cutover');
 if (!marketPageSource.includes("page.dataset.aioBreadthRenderer = 'native'") || !marketPageSource.includes('renderBreadth')) fail('market.js native breadth primary renderer marker missing');
 if (!dataSource.includes('function _aioIsNativeBreadthElement') || !dataSource.includes('_aioIsNativeBreadthElement(el)') || !uiSource.includes('_aioIsNativeBreadthElement(el)') || !coreSource.includes('#page-breadth[data-aio-architecture-renderer="native"]')) fail('legacy breadth native-element writer fence missing');
 // P806: market.js owns the bounded 2s10s summary surfaces from explicit 2Y/10Y evidence;
@@ -269,13 +272,15 @@ const indexHtmlSource = read('index.html');
 // deleted, so the slice now ends at the next real function. A removed symbol must not
 // silently turn a slice boundary into -1 (which would widen the slice to the whole file
 // and quietly weaken the assertions below).
-const showThemeDetailSource = indexHtmlSource.slice(indexHtmlSource.indexOf('function showThemeDetail'), indexHtmlSource.indexOf('function closeThemeDetail'));
-const closeThemeDetailSource = indexHtmlSource.slice(indexHtmlSource.indexOf('function closeThemeDetail'), indexHtmlSource.indexOf('function showSubThemeDetail'));
+// P1133/R620: showThemeDetail/closeThemeDetail/showSubThemeDetail moved with block D to js/aio-pages.js.
+const showThemeDetailSource = pagesSource.slice(pagesSource.indexOf('function showThemeDetail'), pagesSource.indexOf('function closeThemeDetail'));
+const closeThemeDetailSource = pagesSource.slice(pagesSource.indexOf('function closeThemeDetail'), pagesSource.indexOf('function showSubThemeDetail'));
 if (showThemeDetailSource.includes("container.style.display = 'block'") || showThemeDetailSource.includes("container.dataset.currentTheme = themeId") || closeThemeDetailSource.includes("p.style.display = 'none'")) fail('legacy theme detail panel writer returned after P818 cutover');
 if (!showThemeDetailSource.includes('themesPageActive') || !showThemeDetailSource.includes("window.showPage('theme-detail')")) fail('ticker-to-theme detail bridge does not route when the owning themes page is inactive');
 if (!coreSource.includes('nativeThemeDetailMounted') || !themesPageSource.includes('pendingThemeId') || !themesPageSource.includes('queueMicrotask(() => requestThemeDetail(pendingThemeId))')) fail('theme-detail lazy-mount pending handoff contract missing');
 for (const marker of ['THEME_MEMBERSHIP_POLICY', 'membershipPolicy', '구성 기준일 미검증']) {
-  if (!(indexHtmlSource.includes(marker) || themesPageSource.includes(marker))) fail(`theme membership provenance marker missing: ${marker}`);
+  // P1133/R620: the theme-membership provenance markers moved with block D into js/aio-pages.js.
+  if (!(indexHtmlSource.includes(marker) || themesPageSource.includes(marker) || pagesSource.includes(marker))) fail(`theme membership provenance marker missing: ${marker}`);
 }
 // P803: market.js owns the bounded breadth signal label from the normalized advance ratio;
 // the legacy RSP/SPY signal writer must not overwrite the native element.
@@ -300,15 +305,15 @@ for (const marker of ['renderFundamentalStatus', "route === 'fundamental'", 'fun
 for (const marker of ['renderFundamentalSummary', 'fund-analysis-text', 'aioFundamentalSummaryRenderer', 'SEC']) {
   if (!entityPageSource.includes(marker)) fail(`native fundamental summary renderer marker missing: ${marker}`);
 }
-if (read('index.html').includes("document.getElementById('fund-analysis-text')") || read('index.html').includes('_generateFundamentalAnalysis(FUND_FALLBACK')) fail('legacy fundamental summary writer returned after P815 cutover');
+if (pagesSource.includes("document.getElementById('fund-analysis-text')") || pagesSource.includes('_generateFundamentalAnalysis(FUND_FALLBACK')) fail('legacy fundamental summary writer returned after P815 cutover');
 for (const marker of ['renderFundamentalWatchlist', 'fund-cards-grid', 'aioFundamentalWatchlistRenderer', 'fundamentalsWatchlist']) {
   if (!entityPageSource.includes(marker)) fail(`native SEC fundamental watchlist renderer marker missing: ${marker}`);
 }
 for (const marker of ['data-aio-entity-symbol', 'aio:entityChanged', 'sec-watchlist']) {
   if (!entityPageSource.includes(marker)) fail(`native SEC fundamental selection marker missing: ${marker}`);
 }
-if (/\b(?:FUND_FALLBACK|buildFundCard|initFundamentalCards)\b/.test(read('index.html'))) fail('legacy hardcoded fundamental watchlist writer returned');
-if (/function\s+fundamentalCardClick\s*\(/.test(read('index.html'))) fail('legacy fundamental card provider-search delegate returned');
+if (/\b(?:FUND_FALLBACK|buildFundCard|initFundamentalCards)\b/.test(pagesSource)) fail('legacy hardcoded fundamental watchlist writer returned');
+if (/function\s+fundamentalCardClick\s*\(/.test(pagesSource)) fail('legacy fundamental card provider-search delegate returned');
 // P819: market.js owns the current-evidence breadth diagnostic signal/text;
 // updateBreadthBars remains compatibility-only for these marked sinks.
 for (const marker of ['breadth-diag-signal', 'breadth-diag-text', 'aioBreadthDiagnosticRenderer']) {
@@ -362,7 +367,7 @@ if (routeOwners.routes?.fxbond?.chartOwner !== 'native' || (routeOwners.routes?.
 for (const marker of ['renderNativeHistoryChart', 'renderNativeCurveChart', 'aioFxbondChartRenderer']) {
   if (!marketPageSource.includes(marker)) fail(`native fxbond chart marker missing: ${marker}`);
 }
-if (!indexHtmlSource.includes('nativeFxbondPage') || !indexHtmlSource.includes("ctx.dataset.aioFxbondChartRenderer === 'native'")) fail('legacy fxbond chart writer fence missing');
+if (!pagesSource.includes('nativeFxbondPage') || !pagesSource.includes("ctx.dataset.aioFxbondChartRenderer === 'native'")) fail('legacy fxbond chart writer fence missing');
 // P829: entity.js owns extended-session and portfolio P&L hero sinks; compatibility writers
 // remain available for action/overview behavior but cannot overwrite native-marked nodes.
 for (const marker of ['renderTickerActivity', 'ticker-hero-ext', 'ticker-hero-pnl', 'ticker-hero-value', 'aioTickerExtensionRenderer', 'aioTickerPnlRenderer']) {
@@ -393,14 +398,16 @@ for (const marker of ['derivePortfolioSurface', 'renderPortfolioSurface', 'pf-ho
   if (!portfolioPageSource.includes(marker)) fail(`native portfolio surface marker missing: ${marker}`);
 }
 if (!read('src/domain/portfolio/surface.js').includes('PORTFOLIO_SURFACE_MODEL_VERSION')) fail('portfolio surface model missing');
-if (indexHtmlSource.includes("document.getElementById('pf-holding-count')") || indexHtmlSource.includes("document.getElementById('pf-sector-breakdown')") || !indexHtmlSource.includes('P831: sector allocation is owned by src/ui/pages/portfolio.js.')) fail('legacy portfolio surface writer retirement missing');
+// P1133/R620: the P831 sector-allocation fence moved with block D into js/aio-pages.js; the two
+// absence checks stay on index.html because they guard the shell against reintroduction.
+if (indexHtmlSource.includes("document.getElementById('pf-holding-count')") || indexHtmlSource.includes("document.getElementById('pf-sector-breakdown')") || !pagesSource.includes('P831: sector allocation is owned by src/ui/pages/portfolio.js.')) fail('legacy portfolio surface writer retirement missing');
 // P1130/R619: the options renderer moved from index.html's inline block E into js/aio-ui.js, so the
 // fence is now consulted there. The marker's owner must move with it — an assertion pinned to the old
 // file would either fail loudly (as this one did) or, worse, keep passing against a stale copy.
 if (!dataSource.includes('function _aioIsNativeMacroElement') || !dataSource.includes('#page-options[data-aio-architecture-renderer="native"]') || !coreSource.includes('#page-options[data-aio-architecture-renderer="native"]') || !uiSource.includes('_aioIsNativeMacroElement(el)')) fail('legacy options native-element writer fence missing');
 // P835: portfolio position allocation chart lifecycle is native from normalized holding
 // values and drawPositionDonut remains a compatibility fallback behind the route marker.
-if (routeOwners.routes?.portfolio?.chartOwner !== 'native' || !portfolioPageSource.includes('renderPortfolioChart') || !portfolioPageSource.includes('aioPortfolioChartRenderer') || !indexHtmlSource.includes('aio-portfolio-chart-renderer="native"')) fail('native portfolio chart ownership/fence missing');
+if (routeOwners.routes?.portfolio?.chartOwner !== 'native' || !portfolioPageSource.includes('renderPortfolioChart') || !portfolioPageSource.includes('aioPortfolioChartRenderer') || !pagesSource.includes('aio-portfolio-chart-renderer="native"')) fail('native portfolio chart ownership/fence missing');
 // P785: technical owns only the market-health primary surface. The pure model is the single
 // formula owner; both legacy compatibility entry points must consult the native technical fence.
 for (const marker of ['MARKET_HEALTH_MODEL_VERSION', 'export function computeMarketHealth', 'bars:', 'details:']) {
@@ -422,7 +429,7 @@ for (const marker of ['deriveTradingScoreDecisionPresentation', 'SIGNAL_PRESENTA
 for (const marker of ['renderSignalDecision', 'renderScoreAdjustments', "page.dataset.aioSignalRenderer = 'native'", 'score-gauge-val', 'score-decision-badge', 'score-decision-sub', 'score-adjustments-container', 'aioSignalAdjustmentsRenderer']) {
   if (!analysisPageSource.includes(marker)) fail(`native signal hero renderer marker missing: ${marker}`);
 }
-if (!htmlSource.includes('function _aioIsNativeSignalHero') || !htmlSource.includes('_aioIsNativeSignalHero()')) fail('legacy signal hero writer fence missing');
+if (!pagesSource.includes('function _aioIsNativeSignalHero') || !pagesSource.includes('_aioIsNativeSignalHero()')) fail('legacy signal hero writer fence missing');
 // P787: home owns only the four score/decision summary sinks. The quality meter, Fear & Greed,
 // regime, factor detail, chart, and narrative surfaces remain compatibility-owned.
 for (const marker of ['renderHomeSummary', "page.dataset.aioHomeRenderer = 'native'", 'home-hero-total', 'home-hero-headline', 'home-hero-desc', 'home-trading-signal']) {
@@ -438,10 +445,12 @@ for (const marker of ['renderThemeDetailSummary', 'renderThemeDetailComposition'
   if (!themesPageSource.includes(marker)) fail(`native theme-detail surface marker missing: ${marker}`);
 }
 for (const marker of ['theme-detail-native-summary', 'theme-detail-native-composition', 'theme-detail-native-leaders', 'theme-detail-native-temperature', 'theme-detail-native-spread', 'theme-detail-native-breadth-health', 'theme-detail-native-subtheme-gap', 'theme-detail-native-benchmark', 'theme-detail-native-insights', 'theme-detail-legacy-content', 'aio:themeDetailShown', 'aio:themeDetailClosed']) {
-  if (!htmlSource.includes(marker)) fail(`theme-detail legacy/native child boundary missing: ${marker}`);
+  // P1133/R620: the native-* markers are shell markup, but aio:themeDetailShown/Closed are dispatched
+  // by the renderer that moved to js/aio-pages.js — accept either owner.
+  if (!(htmlSource.includes(marker) || pagesSource.includes(marker))) fail(`theme-detail legacy/native child boundary missing: ${marker}`);
 }
-if (!htmlSource.includes('P789: sub-theme composition and breadth are owned by the native child surface.')) fail('theme-detail legacy composition fence missing');
-if (!htmlSource.includes('P790: detailed leader cards are owned by the native child surface.')) fail('theme-detail legacy leader fence missing');
+if (!pagesSource.includes('P789: sub-theme composition and breadth are owned by the native child surface.')) fail('theme-detail legacy composition fence missing');
+if (!pagesSource.includes('P790: detailed leader cards are owned by the native child surface.')) fail('theme-detail legacy leader fence missing');
 // P1129/R619: P791~P796 were fence comments INSIDE the retired deep-analysis writer. That
 // writer has now been deleted outright, and "the fence comment still exists" stops being a
 // meaningful invariant once the fenced code is gone — keeping the assertion would have forced
@@ -449,14 +458,14 @@ if (!htmlSource.includes('P790: detailed leader cards are owned by the native ch
 // writer cannot come back, which is what these lines now assert. The native ownership of the
 // six sections is still covered by the `theme-detail-native-*` markers asserted above.
 if (indexHtmlSource.includes('_retiredThemeDeepAnalysis')) fail('theme-detail retired deep-analysis writer returned after P797/P1129 deletion');
-if (!htmlSource.includes('P797: all visible theme-detail content is owned by the native child surfaces.') || !htmlSource.includes('legacyContainer.replaceChildren()') || htmlSource.includes('legacyContainer.innerHTML = html')) fail('theme-detail legacy visible writer retirement missing');
+if (!pagesSource.includes('P797: all visible theme-detail content is owned by the native child surfaces.') || !pagesSource.includes('legacyContainer.replaceChildren()') || pagesSource.includes('legacyContainer.innerHTML = html')) fail('theme-detail legacy visible writer retirement missing');
 
 // P798-P799: the RRG status and canvas are native projections of the normalized themes slice.
 // Legacy drawRRG remains only as a compatibility fallback and must fence both surfaces.
 for (const marker of ['renderRRGStatus', 'renderRRGCanvas', 'rrg-chart-status', 'rrg-canvas', 'aioRrgStatusRenderer', 'aioRrgChartRenderer']) {
   if (!themesPageSource.includes(marker)) fail(`native RRG surface marker missing: ${marker}`);
 }
-if (!htmlSource.includes('P798: RRG chart-status is owned by the native themes state projection; the canvas remains legacy.') || !htmlSource.includes('P799: native themes owns the RRG canvas from normalized quadrant evidence.') || !htmlSource.includes("st.dataset.aioRrgStatusRenderer !== 'native'") || !htmlSource.includes("dataset.aioRrgChartRenderer === 'native'")) fail('RRG legacy writer fences missing');
+if (!pagesSource.includes('P798: RRG chart-status is owned by the native themes state projection; the canvas remains legacy.') || !pagesSource.includes('P799: native themes owns the RRG canvas from normalized quadrant evidence.') || !pagesSource.includes("st.dataset.aioRrgStatusRenderer !== 'native'") || !pagesSource.includes("dataset.aioRrgChartRenderer === 'native'")) fail('RRG legacy writer fences missing');
 
 // P800: the themes slice must be fed by the native provider/orchestrator rather than
 // the legacy facade projection; legacy theme events remain compatibility notifications.
@@ -464,15 +473,15 @@ if (routeOwners.routes?.themes?.dataOwner === 'native' && (!bootstrapSource.incl
 for (const marker of ['renderThemeCyclePill', 'theme-cycle-pill', 'aioThemeCycleRenderer']) {
   if (!themesPageSource.includes(marker)) fail(`native theme cycle marker missing: ${marker}`);
 }
-if (!htmlSource.includes('P801: the RRG-derived cycle pill is native; legacy sector prose must not overwrite it.') || !htmlSource.includes("pill.dataset.aioThemeCycleRenderer !== 'native'")) fail('theme cycle legacy writer fence missing');
+if (!pagesSource.includes('P801: the RRG-derived cycle pill is native; legacy sector prose must not overwrite it.') || !pagesSource.includes("pill.dataset.aioThemeCycleRenderer !== 'native'")) fail('theme cycle legacy writer fence missing');
 for (const marker of ['renderThemePerformanceNarrative', 'sector-perf-analysis', 'aioThemePerformanceRenderer']) {
   if (!themesPageSource.includes(marker)) fail(`native theme performance marker missing: ${marker}`);
 }
-if (!htmlSource.includes('P802: normalized themes owns the bounded sector-performance narrative.') || !htmlSource.includes("el.dataset.aioThemePerformanceRenderer === 'native'")) fail('theme performance legacy writer fence missing');
+if (!pagesSource.includes('P802: normalized themes owns the bounded sector-performance narrative.') || !pagesSource.includes("el.dataset.aioThemePerformanceRenderer === 'native'")) fail('theme performance legacy writer fence missing');
 for (const marker of ['renderThemePerformanceBars', 'sector-perf-bars', 'aioThemePerformanceBarsRenderer', 'weeklyPct']) {
   if (!themesPageSource.includes(marker) && marker !== 'sector-perf-bars' && marker !== 'weeklyPct') fail(`native theme performance-bars marker missing: ${marker}`);
 }
-if (!htmlSource.includes('P859: native themes owns the bounded sector-performance bars') || !htmlSource.includes("container.dataset.aioThemePerformanceBarsRenderer === 'native'")) fail('theme performance-bars legacy writer fence missing');
+if (!pagesSource.includes('P859: native themes owns the bounded sector-performance bars') || !pagesSource.includes("container.dataset.aioThemePerformanceBarsRenderer === 'native'")) fail('theme performance-bars legacy writer fence missing');
 
 // AG-DOM-WRITER (RM-01): src/ui/pages/* may only write ids/helpers that no legacy file also
 // writes. This is deliberately id-based (getElementById + the setText/text(documentRef, id, …)

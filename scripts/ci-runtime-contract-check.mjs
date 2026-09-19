@@ -20,6 +20,8 @@ const core = read('js/aio-core.js');
 const data = read('js/aio-data.js');
 const ui = read('js/aio-ui.js');
 const chat = read('js/aio-chat.js');
+// P1133/R620: page-level renderers extracted from index.html's inline block D live in js/aio-pages.js.
+const pagesSource = read('js/aio-pages.js');
 const tests = read('js/aio-tests.js');
 const bootstrap = read('src/app/bootstrap.js');
 const portfolioBacktest = read('src/domain/portfolio/backtest.js');
@@ -320,7 +322,7 @@ check('ticker live price renderer does not call live.price.toFixed directly', !/
 check('scenario sum renderers guard missing sum before toFixed', !/sumCheck\.sum\.toFixed\(/.test(core) && !/sigSum\.sum\.toFixed\(/.test(core));
 check('Chart tooltip callbacks guard missing parsed.y before toFixed', !/ctx\.parsed\.y\.toFixed\(/.test(core));
 check('home dashboard VIX default path guards missing live price before toFixed', !/vix\.price\?\.toFixed\(/.test(data) && !/vp\.toFixed\(2\)/.test(data));
-check('theme detail deep analysis filters finite pct values before toFixed', /topV\s*=\s*-Infinity/.test(html) && /botV\s*=\s*Infinity/.test(html) && /pctVal\s*=\s*d\s*&&\s*_themeFinitePct\(d\.pct\)/.test(html) && /_themeSafeFixed\(topV,\s*2/.test(html));
+check('theme detail deep analysis filters finite pct values before toFixed', /topV\s*=\s*-Infinity/.test(pagesSource) && /botV\s*=\s*Infinity/.test(pagesSource) && /pctVal\s*=\s*d\s*&&\s*_themeFinitePct\(d\.pct\)/.test(pagesSource) && /_themeSafeFixed\(topV,\s*2/.test(pagesSource));
 check('theme-detail route resolves to themes inline detail surface',
   (/id === 'theme-detail'/.test(core) && /_aioOpenThemeDetailOnThemes/.test(core) && /showThemeDetail\(themeId\)/.test(core))
   || (/createThemesPage/.test(themesPage) && /createThemesPage\(\{[^}]*route:\s*'theme-detail'/.test(bootstrap) && /aioArchitectureSlice/.test(themesPage)));
@@ -550,7 +552,7 @@ check('EF-13: FOMC footnote auto-badges past 21 days and collapses past 30 days 
 check('EF-04: briefing date-line is a named, mockable-`now` renderer instead of an unconditional new Date() write', /window\._aioRenderBriefingDateLine\s*=\s*function\(nowOverride\)/.test(html) && /isPreCutoff/.test(html));
 check('EF-02d: breadth 50SMA readout/bar sync is a single shared function called from both the Chart.js-independent snapshot path and updateBreadthBars, not duplicated', (core.match(/_aioSyncBreadth50Readout\s*=\s*function/g) || []).length === 1 && /window\._aioSyncBreadth50Readout\(\)/.test(core) && /window\._aioSyncBreadth50Readout\(\)/.test(ui));
 check('EF-02b: breadth header-badge and diag-signal consume the same canonical consensus object as the signal-page verdict (no independent re-derivation)', /_aioRenderBreadthConsensus\s*=\s*function/.test(core) && /breadth-header-badge/.test(core) && /breadth-diag-signal/.test(core));
-check('EF-02b: home market-pulse breadth strip uses NARRATIVE_ENGINE.getBreadthRegime instead of an independent 60/30 threshold', /NARRATIVE_ENGINE\.getBreadthRegime\(bVal\)/.test(html));
+check('EF-02b: home market-pulse breadth strip uses NARRATIVE_ENGINE.getBreadthRegime instead of an independent 60/30 threshold', /NARRATIVE_ENGINE\.getBreadthRegime\(bVal\)/.test(pagesSource));
 check('EF-02c: NYSE new-high/new-low/hl-ratio cards render an explicit na state instead of a perpetual unstated dash', /breadth-new-highs.*breadth-new-lows.*breadth-hl-ratio|breadth-new-highs['"]\s*,\s*['"]breadth-new-lows/.test(ui.replace(/\s+/g, ' ')));
 check('EF-01: macro "now/live" mini-card reads window._liveData first and falls back to the snapshot with an explicit fallback title, instead of an always-snapshot data-snap binding', /function _aioSyncMacroLiveSpxMini/.test(html) && /id="macro-now-spx"/.test(html) && !/id="macro-now-spx"\s+data-snap="spx"/.test(html));
 check('headless tests cover Batch 1 efficacy fixes (EF-01/02/04/13)', /_testV5240Batch1Efficacy/.test(tests) && /T870/.test(tests) && /T871/.test(tests) && /T872/.test(tests) && /T873/.test(tests));
@@ -559,7 +561,7 @@ check('headless tests cover Batch 1 efficacy fixes (EF-01/02/04/13)', /_testV524
 check('EF-08: carry-unwind-risk render function has an independent aio:pageShown/aio:liveQuotes trigger, not only the showPage-monkeypatch setTimeout path that live-audit proved unreliable on cold load', /data-carry-unwind-shown/.test(data) && /data-carry-unwind-live/.test(data) && /_aioPageBus\.register\('data-carry-unwind-shown'/.test(data));
 check('EF-08: carry observation proxy discloses the manually verified BOJ input and holds instead of inventing a score when current inputs are absent', /BOJ 수동 확인값 기준/.test(data) && /관측 프록시 보류/.test(data) && /inputsComplete/.test(data));
 check('EF-10/P1010: retired dead ticker metrics and action slots route to the shared SEC report', !/_tickerGapIds|ticker-action-btn|ticker-m-mcap/.test(core) && /id="ticker-fundamental-link"[^>]*data-arg="fundamental"/.test(html) && !/id="ticker-f-ni"|id="tab-financials"/.test(html));
-check('EF-11/P1010: unsupported VXX futures inference is retired while RSP/SPY retains explicit missing state', !/rm-vixstr-status|var rollCost = vxxPct/.test(html) && /RSP 또는 SPY 라이브 시세 미수신/.test(html));
+check('EF-11/P1010: unsupported VXX futures inference is retired while RSP/SPY retains explicit missing state', !/rm-vixstr-status|var rollCost = vxxPct/.test(pagesSource) && /RSP 또는 SPY 라이브 시세 미수신/.test(pagesSource));
 check('EF-12: TV OHLC fallback strip sync is extracted into a standalone function reachable from page-shown/live-quotes, not only as a loadTVChart side effect', /function _aioSyncTvOhlcFallback/.test(ui) && /html-tv-ohlc-fallback-shown/.test(ui) && /html-tv-ohlc-fallback-live/.test(ui));
 check('EF-19: kr-technical KOSPI/KOSDAQ refresh buttons call analyzeKrIndex with the correct target ids, and the analyzeKrTickerDeep mis-wiring is gone', /data-action="analyzeKrIndex"\s+data-arg="\^KS11"\s+data-arg2="kr-kospi-tech-result"/.test(html) && /data-action="analyzeKrIndex"\s+data-arg="\^KQ11"\s+data-arg2="kr-kosdaq-tech-result"/.test(html) && !/data-action="analyzeKrTickerDeep"\s+data-arg="\^K[SQ]11"/.test(html));
 check('EF-19: _fetchYahooChartData proxy chain includes codetabs.com fallback (live network audit showed corsproxy.io/allorigins alone failing repeatedly for KR tickers)', /api\.codetabs\.com\/v1\/proxy/.test(html));
@@ -880,9 +882,11 @@ check('R340/P712: KR yields and US breadth require timestamped current evidence 
   && (/_breadthSeriesReferenceAsOf\s*=\s*null/.test(ui) || (/getCurrentBreadthEvidence/.test(ui) && /if\s*\(!currentBreadth\.available\)/.test(ui) && /현재 원천 미수신/.test(ui)))
   && !/DATA_SNAPSHOT\.krBond3y/.test(html.slice(html.indexOf('function updateKrMacroFromLive'), html.indexOf('function updateKrMacroFromLive') + 5000)));
 check('R344/P727: retired fxbond commentary has no orphan function, call, or DOM sink while live status stays in the canonical updater',
-  !/function\s+(?:updateFxDynamicComments|generateFxBondCommentary)\s*\(/.test(html) &&
-  !/(?:getElementById|querySelector)\(['"](?:fx-dc-|bond-dc-)/.test(html) &&
-  /function\s+updateFxBondPage\([\s\S]{0,9000}?fxbond-risk-pill[\s\S]{0,3000}?yc-inversion-badge[\s\S]{0,3000}?updateCrossAssetMatrix\(\)/.test(html));
+  // P1133/R620: the fxbond page renderer moved to js/aio-pages.js. Repointing the absence checks
+  // matters too — pinned to index.html they would now pass vacuously.
+  !/function\s+(?:updateFxDynamicComments|generateFxBondCommentary)\s*\(/.test(pagesSource) &&
+  !/(?:getElementById|querySelector)\(['"](?:fx-dc-|bond-dc-)/.test(pagesSource) &&
+  /function\s+updateFxBondPage\([\s\S]{0,9000}?fxbond-risk-pill[\s\S]{0,3000}?yc-inversion-badge[\s\S]{0,3000}?updateCrossAssetMatrix\(\)/.test(pagesSource));
 check('R344/P727: alert polling has no unregistered raw interval fallback',
   /_aioRegisterTimer\('alerts-check'/.test(chat) && !/\bsetInterval\s*\(/.test(chat));
 check('R345/P728: quote batches defer per-symbol lineage scans and keep one canonical DOM bind',

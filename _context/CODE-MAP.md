@@ -259,6 +259,7 @@ The tables in this subsection supersede older detailed line snapshots retained b
 | `js/aio-chat.js` | evidence-first CHAT_CONTEXTS, data preflight, Claude/Perplexity, 응답 파이프라인 |
 | `js/aio-tests.js` | CI/로컬 브라우저 회귀 테스트 전용(110그룹). Pages·service worker 배포 대상에서 제외 |
 | `js/aio-glossary.js` | 용어사전 데이터 리터럴 |
+| `js/aio-pages.js` | **P1133으로 index.html 인라인 블록 D에서 추출한 페이지 렌더러** — 신호 대시보드, FX/채권, 크로스에셋, 기업분석 레거시 위젯, RRG/섹터/테마 맵, `showThemeDetail` 네이티브 브리지, 가격 이력·RRG 하이드레이션, ETF/서브테마 그리드. `defer`로 로드되며 `index.html`의 `data-action` 위임이 그대로 호출한다 |
 
 ---
 

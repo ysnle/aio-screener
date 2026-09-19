@@ -94,6 +94,8 @@ const screenerProvider = read('src/data/providers/screener.js');
 const newsPage = read('src/ui/pages/news.js');
 const marketPage = read('src/ui/pages/market.js');
 const html = read('index.html');
+// P1133/R620: page-level renderers extracted from index.html's inline block D live in js/aio-pages.js.
+const pagesSource = read('js/aio-pages.js');
 const qa = read('_context/QA-CHECKLIST.md');
 const rules = read('_context/RULES.md');
 const postmortem = read('_context/BUG-POSTMORTEM.md');
@@ -663,7 +665,7 @@ check('market-news UI labels match KST 08:00 completed 24h contract', /08:00 KST
 check('market-news empty state uses 24h completed-cycle wording', /08:00 KST 완료 24h/.test(newsPage) && !/48.?\uC2DC\uAC04/.test(newsPage));
 check('briefing primary feed has a native owner and no legacy primary DOM writer', /route === 'briefing'/.test(newsPage) && /briefing-live-news-list/.test(newsPage) && /briefing-24h-count/.test(newsPage) && /briefing-24h-ts/.test(newsPage) && /aioBriefingRenderer/.test(newsPage) && !/briefing-live-news-list/.test(core) && !/briefing-live-news-list/.test(data));
 check('macro primary quote/FRED surface has a native owner and legacy writers fence native elements', /renderLiveQuotes/.test(marketPage) && /renderSnapshotMetrics/.test(marketPage) && /aioMacroRenderer/.test(marketPage) && /_aioIsNativeMacroElement/.test(data) && /_aioIsNativeMacroElement\(el\)/.test(data) && /closest\('#page-macro\[data-aio-architecture-renderer="native"\]'\)/.test(data) && /closest\('#page-macro\[data-aio-architecture-renderer="native"\]'\)/.test(core));
-check('fxbond primary quote/MOVE surface has a native owner and legacy writers fence native elements', /renderFxbond/.test(marketPage) && /aioFxbondRenderer/.test(marketPage) && /function _aioIsNativeFxbondElement/.test(data) && /page-fxbond\[data-aio-architecture-renderer="native"\]/.test(data) && /page-fxbond\[data-aio-architecture-renderer="native"\]/.test(core) && /page-fxbond\[data-aio-architecture-renderer="native"\]/.test(html));
+check('fxbond primary quote/MOVE surface has a native owner and legacy writers fence native elements', /renderFxbond/.test(marketPage) && /aioFxbondRenderer/.test(marketPage) && /function _aioIsNativeFxbondElement/.test(data) && /page-fxbond\[data-aio-architecture-renderer="native"\]/.test(data) && /page-fxbond\[data-aio-architecture-renderer="native"\]/.test(core) && /page-fxbond\[data-aio-architecture-renderer="native"\]/.test(pagesSource));
 check('breadth primary current-metric surface has a native artifact owner and legacy writers fence native elements', /renderBreadth/.test(marketPage) && /aioBreadthRenderer/.test(marketPage) && /getScreenerState/.test(marketPage) && /function _aioIsNativeBreadthElement/.test(data) && /_aioIsNativeBreadthElement\(el\)/.test(data) && /_aioIsNativeBreadthElement\(el\)/.test(read('js/aio-ui.js')) && /page-breadth\[data-aio-architecture-renderer="native"\]/.test(core));
 check('news consumers do not directly reuse rolling 48h newsCache filters', !/filterByAge\(newsCache,\s*48\)/.test(data) && !/48시간 이내 한국 관련 뉴스|뉴스 피드 자동 추출[\s\S]{0,80}48시간/.test(html));
 check('chat consumes Korean news translation context', /_aioGetNewsTranslation/.test(chat) && /ko_rewrite/.test(chat) && /ko_market/.test(chat) && /ko_explain/.test(chat) && /ko_impact/.test(chat) && /ko_action/.test(chat));
@@ -694,7 +696,8 @@ check('workflow governance doc exists', exists('_context/WORKFLOW-GOVERNANCE.md'
 // producer wired to a workflow, artifact read by a client path, policy declared.
 check('earnings calendar keeps producer, consumer and lineage policy aligned',
   /fetch-earnings-calendar\.mjs/.test(read('.github/workflows/refresh-screener.yml'))
-  && /public-data\/earnings-calendar\.json/.test(read('index.html'))
+  // P1133/R620: the earnings-calendar consumer moved with block D to js/aio-pages.js.
+  && /public-data\/earnings-calendar\.json/.test(pagesSource)
   && /'earnings-calendar\.json'/.test(read('scripts/ci-data-lineage-audit.mjs')),
   'producer, consumer or lineage policy is missing');
 

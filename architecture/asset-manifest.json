@@ -1,15 +1,17 @@
 {
   "schemaVersion": "asset-manifest-v1",
-  "appRevision": "v55.13",
+  "appRevision": "v55.14",
   "dataRevision": "market-snapshot:2026-09-19T01:38:09.181Z:efa1ac4c",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
-  "workerRevision": "sw:v55.13",
+  "workerRevision": "sw:v55.14",
   "immutableRuntime": [
     "index.html",
     "js/aio-core.js",
     "js/aio-data.js",
     "js/aio-ui.js",
     "js/aio-chat.js",
+    "js/aio-glossary.js",
+    "js/aio-pages.js",
     "src/**/*.js"
   ],
   "rollback": {

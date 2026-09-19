@@ -36,15 +36,16 @@ async function fetchResponse(path) {
 }
 
 async function main() {
-  let html, core, data, ui, chat, glossary, versionJson, deployment, publicConfig, indexResponse;
+  let html, core, data, ui, chat, glossary, pages, versionJson, deployment, publicConfig, indexResponse;
   try {
-    [indexResponse, core, data, ui, chat, glossary] = await Promise.all([
+    [indexResponse, core, data, ui, chat, glossary, pages] = await Promise.all([
       fetchResponse('index.html'),
       fetchText('js/aio-core.js'),
       fetchText('js/aio-data.js'),
       fetchText('js/aio-ui.js'),
       fetchText('js/aio-chat.js'),
       fetchText('js/aio-glossary.js'),
+      fetchText('js/aio-pages.js'),
     ]);
     html = await indexResponse.text();
     versionJson = JSON.parse(await fetchText('version.json'));
@@ -135,6 +136,7 @@ async function main() {
     'js/aio-ui.js': ui,
     'js/aio-chat.js': chat,
     'js/aio-glossary.js': glossary,
+    'js/aio-pages.js': pages,
   };
   const TOP_LEVEL_FN_RE = /^(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(/gm;
   const fnOwners = new Map();

@@ -2,12 +2,24 @@
 verified_by: 데이터 파이프라인 전수 의미·정합성 감사(로컬 재계산) + affected QA; 중첩 산출물 의미 검토는 open
 last_verified: 2026-09-19
 confidence: medium
-latest_version: v55.13
-latest_P_number: P1132
-next_P_number: P1133
-current_total_entries: 547 tracked entries (374 headings + 173 compacted lines, P1~P1132, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
+latest_version: v55.14
+latest_P_number: P1133
+next_P_number: P1134
+current_total_entries: 548 tracked entries (375 headings + 173 compacted lines, P1~P1133, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
 current_checkpoint: 사용자 판단(지인용 사설 스크리너)으로 **차단 경계를 공시로 재배치**했다 — 개인화 지시·현재증거 부족·수치 주장 불일치·헤드라인 전용 인과를 하드 차단에서 경고/공시로 강등(P1120~P1122). 조작 방지(값·단위·NFP 배율), 금지 행위 P0, 포트폴리오 동의, 도구 경계는 그대로 차단이다. 남은 OPEN: 날짜 없는 중첩 산출물 12건(P1110 측정면이 노출), `objects/**` 592/629 미참조 blob의 보존 정책, 캐시 라우팅 밖의 실제 소비 산출물 오프라인 폴백 (semantic coverage 6.89%, releaseCertified=false)
 ---
+
+## P1133 - v55.14 - 등록된 새 파일로 추출해 측면 이동을 막았다 (2026-09-19)
+
+- symptom/reproduction: 남은 인라인 블록 중 **D(3,750줄 — 신호 대시보드, FX/채권 페이지, 크로스에셋 매트릭스, 기업분석 레거시 위젯·어닝 캘린더·리스크 레이더, RRG/섹터/테마 맵, `showThemeDetail` 브리지, 서브테마 상세, 가격 이력·RRG 하이드레이션, ETF/서브테마 그리드)** 를 추출했다. index.html **24,285 → 20,538(−3,747)**. 이번에는 기존 파일에 접어넣지 않고 **새 파일 `js/aio-pages.js`(3,761줄)** 를 만들었다.
+- root_cause: 앞선 두 회차(P1130·P1131·P1132)는 등록 비용을 피하려고 기존 등록 파일에 접어넣었지만, 그대로 두면 index.html이 줄어드는 대신 `aio-ui.js`가 새 모놀리스가 된다 — **R620(3)이 경고한 "커버리지를 빠뜨리면 압력은 옆으로 샌다"의 정확한 재현**이다. 압력을 옆으로 옮기는 것은 분해가 아니다.
+- fix: 새 파일을 만들고 등록을 **8곳 전부** 수행했다 — ① `architecture/asset-manifest.json` `immutableRuntime` ② `public-artifact-manifest.json` allowlist ③ `sw.js` `CRITICAL_SHELL_ASSETS` ④ `.github/workflows/pages-deploy.yml` cp 목록 ⑤ `ci-structural-check.mjs` `RUNTIME_SCRIPT_FILES` ⑥ `ci-live-invariant-check.mjs` `RUNTIME_SCRIPT_FILES`(fetch 목록·destructure·map 3곳) ⑦ `architecture/decomposition-hotspots.json` `measuredFiles`+`recordedLines` ⑧ `scripts/ci-doc-currency-check.mjs` FILES. 여기에 `CODE-MAP` §1 행까지 더해, 래칫이 **미등록 파일을 즉시 잡도록** 했다(실제로 `CODE-MAP does not cover measured hotspot(s): js/aio-pages.js`로 한 번 걸렸고 그때 문서를 추가했다).
+- 왜 이게 안전한가: ⑤⑥ 누락은 R280 중복 전역 검사가 그 파일을 못 보게 만들지만(P605의 사각), 래칫의 CODE-MAP 커버리지 검사와 `ci-release-revision-check`의 allowlist↔sw↔Pages 3자 일치 검사가 누락을 **조용히 지나가지 못하게** 한다. P1130에서 "새 파일은 취약하다"고 판단한 근거는 *등록을 건너뛰는* 경우였고, 등록을 전부 하면 게이트가 지킨다.
+- 게이트 재지정: 3개 파일 16곳 — `ci-architecture-contract-check` 10곳(ResizeObserver teardown, fxbond pill/inversion/CAM/curve status/chart fence, fundamental summary/card, signal hero fence, P789/P790/P797/P798/P799/P801/P802/P859 fence, theme membership 마커, showThemeDetail 슬라이스, portfolio chart fence), `ci-runtime-contract-check` 4곳(theme detail finite pct, EF-02b, EF-11, R344/P727 fxbond), `ci-data-pipeline-contract-check` 2곳(fxbond fence, earnings-calendar consumer). 그중 2곳은 **한 검사가 두 블록에 걸쳐** 있어 일부만 재지정했고(P789 계열, theme-detail native 마커 + aio:themeDetailShown은 소유자가 다름), **부재 검사 4곳**(cam-verdict-text, yc-chart-status, FUND_FALLBACK, fxbond commentary)은 index.html에 두면 공허하게 통과하므로 함께 재지정했다.
+- violated_rule: R620(3항 — 커버리지와 측면 이동), R619(2항 — 단언 소유자는 코드를 따라간다).
+- prevention: 새 런타임 파일 추출 시 **등록 8곳 체크리스트**를 따른다. 래칫 `measuredFiles`에 반드시 추가하고, 게이트 재지정은 사전 grep이 아니라 **이동 후 실패한 단언을 소유자별로 고치는 경험적 루프**로 처리한다.
+- verification: headless **1,133/1,133 PASS(110/110 그룹)** — 새 파일이 실제 페이지에서 로드·동작함을 확인. 실브라우저 `ci-architecture-browser-check` PASS(20 라우트, `browserErrors:0`). `ci-architecture-contract-check`·`ci-runtime-contract-check`·`ci-data-pipeline-contract-check`(16곳 재지정 후), `ci-structural-check`(R280 중복 전역 0), `ci-decomp-hotspot-check`(**8개 파일** 래칫 — index.html 20,538 / aio-pages.js 3,761), `ci-version-check`(캐시버스터 9→10), `ci-syntax-check`(387 파일), `ci-workspace-contract-check` PASS. affected QA 88 PASS / 2 FAIL(신선도 SLA). 커밋만 수행, push·배포 없음.
+- 잔여: 블록 A~C(6,644줄)는 QA-EXHAUST-89, 3단계는 QA-EXHAUST-90.
 
 ## P1132 - v55.13 - 블록 F 이관이 잠복 전역 섀도잉을 드러냈다 (2026-09-19)
 
