@@ -2,10 +2,16 @@
 verified_by: Codex local source review + affected QA (workspace/deployment regression); full semantic audit remains open
 last_verified: 2026-09-19
 confidence: medium
-target_version: v55.20
+target_version: v55.21
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R626. 생성 산출물의 병합은 필드 소유권으로 결정한다 (v55.21, P1141)
+
+**Rule**: 같은 생성 문서를 **두 생산자가 서로 다른 필드로** 갱신하면 충돌은 의미 충돌이 아니라 **필드 소유권 충돌**이다. 여기서는 스케줄된 데이터 봇이 `dataRevision`/`generatedAt`/데이터 사이클 id를 쓰고 사람의 코드 커밋이 `appRevision`/`workerRevision`을 쓴다 — 같은 파일, 다른 필드다. 따라서 (1) 해소는 **한쪽 선택이 아니라 필드 단위 합집합**이다(`git checkout --ours`로 통째로 고르면 리비전 동기화가 깨진다). (2) 이 규칙은 **한 번 코드로 적어 둔다** — 매 세션이 손으로 재발견하면 매번 수십 분이 든다(`scripts/resolve-data-manifest-merge.mjs`). (3) 리베이스 중 `--ours`는 **업스트림**이고 `--theirs`가 재생 중인 커밋이므로, 이름에 의존하지 말고 **충돌 마커를 직접 읽는다**. (4) 분류되지 않은 새 필드가 충돌 블록에 나타나면 **추측하지 않고 중단**한다 — 새 필드는 소유자를 의도적으로 정해야 한다. (5) 봇이 계속 앞서 나가는 것은 정상이므로 fetch→rebase→검증→push를 **루프로** 감싸고, push 거부를 실패가 아니라 재시도 신호로 다룬다.
+
+**Validation**: `scripts/resolve-data-manifest-merge.mjs`(미분류 필드에서 exit 3), 리베이스 후 `ci-version-check` + `ci-release-manifest-contract` + `node scripts/qa-runner.mjs affected` 통과.
 
 ## R625. 픽스처가 검출기의 언어를 대신 맞춰주면 그 검사는 아무것도 검사하지 않는다 (v55.20, P1139)
 

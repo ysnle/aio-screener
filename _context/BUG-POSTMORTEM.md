@@ -2,12 +2,30 @@
 verified_by: 데이터 파이프라인 전수 의미·정합성 감사(로컬 재계산) + affected QA; 중첩 산출물 의미 검토는 open
 last_verified: 2026-09-19
 confidence: medium
-latest_version: v55.20
-latest_P_number: P1139
-next_P_number: P1140
-current_total_entries: 554 tracked entries (381 headings + 173 compacted lines, P1~P1139, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
+latest_version: v55.21
+latest_P_number: P1141
+next_P_number: P1142
+current_total_entries: 556 tracked entries (383 headings + 173 compacted lines, P1~P1141, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
 current_checkpoint: 사용자 판단(지인용 사설 스크리너)으로 **차단 경계를 공시로 재배치**했다 — 개인화 지시·현재증거 부족·수치 주장 불일치·헤드라인 전용 인과를 하드 차단에서 경고/공시로 강등(P1120~P1122). 조작 방지(값·단위·NFP 배율), 금지 행위 P0, 포트폴리오 동의, 도구 경계는 그대로 차단이다. 남은 OPEN: 날짜 없는 중첩 산출물 12건(P1110 측정면이 노출), `objects/**` 592/629 미참조 blob의 보존 정책, 캐시 라우팅 밖의 실제 소비 산출물 오프라인 폴백 (semantic coverage 6.89%, releaseCertified=false)
 ---
+
+## P1141 - v55.21 - 리베이스 해소를 규칙과 도구로 고정하고, QA 낭비를 실측했다 (2026-09-19)
+
+- symptom/reproduction: 배포를 위해 17커밋을 `origin/main` 위로 올리는 과정에서 **같은 충돌이 반복**됐다. 원인은 스케줄 데이터 봇이 1~2시간마다 `public-data/**`와 데이터 매니페스트를 커밋해 장시간 작업하는 브랜치를 계속 추월하는 것이다. 첫 시도는 충돌 3파일 × 16커밋을 **손으로** 해소하는 데 수십 분이 들었고, 검증 도중 원격이 **또** 앞서 push가 거부됐다.
+- root_cause: **충돌을 의미 충돌로 오해했다.** 실제로는 같은 생성 문서를 두 생산자가 **서로 다른 필드로** 갱신한 것뿐이다 — 봇은 `dataRevision`/`generatedAt`/데이터 사이클 id, 코드 커밋은 `appRevision`/`workerRevision`. 한쪽을 통째로 고르면(`--ours`/`--theirs`) 나머지 축이 깨지므로 매번 "양쪽을 봐야 하는" 충돌로 보였다. 또 리베이스 중 `--ours`가 업스트림이라는 극성이 반대라 손으로 할 때마다 헷갈렸다.
+- fix: **필드 소유권 규칙을 코드로 고정**했다. `scripts/resolve-data-manifest-merge.mjs`가 충돌 마커를 직접 읽어(극성 무관) 코드 소유 필드는 코드 쪽 값, 나머지는 데이터 쪽 값을 합치고, **분류되지 않은 새 필드가 나타나면 추측하지 않고 exit 3**으로 중단한다. 이 도구 + 자동 리베이스 루프로 마지막 리베이스는 충돌 1파일 × 18커밋을 **무인**으로 해소했다. **R626**으로 규칙화했다.
+- **QA 낭비 실측(개선 대상 3건을 항목으로 고정)**: ① 게이트 **140개** 중 **23개가 Chromium을 띄우는 브라우저 게이트**이며 벽시계의 약 80%를 차지한다(browser-architecture 37.3s, route-soak 22.5s, user-journey 15.5s, boot 15.4s … 이 12개만 약 3분, 각 게이트가 앱 전체를 다시 로드) → **QA-EXHAUST-96**. ② **같은 불변식을 여러 게이트가 각각 단언**해 블록 이동 때 fxbond 펜스 하나를 **16번** 고쳐야 했고, 같은 스크립트가 두 게이트로 등록된 쌍이 **8개** → **QA-EXHAUST-97**. ③ 블록 A 추출이 깨뜨린 `browser-chat-ui-state`가 `affected`에서 **skip**되어 통과로 보였고 리베이스 후 처음 드러났다 — 즉 "affected PASS"는 추출 안전성의 증거가 아니다 → **QA-EXHAUST-98**.
+- **제 실수(기록)**: (a) `for … & …` 체인에 `qa-runner affected`를 넣어 **같은 프로파일을 7번** 실행했다(순수 낭비). (b) 로그를 이중 리다이렉트해 증거를 날리고 전체 프로파일을 **재실행**했다(도구가 이미 stdout을 캡처한다). (c) 앞선 회차에 `reconciliation` 실패를 "환경 신선도 문제"로 **단정**했으나 실제로는 P1103 검사가 찾아낸 **진짜 데이터 결함**이었다(P1140) — 게이트 실패를 원인 확인 없이 환경 탓으로 돌린 것이 잘못이었다.
+- violated_rule: **R626(신규)**.
+- verification: 리베이스 후 `affected` **115 PASS / 0 FAIL / 0 SKIP**, 전체 프로파일(`full --no-cache`) **exit 0**(러너는 `counts.FAIL` 시 exit 1이므로 실패 0건의 증거), CI run `35424264322` **success**, Deploy GitHub Pages run `35424448893` **success**(headSha `9631d1d8`), 라이브 `https://ysnle.github.io/aio-screener/version.json` = **v55.20** 확인(외부 증거). push `e25cd21a..9631d1d8 main -> main`.
+
+## P1140 - v55.20 - 리베이스 후 검증에서 드러난 3건 (2026-09-19)
+
+- symptom/reproduction: 리베이스 뒤 새 데이터 기준으로 전체 프로파일을 돌리자 3건이 드러났다. ① `reconciliation`이 `RECONCILIATION_STATUS_INVALID:category_rights_undeclared:cpi-pce:CURRENT, employment-wages:CURRENT`로 중단됐다. ② `generate-route-registry --check`가 Windows 체크아웃에서 거짓 실패했다. ③ `browser-chat-ui-state`가 `historyStart >= 0` 단언으로 즉시 실패했다.
+- root_cause: ① `cpi-pce`/`employment-wages`가 `rights: 'CURRENT'`를 선언했는데 `'CURRENT'`는 **상태 축**(`RECONCILIATION_STATUS`) 값이고 권리 축(`RIGHTS_STATUS = [VERIFIED, REVIEW_REQUIRED, OPERATOR_REQUIRED, UNAVAILABLE, UNKNOWN]`)에 없다 — 권리 축이 아티팩트만으로 해석 불가능했다. **이 결함은 origin/main에도 있었다**(`rights: 'CURRENT'` 두 줄이 원격에 존재). 이 세션이 추가한 P1103 검사(`category_rights_undeclared`)가 처음으로 드러낸 것이며, 그 전에는 조용히 통과했다. ② 생성기의 `routes.js` 비교가 줄바꿈을 정규화하지 않았고 다중행 배열이 `\n`을 하드코딩해, **리눅스 CI는 통과하고 Windows는 실패하는** 게이트였다. ③ P1136에서 채팅 이력을 `js/aio-workspace.js`로 옮겼는데 이 게이트의 슬라이스는 `index.html`을 읽고 있었다.
+- fix: ① 두 카테고리의 `rights`를 `VERIFIED`로 바로잡았다(두 origin 모두 `official-government`/`T1_OFFICIAL` 공개 API이고 기본값 `REVIEW_REQUIRED`를 명시적으로 덮어썼으므로 의도는 "권리 검토 불필요"). **이 값은 데이터 사용 권리 선언이므로 사용자 검토 대상으로 남긴다.** ② 비교는 `\r\n`을 정규화하고 배열 구분자는 파일 EOL을 쓰도록 고쳤다(`write→check→write→check` + **바이트 해시 동일**로 멱등 확인). ③ 슬라이스를 `js/aio-workspace.js`로 옮겼다.
+- violated_rule: R620(측정면 — 게이트가 플랫폼에 따라 다르게 판정했다), R622(추출은 위치를 보존한다).
+- verification: 전체 프로파일 **exit 0**, headless 1,133/1,133, `reconciliation` PASS(`ok:true`, 22 카테고리, sourceTruthRebuild/negativePath/nullIsMissing PASS), `ci-chat-ui-state-browser-check` PASS, `ci-version-check`·`ci-release-manifest-contract`·`ci-workspace-contract-check`·`ci-decomp-hotspot-check` PASS.
 
 ## P1139 - v55.20 - 인과 탐지기가 한국어를 보지 못했고, 픽스처가 그걸 가리고 있었다 (2026-09-19)
 
