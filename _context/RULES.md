@@ -2,10 +2,16 @@
 verified_by: Codex local source review + affected QA (workspace/deployment regression); full semantic audit remains open
 last_verified: 2026-09-19
 confidence: medium
-target_version: v55.14
+target_version: v55.15
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R621. 프리캐시는 부트 필수분만, 나머지는 요청 기반 런타임 캐시다 (v55.15, P1134)
+
+**Rule**: 서비스 워커가 `cache.addAll`로 **원자적으로** 설치하는 목록은 모든 라우트가 부팅에 실제로 필요로 하는 파일로 한정한다. 분해로 새 런타임 모듈이 나올 때마다 프리캐시에 추가하면 (1) `cache.addAll`은 **하나라도 실패하면 설치 전체가 실패**하므로 실패 확률이 항목 수에 비례해 커지고, (2) 초기 라우트가 절대 필요로 하지 않는 파일까지 설치를 막을 수 있으며, (3) 목록 상한이 있으면 금방 포화되어 **다음 추출은 상한을 올리거나 항목을 빼는 임의 결정**이 된다. 추출된 모듈은 요청 기반 런타임 캐시(`RUNTIME_SHELL_PATH_RE`/`isRuntimeShell`)가 첫 요청에서 채우고, `index.html`은 매 로드마다 모든 런타임 스크립트를 요청하므로 첫 방문 뒤에는 동일하게 오프라인 가용하다. 이 규칙은 `sw.js`의 `CRITICAL_SHELL_ASSETS`와 그 상한(1..12) 게이트가 함께 강제한다.
+
+**Validation**: `scripts/ci-service-worker-cache-policy-check.mjs`(목록 1..12, 필수 4종 존재, 외부 CDN 금지, 원자 설치, 요청 기반 런타임 캐시 존재), `scripts/ci-release-revision-check.mjs`(5개 셸 런타임은 프리캐시·Pages·allowlist 3자 일치).
 
 ## R620. 분해 압력은 벽이 아니라 래칫이다 (v55.08, P1127)
 

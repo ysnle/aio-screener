@@ -5,14 +5,22 @@
 
 // R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
 // v48.80/P150: operational hardening adds an explicit build marker and health message.
-const SW_VERSION = 'v55.14';
-const SW_BUILD = '2026-09-19T12:44:00+09:00';
+const SW_VERSION = 'v55.15';
+const SW_BUILD = '2026-09-19T12:52:00+09:00';
 const SHELL_CACHE = 'aio-shell-' + SW_VERSION;
 const DATA_CACHE  = 'aio-data-'  + SW_VERSION;
 
 // Only the bounded critical shell is installed atomically. The larger registry
 // below is a publication/dependency audit aid; route/ESM modules are cached only
 // after the browser actually requests them.
+//
+// P1134/R621: critical precache = the files EVERY route needs to boot (3 shell documents + the
+// 5 classic runtime scripts + bootstrap). Modules extracted out of index.html's inline blocks
+// are deliberately NOT precached here: one entry per extraction would push the list past its
+// 12-entry bound and make the atomic `cache.addAll` fail-prone for files the initial route may
+// never need. They are served from the request-driven runtime cache (RUNTIME_SHELL_PATH_RE /
+// isRuntimeShell) which fills on first fetch — and index.html requests every runtime script on
+// every load, so the cache is warm after the first visit.
 const CRITICAL_SHELL_ASSETS = [
   './',
   './index.html',
@@ -23,7 +31,6 @@ const CRITICAL_SHELL_ASSETS = [
   './js/aio-ui.js',
   './js/aio-chat.js',
   './js/aio-glossary.js',
-  './js/aio-pages.js',
   './src/app/bootstrap.js'
 ];
 const RUNTIME_SHELL_PATH_RE = /\/(?:js|src)\//;

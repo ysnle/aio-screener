@@ -8,7 +8,9 @@ const ui = read('js/aio-ui.js');
 const marketPage = read('src/ui/pages/market.js');
 const index = read('index.html');
 const chat = read('js/aio-chat.js');
-const runtime = `${core}\n${dataCode}\n${ui}\n${marketPage}\n${index}\n${chat}`;
+// P1134/R620: the KR/SEC data plane extracted from index.html's inline block C now lives in
+// js/aio-kr-data.js, so it joins the searched runtime union.
+const runtime = `${core}\n${dataCode}\n${ui}\n${marketPage}\n${index}\n${chat}\n${read('js/aio-kr-data.js')}`;
 const data = json('public-data/data.json');
 const screener = json('public-data/screener.json');
 const history = json('public-data/history.json');
@@ -113,7 +115,7 @@ const categories = [
   ['commodities-fx', historyHas('wti','gold','dxy'), 'history/live artifact'],
   ['global-indices', historyHas('spx','kospi','kosdaq'), 'history/live artifact'],
   ['crypto', historyHas('btc'), 'history/live artifact'],
-  ['kr-macro-vkospi-supply', /bokPolicy:[\s\S]*?official/.test(core) && /VKOSPI 시계열 미수신/.test(core) && /수급.*판단을 보류/.test(index), 'official reference + explicit unavailable']
+  ['kr-macro-vkospi-supply', /bokPolicy:[\s\S]*?official/.test(core) && /VKOSPI 시계열 미수신/.test(core) && /수급.*판단을 보류/.test(runtime), 'official reference + explicit unavailable']
 ];
 
 assert(categories.length === 22, `audit category count must be 22, got ${categories.length}`);

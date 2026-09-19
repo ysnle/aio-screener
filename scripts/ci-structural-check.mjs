@@ -17,6 +17,7 @@ const glossary = read('js/aio-glossary.js');
 // P1133/R620: js/aio-pages.js is a registered runtime file. Omitting it here would make the R280
 // duplicate-global scan blind to it — the exact gap P605 exploited.
 const pages = read('js/aio-pages.js');
+const krData = read('js/aio-kr-data.js');
 const tests = read('js/aio-tests.js');
 const html = read('index.html');
 
@@ -56,7 +57,10 @@ check('known KR ticker mapping regressions must be absent', !/sym:'011200\.KS', 
 check('KR composite cards must keep live bindings on value children', !/class="kr-(?:etf|screen)-card"[^>]*data-live-price=/.test(html));
 // v53.7 (P725): kr-home 퇴역으로 composite 카드가 사라질 수 있음 — 존재할 때만 소유권 계약을 강제(패턴 계약)
 check('KR composite cards must expose stable symbol ownership', !/class="kr-etf-card"/.test(html) || /class="kr-etf-card" data-live-symbol=/.test(html));
-check('dynamic KR theme pills must keep live bindings on value children', /class="kr-ticker-pill" data-live-symbol=/.test(html) && !/class="kr-ticker-pill" data-live-price=/.test(html));
+// P1134/R620: the pill template moved with block C into js/aio-kr-data.js. The positive marker is
+// read from its new owner; the reintroduction guard stays broad (both files) so it cannot be
+// satisfied by the template reappearing in the shell.
+check('dynamic KR theme pills must keep live bindings on value children', /class="kr-ticker-pill" data-live-symbol=/.test(krData) && !/class="kr-ticker-pill" data-live-price=/.test(html + krData));
 check('KRW-denominated equity prices must use a KR-specific sanity range', /if \(\/\\\.\(KS\|KQ\)\$\/\.test\(sym\)\) return \[1, 10000000\]/.test(core));
 check('reference-only unavailable values must warn rather than block deployment', /truth-blocked-reference-only[\s\S]*status: row\.operationalUse === 'reference-only' \? 'warn' : 'block'/.test(core));
 check('text audit must distinguish ratios and MA periods from calendar dates', /var slashFormula =/.test(core) && /!slashFormula &&/.test(core));
@@ -79,6 +83,7 @@ const RUNTIME_SCRIPT_FILES = {
   'js/aio-chat.js': chat,
   'js/aio-glossary.js': glossary,
   'js/aio-pages.js': pages,
+  'js/aio-kr-data.js': krData,
 };
 // Column-0-anchored on purpose: only true top-level declarations share the global scope this way.
 // Functions nested inside an IIFE/closure (indented, not column 0) are scoped to that closure and

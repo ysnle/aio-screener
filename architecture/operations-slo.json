@@ -1,6 +1,6 @@
 {
   "schemaVersion": "operations-slo-v1",
-  "appRevision": "v55.14",
+  "appRevision": "v55.15",
   "generatedAt": "2026-07-29T20:18:00+09:00",
   "targets": {
     "artifactSuccessRate30d": 0.995,
@@ -71,7 +71,7 @@
         "report": "_artifacts/route-soak-report.json"
       },
       "evidenceStatus": "REMEASURE_REQUIRED",
-      "reason": "Source revision changed from v55.13 to v55.14; route-soak evidence remains historical until rerun."
+      "reason": "Source revision changed from v55.14 to v55.15; route-soak evidence remains historical until rerun."
     },
     "visualStateMatrix": {
       "status": "contracted",

@@ -2,12 +2,25 @@
 verified_by: 데이터 파이프라인 전수 의미·정합성 감사(로컬 재계산) + affected QA; 중첩 산출물 의미 검토는 open
 last_verified: 2026-09-19
 confidence: medium
-latest_version: v55.14
-latest_P_number: P1133
-next_P_number: P1134
-current_total_entries: 548 tracked entries (375 headings + 173 compacted lines, P1~P1133, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
+latest_version: v55.15
+latest_P_number: P1134
+next_P_number: P1135
+current_total_entries: 549 tracked entries (376 headings + 173 compacted lines, P1~P1134, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
 current_checkpoint: 사용자 판단(지인용 사설 스크리너)으로 **차단 경계를 공시로 재배치**했다 — 개인화 지시·현재증거 부족·수치 주장 불일치·헤드라인 전용 인과를 하드 차단에서 경고/공시로 강등(P1120~P1122). 조작 방지(값·단위·NFP 배율), 금지 행위 P0, 포트폴리오 동의, 도구 경계는 그대로 차단이다. 남은 OPEN: 날짜 없는 중첩 산출물 12건(P1110 측정면이 노출), `objects/**` 592/629 미참조 blob의 보존 정책, 캐시 라우팅 밖의 실제 소비 산출물 오프라인 폴백 (semantic coverage 6.89%, releaseCertified=false)
 ---
+
+## P1134 - v55.15 - 추출한 모듈을 프리캐시에 넣을 뻔했다 (2026-09-19)
+
+- symptom/reproduction: 인라인 블록 C(**KR/SEC 데이터 플레인 3,473줄** — `KR_STOCK_DB`/`KR_THEME_MAP`/`_KR_SECTOR_MAP`, KR 테마 `filterKrThemes`/`initKoreaThemes`/`showKrThemeDetail`, KR 수급 `fetchKrSupplyData`/`updateKrSupplyDOM`, VKOSPI `fetchVkospiDynamic`/`AIO_VKOSPI_HIST_KEY`, 투자자 TOP10·캐시, SEC `fetchSECFilings`/`fetchSECFinancials`)를 `js/aio-kr-data.js`로 추출했다. index.html **20,538 → 17,066(−3,472)**.
+- root_cause: P1133에서 새 파일을 만들며 `sw.js` `CRITICAL_SHELL_ASSETS`에 **관성적으로** 추가했다. 이 배열은 `cache.addAll`로 **원자 설치**되므로 항목이 늘수록 설치 실패 확률이 커지고, **상한이 12**라 남은 블록(B/A)을 같은 방식으로 넣으면 상한을 넘겨 "상한을 올리거나 항목을 빼는" 임의 결정이 강제된다. 즉 추출마다 프리캐시에 넣는 습관은 **상한을 무의미하게 만드는 세 번째 실패 모드**였다(앞선 두 개는 지표 게임과 조용한 재기준).
+- fix: (1) P1133이 넣은 `js/aio-pages.js`를 **되돌리고**, 추출 모듈은 프리캐시 대상이 아니라 **요청 기반 런타임 캐시**(`RUNTIME_SHELL_PATH_RE`/`isRuntimeShell`)가 담당하도록 규칙을 세웠다 — `index.html`이 매 로드마다 모든 런타임 스크립트를 요청하므로 첫 방문 뒤 오프라인 가용성은 동일하다. (2) 근거를 `sw.js` 헤더와 **R621**에 기록했다. (3) C의 등록은 7곳(`asset-manifest.immutableRuntime`, `public-artifact-manifest` allowlist, `pages-deploy.yml` cp, `ci-structural-check`·`ci-live-invariant-check`의 `RUNTIME_SCRIPT_FILES`, 래칫 `measuredFiles`+`recordedLines`, `ci-doc-currency-check` FILES) + `CODE-MAP` 행으로 수행하고 **`sw.js`는 건드리지 않았다**(10개 유지).
+- 왜 래칫이 필요한가: C를 `aio-data.js`에 접어넣으면 그 파일이 20k가 되어 index.html의 모놀리스를 데이터 파일로 옮기는 것에 그친다(R620(3)). 렌더러가 아니라 수집·정규화 계층이라 `aio-ui.js`/`aio-pages.js`와도 책임이 다르다.
+- 게이트 재지정 6개 파일 17곳 — `ci-runtime-contract-check` 10곳(KR supply failure state, VKOSPI failure state, KR theme card density, KR supply bounded requests, EF-19 codetabs, EF-07, EF-18, LIVE3-05, R340/P712, R345/P728), `ci-static-db-expiry-check` 1곳(`KR_THEME_MAP` 블록), `ci-data-refresh-audit` 4곳(H-dynamic 소스 검사), `ci-static-data-contract-check` 2곳(검색 유니온 + kr-macro-vkospi-supply), `ci-structural-check` 1곳(KR ticker pill 마커), `ci-doc-currency-check` 1곳. 두 곳은 **한 검사가 두 소유자에 걸쳐** 있어 토큰별로 나눠 지정했다(EF-07, R340/P712의 `currentInputs < 4`는 `aio-ui.js`).
+- **부수 발견(도구)** : `ci-runtime-contract-check.mjs`에 `krData` 선언을 빠뜨렸을 때 게이트가 조용히 통과하지 않고 `ReferenceError: krData is not defined`로 **중단**했다. 게이트가 미정의 식별자에서 죽는 성질은 "단언이 아무 것도 검사하지 않게 되는" 실패 모드보다 안전하다 — 이 성질을 깨뜨리지 않도록 게이트 수정 후 반드시 실제 실행한다.
+- violated_rule: R620(3항 — 새 파일이 곧 새 무제한 구역), R621(신규).
+- prevention: 새 런타임 모듈 추출 시 등록은 **7곳**(프리캐시 제외)이며, `sw.js` `CRITICAL_SHELL_ASSETS`는 부트 필수분만 유지한다.
+- verification: headless **1,133/1,133 PASS(110/110 그룹)**, 실브라우저 `ci-architecture-browser-check` PASS. `ci-runtime-contract-check`(17곳 재지정 후), `ci-static-data-contract-check`(22/22), `ci-static-db-expiry-check`, `ci-data-refresh-audit`(H-dynamic 4/4 PASS), `ci-structural-check`, `ci-service-worker-cache-policy-check`(**10 critical assets**), `ci-release-revision-check`, `ci-decomp-hotspot-check`(**9개 파일** 래칫 — index.html 17,066 / aio-kr-data.js 3,487), `ci-version-check`, `ci-workspace-contract-check` PASS. affected QA 89 PASS / 2 FAIL(신선도 SLA). 커밋만 수행, push·배포 없음.
+- 잔여: 블록 A(1,994)·B(1,176)·소형 4개(154) = **3,324줄**은 QA-EXHAUST-89, 3단계는 QA-EXHAUST-90.
 
 ## P1133 - v55.14 - 등록된 새 파일로 추출해 측면 이동을 막았다 (2026-09-19)
 

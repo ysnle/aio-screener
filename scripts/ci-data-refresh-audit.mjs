@@ -168,10 +168,12 @@ add('G2', 'Global indices', quote('^GSPC')?.observedAt, 'daily', `SPX=${quote('^
 add('G3', 'Crypto', quote('BTC-USD')?.observedAt, 'daily', `BTC=${quote('BTC-USD')?.value ?? '—'} ETH=${quote('ETH-USD')?.value ?? '—'}`);
 
 const sourceChecks = {
-  fetchKrSupplyData: /fetchKrSupplyData/.test(read('index.html')),
-  fetchKrNaverQuotes: /fetchKrNaverQuotes/.test(read('index.html')),
-  renderKrThemePerfBars: /renderKrThemePerfBars/.test(read('index.html')),
-  themeCatalystRetired: /KR_THEME_CATALYSTS_META[\s\S]{0,120}status:'unavailable'/.test(read('index.html'))
+  // P1134/R620: these KR functions and the catalyst meta block moved from index.html's inline
+  // block C to js/aio-kr-data.js — the audit must read the file that now owns them.
+  fetchKrSupplyData: /fetchKrSupplyData/.test(read('js/aio-kr-data.js')),
+  fetchKrNaverQuotes: /fetchKrNaverQuotes/.test(read('js/aio-kr-data.js')),
+  renderKrThemePerfBars: /renderKrThemePerfBars/.test(read('js/aio-kr-data.js')),
+  themeCatalystRetired: /KR_THEME_CATALYSTS_META[\s\S]{0,120}status:'unavailable'/.test(read('js/aio-kr-data.js'))
 };
 const unknownSessions = (snapshot.quotes || []).filter((row) => !row.session || row.session === 'UNKNOWN');
 const dynamicOk = Object.values(sourceChecks).every(Boolean);

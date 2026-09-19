@@ -22,7 +22,8 @@ const ageDays = (iso) => {
 };
 
 const core = read('js/aio-core.js');
-const index = read('index.html');
+// P1134/R620: KR_THEME_MAP moved out of index.html's inline block C into js/aio-kr-data.js.
+const krData = read('js/aio-kr-data.js');
 const universe = JSON.parse(read('public-data/screener-universe.json'));
 const meta = universe.meta || {};
 
@@ -71,7 +72,7 @@ for (const key of ['fedPolicy', 'bokPolicy', 'krInflation']) {
 }
 
 // S3: theme map carries constituents only — no point-in-time figures (R604).
-const themeBlock = index.match(/var KR_THEME_MAP = \{[\s\S]*?\n\};/)?.[0] || '';
+const themeBlock = krData.match(/var KR_THEME_MAP = \{[\s\S]*?\n\};/)?.[0] || '';
 check('static-db:theme-map-present', themeBlock.length > 0, 'KR_THEME_MAP block missing');
 check('static-db:theme-map-no-market-cap-annotation', !/시총 ~[\d.]+조/.test(themeBlock), 'point-in-time market-cap annotation in KR_THEME_MAP (R604)');
 
