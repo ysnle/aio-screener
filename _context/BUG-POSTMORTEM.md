@@ -1,13 +1,318 @@
 ---
-verified_by: Codex local source review and affected QA; full semantic audit remains open
-last_verified: 2026-09-17
+verified_by: 데이터 파이프라인 전수 의미·정합성 감사(로컬 재계산) + affected QA; 중첩 산출물 의미 검토는 open
+last_verified: 2026-09-19
 confidence: medium
-latest_version: v55.01
-latest_P_number: P1095
-next_P_number: P1096
-current_total_entries: 510 tracked entries (337 headings + 173 compacted lines, P1~P1095, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
-current_checkpoint: P1013~P1033 exhaustive audit in progress; publication/runtime/QA topology and selected page semantics reviewed; full-tree semantic review remains open (current coverage 6.89%, releaseCertified=false)
+latest_version: v55.06
+latest_P_number: P1125
+next_P_number: P1126
+current_total_entries: 540 tracked entries (367 headings + 173 compacted lines, P1~P1125, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
+current_checkpoint: 사용자 판단(지인용 사설 스크리너)으로 **차단 경계를 공시로 재배치**했다 — 개인화 지시·현재증거 부족·수치 주장 불일치·헤드라인 전용 인과를 하드 차단에서 경고/공시로 강등(P1120~P1122). 조작 방지(값·단위·NFP 배율), 금지 행위 P0, 포트폴리오 동의, 도구 경계는 그대로 차단이다. 남은 OPEN: 날짜 없는 중첩 산출물 12건(P1110 측정면이 노출), `objects/**` 592/629 미참조 blob의 보존 정책, 캐시 라우팅 밖의 실제 소비 산출물 오프라인 폴백 (semantic coverage 6.89%, releaseCertified=false)
 ---
+
+## P1125 - v55.06 - 문서 신선도 검사가 대부분의 문서를 보지 않았고, 분류 충돌을 숨겼다 (2026-09-19)
+
+- symptom/reproduction: `ci-knowledge-lint-check.mjs`의 45일 임계가 `autoRefresh` 문서와 `current-handoff` kind에만 적용됐다. `ledger`(RULES·QA-CHECKLIST·BUG-POSTMORTEM·KNOWLEDGE-BASE)·`targeted-map`(CODE-MAP·WORKFLOW-GOVERNANCE)·`research-record` 종류는 `last_verified`를 선언해도 **검사 대상이 아니었다**. 추가로 감사 중 "42개 중 24개가 45일 초과"라는 수치를 얻었으나, 그 23건은 전부 `historical-snapshot`(동결 provenance)이어서 실제 문제가 아니었다 — **수치가 문제를 과장했다**.
+- root_cause: (1) 임계가 `if (!doc.autoRefresh) continue;`로 좁혀져 있어 "검증 날짜를 주장한 문서는 검증한다"는 원칙이 아니라 "자동 갱신 문서만 검증한다"는 구현 세부가 기준이 됐다. (2) `kind`는 **파일에 붙은 파일명 정규식**(`workspace-state-lib.mjs:35-38`)으로 결정되고 `autoRefresh`는 frontmatter `auto_refresh: true`에서 오므로, 두 신호가 충돌할 수 있다. `_context/CODEX-SECOND-PASS-HANDOFF-2026-07-10.md`가 그 사례다 — 최신 유지 주장(`auto_refresh: true`)인데 파일명 때문에 동결 스냅샷으로 분류돼, 면제와 경고 사이에서 판정이 구현 순서에 좌우됐다.
+- fix: 면제 조건을 `historical-snapshot && !autoRefresh`로 명시하고, 검증 날짜를 선언한 **모든** 비면제 문서에 임계를 적용한다. `auto_refresh: true`는 명시적 최신 유지 주장으로서 파일명 추측보다 강하므로, 충돌 시 면제하지 않고 드러낸다. 초과 집합은 `_context/doc-freshness-baseline.json`에 동결해 증가를 막는다.
+- violated_rule: R618(4항).
+- prevention: `ci-knowledge-lint-check.mjs`가 초과 개수를 베이스라인과 비교해 증가 시 실패한다(현재 1건). 면제는 코드에 명시돼 있고, 충돌 문서는 경고로 남는다.
+- 실측 결과: 확장 전 비면제 초과 0건(검사 자체가 없었음) → 확장 후 1건(`CODEX-SECOND-PASS-HANDOFF-2026-07-10.md`, 69일). 그 1건은 분류 충돌이므로 QA-EXHAUST-82로 해소 방법을 명시했다.
+- residual_risk: 면제는 여전히 kind 기반이다. 파일명 정규식이 바뀌면 분류가 조용히 이동할 수 있다 — kind를 frontmatter로 승격하는 별도 작업이 남는다.
+- verification: `ci-knowledge-lint-check.mjs` PASS(경고 3건, 초과 1건 동결), `generate-workspace-state.mjs --check` PASS. 커밋·배포 없음.
+
+## P1124 - v55.06 - 2,440개 단언 중 절반이 "왜 있는지"를 말하지 않았다 (2026-09-19)
+
+- symptom/reproduction: `scripts/ci-*.mjs`의 `check()` 1,378개와 `js/aio-tests.js`의 `_assert()` 1,185개를 스캔하니 **2,440개 라벨 중 1,225개(50.2%)**가 어떤 P/R/QA 항목의 재발을 막는지 명시하지 않았다. 원장은 "prevention: <게이트>"라고 적지만 게이트는 그 항목을 가리키지 않아, 루프가 원장→코드 방향으로만 흐르고 코드→원장 방향은 끊겨 있었다. 그 결과 단언 하나를 지울 때 누가 왜 반대해야 하는지 알 수 없고, 리팩터가 게이트를 깨면 "게이트를 고치는" 것이 자연스러운 선택이 된다.
+- root_cause: 단언 라벨을 자유 서술로 둔 것. 관례가 문서(`operating-contract`)에만 있고 실행되는 검사가 없었다. 또한 인용 없는 기존 단언이 다수여서, 소급 적용하는 즉시 1,225건이 실패하는 "전면 적용 불가" 상황이었다.
+- fix: `scripts/ci-assertion-trace-check.mjs`가 새/변경 라벨에만 인용을 요구하고, 기존 부채는 `_context/assertion-trace-baseline.json`(sha1 12자)으로 유예한다. 인용으로 인정하는 토큰은 P/R/QA/T 및 명명된 워크스트림 id(`WP-AI0`·`H3-D`·`EF-13`·`LIVE3-01` 등)다.
+- violated_rule: R618(1항).
+- prevention: 게이트 자체가 방지책이다. 라벨을 수정하면 베이스라인 항목이 무효가 되어 인용을 요구받는다("touch ⇒ trace").
+- residual_risk: 부채 1,225개는 그대로다 — 베이스라인은 증가만 막는다(QA-EXHAUST-78로 감소 작업을 명시). 라벨 오타 수정도 인용을 요구하므로 소규모 마찰이 있다.
+- verification: `ci-assertion-trace-check.mjs` PASS(2,440 라벨, 유예 1,225, 신규 미추적 0). 커밋·배포 없음.
+
+## P1123 - v55.06 - 원장의 구멍과 OPEN 항목에 재검증 트리거가 없었다 (2026-09-19)
+
+- symptom/reproduction: (1) `RULES.md` 헤더는 "R번호는 전량 보존"이라고 선언하는데 실제로는 **65개 번호가 아예 없다**(R1~R53, R111, R113, R136~137, R171~178). 어디에도 기록이 없어 "의도적 퇴역"과 "실수로 사라짐"을 구분할 수 없었다. (2) QA-CHECKLIST의 OPEN 181개 중 **`verify_by:`를 가진 항목이 0개**였다 — 미해결 항목마다 "다음 세션이 다시 판단"하게 만드는 구조였고, P1117(프로듀서 버그를 "다음 refresh 대기"로 오분류해 영구 면제를 만든 사례)이 정확히 그 결과다.
+- root_cause: 원장은 **서술**로 관리되고 **검사**로 관리되지 않았다. 결번은 아무도 세지 않았고, OPEN에는 해소 조건이 아니라 상황 설명만 적혔다. 참조는 있었지만(게이트 172회 id 인용) 항목 쪽에는 다음 행동이 없었다.
+- fix: `scripts/ci-ledger-integrity-check.mjs`가 (a) 결번 집합을 `_context/rule-gap-manifest.json`으로 동결해 새 결번을 실패로 처리하고, (b) 새 OPEN 항목이 `verify_by:`를 선언하도록 요구하며 기존 168건은 `_context/open-item-baseline.json`으로 유예한다. 동시에 v55.04/v55.05/v55.06 항목과 S1~S6 등 13건에 실제 트리거를 부여했다.
+- violated_rule: R618(2항·3항).
+- prevention: 게이트가 결번 증가와 트리거 없는 신규 OPEN을 모두 차단한다.
+- residual_risk: 168개 기존 OPEN은 여전히 트리거가 없다(QA-EXHAUST-81로 승격·부여 작업 명시). 결번의 **원인**은 기록하지 못했다 — R1~R53이 번호 체계 시작 이전인지 퇴역인지는 git 히스토리 확인이 필요하다.
+- verification: `ci-ledger-integrity-check.mjs` PASS(R 결번 65 동결, OPEN 181/168 유예), `ci-qa-pipeline-contract-check.mjs` PASS(신규 게이트 등록). 커밋·배포 없음.
+
+## P1122 - v55.05 - 자동 시장 분석이 사용자에게 영구히 도달할 수 없었다 (2026-09-19)
+
+- symptom/reproduction: 발행본 `data.json.marketAnalysis`가 `status: 'blocked'`, `semanticStatus: 'blocked'`, `reason: 'metric-identity-mismatch:vix-vs-fear-greed,causal-evidence-missing'`이었다. 즉 서버 LLM 서술은 **생산되지만 매번 폐기**되고 클라이언트는 템플릿 합성으로 대체한다(`_serverMarketAnalysisVerified === false`). 방향성·인과 해설은 어떤 경우에도 화면에 도달하지 않는다 — "기능을 만들어놨는데 결과가 안 보인다"의 가장 큰 사례.
+- root_cause: 두 가지가 겹쳤다. (1) **P1119의 권리 경계가 결과까지 막았다.** 기사 본문을 권리상 보존하지 않으므로 `buildMarketAnalysisNewsEvidence`가 항상 0건이고, 인과 표현이 하나라도 있으면 `causal-evidence-missing`이 **차단 issue**가 됐다. 즉 우리가 스스로 만들 수 없는 증거를 요구해 서술을 영구 차단했다. (2) `metric-identity-mismatch:vix-vs-fear-greed`가 **60자 근접 휴리스틱**이었다 — VIX와 Fear&Greed를 올바른 값으로 나란히 쓴 문장도 차단한다. 정밀 검사(`metric-value-mismatch`, 실제 숫자 대조)가 따로 있는데도 조악한 근접 규칙이 issue로 남아 있었다. 게다가 인과 정규식은 영어 단어 목록이라 한국어 본문에는 거의 발화하지 않아, 차단이 **운에 따라** 발생했다.
+- fix: 권리 경계는 유지하고 **결과만 되돌렸다.** (a) `causal-evidence-missing`·`metric-identity-mismatch`를 `warnings`로 옮겼다 — `issues`(차단)는 값·단위·NFP 배율 같은 반증 가능한 오류만 담는다. (b) 인과에는 **귀속**을 요구한다: 헤드라인을 인용하지 않은 인과 문장은 `causal-attribution-missing` 경고를 받는다. (c) 보존된 헤드라인 제목을 `buildMarketAnalysisHeadlineContext`로 모델에 제공하고 `헤드라인에 따르면`/`According to <source>` 귀속과 "최종 판단은 독자에게" 를 프롬프트에 명시했다. (d) 발행물에 `disclosure`·`headlineContext`·`semanticWarnings`를 싣고 클라이언트 `_aioRenderMarketAnalysisSinks`가 full 모드에서 경계 문구를 함께 렌더한다.
+- violated_rule: R613(1항), R617(신규).
+- prevention: `ci-data-pipeline-contract-check.mjs`가 (a) `causal-evidence-missing`이 `issues`가 아니라 `warnings`에 들어갈 것, (b) `metric-identity-proximity`가 경고이고 `metric-value-mismatch`·`nfp-scale-mismatch`는 차단으로 남을 것, (c) 정책이 `headline-attributed-with-disclosure`일 것, (d) 픽스처에서 귀속 있는 인과는 경고 0, 없는 인과는 `causal-attribution-missing`을 낼 것을 단언한다.
+- residual_risk: 인과 판정이 여전히 **영어 단어 목록**이라 한국어 인과 문장은 검출되지 않는다(경고조차 없다). 귀속 규율이 실질적으로 약하다 — 한국어 인과 어휘 목록 추가가 남은 과제다. 발행본에는 다음 refresh에 새 형상이 실린다.
+- verification: `ci-data-pipeline-contract-check.mjs` PASS(신규 픽스처 2종 포함), `ci-headless-tests.mjs` 1129/1129 PASS(골든 코퍼스 g09 기대값을 공시 기준으로 정정). 커밋·배포 없음.
+
+## P1121 - v55.05 - 프롬프트가 일상적인 수치·방향 질문을 "확인 필요"로 되돌렸다 (2026-09-19)
+
+- symptom/reproduction: 게이트를 강등해도 답이 좋아지지 않는다. 시스템 프롬프트가 `수치·출처·기준시각이 없거나 Evidence가 확인되지 않으면 "확인 필요"로 답하고` 라고 지시했기 때문에, 모델은 근거가 주입되지 않은 일상 질문(가격·방향·"사도 돼?")에 대해 스스로 축약·거부문을 생성했다. 게이트는 결과를 막는 두 번째 층일 뿐이었고, **첫 번째 층은 프롬프트**였다.
+- root_cause: 프롬프트가 "무엇을 하지 말라"만 규정하고 "그럼 무엇을 하라"를 규정하지 않았다. 특히 최종 판단의 귀속(누가 결정하는가)이 없어 모델이 판단 보류로 도피했다. 같은 프롬프트의 509행은 이미 "조건별 선택지와 의사결정 체크리스트로 전환하라"고 지시하고 있었으나, 512행의 "확인 필요" 지시가 그것을 덮었다.
+- fix: 개인화·현재성 부족 시에도 **끝까지 답하고**(일반 원리·조건·시나리오·확인 방법) 미확인 부분만 명시하도록 바꾸고, `최종 판단을 대신하지 마라 … 사용자가 스스로 결정하도록 넘겨라`를 명시했다. 학습 기억을 현재 관측값처럼 제시하는 것만 금지로 남겼다.
+- violated_rule: R617(신규).
+- prevention: `ci-ai-intelligence-contract-check.mjs`의 `public-policy-allows-conditional-analysis-without-blanket-refusal`이 "답변 전체를 안전 모드로 바꾸지 말고"·조건부 분석 허용 문구를 계속 단언하고, 거부문 문구(`현재 답변에서는 구체적인 매수·매도·진입·청산 지시`)의 부재를 확인한다.
+- residual_risk: 프롬프트는 확률적이다. 실제 준수율은 라이브 모델 출력으로만 측정되며 이번에 검증하지 않았다(운영자 키 필요).
+- verification: `ci-ai-intelligence-contract-check.mjs` PASS, `ci-runtime-contract-check.mjs` PASS. 커밋·배포 없음.
+
+## P1120 - v55.05 - 개인화 지시와 수치 주장이 "차단"이어야 할 이유가 없었다 (2026-09-19)
+
+- symptom/reproduction: "내 포트폴리오 리밸런싱해줘"류 질문은 provider 호출 **이전에** 오케스트레이터에서 `blocked-action-permission`으로 종료됐다(`src/ai/orchestrator/answer-orchestrator.js`). ESM 경로가 없을 때도 두 채팅 진입점의 `blockedRunner`가 "AI 행동 경계" 고정문을 띄웠다. 수치 주장 envelope가 하나라도 어긋나면 `_aioRunAIResponsePipeline`이 답변 전체를 "수치 확인 필요"로 교체했다. 즉 복구 가능한 문장까지 함께 사라졌다.
+- root_cause: 요구 조건이 **달성 불가능한 형태**였다. `question-planner.js:90`이 `suitabilityProfile: null, evidenceComplete: false`를 항상 넘기므로 `actionPermission.allowed`는 개인화 질문에서 **항상 false**다 — 설계상 만족될 수 없는 게이트가 상시 차단이었다. 수치 주장 교체도 정합 항등식이 답변-단위여서 "일부 주장만 탈락"을 표현할 수 없었다. 게다가 같은 저장소의 공개 정책 문구는 이미 "답변 전체를 안전 모드로 바꾸지 말고"라고 선언하고 있어, 게이트가 자기 정책과 모순됐다.
+- fix: 차단 경계를 **공시로 재배치**했다. (a) 오케스트레이터는 `allowed === false`여도 `actionLimitations`를 실어 정상 디스패치한다(`blockedRunner` 배선 삭제). (b) `evaluateAIActionPermission`의 `suitability-context-missing`·`current-evidence-limited`는 `blocked: true`가 아니라 `limitations` + `disclosure`가 된다. (c) 파이프라인이 그 limitations를 `※` 주의문으로 답변 앞에 붙인다. (d) `claimAudit.blocked`는 답변 전체 교체가 아니라 `typed-claim-validation` 주의문이 된다. (e) 골든 코퍼스 `g09-invalid-claim` 기대값도 공시 기준으로 정정했다.
+- 유지한 차단: 금지 행위 P0(`BLOCKED_P0`), 포트폴리오 동의 없는 사용, 읽기 전용 도구 경계, 조작 방지(`metric-value-mismatch`·`nfp-scale-mismatch`), 검증기 부재 fail-closed.
+- violated_rule: R617(신규).
+- prevention: `js/aio-tests.js` T949/T964/T965가 차단이 아니라 `limitations`·`disclosure`를 단언하고(브라우저 유닛 1129개 전부 PASS), `ci-ai-intelligence-contract-check.mjs`가 오케스트레이터가 `actionLimitations`로 디스패치할 것과 `blocked-action-permission`의 부재를 단언하며, `ci-runtime-contract-check.mjs`가 conduct 차단(금지 행위)은 남고 개인화는 limitation일 것을 함께 단언한다.
+- residual_risk: 조정 어휘의 한국어 라벨처럼 제한 사유 문구는 렌더러가 소유한다. 새 limitation 키가 추가되면 라벨 없이 노출될 수 있다. 또한 공시로 바뀐 만큼 사용자가 주의문을 무시할 위험이 커졌다 — 문구 위치·강조는 제품 판단이 남는다.
+- verification: `ci-headless-tests.mjs` 1129/1129 PASS, `ci-ai-intelligence-contract-check.mjs` PASS, `ci-runtime-contract-check.mjs` PASS, `ci-ai-chat-analysis-integration-check.mjs` PASS, `ci-ai-chat-reliability-contract-check.mjs` PASS, `ci-ai-analysis-evidence-check.mjs` PASS, `ci-syntax-check.mjs` PASS(384 파일). 커밋·배포 없음.
+
+## P1119 - v55.04 - 헤드라인 전용 뉴스의 인과 근거 0건이 선언되지 않았다 (2026-09-19)
+
+- symptom/reproduction: `isMarketAnalysisNewsEligible`은 40자 이상 본문을 요구하는데 뉴스 파이프라인(`pushItem`)은 `contentDepth: 'headline-only'`만 발행한다. 그래서 `buildMarketAnalysisNewsEvidence`는 항상 0건이고, 인과 표현이 있는 LLM 시장 서술은 상시 차단되며 라이브 서술은 영구히 `blocked` 폴백이다. 이 상태가 "피드 결함"인지 "의도된 권리 경계"인지 산출물 어디에도 없었다.
+- root_cause: 제품·권리 판단(피드 발췌 보존 여부)이 코드에 반영되지 않아, 0건이 침묵하는 미채움 필드로 남았다. 만료 예정 전환(P1099)이 아니라 상시 상태인데도 선언이 없었다.
+- fix: 출처 권리상 발췌를 보존하지 않기로 확정하고 `MARKET_ANALYSIS_NEWS_CONTENT_POLICY`(`retainedDepth: 'headline-only'`, `excerptRetention: 'not-permitted-source-rights'`, `causalNarrative: 'blocked-by-design'`)를 선언해 모든 `market-analysis.v2` 발행물의 `newsContentPolicy`에 싣는다.
+- violated_rule: R613(1항), R614(5항).
+- prevention: `ci-data-pipeline-contract-check.mjs`가 정책 상수·`newsContentPolicy` 발행·`contentDepth: 'headline-only'` 유지·대체 depth 부재를 함께 단언한다. 정책과 구현이 갈라지면 실패한다.
+- residual_risk: 이것은 "결함 없음"이 아니라 "권리 경계에 따른 의도된 차단"의 선언이다. 피드가 발췌 사용을 허락하는 출처로 바뀌면 정책과 게이트를 함께 개정해야 한다. 발행본에는 다음 refresh에 `newsContentPolicy`가 실린다.
+- verification: `ci-data-pipeline-contract-check.mjs` PASS. 커밋·배포 없음.
+
+## P1118 - v55.04 - 총점과 팩터 배분의 차액이 화면에 없었다 (2026-09-19)
+
+- symptom/reproduction: signal 페이지는 5개 팩터 바와 총점을 나란히 보여주는데 그 둘이 합치하지 않는다. P1094가 `scoreBreakdown.adjustments`·`adjustmentsTotal`·`floorApplied`를 발행했지만 UI는 `components`만 그렸고, 골든 `bear_crisis_full_data`(총점 5 대 구성요소 합 13)처럼 차액이 큰 경우 화면에서 그 차액을 설명할 근거가 없었다.
+- root_cause: 배분 항등식의 항은 산출물(`trading-score.js`)에만 있고, 히어로가 실제로 렌더하는 `signal.presentation`에는 `components`만 실렸다. 렌더 경로(presentation)와 정합 경로(scoreBreakdown)가 분리돼 있었다.
+- fix: `deriveTradingScoreDecisionPresentation`이 `breakdown`(= `score.scoreBreakdown`)을 모든 분기에 실어 보내고, native signal 페이지에 `#score-adjustments-container`를 추가해 조정 행·바닥/상한·`가중 합계 → 총점`을 렌더한다. `route-owners.json`의 signal `nativePrimarySurface`에 새 sink를 선언했다.
+- violated_rule: R613(1항), R615.
+- prevention: `ci-artifact-semantics-check.mjs`가 골든 픽스처마다 presentation이 같은 breakdown을 나르는지 단언하고, `ci-runtime-contract-check.mjs`가 presentation·렌더러·계약 sink를, `ci-architecture-browser-check.mjs`가 실브라우저에서 보정 sink의 native 렌더를 단언한다.
+- residual_risk: 조정 어휘(`credit-stress` 등)의 한국어 라벨은 렌더러가 소유한다. 새 조정 키가 추가되면 라벨 없이 원시 키가 노출될 수 있다.
+- verification: `ci-artifact-semantics-check.mjs` PASS, `ci-runtime-contract-check.mjs` PASS, `ci-architecture-contract-check.mjs` PASS(ratchet 유지). 실브라우저 게이트는 이 환경에서 실행하지 않았다. 커밋·배포 없음.
+
+## P1117 - v55.04 - history 대체 표식이 프로듀서에서 버려져 게이트가 영구 면제됐다 (2026-09-19)
+
+- symptom/reproduction: `history.json` 420행 중 `observedAtSource`를 가진 행이 0건, `observationRelation`은 14행(전부 `carried-forward`)뿐이었다. 그래서 `ci-artifact-semantics-check.mjs`의 history 단언(`observedAtSource`가 한 행도 없으면 전체를 건너뜀)이 영구 면제로 남아, P1095가 닫은 "이전 종가가 현재 시각을 상속" 결함이 조용히 돌아올 수 있었다.
+- root_cause: `updateHistory`가 `bySymQuote`에서 `observationRelation`·`observedAtSource`를 계산했지만, fieldMeta를 만드는 `historyMeta()` 투영이 두 키를 옮기지 않아 발행 전에 삭제됐다. backfill·screener breadth 레인도 두 키를 쓰지 않았다. 게이트의 코드 텍스트 단언은 키가 존재하는지만 봤고(있었다), 발행 산출물 단언은 면제에 걸려 있었다 — P1099가 정의한 "영구 공허 통과" 형태다.
+- fix: fieldMeta를 쓰는 세 레인(backfill, market, screener-breadth)이 `observationRelation`·`observedAtSource`를 발행한다. F&G는 `day-scoped-published`/`publisher-as-of`, 스크리너 breadth는 `derived-from-adjusted-close-series`로 자기 출처를 밝힌다.
+- violated_rule: R613(1항·2항), R614(7항).
+- prevention: `ci-history-field-time-contract-check.mjs`가 세 레인의 fieldMeta 리터럴 각각에 두 키가 있음을 단언한다 — 한 레인만 고치고 끝나는 것을 막는다.
+- residual_risk: 발행본은 다음 refresh 사이클에 새 형식이 된다. 그때 `ci-artifact-semantics-check.mjs`의 history 면제가 해제되고 최신 행 전 필드의 `observationRelation` 존재가 무조건 단언된다 — 세 레인을 모두 고친 이유다. 실브라우저 차트 검증은 아직 하지 않았다.
+- verification: `ci-history-field-time-contract-check.mjs` PASS(420행·4,077필드), `ci-artifact-semantics-check.mjs` PASS(전환 안내 유지). 커밋·배포 없음.
+
+## P1116 - v55.04 - quote 평면이 인용한 산출물에 시세 행이 없었다 (2026-09-19)
+
+- symptom/reproduction: `js/aio-core.js`의 `_aioProducerState('quotes')`가 quote 평면을 `status: 'loaded'`, `evidenceIds:['data.json:quotes']`로 보고했다. 그런데 같은 발행본의 `data.json.quotes`는 빈 배열(`[]`)이고 `meta.quotePolicy = "client-direct-fetch-only(P715)"`, `quotesPublished: false`다. 즉 "loaded"가 근거로 지목한 파일에 시세 행이 한 건도 없다.
+- root_cause: 인용 문자열이 하드코딩되어 프로듀서의 발행 정책을 반영하지 않았다. 시세는 브라우저 직접 fetch + `market-snapshot.json`(16개 tier-0)으로 발행되는데, 인용은 P715 이전 형태로 고정돼 있었다.
+- fix: 인용을 `meta.quotesPublished`에서 파생한다 — 발행 플래그가 참이면 `data.json:quotes`, 아니면 `market-snapshot.json:quotes`.
+- violated_rule: R613(1항), R614(2항).
+- prevention: `ci-runtime-contract-check.mjs`가 파생 인용 형태를 단언하고 하드코딩 `evidenceIds:['data.json:quotes']`의 부재를 확인한다.
+- residual_risk: `symbolsOk/symbolsFail`는 여전히 data.json 프로듀서의 수집 커버리지이며 스냅샷 16개와 모집단이 다르다. 커버리지와 근거의 모집단 분리는 계약에 명시되지 않은 채 남는다.
+- verification: `ci-runtime-contract-check.mjs` PASS. 커밋·배포 없음.
+
+## P1115 - v55.03 - 클라이언트가 fetch하는 경로에 발행자가 없었다 (2026-09-18)
+
+- symptom/reproduction: 브라우저 게이트 `browser-route-soak`가 콘솔 404 3건으로 실패했다. 원인은 P1102에서 구현한 무키 폴백이 `public-data/earnings-calendar.json`을 fetch하는데 그 파일이 **저장소에 존재하지 않았기** 때문이다. 헤더는 "Without FINNHUB_API_KEY the artifact is preserved with status operator-key-required"라고 문서화했지만 코드는 키가 없으면 **아무것도 쓰지 않고 반환**했다.
+- root_cause: 문서화된 동작이 구현되지 않았다. 결과적으로 (a) 키 없는 클라이언트는 정의상 404를 받고, (b) 그 경로를 fetch하는 코드를 추가하는 순간 브라우저 게이트가 실패한다. 발행 경로와 소비 경로가 서로의 존재를 검증하지 않은 구조다.
+- fix: 키가 없을 때 명시적 미가용 스냅샷(`status: 'operator-key-required'`, 빈 행, 창 포함)을 발행한다. 실제 스냅샷(`current-reference`)이 이미 있으면 덮어쓰지 않는다. 로컬에서 프로듀서를 실행해 산출물을 생성했고, `ci-data-lineage-audit.mjs`의 `weekly-calendar-reference` 정책이 적용됨을 확인했다.
+- violated_rule: R614(6항), R615(3항).
+- prevention: `ci-artifact-semantics-check.mjs`가 (a) 산출물이 존재하고 선언된 상태(`current-reference`|`operator-key-required`)를 가질 것, (b) 미가용 상태에서는 행을 발행하지 않을 것을 단언한다.
+- 실측 결과: 수정 전 `browser-route-soak` FAIL(404 3건) → 수정 후 PASS(21.0s). `browser-resilience` 4/4 PASS.
+- residual_risk: 실제 Finnhub 수집은 시크릿이 있는 CI에서만 검증된다. 실데이터 스냅샷의 행 정합성은 이번에 검증하지 않았다(빈 스냅샷만 존재).
+- verification: `browser-route-soak` PASS, `browser-sa02`·`browser-sa03`·`browser-sa04` PASS, `ci-artifact-semantics-check.mjs` PASS, `ci-data-lineage-audit.mjs`에서 `earnings-calendar.json` policy 적용 확인. 커밋·배포 없음.
+
+## P1114 - v55.03 - 전년동월비 시리즈가 빈 단위를 선언했다 (2026-09-18)
+
+- symptom/reproduction: `js/aio-data.js`의 `FRED_SERIES`에서 CPI/core CPI/PCE/core PCE 6개 시리즈가 `unit: ''`, `yoy: true`였다. 렌더러(`_fredYoYSnap`)는 값에 `%`를 붙여 표시하므로, 선언된 단위가 독자가 보는 단위와 달랐다.
+- root_cause: 단위가 "선언"과 "표시" 두 곳에 나뉘어 있고 선언을 읽는 코드가 없다(P1106). yoy 계열은 접미사가 암묵 규약(`yoy: true` ⇒ `%`)이었고, 그 규약이 어디에도 선언되지 않았다.
+- fix: 6개 시리즈의 단위를 `'%'`로 선언했다. `unit: ''`는 단위가 실제로 없는 지수 계열(DTWEXBGS·VIXCLS)에만 남긴다.
+- violated_rule: R613(1항), R614(5항·7항), R615.
+- prevention: `ci-runtime-contract-check.mjs`가 `yoy: true` 시리즈는 `unit: '%'`를 선언해야 한다고 단언한다.
+- residual_risk: 표시 접미사는 여전히 포맷터가 소유한다. 선언-표시를 한 원천으로 합치는 리팩터는 남아 있다(현재 렌더되는 시리즈에서 두 값은 일치한다).
+- verification: `ci-runtime-contract-check.mjs` PASS, `ci-architecture-contract-check.mjs` PASS(ratchet 유지). 커밋·배포 없음.
+
+## P1113 - v55.03 - 정규화 버킷이 개별 행의 관측 시각으로 대체될 수 있었다 (2026-09-18)
+
+- symptom/reproduction: `screener.json`의 top-level `factorObservedAt`은 정규화된 날짜 버킷(`2026-09-17T00:00:00Z`)이고 행 레벨은 실제 관측(`2026-09-16T13:30:00Z`, 705행)인데, 소비자 `src/data/providers/screener.js`의 세 곳이 행 값이 없을 때 버킷으로 폴백했다(`factor.observedAt || artifact.factorObservedAt`). 그 시각은 `artifactPriceTime`으로 들어가 live quote와의 신선도 비교에 쓰인다.
+- root_cause: 산출물 수준의 "컷"과 개별 관측이 같은 이름을 공유했고, 소비자가 그 둘을 하나의 폴백 사슬로 이어 붙였다. 현재 발행본은 849행 전부 자기 `observedAt`을 가지므로 결함이 발현되지 않았지만, 필드가 하나 사라지면 정규화 버킷이 그 행의 관측 시각으로 조용히 승격된다 — P1095가 history.json에서 닫은 것과 같은 혼합 빈티지 형태다.
+- fix: 행 관측시각 폴백에서 버킷을 제거해 모르면 `null`로 fail-closed한다(3곳). 산출물 수준 메타데이터의 `factorObservedAt` 사용은 유지한다.
+- violated_rule: R613(2항), R614(7항), R615.
+- prevention: `ci-runtime-contract-check.mjs`가 세 지점의 형태(행 값 또는 null)와 버킷 폴백 부재를 단언한다.
+- residual_risk: top-level 필드명이 여전히 행 레벨과 같다. 이름 분리(예: `factorCutObservedAt`)는 계약·소비자 6개 파일을 건드리므로 별도 작업으로 남긴다.
+- verification: `ci-runtime-contract-check.mjs` PASS, `ci-screener-workbench-contract.mjs` PASS(100+ 단언), `ci-esm-core-unit-check.mjs` PASS. 커밋·배포 없음.
+
+## P1112 - v55.03 - 캐시 라우팅이 소비자 없는 산출물을 캐시한다고 선언했다 (2026-09-18)
+
+- symptom/reproduction: `sw.js`의 `DATA_URL_PATTERNS`가 `market-snapshot-status.json`·`operations-status.json`을 캐시 대상으로 선언했지만 두 파일을 fetch하는 클라이언트 코드가 **0건**이었다(전 저장소 grep). 반대로 실제로 읽는 `data.json`·`history.json`·`screener.json`·`telegram-digest.json`은 데이터 캐시 밖이라 오프라인 폴백이 없다.
+- root_cause: 캐시 라우팅 표가 소비자와 대조된 적이 없다. 캐시 대상 목록은 "무엇을 보장하는가"로 읽히는데 채워지지 않는 항목이 있었다.
+- fix: 소비자가 없는 두 항목을 표에서 제거했다. 반대 방향(읽는 산출물의 캐시 누락)은 TTL 의미와 오프라인 동작을 바꾸므로 근거를 붙여 유보했다.
+- violated_rule: R614(6항), R615.
+- prevention: `ci-service-worker-cache-policy-check.mjs`가 라우팅 표가 지목한 모든 발행 산출물에 대해 클라이언트가 **경로 문자열**(`public-data/<name>.json`)을 참조하는지 단언한다. 이름만으로 매칭하지 않는다 — `operations-status`는 스키마 문자열 `operations-status-v1`로도 등장해 처음 작성한 단언을 거짓 통과시켰다(음성 대조로 검출).
+- residual_risk: 캐시 대상 확대는 미검증 상태다.
+- verification: 게이트 PASS(5개 라우팅 경로 전부 소비자 존재), 음성 대조 주입 시 FAIL 확인. `ci-syntax-check.mjs` PASS. 커밋·배포 없음.
+
+## P1111 - v55.03 - 아무도 읽지 않는 런타임 자산 등록부가 드리프트했다 (2026-09-18)
+
+- symptom/reproduction: `sw.js`의 `PUBLISHED_RUNTIME_ASSETS`(184개 항목)를 읽는 코드가 저장소에 없었다(정의와 금지 단언뿐). 11개 항목이 존재하지 않는 파일을 가리켰다(`src/ai/operations/control-plane.js`, `src/data/contracts/revision.js`, `src/platform/sanitizer.js` 등).
+- root_cause: 손으로 관리하는 등록부가 "install precache가 아니다"라고 스스로 선언한 채 소비자 없이 남았다. 유일한 참조가 "이 목록을 install에 쓰지 말라"는 부정 단언이어서, 목록이 낡아도 아무 신호가 없었다.
+- fix: 등록부를 삭제했다(`sw.js` 18,634 → 11,151 바이트, −40%). 부정 단언은 남겨 재도입을 막고, `Promise.allSettled` 금지도 유지했다.
+- violated_rule: R615.
+- prevention: `ci-service-worker-cache-policy-check.mjs`가 `PUBLISHED_RUNTIME_ASSETS` 부재를 단언하고, install 경로의 원자성·`Promise.allSettled` 금지를 계속 검사한다.
+- residual_risk: 등록부가 사람이 읽는 문서 역할을 했다면 그 정보는 사라진다(저장소 내 참조 0건을 확인했다).
+- verification: `ci-service-worker-cache-policy-check.mjs` PASS, `ci-syntax-check.mjs` PASS. 커밋·배포 없음.
+
+## P1110 - v55.03 - 중첩 산출물 1,372개에 신선도 측정면이 없었다 (2026-09-18)
+
+- symptom/reproduction: `ci-data-lineage-audit.mjs`의 `readdirSync(DATA_DIR)`가 비재귀라 `public-data/` 최상위 23개만 측정했다. knowledge(668)·atlas(12)·principles(5)·masters(58, shard 제외)·objects(629)는 신선도·계보 정책이 전혀 없었고, 그중 `knowledge/status-summary.json`은 31일, `masters/security-master-reference.json`은 48일이 지나 있었다.
+- root_cause: 감사가 평평한 디렉터리를 가정했다. 중첩 계열은 각자의 `reviewedAt`/`generatedAt`을 이미 발행하고 있었으므로 정책만 없었지 데이터가 없는 것은 아니었다.
+- fix: 계열별 정책(`knowledge`/`atlas`/`principles` 120일, `masters` 45일)을 추가하고 각 디렉터리의 최상위 JSON을 측정한다. **WARN 전용**이다 — 측정면을 새로 여는 단계이며, 특정 계열을 FAIL로 승격하려면 소유자가 SLA를 먼저 확정해야 한다. 최상위 판정은 완화되지 않는다.
+- violated_rule: R614(6항), R615.
+- prevention: 감사가 `report.nested`로 measured/stale/unreadable을 보고하고 콘솔에 `NESTED-WARN` 줄을 남긴다.
+- 실측 결과: 49개 측정, 13건 창 초과, 0건 파싱 실패. 그중 **12건은 신선도 타임스탬프 자체가 없어**(관계 지도·도메인 가이드·taxonomy-node-coverage·lesson-library 등, `revision`/`status`만 보유) 나이를 측정할 수 없었다 — 이 결함은 이 측정면이 새로 드러낸 것이다.
+- residual_risk: WARN 전용이므로 이 계열의 정체가 CI를 멈추지는 않는다. objects/는 내용주소라 자체 시각이 없어 측정 대상에서 제외했다.
+- verification: `ci-data-lineage-audit.mjs` PASS(최상위 FAIL 2건은 데이터 노후로 기존), 인덱스 버그(`split('/')[1]`)를 자체 발견·수정. 커밋·배포 없음.
+
+## P1109 - v55.03 - 퇴역한 범위의 산출물이 계속 발행되고 참조가 해소되지 않았다 (2026-09-18)
+
+- symptom/reproduction: 두 가지가 함께 있었다. (1) `build-knowledge-quantitative-labs.mjs`가 8행에서 `EXCLUDED_BY_PRODUCT_SCOPE`로 즉시 종료하는데 그 아래 42줄이 죽은 채 남아 있었고, 이미 생성된 `quantitative-labs.json` + `quantitative-labs/*.json` 16개가 계속 발행돼 있었다 — 2026-08-12에 동결, 클라이언트 소비자 0건, coverage census(455 units)에 없음, `conceptIds`가 `concept:` 사설 네임스페이스라 코퍼스 어디에서도 해소되지 않음. (2) `relationship-guides.json`이 해소되지 않는 `routeIds` 5개(`valuation`, `power-grid`, `aidc-power-delivery`×2, `aidc-construction`)를 발행했고, 소비자 `atlas.js`는 미해소 id를 라벨 폴백 `'연결 분석 화면'` 칩으로 렌더해 **사용자에게 무의미한 참조가 보였다**.
+- root_cause: 퇴역은 프로듀서에서만 선언되고 산출물 정리·참조 검증이 따라오지 않았다. 이 계열의 참조 해소를 검사하는 게이트가 없었다 — atlas 계약은 taxonomy-node·domain-claim 참조는 검사하지만 relationship-guide `routeIds`와 lab `conceptIds`는 보지 않았다.
+- fix: 죽은 생성기를 삭제하고 퇴역 사실만 남겼으며, 퇴역 산출물 16개를 제거했다. 해소 불가능한 참조 5개를 제거했다(각 노드의 다른 참조는 유지, `construction-electrical`은 `[]`).
+- violated_rule: R614(6항), R615.
+- prevention: `ci-artifact-semantics-check.mjs`가 (a) 모든 relationship-guide `routeIds`가 선언된 식별자(taxonomy node·concept·deep branch·lesson·route)로 해소되는지, (b) 퇴역 범위 산출물이 다시 발행되지 않는지 단언한다.
+- 실측 결과: dangling 참조 5건 제거 후 게이트 PASS. 음성 대조로 `power-grid`를 되돌려 넣자 정확히 `relation-guide/generation-grid=power-grid`로 FAIL함을 확인했다.
+- residual_risk: 전역 검사에서 concept 계열 참조는 여전히 개별 게이트에 의존한다(8,908개 참조 중 이번에 확인한 dangling은 35건, 그중 labs 30건은 퇴역으로 사라졌다).
+- verification: `ci-artifact-semantics-check.mjs` PASS + 음성 대조, `ci-syntax-check.mjs` PASS(384 파일). 커밋·배포 없음.
+
+## P1108 - v55.02 - 서술 근거의 legacy 면제가 canonical 0행을 영구 통과시켰다 (2026-09-18)
+
+- symptom/reproduction: `ci-artifact-semantics-check.mjs`의 P1093 canonical 단언 2건이 발행 산출물에서 공허했다. `data.json.marketAnalysis.metricEvidence` 11행 중 `canonicalMetricId`를 가진 행이 0행이라 `canonicalRows.every(...)`가 항상 참이었고, 같은 게이트의 `legacyNamespace` 정규식이 11행 전부를 면제했다. 그 결과 `market.us10y`의 `unit: "index"`(스냅샷 동일 지표는 `percent`)가 검출되지 않았다.
+- root_cause: P1093이 프로듀서를 고치면서 아티팩트 단언에 **명시적 전환 면제**를 넣었지만, 면제가 만료되지 않아 canonical 행이 영원히 0행이어도 통과하는 구조였다. 면제 조건과 단언을 같은 분기에 두어, 면제가 참이면 단언 자체가 실행되지 않았다.
+- fix: canonical 행이 0행이고 전환 시한이 지나면 실패시킨다. 전환 중에는 부채 수치를 로그로 보고한다.
+- violated_rule: R613(2항·3항), R614.
+- prevention: `ci-artifact-semantics-check.mjs`가 canonical 0행을 만료 후 실패로 처리한다. 동일 만료 헬퍼를 P1090·P1095·P1093에 함께 적용했다(P1099).
+- residual_risk: 커밋된 `data.json`은 다음 refresh까지 옛 형식이므로 지금은 만료 전환 안내로 통과한다. 만료 시한 2026-10-18 이후 파이프라인이 멈춰 있으면 이 게이트가 red가 되는데, 그 상태는 이미 `data-lineage`가 FAIL로 보고하고 있다.
+- verification: `ci-artifact-semantics-check.mjs` PASS(전환 안내 11건 출력). 커밋·배포 없음.
+
+## P1107 - v55.02 - marketSurveys.checkedAt이 영구 동결된 채 살아있는 이름을 썼다 (2026-09-18)
+
+- symptom/reproduction: `data.json.marketSurveys.checkedAt`과 `meta.marketSurveysCheckedAt`이 `2026-08-21T15:00:00Z`(28일 전)인데 같은 객체의 `automatedCheckedAt`·`aaii.fetchedAt`은 현재였다. `naaim`(58일)·`officialWebReferences.krExports`(79일)도 동결돼 있었다.
+- root_cause: `fetch-data.mjs`의 `marketSurveys = previousMarketSurveys ? { ...previousMarketSurveys, automatedCheckedAt, aaii } : {...}` 스프레드가 `checkedAt`을 덮지 않아 **한 번 기록된 값이 영구 유지**됐다. `officialWebReferences: previousOfficialWebReferences`는 순수 승계였다. 이 값들의 유일한 생산자 `refresh-web-research.mjs`는 어느 워크플로에도 배선되지 않았다(.github grep 0건). `ci-web-research-contract-check.mjs`는 동결값 일치를 요구해 동결을 계약으로 고정했고, `schemaVersion`도 v1로 남아 v2 형상을 잘못 표기했다.
+- fix: `checkedAt`은 라이브 자동 점검 시각, 이월된 편집 스냅샷 시각은 `webResearchCheckedAt`/`meta.marketSurveysWebResearchCheckedAt`으로 분리했다. `schemaVersion`은 항상 v2로 발행한다.
+- violated_rule: R613(6항), R614.
+- prevention: `ci-artifact-semantics-check.mjs`가 (a) `marketSurveysCheckedAt`이 `meta.generatedAt`과 12시간 이내인지, (b) 이월 스냅샷 시각이 별도 필드로 보존되는지 단언한다. `ci-web-research-contract-check.mjs`는 스냅샷 시각 비교를 새 필드로 옮겼다.
+- residual_risk: `naaim`·`investorsIntelligence`·`krExports`는 여전히 자동 갱신 경로가 없다(스케줄 미배선). 값은 동결되지만 이제 동결 시각이 필드로 드러난다.
+- verification: `ci-artifact-semantics-check.mjs` PASS, `ci-web-research-contract-check.mjs`는 AAII 12시간 초과로 실패(기존 파이프라인 정지, 변경 무관). 커밋·배포 없음.
+
+## P1106 - v55.02 - FRED 시리즈 표에 중복 키가 있어 앞 선언이 죽어 있었다 (2026-09-18)
+
+- symptom/reproduction: `js/aio-data.js`의 `FRED_SERIES`에 `FEDFUNDS`·`UNRATE`·`PAYEMS`가 각각 두 번 선언돼 있었다. 뒤 선언이 앞을 조용히 덮어써서, 앞 선언을 고쳐도 동작이 변하지 않았다. 같은 표의 `unit`은 어떤 코드도 읽지 않았고 표시 단위는 포맷터에 하드코딩돼 있었다(`+'bp'`, `+'%'`, `+'K'`).
+- root_cause: 시리즈를 여러 차례 증분 추가하면서 같은 키를 다시 선언했고, 선언 유일성을 검사하는 게이트가 없었다. 단위는 "선언"과 "표시"가 서로 다른 곳에 있어 선언이 사문화됐다.
+- fix: 중복 선언 3건을 제거하고, 모든 시리즈가 `unit` 키를 명시하도록 유지했다.
+- violated_rule: R614.
+- prevention: `ci-runtime-contract-check.mjs`가 `FRED_SERIES` 리터럴을 파싱해 중복 키 0건과 모든 항목의 `unit` 키 존재를 단언한다.
+- residual_risk: 표시 단위는 여전히 포맷터가 소유한다. 선언과 표시가 같은 원천을 쓰도록 만드는 리팩터는 남아 있다(단, 렌더되는 시리즈에서 두 값은 현재 일치함을 확인했다).
+- verification: `ci-runtime-contract-check.mjs` PASS, `ci-architecture-contract-check.mjs` PASS(직접 fetch·storage·innerHTML ratchet 유지). 커밋·배포 없음.
+
+## P1105 - v55.02 - 히스토리 시계열이 소비자가 읽는 fieldMeta를 버렸다 (2026-09-18)
+
+- symptom/reproduction: 차트 제목과 `data-change-basis`가 모든 히스토리 포인트에 대해 `basis: completed-market-series` 리터럴을 표시했다. `history.json`의 108행이 `previous-completed-close`, 14행이 `carried-forward`인데도 구분되지 않았다.
+- root_cause: `_aioHistorySeries`가 `{date, value, observedAt, source, sourceKind}`만 push해 `fieldMeta`를 탈락시켰는데, `src/ui/pages/market.js:263`은 `row?.fieldMeta?.valueBasis`를 읽는다. 앞선 후보(`row.valueBasis`·`row.changeBasis`)도 없으므로 폴백 리터럴이 항상 선택됐다. 함수 자신의 주석은 "fieldMeta가 실제 provenance"라고 선언하고 있어 선언과 구현이 어긋났다.
+- fix: 각 포인트가 `valueBasis`와 `fieldMeta`를 그대로 전달한다.
+- violated_rule: R614.
+- prevention: `ci-runtime-contract-check.mjs`가 프로듀서 측(`valueBasis: meta.valueBasis`·`fieldMeta: arr[i].fieldMeta`)과 소비자 측(`row?.fieldMeta?.valueBasis`)을 함께 단언한다.
+- residual_risk: 실브라우저에서 차트 라벨이 바뀌는지는 아직 확인하지 않았다(헤드리스 렌더 검증 미실시).
+- verification: `ci-runtime-contract-check.mjs` PASS. 커밋·배포 없음.
+
+## P1104 - v55.02 - 관측되지 않은 Worker health가 CURRENT로 발행됐다 (2026-09-18)
+
+- symptom/reproduction: `operations-status.json`의 `planes.fast.health`가 `status: CURRENT`·`statusCode: 200`인데 `observationStatus: NOT_ATTEMPTED`였다. `ai.publicChat.status`도 `CURRENT`였고 그 health의 `revision`은 `v54.37`(저장소 v55.01)이었다.
+- root_cause: `reuseWorkerHealthEvidence`가 이월 관측을 쓰면서 `proxyEvidenceFresh`/`fastEvidenceFresh`를 계산했지만 **발행하지 않았다**. 소비자는 "이번 사이클에 관측하지 않았다"는 사실만 볼 수 있고 "그 이월이 아직 재사용 가능한지"는 판단할 수 없었다. 게이트의 안전 경계(`ci-operations-status-check.mjs:35-36`)는 주입된 픽스처로만 검증돼 발행본을 보지 않았다.
+- fix: 두 health 블록에 `evidenceFresh`와 판정 시각 `evidenceEvaluatedAt`을 발행한다(P1092와 같은 점시점 판정 패턴).
+- violated_rule: R613(6항), R614.
+- prevention: `ci-artifact-semantics-check.mjs`가 `observationStatus === NOT_ATTEMPTED`이면서 `status === CURRENT`인 health에 대해 신선한 재사용 판정과 평가 시각을 요구한다.
+- residual_risk: 관측 자체가 없는 상태에서 "재사용 가능"이라는 판정은 빌드 시점 값이므로, 소비자는 `evidenceEvaluatedAt`으로 나이를 재계산해야 한다.
+- verification: `ci-artifact-semantics-check.mjs` PASS(전환 안내), `ci-operations-status-check.mjs` PASS. 커밋·배포 없음.
+
+## P1103 - v55.02 - 권리 축과 정합성 축의 어휘가 선언되지 않았고, MATCH가 권리를 승격했다 (2026-09-18)
+
+- symptom/reproduction: (1) `operations-status.json`이 `readiness.licensedForUse: REVIEW_REQUIRED`, `providers.*.rights: REVIEW_REQUIRED`를 발행했는데 `REVIEW_REQUIRED`는 `statusVocabulary`·`statusCodeVocabulary` 어디에도 없었다. 계약 `src/data/contracts/operations.js`는 `RIGHTS_STATUS`를 선언해 두고도 발행하지 않았고, 순회 검사는 키 이름이 정확히 `status`/`statusCode`인 것만 봤다. (2) `reconciliation-status.json`은 `statusVocabulary`를 발행하지 않아 `MATCH`/`PARTIAL`/`BLOCKED`를 소비자가 해석할 수 없었다. (3) `build-reconciliation-status.mjs:114`가 `definition.rights === 'REVIEW_REQUIRED' && status === 'MATCH'`일 때 권리를 `CURRENT`로 승격해 7개 범주가 `promotable: true`가 됐다 — 같은 산출물 계열의 `blockers`는 `provider_rights_review_required`라고 말하고 있었다.
+- root_cause: 축(axis)마다 어휘가 필요한데 `status`/`statusCode` 두 축만 이름을 가졌다. 권리를 **관측 완전성으로 승격**하는 코드가 남아 있었고, 그 승격값(`CURRENT`)은 권리 어휘 밖의 신선도 단어였다. 검증기는 선언된 어휘만 보므로 미선언 축을 볼 수 없었다.
+- fix: 계약이 `rightsVocabulary`를 발행하고, `operations` 순회가 `rights`·`licensedForUse`·readiness 키까지 검사하며, `reconciliation`은 `statusVocabulary`·`rightsVocabulary`를 발행한다. 권리 승격을 제거하고 `promotable`은 `rights === 'VERIFIED'`(운영자 기록)만 인정한다.
+- violated_rule: R613(5항), R614, R812.
+- prevention: `ci-artifact-semantics-check.mjs`가 두 산출물의 발행 어휘 완전성·값 커버리지를 단언하고, "권리 승격은 기록된 검증을 넘을 수 없다"를 단언한다. 계약은 발행된 어휘로 `evidence.rights`를 검증한다.
+- residual_risk: 커밋된 두 산출물은 다음 refresh까지 미선언 형식이라 만료 전환으로 통과한다. 승격 제거로 7개 범주가 `promotable: false`가 되는데, 이는 의도된 하향이며 `overall`·`closure`는 변하지 않는다(재빌드 대조가 `rights`를 비교하지 않음을 확인했다).
+- verification: `ci-artifact-semantics-check.mjs` PASS, `ci-operations-status-check.mjs` PASS, `ci-source-registry-contract-check.mjs` PASS, `ci-operator-readiness-check.mjs` PASS, `ci-professional-data-gap-check.mjs` PASS. `ci-reconciliation-contract-check.mjs`는 24시간 창 초과(기존 정지)로 실패. 커밋·배포 없음.
+
+## P1102 - v55.02 - earnings-calendar.json이 소비자·계보 정책 없이 생산돼 CI 트랩이었다 (2026-09-18)
+
+- symptom/reproduction: `refresh-screener.yml`이 `fetch-earnings-calendar.mjs`를 실행하고 존재 시 커밋하지만, 파일은 저장소에 없었고(untracked) `.gitignore`에도 없었다. `ci-data-lineage-audit.mjs`의 `POLICIES`에 항목이 없어 등록되지 않은 top-level 산출물은 FAIL이다. 즉 Finnhub 수집이 성공하는 순간 봇 커밋 → `data-lineage` FAIL → attestation 부재 → 배포 정지. 동시에 `index.html`은 "무키 시 스냅샷" 폴백을 광고했지만 그 폴백을 구현한 코드가 없었다.
+- root_cause: 프로듀서·커밋 스텝이 먼저 추가되고 산출물 계보 정책과 소비 경로가 따라오지 않았다. 미등록 산출물을 사전 차단하는 게이트가 없어(pre-push는 다른 게이트만 실행) 로컬에서는 초록이었다.
+- fix: 계보 정책(`weekly-calendar-reference`, `earnings-week` 커스텀 검사: 창 파싱·순서·종료 여부)을 등록하고, `index.html`에 저장 스냅샷 폴백을 구현해 "무키 시 스냅샷" 문구를 사실로 만들었다. 창(weekStart~weekEnd)을 상태줄에 표기한다.
+- violated_rule: R614.
+- prevention: `ci-data-pipeline-contract-check.mjs`가 프로듀서(워크플로 배선)·소비자(`index.html` 경로)·계보 정책(`POLICIES` 키) 3자가 함께 존재함을 단언한다. 새 클라이언트 fetch는 플랫폼 헬퍼(`fetchWithTimeout`)를 써서 architecture ratchet을 늘리지 않는다.
+- residual_risk: 스냅샷 폴백은 산출물이 실제 발행된 뒤에만 동작한다. 실브라우저 확인은 미실시.
+- verification: `ci-data-pipeline-contract-check.mjs` PASS, `ci-data-lineage-audit.mjs` PASS(기존 FAIL 2건은 데이터 노후), `ci-architecture-contract-check.mjs` PASS(directFetch 42 유지). 커밋·배포 없음.
+
+## P1101 - v55.02 - history.json 행 스키마가 비균질하고 최신행이 breadth 5필드를 누락했다 (2026-09-18)
+
+- symptom/reproduction: 420행 중 breadth 계열 5필드를 가진 행은 232행(2025-10-14~2026-09-16)이고 나머지 188행(최신 `2026-09-17` 포함)은 키 자체가 없었다. 최신 행의 열 집합은 413행과 달랐다. `null` 자리표시자도 없어 소비자는 시리즈가 끝난 것으로 본다.
+- root_cause: 두 레인이 같은 파일을 다른 열 집합으로 업서트했다. 30분 시장 레인은 breadth를 만들지 않고, screener 레인은 창의 eligible이 부족하면 `delete target[field]`로 키를 지웠다(가용성 부족과 "미관측"이 같은 표현이 됐다). 백필로 생성된 과거 행은 `seriesMode`·`cycleEnd`·`marketSnapshotRevision`을 갖지 않았다.
+- fix: 두 레인 모두 정규화 함수를 거쳐 전 행이 같은 열 집합을 갖게 했다(`HIST_BREADTH_FIELDS`·`HIST_ROW_META`를 `null`로 채움). 가용성 부족은 `null` + `fieldMeta` 부재로만 표현하고 키를 지우지 않는다. 프로듀서가 전체 배열을 다시 쓰므로 별도 마이그레이션이 필요 없다.
+- violated_rule: R613(1항), R614.
+- prevention: `ci-history-field-time-contract-check.mjs`가 비균질 입력을 정규화해 열 집합 일치·`null` 값의 `fieldMeta` 제거를 픽스처로 검증한다. `ci-artifact-semantics-check.mjs`가 발행본의 열 집합 균질성과 `fieldMeta`↔유한값 짝을 단언한다.
+- residual_risk: 다음 refresh 전까지 발행본은 비균질이며 만료 전환으로 통과한다.
+- verification: `ci-history-field-time-contract-check.mjs` PASS, `ci-artifact-semantics-check.mjs` PASS(전환 안내에 불일치 행 수 413 보고). 커밋·배포 없음.
+
+## P1100 - v55.02 - F&G 일별 시계열이 같은 날 두 점을 가졌고 값과 출처가 어긋났다 (2026-09-18)
+
+- symptom/reproduction: `data.json.fearGreed.history`가 252포인트/251일이었고 `2026-09-17`에 `00:00:00Z`(26.11)와 `12:16:31Z`(26.11) 두 점이 있었다. 같은 날 `history.json`의 `fg` 값은 26(헤드라인 반올림)인데 `fieldMeta.fg`는 CNN 그래프 출처(26.11)를 기록해 값과 출처가 어긋났다.
+- root_cause: 응답이 일별 시리즈(자정 타임스탬프)와 장중 판독을 함께 주는데 전체 타임스탬프로 dedupe해 한 달력일에 두 점이 남았다. 그리고 히스토리 적재가 `rec.fg`(반올림 헤드라인)를 그래프 출처 메타 위에 덮어썼다.
+- fix: 달력일 기준으로 dedupe하고 CNN의 일별 표식(`T00:00:00.000Z`)을 우선한다. 행 값은 그래프 시리즈 값을 쓰도록 정렬해 값과 출처를 일치시켰다.
+- violated_rule: R613(1항·2항), R614.
+- prevention: `ci-artifact-semantics-check.mjs`가 달력일당 1포인트와 "헤드라인 = 최신 일별 포인트의 반올림"(같은 날일 때만)을 단언한다.
+- residual_risk: 헤드라인 `fearGreed.score`는 정수 반올림을 유지하므로 시리즈 값과 최대 0.5 차이가 남는다(의도).
+- verification: `ci-artifact-semantics-check.mjs` PASS(전환 안내). 커밋·배포 없음.
+
+## P1099 - v55.02 - 전환 면제가 만료 없이 영구 공허 통과였다 (2026-09-18)
+
+- symptom/reproduction: `ci-artifact-semantics-check.mjs`가 `[artifact-semantics] transition: ...` 두 줄을 출력하고 P1090·P1095 단언 전체를 건너뛰었다. 조건이 "artifact에 `observed`가 하나도 없으면"·"`observedAtSource`가 한 행도 없으면"이었으므로, 데이터 파이프라인이 멈추면 면제가 **영구히** 참이 되어 결함이 조용히 돌아온다.
+- root_cause: 프로듀서 수정이 다음 refresh에야 발행물에 반영되므로 한 사이클 면제가 필요했지만, 면제에 시한도 부채 보고도 없었다. 면제 분기가 단언을 감싸는 형태라 면제가 참이면 검사 자체가 실행되지 않았다.
+- fix: 만료 시한(2026-10-18)을 가진 단일 `inTransition` 헬퍼를 도입하고, 만료 후에는 단언이 무조건 실행되게 했다. 면제 중에도 부채를 수치로 로그에 남긴다(예: 불일치 행 413개, promotable 7개).
+- violated_rule: R614.
+- prevention: 게이트 자체가 만료를 강제한다. 새 전환 분기는 반드시 이 헬퍼를 쓴다.
+- residual_risk: 만료 시점에 파이프라인이 여전히 멈춰 있으면 이 게이트가 red가 된다. 그 상태는 `data-lineage`·`reconciliation-contract`가 이미 FAIL로 보고하므로 새 정보가 아니라 일관된 신호다.
+- verification: `ci-artifact-semantics-check.mjs` PASS(만료 시한과 부채 수치 출력). 커밋·배포 없음.
+
+## P1098 - v55.02 - 텔레그램 커버리지가 280.5%로 발행됐다 (2026-09-18)
+
+- symptom/reproduction: `telegram-digest.json.coverage.selectedRawCoveragePct`가 280.5%였다. `selectedRawCount 418` / `eligibleTextCount 149`. 더구나 선정 418건 중 텍스트 보유는 87건뿐이었다.
+- root_cause: 분자는 상한 요약 payload(`topItems` 45 + `broadItems` 400, `hasText !== false`라 `undefined`도 통과)이고 분모는 whole-window 텍스트 보유 집합이라 **서로 다른 모집단**이었다. 비율이 자기 분모를 넘을 수 있다는 검사가 없었다.
+- fix: 분자를 같은 모집단으로 제한하고(`selectedEligibleCount`), 두 비율을 함께 발행한다 — `selectedRawCoveragePct`(eligible 대비, ≤100)와 `selectedOfObservedPct`(whole-window 대비). `semantics` 문자열이 두 비율의 분모를 명시한다.
+- violated_rule: R613(1항), R614.
+- prevention: `ci-artifact-semantics-check.mjs`가 `selectedEligibleCount ≤ eligibleTextCount`·두 비율 ≤100·`selectedRawCount ≤ observedCount`·`observedCount == observedItems.length`를 단언한다.
+- residual_risk: 런타임 픽스처(`js/aio-tests.js`)도 같은 형상으로 갱신했지만, 헤드리스 브라우저 실행은 이번에 하지 않았다.
+- verification: `ci-artifact-semantics-check.mjs` PASS, `ci-runtime-contract-check.mjs` PASS, `ci-data-pipeline-contract-check.mjs` PASS. 커밋·배포 없음.
+
+## P1097 - v55.02 - newsSourceCount가 피드 수를 출처 수로 발행했다 (2026-09-18)
+
+- symptom/reproduction: `data.json.meta.newsSourceCount = 8`인데 같은 산출물의 `news[]`는 29개 서로 다른 매체(`source`)를 담고 있었다. 필드는 런타임 소비자가 0건이었고, 화면의 "N개 등록 소스"는 별도 클라이언트 상수(`AIO_NEWS_SOURCES.length`)에서 왔다.
+- root_cause: `newsSourceCount: NEWS_FEEDS.length`가 RSS 검색 피드 수를 "출처 수"라는 이름으로 발행했다. 자기보고 카운트를 실제 배열과 대조하는 게이트가 없었다.
+- fix: `newsFeedCount`(피드 수)와 `newsPublisherCount`(payload의 distinct source)로 분리해 이름이 모집단을 말하게 했다.
+- violated_rule: R614.
+- prevention: `ci-artifact-semantics-check.mjs`가 `newsCount == news.length`·`newsPublisherCount == distinct source`·`newsFeedCount` 존재·모호한 `newsSourceCount` 부재를 단언하고, `symbolsOk + symbolsFail == cycleComponents.requiredQuoteCount`도 함께 단언한다.
+- residual_risk: 발행본은 다음 refresh까지 옛 필드를 유지한다(만료 전환). 새 필드는 소비자가 아직 없으므로 UI 영향은 없다.
+- verification: `ci-artifact-semantics-check.mjs` PASS(전환 안내), `ci-data-pipeline-contract-check.mjs` PASS. 커밋·배포 없음.
+
+## P1096 - v55.02 - BEA PCE 월간 core 값이 12개월 문단에서 왔다 (2026-09-18)
+
+- symptom/reproduction: `data.json.macro._bea.values`가 `{pce: 3.7, corePce: 3.3, pceMoM: 0.2, corePceMoM: 3.3}`이었다. `corePceMoM`(3.3)이 `corePce`(전년동월비 3.3)와 정확히 같고, 같은 달 `pceMoM`(0.2)의 16.5배다 — 월간 물가 상승률로 불가능한 값이다.
+- root_cause: `parseBeaPceHtml`의 월간 정규식이 `preceding month` 앵커에서 260자 이내의 첫 "Excluding food and energy"를 잡았다. 라이브 페이지는 월간 문단 headline과 core 문장 사이에 goods/services/food/energy 상세가 끼어 있어, 월간 문단의 core 절을 찾지 못하면 **인접한 12개월 문단의 core 절을 집어왔다**. 픽스처는 두 문장이 붙어 있어(간격 172자) 이 결함을 재현하지 못했고, 계약도 `pceMoM`만 단언했다.
+- fix: 문단 경계로 잘라(`_beaParagraph`) 각 문단 안에서 headline·core를 **독립적으로** 추출한다(`_beaHeadline`·`_beaCore`). 월간 core 절이 없으면 `null`로 fail-closed하고 다른 기간 값을 절대 빌리지 않는다.
+- violated_rule: R613(1항·2항), R614.
+- prevention: `ci-history-field-time-contract-check.mjs`가 4개 픽스처를 검증한다 — 기존 baseline, 상세가 끼운 경우(월간 core 0.2), **정확 재현**(월간 core 절 부재 → `0.2 / null`, 옛 파서는 `0.2 / 3.3`), 월간 문단 부재(둘 다 null).
+- residual_risk: 발행본은 다음 refresh까지 옛 값을 유지한다. `_bea.values.*MoM`의 소비자는 0건이라 사용자 영향은 없었다.
+- verification: `ci-history-field-time-contract-check.mjs` PASS(신규 픽스처 3건 포함), `ci-data-pipeline-contract-check.mjs` PASS. 커밋·배포 없음.
 
 ## P1095 - v55.01 - 이전 종가가 현재 관측 시각을 상속해 히스토리 시간축이 한 세션 어긋났다 (2026-09-17)
 

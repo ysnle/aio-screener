@@ -1,8 +1,62 @@
 ---
 verified_by: Codex local source review and affected QA; full semantic audit remains open
-last_verified: 2026-09-17
+last_verified: 2026-09-19
 confidence: medium
 ---
+
+## v55.06 작업 환경 루프 보강 (2026-09-19)
+
+- [x] QA-EXHAUST-74: **단언은 근거를 인용해야 한다.** `scripts/ci-assertion-trace-check.mjs`가 `scripts/ci-*.mjs`의 `check()`와 `js/aio-tests.js`의 `_assert()` 라벨을 스캔해, 새/변경 라벨이 R/P/QA/T 증거 id를 인용하도록 강제한다. 기존 1,225/2,439개는 동결 베이스라인으로 유예하고 부채를 보고한다 — 새 단언은 추적 없이 추가될 수 없다 (P1124/R618, `_context/assertion-trace-baseline.json`).
+- [x] QA-EXHAUST-75: **R 번호 결번과 OPEN 재검증 트리거를 기계 검사로 고정했다.** `scripts/ci-ledger-integrity-check.mjs`가 (a) `RULES.md`의 결번 집합이 `_context/rule-gap-manifest.json`과 정확히 일치할 것(규칙이 조용히 사라질 수 없다), (b) 새로 추가되는 OPEN QA 항목은 `verify_by:`를 선언할 것을 단언한다. 65개 결번(주로 R1~R53)을 동결했고, OPEN 181개 중 13개에 `verify_by:`를 부여해 168개를 유예 기록했다 (P1123/R618).
+- [x] QA-EXHAUST-76: **문서 신선도 임계 적용 대상을 넓혔다(측정 정정 포함).** `ci-knowledge-lint-check.mjs`가 `autoRefresh`·`current-handoff`만 보던 것을 `last_verified`를 선언한 모든 비-`historical-snapshot` 문서로 확대했다. **측정 정정**: 45일 초과 23건은 **전부 `historical-snapshot`**(동결 provenance, 의도적 면제)이므로 감사 당시 "24건"은 이들을 포함한 수치였다 — 비-역사 문서의 실제 초과는 **1건**이다. 면제 조건은 `historical-snapshot && !autoRefresh`다: `auto_refresh: true`는 "이 문서는 최신으로 유지된다"는 **명시적 주장**이고 파일명 기반 kind 추측보다 강하므로, 둘이 충돌하면 면제하지 않는다. 이번 확장이 추가로 덮는 것은 이전에 미검사였던 `ledger`·`targeted-map`·`research-record` 종류다. 초과 개수는 `_context/doc-freshness-baseline.json` 대비 증가할 수 없다 (P1125/R618).
+- [x] QA-EXHAUST-77: **스킬은 트리거 체인이 아니라 참조다.** `_context/INDEX.md`의 task routing 표를 유일 트리거로 명시하고, 스킬 발동이 작업 범위를 강제하지 않는다는 점을 `AGENTS.md`에 적었다. 강제는 게이트 실행과 보고 형식(검증/차단/미검증 분리)에만 둔다 (R618).
+- [ ] QA-EXHAUST-78: **단언 부채 1,225개를 실제로 줄인다.** 베이스라인은 증가만 막는다. 라벨에 증거 id를 붙여 부채를 줄이는 작업은 파일 단위로 진행해야 하며, 상위 3개(`ci-runtime-contract-check.mjs` 372개, `ci-data-pipeline-contract-check.mjs` 142개, `ci-ai-intelligence-contract-check.mjs` 112개)부터 착수한다. verify_by: ci-assertion-trace-check (베이스라인 감소 확인)
+- [ ] QA-EXHAUST-79: **`ci-runtime-contract-check.mjs` 단일 372-check 모놀리스를 주제별로 분리한다.** 실패 위치 파악과 blast radius 축소가 목적이며, 분리 시 `qa-pipeline.json`·`impactRules` 동반 수정이 필요하다. verify_by: ci-qa-pipeline-contract-check + ci-runtime-contract-check
+- [ ] QA-EXHAUST-80: **한국어 인과 어휘 부족.** 인과 판정 정규식이 영어 단어 목록이라 한국어 인과 문장은 검출되지 않는다(P1122 residual). verify_by: ci-data-pipeline-contract-check (한국어 인과 어휘 픽스처 추가 시)
+- [ ] QA-EXHAUST-83: **개인화 요청의 suitability 전제는 여전히 만족 불가다.** P1120은 차단을 공시로 우회했을 뿐, `question-planner.js:90`이 계속 `suitabilityProfile: null, evidenceComplete: false`를 넘기므로 개인화/실행 요청은 **항상** `suitability-profile-required`+`current-evidence-required` limitation을 달고 나간다. 실제 프로필을 공급하는 경로가 없어 "조건부 허용"(`allowed: true`) 상태에는 도달할 수 없다 — R617(1)의 잔여 사례다. verify_by: ci-ai-intelligence-contract-check (프로필 공급 경로가 생기면 limitation이 사라져야 한다)
+- [ ] QA-EXHAUST-84: **QA-AICHAT11의 계층 서술이 R617 이후 어긋난다.** 그 항목은 개인 매도 실행 요청이 "**suitability gate에서** 차단된다"고 적었지만 R617/P1120이 planner 수준 차단을 제거했으므로, 살아남은 차단은 **conduct/포트폴리오 동의 계층**이다. 동작은 유지되나(게이트 PASS) 서술이 가리키는 계층이 달라, 다음 세션이 잘못된 계층을 손볼 수 있다. 과거 검증 기록이므로 본문은 보존하고 이 항목으로 명시한다. verify_by: ci-runtime-contract-check (conduct 차단 단언과 QA-AICHAT11 서술의 일치 확인)
+- [ ] QA-EXHAUST-82: **분류 충돌 1건 — `_context/CODEX-SECOND-PASS-HANDOFF-2026-07-10.md`.** frontmatter가 `auto_refresh: true`(최신 유지 주장)인데 파일명 기반 분류기가 `historical-snapshot`(동결)으로 분류해 `last_verified`가 69일 지났다(P1125가 드러냄). 해소는 둘 중 하나다 — `auto_refresh`를 제거해 동결 provenance로 확정하거나, 현재 핸드오프로 재분류해 갱신한다. verify_by: ci-knowledge-lint-check (경고 소멸 + `_context/doc-freshness-baseline.json` 감소)
+- [ ] QA-EXHAUST-81: **INDEX가 나열한 미해결 항목을 원장 항목으로 승격한다.** 날짜 없는 중첩 산출물 12건, `objects/**` 592/629 미참조 blob 보존 정책, 실제 소비 산출물의 캐시 라우팅 누락, `factorObservedAt` 계층별 이름 분리 — 현재 `INDEX.md` 본문 서술로만 존재해 트리거가 없다. verify_by: ci-ledger-integrity-check (OPEN 승격 후 verify_by 부여 확인)
+
+## v55.05 차단 경계 → 공시 재배치 (2026-09-19)
+
+- [x] QA-EXHAUST-71: **달성 불가능한 게이트를 제거했다.** (근본 원인) `question-planner.js:90`이 `suitabilityProfile: null, evidenceComplete: false`를 항상 넘기므로 **개인화/실행 요청에서** `actionPermission.allowed`는 항상 false다(`src/ai/policy/suitability.js:9` — `personalizedActionRequested`가 false인 일반 질문은 `allowed: true`이므로 영향 없음). (수정 위치) **`src/ai/orchestrator/answer-orchestrator.js`**가 `blocked-action-permission` 조기 반환을 제거하고 `actionLimitations`를 실어 디스패치한다 — `question-planner.js`는 **수정하지 않았다**(lint Pass 3에서 귀속 확인). `evaluateAIActionPermission`은 `limitations`+`disclosure`를 반환한다. 금지 행위 P0·포트폴리오 동의·도구 경계는 유지 (P1120/R617).
+- [x] QA-EXHAUST-72: **프롬프트가 첫 번째 게이트였다.** 512행의 `"확인 필요"로 답하고`가 509행의 조건부 전환 지시를 덮어 모델이 일상 질문에 스스로 축약문을 만들었다. 미확인 수치는 단정하지 않되 **끝까지 답하고** 최종 판단을 사용자에게 넘기도록 재작성했다 (P1121/R617, `_aioPublicAIActionPolicyPrompt`).
+- [x] QA-EXHAUST-73: **자동 시장 분석이 영구 차단에서 도달 가능으로 바뀌었다.** 발행본 `marketAnalysis.reason`이 `metric-identity-mismatch:vix-vs-fear-greed,causal-evidence-missing`이었다 — 후자는 권리상 만들 수 없는 증거를 요구한 결과(차단 issue), 전자는 올바른 값을 나란히 쓴 문장도 막는 60자 근접 휴리스틱이었다. 둘 다 `warnings`로 내리고, 헤드라인 귀속 컨텍스트와 `disclosure`를 발행·렌더한다. `metric-value-mismatch`·`nfp-scale-mismatch`는 차단으로 유지 (P1122/R617).
+  - 남은 과제: 인과 판정이 영어 단어 목록이라 한국어 인과 문장은 검출되지 않는다 → 한국어 인과 어휘 목록 추가 필요(OPEN).
+
+## v55.04 semantic fix residuals 종결 (2026-09-19)
+
+- [x] QA-EXHAUST-67: 전환 전파 3항목을 분리 판정했다. `data.json.macro._freshness_*` 19개는 **전파됨**, `history.json.fieldMeta.*.observedAtSource`는 프로듀서가 값을 버려 **미전파**(다음 refresh 문제가 아니라 프로듀서 결함 → P1117), `metricEvidence[].canonicalMetricId`는 발행본 0/11이며 프로듀서에는 존재해 **다음 refresh에 발행**(P1115~P1119, `ci-artifact-semantics-check.mjs`·`ci-history-field-time-contract-check.mjs`).
+- [x] QA-EXHAUST-68: quote 평면 인용은 프로듀서의 발행 플래그에서 파생한다. `data.json.quotes`는 P715로 비어 있고 `quotesPublished: false`이므로 `market-snapshot.json:quotes`를 인용한다. 하드코딩 인용의 부재를 게이트가 단언한다 (P1116/R616, `ci-runtime-contract-check.mjs`).
+- [x] QA-EXHAUST-69: 점수 정합은 산출물이 아니라 **렌더 경로**에서도 성립해야 한다. presentation이 `breakdown`을 나르고 signal 페이지가 조정 행을 렌더하며, 게이트가 골든 픽스처마다 presentation↔scoreBreakdown 파리티와 실브라우저 sink를 검사한다 (P1118/R616, `ci-artifact-semantics-check.mjs`·`ci-architecture-browser-check.mjs`).
+- [x] QA-EXHAUST-70: 상시 0건은 의도라면 선언한다. 헤드라인 전용 뉴스의 인과 근거 0건은 출처 권리 경계이므로 `MARKET_ANALYSIS_NEWS_CONTENT_POLICY`(`causalNarrative: 'blocked-by-design'`)를 발행하고, 정책↔구현 불일치를 게이트가 검출한다. 침묵하는 미채움 필드를 남기지 않는다 (P1119/R616, `ci-data-pipeline-contract-check.mjs`).
+
+## v55.03 중첩 산출물 전수 감사와 구조 보강 (2026-09-18)
+
+- [x] QA-EXHAUST-60: `public-data/masters`의 37개 매니저를 **전부** 재계산했다(이전에는 5개 표본). 정규화 키(`NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE`) 집계 기준 top5/top10 농도·`fullRowCount`·`reportedPositionCount`·`parsedValueTotal`·`cover.tableValueTotal`이 **37/37 일치**했다. 3개 매니저의 값 잔차(1~5달러)는 `EXACT / |Δ|≤1 EXCEPTION_DISCLOSED / 그 외 MISMATCH` 규칙(`collect-13f-reference.mjs:263`)에 따라 라벨링된 정직한 공시이며, 범주 모집단 7/37/38/2/5 축도 각 산출물의 `coverage` 블록이 설명한다(`mark-minervini`는 `methodOnlyProfiles:1`). 결함 없음 (P1110/R615).
+- [x] QA-EXHAUST-61: knowledge·atlas·principles 685개 파일의 **8,908개 참조**를 전역 식별자 집합(3,210개)과 대조했다. dangling은 2계열뿐이었고 모두 수정했다 — `quantitative-labs` 30건(퇴역 범위), `relationship-guides` 5건(`valuation`·`power-grid`·`aidc-power-delivery`×2·`aidc-construction`). 소비자 `atlas.js`는 미해소 id를 `'연결 분석 화면'` 라벨 폴백 칩으로 렌더하므로 **사용자 가시 결함**이었다. 게이트 + 음성 대조 완료 (P1109/R615).
+- [x] QA-EXHAUST-62: 퇴역 범위가 산출물까지 닫혔다. `build-knowledge-quantitative-labs.mjs`는 8행에서 `EXCLUDED_BY_PRODUCT_SCOPE`로 종료하며 아래 42줄이 죽은 코드였고, 이미 생성된 16개 파일이 동결·무소비·비센서스 상태로 발행돼 있었다. 죽은 생성기와 산출물 16개를 제거하고 재발행 금지를 게이트로 고정했다 (P1109/R615).
+- [x] QA-EXHAUST-63: `objects/**` 629개 내용주소 해시를 **629/629 일치** 확인했고(원시 바이트 기준, LF 정규화 불필요), masters 산출물이 참조하는 경로 37건이 전부 존재함을 확인했다. 다만 **592개(94%)가 미참조**이며 전부 git 추적 상태다 — 내용주소 저장소에 GC/보존 정책이 없다. 삭제는 하지 않았고 보존 정책 결정을 OPEN으로 남긴다 (P1110/R615, `EVIDENCE-DEBT` 성격).
+- [x] QA-EXHAUST-64: 중첩 산출물 신선도 측정면을 열었다. `ci-data-lineage-audit.mjs`가 계열별 정책(knowledge/atlas/principles 120일, masters 45일)으로 최상위 JSON 49개를 측정하고 `report.nested`로 보고한다(WARN 전용). 실측 13건 창 초과, 0건 파싱 실패. 이 측정면이 **날짜 자체가 없는 12개 산출물**(relationship-guides·domain-guides·domain-claim-ledger·domain-source-packets·foundation-lessons·foundations·player-product-registry·source-packets·taxonomy-node-coverage·chapters·lesson-library·reference-curriculum)을 새로 드러냈다 — `revision`/`status`만 있고 시각이 없어 나이를 알 수 없다. 타임스탬프 부여는 저작 변경이라 OPEN으로 남긴다 (P1110/R615).
+- [x] QA-EXHAUST-65: 소비자 없는 설정 2건을 닫았다. `PUBLISHED_RUNTIME_ASSETS`(184항목, 저장소 내 참조 0건, 11개가 존재하지 않는 파일 지목)를 삭제했고(sw.js 18,634→11,151 바이트), 캐시 라우팅 표가 지목하지만 아무도 fetch하지 않던 `market-snapshot-status.json`·`operations-status.json`을 표에서 제거했다. 게이트가 라우팅 표의 모든 발행 산출물에 대해 클라이언트가 **경로**를 참조하는지 단언하며, 이름 기반 매칭은 스키마 문자열(`operations-status-v1`)로 거짓 통과함을 음성 대조로 확인해 경로 기반으로 강화했다. 반대 방향(실제 소비 산출물의 캐시 누락)은 TTL·오프라인 동작 검증이 필요해 OPEN (P1111·P1112/R615).
+- [x] QA-EXHAUST-66: 산출물 수준 정규화 버킷이 개별 행의 관측 시각 폴백이 되지 못하게 했다. `src/data/providers/screener.js` 3곳에서 `factor.observedAt || artifact.factorObservedAt` 사슬을 제거하고 fail-closed로 바꿨다(현재 849행 전부 자기 `observedAt`을 가지므로 발현되지 않던 잠재 결함). FRED `yoy` 6개 시리즈의 단위 선언도 실제 표시(`%`)와 일치시켰다 (P1113·P1114/R613·R615).
+
+## v55.02 데이터 의미·정합성 전수 감사 (2026-09-18)
+
+- [x] QA-EXHAUST-47: 상위 `public-data/*.json` 23개 산출물의 값↔라벨↔단위↔시각 정합을 로컬에서 전수 재계산했다. 일치 확인: 리비전 결속 8곳, 투영 매니페스트 해시/바이트/레코드(LF 정규화 기준 30.7MB→621KB), breadth 3세그먼트 산술(커버리지 97.4/97.3/97.9, A+D+U=eligible, advanceRatio), reconciliation 카운트↔범주 tally, 13F 농도(정규화 키 기준 소수 4자리), 지식 카운트(455·160·212·274·169·227·217), 텔레그램 교차 카운트(2336/499), 뉴스 40/40 사이클 내·점수 min/max (감사 보고서 `_artifacts/data-semantic-consistency-20260918/REPORT.md` §3).
+- [x] QA-EXHAUST-48: 발행 라벨↔의미 불일치 19건을 확정하고 13건(P1096~P1108)을 수정·게이트로 고정했다. BEA 월간 core 파싱, newsSourceCount 명명, 텔레그램 커버리지 280.5%, F&G 일별 중복·값/출처 불일치, history 행 비균질, earnings 캘린더 3자 정합, 권리/정합성 어휘 미선언·권리 승격, Worker health 재사용 미공개, 시계열 fieldMeta 탈락, FRED 중복 선언, marketSurveys.checkedAt 동결, canonical 0행 공허 통과.
+- [x] QA-EXHAUST-49: BEA PCE 파서가 월간 core 값을 12개월 문단에서 집어오던 결함을 문단 스코프 추출로 고치고 4개 픽스처로 고정했다. 정확 재현 픽스처에서 옛 파서는 `pceMoM 0.2 / corePceMoM 3.3`, 새 파서는 `0.2 / null`(fail-closed)이며, 월간 core 절이 없을 때 다른 기간 값을 절대 빌리지 않는다 (P1096/R614, `ci-history-field-time-contract-check.mjs`).
+- [x] QA-EXHAUST-50: 커버리지·비율은 자기 분모를 넘을 수 없다. 텔레그램은 분자를 텍스트 보유 집합으로 제한해 `selectedEligibleCount`·`selectedRawCoveragePct`(≤100)·`selectedOfObservedPct`를 발행하고, 게이트가 세 비율과 `observedCount == observedItems.length`를 단언한다 (P1098/R614, `ci-artifact-semantics-check.mjs`).
+- [x] QA-EXHAUST-51: 달력 단위 시계열은 단위 기간당 1포인트다. F&G 히스토리는 달력일로 dedupe하며 일별 표식을 우선하고, 행 값은 그 값의 출처 시리즈에서 온다. 게이트가 중복일과 "헤드라인 = 최신 일별 포인트의 반올림"을 단언한다 (P1100/R614).
+- [x] QA-EXHAUST-52: 시계열 행의 열 집합은 균질하고 "미관측"은 `null` + 메타 부재로만 표현한다. 두 프로듀서 레인이 같은 정규화 함수를 거치며 키 삭제 대신 `null`을 쓴다. 비균질 입력 정규화 픽스처와 발행본 열 집합 단언이 함께 존재한다 (P1101/R614, `ci-history-field-time-contract-check.mjs`·`ci-artifact-semantics-check.mjs`).
+- [x] QA-EXHAUST-53: 선언 없는 축을 발행하지 않는다. `operations-status`가 `rightsVocabulary`를, `reconciliation-status`가 `statusVocabulary`·`rightsVocabulary`를 발행하고, 계약과 게이트가 `status`·`statusCode`·`rights`·`licensedForUse`·readiness 키를 각자의 어휘로 검증한다. 권리는 관측 완전성으로 승격하지 않으며 `promotable`은 `rights === 'VERIFIED'`만 인정한다 — 승격 제거로 7개 범주가 하향됐고 `overall`·`closure`는 불변임을 재빌드 대조로 확인했다 (P1103/R614).
+- [x] QA-EXHAUST-54: 프로듀서는 소비자·계보 정책과 함께 온다. `earnings-calendar.json`은 계보 정책(`weekly-calendar-reference` + 창 파싱/순서/종료 검사)과 클라이언트 저장 스냅샷 폴백을 함께 갖췄고, 게이트가 프로듀서(워크플로)·소비자(`index.html` 경로)·정책(`POLICIES` 키) 3자 일치를 단언한다 (P1102/R614, `ci-data-pipeline-contract-check.mjs`).
+- [x] QA-EXHAUST-55: 전환 면제는 만료된다. `ci-artifact-semantics-check.mjs`의 모든 artifact 단언 면제가 시한(2026-10-18)을 가지며 만료 후 무조건 실행되고, 면제 중에도 부채 수치를 로그로 보고한다(canonical 0행, 불일치 행 413개, promotable 7개, 뉴스/텔레그램/권리 어휘 등). canonical 0행은 만료 후 실패로 처리된다 (P1099·P1108/R614).
+- [x] QA-EXHAUST-56 (v55.03에서 해소 → QA-EXHAUST-60·61·63): 중첩 산출물 전수 검사를 완료했다. `ci-data-lineage-audit.mjs`는 `public-data/` 최상위 JSON만 순회한다(비재귀, 23개). knowledge/atlas/principles/masters는 인덱스 카운트만 대조했고, `objects/**`(629개/141MB)와 37개 매니저 중 32개의 농도 재계산은 남아 있다 (감사 보고서 §7).
+- [x] QA-EXHAUST-57 (v55.03에서 해소 → QA-EXHAUST-65): sw 계층 드리프트 2건을 닫았다. `PUBLISHED_RUNTIME_ASSETS`(187개)는 저장소 어디서도 읽히지 않고(정의 + 금지 단언뿐) 일치 게이트가 없다. `DATA_URL_PATTERNS`가 캐시하는 `market-snapshot-status.json`·`operations-status.json`은 클라이언트 fetch가 0건이고, 실제 주 데이터(`data.json`·`history.json`·`screener.json`·`telegram-digest.json`)는 데이터 캐시 패턴 밖이다 (감사 보고서 §2 D12·D13).
+- [x] QA-EXHAUST-58 (v55.03에서 해소 → QA-EXHAUST-66): 버킷 폴백을 제거했다(이름 분리는 잔여). top-level `factorObservedAt`은 정규화 버킷(`2026-09-17T00:00:00Z`)이고 행 레벨은 실제 관측(705행 `2026-09-16T13:30:00Z`)이다 (감사 보고서 §2 D16). 계약·소비자 영향 검토가 선행돼야 한다.
+- [x] QA-EXHAUST-59 (v55.03에서 부분 해소 → QA-EXHAUST-66): yoy 단위 선언을 표시와 일치시켰다(포맷터 소유는 잔여). `FRED_SERIES[*].unit`은 이제 중복 없이 선언되지만 소비되지 않으며, 표시 접미사는 `js/aio-data.js`의 포맷터에 하드코딩돼 있다(렌더되는 시리즈에서 두 값은 현재 일치함을 확인). 선언-표시 단일 원천 리팩터가 남아 있다 (감사 보고서 §2 D18).
 
 ## v54.96 QA 계약·감사 경계 (2026-09-15)
 
@@ -1759,24 +1813,24 @@ Standalone worker security gate also exits deterministically after PASS (`ci-wor
 
 `_artifacts/automation-audit-20260917/REPORT.md` §10에서 직접 계산·대조로 확인한 결함. 모두 **미수정**이며 P 항목이 아직 없다.
 
-- [ ] S1 `history.json`의 dxy·wti·gold·kospi·kosdaq·btc가 `valueBasis: previous-completed-close`인데 `fieldMeta.observedAt`은 현재 관측 시각이다(dxy/wti/gold는 스냅샷과 동일, kospi/kosdaq/btc는 `00:00:00Z`로 정규화되어 소스 시각과도 불일치). 이전 세션 종가가 현재 시각에 찍혀 14개 필드 중 6개 필드의 시간축이 한 세션 어긋난다. 게이트 공백: `valueBasis`와 `observedAt`의 정합성을 검사하는 게이트가 없다.
-- [ ] S2 `scripts/fetch-data.mjs:2831`의 `MARKET_ANALYSIS_QUOTE_DEFS`가 `^TNX`를 `unit: 'index'`로 하드코딩해, 같은 산출물의 `market.rates.us10y`(`unit: "percent"`)와 모순된다. 라이브 서술이 `10Y=5.006 index`로 표시된다. metricId도 `market.us10y` vs `market.rates.us10y`로 어긋나고, claim `evidenceIds`(`market-analysis:^TNX:…`)가 스냅샷 evidenceId(`market.rates.us10y:09ea45e1`)로 해석되지 않아 주장↔근거 역추적이 id로 불가능하다.
-- [ ] S3 `index.html:11828`("주기: 45분 자동 갱신 (GitHub Actions)")과 `index.html:11780`("수집 주기 45분")이 실제와 다르다. GitHub Actions 뉴스 cron은 30분(`17,47 * * * *`)이고 뉴스 사이클은 `kst-0800-completed-24h`로 일 1회 갱신이다. 45분은 `js/aio-data.js:3686`의 브라우저 자체 갱신 타이머(`interval: 2700000`)이며 이를 수집 주기로 잘못 귀속했다. 같은 패널의 사이클 문구는 정확하다.
-- [ ] S4 `macro._freshness_*` 19개가 전부 `stale-reference`인데 `_source_*`는 모두 1차 정식 출처(`bls/bea/fred/us-treasury-official-primary`)다. `fetch-data.mjs:682`가 LKG 병합에서만 플래그를 설정하고 `mergeMacroLastKnownGood`가 현재 값 존재 시 `continue`하므로 한 번 stale이 되면 복구 후에도 지워지지 않는다(sticky). 앱은 이 필드를 읽지 않아 현재 사용자 영향은 없으나, 기계 계약이 거짓 신호를 발행하고 진짜 LKG와 구분할 수 없다.
-- [ ] S5 `operations-status.json`의 `statusVocabulary`가 실제 `status`/`overall` 값(`CURRENT`/`OPERATOR_REQUIRED`/`BLOCKED`/`MATCH`/`PARTIAL`)과 교집합이 0이다. 선언된 어휘는 `statusCode`에만 해당한다(`build-operations-status.mjs:376`).
-- [ ] S6 `operations-status.planes.durable.freshness`가 빌드 시점에 동결된다(`ageHours: 0.02`, `fresh: true`). 발행 후 경과 시간을 반영하지 않으므로 소비자가 `generatedAt`으로 재계산해야 한다. 앱은 이 파일을 읽지 않는다.
+- [ ] S1 `history.json`의 dxy·wti·gold·kospi·kosdaq·btc가 `valueBasis: previous-completed-close`인데 `fieldMeta.observedAt`은 현재 관측 시각이다(dxy/wti/gold는 스냅샷과 동일, kospi/kosdaq/btc는 `00:00:00Z`로 정규화되어 소스 시각과도 불일치). 이전 세션 종가가 현재 시각에 찍혀 14개 필드 중 6개 필드의 시간축이 한 세션 어긋난다. 게이트 공백: `valueBasis`와 `observedAt`의 정합성을 검사하는 게이트가 없다. verify_by: ci-artifact-semantics-check (전환 면제 만료 2026-10-18 후 무조건 실행)
+- [ ] S2 `scripts/fetch-data.mjs:2831`의 `MARKET_ANALYSIS_QUOTE_DEFS`가 `^TNX`를 `unit: 'index'`로 하드코딩해, 같은 산출물의 `market.rates.us10y`(`unit: "percent"`)와 모순된다. 라이브 서술이 `10Y=5.006 index`로 표시된다. metricId도 `market.us10y` vs `market.rates.us10y`로 어긋나고, claim `evidenceIds`(`market-analysis:^TNX:…`)가 스냅샷 evidenceId(`market.rates.us10y:09ea45e1`)로 해석되지 않아 주장↔근거 역추적이 id로 불가능하다. verify_by: ci-data-pipeline-contract-check unit/metricId 일치 단언 추가 시
+- [ ] S3 `index.html:11828`("주기: 45분 자동 갱신 (GitHub Actions)")과 `index.html:11780`("수집 주기 45분")이 실제와 다르다. GitHub Actions 뉴스 cron은 30분(`17,47 * * * *`)이고 뉴스 사이클은 `kst-0800-completed-24h`로 일 1회 갱신이다. 45분은 `js/aio-data.js:3686`의 브라우저 자체 갱신 타이머(`interval: 2700000`)이며 이를 수집 주기로 잘못 귀속했다. 같은 패널의 사이클 문구는 정확하다. verify_by: ci-doc-currency-check + index.html 45분 문구 grep
+- [ ] S4 `macro._freshness_*` 19개가 전부 `stale-reference`인데 `_source_*`는 모두 1차 정식 출처(`bls/bea/fred/us-treasury-official-primary`)다. `fetch-data.mjs:682`가 LKG 병합에서만 플래그를 설정하고 `mergeMacroLastKnownGood`가 현재 값 존재 시 `continue`하므로 한 번 stale이 되면 복구 후에도 지워지지 않는다(sticky). 앱은 이 필드를 읽지 않아 현재 사용자 영향은 없으나, 기계 계약이 거짓 신호를 발행하고 진짜 LKG와 구분할 수 없다. verify_by: ci-artifact-semantics-check (macro freshness 복구 단언)
+- [ ] S5 `operations-status.json`의 `statusVocabulary`가 실제 `status`/`overall` 값(`CURRENT`/`OPERATOR_REQUIRED`/`BLOCKED`/`MATCH`/`PARTIAL`)과 교집합이 0이다. 선언된 어휘는 `statusCode`에만 해당한다(`build-operations-status.mjs:376`). verify_by: ci-artifact-semantics-check (operations statusVocabulary 단언)
+- [ ] S6 `operations-status.planes.durable.freshness`가 빌드 시점에 동결된다(`ageHours: 0.02`, `fresh: true`). 발행 후 경과 시간을 반영하지 않으므로 소비자가 `generatedAt`으로 재계산해야 한다. 앱은 이 파일을 읽지 않는다. verify_by: ci-operations-status-check
 
 ### 검토 중 정정한 오판 (기록)
 
-- [ ] 초기 구조 probe 출력 절단으로 "`macro`에 `_treasury`/`dgs*`가 없다"고 판단할 뻔했으나 실제로는 존재한다(REPORT §10.3). 검토 절차에서 출력 상한을 신뢰한 것이 원인이므로, 아티팩트 존재 여부는 전용 키 조회로 확인한다.
+- [ ] 초기 구조 probe 출력 절단으로 "`macro`에 `_treasury`/`dgs*`가 없다"고 판단할 뻔했으나 실제로는 존재한다(REPORT §10.3). 검토 절차에서 출력 상한을 신뢰한 것이 원인이므로, 아티팩트 존재 여부는 전용 키 조회로 확인한다. verify_by: ci-ledger-integrity-check (오분류 OPEN이 영구 면제가 되지 않는지)
 
 ## semantic fix residuals (v55.01, 2026-09-17)
 
 P1090~P1095로 수정했으나 남은 항목. 게이트는 새 형식이 산출물에 전파되면 자동으로 조여진다.
 
-- [ ] 전환 전파 확인: `data.json.macro._freshness_*`, `history.json.fieldMeta.*.observedAtSource`, `data.json.marketAnalysis.metricEvidence[].canonicalMetricId`는 다음 refresh 사이클에 발행된다. 전파 후 `ci-artifact-semantics-check.mjs`의 전환 안내가 사라지고 산출물 단언이 무조건 적용되는지 확인한다.
-- [ ] `history.json` 이전 종가 필드의 `observedAt`이 null이 된 뒤 앱(`_aioHistorySeries` → 차트·신선도 표시)이 의도대로 동작하는지 실브라우저 검증. `carryForwardHistoryEvidence`는 `observedAt`이 없는 행을 건너뛰므로 해당 필드의 후속 carry가 달라질 수 있다.
-- [ ] signal 페이지가 `scoreBreakdown.adjustments`를 별도 행으로 렌더해 배분 합계와 총점의 차액을 화면에서 설명하도록 수정(현재는 산출물에만 존재).
-- [ ] `js/aio-core.js:25058`이 `evidenceIds:['data.json:quotes']`로 quote 평면을 `loaded`로 보고한다. `data.json.quotes`는 P715로 비어 있으므로 근거 인용을 `market-snapshot.json`으로 정정한다.
-- [ ] S9(미수정): `isMarketAnalysisNewsEligible`이 40자 이상 본문을 요구하는데 뉴스 파이프라인은 헤드라인만 저장해 인과 근거가 항상 0건이다. 그 결과 인과 표현이 있는 LLM 서술은 상시 차단되고, 라이브 서술은 영구히 `blocked` 폴백이다. 피드가 제공하는 발췌를 보존할지(그리고 출처 권리상 허용되는지)는 제품·권리 판단이 필요하다.
-- [ ] S1/P1095 수정으로 `history.json`의 6개 필드가 `observedAt: null`이 되는데, 이 값이 `reference-only`/`observedAt` 미상으로 소비자에게 표시되는지 확인한다(현재 게이트는 시각이 없으면 통과).
+- [x] 전환 전파 확인 (v55.04에서 종결 → QA-EXHAUST-67): 3개 항목의 상태를 분리해 확정했다. (a) `data.json.macro._freshness_*` 19개는 **발행본에 전파됨**(sticky 결함은 P1090으로 별도 수정). (b) `history.json.fieldMeta.*.observedAtSource`는 전파되지 **않았고**, 원인은 다음 refresh가 아니라 **프로듀서 버그**였다 — `historyMeta()` 투영이 `bySymQuote`의 값을 버려 영구 면제가 됐다(P1117에서 3개 레인 수정). (c) `metricEvidence[].canonicalMetricId`는 발행본 0/11이며 프로듀서(`fetch-data.mjs:2960`)에는 존재하므로 다음 refresh에 발행된다 — 프로듀서 단언은 이미 무조건 실행된다. 만료(2026-10-18) 후 (b)·(c)의 산출물 단언이 함께 조여진다.
+- [ ] `history.json` 이전 종가 필드의 `observedAt`이 null이 된 뒤 앱(`_aioHistorySeries` → 차트·신선도 표시)이 의도대로 동작하는지 실브라우저 검증. `carryForwardHistoryEvidence`는 `observedAt`이 없는 행을 건너뛰므로 해당 필드의 후속 carry가 달라질 수 있다. (v55.04에서 미수정 — 다음 refresh 후 실브라우저 검증 필요) verify_by: browser-unit (history fieldMeta 전파 후 _aioHistorySeries 렌더)
+- [x] signal 페이지 조정 항목 렌더 (v55.04, P1118): `deriveTradingScoreDecisionPresentation`이 `breakdown`을 실어 보내고 native signal 페이지가 `#score-adjustments-container`에 조정 행·바닥/상한·`가중 합계 → 총점`을 렌더한다. `route-owners.json` signal `nativePrimarySurface`에 선언했다. 게이트: presentation 파리티(`ci-artifact-semantics-check.mjs`), 렌더 경로(`ci-runtime-contract-check.mjs`), 실브라우저 sink(`ci-architecture-browser-check.mjs`).
+- [x] `js/aio-core.js` quote 평면 인용 (v55.04, P1116): 하드코딩 `data.json:quotes`를 `meta.quotesPublished` 파생으로 바꿔, 발행본이 시세를 담지 않을 때 `market-snapshot.json:quotes`를 인용한다. 게이트가 파생 형태를 단언하고 하드코딩 형태의 부재를 확인한다.
+- [x] S9 (v55.04, P1119 — "명시적 정책 경계"로 종결): 출처 권리상 발췌를 보존하지 않기로 확정했다(사용자 결정). `MARKET_ANALYSIS_NEWS_CONTENT_POLICY`를 선언해 모든 `market-analysis.v2` 발행물의 `newsContentPolicy`에 싣고, `causalNarrative: 'blocked-by-design'`·`excerptRetention: 'not-permitted-source-rights'`를 게이트로 고정했다. **"결함 없음"이 아니라 "의도된 차단"의 선언**이며, 피드 권리가 바뀌면 정책과 게이트를 함께 개정해야 한다.
+- [ ] S1/P1095 수정으로 `history.json`의 6개 필드가 `observedAt: null`이 되는데, 이 값이 `reference-only`/`observedAt` 미상으로 소비자에게 표시되는지 확인한다(현재 게이트는 시각이 없으면 통과). (v55.04에서 미수정 — P1117로 프로듀서가 `observedAtSource: 'unavailable'`을 발행하므로 다음 refresh 후 재확인 필요) verify_by: ci-artifact-semantics-check (history observedAtSource 단언이 면제 해제 후 무조건 실행)

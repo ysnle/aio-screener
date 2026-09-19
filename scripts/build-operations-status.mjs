@@ -394,7 +394,12 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
           observedAt: fastEvidence.fastHealthObserved || null,
           source: fastEvidence.fastEvidenceSource || fastEvidence.evidenceSource || 'periodic-live-health',
           observationStatus: fastEvidence.fastObservationStatus || (fastEvidence.observationAttempted ? 'UNKNOWN' : 'NOT_ATTEMPTED'),
-          observationError: fastEvidence.fastObservationError || null
+          observationError: fastEvidence.fastObservationError || null,
+          // P1104: a carried-over observation is only usable while it is inside
+          // the reuse window. Publishing the decision (and when it was made) lets
+          // a consumer tell "CURRENT" from "CURRENT as of the last attempt".
+          evidenceFresh: fastEvidence.fastEvidenceFresh === true,
+          evidenceEvaluatedAt: now
         },
         soak: { requiredDays: 7, observedDays: Number(fastEvidence.fastSoakObservedDays || 0), targetSuccessRate: 0.99 },
         readiness: { secretConfigured: 'OPERATOR_REQUIRED', workflowWired: fastEndpoint === 'not-configured' ? 'OPERATOR_REQUIRED' : 'CURRENT', lastCallSucceeded: Number(fastEvidence.fastHealthStatus) === 200 ? 'CURRENT' : 'UNKNOWN', dataCurrent: Number(fastEvidence.fastHealthStatus) === 200 ? 'CURRENT' : 'UNKNOWN', licensedForUse: 'REVIEW_REQUIRED' }
@@ -423,7 +428,9 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
           note: fastEvidence.proxyHealthNote || null,
           source: fastEvidence.proxyEvidenceSource || fastEvidence.evidenceSource || 'periodic-live-health',
           observationStatus: fastEvidence.proxyObservationStatus || (fastEvidence.observationAttempted ? 'UNKNOWN' : 'NOT_ATTEMPTED'),
-          observationError: fastEvidence.proxyObservationError || null
+          observationError: fastEvidence.proxyObservationError || null,
+          evidenceFresh: fastEvidence.proxyEvidenceFresh === true,
+          evidenceEvaluatedAt: now
         },
         scheduledAnalysisDoesNotImplyChat: true
       }

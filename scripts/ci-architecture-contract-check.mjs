@@ -401,13 +401,14 @@ for (const marker of ['renderTechnicalHealth', "page.dataset.aioTechnicalRendere
 const htmlSource = read('index.html');
 if (!htmlSource.includes('function _aioIsNativeTechnicalHealth') || !htmlSource.includes('window.AIO_ARCH.computeMarketHealth') || !htmlSource.includes('_aioIsNativeTechnicalHealth()')) fail('legacy technical health model/fence missing');
 if (!coreSource.includes('nativeTechnicalHealth') || !coreSource.includes('window._aioIsNativeTechnicalHealth')) fail('legacy technical initializer fence missing');
-// P786: signal owns only the score/decision hero. The legacy dashboard remains active for
+// P786: signal owns the score/decision hero. The legacy dashboard remains active for
 // secondary score bars, execution-window widgets, risk monitor, and narrative, but its three
-// primary text sinks must be fenced when the native signal marker is present.
+// primary text sinks must be fenced when the native signal marker is present. P1118 adds the
+// post-composite adjustment rows to the native set so the factor bars and the total reconcile.
 for (const marker of ['deriveTradingScoreDecisionPresentation', 'SIGNAL_PRESENTATION_MODEL_VERSION']) {
   if (!analysisPageSource.includes(marker) && !read('src/domain/signal/trading-score.js').includes(marker)) fail(`signal presentation model marker missing: ${marker}`);
 }
-for (const marker of ['renderSignalDecision', "page.dataset.aioSignalRenderer = 'native'", 'score-gauge-val', 'score-decision-badge', 'score-decision-sub']) {
+for (const marker of ['renderSignalDecision', 'renderScoreAdjustments', "page.dataset.aioSignalRenderer = 'native'", 'score-gauge-val', 'score-decision-badge', 'score-decision-sub', 'score-adjustments-container', 'aioSignalAdjustmentsRenderer']) {
   if (!analysisPageSource.includes(marker)) fail(`native signal hero renderer marker missing: ${marker}`);
 }
 if (!htmlSource.includes('function _aioIsNativeSignalHero') || !htmlSource.includes('_aioIsNativeSignalHero()')) fail('legacy signal hero writer fence missing');

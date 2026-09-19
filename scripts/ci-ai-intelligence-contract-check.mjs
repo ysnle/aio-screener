@@ -66,14 +66,14 @@ for (const { query, expected, route = 'home' } of cases) {
 
 const actionBoundaryOrchestrator = createAIAnswerOrchestrator({ now: () => new Date('2026-07-28T12:00:00Z') });
 let blockedProviderCalls = 0;
-let blockedAdapterCalls = 0;
+// P1120: a denied personalized-action permission is dispatched with a disclosure limitation
+// instead of being refused before the provider.
 const blockedActionResult = await actionBoundaryOrchestrator.execute({
   query: '내 포트폴리오에서 NVDA 전량 매도해줘',
   route: 'portfolio',
-  legacyRunner: async () => { blockedProviderCalls += 1; },
-  blockedRunner: async () => { blockedAdapterCalls += 1; return { displayed: true }; }
+  legacyRunner: async () => { blockedProviderCalls += 1; return { dispatched: true }; }
 });
-check('action-permission-blocks-before-provider', blockedActionResult.status === 'blocked-action-permission' && blockedProviderCalls === 0 && blockedAdapterCalls === 1);
+check('personalized-action-dispatches-with-disclosure-not-refusal', blockedActionResult.status === 'dispatched-through-ui-adapter' && blockedProviderCalls === 1 && blockedActionResult.actionLimitations.includes('suitability-profile-required'));
 let educationProviderCalls = 0;
 const educationResult = await actionBoundaryOrchestrator.execute({
   query: '분산투자의 원리를 설명해줘',
@@ -86,7 +86,7 @@ for (const query of ['매수 원리를 설명해줘', '매도 기준의 일반�
   check(`educational-action-vocabulary-is-not-preblocked:${query}`, educationalActionPlan.intent.actionVocabularyPresent === true && educationalActionPlan.suitabilityRequired === false && educationalActionPlan.actionPermission.allowed === true);
 }
 const personalizedActionPlan = createQuestionPlan({ query:'내 계좌에서 NVDA 전량 매도해줘', route:'portfolio', now:'2026-07-28T12:00:00Z' });
-check('personalized-executable-action-remains-preblocked', personalizedActionPlan.suitabilityRequired === true && personalizedActionPlan.actionPermission.allowed === false);
+check('personalized-executable-action-is-recorded-as-a-policy-denial', personalizedActionPlan.suitabilityRequired === true && personalizedActionPlan.actionPermission.allowed === false && personalizedActionPlan.actionPermission.reasons.includes('suitability-profile-required') && personalizedActionPlan.actionPermission.reasons.includes('current-evidence-required'));
 
 const unknownSession = createMarketSessionEvidence({ market: 'US', now: '2026-07-28T12:00:00Z' });
 check('market-session-unknown-is-not-open', unknownSession.status === 'unknown' && unknownSession.isOpen === null && validateMarketSessionEvidence(unknownSession).ok === false);
@@ -341,7 +341,7 @@ check('unified-chat-renders-native-claude-citations', /_uniCitationResult/.test(
 check('public-policy-allows-conditional-analysis-without-blanket-refusal', /가격 범위·무효화 수준·손절 기준·포트폴리오 비중은 시나리오와 계산 입력으로 분석할 수 있다/.test(chat) && /답변 전체를 안전 모드로 바꾸지 말고/.test(chat) && !/현재 답변에서는 구체적인 매수·매도·진입·청산 지시/.test(chat));
 check('research-optout-degrades-current-claims-without-ending-chat', /web_research_disabled_by_user/.test(chat) && !/userOptOut\)[\s\S]{0,600}state\._chatSendEntered = 0;[\s\S]{0,180}return;/.test(chat));
 check('chat-dispatches-through-orchestrator', /AIO_ARCH\.getAIOrchestrator/.test(chat) && /_aioOrchestrated/.test(chat));
-check('orchestrator-enforces-action-permission-before-runner', /actionPermission\?\.allowed === false/.test(read('src/ai/orchestrator/answer-orchestrator.js')) && /blocked-action-permission/.test(read('src/ai/orchestrator/answer-orchestrator.js')));
+check('orchestrator-downgrades-action-permission-to-a-disclosure', /actionPermission\.allowed === false/.test(read('src/ai/orchestrator/answer-orchestrator.js')) && /actionLimitations/.test(read('src/ai/orchestrator/answer-orchestrator.js')) && !/blocked-action-permission/.test(read('src/ai/orchestrator/answer-orchestrator.js')));
 check('both-chat-surfaces-have-pre-provider-action-boundary', /_aioPreProviderPermission/.test(chat) && /_uniPreProviderPermission/.test(read('index.html')));
 check('both-chat-surfaces-hide-unverified-research-streams', /Web Research 검증 중/.test(chat) && /Web Research 근거를 검증 중/.test(read('index.html')));
 check('no-confirmed-verdict', !/verdict\s*=\s*[^;]*CONFIRMED/.test(data) && /RESEARCH_CANDIDATE/.test(data) && /research-relative-ranking-only/.test(data));

@@ -404,13 +404,10 @@ function _aioRunAIResponsePipeline(rawText, meta) {
       reasons: (gate.reasons || []).concat(publishAudit.issues || ['automated-publish-gate'])
     };
   }
-  if (claimAudit.blocked === true) {
-    gate = {
-      blocked: true,
-      text: '수치 확인 필요\n\n현재 수치를 출처와 대조하지 못해 표시하지 않았습니다.\n\n연결된 데이터와 원문을 확인한 뒤 다시 질문해 주세요.',
-      reasons: (gate.reasons || []).concat(['typed-claim-validation'])
-    };
-  }
+  // P1120: a typed-claim mismatch used to replace the whole answer with a refusal. The
+  // answer-plan renderer already drops unbound claims, so the recoverable prose is kept and
+  // the dropped numeric scope is disclosed instead of the entire answer being withheld.
+  var claimAuditBlocked = claimAudit.blocked === true;
   function applyLimitation(reason, notice) {
     if (gate.blocked === true) return;
     var existing = Array.isArray(gate.limitations) ? gate.limitations : [];
@@ -422,6 +419,18 @@ function _aioRunAIResponsePipeline(rawText, meta) {
       reasons: (gate.reasons || []).concat([reason]),
       limitations: existing.concat([reason])
     });
+  }
+  // P1120: the personalized-action and typed-claim boundaries are disclosures now, not
+  // refusals. The answer is kept; the scope that could not be verified is named.
+  var conductLimitations = Array.isArray(conductAudit && conductAudit.limitations) ? conductAudit.limitations : [];
+  if (!isPartialStream && conductLimitations.indexOf('suitability-context-missing') >= 0) {
+    applyLimitation('suitability-context-missing', '※ 투자 성향·적합성 정보가 없어 개인화된 매수·매도·비중 지시가 아니라 조건부 분석으로 표시합니다.');
+  }
+  if (!isPartialStream && conductLimitations.indexOf('current-evidence-limited') >= 0) {
+    applyLimitation('current-evidence-limited', '※ 현재 decision-grade 근거(1차 출처·현재·SLA 내)가 부족합니다. 아래 내용은 참고·조건부 분석이며 실행 지시가 아닙니다.');
+  }
+  if (!isPartialStream && claimAuditBlocked) {
+    applyLimitation('typed-claim-validation', '※ 출처와 대조되지 않은 수치 주장은 제외했습니다. 표시된 설명은 근거가 확인된 범위입니다.');
   }
   // Current-data gaps degrade only the affected claim scope. They must not
   // erase educational, legal/tax, or conditional analysis that remains useful.
@@ -500,7 +509,8 @@ function _aioPublicAIActionPolicyPrompt() {
     '가격 범위·무효화 수준·손절 기준·포트폴리오 비중은 시나리오와 계산 입력으로 분석할 수 있다. 다만 사용자 적합성·현재 근거가 없으면 개인화된 단일 행동 지시로 확정하지 말고 조건별 선택지와 의사결정 체크리스트로 전환하라.\n' +
     '불법 행위의 구체적 실행법, 실제 주문·계정 변경·외부 전송, 수익 보장만 차단한다. 그 밖의 질문은 답변 전체를 안전 모드로 바꾸지 말고 부족한 현재 주장만 제한하라.\n' +
     '조건, 데이터의 한계, 위험요인, 확인해야 할 원문과 재검증 절차를 설명하라. 현재성 주장은 주입된 근거 블록만 사용하고 기준시각과 Evidence 상태를 명시하라.\n' +
-    '수치·출처·기준시각이 없거나 Evidence가 확인되지 않으면 "확인 필요"로 답하고, 학습 기억이나 정적 문구를 현재 사실처럼 보완하지 마라.\n' +
+    '현재 수치·출처·기준시각이 주입되지 않았으면 그 수치를 현재 사실로 단정하지 마라. 다만 답변을 거부하거나 "확인 필요"로 끝내지 말고, 일반 원리·조건·시나리오·확인 방법으로 끝까지 답하며 어느 부분이 미확인인지 밝혀라. 학습 기억을 현재 관측값처럼 제시하는 것만 금지한다.\n' +
+    '최종 판단을 대신하지 마라. 근거·조건·반대 시나리오·무효화 신호를 정리해 사용자가 스스로 결정하도록 넘기고, 어떤 결론도 확정된 지시가 아니라 검토 대상으로 제시하라.\n' +
     '보정(calibration) 모델 ID와 검증된 calibration 메타데이터가 주입되지 않은 경우 Bull/Base/Bear·상승/하락 확률을 숫자(%)로 만들거나 추정하지 마라. 확률 대신 조건·반대 가설·확인할 신호를 제시하라.\n';
 }
 
@@ -6137,15 +6147,9 @@ async function chatSend(ctxId, _aioDispatchOptions) {
         query: q,
         route: ctxId,
         surface: 'per-page-chat',
-        blockedRunner: function(questionPlan, permission) {
-          var reasons = permission && Array.isArray(permission.reasons) ? permission.reasons.join(', ') : 'suitability-or-evidence-required';
-          var safeText = 'AI 행동 경계\n\n사용자 적합성 정보와 최신 의사결정 근거가 확인되기 전에는 직접 매수·매도 또는 포트폴리오 행동을 제안할 수 없습니다.\n\n대신 비교 기준, 위험 요인, 확인할 데이터와 일반적인 분석 절차는 설명할 수 있습니다.\n\n확인 필요: ' + reasons;
-          inp.value = '';
-          chatAppendMsg(ctxId, 'user', renderMarkdownLight(q));
-          chatAppendMsg(ctxId, 'ai', _aioSafeMD(safeText));
-          saveChatEntry(ctxId, q, safeText);
-          return { displayed: true, safeAlternative: true };
-        },
+        // P1120: the pre-provider action-permission refusal was retired. The orchestrator now
+        // dispatches with an actionLimitations disclosure; hard refusals live in the conduct,
+        // tool, and claim boundaries downstream.
         legacyRunner: function(questionPlan) {
           return chatSend(ctxId, { _aioOrchestrated: true, questionPlan: questionPlan });
         }

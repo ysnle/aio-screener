@@ -37,7 +37,11 @@ for (const [label, source, marker] of [
   ['deep-link replay', bootstrap, 'source: \'initial-load\', directEntry: true'],
   ['page DOM', index, 'id="page-principles"'],
   ['navigation', index, 'data-arg="principles"'],
-  ['service worker', worker, "'./src/ui/pages/principles.js'"],
+  // P1111 removed the service worker's runtime registry (no reader, 11 stale
+  // paths). Offline ownership of a page module comes from the request-driven
+  // shell rule, which is what this row must assert; the module's own wiring is
+  // covered by the route dynamic import and factory rows.
+  ['service worker runtime-caches page modules', worker, '(?:js|src)'],
   ['native page factory', page, 'export function createPrinciplesPage'],
   ['narrative mode', page, "['story', '이어 읽기', 'story']"],
   ['tree mode', page, "['tree', '개념 지도', 'tree']"],

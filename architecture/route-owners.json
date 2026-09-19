@@ -81,14 +81,16 @@
       "nativePrimarySurface": [
         "#page-signal #score-gauge-val",
         "#page-signal #score-decision-badge",
-        "#page-signal #score-decision-sub"
+        "#page-signal #score-decision-sub",
+        "#page-signal #score-adjustments-container"
       ],
       "contestedIds": [],
       "legacyWriterEvidence": [
-        "index.html:refreshSignalDashboard score-gauge-val/score-decision-badge/score-decision-sub writers are fenced by _aioIsNativeSignalHero()"
+        "index.html:refreshSignalDashboard score-gauge-val/score-decision-badge/score-decision-sub writers are fenced by _aioIsNativeSignalHero()",
+        "index.html:renderScoreBars owns score-bars-container only; score-adjustments-container has no legacy writer"
       ],
-      "p786Boundary": "analysis.js owns the score display and five-tier decision text from trading-score.v3/signal-presentation.v1. Score timestamp, canvas, factor bars, execution window, risk monitor, and narrative remain legacy secondary boundaries.",
-      "notes": "The signal hero is native; legacy refreshSignalDashboard remains responsible for secondary signal widgets and is explicitly fenced from the three primary decision sinks. Home summary has separate ownership and is not remapped by this packet."
+      "p786Boundary": "analysis.js owns the score display, five-tier decision text, and the post-composite adjustment rows from trading-score.v3/signal-presentation.v1. Score timestamp, canvas, factor bars, execution window, risk monitor, and narrative remain legacy secondary boundaries.",
+      "notes": "The signal hero is native; legacy refreshSignalDashboard remains responsible for secondary signal widgets and is explicitly fenced from the three primary decision sinks. P1118 adds #score-adjustments-container to the native set so the factor bars and the total reconcile on screen. Home summary has separate ownership and is not remapped by this packet."
     },
     "breadth": {
       "lifecycleOwner": "native",

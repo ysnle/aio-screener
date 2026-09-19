@@ -14,6 +14,10 @@ export function createOperationsStatus(input = {}) {
     // declare two differently named vocabularies.
     statusVocabulary: OPERATIONS_STATUS,
     statusCodeVocabulary: OPERATIONAL_STATE_CODES,
+    // P1103: RIGHTS_STATUS was declared here but never published, so the
+    // `rights`/`licensedForUse` values (REVIEW_REQUIRED, OPERATOR_REQUIRED) were
+    // unfalsifiable for a consumer that only had the artifact.
+    rightsVocabulary: RIGHTS_STATUS,
     generatedAt: input.generatedAt || null,
     appRevision: String(input.appRevision || 'unknown'),
     dataRevision: String(input.dataRevision || 'unknown'),
@@ -44,14 +48,25 @@ export function validateOperationsStatus(status) {
   // Every published `status` value must be interpretable with the vocabulary the
   // same artifact declares. Walk the operational surface rather than trusting the
   // top-level field alone.
+  // A declaration a consumer cannot see is not a declaration: if the artifact
+  // ships the rights vocabulary it must be complete.
+  if (status?.rightsVocabulary && (!Array.isArray(status.rightsVocabulary) || !RIGHTS_STATUS.every(code => status.rightsVocabulary.includes(code)))) {
+    errors.push('rights_vocabulary_incomplete');
+  }
   const statusCodes = new Set(OPERATIONAL_STATE_CODES);
   const statuses = new Set(OPERATIONS_STATUS);
-  const surface = { overall: status?.overall, planes: status?.planes, ai: status?.ai };
+  const rights = new Set(RIGHTS_STATUS);
+  const readinessKeys = new Set(['secretConfigured', 'workflowWired', 'lastCallSucceeded', 'dataCurrent']);
+  const surface = { overall: status?.overall, planes: status?.planes, ai: status?.ai, providers: status?.providers };
   const walk = (node, path) => {
     if (!node || typeof node !== 'object' || Array.isArray(node)) return;
     for (const [key, value] of Object.entries(node)) {
-      if (key === 'status' && typeof value === 'string' && !statuses.has(value)) errors.push(`undeclared_status:${path}`);
-      if (key === 'statusCode' && typeof value === 'string' && !statusCodes.has(value)) errors.push(`undeclared_status_code:${path}`);
+      if (typeof value === 'string') {
+        if (key === 'status' && !statuses.has(value)) errors.push(`undeclared_status:${path}`);
+        if (key === 'statusCode' && !statusCodes.has(value)) errors.push(`undeclared_status_code:${path}`);
+        if ((key === 'rights' || key === 'licensedForUse') && !rights.has(value)) errors.push(`undeclared_rights:${path}`);
+        if (readinessKeys.has(key) && !statuses.has(value)) errors.push(`undeclared_readiness:${path}`);
+      }
       walk(value, `${path}.${key}`);
     }
   };

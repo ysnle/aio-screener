@@ -1,7 +1,7 @@
 // Deterministic coverage for the mechanical subset of the knowledge-lint skill.
 // Semantic truth, source directness and human review remain separate evidence levels.
 
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildContextCatalog, buildWorkspaceState, renderCurrentState, serializeJson } from './workspace-state-lib.mjs';
@@ -21,6 +21,7 @@ check('generated current state matches repository registries', existsSync(join(r
 
 const STALE_DAYS = 45;
 const now = Date.now();
+const staleDocs = [];
 for (const doc of catalog.documents) {
   if (!doc.path.endsWith('.md') || doc.generated) continue;
   const text = read(doc.path);
@@ -28,17 +29,40 @@ for (const doc of catalog.documents) {
   if (['preflight', 'ledger', 'targeted-map'].includes(doc.kind)) check(`${doc.path} has frontmatter`, /^---\r?\n/.test(text));
   if (doc.kind === 'current-handoff') {
     check(`${doc.path} current handoff declares last_verified`, /^\d{4}-\d{2}-\d{2}$/.test(doc.lastVerified || ''));
-    if (/^\d{4}-\d{2}-\d{2}$/.test(doc.lastVerified || '')) {
-      const ageDays = Math.floor((now - new Date(`${doc.lastVerified}T00:00:00Z`).getTime()) / 86400000);
-      warn(`${doc.path} current handoff is ${ageDays}d old`, ageDays <= STALE_DAYS, `threshold=${STALE_DAYS}d; reclassify historical or refresh`);
-    }
   }
   warn(`${doc.path} contains replacement-character encoding damage`, !text.includes('\uFFFD'), 'historical evidence remains explicit-only until recovered from Git history');
-  if (!doc.autoRefresh) continue;
-  check(`${doc.path} declares parseable last_verified with auto_refresh`, /^\d{4}-\d{2}-\d{2}$/.test(doc.lastVerified || ''));
+  if (doc.autoRefresh) check(`${doc.path} declares parseable last_verified with auto_refresh`, /^\d{4}-\d{2}-\d{2}$/.test(doc.lastVerified || ''));
+  // P1125: staleness applies to every document that CLAIMS a verification date, not only
+  // auto-refresh and current-handoff ones. A frozen historical snapshot is exempt — its date
+  // is provenance, not a currency claim (23 docs past the threshold today are frozen snapshots).
+  // But `auto_refresh: true` is an explicit claim that the document stays current, and it is
+  // stronger than the filename-based kind heuristic. Where the two disagree the document is
+  // NOT exempt, so the contradiction stays visible instead of hiding inside an exemption.
+  if (doc.kind === 'historical-snapshot' && !doc.autoRefresh) continue;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(doc.lastVerified || '')) continue;
   const ageDays = Math.floor((now - new Date(`${doc.lastVerified}T00:00:00Z`).getTime()) / 86400000);
+  if (ageDays > STALE_DAYS) staleDocs.push(`${doc.path} (${ageDays}d)`);
   warn(`${doc.path} last_verified is ${ageDays}d old`, ageDays <= STALE_DAYS, `threshold=${STALE_DAYS}d`);
+}
+
+// P1125: the stale set may not grow silently. The baseline records today's debt; newly
+// stale documents must be refreshed or explicitly re-authorised with --write.
+const STALE_BASELINE_PATH = '_context/doc-freshness-baseline.json';
+if (process.argv.includes('--write')) {
+  writeFileSync(join(root, STALE_BASELINE_PATH), `${JSON.stringify({
+    schemaVersion: 'aio-doc-freshness-baseline.v1',
+    generatedBy: 'scripts/ci-knowledge-lint-check.mjs',
+    note: 'Documents with a last_verified date older than the 45d threshold. The count may not grow: refresh the document or re-run with --write after an authorised decision.',
+    thresholdDays: STALE_DAYS,
+    staleCount: staleDocs.length,
+    stale: staleDocs.sort(),
+  }, null, 2)}\n`, 'utf8');
+  console.log(`[knowledge-lint] wrote ${STALE_BASELINE_PATH}: ${staleDocs.length} stale document(s)`);
+} else if (!existsSync(join(root, STALE_BASELINE_PATH))) {
+  errors.push(`${STALE_BASELINE_PATH} missing — run with --write to record the current stale set`);
+} else {
+  const freshnessBaseline = JSON.parse(read(STALE_BASELINE_PATH));
+  check(`P1125 stale document set does not grow (baseline ${freshnessBaseline.staleCount}, now ${staleDocs.length})`, staleDocs.length <= Number(freshnessBaseline.staleCount ?? 0), staleDocs.slice(0, 6).join(', '));
 }
 
 const hotSurfaces = [

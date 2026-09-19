@@ -2898,15 +2898,16 @@ const FRED_SERIES = {
   'DTWEXBGS':     { name: 'Trade Weighted USD', el: null, unit: '' },
   'VIXCLS':       { name: 'VIX Close', el: null, unit: '' },
   'ICSA':         { name: 'Initial Claims', el: null, unit: 'K', multiplier: 0.001 },
-  'UNRATE':       { name: 'Unemployment Rate', el: null, unit: '%' },
-  'CPIAUCNS':     { name: 'CPI-U headline (NSA)', el: null, unit: '', yoy: true }, // 시장 표준 발표 헤드라인
-  'CPILFENS':     { name: 'Core CPI-U (NSA)', el: null, unit: '', yoy: true },
-  'CPIAUCSL':     { name: 'CPI-U analytical (SA)', el: null, unit: '', yoy: true },
-  'CPILFESL':     { name: 'Core CPI-U analytical (SA)', el: null, unit: '', yoy: true },
-  'FEDFUNDS':     { name: 'Fed Funds Rate', el: null, unit: '%' },
+  // P1114: a year-over-year series is displayed with a `%` suffix, so declaring
+  // an empty unit published a declaration that did not state the unit the reader
+  // sees. The suffix is now declared. `unit: ''` remains only for series that
+  // genuinely have no unit (index levels).
+  'CPIAUCNS':     { name: 'CPI-U headline (NSA)', el: null, unit: '%', yoy: true }, // 시장 표준 발표 헤드라인
+  'CPILFENS':     { name: 'Core CPI-U (NSA)', el: null, unit: '%', yoy: true },
+  'CPIAUCSL':     { name: 'CPI-U analytical (SA)', el: null, unit: '%', yoy: true },
+  'CPILFESL':     { name: 'Core CPI-U analytical (SA)', el: null, unit: '%', yoy: true },
   // v47.11 신규
   'DFEDTARU':     { name: 'Fed Funds Target Upper', el: null, unit: '%' },
-  'PAYEMS':       { name: 'Nonfarm Payrolls', el: null, unit: 'K' },
   'M2SL':         { name: 'M2 Money Supply', el: null, unit: 'B USD' },
   'DCOILWTICO':   { name: 'WTI Crude Oil', el: null, unit: 'USD/bbl' },
   'MORTGAGE30US': { name: '30Y Mortgage Rate', el: null, unit: '%' },
@@ -2922,8 +2923,8 @@ const FRED_SERIES = {
   // The SA/NSA CPI entries above are deliberately separate.  Do not collapse
   // them back into one generic CPI key: their YoY values can differ and have
   // different release/display semantics.
-  'PCEPI':        { name: 'PCE', el: null, unit: '', yoy: true },          // 헤드라인 PCE (연준 선호)
-  'PCEPILFE':     { name: 'Core PCE', el: null, unit: '', yoy: true }      // 근원 PCE (연준 2% 목표 기준)
+  'PCEPI':        { name: 'PCE', el: null, unit: '%', yoy: true },          // 헤드라인 PCE (연준 선호)
+  'PCEPILFE':     { name: 'Core PCE', el: null, unit: '%', yoy: true }      // 근원 PCE (연준 2% 목표 기준)
 };
 
 // v48.59: BOK ECOS API fetcher — 한국은행 기준금리/환율/수출 (무료, 회원가입)
@@ -5847,6 +5848,9 @@ async function _aioLoadServerData() {
           oneLine: d.marketAnalysis.oneLine || d.marketAnalysis.full,
           generatedAt: _serverMarketAnalysisGeneratedAt,
           source: _serverMarketAnalysisSource,
+          // P1122: the narrative is published with its boundary, not instead of one.
+          disclosure: typeof d.marketAnalysis.disclosure === 'string' ? d.marketAnalysis.disclosure : null,
+          semanticWarnings: Array.isArray(d.marketAnalysis.semanticWarnings) ? d.marketAnalysis.semanticWarnings : [],
           publishAudit: _serverMarketPublishAudit,
           sourceLabel: window.AIO && typeof window.AIO.getAIOutputSourceLabel === 'function' ? window.AIO.getAIOutputSourceLabel('AI_GENERATED', _serverMarketPublishAudit) : 'AI_GENERATED'
         };
@@ -5859,6 +5863,7 @@ async function _aioLoadServerData() {
           fullLength: String(d.marketAnalysis.full || d.marketAnalysis.oneLine || '').length,
           metricEvidenceCount: _serverMarketMetricEvidence.length,
           reason: _serverMarketAnalysisVerified ? null : (_serverMarketPublishAudit.blocked ? 'automated-publish-gate' : (_serverMarketMetricEvidenceValid ? 'semantic-gate-required' : 'metric-evidence-required')),
+          disclosure: typeof d.marketAnalysis.disclosure === 'string' ? d.marketAnalysis.disclosure : null,
           publishAudit: _serverMarketPublishAudit,
           fallback: 'AIO.synthesizeMarketAnalysis'
         };
@@ -6822,7 +6827,10 @@ function _aioHistorySeries(field, minPoints) {
       var v = arr[i] && arr[i][field];
       if (typeof v === 'number' && isFinite(v)) {
         var meta = arr[i] && arr[i].fieldMeta && arr[i].fieldMeta[field] || {};
-        out.push({ date: arr[i].date, value: v, observedAt: meta.observedAt || null, source: meta.source || null, sourceKind: meta.sourceKind || null });
+        // fieldMeta를 통째로 넘긴다: 이 주석이 말하는 "실제 관측 provenance"를
+        // 소비자가 읽으려면 객체가 살아 있어야 한다. 이전에는 valueBasis가 여기서
+        // 탈락해 차트가 항상 'completed-market-series' 리터럴을 표시했다(P1105).
+        out.push({ date: arr[i].date, value: v, observedAt: meta.observedAt || null, source: meta.source || null, sourceKind: meta.sourceKind || null, valueBasis: meta.valueBasis || null, fieldMeta: arr[i].fieldMeta || null });
       }
     }
     return out.length >= (minPoints || 20) ? out : null;

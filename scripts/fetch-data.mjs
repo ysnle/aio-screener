@@ -718,20 +718,51 @@ function _signedPercent(direction, value) {
 // P869: FRED publication lag must not leave a newly released PCE print blank or
 // stale. BEA's release page is the primary source for the current headline/core
 // PCE rates; observation period, release time and next release remain separate.
+// BEA publishes the monthly change and the twelve-month change in separate
+// paragraphs, and inside the monthly paragraph the goods/services/food/energy
+// detail sits between the headline and core sentences. A bounded look-ahead
+// window therefore crossed the paragraph boundary and captured the
+// twelve-month figure: the published `corePceMoM` was 3.3, exactly the core
+// YoY 3.3, beside a correct `pceMoM` of 0.2 (P1096). Slice each paragraph by
+// its own lead-in and parse the headline/core pair inside that slice.
+function _beaParagraph(text, startRe, endRe) {
+  const source = String(text || '');
+  const start = source.search(startRe);
+  if (start < 0) return '';
+  const rest = source.slice(start);
+  const end = endRe ? rest.search(endRe) : -1;
+  return end > 0 ? rest.slice(0, end) : rest;
+}
+
+// Headline and core are read from the SAME paragraph slice, independently. The
+// twelve-month paragraph can never supply a monthly figure, and an absent
+// monthly core clause stays null instead of borrowing a neighbouring period.
+function _beaHeadline(section) {
+  const match = section.match(/the PCE price index for [A-Za-z]+ (increased|decreased)\s+([0-9.]+)\s+percent/i);
+  return match ? _signedPercent(match[1], match[2]) : null;
+}
+
+function _beaCore(section) {
+  const match = section.match(/Excluding food and energy,\s+(?:the PCE price index\s+)?(increased|decreased)\s+([0-9.]+)\s+percent/i);
+  return match ? _signedPercent(match[1], match[2]) : null;
+}
+
 export function parseBeaPceHtml(html, releaseUrl = null, fetchedAt = new Date().toISOString()) {
   const text = _decodeOfficialHtml(html);
   const title = text.match(/Personal Income and Outlays,\s+([A-Za-z]+)\s+(\d{4})/i);
-  const yoy = text.match(/same month one year ago,\s+the PCE price index for [A-Za-z]+ (increased|decreased)\s+([0-9.]+)\s+percent[\s\S]{0,260}?Excluding food and energy,\s+the PCE price index (increased|decreased)\s+([0-9.]+)\s+percent/i);
-  const mom = text.match(/preceding month,\s+the PCE price index for [A-Za-z]+ (increased|decreased)\s+([0-9.]+)\s+percent[\s\S]{0,260}?Excluding food and energy,\s+the PCE price index (increased|decreased)\s+([0-9.]+)\s+percent/i);
+  const yoySection = _beaParagraph(text, /same month one year ago/i, /next release/i);
+  const momSection = _beaParagraph(text, /preceding month/i, /same month one year ago/i);
+  const pce = _beaHeadline(yoySection);
+  const corePce = _beaCore(yoySection);
+  const pceMoM = _beaHeadline(momSection);
+  const corePceMoM = _beaCore(momSection);
   const release = text.match(/RELEASE AT[\s\S]{0,100}?,\s+(?:Monday|Tuesday|Wednesday|Thursday|Friday),?\s+([A-Za-z]+\s+\d{1,2},\s+\d{4})/i);
   const next = text.match(/Next release:\s+([A-Za-z]+\s+\d{1,2},\s+\d{4})/i);
-  if (!title || !yoy) throw new Error('BEA_PCE_PARSE_REQUIRED_FIELDS_MISSING');
+  if (!title || !Number.isFinite(pce) || !Number.isFinite(corePce)) throw new Error('BEA_PCE_PARSE_REQUIRED_FIELDS_MISSING');
   const observationDate = new Date(`${title[1]} 1, ${title[2]} 00:00:00 UTC`);
   const releaseDate = release ? new Date(`${release[1]} 12:30:00 UTC`) : null;
   const nextReleaseDate = next ? new Date(`${next[1]} 12:30:00 UTC`) : null;
-  const pce = _signedPercent(yoy[1], yoy[2]);
-  const corePce = _signedPercent(yoy[3], yoy[4]);
-  if (!Number.isFinite(pce) || !Number.isFinite(corePce) || Number.isNaN(observationDate.getTime())) {
+  if (Number.isNaN(observationDate.getTime())) {
     throw new Error('BEA_PCE_PARSE_INVALID_VALUES');
   }
   return {
@@ -746,12 +777,7 @@ export function parseBeaPceHtml(html, releaseUrl = null, fetchedAt = new Date().
     nextReleaseAt: nextReleaseDate && !Number.isNaN(nextReleaseDate.getTime()) ? nextReleaseDate.toISOString() : null,
     fetchedAt,
     lastSuccessfulAt: fetchedAt,
-    values: {
-      pce,
-      corePce,
-      pceMoM: mom ? _signedPercent(mom[1], mom[2]) : null,
-      corePceMoM: mom ? _signedPercent(mom[3], mom[4]) : null,
-    },
+    values: { pce, corePce, pceMoM, corePceMoM },
   };
 }
 
@@ -808,7 +834,17 @@ async function fetchFearGreed(previous = null) {
           };
         })
         .filter(Boolean);
-      const history = [...new Map(normalizedHistory.map((row) => [row.observedAt, row])).values()]
+      // The response carries the daily series (midnight timestamps) plus an
+      // intraday reading, so keying by full timestamp published two points for
+      // one calendar day — a daily series a day-join cannot use (P1100).
+      // Keep one point per day and prefer CNN's own daily marker.
+      const byDay = new Map();
+      for (const row of normalizedHistory) {
+        const day = row.observedAt.slice(0, 10);
+        const current = byDay.get(day);
+        if (!current || row.observedAt.endsWith('T00:00:00.000Z')) byDay.set(day, row);
+      }
+      const history = [...byDay.values()]
         .sort((a, b) => a.observedAt.localeCompare(b.observedAt))
         .slice(-420);
       return {
@@ -1465,6 +1501,32 @@ const HIST_SYMBOLS = {
 };
 const HIST_FIELDS = ['spx','nasdaq','dow','rut','vix','vix3m','vvix','tnx','dxy','wti','gold','kospi','kosdaq','btc','fg'];
 const HIST_MARKET_FIELDS = HIST_FIELDS.filter(field => field !== 'fg');
+// Breadth columns are produced by the screener lane, so a row written by the
+// 30-minute market lane used to omit them entirely while the screener lane
+// deleted the key when a window had too few eligible symbols. Rows then had
+// different key sets and a one-row breadth lag was indistinguishable from
+// "unavailable" (P1101). Both lanes now publish every column; absence is null.
+const HIST_BREADTH_FIELDS = ['breadth20','breadth50','breadth200','advanceRatio','advanceDecline'];
+const HIST_ALL_FIELDS = [...HIST_FIELDS, ...HIST_BREADTH_FIELDS];
+// Per-row cycle metadata. Rows seeded by the historical backfill never carried
+// it, so the column set differed by row; null records "not recorded" instead.
+const HIST_ROW_META = ['seriesMode','cycleEnd','marketSnapshotRevision'];
+
+// "No observation" is null with no fieldMeta entry; a fieldMeta entry always
+// describes a finite value. Normalizing every row also normalizes rows written
+// by earlier producer revisions, so no separate migration is needed.
+export function normalizeHistoryRows(hist) {
+  for (const row of hist) {
+    if (!row || typeof row !== 'object') continue;
+    if (!row.fieldMeta || typeof row.fieldMeta !== 'object') row.fieldMeta = {};
+    for (const key of HIST_ROW_META) if (row[key] === undefined) row[key] = null;
+    for (const field of HIST_ALL_FIELDS) {
+      if (row[field] === undefined) row[field] = null;
+      if (row[field] === null || !Number.isFinite(Number(row[field]))) delete row.fieldMeta[field];
+    }
+  }
+  return hist;
+}
 
 // v53.14/AR-07 Batch 0: history.json은 행의 공통 date만으로 관측시각을 대표하지 않는다.
 // 각 수치에 source/observedAt/fetchedAt/allowedUse를 보존해 미국·한국·24/7 자산의
@@ -1487,6 +1549,11 @@ async function backfillHistory(hist) {
         source: 'Yahoo chart',
         sourceKind: 'T3_PUBLIC_DELAYED',
         allowedUse: 'research-history',
+        // P1117: every history fieldMeta must declare how the timestamp was obtained.
+        // This backfill lane published neither marker, so a row it wrote last would fail
+        // the artifact gate that requires an observation relation on every market field.
+        observationRelation: 'latest-completed-close',
+        observedAtSource: row.observedAt ? 'provider-current' : 'unavailable',
       };
     }
   }
@@ -1600,6 +1667,13 @@ async function updateHistory(data, marketSnapshot = null) {
       marketSession: quote?.marketSession || quote?.marketState || fallback.marketSession || null,
       observedMarketSession: quote?.observedMarketSession || fallback.observedMarketSession || null,
       valueBasis: quote?.valueBasis || fallback.valueBasis || null,
+      // P1117: bySymQuote computes observationRelation/observedAtSource, but this projection
+      // dropped both, so history.json never published the substitution marker the
+      // previous-completed-close fix was supposed to expose. The artifact gate skipped its
+      // assertions forever because it looks for exactly this field. Publish what the
+      // producer already knows instead of recomputing it downstream.
+      observationRelation: quote?.observationRelation || fallback.observationRelation || 'latest-completed-close',
+      observedAtSource: quote?.observedAtSource || fallback.observedAtSource || 'provider-current',
     });
     for (const [sym, field] of Object.entries(HIST_SYMBOLS)) {
       const q = bySymQuote[sym];
@@ -1613,6 +1687,9 @@ async function updateHistory(data, marketSnapshot = null) {
         source: data.fearGreed._source || 'CNN Fear & Greed',
         sourceKind: 'public-api',
         allowedUse: 'reference',
+        // F&G is a publisher-dated daily value, not a market close cut.
+        observationRelation: 'day-scoped-published',
+        observedAtSource: Number.isFinite(asOfMs) ? 'publisher-as-of' : 'unavailable',
       });
     }
     const today = new Date(fetchedAt).toISOString().slice(0, 10); // UTC 일자 bucket; fieldMeta is authoritative
@@ -1649,6 +1726,12 @@ async function updateHistory(data, marketSnapshot = null) {
         allowedUse: 'reference-history'
       };
     }
+    // `fieldMeta.fg` cites the CNN historical graph, so the row value must be
+    // that series' point for the day. The headline `fearGreed.score` is rounded
+    // separately, and spreading it over the row published 26 beside provenance
+    // that recorded 26.11 (P1100).
+    const fgSeriesValue = hist.find((row) => row?.date === today)?.fg;
+    if (Number.isFinite(Number(fgSeriesValue))) rec.fg = Number(fgSeriesValue);
     // v50.52 B4: 최초/얇을 때(또는 BACKFILL=1) 6개월 일별 종가로 과거 시드 — 차트 대기 제거(멱등).
     let backfilled = 0;
     const needsFieldMeta = hist.some(row => HIST_MARKET_FIELDS.some(field => typeof row?.[field] === 'number' && !row?.fieldMeta?.[field]?.observedAt));
@@ -1661,7 +1744,7 @@ async function updateHistory(data, marketSnapshot = null) {
     if (idx >= 0) hist[idx] = { ...hist[idx], ...rec, fieldMeta: { ...(hist[idx].fieldMeta || {}), ...fieldMeta } }; else hist.push(rec); // 같은 날 = upsert
     hist.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
     if (hist.length > 420) hist = hist.slice(hist.length - 420);  // 14개월 cap
-    await atomicWriteFile(HIST, JSON.stringify(hist));
+    await atomicWriteFile(HIST, JSON.stringify(normalizeHistoryRows(hist)));
     return { days: hist.length, today, upsert: idx >= 0 ? 'update' : 'append', backfilled };
   } catch (e) {
     console.warn('[fetch-data] history 갱신 실패(무시):', e && e.message || e);
@@ -2964,13 +3047,19 @@ function _analysisNumberAfterLabel(body, labels) {
 
 export function validateMarketAnalysisText(text, data, snapshot = null) {
   const issues = [];
+  // P1122: `warnings` never withholds the analysis; it names what the reader must treat
+  // carefully. Blocking is reserved for claims that can be wrong (values, units, scale).
+  const warnings = [];
   const value = Number(data?.macro?.nfp);
   const body = String(text || '').trim();
   const metricEvidence = buildMarketAnalysisEvidence(data, { snapshot });
   if (!body) issues.push('empty');
   if (metricEvidence.length < 2) issues.push('metric-evidence-insufficient');
+  // Proximity is an ambiguity signal, not a false number: a correct sentence that lists
+  // VIX and Fear & Greed together is not a fabrication. The precise guard is
+  // `metric-value-mismatch`, which compares the stated number with its own evidence row.
   if (/(?:VIX[\s\S]{0,60}(?:Fear\s*&?\s*Greed|fear\s+and\s+greed)|(?:Fear\s*&?\s*Greed|fear\s+and\s+greed)[\s\S]{0,60}VIX)/i.test(body)) {
-    issues.push('metric-identity-mismatch:vix-vs-fear-greed');
+    warnings.push('metric-identity-proximity:vix-vs-fear-greed');
   }
   for (const def of [...MARKET_ANALYSIS_QUOTE_DEFS, ...MARKET_ANALYSIS_MACRO_DEFS]) {
     const row = metricEvidence.find(item => item.metricId === def.metricId);
@@ -2999,12 +3088,25 @@ export function validateMarketAnalysisText(text, data, snapshot = null) {
     issues.push('nfp-scale-mismatch');
   }
   const causalClaim = /\b(?:because|due to|driven by|led by|after|following|amid|risk|supports?|weakened|strengthened)\b/i.test(body);
-  // Keep the semantic gate aligned with the publisher-side evidence builder.
-  // A headline can establish that a story exists, but cannot support an AI
-  // causal claim without article content/excerpt.
+  // P1122: article-level causal evidence is impossible under the declared headline-only
+  // rights policy, so its absence is a disclosure, not a refusal. What IS required is
+  // attribution — a causal sentence must name the headline it rests on. The value and
+  // NFP-scale fabrication checks above stay blocking.
   const causalEvidence = buildMarketAnalysisNewsEvidence(data);
-  if (causalClaim && causalEvidence.length === 0) issues.push('causal-evidence-missing');
-  return { ok: issues.length === 0, issues: Array.from(new Set(issues)), metricEvidence, causalEvidenceCount: causalEvidence.length };
+  const headlineContext = buildMarketAnalysisHeadlineContext(data);
+  if (causalClaim && causalEvidence.length === 0) {
+    const attributed = /헤드라인|보도|기사|언론|according to|headline|reported/i.test(body);
+    if (headlineContext.length === 0) warnings.push('causal-evidence-missing');
+    else if (!attributed) warnings.push('causal-attribution-missing');
+  }
+  return {
+    ok: issues.length === 0,
+    issues: Array.from(new Set(issues)),
+    warnings: Array.from(new Set(warnings)),
+    metricEvidence,
+    causalEvidenceCount: causalEvidence.length,
+    headlineCount: headlineContext.length,
+  };
 }
 
 // v50.48/Phase 4: 선택적 서버 LLM 시장 분석문 생성 (운영자 ANTHROPIC_API_KEY Secret 있을 때만).
@@ -3071,9 +3173,25 @@ async function genMarketAnalysisLegacy(data) {
 
 const MARKET_ANALYSIS_NEWS_HEADLINE_DEPTHS = new Set(['', 'headline', 'headline-only', 'title-only', 'snippet']);
 
+// P1119 (S9): the news pipeline retains feed headlines and links only. Preserving
+// publisher excerpts was rejected on source-rights grounds, so article-level causal
+// evidence is never available. P1122 keeps that rights boundary but stops treating its
+// absence as a reason to withhold the narrative: directional/causal prose is published
+// from the retained headlines plus typed metrics, with explicit attribution and a
+// disclosure, instead of being dropped for a body we deliberately never keep.
+export const MARKET_ANALYSIS_NEWS_CONTENT_POLICY = Object.freeze({
+  schemaVersion: 'news-content-policy.v1',
+  retainedDepth: 'headline-only',
+  excerptRetention: 'not-permitted-source-rights',
+  causalNarrative: 'headline-attributed-with-disclosure',
+  rationale: 'RSS feeds grant headline/link reuse only; article bodies are never redistributed. Directional and causal commentary is published from retained headlines and typed metrics with explicit attribution, never as an unsourced assertion.',
+});
+
 // Only rows with an explicit non-headline content contract and substantive
 // text may support causal/AI market analysis.  RSS title rows deliberately
 // remain usable by currentness/discovery surfaces but fail closed here.
+// Under MARKET_ANALYSIS_NEWS_CONTENT_POLICY no producer lane sets a non-headline
+// depth, so this predicate returns false for every published row by design.
 export function isMarketAnalysisNewsEligible(row) {
   const depth = String(row?.contentDepth || '').trim().toLowerCase().replace(/_/g, '-');
   if (MARKET_ANALYSIS_NEWS_HEADLINE_DEPTHS.has(depth)) return false;
@@ -3109,6 +3227,39 @@ export function buildMarketAnalysisNewsEvidence(data) {
     })
     .filter(Boolean)
     .slice(0, 8);
+}
+
+// P1122: retained headlines are not causal evidence, but they are the news material the
+// narrative is allowed to cite by name ("헤드라인에 따르면 …"). Keeping them separate from
+// `newsEvidence` preserves the rights boundary while giving the model something real to
+// attribute instead of forcing an observation-only summary.
+export function buildMarketAnalysisHeadlineContext(data) {
+  const rows = Array.isArray(data?.news) ? data.news : [];
+  const seen = new Set();
+  return rows
+    .filter(row => row && row.title && row.source && _validIsoDate(row.eventTime || row.pubDate))
+    .sort((a, b) => Number(b.score || 0) - Number(a.score || 0))
+    .filter(row => {
+      const key = String(row.link || row.title).slice(0, 120);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, 8)
+    .map(row => {
+      const observedAt = _validIsoDate(row.eventTime || row.pubDate);
+      return {
+        evidenceId: `headline:${row.link || row.title}:${observedAt}`,
+        title: String(row.title).slice(0, 240),
+        source: row.source,
+        contentDepth: 'headline-only',
+        evidenceBasis: 'headline-title',
+        observedAt,
+        link: row.link || null,
+        allowedUse: 'reference',
+        status: 'observed',
+      };
+    });
 }
 
 function _marketAnalysisSummary(text) {
@@ -3149,7 +3300,15 @@ function buildStructuredMarketAnalysis({ data, text, model, status, reason, metr
     semanticIssues: semantic?.issues || [reason || 'analysis-unavailable'],
     metricEvidence,
     newsEvidence,
+    headlineContext: buildMarketAnalysisHeadlineContext(data),
     causalEvidenceCount: semantic?.causalEvidenceCount || 0,
+    semanticWarnings: semantic?.warnings || [],
+    newsContentPolicy: MARKET_ANALYSIS_NEWS_CONTENT_POLICY,
+    // P1122: the narrative is published, but the reader is told what it may and may not
+    // rest on and who owns the decision.
+    disclosure: status === 'verified'
+      ? '헤드라인 제목과 검증된 지표만 사용했습니다. 기사 본문은 출처 권리상 사용하지 않으므로 인과·방향 서술은 헤드라인 귀속 기반의 참고 해석이며, 최종 판단과 책임은 사용자에게 있습니다.'
+      : null,
     reason: reason || null,
   };
 }
@@ -3257,7 +3416,9 @@ async function updateScreenerBreadthHistory(rows) {
       const rawValue = segment[field];
       const value = rawValue == null || rawValue === '' ? Number.NaN : Number(rawValue);
       if (!Number.isFinite(value) || !Number.isFinite(eligible) || eligible < minimumEligible) {
-        delete target[field];
+        // Keep the column so the row shape stays stable; null plus no fieldMeta
+        // is the single spelling of "no observation" (P1101).
+        target[field] = null;
         delete target.fieldMeta[field];
         continue;
       }
@@ -3269,6 +3430,11 @@ async function updateScreenerBreadthHistory(rows) {
         source: 'AIO US screener universe from Yahoo adjusted-close history',
         sourceKind: 'derived-research',
         allowedUse: 'research-history',
+        // P1117: the screener breadth lane writes into the same rows; without these two
+        // markers its fields would be the only fieldMeta keys on the latest row that the
+        // history artifact gate could not classify.
+        observationRelation: 'latest-completed-close',
+        observedAtSource: 'derived-from-adjusted-close-series',
         universeScope: 'aio-us-screener-universe-not-official-exchange',
         universe,
         eligible,
@@ -3278,7 +3444,7 @@ async function updateScreenerBreadthHistory(rows) {
   }
   history.sort((a, b) => String(a?.date || '').localeCompare(String(b?.date || '')));
   if (history.length > 420) history = history.slice(-420);
-  await atomicWriteFile(HIST, JSON.stringify(history));
+  await atomicWriteFile(HIST, JSON.stringify(normalizeHistoryRows(history)));
   return { updated: true, rows: rows.length, totalHistoryRows: history.length };
 }
 
@@ -3301,14 +3467,17 @@ export async function genMarketAnalysis(data, snapshot = null) {
     (data.quotes || []).forEach(row => { if (row?.symbol) q[row.symbol] = row.regularMarketPrice ?? row.price; });
     const evidenceLines = metricEvidence.slice(0, 16).map(row => `- ${row.evidenceId} ${row.label}=${row.value} ${row.unit} observedAt=${row.observedAt} source=${row.source}`).join('\n');
     const newsLines = newsEvidence.map(row => `- ${row.evidenceId} ${row.title} [${row.source}] observedAt=${row.observedAt}`).join('\n');
+    const headlineLines = buildMarketAnalysisHeadlineContext(data).map(row => `- ${row.evidenceId} ${row.title} [${row.source}] observedAt=${row.observedAt}`).join('\n');
     const vix = Number(q['^VIX']);
     const model = vix >= 25 ? 'claude-sonnet-4-6' : 'claude-haiku-4-5';
     const prompt = [
       'Produce a concise Korean market analysis from the typed evidence below.',
-      'Every numeric, causal, driver, risk, regime, or watch claim must be supported by one or more supplied evidence IDs.',
+      'Every numeric claim must be supported by one or more supplied METRIC_EVIDENCE ids.',
       'Do not merge VIX with Fear&Greed. Do not invent missing values. Return 4-5 concise lines.',
       'METRIC_EVIDENCE:\n' + evidenceLines,
-      'NEWS_CLUSTERS:\n' + (newsLines || 'none'),
+      'NEWS_CLUSTERS (article-level evidence, may be absent):\n' + (newsLines || 'none'),
+      'HEADLINE_CONTEXT (retained headlines — titles only; these are the only news material available):\n' + (headlineLines || 'none'),
+      'DIRECTIONAL/CAUSAL PROSE: you may offer a directional or causal reading, but attribute it to the named headline ("헤드라인에 따르면", "According to <source>") and present it as one reading among alternatives, never as a confirmed fact. End with what would invalidate the reading and what the reader should check. The final decision belongs to the reader, not to this text.',
     ].join('\n\n');
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 20000);
@@ -3403,15 +3572,20 @@ async function main() {
   const cryptoCrossCheck = settledValue(9, { status: 'unavailable', attemptedAt, fetchedAt: null, quotes: [], reason: 'crypto-cross-check-plane-failed' }, 'crypto cross-check');
   const aaii = settledValue(10, previousMarketSurveys?.aaii ? { ...previousMarketSurveys.aaii, status: 'stale-reference', attemptedAt, failureReason: 'aaii-plane-failed' } : { status: 'unavailable', attemptedAt, fetchedAt: null, observedAt: null, failureReason: 'aaii-plane-failed' }, 'AAII');
   const surveyAttemptedAt = aaii.attemptedAt || new Date().toISOString();
-  const marketSurveys = previousMarketSurveys
-    ? { ...previousMarketSurveys, automatedCheckedAt: surveyAttemptedAt, aaii }
-    : {
-        schemaVersion: 'web-research-surveys.v2',
-        checkedAt: surveyAttemptedAt,
-        automatedCheckedAt: surveyAttemptedAt,
-        policy: 'official-publisher-public-web; bounded relay fallback; reference-only; no synthesis',
-        aaii
-      };
+  // `checkedAt` was inherited verbatim from the previous artifact, so it froze at
+  // its first value forever while `automatedCheckedAt` advanced: two "checked at"
+  // fields with opposite meanings in one object, and the frozen one was the one
+  // whose name read as authoritative (P1107). `checkedAt` now means the live
+  // automated check; the carried editorial snapshot time keeps its own name.
+  const marketSurveys = {
+    ...(previousMarketSurveys || {}),
+    schemaVersion: 'web-research-surveys.v2',
+    checkedAt: surveyAttemptedAt,
+    automatedCheckedAt: surveyAttemptedAt,
+    webResearchCheckedAt: previousMarketSurveys?.webResearchCheckedAt || previousMarketSurveys?.checkedAt || null,
+    policy: previousMarketSurveys?.policy || 'official-publisher-public-web; bounded relay fallback; reference-only; no synthesis',
+    aaii
+  };
   const macro = mergeMacroLastKnownGood(macroRaw, previousMacro);
   for (const field of Object.keys(FRED_SERIES)) {
     if (Number.isFinite(Number(macroRaw?.[field]))) macro[`_source_${field}`] = 'fred-official-primary';
@@ -3574,7 +3748,12 @@ async function main() {
       fredHyOasObservedAt: fredHyOas.observedAt || null,
       newsOk: Array.isArray(news) && news.length > 0,
       newsCount: Array.isArray(news) ? news.length : 0,
-      newsSourceCount: NEWS_FEEDS.length,
+      // `newsSourceCount` used to publish NEWS_FEEDS.length (the number of search
+      // feeds) under a name that reads as the number of publishers, while the
+      // retained items carry ~29 distinct outlets (P1097). Publish both numbers
+      // under names that say which population they count.
+      newsFeedCount: NEWS_FEEDS.length,
+      newsPublisherCount: new Set((Array.isArray(news) ? news : []).map(item => item && item.source).filter(Boolean)).size,
       newsCyclePolicy: newsCycle.policy,
       newsCycleStart: newsCycle.start,
       newsCycleEnd: newsCycle.end,
@@ -3587,6 +3766,7 @@ async function main() {
       putCallAsOf: putCall && putCall.asOf || null,
       marketSurveysStatus: marketSurveys ? 'web-research-captured-reference' : null,
       marketSurveysCheckedAt: marketSurveys?.checkedAt || null,
+      marketSurveysWebResearchCheckedAt: marketSurveys?.webResearchCheckedAt || null,
       elapsedMs: Date.now() - t0,
       // `generatedAt` is the payload/attempt clock for macro/news planes. Keep
       // market publication lineage in separate fields; a failed publish must

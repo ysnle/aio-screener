@@ -256,7 +256,11 @@ export function createScreenerProvider({
         const artifactCurrency = String(factor.currency || identity.currency || '').trim().toUpperCase() || null;
         const liveCurrency = String(live.currency || '').trim().toUpperCase() || null;
         const currencyCompatible = !artifactCurrency || !liveCurrency || artifactCurrency === liveCurrency;
-        const artifactPriceObservedAt = factor.observedAt || artifact.factorObservedAt || null;
+        // P1113: `artifact.factorObservedAt` is a normalized day bucket for the
+        // whole artifact, not an observation. Chaining it here let a row without
+        // its own timestamp inherit the bucket as its price observation time —
+        // the same mixed-vintage shape P1095 closed for history.json. Fail closed.
+        const artifactPriceObservedAt = factor.observedAt || null;
         const artifactPriceTime = Date.parse(artifactPriceObservedAt || '');
         const livePriceTime = Date.parse(live.priceObservedAt || '');
         const liveEvidenceEligible = live.priceAllowedUse === true && live.priceQualityDecisionUse === true
@@ -305,7 +309,7 @@ export function createScreenerProvider({
           priceAllowedUseCeiling: useLivePrice ? live.allowedUseCeiling : factor.allowedUseCeiling || null,
           priceQuality: useLivePrice ? live.priceQuality : factor.factorQuality || factor.quality || null,
           priceRightsId: useLivePrice ? live.priceRightsId : factor.rightsId || null,
-          factorObservedAt: factor.factorObservedAt || factor.observedAt || artifact.factorObservedAt || null,
+          factorObservedAt: factor.factorObservedAt || factor.observedAt || null,
           factorSourceKind: factor.factorSourceKind || factor.sourceKind || null,
           factorAllowedUse: factor.factorAllowedUse || factor.allowedUse || null,
           factorQuality: factor.factorQuality || factor.quality || null,
@@ -380,7 +384,7 @@ export function createScreenerProvider({
           identityObservedAt: universeLastBulkUpdate || identity.validFrom || null,
           identityFetchedAt: universeMeta.fetchedAt || null,
           identitySource: 'public-data/screener-universe.json',
-          observedAt: factor.observedAt || artifact.factorObservedAt || null,
+          observedAt: factor.observedAt || null,
           fetchedAt: factor.fetchedAt || artifact.asOf || null,
           instrumentRef
         };

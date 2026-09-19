@@ -762,7 +762,7 @@ check('WP-AI3: regression fixtures cover intent, relevance, deterministic order,
 check('WP-AI4: untrusted external text is normalized, injection-audited, and wrapped as NEWS/WEB/TELEGRAM data', /sanitizeAIUntrustedText/.test(core) && /buildAIUntrustedBlock/.test(core) && /sourceKind=UNTRUSTED/.test(core) && /NEWS_TELEGRAM/.test(chat + html) && /WEB_SEARCH/.test(chat + html) && /SecurityFlags/.test(data));
 check('WP-AI4: chat history has explicit off mode, 30-day retention, bounded entries, and sanitized storage', /getChatHistoryPolicy/.test(core) && /setChatHistoryEnabled/.test(core) && /prepareChatHistoryEntry/.test(core) && /CHAT_HISTORY_MAX = 50/.test(html) && /retentionDays/.test(html) && /_aioChatHistoryToggle/.test(core));
 check('WP-AI5: portfolio AI uses a field allowlist, redaction preview, and session-only opt-in before unified send', /redactPortfolioForAI/.test(core) && /getPortfolioAIPrivacyPreview/.test(core) && /setPortfolioAIConsent/.test(core) && /포트폴리오 AI 전송 미리보기/.test(html) && /계좌ID.*제외/.test(html));
-check('WP-AI5: prohibited conduct and unsupported personalized direct action block while probability gaps remain explicit limitations', /evaluateAIActionPermission/.test(core) && /conductAudit/.test(chat) && /prohibited-conduct/.test(core) && /suitability-context-missing/.test(core) && /current-evidence-limited/.test(core) && /decision-grade/.test(core) && /uncalibrated-probability-claim/.test(core));
+check('WP-AI5/P1120: prohibited conduct still blocks while personalized direct action and probability gaps remain explicit limitations', /evaluateAIActionPermission/.test(core) && /conductAudit/.test(chat) && /prohibited-conduct/.test(core) && /suitability-context-missing/.test(core) && /current-evidence-limited/.test(core) && /decision-grade/.test(core) && /uncalibrated-probability-claim/.test(core) && !/safeText: 'AI 안전 모드\\n\\n적합성 정보와 현재 decision-grade/.test(core));
 const preProviderPermissionIdx = chat.indexOf('var _aioPreProviderPermission');
 const quotaAwaitIdx = chat.indexOf('await consumeLLMQuery()');
 const publicationPermissionIdx = chat.indexOf('var conductAudit');
@@ -901,6 +901,37 @@ check('P875: quote change/value basis survives snapshot bridge, PriceStore, lega
   core.includes('changeBasis: provenanceOpts.changeBasis') &&
   read('src/ui/pages/market.js').includes('data-change-basis') &&
   read('src/ui/pages/market.js').includes('valueBasis'));
+// P1105: the chart reads `row.fieldMeta.valueBasis`, so the series function that
+// feeds it must keep the metadata. It silently dropped it and every history
+// chart labelled its points with the same literal, hiding previous-completed-close
+// and carried-forward rows.
+check('P1105: the history series feeds the field metadata its chart consumes',
+  /valueBasis: meta\.valueBasis \|\| null/.test(data) &&
+  /fieldMeta: arr\[i\]\.fieldMeta \|\| null/.test(data) &&
+  /row\?\.fieldMeta\?\.valueBasis/.test(read('src/ui/pages/market.js')));
+// P1106: the FRED series table declares each series' display unit. Three series
+// were declared twice, so the earlier declaration was silently dead — editing it
+// had no effect. Every series must also declare the unit key explicitly, even
+// when the unit is empty, so an omission cannot pass as intent.
+const fredTable = /const FRED_SERIES = \{([\s\S]*?)\n\};/.exec(data);
+const fredEntries = fredTable ? [...fredTable[1].matchAll(/^\s*'([A-Z0-9]+)':\s*\{([^}]*)\},/gm)].map((match) => ({ id: match[1], body: match[2] })) : [];
+const fredDuplicates = [...new Set(fredEntries.map((entry) => entry.id).filter((id, index, all) => all.indexOf(id) !== index))];
+check('P1106: the FRED series declaration has no duplicate keys', fredEntries.length > 0 && fredDuplicates.length === 0, fredDuplicates.join(', '));
+const fredMissingUnit = fredEntries.filter((entry) => !/unit:/.test(entry.body)).map((entry) => entry.id);
+check('P1106: every FRED series declares a unit key', fredMissingUnit.length === 0, fredMissingUnit.join(', '));
+// P1114: a year-over-year series is rendered with a `%` suffix, so an empty unit
+// declared a unit the reader never sees. The declared unit must state it.
+const fredYoyWithoutPercent = fredEntries.filter((entry) => /yoy:\s*true/.test(entry.body) && !/unit:\s*'%'/.test(entry.body)).map((entry) => entry.id);
+check('P1114: every year-over-year FRED series declares its percent unit', fredYoyWithoutPercent.length === 0, fredYoyWithoutPercent.join(', '));
+// P1113: `screener.json.factorObservedAt` at the artifact level is a normalized
+// day bucket for the whole file, while each row carries its own observation time.
+// Two consumers chained the bucket as a row-level fallback, so a row that lost
+// its timestamp would silently inherit the bucket as its price observation time.
+check('P1113: screener row observations never fall back to the artifact bucket',
+  /const artifactPriceObservedAt = factor\.observedAt \|\| null;/.test(screenerProvider)
+  && /factorObservedAt: factor\.factorObservedAt \|\| factor\.observedAt \|\| null,/.test(screenerProvider)
+  && !/factor\.observedAt \|\| artifact\.factorObservedAt/.test(screenerProvider)
+  && !/factor\.factorObservedAt \|\| factor\.observedAt \|\| artifact\.factorObservedAt/.test(screenerProvider));
 check('P783: reference snapshot metadata drives an explicit non-live topbar state',
   /latestObservedAt/.test(read('src/legacy/market-snapshot-bridge.js')) &&
   /sourceKind:\s*'REFERENCE'/.test(read('src/legacy/market-snapshot-bridge.js')) &&
@@ -960,6 +991,25 @@ check('W2-05: Vault envelope has versioned KDF plus legacy decrypt and re-encryp
     && /_legacyDerivedKey/.test(core)
     && /_lastDecryptVersion/.test(core)
     && /if \(_AioVault\._lastDecryptVersion === 1\) await safeLS/.test(core));
+
+// P1116: the loaded quote plane cited `data.json:quotes`, an artifact the P715
+// client-direct fetch policy publishes empty. The citation must follow the producer's
+// own publication flag so it can never name a file that carries no quote row.
+check('P1116: quote-plane evidence cites the artifact that actually publishes quotes',
+  /quotesPublished === true \? 'data\.json:quotes' : 'market-snapshot\.json:quotes'/.test(core)
+    && !/evidenceIds:\['data\.json:quotes'\]/.test(core));
+
+// P1118: the signal hero shows five factor bars against a total they do not sum to.
+// The post-composite adjustments and the [5,100] clamp must reach the presentation the
+// hero renders from, and a native-owned sink must exist for them.
+check('P1118: signal presentation carries the reconciliation terms',
+  /breakdown,/.test(tradingScoreDomain)
+    && /scoreBreakdown && typeof score\.scoreBreakdown === 'object'/.test(tradingScoreDomain));
+check('P1118: signal page renders post-composite adjustments in a native-owned sink',
+  /id="score-adjustments-container"/.test(html)
+    && /renderScoreAdjustments\(\{ documentRef, signal \}\)/.test(read('src/ui/pages/analysis.js'))
+    && /aioSignalAdjustmentsRenderer/.test(read('src/ui/pages/analysis.js'))
+    && /#page-signal #score-adjustments-container/.test(read('architecture/route-owners.json')));
 
 if (errors.length) {
   console.error('Runtime contract check failed:');

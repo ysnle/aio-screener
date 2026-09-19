@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { mergeMacroLastKnownGood, parseBeaPceHtml, validateMarketAnalysisText } from './fetch-data.mjs';
+import { mergeMacroLastKnownGood, normalizeHistoryRows, parseBeaPceHtml, validateMarketAnalysisText } from './fetch-data.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readJson = (rel) => JSON.parse(fs.readFileSync(path.join(root, rel), 'utf8'));
@@ -15,6 +15,21 @@ const errors = [];
 const fetchDataSource = readText('scripts/fetch-data.mjs');
 if (!/regularMarketPreviousCloseObservedAt:[\s\S]{0,260}closeBars\[closeBars\.length - 1\]\.timestamp/.test(fetchDataSource)) {
   errors.push('fetch-data: previous completed close must use the current daily bar opening boundary, not the previous bar opening time');
+}
+// P1117: every lane that writes a history fieldMeta must publish the timestamp-source and
+// observation-relation markers. The market lane computed them and then dropped them in its
+// projection, so the artifact gate that looks for `observedAtSource` skipped its assertions
+// forever. Assert each lane emits the marker instead of trusting one of them.
+for (const [lane, literal] of [
+  ['backfill', /byDate\[row\.date\]\.fieldMeta\[field\] = \{/],
+  ['market', /const historyMeta = \(field, quote, fallback = \{\}\) => \(\{/],
+  ['screener-breadth', /target\.fieldMeta\[field\] = \{/],
+]) {
+  const start = fetchDataSource.search(literal);
+  const body = start >= 0 ? fetchDataSource.slice(start, start + 1600) : '';
+  for (const key of ['observedAtSource:', 'observationRelation:']) {
+    if (!body.includes(key)) errors.push(`fetch-data: the ${lane} history fieldMeta lane must publish ${key.replace(':', '')}`);
+  }
 }
 let observedFieldCount = 0;
 let numericFieldCount = 0;
@@ -102,8 +117,62 @@ const beaFixture = parseBeaPceHtml(`
   Excluding food and energy, the PCE price index increased 3.3 percent from one year ago.</p>
   <p>Next release: August 26, 2026, at 8:30 a.m. EDT</p>
 `, 'https://www.bea.gov/news/fixture', '2026-07-31T00:00:00Z');
-if (beaFixture.values.pce !== 3.7 || beaFixture.values.corePce !== 3.3 || beaFixture.values.pceMoM !== -0.1 || beaFixture.observedAt !== '2026-06-01') {
+if (beaFixture.values.pce !== 3.7 || beaFixture.values.corePce !== 3.3 || beaFixture.values.pceMoM !== -0.1 || beaFixture.values.corePceMoM !== 0.1 || beaFixture.observedAt !== '2026-06-01') {
   fail(`BEA PCE parser fixture failed: ${JSON.stringify(beaFixture)}`);
+}
+// P1096: the live release page interposes the goods/services/food/energy detail
+// between the monthly headline and the monthly core sentence. A character
+// window that wide crossed into the twelve-month paragraph and published
+// corePceMoM 3.3 (== corePce YoY) beside a correct pceMoM. The monthly core
+// figure must come from the monthly paragraph regardless of that detail.
+const beaLongDetailFixture = parseBeaPceHtml(`
+  <h1>Personal Income and Outlays, July 2026</h1>
+  <p>From the preceding month, the PCE price index for July increased 0.2 percent. Prices for goods increased 0.1 percent and prices for services increased 0.3 percent. Food prices decreased less than 0.1 percent and energy prices decreased 1.5 percent. Excluding food and energy, the PCE price index increased 0.2 percent.</p>
+  <p>From the same month one year ago, the PCE price index for July increased 3.7 percent. Excluding food and energy, the PCE price index increased 3.3 percent from one year ago.</p>
+  <p>Next release: September 30, 2026, at 8:30 a.m. EDT</p>
+`, 'https://www.bea.gov/news/fixture-long-detail', '2026-08-28T00:00:00Z');
+if (beaLongDetailFixture.values.pceMoM !== 0.2 || beaLongDetailFixture.values.corePceMoM !== 0.2 || beaLongDetailFixture.values.corePce !== 3.3) {
+  fail(`BEA PCE long-detail fixture failed: ${JSON.stringify(beaLongDetailFixture.values)}`);
+}
+// P1096 exact reproduction: when the monthly paragraph carries no core clause,
+// the old bounded window reached into the adjacent twelve-month paragraph and
+// published pceMoM 0.2 with corePceMoM 3.3 (== corePce YoY) — the live shape.
+const beaCrossParagraphFixture = parseBeaPceHtml(`
+  <h1>Personal Income and Outlays, July 2026</h1>
+  <p>From the preceding month, the PCE price index for July increased 0.2 percent. On a monthly basis, energy and food prices partly offset each other.</p>
+  <p>From the same month one year ago, the PCE price index for July increased 3.7 percent. Excluding food and energy, the PCE price index increased 3.3 percent from one year ago.</p>
+  <p>Next release: September 30, 2026, at 8:30 a.m. EDT</p>
+`, 'https://www.bea.gov/news/fixture-cross-paragraph', '2026-08-28T00:00:00Z');
+if (beaCrossParagraphFixture.values.pceMoM !== 0.2 || beaCrossParagraphFixture.values.corePceMoM !== null) {
+  fail(`BEA PCE cross-paragraph guard failed: ${JSON.stringify(beaCrossParagraphFixture.values)}`);
+}
+if (beaCrossParagraphFixture.values.corePceMoM === beaCrossParagraphFixture.values.corePce) {
+  fail('BEA PCE monthly core was substituted by the twelve-month core');
+}
+// Fail closed: without a monthly paragraph the monthly figures must be absent,
+// never borrowed from the twelve-month paragraph.
+const beaYoyOnlyFixture = parseBeaPceHtml(`
+  <h1>Personal Income and Outlays, July 2026</h1>
+  <p>From the same month one year ago, the PCE price index for July increased 3.7 percent. Excluding food and energy, the PCE price index increased 3.3 percent from one year ago.</p>
+  <p>Next release: September 30, 2026, at 8:30 a.m. EDT</p>
+`, 'https://www.bea.gov/news/fixture-yoy-only', '2026-08-28T00:00:00Z');
+if (beaYoyOnlyFixture.values.pceMoM !== null || beaYoyOnlyFixture.values.corePceMoM !== null) {
+  fail(`BEA PCE yoy-only fixture published a monthly figure it could not know: ${JSON.stringify(beaYoyOnlyFixture.values)}`);
+}
+// P1101: rows written by the market lane and the screener lane must converge on
+// one column set, and a fieldMeta entry must never outlive its finite value.
+const raggedFixture = normalizeHistoryRows([
+  { date: '2026-09-15', seriesMode: 'completed-market-cut', cycleEnd: '2026-09-14T23:00:00.000Z', spx: 7000, fg: 30, breadth20: 55, fieldMeta: { spx: { observedAt: '2026-09-15T20:00:00.000Z' }, fg: { observedAt: '2026-09-15T00:00:00.000Z' } } },
+  { date: '2026-09-16', fieldMeta: { breadth50: { observedAt: '2026-09-15T13:30:00.000Z' } } },
+  { date: '2026-09-17', seriesMode: 'completed-market-cut', cycleEnd: '2026-09-16T23:00:00.000Z', marketSnapshotRevision: 'market-snapshot:x:y', spx: null, fieldMeta: { spx: { observedAt: '2026-09-16T20:00:00.000Z' } } }
+]);
+const fixtureColumns = raggedFixture.map((row) => Object.keys(row).sort().join(','));
+if (new Set(fixtureColumns).size !== 1) fail(`history row normalization left ragged rows: ${JSON.stringify(fixtureColumns)}`);
+if (Object.keys(raggedFixture[1].fieldMeta).length !== 0 || Object.keys(raggedFixture[2].fieldMeta).length !== 0) {
+  fail(`history row normalization kept fieldMeta for a null value: ${JSON.stringify(raggedFixture.map((row) => row.fieldMeta))}`);
+}
+if (!fixtureColumns[0].includes('breadth200,') || !fixtureColumns[0].includes('marketSnapshotRevision') || !fixtureColumns[0].includes('spx')) {
+  fail(`history row normalization did not fill the shared column set: ${fixtureColumns[0]}`);
 }
 const lkg = mergeMacroLastKnownGood(
   { _source: 'fred:no-key', _failedSeries: ['pce'] },

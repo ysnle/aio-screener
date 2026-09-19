@@ -40,6 +40,8 @@ Latest desktop journey evidence and open boundaries: [`user-flow-remediation-202
 
 정식 스킬 원본은 `.claude/skills/<name>/`, Codex 런타임 미러는 `.agents/skills/<name>/`다. 원본을 고친 뒤 동기화 게이트로 두 표면의 동일성을 검증한다.
 
+**스킬은 참조 문서이지 트리거 체인이 아니다(R618).** 아래 표가 라우팅의 단일 트리거다. 스킬이 발동되거나 발동되지 않는 것은 작업 범위를 정하지 않는다 — 범위는 사용자 요청과 아래 표의 "Next read"로 정하고, 강제는 게이트 실행과 보고 형식(검증/차단/미검증 분리)에만 둔다. `.claude/agents/*.md`도 게이트가 동기화·검증하는 거버넌스 산출물이며 런타임이 자동 호출하지 않는다.
+
 | Task | Next read |
 |---|---|
 | Bug/failing gate | `bug-fix` skill → matching P/R/QA excerpts |
@@ -68,6 +70,8 @@ The exact classification for every `_context/*.md|json` file is in `CONTEXT-CATA
 
 - **Agent handoff (current): `../_artifacts/full-review-20260916/HANDOFF.md`** — 마지막 작업, 열린 항목과 우선순위, 다음 행동, 반복 금지. 같은 디렉터리에 `REPORT.md`(구조·CI·6개 영역), `SEMANTIC-REVIEW.md`(R219 의미 검토), `FIX-REPORT.md`(v54.98 수정·검증), `evidence.json`(기계 판독). v54.98은 `0733dbc4`로 커밋·배포됐고(라이브 `deployment.json` exact-SHA 수렴), 이 핸드오프의 §2에 미수정 백로그가 남아 있다.
 
+- **데이터 의미·정합성 전수 감사 (2026-09-18): `../_artifacts/data-semantic-consistency-20260918/REPORT.md`** — 상위 23개 산출물(§1~§9, P1096~P1108/R614)에 이어 **중첩 산출물까지 전부** 검사했다(§10, P1109~P1114/R615): 8,908개 참조·37개 매니저 농도 재계산·629 객체 해시·퇴역 범위 정리·중첩 신선도 측정면 신설·미사용 sw 등록부 삭제. 전환 면제 만료는 **2026-10-18**. 남은 OPEN: 날짜 없는 중첩 산출물 12건, `objects/**` 592/629 미참조 blob 보존 정책, 실제 소비 산출물의 캐시 라우팅 누락, `factorObservedAt` 계층별 이름 분리.
+
 - Repository current state: `CURRENT-STATE.md`.
 - Runtime knowledge state: `public-data/knowledge/status-summary.json`.
 - Release/readiness state: `architecture/public-readiness.json`, `public-data/operations-status.json`.
@@ -84,8 +88,12 @@ node scripts/ci-workspace-contract-check.mjs
 node scripts/ci-knowledge-lint-check.mjs
 node scripts/ci-skill-contract-check.mjs
 node scripts/ci-skill-eval-fixture-check.mjs
+node scripts/ci-ledger-integrity-check.mjs
+node scripts/ci-assertion-trace-check.mjs
 node scripts/sync-agent-profiles.mjs --check
 node scripts/sync-agent-skills.mjs --check
 ```
+
+`ci-ledger-integrity-check.mjs`·`ci-assertion-trace-check.mjs`와 확장된 `ci-knowledge-lint-check.mjs`는 원장 루프 게이트이며, 동결 대상·베이스라인·부채 수치·`--write` 규칙은 [`QA-PIPELINE-ARCHITECTURE.md`](./QA-PIPELINE-ARCHITECTURE.md)의 "Ledger Loop Gates"가 단일 원천이다.
 
 Automatic commit, push and deployment are forbidden; those actions require explicit user authorization.

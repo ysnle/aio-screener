@@ -60,6 +60,67 @@ function renderSignalDecision({ documentRef, signal }) {
   setText(documentRef, 'score-decision-sub', presentation.description, 'var(--text-secondary)');
 }
 
+// P1118: the published total is not the weighted component sum. The five factor bars
+// beside it therefore did not add up to the number they were shown against. Render the
+// post-composite adjustments and the [5,100] clamp as explicit rows so the visible
+// breakdown reconciles with the visible total.
+const SIGNAL_ADJUSTMENT_LABELS = {
+  'credit-stress': '신용 스트레스',
+  'geopolitical-oil': '지정학 (유가)',
+  'news-sentiment': '뉴스 심리',
+  'news-risk': '뉴스 리스크'
+};
+
+function renderScoreAdjustments({ documentRef, signal }) {
+  const container = documentRef?.getElementById('score-adjustments-container');
+  if (!container) return;
+  const breakdown = signal?.presentation?.breakdown || null;
+  const adjustments = Array.isArray(breakdown?.adjustments) ? breakdown.adjustments : [];
+  const floorApplied = breakdown?.floorApplied === true;
+  const ceilingApplied = breakdown?.ceilingApplied === true;
+  const row = (label, value, color) => {
+    const line = documentRef.createElement('div');
+    line.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:12px;';
+    const name = documentRef.createElement('span');
+    name.textContent = label;
+    name.style.cssText = 'font-size:11.5px;color:var(--text-muted);';
+    const amount = documentRef.createElement('span');
+    amount.textContent = value;
+    amount.style.cssText = `font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;color:${color};`;
+    line.append(name, amount);
+    return line;
+  };
+  const nodes = [];
+  if (!breakdown) {
+    nodes.push(row('보정 내역', '수신 대기', 'var(--text-muted)'));
+  } else {
+    const head = documentRef.createElement('div');
+    head.textContent = '총점 보정 — 팩터 합계 이후 적용';
+    head.style.cssText = 'font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;';
+    nodes.push(head);
+    if (!adjustments.length && !floorApplied && !ceilingApplied) {
+      nodes.push(row('적용된 보정', '없음', 'var(--text-muted)'));
+    }
+    for (const adjustment of adjustments) {
+      const delta = finite(adjustment?.delta) || 0;
+      nodes.push(row(
+        SIGNAL_ADJUSTMENT_LABELS[adjustment?.key] || String(adjustment?.key || '보정'),
+        `${delta > 0 ? '+' : ''}${delta}`,
+        delta < 0 ? 'var(--data-red)' : 'var(--data-green)'
+      ));
+    }
+    if (floorApplied) nodes.push(row('최소 5점 바닥 적용', '→ 5', 'var(--data-amber)'));
+    if (ceilingApplied) nodes.push(row('100점 상한 적용', '→ 100', 'var(--data-amber)'));
+    const raw = finite(breakdown.rawCompositeScore);
+    const total = finite(breakdown.total);
+    nodes.push(row('가중 합계 → 총점', raw != null && total != null ? `${raw} → ${total}` : '—', 'var(--text-secondary)'));
+  }
+  container.replaceChildren(...nodes);
+  container.dataset.aioSignalAdjustmentsRenderer = 'native';
+  container.setAttribute('data-source-kind', breakdown ? 'native-runtime' : 'unavailable');
+  container.setAttribute('data-operational-use', 'reference-only');
+}
+
 function renderHomeSummary({ documentRef, signal }) {
   const presentation = signal?.presentation;
   const container = documentRef?.getElementById('home-hero-components');
@@ -315,6 +376,7 @@ function render({ root, documentRef, store, route, charts }) {
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioSignalRenderer = 'native';
       renderSignalDecision({ documentRef, signal });
+      renderScoreAdjustments({ documentRef, signal });
     }
   }
 }
@@ -395,6 +457,14 @@ export function createAnalysisPage({ root = globalThis, documentRef, store, rout
         if (route === 'signal' && page?.dataset.aioSignalRenderer === 'native') {
           delete page.dataset.aioSignalRenderer;
           delete page.dataset.aioArchitectureRenderer;
+        }
+        if (route === 'signal') {
+          const adjustments = documentRef?.getElementById('score-adjustments-container');
+          if (adjustments?.dataset.aioSignalAdjustmentsRenderer === 'native') delete adjustments.dataset.aioSignalAdjustmentsRenderer;
+          if (adjustments) {
+            adjustments.removeAttribute('data-source-kind');
+            adjustments.removeAttribute('data-operational-use');
+          }
         }
         if (route === 'home' && page?.dataset.aioHomeRenderer === 'native') {
           delete page.dataset.aioHomeRenderer;

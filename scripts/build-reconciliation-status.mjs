@@ -111,7 +111,11 @@ function buildCategory(definition, marketSnapshot, checkedAt) {
     : status === 'PARTIAL'
       ? `${definition.partialReason} Missing: ${failedChecks.join(', ')}.`
       : `${definition.blockedReason} Missing: ${failedChecks.join(', ')}.`;
-  const rights = definition.rights === 'REVIEW_REQUIRED' && status === 'MATCH' ? 'CURRENT' : definition.rights;
+  // Rights are not a freshness axis: a fully observed category does not verify
+  // redistribution rights. Promoting REVIEW_REQUIRED to CURRENT here marked seven
+  // categories `promotable: true` inside the same artifact set whose blockers
+  // still published `provider_rights_review_required` (P1103).
+  const rights = definition.rights;
   return {
     categoryId: definition.categoryId,
     status,
@@ -135,7 +139,9 @@ function buildCategory(definition, marketSnapshot, checkedAt) {
       gate: definition.gate,
       rights,
       sourceRevision: marketSnapshot?.revision || null,
-      promotable: status === 'MATCH' && observed === required && rights === 'CURRENT',
+      // Promotion requires a recorded rights verification, not a complete check
+      // list. Until an operator records it, every category stays non-promotable.
+      promotable: status === 'MATCH' && observed === required && rights === 'VERIFIED',
       checks: definition.checks
     }
   };

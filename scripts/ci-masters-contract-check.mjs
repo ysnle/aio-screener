@@ -42,7 +42,10 @@ for (const [label, source, marker] of [
   ['bootstrap mount', bootstrap, 'createMastersPage({ root, documentRef })'],
   ['page DOM', index, 'id="page-masters"'],
   ['navigation', index, 'data-arg="masters"'],
-  ['service worker', worker, "'./src/ui/pages/masters.js'"],
+  // P1111 removed the service worker's runtime registry (no reader, 11 stale
+  // paths). Offline ownership of a page module comes from the request-driven
+  // shell rule; the module's own wiring is covered by the route dynamic import row.
+  ['service worker runtime-caches page modules', worker, '(?:js|src)'],
   ['native page factory', page, 'export function createMastersPage'],
   ['SEC source boundary', page, 'SEC EDGAR'],
   ['reference sector mapping', page, 'createReferenceSectorView'],

@@ -25,34 +25,26 @@ export function createAIAnswerOrchestrator({ root = globalThis, now = () => new 
   const execute = async (input = {}) => {
     const questionPlan = input.questionPlan || plan(input);
     const actionPermission = questionPlan?.actionPermission || null;
-    if (actionPermission?.allowed === false) {
-      try {
-        const result = typeof input.blockedRunner === 'function'
-          ? await input.blockedRunner(questionPlan, actionPermission)
-          : null;
-        return Object.freeze({
-          ok: false,
-          status: 'blocked-action-permission',
-          reason: 'action-permission-denied',
-          permission: actionPermission,
-          plan: questionPlan,
-          result: result ?? null
-        });
-      } catch (error) {
-        return Object.freeze({
-          ok: false,
-          status: 'blocked-runner-error',
-          reason: 'action-permission-denied',
-          permission: actionPermission,
-          plan: questionPlan,
-          error: 'blocked_runner_failed'
-        });
-      }
-    }
+    // P1120: a plan whose personalized action permission is denied is dispatched with an
+    // explicit disclosure limitation instead of being refused before the provider. The
+    // conduct, tool, and typed-claim boundaries downstream still own hard refusals; this
+    // softens only the suitability/current-evidence precondition that a private research
+    // tool cannot satisfy for ordinary questions.
+    const actionLimitations = actionPermission && actionPermission.allowed === false && Array.isArray(actionPermission.reasons)
+      ? actionPermission.reasons.slice()
+      : [];
     if (typeof input.legacyRunner !== 'function') return Object.freeze({ ok: false, status: 'blocked', reason: 'runner-missing', plan: questionPlan });
     try {
-      const result = await input.legacyRunner(questionPlan);
-      return Object.freeze({ ok: true, status: 'dispatched-through-ui-adapter', plan: questionPlan, result: result ?? null });
+      const runnerPlan = actionLimitations.length ? Object.freeze({ ...questionPlan, actionLimitations }) : questionPlan;
+      const result = await input.legacyRunner(runnerPlan);
+      return Object.freeze({
+        ok: true,
+        status: 'dispatched-through-ui-adapter',
+        permission: actionPermission,
+        actionLimitations,
+        plan: questionPlan,
+        result: result ?? null
+      });
     } catch (error) {
       return Object.freeze({ ok: false, status: 'runner-error', plan: questionPlan, error: 'legacy_runner_failed' });
     }

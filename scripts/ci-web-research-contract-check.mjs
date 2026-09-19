@@ -62,8 +62,13 @@ for (const row of entries) {
 }
 
 const surveys = data.marketSurveys || {};
-if (data.meta?.marketSurveysCheckedAt !== evidence.checkedAt) {
-  fail(`data.meta.marketSurveysCheckedAt does not match evidence.checkedAt: ${data.meta?.marketSurveysCheckedAt}`);
+// P1107: the carried web-research snapshot time and the live automated check time
+// are different facts. This gate owns the snapshot time; the live check time is
+// asserted by ci-artifact-semantics-check. Until a refresh publishes the split,
+// the coalescing read keeps this comparison meaningful instead of vacuous.
+const webResearchCheckedAt = data.meta?.marketSurveysWebResearchCheckedAt ?? data.meta?.marketSurveysCheckedAt;
+if (webResearchCheckedAt !== evidence.checkedAt) {
+  fail(`data.meta.marketSurveysWebResearchCheckedAt does not match evidence.checkedAt: ${webResearchCheckedAt}`);
 }
 if (data.meta?.marketSurveysStatus !== 'web-research-captured-reference') {
   fail(`unexpected market survey policy status: ${data.meta?.marketSurveysStatus}`);

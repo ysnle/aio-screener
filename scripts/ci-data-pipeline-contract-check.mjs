@@ -138,7 +138,11 @@ check('fetch-data collects quotes, F&G, FRED, news, LLM analysis', /fetchQuote/.
 check('fetch-data retries RSS and broadens provider window before canonical cycle filtering', /_fetchRssWithRetry/.test(fetchData) && /when%3A7d/.test(fetchData) && /ts >= cycle\.startMs/.test(fetchData) && /ts < cycle\.endMs/.test(fetchData));
 check('fetch-data separates FRED configured vs fetched', /fredHasKey/.test(fetchData) && /fredFetchOk/.test(fetchData) && /macroKeyCount/.test(fetchData));
 check('fetch-data exposes marketAnalysisOk', /marketAnalysisOk/.test(fetchData));
-check('market analysis requires typed metric evidence and identity validation', /buildMarketAnalysisEvidence/.test(fetchData) && /metricEvidence/.test(fetchData) && /metric-identity-mismatch:vix-vs-fear-greed/.test(fetchData) && /metric-value-mismatch/.test(fetchData));
+check('market analysis keeps value/scale fabrication blocking while identity proximity only warns',
+  /buildMarketAnalysisEvidence/.test(fetchData) && /metricEvidence/.test(fetchData)
+    && /warnings\.push\('metric-identity-proximity:vix-vs-fear-greed'\)/.test(fetchData)
+    && !/issues\.push\('metric-identity-mismatch:vix-vs-fear-greed'\)/.test(fetchData)
+    && /metric-value-mismatch/.test(fetchData) && /nfp-scale-mismatch/.test(fetchData));
 check('market analysis is structured, evidence-bound, and fail-closed with a typed fallback', /schemaVersion:\s*'market-analysis\.v2'/.test(fetchData) && /claims/.test(fetchData) && /evidenceIds/.test(fetchData) && /buildMarketAnalysisFallback/.test(fetchData) && /marketAnalysisOk\s*=\s*marketAnalysis\.status === 'verified'/.test(fetchData));
 check('market analysis news selection uses independent clusters instead of a blind first-N slice', /buildMarketAnalysisNewsEvidence/.test(fetchData) && /independenceKey/.test(fetchData) && /clusters/.test(fetchData) && !/data\.news\)\.slice\(0, 8\)/.test(fetchData));
 check('news artifacts expose source tier, content depth, event time, and independence lineage', /sourceTierLabel/.test(fetchData) && /contentDepth:\s*'headline-only'/.test(fetchData) && /eventTime:/.test(fetchData) && /independenceKey:/.test(fetchData));
@@ -236,17 +240,66 @@ check('FX/bond carry uses the canonical BOK policy-rate field and cannot regress
   let ok = false;
   let detail = '';
   try {
-    const { buildMarketAnalysisNewsEvidence, isMarketAnalysisNewsEligible, validateMarketAnalysisText } = await import('./fetch-data.mjs');
+    const { buildMarketAnalysisNewsEvidence, isMarketAnalysisNewsEligible, validateMarketAnalysisText, MARKET_ANALYSIS_NEWS_CONTENT_POLICY } = await import('./fetch-data.mjs');
     const base = { source: 'Reuters', link: 'https://example.test/story', eventTime: '2026-08-12T12:00:00.000Z', score: 90, independenceKey: 'reuters' };
     const headline = { ...base, title: 'Headline-only market move', contentDepth: 'headline-only', content: 'This text is deliberately ignored because the source declares headline-only.' };
     const excerpt = { ...base, title: 'Article excerpt with a documented market catalyst', link: 'https://example.test/excerpt', independenceKey: 'ap-source', contentDepth: 'EXCERPT', excerpt: 'The article explains the catalyst, the reported transmission channel, and the observed response in sufficient detail for a cautious reference.' };
     const data = { meta: { generatedAt: '2026-08-12T12:01:00.000Z' }, news: [headline, excerpt] };
     const evidence = buildMarketAnalysisNewsEvidence(data);
     const semantic = validateMarketAnalysisText('Markets moved because the documented catalyst changed risk pricing.', { ...data, macro: {} });
-    ok = !isMarketAnalysisNewsEligible(headline) && isMarketAnalysisNewsEligible(excerpt) && evidence.length === 1 && evidence[0].title === excerpt.title && semantic.causalEvidenceCount === 1;
-    detail = JSON.stringify({ evidence, semantic });
+    ok = !isMarketAnalysisNewsEligible(headline) && isMarketAnalysisNewsEligible(excerpt) && evidence.length === 1 && evidence[0].title === excerpt.title && semantic.causalEvidenceCount === 1
+      // P1119 (S9): the retained headline-only shape is a declared rights boundary, not a
+      // silently unpopulated field. The policy must travel with the code that enforces it.
+      && MARKET_ANALYSIS_NEWS_CONTENT_POLICY.retainedDepth === 'headline-only'
+      && MARKET_ANALYSIS_NEWS_CONTENT_POLICY.excerptRetention === 'not-permitted-source-rights'
+      && MARKET_ANALYSIS_NEWS_CONTENT_POLICY.causalNarrative === 'headline-attributed-with-disclosure';
+    detail = JSON.stringify({ evidence, semantic, policy: MARKET_ANALYSIS_NEWS_CONTENT_POLICY });
   } catch (error) { detail = error.message; }
   check('market analysis rejects headline-only news as causal evidence while accepting a substantive excerpt', ok, detail.slice(0, 1600));
+}
+{
+  // P1122: causal prose is no longer discarded because article bodies are never retained
+  // (rights). It is published with attribution required instead — an unattributed causal
+  // sentence warns; a headline-attributed one does not.
+  let ok = false;
+  let detail = '';
+  try {
+    const { validateMarketAnalysisText } = await import('./fetch-data.mjs');
+    const headline = { title: '금리 우려로 지수 하락', source: 'Reuters', link: 'https://example.test/rate', eventTime: '2026-08-12T11:00:00.000Z', contentDepth: 'headline-only', score: 80 };
+    const data = { meta: { generatedAt: '2026-08-12T12:01:00.000Z' }, news: [headline], macro: {} };
+    // The causal detector is an English word list, so the fixture must carry one of its
+    // tokens for the branch to be exercised at all.
+    const attributed = validateMarketAnalysisText('지수는 하락했습니다. 헤드라인에 따르면 금리 우려가 배경입니다. (market moved due to rate risk)', data);
+    const unattributed = validateMarketAnalysisText('지수는 하락했습니다. 금리 우려 때문입니다. (market moved due to rate risk)', data);
+    ok = Array.isArray(attributed.warnings)
+      && attributed.issues.indexOf('causal-evidence-missing') < 0
+      && unattributed.issues.indexOf('causal-evidence-missing') < 0
+      && attributed.warnings.indexOf('causal-attribution-missing') < 0
+      && unattributed.warnings.indexOf('causal-attribution-missing') >= 0
+      && attributed.headlineCount === 1;
+    detail = JSON.stringify({ attributed, unattributed });
+  } catch (error) { detail = error.message; }
+  check('headline-only causal prose warns on missing attribution instead of blocking the narrative', ok, detail.slice(0, 1600));
+}
+{
+  // P1119/P1122: the headline-only rights boundary stays (no article body is retained), but
+  // its absence no longer withholds the narrative — causal prose is attributed and warned,
+  // not blocked. Both halves are asserted so neither can drift silently.
+  const fetchDataSource = read('scripts/fetch-data.mjs');
+  check('news producer retains no article body and publishes a headline-attributed narrative policy',
+    /MARKET_ANALYSIS_NEWS_CONTENT_POLICY/.test(fetchDataSource)
+      && /causalNarrative:\s*'headline-attributed-with-disclosure'/.test(fetchDataSource)
+      && /excerptRetention:\s*'not-permitted-source-rights'/.test(fetchDataSource)
+      && /newsContentPolicy:\s*MARKET_ANALYSIS_NEWS_CONTENT_POLICY/.test(fetchDataSource)
+      && /contentDepth:\s*'headline-only'/.test(fetchDataSource)
+      && !/contentDepth:\s*'(?:excerpt|article|full)'/.test(fetchDataSource));
+  check('causal evidence that the policy makes impossible is a warning, never a block',
+    /warnings\.push\('causal-attribution-missing'\)/.test(fetchDataSource)
+      && /warnings\.push\('causal-evidence-missing'\)/.test(fetchDataSource)
+      && !/issues\.push\('causal-evidence-missing'\)/.test(fetchDataSource)
+      && /export function buildMarketAnalysisHeadlineContext/.test(fetchDataSource)
+      && /HEADLINE_CONTEXT/.test(fetchDataSource)
+      && /헤드라인에 따르면/.test(fetchDataSource));
 }
 {
   let ok = false;
@@ -634,6 +687,16 @@ check('getScreenerSymbols reads screener-universe.json, not source-text regex', 
 check('data pipeline contract is wired into CI', qaPipeline.profiles?.full?.includes('core') && Object.values(qaPipeline.groups || {}).flatMap((group) => group.gates || []).some((gate) => gate.script === 'scripts/ci-data-pipeline-contract-check.mjs'));
 check('data pipeline contract documented in QA/rules/postmortem', /P517/.test(qa) && /R222/.test(rules) && /P517/.test(postmortem) && /P531/.test(qa) && /R230/.test(rules) && /P531/.test(postmortem) && /P535/.test(qa) && /R232/.test(rules) && /P535/.test(postmortem));
 check('workflow governance doc exists', exists('_context/WORKFLOW-GOVERNANCE.md'));
+
+// P1102: a producer whose artifact has no reader and no lineage policy is a
+// latent CI trap — the first bot commit of the artifact fails the data group,
+// which blocks attestation and therefore deployment. Keep the loop closed:
+// producer wired to a workflow, artifact read by a client path, policy declared.
+check('earnings calendar keeps producer, consumer and lineage policy aligned',
+  /fetch-earnings-calendar\.mjs/.test(read('.github/workflows/refresh-screener.yml'))
+  && /public-data\/earnings-calendar\.json/.test(read('index.html'))
+  && /'earnings-calendar\.json'/.test(read('scripts/ci-data-lineage-audit.mjs')),
+  'producer, consumer or lineage policy is missing');
 
 if (errors.length) {
   console.error('Data pipeline contract check failed:');

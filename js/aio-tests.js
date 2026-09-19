@@ -6854,7 +6854,7 @@
         ],
         count: 796,
         retainedItemCount: 320,
-        coverage: { observedCount:796, eligibleTextCount:780, selectedRawCount:320, selectedRawCoveragePct:41.0 },
+        coverage: { observedCount:796, eligibleTextCount:780, selectedRawCount:320, selectedEligibleCount:318, selectedRawCoveragePct:40.8, selectedOfObservedPct:40.2 },
         topicCounts: { macro:244, semi:187, optical:45, power:80 },
         tickerCounts: { NVDA:66, MU:56 },
         themes: ['CURRENT_DYNAMIC_THEME_2026-06-16: HBM allocation, AI server demand, optical capacity, and macro funding risk are regenerated from this artifact.'],
@@ -8239,9 +8239,9 @@
     }), { request: window._aioCreateAIRequestObject('typed-claim-test', { ctxId: 'test' }), record: false, evidence: [{
       evidenceId: 'ev-vix-invalid', metric: 'vix', value: 16, unit: 'index', scale: 'raw', direction: 'up', asOf: now941
     }] });
-    _assert('T949 ai_pipeline_attaches_claim_audit_and_blocks_invalid_claim (WP-AI2): shared pipeline owns typed validation',
-      pipeline949 && pipeline949.blocked === true && pipeline949.claimAudit && pipeline949.claimAudit.blocked === true &&
-      pipeline949.reasons.indexOf('typed-claim-validation') >= 0, JSON.stringify(pipeline949));
+    _assert('T949 ai_pipeline_attaches_claim_audit_and_discloses_invalid_claim (WP-AI2/P1120): shared pipeline owns typed validation and keeps the recoverable answer',
+      pipeline949 && pipeline949.blocked === false && pipeline949.claimAudit && pipeline949.claimAudit.blocked === true &&
+      pipeline949.limitations.indexOf('typed-claim-validation') >= 0, JSON.stringify(pipeline949));
 
     var chatQuote950 = window.AIO.normalizeAIChatEvidenceRow({
       ticker: 'AAPL', price: 197.25, asOf: now941, source: 'Yahoo',
@@ -8396,9 +8396,9 @@
       ctxId: 'portfolio', query: '내 포트폴리오를 리밸런싱해줘', text: 'NVDA를 10%로 확대하세요', evidence: [{ sourceKind: 'LIVE', hasLivePrice: true }]
     });
     window.AIO.setPortfolioAIConsent(oldConsent);
-    _assert('T964 personalized_direct_action_fail_closed: stale/reference evidence or missing suitability blocks direct allocation instructions',
-      stalePersonal.blocked === true && stalePersonal.reasons.indexOf('current-evidence-limited') >= 0 &&
-      liveWithoutSuitability.blocked === true && liveWithoutSuitability.reasons.indexOf('suitability-context-missing') >= 0,
+    _assert('T964 personalized_direct_action_disclosed (P1120): stale/reference evidence or missing suitability is disclosed as a conditional analysis instead of a refusal',
+      stalePersonal.blocked === false && stalePersonal.limitations.indexOf('current-evidence-limited') >= 0 && !!stalePersonal.disclosure &&
+      liveWithoutSuitability.blocked === false && liveWithoutSuitability.limitations.indexOf('suitability-context-missing') >= 0 && !!liveWithoutSuitability.disclosure,
       JSON.stringify({ stale: stalePersonal, suitability: liveWithoutSuitability }));
 
     window.AIO.setPortfolioAIConsent(true);
@@ -8407,8 +8407,8 @@
       ctxId: 'portfolio', query: '내 포트폴리오 매매', suitabilityProfile: { purpose: 'growth' },
       evidence: [{ sourceKind: 'REFERENCE', hasLivePrice: false }]
     });
-    _assert('T965 shared_pipeline_conduct_audit: final response gate replaces unsupported personalized action with the safe boundary',
-      pipeline965.blocked === true && pipeline965.conductAudit && pipeline965.conductAudit.blocked === true && pipeline965.conductAudit.reasons.indexOf('current-evidence-limited') >= 0 && pipeline965.text.indexOf('decision-grade') >= 0,
+    _assert('T965 shared_pipeline_conduct_audit (P1120): an unsupported personalized action is disclosed and the answer is kept',
+      pipeline965.blocked === false && pipeline965.conductAudit && pipeline965.conductAudit.blocked === false && pipeline965.conductAudit.limitations.indexOf('current-evidence-limited') >= 0 && pipeline965.limitations.indexOf('current-evidence-limited') >= 0 && pipeline965.text.indexOf('decision-grade') >= 0,
       JSON.stringify(pipeline965));
     window.AIO.setPortfolioAIConsent(oldConsent);
 

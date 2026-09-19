@@ -64,6 +64,18 @@ Pages 배포와 Cloudflare 배포는 서로 다른 권한 경계다. Pages 성�
 
 `architecture/worker-endpoints.json`은 endpoint와 보안 요구사항만 담는다. 과거 health 응답을 현재 사실처럼 저장하지 않는다. `scripts/build-operations-status.mjs`는 refresh 시 proxy와 fast plane health를 다시 관찰하고, provider smoke는 AI proxy 수동 배포 workflow의 blocking gate로 분리한다. 최신 관찰 시점의 전체 외부 보고서는 `.cache/aio-qa/external-pipeline-status.json`에 기록한다.
 
+## Ledger Loop Gates
+
+원장(RULES·QA-CHECKLIST·BUG-POSTMORTEM)과 문서 신선도는 서술이 아니라 실행되는 검사로 닫는다(R618). 세 게이트가 각각의 부채를 베이스라인에 동결하고 **증가만** 실패로 처리한다. 현재 부채 수치는 문서에 복사하지 않고 베이스라인 파일에서 읽는다.
+
+| Gate | Freezes | Baseline |
+|---|---|---|
+| `scripts/ci-ledger-integrity-check.mjs` | R 번호 결번 집합, `verify_by:` 없는 신규 OPEN | `_context/rule-gap-manifest.json`, `_context/open-item-baseline.json` |
+| `scripts/ci-assertion-trace-check.mjs` | ledger-id를 인용하지 않는 신규 `check()`/`_assert()` 라벨 | `_context/assertion-trace-baseline.json` |
+| `scripts/ci-knowledge-lint-check.mjs` | 45일 초과 비면제 문서 집합 | `_context/doc-freshness-baseline.json` |
+
+`--write`는 첫 도입과 **승인된 일괄 변경**에만 쓴다. 동결은 부채를 고정할 뿐 갚지 않으므로 감소는 별도 QA 항목으로 추적한다. 면제 규칙은 코드에 명시한다 — 문서 신선도의 면제는 `historical-snapshot && !autoRefresh`이며, `auto_refresh: true`가 파일명 기반 kind 추측과 충돌하면 면제하지 않고 드러낸다(P1125).
+
 ## Change Rules
 
 1. 새 gate는 manifest group, input scope, timeout, cache policy를 선언한다.
@@ -71,3 +83,4 @@ Pages 배포와 Cloudflare 배포는 서로 다른 권한 경계다. Pages 성�
 3. CI workflow에 긴 gate 목록을 다시 복사하지 않는다. manifest runner만 호출한다.
 4. 같은 실패가 반복되면 P entry, RULE/QA 항목과 실행 gate를 함께 닫는다.
 5. 배포 후 실패는 로컬 PASS와 별도로 보고하며 자동 source 수정이나 자동 deploy로 확대하지 않는다.
+6. 원장·단언·문서 부채를 다루는 새 gate는 동결 베이스라인과 `--write` 경로를 함께 선언하고, 부채 감소를 별도 QA 항목으로 남긴다(R618).

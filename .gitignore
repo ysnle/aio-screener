@@ -64,3 +64,9 @@ node_modules/
 # is machine-specific and never shared).
 .claude/settings.local.json
 debug.log
+
+# Machine-local coding-agent state (taste learnings, session scratch, plans). This is
+# per-developer tooling state, not a repository artifact — same class as
+# node_modules/ above and .claude/settings.local.json. Tracked governance that agents
+# must read lives in AGENTS.md, _context/ and .claude/skills, which stay tracked.
+.commandcode/

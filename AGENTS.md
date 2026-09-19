@@ -6,7 +6,7 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 
 1. `git status --short`와 `version.json`으로 작업 트리 경계를 확인한다. 기존 dirty 변경은 사용자 소유다. 수정 전에 `node scripts/qa-runner.mjs session-start --session <task-id>`로 content-hash 기준선을 잡는다.
 2. `_context/CURRENT-STATE.md`는 작업 시작에 한 번 확인한다. `_context/INDEX.md`는 위치 탐색이 필요할 때, `_context/WORKFLOW-GOVERNANCE.md`는 QA·권한·워크플로 상세가 필요할 때만 읽는다. 이미 읽은 변경 없는 문서는 반복 로드하지 않는다.
-3. 작업 판단에 실제로 도움이 되는 스킬만 사용한다. 사용할 `SKILL.md`를 읽고 현재 작업에 필요한 reference만 선택한다. 키워드 일치만으로 스킬이나 전체 절차를 강제하지 않는다.
+3. 작업 판단에 실제로 도움이 되는 스킬만 사용한다. 사용할 `SKILL.md`를 읽고 현재 작업에 필요한 reference만 선택한다. 키워드 일치만으로 스킬이나 전체 절차를 강제하지 않는다. **스킬은 참조 문서이며 트리거 체인이 아니다** — 라우팅의 단일 트리거는 아래 Task routing 표이고, 스킬 발동이 작업 범위를 좁히거나 넓히지 않는다. 강제는 게이트 실행과 보고 형식에만 둔다(R618).
 4. `RULES.md`, `BUG-POSTMORTEM.md`, `QA-CHECKLIST.md`, `KNOWLEDGE-BASE.md`는 전체 로드하지 않는다. 관련 함수·R/P/QA ID·키워드로 검색한 범위만 읽는다.
 5. `index.html`은 `_context/CODE-MAP.md`에서 담당 구간을 찾은 뒤 필요한 범위만 수정한다.
 
@@ -33,7 +33,7 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 
 - Automatic commit, push and deployment are forbidden. Run them only after an explicit user request for that action.
 - Use `node scripts/bump-version.mjs <version>` for versioned changes. R1 remains the existing seven synchronized surface groups and is verified by `ci-version-check.mjs`.
-- Bug fixes require a new P entry. Promote recurring classes to RULES/QA and an executable gate.
+- Bug fixes require a new P entry. Promote recurring classes to RULES/QA and an executable gate. The gate must cite the entry it prevents a regression of — `ci-assertion-trace-check.mjs` enforces that for new assertions, and `ci-ledger-integrity-check.mjs` freezes the R-number gap set and requires new open QA items to declare `verify_by:`.
 - Generated workspace files are never hand-edited: run `node scripts/generate-workspace-state.mjs --write`, `node scripts/sync-agent-profiles.mjs`, and `node scripts/sync-agent-skills.mjs` as applicable.
 - Static, runtime/headless, browser and live evidence are separate. Never promote a lower evidence level to a higher one.
 - No commit or deployment is implied by “finish”, “fix all”, QA completion, or a passing local gate.
@@ -50,6 +50,8 @@ node scripts/ci-workspace-contract-check.mjs
 node scripts/ci-knowledge-lint-check.mjs
 node scripts/ci-skill-contract-check.mjs
 node scripts/ci-skill-eval-fixture-check.mjs
+node scripts/ci-ledger-integrity-check.mjs
+node scripts/ci-assertion-trace-check.mjs
 node scripts/sync-agent-profiles.mjs --check
 node scripts/sync-agent-skills.mjs --check
 git diff --check

@@ -44,7 +44,12 @@ check('renderer uses safe text and external-link boundaries', /textContent/.test
 check('renderer exposes tab and selection semantics', /role', 'tablist'/.test(renderer) && /role', 'tab'/.test(renderer) && /aria-selected/.test(renderer) && /aria-pressed/.test(renderer));
 check('renderer route bridge delegates navigation', /onNavigate\(lesson\.routeTarget\)/.test(renderer));
 check('page lazy-loads and reports curriculum capability', /REFERENCE_CURRICULUM_URL/.test(page) && /ensureLibraryCapabilities/.test(page) && /aioPrinciplesReferenceCurriculum/.test(page) && /activeReferenceStageId/.test(page));
-check('service worker owns the renderer module', serviceWorker.includes("'./src/ui/knowledge/reference-curriculum.js'"));
+// P1111 removed the service worker's 184-entry runtime registry (no reader, 11
+// entries pointing at files that no longer existed). Offline ownership of a
+// runtime module is granted by the request-driven shell rule, not by an
+// enumeration entry, so the guarantee this check protects is that `/js` and
+// `/src` requests are runtime-cached.
+check('service worker owns the renderer module', /RUNTIME_SHELL_PATH_RE/.test(serviceWorker) && /isRuntimeShell/.test(serviceWorker) && serviceWorker.includes('(?:js|src)'));
 check('chat context keeps the framework in REFERENCE lane', /AIO_MARKET_LEARNING_REFERENCE/.test(chat) && /sourceKind:\s*'REFERENCE'/.test(chat) && /가설 → 증거 → 시장 반응 → 포지션 크기 → 무효화 → 복기/.test(chat) && /never as live market data or a trade instruction/.test(chat));
 check('glossary contains the integrated educational vocabulary', ['예측보다 대응', '논점 무효화', '주도주', '에코챔버', '지수 바스켓', '반대매매'].every((term) => glossary.includes(term)));
 

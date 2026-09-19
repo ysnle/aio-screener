@@ -20,6 +20,7 @@
 
 import { existsSync, readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
+import { RECONCILIATION_STATUS } from '../src/data/contracts/reconciliation.js';
 
 const read = (path) => readFileSync(path, 'utf8');
 const json = (path) => JSON.parse(read(path).replace(/^\uFEFF/, ''));
@@ -28,11 +29,27 @@ const readIf = (path) => (existsSync(path) ? json(path) : null);
 const errors = [];
 const check = (label, ok, detail = '') => { if (!ok) errors.push(detail ? `${label}: ${detail}` : label); };
 
+// A producer fix reaches the published artifact only on the next refresh cycle,
+// so the artifact assertions below are gated for one cycle. That gate must
+// expire: an unbounded "transition" branch turns into a permanent vacuous pass
+// and the defect silently returns (P1099). After the deadline the assertions
+// run unconditionally; the refreshed artifact is expected to satisfy them.
+const TRANSITION_DEADLINE = '2026-10-18T00:00:00Z';
+const inTransition = (label) => {
+  if (Date.now() <= Date.parse(TRANSITION_DEADLINE)) {
+    console.log(`[artifact-semantics] transition (expires ${TRANSITION_DEADLINE.slice(0, 10)}): ${label}`);
+    return true;
+  }
+  console.log(`[artifact-semantics] transition expired ${TRANSITION_DEADLINE.slice(0, 10)}: ${label}`);
+  return false;
+};
+
 const fetchData = read('scripts/fetch-data.mjs');
 const history = readIf('public-data/history.json');
 const data = readIf('public-data/data.json');
 const snapshot = readIf('public-data/market-snapshot.json');
 const operations = readIf('public-data/operations-status.json');
+const reconciliation = readIf('public-data/reconciliation-status.json');
 
 // ── P1090 / P1095 : producer contracts ──────────────────────────────────────
 check('macro freshness is refreshed when a field recovers, not only set', /merged\[`_freshness_\$\{field\}`\] = 'observed'/.test(fetchData));
@@ -46,8 +63,8 @@ check('market analysis evidence prefers the canonical snapshot', /buildMarketAna
 // artifact assertions below tighten as soon as a refresh publishes the new shape.
 if (data?.macro) {
   const publishedObserved = Object.values(data.macro).includes('observed');
-  if (!publishedObserved) {
-    console.log('[artifact-semantics] transition: macro freshness markers predate P1090; artifact assertions apply after the next refresh.');
+  if (!publishedObserved && inTransition('macro freshness markers predate P1090')) {
+    // bounded: assertions below run unconditionally after TRANSITION_DEADLINE
   } else {
     const contradictions = [];
     for (const [key, value] of Object.entries(data.macro)) {
@@ -74,8 +91,8 @@ if (Array.isArray(history) && history.length) {
   // `carried-forward` already exists in pre-P1095 rows, so the unambiguous marker of
   // the new producer output is `observedAtSource`.
   const anyRelation = history.some((row) => Object.values(row.fieldMeta || {}).some((meta) => meta?.observedAtSource));
-  if (!anyRelation) {
-    console.log('[artifact-semantics] transition: history rows predate P1095; vintage assertions apply after the next refresh.');
+  if (!anyRelation && inTransition('history rows predate P1095')) {
+    // bounded: assertions below run unconditionally after TRANSITION_DEADLINE
   } else {
     const latest = history[history.length - 1];
     const marketFields = Object.keys(latest.fieldMeta || {});
@@ -100,22 +117,97 @@ if (Array.isArray(history) && history.length) {
 if (operations) {
   const statuses = new Set(operations.statusVocabulary || []);
   const statusCodes = new Set(operations.statusCodeVocabulary || []);
+  const declaredRights = new Set(operations.rightsVocabulary || []);
+  const readinessKeys = new Set(['secretConfigured', 'workflowWired', 'lastCallSucceeded', 'dataCurrent']);
   const undeclared = [];
+  const rightsUndeclared = [];
   const walk = (node, path) => {
     if (!node || typeof node !== 'object' || Array.isArray(node)) return;
     for (const [key, value] of Object.entries(node)) {
-      if (key === 'status' && typeof value === 'string' && !statuses.has(value)) undeclared.push(`${path}.status=${value}`);
-      if (key === 'statusCode' && typeof value === 'string' && !statusCodes.has(value)) undeclared.push(`${path}.statusCode=${value}`);
+      if (typeof value === 'string') {
+        if (key === 'status' && !statuses.has(value)) undeclared.push(`${path}.status=${value}`);
+        if (key === 'statusCode' && !statusCodes.has(value)) undeclared.push(`${path}.statusCode=${value}`);
+        if ((key === 'rights' || key === 'licensedForUse') && !declaredRights.has(value)) rightsUndeclared.push(`${path}.${key}=${value}`);
+        if (readinessKeys.has(key) && !statuses.has(value)) undeclared.push(`${path}.${key}=${value}`);
+      }
       walk(value, `${path}.${key}`);
     }
   };
-  walk({ overall: operations.overall, planes: operations.planes, ai: operations.ai }, 'operations');
+  walk({ overall: operations.overall, planes: operations.planes, ai: operations.ai, providers: operations.providers }, 'operations');
   check('every published status value is declared by the same artifact', undeclared.length === 0, undeclared.join(', '));
+  if (!operations.rightsVocabulary && inTransition('operations rights vocabulary predates P1103')) {
+    // bounded: assertion below runs unconditionally after TRANSITION_DEADLINE
+  } else {
+    check('every published rights value is declared by the same artifact', rightsUndeclared.length === 0, rightsUndeclared.join(', '));
+  }
   check('frozen freshness judgement names its evaluation instant',
     typeof operations.planes?.durable?.freshness?.evaluatedAt === 'string' && !Number.isNaN(Date.parse(operations.planes.durable.freshness.evaluatedAt)));
   check('frozen freshness judgement is point-in-time, not a live claim',
     typeof operations.planes?.durable?.freshness?.generatedAt === 'string'
     && Date.parse(operations.planes.durable.freshness.evaluatedAt) >= Date.parse(operations.planes.durable.freshness.generatedAt));
+}
+
+// ── P1107 : a frozen field must not hide behind a live-sounding name ───────
+if (data?.meta) {
+  const checkedAt = Date.parse(String(data.meta.marketSurveysCheckedAt || ''));
+  const generatedAt = Date.parse(String(data.meta.generatedAt || ''));
+  if (data.meta.marketSurveysWebResearchCheckedAt === undefined && inTransition('market survey check timestamps predate P1107')) {
+    // bounded: assertions below run unconditionally after TRANSITION_DEADLINE
+  } else {
+    check('the market survey check time is the automated check, not a carried constant',
+      Number.isFinite(checkedAt) && Number.isFinite(generatedAt) && Math.abs(generatedAt - checkedAt) <= 12 * 3600000,
+      `marketSurveysCheckedAt=${data.meta.marketSurveysCheckedAt} generatedAt=${data.meta.generatedAt}`);
+    check('the carried web-research snapshot time keeps its own field',
+      data.meta.marketSurveysWebResearchCheckedAt === (data.marketSurveys?.webResearchCheckedAt ?? null),
+      `meta=${data.meta.marketSurveysWebResearchCheckedAt} surveys=${data.marketSurveys?.webResearchCheckedAt}`);
+  }
+}
+
+// ── P1104 : carried-over worker health must prove it is still reusable ─────
+if (operations) {
+  const carried = [
+    ['planes.fast.health', operations.planes?.fast?.health],
+    ['ai.publicChat.health', operations.ai?.publicChat?.health]
+  ].filter(([, health]) => health?.observationStatus === 'NOT_ATTEMPTED' && String(health?.status) === 'CURRENT');
+  if (operations.planes?.fast?.health?.evidenceFresh === undefined && inTransition('carried worker health predates P1104')) {
+    // bounded: assertion below runs unconditionally after TRANSITION_DEADLINE
+  } else {
+    const unproven = carried.filter(([, health]) => health.evidenceFresh !== true || typeof health.evidenceEvaluatedAt !== 'string');
+    check('carried-over worker health declares a fresh, dated reuse decision', unproven.length === 0,
+      unproven.map(([path]) => path).join(', '));
+  }
+}
+
+// ── P1103 : the reconciliation surface must declare the vocabulary it uses ──
+if (reconciliation) {
+  const declared = new Set(reconciliation.statusVocabulary || []);
+  const declaredRights = new Set(reconciliation.rightsVocabulary || []);
+  const values = [reconciliation.overall, ...(reconciliation.categories || []).map((category) => category?.status)].filter((value) => typeof value === 'string');
+  const rightsValues = (reconciliation.categories || []).map((category) => category?.evidence?.rights).filter((value) => typeof value === 'string');
+  const promotable = (reconciliation.categories || []).filter((category) => category?.evidence?.promotable === true);
+  const rightsBlocked = (operations?.blockers || []).some((blocker) => /rights/i.test(String(blocker)));
+  if (!reconciliation.statusVocabulary && inTransition(`reconciliation vocabulary predates P1103 (${promotable.length} categor${promotable.length === 1 ? 'y' : 'ies'} still claim promotable)`)) {
+    // bounded: assertions below run unconditionally after TRANSITION_DEADLINE
+  } else {
+    const undeclared = values.filter((value) => !declared.has(value));
+    check('every published reconciliation status is declared by the same artifact', undeclared.length === 0, [...new Set(undeclared)].join(', '));
+    check('the reconciliation vocabulary is complete for the published values',
+      RECONCILIATION_STATUS.every((code) => declared.has(code)),
+      `missing ${RECONCILIATION_STATUS.filter((code) => !declared.has(code)).join(', ')}`);
+    const undeclaredRights = [...new Set(rightsValues.filter((value) => !declaredRights.has(value)))];
+    check('every published reconciliation rights value is declared by the same artifact', undeclaredRights.length === 0, undeclaredRights.join(', '));
+    check('promotion never exceeds the recorded rights verification',
+      !(rightsBlocked && promotable.length > 0),
+      `${promotable.map((category) => category.categoryId).join(', ')} promotable while blockers=[${(operations?.blockers || []).join(', ')}]`);
+    check('a category is promotable only with verified rights',
+      promotable.every((category) => category.evidence.rights === 'VERIFIED'),
+      promotable.filter((category) => category.evidence.rights !== 'VERIFIED').map((category) => `${category.categoryId}=${category.evidence.rights}`).join(', '));
+  }
+  const categoryStatus = reconciliation.counts || {};
+  const tally = {};
+  for (const category of reconciliation.categories || []) tally[category?.status] = (tally[category?.status] || 0) + 1;
+  const drift = Object.keys({ ...categoryStatus, ...tally }).filter((key) => Number(categoryStatus[key] || 0) !== Number(tally[key] || 0));
+  check('published reconciliation counts equal the category tally', drift.length === 0, drift.join(', '));
 }
 
 // ── P1093 : narrative evidence must resolve inside the published artifacts ──
@@ -137,6 +229,14 @@ if (data?.marketAnalysis) {
   const snapshotByInstrument = new Map((snapshot?.quotes || []).map((row) => [row.instrumentId, row]));
   const disagreements = [];
   const canonicalRows = (data.marketAnalysis.metricEvidence || []).filter((row) => row?.canonicalMetricId);
+  // The legacy-namespace exemption above must expire together with the producer
+  // fix. Without this, a published artifact with zero canonical rows passes both
+  // canonical assertions vacuously and the unit/metricId drift is invisible
+  // (P1108).
+  if (canonicalRows.length === 0 && !inTransition('narrative evidence predates P1093 canonical rows')) {
+    check('narrative evidence publishes rows that resolve against the snapshot', false,
+      `${(data.marketAnalysis.metricEvidence || []).length} metricEvidence rows carry no canonicalMetricId`);
+  }
   const unitDefs = new Map();
   for (const [, row] of snapshotByInstrument) unitDefs.set(row.metricId, row.unit);
   for (const row of canonicalRows) {
@@ -174,8 +274,157 @@ if (domain) {
     const expected = Math.max(5, Math.min(100, Math.round(breakdown.weightedSumRaw / breakdown.availableWeight) + breakdown.adjustmentsTotal));
     if (out.total !== expected) broken.push(`${fixture.name}: total ${out.total} != reconstructed ${expected}`);
     if (breakdown.total !== out.total) broken.push(`${fixture.name}: breakdown.total ${breakdown.total} != total ${out.total}`);
+    // P1118: the hero renders from the presentation, not from the score object. If the
+    // presentation does not carry the same terms, the visible rows cannot explain the
+    // visible total even though the artifact itself reconciles.
+    const presentation = domain.deriveTradingScoreDecisionPresentation({ score: out, inputVersion: 'golden' });
+    if (presentation.breakdown !== breakdown) broken.push(`${fixture.name}: presentation does not carry the score breakdown the hero must render`);
   }
   check('published total equals its declared terms for every golden fixture', broken.length === 0, broken.slice(0, 4).join(' | '));
+}
+
+// ── P1097 : self-reported counts must describe the payload they are attached to
+if (data) {
+  const news = Array.isArray(data.news) ? data.news : [];
+  const publishers = new Set(news.map((item) => item?.source).filter(Boolean));
+  const cycle = data.meta?.cycleComponents || {};
+  if (data.meta?.newsFeedCount === undefined && inTransition('news counts predate P1097')) {
+    // bounded: assertions below run unconditionally after TRANSITION_DEADLINE
+  } else {
+    check('newsCount matches the published news payload', Number(data.meta?.newsCount) === news.length, `meta=${data.meta?.newsCount} payload=${news.length}`);
+    check('newsPublisherCount matches the published outlets', Number(data.meta?.newsPublisherCount) === publishers.size, `meta=${data.meta?.newsPublisherCount} payload=${publishers.size}`);
+    check('the feed count is published under a feed name', Number.isFinite(Number(data.meta?.newsFeedCount)) && data.meta?.newsSourceCount === undefined, 'ambiguous newsSourceCount is still published');
+  }
+  check('reported quote counts reconcile with the cycle manifest',
+    Number(data.meta?.symbolsOk) + Number(data.meta?.symbolsFail) === Number(cycle.requiredQuoteCount),
+    `symbolsOk+symbolsFail=${Number(data.meta?.symbolsOk) + Number(data.meta?.symbolsFail)} requiredQuoteCount=${cycle.requiredQuoteCount}`);
+}
+
+// ── P1100 : the fear-greed daily series must be joinable by calendar day ────
+if (data?.fearGreed?.history) {
+  const points = data.fearGreed.history;
+  const perDay = new Map();
+  for (const point of points) {
+    const day = String(point?.observedAt || '').slice(0, 10);
+    perDay.set(day, (perDay.get(day) || 0) + 1);
+  }
+  const repeated = [...perDay.entries()].filter(([, count]) => count > 1);
+  if (repeated.length && inTransition(`fear-greed history repeats ${repeated.length} calendar day(s)`)) {
+    // bounded: assertions below run unconditionally after TRANSITION_DEADLINE
+  } else {
+    check('fear-greed history carries at most one point per calendar day', repeated.length === 0, repeated.slice(0, 4).map(([day, count]) => `${day}x${count}`).join(', '));
+  }
+  const last = points[points.length - 1];
+  const lastDay = String(last?.observedAt || '').slice(0, 10);
+  const headlineDay = String(data.fearGreed.asOf || '').slice(0, 10);
+  if (last && lastDay && lastDay === headlineDay) {
+    check('the fear-greed headline is the rounding of the latest daily point',
+      Math.round(Number(last.score)) === Number(data.fearGreed.score),
+      `headline=${data.fearGreed.score} latest=${last.score}`);
+  }
+}
+
+// ── P1102 : one row shape and one meaning for absence in history.json ──────
+if (Array.isArray(history) && history.length) {
+  const columns = (row) => Object.keys(row).filter((key) => key !== 'fieldMeta').sort().join(',');
+  const expected = columns(history[history.length - 1]);
+  const ragged = history.filter((row) => columns(row) !== expected);
+  if (ragged.length && inTransition(`history rows have ${ragged.length} different column set(s)`)) {
+    // bounded: assertions below run unconditionally after TRANSITION_DEADLINE
+  } else {
+    check('every history row exposes the same column set', ragged.length === 0, `${ragged.length} rows differ; e.g. ${ragged[0]?.date}`);
+  }
+  const orphaned = [];
+  for (const row of history) {
+    for (const [field, meta] of Object.entries(row.fieldMeta || {})) {
+      if (!Number.isFinite(Number(row[field]))) orphaned.push(`${row.date}.${field}`);
+    }
+  }
+  check('history fieldMeta always describes a finite value', orphaned.length === 0, orphaned.slice(0, 4).join(' '));
+}
+
+// ── P1098 : a coverage ratio cannot exceed its own denominator ─────────────
+const telegram = readIf('public-data/telegram-digest.json');
+if (telegram?.coverage) {
+  const coverage = telegram.coverage;
+  const observed = Number(coverage.observedCount);
+  const eligible = Number(coverage.eligibleTextCount);
+  const selected = Number(coverage.selectedRawCount);
+  const selectedEligible = Number(coverage.selectedEligibleCount);
+  if (coverage.selectedEligibleCount === undefined && inTransition('telegram coverage funnel predates P1098')) {
+    // bounded: assertions below run unconditionally after TRANSITION_DEADLINE
+  } else {
+    check('selectedEligibleCount stays inside the eligible text window', selectedEligible <= eligible, `${selectedEligible} > ${eligible}`);
+    check('selectedRawCoveragePct cannot exceed 100', Number(coverage.selectedRawCoveragePct) <= 100, `${coverage.selectedRawCoveragePct}%`);
+    check('selectedOfObservedPct cannot exceed 100', Number(coverage.selectedOfObservedPct) <= 100, `${coverage.selectedOfObservedPct}%`);
+  }
+  check('the selected set is a subset of the observed window', selected <= observed, `${selected} > ${observed}`);
+  check('telegram observed lineage count matches the published payload',
+    observed === (Array.isArray(telegram.observedItems) ? telegram.observedItems.length : -1),
+    `coverage=${observed} items=${telegram.observedItems?.length ?? 'missing'}`);
+}
+
+// ── P1109 : published references must resolve, retired scopes must stay retired
+// A curated reference artifact can point at an id that no longer exists. The
+// atlas consumer renders an unresolved id as a generic chip with a placeholder
+// label, so the defect is user-visible while every structural check passes:
+// `relationship-guides.json` published five routeIds (`valuation`, `power-grid`,
+// `aidc-power-delivery` x2, `aidc-construction`) that resolve to nothing in the
+// corpus. Resolve against the union of identifier surfaces these guides are
+// allowed to reference.
+const idUniverse = new Set();
+const addIds = (node) => {
+  if (!node || typeof node !== 'object') return;
+  if (Array.isArray(node)) { node.forEach(addIds); return; }
+  for (const [key, value] of Object.entries(node)) {
+    if (/(^id$|Id$|^canonicalId$|^legacyId$|^slug$|^unitId$|^nodeId$|^branchId$|^anchors?$)/.test(key)) {
+      if (Array.isArray(value)) value.forEach((item) => { if (typeof item === 'string') idUniverse.add(item); });
+      else if (typeof value === 'string') idUniverse.add(value);
+    }
+    if (key === 'aliases' || key === 'allowedRoutes') {
+      if (Array.isArray(value)) value.forEach((item) => { if (typeof item === 'string') idUniverse.add(item); });
+    }
+    addIds(value);
+  }
+};
+for (const source of ['public-data/knowledge/concepts.json', 'public-data/knowledge/route-targets.json', 'public-data/knowledge/coverage-matrix.json', 'public-data/atlas/taxonomy-node-coverage.json', 'public-data/atlas/deep-taxonomy.json', 'public-data/atlas/source-packets.json', 'public-data/principles/lesson-library.json', 'public-data/principles/node-guides.json', 'public-data/atlas/foundation-lessons.json']) {
+  const artifact = readIf(source);
+  if (artifact) addIds(artifact);
+}
+const guides = readIf('public-data/knowledge/relationship-guides.json');
+if (guides?.guides) {
+  const dangling = [];
+  for (const guide of guides.guides) {
+    for (const node of guide.nodes || []) {
+      for (const routeId of node.routeIds || []) {
+        if (typeof routeId === 'string' && !idUniverse.has(routeId)) dangling.push(`${guide.id}/${node.id}=${routeId}`);
+      }
+    }
+  }
+  check('every relationship-guide reference resolves to a declared identifier', dangling.length === 0, dangling.join(', '));
+}
+
+// ── P1115 : a client fetch path must have a publisher that always publishes
+// The earnings panel fetches its keyless snapshot, but the producer returned
+// without writing when no API key was configured — its own header claimed an
+// "operator-key-required" snapshot was preserved. The path never existed, so every
+// keyless client (and the route-soak browser gate) saw a 404. A fetch path with no
+// publisher is a defect in the publisher, not in the client.
+const earningsCalendar = readIf('public-data/earnings-calendar.json');
+const earningsStatuses = new Set(['current-reference', 'operator-key-required']);
+check('the keyless earnings snapshot is published under a declared status',
+  !!earningsCalendar && earningsStatuses.has(earningsCalendar.status),
+  earningsCalendar ? `status=${earningsCalendar.status}` : 'artifact missing');
+check('an unavailable earnings snapshot publishes no rows',
+  !earningsCalendar || earningsCalendar.status !== 'operator-key-required'
+  || ((earningsCalendar.earnings || []).length === 0 && (earningsCalendar.ipos || []).length === 0),
+  `earnings=${earningsCalendar?.earnings?.length} ipos=${earningsCalendar?.ipos?.length}`);
+
+// The lab producer declares an excluded product scope and publishes nothing.
+// Its previously generated output stayed published for weeks: frozen, unread,
+// uncensused, and full of unresolvable ids. A retired scope must stay retired.
+for (const retired of ['public-data/knowledge/quantitative-labs.json', 'public-data/knowledge/quantitative-labs']) {
+  check(`excluded product scope republishes nothing (${retired})`, !existsSync(retired), 'retired artifact is published again');
 }
 
 // A rebase conflict resolved by staging the conflicted file (instead of choosing a

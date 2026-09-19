@@ -471,6 +471,11 @@ const broadItems = (function() {
 })();
 const selectedRawIds = new Set([...topItems, ...broadItems].map(it => it.id));
 const eligibleTextCount = observedItems.filter(it => it.hasText).length;
+// The selection is drawn from every observed post, while the text-eligible
+// window is a subset, so a ratio of the two exceeded 100% (280.5% published).
+// Restrict the numerator to the same population as the denominator (P1098).
+const eligibleTextIds = new Set(observedItems.filter(it => it.hasText).map(it => it.id));
+const selectedEligibleRawIds = new Set([...selectedRawIds].filter(id => eligibleTextIds.has(id)));
 const current24hChannelCounts = {};
 for (const it of current24hObservedItems) current24hChannelCounts[it.channel] = (current24hChannelCounts[it.channel] || 0) + 1;
 const digest = {
@@ -515,8 +520,10 @@ const digest = {
     highSignalCount:observedItems.filter(it => it.score >= 65).length,
     broadSignalCount:observedItems.filter(it => it.score >= 50).length,
     selectedRawCount:selectedRawIds.size,
-    selectedRawCoveragePct:eligibleTextCount ? Math.round(selectedRawIds.size / eligibleTextCount * 1000) / 10 : 0,
-    semantics:'observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715).'
+    selectedEligibleCount:selectedEligibleRawIds.size,
+    selectedRawCoveragePct:eligibleTextCount ? Math.round(selectedEligibleRawIds.size / eligibleTextCount * 1000) / 10 : 0,
+    selectedOfObservedPct:observedItems.length ? Math.round(selectedRawIds.size / observedItems.length * 1000) / 10 : 0,
+    semantics:'observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount.'
   },
   topicCounts,
   tickerCounts,

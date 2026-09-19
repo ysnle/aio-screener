@@ -113,6 +113,10 @@ function failuresOf(data) {
 const POLICIES = {
   'backtest-history.json': { kind: 'research-history', custom: 'backtest-history-latest', maxAgeHours: 24 * 14 },
   'data.json': { kind: 'live-core', timestamp: ['meta.generatedAt'], maxAgeHours: 12 },
+  // Weekly calendar reference rebuilt by refresh-screener. It owns a bounded
+  // Mon~Fri window, so a stale artifact is a WARN (the client falls back to the
+  // explicit key-required state), never a silent success (P1102).
+  'earnings-calendar.json': { kind: 'weekly-calendar-reference', timestamp: ['generatedAt'], custom: 'earnings-week', maxAgeHours: 24 * 8 },
   'factor-backtest-longrun.json': { kind: 'research-horizon', timestamp: ['generatedAt', 'meta.generatedAt'] },
   'history.json': { kind: 'daily-history', custom: 'history-date', maxAgeHours: 24 * 3 },
   'market-snapshot.json': { kind: 'live-core', timestamp: ['generatedAt', 'lastSuccessfulAt', 'attemptedAt'], maxAgeHours: 24 },
@@ -185,6 +189,20 @@ function evaluateArtifact(name, data) {
       results.push(warn('universe reference exceeded its declared staleAfterDays', `${age.ageDays}d > ${staleAfterDays}d`));
     } else if (date) {
       results.push(info('universe reference is inside its declared staleAfterDays', `${age.ageDays}d <= ${staleAfterDays}d`));
+    }
+  }
+
+  if (policy.custom === 'earnings-week') {
+    const weekStart = parseDate(data.weekStart);
+    const weekEnd = parseDate(data.weekEnd);
+    if (!weekStart || !weekEnd) {
+      results.push(fail('weekly calendar does not declare a parseable window', `weekStart=${data.weekStart} weekEnd=${data.weekEnd}`));
+    } else if (weekEnd.getTime() < weekStart.getTime()) {
+      results.push(fail('weekly calendar window ends before it starts', `${data.weekStart}..${data.weekEnd}`));
+    } else if (weekEnd.getTime() < NOW.getTime()) {
+      results.push(warn('weekly calendar window already ended', `weekEnd=${data.weekEnd}`));
+    } else {
+      results.push(info('weekly calendar declares an open window', `${data.weekStart}..${data.weekEnd}`));
     }
   }
 
@@ -286,6 +304,67 @@ const report = {
   artifacts
 };
 
+// Nested artifact families were outside this audit entirely: `readdirSync` is
+// non-recursive, so `public-data/knowledge|atlas|principles|masters` held 1,372
+// files (~464 MB) with no freshness surface at all — including the index
+// artifacts whose own `counts` a consumer trusts (P1110). Measure their
+// top-level members here. Severity stays WARN: this pass establishes the
+// surface, and promoting any family to FAIL requires its owner to confirm an SLA
+// first. It never loosens a top-level verdict.
+const NESTED_POLICIES = [
+  { dir: 'knowledge', kind: 'nested-knowledge-reference', timestamp: ['generatedAt', 'reviewedAt', 'researchedAt', 'searchedAt', 'reviewedAt'], maxAgeHours: 24 * 120 },
+  { dir: 'atlas', kind: 'nested-atlas-reference', timestamp: ['reviewedAt', 'generatedAt'], maxAgeHours: 24 * 120 },
+  { dir: 'principles', kind: 'nested-principles-reference', timestamp: ['reviewedAt', 'generatedAt'], maxAgeHours: 24 * 120 },
+  { dir: 'masters', kind: 'nested-masters-reference', timestamp: ['reviewedAt', 'generatedAt'], maxAgeHours: 24 * 45 }
+];
+
+function evaluateNestedArtifact(relPath, data) {
+  const dir = relPath.split('/')[0];
+  const policy = NESTED_POLICIES.find((entry) => entry.dir === dir);
+  const checks = [];
+  const timestamp = firstPresent(data, policy.timestamp);
+  const date = parseDate(timestamp.value);
+  const age = date ? ageDetail(date) : null;
+  if (!timestamp.value) checks.push(warn('nested artifact declares no freshness timestamp', policy.timestamp.join(', ')));
+  else if (!date) checks.push(warn('nested artifact freshness timestamp is not parseable', `${timestamp.path}=${timestamp.value}`));
+  else if (age.future) checks.push(warn('nested artifact freshness timestamp is in the future', `${timestamp.path}=${timestamp.value}`));
+  else if (age.ageHours > policy.maxAgeHours) checks.push(warn('nested artifact is older than its reference window', `${age.ageHours}h > ${policy.maxAgeHours}h`));
+  else checks.push(info('nested artifact is inside its reference window', `${age.ageHours}h old`));
+  return {
+    artifact: relPath,
+    policy: policy.kind,
+    status: checks.some((entry) => entry.status === 'WARN') ? 'WARN' : 'PASS',
+    timestampField: timestamp.path,
+    timestamp: date?.toISOString() ?? timestamp.value ?? null,
+    ...(age ?? {}),
+    checks
+  };
+}
+
+const nestedArtifacts = [];
+let nestedSkipped = 0;
+for (const policy of NESTED_POLICIES) {
+  const dirPath = join(DATA_DIR, policy.dir);
+  if (!existsSync(dirPath)) continue;
+  for (const file of readdirSync(dirPath).filter((name) => name.endsWith('.json')).sort()) {
+    try {
+      nestedArtifacts.push(evaluateNestedArtifact(`${policy.dir}/${file}`, JSON.parse(readFileSync(join(dirPath, file), 'utf8'))));
+    } catch (error) {
+      nestedSkipped++;
+      nestedArtifacts.push({ artifact: `${policy.dir}/${file}`, policy: policy.kind, status: 'WARN', checks: [warn('nested artifact could not be read or parsed', error.message)] });
+    }
+  }
+}
+const nestedStale = nestedArtifacts.filter((artifact) => artifact.status === 'WARN').length;
+report.nested = {
+  scope: 'public-data/<family>/*.json (top level only; managers/, history/ shards and objects/ are content-addressed or unbounded)',
+  measured: nestedArtifacts.length,
+  stale: nestedStale,
+  unreadable: nestedSkipped,
+  severity: 'WARN-only',
+  artifacts: nestedArtifacts
+};
+
 if (process.argv.includes('--json')) {
   console.log(JSON.stringify(report, null, 2));
 } else {
@@ -297,6 +376,12 @@ if (process.argv.includes('--json')) {
     for (const check of artifact.checks ?? []) {
       if (check.status !== 'INFO') console.log(`     ${check.status}: ${check.message}${check.detail ? ` (${check.detail})` : ''}`);
     }
+  }
+  console.log(`Nested reference families (${report.nested.severity}): ${report.nested.measured} artifacts measured, ${report.nested.stale} outside window, ${report.nested.unreadable} unreadable`);
+  for (const artifact of report.nested.artifacts) {
+    if (artifact.status !== 'WARN') continue;
+    const check = artifact.checks.find((entry) => entry.status === 'WARN');
+    console.log(`     NESTED-WARN ${artifact.artifact.padEnd(44)} ${check ? `${check.message}${check.detail ? ` (${check.detail})` : ''}` : ''}`);
   }
   console.log(`As of ${report.asOf}. This audit does not certify provider rights, factual truth, or human/legal approval.`);
 }

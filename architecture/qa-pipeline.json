@@ -184,6 +184,8 @@
         { "id": "live-header-policy", "script": "scripts/ci-live-header-policy-contract-check.mjs" },
         { "id": "operator-provisioning", "script": "scripts/ci-operator-secrets-contract-check.mjs", "inputs": [".github/workflows/**", "_context/OPERATOR-RUNBOOK.md", "_context/CONTEXT-CATALOG.json"] },
         { "id": "doc-currency", "script": "scripts/ci-doc-currency-check.mjs" },
+        { "id": "ledger-integrity", "script": "scripts/ci-ledger-integrity-check.mjs" },
+        { "id": "assertion-trace", "script": "scripts/ci-assertion-trace-check.mjs" },
         { "id": "qa-pipeline-contract", "script": "scripts/ci-qa-pipeline-contract-check.mjs" }
       ]
     },
@@ -291,6 +293,7 @@
     { "patterns": ["version.json"], "groups": ["core"] },
     { "patterns": ["AGENTS.md", "CLAUDE.md", ".agents/**", ".claude/**", ".codex/**", ".github/**", "_context/**", "architecture/qa-pipeline.json", "architecture/agent-profiles.json", "architecture/skill-eval-cases.json"], "groups": ["workspace"] },
     { "patterns": ["scripts/ci-operator-secrets-contract-check.mjs"], "groups": ["workspace"] },
+    { "patterns": ["scripts/ci-ledger-integrity-check.mjs", "scripts/ci-assertion-trace-check.mjs", "_context/rule-gap-manifest.json", "_context/open-item-baseline.json", "_context/assertion-trace-baseline.json", "_context/doc-freshness-baseline.json"], "groups": ["workspace"] },
     { "patterns": ["scripts/ci-artifact-semantics-check.mjs"], "groups": ["data", "core"] },
     { "patterns": [".github/workflows/refresh-data.yml"], "groups": ["core", "data"] },
     { "patterns": [".github/workflows/pages-deploy.yml", ".github/workflows/deploy-ai-proxy.yml", ".github/workflows/deploy-data-plane.yml", "cloudflare-worker-proxy.js", "worker/data-plane.js", "architecture/deployment-convergence.json"], "groups": ["core", "cloudflare"] },

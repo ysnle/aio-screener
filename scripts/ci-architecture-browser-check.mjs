@@ -483,12 +483,17 @@ try {
       signalRenderer: document.getElementById('page-signal')?.dataset.aioSignalRenderer || null,
       rawPrimarySinkCount: document.querySelectorAll(`#page-signal ${primarySelectors}`).length,
       nativePrimarySinkCount: document.querySelectorAll(`#page-signal[data-aio-architecture-renderer="native"] ${primarySelectors}`).length,
+      // P1118: the post-composite adjustment rows are a separate native sink. They are not
+      // written by refreshSignalDashboard, so they are observed instead of fence-tested.
+      adjustmentsRenderer: document.getElementById('score-adjustments-container')?.dataset.aioSignalAdjustmentsRenderer || null,
+      adjustmentRowCount: document.querySelectorAll('#score-adjustments-container > div').length,
       score: before.score,
       badge: before.badge,
       fenceValue
     };
   });
   if (signalRoute.renderer !== 'native' || signalRoute.signalRenderer !== 'native' || signalRoute.rawPrimarySinkCount !== 3 || signalRoute.nativePrimarySinkCount !== 3 || Object.values(signalRoute.fenceValue).some((value) => value !== 'NATIVE-FENCE')) throw new Error(`signal native hero/fence failed: ${JSON.stringify(signalRoute)}`);
+  if (signalRoute.adjustmentsRenderer !== 'native' || signalRoute.adjustmentRowCount < 1) throw new Error(`signal adjustment sink failed: ${JSON.stringify(signalRoute)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('home'));
   await page.waitForFunction(() => document.getElementById('page-home')?.dataset.aioArchitectureRoute === 'home');
   const homeRoute = await page.evaluate(() => {

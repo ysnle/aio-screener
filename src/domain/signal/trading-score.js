@@ -336,6 +336,11 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
   const total = finiteNumber(score?.total ?? score?.score);
   const missing = Array.isArray(score?.componentMissing) ? score.componentMissing.slice() : [];
   const components = deriveTradingScoreComponents(score);
+  // P1118: the published total is not the weighted component sum — post-composite
+  // adjustments and the [5,100] clamp move it afterwards. Carry the exact terms into the
+  // presentation so the visible hero can reconcile the components it already shows with
+  // the total it shows beside them, instead of leaving the difference unnamed.
+  const breakdown = score?.scoreBreakdown && typeof score.scoreBreakdown === 'object' ? score.scoreBreakdown : null;
   const predictiveValidation = score?.predictiveValidation === PREDICTIVE_VALIDATION_ESTABLISHED
     ? PREDICTIVE_VALIDATION_ESTABLISHED
     : PREDICTIVE_VALIDATION_NOT_ESTABLISHED;
@@ -355,6 +360,7 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
       decisionEligible: false,
       predictiveValidation,
       components,
+      breakdown,
       decision: '판정 보류 — 필수 입력 미수신',
       description: `${missingText || '시장 환경'} 입력 부족 · 수신된 개별 지표는 아래에서 확인할 수 있습니다.`,
       reasons: Object.freeze(['required-input-missing', ...reasons])
@@ -379,6 +385,7 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
       decisionEligible: false,
       predictiveValidation,
       components,
+      breakdown,
       decision: `시장환경 관찰 — ${conditionBand} 구간 · 예측 검증 미확립`,
       description: `${missingText || '현재 입력 조합'}의 상태를 요약한 참고 지표입니다. 예측 신호·매매 권고로 사용하지 않습니다.`,
       reasons: Object.freeze(['predictive-validation-not-established', ...reasons])
@@ -396,6 +403,7 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
       decisionEligible: false,
       predictiveValidation,
       components,
+      breakdown,
       decision: '판정 보류 — 부분 데이터 점수',
       description: `${missingText || '일부 입력'} 제외 · 수신된 입력만 반영한 참고 점수입니다.`,
       reasons: Object.freeze(['partial-inputs', ...reasons])
@@ -437,6 +445,7 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
     decisionEligible: true,
     predictiveValidation,
     components,
+    breakdown,
     reasons: Object.freeze([`trading-score-tier:${bands.tier}`])
   });
 }

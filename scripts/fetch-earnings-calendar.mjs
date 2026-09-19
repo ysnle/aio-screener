@@ -39,15 +39,37 @@ async function atomicWrite(path, value) {
 async function main() {
   let previous = null;
   try { previous = JSON.parse(await readFile(OUT, 'utf8')); } catch { /* first run */ }
-  if (!FINNHUB_KEY) {
-    console.warn('[earnings-calendar] skipped: FINNHUB_API_KEY is not configured (no artifact written)');
-    return;
-  }
   const now = new Date();
   const monday = new Date(now.getTime() + ((1 - (now.getUTCDay() || 7)) * 86400000));
   const friday = new Date(monday.getTime() + 4 * 86400000);
   const from = isoDay(monday);
   const to = isoDay(friday);
+  if (!FINNHUB_KEY) {
+    // This header always claimed the artifact is "preserved with status
+    // operator-key-required", but the code returned without writing anything, so
+    // the path never existed: every keyless client (including the browser
+    // earnings panel's snapshot fallback) got a 404 (P1115). Publish an explicit
+    // unavailable snapshot, and never overwrite a real one with it.
+    if (previous && previous.status === 'current-reference') {
+      console.warn('[earnings-calendar] skipped: FINNHUB_API_KEY is not configured; the published reference snapshot is preserved');
+      return;
+    }
+    await atomicWrite(OUT, `${JSON.stringify({
+      schemaVersion: 'earnings-calendar.v1',
+      status: 'operator-key-required',
+      source: 'Finnhub calendar/earnings + calendar/ipo',
+      sourceUrl: 'https://finnhub.io/docs/api',
+      sourceKind: 'licensed-api',
+      allowedUse: 'reference-only',
+      weekStart: from,
+      weekEnd: to,
+      generatedAt: new Date().toISOString(),
+      earnings: [],
+      ipos: []
+    }, null, 1)}\n`);
+    console.warn('[earnings-calendar] published an unavailable snapshot: FINNHUB_API_KEY is not configured');
+    return;
+  }
   const [earnings, ipos] = await Promise.all([
     fetchJSON(`${FINNHUB_BASE}/calendar/earnings?from=${from}&to=${to}&token=${FINNHUB_KEY}`).then((d) => (Array.isArray(d?.earningsCalendar) ? d.earningsCalendar : [])),
     fetchJSON(`${FINNHUB_BASE}/calendar/ipo?from=${from}&to=${to}&token=${FINNHUB_KEY}`).then((d) => (Array.isArray(d?.ipoCalendar) ? d.ipoCalendar : []))
