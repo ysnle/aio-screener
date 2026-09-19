@@ -87,7 +87,7 @@ jobs:
           echo "Resolved attested release: run=$run_id sha=$expected_sha branch=$ci_branch"
 
       - name: Download CI release attestation
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: aio-release-attestation
           path: ${{ runner.temp }}/release-attestation
@@ -106,12 +106,12 @@ jobs:
           echo "sha=$sha" >> "$GITHUB_OUTPUT"
 
       - name: Checkout exact attested SHA
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ steps.release.outputs.sha }}
 
       - name: Setup Node
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '20'
           cache: npm
@@ -142,16 +142,16 @@ jobs:
           node --input-type=module -e "import fs from 'node:fs'; const version=JSON.parse(fs.readFileSync('version.json','utf8')).version; const artifact={schemaVersion:'aio-deployment.v1',sourceSha:process.env.AIO_SOURCE_SHA,appRevision:version,attestationRunId:Number(process.env.AIO_ATTESTATION_RUN_ID),deploymentRunId:Number(process.env.AIO_DEPLOYMENT_RUN_ID),deployedAt:new Date().toISOString()}; if(!/^[0-9a-f]{40}$/.test(artifact.sourceSha)) process.exit(1); fs.writeFileSync(process.env.RUNNER_TEMP+'/pages-dist/deployment.json',JSON.stringify(artifact,null,2)+'\n');"
 
       - name: Setup Pages
-        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5.0.0
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: ${{ runner.temp }}/pages-dist
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
         continue-on-error: true
 
       - name: Wait before deploy retry
@@ -161,7 +161,7 @@ jobs:
       - name: Deploy to GitHub Pages (retry)
         id: deployment_retry
         if: steps.deployment.outcome == 'failure'
-        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
 
       - name: Fail if both deploy attempts failed
         if: steps.deployment.outcome == 'failure' && steps.deployment_retry.outcome != 'success'
