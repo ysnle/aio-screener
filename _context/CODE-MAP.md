@@ -1,6 +1,6 @@
 ---
 verified_by: historical navigation map; current sizes and versions belong to generated CURRENT-STATE.md
-last_verified: 2026-08-31
+last_verified: 2026-09-19
 confidence: high
 auto_refresh: true
 target_version: version.json
@@ -244,15 +244,21 @@ The tables in this subsection supersede older detailed line snapshots retained b
 
 ## 1. 현재 파일 구조
 
-| 파일 | 줄 수 | 역할 |
-|------|------:|------|
-| `index.html` | 29,095 | HTML shell, CSS, 22개 route DOM, 초기화용 inline 블록, 외부 모듈 로드 |
-| `js/aio-core.js` | 26,563 | 버전, 상태/감사/계약/증거 레이어, DATA_SNAPSHOT, 페이지 라우터, 매매 알고리즘 핵심 |
-| `js/aio-data.js` | 17,805 | API/서버 데이터, quote·previous-close 파이프라인, 뉴스, 스케줄러, identity-only 스크리너 |
-| `js/aio-ui.js` | 4,257 | 활성 차트/렌더러, breadth UI, LLM quota UI, 교육 레이어 (sentiment renderer는 `src/ui/pages/sentiment.js`) |
-| `js/aio-chat.js` | 6,084 | evidence-first CHAT_CONTEXTS, data preflight, Claude/Perplexity, 응답 파이프라인 |
-| `js/aio-tests.js` | 8,840 | CI/로컬 브라우저 회귀 테스트 전용. Pages·service worker 배포 대상에서 제외 |
-| `js/aio-glossary.js` | 314 | 용어사전 검색/렌더 |
+> **파일별 현재 줄 수는 여기에 적지 않는다.** 이 표는 v53~v55 사이에 실제 값과 500~2,500줄까지
+> 어긋난 채 방치됐고, 그 사이 크기 검사는 `size_table_policy`로 꺼져 있어 아무도 몰랐다.
+> 현재 값의 단일 원천은 생성물 [`CURRENT-STATE.md`](./CURRENT-STATE.md)이고, 상한·래칫은
+> `architecture/decomposition-hotspots.json` + `scripts/ci-decomp-hotspot-check.mjs`가 강제한다
+> (R620/P1127). 두 곳에 적으면 반드시 한쪽이 썩는다(R619).
+
+| 파일 | 역할 (줄 수는 CURRENT-STATE.md) |
+|------|------|
+| `index.html` | HTML shell, 메인 CSS, **20개** route DOM, 초기화용 inline 11블록, 외부 모듈 로드 |
+| `js/aio-core.js` | 버전, 상태/감사/계약/증거 레이어, DATA_SNAPSHOT, 페이지 라우터, 매매 알고리즘 핵심, OPEX 만기 정본 |
+| `js/aio-data.js` | API/서버 데이터, quote·previous-close 파이프라인, 뉴스, 스케줄러, identity-only 스크리너 |
+| `js/aio-ui.js` | 활성 차트/렌더러, breadth UI, LLM quota UI, 교육 레이어 (sentiment renderer는 `src/ui/pages/sentiment.js`) |
+| `js/aio-chat.js` | evidence-first CHAT_CONTEXTS, data preflight, Claude/Perplexity, 응답 파이프라인 |
+| `js/aio-tests.js` | CI/로컬 브라우저 회귀 테스트 전용(110그룹). Pages·service worker 배포 대상에서 제외 |
+| `js/aio-glossary.js` | 용어사전 데이터 리터럴 |
 
 ---
 
@@ -260,52 +266,64 @@ The tables in this subsection supersede older detailed line snapshots retained b
 
 | 범위 | 내용 |
 |------|------|
-| 1 ~ 5270 | head meta/preload + 메인 CSS (`<style>` 46~5270) |
-| 5271 ~ 12618 | body shell + 22개 route DOM; 페이지 내부 inline 3개(5281~5313, 7086~7107, 7871~7877) |
-| 12619 ~ 12623 | Chart.js·DOMPurify·Lightweight Charts CDN |
-| 12624 ~ 12694 | CDN 지연 폴백 초기화 |
-| 12701 ~ 12703 | `aio-core/data/ui` defer 로드 (`?v=53.4`) |
-| 12706 ~ 15244 | inline runtime 블록 |
-| 15246 | `js/aio-chat.js` defer 로드 (`?v=53.4`) |
-| 15248 ~ 16868 | inline runtime 블록 |
-| 16870 ~ 20798 | inline runtime 블록 |
-| 20799 ~ 25185 | inline runtime 블록 |
-| 25228 ~ 25426 | inline runtime 블록 |
-| 25437 | `js/aio-glossary.js` defer 로드 (`?v=53.4`) |
-| 25440 ~ 28295 | inline runtime/SW 등록 블록 |
-| 28333 ~ 28364 | 하단 보조 CSS |
-| 28369 ~ 29089 | 최종 inline runtime 블록 |
+| 1 ~ 5,988 | head: meta/preload/SEO + 메인 CSS (`<style>` 47~5,987 = 5,941줄) |
+| 5,989 ~ 13,010 | body shell + **20개** route DOM; 페이지 내부 inline 3개(5,998~6,030 · 7,806~7,827 · 8,874~8,880) + 고아 micro `<style>` 2개(10,365~10,367 · 10,455~10,458) |
+| 13,012 ~ 13,016 | Chart.js·DOMPurify·Lightweight Charts CDN (async, SRI) |
+| 13,017 ~ 13,108 | CDN 지연 폴백 초기화 + `window.Chart` 오프라인 stub + 5초 2차 CDN 타이머 |
+| 13,115 ~ 13,117 | `aio-core/data/ui` defer 로드 |
+| 13,120 ~ 15,730 | inline runtime 블록 A (2,611줄) |
+| 15,732 | `js/aio-chat.js` defer 로드 |
+| 15,734 ~ 16,909 | inline runtime 블록 B (1,176줄) |
+| 16,911 ~ 20,385 | inline runtime 블록 C (3,475줄) |
+| 20,386 ~ 24,135 | inline runtime 블록 D (3,750줄) |
+| 24,178 ~ 24,357 | inline runtime 블록 E (180줄) |
+| 24,368 | `js/aio-glossary.js` defer 로드 |
+| 24,371 ~ 27,478 | inline runtime 블록 F (3,108줄) |
+| 27,516 ~ 27,555 | AI 사이드 패널 `<style>` (메인 CSS에서 21,500줄 떨어져 있음) |
+| 27,560 ~ 28,567 | inline runtime 블록 G (1,008줄) |
+| 28,571 | `src/app/bootstrap.js` ESM 로드 |
 
-> 현재 `<script>`는 외부 8개(CDN 3 + runtime 5), inline 11개(페이지 내부 3 + CDN 폴백 1 + runtime 7)다.
-> runtime 5개는 모두 `defer`이며, 테스트 번들은 HTML·Pages artifact·service worker에 포함하지 않는다.
+> 인라인 JS는 블록 A~G **15,308줄** + 소형 4블록 **154줄** = 약 **15,460줄**이다. 이는
+> index.html 전체의 54%로, 이 파일이 "셸"이라는 전제를 무효화한다. (2026-09-19 이전 기록의
+> 14,870줄은 13,738행의 주석 안에 있는 `<script>` 문자열을 블록 시작으로 오인한 측정 오류였다.)
+
+> 현재 `<script>`는 외부 runtime 6개(CDN 3 + `defer` 5 + ESM `bootstrap.js` 1), inline 11개
+> (페이지 내부 3 + CDN 폴백 1 + runtime 7)다. `defer` 5개는 로드 순서가 곧 의존 순서이며,
+> 모든 inline 클래식 블록은 `defer`보다 **먼저** 실행된다(파싱 시점). 테스트 번들은
+> HTML·Pages artifact·service worker에 포함하지 않는다.
 > 정확한 재탐색은 `rg -n "<script|</script>|<style|</style>" index.html`을 사용한다.
+> 아래 line은 2026-09-19 측정값이며, 수정 전에는 항상 `rg -n`으로 확인한다.
 
-### 22개 route 페이지 DOM 시작점
+### 20개 route 페이지 DOM 시작점
 
 | 페이지 | id | 시작 line |
 |--------|----|----------:|
-| 홈 대시보드 | `page-home` | 5655 |
-| 매매 시그널 | `page-signal` | 5907 |
-| 시장 폭 | `page-breadth` | 6624 |
-| 투자 심리 | `page-sentiment` | 6888 |
-| 데일리 브리핑 | `page-briefing` | 7072 |
-| 차트·기술 | `page-technical` | 7386 |
-| 거시경제 | `page-macro` | 7801 |
-| 환율·채권 | `page-fxbond` | 8252 |
-| 기업 분석 | `page-fundamental` | 8945 |
-| 테마/섹터 | `page-themes` | 9277 |
-| 테마 상세 | `page-theme-detail` | 9552 |
-| 포트폴리오 | `page-portfolio` | 9680 |
-| 티커 상세 | `page-ticker` | 10143 |
-| 시장 뉴스 | `page-market-news` | 10401 |
-| 옵션 분석(폐기 안내 shell) | `page-options` | 10538 |
-| 퀀트 스크리너 | `page-screener` | 10576 |
-| 한국 홈 | `page-kr-home` | 10776 |
-| 한국 수급 | `page-kr-supply` | 11111 |
-| 한국 테마 | `page-kr-themes` | 11322 |
-| 한국 거시 | `page-kr-macro` | 11393 |
-| 한국 기술 | `page-kr-technical` | 11669 |
-| 사용 설명서 | `page-guide` | 11913 |
+| 홈 대시보드 | `page-home` | 6,367 |
+| 매매 시그널 | `page-signal` | 6,622 |
+| 시장 폭 | `page-breadth` | 7,344 |
+| 투자 심리 | `page-sentiment` | 7,608 |
+| 데일리 브리핑 | `page-briefing` | 7,792 |
+| 차트·기술 | `page-technical` | 8,142 |
+| 거시경제 | `page-macro` | 8,799 |
+| 환율·채권 | `page-fxbond` | 9,561 |
+| 기업 분석 | `page-fundamental` | 10,254 |
+| 테마/섹터 | `page-themes` | 10,593 |
+| 테마 상세 | `page-theme-detail` | 10,956 |
+| 포트폴리오 | `page-portfolio` | 11,083 |
+| 티커 상세 | `page-ticker` | 11,546 |
+| 시장 뉴스 | `page-market-news` | 11,778 |
+| 옵션 분석(폐기 안내 shell) | `page-options` | 11,915 |
+| 퀀트 스크리너 | `page-screener` | 11,956 |
+| 시장 원리 | `page-principles` | 12,259 |
+| 대가의 포트폴리오 | `page-masters` | 12,278 |
+| AI 시대 지식 지도 | `page-atlas` | 12,296 |
+| 사용 설명서 | `page-guide` | 12,314 |
+
+> 한국 5라우트(`page-kr-*`)는 v53.7/P725에서 퇴역해 **DOM이 0개**다(`AIO_ROUTE_REGISTRY`
+> `REMOVED`). `principles`·`masters`·`atlas`·`guide`는 정적 shell(hero + `data-*-content`
+> 컨테이너)이며 본문은 ESM lazy page가 hydration한다. 라우트 권위 목록은
+> `src/app/routes.js`의 `ROUTE_IDS`(20)이고, `js/aio-core.js`의 `ROUTE_PAGE_IDS`도 같은
+> 20개 집합을 **다른 순서로** 중복 보유한다(3단계에서 단일 원천화 대상).
 
 ### v53.4 현재 데이터 계약 핵심 앵커
 
@@ -531,4 +549,6 @@ The tables in this subsection supersede older detailed line snapshots retained b
 - 큰 구조 변경 뒤에는 이 파일의 line 번호를 반드시 재스캔한다. **다음 재스캔 트리거**: index.html 또는 js 모듈 어느 한 파일이라도 ±500줄 변경 시, 또는 3개월 경과 시(자동 staleness 방지).
 - **2026-07-06 targeted correction (P626, `_context/FABLE-ARCH-DIAGNOSIS-2026-07-06.md` Phase 0-4)**: 이 파일 자체가 v51.90 스캔 기준으로 "미해결"이라 적어둔 진단 C1(RSI)이 실제로는 v51.91에 이미 해소됐음을 실측 확인(§3 표 2곳 + §5 구조적 이슈 목록 정정) — 진단 문서의 "미해결" 표기는 스캔 시점 스냅샷이며, 해소 커밋이 그 표기를 갱신하지 않으면 이렇게 낡는다는 실사례. **주의**: 이번 정정은 C1/C3 문구 3곳 + `fetchKrDynamicData`/orphan 5함수 삭제(index.html -296줄, §2/§3의 관련 line 번호는 미재확인) 타깃 수정만이며, 전체 재스캔이 아니다. 헤더의 `target_version: v51.90`은 실제 v52.19 대비 29버전 stale — ±500줄 트리거는 이번 삭제(-296줄) 단독으론 미충족하나 다음 대규모 변경 전 전체 재스캔 권장.
 > **v53.8 (P727) 재스캔 완료**: v53.7의 KR 5페이지 통합과 v53.8의 fxbond 고아 렌더 경로 제거를 반영해 파일 크기, script/style 경계, 17-route DOM 시작점, 핵심 runtime anchor를 다시 측정했다. 세부 함수 line은 편집 전 `rg -n`으로 최종 확인한다.
+>
+> **P1129 정정 (2026-09-19)**: 위 "17-route"와 문서 다른 곳의 "22-route"는 둘 다 틀렸고 실제는 **20개**다. KR 5라우트가 v53.7에서 퇴역한 뒤에도 이 문서는 그 5개를 계속 라우트로 세고 있었고, `principles`/`masters`/`atlas` 3개는 어디에도 없었다. §1의 파일 크기 표도 실제 값과 500~2,500줄 어긋나 있었는데, `size_table_policy: historical-snapshot` 때문에 크기 검사가 꺼져 있어 드러나지 않았다. 지금은 §1이 크기를 적지 않고 `CURRENT-STATE.md`를 가리키며, 상한·래칫은 `ci-decomp-hotspot-check.mjs`가 7개 파일에 대해 강제한다.
 > **v53.46 (P837 current packet)**: reference analysis protocols remain source-labelled as REFERENCE, SEC refresh rotates untried candidates before cooled-down retries, and fast-plane smoke distinguishes propagation/bootstrap from a real failure.

@@ -3996,7 +3996,7 @@ var AIO_PAGE_REFRESH_MAP = {
   'options': ['quotes', 'sentiment']
 };
 window.AIO_PAGE_REFRESH_MAP = AIO_PAGE_REFRESH_MAP;
-window.AIO_CRITICAL_10_PAGE_IDS = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
+// P1129/R619: AIO_CRITICAL_10_PAGE_IDS 하드코딩 제거 — aio-core가 CRITICAL_5+ANALYSIS_5로 파생한다.
 try {
   if (window.AIO && typeof window.AIO.applyPageContractCompatibility === 'function') {
     window.AIO.applyPageContractCompatibility();

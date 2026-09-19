@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v55.09';
+const APP_VERSION = 'v55.10';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -26519,8 +26519,7 @@ if (typeof document !== 'undefined') {
 // initialized, so the early route path must not observe a lexical TDZ.
 var breadcrumbMap = {
   home: ['AIO','대시보드'], themes: ['AIO','테마 분석'],
-  'kr-home': ['AIO','한국장 홈'], 'kr-supply': ['AIO','수급 분석'],
-  'kr-themes': ['AIO','국내 테마'], 'kr-macro': ['AIO','한국 매크로'], 'kr-technical': ['AIO','차트·기술 분석 (KR)'],
+  // P1129/R619: 퇴역한 KR 5라우트 항목 제거(DOM 0개, AIO_ROUTE_REGISTRY REMOVED).
   portfolio: ['AIO','포트폴리오'], macro: ['AIO','매크로'],
   technical: ['AIO','기술적 분석'], fundamental: ['AIO','기업 분석'],
   briefing: ['AIO','데일리 브리핑'], sectors: ['AIO','섹터 로테이션'],

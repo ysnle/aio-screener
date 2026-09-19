@@ -263,7 +263,11 @@ for (const marker of ['theme-detail-panel', 'aioThemeDetailPanelRenderer', 'onTh
   if (!themesPageSource.includes(marker)) fail(`native theme detail panel marker missing: ${marker}`);
 }
 const indexHtmlSource = read('index.html');
-const showThemeDetailSource = indexHtmlSource.slice(indexHtmlSource.indexOf('function showThemeDetail'), indexHtmlSource.indexOf('var _retiredThemeDeepAnalysis'));
+// P1129/R619: the end boundary was the retired deep-analysis writer; that dead block was
+// deleted, so the slice now ends at the next real function. A removed symbol must not
+// silently turn a slice boundary into -1 (which would widen the slice to the whole file
+// and quietly weaken the assertions below).
+const showThemeDetailSource = indexHtmlSource.slice(indexHtmlSource.indexOf('function showThemeDetail'), indexHtmlSource.indexOf('function closeThemeDetail'));
 const closeThemeDetailSource = indexHtmlSource.slice(indexHtmlSource.indexOf('function closeThemeDetail'), indexHtmlSource.indexOf('function showSubThemeDetail'));
 if (showThemeDetailSource.includes("container.style.display = 'block'") || showThemeDetailSource.includes("container.dataset.currentTheme = themeId") || closeThemeDetailSource.includes("p.style.display = 'none'")) fail('legacy theme detail panel writer returned after P818 cutover');
 if (!showThemeDetailSource.includes('themesPageActive') || !showThemeDetailSource.includes("window.showPage('theme-detail')")) fail('ticker-to-theme detail bridge does not route when the owning themes page is inactive');
@@ -431,12 +435,13 @@ for (const marker of ['theme-detail-native-summary', 'theme-detail-native-compos
 }
 if (!htmlSource.includes('P789: sub-theme composition and breadth are owned by the native child surface.')) fail('theme-detail legacy composition fence missing');
 if (!htmlSource.includes('P790: detailed leader cards are owned by the native child surface.')) fail('theme-detail legacy leader fence missing');
-if (!htmlSource.includes('P791: theme temperature is owned by the native child surface.')) fail('theme-detail legacy temperature fence missing');
-if (!htmlSource.includes('P792: leader performance spread is owned by the native child surface.')) fail('theme-detail legacy spread fence missing');
-if (!htmlSource.includes('P793: breadth-health narrative is owned by the native child surface.')) fail('theme-detail legacy breadth-health fence missing');
-if (!htmlSource.includes('P794: the subtheme-gap narrative is owned by the native child surface.')) fail('theme-detail legacy subtheme-gap fence missing');
-if (!htmlSource.includes('P795: benchmark comparison is owned by the native child surface.')) fail('theme-detail legacy benchmark fence missing');
-if (!htmlSource.includes('P796: theme-specific insight narrative is owned by the native child surface.')) fail('theme-detail legacy insight fence missing');
+// P1129/R619: P791~P796 were fence comments INSIDE the retired deep-analysis writer. That
+// writer has now been deleted outright, and "the fence comment still exists" stops being a
+// meaningful invariant once the fenced code is gone — keeping the assertion would have forced
+// a dead comment to survive forever. The equivalent-or-stronger invariant is that the retired
+// writer cannot come back, which is what these lines now assert. The native ownership of the
+// six sections is still covered by the `theme-detail-native-*` markers asserted above.
+if (indexHtmlSource.includes('_retiredThemeDeepAnalysis')) fail('theme-detail retired deep-analysis writer returned after P797/P1129 deletion');
 if (!htmlSource.includes('P797: all visible theme-detail content is owned by the native child surfaces.') || !htmlSource.includes('legacyContainer.replaceChildren()') || htmlSource.includes('legacyContainer.innerHTML = html')) fail('theme-detail legacy visible writer retirement missing');
 
 // P798-P799: the RRG status and canvas are native projections of the normalized themes slice.

@@ -2,12 +2,23 @@
 verified_by: 데이터 파이프라인 전수 의미·정합성 감사(로컬 재계산) + affected QA; 중첩 산출물 의미 검토는 open
 last_verified: 2026-09-19
 confidence: medium
-latest_version: v55.09
-latest_P_number: P1128
-next_P_number: P1129
-current_total_entries: 543 tracked entries (370 headings + 173 compacted lines, P1~P1128, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
+latest_version: v55.10
+latest_P_number: P1129
+next_P_number: P1130
+current_total_entries: 544 tracked entries (371 headings + 173 compacted lines, P1~P1129, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
 current_checkpoint: 사용자 판단(지인용 사설 스크리너)으로 **차단 경계를 공시로 재배치**했다 — 개인화 지시·현재증거 부족·수치 주장 불일치·헤드라인 전용 인과를 하드 차단에서 경고/공시로 강등(P1120~P1122). 조작 방지(값·단위·NFP 배율), 금지 행위 P0, 포트폴리오 동의, 도구 경계는 그대로 차단이다. 남은 OPEN: 날짜 없는 중첩 산출물 12건(P1110 측정면이 노출), `objects/**` 592/629 미참조 blob의 보존 정책, 캐시 라우팅 밖의 실제 소비 산출물 오프라인 폴백 (semantic coverage 6.89%, releaseCertified=false)
 ---
+
+## P1129 - v55.10 - 중복 선언·죽은 코드·3중으로 어긋난 문서 수치 (2026-09-19)
+
+- symptom/reproduction: 1단계 잔여 항목을 처리하며 네 종류의 결함을 확인했다. (1) **`AIO_CRITICAL_10_PAGE_IDS`가 두 번 선언**됐다 — `aio-core.js:25037`이 `CRITICAL_5.concat(ANALYSIS_5)`로 **파생**하는데 `aio-data.js:3999`가 무조건 하드코딩 리터럴로 덮어썼다(내용은 우연히 같았다). (2) **`breadcrumbMap`에 퇴역 라우트 5개**가 남아 있었다(`kr-home`/`kr-supply`/`kr-themes`/`kr-macro`/`kr-technical`) — 해당 DOM은 0개이고 레지스트리에서 `REMOVED`다. (3) **`_retiredThemeDeepAnalysis`**(index.html 25줄)는 정의 1회 외 참조가 0인 죽은 코드였다. (4) **`CODE-MAP.md`가 자기모순**이었다 — 같은 문서가 "17-route"와 "22-route"를 병기했고 실제는 **20개**이며, 퇴역한 KR 5개를 계속 라우트로 세고 `principles`/`masters`/`atlas` 3개는 누락했고, §1 파일 크기 표는 실제와 500~2,500줄 어긋나 있었다.
+- root_cause: (1)(2)(3)은 모두 "제거했지만 선언을 지우지 않은" 잔재다 — v53.7/P725의 KR 5라우트 퇴역과 P797의 theme-detail 위임이 코드 경로는 닫았지만, 같은 사실을 선언하던 목록·죽은 함수는 남았다. (4)는 더 구조적이다: §1 크기 표의 검사가 `size_table_policy: historical-snapshot`으로 **꺼져 있었고**, 상한 검사는 3개 파일만 봤으며, 문서가 스스로 "17"과 "22"를 병기해도 아무 게이트가 걸리지 않았다 — 즉 **문서가 틀려도 알려주는 장치가 하나도 없었다**.
+- fix: (1) data의 하드코딩 리터럴을 제거해 core 파생값을 단일 원천으로 만들었다. (2) breadcrumbMap에서 퇴역 5개를 제거했다. (3) 죽은 함수를 삭제하고, 그것을 **슬라이스 경계로 쓰던 게이트를 함께 고쳤다** — `ci-architecture-contract-check.mjs:266`의 `indexOf('var _retiredThemeDeepAnalysis')`가 삭제 후 -1이 되어 슬라이스가 파일 끝까지 늘어나고 단언이 조용히 무의미해질 뻔했다. 다음 함수(`closeThemeDetail`)로 경계를 옮겼다. 같은 게이트의 P791~P796 fence 단언 6개도 **fence 주석이 죽은 함수 안에 있었으므로** "주석 존재" 대신 "작성자 부재"로 바꿨다(코드가 사라진 뒤 주석 존재를 요구하는 것은 죽은 주석을 영구 보존하라는 뜻이 된다). (4) CODE-MAP §1에서 크기 표를 **삭제하고 `CURRENT-STATE.md`를 가리키게** 했다(두 곳에 적으면 반드시 한쪽이 썩는다 — 같은 문서가 그 증거다). §2 경계·라우트 표는 실측값으로 교체하고, P1129 정정 노트로 "17/22 둘 다 틀렸고 실제 20"을 명시했다.
+- 자체 측정 오류 정정: 이전 배포에서 "index.html 인라인 JS 14,870줄"이라 보고했으나, 그 수치는 13,738행 **주석 안의 `<script>` 문자열**을 블록 시작으로 오인한 것이었다. 정확히는 블록 A~G **15,308줄** + 소형 4블록 154줄 = 약 **15,460줄**이다. CODE-MAP에 정정을 적었다.
+- violated_rule: R619(1항·2항 — 같은 의미의 선언·수치를 두 곳에 두지 않는다), R620(4항 — 측정 대상은 문서에 등록하고, 문서 수치는 생성물에서 파생한다).
+- prevention: decomp 래칫이 index.html −26 / core −1을 기록으로 조였고, CODE-MAP은 이제 크기를 보유하지 않으므로 다시 어긋날 수 없다. 죽은 함수 삭제 시 슬라이스 경계를 함께 고치는 규칙은 이 항목이 그 실례다.
+- 잔여(별도 항목): `updateKrSupplyDOM`의 KR 이중 타깃(`kr-home-*`/`kr-supply-*`, DOM 0개)은 게이트 3곳·테스트 5곳이 문자열로 참조해 호출자 추적이 필요하고, `page-theme-detail` 셸(127줄)은 `AIO_ROUTE_REGISTRY` 클래스 변경과 DOM 존재 감사를 함께 고쳐야 한다 → QA-EXHAUST-88.
+- verification: headless **1,133/1,133 PASS(110/110 그룹)**, `ci-architecture-contract-check`(fence 경계 수정 후 PASS), `ci-decomp-hotspot-check`(index.html 28,575 / core 27,997 / data 16,664), `ci-knowledge-lint-check`, `ci-workspace-contract-check`, `ci-runtime-contract-check`, `ci-syntax-check`, `ci-structural-check` PASS. 커밋만 수행, push·배포 없음.
 
 ## P1128 - v55.09 - OPEX 만기 계산이 두 규칙으로 갈라져 한쪽만 시간대 보정을 받았다 (2026-09-19)
 
