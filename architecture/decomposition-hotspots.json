@@ -1,8 +1,31 @@
 {
-  "schemaVersion": "decomposition-hotspots.v1",
+  "schemaVersion": "decomposition-hotspots.v2",
   "owner": "src/ui/pages + js compatibility boundary",
-  "measurement": "line count, unsafe sink count, and duplicate writer intersections",
-  "maxScores": { "index.html": 35000, "js/aio-core.js": 28000, "js/aio-data.js": 18000 },
+  "measurement": "line-count ratchet: a measured runtime file may never exceed its recorded value; `ceiling` is the absolute bound that only an explicitly recorded decision may raise",
+  "history": "v53.96/P895 (commit 6fd5289b, 2026-08-10) introduced fixed caps on three files. Those caps were never read from this file — the numbers were hardcoded in scripts/ci-decomp-hotspot-check.mjs, so the declaration and the enforcement could silently disagree. They also covered only 3 of 7 runtime files, so accretion escaped sideways into aio-ui/aio-chat/aio-tests, and at js/aio-core.js the cap sat 1 line above the file — a wall that blocked a one-line correctness fix instead of a ratchet.",
+  "measuredFiles": [
+    "index.html",
+    "js/aio-core.js",
+    "js/aio-data.js",
+    "js/aio-ui.js",
+    "js/aio-chat.js",
+    "js/aio-tests.js",
+    "js/aio-glossary.js"
+  ],
+  "recordedLines": {
+    "index.html": 28601,
+    "js/aio-core.js": 27999,
+    "js/aio-data.js": 16678,
+    "js/aio-ui.js": 4382,
+    "js/aio-chat.js": 8161,
+    "js/aio-tests.js": 9323,
+    "js/aio-glossary.js": 323
+  },
+  "ceiling": {
+    "index.html": 35000,
+    "js/aio-core.js": 28000,
+    "js/aio-data.js": 18000
+  },
   "facadePolicy": "bounded compatibility facade only; no permanent duplicate primary writer",
   "codeMapRescan": "required after any change greater than 500 lines"
 }

@@ -2,12 +2,22 @@
 verified_by: 데이터 파이프라인 전수 의미·정합성 감사(로컬 재계산) + affected QA; 중첩 산출물 의미 검토는 open
 last_verified: 2026-09-19
 confidence: medium
-latest_version: v55.07
-latest_P_number: P1126
-next_P_number: P1127
-current_total_entries: 541 tracked entries (368 headings + 173 compacted lines, P1~P1126, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
+latest_version: v55.08
+latest_P_number: P1127
+next_P_number: P1128
+current_total_entries: 542 tracked entries (369 headings + 173 compacted lines, P1~P1127, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
 current_checkpoint: 사용자 판단(지인용 사설 스크리너)으로 **차단 경계를 공시로 재배치**했다 — 개인화 지시·현재증거 부족·수치 주장 불일치·헤드라인 전용 인과를 하드 차단에서 경고/공시로 강등(P1120~P1122). 조작 방지(값·단위·NFP 배율), 금지 행위 P0, 포트폴리오 동의, 도구 경계는 그대로 차단이다. 남은 OPEN: 날짜 없는 중첩 산출물 12건(P1110 측정면이 노출), `objects/**` 592/629 미참조 blob의 보존 정책, 캐시 라우팅 밖의 실제 소비 산출물 오프라인 폴백 (semantic coverage 6.89%, releaseCertified=false)
 ---
+
+## P1127 - v55.08 - 크기 상한이 벽이 되어 1줄 수정을 막았고, 선언된 수치를 게이트가 읽지 않았다 (2026-09-19)
+
+- symptom/reproduction: 사용자가 "이 상한은 언제 만들었나, 넘겨도 되지 않나"라고 물어 추적했다. 상한은 **2026-08-10 커밋 `6fd5289b`(P895/R450, v53.96)** 에서 도입됐고, 출처는 2026-08-09 핸드오프의 9개 결함 중 "decomposition" 항목이었다(당시 사용자는 그 핸드오프의 **구현**을 승인했을 뿐 구체적 수치를 요청하지 않았다). 문제는 세 가지다. (1) `js/aio-core.js`가 27,999 / 상한 28,000으로 **1줄 여유**여서, 이 게이트는 성장을 막는 장치가 아니라 **모든 변경을 금지하는 벽**이 됐다 — 실제로 이번 세션에서 6줄 초과로 막혀 주석을 압축해 지표를 게임했다. (2) `architecture/decomposition-hotspots.json`의 `maxScores`를 **어떤 스크립트도 읽지 않았다** — 집행 수치는 게이트에 하드코딩돼 있어 선언과 집행이 어긋날 수 있었다. (3) 7개 런타임 파일 중 **3개만** 측정해 `aio-ui.js`·`aio-chat.js`·`aio-tests.js`가 무제한이었고, 2단계 추출로 새 파일을 만들면 그 파일이 곧 새 무제한 구역이 된다.
+- root_cause: 고정 상한은 **여유가 있을 때만** 작동한다. 여유가 사라지면 통과 경로는 주석 압축(지표 게임)이나 상수 수정(조용한 재기준)뿐이고, 둘 다 분해 없이 위반만 숨긴다. 즉 도구가 의도(무한 증식 방지)와 반대로 작동하기 시작했다.
+- fix: 벽을 **래칫**으로 바꿨다. 7개 파일이 자기 기록값을 넘지 못하고, 감소하면 `--write`로 기록이 자동 조여지며, 성장은 `--write --allow-growth`로만 가능하다(무단 상향은 거부 — 음성 테스트로 확인). `architecture/decomposition-hotspots.json`을 **단일 선언 원천**으로 승격해 게이트가 그것을 읽고, 측정 대상 전부가 `CODE-MAP`에 등재돼 있는지 검사한다. `ceiling` 3개는 절대 상한으로 남겨 명시적 결정 없이는 넘을 수 없다 — 즉 "넘길 수 있다"가 **기록되는 결정**이 됐다.
+- violated_rule: R620(신규). R450은 유지된다(래칫 원칙은 R450이 이미 요구한 "ratchet-only" 관리와 같은 방향이며, 이번 변경은 그 요구를 실제로 집행한 것이다).
+- prevention: 게이트 헤더와 설정 파일 `history` 필드에 이전 형태가 무엇을 막았는지 남겼다 — 다음 세션이 같은 벽을 다시 세우지 않도록.
+- residual_risk: 기록값은 `--allow-growth`로 언제든 올릴 수 있다. 그 자체는 설계 의도(가시성)지만, 습관적으로 쓰이면 래칫이 무력해진다. 커밋 메시지에서 사유를 요구하는 것은 관례일 뿐 강제가 아니다.
+- verification: 음성 테스트(기록값을 300으로 낮추면 323에서 실패, `--write`가 무단 상향 거부) 통과, `ci-decomp-hotspot-check.mjs` 정상 PASS(7파일 래칫), `ci-architecture-contract-check.mjs`·`ci-qa-pipeline-contract-check.mjs`(138 gates)·`generate-workspace-state.mjs --check` PASS. 커밋만 수행, push·배포 없음.
 
 ## P1126 - v55.07 - HTML 이스케이프가 최대 8벌로 갈라져 있었다 (2026-09-19)
 
