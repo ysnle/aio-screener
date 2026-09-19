@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-09-19T14:49:34.800Z",
-  "attemptedAt": "2026-09-19T14:49:34.800Z",
-  "lastSuccessfulAt": "2026-09-19T14:49:34.800Z",
+  "generatedAt": "2026-09-19T18:02:44.960Z",
+  "attemptedAt": "2026-09-19T18:02:44.960Z",
+  "lastSuccessfulAt": "2026-09-19T18:02:44.960Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-09-05T14:49:31.559Z",
-  "until": "2026-09-19T14:49:31.559Z",
+  "since": "2026-09-05T18:02:39.327Z",
+  "until": "2026-09-19T18:02:39.327Z",
   "current24hWindow": {
     "start": "2026-09-17T23:00:00.000Z",
     "end": "2026-09-18T23:00:00.000Z",
@@ -14,7 +14,7 @@
   },
   "current24hCoverage": {
     "observedCount": 153,
-    "eligibleTextCount": 37,
+    "eligibleTextCount": 48,
     "channelCounts": {
       "insidertracking": 68,
       "HANAchina": 53,
@@ -78,27 +78,27 @@
   "channels": [
     {
       "channel": "aetherjapanresearch",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 317,
-      "freshCount": 20,
-      "eligibleTextCount": 20,
-      "selectedCount": 102,
+      "count": 316,
+      "freshCount": 39,
+      "eligibleTextCount": 39,
+      "selectedCount": 103,
       "error": null,
-      "lastPostId": 25358
+      "lastPostId": 25360
     },
     {
       "channel": "insidertracking",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1127,
+      "count": 1128,
       "freshCount": 33,
       "eligibleTextCount": 33,
       "selectedCount": 126,
       "error": null,
-      "lastPostId": 64156
+      "lastPostId": 64157
     },
     {
       "channel": "bornlupin",
@@ -108,7 +108,7 @@
       "count": 175,
       "freshCount": 20,
       "eligibleTextCount": 20,
-      "selectedCount": 69,
+      "selectedCount": 68,
       "error": null,
       "lastPostId": 20216
     },
@@ -117,17 +117,74 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 676,
+      "count": 677,
       "freshCount": 40,
       "eligibleTextCount": 40,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 69127
+      "lastPostId": 69128
     }
   ],
-  "count": 2295,
-  "retainedItemCount": 473,
+  "count": 2296,
+  "retainedItemCount": 479,
   "observedItems": [
+    {
+      "id": "HANAchina/69128",
+      "channel": "HANAchina",
+      "datetime": "2026-09-19T17:03:32.000Z",
+      "localDateKst": "2026-09-20",
+      "score": 59,
+      "tags": [
+        "credit",
+        "macro"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/64157",
+      "channel": "insidertracking",
+      "datetime": "2026-09-19T15:39:39.000Z",
+      "localDateKst": "2026-09-20",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/25360",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-09-19T15:15:24.000Z",
+      "localDateKst": "2026-09-20",
+      "score": 82,
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/25359",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-09-19T15:12:09.000Z",
+      "localDateKst": "2026-09-20",
+      "score": 80,
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "kr-market",
+        "equity",
+        "flows"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "insidertracking/64155",
       "channel": "insidertracking",
@@ -1136,7 +1193,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64112",
@@ -1871,7 +1928,7 @@
       "tickers": [
         "GOOG"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/64084",
@@ -2134,7 +2191,7 @@
       "tickers": [
         "GOOG"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/64071",
@@ -2170,7 +2227,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64069",
@@ -2209,7 +2266,7 @@
         "healthcare"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/25335",
@@ -2221,7 +2278,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/64067",
@@ -2250,7 +2307,7 @@
       "tickers": [
         "MU"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/25333",
@@ -2262,7 +2319,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/64066",
@@ -2289,7 +2346,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/25330",
@@ -2305,7 +2362,7 @@
         "000660.KS",
         "035420.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/64065",
@@ -2592,7 +2649,7 @@
       "tickers": [
         "035420.KS"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "HANAchina/69079",
@@ -2639,7 +2696,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/64054",
@@ -2664,7 +2721,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/64053",
@@ -3158,7 +3215,7 @@
         "AVGO",
         "TSM"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "insidertracking/64042",
@@ -3936,7 +3993,7 @@
         "AMD",
         "TSM"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/25324",
@@ -3955,7 +4012,7 @@
         "GOOG",
         "AVGO"
       ],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/25323",
@@ -3968,7 +4025,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/25322",
@@ -3981,7 +4038,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/25321",
@@ -3993,7 +4050,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": false
+      "hasText": true
     },
     {
       "id": "aetherjapanresearch/25320",
@@ -31188,83 +31245,39 @@
       ],
       "tickers": [],
       "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/25022",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-09-05T15:13:51.000Z",
-      "localDateKst": "2026-09-06",
-      "score": 67,
-      "tags": [
-        "macro",
-        "earnings"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/25021",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-09-05T15:11:40.000Z",
-      "localDateKst": "2026-09-06",
-      "score": 81,
-      "tags": [
-        "macro",
-        "semi",
-        "power",
-        "earnings"
-      ],
-      "tickers": [
-        "AVGO"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/25020",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-09-05T15:08:24.000Z",
-      "localDateKst": "2026-09-06",
-      "score": 67,
-      "tags": [
-        "macro",
-        "ai-policy",
-        "earnings"
-      ],
-      "tickers": [],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2295,
-    "eligibleTextCount": 113,
-    "mediaOnlyCount": 2182,
-    "highSignalCount": 477,
+    "observedCount": 2296,
+    "eligibleTextCount": 132,
+    "mediaOnlyCount": 2164,
+    "highSignalCount": 476,
     "broadSignalCount": 1059,
     "selectedRawCount": 419,
-    "selectedEligibleCount": 60,
-    "selectedRawCoveragePct": 53.1,
-    "selectedOfObservedPct": 18.3,
+    "selectedEligibleCount": 75,
+    "selectedRawCoveragePct": 56.8,
+    "selectedOfObservedPct": 18.2,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "market-note": 676,
-    "geo": 398,
+    "credit": 45,
     "macro": 802,
-    "semi": 511,
-    "credit": 44,
-    "power": 309,
-    "ai-policy": 211,
-    "kr-market": 281,
-    "flows": 190,
+    "market-note": 677,
+    "semi": 512,
+    "power": 310,
+    "earnings": 328,
+    "kr-market": 282,
+    "equity": 147,
+    "flows": 191,
+    "geo": 398,
+    "ai-policy": 210,
     "japan": 157,
     "optical": 48,
-    "earnings": 330,
     "insider": 30,
     "healthcare": 122,
-    "equity": 146,
     "crypto": 7,
     "media-only": 66
   },
@@ -31284,7 +31297,7 @@
     "AMZN": 49,
     "MU": 28,
     "INTC": 6,
-    "AVGO": 38,
+    "AVGO": 37,
     "LITE": 17,
     "ORCL": 23,
     "RKLB": 11,
@@ -31430,13 +31443,13 @@
   },
   "themes": [
     "Macro/Rates (802 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 9월 19일 > 오전 7시 30분~오후 7시 30분 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 러시아 제재 법안에 서명. 우크라이나 젤렌스키 대통령은 미국 정부와 의회의 제재 강화 조치를 환영. • 미국 정부는 우크라이나의 방공 능력 강화를 위한 약...",
-    "Market Notes (676 posts in 14-day research window): 52주 신고가 (시총 &#036;1B 이상) ━━━━━━━━━━━━━━ 🧬 헬스케어 · AtriCure · Freenome · Haemonetics · Halozyme Therapeutics ·...",
-    "Semiconductors/Memory (511 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/09/01 ~ 2026/09/18 (9월 누적) 1위: ISHARES 0-3 MONTH TREASURY BOND ETF (9.11%) 2위: IONQ...",
+    "Market Notes (677 posts in 14-day research window): 52주 신고가 (시총 &#036;1B 이상) ━━━━━━━━━━━━━━ 🧬 헬스케어 · AtriCure · Freenome · Haemonetics · Halozyme Therapeutics ·...",
+    "Semiconductors/Memory (512 posts in 14-day research window): 서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/09/01 ~ 2026/09/18 (9월 누적) 1위: ISHARES 0-3 MONTH TREASURY BOND ETF (9.11%) 2위: IONQ...",
     "Geopolitics (398 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 9월 19일 > 오전 7시 30분~오후 7시 30분 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 러시아 제재 법안에 서명. 우크라이나 젤렌스키 대통령은 미국 정부와 의회의 제재 강화 조치를 환영. • 미국 정부는 우크라이나의 방공 능력 강화를 위한 약...",
-    "Earnings/Corporate (330 posts in 14-day research window): 2026년 9월 19일 미국 레딧 게시물 분석 > 🤖 NVDA · AVGO · AMD - AI 반도체 · AI 다시 Risk-On 분위기 · AVGO 콜 수익 인증 계속 · AMD 강세에 커버드콜 폭사 인증...",
-    "AI Power/Grid (309 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 9월 19일 > 오전 7시 30분~오후 7시 30분 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 러시아 제재 법안에 서명. 우크라이나 젤렌스키 대통령은 미국 정부와 의회의 제재 강화 조치를 환영. • 미국 정부는 우크라이나의 방공 능력 강화를 위한 약...",
-    "Korea Market (281 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 9월 19일 > 오전 7시 30분~오후 7시 30분 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 러시아 제재 법안에 서명. 우크라이나 젤렌스키 대통령은 미국 정부와 의회의 제재 강화 조치를 환영. • 미국 정부는 우크라이나의 방공 능력 강화를 위한 약...",
-    "AI Policy/Export Controls (211 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 9월 19일 > 오전 7시 30분~오후 7시 30분 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 러시아 제재 법안에 서명. 우크라이나 젤렌스키 대통령은 미국 정부와 의회의 제재 강화 조치를 환영. • 미국 정부는 우크라이나의 방공 능력 강화를 위한 약..."
+    "Earnings/Corporate (328 posts in 14-day research window): 2026년 9월 19일 미국 레딧 게시물 분석 > 🤖 NVDA · AVGO · AMD - AI 반도체 · AI 다시 Risk-On 분위기 · AVGO 콜 수익 인증 계속 · AMD 강세에 커버드콜 폭사 인증...",
+    "AI Power/Grid (310 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 9월 19일 > 오전 7시 30분~오후 7시 30분 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 러시아 제재 법안에 서명. 우크라이나 젤렌스키 대통령은 미국 정부와 의회의 제재 강화 조치를 환영. • 미국 정부는 우크라이나의 방공 능력 강화를 위한 약...",
+    "Korea Market (282 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 9월 19일 > 오전 7시 30분~오후 7시 30분 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 러시아 제재 법안에 서명. 우크라이나 젤렌스키 대통령은 미국 정부와 의회의 제재 강화 조치를 환영. • 미국 정부는 우크라이나의 방공 능력 강화를 위한 약...",
+    "AI Policy/Export Controls (210 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 9월 19일 > 오전 7시 30분~오후 7시 30분 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 러시아 제재 법안에 서명. 우크라이나 젤렌스키 대통령은 미국 정부와 의회의 제재 강화 조치를 환영. • 미국 정부는 우크라이나의 방공 능력 강화를 위한 약..."
   ],
   "catalysts": [
     {
@@ -31481,7 +31494,7 @@
     },
     {
       "key": "AVGO",
-      "count": 38,
+      "count": 37,
       "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/09/01 ~ 2026/09/18 (9월 누적) 1위: ISHARES 0-3 MONTH TREASURY BOND ETF (9.11%) 2위: IONQ..."
     },
     {
@@ -31525,7 +31538,7 @@
       "topics": [
         "credit"
       ],
-      "count": 44,
+      "count": 45,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 9월 19일 > 오전 7시 30분~오후 7시 30분 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 러시아 제재 법안에 서명. 우크라이나 젤렌스키 대통령은 미국 정부와 의회의 제재 강화 조치를 환영. • 미국 정부는 우크라이나의 방공 능력 강화를 위한 약..."
     },
     {
@@ -31534,7 +31547,7 @@
       "topics": [
         "semi"
       ],
-      "count": 511,
+      "count": 512,
       "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/09/01 ~ 2026/09/18 (9월 누적) 1위: ISHARES 0-3 MONTH TREASURY BOND ETF (9.11%) 2위: IONQ..."
     },
     {
@@ -31552,7 +31565,7 @@
       "topics": [
         "power"
       ],
-      "count": 309,
+      "count": 310,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 9월 19일 > 오전 7시 30분~오후 7시 30분 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 러시아 제재 법안에 서명. 우크라이나 젤렌스키 대통령은 미국 정부와 의회의 제재 강화 조치를 환영. • 미국 정부는 우크라이나의 방공 능력 강화를 위한 약..."
     },
     {
@@ -31561,7 +31574,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 211,
+      "count": 210,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 9월 19일 > 오전 7시 30분~오후 7시 30분 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 러시아 제재 법안에 서명. 우크라이나 젤렌스키 대통령은 미국 정부와 의회의 제재 강화 조치를 환영. • 미국 정부는 우크라이나의 방공 능력 강화를 위한 약..."
     },
     {
@@ -31570,7 +31583,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 281,
+      "count": 282,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 9월 19일 > 오전 7시 30분~오후 7시 30분 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 러시아 제재 법안에 서명. 우크라이나 젤렌스키 대통령은 미국 정부와 의회의 제재 강화 조치를 환영. • 미국 정부는 우크라이나의 방공 능력 강화를 위한 약..."
     },
     {
@@ -31579,7 +31592,7 @@
       "topics": [
         "equity"
       ],
-      "count": 146,
+      "count": 147,
       "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/09/01 ~ 2026/09/18 (9월 누적) 1위: ISHARES 0-3 MONTH TREASURY BOND ETF (9.11%) 2위: IONQ..."
     },
     {
@@ -31597,7 +31610,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 330,
+      "count": 328,
       "focus": "2026년 9월 19일 미국 레딧 게시물 분석 > 🤖 NVDA · AVGO · AMD - AI 반도체 · AI 다시 Risk-On 분위기 · AVGO 콜 수익 인증 계속 · AMD 강세에 커버드콜 폭사 인증..."
     },
     {
@@ -31624,7 +31637,7 @@
       "topics": [
         "flows"
       ],
-      "count": 190,
+      "count": 191,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 9월 19일 > 오전 7시 30분~오후 7시 30분 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 러시아 제재 법안에 서명. 우크라이나 젤렌스키 대통령은 미국 정부와 의회의 제재 강화 조치를 환영. • 미국 정부는 우크라이나의 방공 능력 강화를 위한 약..."
     },
     {
@@ -31642,7 +31655,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 676,
+      "count": 677,
       "focus": "52주 신고가 (시총 &#036;1B 이상) ━━━━━━━━━━━━━━ 🧬 헬스케어 · AtriCure · Freenome · Haemonetics · Halozyme Therapeutics ·..."
     }
   ],
@@ -33067,6 +33080,57 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "HANAchina/69128",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/69128",
+      "datetime": "2026-09-19T17:03:32.000Z",
+      "localDateKst": "2026-09-20",
+      "tags": [
+        "credit",
+        "macro"
+      ],
+      "tickers": [],
+      "score": 59,
+      "hasText": true,
+      "summary": ">>오라클 180억 달러 규모 AI 대출 할인 매각 난항, AI 금융 사슬의 압력 부각 •시장에서 오라클의 지속적인 차입과 신용 상태 악화에 대한 우려가 커지고 있음. 올해 7월 S&P는 오라클의 기업..."
+    },
+    {
+      "id": "aetherjapanresearch/25360",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25360",
+      "datetime": "2026-09-19T15:15:24.000Z",
+      "localDateKst": "2026-09-20",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "earnings"
+      ],
+      "tickers": [],
+      "score": 82,
+      "hasText": true,
+      "summary": "Citi) 알리바바 그룹 홀딩(BABA.N); 압사라 컨퍼런스 2026에서 기대할 사항 씨티의 시각 \"Intelligence Goes Beyond\"를 주제로 9월 22~24일 항저우에서 개최되는 압사라..."
+    },
+    {
+      "id": "aetherjapanresearch/25359",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25359",
+      "datetime": "2026-09-19T15:12:09.000Z",
+      "localDateKst": "2026-09-20",
+      "tags": [
+        "macro",
+        "semi",
+        "power",
+        "kr-market",
+        "equity",
+        "flows"
+      ],
+      "tickers": [],
+      "score": 80,
+      "hasText": true,
+      "summary": "CNBC) 일론 머스크, 기묘한 동맹이 이어진 격동의 한 주 동안 규제에 맞서 싸우면서도 AI 안전을 강조하다. 일론 머스크는 이번 주 AI를 둘러싸고 혼란스러운 행보를 보였습니다. 그는 오랜 경쟁자인 다리오..."
+    },
     {
       "id": "HANAchina/69127",
       "channel": "HANAchina",
@@ -39321,21 +39385,6 @@
       "summary": ">>트럼프, 공개석상에서 젠슨 황에게 전화: AI 위험론은 ‘사기극’, 데이터센터 중요성은 인터넷보다 높아 •엔비디아 젠슨 황이 로스앤젤레스 All-In Summit에서 연설하던 중 트럼프의 전화를 받고..."
     },
     {
-      "id": "HANAchina/68905",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/68905",
-      "datetime": "2026-09-14T22:25:32.000Z",
-      "localDateKst": "2026-09-15",
-      "tags": [
-        "power",
-        "ai-policy"
-      ],
-      "tickers": [],
-      "score": 53,
-      "hasText": true,
-      "summary": ">>트럼프, Anthropic CEO 비판: AI 발전은 브레이크를 밟아서는 안 되며, 미국에는 ‘높은 지능의 대통령’이면 충분 •트럼프는 월요일 AI 데이터센터로 인해 발생한 대중의 반발과 첨단 모델에 대한..."
-    },
-    {
       "id": "bornlupin/20152",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20152",
@@ -39999,37 +40048,6 @@
       "score": 75,
       "hasText": true,
       "summary": "앤스로픽의 컴퓨팅 투자 약정, 5,170억 달러에 달할 수도 디 인포메이션(The Information)의 분석에 따르면, 앤스로픽은 주로 향후 10년에 걸쳐 최대 5,170억 달러의 비용이 소요될 수 있는..."
-    },
-    {
-      "id": "aetherjapanresearch/25185",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25185",
-      "datetime": "2026-09-13T11:56:40.000Z",
-      "localDateKst": "2026-09-13",
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "score": 57,
-      "hasText": true,
-      "summary": "AI 속도 조절론이 AI 섹터의 센티멘트를 꺾어버릴지 이번 주의 관전 포인트로 보입니다 - 중간선거 - 지정학 - 고금리/고유가 여기에 최근 상황을 종합해보면 증시 부양 요소가 제한적인 상황이긴 합니다 좋은..."
-    },
-    {
-      "id": "bornlupin/20131",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20131",
-      "datetime": "2026-09-13T11:04:38.000Z",
-      "localDateKst": "2026-09-13",
-      "tags": [
-        "ai-policy",
-        "kr-market",
-        "flows"
-      ],
-      "tickers": [],
-      "score": 53,
-      "hasText": true,
-      "summary": "1일 차: Anthropic 직원이 회사를 그만두고 METR에서 일하기 시작한다. ( Joe Benton, 전 Anthropic 안전팀 저는 2주 전 Anthropic의 안전팀을 떠났습니다 저는 앞으로..."
     }
   ],
   "current24hItems": [
@@ -40854,18 +40872,20 @@
       "summary": "•중국언론도 인용 보도 - CXMT, NAND 플래시 메모리 시장 진입 준비 : 소식통에 따르면 CXMT는 플래시 메모리 시장 진입을 준비하고 있음. 소식통은 CXMT가 베이징 신공장에 NAND 플래시 메모리..."
     },
     {
-      "id": "HANAchina/69087",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/69087",
-      "datetime": "2026-09-18T08:38:14.000Z",
+      "id": "aetherjapanresearch/25337",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25337",
+      "datetime": "2026-09-18T08:51:25.000Z",
       "localDateKst": "2026-09-18",
       "tags": [
-        "market-note"
+        "ai-policy"
       ],
-      "tickers": [],
-      "score": 40,
+      "tickers": [
+        "GOOG"
+      ],
+      "score": 49,
       "hasText": true,
-      "summary": "• 재정부: 1~8월 전국 정부성 기금 예산 수입은 2조 1,419억 위안으로 전년 동기 대비 19% 감소 • 이 중 중앙 정부성 기금 예산 수입은 3,292억 위안 (YoY +12.2%), 지방 정부성 기금..."
+      "summary": "오픈AI, GPT6 아스트라 기반 '법률 AI' 공개 - 18일 법률 전문 AI 솔루션 'Astra for Law' 출시. 구글이 지난달 법률 전문 'Gemini Enterprise' 제품군을 내놓고,..."
     },
     {
       "id": "aetherjapanresearch/25336",
@@ -40885,6 +40905,20 @@
       "summary": "진짜네 ㅋㅋㅋㅋ 이란 분쟁이 시작된 이후 처음으로, 당사는 기본 시나리오(baseline view)를 갖고 있지 않습니다. 우리는 최종 국면(endgame)을 어떻게 모델링해야 할지 그야말로 알지 못합니다...."
     },
     {
+      "id": "aetherjapanresearch/25335",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25335",
+      "datetime": "2026-09-18T08:13:53.000Z",
+      "localDateKst": "2026-09-18",
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "score": 47,
+      "hasText": true,
+      "summary": "유가 추정 GG"
+    },
+    {
       "id": "aetherjapanresearch/25334",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25334",
@@ -40902,6 +40936,20 @@
       "score": 73,
       "hasText": true,
       "summary": "RBC) 마이크론, 가격 모멘텀이 둔화되더라도 사이클은 지속될 것. TP &#036;1500 저희의 견해 DRAM 업사이클은 현재 14번째 분기에 접어들었으며(일반적인 8~9분기 대비), 저희는 향후 5개..."
+    },
+    {
+      "id": "aetherjapanresearch/25333",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25333",
+      "datetime": "2026-09-18T07:59:44.000Z",
+      "localDateKst": "2026-09-18",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [],
+      "score": 47,
+      "hasText": true,
+      "summary": "[단독] CXMT, 낸드 시장도 진출한다 - 사안에 정통한 3명에 따르면 중국 DRAM 업체인 CXMT가 급성장하는 낸드플래시 시장에 진출할 준비도 하고 있다고 함 Reuters"
     },
     {
       "id": "aetherjapanresearch/25331",
