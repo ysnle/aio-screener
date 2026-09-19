@@ -165,10 +165,12 @@ const classifyMarketRegimeBody = classifyMarketRegimeIdx >= 0 ? core.slice(class
 check('classifyMarketRegime does not use optimistic breadth default 75', classifyMarketRegimeIdx >= 0 && !/breadth200[\s\S]{0,220}:\s*75\)/.test(classifyMarketRegimeBody));
 check('score advice no longer labels 75+ as aggressive buy', /function\s+getScoreAdvice/.test(core) && !/function\s+getScoreAdvice[\s\S]{0,500}적극\s*매수/.test(core));
 check('trading guidance avoids aggressive-buy wording on score 75+', !/75\+\s*(?:적극\s*매수|적극매수)/.test(html + '\n' + core + '\n' + chat + '\n' + data + '\n' + ui));
-check('ticker deep analysis gates entry verdict with market score', /function\s+analyzeTickerDeep/.test(html) && /computeTradingScore\('swing'\)/.test(html) && /marketAllowsEntry/.test(html) && /marketCaution/.test(html));
-check('ticker deep analysis includes institutional Minervini engine', /function\s+_buildMinerviniTechnicalEngine/.test(html) && /_calcMinerviniMAStack/.test(html) && /_buildHorizontalVolumeZones/.test(html) && /_calcVcpQuality/.test(html) && /_calcFibonacciConfluence/.test(html));
-check('ticker deep analysis covers 5/10/20 short and 50/100/200 long MA stacks', /단기 정배열 5>10>20/.test(html) && /장기 정배열 50>100>200/.test(html) && /FULL_BULL_STACK_5_10_20_50_100_200/.test(core + '\n' + chat));
-check('ticker deep analysis exposes horizontal volume profile beginner guidance', /Volume Profile/.test(html) && /POC/.test(html) && /Value Area/.test(html) && /beginnerNote/.test(html) && /수평 매물대/.test(html));
+// P1132/R619: the deep technical analysis engine moved from index.html's inline block F into
+// js/aio-ui.js, so the whole ticker-deep-analysis assertion group now reads `ui`.
+check('ticker deep analysis gates entry verdict with market score', /function\s+analyzeTickerDeep/.test(ui) && /computeTradingScore\('swing'\)/.test(ui) && /marketAllowsEntry/.test(ui) && /marketCaution/.test(ui));
+check('ticker deep analysis includes institutional Minervini engine', /function\s+_buildMinerviniTechnicalEngine/.test(ui) && /_calcMinerviniMAStack/.test(ui) && /_buildHorizontalVolumeZones/.test(ui) && /_calcVcpQuality/.test(ui) && /_calcFibonacciConfluence/.test(ui));
+check('ticker deep analysis covers 5/10/20 short and 50/100/200 long MA stacks', /단기 정배열 5>10>20/.test(ui) && /장기 정배열 50>100>200/.test(ui) && /FULL_BULL_STACK_5_10_20_50_100_200/.test(core + '\n' + chat));
+check('ticker deep analysis exposes horizontal volume profile beginner guidance', /Volume Profile/.test(ui) && /POC/.test(ui) && /Value Area/.test(ui) && /beginnerNote/.test(ui) && /수평 매물대/.test(ui));
 check('technical snapshot exposes full MA stack to AI chat', /sma5/.test(core) && /sma100/.test(core) && /shortMAState/.test(core) && /longMAState/.test(core) && /maStackScore/.test(core) && /5SMA/.test(chat) && /100SMA/.test(chat));
 check('event risk context fails closed without an embedded point-in-time timeline', /AIO_EVENT_RISK_CONTEXT/.test(core) && /available:\s*false/.test(core) && /asOf:\s*null/.test(core) && /timeline:\s*\[\]/.test(core) && !/headlineYoY:\s*\d/.test(core));
 check('page body redesign hub registry exists', /AIO_PAGE_ACTION_HUBS/.test(core) && /_aioApplyPageBodyRedesign/.test(core) && /getPageRedesignAudit/.test(core));
@@ -323,7 +325,7 @@ check('theme-detail route resolves to themes inline detail surface',
   (/id === 'theme-detail'/.test(core) && /_aioOpenThemeDetailOnThemes/.test(core) && /showThemeDetail\(themeId\)/.test(core))
   || (/createThemesPage/.test(themesPage) && /createThemesPage\(\{[^}]*route:\s*'theme-detail'/.test(bootstrap) && /aioArchitectureSlice/.test(themesPage)));
 check('briefing summary F&G reads canonical currentness envelope', /getCanonicalMetric\('fg'\)/.test(data) && /var fgMetric/.test(data));
-check('KR candle chart auto-loads from canvas and avoids zero-baseline compression', /krCandleCanvas/.test(html) && /loadKrCandleChart\(krCode \|\| '005930'\)/.test(html) && /beginAtZero:\s*false/.test(html) && /suggestedMin:\s*ySuggestedMin/.test(html) && /suggestedMax:\s*ySuggestedMax/.test(html));
+check('KR candle chart auto-loads from canvas and avoids zero-baseline compression', /krCandleCanvas/.test(ui) && /loadKrCandleChart\(krCode \|\| '005930'\)/.test(ui) && /beginAtZero:\s*false/.test(ui) && /suggestedMin:\s*ySuggestedMin/.test(ui) && /suggestedMax:\s*ySuggestedMax/.test(ui));
 check('headless tests validate every theme record and representative renderer boundaries plus route redirect', /T860 theme_detail_registry_and_representative_render_v5460/.test(tests) && /T861 theme_detail_route_redirect_v5227/.test(tests));
 check('theme composition audit indexes canonical semantic evidence once instead of rebuilding the screener universe per symbol', (() => {
   const start = core.indexOf('window.AIO.getThemeCompositionLogicAudit = function()');
@@ -352,7 +354,10 @@ check('value slot renderer encodes value/pending/failed/na states and touched ma
   return (valueSlotBase && legacyTouched) || (valueSlotBase && nativeTouched);
 })());
 check('briefing decision summary F&G uses canonical currentness source, not dead snap fields', (data.match(/getCanonicalMetric\('fg'\)/g) || []).length >= 2 && !/snap\.fg\.value|snap\.fearGreed/.test(data) && /T867 briefing_decision_summary_fg_canonical_v5234/.test(tests));
-check('VKOSPI failure state is surfaced after repeated failures and calcKrHealthScore does not overwrite it', /function _showVkospiFailureState/.test(html) && /function _vkospiIsFailedState/.test(html) && /_vkospiIsFailedState\(\)/.test(html.slice(html.indexOf('function calcKrHealthScore'), html.indexOf('function calcKrHealthScore') + 4000)) && /T868 vkospi_failure_state_contract_v5234/.test(tests));
+// P1132/R619: this check spans two blocks — the VKOSPI failure-state helpers stayed in index.html
+// (block C, KR data plane) while calcKrHealthScore moved to js/aio-ui.js (block F), so only the
+// sliced region changes owner.
+check('VKOSPI failure state is surfaced after repeated failures and calcKrHealthScore does not overwrite it', /function _showVkospiFailureState/.test(html) && /function _vkospiIsFailedState/.test(html) && /_vkospiIsFailedState\(\)/.test(ui.slice(ui.indexOf('function calcKrHealthScore'), ui.indexOf('function calcKrHealthScore') + 4000)) && /T868 vkospi_failure_state_contract_v5234/.test(tests));
 check('AI chat key gates accept configured server-key route and disclose personal-key boundary', /function _aioHasClaudeRoute/.test(chat) && /window\._aioHasClaudeRoute/.test(chat) && /_aioHasClaudeRoute\(_chatApiKey\)/.test(chat) && /_aioHasClaudeRoute\(_uniClaudeKey\)/.test(chat) && /브리핑\/번역은 운영자 서버키/.test(chat + html) && /T865 claude_chat_route_server_key_awareness_v5230/.test(tests));
 check(
   'breadth surfaces share canonical regime color and zero delta renders neutral',
@@ -371,8 +376,8 @@ check(
 );
 check(
   'ticker weekly context renderer consumes aliases with fallback',
-  /_wc\.wClose\s*!=\s*null\s*\?\s*_wc\.wClose\s*:\s*_wc\.lastWeekClose/.test(html) && /_wc\.wRsi14\s*!=\s*null\s*\?\s*_wc\.wRsi14\s*:\s*_wc\.wRsi/.test(html),
-  'index.html analyzeTickerDeep must not depend on one weeklyCtx field spelling'
+  /_wc\.wClose\s*!=\s*null\s*\?\s*_wc\.wClose\s*:\s*_wc\.lastWeekClose/.test(ui) && /_wc\.wRsi14\s*!=\s*null\s*\?\s*_wc\.wRsi14\s*:\s*_wc\.wRsi/.test(ui),
+  'js/aio-ui.js analyzeTickerDeep must not depend on one weeklyCtx field spelling (moved by P1132)'
 );
 check(
   'AI chat consumes calcTechnicalSnapshot VCP/Fib/Volume/RSI/weekly fields',
@@ -523,7 +528,7 @@ check('fundamental route entry remains a free bounded SEC surface without automa
 check('remaining user surfaces reuse the comp hierarchy without new parallel data paths', /(?:(?:function\s+_aioPolishRemainingPages\(pageId\))|(?:(?:var|let|const)\s+_aioPolishRemainingPages\s*=\s*function\(pageId\)))/.test(core) && /aio-guide-chapter/.test(core) && /aio-theme-progressive/.test(core) && /aio-comp-secondary-feed/.test(html));
 check('route terminology separates 20 user surfaces from 22 internal QA routes', /NAV_ROUTE:\s*\[[^\]]+\]/.test(core) && /DERIVED_VIEW:\s*\['ticker','theme-detail'\]/.test(core) && /REFERENCE:\s*\['options'\]/.test(core) && /OVERLAY:\s*\['glossary'\]/.test(core));
 check('guide chapters and KR secondary groups are explicit progressive-disclosure controls', /#kr-integrated-themes \.aio-theme-progressive \.kr-theme-card:nth-child\(n\+4\)/.test(html) && /\.aio-comp-secondary[\s\S]{0,1200}\.aio-guide-chapter/.test(html));
-check('glossary renders countable semantic rows and a readable comp modal', /class="aio-glossary-item"/.test(html) && /class="aio-glossary-term"/.test(html) && /GLOSSARY\.length/.test(html));
+check('glossary renders countable semantic rows and a readable comp modal', /class="aio-glossary-item"/.test(ui) && /class="aio-glossary-term"/.test(ui) && /GLOSSARY\.length/.test(ui));
 check('headless tests cover the redesigned default path', /T869 redesign_default_path_v5289/.test(tests));
 
 // [G2] v52.90 P705/R331: 최종 렌더의 loaded/empty/degraded/closed 사용자 상태 계약.
@@ -555,7 +560,7 @@ check('EF-08: carry-unwind-risk render function has an independent aio:pageShown
 check('EF-08: carry observation proxy discloses the manually verified BOJ input and holds instead of inventing a score when current inputs are absent', /BOJ 수동 확인값 기준/.test(data) && /관측 프록시 보류/.test(data) && /inputsComplete/.test(data));
 check('EF-10/P1010: retired dead ticker metrics and action slots route to the shared SEC report', !/_tickerGapIds|ticker-action-btn|ticker-m-mcap/.test(core) && /id="ticker-fundamental-link"[^>]*data-arg="fundamental"/.test(html) && !/id="ticker-f-ni"|id="tab-financials"/.test(html));
 check('EF-11/P1010: unsupported VXX futures inference is retired while RSP/SPY retains explicit missing state', !/rm-vixstr-status|var rollCost = vxxPct/.test(html) && /RSP 또는 SPY 라이브 시세 미수신/.test(html));
-check('EF-12: TV OHLC fallback strip sync is extracted into a standalone function reachable from page-shown/live-quotes, not only as a loadTVChart side effect', /function _aioSyncTvOhlcFallback/.test(html) && /html-tv-ohlc-fallback-shown/.test(html) && /html-tv-ohlc-fallback-live/.test(html));
+check('EF-12: TV OHLC fallback strip sync is extracted into a standalone function reachable from page-shown/live-quotes, not only as a loadTVChart side effect', /function _aioSyncTvOhlcFallback/.test(ui) && /html-tv-ohlc-fallback-shown/.test(ui) && /html-tv-ohlc-fallback-live/.test(ui));
 check('EF-19: kr-technical KOSPI/KOSDAQ refresh buttons call analyzeKrIndex with the correct target ids, and the analyzeKrTickerDeep mis-wiring is gone', /data-action="analyzeKrIndex"\s+data-arg="\^KS11"\s+data-arg2="kr-kospi-tech-result"/.test(html) && /data-action="analyzeKrIndex"\s+data-arg="\^KQ11"\s+data-arg2="kr-kosdaq-tech-result"/.test(html) && !/data-action="analyzeKrTickerDeep"\s+data-arg="\^K[SQ]11"/.test(html));
 check('EF-19: _fetchYahooChartData proxy chain includes codetabs.com fallback (live network audit showed corsproxy.io/allorigins alone failing repeatedly for KR tickers)', /api\.codetabs\.com\/v1\/proxy/.test(html));
 check('headless tests cover Batch 2 efficacy fixes (EF-08/10/11/12/19)', /_testV5241Batch2Efficacy/.test(tests) && /T874/.test(tests) && /T875/.test(tests) && /T876/.test(tests) && /T877/.test(tests) && /T878/.test(tests));
@@ -580,7 +585,7 @@ check('EF-03/P713: US FOMC calendar entry has valid ISO lastRelease < nextReleas
   const m = core.match(/'us-fed-rate':\s*\{[^}]*lastRelease:\s*'(\d{4}-\d{2}-\d{2})',\s*nextRelease:\s*'(\d{4}-\d{2}-\d{2})'/);
   return !!m && Date.parse(m[1]) < Date.parse(m[2]) && m[2] !== '2026-06-17';
 })());
-check('EF-17 (user-approved scope addition): home GLOBAL MARKETS table includes ES=F/NQ=F futures rows with a regular-hours-aware highlight, and the underlying symbols are already part of the live-quote fetch set (no new fetch pipeline required)', /sym:\s*'ES=F',\s*label:\s*'S&P Futures',\s*isFutures:\s*true/.test(html) && /isRegularHours/.test(html));
+check('EF-17 (user-approved scope addition): home GLOBAL MARKETS table includes ES=F/NQ=F futures rows with a regular-hours-aware highlight, and the underlying symbols are already part of the live-quote fetch set (no new fetch pipeline required)', /sym:\s*'ES=F',\s*label:\s*'S&P Futures',\s*isFutures:\s*true/.test(ui) && /isRegularHours/.test(ui));
 check('EF-18: kr-supply fetch uses the confirmed-live /api/index/{market}/trend path (curl-verified 200) instead of the confirmed-404 /investorTrend path, with a response-shape adapter preserving net-flow semantics', /_aioAdaptKrTrendResponse/.test(html) && /api\/index\/KOSPI\/trend'/.test(html) && /api\/index\/KOSDAQ\/trend'/.test(html));
 check('headless tests cover Batch 4 efficacy fixes (EF-03/17/18)', /_testV5243Batch4Efficacy/.test(tests) && /T884/.test(tests) && /T885/.test(tests) && /T886/.test(tests));
 
@@ -860,8 +865,10 @@ check('R308/T686: reference fallback drift is explicit and not promoted to live 
   core.includes('referenceOnly') && core.includes('fallbackAsOf') && core.includes('parityRequired') && tests.includes('sfcReferenceOnly') && tests.includes('reference fallback drift is disclosed'));
 check('R340/P712: Treasury maturity fields are separated and 2s10s uses the canonical evidence helper',
   /'\^TNX':\s*\['tnx',\s*null\]/.test(data) && !/'\^TNX':\s*\['tnx2y'/.test(data) && /getUsTreasuryCurveEvidence/.test(core) && /spread2s10s/.test(core) && !/\^FVX[^\n]{0,120}\*\s*0\.95/.test(html));
+// P1132/R619: this check also spans two blocks — the KR theme coverage helpers stayed in index.html
+// (block C) and only the KR technical-page fail-closed branch moved to js/aio-ui.js (block F).
 check('R340/P712: KR theme breadth and market-health claims fail closed on missing current inputs',
-  /evaluateKrThemeQuoteCoverage/.test(html) && /weightedCoverage\s*>=\s*0\.7/.test(html) && /테마 종합판정 보류/.test(html) && /currentInputs\s*<\s*4/.test(html) && /판정 보류 · 현재 입력/.test(html));
+  /evaluateKrThemeQuoteCoverage/.test(html) && /weightedCoverage\s*>=\s*0\.7/.test(html) && /테마 종합판정 보류/.test(html) && /currentInputs\s*<\s*4/.test(ui) && /판정 보류 · 현재 입력/.test(ui));
 check('R340/P712: future-event calendar is data-driven and no stale 7\/10 BOK row remains',
   /renderOfficialFutureCalendar/.test(html) && /id="official-future-calendar"/.test(html) && !/>7\/10<\/span>[\s\S]{0,260}한국은행 금통위/.test(html));
 check('R340/P712: semantic market-integrity tests cover curve exactness and KR missingness',
@@ -893,8 +900,9 @@ check('R345/P728: retired KR investor ranking fanout is not scheduled and the ru
 check('P782: service-worker controller changes re-query the active version instead of preserving a stale mismatch',
   /serviceWorker\.addEventListener\('controllerchange'/.test(data) &&
   /window\._aioSWVersion\s*=\s*''/.test(data) &&
-  /updateViaCache:\s*'none'/.test(html) &&
-  /reg\.update\(\)/.test(html));
+  // P1132/R619: service-worker registration moved from index.html's inline block F into js/aio-ui.js.
+  /updateViaCache:\s*'none'/.test(ui) &&
+  /reg\.update\(\)/.test(ui));
 check('P875: service-worker rotation is fail-safe and reloads once after controller takeover',
   /function _aioRequestSWControllerReload\(\)/.test(data) &&
   /aio_sw_controller_reload_v1/.test(data) &&
@@ -960,14 +968,16 @@ check('P783: blocked-external-network Chromium gate asserts the reference-only s
   /snapshot quote topbar must stay reference-only/.test(read('scripts/ci-architecture-browser-check.mjs')));
 
 check('P784/SA-01: Yahoo chart requests use the shared proxy registry health path', (() => {
-  const start = html.indexOf('async function _fetchYahooChartData(ticker, range, interval)');
-  const end = html.indexOf('// Main comprehensive analysis function', start);
-  const chartSource = start >= 0 && end > start ? html.slice(start, end) : '';
+  // P1132/R619: the inline chart helper moved to js/aio-ui.js and turned out to be a dead delegation
+  // wrapper — aio-data.js always overwrote the global. It has been deleted, which is the strongest
+  // form of this invariant: there must be exactly ONE transport implementation and no second relay loop.
   const producerStart = data.indexOf('async function _aioFetchYahooChartData(');
   const producer = data.slice(producerStart, data.indexOf('// 모듈 스코프', producerStart));
-  return /return _aioFetchYahooChartData\(ticker/.test(chartSource)
+  return producerStart >= 0
+    && !/function\s+_fetchYahooChartData\s*\(/.test(html)
+    && !/function\s+_fetchYahooChartData\s*\(/.test(ui)
     && /fetchViaProxy\(url/.test(producer) && /accept:\s*function/.test(producer)
-    && !/proxies\.push|fetch\(proxies/.test(chartSource);
+    && !/proxies\.push|fetch\(proxies/.test(producer);
 })());
 check('P784/SA-01: proxy registry opens cooldown after three failures and rejects invalid chart payloads',
   /p\.fails\s*>=\s*3/.test(data)

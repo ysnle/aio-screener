@@ -1,3 +1,11 @@
+## v55.13 (2026-09-19)
+- **2단계 본편 2편 — 인라인 블록 F(3,108줄)를 js/aio-ui.js로 이관했다 (R619/R620/P1132).** index.html **27,391 → 24,285**, aio-ui.js 4,566 → 7,687. **최상위 심볼 74개**가 이동했습니다(용어사전, 모바일 메뉴/스크롤탑, GMO 개요, 키보드 단축키, 티커·KR 차트, 종합 기술적 분석 엔진, KR 기술 페이지, 가격 알림, 테마 토글, 서비스워커 등록, 온보딩).
+- **블록 F를 먼저 고른 이유** — 직전 커밋에서 블록 G가 빠진 뒤 이 블록이 **문서상 마지막 인라인 클래식 블록**이 되어, 뒤에 오는 인라인 블록이 이 블록의 전역을 파싱 시점에 읽는 경로가 없습니다.
+- **핵심 발견 — 이관이 실행 순서를 뒤집어 *잠복 전역 섀도잉*을 깨웠습니다.** headless가 `T1041 yahoo_chart_uses_registry_health_path` **1건 실패**로 잡아냈습니다. 블록 F에 3줄짜리 위임 래퍼 `_fetchYahooChartData`가 있었는데 `aio-data.js`(defer)가 `window._fetchYahooChartData = _aioFetchYahooChartData`로 **재할당**합니다. 인라인은 파싱 시점이라 항상 덮여 **죽은 코드**였지만, 이관으로 순서가 core → data → **ui**가 되면서 ui의 선언이 **승자**가 됐고 래퍼의 `range || '1y', interval || '1d'` 기본값이 호출자에게 새로 적용됐습니다 — 동작이 조용히 바뀐 것입니다.
+- **수정** — 죽은 래퍼를 **삭제**해 정본 생산자 하나만 남겼습니다(이관 이전 동작의 정확한 복원). 래퍼를 경계로 쓰던 3개 게이트는 정본 직접 호출로 바꾸고, `P784/SA-01` 검사는 "`_fetchYahooChartData` 선언이 어디에도 없고 전송 구현이 하나뿐"이라는 **더 강한 불변식**으로 재작성했습니다.
+- 검증: headless **1,133/1,133 PASS(110/110 그룹)**, 실브라우저 `ci-architecture-browser-check` PASS(20 라우트, `browserErrors:0`), `ci-runtime-contract-check`·`ci-research-flow-contract-check`·`ci-proxy-continuity-check`·`ci-semantic-review-check`·`ci-architecture-contract-check`·`ci-structural-check`(R280 중복 전역 0)·decomp(24,285 / 7,687 — 증가는 `--allow-growth`로 기록)·version PASS. affected QA **88 PASS / 2 FAIL**(신선도 SLA).
+- **누적**: 2단계로 index.html **28,575 → 24,285 (−4,290)**. 남은 인라인은 블록 A~D **11,014줄**(QA-EXHAUST-89)과 3단계(QA-EXHAUST-90). **push·배포하지 않았습니다.**
+
 ## v55.12 (2026-09-19)
 - **2단계 본편 1편 — 인라인 블록 G(1,006줄)를 js/aio-chat.js로 이관했다 (R619/R620/P1131).** index.html **28,397 → 27,391**, aio-chat.js 8,161 → 9,176.
 - **왜 블록 G부터인가** — 문서상 **마지막 클래식 블록**이라 뒤에 오는 인라인 블록이 없어 파싱 순서 의존 위험이 가장 낮습니다. 옮긴 9개 최상위 심볼은 전역 함수 선언으로 남으므로 index.html의 `data-action` 위임과 core의 호출부가 그대로 동작합니다(호출은 모두 DOMContentLoaded 이후).

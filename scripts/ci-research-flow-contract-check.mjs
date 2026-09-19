@@ -8,6 +8,8 @@ const html = read('index.html');
 const data = read('js/aio-data.js');
 const core = read('js/aio-core.js');
 const chat = read('js/aio-chat.js');
+// P1132/R619: the inline Yahoo chart helper moved from index.html's block F into js/aio-ui.js.
+const ui = read('js/aio-ui.js');
 function section(source, start, end) {
   const from = source.indexOf(start);
   const to = source.indexOf(end, from + start.length);
@@ -49,14 +51,17 @@ check(calls.map((args) => args[2]).join(',') === '1mo,1wk,1d', 'OHLCV Yahoo inte
 let requestedUrl = '';
 const y = context({ T: { FETCH_TIMEOUT: 100 }, fetchViaProxy: async (url) => { requestedUrl = url; return { chart: { result: [{ meta: { symbol: 'NVDA', dataGranularity: '1wk' }, timestamp: [1787918400], indicators: { quote: [{ close: [100] }] } }] } }; } });
 vm.runInContext(section(data, 'async function _aioFetchYahooChartData(', '// 모듈 스코프'), y.root);
-vm.runInContext(section(html, 'async function _fetchYahooChartData(ticker,', '// Main comprehensive analysis function'), y.root);
-const weekly = await y.root._fetchYahooChartData('NVDA', '2y', '1wk');
+// P1132/R619: the inline 3-line delegation wrapper that used to sit in index.html's block F has been
+// deleted — it was always shadowed by aio-data.js's `window._fetchYahooChartData = _aioFetchYahooChartData`
+// assignment and only became the winner (with new default arguments) when the block moved. The
+// canonical producer sliced above is now the only transport, so drive it directly.
+const weekly = await y.root._aioFetchYahooChartData('NVDA', '2y', '1wk');
 check(requestedUrl.includes('interval=1wk') && weekly.interval === '1wk', 'inline Yahoo helper preserves timeframe contract');
 
 // A late technical summary cannot overwrite the newly selected symbol.
 const a = deferred(), b = deferred();
 const t = context({ _fetchYahooChartData: (symbol) => symbol === 'AAA' ? a.promise : b.promise, initDeepAnalysisSection: async () => {} });
-vm.runInContext(section(html, 'async function analyzeTickerDeep(ticker)', '// ═══════════════════════════════════════════════════════════════'), t.root);
+vm.runInContext(section(ui, 'async function analyzeTickerDeep(ticker)', '// ═══════════════════════════════════════════════════════════════'), t.root);
 const first = t.root.analyzeTickerDeep('AAA');
 const second = t.root.analyzeTickerDeep('BBB');
 const loadingB = t.nodes.get('ticker-analysis-result').innerHTML;
@@ -67,13 +72,13 @@ check(t.nodes.get('ticker-analysis-input').value === 'BBB' && t.nodes.get('deep-
 check(t.events.some((event) => event.type === 'aio:entityChanged' && event.detail.id === 'BBB'), 'technical selection publishes the canonical document event');
 
 const empty = context({ _currentTickerId: 'AAA', _technicalSelectionEpoch: 1, _daDestroyCharts: () => {}, fetchOHLCVWithFallback: async () => [] });
-vm.runInContext(section(html, 'async function initDeepAnalysisSection(symbol,', 'window.runDeepAnalysis ='), empty.root);
+vm.runInContext(section(ui, 'async function initDeepAnalysisSection(symbol,', 'window.runDeepAnalysis ='), empty.root);
 await empty.root.initDeepAnalysisSection('AAA', 1);
 check(empty.nodes.get('deep-sym-label').textContent.includes('미수신'), 'empty arrays render a completed unavailable state, not an endless loader');
 
 const old = deferred();
 const stale = context({ _currentTickerId: 'AAA', _technicalSelectionEpoch: 1, _daDestroyCharts: () => {}, fetchOHLCVWithFallback: () => old.promise });
-vm.runInContext(section(html, 'async function initDeepAnalysisSection(symbol,', 'window.runDeepAnalysis ='), stale.root);
+vm.runInContext(section(ui, 'async function initDeepAnalysisSection(symbol,', 'window.runDeepAnalysis ='), stale.root);
 const pending = stale.root.initDeepAnalysisSection('AAA', 1);
 stale.root._currentTickerId = 'BBB'; stale.root._technicalSelectionEpoch = 2;
 stale.nodes.get('deep-sym-label').textContent = 'BBB';
@@ -91,15 +96,16 @@ const levels = context({ _currentTickerId: 'NVDA', _technicalOHLCV: { NVDA: Arra
 vm.runInContext(section(html, 'function updateSRLevels() {', '// ── Native 캔들 차트'), levels.root);
 levels.root.updateSRLevels();
 check(levels.nodes.get('sr-levels-container').dataset.symbol === 'NVDA' && levels.nodes.get('sr-levels-container').innerHTML.includes('119.00'), 'price reference lines use the selected symbol and its observed close');
-const ui = read('js/aio-ui.js');
 check(!section(ui, 'function _factorRadar(d)', '// ── 4. pipeline-status').includes('|| 50') && ui.includes('Object.assign({}, row.factorScores || {}, { rsi: row.rsi })'), 'factor visualizations preserve zero/missing values and canonical scores');
 const themes = read('src/ui/pages/themes.js');
 check(themes.includes("catalog.setAttribute('aria-label', '회전 지표 미수신 테마 목록')") && themes.includes('appendUnclassified();'), 'missing RRG observations do not remove the independent theme exploration path');
 
 check(!core.includes('getAdrEstimate(') && !data.includes('function getAdrEstimate('), 'market-cap-derived fake ADR is retired');
 check(core.includes('_calcEMA(closes, 20)') && !core.includes('p * 0.99'), 'ticker trend input uses observed OHLCV and the canonical EMA');
-check(!html.includes('모멘텀 강세(비중 확대)') && !html.includes('Leading</strong>: 초강세'), 'relative strength labels do not prescribe trades');
-check(html.includes('rows.dataQuality && rows.dataQuality.source') && html.includes('if (daily && daily.length >= 20)'), 'deep analysis keeps source labels and does not substitute weekly data into daily levels');
+// P1132/R619: the relative-strength and deep-analysis renderers moved to js/aio-ui.js. Repointing these
+// matters for the absence check too — pinned to index.html it would now pass vacuously.
+check(!ui.includes('모멘텀 강세(비중 확대)') && !ui.includes('Leading</strong>: 초강세'), 'relative strength labels do not prescribe trades');
+check(ui.includes('rows.dataQuality && rows.dataQuality.source') && ui.includes('if (daily && daily.length >= 20)'), 'deep analysis keeps source labels and does not substitute weekly data into daily levels');
 check(chat.includes("var _period = 'CY' + _year + 'Q' + _q;") && !chat.includes("var _period = 'CY' + _year + 'Q' + _q + 'I'"), 'SEC revenue/net-income frames use duration periods, not instant periods');
 check(read('src/app/bootstrap.js').includes("legacy.on('aio:entityChanged', syncAnalysis.sync)"), 'native analysis refreshes when entity selection changes');
 const suppliedMaterials = read('src/domain/research/supplied-materials.js');

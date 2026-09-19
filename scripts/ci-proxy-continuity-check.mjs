@@ -5,6 +5,8 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 const source = readFileSync(new URL('../js/aio-data.js', import.meta.url), 'utf8');
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+// P1132/R619: the inline Yahoo chart helper moved from index.html's block F into js/aio-ui.js.
+const ui = readFileSync(new URL('../js/aio-ui.js', import.meta.url), 'utf8');
 const section = (text, a, b) => {
   const start = text.indexOf(a), end = text.indexOf(b, start);
   assert(start >= 0 && end > start, `Missing boundary ${a}`);
@@ -112,8 +114,9 @@ check(privateRequest.calls.length===0 && privateRequest.store.size===0,'credenti
 
 const canonical=harness({fetcher:async()=>new Response(JSON.stringify(chart('NVDA','1wk')))});
 vm.runInContext(section(source,'async function _aioFetchYahooChartData(', '// 모듈 스코프'),canonical.context);
-vm.runInContext(section(html,'async function _fetchYahooChartData(ticker,', '// Main comprehensive analysis function'),canonical.context);
-const weekly=await canonical.root._fetchYahooChartData('NVDA','2y','1wk');
+// P1132/R619: the inline delegation wrapper from index.html's block F was deleted (it was always
+// shadowed by aio-data.js's window assignment). The canonical producer above is the only transport.
+const weekly=await canonical.root._aioFetchYahooChartData('NVDA','2y','1wk');
 check(weekly.symbol==='NVDA' && weekly.interval==='1wk' && weekly.meta.regularMarketTime===1787918400,'inline chart delegates to the canonical identity/timeframe/observation producer');
 check(!source.includes('const YF_PROXIES') && !source.includes('const orderedProxies'), 'quote path has no independent relay retry loop');
 const observations = vm.createContext({});

@@ -2,12 +2,23 @@
 verified_by: 데이터 파이프라인 전수 의미·정합성 감사(로컬 재계산) + affected QA; 중첩 산출물 의미 검토는 open
 last_verified: 2026-09-19
 confidence: medium
-latest_version: v55.12
-latest_P_number: P1131
-next_P_number: P1132
-current_total_entries: 546 tracked entries (373 headings + 173 compacted lines, P1~P1131, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
+latest_version: v55.13
+latest_P_number: P1132
+next_P_number: P1133
+current_total_entries: 547 tracked entries (374 headings + 173 compacted lines, P1~P1132, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
 current_checkpoint: 사용자 판단(지인용 사설 스크리너)으로 **차단 경계를 공시로 재배치**했다 — 개인화 지시·현재증거 부족·수치 주장 불일치·헤드라인 전용 인과를 하드 차단에서 경고/공시로 강등(P1120~P1122). 조작 방지(값·단위·NFP 배율), 금지 행위 P0, 포트폴리오 동의, 도구 경계는 그대로 차단이다. 남은 OPEN: 날짜 없는 중첩 산출물 12건(P1110 측정면이 노출), `objects/**` 592/629 미참조 blob의 보존 정책, 캐시 라우팅 밖의 실제 소비 산출물 오프라인 폴백 (semantic coverage 6.89%, releaseCertified=false)
 ---
+
+## P1132 - v55.13 - 블록 F 이관이 잠복 전역 섀도잉을 드러냈다 (2026-09-19)
+
+- symptom/reproduction: 블록 F(index.html 24,193~27,300 = 3,108줄 — 용어사전, 모바일 메뉴/스크롤탑, GMO 개요, 키보드 단축키, 티커·KR 차트, 종합 기술적 분석 엔진, KR 기술 페이지, 가격 알림, 테마 토글, 서비스워커 등록, 면온보딩)를 `js/aio-ui.js`로 옮겼다. index.html **27,391 → 24,285(−3,106)**, aio-ui.js 4,566 → 7,687. 최상위 심볼 **74개**가 이동했다. 이관 후 게이트 5개(`ci-architecture-contract-check` 2줄, `ci-runtime-contract-check` 13줄, `ci-research-flow-contract-check` 5줄, `ci-proxy-continuity-check` 2줄, `ci-semantic-review-check` 2줄)를 "정의는 ui, 호출·마크업은 html" 원칙으로 재지정했고, 그중 2줄은 **한 검사가 여러 블록에 걸쳐 있어 일부만** 고쳐야 했다(VKOSPI·KR theme breadth).
+- **핵심 발견 — 이관이 실행 순서를 뒤집어 잠복 섀도잉을 깨웠다.** headless가 **T1041 yahoo_chart_uses_registry_health_path** 1건 실패로 잡아냈다. 원인: index.html 인라인 블록 F에 3줄짜리 위임 래퍼 `_fetchYahooChartData`가 있었는데, `aio-data.js`(디퍼)가 `window._fetchYahooChartData = _aioFetchYahooChartData`로 전역을 **재할당**한다. 인라인 선언은 파싱 시점(디퍼보다 먼저)이므로 그 재할당에 **항상 덮여 죽은 코드**였다. 이관으로 실행 순서가 core → data → **ui**(디퍼)로 바뀌면서 ui의 선언이 마지막에 실행돼 **승자**가 됐고, 래퍼의 `range || '1y', interval || '1d'` 기본값이 호출자에게 새로 적용됐다 — 즉 동작이 조용히 바뀌었다.
+- root_cause: 전역 함수 선언과 전역 대입이 **같은 이름**을 두고 경쟁할 때 승자는 "선언 위치"가 아니라 **실행 순서**가 정한다. 인라인은 파싱, 디퍼는 파싱 후이므로 두 형태를 섞어 쓰면 순서를 옮기는 것만으로 승자가 바뀐다. P605(중복 전역 섀도잉 미탐지)와 같은 클래스이며, 이번에는 headless 단언이 잡았다.
+- fix: 죽은 래퍼를 **삭제**해 정본 생산자(`_aioFetchYahooChartData`) 하나만 남겼다. 이는 이관 **이전**의 실행 결과(호출자가 정본을 직접 호출)를 정확히 복원한다. 아울러 래퍼를 경계로 쓰던 3개 게이트(research-flow·proxy-continuity·runtime)를 **정본 직접 호출**로 바꾸고, runtime의 `P784/SA-01` 검사는 "`_fetchYahooChartData` 선언이 어디에도 없고 전송 구현이 하나뿐"이라는 더 강한 불변식으로 재작성했다.
+- violated_rule: R619(2항 — 폴백·사본은 조용히 다른 결과를 낸다), R620(3항).
+- prevention: **인라인↔디퍼를 옮길 때는 같은 이름의 전역 대입이 있는지 먼저 확인**한다. 있으면 이관이 승자를 바꾼다. Q&A: `affected` 프로파일의 headless(browser-unit)가 이 클래스를 잡아냈고, 이는 정적 grep으로는 보이지 않았다.
+- verification: headless **1,133/1,133 PASS(110/110 그룹)** — 래퍼 삭제로 T1041 회귀 해소. 실브라우저 `ci-architecture-browser-check` PASS(20 라우트, `browserErrors:0`). `ci-runtime-contract-check`·`ci-research-flow-contract-check`·`ci-proxy-continuity-check`·`ci-semantic-review-check`·`ci-architecture-contract-check`, `ci-decomp-hotspot-check`(index.html 24,285 / aio-ui.js 7,687 — 증가는 `--write --allow-growth`로 기록), `ci-structural-check`(R280 중복 전역 0), `ci-version-check` PASS. affected QA 88 PASS / 2 FAIL(신선도 SLA, 환경 요인). 커밋만 수행, push·배포 없음.
+- 잔여: 블록 A~D(11,014줄)는 QA-EXHAUST-89, 3단계는 QA-EXHAUST-90.
 
 ## P1131 - v55.12 - 블록 G 이관에서 게이트 고정 텍스트가 예상의 7.5배였다 (2026-09-19)
 

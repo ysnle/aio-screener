@@ -140,7 +140,9 @@ if (marketPageContractSource.includes('number === 0 ? null') || !marketPageContr
 if (!dataSource.includes("var hMacroTopics = ['macro','geopolitics','policy','fed','rates','trade','geo','bond','credit','fx','fxbond'];")) {
   fail('home news ticker suppression must cover credit and fxbond topics');
 }
-if (!coreSource.includes('mc.__aioResizeObserver = deepChartObserver') || !indexSource.includes('c.__aioResizeObserver.disconnect()')) {
+// P1132/R619: the deep-chart teardown moved from index.html's inline block F into js/aio-ui.js,
+// so the disconnect half of the lifecycle is asserted there; the registration half stays in core.
+if (!coreSource.includes('mc.__aioResizeObserver = deepChartObserver') || !uiSource.includes('c.__aioResizeObserver.disconnect()')) {
   fail('deep technical chart ResizeObserver lifecycle must be registered and disconnected');
 }
 const sentimentPageSource = read('src/ui/pages/sentiment.js');
@@ -369,7 +371,9 @@ for (const marker of ['renderTickerActivity', 'ticker-hero-ext', 'ticker-hero-pn
 if (!coreSource.includes('aioTickerPnlRenderer') || !dataSource.includes('aioTickerExtensionRenderer')) fail('legacy ticker activity writer fence missing');
 // P834: ticker price chart lifecycle is native from normalized entity history and the
 // Stooq compatibility loader must not run while the native route marker is mounted.
-if (routeOwners.routes?.ticker?.chartOwner !== 'native' || !entityPageSource.includes('renderTickerChart') || !entityPageSource.includes('aioTickerChartRenderer') || !indexHtmlSource.includes('aio-ticker-chart-renderer="native"')) fail('native ticker chart ownership/fence missing');
+// P1132/R619: the Stooq compatibility loader that carries this route marker moved from index.html's
+// inline block F into js/aio-ui.js.
+if (routeOwners.routes?.ticker?.chartOwner !== 'native' || !entityPageSource.includes('renderTickerChart') || !entityPageSource.includes('aioTickerChartRenderer') || !uiSource.includes('aio-ticker-chart-renderer="native"')) fail('native ticker chart ownership/fence missing');
 // P832: entity.js owns a bounded SEC annual-fact report from one pure model. The broader
 // multi-source report/charts/AI narrative remain legacy boundaries until independently cut over.
 for (const marker of ['deriveSecReport', 'renderFundamentalReport', 'fund-native-sec-report', 'fund-native-sec-grid', 'aioSecReportRenderer']) {
