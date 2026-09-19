@@ -2,12 +2,23 @@
 verified_by: 데이터 파이프라인 전수 의미·정합성 감사(로컬 재계산) + affected QA; 중첩 산출물 의미 검토는 open
 last_verified: 2026-09-19
 confidence: medium
-latest_version: v55.19
-latest_P_number: P1138
-next_P_number: P1139
-current_total_entries: 553 tracked entries (380 headings + 173 compacted lines, P1~P1138, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
+latest_version: v55.20
+latest_P_number: P1139
+next_P_number: P1140
+current_total_entries: 554 tracked entries (381 headings + 173 compacted lines, P1~P1139, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
 current_checkpoint: 사용자 판단(지인용 사설 스크리너)으로 **차단 경계를 공시로 재배치**했다 — 개인화 지시·현재증거 부족·수치 주장 불일치·헤드라인 전용 인과를 하드 차단에서 경고/공시로 강등(P1120~P1122). 조작 방지(값·단위·NFP 배율), 금지 행위 P0, 포트폴리오 동의, 도구 경계는 그대로 차단이다. 남은 OPEN: 날짜 없는 중첩 산출물 12건(P1110 측정면이 노출), `objects/**` 592/629 미참조 blob의 보존 정책, 캐시 라우팅 밖의 실제 소비 산출물 오프라인 폴백 (semantic coverage 6.89%, releaseCertified=false)
 ---
+
+## P1139 - v55.20 - 인과 탐지기가 한국어를 보지 못했고, 픽스처가 그걸 가리고 있었다 (2026-09-19)
+
+- symptom/reproduction: **QA-EXHAUST-80 종결.** `scripts/fetch-data.mjs:3090`의 인과 판정이 **영어 단어 목록뿐**이었습니다 — `/\b(?:because|due to|driven by|led by|after|following|amid|risk|supports?|weakened|strengthened)\b/i`. 그래서 "금리 우려 때문입니다" 같은 한국어 인과 문장은 **인과로 인식되지 않았고**, 인과 문장에 출처 표기를 요구하는 `causal-attribution-missing` 경고가 한국어에서 **한 번도 발화할 수 없었습니다**. 이 제품의 서술은 대부분 한국어입니다.
+- **핵심 발견 — 픽스처가 결함을 가리고 있었다**: 게이트의 픽스처는 이렇게 적혀 있었습니다: *"The causal detector is an English word list, so the fixture must carry one of its tokens for the branch to be exercised at all"* 그리고 본문 뒤에 `(market moved due to rate risk)`를 괄호로 붙였습니다. 즉 **테스트가 자기 검출기의 사전을 알고 그에 맞춰 입력을 보정**하고 있었고, 그래서 "탐지기가 동작한다"가 아니라 "픽스처가 영어 토큰을 넣어줬다"를 증명하고 있었습니다. 결함은 게이트 **안에 문서화된 채로** 남아 있었습니다.
+- fix: (1) `fetch-data.mjs`의 인과 판정을 두 분기로 분리했습니다 — 영어(`\b` 유지) + 한국어(`때문|원인|이유|영향|배경|여파|기인|인해|인한|따른|우려|주도|견인`). **분리한 이유**: `\b`는 ASCII 기준이라 `\b(?:한국어)\b` 형태로 합치면 한국어 분기가 조용히 비활성화됩니다. (2) 픽스처를 **영어 토큰 없는 한국어**로 교체하고, **음성 통제**(설명문 한국어 "거래량은 평이했습니다")를 추가해 "아무 한국어나 통과"하는 상태를 배제했으며, 영어 회귀 케이스도 남겼습니다.
+- **직접 증명**: 한국어 인과 + 한국어 출처 → 경고 없음, 한국어 인과 + 출처 없음 → `causal-attribution-missing` **발화**, 설명문 한국어 → 경고 없음(통제), 영어 → 경고 없음. 즉 **영어 없이도** 한국어 인과가 검출됩니다.
+- **QA-EXHAUST-82도 함께 종결**: `_context/CODEX-SECOND-PASS-HANDOFF-2026-07-10.md`가 `auto_refresh: true`를 선언했지만 **그 주장이 사실이 아니었습니다** — 문서 §0은 "여기에 적힌 과거 상태를 현재 사실로 가정하지 말라"고 스스로 경고하는 날짜 박힌 인수인계입니다. 지식 린트의 규칙("`auto_refresh: true`는 명시적 현재성 주장이므로 파일명 기반 종류 추측보다 강하다")에 따라 이 문서만 **비면제 신선도 위반 1건**으로 남아 있었습니다. **선언을 바로잡아**(`false`) 문서를 실제 성격(historical snapshot)과 일치시켰고, `_context/doc-freshness-baseline.json`은 **1 → 0**으로 줄었습니다(기준선을 느슨하게 한 것이 아니라 **거짓 선언을 고친 것**입니다). 지식 린트 경고는 3 → 2건(남은 2건은 Git 히스토리 복구 대기 중인 인코딩 손상).
+- violated_rule: **R625(신규)** — 픽스처가 검출기의 언어를 대신 맞춰주면 그 검사는 아무것도 검사하지 않는다.
+- prevention: 탐지기를 검사할 때는 ① 제품 주 언어로 된 입력을 쓴다 ② 음성 통제를 함께 넣는다 ③ 언어별 정규식은 분리한다.
+- verification: `ci-data-pipeline-contract-check`(한국어 픽스처 3종 + 영어 회귀) PASS, 별도 증명 스크립트로 4개 케이스 확인, `ci-history-field-time-contract-check`(같은 함수의 다른 소비자) PASS, `ci-knowledge-lint-check` PASS(경고 3 → 2), headless **1,133/1,133**, 실브라우저 PASS, affected QA 98 PASS / 2 FAIL(신선도 SLA). 커밋만 수행, push·배포 없음.
 
 ## P1138 - v55.19 - 전역 승자·로드 순서를 기계적으로 검사한다 (2026-09-19)
 

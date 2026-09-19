@@ -2,7 +2,7 @@
 verified_by: Codex
 last_verified: 2026-07-12
 confidence: high for repository/static, local real-Chromium, GitHub Actions, and Pages invariant evidence; medium for external-source parity; blocked for human screen-reader and Worker-authenticated/external-success flows
-auto_refresh: true
+auto_refresh: false
 target_version: v52.61
 implementation_status: Pages/watchdog/live-invariant verified; Worker external-success and manual-screen-reader evidence pending
 source_documents:

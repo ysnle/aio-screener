@@ -3087,7 +3087,15 @@ export function validateMarketAnalysisText(text, data, snapshot = null) {
   if (Number.isFinite(value) && Number.isFinite(nfpMention) && Math.abs(nfpMention) > Math.max(1, Math.abs(value)) * 100) {
     issues.push('nfp-scale-mismatch');
   }
-  const causalClaim = /\b(?:because|due to|driven by|led by|after|following|amid|risk|supports?|weakened|strengthened)\b/i.test(body);
+  // P1139/QA-EXHAUST-80: the causal detector was an English word list, so Korean causal prose
+  // ("금리 우려 때문입니다") was never recognised as causal and the attribution disclosure below
+  // could not fire for the language most of this product's narrative is written in. The Korean
+  // branch is a separate regex on purpose: `\b` is ASCII-anchored and never matches around Hangul,
+  // so wrapping both languages in one `\b(?:…)\b` would silently disable the Korean half.
+  const causalClaimEn = /\b(?:because|due to|driven by|led by|after|following|amid|risk|supports?|weakened|strengthened)\b/i
+    .test(body);
+  const causalClaimKo = /(?:때문|원인|이유|영향|배경|여파|기인|인해|인한|따른|우려|주도|견인)/.test(body);
+  const causalClaim = causalClaimEn || causalClaimKo;
   // P1122: article-level causal evidence is impossible under the declared headline-only
   // rights policy, so its absence is a disclosure, not a refusal. What IS required is
   // attribution — a causal sentence must name the headline it rests on. The value and

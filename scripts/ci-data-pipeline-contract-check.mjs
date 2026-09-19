@@ -269,17 +269,25 @@ check('FX/bond carry uses the canonical BOK policy-rate field and cannot regress
     const { validateMarketAnalysisText } = await import('./fetch-data.mjs');
     const headline = { title: '금리 우려로 지수 하락', source: 'Reuters', link: 'https://example.test/rate', eventTime: '2026-08-12T11:00:00.000Z', contentDepth: 'headline-only', score: 80 };
     const data = { meta: { generatedAt: '2026-08-12T12:01:00.000Z' }, news: [headline], macro: {} };
-    // The causal detector is an English word list, so the fixture must carry one of its
-    // tokens for the branch to be exercised at all.
-    const attributed = validateMarketAnalysisText('지수는 하락했습니다. 헤드라인에 따르면 금리 우려가 배경입니다. (market moved due to rate risk)', data);
-    const unattributed = validateMarketAnalysisText('지수는 하락했습니다. 금리 우려 때문입니다. (market moved due to rate risk)', data);
+    // P1139/QA-EXHAUST-80: the causal detector used to be an English word list, so this fixture
+    // carried an English parenthetical purely to make the branch fire at all — Korean causal prose
+    // was invisible. The Korean cases below deliberately have NO English token: they fail if the
+    // Korean vocabulary is removed, which is exactly the regression the gate now prevents.
+    const attributed = validateMarketAnalysisText('지수는 하락했습니다. 헤드라인에 따르면 금리 우려가 배경입니다.', data);
+    const unattributed = validateMarketAnalysisText('지수는 하락했습니다. 금리 우려 때문입니다.', data);
+    // Control: a descriptive Korean sentence with no causal marker must stay non-causal, so the
+    // Korean branch cannot be satisfied by "any Hangul text".
+    const descriptive = validateMarketAnalysisText('지수는 하락했습니다. 거래량은 평이했습니다.', data);
+    const attributedEn = validateMarketAnalysisText('Markets moved because the documented catalyst changed risk pricing, according to the headline.', data);
     ok = Array.isArray(attributed.warnings)
       && attributed.issues.indexOf('causal-evidence-missing') < 0
       && unattributed.issues.indexOf('causal-evidence-missing') < 0
       && attributed.warnings.indexOf('causal-attribution-missing') < 0
       && unattributed.warnings.indexOf('causal-attribution-missing') >= 0
-      && attributed.headlineCount === 1;
-    detail = JSON.stringify({ attributed, unattributed });
+      && attributed.headlineCount === 1
+      && descriptive.warnings.indexOf('causal-attribution-missing') < 0
+      && attributedEn.warnings.indexOf('causal-attribution-missing') < 0;
+    detail = JSON.stringify({ attributed, unattributed, descriptive, attributedEn });
   } catch (error) { detail = error.message; }
   check('headline-only causal prose warns on missing attribution instead of blocking the narrative', ok, detail.slice(0, 1600));
 }

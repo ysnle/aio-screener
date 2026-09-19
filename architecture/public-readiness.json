@@ -1,6 +1,6 @@
 {
   "schemaVersion": "public-readiness-v1",
-  "appRevision": "v55.19",
+  "appRevision": "v55.20",
   "currentStage": "RESEARCH_BETA_CONDITIONAL",
   "nextStage": "PUBLIC_BETA",
   "criteria": [
@@ -27,7 +27,7 @@
     {
       "id": "route-soak",
       "status": "PENDING_LOCAL_GATE",
-      "evidence": "Previous route-soak evidence predates v55.19; run ci-route-soak-check.mjs once at the release boundary."
+      "evidence": "Previous route-soak evidence predates v55.20; run ci-route-soak-check.mjs once at the release boundary."
     },
     {
       "id": "boot-performance",
