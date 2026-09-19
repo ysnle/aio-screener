@@ -129,6 +129,8 @@ const coreSource = read('js/aio-core.js');
 const uiSource = read('js/aio-ui.js');
 // P1133/R620: page-level renderers extracted from index.html's inline block D live in js/aio-pages.js.
 const pagesSource = read('js/aio-pages.js');
+// P1135/R620: the macro/technical layer extracted from inline block B lives in js/aio-macro-tech.js.
+const macroTechSource = read('js/aio-macro-tech.js');
 const chatSource = read('js/aio-chat.js');
 const inferenceEfficiencySource = read('src/domain/ai/inference-efficiency.js');
 const marketPageContractSource = read('src/ui/pages/market.js');
@@ -243,12 +245,15 @@ if (!dataSource.includes('function _aioIsNativeBreadthElement') || !dataSource.i
 // P806: market.js owns the bounded 2s10s summary surfaces from explicit 2Y/10Y evidence;
 // the legacy yield-curve updater cannot overwrite spread-status once marked native.
 if (!marketPageSource.includes('macro-spread-value') || !marketPageSource.includes('aioMacroSpreadRenderer')) fail('native macro spread renderer marker missing');
-if (!read('index.html').includes('blockedSpread.dataset.aioMacroSpreadRenderer') || !read('index.html').includes('nativeSpread')) fail('legacy macro spread writer fence missing');
+// P1135/R620: the macro spread writer moved with block B into js/aio-macro-tech.js.
+if (!macroTechSource.includes('blockedSpread.dataset.aioMacroSpreadRenderer') || !macroTechSource.includes('nativeSpread')) fail('legacy macro spread writer fence missing');
 if (!marketPageSource.includes('macro-2y-value') || !marketPageSource.includes('aioMacroTwoYearRenderer')) fail('native macro 2Y renderer marker missing');
 // P811: market.js owns the bounded curve status/meaning labels; the legacy yield-curve
 // function retains chart compatibility but must not reintroduce the prose writers.
 if (!marketPageSource.includes('curve-status') || !marketPageSource.includes('curve-meaning') || !marketPageSource.includes('aioMacroCurveRenderer')) fail('native macro curve renderer marker missing');
-if (read('index.html').includes("document.getElementById('curve-status')") || read('index.html').includes("document.getElementById('curve-meaning')")) fail('legacy macro curve status/meaning writer returned after P811 cutover');
+// P1135/R620: the yield-curve renderer moved to js/aio-pages.js, so the reintroduction guard must
+// cover both owners — pinned to the shell alone it would have gone vacuous.
+if ((read('index.html') + pagesSource + macroTechSource).includes("document.getElementById('curve-status')") || (read('index.html') + pagesSource + macroTechSource).includes("document.getElementById('curve-meaning')")) fail('legacy macro curve status/meaning writer returned after P811 cutover');
 // P816: market.js owns the bounded Fed/FOMC context line; event freshness keeps
 // compatibility metadata but must not overwrite the native macro sink.
 for (const marker of ['macro-fed-meaning', 'aioMacroFedMeaningRenderer', 'AIO_EVENT_FRESHNESS_REGISTRY']) {
@@ -417,7 +422,8 @@ for (const marker of ['renderTechnicalHealth', "page.dataset.aioTechnicalRendere
   if (!analysisPageSource.includes(marker)) fail(`native technical health renderer marker missing: ${marker}`);
 }
 const htmlSource = read('index.html');
-if (!htmlSource.includes('function _aioIsNativeTechnicalHealth') || !htmlSource.includes('window.AIO_ARCH.computeMarketHealth') || !htmlSource.includes('_aioIsNativeTechnicalHealth()')) fail('legacy technical health model/fence missing');
+// P1135/R620: the inline market-health model and its native fence moved with block B to js/aio-macro-tech.js.
+if (!macroTechSource.includes('function _aioIsNativeTechnicalHealth') || !macroTechSource.includes('window.AIO_ARCH.computeMarketHealth') || !macroTechSource.includes('_aioIsNativeTechnicalHealth()')) fail('legacy technical health model/fence missing');
 if (!coreSource.includes('nativeTechnicalHealth') || !coreSource.includes('window._aioIsNativeTechnicalHealth')) fail('legacy technical initializer fence missing');
 // P786: signal owns the score/decision hero. The legacy dashboard remains active for
 // secondary score bars, execution-window widgets, risk monitor, and narrative, but its three

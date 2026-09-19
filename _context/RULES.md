@@ -2,10 +2,16 @@
 verified_by: Codex local source review + affected QA (workspace/deployment regression); full semantic audit remains open
 last_verified: 2026-09-19
 confidence: medium
-target_version: v55.15
+target_version: v55.16
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R622. 인라인 코드의 추출은 실행 "위치"를 보존한다 (v55.16, P1135)
+
+**Rule**: `index.html`의 인라인 `<script>`는 **파싱 시점에** 실행되므로 `defer` 스크립트(core·data·ui·chat·glossary)보다 **항상 먼저** 돈다. 추출한 코드를 기존 `defer` 태그 **뒤에** 붙이면 실행 순서가 뒤집히고, 그 코드를 **모듈 평가 시점에 호출하는** 다른 파일이 있으면 `ReferenceError`로 그 파일 전체가 죽는다(그 파일의 함수 선언·window 대입이 전부 미정의가 된다). 따라서 (1) 추출 파일의 태그는 **원래 블록의 상대 순서대로 `defer` 그룹의 맨 앞**(core 앞)에 놓는다 — 그래야 "core·ui보다 먼저"라는 원래 성질이 유지된다. (2) 순서를 바꿀 때는 **전역 이름별로 "누가 평가 시점에 누구를 호출하는지"를 먼저 확인**한다. (3) 이 회귀는 정적 게이트가 아니라 **실브라우저 검증**이 잡는다 — headless 1,133건이 전부 통과해도 페이지가 죽을 수 있으므로, 순서 변경 시 `ci-architecture-browser-check`를 반드시 돌린다.
+
+**Validation**: `scripts/ci-architecture-browser-check.mjs`(실브라우저 20 라우트, `browserErrors`), `scripts/ci-headless-tests.mjs`, `scripts/ci-structural-check.mjs`(R280 중복 전역 0), `index.html`의 런타임 스크립트 순서.
 
 ## R621. 프리캐시는 부트 필수분만, 나머지는 요청 기반 런타임 캐시다 (v55.15, P1134)
 

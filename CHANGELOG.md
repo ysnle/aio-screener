@@ -1,3 +1,12 @@
+## v55.16 (2026-09-19)
+- **2단계 본편 5편 — 인라인 블록 B(매크로/기술 렌더 1,174줄)를 `js/aio-macro-tech.js`로 추출했다 (R620/P1135, R622 신규).** index.html **17,066 → 15,892(−1,174)**.
+- **여기서 제가 회귀를 하나 냈고, 실브라우저가 잡았습니다.** 처음엔 새 파일 등록 비용을 피하려고 B를 `aio-pages.js` 끝에 접어넣고 `defer` 그룹 **뒤**에 두었습니다. headless **1,133/1,133 PASS**, 정적 게이트 전부 PASS — 그런데 실브라우저가 `ticker related-theme action is unavailable for NVDA`로 실패했습니다.
+- **원인**: 인라인 `<script>`는 **파싱 시점**에 실행되어 모든 `defer`보다 **먼저** 돕니다. B를 defer 뒤로 밀자 `aio-ui.js`가 자기 **모듈 평가 시점**(`ui:5047`)에 호출하는 `computeMarketHealth`가 아직 없어 **ui 파일 전체가 `ReferenceError`로 죽었고**, 이후 정의(`window._aioRenderTickerOverview`, `ui:7084`)가 전부 미정의가 됐습니다. **P1132·P605와 같은 계열 — 실행 순서가 계약입니다.**
+- **수정**: B를 별도 파일로 분리하고, 추출 파일 3개의 태그를 **`defer` 그룹 맨 앞(core 앞)** 으로 옮겨 원래 순서(**B → C → D → core → …**)를 복원했습니다. **R622**로 규칙화: 추출 태그는 원래 블록 순서대로 core 앞에 두고, 순서를 건드린 뒤에는 **반드시 실브라우저 검증**을 돌립니다.
+- 게이트 재지정 5개 파일 8곳(architecture 3, runtime 4, research-flow 1).
+- 검증: **실브라우저 PASS**(회귀 해소), headless **1,133/1,133 PASS**, architecture / runtime / research-flow / structural(R280 0 + 전역 18개 충돌 사전 검사) / data-pipeline / decomp(**10개 파일** 래칫 — 15,892 / 3,760 / 3,487 / 1,198) / version(캐시버스터 12) / release-revision / sw-cache-policy(10) / workspace / syntax(389 파일) PASS. affected QA **88 PASS / 2 FAIL**(신선도 SLA).
+- **누적**: 2단계로 index.html **28,575 → 15,892 (−12,683, −44%)**. 남은 인라인은 **블록 A(1,994) + 소형 4개(154) = 2,148줄**입니다(QA-EXHAUST-89). 3단계는 QA-EXHAUST-90. **push·배포하지 않았습니다.**
+
 ## v55.15 (2026-09-19)
 - **2단계 본편 4편 — 인라인 블록 C(KR/SEC 데이터 플레인 3,473줄)를 `js/aio-kr-data.js`로 추출했다 (R620/P1134, R621 신규).** index.html **20,538 → 17,066(−3,472)**.
 - **제 실수를 하나 잡았습니다.** 지난 회차에 새 파일을 만들며 `sw.js` `CRITICAL_SHELL_ASSETS`에 **관성적으로** 추가했는데, 이 배열은 `cache.addAll`로 **원자 설치**됩니다 — 항목이 늘수록 설치 실패 확률이 커지고 **상한이 12**라 남은 블록까지 넣으면 상한을 넘겨 "상한을 올리거나 항목을 빼는" 임의 결정이 강제됩니다. **추출마다 프리캐시에 넣는 습관은 상한을 무의미하게 만드는 세 번째 실패 모드**였습니다(앞의 둘은 지표 게임과 조용한 재기준).

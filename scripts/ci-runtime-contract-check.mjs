@@ -24,6 +24,8 @@ const chat = read('js/aio-chat.js');
 const pagesSource = read('js/aio-pages.js');
 // P1134/R620: the KR/SEC data plane extracted from inline block C lives in js/aio-kr-data.js.
 const krData = read('js/aio-kr-data.js');
+// P1135/R620: the macro/technical layer extracted from inline block B lives in js/aio-macro-tech.js.
+const macroTech = read('js/aio-macro-tech.js');
 const tests = read('js/aio-tests.js');
 const bootstrap = read('src/app/bootstrap.js');
 const portfolioBacktest = read('src/domain/portfolio/backtest.js');
@@ -520,8 +522,8 @@ check('macro route uses one native yield-curve owner and replays both official c
     && /renderOfficialFutureCalendar\(\)/.test(core)
     && /aio:sharedMarketCut/.test(core);
 })());
-check('official future calendar merges the registry beyond snapshot-only CPI/PCE/NFP/FOMC fields', /AIO_MACRO_CALENDAR[\s\S]{0,900}Object\.keys\(registry\)/.test(html) && /item\.nextRelease/.test(html) && /renderMacroNextRelease/.test(core));
-check('yield-curve renderer has a native-owner fence and destroys legacy/Chart.js canvas owners before fallback recreation', /nativeMacroPage\.dataset\.aioMacroChartRenderer === 'native'/.test(html) && /destroyYieldCurveOwner/.test(html) && /Chart\.getChart\(canvasEl\)/.test(html) && /_ycCharts\.yieldCurveChart/.test(core));
+check('official future calendar merges the registry beyond snapshot-only CPI/PCE/NFP/FOMC fields', /AIO_MACRO_CALENDAR[\s\S]{0,900}Object\.keys\(registry\)/.test(macroTech) && /item\.nextRelease/.test(macroTech) && /renderMacroNextRelease/.test(core));
+check('yield-curve renderer has a native-owner fence and destroys legacy/Chart.js canvas owners before fallback recreation', /nativeMacroPage\.dataset\.aioMacroChartRenderer === 'native'/.test(macroTech) && /destroyYieldCurveOwner/.test(macroTech) && /Chart\.getChart\(canvasEl\)/.test(macroTech) && /_ycCharts\.yieldCurveChart/.test(core));
 check('news and screener use 12-row progressive reveal instead of unbounded first paint', /_aioNewsVisibleLimit\s*\|\|\s*12/.test(data) && /_scrVisibleLimit\s*=\s*12/.test(data) && /id="news-load-more-wrap"/.test(html) && /id="scr-load-more-wrap"/.test(html));
 check('briefing news wall is capped and can be explicitly expanded', /#briefing-live-news-list\s*\{\s*max-height:820px/.test(html) && /_aioCapBriefingNews/.test(core) && /_aioToggleBriefingNews/.test(core));
 check('portfolio summary exposes total P&L, cash, and exposure rule as three columns', /id="pf-hero-stats"/.test(html) && /id="pf-cash-hero"/.test(html) && /id="pf-exposure-rule"/.test(html) && /#pf-hero-stats\s*\{\s*grid-template-columns:repeat\(3/.test(html));
@@ -556,7 +558,7 @@ check('EF-02d: breadth 50SMA readout/bar sync is a single shared function called
 check('EF-02b: breadth header-badge and diag-signal consume the same canonical consensus object as the signal-page verdict (no independent re-derivation)', /_aioRenderBreadthConsensus\s*=\s*function/.test(core) && /breadth-header-badge/.test(core) && /breadth-diag-signal/.test(core));
 check('EF-02b: home market-pulse breadth strip uses NARRATIVE_ENGINE.getBreadthRegime instead of an independent 60/30 threshold', /NARRATIVE_ENGINE\.getBreadthRegime\(bVal\)/.test(pagesSource));
 check('EF-02c: NYSE new-high/new-low/hl-ratio cards render an explicit na state instead of a perpetual unstated dash', /breadth-new-highs.*breadth-new-lows.*breadth-hl-ratio|breadth-new-highs['"]\s*,\s*['"]breadth-new-lows/.test(ui.replace(/\s+/g, ' ')));
-check('EF-01: macro "now/live" mini-card reads window._liveData first and falls back to the snapshot with an explicit fallback title, instead of an always-snapshot data-snap binding', /function _aioSyncMacroLiveSpxMini/.test(html) && /id="macro-now-spx"/.test(html) && !/id="macro-now-spx"\s+data-snap="spx"/.test(html));
+check('EF-01: macro "now/live" mini-card reads window._liveData first and falls back to the snapshot with an explicit fallback title, instead of an always-snapshot data-snap binding', /function _aioSyncMacroLiveSpxMini/.test(macroTech) && /id="macro-now-spx"/.test(html + macroTech) && !/id="macro-now-spx"\s+data-snap="spx"/.test(html + macroTech));
 check('headless tests cover Batch 1 efficacy fixes (EF-01/02/04/13)', /_testV5240Batch1Efficacy/.test(tests) && /T870/.test(tests) && /T871/.test(tests) && /T872/.test(tests) && /T873/.test(tests));
 
 // v52.41 (P656): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 2 (EF-08/10/11/12/19) structural gates
@@ -876,7 +878,7 @@ check('R340/P712: Treasury maturity fields are separated and 2s10s uses the cano
 check('R340/P712: KR theme breadth and market-health claims fail closed on missing current inputs',
   /evaluateKrThemeQuoteCoverage/.test(krData) && /weightedCoverage\s*>=\s*0\.7/.test(krData) && /테마 종합판정 보류/.test(krData) && /currentInputs\s*<\s*4/.test(ui) && /판정 보류 · 현재 입력/.test(ui));
 check('R340/P712: future-event calendar is data-driven and no stale 7\/10 BOK row remains',
-  /renderOfficialFutureCalendar/.test(html) && /id="official-future-calendar"/.test(html) && !/>7\/10<\/span>[\s\S]{0,260}한국은행 금통위/.test(html));
+  /renderOfficialFutureCalendar/.test(macroTech + core) && /id="official-future-calendar"/.test(html) && !/>7\/10<\/span>[\s\S]{0,260}한국은행 금통위/.test(html + macroTech));
 check('R340/P712: semantic market-integrity tests cover curve exactness and KR missingness',
   /T1025 treasury_curve_exact_2s10s/.test(tests) && /T1027 kr_theme_missingness_fail_closed/.test(tests) && /T1028 technical_indicator_no_intraday_synthesis/.test(tests) && /T1029 ticker_chart_no_random_history/.test(tests) && /T1030 rrg_history_fail_closed/.test(tests) && /T1031 mcclellan_requires_advance_decline_history/.test(tests) && /T1032 hy_oas_official_only/.test(tests) && /T1033 breadth_chart_no_random_series/.test(tests) && /T1034 market_health_required_inputs_fail_closed/.test(tests));
 check('R340/P712: synthetic market-series formulas are absent from decision paths',

@@ -51,7 +51,7 @@ if (targetVersionMatch) {
 }
 
 // 파일 크기 표 행 파싱: | `파일명` | 숫자(옵션 텍스트) | ...
-const FILES = ['index.html', 'js/aio-core.js', 'js/aio-data.js', 'js/aio-ui.js', 'js/aio-chat.js', 'js/aio-tests.js', 'js/aio-glossary.js', 'js/aio-pages.js', 'js/aio-kr-data.js'];
+const FILES = ['index.html', 'js/aio-core.js', 'js/aio-data.js', 'js/aio-ui.js', 'js/aio-chat.js', 'js/aio-tests.js', 'js/aio-glossary.js', 'js/aio-pages.js', 'js/aio-kr-data.js', 'js/aio-macro-tech.js'];
 if (historicalSizeTable) info.push('CODE-MAP size table is explicitly historical; generated CURRENT-STATE and workspace checks own current sizes.');
 for (const file of historicalSizeTable ? [] : FILES) {
   const escaped = file.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

@@ -2,12 +2,25 @@
 verified_by: 데이터 파이프라인 전수 의미·정합성 감사(로컬 재계산) + affected QA; 중첩 산출물 의미 검토는 open
 last_verified: 2026-09-19
 confidence: medium
-latest_version: v55.15
-latest_P_number: P1134
-next_P_number: P1135
-current_total_entries: 549 tracked entries (376 headings + 173 compacted lines, P1~P1134, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
+latest_version: v55.16
+latest_P_number: P1135
+next_P_number: P1136
+current_total_entries: 550 tracked entries (377 headings + 173 compacted lines, P1~P1135, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
 current_checkpoint: 사용자 판단(지인용 사설 스크리너)으로 **차단 경계를 공시로 재배치**했다 — 개인화 지시·현재증거 부족·수치 주장 불일치·헤드라인 전용 인과를 하드 차단에서 경고/공시로 강등(P1120~P1122). 조작 방지(값·단위·NFP 배율), 금지 행위 P0, 포트폴리오 동의, 도구 경계는 그대로 차단이다. 남은 OPEN: 날짜 없는 중첩 산출물 12건(P1110 측정면이 노출), `objects/**` 592/629 미참조 blob의 보존 정책, 캐시 라우팅 밖의 실제 소비 산출물 오프라인 폴백 (semantic coverage 6.89%, releaseCertified=false)
 ---
+
+## P1135 - v55.16 - 추출한 파일을 defer 그룹 *뒤*에 붙여 실행 순서를 뒤집었다 (2026-09-19)
+
+- symptom/reproduction: 인라인 블록 B(**매크로/기술 렌더 1,174줄** — 인라인 `computeMarketHealth` 구현과 `_aioIsNativeTechnicalHealth` fence, `updateTechIndicators`/`updateSRLevels`/`loadTechCandleChart`/`updatePatternSignals`, `renderEconCalendar`/`generateMacroStoryline`, `renderYieldCurve`/`destroyYieldCurveOwner`, `computeEconomicTemperature`, `updateMacroRegimePill`/`updateWtiBrentSpread`, `_aioSyncMacroLiveSpxMini`, `renderOfficialFutureCalendar`)를 추출했다. index.html **17,066 → 15,892(−1,174)**.
+- **최초 시도**: 블록 B를 렌더러 계층이라는 이유로 `js/aio-pages.js` **끝에 접어넣고**(새 파일 등록 비용을 피하려고) `defer` 그룹 뒤에 로드되게 두었다. headless **1,133/1,133 PASS**, 정적 게이트 전부 PASS — 그런데 **실브라우저가 실패**했다: `ticker related-theme action is unavailable for NVDA`.
+- root_cause: 인라인 `<script>`는 **파싱 시점**에 실행되어 모든 `defer`(core·data·ui·chat·glossary)보다 **먼저** 돈다. B를 defer 그룹 뒤로 옮기자 `js/aio-ui.js`가 자기 **모듈 평가 시점**에 호출하는 `computeMarketHealth`가 아직 없었고(`ui:5047` → `ui:5087`), **ui 파일 전체가 `ReferenceError`로 죽었다**. 그 결과 ui의 이후 정의(예: `window._aioRenderTickerOverview` = ui:7084)가 전부 미정의가 되어 티커의 관련 테마 칩이 렌더되지 않았다. **P1132(래퍼가 승자가 됨)·P605(전역 섀도잉)와 같은 계열 — 실행 순서가 계약이다.**
+- 왜 headless가 못 잡았나: headless는 그 경로를 실행하지 않는다(티커 라우트의 관련 테마 칩 렌더는 실브라우저 검증의 몫). 정적 게이트는 `pageerror`를 보지 않는다. 즉 **이 실패 모드는 실행 순서 변경 시 실브라우저만 잡는다.**
+- fix: (1) B를 `js/aio-pages.js`에서 **분리해 `js/aio-macro-tech.js`(1,198줄)** 로 만들고, (2) 추출 파일 3개의 태그를 **`defer` 그룹 맨 앞(core 앞)** 으로 옮겨 원래 상대 순서(**B → C → D → core → …**)를 복원했다. 이로써 "core·ui보다 먼저"라는 원래 성질이 유지된다. (3) 등록 7곳 + `CODE-MAP` 행 + `qa-pipeline.json` inputs.
+- 게이트 재지정 5개 파일 8곳 — `ci-architecture-contract-check` 3곳(macro spread fence, curve status/meaning 재도입 가드, technical health model/fence), `ci-runtime-contract-check` 4곳(macro calendar, yield-curve fence, EF-01, R340/P712), `ci-research-flow-contract-check` 1곳(`updateSRLevels` 슬라이스 경계). `ci-research-flow-contract-check`의 `section()` 헬퍼는 경계 문자열이 없으면 `AssertionError`로 **중단**하므로 이동을 조용히 넘기지 않는다.
+- violated_rule: R620(3항), **R622(신규 — 추출은 실행 위치를 보존한다)**.
+- prevention: 추출 태그는 원래 블록 순서대로 core **앞**에 둔다. 순서를 건드린 뒤에는 반드시 `ci-architecture-browser-check`(실브라우저)를 돌린다 — headless 만으로는 이 회귀를 검출할 수 없다.
+- verification: **실브라우저 `ci-architecture-browser-check` PASS**(20 라우트, 회귀 해소 확인), headless **1,133/1,133 PASS(110/110 그룹)**, `ci-architecture-contract-check`·`ci-runtime-contract-check`·`ci-research-flow-contract-check`(8곳 재지정 후), `ci-structural-check`(R280 중복 전역 0 — 전역 이름 18개 충돌 사전 검사도 통과), `ci-data-pipeline-contract-check`, `ci-decomp-hotspot-check`(**10개 파일** 래칫 — index.html 15,892 / pages 3,760 / kr-data 3,487 / macro-tech 1,198), `ci-version-check`(캐시버스터 12), `ci-release-revision-check`, `ci-service-worker-cache-policy-check`(10 critical assets), `ci-workspace-contract-check`, `ci-syntax-check`(389 파일) PASS. affected QA 88 PASS / 2 FAIL(신선도 SLA). 커밋만 수행, push·배포 없음.
+- 잔여: 블록 A(1,994 — core보다 먼저 실행되어 core·B·C가 읽는 전역을 만든다)와 소형 인라인 4개(154줄)는 QA-EXHAUST-89, 3단계는 QA-EXHAUST-90.
 
 ## P1134 - v55.15 - 추출한 모듈을 프리캐시에 넣을 뻔했다 (2026-09-19)
 

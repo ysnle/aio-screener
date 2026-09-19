@@ -10,6 +10,9 @@ const core = read('js/aio-core.js');
 const chat = read('js/aio-chat.js');
 // P1132/R619: the inline Yahoo chart helper moved from index.html's block F into js/aio-ui.js.
 const ui = read('js/aio-ui.js');
+// P1135/R620: updateSRLevels and the technical-level renderers moved from index.html's block B
+// into js/aio-macro-tech.js.
+const macroTech = read('js/aio-macro-tech.js');
 function section(source, start, end) {
   const from = source.indexOf(start);
   const to = source.indexOf(end, from + start.length);
@@ -93,7 +96,7 @@ check(invalid.root._currentTickerId === '' && invalid.root._fundAnalysisData ===
 check(invalid.nodes.get('vis-fundamental').style.display === 'none' && invalid.nodes.get('vis-fundamental-radar').textContent === '', 'invalid fundamental search also clears the secondary factor visualization');
 
 const levels = context({ _currentTickerId: 'NVDA', _technicalOHLCV: { NVDA: Array.from({ length: 20 }, (_, i) => ({ time: `2026-08-${String(i + 1).padStart(2, '0')}`, close: 100 + i, high: 101 + i, low: 99 + i })) } });
-vm.runInContext(section(html, 'function updateSRLevels() {', '// ── Native 캔들 차트'), levels.root);
+vm.runInContext(section(macroTech, 'function updateSRLevels() {', '// ── Native 캔들 차트'), levels.root);
 levels.root.updateSRLevels();
 check(levels.nodes.get('sr-levels-container').dataset.symbol === 'NVDA' && levels.nodes.get('sr-levels-container').innerHTML.includes('119.00'), 'price reference lines use the selected symbol and its observed close');
 check(!section(ui, 'function _factorRadar(d)', '// ── 4. pipeline-status').includes('|| 50') && ui.includes('Object.assign({}, row.factorScores || {}, { rsi: row.rsi })'), 'factor visualizations preserve zero/missing values and canonical scores');
