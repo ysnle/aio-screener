@@ -9060,6 +9060,21 @@
       'prepare=' + typeof window._aioPrepareAIResearch + ' gate=' + typeof window._aioEvaluateAIResearchGate);
   }
 
+  // P1128/R619: OPEX 만기일 계산의 정본은 aio-core.js 하나다. 로컬 자정 Date를
+  // toISOString()으로 문자열화하면 UTC+ 시간대에서 하루 앞당겨진다(KST 실측: 3rd Friday
+  // 2026-01-16 → "2026-01-15"). aio-data.js의 사본을 이 정본으로 수렴시켰으므로,
+  // 그 날짜가 다시 하루 밀리면 이 그룹이 먼저 깨진다.
+  function _testOpexCanonicalDate() {
+    var f = window._aioNextMonthlyOpex;
+    _assert('P1128/R619 T_opex1 OPEX 정본이 노출된다', typeof f === 'function');
+    if (typeof f !== 'function') return;
+    var jan = f('2026-01-05T00:00:00');
+    _assert('P1128/R619 T_opex2 2026-01 3rd Friday = 01-16', jan && jan.nextOpexDate === '2026-01-16', 'got=' + (jan && jan.nextOpexDate));
+    _assert('P1128/R619 T_opex3 만기까지 남은 일수가 양수', jan && jan.daysToOpex > 0 && jan.daysToOpex <= 14, 'got=' + (jan && jan.daysToOpex));
+    var roll = f('2026-12-20T00:00:00');
+    _assert('P1128/R619 T_opex4 12월 만기 경과 → 2027-01', roll && /^2027-01-/.test(roll.nextOpexDate), 'got=' + (roll && roll.nextOpexDate));
+  }
+
   window.AIO = window.AIO || {};
 
   /**
@@ -9175,7 +9190,8 @@
     { id:'G106', name:'_testV5286ToolBoundaryAndRights', run:_testV5286ToolBoundaryAndRights },
     { id:'G107', name:'_testV5290HumanUXStateContracts', run:_testV5290HumanUXStateContracts },
     { id:'G108', name:'_testV5298SemanticMarketIntegrity', run:_testV5298SemanticMarketIntegrity },
-    { id:'G109', name:'_testV5399AIResearchRuntimeContract', run:_testV5399AIResearchRuntimeContract }
+    { id:'G109', name:'_testV5399AIResearchRuntimeContract', run:_testV5399AIResearchRuntimeContract },
+    { id:'G110', name:'_testOpexCanonicalDate', run:_testOpexCanonicalDate }
   ]);
 
   function _runGroupRegistry(groups, options) {

@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v55.08';
+const APP_VERSION = 'v55.09';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -20753,20 +20753,19 @@ function classifyTerminalCandle(bar, prevBar, snapshot) {
   return { type: type, score: Math.max(0, Math.min(100, Math.round(score))), flags: flags.length ? flags : ['NO_TERMINAL_CANDLE'], metrics: metrics, snapshot: snapshot };
 }
 
-function _aioThirdFriday(year, monthIndex) {
-  var d = new Date(year, monthIndex, 1);
-  var firstFriday = 1 + ((5 - d.getDay() + 7) % 7);
-  return new Date(year, monthIndex, firstFriday + 14);
-}
-
+// P1128/R619: OPEX 만기 계산의 단일 정본. aio-data.js의 사본은 P575에서 시간대 보정을 받았지만
+// 이쪽은 받지 못해 두 구현이 하루 다른 날짜를 낼 수 있었다. 로컬 자정을 toISOString으로 바꾸면
+// UTC+ 시간대에서 전날이 되므로(KST: 3rd Friday 2026-01-16 → "2026-01-15") 로컬 성분으로 포맷한다.
 function _aioNextMonthlyOpex(referenceDate) {
+  function third(y, m) { return new Date(y, m, 1 + ((5 - new Date(y, m, 1).getDay() + 7) % 7) + 14); }
   var ref = referenceDate ? new Date(referenceDate) : new Date();
-  var candidate = _aioThirdFriday(ref.getFullYear(), ref.getMonth());
-  var refDay = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate()).getTime();
-  if (candidate.getTime() < refDay) candidate = _aioThirdFriday(ref.getMonth() === 11 ? ref.getFullYear() + 1 : ref.getFullYear(), (ref.getMonth() + 1) % 12);
-  var days = Math.ceil((candidate.getTime() - refDay) / (24 * 60 * 60 * 1000));
-  return { nextOpexDate: candidate.toISOString().slice(0, 10), daysToOpex: days };
+  var refDay = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate());
+  var next = third(ref.getFullYear(), ref.getMonth());
+  if (next.getTime() < refDay.getTime()) next = third(ref.getMonth() === 11 ? ref.getFullYear() + 1 : ref.getFullYear(), (ref.getMonth() + 1) % 12);
+  var y = next.getFullYear(), m = String(next.getMonth() + 1).padStart(2, '0'), d = String(next.getDate()).padStart(2, '0');
+  return { nextOpexDate: y + '-' + m + '-' + d, daysToOpex: Math.ceil((next.getTime() - refDay.getTime()) / 86400000) };
 }
+window._aioNextMonthlyOpex = _aioNextMonthlyOpex;
 
 function calcOpexGammaRisk(ctx) {
   ctx = ctx || {};

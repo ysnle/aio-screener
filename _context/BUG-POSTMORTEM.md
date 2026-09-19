@@ -2,12 +2,23 @@
 verified_by: 데이터 파이프라인 전수 의미·정합성 감사(로컬 재계산) + affected QA; 중첩 산출물 의미 검토는 open
 last_verified: 2026-09-19
 confidence: medium
-latest_version: v55.08
-latest_P_number: P1127
-next_P_number: P1128
-current_total_entries: 542 tracked entries (369 headings + 173 compacted lines, P1~P1127, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
+latest_version: v55.09
+latest_P_number: P1128
+next_P_number: P1129
+current_total_entries: 543 tracked entries (370 headings + 173 compacted lines, P1~P1128, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
 current_checkpoint: 사용자 판단(지인용 사설 스크리너)으로 **차단 경계를 공시로 재배치**했다 — 개인화 지시·현재증거 부족·수치 주장 불일치·헤드라인 전용 인과를 하드 차단에서 경고/공시로 강등(P1120~P1122). 조작 방지(값·단위·NFP 배율), 금지 행위 P0, 포트폴리오 동의, 도구 경계는 그대로 차단이다. 남은 OPEN: 날짜 없는 중첩 산출물 12건(P1110 측정면이 노출), `objects/**` 592/629 미참조 blob의 보존 정책, 캐시 라우팅 밖의 실제 소비 산출물 오프라인 폴백 (semantic coverage 6.89%, releaseCertified=false)
 ---
+
+## P1128 - v55.09 - OPEX 만기 계산이 두 규칙으로 갈라져 한쪽만 시간대 보정을 받았다 (2026-09-19)
+
+- symptom/reproduction: 구조 감사에서 동일한 OPEX 계산이 두 파일에 구현돼 있는 것을 확인했다. `js/aio-data.js`의 `_aioDataNextOpex`(사용처 1곳)와 `js/aio-core.js`의 `_aioNextMonthlyOpex`(사용처 1곳)다. data 사본은 **P575/v51.87에서 시간대 버그를 수정**했고(주석에 실측까지 남아 있다: 3rd Friday 2026-01-16 → `toISOString()`이 `"2026-01-15"` 목요일을 반환), core 사본은 **같은 버그를 그대로 안고 있었다**. core 사본은 `calcOpexGammaRisk`(`aio-core.js:20770`)에서 `ctx.daysToOpex === undefined`일 때 **도달 가능**하다.
+- root_cause: 초기 번들 분할(v48.26)이 공용 유틸을 복사했고, 이후 한쪽(data)만 수정됐다. 두 사본 모두 "동작"하므로 차이가 드러나지 않았고, 어느 쪽이 정본인지 기록이 없었다. 이것이 R619가 말하는 "둘 다 동작하는 동안에는 갈라진 사실이 보이지 않는다"의 실제 사례다.
+- fix: 정본을 `aio-core.js`의 `_aioNextMonthlyOpex` 하나로 정했다(먼저 로드되므로 로드 순서 문제가 없다). P575의 로컬 달력 포맷 보정을 이식하고 `window._aioNextMonthlyOpex`로 노출했으며, data 사본은 위임으로 바꿨다. `_aioThirdFriday`는 정본 내부 함수로 흡수해 별도 노출을 없앴다.
+- 정확한 영향 범위: `daysToOpex`는 로컬-로컬 차분이라 **원래 정확**했고, 틀린 것은 **표시 날짜 문자열뿐**이다. 즉 사용자 영향은 "만기일이 KST에서 하루 앞당겨 표시될 수 있다"이며, OPEX 임박 플래그 자체는 영향을 받지 않았다. 이전 서술에서 플래그까지 틀렸다고 적을 뻔했으나 코드를 읽고 정정했다.
+- violated_rule: R619(신규, 1항·2항·3항).
+- prevention: 헤드리스 그룹 **G110 `_testOpexCanonicalDate`** 를 추가해 `2026-01-16`·`2027-01` 두 날짜를 단언으로 고정했다(4개 단언, `P1128/R619` 인용). 날짜가 다시 하루 밀리면 이 그룹이 먼저 깨진다.
+- residual_risk: 정본이 `window` 전역으로 노출됐다(`window._aioNextMonthlyOpex`). `aio-core.js`의 `calcOpexGammaRisk`는 자체 스코프에서 직접 호출하므로 data의 위임만 전역에 의존한다. data가 로드되기 전에 `_aioDataNextOpex`가 호출되면 실패한다 — 현재 호출 경로는 모두 로드 이후다.
+- verification: headless **1,133/1,133 PASS(110/110 그룹)** — G110 단독 4/4 PASS 포함. `ci-decomp-hotspot-check`는 core 27,999→27,998(−1), data 16,678→16,664(−14)로 **순감**을 기록했고, 테스트 추가로 늘어난 `aio-tests.js`(9,323→9,339)만 `--write --allow-growth`로 **기록된 성장**으로 남겼다. `ci-syntax-check`·`ci-structural-check`·`ci-runtime-contract-check` PASS. 커밋만 수행, push·배포 없음.
 
 ## P1127 - v55.08 - 크기 상한이 벽이 되어 1줄 수정을 막았고, 선언된 수치를 게이트가 읽지 않았다 (2026-09-19)
 

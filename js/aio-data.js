@@ -2662,24 +2662,10 @@ async function fetchOHLCVWithFallback(symbol, interval, bars) {
 }
 window.fetchOHLCVWithFallback = fetchOHLCVWithFallback;
 
-function _aioDataThirdFriday(year, monthIndex) {
-  var d = new Date(year, monthIndex, 1);
-  var firstFriday = 1 + ((5 - d.getDay() + 7) % 7);
-  return new Date(year, monthIndex, firstFriday + 14);
-}
-
+// P1128/R619: 정본은 aio-core.js의 `_aioNextMonthlyOpex`(KST 보정 포함, core가 먼저 로드된다).
+// 여기 있던 사본은 P575에서 시간대 보정을 받았지만 core 사본은 받지 못해 둘이 갈라져 있었다.
 function _aioDataNextOpex(referenceDate) {
-  var ref = referenceDate ? new Date(referenceDate) : new Date();
-  var refDay = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate());
-  var next = _aioDataThirdFriday(ref.getFullYear(), ref.getMonth());
-  if (next.getTime() < refDay.getTime()) next = _aioDataThirdFriday(ref.getMonth() === 11 ? ref.getFullYear() + 1 : ref.getFullYear(), (ref.getMonth() + 1) % 12);
-  // v51.87 P575: `next` 는 new Date(year, monthIndex, day) 로 만든 "로컬 자정" Date 다.
-  //   이걸 next.toISOString().slice(0,10) 로 문자열화하면 UTC 로 변환되며, UTC+ 시간대
-  //   (KST 등 한국 사용자)에서는 로컬 자정이 전날 UTC 로 넘어가 표시 날짜가 하루 앞당겨진다
-  //   (실측: 3rd Friday 2026-01-16 → "2026-01-15" 목요일). 로컬 달력 컴포넌트로 직접
-  //   포맷해 만기일 표시를 정확히 유지한다. daysToOpex 는 로컬-로컬 diff 라 원래 정확.
-  var _y = next.getFullYear(), _m = String(next.getMonth() + 1).padStart(2, '0'), _d = String(next.getDate()).padStart(2, '0');
-  return { nextOpexDate: _y + '-' + _m + '-' + _d, daysToOpex: Math.ceil((next.getTime() - refDay.getTime()) / 86400000) };
+  return window._aioNextMonthlyOpex(referenceDate);
 }
 
 async function fetchOpexCalendar(referenceDate) {
