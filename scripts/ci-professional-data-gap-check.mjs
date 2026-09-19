@@ -55,10 +55,11 @@ const history = json('public-data/masters/history-index.json');
 const filingsGap = byId.get('insider-and-institutional-filings');
 if (filingsGap?.status !== 'PARTIAL' || masters.reconciledManagers < 7 || masters.fullRowsAvailable < 1000 || history.totalPeriods < 80) fail('verified 13F partial capability evidence missing');
 
-const index = read('index.html');
+// P1136/R620: the portfolio risk attributions moved with inline block A into js/aio-workspace.js.
+const workspace = read('js/aio-workspace.js');
 const portfolioGap = byId.get('portfolio-risk-attribution');
 for (const marker of ['_calcPortfolioVaR', 'conditionalVar5', 'riskContribution', '_aioRenderPortfolioStress', 'benchmarkCorrelation']) {
-  if (!index.includes(marker)) fail(`portfolio risk marker missing: ${marker}`);
+  if (!workspace.includes(marker)) fail(`portfolio risk marker missing: ${marker}`);
 }
 if (portfolioGap?.status !== 'PARTIAL') fail('portfolio risk capability must remain partial while factor/capacity data are unavailable');
 

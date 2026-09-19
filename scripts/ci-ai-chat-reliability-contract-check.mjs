@@ -14,6 +14,9 @@ const core = read('js/aio-core.js');
 const chat = read('js/aio-chat.js');
 const data = read('js/aio-data.js');
 const html = read('index.html');
+// P1136/R620: the sidebar credential-save handler (and other user-state writers) moved with
+// index.html's inline block A into js/aio-workspace.js.
+const workspace = read('js/aio-workspace.js');
 const worker = read('cloudflare-worker-proxy.js');
 const config = json('public-config.json');
 const operations = json('public-data/operations-status.json');
@@ -26,7 +29,8 @@ check('safeLS returns a write result', core.includes('return { ok: true, key: ke
 check('safeLS throws on write failure', /async function safeLS\([\s\S]{0,1800}throw e;/.test(core));
 check('credential save performs readback', core.includes('persistence_readback_mismatch') && core.includes('safeLSGet(lsKey, \'\')'));
 check('credential save has no plaintext fallback', !/safeLS[\s\S]{0,120}localStorage\.setItem\(lsKey/.test(core));
-check('sidebar save waits for result', html.includes('const result = await setApiKey(key);') && html.includes('if (!result || !result.ok)'));
+// P1136/R620: the sidebar credential-save handler moved with inline block A into js/aio-workspace.js.
+check('sidebar save waits for result', workspace.includes('const result = await setApiKey(key);') && workspace.includes('if (!result || !result.ok)'));
 check('legacy getApiKey overload preserves Claude no-arg route', core.includes("var keyName = (name == null || name === '') ? 'aio_claude_api_key' : name") && core.includes("_AioVault._claudeKeyRuntime"));
 check('legacy setApiKey overload returns credential result', core.includes("if (arguments.length < 2)") && core.includes("_aioSaveCredential('aio_claude_api_key'") && core.includes("Promise.resolve({ ok: false, state: 'KEYSTORE_UNAVAILABLE' })"));
 check('route readiness is explicit', chat.includes("reason: 'NO_ROUTE'") && chat.includes('WORKER_NOT_READY'));

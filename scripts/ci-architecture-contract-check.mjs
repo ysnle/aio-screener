@@ -131,6 +131,8 @@ const uiSource = read('js/aio-ui.js');
 const pagesSource = read('js/aio-pages.js');
 // P1135/R620: the macro/technical layer extracted from inline block B lives in js/aio-macro-tech.js.
 const macroTechSource = read('js/aio-macro-tech.js');
+// P1136/R620: the user-state/workspace layer extracted from inline block A lives in js/aio-workspace.js.
+const workspaceSource = read('js/aio-workspace.js');
 const chatSource = read('js/aio-chat.js');
 const inferenceEfficiencySource = read('src/domain/ai/inference-efficiency.js');
 const marketPageContractSource = read('src/ui/pages/market.js');
@@ -395,7 +397,8 @@ if (!read('src/domain/fundamental/sec-report.js').includes('SEC_REPORT_MODEL_VER
 for (const marker of ['renderPortfolioTable', 'pf-positions-tbody', 'aioPortfolioTableRenderer']) {
   if (!portfolioPageSource.includes(marker)) fail(`native portfolio table marker missing: ${marker}`);
 }
-if (!indexHtmlSource.includes('_nativePortfolioTable') || !indexHtmlSource.includes('aio:portfolioChanged') || !read('src/legacy/compatibility-facade.js').includes('getPortfolioData')) fail('legacy portfolio table/Vault boundary missing');
+// P1136/R620: the legacy portfolio table and its change event moved with block A to js/aio-workspace.js.
+if (!workspaceSource.includes('_nativePortfolioTable') || !workspaceSource.includes('aio:portfolioChanged') || !read('src/legacy/compatibility-facade.js').includes('getPortfolioData')) fail('legacy portfolio table/Vault boundary missing');
 // P831: portfolio.js owns the deterministic summary/cash/exposure/sector projection. The
 // legacy summary and sector writers remain compatibility paths but must consult the native
 // surface marker before touching those ids.
@@ -405,7 +408,9 @@ for (const marker of ['derivePortfolioSurface', 'renderPortfolioSurface', 'pf-ho
 if (!read('src/domain/portfolio/surface.js').includes('PORTFOLIO_SURFACE_MODEL_VERSION')) fail('portfolio surface model missing');
 // P1133/R620: the P831 sector-allocation fence moved with block D into js/aio-pages.js; the two
 // absence checks stay on index.html because they guard the shell against reintroduction.
-if (indexHtmlSource.includes("document.getElementById('pf-holding-count')") || indexHtmlSource.includes("document.getElementById('pf-sector-breakdown')") || !pagesSource.includes('P831: sector allocation is owned by src/ui/pages/portfolio.js.')) fail('legacy portfolio surface writer retirement missing');
+// P1136/R620: broaden the reintroduction guard to the workspace module that now owns the legacy
+// portfolio writers — pinned to the shell alone it would have gone vacuous.
+if ((indexHtmlSource + workspaceSource).includes("document.getElementById('pf-holding-count')") || (indexHtmlSource + workspaceSource).includes("document.getElementById('pf-sector-breakdown')") || !pagesSource.includes('P831: sector allocation is owned by src/ui/pages/portfolio.js.')) fail('legacy portfolio surface writer retirement missing');
 // P1130/R619: the options renderer moved from index.html's inline block E into js/aio-ui.js, so the
 // fence is now consulted there. The marker's owner must move with it — an assertion pinned to the old
 // file would either fail loudly (as this one did) or, worse, keep passing against a stale copy.

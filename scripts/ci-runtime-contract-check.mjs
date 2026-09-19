@@ -26,6 +26,8 @@ const pagesSource = read('js/aio-pages.js');
 const krData = read('js/aio-kr-data.js');
 // P1135/R620: the macro/technical layer extracted from inline block B lives in js/aio-macro-tech.js.
 const macroTech = read('js/aio-macro-tech.js');
+// P1136/R620: the user-state/workspace layer extracted from inline block A lives in js/aio-workspace.js.
+const workspace = read('js/aio-workspace.js');
 const tests = read('js/aio-tests.js');
 const bootstrap = read('src/app/bootstrap.js');
 const portfolioBacktest = read('src/domain/portfolio/backtest.js');
@@ -141,7 +143,7 @@ check('workflow compaction contract is documented', /R220/.test(read('_context/R
 check('decision header shows user-facing source label, not raw sourceKind label', /sourceLabelMap/.test(core) && !/sourceKind\s+'\s*\+/.test(core));
 check('legacy conclusion bar is hidden when decision header exists', /has-aio-decision-header\s+\.page-conclusion-bar/.test(html) && /classList\.add\('has-aio-decision-header'\)/.test(core));
 check('audit widget is hidden by default and only shown in dev mode', /\.aio-audit-widget\s*\{\s*display:none\s*!important;?\s*\}/.test(html) && /body\.aio-dev-mode\s+\.aio-audit-widget/.test(html) && /classList\.toggle\('aio-dev-mode'/.test(core));
-check('portfolio blocks unverified ticker before saving', /검증되지 않은 티커라 저장하지 않았습니다/.test(html) && /if\s*\(!isKnown\)\s*\{[\s\S]*?return;\s*\}[\s\S]*?const positions = getPortfolioData\(\)/.test(html));
+check('portfolio blocks unverified ticker before saving', /검증되지 않은 티커라 저장하지 않았습니다/.test(html + workspace) && /if\s*\(!isKnown\)\s*\{[\s\S]*?return;\s*\}[\s\S]*?const positions = getPortfolioData\(\)/.test(html + workspace));
 check('data-action accessibility normalizer is installed', /_aioNormalizeDataActionA11y/.test(core) && /setAttribute\('role', 'button'\)/.test(core) && /setAttribute\('tabindex', '0'\)/.test(core));
 check('data-on-change/input delegation reports missing and throwing handlers', /data-on-change/.test(core) && /data-on-input/.test(core) && /missing data-on-change handler/.test(core) && /data-on-change failed/.test(core) && /missing data-on-input handler/.test(core) && /data-on-input failed/.test(core) && /showDataError\('입력 처리'/.test(core));
 check('ticker direct search uses the delegated uppercase input handler', /window\._aioUppercaseInput\s*=/.test(core) && /id="ticker-direct-search"[\s\S]{0,600}data-on-input="_aioUppercaseInput"/.test(html) && !/id="ticker-direct-search"[\s\S]{0,600}\boninput\s*=/.test(html));
@@ -207,14 +209,14 @@ check('full surface audit must match v50.29 page-brief declutter policy', /pageB
 check(
   'portfolio backtest lab exposes Portfolio Visualizer-style monthly report contract',
   /id="pf-backtest-lab"/.test(html)
-    && /runPortfolioBacktestLab/.test(html)
-    && /pf-bt-rebalance/.test(html)
-    && /pf-backtest-output/.test(html)
-    && /Performance Summary/.test(html)
-    && /Annual Returns/.test(html)
-    && /Worst Drawdowns/.test(html)
-    && /Return \/ Risk Attribution/.test(html)
-    && /백테스트 Lab/.test(html)
+    && /runPortfolioBacktestLab/.test(html + workspace)
+    && /pf-bt-rebalance/.test(html + workspace)
+    && /pf-backtest-output/.test(html + workspace)
+    && /Performance Summary/.test(html + workspace)
+    && /Annual Returns/.test(html + workspace)
+    && /Worst Drawdowns/.test(html + workspace)
+    && /Return \/ Risk Attribution/.test(html + workspace)
+    && /백테스트 Lab/.test(html + workspace)
     && /buildPortfolioBacktestLab/.test(portfolioBacktest)
     && /AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2/.test(portfolioBacktest)
     && /adjusted-close/.test(portfolioBacktest)
@@ -226,7 +228,7 @@ check(
     && /drawdowns/.test(portfolioBacktest)
     && /trackingError/.test(portfolioBacktest)
     && /informationRatio/.test(portfolioBacktest)
-    && /window\._lastPortfolioBacktestLab/.test(html)
+    && /window\._lastPortfolioBacktestLab/.test(html + workspace)
     && /T845 v5179_portfolio_backtest_lab/.test(tests)
 );
 check(
@@ -234,17 +236,17 @@ check(
   /id="pf-ai-workbench"/.test(html)
     && /id="pf-ai-ticker-select"/.test(html)
     && /id="pf-journal-note"/.test(html)
-    && /data-action="_aioPortfolioAsk"/.test(html)
-    && /data-arg="overview"/.test(html)
-    && /data-arg="ticker"/.test(html)
-    && /data-arg="journal"/.test(html)
-    && /function\s+_aioBuildPortfolioActionPrompt/.test(html)
-    && /window\._aioPortfolioAsk/.test(html)
-    && /window\._aioSavePortfolioJournal/.test(html)
+    && /data-action="_aioPortfolioAsk"/.test(html + workspace)
+    && /data-arg="overview"/.test(html + workspace)
+    && /data-arg="ticker"/.test(html + workspace)
+    && /data-arg="journal"/.test(html + workspace)
+    && /function\s+_aioBuildPortfolioActionPrompt/.test(html + workspace)
+    && /window\._aioPortfolioAsk/.test(html + workspace)
+    && /window\._aioSavePortfolioJournal/.test(html + workspace)
     // P1131/R619: updateAIPanelContext is now DEFINED in js/aio-chat.js (inline block G) while its
     // portfolio call site stayed in index.html block A. Assert the definition and the call, each in
     // its real home, so the invariant "portfolio workflow routes into the unified panel" is kept.
-    && /updateAIPanelContext\('portfolio'\)/.test(html)
+    && /updateAIPanelContext\('portfolio'\)/.test(html + workspace)
     && /function updateAIPanelContext/.test(chat)
     && /chatSendUnified\(\)/.test(html + chat)
 );
@@ -547,7 +549,7 @@ check('all news acquisition paths converge on one visible summary state updater'
 check('closed AI panel is inert and its trigger owns expanded state and focus return', /id="topbar-ai-btn"[\s\S]{0,300}aria-expanded="false"[\s\S]{0,300}aria-controls="ai-panel"/.test(html) && /id="ai-panel"[\s\S]{0,220}aria-hidden="true" inert/.test(html) && /p\.setAttribute\('inert', ''\)/.test(chat) && /p\.removeAttribute\('inert'\)/.test(chat) && /btn\.focus\(\)/.test(chat));
 check('KR theme cards preserve progressive density after live updates', /stockIdx < 5/.test(krData) && /kr-theme-card-more/.test(html + krData) && /catalyst\.length > 260/.test(krData) && /catFullEl\.textContent = catalyst/.test(krData) && /closest\('\.kr-ticker-pill, details, summary, \[data-stop\]'\)/.test(krData));
 check('KR supply requests are bounded and failure copy has a single owner', /sorted\.slice\(0, 24\)/.test(krData) && /종목별 공용 프록시 연쇄 호출 생략/.test(krData) && !/top100\.slice\(0, 6\)/.test(krData) && /_krInvestorFetchState/.test(krData) && /_investorState\.inFlight/.test(krData) && /10 \* 60 \* 1000/.test(krData) && /querySelectorAll\('\.kr-supply-fallback-notice'\)[\s\S]{0,180}\.remove\(\)/.test(krData));
-check('empty portfolio hides non-computable panels and exposes one first-position CTA', /var _pfEmpty = positions\.length === 0/.test(html) && /el\.hidden = _pfEmpty/.test(html) && /class="pf-empty-state"/.test(html) && />첫 종목 추가</.test(html));
+check('empty portfolio hides non-computable panels and exposes one first-position CTA', /var _pfEmpty = positions\.length === 0/.test(html + workspace) && /el\.hidden = _pfEmpty/.test(html + workspace) && /class="pf-empty-state"/.test(html + workspace) && />첫 종목 추가</.test(html + workspace));
 check('briefing and news display titles reject failed or non-Korean cached translations', /!cached\.ko_title \|\| !isKoreanText\(cached\.ko_title\)/.test(data) && /class="briefing-news-title"/.test(data + core) && /visibleTitle = \(typeof getDisplayTitle/.test(core) && /\.briefing-news-title\s*\{[\s\S]{0,500}-webkit-line-clamp:2/.test(html));
 check('headless tests exercise the final human UX state contracts', /_testV5290HumanUXStateContracts/.test(tests) && /T1015/.test(tests) && /T1020/.test(tests));
 // v52.40 (P655): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 1 (EF-01/02/04/13) structural gates
@@ -611,9 +613,9 @@ check('P660: control-char-baseline.json exists and records the known pre-existin
 // v52.46 (P661/R294/WO-1A): portfolio data now shares the real _AioVault (AES-GCM-256+PBKDF2) with API keys,
 // instead of the separate plaintext localStorage path the UI's "PIN 설정 후 AES-256 암호화" claim never matched.
 check('WO-1A: aio_portfolio_data is enrolled in _AIO_SENSITIVE_KEYS so safeLS actually encrypts it when the shared vault is unlocked', /'aio_portfolio_data'/.test(core) && /_AIO_SENSITIVE_KEYS = new Set\(\[[\s\S]{0,400}'aio_portfolio_data'/.test(core));
-check('WO-1A: renderPortfolio() is the real lock gate (checks isPortfolioLocked() before rendering), replacing the orphaned checkPortfolioPin() that nothing ever called', /function isPortfolioLocked\(\)/.test(html) && /if \(typeof isPortfolioLocked === 'function' && isPortfolioLocked\(\)\)/.test(html) && !/function checkPortfolioPin/.test(html));
-check('WO-1A: unlockPortfolio() detects a wrong PIN via a null decrypt result (AES-GCM auth failure) rather than the old plaintext input.value===pin comparison', /const dec = await _AioVault\.decrypt\(raw\)/.test(html) && /dec === null/.test(html) && !/input\.value === pin\)/.test(html));
-check('WO-1A: opting out of portfolio vault protection does not remove the shared aio_vault_salt (other encrypted API keys must stay intact)', /PF_VAULT_OPTOUT_KEY/.test(html) && !/removeItem\('aio_vault_salt'\)/.test(html));
+check('WO-1A: renderPortfolio() is the real lock gate (checks isPortfolioLocked() before rendering), replacing the orphaned checkPortfolioPin() that nothing ever called', /function isPortfolioLocked\(\)/.test(html + workspace) && /if \(typeof isPortfolioLocked === 'function' && isPortfolioLocked\(\)\)/.test(html + workspace) && !/function checkPortfolioPin/.test(html + workspace));
+check('WO-1A: unlockPortfolio() detects a wrong PIN via a null decrypt result (AES-GCM auth failure) rather than the old plaintext input.value===pin comparison', /const dec = await _AioVault\.decrypt\(raw\)/.test(html + workspace) && /dec === null/.test(html + workspace) && !/input\.value === pin\)/.test(html + workspace));
+check('WO-1A: opting out of portfolio vault protection does not remove the shared aio_vault_salt (other encrypted API keys must stay intact)', /PF_VAULT_OPTOUT_KEY/.test(html + workspace) && !/removeItem\('aio_vault_salt'\)/.test(html + workspace));
 check('headless tests cover the WO-1A portfolio vault contract', /_testV5246PortfolioVault/.test(tests) && /T891/.test(tests) && /T892/.test(tests) && /T893/.test(tests) && /T894/.test(tests) && /T895/.test(tests));
 
 // v53.47 (P838/W2-04): plaintext API-key IndexedDB mirror retired; explicit export/import remains user-initiated.
@@ -731,7 +733,7 @@ check('H2-10: all-route Chromium accessibility matrix is a blocking CI/deploy ga
 check('H2-12: typed provenance links decision UI/score/AI through one runtime-derived evidence bundle and weakens action for missing/future/stale/manual evidence', /createTypedEvidence/.test(core) && /getDecisionEvidenceBundle/.test(core) && /getDecisionEvidencePromptContext/.test(core) && /buildPageDecisionAiPrompt/.test(core) && /provenanceBundle/.test(core) && /data-evidence-id/.test(core) && /evidenceId/.test(core) && /T930/.test(tests));
 check('H2-13: Trading Score research artifact is reproducible but explicitly partial, with fixed-rule walk-forward and unresolved missing inputs/costs', exists('scripts/backtest-trading-score-longrun.mjs') && exists('public-data/score-backtest-longrun.json') && /PARTIAL validation/.test(read('scripts/backtest-trading-score-longrun.mjs')) && /walkForward/.test(read('public-data/score-backtest-longrun.json')) && /No transaction costs/.test(read('public-data/score-backtest-longrun.json')) && /momScore/.test(read('public-data/score-backtest-longrun.json')));
 check('H2-14: Factor research artifact preserves IC/ICIR/t-stat outputs and does not claim PIT/survivorship validation', exists('scripts/backtest-factors-longrun.mjs') && exists('public-data/factor-backtest-longrun.json') && /survivorshipBiasCaveat/.test(read('scripts/backtest-factors-longrun.mjs')) && /not resolvable without paid point-in-time/i.test(read('scripts/backtest-factors-longrun.mjs')) && /ICIR/.test(read('public-data/factor-backtest-longrun.json')) && /survivorship/i.test(read('public-data/factor-backtest-longrun.json')));
-check('H2-15: portfolio storage adapter slice is adopted while snapshot/global legacy migration remains explicit', /getArchitectureGovernanceAudit/.test(core) && /readSnapshotField/.test(core) && /storageAdapter/.test(core) && /completedSlices/.test(core) && /incompleteSlices/.test(core) && /storageAdapter/.test(html) && /adapter\.get\(PF_STORAGE_KEY/.test(html) && /adapter\.set\(PF_STORAGE_KEY/.test(html) && /T931/.test(tests));
+check('H2-15: portfolio storage adapter slice is adopted while snapshot/global legacy migration remains explicit', /getArchitectureGovernanceAudit/.test(core) && /readSnapshotField/.test(core) && /storageAdapter/.test(core) && /completedSlices/.test(core) && /incompleteSlices/.test(core) && /storageAdapter/.test(html + workspace) && /adapter\.get\(PF_STORAGE_KEY/.test(html + workspace) && /adapter\.set\(PF_STORAGE_KEY/.test(html + workspace) && /T931/.test(tests));
 check('H2-16: documentation and knowledge gates are wired for the final handoff audit', qaHas('scripts/ci-doc-currency-check.mjs', 'workspace') && /ci-knowledge-lint-check\.mjs/.test(knowledgeWorkflow) && qaHas('scripts/ci-workflow-compaction-check.mjs', 'workspace'));
 
 // Initial-interaction performance contract: production boot must never run whole-site audits or
@@ -779,8 +781,8 @@ check('WP-AI3: regression fixtures cover intent, relevance, deterministic order,
 // v52.79 (WP-AI4/5): external data boundary, portfolio privacy consent, and
 // one shared financial-conduct/action-permission gate.
 check('WP-AI4: untrusted external text is normalized, injection-audited, and wrapped as NEWS/WEB/TELEGRAM data', /sanitizeAIUntrustedText/.test(core) && /buildAIUntrustedBlock/.test(core) && /sourceKind=UNTRUSTED/.test(core) && /NEWS_TELEGRAM/.test(chat + html) && /WEB_SEARCH/.test(chat + html) && /SecurityFlags/.test(data));
-check('WP-AI4: chat history has explicit off mode, 30-day retention, bounded entries, and sanitized storage', /getChatHistoryPolicy/.test(core) && /setChatHistoryEnabled/.test(core) && /prepareChatHistoryEntry/.test(core) && /CHAT_HISTORY_MAX = 50/.test(html) && /retentionDays/.test(html) && /_aioChatHistoryToggle/.test(core));
-check('WP-AI5: portfolio AI uses a field allowlist, redaction preview, and session-only opt-in before unified send', /redactPortfolioForAI/.test(core) && /getPortfolioAIPrivacyPreview/.test(core) && /setPortfolioAIConsent/.test(core) && /포트폴리오 AI 전송 미리보기/.test(html) && /계좌ID.*제외/.test(html));
+check('WP-AI4: chat history has explicit off mode, 30-day retention, bounded entries, and sanitized storage', /getChatHistoryPolicy/.test(core) && /setChatHistoryEnabled/.test(core) && /prepareChatHistoryEntry/.test(core) && /CHAT_HISTORY_MAX = 50/.test(html + workspace) && /retentionDays/.test(html + workspace) && /_aioChatHistoryToggle/.test(core));
+check('WP-AI5: portfolio AI uses a field allowlist, redaction preview, and session-only opt-in before unified send', /redactPortfolioForAI/.test(core) && /getPortfolioAIPrivacyPreview/.test(core) && /setPortfolioAIConsent/.test(core) && /포트폴리오 AI 전송 미리보기/.test(html + workspace) && /계좌ID.*제외/.test(html + workspace));
 check('WP-AI5/P1120: prohibited conduct still blocks while personalized direct action and probability gaps remain explicit limitations', /evaluateAIActionPermission/.test(core) && /conductAudit/.test(chat) && /prohibited-conduct/.test(core) && /suitability-context-missing/.test(core) && /current-evidence-limited/.test(core) && /decision-grade/.test(core) && /uncalibrated-probability-claim/.test(core) && !/safeText: 'AI 안전 모드\\n\\n적합성 정보와 현재 decision-grade/.test(core));
 const preProviderPermissionIdx = chat.indexOf('var _aioPreProviderPermission');
 const quotaAwaitIdx = chat.indexOf('await consumeLLMQuery()');
@@ -805,7 +807,7 @@ check('WP-AI6/7: regression fixtures cover structured publish blocking, fallback
 // v52.81 (WP-AI8/9/10): SLO/quota operations, golden A/B release gate, and feedback manifest.
 check('WP-AI8: actual AI usage can record bounded latency/token/failure SLO samples and quota acquisition has a lock/limit contract', /recordAISLOSample/.test(core) && /getAISLOReport/.test(core) && /tryAcquireAIQuota/.test(core) && /_aioTrackApiUsage/.test(core) && /tryAcquireAIQuota/.test(chat));
 check('WP-AI9: deterministic golden corpus and A/B release gate prevent unsupported regression or P0 release', /getAIGoldenCorpus/.test(core) && /runAIGoldenBenchmark/.test(core) && /evaluateAIGoldenABGate/.test(core) && /p0-errors/.test(core));
-check('WP-AI10: feedback samples retain request/model/prompt/evidence/validator metadata', /createAIFeedbackSample/.test(core) && /createAIFeedbackSample/.test(html) && /feedbackId/.test(core) && /evidenceStatus/.test(core));
+check('WP-AI10: feedback samples retain request/model/prompt/evidence/validator metadata', /createAIFeedbackSample/.test(core) && /createAIFeedbackSample/.test(html + workspace) && /feedbackId/.test(core) && /evidenceStatus/.test(core));
 check('WP-AI8/9/10: regression fixtures cover SLO P95, quota race, golden corpus, A/B gate, and feedback manifest', /_testV5281OpsGoldenFeedback/.test(tests) && /T972/.test(tests) && /T973/.test(tests) && /T974/.test(tests) && /T975/.test(tests) && /T976/.test(tests));
 
 // v52.82 (WP-AI11/12): conversation lifecycle and deterministic calculation evidence.

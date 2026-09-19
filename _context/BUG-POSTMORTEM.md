@@ -2,12 +2,26 @@
 verified_by: 데이터 파이프라인 전수 의미·정합성 감사(로컬 재계산) + affected QA; 중첩 산출물 의미 검토는 open
 last_verified: 2026-09-19
 confidence: medium
-latest_version: v55.16
-latest_P_number: P1135
-next_P_number: P1136
-current_total_entries: 550 tracked entries (377 headings + 173 compacted lines, P1~P1135, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
+latest_version: v55.17
+latest_P_number: P1136
+next_P_number: P1137
+current_total_entries: 551 tracked entries (378 headings + 173 compacted lines, P1~P1136, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
 current_checkpoint: 사용자 판단(지인용 사설 스크리너)으로 **차단 경계를 공시로 재배치**했다 — 개인화 지시·현재증거 부족·수치 주장 불일치·헤드라인 전용 인과를 하드 차단에서 경고/공시로 강등(P1120~P1122). 조작 방지(값·단위·NFP 배율), 금지 행위 P0, 포트폴리오 동의, 도구 경계는 그대로 차단이다. 남은 OPEN: 날짜 없는 중첩 산출물 12건(P1110 측정면이 노출), `objects/**` 592/629 미참조 blob의 보존 정책, 캐시 라우팅 밖의 실제 소비 산출물 오프라인 폴백 (semantic coverage 6.89%, releaseCertified=false)
 ---
+
+## P1136 - v55.17 - 2단계 완결: 블록 A 이관, 인라인 15,308줄 → 154줄 (2026-09-19)
+
+- symptom/reproduction: 인라인 **블록 A(사용자 상태·워크스페이스, 실측 2,608줄)** 를 `js/aio-workspace.js`(2,623줄)로 추출했다. index.html **15,892 → 13,284(−2,608)**. 이로써 2단계(인라인 블록 E·G·F·D·C·B·A)가 완결됐다.
+- **측정 정정**: 오랫동안 "블록 A = 1,993줄"로 알고 있었으나 실제는 **2,608줄**이었다. 블록 A의 선두 주석 안에 리터럴 `<script>` 텍스트가 있어, `<script>` 문자열을 스캐너로 찾는 방식이 시작점을 614줄 뒤로 밀었다. P1129에서 "인라인 JS 14,870"이 틀렸던 것과 **같은 원인**이며, 이번에는 블록 본문에 고유 마커(`updatePortfolioSummary`+`PF_JOURNAL_KEY`+`showToast`+`getWatchlists`)를 요구하는 방식으로 재측정해 확정했다.
+- **R622 적용**: A는 원래 **모든 런타임보다 먼저** 실행되는 인라인이었으므로(다른 런타임이 평가 시점에 A의 전역을 읽는다), 그 태그를 `defer` 그룹의 **첫 번째**(aio-workspace → macro-tech → kr-data → pages → core → data → ui → chat → glossary)로 두어 "무엇보다 먼저" 성질을 보존했다. 결과: headless **1,133/1,133 PASS** 동시에 **실브라우저 PASS** — P1135에서 배운 규칙을 적용해 회귀를 내지 않았다.
+- **충돌 사전 검사**: A의 최상위 이름 **93개**를 기존 8개 런타임 파일의 선언 집합과 대조해 **0건 충돌**을 확인하고 진행했다(QA-EXHAUST-91의 수동 적용).
+- 게이트 재지정: 6개 파일 35곳 — `ci-runtime-contract-check` 26줄(줄 범위 단위, 포트폴리오/백테스트 랩/AI 워크벤치/빈 포트폴리오/볼트 잠금 3종/저장 어댑터/채팅 이력 정책/WP-AI5/WP-AI10), `ci-architecture-contract-check` 3곳(legacy portfolio table·Vault 경계, `pf-holding-count`/`pf-sector-breakdown` 재도입 가드 확대), `ci-chat-resilience-check` 2곳(`showConfirmModal`/`_confirmCancelCallback`), `ci-professional-data-gap-check` 1곳(포트폴리오 리스크 마커 5종), `ci-ai-chat-reliability-contract-check` 1곳(사이드바 자격증명 저장). 런타임 게이트의 26줄은 **양성·부재 단언 모두 `html + workspace` 합집합**으로 바꿔, 이동 후 부재 단언이 공허해지지 않게 했다.
+- **잔여 소형 인라인 4개(154줄)는 추출 대상이 아님으로 판정**(QA-EXHAUST-89 종결): 부트 로더(33줄, 바로 위 `#aio-boot-*` 조회 + `window.AIO_BOOT` 생성), 브리핑 날짜 라벨(22줄, `#briefing-date-line` 조회 후 즉시 자기 호출), FRED 배너(7줄), Chart.js CDN 폴백 코디네이터(92줄, 위 `#aio-chart-cdn`에 load/error 리스너 + DOMContentLoaded에서 오프라인 스텁 `window.Chart` 설치). 넷 다 "자기 위 마크업이 파싱된 직후" 실행되는 것이 의미의 일부이고(DOMContentLoaded 이전 타이밍), 154줄(≈1%)를 위해 P1135형 회귀를 다시 만들 이유가 없다 — R619(1)의 "합치지 않고 왜 다른지 기록" 원칙을 적용했다.
+- **부수 발견(QA-EXHAUST-93, 고치지 않고 기록만)**: FRED 배너 블록은 **파싱 시점**에 `window._fredData`를 읽는데 그 값은 비동기로 채워지므로 `fredOk`가 항상 `false`다 — 즉 이 경로는 배너를 숨기지 못한다. 어느 시점에 숨기는 것이 옳은지는 별도 증거가 필요하고, 조용히 바꾸면 배너 노출 정책이 의도치 않게 달라진다.
+- **부수 발견(도구)**: 게이트에 새 소스 변수(`workspace`)를 쓰고 선언을 빠뜨리면 `ReferenceError`로 **중단**한다(P1134·P1136에서 두 번 확인). 게이트가 미정의 식별자에서 죽는 성질은 "단언이 아무 것도 검사하지 않게 되는" 실패보다 안전하므로, 게이트를 수정한 뒤에는 반드시 실제로 실행한다.
+- violated_rule: R620(측정·커버리지), R622(실행 위치 보존).
+- verification: headless **1,133/1,133 PASS(110/110 그룹)**, 실브라우저 `ci-architecture-browser-check` **PASS**(20 라우트). `ci-structural-check`(R280 0), `ci-architecture-contract-check`, `ci-runtime-contract-check`, `ci-data-pipeline-contract-check`, `ci-research-flow-contract-check`, `ci-proxy-continuity-check`, `ci-semantic-review-check`, `ci-static-data-contract-check`(22/22), `ci-static-db-expiry-check`, `ci-data-refresh-audit`, `ci-chat-resilience-check`, `ci-ai-chat-reliability-contract-check`, `ci-professional-data-gap-check`, `ci-version-check`(캐시버스터 13), `ci-release-revision-check`, `ci-service-worker-cache-policy-check`(10 critical assets), `ci-syntax-check`(390 파일), `ci-decomp-hotspot-check`(**11개 파일** 래칫), `ci-ledger-integrity-check`, `ci-assertion-trace-check`, `ci-knowledge-lint-check`, `ci-qa-pipeline-contract-check`, `ci-workspace-contract-check` PASS. affected QA 88 PASS / 2 FAIL(신선도 SLA). 커밋만 수행, push·배포 없음.
+- **2단계 누적**: index.html **28,601 → 13,284(−15,317, −53.6%)**, 인라인 JS **15,308 → 154줄(−99%)**, 런타임 파일은 5개 → **9개**(core/data/ui/chat/glossary/pages/kr-data/macro-tech/workspace). 잔여는 3단계(QA-EXHAUST-90).
 
 ## P1135 - v55.16 - 추출한 파일을 defer 그룹 *뒤*에 붙여 실행 순서를 뒤집었다 (2026-09-19)
 

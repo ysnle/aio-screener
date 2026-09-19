@@ -19,6 +19,7 @@ const glossary = read('js/aio-glossary.js');
 const pages = read('js/aio-pages.js');
 const krData = read('js/aio-kr-data.js');
 const macroTech = read('js/aio-macro-tech.js');
+const workspace = read('js/aio-workspace.js');
 const tests = read('js/aio-tests.js');
 const html = read('index.html');
 
@@ -86,6 +87,7 @@ const RUNTIME_SCRIPT_FILES = {
   'js/aio-pages.js': pages,
   'js/aio-kr-data.js': krData,
   'js/aio-macro-tech.js': macroTech,
+  'js/aio-workspace.js': workspace,
 };
 // Column-0-anchored on purpose: only true top-level declarations share the global scope this way.
 // Functions nested inside an IIFE/closure (indented, not column 0) are scoped to that closure and

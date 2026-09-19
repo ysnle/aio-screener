@@ -1,9 +1,9 @@
 {
   "schemaVersion": "asset-manifest-v1",
-  "appRevision": "v55.16",
+  "appRevision": "v55.17",
   "dataRevision": "market-snapshot:2026-09-19T01:38:09.181Z:efa1ac4c",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
-  "workerRevision": "sw:v55.16",
+  "workerRevision": "sw:v55.17",
   "immutableRuntime": [
     "index.html",
     "js/aio-core.js",
@@ -14,6 +14,7 @@
     "js/aio-pages.js",
     "js/aio-kr-data.js",
     "js/aio-macro-tech.js",
+    "js/aio-workspace.js",
     "src/**/*.js"
   ],
   "rollback": {

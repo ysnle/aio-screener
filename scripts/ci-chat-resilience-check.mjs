@@ -87,9 +87,10 @@ assert.equal(root._aioChatFreshnessInfo().ldAgeMin,null);
 const shell=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const ui=readFileSync(new URL('../js/aio-ui.js',import.meta.url),'utf8');
 // P1131/R619: the unified chat surface (inline block G) moved from index.html into js/aio-chat.js, so
-// the assertions that read it now read the chat module. showConfirmModal/_confirmCancelCallback below
-// still live in index.html and keep using `shell`.
+// the assertions that read it now read the chat module.
 const chatShell=readFileSync(new URL('../js/aio-chat.js',import.meta.url),'utf8');
+// P1136/R620: showConfirmModal/_confirmCancelCallback moved with inline block A into js/aio-workspace.js.
+const shellWorkspace=readFileSync(new URL('../js/aio-workspace.js',import.meta.url),'utf8');
 assert(chatShell.includes('preparation: _uniPreparedResearch, externalResult: _uniWebResult'));
 assert(chatShell.includes("typeof _uniPreparedResearch !== 'object'"));
 const unifiedChat=chatShell.slice(chatShell.indexOf('async function chatSendUnified('),chatShell.indexOf('function aiChipClick('));
@@ -97,8 +98,8 @@ assert(unifiedChat.includes('window._aioBeginChatRequest') && unifiedChat.includ
 assert(unifiedChat.includes('_uniSignal') && unifiedChat.includes('if (!_isCurrentUnifiedRun()) return;'));
 assert(unifiedChat.includes('signal: _uniSignal') && chatShell.includes("_aioCancelChatRequest(_aiCurrentCtx, 'context-changed')"));
 assert(unifiedChat.includes('_uniRun.quotaPending = true') && source.includes("closeConfirmModal('chat-cancelled')"));
-assert(shell.includes('function showConfirmModal(title, msg, onConfirm, icon, onCancel)'));
-assert(shell.includes('_confirmCancelCallback') && shell.includes("closeConfirmModal('escape')"));
+assert(shellWorkspace.includes('function showConfirmModal(title, msg, onConfirm, icon, onCancel)'));
+assert(shellWorkspace.includes('_confirmCancelCallback') && shellWorkspace.includes("closeConfirmModal('escape')"));
 assert(ui.includes('function getLLMAvailability()') && ui.includes('window._aioGetLLMRouteReadiness'));
 const quotaUi=ui.slice(ui.indexOf('function updateQuotaBadge()'),ui.indexOf('function toggleLLM()'));
 assert(quotaUi.includes('if (isOn && !route.ready)') && !quotaUi.includes("track.classList.remove('on')"));
