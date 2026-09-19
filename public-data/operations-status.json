@@ -15,9 +15,16 @@
     "STALE",
     "RIGHTS_REVIEW_REQUIRED"
   ],
-  "generatedAt": "2026-09-19T04:48:12.005Z",
+  "rightsVocabulary": [
+    "VERIFIED",
+    "REVIEW_REQUIRED",
+    "OPERATOR_REQUIRED",
+    "UNAVAILABLE",
+    "UNKNOWN"
+  ],
+  "generatedAt": "2026-09-19T06:40:09.578Z",
   "appRevision": "v55.21",
-  "dataRevision": "market-snapshot:2026-09-19T01:38:09.181Z:efa1ac4c",
+  "dataRevision": "market-snapshot:2026-09-19T06:39:46.292Z:e878ec21",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
   "overall": "OPERATOR_REQUIRED",
   "planes": {
@@ -25,7 +32,7 @@
       "status": "CURRENT",
       "statusCode": "CONFIGURED_HEALTHY",
       "source": "github-actions",
-      "lastSuccessfulAt": "2026-09-19T01:38:09.181Z",
+      "lastSuccessfulAt": "2026-09-19T06:39:46.292Z",
       "coverage": {
         "required": 16,
         "observed": 16,
@@ -41,10 +48,10 @@
         "coverageComplete": true,
         "quoteQualityComplete": true,
         "blockedQuotes": [],
-        "generatedAt": "2026-09-19T01:38:09.181Z",
-        "ageHours": 3.17,
+        "generatedAt": "2026-09-19T06:39:46.292Z",
+        "ageHours": 0.01,
         "maxAgeHours": 12,
-        "evaluatedAt": "2026-09-19T04:48:12.005Z",
+        "evaluatedAt": "2026-09-19T06:40:09.578Z",
         "reason": null
       },
       "readiness": {
@@ -64,12 +71,14 @@
         "status": "CURRENT",
         "statusCode": 200,
         "coverage": "16/16",
-        "revision": "fast-quotes:e10d492e",
+        "revision": "fast-quotes:1e3509d1",
         "sourceSha": "ac98ec1fa1a58781f9dccd7632af84c4a39428d8",
-        "observedAt": "2026-09-19T01:38:18.551Z",
-        "source": "last-observed-live-health",
-        "observationStatus": "NOT_ATTEMPTED",
-        "observationError": null
+        "observedAt": "2026-09-19T06:40:09.578Z",
+        "source": "periodic-live-health",
+        "observationStatus": "SUCCESS",
+        "observationError": null,
+        "evidenceFresh": true,
+        "evidenceEvaluatedAt": "2026-09-19T06:40:09.578Z"
       },
       "soak": {
         "requiredDays": 7,
@@ -93,13 +102,13 @@
   },
   "ai": {
     "scheduledAnalysis": {
-      "status": "BLOCKED",
-      "statusCode": "CONFIGURED_BROKEN",
+      "status": "CURRENT",
+      "statusCode": "CONFIGURED_HEALTHY",
       "source": "github-actions",
-      "lastCallSucceeded": "BLOCKED",
+      "lastCallSucceeded": "CURRENT",
       "evidence": {
-        "marketAnalysisOk": false,
-        "generatedAt": "2026-09-19T01:38:09.181Z"
+        "marketAnalysisOk": true,
+        "generatedAt": "2026-09-19T06:39:46.292Z"
       }
     },
     "publicChat": {
@@ -111,7 +120,7 @@
       "health": {
         "status": "CURRENT",
         "statusCode": 200,
-        "observedAt": "2026-09-19T01:38:18.551Z",
+        "observedAt": "2026-09-19T06:40:09.578Z",
         "revision": "v54.37",
         "sourceSha": "6ef2561d3cc1cdc010693812a6796556d02c6db4",
         "configured": true,
@@ -121,9 +130,11 @@
         "providerSmokeBoundary": "blocking-deployment-workflow-only",
         "ready": true,
         "note": "Periodic live health observed; provider smoke remains a blocking deployment-workflow gate.",
-        "source": "last-observed-live-health",
-        "observationStatus": "NOT_ATTEMPTED",
-        "observationError": null
+        "source": "periodic-live-health",
+        "observationStatus": "SUCCESS",
+        "observationError": null,
+        "evidenceFresh": true,
+        "evidenceEvaluatedAt": "2026-09-19T06:40:09.578Z"
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }
@@ -133,15 +144,15 @@
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "reference",
-      "lastFetchAt": "2026-09-19T01:38:09.181Z"
+      "lastFetchAt": "2026-09-19T06:39:46.292Z"
     },
     "fred": {
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "official-series",
       "status": "CURRENT",
-      "lastAttemptAt": "2026-09-19T01:38:09.229Z",
-      "lastFetchAt": "2026-09-19T01:38:09.229Z"
+      "lastAttemptAt": "2026-09-19T06:39:46.353Z",
+      "lastFetchAt": "2026-09-19T06:39:46.353Z"
     },
     "sec": {
       "rights": "REVIEW_REQUIRED",
@@ -155,7 +166,7 @@
   "reconciliation": {
     "tier0": {
       "status": "MATCH",
-      "artifact": "market-snapshot:2026-09-19T01:38:09.181Z:efa1ac4c",
+      "artifact": "market-snapshot:2026-09-19T06:39:46.292Z:e878ec21",
       "uiEvidence": "same-revision-contract",
       "observedAtComplete": true
     },
@@ -163,8 +174,8 @@
     "categoryCount": 22,
     "overall": "PARTIAL",
     "counts": {
-      "PARTIAL": 14,
-      "MATCH": 6,
+      "PARTIAL": 13,
+      "MATCH": 7,
       "BLOCKED": 2
     },
     "closure": {
@@ -184,7 +195,6 @@
         "news",
         "commodities-fx",
         "global-indices",
-        "crypto",
         "kr-macro-vkospi-supply"
       ],
       "partialCategories": [
@@ -200,8 +210,7 @@
         "macro-calendar",
         "news",
         "commodities-fx",
-        "global-indices",
-        "crypto"
+        "global-indices"
       ],
       "operatorRequiredCategories": [
         "investors-intelligence",
@@ -291,7 +300,7 @@
           }
         ]
       },
-      "sourceRevision": "market-snapshot:2026-09-19T01:38:09.181Z:efa1ac4c",
+      "sourceRevision": "market-snapshot:2026-09-19T06:39:46.292Z:e878ec21",
       "sourceArtifacts": [
         "public-data/data.json",
         "public-data/market-snapshot.json",
@@ -305,10 +314,10 @@
   "routes": {
     "supported": 20,
     "nativeOwner": [
-      "guide",
       "principles",
       "masters",
-      "atlas"
+      "atlas",
+      "guide"
     ],
     "legacyOwner": 0,
     "nativeLifecycleOwner": [
@@ -320,18 +329,18 @@
       "technical",
       "macro",
       "fxbond",
+      "fundamental",
       "themes",
       "theme-detail",
-      "ticker",
-      "fundamental",
-      "options",
       "portfolio",
+      "ticker",
       "market-news",
-      "screener",
-      "guide",
+      "options",
       "principles",
       "masters",
-      "atlas"
+      "atlas",
+      "guide",
+      "screener"
     ],
     "nativeRendererOwner": [
       "home",
@@ -342,18 +351,18 @@
       "technical",
       "macro",
       "fxbond",
+      "fundamental",
       "themes",
       "theme-detail",
-      "ticker",
-      "fundamental",
-      "options",
       "portfolio",
+      "ticker",
       "market-news",
-      "screener",
-      "guide",
+      "options",
       "principles",
       "masters",
-      "atlas"
+      "atlas",
+      "guide",
+      "screener"
     ],
     "nativeDataOwner": [
       "home",
@@ -364,18 +373,18 @@
       "technical",
       "macro",
       "fxbond",
+      "fundamental",
       "themes",
       "theme-detail",
-      "ticker",
-      "fundamental",
-      "options",
       "portfolio",
+      "ticker",
       "market-news",
-      "screener",
-      "guide",
+      "options",
       "principles",
       "masters",
-      "atlas"
+      "atlas",
+      "guide",
+      "screener"
     ],
     "nativeChartOwner": [
       "breadth",
@@ -384,8 +393,8 @@
       "macro",
       "fxbond",
       "themes",
-      "ticker",
-      "portfolio"
+      "portfolio",
+      "ticker"
     ],
     "nativeNarrativeOwner": [
       "theme-detail"
@@ -399,18 +408,18 @@
       "technical",
       "macro",
       "fxbond",
+      "fundamental",
       "themes",
       "theme-detail",
-      "ticker",
-      "fundamental",
-      "options",
       "portfolio",
+      "ticker",
       "market-news",
-      "screener",
-      "guide",
+      "options",
       "principles",
       "masters",
-      "atlas"
+      "atlas",
+      "guide",
+      "screener"
     ],
     "observerOwner": 0,
     "cutoverStatus": "MIGRATION_IN_PROGRESS",
