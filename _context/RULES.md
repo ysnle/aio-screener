@@ -2,10 +2,16 @@
 verified_by: Codex local source review + affected QA (workspace/deployment regression); full semantic audit remains open
 last_verified: 2026-09-19
 confidence: medium
-target_version: v55.18
+target_version: v55.19
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R624. 전역은 하나의 구현만 가진다 — 그리고 로드 순서는 계약이다 (v55.19, P1138)
+
+**Rule**: 클래식 스크립트에서 최상위 `function X`와 `window.X =`는 **같은 전역을 두 번 정의**한다. 어느 쪽이 이기는지는 **로드 순서**로만 결정되므로, (1) 함수값 전역이 두 파일에서 정의되면 그 중 하나는 **조용히 죽은 코드**이고 순서가 바뀌는 순간 **살아난다**(P1132: 죽어 있던 위임 래퍼가 승자가 되어 자기 기본 인자를 모든 호출자에게 적용했다). 따라서 함수값 전역은 **하나의 소유자**만 가진다 — 의도적 이중 소유는 이유를 적고 허용목록에 올린다(예: `getApiKey`/`setApiKey`는 core 주석이 "두 실행 순서를 모두 안전하게 지원한다"고 명시한 계약). (2) 상태 전역(런타임에 여러 파일이 쓰는 공유 가변 상태)은 위험 등급이 다르므로 **동결 기준선**으로 두고 **새 이중 소유자만 실패**시킨다 — 기존 것을 한꺼번에 고치려 하면 검증 없이 동작을 바꾸게 된다. (3) `window.X = window.X || …`(네임스페이스 확장)와 `var X = window.X`(명시적 import)는 **읽기**이지 두 번째 정의가 아니므로 제외한다 — 포함하면 신호가 네임스페이스 잡음에 묻힌다(실측 295개). (4) **로드 순서 자체를 선언**한다: `index.html`의 스크립트 순서를 `architecture/runtime-script-order.json`에 이유와 함께 적고 게이트가 정확히 일치하는지 검사한다 — 순서는 "추출한 코드가 원래 실행되던 위치"를 보존하는 계약이며(R622), 선언이 없으면 다음 세션이 같은 회귀를 다시 낸다. (5) 게이트는 **자기가 막으려는 회귀를 실제로 잡는지 음성 테스트로 증명**한다.
+
+**Validation**: `scripts/ci-structural-check.mjs`(로드 순서 정확 일치 + 측정 파일 전원 포함, 함수값 전역 이중 소유 0 또는 문서화된 허용목록, 상태 전역 신규 이중 소유 0, 동결 목록 축소 강제), `architecture/runtime-script-order.json`, `architecture/global-ownership-baseline.json`.
 
 ## R623. 같은 집합을 여러 곳에 손으로 적지 않는다 — 순서까지 파생시킨다 (v55.18, P1137)
 

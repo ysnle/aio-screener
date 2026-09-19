@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "global-ownership-v1",
+  "rule": "R622/P1138 — a global has one implementation. scripts/ci-structural-check.mjs separates function-valued globals (competing implementations, hard failure) from state globals (runtime shared state, frozen baseline, new ones fail).",
+  "why": "P1132: js/aio-ui.js declared `function _fetchYahooChartData` while js/aio-data.js assigned `window._fetchYahooChartData`. Which one ran depended only on script order, and the loser was silently dead — until an extraction flipped the order and the dead wrapper became live, silently applying its own default arguments to every caller. Nothing in the gate set could see it; only headless caught the resulting behaviour change.",
+  "measurement": "Declarations are column-0 `function`/`var`/`let`/`const` lines plus `window.X =` assignments. `window.X = window.X || …` (namespace extension) and `var X = window.X` (explicit import) are excluded — they read the global, they do not define a second owner. Those exclusions cover 295 names today; without them the signal would be lost in namespace boilerplate.",
+  "documentedFunctionPairs": {
+    "getApiKey": "Deliberate dual-order compatibility contract, stated at js/aio-core.js:1420-1424: the later-loaded export MAY overwrite the inline function, so the export handles both shapes — a no-arg legacy call returns the Claude key, an explicit storageKey call keeps the provider lookup contract. Both execution orders are safe by construction, so this is recorded rather than merged. ci-ai-chat-reliability-contract-check asserts the overload explicitly and ci-chat-resilience-check asserts the sidebar save path, so neither owner can be deleted without a gate noticing.",
+    "setApiKey": "Same documented pair as getApiKey (js/aio-core.js:1435-1441): the one-argument legacy call delegates to the Claude-only path and returns a Promise so saveSidebarApiKey()'s result/readback verification still holds, while the two-argument call keeps the provider storage contract. Intentional, order-safe, and covered by the same gates."
+  },
+  "frozenStateOwners": [
+    "_breadth5",
+    "_breadth20",
+    "_breadth50",
+    "_breadth200",
+    "_currentTickerId",
+    "_currentTickerName",
+    "_currentTickerSym",
+    "_deepChartInstances",
+    "_glossaryCat",
+    "_newsSentChart"
+  ],
+  "frozenStateOwnerNotes": {
+    "whyFrozen": "Each of these is shared mutable state with exactly one writer per moment, not two implementations: e.g. js/aio-data.js:15173 writes window._breadth5 from the screener artifact while js/aio-ui.js:58/170/180 write it from current breadth evidence; js/aio-core.js, js/aio-ui.js and js/aio-chat.js each set window._currentTickerId when their own surface changes the selected entity. Freezing them makes a NEW dual owner impossible to add unnoticed without rewriting behaviour that has worked for many versions.",
+    "notFrozenBecauseBroken": "They are frozen as visibility, not as approval. Converging them (one owner per state variable) is real work with real behaviour risk and needs its own evidence, so it is tracked as QA-EXHAUST-95 rather than done blind in a refactor commit.",
+    "ratchet": "scripts/ci-structural-check.mjs fails if a frozen name stops being dual-owned — the list can only shrink."
+  }
+}

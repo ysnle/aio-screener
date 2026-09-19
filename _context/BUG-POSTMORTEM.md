@@ -2,12 +2,27 @@
 verified_by: 데이터 파이프라인 전수 의미·정합성 감사(로컬 재계산) + affected QA; 중첩 산출물 의미 검토는 open
 last_verified: 2026-09-19
 confidence: medium
-latest_version: v55.18
-latest_P_number: P1137
-next_P_number: P1138
-current_total_entries: 552 tracked entries (379 headings + 173 compacted lines, P1~P1137, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
+latest_version: v55.19
+latest_P_number: P1138
+next_P_number: P1139
+current_total_entries: 553 tracked entries (380 headings + 173 compacted lines, P1~P1138, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
 current_checkpoint: 사용자 판단(지인용 사설 스크리너)으로 **차단 경계를 공시로 재배치**했다 — 개인화 지시·현재증거 부족·수치 주장 불일치·헤드라인 전용 인과를 하드 차단에서 경고/공시로 강등(P1120~P1122). 조작 방지(값·단위·NFP 배율), 금지 행위 P0, 포트폴리오 동의, 도구 경계는 그대로 차단이다. 남은 OPEN: 날짜 없는 중첩 산출물 12건(P1110 측정면이 노출), `objects/**` 592/629 미참조 blob의 보존 정책, 캐시 라우팅 밖의 실제 소비 산출물 오프라인 폴백 (semantic coverage 6.89%, releaseCertified=false)
 ---
+
+## P1138 - v55.19 - 전역 승자·로드 순서를 기계적으로 검사한다 (2026-09-19)
+
+- symptom/reproduction: **QA-91/92 종결.** 제가 이 세션에서 **두 번** 같은 계열의 회귀를 냈지만(P1132 죽은 래퍼가 승자가 됨, P1135 파일 전체가 ReferenceError로 죽음), 둘 다 **우연히** 검출됐습니다 — P1132는 headless의 T1041이 마침 그 이름을 검사하고 있었고, P1135는 실브라우저가 잡았습니다. 우연에 기대지 않도록 두 실패 모드를 검사로 만들었습니다.
+- root_cause: **게이트가 "선언"만 보고 "대입"과 "순서"를 보지 않았다.** R280 스캔은 파일 간 최상위 `function X` 중복만 셌기 때문에, `function X`(한 파일) × `window.X =`(다른 파일)이라는 P1132 형태를 원리적으로 볼 수 없었고, `index.html`의 스크립트 순서는 어디에도 선언돼 있지 않아 순서 변경이 아무 게이트에도 걸리지 않았다.
+- fix(3종):
+  1. **로드 순서를 계약으로 선언**: `architecture/runtime-script-order.json`에 9개 런타임 파일의 순서와 **각 항목의 이유**를 적고, `ci-structural-check`가 `index.html`의 실제 순서와 **정확히 일치**하는지 + 측정 대상 전원이 정확히 한 번씩 포함되는지 검사합니다.
+  2. **함수값 전역 이중 소유 0**: 최상위 `function X`, `window.X = function…`, `window.X = <식별자>`를 모아 **두 파일 이상이 소유하면 실패**합니다. 의도적 이중 소유는 `architecture/global-ownership-baseline.json`의 `documentedFunctionPairs`에 **이유(40자 이상)**와 함께 등록해야 하고, 허용목록 항목이 실제로 이중 소유가 아니면 그 자체가 실패합니다(부패 방지).
+  3. **상태 전역은 동결 + 신규만 실패**: 런타임 공유 상태(`_breadth5`/`_currentTickerId` 등 10개)는 여러 파일이 시점별로 쓰는 정상 패턴이라 **동결 기준선**으로 두고 **새 이중 소유자만** 실패시킵니다. 동결 목록은 **줄어들 수만** 있습니다(이중 소유가 아니게 되면 게이트가 실패) — 다른 기준선들과 같은 래칫 성질입니다.
+- **측정 정교화(중요)**: 첫 구현은 42개를 보고했지만 그중 대부분은 `window.X = window.X || …`(네임스페이스 확장)와 `var X = window.X`(명시적 import)였습니다 — **읽기이지 두 번째 정의가 아닙니다.** 이 둘을 제외하니 42 → **12**로 줄었고, 그중 2개는 문서화된 의도적 계약(`getApiKey`/`setApiKey`), 10개는 공유 상태였습니다. 제외 규칙을 코드 주석에 이유와 함께 남겼습니다. 여기서 **한 번 더 실수**했습니다: 별칭 검사가 끝의 `;`를 놓쳐 `var X = window.X;` 22개가 이중 소유로 재분류됐고, 그 오탐이 게이트 실패로 드러나 수정했습니다(세미콜론 제거 후 비교).
+- **음성 테스트로 증명**: P1132 형태(`window._zzNegativeTestGlobal = function…`)를 core와 ui 두 파일에 주입하니 게이트가 `no function-valued global may have two runtime owners: _zzNegativeTestGlobal in [js/aio-core.js, js/aio-ui.js]`로 **실패**했고, 제거하니 PASS로 복귀했습니다. 검사가 실제로 막으려는 회귀를 잡는다는 증거입니다.
+- violated_rule: R622(실행 순서), **R624(신규)**.
+- prevention: 전역을 새로 만들 때 ① 두 파일에서 정의하지 않는다 ② 순서가 필요하면 `runtime-script-order.json`에 이유를 적는다. 새 상태 공유는 기준선에 이름을 올리기 전에는 게이트가 막는다.
+- verification: `ci-structural-check` PASS(신규 4개 단언 포함) + **음성 테스트 확인**, headless **1,133/1,133**, 실브라우저 `ci-architecture-browser-check` PASS, affected QA 98 PASS / 2 FAIL(신선도 SLA). 커밋만 수행, push·배포 없음.
+- 잔여: 10개 동결 상태 전역의 수렴은 **QA-EXHAUST-95**로 분리했습니다(검증 없이 동작을 바꾸지 않기 위해).
 
 ## P1137 - v55.18 - 3단계: 라우트 20개가 다섯 곳에 다섯 순서로 있었다 (2026-09-19)
 

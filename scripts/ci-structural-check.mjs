@@ -142,6 +142,88 @@ check(
   declarationOnlyFunctions.size === 0
 );
 
+// ── P1138/R622: the runtime load order is a contract, not an accident ────────────────────────
+// P1135 shipped a regression this gate exists to make loud: moving a block into a file that loads
+// AFTER aio-ui.js let aio-ui.js call a global that did not exist yet, and a ReferenceError killed
+// the whole file (its later `window.*` definitions never ran). The order in index.html is the
+// order that protects that invariant, so it is declared in architecture/runtime-script-order.json
+// with the reason for each entry and compared here.
+const scriptOrder = [...html.matchAll(/<script[^>]+src="\.\/js\/[^"?]+\?v=[\d.]+"/g)]
+  .map((match) => match[0].match(/\.\/js\/([^"?]+)/)[1])
+  .map((name) => `js/${name}`);
+const orderManifest = JSON.parse(read('architecture/runtime-script-order.json'));
+check('runtime script order must match architecture/runtime-script-order.json exactly (R622/P1135)'
+  + (JSON.stringify(scriptOrder) === JSON.stringify(orderManifest.order) ? '' : `: html=[${scriptOrder.join(', ')}] manifest=[${orderManifest.order.join(', ')}]`),
+  JSON.stringify(scriptOrder) === JSON.stringify(orderManifest.order));
+check('runtime script order manifest must list every measured runtime file exactly once (R622/P1135)',
+  orderManifest.order.length === new Set(orderManifest.order).size
+    && Object.keys(RUNTIME_SCRIPT_FILES).filter((f) => f !== 'index.html').every((f) => orderManifest.order.includes(f))
+    && orderManifest.order.every((f) => f in RUNTIME_SCRIPT_FILES),
+  `manifest=[${orderManifest.order.join(', ')}]`);
+
+// ── P1138/R622: one global, one implementation ───────────────────────────────────────────────
+// P1132 shipped this shape: js/aio-ui.js declared `function _fetchYahooChartData` while
+// js/aio-data.js assigned `window._fetchYahooChartData = _aioFetchYahooChartData`, so which
+// implementation the app ran depended on script order and the loser was silently dead.
+//
+// Two owner kinds are distinguished, because they carry different risk:
+//   • FUNCTION-valued globals — two owners means two competing IMPLEMENTATIONS. Silent behaviour
+//     change on reorder. Hard failure, no baseline growth; intentional pairs are named below.
+//   • STATE globals — the files write shared mutable state at runtime; the later write just wins.
+//     Frozen as a baseline so a NEW dual owner cannot appear unnoticed (QA-EXHAUST-91/92).
+// `window.X = window.X || …` and `var X = window.X` are namespace extension / explicit import, not
+// a second definition, so they are excluded (295 names today — flagging them would drown the signal).
+const ownership = JSON.parse(read('architecture/global-ownership-baseline.json'));
+// Trailing `;` and whitespace are stripped first: `var X = window.X;` is the same import as
+// `var X = window.X`, and missing the semicolon silently reclassified 22 imports as dual owners.
+const isAliasRead = (name, rhs) => new RegExp(`^\\s*(?:window\\.)?${name}\\s*(?:\\|\\||\\?\\?|&&|\\?|;|$)`)
+  .test(String(rhs || '').replace(/;\s*$/, '').trim());
+const fnOwnersByFile = new Map();
+const stateOwnersByFile = new Map();
+const addOwner = (map, name, file) => {
+  if (!map.has(name)) map.set(name, new Set());
+  map.get(name).add(file);
+};
+const FN_DECL_RE = /^(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(/gm;
+const VAR_DECL_RE = /^(?:var|let|const)\s+([A-Za-z_$][\w$]*)\s*(?:=\s*([^\n]*))?$/gm;
+const ASSIGN_RE = /^\s*window\.([A-Za-z_$][\w$]*)\s*=\s*([^\n]*)$/gm;
+const FN_VALUE_RE = /^(?:async\s+)?function\b|^\(?[\w$,\s]*\)?\s*=>|^[A-Za-z_$][\w$]*\s*$/;
+for (const [file, src] of Object.entries(RUNTIME_SCRIPT_FILES)) {
+  for (const match of src.matchAll(FN_DECL_RE)) addOwner(fnOwnersByFile, match[1], file);
+  for (const match of src.matchAll(VAR_DECL_RE)) {
+    const [, name, rhs] = match;
+    if (rhs === undefined || isAliasRead(name, rhs)) continue;
+    addOwner(FN_VALUE_RE.test(rhs.trim()) ? fnOwnersByFile : stateOwnersByFile, name, file);
+  }
+  for (const match of src.matchAll(ASSIGN_RE)) {
+    const [, name, rhs] = match;
+    if (isAliasRead(name, rhs)) continue;
+    addOwner(FN_VALUE_RE.test(rhs.trim()) ? fnOwnersByFile : stateOwnersByFile, name, file);
+  }
+}
+const competing = (map) => [...map.entries()].filter(([, files]) => files.size > 1);
+const documented = ownership.documentedFunctionPairs || {};
+const competingFunctions = competing(fnOwnersByFile)
+  .filter(([name]) => !(name in documented))
+  .map(([name, files]) => `${name} in [${[...files].join(', ')}]`);
+check('no function-valued global may have two runtime owners (R280/P1132, R624)'
+  + (competingFunctions.length ? ': ' + competingFunctions.sort().join('; ') : ''),
+  competingFunctions.length === 0);
+check('documentedFunctionPairs must only name globals that really have two function owners (R624/P1138)',
+  Object.keys(documented).every((name) => (fnOwnersByFile.get(name) || new Set()).size > 1)
+    && Object.values(documented).every((reason) => typeof reason === 'string' && reason.length > 40));
+const frozenStates = new Set(ownership.frozenStateOwners || []);
+const competingStates = competing(stateOwnersByFile);
+check('no NEW state global may gain a second runtime owner (R624/P1138)'
+  + (competingStates.filter(([name]) => !frozenStates.has(name)).length
+    ? ': ' + competingStates.filter(([name]) => !frozenStates.has(name)).map(([name, files]) => `${name} in [${[...files].join(', ')}]`).sort().join('; ')
+    : ''),
+  competingStates.every(([name]) => frozenStates.has(name)));
+check('frozenStateOwners must not keep names that are no longer dual-owned (R624/P1138 ratchet must tighten)',
+  [...frozenStates].every((name) => (stateOwnersByFile.get(name) || new Set()).size > 1)
+    && competingStates.length === frozenStates.size,
+  `frozen=${frozenStates.size} live=${competingStates.length}`);
+
 if (failures.length) {
   console.error('Structural regression check failed:');
   failures.forEach((failure) => console.error(' - ' + failure));

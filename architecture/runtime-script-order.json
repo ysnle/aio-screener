@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "runtime-script-order-v1",
+  "rule": "R622 — an extracted file must load where the code it replaced used to run. index.html's inline blocks ran at parse time, i.e. BEFORE every defer script, so blocks extracted out of them load before aio-core.js in the original relative order.",
+  "whyItMatters": "P1135: a block extracted into a file that loaded after js/aio-ui.js made aio-ui.js call a global that did not exist yet at its own evaluation time. The resulting ReferenceError killed the whole file, so every later definition in it (window._aioRenderTickerOverview and the rest) never ran. headless passed 1,133/1,133 and every static gate passed; only the real-browser check caught it.",
+  "order": [
+    "js/aio-workspace.js",
+    "js/aio-macro-tech.js",
+    "js/aio-kr-data.js",
+    "js/aio-pages.js",
+    "js/aio-core.js",
+    "js/aio-data.js",
+    "js/aio-ui.js",
+    "js/aio-chat.js",
+    "js/aio-glossary.js"
+  ],
+  "reasons": {
+    "js/aio-workspace.js": "P1136 — inline block A (user state / workspace). Originally the first thing to run after the shell markup; core, data and ui read its globals at their own evaluation time.",
+    "js/aio-macro-tech.js": "P1135 — inline block B (macro/technical). js/aio-ui.js calls computeMarketHealth at module-eval time (ui:5047), so this must precede core and ui.",
+    "js/aio-kr-data.js": "P1134 — inline block C (KR/SEC data plane). Originally ran before every defer script.",
+    "js/aio-pages.js": "P1133 — inline block D (page renderers). Originally ran before every defer script.",
+    "js/aio-core.js": "The classic runtime core. Everything above it is code that used to be inline, so it must keep running first.",
+    "js/aio-data.js": "Defines the data plane the ui and chat layers read at their own evaluation time.",
+    "js/aio-ui.js": "Consumes core + data globals during evaluation.",
+    "js/aio-chat.js": "Consumes the unified chat surface defined by ui/core.",
+    "js/aio-glossary.js": "Static glossary literals consumed by ui and chat rendering."
+  },
+  "measuredBy": "scripts/ci-structural-check.mjs (exact order equality against index.html, plus membership of every measured runtime file)"
+}
