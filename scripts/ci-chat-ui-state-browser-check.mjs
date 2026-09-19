@@ -52,8 +52,11 @@ try {
     _aioReleaseChatRequest(fresh);
     return isolated && !document.querySelector('#chat-home-btn-stop') && !getChatState('home').streaming;
   }));
-  const shell = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
-  const historyStart = shell.indexOf("const CHAT_HISTORY_LS =");
+  // P1136/R620: the chat-history block moved out of index.html's inline block A into
+  // js/aio-workspace.js. The slice boundaries must follow the code, or this guard silently
+  // degrades to an empty string and the storage assertions below test nothing.
+  const shell = readFileSync(new URL('../js/aio-workspace.js', import.meta.url), 'utf8');
+  const historyStart = shell.indexOf('const CHAT_HISTORY_LS =');
   const historyEnd = shell.indexOf('// ── System prompts per context', historyStart);
   assert(historyStart >= 0 && historyEnd > historyStart);
   await page.addScriptTag({ content: `

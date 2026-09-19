@@ -262,13 +262,18 @@ export function buildReconciliationStatus({ data = {}, marketSnapshot = {}, scre
     categoryDefinition('cpi-pce', [
       evidenceCheck('bls-cpi-official-current-release', ['ok', 'cached-fresh'].includes(bls.status) && finite(bls?.series?.cpi?.value) && !!bls?.series?.cpi?.observedAt, 'public-data/data.json', bls?.series?.cpi?.observedAt),
       evidenceCheck('bea-pce-official-current-release', bea.status === 'ok' && finite(bea?.values?.pce) && finite(bea?.values?.corePce) && !!bea?.releasedAt, 'public-data/data.json', bea?.releasedAt)
-    ], { gate: 'bls-bea-official-release', rights: 'CURRENT' }),
+    // P1140/QA-P1103: `rights` is an axis of RIGHTS_STATUS, not of RECONCILIATION_STATUS. These two
+    // categories declared `'CURRENT'` — a status word — which the artifact's own published
+    // rightsVocabulary does not contain, so the rights axis was unreadable to any consumer holding
+    // only the artifact. Both origins are official-government (T1_OFFICIAL) public APIs and the
+    // REVIEW_REQUIRED default was overridden deliberately, so the intended value is VERIFIED.
+    ], { gate: 'bls-bea-official-release', rights: 'VERIFIED' }),
 
     categoryDefinition('employment-wages', [
       evidenceCheck('bls-unemployment', finite(bls?.series?.unemployment?.value) && !!bls?.series?.unemployment?.observedAt, 'public-data/data.json', bls?.series?.unemployment?.observedAt),
       evidenceCheck('bls-nonfarm-payroll', finite(bls?.series?.nonfarmPayroll?.value) && !!bls?.series?.nonfarmPayroll?.observedAt, 'public-data/data.json', bls?.series?.nonfarmPayroll?.observedAt),
       evidenceCheck('bls-average-hourly-earnings', finite(bls?.series?.averageHourlyEarnings?.value) && !!bls?.series?.averageHourlyEarnings?.observedAt, 'public-data/data.json', bls?.series?.averageHourlyEarnings?.observedAt)
-    ], { gate: 'bls-employment-wages', rights: 'CURRENT' }),
+    ], { gate: 'bls-employment-wages', rights: 'VERIFIED' }),
 
     categoryDefinition('retail-housing-ism', [
       evidenceCheck('fred-retail-sales', finite(macro.retailSales) && !!macro._asOf_retailSales, 'public-data/data.json', macro._asOf_retailSales),

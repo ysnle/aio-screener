@@ -111,7 +111,9 @@ const routesJs = [
   '}',
   '',
 ].join('\n');
-const routesJsCurrent = read('src/app/routes.js');
+// Compare with line endings normalised: a Windows checkout is CRLF and a Linux CI checkout is LF,
+// and a gate that only fails on one of them is a gate that lies to whoever runs it locally.
+const routesJsCurrent = read('src/app/routes.js').replace(/\r\n/g, '\n');
 if (routesJsCurrent !== routesJs) {
   if (mode === 'write') { write('src/app/routes.js', routesJs); console.log('[route-registry] wrote src/app/routes.js'); }
   else fail('src/app/routes.js is stale - run: node scripts/generate-route-registry.mjs --write');
@@ -165,8 +167,10 @@ const routes = owners.routes || {};
 const byOrder = canonical.filter((id) => routes[id]);
 
 const withOwner = (field, value) => byOrder.filter((id) => routes[id][field] === value);
+// Multi-line arrays must use the file's own EOL. Hardcoding `\n` here made `--check` report
+// "counts are stale" on every Windows checkout while the content was in fact identical.
 const arr = (list) => (list.length > 4
-  ? `[\n${list.map((id) => `      "${id}"`).join(',\n')}\n    ]`
+  ? `[${EOL}${list.map((id) => `      "${id}"`).join(',' + EOL)}${EOL}    ]`
   : `[${list.map((id) => `"${id}"`).join(', ')}]`);
 const fullNative = byOrder.filter((id) => {
   const r = routes[id];
