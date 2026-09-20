@@ -1,0 +1,549 @@
+{
+  "observedAt": "2026-09-20T10:25:07.278Z",
+  "version": "v56",
+  "condition": "local Chromium 1440x1000; external requests aborted; service workers blocked",
+  "pages": [
+    {
+      "id": "screener",
+      "text": "퀀트 스크리너\n일봉 기반 멀티팩터 상대 랭킹 · 모멘텀 + 추세(Kalman) + 저변동 + VCP · 헤더 클릭으로 정렬\n팩터 기준 2026-09-20\n밸류·퀄리티 팩터 비활성 —\n무료 SEC 재무 데이터 누적 중 (가격 팩터 모드)\n연구용 스냅샷 · 팩터 관측 2026-09-18 13:30 · 생성 2026-09-20 05:05 · github-actions:yahoo-1y · SEC FY sec-fy-normalized-v2 562/655 · 종목 유니버스 갱신 필요 (2026-07-16) · 연구 프레임 49개·시계열 20개·claim 9개 (REFERENCE) · 모델 검증 BLOCKED · 거래용 승격 금지 · 공식 거래소 breadth 아님\n종목 목록 최신성 확인 필요 · 모델 검증 BLOCKED · 연구 snapshot · 종목 873 · 계산 준비 844 · 조건 통과 844 · 계산 보류 29 · 상대 랭킹은 연구용이며 현재 매매 지시가 아닙니다.\n스크리너 작업공간\n조건을 만들고 실행 snapshot을 고정한 뒤, 결과의 순위·근거·데이터 상태를 함께 확인합니다.\n현재 데이터 미리보기 · 844 통과 · 실행 버튼으로 입력 고정\n집중 모드\n저장 화면\n균형 상대 랭킹\n모멘텀 지속\n추세 정렬\n저변동 방어\n퀄리티 결합\n돌파 관찰\n새 화면\n저장\n조건 실행\n균형 상대 랭킹\n모멘텀 지속\n추세 정렬\n저변동 방어\n퀄리티 결합\n돌파 관찰\n시각 조건 빌더 AND 조건 · 변경은 미리보기\n섹터\n구조 분류\n구조·근거\n최소 rank\nRSI 하한\n3M 수익률 하한\n티커·이름 검색\n조건 추가\n시각 조건을 추가하면 이곳에 표시됩니다. 필터 변경은 미리보기, 실행 버튼이 결과 snapshot을 고정합니다.\n활성 필터 0\n활성 조건 없음\n전체 초기화\n결과 funnel\n유니버스\n873\n필드 준비\n844\n조건 통과\n844\n데이터 부족\n29\n현재 필터 결과\n873\n필드 준비 844/873 · 96.7% · 필수: ret3m · pctSma200 · rsi14\n개발자 정의 · JSON 가져오기/내보내기\n보관한 사용자 실행 없음 · 실행하면 입력을 이 브라우저에 최대 5개 보관합니다.\nOutcome · 자동 추적 미연결 · 보관 입력 재현만 지원\nOperations · 데이터 sync screener-snapshot- · 사용자 실행과 분리\n프리셋\n균형 (기본)\n모멘텀\n스윙\n가치\n저리스크\n고급 필터\n중립 고정 가중 · 레짐 후보는 진단만 · 총 873종목 중 상위 20% 174 · 기존 편집 분류 강세 구조 0 · 활성팩터 4\n랭킹\n팩터·레짐\n백테스트 IC\n조건부 증거\n전체 지수\nADR\nDOW30\nETF\nKOSDAQ\nKOSPI\nNASDAQ\nNASDAQ100\nNYSE\nOTC\nRUSSELL2000\nSMID\nSP500\nTSE\nTWSE\n전체 섹터\nBasic Materials\nCommunication Services\nConsumer\nConsumer Cyclical\nConsumer Defensive\nETF\nEnergy\nFinancials\nHealthcare\nIndustrials\nMaterials\nReal Estate\nTechnology\nUtilities\n전체 분류\n강세 구조\n중립\n관찰\n약세 구조\n전체 시총\n메가캡 (≥$1T... )\n대형 ($10B~1T)\n중형 ($2~10B)\n소형 (<$2B)\n컬럼\n발견\n펀더멘털\n추세·셋업\n리스크\n이벤트\n전체\n컬럼 선택\n873종목\n관심·비교\t상대 점수\n▼\n\t등급\t종목\n\t가격\n\t1M\n\t3M\n\tRSI\n\tVCP 구조\n 연구\n\n☆\n+\n\t\n100\n상위 20%\n\tA\t\nDELL\nDell Technologies\n\t미수신\t+29.8%\t+39.0%\t61.8\t45 · 기반 형성\n\n☆\n+\n\t\n100\n상위 20%\n\tA\t\nDINO\nHF Sinclair\n\t미수신\t+22.5%\t+80.8%\t78.0\t35 · 피벗 돌파\n\n☆\n+\n\t\n100\n상위 20%\n\tA\t\nVLO\nValero Energy\n\t미수신\t+19.4%\t+75.6%\t80.1\t69 · 피벗 돌파\n\n☆\n+\n\t\n100\n상위 20%\n\tA\t\nMPC\nMarathon Petroleum\n\t미수신\t+17.8%\t+75.4%\t83.3\t75 · 피벗 돌파\n\n☆\n+\n\t\n100\n상위 20%\n\tA\t\nARKG\nARK Genomic\n\t미수신\t+8.2%\t+40.1%\t70.9\t79 · 피벗 돌파\n\n☆\n+\n\t\n99\n상위 20%\n\tA\t\nHPE\nHewlett Packard Enterprise\n\t미수신\t+14.6%\t+28.5%\t59.5\t55 · 피벗 근접\n\n☆\n+\n\t\n99\n상위 20%\n\tA\t\nGTLB\nGitLab\n\t미수신\t+15.6%\t+85.3%\t63.3\t20 · 추세 조건 미충족\n\n☆\n+\n\t\n99\n상위 20%\n\tA\t\nILMN\nIllumina\n\t미수신\t+16.9%\t+48.0%\t65.7\t55 · 피벗 돌파\n\n☆\n+\n\t\n99\n상위 20%\n\tA\t\nTEAM\nAtlassian\n\t미수신\t+10.2%\t+132.1%\t65.7\t20 · 추세 조건 미충족\n\n☆\n+\n\t\n99\n상위 20%\n\tA\t\nUMC\nUnited Microelectronics\n\t미수신\t+35.8%\t+4.0%\t69.6\t90 · 피벗 돌파\n\n☆\n+\n\t\n99\n상위 20%\n\tA\t\n044820.KQ\n코스맥스BTI\n\t미수신\t+13.3%\t+50.9%\t60.7\t45 · 기반 형성\n\n☆\n+\n\t\n99\n상위 20%\n\tA\t\n192820.KQ\n코스맥스\n\t미수신\t+4.8%\t+71.5%\t57.0\t45 · 기반 형성\n★ 관심종목 · + 동일 기준 비교 · 행 선택으로 순위 근거 확인 · ‘—’는 해당 필드 미수신\n전체 873개 중 12개 표시\n12개 더 보기\n읽는 법\n추세신뢰도\nKalman 필터 기반 추세 방향 확신도(연구 지표). 예측 검증이 확립되지 않았으며 상대 비교·연구 전용 — 매매 신호가 아닙니다.\nVCP 구조\n변동성 수축과 피벗 근접도를 설명하는 가격 구조 지표. 이후 수익률이나 돌파 성공을 보장하지 않음\n사용 원칙\n상대 랭킹은 조사 후보를 좁히는 도구이며, 주문·포지션 결정에는 별도 검증이 필요\n전략 백테스트\n상세 IC 보기\n백테스트 IC 탭에서 팩터 검증 상세 확인",
+      "buttons": [
+        {
+          "text": "집중 모드",
+          "action": null
+        },
+        {
+          "text": "새 화면",
+          "action": null
+        },
+        {
+          "text": "저장",
+          "action": null
+        },
+        {
+          "text": "조건 실행",
+          "action": null
+        },
+        {
+          "text": "균형 상대 랭킹",
+          "action": null
+        },
+        {
+          "text": "모멘텀 지속",
+          "action": null
+        },
+        {
+          "text": "추세 정렬",
+          "action": null
+        },
+        {
+          "text": "저변동 방어",
+          "action": null
+        },
+        {
+          "text": "퀄리티 결합",
+          "action": null
+        },
+        {
+          "text": "돌파 관찰",
+          "action": null
+        },
+        {
+          "text": "조건 추가",
+          "action": null
+        },
+        {
+          "text": "전체 초기화",
+          "action": null
+        },
+        {
+          "text": "정의 실행",
+          "action": null
+        },
+        {
+          "text": "정의 불러오기",
+          "action": null
+        },
+        {
+          "text": "현재 정의 내보내기",
+          "action": null
+        },
+        {
+          "text": "균형 (기본)",
+          "action": null
+        },
+        {
+          "text": "모멘텀",
+          "action": null
+        },
+        {
+          "text": "스윙",
+          "action": null
+        },
+        {
+          "text": "가치",
+          "action": null
+        },
+        {
+          "text": "저리스크",
+          "action": null
+        },
+        {
+          "text": "고급 필터",
+          "action": null
+        },
+        {
+          "text": "랭킹",
+          "action": null
+        },
+        {
+          "text": "팩터·레짐",
+          "action": null
+        },
+        {
+          "text": "백테스트 IC",
+          "action": null
+        },
+        {
+          "text": "조건부 증거",
+          "action": null
+        },
+        {
+          "text": "컬럼 선택",
+          "action": null
+        },
+        {
+          "text": "상대 점수 ▼",
+          "action": null
+        },
+        {
+          "text": "종목",
+          "action": null
+        },
+        {
+          "text": "가격",
+          "action": null
+        },
+        {
+          "text": "1M",
+          "action": null
+        },
+        {
+          "text": "3M",
+          "action": null
+        },
+        {
+          "text": "RSI",
+          "action": null
+        },
+        {
+          "text": "VCP 구조",
+          "action": null
+        },
+        {
+          "text": "☆",
+          "action": null
+        },
+        {
+          "text": "+",
+          "action": null
+        },
+        {
+          "text": "☆",
+          "action": null
+        },
+        {
+          "text": "+",
+          "action": null
+        },
+        {
+          "text": "☆",
+          "action": null
+        },
+        {
+          "text": "+",
+          "action": null
+        },
+        {
+          "text": "☆",
+          "action": null
+        },
+        {
+          "text": "+",
+          "action": null
+        },
+        {
+          "text": "☆",
+          "action": null
+        },
+        {
+          "text": "+",
+          "action": null
+        },
+        {
+          "text": "☆",
+          "action": null
+        },
+        {
+          "text": "+",
+          "action": null
+        },
+        {
+          "text": "☆",
+          "action": null
+        },
+        {
+          "text": "+",
+          "action": null
+        },
+        {
+          "text": "☆",
+          "action": null
+        },
+        {
+          "text": "+",
+          "action": null
+        },
+        {
+          "text": "☆",
+          "action": null
+        },
+        {
+          "text": "+",
+          "action": null
+        },
+        {
+          "text": "☆",
+          "action": null
+        },
+        {
+          "text": "+",
+          "action": null
+        },
+        {
+          "text": "☆",
+          "action": null
+        },
+        {
+          "text": "+",
+          "action": null
+        },
+        {
+          "text": "☆",
+          "action": null
+        },
+        {
+          "text": "+",
+          "action": null
+        },
+        {
+          "text": "12개 더 보기",
+          "action": null
+        },
+        {
+          "text": "상세 IC 보기",
+          "action": null
+        }
+      ]
+    },
+    {
+      "id": "themes",
+      "text": "테마 · 트렌드\nRRG 상대회전 · GICS 11섹터 · 세분화 테마 · 대장주 추적\n11섹터\n서브섹터\n전체\n사이클 판정 보류 · RRG 근거 0/11\n섹터 로테이션 (RRG)\nRRG 판정 보류 · 상대강도·모멘텀 증거 부족\nRRG 판정 보류 · SPY 대비 상대가격 히스토리 20개 이상 필요\nXLK 기술 —\nXLF 금융 —\nXLE 에너지 —\nXLV 헬스케어 —\nXLI 산업재 —\nXLY 소비재 —\nXLP 필수소비 —\nXLRE 부동산 —\nXLB 원자재 —\nXLU 유틸리티 —\nXLC 통신 —\n섹터 ETF 라이브 등락\nXLK 기술\n—\nXLF 금융\n—\nXLE 에너지\n—\nXLV 헬스케어\n—\nXLI 산업재\n—\nXLY 소비재\n—\nXLP 필수소비\n—\nXLRE 부동산\n—\nXLB 원자재\n—\nXLU 유틸리티\n—\nXLC 통신\n—\nGLD 금\n—\n로테이션 해석\n상대강도·모멘텀 시계열 미수신 — 정적 사분면 시드로 대체하지 않습니다.",
+      "buttons": [
+        {
+          "text": "11섹터",
+          "action": "setRRGView"
+        },
+        {
+          "text": "서브섹터",
+          "action": "setRRGView"
+        },
+        {
+          "text": "전체",
+          "action": "setRRGView"
+        },
+        {
+          "text": "XLF 금융 —",
+          "action": "showThemeDetail"
+        },
+        {
+          "text": "XLE 에너지 —",
+          "action": "showThemeDetail"
+        },
+        {
+          "text": "XLV 헬스케어 —",
+          "action": "showThemeDetail"
+        },
+        {
+          "text": "XLI 산업재 —",
+          "action": "showThemeDetail"
+        },
+        {
+          "text": "XLY 소비재 —",
+          "action": "showThemeDetail"
+        },
+        {
+          "text": "XLP 필수소비 —",
+          "action": "showThemeDetail"
+        },
+        {
+          "text": "XLRE 부동산 —",
+          "action": "showThemeDetail"
+        },
+        {
+          "text": "XLB 원자재 —",
+          "action": "showThemeDetail"
+        },
+        {
+          "text": "XLU 유틸리티 —",
+          "action": "showThemeDetail"
+        },
+        {
+          "text": "XLC 통신 —",
+          "action": "showThemeDetail"
+        }
+      ]
+    },
+    {
+      "id": "masters",
+      "text": "공개 포트폴리오 · SEC 13F\n대가의 포트폴리오\n\n13F는 실시간 매매 화면이 아니라 분기 말에 남은 기관의 흔적을 복원하는 기록입니다. 이 페이지는 종목 목록보다 먼저 무엇이 새로 들어오고, 커지고, 줄고, 사라졌는지를 읽습니다.\n\n신고주체와 CIK를 SEC 원문에서 확인한 뒤 같은 보고분기끼리만 비교합니다. 마지막에는 공시가 보여주지 않는 현금·공매도·해외자산과 제출 시차를 남겨, 보유 변화가 곧 매매 신호라는 오해를 막습니다.\n\n공시 참고용\n우선순위 기관 카탈로그\nSEC 원문 행 미리보기\n분기 말 기준·최대 지연 가능\n13F는 전체 포트폴리오가 아님\nSEC 원본 우선\n전체\n13F 연결\n방법론 전용\n투자자 검색\n13F · REFERENCE-ONLY TICKER LOOKUP\n티커·CUSIP에서 공개 보유 행으로 역조회\n\nSEC 정보표 행에 연결된 제한적 crosswalk를 탐색합니다. 결과는 보고분기 말 신고 주식 수와 SEC 원문으로만 읽으며, 현재 보유·실시간 매매·섹터 비중·추천으로 승격하지 않습니다.\n\n티커 또는 CUSIP 역조회\n\n참조용 티커 원장을 불러오는 중입니다.\n\n경계: tickerReference is not SEC-provided. 이 crosswalk는 탐색용 참고 매핑이며, 검증 security master·corporate-action review·현재 가격과 결합되기 전에는 기관 흐름 신호를 만들지 않습니다.\n\n데이터 범위와 검증 상태 보기 · SEC 발견 전체 · 13F 행 부분 · 보강 부분\nWarren Buffett\nBerkshire Hathaway Inc.\n집중·가치·장기 보유\n운영 Greg Abel (CEO) · Warren Buffett (Chair/legacy capital allocator)\nMEGA · 집중 가치·자본배분\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 89개 · Top 10 88.5%\n보고 수량상 신규 1 · 확대 7 · 축소 6 · 제외 1\nStanley Druckenmiller\nDuquesne Family Office LLC\n거시·성장·변화 대응\n운영 Stanley Druckenmiller (Founder/Chair)\nLARGE · 매크로·성장\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 95개 · Top 10 45.8%\n보고 수량상 신규 48 · 확대 17 · 축소 10 · 제외 23\nKen Fisher\nFisher Asset Management, LLC\n글로벌·분산·대형주\n운영 Ken Fisher (Founder/Executive Chairman/CIO)\nMEGA · 액티브 기본분석\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 1037개 · Top 10 35.6%\n보고 수량상 신규 125 · 확대 389 · 축소 493 · 제외 104\nBill Ackman\nPershing Square Capital Management, L.P.\n집중·행동주의\n운영 Bill Ackman (Founder/CEO/CIO)\nLARGE · 행동주의·가치\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-03-31 · 최신 제출 공백\n신고 행 11개 · Top 10 99.9%\n보고 수량상 신규 1 · 확대 1 · 축소 6 · 제외 1\nDavid Tepper\nAppaloosa LP\n거시·가치·전환\n운영 David Tepper (Founder/President)\nLARGE · 매크로·가치\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 27개 · Top 10 78.9%\n보고 수량상 신규 8 · 확대 11 · 축소 5 · 제외 12\nSeth Klarman\nBaupost Group LLC/MA\n가치·현금중시·하방 방어\n운영 Seth Klarman (Founder/President)\nLARGE · 가치·방어\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 23개 · Top 10 74.9%\n보고 수량상 신규 3 · 확대 6 · 축소 9 · 제외 2\nMichael Burry\nScion Asset Management, LLC\n비대칭·헤지·이벤트\n운영 Michael Burry (Founder/Portfolio Manager)\nSPECIALIST · 특수상황·비대칭\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2025-09-30 · 최신 제출 공백\n신고 행 8개 · Top 10 100.0%\n보고 수량상 신규 7 · 확대 1 · 축소 0 · 제외 14\nBlackRock\nBlackRock, Inc.\n대형 패시브·ETF·다중 법인\n운영 Larry Fink (Founder/Chair/CEO)\nMEGA · 기관·결합 신고\n$14T+ AUM\n2026-06-30 · 13F\n신고 행 49968개 · Top 10 28.0%\n보고 수량상 신규 325 · 확대 3596 · 축소 1285 · 제외 314\nCiti\nCitigroup Inc.\n대형 은행·다자산·시장조성\n운영 Jane Fraser (CEO, Citigroup)\nMEGA · 기관·결합 신고\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 11343개 · Top 10 20.1%\n보고 수량상 신규 604 · 확대 3324 · 축소 1466 · 제외 828\nGoldman Sachs\nThe Goldman Sachs Group, Inc.\n대형 기관·프라임브로커·다중 전략\n운영 Marc Nachmann (Global Head, Asset & Wealth Management) · David Solomon (Chair/CEO, Goldman Sachs Group)\nMEGA · 기관·결합 신고\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 14070개 · Top 10 19.2%\n보고 수량상 신규 836 · 확대 3032 · 축소 2320 · 제외 743\nJPMorgan Asset Management\nJPMorgan Chase & Co\n대형 기관·다자산·분산\n운영 Mary Callahan Erdoes (CEO, JPMorgan Asset Management) · Jamie Dimon (Chair/CEO, JPMorgan Chase)\nMEGA · 기관·결합 신고\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 34064개 · Top 10 24.9%\n보고 수량상 신규 859 · 확대 3212 · 축소 2991 · 제외 638\nState Street Investment Management\nState Street Corp / State Street Global Advisors family\n패시브·ETF·기관 인덱스\n운영 Yie-Hsin Hung (CEO, State Street Investment Management)\nMEGA · 패시브·인덱스\n$6.3T AUM\n2026-06-30 · 13F\n신고 행 4177개 · Top 10 29.0%\n보고 수량상 신규 58 · 확대 2868 · 축소 888 · 제외 150\nVanguard\nVanguard family · canonical filer: Vanguard Asset Management, Ltd\n초저비용 인덱스·ETF·분산\n운영 Salim Ramji (CEO) · Greg Davis (President/CIO)\nMEGA · 패시브·인덱스\n$12.5T global assets\n2026-06-30 · 13F\n신고 행 2447개 · Top 10 31.2%\n보고 수량상 신규 63 · 확대 1599 · 축소 235 · 제외 49\nCapital Group\nCapital International Investors\n액티브·장기·분산\n운영 Mike Gitlin (President/CEO) · Martin Romo (Chair/CIO)\nMEGA · 액티브 기본분석\n$3.3T+ AUM\n2026-06-30 · 13F\n신고 행 446개 · Top 10 31.4%\n보고 수량상 신규 51 · 확대 206 · 축소 179 · 제외 43\nFidelity / FMR\nFMR LLC\n액티브·성장·리서치 기반\n운영 Abigail Johnson (Chair/CEO, Fidelity Investments)\nMEGA · 액티브 기본분석\n$7.1T managed assets (AUA $18.0T)\n2026-06-30 · 13F\n신고 행 13978개 · Top 10 34.0%\n보고 수량상 신규 391 · 확대 2975 · 축소 1966 · 제외 236\nT. Rowe Price\nPrice T Rowe Associates Inc /MD/\n액티브·성장·기본분석\n운영 Rob Sharps (Chair/CEO) · Eric Veiel (President/Co-head of Global Investments/CIO)\nLARGE · 액티브 기본분석\n$1.83T client assets\n2026-06-30 · 13F\n신고 행 4722개 · Top 10 32.2%\n보고 수량상 신규 237 · 확대 2243 · 축소 642 · 제외 129\nWellington Management\nWellington Management Group LLP\n액티브·기관·리서치 플랫폼\n운영 Jean Hynes (CEO)\nMEGA · 액티브 기본분석\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 7448개 · Top 10 24.9%\n보고 수량상 신규 254 · 확대 733 · 축소 908 · 제외 202\nDimensional Fund Advisors\nDimensional Fund Advisors LP\n학술 팩터·저비용·체계적 운용\n운영 David Booth (Founder/Chair) · Gerard O’Reilly (Co-CEO/Co-CIO) · Dave Butler (Co-CEO)\nLARGE · 팩터·학술 기반\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 13716개 · Top 10 17.1%\n보고 수량상 신규 110 · 확대 1947 · 축소 1077 · 제외 104\nGeorge Soros / Dawn Fitzpatrick\nSoros Fund Management LLC\n글로벌 매크로·이벤트\n운영 Dawn Fitzpatrick (CEO/CIO) · George Soros (Founder/legacy chair)\nLARGE · 글로벌 매크로\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 266개 · Top 10 25.2%\n보고 수량상 신규 98 · 확대 50 · 축소 79 · 제외 95\nRay Dalio\nBridgewater Associates, LP\n글로벌 매크로·리스크 패리티\n운영 Nir Bar Dea (CEO) · Ray Dalio (Founder/legacy chair)\nMEGA · 글로벌 매크로\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 997개 · Top 10 40.0%\n보고 수량상 신규 214 · 확대 400 · 축소 377 · 제외 210\nHoward Marks\nOaktree Capital Management LP\n신용·가치·하방 방어\n운영 Howard Marks (Co-founder/Co-chair) · Bruce Karsh (Co-founder/Co-chair/CIO) · Armen Panossian (CEO/Co-CIO)\nLARGE · 신용·가치\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 145개 · Top 10 54.6%\n보고 수량상 신규 40 · 확대 51 · 축소 33 · 제외 42\nKen Griffin / Seth Levy\nCitadel Advisors LLC\n멀티전략·퀀트·시장중립\n운영 Ken Griffin (Founder/CEO/Co-CIO)\nMEGA · 멀티전략\n$71B investment capital\n2026-06-30 · 13F\n신고 행 16122개 · Top 10 22.7%\n보고 수량상 신규 2666 · 확대 6082 · 축소 4769 · 제외 1951\nMillennium Management\nMillennium Management LLC\n멀티전략·리스크 분산·롱숏\n운영 Izzy Englander (Founder/CEO)\nMEGA · 멀티전략\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 5798개 · Top 10 18.4%\n보고 수량상 신규 1056 · 확대 2042 · 축소 2355 · 제외 882\nRenaissance Technologies\nRenaissance Technologies LLC\n퀀트·시스템·데이터 기반\n운영 Peter Brown (CEO) · Jim Simons (Founder/legacy chair)\nLARGE · 퀀트·시스템\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 3140개 · Top 10 12.0%\n보고 수량상 신규 566 · 확대 1079 · 축소 1489 · 제외 639\nTwo Sigma\nTwo Sigma Investments, LP\n퀀트·멀티전략·대규모 데이터\n운영 David Siegel (Co-founder/Co-chair) · John Overdeck (Co-founder/Co-chair)\nLARGE · 퀀트·시스템\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 5017개 · Top 10 8.3%\n보고 수량상 신규 1084 · 확대 1947 · 축소 1768 · 제외 613\nTudor Investment\nTudor Investment Corp et al\n매크로·선물·멀티전략\n운영 Paul Tudor Jones (Founder/CIO)\nLARGE · 매크로·멀티전략\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 3458개 · Top 10 34.7%\n보고 수량상 신규 942 · 확대 1171 · 축소 1259 · 제외 999\nStarboard Value\nStarboard Value LP\n행동주의·촉매·기업 개선\n운영 Jeffrey Smith (Founder/CEO/CIO)\nLARGE · 행동주의·가치\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 22개 · Top 10 84.3%\n보고 수량상 신규 2 · 확대 3 · 축소 11 · 제외 6\nTrian Fund Management\nTrian Fund Management, L.P.\n행동주의·집중·소비재/산업\n운영 Nelson Peltz (Co-founder/CEO) · Ed Garden (Co-founder/CIO)\nLARGE · 행동주의·가치\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 9개 · Top 10 100.0%\n보고 수량상 신규 0 · 확대 2 · 축소 2 · 제외 0\nValueAct\nValueAct Holdings, L.P.\n행동주의·집중·기업 개선\n운영 Mason Morfit (President/CEO)\nLARGE · 행동주의·가치\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 18개 · Top 10 86.7%\n보고 수량상 신규 1 · 확대 7 · 축소 6 · 제외 1\nDaniel Loeb\nThird Point LLC\n행동주의·이벤트\n운영 Daniel Loeb (Founder/CEO)\nLARGE · 행동주의·이벤트\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 43개 · Top 10 60.1%\n보고 수량상 신규 19 · 확대 13 · 축소 4 · 제외 9\nPaul Singer\nElliott Investment Management L.P.\n행동주의·이벤트·가치\n운영 Paul Singer (Founder/Co-CEO) · Jonathan Pollock (Co-CEO/CIO)\nMEGA · 행동주의·이벤트\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 29개 · Top 10 79.9%\n보고 수량상 신규 7 · 확대 6 · 축소 6 · 제외 11\nChris Hohn\nTCI Fund Management Ltd\n집중·퀄리티·행동주의\n운영 Chris Hohn (Founder/Managing Partner)\nLARGE · 집중·퀄리티\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 11개 · Top 10 98.6%\n보고 수량상 신규 2 · 확대 4 · 축소 3 · 제외 1\nAndreas Halvorsen\nViking Global Investors LP\n롱/숏·성장·퀄리티\n운영 Andreas Halvorsen (Co-founder/CEO)\nLARGE · 롱숏 성장\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 90개 · Top 10 35.7%\n보고 수량상 신규 35 · 확대 18 · 축소 27 · 제외 22\nChase Coleman\nTiger Global Management LLC\n성장·기술·벤처\n운영 Chase Coleman (Founder/CEO)\nLARGE · 성장·기술 집중\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 46개 · Top 10 67.1%\n보고 수량상 신규 9 · 확대 6 · 축소 20 · 제외 17\nCathie Wood\nARK Investment Management LLC\n혁신·고성장·테마\n운영 Cathie Wood (Founder/CEO/CIO)\nLARGE · 테마·혁신\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 191개 · Top 10 39.4%\n보고 수량상 신규 16 · 확대 79 · 축소 95 · 제외 7\nHarvard Management Company\nHarvard Management Co Inc\n대학기금·다자산·장기 분산\n운영 N.P. Narvekar (President/CEO)\nLARGE · 대학기금 자산배분\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 19개 · Top 10 91.5%\n보고 수량상 신규 6 · 확대 5 · 축소 4 · 제외 4\nLeopold Aschenbrenner\nSituational Awareness LP\nAI 인프라·반도체·성장 집중\n운영 Leopold Aschenbrenner (Founder/Managing Partner)\nSPECIALIST · AI·반도체 전문\n공식 단일 AUM 미확인 · 규모 구간만 사용\n2026-06-30 · 13F\n신고 행 26개 · Top 10 91.8%\n보고 수량상 신규 5 · 확대 11 · 축소 5 · 제외 21\nMark Minervini\n방법론 전용 프로필 · SEC 13F filer 아님\n모멘텀·성장·손실 제한\n운영 Mark Minervini (Founder/Portfolio Manager·교육자)\nSPECIALIST · 모멘텀·성장\n공식 AUM 미공개 · 방법론 프로필\n투자 방법론\n전체 행 대사 대기\n방법론 전용\n공개 13F 신고 보유\nWarren Buffett\n\nBerkshire Hathaway Inc.\n\n행 검증 완료\n검토 2026-08-14\nSEC EDGAR\n최신 연결 기준\n공시를 읽는 순서\n\nWarren Buffett · 검증된 Top 보유 요약. 한 분기의 보유 행을 결론으로 복사하지 않고 기준일과 전략 성격을 함께 읽습니다.\n\n01\n책임자·전략 · 운영 책임자, 규모 기준, 투자 성격을 먼저 확인합니다.\n02\n공시 기준일 · 보고분기·제출일·SEC 원문을 확인해 정보 지연을 감안합니다.\n03\n변화 원장 · 신규·증가·감소·청산을 보고된 주식 수 기준으로 비교합니다.\n04\n현재 검증 · 현재 가격·실적·밸류에이션·유동성은 전문 분석 화면에서 별도로 대조합니다.\n\n13F에 없는 공매도·현금·비공개 자산·일부 파생상품은 이 화면의 보유 행으로 추정하지 않습니다.\n\n최신 보고분기\n2026-06-30\nSEC 신고 행 원장\n89행 · 메타데이터 확인, 투영 미로드\nFiler / CIK\n0001067983\n이전 보고분기\n2026-03-31\n비교 행\n30행\n신고 가치 합계\n$299,253,556,246\n고유 신고 포지션\n29개\nTop 5 / Top 10\n68.7% / 88.5%\n변화 요약\n보고 수량상 신규 1 · 확대 7 · 축소 6 · 제외 1\n회전율 대용치\n7.8%\n총액 대조\nEXACT\n원문 미리보기\n없음\n데이터 상태\n행 검증 완료\n운영 책임자\nGreg Abel (CEO) · Warren Buffett (Chair/legacy capital allocator)\n운영 규모\n공식 단일 AUM 미확인 · 규모 구간만 사용\n전략 성격\n집중 가치·자본배분\nSEC 공시 메타데이터 검증 완료\n\nCIK 0001067983 · 13F-HR · 보고분기 2026-06-30 · 제출 2026-08-14\n\nSEC filing index\nInformation table XML\nPrimary document\n이전 분기 정보표\nSEC가 보고한 보유 행만 표시합니다. 13F는 전체 자산이 아니며, 현재 가격·포트폴리오 비중·매수·매도 신호를 계산하지 않습니다.\nSEC 표지 총액과 정보표 행 합계가 일치합니다 · $299,253,556,246\n비교에 추가\n핵심 변화\n전체 보유\n섹터 구성\n분기 추이\n투자자 비교\n투자 원칙\n13D/G 소유권\n원본 공시\n2026-06-30 보고 주식 수 변화 · 이전 보고분기 2026-03-31\n보고 수량상 신규 편입 1보고 수량상 증가 7보고 수량상 감소 6보고 수량상 변화 없음 15보고 수량상 전량 제외 1\n상위 보고 보유 종목 · CUSIP·주식 유형·Put/Call 집계\n\n2026-06-30 · 상위 10개 · 전체 신고 행 89개\n\n#\tISSUER\tCUSIP\tREPORTED VALUE\tSHARES\tΔ SHARES\tΔ VALUE\tPUT/CALL\tREPORTED CHANGE\n1\tAPPLE INC\t037833100\t$65,950,296,923\t227,917,808\t0\t+8,107,036,430\t—\t신고 수량상 변화 없음\n2\tAMERICAN EXPRESS CO\t025816109\t$51,282,319,275\t151,610,700\t0\t+5,423,114,739\t—\t신고 수량상 변화 없음\n3\tCOCA COLA CO\t191216100\t$32,508,000,000\t400,000,000\t0\t+2,088,000,000\t—\t신고 수량상 변화 없음\n4\tALPHABET INC\t02079K305\t$28,157,599,351\t78,791,167\t+24,541,369\t+12,557,527,438\t—\t신고 수량상 증가\n5\tBANK OF AMER CORP\t060505104\t$27,543,790,975\t483,394,015\t-30,230,150\t+2,504,612,931\t—\t신고 수량상 감소\n6\tCHEVRON CORPORATION\t166764100\t$13,986,141,890\t84,375,856\t0\t-3,471,222,716\t—\t신고 수량상 변화 없음\n7\tOCCIDENTAL PETE CORP\t674599105\t$12,868,205,304\t264,941,431\t0\t-4,352,987,711\t—\t신고 수량상 변화 없음\n8\tCHUBB LIMITED\tH1467J104\t$11,670,066,615\t34,249,183\t0\t+507,230,400\t—\t신고 수량상 변화 없음\n9\tMOODYS CORP\t615369105\t$11,173,435,852\t24,669,778\t0\t+411,245,199\t—\t신고 수량상 변화 없음\n10\tALPHABET INC\t02079K107\t$9,606,489,032\t27,188,433\t+23,603,218\t+8,578,034,257\t—\t신고 수량상 증가\n분기 변화 원장 · CUSIP·주식 유형·Put/Call 집계\n\n두 보고분기의 신고 주식 수 차이에서 계산한 분류이며 모든 행은 재검토 대상입니다. 현재 가격, 실제 체결 매매, 매매 신호, 목표가를 뜻하지 않습니다.\n\n전체\n신규 편입\n증가\n감소\n변화 없음\n전량 제외\n#\tISSUER\tCUSIP\t보고분기 신고가치\t보고분기 주식 수\t신고 수량 변화\t신고가치 변화\t보고 수량상 분류\n1\tAPPLE INC\t037833100\t$65,950,296,923\t227,917,808\t0\t+8,107,036,430\t신고 수량상 변화 없음\n2\tAMERICAN EXPRESS CO\t025816109\t$51,282,319,275\t151,610,700\t0\t+5,423,114,739\t신고 수량상 변화 없음\n3\tCOCA COLA CO\t191216100\t$32,508,000,000\t400,000,000\t0\t+2,088,000,000\t신고 수량상 변화 없음\n4\tALPHABET INC\t02079K305\t$28,157,599,351\t78,791,167\t+24,541,369\t+12,557,527,438\t신고 수량상 증가\n5\tBANK OF AMER CORP\t060505104\t$27,543,790,975\t483,394,015\t-30,230,150\t+2,504,612,931\t신고 수량상 감소\n6\tCHEVRON CORPORATION\t166764100\t$13,986,141,890\t84,375,856\t0\t-3,471,222,716\t신고 수량상 변화 없음\n7\tOCCIDENTAL PETE CORP\t674599105\t$12,868,205,304\t264,941,431\t0\t-4,352,987,711\t신고 수량상 변화 없음\n8\tCHUBB LIMITED\tH1467J104\t$11,670,066,615\t34,249,183\t0\t+507,230,400\t신고 수량상 변화 없음\n9\tMOODYS CORP\t615369105\t$11,173,435,852\t24,669,778\t0\t+411,245,199\t신고 수량상 변화 없음\n10\tALPHABET INC\t02079K107\t$9,606,489,032\t27,188,433\t+23,603,218\t+8,578,034,257\t신고 수량상 증가\n이전\n1 / 1 · 10개\n다음\n시장 원리 페이지에서 검증 프레임 보기",
+      "buttons": [
+        {
+          "text": "전체",
+          "action": null
+        },
+        {
+          "text": "13F 연결",
+          "action": null
+        },
+        {
+          "text": "방법론 전용",
+          "action": null
+        },
+        {
+          "text": "Warren BuffettBerkshire Hathaway Inc.집중·가치·장기 보유운영 Greg Abel (CEO) · Warren Buffett (Chair",
+          "action": null
+        },
+        {
+          "text": "Stanley DruckenmillerDuquesne Family Office LLC거시·성장·변화 대응운영 Stanley Druckenmiller (Founde",
+          "action": null
+        },
+        {
+          "text": "Ken FisherFisher Asset Management, LLC글로벌·분산·대형주운영 Ken Fisher (Founder/Executive Chairman/",
+          "action": null
+        },
+        {
+          "text": "Bill AckmanPershing Square Capital Management, L.P.집중·행동주의운영 Bill Ackman (Founder/CEO/CIO)",
+          "action": null
+        },
+        {
+          "text": "David TepperAppaloosa LP거시·가치·전환운영 David Tepper (Founder/President)LARGE · 매크로·가치공식 단일 AUM",
+          "action": null
+        },
+        {
+          "text": "Seth KlarmanBaupost Group LLC/MA가치·현금중시·하방 방어운영 Seth Klarman (Founder/President)LARGE · 가치",
+          "action": null
+        },
+        {
+          "text": "Michael BurryScion Asset Management, LLC비대칭·헤지·이벤트운영 Michael Burry (Founder/Portfolio Mana",
+          "action": null
+        },
+        {
+          "text": "BlackRockBlackRock, Inc.대형 패시브·ETF·다중 법인운영 Larry Fink (Founder/Chair/CEO)MEGA · 기관·결합 신고$1",
+          "action": null
+        },
+        {
+          "text": "CitiCitigroup Inc.대형 은행·다자산·시장조성운영 Jane Fraser (CEO, Citigroup)MEGA · 기관·결합 신고공식 단일 AUM 미확",
+          "action": null
+        },
+        {
+          "text": "Goldman SachsThe Goldman Sachs Group, Inc.대형 기관·프라임브로커·다중 전략운영 Marc Nachmann (Global Head,",
+          "action": null
+        },
+        {
+          "text": "JPMorgan Asset ManagementJPMorgan Chase & Co대형 기관·다자산·분산운영 Mary Callahan Erdoes (CEO, JPMo",
+          "action": null
+        },
+        {
+          "text": "State Street Investment ManagementState Street Corp / State Street Global Advisors family패",
+          "action": null
+        },
+        {
+          "text": "VanguardVanguard family · canonical filer: Vanguard Asset Management, Ltd초저비용 인덱스·ETF·분산운영",
+          "action": null
+        },
+        {
+          "text": "Capital GroupCapital International Investors액티브·장기·분산운영 Mike Gitlin (President/CEO) · Mart",
+          "action": null
+        },
+        {
+          "text": "Fidelity / FMRFMR LLC액티브·성장·리서치 기반운영 Abigail Johnson (Chair/CEO, Fidelity Investments)MEGA",
+          "action": null
+        },
+        {
+          "text": "T. Rowe PricePrice T Rowe Associates Inc /MD/액티브·성장·기본분석운영 Rob Sharps (Chair/CEO) · Eric V",
+          "action": null
+        },
+        {
+          "text": "Wellington ManagementWellington Management Group LLP액티브·기관·리서치 플랫폼운영 Jean Hynes (CEO)MEGA ",
+          "action": null
+        },
+        {
+          "text": "Dimensional Fund AdvisorsDimensional Fund Advisors LP학술 팩터·저비용·체계적 운용운영 David Booth (Found",
+          "action": null
+        },
+        {
+          "text": "George Soros / Dawn FitzpatrickSoros Fund Management LLC글로벌 매크로·이벤트운영 Dawn Fitzpatrick (CE",
+          "action": null
+        },
+        {
+          "text": "Ray DalioBridgewater Associates, LP글로벌 매크로·리스크 패리티운영 Nir Bar Dea (CEO) · Ray Dalio (Founde",
+          "action": null
+        },
+        {
+          "text": "Howard MarksOaktree Capital Management LP신용·가치·하방 방어운영 Howard Marks (Co-founder/Co-chair) ",
+          "action": null
+        },
+        {
+          "text": "Ken Griffin / Seth LevyCitadel Advisors LLC멀티전략·퀀트·시장중립운영 Ken Griffin (Founder/CEO/Co-CIO)",
+          "action": null
+        },
+        {
+          "text": "Millennium ManagementMillennium Management LLC멀티전략·리스크 분산·롱숏운영 Izzy Englander (Founder/CEO",
+          "action": null
+        },
+        {
+          "text": "Renaissance TechnologiesRenaissance Technologies LLC퀀트·시스템·데이터 기반운영 Peter Brown (CEO) · Ji",
+          "action": null
+        },
+        {
+          "text": "Two SigmaTwo Sigma Investments, LP퀀트·멀티전략·대규모 데이터운영 David Siegel (Co-founder/Co-chair) · J",
+          "action": null
+        },
+        {
+          "text": "Tudor InvestmentTudor Investment Corp et al매크로·선물·멀티전략운영 Paul Tudor Jones (Founder/CIO)LAR",
+          "action": null
+        },
+        {
+          "text": "Starboard ValueStarboard Value LP행동주의·촉매·기업 개선운영 Jeffrey Smith (Founder/CEO/CIO)LARGE · 행동",
+          "action": null
+        },
+        {
+          "text": "Trian Fund ManagementTrian Fund Management, L.P.행동주의·집중·소비재/산업운영 Nelson Peltz (Co-founder/",
+          "action": null
+        },
+        {
+          "text": "ValueActValueAct Holdings, L.P.행동주의·집중·기업 개선운영 Mason Morfit (President/CEO)LARGE · 행동주의·가치",
+          "action": null
+        },
+        {
+          "text": "Daniel LoebThird Point LLC행동주의·이벤트운영 Daniel Loeb (Founder/CEO)LARGE · 행동주의·이벤트공식 단일 AUM 미확",
+          "action": null
+        },
+        {
+          "text": "Paul SingerElliott Investment Management L.P.행동주의·이벤트·가치운영 Paul Singer (Founder/Co-CEO) · ",
+          "action": null
+        },
+        {
+          "text": "Chris HohnTCI Fund Management Ltd집중·퀄리티·행동주의운영 Chris Hohn (Founder/Managing Partner)LARGE ",
+          "action": null
+        },
+        {
+          "text": "Andreas HalvorsenViking Global Investors LP롱/숏·성장·퀄리티운영 Andreas Halvorsen (Co-founder/CEO)",
+          "action": null
+        },
+        {
+          "text": "Chase ColemanTiger Global Management LLC성장·기술·벤처운영 Chase Coleman (Founder/CEO)LARGE · 성장·기",
+          "action": null
+        },
+        {
+          "text": "Cathie WoodARK Investment Management LLC혁신·고성장·테마운영 Cathie Wood (Founder/CEO/CIO)LARGE · 테",
+          "action": null
+        },
+        {
+          "text": "Harvard Management CompanyHarvard Management Co Inc대학기금·다자산·장기 분산운영 N.P. Narvekar (Preside",
+          "action": null
+        },
+        {
+          "text": "Leopold AschenbrennerSituational Awareness LPAI 인프라·반도체·성장 집중운영 Leopold Aschenbrenner (Fou",
+          "action": null
+        },
+        {
+          "text": "Mark Minervini방법론 전용 프로필 · SEC 13F filer 아님모멘텀·성장·손실 제한운영 Mark Minervini (Founder/Portfoli",
+          "action": null
+        },
+        {
+          "text": "비교에 추가",
+          "action": null
+        },
+        {
+          "text": "핵심 변화",
+          "action": null
+        },
+        {
+          "text": "전체 보유",
+          "action": null
+        },
+        {
+          "text": "섹터 구성",
+          "action": null
+        },
+        {
+          "text": "분기 추이",
+          "action": null
+        },
+        {
+          "text": "투자자 비교",
+          "action": null
+        },
+        {
+          "text": "투자 원칙",
+          "action": null
+        },
+        {
+          "text": "13D/G 소유권",
+          "action": null
+        },
+        {
+          "text": "원본 공시",
+          "action": null
+        },
+        {
+          "text": "전체",
+          "action": null
+        },
+        {
+          "text": "신규 편입",
+          "action": null
+        },
+        {
+          "text": "증가",
+          "action": null
+        },
+        {
+          "text": "감소",
+          "action": null
+        },
+        {
+          "text": "변화 없음",
+          "action": null
+        },
+        {
+          "text": "전량 제외",
+          "action": null
+        },
+        {
+          "text": "이전",
+          "action": null
+        },
+        {
+          "text": "다음",
+          "action": null
+        },
+        {
+          "text": "시장 원리 페이지에서 검증 프레임 보기",
+          "action": null
+        }
+      ]
+    }
+  ]
+}

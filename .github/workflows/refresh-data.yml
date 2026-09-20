@@ -74,14 +74,17 @@ jobs:
         run: node scripts/sync-data-release-manifests.mjs
 
       - name: Reject silent artifact degradation
+        id: degradation-gate
         if: ${{ !cancelled() }}
         run: node scripts/ci-refresh-artifact-integrity-check.mjs
 
       - name: Validate source-to-consumer data continuity
+        id: continuity-gate
         if: ${{ !cancelled() }}
         run: node scripts/ci-data-continuity-check.mjs
 
       - name: Validate evidence-derived 22-category reconciliation
+        id: reconciliation-gate
         if: ${{ !cancelled() }}
         run: |
           node scripts/ci-reconciliation-contract-check.mjs
@@ -92,6 +95,7 @@ jobs:
             node scripts/ci-data-refresh-audit.mjs
 
       - name: Fail-closed promotion candidate gate before push
+        id: promotion-gate
         # The bot may publish a data commit before the independent CI run, but
         # only after the complete producer-side artifact boundary passes. CI
         # still receives the exact pushed SHA and Pages waits for its attestation.
@@ -149,7 +153,13 @@ jobs:
         # Publication stays deliberately fail-closed: every producer lane must have
         # succeeded (or been legitimately skipped) before anything reaches main.
         # Lane isolation above changes attribution and diagnostics, not this gate.
-        if: ${{ !cancelled() && steps.fetch-market.outcome == 'success' && steps.fetch-telegram.outcome == 'success' && (steps.masters.outcome == 'success' || steps.masters.outcome == 'skipped') }}
+        # P1160: this condition used to check ONLY the producer lanes, so the four validation
+        # gates above — including the step literally named "Fail-closed promotion candidate gate
+        # before push" — could fail and the commit still ran. Observed 2026-09-20: steps 10 and 11
+        # failed on an A1 CRITICAL freshness breach, and the bot pushed 85d05825 anyway, leaving
+        # main permanently red and Pages unable to deploy. The comment above claimed publication
+        # "stays deliberately fail-closed"; nothing enforced it. Now it does.
+        if: ${{ !cancelled() && steps.fetch-market.outcome == 'success' && steps.fetch-telegram.outcome == 'success' && (steps.masters.outcome == 'success' || steps.masters.outcome == 'skipped') && steps.degradation-gate.outcome == 'success' && steps.continuity-gate.outcome == 'success' && steps.reconciliation-gate.outcome == 'success' && steps.promotion-gate.outcome == 'success' }}
         # P564/R255: this used to `git push` once with no pull/rebase beforehand. main is also
         # updated directly by humans (e.g. editing operator-note.json via the GitHub web UI)
         # and by other sessions/workflows while this job's two fetch steps run for minutes —

@@ -11,6 +11,16 @@ const HOUR_MS = 60 * MINUTE_MS;
 const DAY_MS = 24 * HOUR_MS;
 const MAX_CLOCK_SKEW_MS = 5 * MINUTE_MS;
 const PUBLISHABLE_QUALITIES = new Set(['CURRENT', 'CLOSED_CURRENT', 'DELAYED']);
+// How old the previous close may be while a venue is CONFIRMED closed. The venue schedule
+// (`scheduledSession`) has already decided the venue is shut, so this is not "how fresh is the
+// data" — it is "how long can a venue legitimately stay shut". 24h assumed a daily session and
+// therefore classified every weekend as unexpected staleness: a Friday close read on Sunday is
+// ~46h old, so Korean indices and FX/futures/commodities (KOSPI, KOSDAQ, DXY, WTI, gold) were
+// rejected as STALE_UNEXPECTED, the Tier-0 quality gate failed, and public-data/market-snapshot.json
+// stopped publishing for the whole weekend. US indices escaped that only because
+// `isLatestUsRegularClose` returns MARKET_CLOSED before any age check — an asymmetry, not a policy.
+// Four days covers a weekend plus an adjacent holiday; beyond that the data really is stale.
+const CLOSED_VENUE_MAX_AGE_MS = 4 * DAY_MS;
 
 function stableHash(value) {
   const source = JSON.stringify(value);
@@ -91,7 +101,7 @@ export function deriveMarketSession({ instrumentId, observedAt, providerSession 
     // weekends). Resolve the provider hint against the instrument schedule
     // before allowing it to promote an old completed close to a live value.
     const scheduled = scheduledSession(symbol, observedMs, Number(now));
-    if (scheduled === 'MARKET_CLOSED') return ageMs <= 24 * 60 * 60 * 1000 ? 'MARKET_CLOSED' : 'STALE_UNEXPECTED';
+    if (scheduled === 'MARKET_CLOSED') return ageMs <= CLOSED_VENUE_MAX_AGE_MS ? 'MARKET_CLOSED' : 'STALE_UNEXPECTED';
     if (scheduled === 'PREVIOUS_CLOSE_EXPECTED') return ageMs <= 24 * 60 * 60 * 1000 ? 'PREVIOUS_CLOSE_EXPECTED' : 'STALE_UNEXPECTED';
     if (scheduled === 'IN_SESSION') return ageMs <= 10 * 60 * 1000 ? 'CURRENT_SESSION' : ageMs <= 2 * 60 * 60 * 1000 ? 'DELAYED_IN_SESSION' : 'STALE_UNEXPECTED';
     return ageMs <= 10 * 60 * 1000 ? 'CURRENT_SESSION' : ageMs <= 2 * 60 * 60 * 1000 ? 'DELAYED_IN_SESSION' : 'STALE_UNEXPECTED';
@@ -102,7 +112,7 @@ export function deriveMarketSession({ instrumentId, observedAt, providerSession 
   // whether a recent observation is a valid completed close or an unexpected
   // stale point. This keeps the fallback path consistent with provider hints.
   const scheduled = scheduledSession(symbol, observedMs, Number(now));
-  if (scheduled === 'MARKET_CLOSED') return ageMs <= 24 * 60 * 60 * 1000 ? 'MARKET_CLOSED' : 'STALE_UNEXPECTED';
+  if (scheduled === 'MARKET_CLOSED') return ageMs <= CLOSED_VENUE_MAX_AGE_MS ? 'MARKET_CLOSED' : 'STALE_UNEXPECTED';
   if (scheduled === 'PREVIOUS_CLOSE_EXPECTED') return ageMs <= 24 * 60 * 60 * 1000 ? 'PREVIOUS_CLOSE_EXPECTED' : 'STALE_UNEXPECTED';
   if (scheduled === 'IN_SESSION') return ageMs <= 10 * 60 * 1000 ? 'CURRENT_SESSION' : ageMs <= 2 * 60 * 60 * 1000 ? 'DELAYED_IN_SESSION' : 'STALE_UNEXPECTED';
 

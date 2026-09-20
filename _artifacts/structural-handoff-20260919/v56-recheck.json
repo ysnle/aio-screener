@@ -1,0 +1,154 @@
+{
+  "observedAt": "2026-09-20T10:18:33.301Z",
+  "version": "v56",
+  "baseline": "working-tree with external uncommitted implementation; not HEAD-only",
+  "hashes": {
+    "src/domain/screener/factor-ranks.js": "fcba174795c8a2d48ef364b78f82e13ec43ffd5ea9f326e04900ba69943fa541",
+    "src/domain/screener/screen-engine.js": "893952bb404ccf248573a55afc3134a4d9c63c2f5650b63de954e5b4911997d7",
+    "src/domain/portfolio/backtest.js": "c19ab426c3090819cb51e8448ff12a7a2985e2d5f17e2d819b2f62c8da3e2f65",
+    "src/domain/market/health.js": "a1a091d2353fa19c7bb204b6ff31f69d6b76f6c4b4cc27e54dc6fac6a2815b43",
+    "src/data/contracts/market-snapshot.js": "304dba4ee435bc62e602ff85e21d85319156614a712f5978be43b33f0ccd073f",
+    "scripts/fetch-sec-fundamentals.mjs": "e1c186be7e5b3eebc2461af52a7afdd887ddf4047a7b45f24138cacb26c39127"
+  },
+  "factor": {
+    "available": false,
+    "ranked": 0,
+    "rankingState": "unavailable",
+    "appliedFactorWeights": {}
+  },
+  "screen": [
+    {
+      "sym": "TEST",
+      "roe": 20,
+      "margin": 10,
+      "revGrowth": 5,
+      "rank": null,
+      "fieldReadiness": {
+        "fields": {
+          "quality.roe": {
+            "value": 20,
+            "status": "CURRENT"
+          },
+          "quality.margin": {
+            "value": 10,
+            "status": "CURRENT"
+          },
+          "quality.revGrowth": {
+            "value": 5,
+            "status": "CURRENT"
+          }
+        }
+      },
+      "screenStatus": "passed",
+      "screenRank": null,
+      "screenDisplayOrder": 1,
+      "screenFilterState": "passed",
+      "screenRankingState": "unavailable",
+      "screenExplanationState": "unavailable",
+      "rankExplanation": {
+        "instrumentId": "TEST",
+        "totalScore": null,
+        "contributions": {},
+        "passedGates": [],
+        "failedGates": [],
+        "missingEvidence": [
+          "rank"
+        ],
+        "contraryEvidence": [],
+        "factorPeers": {},
+        "confidence": 0,
+        "status": "unavailable"
+      }
+    }
+  ],
+  "portfolio": {
+    "ok": false,
+    "reason": "monthly grid has gaps and no contiguous window reaches 14 months",
+    "status": "PARTIAL"
+  },
+  "health": {
+    "status": "partial",
+    "score": 42,
+    "details": [
+      "SPY 보합",
+      "VIX 20.0 주의",
+      "M7 1/1 수신 · 표본 부족으로 리더십 판단 보류",
+      "SPX 50/200MA 0/2 수신 · 추세 판단 보류",
+      "섹터 0/0 수신 · 표본 부족으로 판단 보류"
+    ],
+    "trend": null,
+    "coverage": {
+      "expectedComponents": 4,
+      "observedComponents": 1,
+      "partialComponents": [
+        "m7-leadership",
+        "spx-trend",
+        "sector-breadth"
+      ],
+      "minimumCoverage": 0.8
+    }
+  },
+  "snapshot": {
+    "ok": false,
+    "errors": [
+      "published_declared_coverage_mismatch",
+      "published_coverage_below_100_percent",
+      "published_tier0_missing:^GSPC|^IXIC|^DJI|^RUT|^VIX|^VIX3M|^KS11|^KQ11|KRW=X|^TNX|^IRX|DX-Y.NYB|CL=F|GC=F|BTC-USD|ETH-USD"
+    ],
+    "audit": {
+      "ok": false,
+      "measured": {
+        "required": 16,
+        "observed": 0,
+        "ratio": 0
+      },
+      "declared": {
+        "required": 16,
+        "observed": 16,
+        "tier0Required": 16,
+        "tier0Observed": 16,
+        "tier1Required": 0,
+        "tier1Observed": 0
+      },
+      "declaredMatchesMeasured": false,
+      "tier1": {
+        "required": 0,
+        "observed": 0,
+        "complete": true
+      },
+      "missing": [
+        "^GSPC",
+        "^IXIC",
+        "^DJI",
+        "^RUT",
+        "^VIX",
+        "^VIX3M",
+        "^KS11",
+        "^KQ11",
+        "KRW=X",
+        "^TNX",
+        "^IRX",
+        "DX-Y.NYB",
+        "CL=F",
+        "GC=F",
+        "BTC-USD",
+        "ETH-USD"
+      ],
+      "duplicates": [],
+      "unknown": [],
+      "unitMismatches": []
+    }
+  },
+  "sec": {
+    "availableAt": "2024-06-01T12:00:00.000Z",
+    "quality": {
+      "status": "REFERENCE",
+      "stale": true,
+      "decisionUse": false,
+      "allowedUse": "reference"
+    },
+    "margin": 20,
+    "roe": 40,
+    "pe": 5
+  }
+}

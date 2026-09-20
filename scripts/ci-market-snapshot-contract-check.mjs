@@ -141,6 +141,31 @@ tamperCase('declared over ship', (candidate) => { candidate.coverage = { ...cand
 
 const loaderSource = fs.readFileSync(path.join(root, 'src/data/market-snapshot-loader.js'), 'utf8');
 if (!loaderSource.includes('snapshot_not_published') || !loaderSource.includes('validateMarketSnapshot')) fail('browser loader lacks fail-closed validation');
+
+// P1160: a venue that is CONFIRMED closed must not be judged by a 24h "daily session" age. A Friday
+// close read on a Sunday is ~46h old, so every Korean index and every FX/futures/commodity
+// instrument was classified STALE_UNEXPECTED, the Tier-0 quality gate failed, and
+// public-data/market-snapshot.json stopped publishing for the whole weekend — the site then served
+// an even older snapshot. US instruments escaped only because isLatestUsRegularClose returns before
+// any age check; that asymmetry was the bug, not a policy.
+{
+  const sunday = Date.parse('2026-09-20T11:00:00Z');
+  const fridayClose = Date.parse('2026-09-18T21:29:48Z');
+  for (const instrumentId of ['^KS11', '^KQ11', 'DX-Y.NYB', 'CL=F', 'GC=F']) {
+    for (const providerSession of ['REGULAR', null]) {
+      const session = deriveMarketSession({ instrumentId, observedAt: new Date(fridayClose).toISOString(), providerSession, now: sunday });
+      if (session !== 'MARKET_CLOSED') fail(`P1160 ${instrumentId} (${providerSession}) on a weekend-closed venue resolved to ${session}`);
+    }
+  }
+  // The closed-venue window is a bound, not a bypass: a genuinely stale point must stay unexpected.
+  const ancient = new Date(sunday - 10 * 24 * 60 * 60 * 1000).toISOString();
+  for (const instrumentId of ['CL=F', '^KS11']) {
+    if (deriveMarketSession({ instrumentId, observedAt: ancient, providerSession: 'REGULAR', now: sunday }) !== 'STALE_UNEXPECTED') fail(`P1160 ${instrumentId} accepted a 10-day-old observation as a closed venue`);
+  }
+  // A 24/7 instrument is NOT covered by that window: two-day-old BTC is genuinely unexpected.
+  const btc = deriveMarketSession({ instrumentId: 'BTC-USD', observedAt: new Date(fridayClose).toISOString(), providerSession: 'REGULAR', now: sunday });
+  if (btc !== 'STALE_UNEXPECTED') fail(`P1160 BTC-USD accepted a 2-day-old observation: ${btc}`);
+}
 const bridgeSource = fs.readFileSync(path.join(root, 'src/legacy/market-snapshot-bridge.js'), 'utf8');
 if (!bridgeSource.includes("policyKey: 'static_snapshot'") || !bridgeSource.includes('market-snapshot-fallback')) fail('legacy bridge does not preserve snapshot provenance');
 const refresh = fs.readFileSync(path.join(root, '.github/workflows/refresh-data.yml'), 'utf8');

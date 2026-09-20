@@ -1,0 +1,19 @@
+{
+  "observedAt": "2026-09-20T10:19:59.846Z",
+  "version": "v56",
+  "synthetic": true,
+  "sourceHash": "4f66af6cdf7e4422e19eca6b1f1a42a18f1bde22c827ab18a132436e7cb5c20d",
+  "returnsPromise": false,
+  "events": [
+    "aio:portfolioChanged"
+  ],
+  "logs": [
+    [
+      "warn",
+      "portfolio",
+      "저장 확인 실패: synthetic_quota_exceeded"
+    ]
+  ],
+  "runtimeValue": "[{\"ticker\":\"SYNTH\",\"qty\":1,\"cost\":100}]",
+  "durableWrite": "stub rejected; no real storage used"
+}

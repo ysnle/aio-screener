@@ -1,0 +1,36 @@
+{
+  "observedAt": "2026-09-20T10:20:44.143Z",
+  "version": "v56",
+  "synthetic": true,
+  "input": {
+    "readState": "ready",
+    "cash": 0,
+    "baseCurrency": "USD",
+    "holdings": [
+      {
+        "symbol": "SYNTH_US",
+        "shares": 1,
+        "price": 100,
+        "avgCost": 100,
+        "currency": "USD"
+      },
+      {
+        "symbol": "SYNTH_KR",
+        "shares": 1,
+        "price": 70000,
+        "avgCost": 70000,
+        "currency": "KRW"
+      }
+    ]
+  },
+  "normalizedCurrencies": [
+    null,
+    null
+  ],
+  "normalizedBaseCurrency": null,
+  "surface": {
+    "positionValue": 70100,
+    "totalAssets": 70100,
+    "valuationState": "complete"
+  }
+}
