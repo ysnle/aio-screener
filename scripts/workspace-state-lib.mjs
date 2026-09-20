@@ -229,7 +229,7 @@ ${codeRows}
 
 ## Operations Boundary
 
-- Repository operations artifact status: \`${state.operations.overall}\` (refresh timestamp and data revision are data-refresh-scoped; not pinned — R603).
+- Repository operations artifact status is **not pinned here**: \`overall\` is derived from the latest refresh's freshness and changes on every data commit, so pinning it turned every scheduled refresh into a preflight failure (P1160). Read \`public-data/operations-status.json\` — its refresh timestamp, data revision and this status are all data-refresh-scoped (R603).
 - Public stage: \`${state.operations.publicStage}\`; promotion decision: \`${state.operations.publicBetaDecision}\`.
 - Live deployment, provider health, and edge headers must be measured by live gates. Never infer them from this file.
 

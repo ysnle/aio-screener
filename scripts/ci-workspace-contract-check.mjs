@@ -20,6 +20,16 @@ check('generated context catalog is present and current', exists('_context/CONTE
 check('generated workspace byte accounting is checkout-newline invariant', canonicalTextBytes('alpha\nbeta\n') === canonicalTextBytes('alpha\r\nbeta\r\n'));
 const renderedOperationsSection = expectedState.split('## Operations Boundary')[1]?.split('## Read Policy')[0] || '';
 check('generated operations boundary pins no data-refresh-scoped timestamp', renderedOperationsSection.length > 0 && !/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(renderedOperationsSection), 'a data-refresh timestamp here makes preflight fail on every data promotion (R603/P1079)');
+// P1160: the timestamp guard above missed a data-scoped VALUE. `operations.overall` flips between
+// BLOCKED and OPERATOR_REQUIRED whenever the durable freshness changes, so pinning it made preflight
+// fail after every scheduled data commit — and since Pages waits on CI, that alone stopped the site
+// from deploying. Pin the shape of the boundary, never a value the bot rewrites.
+const liveOverall = (() => {
+  try { return String(JSON.parse(read('public-data/operations-status.json')).overall || ''); } catch (_) { return ''; }
+})();
+// Match the PINNED form (backticked), not any mention: explaining this rule in prose necessarily
+// names the values it forbids.
+check('P1160 generated operations boundary pins no data-refresh-scoped status value', !liveOverall || !renderedOperationsSection.includes('`' + liveOverall + '`'), `operations.overall is pinned as a value (${liveOverall}); it changes on every data promotion, so preflight would fail each cycle`);
 
 for (const guide of ['AGENTS.md', 'CLAUDE.md', '_context/INDEX.md', '_context/CLAUDE.md', '_context/WORKFLOW-GOVERNANCE.md']) {
   const text = read(guide);
