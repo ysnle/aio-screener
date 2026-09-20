@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-09-20T12:02:22.674Z",
-  "attemptedAt": "2026-09-20T12:02:22.674Z",
-  "lastSuccessfulAt": "2026-09-20T12:02:22.674Z",
+  "generatedAt": "2026-09-20T12:20:44.828Z",
+  "attemptedAt": "2026-09-20T12:20:44.828Z",
+  "lastSuccessfulAt": "2026-09-20T12:20:44.828Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-09-06T12:02:18.225Z",
-  "until": "2026-09-20T12:02:18.225Z",
+  "since": "2026-09-06T12:20:39.978Z",
+  "until": "2026-09-20T12:20:39.978Z",
   "current24hWindow": {
     "start": "2026-09-18T23:00:00.000Z",
     "end": "2026-09-19T23:00:00.000Z",
@@ -94,11 +94,11 @@
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 1136,
-      "freshCount": 39,
-      "eligibleTextCount": 37,
+      "freshCount": 40,
+      "eligibleTextCount": 38,
       "selectedCount": 129,
       "error": null,
-      "lastPostId": 64199
+      "lastPostId": 64200
     },
     {
       "channel": "bornlupin",
@@ -117,7 +117,7 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 673,
+      "count": 672,
       "freshCount": 20,
       "eligibleTextCount": 20,
       "selectedCount": 122,
@@ -125,9 +125,21 @@
       "lastPostId": 69150
     }
   ],
-  "count": 2298,
+  "count": 2297,
   "retainedItemCount": 470,
   "observedItems": [
+    {
+      "id": "insidertracking/64200",
+      "channel": "insidertracking",
+      "datetime": "2026-09-20T12:02:36.000Z",
+      "localDateKst": "2026-09-20",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "insidertracking/64199",
       "channel": "insidertracking",
@@ -31201,54 +31213,26 @@
       ],
       "tickers": [],
       "hasText": false
-    },
-    {
-      "id": "HANAchina/68434",
-      "channel": "HANAchina",
-      "datetime": "2026-09-06T12:15:03.000Z",
-      "localDateKst": "2026-09-06",
-      "score": 53,
-      "tags": [
-        "kr-market",
-        "flows",
-        "japan"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/62995",
-      "channel": "insidertracking",
-      "datetime": "2026-09-06T12:03:50.000Z",
-      "localDateKst": "2026-09-06",
-      "score": 47,
-      "tags": [
-        "kr-market"
-      ],
-      "tickers": [
-        "035420.KS"
-      ],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2298,
-    "eligibleTextCount": 97,
-    "mediaOnlyCount": 2201,
+    "observedCount": 2297,
+    "eligibleTextCount": 98,
+    "mediaOnlyCount": 2199,
     "highSignalCount": 470,
-    "broadSignalCount": 1058,
+    "broadSignalCount": 1057,
     "selectedRawCount": 422,
     "selectedEligibleCount": 52,
-    "selectedRawCoveragePct": 53.6,
+    "selectedRawCoveragePct": 53.1,
     "selectedOfObservedPct": 18.4,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
+    "geo": 414,
     "macro": 795,
-    "geo": 413,
     "semi": 510,
     "market-note": 675,
     "ai-policy": 216,
@@ -31256,11 +31240,11 @@
     "credit": 46,
     "crypto": 8,
     "media-only": 68,
-    "kr-market": 271,
-    "flows": 186,
+    "kr-market": 269,
+    "flows": 185,
     "power": 300,
     "earnings": 320,
-    "japan": 149,
+    "japan": 148,
     "optical": 48,
     "insider": 30,
     "healthcare": 118
@@ -31317,7 +31301,7 @@
     "AAPL": 24,
     "T": 1,
     "COIN": 3,
-    "035420.KS": 26,
+    "035420.KS": 25,
     "ARM": 2,
     "SWKS": 2,
     "SMH": 3,
@@ -31430,10 +31414,10 @@
     "Macro/Rates (795 posts in 14-day research window): >>AI 인플레이션이 최종 제품으로 확산&#33; 칩·메모리 비용 급등, 소프트웨어 월 이용료 인상·글로벌 PC 평균가격 24% 상승 전망 (대만공상시보) •AI 연산을 뒷받침하는 막대한 비용이 ‘AI 인플레이션’으로 이어지고 있음. 칩, HBM, 전력 인프라 비용이 급등하면서 기업들이 자체 현금흐름만으로 비용을...",
     "Market Notes (675 posts in 14-day research window): 52주 신고가 (시총 &#036;1B 이상) ━━━━━━━━━━━━━━ 🧬 헬스케어 · AtriCure · Freenome · Haemonetics · Halozyme Therapeutics ·...",
     "Semiconductors/Memory (510 posts in 14-day research window): >>AI 인플레이션이 최종 제품으로 확산&#33; 칩·메모리 비용 급등, 소프트웨어 월 이용료 인상·글로벌 PC 평균가격 24% 상승 전망 (대만공상시보) •AI 연산을 뒷받침하는 막대한 비용이 ‘AI 인플레이션’으로 이어지고 있음. 칩, HBM, 전력 인프라 비용이 급등하면서 기업들이 자체 현금흐름만으로 비용을...",
-    "Geopolitics (413 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 9월 19일 > 오전 7시 30분~오후 7시 30분 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 러시아 제재 법안에 서명. 우크라이나 젤렌스키...",
+    "Geopolitics (414 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 9월 19일 > 오전 7시 30분~오후 7시 30분 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 러시아 제재 법안에 서명. 우크라이나 젤렌스키...",
     "Earnings/Corporate (320 posts in 14-day research window): 2026년 9월 19일 미국 레딧 게시물 분석 > 🤖 NVDA · AVGO · AMD - AI 반도체 · AI 다시 Risk-On 분위기 · AVGO 콜 수익 인증 계속 · AMD 강세에 커버드콜 폭사 인증...",
     "AI Power/Grid (300 posts in 14-day research window): >>AI 인플레이션이 최종 제품으로 확산&#33; 칩·메모리 비용 급등, 소프트웨어 월 이용료 인상·글로벌 PC 평균가격 24% 상승 전망 (대만공상시보) •AI 연산을 뒷받침하는 막대한 비용이 ‘AI 인플레이션’으로 이어지고 있음. 칩, HBM, 전력 인프라 비용이 급등하면서 기업들이 자체 현금흐름만으로 비용을...",
-    "Korea Market (271 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 9월 19일 > 오전 7시 30분~오후 7시 30분 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 러시아 제재 법안에 서명. 우크라이나 젤렌스키...",
+    "Korea Market (269 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 9월 19일 > 오전 7시 30분~오후 7시 30분 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 러시아 제재 법안에 서명. 우크라이나 젤렌스키...",
     "AI Policy/Export Controls (216 posts in 14-day research window): >>AI 인플레이션이 최종 제품으로 확산&#33; 칩·메모리 비용 급등, 소프트웨어 월 이용료 인상·글로벌 PC 평균가격 24% 상승 전망 (대만공상시보) •AI 연산을 뒷받침하는 막대한 비용이 ‘AI 인플레이션’으로 이어지고 있음. 칩, HBM, 전력 인프라 비용이 급등하면서 기업들이 자체 현금흐름만으로 비용을..."
   ],
   "catalysts": [
@@ -31494,7 +31478,7 @@
     },
     {
       "key": "035420.KS",
-      "count": 26,
+      "count": 25,
       "text": "삼전닉스 급락시킨 샘 올트먼 이틀만에 돌변…“이번주에 큰거 온다” “AI 개발 속도를 늦추자”라고 했던 샘 올트먼 오픈AI 최고경영자(CEO)가 불과 이틀 만에 “큰 제품을 출시하겠다”고 예고했다. AI 개발..."
     }
   ],
@@ -31514,7 +31498,7 @@
       "topics": [
         "geo"
       ],
-      "count": 413,
+      "count": 414,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 9월 19일 > 오전 7시 30분~오후 7시 30분 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 러시아 제재 법안에 서명. 우크라이나 젤렌스키..."
     },
     {
@@ -31568,7 +31552,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 271,
+      "count": 269,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 9월 19일 > 오전 7시 30분~오후 7시 30분 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 러시아 제재 법안에 서명. 우크라이나 젤렌스키..."
     },
     {
@@ -31613,7 +31597,7 @@
       "topics": [
         "japan"
       ],
-      "count": 149,
+      "count": 148,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 9월 19일 > 오전 7시 30분~오후 7시 30분 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 러시아 제재 법안에 서명. 우크라이나 젤렌스키..."
     },
     {
@@ -31622,7 +31606,7 @@
       "topics": [
         "flows"
       ],
-      "count": 186,
+      "count": 185,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 9월 19일 > 오전 7시 30분~오후 7시 30분 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 러시아 제재 법안에 서명. 우크라이나 젤렌스키..."
     },
     {
