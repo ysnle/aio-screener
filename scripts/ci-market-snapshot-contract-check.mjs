@@ -150,20 +150,41 @@ if (!loaderSource.includes('snapshot_not_published') || !loaderSource.includes('
 // any age check; that asymmetry was the bug, not a policy.
 {
   const sunday = Date.parse('2026-09-20T11:00:00Z');
-  const fridayClose = Date.parse('2026-09-18T21:29:48Z');
+  const fridayClose = new Date('2026-09-18T21:29:48Z').toISOString();
+  const freshCrypto = new Date(sunday - 30_000).toISOString();
+
+  // Every confirmed-closed venue keeps the closed label, whatever hint the provider sends.
   for (const instrumentId of ['^KS11', '^KQ11', 'DX-Y.NYB', 'CL=F', 'GC=F']) {
-    for (const providerSession of ['REGULAR', null]) {
-      const session = deriveMarketSession({ instrumentId, observedAt: new Date(fridayClose).toISOString(), providerSession, now: sunday });
+    for (const providerSession of ['REGULAR', 'CLOSED', null]) {
+      const session = deriveMarketSession({ instrumentId, observedAt: fridayClose, providerSession, now: sunday });
       if (session !== 'MARKET_CLOSED') fail(`P1160 ${instrumentId} (${providerSession}) on a weekend-closed venue resolved to ${session}`);
     }
   }
-  // The closed-venue window is a bound, not a bypass: a genuinely stale point must stay unexpected.
+
+  // The outcome that actually decides publication. A session-only assertion would not have caught
+  // the second 24h cap in quoteQuality, which mapped MARKET_CLOSED to STALE and blocked the publish
+  // anyway — so this asserts the built snapshot, not the intermediate label.
+  for (const providerSession of ['REGULAR', 'CLOSED', null]) {
+    const quotes = TIER_0_INSTRUMENTS.map((instrument) => ({
+      symbol: instrument.instrumentId,
+      value: 100,
+      observedAt: /-USD$/.test(instrument.instrumentId) ? freshCrypto : fridayClose,
+      marketSession: providerSession || undefined,
+      regularMarketPreviousClose: 99
+    }));
+    const built = buildMarketSnapshot({ quotes, attemptedAt: new Date(sunday).toISOString(), now: sunday, source: 'weekend-fixture' });
+    if (!built.complete || built.snapshot.quality?.gate !== 'QG-01_PASS' || built.snapshot.errors.length) {
+      fail(`P1160 a Sunday snapshot (${providerSession}) did not publish: ${JSON.stringify(built.snapshot.errors)}`);
+    }
+  }
+
+  // Bounds, not bypasses: a genuinely stale point must stay unexpected, and the closed-venue window
+  // does not cover a 24/7 instrument.
   const ancient = new Date(sunday - 10 * 24 * 60 * 60 * 1000).toISOString();
   for (const instrumentId of ['CL=F', '^KS11']) {
     if (deriveMarketSession({ instrumentId, observedAt: ancient, providerSession: 'REGULAR', now: sunday }) !== 'STALE_UNEXPECTED') fail(`P1160 ${instrumentId} accepted a 10-day-old observation as a closed venue`);
   }
-  // A 24/7 instrument is NOT covered by that window: two-day-old BTC is genuinely unexpected.
-  const btc = deriveMarketSession({ instrumentId: 'BTC-USD', observedAt: new Date(fridayClose).toISOString(), providerSession: 'REGULAR', now: sunday });
+  const btc = deriveMarketSession({ instrumentId: 'BTC-USD', observedAt: fridayClose, providerSession: 'REGULAR', now: sunday });
   if (btc !== 'STALE_UNEXPECTED') fail(`P1160 BTC-USD accepted a 2-day-old observation: ${btc}`);
 }
 const bridgeSource = fs.readFileSync(path.join(root, 'src/legacy/market-snapshot-bridge.js'), 'utf8');

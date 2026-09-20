@@ -3,11 +3,22 @@ verified_by: P1150 구조 핸드오프 03/04/07/08/09 구현 + affected QA; 브�
 last_verified: 2026-09-20
 confidence: medium
 latest_version: v55.23
-latest_P_number: P1159
-next_P_number: P1160
+latest_P_number: P1160
+next_P_number: P1161
 current_total_entries: 557 tracked entries (384 headings + 173 compacted lines, P1~P1142, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
 current_checkpoint: 사용자 판단(지인용 사설 스크리너)으로 **차단 경계를 공시로 재배치**했다 — 개인화 지시·현재증거 부족·수치 주장 불일치·헤드라인 전용 인과를 하드 차단에서 경고/공시로 강등(P1120~P1122). 조작 방지(값·단위·NFP 배율), 금지 행위 P0, 포트폴리오 동의, 도구 경계는 그대로 차단이다. 남은 OPEN: 날짜 없는 중첩 산출물 12건(P1110 측정면이 노출), `objects/**` 592/629 미참조 blob의 보존 정책, 캐시 라우팅 밖의 실제 소비 산출물 오프라인 폴백 (semantic coverage 6.89%, releaseCertified=false)
 ---
+
+## P1160 - v56 - 주말마다 시장 스냅샷이 발행 정지됐고, 그걸 막는 게이트가 실제로는 막지 않았다 (2026-09-20)
+
+- symptom/reproduction: `public-data/market-snapshot.json`이 2026-09-19T06:39:46Z 이후 갱신되지 않았다. `market-snapshot-status.json`은 `attemptStatus: failed`에 `errors: tier0_quality:^KS11:STALE:STALE_UNEXPECTED`(+`^KQ11`, `DX-Y.NYB`, `CL=F`, `GC=F`)를 기록했다. 그 A1 CRITICAL(12h SLA 초과)이 `ci-data-refresh-audit`를 실패시켜 refresh 워크플로 10·11단계, CI `data` 그룹, 그리고 Pages 배포를 연쇄로 막았다.
+- root_cause: **두 개의 24시간 상한.** (1) `deriveMarketSession`이 "휴장 확인"된 장소도 24h까지만 인정했다 — 금요일 종가를 일요일에 읽으면 약 46h라 `STALE_UNEXPECTED`가 됐다. 미국 지수만 `isLatestUsRegularClose`가 나이 검사 전에 `MARKET_CLOSED`를 반환해 예외였고, 그 비대칭이 버그였다. (2) `quoteQuality`가 `MARKET_CLOSED`를 다시 24h로 제한해 `CLOSED_CURRENT` 대신 `STALE`을 돌려줬다(발행 가능 품질 아님). (3) `provider === 'CLOSED'` 분기는 스케줄을 아예 보지 않고 자체 24h 상한을 써서 두 수정을 우회할 수 있었다.
+- fix: `CLOSED_VENUE_MAX_AGE_MS = 4일`(주말+연휴)을 도입해 **휴장이 확인된 장소**에만 적용했다. 세션 분류기·품질 매퍼·`CLOSED` 힌트 분기 세 곳을 같은 기준으로 맞췄다. 24/7 자산(BTC/ETH)은 그 창에 포함되지 않는다 — 이틀 된 BTC는 여전히 `STALE_UNEXPECTED`다.
+- **함께 고친 fail-open**: `refresh-data.yml`의 커밋 조건이 프로듀서 레인만 검사해서, **"Fail-closed promotion candidate gate before push"라는 이름의 스텝을 포함한 검증 4개가 실패해도 커밋이 그대로 실행**됐다. 실제로 게이트가 빨간 상태에서 `85d05825`가 main에 올라갔고, 그 뒤 CI가 계속 red로 남아 사이트가 배포되지 못했다. 검증 스텝 4개에 id를 부여하고 커밋 조건에 모두 넣었다.
+- violated_rule: R627(선언과 실제 강제의 정합), R606(집계/게시 경계), R613(값·시각 정합).
+- prevention: `ci-market-snapshot-contract-check.mjs`가 이제 **중간 라벨이 아니라 발행 결과**를 단언한다 — 일요일에 금요일 종가(암호화폐만 신선)로 16종을 만들면 `complete === true`, `QG-01_PASS`, `errors === []`여야 하며, provider 힌트 `REGULAR`/`CLOSED`/`null` 세 경우를 모두 돈다. 음성 대조로 10일 된 관측과 이틀 된 BTC는 여전히 `STALE_UNEXPECTED`임을 고정했다.
+- verification: `node scripts/ci-market-snapshot-contract-check.mjs` PASS, `node scripts/build-market-snapshot.mjs`의 순수 함수로 `errors: []` 확인, refresh 워크플로 재실행 성공으로 라이브 확인.
+- residual_risk: (1) `provider === 'POST'/'POSTPOST'` 분기는 여전히 무조건 `AFTER_HOURS`이고 품질 매퍼가 24h로 제한한다 — 이번 관측된 실패 경로는 아니었지만 같은 계열의 잠재 불일치다. (2) 4일은 판단값이다(연휴가 그보다 길면 다시 막힌다). (3) 커밋을 진짜 fail-closed로 바꾼 결과, 어떤 검증이든 실패하면 그 사이클은 발행되지 않는다 — 의도한 동작이지만 실패가 사이트 정지로 이어지므로 운영 알림이 유일한 감지 경로다.
 
 ## P1159 - v56 - wrangler 버전 "통일"이 fast-plane 배포를 실제로 깨뜨렸고, 게이트는 모양만 보고 있었다 (2026-09-20)
 

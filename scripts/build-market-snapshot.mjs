@@ -106,7 +106,14 @@ export function deriveMarketSession({ instrumentId, observedAt, providerSession 
     if (scheduled === 'IN_SESSION') return ageMs <= 10 * 60 * 1000 ? 'CURRENT_SESSION' : ageMs <= 2 * 60 * 60 * 1000 ? 'DELAYED_IN_SESSION' : 'STALE_UNEXPECTED';
     return ageMs <= 10 * 60 * 1000 ? 'CURRENT_SESSION' : ageMs <= 2 * 60 * 60 * 1000 ? 'DELAYED_IN_SESSION' : 'STALE_UNEXPECTED';
   }
-  if (provider === 'CLOSED') return ageMs <= 24 * 60 * 60 * 1000 ? 'PREVIOUS_CLOSE_EXPECTED' : 'STALE_UNEXPECTED';
+  if (provider === 'CLOSED') {
+    // A provider that says CLOSED is agreeing with the venue schedule, so it must not be given a
+    // shorter leash than the schedule itself. Returning PREVIOUS_CLOSE_EXPECTED on a bare 24h made
+    // this branch bypass the schedule entirely and re-introduce the weekend rejection.
+    const scheduled = scheduledSession(symbol, observedMs, Number(now));
+    if (scheduled === 'MARKET_CLOSED') return ageMs <= CLOSED_VENUE_MAX_AGE_MS ? 'MARKET_CLOSED' : 'STALE_UNEXPECTED';
+    return ageMs <= 24 * 60 * 60 * 1000 ? 'PREVIOUS_CLOSE_EXPECTED' : 'STALE_UNEXPECTED';
+  }
 
   // Even when a provider omits marketState, the venue schedule still defines
   // whether a recent observation is a valid completed close or an unexpected
@@ -146,7 +153,14 @@ function quoteQuality(raw, nowMs, session = null) {
   const ageMs = Math.max(0, nowMs - observedMs);
   if (session === 'CURRENT_SESSION' && ageMs <= 10 * MINUTE_MS) return 'CURRENT';
   if (session === 'DELAYED_IN_SESSION' && ageMs <= 2 * HOUR_MS) return 'DELAYED';
-  if (['PREVIOUS_CLOSE_EXPECTED', 'MARKET_CLOSED', 'PREMARKET', 'AFTER_HOURS'].includes(session) && ageMs <= DAY_MS) return 'CLOSED_CURRENT';
+  // Same reasoning as CLOSED_VENUE_MAX_AGE_MS above, one layer down: a venue the schedule has
+  // CONFIRMED closed keeps its closed-current label through the whole closure. With a bare DAY_MS
+  // the session classifier and this quality mapper disagreed — the session said MARKET_CLOSED but
+  // the quality fell through to STALE, which is not in PUBLISHABLE_QUALITIES, so the snapshot was
+  // still rejected (the caller only forces CLOSED_CURRENT for US instruments via
+  // isLatestUsRegularClose, which is the same asymmetry).
+  if (session === 'MARKET_CLOSED' && ageMs <= CLOSED_VENUE_MAX_AGE_MS) return 'CLOSED_CURRENT';
+  if (['PREVIOUS_CLOSE_EXPECTED', 'PREMARKET', 'AFTER_HOURS'].includes(session) && ageMs <= DAY_MS) return 'CLOSED_CURRENT';
   if (ageMs <= 2 * HOUR_MS) return 'DELAYED';
   if (ageMs <= 7 * DAY_MS) return 'STALE';
   return 'STALE';
