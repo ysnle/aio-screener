@@ -1,13 +1,469 @@
 {
  "schemaVersion": "earnings-calendar.v1",
- "status": "operator-key-required",
+ "status": "current-reference",
  "source": "Finnhub calendar/earnings + calendar/ipo",
  "sourceUrl": "https://finnhub.io/docs/api",
  "sourceKind": "licensed-api",
  "allowedUse": "reference-only",
  "weekStart": "2026-09-14",
  "weekEnd": "2026-09-18",
- "generatedAt": "2026-09-20T05:04:41.983Z",
- "earnings": [],
- "ipos": []
+ "generatedAt": "2026-09-20T16:28:07.004Z",
+ "earnings": [
+  {
+   "symbol": "AMEN",
+   "date": "2026-09-18",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "BIOQ",
+   "date": "2026-09-18",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "UPXI",
+   "date": "2026-09-18",
+   "hour": null,
+   "epsEstimate": -0.1224,
+   "revenueEstimate": 7723950
+  },
+  {
+   "symbol": "ESP",
+   "date": "2026-09-17",
+   "hour": null,
+   "epsEstimate": 0.9696,
+   "revenueEstimate": 14948000
+  },
+  {
+   "symbol": "GFLT",
+   "date": "2026-09-17",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "GWOX",
+   "date": "2026-09-17",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "HUHU",
+   "date": "2026-09-17",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "INTE",
+   "date": "2026-09-17",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "ITOX",
+   "date": "2026-09-17",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "JF",
+   "date": "2026-09-17",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "OWPC",
+   "date": "2026-09-17",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "RAVE",
+   "date": "2026-09-17",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "TRT",
+   "date": "2026-09-17",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "WDSP",
+   "date": "2026-09-17",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "ABAT",
+   "date": "2026-09-16",
+   "hour": null,
+   "epsEstimate": -0.051,
+   "revenueEstimate": 8352780
+  },
+  {
+   "symbol": "ALMU",
+   "date": "2026-09-16",
+   "hour": "amc",
+   "epsEstimate": -0.0765,
+   "revenueEstimate": 586500
+  },
+  {
+   "symbol": "FDX",
+   "date": "2026-09-16",
+   "hour": null,
+   "epsEstimate": 4.0486,
+   "revenueEstimate": 22592632531
+  },
+  {
+   "symbol": "ISPR",
+   "date": "2026-09-16",
+   "hour": "bmo",
+   "epsEstimate": 0.0153,
+   "revenueEstimate": 21777000
+  },
+  {
+   "symbol": "LEN",
+   "date": "2026-09-16",
+   "hour": "amc",
+   "epsEstimate": 1.3158,
+   "revenueEstimate": 8389932256
+  },
+  {
+   "symbol": "LUXE",
+   "date": "2026-09-16",
+   "hour": "bmo",
+   "epsEstimate": -0.0796,
+   "revenueEstimate": 654865500
+  },
+  {
+   "symbol": "WDSP",
+   "date": "2026-09-16",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "DDDX",
+   "date": "2026-09-15",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "EPM",
+   "date": "2026-09-15",
+   "hour": "amc",
+   "epsEstimate": 0.0051,
+   "revenueEstimate": 23472400
+  },
+  {
+   "symbol": "FPS",
+   "date": "2026-09-15",
+   "hour": "bmo",
+   "epsEstimate": 0.2421,
+   "revenueEstimate": 434239400
+  },
+  {
+   "symbol": "GIS",
+   "date": "2026-09-15",
+   "hour": null,
+   "epsEstimate": 0.7252,
+   "revenueEstimate": 4384201263
+  },
+  {
+   "symbol": "HERE",
+   "date": "2026-09-15",
+   "hour": "bmo",
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "LAES",
+   "date": "2026-09-15",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "PLUR",
+   "date": "2026-09-15",
+   "hour": "amc",
+   "epsEstimate": -0.6732,
+   "revenueEstimate": 668100
+  },
+  {
+   "symbol": "RZLT",
+   "date": "2026-09-15",
+   "hour": "amc",
+   "epsEstimate": -0.151,
+   "revenueEstimate": 0
+  },
+  {
+   "symbol": "VRA",
+   "date": "2026-09-15",
+   "hour": "bmo",
+   "epsEstimate": -0.0808,
+   "revenueEstimate": 66614550
+  },
+  {
+   "symbol": "YI",
+   "date": "2026-09-15",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "YYGH",
+   "date": "2026-09-15",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "BRRE",
+   "date": "2026-09-14",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "CBRL",
+   "date": "2026-09-14",
+   "hour": "bmo",
+   "epsEstimate": 0.0946,
+   "revenueEstimate": 849310017
+  },
+  {
+   "symbol": "CLSD",
+   "date": "2026-09-14",
+   "hour": "amc",
+   "epsEstimate": -0.2693,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "CODA",
+   "date": "2026-09-14",
+   "hour": "bmo",
+   "epsEstimate": 0.1163,
+   "revenueEstimate": 7405200
+  },
+  {
+   "symbol": "EBZT",
+   "date": "2026-09-14",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "GFAI",
+   "date": "2026-09-14",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "HAIN",
+   "date": "2026-09-14",
+   "hour": "bmo",
+   "epsEstimate": -0.0303,
+   "revenueEstimate": 274315740
+  },
+  {
+   "symbol": "HYFT",
+   "date": "2026-09-14",
+   "hour": "amc",
+   "epsEstimate": -0.0782,
+   "revenueEstimate": 4614143
+  },
+  {
+   "symbol": "HYSR",
+   "date": "2026-09-14",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "IVDN",
+   "date": "2026-09-14",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "KARX",
+   "date": "2026-09-14",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "KAVL",
+   "date": "2026-09-14",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "KMTS",
+   "date": "2026-09-14",
+   "hour": "amc",
+   "epsEstimate": -0.6282,
+   "revenueEstimate": 29587527
+  },
+  {
+   "symbol": "KRKR",
+   "date": "2026-09-14",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "MSB",
+   "date": "2026-09-14",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "OPTT",
+   "date": "2026-09-14",
+   "hour": "amc",
+   "epsEstimate": -0.0306,
+   "revenueEstimate": 1872720
+  },
+  {
+   "symbol": "PBSV",
+   "date": "2026-09-14",
+   "hour": "amc",
+   "epsEstimate": 0.0306,
+   "revenueEstimate": 2754000
+  },
+  {
+   "symbol": "PLAY",
+   "date": "2026-09-14",
+   "hour": "amc",
+   "epsEstimate": 0.2477,
+   "revenueEstimate": 568337472
+  },
+  {
+   "symbol": "PMCB",
+   "date": "2026-09-14",
+   "hour": "amc",
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "RLGT",
+   "date": "2026-09-14",
+   "hour": "amc",
+   "epsEstimate": 0.0918,
+   "revenueEstimate": 235926000
+  },
+  {
+   "symbol": "SKKY",
+   "date": "2026-09-14",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "TC",
+   "date": "2026-09-14",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "USAU",
+   "date": "2026-09-14",
+   "hour": null,
+   "epsEstimate": -0.2244,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "VALU",
+   "date": "2026-09-14",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "YIBO",
+   "date": "2026-09-14",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  },
+  {
+   "symbol": "ZEOX",
+   "date": "2026-09-14",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null
+  }
+ ],
+ "ipos": [
+  {
+   "symbol": "HNUC",
+   "date": "2026-09-18",
+   "name": "Holtec Nuclear Corp",
+   "exchange": "NASDAQ"
+  },
+  {
+   "symbol": "LEDRU",
+   "date": "2026-09-18",
+   "name": "Leader's Advantage Acquisition Corp.",
+   "exchange": "NASDAQ Global"
+  },
+  {
+   "symbol": null,
+   "date": "2026-09-17",
+   "name": "C2 Capital Group, Inc.",
+   "exchange": null
+  },
+  {
+   "symbol": "HYACU",
+   "date": "2026-09-17",
+   "name": "Haymaker Acquisition Corp V",
+   "exchange": "NYSE"
+  },
+  {
+   "symbol": "LCACU",
+   "date": "2026-09-16",
+   "name": "Lower Cross Acquisitions Corp",
+   "exchange": null
+  },
+  {
+   "symbol": null,
+   "date": "2026-09-15",
+   "name": "OTSAW Ltd",
+   "exchange": null
+  },
+  {
+   "symbol": "OHIIU",
+   "date": "2026-09-15",
+   "name": "Oceanhawk Acquisition II Corp.",
+   "exchange": null
+  },
+  {
+   "symbol": "SCQCU",
+   "date": "2026-09-15",
+   "name": "SPACCircle Acquisition Corp.",
+   "exchange": null
+  }
+ ]
 }
