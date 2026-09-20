@@ -21,6 +21,13 @@ for (const [name, workflow] of [['proxy', proxyWorkflow], ['data-plane', dataWor
   check(`${name} Wrangler is exact-versioned`, /wrangler@\d+\.\d+\.\d+/.test(workflow));
   check(`${name} deployment runs source contracts first`, /qa-runner\.mjs\s+--group\s+cloudflare\s+--no-cache/.test(workflow));
   check(`${name} deployment verifies live health`, /health/.test(workflow) && /curl/.test(workflow));
+  // P1159: this gate used to accept any exact wrangler pin without checking the runtime it needs.
+  // A version unification that looked purely cosmetic then failed the fast-plane deploy with
+  // "Wrangler requires at least Node.js v22.0.0. You are using v20.20.2" — the old 4.44.0 pin was
+  // load-bearing for Node 20, not a stale preference. Read both numbers, not just their shape.
+  const wranglerPin = workflow.match(/wrangler@(\d+)\.(\d+)\.(\d+)/);
+  const nodeVersion = workflow.match(/node-version:\s*'(\d+)'/);
+  check(`P1159 ${name} deploy runs Wrangler on Node >= 22`, !!wranglerPin && !!nodeVersion && Number(nodeVersion[1]) >= 22);
   check(`${name} deployment renders and verifies GITHUB_SHA`, /GITHUB_SHA/.test(workflow) && /sourceSha/.test(workflow));
 }
 

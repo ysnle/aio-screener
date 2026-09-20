@@ -3,11 +3,21 @@ verified_by: P1150 구조 핸드오프 03/04/07/08/09 구현 + affected QA; 브�
 last_verified: 2026-09-20
 confidence: medium
 latest_version: v55.23
-latest_P_number: P1158
-next_P_number: P1159
+latest_P_number: P1159
+next_P_number: P1160
 current_total_entries: 557 tracked entries (384 headings + 173 compacted lines, P1~P1142, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
 current_checkpoint: 사용자 판단(지인용 사설 스크리너)으로 **차단 경계를 공시로 재배치**했다 — 개인화 지시·현재증거 부족·수치 주장 불일치·헤드라인 전용 인과를 하드 차단에서 경고/공시로 강등(P1120~P1122). 조작 방지(값·단위·NFP 배율), 금지 행위 P0, 포트폴리오 동의, 도구 경계는 그대로 차단이다. 남은 OPEN: 날짜 없는 중첩 산출물 12건(P1110 측정면이 노출), `objects/**` 592/629 미참조 blob의 보존 정책, 캐시 라우팅 밖의 실제 소비 산출물 오프라인 폴백 (semantic coverage 6.89%, releaseCertified=false)
 ---
+
+## P1159 - v56 - wrangler 버전 "통일"이 fast-plane 배포를 실제로 깨뜨렸고, 게이트는 모양만 보고 있었다 (2026-09-20)
+
+- symptom/reproduction: P1158에서 `deploy-data-plane.yml`의 wrangler를 4.44.0 → 4.120.0으로 "통일"한 뒤 수동 배포를 실행하니 **Deploy Worker 스텝에서 즉시 실패**했다: `Wrangler requires at least Node.js v22.0.0. You are using v20.20.2`. 그 워크플로의 `node-version`은 `'20'`이었다.
+- root_cause: **4.44.0 핀이 낡아서가 아니라 Node 20에서 돌기 위해 필요했다.** 나는 4.44.0을 "드리프트"로만 읽고 두 워크플로의 런타임(Node 20 vs 24)이 다르다는 사실을 대조하지 않았다. 그리고 `ci-cloudflare-deployment-contract-check.mjs`의 단언은 `/wrangler@\d+\.\d+\.\d+/` — **정확한 버전처럼 보이는 문자열**만 검사했지 그 버전이 요구하는 런타임을 보지 않았다. 그래서 게이트는 초록인 채로 배포만 실패했다(라이브에서 처음 드러남).
+- fix: `deploy-data-plane.yml`의 `node-version`을 `'24'`로 올려 `deploy-ai-proxy.yml`과 같은 런타임·같은 파서로 맞췄다(구버전으로 되돌리는 대신 일관성을 택함 — ai-proxy는 Node 24 + 4.120.0으로 이미 정상 동작한다).
+- violated_rule: R627(선언과 실제 강제의 정합) — 이번엔 게이트가 **모양**을 검사하고 **동작 조건**을 검사하지 않았다.
+- prevention: `ci-cloudflare-deployment-contract-check.mjs`가 이제 두 배포 워크플로의 wrangler 핀과 `node-version`을 함께 읽어 **Node >= 22**를 요구한다. 문자열 모양이 아니라 그 버전이 실제로 실행 가능한지를 검사한다.
+- verification: 실패한 런 `35505085064`의 로그로 원인 확정, 수정 후 `node scripts/ci-cloudflare-deployment-contract-check.mjs` PASS, 재배포 성공으로 확인(같은 세션).
+- residual_risk: `refresh-data.yml`·`refresh-screener.yml`·`data-watchdog.yml`은 여전히 `node-version: '20'`이다 — 그 워크플로들은 wrangler를 쓰지 않아 이 실패 모드에 해당하지 않고, P882(`Intl`/정렬 순서가 Node 버전에 의존) 때문에 **의도적으로** 건드리지 않았다. Node 20 자체의 지원 종료는 별도 항목이다.
 
 ## P1158 - v56 - 액션 핀이 낡아 Node 20 지원 종료 경고가 났고, 그 핀을 지키는 게이트가 없었다 (2026-09-20)
 

@@ -33,7 +33,11 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          node-version: '20'
+          # Wrangler 4.120.0 refuses to run on Node < 22 ("Wrangler requires at least Node.js
+          # v22.0.0"). This is why this workflow used to pin wrangler 4.44.0: the old pin, not a
+          # preference. Match deploy-ai-proxy.yml (Node 24 + wrangler 4.120.0) instead of
+          # downgrading wrangler back, so both deploys run one parser on one runtime.
+          node-version: '24'
 
       - name: Validate Cloudflare source and deployment contract
         run: node scripts/qa-runner.mjs --group cloudflare --no-cache

@@ -1,0 +1,73 @@
+# 함수·계약 검수 대장 — 전수 완료 아님
+
+Astra 유지·설계. 최종 갱신2026-09-20. 각 행의 함수는 해당 의미 경계를 읽은 범위이며, 파일 전체/모든 입력의 정확성 인증이 아니다. ‘정적’은 코드 추적, ‘합성’은 고정 입력 실행, ‘브라우저’는 로컬 관찰이다. 55는 v55.22,56은 외부 미커밋 변경을 포함한 v56이다. 근거가 다른 버전이면 최신 재검증 문서를 우선한다.
+
+## 핵심 흐름
+
+`instrument/universe → provider → observation/period/unit → field readiness → hard filters → factor transforms → ranking → explanation → UI/AI → saved run/replay → operation/refresh`
+
+전 구간의 공통 질문: 무엇을 의미하는 값인가, 어느 시점에 알 수 있었나, 어느 단위인가, 무엇과 비교하나, 결측 때 어떻게 바뀌나, 누가 계산을 소유하나, 어디에 표시·전송되나, 같은 입력으로 재현되는가.
+
+| 경로/함수 | 검토 의미 | 증거/상태 | 연결 |
+|---|---|---|---|
+| market-snapshot: validateMarketSnapshot / tier0Coverage | 선언/실측coverage·unit |55합성문제,56동일반증차단 |03,D01 |
+| market-snapshot-loader의 수용 경로 | published 승격 |55정적,56추가통합필요 |03 |
+| market.js quoteValue/renderLiveQuotes | 값·현재성·lineage |55정적,56미재검증 |03,D02 |
+| fetch-sec-fundamentals factRows | taxonomy/unit 선택 |Luna정적,unit보존추적필요 |09 |
+| annualDurationRows / instantRows / dedupeLatestFiled |기간·정정 선택 |55정적,56전체회귀미실행 |09 |
+| acceptedAtByAccession / buildPointInTimeFacts |공개시각·accession |55정적,과거filing확장미검증 |09 |
+| normalizeSecCompanyFacts |피연산자·파생시점 |55합성문제,56동일반증차단 |09,F01/F02 |
+| classifyIssuerCapability / refreshSecFundamentals |CIK/지원범위/분모 |Luna정적,공급자실행미검증 |09 |
+| fetch-data enrichSecFundamentals / enrichFundamentals |FY/TTM 혼합·품질라벨 |Luna정적,56전수미재검증 |09 |
+| getScreenerUniverse / fetchHistory / _enrichPriceFactors |universe/가격기준 |Luna부분추적,기업행동후속 |07,09 |
+| buildFieldReadiness / fieldObservationContext |field별가용성 |Luna부분추적,전수미완료 |09 |
+| factor-ranks momRaw / trendRaw |다중기간 가중·결측재정규화 |55정적;각창 golden미실행 |07 |
+| lowvolRaw / sizeRaw / valueRaw / qualityRaw / kalmanRaw |방향·변환·clamp |55정적;산업적타당성후속 |07 |
+| stats / guardedStats / winz / z2pct |표준화·이상치·백분위 |55정적;MAD0/소표본후속 |07,M03 |
+| factorLineage / factorEvidenceUsable |시각·허용용도·품질 |55정적;session정책후속 |07 |
+| sanitizeWeights / computeFactorRanks |요청기준·active집합·동점 |55합성문제,56동일반증차단 |07,M01 |
+| deriveTurnoverStability / deriveRegimeStability |멤버십안정성과거래회전율구별 |55정적;시계열fixture미실행 |07 |
+| factor-weights deriveFactorWeights |profile/regime/promotion |부분읽기;전체검수미완료 |후속 |
+| screen-engine valueAt / readinessAt / auditRequiredFields |실제값·준비상태일치 |55정적;상충값후속 |07 |
+| evaluateNode / nullResult |3값논리·결측정책 |55정적;AST 조합회귀후속 |07 |
+| contributionFor / makeExplanation / runScreen |필터와순위·동점·근거 |55합성문제,56동일반증차단 |07,M02 |
+| captureScreenRun / replayScreenRun |불변입력·hash·version |55정적;실제저장replay후속 |07 |
+| createDefaultScreenDefinitions / summarizeScreenReadiness |preset목적·분모 |55정적;6preset 전수UI후속 |07 |
+| longrun fetchDailyBars |adjusted/raw 구별 |55정적문제,56미재검증 |07,M04 |
+| longrun computeICIR |중첩창 추론 |55정적,56미재검증 |07,M05 |
+| fetch-data backtestFactors |calendar정렬·4/7한계 |일부경로읽음,전체미완료 |07 |
+| portfolio buildPortfolioBacktestLab |월별grid·연율화·비용한계 |55합성문제,56동일반증차단 |07,M06 |
+| _aioBtMonthEnds / _aioBtMonthDiff |월말/실제경과기간 |부분읽기;정렬·중복후속 |07 |
+| computeMarketHealth |표본·component·행동표시 |55합성문제,56동일반증차단 |08,H01 |
+| computeTradingScoreModel / deriveTradingScoreComponents |중복기여·임계값·coverage |Luna정적;예측력미검증 |08,H03 |
+| deriveSignalDecisionFromTradingScore / deriveTradingScoreDecisionPresentation |참고/행동경계 |Luna정적;모든UI후속 |08 |
+| deriveMacroTransmissionEvidence / renderMacroTransmissionLens |단계partial·인과고지 |Luna정적,56미재검증 |08,H04 |
+| renderMacro / deriveTreasuryCurveEvidence |2s10s 두시점 |55정적문제,56미재검증 |08,H02 |
+| classifyMovingAverageStructure / deriveMultiTimeframeView |MA stage·warmup |56정적;부분입력소비자후속 |10 |
+| deriveTechnicalStageFromOhlcv |time 타입·연속tail |56합성 계약경계 |10,T03 |
+| _calcSMA / _calcEMAFull / _calcATR / _calcRSILast / _calcMACD |전처리·window·seed |56정적부분,수학인증아님 |10 |
+| computeRelativeRotation / classifyRRG |주기·datejoin·마지막결측 |56합성/정적문제 |10,T02 |
+| calcLiveRS / collectPriceHistory / hydrateRRGDailyHistory |tick/daily 연결 |56정적;실제혼합빈도미검증 |10 |
+| calcCompositePerf / getThemePerf |명시0·mcap·현재성 |56합성/정적문제 |10,T01 |
+| normalizePortfolio / derivePortfolioSurface |통화·빈상태·평가완전성 |55/56합성 |02,11 |
+| deriveConcentrationRisk / concentrationPenaltyForWeight |가치분모·원가fallback |56읽음;후속합성필요 |11후속 |
+| getPortfolioData / savePortfolioData / addPosition |저장실패와UI완료 |56합성/정적문제 |11,P11-01 |
+| createPrivacyVault / createVersionedRepository |암호화capability·migration |56정적;실제Vault인증아님 |11 |
+| getPortfolioAIPrivacyPreview / _aioBuildPortfolioActionPrompt |session동의·전송경계 |56부분추적;전체전송미완료 |11 |
+| createIssuerAggregateView |manager범위·집계단위 |55정적문제,56미재검증 |04,C01 |
+| build-knowledge-domain-dossiers 생성경로 |KPI/질문/valueChain분리 |55정적문제,56미재검증 |04,C02 |
+| _parseRssXml / fetchNews / normalizeNews / createNewsCard |제목·출처·시각 |Luna정적;56UI미재검증 |09,F03 |
+| _fmtTickerNewsMemo / deriveTickerNewsLineage / _enrichTickerNews |개별기사lineage손실 |Luna정적 |09,F03 |
+| createAIAnswerOrchestrator / question-planner |계획·정책·legacy실행 |정적;실제답변미검증 |05예정 |
+| AI research preparation / streaming guards / claim ledger |근거충분성과공개시점 |정적후보;적대적fixture필요 |05예정 |
+
+## 놓치지 않기 위한 다음 조사 큐
+
+1. 금융 데이터 식별: symbol alias/venue/share class/ADR, delisted·합병·분할·배당, 조정계수, FX 기준과거래캘린더, 숫자0/음수/소수 단위.
+2. 분석: sector별 ratio 비교, ROE 평균자본·EPS/주식수 기준, VCP·volume profile·divergence, 옵션 Greeks/payoff, Kalman noise 선택, rank sensitivity, 중복종목/ETF look-through exposure.
+3. 운용 재현: PIT universe, revision/as-of, restatement policy, provider schema 변경, stale fallback, refresh 동시성·부분성공·원자적publication, 모델변경 migration, 데이터권리와허용용도.
+4. 사용자 동선: 스크린 정의→통과/제외 이유→종목 상세→저장실행→재현, keyboard/focus, 단위와분모, partial/loading/error recovery, old/new run 혼합, 과도한매매행동문구.
+5. 보존·신뢰: Vault 잠금/복구, 저장quota/충돌, import/export, AI동의·민감정보·prompt injection·claim충분성, 취소와최신요청소유권.
+6. 운영: 실제deploy revision, SW old/new asset 혼합, runtime cache TTL, rate limit/backoff, provider 장애와공식휴장 구별, 알림/SLO 수집완전성, QA gate 선택누락과의미fixture.
+
+이 큐를 파일명 목록만 훑는 검사로 대체하지 않는다. 후속 증분마다 작은 함수 집합을 입력→계산→소비자까지 닫고 증거/설계를 붙인다. 남은 범위는 숨기거나 전체PASS로 바꾸지 않는다.
