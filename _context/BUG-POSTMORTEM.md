@@ -3,11 +3,22 @@ verified_by: P1150 구조 핸드오프 03/04/07/08/09 구현 + affected QA; 브�
 last_verified: 2026-09-20
 confidence: medium
 latest_version: v55.23
-latest_P_number: P1160
-next_P_number: P1161
+latest_P_number: P1161
+next_P_number: P1162
 current_total_entries: 557 tracked entries (384 headings + 173 compacted lines, P1~P1142, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
 current_checkpoint: 사용자 판단(지인용 사설 스크리너)으로 **차단 경계를 공시로 재배치**했다 — 개인화 지시·현재증거 부족·수치 주장 불일치·헤드라인 전용 인과를 하드 차단에서 경고/공시로 강등(P1120~P1122). 조작 방지(값·단위·NFP 배율), 금지 행위 P0, 포트폴리오 동의, 도구 경계는 그대로 차단이다. 남은 OPEN: 날짜 없는 중첩 산출물 12건(P1110 측정면이 노출), `objects/**` 592/629 미참조 blob의 보존 정책, 캐시 라우팅 밖의 실제 소비 산출물 오프라인 폴백 (semantic coverage 6.89%, releaseCertified=false)
 ---
+
+## P1161 - v56 - vertical-slice 마커를 "마운트가 소유한 것"으로 취급해 dispose가 지웠고, 브라우저 게이트 4개가 macro에서 막혔다 (2026-09-20)
+
+- symptom/reproduction: `ci-architecture-browser-check`가 `vertical slice marker failed for macro: {"marker":null,"expected":"vs03-macro-fxbond","required":null,"state":null}`로 중단됐다. 같은 원인으로 `ci-vertical-slice-browser-check`(slice route contract), `ci-user-journey-quality-check`(route shell macro), 그리고 CI browser 샤드 3개가 함께 실패해 Attest가 skip되고 **Pages가 배포되지 않았다**(사이트가 v56이 되지 못한 직접 원인).
+- 진단(추정이 아니라 실측): ① 게이트에 임시 프로브를 넣어 `document.querySelectorAll('[data-aio-vertical-slice]')`가 **문서 전체에서 0개**임을 확인 — 마커는 macro 노드에만 없는 게 아니라 그 시점 문서 어디에도 없었다. ② 라우터 내부에 호출 프로브를 넣어 마지막 호출이 `{routeId:'macro', token:24, foundNode:true, sliceId:'vs03-macro-fxbond'}`임을 확인 — **라우터는 마커를 정상적으로 썼다.** ③ 같은 시점 `window.AIO_ARCH.activeScope?.()`가 `null` — 마운트 **이후에** `disposeActive()`가 실행됐다는 뜻이다(그 뒤 재마운트가 없었으므로 `transition()`이 아니라 라우터 `dispose()`, 즉 2차 네비게이션 설치).
+- root_cause: 마커를 **마운트 스코프가 소유한 것**으로 설계해 스코프 dispose 콜백에서 삭제했다. 그런데 마커가 기술하는 것은 **페이지 노드**다(`page-macro`는 언제나 vs03 슬라이스이므로 identity 속성은 불변). 그래서 마운트를 떠나지 않은 dispose(라우터 재설치, 늦게 정착한 재전이)가 "DOM은 마운트된 채 `aioArchitectureRoute`는 설정된 채 마커만 없는" 상태를 만들었고, 마커만 읽는 게이트들이 그 상태를 실패로 판정했다. 라우트가 바뀔 때의 정리는 이미 다른 노드의 마커가 덮어쓰는 것으로 충분하다.
+- fix: `assertSliceMarker(routeId)`를 **단일 writer**로 두고, 마커를 **절대 삭제하지 않는다**(이미 같은 슬라이스로 표시돼 있으면 no-op). 마운트 스코프의 삭제 콜백을 제거하고, 마커는 `page.mount()`가 끝난 **뒤**에 보장한다(마운트가 노드 존재를 확정하므로). 재커밋(조기 반환) 경로에서도 재보장한다. 동적 `state`/`issues`는 스토어 구독으로만 갱신한다.
+- violated_rule: R619(같은 의미를 두 곳에 두지 않는다 — 마커 소유자가 마운트와 노드로 갈라져 있었다), R618.
+- prevention: 게이트 자체가 계약이다 — `ci-architecture-browser-check`(20 라우트 마커 전수), `ci-vertical-slice-browser-check`, `ci-headless-tests`가 이 상태를 잡는다. 삭제 경로가 사라졌으므로 "늦은 dispose가 마커를 지우는" 클래스 자체가 없어졌다.
+- verification: `node scripts/ci-architecture-browser-check.mjs` PASS(`"ok":true`), `node scripts/ci-vertical-slice-browser-check.mjs` PASS, `node scripts/ci-headless-tests.mjs` PASS, `node scripts/ci-syntax-check.mjs` PASS.
+- residual_risk: `ci-user-journey-quality-check`의 `route shell macro`는 **별개 결함으로 남아 있다**(QA-CRED-31): 그 하네스에서 macro의 지연 모듈이 `aioRouteModuleState: 'failed'`가 된다(정적 셸 제목 `거시경제`는 렌더되고 컨트롤은 0개). 로더는 `resolvePage()` 거부 또는 `.then()` 안의 마운트 예외에서 'failed'를 쓰므로 둘 중 하나이고, 350ms 대기 때문은 아니다(느리면 'loading'으로 남는다). 이번 수정과 무관하게 그 게이트는 계속 red다.
 
 ## P1160 - v56 - 주말마다 시장 스냅샷이 발행 정지됐고, 그걸 막는 게이트가 실제로는 막지 않았다 (2026-09-20)
 

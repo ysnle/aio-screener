@@ -186,6 +186,29 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
     try { dispose?.(); } catch (_) {}
   }
 
+  // A committed route must always be observable as marked, and the marker belongs to the PAGE NODE,
+  // not to the mount: `page-macro` is always the vs03 slice, so its identity attributes never
+  // change. They used to be deleted when the mount scope was disposed, so any dispose that followed
+  // the mount — a second navigation install, a re-transition settling late — left the page mounted,
+  // `aioArchitectureRoute` set and `completeness: loaded` while the entire document reported itself
+  // unmarked. Architecture, vertical-slice, user-journey and headless all read only that marker and
+  // all failed on macro (P1161). Assert it; never remove it. Only state/issues are dynamic.
+  function assertSliceMarker(routeId) {
+    const pageNode = context.documentRef?.getElementById?.(`page-${routeId}`);
+    const slice = getVerticalSliceContract(routeId);
+    if (!pageNode || !slice) return null;
+    if (pageNode.dataset.aioVerticalSlice === slice.id) return pageNode;
+    pageNode.dataset.aioVerticalSlice = slice.id;
+    pageNode.dataset.aioVerticalSliceOrder = String(slice.order);
+    pageNode.dataset.aioVerticalSliceRoutes = slice.routes.join(',');
+    pageNode.dataset.aioVerticalSliceRequired = slice.requiredData.join(',');
+    pageNode.dataset.aioVerticalSliceFailureState = context.runtimeRoot?.AIO?.getPageContract?.(routeId)?.failureState || 'partial';
+    const completeness = context.runtimeRoot?.AIO?.getPageDataCompleteness?.(routeId);
+    pageNode.dataset.aioVerticalSliceState = completeness?.status || pageNode.dataset.aioVerticalSliceFailureState;
+    pageNode.dataset.aioVerticalSliceIssues = JSON.stringify((completeness?.issues || []).map((issue) => issue.producer));
+    return pageNode;
+  }
+
   function transition(route, detail = {}) {
     if (disposed) return false;
     // W00/P1143: one typed command owns identity. A scalar second argument is the
@@ -198,7 +221,12 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
     const normalizedRoute = command.routeId;
     const nextEntityId = command.entityId;
     const normalizedDetail = Object.freeze({ ...(detailObject || {}), routeId: command.routeId, entityId: command.entityId, viewState: command.viewState, source: command.source, historyMode: command.historyMode });
-    if (activeRoute === normalizedRoute && !activeScope?.disposed && activeScope?.entityId === nextEntityId) return true;
+    if (activeRoute === normalizedRoute && !activeScope?.disposed && activeScope?.entityId === nextEntityId) {
+      // Re-committing to the route we are already on is still a commit: if the node that carries
+      // the marker was replaced, this is the only place that can restore it.
+      assertSliceMarker(normalizedRoute);
+      return true;
+    }
     disposeActive();
     const page = routes[normalizedRoute];
     const scope = createRouteScope({
@@ -210,34 +238,12 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
     });
     activeScope = scope;
     activeRoute = normalizedRoute;
-    const pageNode = context.documentRef?.getElementById?.(`page-${normalizedRoute}`);
+    // The marker is asserted AFTER the mount, not before it. Written first, it was torn down by a
+    // re-transition that disposed this scope while the replacement mount could no longer find the
+    // page element — leaving the whole document unmarked (`probeMarked: []`) even though the route
+    // was mounted, `aioArchitectureRoute` set and `completeness: loaded`. Mounting is what makes the
+    // element certain to exist, so that is the point where the observation contract can be met.
     const slice = getVerticalSliceContract(normalizedRoute);
-    if (pageNode && slice) {
-      pageNode.dataset.aioVerticalSlice = slice.id;
-      pageNode.dataset.aioVerticalSliceOrder = String(slice.order);
-      pageNode.dataset.aioVerticalSliceRoutes = slice.routes.join(',');
-      pageNode.dataset.aioVerticalSliceRequired = slice.requiredData.join(',');
-      pageNode.dataset.aioVerticalSliceFailureState = context.runtimeRoot?.AIO?.getPageContract?.(normalizedRoute)?.failureState || 'partial';
-      const updateSliceState = () => {
-        const completeness = context.runtimeRoot?.AIO?.getPageDataCompleteness?.(normalizedRoute);
-        pageNode.dataset.aioVerticalSliceState = completeness?.status || pageNode.dataset.aioVerticalSliceFailureState;
-        pageNode.dataset.aioVerticalSliceIssues = JSON.stringify((completeness?.issues || []).map((issue) => issue.producer));
-      };
-      updateSliceState();
-      const unsubscribe = context.store?.subscribe?.(updateSliceState);
-      if (unsubscribe) scope.add(unsubscribe);
-      scope.add(() => {
-        if (pageNode.dataset.aioVerticalSlice === slice.id) {
-          delete pageNode.dataset.aioVerticalSlice;
-          delete pageNode.dataset.aioVerticalSliceOrder;
-          delete pageNode.dataset.aioVerticalSliceRoutes;
-          delete pageNode.dataset.aioVerticalSliceRequired;
-          delete pageNode.dataset.aioVerticalSliceFailureState;
-          delete pageNode.dataset.aioVerticalSliceState;
-          delete pageNode.dataset.aioVerticalSliceIssues;
-        }
-      });
-    }
     try {
       const result = page.mount({ ...context, route: normalizedRoute, detail: normalizedDetail, scope });
       activeDispose = typeof result === 'function' ? result : () => {};
@@ -246,6 +252,16 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
       activeScope = null;
       activeRoute = null;
       throw error;
+    }
+    const pageNode = assertSliceMarker(normalizedRoute);
+    if (pageNode && slice) {
+      const updateSliceState = () => {
+        const completeness = context.runtimeRoot?.AIO?.getPageDataCompleteness?.(normalizedRoute);
+        pageNode.dataset.aioVerticalSliceState = completeness?.status || pageNode.dataset.aioVerticalSliceFailureState;
+        pageNode.dataset.aioVerticalSliceIssues = JSON.stringify((completeness?.issues || []).map((issue) => issue.producer));
+      };
+      const unsubscribe = context.store?.subscribe?.(updateSliceState);
+      if (unsubscribe) scope.add(unsubscribe);
     }
     // W00/P1143: publish the committed result so shell observers (store route,
     // timeline) follow the single commit instead of re-driving navigation.
