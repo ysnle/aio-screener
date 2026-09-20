@@ -18,7 +18,7 @@ current_checkpoint: 사용자 판단(지인용 사설 스크리너)으로 **차�
 - violated_rule: R627(선언과 실제 강제의 정합), R606(집계/게시 경계), R613(값·시각 정합).
 - prevention: `ci-market-snapshot-contract-check.mjs`가 이제 **중간 라벨이 아니라 발행 결과**를 단언한다 — 일요일에 금요일 종가(암호화폐만 신선)로 16종을 만들면 `complete === true`, `QG-01_PASS`, `errors === []`여야 하며, provider 힌트 `REGULAR`/`CLOSED`/`null` 세 경우를 모두 돈다. 음성 대조로 10일 된 관측과 이틀 된 BTC는 여전히 `STALE_UNEXPECTED`임을 고정했다.
 - verification: `node scripts/ci-market-snapshot-contract-check.mjs` PASS, `node scripts/build-market-snapshot.mjs`의 순수 함수로 `errors: []` 확인, refresh 워크플로 재실행 성공으로 라이브 확인.
-- residual_risk: (1) `provider === 'POST'/'POSTPOST'` 분기는 여전히 무조건 `AFTER_HOURS`이고 품질 매퍼가 24h로 제한한다 — 이번 관측된 실패 경로는 아니었지만 같은 계열의 잠재 불일치다. (2) 4일은 판단값이다(연휴가 그보다 길면 다시 막힌다). (3) 커밋을 진짜 fail-closed로 바꾼 결과, 어떤 검증이든 실패하면 그 사이클은 발행되지 않는다 — 의도한 동작이지만 실패가 사이트 정지로 이어지므로 운영 알림이 유일한 감지 경로다.
+- residual_risk: (0) **`data` 그룹에 2건이 남아 CI가 아직 red이고 사이트도 아직 v56이 아니다** — `history-time`(BTC 24/7 행의 valueBasis가 in-session 관측으로 발행됨, `fetch-data.mjs` history 빌더)과 `data-lineage`의 자체 self-test(`marketClosedGraceEligible`이 미국 휴장 grace를 ^KS11까지 넓게 적용). 둘 다 파일·행 단위로 특정했고 QA-CRED-25에 기록했다. (1) `provider === 'POST'/'POSTPOST'` 분기는 여전히 무조건 `AFTER_HOURS`이고 품질 매퍼가 24h로 제한한다 — 이번 관측된 실패 경로는 아니었지만 같은 계열의 잠재 불일치다. (2) 4일은 판단값이다(연휴가 그보다 길면 다시 막힌다). (3) 커밋을 진짜 fail-closed로 바꾼 결과, 어떤 검증이든 실패하면 그 사이클은 발행되지 않는다 — 의도한 동작이지만 실패가 사이트 정지로 이어지므로 운영 알림이 유일한 감지 경로다.
 
 ## P1159 - v56 - wrangler 버전 "통일"이 fast-plane 배포를 실제로 깨뜨렸고, 게이트는 모양만 보고 있었다 (2026-09-20)
 
