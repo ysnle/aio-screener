@@ -3,11 +3,22 @@ verified_by: P1150 구조 핸드오프 03/04/07/08/09 구현 + affected QA; 브�
 last_verified: 2026-09-20
 confidence: medium
 latest_version: v55.23
-latest_P_number: P1161
-next_P_number: P1162
+latest_P_number: P1162
+next_P_number: P1163
 current_total_entries: 557 tracked entries (384 headings + 173 compacted lines, P1~P1142, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
 current_checkpoint: 사용자 판단(지인용 사설 스크리너)으로 **차단 경계를 공시로 재배치**했다 — 개인화 지시·현재증거 부족·수치 주장 불일치·헤드라인 전용 인과를 하드 차단에서 경고/공시로 강등(P1120~P1122). 조작 방지(값·단위·NFP 배율), 금지 행위 P0, 포트폴리오 동의, 도구 경계는 그대로 차단이다. 남은 OPEN: 날짜 없는 중첩 산출물 12건(P1110 측정면이 노출), `objects/**` 592/629 미참조 blob의 보존 정책, 캐시 라우팅 밖의 실제 소비 산출물 오프라인 폴백 (semantic coverage 6.89%, releaseCertified=false)
 ---
+
+## P1162 - v56 - macro 페이지가 매 마운트마다 ReferenceError로 죽어 있었다: `tenY` 단축 표기 (2026-09-20)
+
+- symptom/reproduction: `ci-user-journey-quality-check`가 `route shell macro`에서 실패했다. 그 하네스에서 macro만 `aioRouteModuleState: 'failed'`, 컨트롤 0개, 정적 제목 `거시경제`만 렌더됐다. P1161(마커) 수정 뒤에도 이 게이트만 남아 Attest와 Pages 배포를 계속 막았다.
+- 진단: 라우터가 지연 모듈 실패 시 던지는 `aio:routeModuleError` 이벤트를 게이트에서 청취해 `{"route":"macro","message":"tenY is not defined"}`를 확인했다. 실제 원인은 `src/ui/pages/market.js`의 `renderMacro`였다 — 534행에서 `const tenYear = quoteValue(root, '^TNX')?.price`를 정의하고 540행에서 `buildTreasuryCurveSpread({ twoY: twoYear, tenY, ... })`로 **`tenY`를 단축 표기**했다. 그 이름의 변수가 스코프에 없으므로(객체 키일 뿐) 매 마운트가 `ReferenceError`로 죽었고, 지연 로더가 그것을 'failed'로 보고했다.
+- root_cause: W08/P1147 작업에서 지역 변수 이름(`tenYear`)과 객체 키/계약 이름(`tenY`)이 달랐는데 단축 표기로 넘겨 정적 검사(`ci-syntax-check`)가 잡지 못하는 **런타임 전용 오류**가 됐다. 이 파일의 다른 계약 키(`threeM`/`twoY`/`fiveY`/`thirtyY`)도 같은 함정을 공유한다.
+- fix: `tenY: tenYear`로 명시.
+- violated_rule: R352(단일 구현 이전 시 소비측까지 전수 갱신), F-09(의미 단위 단일 소유).
+- prevention: 이 결함은 게이트가 이미 잡고 있었다(`route shell <id>`가 `aioRouteModuleState !== 'failed'`를 요구) — 다만 **다른 게이트가 먼저 막혀 있어**(P1160의 data, P1161의 마커) 브라우저 샤드가 skip되는 동안 보이지 않았다. 즉 이 항목의 교훈은 "게이트를 추가하자"가 아니라 "앞 게이트를 풀면 뒤 게이트가 드러난다"이다.
+- verification: `node scripts/ci-user-journey-quality-check.mjs` PASS(20 라우트 전수, `route shell macro` 포함), `node scripts/ci-syntax-check.mjs` PASS.
+- residual_risk: 같은 단축 표기 함정이 다른 계약 키에 남아 있는지는 별도 확인이 필요하다 — 이번에 드러난 것은 `tenY` 하나이고, `ci-esm-core-unit-check`가 곡선 계약을 덮지만 페이지 렌더러의 지역 변수 이름까지는 보지 않는다.
 
 ## P1161 - v56 - vertical-slice 마커를 "마운트가 소유한 것"으로 취급해 dispose가 지웠고, 브라우저 게이트 4개가 macro에서 막혔다 (2026-09-20)
 

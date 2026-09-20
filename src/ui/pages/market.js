@@ -537,7 +537,11 @@ function renderMacro(documentRef, root, page, charts) {
   // different observation dates are reported as a mixed-date reference, never as a live curve.
   const curveSpread = buildTreasuryCurveSpread({
     twoY: twoYear,
-    tenY,
+    // P1162: this was written as a bare `tenY` shorthand against a local named `tenYear`, so every
+    // mount of the macro route threw `ReferenceError: tenY is not defined`. The lazy loader reports
+    // that as `aioRouteModuleState: 'failed'`, which failed the user-journey browser gate and, with
+    // it, Attest and the Pages deployment.
+    tenY: tenYear,
     officialSpread: root?._fredData?.T10Y2Y?.value ?? root?.DATA_SNAPSHOT?.t10y2y ?? null,
     legs: {
       twoY: { instrumentId: 'DGS2', observedAt: root?._fredData?.DGS2?.observedAt || root?._fredData?.DGS2?.asOf || null, session: 'closing', provider: 'FRED' },
