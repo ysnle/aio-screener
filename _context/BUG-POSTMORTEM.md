@@ -3,11 +3,21 @@ verified_by: P1150 구조 핸드오프 03/04/07/08/09 구현 + affected QA; 브�
 last_verified: 2026-09-20
 confidence: medium
 latest_version: v55.23
-latest_P_number: P1162
-next_P_number: P1163
+latest_P_number: P1163
+next_P_number: P1164
 current_total_entries: 557 tracked entries (384 headings + 173 compacted lines, P1~P1142, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
 current_checkpoint: 사용자 판단(지인용 사설 스크리너)으로 **차단 경계를 공시로 재배치**했다 — 개인화 지시·현재증거 부족·수치 주장 불일치·헤드라인 전용 인과를 하드 차단에서 경고/공시로 강등(P1120~P1122). 조작 방지(값·단위·NFP 배율), 금지 행위 P0, 포트폴리오 동의, 도구 경계는 그대로 차단이다. 남은 OPEN: 날짜 없는 중첩 산출물 12건(P1110 측정면이 노출), `objects/**` 592/629 미참조 blob의 보존 정책, 캐시 라우팅 밖의 실제 소비 산출물 오프라인 폴백 (semantic coverage 6.89%, releaseCertified=false)
 ---
+
+## P1163 - v56.01 - 버전 계약이 둘로 갈라져 있었다: 게이트는 `v56`을 허용하고 런타임은 `v56.01`을 요구했다 (2026-09-20)
+
+- symptom/reproduction: `bump-version.mjs v56.00`이 `v56`으로 정규화한 뒤, CI의 `Browser / browser-unit`에서 headless가 **1110/1133(23 FAIL)**로 떨어졌다. 실패 23건이 전부 버전 형식 계약이었고, 상세가 모두 `APP_VERSION=v56` / `detail: v56`이었다 — `T748 v501_version_format`("at most two decimal digits")과 `T762 v504_app_version_semver_two_digit_policy`가 `/^v\d+\.\d{1,2}$/`를 요구하므로 점 없는 `v56`은 탈락한다. 나머지 21건은 `APP_VERSION >= "v49.xx"` 비교인데 같은 파서에서 걸렸다.
+- root_cause: **같은 저장소가 버전 형식을 두 곳에서 다르게 정의하고 있었다.** `ci-version-check.mjs:28`의 정규식 `/^v\d{1,3}(?:\.\d{2})?$/`는 patch 없는 형식을 허용하고 그 실패 메시지도 "use v54 or v54.01"이라고 안내한다. 반면 런타임(headless T748/T762)은 점과 1~2자리를 **필수**로 요구한다. 앞 계약만 보고 `v56`을 정본으로 삼았고, 뒤 계약이 23건으로 반증했다.
+- fix: `node scripts/bump-version.mjs v56.01`로 정정(R1 7개 표면 + generated state + 워커 toml 동기화). headless가 1133/1133 PASS로 복귀했다.
+- violated_rule: R619(같은 의미를 두 곳에 두지 않는다 — 버전 형식의 소유자가 게이트와 런타임으로 갈라져 있었다), R627.
+- prevention: **아직 없다** — 아래 residual_risk 참조. 이 항목은 "게이트가 뒤 계약을 채택하지 않은 상태"를 기록한 것이고, 실행 가능한 단일 소유자로 합치는 작업은 남아 있다.
+- verification: `node scripts/ci-headless-tests.mjs` **1133/1133 PASS**, `node scripts/ci-version-check.mjs` PASS(v56.01, 캐시버스터 13), `node scripts/generate-workspace-state.mjs --check` PASS.
+- residual_risk: (1) **`ci-version-check.mjs`는 여전히 `v56` 같은 patch 없는 형식을 허용한다** — 다음 범프에서 `v56.02` 대신 `v57`을 쓰면 같은 23건이 다시 깨진다. 게이트의 정규식을 런타임과 동일한 `/^v\d+\.\d{1,2}$/`로 좁히고 실패 메시지도 고쳐야 한다(QA-CRED-33). (2) `bump-version.mjs`가 `v56.00`을 `v56`으로 정규화하는 동작 자체도 같은 계약 위반이다. (3) `_context/BUG-POSTMORTEM.md`의 P1151~P1162 항목은 그때의 릴리스 이름(`v56`)으로 남아 있고, 실제 릴리스는 `v56.01`이다 — 역사 기록이라 고치지 않았다.
 
 ## P1162 - v56 - macro 페이지가 매 마운트마다 ReferenceError로 죽어 있었다: `tenY` 단축 표기 (2026-09-20)
 

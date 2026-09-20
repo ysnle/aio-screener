@@ -1,3 +1,11 @@
+## v56.01 (2026-09-20)
+- **버전 형식을 런타임 계약에 맞췄습니다 (P1163).** v56으로 올렸더니 headless 23건이 실패했습니다 — `T748 v501_version_format`과 `T762 v504_app_version_semver_two_digit_policy`가 `/^v\d+\.\d{1,2}$/`를 요구하는데 `v56`에는 점이 없습니다. 동시에 `ci-version-check`는 "use v54 or v54.01"이라며 patch 없는 형식을 허용합니다 — **같은 저장소의 두 계약이 서로 어긋나 있었고**, 이번에 런타임 계약이 이겼습니다. v56.01로 정정했습니다.
+- **macro 라우트가 매 마운트마다 죽고 있었습니다 (P1162).** `src/ui/pages/market.js:540`이 `const tenYear`를 `tenY` **단축 표기**로 넘겨 `ReferenceError`가 났고, 지연 로더가 이를 `aioRouteModuleState: 'failed'`로 보고해 `ci-user-journey-quality-check`의 `route shell macro`가 실패했습니다. 이 게이트가 Attest와 Pages 배포를 막는 마지막 하나였습니다.
+- **vertical-slice 마커를 마운트가 아니라 페이지 노드의 속성으로 취급했습니다 (P1161).** 마커를 스코프 dispose에서 삭제해, 마운트를 떠나지 않은 dispose(2차 네비게이션 설치)가 "DOM은 마운트된 채 마커만 없는" 상태를 만들었습니다. `ci-architecture-browser-check`·`ci-vertical-slice-browser-check`·`ci-headless-tests`가 그 상태로 실패했습니다. 삭제 경로를 없애고 `page.mount()` 뒤 단일 writer로 보장합니다.
+- **시장 스냅샷이 주말마다 발행 정지되던 것을 고쳤고, 그걸 막는 게이트가 실제로는 막지 않던 것도 고쳤습니다 (P1160).** 휴장 확인된 장소에 흩어진 24시간 상한 3곳을 통일(최종 3일 — 저장소 self-test가 4일 창의 과잉을 잡아냈습니다). BTC/ETH의 history 행은 직전 완료 일봉 종가로 발행합니다. `refresh-data.yml`의 커밋 조건이 검증 게이트 4개를 실제로 요구하도록 고쳐, 게이트가 빨간 데이터가 main에 올라가던 경로를 닫았습니다.
+- **함께**: generated workspace state가 데이터 주기마다 낡던 결합 제거(P1160), 액션 핀 Node 24 세대 갱신 + 핀 강제 게이트 신설(P1158), 레이트리밋을 Cloudflare 바인딩으로 교체(P1157), Worker 방어선 정합화(P1156), 사용자 PDF 가이드 v56 기준 재작성(P1155), 공유/사용자 자격증명 평면 정리(P1151~P1154).
+- R1 7곳 v56.01
+
 ## v56 (2026-09-20)
 - **공유/사용자 자격증명 평면을 정리했습니다 (R627/P1151~P1155).** "목록에 있다"가 "동작한다"가 아니었던 세 가지를 코드로 닫았습니다.
 - **FRED·BOK ECOS·KOSIS가 사용자에게 도달 불가였습니다 (P1151).** FRED 는 키가 URL 쿼리에 실려 민감 URL 로 분류되는데 그 경로는 **사용자가 소유한** Worker 뿐이었고, BOK ECOS·KOSIS 는 프록시 경로 없이 직접 fetch 만 해 CORS 에 막혔습니다 — 셋 다 사이드바에서 설정할 수 있었지만 실제로는 아무 일도 일어나지 않았습니다. 공유 Worker 에 **`GET /relay`** 를 추가해 업스트림 host·path 를 코드에 하드코딩하고(클라이언트가 목적지를 지정할 수 없어 SSRF 불가) 운영자 시크릿(FRED/BOK/KOSIS)으로 서버측 조회합니다. 파라미터는 제공자별 정규식 화이트리스트만 통과하고, Origin·앱 토큰·IP 레이트리밋·DO 일일 캡·키 redaction 이 모두 적용되며, 키가 없는 제공자는 그 제공자만 503 fail-closed 입니다. 클라이언트는 릴레이를 2순위로 배선하고, 레지스트리 cf-worker 엔트리에 `userOwned` 를 기록해 **등록 시점과 전송 시점이 같은 소스로 판정**하게 했습니다(이전에는 레지스트리가 cf-worker 라우트를 광고하면서 민감 요청을 조용히 버렸습니다).
