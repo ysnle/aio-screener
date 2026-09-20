@@ -32,11 +32,11 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ inputs.release_sha || github.sha }}
       - name: Setup Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '20'
           cache: npm
@@ -56,11 +56,11 @@ jobs:
         group: ${{ fromJSON(inputs.origin == 'refresh-data' && '["core","data","knowledge"]' || inputs.origin == 'refresh-screener' && '["core","data"]' || '["core","data","knowledge","workspace","cloudflare"]') }}
     steps:
       - name: Checkout
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ inputs.release_sha || github.sha }}
       - name: Setup Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '20'
           cache: npm
@@ -87,11 +87,11 @@ jobs:
         group: ${{ fromJSON(inputs.origin == 'refresh-data' && '["browser-unit","browser-runtime","browser-knowledge","browser-viewport"]' || inputs.origin == 'refresh-screener' && '["browser-unit","browser-runtime"]' || '["browser-unit","browser-runtime","browser-knowledge","browser-resilience","browser-viewport","browser-surface"]') }}
     steps:
       - name: Checkout
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ inputs.release_sha || github.sha }}
       - name: Setup Node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '20'
           cache: npm
@@ -112,7 +112,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout exact tested SHA
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ inputs.release_sha || github.sha }}
       - name: Build immutable release attestation
@@ -125,7 +125,7 @@ jobs:
           test "$tested_sha" = "$EXPECTED_SHA"
           node --input-type=module -e "import fs from 'node:fs'; const version=JSON.parse(fs.readFileSync('version.json','utf8')).version; fs.mkdirSync('.release',{recursive:true}); fs.writeFileSync('.release/aio-release-attestation.json', JSON.stringify({schemaVersion:'aio-release-attestation.v1',testedSha:process.env.EXPECTED_SHA,appRevision:version,origin:process.env.RELEASE_ORIGIN,runId:process.env.GITHUB_RUN_ID,repository:process.env.GITHUB_REPOSITORY,attestedAt:new Date().toISOString()},null,2)+'\n');"
       - name: Upload release attestation
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: aio-release-attestation
           path: .release/aio-release-attestation.json
