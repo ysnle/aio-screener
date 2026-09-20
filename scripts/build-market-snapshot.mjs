@@ -19,8 +19,14 @@ const PUBLISHABLE_QUALITIES = new Set(['CURRENT', 'CLOSED_CURRENT', 'DELAYED']);
 // rejected as STALE_UNEXPECTED, the Tier-0 quality gate failed, and public-data/market-snapshot.json
 // stopped publishing for the whole weekend. US indices escaped that only because
 // `isLatestUsRegularClose` returns MARKET_CLOSED before any age check — an asymmetry, not a policy.
-// Four days covers a weekend plus an adjacent holiday; beyond that the data really is stale.
-const CLOSED_VENUE_MAX_AGE_MS = 4 * DAY_MS;
+// Three days: a weekend is the longest closure this bound is meant to cover (Friday close to
+// Sunday is ~46h). It is deliberately NOT longer. A four-day window was tried first and
+// ci-data-lineage-audit's own self-test rejected it — a Korean index observed Thursday and
+// audited the following Monday is ~82h old, and Korea traded on the Monday in between, so
+// accepting it as "venue closed" would have hidden a genuinely missing session. Without a KR/FX
+// holiday calendar the honest bound is "one weekend"; a longer closure still fails closed and
+// costs freshness, which is the safe direction.
+const CLOSED_VENUE_MAX_AGE_MS = 3 * DAY_MS;
 
 function stableHash(value) {
   const source = JSON.stringify(value);

@@ -96,16 +96,13 @@ const fieldSymbols = {
 for (const [field, symbol] of Object.entries(fieldSymbols)) {
   const quote = snapshotMap.get(symbol);
   if (!quote || !Number.isFinite(latest?.[field])) continue;
-  // P1144: 24/7 continuous quotes have no previous completed day — the history
-  // row records the observed value, so it compares against the snapshot value,
-  // not the intraday previous-value anchor. Sessioned instruments keep the
-  // completed-close comparison. Two live observations of a moving quote are
-  // never bit-identical (2026-09-19: 80901.46 vs 81045.8 at different fetch
-  // times), so continuous quotes use the same 2% band as the crypto
-  // provider cross-check instead of the 0.02 absolute band.
-  const continuous = /-USD$/i.test(symbol);
-  const expected = continuous ? Number(quote.value) : ['CURRENT_SESSION','DELAYED_IN_SESSION'].includes(quote.session) ? Number(quote.previousValue) : Number(quote.value);
-  const tolerance = continuous ? Math.max(0.02, Math.abs(expected) * 0.02) : 0.02;
+  // Both artifacts now carry the same completed close for a 24/7 asset: history publishes
+  // regularMarketPreviousClose with the boundary timestamp that closed it, and the snapshot
+  // exposes that same previous value. The old continuous special case compared two DIFFERENT
+  // live observations through a 2% band precisely because the artifacts deliberately disagreed;
+  // they no longer do, so one rule covers every instrument (P1160 follow-up).
+  const expected = ['CURRENT_SESSION','DELAYED_IN_SESSION'].includes(quote.session) ? Number(quote.previousValue) : Number(quote.value);
+  const tolerance = 0.02;
   if (Number.isFinite(expected) && Math.abs(Number(latest[field]) - expected) > tolerance) {
     errors.push(`latest row ${latest.date} field ${field}: ${latest[field]} != ${symbol} completed value ${expected} (${quote.session})`);
   }

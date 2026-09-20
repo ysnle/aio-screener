@@ -1636,16 +1636,15 @@ async function updateHistory(data, marketSnapshot = null) {
       const usePreviousClose = isOpenPoint && Number.isFinite(previousClose) && previousClose > 0;
       bySym[q.symbol] = usePreviousClose ? previousClose : q.regularMarketPrice;
       // A history row is a completed daily close, not the provider's intraday
-      // previous-value anchor. BTC-USD is CURRENT_SESSION 24/7, so the market
-      // lane always takes the previousClose branch while the snapshot keeps the
-      // live value — the two artifacts then disagree by one session and both the
-      // history-time and artifact-semantics gates fail (2026-09-19: 80901.46 vs
-      // 76403.77). A 24/7 quote has no "previous completed day" distinct from the
-      // current observation; record the observed value with its own timestamp.
-      const isContinuousQuote = /-USD$/i.test(q.symbol);
-      if (isContinuousQuote) {
-        bySym[q.symbol] = q.regularMarketPrice;
-      }
+      // previous-value anchor — and that holds for 24/7 assets too. BTC/ETH have a real
+      // previous completed daily bar (regularMarketPreviousClose, stamped with the boundary
+      // that closed it, see regularMarketPreviousCloseObservedAt above), so they take the
+      // same path as sessioned instruments.
+      // 2026-09-20: this lane used to override continuous quotes back to regularMarketPrice.
+      // P1144's premise ("a 24/7 quote has no previous completed day") was false — the daily
+      // chart provides one — and recording a mid-day observation as a completed daily close is
+      // exactly what ci-history-field-time-contract-check rejects as "in-session observation
+      // promoted as daily close", which kept CI red and Pages undeployed.
       // P1095: a previous-completed-close value must not inherit the CURRENT
       // observation's timestamp. The old fallback (`previousObservedAt || q.observedAt`)
       // did exactly that whenever the provider omitted
@@ -1654,9 +1653,7 @@ async function updateHistory(data, marketSnapshot = null) {
       // 14 fields split across two time conventions, six of them shifted by a session,
       // with nothing marking the substitution. Fail closed instead — no timestamp means
       // a consumer must not read the value as a current observation.
-      // Continuous 24/7 quotes share the observed value/timestamp above, so the
-      // completed-cut stamp below can never fire for them.
-      const effectiveUsePreviousClose = usePreviousClose && !isContinuousQuote;
+      const effectiveUsePreviousClose = usePreviousClose;
       const bySymQuoteEntry = {
         ...q,
         observedAt: effectiveUsePreviousClose ? previousObservedAt : q.observedAt,
