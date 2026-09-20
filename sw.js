@@ -5,8 +5,8 @@
 
 // R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
 // v48.80/P150: operational hardening adds an explicit build marker and health message.
-const SW_VERSION = 'v55.22';
-const SW_BUILD = '2026-09-19T22:44:00+09:00';
+const SW_VERSION = 'v56';
+const SW_BUILD = '2026-09-20T17:21:00+09:00';
 const SHELL_CACHE = 'aio-shell-' + SW_VERSION;
 const DATA_CACHE  = 'aio-data-'  + SW_VERSION;
 
@@ -204,7 +204,10 @@ self.addEventListener('fetch', function(event) {
   if (isShell) {
     event.respondWith(
       fetch(request, { cache: 'no-store' }).then(function(resp) {
-        if (resp && resp.ok) {
+        // 데이터 경로와 같은 민감 URL 제외를 적용한다. 이 경로는 셸 판정이 pathname만 보므로
+        // `./js/aio-core.js?token=…` 같은 same-origin 요청이 그대로 SHELL_CACHE에 저장됐다 —
+        // 두 c.put 경로가 서로 다른 규칙을 쓰던 비대칭이다.
+        if (resp && resp.ok && !isSensitiveUrl(url)) {
           var clone = resp.clone();
           caches.open(SHELL_CACHE).then(function(c) { c.put(request, clone); });
         }

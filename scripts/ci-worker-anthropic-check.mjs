@@ -50,6 +50,12 @@ async function main() {
   const legacy = await worker.fetch(makeReq({ body: {} }), { ANTHROPIC_API_KEY: 'sk-test', AIO_QUOTA: legacyKv });
   check('legacy KV without atomic binding -> 503', legacy.status === 503, legacy.status);
 
+  // P1157: /anthropic uses its own Cloudflare rate-limiting binding. A refusing binding must
+  // return 429 before any upstream call; a missing binding must keep the previous Map behaviour.
+  const refusingLimiter = { ANTHROPIC_API_KEY: 'sk-test', AIO_QUOTA_DO: atomicQuota(), RATE_LIMIT_ANTHROPIC: { limit: async () => ({ success: false }) } };
+  const rateLimited = await worker.fetch(makeReq({ body: { messages: [] } }), refusingLimiter);
+  check('P1157 a refusing rate-limit binding blocks /anthropic', rateLimited.status === 429, rateLimited.status);
+
   const env = { ANTHROPIC_API_KEY: 'sk-test', AIO_QUOTA_DO: atomicQuota(), ANTHROPIC_DAILY_CAP: '5', AIO_DEV_ORIGINS: DEV_ORIGIN };
   const wrongPort = await worker.fetch(makeReq({ origin: 'http://localhost:8892', body: {} }), env);
   check('unconfigured dev port -> 403', wrongPort.status === 403, wrongPort.status);

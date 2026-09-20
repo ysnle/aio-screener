@@ -1,6 +1,8 @@
 {
   "schemaVersion": "knowledge-domain-dossier.v1",
   "generatedAt": "2026-08-12",
+  "evidenceAsOf": null,
+  "reviewedAt": null,
   "dossierId": "domain-dossier:domain-compute-silicon",
   "domainId": "domain-compute-silicon",
   "title": "domain-compute-silicon",
@@ -11,21 +13,85 @@
     "메모리 대역폭·생태계 전환비용·패키지·공급·검증"
   ],
   "uniqueKpis": [
-    "작업당 연산·지연·전력·달러",
-    "GPU의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-    "ASIC / custom accelerator의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-    "NPU / edge accelerator의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-    "FP/BF/INT precision의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-    "Accelerator interconnect의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+    "작업당 연산·지연·전력·달러"
   ],
+  "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
+  "metrics": [],
   "valueChain": [
-    "연산 패턴·정밀도 → CPU·GPU·ASIC·NPU → 메모리·인터커넥트 → 실제 처리량·지연",
     "GPU",
     "ASIC / custom accelerator",
     "NPU / edge accelerator",
     "FP/BF/INT precision",
     "Accelerator interconnect"
   ],
+  "valueChainGraph": {
+    "status": "UNCLASSIFIED_CANDIDATE",
+    "basis": "taxonomy node labels only; the guide mechanism prose is preserved separately and is not treated as a validated causal order",
+    "nodes": [
+      {
+        "nodeId": "compute-gpu",
+        "label": "GPU",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      },
+      {
+        "nodeId": "compute-asic",
+        "label": "ASIC / custom accelerator",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      },
+      {
+        "nodeId": "compute-npu",
+        "label": "NPU / edge accelerator",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      },
+      {
+        "nodeId": "compute-precision",
+        "label": "FP/BF/INT precision",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      },
+      {
+        "nodeId": "compute-interconnect",
+        "label": "Accelerator interconnect",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      }
+    ],
+    "edges": [],
+    "mechanismNarrative": "연산 패턴·정밀도 → CPU·GPU·ASIC·NPU → 메모리·인터커넥트 → 실제 처리량·지연"
+  },
   "taxonomyNodeIds": [
     "compute-gpu",
     "compute-asic",
@@ -54,9 +120,81 @@
     "AT-CS-03"
   ],
   "researchQuestions": [
-    "peak FLOPS와 실제 처리량을 어떻게 구분하는가",
-    "GPU·ASIC·NPU의 전환비용과 software enablement는 무엇인가"
+    {
+      "questionId": "question:domain-compute-silicon:1",
+      "question": "peak 성능이 아니라 목표 workload의 end-to-end 처리량을 무엇으로 측정하는가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-compute-silicon:2",
+      "question": "GPU의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-compute-silicon:3",
+      "question": "ASIC / custom accelerator의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-compute-silicon:4",
+      "question": "NPU / edge accelerator의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-compute-silicon:5",
+      "question": "FP/BF/INT precision의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-compute-silicon:6",
+      "question": "Accelerator interconnect의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-compute-silicon:7",
+      "question": "peak FLOPS와 실제 처리량을 어떻게 구분하는가",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-compute-silicon:8",
+      "question": "GPU·ASIC·NPU의 전환비용과 software enablement는 무엇인가",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    }
   ],
+  "unclassifiedCandidates": {
+    "measurementDimensions": [
+      "작업당 연산·지연·전력·달러"
+    ],
+    "verificationQuestions": [
+      "peak 성능이 아니라 목표 workload의 end-to-end 처리량을 무엇으로 측정하는가?",
+      "GPU의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "ASIC / custom accelerator의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "NPU / edge accelerator의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "FP/BF/INT precision의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "Accelerator interconnect의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "peak FLOPS와 실제 처리량을 어떻게 구분하는가",
+      "GPU·ASIC·NPU의 전환비용과 software enablement는 무엇인가"
+    ],
+    "mechanismNarrative": [
+      "연산 패턴·정밀도 → CPU·GPU·ASIC·NPU → 메모리·인터커넥트 → 실제 처리량·지연"
+    ]
+  },
   "marketTransmission": {
     "status": "RESEARCH_REQUIRED",
     "path": [

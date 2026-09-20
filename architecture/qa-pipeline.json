@@ -126,6 +126,7 @@
         { "id": "history-time", "script": "scripts/ci-history-field-time-contract-check.mjs" },
         { "id": "data-plane", "script": "scripts/ci-data-plane-contract-check.mjs" },
         { "id": "operations-status", "script": "scripts/ci-operations-status-check.mjs" },
+        { "id": "fast-plane-consumer", "script": "scripts/ci-fast-plane-consumer-gate.mjs", "inputs": ["public-config.json", "public-data/operations-status.json", "architecture/worker-endpoints.json", "src/data/market-snapshot-loader.js", "src/legacy/market-snapshot-bridge.js", "scripts/build-operations-status.mjs", "scripts/ci-fast-plane-consumer-gate.mjs"] },
         { "id": "operations-slo", "script": "scripts/ci-operations-slo-window-check.mjs" },
         { "id": "human-validation", "script": "scripts/ci-human-validation-contract-check.mjs" },
         { "id": "reconciliation", "script": "scripts/ci-reconciliation-contract-check.mjs" },
@@ -193,9 +194,10 @@
     "cloudflare": {
       "phase": 1,
       "kind": "static",
-      "inputs": ["cloudflare-worker-proxy.js", "worker/**", ".github/workflows/deploy-ai-proxy.yml", ".github/workflows/deploy-data-plane.yml", "architecture/worker-endpoints.json", "scripts/ci-worker-anthropic-check.mjs", "scripts/ci-data-plane-contract-check.mjs", "scripts/ci-cloudflare-deployment-contract-check.mjs"],
+      "inputs": ["cloudflare-worker-proxy.js", "worker/**", ".github/workflows/deploy-ai-proxy.yml", ".github/workflows/deploy-data-plane.yml", "architecture/worker-endpoints.json", "scripts/ci-worker-anthropic-check.mjs", "scripts/ci-worker-relay-check.mjs", "scripts/ci-data-plane-contract-check.mjs", "scripts/ci-cloudflare-deployment-contract-check.mjs"],
       "gates": [
         { "id": "worker-anthropic", "script": "scripts/ci-worker-anthropic-check.mjs" },
+        { "id": "worker-relay", "script": "scripts/ci-worker-relay-check.mjs" },
         { "id": "worker-data-plane", "script": "scripts/ci-data-plane-contract-check.mjs" },
         { "id": "cloudflare-deployment", "script": "scripts/ci-cloudflare-deployment-contract-check.mjs" }
       ]
@@ -305,7 +307,7 @@
     { "patterns": ["scripts/qa-runner.mjs", "scripts/ci-qa-runner-behavior-check.mjs", "scripts/ci-qa-pipeline-contract-check.mjs", "scripts/fixtures/**", "architecture/qa-pipeline.json"], "groups": ["core", "data", "knowledge", "workspace", "cloudflare"] },
     { "patterns": ["scripts/*knowledge*.mjs", "scripts/*atlas*.mjs", "scripts/*principles*.mjs", "scripts/*masters*.mjs", "scripts/enrich-knowledge-*.mjs", "architecture/knowledge-*.json"], "groups": ["knowledge", "workspace"] },
     { "patterns": ["scripts/*data*.mjs", "scripts/fetch-*.mjs", "scripts/*screener*.mjs", "scripts/*market*.mjs", "scripts/*operations*.mjs", "scripts/*reconciliation*.mjs", "scripts/*source-registry*.mjs", "scripts/*professional*.mjs", "scripts/*history*.mjs", "architecture/asset-manifest.json", "architecture/release-manifest.json", "architecture/operations-slo.json", "architecture/public-readiness.json"], "groups": ["data", "core"] },
-    { "patterns": ["scripts/*worker*.mjs", "scripts/*cloudflare*.mjs", "scripts/*data-plane*.mjs"], "groups": ["cloudflare"] },
+    { "patterns": ["scripts/*worker*.mjs", "scripts/*cloudflare*.mjs", "scripts/*data-plane*.mjs", "scripts/ci-fast-plane-consumer-gate.mjs"], "groups": ["cloudflare"] },
     { "patterns": ["scripts/*workspace*.mjs", "scripts/*skill*.mjs", "scripts/*agent*.mjs", "scripts/*workflow*.mjs", "scripts/*doc*.mjs", "scripts/*header-policy*.mjs", "architecture/agent-profiles.json", "architecture/skill-eval-cases.json"], "groups": ["workspace"] },
     { "patterns": ["scripts/**"], "groups": ["core"] },
     { "patterns": ["architecture/**"], "groups": ["core", "data"] },

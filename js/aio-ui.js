@@ -7155,7 +7155,7 @@ window._aioRenderTickerOverview = function(tkr) {
       ? hits.map(function(h){ return '<span class="ticker-ov-theme-chip" role="button" tabindex="0" data-action="showThemeDetail" data-arg="' + escHtml(h.id) + '" title="' + escHtml(h.label) + ' 테마 상세 →">' + escHtml(h.label) + '</span>'; }).join('')
       : '<span style="font-size:11px;color:var(--text-muted);">테마 맵 미등록 종목</span>';
   }
-  // 4) 팩터 프로파일 — SCREENER_DB factorScores(유니버스 내 상대 백분위, 서술적)
+  // 4) 팩터 프로파일 — SCREENER_DB factorScores(섹터 기준 정규화 점수 0~100, 서술적). W07-C/P1146: empirical percentile도 정규분포 누적확률도 아니며, 순위 percentile은 별도 composite rank다.
   var rowsEl = document.getElementById('ticker-ov-factor-rows');
   var radarC = document.getElementById('ticker-ov-factor-radar');
   var radarWrap = radarC && radarC.parentElement;
@@ -7191,7 +7191,7 @@ window._aioRenderTickerOverview = function(tkr) {
       radarWrap.style.display = 'none';
     }
   } else if (rowsEl) {
-    rowsEl.innerHTML = '<span style="font-size:11px;color:var(--text-muted);">' + (scr ? '팩터 점수 미계산 — 스크리너 데이터 수신 대기' : '스크리너 유니버스 외 종목 — 팩터 백분위는 유니버스 내 상대값이라 제공되지 않습니다') + '</span>';
+    rowsEl.innerHTML = '<span style="font-size:11px;color:var(--text-muted);">' + (scr ? '팩터 점수 미계산 — 스크리너 데이터 수신 대기' : '스크리너 유니버스 외 종목 — 팩터 정규화 점수는 섹터 상대값이라 제공되지 않습니다') + '</span>';
     if (radarWrap) radarWrap.style.display = 'none';
     if (radarC) radarC.dataset.sig = '';
     if (window._aioChartRegistry) window._aioChartRegistry.destroyIfExists('ticker-ov-factor-radar');

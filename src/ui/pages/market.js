@@ -2,7 +2,9 @@ import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { deriveMacroTransmissionEvidence, MACRO_FUNDING_LIQUIDITY_REFERENCE, MACRO_LAGGED_SUPPLY_DEMAND_REFERENCE } from '../../domain/macro/transmission.js';
 import { MARKET_CONFIRMATION_REFERENCE } from '../../domain/market/breadth.js';
+import { deriveQuotePresentation, quoteDisplayKind } from '../../domain/market/quote-presentation.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
+import { buildTreasuryCurveSpread } from '../../domain/macro/treasury-curve.js';
 
 function finite(value) {
   if (value == null || value === '' || typeof value === 'boolean') return null;
@@ -46,7 +48,11 @@ function quoteValue(root, symbol) {
     fetchedAt: envelope.fetchedAt || quote.fetchedAt || null,
     quality: quote.quality || envelope.quality || null,
     session: quote.marketState || envelope.marketState || null,
-    revision: envelope.revision || quote.revision || null
+    revision: envelope.revision || quote.revision || null,
+    // W03-B/P1145: freshness/display state is derived from the envelope's declared
+    // quality, not from the source label. One value carries observation time,
+    // receipt time, source, revision, allowed use and display role together.
+    presentation: deriveQuotePresentation(quote, { symbol })
   };
 }
 
@@ -54,7 +60,8 @@ function annotateChangeBasis(node, value) {
   if (!node || !value) return;
   const basis = String(value.changeBasis || 'unknown');
   node.setAttribute('data-change-basis', basis);
-  node.setAttribute('title', `변화율 기준: ${basis}`);
+  node.setAttribute('data-change-coherent', value.presentation?.changeCoherent ? 'true' : 'false');
+  node.setAttribute('title', value.presentation?.changeCoherent ? `변화율 기준: ${basis}` : `변화율 기준 미확인(${basis}) — 같은 관측으로 확정하지 않음`);
   const observedAt = value.observedAt || null;
   if (observedAt) node.setAttribute('data-as-of', observedAt);
   else node.removeAttribute('data-as-of');
@@ -71,13 +78,16 @@ function annotateChangeBasis(node, value) {
 }
 
 function quoteLineage(node, value) {
-  const source = String(value.quote.source || value.quote._source || value.quote.provider || 'unknown');
-  const kind = /snapshot|cache|reference/.test(source) ? 'reference' : 'observed';
-  writeLineage(node, kind, source);
+  const presentation = value.presentation;
+  const source = presentation?.sourceId && presentation.sourceId !== 'unknown'
+    ? presentation.sourceId
+    : String(value.quote.source || value.quote._source || value.quote.provider || 'unknown');
+  writeLineage(node, quoteDisplayKind(presentation?.displayState), source);
   annotateChangeBasis(node, value);
+  if (node) node.setAttribute('data-quote-state', presentation?.displayState || 'missing');
   const observedAt = value.observedAt ? String(value.observedAt).replace('T', ' ').replace(/\.000Z$|Z$/, ' UTC') : '관측시각 미수신';
   const fetchedAt = value.fetchedAt ? String(value.fetchedAt).replace('T', ' ').replace(/\.000Z$|Z$/, ' UTC') : '수신시각 미수신';
-  node.setAttribute('title', `${source} · 관측 ${observedAt} · 수신 ${fetchedAt} · 변화율 기준 ${value.changeBasis || 'unknown'}`);
+  node.setAttribute('title', `${source} · 관측 ${observedAt} · 수신 ${fetchedAt} · 변화율 기준 ${value.changeBasis || 'unknown'} · 표시 상태 ${presentation?.displayState || 'missing'}`);
 }
 
 function clearRenderedValue(node, title = '현재 관측값 미수신') {
@@ -94,6 +104,8 @@ function clearRenderedValue(node, title = '현재 관측값 미수신') {
   node.removeAttribute('data-release-at');
   writeLineage(node, 'unavailable', 'native:missing-observation');
   node.setAttribute('data-operational-use', 'blocked');
+  node.setAttribute('data-quote-state', 'missing');
+  node.removeAttribute('data-change-coherent');
   node.setAttribute('title', title);
 }
 
@@ -520,6 +532,18 @@ function renderMacro(documentRef, root, page, charts) {
   renderSnapshotMetrics(root, page);
   const twoYear = finite(root?._live2Y) ?? finite(root?._fredData?.DGS2?.value);
   const tenYear = quoteValue(root, '^TNX')?.price;
+  // W08-B/P1147 (H02): the two legs carry their own tenor, observation time, session and
+  // provider, and an official same-date FRED spread outranks a same-day calculation. Legs from
+  // different observation dates are reported as a mixed-date reference, never as a live curve.
+  const curveSpread = buildTreasuryCurveSpread({
+    twoY: twoYear,
+    tenY,
+    officialSpread: root?._fredData?.T10Y2Y?.value ?? root?.DATA_SNAPSHOT?.t10y2y ?? null,
+    legs: {
+      twoY: { instrumentId: 'DGS2', observedAt: root?._fredData?.DGS2?.observedAt || root?._fredData?.DGS2?.asOf || null, session: 'closing', provider: 'FRED' },
+      tenY: { instrumentId: '^TNX', observedAt: root?._liveData?.['^TNX']?.observedAt || root?._liveData?.['^TNX']?.quoteEnvelope?.observedAt || null, session: root?._liveData?.['^TNX']?.marketState || null, provider: 'live-quote' }
+    }
+  });
   const twoYearNode = page.querySelector('#macro-2y-value');
   const twoYearSourceNode = page.querySelector('#macro-2y-source');
   writeText(twoYearNode, Number.isFinite(twoYear) ? `${twoYear.toFixed(2)}%` : '—');
@@ -532,38 +556,42 @@ function renderMacro(documentRef, root, page, charts) {
   const spreadValueNode = page.querySelector('#macro-spread-value');
   const spreadMeaningNode = page.querySelector('#macro-spread-meaning');
   const spreadStatusNode = page.querySelector('#spread-status');
-  const available = Number.isFinite(twoYear) && Number.isFinite(tenYear);
-  const spread = available ? tenYear - twoYear : null;
+  const spread = curveSpread.spread;
+  const available = spread != null;
   const valueText = spread == null ? '—' : `${spread >= 0 ? '+' : ''}${spread.toFixed(2)}%p`;
   const meaningText = spread == null
     ? '판정 보류 · 2Y·10Y 관측값 미수신'
-    : spread < -0.1 ? '역전 · 경기침체 경고 구간' : spread < 0.3 ? '평탄 · 방향성 확인 필요' : '정상 기울기 · 단독 매수 신호 아님';
+    : curveSpread.mixedDates
+      ? `${curveSpread.label} — 두 만기의 관측시각이 달라 실시간 곡선으로 해석하지 않습니다.`
+      : spread < -0.1 ? '역전 · 경기침체 경고 구간' : spread < 0.3 ? '평탄 · 방향성 확인 필요' : '정상 기울기 · 단독 매수 신호 아님';
   writeText(spreadValueNode, valueText);
   writeText(spreadMeaningNode, meaningText);
-  writeText(spreadStatusNode, spread == null ? '2s10s: —' : `2s10s: ${valueText}`);
+  writeText(spreadStatusNode, spread == null ? '2s10s: —' : `2s10s: ${valueText} · ${curveSpread.mode}`);
   [spreadValueNode, spreadMeaningNode, spreadStatusNode].forEach((node) => {
     if (!node) return;
     node.dataset.aioMacroSpreadRenderer = 'native';
-    writeLineage(node, available ? 'live' : 'unavailable', available ? 'live:^TNX+DGS2' : 'yield-curve evidence unavailable');
+    node.setAttribute('data-curve-mode', curveSpread.mode);
+    writeLineage(node, available ? (curveSpread.mixedDates ? 'reference' : 'live') : 'unavailable', available ? curveSpread.label : 'yield-curve evidence unavailable');
   });
   const curveStatusNode = page.querySelector('#curve-status');
   const curveMeaningNode = page.querySelector('#curve-meaning');
-  const curveAvailable = Number.isFinite(twoYear) && Number.isFinite(tenYear);
-  const curveSpread = curveAvailable ? tenYear - twoYear : null;
-  const curveStatus = curveSpread == null
+  const curveAvailable = spread != null;
+  const curveSpreadValue = spread;
+  const curveStatus = curveSpreadValue == null
     ? '판정 보류'
-    : curveSpread < -0.1 ? '역전 곡선' : curveSpread < 0.3 ? '평탄 곡선' : '양(+)의 곡선';
-  const curveMeaning = curveSpread == null
+    : curveSpreadValue < -0.1 ? '역전 곡선' : curveSpreadValue < 0.3 ? '평탄 곡선' : '양(+)의 곡선';
+  const curveMeaning = curveSpreadValue == null
     ? '판정 보류 · 2Y·10Y 관측값 미수신'
-    : curveSpread < -0.1 ? '2s10s 역전 · 경기·신용 위험을 함께 확인합니다.'
-      : curveSpread < 0.3 ? '2s10s 평탄 · 곡선 방향성 확인이 필요합니다.'
+    : curveSpreadValue < -0.1 ? '2s10s 역전 · 경기·신용 위험을 함께 확인합니다.'
+      : curveSpreadValue < 0.3 ? '2s10s 평탄 · 곡선 방향성 확인이 필요합니다.'
         : '10Y > 2Y · 정상 양(+) 기울기입니다.';
   writeText(curveStatusNode, curveStatus);
   writeText(curveMeaningNode, curveMeaning);
   [curveStatusNode, curveMeaningNode].forEach((node) => {
     if (!node) return;
     node.dataset.aioMacroCurveRenderer = 'native';
-    writeLineage(node, curveAvailable ? 'live' : 'unavailable', curveAvailable ? 'live:^TNX+DGS2' : 'yield-curve evidence unavailable');
+    node.setAttribute('data-curve-mode', curveSpread.mode);
+    writeLineage(node, curveAvailable ? (curveSpread.mixedDates ? 'reference' : 'live') : 'unavailable', curveAvailable ? curveSpread.label : 'yield-curve evidence unavailable');
   });
   const fedMeaningNode = page.querySelector('#macro-fed-meaning');
   const fedMetric = readSnapshotMetric(root, 'fed-rate');

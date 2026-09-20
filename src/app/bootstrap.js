@@ -279,7 +279,15 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // the data-layer readers, not through legacy.read* projections.  The legacy
   // facade remains available only for compatibility actions and navigation.
   const runtimeReaders = createRuntimeReaders({ root, now: clock.now });
-  const snapshotLoader = createMarketSnapshotLoader({ httpClient, clock });
+  // The fast quote plane is evidence-gated upstream (scripts/ci-fast-plane-consumer-gate.mjs
+  // derives marketData.fastQuotes.enabled). Read it per load so a promotion takes effect and a
+  // revocation stops working without a reload; when it is unset or disabled the loader chain is
+  // the durable snapshot alone, exactly as before.
+  const snapshotLoader = createMarketSnapshotLoader({
+    httpClient,
+    clock,
+    fastQuotesProvider: () => root?.AIO_PUBLIC_CONFIG?.marketData?.fastQuotes || null
+  });
   let marketSnapshot = null;
   const snapshotEvidence = new Map();
   const aiRetriever = createEvidenceRetriever({ evidenceStore });
@@ -399,7 +407,9 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       const profileKey = typeof root?._aioGetActiveProfile === 'function' ? root._aioGetActiveProfile() : 'balanced';
       const profile = profileKey && root?.AIO_TRADER_PROFILES ? root.AIO_TRADER_PROFILES[profileKey] : null;
       const resolved = deriveFactorWeights({ marketState: root?.AIO?.marketState || null, profile: profileKey === 'balanced' ? null : profile });
-      return { weights: resolved?.weights || null, regimeLabel: resolved?.regimeLabel || null, now: clock.now() };
+      // W07-A/P1146: an explicit user profile is a requested model; the neutral default is
+      // the versioned default model and keeps renormalizing over available factors.
+      return { weights: resolved?.weights || null, weightsPolicy: resolved?.source === 'explicit-user-profile' ? 'explicit' : 'model-default', regimeLabel: resolved?.regimeLabel || null, now: clock.now() };
     }
   });
   const analysisCommands = createAnalysisCommands({ store });
@@ -617,11 +627,10 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopAnalysisRefresh = compatibilityEvents.on('aio:refresh:done', syncAnalysis.sync);
     const stopAnalysisChanged = legacy.on('aio:entityChanged', syncAnalysis.sync);
     const stopAnalysisShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['home', 'signal', 'technical']), syncAnalysis.sync));
-    const stopShown = legacy.on('aio:pageShown', (event) => {
-      const detail = event?.detail;
-      // W00-B: the store route follows the committed router route.
-      const route = typeof detail === 'string' ? detail : detail?.pageId || detail?.route;
-      const committed = router.active() || route;
+    const stopShown = legacy.on('aio:navigationCommitted', (event) => {
+      // W00/P1143: the store route follows the router's single committed result, so
+      // DOM, router, scope, and canonical state move together on one navigation.
+      const committed = event?.detail?.routeId || router.active();
       if (committed) store.dispatch({ type: 'route/changed', payload: committed });
     });
     const stopTimelineStore = store.subscribe(() => emitDataTimelineUpdated('store-updated'));
@@ -640,14 +649,16 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       if (documentRef?.visibilityState !== 'hidden') refreshStaleActivePage();
     };
     documentRef?.addEventListener?.('visibilitychange', onVisibilityTimelineCheck);
-    // W00-B: the initial route commits through the same typed boundary.
-    // router.start() first so pageShown observes the commit.
+    // W00-B: the initial route commits through the same typed boundary. router.start()
+    // first so observers of aio:navigationCommitted see the very first commit.
     const initialRoute = resolveInitialRoute({ root });
     router.start();
     if (!router.active()) {
       router.transition(initialRoute, { source: 'initial-load', directEntry: true });
-      const committedInitial = router.active() || initialRoute;
-      if (store.getState()?.route == null) store.dispatch({ type: 'route/changed', payload: committedInitial });
+      if (store.getState()?.route == null) {
+        const committedInitial = router.active() || initialRoute;
+        if (committedInitial) store.dispatch({ type: 'route/changed', payload: committedInitial });
+      }
     }
     if (root?._serverDataMeta) queueMicrotask(syncServerArtifactConsumers);
     let navigation = legacy.installNavigation(router);
@@ -661,7 +672,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         marketSnapshot = result.snapshot;
         ingestSnapshotEvidence(marketSnapshot);
         store.dispatch({ type: 'market/snapshot', payload: marketSnapshot });
-        applyMarketSnapshotToLegacy(root, marketSnapshot);
+        applyMarketSnapshotToLegacy(root, marketSnapshot, { sourceId: result.source });
         syncSentimentProjection();
         syncMarket.sync();
         emitDataTimelineUpdated('market-snapshot');

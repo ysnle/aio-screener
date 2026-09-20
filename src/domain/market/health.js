@@ -1,4 +1,12 @@
-export const MARKET_HEALTH_MODEL_VERSION = 'market-health.v1';
+export const MARKET_HEALTH_MODEL_VERSION = 'market-health.v2';
+
+// W08-A/P1147 (H01): every optional dimension reports its own coverage against a fixed
+// expected universe, so a 1/7 sample can never read as "strong leadership". The overall
+// score is the sum of the components that clear their minimum coverage, and the result
+// carries `partial` when any of them does not.
+export const MARKET_HEALTH_COMPONENT_MIN_COVERAGE = 0.8;
+export const MARKET_HEALTH_LEADERS = Object.freeze(['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA']);
+export const MARKET_HEALTH_SECTORS = Object.freeze(['XLK', 'XLF', 'XLE', 'XLV', 'XLI', 'XLY', 'XLP', 'XLRE', 'XLB', 'XLU', 'XLC']);
 
 function finite(value) {
   if (value == null || value === '') return null;
@@ -15,6 +23,31 @@ function quoteValue(quotes, symbol, field) {
   return finite(row?.[field] ?? row?.value);
 }
 
+function quotePct(quotes, symbol) {
+  const row = quotes?.[symbol];
+  if (!row || typeof row !== 'object') return null;
+  const pct = finite(row.pct ?? row.regularMarketChangePercent);
+  return pct;
+}
+
+function makeComponent({ id, universe, observedIds, expected, contribution, minimumCoverage = MARKET_HEALTH_COMPONENT_MIN_COVERAGE }) {
+  const expectedUniverse = expected != null ? expected : universe.length;
+  const observedCount = observedIds.length;
+  const ratio = expectedUniverse > 0 ? observedCount / expectedUniverse : 0;
+  const sufficient = expectedUniverse > 0 && ratio >= minimumCoverage;
+  return Object.freeze({
+    id,
+    expectedUniverse,
+    observedCount,
+    missingIds: Object.freeze(universe.filter((symbol) => !observedIds.includes(symbol))),
+    coverageRatio: Math.round(ratio * 1000) / 1000,
+    minimumCoverage,
+    sufficient,
+    contribution: sufficient ? contribution : null,
+    status: sufficient ? 'observed' : observedCount ? 'partial' : 'missing'
+  });
+}
+
 function unavailable(missing) {
   return Object.freeze({
     modelVersion: MARKET_HEALTH_MODEL_VERSION,
@@ -24,8 +57,13 @@ function unavailable(missing) {
     grade: '—',
     regime: '판정 보류',
     missing: Object.freeze([...missing]),
+    partialComponents: Object.freeze([]),
+    components: Object.freeze([]),
+    coverage: Object.freeze({ expectedComponents: 0, observedComponents: 0, partialComponents: Object.freeze([]), minimumCoverage: MARKET_HEALTH_COMPONENT_MIN_COVERAGE }),
+    leadership: Object.freeze({ observed: 0, expected: MARKET_HEALTH_LEADERS.length, up: 0, withheld: true }),
     details: Object.freeze([]),
-    bars: Object.freeze({ spy: 50, qqq: 50, vix: 0, pressure: 0, buyRisk: 0, trend: 50 })
+    // A bar for an unobserved dimension is null, never a fabricated neutral 50.
+    bars: Object.freeze({ spy: null, qqq: null, vix: null, pressure: null, buyRisk: null, trend: null })
   });
 }
 
@@ -62,57 +100,65 @@ export function computeMarketHealth({ quotes = {}, spxMA = {}, spxATH = null } =
   else if (vix < 25) { score -= 4; details.push(`VIX ${vix.toFixed(1)} 주의`); }
   else if (vix < 30) { score -= 10; details.push(`VIX ${vix.toFixed(1)} 경고`); }
   else { score -= 18; details.push(`VIX ${vix.toFixed(1)} 공포!`); }
+  const baseComponent = makeComponent({ id: 'base-indices', universe: ['SPY', 'QQQ', '^VIX'], observedIds: ['SPY', 'QQQ', '^VIX'], contribution: null, minimumCoverage: 1 });
 
-  const leaders = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA'];
-  let leaderUp = 0;
-  let leaderTotal = 0;
-  leaders.forEach((symbol) => {
-    const row = quotes?.[symbol];
-    const pct = finite(row?.pct);
-    if (pct != null) {
-      leaderTotal += 1;
-      if (pct > 0) leaderUp += 1;
-    }
-  });
-  if (leaderTotal > 0) {
-    const ratio = leaderUp / leaderTotal;
-    if (ratio >= 0.7) { score += 8; details.push(`M7 ${leaderUp}/${leaderTotal} 상승 (강한 리더십)`); }
-    else if (ratio >= 0.4) score += 2;
-    else { score -= 6; details.push(`M7 ${leaderUp}/${leaderTotal} 상승 (약한 리더십)`); }
+  // M7 leadership: the denominator stays the full seven-name universe. Receiving fewer names
+  // is a coverage gap, not a smaller universe, so a thin sample withholds the leadership read.
+  const leaderObserved = MARKET_HEALTH_LEADERS.filter((symbol) => quotePct(quotes, symbol) != null);
+  const leaderUp = leaderObserved.filter((symbol) => quotePct(quotes, symbol) > 0).length;
+  let leadershipContribution = 0;
+  if (leaderObserved.length) {
+    const ratio = leaderUp / leaderObserved.length;
+    leadershipContribution = ratio >= 0.7 ? 8 : ratio >= 0.4 ? 2 : -6;
+  }
+  const leadership = makeComponent({ id: 'm7-leadership', universe: MARKET_HEALTH_LEADERS, observedIds: leaderObserved, contribution: leadershipContribution });
+  if (leadership.sufficient) {
+    const ratio = leaderUp / leaderObserved.length;
+    if (ratio >= 0.7) details.push(`M7 ${leaderUp}/${leaderObserved.length} 상승 (강한 리더십)`);
+    else if (ratio < 0.4) details.push(`M7 ${leaderUp}/${leaderObserved.length} 상승 (약한 리더십)`);
+    score += leadership.contribution;
+  } else {
+    details.push(`M7 ${leaderUp}/${leaderObserved.length} 수신 · 표본 부족으로 리더십 판단 보류`);
   }
 
   const ma50 = finite(spxMA?.[50]);
   const ma200 = finite(spxMA?.[200]);
   const spyPrice = quoteValue(quotes, 'SPY', 'price');
+  const trendObserved = [];
+  if (ma50 > 0) trendObserved.push('ma50');
+  if (ma200 > 0) trendObserved.push('ma200');
+  let trendContribution = 0;
   if (ma50 > 0 && ma200 > 0 && spyPrice > 0) {
-    if (ma50 > ma200 && spyPrice > ma50) { score += 8; details.push(`골든 크로스 (50MA>${Math.round(ma50)} > 200MA>${Math.round(ma200)}) + 가격 위`); }
-    else if (ma50 > ma200 && spyPrice < ma50) { score += 2; details.push('50MA 위 200MA, 가격 50MA 하회 — 조정 구간'); }
-    else if (ma50 < ma200 && spyPrice < ma50) { score -= 10; details.push('데스 크로스 (50MA<200MA) + 가격 아래 — 위험'); }
-    else if (ma50 < ma200 && spyPrice > ma50) { score -= 3; details.push('데스 크로스이나 가격 반등 시도 중'); }
+    if (ma50 > ma200 && spyPrice > ma50) { trendContribution += 8; details.push(`골든 크로스 (50MA>${Math.round(ma50)} > 200MA>${Math.round(ma200)}) + 가격 위`); }
+    else if (ma50 > ma200 && spyPrice < ma50) { trendContribution += 2; details.push('50MA 위 200MA, 가격 50MA 하회 — 조정 구간'); }
+    else if (ma50 < ma200 && spyPrice < ma50) { trendContribution -= 10; details.push('데스 크로스 (50MA<200MA) + 가격 아래 — 위험'); }
+    else if (ma50 < ma200 && spyPrice > ma50) { trendContribution -= 3; details.push('데스 크로스이나 가격 반등 시도 중'); }
     const ath = finite(spxATH);
     if (ath > 0) {
       const athDistance = ((spyPrice - ath) / ath) * 100;
       if (athDistance > -2) details.push(`ATH 근접 (${athDistance.toFixed(1)}%)`);
-      else if (athDistance < -10) { score -= 5; details.push(`ATH 대비 ${athDistance.toFixed(1)}% — 조정 구간`); }
+      else if (athDistance < -10) { trendContribution -= 5; details.push(`ATH 대비 ${athDistance.toFixed(1)}% — 조정 구간`); }
     }
   }
+  const trendComponent = makeComponent({ id: 'spx-trend', universe: ['ma50', 'ma200'], observedIds: trendObserved, contribution: trendContribution });
+  if (trendComponent.sufficient) score += trendContribution;
+  else details.push(`SPX 50/200MA ${trendObserved.length}/2 수신 · 추세 판단 보류`);
 
-  const sectors = ['XLK', 'XLF', 'XLE', 'XLV', 'XLI', 'XLY', 'XLP', 'XLRE', 'XLB', 'XLU', 'XLC'];
-  let sectorUp = 0;
-  let sectorTotal = 0;
-  sectors.forEach((symbol) => {
-    const row = quotes?.[symbol];
-    const pct = finite(row?.pct);
-    if (pct != null) {
-      sectorTotal += 1;
-      if (pct > 0) sectorUp += 1;
-    }
-  });
-  if (sectorTotal > 5) {
-    const breadth = sectorUp / sectorTotal;
-    if (breadth >= 0.8) { score += 6; details.push(`섹터 ${sectorUp}/${sectorTotal} 상승 (광범위)`); }
-    else if (breadth >= 0.5) score += 2;
-    else if (breadth < 0.3) { score -= 6; details.push(`섹터 ${sectorUp}/${sectorTotal} 상승 (취약)`); }
+  const sectorObserved = MARKET_HEALTH_SECTORS.filter((symbol) => quotePct(quotes, symbol) != null);
+  const sectorUp = sectorObserved.filter((symbol) => quotePct(quotes, symbol) > 0).length;
+  let sectorContribution = 0;
+  if (sectorObserved.length > 5) {
+    const breadth = sectorUp / sectorObserved.length;
+    sectorContribution = breadth >= 0.8 ? 6 : breadth >= 0.5 ? 2 : breadth < 0.3 ? -6 : 0;
+  }
+  const sectorComponent = makeComponent({ id: 'sector-breadth', universe: MARKET_HEALTH_SECTORS, observedIds: sectorObserved, contribution: sectorContribution, minimumCoverage: 0.5 });
+  if (sectorComponent.sufficient) {
+    const breadth = sectorUp / sectorObserved.length;
+    if (breadth >= 0.8) details.push(`섹터 ${sectorUp}/${sectorObserved.length} 상승 (광범위)`);
+    else if (breadth < 0.3) details.push(`섹터 ${sectorUp}/${sectorObserved.length} 상승 (취약)`);
+    score += sectorContribution;
+  } else {
+    details.push(`섹터 ${sectorUp}/${sectorObserved.length} 수신 · 표본 부족으로 판단 보류`);
   }
 
   score = Math.round(clamp(score));
@@ -125,23 +171,37 @@ export function computeMarketHealth({ quotes = {}, spxMA = {}, spxATH = null } =
   else if (score >= 20) { grade = 'D'; regime = '약세장'; }
   else { grade = 'F'; regime = '극심한 약세'; }
 
+  const components = Object.freeze([baseComponent, leadership, trendComponent, sectorComponent]);
+  const partialComponents = components.filter((component) => !component.sufficient).map((component) => component.id);
+
   const spyBar = clamp(50 + spyPct * 10);
   const qqqBar = clamp(50 + qqqPct * 10);
   const vixBar = clamp(((vix - 10) / 30) * 100);
-  const trend = ma50 > 0 && ma200 > 0 && spyPrice > 0
+  // A missing trend dimension stays unavailable instead of defaulting to a neutral 50.
+  const trendBar = trendComponent.sufficient
     ? (ma50 > ma200 && spyPrice > ma50 ? 85 : ma50 > ma200 ? 60 : spyPrice > ma50 ? 40 : 20)
-    : 50;
+    : null;
   const pressure = vixBar;
   return Object.freeze({
     modelVersion: MARKET_HEALTH_MODEL_VERSION,
     available: true,
-    status: 'current',
+    // `partial` is propagated whenever any component misses its minimum coverage.
+    status: partialComponents.length ? 'partial' : 'current',
     score,
     grade,
     regime,
     missing: Object.freeze([]),
+    partialComponents: Object.freeze(partialComponents),
+    components,
+    coverage: Object.freeze({
+      expectedComponents: components.length,
+      observedComponents: components.filter((component) => component.sufficient).length,
+      partialComponents: Object.freeze(partialComponents),
+      minimumCoverage: MARKET_HEALTH_COMPONENT_MIN_COVERAGE
+    }),
+    leadership: Object.freeze({ observed: leaderObserved.length, expected: MARKET_HEALTH_LEADERS.length, up: leaderUp, withheld: !leadership.sufficient }),
     details: Object.freeze(details),
-    bars: Object.freeze({ spy: spyBar, qqq: qqqBar, vix: vixBar, pressure, buyRisk: 100 - pressure, trend }),
-    inputs: Object.freeze({ spyPct, qqqPct, vix, spyPrice, ma50, ma200, leaderUp, leaderTotal, sectorUp, sectorTotal })
+    bars: Object.freeze({ spy: spyBar, qqq: qqqBar, vix: vixBar, pressure, buyRisk: 100 - pressure, trend: trendBar }),
+    inputs: Object.freeze({ spyPct, qqqPct, vix, spyPrice, ma50, ma200, leaderUp, leaderTotal: leaderObserved.length, leaderExpected: MARKET_HEALTH_LEADERS.length, sectorUp, sectorTotal: sectorObserved.length, sectorExpected: MARKET_HEALTH_SECTORS.length })
   });
 }

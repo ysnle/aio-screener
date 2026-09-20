@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v55.22';
+const APP_VERSION = 'v56';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -17184,6 +17184,12 @@ var _AIO_PROVIDER_REGISTRY = [
   { id: 'newsdata', label: 'NewsData.io', credentialKey: 'aio_newsdata_key', inputId: 'aio_newsdata_key_input', kind: 'news', format: 'opaque' },
   { id: 'bok', label: 'BOK ECOS', credentialKey: 'aio_bok_key', inputId: 'aio_bok_key_input', kind: 'macro', format: 'opaque' },
   { id: 'kosis', label: 'KOSIS', credentialKey: 'aio_kosis_key', inputId: 'aio_kosis_key_input', kind: 'macro', format: 'opaque' },
+  // 웹 검색 제공자. 기본 경로는 Claude 네이티브 web_search이고, 아래 키는 그보다 먼저
+  // 시도되는 선택 경로다(aio-chat.js 의 검색 디스패처). v56.0 이전에는 이 키들을 코드가
+  // 읽고 export/Vault 목록에도 있었지만 사이드바 입력란이 없어 도달할 수 없었다.
+  { id: 'perplexity', label: 'Perplexity', credentialKey: 'aio_perplexity_key', inputId: 'aio_perplexity_key_input', kind: 'search', format: 'opaque' },
+  { id: 'google-cse-key', label: 'Google CSE Key', credentialKey: 'aio_google_cse_key', inputId: 'aio_google_cse_key_input', kind: 'search', format: 'opaque' },
+  { id: 'google-cse-cx', label: 'Google CSE Engine ID', credentialKey: 'aio_google_cse_cx', inputId: 'aio_google_cse_cx_input', kind: 'search', format: 'opaque' },
   { id: 'cloudflare-worker', label: 'CF Worker', credentialKey: 'aio_cf_worker_url', inputId: 'aio_cf_worker_input', kind: 'worker', format: 'url' }
 ];
 var _AIO_PROVIDER_BY_KEY = {};
@@ -17300,6 +17306,10 @@ function _aioRefreshProviderStatuses() {
   if (summary) {
     var values = Object.keys(snapshot).map(function(id) { return snapshot[id]; });
     var configured = values.filter(function(s) { return s.storage && s.storage.indexOf('READY') === 0; }).length;
+    // 저장은 연결의 증거가 아니다. 실제 호출 결과(aio-data/aio-chat 이 updateProviderStatus 로
+    // 기록)를 따로 세어, "저장됨"이 "동작함"으로 읽히지 않게 한다.
+    var verified = values.filter(function(s) { return s.connection === 'VERIFIED' || s.authentication === 'VERIFIED'; }).length;
+    var failed = values.filter(function(s) { return s.authentication === 'FAILED' || s.connection === 'FAILED'; }).length;
     var fred = snapshot.fred || {};
     var statusKo = {
       NOT_CHECKED:'미확인', VERIFIED:'성공', FAILED:'실패',
@@ -17307,12 +17317,14 @@ function _aioRefreshProviderStatuses() {
       MISSING:'미저장', READY_PLAINTEXT:'저장됨', READY_SESSION:'탭 저장',
       READY_ENCRYPTED:'암호화 저장', LOCKED:'Vault 잠김'
     };
-    summary.textContent = '저장 확인 ' + configured + '개 · FRED 저장: '
-      + (statusKo[fred.storage] || fred.storage || '미확인') + ' / 인증: '
+    summary.textContent = '저장 ' + configured + '개 · 실제 호출 성공 ' + verified + '개'
+      + (failed ? ' · 실패 ' + failed + '개' : '')
+      + ' · FRED 인증: '
       + (statusKo[fred.authentication] || fred.authentication || '미확인') + ' / 연결: '
       + (statusKo[fred.connection] || fred.connection || '미확인')
       + ' · 최신성/사용 권한과 분리';
   }
+  if (typeof _aioSyncClaudeServerModeUI === 'function') _aioSyncClaudeServerModeUI();
   return snapshot;
 }
 // The top-level function declaration already provides the legacy window export.
@@ -17523,14 +17535,16 @@ async function _saveApiKey(lsKey, inputId, btnEl) {
   return result;
 }
 
-// ═══ v49.45 P312 신규: API 키 백업/복원 + IndexedDB 이중화 (R100) ═══════════
-// 사용자가 브라우저 캐시 클리어 / 시크릿 모드 / 데이터 일괄 삭제 시 localStorage(API 키) 동시 손실 차단.
-// 3중 안전망:
-//   (1) localStorage (기본) — `_saveApiKey` 호출 시 저장
-//   (2) IndexedDB `aio-keys-backup` — `_saveApiKey` 호출 시 동시 mirror (캐시 클리어와 별도 저장소)
-//   (3) Export JSON 파일 — 사용자가 명시 백업 (마스킹 옵션)
+// ═══ API 키 백업/복원 (P312, P838에서 IndexedDB 이중화 폐기) ═══════════
+// 브라우저 캐시 클리어·시크릿 모드·데이터 일괄 삭제 시 localStorage(API 키)가 함께 사라지므로
+// 사용자가 스스로 백업할 수 있는 경로를 제공한다.
+// 키 보존 경로는 두 가지뿐이다. 자동 IndexedDB 평문 미러는 P838에서 폐기·삭제되었으므로
+// 아래 폐기 스텁은 호출자 호환용으로만 남아 있고, 어떤 값도 쓰지 않는다.
+//   (1) localStorage (기본) — `_saveApiKey` 호출 시 저장, Vault PIN 설정 시 AES-GCM 암호화
+//   (2) Export JSON 파일 — 사용자가 명시 백업 (마스킹 옵션)
 
-// IndexedDB 백업 helper
+// Retired automatic backup entry points. They intentionally write nothing: the legacy
+// plaintext mirror was a key-exposure surface, not a safety net.
 window._aioIdbBackupKeys = async function() {
   return { ok: false, retired: true, reason: 'automatic_plaintext_idb_backup_retired' };
 };
@@ -17566,8 +17580,7 @@ window._aioCollectKeySnapshot = function() {
   return snap;
 };
 
-// `_saveApiKey` 호출 시 IndexedDB도 동시 mirror (자동 백업)
-// → 사용자가 명시 호출 없이도 캐시 클리어와 별도 저장소에 보존
+// Retired: this used to mirror every saved key into IndexedDB (plaintext, outside the Vault).
 window._aioAutoBackupKeys = function() {
   return { ok: false, retired: true, reason: 'automatic_plaintext_idb_backup_retired' };
 };
@@ -18921,6 +18934,47 @@ setTimeout(function() {
     }
   } catch(_e) {}
 }, 2000);
+
+// v56.0: 개인 Worker 서버 키 모드 토글.
+// aio-chat.js 의 _aioClaudeTarget 은 이 플래그가 켜져 있고 개인 Worker URL이 있으면 입력한
+// 개인 Claude 키를 사용하지 않고 Worker 키를 쓴다. 그런데 v56.0 이전에는 이 값을 바꿀 UI가
+// 없어 localStorage 를 직접 편집해야 했고, 켜져 있으면 개인 키가 조용히 무시됐다.
+var CLAUDE_SERVER_MODE_KEY = 'aio_claude_server_mode';
+
+function _aioClaudeServerModeEnabled() {
+  try { return localStorage.getItem(CLAUDE_SERVER_MODE_KEY) === '1'; } catch (_e) { return false; }
+}
+
+function _aioSyncClaudeServerModeUI() {
+  var enabled = _aioClaudeServerModeEnabled();
+  var box = document.getElementById('aio-claude-server-mode-toggle');
+  if (box) box.checked = enabled;
+  var hint = document.getElementById('aio-claude-server-mode-hint');
+  if (hint) {
+    var hasPersonalWorker = typeof _getApiKey === 'function' ? !!_getApiKey('aio_cf_worker_url') : false;
+    // Say which key actually wins, so "my key is being ignored" is never a silent surprise.
+    hint.textContent = !enabled ? '' : (hasPersonalWorker
+      ? 'ON — 개인 Claude 키보다 Worker 키가 우선'
+      : '개인 Worker URL 없음 — 이 설정은 효과가 없습니다');
+  }
+  return enabled;
+}
+
+window._aioClaudeServerModeToggle = function(checked, el) {
+  var enabled = (el && typeof el.checked === 'boolean') ? el.checked : !!checked;
+  try {
+    if (enabled) localStorage.setItem(CLAUDE_SERVER_MODE_KEY, '1');
+    else localStorage.removeItem(CLAUDE_SERVER_MODE_KEY);
+  } catch (_e) {}
+  _aioSyncClaudeServerModeUI();
+  var hasPersonalWorker = typeof _getApiKey === 'function' ? !!_getApiKey('aio_cf_worker_url') : false;
+  if (enabled && !hasPersonalWorker && typeof showToast === 'function') {
+    showToast('개인 Worker URL이 없어 서버 키 모드는 효과가 없습니다');
+  }
+  if (typeof _aioLog === 'function') _aioLog('info', 'config', 'Claude 서버 키 모드 ' + (enabled ? 'ON' : 'OFF'));
+  return enabled;
+};
+try { window._aioSyncClaudeServerModeUI = _aioSyncClaudeServerModeUI; } catch (_e) {}
 
 window._aioExportKeys = function() {
   try {

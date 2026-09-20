@@ -407,6 +407,58 @@ const { renderSentimentSummaryProjection } = await load('src/ui/projections/sent
   handle.dispose();
 }
 
+// ── W00/P1143: one click = one commit; a scalar pageShown detail is not an entity ──
+// The pre-fix path transitioned twice per click (aio:pageShown replay + facade call),
+// gave the scalar page id entityId='FUNDAMENTAL', and left store.route on the previous
+// route. This fixture binds the real order: legacy showPage fires aio:pageShown, then
+// the typed facade commits, and only aio:navigationCommitted reports the result.
+{
+  const { createLifecycleRouter, createRouteRegistry } = await load('src/app/router.js');
+  const buildRegistry = (mounts) => createRouteRegistry({ modules: {
+    home: { route: 'home', mount: () => { mounts.push('home'); return () => {}; } },
+    fundamental: { route: 'fundamental', mount: ({ scope }) => { mounts.push(`fundamental:${scope.entityId}`); return () => {}; } }
+  } });
+
+  // Event-only mode (hosts without a writable showPage global): the scalar detail is the
+  // page id, so no scope may be keyed by it.
+  {
+    const mounts = [];
+    const target = new EventTarget();
+    const router = createLifecycleRouter({ root: target, registry: buildRegistry(mounts), context: {} });
+    router.start();
+    target.dispatchEvent(new CustomEvent('aio:pageShown', { detail: 'fundamental' }));
+    if (router.active() !== 'fundamental') fail('W00/P1143 navigation: event-mode pageShown did not commit the route');
+    if (router.activeScope()?.entityId !== null) fail(`W00/P1143 navigation: scalar pageShown detail became entity id ${router.activeScope()?.entityId}`);
+    if (mounts.join(',') !== 'fundamental:null') fail(`W00/P1143 navigation: event-mode scalar detail mounted unexpected scopes: ${mounts.join(',')}`);
+    router.dispose();
+  }
+
+  // Facade-authority mode: a single click must produce exactly one mount and one commit.
+  {
+    const mounts = [];
+    const committed = [];
+    const target = new EventTarget();
+    const router = createLifecycleRouter({ root: target, registry: buildRegistry(mounts), context: {} });
+    target.addEventListener('aio:navigationCommitted', (event) => committed.push(event.detail));
+    const handle = router.start();
+    handle.transition('home', { source: 'initial-load' });
+    handle.claimNavigationAuthority();
+    const click = (pageId, ...args) => {
+      target.dispatchEvent(new CustomEvent('aio:pageShown', { detail: pageId }));
+      const explicitEntity = args.find((arg) => typeof arg === 'string' && arg.trim()) || null;
+      handle.transition(pageId, { source: 'architecture-navigation', entityId: explicitEntity });
+    };
+    click('fundamental', target);
+    const expected = mounts.filter((entry) => entry.startsWith('fundamental'));
+    if (expected.length !== 1) fail(`W00/P1143 navigation: one click mounted ${expected.length} scopes (${mounts.join(',')})`);
+    if (router.active() !== 'fundamental') fail('W00/P1143 navigation: facade click did not commit the route');
+    if (router.activeScope()?.entityId !== null) fail('W00/P1143 navigation: a DOM nav element became the scope entity id');
+    const last = committed[committed.length - 1];
+    if (last?.routeId !== 'fundamental' || last?.mountId !== 2 || last?.source !== 'architecture-navigation') fail(`W00/P1143 navigation: commit result did not report the single committed route: ${JSON.stringify(last)}`);
+    handle.dispose();
+  }
+}
+
 // ── router.js ────────────────────────────────────────────────────────────────────────────────
 {
   const mountLog = [];
@@ -705,6 +757,72 @@ const { renderSentimentSummaryProjection } = await load('src/ui/projections/sent
   const invalidOptional = computeMarketHealth({ quotes: { SPY: { pct: 0 }, QQQ: { pct: 0 }, '^VIX': { price: 20 }, AAPL: { pct: null }, XLK: { pct: 'bad' } } });
   if (invalidOptional.inputs.leaderTotal !== 0 || invalidOptional.inputs.sectorTotal !== 0) fail('market-health: invalid optional quotes were counted as declining observations');
   if (computeMarketHealth({ quotes: { SPY: { pct: 0 }, QQQ: { pct: 0 }, '^VIX': { price: -1 } } }).available) fail('market-health: impossible negative VIX was accepted');
+  // W08-A/P1147 (H01): an unavailable bar is null, not a fabricated neutral 50.
+  if (unavailable.bars.spy !== null || unavailable.bars.trend !== null) fail(`market-health: unavailable dimensions must not publish fabricated neutral bars, got ${JSON.stringify(unavailable.bars)}`);
+  if (bullish.status !== 'current' || (bullish.partialComponents || []).length !== 0) fail(`W08-A: fully observed components must read current, got ${JSON.stringify({ status: bullish.status, partial: bullish.partialComponents })}`);
+  // The M7 denominator stays the full seven-name universe; a thin sample withholds leadership
+  // instead of granting +8 "strong leadership" on a 1/1 sample.
+  const thinLeadership = computeMarketHealth({ quotes: { SPY: { pct: 0 }, QQQ: { pct: 0 }, '^VIX': { price: 20 }, AAPL: { pct: 1 } }, spxMA: { 50: 500, 200: 450 } });
+  if (thinLeadership.leadership.observed !== 1 || thinLeadership.leadership.expected !== 7 || thinLeadership.leadership.withheld !== true) fail(`W08-A: a 1/7 M7 sample must withhold leadership against the full denominator, got ${JSON.stringify(thinLeadership.leadership)}`);
+  if (thinLeadership.status !== 'partial' || !thinLeadership.partialComponents.includes('m7-leadership')) fail(`W08-A: an insufficient M7 sample must mark the result partial, got ${JSON.stringify({ status: thinLeadership.status, partial: thinLeadership.partialComponents })}`);
+  if (thinLeadership.score >= 50 + 8) fail(`W08-A: a withheld leadership sample must not raise the score, got ${thinLeadership.score}`);
+  // A missing 50/200MA is an unavailable trend dimension, never a neutral 50 bar.
+  const noTrend = computeMarketHealth({ quotes: { SPY: { pct: 0 }, QQQ: { pct: 0 }, '^VIX': { price: 20 } } });
+  if (noTrend.bars.trend !== null || !noTrend.partialComponents.includes('spx-trend')) fail(`W08-A: a missing 50/200MA must be an unavailable trend bar, got ${JSON.stringify({ trend: noTrend.bars.trend, partial: noTrend.partialComponents })}`);
+  const zeroMa = computeMarketHealth({ quotes: { SPY: { pct: 0, price: 100 }, QQQ: { pct: 0 }, '^VIX': { price: 20 } }, spxMA: { 50: 0, 200: 0 } });
+  if (zeroMa.bars.trend !== null) fail('W08-A: a zero MA is missing evidence, not an observed trend');
+  // A genuinely observed zero percentage stays observed (distinct from missing).
+  const zeroPct = computeMarketHealth({ quotes: { SPY: { pct: 0 }, QQQ: { pct: 0 }, '^VIX': { price: 20 } } });
+  if (zeroPct.bars.spy !== 50 || zeroPct.bars.qqq !== 50) fail(`W08-A: a valid 0% move must stay observed, got ${JSON.stringify({ spy: zeroPct.bars.spy, qqq: zeroPct.bars.qqq })}`);
+}
+
+// ── W08-B/P1147 (H02): the 2s10s spread names its two legs and their alignment ──────────────
+{
+  const { buildTreasuryCurveSpread } = await load('src/domain/macro/treasury-curve.js');
+  const sameDay = buildTreasuryCurveSpread({
+    twoY: 4.1, tenY: 4.3,
+    legs: { twoY: { instrumentId: 'DGS2', observedAt: '2026-09-18T00:00:00Z', provider: 'FRED' }, tenY: { instrumentId: '^TNX', observedAt: '2026-09-18T20:00:00Z', provider: 'live-quote' } }
+  });
+  if (sameDay.mode !== 'aligned-legs' || sameDay.spread !== 0.2 || sameDay.mixedDates !== false) fail(`W08-B: same-day legs must compute an aligned spread, got ${JSON.stringify(sameDay)}`);
+  if (sameDay.legs[0].instrumentId !== 'DGS2' || sameDay.legs[1].instrumentId !== '^TNX' || sameDay.legs[0].unit !== 'percent') fail(`W08-B: each leg must keep its identity/unit, got ${JSON.stringify(sameDay.legs)}`);
+  // The official same-date FRED spread outranks a local calculation.
+  const official = buildTreasuryCurveSpread({ twoY: 4.1, tenY: 4.3, officialSpread: 0.18, legs: {} });
+  if (official.mode !== 'official-same-date' || official.spread !== 0.18) fail(`W08-B: the official same-date spread must win, got ${JSON.stringify(official)}`);
+  // Legs from different observation dates are a mixed-date reference, never a live curve.
+  const mixed = buildTreasuryCurveSpread({
+    twoY: 4.1, tenY: 4.3,
+    legs: { twoY: { instrumentId: 'DGS2', observedAt: '2026-09-15T00:00:00Z' }, tenY: { instrumentId: '^TNX', observedAt: '2026-09-18T20:00:00Z' } }
+  });
+  if (mixed.mode !== 'mixed-date-reference' || mixed.mixedDates !== true || !mixed.label.includes('혼합 시점') || !mixed.label.includes('실시간 곡선 아님')) fail(`W08-B: differing leg dates must be labelled a mixed-date reference, got ${JSON.stringify(mixed)}`);
+  // An unknown leg observation time cannot be called aligned.
+  const unknownTime = buildTreasuryCurveSpread({ twoY: 4.1, tenY: 4.3, legs: {} });
+  if (unknownTime.mode !== 'mixed-date-reference' || !unknownTime.label.includes('관측시각 미확인')) fail(`W08-B: unknown leg observation times must not be called aligned, got ${JSON.stringify(unknownTime)}`);
+  // One leg missing withholds instead of computing from the other.
+  const oneLeg = buildTreasuryCurveSpread({ twoY: 4.1, tenY: null, legs: {} });
+  if (oneLeg.mode !== 'unavailable' || oneLeg.spread !== null) fail(`W08-B: a missing leg must withhold the spread, got ${JSON.stringify(oneLeg)}`);
+  // Negative/zero spreads stay numeric and are not withheld.
+  const inverted = buildTreasuryCurveSpread({ twoY: 4.4, tenY: 4.0, officialSpread: -0.4, legs: {} });
+  if (inverted.spread !== -0.4 || inverted.mode !== 'official-same-date') fail(`W08-B: an inverted curve must keep its signed spread, got ${JSON.stringify(inverted)}`);
+}
+
+// ── W09-C/P1148 (F03): one absolute-time formatting owner with a timezone ────────────────────
+// `root.getAbsoluteTime` had no implementation in the repo and the fallback was '', so the news
+// card silently dropped the absolute publication time and showed only a relative label.
+{
+  const { formatAbsoluteTime } = await load('src/ui/pages/news.js');
+  const formatted = formatAbsoluteTime('2026-09-19T11:57:00.000Z', 'Asia/Seoul');
+  if (!formatted || !formatted.includes('2026') || !formatted.includes('57') || !/(KST|GMT\+9)/.test(formatted)) {
+    fail(`W09-C: the absolute publication time must render with its timezone, got ${JSON.stringify(formatted)}`);
+  }
+  if (formatAbsoluteTime('') !== '' || formatAbsoluteTime(null) !== '' || formatAbsoluteTime('not-a-date') !== '') {
+    fail('W09-C: an unparseable publication time must render as empty, not a fabricated timestamp');
+  }
+  const utc = formatAbsoluteTime('2026-09-19T11:57:00.000Z', 'UTC');
+  if (!/11:57/.test(utc)) fail(`W09-C: the UTC timezone rendering drifted, got ${JSON.stringify(utc)}`);
+  const newsSource = (await import('node:fs')).readFileSync(new URL('../src/ui/pages/news.js', import.meta.url), 'utf8');
+  if (!/getAbsoluteTime[\s\S]{0,80}\|\|\s*formatAbsoluteTime\(/.test(newsSource) || !/data-published-at|dataset\.publishedAt/.test(newsSource)) {
+    fail('W09-C: the news card must fall back to the local formatter and keep the raw publication instant');
+  }
 }
 
 // ── domain boundary missingness and immutability ─────────────────────────────────────────────
@@ -882,6 +1000,70 @@ const { renderSentimentSummaryProjection } = await load('src/ui/projections/sent
     const tieB = result.rows.find((r) => r.sym === 'TIE_B');
     if (tieA._compositeZ !== tieB._compositeZ) fail(`factor-ranks: test setup expected identical composite scores for the tie check, got ${tieA._compositeZ} vs ${tieB._compositeZ}`);
     if (tieA.rank !== tieB.rank) fail(`factor-ranks: equal composites must receive equal midranks, got ranks ${tieA.rank}/${tieB.rank}`);
+  }
+
+  // W07-A/P1146 (M01): an explicit weight request must not degrade into a different model.
+  // quality has no fundamental lineage in baseRow, so a quality-only request is not computable.
+  {
+    const rows = [1, 2, 3, 4, 5, 6, 7, 8].map((seed) => baseRow('W' + seed, 'Tech', seed));
+    const unavailableRequest = computeFactorRanks({ rows, weights: { quality: 1 }, now: 0 });
+    if (unavailableRequest.rankingState !== 'unavailable' || unavailableRequest.available !== false || unavailableRequest.rankingUnavailableReason !== 'requested-factors-unavailable' || unavailableRequest.ranked !== 0) {
+      fail(`W07-A: a fully-unavailable explicit request must fail closed, got ${JSON.stringify({ state: unavailableRequest.rankingState, reason: unavailableRequest.rankingUnavailableReason, ranked: unavailableRequest.ranked })}`);
+    }
+    const nonPositive = computeFactorRanks({ rows, weights: { momentum: 0, trend: -1, lowvol: NaN }, now: 0 });
+    if (nonPositive.rankingUnavailableReason !== 'requested-weights-not-positive' || nonPositive.rankingState !== 'unavailable') {
+      fail(`W07-A: a non-positive explicit request must not be promoted to equal/positive weights, got ${JSON.stringify(nonPositive.rankingUnavailableReason)}`);
+    }
+    // 90/10 quality/momentum: momentum is computable, but losing 90% of the request still withholds.
+    const coverageBlocked = computeFactorRanks({ rows, weights: { quality: 0.9, momentum: 0.1 }, now: 0 });
+    if (coverageBlocked.rankingUnavailableReason !== 'requested-factor-coverage-below-threshold' || coverageBlocked.rankingState !== 'unavailable') {
+      fail(`W07-A: a 90% requested-weight loss must not renormalize onto momentum, got ${JSON.stringify(coverageBlocked.rankingUnavailableReason)}`);
+    }
+    const allowedPartial = computeFactorRanks({ rows, weights: { momentum: 0.9, quality: 0.1 }, now: 0 });
+    if (allowedPartial.rankingState !== 'ranked' || allowedPartial.appliedFactorWeights.momentum !== 1 || allowedPartial.excludedFactorWeights.quality !== 0.1 || Math.abs(allowedPartial.requestedWeightCoveragePct - 90) > 1e-9) {
+      fail(`W07-A: an allowed partial request must report requested/applied/excluded weights and lost coverage, got ${JSON.stringify({ state: allowedPartial.rankingState, applied: allowedPartial.appliedFactorWeights, excluded: allowedPartial.excludedFactorWeights, coveragePct: allowedPartial.requestedWeightCoveragePct })}`);
+    }
+    const modelDefault = computeFactorRanks({ rows, weights: { momentum: 0.27, trend: 0.2, lowvol: 0.16, size: 0.08, value: 0.1, quality: 0.09, kalman: 0.1 }, weightsPolicy: 'model-default', now: 0 });
+    if (modelDefault.rankingState !== 'ranked' || modelDefault.weightsPolicy !== 'model-default') {
+      fail(`W07-A: the versioned default model must keep renormalizing over available factors, got ${JSON.stringify(modelDefault.rankingState)}`);
+    }
+  }
+}
+
+// ── W07-E/P1146 (M06): monthly performance requires a contiguous monthly grid ────────────────
+// A gap must never be filled, and two months must never be spliced into one monthly return sample.
+{
+  const { buildPortfolioBacktestLab } = await load('src/domain/portfolio/backtest.js');
+  const monthKeys = (startYear, startMonth, count) => {
+    const keys = [];
+    for (let i = 0; i < count; i++) {
+      const offset = startMonth - 1 + i;
+      keys.push(`${startYear + Math.floor(offset / 12)}-${String((offset % 12) + 1).padStart(2, '0')}`);
+    }
+    return keys;
+  };
+  const priceMapFor = (keys) => {
+    const timestamps = keys.map((key) => `${key}-28T00:00:00Z`);
+    const values = keys.map((_, index) => 100 * Math.pow(1.01, index));
+    const series = () => ({ timestamps: [...timestamps], adjustedCloses: [...values], backtestEligible: true, backtestPriceBasis: 'adjusted-close' });
+    return { AAA: series(), SPY: series() };
+  };
+  const positions = [{ ticker: 'AAA', qty: 10, cost: 10 }];
+
+  const fullKeys = monthKeys(2024, 1, 16);
+  const full = buildPortfolioBacktestLab(priceMapFor(fullKeys), positions, {});
+  if (!full.ok || full.settings?.monthlyGridBasis !== 'contiguous' || (full.settings?.gridGaps || []).length !== 0) {
+    fail(`W07-E: a contiguous monthly grid must not be withheld, got ${JSON.stringify(full.settings || full.reason)}`);
+  }
+
+  const gapped = buildPortfolioBacktestLab(priceMapFor(fullKeys.filter((key) => key !== '2024-08')), positions, {});
+  if (gapped.ok !== false || gapped.reason !== 'monthly grid has gaps and no contiguous window reaches 14 months' || gapped.gridGaps?.[0]?.missingMonths !== 1) {
+    fail(`W07-E: a gapped monthly grid must withhold instead of splicing two months into one sample, got ${JSON.stringify({ ok: gapped.ok, reason: gapped.reason, gaps: gapped.gridGaps })}`);
+  }
+
+  const longGapped = buildPortfolioBacktestLab(priceMapFor(monthKeys(2024, 1, 30).filter((key) => key !== '2024-02')), positions, {});
+  if (longGapped.ok !== true || longGapped.settings?.monthlyGridBasis !== 'longest-contiguous-window' || (longGapped.settings?.excludedMonths || []).join(',') !== '2024-01' || (longGapped.settings?.gridGaps || []).length !== 1) {
+    fail(`W07-E: a long gapped grid must fall back to the longest contiguous window and name the exclusion, got ${JSON.stringify({ ok: longGapped.ok, settings: longGapped.settings })}`);
   }
 }
 
@@ -1102,6 +1284,15 @@ const { renderSentimentSummaryProjection } = await load('src/ui/projections/sent
   if (lockedCash.totalAssets === 0 || lockedCash.totalAssets === 10000 || lockedCash.valuationState !== 'unavailable') fail(`W02/P1143 portfolio-surface: locked/failed must never read as $0 or cash, got ${JSON.stringify(lockedCash)}`);
   const w02Partial = derivePortfolioSurface({ state: { readState: 'ready', holdingsKnown: true, status: 'current', holdings: [{ symbol: 'AAA', shares: 1, avgCost: 10 }, { symbol: 'BBB', shares: 1, avgCost: 10 }], cash: 100, cashKnown: true }, liveData: { AAA: currentQuote(12, { pct: 2 }) }, vix: currentQuote(22), now: quoteNow });
   if (w02Partial.valuationState !== 'partial' || w02Partial.totalAssets !== null || w02Partial.valuedHoldingCount !== 1) fail(`W02/P1143 portfolio-surface: partial must withhold totals with n/m state, got ${JSON.stringify(w02Partial)}`);
+  // W02/P1143: the provider read result is the only source. An explicitly empty Vault
+  // read must stay empty instead of falling back to a stored copy, a real 0 cash must
+  // survive, and locked/failed reads must reach the surface without a valuation.
+  const { createPortfolioProvider } = await load('src/data/providers/portfolio.js');
+  const emptyRead = createPortfolioProvider({ read: () => ({ holdings: [], holdingsKnown: true, cash: 0, cashKnown: true, readState: 'ready', status: 'empty' }) }).readCurrent();
+  if (!emptyRead.holdingsKnown || emptyRead.holdings.length !== 0 || emptyRead.cash !== 0 || emptyRead.readState !== 'ready') fail(`W02/P1143 portfolio-provider: an explicit empty read was not preserved, got ${JSON.stringify(emptyRead)}`);
+  const lockedRead = createPortfolioProvider({ read: () => ({ holdings: [], holdingsKnown: false, cash: null, cashKnown: false, readState: 'locked', status: 'locked' }) }).readCurrent();
+  const lockedSurface = derivePortfolioSurface({ state: lockedRead, liveData: {}, vix: null });
+  if (lockedSurface.readState !== 'locked' || lockedSurface.totalAssets !== null) fail(`W02/P1143 portfolio-provider: locked read leaked a valuation, got ${JSON.stringify(lockedSurface)}`);
 }
 {
   const { deriveSecReport } = await load('src/domain/fundamental/sec-report.js');

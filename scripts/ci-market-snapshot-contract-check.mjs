@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createMarketSnapshot, TIER_0_INSTRUMENTS, validateMarketSnapshot, tier0Coverage } from '../src/data/contracts/market-snapshot.js';
+import { createMarketSnapshotLoader } from '../src/data/market-snapshot-loader.js';
 import { buildMarketSnapshot, deriveMarketSession } from './build-market-snapshot.mjs';
 import { isLatestUsRegularClose } from '../src/ai/time/market-session.js';
 
@@ -95,6 +96,48 @@ const future = buildMarketSnapshot({ quotes: futureQuotes, attemptedAt, source: 
 if (future.complete || !future.snapshot.quotes.every((row) => row.quality === 'QUARANTINED' && row.session === 'SOURCE_UNAVAILABLE')) fail('future Tier-0 observations were not quarantined');
 const missingObservation = buildMarketSnapshot({ quotes: fixtureQuotes.map((row, index) => index === 0 ? { ...row, observedAt: null } : row), attemptedAt, source: 'fixture', now: Date.parse(attemptedAt) });
 if (missingObservation.complete || missingObservation.coverage.observed !== TIER_0_INSTRUMENTS.length - 1) fail('missing observation time did not fail closed as incomplete coverage');
+
+// W03-A/P1145: publishing is accepted from the MEASURED required set, not the
+// payload's self-reported coverage. Each tamper must be rejected, a duplicate can
+// never round up declared coverage, and optional Tier-1 gaps must not become a
+// Tier-0 failure.
+const tamperBase = readJson('public-data/market-snapshot.json');
+const tamperCase = (label, mutate, expectedError) => {
+  const candidate = JSON.parse(JSON.stringify(tamperBase));
+  mutate(candidate);
+  const result = validateMarketSnapshot(createMarketSnapshot(candidate));
+  if (result.ok) fail(`W03-A tamper "${label}" was accepted`);
+  if (expectedError && !result.errors.some((error) => error.includes(expectedError))) fail(`W03-A tamper "${label}" lacked ${expectedError}: ${result.errors.join(',')}`);
+};
+tamperCase('quotes removed', (candidate) => { candidate.quotes = []; }, 'published_coverage_below_100_percent');
+tamperCase('first instrument removed', (candidate) => { candidate.quotes = candidate.quotes.slice(1); }, 'published_tier0_missing');
+tamperCase('unit changed', (candidate) => { candidate.quotes[0].unit = 'WRONG_UNIT'; }, 'published_unit_mismatch');
+tamperCase('duplicate instrument', (candidate) => { candidate.quotes[1] = { ...candidate.quotes[0] }; }, 'published_tier0_duplicate');
+tamperCase('unknown instrument', (candidate) => { candidate.quotes[0].instrumentId = 'NOT-IN-REGISTRY'; }, 'published_instrument_unknown');
+tamperCase('declared over ship', (candidate) => { candidate.coverage = { ...candidate.coverage, required: 17, tier0Required: 17 }; }, 'published_declared_coverage_mismatch');
+{
+  const candidate = JSON.parse(JSON.stringify(tamperBase));
+  candidate.quotes[1] = { ...candidate.quotes[0], evidenceId: 'duplicate:two' };
+  const audit = validateMarketSnapshot(createMarketSnapshot(candidate)).audit;
+  if (audit.measured.observed !== TIER_0_INSTRUMENTS.length - 2 || !audit.duplicates.includes(candidate.quotes[0].instrumentId)) fail('W03-A: a duplicate instrument was counted as distinct coverage');
+}
+{
+  const candidate = JSON.parse(JSON.stringify(tamperBase));
+  candidate.coverage = { ...candidate.coverage, tier1Required: 4, tier1Observed: 1 };
+  const result = validateMarketSnapshot(createMarketSnapshot(candidate));
+  if (!result.ok || result.audit.tier1.complete !== false || result.audit.declaredMatchesMeasured !== true) fail(`W03-A: an optional Tier-1 gap was folded into Tier-0 acceptance: ${JSON.stringify(result)}`);
+}
+// The loader must accept the published artifact and refuse a tampered one, so a
+// bad payload can never replace the consumer's last-good snapshot.
+{
+  const responseFor = (payload) => ({ requestJson: async () => ({ ok: true, data: payload }) });
+  const good = await createMarketSnapshotLoader({ httpClient: responseFor(readJson('public-data/market-snapshot.json')) }).load();
+  if (!good.ok) fail('W03-A: the loader rejected the published artifact');
+  const badPayload = JSON.parse(JSON.stringify(tamperBase));
+  badPayload.quotes[0].unit = 'WRONG_UNIT';
+  const bad = await createMarketSnapshotLoader({ httpClient: responseFor(badPayload) }).load();
+  if (bad.ok || !String(bad.error).includes('published_unit_mismatch')) fail(`W03-A: the loader accepted a tampered artifact: ${JSON.stringify(bad)}`);
+}
 
 const loaderSource = fs.readFileSync(path.join(root, 'src/data/market-snapshot-loader.js'), 'utf8');
 if (!loaderSource.includes('snapshot_not_published') || !loaderSource.includes('validateMarketSnapshot')) fail('browser loader lacks fail-closed validation');

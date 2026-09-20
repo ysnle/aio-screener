@@ -697,16 +697,26 @@ function createIssuerAggregateView(documentRef, aggregateArtifact, managerId) {
   const records = (aggregateArtifact?.aggregates || []).filter((record) => record.managerId === managerId);
   const periods = new Set(records.flatMap((record) => record.periods || []).map((period) => period.reportPeriod).filter(Boolean));
   const reviewQueue = records.filter((record) => record.reviewFlags?.length || record.corporateActionStatus !== 'REVIEWED');
+  // W04-A/P1149 (C01): the per-manager summary must be computed from the selected manager's
+  // records with the SAME function as the table below. The whole-artifact coverage belongs in its
+  // own labelled block — a manager-scoped card must never show another scope's denominator.
+  // CUSIP count, unique report periods, and manager·CUSIP·share-type·put/call records are
+  // different counts and are never assumed equal.
+  const managerCusips = new Set(records.map((record) => record.cusipNormalized).filter(Boolean));
+  const managerPeriodRows = records.reduce((sum, record) => sum + (record.periods?.length || 0), 0);
+  const scope = { managerId: managerId || null, reportPeriods: [...periods].sort(), aggregationKey: 'manager·CUSIP·shareType·putCall' };
   section.append(
     element(documentRef, 'h4', 'masters-holdings-title', 'issuer·CUSIP 다분기 집계 원장'),
     element(documentRef, 'p', 'masters-holdings-meta', `SEC 원문 행을 manager·CUSIP·share type·put/call 단위로만 묶은 원장입니다. ticker·sector·기업행동 검증 전 단계이며, 현재 가격이나 추천을 생성하지 않습니다.`)
   );
   const metrics = element(documentRef, 'div', 'masters-normalization-metrics');
   [
-    ['현재 manager 집계 CUSIP', String(aggregateArtifact?.coverage?.aggregateRecords ?? records.length)],
-    ['집계에 포함된 보고기간', String(aggregateArtifact?.coverage?.periods ?? periods.size)],
-    ['검토 대기 플래그', String(aggregateArtifact?.coverage?.reviewQueue ?? reviewQueue.length)],
-    ['전체 원장', `${aggregateArtifact?.coverage?.aggregateRecords || 0} records`]
+    ['선택 manager 집계 CUSIP', String(managerCusips.size)],
+    ['선택 manager 고유 보고기간', String(periods.size)],
+    ['선택 manager 집계 record', String(records.length)],
+    ['선택 manager 기간행 수', String(managerPeriodRows)],
+    ['선택 manager 검토 대기', String(reviewQueue.length)],
+    ['전체 수집 원장 (모든 manager)', `${aggregateArtifact?.coverage?.aggregateRecords ?? '—'} records · 기간 ${aggregateArtifact?.coverage?.periods ?? '—'} · 검토 대기 ${aggregateArtifact?.coverage?.reviewQueue ?? '—'}`]
   ].forEach(([label, value]) => metrics.appendChild(createMetric(documentRef, label, value)));
   section.appendChild(metrics);
   const top = records
@@ -728,7 +738,7 @@ function createIssuerAggregateView(documentRef, aggregateArtifact, managerId) {
       return tr;
     }, 'masters-issuer-aggregate-table masters-holdings-table'));
   }
-  section.appendChild(element(documentRef, 'p', 'masters-holdings-meta', `집계 상태 ${aggregateArtifact?.status || 'NOT_CONNECTED'} · 기준일 ${aggregateArtifact?.reviewedAt || '확인 필요'} · 검토 대기 CUSIP는 공식 security master와 기업행동 원장 확인 전까지 ticker·sector로 승격하지 않습니다.`));
+  section.appendChild(element(documentRef, 'p', 'masters-holdings-meta', `집계 상태 ${aggregateArtifact?.status || 'NOT_CONNECTED'} · 기준일 ${aggregateArtifact?.reviewedAt || '확인 필요'} · 범위 manager=${scope.managerId || '—'} · 보고기간 ${scope.reportPeriods.length}개 · 집계키 ${scope.aggregationKey} · 검토 대기 CUSIP는 공식 security master와 기업행동 원장 확인 전까지 ticker·sector로 승격하지 않습니다.`));
   return section;
 }
 

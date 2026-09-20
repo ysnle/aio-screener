@@ -1,6 +1,8 @@
 {
   "schemaVersion": "knowledge-domain-dossier.v1",
   "generatedAt": "2026-08-12",
+  "evidenceAsOf": null,
+  "reviewedAt": null,
   "dossierId": "domain-dossier:domain-ai-applications",
   "domainId": "domain-ai-applications",
   "title": "domain-ai-applications",
@@ -11,21 +13,85 @@
     "규제·책임·데이터 권한·현장 통합·지불자"
   ],
   "uniqueKpis": [
-    "작업 시간·오류율·성공률·전환비용·상환",
-    "Healthcare workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-    "Manufacturing workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-    "Automotive autonomy의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-    "Financial decision workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-    "Payer, ROI and adoption의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+    "작업 시간·오류율·성공률·전환비용·상환"
   ],
+  "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
+  "metrics": [],
   "valueChain": [
-    "모델·데이터 → workflow·권한·인증 → 작업 성공·오류 비용 → payer·ROI",
     "Healthcare workflow",
     "Manufacturing workflow",
     "Automotive autonomy",
     "Financial decision workflow",
     "Payer, ROI and adoption"
   ],
+  "valueChainGraph": {
+    "status": "UNCLASSIFIED_CANDIDATE",
+    "basis": "taxonomy node labels only; the guide mechanism prose is preserved separately and is not treated as a validated causal order",
+    "nodes": [
+      {
+        "nodeId": "application-healthcare",
+        "label": "Healthcare workflow",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      },
+      {
+        "nodeId": "application-manufacturing",
+        "label": "Manufacturing workflow",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      },
+      {
+        "nodeId": "application-automotive",
+        "label": "Automotive autonomy",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      },
+      {
+        "nodeId": "application-finance",
+        "label": "Financial decision workflow",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      },
+      {
+        "nodeId": "application-roi-payer",
+        "label": "Payer, ROI and adoption",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      }
+    ],
+    "edges": [],
+    "mechanismNarrative": "모델·데이터 → workflow·권한·인증 → 작업 성공·오류 비용 → payer·ROI"
+  },
   "taxonomyNodeIds": [
     "application-healthcare",
     "application-manufacturing",
@@ -51,9 +117,81 @@
     "AT-AA-03"
   ],
   "researchQuestions": [
-    "AI 도입의 baseline과 human review 범위는 무엇인가",
-    "모델 성능보다 업무 단위 시간·오류·지불을 어떻게 측정하는가"
+    {
+      "questionId": "question:domain-ai-applications:1",
+      "question": "사용량·토큰이 아니라 기준선 대비 작업 결과가 개선됐는가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-ai-applications:2",
+      "question": "Healthcare workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-ai-applications:3",
+      "question": "Manufacturing workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-ai-applications:4",
+      "question": "Automotive autonomy의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-ai-applications:5",
+      "question": "Financial decision workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-ai-applications:6",
+      "question": "Payer, ROI and adoption의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-ai-applications:7",
+      "question": "AI 도입의 baseline과 human review 범위는 무엇인가",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-ai-applications:8",
+      "question": "모델 성능보다 업무 단위 시간·오류·지불을 어떻게 측정하는가",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    }
   ],
+  "unclassifiedCandidates": {
+    "measurementDimensions": [
+      "작업 시간·오류율·성공률·전환비용·상환"
+    ],
+    "verificationQuestions": [
+      "사용량·토큰이 아니라 기준선 대비 작업 결과가 개선됐는가?",
+      "Healthcare workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "Manufacturing workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "Automotive autonomy의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "Financial decision workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "Payer, ROI and adoption의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "AI 도입의 baseline과 human review 범위는 무엇인가",
+      "모델 성능보다 업무 단위 시간·오류·지불을 어떻게 측정하는가"
+    ],
+    "mechanismNarrative": [
+      "모델·데이터 → workflow·권한·인증 → 작업 성공·오류 비용 → payer·ROI"
+    ]
+  },
   "marketTransmission": {
     "status": "RESEARCH_REQUIRED",
     "path": [

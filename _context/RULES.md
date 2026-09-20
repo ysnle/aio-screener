@@ -2,10 +2,16 @@
 verified_by: Codex local source review + affected QA (workspace/deployment regression); full semantic audit remains open
 last_verified: 2026-09-19
 confidence: medium
-target_version: v55.22
+target_version: v56
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R627. 선언된 자격증명·기능은 도달 가능한 경로가 증명되기 전까지 제공된 것으로 취급하지 않는다 (v56, P1151~P1155)
+
+**Rule**: 목록에 있다는 사실은 동작의 증거가 아니다. (1) 사용자에게 보이는 자격증명 입력란·설정 토글은 **그 값을 실제로 읽어 쓰는 런타임 경로**와 짝을 이뤄야 하고, 경로가 브라우저에서 도달 불가(CORS·허용목록·필터 미통과)하면 입력란을 두지 않거나 경로를 만든다. (2) 코드가 읽는 자격증명은 **사용자가 넣을 수 있는 자격증명**과 집합이 같아야 한다 — 한쪽에만 있으면 그 기능은 없는 것과 같다(P1153). (3) 같은 라우트의 사용 가능 여부를 **등록 시점과 전송 시점이 서로 다른 소스로 판정하지 않는다**(P1151의 `_cfWorkerUrl()` 대 개인 키 불일치). (4) 게시만 되고 소비자가 없는 생산자(P1152)는 기능이 아니라 비용이며, 승격은 증거로 **파생**하고 손으로 켜지 않는다. (5) 폐기된 기능은 코드·주석·사용자 문서에서 함께 사라져야 한다(P1155).
+
+**Validation**: `scripts/ci-worker-relay-check.mjs`(env 전용 키·하드코딩 목적지·fail-closed), `scripts/ci-fast-plane-consumer-gate.mjs`(게시된 승격을 증거로 재파생), `scripts/ci-operator-secrets-contract-check.mjs`, `scripts/ci-data-pipeline-contract-check.mjs`.
 
 ## R626. 생성 산출물의 병합은 필드 소유권으로 결정한다 (v55.21, P1141)
 

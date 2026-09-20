@@ -1,0 +1,150 @@
+{
+  "observedAt": "2026-09-19T12:44:00.346Z",
+  "type": "pure-function synthetic input; not end-to-end user storage",
+  "results": [
+    {
+      "id": "cash-only",
+      "input": {
+        "holdings": [],
+        "cash": 10000,
+        "status": "empty"
+      },
+      "output": {
+        "status": "empty",
+        "holdingCount": 0,
+        "positionValue": null,
+        "totalAssets": null,
+        "totalPnl": null,
+        "cash": 10000,
+        "cashPct": null,
+        "sectorBreakdown": [],
+        "allowedUse": "reference-only"
+      }
+    },
+    {
+      "id": "explicit-zero",
+      "input": {
+        "holdings": [],
+        "cash": 0,
+        "status": "empty"
+      },
+      "output": {
+        "status": "empty",
+        "holdingCount": 0,
+        "positionValue": null,
+        "totalAssets": null,
+        "totalPnl": null,
+        "cash": 0,
+        "cashPct": null,
+        "sectorBreakdown": [],
+        "allowedUse": "reference-only"
+      }
+    },
+    {
+      "id": "unknown-empty",
+      "input": {
+        "holdings": [],
+        "cash": null,
+        "status": "unavailable"
+      },
+      "output": {
+        "status": "unavailable",
+        "holdingCount": 0,
+        "positionValue": null,
+        "totalAssets": null,
+        "totalPnl": null,
+        "cash": null,
+        "cashPct": null,
+        "sectorBreakdown": [],
+        "allowedUse": "reference-only"
+      }
+    },
+    {
+      "id": "valued-position-with-cash",
+      "input": {
+        "holdings": [
+          {
+            "symbol": "AAA",
+            "shares": 2,
+            "avgCost": 40,
+            "price": 50
+          }
+        ],
+        "cash": 100
+      },
+      "output": {
+        "status": "current",
+        "holdingCount": 1,
+        "positionValue": 100,
+        "totalAssets": 200,
+        "totalPnl": 20,
+        "cash": 100,
+        "cashPct": 50,
+        "sectorBreakdown": [
+          {
+            "name": "Unclassified",
+            "pct": 50
+          },
+          {
+            "name": "CASH",
+            "pct": 50
+          }
+        ],
+        "allowedUse": "reference-only"
+      }
+    },
+    {
+      "id": "partial-position",
+      "input": {
+        "holdings": [
+          {
+            "symbol": "AAA",
+            "shares": 2,
+            "avgCost": 40,
+            "price": 50
+          },
+          {
+            "symbol": "BBB",
+            "shares": 1,
+            "avgCost": 20,
+            "price": null
+          }
+        ],
+        "cash": 100
+      },
+      "output": {
+        "status": "current",
+        "holdingCount": 2,
+        "positionValue": null,
+        "totalAssets": null,
+        "totalPnl": null,
+        "cash": 100,
+        "cashPct": null,
+        "sectorBreakdown": [],
+        "allowedUse": "reference-only"
+      }
+    }
+  ],
+  "providerProbe": {
+    "scope": "optional repository branch; not wired in current bootstrap",
+    "emptyStoredVsRuntime": {
+      "holdings": [
+        {
+          "symbol": "AAA",
+          "shares": 1,
+          "price": 50,
+          "value": null,
+          "dailyPct": null,
+          "quoteObservedAt": null,
+          "fetchedAt": null,
+          "revision": null,
+          "changeBasis": "unknown",
+          "source": "portfolio-runtime"
+        }
+      ],
+      "cash": 100,
+      "status": "current",
+      "updatedAt": null
+    }
+  }
+}

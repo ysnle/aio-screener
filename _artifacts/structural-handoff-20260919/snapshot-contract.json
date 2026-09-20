@@ -1,0 +1,90 @@
+{
+  "observedAt": "2026-09-20T03:36:41.939Z",
+  "scope": "pure validator perturbation; source file untouched; actual producer not rerun",
+  "results": [
+    {
+      "id": "actual",
+      "status": "published",
+      "declaredCoverage": {
+        "required": 16,
+        "observed": 16,
+        "tier0Required": 16,
+        "tier0Observed": 16,
+        "tier1Required": 0,
+        "tier1Observed": 0
+      },
+      "actualTier0": {
+        "required": 16,
+        "observed": 16,
+        "ratio": 1
+      },
+      "validation": {
+        "ok": true,
+        "errors": []
+      }
+    },
+    {
+      "id": "empty-quotes",
+      "status": "published",
+      "declaredCoverage": {
+        "required": 16,
+        "observed": 16,
+        "tier0Required": 16,
+        "tier0Observed": 16,
+        "tier1Required": 0,
+        "tier1Observed": 0
+      },
+      "actualTier0": {
+        "required": 16,
+        "observed": 0,
+        "ratio": 0
+      },
+      "validation": {
+        "ok": true,
+        "errors": []
+      }
+    },
+    {
+      "id": "first-instrument-removed",
+      "status": "published",
+      "declaredCoverage": {
+        "required": 16,
+        "observed": 16,
+        "tier0Required": 16,
+        "tier0Observed": 16,
+        "tier1Required": 0,
+        "tier1Observed": 0
+      },
+      "actualTier0": {
+        "required": 16,
+        "observed": 15,
+        "ratio": 0.9375
+      },
+      "validation": {
+        "ok": true,
+        "errors": []
+      }
+    },
+    {
+      "id": "first-unit-mutated",
+      "status": "published",
+      "declaredCoverage": {
+        "required": 16,
+        "observed": 16,
+        "tier0Required": 16,
+        "tier0Observed": 16,
+        "tier1Required": 0,
+        "tier1Observed": 0
+      },
+      "actualTier0": {
+        "required": 16,
+        "observed": 16,
+        "ratio": 1
+      },
+      "validation": {
+        "ok": true,
+        "errors": []
+      }
+    }
+  ]
+}

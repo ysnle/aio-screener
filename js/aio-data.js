@@ -1995,7 +1995,7 @@ const DATA_APIS = {
   // 1. Alpha Vantage (무료 25회/일, 키 필수 — 기술적 지표)
   alphaVantage: {
     base: 'https://www.alphavantage.co/query',
-    key: () => (typeof safeLSGetSync === 'function' ? safeLSGetSync('aio_av_key') : _getApiKey('aio_av_key')) || 'demo',
+    key: () => (typeof safeLSGetSync === 'function' ? safeLSGetSync('aio_av_key') : _getApiKey('aio_av_key')) || '',
     limit: '25/day free · $50/mo for 75/min'
   },
   // 2. Twelve Data (무료 800회/일 — 시세, 차트, 기술지표)
@@ -2004,25 +2004,21 @@ const DATA_APIS = {
     key: () => (typeof safeLSGetSync === 'function' ? safeLSGetSync('aio_td_key') : _getApiKey('aio_td_key')) || '',
     limit: '800/day free · 8 symbols/request'
   },
-  // 3. Financial Modeling Prep (무료 250회/일 — 재무제표, 밸류에이션)
-  fmp: {
-    base: 'https://financialmodelingprep.com/stable',
-    key: () => (typeof safeLSGetSync === 'function' ? safeLSGetSync('aio_fmp_key') : _getApiKey('aio_fmp_key')) || 'demo',
-    limit: '250/day free · 5 years history'
-  },
-  // 4. FRED (무료, 키 필수 — 매크로 경제지표)
+  // FMP는 이 표에 없었다 — FMP 호출부는 모두 `_getApiKey('aio_fmp_key')`를 직접 읽는다.
+  // v56 이전에는 key()가 아무데서도 호출되지 않는 항목이 남아 있었다(dead entry).
+  // 3. FRED (무료, 키 필수 — 매크로 경제지표)
   fred: {
     base: 'https://api.stlouisfed.org/fred/series/observations',
     key: () => (typeof safeLSGetSync === 'function' ? safeLSGetSync('aio_fred_key') : _getApiKey('aio_fred_key')) || '',
     limit: 'Unlimited free · CORS friendly'
   },
-  // 5. Finnhub (무료 60회/분 — 실시간 시세, 뉴스, 기업정보)
+  // 4. Finnhub (무료 60회/분 — 실시간 시세, 뉴스, 기업정보)
   finnhub: {
     base: 'https://finnhub.io/api/v1',
     key: () => (typeof safeLSGetSync === 'function' ? safeLSGetSync('aio_finnhub_key') : _getApiKey('aio_finnhub_key')) || '',
     limit: '60/min free · real-time US quotes'
   },
-  // 6. CoinGecko (기존 유지 — 암호화폐)
+  // 5. CoinGecko (기존 유지 — 암호화폐)
   coingecko: { base: 'https://api.coingecko.com/api/v3', key: () => '', limit: '30/min free' },
   // v47.10: exchangeRate / altFearGreed 제거 — 선언만 있고 호출 0건 (dead code P112)
 };
@@ -2067,6 +2063,33 @@ const _cfWorkerUrl = () => {
   } catch (_) { return ''; }
 };
 
+// ── v56: 서버측 키 릴레이 경로 ──────────────────────────────────────────
+// FRED/BOK/KOSIS는 브라우저에서 CORS로 막히므로(FRED) 또는 애초에 CORS 헤더가
+// 없어서(BOK/KOSIS) 개인 키만으로는 살아나지 않는다. Worker의 /relay 는 운영자
+// 키로 대신 조회하므로 클라이언트는 키를 보내지 않는다 — URL에 비밀이 없으므로
+// 제3자 프록시로 새지 않고, 캐시 경로도 민감 분기와 무관하다.
+// Worker 미설정이면 ''를 반환해 호출자가 다음 폴백으로 넘어가게 한다.
+const _aioRelayUrl = (provider, params) => {
+  const worker = _cfWorkerUrl();
+  if (!worker || !provider) return '';
+  let url;
+  try { url = new URL(worker + '/relay'); } catch (_) { return ''; }
+  url.searchParams.set('provider', provider);
+  Object.keys(params || {}).forEach(function(k) {
+    const v = params[k];
+    if (v !== null && v !== undefined && v !== '') url.searchParams.set(k, String(v));
+  });
+  return url.toString();
+};
+
+// The relay destination is the AIO Worker itself, never a third-party relay, so a
+// direct fetch with the shared app token is the correct transport.
+function _aioRelayFetch(url, timeoutMs) {
+  const headers = {};
+  try { if (typeof _aioAppToken === 'function') headers['X-AIO-App-Token'] = _aioAppToken(); } catch (_) {}
+  return fetchWithTimeout(url, { headers }, timeoutMs || 8000);
+}
+
 // P715: SCREENER_DB signal enum(BUY/HOLD/WATCH/SELL)은 내부 분류 키로만 유지하고,
 // 사용자 표면에는 관측형 라벨만 렌더한다(시스템 발화형 매매 지시 금지 — P714 연장).
 function _scrSignalLabel(sig) {
@@ -2082,11 +2105,19 @@ const _PROXY_REGISTRY = {
     var next = [];
     function add(id, label, tier, endpoint, mkUrl) {
       var existing = previous.find(function(p) { return p.id === id && p.endpoint === endpoint; });
-      next.push(existing || { id:id, label:label, tier:tier, endpoint:endpoint, mkUrl:mkUrl,
-        fails:0, okCount:0, failCount:0, lastOk:0, lastFail:0, disabled:false, retryAt:0, scopes:{} });
+      var entry = existing || { id:id, label:label, tier:tier, endpoint:endpoint, mkUrl:mkUrl,
+        fails:0, okCount:0, failCount:0, lastOk:0, lastFail:0, disabled:false, retryAt:0, scopes:{} };
+      next.push(entry);
+      return entry;
     }
-    // Tier 0: 자체 CF Worker (최우선)
-    if (cf) add('cf-worker', 'CF Worker', 0, cf, function(u){ return cf+'?url='+encodeURIComponent(u); });
+    // Tier 0: CF Worker (최우선). 출처를 엔트리에 기록한다 — _cfWorkerUrl() 은 공유 URL도
+    // 돌려주지만 개인 키를 실어 보낼 수 있는 것은 사용자가 직접 소유한 Worker뿐이다.
+    // v56 이전에는 이 판정이 등록 시점과 전송 시점에 서로 다른 소스를 읽어, 레지스트리가
+    // cf-worker 라우트를 광고하면서도 민감 요청을 조용히 버리는 불일치가 있었다.
+    if (cf) {
+      var personalWorker = typeof _getApiKey === 'function' ? (_getApiKey('aio_cf_worker_url') || '') : '';
+      add('cf-worker', 'CF Worker', 0, cf, function(u){ return cf+'?url='+encodeURIComponent(u); }).userOwned = !!personalWorker;
+    }
     // Tier 1: 검증된 공개 프록시
     add('corsproxy', 'corsproxy.io', 1, 'https://corsproxy.io/', function(u){ return 'https://corsproxy.io/?'+encodeURIComponent(u); });
     // Tier 2: 보조 프록시
@@ -2289,9 +2320,11 @@ async function fetchViaProxy(url, timeout) {
   url = new URL(String(url)).href;
   var sensitive = _aioSensitiveProxyUrl(url);
   var active = _PROXY_REGISTRY.getRotated(url);
-  // A public proxy must never receive personal provider keys. Only a Worker
-  // explicitly configured by this user may relay credential-bearing requests.
-  if (sensitive) active = active.filter(function(p) { return p.id === 'cf-worker' && typeof _getApiKey === 'function' && !!_getApiKey('aio_cf_worker_url'); });
+  // A public proxy must never receive personal provider keys. Only a Worker this
+  // user owns (entry.userOwned, recorded at registration from the personal setting)
+  // may relay credential-bearing requests; the shared public Worker is rejected even
+  // though _cfWorkerUrl() happily returns it for anonymous traffic.
+  if (sensitive) active = active.filter(function(p) { return p.id === 'cf-worker' && p.userOwned === true; });
   // Per-proxy timeouts are not enough when the registry falls back sequentially.
   // A shared deadline aborts the current attempt and prevents a 5× timeout hang.
   var deadlineCtrl = new AbortController();
@@ -2359,6 +2392,12 @@ async function fetchViaProxy(url, timeout) {
   }
   var failure = new Error('시세/자료 연결 실패: 사용 가능한 중계 경로 없음');
   failure.code = sensitive && !active.length ? 'PRIVATE_ROUTE_REQUIRED' : 'PROXY_UNAVAILABLE';
+  // Distinguish the two reasons a credential-bearing URL has no route, so the UI
+  // and logs stop implying "the shared Worker is broken" when it is simply not
+  // trusted with personal keys.
+  if (failure.code === 'PRIVATE_ROUTE_REQUIRED') {
+    failure.hint = '이 요청은 개인 키를 URL에 포함하므로 사용자가 직접 소유한 Worker로만 중계할 수 있습니다. 공유 Worker는 개인 키를 받지 않습니다 — 운영자 키를 쓰는 소스(FRED/BOK/KOSIS)는 /relay 경로를 사용하세요.';
+  }
   failure.attempts = errors;
   throw failure;
 }
@@ -2809,13 +2848,7 @@ async function fetchNaverUSData(sym, includeFinance) {
 // ═══ 5. FRED — 매크로 경제 지표 실시간 ═══════════════════════
 async function fetchFredSeries(seriesId, limit = 30) {
   const key = DATA_APIS.fred.key();
-  if (!key) {
-    console.log('[AIO] FRED key not set - using fallback data');
-    if (typeof _reportApiError === 'function') _reportApiError('fred', 'FRED API key missing; fallback data active');
-    return null;
-  }
-  if (!key) return null;
-  const url = `${DATA_APIS.fred.base}?series_id=${seriesId}&api_key=${key}&file_type=json&sort_order=desc&limit=${limit}`;
+  const url = key ? `${DATA_APIS.fred.base}?series_id=${seriesId}&api_key=${key}&file_type=json&sort_order=desc&limit=${limit}` : '';
 
   // v31.5: JSON 응답에서 observations 추출 (allorigins 래핑 자동 해제)
   function _extractObs(data) {
@@ -2825,40 +2858,64 @@ async function fetchFredSeries(seriesId, limit = 30) {
     return data.observations || [];
   }
 
-  // 1차: CF Worker 우선 (CORS 문제 없음, 가장 빠름)
+  // 1차: 사용자 개인 Worker — 개인 키를 본인 도메인으로만 보낸다.
   const cfWorker = _getApiKey('aio_cf_worker_url');
-  if (cfWorker) {
+  if (cfWorker && url) {
     try {
       const r = await fetchWithTimeout(cfWorker + '?url=' + encodeURIComponent(url), {}, 8000);
-      if (r.ok) { return _extractObs(await r.json()); }
+      if (r.ok) { const obs = _extractObs(await r.json()); if (obs.length) return obs; }
       if ((r.status === 400 || r.status === 403) && window.AIO && typeof window.AIO.updateProviderStatus === 'function') {
         window.AIO.updateProviderStatus('aio_fred_key', { authentication:'FAILED', connection:'REACHABLE', lastError:'FRED_HTTP_' + r.status });
       }
-    } catch(e) { /* CF Worker failed — try direct */ }
+    } catch(e) { /* CF Worker failed — try the shared relay */ }
   }
-  // 2차: 직접 호출 시도
-  try {
-    const r = await fetchWithTimeout(url, {}, 6000);
-    if (r.ok) { return _extractObs(await r.json()); }
-    if (r.status === 429) { _aioLog('warn', 'fetch', 'FRED rate limit hit — 60s 대기'); await new Promise(ok => setTimeout(ok, T.COOLDOWN)); return null; }
-    if (r.status === 403 || r.status === 400) {
-      if (window.AIO && typeof window.AIO.updateProviderStatus === 'function') {
-        window.AIO.updateProviderStatus('aio_fred_key', { authentication:'FAILED', connection:'REACHABLE', lastError:'FRED_HTTP_' + r.status });
+
+  // 2차: Worker 릴레이 — 운영자 키로 조회하므로 사용자 개인 키가 없어도 동작한다.
+  //   v56 이전에는 이 경로가 없어서 FRED가 개인 Worker 없이는 항상 죽어 있었다.
+  const relayUrl = _aioRelayUrl('fred', { series_id: seriesId, sort_order: 'desc', limit: limit });
+  if (relayUrl) {
+    try {
+      const r = await _aioRelayFetch(relayUrl, 8000);
+      if (r.ok) {
+        const obs = _extractObs(await r.json());
+        if (obs.length) {
+          if (window.AIO && typeof window.AIO.updateProviderStatus === 'function') {
+            window.AIO.updateProviderStatus('aio_fred_key', { authentication:'CONFIGURED', connection:'VERIFIED', lastSuccessAt: Date.now(), lastError: null });
+          }
+          return obs;
+        }
+      } else if (r.status === 503) {
+        // 운영자 FRED 키 미등록 — fail-closed가 설계대로 동작한 것이므로 조용히 넘어간다.
+        if (typeof _aioLog === 'function') _aioLog('warn', 'fetch', 'FRED 릴레이 미구성(운영자 키 없음) — 서버 data.json 폴백 사용');
       }
-      showDataError('FRED', 'API 키가 유효하지 않거나 한도 초과', 'error');
-      return null;
-    }
-  } catch(e) { /* CORS blocked — fallback to proxy */ }
+    } catch(e) { /* relay unavailable — try the personal key directly */ }
+  }
+
+  // 3차: 개인 키 직접 호출 (FRED가 CORS를 허용하는 환경에서만 성공)
+  if (url) {
+    try {
+      const r = await fetchWithTimeout(url, {}, 6000);
+      if (r.ok) { return _extractObs(await r.json()); }
+      if (r.status === 429) { _aioLog('warn', 'fetch', 'FRED rate limit hit — 60s 대기'); await new Promise(ok => setTimeout(ok, T.COOLDOWN)); return null; }
+      if (r.status === 403 || r.status === 400) {
+        if (window.AIO && typeof window.AIO.updateProviderStatus === 'function') {
+          window.AIO.updateProviderStatus('aio_fred_key', { authentication:'FAILED', connection:'REACHABLE', lastError:'FRED_HTTP_' + r.status });
+        }
+        showDataError('FRED', 'API 키가 유효하지 않거나 한도 초과', 'error');
+        return null;
+      }
+    } catch(e) { /* CORS blocked — fall through to the documented give-up path */ }
+  }
   // v51.85 P573/R264: 3차 서드파티 CORS 프록시 폴백 제거 (키 유출 차단).
   //   이 url 은 `?api_key=<사용자 개인 FRED 키>` 를 포함한다. corsproxy.io/allorigins/
   //   codetabs 같은 제3자 프록시로 보내면 그 운영자 로그에 키가 평문 노출된다
   //   (fetchViaProxy 의 _isSensitive 플래그는 캐시 저장만 막고 전송은 못 막음 — 이름이
-  //   방어를 암시하지만 실제로는 안 막는 함정). 신뢰 가능한 경로(CF Worker = 사용자 본인
-  //   도메인, 직접 호출 = 브라우저→FRED TLS)만 허용한다. 둘 다 실패하면 라이브 갱신을
-  //   포기하고 null 반환 → 서버 data.json(GitHub Actions 가 FRED_API_KEY 로 이미 공급) /
-  //   정적 폴백 사용. 실질 기능 손실 없이 개인 키 유출 경로를 완전히 제거.
+  //   방어를 암시하지만 실제로는 안 막는 함정). 신뢰 가능한 경로(사용자 CF Worker = 본인
+  //   도메인, /relay = 운영자 키라 애초에 키가 실리지 않음, 직접 호출 = 브라우저→FRED TLS)
+  //   만 허용한다. 전부 실패하면 라이브 갱신을 포기하고 null 반환 → 서버 data.json
+  //   (GitHub Actions 가 FRED_API_KEY 로 이미 공급) / 정적 폴백 사용.
   if (typeof _aioLog === 'function') {
-    _aioLog('warn', 'fetch', 'FRED live 갱신 스킵 (' + seriesId + '): CORS 차단 + CF Worker 미설정. 개인 키 유출 방지로 제3자 프록시 미사용 — 서버 data.json/정적 폴백 사용. CF Worker URL 설정 시 라이브 갱신 가능.');
+    _aioLog('warn', 'fetch', 'FRED live 갱신 스킵 (' + seriesId + '): 개인 Worker/릴레이/직접 호출 모두 실패 — 서버 data.json/정적 폴백 사용.');
   }
   if (window.AIO && typeof window.AIO.updateProviderStatus === 'function') {
     var _fredStatus = window.AIO.getProviderStatus ? window.AIO.getProviderStatus('aio_fred_key') : null;
@@ -2916,23 +2973,50 @@ const FRED_SERIES = {
 // v48.59: BOK ECOS API fetcher — 한국은행 기준금리/환율/수출 (무료, 회원가입)
 // 통계 코드: 722Y001=기준금리, 036Y002=CPI, 901Y014=GDP, 403Y001=수출, 403Y003=수입
 async function fetchBokEcos(statCode, cycle, startDate, endDate, itemCode1) {
+  function _extractBok(data) {
+    if (data && data.contents && typeof data.contents === 'string') { try { data = JSON.parse(data.contents); } catch(e) {} }
+    return (data && data.StatisticSearch && data.StatisticSearch.row) || null;
+  }
+  const ecosPath = (key) => 'https://ecos.bok.or.kr/api/StatisticSearch/' + key + '/json/kr/1/10/' + statCode + '/' + cycle + '/' + startDate + '/' + endDate + (itemCode1 ? ('/' + itemCode1) : '');
   const key = _getApiKey('aio_bok_key') || '';
-  if (!key) return null;
-  try {
-    var base = 'https://ecos.bok.or.kr/api/StatisticSearch';
-    var url = base + '/' + key + '/json/kr/1/10/' + statCode + '/' + cycle + '/' + startDate + '/' + endDate + (itemCode1 ? ('/' + itemCode1) : '');
-    const r = await fetchWithTimeout(url, {}, 8000);
-    if (!r.ok) return null;
-    const d = await r.json();
-    if (d && d.StatisticSearch && d.StatisticSearch.row) return d.StatisticSearch.row;
-    return null;
-  } catch(e) { _aioLog('warn', 'fetch', 'BOK ECOS error: ' + e.message); return null; }
+
+  // 1차: 사용자 개인 Worker — 개인 키를 본인 도메인으로만 보낸다.
+  const cfWorker = _getApiKey('aio_cf_worker_url');
+  if (key && cfWorker) {
+    try {
+      const r = await fetchWithTimeout(cfWorker + '?url=' + encodeURIComponent(ecosPath(key)), {}, 8000);
+      if (r.ok) { const rows = _extractBok(await r.json()); if (rows) return rows; }
+    } catch(e) { /* fall through to the relay */ }
+  }
+
+  // 2차: Worker 릴레이 — ECOS는 CORS 헤더를 보내지 않아 브라우저 직접 호출이 불가능하다.
+  const relayUrl = _aioRelayUrl('bok', { statCode, cycle, start: startDate, end: endDate, item: itemCode1 });
+  if (relayUrl) {
+    try {
+      const r = await _aioRelayFetch(relayUrl, 8000);
+      if (r.ok) { const rows = _extractBok(await r.json()); if (rows) return rows; }
+      else if (r.status === 503 && typeof _aioLog === 'function') _aioLog('warn', 'fetch', 'BOK ECOS 릴레이 미구성(운영자 키 없음)');
+    } catch(e) { /* fall through to the direct attempt */ }
+  }
+
+  // 3차: 개인 키 직접 호출 — CORS 미허용 환경에서는 실패한다.
+  if (key) {
+    try {
+      const r = await fetchWithTimeout(ecosPath(key), {}, 8000);
+      if (r.ok) return _extractBok(await r.json());
+    } catch(e) { _aioLog('warn', 'fetch', 'BOK ECOS error: ' + e.message); }
+  }
+
+  // ECOS는 실패해도 화면이 조용히 비지 않도록 호출자가 알 수 있게 상태를 남긴다.
+  if (typeof _reportApiError === 'function') _reportApiError('bok', 'BOK ECOS 사용 가능한 경로 없음');
+  return null;
 }
 
 // v48.59: 한국 거시 지표 일괄 수집 → data-snap 바인딩
 async function fetchAllBokData() {
   const key = _getApiKey('aio_bok_key') || '';
-  if (!key) { console.log('[AIO] BOK ECOS key not set'); return null; }
+  // v56: /relay(운영자 키)만으로도 동작하므로 개인 키 부재는 더 이상 스킵 사유가 아니다.
+  if (!key && !_cfWorkerUrl()) { console.log('[AIO] BOK ECOS key/relay not set'); return null; }
   try {
     // 최근 12개월 범위
     const now = new Date();
@@ -2970,25 +3054,53 @@ async function fetchAllBokData() {
 
 // v48.59: KOSIS 통계청 API fetcher — CPI/수출입/실업률 (무료, 회원가입)
 async function fetchKosisStat(orgId, tblId, itmId, prdSe) {
+  const kosisUrl = (key) => 'https://kosis.kr/openapi/Param/statisticsParameterData.do' +
+    '?method=getList&apiKey=' + key +
+    '&itmId=' + itmId + '&objL1=ALL&format=json' +
+    '&jsonVD=Y&prdSe=' + prdSe + '&newEstPrdCnt=3' +
+    '&orgId=' + orgId + '&tblId=' + tblId;
+  const unwrap = (data) => {
+    if (data && data.contents && typeof data.contents === 'string') { try { return JSON.parse(data.contents); } catch(e) {} }
+    return data;
+  };
   const key = _getApiKey('aio_kosis_key') || '';
-  if (!key) return null;
-  try {
-    // prdSe: M(월)/Q(분기)/A(년)
-    const url = 'https://kosis.kr/openapi/Param/statisticsParameterData.do' +
-      '?method=getList&apiKey=' + key +
-      '&itmId=' + itmId + '&objL1=ALL&format=json' +
-      '&jsonVD=Y&prdSe=' + prdSe + '&newEstPrdCnt=3' +
-      '&orgId=' + orgId + '&tblId=' + tblId;
-    const r = await fetchWithTimeout(url, {}, 8000);
-    if (!r.ok) return null;
-    return await r.json();
-  } catch(e) { _aioLog('warn', 'fetch', 'KOSIS error: ' + e.message); return null; }
+
+  // 1차: 사용자 개인 Worker
+  const cfWorker = _getApiKey('aio_cf_worker_url');
+  if (key && cfWorker) {
+    try {
+      const r = await fetchWithTimeout(cfWorker + '?url=' + encodeURIComponent(kosisUrl(key)), {}, 8000);
+      if (r.ok) return unwrap(await r.json());
+    } catch(e) { /* fall through to the relay */ }
+  }
+
+  // 2차: Worker 릴레이 — KOSIS도 CORS 헤더를 보내지 않아 직접 호출이 불가능하다.
+  const relayUrl = _aioRelayUrl('kosis', { orgId, tblId, itmId, prdSe });
+  if (relayUrl) {
+    try {
+      const r = await _aioRelayFetch(relayUrl, 8000);
+      if (r.ok) return unwrap(await r.json());
+      else if (r.status === 503 && typeof _aioLog === 'function') _aioLog('warn', 'fetch', 'KOSIS 릴레이 미구성(운영자 키 없음)');
+    } catch(e) { /* fall through to the direct attempt */ }
+  }
+
+  // 3차: 개인 키 직접 호출
+  if (key) {
+    try {
+      const r = await fetchWithTimeout(kosisUrl(key), {}, 8000);
+      if (r.ok) return unwrap(await r.json());
+    } catch(e) { _aioLog('warn', 'fetch', 'KOSIS error: ' + e.message); }
+  }
+
+  if (typeof _reportApiError === 'function') _reportApiError('kosis', 'KOSIS 사용 가능한 경로 없음');
+  return null;
 }
 
 // v48.59: 한국 통계청 주요 지표 일괄 (CPI · 실업률 · 수출입)
 async function fetchAllKosisData() {
   const key = _getApiKey('aio_kosis_key') || '';
-  if (!key) { console.log('[AIO] KOSIS key not set'); return null; }
+  // v56: /relay(운영자 키)만으로도 동작하므로 개인 키 부재는 더 이상 스킵 사유가 아니다.
+  if (!key && !_cfWorkerUrl()) { console.log('[AIO] KOSIS key/relay not set'); return null; }
   try {
     // CPI — 통계청 인플레이션 (DT_1J17001, 소비자물가지수)
     const cpiData = await fetchKosisStat('101', 'DT_1J17001', 'T10', 'M');
@@ -15248,7 +15360,7 @@ window._aioApplyScreenerBreadth = _aioApplyScreenerBreadth;
 // ── v50.52 Track2: 멀티팩터 랭킹 엔진 (기관/퀀트급) ──
 // 정적 BUY/HOLD 태그(editorial)는 보존하고, 가격 파생 4팩터로 객관적 퀀트 랭크를 부가한다.
 //   momentum(ret1/3/6m) · trend(가격 vs SMA50/200) · low-vol(연율 변동성, 역방향) · size(log mcap).
-//   각 팩터를 섹터 상대 z-score(표본<5면 유니버스 상대) + winsorize(±3σ) → 가중합 → 0~100 percentile 랭크.
+//   각 팩터를 섹터 상대 z-score(표본<5면 유니버스 상대) + winsorize(±3σ) → 가중합 → composite rank는 0~100 percentile, factorScores는 섹터 기준 정규화 점수(z 스케일, percentile 아님).
 //   팩터 데이터(screener.json) 없으면 null → 소비자는 정적 signal 폴백(무회귀).
 // v50.54 3A: marketState 기반 가중은 검토용 proposal로만 산출한다.
 //   위험회피/선호/후기사이클 틸트는 live/backtest 정의 패리티와 사람 검토를 거쳐
@@ -15279,14 +15391,13 @@ function _aioComputeFactorRanks() {
   if (!_rankFn) return null;
   var serverFundamentals = window._aioServerScreener || {};
   var W = (typeof _aioFactorWeights === 'function') ? _aioFactorWeights(window.AIO && window.AIO.marketState) : null;
-  // Keep the compatibility fallback exactly aligned with the native resolver's
-  // current production policy. Adaptive/regime proposal weights are metadata
-  // until an explicit promotion record is supplied; they must not leak through
-  // a missing-module fallback.
+  // Keep the compatibility fallback aligned with the native resolver: adaptive/regime proposal
+  // weights are metadata until an explicit promotion record is supplied.
   var weights = (W && W.weights) ? W.weights : { momentum:0.27, trend:0.20, lowvol:0.16, size:0.08, value:0.10, quality:0.09, kalman:0.10 };
   var result = _rankFn({
     rows: SCREENER_DB,
     weights: weights,
+    weightsPolicy: W && W.source === 'explicit-user-profile' ? 'explicit' : 'model-default', // W07-A/P1146: only a user profile is an explicit request; the neutral default keeps renormalizing.
     regimeLabel: W ? W.regimeLabel : null,
     fundamentalCoveragePct: Number(serverFundamentals.fundamentalCoveragePct || 0),
     fmpOk: !!serverFundamentals.fmpOk,

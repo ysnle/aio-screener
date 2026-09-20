@@ -1,0 +1,127 @@
+{
+  "sha": "54428470af3bc17a193fe3a0d60346bcd75b45e3",
+  "synthetic": true,
+  "revenueAcceptedAt": "2024-02-01T12:00:00Z",
+  "operandAcceptedAt": "2024-06-01T12:00:00Z",
+  "result": {
+    "symbol": "SYNTH",
+    "cik": "0000000001",
+    "entityName": "Synthetic",
+    "source": "SEC EDGAR companyfacts",
+    "sourceTier": "T1_OFFICIAL",
+    "sourceKind": "T1_OFFICIAL",
+    "rightsId": "PUBLIC_REFERENCE",
+    "model": "sec-fy-normalized-v2",
+    "periodType": "FY",
+    "observedAt": "2023-12-31",
+    "filedAt": "2024-02-01",
+    "acceptedAt": "2024-02-01T12:00:00Z",
+    "availableAt": "2024-02-01T12:00:00Z",
+    "allowedUse": "research-relative-ranking-only",
+    "qualityStatus": "CURRENT",
+    "quality": {
+      "status": "CURRENT",
+      "stale": false,
+      "decisionUse": false,
+      "allowedUse": "reference"
+    },
+    "fetchedAt": "2026-09-20T03:51:35.194Z",
+    "form": "10-K",
+    "accession": "REV",
+    "revenue": 100,
+    "netIncome": 20,
+    "equity": 50,
+    "sharesOutstanding": 10,
+    "sharesObservedAt": "2023-12-31",
+    "coverage": [
+      "revenue",
+      "netIncome",
+      "equity",
+      "sharesOutstanding",
+      "margin",
+      "roe",
+      "pe",
+      "pb"
+    ],
+    "pit": {
+      "schemaVersion": "sec-pit-facts.v1",
+      "status": "accepted-time-partial",
+      "observationCount": 4,
+      "acceptedTimeCount": 4,
+      "observations": {
+        "revenue": [
+          {
+            "field": "revenue",
+            "value": 100,
+            "periodStart": "2023-01-01",
+            "periodEnd": "2023-12-31",
+            "filedAt": "2024-02-01",
+            "acceptedAt": "2024-02-01T12:00:00Z",
+            "effectiveAt": "2024-02-01T12:00:00Z",
+            "form": "10-K",
+            "accession": "REV",
+            "fiscalYear": null,
+            "fiscalPeriod": "FY",
+            "frame": null,
+            "concept": "Revenues"
+          }
+        ],
+        "netIncome": [
+          {
+            "field": "netIncome",
+            "value": 20,
+            "periodStart": "2023-01-01",
+            "periodEnd": "2023-12-31",
+            "filedAt": "2024-06-01",
+            "acceptedAt": "2024-06-01T12:00:00Z",
+            "effectiveAt": "2024-06-01T12:00:00Z",
+            "form": "10-K",
+            "accession": "RESTATED",
+            "fiscalYear": null,
+            "fiscalPeriod": "FY",
+            "frame": null,
+            "concept": "NetIncomeLoss"
+          }
+        ],
+        "equity": [
+          {
+            "field": "equity",
+            "value": 50,
+            "periodStart": null,
+            "periodEnd": "2023-12-31",
+            "filedAt": "2024-06-01",
+            "acceptedAt": "2024-06-01T12:00:00Z",
+            "effectiveAt": "2024-06-01T12:00:00Z",
+            "form": "10-K",
+            "accession": "RESTATED",
+            "fiscalYear": null,
+            "fiscalPeriod": "FY",
+            "frame": null,
+            "concept": "StockholdersEquity"
+          }
+        ],
+        "sharesOutstanding": [
+          {
+            "field": "sharesOutstanding",
+            "value": 10,
+            "periodStart": null,
+            "periodEnd": "2023-12-31",
+            "filedAt": "2024-06-01",
+            "acceptedAt": "2024-06-01T12:00:00Z",
+            "effectiveAt": "2024-06-01T12:00:00Z",
+            "form": "10-K",
+            "accession": "RESTATED",
+            "fiscalYear": null,
+            "fiscalPeriod": "FY",
+            "frame": null,
+            "concept": "EntityCommonStockSharesOutstanding"
+          }
+        ]
+      }
+    },
+    "margin": 20,
+    "roe": 40,
+    "pe": 5,
+    "pb": 2
+  }
+}

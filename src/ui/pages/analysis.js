@@ -245,7 +245,16 @@ function renderTechnicalHealth({ documentRef, technical }) {
   setBar(documentRef, 'hc-vix-bar', health.bars.vix, health.inputs.vix < 20 ? 'var(--data-green)' : health.inputs.vix < 25 ? 'var(--data-amber)' : 'var(--data-red)');
   setBar(documentRef, 'ind-pressure-fill', health.bars.pressure, health.inputs.vix < 20 ? 'var(--data-green)' : health.inputs.vix < 25 ? 'var(--data-amber)' : 'var(--data-red)');
   setBar(documentRef, 'ind-buyrisk-fill', health.bars.buyRisk, health.bars.buyRisk > 60 ? 'var(--data-green)' : health.bars.buyRisk > 40 ? 'var(--data-amber)' : 'var(--data-red)');
-  setBar(documentRef, 'ind-trend-fill', health.bars.trend, health.bars.trend >= 70 ? 'var(--data-cyan)' : health.bars.trend >= 50 ? 'var(--data-amber)' : 'var(--data-red)');
+  // W08-A/P1147: a dimension with insufficient coverage reports null; render it as an
+  // unavailable bar rather than colouring a fabricated neutral value as if it were observed.
+  const trendBar = health.bars.trend;
+  if (trendBar == null) {
+    setBar(documentRef, 'ind-trend-fill', 0, 'var(--border-strong)');
+    const trendFill = documentRef?.getElementById('ind-trend-fill');
+    trendFill?.setAttribute('data-source-kind', 'unavailable');
+  } else {
+    setBar(documentRef, 'ind-trend-fill', trendBar, trendBar >= 70 ? 'var(--data-cyan)' : trendBar >= 50 ? 'var(--data-amber)' : 'var(--data-red)');
+  }
   const interpretation = documentRef?.getElementById('health-interpretation');
   if (!interpretation) return;
   interpretation.replaceChildren();
@@ -255,12 +264,14 @@ function renderTechnicalHealth({ documentRef, technical }) {
   const body = documentRef.createElement('div');
   body.style.cssText = 'font-size:12px;color:var(--text-secondary);line-height:1.7;';
   const evidence = health.details.length ? ` · ${health.details.join(' · ')}` : '';
-  const strategy = health.score >= 65
-    ? '전략: 기술 환경은 우호적입니다. 단독 매수 신호가 아니며 종합 시그널과 시장폭 확산 확인 후 분할 접근.'
-    : health.score >= 40
-      ? '전략: 선별적 매매. 섹터 로테이션과 종합 시그널을 확인하고 포지션 사이즈 축소를 고려합니다.'
-      : '전략: 방어적 자세. 현금비중 확대와 타이트한 손절을 우선합니다.';
-  body.textContent = `점수 ${health.score}/100 (${health.grade}) — ${health.regime}${evidence}\n\n${strategy}`;
+  // W08-A/P1147 (H01): a composite score built from partially observed inputs must not be
+  // converted into allocation/stop-loss instructions. Describe the observation and name the
+  // additional evidence a reader would need; the decision stays with the user.
+  const scope = health.status === 'partial'
+    ? `관측 해석: 일부 입력의 표본이 부족합니다(${(health.partialComponents || []).join(', ') || '구성 요소'}). 점수는 수신된 구성 요소만 반영하며, 누락 차원은 중립값으로 대체하지 않습니다.`
+    : '관측 해석: 필수·선택 구성 요소가 모두 최소 표본을 충족했습니다.';
+  const nextEvidence = '확인할 추가 근거: 시장폭 확산/축소, 섹터 로테이션, 개별 종목 근거. 이 화면은 연구 참고값이며 매수·매도 지침이 아닙니다.';
+  body.textContent = `점수 ${health.score}/100 (${health.grade}) — ${health.regime}${evidence}\n\n${scope}\n${nextEvidence}`;
   interpretation.append(title, body);
 }
 

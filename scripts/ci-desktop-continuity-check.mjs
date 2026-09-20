@@ -7,6 +7,7 @@ import { ROUTE_IDS } from '../src/app/routes.js';
 import { computeTradingScoreModel, deriveTradingScoreDecisionPresentation } from '../src/domain/signal/trading-score.js';
 import { sortRows, visibleRank, vcpStageLabel } from '../src/ui/pages/screener.js';
 import { SCREENER_FIELD_REGISTRY, fieldValueForPurpose, createScreenDefinition } from '../src/data/contracts/screener.js';
+import { deriveQuotePresentation, quoteDisplayKind } from '../src/domain/market/quote-presentation.js';
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const owners = JSON.parse(read('architecture/route-owners.json')).routes;
 assert.deepEqual(Object.keys(owners).sort(), [...ROUTE_IDS].sort());
@@ -15,7 +16,7 @@ for (const route of ROUTE_IDS) {
   assert(existsSync(new URL(`../${modulePath}`, import.meta.url)), `${route}: missing module`);
 }
 const source = read('src/ui/pages/market.js');
-const context = vm.createContext({});
+const context = vm.createContext({ deriveQuotePresentation, quoteDisplayKind });
 vm.runInContext(source.slice(source.indexOf('function finite('), source.indexOf('const SNAPSHOT_ALIASES')), context);
 const node = () => ({ textContent: 'old', attrs: new Map(), children: [], classList: { remove() {}, toggle() {} },
   getAttribute(key) { return this.attrs.get(key); }, setAttribute(key, value) { this.attrs.set(key, value); }, removeAttribute(key) { this.attrs.delete(key); } });
@@ -30,6 +31,27 @@ assert.equal(price.textContent, '—'); assert(!price.attrs.has('data-as-of'));
 assert.equal(price.attrs.get('data-operational-use'), 'blocked');
 context.renderLiveQuotes({ _liveData: { AAA: { price: 101, pct: 0, source: 'live:yahoo', observedAt: '2026-08-29' } } }, page);
 assert.equal(pct.textContent, '+0.00%'); assert.equal(price.attrs.get('data-operational-use'), 'reference-only');
+// W03-B/P1145: display state follows the envelope's declared quality, not the source
+// label. A "live" source carrying a stale envelope must never read as observed, and a
+// declared-current envelope must promote even a snapshot-labelled source.
+assert.equal(price.attrs.get('data-quote-state'), 'stale-reference');
+context.renderLiveQuotes({ _liveData: { AAA: { price: 101, pct: 1, source: 'live:yahoo', observedAt: '2026-08-29', quoteEnvelope: { price: 101, pct: 1, source: 'live:yahoo', observedAt: '2026-08-29', fetchedAt: '2026-09-01T00:00:00Z', quality: 'STALE', changeBasis: 'previous-close' } } } }, page);
+assert.equal(price.attrs.get('data-quote-state'), 'stale-reference');
+assert.equal(price.attrs.get('data-source-kind'), 'reference');
+context.renderLiveQuotes({ _liveData: { AAA: { price: 101, pct: 1, source: 'snapshot', observedAt: '2026-08-29', quoteEnvelope: { price: 101, pct: 1, source: 'snapshot', observedAt: '2026-08-29', fetchedAt: '2026-09-01T00:00:00Z', quality: 'CURRENT', changeBasis: 'previous-close' } } } }, page);
+assert.equal(price.attrs.get('data-quote-state'), 'current');
+assert.equal(price.attrs.get('data-source-kind'), 'observed');
+assert.equal(price.attrs.get('data-change-coherent'), 'true');
+// An unknown previous-close basis is not a coherent change; the receipt time must not
+// freshen the older observation.
+context.renderLiveQuotes({ _liveData: { AAA: { price: 101, pct: 1, source: 'live:yahoo', observedAt: '2026-08-29', fetchedAt: '2026-09-10T00:00:00Z' } } }, page);
+assert.equal(pct.attrs.get('data-change-coherent'), 'false');
+assert.equal(pct.attrs.get('data-observed-at'), '2026-08-29');
+assert.equal(pct.attrs.get('data-fetched-at'), '2026-09-10T00:00:00Z');
+assert(deriveQuotePresentation({ quoteEnvelope: { price: 5, quality: 'CURRENT' } }).displayState === 'current');
+assert(deriveQuotePresentation({ price: 5, quality: 'UNAVAILABLE' }).displayState === 'stale-reference');
+// An envelope/raw price disagreement is disputed, not a coherent quote.
+assert(deriveQuotePresentation({ price: 9, quoteEnvelope: { price: 5, quality: 'CURRENT' } }).displayState === 'disputed');
 for (const value of [null, '', undefined, false]) assert.equal(context.finite(value), null);
 assert(source.includes('renderMacro(documentRef, root, page, charts)'));
 assert(source.includes('renderMacroTransmissionLens(documentRef, root, page)'));

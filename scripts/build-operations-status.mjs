@@ -8,6 +8,7 @@ const SEC_FUNDAMENTALS_PATH = new URL('../public-data/sec-fundamentals.json', im
 const WORKER_ENDPOINTS_PATH = new URL('../architecture/worker-endpoints.json', import.meta.url);
 const PUBLIC_READINESS_PATH = new URL('../architecture/public-readiness.json', import.meta.url);
 const PUBLIC_CONFIG_PATH = new URL('../public-config.json', import.meta.url);
+const SLO_WINDOW_PATH = new URL('../public-data/operations-slo-window.json', import.meta.url);
 const WORKER_HEALTH_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 const DURABLE_QUOTE_QUALITIES = new Set(['CURRENT', 'CLOSED_CURRENT', 'DELAYED']);
 
@@ -76,11 +77,56 @@ async function fetchHealth(baseUrl, healthPath = '/health', headers = {}) {
   return { response, body };
 }
 
+// The browser may only read the fast quote plane once the evidence that justifies it
+// exists. `enabled` is derived here instead of being hand-edited into the published
+// config, so a promotion cannot silently outrun the soak/rights evidence behind it —
+// and so a config-only repair (no fresh observation) cannot revoke a valid promotion.
+export function deriveFastQuotesConfig({ prior = null, endpoint = null, evidence = null, now = new Date().toISOString() } = {}) {
+  const carried = prior && typeof prior === 'object' ? prior : {
+    baseUrl: null,
+    healthPath: '/health',
+    quotesPath: '/quotes',
+    enabled: false,
+    certification: { soakRequiredDays: 7, soakObservedDays: 0, rightsReviewed: false, certifiedAt: null }
+  };
+  const usable = (() => {
+    try {
+      const parsed = new URL(String(endpoint || '').trim().replace(/\/+$/, ''));
+      return parsed.protocol === 'https:' && !parsed.username && !parsed.password && !parsed.search && !parsed.hash ? parsed.origin : null;
+    } catch (_) { return null; }
+  })();
+  // No observation was made: this is a configuration repair, not a health probe. Keep the
+  // promotion decision exactly as published and only refresh the address it points at.
+  if (!evidence) return { ...carried, baseUrl: usable ?? carried.baseUrl ?? null };
+  const soakRequiredDays = Number(evidence.soakRequiredDays ?? 7);
+  const soakObservedDays = Number(evidence.soakObservedDays ?? 0);
+  const rightsReviewed = evidence.rightsReviewed === true;
+  const enabled = Boolean(usable)
+    && evidence.healthy === true
+    && evidence.coverageComplete === true
+    && rightsReviewed
+    && soakObservedDays >= soakRequiredDays;
+  return {
+    baseUrl: usable,
+    healthPath: carried.healthPath || '/health',
+    quotesPath: carried.quotesPath || '/quotes',
+    enabled,
+    certification: {
+      soakRequiredDays,
+      soakObservedDays,
+      rightsReviewed,
+      certifiedAt: enabled ? (carried.certification?.certifiedAt || now) : null
+    }
+  };
+}
+
 export function derivePublicAiConfig(previous = {}, {
   appRevision = 'unknown',
   workerEndpoint = null,
   proxyHealthy = false,
   proxyEvidence = {},
+  fastQuotesEndpoint = null,
+  fastQuotesEvidence = null,
   now = new Date().toISOString()
 } = {}) {
   const prior = previous && typeof previous === 'object' ? previous : {};
@@ -131,7 +177,15 @@ export function derivePublicAiConfig(previous = {}, {
       routeStatus: endpointUsable ? 'CONFIGURED' : 'UNAVAILABLE',
       healthPath: '/health',
       policy: 'public-reference',
-      availability: 'verify-per-request'
+      availability: 'verify-per-request',
+      // Bounded Tier-0 quote plane. Independent of the AI branch: a temporary AI
+      // outage must not disable quote routing, and vice versa.
+      fastQuotes: deriveFastQuotesConfig({
+        prior: prior.marketData?.fastQuotes,
+        endpoint: fastQuotesEndpoint,
+        evidence: fastQuotesEvidence,
+        now
+      })
     },
     privacy: prior.privacy || {
       clientKeysStayBrowserLocal: true,
@@ -140,10 +194,10 @@ export function derivePublicAiConfig(previous = {}, {
   };
 }
 
-async function syncPublicAiConfig({ appRevision, workerEndpoint, proxyHealthy, proxyEvidence, now } = {}) {
+async function syncPublicAiConfig({ appRevision, workerEndpoint, proxyHealthy, proxyEvidence, fastQuotesEndpoint, fastQuotesEvidence, now } = {}) {
   let previous = {};
   try { previous = JSON.parse(await readFile(PUBLIC_CONFIG_PATH, 'utf8')); } catch (_) {}
-  const config = derivePublicAiConfig(previous, { appRevision, workerEndpoint, proxyHealthy, proxyEvidence, now });
+  const config = derivePublicAiConfig(previous, { appRevision, workerEndpoint, proxyHealthy, proxyEvidence, fastQuotesEndpoint, fastQuotesEvidence, now });
   const temp = new URL(`${PUBLIC_CONFIG_PATH.pathname}.tmp`, PUBLIC_CONFIG_PATH);
   await writeFile(temp, `${JSON.stringify(config, null, 2)}\n`);
   await rename(temp, PUBLIC_CONFIG_PATH);
@@ -344,6 +398,13 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
   const fastEvidence = shouldObserveWorkerHealth
     ? await observeWorkerHealth(workerEndpoints, now)
     : reuseWorkerHealthEvidence(previousStatus, now);
+  // Soak days are measured by the watchdog SLO window (distinct scheduled days observed),
+  // not by a health probe. Reading it here keeps planes.fast.soak, the blocker list and the
+  // published consumer gate backed by the same number instead of three independent guesses.
+  let sloWindow = null;
+  try { sloWindow = JSON.parse(await readFile(SLO_WINDOW_PATH, 'utf8')); } catch (_) {}
+  const measuredSoakDays = Number(sloWindow?.windows?.['7d']?.observedDays);
+  if (Number.isFinite(measuredSoakDays)) fastEvidence.fastSoakObservedDays = measuredSoakDays;
   const fastEndpoint = String(process.env.AIO_FAST_QUOTES_URL || fastConfig.baseUrl || '').trim() || 'not-configured';
   const snapshot = marketSnapshot || {};
   const coverage = snapshot.coverage || { tier0Required: 0, tier0Observed: 0 };
@@ -482,6 +543,16 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
     workerEndpoint: workerEndpoints.proxy?.baseUrl || null,
     proxyHealthy,
     proxyEvidence: fastEvidence,
+    fastQuotesEndpoint: fastEndpoint === 'not-configured' ? null : fastEndpoint,
+    fastQuotesEvidence: {
+      healthy: fastHealthy,
+      coverageComplete: Number.isFinite(fastObserved) && fastObserved === fastRequired && fastRequired === 16,
+      // Declared by the operator in architecture/worker-endpoints.json after the
+      // provider-rights review — never inferred from a healthy probe.
+      rightsReviewed: workerEndpoints.fastQuotes?.rightsReviewed === true,
+      soakRequiredDays: Number(workerEndpoints.fastQuotes?.soakRequiredDays ?? 7),
+      soakObservedDays: fastEvidence.fastSoakObservedDays || 0
+    },
     now
   });
   await syncFredReadinessCriterion(data);
@@ -493,7 +564,10 @@ if (process.argv[1] && new URL(`file://${process.argv[1].replaceAll('\\', '/')}`
     const previous = JSON.parse(await readFile(PUBLIC_CONFIG_PATH, 'utf8'));
     const endpoints = JSON.parse(await readFile(WORKER_ENDPOINTS_PATH, 'utf8'));
     const version = JSON.parse(await readFile(new URL('../version.json', import.meta.url), 'utf8'));
-    const derived = derivePublicAiConfig(previous, { workerEndpoint: endpoints.proxy?.baseUrl });
+    const derived = derivePublicAiConfig(previous, {
+      workerEndpoint: endpoints.proxy?.baseUrl,
+      fastQuotesEndpoint: endpoints.fastQuotes?.baseUrl || null
+    });
     // Configuration repair is not a health probe. Preserve existing AI evidence
     // and every observation timestamp when no live observation was made.
     await atomicWriteFile(PUBLIC_CONFIG_PATH, `${JSON.stringify({ ...previous, appRevision: version.version, marketData: derived.marketData }, null, 2)}\n`);

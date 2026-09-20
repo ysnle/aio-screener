@@ -1,6 +1,8 @@
 {
   "schemaVersion": "knowledge-domain-dossier.v1",
   "generatedAt": "2026-08-12",
+  "evidenceAsOf": null,
+  "reviewedAt": null,
   "dossierId": "domain-dossier:domain-geopolitics-policy-security",
   "domainId": "domain-geopolitics-policy-security",
   "title": "domain-geopolitics-policy-security",
@@ -11,21 +13,85 @@
     "정책 변경·규정 준수·대체 공급·보안 사고·동맹 관계"
   ],
   "uniqueKpis": [
-    "허가·수출 대상·보조금·조달·incident·lead time",
-    "Export controls의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-    "Supply-chain resilience의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-    "Semiconductor incentives의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-    "Cybersecurity and sovereign AI의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-    "National-security risk의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+    "허가·수출 대상·보조금·조달·incident·lead time"
   ],
+  "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
+  "metrics": [],
   "valueChain": [
-    "법·보조금·통제 → 공급자·고객·지역 선택 → 비용·지연·회복력·보안",
     "Export controls",
     "Supply-chain resilience",
     "Semiconductor incentives",
     "Cybersecurity and sovereign AI",
     "National-security risk"
   ],
+  "valueChainGraph": {
+    "status": "UNCLASSIFIED_CANDIDATE",
+    "basis": "taxonomy node labels only; the guide mechanism prose is preserved separately and is not treated as a validated causal order",
+    "nodes": [
+      {
+        "nodeId": "policy-export-controls",
+        "label": "Export controls",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      },
+      {
+        "nodeId": "policy-supply-chain-resilience",
+        "label": "Supply-chain resilience",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      },
+      {
+        "nodeId": "policy-semiconductor-incentives",
+        "label": "Semiconductor incentives",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      },
+      {
+        "nodeId": "policy-cybersecurity",
+        "label": "Cybersecurity and sovereign AI",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      },
+      {
+        "nodeId": "policy-national-security-risk",
+        "label": "National-security risk",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      }
+    ],
+    "edges": [],
+    "mechanismNarrative": "법·보조금·통제 → 공급자·고객·지역 선택 → 비용·지연·회복력·보안"
+  },
   "taxonomyNodeIds": [
     "policy-export-controls",
     "policy-supply-chain-resilience",
@@ -53,9 +119,81 @@
     "AT-GP-03"
   ],
   "researchQuestions": [
-    "정책 발표와 기업 매출·납기 노출을 어떻게 연결하는가",
-    "규제·보안 요구가 비용·고객·대체 기간을 어떻게 바꾸는가"
+    {
+      "questionId": "question:domain-geopolitics-policy-security:1",
+      "question": "정책 발표와 실제 시행·허가·기업 비용의 시점을 어떻게 구분하는가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-geopolitics-policy-security:2",
+      "question": "Export controls의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-geopolitics-policy-security:3",
+      "question": "Supply-chain resilience의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-geopolitics-policy-security:4",
+      "question": "Semiconductor incentives의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-geopolitics-policy-security:5",
+      "question": "Cybersecurity and sovereign AI의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-geopolitics-policy-security:6",
+      "question": "National-security risk의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-geopolitics-policy-security:7",
+      "question": "정책 발표와 기업 매출·납기 노출을 어떻게 연결하는가",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-geopolitics-policy-security:8",
+      "question": "규제·보안 요구가 비용·고객·대체 기간을 어떻게 바꾸는가",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    }
   ],
+  "unclassifiedCandidates": {
+    "measurementDimensions": [
+      "허가·수출 대상·보조금·조달·incident·lead time"
+    ],
+    "verificationQuestions": [
+      "정책 발표와 실제 시행·허가·기업 비용의 시점을 어떻게 구분하는가?",
+      "Export controls의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "Supply-chain resilience의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "Semiconductor incentives의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "Cybersecurity and sovereign AI의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "National-security risk의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "정책 발표와 기업 매출·납기 노출을 어떻게 연결하는가",
+      "규제·보안 요구가 비용·고객·대체 기간을 어떻게 바꾸는가"
+    ],
+    "mechanismNarrative": [
+      "법·보조금·통제 → 공급자·고객·지역 선택 → 비용·지연·회복력·보안"
+    ]
+  },
   "marketTransmission": {
     "status": "RESEARCH_REQUIRED",
     "path": [

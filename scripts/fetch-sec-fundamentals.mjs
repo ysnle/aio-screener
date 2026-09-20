@@ -109,6 +109,22 @@ function acceptedAtByAccession(submissions) {
   return new Map(accessions.map((accession, index) => [String(accession || ''), accepted[index] || null]));
 }
 
+// W09-A/P1148: a fiscal year older than this is not "current financials" however recently we
+// fetched it. ~18 months keeps one normal reporting lag while excluding genuinely stale FYs.
+const REPORT_RECENCY_MAX_DAYS = 550;
+
+// The earliest instant a single operand could have been known: its accession acceptance time
+// when available, otherwise the filing date (which is a date, not an intraday time).
+function pitAvailability(row, acceptedMap) {
+  if (!row) return null;
+  return acceptedMap.get(String(row.accn || '')) || row.filed || null;
+}
+
+function latestIso(values) {
+  const times = (values || []).map((value) => Date.parse(value || '')).filter(Number.isFinite);
+  return times.length ? new Date(Math.max(...times)).toISOString() : null;
+}
+
 /**
  * SEC ticker membership is not a data-capability claim. Foreign issuers often
  * have a SEC ticker entry but publish IFRS facts (or no comparable annual
@@ -261,6 +277,32 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
   const sharesOutstanding = finiteFact(currentShares?.val);
   const px = Number(price);
   const marketCap = px > 0 && sharesOutstanding > 0 ? px * sharesOutstanding : null;
+
+  // W09-A/B/P1148 (F01/F02): transport freshness, report recency, and per-operand availability
+  // are separate. A filing arriving today does not make an old fiscal year current, and a
+  // derived ratio cannot have been reproducible before its LATEST operand was public.
+  const operandAvailability = {
+    revenue: pitAvailability(currentRevenue, acceptedMap),
+    netIncome: pitAvailability(currentIncome, acceptedMap),
+    equity: pitAvailability(currentEquity, acceptedMap),
+    sharesOutstanding: pitAvailability(currentShares, acceptedMap),
+    priorRevenue: pitAvailability(priorRevenue, acceptedMap)
+  };
+  const derivedAvailability = {
+    revGrowth: latestIso([operandAvailability.revenue, operandAvailability.priorRevenue]),
+    margin: latestIso([operandAvailability.revenue, operandAvailability.netIncome]),
+    roe: latestIso([operandAvailability.netIncome, operandAvailability.equity]),
+    pe: latestIso([operandAvailability.sharesOutstanding, operandAvailability.netIncome]),
+    pb: latestIso([operandAvailability.sharesOutstanding, operandAvailability.equity])
+  };
+  const recordAvailableAt = latestIso(Object.values(operandAvailability));
+  const reportAgeDays = Number.isFinite(Date.parse(currentRevenue.end || ''))
+    ? Math.round((Date.now() - Date.parse(currentRevenue.end)) / 86400000)
+    : null;
+  const reportRecency = reportAgeDays != null && reportAgeDays <= REPORT_RECENCY_MAX_DAYS ? 'recent-fy' : 'stale-fy';
+  const revenueAcceptedAt = acceptedMap.get(String(currentRevenue.accn || '')) || null;
+  const qualityStatus = revenueAcceptedAt && reportRecency === 'recent-fy' ? 'CURRENT' : 'REFERENCE';
+
   const record = {
     symbol,
     cik: String(companyFacts.cik || '').padStart(10, '0'),
@@ -269,15 +311,29 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
     sourceTier: 'T1_OFFICIAL',
     sourceKind: 'T1_OFFICIAL',
     rightsId: 'PUBLIC_REFERENCE',
+    // The v2 model id stays the artifact contract (allowlists and stored records key on it).
+    // Availability semantics are versioned separately so this fix does not silently relabel
+    // existing stored records.
     model: 'sec-fy-normalized-v2',
+    availabilityModel: 'sec-pit-availability.v1',
     periodType: 'FY',
+    fiscalPeriodEnd: currentRevenue.end || null,
+    // The observation is the fiscal period end; the transport time is when we fetched it.
     observedAt: currentRevenue.end || null,
     filedAt: currentRevenue.filed || null,
-    acceptedAt: acceptedMap.get(String(currentRevenue.accn || '')) || null,
-    availableAt: acceptedMap.get(String(currentRevenue.accn || '')) || currentRevenue.filed || null,
+    // The revenue accession's acceptance time, kept for compatibility. `availableAt` is the
+    // earliest time the WHOLE record's operands were all public, which is never earlier.
+    acceptedAt: revenueAcceptedAt,
+    availableAt: recordAvailableAt,
+    transportFetchedAt: new Date().toISOString(),
+    reportAgeDays,
+    reportRecency,
+    accessionByField: { revenue: currentRevenue.accn || null, netIncome: currentIncome?.accn || null, equity: currentEquity?.accn || null, sharesOutstanding: currentShares?.accn || null },
+    operandAvailability,
+    derivedAvailability,
     allowedUse: 'research-relative-ranking-only',
-    qualityStatus: acceptedMap.get(String(currentRevenue.accn || '')) ? 'CURRENT' : 'REFERENCE',
-    quality: { status: acceptedMap.get(String(currentRevenue.accn || '')) ? 'CURRENT' : 'REFERENCE', stale: false, decisionUse: false, allowedUse: 'reference' },
+    qualityStatus,
+    quality: { status: qualityStatus, stale: reportRecency !== 'recent-fy', decisionUse: false, allowedUse: 'reference' },
     fetchedAt: new Date().toISOString(),
     form: currentRevenue.form || null,
     accession: currentRevenue.accn || null,

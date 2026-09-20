@@ -16,22 +16,26 @@ jobs:
     timeout-minutes: 25
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
       - name: Require AI proxy operating configuration
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLAUDE_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          FRED_RELAY_KEY: ${{ secrets.FRED_API_KEY }}
         run: |
           set -euo pipefail
-          for pair in "CLOUDFLARE_API_TOKEN=$CF_TOKEN" "CLOUDFLARE_ACCOUNT_ID=$CF_ACCOUNT" "ANTHROPIC_API_KEY=$CLAUDE_KEY"; do
+          # FRED_API_KEY is required because /relay's fred provider is the replacement for the
+          # browser-blocked client FRED path. BOK/KOSIS relay keys stay optional and are published
+          # conditionally below — a missing key fails only that provider closed, not the deploy.
+          for pair in "CLOUDFLARE_API_TOKEN=$CF_TOKEN" "CLOUDFLARE_ACCOUNT_ID=$CF_ACCOUNT" "ANTHROPIC_API_KEY=$CLAUDE_KEY" "FRED_API_KEY=$FRED_RELAY_KEY"; do
             name="${pair%%=*}"; value="${pair#*=}"
             if [ -z "$value" ]; then echo "::error::operator_required: $name is not configured"; exit 1; fi
           done
 
       - name: Setup Node
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: '24'
 
@@ -57,6 +61,27 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: printf '%s' "$ANTHROPIC_API_KEY" | wrangler secret put ANTHROPIC_API_KEY --config worker/wrangler.proxy.deploy.toml
 
+      - name: Publish server-side relay secrets
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          BOK_API_KEY: ${{ secrets.BOK_API_KEY }}
+          KOSIS_API_KEY: ${{ secrets.KOSIS_API_KEY }}
+        run: |
+          set -euo pipefail
+          publish() {
+            local name="$1" value="$2"
+            if [ -z "$value" ]; then
+              echo "::warning::relay_optional_missing: $name is not configured — that /relay provider stays fail-closed"
+              return 0
+            fi
+            printf '%s' "$value" | wrangler secret put "$name" --config worker/wrangler.proxy.deploy.toml
+          }
+          publish FRED_API_KEY "$FRED_API_KEY"
+          publish BOK_API_KEY "$BOK_API_KEY"
+          publish KOSIS_API_KEY "$KOSIS_API_KEY"
+
       - name: Verify health, readiness, CORS, and fail-closed origin
         env:
           AI_PROXY_URL: ${{ vars.AIO_PROXY_URL || 'https://aio-proxy.zmfhd007.workers.dev' }}
@@ -65,7 +90,7 @@ jobs:
           ready="0"
           for attempt in $(seq 1 12); do
             status="$(curl --silent --show-error --output /tmp/aio-ai-health.json --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/health" || true)"
-            if [ "$status" = "200" ] && node -e "const fs=require('fs');const h=JSON.parse(fs.readFileSync('/tmp/aio-ai-health.json'));if(h.schemaVersion!=='aio-worker-health.v1'||h.sourceSha!==process.env.GITHUB_SHA||h.ai?.configured!==true||h.ai?.quotaConfigured!==true||h.ai?.authorityReady!==true||h.ai?.authorityJurisdiction!=='us'||h.ai?.ready!==true)process.exit(1)"; then
+            if [ "$status" = "200" ] && node -e "const fs=require('fs');const h=JSON.parse(fs.readFileSync('/tmp/aio-ai-health.json'));if(h.schemaVersion!=='aio-worker-health.v1'||h.sourceSha!==process.env.GITHUB_SHA||h.ai?.configured!==true||h.ai?.quotaConfigured!==true||h.ai?.authorityReady!==true||h.ai?.authorityJurisdiction!=='us'||h.ai?.ready!==true||h.relay?.configured?.fred!==true||h.relay?.quotaConfigured!==true)process.exit(1)"; then
               ready="1"
               break
             fi
@@ -81,3 +106,13 @@ jobs:
           if [ "$upstream_status" != "200" ]; then cat /tmp/aio-ai-upstream.json || true; echo "::error::ai_proxy_upstream_failed: HTTP $upstream_status"; exit 1; fi
           node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync('/tmp/aio-ai-upstream.json'));if(!Array.isArray(r.content)||!r.content.some(x=>x?.type==='text'&&typeof x.text==='string'))process.exit(1)"
           node -e "const fs=require('fs');const h=fs.readFileSync('/tmp/aio-ai-upstream-headers.txt','utf8').toLowerCase();if(!/^x-aio-upstream-authority:\\s*durable-object-us\\s*$/m.test(h))process.exit(1)"
+          # /relay: server-side key relay must serve an operator-key FRED series without the client
+          # ever supplying a key, and must refuse a non-allowlisted Origin before any upstream call.
+          relay_status="$(curl --silent --show-error --dump-header /tmp/aio-relay-headers.txt --output /tmp/aio-relay.json --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/relay?provider=fred&series_id=DGS10&limit=1")"
+          if [ "$relay_status" != "200" ]; then cat /tmp/aio-relay.json || true; echo "::error::ai_proxy_relay_failed: HTTP $relay_status"; exit 1; fi
+          node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync('/tmp/aio-relay.json'));if(!Array.isArray(r.observations))process.exit(1)"
+          node -e "const fs=require('fs');const h=fs.readFileSync('/tmp/aio-relay-headers.txt','utf8');if(/api_key/i.test(h)||/api_key=/i.test(h))process.exit(1)"
+          relay_blocked="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' -H 'Origin: https://example.com' "$AI_PROXY_URL/relay?provider=fred&series_id=DGS10&limit=1")"
+          if [ "$relay_blocked" != "403" ]; then echo "::error::ai_proxy_relay_origin_gate_failed: HTTP $relay_blocked"; exit 1; fi
+          relay_unknown="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/relay?provider=evil&series_id=DGS10")"
+          if [ "$relay_unknown" != "400" ]; then echo "::error::ai_proxy_relay_provider_gate_failed: HTTP $relay_unknown"; exit 1; fi

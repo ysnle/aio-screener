@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ai-public-config.v1",
-  "appRevision": "v55.22",
+  "appRevision": "v56",
   "ai": {
     "chatPolicy": "personal-key-or-public-worker",
     "workerUrl": "https://aio-proxy.zmfhd007.workers.dev",
@@ -21,7 +21,19 @@
     "routeStatus": "CONFIGURED",
     "healthPath": "/health",
     "policy": "public-reference",
-    "availability": "verify-per-request"
+    "availability": "verify-per-request",
+    "fastQuotes": {
+      "baseUrl": "https://aio-screener-data-plane.zmfhd007.workers.dev",
+      "healthPath": "/health",
+      "quotesPath": "/quotes",
+      "enabled": false,
+      "certification": {
+        "soakRequiredDays": 7,
+        "soakObservedDays": 0,
+        "rightsReviewed": false,
+        "certifiedAt": null
+      }
+    }
   },
   "privacy": {
     "clientKeysStayBrowserLocal": true,

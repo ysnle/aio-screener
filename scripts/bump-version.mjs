@@ -169,6 +169,9 @@ try {
       requirePreflight(artifactPath, new RegExp(`(\"workerRevision\"\\s*:\\s*\"sw:)${escRe(prevVer)}(\")`), `${artifactPath} workerRevision`);
     }
   }
+  // The deployed Worker reports AIO_APP_REVISION on /health. It sat at v54.37 while the
+  // app moved on, so a live probe could not be trusted to identify the revision it served.
+  requirePreflight('worker/wrangler.proxy.toml', new RegExp(`AIO_APP_REVISION\\s*=\\s*\"${escRe(prevVer)}\"`), 'proxy worker revision');
   requirePreflight('public-data/operations-status.json', new RegExp(`(\"appRevision\"\\s*:\\s*\")${escRe(prevVer)}(\")`), 'operations appRevision');
   requirePreflight('public-data/operations-status.json', new RegExp(`(\"browser\"[\\s\\S]*?\"revision\"\\s*:\\s*\")${escRe(prevVer)}(\")`), 'operations browser revision');
   requirePreflight('_context/SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md', new RegExp(`repository_version:\\s*${escRe(prevVer)}`), 'screener handoff repository_version');
@@ -385,6 +388,14 @@ try {
       }
       write(artifactPath, artifact);
     }
+
+    let proxyToml = read('worker/wrangler.proxy.toml');
+    proxyToml = replaceOnce(proxyToml,
+      new RegExp(`(AIO_APP_REVISION\\s*=\\s*")${escRe(prevVer)}(")`),
+      `$1${newVer}$2`,
+      'proxy worker revision'
+    );
+    write('worker/wrangler.proxy.toml', proxyToml);
 
     // A version bump invalidates revision-bound browser evidence. Preserve the
     // previous measurement as history, but never relabel it as proof for the

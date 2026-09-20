@@ -1,0 +1,81 @@
+{
+  "sha": "54428470af3bc17a193fe3a0d60346bcd75b45e3",
+  "synthetic": true,
+  "observedAt": "2026-09-20T03:45:36.201Z",
+  "factor": {
+    "requested": {
+      "quality": 1
+    },
+    "available": true,
+    "activeFactors": [
+      "momentum"
+    ],
+    "appliedFactorWeights": {
+      "momentum": 1
+    },
+    "ranked": 8
+  },
+  "screen": {
+    "fieldStatus": "CURRENT",
+    "rows": [
+      {
+        "sym": "TEST",
+        "roe": 20,
+        "margin": 10,
+        "revGrowth": 5,
+        "rank": null,
+        "fieldReadiness": {
+          "fields": {
+            "quality.roe": {
+              "value": 20,
+              "status": "CURRENT"
+            },
+            "quality.margin": {
+              "value": 10,
+              "status": "CURRENT"
+            },
+            "quality.revGrowth": {
+              "value": 5,
+              "status": "CURRENT"
+            }
+          }
+        },
+        "screenStatus": "passed",
+        "screenRank": 1,
+        "rankExplanation": {
+          "instrumentId": "TEST",
+          "totalScore": null,
+          "contributions": {},
+          "passedGates": [],
+          "failedGates": [],
+          "missingEvidence": [],
+          "contraryEvidence": [],
+          "factorPeers": {},
+          "confidence": 0,
+          "status": "explained"
+        }
+      }
+    ],
+    "run": {
+      "schemaVersion": "screener-workbench.v1",
+      "runId": "run-6a188b95",
+      "screenId": "preset-quality",
+      "screenVersion": 1,
+      "definitionHash": "64bfdd35",
+      "snapshotId": "unknown",
+      "startedAt": "2026-09-20T03:45:36.199Z",
+      "completedAt": "2026-09-20T03:45:36.199Z",
+      "status": "completed",
+      "eligibleCount": 1,
+      "rowCount": 1,
+      "passed": 1,
+      "rejected": 0,
+      "unavailable": 0,
+      "providerSet": [],
+      "engineVersion": "screen-engine.v4",
+      "explanationsHash": "33d6989e",
+      "resultHash": "287bd108",
+      "allowedUse": "research-relative-ranking-only"
+    }
+  }
+}

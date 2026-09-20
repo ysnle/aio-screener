@@ -103,7 +103,7 @@ export function createMarketSnapshot(input = {}) {
   });
 }
 
-export function validateMarketSnapshot(snapshot) {
+export function validateMarketSnapshot(snapshot, options = {}) {
   const errors = [];
   if (!snapshot || typeof snapshot !== 'object') errors.push('snapshot_not_object');
   if (!MARKET_SNAPSHOT_STATUS.includes(snapshot?.status)) errors.push('status_invalid');
@@ -111,12 +111,17 @@ export function validateMarketSnapshot(snapshot) {
   if (snapshot?.status === 'published' && (!snapshot.lastSuccessfulAt || Number.isNaN(Date.parse(snapshot.lastSuccessfulAt)))) {
     errors.push('lastSuccessfulAt_required_for_publish');
   }
-  const required = Number(snapshot?.coverage?.required || 0);
-  const observed = Number(snapshot?.coverage?.observed || 0);
-  const tier0Required = Number(snapshot?.coverage?.tier0Required ?? required);
-  const tier0Observed = Number(snapshot?.coverage?.tier0Observed ?? observed);
-  if (snapshot?.status === 'published' && (required <= 0 || observed < required || tier0Required <= 0 || tier0Observed < tier0Required)) {
-    errors.push('published_coverage_below_100_percent');
+  // W03-A/P1145: publishing is accepted from the MEASURED instrument set, not the
+  // coverage numbers the payload reports about itself. A snapshot cannot pass by
+  // declaring 16/16 while shipping fewer, duplicate, unknown, or wrong-unit quotes.
+  const audit = auditMarketSnapshotCoverage(snapshot, options);
+  if (snapshot?.status === 'published') {
+    if (!audit.declaredMatchesMeasured) errors.push('published_declared_coverage_mismatch');
+    if (audit.measured.required <= 0 || audit.measured.observed < audit.measured.required) errors.push('published_coverage_below_100_percent');
+    if (audit.missing.length) errors.push(`published_tier0_missing:${audit.missing.join('|')}`);
+    if (audit.duplicates.length) errors.push(`published_tier0_duplicate:${audit.duplicates.join('|')}`);
+    if (audit.unknown.length) errors.push(`published_instrument_unknown:${audit.unknown.join('|')}`);
+    if (audit.unitMismatches.length) errors.push(`published_unit_mismatch:${audit.unitMismatches.map((row) => row.instrumentId).join('|')}`);
   }
   const seen = new Set();
   for (const quote of snapshot?.quotes || []) {
@@ -132,11 +137,56 @@ export function validateMarketSnapshot(snapshot) {
       if (quote?.[field] && Number.isNaN(Date.parse(quote[field]))) errors.push(`quote_${field}_invalid`);
     }
   }
-  return Object.freeze({ ok: errors.length === 0, errors: [...new Set(errors)] });
+  return Object.freeze({ ok: errors.length === 0, errors: [...new Set(errors)], audit });
+}
+
+/**
+ * Pure coverage audit shared by the producer and the loader. It recomputes the
+ * required instrument set from the registry instead of trusting declared counts.
+ * A symbol alias cannot round a duplicate into coverage, and a unit mismatch is
+ * never repaired here by an implicit numeric conversion — the mismatched quote is
+ * reported with its expected and actual unit so the caller can decide.
+ */
+export function auditMarketSnapshotCoverage(snapshot, { instruments = TIER_0_INSTRUMENTS } = {}) {
+  const registry = new Map((Array.isArray(instruments) ? instruments : []).map((row) => [String(row.instrumentId), row]));
+  const quotes = Array.isArray(snapshot?.quotes) ? snapshot.quotes : [];
+  const counts = new Map();
+  const matched = new Set();
+  const missing = [];
+  const duplicates = [];
+  const unknown = [];
+  const unitMismatches = [];
+  for (const quote of quotes) {
+    const instrumentId = String(quote?.instrumentId || quote?.symbol || '');
+    const entry = registry.get(instrumentId);
+    if (!entry) { unknown.push(instrumentId); continue; }
+    const count = (counts.get(instrumentId) || 0) + 1;
+    counts.set(instrumentId, count);
+    if (count > 1) { duplicates.push(instrumentId); matched.delete(instrumentId); continue; }
+    const unit = String(quote?.unit || '');
+    if (!unit || (entry.unit && unit !== entry.unit)) {
+      unitMismatches.push(Object.freeze({ instrumentId, expected: entry.unit, actual: unit }));
+      continue;
+    }
+    matched.add(instrumentId);
+  }
+  for (const row of instruments) if (!matched.has(String(row.instrumentId))) missing.push(String(row.instrumentId));
+  const measured = Object.freeze({ required: registry.size, observed: matched.size, ratio: registry.size ? matched.size / registry.size : 0 });
+  const declared = normalizeCoverage(snapshot?.coverage);
+  const tier1Complete = declared.tier1Required === 0 || declared.tier1Observed >= declared.tier1Required;
+  return Object.freeze({
+    ok: missing.length === 0 && duplicates.length === 0 && unknown.length === 0 && unitMismatches.length === 0 && declared.tier0Required === measured.required && declared.tier0Observed === measured.observed,
+    measured,
+    declared,
+    declaredMatchesMeasured: declared.tier0Required === measured.required && declared.tier0Observed === measured.observed,
+    tier1: Object.freeze({ required: declared.tier1Required, observed: declared.tier1Observed, complete: tier1Complete }),
+    missing: Object.freeze(missing),
+    duplicates: Object.freeze(duplicates),
+    unknown: Object.freeze(unknown),
+    unitMismatches: Object.freeze(unitMismatches)
+  });
 }
 
 export function tier0Coverage(quotes = []) {
-  const available = new Set((Array.isArray(quotes) ? quotes : []).map((quote) => String(quote?.instrumentId || quote?.symbol || '')));
-  const observed = TIER_0_INSTRUMENTS.filter((row) => available.has(row.instrumentId)).length;
-  return Object.freeze({ required: TIER_0_REQUIRED, observed, ratio: observed / TIER_0_REQUIRED });
+  return auditMarketSnapshotCoverage({ quotes }).measured;
 }

@@ -17,23 +17,32 @@
     "js/aio-workspace.js"
   ],
   "recordedLines": {
-    "index.html": 13281,
-    "js/aio-core.js": 27999,
-    "js/aio-data.js": 16676,
+    "index.html": 13301,
+    "js/aio-core.js": 28053,
+    "js/aio-data.js": 16786,
     "js/aio-ui.js": 7687,
     "js/aio-chat.js": 9183,
     "js/aio-tests.js": 9339,
     "js/aio-glossary.js": 323,
     "js/aio-pages.js": 3760,
-    "js/aio-kr-data.js": 3490,
+    "js/aio-kr-data.js": 3296,
     "js/aio-macro-tech.js": 1198,
     "js/aio-workspace.js": 2623
   },
   "ceiling": {
     "index.html": 35000,
-    "js/aio-core.js": 28000,
+    "js/aio-core.js": 28200,
     "js/aio-data.js": 18000
   },
+  "ceilingHistory": [
+    {
+      "file": "js/aio-core.js",
+      "from": 28000,
+      "to": 28200,
+      "at": "v56 (P1151~P1155, 2026-09-20)",
+      "reason": "The /relay client path, the three restored web-search credential inputs, the Claude server-key-mode toggle and the observed-vs-stored provider status added 54 lines. The previous 28000 sat one line above the file — the exact wall P1127 replaced with a ratchet — so the recorded decision is a raise with real headroom, not another near-boundary."
+    }
+  ],
   "facadePolicy": "bounded compatibility facade only; no permanent duplicate primary writer",
   "codeMapRescan": "required after any change greater than 500 lines"
 }

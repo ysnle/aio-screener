@@ -1,6 +1,8 @@
 {
   "schemaVersion": "knowledge-domain-dossier.v1",
   "generatedAt": "2026-08-12",
+  "evidenceAsOf": null,
+  "reviewedAt": null,
   "dossierId": "domain-dossier:domain-physical-ai-robotics",
   "domainId": "domain-physical-ai-robotics",
   "title": "domain-physical-ai-robotics",
@@ -11,21 +13,85 @@
     "분포 이동·희귀 사건·actuator·안전·현장 통합"
   ],
   "uniqueKpis": [
-    "작업 성공률·지연·다운타임·개입·유지비",
-    "Perception and sensor fusion의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-    "World model and simulation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-    "Planning and control의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-    "Actuation and safety의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-    "Robot unit economics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+    "작업 성공률·지연·다운타임·개입·유지비"
   ],
+  "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
+  "metrics": [],
   "valueChain": [
-    "센서·상태 → 세계 예측·계획 → 제어·작동 → 성공률·복구·사람 검토",
     "Perception and sensor fusion",
     "World model and simulation",
     "Planning and control",
     "Actuation and safety",
     "Robot unit economics"
   ],
+  "valueChainGraph": {
+    "status": "UNCLASSIFIED_CANDIDATE",
+    "basis": "taxonomy node labels only; the guide mechanism prose is preserved separately and is not treated as a validated causal order",
+    "nodes": [
+      {
+        "nodeId": "physical-ai-perception",
+        "label": "Perception and sensor fusion",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      },
+      {
+        "nodeId": "physical-ai-world-model",
+        "label": "World model and simulation",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      },
+      {
+        "nodeId": "physical-ai-planning",
+        "label": "Planning and control",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      },
+      {
+        "nodeId": "physical-ai-actuation",
+        "label": "Actuation and safety",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      },
+      {
+        "nodeId": "physical-ai-unit-economics",
+        "label": "Robot unit economics",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      }
+    ],
+    "edges": [],
+    "mechanismNarrative": "센서·상태 → 세계 예측·계획 → 제어·작동 → 성공률·복구·사람 검토"
+  },
   "taxonomyNodeIds": [
     "physical-ai-perception",
     "physical-ai-world-model",
@@ -53,9 +119,81 @@
     "AT-RB-03"
   ],
   "researchQuestions": [
-    "시뮬레이션·benchmark와 현장 task success를 어떻게 구분하는가",
-    "hardware·maintenance·human override가 단위경제에 미치는 영향은 무엇인가"
+    {
+      "questionId": "question:domain-physical-ai-robotics:1",
+      "question": "시뮬레이션·데모 성능이 실제 작업 단위경제로 이어지는가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-physical-ai-robotics:2",
+      "question": "Perception and sensor fusion의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-physical-ai-robotics:3",
+      "question": "World model and simulation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-physical-ai-robotics:4",
+      "question": "Planning and control의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-physical-ai-robotics:5",
+      "question": "Actuation and safety의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-physical-ai-robotics:6",
+      "question": "Robot unit economics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-physical-ai-robotics:7",
+      "question": "시뮬레이션·benchmark와 현장 task success를 어떻게 구분하는가",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-physical-ai-robotics:8",
+      "question": "hardware·maintenance·human override가 단위경제에 미치는 영향은 무엇인가",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    }
   ],
+  "unclassifiedCandidates": {
+    "measurementDimensions": [
+      "작업 성공률·지연·다운타임·개입·유지비"
+    ],
+    "verificationQuestions": [
+      "시뮬레이션·데모 성능이 실제 작업 단위경제로 이어지는가?",
+      "Perception and sensor fusion의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "World model and simulation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "Planning and control의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "Actuation and safety의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "Robot unit economics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "시뮬레이션·benchmark와 현장 task success를 어떻게 구분하는가",
+      "hardware·maintenance·human override가 단위경제에 미치는 영향은 무엇인가"
+    ],
+    "mechanismNarrative": [
+      "센서·상태 → 세계 예측·계획 → 제어·작동 → 성공률·복구·사람 검토"
+    ]
+  },
   "marketTransmission": {
     "status": "RESEARCH_REQUIRED",
     "path": [

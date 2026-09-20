@@ -1,0 +1,38 @@
+{
+  "sha": "54428470af3bc17a193fe3a0d60346bcd75b45e3",
+  "synthetic": true,
+  "result": {
+    "modelVersion": "market-health.v1",
+    "available": true,
+    "status": "current",
+    "score": 50,
+    "grade": "B",
+    "regime": "중립/혼조",
+    "missing": [],
+    "details": [
+      "SPY 보합",
+      "VIX 20.0 주의",
+      "M7 1/1 상승 (강한 리더십)"
+    ],
+    "bars": {
+      "spy": 50,
+      "qqq": 50,
+      "vix": 33.33333333333333,
+      "pressure": 33.33333333333333,
+      "buyRisk": 66.66666666666667,
+      "trend": 50
+    },
+    "inputs": {
+      "spyPct": 0,
+      "qqqPct": 0,
+      "vix": 20,
+      "spyPrice": null,
+      "ma50": null,
+      "ma200": null,
+      "leaderUp": 1,
+      "leaderTotal": 1,
+      "sectorUp": 0,
+      "sectorTotal": 0
+    }
+  }
+}

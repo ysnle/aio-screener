@@ -9,8 +9,15 @@ on:
 
 permissions:
   actions: read
-  contents: read
   issues: write
+
+# This job mutates GitHub Issues (create/update/comment) and fires on every monitored
+# workflow_run completion. Without a group, two completions close together can start two
+# reconcile runs that race on the same marker issue. Serialize them; never cancel, because
+# the second run carries the newer conclusion.
+concurrency:
+  group: aio-operations-alert
+  cancel-in-progress: false
 
 jobs:
   reconcile:

@@ -111,7 +111,10 @@ check('refresh workflow fetches market data with free/official optional secrets'
 check('refresh workflow fetches Telegram digest artifact', /node scripts\/fetch-telegram-digest\.mjs --days=(?:7|14) --out=public-data\/telegram-digest\.json/.test(refresh));
 check('core refresh workflow commits core public-data artifacts', /git add public-data\/data\.json public-data\/history\.json/.test(refresh) && /public-data\/telegram-digest\.json/.test(refresh) && /public-data\/score-backtest-history\.json/.test(refresh));
 check('Telegram producer atomically synchronizes and stages Atlas lineage', /atlasIndex\.telegramObservedLineage\s*=\s*lineageCount/.test(fetchTelegram) && /public-data\/atlas\/index\.json/.test(refresh));
-check('screener refresh is an independent six-hour validated publish job', /cron:\s*'23 \*\/6 \* \* \*'/.test(screenerRefresh) && /SCREENER_ONLY:\s*'1'/.test(screenerRefresh) && /SCREENER_ENRICH:\s*'1'/.test(screenerRefresh) && /validate-screener-artifact\.mjs/.test(screenerRefresh));
+// The property is "an independent six-hourly validated publish job", not "fires at :23".
+// Hardcoding the minute made a deliberate schedule offset (v56 moved it off data-watchdog's
+// crowded :23) look like a contract violation.
+check('screener refresh is an independent six-hour validated publish job', /cron:\s*'\d{1,2} \*\/6 \* \* \*'/.test(screenerRefresh) && /SCREENER_ONLY:\s*'1'/.test(screenerRefresh) && /SCREENER_ENRICH:\s*'1'/.test(screenerRefresh) && /validate-screener-artifact\.mjs/.test(screenerRefresh));
 check('screener producer never promotes filing-only records into the factor row map', /if \(!data\[sym\]\) continue;/.test(fetchData) && !/else data\[sym\] = fmpResult\.data\[sym\]/.test(fetchData));
 check('screener workflow default automation uses only free SEC path', /fetch-sec-fundamentals\.mjs/.test(screenerRefresh) && /SEC_USER_AGENT/.test(screenerRefresh) && /sec-fundamentals\.json/.test(screenerRefresh) && !/FMP_API_KEY/.test(screenerRefresh));
 check('trading-score backtest harness is wired into the refresh pipeline', /runBacktest as runTradingScoreBacktest/.test(read('scripts/fetch-data.mjs')) && exists('scripts/backtest-trading-score.mjs'));
@@ -349,6 +352,55 @@ check('FX/bond carry uses the canonical BOK policy-rate field and cannot regress
     detail = JSON.stringify(row);
   } catch (error) { detail = error.message; }
   check('SEC companyfacts normalizer preserves annual period and computes bounded comparable ratios', ok, detail.slice(0, 500));
+}
+{
+  // W09-B/P1148 (F02): a derived ratio cannot have been reproducible before its LATEST operand
+  // was public. Revenue filed 2024-02-01 with a later income/equity/shares restatement must move
+  // the ratio availability to June — not keep the February revenue accession's provenance.
+  let ok = false;
+  let detail = '';
+  try {
+    const { normalizeSecCompanyFacts } = await import('./fetch-sec-fundamentals.mjs');
+    const facts = {
+      cik: 2,
+      entityName: 'Availability Corp',
+      facts: {
+        'us-gaap': {
+          RevenueFromContractWithCustomerExcludingAssessedTax: { units: { USD: [
+            { start: '2023-01-01', end: '2023-12-31', filed: '2024-02-01', form: '10-K', fp: 'FY', val: 800, accn: 'a' }
+          ] } },
+          NetIncomeLoss: { units: { USD: [
+            { start: '2023-01-01', end: '2023-12-31', filed: '2024-06-01', form: '10-K/A', fp: 'FY', val: 100, accn: 'c' }
+          ] } },
+          StockholdersEquity: { units: { USD: [
+            { end: '2023-12-31', filed: '2024-06-01', form: '10-K/A', fp: 'FY', val: 500, accn: 'c' }
+          ] } }
+        },
+        dei: { EntityCommonStockSharesOutstanding: { units: { shares: [
+          { end: '2023-12-31', filed: '2024-06-01', form: '10-K/A', fp: 'FY', val: 10, accn: 'c' }
+        ] } } }
+      }
+    };
+    const submissions = { filings: { recent: {
+      accessionNumber: ['a', 'c'],
+      acceptanceDateTime: ['2024-02-01T18:00:00.000Z', '2024-06-01T18:00:00.000Z']
+    } } };
+    const row = normalizeSecCompanyFacts('AVL', facts, 100, submissions);
+    ok = !!row
+      && row.availabilityModel === 'sec-pit-availability.v1'
+      && row.operandAvailability?.revenue === '2024-02-01T18:00:00.000Z'
+      && row.operandAvailability?.netIncome === '2024-06-01T18:00:00.000Z'
+      && row.derivedAvailability?.margin === '2024-06-01T18:00:00.000Z'
+      && row.derivedAvailability?.roe === '2024-06-01T18:00:00.000Z'
+      && row.derivedAvailability?.pe === '2024-06-01T18:00:00.000Z'
+      && row.availableAt === '2024-06-01T18:00:00.000Z'
+      && row.availableAt !== row.operandAvailability.revenue
+      && row.fiscalPeriodEnd === '2023-12-31'
+      && row.reportRecency === 'stale-fy'
+      && row.qualityStatus === 'REFERENCE';
+    detail = JSON.stringify(row && { operandAvailability: row.operandAvailability, derivedAvailability: row.derivedAvailability, availableAt: row.availableAt, acceptedAt: row.acceptedAt, reportRecency: row.reportRecency, qualityStatus: row.qualityStatus });
+  } catch (error) { detail = error.message; }
+  check('W09-B/P1148: derived SEC ratios inherit the latest operand availability, not the revenue filing only', ok, detail.slice(0, 500));
 }
 {
   let ok = false;

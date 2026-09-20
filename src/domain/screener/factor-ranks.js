@@ -16,7 +16,7 @@
 import { normalizeAllowedUse } from '../../data/contracts/evidence.js';
 import { canonicalSourceTier } from '../../data/contracts/source-kind.js';
 
-export const FACTOR_RANKS_MODEL_VERSION = 'factor-ranks.v5';
+export const FACTOR_RANKS_MODEL_VERSION = 'factor-ranks.v6';
 export const FACTOR_RANKS_ALLOWED_USE = 'research-relative-ranking-only';
 
 const DAY_MS = 86_400_000;
@@ -28,6 +28,10 @@ const MIN_CROSS_SECTION_COVERAGE = 0.8;
 // but require at least 80% of the configured active weight before assigning a rank.
 const MIN_ROW_WEIGHT_COVERAGE = 0.8;
 const MIN_SECTOR_OBSERVATIONS = 6;
+// W07-A/P1146: an explicit weight request is a model selection. If too little of the
+// requested weight is computable, the run must withhold ranking instead of silently
+// renormalizing onto whatever factors happen to be available.
+const MIN_REQUESTED_WEIGHT_COVERAGE = 0.8;
 // Six observations is the minimum sector bucket size used by the shrinkage rule, so the robust
 // guard must also be able to protect a full-size sector bucket of six.
 const MIN_ROBUST_OBSERVATIONS = 6;
@@ -145,7 +149,11 @@ function winz(x, mu, sd) {
   return Number.isFinite(z) ? Math.max(-3, Math.min(3, z)) : null;
 }
 
-function z2pct(z) { return Math.max(0, Math.min(100, Math.round(50 + z * 16.67))); }
+// W07-C/P1146: this maps a bounded z-score onto a 0~100 scale (`round(50 + 16.67z)`, z=1 -> 67).
+// It is a sector-normalized score, not an empirical percentile and not a normal CDF. The
+// composite `rank` below is the separate tie-aware midrank percentile over eligible rows; the
+// two concepts must never be presented under one name.
+function zToNormalizedScore(z) { return Math.max(0, Math.min(100, Math.round(50 + z * 16.67))); }
 
 function normalizeSector(value) {
   const sector = String(value == null ? '' : value).trim();
@@ -192,18 +200,51 @@ function factorEvidenceUsable(row, key, now) {
 function freezeRecord(record) { return Object.freeze({ ...record }); }
 
 function sanitizeWeights(weights, factors) {
+  // Model-default path only. The versioned default/neutral weights are intersected with the
+  // factors this cross-section can compute and renormalized; the equal-weight fallback exists
+  // solely for a default model with no computable weighted factor at all.
   const source = weights && typeof weights === 'object' ? weights : DEFAULT_WEIGHTS;
+  const factorKeys = factors.map(({ key }) => key);
   const applied = {};
-  factors.forEach(({ key }) => {
+  factorKeys.forEach((key) => {
     const value = finite(Number(source[key]));
     applied[key] = value != null && value > 0 ? value : 0;
   });
   let total = Object.values(applied).reduce((sum, value) => sum + value, 0);
   if (!(total > 0)) {
-    factors.forEach(({ key }) => { applied[key] = 1; });
-    total = factors.length;
+    factorKeys.forEach((key) => { applied[key] = 1; });
+    total = factorKeys.length;
   }
   return Object.fromEntries(Object.entries(applied).map(([key, value]) => [key, value / total]));
+}
+
+// W07-A: explicit requests are resolved against requested coverage, never against the
+// active-factor intersection alone. Omitted/zero/negative/non-finite weights are dropped as
+// requests (an explicit 0 is never promoted to a positive weight), and the caller receives
+// requested/applied/excluded weights plus the exact lost coverage.
+function deriveExplicitWeights(weights, factorKeys) {
+  const requested = Object.entries(weights && typeof weights === 'object' ? weights : {})
+    .map(([key, value]) => [key, finite(Number(value))])
+    .filter(([, value]) => value != null && value > 0);
+  const requestedTotal = requested.reduce((sum, [, value]) => sum + value, 0);
+  if (!requested.length || !(requestedTotal > 0)) return { status: 'requested-weights-not-positive' };
+  const available = new Set(factorKeys);
+  const computable = requested.filter(([key]) => available.has(key));
+  if (!computable.length) return { status: 'requested-factors-unavailable' };
+  const coveredTotal = computable.reduce((sum, [, value]) => sum + value, 0);
+  const coverage = coveredTotal / requestedTotal;
+  const requestedFactorWeights = Object.fromEntries(requested.map(([key, value]) => [key, value / requestedTotal]));
+  const excludedFactorWeights = Object.fromEntries(requested.filter(([key]) => !available.has(key)).map(([key, value]) => [key, value / requestedTotal]));
+  if (coverage < MIN_REQUESTED_WEIGHT_COVERAGE) {
+    return { status: 'requested-factor-coverage-below-threshold', coverage, requestedFactorWeights, excludedFactorWeights };
+  }
+  return {
+    status: 'ok',
+    coverage,
+    appliedFactorWeights: Object.fromEntries(computable.map(([key, value]) => [key, value / coveredTotal])),
+    requestedFactorWeights,
+    excludedFactorWeights
+  };
 }
 
 function readPreviousRankMap(previousRanks) {
@@ -261,7 +302,7 @@ function deriveRegimeStability(regimeLabel, previousRegimeLabel, previousWeights
   });
 }
 
-function emptyResult({ inputVersion, regimeLabel, weights, reason = 'fewer than five eligible rows', inputAudit = {}, factorCoverage = {} } = {}) {
+function emptyResult({ inputVersion, regimeLabel, weights, reason = 'fewer than five eligible rows', inputAudit = {}, factorCoverage = {}, inactiveFactorReasons = {}, requestedFactorWeights = {}, excludedFactorWeights = {}, requestedWeightCoveragePct = null } = {}) {
   return Object.freeze({
     modelVersion: FACTOR_RANKS_MODEL_VERSION,
     inputVersion,
@@ -272,7 +313,12 @@ function emptyResult({ inputVersion, regimeLabel, weights, reason = 'fewer than 
     activeFactorRegime: regimeLabel || null,
     activeFactorWeights: Object.freeze({ ...(weights || DEFAULT_WEIGHTS) }),
     appliedFactorWeights: Object.freeze({}),
-    inactiveFactorReasons: Object.freeze({}),
+    requestedFactorWeights: Object.freeze({ ...requestedFactorWeights }),
+    excludedFactorWeights: Object.freeze({ ...excludedFactorWeights }),
+    requestedWeightCoveragePct,
+    rankingState: 'unavailable',
+    rankingUnavailableReason: reason,
+    inactiveFactorReasons: Object.freeze({ ...inactiveFactorReasons }),
     factorCoverage: Object.freeze({ ...factorCoverage }),
     confidence: 0,
     compositeConfidence: 0,
@@ -302,7 +348,7 @@ function emptyResult({ inputVersion, regimeLabel, weights, reason = 'fewer than 
 export function computeFactorRanks({
   rows = [], weights = null, regimeLabel = null, fundamentalCoveragePct = 0, fmpOk = false,
   now = Date.now(), inputVersion = 'unknown', previousRanks = null, previousRegimeLabel = null, previousWeights = null,
-  topPct = 20
+  topPct = 20, weightsPolicy = null
 } = {}) {
   const inputRows = Array.isArray(rows) ? rows : [];
   const seenSymbols = new Set();
@@ -396,19 +442,6 @@ export function computeFactorRanks({
   if (qualityActive) activeCandidates.add('quality');
   if (factorCoverage.kalman.coveragePct >= MIN_CROSS_SECTION_COVERAGE * 100) activeCandidates.add('kalman');
   const FACTORS = candidateFactors.filter((factor) => activeCandidates.has(factor.key));
-  if (!FACTORS.length) {
-    return emptyResult({
-      inputVersion,
-      regimeLabel,
-      weights,
-      reason: 'no factor meets the minimum cross-sectional coverage threshold',
-      factorCoverage,
-      inputAudit: { inputRows: inputRows.length, eligibleRows: items.length, validCoreRows, invalidCoreRows, duplicateRows, missingIdentityRows }
-    });
-  }
-
-  const activeWeights = weights && typeof weights === 'object' ? { ...weights } : { ...DEFAULT_WEIGHTS };
-  const appliedFactorWeights = sanitizeWeights(activeWeights, FACTORS);
   const inactiveFactorReasons = {
     momentum: factorCoverage.momentum.active ? null : `모멘텀 유효값 커버리지 80% 미만 (${factorCoverage.momentum.coveragePct.toFixed(1)}%)`,
     trend: factorCoverage.trend.active ? null : `추세 유효값 커버리지 80% 미만 (${factorCoverage.trend.coveragePct.toFixed(1)}%)`,
@@ -424,6 +457,51 @@ export function computeFactorRanks({
     const reason = `재무 관측시각·180일 신선도 커버리지 80% 미만 (${fundamentalCurrentPct.toFixed(1)}%; 산출물 ${Number(fundamentalCoveragePct || 0).toFixed(1)}%)`;
     inactiveFactorReasons.value = reason;
     inactiveFactorReasons.quality = reason;
+  }
+  if (!FACTORS.length) {
+    return emptyResult({
+      inputVersion,
+      regimeLabel,
+      weights,
+      reason: 'no factor meets the minimum cross-sectional coverage threshold',
+      factorCoverage,
+      inactiveFactorReasons,
+      inputAudit: { inputRows: inputRows.length, eligibleRows: items.length, validCoreRows, invalidCoreRows, duplicateRows, missingIdentityRows }
+    });
+  }
+
+  // W07-A: an explicit weight request must not degrade into a different model. When the
+  // caller supplies explicit weights, resolve them against requested coverage and fail
+  // closed if the requested factors are absent or too little of the request is computable.
+  const activeWeights = weights && typeof weights === 'object' ? { ...weights } : { ...DEFAULT_WEIGHTS };
+  const explicitWeights = weightsPolicy === 'explicit' || (weightsPolicy == null && !!(weights && typeof weights === 'object'));
+  const factorKeys = FACTORS.map((factor) => factor.key);
+  let appliedFactorWeights = null;
+  let requestedFactorWeights = Object.freeze({ ...activeWeights });
+  let excludedFactorWeights = Object.freeze({});
+  let requestedWeightCoveragePct = 100;
+  if (explicitWeights) {
+    const resolution = deriveExplicitWeights(activeWeights, factorKeys);
+    if (resolution.status !== 'ok') {
+      return emptyResult({
+        inputVersion,
+        regimeLabel,
+        weights,
+        reason: resolution.status,
+        factorCoverage,
+        inactiveFactorReasons,
+        requestedFactorWeights: resolution.requestedFactorWeights || {},
+        excludedFactorWeights: resolution.excludedFactorWeights || {},
+        requestedWeightCoveragePct: resolution.coverage == null ? null : Math.round(resolution.coverage * 1000) / 10,
+        inputAudit: { inputRows: inputRows.length, eligibleRows: items.length, validCoreRows, invalidCoreRows, duplicateRows, missingIdentityRows }
+      });
+    }
+    appliedFactorWeights = resolution.appliedFactorWeights;
+    requestedFactorWeights = Object.freeze({ ...resolution.requestedFactorWeights });
+    excludedFactorWeights = Object.freeze({ ...resolution.excludedFactorWeights });
+    requestedWeightCoveragePct = Math.round(resolution.coverage * 1000) / 10;
+  } else {
+    appliedFactorWeights = sanitizeWeights(activeWeights, FACTORS);
   }
 
   const outlierByFactor = {};
@@ -491,7 +569,7 @@ export function computeFactorRanks({
         observedWeight += weight;
       }
       if (!usable) missingFactors.push(factor.key);
-      factorScores[factor.key] = usable ? z2pct(z) : null;
+      factorScores[factor.key] = usable ? zToNormalizedScore(z) : null;
     });
     // Renormalization is safe only for immaterial gaps. Below the row-level evidence floor the
     // security would effectively be ranked by a different model, which creates missingness
@@ -600,11 +678,21 @@ export function computeFactorRanks({
     activeFactorRegime: regimeLabel || null,
     activeFactorWeights: Object.freeze({ ...activeWeights }),
     appliedFactorWeights: Object.freeze({ ...appliedFactorWeights }),
+    requestedFactorWeights: Object.freeze({ ...requestedFactorWeights }),
+    excludedFactorWeights: Object.freeze({ ...excludedFactorWeights }),
+    requestedWeightCoveragePct,
+    weightsPolicy: explicitWeights ? 'explicit' : 'model-default',
+    rankingState: 'ranked',
+    rankingUnavailableReason: null,
     inactiveFactorReasons: Object.freeze(inactiveFactorReasons),
     factorCoverage: Object.freeze({ ...factorCoverage }),
     confidence: Math.round((totalCompositeConfidence / Math.max(1, n)) * 1000) / 1000,
     compositeConfidence: Math.round(compositeConfidence * 1000) / 1000,
     confidenceMeaning: '입력 커버리지·표본 안정성 진단값이며 미래 수익률 확률이 아님',
+    // W07-C/P1146: name the two scales so no consumer reads a z-scale as a percentile.
+    factorScoreScale: 'sector-normalized-z-to-0-100',
+    factorScoreMeaning: '섹터 기준 정규화 점수(z 스케일)이며 경험적 백분위나 성공확률이 아님',
+    compositeRankMeaning: 'eligible 집합 동점 midrank 백분위(0~100)',
     inputAudit,
     sectorNeutrality,
     outlierDiagnostics: freezeRecord({ method: 'MAD-triggered-winsorization', byFactor: Object.freeze(outlierByFactor), totalOutliers: outlierTotal }),

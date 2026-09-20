@@ -73,6 +73,9 @@ architectureRevisionFiles.forEach(({ path, data }) => {
   check(`${path} appRevision`, data.appRevision === version, `expected ${version}`);
   if (typeof data.workerRevision === 'string') check(`${path} workerRevision`, data.workerRevision === `sw:${version}`, `expected sw:${version}`);
 });
+// The Worker's /health reports this literal; a stale value makes a live probe unable to
+// name the revision it actually served (observed: toml v54.37 while the app ran v55.23).
+check('P1155 proxy worker revision', new RegExp(`AIO_APP_REVISION\\s*=\\s*"${versionRe}"`).test(read('worker/wrangler.proxy.toml')), `expected ${version}`);
 check('operations status appRevision', operationsStatus.appRevision === version, `expected ${version}`);
 check('operations status browser revision', operationsStatus.planes?.browser?.revision === version, `expected ${version}`);
 check('screener handoff repository_version', new RegExp(`^repository_version:\\s*${versionRe}\\s*$`, 'm').test(screenerHandoff), `expected ${version}`);

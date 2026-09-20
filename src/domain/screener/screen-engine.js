@@ -11,7 +11,7 @@ import {
   validateScreenDefinition
 } from '../../data/contracts/screener.js';
 
-export const SCREEN_ENGINE_VERSION = 'screen-engine.v4';
+export const SCREEN_ENGINE_VERSION = 'screen-engine.v5';
 
 const USABLE_REQUIRED_FIELD_STATUSES = new Set(CALCULABLE_FIELD_STATUSES);
 
@@ -105,9 +105,15 @@ function contributionFor(row, ranking) {
   return { fields, contributions, total: observed ? total / observed : null, observed };
 }
 
-function makeExplanation(row, definition, gateResults, filterResult) {
+function makeExplanation(row, definition, gateResults, filterResult, rankingState = null) {
   const rank = contributionFor(row, definition.ranking);
   const missingEvidence = [...auditRequiredFields(row, definition.requiredFields).missingFields];
+  // W07-B: a filter-passing row with no usable ranking field must name that field as missing
+  // so the surface can read "조건 통과 · 순위 산출 불가" with the exact gap listed.
+  if (rankingState === 'unavailable') {
+    const rankFields = Array.isArray(definition.ranking?.fields) && definition.ranking.fields.length ? definition.ranking.fields : [definition.ranking?.field || 'rank'];
+    rankFields.forEach((field) => { if (!missingEvidence.includes(field)) missingEvidence.push(field); });
+  }
   const contraryEvidence = [];
   if (filterResult.state === 'fail' && filterResult.reason) contraryEvidence.push(filterResult.reason);
   return createRankExplanation({
@@ -144,10 +150,22 @@ export function runScreen({ definition, rows = [], snapshotId = 'unknown', provi
     const hardFail = gateResults.some((result) => result.state === 'fail');
     const hardUnknown = gateResults.some((result) => result.state === 'unknown');
     const requiredAudit = auditRequiredFields(row, definition.requiredFields);
-    const status = hardFail || filterResult.state === 'fail' ? 'rejected' : hardUnknown || filterResult.state === 'unknown' || !requiredAudit.eligible ? 'unavailable' : 'passed';
-    const explanation = makeExplanation(row, definition, gateResults, filterResult);
+    // W07-B/P1146 (M02): admission and ranking are separate states. A row may satisfy every
+    // filter yet have no usable ranking field; it stays visible as passed but must not receive
+    // an ordinal rank as if the missing score were the best one.
+    const filterState = hardFail || filterResult.state === 'fail' ? 'rejected' : hardUnknown || filterResult.state === 'unknown' || !requiredAudit.eligible ? 'unknown' : 'passed';
     const ranking = contributionFor(row, definition.ranking);
-    return { row, inputIndex, status, score: ranking.total, explanation };
+    const rankingState = filterState !== 'passed' ? 'not-requested' : ranking.total == null ? 'unavailable' : 'ranked';
+    const explanation = makeExplanation(row, definition, gateResults, filterResult, rankingState);
+    return {
+      row,
+      inputIndex,
+      status: filterState,
+      score: ranking.total,
+      rankingState,
+      explanationState: explanation.status === 'explained' ? 'explained' : 'unavailable',
+      explanation
+    };
   });
   const direction = definition.ranking?.direction === 'asc' ? 1 : -1;
   const sortEntries = entries.slice().sort((left, right) => {
@@ -158,15 +176,38 @@ export function runScreen({ definition, rows = [], snapshotId = 'unknown', provi
     const difference = (left.score - right.score) * direction;
     return difference || left.inputIndex - right.inputIndex;
   });
-  const rowsWithResults = sortEntries.map((entry, rankIndex) => ({ ...entry.row, screenStatus: entry.status, screenRank: entry.status === 'passed' ? rankIndex + 1 : null, rankExplanation: entry.explanation }));
+  // Ranks are assigned only over passed rows with a usable score. Equal scores share one rank
+  // and are separated by a stable display order, never by an invented economic tiebreak.
+  const rankable = entries
+    .filter((entry) => entry.status === 'passed' && finite(entry.score) != null)
+    .sort((left, right) => {
+      const difference = (left.score - right.score) * direction;
+      return difference || left.inputIndex - right.inputIndex;
+    });
+  const rankByIndex = new Map();
+  rankable.forEach((entry, index) => {
+    const previous = rankable[index - 1];
+    rankByIndex.set(entry.inputIndex, previous && previous.score === entry.score ? rankByIndex.get(previous.inputIndex) : index + 1);
+  });
+  const rowsWithResults = sortEntries.map((entry, displayOrder) => ({
+    ...entry.row,
+    // screenStatus stays the compatibility projection of the separated filter/ranking states.
+    screenStatus: entry.status === 'unknown' ? 'unavailable' : entry.status,
+    screenRank: rankByIndex.has(entry.inputIndex) ? rankByIndex.get(entry.inputIndex) : null,
+    screenDisplayOrder: displayOrder + 1,
+    screenFilterState: entry.status,
+    screenRankingState: entry.rankingState,
+    screenExplanationState: entry.explanationState,
+    rankExplanation: entry.explanation
+  }));
   const passed = entries.filter((entry) => entry.status === 'passed').length;
   const rejected = entries.filter((entry) => entry.status === 'rejected').length;
-  const unavailable = entries.filter((entry) => entry.status === 'unavailable').length;
+  const unavailable = entries.filter((entry) => entry.status === 'unknown').length;
   const explanationsHash = stableHash(entries.map((entry) => [entry.row.sym || entry.row.symbol, entry.status, entry.explanation]));
   const resultHash = stableHash({ engineVersion, definitionHash: compiled.hash, snapshotId, rows: entries.map((entry) => [entry.row.sym || entry.row.symbol, entry.status, entry.score]) });
   const readiness = summarizeScreenReadiness(rowsWithResults, definition.requiredFields || []);
   const run = createScreenRun({ screenId: definition.screenId, screenVersion: definition.version, definitionHash: compiled.hash, snapshotId, startedAt, completedAt, status: unavailable ? (passed || rejected ? 'partial' : 'unavailable') : 'completed', rowCount: entries.length, eligibleCount: readiness.eligibleCount, passed, rejected, unavailable, providerSet, engineVersion, explanationsHash, resultHash });
-  return Object.freeze({ run, rows: Object.freeze(rowsWithResults), readiness, passed: Object.freeze(rowsWithResults.filter((row) => row.screenStatus === 'passed')), rejected: Object.freeze(rowsWithResults.filter((row) => row.screenStatus === 'rejected')), unavailable: Object.freeze(rowsWithResults.filter((row) => row.screenStatus === 'unavailable')), explanationsHash, resultHash });
+  return Object.freeze({ run, rows: Object.freeze(rowsWithResults), readiness, rankedCount: rankByIndex.size, passed: Object.freeze(rowsWithResults.filter((row) => row.screenStatus === 'passed')), rejected: Object.freeze(rowsWithResults.filter((row) => row.screenStatus === 'rejected')), unavailable: Object.freeze(rowsWithResults.filter((row) => row.screenStatus === 'unavailable')), explanationsHash, resultHash });
 }
 
 export function captureScreenRun(input, result = runScreen(input)) {

@@ -234,6 +234,26 @@ async function run() {
   defensiveRows[1].vol = 20; defensiveRows[1].rank = 20;
   assert(runScreen({ definition: presetsA.find((item) => item.screenId === 'preset-lowvol'), rows: defensiveRows }).passed[0]?.sym === 'LOWVOL',
     'G-SCR-PRESET: lower volatility wins regardless of unrelated composite rank');
+  // W07-B/P1146 (M02): passing the filters is not the same as being rankable. A row whose
+  // ranking field is missing stays visible as passed but must not receive rank 1, and the
+  // explanation must name the missing ranking field.
+  {
+    const rankDef = createScreenDefinition({ screenId: 'rank-separation-fixture', name: 'Rank separation', objective: 'contract-test', filtersAST: { type: 'and', children: [] }, ranking: { field: 'rank', direction: 'desc' }, requiredFields: [], columns: ['identity.symbol', 'rank'] });
+    const rankResult = runScreen({ definition: rankDef, rows: [{ sym: 'NOSCORE', rank: null, ret3m: 5 }, { sym: 'SCORED', rank: 80, ret3m: 5 }], snapshotId: 'rank-separation' });
+    const noScore = rankResult.rows.find((row) => row.sym === 'NOSCORE');
+    const scored = rankResult.rows.find((row) => row.sym === 'SCORED');
+    assert(noScore.screenStatus === 'passed' && noScore.screenFilterState === 'passed' && noScore.screenRankingState === 'unavailable' && noScore.screenRank === null,
+      'G-SCR-RANK: a filter-passing row without a ranking field must not receive an ordinal rank', noScore);
+    assert(noScore.rankExplanation.status === 'unavailable' && noScore.rankExplanation.missingEvidence.includes('rank'),
+      'G-SCR-RANK: the unrankable row explanation must name the missing ranking field', noScore.rankExplanation);
+    assert(scored.screenRank === 1 && rankResult.rankedCount === 1, 'G-SCR-RANK: only score-bearing rows enter the rank sequence', scored);
+    const tieResult = runScreen({ definition: rankDef, rows: [{ sym: 'T1', rank: 70 }, { sym: 'T2', rank: 70 }, { sym: 'T3', rank: 60 }], snapshotId: 'rank-tie' });
+    const t1 = tieResult.rows.find((row) => row.sym === 'T1');
+    const t2 = tieResult.rows.find((row) => row.sym === 'T2');
+    const t3 = tieResult.rows.find((row) => row.sym === 'T3');
+    assert(t1.screenRank === 1 && t2.screenRank === 1 && t3.screenRank === 3, 'G-SCR-RANK: equal scores share a rank and the next distinct score skips', { r1: t1.screenRank, r2: t2.screenRank, r3: t3.screenRank });
+    assert(t1.screenDisplayOrder < t2.screenDisplayOrder, 'G-SCR-RANK: ties keep a stable display order');
+  }
   const saved = createSavedScreen({ savedId: 'fixture-saved', label: 'Fixture saved', definition });
   const share = encodeScreenSharePayload(saved);
   const decoded = decodeScreenSharePayload(share);

@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { ROUTE_IDS } from '../src/app/routes.js';
 import { isRecognizedSourceKind } from '../src/data/contracts/source-kind.js';
+import { PORTFOLIO_SURFACE_MODEL_VERSION } from '../src/domain/portfolio/surface.js';
 import { DESKTOP_PRIMARY_VIEWPORT } from './desktop-qa-config.mjs';
 
 // Chart provenance is asserted against the canonical source-kind contract rather
@@ -416,7 +417,7 @@ try {
     sourceKind: document.getElementById('pf-analysis-status')?.getAttribute('data-source-kind') || null,
     surfaceUse: document.getElementById('page-portfolio')?.dataset.aioPortfolioSurfaceUse || null
   }));
-  if (portfolioRoute.renderer !== 'native' || portfolioRoute.heroRenderer !== 'native' || !portfolioRoute.heroValue.trim() || !portfolioRoute.heroPnl.trim() || portfolioRoute.tableRenderer !== 'native' || portfolioRoute.surfaceRenderer !== 'native' || portfolioRoute.surfaceModel !== 'portfolio-surface.v2' || portfolioRoute.surfaceUse !== 'reference-only' || portfolioRoute.holdingCountRenderer !== 'native' || portfolioRoute.sectorRenderer !== 'native' || portfolioRoute.exposureRenderer !== 'native' || portfolioRoute.chartRenderer !== 'native' || !['unavailable', 'portfolio-state'].includes(portfolioRoute.chartSourceKind)) throw new Error(`portfolio hero/table/summary/chart native surface failed: ${JSON.stringify(portfolioRoute)}`);
+  if (portfolioRoute.renderer !== 'native' || portfolioRoute.heroRenderer !== 'native' || !portfolioRoute.heroValue.trim() || !portfolioRoute.heroPnl.trim() || portfolioRoute.tableRenderer !== 'native' || portfolioRoute.surfaceRenderer !== 'native' || portfolioRoute.surfaceModel !== PORTFOLIO_SURFACE_MODEL_VERSION || portfolioRoute.surfaceUse !== 'reference-only' || portfolioRoute.holdingCountRenderer !== 'native' || portfolioRoute.sectorRenderer !== 'native' || portfolioRoute.exposureRenderer !== 'native' || portfolioRoute.chartRenderer !== 'native' || !['unavailable', 'portfolio-state'].includes(portfolioRoute.chartSourceKind)) throw new Error(`portfolio hero/table/summary/chart native surface failed: ${JSON.stringify(portfolioRoute)}`);
   const portfolioMath = await page.evaluate(async () => {
     const { createPortfolioPage } = await import('/src/ui/pages/portfolio.js');
     function project(portfolio, liveData = {}) {
@@ -604,7 +605,15 @@ try {
     canvases: document.querySelectorAll('canvas').length,
     timers: window._aioTimerRegistry ? Object.keys(window._aioTimerRegistry).length : null
   }));
-  await traverseAllRoutes();
+  // A round-trip failure used to discard the page errors collected above, so the report
+  // named the symptom ("marker is null") without the cause (the mount that threw). Attach
+  // them so the next reader does not have to re-derive it.
+  try {
+    await traverseAllRoutes();
+  } catch (error) {
+    if (errors.length) error.message += ` | page errors: ${errors.join(' | ')}`;
+    throw error;
+  }
   const afterLap1 = await snapshot();
   await traverseAllRoutes();
   const afterLap2 = await snapshot();

@@ -74,15 +74,20 @@ async function fetchDailyBars(symbol, range) {
       const adjArr = r?.indicators?.adjclose?.[0]?.adjclose;
       if (!Array.isArray(ts) || !Array.isArray(closes)) continue;
       const dates = [], closeArr = [], adjArr2 = [];
+      let adjustedMissing = 0;
       for (let i = 0; i < ts.length; i++) {
         const c = closes[i];
         if (typeof c !== 'number' || !isFinite(c)) continue;
         dates.push(new Date(ts[i] * 1000).toISOString().slice(0, 10));
         closeArr.push(c);
         const a = Array.isArray(adjArr) ? adjArr[i] : undefined;
-        adjArr2.push((typeof a === 'number' && isFinite(a) && a > 0) ? a : c);
+        // W07-D/P1146 (M04): a missing adjusted close stays missing. Substituting the raw close
+        // silently mixes raw and adjusted bases inside one return series across splits/dividends
+        // (and across the split boundary itself), so the producer records the gap instead.
+        if (typeof a === 'number' && isFinite(a) && a > 0) adjArr2.push(a);
+        else { adjArr2.push(null); adjustedMissing += 1; }
       }
-      if (closeArr.length > 0) return { dates, closes: closeArr, adjCloses: adjArr2 };
+      if (closeArr.length > 0) return { dates, closes: closeArr, adjCloses: adjArr2, adjustedMissing, adjustedCloseStatus: adjustedMissing === 0 ? 'complete' : 'partial' };
     } catch { /* 다음 호스트 시도 */ }
   }
   return null;
@@ -102,9 +107,13 @@ export async function runFactorLongrunBacktest(range, topN, outPath) {
   // 종목 데이터 + regime 분류용 시장 시리즈(SPX/VIX)를 동일 range로 병렬 fetch(concurrency=4)
   const stockResults = await mapLimit(universe, CONCURRENCY, async (row) => {
     const bars = await fetchDailyBars(_yhSym(row.sym), range);
-    return bars ? { sym: row.sym, mcap: row.mcap, closes: bars.closes, adjCloses: bars.adjCloses, dates: bars.dates } : null;
+    return bars ? { sym: row.sym, mcap: row.mcap, closes: bars.closes, adjCloses: bars.adjCloses, dates: bars.dates, adjustedCloseStatus: bars.adjustedCloseStatus, adjustedMissing: bars.adjustedMissing } : null;
   });
-  const stockData = stockResults.filter(Boolean);
+  const fetched = stockResults.filter(Boolean);
+  // W07-D/P1146: fail closed on an incomplete adjusted series. Ranking raw and adjusted return
+  // bases together would compare unlike price axes, so incomplete tickers are excluded and counted.
+  const stockData = fetched.filter((s) => s.adjustedCloseStatus === 'complete');
+  const adjustedCloseExcluded = fetched.length - stockData.length;
   if (stockData.length < 20) {
     throw new Error(`insufficient fetched tickers (${stockData.length}/${universe.length}) — Yahoo fetch likely degraded, aborting rather than reporting on a truncated universe`);
   }
@@ -175,9 +184,11 @@ export async function runFactorLongrunBacktest(range, topN, outPath) {
       survivorshipBiasCaveat: 'Uses TODAY\'s top-mcap universe applied retroactively over the full lookback window — any ticker that would have been delisted/acquired/failed during this period is entirely absent from the sample. This systematically tends to overstate momentum/quality-style factor performance in the finance literature. Not resolvable without paid point-in-time index-constituent history; NOT claimed as resolved or "passed" here.',
       subsetNotFullUniverse: `Uses top ${topN} by market cap, not the full ${universe.length}-ticker universe, to bound Yahoo Finance request volume (this repo's own fetch-data.mjs/ci.yml comments document a prior Yahoo IP-blocking incident from excess request volume).`,
       icIRNote: 'ICIR = mean(IC across rebalance dates) / stddev(IC across rebalance dates), with a t-stat and approximate 95% CI via the standard IC-IR normal approximation (t = ICIR * sqrt(dates), CI = mean ± 1.96*stddev/sqrt(dates)) — this is what Codex\'s WO-3 gate means by "IC/ICIR/t-stat", distinct from the pooled-cross-section Fisher-z CI used in the WO-2 score backtest.',
+      icInferenceCaveat: 'Forward windows (up to 63 trading days) overlap across 21-day rebalances, so the IC observations are serially dependent while se = std/sqrt(n) assumes independence. Every tStat/ci95 here is therefore a naive descriptive figure, not a validated significance test. No HAC or block-bootstrap correction has been applied; choosing and versioning one is required before any inferential claim.',
+      priceBasisCaveat: 'Only tickers whose Yahoo adjusted-close series is complete over the requested range are ranked (universe.adjustedCloseExcluded counts the rest). Raw and adjusted closes are never mixed in one return series, and no automatic corporate-action repair is attempted.',
       liveModelParity: 'This still validates only 4 of the live _aioComputeFactorRanks() model\'s 7 factors, always at the production-fixed NEUTRAL weights (same limitation already documented in fetch-data.mjs backtestFactors() since P586/C2) — marketState proposal tilts are not promoted or validated here.',
     },
-    universe: { requestedTop: topN, fetchedTickers: stockData.length, fullUniverseSize: universe.length, dataRange: range },
+    universe: { requestedTop: topN, fetchedTickers: stockData.length, fullUniverseSize: universe.length, dataRange: range, priceBasis: 'adjusted-close-only', adjustedCloseExcluded },
     rebalanceDates: { count: offsetsAsc.length, comparedToProductionBacktest: 6 },
     overallByHorizon: overall,
     walkForward,
@@ -187,6 +198,8 @@ export async function runFactorLongrunBacktest(range, topN, outPath) {
       'Only 4 of 7 live-model factors covered (size/value/quality excluded — pre-existing limitation, not new to this script).',
       'Top-mcap subset, not the full 873-ticker universe.',
       'MarketState regime-weight tilts remain proposal-only and are not validated or applied — only the fixed NEUTRAL-weight composite is measured.',
+      'Tickers with an incomplete adjusted-close series are excluded, not repaired from raw closes (see methodology.priceBasisCaveat).',
+      'Overlapping forward windows make every tStat/ci95 a naive descriptive figure, not a validated significance test (see methodology.icInferenceCaveat).',
     ],
   };
 
@@ -197,12 +210,17 @@ export async function runFactorLongrunBacktest(range, topN, outPath) {
 // ICIR = mean(IC)/stddev(IC) across rebalance dates, with t-stat and normal-approximation 95% CI —
 // standard quant factor-research convention (distinct from WO-2's Fisher-z pooled-observation CI,
 // since here each "observation" is itself a cross-sectional IC estimate, not a single date's return).
+// W07-D/P1146 (M05): consecutive rebalances are 21 trading days apart while forward windows run up
+// to 63 days, so the IC observations overlap and are serially dependent. se = std/sqrt(n) treats
+// them as independent, which understates the interval width. The t-stat/CI here are descriptive
+// naive figures, not a validated significance test; a HAC or block-bootstrap method must be chosen
+// and versioned before any inference claim is made.
 function computeICIR(icByDateMap) {
   const out = {};
   for (const [factor, values] of Object.entries(icByDateMap || {})) {
     const clean = values.filter((v) => typeof v === 'number' && isFinite(v));
     const n = clean.length;
-    if (n < 3) { out[factor] = { n, mean: null, std: null, icIR: null, tStat: null, ci95: null }; continue; }
+    if (n < 3) { out[factor] = { n, mean: null, std: null, icIR: null, tStat: null, ci95: null, inference: 'insufficient-observations' }; continue; }
     const mean = clean.reduce((s, v) => s + v, 0) / n;
     const variance = clean.reduce((s, v) => s + (v - mean) ** 2, 0) / (n - 1);
     const std = Math.sqrt(variance);
@@ -210,7 +228,7 @@ function computeICIR(icByDateMap) {
     const se = std / Math.sqrt(n);
     const tStat = se > 0 ? mean / se : null;
     const ci95 = se > 0 ? [Math.round((mean - 1.96 * se) * 1000) / 1000, Math.round((mean + 1.96 * se) * 1000) / 1000] : null;
-    out[factor] = { n, mean: Math.round(mean * 1000) / 1000, std: Math.round(std * 1000) / 1000, icIR: icIR != null ? Math.round(icIR * 1000) / 1000 : null, tStat: tStat != null ? Math.round(tStat * 100) / 100 : null, ci95 };
+    out[factor] = { n, mean: Math.round(mean * 1000) / 1000, std: Math.round(std * 1000) / 1000, icIR: icIR != null ? Math.round(icIR * 1000) / 1000 : null, tStat: tStat != null ? Math.round(tStat * 100) / 100 : null, ci95, inference: 'naive-iid-normal-approximation' };
   }
   return out;
 }

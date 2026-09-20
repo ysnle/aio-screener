@@ -1,46 +1,41 @@
-export function createPortfolioProvider({ read = () => ({}), repository = null } = {}) {
+export function createPortfolioProvider({ read = () => ({}) } = {}) {
   const positive = (value) => {
     const number = Number(value);
     return Number.isFinite(number) && number > 0 ? number : null;
   };
   return Object.freeze({
     readCurrent() {
-      const stored = repository?.read?.(null) || {};
+      // W02-A/P1143: the Vault-backed runtime reader already owns holdings, cash,
+      // read state, and live-quote merging. A second stored fallback list could
+      // resurrect a deliberately emptied portfolio and made "missing" and
+      // "explicitly empty" indistinguishable, so the read result is the only source.
       const runtime = read() || {};
-      const runtimeBySymbol = new Map((runtime.holdings || []).map((row) => [String(row?.symbol || '').toUpperCase(), row]));
-      // W02-A: explicit empty stored list is a read result, not missing.
-      const hasStoredHoldings = Array.isArray(stored.holdings);
-      const sourceHoldings = hasStoredHoldings ? stored.holdings : runtime.holdings || [];
+      const sourceHoldings = Array.isArray(runtime.holdings) ? runtime.holdings : [];
       const holdings = sourceHoldings.map((row) => {
         const symbol = String(row?.symbol || row?.ticker || row?.sym || '').toUpperCase();
-        const live = runtimeBySymbol.get(symbol) || {};
-        const runtimePrice = positive(live.price);
-        const storedPrice = positive(row.price);
-        const runtimeValue = positive(live.value);
-        const storedValue = positive(row.value);
         return {
           ...row,
           symbol,
-          price: runtimePrice ?? storedPrice,
-          value: runtimeValue ?? storedValue,
-          dailyPct: live.dailyPct ?? row.dailyPct ?? null,
-          quoteObservedAt: live.quoteObservedAt || null,
-          fetchedAt: live.fetchedAt || null,
-          revision: live.revision || null,
-          changeBasis: live.changeBasis || 'unknown',
-          source: live.source || row.source || 'portfolio-runtime'
+          price: positive(row?.price),
+          value: positive(row?.value),
+          dailyPct: row?.dailyPct ?? null,
+          fetchedAt: row?.fetchedAt || null,
+          revision: row?.revision || null,
+          changeBasis: row?.changeBasis || 'unknown',
+          source: row?.source || 'portfolio-runtime'
         };
       }).filter((row) => row.symbol);
+      const readState = ['loading', 'locked', 'ready', 'failed'].includes(runtime.readState) ? runtime.readState : 'ready';
       return Object.freeze({
         holdings,
-        holdingsKnown: hasStoredHoldings || Array.isArray(runtime.holdings),
-        cash: stored.cash ?? runtime.cash,
-        cashKnown: stored.cashKnown === true || runtime.cashKnown === true || stored.cash != null || runtime.cash != null,
-        readState: stored.readState || runtime.readState || 'ready',
-        totals: stored.totals ?? runtime.totals,
-        privacy: stored.privacy || runtime.privacy,
-        status: holdings.length ? 'current' : stored.status || runtime.status || 'empty',
-        updatedAt: runtime.updatedAt || stored.updatedAt || null
+        holdingsKnown: runtime.holdingsKnown === true || Array.isArray(runtime.holdings),
+        cash: runtime.cash ?? null,
+        cashKnown: runtime.cashKnown === true || runtime.cash != null,
+        readState,
+        totals: runtime.totals ?? null,
+        privacy: runtime.privacy || 'opt-in',
+        status: runtime.status || (holdings.length ? 'current' : 'empty'),
+        updatedAt: runtime.updatedAt || null
       });
     }
   });

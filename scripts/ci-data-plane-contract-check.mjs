@@ -52,6 +52,20 @@ const smokeResponse = await dataPlane.fetch(new Request('https://fast.example/he
 const smokeBody = await smokeResponse.json();
 if (smokeResponse.status !== 200 || smokeBody.ok !== true || smokeBody.revision !== 'fixture:kv-only' || smokeBody.sourceSha !== '1'.repeat(40)) fail('KV-only /health smoke/exact-source identity failed');
 
+// P1156: the read routes ran for ANY method, so `POST /quotes` skipped the CDN cache and hit the
+// KV namespace on every request — an unauthenticated, unmetered read amplifier. Keep the read
+// surface GET/HEAD-only, and keep the token-gated write route working through the reorder.
+const postQuotes = await dataPlane.fetch(new Request('https://fast.example/quotes', { method: 'POST' }), smokeEnv);
+if (postQuotes.status !== 405) fail(`/quotes accepted a write verb: ${postQuotes.status}`);
+const postHealth = await dataPlane.fetch(new Request('https://fast.example/health', { method: 'POST' }), smokeEnv);
+if (postHealth.status !== 405) fail(`/health accepted a write verb: ${postHealth.status}`);
+const readQuotes = await dataPlane.fetch(new Request('https://fast.example/quotes', { headers: { Origin: 'https://ysnle.github.io' } }), smokeEnv);
+if (readQuotes.status !== 200) fail(`GET /quotes regressed: ${readQuotes.status}`);
+const adminWithoutToken = await dataPlane.fetch(new Request('https://fast.example/admin/run', { method: 'POST' }), smokeEnv);
+if (adminWithoutToken.status !== 401) fail(`/admin/run without the cron token was not refused: ${adminWithoutToken.status}`);
+const adminWithToken = await dataPlane.fetch(new Request('https://fast.example/admin/run', { method: 'POST', headers: { 'X-AIO-Cron-Token': 'cron-fixture' } }), new Proxy({ ...smokeEnv, AIO_CRON_SECRET: 'cron-fixture' }, { get: (t, p) => (p === 'AIO_QUOTES_BUCKET' || p === 'AIO_QUOTES_R2_BUCKET') ? fail('KV smoke touched an R2 binding') : Reflect.get(t, p) }));
+if (adminWithToken.status !== 200) fail(`/admin/run with a valid cron token regressed: ${adminWithToken.status}`);
+
 if (FAST_PLANE_WRITE_POLICY.kvFreeTierDailyLimit !== 1000
   || FAST_PLANE_WRITE_POLICY.warningDailyTarget > FAST_PLANE_WRITE_POLICY.kvFreeTierDailyLimit / 2
   || FAST_PLANE_WRITE_POLICY.maxSuccessfulKvWritesPerDay >= FAST_PLANE_WRITE_POLICY.warningDailyTarget

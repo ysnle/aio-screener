@@ -12,6 +12,8 @@
     {
       "schemaVersion": "knowledge-domain-dossier.v1",
       "generatedAt": "2026-08-12",
+      "evidenceAsOf": null,
+      "reviewedAt": null,
       "dossierId": "domain-dossier:domain-cloud-platform",
       "domainId": "domain-cloud-platform",
       "title": "domain-cloud-platform",
@@ -22,21 +24,85 @@
         "가동률·전력·네트워크·고객 집중도·가격 경쟁"
       ],
       "uniqueKpis": [
-        "요청·GPU시간·저장량·서비스 계약",
-        "Hyperscaler cloud의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Managed AI service의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Utilization / workload mix의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Cloud commitments의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Depreciation cycle의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+        "요청·GPU시간·저장량·서비스 계약"
       ],
+      "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
+      "metrics": [],
       "valueChain": [
-        "workload → 예약·가동률 → compute·storage·network → 사용량·계약·감가상각",
         "Hyperscaler cloud",
         "Managed AI service",
         "Utilization / workload mix",
         "Cloud commitments",
         "Depreciation cycle"
       ],
+      "valueChainGraph": {
+        "status": "UNCLASSIFIED_CANDIDATE",
+        "basis": "taxonomy node labels only; the guide mechanism prose is preserved separately and is not treated as a validated causal order",
+        "nodes": [
+          {
+            "nodeId": "cloud-hyperscaler",
+            "label": "Hyperscaler cloud",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "cloud-ai-service",
+            "label": "Managed AI service",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "cloud-utilization",
+            "label": "Utilization / workload mix",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "cloud-commitments",
+            "label": "Cloud commitments",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "cloud-depreciation",
+            "label": "Depreciation cycle",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          }
+        ],
+        "edges": [],
+        "mechanismNarrative": "workload → 예약·가동률 → compute·storage·network → 사용량·계약·감가상각"
+      },
       "taxonomyNodeIds": [
         "cloud-hyperscaler",
         "cloud-ai-service",
@@ -69,9 +135,81 @@
         "AT-CL-03"
       ],
       "researchQuestions": [
-        "workload·예약·실사용량을 어떻게 구분하는가",
-        "CAPEX와 매출 인식을 어떤 공시로 대조하는가"
+        {
+          "questionId": "question:domain-cloud-platform:1",
+          "question": "예약 용량과 실제 사용량, 서비스 매출과 인프라 비용을 어떤 공시로 대조하는가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-cloud-platform:2",
+          "question": "Hyperscaler cloud의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-cloud-platform:3",
+          "question": "Managed AI service의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-cloud-platform:4",
+          "question": "Utilization / workload mix의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-cloud-platform:5",
+          "question": "Cloud commitments의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-cloud-platform:6",
+          "question": "Depreciation cycle의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-cloud-platform:7",
+          "question": "workload·예약·실사용량을 어떻게 구분하는가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-cloud-platform:8",
+          "question": "CAPEX와 매출 인식을 어떤 공시로 대조하는가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        }
       ],
+      "unclassifiedCandidates": {
+        "measurementDimensions": [
+          "요청·GPU시간·저장량·서비스 계약"
+        ],
+        "verificationQuestions": [
+          "예약 용량과 실제 사용량, 서비스 매출과 인프라 비용을 어떤 공시로 대조하는가?",
+          "Hyperscaler cloud의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Managed AI service의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Utilization / workload mix의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Cloud commitments의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Depreciation cycle의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "workload·예약·실사용량을 어떻게 구분하는가",
+          "CAPEX와 매출 인식을 어떤 공시로 대조하는가"
+        ],
+        "mechanismNarrative": [
+          "workload → 예약·가동률 → compute·storage·network → 사용량·계약·감가상각"
+        ]
+      },
       "marketTransmission": {
         "status": "RESEARCH_REQUIRED",
         "path": [
@@ -96,6 +234,8 @@
     {
       "schemaVersion": "knowledge-domain-dossier.v1",
       "generatedAt": "2026-08-12",
+      "evidenceAsOf": null,
+      "reviewedAt": null,
       "dossierId": "domain-dossier:domain-neocloud-finance",
       "domainId": "domain-neocloud-finance",
       "title": "domain-neocloud-finance",
@@ -106,21 +246,85 @@
         "고객 집중·계약 해지·전력·감가상각·자금비용"
       ],
       "uniqueKpis": [
-        "GPU시간·예약기간·임대료·리스 의무",
-        "GPU rental의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Capacity reservation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Lease burden의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Customer concentration의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Rental yield minus funding cost의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+        "GPU시간·예약기간·임대료·리스 의무"
       ],
+      "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
+      "metrics": [],
       "valueChain": [
-        "장비 CAPEX·리스 → 고객 예약·사용 → 임대료·가동률 → 부채·잔존가치 위험",
         "GPU rental",
         "Capacity reservation",
         "Lease burden",
         "Customer concentration",
         "Rental yield minus funding cost"
       ],
+      "valueChainGraph": {
+        "status": "UNCLASSIFIED_CANDIDATE",
+        "basis": "taxonomy node labels only; the guide mechanism prose is preserved separately and is not treated as a validated causal order",
+        "nodes": [
+          {
+            "nodeId": "neocloud-gpu-rental",
+            "label": "GPU rental",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "neocloud-capacity-reservation",
+            "label": "Capacity reservation",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "neocloud-lease-burden",
+            "label": "Lease burden",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "neocloud-customer-concentration",
+            "label": "Customer concentration",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "neocloud-rental-yield",
+            "label": "Rental yield minus funding cost",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          }
+        ],
+        "edges": [],
+        "mechanismNarrative": "장비 CAPEX·리스 → 고객 예약·사용 → 임대료·가동률 → 부채·잔존가치 위험"
+      },
       "taxonomyNodeIds": [
         "neocloud-gpu-rental",
         "neocloud-capacity-reservation",
@@ -142,9 +346,81 @@
         "AT-NC-03"
       ],
       "researchQuestions": [
-        "예약 용량과 실제 utilization의 차이는 무엇인가",
-        "리스·부채·고객 집중이 회수기간을 어떻게 바꾸는가"
+        {
+          "questionId": "question:domain-neocloud-finance:1",
+          "question": "예약 매출이 확정인지, 고객의 실제 사용과 지급능력이 검증됐는가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-neocloud-finance:2",
+          "question": "GPU rental의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-neocloud-finance:3",
+          "question": "Capacity reservation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-neocloud-finance:4",
+          "question": "Lease burden의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-neocloud-finance:5",
+          "question": "Customer concentration의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-neocloud-finance:6",
+          "question": "Rental yield minus funding cost의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-neocloud-finance:7",
+          "question": "예약 용량과 실제 utilization의 차이는 무엇인가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-neocloud-finance:8",
+          "question": "리스·부채·고객 집중이 회수기간을 어떻게 바꾸는가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        }
       ],
+      "unclassifiedCandidates": {
+        "measurementDimensions": [
+          "GPU시간·예약기간·임대료·리스 의무"
+        ],
+        "verificationQuestions": [
+          "예약 매출이 확정인지, 고객의 실제 사용과 지급능력이 검증됐는가?",
+          "GPU rental의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Capacity reservation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Lease burden의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Customer concentration의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Rental yield minus funding cost의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "예약 용량과 실제 utilization의 차이는 무엇인가",
+          "리스·부채·고객 집중이 회수기간을 어떻게 바꾸는가"
+        ],
+        "mechanismNarrative": [
+          "장비 CAPEX·리스 → 고객 예약·사용 → 임대료·가동률 → 부채·잔존가치 위험"
+        ]
+      },
       "marketTransmission": {
         "status": "RESEARCH_REQUIRED",
         "path": [
@@ -169,6 +445,8 @@
     {
       "schemaVersion": "knowledge-domain-dossier.v1",
       "generatedAt": "2026-08-12",
+      "evidenceAsOf": null,
+      "reviewedAt": null,
       "dossierId": "domain-dossier:domain-compute-silicon",
       "domainId": "domain-compute-silicon",
       "title": "domain-compute-silicon",
@@ -179,21 +457,85 @@
         "메모리 대역폭·생태계 전환비용·패키지·공급·검증"
       ],
       "uniqueKpis": [
-        "작업당 연산·지연·전력·달러",
-        "GPU의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "ASIC / custom accelerator의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "NPU / edge accelerator의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "FP/BF/INT precision의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Accelerator interconnect의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+        "작업당 연산·지연·전력·달러"
       ],
+      "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
+      "metrics": [],
       "valueChain": [
-        "연산 패턴·정밀도 → CPU·GPU·ASIC·NPU → 메모리·인터커넥트 → 실제 처리량·지연",
         "GPU",
         "ASIC / custom accelerator",
         "NPU / edge accelerator",
         "FP/BF/INT precision",
         "Accelerator interconnect"
       ],
+      "valueChainGraph": {
+        "status": "UNCLASSIFIED_CANDIDATE",
+        "basis": "taxonomy node labels only; the guide mechanism prose is preserved separately and is not treated as a validated causal order",
+        "nodes": [
+          {
+            "nodeId": "compute-gpu",
+            "label": "GPU",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "compute-asic",
+            "label": "ASIC / custom accelerator",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "compute-npu",
+            "label": "NPU / edge accelerator",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "compute-precision",
+            "label": "FP/BF/INT precision",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "compute-interconnect",
+            "label": "Accelerator interconnect",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          }
+        ],
+        "edges": [],
+        "mechanismNarrative": "연산 패턴·정밀도 → CPU·GPU·ASIC·NPU → 메모리·인터커넥트 → 실제 처리량·지연"
+      },
       "taxonomyNodeIds": [
         "compute-gpu",
         "compute-asic",
@@ -222,9 +564,81 @@
         "AT-CS-03"
       ],
       "researchQuestions": [
-        "peak FLOPS와 실제 처리량을 어떻게 구분하는가",
-        "GPU·ASIC·NPU의 전환비용과 software enablement는 무엇인가"
+        {
+          "questionId": "question:domain-compute-silicon:1",
+          "question": "peak 성능이 아니라 목표 workload의 end-to-end 처리량을 무엇으로 측정하는가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-compute-silicon:2",
+          "question": "GPU의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-compute-silicon:3",
+          "question": "ASIC / custom accelerator의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-compute-silicon:4",
+          "question": "NPU / edge accelerator의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-compute-silicon:5",
+          "question": "FP/BF/INT precision의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-compute-silicon:6",
+          "question": "Accelerator interconnect의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-compute-silicon:7",
+          "question": "peak FLOPS와 실제 처리량을 어떻게 구분하는가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-compute-silicon:8",
+          "question": "GPU·ASIC·NPU의 전환비용과 software enablement는 무엇인가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        }
       ],
+      "unclassifiedCandidates": {
+        "measurementDimensions": [
+          "작업당 연산·지연·전력·달러"
+        ],
+        "verificationQuestions": [
+          "peak 성능이 아니라 목표 workload의 end-to-end 처리량을 무엇으로 측정하는가?",
+          "GPU의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "ASIC / custom accelerator의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "NPU / edge accelerator의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "FP/BF/INT precision의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Accelerator interconnect의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "peak FLOPS와 실제 처리량을 어떻게 구분하는가",
+          "GPU·ASIC·NPU의 전환비용과 software enablement는 무엇인가"
+        ],
+        "mechanismNarrative": [
+          "연산 패턴·정밀도 → CPU·GPU·ASIC·NPU → 메모리·인터커넥트 → 실제 처리량·지연"
+        ]
+      },
       "marketTransmission": {
         "status": "RESEARCH_REQUIRED",
         "path": [
@@ -249,6 +663,8 @@
     {
       "schemaVersion": "knowledge-domain-dossier.v1",
       "generatedAt": "2026-08-12",
+      "evidenceAsOf": null,
+      "reviewedAt": null,
       "dossierId": "domain-dossier:domain-memory-storage",
       "domainId": "domain-memory-storage",
       "title": "domain-memory-storage",
@@ -259,21 +675,85 @@
         "메모리 wall·HBM 공급·쓰기 내구성·데이터 이동·용량 수요"
       ],
       "uniqueKpis": [
-        "byte·대역폭·IOPS·지연·전력",
-        "SRAM / cache의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "DRAM / HBM의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "NAND flash의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Enterprise / data-center SSD의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "CXL / pooled memory의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+        "byte·대역폭·IOPS·지연·전력"
       ],
+      "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
+      "metrics": [],
       "valueChain": [
-        "데이터 접근 → cache·DRAM·HBM·NAND·SSD → 대역폭·지연·내구성 → 시스템 비용",
         "SRAM / cache",
         "DRAM / HBM",
         "NAND flash",
         "Enterprise / data-center SSD",
         "CXL / pooled memory"
       ],
+      "valueChainGraph": {
+        "status": "UNCLASSIFIED_CANDIDATE",
+        "basis": "taxonomy node labels only; the guide mechanism prose is preserved separately and is not treated as a validated causal order",
+        "nodes": [
+          {
+            "nodeId": "memory-sram",
+            "label": "SRAM / cache",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "memory-dram-hbm",
+            "label": "DRAM / HBM",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "memory-nand",
+            "label": "NAND flash",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "memory-enterprise-ssd",
+            "label": "Enterprise / data-center SSD",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "memory-cxl",
+            "label": "CXL / pooled memory",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          }
+        ],
+        "edges": [],
+        "mechanismNarrative": "데이터 접근 → cache·DRAM·HBM·NAND·SSD → 대역폭·지연·내구성 → 시스템 비용"
+      },
       "taxonomyNodeIds": [
         "memory-sram",
         "memory-dram-hbm",
@@ -307,9 +787,81 @@
         "AT-MS-03"
       ],
       "researchQuestions": [
-        "HBM 대역폭과 용량·열·수율의 trade-off는 무엇인가",
-        "SSD 수요를 추론 workload와 전체 NAND 수급으로 어떻게 분리하는가"
+        {
+          "questionId": "question:domain-memory-storage:1",
+          "question": "용량 증가와 실제 데이터 이동량·대역폭 수요가 같은 방향인지 확인했는가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-memory-storage:2",
+          "question": "SRAM / cache의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-memory-storage:3",
+          "question": "DRAM / HBM의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-memory-storage:4",
+          "question": "NAND flash의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-memory-storage:5",
+          "question": "Enterprise / data-center SSD의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-memory-storage:6",
+          "question": "CXL / pooled memory의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-memory-storage:7",
+          "question": "HBM 대역폭과 용량·열·수율의 trade-off는 무엇인가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-memory-storage:8",
+          "question": "SSD 수요를 추론 workload와 전체 NAND 수급으로 어떻게 분리하는가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        }
       ],
+      "unclassifiedCandidates": {
+        "measurementDimensions": [
+          "byte·대역폭·IOPS·지연·전력"
+        ],
+        "verificationQuestions": [
+          "용량 증가와 실제 데이터 이동량·대역폭 수요가 같은 방향인지 확인했는가?",
+          "SRAM / cache의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "DRAM / HBM의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "NAND flash의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Enterprise / data-center SSD의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "CXL / pooled memory의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "HBM 대역폭과 용량·열·수율의 trade-off는 무엇인가",
+          "SSD 수요를 추론 workload와 전체 NAND 수급으로 어떻게 분리하는가"
+        ],
+        "mechanismNarrative": [
+          "데이터 접근 → cache·DRAM·HBM·NAND·SSD → 대역폭·지연·내구성 → 시스템 비용"
+        ]
+      },
       "marketTransmission": {
         "status": "RESEARCH_REQUIRED",
         "path": [
@@ -334,6 +886,8 @@
     {
       "schemaVersion": "knowledge-domain-dossier.v1",
       "generatedAt": "2026-08-12",
+      "evidenceAsOf": null,
+      "reviewedAt": null,
       "dossierId": "domain-dossier:domain-foundry-equipment",
       "domainId": "domain-foundry-equipment",
       "title": "domain-foundry-equipment",
@@ -344,21 +898,85 @@
         "공정 복잡성·장비 설치·소재 순도·수율·고객 인증"
       ],
       "uniqueKpis": [
-        "wafer·die·공정 단계·yield·lead time",
-        "Design ecosystem의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Process node의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Process equipment의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Materials / chemicals의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Capacity / yield / utilization의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+        "wafer·die·공정 단계·yield·lead time"
       ],
+      "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
+      "metrics": [],
       "valueChain": [
-        "설계 → 공정·장비·소재 → 수율·검사 → 양품 capacity·고객 qualification",
         "Design ecosystem",
         "Process node",
         "Process equipment",
         "Materials / chemicals",
         "Capacity / yield / utilization"
       ],
+      "valueChainGraph": {
+        "status": "UNCLASSIFIED_CANDIDATE",
+        "basis": "taxonomy node labels only; the guide mechanism prose is preserved separately and is not treated as a validated causal order",
+        "nodes": [
+          {
+            "nodeId": "foundry-design-ecosystem",
+            "label": "Design ecosystem",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "foundry-process-node",
+            "label": "Process node",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "foundry-equipment",
+            "label": "Process equipment",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "foundry-materials",
+            "label": "Materials / chemicals",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "foundry-capacity-yield",
+            "label": "Capacity / yield / utilization",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          }
+        ],
+        "edges": [],
+        "mechanismNarrative": "설계 → 공정·장비·소재 → 수율·검사 → 양품 capacity·고객 qualification"
+      },
       "taxonomyNodeIds": [
         "foundry-design-ecosystem",
         "foundry-process-node",
@@ -396,9 +1014,81 @@
         "AT-FE-03"
       ],
       "researchQuestions": [
-        "공정 노드 명칭과 실제 density·power·yield를 어떻게 분리하는가",
-        "장비 설치 capacity와 양품 output의 차이는 무엇인가"
+        {
+          "questionId": "question:domain-foundry-equipment:1",
+          "question": "공정 노드 이름과 실제 양산 수율·양품 capacity를 어떤 1차 자료로 분리하는가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-foundry-equipment:2",
+          "question": "Design ecosystem의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-foundry-equipment:3",
+          "question": "Process node의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-foundry-equipment:4",
+          "question": "Process equipment의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-foundry-equipment:5",
+          "question": "Materials / chemicals의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-foundry-equipment:6",
+          "question": "Capacity / yield / utilization의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-foundry-equipment:7",
+          "question": "공정 노드 명칭과 실제 density·power·yield를 어떻게 분리하는가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-foundry-equipment:8",
+          "question": "장비 설치 capacity와 양품 output의 차이는 무엇인가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        }
       ],
+      "unclassifiedCandidates": {
+        "measurementDimensions": [
+          "wafer·die·공정 단계·yield·lead time"
+        ],
+        "verificationQuestions": [
+          "공정 노드 이름과 실제 양산 수율·양품 capacity를 어떤 1차 자료로 분리하는가?",
+          "Design ecosystem의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Process node의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Process equipment의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Materials / chemicals의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Capacity / yield / utilization의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "공정 노드 명칭과 실제 density·power·yield를 어떻게 분리하는가",
+          "장비 설치 capacity와 양품 output의 차이는 무엇인가"
+        ],
+        "mechanismNarrative": [
+          "설계 → 공정·장비·소재 → 수율·검사 → 양품 capacity·고객 qualification"
+        ]
+      },
       "marketTransmission": {
         "status": "RESEARCH_REQUIRED",
         "path": [
@@ -423,6 +1113,8 @@
     {
       "schemaVersion": "knowledge-domain-dossier.v1",
       "generatedAt": "2026-08-12",
+      "evidenceAsOf": null,
+      "reviewedAt": null,
       "dossierId": "domain-dossier:domain-packaging-substrate",
       "domainId": "domain-packaging-substrate",
       "title": "domain-packaging-substrate",
@@ -433,21 +1125,85 @@
         "interposer·substrate·조립 수율·열 설계·검사 capacity"
       ],
       "uniqueKpis": [
-        "package·die·연결 수·열·양품률",
-        "2.5D integration의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "3D stacking의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Interposer / bridge의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "ABF / FC-BGA substrate의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Glass substrate의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+        "package·die·연결 수·열·양품률"
       ],
+      "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
+      "metrics": [],
       "valueChain": [
-        "die 분할·적층 → interposer·substrate·검사 → 대역폭·열·수율·원가",
         "2.5D integration",
         "3D stacking",
         "Interposer / bridge",
         "ABF / FC-BGA substrate",
         "Glass substrate"
       ],
+      "valueChainGraph": {
+        "status": "UNCLASSIFIED_CANDIDATE",
+        "basis": "taxonomy node labels only; the guide mechanism prose is preserved separately and is not treated as a validated causal order",
+        "nodes": [
+          {
+            "nodeId": "package-2-5d",
+            "label": "2.5D integration",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "package-3d-stacking",
+            "label": "3D stacking",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "package-interposer",
+            "label": "Interposer / bridge",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "package-substrate",
+            "label": "ABF / FC-BGA substrate",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "package-glass",
+            "label": "Glass substrate",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          }
+        ],
+        "edges": [],
+        "mechanismNarrative": "die 분할·적층 → interposer·substrate·검사 → 대역폭·열·수율·원가"
+      },
       "taxonomyNodeIds": [
         "package-2-5d",
         "package-3d-stacking",
@@ -475,9 +1231,81 @@
         "AT-PA-03"
       ],
       "researchQuestions": [
-        "2.5D·3D 패키지의 대역폭과 열·검사 trade-off는 무엇인가",
-        "패키지 capacity와 고객 qualification이 출하를 어떻게 제한하는가"
+        {
+          "questionId": "question:domain-packaging-substrate:1",
+          "question": "패키지 성능 개선이 양산 capacity와 원가에 어떤 제약을 추가하는가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-packaging-substrate:2",
+          "question": "2.5D integration의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-packaging-substrate:3",
+          "question": "3D stacking의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-packaging-substrate:4",
+          "question": "Interposer / bridge의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-packaging-substrate:5",
+          "question": "ABF / FC-BGA substrate의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-packaging-substrate:6",
+          "question": "Glass substrate의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-packaging-substrate:7",
+          "question": "2.5D·3D 패키지의 대역폭과 열·검사 trade-off는 무엇인가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-packaging-substrate:8",
+          "question": "패키지 capacity와 고객 qualification이 출하를 어떻게 제한하는가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        }
       ],
+      "unclassifiedCandidates": {
+        "measurementDimensions": [
+          "package·die·연결 수·열·양품률"
+        ],
+        "verificationQuestions": [
+          "패키지 성능 개선이 양산 capacity와 원가에 어떤 제약을 추가하는가?",
+          "2.5D integration의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "3D stacking의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Interposer / bridge의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "ABF / FC-BGA substrate의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Glass substrate의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "2.5D·3D 패키지의 대역폭과 열·검사 trade-off는 무엇인가",
+          "패키지 capacity와 고객 qualification이 출하를 어떻게 제한하는가"
+        ],
+        "mechanismNarrative": [
+          "die 분할·적층 → interposer·substrate·검사 → 대역폭·열·수율·원가"
+        ]
+      },
       "marketTransmission": {
         "status": "RESEARCH_REQUIRED",
         "path": [
@@ -502,6 +1330,8 @@
     {
       "schemaVersion": "knowledge-domain-dossier.v1",
       "generatedAt": "2026-08-12",
+      "evidenceAsOf": null,
+      "reviewedAt": null,
       "dossierId": "domain-dossier:domain-network-photonics",
       "domainId": "domain-network-photonics",
       "title": "domain-network-photonics",
@@ -512,21 +1342,85 @@
         "신호 무결성·광 모듈 수율·스위치 capacity·통신 동기화"
       ],
       "uniqueKpis": [
-        "link bandwidth·latency·port·power/bit",
-        "Switch silicon의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Optical module의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Silicon photonics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Co-packaged optics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "AI cluster fabric의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+        "link bandwidth·latency·port·power/bit"
       ],
+      "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
+      "metrics": [],
       "valueChain": [
-        "가속기·메모리 traffic → switch·optical module·fabric → 지연·대역폭·전력/bit",
         "Switch silicon",
         "Optical module",
         "Silicon photonics",
         "Co-packaged optics",
         "AI cluster fabric"
       ],
+      "valueChainGraph": {
+        "status": "UNCLASSIFIED_CANDIDATE",
+        "basis": "taxonomy node labels only; the guide mechanism prose is preserved separately and is not treated as a validated causal order",
+        "nodes": [
+          {
+            "nodeId": "network-switch",
+            "label": "Switch silicon",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "network-optical-module",
+            "label": "Optical module",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "network-silicon-photonics",
+            "label": "Silicon photonics",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "network-cpo",
+            "label": "Co-packaged optics",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "network-fabric",
+            "label": "AI cluster fabric",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          }
+        ],
+        "edges": [],
+        "mechanismNarrative": "가속기·메모리 traffic → switch·optical module·fabric → 지연·대역폭·전력/bit"
+      },
       "taxonomyNodeIds": [
         "network-switch",
         "network-optical-module",
@@ -556,9 +1450,81 @@
         "AT-NP-03"
       ],
       "researchQuestions": [
-        "대역폭과 latency뿐 아니라 power per bit·error rate를 왜 보는가",
-        "CPO/LPO 기술 발표와 양산·고객 qualification을 어떻게 분리하는가"
+        {
+          "questionId": "question:domain-network-photonics:1",
+          "question": "링크 속도와 실제 애플리케이션 scaling efficiency 사이의 차이를 어떻게 측정하는가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-network-photonics:2",
+          "question": "Switch silicon의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-network-photonics:3",
+          "question": "Optical module의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-network-photonics:4",
+          "question": "Silicon photonics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-network-photonics:5",
+          "question": "Co-packaged optics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-network-photonics:6",
+          "question": "AI cluster fabric의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-network-photonics:7",
+          "question": "대역폭과 latency뿐 아니라 power per bit·error rate를 왜 보는가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-network-photonics:8",
+          "question": "CPO/LPO 기술 발표와 양산·고객 qualification을 어떻게 분리하는가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        }
       ],
+      "unclassifiedCandidates": {
+        "measurementDimensions": [
+          "link bandwidth·latency·port·power/bit"
+        ],
+        "verificationQuestions": [
+          "링크 속도와 실제 애플리케이션 scaling efficiency 사이의 차이를 어떻게 측정하는가?",
+          "Switch silicon의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Optical module의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Silicon photonics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Co-packaged optics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "AI cluster fabric의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "대역폭과 latency뿐 아니라 power per bit·error rate를 왜 보는가",
+          "CPO/LPO 기술 발표와 양산·고객 qualification을 어떻게 분리하는가"
+        ],
+        "mechanismNarrative": [
+          "가속기·메모리 traffic → switch·optical module·fabric → 지연·대역폭·전력/bit"
+        ]
+      },
       "marketTransmission": {
         "status": "RESEARCH_REQUIRED",
         "path": [
@@ -583,6 +1549,8 @@
     {
       "schemaVersion": "knowledge-domain-dossier.v1",
       "generatedAt": "2026-08-12",
+      "evidenceAsOf": null,
+      "reviewedAt": null,
       "dossierId": "domain-dossier:domain-aidc-cooling",
       "domainId": "domain-aidc-cooling",
       "title": "domain-aidc-cooling",
@@ -593,21 +1561,85 @@
         "변압기·냉각 retrofit·공간·접속·열 밀도"
       ],
       "uniqueKpis": [
-        "rack·kW·PUE·냉각 capacity·가동률",
-        "Rack density의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Liquid cooling의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Thermal design의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Server platform의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "PUE / facility efficiency의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+        "rack·kW·PUE·냉각 capacity·가동률"
       ],
+      "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
+      "metrics": [],
       "valueChain": [
-        "IT load → rack density → 전력·열 → air/liquid cooling → usable capacity·PUE",
         "Rack density",
         "Liquid cooling",
         "Thermal design",
         "Server platform",
         "PUE / facility efficiency"
       ],
+      "valueChainGraph": {
+        "status": "UNCLASSIFIED_CANDIDATE",
+        "basis": "taxonomy node labels only; the guide mechanism prose is preserved separately and is not treated as a validated causal order",
+        "nodes": [
+          {
+            "nodeId": "aidc-rack-density",
+            "label": "Rack density",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "aidc-liquid-cooling",
+            "label": "Liquid cooling",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "aidc-thermal-design",
+            "label": "Thermal design",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "aidc-server-platform",
+            "label": "Server platform",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "aidc-pue",
+            "label": "PUE / facility efficiency",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          }
+        ],
+        "edges": [],
+        "mechanismNarrative": "IT load → rack density → 전력·열 → air/liquid cooling → usable capacity·PUE"
+      },
       "taxonomyNodeIds": [
         "aidc-rack-density",
         "aidc-liquid-cooling",
@@ -634,9 +1666,81 @@
         "AT-AC-03"
       ],
       "researchQuestions": [
-        "IT load와 시설 overhead를 어떤 지표로 분리하는가",
-        "랙 밀도·냉각·납기·서비스가 매출로 번역되는 조건은 무엇인가"
+        {
+          "questionId": "question:domain-aidc-cooling:1",
+          "question": "서버 설치량과 실제 서비스 가능한 전력·냉각 capacity를 어떻게 구분하는가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-aidc-cooling:2",
+          "question": "Rack density의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-aidc-cooling:3",
+          "question": "Liquid cooling의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-aidc-cooling:4",
+          "question": "Thermal design의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-aidc-cooling:5",
+          "question": "Server platform의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-aidc-cooling:6",
+          "question": "PUE / facility efficiency의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-aidc-cooling:7",
+          "question": "IT load와 시설 overhead를 어떤 지표로 분리하는가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-aidc-cooling:8",
+          "question": "랙 밀도·냉각·납기·서비스가 매출로 번역되는 조건은 무엇인가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        }
       ],
+      "unclassifiedCandidates": {
+        "measurementDimensions": [
+          "rack·kW·PUE·냉각 capacity·가동률"
+        ],
+        "verificationQuestions": [
+          "서버 설치량과 실제 서비스 가능한 전력·냉각 capacity를 어떻게 구분하는가?",
+          "Rack density의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Liquid cooling의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Thermal design의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Server platform의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "PUE / facility efficiency의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "IT load와 시설 overhead를 어떤 지표로 분리하는가",
+          "랙 밀도·냉각·납기·서비스가 매출로 번역되는 조건은 무엇인가"
+        ],
+        "mechanismNarrative": [
+          "IT load → rack density → 전력·열 → air/liquid cooling → usable capacity·PUE"
+        ]
+      },
       "marketTransmission": {
         "status": "RESEARCH_REQUIRED",
         "path": [
@@ -661,6 +1765,8 @@
     {
       "schemaVersion": "knowledge-domain-dossier.v1",
       "generatedAt": "2026-08-12",
+      "evidenceAsOf": null,
+      "reviewedAt": null,
       "dossierId": "domain-dossier:domain-power-grid",
       "domainId": "domain-power-grid",
       "title": "domain-power-grid",
@@ -671,21 +1777,85 @@
         "발전 mix·송전·변압기·허가·접속 대기·지역 수급"
       ],
       "uniqueKpis": [
-        "MW·MWh·접속기간·PUE·전력 품질",
-        "Accelerator IT load의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Generation mix의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Transmission / substation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Interconnection queue의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Transformer / switchgear의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+        "MW·MWh·접속기간·PUE·전력 품질"
       ],
+      "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
+      "metrics": [],
       "valueChain": [
-        "발전 → 송전·변전·접속 → IT load·냉각 → 저장·수요반응·계통 제약",
         "Accelerator IT load",
         "Generation mix",
         "Transmission / substation",
         "Interconnection queue",
         "Transformer / switchgear"
       ],
+      "valueChainGraph": {
+        "status": "UNCLASSIFIED_CANDIDATE",
+        "basis": "taxonomy node labels only; the guide mechanism prose is preserved separately and is not treated as a validated causal order",
+        "nodes": [
+          {
+            "nodeId": "power-it-load",
+            "label": "Accelerator IT load",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "power-generation",
+            "label": "Generation mix",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "power-transmission",
+            "label": "Transmission / substation",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "power-interconnection",
+            "label": "Interconnection queue",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "power-transformer",
+            "label": "Transformer / switchgear",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          }
+        ],
+        "edges": [],
+        "mechanismNarrative": "발전 → 송전·변전·접속 → IT load·냉각 → 저장·수요반응·계통 제약"
+      },
       "taxonomyNodeIds": [
         "power-it-load",
         "power-generation",
@@ -712,9 +1882,81 @@
         "AT-PG-03"
       ],
       "researchQuestions": [
-        "설치 서버와 grid-connected usable load의 차이는 무엇인가",
-        "전력 가격·허가·접속 대기가 산업 투자 회수에 어떤 시차를 만드는가"
+        {
+          "questionId": "question:domain-power-grid:1",
+          "question": "계약 전력과 실제 접속·가동 전력을 어떤 기준일로 검증하는가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-power-grid:2",
+          "question": "Accelerator IT load의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-power-grid:3",
+          "question": "Generation mix의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-power-grid:4",
+          "question": "Transmission / substation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-power-grid:5",
+          "question": "Interconnection queue의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-power-grid:6",
+          "question": "Transformer / switchgear의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-power-grid:7",
+          "question": "설치 서버와 grid-connected usable load의 차이는 무엇인가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-power-grid:8",
+          "question": "전력 가격·허가·접속 대기가 산업 투자 회수에 어떤 시차를 만드는가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        }
       ],
+      "unclassifiedCandidates": {
+        "measurementDimensions": [
+          "MW·MWh·접속기간·PUE·전력 품질"
+        ],
+        "verificationQuestions": [
+          "계약 전력과 실제 접속·가동 전력을 어떤 기준일로 검증하는가?",
+          "Accelerator IT load의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Generation mix의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Transmission / substation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Interconnection queue의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Transformer / switchgear의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "설치 서버와 grid-connected usable load의 차이는 무엇인가",
+          "전력 가격·허가·접속 대기가 산업 투자 회수에 어떤 시차를 만드는가"
+        ],
+        "mechanismNarrative": [
+          "발전 → 송전·변전·접속 → IT load·냉각 → 저장·수요반응·계통 제약"
+        ]
+      },
       "marketTransmission": {
         "status": "RESEARCH_REQUIRED",
         "path": [
@@ -739,6 +1981,8 @@
     {
       "schemaVersion": "knowledge-domain-dossier.v1",
       "generatedAt": "2026-08-12",
+      "evidenceAsOf": null,
+      "reviewedAt": null,
       "dossierId": "domain-dossier:domain-on-device-physical-ai",
       "domainId": "domain-on-device-physical-ai",
       "title": "domain-on-device-physical-ai",
@@ -749,21 +1993,85 @@
         "배터리·열·메모리·현장 분포·안전 검증"
       ],
       "uniqueKpis": [
-        "지연·전력·메모리·작업 성공률",
-        "Edge SoC / NPU의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Memory / power envelope의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Sensors / perception의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Control / actuation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Simulation / digital twin의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+        "지연·전력·메모리·작업 성공률"
       ],
+      "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
+      "metrics": [],
       "valueChain": [
-        "센서 입력 → edge SoC/NPU·메모리 → 로컬 추론 → actuator·통신·안전",
         "Edge SoC / NPU",
         "Memory / power envelope",
         "Sensors / perception",
         "Control / actuation",
         "Simulation / digital twin"
       ],
+      "valueChainGraph": {
+        "status": "UNCLASSIFIED_CANDIDATE",
+        "basis": "taxonomy node labels only; the guide mechanism prose is preserved separately and is not treated as a validated causal order",
+        "nodes": [
+          {
+            "nodeId": "edge-soc-npu",
+            "label": "Edge SoC / NPU",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "edge-memory-power",
+            "label": "Memory / power envelope",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "physical-ai-sensing",
+            "label": "Sensors / perception",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "physical-ai-control",
+            "label": "Control / actuation",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "physical-ai-digital-twin",
+            "label": "Simulation / digital twin",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          }
+        ],
+        "edges": [],
+        "mechanismNarrative": "센서 입력 → edge SoC/NPU·메모리 → 로컬 추론 → actuator·통신·안전"
+      },
       "taxonomyNodeIds": [
         "edge-soc-npu",
         "edge-memory-power",
@@ -794,9 +2102,81 @@
         "AT-OD-03"
       ],
       "researchQuestions": [
-        "cloud inference와 on-device inference의 비용·지연 경계는 무엇인가",
-        "센서·NPU·배터리·업데이트가 제품 단위경제에 미치는 영향은 무엇인가"
+        {
+          "questionId": "question:domain-on-device-physical-ai:1",
+          "question": "클라우드 왕복 없이 필요한 지연·안전·업데이트 조건을 만족하는가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-on-device-physical-ai:2",
+          "question": "Edge SoC / NPU의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-on-device-physical-ai:3",
+          "question": "Memory / power envelope의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-on-device-physical-ai:4",
+          "question": "Sensors / perception의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-on-device-physical-ai:5",
+          "question": "Control / actuation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-on-device-physical-ai:6",
+          "question": "Simulation / digital twin의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-on-device-physical-ai:7",
+          "question": "cloud inference와 on-device inference의 비용·지연 경계는 무엇인가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-on-device-physical-ai:8",
+          "question": "센서·NPU·배터리·업데이트가 제품 단위경제에 미치는 영향은 무엇인가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        }
       ],
+      "unclassifiedCandidates": {
+        "measurementDimensions": [
+          "지연·전력·메모리·작업 성공률"
+        ],
+        "verificationQuestions": [
+          "클라우드 왕복 없이 필요한 지연·안전·업데이트 조건을 만족하는가?",
+          "Edge SoC / NPU의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Memory / power envelope의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Sensors / perception의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Control / actuation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Simulation / digital twin의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "cloud inference와 on-device inference의 비용·지연 경계는 무엇인가",
+          "센서·NPU·배터리·업데이트가 제품 단위경제에 미치는 영향은 무엇인가"
+        ],
+        "mechanismNarrative": [
+          "센서 입력 → edge SoC/NPU·메모리 → 로컬 추론 → actuator·통신·안전"
+        ]
+      },
       "marketTransmission": {
         "status": "RESEARCH_REQUIRED",
         "path": [
@@ -821,6 +2201,8 @@
     {
       "schemaVersion": "knowledge-domain-dossier.v1",
       "generatedAt": "2026-08-12",
+      "evidenceAsOf": null,
+      "reviewedAt": null,
       "dossierId": "domain-dossier:domain-ai-economics",
       "domainId": "domain-ai-economics",
       "title": "domain-ai-economics",
@@ -831,21 +2213,85 @@
         "가격 하락·고정비·과잉 capacity·자금비용·수요 질"
       ],
       "uniqueKpis": [
-        "요청·GPU시간·매출·마진·CAPEX·FCF",
-        "Revenue model의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "CAPEX / lease의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Depreciation / useful life의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "FCF / funding의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "ROIC / counter-scenario의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+        "요청·GPU시간·매출·마진·CAPEX·FCF"
       ],
+      "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
+      "metrics": [],
       "valueChain": [
-        "수요·가격·가동률 → 매출·변동비 → CAPEX·감가상각 → FCF·ROIC·반례",
         "Revenue model",
         "CAPEX / lease",
         "Depreciation / useful life",
         "FCF / funding",
         "ROIC / counter-scenario"
       ],
+      "valueChainGraph": {
+        "status": "UNCLASSIFIED_CANDIDATE",
+        "basis": "taxonomy node labels only; the guide mechanism prose is preserved separately and is not treated as a validated causal order",
+        "nodes": [
+          {
+            "nodeId": "economics-revenue-model",
+            "label": "Revenue model",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "economics-capex",
+            "label": "CAPEX / lease",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "economics-depreciation",
+            "label": "Depreciation / useful life",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "economics-fcf",
+            "label": "FCF / funding",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "economics-roic",
+            "label": "ROIC / counter-scenario",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          }
+        ],
+        "edges": [],
+        "mechanismNarrative": "수요·가격·가동률 → 매출·변동비 → CAPEX·감가상각 → FCF·ROIC·반례"
+      },
       "taxonomyNodeIds": [
         "economics-revenue-model",
         "economics-capex",
@@ -862,9 +2308,81 @@
         "AT-AE-03"
       ],
       "researchQuestions": [
-        "CAPEX 계획·실행·감가상각·FCF를 어떤 공시에서 구분하는가",
-        "AI 서비스의 단위경제성과 고객 retention을 어떻게 검증하는가"
+        {
+          "questionId": "question:domain-ai-economics:1",
+          "question": "성장률보다 단위경제·현금 회수·자본수익률을 어떻게 확인하는가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-ai-economics:2",
+          "question": "Revenue model의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-ai-economics:3",
+          "question": "CAPEX / lease의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-ai-economics:4",
+          "question": "Depreciation / useful life의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-ai-economics:5",
+          "question": "FCF / funding의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-ai-economics:6",
+          "question": "ROIC / counter-scenario의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-ai-economics:7",
+          "question": "CAPEX 계획·실행·감가상각·FCF를 어떤 공시에서 구분하는가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-ai-economics:8",
+          "question": "AI 서비스의 단위경제성과 고객 retention을 어떻게 검증하는가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        }
       ],
+      "unclassifiedCandidates": {
+        "measurementDimensions": [
+          "요청·GPU시간·매출·마진·CAPEX·FCF"
+        ],
+        "verificationQuestions": [
+          "성장률보다 단위경제·현금 회수·자본수익률을 어떻게 확인하는가?",
+          "Revenue model의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "CAPEX / lease의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Depreciation / useful life의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "FCF / funding의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "ROIC / counter-scenario의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "CAPEX 계획·실행·감가상각·FCF를 어떤 공시에서 구분하는가",
+          "AI 서비스의 단위경제성과 고객 retention을 어떻게 검증하는가"
+        ],
+        "mechanismNarrative": [
+          "수요·가격·가동률 → 매출·변동비 → CAPEX·감가상각 → FCF·ROIC·반례"
+        ]
+      },
       "marketTransmission": {
         "status": "RESEARCH_REQUIRED",
         "path": [
@@ -889,6 +2407,8 @@
     {
       "schemaVersion": "knowledge-domain-dossier.v1",
       "generatedAt": "2026-08-12",
+      "evidenceAsOf": null,
+      "reviewedAt": null,
       "dossierId": "domain-dossier:domain-physical-ai-robotics",
       "domainId": "domain-physical-ai-robotics",
       "title": "domain-physical-ai-robotics",
@@ -899,21 +2419,85 @@
         "분포 이동·희귀 사건·actuator·안전·현장 통합"
       ],
       "uniqueKpis": [
-        "작업 성공률·지연·다운타임·개입·유지비",
-        "Perception and sensor fusion의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "World model and simulation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Planning and control의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Actuation and safety의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Robot unit economics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+        "작업 성공률·지연·다운타임·개입·유지비"
       ],
+      "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
+      "metrics": [],
       "valueChain": [
-        "센서·상태 → 세계 예측·계획 → 제어·작동 → 성공률·복구·사람 검토",
         "Perception and sensor fusion",
         "World model and simulation",
         "Planning and control",
         "Actuation and safety",
         "Robot unit economics"
       ],
+      "valueChainGraph": {
+        "status": "UNCLASSIFIED_CANDIDATE",
+        "basis": "taxonomy node labels only; the guide mechanism prose is preserved separately and is not treated as a validated causal order",
+        "nodes": [
+          {
+            "nodeId": "physical-ai-perception",
+            "label": "Perception and sensor fusion",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "physical-ai-world-model",
+            "label": "World model and simulation",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "physical-ai-planning",
+            "label": "Planning and control",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "physical-ai-actuation",
+            "label": "Actuation and safety",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "physical-ai-unit-economics",
+            "label": "Robot unit economics",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          }
+        ],
+        "edges": [],
+        "mechanismNarrative": "센서·상태 → 세계 예측·계획 → 제어·작동 → 성공률·복구·사람 검토"
+      },
       "taxonomyNodeIds": [
         "physical-ai-perception",
         "physical-ai-world-model",
@@ -941,9 +2525,81 @@
         "AT-RB-03"
       ],
       "researchQuestions": [
-        "시뮬레이션·benchmark와 현장 task success를 어떻게 구분하는가",
-        "hardware·maintenance·human override가 단위경제에 미치는 영향은 무엇인가"
+        {
+          "questionId": "question:domain-physical-ai-robotics:1",
+          "question": "시뮬레이션·데모 성능이 실제 작업 단위경제로 이어지는가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-physical-ai-robotics:2",
+          "question": "Perception and sensor fusion의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-physical-ai-robotics:3",
+          "question": "World model and simulation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-physical-ai-robotics:4",
+          "question": "Planning and control의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-physical-ai-robotics:5",
+          "question": "Actuation and safety의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-physical-ai-robotics:6",
+          "question": "Robot unit economics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-physical-ai-robotics:7",
+          "question": "시뮬레이션·benchmark와 현장 task success를 어떻게 구분하는가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-physical-ai-robotics:8",
+          "question": "hardware·maintenance·human override가 단위경제에 미치는 영향은 무엇인가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        }
       ],
+      "unclassifiedCandidates": {
+        "measurementDimensions": [
+          "작업 성공률·지연·다운타임·개입·유지비"
+        ],
+        "verificationQuestions": [
+          "시뮬레이션·데모 성능이 실제 작업 단위경제로 이어지는가?",
+          "Perception and sensor fusion의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "World model and simulation의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Planning and control의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Actuation and safety의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Robot unit economics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "시뮬레이션·benchmark와 현장 task success를 어떻게 구분하는가",
+          "hardware·maintenance·human override가 단위경제에 미치는 영향은 무엇인가"
+        ],
+        "mechanismNarrative": [
+          "센서·상태 → 세계 예측·계획 → 제어·작동 → 성공률·복구·사람 검토"
+        ]
+      },
       "marketTransmission": {
         "status": "RESEARCH_REQUIRED",
         "path": [
@@ -968,6 +2624,8 @@
     {
       "schemaVersion": "knowledge-domain-dossier.v1",
       "generatedAt": "2026-08-12",
+      "evidenceAsOf": null,
+      "reviewedAt": null,
       "dossierId": "domain-dossier:domain-drone-defense",
       "domainId": "domain-drone-defense",
       "title": "domain-drone-defense",
@@ -978,21 +2636,85 @@
         "오판·통신 단절·규칙·반복 생산·조달 주기"
       ],
       "uniqueKpis": [
-        "임무 성공·통신 회복·생산률·정비·계약",
-        "Detection-to-decision chain의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "C2 / ISR / electronic warfare의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Autonomy and human control의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Drone production and attrition의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Procurement economics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+        "임무 성공·통신 회복·생산률·정비·계약"
       ],
+      "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
+      "metrics": [],
       "valueChain": [
-        "센서·ISR → C2·전자전 → 자율 판단·human control → 생산·정비·조달",
         "Detection-to-decision chain",
         "C2 / ISR / electronic warfare",
         "Autonomy and human control",
         "Drone production and attrition",
         "Procurement economics"
       ],
+      "valueChainGraph": {
+        "status": "UNCLASSIFIED_CANDIDATE",
+        "basis": "taxonomy node labels only; the guide mechanism prose is preserved separately and is not treated as a validated causal order",
+        "nodes": [
+          {
+            "nodeId": "defense-kill-chain",
+            "label": "Detection-to-decision chain",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "defense-c2-isr-ew",
+            "label": "C2 / ISR / electronic warfare",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "defense-autonomy",
+            "label": "Autonomy and human control",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "defense-drone-production",
+            "label": "Drone production and attrition",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "defense-procurement-economics",
+            "label": "Procurement economics",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          }
+        ],
+        "edges": [],
+        "mechanismNarrative": "센서·ISR → C2·전자전 → 자율 판단·human control → 생산·정비·조달"
+      },
       "taxonomyNodeIds": [
         "defense-kill-chain",
         "defense-c2-isr-ew",
@@ -1019,9 +2741,81 @@
         "AT-DD-03"
       ],
       "researchQuestions": [
-        "mission success와 demo를 어떤 시험·조달 자료로 구분하는가",
-        "개발계약·생산계약·sustainment가 매출 인식에 어떻게 이어지는가"
+        {
+          "questionId": "question:domain-drone-defense:1",
+          "question": "시연 성능과 실제 조달·생산 지속성을 어떤 문서로 분리하는가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-drone-defense:2",
+          "question": "Detection-to-decision chain의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-drone-defense:3",
+          "question": "C2 / ISR / electronic warfare의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-drone-defense:4",
+          "question": "Autonomy and human control의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-drone-defense:5",
+          "question": "Drone production and attrition의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-drone-defense:6",
+          "question": "Procurement economics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-drone-defense:7",
+          "question": "mission success와 demo를 어떤 시험·조달 자료로 구분하는가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-drone-defense:8",
+          "question": "개발계약·생산계약·sustainment가 매출 인식에 어떻게 이어지는가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        }
       ],
+      "unclassifiedCandidates": {
+        "measurementDimensions": [
+          "임무 성공·통신 회복·생산률·정비·계약"
+        ],
+        "verificationQuestions": [
+          "시연 성능과 실제 조달·생산 지속성을 어떤 문서로 분리하는가?",
+          "Detection-to-decision chain의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "C2 / ISR / electronic warfare의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Autonomy and human control의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Drone production and attrition의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Procurement economics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "mission success와 demo를 어떤 시험·조달 자료로 구분하는가",
+          "개발계약·생산계약·sustainment가 매출 인식에 어떻게 이어지는가"
+        ],
+        "mechanismNarrative": [
+          "센서·ISR → C2·전자전 → 자율 판단·human control → 생산·정비·조달"
+        ]
+      },
       "marketTransmission": {
         "status": "RESEARCH_REQUIRED",
         "path": [
@@ -1046,6 +2840,8 @@
     {
       "schemaVersion": "knowledge-domain-dossier.v1",
       "generatedAt": "2026-08-12",
+      "evidenceAsOf": null,
+      "reviewedAt": null,
       "dossierId": "domain-dossier:domain-space-aerospace",
       "domainId": "domain-space-aerospace",
       "title": "domain-space-aerospace",
@@ -1056,21 +2852,85 @@
         "발사 일정·부품·규제·재사용 turnaround·고객 인증"
       ],
       "uniqueKpis": [
-        "발사 성공·회전율·위성 수명·서비스 매출·보험",
-        "Rocket physics and launch energy의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Reusability and turnaround의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Satellite data economics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Artemis architecture의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Aircraft and space supply chain의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+        "발사 성공·회전율·위성 수명·서비스 매출·보험"
       ],
+      "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
+      "metrics": [],
       "valueChain": [
-        "발사체·발사장 → 궤도·위성 → 지상·데이터 서비스 → 고객 계약·반복 운용",
         "Rocket physics and launch energy",
         "Reusability and turnaround",
         "Satellite data economics",
         "Artemis architecture",
         "Aircraft and space supply chain"
       ],
+      "valueChainGraph": {
+        "status": "UNCLASSIFIED_CANDIDATE",
+        "basis": "taxonomy node labels only; the guide mechanism prose is preserved separately and is not treated as a validated causal order",
+        "nodes": [
+          {
+            "nodeId": "space-rocket-physics",
+            "label": "Rocket physics and launch energy",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "space-reusability",
+            "label": "Reusability and turnaround",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "space-satellite-economics",
+            "label": "Satellite data economics",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "space-artemis-architecture",
+            "label": "Artemis architecture",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "space-aircraft-supply-chain",
+            "label": "Aircraft and space supply chain",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          }
+        ],
+        "edges": [],
+        "mechanismNarrative": "발사체·발사장 → 궤도·위성 → 지상·데이터 서비스 → 고객 계약·반복 운용"
+      },
       "taxonomyNodeIds": [
         "space-rocket-physics",
         "space-reusability",
@@ -1097,9 +2957,81 @@
         "AT-SA-03"
       ],
       "researchQuestions": [
-        "payload·성공률·발사 cadence와 가격을 어떤 기준으로 비교하는가",
-        "개발·생산·운영·재사용의 현금흐름 시차는 무엇인가"
+        {
+          "questionId": "question:domain-space-aerospace:1",
+          "question": "발사 성공을 반복 매출·시스템 가동·현금 회수와 어떻게 구분하는가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-space-aerospace:2",
+          "question": "Rocket physics and launch energy의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-space-aerospace:3",
+          "question": "Reusability and turnaround의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-space-aerospace:4",
+          "question": "Satellite data economics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-space-aerospace:5",
+          "question": "Artemis architecture의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-space-aerospace:6",
+          "question": "Aircraft and space supply chain의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-space-aerospace:7",
+          "question": "payload·성공률·발사 cadence와 가격을 어떤 기준으로 비교하는가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-space-aerospace:8",
+          "question": "개발·생산·운영·재사용의 현금흐름 시차는 무엇인가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        }
       ],
+      "unclassifiedCandidates": {
+        "measurementDimensions": [
+          "발사 성공·회전율·위성 수명·서비스 매출·보험"
+        ],
+        "verificationQuestions": [
+          "발사 성공을 반복 매출·시스템 가동·현금 회수와 어떻게 구분하는가?",
+          "Rocket physics and launch energy의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Reusability and turnaround의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Satellite data economics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Artemis architecture의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Aircraft and space supply chain의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "payload·성공률·발사 cadence와 가격을 어떤 기준으로 비교하는가",
+          "개발·생산·운영·재사용의 현금흐름 시차는 무엇인가"
+        ],
+        "mechanismNarrative": [
+          "발사체·발사장 → 궤도·위성 → 지상·데이터 서비스 → 고객 계약·반복 운용"
+        ]
+      },
       "marketTransmission": {
         "status": "RESEARCH_REQUIRED",
         "path": [
@@ -1124,6 +3056,8 @@
     {
       "schemaVersion": "knowledge-domain-dossier.v1",
       "generatedAt": "2026-08-12",
+      "evidenceAsOf": null,
+      "reviewedAt": null,
       "dossierId": "domain-dossier:domain-ai-applications",
       "domainId": "domain-ai-applications",
       "title": "domain-ai-applications",
@@ -1134,21 +3068,85 @@
         "규제·책임·데이터 권한·현장 통합·지불자"
       ],
       "uniqueKpis": [
-        "작업 시간·오류율·성공률·전환비용·상환",
-        "Healthcare workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Manufacturing workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Automotive autonomy의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Financial decision workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Payer, ROI and adoption의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+        "작업 시간·오류율·성공률·전환비용·상환"
       ],
+      "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
+      "metrics": [],
       "valueChain": [
-        "모델·데이터 → workflow·권한·인증 → 작업 성공·오류 비용 → payer·ROI",
         "Healthcare workflow",
         "Manufacturing workflow",
         "Automotive autonomy",
         "Financial decision workflow",
         "Payer, ROI and adoption"
       ],
+      "valueChainGraph": {
+        "status": "UNCLASSIFIED_CANDIDATE",
+        "basis": "taxonomy node labels only; the guide mechanism prose is preserved separately and is not treated as a validated causal order",
+        "nodes": [
+          {
+            "nodeId": "application-healthcare",
+            "label": "Healthcare workflow",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "application-manufacturing",
+            "label": "Manufacturing workflow",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "application-automotive",
+            "label": "Automotive autonomy",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "application-finance",
+            "label": "Financial decision workflow",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "application-roi-payer",
+            "label": "Payer, ROI and adoption",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          }
+        ],
+        "edges": [],
+        "mechanismNarrative": "모델·데이터 → workflow·권한·인증 → 작업 성공·오류 비용 → payer·ROI"
+      },
       "taxonomyNodeIds": [
         "application-healthcare",
         "application-manufacturing",
@@ -1174,9 +3172,81 @@
         "AT-AA-03"
       ],
       "researchQuestions": [
-        "AI 도입의 baseline과 human review 범위는 무엇인가",
-        "모델 성능보다 업무 단위 시간·오류·지불을 어떻게 측정하는가"
+        {
+          "questionId": "question:domain-ai-applications:1",
+          "question": "사용량·토큰이 아니라 기준선 대비 작업 결과가 개선됐는가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-ai-applications:2",
+          "question": "Healthcare workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-ai-applications:3",
+          "question": "Manufacturing workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-ai-applications:4",
+          "question": "Automotive autonomy의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-ai-applications:5",
+          "question": "Financial decision workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-ai-applications:6",
+          "question": "Payer, ROI and adoption의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-ai-applications:7",
+          "question": "AI 도입의 baseline과 human review 범위는 무엇인가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-ai-applications:8",
+          "question": "모델 성능보다 업무 단위 시간·오류·지불을 어떻게 측정하는가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        }
       ],
+      "unclassifiedCandidates": {
+        "measurementDimensions": [
+          "작업 시간·오류율·성공률·전환비용·상환"
+        ],
+        "verificationQuestions": [
+          "사용량·토큰이 아니라 기준선 대비 작업 결과가 개선됐는가?",
+          "Healthcare workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Manufacturing workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Automotive autonomy의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Financial decision workflow의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Payer, ROI and adoption의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "AI 도입의 baseline과 human review 범위는 무엇인가",
+          "모델 성능보다 업무 단위 시간·오류·지불을 어떻게 측정하는가"
+        ],
+        "mechanismNarrative": [
+          "모델·데이터 → workflow·권한·인증 → 작업 성공·오류 비용 → payer·ROI"
+        ]
+      },
       "marketTransmission": {
         "status": "RESEARCH_REQUIRED",
         "path": [
@@ -1201,6 +3271,8 @@
     {
       "schemaVersion": "knowledge-domain-dossier.v1",
       "generatedAt": "2026-08-12",
+      "evidenceAsOf": null,
+      "reviewedAt": null,
       "dossierId": "domain-dossier:domain-resources-materials",
       "domainId": "domain-resources-materials",
       "title": "domain-resources-materials",
@@ -1211,21 +3283,85 @@
         "정제 capacity·환경 허가·고객 qualification·장비·지역 집중"
       ],
       "uniqueKpis": [
-        "톤·순도·회수율·yield·lead time·인증",
-        "Copper and conductors의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Lithium and storage materials의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Rare earths and magnets의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Mining, refining and recycling의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Industrial equipment bottlenecks의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+        "톤·순도·회수율·yield·lead time·인증"
       ],
+      "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
+      "metrics": [],
       "valueChain": [
-        "광석·원재료 → 정제·가공 → 장비·부품·인증 → 공급 capacity·가격·마진",
         "Copper and conductors",
         "Lithium and storage materials",
         "Rare earths and magnets",
         "Mining, refining and recycling",
         "Industrial equipment bottlenecks"
       ],
+      "valueChainGraph": {
+        "status": "UNCLASSIFIED_CANDIDATE",
+        "basis": "taxonomy node labels only; the guide mechanism prose is preserved separately and is not treated as a validated causal order",
+        "nodes": [
+          {
+            "nodeId": "resources-copper",
+            "label": "Copper and conductors",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "resources-lithium",
+            "label": "Lithium and storage materials",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "resources-rare-earths",
+            "label": "Rare earths and magnets",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "resources-refining",
+            "label": "Mining, refining and recycling",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "resources-industrial-equipment",
+            "label": "Industrial equipment bottlenecks",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          }
+        ],
+        "edges": [],
+        "mechanismNarrative": "광석·원재료 → 정제·가공 → 장비·부품·인증 → 공급 capacity·가격·마진"
+      },
       "taxonomyNodeIds": [
         "resources-copper",
         "resources-lithium",
@@ -1246,9 +3382,81 @@
         "AT-RM-03"
       ],
       "researchQuestions": [
-        "매장량·정제능력·규격 인증·지역 집중을 어떻게 분리하는가",
-        "증설 lead time과 대체재가 가격결정력에 미치는 영향은 무엇인가"
+        {
+          "questionId": "question:domain-resources-materials:1",
+          "question": "자원 매장량과 판매 가능한 양품·정제 capacity를 어떻게 구분하는가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-resources-materials:2",
+          "question": "Copper and conductors의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-resources-materials:3",
+          "question": "Lithium and storage materials의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-resources-materials:4",
+          "question": "Rare earths and magnets의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-resources-materials:5",
+          "question": "Mining, refining and recycling의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-resources-materials:6",
+          "question": "Industrial equipment bottlenecks의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-resources-materials:7",
+          "question": "매장량·정제능력·규격 인증·지역 집중을 어떻게 분리하는가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-resources-materials:8",
+          "question": "증설 lead time과 대체재가 가격결정력에 미치는 영향은 무엇인가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        }
       ],
+      "unclassifiedCandidates": {
+        "measurementDimensions": [
+          "톤·순도·회수율·yield·lead time·인증"
+        ],
+        "verificationQuestions": [
+          "자원 매장량과 판매 가능한 양품·정제 capacity를 어떻게 구분하는가?",
+          "Copper and conductors의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Lithium and storage materials의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Rare earths and magnets의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Mining, refining and recycling의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Industrial equipment bottlenecks의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "매장량·정제능력·규격 인증·지역 집중을 어떻게 분리하는가",
+          "증설 lead time과 대체재가 가격결정력에 미치는 영향은 무엇인가"
+        ],
+        "mechanismNarrative": [
+          "광석·원재료 → 정제·가공 → 장비·부품·인증 → 공급 capacity·가격·마진"
+        ]
+      },
       "marketTransmission": {
         "status": "RESEARCH_REQUIRED",
         "path": [
@@ -1273,6 +3481,8 @@
     {
       "schemaVersion": "knowledge-domain-dossier.v1",
       "generatedAt": "2026-08-12",
+      "evidenceAsOf": null,
+      "reviewedAt": null,
       "dossierId": "domain-dossier:domain-geopolitics-policy-security",
       "domainId": "domain-geopolitics-policy-security",
       "title": "domain-geopolitics-policy-security",
@@ -1283,21 +3493,85 @@
         "정책 변경·규정 준수·대체 공급·보안 사고·동맹 관계"
       ],
       "uniqueKpis": [
-        "허가·수출 대상·보조금·조달·incident·lead time",
-        "Export controls의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Supply-chain resilience의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Semiconductor incentives의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Cybersecurity and sovereign AI의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "National-security risk의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+        "허가·수출 대상·보조금·조달·incident·lead time"
       ],
+      "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
+      "metrics": [],
       "valueChain": [
-        "법·보조금·통제 → 공급자·고객·지역 선택 → 비용·지연·회복력·보안",
         "Export controls",
         "Supply-chain resilience",
         "Semiconductor incentives",
         "Cybersecurity and sovereign AI",
         "National-security risk"
       ],
+      "valueChainGraph": {
+        "status": "UNCLASSIFIED_CANDIDATE",
+        "basis": "taxonomy node labels only; the guide mechanism prose is preserved separately and is not treated as a validated causal order",
+        "nodes": [
+          {
+            "nodeId": "policy-export-controls",
+            "label": "Export controls",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "policy-supply-chain-resilience",
+            "label": "Supply-chain resilience",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "policy-semiconductor-incentives",
+            "label": "Semiconductor incentives",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "policy-cybersecurity",
+            "label": "Cybersecurity and sovereign AI",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "policy-national-security-risk",
+            "label": "National-security risk",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          }
+        ],
+        "edges": [],
+        "mechanismNarrative": "법·보조금·통제 → 공급자·고객·지역 선택 → 비용·지연·회복력·보안"
+      },
       "taxonomyNodeIds": [
         "policy-export-controls",
         "policy-supply-chain-resilience",
@@ -1325,9 +3599,81 @@
         "AT-GP-03"
       ],
       "researchQuestions": [
-        "정책 발표와 기업 매출·납기 노출을 어떻게 연결하는가",
-        "규제·보안 요구가 비용·고객·대체 기간을 어떻게 바꾸는가"
+        {
+          "questionId": "question:domain-geopolitics-policy-security:1",
+          "question": "정책 발표와 실제 시행·허가·기업 비용의 시점을 어떻게 구분하는가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-geopolitics-policy-security:2",
+          "question": "Export controls의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-geopolitics-policy-security:3",
+          "question": "Supply-chain resilience의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-geopolitics-policy-security:4",
+          "question": "Semiconductor incentives의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-geopolitics-policy-security:5",
+          "question": "Cybersecurity and sovereign AI의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-geopolitics-policy-security:6",
+          "question": "National-security risk의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-geopolitics-policy-security:7",
+          "question": "정책 발표와 기업 매출·납기 노출을 어떻게 연결하는가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-geopolitics-policy-security:8",
+          "question": "규제·보안 요구가 비용·고객·대체 기간을 어떻게 바꾸는가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        }
       ],
+      "unclassifiedCandidates": {
+        "measurementDimensions": [
+          "허가·수출 대상·보조금·조달·incident·lead time"
+        ],
+        "verificationQuestions": [
+          "정책 발표와 실제 시행·허가·기업 비용의 시점을 어떻게 구분하는가?",
+          "Export controls의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Supply-chain resilience의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Semiconductor incentives의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Cybersecurity and sovereign AI의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "National-security risk의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "정책 발표와 기업 매출·납기 노출을 어떻게 연결하는가",
+          "규제·보안 요구가 비용·고객·대체 기간을 어떻게 바꾸는가"
+        ],
+        "mechanismNarrative": [
+          "법·보조금·통제 → 공급자·고객·지역 선택 → 비용·지연·회복력·보안"
+        ]
+      },
       "marketTransmission": {
         "status": "RESEARCH_REQUIRED",
         "path": [
@@ -1352,6 +3698,8 @@
     {
       "schemaVersion": "knowledge-domain-dossier.v1",
       "generatedAt": "2026-08-12",
+      "evidenceAsOf": null,
+      "reviewedAt": null,
       "dossierId": "domain-dossier:domain-capital-markets-company-map",
       "domainId": "domain-capital-markets-company-map",
       "title": "domain-capital-markets-company-map",
@@ -1362,21 +3710,85 @@
         "고객 집중·희석·부채·회계 분류·기대와 실적의 차이"
       ],
       "uniqueKpis": [
-        "매출 질·마진·부채·FCF·ROIC·valuation",
-        "Company role and value capture의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Revenue quality and visibility의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Margin and cost structure의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Balance sheet and funding의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Expectation and price의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+        "매출 질·마진·부채·FCF·ROIC·valuation"
       ],
+      "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
+      "metrics": [],
       "valueChain": [
-        "산업 위치 → 수익 모델·마진 → 자산·부채·자본배분 → 시장 기대·가격",
         "Company role and value capture",
         "Revenue quality and visibility",
         "Margin and cost structure",
         "Balance sheet and funding",
         "Expectation and price"
       ],
+      "valueChainGraph": {
+        "status": "UNCLASSIFIED_CANDIDATE",
+        "basis": "taxonomy node labels only; the guide mechanism prose is preserved separately and is not treated as a validated causal order",
+        "nodes": [
+          {
+            "nodeId": "capital-company-role",
+            "label": "Company role and value capture",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "capital-revenue-quality",
+            "label": "Revenue quality and visibility",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "capital-margin-structure",
+            "label": "Margin and cost structure",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "capital-balance-sheet",
+            "label": "Balance sheet and funding",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "capital-market-expectation",
+            "label": "Expectation and price",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          }
+        ],
+        "edges": [],
+        "mechanismNarrative": "산업 위치 → 수익 모델·마진 → 자산·부채·자본배분 → 시장 기대·가격"
+      },
       "taxonomyNodeIds": [
         "capital-company-role",
         "capital-revenue-quality",
@@ -1399,9 +3811,81 @@
         "AT-CM-03"
       ],
       "researchQuestions": [
-        "보고된 매출·백로그·현금흐름과 시장 기대를 어떻게 분리하는가",
-        "기업의 위치가 가치사슬 병목·가격결정력과 어떻게 연결되는가"
+        {
+          "questionId": "question:domain-capital-markets-company-map:1",
+          "question": "기업의 산업 역할과 실제 현금 회수·자본구조를 어떤 공시로 대조하는가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-capital-markets-company-map:2",
+          "question": "Company role and value capture의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-capital-markets-company-map:3",
+          "question": "Revenue quality and visibility의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-capital-markets-company-map:4",
+          "question": "Margin and cost structure의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-capital-markets-company-map:5",
+          "question": "Balance sheet and funding의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-capital-markets-company-map:6",
+          "question": "Expectation and price의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-capital-markets-company-map:7",
+          "question": "보고된 매출·백로그·현금흐름과 시장 기대를 어떻게 분리하는가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-capital-markets-company-map:8",
+          "question": "기업의 위치가 가치사슬 병목·가격결정력과 어떻게 연결되는가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        }
       ],
+      "unclassifiedCandidates": {
+        "measurementDimensions": [
+          "매출 질·마진·부채·FCF·ROIC·valuation"
+        ],
+        "verificationQuestions": [
+          "기업의 산업 역할과 실제 현금 회수·자본구조를 어떤 공시로 대조하는가?",
+          "Company role and value capture의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Revenue quality and visibility의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Margin and cost structure의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Balance sheet and funding의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Expectation and price의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "보고된 매출·백로그·현금흐름과 시장 기대를 어떻게 분리하는가",
+          "기업의 위치가 가치사슬 병목·가격결정력과 어떻게 연결되는가"
+        ],
+        "mechanismNarrative": [
+          "산업 위치 → 수익 모델·마진 → 자산·부채·자본배분 → 시장 기대·가격"
+        ]
+      },
       "marketTransmission": {
         "status": "RESEARCH_REQUIRED",
         "path": [
@@ -1426,6 +3910,8 @@
     {
       "schemaVersion": "knowledge-domain-dossier.v1",
       "generatedAt": "2026-08-12",
+      "evidenceAsOf": null,
+      "reviewedAt": null,
       "dossierId": "domain-dossier:domain-adjacent-future-tech",
       "domainId": "domain-adjacent-future-tech",
       "title": "domain-adjacent-future-tech",
@@ -1436,21 +3922,85 @@
         "실험 재현성·제조 수율·소프트웨어 생태계·측정·고객 전환"
       ],
       "uniqueKpis": [
-        "오류·정확도·전력/bit·수율·통합비용·접근성",
-        "Quantum computing의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Photonic compute의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Neuromorphic systems의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "New energy systems의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-        "Technology uncertainty gate의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+        "오류·정확도·전력/bit·수율·통합비용·접근성"
       ],
+      "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
+      "metrics": [],
       "valueChain": [
-        "새 하드웨어·소자 → 실험·오류·측정 → 소프트웨어·전력·제조 통합 → 제한된 use case",
         "Quantum computing",
         "Photonic compute",
         "Neuromorphic systems",
         "New energy systems",
         "Technology uncertainty gate"
       ],
+      "valueChainGraph": {
+        "status": "UNCLASSIFIED_CANDIDATE",
+        "basis": "taxonomy node labels only; the guide mechanism prose is preserved separately and is not treated as a validated causal order",
+        "nodes": [
+          {
+            "nodeId": "future-quantum",
+            "label": "Quantum computing",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "future-photonic-compute",
+            "label": "Photonic compute",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "future-neuromorphic",
+            "label": "Neuromorphic systems",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "future-new-energy",
+            "label": "New energy systems",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          },
+          {
+            "nodeId": "future-uncertainty-gate",
+            "label": "Technology uncertainty gate",
+            "role": null,
+            "inputs": [],
+            "outputs": [],
+            "relationDirection": null,
+            "priceOrCostTransmission": null,
+            "timeLag": null,
+            "falsificationCondition": null,
+            "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+          }
+        ],
+        "edges": [],
+        "mechanismNarrative": "새 하드웨어·소자 → 실험·오류·측정 → 소프트웨어·전력·제조 통합 → 제한된 use case"
+      },
       "taxonomyNodeIds": [
         "future-quantum",
         "future-photonic-compute",
@@ -1471,9 +4021,81 @@
         "AT-FT-03"
       ],
       "researchQuestions": [
-        "시연과 반복 가능한 제품의 증거는 무엇인가",
-        "오류·제조·인증·금융·workflow 통합이 상용화의 어느 단계에서 병목인가"
+        {
+          "questionId": "question:domain-adjacent-future-tech:1",
+          "question": "기술 시연을 반복 가능한 생산·통합·지불 가능한 사용 사례와 어떻게 분리하는가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-adjacent-future-tech:2",
+          "question": "Quantum computing의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-adjacent-future-tech:3",
+          "question": "Photonic compute의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-adjacent-future-tech:4",
+          "question": "Neuromorphic systems의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-adjacent-future-tech:5",
+          "question": "New energy systems의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-adjacent-future-tech:6",
+          "question": "Technology uncertainty gate의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-adjacent-future-tech:7",
+          "question": "시연과 반복 가능한 제품의 증거는 무엇인가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        },
+        {
+          "questionId": "question:domain-adjacent-future-tech:8",
+          "question": "오류·제조·인증·금융·workflow 통합이 상용화의 어느 단계에서 병목인가",
+          "verificationCondition": null,
+          "metricIds": [],
+          "status": "UNCLASSIFIED_CANDIDATE"
+        }
       ],
+      "unclassifiedCandidates": {
+        "measurementDimensions": [
+          "오류·정확도·전력/bit·수율·통합비용·접근성"
+        ],
+        "verificationQuestions": [
+          "기술 시연을 반복 가능한 생산·통합·지불 가능한 사용 사례와 어떻게 분리하는가?",
+          "Quantum computing의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Photonic compute의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Neuromorphic systems의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "New energy systems의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "Technology uncertainty gate의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+          "시연과 반복 가능한 제품의 증거는 무엇인가",
+          "오류·제조·인증·금융·workflow 통합이 상용화의 어느 단계에서 병목인가"
+        ],
+        "mechanismNarrative": [
+          "새 하드웨어·소자 → 실험·오류·측정 → 소프트웨어·전력·제조 통합 → 제한된 use case"
+        ]
+      },
       "marketTransmission": {
         "status": "RESEARCH_REQUIRED",
         "path": [

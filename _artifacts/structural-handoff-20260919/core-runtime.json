@@ -1,0 +1,31 @@
+{
+  "environment": "local Chromium, external requests aborted; portfolio is explicit synthetic store rendered by actual page module, not user storage flow",
+  "observedAt": "2026-09-19T12:45:06.588Z",
+  "initial": {
+    "storeRoute": null,
+    "routerRoute": "home",
+    "scope": {
+      "entityId": null,
+      "mountId": 1
+    },
+    "active": "page-home",
+    "score": null
+  },
+  "afterFundamentalClick": {
+    "storeRoute": "fundamental",
+    "routerRoute": "fundamental",
+    "scope": {
+      "entityId": "[OBJECT HTMLDIVELEMENT]",
+      "mountId": 3
+    },
+    "active": "page-fundamental",
+    "score": null
+  },
+  "portfolioFixture": {
+    "cash": "$10,000",
+    "total": "—",
+    "cashPct": "—",
+    "status": "포트폴리오 등록 후 자동 계산됩니다.",
+    "table": "포트폴리오가 비어 있습니다\n티커 · 수량 · 매수 단가를 입력하면 보유 현황과 리스크 분석이 시작됩니다.\n첫 종목 추가\n데이터는 브라우저에만 저장되며 서버로 전송되지 않습니다. PIN 설정 후 저장 시 AES-256 암호화."
+  }
+}

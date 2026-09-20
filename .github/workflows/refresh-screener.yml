@@ -2,7 +2,9 @@ name: Refresh screener and SEC fundamentals
 
 on:
   schedule:
-    - cron: '23 */6 * * *'
+    # :23 is already taken every hour by data-watchdog.yml, and refresh-data.yml offsets its own
+    # crons away from crowded minutes for exactly this reason. :41 keeps the two apart.
+    - cron: '41 */6 * * *'
   workflow_dispatch: {}
 
 permissions:
@@ -20,12 +22,27 @@ jobs:
     timeout-minutes: 45
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
       - name: Setup Node
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: '20'
+
+      - name: Require SEC provisioning before the SEC lanes
+        env:
+          SEC_UA: ${{ vars.SEC_USER_AGENT }}
+        run: |
+          set -euo pipefail
+          # fetch-sec-fundamentals.mjs writes an `operator_configuration_required` snapshot and
+          # exits 0 when this variable is empty, so the lane went green while collecting nothing —
+          # the silent deficiency the operator runbook calls out. refresh-data.yml already fails
+          # closed on the same variable via requireSecUserAgent(); match that contract here so a
+          # misconfigured repository cannot commit an empty SEC cycle as a success.
+          if ! printf '%s' "$SEC_UA" | grep -Eq '[^[:space:]]@[^[:space:]]+\.[^[:space:]]+'; then
+            echo "::error::operator_required: SEC_USER_AGENT must be a monitored contact address, e.g. \"AIO-Screener/1.0 (contact@example.com)\""
+            exit 1
+          fi
 
       - name: Refresh bounded SEC companyfacts batch
         env:
@@ -36,7 +53,16 @@ jobs:
       - name: Refresh weekly earnings calendar (Finnhub free tier)
         env:
           FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
-        run: node scripts/fetch-earnings-calendar.mjs
+        run: |
+          set -euo pipefail
+          # fetch-earnings-calendar.mjs preserves the previous file and exits 0 when the key is
+          # absent, so an unset secret freezes the calendar without any red step or changed file.
+          # Annotate instead of failing: the key is optional for the lane, but its absence must be
+          # visible in the run log rather than inferred from a file that never moved.
+          if [ -z "${FINNHUB_API_KEY:-}" ]; then
+            echo "::warning::FINNHUB_API_KEY is not configured — the earnings calendar keeps its previous file for this cycle"
+          fi
+          node scripts/fetch-earnings-calendar.mjs
 
       - name: Build bounded SEC runtime projection
         run: |

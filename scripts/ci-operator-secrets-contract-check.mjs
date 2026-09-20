@@ -47,6 +47,20 @@ for (const file of workflows) {
   }
 }
 
+// P1158: `dependabot.yml` has always CLAIMED that every Action is pinned to a full commit SHA,
+// but nothing verified it — an unpinned `uses: actions/checkout@v5` would have drifted silently
+// for as long as it took someone to read the file. A mutable tag is a supply-chain hole: whatever
+// that tag points at runs with this repository's token.
+for (const file of workflows) {
+  const source = readFileSync(join(WORKFLOW_DIR, file), 'utf8');
+  for (const match of source.matchAll(/^\s*-?\s*uses:\s*([^#\s]+)/gm)) {
+    const spec = match[1];
+    if (spec.startsWith('./')) continue; // local composite action, not a remote supply chain
+    const [action, ref] = spec.split('@');
+    check(`P1158 ${file}: ${action} is pinned to a full commit SHA (found ${spec})`, /^[0-9a-f]{40}$/.test(String(ref || '')));
+  }
+}
+
 check('at least one workflow secret is declared', referenced.size > 0);
 for (const [name, info] of [...referenced].sort(([left], [right]) => left.localeCompare(right))) {
   const owners = [...info.workflows].sort().join(', ');

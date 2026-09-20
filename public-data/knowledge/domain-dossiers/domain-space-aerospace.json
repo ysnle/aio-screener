@@ -1,6 +1,8 @@
 {
   "schemaVersion": "knowledge-domain-dossier.v1",
   "generatedAt": "2026-08-12",
+  "evidenceAsOf": null,
+  "reviewedAt": null,
   "dossierId": "domain-dossier:domain-space-aerospace",
   "domainId": "domain-space-aerospace",
   "title": "domain-space-aerospace",
@@ -11,21 +13,85 @@
     "발사 일정·부품·규제·재사용 turnaround·고객 인증"
   ],
   "uniqueKpis": [
-    "발사 성공·회전율·위성 수명·서비스 매출·보험",
-    "Rocket physics and launch energy의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-    "Reusability and turnaround의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-    "Satellite data economics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-    "Artemis architecture의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-    "Aircraft and space supply chain의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+    "발사 성공·회전율·위성 수명·서비스 매출·보험"
   ],
+  "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
+  "metrics": [],
   "valueChain": [
-    "발사체·발사장 → 궤도·위성 → 지상·데이터 서비스 → 고객 계약·반복 운용",
     "Rocket physics and launch energy",
     "Reusability and turnaround",
     "Satellite data economics",
     "Artemis architecture",
     "Aircraft and space supply chain"
   ],
+  "valueChainGraph": {
+    "status": "UNCLASSIFIED_CANDIDATE",
+    "basis": "taxonomy node labels only; the guide mechanism prose is preserved separately and is not treated as a validated causal order",
+    "nodes": [
+      {
+        "nodeId": "space-rocket-physics",
+        "label": "Rocket physics and launch energy",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      },
+      {
+        "nodeId": "space-reusability",
+        "label": "Reusability and turnaround",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      },
+      {
+        "nodeId": "space-satellite-economics",
+        "label": "Satellite data economics",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      },
+      {
+        "nodeId": "space-artemis-architecture",
+        "label": "Artemis architecture",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      },
+      {
+        "nodeId": "space-aircraft-supply-chain",
+        "label": "Aircraft and space supply chain",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      }
+    ],
+    "edges": [],
+    "mechanismNarrative": "발사체·발사장 → 궤도·위성 → 지상·데이터 서비스 → 고객 계약·반복 운용"
+  },
   "taxonomyNodeIds": [
     "space-rocket-physics",
     "space-reusability",
@@ -52,9 +118,81 @@
     "AT-SA-03"
   ],
   "researchQuestions": [
-    "payload·성공률·발사 cadence와 가격을 어떤 기준으로 비교하는가",
-    "개발·생산·운영·재사용의 현금흐름 시차는 무엇인가"
+    {
+      "questionId": "question:domain-space-aerospace:1",
+      "question": "발사 성공을 반복 매출·시스템 가동·현금 회수와 어떻게 구분하는가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-space-aerospace:2",
+      "question": "Rocket physics and launch energy의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-space-aerospace:3",
+      "question": "Reusability and turnaround의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-space-aerospace:4",
+      "question": "Satellite data economics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-space-aerospace:5",
+      "question": "Artemis architecture의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-space-aerospace:6",
+      "question": "Aircraft and space supply chain의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-space-aerospace:7",
+      "question": "payload·성공률·발사 cadence와 가격을 어떤 기준으로 비교하는가",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-space-aerospace:8",
+      "question": "개발·생산·운영·재사용의 현금흐름 시차는 무엇인가",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    }
   ],
+  "unclassifiedCandidates": {
+    "measurementDimensions": [
+      "발사 성공·회전율·위성 수명·서비스 매출·보험"
+    ],
+    "verificationQuestions": [
+      "발사 성공을 반복 매출·시스템 가동·현금 회수와 어떻게 구분하는가?",
+      "Rocket physics and launch energy의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "Reusability and turnaround의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "Satellite data economics의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "Artemis architecture의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "Aircraft and space supply chain의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "payload·성공률·발사 cadence와 가격을 어떤 기준으로 비교하는가",
+      "개발·생산·운영·재사용의 현금흐름 시차는 무엇인가"
+    ],
+    "mechanismNarrative": [
+      "발사체·발사장 → 궤도·위성 → 지상·데이터 서비스 → 고객 계약·반복 운용"
+    ]
+  },
   "marketTransmission": {
     "status": "RESEARCH_REQUIRED",
     "path": [

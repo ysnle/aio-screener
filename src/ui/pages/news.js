@@ -85,6 +85,29 @@ function displayValue(root, functionName, item, fallback = '') {
   return fallback;
 }
 
+// W09-C/P1148 (F03): one formatting owner for the absolute publication time. The previous
+// `root.getAbsoluteTime` lookup has no implementation anywhere in the repo, so the card silently
+// dropped the absolute time and showed only a relative label. The publication time is rendered
+// with its timezone and is never treated as the underlying event time.
+export function formatAbsoluteTime(value, timeZone = 'Asia/Seoul') {
+  const ms = value instanceof Date ? value.getTime() : Date.parse(value || '');
+  if (!Number.isFinite(ms)) return '';
+  try {
+    return new Intl.DateTimeFormat('ko-KR', {
+      timeZone, year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', hour12: false, timeZoneName: 'short'
+    }).format(new Date(ms));
+  } catch (_) {
+    return `${new Date(ms).toISOString().slice(0, 16).replace('T', ' ')} UTC`;
+  }
+}
+
+function publicationIso(item) {
+  const raw = item?.publishedAt || item?.pubDate || item?.published || null;
+  const ms = raw instanceof Date ? raw.getTime() : Date.parse(raw || '');
+  return Number.isFinite(ms) ? new Date(ms).toISOString() : null;
+}
+
 function createTickerBadge(documentRef, ticker) {
   const badge = documentRef.createElement('span');
   const symbol = String(ticker || '').replace('$', '');
@@ -102,7 +125,10 @@ function createNewsCard(documentRef, root, item, index) {
   const card = documentRef.createElement('div');
   const tone = sentimentTone(root, item);
   const link = safeUrl(item?.link);
-  const absTime = displayValue(root, 'getAbsoluteTime', item, '');
+  const publishedIso = publicationIso(item);
+  // The legacy hook is still preferred when a host actually provides it; otherwise the local
+  // formatter supplies the absolute, timezone-aware timestamp instead of ''.
+  const absTime = displayValue(root, 'getAbsoluteTime', item, '') || formatAbsoluteTime(publishedIso);
   const timeAgo = item?.pubDate ? displayValue(root, 'getTimeAgo', new Date(item.pubDate), '') : '';
   const title = displayValue(root, 'getDisplayTitle', item, item?.title || item?.headline || '제목 없음');
   const summary = displayValue(root, 'getDisplaySummary', item, item?.summary || item?.desc || '');
@@ -119,6 +145,13 @@ function createNewsCard(documentRef, root, item, index) {
   const absolute = documentRef.createElement('span');
   absolute.className = 'news-time-abs';
   absolute.textContent = absTime || timeAgo || '—';
+  // W09-C/P1148: keep the raw publication instant and its timezone representation on the node so
+  // the absolute time survives independently of the display string and the original article link.
+  if (publishedIso) {
+    absolute.dataset.publishedAt = publishedIso;
+    absolute.setAttribute('title', `발행 ${publishedIso} · 기준 시간대 Asia/Seoul`);
+  }
+  if (link) absolute.dataset.articleUrl = link;
   const dot = documentRef.createElement('span');
   dot.className = 'news-time-dot';
   dot.style.background = tone.color;

@@ -172,6 +172,10 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
   let disposed = false;
   let started = false;
   let startedHandle = null;
+  // W00/P1143: a single navigation authority owns the transition. While the
+  // compatibility facade is installed it emits the typed command; the raw
+  // aio:pageShown event is then observation-only and must not replay a mount.
+  let navigationAuthority = 'event';
 
   function disposeActive() {
     const dispose = activeDispose;
@@ -184,16 +188,16 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
 
   function transition(route, detail = {}) {
     if (disposed) return false;
-    // W00-A: one typed command owns identity — DOM elements never become ids.
-    const command = normalizeNavigationCommand(
-      typeof route === 'string' && detail && typeof detail === 'object' && !Array.isArray(detail) && (detail.routeId || detail.entityId || detail.ticker || detail.symbol || detail.viewState || detail.source)
-        ? { routeId: route, ...detail }
-        : (typeof detail === 'string' || typeof detail === 'number' ? { routeId: route, entityId: detail } : { routeId: route, ...(detail && typeof detail === 'object' ? detail : {}) })
-    );
+    // W00/P1143: one typed command owns identity. A scalar second argument is the
+    // legacy page id carried by aio:pageShown, never an entity id; DOM nodes,
+    // arrays, and arbitrary objects are only read through explicit
+    // entityId/ticker/symbol/args fields, so a nav element can never become scope.
+    const detailObject = detail && typeof detail === 'object' && !Array.isArray(detail) ? detail : null;
+    const command = normalizeNavigationCommand(detailObject ? { routeId: route, ...detailObject } : { routeId: route });
     if (!command) return false;
     const normalizedRoute = command.routeId;
     const nextEntityId = command.entityId;
-    const normalizedDetail = Object.freeze({ ...detail, routeId: command.routeId, entityId: command.entityId, viewState: command.viewState, source: command.source, historyMode: command.historyMode });
+    const normalizedDetail = Object.freeze({ ...(detailObject || {}), routeId: command.routeId, entityId: command.entityId, viewState: command.viewState, source: command.source, historyMode: command.historyMode });
     if (activeRoute === normalizedRoute && !activeScope?.disposed && activeScope?.entityId === nextEntityId) return true;
     disposeActive();
     const page = routes[normalizedRoute];
@@ -243,13 +247,39 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
       activeRoute = null;
       throw error;
     }
+    // W00/P1143: publish the committed result so shell observers (store route,
+    // timeline) follow the single commit instead of re-driving navigation.
+    const EventConstructor = context.runtimeRoot?.CustomEvent || globalThis.CustomEvent;
+    if (typeof EventConstructor === 'function') {
+      root.dispatchEvent(new EventConstructor('aio:navigationCommitted', {
+        detail: {
+          routeId: normalizedRoute,
+          entityId: nextEntityId,
+          mountId: scope.mountId,
+          source: command.source,
+          historyMode: command.historyMode,
+          directEntry: detailObject?.directEntry === true
+        }
+      }));
+    }
     return true;
   }
 
   function onPageShown(event) {
+    // W00/P1143: with an external authority installed the event only announces a
+    // result. Replaying it here is what produced two mounts and a stale store route.
+    if (navigationAuthority === 'external') return;
     const detail = event?.detail;
     const route = typeof detail === 'string' ? detail : detail?.pageId || detail?.route;
     transition(route, event?.detail || {});
+  }
+
+  function claimNavigationAuthority() {
+    navigationAuthority = 'external';
+  }
+
+  function releaseNavigationAuthority() {
+    navigationAuthority = 'event';
   }
 
   function start() {
@@ -258,7 +288,7 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
     root.addEventListener('aio:pageShown', onPageShown);
     rootBag.add(() => root.removeEventListener('aio:pageShown', onPageShown));
     started = true;
-    startedHandle = Object.freeze({ transition, active: () => activeRoute, activeScope: () => activeScope, dispose });
+    startedHandle = Object.freeze({ transition, active: () => activeRoute, activeScope: () => activeScope, dispose, claimNavigationAuthority, releaseNavigationAuthority });
     return startedHandle;
   }
 
@@ -270,5 +300,5 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
     rootBag.dispose();
   }
 
-  return Object.freeze({ start, transition, active: () => activeRoute, activeScope: () => activeScope, dispose });
+  return Object.freeze({ start, transition, active: () => activeRoute, activeScope: () => activeScope, dispose, claimNavigationAuthority, releaseNavigationAuthority });
 }

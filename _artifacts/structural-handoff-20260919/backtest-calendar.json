@@ -1,0 +1,190 @@
+{
+  "sha": "54428470af3bc17a193fe3a0d60346bcd75b45e3",
+  "synthetic": true,
+  "cases": [
+    {
+      "skip": -1,
+      "ok": true,
+      "settings": {
+        "initialAmount": 10000,
+        "startMonth": "2024-01",
+        "endMonth": "2025-04",
+        "months": 15,
+        "rebalanceType": "annual",
+        "benchmarkSymbol": "SPY",
+        "rfAnnual": 0,
+        "rfAnnualUnit": "decimal",
+        "rfInputStatus": "accepted",
+        "transactionCostBps": null,
+        "slippageBps": null,
+        "turnoverModeled": false,
+        "maxAlignmentGapDays": 3,
+        "observedTargetTurnover": 0,
+        "turnoverBasis": "half-sum-absolute-target-minus-realized-end-weight-at-rebalance",
+        "targetWeightBasis": "terminal-adjusted-close-market-value"
+      },
+      "monthlyCount": 15,
+      "cagr": 0.12682503013196955,
+      "monthlyRows": [
+        {
+          "month": "2024-02",
+          "return": 0.010000000000000009
+        },
+        {
+          "month": "2024-03",
+          "return": 0.010000000000000009
+        },
+        {
+          "month": "2024-04",
+          "return": 0.010000000000000231
+        },
+        {
+          "month": "2024-05",
+          "return": 0.009999999999999787
+        },
+        {
+          "month": "2024-06",
+          "return": 0.010000000000000009
+        },
+        {
+          "month": "2024-07",
+          "return": 0.010000000000000009
+        },
+        {
+          "month": "2024-08",
+          "return": 0.010000000000000009
+        },
+        {
+          "month": "2024-09",
+          "return": 0.010000000000000009
+        },
+        {
+          "month": "2024-10",
+          "return": 0.009999999999999787
+        },
+        {
+          "month": "2024-11",
+          "return": 0.010000000000000009
+        },
+        {
+          "month": "2024-12",
+          "return": 0.010000000000000009
+        },
+        {
+          "month": "2025-01",
+          "return": 0.010000000000000009
+        },
+        {
+          "month": "2025-02",
+          "return": 0.010000000000000009
+        },
+        {
+          "month": "2025-03",
+          "return": 0.010000000000000231
+        },
+        {
+          "month": "2025-04",
+          "return": 0.009999999999999787
+        }
+      ],
+      "warnings": [
+        "조정주가 기반 총수익률의 참고용 추정치입니다. 세금·수수료·거래비용·슬리피지·회전율을 모델링하지 않았으며 gross 성과입니다. 이 누락은 승격 차단 사유입니다.",
+        "현재 보유 구성의 명시적 목표비중 또는 종점 조정주가×수량 비중을 과거에 소급한 current-composition retrospective이며 원가 비중을 시장가 비중으로 오인하지 않습니다. 생존편향·구성 변경·상장 전 구간은 교정하지 않습니다.",
+        "월말 관측일이 자산 간 3일을 초과하는 월은 비동시성 편향 방지를 위해 제외했습니다.",
+        "RF 가정: 연 소수 0.000000 (0.00%).",
+        "거래 가능한 실현 성과·매매 지시로 승격하지 않습니다.",
+        "무료 Yahoo chart 데이터 범위와 각 종목 상장일에 따라 시작 월이 자동 제한됩니다."
+      ]
+    },
+    {
+      "skip": 7,
+      "ok": true,
+      "settings": {
+        "initialAmount": 10000,
+        "startMonth": "2024-01",
+        "endMonth": "2025-04",
+        "months": 14,
+        "rebalanceType": "annual",
+        "benchmarkSymbol": "SPY",
+        "rfAnnual": 0,
+        "rfAnnualUnit": "decimal",
+        "rfInputStatus": "accepted",
+        "transactionCostBps": null,
+        "slippageBps": null,
+        "turnoverModeled": false,
+        "maxAlignmentGapDays": 3,
+        "observedTargetTurnover": 0,
+        "turnoverBasis": "half-sum-absolute-target-minus-realized-end-weight-at-rebalance",
+        "targetWeightBasis": "terminal-adjusted-close-market-value"
+      },
+      "monthlyCount": 14,
+      "cagr": 0.1364766576032055,
+      "monthlyRows": [
+        {
+          "month": "2024-02",
+          "return": 0.010000000000000009
+        },
+        {
+          "month": "2024-03",
+          "return": 0.010000000000000009
+        },
+        {
+          "month": "2024-04",
+          "return": 0.010000000000000231
+        },
+        {
+          "month": "2024-05",
+          "return": 0.009999999999999787
+        },
+        {
+          "month": "2024-06",
+          "return": 0.010000000000000009
+        },
+        {
+          "month": "2024-07",
+          "return": 0.010000000000000009
+        },
+        {
+          "month": "2024-09",
+          "return": 0.020100000000000007
+        },
+        {
+          "month": "2024-10",
+          "return": 0.009999999999999787
+        },
+        {
+          "month": "2024-11",
+          "return": 0.010000000000000009
+        },
+        {
+          "month": "2024-12",
+          "return": 0.010000000000000009
+        },
+        {
+          "month": "2025-01",
+          "return": 0.010000000000000009
+        },
+        {
+          "month": "2025-02",
+          "return": 0.010000000000000009
+        },
+        {
+          "month": "2025-03",
+          "return": 0.010000000000000231
+        },
+        {
+          "month": "2025-04",
+          "return": 0.009999999999999787
+        }
+      ],
+      "warnings": [
+        "조정주가 기반 총수익률의 참고용 추정치입니다. 세금·수수료·거래비용·슬리피지·회전율을 모델링하지 않았으며 gross 성과입니다. 이 누락은 승격 차단 사유입니다.",
+        "현재 보유 구성의 명시적 목표비중 또는 종점 조정주가×수량 비중을 과거에 소급한 current-composition retrospective이며 원가 비중을 시장가 비중으로 오인하지 않습니다. 생존편향·구성 변경·상장 전 구간은 교정하지 않습니다.",
+        "월말 관측일이 자산 간 3일을 초과하는 월은 비동시성 편향 방지를 위해 제외했습니다.",
+        "RF 가정: 연 소수 0.000000 (0.00%).",
+        "거래 가능한 실현 성과·매매 지시로 승격하지 않습니다.",
+        "무료 Yahoo chart 데이터 범위와 각 종목 상장일에 따라 시작 월이 자동 제한됩니다."
+      ]
+    }
+  ]
+}

@@ -1,11 +1,18 @@
 // This is the only bridge allowed to project the new canonical snapshot into
 // the legacy renderer during the strangler migration. Snapshot values are
 // explicitly reference-only and never masquerade as live provider quotes.
-export function applyMarketSnapshotToLegacy(root = globalThis, snapshot) {
+export function applyMarketSnapshotToLegacy(root = globalThis, snapshot, { sourceId = 'durable-snapshot' } = {}) {
   const setLiveData = root?._aioSetLiveData;
   if (!snapshot || snapshot.status !== 'published' || typeof setLiveData !== 'function') {
     return Object.freeze({ applied: 0, skipped: true, reason: 'legacy_bridge_unavailable_or_snapshot_blocked' });
   }
+  // Provenance must name the actual producer. The fast plane is a live worker read, so
+  // labelling it `static_snapshot` would hide where the number came from; it is still
+  // not a streaming tick, so it stays REFERENCE rather than being promoted to live.
+  const fromFastPlane = sourceId === 'fast-plane';
+  const provenance = fromFastPlane
+    ? { source: 'snapshot:fast-plane', policyKey: 'fast_plane', reason: 'market-snapshot-fast-plane', delayed: false }
+    : { source: 'snapshot:market-snapshot', policyKey: 'static_snapshot', reason: 'market-snapshot-fallback', delayed: true };
   let applied = 0;
   for (const quote of snapshot.quotes || []) {
     if (setLiveData(quote.instrumentId, {
@@ -20,11 +27,8 @@ export function applyMarketSnapshotToLegacy(root = globalThis, snapshot) {
       marketState: quote.session,
       venue: quote.venue
     }, {
-      source: 'snapshot:market-snapshot',
+      ...provenance,
       ts: quote.observedAt || quote.fetchedAt || snapshot.generatedAt,
-      policyKey: 'static_snapshot',
-      reason: 'market-snapshot-fallback',
-      delayed: true,
       revision: snapshot.revision
     })) applied += 1;
   }
@@ -42,7 +46,8 @@ export function applyMarketSnapshotToLegacy(root = globalThis, snapshot) {
     status: snapshot.status,
     marketSnapshotPublished: snapshot.status === 'published',
     coverage: snapshot.coverage || null,
-    sourceKind: 'REFERENCE'
+    sourceKind: 'REFERENCE',
+    sourceId
   });
   try {
     root.document?.dispatchEvent?.(new CustomEvent('aio:marketSnapshot', { detail }));

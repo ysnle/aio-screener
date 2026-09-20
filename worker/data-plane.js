@@ -204,6 +204,19 @@ export default {
   async fetch(request, env) {
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: corsHeaders(request, env) });
     const url = new URL(request.url);
+    // The write route keeps its own POST + cron-token gate and is dispatched first.
+    if (url.pathname === '/admin/run' && request.method === 'POST') {
+      const supplied = request.headers.get('X-AIO-Cron-Token') || '';
+      if (!env?.AIO_CRON_SECRET || supplied !== env.AIO_CRON_SECRET) return jsonResponse({ ok: false, error: 'unauthorized' }, request, env, 401);
+      const result = await publishQuotes({ env });
+      return jsonResponse(result, request, env, result.ok ? 200 : 503);
+    }
+    // v56: the read routes below used to run for ANY method, so `POST /quotes` skipped the CDN
+    // cache and performed a KV read on every request — an unauthenticated, unmetered read
+    // amplifier against the namespace. Public quotes need no write verb.
+    if (request.method !== 'GET' && request.method !== 'HEAD') {
+      return jsonResponse({ ok: false, error: 'method_not_allowed' }, request, env, 405);
+    }
     if (url.pathname === '/health') {
       const heartbeat = await env?.AIO_QUOTES_KV?.get?.('quotes:heartbeat', 'json');
       const current = await readLatest(env);
@@ -213,12 +226,6 @@ export default {
       const current = await readLatest(env);
       if (!current) return jsonResponse({ ok: false, error: 'quotes_unavailable', status: 'UNAVAILABLE' }, request, env, 503);
       return jsonResponse(current, request, env, 200, { ETag: `"${current.revision}"` });
-    }
-    if (url.pathname === '/admin/run' && request.method === 'POST') {
-      const supplied = request.headers.get('X-AIO-Cron-Token') || '';
-      if (!env?.AIO_CRON_SECRET || supplied !== env.AIO_CRON_SECRET) return jsonResponse({ ok: false, error: 'unauthorized' }, request, env, 401);
-      const result = await publishQuotes({ env });
-      return jsonResponse(result, request, env, result.ok ? 200 : 503);
     }
     return jsonResponse({ ok: false, error: 'not_found' }, request, env, 404);
   },

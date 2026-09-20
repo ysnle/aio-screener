@@ -6,9 +6,9 @@ version: 2
 # silently until GitHub forces a runtime change. Dependabot keeps the SHA pins
 # current and rewrites the version comment with them.
 #
-# Scope is deliberately narrow: the application ships zero runtime dependencies
-# (index.html is a dependency-free static SPA), and npm here only carries the CI
-# browser-test toolchain. Action pins are the drift that was actually observed.
+# Scope: the application ships zero runtime dependencies (index.html is a dependency-free
+# static SPA), so the npm entry below only covers the CI browser-test toolchain — but an
+# unpinned toolchain is still a mutable toolchain, and `npm ci` runs in every workflow.
 # Pull requests opened here still have to pass the normal push/PR CI gate.
 updates:
   - package-ecosystem: github-actions
@@ -23,5 +23,26 @@ updates:
       prefix: 'chore(actions)'
     groups:
       github-actions:
+        patterns:
+          - '*'
+
+  # The app ships no runtime dependencies, but package.json/package-lock.json do carry the CI
+  # browser-test toolchain (playwright, js-yaml) and CI runs `npm ci` throughout. Excluding npm
+  # here left that toolchain unpinned-by-updater while its floating ranges (`playwright ^1.48.0`)
+  # drift behind the lockfile — the same silent drift this file exists to prevent.
+  # Note: the two global `npm install --global wrangler@…` calls in the Cloudflare deploy
+  # workflows are NOT covered by this entry; they are not package.json dependencies.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '04:50'
+      timezone: Asia/Seoul
+    open-pull-requests-limit: 2
+    commit-message:
+      prefix: 'chore(deps)'
+    groups:
+      ci-toolchain:
         patterns:
           - '*'

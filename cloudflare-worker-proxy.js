@@ -47,6 +47,16 @@
  *   3) 사이트에서: 사이드바 "CF Worker URL" 입력 + localStorage 'aio_claude_server_mode'='1'
  *        (개인 키를 입력하면 개인 키가 우선 — 서버 키는 개인 키 없을 때/서버모드 토글 시 사용)
  * 비용 보호: 모델 haiku/sonnet만 허용(opus 차단), max_tokens 상한, 일일 호출 캡.
+ *
+ * ── v56: 서버측 키 릴레이 (GET /relay?provider=<fred|bok|kosis>&<params>) ──
+ * FRED·BOK ECOS·KOSIS는 브라우저에서 CORS로 막히거나(FRED) 애초에 CORS 헤더를 보내지
+ * 않는다(BOK/KOSIS). 운영자가 키를 1회 등록하면 모든 사용자가 개인 키 없이 이 소스들을
+ * 쓸 수 있다. 사용자 개인 키는 이 라우트로 전송되지 않는다 — 키는 서버 시크릿에서만 나온다.
+ *   Secrets: FRED_API_KEY, BOK_API_KEY, KOSIS_API_KEY
+ *   Var(선택): RELAY_DAILY_CAP (기본 2000, 제공자별 일일 호출 상한)
+ * 업스트림 host/path는 코드에 하드코딩되어 클라이언트가 목적지를 지정할 수 없다(SSRF 불가).
+ * 파라미터는 제공자별 정규식 화이트리스트만 통과하며, Origin·앱 토큰·IP 레이트리밋·DO 일일
+ * 캡이 모두 적용된다. DO(AIO_QUOTA_DO) 미바인딩이면 릴레이도 fail-closed 503이다.
  */
 
 // ── 허용 Origin (CORS) ──────────────────────────────────────────
@@ -125,6 +135,82 @@ const ALLOWED_DOMAINS = [
   'translate.google.com',
 ];
 
+// ── v56 /relay: 서버측 키 릴레이 ───────────────────────────────────────────
+// 브라우저에서 CORS로 막히는 소스(FRED/BOK/KOSIS)를 운영자 키로 대신 조회한다.
+// 사용자는 개인 키를 이 Worker에 보내지 않는다 — 키는 서버 시크릿에서만 나온다.
+// 업스트림 host/path는 아래 맵에 하드코딩되어 있어 클라이언트가 목적지를 지정할 수
+// 없으므로 이 라우트는 SSRF 릴레이로 전용될 수 없다. 파라미터는 제공자별 정규식
+// 화이트리스트로만 통과한다.
+const RELAY_PROVIDERS = Object.freeze({
+  fred: {
+    keyEnv: 'FRED_API_KEY',
+    cacheTtl: 3600,
+    params: {
+      series_id: { required: true, re: /^[A-Za-z0-9._-]{1,32}$/ },
+      sort_order: { re: /^(asc|desc)$/ },
+      limit: { re: /^\d{1,4}$/ },
+    },
+    build(key, p) {
+      const u = new URL('https://api.stlouisfed.org/fred/series/observations');
+      u.searchParams.set('series_id', p.series_id);
+      u.searchParams.set('api_key', key);
+      u.searchParams.set('file_type', 'json');
+      u.searchParams.set('sort_order', p.sort_order || 'desc');
+      u.searchParams.set('limit', p.limit || '120');
+      return u.toString();
+    },
+  },
+  bok: {
+    keyEnv: 'BOK_API_KEY',
+    cacheTtl: 3600,
+    params: {
+      statCode: { required: true, re: /^[A-Za-z0-9]{1,12}$/ },
+      cycle: { required: true, re: /^(D|M|Q|S|A)$/ },
+      start: { required: true, re: /^\d{4,8}$/ },
+      end: { required: true, re: /^\d{4,8}$/ },
+      item: { re: /^[A-Za-z0-9]{1,12}$/ },
+    },
+    // ECOS는 키가 쿼리가 아니라 경로 세그먼트다 — 서버가 조립한다.
+    build(key, p) {
+      const item = p.item ? '/' + p.item : '';
+      return `https://ecos.bok.or.kr/api/StatisticSearch/${key}/json/kr/1/100/${p.statCode}/${p.cycle}/${p.start}/${p.end}${item}`;
+    },
+  },
+  kosis: {
+    keyEnv: 'KOSIS_API_KEY',
+    cacheTtl: 3600,
+    params: {
+      itmId: { required: true, re: /^[A-Za-z0-9_]{1,16}$/ },
+      objL1: { re: /^(ALL|[A-Za-z0-9_]{1,16})$/ },
+      prdSe: { re: /^(M|Q|A)$/ },
+      newEstPrdCnt: { re: /^\d{1,2}$/ },
+      orgId: { required: true, re: /^\d{1,8}$/ },
+      tblId: { required: true, re: /^[A-Za-z0-9_]{1,24}$/ },
+    },
+    build(key, p) {
+      const u = new URL('https://kosis.kr/openapi/Param/statisticsParameterData.do');
+      u.searchParams.set('method', 'getList');
+      u.searchParams.set('apiKey', key);
+      u.searchParams.set('itmId', p.itmId);
+      u.searchParams.set('objL1', p.objL1 || 'ALL');
+      u.searchParams.set('format', 'json');
+      u.searchParams.set('jsonVD', 'Y');
+      u.searchParams.set('prdSe', p.prdSe || 'M');
+      u.searchParams.set('newEstPrdCnt', p.newEstPrdCnt || '3');
+      u.searchParams.set('orgId', p.orgId);
+      u.searchParams.set('tblId', p.tblId);
+      return u.toString();
+    },
+  },
+});
+
+// The relay key is never logged or echoed. Upstream error bodies occasionally
+// repeat the request URL, so redact the exact key value before returning bytes.
+function redactRelayKey(text, key) {
+  if (!key) return text;
+  return String(text).split(key).join('***');
+}
+
 // ── 봇/스캐너 User-Agent 차단 ────────────────────────────────────
 const BOT_UA_RE = /sqlmap|nikto|nmap|masscan|zgrab|nuclei|dirbuster|hydra|curl\/[0-9]|python-requests|go-http-client|java\/|wget\//i;
 function isBotUA(ua) { return BOT_UA_RE.test(ua || ''); }
@@ -166,6 +252,9 @@ const RATE_LIMIT = 300; // 요청/분 — 데이터 프록시(GET)
 const anthropicRateLimitMap = new Map();
 const ANTHROPIC_RATE_LIMIT = 20; // 요청/분 — AI 호출은 데이터 프록시보다 훨씬 비쌈
 
+const relayRateLimitMap = new Map();
+const RELAY_RATE_LIMIT = 60; // 요청/분 — 운영자 키로 나가는 공유 쿼터 소비 경로
+
 function checkRateLimit(ip, map, limit) {
   map = map || rateLimitMap;
   limit = limit || RATE_LIMIT;
@@ -182,6 +271,30 @@ function checkRateLimit(ip, map, limit) {
   if (record.count >= limit) return false;
   record.count++;
   return true;
+}
+
+// ── Cloudflare 네이티브 레이트리밋 바인딩 (v56, P1157) ─────────────────────────
+// 위 `Map` 은 isolate 로컬이라 실효 상한이 `limit × IP 수 × isolate 수`였다. 아래 바인딩은
+// WAF 레이트리밋 규칙과 같은 인프라를 쓰므로 **한 Cloudflare 로케이션 안의 모든 isolate가
+// 카운터를 공유**한다 — `workers.dev`에는 존이 없어 존 단위 WAF 규칙을 쓸 수 없으므로, 이
+// 배포에서 쓸 수 있는 가장 강한 상한이다.
+// 남는 한계는 정직하게 둘: 로케이션별(전역 아님)이고, 설계상 eventually consistent다.
+// 즉 계정 시스템이 아니라 완충 장치이며, 전역 권위는 여전히 DO 일일 캡이다.
+// 바인딩이 없으면(구버전 배포·`wrangler dev`·계정 미지원) isolate 로컬 Map으로 폴백해
+// 이전 동작을 그대로 유지한다 — 조용히 열리지도, 이유 없이 막히지도 않게 한다.
+async function enforceRateLimit(env, bindingName, fallbackMap, limit, key) {
+  const bucket = String(key || 'unknown');
+  const binding = env && env[bindingName];
+  if (binding && typeof binding.limit === 'function') {
+    try {
+      const result = await binding.limit({ key: bucket });
+      if (result && result.success === false) return false;
+      if (result && result.success === true) return true;
+    } catch (_) {
+      // 폴백으로 내려간다 — 예외를 통과로도 거부로도 해석하지 않는다.
+    }
+  }
+  return checkRateLimit(bucket, fallbackMap, limit);
 }
 
 // 오래된 항목 정리 (isolate 장기 유지 시 메모리 방어)
@@ -273,6 +386,17 @@ async function healthResponse(origin, env, method = 'GET') {
     revision: env && env.AIO_APP_REVISION ? String(env.AIO_APP_REVISION) : null,
     sourceSha: env && env.AIO_SOURCE_SHA ? String(env.AIO_SOURCE_SHA) : null,
     ai: { configured, quotaConfigured, authorityReady, authorityJurisdiction: authority?.jurisdiction || null, killSwitch, ready, maxTokens: parseInt((env && env.ANTHROPIC_MAX_TOKENS) || '1500', 10) },
+    // Presence only — never the relay key value.
+    relay: {
+      providers: Object.keys(RELAY_PROVIDERS),
+      configured: Object.fromEntries(Object.entries(RELAY_PROVIDERS).map(([id, provider]) => [id, !!(env && env[provider.keyEnv])])),
+      quotaConfigured,
+      dailyCap: parseInt((env && env.RELAY_DAILY_CAP) || '2000', 10),
+      // Presence only. When false the token check is skipped entirely (fail-open), so an
+      // operator can see from /health whether even the speed bump is in place. Neither this
+      // nor the Origin allowlist authenticates a non-browser caller.
+      appTokenRequired: !!(env && env.AIO_APP_TOKEN)
+    },
     dataProxy: { ready: true }
   };
   return new Response(method === 'HEAD' ? null : JSON.stringify(payload), {
@@ -524,7 +648,9 @@ async function fetchAnthropicThroughDurableObject(env, payload, signal) {
   });
 }
 
-async function releaseAnthropicQuota(env, dayKey, requestId) {
+// Shared by /anthropic and /relay: release a reservation that did not produce a
+// billable/consumed upstream result, so failures never count against the daily cap.
+async function releaseQuota(env, dayKey, requestId) {
   if (!dayKey || !requestId) return;
   try {
     await quotaRpc(env, 'release', { dayKey, requestId });
@@ -544,7 +670,7 @@ async function handleAnthropic(request, env, origin) {
   if (env.AIO_APP_TOKEN && request.headers.get('X-AIO-App-Token') !== env.AIO_APP_TOKEN) return errorResponse('Forbidden', 403, origin, aiError, env);
   cleanupRateLimitMap(anthropicRateLimitMap);
   const clientIp = request.headers.get('cf-connecting-ip') || 'unknown';
-  if (!checkRateLimit(clientIp, anthropicRateLimitMap, ANTHROPIC_RATE_LIMIT)) return errorResponse('Too many AI requests', 429, origin, aiError, env);
+  if (!await enforceRateLimit(env, 'RATE_LIMIT_ANTHROPIC', anthropicRateLimitMap, ANTHROPIC_RATE_LIMIT, clientIp)) return errorResponse('Too many AI requests', 429, origin, aiError, env);
   if (!hasAtomicQuotaBinding(env)) return errorResponse('atomic AI quota is not configured', 503, origin, aiError, env);
   const maxBodyBytes = 200 * 1024;
   let bodyText;
@@ -583,15 +709,99 @@ async function handleAnthropic(request, env, origin) {
   } catch { return errorResponse('AI quota unavailable', 503, origin, aiError, env); }
   try {
     const upstream = await fetchAnthropicWithDeadline(env.ANTHROPIC_API_KEY, body, request.signal);
-    if (upstream.status >= 400 && ownedReservation) await releaseAnthropicQuota(env, dayKey, requestId);
+    if (upstream.status >= 400 && ownedReservation) await releaseQuota(env, dayKey, requestId);
     return new Response(upstream.body, { status: upstream.status, headers: {
       'Content-Type': upstream.headers.get('content-type') || 'application/json',
       ...getCorsHeaders(origin, env), ...SECURITY_HEADERS,
       'X-AIO-Proxy': 'cloudflare-worker-anthropic', 'X-AIO-Max-Tokens': String(maxTokens),
     }});
   } catch (error) {
-    if (ownedReservation) await releaseAnthropicQuota(env, dayKey, requestId);
+    if (ownedReservation) await releaseQuota(env, dayKey, requestId);
     return errorResponse(error.name === 'AbortError' ? 'Claude timeout' : 'Claude upstream error', 502, origin, aiError, env);
+  }
+}
+
+/**
+ * Canonical /relay handler — server-side key relay for browser-blocked sources.
+ * The operator owns the upstream key (validated against FRED/BOK/KOSIS terms);
+ * the browser never sends or receives one. Guard order mirrors /anthropic:
+ * Origin → app token → per-IP rate limit → provider+param validation → atomic
+ * daily cap (fail-closed when unbound) → upstream fetch with size/HTML guards.
+ */
+async function handleRelay(request, env, origin) {
+  if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: getCorsHeaders(origin, env) });
+  if (request.method !== 'GET') return errorResponse('GET required for /relay', 405, origin);
+  if (!resolveAllowedOrigin(origin, env)) return errorResponse('Origin not allowed', 403, origin);
+  if (env.AIO_APP_TOKEN && request.headers.get('X-AIO-App-Token') !== env.AIO_APP_TOKEN) return errorResponse('Forbidden', 403, origin);
+  cleanupRateLimitMap(relayRateLimitMap);
+  const clientIp = request.headers.get('cf-connecting-ip') || 'unknown';
+  if (!await enforceRateLimit(env, 'RATE_LIMIT_RELAY', relayRateLimitMap, RELAY_RATE_LIMIT, clientIp)) return errorResponse('Too many relay requests', 429, origin, null, env);
+
+  const url = new URL(request.url);
+  const providerId = String(url.searchParams.get('provider') || '').toLowerCase();
+  const provider = RELAY_PROVIDERS[providerId];
+  if (!provider) return errorResponse('Unknown relay provider', 400, origin);
+
+  const key = env && env[provider.keyEnv];
+  if (!key) return errorResponse('Relay key is not configured for ' + providerId, 503, origin);
+
+  const params = {};
+  for (const [name, spec] of Object.entries(provider.params)) {
+    const raw = url.searchParams.get(name);
+    if (raw === null || raw === '') {
+      if (spec.required) return errorResponse('Missing relay parameter: ' + name, 400, origin);
+      continue;
+    }
+    if (!spec.re.test(raw)) return errorResponse('Invalid relay parameter: ' + name, 400, origin);
+    params[name] = raw;
+  }
+
+  if (!hasAtomicQuotaBinding(env)) return errorResponse('Relay quota is not configured', 503, origin);
+  const cap = Math.max(1, parseInt(env.RELAY_DAILY_CAP || '2000', 10));
+  const dayKey = 'relay:' + providerId + ':' + new Date().toISOString().slice(0, 10);
+  const requestId = 'relay:' + (typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : String(Date.now()) + ':' + Math.random());
+  let ownedReservation = false;
+  try {
+    const reservation = await quotaRpc(env, 'reserve', { dayKey, cap, requestId });
+    if (!reservation?.ok || !reservation.reserved) return errorResponse('Daily relay quota exceeded', 429, origin);
+    ownedReservation = !reservation.duplicate;
+  } catch { return errorResponse('Relay quota unavailable', 503, origin); }
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    const response = await fetch(provider.build(key, params), {
+      method: 'GET',
+      headers: { 'Accept': 'application/json,text/plain,*/*', 'User-Agent': 'AIO-Screener-relay/1.0' },
+      signal: controller.signal,
+      cf: { cacheTtl: provider.cacheTtl || 600 },
+    });
+    clearTimeout(timeoutId);
+
+    const contentLength = response.headers.get('content-length');
+    if (contentLength && parseInt(contentLength) > 5 * 1024 * 1024) {
+      if (ownedReservation) await releaseQuota(env, dayKey, requestId);
+      return errorResponse('Response too large', 502, origin);
+    }
+    const body = redactRelayKey(await response.text(), key);
+    if (looksLikeHtml(body)) {
+      if (ownedReservation) await releaseQuota(env, dayKey, requestId);
+      return errorResponse('Upstream returned HTML block page', 502, origin);
+    }
+    if (response.status >= 400 && ownedReservation) await releaseQuota(env, dayKey, requestId);
+    return new Response(body, {
+      status: response.status,
+      headers: {
+        'Content-Type': response.headers.get('content-type') || 'application/json',
+        'Cache-Control': `public, max-age=${provider.cacheTtl || 600}`,
+        ...getCorsHeaders(origin, env), ...SECURITY_HEADERS,
+        'X-AIO-Proxy': 'cloudflare-worker-relay',
+        'X-AIO-Relay-Provider': providerId,
+      },
+    });
+  } catch (error) {
+    if (ownedReservation) await releaseQuota(env, dayKey, requestId);
+    return errorResponse(error.name === 'AbortError' ? 'Relay timeout' : 'Relay upstream error', 502, origin);
   }
 }
 
@@ -611,6 +821,12 @@ export default {
       return handleAnthropic(request, env, requestOrigin);
     }
 
+    // v56: 서버측 키 릴레이 (GET /relay?provider=…). 클라이언트가 목적지를 지정하지
+    // 않으므로 일반 ?url= 프록시의 도메인 화이트리스트 경로와 완전히 분리되어 있다.
+    if (_u.pathname === '/relay') {
+      return handleRelay(request, env, requestOrigin);
+    }
+
     // OPTIONS 프리플라이트
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: getCorsHeaders(requestOrigin, env) });
@@ -619,6 +835,15 @@ export default {
     // GET 만 허용
     if (request.method !== 'GET') {
       return errorResponse('GET 요청만 지원됩니다', 405, requestOrigin);
+    }
+
+    // v56: 이 라우트에서 Origin 허용목록은 지금까지 403을 내지 않았다 — 어떤 ACAO 값을 돌려줄지
+    // 고르는 데만 쓰였으므로, 비브라우저 클라이언트는 ALLOWED_DOMAINS 전체(약 35개 호스트)로 가는
+    // 익명 릴레이로 이 Worker를 쓸 수 있었다. /anthropic·/relay와 동일하게 게이트로 강제한다.
+    // (비브라우저 클라이언트는 Origin을 위조할 수 있으므로 이것은 인증이 아니라 최소 방어선이며,
+    //  isolate 독립적인 실효 상한은 헤더에 적힌 Cloudflare WAF 레이트리밋 규칙뿐이다.)
+    if (!resolveAllowedOrigin(requestOrigin, env)) {
+      return errorResponse('Origin not allowed', 403, requestOrigin);
     }
 
     // 봇/스캐너 UA 차단
@@ -632,8 +857,8 @@ export default {
 
     // Rate limit 체크 + 정리 (v2.2: cleanup 호출이 주석에 붙어 미실행이던 버그 시정)
     cleanupRateLimitMap();
-    if (!checkRateLimit(clientIp)) {
-      return errorResponse('Too many requests', 429, requestOrigin);
+    if (!await enforceRateLimit(env, 'RATE_LIMIT_PROXY', rateLimitMap, RATE_LIMIT, clientIp)) {
+      return errorResponse('Too many requests', 429, requestOrigin, null, env);
     }
 
     // URL 파라미터

@@ -457,7 +457,13 @@ export function createLegacyFacade(root = globalThis, eventTarget = root?.docume
       try { Object.defineProperty(candidate, '__aioArchitectureNavigation', { value: true, configurable: true }); } catch (_) {}
       return Object.freeze({ installed: candidate.__aioArchitectureNavigation === true, router, restore: () => {} });
     }
+    // W00/P1143: hand the single transition authority to this typed facade. The
+    // router must not also transition on the aio:pageShown event it caused.
+    router?.claimNavigationAuthority?.();
     const restore = () => {
+      // A host without a writable global keeps the event path, so only a facade
+      // that actually owned navigation releases the authority.
+      router?.releaseNavigationAuthority?.();
       if (root.showPage === facade) {
         try { root.showPage = originalShowPage; } catch (_) {}
       }

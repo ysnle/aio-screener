@@ -81,7 +81,10 @@ check('Worker token cap and stop reason are consumed by the client', chat.includ
 check('server market prose requires typed evidence before client publish', data.includes('_serverMarketMetricEvidenceValid') && data.includes('metric-evidence-required') && data.includes('_serverMarketSemanticContract'));
 check('Worker exposes health readiness', worker.includes("_u.pathname === '/health'") && worker.includes("schemaVersion: 'aio-worker-health.v1'") && worker.includes('ai: { configured'));
 check('Worker CORS allows every browser chat header', worker.includes("anthropic-version, anthropic-beta, X-AIO-App-Token") && worker.includes('Access-Control-Allow-Headers'));
-check('Worker rolls back owned failed quota reservations', worker.includes('releaseAnthropicQuota') && worker.includes('ownedReservation'));
+// v56: the rollback helper is shared with /relay, so it is no longer Anthropic-specific
+// by name. The property under test is unchanged: only the request that owns a failed
+// reservation may release it.
+check('Worker rolls back owned failed quota reservations', /async function releaseQuota\(/.test(worker) && worker.includes('ownedReservation'));
 check('Worker exposes effective token cap', worker.includes("'X-AIO-Max-Tokens'"));
 check('operations status separates scheduled analysis and public chat', operations.ai?.scheduledAnalysis && operations.ai?.publicChat?.scheduledAnalysisDoesNotImplyChat === true);
 check('operations status separates five readiness fields', ['secretConfigured', 'workflowWired', 'lastCallSucceeded', 'dataCurrent', 'licensedForUse'].every(field => read('public-data/operations-status.json').includes(`"${field}"`)));

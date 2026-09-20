@@ -10,7 +10,10 @@ head_sampling_rate = 0.1
 [vars]
 ANTHROPIC_DAILY_CAP = "300"
 ANTHROPIC_MAX_TOKENS = "1500"
-AIO_APP_REVISION = "v54.37"
+# Per-provider daily ceiling for /relay (operator-key server-side fetches).
+RELAY_DAILY_CAP = "2000"
+# Must equal version.json — enforced by ci-version-check.mjs and synchronized by bump-version.mjs.
+AIO_APP_REVISION = "v56"
 AIO_SOURCE_SHA = "__AIO_SOURCE_SHA__"
 
 [[durable_objects.bindings]]
@@ -21,5 +24,48 @@ class_name = "AIOQuotaDurableObject"
 tag = "v1"
 new_sqlite_classes = ["AIOQuotaDurableObject"]
 
-# ANTHROPIC_API_KEY is injected with `wrangler secret put` by deploy-ai-proxy.yml.
+# ── Cloudflare-native rate limiting (v56, P1157) ────────────────────────────────────────────
+# The Worker's module-local `Map` is per-isolate: its real ceiling is
+# `limit × distinct IPs × live isolates`. These bindings are backed by the same infrastructure
+# that serves WAF rate limiting rules, so the counters are shared by every isolate within one
+# Cloudflare location. That matters here because `workers.dev` has no zone, so a zone-level WAF
+# rate limiting rule is NOT available for this deployment.
+#
+# Two honest limits remain: a binding is per Cloudflare location (not global), and it is
+# eventually consistent by design. It is a stronger bound, not an accounting system.
+# The Durable Object daily caps (ANTHROPIC_DAILY_CAP / RELAY_DAILY_CAP) stay the global authority.
+#
+# `namespace_id` must be a positive integer, unique per Cloudflare account; bindings that share
+# one share their counters (deliberate, so a limit can span Workers) — do not reuse these three.
+# `period` must be either 10 or 60. Bindings are not visible in the Cloudflare dashboard; observe
+# them through Workers Logs (429s) instead.
+# Requires wrangler >= 4.36.0 (deploy-ai-proxy.yml installs 4.120.0).
+[[ratelimits]]
+name = "RATE_LIMIT_PROXY"
+namespace_id = "1001"
+[ratelimits.simple]
+limit = 300
+period = 60
+
+[[ratelimits]]
+name = "RATE_LIMIT_ANTHROPIC"
+namespace_id = "1002"
+[ratelimits.simple]
+limit = 20
+period = 60
+
+[[ratelimits]]
+name = "RATE_LIMIT_RELAY"
+namespace_id = "1003"
+[ratelimits.simple]
+limit = 60
+period = 60
+
+# Secrets injected with `wrangler secret put` by deploy-ai-proxy.yml:
+#   ANTHROPIC_API_KEY  — server-key Claude route (/anthropic)
+#   FRED_API_KEY       — /relay provider "fred"
+#   BOK_API_KEY        — /relay provider "bok"   (ecos.bok.or.kr)
+#   KOSIS_API_KEY      — /relay provider "kosis"
+# A provider whose key is absent makes only that relay provider fail closed (503);
+# /relay never falls back to a client-supplied key.
 # AIO_APP_TOKEN and AIO_DEV_ORIGINS remain optional operator-managed settings.

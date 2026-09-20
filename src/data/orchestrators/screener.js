@@ -40,6 +40,9 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
     const ranking = typeof ranker === 'function' ? ranker({
       rows: normalized.rows.map(calculationRow),
       weights: context.weights || null,
+      // W07-A/P1146: only a user-profile request is explicit. The model's own neutral
+      // default keeps model-default (renormalize) semantics.
+      weightsPolicy: context.weightsPolicy === 'explicit' || context.weightsPolicy === 'model-default' ? context.weightsPolicy : null,
       regimeLabel: context.regimeLabel || null,
       fundamentalCoveragePct: Number.isFinite(Number(normalized.metadata.fundamentalCoveragePct)) ? Number(normalized.metadata.fundamentalCoveragePct) : 0,
       fmpOk: !!normalized.metadata.fmpOk,

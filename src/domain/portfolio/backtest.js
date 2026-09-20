@@ -324,9 +324,47 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
     };
   }
 
-  // Weights represent the stated current composition, not historical cost
-  // basis. Prefer an explicit targetWeight contract; otherwise use the latest
-  // common adjusted-close market value (qty × terminal adjusted close).
+  // W07-E/P1146 (M06): a monthly performance model is only defined on a contiguous monthly
+  // grid. Splicing a later month onto an earlier one as a single "month" return compresses two
+  // months into one sample and inflates CAGR/anualization. Detect gaps and either fall back to
+  // the longest contiguous window (recording what was excluded) or withhold monthly performance
+  // entirely — never fill a gap or treat a multi-month change as one month.
+  var monthOrdinal = function(key) { return Number(key.slice(0, 4)) * 12 + (Number(key.slice(5, 7)) - 1); };
+  var gridGaps = [];
+  for (var gapIndex = 1; gapIndex < common.length; gapIndex++) {
+    var span = monthOrdinal(common[gapIndex]) - monthOrdinal(common[gapIndex - 1]);
+    if (span !== 1) gridGaps.push({ from: common[gapIndex - 1], to: common[gapIndex], missingMonths: span - 1 });
+  }
+  var excludedMonths = [];
+  if (gridGaps.length) {
+    var runs = [];
+    var runStart = 0;
+    for (var runEnd = 1; runEnd <= common.length; runEnd++) {
+      if (runEnd === common.length || monthOrdinal(common[runEnd]) - monthOrdinal(common[runEnd - 1]) !== 1) {
+        runs.push({ start: runStart, end: runEnd - 1 });
+        runStart = runEnd;
+      }
+    }
+    runs.sort(function(a, b) { return (b.end - b.start) - (a.end - a.start) || b.start - a.start; });
+    var chosenRun = runs[0];
+    var chosenMonths = common.slice(chosenRun.start, chosenRun.end + 1);
+    excludedMonths = common.filter(function(key) { return chosenMonths.indexOf(key) === -1; });
+    if (chosenMonths.length < 14) {
+      return {
+        ok: false, status: 'PARTIAL', allowedUse: 'reference-only', decisionUse: false,
+        decisionEligible: false, promotionEligible: false,
+        promotionBlockers: ['contiguous-monthly-grid-required', 'synchronous-month-end-alignment-required', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-not-modeled'],
+        reason: 'monthly grid has gaps and no contiguous window reaches 14 months',
+        model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
+        priceBasis: 'adjusted-close-required', compositionDisclosure: 'current-composition-retrospective',
+        gridGaps: gridGaps,
+        warnings: ['월별 그리드에 결측 구간이 있어 연속 구간이 14개월 미만입니다.', '여러 달 수익률을 한 달 표본으로 압축하거나 결측을 채우지 않습니다.']
+      };
+    }
+    common = chosenMonths;
+  }
+
+
   var explicitTargetWeights = tickers.every(function(t) { return byTickerTargetWeight[t] != null; });
   var targetWeights = {};
   var targetWeightBasis = explicitTargetWeights ? 'explicit-target-weight' : 'terminal-adjusted-close-market-value';
@@ -522,7 +560,10 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
       transactionCostBps: null, slippageBps: null, turnoverModeled: false,
       maxAlignmentGapDays: maxAlignmentGapDays, observedTargetTurnover: totalTurnover,
       turnoverBasis: 'half-sum-absolute-target-minus-realized-end-weight-at-rebalance',
-      targetWeightBasis: targetWeightBasis
+      targetWeightBasis: targetWeightBasis,
+      // W07-E/P1146: state the grid the monthly statistics were actually computed on.
+      gridGaps: gridGaps, excludedMonths: excludedMonths,
+      monthlyGridBasis: gridGaps.length ? 'longest-contiguous-window' : 'contiguous'
     },
     tickers: tickers,
     weights: targetWeights,

@@ -728,6 +728,7 @@
     "RESOLVED (P822): technical candle title/meta are native from normalized analysis input with a fail-closed waiting state; the legacy chart retains canvas/indicator lifecycle only.",
     "RESOLVED (P834): ticker price-chart lifecycle is native from normalized entity history with an explicit unavailable state; legacy Stooq loading is fenced while the native ticker chart marker is mounted.",
     "RESOLVED (P835): portfolio position-allocation chart lifecycle is native from normalized holding value evidence with an explicit unavailable state; legacy drawPositionDonut is fenced while the native marker is mounted.",
-  "OPEN (ARX scope): mixed-source fundamental report sections, portfolio risk/history/AI surfaces, and native-route secondary chart/data/narrative boundaries remain intentionally separate; each future packet must delete or fence the legacy writer before expanding native ownership."
+    "RESOLVED (P1150): navigation now has a single transition authority. When the compatibility facade wraps `window.showPage`, it claims authority and the router's `aio:pageShown` listener becomes observation-only; the router publishes `aio:navigationCommitted` after a successful commit and bootstrap derives `store.route` from that event. A scalar page id is never read as an entity id, so one click = one scope transition with DOM/router/store in agreement (verified in ci-architecture-browser-check). Hosts without a writable `showPage` global retain the event path.",
+    "OPEN (ARX scope): mixed-source fundamental report sections, portfolio risk/history/AI surfaces, and native-route secondary chart/data/narrative boundaries remain intentionally separate; each future packet must delete or fence the legacy writer before expanding native ownership."
   ]
 }

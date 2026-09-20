@@ -16,7 +16,7 @@ jobs:
     timeout-minutes: 25
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
       - name: Require Cloudflare operating configuration
         env:
@@ -31,7 +31,7 @@ jobs:
           done
 
       - name: Setup Node
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: '20'
 
@@ -39,7 +39,10 @@ jobs:
         run: node scripts/qa-runner.mjs --group cloudflare --no-cache
 
       - name: Install Wrangler
-        run: npm install --global wrangler@4.44.0
+        # Keep this in lockstep with deploy-ai-proxy.yml. Two different Wrangler versions were
+        # parsing two configs of the same shape, and neither install is covered by Dependabot
+        # (they are global npm installs, not package.json dependencies).
+        run: npm install --global wrangler@4.120.0
 
       - name: Render deployment config
         env:

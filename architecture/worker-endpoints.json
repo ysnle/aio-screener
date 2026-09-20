@@ -7,7 +7,10 @@
     "quotesPath": "/quotes",
     "kvBinding": "AIO_QUOTES_KV",
     "namespaceName": "aio-quotes-prod",
-    "role": "durable-fast-quote-plane"
+    "role": "durable-fast-quote-plane",
+    "soakRequiredDays": 7,
+    "rightsReviewed": false,
+    "consumerGate": "public-config.json marketData.fastQuotes.enabled is derived from this flag plus the measured soak and the live coverage probe (scripts/ci-fast-plane-consumer-gate.mjs)"
   },
   "proxy": {
     "name": "aio-proxy",
@@ -15,6 +18,19 @@
     "healthPath": "/health",
     "role": "cors-proxy-and-optional-anthropic-route",
     "readiness": "verify-at-runtime"
+  },
+  "relay": {
+    "name": "aio-proxy",
+    "path": "/relay",
+    "baseUrl": "https://aio-proxy.zmfhd007.workers.dev",
+    "role": "server-side-operator-key-relay",
+    "providers": {
+      "fred": { "keyEnv": "FRED_API_KEY", "clientCredentialKey": "aio_fred_key" },
+      "bok": { "keyEnv": "BOK_API_KEY", "clientCredentialKey": "aio_bok_key" },
+      "kosis": { "keyEnv": "KOSIS_API_KEY", "clientCredentialKey": "aio_kosis_key" }
+    },
+    "boundary": "upstream-host-is-hardcoded; client never supplies a key or a destination",
+    "missingKeyBehavior": "fail-closed-503-per-provider"
   },
   "security": {
     "secretsStayOutOfRepo": true,
@@ -28,6 +44,14 @@
       "ANTHROPIC_API_KEY",
       "AIO_QUOTA_DO",
       "AIO_DEV_ORIGINS"
+    ],
+    "relayRequires": [
+      "RELAY_DAILY_CAP"
+    ],
+    "relayKeySecrets": [
+      "FRED_API_KEY",
+      "BOK_API_KEY",
+      "KOSIS_API_KEY"
     ],
     "proxyQuotaContract": {
       "binding": "AIO_QUOTA_DO",

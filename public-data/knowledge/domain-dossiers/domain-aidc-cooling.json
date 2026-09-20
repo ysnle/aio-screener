@@ -1,6 +1,8 @@
 {
   "schemaVersion": "knowledge-domain-dossier.v1",
   "generatedAt": "2026-08-12",
+  "evidenceAsOf": null,
+  "reviewedAt": null,
   "dossierId": "domain-dossier:domain-aidc-cooling",
   "domainId": "domain-aidc-cooling",
   "title": "domain-aidc-cooling",
@@ -11,21 +13,85 @@
     "변압기·냉각 retrofit·공간·접속·열 밀도"
   ],
   "uniqueKpis": [
-    "rack·kW·PUE·냉각 capacity·가동률",
-    "Rack density의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-    "Liquid cooling의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-    "Thermal design의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-    "Server platform의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
-    "PUE / facility efficiency의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?"
+    "rack·kW·PUE·냉각 capacity·가동률"
   ],
+  "uniqueKpisBasis": "domain-guide unit + KPI names only; verification questions are research items, not KPIs",
+  "metrics": [],
   "valueChain": [
-    "IT load → rack density → 전력·열 → air/liquid cooling → usable capacity·PUE",
     "Rack density",
     "Liquid cooling",
     "Thermal design",
     "Server platform",
     "PUE / facility efficiency"
   ],
+  "valueChainGraph": {
+    "status": "UNCLASSIFIED_CANDIDATE",
+    "basis": "taxonomy node labels only; the guide mechanism prose is preserved separately and is not treated as a validated causal order",
+    "nodes": [
+      {
+        "nodeId": "aidc-rack-density",
+        "label": "Rack density",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      },
+      {
+        "nodeId": "aidc-liquid-cooling",
+        "label": "Liquid cooling",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      },
+      {
+        "nodeId": "aidc-thermal-design",
+        "label": "Thermal design",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      },
+      {
+        "nodeId": "aidc-server-platform",
+        "label": "Server platform",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      },
+      {
+        "nodeId": "aidc-pue",
+        "label": "PUE / facility efficiency",
+        "role": null,
+        "inputs": [],
+        "outputs": [],
+        "relationDirection": null,
+        "priceOrCostTransmission": null,
+        "timeLag": null,
+        "falsificationCondition": null,
+        "normalizationStatus": "UNCLASSIFIED_CANDIDATE"
+      }
+    ],
+    "edges": [],
+    "mechanismNarrative": "IT load → rack density → 전력·열 → air/liquid cooling → usable capacity·PUE"
+  },
   "taxonomyNodeIds": [
     "aidc-rack-density",
     "aidc-liquid-cooling",
@@ -52,9 +118,81 @@
     "AT-AC-03"
   ],
   "researchQuestions": [
-    "IT load와 시설 overhead를 어떤 지표로 분리하는가",
-    "랙 밀도·냉각·납기·서비스가 매출로 번역되는 조건은 무엇인가"
+    {
+      "questionId": "question:domain-aidc-cooling:1",
+      "question": "서버 설치량과 실제 서비스 가능한 전력·냉각 capacity를 어떻게 구분하는가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-aidc-cooling:2",
+      "question": "Rack density의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-aidc-cooling:3",
+      "question": "Liquid cooling의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-aidc-cooling:4",
+      "question": "Thermal design의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-aidc-cooling:5",
+      "question": "Server platform의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-aidc-cooling:6",
+      "question": "PUE / facility efficiency의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-aidc-cooling:7",
+      "question": "IT load와 시설 overhead를 어떤 지표로 분리하는가",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    },
+    {
+      "questionId": "question:domain-aidc-cooling:8",
+      "question": "랙 밀도·냉각·납기·서비스가 매출로 번역되는 조건은 무엇인가",
+      "verificationCondition": null,
+      "metricIds": [],
+      "status": "UNCLASSIFIED_CANDIDATE"
+    }
   ],
+  "unclassifiedCandidates": {
+    "measurementDimensions": [
+      "rack·kW·PUE·냉각 capacity·가동률"
+    ],
+    "verificationQuestions": [
+      "서버 설치량과 실제 서비스 가능한 전력·냉각 capacity를 어떻게 구분하는가?",
+      "Rack density의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "Liquid cooling의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "Thermal design의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "Server platform의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "PUE / facility efficiency의 고객·단위·병목·가격결정력·현금흐름을 어떤 공식 자료와 기준일로 확인할 것인가?",
+      "IT load와 시설 overhead를 어떤 지표로 분리하는가",
+      "랙 밀도·냉각·납기·서비스가 매출로 번역되는 조건은 무엇인가"
+    ],
+    "mechanismNarrative": [
+      "IT load → rack density → 전력·열 → air/liquid cooling → usable capacity·PUE"
+    ]
+  },
   "marketTransmission": {
     "status": "RESEARCH_REQUIRED",
     "path": [

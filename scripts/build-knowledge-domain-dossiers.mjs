@@ -30,9 +30,58 @@ const dossiers = guides.map((guide) => {
   const productIds = (registry.products || []).filter((product) => (product.taxonomyNodeIds || []).some((nodeId) => nodeIds.has(nodeId))).map((product) => product.productId);
   const packet = packetByDomain.get(domainId);
   const sourceIds = [...new Set([...(guide.sourceIds || []), ...(packet?.sources || []).map((source) => source.id)])];
+  // W04-B/P1149 (C02): a verification question is not a KPI, and a mechanism sentence plus a node
+  // title list is not a validated value chain. Measurable dimensions, research questions, metric
+  // definitions, and chain nodes/edges are separate fields; anything that has not been normalized
+  // stays an explicit unclassified candidate instead of passing on schema shape alone.
+  const measurableDimensions = [...new Set([guide.unit, ...(guide.kpis || [])].filter(Boolean))];
+  const researchQuestionTexts = [...new Set([
+    ...[guide.verificationQuestion].filter(Boolean),
+    ...domainNodes.map((node) => node.verificationQuestion).filter(Boolean),
+    ...(packet?.evidenceQuestions || [])
+  ])];
+  const nodeLabels = domainNodes.map((node) => node.title).filter(Boolean);
+  const metrics = (guide.kpis || []).filter(Boolean).map((name, index) => ({
+    metricId: `metric:${domainId}:${index + 1}`,
+    name,
+    definition: null,
+    unit: guide.unit || null,
+    numerator: null,
+    denominator: null,
+    period: null,
+    sourceRequirement: null,
+    normalizationStatus: 'UNCLASSIFIED_CANDIDATE'
+  }));
+  const researchQuestions = researchQuestionTexts.map((question, index) => ({
+    questionId: `question:${domainId}:${index + 1}`,
+    question,
+    verificationCondition: null,
+    metricIds: [],
+    status: 'UNCLASSIFIED_CANDIDATE'
+  }));
+  const valueChainGraph = {
+    status: 'UNCLASSIFIED_CANDIDATE',
+    basis: 'taxonomy node labels only; the guide mechanism prose is preserved separately and is not treated as a validated causal order',
+    nodes: domainNodes.map((node) => ({
+      nodeId: node.nodeId || null,
+      label: node.title || null,
+      role: null,
+      inputs: [],
+      outputs: [],
+      relationDirection: null,
+      priceOrCostTransmission: null,
+      timeLag: null,
+      falsificationCondition: null,
+      normalizationStatus: 'UNCLASSIFIED_CANDIDATE'
+    })),
+    edges: [],
+    mechanismNarrative: guide.mechanism || null
+  };
   const dossier = {
     schemaVersion: 'knowledge-domain-dossier.v1',
     generatedAt,
+    evidenceAsOf: null,
+    reviewedAt: null,
     dossierId: `domain-dossier:${domainId}`,
     domainId,
     title: guide.title || domainId,
@@ -40,14 +89,22 @@ const dossiers = guides.map((guide) => {
     mechanism: guide.mechanism || null,
     unit: guide.unit || null,
     bottlenecks: [guide.bottleneck || 'Domain-specific bottleneck requires source review.'],
-    uniqueKpis: [...new Set([guide.unit, ...(guide.kpis || []), ...domainNodes.map((node) => node.verificationQuestion).filter(Boolean)])].filter(Boolean),
-    valueChain: [guide.mechanism, ...domainNodes.map((node) => node.title).filter(Boolean)].filter(Boolean),
+    uniqueKpis: measurableDimensions,
+    uniqueKpisBasis: 'domain-guide unit + KPI names only; verification questions are research items, not KPIs',
+    metrics,
+    valueChain: nodeLabels,
+    valueChainGraph,
     taxonomyNodeIds: domainNodes.map((node) => node.nodeId),
     deepBranchIds: branchIds,
     playerIds,
     productIds,
     sourceIds,
-    researchQuestions: packet?.evidenceQuestions || [guide.verificationQuestion].filter(Boolean),
+    researchQuestions,
+    unclassifiedCandidates: {
+      measurementDimensions: measurableDimensions,
+      verificationQuestions: researchQuestionTexts,
+      mechanismNarrative: guide.mechanism ? [guide.mechanism] : []
+    },
     marketTransmission: { status: 'RESEARCH_REQUIRED', path: ['physical/economic input', 'industry bottleneck', 'company/product evidence', 'financial statement', 'valuation/market observation', 'invalidation'] },
     currentnessBoundary: 'REFERENCE_ONLY: no current revenue, shipment, yield, production, market-share or investment claim is implied by this structural dossier.',
     status: 'STRUCTURAL_REFERENCE_DRAFT',

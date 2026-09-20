@@ -12,6 +12,66 @@
 //      FRED DGS10) does not make `source` anything other than 'partial', even though tenY/twoY may
 //      both be genuinely non-null and spread2s10s computes a real number. Replicated as-is.
 export const TREASURY_CURVE_MODEL_VERSION = 'treasury-curve.v1';
+export const TREASURY_CURVE_SPREAD_VERSION = 'treasury-curve-spread.v1';
+// Two legs observed more than 36h apart are different market observations, not one curve.
+const DEFAULT_MAX_LEG_GAP_MS = 36 * 60 * 60 * 1000;
+
+function finiteOrNull(value) {
+  if (value == null || value === '') return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function parseObservedMs(value) {
+  const parsed = Date.parse(value || '');
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+/**
+ * W08-B/P1147 (H02): a 2s10s curve has two legs, and a spread is only meaningful when the legs
+ * share an observation date. Each leg keeps its own instrument, tenor, unit, observation time,
+ * session and provider; the result states which kind of spread it is — the official same-date
+ * FRED spread, an aligned same-date calculation, or a mixed-date reference calculation that must
+ * not be presented as a live curve.
+ */
+export function buildTreasuryCurveSpread({ twoY = null, tenY = null, officialSpread = null, legs = {}, maxLegGapMs = DEFAULT_MAX_LEG_GAP_MS } = {}) {
+  const legOf = (value, tenor, meta) => Object.freeze({
+    instrumentId: meta?.instrumentId || null,
+    tenor,
+    unit: 'percent',
+    value: finiteOrNull(value),
+    observedAt: meta?.observedAt || null,
+    session: meta?.session || null,
+    provider: meta?.provider || null
+  });
+  const twoLeg = legOf(twoY, '2Y', legs.twoY);
+  const tenLeg = legOf(tenY, '10Y', legs.tenY);
+  const official = finiteOrNull(officialSpread);
+  if (official != null) {
+    return Object.freeze({ modelVersion: TREASURY_CURVE_SPREAD_VERSION, mode: 'official-same-date', spread: official, legs: Object.freeze([twoLeg, tenLeg]), legGapMs: null, mixedDates: false, label: '2s10s · FRED 동일자 스프레드' });
+  }
+  if (twoLeg.value == null || tenLeg.value == null) {
+    return Object.freeze({ modelVersion: TREASURY_CURVE_SPREAD_VERSION, mode: 'unavailable', spread: null, legs: Object.freeze([twoLeg, tenLeg]), legGapMs: null, mixedDates: false, label: '2s10s · 판정 보류 (한쪽 만기 미수신)' });
+  }
+  const twoMs = parseObservedMs(twoLeg.observedAt);
+  const tenMs = parseObservedMs(tenLeg.observedAt);
+  const legGapMs = twoMs != null && tenMs != null ? Math.abs(tenMs - twoMs) : null;
+  const aligned = legGapMs != null && legGapMs <= maxLegGapMs;
+  const label = aligned
+    ? '2s10s · 동일 관측일 계산'
+    : legGapMs == null
+      ? '2s10s · 혼합 시점 참고 계산 (leg 관측시각 미확인) — 실시간 곡선 아님'
+      : `2s10s · 혼합 시점 참고 계산 (leg 시차 ${Math.round(legGapMs / 3600000)}h) — 실시간 곡선 아님`;
+  return Object.freeze({
+    modelVersion: TREASURY_CURVE_SPREAD_VERSION,
+    mode: aligned ? 'aligned-legs' : 'mixed-date-reference',
+    spread: Number((tenLeg.value - twoLeg.value).toFixed(2)),
+    legs: Object.freeze([twoLeg, tenLeg]),
+    legGapMs,
+    mixedDates: !aligned,
+    label
+  });
+}
 
 function clampYield(value) {
   if (value == null || value === '') return null;

@@ -1,13 +1,160 @@
 ---
-verified_by: P1144 데이터 게이트 3건 수정 + affected QA(진행 중); 브라우저·live는 별도 보고
-last_verified: 2026-09-19
+verified_by: P1150 구조 핸드오프 03/04/07/08/09 구현 + affected QA; 브라우저·live는 별도 보고
+last_verified: 2026-09-20
 confidence: medium
-latest_version: v55.22
-latest_P_number: P1144
-next_P_number: P1145
+latest_version: v55.23
+latest_P_number: P1158
+next_P_number: P1159
 current_total_entries: 557 tracked entries (384 headings + 173 compacted lines, P1~P1142, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
 current_checkpoint: 사용자 판단(지인용 사설 스크리너)으로 **차단 경계를 공시로 재배치**했다 — 개인화 지시·현재증거 부족·수치 주장 불일치·헤드라인 전용 인과를 하드 차단에서 경고/공시로 강등(P1120~P1122). 조작 방지(값·단위·NFP 배율), 금지 행위 P0, 포트폴리오 동의, 도구 경계는 그대로 차단이다. 남은 OPEN: 날짜 없는 중첩 산출물 12건(P1110 측정면이 노출), `objects/**` 592/629 미참조 blob의 보존 정책, 캐시 라우팅 밖의 실제 소비 산출물 오프라인 폴백 (semantic coverage 6.89%, releaseCertified=false)
 ---
+
+## P1158 - v56 - 액션 핀이 낡아 Node 20 지원 종료 경고가 났고, 그 핀을 지키는 게이트가 없었다 (2026-09-20)
+
+- symptom/reproduction: 저장소 Actions의 deploy job에 경고가 떴다 — "Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@11bd7190…, actions/setup-node@49933ea5…". 즉 워크플로가 신뢰하는 핀 20개가 모두 Node 20 타깃 버전에 묶여 있었고, GitHub이 Node 24로 강제 실행하며 대체하고 있었다. 별도로 두 Cloudflare 배포 워크플로가 서로 다른 `wrangler`(4.120.0 vs 4.44.0)를 npm 태그로 설치해 같은 모양의 설정을 다른 파서로 읽고 있었다.
+- root_cause: (1) `.github/dependabot.yml`이 "모든 액션이 full SHA로 핀된다"고 선언하고 그 핀을 최신으로 유지하는 것이 목적인데도, **핀 자체를 검사하는 게이트가 없었다** — 낡음은 경고가 뜰 때까지 아무도 몰랐고, 선언과 집행이 또 어긋나 있었다(R627과 같은 계열). (2) `wrangler` 설치는 전역 npm 설치라 `package.json` 의존성이 아니어서 새로 추가한 npm Dependabot 항목에도 걸리지 않는다.
+- fix: `actions/checkout` → `fbc6f399…`(v5.1.0), `actions/setup-node` → `a0853c24…`(v5.0.0)로 8개 워크플로 20곳을 갱신(Node 24 타깃), `deploy-data-plane.yml`의 wrangler를 4.120.0으로 통일, 그리고 `ci-operator-secrets-contract-check.mjs`에 **모든 `uses:`가 40-hex 커밋 SHA인지** 검사하는 단언을 추가했다(로컬 복합 액션 `./…` 제외).
+- violated_rule: R627(선언과 강제의 정합), R618(원장 루프).
+- prevention: 새 단언이 태그 핀(`actions/checkout@v5`)을 즉시 실패시킨다 — 음성 대조로 확인했다. Dependabot의 `github-actions` 항목이 이제 이 핀들을 최신으로 유지할 수 있다(설정 파일이 기본 브랜치에 반영되고 Dependabot이 켜져 있어야 동작).
+- verification: `node scripts/ci-operator-secrets-contract-check.mjs` PASS(28개 액션 전부 핀됨), 음성 대조로 `actions/checkout@v5`가 미핀으로 검출됨을 확인, `ci-control-char-check.mjs`·`ci-workflow-compaction-check.mjs`·`ci-cloudflare-deployment-contract-check.mjs` PASS.
+- residual_risk: (1) checkout/setup-node 메이저 업은 **CI에서 아직 한 번도 실행되지 않았다** — 다음 push의 CI가 첫 실행이다. (2) `node-version: '20'`(refresh 계열)과 `'24'`(deploy 계열)는 **의도적으로 그대로 뒀다** — P882가 `Intl`/정렬 순서가 호스트 Node 버전에 의존해 지식 산출물이 재생성되는 사고를 이미 겪었으므로, 런타임 버전 통일은 별도 증거로 다룬다. (3) wrangler 4.44→4.120 통일도 다음 data-plane 배포가 첫 실행이다.
+
+## P1157 - v56 - 실효 상한이 isolate 수에 비례하던 레이트리밋을 Cloudflare 바인딩으로 교체 (2026-09-20)
+
+- symptom/reproduction: `cloudflare-worker-proxy.js`의 레이트리밋은 모듈 로컬 `Map`이라 실효 상한이 `limit × IP 수 × isolate 수`였다. 즉 공격자가 IP를 돌리고 요청이 여러 isolate에 흩어지면 300/20/60 req/min은 상한이 아니라 속도 조절일 뿐이었다. 런북이 대안으로 안내하던 **존 단위 WAF rate limiting rule은 이 배포에 쓸 수 없다** — 워커가 `aio-proxy.zmfhd007.workers.dev`(Cloudflare 공유 존)에만 있고 커스텀 도메인이 없어 붙일 존이 없다.
+- root_cause: 대시보드 WAF 규칙은 존 전제로만 동작하는데, 배포 형태가 `workers.dev` 단독이라 그 전제가 성립하지 않았다. 코드 주석과 런북이 "WAF 규칙이 실효 상한"이라고 안내했지만 그 경로가 애초에 존재하지 않았던 것이다.
+- fix: Workers **Rate Limiting binding** 3개(`RATE_LIMIT_PROXY`/`ANTHROPIC`/`RELAY`, namespace_id 1001/1002/1003, period 60)를 `worker/wrangler.proxy.toml`에 선언하고, `enforceRateLimit()`이 바인딩을 우선 사용하되 **바인딩이 없거나 예외를 던지면 isolate 로컬 Map으로 폴백**하도록 배선했다(구버전 배포·`wrangler dev`·계정 미지원에서 조용히 열리지도, 이유 없이 막히지도 않게).
+- violated_rule: R627(선언과 실제 강제의 정합) — 이번 사례는 문서가 가리킨 방어 경로 자체가 그 배포 형태에서 존재하지 않았다.
+- prevention: `ci-worker-relay-check.mjs`가 바인딩 3종 선언·period ∈ {10,60}·namespace_id 유일성을 정적으로, 거부/허용/예외 폴백을 실제 핸들러로 단언한다. `ci-worker-anthropic-check.mjs`가 `/anthropic`의 거부 경로를 단언한다.
+- verification: `node scripts/ci-worker-relay-check.mjs`, `node scripts/ci-worker-anthropic-check.mjs`, `node scripts/ci-proxy-continuity-check.mjs`(45), `node scripts/ci-cloudflare-deployment-contract-check.mjs` PASS.
+- residual_risk: (1) 바인딩은 **Cloudflare 로케이션별**이라 전역 상한이 아니고 설계상 eventually consistent다 — 전역 권위는 여전히 DO 일일 캡(`ANTHROPIC_DAILY_CAP`/`RELAY_DAILY_CAP`)이며, 일반 프록시에는 일일 캡이 없다. (2) 공식 문서는 레이트리밋 키로 IP를 권장하지 않지만(모바일 공유 IP) 이 앱에는 사용자 식별자가 없다. (3) 바인딩은 **대시보드에 보이지 않아** Workers Logs의 429로만 관측된다. (4) 계정이 이 바인딩을 지원하지 않으면 `wrangler deploy`가 실패한다 — 그 경우 toml의 `[[ratelimits]]` 3블록을 제거하면 코드는 Map으로 폴백한다. (5) 라이브 미배포.
+
+## P1156 - v56 - 방어선이 광고와 실제가 달랐던 4곳 + 조용한 결손 1곳 (2026-09-20)
+
+- symptom/reproduction: (1) `?url=` 데이터 프록시는 `resolveAllowedOrigin`을 **호출조차 하지 않았다** — 허용목록은 어떤 `Access-Control-Allow-Origin`을 돌려줄지 고르는 데만 쓰였고 403 경로가 없어, 비브라우저 클라이언트가 `ALLOWED_DOMAINS` 35개 호스트로 가는 익명 릴레이로 이 Worker를 쓸 수 있었다. (2) `AIO_APP_TOKEN` 검사가 두 곳 모두 `if (env.AIO_APP_TOKEN && …)` 형태라 **설정하지 않으면 검사가 아예 없었고**, 설정 여부를 `/health`에서 알 수 없었다. (3) `worker/data-plane.js`의 읽기 라우트가 **메서드를 제한하지 않아** `POST /quotes`가 CDN 캐시를 건너뛰고 매 요청마다 KV를 읽었다(무인증 읽기 증폭). (4) `sw.js`의 셸 쓰기 경로에만 민감 URL 제외가 없어 `./js/aio-core.js?token=…`가 SHELL_CACHE에 저장될 수 있었다 — 같은 `c.put` 두 경로가 다른 규칙을 썼다. (5) `refresh-screener.yml`의 SEC 레인이 `SEC_USER_AGENT`가 비어도 `operator_configuration_required` 스냅샷을 쓰고 exit 0으로 통과해, **아무것도 수집하지 않은 사이클이 초록으로 커밋**됐다(같은 변수가 `refresh-data.yml`에서는 fail-closed).
+- root_cause: 네 곳 모두 "선언은 있으나 강제되지 않는" 같은 계열이다 — 허용목록은 문서화된 방어처럼 읽히지만 응답 헤더 생성기였고, 토큰은 선택이라 미설정이 곧 비활성이었고, 읽기 라우트의 메서드 계약은 어디에도 없었고, 두 캐시 경로가 각자 다른 규칙을 가졌다. 다섯째는 소비자가 빈 값을 "설정 필요" 상태로 정상 종료하도록 설계된 결과다.
+- fix: (1) 일반 프록시에도 `/anthropic`·`/relay`와 동일한 Origin 게이트를 추가(403). (2) `/health`에 `relay.appTokenRequired`를 노출(값이 아니라 존재 여부, 미설정이면 fail-open이라는 사실을 운영자가 볼 수 있게). (3) `/admin/run`을 먼저 디스패치한 뒤 읽기 라우트에 GET/HEAD 제한(405). (4) 셸 쓰기에도 `isSensitiveUrl` 적용. (5) `refresh-screener.yml`에 SEC 프로비저닝 fail-closed 가드 추가 + FINNHUB 미설정은 `::warning::`으로 표면화(선택 키이므로 실패시키지 않되 로그에 남긴다).
+- violated_rule: R627(선언과 실제 도달/강제의 정합), R618(원장 루프).
+- prevention: `ci-worker-relay-check.mjs`에 P1156 단언(일반 프록시 Origin/메서드 거부, health 토큰 상태), `ci-data-plane-contract-check.mjs`에 메서드 가드·admin 토큰 게이트 회귀 단언을 추가했다.
+- verification: `node scripts/ci-worker-relay-check.mjs`, `node scripts/ci-data-plane-contract-check.mjs`, `node scripts/ci-worker-anthropic-check.mjs`, `node scripts/ci-proxy-continuity-check.mjs`, `node scripts/ci-cloudflare-deployment-contract-check.mjs` PASS.
+- residual_risk: **이 게이트들은 모두 픽스처 구동이며 라이브 Worker는 여전히 미배포 상태다.** Origin 강제는 비브라우저 클라이언트가 헤더를 위조하면 여전히 통과한다 — 인증이 아니라 최소 방어선이고, isolate 독립적 실효 상한은 WAF 레이트리밋 규칙뿐이다(런북 §4). `/relay`는 그 위조로도 운영자 쿼터를 하루 `RELAY_DAILY_CAP`까지 소진시킬 수 있다.
+
+## P1155 - v56 - dead entry·폐기 안내·dead secret·문서 드리프트 4건 (2026-09-20)
+
+- symptom/reproduction: (1) `DATA_APIS.fmp`의 `key()`가 어떤 호출부에서도 불리지 않았다(선언만 존재). (2) `alphaVantage.key()`와 그 `|| 'demo'` 기본값이 폴백처럼 보이지만 호출부가 `!== 'demo'`로 걸러 아무 의미가 없었다. (3) `js/aio-core.js`의 키 백업 섹션이 "3중 안전망"과 "IndexedDB 동시 mirror"를 설명하는데 그 미러는 P838에서 삭제된 no-op이었다. (4) 저장소 시크릿 `FMP_API_KEY`는 어떤 워크플로도 참조하지 않고 계약(`ci-data-pipeline-contract-check.mjs:110`)이 오히려 금지하며, 루트 PDF 가이드는 v49.57 기준으로 폐기된 `AIO.recoverApiKeysFromIdb()`와 Perplexity 5장을 안내했다.
+- root_cause: 폐기·대체가 코드와 워크플로에만 반영되고 선언 표·주석·사용자 문서가 각각 독립적으로 남았다. 어느 것도 "이 선언이 실제로 도달 가능한가"를 검사하지 않았다.
+- fix: 호출 0건 `DATA_APIS.fmp` 삭제, `|| 'demo'` 제거, 백업 주석을 실제 보존 경로 2개로 정정, 그리고 `aio_api_setup_guide.py`를 v56 기준으로 재작성해 폐기 기능 안내를 제거했다(P1153과 동일 산출물).
+- violated_rule: R627(선언과 도달 경로의 정합), R1(표면 동기화).
+- prevention: `ci-data-pipeline-contract-check.mjs`가 `FMP_API_KEY`의 refresh 워크플로 유입을 계속 차단하고, 런북이 폐기 시크릿을 retired로 명시한다.
+- verification: `node scripts/ci-data-pipeline-contract-check.mjs`, `node scripts/ci-operator-secrets-contract-check.mjs`, `node scripts/ci-syntax-check.mjs` PASS.
+- residual_risk: 저장소 시크릿 목록에서 `FMP_API_KEY`를 실제로 삭제하는 것은 운영자 GitHub 조작이며 저장소 밖이다.
+
+## P1154 - v56 - Claude 서버모드 무UI와 저장만 반영하던 제공자 상태 (2026-09-20)
+
+- symptom/reproduction: `aio_chat.js`의 `_aioClaudeTarget`은 개인 Worker URL과 `aio_claude_server_mode='1'`이 동시에 있으면 입력한 개인 Claude 키를 **먼저** 반환하지 않고 Worker 키를 쓴다. 그런데 그 플래그를 바꾸는 UI가 어디에도 없어 localStorage 직접 편집만 가능했고, 켜져 있으면 개인 키가 조용히 무시됐다. 별도로 `provider-status-summary`는 "저장 확인 N개"만 보여 주어 저장이 곧 연결로 읽혔다.
+- root_cause: 서버 키 모드는 `wrangler secret put` 후 수동으로 켜라고 주석에 적혀 있었고(cloudflare-worker-proxy.js:47), 상태 표시는 `_aioProviderStatusForKey`의 storage 필드만 집계했다 — 실제 호출 결과(`AIO.updateProviderStatus`)는 기록만 되고 화면에 세어지지 않았다.
+- fix: 사이드바에 `aio-claude-server-mode-toggle`(개인 Worker URL이 없으면 "효과 없음" 경고)을 추가하고, `_aioRefreshProviderStatuses`가 `VERIFIED`/`FAILED` 개수를 저장 개수와 분리해 표시한다.
+- violated_rule: R463(AI readiness는 저장이 아니라 선택된 endpoint를 검증한다).
+- prevention: 토글 UI와 상태 문구가 저장/검증을 분리하고, `ci-ai-chat-reliability-contract-check.mjs`가 라우트 계약을 계속 검사한다.
+- verification: `node scripts/ci-ai-chat-reliability-contract-check.mjs`, `node scripts/ci-syntax-check.mjs` PASS; 브라우저 실측은 affected browser gate로 분리 보고.
+- residual_risk: 개인 Worker 서버모드의 실제 라우팅 전환은 라이브 Worker 없이 실측할 수 없다.
+
+## P1153 - v56 - 웹 검색 키가 코드·Vault·export에는 있는데 입력 경로가 없었다 (2026-09-20)
+
+- symptom/reproduction: `aio_perplexity_key` / `aio_google_cse_key` / `aio_google_cse_cx`는 `_AIO_SENSITIVE_KEYS`, `_aioCollectKeySnapshot`, Vault 복원 목록(`_restoreDecryptedKeys`), provider 검색 디스패처(`aio-chat.js`)에서 읽히는데 index.html에 입력란이 없었다. 그래서 외부 검색 경로는 콘솔로만 설정 가능했다. 루트 PDF 가이드는 같은 키를 사이드바에서 등록하라고 안내해 실제 화면과 어긋났다.
+- root_cause: 키 소비 코드가 먼저 들어오고 UI가 따라오지 않았으며, "코드가 읽는 자격증명"과 "사용자가 넣을 수 있는 자격증명"을 비교하는 검사가 없었다.
+- fix: 확장 API 키 블록에 3개 입력란을 기존 `data-action="_saveApiKey"` 패턴으로 추가하고 `_AIO_PROVIDER_REGISTRY`에 `kind:'search'` 로 등록했다. `_keyMap`/`_restoreDecryptedKeys`는 이미 id를 참조하고 있어 유령 참조가 함께 해소됐다.
+- violated_rule: R627(선언과 도달 경로의 정합).
+- prevention: `ci-worker-relay-check.mjs`와 브라우저 진입 경로 계약이 선언된 자격증명의 도달 가능성을 검사 대상으로 유지한다.
+- verification: `node scripts/ci-syntax-check.mjs`, `node scripts/ci-runtime-contract-check.mjs` PASS.
+- residual_risk: Perplexity·Google CSE의 실제 응답 품질은 유료 키 없이 실측할 수 없다.
+
+## P1152 - v56 - fast data plane이 게시만 되고 소비자도 승격 게이트도 없었다 (2026-09-20)
+
+- symptom/reproduction: `aio-screener-data-plane`이 5분마다 16/16 Tier-0 quotes를 KV에 게시하는데 브라우저가 읽는 코드가 없었다(`public-config.json`에 `marketData.fastQuotes` 부재). 소비자는 CI 모니터링뿐이었고, UI는 30분 주기 GitHub Actions 스냅샷을 계속 썼다. 반대로 "승격하면 된다"는 판단을 막는 게이트도 없어, 손으로 켜면 soak·권리 검증을 건너뛴 승격이 가능했다.
+- root_cause: producer(`worker/data-plane.js`)와 consumer(`src/app/bootstrap.js`) 사이에 계약이 없었고, 승격 상태를 파생할 단일 소유자가 없었다.
+- fix: `deriveFastQuotesConfig`가 `architecture/worker-endpoints.json`의 `rightsReviewed`·soak 필요일수와 watchdog SLO 창의 측정 soak, 라이브 health/coverage로 `enabled`를 **파생**한다(손 편집 금지). `market-snapshot-loader.js`를 소스 체인으로 확장해 enabled일 때만 `/quotes`를 먼저 시도하고 검증 실패 시 durable 스냅샷으로 폴백한다. bridge는 `sourceId`로 출처를 정직하게 라벨한다.
+- violated_rule: R503(참조 깊이·최신성·권리 검토를 서로 다른 승격 단계로 보존), R627.
+- prevention: `scripts/ci-fast-plane-consumer-gate.mjs`가 게시된 `enabled`를 게시된 증거로 재파생해 비교하고, enabled=true인데 soak/권리/coverage/blocker 중 하나라도 없으면 실패한다.
+- verification: `node scripts/ci-fast-plane-consumer-gate.mjs` PASS(enabled=false, soak 0/7, rightsReviewed=false), `node scripts/ci-market-snapshot-contract-check.mjs` PASS, `node scripts/ci-operator-readiness-check.mjs` PASS(fast plane은 OPERATOR_REQUIRED 유지).
+- residual_risk: 7일 soak·권리 검증 전이므로 소비 경로는 실제로 켜진 적이 없다 — 라이브 소비 증거는 없다.
+
+## P1151 - v56 - FRED·BOK ECOS·KOSIS는 사용자에게 도달 불가였다 (2026-09-20)
+
+- symptom/reproduction: FRED 키를 입력해도 `PRIVATE_ROUTE_REQUIRED`로 실패해 서버 스냅샷으로 폴백했고, BOK ECOS·KOSIS는 키를 입력해도 조용히 `null`이었다. 세 제공자 모두 "설정했는데 아무 일도 일어나지 않는" 상태였다.
+- root_cause: (1) FRED는 키가 URL 쿼리에 들어가 민감 URL로 분류되는데, 민감 URL을 실을 수 있는 경로는 **사용자가 소유한** Worker뿐이었다(`aio-data.js` 의 필터가 `_cfWorkerUrl()`이 아니라 개인 키를 재확인). 공유 Worker URL이 설정돼 있어도 무시됐다. (2) BOK·KOSIS는 프록시 경로 자체가 없이 직접 `fetch`만 호출했고 Worker 도메인 허용 목록에도 없어 브라우저 CORS에 막혔으며, 실패는 `_aioLog('warn')` 뒤 `null`로만 남았다. (3) 레지스트리는 등록 시점에 `_cfWorkerUrl()`(공유 포함)로 cf-worker 엔트리를 만들고 전송 시점에는 개인 키만 신뢰해, 광고되는 라우트와 실제 사용 가능한 라우트가 달랐다.
+- fix: Worker에 `/relay` 라우트를 추가해 업스트림 host·path를 하드코딩하고 운영자 시크릿(FRED/BOK/KOSIS)으로 서버측 조회한다(파라미터 정규식 화이트리스트, Origin·앱 토큰·IP 레이트리밋, DO 일일 캡 fail-closed, 키 redaction). 클라이언트는 `_aioRelayUrl`/`_aioRelayFetch`로 릴레이를 2순위에 두고, 레지스트리 엔트리에 `userOwned`를 기록해 등록과 전송 판정을 같은 소스로 맞췄다.
+- violated_rule: R627(선언된 자격증명은 도달 가능한 경로가 증명돼야 한다), R463.
+- prevention: `scripts/ci-worker-relay-check.mjs`가 env 전용 키, 하드코딩 목적지, 제공자별 fail-closed, 일일 캡, 키 redaction을 실제 핸들러로 검증한다.
+- verification: `node scripts/ci-worker-relay-check.mjs` PASS, `node scripts/ci-worker-anthropic-check.mjs` PASS, `node scripts/ci-proxy-continuity-check.mjs` PASS(45), `node scripts/ci-cloudflare-deployment-contract-check.mjs` PASS.
+- residual_risk: 라이브 Worker에 배포·시크릿 등록을 하지 않았으므로 실제 릴레이 응답은 미검증이다(배포는 운영자 수동 워크플로). BOK/KOSIS 운영자 키 미발급 시 해당 제공자는 503 fail-closed로 남는다.
+
+## P1150 - v55.23 - W00/W02 잔여: 내비게이션 단일 commit + portfolio provider 단일 출처 (2026-09-20)
+
+- symptom/reproduction: `RECHECK-20260920.md`가 W00을 "미완료"로 기록했다 — 사이드바 클릭 한 번에 scope가 두 번 전환되고(mountId 1→3) store.route가 이전 route에 남았다. 별도로 `02-PORTFOLIO-STATE.md` P04는 provider의 저장소 fallback 경로를 "계약 부채"로 남겼다(bootstrap은 repository를 전달하지 않아 dead path).
+- root_cause: (1) 두 개의 transition 권한이 공존했다 — legacy `showPage`가 발행한 `aio:pageShown`을 router가 명령으로 재처리하고 facade가 같은 클릭에 다시 transition했다. (2) `transition`이 스칼라 detail(페이지 id)을 entityId로 해석해 `entityId='FUNDAMENTAL'`를 만들었다. (3) store 동기화가 pageShown(commit 이전)에 걸려 있었다. (4) provider의 `repository` fallback은 명시적 빈 배열과 미수신을 구분하지 못하고 삭제 종목을 되살릴 수 있었다.
+- fix: (1) facade가 설치되면 `claimNavigationAuthority()`로 단일 권한을 갖고, router의 `onPageShown`은 관찰만 한다(non-writable global host는 기존 event 경로 유지). (2) 스칼라 detail은 route id로만 해석하고 entity는 명시 필드에서만 읽는다. (3) commit 결과 이벤트 `aio:navigationCommitted`를 transition 성공 뒤 발행하고 bootstrap이 그 이벤트로 store.route를 갱신한다. (4) `createPortfolioProvider`에서 `repository` 인자와 병합 경로를 삭제하고 Vault runtime reader 결과를 유일 출처로 삼는다.
+- violated_rule: R352(이중 writer/이중 실행), F-09(의미 단위 단일 소유) — 신규 규칙 승격은 회귀 관찰 후 판단.
+- prevention: `scripts/ci-esm-core-unit-check.mjs`에 W00 단일 commit fixture(스칼라 pageShown detail 비-entity, 클릭 1회=1 mount, commit 결과 route/mountId/source)와 W02 provider fixture(명시적 빈 목록 보존, cash 0 보존, locked가 평가로 새지 않음)를 추가했다.
+- verification: `node scripts/ci-esm-core-unit-check.mjs` PASS, `node scripts/ci-architecture-browser-check.mjs` PASS(브라우저에서 `window.showPage` 1회 = commit 1회, DOM/router/store 일치 확인). 전체 affected는 P1145~P1150 통합 검증으로 아래에 기록. 커밋·배포는 사용자 지시 시에만.
+- residual_risk: non-writable global host의 event 경로는 브라우저 실측을 하지 않았다(코드 경로만 확인).
+
+## P1145~P1150 통합 검증 (2026-09-20, 미커밋)
+
+- affected QA(`qa-runner affected --files <작업 소유 목록>`): **fail=2 / skip=23**, 나머지는 PASS 또는 캐시 PASS(반복 실행 시 캐시 비율만 변동).
+- 남은 FAIL 2건은 **데이터 신선도**이며 코드 변경과 무관하다: ① `data-refresh` — `market-snapshot` 시도 상태 `attempt=failed`(SLA 12h) 및 A3/D1/D3/E3/E4 STALE. ② `data-lineage` — `data.json` 최신 데이터 커밋 `5f939450`이 12h SLA 초과(16.6h). 두 건 모두 `data-refresh` 스킬 범위이며 이번 변경은 데이터 산출물을 만들지 않았다(수정한 public-data는 knowledge dossier 재생성뿐).
+- 개별 게이트: version/workspace/ledger-integrity/assertion-trace/knowledge-lint/sync-agent-profiles/sync-agent-skills/generated-state PASS, decomposition ratchet 재조정(`--write`) PASS, knowledge-generated-parity PASS(655 파일), domain-parity PASS(5 fixtures), screener-workbench PASS, esm-core-unit PASS, desktop-continuity PASS, architecture-browser PASS, market-snapshot PASS, data-pipeline PASS, knowledge-sector-depth/market-transmission/currentness-separation/repository PASS.
+- 브라우저·live·실 공급자·실제 SEC refresh·Vault E2E는 **미검증**으로 분리한다. 커밋·푸시·배포는 하지 않았다.
+
+## P1149 - v55.23 - W04: 집계 분모 범위와 지식 dossier의 의미 분리 (2026-09-20)
+
+- symptom/reproduction: `04-CONTENT-SEMANTICS.md` C01 — masters 선택 manager 요약 카드가 전체 artifact coverage(2500/77/268)를 보여 manager별 표(예: Appaloosa 81/11/81)와 다른 범위를 설명했다. C02 — domain dossier의 `uniqueKpis`에 검증 질문이 KPI로 들어가고, `valueChain`이 mechanism 문장과 node 제목을 이어 붙인 그래프처럼 보였다.
+- root_cause: (1) summary가 필터된 records가 아니라 artifact coverage를 우선 사용했고, '집계 CUSIP'가 CUSIP 수인지 record 수인지 불명확했다. (2) 생성기가 guide.unit·guide.kpis·verificationQuestion을 한 배열로 합치고 mechanism 문장을 chain 순서로 취급했다 — schema shape 통과가 의미 성립을 대신했다.
+- fix: (1) `createIssuerAggregateView`가 선택 manager의 records에서 CUSIP 수·고유 보고기간·record 수·기간행 수·검토 대기·범위를 계산하고, 전체 원장은 별도 라벨 블록으로 분리했다. (2) 생성기가 `metrics[]`(정의는 null, normalizationStatus=UNCLASSIFIED_CANDIDATE), `researchQuestions[]`(question/verificationCondition=null), `valueChainGraph{nodes,edges:[],mechanismNarrative}`를 분리하고, 검증 질문을 uniqueKpis에서 제거하며 generatedAt/evidenceAsOf/reviewedAt을 구분한다. 산출물을 재생성했다.
+- violated_rule: R606(집계 범위와 라벨 정합), F-09(의미 단위 정합성).
+- prevention: `ci-knowledge-sector-domain-depth.mjs`가 질문의 uniqueKpis 유입, mechanism 문장의 chain 사용, 정의 없는 metric의 UNCLASSIFIED 상태, edges=[] 후보 상태, semanticReview 경계를 단언한다. masters 요약은 browser gate의 기존 surface 검사 대상이다.
+- verification: `node scripts/build-knowledge-domain-dossiers.mjs` + `build-knowledge-runtime-index.mjs` 재생성, `ci-knowledge-generated-parity-check.mjs` PASS(655 파일 무변동), `ci-knowledge-sector-domain-depth.mjs` PASS, `ci-knowledge-market-transmission.mjs`/`ci-knowledge-currentness-separation.mjs`/`ci-knowledge-repository-contract.mjs` PASS.
+- residual_risk: dossier 지표 정의·경제적 인과는 여전히 미정의(UNCLASSIFIED_CANDIDATE)이며 semantic review는 REQUIRED다.
+
+## P1148 - v55.23 - W09: SEC 파생값 가용시각과 뉴스 절대시각 (2026-09-20)
+
+- symptom/reproduction: `09-SEC-PIT-AND-NEWS-LINEAGE.md` F01/F02 — 최상위 availableAt/accession이 매출 filing에서만 왔고, 매출 2024-02-01 공개·같은 FY 수정 income/equity/shares 2024-06-01 공개 입력에서 margin/ROE/PE의 record availableAt이 여전히 2024-02-01이었다. F03 — `src/ui/pages/news.js:105`가 `root.getAbsoluteTime`을 찾지만 구현이 없어 fallback ''로 절대시각이 사라졌다.
+- root_cause: (1) 파생값이 여러 operands를 쓰는데 최상위 provenance를 한 filing(매출)에서만 복사했다 — 파생값이 더 일찍 재현 가능했다는 잘못된 계보. (2) 수집 시각(transport)과 보고기간 최신성(report recency)이 분리되지 않아 오래된 FY도 CURRENT가 될 수 있었다. (3) 절대시각 포맷 owner가 없었다.
+- fix: (1) operandAvailability(필드별 acceptance/filed 시각)와 derivedAvailability(operand 최댓값)를 기록하고 top-level availableAt을 전체 operand 최댓값으로 바꿨다(revenue accession의 acceptedAt은 호환 필드로 보존). (2) fiscalPeriodEnd·reportAgeDays·reportRecency·transportFetchedAt를 추가하고 550일 초과 FY는 qualityStatus=REFERENCE로 fail-closed했다. (3) `formatAbsoluteTime`(Intl, timezone 포함)을 news.js 단일 owner로 두고 카드에 `data-published-at`/원문 URL을 남긴다.
+- violated_rule: R614(시점·출처 정합), F-09.
+- prevention: `ci-data-pipeline-contract-check.mjs`의 W09-B 단언(operand/derived availability, stale-fy REFERENCE)과 `ci-esm-core-unit-check.mjs`의 W09-C 단언(timezone 포함 절대시각, 파싱 불가→빈 문자열, fallback 배선).
+- verification: `node scripts/ci-data-pipeline-contract-check.mjs` PASS, `node scripts/ci-esm-core-unit-check.mjs` PASS.
+- residual_risk: 저장된 `public-data/sec-fundamentals.json` 레코드는 다음 SEC refresh까지 옛 availability 필드를 유지한다(모델 id는 artifact allowlist 때문에 v2로 유지, availability는 `availabilityModel`로 별도 버전).
+
+## P1147 - v55.23 - W08: 시장 건강도 표본 coverage와 2s10s leg 정렬 (2026-09-20)
+
+- symptom/reproduction: `08-MARKET-SCORE-AND-CURVE.md` H01 — SPY0%/QQQ0%/VIX20/AAPL+1% 입력에서 score 50, status current, 'M7 1/1 상승 (강한 리더십)'. MA 결측 시 trend bar가 50이었다. analysis.js가 점수 구간으로 포지션 축소·현금비중 확대·타이트한 손절 문구를 생성했다. H02 — renderMacro가 `_live2Y`/DGS2와 `^TNX`를 직접 빼서 시점이 다른 leg를 하나의 실시간 곡선처럼 표시했다.
+- root_cause: (1) M7 분모를 수신 개수로 줄였고 component별 coverage 개념이 없었다. (2) 결측 bar를 중립 50으로 채웠다. (3) composite 점수를 곧바로 행동 지침으로 변환했다. (4) 같은 날짜 공식 FRED spread(T10Y2Y)를 우선하지 않고 leg 관측시각 차이를 표시하지 않았다.
+- fix: (1) `market-health.v2` — component별 expectedUniverse/observedCount/missingIds/coverage/contribution/freshness, M7 분모 7 고정, 최소 coverage 미달 시 리더십 보류·partial 전파. (2) 결측 bar는 null(가용 시 null), 미수신 unavailable bar는 분석 화면에서 sourceKind=unavailable. (3) 점수→전략 문구를 관측 해석+추가 확인 근거로 교체. (4) `buildTreasuryCurveSpread`가 두 leg의 instrument/tenor/unit/observedAt/session/provider와 official-same-date/aligned-legs/mixed-date-reference/unavailable 모드를 반환하고 renderMacro가 이를 쓴다.
+- violated_rule: R613(값·시각 정합), R614.
+- prevention: `ci-esm-core-unit-check.mjs`의 W08-A(1/7 보류·분모 7·partial·trend null·유효 0 보존·unavailable bar null)와 W08-B(공식 spread 우선, 혼합 시점 라벨, 한쪽 결측 보류, 음수 spread 보존) 단언.
+- verification: `node scripts/ci-esm-core-unit-check.mjs` PASS, `node scripts/ci-desktop-continuity-check.mjs` PASS.
+- residual_risk: M7/sector universe의 실제 부분수신 빈도는 측정하지 않았다.
+
+## P1146 - v55.23 - W07: 스크리너 가중·순위·백분위·가격축·월별 그리드 (2026-09-20)
+
+- symptom/reproduction: `07-SCREENER-MODEL-LOGIC.md` M01~M06 — quality 100% 요청이 quality 미가용 입력에서 momentum 100%로 대체돼 8종목 순위가 생성됐다. 점수 null 종목이 screenStatus=passed·screenRank=1이었다. factorScores(z 스케일)가 '백분위'로 설명됐다. 장기 검증 수집이 adjusted close 결측을 raw close로 채웠고, 63거래일 forward·21일 간격 IC에 naive SE를 썼다. 포트폴리오 월말 한 달 결측 시 두 달이 한 달로 압축돼 CAGR이 12.68%→13.65%로 변했다.
+- root_cause: (1) `sanitizeWeights`가 양수 가중치가 없으면 전 팩터 동일 가중으로 대체했다. (2) `screenRank = rankIndex+1`을 passed면 무조건 부여했다. (3) `z2pct`(50+16.67z)를 percentile로 명명했다. (4) `adjArr2.push(... ? a : c)`로 raw를 adjusted로 승격했다. (5) `common` 월 키의 연속성을 검사하지 않고 인접 원소를 한 달 수익률로 처리했다.
+- fix: (1) `factor-ranks.v6` — omitted(모델 기본)와 explicit(사용자 요청) 가중을 분리, explicit은 requested coverage 80% 미달·요청 팩터 전부 미가용 시 `rankingState='unavailable'`, requested/applied/excluded weights와 손실 coverage를 보고. (2) `screen-engine.v5` — filterState와 rankingState 분리, 점수 없는 passed 행은 ordinal rank 없음(동점은 같은 rank+stable displayOrder), 결측 ranking field를 explanation에 명시. (3) z 스케일을 `zToNormalizedScore`로 개칭하고 `factorScoreScale`/`factorScoreMeaning`/`compositeRankMeaning`을 노출, UI 문구를 '섹터 기준 정규화 점수'로 정정. (4) adjusted 결측은 null로 보존하고 incomplete ticker를 제외(`adjustedCloseExcluded`), IC t/CI에 naive inference 표기와 caveat 추가. (5) 월별 그리드 gap 검출 → 최장 연속 구간 사용(제외 구간 기록) 또는 14개월 미만이면 보류.
+- violated_rule: R602(결측을 다른 입력으로 대체 금지), R613.
+- prevention: `ci-esm-core-unit-check.mjs` W07-A/W07-E, `ci-screener-workbench-contract.mjs` G-SCR-RANK(순위 분리·동점·displayOrder), `ci-domain-parity-check.mjs`(기존 5 fixture 유지).
+- verification: `ci-esm-core-unit-check.mjs` PASS, `ci-screener-workbench-contract.mjs` PASS(85 checks), `ci-domain-parity-check.mjs` PASS(5 fixtures), `ci-research-model-contract-check.mjs` PASS.
+- residual_risk: 실제 공급자 adjusted 결측 빈도와 HAC/bootstrap 적용 후 유의성 변화는 미측정이다.
+
+## P1145 - v55.23 - W03: 스냅샷 실측 coverage 검증과 quote 표시 상태 (2026-09-20)
+
+- symptom/reproduction: `03-DATA-CONTRACTS.md` D01 — published snapshot 사본에 quotes 전체 제거, 첫 instrument 제거, 첫 quote unit을 WRONG_UNIT으로 변경한 입력이 모두 `ok:true`였다. D02 — market quote 표시가 source 이름 정규식(`/snapshot|cache|reference/`)으로 freshness를 추정했다.
+- root_cause: (1) `validateMarketSnapshot`이 payload가 스스로 신고한 coverage 숫자만 검사하고 필수 instrument 집합을 재계산하지 않았다(`tier0Coverage`가 validator 경로에서 호출되지 않음). (2) 신선도 판단이 envelope의 선언된 quality가 아니라 source 라벨 패턴에서 나왔다.
+- fix: (1) `auditMarketSnapshotCoverage`(identity/필수/단위 재계산, duplicate가 coverage를 채우지 못함, unknown/unit mismatch 보고)를 producer와 loader가 공유하고, published 수용은 실측 필수집합 충족 + declared/measured 일치를 요구한다. tier1 선택 결측은 tier0 실패로 합치지 않는다. (2) `deriveQuotePresentation`(value/unit/observedAt/receivedAt/sourceId/revision/quality/session/changeBasis/changeCoherent/allowedUse/displayState)을 도메인 owner로 두고 market.js가 `data-quote-state`와 일관성 없는 change 표시를 노출한다. receivedAt은 observedAt을 신선하게 만들지 않는다.
+- violated_rule: R613(값·단위·시각 정합), R614.
+- prevention: `ci-market-snapshot-contract-check.mjs`의 W03-A tamper fixture(quotes 제거·instrument 누락·중복·unit 변경·unknown·선언 초과·tier1 결측·loader 거부), `ci-desktop-continuity-check.mjs`의 W03-B quality 기반 상태 단언.
+- verification: `node scripts/ci-market-snapshot-contract-check.mjs` PASS, `node scripts/ci-desktop-continuity-check.mjs` PASS, `node scripts/ci-data-pipeline-contract-check.mjs` PASS.
+- residual_risk: 단위 변환 id 규칙은 아직 실제 변환 경로가 없어 문서 수준이며, 라이선스/SLA 검증은 별도 운영 증거가 필요하다.
 
 ## P1144 - v55.22 - CI data 게이트 3건: 24/7 BTC 종가축 어긋남 + 권리 미검증 승격 (2026-09-19)
 
