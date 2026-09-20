@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-09-20T14:14:56.233Z",
-  "attemptedAt": "2026-09-20T14:14:56.233Z",
-  "lastSuccessfulAt": "2026-09-20T14:14:56.233Z",
+  "generatedAt": "2026-09-20T17:30:53.247Z",
+  "attemptedAt": "2026-09-20T17:30:53.247Z",
+  "lastSuccessfulAt": "2026-09-20T17:30:53.247Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-09-06T14:14:51.481Z",
-  "until": "2026-09-20T14:14:51.481Z",
+  "since": "2026-09-06T17:30:49.256Z",
+  "until": "2026-09-20T17:30:49.256Z",
   "current24hWindow": {
     "start": "2026-09-18T23:00:00.000Z",
     "end": "2026-09-19T23:00:00.000Z",
@@ -14,7 +14,7 @@
   },
   "current24hCoverage": {
     "observedCount": 96,
-    "eligibleTextCount": 44,
+    "eligibleTextCount": 41,
     "channelCounts": {
       "HANAchina": 27,
       "insidertracking": 47,
@@ -81,21 +81,21 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 315,
-      "freshCount": 39,
-      "eligibleTextCount": 39,
-      "selectedCount": 103,
+      "count": 317,
+      "freshCount": 40,
+      "eligibleTextCount": 40,
+      "selectedCount": 104,
       "error": null,
-      "lastPostId": 25370
+      "lastPostId": 25372
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1136,
-      "freshCount": 38,
-      "eligibleTextCount": 36,
+      "count": 1135,
+      "freshCount": 19,
+      "eligibleTextCount": 19,
       "selectedCount": 129,
       "error": null,
       "lastPostId": 64207
@@ -108,7 +108,7 @@
       "count": 175,
       "freshCount": 20,
       "eligibleTextCount": 20,
-      "selectedCount": 68,
+      "selectedCount": 67,
       "error": null,
       "lastPostId": 20221
     },
@@ -117,17 +117,73 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 673,
+      "count": 675,
       "freshCount": 40,
       "eligibleTextCount": 40,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 69151
+      "lastPostId": 69153
     }
   ],
-  "count": 2299,
-  "retainedItemCount": 485,
+  "count": 2302,
+  "retainedItemCount": 467,
   "observedItems": [
+    {
+      "id": "aetherjapanresearch/25372",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-09-20T14:46:43.000Z",
+      "localDateKst": "2026-09-20",
+      "score": 87,
+      "tags": [
+        "macro",
+        "semi",
+        "earnings"
+      ],
+      "tickers": [
+        "005930.KS",
+        "000660.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/25371",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-09-20T14:40:40.000Z",
+      "localDateKst": "2026-09-20",
+      "score": 67,
+      "tags": [
+        "semi",
+        "kr-market"
+      ],
+      "tickers": [
+        "035420.KS"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/69153",
+      "channel": "HANAchina",
+      "datetime": "2026-09-20T14:22:25.000Z",
+      "localDateKst": "2026-09-20",
+      "score": 45,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/69152",
+      "channel": "HANAchina",
+      "datetime": "2026-09-20T14:19:23.000Z",
+      "localDateKst": "2026-09-20",
+      "score": 52,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "aetherjapanresearch/25369",
       "channel": "aetherjapanresearch",
@@ -576,7 +632,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69146",
@@ -650,7 +706,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64185",
@@ -662,7 +718,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64184",
@@ -674,7 +730,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64183",
@@ -686,7 +742,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64182",
@@ -710,7 +766,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64179",
@@ -722,7 +778,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64178",
@@ -746,7 +802,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69142",
@@ -770,7 +826,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64175",
@@ -783,7 +839,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69141",
@@ -839,7 +895,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64173",
@@ -851,7 +907,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69138",
@@ -876,7 +932,7 @@
         "flows"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/20220",
@@ -900,7 +956,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69137",
@@ -1017,7 +1073,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64169",
@@ -1029,7 +1085,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69133",
@@ -1101,7 +1157,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64167",
@@ -2103,7 +2159,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69111",
@@ -2115,7 +2171,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69110",
@@ -3454,7 +3510,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25330",
@@ -31237,55 +31293,46 @@
       ],
       "tickers": [],
       "hasText": false
-    },
-    {
-      "id": "insidertracking/63002",
-      "channel": "insidertracking",
-      "datetime": "2026-09-06T14:29:41.000Z",
-      "localDateKst": "2026-09-06",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2299,
-    "eligibleTextCount": 135,
-    "mediaOnlyCount": 2164,
-    "highSignalCount": 472,
-    "broadSignalCount": 1058,
+    "observedCount": 2302,
+    "eligibleTextCount": 119,
+    "mediaOnlyCount": 2183,
+    "highSignalCount": 474,
+    "broadSignalCount": 1061,
     "selectedRawCount": 422,
-    "selectedEligibleCount": 78,
-    "selectedRawCoveragePct": 57.8,
-    "selectedOfObservedPct": 18.4,
+    "selectedEligibleCount": 77,
+    "selectedRawCoveragePct": 64.7,
+    "selectedOfObservedPct": 18.3,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "geo": 416,
+    "macro": 797,
+    "semi": 515,
+    "earnings": 322,
+    "kr-market": 268,
     "market-note": 677,
-    "macro": 796,
-    "semi": 512,
+    "geo": 416,
     "equity": 151,
-    "earnings": 321,
     "power": 301,
     "japan": 149,
     "ai-policy": 216,
     "credit": 46,
     "crypto": 8,
     "media-only": 67,
-    "kr-market": 267,
     "flows": 185,
     "optical": 48,
     "insider": 30,
     "healthcare": 118
   },
   "tickerCounts": {
+    "005930.KS": 60,
+    "000660.KS": 77,
+    "035420.KS": 24,
     "NVDA": 67,
     "META": 50,
     "COST": 2,
@@ -31296,8 +31343,6 @@
     "PAYX": 1,
     "GIS": 1,
     "BE": 28,
-    "005930.KS": 59,
-    "000660.KS": 76,
     "034020.KS": 1,
     "AMZN": 51,
     "MSFT": 23,
@@ -31343,7 +31388,6 @@
     "AAPL": 24,
     "T": 1,
     "COIN": 3,
-    "035420.KS": 23,
     "ARM": 2,
     "SWKS": 2,
     "SMH": 3,
@@ -31452,13 +31496,13 @@
     "103590.KS": 1
   },
   "themes": [
-    "Macro/Rates (796 posts in 14-day research window): >>AI 인플레이션이 최종 제품으로 확산&#33; 칩·메모리 비용 급등, 소프트웨어 월 이용료 인상·글로벌 PC 평균가격 24% 상승 전망 (대만공상시보) •AI 연산을 뒷받침하는 막대한 비용이 ‘AI 인플레이션’으로 이어지고 있음. 칩, HBM, 전력 인프라 비용이 급등하면서 기업들이 자체 현금흐름만으로 비용을...",
+    "Macro/Rates (797 posts in 14-day research window): >>AI 인플레이션이 최종 제품으로 확산&#33; 칩·메모리 비용 급등, 소프트웨어 월 이용료 인상·글로벌 PC 평균가격 24% 상승 전망 (대만공상시보) •AI 연산을 뒷받침하는 막대한 비용이 ‘AI 인플레이션’으로 이어지고 있음. 칩, HBM, 전력 인프라 비용이 급등하면서 기업들이 자체 현금흐름만으로 비용을...",
     "Market Notes (677 posts in 14-day research window): 52주 신고가 (시총 &#036;1B 이상) ━━━━━━━━━━━━━━ 🧬 헬스케어 · AtriCure · Freenome · Haemonetics · Halozyme Therapeutics ·...",
-    "Semiconductors/Memory (512 posts in 14-day research window): >>AI 인플레이션이 최종 제품으로 확산&#33; 칩·메모리 비용 급등, 소프트웨어 월 이용료 인상·글로벌 PC 평균가격 24% 상승 전망 (대만공상시보) •AI 연산을 뒷받침하는 막대한 비용이 ‘AI 인플레이션’으로 이어지고 있음. 칩, HBM, 전력 인프라 비용이 급등하면서 기업들이 자체 현금흐름만으로 비용을...",
+    "Semiconductors/Memory (515 posts in 14-day research window): >>AI 인플레이션이 최종 제품으로 확산&#33; 칩·메모리 비용 급등, 소프트웨어 월 이용료 인상·글로벌 PC 평균가격 24% 상승 전망 (대만공상시보) •AI 연산을 뒷받침하는 막대한 비용이 ‘AI 인플레이션’으로 이어지고 있음. 칩, HBM, 전력 인프라 비용이 급등하면서 기업들이 자체 현금흐름만으로 비용을...",
     "Geopolitics (416 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 9월 19일 > 오전 7시 30분~오후 7시 30분 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 러시아 제재 법안에 서명. 우크라이나 젤렌스키...",
-    "Earnings/Corporate (321 posts in 14-day research window): 2026년 9월 19일 미국 레딧 게시물 분석 > 🤖 NVDA · AVGO · AMD - AI 반도체 · AI 다시 Risk-On 분위기 · AVGO 콜 수익 인증 계속 · AMD 강세에 커버드콜 폭사 인증...",
+    "Earnings/Corporate (322 posts in 14-day research window): 2026년 9월 19일 미국 레딧 게시물 분석 > 🤖 NVDA · AVGO · AMD - AI 반도체 · AI 다시 Risk-On 분위기 · AVGO 콜 수익 인증 계속 · AMD 강세에 커버드콜 폭사 인증...",
     "AI Power/Grid (301 posts in 14-day research window): >>AI 인플레이션이 최종 제품으로 확산&#33; 칩·메모리 비용 급등, 소프트웨어 월 이용료 인상·글로벌 PC 평균가격 24% 상승 전망 (대만공상시보) •AI 연산을 뒷받침하는 막대한 비용이 ‘AI 인플레이션’으로 이어지고 있음. 칩, HBM, 전력 인프라 비용이 급등하면서 기업들이 자체 현금흐름만으로 비용을...",
-    "Korea Market (267 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 9월 19일 > 오전 7시 30분~오후 7시 30분 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 러시아 제재 법안에 서명. 우크라이나 젤렌스키...",
+    "Korea Market (268 posts in 14-day research window): 🌎 글로벌 뉴스 브리핑 - 2026년 9월 19일 > 오전 7시 30분~오후 7시 30분 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 러시아 제재 법안에 서명. 우크라이나 젤렌스키...",
     "AI Policy/Export Controls (216 posts in 14-day research window): >>AI 인플레이션이 최종 제품으로 확산&#33; 칩·메모리 비용 급등, 소프트웨어 월 이용료 인상·글로벌 PC 평균가격 24% 상승 전망 (대만공상시보) •AI 연산을 뒷받침하는 막대한 비용이 ‘AI 인플레이션’으로 이어지고 있음. 칩, HBM, 전력 인프라 비용이 급등하면서 기업들이 자체 현금흐름만으로 비용을..."
   ],
   "catalysts": [
@@ -31469,7 +31513,7 @@
     },
     {
       "key": "000660.KS",
-      "count": 76,
+      "count": 77,
       "text": "2026년 9월 18일 서학개미 순매수 미국 주식 TOP 50 1위: MICRON TECHNOLOGY INC (8.09%) 2위: SCHWAB US DIVIDEND EQUITY ETF (6.44%) 3위:..."
     },
     {
@@ -31479,7 +31523,7 @@
     },
     {
       "key": "005930.KS",
-      "count": 59,
+      "count": 60,
       "text": "Citi) 미국 반도체 — AI 인프라 서밋 2일차: 네트워크가 곧 컴퓨터다 (2026.09.16) Citi는 캘리포니아 산타클라라에서 열린 AI 인프라 서밋 2일차에 참석해 네트워킹 관련 시사점을 중심으로..."
     },
     {
@@ -31518,9 +31562,9 @@
       "text": "2026년 9월 18일 서학개미 순매수 미국 주식 TOP 50 1위: MICRON TECHNOLOGY INC (8.09%) 2위: SCHWAB US DIVIDEND EQUITY ETF (6.44%) 3위:..."
     },
     {
-      "key": "ORCL",
+      "key": "035420.KS",
       "count": 24,
-      "text": ">>AI 인플레이션이 최종 제품으로 확산&#33; 칩·메모리 비용 급등, 소프트웨어 월 이용료 인상·글로벌 PC 평균가격 24% 상승 전망 (대만공상시보) •AI 연산을 뒷받침하는 막대한 비용이 ‘AI 인플레이션’으로 이어지고 있음. 칩, HBM, 전력 인프라 비용이 급등하면서 기업들이 자체 현금흐름만으로 비용을..."
+      "text": "삼전닉스 급락시킨 샘 올트먼 이틀만에 돌변…“이번주에 큰거 온다” “AI 개발 속도를 늦추자”라고 했던 샘 올트먼 오픈AI 최고경영자(CEO)가 불과 이틀 만에 “큰 제품을 출시하겠다”고 예고했다. AI 개발..."
     }
   ],
   "categories": [
@@ -31530,7 +31574,7 @@
       "topics": [
         "macro"
       ],
-      "count": 796,
+      "count": 797,
       "focus": ">>AI 인플레이션이 최종 제품으로 확산&#33; 칩·메모리 비용 급등, 소프트웨어 월 이용료 인상·글로벌 PC 평균가격 24% 상승 전망 (대만공상시보) •AI 연산을 뒷받침하는 막대한 비용이 ‘AI 인플레이션’으로 이어지고 있음. 칩, HBM, 전력 인프라 비용이 급등하면서 기업들이 자체 현금흐름만으로 비용을..."
     },
     {
@@ -31557,7 +31601,7 @@
       "topics": [
         "semi"
       ],
-      "count": 512,
+      "count": 515,
       "focus": ">>AI 인플레이션이 최종 제품으로 확산&#33; 칩·메모리 비용 급등, 소프트웨어 월 이용료 인상·글로벌 PC 평균가격 24% 상승 전망 (대만공상시보) •AI 연산을 뒷받침하는 막대한 비용이 ‘AI 인플레이션’으로 이어지고 있음. 칩, HBM, 전력 인프라 비용이 급등하면서 기업들이 자체 현금흐름만으로 비용을..."
     },
     {
@@ -31593,7 +31637,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 267,
+      "count": 268,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 9월 19일 > 오전 7시 30분~오후 7시 30분 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 대통령은 러시아 제재 법안에 서명. 우크라이나 젤렌스키..."
     },
     {
@@ -31620,7 +31664,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 321,
+      "count": 322,
       "focus": "2026년 9월 19일 미국 레딧 게시물 분석 > 🤖 NVDA · AVGO · AMD - AI 반도체 · AI 다시 Risk-On 분위기 · AVGO 콜 수익 인증 계속 · AMD 강세에 커버드콜 폭사 인증..."
     },
     {
@@ -33087,6 +33131,56 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "aetherjapanresearch/25372",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25372",
+      "datetime": "2026-09-20T14:46:43.000Z",
+      "localDateKst": "2026-09-20",
+      "tags": [
+        "macro",
+        "semi",
+        "earnings"
+      ],
+      "tickers": [
+        "005930.KS",
+        "000660.KS"
+      ],
+      "score": 87,
+      "hasText": true,
+      "summary": "Global Memory tech : 2030년 TAM 2조 달러, ASP 개선, 메모리 지표 견조 (Bofa) 1. 2030년 글로벌 메모리 TAM 2조 달러 전망 • 글로벌 D램+낸드 매출은 2018년..."
+    },
+    {
+      "id": "aetherjapanresearch/25371",
+      "channel": "aetherjapanresearch",
+      "url": "https://t.me/aetherjapanresearch/25371",
+      "datetime": "2026-09-20T14:40:40.000Z",
+      "localDateKst": "2026-09-20",
+      "tags": [
+        "semi",
+        "kr-market"
+      ],
+      "tickers": [
+        "035420.KS"
+      ],
+      "score": 67,
+      "hasText": true,
+      "summary": "#Opinion 아모데이의 \"AI 감속론\" 발언으로 AI 투자의 방향성이 다시 하이퍼스케일러로 왔다고 생각합니다 - AI 감속론은 AI CAPEX를 줄이자는 걸 넘어 머스크 말대로 안전성 평가를 넣어..."
+    },
+    {
+      "id": "HANAchina/69152",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/69152",
+      "datetime": "2026-09-20T14:19:23.000Z",
+      "localDateKst": "2026-09-20",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [],
+      "score": 52,
+      "hasText": true,
+      "summary": ">>CXMT G5 플랫폼 양산 해석, 글로벌 메모리 시장 ‘삼국지’에서 ‘사국지’로? (중국언론) •2026년 9월, CXMT가 세계제조업대회에서 제5세대 DRAM 플랫폼(G5) 양산을 공식 발표. G5는..."
+    },
     {
       "id": "insidertracking/64206",
       "channel": "insidertracking",
@@ -39183,23 +39277,6 @@
       "summary": "JP모건) 일본 퀀트 전략; 옅어지는 일본은행 \"Behind the Curve\" 우려, 트위스트 플래트닝이라면 단기적으로 고베타 매수 및 밸류 매도. (9월 15일, 요약) 일본과 미국의 금융정책 결정을..."
     },
     {
-      "id": "HANAchina/68927",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/68927",
-      "datetime": "2026-09-15T09:08:30.000Z",
-      "localDateKst": "2026-09-15",
-      "tags": [
-        "macro",
-        "kr-market",
-        "flows",
-        "japan"
-      ],
-      "tickers": [],
-      "score": 60,
-      "hasText": true,
-      "summary": ">>10년물 미 국채 금리가 5%를 돌파한 가운데, 일본 국채 금리도 3%를 하회하며 글로벌 채권시장에 대한 압력이 급격히 확대 (중국언론) •글로벌 채권시장에 경고음이 울리고 있음. 미 국채 금리는 5%를..."
-    },
-    {
       "id": "aetherjapanresearch/25249",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25249",
@@ -39958,39 +40035,6 @@
       "score": 73,
       "hasText": true,
       "summary": "BofA, SK하이닉스 &#036;SKHY, 투자의견 매수 개시, 목표주가 268달러"
-    },
-    {
-      "id": "aetherjapanresearch/25194",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/25194",
-      "datetime": "2026-09-14T01:09:26.000Z",
-      "localDateKst": "2026-09-14",
-      "tags": [
-        "ai-policy"
-      ],
-      "tickers": [],
-      "score": 50,
-      "hasText": true,
-      "summary": "JP모건) APAC; AI 개발 감속주장에 대한 우리들의 첫 생각. 이러한 발언들을 어떻게 받아들여야 할까요? 현 단계에서는 답보다 질문이 더 많습니다만, 몇 가지 초기 생각을 정리해 봅니다. (1) 자율..."
-    },
-    {
-      "id": "bornlupin/20139",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20139",
-      "datetime": "2026-09-14T00:11:12.000Z",
-      "localDateKst": "2026-09-14",
-      "tags": [
-        "macro",
-        "semi",
-        "optical",
-        "power"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "score": 76,
-      "hasText": true,
-      "summary": "TSMC, CPO로 'CPO 무어의 법칙' 점화... 새로운 성장 곡선 열다 AI 연산 능력이 비약적으로 발전함에 따라 전통적인 구리 상호연속(Copper Interconnect) 방식이 전력 및 신호 전송..."
     }
   ],
   "current24hItems": [
@@ -40035,20 +40079,6 @@
       "score": 35,
       "hasText": true,
       "summary": ""
-    },
-    {
-      "id": "insidertracking/64168",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/64168",
-      "datetime": "2026-09-19T22:36:25.000Z",
-      "localDateKst": "2026-09-20",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "댄 아이브스는 AI 안전성 논쟁과 관련해 “우리가 속도를 늦추면 중국이 승리합니다”라고 강조. 아이브스는 지난 주말 앤트로픽이 제시한 일부 방안을 규제 포획의 한 형태로 평가하며, 먼저 최상층에 도달한 뒤..."
     },
     {
       "id": "insidertracking/64166",
@@ -40766,20 +40796,6 @@
       "score": 77,
       "hasText": true,
       "summary": ">>국산 AI 연산의 HBM 공급 해법 (중국 국해증권) •HBM의 역할 : HBM은 AI 칩의 핵심 메모리 부품으로, 높은 대역폭·에너지 효율·낮은 지연시간이 강점임. HBM3E 단일 스택 대역폭은..."
-    },
-    {
-      "id": "HANAchina/69112",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/69112",
-      "datetime": "2026-09-19T00:35:12.000Z",
-      "localDateKst": "2026-09-19",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": ">>사우디 수도 리야드 공습 •현지시간 9월 19일 새벽, 사우디 수도 리야드가 공습을 받았으며 상공에서 미사일 요격 소리가 들렸음 (CCTV)..."
     },
     {
       "id": "HANAchina/69111",
