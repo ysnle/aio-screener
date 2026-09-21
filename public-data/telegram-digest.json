@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-09-21T14:04:54.152Z",
-  "attemptedAt": "2026-09-21T14:04:54.152Z",
-  "lastSuccessfulAt": "2026-09-21T14:04:54.152Z",
+  "generatedAt": "2026-09-21T16:38:46.475Z",
+  "attemptedAt": "2026-09-21T16:38:46.475Z",
+  "lastSuccessfulAt": "2026-09-21T16:38:46.475Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-09-07T14:04:50.319Z",
-  "until": "2026-09-21T14:04:50.319Z",
+  "since": "2026-09-07T16:38:41.348Z",
+  "until": "2026-09-21T16:38:41.348Z",
   "current24hWindow": {
     "start": "2026-09-19T23:00:00.000Z",
     "end": "2026-09-20T23:00:00.000Z",
@@ -14,7 +14,7 @@
   },
   "current24hCoverage": {
     "observedCount": 101,
-    "eligibleTextCount": 18,
+    "eligibleTextCount": 12,
     "channelCounts": {
       "insidertracking": 58,
       "bornlupin": 6,
@@ -81,33 +81,33 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 315,
+      "count": 313,
       "freshCount": 40,
       "eligibleTextCount": 37,
       "selectedCount": 99,
       "error": null,
-      "lastPostId": 25394
+      "lastPostId": 25396
     },
     {
       "channel": "insidertracking",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1159,
+      "count": 1161,
       "freshCount": 38,
       "eligibleTextCount": 38,
       "selectedCount": 128,
       "error": null,
-      "lastPostId": 64290
+      "lastPostId": 64294
     },
     {
       "channel": "bornlupin",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 178,
-      "freshCount": 34,
-      "eligibleTextCount": 34,
+      "freshCount": 14,
+      "eligibleTextCount": 14,
       "selectedCount": 75,
       "error": null,
       "lastPostId": 20247
@@ -117,17 +117,93 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 666,
+      "count": 667,
       "freshCount": 39,
       "eligibleTextCount": 39,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 69213
+      "lastPostId": 69215
     }
   ],
-  "count": 2318,
-  "retainedItemCount": 512,
+  "count": 2319,
+  "retainedItemCount": 497,
   "observedItems": [
+    {
+      "id": "aetherjapanresearch/25396",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-09-21T14:51:03.000Z",
+      "localDateKst": "2026-09-21",
+      "score": 35,
+      "tags": [
+        "japan"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/69215",
+      "channel": "HANAchina",
+      "datetime": "2026-09-21T14:28:54.000Z",
+      "localDateKst": "2026-09-21",
+      "score": 45,
+      "tags": [
+        "ai-policy"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "aetherjapanresearch/25395",
+      "channel": "aetherjapanresearch",
+      "datetime": "2026-09-21T14:25:36.000Z",
+      "localDateKst": "2026-09-21",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/69214",
+      "channel": "HANAchina",
+      "datetime": "2026-09-21T14:06:22.000Z",
+      "localDateKst": "2026-09-21",
+      "score": 76,
+      "tags": [
+        "macro",
+        "semi",
+        "power"
+      ],
+      "tickers": [
+        "TSM"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/64294",
+      "channel": "insidertracking",
+      "datetime": "2026-09-21T14:05:36.000Z",
+      "localDateKst": "2026-09-21",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/64293",
+      "channel": "insidertracking",
+      "datetime": "2026-09-21T14:05:20.000Z",
+      "localDateKst": "2026-09-21",
+      "score": 40,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "HANAchina/69213",
       "channel": "HANAchina",
@@ -1341,7 +1417,7 @@
         "power"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69179",
@@ -1380,7 +1456,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/20243",
@@ -1476,7 +1552,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64247",
@@ -1500,7 +1576,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69173",
@@ -1874,7 +1950,7 @@
         "NVDA",
         "TSLA"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69165",
@@ -1905,7 +1981,7 @@
       "tickers": [
         "009150.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64237",
@@ -1935,7 +2011,7 @@
       "tickers": [
         "005930.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69164",
@@ -1982,7 +2058,7 @@
         "japan"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69163",
@@ -2073,7 +2149,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64232",
@@ -2208,7 +2284,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64225",
@@ -2868,7 +2944,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64193",
@@ -3299,7 +3375,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64171",
@@ -3348,7 +3424,7 @@
         "ai-policy"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69136",
@@ -3374,7 +3450,7 @@
         "power"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/20217",
@@ -3386,7 +3462,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69135",
@@ -3838,7 +3914,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64141",
@@ -3925,7 +4001,7 @@
         "005930.KS",
         "000660.KS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25355",
@@ -3937,7 +4013,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25353",
@@ -3989,7 +4065,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/20214",
@@ -4002,7 +4078,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25351",
@@ -4561,7 +4637,7 @@
         "005930.KS",
         "192820.KQ"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69109",
@@ -5276,7 +5352,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25342",
@@ -5352,7 +5428,7 @@
         "META",
         "AMZN"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/20210",
@@ -5368,7 +5444,7 @@
       "tickers": [
         "NVDA"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25341",
@@ -5556,7 +5632,7 @@
         "ai-policy"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "bornlupin/20208",
@@ -5568,7 +5644,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69092",
@@ -31450,110 +31526,44 @@
       ],
       "tickers": [],
       "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/25066",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-09-07T15:11:42.000Z",
-      "localDateKst": "2026-09-08",
-      "score": 35,
-      "tags": [
-        "japan"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/25065",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-09-07T15:00:59.000Z",
-      "localDateKst": "2026-09-08",
-      "score": 51,
-      "tags": [
-        "semi"
-      ],
-      "tickers": [
-        "000660.KS"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/25064",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-09-07T14:59:05.000Z",
-      "localDateKst": "2026-09-07",
-      "score": 64,
-      "tags": [
-        "semi",
-        "kr-market",
-        "earnings"
-      ],
-      "tickers": [
-        "000660.KS"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/25063",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-09-07T14:54:16.000Z",
-      "localDateKst": "2026-09-07",
-      "score": 45,
-      "tags": [
-        "geo",
-        "japan"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/68506",
-      "channel": "HANAchina",
-      "datetime": "2026-09-07T14:21:50.000Z",
-      "localDateKst": "2026-09-07",
-      "score": 52,
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2318,
-    "eligibleTextCount": 148,
-    "mediaOnlyCount": 2170,
-    "highSignalCount": 480,
-    "broadSignalCount": 1063,
+    "observedCount": 2319,
+    "eligibleTextCount": 128,
+    "mediaOnlyCount": 2191,
+    "highSignalCount": 481,
+    "broadSignalCount": 1061,
     "selectedRawCount": 424,
-    "selectedEligibleCount": 76,
-    "selectedRawCoveragePct": 51.4,
+    "selectedEligibleCount": 59,
+    "selectedRawCoveragePct": 46.1,
     "selectedOfObservedPct": 18.3,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "market-note": 683,
+    "japan": 144,
+    "ai-policy": 216,
+    "market-note": 686,
     "macro": 808,
-    "semi": 512,
-    "geo": 431,
-    "power": 300,
-    "ai-policy": 215,
+    "semi": 511,
+    "power": 301,
+    "geo": 430,
     "equity": 149,
     "crypto": 9,
-    "earnings": 320,
+    "earnings": 319,
     "healthcare": 120,
     "media-only": 66,
     "credit": 47,
-    "kr-market": 266,
+    "kr-market": 265,
     "flows": 186,
-    "japan": 145,
     "optical": 47,
     "insider": 28
   },
   "tickerCounts": {
+    "TSM": 78,
     "005930.KS": 67,
     "NVDA": 67,
     "TSLA": 20,
@@ -31564,12 +31574,11 @@
     "MU": 31,
     "MRVL": 8,
     "COIN": 4,
-    "000660.KS": 82,
+    "000660.KS": 80,
     "AVGO": 36,
     "AMD": 39,
     "035420.KS": 26,
     "SNDK": 10,
-    "TSM": 77,
     "MTK": 6,
     "GS": 4,
     "ORCL": 25,
@@ -31719,23 +31728,23 @@
   },
   "themes": [
     "Macro/Rates (808 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 캔터 피츠제럴드가 ‘Overweight’ 투자의견을 유지하면서 목표주가를 522달러에서 608달러로 상향. 성장 가속과 펀더멘털 개선을 근거로 제시. • 서비스나우 (NOW)...",
-    "Market Notes (683 posts in 14-day research window): 52주 신고가 (시총 &#036;1B 이상) ━━━━━━━━━━━━━━ 🧬 헬스케어 · AtriCure · Freenome · Haemonetics · Halozyme Therapeutics ·...",
-    "Semiconductors/Memory (512 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 캔터 피츠제럴드가 ‘Overweight’ 투자의견을 유지하면서 목표주가를 522달러에서 608달러로 상향. 성장 가속과 펀더멘털 개선을 근거로 제시. • 서비스나우 (NOW)...",
-    "Geopolitics (431 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 캔터 피츠제럴드가 ‘Overweight’ 투자의견을 유지하면서 목표주가를 522달러에서 608달러로 상향. 성장 가속과 펀더멘털 개선을 근거로 제시. • 서비스나우 (NOW)...",
-    "Earnings/Corporate (320 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 캔터 피츠제럴드가 ‘Overweight’ 투자의견을 유지하면서 목표주가를 522달러에서 608달러로 상향. 성장 가속과 펀더멘털 개선을 근거로 제시. • 서비스나우 (NOW)...",
-    "AI Power/Grid (300 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 캔터 피츠제럴드가 ‘Overweight’ 투자의견을 유지하면서 목표주가를 522달러에서 608달러로 상향. 성장 가속과 펀더멘털 개선을 근거로 제시. • 서비스나우 (NOW)...",
-    "Korea Market (266 posts in 14-day research window): 2026년 9월 21일 미국 증시 프리마켓 브리핑 미국 증시는 현재 다우 선물 +0.37%, S&P500 선물 +0.39%, 나스닥100 선물 +0.49%, 러셀2000 선물 +0.33% 상승 중이며 VIX는 17.86으로 1.0% 하락. 주말 기준 약세였던 나스닥 선물이 상승 전환하면서 현재까지는 지정학 우려보다...",
-    "AI Policy/Export Controls (215 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 캔터 피츠제럴드가 ‘Overweight’ 투자의견을 유지하면서 목표주가를 522달러에서 608달러로 상향. 성장 가속과 펀더멘털 개선을 근거로 제시. • 서비스나우 (NOW)..."
+    "Market Notes (686 posts in 14-day research window): 52주 신고가 (시총 &#036;1B 이상) ━━━━━━━━━━━━━━ 🧬 헬스케어 · AtriCure · Freenome · Haemonetics · Halozyme Therapeutics ·...",
+    "Semiconductors/Memory (511 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 캔터 피츠제럴드가 ‘Overweight’ 투자의견을 유지하면서 목표주가를 522달러에서 608달러로 상향. 성장 가속과 펀더멘털 개선을 근거로 제시. • 서비스나우 (NOW)...",
+    "Geopolitics (430 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 캔터 피츠제럴드가 ‘Overweight’ 투자의견을 유지하면서 목표주가를 522달러에서 608달러로 상향. 성장 가속과 펀더멘털 개선을 근거로 제시. • 서비스나우 (NOW)...",
+    "Earnings/Corporate (319 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 캔터 피츠제럴드가 ‘Overweight’ 투자의견을 유지하면서 목표주가를 522달러에서 608달러로 상향. 성장 가속과 펀더멘털 개선을 근거로 제시. • 서비스나우 (NOW)...",
+    "AI Power/Grid (301 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 캔터 피츠제럴드가 ‘Overweight’ 투자의견을 유지하면서 목표주가를 522달러에서 608달러로 상향. 성장 가속과 펀더멘털 개선을 근거로 제시. • 서비스나우 (NOW)...",
+    "Korea Market (265 posts in 14-day research window): 2026년 9월 21일 미국 증시 프리마켓 브리핑 미국 증시는 현재 다우 선물 +0.37%, S&P500 선물 +0.39%, 나스닥100 선물 +0.49%, 러셀2000 선물 +0.33% 상승 중이며 VIX는 17.86으로 1.0% 하락. 주말 기준 약세였던 나스닥 선물이 상승 전환하면서 현재까지는 지정학 우려보다...",
+    "AI Policy/Export Controls (216 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 캔터 피츠제럴드가 ‘Overweight’ 투자의견을 유지하면서 목표주가를 522달러에서 608달러로 상향. 성장 가속과 펀더멘털 개선을 근거로 제시. • 서비스나우 (NOW)..."
   ],
   "catalysts": [
     {
       "key": "000660.KS",
-      "count": 82,
+      "count": 80,
       "text": "2026년 9월 21일 미국 증시 프리마켓 브리핑 미국 증시는 현재 다우 선물 +0.37%, S&P500 선물 +0.39%, 나스닥100 선물 +0.49%, 러셀2000 선물 +0.33% 상승 중이며 VIX는 17.86으로 1.0% 하락. 주말 기준 약세였던 나스닥 선물이 상승 전환하면서 현재까지는 지정학 우려보다..."
     },
     {
       "key": "TSM",
-      "count": 77,
+      "count": 78,
       "text": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/09/01 ~ 2026/09/18 (9월 누적) 1위: ISHARES 0-3 MONTH TREASURY BOND ETF (9.11%) 2위: IONQ..."
     },
     {
@@ -31805,7 +31814,7 @@
       "topics": [
         "geo"
       ],
-      "count": 431,
+      "count": 430,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 캔터 피츠제럴드가 ‘Overweight’ 투자의견을 유지하면서 목표주가를 522달러에서 608달러로 상향. 성장 가속과 펀더멘털 개선을 근거로 제시. • 서비스나우 (NOW)..."
     },
     {
@@ -31823,7 +31832,7 @@
       "topics": [
         "semi"
       ],
-      "count": 512,
+      "count": 511,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 캔터 피츠제럴드가 ‘Overweight’ 투자의견을 유지하면서 목표주가를 522달러에서 608달러로 상향. 성장 가속과 펀더멘털 개선을 근거로 제시. • 서비스나우 (NOW)..."
     },
     {
@@ -31841,7 +31850,7 @@
       "topics": [
         "power"
       ],
-      "count": 300,
+      "count": 301,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 캔터 피츠제럴드가 ‘Overweight’ 투자의견을 유지하면서 목표주가를 522달러에서 608달러로 상향. 성장 가속과 펀더멘털 개선을 근거로 제시. • 서비스나우 (NOW)..."
     },
     {
@@ -31850,7 +31859,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 215,
+      "count": 216,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 캔터 피츠제럴드가 ‘Overweight’ 투자의견을 유지하면서 목표주가를 522달러에서 608달러로 상향. 성장 가속과 펀더멘털 개선을 근거로 제시. • 서비스나우 (NOW)..."
     },
     {
@@ -31859,7 +31868,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 266,
+      "count": 265,
       "focus": "2026년 9월 21일 미국 증시 프리마켓 브리핑 미국 증시는 현재 다우 선물 +0.37%, S&P500 선물 +0.39%, 나스닥100 선물 +0.49%, 러셀2000 선물 +0.33% 상승 중이며 VIX는 17.86으로 1.0% 하락. 주말 기준 약세였던 나스닥 선물이 상승 전환하면서 현재까지는 지정학 우려보다..."
     },
     {
@@ -31886,7 +31895,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 320,
+      "count": 319,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 캔터 피츠제럴드가 ‘Overweight’ 투자의견을 유지하면서 목표주가를 522달러에서 608달러로 상향. 성장 가속과 펀더멘털 개선을 근거로 제시. • 서비스나우 (NOW)..."
     },
     {
@@ -31904,7 +31913,7 @@
       "topics": [
         "japan"
       ],
-      "count": 145,
+      "count": 144,
       "focus": "2026년 9월 21일 미국 증시 프리마켓 브리핑 미국 증시는 현재 다우 선물 +0.37%, S&P500 선물 +0.39%, 나스닥100 선물 +0.49%, 러셀2000 선물 +0.33% 상승 중이며 VIX는 17.86으로 1.0% 하락. 주말 기준 약세였던 나스닥 선물이 상승 전환하면서 현재까지는 지정학 우려보다..."
     },
     {
@@ -31931,7 +31940,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 683,
+      "count": 686,
       "focus": "52주 신고가 (시총 &#036;1B 이상) ━━━━━━━━━━━━━━ 🧬 헬스케어 · AtriCure · Freenome · Haemonetics · Halozyme Therapeutics ·..."
     }
   ],
@@ -33353,6 +33362,24 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "HANAchina/69214",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/69214",
+      "datetime": "2026-09-21T14:06:22.000Z",
+      "localDateKst": "2026-09-21",
+      "tags": [
+        "macro",
+        "semi",
+        "power"
+      ],
+      "tickers": [
+        "TSM"
+      ],
+      "score": 76,
+      "hasText": true,
+      "summary": ">>TSMC, 선진 패키징 검증센터 설립…AI 칩 빠른 세대교체 대응 (대만경제일보) •TSMC 주도로 대만 장비·소재 업체들이 가오슝 바이푸 산업단지에 공동 입주해 선진 패키징 공급망과 검증 플랫폼을 구축할..."
+    },
     {
       "id": "HANAchina/69211",
       "channel": "HANAchina",
@@ -39672,20 +39699,6 @@
       "summary": ">>마이크론 고위 임원: 메모리가 AI의 상한선을 결정, 실질적인 신규 생산능력은 2028년 이후에야 •마이크론 고위 임원 Sumit Sadana는 메모리 대역폭과 용량이 이미 AI 시스템 성능의 상한선을..."
     },
     {
-      "id": "HANAchina/68982",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/68982",
-      "datetime": "2026-09-16T04:58:39.000Z",
-      "localDateKst": "2026-09-16",
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "score": 50,
-      "hasText": true,
-      "summary": ">>글로벌 선도&#33; 한눈에 이해하는 중국 ‘소비자 AI’ 전쟁 •모건스탠리는 중국 소비자용 AI의 주간 사용률이 이미 80%에 달해 미국의 54%를 앞서고 있다고 봄. 핵심 동력은 슈퍼앱 생태계의 유통과..."
-    },
-    {
       "id": "bornlupin/20171",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20171",
@@ -40752,20 +40765,6 @@
       "summary": "향후 3년 AI 클라우드 경쟁 요소: 누가 GPU에서 더 많은 토큰을 만들어낼 수 있는가?(SemiAnalysis 창업자 Dylan Patel) • 컴퓨팅 클라우드 제조사 '그래픽 카드 임대'만으로는 곧..."
     },
     {
-      "id": "bornlupin/20221",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20221",
-      "datetime": "2026-09-20T07:31:33.000Z",
-      "localDateKst": "2026-09-20",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "[단독] '美 월가 억만장자' 드러켄밀러 첫 방한…삼성·SK·두산과 투자 논의"
-    },
-    {
       "id": "insidertracking/64193",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/64193",
@@ -40967,20 +40966,6 @@
       "score": 52,
       "hasText": true,
       "summary": "[9월 LPR(대출우대금리)고시 : 동결] >1년물 금리 3.0% (8월 3.0%) >5년물 금리 3.5% (8월 3.5%) **시장 예상 부합, 16개월 연속 동결..."
-    },
-    {
-      "id": "bornlupin/20220",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20220",
-      "datetime": "2026-09-20T00:47:36.000Z",
-      "localDateKst": "2026-09-20",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "Evercore ISI, 기본 시나리오 토큰 소비량 전망 (2024~2030년) 기본 시나리오에서도 AI 토큰 소비량이 2027년 이후 급격히 가속될 것으로 전망 2026년 → 약 100 Quadrillion..."
     },
     {
       "id": "HANAchina/69137",
