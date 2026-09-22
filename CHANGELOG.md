@@ -1,3 +1,119 @@
+## v56.15 (2026-09-22)
+- **시세 tick 하나가 보관한 스크린 실행을 대체하던 문제를 고쳤습니다 (P1177, QA-SCR-01).**
+- 검증 공백을 메우려고 그룹 게이트를 직접 돌렸다가 드러났습니다. `browser-screener-refresh`가 `background quote tick replaced the ranked snapshot`으로 **2회 연속 재현** 실패했습니다. `src/data/providers/screener.js`의 `snapshotId`는 **`rows` 전체를 해시**하는데, **v56.12(P1174)** 가 행마다 `liveQuoteDiagnostic.diagnosticPrice`와 `livePriceRejectedReason`을 추가하면서 **거부된 quote에서도 live 값이 rows에 들어갔습니다.** 그래서 `aio:liveQuotes` 한 번에 해시가 바뀌고 새 ranked snapshot이 발급되어, 화면이 보관한 실행이 배경 시세로 대체됐습니다(P1074 불변성 위반). 이 게이트가 v56.06/v56.08 이후 실행되지 않아 6개 버전 동안 보이지 않았습니다.
+- 이제 live 파생 필드 22종(가격 family·quote 진단·live mcap family)을 `LIVE_QUOTE_DERIVED_ROW_KEYS`로 명시하고 `snapshotIdentityRows()` 투영으로만 해시합니다 — **진단은 행에 그대로 남고 정체성에서만 빠집니다.** `G-SCR-HASH` 참조 해시 단언도 같은 투영을 쓰도록 맞췄습니다(최적화 해셔 == 참조 해셔라는 원래 의도는 유지).
+- 검증: `ci-screener-workbench-contract` PASS(`failures: []` — 신규 3종: 다른 quote로 같은 artifact를 읽으면 `snapshotId` **동일**(`screener-snapshot-2c6183bd`), 진단은 101/102로 각각 보존, **artifact가 바뀌면 정체성도 바뀜**(전면 동결 아님)), `ci-screener-auto-refresh-browser-check` PASS(**`frozenRunSurvivesQuoteRefresh: true`**, `persistedReplay.rows 873`, `runtimeErrors: 0`), `ci-syntax-check`·`ci-assertion-trace-check`·`ci-ledger-integrity-check`·`ci-version-check` PASS.
+- **미검증**: 제외 목록은 명시적 열거이므로 **새 live 파생 필드가 추가되면 함께 갱신돼야 합니다** — 그 위험은 게이트가 두 quote로 같은 artifact를 읽어 잡습니다(필드가 늘면 즉시 실패). `instrumentRef.currency`처럼 중첩 객체 안의 live 파생 필드는 이번에 제외하지 않았습니다(통화가 다른 quote는 quote-contract가 먼저 거부하므로 현재 그런 채택 경로가 없습니다). 브라우저 그룹은 여전히 데이터 노후 때문에 `affected`에서 SKIP되며, 그룹 직접 실행이 계속 필요합니다. 커밋·푸시·배포하지 않았습니다.
+- R1 7곳 v56.15
+
+## v56.14 (2026-09-22)
+- **미설정 목표가가 `$0.00` · -100% 잠재수익으로 표시되던 문제를 고쳤습니다 (P1176, 22 PFR01/PFR06).**
+- **빈 칸이 0으로 저장되고 있었습니다.** `js/aio-workspace.js`의 `addPortfolioPosition`이 `parseFloat(...) || 0`으로 미설정을 0으로 직렬화했고, 수정 경로는 `target || 기존값`이라 목표가를 **지울 수도 없었습니다**. 그 0은 `src/data/runtime-readers.js`에서 `Number(null)===0`으로 **부활**했고(그 파일의 `finite`는 타입 검사라 0을 통과시킵니다), `normalizePortfolio`가 그대로 보존했으며, native 테이블이 `finite(target) != null`로 판정해 `$0.00`을 그린 뒤 `(0 - price)/price*100` = **-100.0%**를 빨간색으로 덧붙였습니다. legacy 테이블은 이미 `target > 0`으로 판정하고 있었으므로, **같은 '목표가 미설정' 라벨을 두 writer가 다른 정의로** 쓰고 있었습니다.
+- 이제 writer·runtime reader·legacy facade·정규화 **네 경계**가 빈 칸을 **null로 보존**하고, 유효한 양수만 목표가로 다룹니다. **목표가와 목표비중을 타입으로 분리**했습니다 — 가격 목표의 0은 미설정이고, `targetWeight`의 0%는 실제 값이며(그동안 정규화가 아예 버리고 있었습니다), native 테이블도 legacy와 같은 정의(`target > 0`)를 씁니다.
+- 검증: `ci-esm-core-unit-check` exit 0 PASS(정규화 0/음수/NaN/''/'abc'→null, 양수 보존, `target:0`과 `targetWeight:0`의 타입 분리, runtime reader와 legacy facade가 0을 부활시키지 않음, 단위 1 fixture **주식 100+현금 900 → 총자산 1000 · 주식 노출 10%**), `ci-headless-tests` **1144/1144 PASS**, `ci-architecture-browser-check`·`ci-vertical-slice-browser-check` PASS(20 라우트), `ci-portfolio-vault-e2e` exit 0 PASS(`errors: []`, 실브라우저에서 빈 목표가 저장값 `null` · 셀 `미설정` · `$0.00`/`-100` 부재, 양성 대조는 저장값 150 · 셀 `$150.00`), `ci-syntax-check` PASS(401), `ci-assertion-trace-check`·`ci-ledger-integrity-check` PASS(R629), `ci-decomp-hotspot-check` PASS(`js/aio-workspace.js` 2623→2625 **+2줄 성장을 `--write --allow-growth`로 기록된 결정으로 남겼습니다** — 주석을 압축하거나 상수를 고쳐 지표를 속이지 않았습니다).
+- **미검증**: 22의 나머지 단위(PFR01 초기 배분 역산 폐기·PFR02 계좌/주식 부분 위험·PFR03 RF·benchmark·PFR04 현재 구성 과거 적용 분리·PFR05 표본·꼬리위험)는 미착수입니다. `targetWeight`는 정규화 계약만 앞서 있고 입력·표시 경로가 없습니다. P1175의 `currencyState` UI 표시와 **11 P11-01(영구 저장 ack)도 미착수**입니다. 기존에 0으로 저장된 로컬 자료를 일괄 변환하지는 않았습니다(화면은 이미 정직하고, 다음 저장 시 정리됩니다). `qa-runner affected`는 pass=70·cached=16·**fail=2**(`ci-data-lineage-audit`·`ci-reconciliation-contract-check` — 커밋 `46304bbc`의 2026-09-20 데이터가 SLA를 넘긴 **기존 데이터 노후**로 `data-refresh`가 필요한 건이며 이 변경과 무관합니다)·skip=31이고, 그 phase 차단으로 SKIP된 **7개 그룹 31종은 `--group`으로 직접 실행해 28 PASS / 3 FAIL**을 확인했습니다. 실패 3건은 모두 이 단위 밖입니다 — 데이터 노후 2건(`watchdog-reconciliation`·`watchdog-web-research`)과 **P1174 회귀 1건**(`browser-screener-refresh`: v56.12가 행마다 넣은 `liveQuoteDiagnostic`이 `snapshotId` 해시 입력이 되어 **quote tick마다 새 스냅샷이 발급**됩니다. 범위가 다른 단위라 새 P 대신 **QA-SCR-01로 등록**했습니다). 커밋·푸시·배포하지 않았습니다.
+- R1 7곳 v56.14
+
+## v56.13 (2026-09-22)
+- **통화 없는 합산을 완전한 평가로 표시하던 문제를 고쳤습니다 (P1175, 11 P11-02).**
+- `normalizePortfolio`가 `holding.currency`·`costCurrency`·`baseCurrency`·`cashCurrency`를 **버리고 있었고**, `derivePortfolioSurface`가 수량×가격과 cash를 같은 단위로 더했습니다. 문서의 합성 그대로 **USD 100 + KRW 70000 → totalAssets 70100, valuationState=complete**가 됩니다 — 환산 근거 없이 서로 다른 통화를 더하고 "완전한 평가"라고 말한 것입니다.
+- 이제 정규화가 통화 선언을 **보존**하고(없으면 null, 심볼로 추정하지 않음), 표면 계산이 `currencyBasis`를 판정합니다. **혼합 통화면** `positionValue`·`totalAssets`·`totalPnl`·섹터 비중을 만들지 않고 `currencyState: 'mixed-without-conversion'`으로 사유를 발행합니다. 통화를 선언하지 않은 포트폴리오는 기존 단일 기준 동작을 유지하되 `undeclared-single-basis-assumed`로 **가정을 드러냅니다**(통화 미확인은 USD라는 뜻이 아닙니다).
+- 검증: `ci-esm-core-unit-check` exit 0 PASS(W02 블록에 단언 5종 추가 — 혼합은 보류, **선언된 단일 통화는 그대로 합산**, 미선언은 가정 공시), `ci-architecture-contract-check` PASS, `ci-syntax-check` PASS, `ci-assertion-trace-check` PASS, `ci-version-check` PASS.
+- **미검증**: 다중통화 환산·FX leg·valuation cut은 만들지 않았습니다(문서가 허용한 첫 단계 범위). UI가 `currencyState`를 아직 표시하지 않고, 실 화면에서 혼합통화 자산이 오평가됐다는 증거는 없습니다(합성 입력 확인). **11 P11-01(영구 저장 성공 ack)은 미착수**입니다. 커밋·푸시·배포하지 않았습니다.
+- R1 7곳 v56.13
+
+## v56.12 (2026-09-22)
+- **15 D06(원자적 quote 계약)과 수익률 비교 계약을 구현했습니다 (P1174).**
+- **통화를 잃은 quote가 현재 가격이 됐습니다.** 병합이 통화를 가격의 주석으로 취급해서 `!liveCurrency`가 "충돌 없음"으로 통과했고, 자격 있는 envelope이면 가격이 채택되며 통화는 **null(MISSING)**이 됐습니다 — 문서의 조건부 반증 그대로입니다. 이제 `evaluateQuoteContract`가 가격·통화·관측시각을 한 판정으로 묶습니다: 통화를 선언하지 않은 quote는 **거부**되고, artifact 통화를 물려받는 것은 **동일 instrument/listing 보증(registry VERIFIED)이 있을 때만** 허용됩니다. 거부된 quote는 값·사유와 함께 `liveQuoteDiagnostic`으로 남습니다.
+- **수익률에 비교 기준이 없었습니다.** `src/domain/screener/return-contract.js`를 추가해 kind/adjustment/통화/valuation 시각/value를 **선언**하게 하고, **provider 필드 이름 `adjustedClose`로 조정 범위를 추정하지 못하게** 하며, 배당 축 없는 total return과 혼합 비교 집단을 거부합니다. 문서의 산술 fixture를 그대로 고정했습니다: FX +10%/−10% → **−1%**(단순 합산 0% 아님), 역수 호가는 방향을 먼저 정규화, 2:1 분할은 −50%가 아니고 수량을 두 번 적용하지 않음, 배당 100→98+현금 2는 가격수익률 −2%·보유수익률 0%, FX 결측은 **보간하지 않고** null.
+- 검증: `ci-screener-workbench-contract` exit 0 PASS(**146 checks**, `G-SCR-QUOTE-ATOMIC` 6종·`G-SCR-RETURN` 12종), `ci-syntax-check` PASS, `ci-assertion-trace-check` PASS(P1174 인용), `ci-data-pipeline-contract-check`·`ci-runtime-contract-check` PASS.
+- **미검증**: 실제 공급자가 통화 없는 envelope를 보낸 사례는 확인하지 않았습니다(provider fixture까지). 기업행동·조정가격 전수 추적은 20의 조사 큐에 남고, `identityProof`가 registry VERIFIED 종목에서만 참이라 현재는 대부분 종목에서 통화 없는 quote가 거부됩니다(의도적 보수성). UI가 `liveQuoteDiagnostic`을 아직 표시하지 않습니다. 커밋·푸시·배포하지 않았습니다.
+- R1 7곳 v56.12
+
+## v56.11 (2026-09-22)
+- **17 작업 단위 4·5와 06 O01·O03을 구현했습니다 (P1173).**
+- **파일별 신선함을 입력 묶음의 호환성으로 오해했습니다.** `readCurrent`는 screener·universe·model-validation을 Promise.all로 읽고 **무조건 합쳤습니다** — 세 파일에는 공통 revision이 없고 `snapshotId`는 도착한 행 집합의 식별일 뿐입니다. 이제 소비자가 선언한 정책으로 `COHERENT`/`INCOMPATIBLE`/`UNVERIFIABLE`을 판정합니다: 알 수 없는 schema, 스크리너가 선언한 universe 크기와 실제 universe 불일치는 **차단**(read가 partial로 강등되고 경고), 일부만 교체된 publication 전환은 `partial-rollout` 검출, **서로 다른 cadence는 실패가 아닙니다**. schema를 선언하지 않은 멤버는 `unjudged`로 남겨 "선언 없음"이 "호환"으로 읽히지 않게 했고, 알 수 없는 model-validation status가 조용히 null이 되던 것을 사유로 보존했습니다.
+- **`overall`은 durable 하나에서만 파생됩니다** — browser가 UNKNOWN이어도 바뀌지 않는데 그 범위를 알리는 곳이 없었습니다. 계약에 `overallBasis`(포함/제외 평면)와 `featureAvailability`를 추가하고(계약이 화이트리스트로 버리면 발행되지 않으므로), producer가 기능별 `AVAILABLE`/`DEGRADED`/`UNAVAILABLE`/`UNKNOWN`을 **관측시각과 누락 이유**와 함께 발행합니다. `overall=BLOCKED`인 동안 `browser-shell=UNKNOWN|browser-plane-not-observed`가 함께 나옵니다.
+- **게이트가 선언한 입력이 실제로 게이트를 선택하지 않았습니다.** 파생 계산으로 **228건**을 찾았습니다 — 예: `js/aio-kr-data.js`는 `data-refresh`의 선언 입력인데 어떤 규칙도 data 그룹을 선택하지 않아 그 파일만 바꾼 변경에서 데이터 게이트가 실행되지 않았습니다. impactRules를 보강하고, **registry에서 파생한 canary 검사**를 게이트에 고정했습니다(문서 목록을 정본으로 삼지 않습니다). 실측: `affected --files js/aio-kr-data.js`가 이제 `data-refresh`를 선택합니다.
+- **핵심 데이터 artifact에는 오프라인 폴백이 아예 없었습니다.** `data.json`·`history.json`·`screener.json`·`telegram-digest.json` 등이 모든 캐시 표 밖이었습니다. `CORE_DATA_URL_PATTERNS`+자체 TTL로 같은 network-first + 나이 판정 경로에 넣었고, 시세 TTL과의 침묵 공유를 금지하는 단언을 추가했습니다.
+- 검증: `ci-screener-workbench-contract` exit 0(`G-SCR-PUBSET` 9종), `ci-operations-contract-check` ok:true(P1173 6종), `ci-qa-pipeline-contract-check` exit 0(파생 canary), `ci-service-worker-cache-policy-check` exit 0(P1173 7종), `ci-operations-status-check` exit 0, `ci-syntax-check` 399 PASS.
+- **미검증**: 실제 publication 전환·부분 배포·오프라인 복귀의 브라우저 재현은 하지 않았습니다(전환 fixture는 단위 수준, SW는 정적 계약까지). 세 입력에 공통 publication id가 없다는 사실은 남아 있고, **UI writer가 기능별 축을 아직 읽지 않습니다**. 커밋·푸시·배포하지 않았습니다.
+- R1 7곳 v56.11
+
+## v56.10 (2026-09-22)
+- **구조 핸드오프 05 A05(요청별 출처 소유권)·A04(수치 claim)를 구현했습니다 (P1172).**
+- **'공식 도메인'이 '이 질문에 답했다'로 승격됐습니다.** evidence floor는 도메인·독립 출처 수·primary 수·contentDepth만 보고 **그 출처가 이 질문의 것인지 대조하지 않아**, 문서의 합성 반증대로 **다른 질문의 SEC URL 하나**를 넘기면 `ready: true`가 됐습니다. native citation은 전역 `_aioLastClaudeCitations`에 `{url,title}`로만 쌓였고, evidence 문서 계약은 화이트리스트라 `queryId`/`entity`를 **받아도 버렸습니다**.
+- 이제 `verifyEvidenceBinding()`이 요청 결속을 판정합니다 — `BOUND`/`MISMATCHED_QUERY`/`MISMATCHED_ENTITY`/`UNBOUND`/`UNVERIFIABLE`. **불일치는 ready를 막고**, 선언이 없거나 호출자가 자기 요청 id를 말하지 않으면 `bindingChecked: false`로 **표시만** 합니다(무결속을 확인으로 승격하지 않음). evidence 문서 계약에 결속 필드를 추가하고, chat이 인용에 활성 요청 id를 스탬프하며 floor 호출부가 자기 `requestId`를 넘깁니다 — `questionPlan.queryId`와 chat 요청 id는 다른 이름공간이라 **둘 다** 기대값으로 넘겨 오탐을 만들지 않습니다.
+- **텍스트 claim 하나가 수치 검사를 껐습니다.** `validateAnswerPlan`의 수치 조건이 `claims.length === 0`일 때만 켜져서, 타입 무관하게 claim이 하나만 있으면 근거 없는 현재 사실 숫자가 공개될 수 있었습니다. 이제 **`NUMERIC_TYPES` claim만** 조건을 해제합니다(전면 삭제는 하지 않습니다 — 문서가 지적한 대로 일반 설명을 훼손합니다).
+- 검증: `ci-ai-intelligence-contract-check` PASS — P1172 단언 11종(다른 요청·다른 entity 거부, 이 요청 수용, **무결속 표시**, 호출자 id 미선언 시 `UNVERIFIABLE`, 텍스트 claim이 조건을 못 끄기, 수치 claim은 자기 숫자에 해제, chat 스탬프, **모든 floor 호출부가 요청 id 선언**). `ci-chat-resilience-check` PASS, `ci-syntax-check` PASS(398).
+- **실제 모델·공급자 실행은 하지 않았습니다** — 계약·판정 로직까지입니다. 문서가 요구한 완료순서 역전 fixture·classic/unified 교차 실행, 공급자의 결속 선언 강제, A04의 한국어 수사·가정 숫자 구분, 그리고 05의 A01·A02·A03·A06은 미구현입니다. 커밋·푸시·배포하지 않았습니다.
+- R1 7곳 v56.10
+
+## v56.09 (2026-09-22)
+- **구조 핸드오프 15 D05 — instrument registry 어댑터를 구현했습니다 (P1171).**
+- **식별 metadata에 출처가 없었고, 이름 추측은 실측으로 오탐이었습니다.** 유니버스는 `sym/name/sector/index/memo`만 발행해 MIC·assetType의 근거가 없고, 이름 부분문자열 규칙은 이 저장소에서 `Netflix`(→`etf`)와 `Northern Trust`(→`trust`)를 **펀드로 오분류**합니다. MIC는 어느 수집 산출물에도 없고 미국 심볼만으로 Nasdaq/NYSE/Arca를 결정할 수 없어 **넣으면 발명**입니다. 그래서 그 상태에서는 펀드가 발행자 재무비율 모델에 들어갈 수 있었습니다.
+- 새 `src/domain/market/instrument-registry.js`: **선언 + 출처**가 있는 항목만 식별로 인정하고(단일 정본), 축별 검증 수준을 나눕니다 — 선언이 유효하면 `VERIFIED`, listing suffix에서 온 market/currency는 `INFERRED`, 그 외는 `UNKNOWN`. 선언 근거가 published name이면 **그 이름이 실제 발행명과 일치할 때만** 유효하고 바뀌면 `UNKNOWN`으로 되돌아갑니다. `analysisEligibilityFor()`가 유형별 적격성을 정합니다 — `ETF → NOT_APPLICABLE`(발행자 재무제표가 없다)·`EQUITY → ELIGIBLE`·미확인 → `UNKNOWN`.
+- 검증: `ci-screener-workbench-contract` PASS — `G-SCR-REGISTRY` 단언 17종(선언 유효성, 선언 내 빈 축도 `UNKNOWN`, 발행명 변경 시 복귀, 미선언 추측 금지, `INFERRED` 유지, **NFLX·NTRS를 이름으로 분류하지 않을 것**, 유형별 적격성, **선언 근거가 실제 유니버스 이름과 일치**(교차 산출물 4건), provider 소비 토큰). 브라우저 probe: SPY·QQQ가 `ETF`·`VERIFIED`·`NOT_APPLICABLE`이고 `missing`이 `mic_missing`만 남았고, NVDA는 전부 `UNKNOWN`.
+- **MIC·share class·유효기간은 비워 두었습니다** — 없는 출처를 만들지 않았습니다. registry는 의도적으로 4건이며 869행은 여전히 미확인입니다(문서 15의 점진적 backfill). 커밋·푸시·배포하지 않았습니다.
+- R1 7곳 v56.09
+
+## v56.08 (2026-09-22)
+- **구조 핸드오프 15 D04의 producer 쪽을 구현했습니다 (P1170).** 표시 계층은 v56.05에서 교정했고, 이번에 발행 쪽을 닫았습니다.
+- **일봉 바 시작이 '관측시각'이라는 이름 하나로 발행됐습니다.** `fetch-data.mjs`가 이력 마지막 봉의 timestamp를 `factorObservedAt`으로 복사하고 전역 `factorObservedAt`은 혼합 시장의 max 하나였습니다. 값은 NVDA `2026-09-18T13:30Z`·삼성전자 `2026-09-18T00:00Z` — 둘 다 그 세션 **바의 시작**이라, 소비자가 basis를 추측해야 했고 "그날 개장에 종가 기반 결과를 알았다"는 의미가 만들어졌습니다.
+- 새 `src/domain/market/session-time.js`에 시각 의미 계약을 모았습니다 — `sessionDateInMarket`(Intl 기반, **DST 반영**, 해석 불가면 null로 닫아 **날짜만 주는 공급자를 가짜 정밀 timestamp로 승격하지 않음**), `factorScopesByMarket`(시장별 범위). 생산자는 행마다 `factorBarStart`·`factorSessionDate`·`factorSessionTimezone`·`factorTimeBasis: 'bar-start'`·`factorComputedAt`을, payload에 `factorSessionDateByMarket`·`factorBarStartByMarket`을 발행합니다 — **전역 max 하나가 개별 시장의 최신성을 대표하지 못합니다**.
+- 검증: `ci-data-pipeline-contract-check` PASS — D04 단언 11종(US/KR 세션 사상, DST, **같은 순간이 시장별로 다른 세션 날짜**, null fail-closed, 혼합 시장 범위 분리, 전역 max 비대체, 생산자 토큰 7종, 표시 계층 reader). `ci-syntax-check` PASS(397).
+- `barEnd`·`availableAt`은 **발행하지 않았습니다** — Yahoo 일봉은 종가 시각을 주지 않으므로 없는 정밀도를 만들지 않았습니다. checked-in `data.json`/`screener.json`은 Yahoo 네트워크가 필요해 다음 `fetch-data` 실행이 계약 필드를 씁니다(게이트가 대기 상태로 명시 출력). 거래소 캘린더 `barEnd`·조기 폐장·진행 중 봉 구분은 미구현입니다. 커밋·푸시·배포하지 않았습니다.
+- R1 7곳 v56.08
+
+## v56.07 (2026-09-22)
+- **구조 핸드오프 17 작업 단위 1 / 06 O06 — domain receipt를 구현했습니다 (P1169).** 백로그 1순위(17의 "공통 receipt 계약")입니다.
+- **SEC 수집이 전부 실패해도 workflow는 성공으로 끝났고, 그 성공이 수집 성공으로 읽혔습니다.** `fetch-sec-fundamentals.mjs`는 회사별 오류를 원장에 기록하고 계속 진행한 뒤 정상 반환하므로, 이번 batch의 `updated`/`transient` 수가 publication 성공의 조건이 아니었습니다(발행물의 유일한 시각 표시는 `generatedAt`). `stored`(562) 안에서 이번 갱신분(24)과 보존분(538)도 분리되지 않았고, `status` 없는 구형 원장 24건은 `retryableFailures`로 뭉쳐 **transient와 같은 성격으로 승격**됐습니다.
+- 이제 순수 `buildDomainReceipt()`가 exit code가 아니라 카운터로 receipt를 만듭니다 — `counts{eligible, attempted, updated, retained, pendingEligible}`(retained = stored − updated), `thisBatch{…}`, `ledger{terminalUnsupported, transientFailed, legacyUnknown}`(문서 17의 terminal 68 / transient 3 / 구형 24를 **각각 보존**), `lastSuccessfulObservation`(**0건 갱신이면 전진하지 않음**), `publication{SUCCESS|PARTIAL|NO_REFRESH_RETAINED|EMPTY|NOT_ATTEMPTED}`. **전부 실패한 batch는 결코 SUCCESS가 아닙니다.** projection이 receipt를 소비자에게 전달합니다.
+- 검증: `ci-sec-runtime-projection-check` PASS — **생산자의 순수 빌더를 직접 구동하는 fixture 5종**(전부 실패 / 일부 실패 / terminal 제외 / 구형 status 없음 / 발행 원장의 세 클래스 분할)과 배선 검사. `ci-syntax-check` PASS(396), projection 재생성 PASS. 문서 17의 "가격 전용 화면까지 막지 않는다"는 기존 동작으로 성립함을 확인했습니다(`passed 0 / unavailable 873`에서도 `visibleRows 12`·`quoteCoverage 1`).
+- checked-in `sec-fundamentals.json`은 SEC 네트워크가 필요해 이 세션에서 재생성하지 않았으므로 receipt는 **다음 `refresh-screener` 실행이 씁니다** — 게이트가 이를 대기 상태로 명시 출력합니다. 커밋·푸시·배포하지 않았습니다.
+- R1 7곳 v56.07
+
+## v56.06 (2026-09-22)
+- **미검증 백로그를 먼저 정리했습니다 (P1168).** 배치 1~4가 남긴 항목 중, `affected` 프로파일이 한 번도 선택하지 않았던 **게이트 36종을 실측**했습니다 — 정적·watchdog 27종 + browser-knowledge 6종 + external 2종.
+- **내용이 같은 생성물이 'drift'로 보고됐습니다.** `ci-knowledge-generated-parity-check`가 21개 파일을 나열하며 "builders changed generated outputs"로 실패했지만, 빌더를 직접 돌린 뒤 `git diff`는 **무변경**이었습니다. 빌더는 LF로 쓰고 Windows 체크아웃은 같은 커밋을 CRLF로 materialize하므로, 게이트가 원시 바이트 해시를 비교하는 한 내용이 같아도 실패합니다. **parity는 내용의 속성이므로** 줄바꿈을 정규화한 뒤 해시하도록 고쳤습니다(내용 drift는 그대로 검출). CRLF 워킹트리에서 PASS합니다.
+- **기계 실행이 사용자 실행 이력에 쌓였습니다.** `src/data/orchestrators/screener.js`가 sync마다 같은 파이프라인 기준 run을 무조건 덧붙여 화면 재진입마다 이력이 2→4→6으로 늘었고(SCR-UX-07), 항목이 기계 실행임을 나타내는 표식도 없었습니다 — `runHistory`라는 이름과 실제 내용이 다른 것을 가리켰습니다. 이제 같은 `resultHash`는 다시 쌓지 않고 마지막 항목을 갱신하며, 모든 기계 실행에 `origin: 'pipeline-sync'`를 붙입니다. 브라우저 probe에서 재진입 3회 후 길이 **1→1(증가 0)**.
+- 검증: 27종 정적 게이트 중 **25 PASS**, parity(수정 후 PASS), `ci-web-research-contract-check` FAIL(AAII 자동 수집 36h 노후 — `reconciliation`·`data-lineage`와 같은 **데이터 노후 클래스**이고 `data-refresh` 범위). browser-knowledge 6종(`artifact-budget`·`atlas`·`principles`·`masters`·`learning-flow`·`user-journey`) 전부 PASS(`errors: []`). `ci-screener-auto-refresh-browser-check` PASS(P1168 단언 2종 추가). **`external-pipeline`·`live-invariants` 2종은 배포된 Pages 원점이 필요해 로컬 검증 불가**로 남겼습니다. 커밋·푸시·배포하지 않았습니다.
+- R1 7곳 v56.06
+
+## v56.05 (2026-09-22)
+- **구조 핸드오프 15(D04·D05)를 구현했습니다 (P1167).** 관측 시각의 의미와 식별 metadata 미확인이 화면에서 뭉개져 있었습니다.
+- **일봉 바 시작 시각이 팩터 '관측시각'으로 표시됐습니다.** `metadata.factorObservedAt`는 Yahoo 일봉 timestamp, 즉 그 세션 **바의 시작**(NVDA 13:30Z)인데 화면은 `팩터 관측 2026-09-18 13:30`으로 인용했습니다 — 종가로 계산한 팩터를 그날 개장에 알 수 있었다는 의미가 됩니다. 이제 `팩터 2026-09-18 세션 종가 기준(일봉 바 시작 2026-09-18 13:30 · 관측시각 아님)`·`수집 …·생성 …`으로 세션·수집·생성을 분리하고, `[data-factor-asof]`도 `팩터 세션 … · 생성 …`으로 바꿨습니다. 시간 기저 설명이 coverage-scope title에 덮이지 않습니다.
+- **식별 metadata 미확인이 침묵했습니다.** `validateInstrumentRef`는 `mic`·`assetType`을 필수로 요구하지만 정적 유니버스 producer가 발행하지 않고, provider는 검증기를 **호출조차 하지 않아** 결측이 조용한 `null`로 흘렀습니다(브라우저에서 873행 전부 `mic_missing·asset_type_missing`). 이제 행마다 `identityValidation { ok, missing, marketSource: 'symbol-suffix-inference' }`를 발행하고 화면에 `식별 metadata 미확인 873개(…) · 가격 조회 성공은 식별 확인이 아닙니다`를 표시합니다. **값을 발명해 873행을 임의 추정으로 채우지 않습니다** — 미확인 상태를 정직하게 표시할 뿐입니다. 정규화 화이트리스트가 이 필드를 통과시킵니다(누락 시 조용히 버려짐).
+- **09 F01/F02/F03과 15 D06은 재검증 결과 이미 닫혀 있어 다시 구현하지 않았습니다.** 파생값 가용시각은 P1148에서 operand 최댓값으로, `getAbsoluteTime` 미구현은 `formatAbsoluteTime` 단일 owner로, 통화 없는 live quote 병합은 `currencyCompatible` 가드로 닫혔습니다.
+- 검증: `ci-screener-auto-refresh-browser-check` PASS(P1167 브라우저 단언 7종 추가 — 미확인이 행마다 발행될 것, 누락 필드 이름, 추정 시장 표기 유지, MIC/assetType을 **발명하지 않을 것**, 가격 조회 성공과 식별 확인의 분리, 바 시작을 관측시각으로 표시하지 않을 것, title에서 설명이 덮이지 않을 것), `ci-syntax-check`·`ci-screener-workbench-contract` PASS, 별도 probe에서 `identityGapCount 873/873`. 15 D04의 producer 쪽 세션 달력·진행 중 봉 구분과 D05의 canonical registry, 05(A01~A06)는 미구현입니다. 커밋·푸시·배포하지 않았습니다.
+- R1 7곳 v56.05
+
+## v56.04 (2026-09-22)
+- **구조 핸드오프 17(작업 단위 2·3)·06(O02·O05)을 구현했습니다 (P1166).** 운영 집계가 **관측보다 넓은 분모와 근거**를 쓰고 있었습니다.
+- **한 도메인이 0회 실행돼도 30일 SLO가 CERTIFIED였습니다.** `build-operations-slo-window.mjs`가 market+screener run을 **한 풀**로 합치고 관측 날짜의 합집합만 봤기 때문에, 문서의 합성 반증(`automation-slo-repro.json`: market 1회/일 성공 30일 · **screener 0회** · watchdog 1회/일 성공 30일)이 `CERTIFIED_WINDOW`·7d/30d `PASS`를 반환했습니다. 이제 도메인별 독립 lane이 `observedRuns·expectedRuns·scheduledArrivalRate·manualRunsExcluded·cancelledRuns·status`를 각각 발행하고, required 도메인이 0회이거나 조회가 잘렸으면 인증하지 않습니다. 예정 분모는 workflow의 `schedule.cron`에서 파생하고(문서 cadence 복제 금지), `workflow_dispatch`는 분모에서 제외합니다.
+- **관측 없는 정적 설정이 CURRENT였습니다.** `planes.browser`는 `status: CURRENT`·`statusCode: CONFIGURED_HEALTHY`였지만 이 producer는 브라우저 실행·Pages 도달·SW revision 일치를 관측하지 않습니다. 이제 `status: UNKNOWN`·`statusCode: NOT_OBSERVED`로 닫고 `configured`/`observed`/`lastAttemptAt`/`lastSuccessfulAt`/`dataQuality`/`deliveryObserved`/`revisionMatch`/`evidenceAge`를 분리합니다(`OPERATIONAL_STATE_CODES`에 `NOT_OBSERVED` 추가, `deriveOperationalState`에 `observed` 축 추가 — 기본값 true라 기존 호출부 불변).
+- **오래된 성공이 현재 건강으로 승격되던 모순도 함께 닫았습니다.** `planes.fast.health.status`가 36시간 지난 carried-over 관측을 `CURRENT`로 표시하면서 `evidenceFresh: false`를 함께 발행했습니다. 이제 `fast.health.status`와 `readiness.dataCurrent`는 재사용 창 안일 때만 CURRENT입니다.
+- 검증: `ci-operations-slo-window-check` PASS(문서의 반증 fixture를 게이트가 직접 구동해 차단을 단언하고, 예정 cadence를 채운 fixture는 CERTIFIED가 됨을 반대 방향으로 함께 단언 — 항상 실패하는 게이트 방지), `ci-operations-status-check`·`ci-operations-contract-check`·`ci-artifact-semantics-check` PASS. SLO window schema는 v3, checked-in template은 여전히 `NOT_CERTIFIED`입니다. 실제 원격 Actions 이력은 이 세션에서 조회하지 않았고 `scheduledArrivalRate` 0.9는 선언한 정책값입니다. 커밋·푸시·배포하지 않았습니다.
+- R1 7곳 v56.04
+
+## v56.03 (2026-09-22)
+- **구조 핸드오프 19(스크리너 작업 카드)·13(작업 단위 1)을 구현했습니다 (P1165).** 실행 전 '통과' 수치가 **선택한 정의가 아니라 파이프라인 기본값**이었습니다.
+- **이름은 같고 정의는 둘이었습니다.** orchestrator가 매 sync마다 빈 AND 조건의 화면(`native-screener-workbench`)을 실행해 `lastRun`으로 발행했고, UI는 그 `passed`를 선택한 프리셋의 '통과'로 표시했습니다. 실행 버튼은 `preset-balanced`(rank ≥ 60)를 돌렸으므로 703 대 286은 애초에 다른 정의의 결과였습니다. 이제 미리보기는 **선택한 정의**로, 실행과 **같은 rows·snapshot**에서 계산합니다(`previewScreenerDefinition` — capture·archive 저장 없음). 같은 정의·같은 snapshot이면 preview와 execute가 같은 판정 집합을 냅니다.
+- **'활성조건 없음'이 오표시였습니다.** 조건은 DOM 컨트롤만 세었고 프리셋이 `filtersAST`에 내장한 조건은 세지 않았습니다. 이제 `describeFilterAst()`가 내장/사용자 추가 조건을 분리해 표시하고(`rank ≥ 60` / `3개월 수익률 ≥ 0 · rank ≥ 60` / `실현 변동성 ≤ 35`), 실행 전 상태 줄이 파이프라인이 아니라 선택한 정의와 그 hash를 인용합니다.
+- **Why drawer의 '팩터 기여도'는 정규화 점수였습니다.** 팩터 줄에 `정규화 점수 · 적용 가중치 · 가중 기여`를 함께 표시하고, 랭킹 입력 **원값**과 합성(필드 평균)을 별도 줄로 분리했습니다.
+- 검증: `ci-screener-auto-refresh-browser-check` PASS(P1165 브라우저 단언 4종 추가 — 프리셋별 내장 조건 3종 구분, 실행 전 상태가 선택 정의를 인용, 미리보기가 보관 실행을 남기지 않음), `ci-screener-workbench-contract`·`ci-esm-core-unit`·`ci-domain-parity`·`ci-syntax` PASS. 별도 브라우저 probe에서 `previewEqualsExecute=true`, `errors: []`. 실제 공급자·live·배포는 미검증입니다. 커밋·푸시·배포하지 않았습니다.
+- R1 7곳 v56.03
+
+## v56.02 (2026-09-22)
+- **구조 핸드오프 21(B01~B04)·12(U01)을 구현했습니다 (P1164, R628).** 결측을 '관측된 0'·'관측된 구간'으로 바꾸는 경로가 한 곳이 아니라 **클래스**였습니다.
+- **기술 분석이 매 방문 예외로 죽어 차트 로드까지 취소하고 있었습니다 (B02).** `_ldSafe('HYG','price')`가 `null`을 돌려주면 `null < 73`이 true가 되어 `hygPrice.toFixed(1)`가 TypeError를 던졌고, 그 호출이 try/catch 없이 `loadTechCandleChart()` 바로 앞에 있었습니다 — 예외 하나가 같은 핸들러의 차트 로드를 취소합니다. 문서가 지목하지 않은 **VIX 변종**(객체는 있고 `price`만 없음)도 같은 방식으로 던지는 것을 합성 실행으로 확인했습니다. operand를 finite 검증으로 닫고 호출 2곳에 렌더 경계를 뒀으며, HYG를 '신용 스프레드'라 부르던 라벨을 측정 대상(고수익채권 가격, OAS 아님)에 맞췄습니다.
+- **미수신 F&G가 '극단 공포(buy-opportunity)', 미수신 VIX가 '저변동·포지션 100%', 미수신 AAII가 '중립'으로 표시됐습니다 (B01·B03).** `Number(null)===0`이 8개 `getLabel`·2개 `getRule`·3개 렌더러의 `isNaN` 가드를 통과했습니다. 경계·라벨 판정을 `v == null || v === '' || !isFinite(Number(v))`로 통일하고, `getActionPlan`이 결측 입력에서 밴드를 만들지 않게 했습니다.
+- **한 화면에서 같은 구성요소가 두 계약으로 표시됐습니다.** `renderScoreBars()`는 미수신을 '—'로, signal 히어로 미니바는 `Number(null)=0`으로 `0/25`를 만들었습니다. breadth 50SMA는 막대에만 native fence가 있고 readout 문장에는 없어 legacy가 native 값을 '미수신'으로 덮었습니다. SEC-only 재무 카드는 배당 부재를 실측 `0%`로 표시했습니다.
+- **결측이 행동 서술로 변하던 경로도 닫았습니다.** 뉴스 표면은 오늘 창 밖 기사만 남으면 '오늘 자료 미확보 · 이전 수집분 N건'을 표시하고(창 밖 건수 보존), 스크리너는 실행 전 파이프라인 카운트를 '통과'가 아니라 '조건 적용 전 계산 가능 N개'로 부르며 미리보기 정의·해시를 밝힙니다. Why drawer는 도메인이 분리한 필터/순위 상태를 쓰고 팩터 막대를 '정규화 점수(가중 기여도 아님)'로 정정했습니다.
+- **게이트 하나가 이 오표시 덕분에 통과하고 있었습니다.** headless T816의 `planFromBrain` 단언은 미수신 VIX가 저변동 밴드를 만들어준 덕에 성립했습니다 — 픽스처를 늘리는 대신 '결측 시 position 밴드 없음'을 요구하도록 고쳤습니다.
+- 검증: headless **1144/1144 PASS**(신규 그룹 G111 `_testV5601MissingInputSemantics` 11개 단언), `ci-screener-workbench-contract` PASS, `ci-syntax-check` PASS(396 파일), `ci-ledger-integrity`·`ci-assertion-trace` PASS. 실제 공급자·live·배포는 미검증입니다. 커밋·푸시·배포하지 않았습니다.
+- R1 7곳 v56.02
+
 ## v56.01 (2026-09-20)
 - **버전 형식을 런타임 계약에 맞췄습니다 (P1163).** v56으로 올렸더니 headless 23건이 실패했습니다 — `T748 v501_version_format`과 `T762 v504_app_version_semver_two_digit_policy`가 `/^v\d+\.\d{1,2}$/`를 요구하는데 `v56`에는 점이 없습니다. 동시에 `ci-version-check`는 "use v54 or v54.01"이라며 patch 없는 형식을 허용합니다 — **같은 저장소의 두 계약이 서로 어긋나 있었고**, 이번에 런타임 계약이 이겼습니다. v56.01로 정정했습니다.
 - **macro 라우트가 매 마운트마다 죽고 있었습니다 (P1162).** `src/ui/pages/market.js:540`이 `const tenYear`를 `tenY` **단축 표기**로 넘겨 `ReferenceError`가 났고, 지연 로더가 이를 `aioRouteModuleState: 'failed'`로 보고해 `ci-user-journey-quality-check`의 `route shell macro`가 실패했습니다. 이 게이트가 Attest와 Pages 배포를 막는 마지막 하나였습니다.

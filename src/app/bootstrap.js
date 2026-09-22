@@ -392,6 +392,15 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     catch (error) { persistence = { status: 'memory-only', reason: error?.message || 'archive-unavailable' }; }
     return { ...result, snapshotMetadata: record.metadata, persistence };
   }
+  // P1165 (19 스크리너 작업 카드 / 12 U01): 실행 전 미리보기는 **선택한 정의**로 계산한다.
+  // 실행(runScreenerDefinition)과 같은 rows·snapshotId를 입력으로 쓰되 capture/persist하지 않는다.
+  // 그래야 같은 정의·같은 snapshot에서 preview와 execute의 판정 집합·건수가 같아진다.
+  function previewScreenerDefinition(definition) {
+    const state = store.getState()?.screener || {};
+    const input = { definition, rows: state.rows || [], snapshotId: state.snapshotId || 'unknown', providerSet: state.metadata?.source ? [state.metadata.source] : [], metadata: state.metadata || {} };
+    const result = runScreen(input);
+    return { ...result, snapshotMetadata: input.metadata, definition, preview: true };
+  }
   // ARX-10: the native provider/orchestrator feeds the native screener renderer from the
   // published artifact + identity universe. Legacy SCREENER_DB/profile/watchlist helpers remain
   // compatibility boundaries for non-cut-over consumers; the native route does not read legacy
@@ -459,6 +468,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         getDefaultScreens: api.getDefaultScreenerScreens,
         setSavedScreens: api.setScreenerSavedScreens,
         run: api.runScreenerDefinition,
+        preview: api.previewScreenerDefinition,
         list: api.listScreenerRuns,
         replay: api.replayScreenerRun,
         remove: api.deleteScreenerRun
@@ -745,6 +755,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     getDefaultScreenerScreens: () => defaultSavedScreens,
     setScreenerSavedScreens: (savedScreens) => screenerCommands.setSavedScreens(Array.isArray(savedScreens) ? savedScreens : []),
     runScreenerDefinition,
+    previewScreenerDefinition,
     listScreenerRuns: () => getScreenerArchive().list(),
     replayScreenerRun: async (id) => {
       const record = await getScreenerArchive().get(id);

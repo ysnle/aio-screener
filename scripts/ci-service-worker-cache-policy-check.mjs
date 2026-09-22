@@ -72,4 +72,38 @@ const routedPaths = [...new Set([...routingTables.matchAll(/[a-z0-9][a-z0-9/_-]{
 const orphanRoutes = routedPaths.filter((name) => !clientText.includes(`public-data/${name}.json`) && !clientText.includes(`./public-data/${name}.json`));
 if (orphanRoutes.length) fail(`cache routing names artifacts no client fetches: ${orphanRoutes.join(', ')}`);
 
-console.log(`Service-worker cache policy OK: ${critical.length} critical assets; ${routedPaths.length} routed artifacts all have a client consumer; route modules are request-driven.`);
+// P1173 (06 O03 / W06-C): the reverse gap used to be deliberately unasserted — the
+// artifacts every client reads (`data`, `history`, `screener`, the screener universe,
+// the model-validation status, the telegram digest) were outside every routing table,
+// so a network failure had no last-good path at all. They are now routed through the
+// same network-first + age-bounded fallback as other data, with their own TTL, so both
+// directions are asserted: routed artifacts have consumers, and consumed core data has
+// a route.
+const CORE_DATA_ARTIFACTS = ['data', 'history', 'screener', 'screener-universe', 'model-validation-status', 'telegram-digest'];
+const coreTable = source.slice(source.indexOf('const CORE_DATA_URL_PATTERNS'), source.indexOf('// 교육·원문 reference artifact'));
+if (!coreTable.includes('CORE_DATA_URL_PATTERNS')) fail('core data routing table not found');
+// The patterns are written with escaped slashes, so compare against a flattened copy.
+const coreTableFlat = coreTable.replace(/\\/g, '');
+const unroutedConsumed = CORE_DATA_ARTIFACTS.filter((name) => {
+  const path = `public-data/${name}.json`;
+  if (!clientText.includes(path) && !clientText.includes(`./${path}`)) return false;
+  return !coreTableFlat.includes(`/public-data/${name}.json`);
+});
+if (unroutedConsumed.length) fail(`client-consumed core data has no offline route: ${unroutedConsumed.join(', ')}`);
+if (!/const CORE_DATA_CACHE_TTL = \d+/.test(source)) fail('core data has no declared TTL of its own');
+// A model input and a quote must not share one TTL, or "how old may this be served" has
+// a single answer for two different meanings.
+if (/var ttl = isReference \? REFERENCE_CACHE_TTL : isNews \? NEWS_CACHE_TTL : DATA_CACHE_TTL;/.test(source)) fail('core data silently shares the quote TTL');
+if (!/var ttl = isReference \? REFERENCE_CACHE_TTL : isCoreData \? CORE_DATA_CACHE_TTL : isNews \? NEWS_CACHE_TTL : DATA_CACHE_TTL;/.test(source)) fail('core data is not on the declared TTL path');
+// The added branch must not become a way around the age bound.
+if (!/isData \|\| isNews \|\| isReference \|\| isCoreData/.test(source)) fail('core data does not enter the age-bounded data branch');
+// Discriminating opposite direction: the data tables must not capture the shell.
+if (coreTableFlat.split('/public-data/').length - 1 !== CORE_DATA_ARTIFACTS.length) {
+  fail(`core data table must name exactly ${CORE_DATA_ARTIFACTS.length} public-data artifacts`);
+}
+if (CORE_DATA_ARTIFACTS.some((name) => !coreTableFlat.includes(`/public-data/${name}.json`))) {
+  fail(`core data table does not match: ${CORE_DATA_ARTIFACTS.filter((name) => !coreTableFlat.includes(`/public-data/${name}.json`)).join(', ')}`);
+}
+if (/javascript|index\.html|aio-core\.js|sw\.js/.test(coreTable)) fail('the core data table must not route shell assets');
+
+console.log(`Service-worker cache policy OK: ${critical.length} critical assets; ${routedPaths.length} routed artifacts all have a client consumer; ${CORE_DATA_ARTIFACTS.length} consumed core artifacts are age-bounded with their own TTL; route modules are request-driven.`);

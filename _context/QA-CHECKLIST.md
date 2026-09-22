@@ -4,6 +4,10 @@ last_verified: 2026-09-19
 confidence: medium
 ---
 
+## v56.14 스크리너 frozen-run 동일성 (2026-09-22)
+
+- [x] QA-SCR-01: **인용 quote 진단이 ranked snapshot의 정체성에 들어가, quote tick이 보관 실행을 대체했다 (P1174 회귀).** `scripts/ci-screener-auto-refresh-browser-check.mjs:202`가 `background quote tick replaced the ranked snapshot`으로 실패했다(2회 연속 재현). `src/data/providers/screener.js`의 `snapshotId = 'screener-snapshot-' + hash({ revision, source, rows })`는 **rows 전체를 해시**하는데, P1174(v56.12)가 행마다 `liveQuoteDiagnostic{diagnosticPrice, …}`와 `livePriceRejectedReason: quoteContract.reason`을 추가하면서 **거부된 quote에서도 live 값이 rows에 들어갔고**, `aio:liveQuotes` 한 번에 해시가 바뀌어 새 snapshotId가 발급됐다 — 보관한 실행이 배경 시세 tick으로 대체되어 P1074 불변성이 깨졌다. **해결(P1177, v56.15)**: `LIVE_QUOTE_DERIVED_ROW_KEYS` 22종(가격 family·quote 진단·mcap family)과 `snapshotIdentityRows()`를 두고 해시를 그 투영으로 계산한다 — 진단은 행에 남고 정체성에서만 빠진다. 게이트: `ci-screener-workbench-contract`의 P1177 단언 3종(다른 quote로 같은 artifact를 읽으면 snapshotId 동일 `2c6183bd`, artifact가 바뀌면 정체성도 바뀜 — 전면 동결 아님, 진단 101/102 보존) + `G-SCR-HASH` 참조 해시를 투영 기준으로 갱신. verify_by: 판정 완료 — `ci-screener-auto-refresh-browser-check` PASS(`frozenRunSurvivesQuoteRefresh: true`, `runtimeErrors: 0`) + `ci-screener-workbench-contract` PASS(failures [])
+
 ## v56 공유/사용자 자격증명 평면 (2026-09-20)
 
 - [x] QA-CRED-01: **FRED·BOK ECOS·KOSIS가 사용자에게 도달 불가였다(P1151).** FRED는 키가 URL 쿼리에 실려 민감 URL로 분류되는데 그 경로는 사용자 소유 Worker뿐이었고, BOK/KOSIS는 프록시 경로 없이 직접 fetch만 해 CORS에 막혔다. Worker에 `/relay`(업스트림 하드코딩, 운영자 키, 파라미터 화이트리스트, Origin·앱 토큰·IP 레이트리밋, DO 일일 캡, 키 redaction)를 추가하고 클라이언트 2순위로 배선했다. 레지스트리 cf-worker 엔트리에 `userOwned`를 기록해 등록/전송 판정 소스를 일치시켰다. 게이트: `ci-worker-relay-check.mjs`(신규, 34 checks). verify_by: 판정 완료(P1151) — 라이브 검증은 아래 QA-CRED-02.

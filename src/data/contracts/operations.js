@@ -2,7 +2,12 @@
 // (`ai.publicChat.status`) but never declared, so the vocabulary must name it.
 export const OPERATIONS_STATUS = Object.freeze(['CURRENT', 'DEGRADED', 'BLOCKED', 'OPERATOR_REQUIRED', 'NO_ROUTE', 'UNKNOWN']);
 export const RIGHTS_STATUS = Object.freeze(['VERIFIED', 'REVIEW_REQUIRED', 'OPERATOR_REQUIRED', 'UNAVAILABLE', 'UNKNOWN']);
-export const OPERATIONAL_STATE_CODES = Object.freeze(['NOT_CONFIGURED', 'CONFIGURED_HEALTHY', 'CONFIGURED_BROKEN', 'STALE', 'RIGHTS_REVIEW_REQUIRED']);
+export const OPERATIONAL_STATE_CODES = Object.freeze(['NOT_CONFIGURED', 'CONFIGURED_HEALTHY', 'CONFIGURED_BROKEN', 'STALE', 'NOT_OBSERVED', 'RIGHTS_REVIEW_REQUIRED']);
+// P1173 (17 작업 단위 5): `overall`/`planes.*.status` says what an operator's pipeline is doing. It does
+// not say which features a user can actually rely on right now, and it is derived from the durable plane
+// alone — so a browser plane that was never observed leaves `overall` unchanged. Feature availability is
+// therefore a separate axis with its own closed vocabulary.
+export const FEATURE_AVAILABILITY = Object.freeze(['AVAILABLE', 'DEGRADED', 'UNAVAILABLE', 'UNKNOWN']);
 
 export function createOperationsStatus(input = {}) {
   return Object.freeze({
@@ -23,6 +28,23 @@ export function createOperationsStatus(input = {}) {
     dataRevision: String(input.dataRevision || 'unknown'),
     evidenceRevision: String(input.evidenceRevision || 'unknown'),
     overall: OPERATIONS_STATUS.includes(input.overall) ? input.overall : 'UNKNOWN',
+    // P1173 (17 작업 단위 5): a field the contract drops is not published. The aggregate's scope and the
+    // per-feature availability have to survive normalization to be readable by a consumer at all.
+    overallBasis: input.overallBasis && typeof input.overallBasis === 'object'
+      ? Object.freeze({
+        planes: Object.freeze(Array.isArray(input.overallBasis.planes) ? input.overallBasis.planes.map(String) : []),
+        excludes: Object.freeze(Array.isArray(input.overallBasis.excludes) ? input.overallBasis.excludes.map(String) : []),
+        note: input.overallBasis.note ? String(input.overallBasis.note) : null
+      })
+      : Object.freeze({ planes: Object.freeze([]), excludes: Object.freeze([]), note: null }),
+    featureAvailability: input.featureAvailability && typeof input.featureAvailability === 'object'
+      ? Object.freeze(Object.fromEntries(Object.entries(input.featureAvailability).map(([feature, entry]) => [String(feature), Object.freeze({
+        availability: FEATURE_AVAILABILITY.includes(entry?.availability) ? entry.availability : 'UNKNOWN',
+        asOf: entry?.asOf ? String(entry.asOf) : null,
+        missingReason: entry?.missingReason ? String(entry.missingReason) : null,
+        sources: Object.freeze(Array.isArray(entry?.sources) ? entry.sources.map(String) : [])
+      })])))
+      : Object.freeze({}),
     planes: input.planes && typeof input.planes === 'object' ? Object.freeze({ ...input.planes }) : Object.freeze({}),
     ai: input.ai && typeof input.ai === 'object' ? Object.freeze({ ...input.ai }) : Object.freeze({}),
     providers: input.providers && typeof input.providers === 'object' ? Object.freeze({ ...input.providers }) : Object.freeze({}),
@@ -56,8 +78,9 @@ export function validateOperationsStatus(status) {
   const statusCodes = new Set(OPERATIONAL_STATE_CODES);
   const statuses = new Set(OPERATIONS_STATUS);
   const rights = new Set(RIGHTS_STATUS);
+  const availabilities = new Set(FEATURE_AVAILABILITY);
   const readinessKeys = new Set(['secretConfigured', 'workflowWired', 'lastCallSucceeded', 'dataCurrent']);
-  const surface = { overall: status?.overall, planes: status?.planes, ai: status?.ai, providers: status?.providers };
+  const surface = { overall: status?.overall, planes: status?.planes, ai: status?.ai, providers: status?.providers, featureAvailability: status?.featureAvailability };
   const walk = (node, path) => {
     if (!node || typeof node !== 'object' || Array.isArray(node)) return;
     for (const [key, value] of Object.entries(node)) {
@@ -65,6 +88,7 @@ export function validateOperationsStatus(status) {
         if (key === 'status' && !statuses.has(value)) errors.push(`undeclared_status:${path}`);
         if (key === 'statusCode' && !statusCodes.has(value)) errors.push(`undeclared_status_code:${path}`);
         if ((key === 'rights' || key === 'licensedForUse') && !rights.has(value)) errors.push(`undeclared_rights:${path}`);
+        if (key === 'availability' && !availabilities.has(value)) errors.push(`undeclared_availability:${path}`);
         if (readinessKeys.has(key) && !statuses.has(value)) errors.push(`undeclared_readiness:${path}`);
       }
       walk(value, `${path}.${key}`);

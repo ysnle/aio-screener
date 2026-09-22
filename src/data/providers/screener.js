@@ -1,6 +1,41 @@
-import { buildFieldReadiness, createInstrumentRef, SCREENER_FIELD_REGISTRY, stableHashAsync } from '../contracts/screener.js';
+import { buildFieldReadiness, createInstrumentRef, SCREENER_FIELD_REGISTRY, stableHashAsync, validateInstrumentRef } from '../contracts/screener.js';
+import { INSTRUMENT_REGISTRY, analysisEligibilityFor, resolveInstrument } from '../../domain/market/instrument-registry.js';
 import { canonicalSourceTier, isDecisionEligibleSourceKind } from '../contracts/source-kind.js';
 import { isValidRightsId } from '../contracts/evidence.js';
+import { createPublicationPolicy, evaluatePublicationSet } from './publication-set.js';
+import { evaluateQuoteContract } from './quote-contract.js';
+
+// P1173 (17 작업 단위 4 / O07): this consumer declares which input set it can combine. The three
+// artifacts may be refreshed on their own cadence, so equal generation dates are not required; what is
+// declared is which schema/model versions this consumer knows how to read, and that the universe size
+// the screener artifact was enriched against must be the universe that arrived with it.
+const SCREENER_PUBLICATION_POLICY = createPublicationPolicy({
+  members: ['screener', 'universe', 'model-validation'],
+  supportedSchemas: { universe: ['v53.4'], 'model-validation': ['model-validation.v1'] },
+  comparableFields: { universeSize: ['screener', 'universe'] }
+});
+
+// P1177 (QA-SCR-01): the snapshot identity is the **observation set that arrived** (artifact + universe),
+// not the live overlay. A quote tick must not mint a new ranked snapshot, or a stored user run is
+// replaced by background price churn (the P1074 invariant). These keys are derived from the live quote —
+// including the diagnostic that P1174 added to keep a rejected quote — so they are excluded from the
+// identity hash while staying on the row for the screen. A new live-derived field must be added here;
+// the contract gate drives two reads with different quotes and fails when the identity moves.
+const LIVE_QUOTE_DERIVED_ROW_KEYS = Object.freeze([
+  'price', 'priceObservedAt', 'priceFetchedAt', 'priceSource', 'priceSourceKind',
+  'priceAllowedUse', 'priceAllowedUseCeiling', 'priceQuality', 'priceRightsId', 'priceRevision',
+  'livePriceRejectedReason', 'liveQuoteDiagnostic', 'priceCurrencyConflict',
+  'mcap', 'nativeMarketCap', '_mcapObservedAt', '_mcapFetchedAt', '_mcapSource', '_mcapSourceKind',
+  '_mcapAllowedUse', '_mcapQuality', '_mcapRevision'
+]);
+
+export function snapshotIdentityRows(rows = []) {
+  return rows.map((row) => {
+    const identity = { ...row };
+    for (const key of LIVE_QUOTE_DERIVED_ROW_KEYS) delete identity[key];
+    return identity;
+  });
+}
 
 // ARX-10/ARX-16 + SCR-OS-01: the native screener reads the published artifact and generated identity
 // universe through the platform HTTP gateway. Legacy SCREENER_DB remains only as a
@@ -167,6 +202,9 @@ export function createScreenerProvider({
   let cachedResponses = null;
   let fetchGeneration = 0;
   let pendingResponses = null;
+  // P1173: the previous read's member revisions, so a set assembled across publication transitions can
+  // be recognised instead of being served as one complete observation.
+  let previousPublicationSet = null;
 
   return Object.freeze({
     async readCurrent({ signal, refresh = true } = {}) {
@@ -198,6 +236,12 @@ export function createScreenerProvider({
       const modelValidation = modelValidationResponse?.ok && modelValidationResponse.data && typeof modelValidationResponse.data === 'object'
         && ['BLOCKED', 'PARTIAL', 'READY'].includes(String(modelValidationResponse.data.status || '').toUpperCase())
         ? modelValidationResponse.data
+        : null;
+      // P1173: an unrecognized status used to become `null` silently, so "the file is missing" and
+      // "the file says something this consumer cannot read" produced the same output. Keep the reason.
+      const modelValidationRejected = modelValidationResponse?.ok && modelValidationResponse.data && typeof modelValidationResponse.data === 'object'
+        && !['BLOCKED', 'PARTIAL', 'READY'].includes(String(modelValidationResponse.data.status || '').toUpperCase())
+        ? `model-validation-status-unrecognized:${String(modelValidationResponse.data.status || '(missing)')}`
         : null;
       const universeMeta = universePayload?.meta && typeof universePayload.meta === 'object' ? universePayload.meta : {};
       const universeLastBulkUpdate = universeMeta.lastBulkUpdate || null;
@@ -255,7 +299,17 @@ export function createScreenerProvider({
         const market = /\.K[QS]$/i.test(symbol) || ['KOSPI', 'KOSDAQ'].includes(String(identity.index || '').toUpperCase()) ? 'KR' : 'US';
         const artifactCurrency = String(factor.currency || identity.currency || '').trim().toUpperCase() || null;
         const liveCurrency = String(live.currency || '').trim().toUpperCase() || null;
-        const currencyCompatible = !artifactCurrency || !liveCurrency || artifactCurrency === liveCurrency;
+        // P1174 (15 D06): 가격·통화·identity·시각은 하나의 quote다. 통화를 잃은 quote는 "충돌이 없으니
+        // 호환"이 아니라 **미완전**이며, artifact 통화를 물려받으려면 동일 instrument/listing 보증이 먼저
+        // 필요하다. 보증이 없으면 가격을 채택하지 않고 마지막 적격 가격을 참고값으로 남긴다.
+        const resolvedIdentity = resolveInstrument({ symbol, market, publishedName: identity.name, registry: INSTRUMENT_REGISTRY });
+        const identityProof = resolvedIdentity.verification === 'VERIFIED';
+        const quoteContract = evaluateQuoteContract({
+          quote: { price: live.price, currency: liveCurrency, observedAt: live.priceObservedAt },
+          artifact: { currency: artifactCurrency },
+          identityProof
+        });
+        const currencyCompatible = quoteContract.admissible;
         // P1113: `artifact.factorObservedAt` is a normalized day bucket for the
         // whole artifact, not an observation. Chaining it here let a row without
         // its own timestamp inherit the bucket as its price observation time —
@@ -273,7 +327,7 @@ export function createScreenerProvider({
         const useLivePrice = currencyCompatible && live.price != null && liveEvidenceEligible
           && (finite(factor.price) == null || !Number.isFinite(artifactPriceTime) || artifactPriceTime > now || livePriceTime > artifactPriceTime);
         const useArtifactPrice = !useLivePrice && finite(factor.price) != null;
-        const currency = useLivePrice ? liveCurrency : artifactCurrency;
+        const currency = useLivePrice ? (liveCurrency || quoteContract.currency) : artifactCurrency;
         const marketCapCurrency = String(live.marketCapCurrency || currency || '').trim().toUpperCase() || null;
         const volumeCurrency = String(factor.dollarVolumeCurrency || factor.currency || '').trim().toUpperCase() || null;
         const hasExplicitNewsObservation = Object.prototype.hasOwnProperty.call(factor, 'newsObservedAt');
@@ -283,12 +337,13 @@ export function createScreenerProvider({
           instrumentId: `${market}:${symbol}`,
           symbol,
           market,
-          mic: identity.mic || factor.mic || null,
+          mic: identity.mic || factor.mic || resolvedIdentity.mic || null,
           currency,
-          assetType: identity.assetType || factor.assetType || null,
+          assetType: identity.assetType || factor.assetType || resolvedIdentity.assetType || null,
           validFrom: identity.validFrom,
           validTo: identity.validTo
         });
+        const identityValidation = validateInstrumentRef(instrumentRef);
         const baseRow = {
           symbol,
           sym: symbol,
@@ -314,7 +369,16 @@ export function createScreenerProvider({
           factorAllowedUse: factor.factorAllowedUse || factor.allowedUse || null,
           factorQuality: factor.factorQuality || factor.quality || null,
           priceRevision: useLivePrice ? live.priceRevision : useArtifactPrice ? (artifact.asOf || null) : null,
-          livePriceRejectedReason: live.price == null ? null : useLivePrice ? null : !currencyCompatible ? 'currency-conflict' : !liveEvidenceEligible ? 'decision-evidence-ineligible' : 'not-newer-than-artifact',
+          livePriceRejectedReason: live.price == null ? null : useLivePrice ? null : !currencyCompatible ? (quoteContract.reason || 'currency-conflict') : !liveEvidenceEligible ? 'decision-evidence-ineligible' : 'not-newer-than-artifact',
+          // P1174 (15 D06): 미완전 quote는 버리지 않고 진단으로 남긴다 — 통화 없는 가격이 조용히
+          // 현재 가격이 되는 대신, 왜 채택되지 않았는지와 값이 여기에 남는다.
+          liveQuoteDiagnostic: Object.freeze({
+            admissible: quoteContract.admissible,
+            reason: quoteContract.reason,
+            currencySource: quoteContract.currencySource,
+            diagnosticPrice: quoteContract.diagnosticPrice,
+            identityProof
+          }),
           priceCurrencyConflict: !currencyCompatible,
           pctFrom52wLow: finite(factor.pctFrom52wLow),
           pctFrom52wHigh: finite(factor.pctFrom52wHigh),
@@ -386,6 +450,23 @@ export function createScreenerProvider({
           identitySource: 'public-data/screener-universe.json',
           observedAt: factor.observedAt || null,
           fetchedAt: factor.fetchedAt || artifact.asOf || null,
+          // P1167 (15 D05): 정적 유니버스 producer는 MIC·assetType을 발행하지 않고 시장은 심볼
+          // suffix/index에서 추정한다. 그 사실을 조용한 null로 두면 '가격 조회 성공'이 '식별 metadata
+          // 확인'으로 읽힌다. 어떤 필수 식별 필드가 미확인인지와 시장 출처를 행에 남긴다 —
+          // 값을 발명해 873행을 한꺼번에 추정으로 채우지 않는다(15 D05 설계).
+          identityValidation: {
+            ok: identityValidation.ok,
+            missing: identityValidation.errors,
+            marketSource: 'symbol-suffix-inference',
+            // P1171 (15 D05): 축별 검증 수준과 유형별 분석 적격성을 분리한다. 미확인 유형을 발행자
+            // 비율 모델에 넣지 않는다(ETF는 발행자 재무제표가 없다).
+            assetTypeVerification: resolvedIdentity.verificationDetail.assetType,
+            micVerification: resolvedIdentity.verificationDetail.mic,
+            currencyVerification: resolvedIdentity.verificationDetail.currency,
+            registrySource: resolvedIdentity.source,
+            analysisEligibility: analysisEligibilityFor(instrumentRef.assetType),
+            note: identityValidation.ok ? null : '정적 유니버스와 registry가 발행하지 않은 식별 필드가 있습니다 — 가격 조회 성공은 식별 확인이 아닙니다.'
+          },
           instrumentRef
         };
         const rightsByField = Object.fromEntries(SCREENER_FIELD_REGISTRY.fields.map((definition) => [
@@ -413,7 +494,54 @@ export function createScreenerProvider({
         }
       }
 
-      const snapshotId = `screener-snapshot-${await stableHashAsync({ revision: artifact.asOf, source: artifact.source, rows }, { yieldImpl, signal })}`;
+      // P1173 (17 작업 단위 4 / O07): judge the input set, not just each file on its own. The three
+      // responses arrive from independent URLs with their own cadences, so "each file is fresh" never
+      // said whether they can be used together. An incompatible set is reported and downgrades the read
+      // instead of being combined silently.
+      const publicationSetFull = evaluatePublicationSet({
+        policy: SCREENER_PUBLICATION_POLICY,
+        previous: previousPublicationSet,
+        members: [
+          {
+            member: 'screener', present: artifactValid, revision: artifact.asOf || null, observedAt: artifact.asOf || null,
+            schemaVersion: artifact.schemaVersion || null, universeSize: numberOrNull(artifact.universe)
+          },
+          {
+            member: 'universe', present: Array.isArray(universePayload?.universe), revision: universeLastBulkUpdate,
+            observedAt: universeLastBulkUpdate, schemaVersion: universeMeta.schemaVersion || null,
+            universeSize: Array.isArray(universePayload?.universe) ? universePayload.universe.length : null
+          },
+          {
+            member: 'model-validation', present: !!modelValidation,
+            revision: modelValidation?.observedAt || modelValidation?.generatedAt || null,
+            observedAt: modelValidation?.observedAt || null, schemaVersion: modelValidation?.schemaVersion || null
+          }
+        ]
+      });
+      previousPublicationSet = Object.freeze({
+        revisions: Object.fromEntries(publicationSetFull.members.map((entry) => [entry.member, entry.revision]))
+      });
+      const publicationSet = Object.freeze({
+        version: publicationSetFull.version,
+        status: publicationSetFull.status,
+        reason: publicationSetFull.reason,
+        compatible: publicationSetFull.compatible,
+        checked: publicationSetFull.checked,
+        policyMembers: publicationSetFull.policy.members,
+        members: Object.freeze(publicationSetFull.members.map((entry) => Object.freeze({
+          member: entry.member, present: entry.present, revision: entry.revision,
+          observedAt: entry.observedAt, schemaVersion: entry.schemaVersion
+        }))),
+        // Declares which members could not be judged for compatibility at all, so "declares nothing"
+        // does not read as "compatible".
+        unjudged: publicationSetFull.unjudged,
+        missing: publicationSetFull.missing,
+        incompatibilities: publicationSetFull.incompatibilities,
+        advancedSincePreviousRead: publicationSetFull.advancedSincePreviousRead
+      });
+      if (!publicationSet.compatible) warnings.push('SCREENER_PUBLICATION_SET_INCOMPATIBLE');
+
+      const snapshotId = `screener-snapshot-${await stableHashAsync({ revision: artifact.asOf, source: artifact.source, rows: snapshotIdentityRows(rows) }, { yieldImpl, signal })}`;
 
       return Object.freeze({
         rows,
@@ -455,7 +583,8 @@ export function createScreenerProvider({
             liveBacktestParity: modelValidation.liveBacktestParity === true,
             blockers: Array.isArray(modelValidation.blockers) ? [...modelValidation.blockers] : [],
             observedAt: modelValidation.observedAt || modelValidation.generatedAt || null
-          } : { status: 'BLOCKED', allowedUse: 'none', blockers: ['model-validation-status-unavailable'], observedAt: null },
+          } : { status: 'BLOCKED', allowedUse: 'none', blockers: [modelValidationRejected || 'model-validation-status-unavailable'], observedAt: null, rejection: modelValidationRejected },
+          publicationSet,
           conditionalEvidence: artifact.conditionalEvidence || null,
           dataLineage: artifact.dataLineage || null,
           breadth: artifact.breadth || null,
@@ -467,7 +596,7 @@ export function createScreenerProvider({
         },
         revision: artifact.asOf || null,
         snapshotId,
-        status: !rows.length ? 'unavailable' : artifactFresh && factorsFresh && rows.some((row) => typeof row.ret3m === 'number') && universeFreshnessStatus !== 'stale' ? 'current' : 'partial',
+        status: !rows.length ? 'unavailable' : artifactFresh && factorsFresh && publicationSet.compatible && rows.some((row) => typeof row.ret3m === 'number') && universeFreshnessStatus !== 'stale' ? 'current' : 'partial',
         updatedAt: artifact.asOf || null
       });
     }

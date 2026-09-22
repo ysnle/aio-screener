@@ -101,6 +101,11 @@ export function normalizeScreener(raw = {}) {
     factorAllowedUse: row?.factorAllowedUse || null,
     factorQuality: row?.factorQuality && typeof row.factorQuality === 'object' ? { ...row.factorQuality } : null,
     instrumentRef: row?.instrumentRef && typeof row.instrumentRef === 'object' ? { ...row.instrumentRef } : null,
+    // P1167 (15 D05): 명시적 화이트리스트가 선언된 필드를 조용히 버리면 provider가 발행한 식별
+    // 검증 상태가 소비자에게 도달하지 않는다. 행 정규화는 같은 계약을 통과시킨다.
+    identityValidation: row?.identityValidation && typeof row.identityValidation === 'object'
+      ? { ...row.identityValidation, missing: Array.isArray(row.identityValidation.missing) ? [...row.identityValidation.missing] : [] }
+      : null,
     fieldReadiness: row?.fieldReadiness && typeof row.fieldReadiness === 'object' ? {
       instrumentRef: row.fieldReadiness.instrumentRef ? { ...row.fieldReadiness.instrumentRef } : null,
       fields: row.fieldReadiness.fields && typeof row.fieldReadiness.fields === 'object' ? Object.fromEntries(Object.entries(row.fieldReadiness.fields).map(([key, value]) => [key, { ...value }])) : {},

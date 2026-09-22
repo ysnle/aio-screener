@@ -1,11 +1,29 @@
 ---
 verified_by: Codex local source review + affected QA (workspace/deployment regression); full semantic audit remains open
-last_verified: 2026-09-19
+last_verified: 2026-09-21
 confidence: medium
-target_version: v56.01
+target_version: v56.15
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R630. 식별자·정체성 해시는 그 대상의 입력에서 파생한다 — 표시·overlay 파생값을 넣지 않는다 (v56.15, P1177)
+
+**Rule**: `snapshotId`처럼 "무엇을 관측했는가"를 식별하는 값은 **그 관측 집합의 입력**(artifact·universe의 revision과 그 필드)에서만 파생돼야 한다. 표시·진단·overlay 목적으로 행에 추가된 파생값이 같은 해시에 들어가면 **그 값을 만드는 배경 현상이 정체성을 바꾼다** — 여기서는 시세 tick 한 번에 새 ranked snapshot이 발급되어 보관한 실행이 조용히 대체됐고(P1074 위반), 원인은 "해시 대상이 rows 전체"라는 한 줄에 숨어 있었다. (1) 정체성 입력은 **명시적 투영**으로 계산한다 — 제외 목록을 코드로 두고 그 목록을 계약으로 취급한다. (2) 한 계약을 확장할 때 **그 필드가 다른 계약의 입력인지** 확인한다: P1174는 거부된 quote를 진단으로 남기려고 행에 넣었고 그 진단이 정체성 해시 입력이 됐는데, 두 계약을 함께 검사하는 단언이 없어 6개 버전 동안 드러나지 않았다(그 게이트가 그동안 실행되지 않은 것도 원인이다). (3) 불변성은 **두 입력으로 같은 대상을 읽히는 게이트**로 고정한다 — 다른 overlay로는 식별자가 같고, 다른 관측으로는 달라야 한다(후자는 전면 동결을 막는 양성 대조). (4) 참조 구현 단언(최적화 해셔 == 참조 해셔)은 **투영까지 포함해** 갱신한다 — 투영을 빼고 옛 공식을 그대로 두면 그 단언은 통과하면서 아무것도 지키지 않는다.
+
+**Validation**: `scripts/ci-screener-workbench-contract.mjs`(P1177 `G-SCR-SNAPSHOT` 3종 — 다른 quote로 같은 artifact는 동일 `snapshotId`, 진단은 101/102로 각각 보존, artifact 변경은 새 정체성 + `G-SCR-HASH` 투영 기준 참조 해시), `scripts/ci-screener-auto-refresh-browser-check.mjs`(`frozenRunSurvivesQuoteRefresh: true`).
+
+## R629. 미설정 입력을 0으로 직렬화하지 않는다 — 0이 값을 뜻하는 필드와 미설정 필드를 타입으로 구분한다 (v56.14, P1176)
+
+**Rule**: `parseFloat(x) || 0`·`Number(x) || 0`은 **"빈 입력"과 "0"을 같은 값으로 만든다**. 한 번 저장되면 하류는 그 0이 사용자가 넣은 실측값인지 빈 칸인지 구분할 수 없고, R628의 `Number(null)===0`이 그 위에서 다시 작동한다 — 여기서는 미설정 목표가가 `$0.00`과 `-100% 잠재수익`으로 표시됐다. (1) 입력 경계에서 **빈 칸·NaN·무효 문자열은 null로 보존**하고 유효한 값만 숫자로 저장한다(`v.trim() === '' ? NaN : parseFloat(v)` 뒤 finite·범위 검사). (2) **같은 이름의 다른 타입을 구분**한다 — 가격 목표의 0은 미설정이고 비중의 0%는 실제 값이다. 타입마다 정규화 함수를 따로 둔다. (3) 숫자 강제 변환은 `Number(null) === 0`이므로 경계마다 확인한다(`typeof value === 'number'` 검사를 먼저 두거나 null을 먼저 걸러낸다) — `finite(Number(x))`는 null을 0으로 부활시킨다. (4) **같은 라벨의 정의가 두 곳에 있으면 하나로 만든다**: "목표가 미설정"을 native는 `finite(target) != null`, legacy는 `target > 0`으로 판정하고 있었다. (5) 수정 경로가 `target || 기존값`이면 사용자가 그 값을 **지울 수 없다** — 폼이 미리 채워지는 편집 경로에서는 빈 칸을 "지움"으로 해석한다.
+
+**Validation**: `scripts/ci-esm-core-unit-check.mjs`(P1176 정규화·reader·노출 fixture 단언), `scripts/ci-portfolio-vault-e2e.mjs`(`PFR-01` — 실브라우저에서 빈 목표가 저장값 null·셀 `미설정`·`$0.00`/`-100` 부재, 실제 목표가 150은 `$150` 렌더로 판별력 유지).
+
+## R628. 결측은 조건도 구간도 관측값도 만족시키지 않는다 — 경계에서 `Number(null)===0`을 먼저 막는다 (v56.02, P1164)
+
+**Rule**: 결측을 '관측된 0'으로 바꾸는 경로는 한 곳이 아니라 **클래스**였다. `Number(null)===0`(그리고 `Number('')===0`)이 `isNaN()` 검사를 통과해, (a) `null < 73`이 true가 되어 위기 조건을 만족시킨 뒤 `.toFixed`가 TypeError를 던지고, (b) 임계값 구간 판정이 **첫 구간**을 골라 미수신 F&G가 '극단 공포(buy-opportunity)', 미수신 VIX가 '저변동/포지션 100%', 미수신 AAII가 '중립'으로 표시됐다. (1) 경계·라벨·비교의 첫 줄은 `v == null || v === '' || !isFinite(Number(v))`로 걸러라 — `isNaN(Number(v))`만으로는 부족하다. (2) 표시 sentinel은 `NaN`(→'—'), 도메인 sentinel은 `null`로 통일하고 서로 바꾸지 않는다. (3) 미수신 입력에서 구간·포지션·위기·행동 문장을 **만들어내지 않는다**. (4) 값 부재를 '0%' 같은 실측 표기로 바꾸지 않되, 실제 0은 0으로 남긴다. (5) 한 렌더러의 예외가 같은 핸들러의 다음 렌더(차트 로드 등)를 취소하지 않도록 호출 경계를 둔다. (6) 게이트가 그 오표시 덕분에 통과하고 있었다면 픽스처가 아니라 **단언을 고친다**(R625의 같은 계열).
+
+**Validation**: `scripts/ci-headless-tests.mjs` G111 `_testV5601MissingInputSemantics`(P1164 — THRESHOLD_REGISTRY/ACTION_RULES 결측 판정, 창 밖 뉴스 건수, `updatePatternSignals` 무예외), `scripts/ci-screener-workbench-contract.mjs`.
 
 ## R627. 선언된 자격증명·기능은 도달 가능한 경로가 증명되기 전까지 제공된 것으로 취급하지 않는다 (v56, P1151~P1155)
 

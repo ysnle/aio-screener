@@ -3,6 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { backtestFactors, deriveCyclePublication, deriveTickerNewsLineage } from './fetch-data.mjs';
+import { factorScopesByMarket, marketOfSymbol, sessionDateInMarket, timeZoneForMarket } from '../src/domain/market/session-time.js';
 import { percentileRank01, spearman } from './lib/rank-statistics.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -760,6 +761,51 @@ check('earnings calendar keeps producer, consumer and lineage policy aligned',
   && /public-data\/earnings-calendar\.json/.test(pagesSource)
   && /'earnings-calendar\.json'/.test(read('scripts/ci-data-lineage-audit.mjs')),
   'producer, consumer or lineage policy is missing');
+
+// ── P1170 (15 D04): 관측 시각의 의미 계약 ────────────────────────────────────────────────────
+// A provider's daily bar timestamp is the START of that session's bar, not the instant a
+// close-derived factor was observable. Publishing the bar start under "observed" makes a
+// close-based result look knowable at the open, so basis and session date are separate fields.
+const barStartBasis = 'bar-start';
+check('P1170 D04 a US bar start maps to its exchange-local session date', sessionDateInMarket('2026-09-18T13:30:00.000Z', 'US') === '2026-09-18', String(sessionDateInMarket('2026-09-18T13:30:00.000Z', 'US')));
+check('P1170 D04 a KR bar start maps to its exchange-local session date', sessionDateInMarket('2026-09-18T00:00:00.000Z', 'KR') === '2026-09-18', String(sessionDateInMarket('2026-09-18T00:00:00.000Z', 'KR')));
+check('P1170 D04 the session date follows DST rather than a fixed offset', sessionDateInMarket('2026-01-15T14:30:00.000Z', 'US') === '2026-01-15', String(sessionDateInMarket('2026-01-15T14:30:00.000Z', 'US')));
+check('P1170 D04 one instant maps to different session dates per market', sessionDateInMarket('2026-09-19T00:00:00.000Z', 'KR') === '2026-09-19' && sessionDateInMarket('2026-09-19T00:00:00.000Z', 'US') === '2026-09-18', `${sessionDateInMarket('2026-09-19T00:00:00.000Z', 'KR')}/${sessionDateInMarket('2026-09-19T00:00:00.000Z', 'US')}`);
+check('P1170 D04 a missing instant is not promoted to a precise timestamp', sessionDateInMarket(null, 'US') === null && sessionDateInMarket('', 'KR') === null && sessionDateInMarket('not-a-date', 'US') === null);
+check('P1170 D04 market detection follows the listing suffix', marketOfSymbol('005930.KS') === 'KR' && marketOfSymbol('AAPL') === 'US' && timeZoneForMarket('KR') === 'Asia/Seoul');
+
+const mixedScopes = factorScopesByMarket({
+  AAPL: { factorBarStart: '2026-09-16T13:30:00.000Z', factorSessionDate: '2026-09-16' },
+  MSFT: { factorBarStart: '2026-09-16T13:30:00.000Z', factorSessionDate: '2026-09-16' },
+  '005930.KS': { factorBarStart: '2026-09-18T00:00:00.000Z', factorSessionDate: '2026-09-18' }
+});
+check('P1170 D04 mixed markets keep separate observation scopes', mixedScopes.US?.barStart === '2026-09-16T13:30:00.000Z' && mixedScopes.KR?.barStart === '2026-09-18T00:00:00.000Z', JSON.stringify(mixedScopes));
+// 이 fixture에서 전역 max(KR 09-18)는 US의 최신성(09-16)을 2일 앞당겨 보고한다 — 전역 하나로는
+// 개별 시장을 대표할 수 없다는 것이 이 단언의 요점이다.
+check('P1170 D04 a global max does not stand in for per-market recency',
+  mixedScopes.KR?.barStart !== mixedScopes.US?.barStart
+  && mixedScopes.US?.sessionDate === '2026-09-16' && mixedScopes.KR?.sessionDate === '2026-09-18',
+  JSON.stringify(mixedScopes));
+
+const producerSource = read('scripts/fetch-data.mjs');
+for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionDateByMarket', 'factorBarStartByMarket', "factorTimeBasis: 'bar-start'", 'factorScopesByMarket', 'factorComputedAt']) {
+  check(`P1170 D04 the factor producer publishes ${token}`, producerSource.includes(token));
+}
+const screenerPageSource = read('src/ui/pages/screener.js');
+check('P1170 D04 the screener reads the session date instead of presenting the bar start as an observation',
+  screenerPageSource.includes('factorSessionDate') && /관측시각 아님|관측시각이 아닙니다/.test(screenerPageSource));
+
+const producedScreeners = JSON.parse(read('public-data/screener.json'));
+const producedRows = Object.values(producedScreeners.data || {}).filter((row) => row && row.factorBarStart);
+if (producedRows.length) {
+  check('P1170 D04 produced rows carry a session date and an explicit bar-start basis',
+    producedRows.every((row) => row.factorSessionDate && row.factorTimeBasis === barStartBasis && row.factorComputedAt),
+    `${producedRows.length} rows`);
+  check('P1170 D04 produced rows publish both the bar start and its session date',
+    producedRows.every((row) => row.factorBarStart && row.factorSessionDate));
+} else {
+  console.log('[data-pipeline] factor rows do not carry the session contract yet; the next fetch-data run writes it.');
+}
 
 if (errors.length) {
   console.error('Data pipeline contract check failed:');

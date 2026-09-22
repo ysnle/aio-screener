@@ -13,6 +13,7 @@
     "CONFIGURED_HEALTHY",
     "CONFIGURED_BROKEN",
     "STALE",
+    "NOT_OBSERVED",
     "RIGHTS_REVIEW_REQUIRED"
   ],
   "rightsVocabulary": [
@@ -23,10 +24,62 @@
     "UNKNOWN"
   ],
   "generatedAt": "2026-09-22T23:17:34.693Z",
-  "appRevision": "v56.01",
+  "appRevision": "v56.15",
   "dataRevision": "market-snapshot:2026-09-22T23:17:11.574Z:23a0fccf",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
   "overall": "OPERATOR_REQUIRED",
+  "overallBasis": {
+    "planes": [
+      "durable"
+    ],
+    "excludes": [
+      "fast",
+      "browser"
+    ],
+    "note": "overall is derived from the durable data plane only; the fast quote plane and the browser shell plane are published separately and can be UNKNOWN while overall is unchanged"
+  },
+  "featureAvailability": {
+    "market-breadth": {
+      "availability": "AVAILABLE",
+      "asOf": "2026-09-22T01:54:06.224Z",
+      "missingReason": null,
+      "sources": [
+        "durable"
+      ]
+    },
+    "fundamental-ranking": {
+      "availability": "AVAILABLE",
+      "asOf": "2026-09-22T01:54:06.224Z",
+      "missingReason": null,
+      "sources": [
+        "durable"
+      ]
+    },
+    "quotes": {
+      "availability": "AVAILABLE",
+      "asOf": "2026-09-22T01:54:17.505Z",
+      "missingReason": null,
+      "sources": [
+        "fast"
+      ]
+    },
+    "ai-chat": {
+      "availability": "AVAILABLE",
+      "asOf": "2026-09-22T01:54:17.505Z",
+      "missingReason": null,
+      "sources": [
+        "fast"
+      ]
+    },
+    "browser-shell": {
+      "availability": "UNKNOWN",
+      "asOf": null,
+      "missingReason": "browser-plane-not-observed",
+      "sources": [
+        "browser"
+      ]
+    }
+  },
   "planes": {
     "durable": {
       "status": "CURRENT",
@@ -94,10 +147,19 @@
       }
     },
     "browser": {
-      "status": "CURRENT",
-      "statusCode": "CONFIGURED_HEALTHY",
+      "status": "UNKNOWN",
+      "statusCode": "NOT_OBSERVED",
       "source": "static-pages+service-worker",
-      "revision": "v56.01"
+      "revision": "v56.15",
+      "configured": true,
+      "observed": "NOT_OBSERVED",
+      "lastAttemptAt": null,
+      "lastSuccessfulAt": null,
+      "dataQuality": "NOT_MEASURED",
+      "deliveryObserved": "NOT_OBSERVED",
+      "revisionMatch": "NOT_OBSERVED",
+      "evidenceAge": null,
+      "note": "정적 셸·서비스워커 revision은 배포 계약이며, 브라우저 실행·Pages 도달·SW revision 일치의 실측 근거가 아닙니다."
     }
   },
   "ai": {
@@ -130,8 +192,8 @@
         "providerSmokeBoundary": "blocking-deployment-workflow-only",
         "ready": true,
         "note": "Periodic live health observed; provider smoke remains a blocking deployment-workflow gate.",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
         "evidenceEvaluatedAt": "2026-09-22T23:17:34.693Z"

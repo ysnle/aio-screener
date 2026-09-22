@@ -14,7 +14,7 @@ import { buildMacroFxTransmission } from '../src/ai/analysis/macro-fx.js';
 import { createBenchmarkManifest, evaluateRoutingCorpus, assertBenchmarkReady } from '../src/ai/eval/benchmark.js';
 import { createResearchDecision, validateResearchDecision } from '../src/ai/research/decision.js';
 import { createResearchPlan, validateResearchPlan } from '../src/ai/research/plan.js';
-import { createEvidenceDocument, evaluateResearchEvidenceFloor, normalizeResearchExecutionResult, normalizeSearchResults, validateClaimEvidenceBinding } from '../src/ai/research/evidence.js';
+import { createEvidenceDocument, evaluateResearchEvidenceFloor, normalizeResearchExecutionResult, normalizeSearchResults, validateClaimEvidenceBinding, verifyEvidenceBinding } from '../src/ai/research/evidence.js';
 import { createResearchCapability, validateResearchCapability } from '../src/ai/research/capability.js';
 import { classifyAIConduct, buildScopedConductFallback } from '../src/ai/policy/conduct.js';
 import { createAIAnswerOrchestrator } from '../src/ai/orchestrator/answer-orchestrator.js';
@@ -264,6 +264,67 @@ check('research-snippet-only-fails-executable-floor', evaluateResearchEvidenceFl
 check('research-malformed-source-floor-cannot-degrade-to-zero', evaluateResearchEvidenceFloor({ questionPlan: { ...currentPlan, researchPlan: { stopConditions: { minimumIndependentSources: NaN, minimumPrimarySources: null } } }, required: true, externalResult: legacyProducerShape }).ready === false);
 const spoofedOfficial = createEvidenceDocument({ canonicalUrl: 'https://evilsec.gov.example.com/fake', title: 'spoof', publisher: 'sec.gov', sourceTier: 'PRIMARY_OFFICIAL', primaryOrSecondary: 'PRIMARY', contentDepth: 'EXCERPT', rights: 'PUBLIC_REFERENCE' });
 check('research-official-domain-suffix-is-spoof-safe', spoofedOfficial.primaryOrSecondary === 'SECONDARY' && spoofedOfficial.sourceTier !== 'PRIMARY_OFFICIAL');
+
+// ── P1172 (05 A05): 출처가 이 요청의 것인지 ────────────────────────────────────────────────────
+// The floor checks domains, counts and depth, so a cross-question set with an official domain and
+// enough independent primary sources used to satisfy it — "this URL is official" became "this
+// question is answered". A reproduced synthetic run passed another question's SEC URL and the floor
+// returned ready.
+const boundPlan = { ...currentPlan, queryId: 'query:nvda-status' };
+const ownRequestDoc = { ...officialDoc, queryId: 'query:nvda-status' };
+const otherRequestDoc = { ...officialDoc, queryId: 'query:unrelated-question' };
+const asExternal = (doc) => ({ citations: [doc.canonicalUrl], researchEvidence: { evidenceDocuments: [doc], currentClaimsAllowed: true } });
+const crossQuestion = evaluateResearchEvidenceFloor({ questionPlan: boundPlan, required: true, externalResult: asExternal(otherRequestDoc) });
+check('P1172 research-floor rejects a citation bound to another request', crossQuestion.ready === false, JSON.stringify(crossQuestion.evidenceBinding));
+check('P1172 research-floor names the binding failure as the reason', crossQuestion.reason === 'research-evidence-binding-mismatched_query', crossQuestion.reason);
+const ownRequest = evaluateResearchEvidenceFloor({ questionPlan: boundPlan, required: true, externalResult: asExternal(ownRequestDoc) });
+check('P1172 research-floor accepts a citation bound to this request', ownRequest.ready === true && ownRequest.bindingChecked === true && ownRequest.evidenceBinding.status === 'BOUND', JSON.stringify(ownRequest.evidenceBinding));
+const unboundRequest = evaluateResearchEvidenceFloor({ questionPlan: boundPlan, required: true, externalResult: asExternal({ ...officialDoc }) });
+check('P1172 research-floor marks an unbound citation set as unchecked rather than verified',
+  unboundRequest.ready === true && unboundRequest.bindingChecked === false && unboundRequest.evidenceBinding.status === 'UNBOUND',
+  JSON.stringify(unboundRequest.evidenceBinding));
+const entityBoundPlan = { ...currentPlan, queryId: 'query:nvda-status', entity: 'NVDA' };
+const otherEntityDoc = { ...officialDoc, queryId: 'query:nvda-status', entity: 'AMD' };
+const crossEntity = evaluateResearchEvidenceFloor({ questionPlan: entityBoundPlan, required: true, externalResult: asExternal(otherEntityDoc) });
+check('P1172 research-floor rejects a citation bound to another entity',
+  crossEntity.ready === false && crossEntity.evidenceBinding.status === 'MISMATCHED_ENTITY',
+  JSON.stringify(crossEntity.evidenceBinding));
+check('P1172 evidence binding is enforced by the exported contract', verifyEvidenceBinding({ citations: [{ queryId: 'a' }], expectedQueryId: 'b' }).ok === false
+  && verifyEvidenceBinding({ citations: [{ queryId: 'a' }], expectedQueryId: 'a' }).status === 'BOUND'
+  && verifyEvidenceBinding({ citations: ['https://www.sec.gov/x'] }).checked === false);
+// 호출자가 자기 요청 id를 말하지 않으면 판정할 수 없다 — 실패가 아니라 '판정 불가'로 남긴다(오탐 방지).
+const unverifiable = evaluateResearchEvidenceFloor({ questionPlan: { ...currentPlan, queryId: null }, required: true, externalResult: asExternal({ ...officialDoc, queryId: 'query:whatever' }) });
+check('P1172 research-floor reports an unjudgeable binding instead of failing closed on a missing caller id',
+  unverifiable.ready === true && unverifiable.evidenceBinding.status === 'UNVERIFIABLE' && unverifiable.bindingChecked === false,
+  JSON.stringify(unverifiable.evidenceBinding));
+check('P1172 native citations carry the request they were collected for',
+  fs.readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8').includes("requestId: window._aioActiveAIRequestId || null, queryId: window._aioActiveAIRequestId || null"),
+  'the chat citation collector must stamp the active request id');
+// 결속이 판정되려면 호출자가 자기 요청 id를 넘겨야 한다 — 수집만 하고 넘기지 않으면 영원히 UNBOUND다.
+const chatSource = fs.readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8');
+const floorCallSites = chatSource.split('evaluateAIResearchEvidenceFloor({').slice(1);
+check('P1172 every chat evidence-floor call declares the active request id',
+  floorCallSites.length >= 1 && floorCallSites.every((chunk) => chunk.slice(0, 400).includes('requestId:')),
+  `${floorCallSites.filter((chunk) => !chunk.slice(0, 400).includes('requestId:')).length} of ${floorCallSites.length} evidence-floor calls omit the request id`);
+
+// ── P1172 (05 A04): 수치 조건을 해제하는 것은 수치 claim뿐 ──────────────────────────────────────
+// A single claim of any type used to clear the untracked-numeric condition, so an unsourced
+// current-fact number could ship alongside one unrelated text claim.
+const numericProse = 'NVDA 주가는 180.5 USD이고 RSI는 62입니다.';
+const textOnlyClaims = [{ claimId: 'c1', type: 'text', text: '시장 상황은 혼조입니다.', asOf: '2026-09-18', source: 'note', evidenceIds: ['e1'] }];
+const textOnlyAudit = validateAnswerPlan(createAnswerPlan({ questionPlan: boundPlan, summary: numericProse, claims: textOnlyClaims }), { currentSensitive: true });
+check('P1172 a text claim does not clear the untracked numeric condition',
+  textOnlyAudit.ok === false && textOnlyAudit.errors.includes('untracked_numeric_content'), JSON.stringify(textOnlyAudit.errors));
+const typedNumericAudit = validateAnswerPlan(createAnswerPlan({
+  questionPlan: boundPlan,
+  summary: numericProse,
+  claims: [{ claimId: 'c1', type: 'metric', text: 'NVDA 종가', metric: 'price', entity: 'NVDA', value: 180.5, unit: 'USD', asOf: '2026-09-18', source: 'market-snapshot', evidenceIds: ['e1'], status: 'verified' }]
+}), { currentSensitive: true });
+check('P1172 a typed numeric claim clears the condition for its own numbers',
+  !typedNumericAudit.errors.includes('untracked_numeric_content'), JSON.stringify(typedNumericAudit.errors));
+const nonSensitiveAudit = validateAnswerPlan(createAnswerPlan({ questionPlan: boundPlan, summary: numericProse, claims: textOnlyClaims }), { currentSensitive: false });
+check('P1172 the numeric condition stays scoped to current-sensitive answers',
+  !nonSensitiveAudit.errors.includes('untracked_numeric_content'), JSON.stringify(nonSensitiveAudit.errors));
 const capability = createResearchCapability({ provider: 'claude-native', routeReady: 'READY', authReady: 'READY', toolReady: 'READY', quotaReady: 'READY', originReady: 'READY', supportsCitations: true, supportsFullContent: true, supportsDomainControl: false, checkedAt: '2026-07-28T12:00:00Z' });
 check('research-capability-separates-chat', capability.status === 'READY' && capability.chatReadiness === 'SEPARATE_CAPABILITY' && validateResearchCapability(capability).ok);
 const boundedRunnerFailure = await createAIAnswerOrchestrator({ now: () => new Date('2026-07-28T12:00:00Z') }).execute({ query:'시장 원리', legacyRunner: async () => { throw new Error('secret internal detail'); } });

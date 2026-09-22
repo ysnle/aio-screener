@@ -1,0 +1,43 @@
+{
+  "repo": "C:\\Projects\\AIO",
+  "version": "v56.01",
+  "evidence_scope": "synthetic local code only; no browser, provider, network, secrets, or user data",
+  "reproductions": [
+    {
+      "id": "one-valid-claim-plus-numeric-prose",
+      "level": "synthetic module call",
+      "source": ["src/ai/response/claim-ledger.js:75-81"],
+      "input": {"currentSensitive": true, "claims": [{"type": "numeric", "value": 100, "unit": "USD", "asOf": "2026-09-20T12:00:00Z", "source": "https://www.sec.gov/x", "evidenceIds": ["e1"]}], "summary": "Supported claim. Unrelated current note: 12%"},
+      "output": {"ok": true, "errors": []},
+      "meaning": "The structural validator passes when any claim exists."
+    },
+    {
+      "id": "publication-filter-match-and-miss",
+      "level": "synthetic execution of extracted aio-chat helpers plus real renderer",
+      "source": ["js/aio-chat.js:227-234,253-315", "src/ai/response/renderer.js:12-36"],
+      "input": {"summary": "Valid claim exists. Unrelated current note rose 12%.", "sectionBody": "Other number 15% is shown. A plain count moved from 17 to 19.", "claim": {"type": "numeric", "metric": "price", "entity": "ABC", "value": 100, "unit": "USD", "asOf": "2026-09-20T12:00:00Z", "source": "https://www.sec.gov/x", "evidenceIds": ["e1"], "status": "verified"}, "boundEvidence": {"evidenceId": "e1", "metric": "price", "entity": "ABC", "value": 100, "unit": "USD", "asOf": "2026-09-20T12:00:00Z", "source": "https://www.sec.gov/x", "status": "verified"}},
+      "output": {"droppedClaims": [], "renderedText": "Valid claim exists.\n\n- ABC · price: 100USD [https://www.sec.gov/x · 2026-09-20T12:00:00Z]\n\nCurrent data\nA plain count moved from 17 to 19."},
+      "meaning": "Recognized 12%/15% prose is removed; an unlabelled number pair survives the regex."
+    },
+    {
+      "id": "unrelated-native-citation-meets-required-floor",
+      "level": "synthetic module call",
+      "source": ["src/ai/research/evidence.js:188-200,221-280", "js/aio-chat.js:2210-2220,6811-6815,9017-9021"],
+      "input": {"required": true, "minimumIndependentSources": 1, "minimumPrimarySources": 1, "nativeCitationFromOtherQuery": "https://www.sec.gov/Archives/edgar/data/1/foreign-query.html"},
+      "output": {"ready": true, "source": "claude-native", "independentSourceCount": 1, "primarySourceCount": 1},
+      "meaning": "Evidence floor checks citation host/source counts, not query/request identity."
+    },
+    {
+      "id": "personalized-action-plan-vs-conduct-taxonomy",
+      "level": "synthetic module calls plus static consumer search",
+      "source": ["src/ai/intent/taxonomy.js:42-47,60-64", "src/ai/policy/suitability.js:3-14", "src/ai/policy/conduct.js:14-18,30-38", "src/ai/orchestrator/answer-orchestrator.js:25-46", "js/aio-chat.js:318-430", "js/aio-core.js:6697-6718"],
+      "input": {"query": "나에게 MSFT 매수 추천해줘"},
+      "output": {"questionPlanPermission": {"allowed": false, "reasons": ["suitability-profile-required", "current-evidence-required"]}, "conduct": {"personalized": false, "directAction": true, "requestMode": "CONDITIONAL_ANALYSIS"}},
+      "meaning": "Orchestrator forwards actionLimitations, but neither chat adapter nor shared response pipeline reads that field; disclosures are derived from conduct limitations."
+    }
+  ],
+  "not_reproduced": [
+    "Actual concurrent chatSend/chatSendUnified citation interleaving and misattribution; static code shows shared unscoped window citation state, but no simultaneous browser/provider run was performed.",
+    "Live search/provider recency, source-content correctness, or real UI timing."
+  ]
+}

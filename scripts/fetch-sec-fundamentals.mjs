@@ -5,10 +5,13 @@
 // and preserves prior verified rows so the full screener universe converges
 // over multiple scheduled runs without hammering EDGAR.
 
+import { createHash } from 'node:crypto';
 import { readFile, writeFile, rename, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { finiteFact, sameFiscalPeriod, isPriorAnnualPeriod } from '../src/domain/fundamental/period.js';
+
+const sha256Hex = (value) => createHash('sha256').update(String(value)).digest('hex');
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const ROOT = `${__dir}/..`;
@@ -383,6 +386,72 @@ function buildTickerMap(payload) {
   return map;
 }
 
+// P1169 (17 작업 단위 1 / 06 O06): 도메인 receipt. "이번 수집 성공 / 기존 값 보존 / 분석 적격성 /
+// publication 성공"을 하나의 성공 상태로 합치지 않도록 카운터를 독립 기록한다. receipt는 job exit
+// code가 아니라 시도·갱신·보존·terminal·transient 수에서 계산되며, 생성시각 하나로 데이터가
+// 새로워졌다고 표시하지 않는다.
+export function buildDomainReceipt({
+  domain = 'unknown',
+  runId = null,
+  attemptedAt = null,
+  sourceRevision = null,
+  inputWatermarks = {},
+  eligible = 0,
+  attempted = 0,
+  updated = 0,
+  stored = 0,
+  failures = [],
+  priorReceipt = null,
+  batchLimit = null
+} = {}) {
+  const ledger = (Array.isArray(failures) ? failures : []).filter(Boolean);
+  const countStatus = (status) => ledger.filter((row) => row.status === status).length;
+  // 이번 batch가 남긴 기록과 누적 원장은 다른 축이다. status 없는 구형 기록은 이번 실패도 terminal도
+  // 아니므로 어느 쪽으로도 승격하지 않고 그대로 보존한다.
+  const batchRows = attemptedAt ? ledger.filter((row) => row.attemptedAt === attemptedAt) : [];
+  const batchTransient = batchRows.filter((row) => row.status === 'TRANSIENT_PROVIDER_FAILURE').length;
+  const batchTerminal = batchRows.filter((row) => row.status === 'TERMINAL_UNSUPPORTED').length;
+  const attemptedCount = Number(attempted) || 0;
+  const updatedCount = Number(updated) || 0;
+  const retained = Math.max(0, (Number(stored) || 0) - updatedCount);
+  const pendingEligible = Math.max(0, (Number(eligible) || 0) - (Number(stored) || 0));
+  const publication = attemptedCount === 0
+    ? { status: 'NOT_ATTEMPTED', reason: 'no target was due in this batch' }
+    : updatedCount === 0
+      ? (retained > 0
+        ? { status: 'NO_REFRESH_RETAINED', reason: 'every attempted target failed; previously stored rows stay published' }
+        : { status: 'EMPTY', reason: 'every attempted target failed and no eligible row is stored' })
+      : (batchTransient === 0 && batchTerminal === 0
+        ? { status: 'SUCCESS', reason: 'every attempted target was updated' }
+        : { status: 'PARTIAL', reason: 'some attempted targets were not updated' });
+  return {
+    schemaVersion: 'domain-receipt.v1',
+    domain,
+    runId,
+    attemptedAt,
+    sourceRevision,
+    inputWatermarks: { ...inputWatermarks },
+    batchLimit,
+    counts: { eligible: Number(eligible) || 0, attempted: attemptedCount, updated: updatedCount, retained, pendingEligible },
+    thisBatch: { updated: updatedCount, terminalUnsupported: batchTerminal, transientFailed: batchTransient, recorded: batchRows.length },
+    ledger: {
+      total: ledger.length,
+      terminalUnsupported: countStatus('TERMINAL_UNSUPPORTED'),
+      transientFailed: countStatus('TRANSIENT_PROVIDER_FAILURE'),
+      legacyUnknown: ledger.filter((row) => !row.status).length
+    },
+    // 마지막 성공 관측은 이번 batch가 실제로 값을 갱신했을 때만 전진한다.
+    lastSuccessfulObservation: updatedCount > 0 ? attemptedAt : (priorReceipt?.lastSuccessfulObservation || null),
+    publication: {
+      ...publication,
+      allowsPartial: true,
+      basis: 'per-symbol independent collection; retained eligible rows stay published while rows that lose their period requirements are excluded from analysis',
+      terminalExcludedFromBatchFailures: true,
+      generatedAtIsNotFreshness: true
+    }
+  };
+}
+
 export async function refreshSecFundamentals(priceHints = null) {
   const universePayload = await readJSON(UNIVERSE_PATH, { universe: [] });
   const screener = await readJSON(SCREENER_PATH, { data: {} });
@@ -522,6 +591,26 @@ export async function refreshSecFundamentals(priceHints = null) {
     batchLimit: limit,
     unsupportedRecheckPolicy: 'SEC_RECHECK_UNSUPPORTED=1 required for explicit recheck; terminal unsupported rows remain auditable and out of normal batches',
     nextRefreshCandidates: Math.max(0, eligible.length - Object.keys(data).length),
+    // P1169 (17 작업 단위 1 / 06 O06): 이번 batch의 수집 성과를 job exit code가 아니라 카운터로
+    // 기록한다. 관측시각 하나(generatedAt)로 "데이터가 새로워졌다"를 표시하지 않는다.
+    domainReceipt: buildDomainReceipt({
+      domain: 'sec-fundamentals',
+      runId: process.env.GITHUB_RUN_ID ? `gha:${process.env.GITHUB_RUN_ID}` : `local:${attemptedAt}`,
+      attemptedAt,
+      sourceRevision: `sec-company-tickers:${sha256Hex(JSON.stringify(tickerPayload))}`,
+      inputWatermarks: {
+        universe: universePayload.lastBulkUpdate || universePayload.generatedAt || null,
+        screener: screener.asOf || screener.generatedAt || null,
+        previousArtifact: previous.generatedAt || null
+      },
+      eligible: eligible.length,
+      attempted: targets.length,
+      updated,
+      stored: Object.keys(data).length,
+      failures: [...failuresBySymbol.values()],
+      priorReceipt: previous.domainReceipt || null,
+      batchLimit: limit
+    }),
     data
   };
   await atomicWrite(OUT, payload);

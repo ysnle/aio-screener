@@ -293,7 +293,7 @@
     }
   },
   "impactRules": [
-    { "patterns": ["version.json"], "groups": ["core"] },
+    { "patterns": ["version.json"], "groups": ["core", "data", "browser-unit", "browser-runtime", "browser-knowledge", "browser-resilience", "browser-viewport", "browser-surface", "watchdog-local"] },
     { "patterns": ["AGENTS.md", "CLAUDE.md", ".agents/**", ".claude/**", ".codex/**", ".github/**", "_context/**", "architecture/qa-pipeline.json", "architecture/agent-profiles.json", "architecture/skill-eval-cases.json"], "groups": ["workspace"] },
     { "patterns": ["scripts/ci-operator-secrets-contract-check.mjs"], "groups": ["workspace"] },
     { "patterns": ["scripts/ci-ledger-integrity-check.mjs", "scripts/ci-assertion-trace-check.mjs", "_context/rule-gap-manifest.json", "_context/open-item-baseline.json", "_context/assertion-trace-baseline.json", "_context/doc-freshness-baseline.json"], "groups": ["workspace"] },
@@ -302,7 +302,7 @@
     { "patterns": [".github/workflows/pages-deploy.yml", ".github/workflows/deploy-ai-proxy.yml", ".github/workflows/deploy-data-plane.yml", "cloudflare-worker-proxy.js", "worker/data-plane.js", "architecture/deployment-convergence.json"], "groups": ["core", "cloudflare"] },
     { "patterns": ["public-data/knowledge/**", "public-data/principles/**", "public-data/atlas/**", "public-data/masters/**", "src/domain/knowledge/**", "src/ui/pages/principles.js", "src/ui/pages/atlas.js", "src/ui/pages/masters.js", "src/ui/knowledge/**"], "groups": ["knowledge", "browser-knowledge", "browser-unit", "browser-viewport"] },
     { "patterns": ["public-data/**", "scripts/fetch-*.mjs", "scripts/sync-*.mjs", "src/data/**", "src/domain/**", "src/state/**", "js/aio-data.js"], "groups": ["data", "core", "browser-unit", "browser-runtime"] },
-    { "patterns": ["index.html", "js/**", "src/app/**", "src/ui/**", "src/ai/**", "src/platform/**", "src/storage/**", "src/legacy/**", "scripts/start-local-node.mjs", "scripts/desktop-qa-config.mjs", "sw.js", "public-config.json"], "groups": ["core", "browser-unit", "browser-runtime", "browser-resilience", "browser-viewport", "browser-surface"] },
+    { "patterns": ["index.html", "js/**", "src/app/**", "src/ui/**", "src/ai/**", "src/platform/**", "src/storage/**", "src/legacy/**", "scripts/start-local-node.mjs", "scripts/desktop-qa-config.mjs", "sw.js", "public-config.json"], "groups": ["core", "browser-unit", "browser-runtime", "browser-resilience", "browser-viewport", "browser-surface", "browser-knowledge"] },
     { "patterns": ["cloudflare-worker-proxy.js", "worker/**", ".github/workflows/deploy-ai-proxy.yml", ".github/workflows/deploy-data-plane.yml", "architecture/worker-endpoints.json"], "groups": ["cloudflare"] },
     { "patterns": ["scripts/qa-runner.mjs", "scripts/ci-qa-runner-behavior-check.mjs", "scripts/ci-qa-pipeline-contract-check.mjs", "scripts/fixtures/**", "architecture/qa-pipeline.json"], "groups": ["core", "data", "knowledge", "workspace", "cloudflare"] },
     { "patterns": ["scripts/*knowledge*.mjs", "scripts/*atlas*.mjs", "scripts/*principles*.mjs", "scripts/*masters*.mjs", "scripts/enrich-knowledge-*.mjs", "architecture/knowledge-*.json"], "groups": ["knowledge", "workspace"] },
@@ -311,6 +311,8 @@
     { "patterns": ["scripts/*workspace*.mjs", "scripts/*skill*.mjs", "scripts/*agent*.mjs", "scripts/*workflow*.mjs", "scripts/*doc*.mjs", "scripts/*header-policy*.mjs", "architecture/agent-profiles.json", "architecture/skill-eval-cases.json"], "groups": ["workspace"] },
     { "patterns": ["scripts/**"], "groups": ["core"] },
     { "patterns": ["architecture/**"], "groups": ["core", "data"] },
-    { "patterns": ["index.html", "js/aio-core.js", "sw.js", "public-config.json", "public-artifact-manifest.json", ".github/workflows/pages-deploy.yml", "_headers", "src/ai/time/market-session.js", "src/legacy/market-snapshot-bridge.js"], "groups": ["data"] }
+    { "patterns": ["index.html", "js/aio-core.js", "sw.js", "public-config.json", "public-artifact-manifest.json", ".github/workflows/pages-deploy.yml", "_headers", "src/ai/time/market-session.js", "src/legacy/market-snapshot-bridge.js"], "groups": ["data", "core"] },
+    { "patterns": ["js/aio-kr-data.js"], "groups": ["data"] },
+    { "patterns": ["package.json", "package-lock.json", "_context/gate-baseline-skip-list.json"], "groups": ["browser-unit", "browser-runtime", "browser-knowledge", "browser-resilience", "browser-viewport", "browser-surface"] }
   ]
 }

@@ -1,0 +1,120 @@
+{
+  "kind": "synthetic actual SLO script; network mocked; no repository mutation",
+  "at": "2026-09-21T01:36:14.106Z",
+  "input": {
+    "refreshMarket": "one success daily for 30 days",
+    "refreshScreener": "zero runs",
+    "watchdog": "one success daily for 30 days vs configured hourly schedule"
+  },
+  "output": {
+    "schemaVersion": "operations-slo-window.v2",
+    "status": "CERTIFIED_WINDOW",
+    "observedAt": "2026-09-21T01:36:14.104Z",
+    "query": {
+      "repository": "ysnle/aio-screener",
+      "cutoff": "2026-08-22T01:36:14.104Z",
+      "workflows": {
+        "refreshMarket": "refresh-data.yml",
+        "refreshScreener": "refresh-screener.yml",
+        "watchdog": "data-watchdog.yml"
+      }
+    },
+    "targets": {
+      "artifactSuccessRate30d": 0.995,
+      "watchdogSuccessRate30d": 0.995,
+      "exactSourceIdentityCoverage": 1,
+      "consecutiveFailureAlertAt": 2
+    },
+    "windows": {
+      "7d": {
+        "requiredDays": 7,
+        "observedDays": 7,
+        "status": "PASS",
+        "artifact": {
+          "completed": 7,
+          "succeeded": 7,
+          "failed": 0,
+          "successRate": 1,
+          "observedDays": 7,
+          "exactSourceIdentityCoverage": 1
+        },
+        "watchdog": {
+          "completed": 7,
+          "succeeded": 7,
+          "failed": 0,
+          "successRate": 1,
+          "observedDays": 7,
+          "exactSourceIdentityCoverage": 1
+        },
+        "source": "github-actions-api"
+      },
+      "30d": {
+        "requiredDays": 30,
+        "observedDays": 30,
+        "status": "PASS",
+        "artifact": {
+          "completed": 30,
+          "succeeded": 30,
+          "failed": 0,
+          "successRate": 1,
+          "observedDays": 30,
+          "exactSourceIdentityCoverage": 1
+        },
+        "watchdog": {
+          "completed": 30,
+          "succeeded": 30,
+          "failed": 0,
+          "successRate": 1,
+          "observedDays": 30,
+          "exactSourceIdentityCoverage": 1
+        },
+        "source": "github-actions-api"
+      }
+    },
+    "metrics": {
+      "artifact": {
+        "completed": 30,
+        "succeeded": 30,
+        "failed": 0,
+        "successRate": 1,
+        "observedDays": 30,
+        "exactSourceIdentityCoverage": 1
+      },
+      "watchdog": {
+        "completed": 30,
+        "succeeded": 30,
+        "failed": 0,
+        "successRate": 1,
+        "observedDays": 30,
+        "exactSourceIdentityCoverage": 1
+      }
+    },
+    "failureRecovery": {
+      "failureCount": 0,
+      "recoveryCount": 0,
+      "consecutiveFailuresMax": 0,
+      "dedupedAlerts": {
+        "issueCount": 0,
+        "workflowCount": 0,
+        "duplicateMarkerCount": 0,
+        "openCount": 0,
+        "closedCount": 0,
+        "deduped": true,
+        "source": "github-issues-api"
+      },
+      "status": "MEASURED_DEDUPED"
+    },
+    "revisionLanes": {
+      "liveRevision": null,
+      "dataRevision": null,
+      "localFixturePromotesLive": false,
+      "sourceShaCoverage": 1
+    },
+    "certification": {
+      "thirtyDaySlo": "PASS",
+      "alertDedupe": "PASS",
+      "publicPromotionAllowed": false
+    },
+    "reason": "Actions history measures execution success and recovery; repository issues measure workflow-keyed alert dedupe. Provider rights, live revision, and public promotion remain independent operator evidence."
+  }
+}

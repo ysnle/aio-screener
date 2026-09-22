@@ -12,6 +12,15 @@ function positiveFinite(value) {
   return number != null && number > 0 ? number : null;
 }
 
+// P1176 (22 PFR01): a price target and a target weight are different types. `numeric(0)`
+// kept the legacy writer's "field left blank" sentinel as a real target price, which the
+// table then rendered as $0.00 plus a -100% potential return. An explicit 0% weight, by
+// contrast, is a meaningful value and must survive.
+function weightPercent(value) {
+  const number = numeric(value);
+  return number != null && number >= 0 && number <= 100 ? number : null;
+}
+
 export function normalizePortfolio(raw = {}) {
   const holdings = Array.isArray(raw.holdings) ? raw.holdings.map((holding) => Object.freeze({
     symbol: String(holding?.symbol || holding?.sym || '').toUpperCase(),
@@ -29,8 +38,13 @@ export function normalizePortfolio(raw = {}) {
     revision: holding?.revision || null,
     changeBasis: holding?.changeBasis || 'unknown',
     directionCompatible: holding?.directionCompatible === true || (!!holding?.changeBasis && holding.changeBasis !== 'unknown'),
+    // P1175 (11 P11-02): 통화는 표시가 아니라 합산의 단위다. 정규화가 버리면 이후 합산이 서로 다른
+    // 단위를 더하고도 complete라고 말할 수 있다 — 선언을 보존하고, 없으면 추정하지 않는다.
+    currency: String(holding?.currency || holding?.priceCurrency || '').trim().toUpperCase() || null,
+    costCurrency: String(holding?.costCurrency || '').trim().toUpperCase() || null,
     sector: holding?.sector ? String(holding.sector) : null,
-    target: numeric(holding?.target),
+    target: positiveFinite(holding?.target),
+    targetWeight: weightPercent(holding?.targetWeight),
     memo: holding?.memo ? String(holding.memo) : '',
     addedAt: holding?.addedAt || null,
     updatedAt: holding?.updatedAt || null,
@@ -52,6 +66,8 @@ export function normalizePortfolio(raw = {}) {
     holdingsKnown: raw.holdingsKnown === true || Array.isArray(raw.holdings),
     cash: numeric(raw.cash),
     cashKnown: raw.cashKnown === true || numeric(raw.cash) != null,
+    baseCurrency: String(raw.baseCurrency || raw.currency || '').trim().toUpperCase() || null,
+    cashCurrency: String(raw.cashCurrency || '').trim().toUpperCase() || null,
     readState: ['loading', 'locked', 'ready', 'failed'].includes(raw.readState) ? raw.readState : (raw.status === 'locked' ? 'locked' : raw.status === 'loading' ? 'loading' : raw.status === 'failed' ? 'failed' : 'ready'),
     totals,
     privacy: raw.privacy || 'opt-in',

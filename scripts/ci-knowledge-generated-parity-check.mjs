@@ -72,10 +72,16 @@ function filesUnder(baseRoot, path) {
   return readdirSync(absolute, { withFileTypes: true }).flatMap((entry) => filesUnder(baseRoot, relative(baseRoot, join(absolute, entry.name))));
 }
 
+// P1168: the producers write LF. A Windows checkout materializes the same committed JSON as CRLF,
+// so hashing raw bytes reported "builders changed generated outputs" and listed 21 content-identical
+// files — a platform artifact that reads as a producer regression. Parity is a content property, so
+// the comparison normalizes line endings instead of depending on the caller's checkout convention.
+const normalizeNewlines = (buffer) => buffer.toString('utf8').replace(/\r\n/g, '\n');
+
 function snapshot(baseRoot) {
   const rows = new Map();
   for (const file of [...new Set(targets.flatMap((target) => filesUnder(baseRoot, target)))].sort()) {
-    rows.set(relative(baseRoot, file).replaceAll('\\', '/'), createHash('sha256').update(readFileSync(file)).digest('hex'));
+    rows.set(relative(baseRoot, file).replaceAll('\\', '/'), createHash('sha256').update(normalizeNewlines(readFileSync(file))).digest('hex'));
   }
   return rows;
 }

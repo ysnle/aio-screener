@@ -198,12 +198,25 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
       quoteAllowedUse: quote.quoteAllowedUse,
       fallbackUsed: quote.fallbackUsed,
       dailyPctEligible: quote.dailyPctEligible,
-      changeBasis: quote.changeBasis
+      changeBasis: quote.changeBasis,
+      currency: String(holding?.currency || holding?.priceCurrency || '').trim().toUpperCase() || null
     });
   }).filter((row) => row.symbol);
 
-  const allRowsValued = rows.length > 0 && rows.every((row) => row.value != null);
-  const someRowsValued = rows.some((row) => row.value != null);
+  // P1175 (11 P11-02): 수량×가격과 cash를 같은 단위로 더하려면 그 단위가 같아야 한다. 선언된 통화가
+  // 충돌하면 환산 근거가 없으므로 합계를 만들지 않는다 — 미확인 통화는 USD라는 뜻이 아니고, 통화를
+  // 선언하지 않은 포트폴리오는 기존 단일 기준 동작을 유지하되 그 가정을 드러낸다.
+  const declaredCurrencies = [...new Set([
+    ...rows.map((row) => row.currency),
+    String(state?.cashCurrency || '').trim().toUpperCase() || null,
+    String(state?.baseCurrency || '').trim().toUpperCase() || null
+  ].filter(Boolean))];
+  const currencyBasis = declaredCurrencies.length > 1 ? 'mixed' : declaredCurrencies.length === 1 ? 'declared-single' : 'undeclared';
+  const currencyState = currencyBasis === 'mixed' ? 'mixed-without-conversion' : currencyBasis === 'undeclared' ? 'undeclared-single-basis-assumed' : 'declared-single';
+  const currencyCompatible = currencyBasis !== 'mixed';
+
+  const allRowsValued = currencyCompatible && rows.length > 0 && rows.every((row) => row.value != null);
+  const someRowsValued = currencyCompatible && rows.some((row) => row.value != null);
   const cashValue = firstFinite(state?.cash, totals.cash);
   const cashKnown = readState === 'ready' && (state?.cashKnown === true || cashValue != null || holdingsKnown);
   const cash = cashKnown && cashValue != null && cashValue >= 0 ? cashValue : (cashValue === 0 ? 0 : null);
@@ -243,6 +256,11 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     modelVersion: PORTFOLIO_SURFACE_MODEL_VERSION,
     readState,
     valuationState,
+    // P1175 (11 P11-02): 합계가 어떤 통화 단위로 만들어졌는지, 아니면 만들 수 없었는지.
+    currencyState,
+    currencyBasis,
+    baseCurrency: currencyBasis === 'declared-single' ? declaredCurrencies[0] : null,
+    declaredCurrencies: Object.freeze(declaredCurrencies),
     holdingsKnown,
     cashKnown,
     valuedHoldingCount: rows.filter((row) => row.value != null).length,

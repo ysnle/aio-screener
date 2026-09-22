@@ -1,6 +1,6 @@
 # 함수·계약 검수 대장 — 전수 완료 아님
 
-Astra 유지·설계. 최종 갱신2026-09-20. 각 행의 함수는 해당 의미 경계를 읽은 범위이며, 파일 전체/모든 입력의 정확성 인증이 아니다. ‘정적’은 코드 추적, ‘합성’은 고정 입력 실행, ‘브라우저’는 로컬 관찰이다. 55는 v55.22,56은 외부 미커밋 변경을 포함한 v56이다. 근거가 다른 버전이면 최신 재검증 문서를 우선한다.
+Astra 유지·설계. 최종 갱신 2026-09-21. 각 행의 함수는 해당 의미 경계를 읽은 범위이며, 파일 전체/모든 입력의 정확성 인증이 아니다. ‘정적’은 코드 추적, ‘합성’은 고정 입력 실행, ‘브라우저’는 로컬 관찰이다. 55는 v55.22, 56은 외부 미커밋 변경을 포함한 v56이다. 9/21 증분은 v56.01 기준이다. 근거가 다른 버전이면 해당 대상의 재검증 문서를 우선한다.
 
 ## 핵심 흐름
 
@@ -61,7 +61,31 @@ Astra 유지·설계. 최종 갱신2026-09-20. 각 행의 함수는 해당 의�
 | createAIAnswerOrchestrator / question-planner |계획·정책·legacy실행 |정적;실제답변미검증 |05예정 |
 | AI research preparation / streaming guards / claim ledger |근거충분성과공개시점 |정적후보;적대적fixture필요 |05예정 |
 
+## 2026-09-21 증분
+
+| 함수/경로 | 확인한 경계 | 증거/상태 | 핸드오프 |
+|---|---|---|---|
+| `_calcWeeklyContext` → `analyzeTickerDeep` 설명 | 부족 기간 SMA 축소·동률 bearish | 실제 함수 합성 재현, 해당 UI 주입 미실행 | 14 T04 |
+| `_calcVCP` / `_calcVcpQuality` | 같은 이름의 다른 기준 | 정적 확인, 모델별 성능 미검증 | 14 T05 |
+| `_assessEntryQuality` / `calcSellPressure` / `calcExitPlan` | 규칙→행동·기여·적용 조건 | 정적 확인, 투자 성능 인증 아님 | 14 T06 |
+| `validateAnswerPlan` → publication → renderer | bound claim과 자유문장 수치 | 합성 공개 결과 일부 숫자 잔존 | 05 A04 |
+| native citations → research floor | 요청 소유권·질문 관련성 | floor 합성, 실제 교차 요청 미재현 | 05 A05 |
+| intent / suitability / conduct → chat | 개인화 분류·limitation 전달 | 모듈 합성 + 정적 소비자 추적 | 05 A06 |
+| screener base run / selectDefinition / execute | 선택 프리셋과 미리보기 | 같은 선택 화면에서 readiness 미리보기 703 / preset 실행 286 | 12 U01 |
+| manager shard producer → issuer aggregate renderer | 전체/manager/preview 집계 | 실제 shard + 로컬 브라우저 | 04 C03 |
+| fetchHistory → price factors → enrichScreener → render | bar start와 종가 관측시각 | 정적 + 실제 artifact, PIT 손실 미재현 | 15 D04 |
+| universe → provider → instrumentRef | MIC·assetType 필수 필드 | 실제 파일 기반 provider 실행 | 15 D05 |
+| liveEnrichment / provider merge | 누락 통화로 기존 통화 소실 | 합성 입력만 재현, 실데이터 발생 미확인 | 15 D06 |
+| SLO fetchRuns / summarize / windowSummary | 미실행·빈 도메인·예정 주기 | 실제 스크립트 network mock, 0회 screener에도 인증 | 17 O04 |
+| buildOperationsStatus browser plane | 설정과 실측 구분 | CURRENT 하드코딩 정적 확인, 사용자 표시 전수 미확인 | 17 O05 |
+| SEC batch producer → validators → publication | 수집 실패와 이전 값 보존 | 정적 추적·현재 artifact 대조, 전체 timeout 주입 미실행 | 17 O06 |
+| Pages attestation → provider multi-fetch / SW shell | 배포 SHA와 소비 묶음 호환성 | Astra 정적 확인, 전환 중 혼합 오류는 미재현 후보 | 17 O07 |
+| refresh-web-research / scheduled fetch-data | 고정 snapshot·실제 fetch·보존 | 정적 확인, AAII 외 범용 검색 job 아님 | 18 W01 |
+| research document → evidence binding → data consumers | 검색 문서와 정형 observation 경계 | 정적 경로에 durable 숫자 승격 없음 | 18 W02 |
+
 ## 놓치지 않기 위한 다음 조사 큐
+
+9/22 증분: `updatePatternSignals`의 HYG null 비교→toFixed는 실제 양쪽 브라우저 예외와 로컬 코드로 확인했다(21 B02). 포트폴리오 초기배분·현금분모·RF·benchmark·tail표본은 Luna MAX 코드/합성 조사 후 Astra가22에 재설계했다. 원시 probe 재실행은 구현 인수에 남겼다. 20개 라우트 양쪽 방문의 의미 비교표는21이며 함수 전수 완료를 뜻하지 않는다.
 
 1. 금융 데이터 식별: symbol alias/venue/share class/ADR, delisted·합병·분할·배당, 조정계수, FX 기준과거래캘린더, 숫자0/음수/소수 단위.
 2. 분석: sector별 ratio 비교, ROE 평균자본·EPS/주식수 기준, VCP·volume profile·divergence, 옵션 Greeks/payoff, Kalman noise 선택, rank sensitivity, 중복종목/ETF look-through exposure.

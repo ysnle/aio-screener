@@ -152,6 +152,35 @@ for (const contract of literalDependencyContracts) {
   check(`${contract.id} literal dependencies trigger its data group`, contract.paths.every((file) => manifest.impactRules.some((rule) => rule.groups?.includes('data') && (rule.patterns || []).some((pattern) => impactPatternCovers(pattern, file)))));
 }
 
+// ── P1173 (06 O01 / W06-A): 게이트 입력과 impactRules의 일치 ────────────────────────────────────
+// canary 목록은 registry에서 파생한다(복제된 문서 목록을 정본으로 삼지 않는다). 선언된 입력 파일을
+// 바꿨을 때 그 게이트의 그룹이 선택되지 않으면, 게이트는 그 파일에 의존한다고 선언해 놓고 실제로는
+// 실행되지 않는다. preflight는 affected가 항상 앞에 붙이고, external 그룹은 affected가 실행하지
+// 않으며, 게이트 자신의 script 변경은 runner가 직접 선택하므로 셋 다 canary에서 제외한다.
+const literalCanaries = [];
+for (const [groupName, group] of Object.entries(manifest.groups || {})) {
+  if (groupName === 'preflight' || groupName === 'external') continue;
+  for (const gate of group.gates || []) {
+    if (gate.kind === 'external') continue;
+    for (const input of gate.inputs || group.inputs || []) {
+      if (input.includes('*') || input.includes('{') || input.includes('?')) continue;
+      if (input === gate.script) continue;
+      literalCanaries.push({ gate: gate.id, group: groupName, input });
+    }
+  }
+}
+check('P1173 the canary list is derived from the registry rather than a duplicated document list',
+  literalCanaries.length >= 40 && new Set(literalCanaries.map((entry) => entry.input)).size >= 15,
+  `${literalCanaries.length} literal inputs across ${new Set(literalCanaries.map((entry) => entry.input)).size} files`);
+const unreachableInputs = literalCanaries.filter((entry) => !manifest.impactRules.some((rule) => rule.groups?.includes(entry.group)
+  && (rule.patterns || []).some((pattern) => impactPatternCovers(pattern, entry.input))));
+check(`P1173 every declared gate input can select the gate that depends on it (${literalCanaries.length} canaries)`, unreachableInputs.length === 0,
+  `${unreachableInputs.length} unreachable: ${[...new Set(unreachableInputs.map((entry) => `${entry.input}->${entry.group}`))].slice(0, 12).join(', ')}`);
+// The doc's own case, kept as a named canary: a producer of the data plane whose edit selects only browser
+// groups means the data gates that declare it never run for that change.
+check('P1173 a data producer edit selects the gates that declare it', manifest.impactRules.some((rule) => rule.groups?.includes('data')
+  && (rule.patterns || []).some((pattern) => impactPatternCovers(pattern, 'js/aio-kr-data.js'))), 'js/aio-kr-data.js must reach the data group');
+
 const browserPortOwners = new Map();
 for (const [groupName, group] of Object.entries(manifest.groups || {})) {
   if (group.kind !== 'browser') continue;

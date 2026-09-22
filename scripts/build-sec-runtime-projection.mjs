@@ -37,6 +37,10 @@ const projection = {
   model: source.model,
   eligible: source.eligible,
   stored: source.stored,
+  // P1169 (17 작업 단위 1 / 06 O06): the domain receipt is small and is the only place the runtime
+  // consumer can tell "this batch updated rows" from "the file was rewritten", so it is forwarded
+  // instead of being dropped with the failure ledger.
+  domainReceipt: source.domainReceipt || null,
   data
 };
 const projectionText = await writeAtomic(OUTPUT, projection);

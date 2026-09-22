@@ -793,6 +793,34 @@ function renderBuilderConditions(documentRef, conditions = []) {
   });
 }
 
+// P1165 (12 W12-A / 19 작업 카드): 선택된 정의의 내장 조건과 사용자가 추가한 조건을 같은 계약으로
+// 읽는다. 프리셋은 filtersAST에 조건을 내장하므로 DOM 컨트롤만 세면 '활성조건 없음'으로 오표시된다.
+const FILTER_FIELD_LABELS = new Map(SCREENER_FIELD_REGISTRY.fields.map(field => [field.fieldId, field.label || field.fieldId]));
+function describeFilterAst(definition) {
+  const ast = definition?.filtersAST;
+  if (!ast) return { builtin: [], user: [] };
+  const nodes = ast.type === 'and' || ast.type === 'or' ? (ast.children || []) : [ast];
+  const described = nodes.map((node) => {
+    if (!node || typeof node !== 'object') return null;
+    const label = FILTER_FIELD_LABELS.get(node.field) || node.field || node.type;
+    let text;
+    if (node.type === 'range') {
+      const parts = [];
+      if (node.min != null) parts.push(`≥ ${node.min}`);
+      if (node.max != null) parts.push(`≤ ${node.max}`);
+      text = `${label} ${parts.join(' · ') || '범위 미지정'}`;
+    } else if (node.type === 'enum') text = `${label} ∈ ${(node.values || []).join('·')}`;
+    else if (node.type === 'exists') text = `${label} 존재`;
+    else if (node.type === 'and' || node.type === 'or' || node.type === 'not') text = `${String(node.type).toUpperCase()} 하위 조건 ${(node.children ? node.children.length : 0)}개`;
+    else text = `${label} (${node.type})`;
+    return { label, text, origin: node.origin || null };
+  }).filter(Boolean);
+  return {
+    builtin: described.filter(item => item.origin !== 'visual-builder'),
+    user: described.filter(item => item.origin === 'visual-builder')
+  };
+}
+
 function renderFunnel(documentRef, { universe = 0, ready = 0, passed = 0, unavailable = 0, filtered = 0 } = {}) {
   const values = { 'scr-funnel-universe': universe, 'scr-funnel-ready': ready, 'scr-funnel-passed': passed, 'scr-funnel-unavailable': unavailable, 'scr-funnel-filtered': filtered };
   Object.entries(values).forEach(([id, value]) => {
@@ -801,9 +829,11 @@ function renderFunnel(documentRef, { universe = 0, ready = 0, passed = 0, unavai
   });
 }
 
-function render({ documentRef, store, readLiveData, readWatchlist, readAliases, sortState, visibleLimit, onWatchlistToggle, onExplain, onCompare, onVisibleSymbols, selectedSymbols, compareSymbols, columnPreset = 'discovery', customColumns = [], rowsOverride = null, workbenchResult = null }) {
+function render({ documentRef, store, readLiveData, readWatchlist, readAliases, sortState, visibleLimit, onWatchlistToggle, onExplain, onCompare, onVisibleSymbols, selectedSymbols, compareSymbols, columnPreset = 'discovery', customColumns = [], rowsOverride = null, workbenchResult = null, previewResult = null }) {
   const currentState = selectScreenerState(store?.getState?.() || {});
   const state = workbenchResult?.run ? { ...currentState, metadata: workbenchResult.snapshotMetadata || {}, status: 'partial', lastRun: workbenchResult.run, readiness: workbenchResult.readiness } : currentState;
+  // P1165: 실행 전에는 파이프라인 기본 결과가 아니라 **선택한 정의**의 미리보기를 표시한다.
+  const preview = workbenchResult?.run ? null : previewResult;
   const page = documentRef?.getElementById('page-screener');
   if (!page) return;
   const rows = rowsOverride || state?.rows || [];
@@ -849,7 +879,7 @@ function render({ documentRef, store, readLiveData, readWatchlist, readAliases, 
   if (buy) buy.textContent = String(allRows.filter((row) => row.screenStatus === 'passed' && row.signal === 'BUY').length);
   if (factorCount) factorCount.textContent = String(state?.metadata?.ranking?.activeFactors?.length || '—');
   const asOf = page.querySelector('[data-factor-asof]');
-  if (asOf) asOf.textContent = workbenchResult?.run?.snapshotId ? `스크린 스냅샷 ${String(workbenchResult.run.snapshotId).slice(0, 18)}` : state?.metadata?.asOf ? `팩터 기준 ${String(state.metadata.asOf).slice(0, 10)}` : '팩터 데이터 대기';
+  if (asOf) asOf.textContent = workbenchResult?.run?.snapshotId ? `스크린 스냅샷 ${String(workbenchResult.run.snapshotId).slice(0, 18)}` : state?.metadata?.factorObservedAt ? `팩터 세션 ${String(state.metadata.factorObservedAt).slice(0, 10)} · 생성 ${state?.metadata?.asOf ? String(state.metadata.asOf).slice(0, 10) : '—'}` : state?.metadata?.asOf ? `생성 ${String(state.metadata.asOf).slice(0, 10)}` : '팩터 데이터 대기';
   const provenance = page.querySelector('[data-screener-provenance]');
   if (provenance) {
     const metadata = state?.metadata || {};
@@ -868,20 +898,37 @@ function render({ documentRef, store, readLiveData, readWatchlist, readAliases, 
     const validationNote = validation.status === 'READY'
       ? '모델 검증 READY(별도 승격 승인 필요)'
       : `모델 검증 ${validation.status || 'BLOCKED'} · 거래용 승격 금지${validation.blockers?.length ? ` (${validation.blockers.length} blockers)` : ''}`;
-    provenance.textContent = `연구용 스냅샷 · 팩터 관측 ${fmtDate(metadata.factorObservedAt)} · 생성 ${fmtDate(metadata.asOf)} · ${metadata.source || '출처 확인 대기'} · ${sec} · ${universeNote} · ${researchNote} · ${validationNote} · 공식 거래소 breadth 아님`;
-    provenance.title = metadata.fundamentalCoverageScope || '관측시각·생성시각·SEC-only 분모를 분리해 표시합니다.';
+    // P1167 (15 D04): `metadata.factorObservedAt`는 Yahoo 일봉 timestamp, 즉 그 세션 **바의 시작**이다.
+    // 종가로 계산한 팩터를 '관측 시각'으로 표시하면 그날 개장 시점에 이미 알 수 있었다는 의미가 된다.
+    // 세션 기준일과 수집·생성 시각을 분리하고, 바 시작 시각을 관측시각으로 승격하지 않는다.
+    const factorSessionDate = String(metadata.factorSessionDate || metadata.factorObservedAt || '').slice(0, 10);
+    const factorSessionLabel = factorSessionDate ? `팩터 ${factorSessionDate} 세션 종가 기준(일봉 바 시작 ${fmtDate(metadata.factorObservedAt)} · 관측시각 아님)` : '팩터 기준 세션 미확인';
+    provenance.textContent = `연구용 스냅샷 · ${factorSessionLabel} · 수집 ${fmtDate(metadata.factorFetchedAt || metadata.asOf)} · 생성 ${fmtDate(metadata.asOf)} · ${metadata.source || '출처 확인 대기'} · ${sec} · ${universeNote} · ${researchNote} · ${validationNote} · 공식 거래소 breadth 아님`;
+    provenance.title = `${metadata.fundamentalCoverageScope ? `${metadata.fundamentalCoverageScope} · ` : ''}일봉 timestamp는 바 시작이며 종가 기반 팩터의 관측시각이 아닙니다. 세션 기준일·수집시각·생성시각을 분리해 표시합니다.`;
     provenance.dataset.sourceKind = 'reference';
     provenance.dataset.operationalUse = 'reference-only';
   }
   const readiness = documentRef.getElementById('screener-readiness-note');
-  const run = workbenchResult?.run || state?.lastRun || {};
-  const readinessResult = workbenchResult?.readiness || state?.readiness;
+  const run = workbenchResult?.run || preview?.run || state?.lastRun || {};
+  const readinessResult = workbenchResult?.readiness || preview?.readiness || state?.readiness;
   const readyCount = readinessResult?.eligibleCount ?? 0;
   const passedCount = run?.passed ?? 0;
   const unavailableCount = run?.unavailable ?? 0;
+  const previewConditions = preview?.definition ? describeFilterAst(preview.definition) : null;
+  // P1167 (15 D05): 정적 유니버스가 MIC·assetType을 발행하지 않으면 식별 미확인 행이 남는다. 가격 조회
+  // 성공과 식별 metadata 확인을 같은 것으로 읽지 않도록 미확인 수와 누락 필드를 함께 표시한다.
+  const identityGaps = allRows.filter((row) => row.identityValidation && row.identityValidation.ok === false);
+  const identityMissingFields = [...new Set(identityGaps.flatMap((row) => row.identityValidation.missing || []))];
+  const identityNote = identityGaps.length
+    ? `식별 metadata 미확인 ${identityGaps.length}개(${identityMissingFields.join('·')}) · 가격 조회 성공은 식별 확인이 아닙니다 · `
+    : '';
+  const previewNote = previewConditions
+    ? `미리보기 정의 ${preview.definition?.screenId || '—'}(${String(preview.definition?.definitionHash || '').slice(0, 8)}) · 조건 내장 ${previewConditions.builtin.length}개${previewConditions.builtin.length ? `: ${previewConditions.builtin.slice(0, 2).map(item => item.text).join(' · ')}` : ''}${previewConditions.user.length ? ` · 사용자 추가 ${previewConditions.user.length}개` : ''} · `
+    : '';
+  if (readiness && previewConditions) readiness.title = `내장 조건: ${previewConditions.builtin.map(item => item.text).join(' · ') || '없음'} | 사용자 추가: ${previewConditions.user.map(item => item.text).join(' · ') || '없음'}`;
   if (readiness) readiness.textContent = state?.status === 'unavailable'
     ? '데이터 상태: 산출물 미수신 · 결과와 검증 수치를 표시하지 않습니다.'
-    : `${state?.metadata?.artifactFreshnessStatus === 'stale' || state?.metadata?.factorFreshnessStatus === 'stale' ? '갱신 지연: 원자료는 기준일과 함께 표시하고 계산은 필드별로 확인합니다. · ' : ''}${state?.metadata?.universeFreshnessStatus === 'stale' ? '종목 목록 최신성 확인 필요 · ' : ''}${state?.metadata?.modelValidation?.status !== 'READY' ? `모델 검증 ${state?.metadata?.modelValidation?.status || 'BLOCKED'} · ` : ''}연구 snapshot · 종목 ${allRows.length} · 계산 준비 ${readyCount} · 조건 통과 ${passedCount} · 계산 보류 ${unavailableCount} · 상대 랭킹은 연구용이며 현재 매매 지시가 아닙니다.`;
+    : `${identityNote}${previewNote}${state?.metadata?.artifactFreshnessStatus === 'stale' || state?.metadata?.factorFreshnessStatus === 'stale' ? '갱신 지연: 원자료는 기준일과 함께 표시하고 계산은 필드별로 확인합니다. · ' : ''}${state?.metadata?.universeFreshnessStatus === 'stale' ? '종목 목록 최신성 확인 필요 · ' : ''}${state?.metadata?.modelValidation?.status !== 'READY' ? `모델 검증 ${state?.metadata?.modelValidation?.status || 'BLOCKED'} · ` : ''}연구 snapshot · 종목 ${allRows.length} · 계산 준비 ${readyCount} · 조건 통과 ${passedCount} · 계산 보류 ${unavailableCount} · 상대 랭킹은 연구용이며 현재 매매 지시가 아닙니다.`;
   renderFunnel(documentRef, { universe: allRows.length, ready: readyCount, passed: passedCount, unavailable: unavailableCount, filtered: filtered.length });
   renderFilterChips(documentRef);
   const coverage = documentRef.getElementById('screener-factor-coverage');
@@ -928,6 +975,9 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
   let renderNow = () => {};
   let activeRows = null;
   let activeResult = null;
+  // P1165: 실행 전 미리보기 결과(선택한 정의, 같은 snapshot). 실행하면 activeResult가 대신한다.
+  let activePreview = null;
+  let activePreviewKey = null;
   let activeDefinition = null;
   let activeScreenId = null;
   let activeRow = null;
@@ -998,13 +1048,18 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          if (!drawer || !row) return;
          const explanation = row.rankExplanation || {};
          const readiness = row.fieldReadiness?.coverage || {};
-         const title = row.screenStatus === 'passed' ? 'WhyRanked' : row.screenStatus === 'rejected' ? 'WhyRejected' : '계산 불가';
+          // P1164/B04(12:W12-B): screenStatus=passed만으로 'WhyRanked'라 부르지 않는다.
+          // 도메인이 분리한 필터/순위/설명 상태를 renderer도 그대로 사용한다.
+          const filterState = row.screenFilterState || row.screenStatus;
+          const title = filterState !== 'passed'
+            ? (filterState === 'rejected' ? 'WhyRejected' : '계산 불가')
+            : (row.screenRankingState === 'available' && row.screenRank != null ? '조건 통과 · 순위 계산 가능' : '조건 통과 · 순위 계산 보류');
          const missing = explanation.missingEvidence || row.setupProfile?.missingEvidence || [];
          const contrary = explanation.contraryEvidence || [];
          setText('scr-why-title', `${row.sym || row.symbol || '종목'} · ${title}`);
          setText('scr-why-subtitle', row.name || '연구용 상대 랭킹 설명');
           const factorConfidence = finite(row.confidence);
-          const visibleRank = row.screenStatus === 'passed' && row.rank != null ? row.rank : '—';
+           const visibleRank = row.screenRank != null ? row.screenRank : '—';
           setText('scr-why-status', `${row.screenStatus || 'unavailable'} · rank ${visibleRank} · 필드 coverage ${readiness.coveragePct == null ? '—' : `${readiness.coveragePct}%`} · 팩터 근거 ${factorConfidence == null ? '—' : `${Math.round(factorConfidence * 100)}%`} (수익확률 아님)`);
          setText('scr-why-contrary', contrary.length ? contrary.join(' · ') : row.screenStatus === 'unavailable' ? '필수 근거 미수신으로 조건 판단을 보류했습니다.' : '조건을 반대한 근거가 없습니다.');
           const structureEvidence = row.setupProfile?.structureEvidence || {};
@@ -1018,7 +1073,11 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          if (factorList) {
            factorList.replaceChildren();
            const factors = Object.entries(row.factorScores || {}).filter(([, value]) => finite(value) != null);
-           if (!factors.length) factorList.appendChild(text(documentRef, '팩터 기여도 미수신'));
+           // P1165 (12 W12-B): 막대는 '정규화 점수'다. 적용 가중치와 가중 기여를 같은 줄에서 분리해
+           // 보여주고, 랭킹 합성이 실제로 무엇을 평균했는지(원값)도 이 자리에서 밝힌다.
+           const appliedWeights = selectScreenerState(store.getState())?.metadata?.ranking?.appliedFactorWeights || {};
+           const weightSum = factors.reduce((sum, [key]) => sum + (finite(appliedWeights[key]) == null ? 0 : Number(appliedWeights[key])), 0);
+           if (!factors.length) factorList.appendChild(text(documentRef, '팩터 점수 미수신'));
            factors.slice(0, 8).forEach(([key, value]) => {
              const item = documentRef.createElement('div');
              item.className = 'scr-why-factor';
@@ -1031,11 +1090,23 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
              fill.style.width = `${Math.max(0, Math.min(100, Number(value)))}%`;
              fill.style.background = Number(value) >= 66 ? 'var(--data-green)' : Number(value) >= 40 ? 'var(--data-amber)' : 'var(--data-red)';
              track.appendChild(fill);
+             const weight = finite(appliedWeights[key]);
+             const share = weight != null && weightSum > 0 ? weight / weightSum : null;
+             const contribution = share == null ? null : Number(value) * share;
              const score = documentRef.createElement('span');
-             score.textContent = Number(value).toFixed(0);
+             score.textContent = `${Number(value).toFixed(0)} · ${share == null ? '가중치 미수신' : `w${Math.round(share * 100)}%`}${contribution == null ? '' : ` · 기여 ${contribution.toFixed(1)}`}`;
+             item.title = `${FACTOR_LABELS[key]?.description || key} · 정규화 점수 ${Number(value).toFixed(1)} · 적용 가중치 ${weight == null ? '미수신' : Number(weight).toFixed(3)} · 가중 기여 ${contribution == null ? '계산 불가' : contribution.toFixed(2)}`;
              item.append(label, track, score);
              factorList.appendChild(item);
            });
+           const rankInputs = explanation.contributions || {};
+           const rankInputText = Object.entries(rankInputs).map(([field, value]) => `${field} ${value}`).join(' · ');
+           const rankLine = documentRef.createElement('div');
+           rankLine.className = 'scr-why-factor-note';
+           rankLine.textContent = rankInputText
+             ? `랭킹 입력(원값): ${rankInputText}${explanation.totalScore == null ? '' : ` · 합성(필드 평균) ${Number(explanation.totalScore).toFixed(2)}`}`
+             : '랭킹 입력 원값 미수신 — 정규화 점수만으로 순위를 해석하지 않습니다.';
+           factorList.appendChild(rankLine);
          }
          const ticker = documentRef.querySelector('[data-aio-screener-action="open-ticker"]');
          if (ticker) ticker.dataset.aioScreenerArg = row.sym || row.symbol || '';
@@ -1175,7 +1246,16 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          });
          const readiness = activeResult?.readiness || state.readiness;
          if (readinessPreview) readinessPreview.textContent = readiness ? `필드 준비 ${readiness.eligibleCount}/${readiness.rowCount} · ${readiness.coveragePct}% · 필수: ${(readiness.requiredFields || []).map((field) => field.split('.').pop()).join(' · ') || '없음'}` : '필드 준비도 미리보기 대기';
-         if (workbenchStatus && !activeResult) workbenchStatus.textContent = state.lastRun ? `현재 데이터 미리보기 · ${state.lastRun.passed} 통과 · 실행 버튼으로 입력 고정` : '실행 전 미리보기';
+          // P1164/B04(12:U01): 실행 전 카운트는 '선택한 정의의 통과'가 아니다 — 빈 조건 파이프라인
+          // 미리보기 결과다. '조건 적용 전 계산 가능'으로 부르고 어떤 정의·해시인지 밝힌다.
+          if (workbenchStatus && !activeResult) {
+            const pipelineRun = state.lastRun;
+            const pipelineId = pipelineRun?.screenId ? String(pipelineRun.screenId) : null;
+            const pipelineHash = pipelineRun?.definitionHash ? String(pipelineRun.definitionHash).slice(0, 12) : null;
+            workbenchStatus.textContent = pipelineRun
+              ? `조건 적용 전 계산 가능 ${pipelineRun.passed}개 (조건 없는 미리보기 정의 ${pipelineId || '—'}${pipelineHash ? ' · ' + pipelineHash : ''}) · 실행하면 선택한 정의로 다시 계산합니다`
+              : '실행 전 미리보기';
+          }
          if (runHistory && !runHistory.dataset.archiveLoaded) refreshRunArchive();
          if (outcomeLab) outcomeLab.textContent = state.outcomes?.length ? `Outcome · ${state.outcomes.length}개 관측 · T+1/T+5/T+21/T+63` : 'Outcome · 자동 추적 미연결 · 보관 입력 재현만 지원';
          if (operationsState) operationsState.textContent = state.refreshPlan ? `Operations · refresh ${state.refreshPlan.queued?.length || 0}건 · quota/circuit` : `Operations · 데이터 sync ${state.snapshotId ? String(state.snapshotId).slice(0, 18) : '미수신'} · 사용자 실행과 분리`;
@@ -1261,12 +1341,25 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
         const description = documentRef.getElementById('scr-profile-desc');
         if (description) description.textContent = PROFILE_DESCRIPTIONS[active] || PROFILE_DESCRIPTIONS.balanced;
       };
-       const rerender = () => { setProfileButtons(); renderNow(); };
+        // P1165 (19 작업 카드): 실행 전 미리보기는 선택한 정의 + 현재 snapshot으로 계산한다.
+        // 조건(내장/사용자)이 바뀌면 definitionHash가 바뀌므로 같은 키에서만 캐시한다.
+        const ensurePreview = () => {
+          if (activeResult) { activePreview = null; activePreviewKey = null; return null; }
+          const definition = buildVisualDefinition() || activeDefinition;
+          if (!definition || typeof workbench.preview !== 'function') return null;
+          const key = `${definition.definitionHash || definition.screenId}|${selectScreenerState(store.getState())?.snapshotId || 'unknown'}`;
+          if (key === activePreviewKey && activePreview) return activePreview;
+          try { activePreview = workbench.preview(definition); activePreviewKey = key; }
+          catch (_) { activePreview = null; activePreviewKey = null; }
+          return activePreview;
+        };
+        const rerender = () => { setProfileButtons(); renderNow(); };
         const tickerHandler = (symbol) => {
           returnView = { symbol, scrollTop: documentRef.querySelector('.content')?.scrollTop || 0 };
          return (onTicker || ((value) => root?.showTicker?.(value)))?.(symbol);
        };
        renderNow = () => {
+         const preview = ensurePreview();
          renderBuilderConditions(documentRef, readBuilderConditions());
          render({ documentRef, store, readLiveData: liveReader, readWatchlist: watchlistReader, readAliases: aliasReader, sortState, visibleLimit, onExplain: explainRow, onCompare: (row) => {
            const symbol = row?.sym || row?.symbol;
@@ -1275,7 +1368,12 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            else if (compareSymbols.size < 5) compareSymbols.add(symbol);
            renderCompareTray();
            renderNow();
-         }, onVisibleSymbols: requestVisibleQuotes, selectedSymbols, compareSymbols, columnPreset: columnState.preset, customColumns: columnState.custom, onWatchlistToggle: (symbol) => { (onWatchlistToggle || root?._aioWLToggle)?.(symbol); rerender(); }, rowsOverride: activeRows, workbenchResult: activeResult });
+         }, onVisibleSymbols: requestVisibleQuotes, selectedSymbols, compareSymbols, columnPreset: columnState.preset, customColumns: columnState.custom, onWatchlistToggle: (symbol) => { (onWatchlistToggle || root?._aioWLToggle)?.(symbol); rerender(); }, rowsOverride: activeRows || preview?.rows || null, workbenchResult: activeResult, previewResult: preview });
+         // P1165 (12 U01): 실행 전 상태 줄도 선택한 정의의 미리보기를 인용한다 — 파이프라인 기본
+         // 수치를 '선택한 정의의 통과'로 읽히게 두지 않는다. 실행하면 activeResult가 대신한다.
+         if (!activeResult && preview && workbenchStatus) {
+           workbenchStatus.textContent = `조건 적용 전 미리보기 · ${preview.definition?.screenId || '—'}(${String(preview.definition?.definitionHash || '').slice(0, 8)}) · 계산 가능 ${preview.readiness?.eligibleCount ?? 0} · 조건 통과 ${preview.run?.passed ?? 0} / 계산 보류 ${preview.run?.unavailable ?? 0} · 실행 버튼이 이 입력을 고정합니다`;
+         }
          renderCompareTray();
        };
        const selectDefinition = (screenId) => {

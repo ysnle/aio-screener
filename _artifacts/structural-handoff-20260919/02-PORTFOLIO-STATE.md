@@ -144,4 +144,4 @@ table/chart/sector의 weight basis를 명시한다. 별도로 현재 `서버 전
 
 ## 8. 구현 에이전트 요청
 
-> W02-A/B를 하나의 제한된 변경으로 구현하라. 저장 성공/잠금/실패와 empty holdings를 먼저 구별하고 cash-only를 지원하라. 기존 시세 evidence·reference-only·부분 평가 보류를 보존한다. W02-C의 전송 문구는 실제 payload 조사 후 별도 판단한다. 개인 저장소를 새로 만들거나 커밋·푸시·배포하지 않는다.
+> 현재 portfolio surface v3와 위 인수조건을 대조하고 미충족 경계만 보강한다. W02-A/B를 역사적 v2 처방 그대로 재구현하지 않는다. 저장·잠금·복구는 11의 durable 상태/통화와 함께 검증한다. W02-C 전송 문구는 실제 payload 조사 후 판단한다. 저장소 교체 필요성은 19의 계약·migration 기준으로 결정하며 자동 커밋·푸시·배포하지 않는다.

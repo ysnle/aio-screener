@@ -102,6 +102,73 @@ try {
   await page.locator('#scr-screen-select').selectOption(screenChoices[0]);
   const sticky = await page.locator('#screener-results-body td[data-column-key="sym"]').first().evaluate(node => node.style.left);
   if (sticky !== '0px') throw new Error(`single frozen symbol column must start at zero, got ${sticky}`);
+  // P1165 (19 스크리너 작업 카드 / 12 U01): 실행 전 미리보기는 **선택한 정의**로 계산되고 그 정의의
+  // 내장 조건이 표시되어야 한다. 파이프라인 기본(native-screener-workbench) 수치를 선택한 정의의
+  // 결과로 읽히게 두지 않으며, 미리보기는 보관 실행을 남기지 않는다(부작용 금지).
+  const readPreviewUi = () => {
+    const note = document.getElementById('screener-readiness-note') || {};
+    return {
+      title: note.title || '',
+      status: document.getElementById('scr-workbench-status')?.textContent || '',
+      history: document.getElementById('scr-run-history')?.textContent || '',
+      funnel: ['universe', 'ready', 'passed', 'unavailable'].map((key) => document.getElementById(`scr-funnel-${key}`)?.textContent).join('/')
+    };
+  };
+  const historyBeforeSweep = await page.evaluate(() => document.getElementById('scr-run-history')?.textContent || '');
+  const sweepIds = screenChoices.slice(0, 3);
+  const previewSweep = [];
+  for (const screenId of sweepIds) {
+    await page.locator('#scr-screen-select').selectOption(screenId);
+    await page.waitForFunction((id) => (document.getElementById('screener-readiness-note')?.textContent || '').includes(id), screenId);
+    previewSweep.push(await page.evaluate(readPreviewUi));
+  }
+  if (new Set(previewSweep.map((entry) => entry.title)).size !== previewSweep.length) throw new Error(`P1165 preview did not follow the selected definition: ${JSON.stringify(previewSweep.map((entry) => entry.title))}`);
+  if (previewSweep.some((entry) => !/내장 조건: .+/.test(entry.title))) throw new Error(`P1165 built-in preset conditions were not surfaced: ${JSON.stringify(previewSweep.map((entry) => entry.title))}`);
+  if (previewSweep.some((entry, index) => !entry.status.includes(sweepIds[index]) || entry.status.includes('native-screener-workbench'))) throw new Error(`P1165 pre-run status must cite the selected definition, not the pipeline default: ${JSON.stringify(previewSweep.map((entry) => entry.status))}`);
+  if (previewSweep.some((entry) => entry.history !== historyBeforeSweep)) throw new Error('P1165 preview must not record a run');
+  await page.locator('#scr-screen-select').selectOption(screenChoices[0]);
+
+  // P1167 (15 D04/D05): 일봉 timestamp는 그 세션 바의 시작이며 종가 기반 팩터의 관측시각이 아니다.
+  // 정적 유니버스가 MIC·assetType을 발행하지 않으면 그 미확인이 행과 화면에 남아야 한다.
+  const timeAndIdentity = await page.evaluate(() => {
+    const rows = window.AIO_ARCH.getScreenerState().rows;
+    const gaps = rows.filter((row) => row.identityValidation && row.identityValidation.ok === false);
+    return {
+      rows: rows.length,
+      gapCount: gaps.length,
+      gapFields: [...new Set(gaps.flatMap((row) => row.identityValidation.missing || []))],
+      marketSource: gaps[0]?.identityValidation?.marketSource || null,
+      mic: gaps[0]?.instrumentRef?.mic ?? null,
+      assetType: gaps[0]?.instrumentRef?.assetType ?? null,
+      provenance: document.querySelector('[data-screener-provenance]')?.textContent || '',
+      provenanceTitle: document.querySelector('[data-screener-provenance]')?.title || '',
+      factorAsOf: document.querySelector('[data-factor-asof]')?.textContent || '',
+      readiness: document.getElementById('screener-readiness-note')?.textContent || ''
+    };
+  });
+  if (timeAndIdentity.rows < 800) throw new Error(`P1167 identity fixture requires the published universe, got ${timeAndIdentity.rows}`);
+  if (timeAndIdentity.gapCount !== timeAndIdentity.rows) throw new Error(`P1167 unverified identity metadata must be published per row, got ${timeAndIdentity.gapCount}/${timeAndIdentity.rows}`);
+  if (!timeAndIdentity.gapFields.includes('mic_missing') || !timeAndIdentity.gapFields.includes('asset_type_missing')) throw new Error(`P1167 the missing identity fields must be named: ${JSON.stringify(timeAndIdentity.gapFields)}`);
+  if (timeAndIdentity.marketSource !== 'symbol-suffix-inference') throw new Error(`P1167 an inferred market must stay marked as inferred: ${timeAndIdentity.marketSource}`);
+  if (timeAndIdentity.mic != null || timeAndIdentity.assetType != null) throw new Error('P1167 the provider must not invent MIC/assetType to satisfy the validator');
+  if (!/가격 조회 성공은 식별 확인이 아닙니다/.test(timeAndIdentity.readiness)) throw new Error('P1167 the surface must separate a successful quote from verified identity');
+  if (!/바 시작 .*관측시각 아님/.test(timeAndIdentity.provenance) || !/세션 종가 기준/.test(timeAndIdentity.provenance)) throw new Error(`P1167 a daily bar timestamp must not be presented as the factor observation time: ${timeAndIdentity.provenance.slice(0, 200)}`);
+  if (!/관측시각이 아닙니다/.test(timeAndIdentity.provenanceTitle)) throw new Error('P1167 the time-basis explanation must survive the coverage-scope title');
+
+  // P1168 (13 잔여·SCR-UX-07): the published run history is the producer's pipeline baseline, not a
+  // user execution. A route re-entry must not accumulate identical baseline runs, and a machine run
+  // must not be published as if a user had executed it.
+  const runHistoryLens = () => window.AIO_ARCH.getScreenerState().runHistory.map((run) => `${run.origin || 'untagged'}|${run.resultHash || 'no-hash'}`);
+  const historyBeforeReentry = await page.evaluate(runHistoryLens);
+  for (let lap = 0; lap < 2; lap += 1) {
+    await page.evaluate(() => window.showPage('home'));
+    await page.waitForFunction(() => document.getElementById('page-screener')?.dataset.aioArchitectureRoute === 'screener' || document.getElementById('page-home'));
+    await page.evaluate(() => window.showPage('screener'));
+    await page.waitForFunction(() => document.querySelectorAll('#screener-results-body [data-aio-screener-ticker]').length === 12);
+  }
+  const historyAfterReentry = await page.evaluate(runHistoryLens);
+  if (historyAfterReentry.length > historyBeforeReentry.length) throw new Error(`P1168 screener re-entry accumulated identical pipeline runs: ${historyBeforeReentry.length} -> ${historyAfterReentry.length}`);
+  if (historyAfterReentry.some((entry) => entry.startsWith('untagged|'))) throw new Error(`P1168 machine runs must be tagged in the run history: ${JSON.stringify(historyAfterReentry)}`);
   await page.locator('#scr-builder-field').selectOption('rsi');
   await page.locator('#scr-builder-value').fill('55');
   await page.locator('[data-aio-screener-action="add-builder-condition"]').click();

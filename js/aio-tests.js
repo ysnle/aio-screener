@@ -6320,12 +6320,16 @@
       var ranOk = false;
       try { if (hasRefreshAction) { window._aioRefreshActionPlan(); ranOk = true; } } catch(_r) { ranOk = false; }
       // marketState.actionPlan이 존재하면 단일 두뇌 경로가 활성(action-item이 같은 plan 구독)
-      var planFromBrain = !!(ms816 && ms816.actionPlan && ms816.actionPlan.position);
+      var brainPlanEmitted = !!(ms816 && ms816.actionPlan && typeof ms816.actionPlan === 'object');
+      // P1164/B03: 미수신 VIX/F&G를 0으로 강제해 포지션 밴드를 만들어내지 않는다(position은
+      // 입력이 있을 때만). 이전 단언(planFromBrain=position 존재)은 그 오표시 덕분에 통과했다 —
+      // 데이터가 없는 이 하네스에서 결측 시 position=null을 요구하는 것이 정확한 계약이다.
+      var noBandFromMissing = !(ms816 && ms816.vix == null && ms816.actionPlan && ms816.actionPlan.position);
       // 함수 소스에 marketState 우선 분기가 박혀 있는지(dedup/단일출처 회귀 가드)
       var srcHasBrainPref = hasRefreshAction && /marketState/.test(window._aioRefreshActionPlan.toString());
       // marketStateUpdated 구독자가 action plan 재렌더를 포함하는지 간접 확인은 생략(런타임 비결정). 함수 정의 + 실행 + 소스 분기로 충분.
-      t816ok = hasRefreshAction && ranOk && planFromBrain && srcHasBrainPref;
-      t816detail = 'fn=' + hasRefreshAction + ' ran=' + ranOk + ' planFromBrain=' + planFromBrain + ' brainPref=' + srcHasBrainPref;
+      t816ok = hasRefreshAction && ranOk && brainPlanEmitted && noBandFromMissing && srcHasBrainPref;
+      t816detail = 'fn=' + hasRefreshAction + ' ran=' + ranOk + ' brainPlan=' + brainPlanEmitted + ' noBandFromMissing=' + noBandFromMissing + ' brainPref=' + srcHasBrainPref;
     } catch(e) { t816detail = 'ERR:' + e.message; }
     _assert('T816 v5043_marketstate_consumer: home Action Item이 marketState.actionPlan 단일 출처 구독(+소스 분기)', t816ok, t816detail);
 
@@ -9075,6 +9079,57 @@
     _assert('P1128/R619 T_opex4 12월 만기 경과 → 2027-01', roll && /^2027-01-/.test(roll.nextOpexDate), 'got=' + (roll && roll.nextOpexDate));
   }
 
+  // P1164 / 구조 핸드오프 21(B01–B04)·12(U01): 결측을 '관측된 0'이나 '관측된 구간'으로 바꾸지
+  // 않는다. `Number(null)===0`이 유한값 검사를 통과해 미수신 F&G가 '극단 공포', 미수신 VIX가
+  // '저변동'(포지션 100%), 미수신 HYG가 '신용 스프레드 위기'로 표시되고 .toFixed가 예외를 냈다.
+  function _testV5601MissingInputSemantics() {
+    var R = window.AIO_THRESHOLD_REGISTRY;
+    _assert('P1164 T_p1164_registry_present THRESHOLD_REGISTRY 노출', !!(R && R.FG && R.VIX && R.AAII && R.HY_SPREAD));
+    if (R && R.FG) {
+      _assert('P1164/B03 T_p1164_1 미수신 F&G는 극단 공포가 아니라 unknown', R.FG.getLabel(null).label === '—' && R.FG.getLabel(null).signal === 'unknown',
+        'got=' + JSON.stringify(R.FG.getLabel(null)));
+      _assert('P1164/B03 T_p1164_2 F&G 18의 실제 구간 판정은 유지', R.FG.getLabel(18).label === '극단 공포', 'got=' + JSON.stringify(R.FG.getLabel(18)));
+    }
+    if (R && R.VIX) _assert('P1164/B03 T_p1164_3 미수신 VIX는 극단 안정이 아니라 unknown', R.VIX.getLabel(null).signal === 'unknown', 'got=' + JSON.stringify(R.VIX.getLabel(null)));
+    if (R && R.AAII) {
+      _assert('P1164/B03 T_p1164_4 미수신 AAII는 중립이 아니라 unknown', R.AAII.getLabel(null).signal === 'unknown' && R.AAII.getLabelFromBullBear(null, null).signal === 'unknown',
+        'got=' + JSON.stringify([R.AAII.getLabel(null), R.AAII.getLabelFromBullBear(null, null)]));
+    }
+
+    var A = window.AIO_ACTION_RULES;
+    _assert('P1164 T_p1164_action_rules_present ACTION_RULES 노출', !!(A && A.sentimentAction && A.positionSizing && A.getActionPlan));
+    if (A && A.sentimentAction) {
+      _assert('P1164/B03 T_p1164_5 미수신 F&G 구간 규칙은 null이고 실값은 유지', A.sentimentAction.getRule(null) === null && A.sentimentAction.getRule(18).action === '극단 공포 구간',
+        'got=' + JSON.stringify([A.sentimentAction.getRule(null), A.sentimentAction.getRule(18)]));
+      _assert('P1164/B03 T_p1164_6 미수신 VIX 포지션 규칙은 null(100% 저변동 오표시 금지)', A.positionSizing.getRule(null) === null && A.positionSizing.getRule(32) !== null,
+        'got=' + JSON.stringify([A.positionSizing.getRule(null), A.positionSizing.getRule(32)]));
+      var missingPlan = A.getActionPlan({ vix: null, fg: null });
+      _assert('P1164/B03 T_p1164_7 미수신 입력의 actionPlan은 position/sentiment 밴드를 만들지 않는다',
+        missingPlan.position === null && missingPlan.sentiment === null, JSON.stringify({ position: missingPlan.position, sentiment: missingPlan.sentiment }));
+    }
+
+    if (window.AIO && typeof window.AIO.buildNewsSurfaceModel === 'function' && typeof _getBriefingWindowKST === 'function') {
+      var bw = _getBriefingWindowKST();
+      var oldItem = { title: 'Older reference headline', source: 'Archive', pubDate: new Date(bw.start - 12 * 3600000).toISOString(), score: 90, topic: 'macro', link: 'https://example.test/older' };
+      var oldOnly = window.AIO.buildNewsSurfaceModel('briefing', [oldItem], { windowStart: bw.start, windowEnd: bw.end });
+      _assert('P1164/B03 T_p1164_8 오늘 창 밖 기사만 있으면 통과 0건 + 창 밖 건수 노출',
+        oldOnly.items.length === 0 && oldOnly.emptyReason === 'all-news-outside-time-window' && oldOnly.outOfWindowCount === 1,
+        JSON.stringify({ visible: oldOnly.visibleCount, reason: oldOnly.emptyReason, outOfWindow: oldOnly.outOfWindowCount, stats: oldOnly.stats }));
+    }
+
+    var savedLive = window._liveData;
+    var threw = false;
+    var signalText = '';
+    try {
+      window._liveData = { SPY: { pct: 0.1 } };
+      window.updatePatternSignals();
+      var host = document.getElementById('pattern-signals');
+      signalText = host ? String(host.textContent || '') : '';
+    } catch (e) { threw = true; } finally { window._liveData = savedLive; }
+    _assert('P1164/B02 T_p1164_9 HYG/VIX 미수신에서 예외·위기 문장이 없다',
+      !threw && !/신용 스프레드|고수익채권 급락/.test(signalText), 'threw=' + threw + ' text=' + signalText.slice(0, 120));
+  }
+
   window.AIO = window.AIO || {};
 
   /**
@@ -9191,7 +9246,8 @@
     { id:'G107', name:'_testV5290HumanUXStateContracts', run:_testV5290HumanUXStateContracts },
     { id:'G108', name:'_testV5298SemanticMarketIntegrity', run:_testV5298SemanticMarketIntegrity },
     { id:'G109', name:'_testV5399AIResearchRuntimeContract', run:_testV5399AIResearchRuntimeContract },
-    { id:'G110', name:'_testOpexCanonicalDate', run:_testOpexCanonicalDate }
+    { id:'G110', name:'_testOpexCanonicalDate', run:_testOpexCanonicalDate },
+    { id:'G111', name:'_testV5601MissingInputSemantics', run:_testV5601MissingInputSemantics }
   ]);
 
   function _runGroupRegistry(groups, options) {

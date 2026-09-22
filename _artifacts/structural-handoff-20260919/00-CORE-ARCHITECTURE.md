@@ -82,7 +82,7 @@ nav 항목의 `data-pass-el=1`이 전달한 DOM 요소가 identity로 들어갔�
 
 `architecture/route-owners.json`은 20 route의 lifecycle/renderer/data를 native로 선언하지만 chart native는 8개, narrative native는 1개이며 나머지에는 legacy 또는 해당 없음이 있다. 이 구분은 정직한 기반이다. 다만 route-level renderer 하나만 보면 secondary narrative의 다른 입력/갱신 경로가 가려진다.
 
-따라서 기존 레지스트리를 없애지 말고 **대표 사용자 의미 단위**에 필요한 최소 정보를 보강한다. 매 DOM node에 수동 원장을 만드는 방식은 유지비가 크다. 우선 `sentiment.put-call`, `sentiment.summary`, `home.regime`, `portfolio.valuation`처럼 수치와 설명이 함께 움직여야 하는 단위를 선택한다.
+**대표 사용자 의미 단위**의 소유권은 추적하되 기존 레지스트리 유지 자체를 요구하지 않는다. 현재 레지스트리가 선언과 실제 writer를 일치시킬 수 있는지 평가해 보강 또는 교체한다. 매 DOM node에 수동 원장을 만드는 방식은 유지비가 크다. 우선 `sentiment.put-call`, `sentiment.summary`, `home.regime`, `portfolio.valuation`처럼 수치와 설명이 함께 움직여야 하는 단위를 선택한다.
 
 ## 4. 목표 구조와 의존 규칙
 
@@ -146,7 +146,7 @@ UI에서 DOM text를 읽어 도메인 판단을 만들지 않는다. 값·상태
            └─ 06 운영·SW·배포·QA 증거 수명과 비용
 ```
 
-번호는 문서의 추천 읽기/구현 순서다. 01의 null 변환처럼 독립적이고 확정된 결함은 대규모 라우터 이전을 기다릴 필요가 없다. navigation 공통 파일을 여러 구현 에이전트가 동시에 수정하지 않도록 파일 책임을 한 명에게 둔다. 다른 에이전트는 별도 domain/UI 패키지를 맡을 수 있다.
+이 번호 순서는 초기 패키지의 역사적 순서이며 전체 개편의 필수 구현 순서가 아니다. 최신 우선순위는 19의 의사결정·이행 계획을 따른다. 독립적이고 확정된 결함은 대규모 라우터 이전을 기다릴 필요가 없다. navigation 공통 파일을 여러 구현 에이전트가 동시에 수정하지 않도록 파일 책임을 한 명에게 둔다. 다른 에이전트는 별도 domain/UI 패키지를 맡을 수 있다.
 
 ## 7. 이번 설계의 명시적 한계
 

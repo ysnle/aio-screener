@@ -271,7 +271,7 @@ function readPortfolio(root) {
         value: validPrice != null && validShares != null ? validPrice * validShares : null,
         dailyPct: Number.isFinite(dailyPct) ? dailyPct : null,
         sector: position?.sector ? String(position.sector) : null,
-        target: Number.isFinite(Number(position?.target)) ? Number(position.target) : null,
+        target: Number(position?.target) > 0 ? Number(position.target) : null,
         memo: position?.memo ? String(position.memo) : '',
         addedAt: position?.addedAt || null,
         updatedAt: position?.updatedAt || null,

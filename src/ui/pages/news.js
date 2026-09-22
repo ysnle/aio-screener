@@ -196,9 +196,13 @@ function appendMarketNews(documentRef, root, container, model, status, visibleLi
   if (!displayed.length) {
     const empty = documentRef.createElement('div');
     empty.style.cssText = 'text-align:center;padding:30px;color:var(--text-muted);font-size:12px;line-height:1.7;';
+    // P1164/B03: 창 밖에 남은 과거 수집분을 오늘 뉴스로 읽히게 두지 않는다.
+    const outOfWindow = Number(model?.outOfWindowCount || 0);
     empty.textContent = status === 'unavailable'
       ? '뉴스 수신 대기 — 새로고침 후 검증된 뉴스가 표시됩니다.'
-      : `현재 조건에서 08:00 KST 완료 24h · 중요도 기준 뉴스가 없습니다. (${model?.emptyReason || 'no-eligible-news'})`;
+      : (model?.emptyReason === 'all-news-outside-time-window' && outOfWindow > 0
+          ? `현재 조건에서 오늘(08:00 KST 완료 24h) 자료 미확보 · 이전 수집분 ${outOfWindow}건은 오늘 뉴스가 아닙니다.`
+          : `현재 조건에서 08:00 KST 완료 24h · 중요도 기준 뉴스가 없습니다. (${model?.emptyReason || 'no-eligible-news'})`);
     container.appendChild(empty);
   } else if (controls.typeTab === 'category') {
     const groups = new Map();
@@ -243,9 +247,13 @@ function appendBriefingNews(documentRef, root, container, model, status, windowI
   if (!displayed.length) {
     const empty = documentRef.createElement('div');
     empty.style.cssText = 'text-align:center;padding:24px;color:var(--text-muted);font-size:11px;line-height:1.7;';
+    // P1164/B03: 오늘 창이 비면 과거 수집분 건수를 함께 밝힌다(오늘 뉴스로 오인 금지).
+    const briefingOutOfWindow = Number(model?.outOfWindowCount || 0);
     empty.textContent = status === 'unavailable'
       ? '뉴스 수신 대기 중입니다.'
-      : `08:00 KST 완료 24h 검증 뉴스가 없습니다. (${model?.emptyReason || 'no-briefing-news'})`;
+      : (model?.emptyReason === 'all-news-outside-time-window' && briefingOutOfWindow > 0
+          ? `오늘(08:00 KST 완료 24h) 자료 미확보 · 이전 수집분 ${briefingOutOfWindow}건은 오늘 뉴스가 아닙니다.`
+          : `08:00 KST 완료 24h 검증 뉴스가 없습니다. (${model?.emptyReason || 'no-briefing-news'})`);
     container.appendChild(empty);
   } else {
     const groups = new Map();

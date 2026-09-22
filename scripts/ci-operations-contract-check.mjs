@@ -7,6 +7,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { VERTICAL_SLICE_CONTRACTS } from '../src/app/vertical-slices.js';
+import { FEATURE_AVAILABILITY, validateOperationsStatus } from '../src/data/contracts/operations.js';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const read = (file) => readFileSync(join(root, file), 'utf8');
@@ -90,6 +91,32 @@ check('public readiness route soak mirror', readiness.criteria?.find((criterion)
 const fredSuccess = durableData.meta?.fredHasKey === true && durableData.meta?.fredFetchOk === true && durableData.meta?.fredOk === true;
 check('public readiness FRED success branch mirrors durable artifact', readiness.criteria?.find((criterion) => criterion.id === 'fred-success-branch')?.status === (fredSuccess ? 'PASS' : 'OPERATOR_REQUIRED'));
 check('durable plane exposes freshness evidence', operations.planes?.durable?.freshness && Number(operations.planes.durable.freshness.maxAgeHours) === Number(durableData.meta?.marketCycleFreshnessSlaHours || 12));
+
+// ── P1173 (17 작업 단위 5): 집계의 범위와 기능별 사용 가능 범위 ────────────────────────────────
+// `overall`은 durable 한 축에서 파생되므로 browser 평면이 UNKNOWN이어도 바뀌지 않는다. 집계가 무엇을
+// 포함/제외하는지와 기능별 상태·관측시각·누락 이유가 함께 발행되지 않으면, 소비자는 "전역 정상"과
+// "브라우저 셸은 관측된 적 없음"을 구분할 수 없다.
+const basis = operations.overallBasis || {};
+const features = operations.featureAvailability || {};
+check('P1173 overall declares which planes it aggregates', Array.isArray(basis.planes) && basis.planes.length > 0
+  && basis.planes.every((plane) => ['durable', 'fast', 'browser'].includes(plane)), JSON.stringify(basis.planes));
+check('P1173 overall declares the planes it leaves out', Array.isArray(basis.excludes) && basis.excludes.includes('browser') && basis.excludes.includes('fast'), JSON.stringify(basis.excludes));
+check('P1173 a browser plane that was never observed cannot read as available',
+  operations.planes?.browser?.observed !== 'NOT_OBSERVED' || (features['browser-shell']?.availability === 'UNKNOWN'
+    && features['browser-shell']?.missingReason === 'browser-plane-not-observed'),
+  JSON.stringify({ observed: operations.planes?.browser?.observed, browserShell: features['browser-shell'] }));
+check('P1173 the feature axis is not a mirror of the global aggregate',
+  features['browser-shell']?.availability === 'UNKNOWN' && operations.overall !== 'UNKNOWN' && !basis.planes.includes('browser'),
+  JSON.stringify({ overall: operations.overall, browserShell: features['browser-shell']?.availability }));
+check('P1173 every feature declares availability, observation time, reason and source',
+  Object.keys(features).length >= 4 && Object.values(features).every((entry) => FEATURE_AVAILABILITY.includes(entry.availability)
+    && Object.hasOwn(entry, 'asOf') && Object.hasOwn(entry, 'missingReason') && Array.isArray(entry.sources) && entry.sources.length > 0),
+  JSON.stringify(features));
+check('P1173 an available feature cannot keep a missing reason', Object.values(features).every((entry) => entry.availability !== 'AVAILABLE' || entry.missingReason === null), JSON.stringify(features));
+const operationsAudit = validateOperationsStatus(operations);
+check('P1173 the published feature axis passes the contract that declares it',
+  operationsAudit.ok && validateOperationsStatus({ ...operations, featureAvailability: { ...features, quotes: { ...features.quotes, availability: 'FINE' } } }).errors.includes('undeclared_availability:operations.featureAvailability.quotes'),
+  JSON.stringify(operationsAudit.errors));
 const bootMeasurement = slo.latestMeasuredBoot || {};
 const bootMeasurementCurrent = bootMeasurement.status === 'TARGET_COMPLIANT'
   && bootMeasurement.observedAppRevision === version

@@ -1,0 +1,60 @@
+{
+  "kind": "synthetic actual function execution; no provider or browser",
+  "at": "2026-09-21T01:25:38.976Z",
+  "cases": [
+    {
+      "inputDailyBars": 60,
+      "monotonicRising": true,
+      "result": {
+        "bars": 12,
+        "lastWeekClose": 159,
+        "wClose": 159,
+        "prevWeekClose": 154,
+        "weekGainPct": 3.2,
+        "wSma20": 131.5,
+        "wSma50": 131.5,
+        "wRsi": null,
+        "wRsi14": null,
+        "aboveW20": true,
+        "aboveW50": true,
+        "wTrend": "bearish"
+      }
+    },
+    {
+      "inputDailyBars": 100,
+      "monotonicRising": true,
+      "result": {
+        "bars": 20,
+        "lastWeekClose": 199,
+        "wClose": 199,
+        "prevWeekClose": 194,
+        "weekGainPct": 2.6,
+        "wSma20": 151.5,
+        "wSma50": 151.5,
+        "wRsi": 100,
+        "wRsi14": 100,
+        "aboveW20": true,
+        "aboveW50": true,
+        "wTrend": "bearish"
+      }
+    },
+    {
+      "inputDailyBars": 250,
+      "monotonicRising": true,
+      "result": {
+        "bars": 50,
+        "lastWeekClose": 349,
+        "wClose": 349,
+        "prevWeekClose": 344,
+        "weekGainPct": 1.5,
+        "wSma20": 301.5,
+        "wSma50": 226.5,
+        "wRsi": 100,
+        "wRsi14": 100,
+        "aboveW20": true,
+        "aboveW50": true,
+        "wTrend": "bullish"
+      }
+    }
+  ]
+}

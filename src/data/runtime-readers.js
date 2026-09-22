@@ -10,6 +10,20 @@ function finite(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
+// P1176 (22 PFR01): Number(null) === 0, so a numeric coercion here turns "no target was
+// entered" into "the target is 0" — which then renders as $0.00 and a -100% potential
+// return. A price target and a target weight are different types: an absent price target
+// is unset, while an explicit 0% weight is a real value.
+function optionalNumber(value) {
+  if (value == null || value === '') return null;
+  return finite(Number(value));
+}
+
+function optionalPrice(value) {
+  const number = optionalNumber(value);
+  return number != null && number > 0 ? number : null;
+}
+
 function observedAt(row = {}) {
   return row.observedAt || row.timestamp || row.lastUpdated
     || (String(row.source || '').startsWith('snapshot:') ? row.ts : null)
@@ -565,7 +579,7 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
         const shares = Number(position?.qty ?? position?.shares);
         const avgCost = Number(position?.cost ?? position?.avgCost);
         const quote = quoteObservation(root, symbol, now());
-        return { symbol, shares: Number.isFinite(shares) ? shares : null, avgCost: Number.isFinite(avgCost) ? avgCost : null, price: quote.value != null && quote.value > 0 ? quote.value : null, dailyPct: quote.pct, quoteObservedAt: quote.observedAt, fetchedAt: quote.fetchedAt, revisionId: quote.revisionId, changeBasis: quote.changeBasis, sourceKind: quote.sourceKind, sourceTier: quote.sourceTier, allowedUse: quote.allowedUse, allowedUseCeiling: quote.allowedUseCeiling, quality: quote.quality, rightsId: quote.rightsId, quoteEnvelopeComplete: quote.envelopeComplete, decisionEligible: quote.decisionEligible, blockedReasons: quote.decisionEligible ? [] : ['quote-envelope-not-decision-eligible'], sector: position?.sector || null, target: finite(Number(position?.target)), memo: position?.memo || '', addedAt: position?.addedAt || null, updatedAt: position?.updatedAt || null, source: quote.source || 'native-runtime-vault' };
+        return { symbol, shares: Number.isFinite(shares) ? shares : null, avgCost: Number.isFinite(avgCost) ? avgCost : null, price: quote.value != null && quote.value > 0 ? quote.value : null, dailyPct: quote.pct, quoteObservedAt: quote.observedAt, fetchedAt: quote.fetchedAt, revisionId: quote.revisionId, changeBasis: quote.changeBasis, sourceKind: quote.sourceKind, sourceTier: quote.sourceTier, allowedUse: quote.allowedUse, allowedUseCeiling: quote.allowedUseCeiling, quality: quote.quality, rightsId: quote.rightsId, quoteEnvelopeComplete: quote.envelopeComplete, decisionEligible: quote.decisionEligible, blockedReasons: quote.decisionEligible ? [] : ['quote-envelope-not-decision-eligible'], sector: position?.sector || null, target: optionalPrice(position?.target), targetWeight: optionalNumber(position?.targetWeight), memo: position?.memo || '', addedAt: position?.addedAt || null, updatedAt: position?.updatedAt || null, source: quote.source || 'native-runtime-vault' };
       }).filter((item) => item.symbol) : [];
       let cash = null;
       let cashKnown = false;

@@ -12,9 +12,12 @@ const SLO_WINDOW_PATH = new URL('../public-data/operations-slo-window.json', imp
 const WORKER_HEALTH_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 const DURABLE_QUOTE_QUALITIES = new Set(['CURRENT', 'CLOSED_CURRENT', 'DELAYED']);
 
-export function deriveOperationalState({ configured = false, healthy = false, stale = false, rightsReview = false } = {}) {
+// P1166 (17 작업 단위 3 / 06 O05): `configured`는 설정의 존재이고 `healthy`는 관측 결과다. 관측을
+// 하지 않았으면 configured=true·healthy=true로 CONFIGURED_HEALTHY를 만들지 않고 NOT_OBSERVED로 닫는다.
+export function deriveOperationalState({ configured = false, healthy = false, stale = false, rightsReview = false, observed = true } = {}) {
   if (rightsReview) return 'RIGHTS_REVIEW_REQUIRED';
   if (!configured) return 'NOT_CONFIGURED';
+  if (!observed) return 'NOT_OBSERVED';
   if (stale) return 'STALE';
   return healthy ? 'CONFIGURED_HEALTHY' : 'CONFIGURED_BROKEN';
 }
@@ -438,6 +441,49 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
     dataRevision: snapshot.revision || `public-data:${data?.meta?.generatedAt || 'unknown'}`,
     evidenceRevision: 'evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1',
     overall: durableOk ? 'OPERATOR_REQUIRED' : 'BLOCKED',
+    // P1173 (17 작업 단위 5): `overall`은 durable 한 축에서만 파생되므로 browser가 UNKNOWN이어도 바뀌지
+    // 않는다. 그 사실을 숨기지 않도록 집계의 범위를 명시하고, 기능별로 사용 가능 범위·관측시각·누락
+    // 이유를 따로 발행한다. 전역 정상 배지 대신 "무엇을 지금 쓸 수 있고 무엇이 왜 비었는지"를 남긴다.
+    overallBasis: {
+      planes: ['durable'],
+      excludes: ['fast', 'browser'],
+      note: 'overall is derived from the durable data plane only; the fast quote plane and the browser shell plane are published separately and can be UNKNOWN while overall is unchanged'
+    },
+    featureAvailability: {
+      'market-breadth': {
+        availability: durableOk ? 'AVAILABLE' : 'UNAVAILABLE',
+        asOf: data?.meta?.generatedAt || null,
+        missingReason: durableOk ? null : (!durableFreshness.fresh ? 'durable-market-cycle-stale' : 'durable-tier0-publish-blocked'),
+        sources: ['durable']
+      },
+      'fundamental-ranking': {
+        availability: secCoverage.coveragePct >= 80 ? (durableOk ? 'AVAILABLE' : 'DEGRADED') : 'UNAVAILABLE',
+        asOf: data?.meta?.generatedAt || null,
+        missingReason: secCoverage.coveragePct >= 80 ? null : `sec-fundamentals-coverage-${secCoverage.coveragePct}pct-below-80`,
+        sources: ['durable']
+      },
+      quotes: {
+        availability: fastHealthy ? 'AVAILABLE' : fastConfigured ? 'DEGRADED' : 'UNAVAILABLE',
+        asOf: fastEvidence.fastHealthObserved || null,
+        missingReason: fastHealthy ? null : !fastConfigured ? 'fast-quote-endpoint-not-configured'
+          : fastEvidence.fastEvidenceFresh === true ? 'fast-quote-health-not-200' : 'fast-quote-observation-not-fresh',
+        sources: ['fast']
+      },
+      'ai-chat': {
+        availability: proxyHealthy ? 'AVAILABLE' : proxyConfigured ? 'DEGRADED' : 'UNAVAILABLE',
+        asOf: fastEvidence.proxyHealthObserved || null,
+        missingReason: proxyHealthy ? null : !proxyConfigured ? 'ai-shared-proxy-not-configured' : 'ai-shared-proxy-not-ready',
+        sources: ['fast']
+      },
+      // 브라우저 평면은 이 producer가 관측하지 않는다. 정상이 아니라 UNKNOWN이고, 그 이유가 사용자에게
+      // 전달된다 — `overall`이 이 평면을 포함하지 않는다는 사실도 overallBasis.excludes가 말한다.
+      'browser-shell': {
+        availability: 'UNKNOWN',
+        asOf: null,
+        missingReason: 'browser-plane-not-observed',
+        sources: ['browser']
+      }
+    },
     planes: {
       durable: {
         status: durableOk ? 'CURRENT' : 'BLOCKED', statusCode: deriveOperationalState({ configured: true, healthy: durableOk }), source: 'github-actions', lastSuccessfulAt: snapshot.lastSuccessfulAt || null, coverage,
@@ -447,7 +493,11 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
       fast: {
         status: 'OPERATOR_REQUIRED', statusCode: deriveOperationalState({ configured: fastConfigured, healthy: fastHealthy, stale: fastConfigured && fastEvidence.fastHealthStatus != null && fastEvidence.fastEvidenceFresh !== true }), scheduler: 'cloudflare-cron', endpoint: fastEndpoint,
         health: {
-          status: Number(fastEvidence.fastHealthStatus) === 200 ? 'CURRENT' : 'OPERATOR_REQUIRED',
+          // P1166 (17 작업 단위 3 / 06 O05): 오래된 성공은 성공 시각(observedAt)을 유지하되 현재 건강
+          // 상태로 승격하지 않는다. 재사용 창(P1104)을 벗어난 관측은 200이어도 CURRENT가 아니다.
+          status: Number(fastEvidence.fastHealthStatus) === 200
+            ? (fastEvidence.fastEvidenceFresh === true ? 'CURRENT' : 'UNKNOWN')
+            : 'OPERATOR_REQUIRED',
           statusCode: Number.isFinite(Number(fastEvidence.fastHealthStatus)) ? Number(fastEvidence.fastHealthStatus) : null,
           coverage: fastEvidence.fastCoverage || null,
           revision: fastEvidence.fastRevision || null,
@@ -463,9 +513,26 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
           evidenceEvaluatedAt: now
         },
         soak: { requiredDays: 7, observedDays: Number(fastEvidence.fastSoakObservedDays || 0), targetSuccessRate: 0.99 },
-        readiness: { secretConfigured: 'OPERATOR_REQUIRED', workflowWired: fastEndpoint === 'not-configured' ? 'OPERATOR_REQUIRED' : 'CURRENT', lastCallSucceeded: Number(fastEvidence.fastHealthStatus) === 200 ? 'CURRENT' : 'UNKNOWN', dataCurrent: Number(fastEvidence.fastHealthStatus) === 200 ? 'CURRENT' : 'UNKNOWN', licensedForUse: 'REVIEW_REQUIRED' }
+        readiness: { secretConfigured: 'OPERATOR_REQUIRED', workflowWired: fastEndpoint === 'not-configured' ? 'OPERATOR_REQUIRED' : 'CURRENT', lastCallSucceeded: Number(fastEvidence.fastHealthStatus) === 200 ? 'CURRENT' : 'UNKNOWN', dataCurrent: Number(fastEvidence.fastHealthStatus) === 200 && fastEvidence.fastEvidenceFresh === true ? 'CURRENT' : 'UNKNOWN', licensedForUse: 'REVIEW_REQUIRED' }
       },
-      browser: { status: 'CURRENT', statusCode: deriveOperationalState({ configured: true, healthy: true }), source: 'static-pages+service-worker', revision: version.version }
+      // P1166 (17 작업 단위 3 / 06 O05): 이 producer는 브라우저 실행·Pages 도달·SW revision 일치를
+      // 관측하지 않는다. 정적 셸과 서비스워커 설정의 존재를 CURRENT/healthy로 승격하지 않고,
+      // configured / observed / lastAttempt / lastSuccess / dataQuality / evidenceAge를 분리한다.
+      browser: {
+        status: 'UNKNOWN',
+        statusCode: deriveOperationalState({ configured: true, observed: false }),
+        source: 'static-pages+service-worker',
+        revision: version.version,
+        configured: true,
+        observed: 'NOT_OBSERVED',
+        lastAttemptAt: null,
+        lastSuccessfulAt: null,
+        dataQuality: 'NOT_MEASURED',
+        deliveryObserved: 'NOT_OBSERVED',
+        revisionMatch: 'NOT_OBSERVED',
+        evidenceAge: null,
+        note: '정적 셸·서비스워커 revision은 배포 계약이며, 브라우저 실행·Pages 도달·SW revision 일치의 실측 근거가 아닙니다.'
+      }
     },
     ai: {
       scheduledAnalysis: { status: scheduledAnalysisOk ? 'CURRENT' : 'BLOCKED', statusCode: deriveOperationalState({ configured: true, healthy: scheduledAnalysisOk }), source: 'github-actions', lastCallSucceeded: scheduledAnalysisOk ? 'CURRENT' : 'BLOCKED', evidence: { marketAnalysisOk: scheduledAnalysisOk, generatedAt: data?.meta?.generatedAt || null } },

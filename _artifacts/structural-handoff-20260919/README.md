@@ -2,9 +2,15 @@
 
 작성일: 2026-09-19 · 기획·설계·집필: Astra · 코드 근거 조사: GPT-5.6 Luna / MAX
 
-**최신 조사 기준선: v56 working tree, 2026-09-20.** 다른 작업의 대규모 미커밋 구현이 들어왔다. 현재 상태는 [v56 재검증](RECHECK-V56.md)을 먼저 읽는다. 00–02는 v55.21, 03–09의 원래 발견은 주로 v55.22 시점이며 이미 수정된 반증도 있다. 10–12는 v56 추가 조사·설계다. 이 감사 에이전트는 제품 구현·커밋을 수행하지 않았다.
+**최신 조사 기준선: v56.01, 2026-09-21, HEAD `2bf963a76c6f2fb1079166ce806beaaa820b1c6a`.** 이전 구현은 다른 작업에서 진행했다. [v56 재검증](RECHECK-V56.md)은 역사적 반증 상태이며 현재 전체 인증이 아니다. 00–02는 v55.21, 03–09의 원래 발견은 주로 v55.22 시점이다. 최신 추가 내용은 04 C03, 05 A04–A06, 12 U01, 13–14를 읽는다. 이 감사 에이전트는 제품 구현·커밋을 수행하지 않았다.
 
 ## 이 자료를 사용하는 방법
+
+**2026-09-22 추가:** [21 전체 페이지 라이브·로컬 비교와 의미 경로 재설계](21-LIVE-LOCAL-SEMANTIC-REDESIGN.md), [22 포트폴리오 성과·위험 재설계](22-PORTFOLIO-PERFORMANCE-RISK-REDESIGN.md)를 반영했다. 이번에는 외부 통신을 허용한 실제 브라우저에서 20개 경계를 양쪽 모두 방문하고 대표 사용자 동선을 실행했다. 20/20 방문은 전체 기능·금융 의미 검수 완료가 아니다. 아래 과거 외부 차단 브라우저 설명은 당시 증거에만 적용한다.
+
+9/22 문서 증분 검증: `full-browser-20260922` baseline의 affected 14 PASS, 추가 knowledge/skill/fixture/ledger/assertion/profile/mirror 검사 통과, diff whitespace 오류 없음. 기존 역사 문서 encoding 경고 2건은 유지됐다. 검사 스크립트 실행은 스킬 사용이 아니며, 기계적 PASS는 금융 의미나 라이브 정상 인증이 아니다. 이 증분도 제품 코드·설정·데이터 수정과 커밋·푸시·배포 없이 종료했다.
+
+**재감사 후 시작점:** [19 설계 결정·대안·이행](19-DESIGN-DECISIONS-AND-MIGRATION.md)과 [20 전역 범위·미검수 대장](20-COVERAGE-AND-ACCEPTANCE-LEDGER.md)을 먼저 읽는다. 기존 문서의 보존 전제와 초기 번호순 구현 요청보다 19의 최신 계약·우선순위를 따른다. 과거 결함의 현재성은 해당 재검증 근거로 판단한다. 어떤 문서도 전체 전수 완료나 최선의 구조가 실증됐다는 선언이 아니다.
 
 이 문서는 전체 코드베이스 심층 점검을 **부분별로 누적**하는 구현 핸드오프다. 전체 코드·콘텐츠의 의미 검수가 끝났다는 선언이 아니다. 각 패키지가 확인한 경계 안에서 구현하고, 미검증 항목은 그대로 남긴다.
 
@@ -31,6 +37,14 @@
 | [10](10-TECHNICAL-AND-THEME-LOGIC.md) | 기술지표·RRG·테마 가중치 | v56 새 반증 및 1차 설계 | 같은 날짜·주기·weight 의미 |
 | [11](11-PORTFOLIO-DURABILITY-AND-CURRENCY.md) | 저장 성공·통화·개인자료 경계 | v56 새 반증 및 1차 설계 | durable 저장·currency 보존 |
 | [12](12-USER-VISIBLE-REASONING.md) | 사용자가 이해하는 전체 흐름과 설명 화면 | v56 표본 브라우저 + UX 인수 설계 | 계산 계약과 같은 presentation model |
+| [13](13-SEMANTIC-ARCHITECTURE-AND-LEARNING.md) | 화면·AI·차트·학습의 공통 의미 계약 | Astra 구조 설계 | 동일 결과와 설명의 소유권 |
+| [14](14-TECHNICAL-STRATEGY-CONTRACTS.md) | 주봉·VCP·진입/축소 전략 | v56.01 합성 반증 + 정적 조사 | 관측/해석/적용 조건 분리 |
+| [15](15-INSTRUMENT-AND-OBSERVATION-TIME.md) | 종목 식별·종가 가용시각·시장 비교 | v56.01 정적/provider 조사 | listing·통화·세션 계약 |
+| [16](16-PRODUCT-FIRST-DATA-STRATEGY.md) | 제품 목적 재심사·전역 검수 범위·refresh/검색 역할 | Astra 재설계 기준 | 기존 구조 보존을 전제하지 않음 |
+| [17](17-AUTOMATION-DELIVERY-AND-OBSERVABILITY.md) | 자동화 완료·발행·도달·누락 감시 | 실제 운영집계 스크립트 합성 반증 | 도메인별 예정 도착률 |
+| [18](18-SEARCH-TO-VERIFIED-DATA.md) | 검색→후보→검증→정형 데이터 보강 | 현재 연결 경계 정적 조사 + 재설계 | 문서 검색과 숫자 승격 분리 |
+| [19](19-DESIGN-DECISIONS-AND-MIGRATION.md) | 핸드오프 재감사·대안 선택·계약 연결·이전/복구 | Astra 통합 실행 설계, Luna MAX 독립 리뷰 반영 | 첫 파일럿부터 입력 고정 |
+| [20](20-COVERAGE-AND-ACCEPTANCE-LEDGER.md) | 사용자 요청·20 route·시스템 사각지대·다음 조사 | 범위 대장, 완료율 인증 아님 | 미검수를 숨기지 않음 |
 
 개별 함수 상태와 미검수 영역은 [검수 대장](FUNCTION-REVIEW.md)을 따른다. 패키지 작성은 해당 영역 전수 검수 완료를 뜻하지 않는다. 구현 시작 전에 해당 발견이 현재 트리에 남았는지 재검증한다.
 
@@ -40,7 +54,7 @@
 
 읽기 순서: 최신 재검증 → 07/09의 핵심 금융 로직 → 03의 데이터 경계 → 10/11의 새 발견 → 12의 사용자 동선 → 관련 구조/콘텐츠/AI/운영 패키지. 모든 영역을 한 변경으로 개편하지 않고 각 패키지의 작은 인수 단위로 진행한다.
 
-기존 `src/domain`, state slice, provider/normalizer/orchestrator, resource bag, evidence store를 활용한다. 새로운 프레임워크나 별도의 병렬 데이터 저장소 도입은 첫 단계의 전제가 아니다. 작업 패키지마다 현재 writer, 대체 writer, 삭제할 compatibility 경로, 검증할 사용자 동선을 명시한다.
+기존 `src/domain`, state slice, provider/normalizer/orchestrator, resource bag, evidence store는 재사용 가능성을 평가한다. 제품 목적과 요구 계약을 충족하지 못하면 구조와 저장·발행 경계를 교체한다. 보존이나 전면 재작성 어느 쪽도 미리 전제하지 않는다. 작업 패키지마다 현재 writer, 최종 owner, 폐기할 경로, migration/rollback과 검증할 사용자 동선을 명시한다. 최신 상위 판단 기준은 16을 따른다.
 
 ## 증거 수준과 한계
 
@@ -62,6 +76,28 @@
 - 커밋·푸시·배포는 별도 명시 요청이 있어야 한다.
 
 ## 진행 기록
+
+### 2026-09-21 핸드오프 자체 재감사
+
+Luna MAX 두 에이전트가 구조/이행과 금융/사용자 의미를 독립 검토했고 Astra가 19–20을 작성하고 기존 문서를 정정했다. 역사 발견과 현재 반증 차단 안내, 중복 구현 지시, 기존 구조 보존 문구, 라벨·수익률 비교 계약을 보강했다. 대안과 잠정 선택 이유, 공통 객체의 연결 키, 파일럿 우선 사용자/과업, 입력 고정 선행 조건, 보존/이전/rollback과 이해도 인수조건을 추가했다.
+
+새 세션 hash 기준선으로 선택된 affected preflight 14 PASS, 추가 knowledge/skill/ledger/assertion/profile/mirror 계약 검사 통과. 로컬 링크 52개, JSON 20개, route registry 20개와 범위표의 누락 없음 확인. 이는 20개 route의 의미 검수 완료가 아니라 **범위표 포함 여부** 확인이다. 기록은 TEMP `aio-handoff-review-20260921/last-run.json`. 문서만 변경했고 HEAD는 그대로다. 제품 구현·커밋·푸시·배포 없음. 실제 비용 비교·사용자 과업 실험·남은 함수 전수 검수는 여전히 미완료다.
+
+### 2026-09-21 자동화·제품 목적 증분
+
+16–18을 추가했다. 제품 목적부터 기존 구조를 재심사하며 전체 영역의 남은 검수 범위를 명시했다. 예정 작업 누락을 놓치는 운영 SLO는 실제 스크립트에 합성 API 응답을 넣어 재현했다. SEC 부분 수집/보존, Pages SHA attestation, provider 다중 fetch/SW 호환성, 고정 web-research seed와 AI 검색 문서의 정형 데이터 연결 경계를 조사했다. 설계·문서 작성은 Astra, 수집/검색 코드 근거 조사는 Luna MAX가 담당했다. 분배 O07은 Astra 정적 조사이며 실제 혼합 오류는 미재현이다.
+
+문서 범위 affected preflight 14 PASS, 추가 workspace knowledge/skill/ledger/assertion/profile/mirror 검사 통과. 스킬 문서는 읽거나 실행하지 않았다. QA 기록은 TEMP `aio-audit-automation-20260921/last-run.json`. 제품 코드·데이터·설정 수정, 원격 job 실행, 커밋·푸시·배포 없음. 기존 파일과 기준 HEAD를 보존했다. 새 설계 문서의 추가를 제품 기능 구현이나 운영 인증으로 해석하지 않는다.
+
+현재 막힌 작업은 없으며, 원격 장기 실행·데이터 도착률, 공급자 전체 실패 주입, 배포 전환 브라우저 호환성은 미검증으로 남긴다. 전체 코드/금융 의미 전수 완료가 아니다. 후속 조사에서는 16의 범위표와 FUNCTION-REVIEW의 큐를 따라 기업행동/조정가격·과거 유니버스·위험/성과·추가 차트 기법을 이어간다.
+
+### 2026-09-21 증분 — v56.01
+
+13의 공통 의미·학습 설계, 14의 차트/행동 전략, 15의 식별/관측 시각을 추가했다. 04에는 실제 manager shard의 preview/전체 범위 혼동, 05에는 claim 공개·정책 전달·요청 출처 소유권, 12에는 같은 선택의 미리보기와 실행 결과 불일치를 보강했다. 모든 설계·집필은 Astra가 맡았다. Luna MAX는 근거 조사만 수행했다.
+
+검증: task-owned artifact 목록으로 `qa-runner affected`를 실행해 preflight 14 PASS, 0 FAIL, 0 SKIP. 추가 knowledge/skill contract/fixture/ledger/assertion 및 agent profile/skill mirror 검사는 통과했다. 이는 스킬 실행이나 의미 전수 검증이 아니라 저장소 계약 검사다. JSON 19개 파싱, 문서 로컬 링크 40개 존재 확인, `git diff --check` 통과. 상세 QA 기록은 로컬 TEMP의 `aio-audit-handoff-20260921/last-run.json`에 있다.
+
+제품 파일 변경 없음, HEAD 변화 없음, 이 작업의 커밋·푸시·배포 없음. 현재 실행을 막은 사항은 없다. 정상 외부 공급자, 실제 AI 답변/동시성, 투자 전략 성능, 전체 기능의 사용자 이해도는 여전히 미검증이다. 다음 범위는 기업행동/조정가격, 옵션·volume profile·divergence, 포트폴리오 위험/성과, PIT 유니버스와 운영 publication의 세부 함수다. 이번 패키지 작성으로 이 범위가 완료되지는 않는다.
 
 ### 1차 — 기준선과 사용자 화면 표본
 

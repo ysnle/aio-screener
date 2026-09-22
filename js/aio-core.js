@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v56.01';
+const APP_VERSION = 'v56.15';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -2560,17 +2560,21 @@ window._aioRefreshActionPlan = function() {
     var ms = window.AIO && window.AIO.marketState;
     var fresh = ms && ms.actionPlan && (Date.now() - (ms.ts || 0) < 15 * 60 * 1000);
     var vixVal, fgVal, plan;
+    // P1164/B03: 결측을 숫자 0으로 강제하지 않는다. `Number(null)===0`이 유한값 검사를 통과해
+    // 미수신 F&G가 '극단 공포' 구간으로, 미수신 VIX가 저변동 구간으로 표시됐다. 표시 sentinel은 NaN('—').
+    var _num = function(v) { var n = (typeof window._aioFiniteNum === 'function') ? window._aioFiniteNum(v) : (typeof v === 'number' && isFinite(v) ? v : null); return n == null ? NaN : n; };
     if (fresh) {
-      vixVal = (ms.vix != null) ? ms.vix : NaN;
-      fgVal = (ms.fg != null) ? ms.fg : NaN;
+      vixVal = _num(ms.vix);
+      fgVal = _num(ms.fg);
       plan = ms.actionPlan;
     } else {
       var ld = window._liveData || {};
-      vixVal = (ld['^VIX'] && ld['^VIX'].price != null) ? ld['^VIX'].price
-                   : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : NaN);
+      vixVal = _num((ld['^VIX'] && ld['^VIX'].price != null) ? ld['^VIX'].price
+                   : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : null));
       var fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
-      fgVal = fgMetric && fgMetric.value != null ? Number(fgMetric.value) : Number(window._lastFG);
-      if (!Number.isFinite(fgVal)) fgVal = window.DATA_SNAPSHOT ? Number(window.DATA_SNAPSHOT.fg) : NaN;
+      var _fgCandidate = (fgMetric && fgMetric.value != null) ? fgMetric.value
+        : (window._lastFG != null ? window._lastFG : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.fg : null));
+      fgVal = _num(_fgCandidate);
       var breadthEv = window.AIO && typeof window.AIO.getCurrentBreadthEvidence === 'function' ? window.AIO.getCurrentBreadthEvidence() : { available:false };
       var breadth50Val = breadthEv.available ? breadthEv.sma50 : NaN;
       plan = window.AIO_ACTION_RULES.getActionPlan({ vix: vixVal, fg: fgVal, breadth50: breadth50Val });
@@ -3129,15 +3133,18 @@ if (typeof document !== 'undefined') {
       if (!window.AIO_ACTION_RULES) return;
       // v50.44: 단일 두뇌(marketState) 정본 우선 — vix/fg를 앱 전체와 동일 출처로. fresh 아니면 폴백.
       var vixVal, fgVal;
+      // P1164/B03: 미수신 F&G/VIX를 0으로 강제하지 않는다(구간 오표시·null.toFixed 예외 방지).
+      var _num = function(v) { var n = (typeof window._aioFiniteNum === 'function') ? window._aioFiniteNum(v) : (typeof v === 'number' && isFinite(v) ? v : null); return n == null ? NaN : n; };
       var ms = window.AIO && window.AIO.marketState;
       if (ms && (Date.now() - (ms.ts || 0) < 15 * 60 * 1000) && ms.vix != null) {
-        vixVal = ms.vix; fgVal = (ms.fg != null) ? ms.fg : NaN;
+        vixVal = _num(ms.vix); fgVal = _num(ms.fg);
       } else {
         var ld = window._liveData || {};
-        vixVal = ld['^VIX'] ? ld['^VIX'].price : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : NaN);
+        vixVal = _num((ld['^VIX'] && ld['^VIX'].price != null) ? ld['^VIX'].price : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : null));
         var fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
-        fgVal = fgMetric && fgMetric.value != null ? Number(fgMetric.value) : Number(window._lastFG);
-        if (!Number.isFinite(fgVal)) fgVal = window.DATA_SNAPSHOT ? Number(window.DATA_SNAPSHOT.fg) : NaN;
+        var _fgCandidate = (fgMetric && fgMetric.value != null) ? fgMetric.value
+          : (window._lastFG != null ? window._lastFG : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.fg : null));
+        fgVal = _num(_fgCandidate);
       }
       var pos = window.AIO_ACTION_RULES.positionSizing.getRule(vixVal);
       var sent = window.AIO_ACTION_RULES.sentimentAction.getRule(fgVal);
@@ -3172,15 +3179,19 @@ if (typeof document !== 'undefined') {
       if (!window.AIO_ACTION_RULES || !window.AIO_ACTION_RULES.getActionPlan) return;
       // v50.44: 단일 두뇌(marketState.actionPlan) 정본 우선 — home Action Item과 동일 plan 구독(정합). fresh 아니면 폴백.
       var vixVal, fgVal, plan;
+      // P1164/B03: 미수신 F&G/VIX를 0으로 강제하지 않는다 — 브리핑에서 F&G '—'인데 행동은
+      // '극단 공포 구간'으로 표시되던 경로(Number(null)===0 → fgMax 25 구간).
+      var _num = function(v) { var n = (typeof window._aioFiniteNum === 'function') ? window._aioFiniteNum(v) : (typeof v === 'number' && isFinite(v) ? v : null); return n == null ? NaN : n; };
       var ms = window.AIO && window.AIO.marketState;
       if (ms && ms.actionPlan && (Date.now() - (ms.ts || 0) < 15 * 60 * 1000)) {
-        vixVal = (ms.vix != null) ? ms.vix : NaN; fgVal = (ms.fg != null) ? ms.fg : NaN; plan = ms.actionPlan;
+        vixVal = _num(ms.vix); fgVal = _num(ms.fg); plan = ms.actionPlan;
       } else {
         var ld = window._liveData || {};
-        vixVal = ld['^VIX'] ? ld['^VIX'].price : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : NaN);
+        vixVal = _num((ld['^VIX'] && ld['^VIX'].price != null) ? ld['^VIX'].price : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.vix : null));
         var fgMetric = window.AIO && typeof window.AIO.getCanonicalMetric === 'function' ? window.AIO.getCanonicalMetric('fg') : null;
-        fgVal = fgMetric && fgMetric.value != null ? Number(fgMetric.value) : Number(window._lastFG);
-        if (!Number.isFinite(fgVal)) fgVal = window.DATA_SNAPSHOT ? Number(window.DATA_SNAPSHOT.fg) : NaN;
+        var _fgCandidate = (fgMetric && fgMetric.value != null) ? fgMetric.value
+          : (window._lastFG != null ? window._lastFG : (window.DATA_SNAPSHOT ? window.DATA_SNAPSHOT.fg : null));
+        fgVal = _num(_fgCandidate);
         plan = window.AIO_ACTION_RULES.getActionPlan({ vix: vixVal, fg: fgVal });
       }
       var posEl = document.getElementById('briefing-action-position');
@@ -13940,7 +13951,9 @@ window.AIO.assertSnapshotInlineMatch = function(opts) {
 // v49.24 P219 근본 수정: THRESHOLD_REGISTRY — 단일 임계값/라벨 출처
 // 모든 페이지의 임계값 라벨이 이 객체를 참조해야 분기 방지(R56).
 // 본문 정의(tooltip)와 페이지 배지가 자동 일치.
-// ─────────────────────────────────────────────────────────────────
+// P1164/B03: 라벨 판정은 결측을 '첫 구간'으로 만들지 않는다. `Number(null)===0`이 isNaN 검사를
+// 통과해 미수신 F&G가 '극단 공포(buy-opportunity)', 미수신 AAII가 '중립'으로 표시됐다.
+// null/빈 문자열/비유한값은 모두 unknown으로 돌린다.
 window.AIO_THRESHOLD_REGISTRY = {
   version: 'v49.24',
   VIX: {
@@ -13954,7 +13967,8 @@ window.AIO_THRESHOLD_REGISTRY = {
       { max: Infinity, label: '극단 공포', color: 'data-red', signal: 'extreme-fear' }
     ],
     getLabel: function(v) {
-      v = Number(v); if (isNaN(v)) return { label: '—', color: 'text-muted', signal: 'unknown' };
+      if (v == null || v === '' || !isFinite(Number(v))) return { label: '—', color: 'text-muted', signal: 'unknown' };
+      v = Number(v);
       for (var i = 0; i < this.bands.length; i++) if (v < this.bands[i].max) return this.bands[i];
       return this.bands[this.bands.length - 1];
     }
@@ -13969,7 +13983,8 @@ window.AIO_THRESHOLD_REGISTRY = {
       { max: 101, label: '극단 탐욕', color: 'data-red',  signal: 'sell-opportunity' }
     ],
     getLabel: function(v) {
-      v = Number(v); if (isNaN(v)) return { label: '—', color: 'text-muted', signal: 'unknown' };
+      if (v == null || v === '' || !isFinite(Number(v))) return { label: '—', color: 'text-muted', signal: 'unknown' };
+      v = Number(v);
       for (var i = 0; i < this.bands.length; i++) if (v < this.bands[i].max) return this.bands[i];
       return this.bands[this.bands.length - 1];
     }
@@ -13983,7 +13998,8 @@ window.AIO_THRESHOLD_REGISTRY = {
       { max: Infinity, label: 'Stress',        color: 'data-red',   signal: 'stress' }
     ],
     getLabel: function(v) {
-      v = Number(v); if (isNaN(v)) return { label: '—', color: 'text-muted', signal: 'unknown' };
+      if (v == null || v === '' || !isFinite(Number(v))) return { label: '—', color: 'text-muted', signal: 'unknown' };
+      v = Number(v);
       for (var i = 0; i < this.bands.length; i++) if (v < this.bands[i].max) return this.bands[i];
       return this.bands[this.bands.length - 1];
     }
@@ -14000,13 +14016,15 @@ window.AIO_THRESHOLD_REGISTRY = {
       { max: Infinity, label: '극단 낙관', color: 'data-red', signal: 'sell-opportunity' }
     ],
     getLabel: function(spread) {
-      var v = Number(spread); if (isNaN(v)) return { label: '—', color: 'text-muted', signal: 'unknown' };
+      if (spread == null || spread === '' || !isFinite(Number(spread))) return { label: '—', color: 'text-muted', signal: 'unknown' };
+      var v = Number(spread);
       for (var i = 0; i < this.bands.length; i++) if (v < this.bands[i].max) return this.bands[i];
       return this.bands[this.bands.length - 1];
     },
     getLabelFromBullBear: function(bull, bear) {
+      // P1164/B03: 미수신 bull/bear를 0으로 강제하면 spread 0 → '중립'으로 오표시된다.
+      if (bull == null || bull === '' || bear == null || bear === '' || !isFinite(Number(bull)) || !isFinite(Number(bear))) return { label: '—', color: 'text-muted', signal: 'unknown' };
       var b = Number(bull), s = Number(bear);
-      if (isNaN(b) || isNaN(s)) return { label: '—', color: 'text-muted', signal: 'unknown' };
       return this.getLabel(b - s);
     }
   },
@@ -14019,7 +14037,8 @@ window.AIO_THRESHOLD_REGISTRY = {
       { max: Infinity, label: '극단', color: 'data-red', signal: 'extreme-hedging' }
     ],
     getLabel: function(v) {
-      v = Number(v); if (isNaN(v)) return { label: '—', color: 'text-muted', signal: 'unknown' };
+      if (v == null || v === '' || !isFinite(Number(v))) return { label: '—', color: 'text-muted', signal: 'unknown' };
+      v = Number(v);
       for (var i = 0; i < this.bands.length; i++) if (v < this.bands[i].max) return this.bands[i];
       return this.bands[this.bands.length - 1];
     }
@@ -14035,7 +14054,8 @@ window.AIO_THRESHOLD_REGISTRY = {
       { max: 101, label: '과열',      color: 'data-amber', signal: 'overbought' }
     ],
     getLabel: function(v) {
-      v = Number(v); if (isNaN(v)) return { label: '—', color: 'text-muted', signal: 'unknown' };
+      if (v == null || v === '' || !isFinite(Number(v))) return { label: '—', color: 'text-muted', signal: 'unknown' };
+      v = Number(v);
       for (var i = 0; i < this.bands.length; i++) if (v < this.bands[i].max) return this.bands[i];
       return this.bands[this.bands.length - 1];
     }
@@ -14051,7 +14071,8 @@ window.AIO_THRESHOLD_REGISTRY = {
       { max: Infinity, label: '극단 과매수', color: 'data-red', signal: 'extreme-overbought' }
     ],
     getLabel: function(v) {
-      v = Number(v); if (isNaN(v)) return { label: '—', color: 'text-muted', signal: 'unknown' };
+      if (v == null || v === '' || !isFinite(Number(v))) return { label: '—', color: 'text-muted', signal: 'unknown' };
+      v = Number(v);
       for (var i = 0; i < this.bands.length; i++) if (v < this.bands[i].max) return this.bands[i];
       return this.bands[this.bands.length - 1];
     }
@@ -14067,7 +14088,8 @@ window.AIO_THRESHOLD_REGISTRY = {
       { max: Infinity, label: '극단 강세', color: 'data-red',   signal: 'extreme-strong' }
     ],
     getLabel: function(v) {
-      v = Number(v); if (isNaN(v)) return { label: '—', color: 'text-muted', signal: 'unknown' };
+      if (v == null || v === '' || !isFinite(Number(v))) return { label: '—', color: 'text-muted', signal: 'unknown' };
+      v = Number(v);
       for (var i = 0; i < this.bands.length; i++) if (v < this.bands[i].max) return this.bands[i];
       return this.bands[this.bands.length - 1];
     }
@@ -14083,7 +14105,8 @@ window.AIO_THRESHOLD_REGISTRY = {
       { max: Infinity, label: '시스템 압력', color: 'data-red',   signal: 'systemic-stress' }
     ],
     getLabel: function(v) {
-      v = Number(v); if (isNaN(v)) return { label: '—', color: 'text-muted', signal: 'unknown' };
+      if (v == null || v === '' || !isFinite(Number(v))) return { label: '—', color: 'text-muted', signal: 'unknown' };
+      v = Number(v);
       for (var i = 0; i < this.bands.length; i++) if (v < this.bands[i].max) return this.bands[i];
       return this.bands[this.bands.length - 1];
     }
@@ -14111,7 +14134,8 @@ window.AIO_ACTION_RULES = {
       { vixMax: Infinity, sizePct: 15, label: '극단 변동', note: 'VIX 30 이상 — 극단 변동성. 역사적으로 신규 위험 확대가 회피되던 환경입니다. 개별 대응은 본인 리스크 한도로 판단하세요.' }
     ],
     getRule: function(vix) {
-      var v = Number(vix); if (isNaN(v)) return null;
+      if (vix == null || vix === '' || !isFinite(Number(vix))) return null;
+      var v = Number(vix);
       for (var i = 0; i < this.rules.length; i++) if (v < this.rules[i].vixMax) return this.rules[i];
       return this.rules[this.rules.length - 1];
     }
@@ -14126,7 +14150,8 @@ window.AIO_ACTION_RULES = {
       { fgMax: 101, action: '극단 탐욕 구간', note: '심리 과열 극단. 역발상 프레임워크가 위험 축적을 경고해온 구간입니다(지시 아님).' }
     ],
     getRule: function(fg) {
-      var v = Number(fg); if (isNaN(v)) return null;
+      if (fg == null || fg === '' || !isFinite(Number(fg))) return null;
+      var v = Number(fg);
       for (var i = 0; i < this.rules.length; i++) if (v < this.rules[i].fgMax) return this.rules[i];
       return this.rules[this.rules.length - 1];
     }
@@ -22972,13 +22997,18 @@ window._aioSyncBreadth50Readout = function() {
   var b50r = ev.available ? ev.sma50 : null;
   var b50Bar = document.getElementById('breadth-50sma-bar');
   var b50Read = document.getElementById('breadth-50sma-readout');
+  var _b50Native = function(el) { return typeof window._aioIsNativeBreadthElement === 'function' && window._aioIsNativeBreadthElement(el); };
+  // P1164/B01: native breadth 페이지가 소유한 readout 문장은 legacy 원천 판정으로 덮지 않는다.
+  // 막대 폭은 이미 이 fence를 쓰는데 문장만 예외여서, native가 store evidence(예: above50=35.1)를
+  // 표시하는 동안 같은 카드의 문장만 '미수신'으로 바뀌는 다른 evidence 계약이 남아 있었다.
+  var b50ReadNative = _b50Native(b50Read);
   if (b50r == null || isNaN(b50r)) {
-    if (b50Bar && !(typeof window._aioIsNativeBreadthElement === 'function' && window._aioIsNativeBreadthElement(b50Bar))) b50Bar.style.width = '0%';
-    if (b50Read) b50Read.textContent = '현재 breadth 원천 미수신 · 판단 보류';
+    if (b50Bar && !_b50Native(b50Bar)) b50Bar.style.width = '0%';
+    if (b50Read && !b50ReadNative) b50Read.textContent = '현재 breadth 원천 미수신 · 판단 보류';
     return;
   }
-  if (b50Bar && !(typeof window._aioIsNativeBreadthElement === 'function' && window._aioIsNativeBreadthElement(b50Bar))) b50Bar.style.width = b50r + '%';
-  if (b50Read) {
+  if (b50Bar && !_b50Native(b50Bar)) b50Bar.style.width = b50r + '%';
+  if (b50Read && !b50ReadNative) {
     var strength = b50r >= 60 ? '건강한 상승 구간' : (b50r >= 50 ? '50% 상회(약)' : '50% 미탈환');
     b50Read.textContent = '50일선 ' + Math.round(b50r) + '% — ' + strength + '. 60% 돌파 시 건강한 상승장 확인. 미너비니 바닥 2단계(리테스트) 관찰 구간.';
   }

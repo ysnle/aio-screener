@@ -136,6 +136,40 @@ async function main() {
     });
     check('PFE2-07 opt_out_is_explicit_plaintext', boundary.optOutPlain && boundary.rawRoundTrip, JSON.stringify(boundary));
     check('PFE2-08 portfolio_input_boundary', !boundary.domHasExecutableHandler && boundary.escapedTextVisible, JSON.stringify(boundary));
+
+    // P1176 (22 PFR01/PFR06): an empty target field used to be serialized as 0, and the native
+    // cell then rendered $0.00 with a -100% potential return. An unset target must stay unset end
+    // to end, while a real target must still render as an amount — the second half is the control
+    // that keeps this check from passing on an always-empty table.
+    const targetSemantics = await page.evaluate(async () => {
+      localStorage.setItem('aio_portfolio_vault_optout', '1');
+      _AioVault.lock();
+      localStorage.removeItem('aio_portfolio_data');
+      window.showPage('portfolio');
+      const fill = (ticker, cost, target) => {
+        document.getElementById('pf-add-ticker').value = ticker;
+        document.getElementById('pf-add-qty').value = '1';
+        document.getElementById('pf-add-cost').value = String(cost);
+        document.getElementById('pf-add-target').value = target;
+        window.addPortfolioPosition();
+      };
+      fill('AAPL', 90, '');
+      fill('MSFT', 90, '150');
+      const cell = (ticker) => (document.querySelector(`#pf-positions-tbody tr[data-arg="${ticker}"] td[headers="pf-th-target"]`)?.textContent || '').trim();
+      const started = Date.now();
+      while (Date.now() - started < 3000 && !(cell('AAPL') && cell('MSFT'))) await new Promise((resolve) => setTimeout(resolve, 50));
+      const stored = window.getPortfolioData();
+      const storedTarget = (ticker) => (stored.find((row) => String(row.ticker || row.sym || '').toUpperCase() === ticker) || {}).target;
+      return {
+        unsetStored: storedTarget('AAPL'),
+        unsetCell: cell('AAPL'),
+        setStored: storedTarget('MSFT'),
+        setCell: cell('MSFT')
+      };
+    });
+    check('PFR-01 unset_target_stays_unset (P1176)', targetSemantics.unsetStored === null, JSON.stringify(targetSemantics));
+    check('PFR-01 unset_target_not_rendered_as_zero (P1176)', targetSemantics.unsetCell === '미설정' && !/\$0\.00|-100/.test(targetSemantics.unsetCell), JSON.stringify(targetSemantics));
+    check('PFR-01 real_target_still_renders_amount (P1176)', targetSemantics.setStored === 150 && /^\$150/.test(targetSemantics.setCell), JSON.stringify(targetSemantics));
     report.page = await page.evaluate(() => ({ encryptedMarker: localStorage.getItem('aio_portfolio_data')?.slice(0, 9), optOut: localStorage.getItem('aio_portfolio_vault_optout') }));
   } catch (error) {
     report.errors.push(String(error && error.stack || error));

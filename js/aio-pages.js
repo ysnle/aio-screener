@@ -721,26 +721,35 @@ function updateEntryChecklist() {
   }
 
   // 5. FOMC/CPI 48시간 이내 — v46.9: 동적 FOMC + 미래 이벤트만 (P89)
-  var _fomcStr = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.fomcNext) ? DATA_SNAPSHOT.fomcNext : '결과 확인';
-  var _fomcParts = _fomcStr.replace(/\//g, '-').split('-');
-  var _fomcYear = _fomcParts.length === 3 ? _fomcParts[0] : '2026';
-  var _fomcMonth = _fomcParts.length === 3 ? _fomcParts[1] : _fomcParts[0];
-  var _fomcDays = _fomcParts.length === 3 ? _fomcParts[2].split('-') : _fomcParts.length === 2 ? _fomcParts[0].split('-').concat(_fomcParts[1].split('-')) : [_fomcParts[0]];
-  var eventDates = [];
+  // P1164/B01: 일정 원천이 없거나 형식을 해석할 수 없는 상태를 '이벤트 없음' 통과로 바꾸지 않는다.
+  // 수집된 일정에서 48h 안에 이벤트가 없을 때만 통과이고, 원천 부재·형식 불명은 대기(미수신)다.
   var eventSnap = window.DATA_SNAPSHOT || {};
-  var fomcMatch = String(eventSnap.fomcNext || '').match(/^(\d{4}-\d{2}-)(\d{2})~(\d{2})$/);
-  if (fomcMatch) eventDates.push(fomcMatch[1] + fomcMatch[2], fomcMatch[1] + fomcMatch[3]);
-  else if (/^\d{4}-\d{2}-\d{2}$/.test(eventSnap.fomcNext || '')) eventDates.push(eventSnap.fomcNext);
-  if (/^\d{4}-\d{2}-\d{2}$/.test(eventSnap.cpiNext || '')) eventDates.push(eventSnap.cpiNext);
-  if (/^\d{4}-\d{2}-\d{2}$/.test(eventSnap.bokNext || '')) eventDates.push(eventSnap.bokNext);
-  var now = new Date();
-  var nearEvent = false;
-  eventDates.forEach(function(ds) {
-    var d = new Date(ds + 'T00:00:00');
-    var diff = (d - now) / (1000 * 60 * 60);
-    if (diff > -24 && diff < 48) nearEvent = true;
-  });
-  setCheck('ec-event', !nearEvent, nearEvent ? '48h 이내 이벤트' : '이벤트 없음');
+  var eventDates = [];
+  var eventFieldsPresent = 0;
+  var eventFieldsParsed = 0;
+  var _collectEventField = function(raw, rangeForm) {
+    var s = String(raw == null ? '' : raw).trim();
+    if (!s) return;
+    eventFieldsPresent++;
+    var range = rangeForm ? s.match(/^(\d{4}-\d{2}-)(\d{2})~(\d{2})$/) : null;
+    if (range) { eventDates.push(range[1] + range[2], range[1] + range[3]); eventFieldsParsed++; return; }
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) { eventDates.push(s); eventFieldsParsed++; }
+  };
+  _collectEventField(eventSnap.fomcNext, true);
+  _collectEventField(eventSnap.cpiNext, false);
+  _collectEventField(eventSnap.bokNext, false);
+  if (eventFieldsParsed === 0) {
+    setCheck('ec-event', null, eventFieldsPresent > 0 ? '일정 형식 확인 불가' : '경제 일정 미수신');
+  } else {
+    var now = new Date();
+    var nearEvent = false;
+    eventDates.forEach(function(ds) {
+      var d = new Date(ds + 'T00:00:00');
+      var diff = (d - now) / (1000 * 60 * 60);
+      if (diff > -24 && diff < 48) nearEvent = true;
+    });
+    setCheck('ec-event', !nearEvent, nearEvent ? '48h 이내 이벤트' : '48h 이내 일정 없음');
+  }
 
   // 요약
   var sumEl = document.getElementById('entry-check-summary');
@@ -871,13 +880,16 @@ function refreshSignalDashboard() {
   // v52.65 아이보리 2a: 히어로 인라인 5팩터 미니바 — "가중 기여도/만점" 표기(시안과 동일 포맷)
   var heroFactorsEl = document.getElementById('signal-hero-factors');
   if (heroFactorsEl) {
-    var _hfClamp = function(v) { var n = Number(v); return Math.max(0, Math.min(100, isFinite(n) ? n : 0)); };
+    // P1164/B01: 미수신 구성요소를 0점으로 만들지 않는다. renderScoreBars()는 같은
+    // 구성요소의 null을 '—'로 표시하는데 이 미니바만 Number(null)=0으로 '0/25'를 만들었다.
+    var _hfClamp = function(v) { var n = Number(v); return (v == null || !isFinite(n)) ? null : Math.max(0, Math.min(100, n)); };
+    var _hfVal = function(v, weight) { var c = _hfClamp(v); return c == null ? null : Math.round(c * weight); };
     var hfComps = [
-      { label: '변동성', v: Math.round(_hfClamp(scores.volScore) * 0.25), max: 25 },
-      { label: '모멘텀', v: Math.round(_hfClamp(scores.momScore) * 0.25), max: 25 },
-      { label: '추세',   v: scores.trendScore == null ? null : Math.round(_hfClamp(scores.trendScore) * 0.20), max: 20 },
-      { label: '시장폭', v: scores.breadthScore == null ? null : Math.round(_hfClamp(scores.breadthScore) * 0.20), max: 20 },
-      { label: '거시',   v: Math.round(_hfClamp(scores.macroScore) * 0.10), max: 10 }
+      { label: '변동성', v: _hfVal(scores.volScore, 0.25), max: 25 },
+      { label: '모멘텀', v: _hfVal(scores.momScore, 0.25), max: 25 },
+      { label: '추세',   v: _hfVal(scores.trendScore, 0.20), max: 20 },
+      { label: '시장폭', v: _hfVal(scores.breadthScore, 0.20), max: 20 },
+      { label: '거시',   v: _hfVal(scores.macroScore, 0.10), max: 10 }
     ];
     heroFactorsEl.innerHTML = hfComps.map(function(c) {
       var pct = c.v == null ? 0 : Math.round((c.v / c.max) * 100);

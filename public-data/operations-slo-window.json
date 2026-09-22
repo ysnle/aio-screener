@@ -1,16 +1,335 @@
 {
-  "schemaVersion": "operations-slo-window.v2",
+  "schemaVersion": "operations-slo-window.v3",
   "status": "NOT_CERTIFIED",
-  "observedAt": "2026-08-25T00:00:00+09:00",
+  "observedAt": "2026-08-24T15:00:00.000Z",
   "collectionMode": "SOURCE_TEMPLATE_ONLY",
-  "targets": { "artifactSuccessRate30d": 0.995, "watchdogSuccessRate30d": 0.995, "exactSourceIdentityCoverage": 1, "consecutiveFailureAlertAt": 2 },
-  "windows": {
-    "7d": { "requiredDays": 7, "observedDays": 0, "status": "INSUFFICIENT_EVIDENCE", "artifact": null, "watchdog": null, "source": "operator-runtime-artifact-required" },
-    "30d": { "requiredDays": 30, "observedDays": 0, "status": "INSUFFICIENT_EVIDENCE", "artifact": null, "watchdog": null, "source": "operator-runtime-artifact-required" }
+  "query": {
+    "repository": "ysnle/aio-screener",
+    "cutoff": "2026-08-24T15:00:00.000Z",
+    "workflows": {
+      "market": "refresh-data.yml",
+      "screener": "refresh-screener.yml",
+      "watchdog": "data-watchdog.yml"
+    },
+    "completeness": {
+      "market": {
+        "workflow": "refresh-data.yml",
+        "pagesFetched": 0,
+        "maxPages": 10,
+        "paginationComplete": false,
+        "truncated": null,
+        "excluded": null
+      },
+      "screener": {
+        "workflow": "refresh-screener.yml",
+        "pagesFetched": 0,
+        "maxPages": 10,
+        "paginationComplete": false,
+        "truncated": null,
+        "excluded": null
+      },
+      "watchdog": {
+        "workflow": "data-watchdog.yml",
+        "pagesFetched": 0,
+        "maxPages": 10,
+        "paginationComplete": false,
+        "truncated": null,
+        "excluded": null
+      },
+      "alerts": {
+        "pagesFetched": 0,
+        "maxPages": 3,
+        "paginationComplete": false
+      }
+    }
   },
-  "metrics": { "artifact": null, "watchdog": null },
-  "failureRecovery": { "failureCount": null, "recoveryCount": null, "consecutiveFailuresMax": null, "dedupedAlerts": null, "status": "INSUFFICIENT_EVIDENCE" },
-  "revisionLanes": { "liveRevision": null, "dataRevision": null, "localFixturePromotesLive": false, "sourceShaCoverage": null },
-  "certification": { "thirtyDaySlo": "OPERATOR_REQUIRED", "alertDedupe": "OPERATOR_REQUIRED", "publicPromotionAllowed": false },
-  "reason": "This checked-in file is a fail-closed source template. The watchdog uploads a private runtime artifact built from GitHub Actions history; local fixtures never promote it."
+  "targets": {
+    "artifactSuccessRate30d": 0.995,
+    "watchdogSuccessRate30d": 0.995,
+    "exactSourceIdentityCoverage": 1,
+    "scheduledArrivalRate": 0.9,
+    "consecutiveFailureAlertAt": 2
+  },
+  "domains": {
+    "market": {
+      "workflow": "refresh-data.yml",
+      "required": true,
+      "expectedRuns": null,
+      "observedRuns": 0,
+      "scheduledArrivalRate": null,
+      "manualRunsExcluded": 0,
+      "successRate": null,
+      "observedDays": 0,
+      "status": "NOT_OBSERVED"
+    },
+    "screener": {
+      "workflow": "refresh-screener.yml",
+      "required": true,
+      "expectedRuns": null,
+      "observedRuns": 0,
+      "scheduledArrivalRate": null,
+      "manualRunsExcluded": 0,
+      "successRate": null,
+      "observedDays": 0,
+      "status": "NOT_OBSERVED"
+    },
+    "watchdog": {
+      "workflow": "data-watchdog.yml",
+      "required": true,
+      "expectedRuns": null,
+      "observedRuns": 0,
+      "scheduledArrivalRate": null,
+      "manualRunsExcluded": 0,
+      "successRate": null,
+      "observedDays": 0,
+      "status": "NOT_OBSERVED"
+    }
+  },
+  "windows": {
+    "7d": {
+      "requiredDays": 7,
+      "observedDays": 0,
+      "status": "INSUFFICIENT_EVIDENCE",
+      "domains": {
+        "market": {
+          "workflow": "refresh-data.yml",
+          "required": true,
+          "expectedRuns": null,
+          "observedRuns": 0,
+          "manualRunsExcluded": 0,
+          "cancelledRuns": 0,
+          "scheduledArrivalRate": null,
+          "completed": 0,
+          "succeeded": 0,
+          "failed": 0,
+          "successRate": null,
+          "observedDays": 0,
+          "exactSourceIdentityCoverage": null,
+          "status": "NOT_OBSERVED"
+        },
+        "screener": {
+          "workflow": "refresh-screener.yml",
+          "required": true,
+          "expectedRuns": null,
+          "observedRuns": 0,
+          "manualRunsExcluded": 0,
+          "cancelledRuns": 0,
+          "scheduledArrivalRate": null,
+          "completed": 0,
+          "succeeded": 0,
+          "failed": 0,
+          "successRate": null,
+          "observedDays": 0,
+          "exactSourceIdentityCoverage": null,
+          "status": "NOT_OBSERVED"
+        },
+        "watchdog": {
+          "workflow": "data-watchdog.yml",
+          "required": true,
+          "expectedRuns": null,
+          "observedRuns": 0,
+          "manualRunsExcluded": 0,
+          "cancelledRuns": 0,
+          "scheduledArrivalRate": null,
+          "completed": 0,
+          "succeeded": 0,
+          "failed": 0,
+          "successRate": null,
+          "observedDays": 0,
+          "exactSourceIdentityCoverage": null,
+          "status": "NOT_OBSERVED"
+        }
+      },
+      "coverage": {
+        "requiredDomains": [
+          "market",
+          "screener",
+          "watchdog"
+        ],
+        "missingDomains": [
+          "market",
+          "screener",
+          "watchdog"
+        ],
+        "incompleteSources": [
+          "market",
+          "screener",
+          "watchdog",
+          "alerts"
+        ],
+        "everyRequiredDomainObserved": false,
+        "everySourcePaginated": false
+      },
+      "artifact": {
+        "completed": 0,
+        "succeeded": 0,
+        "failed": 0,
+        "successRate": null,
+        "observedDays": 0,
+        "exactSourceIdentityCoverage": null
+      },
+      "watchdog": {
+        "workflow": "data-watchdog.yml",
+        "required": true,
+        "expectedRuns": null,
+        "observedRuns": 0,
+        "manualRunsExcluded": 0,
+        "cancelledRuns": 0,
+        "scheduledArrivalRate": null,
+        "completed": 0,
+        "succeeded": 0,
+        "failed": 0,
+        "successRate": null,
+        "observedDays": 0,
+        "exactSourceIdentityCoverage": null,
+        "status": "NOT_OBSERVED"
+      },
+      "source": "operator-runtime-artifact-required"
+    },
+    "30d": {
+      "requiredDays": 30,
+      "observedDays": 0,
+      "status": "INSUFFICIENT_EVIDENCE",
+      "domains": {
+        "market": {
+          "workflow": "refresh-data.yml",
+          "required": true,
+          "expectedRuns": null,
+          "observedRuns": 0,
+          "manualRunsExcluded": 0,
+          "cancelledRuns": 0,
+          "scheduledArrivalRate": null,
+          "completed": 0,
+          "succeeded": 0,
+          "failed": 0,
+          "successRate": null,
+          "observedDays": 0,
+          "exactSourceIdentityCoverage": null,
+          "status": "NOT_OBSERVED"
+        },
+        "screener": {
+          "workflow": "refresh-screener.yml",
+          "required": true,
+          "expectedRuns": null,
+          "observedRuns": 0,
+          "manualRunsExcluded": 0,
+          "cancelledRuns": 0,
+          "scheduledArrivalRate": null,
+          "completed": 0,
+          "succeeded": 0,
+          "failed": 0,
+          "successRate": null,
+          "observedDays": 0,
+          "exactSourceIdentityCoverage": null,
+          "status": "NOT_OBSERVED"
+        },
+        "watchdog": {
+          "workflow": "data-watchdog.yml",
+          "required": true,
+          "expectedRuns": null,
+          "observedRuns": 0,
+          "manualRunsExcluded": 0,
+          "cancelledRuns": 0,
+          "scheduledArrivalRate": null,
+          "completed": 0,
+          "succeeded": 0,
+          "failed": 0,
+          "successRate": null,
+          "observedDays": 0,
+          "exactSourceIdentityCoverage": null,
+          "status": "NOT_OBSERVED"
+        }
+      },
+      "coverage": {
+        "requiredDomains": [
+          "market",
+          "screener",
+          "watchdog"
+        ],
+        "missingDomains": [
+          "market",
+          "screener",
+          "watchdog"
+        ],
+        "incompleteSources": [
+          "market",
+          "screener",
+          "watchdog",
+          "alerts"
+        ],
+        "everyRequiredDomainObserved": false,
+        "everySourcePaginated": false
+      },
+      "artifact": {
+        "completed": 0,
+        "succeeded": 0,
+        "failed": 0,
+        "successRate": null,
+        "observedDays": 0,
+        "exactSourceIdentityCoverage": null
+      },
+      "watchdog": {
+        "workflow": "data-watchdog.yml",
+        "required": true,
+        "expectedRuns": null,
+        "observedRuns": 0,
+        "manualRunsExcluded": 0,
+        "cancelledRuns": 0,
+        "scheduledArrivalRate": null,
+        "completed": 0,
+        "succeeded": 0,
+        "failed": 0,
+        "successRate": null,
+        "observedDays": 0,
+        "exactSourceIdentityCoverage": null,
+        "status": "NOT_OBSERVED"
+      },
+      "source": "operator-runtime-artifact-required"
+    }
+  },
+  "metrics": {
+    "artifact": {
+      "completed": 0,
+      "succeeded": 0,
+      "failed": 0,
+      "successRate": null,
+      "observedDays": 0,
+      "exactSourceIdentityCoverage": null
+    },
+    "watchdog": {
+      "workflow": "data-watchdog.yml",
+      "required": true,
+      "expectedRuns": null,
+      "observedRuns": 0,
+      "manualRunsExcluded": 0,
+      "cancelledRuns": 0,
+      "scheduledArrivalRate": null,
+      "completed": 0,
+      "succeeded": 0,
+      "failed": 0,
+      "successRate": null,
+      "observedDays": 0,
+      "exactSourceIdentityCoverage": null,
+      "status": "NOT_OBSERVED"
+    }
+  },
+  "failureRecovery": {
+    "failureCount": 0,
+    "recoveryCount": 0,
+    "consecutiveFailuresMax": 0,
+    "dedupedAlerts": null,
+    "status": "INSUFFICIENT_EVIDENCE"
+  },
+  "revisionLanes": {
+    "liveRevision": null,
+    "dataRevision": null,
+    "localFixturePromotesLive": false,
+    "sourceShaCoverage": null
+  },
+  "certification": {
+    "thirtyDaySlo": "OPERATOR_REQUIRED",
+    "alertDedupe": "OPERATOR_REQUIRED",
+    "publicPromotionAllowed": false
+  },
+  "reason": "This checked-in file is a fail-closed source template. The watchdog uploads a private runtime artifact built from GitHub Actions history; local fixtures never promote it. Per-domain lanes and query completeness are published so a missing data domain cannot be hidden by another domain's aggregate."
 }

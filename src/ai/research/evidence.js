@@ -60,7 +60,13 @@ export function createEvidenceDocument(input = {}) {
     locale: text(input.locale) || null,
     entities: Object.freeze(Array.isArray(input.entities) ? input.entities.map(text).filter(Boolean) : []),
     eventTime: input.eventTime || input.publishedAt || null,
-    status: canonical ? text(input.status || 'RESULTS_FOUND').toUpperCase() : 'INVALID'
+    status: canonical ? text(input.status || 'RESULTS_FOUND').toUpperCase() : 'INVALID',
+    // P1172 (05 A05): the request context a document was collected for. Without it a later question
+    // cannot tell this set from another request's set, so the floor had to treat "official domain"
+    // as "this question is answered". Declared here (not in the caller) so normalization keeps it.
+    requestId: text(input.requestId) || null,
+    queryId: text(input.queryId) || text(input.requestId) || null,
+    entity: text(input.entity) || null
   };
   document.allowedUse = rights === 'BLOCKED' ? 'none' : contentDepth === 'SNIPPET' || contentDepth === 'SUMMARY' ? 'reference-only' : 'research-reference';
   return Object.freeze(document);
@@ -236,6 +242,43 @@ function evidenceFloor(documents, citations, stop, { requireCurrentClaims = fals
     (!requireCurrentClaims || currentClaimsAllowed === true);
 }
 
+/**
+ * P1172 (05 A05): a citation set must belong to the request it is used for.
+ *
+ * The floor checks domains, counts and content depth, so a cross-question set with an official
+ * domain and enough independent primary sources satisfied it — "this URL is official" became
+ * "this question is answered". Citations and documents are therefore bound to a request/query id
+ * (and entity, where the question names one). An unbound set cannot be distinguished from another
+ * request's set, so it is reported as unchecked instead of being silently promoted.
+ */
+export function verifyEvidenceBinding({ citations = [], documents = [], expectedQueryId = null, expectedQueryIds = null, expectedEntity = null } = {}) {
+  const rows = [...(Array.isArray(citations) ? citations : []), ...(Array.isArray(documents) ? documents : [])];
+  const declared = rows.map((row) => row?.queryId || row?.requestId || null).filter(Boolean).map(String);
+  const entities = rows.map((row) => row?.entity || row?.instrumentId || null).filter(Boolean).map(String);
+  const expected = [...(Array.isArray(expectedQueryIds) ? expectedQueryIds : []), ...(expectedQueryId == null ? [] : [expectedQueryId])]
+    .filter(Boolean).map(String);
+  const entity = expectedEntity == null ? null : String(expectedEntity);
+  if (!expected.length) {
+    return Object.freeze({
+      ok: true, checked: false, status: 'UNVERIFIABLE',
+      reason: 'the caller did not declare which request this answer belongs to, so a citation binding cannot be judged'
+    });
+  }
+  if (!declared.length) {
+    return Object.freeze({
+      ok: true, checked: false, status: 'UNBOUND',
+      reason: 'no citation declares a request binding, so a set collected for another question is indistinguishable from this one'
+    });
+  }
+  if (declared.some((value) => !expected.includes(value))) {
+    return Object.freeze({ ok: false, checked: true, status: 'MISMATCHED_QUERY', reason: 'citation belongs to another request' });
+  }
+  if (entity && entities.length && entities.some((value) => value.toUpperCase() !== entity.toUpperCase())) {
+    return Object.freeze({ ok: false, checked: true, status: 'MISMATCHED_ENTITY', reason: 'citation belongs to another entity' });
+  }
+  return Object.freeze({ ok: true, checked: true, status: 'BOUND', reason: null });
+}
+
 /** Execute the actual producer -> consumer contract instead of checking names. */
 export function evaluateResearchEvidenceFloor(input = {}) {
   const questionPlan = input.questionPlan || {};
@@ -254,7 +297,15 @@ export function evaluateResearchEvidenceFloor(input = {}) {
     currentClaimsAllowed: external.researchEvidence.currentClaimsAllowed
   });
   const nativeReady = evidenceFloor(nativeDocuments, nativeCitations, stop);
-  const ready = externalReady || nativeReady;
+  // P1172 (05 A05): 도메인·개수·깊이가 충족돼도 그 출처가 **이 질문의 것**인지는 별개다. 취소·재시도·
+  // 늦은 응답의 citation이 다른 요청의 답을 채우지 못하도록 요청 결속을 함께 판정한다.
+  const binding = verifyEvidenceBinding({
+    citations: [...externalCitations, ...nativeCitations],
+    documents: [...externalDocuments, ...nativeDocuments],
+    expectedQueryIds: [questionPlan.queryId, input.queryId, input.requestId].filter(Boolean),
+    expectedEntity: questionPlan.entity || (Array.isArray(questionPlan.entities) ? questionPlan.entities[0] : null) || input.entity || null
+  });
+  const ready = (externalReady || nativeReady) && binding.ok;
   const documents = externalReady ? externalDocuments : nativeReady ? nativeDocuments :
     (externalDocuments.length ? externalDocuments : nativeDocuments);
   const citations = externalReady ? externalCitations : nativeReady ? nativeCitations :
@@ -268,7 +319,12 @@ export function evaluateResearchEvidenceFloor(input = {}) {
   return Object.freeze({
     required: true,
     ready,
-    reason: ready ? 'research-evidence-floor-met' : input.error ? 'research-provider-error' : 'research-evidence-floor-not-met',
+    reason: ready
+      ? 'research-evidence-floor-met'
+      : !binding.ok ? `research-evidence-binding-${String(binding.status).toLowerCase()}`
+        : input.error ? 'research-provider-error' : 'research-evidence-floor-not-met',
+    evidenceBinding: binding,
+    bindingChecked: binding.checked,
     evidenceDocuments: Object.freeze([...documents]),
     eligibleEvidenceCount: eligibleDocuments.length,
     excludedEvidenceCount: Math.max(0, documents.length - eligibleDocuments.length),

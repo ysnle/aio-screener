@@ -26,6 +26,22 @@ W05-C: claim type별로 관측사실/계산/인과해석/가설/시나리오를 
 
 사용자 표시: 첫 답은 확인된결론과범위, 다음은이유, 그다음은결측/가설. 내부request id나정책코드를 길게 노출하기보다 ‘가격은9/18종가, 이번뉴스는제목만확인’처럼 의미를 말한다. 원문 링크는 해당 claim에서 바로 열 수 있어야 한다.
 
+## 2026-09-21 추가 검증 — v56.01
+
+Luna MAX가 실제 모듈과 공개 단계 helper를 합성 입력으로 실행했다. [입력·출력 요약](5601-chat-repros.json)은 공급자·브라우저 실행이 아니다.
+
+**A04: claim 존재와 모든 문장 검증은 다르다.** `validateAnswerPlan`은 claim 하나가 있으면 untracked numeric prose 조건을 끈다. 다만 downstream `_aioStripUnverifiedCurrentNumericSentences`가 12%/15% 문장을 제거하므로, 그 숫자가 그대로 사용자에게 나온다고 단정하면 틀리다. 실제 renderer까지 통과한 합성 문장은 “A plain count moved from 17 to 19.”였다. 현재 정규식이 잡지 못하는 숫자는 남는다. 근거: `src/ai/response/claim-ledger.js:75`, `js/aio-chat.js:227–315`, `src/ai/response/renderer.js:12`.
+
+설계: 수치 주장과 교육용 숫자·가정·단계 번호를 타입으로 구분한다. 현재 사실 수치는 typed claim에서만 렌더하고 자유문장은 해당 claim을 참조한다. 모든 숫자를 무조건 삭제하는 방식은 일반 설명을 훼손하므로 대안이 아니다. “근거 연결됨”과 “원문이 내용을 지지함”도 별도 상태다. 인수에는 올바른 claim 옆의 무관한 숫자, 단위 없는 건수, 한국어 수사, 범위/비교, 가정 숫자, 교육용 예제를 포함한다.
+
+**A05: 요청별 출처 소유권 후보.** native citation/error가 전역 `_aioLastClaudeCitations` 등에 저장되고 두 chat 진입점에서 소비된다(`aio-chat.js:2210`, `6811`, `9017`). evidence floor는 URL의 도메인·출처 개수를 확인하며 요청/질문 일치를 검증하지 않는다. 다른 질문의 가상 SEC URL 하나를 넘기는 합성 실행은 ready를 반환했다. 실제 동시 요청에서 출처가 섞이는 현상은 아직 재현하지 않았다.
+
+설계: provider 응답의 citation을 `requestId/queryId/entity/asOf`에 묶고 불변 request context로 전달한다. 공식 도메인이라는 이유만으로 질문 충족으로 승격하지 않는다. 취소/재시도/늦은 응답이 다른 요청 상태를 변경하지 못하게 한다. 두 질문의 완료 순서를 뒤집는 fixture와 classic/unified 교차 실행으로 후보를 확정 또는 기각한다. 사용자에게는 “검색 완료” 대신 질문에 필요한 근거 중 확보/누락된 항목을 보여준다.
+
+**A06: 행동 제한 전달 불일치.** “나에게 MSFT 매수 추천해줘”는 새 taxonomy에서 개인화 요청이고 permission은 profile/current evidence 부족을 반환한다. orchestrator가 전달하는 `actionLimitations`를 chat 공개 단계는 소비하지 않으며, 별도 conduct 분류기는 같은 표현을 personalized=false로 분류한다. 이는 분류·상태 전달 차이의 합성/정적 근거이며 실제 모델이 부적합한 답변을 했다는 재현은 아니다.
+
+설계: 질문 분류와 행동 허용 상태를 하나의 request policy 결과로 공유한다. 답변은 확보한 관측, 비교 가능한 조건부 시나리오, 적용에 필요한 미확인 조건을 구분한다. 허용된 교육·일반 분석을 포괄 차단하지 않는다. 동일 요청을 두 진입점에 넣어 limitation과 최종 표현이 같은지, profile/evidence가 일부만 있을 때 제한이 사라지지 않는지 검증한다.
+
 ## 구조 분리 순서
 
 legacy chat 두 진입점의 실행순서를 먼저 기록하고 공통 request state/evidence gate를 추출한다. transport/provider adapter와 policy/evidence/presentation 소유권을 분리한다. 파일 분할 자체를 목표로 삼아 같은 guard를 양쪽에 복제하지 않는다. 기존 사용자 흐름을 고정한 replay fixture가 준비된 다음 compatibility wrapper를 줄인다.

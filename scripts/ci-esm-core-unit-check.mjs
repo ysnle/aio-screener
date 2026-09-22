@@ -1293,6 +1293,90 @@ const { renderSentimentSummaryProjection } = await load('src/ui/projections/sent
   const lockedRead = createPortfolioProvider({ read: () => ({ holdings: [], holdingsKnown: false, cash: null, cashKnown: false, readState: 'locked', status: 'locked' }) }).readCurrent();
   const lockedSurface = derivePortfolioSurface({ state: lockedRead, liveData: {}, vix: null });
   if (lockedSurface.readState !== 'locked' || lockedSurface.totalAssets !== null) fail(`W02/P1143 portfolio-provider: locked read leaked a valuation, got ${JSON.stringify(lockedSurface)}`);
+
+  // P1175 (11 P11-02): 통화는 합산의 단위다. 100 USD와 70000 KRW를 환산 근거 없이 더해 complete라고
+  // 말하지 않는다. 반대 방향(같은 통화)은 그대로 합산되어야 하므로 검사가 판별력을 갖는다.
+  const mixedCurrency = derivePortfolioSurface({
+    state: { readState: 'ready', holdingsKnown: true, status: 'current', cash: 0, cashKnown: true, holdings: [
+      { symbol: 'AAA', shares: 1, avgCost: 90, price: 100, currency: 'USD' },
+      { symbol: 'BBB', shares: 1, avgCost: 60000, price: 70000, currency: 'KRW' }
+    ] },
+    liveData: {}, vix: null
+  });
+  if (mixedCurrency.totalAssets !== null || mixedCurrency.positionValue !== null
+    || mixedCurrency.valuationState === 'complete' || mixedCurrency.currencyState !== 'mixed-without-conversion'
+    || mixedCurrency.currencyBasis !== 'mixed' || mixedCurrency.baseCurrency !== null
+    || mixedCurrency.declaredCurrencies.join(',') !== 'USD,KRW') {
+    fail(`P1175/P11-02 portfolio-surface: mixed currencies were summed into one complete valuation, got ${JSON.stringify(mixedCurrency)}`);
+  }
+  if (mixedCurrency.totalPnl !== null || mixedCurrency.sectorBreakdown.length !== 0) fail(`P1175/P11-02 portfolio-surface: a mixed-currency portfolio still produced derived percentages, got ${JSON.stringify(mixedCurrency)}`);
+  const singleCurrency = derivePortfolioSurface({
+    state: { readState: 'ready', holdingsKnown: true, status: 'current', cash: 50, cashKnown: true, baseCurrency: 'USD', holdings: [
+      { symbol: 'AAA', shares: 1, avgCost: 90, price: 100, currency: 'USD' },
+      { symbol: 'BBB', shares: 2, avgCost: 10, price: 20, currency: 'USD' }
+    ] },
+    liveData: {}, vix: null
+  });
+  if (singleCurrency.totalAssets !== 190 || singleCurrency.valuationState !== 'complete'
+    || singleCurrency.currencyState !== 'declared-single' || singleCurrency.baseCurrency !== 'USD') {
+    fail(`P1175/P11-02 portfolio-surface: a declared single currency must still total, got ${JSON.stringify(singleCurrency)}`);
+  }
+  const undeclaredCurrency = derivePortfolioSurface({ state: { readState: 'ready', holdingsKnown: true, status: 'current', holdings: [{ symbol: 'AAA', shares: 1, avgCost: 90, price: 100 }], cash: 0, cashKnown: true }, liveData: {}, vix: null });
+  if (undeclaredCurrency.totalAssets !== 100 || undeclaredCurrency.currencyState !== 'undeclared-single-basis-assumed' || undeclaredCurrency.baseCurrency !== null) {
+    fail(`P1175/P11-02 portfolio-surface: an undeclared currency must keep single-basis behaviour and disclose the assumption, got ${JSON.stringify(undeclaredCurrency)}`);
+  }
+  const { normalizePortfolio } = await load('src/data/normalize/portfolio.js');
+  const normalizedCurrency = normalizePortfolio({ baseCurrency: 'usd', cashCurrency: 'KRW', holdings: [{ symbol: 'AAA', shares: 1, currency: 'krw', costCurrency: 'usd' }] });
+  if (normalizedCurrency.baseCurrency !== 'USD' || normalizedCurrency.cashCurrency !== 'KRW'
+    || normalizedCurrency.holdings[0].currency !== 'KRW' || normalizedCurrency.holdings[0].costCurrency !== 'USD') {
+    fail(`P1175/P11-02 normalize: the declared currency basis was dropped, got ${JSON.stringify(normalizedCurrency)}`);
+  }
+  if (normalizePortfolio({ holdings: [{ symbol: 'AAA', shares: 1 }] }).holdings[0].currency !== null) fail('P1175/P11-02 normalize: a missing currency was inferred instead of staying unknown');
+
+  // P1176 (22 PFR01/PFR06): 목표가와 목표비중은 서로 다른 타입이다. legacy 입력은 빈 칸을 0으로
+  // 직렬화했고(runtime reader의 `Number(null)===0`이 그 0을 보존), 표는 그것을 $0.00 + -100%
+  // 잠재수익으로 그렸다. 0원 목표가는 의미가 없으므로 미설정이고, 0% 비중은 실제 값이다.
+  const unsetTarget = normalizePortfolio({ holdings: [{ symbol: 'AAA', shares: 1, avgCost: 90, price: 100, target: 0 }] });
+  if (unsetTarget.holdings[0].target !== null) fail(`P1176/PFR06 normalize: a legacy blank target (0) still read as a real price, got ${JSON.stringify(unsetTarget.holdings[0])}`);
+  for (const blank of [null, undefined, NaN, '', 'abc', -5]) {
+    if (normalizePortfolio({ holdings: [{ symbol: 'AAA', shares: 1, target: blank }] }).holdings[0].target !== null) fail(`P1176/PFR06 normalize: an absent/invalid price target (${String(blank)}) became a value`);
+  }
+  if (normalizePortfolio({ holdings: [{ symbol: 'AAA', shares: 1, target: 150 }] }).holdings[0].target !== 150) fail('P1176/PFR06 normalize: a real price target did not survive');
+  const weightZero = normalizePortfolio({ holdings: [{ symbol: 'AAA', shares: 1, target: 0, targetWeight: 0 }] });
+  if (weightZero.holdings[0].targetWeight !== 0 || weightZero.holdings[0].target !== null) {
+    fail(`P1176/PFR01 normalize: an explicit 0% weight and an absent price target were conflated, got ${JSON.stringify(weightZero.holdings[0])}`);
+  }
+  if (normalizePortfolio({ holdings: [{ symbol: 'AAA', shares: 1, targetWeight: 150 }] }).holdings[0].targetWeight !== null) fail('P1176/PFR01 normalize: an out-of-range target weight became a value');
+
+  const { createRuntimeReaders } = await load('src/data/runtime-readers.js');
+  const legacyRead = createRuntimeReaders({
+    root: { isPortfolioLocked: () => false, localStorage: { getItem: () => null }, getPortfolioData: () => [
+      { ticker: 'AAA', qty: 1, cost: 90, target: 0 },
+      { ticker: 'BBB', qty: 1, cost: 90, target: 25, targetWeight: 0 }
+    ] },
+    now: () => Date.parse('2026-09-22T00:00:00Z')
+  }).readPortfolio();
+  if (legacyRead.holdings[0]?.target !== null) fail(`P1176/PFR06 runtime-reader: Number(null)===0 resurrected the blank target, got ${JSON.stringify(legacyRead.holdings[0])}`);
+  if (legacyRead.holdings[1]?.target !== 25 || legacyRead.holdings[1]?.targetWeight !== 0) {
+    fail(`P1176/PFR01 runtime-reader: a real target or an explicit 0% weight was lost, got ${JSON.stringify(legacyRead.holdings[1])}`);
+  }
+  // P1176 (22 PFR01): 같은 값의 두 번째 read 경계 — compatibility facade도 `Number(null)===0`으로
+  // 미설정을 0으로 만들고 있었다. 두 경로가 같은 값을 다르게 읽으면 소비자마다 화면이 갈린다.
+  const { createLegacyFacade } = await load('src/legacy/compatibility-facade.js');
+  const facadeRead = createLegacyFacade({ getPortfolioData: () => [{ ticker: 'AAA', qty: 1, cost: 90, target: 0 }, { ticker: 'BBB', qty: 1, cost: 90, target: 25 }] }, {}).readPortfolio();
+  if (facadeRead.holdings[0]?.target !== null || facadeRead.holdings[1]?.target !== 25) {
+    fail(`P1176/PFR01 legacy-facade: the facade resurrected a blank target while the runtime reader did not, got ${JSON.stringify(facadeRead.holdings.map((row) => [row.symbol, row.target]))}`);
+  }
+
+  // 22 단위 1 인수 fixture: 주식 100 + 현금 900의 주식 노출은 총자산 대비 10%다.
+  const exposureFixture = derivePortfolioSurface({
+    state: { readState: 'ready', holdingsKnown: true, holdings: [{ symbol: 'AAA', shares: 1, avgCost: 90, price: 100 }], cash: 900, cashKnown: true },
+    liveData: {}, vix: null
+  });
+  if (exposureFixture.totalAssets !== 1000 || exposureFixture.positionValue !== 100
+    || exposureFixture.exposurePct !== 10 || exposureFixture.cashPct !== 90 || exposureFixture.valuationState !== 'complete') {
+    fail(`22/PFR01 portfolio-surface: equity exposure must be measured against total assets including cash, got ${JSON.stringify(exposureFixture)}`);
+  }
 }
 {
   const { deriveSecReport } = await load('src/domain/fundamental/sec-report.js');

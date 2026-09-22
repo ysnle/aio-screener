@@ -243,9 +243,14 @@ function renderPortfolioTable(documentRef, page, state, surface) {
     const pctCell = tableCell(documentRef, 'pf-th-pct', pnlPct == null ? '—' : `${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(1)}%`, 'text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;font-weight:700;');
     pctCell.style.color = pnlPct == null ? 'var(--text-muted)' : pnlPct >= 0 ? 'var(--green)' : 'var(--red)';
     row.appendChild(pctCell);
-    const targetCell = tableCell(documentRef, 'pf-th-target', finite(holding?.target) == null ? '미설정' : `$${finite(holding.target).toFixed(2)}`, 'text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;');
-    if (finite(holding?.target) != null && price != null && price > 0) {
-      const upside = (finite(holding.target) - price) / price * 100;
+    // P1176 (22 PFR01): `finite(0)`은 0이라 미설정 표시를 통과하지 못했다. legacy 테이블은 이미
+    // `target > 0`을 "설정됨"으로 정의하므로(js/aio-workspace.js), native도 같은 정의를 쓴다 —
+    // 저장된 0은 옛 "빈 칸" sentinel이고, $0.00 + -100% 잠재수익으로 그리지 않는다.
+    const targetValue = finite(holding?.target);
+    const targetSet = targetValue != null && targetValue > 0 ? targetValue : null;
+    const targetCell = tableCell(documentRef, 'pf-th-target', targetSet == null ? '미설정' : `$${targetSet.toFixed(2)}`, 'text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;');
+    if (targetSet != null && price != null && price > 0) {
+      const upside = (targetSet - price) / price * 100;
       const upsideNode = documentRef.createElement('div');
       upsideNode.textContent = `${upside >= 0 ? '+' : ''}${upside.toFixed(1)}%`;
       upsideNode.style.cssText = `font-size:10px;color:${upside >= 0 ? 'var(--green)' : 'var(--red)'};font-weight:600;`;

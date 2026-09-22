@@ -22,6 +22,7 @@ import { writeReconciliationStatus } from './build-reconciliation-status.mjs';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { deriveFredCycle } from './lib/refresh-continuity.mjs';
 import { percentileRank01, spearman } from './lib/rank-statistics.mjs';
+import { factorScopesByMarket, marketOfSymbol, sessionDateInMarket, timeZoneForMarket } from '../src/domain/market/session-time.js';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const OUT = `${__dir}/../public-data/data.json`;
@@ -2634,6 +2635,7 @@ function _calcSetupScreenFields(closes, adjCloses, highs, lows, volumes) {
 }
 
 async function _enrichPriceFactors(syms) {
+  const computedAt = new Date().toISOString();
   const results = await mapLimit(syms, 5, async (sym) => {
     const rows = await fetchHistory(_yhSym(sym), '1y');
     return {
@@ -2697,13 +2699,20 @@ async function _enrichPriceFactors(syms) {
       f.allowedUseCeiling = 'reference';
       f.rightsId = 'PUBLIC_REFERENCE';
       f.factorObservedAt = r.observedAt;
+      // P1170 (15 D04): barStart와 그 세션 날짜를 분리해 남긴다. factorObservedAt은 호환 필드로
+      // 유지하되 'bar-start' basis를 함께 발행해 관측시각으로 읽히지 않게 한다.
+      f.factorBarStart = r.observedAt;
+      f.factorSessionDate = sessionDateInMarket(r.observedAt, marketOfSymbol(r.sym));
+      f.factorSessionTimezone = timeZoneForMarket(marketOfSymbol(r.sym));
+      f.factorTimeBasis = 'bar-start';
+      f.factorComputedAt = computedAt;
       f.factorSourceKind = 'T3_PUBLIC_DELAYED';
       f.factorAllowedUse = 'research-relative-ranking-only';
       f.factorQuality = { status: r.observedAt ? 'CURRENT' : 'MISSING', stale: !r.observedAt, decisionUse: false, allowedUse: 'reference' };
       data[r.sym] = f; ok++;
     }
   }
-  return { data, results, ok };
+  return { data, results, ok, computedAt };
 }
 
 // Daily market breadth from the same price history used by the screener factors.
@@ -2822,7 +2831,7 @@ export async function enrichScreener() {
   };
 
   // 1단계: 가격 팩터 계산
-  const { data, results, ok } = await _enrichPriceFactors(syms);
+  const { data, results, ok, computedAt } = await _enrichPriceFactors(syms);
 
   // 2단계: FMP 밸류/퀄리티/어닝 병합(키 있을 때만 — 없으면 4팩터 폴백)
   let fmpResult = { data: null, hasKey: false, ok: 0, total: 0, planError: false };
@@ -2897,9 +2906,18 @@ export async function enrichScreener() {
   // data-live-price 라이브 갱신 경로로만 채워진다(미커버 종목은 '—').
   for (const sym in data) { if (data[sym] && 'price' in data[sym]) delete data[sym].price; }
 
+  // P1170 (15 D04): 혼합 시장의 전역 max 하나는 개별 종목의 최신성을 대표하지 못한다. 시장별로
+  // barStart 범위와 세션 기준일을 남기고, 값의 시간 기저를 basis로 표시한다.
+  const factorScopes = factorScopesByMarket(data);
+
   const payload = {
     asOf: new Date().toISOString(),
     factorObservedAt: breadth.segments.all.observedAt,
+    // factorObservedAt은 그 세션 일봉의 **바 시작**이며 종가 기반 팩터의 관측시각이 아니다.
+    factorTimeBasis: 'bar-start',
+    factorSessionDateByMarket: Object.fromEntries(Object.entries(factorScopes).map(([market, scope]) => [market, scope.sessionDate])),
+    factorBarStartByMarket: Object.fromEntries(Object.entries(factorScopes).map(([market, scope]) => [market, scope.barStart])),
+    factorComputedAt: computedAt,
     source: 'github-actions:yahoo-1y',
     universe: syms.length,
     ok,

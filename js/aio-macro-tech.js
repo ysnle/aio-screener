@@ -380,22 +380,29 @@ function updatePatternSignals() {
   let ld = window._liveData || {};
   var spy = ld['SPY'], vix = ld['^VIX'];
   if (!spy) return;
-  var chg = (spy.pct != null ? spy.pct : 0);
-  var vixP = vix ? vix.price : 20;
-  var vixChg = vix ? (vix.pct != null ? vix.pct : 0) : 0;
-  var hygPrice = _ldSafe('HYG','price');
-  var hygChg = ld['HYG'] ? (ld['HYG'].pct != null ? ld['HYG'].pct : 0) : 0;
+  // P1164/B02: 규칙 operand는 유한한 수일 때만 비교·표시에 쓴다. `_ldSafe`는 원천이 없으면 null을
+  // 돌려주는데 `null < 73`이 0으로 강제되어 위기 조건을 만족시킨 뒤 이어지는 .toFixed가
+  // TypeError를 던졌다(브라우저 콘솔 `updatePatternSignals` null.toFixed). 결측은 조건 불성립이다.
+  var _fin = function(v) { var n = Number(v); return (v == null || !isFinite(n)) ? null : n; };
+  var chg = _fin(spy.pct);
+  if (chg == null) chg = 0;
+  var vixP = _fin(vix && vix.price);
+  var vixChg = _fin(vix && vix.pct);
+  if (vixChg == null) vixChg = 0;
+  var hygPrice = _fin(_ldSafe('HYG','price'));
+  var hygChg = _fin(ld['HYG'] && ld['HYG'].pct);
+  if (hygChg == null) hygChg = 0;
 
   var signals = [];
 
   // ── 1. 저변동성 구간 (기존 가짜 BB 스퀴즈 대체) ──
-  if (Math.abs(chg) < 0.15 && vixP < 20) {
+  if (Math.abs(chg) < 0.15 && vixP != null && vixP < 20) {
     signals.push({ name: '저변동성 압축 구간', type: 'setup', icon: '',
       color: 'var(--data-purple)',
       detail: 'SPY 일일 변동 ±0.15% 미만 + VIX 20 이하 = 변동성이 극도로 압축된 상태. 역사적으로 저변동성 기간 후 큰 방향성 움직임이 뒤따르는 경우가 많습니다. 돌파 방향에 따라 빠른 진입 준비.',
       why: '변동성은 평균 회귀 특성이 있어, 극단적 저변동성은 큰 움직임의 전조일 수 있습니다.',
       importance: 'HIGH' });
-  } else if (Math.abs(chg) < 0.15) {
+  } else if (Math.abs(chg) < 0.15 && vixP != null) {
     signals.push({ name: '저변동성 구간', type: 'setup', icon: '',
       color: 'var(--data-purple)',
       detail: 'SPY 일일 변동 ±0.15% 미만이지만 VIX '+vixP.toFixed(1)+'로 내재 변동성은 높음 → 표면은 잠잠하나 내부 긴장 존재. 갑작스러운 방향 전환 가능.',
@@ -403,26 +410,26 @@ function updatePatternSignals() {
       importance: 'MED' });
   }
 
-  // ── 2. VIX 스파이크 (세분화) ──
-  if (vixP > 35 && vixChg > 10) {
+  // ── 2. VIX 스파이크 (세분화) ── (VIX 미수신이면 어느 구간도 주장하지 않는다)
+  if (vixP != null && vixP > 35 && vixChg > 10) {
     signals.push({ name: 'VIX 패닉 스파이크', type: 'risk', icon: '',
       color: 'var(--data-red)',
       detail: 'VIX ' + vixP.toFixed(1) + ' (일일 +' + vixChg.toFixed(1) + '%) → 극심한 공포! 당일 VIX 급등 + 절대 레벨 35+ = 패닉 매도 진행 중. 역사적으로 VIX 급등 후 1~3일 내 단기 반등이 발생하는 경우가 많지만, 하락 추세 중 반등은 "Dead Cat Bounce"일 수 있으니 추세 확인 필수.',
       why: 'VIX 일일 10%+ 급등은 옵션 시장의 공포 가격 책정을 반영. 극단적 공포는 단기 과매도를 유발합니다.',
       importance: 'HIGH' });
-  } else if (vixP > 30) {
+  } else if (vixP != null && vixP > 30) {
     signals.push({ name: 'VIX 공포 영역', type: 'risk', icon: '',
       color: 'var(--data-red)',
       detail: 'VIX ' + vixP.toFixed(1) + ' → 공포 영역. 역사적으로 노출 축소·헤지가 논의되던 환경입니다(지시 아님). 역발상 프레임워크는 VIX 하락 반전 "이후" 구간을 주목해왔습니다.',
       why: 'VIX 30+는 시장이 향후 30일간 연환산 30% 이상 변동을 예상한다는 의미입니다.',
       importance: 'HIGH' });
-  } else if (vixP > 25) {
+  } else if (vixP != null && vixP > 25) {
     signals.push({ name: 'VIX 경계 상승', type: 'warning', icon: '',
       color: 'var(--data-amber)',
       detail: 'VIX ' + vixP.toFixed(1) + ' → 불안감 증가. 아직 공포는 아니지만 포지션 사이즈 축소 권장. 25~30 구간은 "주의" 영역.',
       why: 'VIX 25 이상에서는 옵션 프리미엄이 비싸져 헤지 비용이 상승합니다.',
       importance: 'MED' });
-  } else if (vixP < 13) {
+  } else if (vixP != null && vixP < 13) {
     signals.push({ name: 'VIX 극저점 경고', type: 'warning', icon: '',
       color: 'var(--data-amber)',
       detail: 'VIX ' + vixP.toFixed(1) + ' → 극도의 안일함(Complacency). 역설적이지만 VIX 13 미만은 시장이 리스크를 과소평가하고 있을 수 있다는 경고. 보호 풋(Put) 매수가 저렴한 시기.',
@@ -545,18 +552,20 @@ function updatePatternSignals() {
     }
   }
 
-  // ── 8. 신용 스프레드 경고 (HYG 기반) ──
-  if (hygPrice < 73) {
-    signals.push({ name: '신용 스프레드 위기', type: 'risk', icon: '',
+  // ── 8. 고수익채권(HYG) 가격 경계 ──
+  // P1164/B02: HYG는 고수익채권 ETF '가격'이며 신용스프레드(OAS) 자체가 아니다. 이름·해석을
+  // 측정 대상에 맞춘다. 가격 원천이 없으면 위기 조건을 만들지 않는다.
+  if (hygPrice != null && hygPrice < 73) {
+    signals.push({ name: '고수익채권 급락 (HYG 가격)', type: 'risk', icon: '',
       color: 'var(--data-red)',
-      detail: 'HYG $' + hygPrice.toFixed(1) + ' → 고수익채권 급락. 기업 부도 위험 급등을 시장이 가격에 반영 중. 2008, 2020년 위기 때와 유사한 수준.',
-      why: 'HYG(고수익채권 ETF) 급락은 회사채 시장의 신용 경색을 직접 반영합니다. 주식시장 하락의 선행 지표입니다.',
+      detail: 'HYG $' + hygPrice.toFixed(1) + ' → 고수익채권 가격 급락. 기업 부도 위험 급등을 시장이 가격에 반영 중. 2008, 2020년 위기 때와 유사한 수준.',
+      why: 'HYG 가격 하락은 회사채 시장의 신용 경색을 시장이 반영한 대용 지표입니다. 공식 신용스프레드(OAS) 값이 아닙니다.',
       importance: 'HIGH' });
-  } else if (hygPrice < 76 && hygChg < -0.3) {
-    signals.push({ name: '신용 스프레드 확대', type: 'warning', icon: '',
+  } else if (hygPrice != null && hygPrice < 76 && hygChg < -0.3) {
+    signals.push({ name: '고수익채권 약세 (HYG 가격)', type: 'warning', icon: '',
       color: 'var(--data-amber)',
       detail: 'HYG $' + hygPrice.toFixed(1) + ' (오늘 ' + hygChg.toFixed(2) + '%) → 고수익채권 하락은 기업 신용 환경 악화 신호. 주식보다 채권 시장이 먼저 위험을 감지합니다.',
-      why: '채권 시장은 주식보다 효율적이라는 격언이 있습니다. HYG 하락은 향후 1~3개월 주식 약세의 선행 신호일 수 있습니다.',
+      why: 'HYG 가격 하락은 향후 1~3개월 주식 약세의 선행 신호일 수 있다는 관측입니다. 스프레드 수치 자체가 아닙니다.',
       importance: 'MED' });
   }
 
@@ -1129,7 +1138,8 @@ _aioPageBus.register('html-technical-shown', 'aio:pageShown', function(e) {
       updateSRLevels();
       updateWeinsteinStage();
       updateMTF();
-      updatePatternSignals();
+      // P1164/B02: 한 분석 렌더의 예외가 같은 핸들러의 다음 렌더(차트 로드)를 취소하지 않게 경계를 둔다.
+      try { updatePatternSignals(); } catch(e) { try { _aioLog('warn', 'technical', 'PatternSignals error: ' + (e && e.message || e)); } catch(_) {} }
       if (typeof loadTechCandleChart === 'function') loadTechCandleChart(window._aioTechCurrentSymbol || 'SPY');
     }, 300);
   }
@@ -1172,7 +1182,7 @@ _aioPageBus.register('html-tech-macro-live', 'aio:liveQuotes', function() {
     updateSRLevels();
     updateWeinsteinStage();
     updateMTF();
-    updatePatternSignals();
+    try { updatePatternSignals(); } catch(e) { try { _aioLog('warn', 'technical', 'PatternSignals error: ' + (e && e.message || e)); } catch(_) {} }
   }
   var macroPage = document.getElementById('page-macro');
   if (macroPage && macroPage.classList.contains('active')) {

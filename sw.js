@@ -5,8 +5,8 @@
 
 // R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
 // v48.80/P150: operational hardening adds an explicit build marker and health message.
-const SW_VERSION = 'v56.01';
-const SW_BUILD = '2026-09-20T21:53:00+09:00';
+const SW_VERSION = 'v56.15';
+const SW_BUILD = '2026-09-22T11:41:00+09:00';
 const SHELL_CACHE = 'aio-shell-' + SW_VERSION;
 const DATA_CACHE  = 'aio-data-'  + SW_VERSION;
 
@@ -40,9 +40,11 @@ const RUNTIME_SHELL_PATH_RE = /\/(?:js|src)\//;
 // API/데이터 URL 패턴 — Network-First + 캐시 폴백
 // P1112: `market-snapshot-status.json`과 `operations-status.json`은 클라이언트가
 // 한 번도 fetch하지 않는데 이 목록에만 있었다(캐시는 채워지지 않는다). 소비자가
-// 없는 항목은 캐시 구성을 거짓으로 설명하므로 제거했다. 반대로 실제로 읽는
-// `data.json`·`history.json`·`screener.json`·`telegram-digest.json`은 이 목록 밖이라
-// 오프라인 폴백이 없다 — 그쪽 보강은 TTL 의미와 함께 별도 검증이 필요하다.
+// 없는 항목은 캐시 구성을 거짓으로 설명하므로 제거했다.
+// P1173 (06 O03): 실제로 읽는 `data.json`·`history.json`·`screener.json`·
+// `screener-universe.json`·`model-validation-status.json`·`telegram-digest.json`은
+// 아래 CORE_DATA_URL_PATTERNS로 옮겨 같은 network-first + 나이 판정 경로를 쓰되,
+// 모델 입력이므로 TTL을 시세와 구분한다(별도 상수).
 const DATA_URL_PATTERNS = [
   /\/public-data\/(?:market-snapshot|reconciliation-status)\.json(?:\?|$)/,
   /\/public-data\/sec-fundamentals-summary\.json(?:\?|$)/,
@@ -60,6 +62,20 @@ const DATA_URL_PATTERNS = [
   /rsshub\.app/,                          // RSSHub 텔레그램
 ];
 
+// P1173 (06 O03 / W06-C): 소비자가 실제로 읽는 핵심 데이터 artifact는 이 목록 밖이라 오프라인 폴백이
+// 없었다(마지막 캐시를 되돌려 줄 경로가 아예 없고, 네트워크 실패는 그대로 실패였다). 다른 데이터와
+// 같은 network-first + 나이 판정 경로에 넣되, 모델 입력이 섞이므로 일반 시세(15분)와 TTL을 구분한다.
+// 캐시된 응답은 x-cache-time/x-cache-ttl을 달고 나가므로 화면은 "현재"가 아니라 수신 시각을 보여줄 수
+// 있다 — 서로 다른 세대의 artifact가 하나의 "현재" 결과로 합쳐지지 않게 하는 최소 조건이다.
+const CORE_DATA_URL_PATTERNS = [
+  /\/public-data\/data\.json(?:\?|$)/,
+  /\/public-data\/history\.json(?:\?|$)/,
+  /\/public-data\/screener\.json(?:\?|$)/,
+  /\/public-data\/screener-universe\.json(?:\?|$)/,
+  /\/public-data\/model-validation-status\.json(?:\?|$)/,
+  /\/public-data\/telegram-digest\.json(?:\?|$)/
+];
+
 // 교육·원문 reference artifact — 네트워크 성공 후 오프라인에서도 마지막
 // 검증 원장을 유지하되, 현재 가격·뉴스 TTL과 섞지 않는다.
 const REFERENCE_URL_PATTERNS = [
@@ -74,6 +90,7 @@ function isSensitiveUrl(u) { return SENSITIVE_QUERY_RE.test(u); }
 const DATA_CACHE_TTL = 900;   // 시세/API: 15분
 const NEWS_CACHE_TTL = 1800;  // 뉴스/RSS: 30분
 const REFERENCE_CACHE_TTL = 86400; // 지식·원문 reference artifact: 24시간
+const CORE_DATA_CACHE_TTL = 3600;  // 핵심 데이터 artifact: 1시간(모델 입력이므로 시세보다 길다)
 
 // TTL 만료된 DATA_CACHE 항목 정리 (비동기 논블로킹 — 매 저장 시 호출)
 async function purgeExpiredData(cache) {
@@ -224,11 +241,12 @@ self.addEventListener('fetch', function(event) {
   const isData = DATA_URL_PATTERNS.some(function(re) { return re.test(url); });
   const isNews = NEWS_URL_PATTERNS.some(function(re) { return re.test(url); });
   const isReference = REFERENCE_URL_PATTERNS.some(function(re) { return re.test(url); });
-  if (isData || isNews || isReference) {
+  const isCoreData = CORE_DATA_URL_PATTERNS.some(function(re) { return re.test(url); });
+  if (isData || isNews || isReference || isCoreData) {
     event.respondWith(
       fetch(request).then(function(resp) {
         if (resp && resp.ok && resp.status === 200 && !isSensitiveUrl(url)) {
-          var ttl = isReference ? REFERENCE_CACHE_TTL : isNews ? NEWS_CACHE_TTL : DATA_CACHE_TTL;
+          var ttl = isReference ? REFERENCE_CACHE_TTL : isCoreData ? CORE_DATA_CACHE_TTL : isNews ? NEWS_CACHE_TTL : DATA_CACHE_TTL;
           var now = String(Date.now());
           // TTL 헤더를 주입한 래핑 응답 저장 (body 복사 필요)
           resp.clone().arrayBuffer().then(function(body) {

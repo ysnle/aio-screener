@@ -372,7 +372,9 @@ function addPortfolioPosition() {
   const ticker = (document.getElementById('pf-add-ticker').value || '').trim().toUpperCase();
   const qty = parseFloat(document.getElementById('pf-add-qty').value) || 0;
   const cost = parseFloat(document.getElementById('pf-add-cost').value) || 0;
-  const target = parseFloat(document.getElementById('pf-add-target').value) || 0;
+  // P1176 (22 PFR01): 빈 칸을 0으로 직렬화하면 화면이 '목표 $0.00 · -100%'를 만든다 — 미설정은 null로 남긴다.
+  const parsedTarget = parseFloat((document.getElementById('pf-add-target').value || '').trim());
+  const target = Number.isFinite(parsedTarget) && parsedTarget > 0 ? parsedTarget : null;
   const memo = (document.getElementById('pf-add-memo').value || '').trim();
   if (!ticker || qty <= 0 || cost <= 0) { showToast('티커, 수량, 매수 단가를 모두 입력하세요.'); return; }
 
@@ -393,7 +395,7 @@ function addPortfolioPosition() {
   const existing = positions.findIndex(p => p.ticker === ticker);
   if (existing >= 0) {
     showConfirmModal('종목 중복', ticker + ' 이미 존재합니다. 업데이트하시겠습니까?', function() {
-      positions[existing] = { ticker, qty, cost, target: target || positions[existing].target, memo, addedAt: positions[existing].addedAt, updatedAt: Date.now() };
+      positions[existing] = { ticker, qty, cost, target, memo, addedAt: positions[existing].addedAt, updatedAt: Date.now() };
       savePortfolioData(positions);
       clearPortfolioForm();
       renderPortfolio();
@@ -402,7 +404,7 @@ function addPortfolioPosition() {
     }, '');
     return;
   } else {
-    positions.push({ ticker, qty, cost, target: target || 0, memo, addedAt: Date.now(), updatedAt: Date.now() });
+    positions.push({ ticker, qty, cost, target, memo, addedAt: Date.now(), updatedAt: Date.now() });
   }
   savePortfolioData(positions);
   clearPortfolioForm();

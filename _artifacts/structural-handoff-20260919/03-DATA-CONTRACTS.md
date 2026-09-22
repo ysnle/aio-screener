@@ -1,5 +1,7 @@
 # 03 — 수집 결과를 사용자 값으로 승격하는 계약
 
+> 역사 근거 주의: v55.22의 D01 반증 중 빈 quotes/coverage 불일치는 [v56 재검증](RECHECK-V56.md)에서 차단됐다. 아래 설명을 현재 미수정 결함 목록으로 그대로 사용하지 않는다. 나머지 인수조건의 완료는 별도 확인한다.
+
 Astra 설계 · 2026-09-20 · v55.22 / `54428470`. 범위: snapshot producer→validator→loader 및 quote 표시. 전체 공급자 검수 완료 아님.
 
 ## D01. 선언 coverage와 실측 coverage가 분리된다

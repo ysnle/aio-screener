@@ -51,11 +51,23 @@ preview/run/replay를 분리한다. preview 변경은 마지막 고정run을 조
 
 현재 `src/ui/pages/screener.js:997–1040`의 drawer는 factorScores를 막대로 표시하고, `index.html:12078`은 이를 ‘팩터 기여도’라고 부른다. 정규화 점수는 최종 점수에 대한 가중기여가 아니다. 이 구분을 수식과 화면에서 일치시켜야 한다.
 
+v56 DELL 행을 실제로 열었을 때 ‘필드 coverage48.6% · 팩터 근거100%’, ‘필수 필드 결측 없음’, 모멘텀100/추세100/저변동41/K-vel87 막대가 함께 보였다. 서로 다른 coverage 정의일 수 있으나 분모가 생략돼 사용자가48.6%와100%의 차이를 이해하기 어렵다. `Provenance`에는 instrument US:DELL만 표시됐다. instrument identity는 출처 문서·관측시각을 대신하지 않는다. [상세 화면](v56-why.png). 공급자 차단 조건의 관찰이며 현재 가격 미수신을 서비스 장애로 판정하지 않는다.
+
 drawer 첫 문장은 ‘조건 통과 · 순위 계산 가능/보류’를 말한다. `screenStatus=passed`만 보고 WhyRanked로 이름 붙이지 않는다. v56에서 도메인이 분리한 screenRankingState/screenExplanationState를 renderer도 사용한다.
 
 그 아래 조건별 `기준 / 실제값 / 판정`을 표로 보여준다. 팩터는 `원값 / 비교집단 / 정규화 점수 / 적용가중치 / 기여`를 분리한다. 정렬이 rank 자체라면 순위가 새 독립 분석인 것처럼 설명하지 않는다. 조회하지 않은 재무·뉴스는 ‘반대근거없음’ 대신 ‘이번조건에서검토하지않음’으로 표현한다.
 
 결측이 ranking을 막으면 ‘가격은 미수신이나9/18 종가 기반연구순위는계산됨’처럼 서로 다른 데이터축을 설명한다. 최신 가격을 못 받아도 모든 역사연구값을 지울 필요는 없지만 현재 가격처럼 읽히게 하면 안 된다.
+
+## U01 — 미리보기와 실제 실행의 대상 정의가 다름
+
+v56.01에서 새 브라우저 profile로 스크리너를 열고 선택된 ‘균형 상대 랭킹’을 그대로 실행했다. 실행 전 ‘현재 데이터 미리보기703통과’, 실행 후 ‘286통과/168데이터부족’이었다. 두 상태 모두 ‘활성조건0/활성조건없음’을 표시했다. 숫자는2026-09-21 관측이며 전날844와 비교해 회귀라고 단정하지 않는다. [동선 증거](5601-screener-run.json).
+
+코드 연결: `src/data/orchestrators/screener.js:63`의 기본 pipeline screen은 빈 AND 조건으로 readiness를 평가한다. `src/ui/pages/screener.js`의 selectDefinition은 activeDefinition을 선택하지만 activeResult/activeRows를 비운다. renderer의 실행 전 counts는 이 기본 pipeline 결과를 사용한다. 실제 실행은 preset-balanced의 rank≥60 조건을 사용한다. 사용자에게 보이는 선택 이름과 ‘통과’ 수가 같은 정의를 뜻하지 않는다.
+
+W12-A 보강: definitionId/hash를 preview 결과와 실행 결과 모두에 붙인다. 같은 선택 정의로 미리 계산한다면 preview와 execute가 동일 snapshot에서 같은 상태/건수를 내야 한다. readiness만 보여줄 경우 ‘조건 적용 전 계산 가능703개’로 표시하고 ‘통과’라 부르지 않는다. active 조건 목록에는 preset의 내장 조건과 사용자가 추가한 조건을 구분해 모두 보여준다. JSON editor를 열어야 실제 조건을 알 수 있는 구조는 기본 동선으로 삼지 않는다.
+
+인수:6개 preset 각각 선택→조건목록→preview→고정실행→재현을 확인한다. 데이터 갱신이 없는 입력에서는 결과 변화가 없어야 하고, 갱신이 있었다면 snapshot 변경을 설명한다. 조건이 없는 screen만 ‘활성조건없음’을 표시한다. 표가 전체/통과/제외/보류 중 무엇을 보여주는지도 독립적으로 이름 붙인다.
 
 ## W12-C — 다른 기능과 콘텐츠의 의미 연결
 

@@ -11390,6 +11390,9 @@ window.AIO.buildNewsSurfaceModel = function(surfaceId, items, opts) {
     }
     return row.ageHours <= (contract.windowHours || 48);
   });
+  // P1164/B03: 오늘 창에 든 건수와 창 밖에 남은 과거 수집분을 분리해 보존한다.
+  // 창이 비었을 때 '오늘 자료 미확보 · 이전 수집분 N건'을 표시할 수 있어야 한다.
+  var outOfWindowCount = normalized.length - windowRows.length;
   if (surfaceId === 'home') windowRows = windowRows.filter(function(i) { return contract.excludedTopics.indexOf(i.topic) === -1; });
   if (surfaceId === 'market-news') windowRows = _aioApplyNewsFilterOptions(windowRows, opts);
   // v50.41 선순환: 분석 페이지 토픽 필터 (contract.topics) — 같은 캐시에서 페이지별 관련 토픽만
@@ -11446,6 +11449,7 @@ window.AIO.buildNewsSurfaceModel = function(surfaceId, items, opts) {
     inputCount: input.length,
     normalizedCount: normalized.length,
     withinWindowCount: windowRows.length,
+    outOfWindowCount: outOfWindowCount,
     afterScoreCount: scored.length,
     visibleCount: visible.length,
     duplicateRemoved: duplicateRemoved
@@ -11468,6 +11472,7 @@ window.AIO.buildNewsSurfaceModel = function(surfaceId, items, opts) {
     newsCycle: cycleWindow ? { start: new Date(cycleWindow.start).toISOString(), end: new Date(cycleWindow.end).toISOString(), anchorDate: cycleWindow.anchorDate || '' } : null,
     cacheKey: surfaceId + '|' + (cycleWindow && cycleWindow.anchorDate || opts.anchorDate || '') + '|' + visible.map(function(i) { return i.newsId; }).join(',') + '|' + (latestPubMs || 0),
     emptyReason: visible.length ? null : _aioNewsEmptyReason(surfaceId, stats),
+    outOfWindowCount: outOfWindowCount,
     stats: stats,
     generatedAt: new Date(nowMs).toISOString()
   };

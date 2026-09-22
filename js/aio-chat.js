@@ -66,6 +66,9 @@ function _aioCreateAIRequestObject(entrypoint, meta) {
 // keeping a second legacy implementation that can drift again.
 function _aioEvaluateAIResearchGate(input) {
   input = input || {};
+  // P1172 (05 A05): 이 요청의 id를 함께 넘겨 출처 결속을 판정 가능하게 한다. questionPlan.queryId와
+  // chat 요청 id는 서로 다른 이름공간이므로 둘 다 기대값으로 넘긴다(없으면 UNVERIFIABLE로 남는다).
+  if (input.requestId == null && window._aioActiveAIRequestId) input = Object.assign({}, input, { requestId: window._aioActiveAIRequestId });
   if (window.AIO_ARCH && typeof window.AIO_ARCH.evaluateAIResearchEvidenceFloor === 'function') {
     return window.AIO_ARCH.evaluateAIResearchEvidenceFloor(input);
   }
@@ -2217,7 +2220,10 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
       var arr = window._aioLastClaudeCitations;
       for (var _ci = 0; _ci < arr.length; _ci++) { if (arr[_ci].url === url) return; }
       if (arr.length >= 12) return;  // 과다 누적 방지
-      arr.push({ url: url, title: (title || '') });
+      // P1172 (05 A05): 인용을 이 요청에 묶는다. 전역 배열은 요청 시작에 리셋되지만, 취소·재시도·늦게
+      // 도착한 응답의 citation이 다음 질문의 근거로 넘어가는 경로를 막으려면 출처 자신이 어느 요청의
+      // 것인지 말해야 한다(결속이 없으면 evidence floor가 UNBOUND로 표시하고 확인된 것으로 승격하지 않는다).
+      arr.push({ url: url, title: (title || ''), requestId: window._aioActiveAIRequestId || null, queryId: window._aioActiveAIRequestId || null });
     }
 
     try {
@@ -5181,6 +5187,7 @@ async function _aioPrepareAIResearch(questionPlan, options) {
         prepared.externalEvidenceReady = window.AIO_ARCH.evaluateAIResearchEvidenceFloor({
           questionPlan: questionPlan,
           required: true,
+          requestId: window._aioActiveAIRequestId || null,
           externalResult: prepared.externalResult
         }).ready === true;
       }

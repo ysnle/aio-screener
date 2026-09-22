@@ -1,0 +1,7 @@
+{
+  "observedAt": "2026-09-20T10:32:45.991Z",
+  "version": "v56",
+  "condition": "local Chromium; external requests aborted; SW blocked",
+  "manager": "Appaloosa",
+  "text": "issuer·CUSIP 다분기 집계 원장\n\nSEC 원문 행을 manager·CUSIP·share type·put/call 단위로만 묶은 원장입니다. ticker·sector·기업행동 검증 전 단계이며, 현재 가격이나 추천을 생성하지 않습니다.\n\n선택 manager 집계 CUSIP\n10\n선택 manager 고유 보고기간\n11\n선택 manager 집계 record\n10\n선택 manager 기간행 수\n87\n선택 manager 검토 대기\n10\n전체 수집 원장 (모든 manager)\n81 records · 기간 11 · 검토 대기 15\nISSUER 원문\tCUSIP\t최근 보고기간\t보고가치\t기간 수\t검토 플래그\nSPDR SER TR\t78468R796\t2025-03-31\t$2,517,255,000\t1\tPUT_CALL_REVIEW\nAMAZON COM INC\t023135106\t2026-06-30\t$1,191,700,000\t11\t추가 플래그 없음\nMICRON TECHNOLOGY INC\t595112103\t2026-06-30\t$1,125,432,750\t11\t추가 플래그 없음\nTAIWAN SEMICONDUCTOR MFG LTD · TAIWAN SEMICONDUCTOR MANUFAC\t874039100\t2026-06-30\t$787,990,500\t11\tISSUER_NAME_VARIATION\nALPHABET INC\t02079K107\t2026-06-30\t$653,660,500\t11\t추가 플래그 없음\nUBER TECHNOLOGIES INC\t90353T100\t2026-06-30\t$555,204,163\t11\t추가 플래그 없음\nISHARES INC\t464286772\t2026-06-30\t$489,607,500\t2\t추가 플래그 없음\nMETA PLATFORMS INC\t30303M102\t2026-06-30\t$380,220,750\t11\t추가 플래그 없음\nVISTRA CORP\t92840M102\t2026-06-30\t$351,408,597\t7\t추가 플래그 없음\nNVIDIA CORPORATION\t67066G104\t2026-06-30\t$305,137,250\t11\t추가 플래그 없음\n\n집계 상태 RAW_CUSIP_MULTI_QUARTER_CONNECTED · 기준일 확인 필요 · 범위 manager=appaloosa-management · 보고기간 11개 · 집계키 manager·CUSIP·shareType·putCall · 검토 대기 CUSIP는 공식 security master와 기업행동 원장 확인 전까지 ticker·sector로 승격하지 않습니다."
+}

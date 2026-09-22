@@ -87,8 +87,17 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
       return result ? { ...row, screenStatus: result.screenStatus, screenRank: result.screenRank, rankExplanation: result.rankExplanation } : row;
     });
     const readiness = summarizeScreenReadiness(rows, screenDefinition.requiredFields);
+    // P1168 (13 잔여·SCR-UX-07): 이 이력은 사용자 실행이 아니라 이 producer가 sync마다 도는
+    // **파이프라인 기준 run**이다. 그런데 같은 결과를 매번 덧붙여 화면 재진입마다 2→4→6으로
+    // 늘었고, 이름은 사용자 실행처럼 읽혔다. 같은 snapshot·같은 정의의 동일 resultHash는 다시
+    // 쌓지 않고 마지막 항목을 갱신하며, 기계 실행임을 provenance로 남긴다.
     const priorRuns = getState?.()?.screener?.runHistory || [];
-    const runHistory = [...priorRuns, screenResult.run].slice(-20);
+    const pipelineEntry = { ...screenResult.run, origin: 'pipeline-sync' };
+    const lastRun = priorRuns[priorRuns.length - 1];
+    const runHistory = lastRun && lastRun.origin === 'pipeline-sync'
+      && lastRun.resultHash && lastRun.resultHash === pipelineEntry.resultHash
+      ? [...priorRuns.slice(0, -1), pipelineEntry]
+      : [...priorRuns, pipelineEntry].slice(-20);
     const result = {
       ...normalized,
       rows,
