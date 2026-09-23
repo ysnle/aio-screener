@@ -1,7 +1,7 @@
 {
   "schema": "masters-13f-reference.v2",
-  "reviewedAt": "2026-09-22",
-  "generatedAt": "2026-09-22T12:35:31.913Z",
+  "reviewedAt": "2026-09-23",
+  "generatedAt": "2026-09-23T12:45:10.418Z",
   "sourceKind": "SEC_EDGAR",
   "status": "REFERENCE_ROWS_CONNECTED",
   "policy": "Reported period holdings only. Prior-period action labels compare reported shares by normalized CUSIP, put/call and share type; no current price, portfolio recommendation, Trading Score or BUY/SELL inference is generated.",
@@ -73,7 +73,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -141,7 +141,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -209,7 +209,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -277,7 +277,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -285,38 +285,38 @@
       "cik": "0000093751",
       "status": "VERIFIED_ROWS",
       "latestFiling": {
-        "form": "13F-HR",
+        "form": "13F-HR/A",
         "baseForm": "13F-HR",
-        "isAmendment": false,
-        "accession": "0000093751-26-000507",
-        "filedAt": "2026-08-07",
-        "acceptedAt": "2026-08-07T14:24:39.000Z",
+        "isAmendment": true,
+        "accession": "0000093751-26-000583",
+        "filedAt": "2026-09-22",
+        "acceptedAt": "2026-09-22T14:08:26.000Z",
         "periodOfReport": "2026-06-30",
         "primaryDocument": "xslForm13F_X02/primary_doc.xml",
         "primaryDocDescription": null,
-        "indexUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000507/0000093751-26-000507-index.html",
-        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000507/xslForm13F_X02/primary_doc.xml",
-        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000507/xslForm13F_X02/primary_doc.xml",
-        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000507/XML_Infotable.xml",
-        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000507/XML_Infotable.html"
+        "indexUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000583/0000093751-26-000583-index.html",
+        "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000583/xslForm13F_X02/primary_doc.xml",
+        "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000583/xslForm13F_X02/primary_doc.xml",
+        "informationTableXml": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000583/XML_Infotable.xml",
+        "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000583/XML_Infotable.html"
       },
       "verification": {
         "reportPeriod": "2026-06-30",
         "cover": {
           "reportCalendarOrQuarter": "06-30-2026",
-          "tableEntryTotal": 4177,
-          "tableValueTotal": 3371239854465,
-          "isAmendment": false,
-          "amendmentType": null,
-          "amendmentNumber": null,
+          "tableEntryTotal": 4261,
+          "tableValueTotal": 3383260349220,
+          "isAmendment": true,
+          "amendmentType": "RESTATEMENT",
+          "amendmentNumber": 1,
           "filingManager": "STATE STREET CORP"
         },
-        "fullRowCount": 4177,
-        "parsedValueTotal": 3371239854465,
-        "reportedPositionCount": 4177,
-        "top5ConcentrationPct": 20.107004987711637,
-        "top10ConcentrationPct": 29.032040603332316,
-        "turnoverProxyPct": 8.961976807575192,
+        "fullRowCount": 4261,
+        "parsedValueTotal": 3383260349220,
+        "reportedPositionCount": 4261,
+        "top5ConcentrationPct": 20.035566161536384,
+        "top10ConcentrationPct": 28.928891730417533,
+        "turnoverProxyPct": 9.21707452697019,
         "turnoverProxyPolicy": "ONE_HALF_SUM_ABSOLUTE_REPORTED_VALUE_WEIGHT_CHANGE",
         "valueDelta": 0,
         "valueReconciliationStatus": "EXACT",
@@ -325,27 +325,39 @@
         "priorFullRowCount": 4269,
         "priorParsedValueTotal": 2896359015041,
         "priorCountReconciled": true,
-        "comparisonRowCount": 4327,
+        "comparisonRowCount": 4413,
         "comparisonActionCounts": {
-          "INCREASED": 2868,
+          "INCREASED": 2866,
           "REDUCED": 888,
-          "NEW": 58,
+          "NEW": 144,
           "UNCHANGED": 363,
-          "EXITED": 150
+          "EXITED": 152
         },
         "corporateActionReviewStatus": "REVIEW_REQUIRED",
         "amendmentSemantics": {
-          "status": "ORIGINAL",
-          "type": null,
-          "number": null,
-          "policy": "ORIGINAL_ROWS"
+          "status": "AMENDED",
+          "type": "RESTATEMENT",
+          "number": 1,
+          "policy": "LATEST_RESTATEMENT_ROWS",
+          "chain": [
+            {
+              "accession": "0000093751-26-000507",
+              "type": "ORIGINAL",
+              "rows": 4177
+            },
+            {
+              "accession": "0000093751-26-000583",
+              "type": "RESTATEMENT",
+              "rows": 4261
+            }
+          ]
         },
         "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
         "valueUnit": "USD as reported by Form 13F information table",
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -413,7 +425,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -481,7 +493,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -549,7 +561,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -617,7 +629,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -685,7 +697,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -753,7 +765,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -821,7 +833,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -889,7 +901,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -957,7 +969,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1025,7 +1037,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1093,7 +1105,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1161,7 +1173,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1241,7 +1253,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1309,7 +1321,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1377,7 +1389,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1445,7 +1457,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1513,7 +1525,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1581,7 +1593,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-03-31",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "STALE_REFERENCE"
     },
     {
@@ -1649,7 +1661,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1715,7 +1727,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1783,7 +1795,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1851,7 +1863,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1919,7 +1931,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -1987,7 +1999,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -2055,7 +2067,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -2123,7 +2135,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -2191,7 +2203,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -2259,7 +2271,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -2327,7 +2339,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -2395,7 +2407,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     },
     {
@@ -2461,7 +2473,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2025-09-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "STALE_REFERENCE"
     },
     {
@@ -2529,7 +2541,7 @@
         "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
       },
       "latestAvailablePeriod": "2026-06-30",
-      "collectedAt": "2026-09-22T12:35:31.913Z",
+      "collectedAt": "2026-09-23T12:45:10.418Z",
       "freshnessStatus": "CURRENT_REFERENCE"
     }
   ],
@@ -3898,7 +3910,7 @@
       "managerId": "state-street-investment-management",
       "cik": "0000093751",
       "reportPeriod": "2026-06-30",
-      "filedAt": "2026-08-07",
+      "filedAt": "2026-09-22",
       "rank": 1,
       "issuer": "NVIDIA CORPORATION",
       "titleOfClass": "COM",
@@ -3926,13 +3938,13 @@
       "actionBasis": "REPORTED_SHARE_DELTA",
       "comparisonStatus": "VERIFIED_PRIOR_PERIOD",
       "evidenceId": "sec.13f.0000093751.2026-06-30.67066G104",
-      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000507/XML_Infotable.html"
+      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000583/XML_Infotable.html"
     },
     {
       "managerId": "state-street-investment-management",
       "cik": "0000093751",
       "reportPeriod": "2026-06-30",
-      "filedAt": "2026-08-07",
+      "filedAt": "2026-09-22",
       "rank": 2,
       "issuer": "APPLE INC",
       "titleOfClass": "COM",
@@ -3960,13 +3972,13 @@
       "actionBasis": "REPORTED_SHARE_DELTA",
       "comparisonStatus": "VERIFIED_PRIOR_PERIOD",
       "evidenceId": "sec.13f.0000093751.2026-06-30.037833100",
-      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000507/XML_Infotable.html"
+      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000583/XML_Infotable.html"
     },
     {
       "managerId": "state-street-investment-management",
       "cik": "0000093751",
       "reportPeriod": "2026-06-30",
-      "filedAt": "2026-08-07",
+      "filedAt": "2026-09-22",
       "rank": 3,
       "issuer": "MICROSOFT CORP",
       "titleOfClass": "COM",
@@ -3994,13 +4006,13 @@
       "actionBasis": "REPORTED_SHARE_DELTA",
       "comparisonStatus": "VERIFIED_PRIOR_PERIOD",
       "evidenceId": "sec.13f.0000093751.2026-06-30.594918104",
-      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000507/XML_Infotable.html"
+      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000583/XML_Infotable.html"
     },
     {
       "managerId": "state-street-investment-management",
       "cik": "0000093751",
       "reportPeriod": "2026-06-30",
-      "filedAt": "2026-08-07",
+      "filedAt": "2026-09-22",
       "rank": 4,
       "issuer": "AMAZON COM INC",
       "titleOfClass": "COM",
@@ -4028,13 +4040,13 @@
       "actionBasis": "REPORTED_SHARE_DELTA",
       "comparisonStatus": "VERIFIED_PRIOR_PERIOD",
       "evidenceId": "sec.13f.0000093751.2026-06-30.023135106",
-      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000507/XML_Infotable.html"
+      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000583/XML_Infotable.html"
     },
     {
       "managerId": "state-street-investment-management",
       "cik": "0000093751",
       "reportPeriod": "2026-06-30",
-      "filedAt": "2026-08-07",
+      "filedAt": "2026-09-22",
       "rank": 5,
       "issuer": "ALPHABET INC",
       "titleOfClass": "CAP STK CL A",
@@ -4062,13 +4074,13 @@
       "actionBasis": "REPORTED_SHARE_DELTA",
       "comparisonStatus": "VERIFIED_PRIOR_PERIOD",
       "evidenceId": "sec.13f.0000093751.2026-06-30.02079K305",
-      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000507/XML_Infotable.html"
+      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000583/XML_Infotable.html"
     },
     {
       "managerId": "state-street-investment-management",
       "cik": "0000093751",
       "reportPeriod": "2026-06-30",
-      "filedAt": "2026-08-07",
+      "filedAt": "2026-09-22",
       "rank": 6,
       "issuer": "BROADCOM INC",
       "titleOfClass": "COM",
@@ -4096,13 +4108,13 @@
       "actionBasis": "REPORTED_SHARE_DELTA",
       "comparisonStatus": "VERIFIED_PRIOR_PERIOD",
       "evidenceId": "sec.13f.0000093751.2026-06-30.11135F101",
-      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000507/XML_Infotable.html"
+      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000583/XML_Infotable.html"
     },
     {
       "managerId": "state-street-investment-management",
       "cik": "0000093751",
       "reportPeriod": "2026-06-30",
-      "filedAt": "2026-08-07",
+      "filedAt": "2026-09-22",
       "rank": 7,
       "issuer": "ALPHABET INC",
       "titleOfClass": "CAP STK CL C",
@@ -4130,13 +4142,13 @@
       "actionBasis": "REPORTED_SHARE_DELTA",
       "comparisonStatus": "VERIFIED_PRIOR_PERIOD",
       "evidenceId": "sec.13f.0000093751.2026-06-30.02079K107",
-      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000507/XML_Infotable.html"
+      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000583/XML_Infotable.html"
     },
     {
       "managerId": "state-street-investment-management",
       "cik": "0000093751",
       "reportPeriod": "2026-06-30",
-      "filedAt": "2026-08-07",
+      "filedAt": "2026-09-22",
       "rank": 8,
       "issuer": "MICRON TECHNOLOGY INC",
       "titleOfClass": "COM",
@@ -4164,13 +4176,13 @@
       "actionBasis": "REPORTED_SHARE_DELTA",
       "comparisonStatus": "VERIFIED_PRIOR_PERIOD",
       "evidenceId": "sec.13f.0000093751.2026-06-30.595112103",
-      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000507/XML_Infotable.html"
+      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000583/XML_Infotable.html"
     },
     {
       "managerId": "state-street-investment-management",
       "cik": "0000093751",
       "reportPeriod": "2026-06-30",
-      "filedAt": "2026-08-07",
+      "filedAt": "2026-09-22",
       "rank": 9,
       "issuer": "META PLATFORMS INC",
       "titleOfClass": "CL A",
@@ -4198,13 +4210,13 @@
       "actionBasis": "REPORTED_SHARE_DELTA",
       "comparisonStatus": "VERIFIED_PRIOR_PERIOD",
       "evidenceId": "sec.13f.0000093751.2026-06-30.30303M102",
-      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000507/XML_Infotable.html"
+      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000583/XML_Infotable.html"
     },
     {
       "managerId": "state-street-investment-management",
       "cik": "0000093751",
       "reportPeriod": "2026-06-30",
-      "filedAt": "2026-08-07",
+      "filedAt": "2026-09-22",
       "rank": 10,
       "issuer": "TESLA INC",
       "titleOfClass": "COM",
@@ -4232,7 +4244,7 @@
       "actionBasis": "REPORTED_SHARE_DELTA",
       "comparisonStatus": "VERIFIED_PRIOR_PERIOD",
       "evidenceId": "sec.13f.0000093751.2026-06-30.88160R101",
-      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000507/XML_Infotable.html"
+      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/93751/000009375126000583/XML_Infotable.html"
     },
     {
       "managerId": "vanguard-group",
@@ -96323,10 +96335,10 @@
     },
     "state-street-investment-management": {
       "url": "./public-data/masters/managers/state-street-investment-management.json",
-      "fullRows": 4177,
-      "comparisonRows": 4327,
+      "fullRows": 4261,
+      "comparisonRows": 4413,
       "reportPeriod": "2026-06-30",
-      "accession": "0000093751-26-000507"
+      "accession": "0000093751-26-000583"
     },
     "vanguard-group": {
       "url": "./public-data/masters/managers/vanguard-group.json",
@@ -96555,11 +96567,11 @@
   },
   "failedManagers": [],
   "holdingRowsPublished": 366,
-  "fullRowsAvailable": 193116,
+  "fullRowsAvailable": 193200,
   "embeddedFullRowsAvailable": 1290,
   "reconciledManagers": 37,
   "comparisonRowsPublished": 366,
-  "fullComparisonRowsAvailable": 89890,
+  "fullComparisonRowsAvailable": 89976,
   "embeddedFullComparisonRowsAvailable": 1387,
   "reconciledComparisons": 37,
   "nextStep": "MF-05: add issuer/ticker normalization and sector mapping before portfolio-weight labels."
