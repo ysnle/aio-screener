@@ -23,9 +23,9 @@
     "UNAVAILABLE",
     "UNKNOWN"
   ],
-  "generatedAt": "2026-09-23T12:05:58.997Z",
+  "generatedAt": "2026-09-23T12:14:58.909Z",
   "appRevision": "v56.15",
-  "dataRevision": "market-snapshot:2026-09-23T06:42:12.818Z:7bb9a73b",
+  "dataRevision": "market-snapshot:2026-09-23T12:14:45.882Z:f54d90ce",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
   "overall": "OPERATOR_REQUIRED",
   "overallBasis": {
@@ -41,7 +41,7 @@
   "featureAvailability": {
     "market-breadth": {
       "availability": "AVAILABLE",
-      "asOf": "2026-09-23T06:42:12.818Z",
+      "asOf": "2026-09-23T12:14:45.882Z",
       "missingReason": null,
       "sources": [
         "durable"
@@ -49,7 +49,7 @@
     },
     "fundamental-ranking": {
       "availability": "AVAILABLE",
-      "asOf": "2026-09-23T06:42:12.818Z",
+      "asOf": "2026-09-23T12:14:45.882Z",
       "missingReason": null,
       "sources": [
         "durable"
@@ -57,7 +57,7 @@
     },
     "quotes": {
       "availability": "AVAILABLE",
-      "asOf": "2026-09-23T06:42:38.428Z",
+      "asOf": "2026-09-23T12:14:58.909Z",
       "missingReason": null,
       "sources": [
         "fast"
@@ -65,7 +65,7 @@
     },
     "ai-chat": {
       "availability": "AVAILABLE",
-      "asOf": "2026-09-23T06:42:38.428Z",
+      "asOf": "2026-09-23T12:14:58.909Z",
       "missingReason": null,
       "sources": [
         "fast"
@@ -85,7 +85,7 @@
       "status": "CURRENT",
       "statusCode": "CONFIGURED_HEALTHY",
       "source": "github-actions",
-      "lastSuccessfulAt": "2026-09-23T06:42:12.818Z",
+      "lastSuccessfulAt": "2026-09-23T12:14:45.882Z",
       "coverage": {
         "required": 16,
         "observed": 16,
@@ -101,10 +101,10 @@
         "coverageComplete": true,
         "quoteQualityComplete": true,
         "blockedQuotes": [],
-        "generatedAt": "2026-09-23T06:42:12.818Z",
-        "ageHours": 5.4,
+        "generatedAt": "2026-09-23T12:14:45.882Z",
+        "ageHours": 0,
         "maxAgeHours": 12,
-        "evaluatedAt": "2026-09-23T12:05:58.997Z",
+        "evaluatedAt": "2026-09-23T12:14:58.909Z",
         "reason": null
       },
       "readiness": {
@@ -124,14 +124,14 @@
         "status": "CURRENT",
         "statusCode": 200,
         "coverage": "16/16",
-        "revision": "fast-quotes:b89cc5fb",
+        "revision": "fast-quotes:83202f68",
         "sourceSha": "8a3939117e18de904c3892006e08611ea2d1a676",
-        "observedAt": "2026-09-23T06:42:38.428Z",
-        "source": "last-observed-live-health",
-        "observationStatus": "NOT_ATTEMPTED",
+        "observedAt": "2026-09-23T12:14:58.909Z",
+        "source": "periodic-live-health",
+        "observationStatus": "SUCCESS",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-09-23T12:05:58.997Z"
+        "evidenceEvaluatedAt": "2026-09-23T12:14:58.909Z"
       },
       "soak": {
         "requiredDays": 7,
@@ -164,13 +164,13 @@
   },
   "ai": {
     "scheduledAnalysis": {
-      "status": "CURRENT",
-      "statusCode": "CONFIGURED_HEALTHY",
+      "status": "BLOCKED",
+      "statusCode": "CONFIGURED_BROKEN",
       "source": "github-actions",
-      "lastCallSucceeded": "CURRENT",
+      "lastCallSucceeded": "BLOCKED",
       "evidence": {
-        "marketAnalysisOk": true,
-        "generatedAt": "2026-09-23T06:42:12.818Z"
+        "marketAnalysisOk": false,
+        "generatedAt": "2026-09-23T12:14:45.882Z"
       }
     },
     "publicChat": {
@@ -182,7 +182,7 @@
       "health": {
         "status": "CURRENT",
         "statusCode": 200,
-        "observedAt": "2026-09-23T06:42:38.428Z",
+        "observedAt": "2026-09-23T12:14:58.909Z",
         "revision": "v56.15",
         "sourceSha": "3bce0a7e46d189ed3c4098b8f409528a7051fa35",
         "configured": true,
@@ -192,11 +192,11 @@
         "providerSmokeBoundary": "blocking-deployment-workflow-only",
         "ready": true,
         "note": "Periodic live health observed; provider smoke remains a blocking deployment-workflow gate.",
-        "source": "last-observed-live-health",
-        "observationStatus": "NOT_ATTEMPTED",
+        "source": "periodic-live-health",
+        "observationStatus": "SUCCESS",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-09-23T12:05:58.997Z"
+        "evidenceEvaluatedAt": "2026-09-23T12:14:58.909Z"
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }
@@ -206,15 +206,15 @@
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "reference",
-      "lastFetchAt": "2026-09-23T06:42:12.818Z"
+      "lastFetchAt": "2026-09-23T12:14:45.882Z"
     },
     "fred": {
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "official-series",
       "status": "CURRENT",
-      "lastAttemptAt": "2026-09-23T06:42:12.881Z",
-      "lastFetchAt": "2026-09-23T06:42:12.881Z"
+      "lastAttemptAt": "2026-09-23T12:14:45.938Z",
+      "lastFetchAt": "2026-09-23T12:14:45.938Z"
     },
     "sec": {
       "rights": "REVIEW_REQUIRED",
@@ -228,7 +228,7 @@
   "reconciliation": {
     "tier0": {
       "status": "MATCH",
-      "artifact": "market-snapshot:2026-09-23T06:42:12.818Z:7bb9a73b",
+      "artifact": "market-snapshot:2026-09-23T12:14:45.882Z:f54d90ce",
       "uiEvidence": "same-revision-contract",
       "observedAtComplete": true
     },
@@ -236,8 +236,8 @@
     "categoryCount": 22,
     "overall": "PARTIAL",
     "counts": {
-      "PARTIAL": 14,
-      "MATCH": 6,
+      "PARTIAL": 13,
+      "MATCH": 7,
       "BLOCKED": 2
     },
     "closure": {
@@ -257,7 +257,6 @@
         "news",
         "commodities-fx",
         "global-indices",
-        "crypto",
         "kr-macro-vkospi-supply"
       ],
       "partialCategories": [
@@ -273,8 +272,7 @@
         "macro-calendar",
         "news",
         "commodities-fx",
-        "global-indices",
-        "crypto"
+        "global-indices"
       ],
       "operatorRequiredCategories": [
         "investors-intelligence",
@@ -364,7 +362,7 @@
           }
         ]
       },
-      "sourceRevision": "market-snapshot:2026-09-23T06:42:12.818Z:7bb9a73b",
+      "sourceRevision": "market-snapshot:2026-09-23T12:14:45.882Z:f54d90ce",
       "sourceArtifacts": [
         "public-data/data.json",
         "public-data/market-snapshot.json",
