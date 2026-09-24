@@ -23,7 +23,7 @@
     "UNAVAILABLE",
     "UNKNOWN"
   ],
-  "generatedAt": "2026-09-24T02:54:36.479Z",
+  "generatedAt": "2026-09-24T05:20:53.983Z",
   "appRevision": "v56.32",
   "dataRevision": "market-snapshot:2026-09-24T02:54:13.729Z:6814648c",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
@@ -102,9 +102,9 @@
         "quoteQualityComplete": true,
         "blockedQuotes": [],
         "generatedAt": "2026-09-24T02:54:13.729Z",
-        "ageHours": 0.01,
+        "ageHours": 2.44,
         "maxAgeHours": 12,
-        "evaluatedAt": "2026-09-24T02:54:36.479Z",
+        "evaluatedAt": "2026-09-24T05:20:53.983Z",
         "reason": null
       },
       "readiness": {
@@ -127,11 +127,11 @@
         "revision": "fast-quotes:1d7b66fd",
         "sourceSha": "8a3939117e18de904c3892006e08611ea2d1a676",
         "observedAt": "2026-09-24T02:54:36.479Z",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-09-24T02:54:36.479Z"
+        "evidenceEvaluatedAt": "2026-09-24T05:20:53.983Z"
       },
       "soak": {
         "requiredDays": 7,
@@ -192,11 +192,11 @@
         "providerSmokeBoundary": "blocking-deployment-workflow-only",
         "ready": true,
         "note": "Periodic live health observed; provider smoke remains a blocking deployment-workflow gate.",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-09-24T02:54:36.479Z"
+        "evidenceEvaluatedAt": "2026-09-24T05:20:53.983Z"
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }
@@ -236,8 +236,8 @@
     "categoryCount": 22,
     "overall": "PARTIAL",
     "counts": {
-      "PARTIAL": 13,
-      "MATCH": 7,
+      "PARTIAL": 14,
+      "MATCH": 6,
       "BLOCKED": 2
     },
     "closure": {
@@ -257,6 +257,7 @@
         "news",
         "commodities-fx",
         "global-indices",
+        "crypto",
         "kr-macro-vkospi-supply"
       ],
       "partialCategories": [
@@ -272,7 +273,8 @@
         "macro-calendar",
         "news",
         "commodities-fx",
-        "global-indices"
+        "global-indices",
+        "crypto"
       ],
       "operatorRequiredCategories": [
         "investors-intelligence",
