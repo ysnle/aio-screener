@@ -111,7 +111,7 @@ check('refresh workflow runs twice hourly', /cron:\s*'17,47 \* \* \* \*'/.test(r
 check('refresh workflow has write permission and no cancel-in-progress', /contents:\s*write/.test(refresh) && /cancel-in-progress:\s*false/.test(refresh));
 check('refresh workflow fetches market data with free/official optional secrets', /node scripts\/fetch-data\.mjs/.test(refresh) && /FRED_API_KEY/.test(refresh) && !/FMP_API_KEY/.test(refresh) && /ANTHROPIC_API_KEY/.test(refresh));
 check('refresh workflow fetches Telegram digest artifact', /node scripts\/fetch-telegram-digest\.mjs --days=(?:7|14) --out=public-data\/telegram-digest\.json/.test(refresh));
-check('core refresh workflow commits core public-data artifacts', /git add public-data\/data\.json public-data\/history\.json/.test(refresh) && /public-data\/telegram-digest\.json/.test(refresh) && /public-data\/score-backtest-history\.json/.test(refresh));
+check('P1204 core refresh workflow stages core public-data artifacts and validates the Git index', /(?:git add -- )?public-data\/data\.json public-data\/history\.json/.test(refresh) && /stage_if_exists public-data\/telegram-digest\.json/.test(refresh) && /stage_if_exists public-data\/score-backtest-history\.json/.test(refresh) && /stage_if_exists public-data\/masters\/index\.json/.test(refresh) && /node scripts\/ci-masters-contract-check\.mjs --staged/.test(refresh));
 check('Telegram producer atomically synchronizes and stages Atlas lineage', /atlasIndex\.telegramObservedLineage\s*=\s*lineageCount/.test(fetchTelegram) && /public-data\/atlas\/index\.json/.test(refresh));
 // The property is "an independent six-hourly validated publish job", not "fires at :23".
 // Hardcoding the minute made a deliberate schedule offset (v56 moved it off data-watchdog's

@@ -168,33 +168,41 @@ jobs:
         # data refresh until the next scheduled run. Now rebase onto the latest main and retry
         # a bounded number of times before giving up loudly.
         run: |
+          set -euo pipefail
           git config user.name "aio-data-bot"
           git config user.email "actions@github.com"
-          git add public-data/data.json public-data/history.json
-          [ -f public-data/market-snapshot.json ] && git add public-data/market-snapshot.json || true
-          [ -f public-data/market-snapshot-status.json ] && git add public-data/market-snapshot-status.json || true
-          [ -f public-data/operations-status.json ] && git add public-data/operations-status.json || true
-          [ -f public-config.json ] && git add public-config.json || true
-          [ -f public-data/reconciliation-status.json ] && git add public-data/reconciliation-status.json || true
-          [ -f public-data/screener.json ] && git add public-data/screener.json || true
-          [ -f public-data/telegram-digest.json ] && git add public-data/telegram-digest.json || true
-          [ -f public-data/atlas/index.json ] && git add public-data/atlas/index.json || true
-          [ -f public-data/backtest-history.json ] && git add public-data/backtest-history.json || true
-          [ -f public-data/score-backtest-history.json ] && git add public-data/score-backtest-history.json || true
-          [ -f public-data/structural-data-research.json ] && git add public-data/structural-data-research.json || true
-          [ -f public-data/masters/filing-discovery.json ] && git add public-data/masters/filing-discovery.json || true
-          [ -f public-data/masters/filings.json ] && git add public-data/masters/filings.json || true
-          [ -f public-data/masters/manager-catalog.json ] && git add public-data/masters/manager-catalog.json || true
-          [ -f public-data/masters/holdings.json ] && git add public-data/masters/holdings.json || true
-          [ -f public-data/masters/holdings-summary.json ] && git add public-data/masters/holdings-summary.json || true
-          [ -f public-data/masters/history-index.json ] && git add public-data/masters/history-index.json || true
-          [ -f public-data/masters/history-holdings.json ] && git add public-data/masters/history-holdings.json || true
-          [ -f public-data/masters/issuer-aggregates.json ] && git add public-data/masters/issuer-aggregates.json || true
-          [ -f public-data/masters/ticker-index-reference.json ] && git add public-data/masters/ticker-index-reference.json || true
-          [ -d public-data/masters/managers ] && git add public-data/masters/managers || true
-          [ -d public-data/objects/masters ] && git add public-data/objects/masters || true
-          [ -d public-data/masters/history/managers ] && git add public-data/masters/history/managers || true
-          git add architecture/asset-manifest.json architecture/release-manifest.json architecture/public-readiness.json
+          stage_if_exists() {
+            if [ -e "$1" ]; then
+              git add -- "$1"
+            fi
+          }
+          git add -- public-data/data.json public-data/history.json
+          stage_if_exists public-data/market-snapshot.json
+          stage_if_exists public-data/market-snapshot-status.json
+          stage_if_exists public-data/operations-status.json
+          stage_if_exists public-config.json
+          stage_if_exists public-data/reconciliation-status.json
+          stage_if_exists public-data/screener.json
+          stage_if_exists public-data/telegram-digest.json
+          stage_if_exists public-data/atlas/index.json
+          stage_if_exists public-data/backtest-history.json
+          stage_if_exists public-data/score-backtest-history.json
+          stage_if_exists public-data/structural-data-research.json
+          stage_if_exists public-data/masters/filing-discovery.json
+          stage_if_exists public-data/masters/filings.json
+          stage_if_exists public-data/masters/manager-catalog.json
+          stage_if_exists public-data/masters/index.json
+          stage_if_exists public-data/masters/holdings.json
+          stage_if_exists public-data/masters/holdings-summary.json
+          stage_if_exists public-data/masters/history-index.json
+          stage_if_exists public-data/masters/history-holdings.json
+          stage_if_exists public-data/masters/issuer-aggregates.json
+          stage_if_exists public-data/masters/ticker-index-reference.json
+          stage_if_exists public-data/masters/managers
+          stage_if_exists public-data/objects/masters
+          stage_if_exists public-data/masters/history/managers
+          git add -- architecture/asset-manifest.json architecture/release-manifest.json architecture/public-readiness.json
+          node scripts/ci-masters-contract-check.mjs --staged
           if git diff --staged --quiet; then
             echo "No public-data changes to commit"
             echo "changed=false" >> "$GITHUB_OUTPUT"

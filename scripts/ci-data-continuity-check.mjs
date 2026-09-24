@@ -131,15 +131,37 @@ function runProducerChecks() {
   const operations = readText('scripts/build-operations-status.mjs');
   const reconciliation = readText('scripts/build-reconciliation-status.mjs');
   const workflow = readText('.github/workflows/refresh-data.yml');
+  const screenerWorkflow = readText('.github/workflows/refresh-screener.yml');
 
   check('producer:fetch-data-uses-atomic-writes', fetchData.includes("import { atomicWriteFile } from './lib/atomic-write.mjs';")
     && fetchData.includes('atomicWriteFile(OUT')
     && fetchData.includes('atomicWriteFile(HIST'), 'fetch-data output writers are not all atomic');
   check('producer:fetch-data-no-direct-output-write', !/\bwriteFile\s*\(/.test(fetchData), 'direct writeFile call remains in fetch-data');
-  for (const script of ['reconcile-13f-prior-from-history.mjs', 'collect-13f-reference.mjs', 'build-masters-runtime-artifacts.mjs']) {
+  for (const script of [
+    'reconcile-13f-prior-from-history.mjs',
+    'collect-13f-reference.mjs',
+    'collect-13f-history-index.mjs',
+    'collect-13f-history-rows.mjs',
+    'build-13f-issuer-aggregates.mjs',
+    'build-13f-reference-ticker-index.mjs',
+    'build-masters-runtime-artifacts.mjs'
+  ]) {
     const source = fs.readFileSync(path.join(ROOT, 'scripts', script), 'utf8');
-    check('producer:masters-atomic:' + script, source.includes("import { atomicWriteFile } from './lib/atomic-write.mjs';") && !/\bfs\.writeFile\(/.test(source), 'Masters producer can truncate published JSON on write failure');
+    check('producer:masters-atomic:' + script, source.includes("./lib/atomic-write.mjs") && !/\bfs\.writeFile\(/.test(source), 'Masters producer can truncate published JSON on write failure');
   }
+  const refreshCommitBlock = workflow.match(/name: Commit refreshed public data if changed[\s\S]*?git commit -m/)?.[0] || '';
+  const screenerCommitBlock = screenerWorkflow.match(/name: Commit only validated screener artifacts[\s\S]*?git commit -m/)?.[0] || '';
+  check('P1204 refresh-data stages canonical Masters index and validates Git index',
+    refreshCommitBlock.includes('set -euo pipefail')
+    && refreshCommitBlock.includes('stage_if_exists public-data/masters/index.json')
+    && refreshCommitBlock.includes('node scripts/ci-masters-contract-check.mjs --staged')
+    && !refreshCommitBlock.includes('|| true'),
+    refreshCommitBlock);
+  check('P1204 refresh workflows fail closed while staging published artifacts',
+    screenerCommitBlock.includes('set -euo pipefail')
+    && screenerCommitBlock.includes('stage_if_exists()')
+    && !screenerCommitBlock.includes('|| true'),
+    screenerCommitBlock);
   check('producer:market-snapshot-uses-atomic-writes', snapshot.includes("import { atomicWriteFile } from './lib/atomic-write.mjs';")
     && snapshot.includes('atomicWriteFile(MARKET_SNAPSHOT_STATUS_OUT')
     && snapshot.includes('atomicWriteFile(MARKET_SNAPSHOT_OUT'), 'market snapshot can be torn during replacement');

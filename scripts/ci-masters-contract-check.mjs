@@ -2,10 +2,28 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { rawHoldingRow } from './lib/masters-raw-rows.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
+const staged = process.argv.includes('--staged');
+const readFromGitIndex = (file) => execFileSync('git', ['show', `:${file}`], {
+  cwd: root,
+  encoding: 'utf8',
+  maxBuffer: 256 * 1024 * 1024,
+  stdio: ['ignore', 'pipe', 'pipe']
+});
+const read = (file) => staged ? readFromGitIndex(file) : fs.readFileSync(path.join(root, file), 'utf8');
+const artifactExists = (file) => {
+  if (!staged) return fs.existsSync(path.join(root, file));
+  try {
+    readFromGitIndex(file);
+    return true;
+  } catch {
+    return false;
+  }
+};
+const artifactBytes = (file) => Buffer.byteLength(read(file));
 const fail = (message) => { throw new Error(`[masters-contract] ${message}`); };
 const rawRowComparable = (row) => ['priorValue', 'priorShares', 'valueDelta', 'sharesDelta'].some((key) => row[key] != null) || row.action !== 'UNAVAILABLE' || row.comparisonStatus !== 'RAW_ROW_NOT_COMPARABLE' || row.actionConfidence !== 'NOT_AVAILABLE' || row.actionBasis !== 'NOT_AVAILABLE';
 const splitFixture = [10, 20].map((value) => ({ issuer: 'APPLE INC', value, shares: value * 2, priorValue: 5, priorShares: 10, valueDelta: 8107036430, sharesDelta: 50, action: 'INCREASED', comparisonStatus: 'VERIFIED_PRIOR_PERIOD' }));
@@ -124,7 +142,7 @@ if (holdings.managerShards) {
   for (const [managerId, descriptor] of Object.entries(holdings.managerShards)) {
     if (!descriptor.url || descriptor.fullRows <= 0 || descriptor.comparisonRows < 0 || !descriptor.accession) fail(`manager row shard descriptor incomplete for ${managerId}`);
     const shardFile = descriptor.url.replace(/^\.\//, '');
-    if (!fs.existsSync(path.join(root, shardFile))) fail(`manager row shard missing for ${managerId}`);
+    if (!artifactExists(shardFile)) fail(`manager row shard missing for ${managerId}`);
     const shard = JSON.parse(read(shardFile));
     if ((shard.holdings || []).some(rawRowComparable)) fail(`raw manager rows carry unverified aggregate comparisons for ${managerId}`);
     if (shard.managerId !== managerId || shard.latestFiling?.accession !== descriptor.accession || shard.holdings?.length !== descriptor.fullRows || shard.comparisons?.length !== descriptor.comparisonRows) fail(`manager row shard content drift for ${managerId}: declared ${descriptor.fullRows}/${descriptor.comparisonRows}, actual ${shard.holdings?.length || 0}/${shard.comparisons?.length || 0}`);
@@ -143,9 +161,10 @@ for (const [managerId, descriptor] of Object.entries(runtimeHoldings.managerShar
 if (Object.keys(historyIndex.managerShards || {}).length !== historyIndex.managers.length || historyIndex.managers.length !== historyIndex.connectedManagers) fail('manager history runtime shard coverage is incomplete');
 for (const descriptor of Object.values(historyIndex.managerShards || {})) {
   const shardFile = descriptor.url.replace(/^\.\//, '');
-  const absolute = path.join(root, shardFile);
-  if (!fs.existsSync(absolute) || fs.statSync(absolute).size > 100 * 1024) fail(`manager history shard missing or over 100KB: ${descriptor.url}`);
+  if (!artifactExists(shardFile) || artifactBytes(shardFile) > 100 * 1024) fail(`manager history shard missing or over 100KB: ${descriptor.url}`);
 }
+const historyShardRows = Object.values(historyIndex.managerShards || {}).reduce((sum, descriptor) => sum + Number(descriptor.historyRows || 0), 0);
+if (historyRows.rowsImported !== historyShardRows) fail(`master history row total drifted from runtime shards: artifact=${historyRows.rowsImported}, shards=${historyShardRows}`);
 if (holdings.managers.some((manager) => manager.status !== 'VERIFIED_ROWS' || !manager.verification.countReconciled)) fail('SEC cover-page reconciliation is incomplete');
 for (const manager of holdings.managers) {
   const verification = manager.verification;
@@ -162,7 +181,7 @@ const rawUniqueCusips = new Set((holdings.allHoldings || []).map((row) => row.cu
 const rawUniqueIssuerNames = new Set((holdings.allHoldings || []).map((row) => row.issuer).filter(Boolean)).size;
 if (mastersIndex.normalizationStatus !== 'PENDING_VERIFIED_SECURITY_MASTER' || mastersIndex.rawUniqueCusips !== rawUniqueCusips || mastersIndex.rawUniqueIssuerNames !== rawUniqueIssuerNames || mastersIndex.mappedRows !== 0 || mastersIndex.securityMasterArtifact !== 'public-data/masters/security-master.json') fail('security-master normalization boundary drifted');
 if (mastersIndex.issuerAggregateArtifact !== 'public-data/masters/issuer-aggregates.json' || mastersIndex.issuerAggregateStatus !== 'RAW_CUSIP_MULTI_QUARTER_CONNECTED' || mastersIndex.issuerAggregateRecords !== issuerAggregates.coverage?.aggregateRecords || mastersIndex.issuerAggregateReviewQueue !== issuerAggregates.coverage?.reviewQueue) fail('issuer aggregate index metadata drifted');
-if (mastersIndex.fullComparisonRowsAvailable !== holdings.fullComparisonRowsAvailable || mastersIndex.comparisonRowsPublished !== holdings.comparisonRowsPublished || mastersIndex.reconciledComparisons !== holdings.reconciledComparisons) fail('masters index comparison metadata drifted from the holdings artifact');
+if (mastersIndex.fullRowsAvailable !== holdings.fullRowsAvailable || mastersIndex.holdingRowsPublished !== holdings.holdingRowsPublished || mastersIndex.reconciledManagers !== holdings.reconciledManagers || mastersIndex.fullComparisonRowsAvailable !== holdings.fullComparisonRowsAvailable || mastersIndex.comparisonRowsPublished !== holdings.comparisonRowsPublished || mastersIndex.reconciledComparisons !== holdings.reconciledComparisons) fail('masters index comparison metadata drifted from the holdings artifact');
 if (mastersIndex.rowPreviewArtifact !== 'public-data/masters/manager-row-previews.json' || mastersIndex.rowPreviewStatus !== 'SEC_ROW_PREVIEW_CONNECTED' || mastersIndex.rowPreviewManagers !== 5 || mastersIndex.previewRows !== 55) fail('masters index row-preview metadata drifted');
 if (securityMaster.status !== 'REFERENCE_NORMALIZATION_PENDING' || securityMaster.sourceArtifact !== 'public-data/masters/holdings.json' || securityMaster.coverage?.rawUniqueCusips !== rawUniqueCusips || securityMaster.coverage?.rawUniqueIssuerNames !== rawUniqueIssuerNames || securityMaster.coverage?.mappedRows !== 0 || securityMaster.coverage?.recordsPublished !== 0 || securityMaster.coverage?.sectorWeightsPublished !== false || securityMaster.records?.length !== 0) fail('security-master artifact boundary drifted');
 if (issuerAggregates.schema !== 'masters-13f-issuer-aggregates.v1' || issuerAggregates.status !== 'RAW_CUSIP_MULTI_QUARTER_CONNECTED' || issuerAggregates.coverage?.inputRows <= 0 || issuerAggregates.coverage?.aggregateRecords !== issuerAggregates.aggregates?.length || issuerAggregates.coverage?.tickerPublished !== 0 || issuerAggregates.coverage?.sectorPublished !== 0 || issuerAggregates.aggregates?.some((record) => !record.managerId || !record.cusipNormalized || !record.periods?.length || record.tickerStatus !== 'NOT_PUBLISHED' || record.sectorStatus !== 'NOT_PUBLISHED' || record.corporateActionStatus !== 'REVIEW_REQUIRED')) fail('issuer aggregate artifact boundary drifted');
@@ -212,4 +231,9 @@ if (rowPreviews.managers.length !== 5 || rowPreviews.coverage?.previewManagerCou
 if (rowPreviews.managers.some((manager) => !manager.managerId || !manager.cik || manager.cik.length !== 10 || manager.reportPeriod !== '2026-03-31' || !manager.accession || !manager.sourceUrl || manager.rows.length !== manager.rowCountPreview || manager.rows.some((row) => !row.issuer || !row.cusip || !Number.isFinite(row.value) || !Number.isFinite(row.shares) || !row.shareType))) fail('row preview evidence fields are incomplete');
 if (rowPreviews.managers.some((manager) => ['berkshire-hathaway', 'duquesne-family-office', 'fisher-asset-management', 'pershing-square', 'appaloosa-management', 'baupost-group', 'scion-asset-management'].includes(manager.managerId))) fail('row previews must not duplicate the connected holdings artifact managers');
 
- console.log(JSON.stringify({ ok: true, route: 'masters', profiles: managerCatalog.managers.length, verifiedMetadata: managerCatalog.coverage.secMetadataVerified, cikVerified: managerCatalog.coverage.secMetadataVerified, reconciledManagers: holdings.reconciledManagers, holdingRowsPublished: holdings.holdingRowsPublished, fullRowsAvailable: holdings.fullRowsAvailable, rowPreviewManagers: rowPreviews.coverage.previewManagerCount, previewRows: rowPreviews.coverage.previewRowCount, reconciledComparisons: holdings.reconciledComparisons, comparisonRowsPublished: holdings.comparisonRowsPublished, fullComparisonRowsAvailable: holdings.fullComparisonRowsAvailable, latestAvailablePeriod: holdings.latestAvailablePeriod, currentClassification, staleReferenceManagers: holdings.managers.filter((manager) => manager.freshnessStatus === 'STALE_REFERENCE').map((manager) => manager.id), historyPeriods: historyIndex.totalPeriods, historicalRows: historyRows.rowsImported, normalizationStatus: mastersIndex.normalizationStatus, securityMasterStatus: securityMaster.status, rawUniqueCusips: mastersIndex.rawUniqueCusips, rawUniqueIssuerNames: mastersIndex.rawUniqueIssuerNames, mappedRows: mastersIndex.mappedRows, latestFilingPending: managerCatalog.coverage.rowImportPending, discoveryLeads: managerCatalog.coverage.discoveryLeads, methodOnly: methodOnly.length, reviewedAt: mastersIndex.reviewedAt }));
+const result = {
+  ok: true,
+  readMode: staged ? 'GIT_INDEX' : 'WORKTREE',
+  route: 'masters', profiles: managerCatalog.managers.length, verifiedMetadata: managerCatalog.coverage.secMetadataVerified, cikVerified: managerCatalog.coverage.secMetadataVerified, reconciledManagers: holdings.reconciledManagers, holdingRowsPublished: holdings.holdingRowsPublished, fullRowsAvailable: holdings.fullRowsAvailable, rowPreviewManagers: rowPreviews.coverage.previewManagerCount, previewRows: rowPreviews.coverage.previewRowCount, reconciledComparisons: holdings.reconciledComparisons, comparisonRowsPublished: holdings.comparisonRowsPublished, fullComparisonRowsAvailable: holdings.fullComparisonRowsAvailable, latestAvailablePeriod: holdings.latestAvailablePeriod, currentClassification, staleReferenceManagers: holdings.managers.filter((manager) => manager.freshnessStatus === 'STALE_REFERENCE').map((manager) => manager.id), historyPeriods: historyIndex.totalPeriods, historicalRows: historyRows.rowsImported, normalizationStatus: mastersIndex.normalizationStatus, securityMasterStatus: securityMaster.status, rawUniqueCusips: mastersIndex.rawUniqueCusips, rawUniqueIssuerNames: mastersIndex.rawUniqueIssuerNames, mappedRows: mastersIndex.mappedRows, latestFilingPending: managerCatalog.coverage.rowImportPending, discoveryLeads: managerCatalog.coverage.discoveryLeads, methodOnly: methodOnly.length, reviewedAt: mastersIndex.reviewedAt
+};
+console.log(JSON.stringify(result));

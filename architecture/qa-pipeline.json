@@ -16,8 +16,10 @@
         "scripts/ci-source-registry-contract-check.mjs",
         "scripts/ci-professional-data-gap-check.mjs",
         "scripts/ci-static-data-contract-check.mjs",
-        "scripts/ci-data-refresh-audit.mjs"
-      ]
+        "scripts/ci-data-refresh-audit.mjs",
+        "scripts/ci-masters-contract-check.mjs"
+      ],
+      "requiredTokens": ["public-data/masters/index.json", "ci-masters-contract-check.mjs --staged"]
     },
     {
       "workflow": ".github/workflows/refresh-screener.yml",
@@ -94,7 +96,7 @@
         { "id": "research-model", "script": "scripts/ci-research-model-contract-check.mjs" },
         { "id": "research-flow", "script": "scripts/ci-research-flow-contract-check.mjs" },
         { "id": "proxy-continuity", "script": "scripts/ci-proxy-continuity-check.mjs" },
-        { "id": "data-continuity", "script": "scripts/ci-data-continuity-check.mjs", "inputs": ["js/aio-data.js", "public-data/data.json", "public-data/history.json", "public-data/market-snapshot.json", "public-data/reconciliation-status.json", "public-data/screener.json", "public-data/structural-data-research.json", "public-data/telegram-digest.json", "public-config.json", ".github/workflows/refresh-data.yml", "scripts/fetch-data.mjs", "scripts/backtest-trading-score.mjs", "scripts/build-market-snapshot.mjs", "scripts/build-operations-status.mjs", "scripts/build-reconciliation-status.mjs", "scripts/lib/refresh-continuity.mjs", "scripts/lib/atomic-write.mjs", "src/ai/time/market-session.js", "src/data/contracts/market-snapshot.js", "src/data/contracts/operations.js", "src/data/contracts/reconciliation.js", "src/data/contracts/source-registry.js", "src/domain/signal/trading-score.js"] },
+        { "id": "data-continuity", "script": "scripts/ci-data-continuity-check.mjs", "inputs": ["js/aio-data.js", "public-data/data.json", "public-data/history.json", "public-data/market-snapshot.json", "public-data/reconciliation-status.json", "public-data/screener.json", "public-data/structural-data-research.json", "public-data/telegram-digest.json", "public-config.json", ".github/workflows/refresh-data.yml", ".github/workflows/refresh-screener.yml", "scripts/fetch-data.mjs", "scripts/backtest-trading-score.mjs", "scripts/build-market-snapshot.mjs", "scripts/build-operations-status.mjs", "scripts/build-reconciliation-status.mjs", "scripts/reconcile-13f-prior-from-history.mjs", "scripts/collect-13f-reference.mjs", "scripts/collect-13f-history-index.mjs", "scripts/collect-13f-history-rows.mjs", "scripts/build-13f-issuer-aggregates.mjs", "scripts/build-13f-reference-ticker-index.mjs", "scripts/build-masters-runtime-artifacts.mjs", "scripts/lib/refresh-continuity.mjs", "scripts/lib/atomic-write.mjs", "src/ai/time/market-session.js", "src/data/contracts/market-snapshot.js", "src/data/contracts/operations.js", "src/data/contracts/reconciliation.js", "src/data/contracts/source-registry.js", "src/domain/signal/trading-score.js"] },
         { "id": "desktop-continuity", "script": "scripts/ci-desktop-continuity-check.mjs" },
         { "id": "chat-resilience", "script": "scripts/ci-chat-resilience-check.mjs" },
         { "id": "ai-provider-stream", "script": "scripts/ci-ai-provider-stream-check.mjs" },
@@ -298,7 +300,7 @@
     { "patterns": ["scripts/ci-operator-secrets-contract-check.mjs"], "groups": ["workspace"] },
     { "patterns": ["scripts/ci-ledger-integrity-check.mjs", "scripts/ci-assertion-trace-check.mjs", "_context/rule-gap-manifest.json", "_context/open-item-baseline.json", "_context/assertion-trace-baseline.json", "_context/doc-freshness-baseline.json"], "groups": ["workspace"] },
     { "patterns": ["scripts/ci-artifact-semantics-check.mjs"], "groups": ["data", "core"] },
-    { "patterns": [".github/workflows/refresh-data.yml"], "groups": ["core", "data"] },
+    { "patterns": [".github/workflows/refresh-data.yml", ".github/workflows/refresh-screener.yml"], "groups": ["core", "data"] },
     { "patterns": [".github/workflows/pages-deploy.yml", ".github/workflows/deploy-ai-proxy.yml", ".github/workflows/deploy-data-plane.yml", "cloudflare-worker-proxy.js", "worker/data-plane.js", "architecture/deployment-convergence.json"], "groups": ["core", "cloudflare"] },
     { "patterns": ["public-data/knowledge/**", "public-data/principles/**", "public-data/atlas/**", "public-data/masters/**", "src/domain/knowledge/**", "src/ui/pages/principles.js", "src/ui/pages/atlas.js", "src/ui/pages/masters.js", "src/ui/knowledge/**"], "groups": ["knowledge", "browser-knowledge", "browser-unit", "browser-viewport"] },
     { "patterns": ["public-data/**", "scripts/fetch-*.mjs", "scripts/sync-*.mjs", "src/data/**", "src/domain/**", "src/state/**", "js/aio-data.js"], "groups": ["data", "core", "browser-unit", "browser-runtime"] },

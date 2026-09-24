@@ -1,13 +1,23 @@
 ---
-verified_by: P1203(E4 VaR 인증 도달 가능성 — 정렬 표본을 넘겨 '최근 절반' 민감도가 상위 절반이 되던 결함, 인증 렌더 실측 PFE2-23)·P1200(전략 목표비중의 현금 몫이 계좌 범위를 선언)·P1201(회고 경로 정책 셀렉터 비활성)·P1199(선언 저장소 ack 계약 네이티브 분해, 셸 -9)·P1198(선언 정직성 — 미선언·미인식 열거형이 기본값으로 승격되지 않음)·P1197(소비되지 않는 선언 — 회고 경로 정책 미요구·정체성 제외)·P1196(E3 원가축 환산)·P1195(선언 패널 네이티브 분해, 셸 -32)·P1194(E3 FX 환산 — 선언된 관측 rate leg)·P1193·P1192·P1191·P1190·P1189 구현, ci-esm-core-unit-check(P1182/P1191/P1193 갱신 + P1190~P1200 fixture)·ci-portfolio-vault-e2e(PFE2-16~23 포함 26/26)·ci-artifact-semantics-check·ci-history-field-time-contract-check·ci-data-lineage-audit·ci-reconciliation-contract-check·ci-operations-status-check PASS; 결정 확정(QA): 자동 관측 환율 미도입·삼각 환산 불허·선언 창 72h·P1192 값 보존 바인딩. 남은 OPEN: E2 S-C/S-E/S-F(별도 실행 하니스), 셸 위험 입력 조립 분해(~60줄), 백테스트 랩 통화축(과거 FX 이력 공급원 필요), `recent-half` 입력 순서 계약의 런타임 검증, 정식 CI 시크릿 refresh 사이클
+verified_by: P1204(Masters canonical index staging 누락·실제 Git index blob gate)·P1203(E4 VaR 인증 도달 가능성 — 정렬 표본을 넘겨 '최근 절반' 민감도가 상위 절반이 되던 결함, 인증 렌더 실측 PFE2-23)·P1200(전략 목표비중의 현금 몫이 계좌 범위를 선언)·P1201(회고 경로 정책 셀렉터 비활성)·P1199(선언 저장소 ack 계약 네이티브 분해, 셸 -9)·P1198(선언 정직성 — 미선언·미인식 열거형이 기본값으로 승격되지 않음)·P1197(소비되지 않는 선언 — 회고 경로 정책 미요구·정체성 제외)·P1196(E3 원가축 환산)·P1195(선언 패널 네이티브 분해, 셸 -32)·P1194(E3 FX 환산 — 선언된 관측 rate leg)·P1193·P1192·P1191·P1190·P1189 구현, ci-esm-core-unit-check(P1182/P1191/P1193 갱신 + P1190~P1200 fixture)·ci-masters-contract-check(worktree regenerated PASS, pre-fix staged index FAIL)·ci-data-continuity-check PASS·ci-artifact-semantics-check·ci-history-field-time-contract-check·ci-data-lineage-audit·ci-reconciliation-contract-check·ci-operations-status-check PASS. 남은 OPEN: E2 S-C/S-E/S-F(별도 실행 하니스), 셸 위험 입력 조립 분해(~60줄), 백테스트 랩 통화축(과거 FX 이력 공급원 필요), `recent-half` 입력 순서 계약의 런타임 검증, 정식 CI 시크릿 refresh 사이클
 last_verified: 2026-09-24
 confidence: medium
-latest_version: v56.32
-latest_P_number: P1203
-next_P_number: P1204
-current_total_entries: 590 tracked entries (417 headings + 173 compacted lines, P1~P1142, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
+latest_version: v56.33
+latest_P_number: P1204
+next_P_number: P1205
+current_total_entries: 591 tracked entries (418 headings + 173 compacted lines, P1~P1204, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
 current_checkpoint: 사용자 판단(지인용 사설 스크리너)으로 **차단 경계를 공시로 재배치**했다 — 개인화 지시·현재증거 부족·수치 주장 불일치·헤드라인 전용 인과를 하드 차단에서 경고/공시로 강등(P1120~P1122). 조작 방지(값·단위·NFP 배율), 금지 행위 P0, 포트폴리오 동의, 도구 경계는 그대로 차단이다. 남은 OPEN: 날짜 없는 중첩 산출물 12건(P1110 측정면이 노출), `objects/**` 592/629 미참조 blob의 보존 정책, 캐시 라우팅 밖의 실제 소비 산출물 오프라인 폴백 (semantic coverage 6.89%, releaseCertified=false)
 ---
+
+## P1204 - v56.33 - Masters canonical index가 최신 holdings 세대와 다른 커밋을 만들었다 (2026-09-24)
+
+- symptom/reproduction: GitHub `main`의 공식 13F refresh가 `holdings.json`은 `fullRowsAvailable=193200`·`fullComparisonRowsAvailable=89976`으로 갱신했지만, 같은 commit의 `public-data/masters/index.json`은 `193116`·`89890`인 2026-09-14 projection이었다. refresh workflow 내부 `ci-masters-contract-check.mjs`는 working tree만 읽어 통과했지만, commit checkout의 `Contracts / knowledge`는 `masters index comparison metadata drifted from the holdings artifact`로 실패했고 attestation·Pages가 차단됐다. `git show :public-data/masters/{holdings,index}.json` 기반 staged 재현은 수정 전 index가 동일하게 실패했고, canonical projection 재생성 뒤 worktree는 PASS했다.
+- root_cause: `build-masters-runtime-artifacts.mjs`와 `build-13f-reference-ticker-index.mjs`는 `public-data/masters/index.json`을 정상 갱신하지만 `refresh-data.yml`의 `git add` 목록에서 canonical index가 누락됐다. commit 단계는 또한 `[ -f path ] && git add path || true`를 반복해 실제 staging 실패를 삼켰다. **producer 직후 worktree 검사와 실제 commit 대상인 Git index 검사를 같은 것으로 가정**한 것이 핵심이다.
+- fix: ① refresh-data commit step을 `set -euo pipefail` + `stage_if_exists()`로 바꿔 존재하는 게시 파일만 fail-fast stage하고 `public-data/masters/index.json`을 명시적으로 포함한다. ② `ci-masters-contract-check.mjs`에 `--staged` 모드를 추가해 `git show :path`로 index blob 전체를 읽고, same command가 commit 전에 실행되게 한다. ③ owner gate가 `fullRowsAvailable`·`holdingRowsPublished`·`reconciledManagers`·comparison 3필드와 history shard row 합까지 대조한다. ④ `ci-data-continuity-check.mjs`가 canonical index staging·staged gate·두 refresh workflow의 fail-fast staging·7개 Masters producer의 atomic writer 계약을 고정한다. ⑤ history index/row published JSON과 partial checkpoint를 공통 atomic writer로 전환하고, continuity gate의 cache input·QA pipeline impact self-contract에 sibling writers를 포함한다.
+- violated_rule: R457(원본·파생 projection은 같은 실행에서 재생성하고 같은 commit에 stage, CI는 staging 배선까지 검증), P1095 계열 fail-closed publication. 기존 R626 병합 규칙과 달리 여기서는 conflict가 아니라 **stage ownership 누락**이었다.
+- prevention: `ci-data-continuity-check.mjs` P1204 회귀 단언 2개 + Masters 7-producer atomic sweep, `architecture/qa-pipeline.json` refresh-data required script/token 계약, `ci-masters-contract-check.mjs --staged` 전체 Git-index 검증, history row/shard 합 단언. 수정 전 staged index에 대한 실패와 수정 후 worktree PASS를 양·음성 증거로 확인했다.
+- verification: `node --check` 4개 PASS, `ci-data-continuity-check.mjs` PASS(63 checks), `build-masters-runtime-artifacts.mjs` 재생성 PASS, `ci-masters-contract-check.mjs` worktree PASS(`readMode=WORKTREE`, index/holdings 193200/89976 일치), 수정 전 `ci-masters-contract-check.mjs --staged`가 stale committed index에서 의도대로 FAIL. 전체 affected QA·release CI·Pages는 종료 보고의 배포 증거로 분리한다.
+- residual_risk: (1) producer 직후 staged blob은 현재 잡지만, commit 후 rebase 충돌 해결이 staged content를 다시 바꾸면 push 직전 exact-index 재검사가 추가로 필요하다 — 다음 반복 방지 후보. (2) `reconcile-13f-prior-from-history.mjs`는 수동 repair 경로에서 full comparison을 embedded `holdings.comparisons.length`로 재계산해 canonical collector와 기준이 달라질 수 있어 별도 E2/manual-repair 수렴 대상이다. (3) Pages 자체 deploy는 성공해도 live AI proxy revision이 stale하면 workflow conclusion이 RED이므로 proxy release sequencing은 별도 운영 계약으로 확인한다.
 
 ## P1200 - v56.31 - 목표비중에 현금을 넣을 수 없어 계좌 범위를 선언할 방법이 없었다 (2026-09-24)
 

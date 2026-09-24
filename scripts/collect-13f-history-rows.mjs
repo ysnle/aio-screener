@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createSecClient } from './lib/sec-edgar.mjs';
+import { atomicWriteFile } from './lib/atomic-write.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const historyPath = path.join(root, 'public-data', 'masters', 'history-index.json');
@@ -114,7 +115,7 @@ if (!historicalRows.length) {
 }
 const importedPeriodKeys = new Set(historicalRows.map((row) => `${row.managerId}|${row.reportPeriod}`));
 async function writeCheckpoint() {
-  await fs.writeFile(partialRowsPath, `${JSON.stringify({ importedPeriods, rows: historicalRows }, null, 2)}\n`, 'utf8');
+  await atomicWriteFile(partialRowsPath, `${JSON.stringify({ importedPeriods, rows: historicalRows }, null, 2)}\n`, 'utf8');
 }
 for (const manager of history.managers) {
   const holdingManager = holdings.managers.find((item) => item.id === manager.managerId);
@@ -192,7 +193,7 @@ history.historicalRowsArtifact = 'public-data/masters/history-holdings.json';
 history.totalPeriods = history.managers.reduce((sum, manager) => sum + manager.periods.length, 0);
 history.rowImportedPeriods = history.managers.reduce((sum, manager) => sum + manager.periods.filter((period) => period.rowImportStatus !== 'METADATA_ONLY').length, 0);
 history.pendingRowImportPeriods = history.managers.reduce((sum, manager) => sum + manager.periods.filter((period) => period.rowImportStatus === 'METADATA_ONLY').length, 0);
-await fs.writeFile(historyPath, `${JSON.stringify(history, null, 2)}\n`, 'utf8');
+await atomicWriteFile(historyPath, `${JSON.stringify(history, null, 2)}\n`, 'utf8');
 
 const historyRowsArtifact = {
   schemaVersion: 'masters-13f-history-holdings.v1',
@@ -206,6 +207,6 @@ const historyRowsArtifact = {
   rowsImported: historicalRows.length,
   rows: historicalRows
 };
-await fs.writeFile(historyRowsPath, `${JSON.stringify(historyRowsArtifact, null, 2)}\n`, 'utf8');
+await atomicWriteFile(historyRowsPath, `${JSON.stringify(historyRowsArtifact, null, 2)}\n`, 'utf8');
 await fs.rm(partialRowsPath, { force: true });
 console.log(JSON.stringify({ ok: true, output: 'public-data/masters/history-holdings.json', importedPeriods, rowsImported: historicalRows.length, pendingRowImportPeriods: history.pendingRowImportPeriods }));

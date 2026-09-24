@@ -1,3 +1,11 @@
+## v56.33 (2026-09-24)
+- **Masters canonical index가 최신 `holdings.json`과 다른 세대로 커밋되던 배포 차단을 고쳤습니다 (P1204/R457).** `build-masters-runtime-artifacts.mjs`가 working tree의 `public-data/masters/index.json`은 올바르게 갱신했지만 `refresh-data.yml`의 commit stage 목록에서 이 파일을 빠뜨렸습니다. 따라서 producer 직후 게이트는 새 working tree를 읽어 통과했지만, 커밋은 새 `holdings.json` + 구 `index.json`을 함께 담았고 GitHub CI가 `fullComparisonRowsAvailable` 89,890 대 89,976 불일치로 막았습니다.
+- `refresh-data.yml`은 `set -euo pipefail` + `stage_if_exists`로 모든 게시 파일을 fail-fast staging하고, `public-data/masters/index.json`을 명시적으로 포함합니다. 같은 commit step이 `ci-masters-contract-check.mjs --staged`를 실행해 **실제 Git index blob** 전체를 검증한 뒤에만 commit합니다. `refresh-screener.yml`의 `|| true` staging도 같은 fail-fast 방식으로 교체했습니다.
+- `ci-masters-contract-check.mjs`는 worktree/Git index 읽기 모드를 분리했고, `fullRowsAvailable`·`holdingRowsPublished`·`reconciledManagers`까지 holdings projection과 엄격히 대조하며 history shard row 합도 검증합니다. `ci-data-continuity-check.mjs`는 canonical index staging·staged gate·sibling producer 원자 쓰기를 P1204 회귀 계약으로 고정했습니다.
+- `collect-13f-history-index.mjs`와 `collect-13f-history-rows.mjs`의 published JSON 및 partial checkpoint 쓰기를 공통 atomic writer로 전환했습니다. P1204 자체 게이트는 수정은 전 staged index에서 의도대로 실패했고 projection 재생성 후 worktree에서 PASS했으며, 재생성된 `index.json`이 `fullRowsAvailable=193200`, `fullComparisonRowsAvailable=89976`으로 `holdings.json`과 일치합니다.
+- 배포 목표: 새 release commit의 full CI attestation 이후 `Deploy AI proxy` v56.33 수동 dispatch, 동일 release Pages 자동/hand-over 배포와 live external gate를 모두 확인합니다.
+- R1 7곳 v56.33
+
 ## v56.32 (2026-09-24)
 - **VaR `certified` 상태가 현실적인 표본에서 도달 불가였던 결함을 고쳤습니다 (P1203, E4).** 인증 렌더 상태를 처음 실측하려고 72개월 표본을 만들었는데, 표본·꼬리·부트스트랩 밴드를 모두 통과하는데도 계속 `held`였고 사유는 `estimator-sensitivity-exceeds-declared-maximum` 하나였습니다. 원인은 랩이 `deriveVarStability`에 **정렬된** 표본을 넘긴 것 — 민감도 변형 `recent-half`가 '최근 절반'이 아니라 **분포의 상위 절반**을 보게 되어, 중앙값이 양수인 어떤 표본이든 상위 절반 VaR는 0 → 민감도 1 > 0.5 → **인증이 영원히 불가능**했습니다. 호출자가 **시간 순서** 표본을 넘기도록 수정했습니다(꼬리·근사 순위는 함수가 내부에서 정렬하므로 안전). ESM fixture는 모든 수익률이 음수인 표본을 써서 이 경로를 통과했고, 그래서 결함이 보이지 않았습니다.
 - **인증 렌더 상태를 처음 실측했습니다**: 72개월 표본 → 라벨 **`인증`**, 13개월 표본 → `인증 보류 — 표본 부족, 꼬리 부족, 부트스트랩 변동 큼, 추정량 민감`(실브라우저 `PFE2-23`, 양성·음성 대조).

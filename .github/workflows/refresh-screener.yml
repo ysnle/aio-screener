@@ -110,11 +110,17 @@ jobs:
       - name: Commit only validated screener artifacts
         id: commit
         run: |
+          set -euo pipefail
           git config user.name "aio-data-bot"
           git config user.email "actions@github.com"
-          git add public-data/screener.json public-data/sec-fundamentals.json public-data/sec-fundamentals-summary.json public-data/sec-fundamentals-summary.manifest.json public-data/screener-validation-gate.json public-data/reconciliation-status.json public-data/operations-status.json public-data/history.json public-config.json architecture/public-readiness.json
-          [ -f public-data/earnings-calendar.json ] && git add public-data/earnings-calendar.json || true
-          [ -f public-data/backtest-history.json ] && git add public-data/backtest-history.json || true
+          stage_if_exists() {
+            if [ -e "$1" ]; then
+              git add -- "$1"
+            fi
+          }
+          git add -- public-data/screener.json public-data/sec-fundamentals.json public-data/sec-fundamentals-summary.json public-data/sec-fundamentals-summary.manifest.json public-data/screener-validation-gate.json public-data/reconciliation-status.json public-data/operations-status.json public-data/history.json public-config.json architecture/public-readiness.json
+          stage_if_exists public-data/earnings-calendar.json
+          stage_if_exists public-data/backtest-history.json
           if git diff --staged --quiet; then
             echo "No screener changes to commit"
             echo "changed=false" >> "$GITHUB_OUTPUT"
