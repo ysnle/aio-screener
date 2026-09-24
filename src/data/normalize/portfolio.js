@@ -68,6 +68,15 @@ export function normalizePortfolio(raw = {}) {
     cashKnown: raw.cashKnown === true || numeric(raw.cash) != null,
     baseCurrency: String(raw.baseCurrency || raw.currency || '').trim().toUpperCase() || null,
     cashCurrency: String(raw.cashCurrency || '').trim().toUpperCase() || null,
+    // E3/P1194: 선언된 FX leg는 환산의 유일한 근거다 — 정규화가 지우면 surface는 영원히 보류만 한다.
+    // 여기서는 통과만 시키고 유효성(관측 시각·창)은 surface의 fx 계약이 판정한다.
+    fxLegs: Object.freeze((Array.isArray(raw.fxLegs) ? raw.fxLegs : []).map((leg) => Object.freeze({
+      from: String(leg?.from || '').trim().toUpperCase() || null,
+      to: String(leg?.to || '').trim().toUpperCase() || null,
+      rate: numeric(leg?.rate),
+      observedAt: leg?.observedAt ? String(leg.observedAt) : null,
+      source: leg?.source ? String(leg.source) : null
+    }))),
     readState: ['loading', 'locked', 'ready', 'failed'].includes(raw.readState) ? raw.readState : (raw.status === 'locked' ? 'locked' : raw.status === 'loading' ? 'loading' : raw.status === 'failed' ? 'failed' : 'ready'),
     totals,
     privacy: raw.privacy || 'opt-in',

@@ -2,6 +2,21 @@
 
 Astra 유지·설계. 최종 갱신 2026-09-21. 각 행의 함수는 해당 의미 경계를 읽은 범위이며, 파일 전체/모든 입력의 정확성 인증이 아니다. ‘정적’은 코드 추적, ‘합성’은 고정 입력 실행, ‘브라우저’는 로컬 관찰이다. 55는 v55.22, 56은 외부 미커밋 변경을 포함한 v56이다. 9/21 증분은 v56.01 기준이다. 근거가 다른 버전이면 해당 대상의 재검증 문서를 우선한다.
 
+**v56.15 보강, 2026-09-23:** 아래 기존 표는 함수별 역사 조사 범위를 보존한다. 현재 해결/부분/열림은 [25](25-CURRENT-FINDING-STATUS-CROSSWALK.md)를 정본 색인으로 삼고, 설계·인수는 [26](26-EXECUTION-AND-ACCEPTANCE-PLAN.md)와 대상 패키지를 따른다. 이 증분은 기존 70여 함수 전체 재실행이 아니다.
+
+| 추가 함수/경계 | 새로 확인한 의미 | 증거 수준·상태 | 설계 연결 |
+|---|---|---|---|
+| `validateMarketSnapshot`/coverage audit | quote `metricId`만 틀린 published snapshot을 `ok:true`로 수용 | 순수 계약 함수 합성, 현재 수용 경로 확인 | 03 W03-A, 24 R24-02, 26 E1 |
+| factor producer→provider→normalizer→runtime reader | barStart·session·time-basis의 일부가 전달 중 소실되고 일반 observedAt으로 노출 | 정적 끝단 경로, 실제 UI 재주입 대기 | 15 D04, 24 R24-03, 26 E1 |
+| `snapshotIdentityRows`→`computeFactorRanks` size | 같은 artifact에서 live mcap 1B→10B에 AAA size 점수/순위 75/100→25/0, snapshotId도 변경 | provider+domain 합성, 같은 ID 다른 결과는 미재현 | 07,13,24 R24-04,26 E2 |
+| `buildPortfolioBacktestLab` | 가격 이력 없는 의도 ticker를 제외하고 남은 멤버로 배분 | 정적 경로, missing-member 합성/UI 인수 대기 | 22/23,24 R24-05,26 E3/E4 |
+| `refreshPortfolioRisk` | 현재 시세 비중을 과거 모든 일 수익률에 적용·현금 제외 | 정적 경로, 실제 계좌 성과라 부를 수 없음 | 22,24 R24-06,26 E4 |
+| Vault reader→portfolio provider→surface/UI | cost/base/cash currency 전달 누락 가능, 서로 다른 통화 P&L·`$` 표기 | 정적 경로, 전체 E2E 미실행 | 11/22,24 R24-06,26 E3 |
+| `buildLane`/`buildSloWindow` | push 이벤트만 있어도 scheduled arrival PASS가 가능 | 순수 SLO 합성; 실제 원격 실패 미관측 | 06/17,24 R24-07,26 E5 |
+| compatibility facade→router fast path | showPage 선행 효과, 같은 route/entity의 viewState 변화 무시 가능 | 정적 경로, 실브라우저 전환 재검증 대기 | 00 W00,24 R24-08 |
+| masters manager shard→summary | manager 전체와 top-10 preview count/label 혼동 | 정적 producer/renderer 경로 | 04 C03 |
+| AI intent→conduct→publication | ‘나에게’ 개인화 분류와 공개 단계 제한 전달 불일치 후보 | 정적 경로, 실모델 공개 재현 대기 | 05 A06,26 E6 |
+
 ## 핵심 흐름
 
 `instrument/universe → provider → observation/period/unit → field readiness → hard filters → factor transforms → ranking → explanation → UI/AI → saved run/replay → operation/refresh`

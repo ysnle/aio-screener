@@ -20,7 +20,10 @@ export const FACTOR_RANKS_MODEL_VERSION = 'factor-ranks.v6';
 export const FACTOR_RANKS_ALLOWED_USE = 'research-relative-ranking-only';
 
 const DAY_MS = 86_400_000;
-const FACTOR_FRESHNESS_MS = 4 * DAY_MS;
+// Shared with the producer (fetch-data) so the quality label written into the
+// artifact and the freshness gate applied at read time use one budget — two
+// budgets let a row read CURRENT at fetch and stale at render, or vice versa.
+export const FACTOR_FRESHNESS_MS = 4 * DAY_MS;
 const FUNDAMENTAL_FRESHNESS_MS = 180 * DAY_MS;
 const MIN_CROSS_SECTION_COVERAGE = 0.8;
 // A cross-sectionally active factor can still be absent for an individual security. Do not
@@ -180,7 +183,15 @@ function factorLineage(row, key) {
   const sourceKind = row?.[`${prefix}SourceKind`] || (priceFactor ? row?.factorSourceKind : null) || (priceFactor ? row?.sourceKind : null) || null;
   const allowedUse = row?.[`${prefix}AllowedUse`] || (priceFactor ? row?.factorAllowedUse : null) || (priceFactor ? row?.allowedUse : null) || null;
   const quality = row?.[`${prefix}Quality`] || (priceFactor ? row?.factorQuality : null) || (priceFactor ? row?.quality : null) || null;
-  return { observedAt, sourceKind, sourceTier: canonicalSourceTier(sourceKind), allowedUse, quality };
+  // P1184/R24-03: price-factor timestamps are bar-starts (P1170). Carry the basis
+  // and the explicit bar/session fields with the lineage so a consumer of
+  // factorEvidence cannot read a bar-start as the moment the value was knowable.
+  // Rows predating the producer fields keep null — absence is recorded, never
+  // back-filled with an assumed basis.
+  const timeBasis = priceFactor ? (row?.factorTimeBasis || null) : null;
+  const barStart = priceFactor ? (row?.factorBarStart || null) : null;
+  const sessionDate = priceFactor ? (row?.factorSessionDate || null) : null;
+  return { observedAt, timeBasis, barStart, sessionDate, sourceKind, sourceTier: canonicalSourceTier(sourceKind), allowedUse, quality };
 }
 
 function factorEvidenceUsable(row, key, now) {
@@ -618,6 +629,10 @@ export function computeFactorRanks({
       factorEvidence: Object.freeze(Object.fromEntries(Object.entries(row._factorEvidence).map(([key, evidence]) => [key, Object.freeze({
         eligible: !!evidence.ok,
         observedAt: evidence.lineage?.observedAt || null,
+        // P1184: publish *what kind of instant* observedAt is alongside it.
+        timeBasis: evidence.lineage?.timeBasis || null,
+        barStart: evidence.lineage?.barStart || null,
+        sessionDate: evidence.lineage?.sessionDate || null,
         sourceKind: evidence.lineage?.sourceKind || null,
         sourceTier: evidence.lineage?.sourceTier || null,
         allowedUse: evidence.lineage?.allowedUse || null,

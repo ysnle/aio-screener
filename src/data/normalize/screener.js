@@ -97,6 +97,13 @@ export function normalizeScreener(raw = {}) {
     observedAt: row?.observedAt || null,
     fetchedAt: row?.fetchedAt || null,
     factorObservedAt: row?.factorObservedAt || null,
+    // R24-03/P1179: the whitelist must pass the producer's time contract through —
+    // a silent drop here re-derives every session/basis label from the bar start.
+    factorBarStart: row?.factorBarStart || null,
+    factorSessionDate: row?.factorSessionDate || null,
+    factorSessionTimezone: row?.factorSessionTimezone || null,
+    factorTimeBasis: row?.factorTimeBasis || null,
+    factorComputedAt: row?.factorComputedAt || null,
     factorSourceKind: row?.factorSourceKind || null,
     factorAllowedUse: row?.factorAllowedUse || null,
     factorQuality: row?.factorQuality && typeof row.factorQuality === 'object' ? { ...row.factorQuality } : null,

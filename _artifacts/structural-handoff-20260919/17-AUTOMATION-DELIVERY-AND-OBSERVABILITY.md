@@ -73,3 +73,67 @@ job receipt는 runId, domain, sourceRevision, input watermarks, attempted/succee
 필수 도메인 오류가 전체 publication을 막아야 하는지, 해당 projection만 이전 적격 버전으로 남길지는 dependency와 비교 의미로 결정한다. 무조건 전체 중단도, 무조건 부분 발행도 정답이 아니다. 함께 비교되는 피처 집합은 일관된 snapshot을 유지한다. UI/AI가 서로 다른 run의 시각·점수를 조합하지 못하게 한다.
 
 발행 완료는 파일 생성이나 commit으로 끝나지 않는다. manifest 검증, 소비 가능한 revision 공개, 실제 도달 확인, 운영 receipt 보존까지 각각 상태를 가진다. public status 갱신 자체가 실패하더라도 마지막 성공 시각으로 지연을 감지할 수 있어야 한다.
+
+## 2026-09-23 O04–O07 상태와 운영 인수 계약
+
+상위 상태와 실행 순서는 [25](25-CURRENT-FINDING-STATUS-CROSSWALK.md), [26](26-EXECUTION-AND-ACCEPTANCE-PLAN.md)와 일치한다.
+
+| 발견 | 최신 상태 | P 항목으로 닫힌 부분 | 남은 운영/사용자 인수 |
+|---|---|---|---|
+| O04 | **부분 구현 + 새 반증 열림** | P1166가 market/screener/watchdog lane 분리, workflow cadence 기반 expectedRuns, dispatch 제외, pagination completeness, 정상 cadence 긍정 대조를 추가했다. | R24-07에서 `workflow_dispatch` 외 `push`를 scheduled로 세는 새 경로가 확인됐다. 예정 event 귀속·slot 단위 중복/재시도·휴장 처리가 남는다. 현 원격 30일 성공 여부는 이 문서로 판정하지 않는다. |
+| O05 | **부분 구현** | P1166이 `configured`와 `observed`를 분리하고 browser plane의 관측 없음은 UNKNOWN/NOT_OBSERVED로 만든다. P1173은 `overallBasis`와 featureAvailability를 추가했다. | status consumer에서 기능별 사용자 문장으로 연결하고 browser/delivery 상태를 기능별로 보이는지 확인해야 한다. durable overall만으로 browser 정상/비정상을 표시하지 않는다. |
+| O06 | **부분 구현** | P1169가 SEC batch receipt와 `SUCCESS/PARTIAL/NO_REFRESH_RETAINED/EMPTY/NOT_ATTEMPTED` 계약을 구현하고 5개 fixture로 실패/유지 축을 분리했다. | SEC 외 domain receipt, checked-in 최신 산출물, 운영 알림·화면 연결은 남아 있다. 기존 데이터 보존을 이번 refresh 성공으로 말하지 않는다. |
+| O07 | **부분 구현** | P1173이 screener/universe/model-validation 소비 조합에 COHERENT/INCOMPATIBLE/UNVERIFIABLE 판정을 넣고 일부 교체 상태를 탐지한다. | publication 전체 coordinator, SW/cache 세대 전환과 사용자 run 고정, 실제 배포/원격 브라우저 혼합 전환 trace는 미검증이다. |
+
+### O04 예정 실행 분모: event와 schedule slot을 같은 식별자로 연결
+
+`completed runs`를 분모로 삼지 않는다. 각 예정 slot을 workflow schedule 정의와 업무 calendar에서 먼저 생성하고, 해당 slot에 도착한 **schedule event**만 분자 후보가 된다. `push`, `workflow_dispatch`, repository/manual dispatch, 재시도는 별도 지표로 보존하되 schedule 도착률 분자에 더하지 않는다. `push` 성공만으로 schedule 누락을 채우면 안 된다.
+
+```ts
+type ExpectedDeliverySlot = {
+  slotId: string;                    // hash(workflowId, domain, scheduledAt, cadencePolicyVersion)
+  workflowId: string;
+  domain: string;
+  scheduledAt: string;
+  deadlineAt: string;
+  calendarStatus: 'expected' | 'market_holiday' | 'not_due';
+};
+type RunReceipt = {
+  runId: string;
+  eventName: string;                 // schedule/push/workflow_dispatch/…
+  scheduledAt: string | null;
+  slotId: string | null;
+  attempt: number;
+  conclusion: string;
+  startedAt: string;
+  completedAt: string | null;
+  outputRevision: string | null;
+};
+```
+
+한 `slotId`는 여러 재시도를 하나의 도착 기회로만 센다. schedule delay는 grace deadline 전·후를 나누고, grace를 넘긴 성공은 실행 성공으로 셀 수 있지만 정시 도착으로 소급 집계하지 않는다. market holiday는 해당 market calendar로 분모에서 제외하고 이유/달력을 공개한다. calendar 미검증은 휴장으로 간주하지 않고 인증을 제한한다. 7d/30d 집계는 workflow/domain/calendar policy revision 및 API pagination 완전성을 함께 묶는다.
+
+### 공통 반증 fixture와 운영 dashboard 언어
+
+| Fixture | 필요한 run/slot 입력 | 예상 판정 |
+|---|---|---|
+| `O04-push-only` | 30일 push 성공, 대응 schedule slot 미도착 | schedule arrival 0, 30d PASS 금지 |
+| `O04-manual-does-not-fill` | schedule 누락 뒤 workflow_dispatch 성공 | manual count 증가, schedule slot 미충족 유지 |
+| `O04-retry-one-slot` | 같은 slotId에서 3 attempts, 마지막 성공 | slot 분자는 최대 1; retry count 별도 |
+| `O04-late-success` | deadline 초과 뒤 성공 | execution success와 on-time arrival 분리 |
+| `O04-holiday` | domain calendar의 검증된 휴장 | 예정 분모에서 제외, 별도 holiday 카운트 증가 |
+| `O04-incomplete-query` | API pagination/page cap 또는 조회 window 누락 | 인증 `INSUFFICIENT_EVIDENCE`; 실패율을 축소 집계하지 않음 |
+| `O06-all-failed-retained` | 이번 batch 0 update, transient failure, 이전 data 보존 | `NO_REFRESH_RETAINED`; 데이터 사용 가능성과 새 수집 성공 분리 |
+| `O07-cross-generation` | 배포 경계 중 manifest revision 혼합, 일부 404, 이전 tab/new SW | 허용 compatibility가 없는 조합은 activate하지 않고 마지막 호환 세트를 보존 |
+
+운영자 화면은 `예정 slot / 도착 / 지연 / 미도착 / 실패 / 기존값 유지`와 dataQuality를 domain별로 보여준다. 사용자 화면은 내부 run ID 대신 `가격 참고는 10:15 기준, 재무 분석은 새 자료 대기 중`처럼 실제 기능을 좁혀 말한다. 설정만 되어 있는 browser plane은 `관측되지 않음`이지 `정상`이 아니다. 상태 카드 하나로 서로 다른 domain의 freshness를 합치지 않는다.
+
+### 단계적 도입·rollback
+
+1. 기존 7d/30d 결과와 raw run list를 보존하고 새 slot-matcher를 shadow 계산한다. O04 0회·push-only 반증을 포함해 기존 PASS와 새 결과 차이를 모두 검토한다.
+2. 먼저 report-only로 출시한다. expected-slot inventory, calendar, pagination completeness, event attribution이 설명 가능해진 뒤 승격 경계에 연결한다.
+3. receipt producer는 domain별로 배포하고 consumer는 optional receipt가 없을 때 `unknown`으로 downgrade한다. 오래된 발행물을 새 SUCCESS로 변환하지 않는다.
+4. 새 산출물이나 consumer가 호환되지 않으면 마지막으로 검증된 publication revision을 계속 제공하고 새 domain만 `degraded`로 분리한다. 배포를 되돌릴 때 manifest와 shell의 호환 revision도 함께 복구한다.
+5. false PASS, slot 중복, 예정 이벤트 미귀속, partial rollout 미탐지가 발견되면 promotion을 멈추고 raw evidence를 보존한다. local fixture 통과만으로 원격 운영 인증을 선언하지 않는다.
+
+실제 O04–O07 인수 trace는 21의 manifest 형식을 따른다. 최소한 workflow YAML/cron revision, query window/pages, raw event/run IDs와 eventName, expected slot 목록, data/publication revision, browser가 소비한 revision, 화면 캡처·console, live deployment SHA를 연결한다. 이 문서 변경으로 실제 GitHub Actions 이력이나 배포가 조회/검증된 것은 아니다.

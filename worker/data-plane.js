@@ -108,6 +108,8 @@ async function fetchYahooQuote(instrument, now = Date.now()) {
         previousValue: Number.isFinite(previousValue) ? previousValue : null,
         changePct: Number.isFinite(previousValue) && previousValue > 0 ? ((value - previousValue) / previousValue) * 100 : null,
         unit: instrument.unit,
+        // W03-C/P1183: worker quotes carry the registry identity tuple as-is.
+        valueKind: instrument.valueKind,
         source: 'Yahoo chart',
         sourceKind: 'public-information-service',
         observedAt,

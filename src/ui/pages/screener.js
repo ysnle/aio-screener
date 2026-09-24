@@ -901,8 +901,13 @@ function render({ documentRef, store, readLiveData, readWatchlist, readAliases, 
     // P1167 (15 D04): `metadata.factorObservedAt`는 Yahoo 일봉 timestamp, 즉 그 세션 **바의 시작**이다.
     // 종가로 계산한 팩터를 '관측 시각'으로 표시하면 그날 개장 시점에 이미 알 수 있었다는 의미가 된다.
     // 세션 기준일과 수집·생성 시각을 분리하고, 바 시작 시각을 관측시각으로 승격하지 않는다.
-    const factorSessionDate = String(metadata.factorSessionDate || metadata.factorObservedAt || '').slice(0, 10);
-    const factorSessionLabel = factorSessionDate ? `팩터 ${factorSessionDate} 세션 종가 기준(일봉 바 시작 ${fmtDate(metadata.factorObservedAt)} · 관측시각 아님)` : '팩터 기준 세션 미확인';
+    // R24-03/P1179: P1170의 시장별 세션 맵이 provider를 통과하면 그 값을 쓴다 — 혼합 시장의
+    // 세션일은 하나의 스칼라로 합칠 수 없고, 없을 때만 호환 바 시작 날짜로 폴백한다.
+    const sessionByMarket = metadata.factorSessionDateByMarket && typeof metadata.factorSessionDateByMarket === 'object' ? metadata.factorSessionDateByMarket : null;
+    const factorSessionDate = sessionByMarket
+      ? Object.entries(sessionByMarket).filter(([, date]) => date).map(([market, date]) => `${market} ${String(date).slice(0, 10)}`).join(' · ')
+      : String(metadata.factorSessionDate || metadata.factorObservedAt || '').slice(0, 10);
+    const factorSessionLabel = factorSessionDate ? `팩터 ${factorSessionDate} 세션 종가 기준(일봉 바 시작 ${fmtDate(metadata.factorObservedAt)} · 관측시각 아님${metadata.factorTimeBasis === 'bar-start' ? ' · basis bar-start' : ''})` : '팩터 기준 세션 미확인';
     provenance.textContent = `연구용 스냅샷 · ${factorSessionLabel} · 수집 ${fmtDate(metadata.factorFetchedAt || metadata.asOf)} · 생성 ${fmtDate(metadata.asOf)} · ${metadata.source || '출처 확인 대기'} · ${sec} · ${universeNote} · ${researchNote} · ${validationNote} · 공식 거래소 breadth 아님`;
     provenance.title = `${metadata.fundamentalCoverageScope ? `${metadata.fundamentalCoverageScope} · ` : ''}일봉 timestamp는 바 시작이며 종가 기반 팩터의 관측시각이 아닙니다. 세션 기준일·수집시각·생성시각을 분리해 표시합니다.`;
     provenance.dataset.sourceKind = 'reference';

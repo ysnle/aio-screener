@@ -2,8 +2,9 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
-import { backtestFactors, deriveCyclePublication, deriveTickerNewsLineage } from './fetch-data.mjs';
+import { backtestFactors, deriveCyclePublication, deriveFactorQuality, deriveTickerNewsLineage } from './fetch-data.mjs';
 import { factorScopesByMarket, marketOfSymbol, sessionDateInMarket, timeZoneForMarket } from '../src/domain/market/session-time.js';
+import { FACTOR_FRESHNESS_MS } from '../src/domain/screener/factor-ranks.js';
 import { percentileRank01, spearman } from './lib/rank-statistics.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -805,6 +806,66 @@ if (producedRows.length) {
     producedRows.every((row) => row.factorBarStart && row.factorSessionDate));
 } else {
   console.log('[data-pipeline] factor rows do not carry the session contract yet; the next fetch-data run writes it.');
+}
+
+// ── R24-03/P1184: 품질 라벨은 타임스탬프 존재가 아니라 신선도 판정이다 ─────────────────────
+// producer가 observedAt 존재만으로 CURRENT를 발행하면 provider가 오래된 마지막 봉을 돌려준
+// 날에도 artifact에 CURRENT가 남는다(소비측 factor-ranks는 같은 행을 4일 경과로 차단한다).
+// 라벨과 소비 판정이 같은 예산을 쓰는지 여기서 직접 확인한다.
+{
+  const computedAt = '2026-09-20T00:00:00.000Z';
+  const fresh = deriveFactorQuality({ observedAt: '2026-09-19T13:30:00.000Z', computedAt });
+  const weekend = deriveFactorQuality({ observedAt: '2026-09-16T13:30:00.000Z', computedAt });
+  const old = deriveFactorQuality({ observedAt: '2026-09-01T13:30:00.000Z', computedAt });
+  const missing = deriveFactorQuality({ observedAt: null, computedAt });
+  const future = deriveFactorQuality({ observedAt: '2026-09-21T13:30:00.000Z', computedAt });
+  check('P1184 a fresh factor observation is CURRENT', fresh.status === 'CURRENT' && fresh.stale === false, JSON.stringify(fresh));
+  check('P1184 an observation inside the shared budget survives a weekend', weekend.status === 'CURRENT' && weekend.stale === false, JSON.stringify(weekend));
+  check('P1184 an observation older than the shared budget is STALE, not CURRENT', old.status === 'STALE' && old.stale === true && old.ageMs > FACTOR_FRESHNESS_MS, JSON.stringify(old));
+  check('P1184 a missing observation time is MISSING and stale', missing.status === 'MISSING' && missing.stale === true && missing.ageMs === null, JSON.stringify(missing));
+  check('P1184 a future observation time is never CURRENT', future.status !== 'CURRENT', JSON.stringify(future));
+  check('P1184 the producer publishes the judged quality instead of a timestamp-existence ternary',
+    producerSource.includes('deriveFactorQuality(') && !/observedAt \? 'CURRENT' : 'MISSING'/.test(producerSource));
+  check('P1184 producer and consumer share one freshness budget',
+    producerSource.includes('FACTOR_FRESHNESS_MS') && read('src/domain/screener/factor-ranks.js').includes('export const FACTOR_FRESHNESS_MS'));
+}
+
+// ── R24-03 (15 D04): producer → provider → normalizer → UI 전달 불변 ────────────────────
+// P1170이 producer에 필드를 만들었지만 provider 행 빌더·metadata 재구성·normalizer 화이트리스트가
+// 첫 소실 지점이었다. UI가 읽는 metadata.factorSessionDate는 어느 계층에도 없어 바 시작 날짜로
+// 폴백했다. 이 fixture는 필드가 실제로 흐르는지 데이터가 아닌 경로 자체에 단언한다.
+const screenerProviderSource = read('src/data/providers/screener.js');
+for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezone', 'factorTimeBasis', 'factorComputedAt', 'factorSessionDateByMarket']) {
+  check(`R24-03/P1179 the screener provider forwards ${token}`, screenerProviderSource.includes(token), 'field is dropped before consumers');
+}
+{
+  const { normalizeScreener } = await import('../src/data/normalize/screener.js');
+  const producerRow = {
+    sym: 'NVDA',
+    factorObservedAt: '2026-09-18T13:30:00.000Z',
+    factorBarStart: '2026-09-18T13:30:00.000Z',
+    factorSessionDate: '2026-09-18',
+    factorSessionTimezone: 'America/New_York',
+    factorTimeBasis: barStartBasis,
+    factorComputedAt: '2026-09-20T01:02:03.000Z',
+    factorQuality: { status: 'CURRENT' }
+  };
+  const normalized = normalizeScreener({ rows: [producerRow] }).rows[0];
+  check('R24-03/P1179 the normalizer whitelist forwards factorBarStart',
+    normalized?.factorBarStart === producerRow.factorBarStart, String(normalized?.factorBarStart));
+  check('R24-03/P1179 the normalizer whitelist forwards factorSessionDate',
+    normalized?.factorSessionDate === producerRow.factorSessionDate, String(normalized?.factorSessionDate));
+  check('R24-03/P1179 the normalizer whitelist forwards factorSessionTimezone',
+    normalized?.factorSessionTimezone === producerRow.factorSessionTimezone, String(normalized?.factorSessionTimezone));
+  check('R24-03/P1179 the normalizer whitelist forwards factorTimeBasis',
+    normalized?.factorTimeBasis === producerRow.factorTimeBasis, String(normalized?.factorTimeBasis));
+  check('R24-03/P1179 the normalizer whitelist forwards factorComputedAt',
+    normalized?.factorComputedAt === producerRow.factorComputedAt, String(normalized?.factorComputedAt));
+}
+{
+  const runtimeReadersSource = read('src/data/runtime-readers.js');
+  check('R24-03/P1179 the runtime reader publishes the observation basis beside the bar-start timestamp',
+    (runtimeReadersSource.match(/observedAtBasis/g) || []).length >= 2);
 }
 
 if (errors.length) {

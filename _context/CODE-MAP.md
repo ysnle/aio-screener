@@ -144,6 +144,7 @@ benchmark-relative-strength remains visible as missing evidence.
 ### P831~P832 bounded secondary ownership (2026-07-27)
 
 - `src/domain/portfolio/surface.js` owns the finite-safe portfolio summary/allocation/exposure derivation; `src/ui/pages/portfolio.js` owns its DOM sinks and `sw.js` publishes the module. Portfolio risk cards, history charts, AI workbench, and narrative remain separate.
+- `src/domain/portfolio/risk.js` (P1182/E4) owns the composition snapshot (`createCompositionSnapshot`), the declared risk path (`deriveRiskEstimate`: exposure mode/weight basis/cash/RF/sample + estimate id) and the account-performance hold (`assessAccountPerformance`); `js/aio-workspace.js` `refreshPortfolioRisk`/`_renderRiskMetrics` are its classic-shell consumers, and `src/app/bootstrap.js` performs the window bindings. TWR/MWR engine, cash-return/currency inputs, and actual-history/strategy paths remain unwired (fail-closed).
 - `src/domain/fundamental/sec-report.js` owns the official SEC annual-fact projection and freshness classification; `src/ui/pages/entity.js` owns the filing metadata/coverage/metric child surface. Mixed-source fundamental report sections, charts, and AI narrative remain separate.
 
 ## Native ESM and data-plane additions (v53.11)

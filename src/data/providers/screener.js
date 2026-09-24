@@ -1,4 +1,4 @@
-import { buildFieldReadiness, createInstrumentRef, SCREENER_FIELD_REGISTRY, stableHashAsync, validateInstrumentRef } from '../contracts/screener.js';
+import { buildFieldReadiness, createInstrumentRef, LIVE_QUOTE_DERIVED_ROW_KEYS, SCREENER_FIELD_REGISTRY, stableHashAsync, validateInstrumentRef } from '../contracts/screener.js';
 import { INSTRUMENT_REGISTRY, analysisEligibilityFor, resolveInstrument } from '../../domain/market/instrument-registry.js';
 import { canonicalSourceTier, isDecisionEligibleSourceKind } from '../contracts/source-kind.js';
 import { isValidRightsId } from '../contracts/evidence.js';
@@ -17,22 +17,17 @@ const SCREENER_PUBLICATION_POLICY = createPublicationPolicy({
 
 // P1177 (QA-SCR-01): the snapshot identity is the **observation set that arrived** (artifact + universe),
 // not the live overlay. A quote tick must not mint a new ranked snapshot, or a stored user run is
-// replaced by background price churn (the P1074 invariant). These keys are derived from the live quote —
-// including the diagnostic that P1174 added to keep a rejected quote — so they are excluded from the
-// identity hash while staying on the row for the screen. A new live-derived field must be added here;
-// the contract gate drives two reads with different quotes and fails when the identity moves.
-const LIVE_QUOTE_DERIVED_ROW_KEYS = Object.freeze([
-  'price', 'priceObservedAt', 'priceFetchedAt', 'priceSource', 'priceSourceKind',
-  'priceAllowedUse', 'priceAllowedUseCeiling', 'priceQuality', 'priceRightsId', 'priceRevision',
-  'livePriceRejectedReason', 'liveQuoteDiagnostic', 'priceCurrencyConflict',
-  'mcap', 'nativeMarketCap', '_mcapObservedAt', '_mcapFetchedAt', '_mcapSource', '_mcapSourceKind',
-  '_mcapAllowedUse', '_mcapQuality', '_mcapRevision'
-]);
-
+// replaced by background price churn (the P1074 invariant). The canonical live key list lives in the
+// contract layer so the screen engine's calculation identity derives from the same source.
+// P1180/R24-04: `fieldReadiness`/`fieldObservations` are excluded as well — they re-embed live
+// values (price.close, valuation.marketCap) and time-derived statuses, so hashing them moved the
+// observation identity whenever a live mcap ticked. Derived state is not an arrived observation.
 export function snapshotIdentityRows(rows = []) {
   return rows.map((row) => {
     const identity = { ...row };
     for (const key of LIVE_QUOTE_DERIVED_ROW_KEYS) delete identity[key];
+    delete identity.fieldReadiness;
+    delete identity.fieldObservations;
     return identity;
   });
 }
@@ -365,6 +360,17 @@ export function createScreenerProvider({
           priceQuality: useLivePrice ? live.priceQuality : factor.factorQuality || factor.quality || null,
           priceRightsId: useLivePrice ? live.priceRightsId : factor.rightsId || null,
           factorObservedAt: factor.factorObservedAt || factor.observedAt || null,
+          // R24-03/P1179: the producer publishes bar-start, session, timezone, basis and
+          // computed time separately (P1170). Dropping them here made every downstream
+          // consumer fall back to the bar timestamp, so the fields travel with the row.
+          // factorBarStart falls back to the artifact's own bar timestamp — the producer
+          // defines both from the same observation; an absent basis stays null (unknown)
+          // rather than being assumed.
+          factorBarStart: factor.factorBarStart || factor.observedAt || null,
+          factorSessionDate: factor.factorSessionDate || null,
+          factorSessionTimezone: factor.factorSessionTimezone || null,
+          factorTimeBasis: factor.factorTimeBasis || null,
+          factorComputedAt: factor.factorComputedAt || null,
           factorSourceKind: factor.factorSourceKind || factor.sourceKind || null,
           factorAllowedUse: factor.factorAllowedUse || factor.allowedUse || null,
           factorQuality: factor.factorQuality || factor.quality || null,
@@ -541,7 +547,12 @@ export function createScreenerProvider({
       });
       if (!publicationSet.compatible) warnings.push('SCREENER_PUBLICATION_SET_INCOMPATIBLE');
 
-      const snapshotId = `screener-snapshot-${await stableHashAsync({ revision: artifact.asOf, source: artifact.source, rows: snapshotIdentityRows(rows) }, { yieldImpl, signal })}`;
+      // P1180/R24-04 (07 W07-G): observationSetId covers the publication set, not just the
+      // screener file. Universe membership/schema and the model-validation revision are inputs
+      // that arrived with this read, so a member revision change must move the observation
+      // identity even when no row value changes.
+      const publicationRevisions = Object.fromEntries(publicationSet.members.map((entry) => [entry.member, entry.revision]));
+      const snapshotId = `screener-snapshot-${await stableHashAsync({ revision: artifact.asOf, source: artifact.source, publicationRevisions, rows: snapshotIdentityRows(rows) }, { yieldImpl, signal })}`;
 
       return Object.freeze({
         rows,
@@ -554,6 +565,12 @@ export function createScreenerProvider({
           calculationPolicy: 'per-field-readiness',
           asOf: artifact.asOf || null,
           factorObservedAt: artifact.factorObservedAt || null,
+          // R24-03/P1179: artifact-level time contract travels with the metadata —
+          // the UI must not reconstruct a session date from the bar timestamp.
+          factorTimeBasis: artifact.factorTimeBasis || null,
+          factorSessionDateByMarket: artifact.factorSessionDateByMarket && typeof artifact.factorSessionDateByMarket === 'object' ? { ...artifact.factorSessionDateByMarket } : null,
+          factorBarStartByMarket: artifact.factorBarStartByMarket && typeof artifact.factorBarStartByMarket === 'object' ? { ...artifact.factorBarStartByMarket } : null,
+          factorComputedAt: artifact.factorComputedAt || null,
           universe: Number(artifact.universe) || symbols.length,
           artifactRows: Object.keys(artifact.data).length,
           universeRows: universe.length,

@@ -4,7 +4,7 @@
 
 상태: **핵심 구조의 1차 설계 기준선**. 전체 소스·콘텐츠 의미 검수 완료가 아니며, 후속 패키지에서 코드 근거와 반증을 누적한다.
 
-> 2026-09-20 상태 변경: 다른 작업의 `e55eef47`이 W00을 구현했다. 아래 A01/A02는 v55.21 당시 사실이며 현행 미해결 목록으로 사용하지 않는다. 현재 재검증은 `RECHECK-20260920.md`를 우선한다. 구조 개편의 나머지 목표가 모두 완료됐다는 뜻은 아니다.
+> 현재성: A01/A02는 v55.21 당시의 발견으로 현재 결함이라고 재인용하지 않는다. P1143/P1150에서 typed entity·단일 navigation authority·일부 route/store 정합성 보강이 들어갔다. 그러나 v56.15 독립 재검토 R24-08은 facade가 legacy `showPage` 효과를 먼저 내고 router transition을 뒤에 실행하며, router의 same-route fast path가 `viewState` 변화를 비교하지 않는 잔여를 찾았다. 따라서 W00은 완료가 아니라 부분 완료다. [24](24-INDEPENDENT-STRUCTURAL-REVIEW-20260923.md)와 [25 상태 crosswalk](25-CURRENT-FINDING-STATUS-CROSSWALK.md)를 현재 기준으로 본다.
 
 ## 1. 구조적 결론
 
@@ -123,16 +123,74 @@ UI에서 DOM text를 읽어 도메인 판단을 만들지 않는다. 값·상태
 
 별도 배포인 app/Worker의 버전이 무조건 같아야 한다고 요구하지 않는다. 대신 protocol compatibility, source SHA, 관측시각, 실제 시도 여부, 환경을 명시한다. 저장된 예전 health 성공은 현재 연결 성공이 아니다. 네트워크 장애 시 route별 fanout과 retry 예산은 후속 운영 패키지에서 별도로 측정한다.
 
-## 5. 실행 가능한 첫 구조 작업 — W00
+## 5. W00 현재 상태와 남은 navigation 재설계
 
-| 작업 | 소유 파일/영역 | 완료 조건 |
+W00의 기존 구현을 보존하되 재개 지시를 현재 상태로 착각하지 않는다.
+
+| 작업 | 현재 근거 | 상태 |
 |---|---|---|
-| W00-A navigation 명령 정규화 | router, compatibility facade, bootstrap | entity ID는 명시적 문자열만; 일반 nav element는 사용하지 않음 |
-| W00-B 단일 transition commit | router + bootstrap 이벤트 구독 | cold boot와 클릭에서 DOM/router/store 위치 일치; 클릭 한 번의 scope 생성 횟수 계약화 |
-| W00-C 전환 lifecycle regression | 관련 runtime/browser gates | 이전 응답 지연·빠른 A→B→A·뒤로가기·hash 직접 진입에서 잘못된 write/abort 없음 |
-| W00-D surface owner 보강 | route-owners와 선택된 surface 근거 | 이전/이후 writer와 input revision, narrative/chart 경계가 확인된 만큼만 변경 |
+| W00-A typed command/entity 입력 | facade가 명시적 문자열을 전달하고 router가 object를 entity ID로 취급하지 않도록 보강됐다(P1143/P1150) | 부분 완료. legacy `originalShowPage`의 DOM/history effect가 router transition보다 앞선다 |
+| W00-B 단일 route authority/초기 진입 | facade authority claim, pageShown 관찰 전용, typed initial route 경로가 존재하고 일부 unit/browser fixture가 있다 | 부분 완료. 같은 route/entity에서 viewState만 달라지는 전이가 fast path에서 무시될 수 있다 |
+| W00-C 전환 lifecycle | scope와 abort, 늦은 mount 억제, route error 관측이 있다 | 부분 완료. URL/DOM/store/scope/history의 전이 원자성과 mount/import 실패 복구는 따로 인수해야 한다 |
+| W00-D surface owner | 현재 route-owners는 route/lifecycle/renderer/data 책임을 추적한다 | 미완료. route 내부 chart/narrative/요약의 writer·revision 범위까지 필요한 대표 surface부터 추적 |
 
-검증 동선: 무해시 home, `#fundamental` 직접 진입, 기업 분석 sidebar 클릭, AAPL→MSFT→AAPL, `theme-detail` canonicalization, knowledge query parameters 유지, unknown alias, 뒤로/앞으로, lazy module 실패. 포커스·문서 제목·스크롤 복원도 포함한다. `showPage`가 navigation 외에 entity 문맥 정리와 차트 정리를 수행하므로 기능 추출 때 이를 잃지 않아야 한다.
+### A04 / R24-08 — 같은 route의 다른 viewState가 실제 화면 상태가 되지 않는다
+
+현재 경로는 legacy facade가 원래 `showPage`를 먼저 불러 DOM·history 등 shell 효과를 낸 뒤 router transition을 호출한다. Router는 현재 route와 entity가 같으면 곧바로 반환하며 `viewState`/query state를 전이 key로 비교하지 않는다. 그러므로 route와 entity가 같은 상태에서 선택한 상세 panel, 탭, query, sort/filter state가 바뀌어도 router/store/module이 새 canonical 상태를 반영하지 않을 수 있다. 이는 navigation의 상위 계약 결함이다. 구체적인 사용자 화면의 오표시는 이번 정적 재검토만으로 모두 확정하지 않는다.
+
+목표는 한번의 typed command가 route identity뿐 아니라 route가 소유한 모든 canonical view state를 결정하게 하는 것이다.
+
+```js
+navigate({ routeId, entityId, viewState, query, source, historyMode })
+```
+
+정규화된 command에는 `transitionId`와 `canonicalStateKey`를 부여한다. entity route는 registry의 identity 형식으로 검증하며 DOM node·positional element arg·문자열화한 object는 거부한다. `viewState`와 query는 schema에 맞게 정규화하고 deterministic serialization으로 비교한다. `same route + same entity`만으로 no-op을 만들지 말고 route module이 선언한 canonical state가 같은 경우에만 idempotent로 처리한다. 같은 화면의 다른 viewState는 state update와 renderer update를 수행한다. route/entity scope를 바꿀 필요가 없으면 불필요한 remount를 만들지 않되 저장된 run과 표시가 새 state에 맞는지 확인한다.
+
+History mode는 `push`, `replace`, `pop`을 구분한다. 사용자 이동과 canonical detail 선택은 사전 규칙에 따라 push/replace를 쓰고, back/forward 복원은 현재 URL state를 다시 push하지 않는다. `aio:pageShown`은 legacy caller 관찰로 유지할 수 있지만 결과 이벤트는 transition을 재호출하는 명령으로 취급하지 않는다. store, router, DOM의 canonical page marker, URL/history state, active scope는 같은 transition ID를 가진 commit 결과로 관측되어야 한다.
+
+### 전환 단계·동시성·복구 계약
+
+1. **Normalize/validate:** alias와 deep link를 canonical route + entity + query + viewState로 정규화한다. 잘못된 route/identity는 현재 상태를 바꾸기 전에 거부한다.
+2. **Prepare:** 필요한 lazy module과 route contract를 준비한다. 현재 활성 scope는 아직 유지하고, 새 navigation sequence가 생기면 이전 prepare를 취소하거나 결과 commit을 무효화한다.
+3. **Commit:** 동기 경계에서 transition ID를 한 번 만들고 history, canonical store state, route DOM marker/visible page, scope 및 module state를 함께 교체한다. 기존 scope dispose와 새 scope 활성화는 한 authority만 수행한다. shell focus/scroll/title 효과는 commit 뒤 동일 command에서 한번만 낸다.
+4. **Observe:** `aio:navigationCommitted` 같은 결과 이벤트는 committed state를 포함한다. observer는 store를 맞추되 새 transition을 만들지 않는다.
+5. **Recover:** import/prepare 실패 시 기존 route/entity/viewState·scope·history를 유지하고 접근 가능한 오류를 알린다. commit 뒤 mount failure가 발생하면 이전 state를 정확히 복원하거나, 복원이 불가능하면 error view 자체를 URL/store/router와 일치하는 새 canonical route state로 commit한다. 어느 경우든 반쪽 상태를 current로 표시하지 않는다.
+
+빠른 A→B→A, 같은 route의 detail/query 변경, back/forward, 취소 후 늦은 import/data 응답은 마지막 유효 transition만 commit할 수 있다. 이전 transition의 늦은 callback이 DOM, store, saved run, focus를 다시 쓰면 실패다. `transitionId`는 로그·fixture에서 DOM marker, history state, store route state, active scope가 같은 commit임을 추적할 수 있게 한다.
+
+### W00 수용 fixture
+
+| 사례 | 인수 조건 |
+|---|---|
+| 무해시 초기 home / hash direct entry | URL, DOM active route, router, store, active scope가 같은 canonical state/transition에 해당 |
+| 기업 분석 sidebar click + 명시적 NVDA | 한 click이 한 commit; entityId는 NVDA; mount/scope가 이중 생성되지 않음 |
+| DOM node가 positional/raw arg로 전달됨 | route identity가 object 문자열화되지 않고 거부되거나 안전한 entity-null route로 처리 |
+| same route/entity, detail tab/query/filter만 변경 | URL/store/view model/UI가 모두 새 viewState를 표현; 조용한 same-route no-op 없음 |
+| 뒤로/앞으로 및 hash 재진입 | state가 복원되고 history entry가 증식하지 않음; selected entity/detail 일치 |
+| lazy import rejection / module mount throw | 이전 상태 또는 일관된 error state가 남고 주소·focus·scope의 절반 전환 없음; 재시도 가능 |
+| A→B→A 응답 역순 완료 | 첫 A/B의 늦은 callback이 최신 A 결과·화면·store를 덮지 않음 |
+| 키보드/스크린리더 이동 | 제목·포커스·active item을 명확히 알리고 취소/실패 상태를 색에만 의존하지 않음 |
+
+Positive control은 서로 다른 entity로 이동할 때 entity-specific data가 바뀌고, 같은 entity에서 unrelated state는 보존되는 경우다. Gate에는 해당 기존 P의 의미가 실제 ledger에 연결된 뒤에 assertion을 인용하고, 라우트 수/마커 통과만으로 same-route semantic acceptance를 대체하지 않는다.
+
+### 소유권·이행·rollback
+
+Navigation coordinator/router가 normalize, transition ID, commit/rollback을 소유한다. Legacy facade는 positional args와 alias를 typed command로 변환하는 compatibility adapter로만 남고, `originalShowPage`의 별도 history/DOM 전이를 다시 실행하지 않는다. Store는 committed navigation event만 canonical route owner로 반영한다. Route module은 자신의 viewState schema와 same-route update/mount policy를 소유한다. UI owner는 shell effect·focus·scroll 복원을 담당한다. Route registry는 전이 소유권의 substitute가 아니다.
+
+이행은 먼저 command schema와 read-only trace를 추가해 현재 callers를 분류하고, 화면 1개에서 facade side-effect와 router commit 중 하나를 authority로 만든다. 그 뒤 초기 진입과 history restore를 같은 command로 연결하고, same-route viewState가 있는 detail 화면을 수직 slice로 통과시킨다. 마지막에 legacy callers를 adapter화하고 obsolete event listeners/writers를 검색·검증한 후 제거한다. 각 단계의 이전/새 결과를 같은 URL/entity/state fixture로 비교하되 사용자는 한 writer만 보게 한다. 구버전 saved route state는 schema가 해석 가능할 때만 migrate하며 모르면 기본 home으로 조용히 이동시키지 않고 복구 안내를 남긴다.
+
+전환 중 오류가 있으면 새 authority를 중지하고 검증된 이전 router/module을 재활성화한다. 다만 원래 이중 history/이중 mount를 만드는 legacy 동작을 복원하지 않는다. 이전 렌더가 단일 transition을 보장하지 못하면 해당 navigation 기능을 명시적 error/reference 상태로 막고 URL/state/scope 일치를 우선한다. 자동 rollback은 현재의 known-bad state를 정답으로 승격하지 않는다.
+
+통합 우선순위·증거 상태·acceptance gate는 [25 finding 상태 crosswalk](25-CURRENT-FINDING-STATUS-CROSSWALK.md)와 [26 실행·인수 계획](26-EXECUTION-AND-ACCEPTANCE-PLAN.md)을 따른다.
+
+## 5.1 기존 W00 검증 기록
+
+| 역사적 게이트 | 소유 파일/영역 | 증거가 말하는 범위 |
+|---|---|---|
+| P1143/P1150 unit/browser fixture | router, facade, bootstrap | 일부 초기 route, 단일 route authority, entity 전달 및 click/scope 계약. R24-08의 viewState 및 failure atomicity는 증명하지 않음 |
+| v56.15 R24-08 재검토 | router, facade, history/store/scope 경계 | facade가 legacy effect 후 router를 호출하고 same-route fast path가 viewState를 비교하지 않는 정적 경로 확인 |
+
+검증 동선은 위 W00 수용 fixture 표를 따른다. 기존에 기록한 `#fundamental`, `theme-detail`, query preservation, unknown alias, focus/title/scroll과 route marker 검사는 그대로 활용하되 same-route viewState와 failure rollback fixture를 추가해야 한다. `showPage`가 navigation 외에 entity 문맥과 chart lifecycle을 정리하므로 compatibility adapter 이전에서 해당 owner를 놓치지 않는다.
 
 ## 6. 패키지 순서와 의존
 

@@ -102,5 +102,20 @@ check('symbol-only identities survive canonical ranking output', (() => {
   return result.rows.length === 12 && result.rows.every((row, index) => row.sym === rankRows[index].sym);
 })());
 
+check('P1184 factor evidence publishes the bar-start basis instead of a bare observedAt', (() => {
+  const basisRows = rankRows.map((row) => ({ ...row, factorBarStart: row.factorObservedAt, factorSessionDate: '2026-08-26', factorTimeBasis: 'bar-start' }));
+  const withBasis = computeFactorRanks({ rows: basisRows, inputVersion: 'time-basis-fixture.v2', now: Date.parse('2026-08-27T00:00:00Z') });
+  const withoutBasis = computeFactorRanks({ rows: rankRows, inputVersion: 'time-basis-fixture.v2', now: Date.parse('2026-08-27T00:00:00Z') });
+  const priceFactors = ['momentum', 'trend', 'lowvol'];
+  return priceFactors.every((key) => withBasis.rows[0].factorEvidence?.[key]?.timeBasis === 'bar-start'
+      && withBasis.rows[0].factorEvidence[key].barStart === rankRows[0].factorObservedAt
+      && withBasis.rows[0].factorEvidence[key].sessionDate === '2026-08-26')
+    && priceFactors.every((key) => withoutBasis.rows[0].factorEvidence?.[key]?.timeBasis === null
+      && withoutBasis.rows[0].factorEvidence[key].barStart === null
+      && withoutBasis.rows[0].factorEvidence[key].sessionDate === null)
+    && withBasis.ranked === withoutBasis.ranked
+    && withoutBasis.rows[0].factorScores.momentum !== null;
+})());
+
 if (errors.length) { errors.forEach(error => console.error(' - ' + error)); process.exit(1); }
 console.log('Research model contract check OK: walk-forward/holdout metrics, factor quality controls, and research-only promotion boundaries are present.');

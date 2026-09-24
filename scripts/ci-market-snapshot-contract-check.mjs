@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { createMarketSnapshot, TIER_0_INSTRUMENTS, validateMarketSnapshot, tier0Coverage } from '../src/data/contracts/market-snapshot.js';
+import { createMarketSnapshot, TIER_0_INSTRUMENTS, validateInstrumentRegistry, validateMarketSnapshot, tier0Coverage } from '../src/data/contracts/market-snapshot.js';
 import { createMarketSnapshotLoader } from '../src/data/market-snapshot-loader.js';
 import { buildMarketSnapshot, deriveMarketSession } from './build-market-snapshot.mjs';
 import { isLatestUsRegularClose } from '../src/ai/time/market-session.js';
@@ -115,6 +115,39 @@ tamperCase('unit changed', (candidate) => { candidate.quotes[0].unit = 'WRONG_UN
 tamperCase('duplicate instrument', (candidate) => { candidate.quotes[1] = { ...candidate.quotes[0] }; }, 'published_tier0_duplicate');
 tamperCase('unknown instrument', (candidate) => { candidate.quotes[0].instrumentId = 'NOT-IN-REGISTRY'; }, 'published_instrument_unknown');
 tamperCase('declared over ship', (candidate) => { candidate.coverage = { ...candidate.coverage, required: 17, tier0Required: 17 }; }, 'published_declared_coverage_mismatch');
+// R24-02/P1178: metric identity is part of the registry contract. Instrument,
+// unit, and value can all look plausible while the quote names a different
+// metric entirely, so the validator must reject the mismatch instead of
+// letting normalizeQuote's registry fallback hide it — and a swapped pair can
+// never count as coverage.
+tamperCase('R24-02/P1178 metricId changed to a foreign metric', (candidate) => { candidate.quotes[0].metricId = 'wrong.metric.id'; }, 'quote_metric_mismatch');
+tamperCase('R24-02/P1178 metricId removed', (candidate) => { delete candidate.quotes[0].metricId; }, 'quote_metric_id_registry_derived');
+{
+  const candidate = JSON.parse(JSON.stringify(tamperBase));
+  const firstMetric = candidate.quotes[0].metricId;
+  const secondMetric = candidate.quotes[1].metricId;
+  candidate.quotes[0].metricId = secondMetric;
+  candidate.quotes[1].metricId = firstMetric;
+  const result = validateMarketSnapshot(createMarketSnapshot(candidate));
+  if (result.ok) fail('R24-02/P1178 swapped metricIds were accepted');
+  if (result.audit.metricMismatches.length !== 2) fail(`R24-02/P1178 swapped metricIds produced ${result.audit.metricMismatches.length} mismatches, expected 2`);
+  if (result.audit.measured.observed !== TIER_0_INSTRUMENTS.length - 2) fail('R24-02/P1178 a swapped metric still counted toward coverage');
+}
+{
+  // Positive control: a quote that legitimately omits metricId round-trips the
+  // registry value with an explicit derivation marker, and non-published
+  // snapshots tolerate it — only a published identity may not be derived.
+  const derived = createMarketSnapshot({ status: 'unavailable', quotes: [{ symbol: '^GSPC', price: 100, observedAt: attemptedAt, fetchedAt: attemptedAt }] }).quotes[0];
+  if (derived.metricId !== 'market.index.spx' || derived.metricIdBasis !== 'registry-derived') fail(`R24-02/P1178 registry round-trip broken: ${derived.metricId}/${derived.metricIdBasis}`);
+  const supplied = createMarketSnapshot({ quotes: [{ symbol: '^GSPC', metricId: 'market.index.spx', price: 100 }] }).quotes[0];
+  if (supplied.metricIdBasis !== 'supplied') fail('R24-02/P1178 a supplied metricId was not recorded as supplied');
+  const publishedDerived = JSON.parse(JSON.stringify(tamperBase));
+  delete publishedDerived.quotes[0].metricId;
+  const result = validateMarketSnapshot(createMarketSnapshot(publishedDerived));
+  if (result.ok || !result.errors.some((error) => error.startsWith('quote_metric_id_registry_derived:'))) {
+    fail(`R24-02/P1178 a published quote with derived metric identity was not isolated: ${result.errors.join(',')}`);
+  }
+}
 {
   const candidate = JSON.parse(JSON.stringify(tamperBase));
   candidate.quotes[1] = { ...candidate.quotes[0], evidenceId: 'duplicate:two' };
@@ -127,6 +160,55 @@ tamperCase('declared over ship', (candidate) => { candidate.coverage = { ...cand
   const result = validateMarketSnapshot(createMarketSnapshot(candidate));
   if (!result.ok || result.audit.tier1.complete !== false || result.audit.declaredMatchesMeasured !== true) fail(`W03-A: an optional Tier-1 gap was folded into Tier-0 acceptance: ${JSON.stringify(result)}`);
 }
+// W03-C/P1183: the quote identity tuple is (instrumentId, metricId, unit, valueKind)
+// and the source fields are evidence claims, not cosmetic labels. Normalization used to
+// fill 'unknown'/'provider' defaults for a missing source/sourceKind — which made the
+// existence loop vacuous — and the registry itself was never validated, so a duplicated
+// or malformed 정본 row silently weakened every comparison made against it.
+tamperCase('P1183 source removed', (candidate) => { delete candidate.quotes[0].source; }, 'quote_source_missing');
+tamperCase('P1183 sourceKind removed', (candidate) => { delete candidate.quotes[0].sourceKind; }, 'quote_sourceKind_missing');
+tamperCase('P1183 invented sourceKind', (candidate) => { candidate.quotes[0].sourceKind = 'invented-provider-tier'; }, 'quote_source_kind_unrecognized');
+tamperCase('P1183 valueKind contradicts the registry', (candidate) => { candidate.quotes[0].valueKind = 'rate'; }, 'quote_value_kind_mismatch');
+{
+  const candidate = JSON.parse(JSON.stringify(tamperBase));
+  candidate.quotes[0].valueKind = 'price';
+  const result = validateMarketSnapshot(createMarketSnapshot(candidate));
+  if (result.audit.valueKindMismatches.length !== 1) fail(`P1183 a foreign valueKind produced ${result.audit.valueKindMismatches.length} mismatches, expected 1`);
+  if (result.audit.measured.observed !== TIER_0_INSTRUMENTS.length - 1) fail('P1183 a foreign valueKind still counted toward coverage');
+}
+{
+  // Positive controls: artifacts predating valueKind keep counting (kind derived from
+  // the registry), a supplied kind is recorded as supplied, and a missing source is
+  // left missing instead of being promoted to 'unknown'/'provider'.
+  const derived = createMarketSnapshot({ status: 'unavailable', quotes: [{ symbol: '^GSPC', price: 100, observedAt: attemptedAt, fetchedAt: attemptedAt }] }).quotes[0];
+  if (derived.valueKind !== 'index' || derived.valueKindBasis !== 'registry-derived') fail(`P1183 valueKind round-trip broken: ${derived.valueKind}/${derived.valueKindBasis}`);
+  const supplied = createMarketSnapshot({ quotes: [{ symbol: '^GSPC', valueKind: 'index', price: 100 }] }).quotes[0];
+  if (supplied.valueKindBasis !== 'supplied') fail('P1183 a supplied valueKind was not recorded as supplied');
+  const stripped = published.quotes.map(({ valueKind, ...row }) => row);
+  const strippedCoverage = tier0Coverage(stripped);
+  if (strippedCoverage.observed !== strippedCoverage.required) fail('P1183 a pre-valueKind artifact was excluded from coverage instead of deriving the kind from the registry');
+  if (derived.source !== '' || derived.sourceKind !== '') fail(`P1183 a missing source was promoted to a value: ${derived.source}/${derived.sourceKind}`);
+}
+{
+  // P1183: the registry validates itself first. A duplicated metric or an undeclared
+  // valueKind in the 정본 cannot be laundered by quotes that match it.
+  if (!validateInstrumentRegistry(TIER_0_INSTRUMENTS).ok) fail('P1183 the shipped Tier-0 registry does not validate');
+  const duplicateMetric = TIER_0_INSTRUMENTS.map((row, index) => index === 1 ? { ...row, metricId: TIER_0_INSTRUMENTS[0].metricId } : row);
+  const malformedMetric = TIER_0_INSTRUMENTS.map((row, index) => index === 0 ? { ...row, metricId: 'Market.Index.SPX' } : row);
+  const badKind = TIER_0_INSTRUMENTS.map((row, index) => index === 0 ? { ...row, valueKind: 'banana' } : row);
+  const duplicateInstrument = [...TIER_0_INSTRUMENTS.slice(0, TIER_0_INSTRUMENTS.length - 1), { ...TIER_0_INSTRUMENTS[0] }];
+  for (const [label, instruments, expected] of [
+    ['duplicate metricId', duplicateMetric, 'registry_metric_duplicate'],
+    ['malformed metricId', malformedMetric, 'registry_metric_id_malformed'],
+    ['undeclared valueKind', badKind, 'registry_value_kind_invalid'],
+    ['duplicate instrumentId', duplicateInstrument, 'registry_instrument_duplicate']
+  ]) {
+    const result = validateMarketSnapshot(createMarketSnapshot(tamperBase), { instruments });
+    if (result.ok || !result.errors.some((error) => error.startsWith('registry_invalid:') && error.includes(expected))) {
+      fail(`P1183 a corrupted registry (${label}) was accepted: ${result.errors.join(',')}`);
+    }
+  }
+}
 // The loader must accept the published artifact and refuse a tampered one, so a
 // bad payload can never replace the consumer's last-good snapshot.
 {
@@ -137,6 +219,18 @@ tamperCase('declared over ship', (candidate) => { candidate.coverage = { ...cand
   badPayload.quotes[0].unit = 'WRONG_UNIT';
   const bad = await createMarketSnapshotLoader({ httpClient: responseFor(badPayload) }).load();
   if (bad.ok || !String(bad.error).includes('published_unit_mismatch')) fail(`W03-A: the loader accepted a tampered artifact: ${JSON.stringify(bad)}`);
+  const badMetricPayload = JSON.parse(JSON.stringify(tamperBase));
+  badMetricPayload.quotes[0].metricId = 'wrong.metric.id';
+  const badMetric = await createMarketSnapshotLoader({ httpClient: responseFor(badMetricPayload) }).load();
+  if (badMetric.ok || !String(badMetric.error).includes('quote_metric_mismatch')) fail(`R24-02/P1178: the loader accepted a foreign metricId: ${JSON.stringify(badMetric)}`);
+  const badKindPayload = JSON.parse(JSON.stringify(tamperBase));
+  badKindPayload.quotes[0].valueKind = 'rate';
+  const badKind = await createMarketSnapshotLoader({ httpClient: responseFor(badKindPayload) }).load();
+  if (badKind.ok || !String(badKind.error).includes('quote_value_kind_mismatch')) fail(`W03-C/P1183: the loader accepted a foreign valueKind: ${JSON.stringify(badKind)}`);
+  const badSourcePayload = JSON.parse(JSON.stringify(tamperBase));
+  delete badSourcePayload.quotes[0].source;
+  const badSource = await createMarketSnapshotLoader({ httpClient: responseFor(badSourcePayload) }).load();
+  if (badSource.ok || !String(badSource.error).includes('quote_source_missing')) fail(`W03-C/P1183: the loader accepted a quote with no source: ${JSON.stringify(badSource)}`);
 }
 
 const loaderSource = fs.readFileSync(path.join(root, 'src/data/market-snapshot-loader.js'), 'utf8');

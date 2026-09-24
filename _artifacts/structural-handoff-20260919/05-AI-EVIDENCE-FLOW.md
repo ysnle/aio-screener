@@ -47,3 +47,55 @@ Luna MAX가 실제 모듈과 공개 단계 helper를 합성 입력으로 실행�
 legacy chat 두 진입점의 실행순서를 먼저 기록하고 공통 request state/evidence gate를 추출한다. transport/provider adapter와 policy/evidence/presentation 소유권을 분리한다. 파일 분할 자체를 목표로 삼아 같은 guard를 양쪽에 복제하지 않는다. 기존 사용자 흐름을 고정한 replay fixture가 준비된 다음 compatibility wrapper를 줄인다.
 
 미검증: 실제모델환각률, 공급자품질/가용성, 모든claim의원문일치, prompt injection 전수, 사용자자료전송전체, 비용/지연/취소통계. 이 패키지는 AI 기능 전체 인증이 아니다.
+
+## 2026-09-23 현재 상태와 요청 경계 명세
+
+| 발견 | 최신 상태 | 닫힌 범위 | 남은 인수 |
+|---|---|---|---|
+| A01 | **조사/인수 대기** | charter의 기본 action 제한 및 기존 `actionLimitations` 존재가 확인됐다. | 정책 정본·실행·최종 공개가 같은 결정을 공유하는 구현/양 entrypoint fixture가 없다. P1172 residual도 미착수로 둔다. |
+| A04 | **부분** | P1172는 텍스트 claim 하나로 수치 검사가 해제되는 것을 막고, numeric claim만 조건을 해제하도록 했다. contract CI가 있다. | 자유 문장 안 각 숫자의 claim binding, 한국어 수사/범위/단위 없는 숫자/가정 예시 분리, 실제 응답 공개 인수는 미완료다. |
+| A05 | **부분** | P1172가 evidence request/entity binding과 mismatch 차단을 추가했다. | UNBOUND/UNVERIFIABLE은 표시만 하며 통과를 막지 않을 수 있고, reverse-order·classic/unified 교차 요청·실제 provider 답변은 미검증이다. |
+| A06 | **열림** | 두 분류기가 같은 표현에 다른 intent를 줄 수 있고 downstream이 `actionLimitations`를 다시 소비하지 않는 현재 정적 경로가 기록됐다. | 두 chat 진입점의 행동 분류와 최종 응답 적용을 고정한 회귀 fixture가 없다. P1172도 이를 미착수로 명시한다. |
+
+A01–A06의 상위 현재성, 포함 관계, E6 의존 순서는 [25](25-CURRENT-FINDING-STATUS-CROSSWALK.md)와 [26](26-EXECUTION-AND-ACCEPTANCE-PLAN.md)를 정본으로 한다. A01–A03은 서비스 사고 확정이 아니라 조사/인수 대기이며 A04/A05의 P1172 부분 구현은 나머지 claim semantics나 동시 요청 안전성을 완료 처리하지 않는다.
+
+### 하나의 request decision envelope
+
+두 chat entrypoint는 같은 불변 envelope를 만들고, planner·retriever·stream handler·publication guard는 이 envelope만 전달받는다. UI/legacy facade가 intent나 action permission을 다시 계산하지 않는다.
+
+```ts
+type AIRequestDecision = {
+  contractVersion: 1;
+  requestId: string;
+  queryId: string;
+  entityRefs: string[];
+  intent: 'education' | 'general_analysis' | 'personalized_analysis' | 'scenario' | 'external_action';
+  permission: 'allowed' | 'limited' | 'blocked';
+  actionLimitations: string[];      // authoritative; never rebuilt downstream
+  evidenceRequirements: string[];
+  requestedAt: string;
+  status: 'planned' | 'collecting' | 'partial' | 'sufficient' | 'drafting' | 'validated' | 'published' | 'cancelled' | 'failed';
+};
+```
+
+`intent`는 사용자의 요청 유형이고 `permission`은 현재 profile/evidence/policy로 허용되는 범위다. 둘을 같은 boolean으로 줄이지 않는다. 주문/외부 변경을 위한 권한과 설명을 위한 분석 권한은 분리한다. 화면 공개는 `requestId`와 `AIRequestDecision`이 같고, status가 `validated` 이상이며 각 노출 claim이 정책·evidence guard를 통과한 경우에만 허용한다. blocked/limited 응답도 왜 제한됐는지, 어떤 비행동 정보는 제공 가능한지 설명할 수 있다.
+
+각 numeric claim은 `claimId`, `claimType`, `value`, `unit`, `period`, `entity`, `evidenceIds`, `formulaId`(계산값인 경우)를 가진다. 문장 segment는 직접 `claimIds`를 참조한다. education/example/assumption 숫자는 UI에 예시라고 표시하고 현재 관측 claim으로 오인되지 않아야 한다. “출처에 연결됨”과 “원문이 이 문장을 지지한다고 확인됨”을 서로 다른 claim 상태로 둔다.
+
+### 최소 반증 집합과 화면 의미
+
+| Fixture | 필수 변형 | 기대 공개 |
+|---|---|---|
+| `A01-policy-matrix` | 일반 설명, 개인화 매수 추천, 수치 시나리오, 주문/외부 행동을 classic/unified 양쪽에 전달 | 같은 request decision·permission·limitation·최종 표현. 일반 교육은 허용된 범위에서 불필요하게 차단되지 않는다. |
+| `A04-numeric-binding` | 올바른 numeric claim 옆 무관한 숫자, unit/period 불일치, 교육 예시, 한국어 수사/범위 | claim이 없는 current-sensitive 숫자는 공개되지 않고, 예시 숫자는 관측값과 다른 스타일/label을 가진다. |
+| `A05-reverse-order` | 질문 A/B를 시작하고 완료 순서를 뒤집음, 취소 후 늦은 chunk, retry, 다른 entity/query citation, unbound citation | citation/evidence는 자신의 `requestId/queryId/entity`에만 결속한다. 불일치는 차단, 미확인은 화면에 그 상태 그대로 남긴다. |
+| `A06-limitation-propagation` | profile/evidence 모두 있음·하나만 있음·둘 다 없음, classic/unified, legacy direct call | 공개 guard는 같은 authoritative `actionLimitations`를 사용한다. 일부 필드 부재로 제한이 사라지지 않는다. |
+| `AI-zero-partial-failed` | 검색 0건, 부분 결과, native fallback 실패, timeout, 사용자가 검색 해제 | `검색 안 함/검색 결과 없음/부분 근거/검색 실패/제한된 답변`을 혼동하지 않는다. |
+
+사용자에게는 내부 policy code 대신 `확인한 자료`, `아직 연결되지 않은 자료`, `이 답변이 할 수 있는 범위`를 질의 맥락과 함께 제시한다. 빈 citation 목록을 “근거 없음”으로, citation 하나를 “검증 완료”로 부르지 않는다.
+
+### Cutover, rollback, 증거 한계
+
+먼저 두 chat 진입점의 이벤트/취소/stream 순서를 기록한다. 새 envelope와 validation은 shadow compare로 도입하고, 답변 내용은 기존 publication path를 유지한 상태에서 불일치 로그만 검토한다. 양쪽 경로와 reverse-order fixture를 통과하면 request 단위로 한 guard를 켜며 두 guard를 동시 공개 경계로 두지 않는다. schema 변화는 optional/additive부터 배포하고, 구버전 citation은 `UNBOUND`로 downgrade한다. 회귀 시 안전한 동작은 광범위 차단이 아니라 기존 허용 정책으로 복귀하되 actionLimitations를 지우지 않는 것이다. 이전 request의 citation이나 검증 안 된 답변을 재사용하지 않는다.
+
+이 문서의 P1172 증거는 합성 모듈/contract gate 수준이다. 사용자 영향에 대한 완료 선언에는 raw model output을 안전하게 비식별한 trace, query와 claim 매핑, 공개 전·후 결과, browser 화면, cancellation/ordering evidence가 필요하다. 실제 provider/model 품질, 데이터 전송·비용·지연, 권리 확인은 별도 인수다.

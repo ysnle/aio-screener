@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 // RM-05 item 3: minimal isolated unit contracts for the new ESM core (store/router/lifecycle/
@@ -1376,6 +1377,982 @@ const { renderSentimentSummaryProjection } = await load('src/ui/projections/sent
   if (exposureFixture.totalAssets !== 1000 || exposureFixture.positionValue !== 100
     || exposureFixture.exposurePct !== 10 || exposureFixture.cashPct !== 90 || exposureFixture.valuationState !== 'complete') {
     fail(`22/PFR01 portfolio-surface: equity exposure must be measured against total assets including cash, got ${JSON.stringify(exposureFixture)}`);
+  }
+}
+// ── E3/P1181 — 23:PFR07 배분 정책 · 22:PFR08 누락 멤버 · 통화 체인 · durable ack ──────────────
+// 무언 재배분(시장가치 폴백이 명시 제외를 되살림), 무환산 P&L(단위가 다른 뺄셈), 거짓 저장 완료를
+// 각각 음성 fixture로 고정하고, 정상 경로(명시 100·단일 통화·persist 성공)를 양성 대조로 남긴다.
+{
+  const { buildPortfolioBacktestLab } = await load('src/domain/portfolio/backtest.js');
+  const { createPortfolioProvider } = await load('src/data/providers/portfolio.js');
+  const { normalizePortfolio } = await load('src/data/normalize/portfolio.js');
+  const { derivePortfolioSurface } = await load('src/domain/portfolio/surface.js');
+
+  const e3MonthKeys = Array.from({ length: 15 }, (_, i) => `${2024 + Math.floor(i / 12)}-${String((i % 12) + 1).padStart(2, '0')}`);
+  const e3PriceMap = ({ drop = [], terminalA = null } = {}) => {
+    const timestamps = e3MonthKeys.map((key) => `${key}-28T00:00:00Z`);
+    const series = (fn) => ({ timestamps: [...timestamps], adjustedCloses: e3MonthKeys.map((_, index) => fn(index)), backtestEligible: true, backtestPriceBasis: 'adjusted-close' });
+    const map = { AAA: series((i) => 100 + i * 10), BBB: series((i) => 100 - i), SPY: series(() => 100) };
+    if (terminalA != null) map.AAA.adjustedCloses[map.AAA.adjustedCloses.length - 1] = terminalA;
+    drop.forEach((ticker) => { delete map[ticker]; });
+    return map;
+  };
+  const e3Positions = (weights) => [
+    { ticker: 'AAA', qty: 1, cost: 100, ...(weights && weights[0] !== undefined ? { targetWeight: weights[0] } : {}) },
+    { ticker: 'BBB', qty: 1, cost: 100, ...(weights && weights[1] !== undefined ? { targetWeight: weights[1] } : {}) }
+  ];
+
+  // [0,100] — A의 명시 제외가 결과까지 살아남는 양성 대조.
+  const explicitRun = buildPortfolioBacktestLab(e3PriceMap(), e3Positions([0, 100]), {});
+  if (explicitRun.ok !== true || explicitRun.settings?.targetWeightBasis !== 'explicit-target-weight'
+    || explicitRun.weights?.AAA !== 0 || explicitRun.weights?.BBB !== 1) {
+    fail(`P1181/23:PFR07 [0,100] must resolve as explicit with the exclusion preserved, got ${JSON.stringify({ ok: explicitRun.ok, basis: explicitRun.settings?.targetWeightBasis, weights: explicitRun.weights, reason: explicitRun.reason })}`);
+  }
+  // [0,0] — 합0은 현금 모드의 질문이지 폴백 트리거가 아니다. 거짓 provenance 없이 차단되어야 한다.
+  const zeroRun = buildPortfolioBacktestLab(e3PriceMap(), e3Positions([0, 0]), {});
+  if (zeroRun.ok !== false || zeroRun.reason !== 'explicit-zero-allocation'
+    || zeroRun.allocationBlocked?.code !== 'explicit-zero-allocation' || zeroRun.targetWeightBasis !== undefined) {
+    fail(`P1181/23:PFR07 [0,0] must block without a lying basis, got ${JSON.stringify({ ok: zeroRun.ok, reason: zeroRun.reason, blocked: zeroRun.allocationBlocked, basis: zeroRun.targetWeightBasis })}`);
+  }
+  // [0,null] — 제외(A=0)와 미지정(B)을 구분하고 미지정 멤버를 이름으로 안내한다.
+  const partialRun = buildPortfolioBacktestLab(e3PriceMap(), e3Positions([0, null]), {});
+  if (partialRun.ok !== false || partialRun.reason !== 'partial-allocation-unresolved'
+    || !(partialRun.allocationBlocked?.unspecified || []).includes('BBB')
+    || !(partialRun.warnings || []).join(' ').includes('BBB')) {
+    fail(`P1181/23:PFR07 [0,null] must hold as partial with member guidance instead of renormalizing A back in, got ${JSON.stringify({ ok: partialRun.ok, reason: partialRun.reason, blocked: partialRun.allocationBlocked, warnings: partialRun.warnings })}`);
+  }
+  // 음수·과다합계는 비율로 눌러 정규화하지 않고 차단한다.
+  const overRun = buildPortfolioBacktestLab(e3PriceMap(), e3Positions([60, 60]), {});
+  if (overRun.ok !== false || overRun.reason !== 'invalid-allocation-sum') {
+    fail(`P1181/23:PFR07 a sum above 100 must block, got ${JSON.stringify({ ok: overRun.ok, reason: overRun.reason })}`);
+  }
+  const negativeRun = buildPortfolioBacktestLab(e3PriceMap(), e3Positions([-10, 110]), {});
+  if (negativeRun.ok !== false || negativeRun.allocationBlocked?.code !== 'partial-allocation-unresolved') {
+    fail(`P1181/23:PFR07 a negative weight must block (its slot is not a valid declaration), got ${JSON.stringify({ ok: negativeRun.ok, reason: negativeRun.reason, blocked: negativeRun.allocationBlocked })}`);
+  }
+  // legacy(무게치 미입력) 폴백 — P1181 시점의 라벨은 'terminal-adjusted-close-market-value'였다.
+  // E4/P1182(22:PFR01)가 종점 가격 폴백을 시작 시점 basis로 교체했으므로 라벨은 실제 실행된
+  // 정책을 말해야 한다(라벨과 정책이 갈라지는 순간 이 fixture가 먼저 깨진다).
+  const legacyRun = buildPortfolioBacktestLab(e3PriceMap(), e3Positions([undefined, undefined]), {});
+  if (legacyRun.ok !== true || legacyRun.settings?.targetWeightBasis !== 'start-date-adjusted-close-market-value') {
+    fail(`P1181/P1182/23:PFR07 the no-weight fallback must carry the policy it actually ran (start-date basis after E4), got ${JSON.stringify({ ok: legacyRun.ok, basis: legacyRun.settings?.targetWeightBasis, reason: legacyRun.reason })}`);
+  }
+  // 22:PFR08 — 가격 이력 없는 보유 멤버는 커버리지 공백이지 제외가 아니다.
+  const missingRun = buildPortfolioBacktestLab(e3PriceMap({ drop: ['BBB'] }), e3Positions([50, 50]), {});
+  if (missingRun.ok !== false || missingRun.reason !== 'member price series missing'
+    || !(missingRun.allocationBlocked?.members || []).includes('BBB')
+    || missingRun.weights !== undefined || missingRun.performance !== undefined) {
+    fail(`P1181/22:PFR08 a missing member must block with intent preserved instead of AAA 100%, got ${JSON.stringify({ ok: missingRun.ok, reason: missingRun.reason, blocked: missingRun.allocationBlocked, weights: missingRun.weights })}`);
+  }
+  // 명시 배분의 시작 가격 불변 — 미래 종점 가격이 명시 배분을 옮기면 실패다.
+  const invariantBase = buildPortfolioBacktestLab(e3PriceMap(), e3Positions([50, 50]), {});
+  const invariantMoved = buildPortfolioBacktestLab(e3PriceMap({ terminalA: 99999 }), e3Positions([50, 50]), {});
+  if (invariantBase.ok !== true || invariantMoved.ok !== true
+    || JSON.stringify(invariantBase.weights) !== JSON.stringify(invariantMoved.weights)
+    || invariantBase.performance?.startBalance !== invariantMoved.performance?.startBalance) {
+    fail(`P1181/explicit-invariance: a terminal price change moved the explicit starting allocation, got ${JSON.stringify({ base: invariantBase.weights, moved: invariantMoved.weights })}`);
+  }
+
+  // 통화 체인 reader→provider→normalize: 선언이 어느 계층에서도 지워지지 않는다.
+  const readerShaped = {
+    holdings: [
+      { symbol: 'AAA', shares: 1, avgCost: 90, price: 110, currency: 'USD', costCurrency: 'USD', target: 150, targetWeight: 0 },
+      { symbol: '005930', shares: 1, avgCost: 70000, price: 71000, currency: 'KRW', costCurrency: 'KRW' }
+    ],
+    holdingsKnown: true, cash: 500, cashKnown: true, baseCurrency: 'USD', cashCurrency: 'USD',
+    readState: 'ready', status: 'current', updatedAt: '2026-09-23T00:00:00.000Z'
+  };
+  const chained = normalizePortfolio(createPortfolioProvider({ read: () => readerShaped }).readCurrent());
+  if (chained.baseCurrency !== 'USD' || chained.cashCurrency !== 'USD'
+    || chained.holdings[0]?.currency !== 'USD' || chained.holdings[0]?.costCurrency !== 'USD'
+    || chained.holdings[0]?.target !== 150 || chained.holdings[0]?.targetWeight !== 0
+    || chained.holdings[1]?.currency !== 'KRW') {
+    fail(`P1181/11 P11-02 the currency chain dropped a declaration, got ${JSON.stringify({ base: chained.baseCurrency, cashCurrency: chained.cashCurrency, rows: chained.holdings.map((row) => [row.symbol, row.currency, row.costCurrency, row.target, row.targetWeight]) })}`);
+  }
+  // USD+KRW 선언 → 합계 보류(무환산 P&L 금지).
+  const mixedSurface = derivePortfolioSurface({ state: chained, liveData: {}, vix: null });
+  if (mixedSurface.currencyState !== 'mixed-without-conversion' || mixedSurface.positionValue !== null
+    || mixedSurface.totalAssets !== null || mixedSurface.totalPnl !== null || mixedSurface.totalCost !== null) {
+    fail(`P1181/11 P11-02 declared USD+KRW must hold every aggregate instead of summing units, got ${JSON.stringify({ currencyState: mixedSurface.currencyState, positionValue: mixedSurface.positionValue, totalAssets: mixedSurface.totalAssets, totalCost: mixedSurface.totalCost, totalPnl: mixedSurface.totalPnl })}`);
+  }
+  // 원가/시세 통화 불일치(단일 기준 portfolio에서도) → P&L만 보류. 대조: 일치하면 계산된다.
+  const mismatchInput = {
+    holdings: [{ symbol: 'AAA', shares: 1, avgCost: 90, price: 110, currency: 'USD', costCurrency: 'KRW' }],
+    holdingsKnown: true, cash: 500, cashKnown: true, cashCurrency: 'USD', readState: 'ready', status: 'current'
+  };
+  const mismatchSurface = derivePortfolioSurface({ state: normalizePortfolio(createPortfolioProvider({ read: () => mismatchInput }).readCurrent()), liveData: {}, vix: null });
+  if (mismatchSurface.costCurrencyState !== 'cost-price-mismatch-held' || mismatchSurface.totalCost !== null || mismatchSurface.totalPnl !== null) {
+    fail(`P1181/11 P11-02 a KRW cost against a USD price must hold the P&L, got ${JSON.stringify({ costCurrencyState: mismatchSurface.costCurrencyState, totalCost: mismatchSurface.totalCost, totalPnl: mismatchSurface.totalPnl })}`);
+  }
+  const alignedInput = { ...mismatchInput, holdings: [{ ...mismatchInput.holdings[0], costCurrency: 'USD' }] };
+  const alignedSurface = derivePortfolioSurface({ state: normalizePortfolio(createPortfolioProvider({ read: () => alignedInput }).readCurrent()), liveData: {}, vix: null });
+  if (alignedSurface.costCurrencyState !== 'cost-declared' || alignedSurface.totalCost !== 90 || alignedSurface.totalPnl !== 20) {
+    fail(`P1181/11 P11-02 an aligned cost basis must still compute (positive control), got ${JSON.stringify({ costCurrencyState: alignedSurface.costCurrencyState, totalCost: alignedSurface.totalCost, totalPnl: alignedSurface.totalPnl })}`);
+  }
+
+  // 11 P11-01 durable ack — 소스 계약: 완료 알림은 persist 결과 뒤에만 온다.
+  const workspaceSource = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
+  if (!/return persist\.then\(/.test(workspaceSource)) fail('P1181/11 P11-01 savePortfolioData must return the durable acknowledgement');
+  if (!/async function addPortfolioPosition\(/.test(workspaceSource)) fail('P1181/11 P11-01 the add path must await the acknowledgement');
+  if (!/showToast\(saved\.ok|if \(saved\.ok\)/.test(workspaceSource) || !/영구 저장 실패/.test(workspaceSource)) {
+    fail('P1181/11 P11-01 the completion toast must be gated on the save result with an explicit failure message');
+  }
+
+  // ── E3/P1187 — 통화 writer · import/전체삭제 ack ────────────────────────────────
+  // 통화를 선언할 writer가 없으면 선언은 import로만 들어오고(11 P11-02), 통째 교체하는 수정 경로는
+  // 그 선언을 지우며, 반환을 버리는 경로는 persist 거부에도 완료를 말한다(P11-01의 미커버 경로).
+  const indexSource = readFileSync(path.join(root, 'index.html'), 'utf8');
+  if (!/id="pf-add-cost-currency"/.test(indexSource)) {
+    fail('P1187/11 P11-02 the portfolio form must expose a cost-currency declaration input');
+  }
+  if (!/pf-add-cost-currency/.test(workspaceSource) || !/costCurrency, addedAt/.test(workspaceSource)) {
+    fail('P1187/11 P11-02 the add path must persist the declared cost currency');
+  }
+  if (!/\.\.\.positions\[existing\]/.test(workspaceSource)) {
+    fail('P1187 the update path must preserve non-form fields instead of replacing the position object');
+  }
+  if (!/await savePortfolioData\(data\)/.test(workspaceSource) || !/가져오기가 확정되지 않았습니다/.test(workspaceSource)) {
+    fail('P1187/11 P11-01 the import path must gate completion on the durable acknowledgement');
+  }
+  if (!/await savePortfolioData\(\[\]\)/.test(workspaceSource) || !/전체 삭제가 확정되지 않았습니다/.test(workspaceSource)) {
+    fail('P1187/11 P11-01 clear-all must gate confirmation on the durable acknowledgement');
+  }
+}
+// ── E4/P1182 — 22:PFR01 시작 배분 종점 불변 · 22:PFR05 표본·꼬리 인증 보류 ·
+//               22:PFR02/03/09 범위·현금·RF 선언 · 22:PFR10 구성 스냅샷 · 계좌 원장 보류 ─────────
+// 미래 종점 가격이 과거(시작) 배분을 움직이면 안 되고, 선언 없는 RF·분모·꼬리 표본은 인증되지
+// 않는다. 원장 없는 account TWR/MWR는 보류가 정답이다 — 없는 것을 있는 척 만들지 않는다.
+{
+  const { buildPortfolioBacktestLab } = await load('src/domain/portfolio/backtest.js');
+  const { createCompositionSnapshot, deriveRiskEstimate, assessAccountPerformance } = await load('src/domain/portfolio/risk.js');
+
+  const e4MonthKeys = Array.from({ length: 15 }, (_, i) => `${2024 + Math.floor(i / 12)}-${String((i % 12) + 1).padStart(2, '0')}`);
+  const e4Series = (fn) => ({
+    timestamps: e4MonthKeys.map((key) => `${key}-28T00:00:00Z`),
+    adjustedCloses: e4MonthKeys.map((_, index) => fn(index)),
+    backtestEligible: true, backtestPriceBasis: 'adjusted-close'
+  });
+  const e4PriceMap = ({ terminalA = null } = {}) => {
+    const map = { AAA: e4Series((i) => 100 + i * 10), BBB: e4Series((i) => 100 - i), SPY: e4Series(() => 100) };
+    if (terminalA != null) map.AAA.adjustedCloses[map.AAA.adjustedCloses.length - 1] = terminalA;
+    return map;
+  };
+  const e4Positions = [{ ticker: 'AAA', qty: 1, cost: 100 }, { ticker: 'BBB', qty: 1, cost: 100 }];
+
+  // 22:PFR01 — 무게치 미입력 폴백의 시작 배분은 미래 종점 가격에 불변해야 한다.
+  // 시작 가격이 같으므로(100/100) 50/50이어야 하고, 종점 가격을 바꿔도 배분·잔액이 그대로여야 한다.
+  const startBase = buildPortfolioBacktestLab(e4PriceMap(), e4Positions, {});
+  const startMoved = buildPortfolioBacktestLab(e4PriceMap({ terminalA: 99999 }), e4Positions, {});
+  if (startBase.ok !== true || startBase.settings?.targetWeightBasis !== 'start-date-adjusted-close-market-value'
+    || startBase.weights?.AAA !== 0.5 || startBase.weights?.BBB !== 0.5
+    || JSON.stringify(startBase.weights) !== JSON.stringify(startMoved.weights)
+    || startBase.performance?.startBalance !== startMoved.performance?.startBalance) {
+    fail(`P1182/22:PFR01 the start allocation must derive from the first month and stay invariant to the terminal price, got ${JSON.stringify({ ok: startBase.ok, basis: startBase.settings?.targetWeightBasis, baseWeights: startBase.weights, movedWeights: startMoved.weights, baseStart: startBase.performance?.startBalance, movedStart: startMoved.performance?.startBalance })}`);
+  }
+
+  // 22:PFR05 — 13수익률(14개월)·꼬리 1개의 5% VaR/CVaR는 인증될 수 없다.
+  // 표본·꼬리 수를 결과에 노출하고 certification을 held로 고정한다.
+  const tailPrices = [100, 80];
+  for (let i = 1; i < 13; i += 1) tailPrices.push(80 * Math.pow(1.01, i));
+  const tailKeys = Array.from({ length: 14 }, (_, i) => `${2024 + Math.floor(i / 12)}-${String((i % 12) + 1).padStart(2, '0')}`);
+  const tailTimestamps = tailKeys.map((key) => `${key}-28T00:00:00Z`);
+  const tailRun = buildPortfolioBacktestLab({
+    AAA: { timestamps: tailTimestamps, adjustedCloses: tailPrices, backtestEligible: true, backtestPriceBasis: 'adjusted-close' },
+    SPY: { timestamps: tailTimestamps, adjustedCloses: tailTimestamps.map(() => 100), backtestEligible: true, backtestPriceBasis: 'adjusted-close' }
+  }, [{ ticker: 'AAA', qty: 1, cost: 100, targetWeight: 100 }], {});
+  const vc = tailRun.performance?.varCertification;
+  if (tailRun.ok !== true || !vc || vc.sampleN !== 13 || vc.tailN !== 1 || vc.certification !== 'held'
+    || Math.abs((tailRun.performance?.historicalVar5 ?? 1) - 0.074) > 1e-9
+    || Math.abs((tailRun.performance?.conditionalVar5 ?? 1) - 0.2) > 1e-9) {
+    fail(`P1182/22:PFR05 a 13-return/1-tail sample must publish its facts and HOLD certification, got ${JSON.stringify({ ok: tailRun.ok, vc, var5: tailRun.performance?.historicalVar5, cvar5: tailRun.performance?.conditionalVar5 })}`);
+  }
+
+  // 22:PFR02/PFR09 — cash 50 / equity 50, equity −10%, cash 0%(명시) → 계좌 전체 −5%, 주식 부분 −10%.
+  // 같은 수치가 두 scope 제목으로 나뉘고, RF 없이는 estimate가 보류를 선언한다.
+  const scopeSnapshot = createCompositionSnapshot({
+    members: [{ ticker: 'AAA', qty: 1, price: 50, priceObservedAt: '2026-09-23T00:00:00.000Z', priceSource: 'fixture' }],
+    cash: { amount: 50, currency: 'USD' },
+    asOf: '2026-09-23T00:00:00.000Z',
+    weightBasis: 'whole_account',
+    baseCurrency: 'USD'
+  });
+  const scopeInput = {
+    snapshot: scopeSnapshot,
+    returnsMap: { AAA: [-0.10] },
+    cashReturn: { mode: 'explicit_assumption', annualRate: 0 },
+    rfAnnual: null,
+    exposureHistoryMode: 'current_composition_retrospective',
+    rebalancePolicy: 'daily',
+    sampleDates: ['2026-09-22']
+  };
+  const scopeEstimate = deriveRiskEstimate(scopeInput);
+  if (scopeSnapshot.status !== 'ready' || scopeSnapshot.members[0]?.resolvedWeight !== 0.5 || scopeSnapshot.cashWeight !== 0.5
+    || scopeEstimate.status !== 'ready'
+    || Math.abs((scopeEstimate.wholeAccountReturns?.[0] ?? 1) + 0.05) > 1e-12
+    || Math.abs((scopeEstimate.investedSleeveReturns?.[0] ?? 1) + 0.10) > 1e-12
+    || scopeEstimate.publishedScope !== 'whole_account'
+    || scopeEstimate.rf?.status !== 'not-supplied'
+    || scopeEstimate.exposureHistoryMode !== 'current_composition_retrospective'
+    // P1197: `rebalancePolicy`는 **적용된** 값이다 — 회고 경로는 정책을 소비하지 않으므로 null이고,
+    // 선언은 `rebalancePolicyDeclared`로 따로 발행된다(소비되지 않는 선언이 정체성을 바꾸지 않는다).
+    || scopeEstimate.rebalancePolicy !== null || scopeEstimate.rebalancePolicyDeclared !== 'daily'
+    || scopeEstimate.rebalancePolicyApplied !== false) {
+    fail(`P1182/22:PFR02/PFR09 whole-account −5% and invested-sleeve −10% must publish as distinct declared scopes, got ${JSON.stringify({ snapStatus: scopeSnapshot.status, snapWeight: scopeSnapshot.members[0]?.resolvedWeight, cashWeight: scopeSnapshot.cashWeight, est: { status: scopeEstimate.status, whole: scopeEstimate.wholeAccountReturns, sleeve: scopeEstimate.investedSleeveReturns, scope: scopeEstimate.publishedScope, rf: scopeEstimate.rf, mode: scopeEstimate.exposureHistoryMode, rebalance: scopeEstimate.rebalancePolicy } })}`);
+  }
+  // 같은 입력 → 같은 estimateId (replay). RF만 바꿔도 계산 입력이 갈라진다(양성 대조).
+  const scopeReplay = deriveRiskEstimate(scopeInput);
+  const scopeWithRf = deriveRiskEstimate({ ...scopeInput, rfAnnual: 0.03 });
+  if (scopeReplay.estimateId !== scopeEstimate.estimateId || scopeWithRf.estimateId === scopeEstimate.estimateId) {
+    fail(`P1182/22:PFR09 estimate identity must replay on identical inputs and split on a changed RF input, got ${JSON.stringify({ base: scopeEstimate.estimateId, replay: scopeReplay.estimateId, withRf: scopeWithRf.estimateId })}`);
+  }
+  // 현금 통화 미선언 → 계좌 전체 보류, 주식 부분만 게시(무언 축소 금지).
+  const sleeveSnapshot = createCompositionSnapshot({
+    members: [{ ticker: 'AAA', qty: 1, price: 50 }],
+    cash: { amount: 50, currency: null },
+    asOf: '2026-09-23T00:00:00.000Z',
+    weightBasis: 'invested_sleeve',
+    baseCurrency: null
+  });
+  const heldEstimate = deriveRiskEstimate({ ...scopeInput, snapshot: sleeveSnapshot, cashReturn: { mode: 'unresolved' } });
+  if (sleeveSnapshot.status !== 'limited' || !sleeveSnapshot.issues.includes('cash-currency-unverified')
+    || heldEstimate.publishedScope !== 'invested_sleeve'
+    || heldEstimate.wholeAccountReturns !== null
+    || heldEstimate.wholeAccountHold !== 'cash-declaration-unresolved'
+    || Math.abs((heldEstimate.investedSleeveReturns?.[0] ?? 1) + 0.10) > 1e-12) {
+    fail(`P1182/22:PFR02 undeclared cash must hold the whole-account view instead of vanishing into a sleeve denominator, got ${JSON.stringify({ snapStatus: sleeveSnapshot.status, issues: sleeveSnapshot.issues, scope: heldEstimate.publishedScope, whole: heldEstimate.wholeAccountReturns, hold: heldEstimate.wholeAccountHold, sleeve: heldEstimate.investedSleeveReturns })}`);
+  }
+  // actual_account_history는 보유 이력이 없다면 차단 — 현재 수량을 과거로 복사하지 않는다.
+  const actualBlocked = deriveRiskEstimate({ ...scopeInput, exposureHistoryMode: 'actual_account_history' });
+  if (actualBlocked.status !== 'blocked' || actualBlocked.code !== 'account-history-unavailable') {
+    fail(`P1182/22:PFR09 an actual-account-history claim without holdings history must block, got ${JSON.stringify(actualBlocked)}`);
+  }
+
+  // 22:PFR10 — 구성 스냅샷은 입력에서 파생된 ID로 재현되고, 멤버 가격이 없으면 비중 없이 차단된다.
+  const snapshotInput = {
+    members: [{ ticker: 'AAA', qty: 2, price: 50, priceObservedAt: '2026-09-23T00:00:00.000Z', priceSource: 'fixture' }],
+    cash: { amount: 0, currency: null },
+    asOf: '2026-09-23T00:00:00.000Z',
+    weightBasis: 'whole_account',
+    baseCurrency: null
+  };
+  const snapA = createCompositionSnapshot(snapshotInput);
+  const snapReplay = createCompositionSnapshot(snapshotInput);
+  const snapPriceMoved = createCompositionSnapshot({
+    ...snapshotInput,
+    members: [{ ...snapshotInput.members[0], price: 51 }]
+  });
+  const snapBlocked = createCompositionSnapshot({
+    ...snapshotInput,
+    members: [{ ...snapshotInput.members[0], price: null }]
+  });
+  if (snapA.status !== 'ready' || snapA.compositionSnapshotId !== snapReplay.compositionSnapshotId
+    || snapPriceMoved.compositionSnapshotId === snapA.compositionSnapshotId
+    || snapA.members[0]?.resolvedWeight !== 1
+    || snapBlocked.status !== 'blocked' || snapBlocked.blocked?.code !== 'member-price-missing'
+    || snapBlocked.members[0]?.resolvedWeight !== undefined) {
+    fail(`P1182/22:PFR10 the composition snapshot must replay on identical inputs, split on a price move, and block without a member price, got ${JSON.stringify({ a: snapA.compositionSnapshotId, replay: snapReplay.compositionSnapshotId, moved: snapPriceMoved.compositionSnapshotId, blocked: snapBlocked })}`);
+  }
+
+  // 계좌 성과 — 원장 없이 TWR/MWR를 만들지 않는다.
+  const noLedger = assessAccountPerformance({ ledger: null });
+  const emptyLedger = assessAccountPerformance({ ledger: { transactions: [] } });
+  if (noLedger.status !== 'blocked' || noLedger.code !== 'ledger-not-available' || noLedger.twr !== null || noLedger.mwr !== null
+    || emptyLedger.status !== 'blocked' || emptyLedger.code !== 'ledger-not-available') {
+    fail(`P1182/account-performance without a ledger must hold TWR/MWR, got ${JSON.stringify({ noLedger, emptyLedger })}`);
+  }
+
+  // 소스 계약 — 패널의 선언·표시가 코드에 실제로 존재한다.
+  const e4WorkspaceSource = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
+  if (/0\.043/.test(e4WorkspaceSource)) fail('P1182/22:PFR03 the risk panel must not carry a hidden fixed RF assumption (0.043) any more');
+  if (!/RF 미입력 — 보류/.test(e4WorkspaceSource)) fail('P1182/22:PFR03 the panel must publish the withheld-RF state instead of a bare dash');
+  if (!/legacy-risk-path/.test(e4WorkspaceSource) || !/current_composition_retrospective/.test(e4WorkspaceSource)) {
+    fail('P1182/22:PFR09 the panel must declare its exposure path and legacy-risk-path lineage');
+  }
+  if (!/compositionSnapshotId/.test(e4WorkspaceSource) || !/_pfDeriveRiskEstimate/.test(e4WorkspaceSource)) {
+    fail('P1182/22:PFR10 the panel must read weights through the frozen composition snapshot');
+  }
+  const e4HtmlSource = readFileSync(path.join(root, 'index.html'), 'utf8');
+  if (!/현재 구성 소급\(과거 적용\) 참고도/.test(e4HtmlSource) || !/선형 추정/.test(e4HtmlSource) || !/raw close/.test(e4HtmlSource)) {
+    fail('P1182/22:PFR04 the benchmark chart must disclose retrospective basis, raw close and linear interpolation');
+  }
+  if (!/TWR\/MWR/.test(e4HtmlSource) || !/원장/.test(e4HtmlSource)) {
+    fail('P1182/account-performance the risk surface must state the ledger hold before any computation runs');
+  }
+  if (!/교육 예시 기준/.test(e4HtmlSource)) {
+    fail('P1182/22 universal Sharpe/MDD/drift rules must be labeled as education examples, not advice');
+  }
+}
+// ── E3/E4/P1188 — 11 P11-02 계좌·현금 통화·수익률 선언 writer · 22 계좌 성과 TWR/MWR ·
+//                  전략 경로(fixed_target_weight_strategy) ───────────────────────────────
+// 통화·수익률은 입력이지 추정값이 아니다(빈 선언→보류). 계좌 성과는 원장·규약·평가액이 모두
+// 선언될 때만 계산하고(무언 0 금지), 고정 목표비중 전략 경로는 목표비중·리밸런싱 정책을 요구한다.
+{
+  const { createCompositionSnapshot, deriveRiskEstimate, assessAccountPerformance } = await load('src/domain/portfolio/risk.js');
+  const { readPortfolioAssumptions, normalizeCurrencyCode, normalizeAnnualRate, PORTFOLIO_ASSUMPTION_KEYS } = await load('src/data/portfolio-assumptions.js');
+
+  // 선언 정규화 — 부재·무효는 null이고 0으로 승격되지 않는다.
+  if (normalizeCurrencyCode('usd') !== 'USD' || normalizeCurrencyCode('US') !== null || normalizeCurrencyCode('') !== null
+    || normalizeAnnualRate('4') !== 0.04 || normalizeAnnualRate('') !== null || normalizeAnnualRate('abc') !== null
+    || normalizeAnnualRate('200') !== null) {
+    fail(`P1188/11 P11-02 currency/rate declarations must normalize or stay absent, got ${JSON.stringify({ ccy: normalizeCurrencyCode('usd'), short: normalizeCurrencyCode('US'), rate: normalizeAnnualRate('4'), bad: normalizeAnnualRate('abc'), outOfRange: normalizeAnnualRate('200') })}`);
+  }
+  const declaredAssumptions = readPortfolioAssumptions({ getItem: (key) => ({ [PORTFOLIO_ASSUMPTION_KEYS.baseCurrency]: 'usd', [PORTFOLIO_ASSUMPTION_KEYS.cashCurrency]: 'KRW', [PORTFOLIO_ASSUMPTION_KEYS.cashReturn]: '4', [PORTFOLIO_ASSUMPTION_KEYS.riskFreeRate]: '3' })[key] });
+  if (declaredAssumptions.baseCurrency !== 'USD' || declaredAssumptions.cashCurrency !== 'KRW'
+    || declaredAssumptions.cashReturn !== 0.04 || declaredAssumptions.riskFreeRate !== 0.03) {
+    fail(`P1188/11 P11-02 the reader must surface every declared assumption, got ${JSON.stringify(declaredAssumptions)}`);
+  }
+  const undeclaredAssumptions = readPortfolioAssumptions({ getItem: () => null });
+  if (undeclaredAssumptions.baseCurrency !== null || undeclaredAssumptions.cashCurrency !== null
+    || undeclaredAssumptions.cashReturn !== null || undeclaredAssumptions.riskFreeRate !== null) {
+    fail(`P1188/11 P11-02 an empty storage must read as undeclared, never inferred, got ${JSON.stringify(undeclaredAssumptions)}`);
+  }
+
+  // 전략 경로 — 고정 목표비중. daily 리밸런싱은 매 bar 목표비중을 적용한다(+5% = 0.5·10%).
+  const strategySnapshot = createCompositionSnapshot({
+    members: [{ ticker: 'AAA', qty: 1, price: 100, priceObservedAt: '2026-09-24T00:00:00.000Z', priceSource: 'fixture' },
+      { ticker: 'BBB', qty: 1, price: 100, priceObservedAt: '2026-09-24T00:00:00.000Z', priceSource: 'fixture' }],
+    cash: { amount: 0, currency: null }, asOf: '2026-09-24T00:00:00.000Z', weightBasis: 'whole_account', baseCurrency: null
+  });
+  const strategyInput = {
+    snapshot: strategySnapshot, targetWeights: { AAA: 0.5, BBB: 0.5 },
+    exposureHistoryMode: 'fixed_target_weight_strategy', rebalancePolicy: 'daily',
+    sampleDates: ['2026-09-01', '2026-09-02'], rfAnnual: null
+  };
+  const strategyDaily = deriveRiskEstimate({ ...strategyInput, returnsMap: { AAA: [0.10, 0.10], BBB: [0, 0] } });
+  if (strategyDaily.status !== 'ready' || Math.abs(strategyDaily.investedSleeveReturns[0] - 0.05) > 1e-12
+    || Math.abs(strategyDaily.investedSleeveReturns[1] - 0.05) > 1e-12
+    || strategyDaily.publishedScope !== 'invested_sleeve'
+    || strategyDaily.wholeAccountReturns !== null || strategyDaily.wholeAccountHold !== 'strategy-account-scope-not-declared'
+    || strategyDaily.pathLineage !== 'fixed-target-weight-strategy' || strategyDaily.strategy?.targetWeights?.AAA !== 0.5) {
+    fail(`P1188/fixed-target-weight-strategy a daily-rebalanced 50/50 of +10%/+0% must publish a +5% sleeve and hold the account scope, got ${JSON.stringify({ status: strategyDaily.status, sleeve: strategyDaily.investedSleeveReturns, scope: strategyDaily.publishedScope, hold: strategyDaily.wholeAccountHold, lineage: strategyDaily.pathLineage })}`);
+  }
+  // buy-and-hold는 가중치가 표류한다 — AAA가 2배가 되면 둘째 bar의 AAA 기여가 2/3이 된다(양성 대조).
+  const strategyHold = deriveRiskEstimate({ ...strategyInput, rebalancePolicy: 'buy-and-hold', returnsMap: { AAA: [1.0, 0], BBB: [0, 0] } });
+  if (strategyHold.status !== 'ready' || Math.abs(strategyHold.investedSleeveReturns[0] - 0.5) > 1e-12 || Math.abs(strategyHold.investedSleeveReturns[1]) > 1e-12) {
+    fail(`P1188/fixed-target-weight-strategy buy-and-hold must drift the weights, got ${JSON.stringify(strategyHold.investedSleeveReturns)}`);
+  }
+  // P1200: 부분 목표비중은 이제 **현금 몫**이다(합 100% 미만 = 계좌 범위 선언). 무효는 초과 배분이다.
+  const strategyPartialSum = deriveRiskEstimate({ ...strategyInput, targetWeights: { AAA: 0.5, BBB: 0.4 }, returnsMap: { AAA: [0.1, 0.1], BBB: [0, 0] } });
+  const strategyOverSum = deriveRiskEstimate({ ...strategyInput, targetWeights: { AAA: 0.7, BBB: 0.5 }, returnsMap: { AAA: [0.1, 0.1], BBB: [0, 0] } });
+  const strategyNoWindow = deriveRiskEstimate({ ...strategyInput, rebalancePolicy: 'monthly', sampleDates: undefined, returnsMap: { AAA: [0.1], BBB: [0] } });
+  if (strategyPartialSum.status !== 'ready' || Math.abs(strategyPartialSum.strategy.cashWeight - 0.1) > 1e-9
+    || strategyOverSum.status !== 'blocked' || strategyOverSum.code !== 'strategy-target-weights-invalid'
+    || strategyNoWindow.status !== 'blocked' || strategyNoWindow.code !== 'strategy-rebalance-window-required') {
+    fail(`P1188/P1200 a sub-100% target must read as a cash remainder, an over-allocation must block, and an unbounded periodic rebalance must block, got ${JSON.stringify({ partial: { status: strategyPartialSum.status, cash: strategyPartialSum.strategy && strategyPartialSum.strategy.cashWeight }, over: strategyOverSum.code, noWindow: strategyNoWindow.code })}`);
+  }
+
+  // 계좌 성과 — 원장·규약·평가액이 모두 선언될 때만 TWR/MWR를 계산한다.
+  const ledgerCoverage = ['trades', 'deposits-withdrawals', 'dividends-splits', 'fees-taxes', 'fx', 'valuation-cuts']
+    .reduce((acc, name) => ({ ...acc, [name]: true }), {});
+  const ledgerBase = { currency: 'USD', dayCount: 'actual-365', flowTiming: 'end-of-period', coverage: ledgerCoverage };
+  const flatPerf = assessAccountPerformance({ ledger: { ...ledgerBase, transactions: [{ date: '2026-03-01', kind: 'trade', amount: 0 }], valuations: [{ date: '2026-01-01', amount: 100 }, { date: '2026-07-01', amount: 110 }, { date: '2027-01-01', amount: 121 }] } });
+  if (flatPerf.status !== 'ready' || Math.abs(flatPerf.twr - 0.21) > 1e-9 || Math.abs(flatPerf.mwr - 0.21) > 1e-9
+    || flatPerf.currency !== 'USD' || flatPerf.flowTiming !== 'end-of-period' || flatPerf.periods.length !== 2
+    || flatPerf.conventions?.returnBasis !== 'time-weighted-subperiod-chain') {
+    fail(`P1188/account-performance a two-period 100→110→121 ledger with no flows must publish TWR=MWR=0.21, got ${JSON.stringify({ status: flatPerf.status, twr: flatPerf.twr, mwr: flatPerf.mwr, periods: flatPerf.periods?.length, conventions: flatPerf.conventions })}`);
+  }
+  // 흐름 시점 규약이 TWR을 바꾼다: 같은 원장에서 end-of-period 0.10 vs start-of-period 1/15.
+  const flowLedger = { ...ledgerBase, transactions: [{ date: '2026-06-30', kind: 'deposit', amount: 50 }], valuations: [{ date: '2026-01-01', amount: 100 }, { date: '2027-01-01', amount: 160 }] };
+  const flowEnd = assessAccountPerformance({ ledger: flowLedger });
+  const flowStart = assessAccountPerformance({ ledger: { ...flowLedger, flowTiming: 'start-of-period' } });
+  if (flowEnd.status !== 'ready' || Math.abs(flowEnd.twr - 0.10) > 1e-9 || flowEnd.mwr == null
+    || flowStart.status !== 'ready' || Math.abs(flowStart.twr - 1 / 15) > 1e-9
+    || Math.abs(flowEnd.twr - flowStart.twr) < 1e-6) {
+    fail(`P1188/account-performance the declared flow timing must change the TWR (deposit at a boundary), got ${JSON.stringify({ end: flowEnd.twr, start: flowStart.twr, mwr: flowEnd.mwr })}`);
+  }
+  // 각 미선언 입력은 자기 사유로 보류한다 — 계산 불가를 0으로 만들지 않는다.
+  const holds = [
+    ['account-input-incomplete', { ...ledgerBase, coverage: {}, valuations: [{ date: '2026-01-01', amount: 100 }, { date: '2026-07-01', amount: 110 }] }],
+    ['account-convention-required', { ...ledgerBase, currency: null, valuations: [{ date: '2026-01-01', amount: 100 }, { date: '2026-07-01', amount: 110 }] }],
+    ['account-valuation-marks-required', { ...ledgerBase, valuations: [{ date: '2026-01-01', amount: 100 }] }],
+    ['account-valuation-marks-unordered', { ...ledgerBase, valuations: [{ date: '2026-07-01', amount: 110 }, { date: '2026-01-01', amount: 100 }] }],
+    ['account-ledger-kind-unrecognized', { ...ledgerBase, transactions: [{ date: '2026-03-01', kind: 'mystery', amount: 1 }], valuations: [{ date: '2026-01-01', amount: 100 }, { date: '2026-07-01', amount: 110 }] }]
+  ];
+  holds.forEach(([code, ledger]) => {
+    const held = assessAccountPerformance({ ledger: { transactions: [{ date: '2026-03-01', kind: 'trade', amount: 0 }], ...ledger } });
+    if (held.status !== 'blocked' || held.code !== code || held.twr !== null || held.mwr !== null) {
+      fail(`P1188/account-performance a declared-missing account input must hold with its own reason, expected ${code}, got ${JSON.stringify({ status: held.status, code: held.code, twr: held.twr, mwr: held.mwr })}`);
+    }
+  });
+
+  // 소스 계약 — writer/reader 두 끝이 실제로 존재하고 같은 키를 쓴다(R632).
+  const p1188Index = readFileSync(path.join(root, 'index.html'), 'utf8');
+  ['pf-base-currency-input', 'pf-cash-currency-input', 'pf-cash-return-input', 'pf-rf-input'].forEach((id) => {
+    if (!p1188Index.includes(`id="${id}"`) || !/data-on-change="_aioSavePortfolioAssumption"/.test(p1188Index)) {
+      fail(`P1188/11 P11-02 the risk surface must expose the ${id} declaration input`);
+    }
+  });
+  const p1188Workspace = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
+  if (!/function savePortfolioAssumption\(/.test(p1188Workspace) || !/readPortfolioAssumptionDeclarations\(\)/.test(p1188Workspace)) {
+    fail('P1188/11 P11-02 the classic shell must own the assumption writer and read its own declarations');
+  }
+  if (!/cash: \{ amount: cashValue, currency: declarations\.cashCurrency \}/.test(p1188Workspace)
+    || !/baseCurrency: declarations\.baseCurrency/.test(p1188Workspace)
+    || !/cashReturn: declarations\.cashReturn != null/.test(p1188Workspace)
+    || !/rfAnnual: declarations\.riskFreeRate/.test(p1188Workspace)) {
+    fail('P1188/11 P11-02 the risk path must pass the declared currency/return/RF instead of nulls');
+  }
+  const p1188Bootstrap = readFileSync(path.join(root, 'src/app/bootstrap.js'), 'utf8');
+  if (!/window\._pfPortfolioAssumptions = \{ keys: PORTFOLIO_ASSUMPTION_KEYS/.test(p1188Bootstrap)) {
+    fail('P1188/11 P11-02 bootstrap must expose the shared assumption keys/normalizers to the writer');
+  }
+  const p1188Readers = readFileSync(path.join(root, 'src/data/runtime-readers.js'), 'utf8');
+  if (!/readPortfolioAssumptions\(root\?\.localStorage\)/.test(p1188Readers)) {
+    fail('P1188/11 P11-02 runtime-readers must read the declared account/cash currency');
+  }
+}
+// ── E4/P1190 — 22:PFR05 표본 안정성 bootstrap·민감도 검증 ───────────────────────────────
+// 인증은 표본이 안정적이고 추정량 선택에 둔감할 때만 준다. 부트스트랩은 표본에서 시드를
+// 파생해 재현되고(시계·난수 없음), 민감도는 같은 표본에 다른 규칙을 적용한 편차를 잰다.
+// 임계값은 결과와 함께 선언되며, 조이면 같은 표본이 다시 보류된다(양성 대조).
+{
+  const { deriveVarStability, buildPortfolioBacktestLab } = await load('src/domain/portfolio/backtest.js');
+  const stableSample = Array.from({ length: 120 }, (_, i) => 0.008 + Math.sin(i / 7) * 0.02 + ((i * 37) % 11 - 5) / 500);
+  stableSample[40] = -0.12;
+  stableSample[41] = -0.08;
+  const certified = deriveVarStability({ returns: stableSample, iterations: 400 });
+  const certifiedReplay = deriveVarStability({ returns: stableSample, iterations: 400 });
+  if (certified.status !== 'ready' || certified.certification !== 'certified' || certified.certificationReasons.length !== 0
+    || certified.sampleN !== 120 || !(certified.tailN >= 3)
+    || certified.bootstrap?.seed !== 'sample-derived-fnv1a' || certified.bootstrap.iterations !== 400
+    || certified.bootstrap.band?.p05 == null || !(certified.bootstrap.band.p05 <= certified.bootstrap.band.median && certified.bootstrap.band.median <= certified.bootstrap.band.p95)
+    || !(certified.bootstrap.relativeBand <= certified.thresholds.maxRelativeBand)
+    || !(certified.sensitivity.relativeSensitivity <= certified.thresholds.maxRelativeSensitivity)
+    || JSON.stringify(certified.bootstrap.band) !== JSON.stringify(certifiedReplay.bootstrap.band)
+    || certified.sensitivity.variants.length !== 3
+    || !certified.sensitivity.variants.some((variant) => variant.id === 'leave-one-worst-out')
+    || !certified.sensitivity.variants.some((variant) => variant.id === 'nearest-rank')) {
+    fail(`P1190/22:PFR05 a stable 120-observation sample must certify with a replayed bootstrap band and three sensitivity variants, got ${JSON.stringify({ status: certified.status, cert: certified.certification, band: certified.bootstrap?.band, relBand: certified.bootstrap?.relativeBand, sens: certified.sensitivity, reasons: certified.certificationReasons })}`);
+  }
+  const smallSample = deriveVarStability({ returns: [0.02, -0.01, 0.03, -0.02, 0.01, -0.05, 0.04, -0.03, 0.02, 0.01, -0.02, 0.03, -0.08], iterations: 400 });
+  if (smallSample.status !== 'ready' || smallSample.certification !== 'held'
+    || !smallSample.certificationReasons.includes('sample-below-declared-minimum')
+    || !smallSample.certificationReasons.includes('tail-below-declared-minimum')
+    || deriveVarStability({ returns: [] }).status !== 'unavailable'
+    || deriveVarStability({ returns: [0.01] }).certification !== 'held') {
+    fail(`P1190/22:PFR05 a 13-return/single-tail sample must hold with its declared reasons, got ${JSON.stringify({ status: smallSample.status, cert: smallSample.certification, reasons: smallSample.certificationReasons })}`);
+  }
+  const tightened = deriveVarStability({ returns: stableSample, iterations: 400, thresholds: { maxRelativeBand: 0.1 } });
+  if (tightened.certification !== 'held' || !tightened.certificationReasons.includes('bootstrap-band-exceeds-declared-maximum')) {
+    fail(`P1190/22:PFR05 tightening the declared band must re-hold the same sample, got ${JSON.stringify({ cert: tightened.certification, reasons: tightened.certificationReasons })}`);
+  }
+  const e4Months = Array.from({ length: 14 }, (_, i) => `${2024 + Math.floor(i / 12)}-${String((i % 12) + 1).padStart(2, '0')}`);
+  const stabilityRun = buildPortfolioBacktestLab({
+    AAA: { timestamps: e4Months.map((key) => `${key}-28T00:00:00Z`), adjustedCloses: e4Months.map((_, i) => 100 + (i % 3) - 1), backtestEligible: true, backtestPriceBasis: 'adjusted-close' },
+    SPY: { timestamps: e4Months.map((key) => `${key}-28T00:00:00Z`), adjustedCloses: e4Months.map(() => 100), backtestEligible: true, backtestPriceBasis: 'adjusted-close' }
+  }, [{ ticker: 'AAA', qty: 1, cost: 100, targetWeight: 100 }], {});
+  const stabilityCert = stabilityRun.performance?.varCertification;
+  if (stabilityRun.ok !== true || stabilityCert?.certification !== 'held' || stabilityCert?.stability?.sampleN !== 13
+    || !Array.isArray(stabilityCert?.stability?.certificationReasons)
+    || !stabilityCert.stability.certificationReasons.includes('sample-below-declared-minimum')) {
+    fail(`P1190/22:PFR05 the backtest must publish the stability facts beside the held certification, got ${JSON.stringify({ ok: stabilityRun.ok, vc: stabilityCert })}`);
+  }
+}
+// ── E4/P1191 — 계좌 원장 입력 → TWR/MWR (writer·engine 배선) ─────────────────────────────
+// 원장을 선언할 입력 경로가 없으면 엔진은 영원히 '원장 없음'으로 보류한다. 폼이 쓰는 모양의
+// 원장이 그대로 계약을 통과해 TWR/MWR를 내는지, 셀렉터·패널이 그 판정을 소비하는지 고정한다.
+{
+  const { assessAccountPerformance } = await load('src/domain/portfolio/risk.js');
+  const { LEDGER_COVERAGE_INPUTS, appendLedgerTransaction, appendLedgerValuation, ledgerCoverageState, normalizeLedger, removeLedgerEntry, setLedgerCoverage, setLedgerFlowTiming } = await load('src/data/portfolio-ledger.js');
+  // 원장 계약은 브라우저 없이 단위로 검증한다 — 셸은 DOM과 Vault 쓰기만 맡는다.
+  const grownTx = appendLedgerTransaction(null, { date: '2026-06-30', kind: 'deposit', amount: 50 });
+  const grownV2 = appendLedgerValuation(grownTx.ledger, { date: '2027-01-01', amount: 160 });
+  const grown = appendLedgerValuation(grownV2.ledger, { date: '2026-01-01', amount: 100 });
+  const grownAgain = appendLedgerValuation(grown.ledger, { date: '2026-01-01', amount: 111 });
+  if (grown.ok !== true || grown.ledger.transactions.length !== 1 || grown.ledger.valuations.length !== 2
+    || grown.ledger.valuations.map((mark) => mark.date).join(',') !== '2026-01-01,2027-01-01'
+    || grownAgain.ledger.valuations.length !== 2 || grownAgain.ledger.valuations[0].amount !== 111) {
+    fail(`P1191/E4 the ledger must append, order and keep one valuation per date, got ${JSON.stringify({ grown: grown.ledger, again: grownAgain.ledger.valuations })}`);
+  }
+  // 형태를 잘못 넘긴 호출은 빈 원장으로 위장하지 않고 거부된다(계약 오용 감지).
+  if (normalizeLedger({ ok: true, reason: null }) !== null || normalizeLedger({}) !== null) {
+    fail('P1191/E4 a non-ledger object must not normalize into an empty ledger');
+  }
+  const badEntry = appendLedgerTransaction(null, { date: '2026-06-30', kind: 'deposit', amount: 0 });
+  const badKind = appendLedgerTransaction(null, { date: '2026-06-30', kind: 'mystery', amount: 10 });
+  if (badEntry.ok !== false || badEntry.reason !== 'invalid-ledger-entry' || badKind.ok !== false || badKind.reason !== 'invalid-ledger-kind') {
+    fail(`P1191/E4 an unpriceable or unknown-kind ledger entry must be rejected, got ${JSON.stringify({ badEntry, badKind })}`);
+  }
+  // 정규화는 저장된 원장을 신뢰하지 않는다 — 날짜/금액이 없는 항목은 0으로 승격하지 않고 버린다.
+  const dirty = normalizeLedger({ currency: 'usd', flowTiming: 'start-of-period', coverage: { trades: true, fx: 'yes' }, transactions: [{ date: '2026-06-30', kind: 'deposit', amount: 50 }, { date: 'nope', kind: 'deposit', amount: 10 }, { date: '2026-07-01', kind: 'withdrawal', amount: null }], valuations: [{ date: '2026-01-01', amount: 100 }, { date: '2026-02-01' }] });
+  if (dirty.currency !== 'USD' || dirty.flowTiming !== 'start-of-period' || dirty.transactions.length !== 1 || dirty.valuations.length !== 1
+    || dirty.coverage.trades !== true || 'fx' in dirty.coverage || normalizeLedger([]) !== null || normalizeLedger(null) !== null) {
+    fail(`P1191/E4 normalize must drop undated/unpriced entries and only declared coverage, got ${JSON.stringify(dirty)}`);
+  }
+  const declaredAll = LEDGER_COVERAGE_INPUTS.reduce((acc, entry) => setLedgerCoverage(acc, entry.id, true).ledger, null);
+  const removed = removeLedgerEntry(declaredAll, 'transaction', 0);
+  const undeclared = setLedgerCoverage(declaredAll, 'fx', false);
+  const timing = setLedgerFlowTiming(declaredAll, 'start-of-period');
+  if (ledgerCoverageState(declaredAll).complete !== true || ledgerCoverageState(undeclared.ledger).complete !== false
+    || ledgerCoverageState(undeclared.ledger).missing.join(',') !== 'fx'
+    || ledgerCoverageState(null).complete !== false || ledgerCoverageState(null).inputs.length !== LEDGER_COVERAGE_INPUTS.length
+    || timing.ledger.flowTiming !== 'start-of-period'
+    || setLedgerCoverage(declaredAll, 'mystery', true).ok !== false) {
+    fail(`P1191/E4 the coverage declaration must be per-input and traceable, got ${JSON.stringify({ complete: ledgerCoverageState(declaredAll).complete, missing: ledgerCoverageState(undeclared.ledger).missing, timing: timing.ledger.flowTiming })}`);
+  }
+  if (removed.ok !== false || removed.reason !== 'invalid-ledger-index') {
+    fail(`P1191/E4 removing a missing ledger entry must fail instead of silently succeeding, got ${JSON.stringify(removed)}`);
+  }
+  const p1191Index = readFileSync(path.join(root, 'index.html'), 'utf8');
+  const p1191Workspace = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
+  const p1191Readers = readFileSync(path.join(root, 'src/data/runtime-readers.js'), 'utf8');
+  ['pf-ledger-section', 'pf-ledger-flow-timing', 'pf-ledger-coverage', 'pf-ledger-kind', 'pf-ledger-date', 'pf-ledger-amount', 'pf-ledger-valuation-date', 'pf-ledger-valuation-amount', 'pf-ledger-list', 'pf-ledger-status'].forEach((id) => {
+    if (!p1191Index.includes(`id="${id}"`)) fail(`P1191/E4 the ledger surface must expose ${id}`);
+  });
+  if (!/data-action="_aioAddLedgerEntry"/.test(p1191Index) || !/data-action="_aioAddLedgerValuation"/.test(p1191Index) || !/data-on-change="_aioSaveLedgerConvention"/.test(p1191Index)) {
+    fail('P1191/E4 the ledger surface must wire its add/valuation/convention handlers through the delegates');
+  }
+  // P1199: 저장 *형태*(읽기 규칙·ack 분리)는 네이티브 모듈로 갔지만, 저장 *정책*은 셸이 계속 소유한다 —
+  // safeLS ack 경로와 Vault 동기 캐시를 주입하는 주체가 셸이어야 한다.
+  if (!/function getPortfolioLedger\(/.test(p1191Workspace) || !/function savePortfolioLedger\(/.test(p1191Workspace)
+    || !/function _pfDeclarations\(\)/.test(p1191Workspace) || !/function _pfVaultRuntime\(\)/.test(p1191Workspace)
+    || !/secureSet: function\(key, json\) \{/.test(p1191Workspace) || !/safeLS\(key, json\)/.test(p1191Workspace)
+    || !/getRuntimeCache: _pfVaultRuntime/.test(p1191Workspace)
+    || !/function savePortfolioLedger\(ledger\) \{ return _pfDeclarationWrite\(PF_LEDGER_KEY/.test(p1191Workspace)
+    || !/window\._aioAddLedgerEntry = /.test(p1191Workspace)
+    || !/window\._aioRemoveLedgerEntry = /.test(p1191Workspace) || !/window\._aioSetLedgerCoverage = /.test(p1191Workspace)
+    || !/function _pfLedgerApi\(\)/.test(p1191Workspace)) {
+    fail('P1191/E4 the classic shell must own the ledger writer through the Vault path, delegate the contract, and expose every handler');
+  }
+  if (!/window\._pfPortfolioLedger = \{/.test(readFileSync(path.join(root, 'src/app/bootstrap.js'), 'utf8'))) {
+    fail('P1191/E4 bootstrap must expose the ledger contract to the shell');
+  }
+  if (!/ledger: accountLedger/.test(p1191Workspace) || !/status === 'ready'/.test(p1191Workspace)) {
+    fail('P1191/E4 the risk path must pass the declared ledger and render the ready account performance');
+  }
+  if (!/clone\(root\.getPortfolioLedger\(\)\)/.test(p1191Readers)) {
+    fail('P1191/E4 runtime-readers must pass the declared ledger through');
+  }
+  if (!/_aioBtVarCertLabel\(p\.varCertification\)/.test(p1191Workspace) || !/function _aioBtVarCertLabel\(/.test(p1191Workspace)) {
+    fail('P1190/E4 the lab must render the actual VaR certification instead of a hard-coded hold label');
+  }
+  const uiLedger = {
+    currency: 'USD',
+    dayCount: 'actual-365',
+    flowTiming: 'end-of-period',
+    coverage: { trades: true, 'deposits-withdrawals': true, 'dividends-splits': true, 'fees-taxes': true, fx: true, 'valuation-cuts': true },
+    transactions: [{ date: '2026-06-30', kind: 'deposit', amount: 50 }],
+    valuations: [{ date: '2026-01-01', amount: 100 }, { date: '2027-01-01', amount: 160 }]
+  };
+  const uiPerf = assessAccountPerformance({ ledger: uiLedger });
+  if (uiPerf.status !== 'ready' || Math.abs(uiPerf.twr - 0.10) > 1e-9 || uiPerf.mwr == null || uiPerf.currency !== 'USD') {
+    fail(`P1191/E4 the ledger shape the form writes must produce a ready account performance, got ${JSON.stringify({ status: uiPerf.status, code: uiPerf.code, twr: uiPerf.twr, mwr: uiPerf.mwr })}`);
+  }
+  const partialPerf = assessAccountPerformance({ ledger: { ...uiLedger, coverage: { ...uiLedger.coverage, fx: false } } });
+  if (partialPerf.status !== 'blocked' || partialPerf.code !== 'account-input-incomplete') {
+    fail(`P1191/E4 dropping a declared ledger input must hold the same ledger, got ${JSON.stringify({ status: partialPerf.status, code: partialPerf.code })}`);
+  }
+}
+// ── E4/P1193 — 측정 경로·리밸런싱 정책 선언 ────────────────────────────────────────────────
+// 경로와 정책도 선언 입력이다. 열거형 선언은 정규화가 기본값으로 되돌리고(모르는 값이 전략 주장이
+// 되지 않게), 셸은 포지션의 목표비중(%)이 합 100%일 때만 전략 경로로 넘긴다.
+{
+  const { EXPOSURE_PATHS, REBALANCE_POLICIES, PORTFOLIO_ASSUMPTION_KEYS, normalizeExposurePath, normalizeRebalancePolicy, readPortfolioAssumptions } = await load('src/data/portfolio-assumptions.js');
+  // P1198: 열거형도 미선언·미인식은 null이고 기본값을 지어내지 않는다(P1193의 'fallback to default'를
+  // 대체). 인식 불가 여부는 read가 `unrecognized`로 발행한다 — 미선언과 구분해 말할 수 있어야 한다.
+  const assumptionRead = readPortfolioAssumptions({ getItem: (key) => (key === PORTFOLIO_ASSUMPTION_KEYS.rebalancePolicy ? 'weekly' : null) });
+  if (normalizeExposurePath('fixed_target_weight_strategy') !== 'fixed_target_weight_strategy'
+    || normalizeExposurePath('current_composition_retrospective') !== 'current_composition_retrospective'
+    || normalizeExposurePath('strategy') !== null || normalizeExposurePath(null) !== null || normalizeExposurePath('') !== null
+    || normalizeRebalancePolicy('buy-and-hold') !== 'buy-and-hold' || normalizeRebalancePolicy('monthly') !== 'monthly'
+    || normalizeRebalancePolicy('weekly') !== null || normalizeRebalancePolicy('') !== null || normalizeRebalancePolicy(null) !== null
+    || assumptionRead.rebalancePolicy !== null || assumptionRead.unrecognized.rebalancePolicy !== true
+    || assumptionRead.unrecognized.exposurePath !== false || assumptionRead.exposurePath !== null) {
+    fail(`P1198 an undeclared or unrecognized enum must stay null and be reported as unrecognized, got ${JSON.stringify({ path: normalizeExposurePath('strategy'), policy: normalizeRebalancePolicy('weekly'), blank: normalizeRebalancePolicy(''), read: { policy: assumptionRead.rebalancePolicy, unrecognized: assumptionRead.unrecognized } })}`);
+  }
+  const p1193Index = readFileSync(path.join(root, 'index.html'), 'utf8');
+  const p1193Workspace = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
+  if (!/id="pf-exposure-path-input"/.test(p1193Index) || !/id="pf-rebalance-policy-input"/.test(p1193Index)
+    || !/value="fixed_target_weight_strategy"/.test(p1193Index) || !/value="buy-and-hold"/.test(p1193Index)) {
+    fail('P1193 the risk surface must expose the exposure path and rebalance policy declarations');
+  }
+  if (!/exposureHistoryMode: exposurePath/.test(p1193Workspace) || !/rebalancePolicy: rebalancePolicy/.test(p1193Workspace)
+    || !/targetWeights: strategyTargetWeights/.test(p1193Workspace) || !/declaredWeight \/ 100/.test(p1193Workspace)
+    || !/declaredWeightSum > 100 \+ 1e-6/.test(p1193Workspace)
+    || /Math\.abs\(declaredWeightSum - 100\)/.test(p1193Workspace)
+    || !/pathLineage === 'fixed-target-weight-strategy'/.test(p1193Workspace)) {
+    fail('P1193/P1200 the risk path must pass the declared path/policy and hand the target weights through, leaving the cash remainder to the engine');
+  }
+  const { createCompositionSnapshot, deriveRiskEstimate } = await load('src/domain/portfolio/risk.js');
+  const p1193Snapshot = createCompositionSnapshot({
+    members: [{ ticker: 'AAA', qty: 1, price: 100, priceObservedAt: '2026-09-24T00:00:00.000Z', priceSource: 'fixture' }],
+    cash: { amount: 0, currency: null }, asOf: '2026-09-24T00:00:00.000Z', weightBasis: 'whole_account', baseCurrency: null
+  });
+  const p1193Input = { snapshot: p1193Snapshot, returnsMap: { AAA: [0.01, 0.02] }, exposureHistoryMode: 'fixed_target_weight_strategy', rebalancePolicy: 'daily', sampleDates: ['2026-09-01', '2026-09-02'], rfAnnual: null };
+  const noWeights = deriveRiskEstimate({ ...p1193Input, targetWeights: {} });
+  const withWeights = deriveRiskEstimate({ ...p1193Input, targetWeights: { AAA: 1 } });
+  if (noWeights.status !== 'blocked' || noWeights.code !== 'strategy-target-weights-invalid'
+    || withWeights.status !== 'ready' || withWeights.pathLineage !== 'fixed-target-weight-strategy'
+    || withWeights.publishedScope !== 'invested_sleeve' || withWeights.strategy?.targetWeights?.AAA !== 1) {
+    fail(`P1193 an incomplete target-weight declaration must hold the strategy path and a complete one must publish its lineage, got ${JSON.stringify({ noWeights: noWeights.code, withWeights: { status: withWeights.status, lineage: withWeights.pathLineage, scope: withWeights.publishedScope } })}`);
+  }
+}
+// ── E3/P1194 — 선언된 FX leg로 혼합 통화 합계를 환산 ─────────────────────────────────────
+// 환산은 관측 rate leg가 있을 때만 성립한다. leg가 없거나 컷 이후·창 초과면 합계를 만들지 않고,
+// 사용한 leg와 실패 사유를 발행한다 — 1로 나누거나 다른 통화를 섞어 합계를 만들지 않는다.
+{
+  const { FX_LEG_MAX_AGE_MS, appendFxLeg, convertWithDeclaredRates, fxLegsState, normalizeFxLegs, removeFxLeg, resolveFxRate } = await load('src/domain/portfolio/fx.js');
+  const { derivePortfolioSurface } = await load('src/domain/portfolio/surface.js');
+  const now = Date.UTC(2026, 8, 24, 0, 30);
+  const observedAt = new Date(now - 3 * 3600000).toISOString();
+  const declared = appendFxLeg(appendFxLeg([], { from: 'usd', to: 'krw', rate: 1350, observedAt }).legs, { from: 'KRW', to: 'USD', rate: 1400, observedAt });
+  const normalized = normalizeFxLegs([{ from: 'usd', to: 'US', rate: 1, observedAt }, { from: 'USD', to: 'KRW', rate: 0, observedAt }, { from: 'USD', to: 'KRW', rate: 1350, observedAt: 'nope' }, { from: 'USD', to: 'USD', rate: 1, observedAt }]);
+  const stale = resolveFxRate([{ from: 'USD', to: 'KRW', rate: 1350, observedAt: new Date(now - FX_LEG_MAX_AGE_MS - 1000).toISOString() }], { from: 'KRW', to: 'USD', asOfMs: now });
+  const future = resolveFxRate([{ from: 'USD', to: 'KRW', rate: 1350, observedAt: new Date(now + 60000).toISOString() }], { from: 'KRW', to: 'USD', asOfMs: now });
+  const inverted = resolveFxRate([{ from: 'USD', to: 'KRW', rate: 1350, observedAt }], { from: 'KRW', to: 'USD', asOfMs: now });
+  const fxChecks = [
+    ['append keeps both directions', declared.ok === true && declared.legs.length === 2],
+    ['normalize drops malformed legs', normalized.length === 0],
+    ['stale leg rejected', stale.reason === 'rate-stale'],
+    ['after-cut leg rejected', future.reason === 'rate-observed-after-cut' && future.pair === 'USD/KRW'],
+    ['declared inverse is inverted', inverted.ok === true && inverted.inverted === true && Math.abs(inverted.rate - 1 / 1350) <= 1e-15],
+    ['undeclared pair refused', resolveFxRate([], { from: 'KRW', to: 'USD', asOfMs: now }).reason === 'rate-not-declared'],
+    ['undeclared currency refused', resolveFxRate([], { from: null, to: 'USD', asOfMs: now }).reason === 'currency-undeclared'],
+    ['missing value refused', convertWithDeclaredRates({ value: null, from: 'KRW', to: 'USD', legs: [], asOfMs: now }).reason === 'value-missing'],
+    ['same currency is identity', convertWithDeclaredRates({ value: 1350, from: 'USD', to: 'USD', legs: [], asOfMs: now }).value === 1350],
+    ['fresh leg is usable', fxLegsState([{ from: 'USD', to: 'KRW', rate: 1350, observedAt }], { asOfMs: now }).legs[0].usable === true],
+    ['missing index refused', removeFxLeg([{ from: 'USD', to: 'KRW', rate: 1350, observedAt }], 3).ok === false]
+  ];
+  const failedFx = fxChecks.filter(([, ok]) => !ok).map(([name]) => name);
+  if (failedFx.length) {
+    fail(`P1194 FX contract checks failed: ${failedFx.join(' | ')} — ${JSON.stringify({ declared: declared.legs, normalized: normalized.length, stale: stale.reason, future: future, inverted: { ok: inverted.ok, inverted: inverted.inverted, rate: inverted.rate } })}`);
+  }
+  const mixedHoldings = [
+    { symbol: 'AAA', shares: 10, avgCost: 100, price: 150, currency: 'USD', costCurrency: 'USD', sector: 'Tech' },
+    { symbol: 'BBB', shares: 10, avgCost: 10000, price: 15000, currency: 'KRW', costCurrency: 'KRW', sector: 'Health' }
+  ];
+  const mixedState = { readState: 'ready', holdingsKnown: true, holdings: mixedHoldings, cash: 0, cashKnown: true, baseCurrency: 'USD', cashCurrency: 'USD' };
+  const heldSurface = derivePortfolioSurface({ state: mixedState, liveData: {}, now });
+  const convertedSurface = derivePortfolioSurface({ state: { ...mixedState, fxLegs: [{ from: 'KRW', to: 'USD', rate: 1 / 1350, observedAt }] }, liveData: {}, now });
+  if (heldSurface.currencyState !== 'mixed-without-conversion' || heldSurface.totalAssets !== null || heldSurface.conversion.applied !== false
+    || convertedSurface.currencyState !== 'converted-with-declared-rates' || convertedSurface.conversion.applied !== true
+    || convertedSurface.conversion.legs.length !== 1 || convertedSurface.conversion.legs[0].from !== 'KRW'
+    || convertedSurface.baseCurrency !== 'USD'
+    || Math.abs(convertedSurface.positionValue - (10 * 150 + 10 * 15000 / 1350)) > 1e-6
+    || Math.abs(convertedSurface.totalCost - (10 * 100 + 10 * 10000 / 1350)) > 1e-6
+    || Math.abs(convertedSurface.totalPnl - (convertedSurface.positionValue - convertedSurface.totalCost)) > 1e-6
+    || convertedSurface.rows.find((row) => row.symbol === 'BBB').convertedFrom !== 'KRW'
+    || convertedSurface.rows.find((row) => row.symbol === 'AAA').convertedFrom !== null) {
+    fail(`P1194 the surface must convert with a declared pair or hold the mixed total, got ${JSON.stringify({ held: { state: heldSurface.currencyState, total: heldSurface.totalAssets }, converted: { state: convertedSurface.currencyState, applied: convertedSurface.conversion.applied, position: convertedSurface.positionValue, legs: convertedSurface.conversion.legs } })}`);
+  }
+  const unrelatedSurface = derivePortfolioSurface({ state: { ...mixedState, fxLegs: [{ from: 'EUR', to: 'USD', rate: 1.1, observedAt }] }, liveData: {}, now });
+  if (unrelatedSurface.currencyState !== 'mixed-without-conversion' || unrelatedSurface.totalAssets !== null
+    || unrelatedSurface.conversion.applied !== false
+    || !unrelatedSurface.conversion.held.some((entry) => entry.pair === 'KRW/USD' && entry.reason === 'rate-not-declared')) {
+    fail(`P1194 a mixed total with an unrelated declared leg must stay held and publish the missing pair, got ${JSON.stringify({ state: unrelatedSurface.currencyState, total: unrelatedSurface.totalAssets, held: unrelatedSurface.conversion.held })}`);
+  }
+  const p1194Readers = readFileSync(path.join(root, 'src/data/runtime-readers.js'), 'utf8');
+  const p1194Provider = readFileSync(path.join(root, 'src/data/providers/portfolio.js'), 'utf8');
+  const p1194Normalize = readFileSync(path.join(root, 'src/data/normalize/portfolio.js'), 'utf8');
+  const p1194Workspace = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
+  const p1194Html = readFileSync(path.join(root, 'index.html'), 'utf8');
+  if (!/clone\(root\.getPortfolioFxLegs\(\)\)/.test(p1194Readers) || !/fxLegs: Array\.isArray\(runtime\.fxLegs\)/.test(p1194Provider)
+    || !/fxLegs: Object\.freeze/.test(p1194Normalize) || !/safeLS\(key, json\)/.test(p1194Workspace)
+    || !/fxLegs: Array\.isArray\(payload\.fxLegs\)/.test(readFileSync(path.join(root, 'src/state/slices/portfolio.js'), 'utf8'))
+    || !/window\._aioAddFxLeg = /.test(p1194Workspace) || !/window\._aioRemoveFxLeg = /.test(p1194Workspace)
+    || !/from '\.\/fx\.js'/.test(readFileSync(path.join(root, 'src/domain/portfolio/surface.js'), 'utf8'))
+    || !/id="pf-fx-from"/.test(p1194Html) || !/data-action="_aioAddFxLeg"/.test(p1194Html)
+    || !/converted-with-declared-rates/.test(readFileSync(path.join(root, 'src/ui/pages/portfolio.js'), 'utf8'))) {
+    fail('P1194 the declared FX legs must cross reader→provider→normalize→surface and be writable from the risk surface');
+  }
+}
+// ── P1195 — 선언 패널(원장·FX leg)의 마크업과 ack 문구는 네이티브가 소유한다 ──────────────
+// 이 블록은 ratchet에서 가장 빨리 자라던 부분이었다(P1191 +201, P1194 +65). 마크업·문구를 셸에
+// 두면 두 목록이 서로 어긋나고, 영구 저장 실패가 성공처럼 읽히는 것도 문구가 흩어져서였다.
+{
+  const { applyFxPanel, applyLedgerPanel, declarationStatus, fxLegListMarkup, ledgerListMarkup, readDeclaredFields, showDeclarationStatus } = await load('src/ui/panels/portfolio-declarations.js');
+  const coverageMarkup = (await load('src/ui/panels/portfolio-declarations.js')).coverageMarkup;
+  const coverage = coverageMarkup({ inputs: [{ id: 'transactions', label: '거래<x>', declared: true }, { id: 'valuations', label: '평가', declared: false }] });
+  const ledgerMarkup = ledgerListMarkup({ transactions: [{ date: '2026-01-02', kind: 'withdrawal', amount: 100 }], valuations: [{ date: '2026-01-31', amount: 1000 }] });
+  const fxMarkup = fxLegListMarkup({ legs: [
+    { from: 'USD', to: 'KRW', rate: 1350, observedAt: '2026-09-23T21:30:00.000Z', ageMs: 3 * 3600000, usable: true },
+    { from: 'EUR', to: 'USD', rate: 1.1, observedAt: '2026-09-01T00:00:00.000Z', ageMs: 500 * 3600000, usable: false }
+  ] }, { maxAgeMs: 72 * 3600000 });
+  const persistFail = declarationStatus({ kind: 'ledger', phase: 'persist', result: { ok: false, reason: 'persist-rejected' } });
+  const invalidFx = declarationStatus({ kind: 'fx', phase: 'apply', result: { ok: false, reason: 'invalid-fx-leg' } });
+  const invalidLedger = declarationStatus({ kind: 'ledger', phase: 'apply', result: { ok: false, reason: 'invalid-ledger-entry' } });
+  const saved = declarationStatus({ kind: 'ledger', phase: 'persist', result: { ok: true, memoryApplied: true }, okMessage: '원장 항목을 삭제했습니다.' });
+  const fakeList = { innerHTML: '' };
+  const fakeInput = { value: 'USD' };
+  const fakeDocument = {
+    getElementById(id) {
+      if (id === 'pf-fx-list') return fakeList;
+      if (id === 'pf-fx-from') return fakeInput;
+      if (id === 'pf-ledger-status') return { textContent: '', style: {} };
+      return null;
+    }
+  };
+  const applied = applyFxPanel({ documentRef: fakeDocument, legsState: { legs: [] }, maxAgeMs: 72 * 3600000 });
+  const appliedEmpty = applyLedgerPanel({ documentRef: fakeDocument, ledger: null, coverageState: { inputs: [] } });
+  const readBack = readDeclaredFields(fakeDocument, ['pf-fx-from', 'pf-fx-to']);
+  const statusWritten = showDeclarationStatus({ documentRef: fakeDocument, statusId: 'pf-ledger-status', kind: 'fx', phase: 'apply', result: { ok: false, reason: 'invalid-fx-leg' } });
+  const usableFxRow = fxMarkup.slice(0, fxMarkup.indexOf('opacity:0.7;'));
+  const panelChecks = [
+    ['coverage marks only the declared input', (coverage.match(/checked/g) || []).length === 1],
+    ['coverage escapes the label', coverage.includes('거래&lt;x&gt;') && coverage.includes('data-field="transactions"')],
+    ['ledger rows keep kind and index', ledgerMarkup.includes('data-arg="transaction:0"') && ledgerMarkup.includes('data-arg="valuation:0"') && ledgerMarkup.includes('출금')],
+    ['empty ledger says so', ledgerListMarkup(null) === '원장 항목 없음' && ledgerListMarkup({ transactions: [], valuations: [] }) === '원장 항목 없음'],
+    ['usable fx leg stays plain', usableFxRow.includes('USD→KRW') && !usableFxRow.includes('opacity:0.7;') && !usableFxRow.includes('사용 불가')],
+    ['unusable fx leg names the declared budget', fxMarkup.includes('사용 불가(선언 창 72h 초과 또는 컷 이후)') && fxMarkup.includes('opacity:0.7;')],
+    ['fx list indexes its remove buttons', fxMarkup.includes('data-arg="0"') && fxMarkup.includes('data-arg="1"')],
+    ['persist failure never reads as success', persistFail.ok === false && persistFail.tone === 'var(--data-amber)' && persistFail.text.includes('영구 저장 실패')],
+    ['persist failure must not borrow the invalid-entry wording', !persistFail.text.includes('FX leg는') && !persistFail.text.includes('날짜(YYYY-MM-DD)')],
+    ['invalid fx names what is missing', invalidFx.text.includes('FX leg는 통화 2개')],
+    ['invalid ledger names what is missing', invalidLedger.text.includes('원장 항목은 날짜(YYYY-MM-DD)')],
+    ['a durable success keeps its message', saved.ok === true && saved.tone === 'var(--text-muted)' && saved.text === '원장 항목을 삭제했습니다.'],
+    ['apply writes the list and reports it', applied === true && fakeList.innerHTML.includes('FX leg 없음')],
+    ['apply without its elements reports false', appliedEmpty === false],
+    ['fields read from the document', readBack['pf-fx-from'] === 'USD' && readBack['pf-fx-to'] === ''],
+    ['status write lands on the element', statusWritten && statusWritten.text.includes('FX leg는')]
+  ];
+  const failedPanels = panelChecks.filter(([, ok]) => !ok).map(([name]) => name);
+  if (failedPanels.length) fail(`P1195 declared-panel checks failed: ${failedPanels.join(' | ')}`);
+  const p1195Workspace = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
+  const p1195Bootstrap = readFileSync(path.join(root, 'src/app/bootstrap.js'), 'utf8');
+  if (/data-action="_aioRemoveLedgerEntry"/.test(p1195Workspace) || /data-action="_aioRemoveFxLeg"/.test(p1195Workspace)
+    || /function _pfVaultListPersist\(options\)/.test(p1195Workspace) === false
+    || !/window\._pfDeclarationPanels = \{/.test(p1195Bootstrap)
+    || !/showDeclarationStatus\(\{ documentRef: document, statusId: statusId/.test(p1195Workspace)) {
+    fail('P1195 the shell must keep storage and ordering while the native panel owns the markup and the acknowledgement wording');
+  }
+}
+// ── E3/P1196 — 원가 통화 불일치도 선언된 leg로 환산하면 P&L이 성립한다 ─────────────────────
+// 값은 USD, 원가는 KRW인 보유는 환산 근거가 없으면 P&L을 만들 수 없다(P1181). 근거가 선언되면
+// 두 축이 같은 기준 통화가 되어 P&L이 성립하고, 원가쌍만 없으면 **P&L만** 보류한다(합계는 유지).
+{
+  const { derivePortfolioSurface } = await load('src/domain/portfolio/surface.js');
+  const now = Date.UTC(2026, 8, 24, 0, 30);
+  const observedAt = new Date(now - 3 * 3600000).toISOString();
+  const leg = { from: 'KRW', to: 'USD', rate: 1 / 1350, observedAt };
+  const mismatchHoldings = [{ symbol: 'AAA', shares: 10, avgCost: 15000, price: 200, currency: 'USD', costCurrency: 'KRW', sector: 'Tech' }];
+  const mismatchState = { readState: 'ready', holdingsKnown: true, holdings: mismatchHoldings, cash: 0, cashKnown: true, baseCurrency: 'USD', cashCurrency: 'USD' };
+  const held = derivePortfolioSurface({ state: mismatchState, liveData: {}, now });
+  const converted = derivePortfolioSurface({ state: { ...mismatchState, fxLegs: [leg] }, liveData: {}, now });
+  const convertedCost = 10 * 15000 / 1350;
+  const convertedValue = 10 * 200;
+  // 원가쌍이 없는 leg만 선언하면 값 합계는 만들어지되 P&L만 보류되고, 어느 쌍이 없는지 발행된다.
+  const wrongLeg = derivePortfolioSurface({ state: { ...mismatchState, fxLegs: [{ from: 'EUR', to: 'USD', rate: 1.1, observedAt }] }, liveData: {}, now });
+  const p1196Checks = [
+    ['no basis holds the P&L and names the mismatch', held.costCurrencyState === 'cost-price-mismatch-held' && held.totalPnl === null && held.positionValue === convertedValue],
+    ['declared basis converts the cost axis', converted.costCurrencyState === 'cost-price-mismatch-converted' && converted.conversion.costApplied === true],
+    ['converted P&L equals value minus converted cost', Math.abs(converted.totalCost - convertedCost) < 1e-6 && Math.abs(converted.totalPnl - (convertedValue - convertedCost)) < 1e-6],
+    ['converted row keeps its original cost currency', converted.rows[0].costConvertedFrom === 'KRW'],
+    ['the aggregate stays single-currency', converted.currencyState === 'declared-single' && converted.conversion.applied === false],
+    ['cost-only conversion still publishes its leg', converted.conversion.legs.length === 1 && converted.conversion.legs[0].from === 'KRW'],
+    ['a missing cost pair holds only the P&L', wrongLeg.costCurrencyState === 'cost-price-mismatch-held' && wrongLeg.totalPnl === null && wrongLeg.totalCost === null
+      && wrongLeg.conversion.costHeld.some((entry) => entry.pair === 'KRW/USD' && entry.reason === 'rate-not-declared')],
+    ['cost basis conflict is judged before conversion', held.rows[0].costCurrency === 'KRW']
+  ];
+  const failedP1196 = p1196Checks.filter(([, ok]) => !ok).map(([name]) => name);
+  if (failedP1196.length) {
+    fail(`P1196 cost-axis conversion checks failed: ${failedP1196.join(' | ')} — ${JSON.stringify({ held: { state: held.costCurrencyState, pnl: held.totalPnl, value: held.positionValue }, converted: { state: converted.costCurrencyState, cost: converted.totalCost, pnl: converted.totalPnl, legs: converted.conversion.legs }, wrong: { state: wrongLeg.costCurrencyState, costHeld: wrongLeg.conversion.costHeld } })}`);
+  }
+  if (!/cost-price-mismatch-converted/.test(readFileSync(path.join(root, 'src/ui/pages/portfolio.js'), 'utf8'))) {
+    fail('P1196 the surface note must distinguish a converted cost axis from a held one');
+  }
+}
+// ── P1197 — 소비되지 않는 선언은 요구하지도, 정체성을 바꾸지도 않는다 ─────────────────────────
+// 리밸런싱 정책은 전략 경로에서만 결과를 바꾼다. 회고 경로에서 정책을 **필수**로 요구하면 사용자가
+// 의미 없는 입력을 선언해야 하고, 그 값이 정체성 해시에 들어가면 같은 입력이 다른 estimateId를 받아
+// 재현·비교가 깨진다(결과는 같은데 id만 다른 상태).
+{
+  const { createCompositionSnapshot, deriveRiskEstimate } = await load('src/domain/portfolio/risk.js');
+  const p1197Series = [0.01, -0.005, 0.012, 0.003, -0.002, 0.004, 0.001, -0.001, 0.002, 0.003, 0.001, 0.002, 0.001];
+  const p1197Snapshot = createCompositionSnapshot({
+    members: [{ ticker: 'AAA', qty: 1, price: 100, priceObservedAt: '2026-09-23T00:00:00.000Z', priceSource: 'fixture' }],
+    cash: { amount: 100, currency: 'USD' },
+    asOf: '2026-09-23T00:00:00.000Z',
+    weightBasis: 'whole_account',
+    baseCurrency: 'USD'
+  });
+  const base = {
+    snapshot: p1197Snapshot,
+    returnsMap: { AAA: p1197Series },
+    cashReturn: { mode: 'explicit_assumption', annualRate: 0.02 },
+    rfAnnual: 0.03,
+    exposureHistoryMode: 'current_composition_retrospective',
+    targetWeights: { AAA: 1 }
+  };
+  const noPolicy = deriveRiskEstimate({ ...base });
+  const withMonthly = deriveRiskEstimate({ ...base, rebalancePolicy: 'monthly' });
+  const withQuarterly = deriveRiskEstimate({ ...base, rebalancePolicy: 'quarterly' });
+  const p1197Dates = Array.from({ length: 13 }, (_, index) => `2026-09-${String(index + 1).padStart(2, '0')}`);
+  const strategyNoPolicy = deriveRiskEstimate({ ...base, exposureHistoryMode: 'fixed_target_weight_strategy' });
+  const strategyMonthly = deriveRiskEstimate({ ...base, exposureHistoryMode: 'fixed_target_weight_strategy', rebalancePolicy: 'monthly', sampleDates: p1197Dates });
+  const sameSeries = JSON.stringify(noPolicy.publishedReturns) === JSON.stringify(withMonthly.publishedReturns)
+    && JSON.stringify(withMonthly.publishedReturns) === JSON.stringify(withQuarterly.publishedReturns);
+  const p1197Checks = [
+    ['retrospective path does not require a policy', noPolicy.status !== 'blocked' && noPolicy.rebalancePolicy === null && noPolicy.rebalancePolicyApplied === false],
+    ['an unused policy does not change the numbers', sameSeries],
+    ['an unused policy does not change the identity', noPolicy.estimateId === withMonthly.estimateId && withMonthly.estimateId === withQuarterly.estimateId],
+    ['a declared-but-unused policy is still published', withMonthly.rebalancePolicyDeclared === 'monthly' && withMonthly.rebalancePolicyApplied === false],
+    ['the unused policy is named in a warning', withMonthly.warnings.some((line) => line.includes('monthly') && line.includes('쓰이지 않습니다'))],
+    ['the strategy path still requires a policy', strategyNoPolicy.status === 'blocked' && strategyNoPolicy.code === 'rebalance-policy-required'],
+    ['the strategy path applies and hashes its policy', strategyMonthly.rebalancePolicyApplied === true && strategyMonthly.rebalancePolicy === 'monthly'
+      && strategyMonthly.estimateId !== noPolicy.estimateId && strategyMonthly.strategy && strategyMonthly.strategy.targetWeightSum === 1],
+    ['the strategy path keeps its own warning', strategyMonthly.warnings.some((line) => line.includes('고정 목표비중 전략 경로'))]
+  ];
+  const failedP1197 = p1197Checks.filter(([, ok]) => !ok).map(([name]) => name);
+  if (failedP1197.length) {
+    fail(`P1197 policy-consumption checks failed: ${failedP1197.join(' | ')} — ${JSON.stringify({ noPolicy: { status: noPolicy.status, id: noPolicy.estimateId, applied: noPolicy.rebalancePolicyApplied }, monthly: { id: withMonthly.estimateId, declared: withMonthly.rebalancePolicyDeclared, applied: withMonthly.rebalancePolicyApplied }, strategyNo: { status: strategyNoPolicy.status, code: strategyNoPolicy.code } })}`);
+  }
+  if (!/선언 정책 ' \+ _escHtmlSafe\(est\.rebalancePolicyDeclared\) \+ ' 미사용/.test(readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8'))) {
+    fail('P1197 the risk panel must say that a declared policy was not used on the retrospective path');
+  }
+}
+// ── P1198 — 셸은 선언되지 않은 정책을 지어내지 않는다 ────────────────────────────────────────
+// P1197이 엔진에서 선언/적용을 분리했는데, 셸이 `|| 'daily'`로 기본값을 만들면 사용자가 선언하지 않은
+// 정책이 '선언'으로 게시된다 — 지어낸 선언은 선언이 아니다. 전략 경로에서 미선언이면 엔진이 보류한다.
+{
+  const p1198Workspace = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
+  const p1198Index = readFileSync(path.join(root, 'index.html'), 'utf8');
+  const p1198Checks = [
+    ['the shell does not invent a policy', !/rebalancePolicy \|\| 'daily'/.test(p1198Workspace)],
+    ['the shell passes the declared value through', /var rebalancePolicy = declarations\.rebalancePolicy;/.test(p1198Workspace)],
+    ['the panel distinguishes applied / declared / undeclared', /est\.rebalancePolicyApplied \? est\.rebalancePolicy : \(est\.rebalancePolicyDeclared \? est\.rebalancePolicyDeclared \+ '\(미사용\)' : '미선언'\)/.test(p1198Workspace)],
+    ['the panel never prints a raw null', !/'rebalance ' \+ est\.rebalancePolicy\b/.test(p1198Workspace)],
+    ['an unrecognized declaration is deleted, not stored as a default', /if \(normalized == null\) localStorage\.removeItem\(key\);/.test(p1198Workspace)],
+    ['undeclared is selectable in the surface', /<option value="">미선언 \(전략 경로에서 필요\)<\/option>/.test(p1198Index)]
+  ];
+  const failedP1198 = p1198Checks.filter(([, ok]) => !ok).map(([name]) => name);
+  if (failedP1198.length) fail(`P1198 shell policy-declaration checks failed: ${failedP1198.join(' | ')}`);
+}
+// ── P1199 — 선언 저장소: 메모리 반영과 영구 저장은 다른 사실이다 ──────────────────────────────
+// P1191이 "영구 저장 실패 — 변경이 확정되지 않았습니다"를 만들었지만, 그 ack 계산은 ratcheted 셸
+// 안에 있어 테스트되지 않았다. 이제 형태가 네이티브로 나왔으니 계약으로 고정한다: 영구 저장 실패를
+// 성공으로 보고하지 않고, 암호문을 평문 선언으로 읽지 않으며, 동기 캐시가 같은 턴의 진실이다.
+{
+  const { ENCRYPTED_VALUE_PREFIX, createDeclarationsStore } = await load('src/data/portfolio-declarations-store.js');
+  const cache = {};
+  let durable = null;
+  let storageWrites = 0;
+  const store = createDeclarationsStore({
+    getRuntimeCache: () => cache,
+    getAdapter: () => null,
+    getLocalStorage: () => ({ getItem: (key) => (key in durable ? durable[key] : null), setItem: (key, value) => { durable = { ...durable, [key]: value }; storageWrites += 1; } }),
+    optedOut: () => false,
+    secureSet: (key, json) => { durable = { ...durable, [key]: json }; storageWrites += 1; return Promise.resolve(); }
+  });
+  const accepted = await store.write('aio_test_ledger', { transactions: [{ amount: 1 }] });
+  const readBack = store.read('aio_test_ledger');
+  const stored = readBack && readBack.transactions && readBack.transactions[0];
+  // 영구 저장이 거부되어도 메모리에는 남는다 — 두 사실을 분리해 보고해야 한다.
+  const rejecting = createDeclarationsStore({
+    getRuntimeCache: () => cache,
+    optedOut: () => false,
+    secureSet: () => Promise.reject(new Error('quota'))
+  });
+  const rejected = await rejecting.write('aio_test_fx', [{ from: 'USD', to: 'KRW' }]);
+  const rejectedRead = rejecting.read('aio_test_fx');
+  // 메모리 캐시가 없으면 영구 저장이 성공해도 ok가 아니다(변경이 확정되지 않았다는 뜻은 그대로다).
+  const noCache = createDeclarationsStore({ getRuntimeCache: () => null, optedOut: () => false, getLocalStorage: () => null });
+  const noCacheResult = await noCache.write('aio_test_x', 1);
+  // 암호문은 평문 선언으로 읽지 않는다.
+  const encryptedStore = createDeclarationsStore({
+    getRuntimeCache: () => null,
+    optedOut: () => true,
+    getLocalStorage: () => ({ getItem: () => ENCRYPTED_VALUE_PREFIX + 'AAAA', setItem: () => {} })
+  });
+  const plainStore = createDeclarationsStore({
+    getRuntimeCache: () => null,
+    optedOut: () => true,
+    getLocalStorage: () => ({ getItem: () => '{"ok":true}', setItem: () => {} })
+  });
+  const p1199Checks = [
+    ['a durable write reads back the same declaration', accepted.ok === true && accepted.memoryApplied === true && stored && stored.amount === 1],
+    ['a rejected durable write still reports memory applied', rejected.ok === false && rejected.memoryApplied === true && rejected.reason === 'persist-rejected'],
+    ['the rejected declaration is still visible in this turn', Array.isArray(rejectedRead) && rejectedRead.length === 1],
+    ['no cache means the change is never confirmed', noCacheResult.ok === false && noCacheResult.memoryApplied === false && noCacheResult.reason === 'memory-write-failed'],
+    ['an encrypted value is not read as a declaration', encryptedStore.read('aio_test_ledger') === null],
+    ['plaintext survives opt-out', plainStore.read('aio_test_ledger') && plainStore.read('aio_test_ledger').ok === true],
+    ['an absent key reads as null', store.read('aio_test_missing') === null]
+  ];
+  const failedP1199 = p1199Checks.filter(([, ok]) => !ok).map(([name]) => name);
+  if (failedP1199.length) fail(`P1199 declaration-store checks failed: ${failedP1199.join(' | ')}`);
+  const p1199Workspace = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
+  if (!/window\._pfDeclarationsStore = \{ create: createDeclarationsStore \}/.test(readFileSync(path.join(root, 'src/app/bootstrap.js'), 'utf8'))
+    || /function _pfVaultListWrite\(/.test(p1199Workspace)
+    || !/_pfDeclarationWrite\(options\.key, options\.value\)/.test(p1199Workspace)
+    || !/showDeclarationStatus\(\{ documentRef: document, statusId: statusId/.test(p1199Workspace)) {
+    fail('P1199 the shell must inject the storage policy into the native store instead of owning the shape');
+  }
+}
+// ── P1200 — 전략 목표비중의 현금 몫이 계좌 범위를 선언한다 ───────────────────────────────────
+// 목표비중 합이 1 미만이면 그 차액은 현금 목표비중이다 — 선언이 계좌 범위를 말한 것이므로 현금
+// 수익률이 있으면 계좌 전체 보기를 만들 수 있다. 합이 1을 넘으면 선언이 성립하지 않는다.
+{
+  const { createCompositionSnapshot, deriveRiskEstimate } = await load('src/domain/portfolio/risk.js');
+  const p1200Series = [0.02, -0.01, 0.01, 0.005, -0.004, 0.003, 0.002, -0.002, 0.004, 0.001, 0.002, 0.003, 0.001];
+  const p1200Dates = p1200Series.map((_, index) => `2026-09-${String(index + 1).padStart(2, '0')}`);
+  const p1200Snapshot = createCompositionSnapshot({
+    members: [{ ticker: 'AAA', qty: 1, price: 100, priceObservedAt: '2026-09-23T00:00:00.000Z', priceSource: 'fixture' }],
+    cash: { amount: 0, currency: 'USD' },
+    asOf: '2026-09-23T00:00:00.000Z',
+    weightBasis: 'whole_account',
+    baseCurrency: 'USD'
+  });
+  const p1200Base = {
+    snapshot: p1200Snapshot,
+    returnsMap: { AAA: p1200Series },
+    exposureHistoryMode: 'fixed_target_weight_strategy',
+    rebalancePolicy: 'daily',
+    sampleDates: p1200Dates
+  };
+  const withCash = deriveRiskEstimate({ ...p1200Base, targetWeights: { AAA: 0.8 }, cashReturn: { mode: 'explicit_assumption', annualRate: 0.0365 } });
+  const overAllocated = deriveRiskEstimate({ ...p1200Base, targetWeights: { AAA: 1.2 }, cashReturn: { mode: 'explicit_assumption', annualRate: 0.0365 } });
+  const cashUnresolved = deriveRiskEstimate({ ...p1200Base, targetWeights: { AAA: 0.8 }, cashReturn: { mode: 'unresolved' } });
+  const fullSleeve = deriveRiskEstimate({ ...p1200Base, targetWeights: { AAA: 1 }, cashReturn: { mode: 'explicit_assumption', annualRate: 0.0365 } });
+  // 현금 수익률의 일간 환산은 모듈이 선언한 규약을 따른다: (1+연율)^(1/252)−1 (거래일 복리).
+  const dailyCashRate = Math.pow(1 + 0.0365, 1 / 252) - 1;
+  const expectedFirst = 0.8 * p1200Series[0] + 0.2 * dailyCashRate;
+  const p1200Checks = [
+    ['a cash remainder is published as the cash weight', withCash.status === 'ready' && withCash.strategy.cashWeight != null && Math.abs(withCash.strategy.cashWeight - 0.2) < 1e-9],
+    ['the declared remainder opens the account scope', withCash.wholeAccountHold === null && withCash.publishedScope === 'whole_account' && withCash.cashTreatment === 'declared_strategy_cash_weight'],
+    ['the account return blends sleeve and declared cash', Math.abs(withCash.wholeAccountReturns[0] - expectedFirst) < 1e-12],
+    ['over-allocation is still invalid', overAllocated.status === 'blocked' && overAllocated.code === 'strategy-target-weights-invalid'],
+    ['a cash remainder without a cash return holds only the account view', cashUnresolved.wholeAccountHold === 'cash-return-unresolved' && cashUnresolved.publishedScope === 'invested_sleeve' && cashUnresolved.status === 'ready'],
+    ['a full sleeve keeps the previous hold', fullSleeve.strategy.cashWeight === 0 && fullSleeve.wholeAccountHold === 'strategy-account-scope-not-declared']
+  ];
+  const failedP1200 = p1200Checks.filter(([, ok]) => !ok).map(([name]) => name);
+  if (failedP1200.length) {
+    fail(`P1200 strategy cash-weight checks failed: ${failedP1200.join(' | ')} — ${JSON.stringify({ withCash: { status: withCash.status, cashWeight: withCash.strategy && withCash.strategy.cashWeight, hold: withCash.wholeAccountHold, scope: withCash.publishedScope, first: withCash.wholeAccountReturns && withCash.wholeAccountReturns[0] }, over: { status: overAllocated.status, code: overAllocated.code }, unresolved: { hold: cashUnresolved.wholeAccountHold, scope: cashUnresolved.publishedScope }, full: { weight: fullSleeve.strategy && fullSleeve.strategy.cashWeight, hold: fullSleeve.wholeAccountHold } })}`);
+  }
+  const p1200Workspace = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
+  if (!/declaredWeightSum > 100 \+ 1e-6/.test(p1200Workspace) || !/est\.strategy\.cashWeight > 0 \? ' · 현금 '/.test(p1200Workspace)) {
+    fail('P1200 the shell must accept a sub-100% target sum and the panel must publish the cash share');
+  }
+}
+// ── P1192 — 완료 컷 행의 previous-completed-close 경계 ──────────────────────────────────────
+// 행의 완료 컷을 넘는 스탬프는 그 행에 실릴 수 없다(P1095). 값은 실제 완료 종가이므로 버리지 않고
+// 직전 bar 경계로 앉히고, 그마저 컷을 넘으면 값을 싣지 않는다 — 시각만 바꾸는 위장은 금지다.
+{
+  const { boundPreviousCloseToCut } = await load('scripts/fetch-data.mjs');
+  const cut = '2026-09-23T23:00:00.000Z';
+  const quoteMap = (observedAt, previousBarOpenedAt) => ({
+    '^GSPC': { observedAt: '2026-09-23T20:36:00.000Z', observationRelation: 'latest-completed-close', observedAtSource: 'provider-current' },
+    'DX-Y.NYB': { observedAt, previousBarOpenedAt, observationRelation: 'previous-completed-close', observedAtSource: 'provider-previous-close' }
+  });
+  const bounded = { bySym: { '^GSPC': 1, 'DX-Y.NYB': 2 }, bySymQuote: quoteMap('2026-09-24T00:16:00.000Z', '2026-09-23T04:00:00.000Z') };
+  const adjusted = boundPreviousCloseToCut({ ...bounded, cycleEnd: cut });
+  const kept = bounded.bySymQuote['DX-Y.NYB'];
+  if (adjusted.adjusted.length !== 1 || adjusted.dropped.length !== 0 || bounded.bySym['DX-Y.NYB'] !== 2
+    || kept.observedAt !== '2026-09-23T04:00:00.000Z' || kept.observedAtBoundary !== 'previous-bar-open'
+    || kept.observedAtCandidate !== '2026-09-24T00:16:00.000Z'
+    || kept.observationRelation !== 'previous-completed-close' || kept.observedAtSource !== 'provider-previous-close'
+    || !(Date.parse(kept.observedAt) <= Date.parse(cut)) || !(bounded.bySym['^GSPC'] === 1)) {
+    fail(`P1192 a previous-close boundary that exceeds the row cut must fall back to the previous bar, keep the value and the previous-close relation, got ${JSON.stringify({ adjusted: adjusted.adjusted, kept, value: bounded.bySym['DX-Y.NYB'] })}`);
+  }
+  const droppedFixture = { bySym: { '^GSPC': 1, 'DX-Y.NYB': 2 }, bySymQuote: quoteMap('2026-09-24T00:16:00.000Z', '2026-09-23T23:30:00.000Z') };
+  const droppedResult = boundPreviousCloseToCut({ ...droppedFixture, cycleEnd: cut });
+  if (droppedResult.dropped.join(',') !== 'DX-Y.NYB' || droppedFixture.bySym['DX-Y.NYB'] !== null || 'DX-Y.NYB' in droppedFixture.bySymQuote) {
+    fail(`P1192 a row must not carry a previous close whose candidates all fall after its cut, got ${JSON.stringify({ dropped: droppedResult.dropped, value: droppedFixture.bySym['DX-Y.NYB'] })}`);
+  }
+  const untouched = { bySym: { 'DX-Y.NYB': 3 }, bySymQuote: quoteMap('2026-09-23T04:00:00.000Z', '2026-09-22T04:00:00.000Z') };
+  const untouchedResult = boundPreviousCloseToCut({ ...untouched, cycleEnd: cut });
+  if (untouchedResult.adjusted.length !== 0 || untouchedResult.dropped.length !== 0
+    || untouched.bySymQuote['DX-Y.NYB'].observedAt !== '2026-09-23T04:00:00.000Z'
+    || untouched.bySymQuote['DX-Y.NYB'].observedAtBoundary !== undefined || untouched.bySym['DX-Y.NYB'] !== 3) {
+    fail(`P1192 a previous close inside the cut must pass through untouched, got ${JSON.stringify({ untouched: untouchedResult, quote: untouched.bySymQuote['DX-Y.NYB'] })}`);
   }
 }
 {

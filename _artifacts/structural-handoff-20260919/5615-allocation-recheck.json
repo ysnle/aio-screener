@@ -1,0 +1,26 @@
+{
+  "evidenceLevel": "root-native-esm-synthetic-execution",
+  "version": "v56.15",
+  "head": "2195722dab571eaca0335249d02e84abdd128e94",
+  "module": "src/domain/portfolio/backtest.js",
+  "function": "buildPortfolioBacktestLab",
+  "inputs": {
+    "timestamps": "Array.from({length:14},(_,i)=>Date.UTC(2024,i,28)/1000)",
+    "A": "100 + 900*i/13",
+    "B": "100 - 50*i/13",
+    "SPY": 100,
+    "series": "closes=adjustedCloses; backtestEligible=true; backtestPriceBasis=adjusted-close",
+    "positions": [{"ticker":"A","qty":1,"cost":100},{"ticker":"B","qty":1,"cost":100}],
+    "options": {"initialAmount":10000,"startYear":2024,"endYear":2025,"rebalanceType":"none","rfAnnual":null}
+  },
+  "results": [
+    {"case":"unspecified","weights":{"A":0.9523809523809523,"B":0.047619047619047616},"basis":"terminal-adjusted-close-market-value","endBalance":95476.19047619046,"decisionEligible":false},
+    {"case":"explicit-50-50","weights":{"A":0.5,"B":0.5},"basis":"explicit-target-weight","endBalance":52499.99999999999,"decisionEligible":false},
+    {"case":"only-final-A-changed-to-200","weights":{"A":0.8,"B":0.2},"endBalance":17000},
+    {"case":"weights-0-0","ok":true,"weights":{"A":0.9523809523809523,"B":0.047619047619047616},"basis":"explicit-target-weight"},
+    {"case":"weights-0-null","ok":true,"weights":{"A":0.9523809523809523,"B":0.047619047619047616},"basis":"terminal-adjusted-close-market-value"},
+    {"case":"weights-0-100","ok":true,"weights":{"A":0,"B":1},"basis":"explicit-target-weight"}
+  ],
+  "normalizer": [{"input":{"target":0,"targetWeight":0},"output":{"target":null,"targetWeight":0}},{"input":{"target":150,"targetWeight":50},"output":{"target":150,"targetWeight":50}}],
+  "limitations": ["manually transcribed tool output", "not browser", "not live market data", "synthetic dates do not model actual market holidays"]
+}

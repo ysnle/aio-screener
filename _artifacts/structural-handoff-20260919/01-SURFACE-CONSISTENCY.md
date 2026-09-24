@@ -153,3 +153,60 @@ ATH 거리와 종합 점수의 의미를 분리한다. 입력이 사라질 때 �
 ## 8. 구현 에이전트에 전달할 요청
 
 > 다른 작업의 W01 구현과 현재 writer를 먼저 대조하고, 남은 인수조건만 검증·보강한다. 역사 설계를 그대로 재구현하지 않는다. 같은 입력/revision, legacy writer 폐기, 결측/재진입/late response를 확인하고 미충족 경계에 한해 수정한다. 합성·브라우저·live 근거를 구분하며 자동 커밋·푸시·배포하지 않는다.
+
+## 2026-09-23 현재 상태와 구현 명세 보강
+
+이 절이 위의 v55.21/v56 재검증 메모보다 최신 구현 상태다. 상위 상태 정본은 [25](25-CURRENT-FINDING-STATUS-CROSSWALK.md), 통합 작업·인수 순서는 [26](26-EXECUTION-AND-ACCEPTANCE-PLAN.md)다. 아래 상태는 기존 결함을 막은 증거와 제품 사용자 인수를 나눠 읽는다.
+
+| 발견 | 최신 상태 | 닫힌 범위 | 남은 인수 |
+|---|---|---|---|
+| S01 | **과거 반증 차단 / 공통 projection 부분 구현** | P1143이 sentiment를 단일 revision ViewModel로 옮기고 무근거 초기 숫자·경쟁 legacy writer·타이머를 제거했다. `ci-esm-core-unit-check`에 0.79/1.21 및 null 대조가 있다. | v56.15 라이브/로컬 브라우저에서 첫 진입·재진입·비동기 갱신을 새 trace로 확인하지 않았다. 서로 다른 실제 관측 시각의 호환성·상세 근거까지는 미인수다. |
+| S02 | **과거 반증 차단 / 브라우저 인수 미검증** | P1143이 ATH 거리 명칭을 `고점 대비 … · 참고 관측`으로 좁히고 결측 시 배지 초기화를 구현했다. | 정상→결측→재수신 브라우저 전환과 색상·설명·근거 원자성은 미검증이다. |
+| S03 | **열림** | 구체적 실패 상태를 구분하는 일반 설계는 남아 있다. | 공급자 timeout/오래된 성공/사용자 재시도·취소·복구를 한 사용자 흐름에서 검증한 현재 근거가 없다. |
+| S04 | **과거 반증 차단 / 소비자 전체 인수 미완료** | P1143은 sentiment 점수 null 보존을 적용했고 P1164는 `Number(null)===0`을 여러 legacy 경계로 확장해 막았다. 합성/headless 회귀 검사가 있다. | 미니바·요약문·AI까지 포함한 현재 화면의 유효 0/null/실패 구별 및 실제 공급자 복구는 브라우저 인수 전이다. |
+
+### 구현자가 따라야 할 단일 projection 계약
+
+기존 19의 Observation/Result/Evidence ID를 원본으로 쓴다. 아래는 새 저장소가 아니라 UI용 투영이다.
+
+```ts
+type SurfaceProjection = {
+  contractVersion: 1;
+  projectionId: string;             // stable hash(resultId + presentationPolicyVersion)
+  resultId: string;
+  scope: { routeId: string; entityId?: string; populationId?: string };
+  metricId: string;
+  value: number | null;             // finite value only; zero is valid
+  unit: string;
+  availability: 'loading' | 'observed' | 'unavailable' | 'failed';
+  eligibility: 'decision' | 'reference' | 'stale' | 'incompatible' | 'insufficient';
+  evidenceIds: string[];
+  observedAt: string | null;
+  availableAt: string | null;
+  reasonCodes: string[];
+  modelVersion: string;
+};
+```
+
+Projection 생성자는 시간·DOM·window·네트워크를 읽지 않는다. `availability`와 `eligibility`를 합치지 않는다. 유효한 `0`은 표시하고, `null`에는 숫자·색상 구간·방향 문장을 만들지 않는다. 같은 `projectionId`를 값, 배지, 문장, AI 근거가 공유해야 한다. 한 화면에서 같은 `metricId`의 활성 writer는 하나만 허용한다. 실패는 필수 영역을 중단시키지 않고 해당 metric projection의 `failed` 사유로 격리한다.
+
+### 대표 fixture와 사용자 화면 결과
+
+| Fixture | 필수 비교 | 화면 인수 |
+|---|---|---|
+| `S01-entry-order` | 직접 진입 vs home 경유, snapshot 0.79→live 1.21, 이전 요청의 늦은 응답 | 값·판정·관측일·source가 같은 projection으로 함께 바뀌고 늦은 응답은 무시된다. |
+| `S02-regime-reset` | 유효 ATH 거리→가격/ATH null→새 관측 | 이전 녹색 배지·문장이 잔존하지 않고 `고점 대비` 참고 의미만 보인다. |
+| `S03-provider-recovery` | 첫 수신 지연, timeout, 오래된 성공+새 실패, retry 성공, retry 취소 | `대기/실패/마지막 성공/재시도`를 구별하며 재시도는 실패한 공급원만 대상으로 한다. |
+| `S04-null-zero` | `null`, 유효 0, 빈 문자열, 비유한 값, 오래된 값 | null은 보류, 0은 실측 0, stale은 참고 전용이며 동일 문구가 카드·미니바·설명에서 유지된다. |
+
+각 fixture는 긍정 대조(유효 0 또는 유효 관측이 정상 표시됨)와 음성 대조(결측이 숫자/위기/상승 문장으로 승격되지 않음)를 함께 가진다. headless 결과만으로 브라우저 인수를 대체하지 않는다.
+
+### 안전한 전환 순서와 되돌리기
+
+1. sentiment·home 각각의 기존 DOM writer와 모든 호출자를 목록화하고 기준 화면/결과 ID를 보존한다.
+2. adapter가 새 projection을 만들되 실제 표시 전 `shadow`로 old/new의 scope·value·status·evidence 차이를 기록한다. 기준 동작과 다른 문장은 reviewer가 이유를 분류한다.
+3. route 단위 feature flag로 한 writer만 표시한다. legacy writer를 병행 표시하거나 hidden DOM에 계속 쓰지 않는다. 표본 route에서 S01/S02/S04 fixture와 접근성 검사를 통과한 뒤 확장한다.
+4. 결과 revision·저장 형식을 바꾼다면 새 버전 필드를 optional로 추가하고 구버전 reader를 먼저 배포한다. 구 artifact는 새 projection으로 추측 변환하지 않고 `unverifiable`로 읽는다.
+5. 오류율·projection mismatch·missing evidence가 합의된 기준을 넘거나 핵심 과업이 막히면 flag를 끄고 직전 호환 UI로 되돌린다. rollback 시 새 projection 결과를 구형 계산에 입력하지 않는다. 미완전한 새 revision의 자료를 `current`로 유지하지 않는다.
+
+브라우저 검증은 21의 trace bundle 규격을 사용한다. 적어도 route 진입 순서, 클릭/응답 순서, `projectionId`, 화면 캡처, DOM accessible name/state, console 오류, 코드 SHA, data revision, local/live 배포 SHA를 연결해야 한다. 이번 문서의 과거 JSON/전사만으로 v56.15의 live 의미 일치를 선언하지 않는다.

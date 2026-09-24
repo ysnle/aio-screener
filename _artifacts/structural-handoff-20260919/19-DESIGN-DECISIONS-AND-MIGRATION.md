@@ -2,6 +2,8 @@
 
 2026-09-21 · Astra 기획·설계·작성. 제품 v56.01. 이 문서는 00–18을 다시 검토한 상위 설계 결정이며 제품 구현 완료나 전역 최적성 증명이 아니다.
 
+**2026-09-23 v56.15 적용 부록:** 아래 원래 결정의 제품 목적과 대안 비교는 유지한다. 현재 해결/부분/열림 상태는 [25 상태 교차표](25-CURRENT-FINDING-STATUS-CROSSWALK.md), 카드별 계약·순서·반증·복구·출시 전 인수는 [26 실행 설계](26-EXECUTION-AND-ACCEPTANCE-PLAN.md)가 맡는다. 역사 단계 번호나 P1176의 혼용된 `22 PFR01` 표기를 최신 미해결 목록으로 직접 사용하지 않는다. 이는 기존 dirty 문서를 보존한 위에 추가한 설계 연결이며 제품 구현은 아니다.
+
 ## 재감사 판정
 
 기존 자료에는 단일 계산 결과, 입력 시점 계약, publication, 요청 소유권 등 근본 개편안이 있다. 그러나 모든 패키지가 바로 구현 가능한 수준은 아니다. 현재성 판정이 분산돼 있고, 보존을 전제로 한 일부 문구, 추상적인 공통 계약, 대안/비용 비교와 rollback 부족을 보강해야 했다. “문서가 있다”를 “검수가 끝났다”로 처리하지 않는다.
@@ -27,6 +29,17 @@
 
 기존 Pages·native ESM·EvidenceStore를 고정 조건으로 하지 않는다. 선택한 플랫폼이 위 계약을 충족하지 못하면 교체한다. 반대로 플랫폼 교체만으로 데이터 정의나 금융 타당성이 해결된다고 간주하지 않는다.
 
+### v56.15 추가 선택: 입력 정체성·개인 경계·운영 증거
+
+| 결정 | 잠정 선택과 이유 | 선택을 바꾸는 증거 |
+|---|---|---|
+| D19-9 스크리너 정체성 | artifact 관측 집합과 실제 계산 입력/result의 ID를 분리한다. live mcap이 size factor에 들어가면 관측 ID와 계산 ID가 각각 무엇을 뜻하는지 고정한다. 단순히 모든 live 필드를 hash에서 빼면 같은 ID의 입력이 달라질 수 있다. | frozen artifact mcap만 써도 파일럿 질문을 충족하고 quote 지연이 허용되면 live factor 경로를 제거할 수 있다. 반대로 live 의사결정이 필수라면 as-of·revision과 별도 run이 필요하다. |
+| D19-10 포트폴리오 정책 | 계좌 원장, 현재 구성 소급, 연구 시뮬레이션, 위험 경로를 별도 결과 타입으로 둔다. 가격 이력 누락은 배분 변경이 아니라 보류 또는 명시적 정책이다. | 실제 사용자에게 원장 수집 부담이 과도하다면 account 성과를 보류하고 연구 시뮬레이션만 제공한다. 근거 없는 실제 성과 추정은 허용하지 않는다. |
+| D19-11 권리·개인정보 | RightsContract ID를 candidate→observation→publication에 연결하고, public 산출물과 개인 Vault/AI 전송을 별도 경계로 둔다. 원문 권리 미확인은 지속 저장·재배포를 기본 허용하지 않는다. | 출처별 확인된 약관·운영 목적·삭제 의무와 사용자 동의 기록으로 허용 범위를 재설계한다. |
+| D19-12 운영 인증 | scheduled event만 예정 도착률에 세고, 수집·검증·발행·소비·사용자 도달을 서로 다른 상태로 둔다. | 실제 원격 이력·provider 지연·SLO 비용을 측정해 threshold와 alert cadence를 사전 조정한다. |
+
+스키마와 플랫폼을 고정하기 전에 각 선택의 **측정 입력**을 기록한다: 파일·업데이트 빈도와 비용, 웹/AI 요청 지연, 원문 사용 조건, 보관 실행 수, 사용자 과업 성공, 장애 탐지·복구 시간. 측정하지 않은 숫자를 TCO/성능 우위의 증명으로 쓰지 않는다. 위협 모델·권리·보존·개인 전송 판정은 첫 파일럿 선행 작업이며, 기능 인수 뒤에 미루는 문서 장식이 아니다.
+
 ## 최소 공통 계약과 소유권
 
 | 객체 | 필수 의미 | 정본 소유자 | 금지되는 대체 |
@@ -38,11 +51,15 @@
 | ResearchCandidate | 원문 위치·추출 값·검증/검토 상태·충돌 | 검색 보강 job | confidence 숫자만으로 canonical 승격 |
 | JobReceipt | 예정시간·시도·성공·보존·실패·출력·도달 | 자동화 운영 | exit 0으로 모든 데이터 현재성 인증 |
 
+v56.15 확장 계약은 [26의 공통 객체 표](26-EXECUTION-AND-ACCEPTANCE-PLAN.md)를 따른다. 특히 Observation의 `rightsContractId`, quote `metricId/definitionVersion`, 시장별 time basis; PublicationSet의 파일 hash·호환성; CalculationInput의 실제 랭킹 operand; AllocationSnapshot의 의도/해결 멤버·valuation cut; JobReceipt의 schedule event/attempt와 consumer 확인은 위 표의 이름만으로 생략할 수 없다. 아래 역사 문단의 `inputSnapshotId`는 새 설계에서 실제 operand까지 봉인한 `calculationInputId`로 매핑한다. 파일 발행물만 식별하는 `artifactSnapshotId`를 대용하지 않는다. 데이터가 없는 필드는 출처를 추정해 채우지 말고 null·reason·사용 가능 범위를 기록한다.
+
 모든 객체를 하나의 거대한 저장소로 만들 필요는 없다. entity/observation/run/publication 참조가 도메인 경계를 넘어 끊기지 않는 것이 요구사항이다. private portfolio는 public 원장과 분리하고 공개 산출물에 개인 참조를 넣지 않는다.
 
 연결 키는 다음과 같이 계약한다. `candidateId → observationId`는 검증 결과와 출처 위치를 가진 승격 기록으로 연결한다. 정정은 기존 observation을 덮지 않고 새 ID와 supersedes 관계를 만든다. `jobReceiptId → publicationId`는 검증된 출력 hash 목록을 연결한다. `inputSnapshotId`는 실제 사용한 publication/file hashes, observation IDs, universe/model/definition 버전의 호환 묶음을 고정한다. `runId → inputSnapshotId`, `explanation.runId`, `aiRequestId → runId/evidenceIds`, `claimId → observationId/derivedResultId`를 보존한다. 파생값은 operand ID와 formulaVersion을 가져야 한다. 허용되지 않은 누락 참조가 있으면 해당 승격·설명·claim 공개를 중단한다.
 
 ## 실행 순서: 결함 억제와 구조 교체를 병행
+
+아래 2026-09-21 단계는 방향과 파일럿 이유를 기록한 역사 계획이다. 실제 v56.15 실행 큐는 [25의 상태](25-CURRENT-FINDING-STATUS-CROSSWALK.md)와 [26의 E0–E7 카드](26-EXECUTION-AND-ACCEPTANCE-PLAN.md)를 사용한다. P1143/P1164/P1165/P1166/P1172/P1173/P1176/P1177의 제한된 수정은 다시 구현 작업으로 배정하지 않는다. 남은 넓은 의미 계약과 새 반증만 명시한다.
 
 1. **현재 반증 재확인·의미 오표시 억제**: 14:T04 주봉 준비 상태, 12:U01 미리보기, 04:C03 집계 범위 등 현재 확정 입력부터 다시 재현한다. 이미 수정된 07:M01/M02/M06 등을 자동 재작업하지 않는다. 데이터/표시의 오해를 막는 작은 수정은 장기 저장소 이전을 기다리지 않는다.
 2. **스크리너 한 과업을 끝까지 완성**: definition→snapshot→filter/rank→explanation→저장/replay를 같은 run으로 묶는다. 시작부터 screener/universe/model-validation의 실제 content hash와 호환 버전을 고정하는 최소 manifest를 포함한다. 3단계의 전체 발행 구조 이전을 기다리며 가변 URL의 우연한 조합을 인증하지 않는다. 대상 경계는 `src/domain/screener`, `src/data/providers/screener.js`, `src/data/orchestrators/screener.js`, `src/ui/pages/screener.js`. 최종 owner 하나를 정하고 구 경로를 폐기한다.
@@ -70,6 +87,8 @@
 파일럿 구현 전에 retention 계약을 등록한다. 출처별 `canPersistRaw/canRedistribute/retentionUntil/deletionAction`이 없으면 원문 전체의 지속 저장·공개를 기본 허용하지 않는다. 링크·필요한 provenance와 허용된 추출 범위만 보존하며, 이것도 출처 조건에 맞춰 결정한다. public publication은 개인 보유/메모를 포함하지 않는다. 학습용 run은 원본 개인 정보를 자동 복제하지 않고 공개 데이터와 가정만 사용하는 것이 기본이며, 개인 내용이 필요한 복사·AI 전송은 명시적 선택으로 분리한다. 원문 만료/삭제 후에는 dangling reference를 정상 재현이라고 표시하지 않고 tombstone과 재현 가능 범위를 남긴다. 영구 재현 요구와 삭제 의무가 충돌하면 원문 재배포를 우선하지 않는다.
 
 ## 사용자 인수: 직관성은 문서만으로 인증하지 않음
+
+실제 프로토콜의 과업·치명적 오해·키보드/보조공학 범위·사전 기준 등록과 증거 포맷은 [26](26-EXECUTION-AND-ACCEPTANCE-PLAN.md)을 따른다. [21](21-LIVE-LOCAL-SEMANTIC-REDESIGN.md)의 방문 표는 관찰 요약이며 별도 trace가 없는 현재 번들의 독립 재현 증거로 과장하지 않는다.
 
 서로 다른 숙련도의 사용자에게 동일 과업을 준다: 비교집단/기준일 찾기, 선정·제외 이유 설명, 결측과 낮은 점수 구분, 가정 하나 변경 후 변화 예측, 원문 확인, 과거 run 복기. 성공 여부·오해 유형·도움 요청·완료시간을 기록하고 초기 기준을 측정한다. 목표 시간/성공률은 임의 숫자로 인증하지 말고 이 기준과 제품 요구에서 사전 설정한다.
 

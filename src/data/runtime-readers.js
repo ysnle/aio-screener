@@ -1,5 +1,6 @@
 import { isDecisionQuality, isValidRightsId, normalizeAllowedUse, hasObservedPast, parseEvidenceTime } from './contracts/evidence.js';
 import { canonicalSourceTier, isDecisionEligibleSourceKind } from './contracts/source-kind.js';
+import { readPortfolioAssumptions } from './portfolio-assumptions.js';
 
 // Native runtime readers.  These readers are deliberately kept in the data
 // layer so route providers do not depend on the legacy compatibility facade.
@@ -304,6 +305,9 @@ export function buildRuntimeObservationCatalog({ root = globalThis, state = {}, 
   catalog['screener.snapshot'] = {
     value: Array.isArray(screenerState.rows) ? screenerState.rows.length : 0,
     observedAt: screenerState.metadata?.factorObservedAt || null,
+    // R24-03/P1179: `factorObservedAt` is a bar-start timestamp. Publish the basis
+    // beside it so a consumer can never read it as a plain observation time.
+    observedAtBasis: screenerState.metadata?.factorTimeBasis || null,
     fetchedAt: screenerState.metadata?.asOf || screenerState.updatedAt || null,
     source: screenerState.metadata?.source || 'public-data/screener.json',
     sourceKind: screenerState.status || 'unavailable',
@@ -331,6 +335,7 @@ export function buildRuntimeObservationCatalog({ root = globalThis, state = {}, 
     value: Number(ranking.ranked) || 0,
     available: rankingCurrent,
     observedAt: screenerState.metadata?.factorObservedAt || null,
+    observedAtBasis: screenerState.metadata?.factorTimeBasis || null,
     fetchedAt: screenerState.metadata?.asOf || screenerState.updatedAt || null,
     source: `${ranking.modelVersion || 'factor-ranks'}:${screenerState.lastRun?.engineVersion || 'screen-engine'}`,
     sourceKind: rankingCurrent ? 'derived-current-snapshot' : 'derived-revision-mismatch',
@@ -579,7 +584,12 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
         const shares = Number(position?.qty ?? position?.shares);
         const avgCost = Number(position?.cost ?? position?.avgCost);
         const quote = quoteObservation(root, symbol, now());
-        return { symbol, shares: Number.isFinite(shares) ? shares : null, avgCost: Number.isFinite(avgCost) ? avgCost : null, price: quote.value != null && quote.value > 0 ? quote.value : null, dailyPct: quote.pct, quoteObservedAt: quote.observedAt, fetchedAt: quote.fetchedAt, revisionId: quote.revisionId, changeBasis: quote.changeBasis, sourceKind: quote.sourceKind, sourceTier: quote.sourceTier, allowedUse: quote.allowedUse, allowedUseCeiling: quote.allowedUseCeiling, quality: quote.quality, rightsId: quote.rightsId, quoteEnvelopeComplete: quote.envelopeComplete, decisionEligible: quote.decisionEligible, blockedReasons: quote.decisionEligible ? [] : ['quote-envelope-not-decision-eligible'], sector: position?.sector || null, target: optionalPrice(position?.target), targetWeight: optionalNumber(position?.targetWeight), memo: position?.memo || '', addedAt: position?.addedAt || null, updatedAt: position?.updatedAt || null, source: quote.source || 'native-runtime-vault' };
+        return { symbol, shares: Number.isFinite(shares) ? shares : null, avgCost: Number.isFinite(avgCost) ? avgCost : null, price: quote.value != null && quote.value > 0 ? quote.value : null, dailyPct: quote.pct, quoteObservedAt: quote.observedAt, fetchedAt: quote.fetchedAt, revisionId: quote.revisionId, changeBasis: quote.changeBasis, sourceKind: quote.sourceKind, sourceTier: quote.sourceTier, allowedUse: quote.allowedUse, allowedUseCeiling: quote.allowedUseCeiling, quality: quote.quality, rightsId: quote.rightsId, quoteEnvelopeComplete: quote.envelopeComplete, decisionEligible: quote.decisionEligible, blockedReasons: quote.decisionEligible ? [] : ['quote-envelope-not-decision-eligible'], sector: position?.sector || null, target: optionalPrice(position?.target), targetWeight: optionalNumber(position?.targetWeight), memo: position?.memo || '', addedAt: position?.addedAt || null, updatedAt: position?.updatedAt || null, source: quote.source || 'native-runtime-vault',
+          // E3/P1181 (11 P11-02): 통화는 합산의 단위다 — reader가 지우면 downstream의 mixed 판정이
+          // 영원히 발화하지 않는다. 시세 통화는 선언 우선·quote 차선으로 보존하고, 원가 통화는
+          // 선언만 읽되 없으면 null(USD로 추정하지 않는다).
+          currency: String(position?.currency || position?.priceCurrency || quote.currency || '').trim().toUpperCase() || null,
+          costCurrency: String(position?.costCurrency || '').trim().toUpperCase() || null };
       }).filter((item) => item.symbol) : [];
       let cash = null;
       let cashKnown = false;
@@ -594,7 +604,16 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
         const parsedStateCash = Number(state.cash);
         if (Number.isFinite(parsedStateCash) && parsedStateCash >= 0) { cash = parsedStateCash; cashKnown = true; }
       }
-      return { ...state, holdings, holdingsKnown: true, cash, cashKnown, readState: 'ready', totals: state?.totals ?? null, privacy: state?.privacy || 'opt-in', status: holdings.length ? 'current' : 'empty', updatedAt: latestIso([...holdings.map((row) => row.quoteObservedAt), state?.updatedAt]) || null };
+      // E3/P1188 (11 P11-02): 통화 선언은 입력이다 — 폼이 쓴 선언을 reader가 그대로 넘긴다.
+      // 없으면 null이고 시세·티커·locale로 추정하지 않는다.
+      const assumptions = readPortfolioAssumptions(root?.localStorage);
+      const baseCurrency = assumptions.baseCurrency || (state?.baseCurrency ?? null);
+      const cashCurrency = assumptions.cashCurrency || (state?.cashCurrency ?? null);
+      // E4/P1191: 원장도 선언 입력이다 — 셸이 Vault 경로로 보관한 선언을 reader가 그대로 넘긴다.
+      const ledger = typeof root?.getPortfolioLedger === 'function' ? clone(root.getPortfolioLedger()) : (state?.ledger ?? null);
+      // E3/P1194: 선언된 FX leg도 같은 경계를 지난다 — 환산 근거가 reader에서 사라지면 surface는 못 본다.
+      const fxLegs = typeof root?.getPortfolioFxLegs === 'function' ? clone(root.getPortfolioFxLegs()) : (state?.fxLegs ?? []);
+      return { ...state, baseCurrency, cashCurrency, ledger, fxLegs: Array.isArray(fxLegs) ? fxLegs : [], holdings, holdingsKnown: true, cash, cashKnown, readState: 'ready', totals: state?.totals ?? null, privacy: state?.privacy || 'opt-in', status: holdings.length ? 'current' : 'empty', updatedAt: latestIso([...holdings.map((row) => row.quoteObservedAt), state?.updatedAt]) || null };
     } catch (_) { return { holdings: [], holdingsKnown: false, cash: null, cashKnown: false, readState: 'failed', privacy: 'opt-in', status: 'unavailable', updatedAt: null }; }
   };
 
@@ -609,11 +628,15 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
     return Object.freeze({ inputVersion: readSnapshot()._updated || readSnapshot()._snapshotDate || 'native-runtime', technical: { symbol: id, ohlcv: clone(history), health: technicalHealth }, sentiment: { fearGreed: sentiment.fearGreed, vix: sentiment.vix }, market: market.metrics, tradingScoreInputs: decisionInputs(root, now()), newsCount: readNews().length, updatedAt: latestIso([lastSeriesObservedAt(history), sentiment.fearGreedObservedAt, sentiment.vixObservedAt, market.updatedAt]) });
   };
 
-  const readScreener = () => ({ rows: Array.isArray(root?._aioScreenerRows) ? clone(root._aioScreenerRows) : [], revision: root?._aioScreenerLoadState?.revision || null, updatedAt: root?._aioScreenerLoadState?.asOf || null });
-
   // Only canonical store rows are structurally shared/immutable. Mutable legacy
   // fallbacks and the standalone catalog builder deliberately remain uncached.
   const observationCache = new WeakMap();
   const readObservationCatalog = (state = {}) => buildRuntimeObservationCatalog({ root, state, now: now(), observationCache: state?.screener?.rows ? observationCache : undefined });
-  return Object.freeze({ readSentiment, readMarket, readNews, readEntity, readPortfolio, readAnalysis, readScreener, readObservationCatalog });
+  // P1185/E2 S-B: the standalone legacy screener reader was removed here — no writer ever
+  // assigns the global it read, so it could only return empty rows while looking like a
+  // second screener source. Screener rows flow through the canonical boundary
+  // (`getScreenerRows()` via the compatibility facade) and `readObservationCatalog`.
+  // (The retired symbol names are deliberately not repeated in this comment: the gate
+  // asserts their absence in this file, and a self-referencing comment would defeat it.)
+  return Object.freeze({ readSentiment, readMarket, readNews, readEntity, readPortfolio, readAnalysis, readObservationCatalog });
 }

@@ -31,6 +31,14 @@ export function createPortfolioProvider({ read = () => ({}) } = {}) {
         holdingsKnown: runtime.holdingsKnown === true || Array.isArray(runtime.holdings),
         cash: runtime.cash ?? null,
         cashKnown: runtime.cashKnown === true || runtime.cash != null,
+        // E3/P1181 (11 P11-02): the provider used to drop the declared bases on the floor, so
+        // normalizePortfolio always saw null and the surface could only ever say "undeclared".
+        // Pass the declarations through untouched — absent stays null, never inferred.
+        baseCurrency: runtime.baseCurrency ?? null,
+        cashCurrency: runtime.cashCurrency ?? null,
+        // E3/P1194 (11 §23): 선언된 FX leg도 같은 규칙으로 통과시킨다 — 없으면 null이 아니라 빈 배열이고,
+        // 환산 여부는 surface의 fx 계약이 판정한다.
+        fxLegs: Array.isArray(runtime.fxLegs) ? runtime.fxLegs : [],
         readState,
         totals: runtime.totals ?? null,
         privacy: runtime.privacy || 'opt-in',

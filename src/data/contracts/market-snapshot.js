@@ -1,4 +1,9 @@
+import { canonicalSourceTier } from './source-kind.js';
+
 export const MARKET_SNAPSHOT_STATUS = Object.freeze(['published', 'partial', 'failed', 'unavailable']);
+// W03-C/P1183: 관측값 종류(value kind)는 registry가 선언하는 의미 축이다. quote가 공급한
+// 종류는 registry 정본과 대조해 거부하고, 덮어쓰거나 alias하지 않는다.
+export const QUOTE_VALUE_KINDS = Object.freeze(['index', 'rate', 'fx', 'price']);
 export const MARKET_QUALITY_STATUS = Object.freeze([
   'CURRENT',
   'CLOSED_CURRENT',
@@ -11,27 +16,62 @@ export const MARKET_QUALITY_STATUS = Object.freeze([
 // Tier 0 is intentionally bounded. It is the minimum set required for a
 // server-side fallback; the broader browser quote universe remains separate.
 export const TIER_0_INSTRUMENTS = Object.freeze([
-  { instrumentId: '^GSPC', metricId: 'market.index.spx', unit: 'index' },
-  { instrumentId: '^IXIC', metricId: 'market.index.nasdaq', unit: 'index' },
-  { instrumentId: '^DJI', metricId: 'market.index.dow', unit: 'index' },
-  { instrumentId: '^RUT', metricId: 'market.index.russell2000', unit: 'index' },
-  { instrumentId: '^VIX', metricId: 'market.volatility.vix', unit: 'index' },
-  { instrumentId: '^VIX3M', metricId: 'market.volatility.vix3m', unit: 'index' },
-  { instrumentId: '^KS11', metricId: 'market.index.kospi', unit: 'index' },
-  { instrumentId: '^KQ11', metricId: 'market.index.kosdaq', unit: 'index' },
-  { instrumentId: 'KRW=X', metricId: 'market.fx.usdkrw', unit: 'KRW/USD' },
-  { instrumentId: '^TNX', metricId: 'market.rates.us10y', unit: 'percent' },
-  { instrumentId: '^IRX', metricId: 'market.rates.us13w', unit: 'percent' },
-  { instrumentId: 'DX-Y.NYB', metricId: 'market.fx.dxy', unit: 'index' },
-  { instrumentId: 'CL=F', metricId: 'market.commodity.wti', unit: 'USD/barrel' },
-  { instrumentId: 'GC=F', metricId: 'market.commodity.gold', unit: 'USD/oz' },
-  { instrumentId: 'BTC-USD', metricId: 'market.crypto.btc', unit: 'USD' },
-  { instrumentId: 'ETH-USD', metricId: 'market.crypto.eth', unit: 'USD' }
+  { instrumentId: '^GSPC', metricId: 'market.index.spx', unit: 'index', valueKind: 'index' },
+  { instrumentId: '^IXIC', metricId: 'market.index.nasdaq', unit: 'index', valueKind: 'index' },
+  { instrumentId: '^DJI', metricId: 'market.index.dow', unit: 'index', valueKind: 'index' },
+  { instrumentId: '^RUT', metricId: 'market.index.russell2000', unit: 'index', valueKind: 'index' },
+  { instrumentId: '^VIX', metricId: 'market.volatility.vix', unit: 'index', valueKind: 'index' },
+  { instrumentId: '^VIX3M', metricId: 'market.volatility.vix3m', unit: 'index', valueKind: 'index' },
+  { instrumentId: '^KS11', metricId: 'market.index.kospi', unit: 'index', valueKind: 'index' },
+  { instrumentId: '^KQ11', metricId: 'market.index.kosdaq', unit: 'index', valueKind: 'index' },
+  { instrumentId: 'KRW=X', metricId: 'market.fx.usdkrw', unit: 'KRW/USD', valueKind: 'fx' },
+  { instrumentId: '^TNX', metricId: 'market.rates.us10y', unit: 'percent', valueKind: 'rate' },
+  { instrumentId: '^IRX', metricId: 'market.rates.us13w', unit: 'percent', valueKind: 'rate' },
+  { instrumentId: 'DX-Y.NYB', metricId: 'market.fx.dxy', unit: 'index', valueKind: 'index' },
+  { instrumentId: 'CL=F', metricId: 'market.commodity.wti', unit: 'USD/barrel', valueKind: 'price' },
+  { instrumentId: 'GC=F', metricId: 'market.commodity.gold', unit: 'USD/oz', valueKind: 'price' },
+  { instrumentId: 'BTC-USD', metricId: 'market.crypto.btc', unit: 'USD', valueKind: 'price' },
+  { instrumentId: 'ETH-USD', metricId: 'market.crypto.eth', unit: 'USD', valueKind: 'price' }
 ]);
 
 export const TIER_0_REQUIRED = TIER_0_INSTRUMENTS.length;
 
 const INSTRUMENT_BY_ID = new Map(TIER_0_INSTRUMENTS.map((row) => [row.instrumentId, row]));
+
+/**
+ * P1183: the registry is itself the identity 정본, so it validates itself before
+ * any quote is compared against it. A duplicated or malformed registry row would
+ * otherwise silently weaken every downstream metric/unit/valueKind comparison —
+ * quote-side checks cannot see a contradiction the 정본 itself declares.
+ */
+export function validateInstrumentRegistry(instruments = TIER_0_INSTRUMENTS) {
+  const errors = [];
+  if (!Array.isArray(instruments) || instruments.length === 0) {
+    return Object.freeze({ ok: false, errors: Object.freeze(['registry_empty']) });
+  }
+  const seenInstruments = new Set();
+  const seenMetrics = new Set();
+  for (const row of instruments) {
+    const instrumentId = String(row?.instrumentId || '');
+    const metricId = String(row?.metricId || '');
+    const unit = String(row?.unit || '');
+    const valueKind = String(row?.valueKind || '');
+    if (!instrumentId) errors.push('registry_instrument_id_missing');
+    if (!metricId) errors.push(`registry_metric_id_missing:${instrumentId || 'unknown'}`);
+    else if (!/^market\.[a-z][a-z0-9]*(\.[a-z][a-z0-9]*)+$/.test(metricId)) errors.push(`registry_metric_id_malformed:${metricId}`);
+    if (!unit) errors.push(`registry_unit_missing:${instrumentId || 'unknown'}`);
+    if (!QUOTE_VALUE_KINDS.includes(valueKind)) errors.push(`registry_value_kind_invalid:${instrumentId || 'unknown'}:${valueKind}`);
+    if (instrumentId) {
+      if (seenInstruments.has(instrumentId)) errors.push(`registry_instrument_duplicate:${instrumentId}`);
+      seenInstruments.add(instrumentId);
+    }
+    if (metricId) {
+      if (seenMetrics.has(metricId)) errors.push(`registry_metric_duplicate:${metricId}`);
+      seenMetrics.add(metricId);
+    }
+  }
+  return Object.freeze({ ok: errors.length === 0, errors: Object.freeze(errors) });
+}
 
 function asIso(value) {
   return value && !Number.isNaN(Date.parse(value)) ? new Date(value).toISOString() : null;
@@ -60,16 +100,31 @@ function normalizeQuote(quote = {}) {
   const changePct = quote.changePct ?? quote.pct ?? quote.regularMarketChangePercent;
   const previousValue = quote.previousValue ?? quote.previousClose ?? quote.regularMarketPreviousClose ?? null;
   const derivedBasis = previousValue != null && String(previousValue).trim() !== '' && typeof previousValue !== 'boolean' && Number.isFinite(Number(previousValue)) ? 'provider-previous-value' : 'unknown';
+  // R24-02/P1178: record how the metric identity was resolved. The registry
+  // fallback exists so a producer that omits metricId still round-trips the
+  // registry's own value, but a published quote must be *supplied* — silent
+  // derivation cannot stand in for an explicitly declared metric, and it must
+  // never paper over a supplied value that contradicts the registry (the
+  // validator rejects that mismatch instead of repairing it here).
+  const suppliedMetricId = quote.metricId == null || String(quote.metricId).trim() === '' || typeof quote.metricId === 'boolean' ? '' : String(quote.metricId);
+  // W03-C/P1183: valueKind도 metricId와 같은 identity 축이다 — 공급분은 registry와
+  // 대조해 거부하고(정규화가 모순을 감추지 않음), 부재 시에만 registry에서 파생한다.
+  const suppliedValueKind = quote.valueKind == null || String(quote.valueKind).trim() === '' || typeof quote.valueKind === 'boolean' ? '' : String(quote.valueKind);
   const normalized = {
     evidenceId: String(quote.evidenceId || ''),
-    metricId: String(quote.metricId || instrument?.metricId || ''),
+    metricId: suppliedMetricId || instrument?.metricId || '',
+    metricIdBasis: suppliedMetricId ? 'supplied' : (instrument?.metricId ? 'registry-derived' : 'missing'),
+    valueKind: suppliedValueKind || instrument?.valueKind || '',
+    valueKindBasis: suppliedValueKind ? 'supplied' : (instrument?.valueKind ? 'registry-derived' : 'missing'),
     instrumentId: String(quote.instrumentId || quote.symbol || ''),
     value,
     previousValue,
     changePct: changePct == null ? null : Number(changePct),
     unit: String(quote.unit || instrument?.unit || 'unitless'),
-    source: String(quote.source || 'unknown'),
-    sourceKind: String(quote.sourceKind || 'provider'),
+    // P1183: source/sourceKind의 'unknown'/'provider' 기본값이 존재 검사를 공허하게 만들었다
+    // (정규화가 빈 입력을 사실상의 값으로 승격). 빈 입력은 빈 채로 남겨 validator가 잡는다.
+    source: String(quote.source || ''),
+    sourceKind: String(quote.sourceKind || ''),
     observedAt: asIso(quote.observedAt),
     fetchedAt: asIso(quote.fetchedAt),
     lastSuccessfulAt: asIso(quote.lastSuccessfulAt || quote.observedAt || quote.fetchedAt),
@@ -115,6 +170,11 @@ export function validateMarketSnapshot(snapshot, options = {}) {
   // coverage numbers the payload reports about itself. A snapshot cannot pass by
   // declaring 16/16 while shipping fewer, duplicate, unknown, or wrong-unit quotes.
   const audit = auditMarketSnapshotCoverage(snapshot, options);
+  // P1183: validate the 정본 before trusting the comparisons it feeds. A corrupted
+  // registry (duplicate metric, malformed id, undeclared valueKind) fails closed
+  // here instead of laundering its own errors into "coverage matched".
+  const registryCheck = validateInstrumentRegistry(options.instruments || TIER_0_INSTRUMENTS);
+  for (const registryError of registryCheck.errors) errors.push(`registry_invalid:${registryError}`);
   if (snapshot?.status === 'published') {
     if (!audit.declaredMatchesMeasured) errors.push('published_declared_coverage_mismatch');
     if (audit.measured.required <= 0 || audit.measured.observed < audit.measured.required) errors.push('published_coverage_below_100_percent');
@@ -122,13 +182,41 @@ export function validateMarketSnapshot(snapshot, options = {}) {
     if (audit.duplicates.length) errors.push(`published_tier0_duplicate:${audit.duplicates.join('|')}`);
     if (audit.unknown.length) errors.push(`published_instrument_unknown:${audit.unknown.join('|')}`);
     if (audit.unitMismatches.length) errors.push(`published_unit_mismatch:${audit.unitMismatches.map((row) => row.instrumentId).join('|')}`);
+    if (audit.metricMismatches.length) errors.push(`published_metric_mismatch:${audit.metricMismatches.map((row) => row.instrumentId).join('|')}`);
+    if (audit.valueKindMismatches.length) errors.push(`published_value_kind_mismatch:${audit.valueKindMismatches.map((row) => row.instrumentId).join('|')}`);
   }
   const seen = new Set();
   for (const quote of snapshot?.quotes || []) {
     if (seen.has(quote?.instrumentId)) errors.push(`quote_duplicate_instrument:${quote.instrumentId}`);
     seen.add(quote?.instrumentId);
-    for (const field of ['evidenceId', 'metricId', 'instrumentId', 'unit', 'source', 'observedAt', 'fetchedAt', 'quality']) {
+    for (const field of ['evidenceId', 'metricId', 'instrumentId', 'unit', 'source', 'sourceKind', 'observedAt', 'fetchedAt', 'quality']) {
       if (!quote?.[field]) errors.push(`quote_${field}_missing`);
+    }
+    // R24-02/P1178: a quote may carry the right instrument and unit while naming a
+    // different metric entirely. The registry row is the identity contract, so an
+    // explicitly supplied metricId that disagrees is rejected — never repaired by
+    // the registry fallback, which only applies when the field is absent.
+    const registryRow = audit.registry.get(String(quote?.instrumentId || quote?.symbol || ''));
+    if (registryRow && quote?.metricId && String(quote.metricId) !== String(registryRow.metricId)) {
+      errors.push(`quote_metric_mismatch:${quote.instrumentId}:${quote.metricId}!=${registryRow.metricId}`);
+    }
+    // W03-C/P1183: valueKind is the same identity axis. Only a *supplied* kind can
+    // contradict the registry (a missing kind is derived with its basis recorded);
+    // a contradiction is rejected, never aliased into the expected kind.
+    if (registryRow?.valueKind && quote?.valueKind && String(quote.valueKind) !== String(registryRow.valueKind)) {
+      errors.push(`quote_value_kind_mismatch:${quote.instrumentId}:${quote.valueKind}!=${registryRow.valueKind}`);
+    }
+    // W03-C/P1183: sourceKind must resolve through the canonical tier vocabulary
+    // (source-kind.js) — an invented provider string fails closed instead of
+    // quietly standing in for an evidence authority it never declared.
+    if (quote?.sourceKind && canonicalSourceTier(quote.sourceKind) === null) {
+      errors.push(`quote_source_kind_unrecognized:${quote.instrumentId}:${quote.sourceKind}`);
+    }
+    // No registry row declares permission to derive a missing metricId, so a
+    // published quote whose identity came from the fallback is isolated rather
+    // than accepted: producers already copy metricId from the same registry.
+    if (snapshot?.status === 'published' && quote?.metricIdBasis === 'registry-derived') {
+      errors.push(`quote_metric_id_registry_derived:${quote.instrumentId}`);
     }
     if (typeof quote?.value !== 'number' || !Number.isFinite(quote.value) || quote.value <= 0) errors.push('quote_value_invalid');
     if (quote?.changePct != null && (typeof quote.changePct !== 'number' || !Number.isFinite(quote.changePct))) errors.push('quote_change_pct_invalid');
@@ -156,6 +244,8 @@ export function auditMarketSnapshotCoverage(snapshot, { instruments = TIER_0_INS
   const duplicates = [];
   const unknown = [];
   const unitMismatches = [];
+  const metricMismatches = [];
+  const valueKindMismatches = [];
   for (const quote of quotes) {
     const instrumentId = String(quote?.instrumentId || quote?.symbol || '');
     const entry = registry.get(instrumentId);
@@ -168,6 +258,21 @@ export function auditMarketSnapshotCoverage(snapshot, { instruments = TIER_0_INS
       unitMismatches.push(Object.freeze({ instrumentId, expected: entry.unit, actual: unit }));
       continue;
     }
+    // R24-02/P1178: identity is (instrumentId, metricId, unit). A quote whose
+    // metricId contradicts the registry does not count toward coverage even when
+    // its unit happens to match, so a swapped metric can never round up coverage.
+    const metricId = String(quote?.metricId || '');
+    if (metricId !== String(entry.metricId)) {
+      metricMismatches.push(Object.freeze({ instrumentId, expected: entry.metricId, actual: metricId }));
+      continue;
+    }
+    // W03-C/P1183: valueKind joins the identity tuple. A missing kind derives from
+    // the registry row (raw artifacts predating the field keep counting); a kind
+    // that contradicts the registry is excluded from coverage like a wrong metric.
+    if (entry.valueKind && String(quote?.valueKind || entry.valueKind) !== entry.valueKind) {
+      valueKindMismatches.push(Object.freeze({ instrumentId, expected: entry.valueKind, actual: String(quote?.valueKind || '') }));
+      continue;
+    }
     matched.add(instrumentId);
   }
   for (const row of instruments) if (!matched.has(String(row.instrumentId))) missing.push(String(row.instrumentId));
@@ -175,7 +280,7 @@ export function auditMarketSnapshotCoverage(snapshot, { instruments = TIER_0_INS
   const declared = normalizeCoverage(snapshot?.coverage);
   const tier1Complete = declared.tier1Required === 0 || declared.tier1Observed >= declared.tier1Required;
   return Object.freeze({
-    ok: missing.length === 0 && duplicates.length === 0 && unknown.length === 0 && unitMismatches.length === 0 && declared.tier0Required === measured.required && declared.tier0Observed === measured.observed,
+    ok: missing.length === 0 && duplicates.length === 0 && unknown.length === 0 && unitMismatches.length === 0 && metricMismatches.length === 0 && valueKindMismatches.length === 0 && declared.tier0Required === measured.required && declared.tier0Observed === measured.observed,
     measured,
     declared,
     declaredMatchesMeasured: declared.tier0Required === measured.required && declared.tier0Observed === measured.observed,
@@ -183,7 +288,10 @@ export function auditMarketSnapshotCoverage(snapshot, { instruments = TIER_0_INS
     missing: Object.freeze(missing),
     duplicates: Object.freeze(duplicates),
     unknown: Object.freeze(unknown),
-    unitMismatches: Object.freeze(unitMismatches)
+    unitMismatches: Object.freeze(unitMismatches),
+    metricMismatches: Object.freeze(metricMismatches),
+    valueKindMismatches: Object.freeze(valueKindMismatches),
+    registry
   });
 }
 

@@ -10,6 +10,33 @@ export const FIELD_STATUS = Object.freeze([
 ]);
 export const CALCULABLE_FIELD_STATUSES = Object.freeze(['CURRENT', 'DELAYED', 'INFERRED']);
 const DISPLAYABLE_FIELD_STATUSES = new Set([...CALCULABLE_FIELD_STATUSES, 'STALE', 'LAST_GOOD', 'CONFLICT']);
+
+// P1177/R24-04: the live quote overlay keys. This list is the canonical source for both the
+// snapshot identity projection (provider) and the calculation input identity (screen engine),
+// so adding a live-derived key can no longer silently miss one of the two identities.
+export const LIVE_QUOTE_DERIVED_ROW_KEYS = Object.freeze([
+  'price', 'priceObservedAt', 'priceFetchedAt', 'priceSource', 'priceSourceKind',
+  'priceAllowedUse', 'priceAllowedUseCeiling', 'priceQuality', 'priceRightsId', 'priceRevision',
+  'livePriceRejectedReason', 'liveQuoteDiagnostic', 'priceCurrencyConflict',
+  'mcap', 'nativeMarketCap', '_mcapObservedAt', '_mcapFetchedAt', '_mcapSource', '_mcapSourceKind',
+  '_mcapAllowedUse', '_mcapQuality', '_mcapRevision'
+]);
+// Display-only overlay: diagnostics and the reference-labelled native cap are rendered but
+// never consumed by ranking/filters, so a tick in these keys must not mint a calculation identity.
+export const LIVE_QUOTE_DISPLAY_ONLY_ROW_KEYS = Object.freeze([
+  'nativeMarketCap', 'livePriceRejectedReason', 'liveQuoteDiagnostic', 'priceCurrencyConflict'
+]);
+// Price family — calculation input only when a definition actually references the price row key.
+export const LIVE_QUOTE_PRICE_ROW_KEYS = Object.freeze([
+  'price', 'priceObservedAt', 'priceFetchedAt', 'priceSource', 'priceSourceKind',
+  'priceAllowedUse', 'priceAllowedUseCeiling', 'priceQuality', 'priceRightsId', 'priceRevision'
+]);
+// Market-cap family (nativeMarketCap excluded, it is display-only) — under the live_capture
+// factor input policy these are rank inputs, so they always belong to the calculation identity.
+export const LIVE_QUOTE_MCAP_INPUT_ROW_KEYS = Object.freeze([
+  'mcap', '_mcapObservedAt', '_mcapFetchedAt', '_mcapSource', '_mcapSourceKind',
+  '_mcapAllowedUse', '_mcapQuality', '_mcapRevision'
+]);
 export const OBSERVATION_SOURCES = CANONICAL_SOURCE_TIERS;
 export const SCREEN_NODE_TYPES = Object.freeze(['and', 'or', 'not', 'range', 'enum', 'exists']);
 export const NULL_POLICIES = Object.freeze(['reject', 'pass', 'unknown']);
@@ -538,6 +565,11 @@ export function createScreenRun(input = {}) {
     unavailable: Number.isInteger(input.unavailable) ? input.unavailable : 0,
     providerSet: Object.freeze(Array.isArray(input.providerSet) ? [...input.providerSet] : []),
     engineVersion: String(input.engineVersion || 'screen-engine.v1'),
+    // R24-04/P1180: input identity separated from the observation set. Present on new runs
+    // only — legacy (screen-engine.v5) records keep their original shape byte-for-byte so
+    // their stored identity and result stay replayable under their legacy semantics.
+    ...(input.calculationInputId ? { calculationInputId: String(input.calculationInputId) } : {}),
+    ...(input.factorInputPolicy ? { factorInputPolicy: String(input.factorInputPolicy) } : {}),
     explanationsHash: String(input.explanationsHash || ''),
     resultHash: String(input.resultHash || ''),
     allowedUse: 'research-relative-ranking-only'
@@ -548,6 +580,12 @@ export function createScreenRun(input = {}) {
 export function validateScreenRun(run) {
   const errors = [];
   for (const field of ['runId', 'screenId', 'definitionHash', 'snapshotId', 'engineVersion']) if (!run?.[field]) errors.push(`${field}_missing`);
+  // R24-04/P1180: runs under the calculation-input identity contract must declare it.
+  // screen-engine.v5 records predate the field and keep legacy_identity_semantics.
+  if (run?.engineVersion !== 'screen-engine.v5') {
+    if (!run?.calculationInputId) errors.push('calculation_input_id_missing');
+    if (!run?.factorInputPolicy) errors.push('factor_input_policy_missing');
+  }
   if (!RUN_STATUSES.includes(run?.status)) errors.push('status_invalid');
   for (const key of ['rowCount', 'eligibleCount', 'passed', 'rejected', 'unavailable']) if (!Number.isInteger(run?.[key]) || run[key] < 0) errors.push(`${key}_invalid`);
   if (run?.passed + run?.rejected + run?.unavailable !== run?.rowCount) errors.push('counts_do_not_match_rows');

@@ -4,6 +4,8 @@
 
 ## 판단
 
+**v56.15 현재성 보강:** [23의 재검증](23-CURRENT-BASELINE-AND-ALLOCATION-CONTRACT.md)을 먼저 확인한다. PFR06 목표가 정규화는 수정 확인, PFR01 종점 초기 배분은 root 실행으로 잔존 확인했다. 명시적 0/부분 비중 폴백의 신규 PFR07도23에 추가했다. 아래 표는 최초 발견 시점의 근거다.
+
 현재 보유구성의 과거 시뮬레이션, 실제 계좌 성과, 현재 위험 추정을 서로 다른 제품 결과로 정의해야 한다. 같은 '수익률 비교' 아래 합치면 더 정교한 차트를 그려도 의미 오류가 남는다. 기존 계산 경로 보존을 전제하지 않는다.
 
 ## 근거와 증거 수준
@@ -56,3 +58,97 @@ Luna의 합성 결과는 조사 보고이며 이 문서 작성 중 root가 동�
 | 6 | 실제 화면 동선 | 빈 계좌→합성 보유→가격 실패→복구→현금 입력→기간 변경→위험 설명. 오래된 결과가 새 배분에 붙지 않음 |
 
 금융 정의 인수는 실행 PASS와 별개다. 신규 성과 모형은 독립 산술 예제와 외부 검증된 기준 방법을 대조한 뒤 확정한다. 기관/펀드급이라는 목표는 이러한 측정·재현·감사 계약을 충족하는 것으로 평가한다.
+
+## 2026-09-23 독립 감사 보강 — 누락 멤버, 위험 경로와 현재 구성 기준
+
+[현재 판정표](25-CURRENT-FINDING-STATUS-CROSSWALK.md)에서 22:PFR08–10/R24-05/06/06A는 v56.15 현재 경로의 미해결 설계·입수 계약으로 남는다. 실행 패키지 E3/E4의 선후관계, 입력 차단과 승인 증거는 [26 실행·인수 계획](26-EXECUTION-AND-ACCEPTANCE-PLAN.md)을 따른다.
+
+이 보강은 [R24-05/06/06A](24-INDEPENDENT-STRUCTURAL-REVIEW-20260923.md)에서 확인한 정적 경로를 구현 명세로 내린다. 현재 `backtest.js`에서 가격 이력이 없는 종목을 먼저 버리고 남은 종목으로 비중을 재정규화하는 경로는 잘못된 계좌 손실이 관찰됐다는 주장이 아니라, 실행 전 fail-closed 인수가 빠진 위험이다. `refreshPortfolioRisk`의 현재 구성 비중을 과거 각 일별 수익률에 적용하고 cash를 제외하는 경로 역시 실제 과거 보유경로라고 표시하지 않는다.
+
+### W22-H — 의도한 멤버 전체의 가격 경로를 먼저 검증
+
+AllocationSnapshot 정규화 전에 simulation input resolver가 다음을 확정한다.
+
+```text
+SimulationInputSnapshot = {
+  runRequestId, allocationSnapshotId, priceUniverseSnapshotId,
+  requestedWindow, resolvedWindow, returnBasis, calendarAlignmentPolicy,
+  intendedMembers: [{ instrumentId, inclusion, targetWeight, coverageState,
+                      missingRanges, priceRevisionIds, nativeCurrency,
+                      fxRevisionIds }],
+  cashMember, unresolvedInputs, validationStatus
+}
+```
+
+`intendedMembers`는 사용자가 선택한 계좌/전략 구성에서 만든다. Price provider가 데이터를 반환한 종목만으로 대상 집합을 역산하지 않는다. 각 포함 종목에 대해 요청 시작일 이후 필요한 관측 이력, 선택한 조정가격/총수익 basis, 기업행동 처리, 허용된 날짜 정렬과 quote freshness, 필요한 FX 경로를 검사한다. 서로 다른 거래소 달력은 버전이 있는 alignment policy와 최대 허용 staleness를 사용한다. 휴장일과 실제 결측을 구분하되, 정책이 설명할 수 없는 gap을 연속 관측처럼 채우지 않는다.
+
+**기본 정책은 차단이다.** 의도 멤버 하나라도 전체 기간을 뒷받침할 입력이 없거나 required gap이 있으면 run은 `blocked`/`incomplete-inputs`로 끝나고 누락 종목·구간·사유를 제공한다. 그 멤버를 삭제한 후 나머지를 100%로 정규화하지 않는다. 자동 대체, 가격 forward-fill, raw-close를 adjusted series에 섞기는 별도 명시 모델과 근거 없이는 금지한다. 사용자가 종목을 제외하거나 명시 현금/잔여 처리 방식을 바꾸면 새 AllocationDefinition과 새 run ID로 계산한다. 명시 `weight=0, inclusion=exclude`는 애초 의도 멤버에서 제외된 것으로 보존되며, 미지정/null을 제외로 바꾸지 않는다.
+
+실패한 입력 검증도 재현할 수 있도록 `blockedRun`에는 요청 기간·AllocationDefinition·누락 membership·가격/FX artifact revision·validator version을 저장한다. 차단된 결과를 performance/risk series, benchmark 비교, UI chart의 정상 결과로 내보내지 않는다. 사용자가 고친 뒤에는 별도 실행을 만든다. 원래 요청 ID와 차단 기록은 보존한다.
+
+### W22-I — 위험 추정이 실제로 계산한 경로와 분모를 선언
+
+`RiskEstimate`는 최소한 아래 입력을 고정한다.
+
+```text
+exposureHistoryMode:
+  actual_account_history
+  current_composition_retrospective
+  fixed_target_weight_strategy
+weightBasis: whole_account | invested_sleeve
+cashTreatment: observed_cash_series | explicit_assumption | excluded_by_scope
+rebalancePolicy: none | daily | weekly | monthly | threshold_rule | transaction_history
+asOf / requestedWindow / resolvedWindow / baseCurrency / inputSnapshotIds
+returnBasis / rfSeriesId / fxPolicyId / modelVersion
+```
+
+- `actual_account_history`는 날짜별 보유수량, 현금, 외부 입출금, 거래/수수료·배당/기업행동과 평가 cut을 재현할 자료가 있어야 한다. 현재 holdings를 과거 날짜로 복사해 채우지 않는다.
+- `current_composition_retrospective`는 특정 `ValuationSnapshot`에서 정한 현재 구성으로 과거 시장 경로를 계산한 가상 분석이다. 시작 weight snapshot과 이후 `rebalancePolicy`를 명시하고 UI에 “현재 구성을 과거에 적용한 분석”으로 표시한다. 계좌의 실제 과거 수익률이나 실제 과거 위험으로 이름 붙이지 않는다.
+- `fixed_target_weight_strategy`는 목표 weight, rebalance 일정/트리거, 비용·세금·체결 가정과 현금 수익 정책이 정해진 전략 시뮬레이션이다. `none`은 매일 목표 weight로 다시 맞추는 것과 다른 모델이다.
+
+현금은 선택한 `weightBasis`에 맞춰 분모와 시계열에서 일관되게 다룬다. 계좌 전체 위험을 요청했는데 cash amount 또는 cash return series가 없으면 cash를 조용히 버리지 않는다. 사용자가 별도 0% return 등 `explicit_assumption`을 확인하거나 현금 제외 scope를 택할 때만 그 가정을 결과에 표시한다. 금리·RF는 현금 수익과 동일하지 않으며 둘 다 입력에서 분리한다. equity sleeve만 측정할 경우 분모·표제에서 이를 밝힌다.
+
+`refreshPortfolioRisk`의 기존 current weights + historical return path는 사용 목적과 rebalance semantics가 확인될 때까지 `legacy-risk-path`로 보존하되 새 결과에는 승격하지 않는다. 새 `RiskEstimate`가 기존 값을 제자리에서 덮지 않는다. 필요한 holdings history가 없으면 actual-history 결과를 보류하고, 독립 snapshot을 택한 retrospective 결과만 그 이름과 제한 아래 허용한다.
+
+### W22-J — current-composition-retrospective의 valuation basis 고정
+
+PFR의 `current_composition_retrospective`는 한 개의 immutable `ValuationSnapshot`에서만 비중을 해석한다. 계좌 구성 스냅샷은 최소 다음을 포함한다.
+
+```text
+compositionSnapshotId / valuationSnapshotId / accountRevision
+compositionAsOf / valuationCut / baseCurrency / fxPolicyId
+weightBasis: whole_account | invested_sleeve
+members: [{ instrumentId, inclusion, quantity, quantityUnit,
+            nativeMarketValue, priceCurrency, priceObservedAt,
+            priceSourceRevisionId, baseMarketValue, resolvedWeight,
+            fxPath, fxRevisionIds }]
+cashByCurrency + convertedCashWeights + excludedOrUnresolvedMembers
+```
+
+`resolvedWeight`의 산술 분모가 `whole_account`인지 `invested_sleeve`인지 snapshot과 화면 모두에 기록한다. 전체 자산 기준이면 모든 통화의 현금과 필요한 부채도 같은 cut으로 변환해 분모에 넣는다. 투자 종목만 100%로 표시하는 경우에는 invested-sleeve라고 분명히 한다. 구성원 가격 시각·FX 시각·시장 평가 시각은 서로 바꿔 쓰지 않으며 허용 신선도 정책을 만족하지 않는 관측은 기준 snapshot을 막는다.
+
+현재 수량만 확보되지 않거나, 일부 종목 가격/FX가 없거나, 계좌 cash 통화가 확인되지 않으면 resolved allocation을 만들지 않는다. 손실 멤버를 빼고 다시 weight를 나누지 않는다. 종점 가격×수량은 snapshot을 재현할 때만 사용할 수 있고, 과거 기간의 시작 구성 폴백으로 사용하지 않는다. 새 quote가 들어오면 새로운 composition/valuation snapshot과 retrospective run을 만든다. 이미 저장된 과거 run은 처음 캡처한 `compositionSnapshotId`와 allocation으로 재생한다.
+
+### 독립 인수 fixture
+
+| fixture | 기대 결과 |
+|---|---|
+| intended `[AAA 50%, BBB 50%]`, BBB 전체 기간 가격 이력 없음 | 계산 차단, member set `[AAA, BBB]`와 BBB 누락 이유 보존. AAA 100% 성과를 내지 않음. |
+| BBB 중간 기간에 required price gap | calendar/holiday alignment가 이를 정상 관측으로 설명하지 못하면 차단. 해당 월/일을 한 표본으로 압축하지 않음. |
+| 사용자가 BBB를 명시 제외하고 새 run을 시작 | 새 AllocationDefinition/run ID. 기존 50/50 요청과 차단 이력은 바뀌지 않음. |
+| `[AAA 50%, BBB 50%]`에서 BBB 비중을 현금 잔여로 명시 선택 | AAA/BBB 의도 또는 현금 잔액, 정책, 분모, 화면 설명을 snapshot에 저장. 다른 종목 비중을 자동으로 100% 재정규화하지 않음. |
+| 한 날짜의 cash=50%, equity=50%, equity return=−10%, cash return=0% 명시 | whole-account return −5%; invested-sleeve return −10%. 같은 숫자를 두 scope 제목으로 표시하지 않음. |
+| 동일 주식 두 종목, 현 보유비중 50/50, 과거 실제 holdings 100/0→0/100 | `actual_account_history`와 `current_composition_retrospective` 결과/ID가 구분된다. 하나를 다른 모드의 기록으로 표시하지 않음. |
+| 같은 target weight에서 `none`/월간/일간 rebalance | 서로 다른 정책 ID와 재현 가능한 결과. 비용 가정을 포함하고 fixed-weight 주기 의미를 설명. |
+| 현재 A/B 주가 또는 FX만 변경 | 새 valuation/composition snapshot과 새 run ID. 과거 capture 결과의 weight, 가격·FX basis, risk가 변하지 않음. |
+| 계좌 전체 risk에서 cash return 미입력 | 보류하거나 사용자 선택한 명시 가정/범위를 기록. cash를 버린 기존 equity-only 값으로 total risk를 표시하지 않음. |
+
+### 순서·이행·복구
+
+1. AllocationDefinition의 `0/null/제외/현금` semantics(`23:PFR07`)를 먼저 확정한다.
+2. W22-H의 intended member/price-history coverage와 W22-J의 valuation snapshot이 통과해야 AllocationSnapshot과 SimulationInputSnapshot을 봉인한다.
+3. W22-I risk path를 `actual history`와 제한된 retrospective/strategy 경로로 분리한다. 통화·cash/rf와 동일 as-of 계약은 11을 따른다.
+4. 각 단계에서 legacy output은 식별을 보존해 read-only로 비교한다. 신규 결과가 차단되면 새 결과를 `unavailable`로 표시하고 이전 결과를 실제성과로 승격하지 않는다.
+5. 복구 시점에는 실패 run과 입력 snapshot을 그대로 보관하고, 원인이 해결된 후 새 revision/run을 발행한다. 누락 멤버를 삭제하거나 종점 weight로 되돌리는 fallback은 복구 동작이 아니다.
+
+완료는 합성 산술·누락/휴장·현금·rebalance·통화·snapshot replay, 저장 실행 재현, 그리고 사용자 화면에서 모드/분모/누락 사유가 같은 내용을 설명하는 것까지다. R24 발견의 재현은 정적/합성 경계이므로 라이브 시세, 실제 계좌 원장, 사용자 금융 의사결정 적합성은 별도로 검증한다.

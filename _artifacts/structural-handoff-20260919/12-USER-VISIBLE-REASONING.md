@@ -95,3 +95,53 @@ W12-A 보강: definitionId/hash를 preview 결과와 실행 결과 모두에 붙
 ## 구현 순서
 
 먼저 W07/W09/W10/W11의 계산·시점·저장 계약을 안정화한다. 다음 screener 한 경로에서 presentation model과 설명 drawer를 완성하고 같은 패턴을 시장·기업·포트폴리오·지식으로 넓힌다. 모든 화면에 경고 배너를 추가하는 방식으로 대체하지 않는다. 의미가 정리된 정보를 사용자의 질문 순서로 배치하는 것이 핵심이다.
+
+## 2026-09-23 U01 현재 상태와 사용자·접근성 인수 프로토콜
+
+상위 상태 판정은 [25](25-CURRENT-FINDING-STATUS-CROSSWALK.md), 실행 순서는 [26](26-EXECUTION-AND-ACCEPTANCE-PLAN.md)를 따른다.
+
+**U01 상태: 부분 구현.** P1165는 같은 정의·같은 snapshot에서 preview와 execute가 같도록 계산 경로를 바꾸고 선택한 정의/hash 및 preset 내장 조건을 표시한다. P1164는 실행 전 pipeline 수를 `통과`라 부르지 않고 `조건 적용 전 계산 가능`으로 낮췄다. 하지만 P1165의 3 preset fixture는 873행이 모두 unavailable이라 결과 집합 동등성의 판별력이 낮다. 6개 preset 전체, 정상 통과/제외/보류 행, 저장·재실행·복원 결과의 동등성, 현재 live 배포는 아직 인수되지 않았다.
+
+### U01 구현 인수에 필요한 결과 계약
+
+preview와 run은 아래의 같은 키와 불변 inputs를 갖는다. archive 여부만 다르고 계산 판정의 의미는 같아야 한다.
+
+```text
+previewKey = definitionHash + snapshotId + universeRevision + modelVersion
+runKey     = previewKey + runId
+```
+
+`funnel`은 `eligible`, `passed`, `excluded`, `undetermined`를 같은 definition/snapshot 기준으로 계산하고 아래 불변식을 만족한다.
+
+```text
+eligible = passed + excluded + undetermined
+```
+
+필터 전 준비성은 별도 `readiness`로 표시한다. readiness count는 `passed`로 바꾸지 않는다. 보관 run의 결과를 새 정의나 새 snapshot으로 다시 계산해 과거 기록을 덮지 않는다. 같은 run 복원은 저장된 result revision을 보여주고, 재실행은 새 runId를 발급한다.
+
+### 사람 대상 과업 시험
+
+이 시험은 통계적 대표성이나 투자 성과를 입증하지 않는 정성적 이해도 평가다. 초기 탐색 파일럿의 모집 예시는 초심자, 장기 투자자, 적극 거래 사용자, 한국/해외 시장 사용자, 위험 회피 성향, 접근성 보조기술 사용자 등 실제 타깃 집단을 포괄하는 6명이다. 이 수를 출시 합격 표본이나 고정 성능 기준으로 간주하지 않는다. 19/26에 따라 먼저 baseline을 관찰하고, 과업·대상 집단·사용 맥락을 확인한 뒤 모집 규모와 합격선을 사전 등록한다. 진행자는 계산 설명을 먼저 하지 않고, 화면만으로 답할 수 있는 과업을 무작위 순서로 제시한다. 개인 보유 내역이나 투자 조언을 요구하지 않는다.
+
+| 과업 | 사용자가 설명해야 할 의미 | 중대 오해 실패 |
+|---|---|---|
+| preset 선택 후 실행 전 preview 확인 | 현재 건수가 어느 정의·snapshot의 preview인지, 실제 실행인지 | preview를 고정 run/조건 통과로 말함 |
+| 결과 행의 Why 열기 | 적용 조건, ranking eligibility, 비교집단/분모, 원값과 점수의 차이 | 정규화 점수를 실제 수익률·확률·가중 기여로 해석 |
+| 보류 행과 참고값 확인 | 값이 있는 참고 자료와 계산 부적격 자료의 차이 | 참고값을 현재 계산에 포함됐다고 해석 |
+| 상세 이동 후 돌아오기 | 같은 run 복귀와 새로고침/재실행의 차이 | 과거 run이 새 데이터로 바뀌었다고 해석 |
+| source/time 확인 | 관측일, 생성일, 원문 위치 | 생성일을 관측일로 답하거나 자료 시점을 찾지 못함 |
+
+출시 합격선은 고정된 6명/5명 비율로 두지 않는다. baseline 시험에서 과업별 성공률·완료시간·도움 요청·중단·오해 유형을 기록하고, 제품 owner와 사용자 연구 owner가 대상 집단별 수용 기준을 **시험 전에** 등록한다. `참고/현재`, `미수신/0`, `preview/run`, `조건 통과/계산 가능` 중 하나라도 행동·매매 판단을 바꾸는 중대 오해는 표본 비율과 관계없이 blocker로 처리하고, 수정 뒤 같은 조건으로 재시험한다. 숫자 점수만으로 통과시키지 말고 인용한 화면 요소와 실제 발언을 익명 기록한다. 결과는 해당 표본의 정성·운영 evidence로만 보고하고 통계적 이해도나 금융 안전성을 주장하지 않는다.
+
+### 접근성 실사
+
+자동 20-route 접근성 matrix는 구조·이름·대상 크기·console을 검사하는 필요조건이다. 사람/보조기술 실사를 대체하지 않는다. 최소한 다음 경로를 route별로 기록한다.
+
+- 키보드만으로 preset 선택→필터 확인→실행→Why 열기→닫기→정렬→상세 이동/복귀를 완료한다. focus 순서, 보이는 focus, dialog trap/escape, opener 복귀, sticky 영역에 가려지지 않는지 확인한다.
+- Windows의 NVDA+Chrome 또는 Narrator+Edge 중 사전에 고정한 조합으로 heading/landmark, table header 관계, sort 상태, dialog 이름, 선택된 preset, loading/partial/failed/empty 전환, 결과 개수의 적절한 announce를 확인한다.
+- 색만으로 pass/excluded/unknown을 구별하지 않으며, 차트에는 대응하는 텍스트 요약과 단위를 제공한다. 200% zoom과 좁은 viewport에서 핵심 과업과 오류 메시지를 유지한다. 대상 크기·텍스트 대비는 저장소의 기존 QA 기준과 같은 검사기로 수치 증거를 남긴다.
+- dynamic update가 focus를 빼앗거나 오래된 run 설명을 다시 읽지 않는지, 닫힌 drawer의 숨은 컨트롤이 tab 순서에 남지 않는지 검사한다.
+
+접근성 인수는 핵심 과업의 keyboard blocker 0건, 이름 없는 조작 컨트롤 0건, 상태가 announce되지 않아 의미를 잃는 오류 0건, 색상에만 의존한 핵심 판정 0건을 요구한다. 수동 항목은 통과/실패/미실행을 나누고 “자동 matrix 통과”를 screen-reader/contrast/zoom 실사 완료로 승격하지 않는다. 관련 repository gate/기준은 [`../../_context/QA-CHECKLIST.md`](../../_context/QA-CHECKLIST.md)의 `QA-A11Y-20260830-01`과 `QA-ARCH-12`를 함께 확인한다.
+
+모든 사용자 시험 증거는 21의 trace manifest와 연결한다. route, viewport, 브라우저/보조기술 버전, build/deploy SHA, snapshot·definition·run ID, 과업 ID, 관찰 결과, 익명 화면 trace를 남긴다. 이 설계 절 작성 자체로 사용성·접근성 실사가 수행된 것은 아니다.

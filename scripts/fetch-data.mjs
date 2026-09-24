@@ -23,6 +23,7 @@ import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { deriveFredCycle } from './lib/refresh-continuity.mjs';
 import { percentileRank01, spearman } from './lib/rank-statistics.mjs';
 import { factorScopesByMarket, marketOfSymbol, sessionDateInMarket, timeZoneForMarket } from '../src/domain/market/session-time.js';
+import { FACTOR_FRESHNESS_MS } from '../src/domain/screener/factor-ranks.js';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const OUT = `${__dir}/../public-data/data.json`;
@@ -216,6 +217,11 @@ async function fetchQuote(symbol) {
         // appear one market day older on WTI/gold/BTC/KR series.
         regularMarketPreviousCloseObservedAt: closeBars.length >= 2 && Number.isFinite(closeBars[closeBars.length - 1].timestamp)
           ? new Date(closeBars[closeBars.length - 1].timestamp * 1000).toISOString()
+          : null,
+        // P1192: 위 경계가 이 행의 완료 컷을 넘을 때(진행 중 bar의 개시 시각이 KST-08:00 컷보다
+        // 뒤인 창 — FX/상품) 쓸 직전 bar의 개시 경계. 관측 시각이 아니라 bar 경계다.
+        previousBarOpenedAt: closeBars.length >= 2 && Number.isFinite(closeBars[closeBars.length - 2].timestamp)
+          ? new Date(closeBars[closeBars.length - 2].timestamp * 1000).toISOString()
           : null,
         _pctSource: pctSource,
         _source: 'live:yahoo-gh',
@@ -1675,6 +1681,8 @@ async function updateHistory(data, marketSnapshot = null) {
       return null;
     }
     const fetchedAt = data.meta?.generatedAt || new Date().toISOString();
+    const cycleEnd = data.meta?.newsCycleEnd || fetchedAt;
+    boundPreviousCloseToCut({ bySym, bySymQuote, cycleEnd });
     const fieldMeta = {};
     const historyMeta = (field, quote, fallback = {}) => ({
       observedAt: quote?.observedAt || fallback.observedAt || null,
@@ -1715,7 +1723,7 @@ async function updateHistory(data, marketSnapshot = null) {
     const rec = {
       date: today,
       seriesMode: 'completed-market-cut',
-      cycleEnd: data.meta?.newsCycleEnd || fetchedAt,
+      cycleEnd: cycleEnd,
       marketSnapshotRevision: data.meta?.marketSnapshotRevision || marketSnapshot?.revision || null,
       spx: pick('^GSPC'), nasdaq: pick('^IXIC'), dow: pick('^DJI'), rut: pick('^RUT'),
       vix: pick('^VIX'), vix3m: pick('^VIX3M'), vvix: pick('^VVIX'), tnx: pick('^TNX'),
@@ -2634,6 +2642,25 @@ function _calcSetupScreenFields(closes, adjCloses, highs, lows, volumes) {
   };
 }
 
+// P1184/R24-03: 품질 라벨을 타임스탬프 존재만으로 CURRENT로 발행하면 provider가 오래된 마지막 봉을
+// 돌려준 날에도 artifact에 CURRENT가 남는다(소비측은 같은 행을 4일 경과로 차단한다). 소비측
+// factor-ranks와 같은 신선도 예산을 공유해 처음부터 같은 판정을 쓴다 — 라벨이 다르면
+// 'CURRENT인데 차단되는' 행이 생긴다.
+export function deriveFactorQuality({ observedAt, computedAt } = {}) {
+  const observedMs = observedAt ? Date.parse(observedAt) : NaN;
+  const computedMs = computedAt ? Date.parse(computedAt) : NaN;
+  const ageMs = Number.isFinite(observedMs) && Number.isFinite(computedMs) ? computedMs - observedMs : NaN;
+  const fresh = Number.isFinite(ageMs) && ageMs >= 0 && ageMs <= FACTOR_FRESHNESS_MS;
+  return {
+    status: !Number.isFinite(observedMs) ? 'MISSING' : fresh ? 'CURRENT' : 'STALE',
+    stale: !fresh,
+    ageMs: Number.isFinite(ageMs) ? ageMs : null,
+    basis: 'bar-start-to-computedAt',
+    decisionUse: false,
+    allowedUse: 'reference'
+  };
+}
+
 async function _enrichPriceFactors(syms) {
   const computedAt = new Date().toISOString();
   const results = await mapLimit(syms, 5, async (sym) => {
@@ -2708,7 +2735,7 @@ async function _enrichPriceFactors(syms) {
       f.factorComputedAt = computedAt;
       f.factorSourceKind = 'T3_PUBLIC_DELAYED';
       f.factorAllowedUse = 'research-relative-ranking-only';
-      f.factorQuality = { status: r.observedAt ? 'CURRENT' : 'MISSING', stale: !r.observedAt, decisionUse: false, allowedUse: 'reference' };
+      f.factorQuality = deriveFactorQuality({ observedAt: r.observedAt, computedAt });
       data[r.sym] = f; ok++;
     }
   }
@@ -4006,6 +4033,34 @@ async function main() {
     : `hasKey=${!!process.env.FMP_API_KEY} (screener skipped)`;
   console.log(`[fetch-data] 완료: quotes ${quotes.length}/${SYMBOLS.length} [verify: 1차ok=${pass1.length} retry=${toRetry.length} 복구=${pass2.length} 최종실패=${failed.length}], macro keys ${Object.keys(macro).length}, F&G ${fearGreed.score ?? 'fail'}, news ${data.meta.newsCount}, history ${histInfo ? histInfo.days + 'd(' + histInfo.upsert + (histInfo.backfilled ? ',+' + histInfo.backfilled + 'bf' : '') + ')' : 'skip'}, screener ${scrInfo ? (scrInfo.skipped ? 'skip(' + scrInfo.count + ')' : scrInfo.count + '/' + scrInfo.universe + (scrInfo.tickerNews != null ? ' tickerNews=' + scrInfo.tickerNews : '')) : 'n/a'}, FMP ${fmpSummary}, ${data.meta.elapsedMs}ms`);
 
+}
+
+/**
+ * P1192 (P1095 권위): 한 행의 완료 컷을 넘는 `previous-completed-close` 스탬프를 직전 bar 경계로
+ * 되돌린다. Yahoo는 진행 중 bar를 그 bar의 개시 시각으로 스탬프하는데, FX/상품 일봉 경계(00:00Z)가
+ * KST-08:00 뉴스 컷(23:00Z)보다 뒤라 그 경계가 컷을 넘는다. 값은 **실제 완료 종가**이므로 버리지
+ * 않고 bar 경계로 앉히고, 그마저 컷을 넘으면 값을 싣지 않는다 — 컷을 늘리거나 시각만 바꾸는 위장은
+ * 두 게이트(P1095·history-time)가 동시에 금지한다. `bySym`/`bySymQuote`를 제자리에서 고친다.
+ */
+export function boundPreviousCloseToCut({ bySym, bySymQuote, cycleEnd } = {}) {
+  const cutMs = Date.parse(cycleEnd);
+  const adjusted = [];
+  const dropped = [];
+  for (const [sym, quote] of Object.entries(bySymQuote || {})) {
+    if (!quote || quote.observationRelation !== 'previous-completed-close') continue;
+    const stamp = Date.parse(quote.observedAt || '');
+    if (!Number.isFinite(stamp) || !Number.isFinite(cutMs) || stamp <= cutMs) continue;
+    const fallback = quote.previousBarOpenedAt || null;
+    if (!fallback || !(Date.parse(fallback) <= cutMs)) {
+      if (bySym) bySym[sym] = null;
+      delete bySymQuote[sym];
+      dropped.push(sym);
+      continue;
+    }
+    bySymQuote[sym] = { ...quote, observedAt: fallback, observedAtBoundary: 'previous-bar-open', observedAtCandidate: quote.observedAt };
+    adjusted.push({ sym, from: quote.observedAt, to: fallback });
+  }
+  return { adjusted, dropped };
 }
 
 // v52.50/WO-3: direct-run guard (같은 패턴을 이미 backtest-trading-score.mjs 등이 씀) — 이 파일은

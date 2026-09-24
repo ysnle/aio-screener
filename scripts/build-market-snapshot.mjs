@@ -199,6 +199,10 @@ export function buildMarketSnapshot({ quotes = [], attemptedAt = new Date().toIS
         ? Number(raw.regularMarketChangePercent ?? raw.changePct ?? raw.pct)
         : null,
       unit: instrument.unit,
+      // W03-C/P1183: identity fields come from the registry the validator checks
+      // against — valueKind travels with metricId/unit instead of being re-derived
+      // (or silently dropped) at the boundary.
+      valueKind: instrument.valueKind,
       source: String(raw.source || raw._source || source),
       sourceKind: String(raw.sourceKind || raw.sourceTier || 'public-information-service'),
       observedAt,

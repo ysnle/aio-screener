@@ -145,3 +145,22 @@ table/chart/sector의 weight basis를 명시한다. 별도로 현재 `서버 전
 ## 8. 구현 에이전트 요청
 
 > 현재 portfolio surface v3와 위 인수조건을 대조하고 미충족 경계만 보강한다. W02-A/B를 역사적 v2 처방 그대로 재구현하지 않는다. 저장·잠금·복구는 11의 durable 상태/통화와 함께 검증한다. W02-C 전송 문구는 실제 payload 조사 후 판단한다. 저장소 교체 필요성은 19의 계약·migration 기준으로 결정하며 자동 커밋·푸시·배포하지 않는다.
+
+## 9. 2026-09-23 독립 감사 보강 — 현재 평가 구성과 시뮬레이션 구성
+
+[현재성 정본](25-CURRENT-FINDING-STATUS-CROSSWALK.md)에서 P01–P04의 특정 반증 차단 상태와 이번 R24-05/06A 잔여를 구분한다. 전환 순서와 공통 인수 증거는 [26 실행·인수 계획](26-EXECUTION-AND-ACCEPTANCE-PLAN.md)을 따른다.
+
+[독립 감사 R24-05/06A](24-INDEPENDENT-STRUCTURAL-REVIEW-20260923.md)의 포트폴리오 누락 문제는 현재 계좌 평가와 과거 시뮬레이션에서 각각 다른 상태로 표현한다. 현재 평가의 부분 시세는 `valuationState=partial`이고, 백테스트 기간의 의도 보유 종목 가격 이력 누락은 [22·23의 실행 차단 계약](22-PORTFOLIO-PERFORMANCE-RISK-REDESIGN.md)을 따른다. 두 경우 모두 알려진 종목이나 일부 기간을 제거한 뒤 나머지를 완전한 총액·총비중으로 만들지 않는다.
+
+평가 화면은 읽기 상태와 보유 구성의 완전성, 시세 평가 상태를 따로 보존한다. Vault에서 보유 종목 목록을 읽은 결과가 확정된 경우 각 보유 멤버는 `valued`, `price-missing`, `identity-unresolved`, `currency-blocked` 중 하나의 상태와 사유를 갖는다. quote provider가 특정 행을 반환하지 않았다는 이유만으로 해당 종목이 계좌에서 삭제됐다고 보지 않는다. `holdingsKnown=false`와 `holdingsKnown=true, holdings=[]`는 계속 구별한다.
+
+화면은 평가 완료와 평가 확인분의 부분합을 분리한다. 부분합을 표시하면 `확인된 평가액`으로 이름 붙이고 총자산·분모·비중으로 재사용하지 않는다. 누락 종목 수, 합산에서 막힌 이유, 관측 시각과 재시도 동선을 표시한다. 통화 변환 누락도 가격 누락과 똑같이 완전 평가를 막으며 상세 전달 계약은 11을 따른다.
+
+인수 보강:
+
+1. 확정 보유 `[AAA, BBB]` 중 BBB quote가 없으면 구성원 수는 2, 평가 상태는 partial/unavailable이고 완전 총자산·총손익·전체 비중은 숫자로 제시하지 않는다. AAA 단독 구성으로 자동 축소하지 않는다.
+2. 같은 입력에서 Vault가 명시적으로 빈 목록을 반환하면 빈 계좌로 표현하고, Vault read 실패나 잠김은 빈 계좌로 바꾸지 않는다.
+3. quote tick만 바뀐 뒤에도 보관된 이전 valuation snapshot과 계산 설명은 유지한다. 새 관측은 새 `valuationSnapshotId`로 생성하며 과거 결과를 제자리에서 덮지 않는다.
+4. `positionValue=0`, `totalAssets=0`, unknown 금액, 부분 평가 확인분을 분리하고 비율 분모가 없으면 비율을 표시하지 않는다.
+
+이번 보강은 R24-05의 정적 백테스트 경로 확인을 현재 계좌의 실제 손실이나 저장 종목 삭제 사례로 확대하지 않는다. 저장·Vault 복구, 실제 quote 장애, 화면 보조공학 인수는 해당 증거를 확보하기 전까지 미검증이다.

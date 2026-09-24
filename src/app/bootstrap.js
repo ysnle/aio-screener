@@ -41,6 +41,7 @@ import {
   _pearsonCorr,
   _calcCorrelationMatrix
 } from '../domain/portfolio/backtest.js';
+import { createCompositionSnapshot, deriveRiskEstimate, assessAccountPerformance } from '../domain/portfolio/risk.js';
 import { computeFactorRanks } from '../domain/screener/factor-ranks.js';
 import { deriveFactorWeights } from '../domain/screener/factor-weights.js';
 import { captureScreenRun, createDefaultScreenDefinitions, replayScreenRun, runScreen } from '../domain/screener/screen-engine.js';
@@ -62,6 +63,11 @@ import { createPortfolioOrchestrator } from '../data/orchestrators/portfolio.js'
 import { createScreenerProvider } from '../data/providers/screener.js';
 import { createScreenerOrchestrator } from '../data/orchestrators/screener.js';
 import { createRuntimeReaders } from '../data/runtime-readers.js';
+import { PORTFOLIO_ASSUMPTION_KEYS, EXPOSURE_PATHS, REBALANCE_POLICIES, normalizeCurrencyCode, normalizeAnnualRate, normalizeExposurePath, normalizeRebalancePolicy, readPortfolioAssumptions } from '../data/portfolio-assumptions.js';
+import { LEDGER_COVERAGE_INPUTS, appendLedgerTransaction, appendLedgerValuation, ledgerCoverageState, normalizeLedger, removeLedgerEntry as removeLedgerEntryFromLedger, setLedgerCoverage as setLedgerCoverageOnLedger, setLedgerFlowTiming as setLedgerFlowTimingOnLedger } from '../data/portfolio-ledger.js';
+import { FX_LEG_MAX_AGE_MS, appendFxLeg, fxLegsState, normalizeFxLegs, removeFxLeg } from '../domain/portfolio/fx.js';
+import { applyFxPanel, applyLedgerPanel, clearDeclaredFields, readDeclaredFields, showDeclarationStatus } from '../ui/panels/portfolio-declarations.js';
+import { createDeclarationsStore } from '../data/portfolio-declarations-store.js';
 import { buildEvidenceContext } from '../ai/context-builder.js';
 import { createEvidenceRetriever } from '../ai/retrieval/evidence.js';
 import { createAIKnowledgeRetriever } from '../ai/retrieval/knowledge.js';
@@ -83,6 +89,32 @@ if (typeof window !== 'undefined') {
   window.AIO = window.AIO || {};
   window.AIO.buildPortfolioBacktestLab = buildPortfolioBacktestLab;
   window._aioBuildPortfolioBacktestLab = buildPortfolioBacktestLab;
+  // 22 W22-I/W22-J (E4): the risk/performance surfaces consume the declared
+  // domain contract — composition snapshot, risk path, account-performance hold.
+  window._pfCreateCompositionSnapshot = createCompositionSnapshot;
+  window._pfDeriveRiskEstimate = deriveRiskEstimate;
+  window._pfAssessAccountPerformance = assessAccountPerformance;
+  // E3/P1188: the classic-shell form is the writer for the declared currency /
+  // cash-return / RF inputs; it consumes the same keys and normalizers the
+  // reader uses, so the two ends cannot drift (R632).
+  window._pfPortfolioAssumptions = { keys: PORTFOLIO_ASSUMPTION_KEYS, exposurePaths: EXPOSURE_PATHS, rebalancePolicies: REBALANCE_POLICIES, normalizeCurrencyCode, normalizeAnnualRate, normalizeExposurePath, normalizeRebalancePolicy, read: readPortfolioAssumptions };
+  // E4/P1191: 원장의 유효성·병합은 ESM 모듈이 소유하고, 셸은 DOM과 Vault 쓰기만 맡는다.
+  window._pfPortfolioLedger = {
+    inputs: LEDGER_COVERAGE_INPUTS,
+    normalize: normalizeLedger,
+    appendTransaction: appendLedgerTransaction,
+    appendValuation: appendLedgerValuation,
+    remove: removeLedgerEntryFromLedger,
+    setCoverage: setLedgerCoverageOnLedger,
+    setFlowTiming: setLedgerFlowTimingOnLedger,
+    coverageState: ledgerCoverageState
+  };
+  // E3/P1194 (11 §23): 선언된 FX leg의 유효성·환산 근거는 도메인 모듈이 소유하고, 셸은 DOM과 저장만 맡는다.
+  window._pfPortfolioFx = { maxAgeMs: FX_LEG_MAX_AGE_MS, normalize: normalizeFxLegs, appendLeg: appendFxLeg, removeLeg: removeFxLeg, legsState: fxLegsState };
+  // P1195: 선언 패널의 마크업·ack 문구는 네이티브가 소유한다 — 셸은 저장 경로와 순서만 남긴다.
+  // P1199: 선언 저장소의 *형태*(읽기 규칙·ack 분리)는 네이티브가 소유하고, 셸이 저장 정책(경로)을 주입한다.
+  window._pfDeclarationsStore = { create: createDeclarationsStore };
+  window._pfDeclarationPanels = { applyLedgerPanel, applyFxPanel, showDeclarationStatus, readDeclaredFields, clearDeclaredFields };
 }
 import { renderSentimentSummaryProjection } from '../ui/projections/sentiment-summary.js';
 import { createInitialAnalysisState, analysisReducer, ANALYSIS_DATA_CLEAR, ANALYSIS_DATA_SET } from '../state/slices/analysis.js';

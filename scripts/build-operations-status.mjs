@@ -207,6 +207,21 @@ async function syncPublicAiConfig({ appRevision, workerEndpoint, proxyHealthy, p
   return config;
 }
 
+/**
+ * P1189: `providers.<name>.status` is validated against OPERATIONS_STATUS. This
+ * field used to publish 'UNAVAILABLE' — a RIGHTS_STATUS/FEATURE_AVAILABILITY word
+ * with no operations meaning (the P1091 two-axes confusion) — so
+ * validateOperationsStatus rejected the artifact and fetch-data.mjs aborted
+ * before writing operations-status/public-config. Every cycle where FRED was not
+ * fully fetched died, including the keyless LKG cycle that
+ * ci-refresh-artifact-integrity-check explicitly allows. An operator must
+ * configure a missing key; a configured provider that did not fetch is BLOCKED.
+ */
+export function deriveFredProviderStatus({ fetchOk, keyPresent } = {}) {
+  if (fetchOk === true) return 'CURRENT';
+  return keyPresent === true ? 'BLOCKED' : 'OPERATOR_REQUIRED';
+}
+
 export function deriveDurableFreshness({ data = {}, marketSnapshot = {}, now = new Date().toISOString() } = {}) {
   const generatedAt = data?.meta?.generatedAt || marketSnapshot?.generatedAt || null;
   const generatedMs = Date.parse(generatedAt || '');
@@ -428,6 +443,8 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
     && fastEvidence.proxyAuthorityReady === true
     && fastEvidence.proxyAuthorityJurisdiction === 'us';
   const fredObserved = data?.meta?.fredFetchOk === true;
+  const fredConfigured = !!(process.env.FRED_API_KEY || fredObserved);
+  const fredProviderStatus = deriveFredProviderStatus({ fetchOk: data?.meta?.fredFetchOk === true, keyPresent: fredConfigured });
   const blockers = [];
   if (!durableOk) blockers.push('durable_tier0_publish_blocked');
   if (!durableFreshness.fresh) blockers.push('durable_market_cycle_stale');
@@ -566,9 +583,9 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
     providers: {
       yahoo: { rights: 'REVIEW_REQUIRED', statusCode: 'RIGHTS_REVIEW_REQUIRED', use: 'reference', lastFetchAt: data?.meta?.generatedAt || null },
       fred: {
-        rights: (process.env.FRED_API_KEY || fredObserved) ? 'REVIEW_REQUIRED' : 'OPERATOR_REQUIRED', statusCode: (process.env.FRED_API_KEY || fredObserved) ? 'RIGHTS_REVIEW_REQUIRED' : 'NOT_CONFIGURED',
+        rights: fredConfigured ? 'REVIEW_REQUIRED' : 'OPERATOR_REQUIRED', statusCode: fredConfigured ? 'RIGHTS_REVIEW_REQUIRED' : 'NOT_CONFIGURED',
         use: 'official-series',
-        status: data?.meta?.fredFetchOk ? 'CURRENT' : 'UNAVAILABLE',
+        status: fredProviderStatus,
         lastAttemptAt: data?.meta?.fredAttemptedAt || data?.meta?.generatedAt || null,
         lastFetchAt: data?.meta?.fredFetchOk ? (data?.meta?.fredLastSuccessfulAt || data?.meta?.generatedAt || null) : null
       },

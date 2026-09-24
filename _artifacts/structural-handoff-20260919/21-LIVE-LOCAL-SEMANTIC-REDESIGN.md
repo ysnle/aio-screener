@@ -107,3 +107,99 @@ QQQ 버튼을 누르면 상세 RSI65.7·Stage2·기관급후보78/100·진입B�
 ## 이번 증분에서 남긴 미검증
 
 모든 버튼·대화상자·검색결과·기관·학습장·주문 전략의 조합은 미검수다. 브라우저 오류가 없었다는 주장도 하지 않는다. AI 실답변/개인키/유료 API는 실행하지 않았다. 라이브 현재 배포SHA, SW 업데이트 중 old/new 혼합, 모바일 및 키보드 전수, 사용자 과업 실험은 후속 범위다. 20개 경계 방문 완료를 금융 논리 전체 인증으로 올리지 않는다.
+
+## 2026-09-23 B01–B04 상태와 독립 재검증 계획
+
+상위 상태 판정은 [25](25-CURRENT-FINDING-STATUS-CROSSWALK.md), 실행 순서는 [26](26-EXECUTION-AND-ACCEPTANCE-PLAN.md)를 따른다. 이 문서의 9/22 화면 관찰은 과거 기준선이다. 9/23 v56.15 live/local 화면이 같다고 추정하지 않는다.
+
+| 발견 | 최신 상태 | 닫힌 세부 | 미완료 범위 |
+|---|---|---|---|
+| B01 | **부분 구현, 공통 의미 경로 열림** | P1143이 sentiment의 단일 ViewModel/revision·writer를 적용했다. P1164가 null→0 클래스의 다수 threshold/action/readout 경계를 고치고 headless 반증을 추가했다. | 모든 surface의 result/projection owner, AI evidence reuse, SEC-only card parity, browser mini-bar/late response의 현재 의미 인수는 남는다. |
+| B02 | **부분 구현, 종목 결과 통합 열림** | P1164가 HYG/VIX null operand의 exception 및 HYG 가격을 신용 스프레드로 부르는 오표시를 고쳤고 호출 경계를 보강했다. | 종목·기간·adjustment·series revision이 chart, 지표, 해석과 같은 run인지, SPY/QQQ/AAPL 역순 요청과 live 입력의 사용자 인수는 남는다. |
+| B03 | **부분 구현, window completeness 열림** | P1164가 창 밖 기사만 있을 때 out-of-window 건수를 보존하고 null F&G/VIX 일부 동작을 보강했다. | 일정의 verified-empty와 failed/missing/stale를 구분하는 도메인 증거, 실제 producer/consumer freshness·공급자 회복 trace는 미인수다. |
+| B04 | **부분 구현, 보관·Why 인수 열림** | P1164가 용어를 `조건 적용 전 계산 가능`로 좁히고 P1165가 같은 definition/snapshot preview를 실행과 맞췄다. | P1165 회귀 fixture는 3 preset·모두 unavailable이어서 6 preset과 정상 결과 집합의 동등성을 입증하지 못한다. 저장/복원/신규 run, Why의 실제 factor 계산 정의도 남는다. |
+
+P1164/P1165의 합성/headless/browser 게이트 PASS는 해당 코드 경계의 evidence다. 전체 20 route 최신 live parity나 모든 행의 금융 의미를 인증하지 않는다. P1165는 `12-U01`의 일부 계산 불일치를 닫았으므로 이를 미해결 버그로 중복 구현하지 말고 남은 인수만 수행한다.
+
+### 재사용할 사용자 표현 모델
+
+19의 observation/result/claim을 원본으로 두고, B01–B04의 UI는 동일한 projection envelope를 사용한다.
+
+```ts
+type SurfaceRun = {
+  routeId: string;
+  resultId: string;
+  scope: { instrumentId?: string; populationId?: string; reportPeriod?: string };
+  definitionHash?: string;
+  inputRevision: string;
+  modelVersion: string;
+  requestId?: string;
+  availability: 'loading' | 'ready' | 'partial' | 'missing' | 'failed';
+  eligibility: 'eligible' | 'reference_only' | 'stale' | 'incompatible' | 'insufficient';
+  observedAt: string | null;
+  evidenceIds: string[];
+  reasonCodes: string[];
+};
+```
+
+값, badge, chart, Why, AI citation은 같은 `resultId + inputRevision`을 가리킨다. 다른 범위나 시점의 숫자를 보여줄 때는 `scope`/관측시각을 눈에 띄게 다르게 표시한다. `ready`는 데이터 수신 성공이지 통과/추천/투자 적합을 뜻하지 않는다. `missing`은 0·하락·위험 구간을 만들지 않는다. chart draw failure는 유효 series의 부재와 별도 `presentation failure`다.
+
+### 구현/배포 전환과 사용자 의미
+
+각 B 단위는 먼저 모든 writer, downstream reader, archive/replay 소비자를 맵핑한다. 새 projection을 구형 결과와 shadow 비교하고 mismatch를 scope/value/time/evidence/reason별로 분류한다. flag는 domain owner 단위로 한 번에 하나만 전환한다. 새 UI가 부분 실패해도 유효했던 기존 run으로 돌아갈 수 있게 직전 compatible result를 보존한다. 새 data generation을 구형 model에 끼워 넣거나 이전 결과의 `asOf`를 앞으로 당기지 않는다.
+
+- B01: 값·배지·해설·AI 인용에 같은 run ID를 상세 영역에서 확인한다. 이용자는 `관측/참고/계산 사용 여부/결측 이유`를 설명할 수 있어야 한다.
+- B02: 선택 종목·시장 benchmark·timeframe을 각 영역 제목 가까이 둔다. QQQ 상세가 SPY 상단 요약을 바꾸지 않는다면 상단을 `시장 참고: SPY`라고 명시한다. chart·indicator·narrative가 한 종목 결과를 공유하는지 확인한다.
+- B03: `수집 시각`, `내용의 관측 기간`, `현재 사용 가능성`을 분리한다. verified-empty만 0건으로 말하고 fetch failed/missing은 `확인 불가`로 안내한다.
+- B04: `조회 대상 → 계산 가능 → 조건 통과/제외/판정 불가`를 같은 run과 분모로 표현한다. 참고 값은 값이 있어도 조건에 부적격일 수 있음을 사유로 설명한다.
+
+### 독립 실브라우저 trace manifest
+
+각 route/action 결과는 JSONL step log와 manifest, PNG 또는 접근성 snapshot으로 보존한다. 비밀값·개인자료·API key는 저장하지 않는다. manifest는 최소 아래 필드를 갖는다.
+
+```json
+{
+  "traceId": "opaque-id",
+  "capturedAtUtc": "ISO-8601",
+  "capturedAtKst": "ISO-8601+09:00",
+  "environment": "live|local",
+  "routeId": "registered-route-id",
+  "viewport": { "width": 1280, "height": 720, "scale": 1 },
+  "browser": { "name": "", "version": "" },
+  "sourceSha": "git-sha-or-unknown",
+  "deploymentSha": "deployment-sha-or-unknown",
+  "appVersion": "v56.15",
+  "serviceWorkerRevision": "revision-or-none",
+  "dataRevisions": {},
+  "providerMode": "live|blocked|fixture|mixed",
+  "actions": [],
+  "screenshots": [],
+  "consoleErrors": [],
+  "networkSummary": [],
+  "accessibilityEvidence": "not-run|automated-id|manual-id"
+}
+```
+
+`sourceSha`와 `deploymentSha`는 다른 필드다. 알 수 없으면 unknown으로 기록하고 같다고 채우지 않는다. 각 action에 시작/완료시각, 전/후 route, 선택 entity, definitionHash, snapshot/result/request/projection ID, 화면 text/accessibility state, screenshot ID를 붙인다. network summary는 hostname/status/timing/revision만 저장하고 query secret/token/body PII를 제외한다. console 전문의 사용자 개인정보를 제거한다. 실패해도 사용자가 수행한 action과 중단 지점을 기록한다.
+
+세션은 live/local을 별도 trace로 기록한 뒤 같은 사전 정의 scenario step을 기준으로 비교한다. 새 trace에서는 20 route 경계 방문과 B01–B04 주요 interaction trace를 구분한다. route 진입만 된 페이지를 깊은 기능 시험으로 표시하지 않는다. PNG/JSONL, trace manifest, SHA/hash 목록을 같은 evidence 디렉터리에 보존해야 독립 재검토가 가능하다.
+
+### B01–B04 대표 trace/fixture 집합
+
+| Run | 조작 순서 | 핵심 증거/실패 조건 |
+|---|---|---|
+| `B01-state-fanout` | 유효 0→관측값→null→timeout→복구, tab 이탈/재진입, 늦은 응답 | card/badge/why/AI evidence가 같은 resultId를 쓰는지; null에서 남은 수치/위기문장은 실패 |
+| `B02-instrument-race` | SPY→QQQ→AAPL 요청, 응답 역순; 251봉·부분봉·history failure·chart draw failure | chart/indicator/narrative의 instrument/timeframe/revision; 이전 requestId overwrite 또는 null 예외는 실패 |
+| `B03-window-completeness` | 오늘 0건+완전 fetch, 오늘 0건+fetch failure, 창 밖 8건, retry | verified-empty만 `오늘 없음`; 다른 경우 old count/미확보·실패를 분리 |
+| `B04-preset-valid-set` | 6개 preset 각각 선택→preview→execute→archive→restore→new run, 정상 pass/exclude/unknown row 혼합 | 같은 key에서 preview/run 집합 동일; denominator, built-in/user conditions, factor raw/normalization/weight semantics 모두 읽힘 |
+
+각 trace에 긍정 대조와 반례를 넣는다. B02 chart는 실제 series가 있을 때 정상 그려지고, B04는 정상 통과 행 하나를 반드시 가져야 `모두 unavailable이라 PASS`인 무력한 gate가 되지 않는다. browser test는 12의 첫 이용자 과업/접근성 프로토콜을 이어서 수행한다.
+
+### 인수 판정 순서와 잔여
+
+1. 입력/data/result identity와 domain fixture를 먼저 통과시킨다.
+2. trace로 visual text·accessible text·reason/evidence·run ID를 의미 검수한다.
+3. 12의 사용자 이해도와 keyboard/screen-reader/zoom 수동 인수를 수행하고 발견을 route+trace step에 연결한다.
+4. 라이브/로컬의 `deploymentSha`, provider mode, data revision 차이를 설명한 뒤 기능 parity를 판정한다.
+
+금융 모델의 예측력, 전체 기업행동/PIT universe, AI 모델 품질, 전 20 route 모든 하위 interaction, 원격 30일 운영 신뢰성은 각각 별도 evidence가 생길 때까지 미검증으로 남긴다.

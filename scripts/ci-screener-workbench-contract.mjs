@@ -626,6 +626,135 @@ async function run() {
   assert(!unprovenConflict.admissible && unprovenConflict.reason === 'quote-currency-conflict-without-identity-proof',
     'P1174 G-SCR-QUOTE-ATOMIC: a conflicting currency stays rejected without identity proof');
 
+  // ── P1180 (24 R24-04 / 07 W07-G): observationSetId · calculationInputId · resultId 분리 ──
+  // ① 관측 정체성 = 도착한 관측 집합. live mcap이 채택돼도(행·중첩 readiness가 바뀌어도)
+  //    observation identity는 움직이지 않는다 — 24가 합성 재현한 반증(snapshotId 3bef→352b).
+  {
+    const mcapRead = async (marketCap) => createScreenerProvider({
+      httpClient: { requestJson: async (requestUrl) => ({ ok: true, data: requestUrl.includes('screener-universe') ? d06Universe : requestUrl.includes('model-validation') ? modelFixture : d06Artifact }) },
+      readLiveData: () => ({ AAPL: { ...d06Quote({ currency: 'USD' }).AAPL, marketCap } }),
+      clock: { now: () => Date.parse('2026-08-26T00:00:00Z') }
+    }).readCurrent();
+    const mcapSmall = await mcapRead(1e9);
+    const mcapLarge = await mcapRead(10e9);
+    assert(mcapSmall.rows[0].mcap === 1 && mcapLarge.rows[0].mcap === 10,
+      'P1180 G-SCR-IDENTITY: fixture adopts the live market cap so the identity check discriminates',
+      [mcapSmall.rows[0].mcap, mcapLarge.rows[0].mcap]);
+    assert(stableHash(snapshotIdentityRows(mcapSmall.rows)) === stableHash(snapshotIdentityRows(mcapLarge.rows)),
+      'P1180 G-SCR-IDENTITY: a live mcap tick (including nested readiness) cannot move the row observation projection');
+    assert(mcapSmall.snapshotId === mcapLarge.snapshotId,
+      'P1180 G-SCR-IDENTITY: a live mcap tick cannot move the observation set identity',
+      [mcapSmall.snapshotId, mcapLarge.snapshotId]);
+  }
+  // ② publication member revision도 관측 집합이다 — 행 값이 그대로여도 model-validation revision이
+  //    바뀌면 observation identity가 갈라져야 07 fixture "model validation 변경 → 해당 ID 단계 변경".
+  {
+    const mvRead = async (observedAt) => createScreenerProvider({
+      httpClient: { requestJson: async (requestUrl) => ({ ok: true, data: requestUrl.includes('screener-universe') ? d06Universe : requestUrl.includes('model-validation') ? { schemaVersion: 'model-validation.v1', status: 'BLOCKED', observedAt } : d06Artifact }) },
+      readLiveData: () => ({}),
+      clock: { now: () => Date.parse('2026-08-26T00:00:00Z') }
+    }).readCurrent();
+    const mvOld = await mvRead('2026-08-13T00:00:00+09:00');
+    const mvNew = await mvRead('2026-08-20T00:00:00+09:00');
+    assert(stableHash(snapshotIdentityRows(mvOld.rows)) === stableHash(snapshotIdentityRows(mvNew.rows)),
+      'P1180 G-SCR-IDENTITY: the model-validation revision does not touch any row value');
+    assert(mvOld.snapshotId !== mvNew.snapshotId,
+      'P1180 G-SCR-IDENTITY: a model-validation revision change still moves the observation identity',
+      [mvOld.snapshotId, mvNew.snapshotId]);
+  }
+  // ③ 계산 정체성 = 관측 + 정의 + 엔진 + factor 입력 정책 + 실제로 소비한 live 키.
+  //    live_capture에서 mcap tick은 새 계산 입력/새 resultId를 만들고, display-only 오버레이는
+  //    만들지 않는다(07: "계산에 소비하지 않은 UI-only quote 오버레이는 계산 입력 해시에 넣지 않는다").
+  {
+    const baseInput = { definition, rows, snapshotId: 'fixture-snapshot', providerSet: ['fixture'] };
+    const baseRun = runScreen(baseInput);
+    const rerun = runScreen(baseInput);
+    assert(baseRun.run.calculationInputId && baseRun.run.factorInputPolicy === 'live_capture'
+      && baseRun.run.calculationInputId === rerun.run.calculationInputId && baseRun.resultHash === rerun.resultHash,
+      'P1180 G-SCR-CALCID: identical observation set, definition and engine produce one calculation identity',
+      baseRun.run.calculationInputId);
+    const mcapTicked = runScreen({ ...baseInput, rows: rows.map((row) => ({ ...row, mcap: (row.mcap || 100) * 10 })) });
+    assert(mcapTicked.run.calculationInputId !== baseRun.run.calculationInputId,
+      'P1180 G-SCR-CALCID: under live_capture a live mcap tick mints a new calculation input identity');
+    assert(mcapTicked.resultHash !== baseRun.resultHash,
+      'P1180 G-SCR-CALCID: the mcap-driven calculation identity change flows into a new result identity');
+    const diagTicked = runScreen({ ...baseInput, rows: rows.map((row) => ({ ...row, liveQuoteDiagnostic: { diagnosticPrice: row.price + 7 }, livePriceRejectedReason: 'fixture-tick', priceCurrencyConflict: true, nativeMarketCap: { value: 42, currency: 'USD' } })) });
+    assert(diagTicked.run.calculationInputId === baseRun.run.calculationInputId && diagTicked.resultHash === baseRun.resultHash,
+      'P1180 G-SCR-CALCID: display-only overlay ticks cannot mint a calculation identity');
+    const otherDefinition = createScreenDefinition({ ...definition, screenId: 'fixture-screen-b' });
+    const otherRun = runScreen({ ...baseInput, definition: otherDefinition });
+    assert(otherRun.run.calculationInputId !== baseRun.run.calculationInputId && otherRun.run.snapshotId === baseRun.run.snapshotId,
+      'P1180 G-SCR-CALCID: a definition change separates calculation identity from observation identity');
+    const priceDefinition = createScreenDefinition({
+      screenId: 'price-read-screen', name: 'Price read', objective: 'contract-test',
+      filtersAST: { type: 'range', field: 'price.close', min: 0, nullPolicy: 'unknown' },
+      requiredFields: ['price.close']
+    });
+    const priceBase = runScreen({ definition: priceDefinition, rows, snapshotId: 'fixture-snapshot' });
+    const priceTicked = runScreen({ definition: priceDefinition, rows: rows.map((row) => ({ ...row, price: (row.price || 100) + 1, priceRevision: 'fixture-price-tick' })), snapshotId: 'fixture-snapshot' });
+    assert(priceBase.run.calculationInputId !== priceTicked.run.calculationInputId,
+      'P1180 G-SCR-CALCID: a definition that reads price consumes the live price envelope into its identity');
+  }
+  // ④ 기존 capture의 저장 ID·결과는 보존한다 — screen-engine.v5 record는 legacy_identity_semantics로
+  //    자기 공식에서 검증되고, 변조는 여전히 content hash로 거부된다.
+  {
+    const legacyResult = runScreen({ definition, rows, snapshotId: 'legacy-fixture', providerSet: ['fixture'], engineVersion: 'screen-engine.v5', legacyResultIdentity: true });
+    assert(legacyResult.run.calculationInputId == null && legacyResult.run.factorInputPolicy == null,
+      'P1180 G-SCR-REPLAY: legacy runs keep their original identity shape');
+    assert(validateScreenRun(legacyResult.run).ok,
+      'P1180 G-SCR-REPLAY: legacy runs remain valid under legacy_identity_semantics', legacyResult.run);
+    const legacyRecord = JSON.parse(JSON.stringify({
+      schemaVersion: 'screener-run-record.v1',
+      definition, rows, snapshotId: 'legacy-fixture', providerSet: ['fixture'], metadata: {},
+      engineVersion: 'screen-engine.v5',
+      run: legacyResult.run
+    }));
+    legacyRecord.contentHash = stableHash(legacyRecord);
+    const replayedLegacy = replayScreenRun(legacyRecord);
+    assert(replayedLegacy.resultHash === legacyResult.resultHash && replayedLegacy.run.calculationInputId == null,
+      'P1180 G-SCR-REPLAY: a screen-engine.v5 record replays under its own stored semantics');
+    let legacyTamperRejected = false;
+    try { replayScreenRun({ ...legacyRecord, rows: [{ ...legacyRecord.rows[0], ret3m: -999 }] }); } catch (_) { legacyTamperRejected = true; }
+    assert(legacyTamperRejected, 'P1180 G-SCR-REPLAY: tampering a legacy record still fails its content hash');
+  }
+  // ⑤ 6 preset에 유효한 ranked/pass/fail/unavailable 행 — preview=execute, Why 설명, 저장/replay.
+  {
+    const goodRow = fixtureRow('PGOOD', 'US', 0);
+    const badRow = { ...fixtureRow('PFAIL', 'US', 5), rank: 10, ret3m: -8, ret1m: -5, pctSma50: -6, pctSma200: -9, vol: 60, roe: -3, margin: -12, revGrowth: -20, vcpScore: 5, rvol20: 0.3, kalmanVel: 0.1, ema8: 90, ema21: 95 };
+    const gapRow = fixtureRow('PGAP', 'US', 9);
+    const gapRequired = ['price.ret1m', 'price.ret3m', 'price.pctSma50', 'price.pctSma200', 'price.rsi14', 'price.volatility', 'price.rvol20', 'quality.roe', 'quality.margin', 'quality.revGrowth', 'technical.kalmanVelocity', 'technical.vcpScore', 'technical.ema8', 'technical.ema21'];
+    const gapRowKeys = new Set(gapRequired.map((fieldId) => SCREENER_FIELD_REGISTRY.get(fieldId)?.rowKey).filter(Boolean));
+    for (const rowKey of gapRowKeys) gapRow[rowKey] = null;
+    gapRow.fieldReadiness = {
+      ...gapRow.fieldReadiness,
+      fields: Object.fromEntries(Object.entries(gapRow.fieldReadiness.fields)
+        .map(([fieldId, field]) => gapRequired.includes(fieldId) ? [fieldId, { ...field, value: null, status: 'MISSING' }] : [fieldId, field]))
+    };
+    const presetRows = [goodRow, badRow, gapRow];
+    for (const preset of createDefaultScreenDefinitions()) {
+      const input = { definition: preset, rows: presetRows, snapshotId: 'preset-valid-set', providerSet: ['fixture'] };
+      const preview = runScreen(input);
+      const executed = runScreen(input);
+      assert(preview.resultHash === executed.resultHash && preview.run.calculationInputId === executed.run.calculationInputId,
+        `P1180 G-SCR-PRESET: preview and execute agree for ${preset.screenId}`);
+      const symbolOf = (row) => row.sym || row.symbol;
+      assert(preview.passed.some((row) => symbolOf(row) === 'PGOOD' && row.screenRank != null),
+        `P1180 G-SCR-PRESET: ${preset.screenId} yields a ranked passing row`);
+      assert(preview.rejected.some((row) => symbolOf(row) === 'PFAIL'),
+        `P1180 G-SCR-PRESET: ${preset.screenId} yields a rejected row`);
+      assert(preview.unavailable.some((row) => symbolOf(row) === 'PGAP'),
+        `P1180 G-SCR-PRESET: ${preset.screenId} yields an unavailable row`);
+      const goodExplanation = preview.rows.find((row) => symbolOf(row) === 'PGOOD')?.rankExplanation;
+      assert(goodExplanation && goodExplanation.status === 'explained' && goodExplanation.instrumentId
+        && Array.isArray(goodExplanation.passedGates) && Array.isArray(goodExplanation.missingEvidence),
+        `P1180 G-SCR-PRESET: ${preset.screenId} Why explanation is present for the passing row`);
+      const record = captureScreenRun(input, executed);
+      const replayed = replayScreenRun(JSON.parse(JSON.stringify(record)));
+      assert(replayed.resultHash === executed.resultHash && replayed.run.calculationInputId === executed.run.calculationInputId,
+        `P1180 G-SCR-PRESET: ${preset.screenId} save/replay reproduces the stored calculation identity`);
+    }
+  }
+
   // 수익률 비교 계약 — 문서의 네 산술 fixture와 그 반대 방향.
   const fxConverted = convertReturnToBaseCurrency({ localReturn: 0.10, fxStart: 1000, fxEnd: 900, fxDirection: 'base-per-local' });
   assert(Math.abs(fxConverted.value + 0.01) < 1e-12, 'P1174 G-SCR-RETURN: +10% local with a -10% currency is -1%, not a 0% sum');
@@ -683,7 +812,8 @@ async function run() {
     yieldImpl: async () => { preparationYields++; Object.values(liveBatch).forEach(row => { row.price = 999; }); }
   }).readCurrent();
   assert(preparationYields >= 2 && batchOutput.rows.every(row => row.price === 110), 'G-SCR-SNAPSHOT: chunked preparation preserves one quote cut across yielding');
-  assert(batchOutput.snapshotId === `screener-snapshot-${referenceHash({ revision: batchArtifact.asOf, source: batchArtifact.source, rows: snapshotIdentityRows(batchOutput.rows) })}`, 'P1177 G-SCR-HASH: provider snapshot retains the pre-optimization content identifier over the artifact-derived row projection');
+  const referencePublicationRevisions = Object.fromEntries(batchOutput.metadata.publicationSet.members.map((entry) => [entry.member, entry.revision]));
+  assert(batchOutput.snapshotId === `screener-snapshot-${referenceHash({ revision: batchArtifact.asOf, source: batchArtifact.source, publicationRevisions: referencePublicationRevisions, rows: snapshotIdentityRows(batchOutput.rows) })}`, 'P1177/P1180 G-SCR-HASH: provider snapshot retains the content identifier over the artifact-derived row projection and publication revisions');
   const batchAbort = new AbortController();
   let cancelledBatch = false;
   try {

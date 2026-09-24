@@ -1813,12 +1813,6 @@ var SCR_KEYWORD_ALIASES = {
 };
 
 
-function renderScreenerResults() {
-  // ARX-10 compatibility hook: the native screener page owns this DOM.
-  try { document.dispatchEvent(new CustomEvent('aio:screener:render-request')); } catch (_) {}
-  return;
-}
-
 // ARX-10: native screener owns controls, table, factor panel, and backtest DOM.
 var AIO_TRADER_PROFILES = {
   balanced: { label:'⚖ 균형', desc:'레짐 기반 자동 가중 (권장)', weights:null },
@@ -5979,8 +5973,13 @@ async function _aioLoadServerData() {
     }
     // 6) P768/ARX-16: screener artifact는 native provider/orchestrator가 단일 fetch한다.
     // legacy loader는 native state의 metadata/breadth만 compatibility surface로 연결한다.
+    // P1186/E2 S-D: 여기서는 투영하지 않는다 — 단일 트리거는 aio:nativeScreenerReady 이벤트이고,
+    // 같은 state를 두 번 투영하면(이벤트 + 이 경로) 중복 렌더와 순서 역전 덮어쓰기가 생긴다.
+    // 이 경로가 필요한 것은 '투영'이 아니라 '이미 투영된 state가 있는가'의 확인이다.
     try {
-      if (!_aioApplyNativeScreenerState()) {
+      var nativeStateApplied = !!(window._aioScreenerLoadState && window._aioScreenerLoadState.status
+        && window._aioScreenerLoadState.status !== 'loading');
+      if (!nativeStateApplied) {
         window._aioScreenerLoadState = { status:'loading', checkedAt:Date.now(), detail:'native screener state pending' };
         if (window._serverDataMeta) {
           window._serverDataMeta.artifacts.screenerJson = 'pending';
@@ -15890,11 +15889,11 @@ _aioPageBus.register('data-page-activation', 'aio:pageShown', function(e) {
       }
     }, 500);
   }
-  // v51.08 BUG-1: 스크리너 첫 진입 시 빈 테이블 수정 — 랭킹 재계산 + 결과 렌더
+  // v51.08 BUG-1: 스크리너 첫 진입 시 빈 테이블 수정 — 랭킹 재계산
+  // (P1185/E2 S-A: 종전의 renderScreenerResults() 호출은 리스너 없는 이벤트 dispatch no-op이어서 제거했다)
   if (pageId === 'screener') {
     setTimeout(function(){
       try { if (typeof _aioComputeFactorRanks === 'function') _aioComputeFactorRanks(); } catch(_){}
-      try { if (typeof renderScreenerResults === 'function') renderScreenerResults(); } catch(_){}
     }, 200);
   }
   // v51.08: market-news 페이지 진입 시 뉴스 캐시 재렌더 (백스톱 포함)

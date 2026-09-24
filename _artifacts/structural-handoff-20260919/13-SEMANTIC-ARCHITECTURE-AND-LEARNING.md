@@ -2,6 +2,8 @@
 
 Astra 기획·설계 · 2026-09-21 · 기준 v56.01 / `2bf963a76c6f2fb1079166ce806beaaa820b1c6a`. 시작 시 tracked working tree clean. 실제 제품 코드 수정 없음. 이 문서는 기존 패키지의 오류 처방을 공통 구조로 연결하되, 하나의 대규모 재작성으로 실행하지 않는다.
 
+**v56.15 설계 보강:** [25 현재성](25-CURRENT-FINDING-STATUS-CROSSWALK.md)과 [26 실행 카드](26-EXECUTION-AND-ACCEPTANCE-PLAN.md)를 먼저 적용한다. 이 문서의 기존 result/run 흐름은 원칙이며, P1177 이후 확인된 live mcap 계산 입력 정체성, P1168의 pipeline/user 실행 이력 구분, 권리·개인 경계의 구체 필드는 아래 계약을 더한다.
+
 ## 해결하려는 근본 문제
 
 현재 시스템에는 evidence 계약, 순수 도메인 함수, screen run/replay, AI claim ledger, route scope, learning state가 이미 있다. 그러나 같은 결과에 대해 **계산은 도메인, 등급은 renderer, 행동 문장은 legacy, AI 설명은 별도 context**에서 결정할 수 있다. 각 부분이 정상 실행돼도 사용자는 서로 다른 의미를 받는다.
@@ -38,7 +40,11 @@ flowchart TD
 
 공통 실행 참조: runId, inputSnapshotId, instrument/universe identity, modelVersion, definitionVersion, calculationAt, 비교 기준.
 
+**입력 정체성은 두 단계다.** `artifactSnapshotId`는 불변 데이터 발행물의 관측 집합과 호환 버전을, `calculationInputId`는 실제 계산에 사용된 operand IDs/값·live revision·정의·유니버스·정책을 고정한다. `runId`는 calculationInputId와 결과/모형 버전에 연결한다. P1177의 top-level live 필드 제외는 거부 quote 진단의 churn을 막았지만 [24 R24-04](24-INDEPENDENT-STRUCTURAL-REVIEW-20260923.md)의 중첩 live mcap·size factor 반증까지 증명하지 않는다. 랭킹에 live 값이 쓰이면 새 계산 입력·새 run이어야 하며, 보관 run은 과거 artifact/result를 유지한다. live 값을 랭킹에서 빼는 선택도 허용하되 사용자에게 freshness/용도를 정확히 설명한다.
+
 근거 참조: operand evidence ids, unit, 관측/공개/수신 시각, 공급자와 원문, 허용 용도. 공시 기간말과 발표일, 가격 거래일과 수신일은 구분한다.
+
+원문·검색 후보·숫자 observation은 `rightsContractId`와 해당 출처의 지속 보존·표시·재배포·만료·삭제 범위를 함께 전달한다. 화면 근거 링크가 있다는 사실은 원문 전체의 저장/재배포 권한이 있다는 뜻이 아니다. 개인 Vault의 보유/메모는 public run 또는 학습 복사본에 기본 포함하지 않으며, AI 전송은 request별 동의·실제 payload로 인수한다. 권리/삭제 정책으로 원문이 사라지면 tombstone과 재현 가능한 파생 범위를 남기고 완전 재현이라고 표기하지 않는다.
 
 계산 상태: 입력 수신, 현재성, 조건 평가, 순위 산출, 설명 가능성, 저장 상태를 서로 다른 축으로 둔다. 현재처럼 `passed`를 `ranked`나 `explained`로 사용하지 않는다. source가 공식이라는 이유로 숫자 조합까지 타당하다고 보지 않는다.
 
@@ -79,6 +85,8 @@ flowchart TD
 ## 점진적 구조 개편 작업 단위
 
 1. **스크리너 결과 단일화**: 요청조건·입력snapshot·rank explanation을 한 run으로 묶고 W12 drawer를 실제 기여도에 연결한다. 현재 native screen 계약을 기반으로 한다.
+
+   v56.15 인수는 artifact ID와 calculation input ID를 구분하고, 6개 preset에 실제 적격·통과·제외·보류 행을 넣어 preview/execute/Why/replay를 대조한다. 전 행 unavailable인 동일 결과만으로 등가성을 인증하지 않는다. 기계 sync의 `runHistory`와 사용자 보관 실행의 archive도 origin과 writer를 구별해 하나의 이름으로 오인하지 않게 한다.
 2. **기술 분석 결과 단일화**: OHLCV의 기간/기업행동/결측 계약을 고정하고 pattern·risk·strategy 설명이 같은 snapshot을 참조하도록 옮긴다. 임계값 변경과 코드 이동을 별도 변경으로 관리한다.
 3. **AI 실행 단일화**: 두 chat 진입점의 공통 research/evidence/publication state를 추출한다. guard를 중복 복사하지 않고 provider adapter만 분리한다. 기존 취소·fallback 동선을 replay한다.
 4. **교육 연결**: 검증된 결과 객체에 개념 링크와 가정 비교를 붙인다. 현재 route bridge의 return context를 활용하되 run id/선택 종목/기준일이 복귀 때 유지되는지 확인한다.

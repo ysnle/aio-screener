@@ -16,6 +16,17 @@ const fetchDataSource = readText('scripts/fetch-data.mjs');
 if (!/regularMarketPreviousCloseObservedAt:[\s\S]{0,260}closeBars\[closeBars\.length - 1\]\.timestamp/.test(fetchDataSource)) {
   errors.push('fetch-data: previous completed close must use the current daily bar opening boundary, not the previous bar opening time');
 }
+// P1192 (P1095 권위): 완료 컷 행은 그 컷을 넘는 시각의 previous-completed-close를 담을 수 없다.
+// Yahoo가 진행 중 bar를 그 bar의 개시 시각으로 스탬프하는 창(FX/상품 일봉 경계 00:00Z가
+// KST-08:00 뉴스 컷 23:00Z보다 뒤)에서 그 경계가 컷을 넘으므로, producer는 값을 **버리지 않고**
+// 직전 bar의 개시 경계로 앉히거나(그마저 컷을 넘으면 값을 싣지 않는다) 해야 한다. 시각만 바꾸거나
+// 컷을 늘리는 위장은 금지다 — 두 대안의 존재 자체를 코드에서 요구한다.
+if (!/previousBarOpenedAt:/.test(fetchDataSource)
+  || !/quote\.observationRelation !== 'previous-completed-close'/.test(fetchDataSource)
+  || !/stamp <= cutMs/.test(fetchDataSource)
+  || !/observedAtBoundary: 'previous-bar-open'/.test(fetchDataSource)) {
+  errors.push('fetch-data: a previous-completed-close stamp that exceeds the row cut must fall back to the previous bar boundary or be dropped (P1192)');
+}
 // P1117: every lane that writes a history fieldMeta must publish the timestamp-source and
 // observation-relation markers. The market lane computed them and then dropped them in its
 // projection, so the artifact gate that looks for `observedAtSource` skipped its assertions

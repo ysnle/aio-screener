@@ -1,11 +1,23 @@
 ---
 verified_by: Codex local source review + affected QA (workspace/deployment regression); full semantic audit remains open
-last_verified: 2026-09-21
+last_verified: 2026-09-24
 confidence: medium
-target_version: v56.15
+target_version: v56.32
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R632. 선언 입력에는 writer가 있어야 하고, 저장 경로는 durable ack를 버리지 않는다 (v56.19, P1187)
+
+**Rule**: 필드가 reader·normalizer·surface에 있다는 사실은 그 필드가 **입력될 수 있음**을 뜻하지 않는다. (1) 선언 필드(통화 등)는 사용자가 그 값을 넣는 **writer 경로**(폼·import·API)가 실제로 있어야 한다 — writer 없이 reader만 있으면 downstream은 영원히 '미선언'만 발화하고, 선언은 import 같은 우회로로만 들어온다(P1181의 통화 전달 끊김과 P1187의 writer 부재는 같은 결함의 양 끝이다). (2) **수정 경로는 폼이 소유한 필드만 덮어쓴다** — 객체 통째 교체는 다른 출처가 넣은 필드(sector·targetWeight·통화)를 조용히 지운다. (3) 영구 저장의 성공/실패를 구분하는 반환은 **그 경로가 실제로 소비한다** — 반환을 버리는 경로(import·전체삭제)는 persist가 거부돼도 완료를 말한다(P1181이 add 경로 하나를 고쳤지만 나머지는 같은 클래스로 남았다). 새 저장 경로를 추가할 때마다 **모든 호출자**가 ack를 await·게이트하는지 확인한다. (4) 형식이 틀린 선언은 조용히 버리지 않고 거부한다(R628 — 부재와 무효를 구분).
+
+**Validation**: `scripts/ci-esm-core-unit-check.mjs`(P1187 소스 계약 — 폼 선언 입력 존재, add 경로가 선언을 저장, 수정 경로가 `...existing`으로 비폼 필드 보존, import·전체삭제가 `await savePortfolioData(...)` 뒤에만 완료 문구), `scripts/ci-portfolio-vault-e2e.mjs`(`PFE2-12` 통화 선언 왕복·빈 선언 null·무효 `US` 비저장, `PFE2-13`/`PFE2-14` persist 거부 시 import·전체삭제 모두 성공 문구 미노출).
+
+## R631. 성과·위험 결과는 측정 경로·분모·현금·RF·표본을 선언하지 않으면 인증하지 않는다 (v56.17, P1182)
+
+**Rule**: 선언 없는 지표 표는 그 숫자가 어떤 계좌의 어떤 범위·기간·정책으로 계산됐는지를 말하지 않는다. 22 PFR02~05/PFR09/PFR10에서 같은 결함이 한 경로에서 여러 형태로 나왔다: 주식만으로 만든 수익률이 계좌 위험처럼 렌더됐고(분모 미선언), RF 상수 4.3%가 라벨 뒤에 숨었으며(입력 미선언), 13개 수익률·꼬리 1개 VaR/CVaR가 인증 가능한 지표처럼 표시됐고(표본 미선언), 현금이 분모에서 조용히 빠졌으며, 기간 종점 가격이 시작 배분을 만들었다(시점 미선언). (1) 결과 객체가 `exposureHistoryMode`·`weightBasis`·`cashTreatment`·`rebalancePolicy`·RF 상태·표본 n/tail n·구성 snapshot ID를 **결과와 함께 발행**하고, 화면 제목이 분모를 담는다 — 같은 수치를 계좌 전체/주식 부분 두 제목으로 쓰지 않는다. (2) 선언할 수 없는 입력(현금 통화·현금 수익률·RF·보유 이력·꼬리 표본·원장)은 **해당 범위를 보류**한다 — 값을 만들지 않고 범위를 줄여 게시하며, 계좌 성과(TWR/MWR)의 정답은 원장 부재 시 보류다. (3) 식별자(`estimateId`·`compositionSnapshotId`)는 실제 의존 입력에서 파생해 같은 입력 재현과 입력 변경 분리를 동시에 고정한다(R630과 같은 원리 — ID가 아예 없던 상태도 위반이다). (4) 보편 규칙 문구('Sharpe 1 이상 양호'·'MDD 20% 권장'·'drift 5%p')는 출처(교육 예시·기관 지침·사용자 설정)를 명시하고 실제 실행과 분리할 때만 쓴다. (5) 미래 정보(종점 가격)가 과거 결정(시작 배분)의 입력이 되는 폴백은 정책 라벨과 함께 제거한다 — 라벨은 항상 실제 실행된 정책을 말해야 한다.
+
+**Validation**: `scripts/ci-esm-core-unit-check.mjs` (P1182 fixture 15종 — 종점 가격 불변 시작 배분, 13수익률·꼬리1 `varCertification.held`, cash 50/equity −10 → 계좌 −5%·주식 −10% 두 scope 동시 발행, 현금 미선언 → 계좌 보류·sleeve만 게시, `actual_account_history` 무이력 차단, 스냅샷 replay 동일·가격 이동 분리·가격 없음 차단, 원장 없음 TWR/MWR 보류, workspace RF 상수 부재·선언 라벨 소스 계약 + P1181 legacy 라벨 fixture 1종 갱신), `js/aio-tests.js` T845 (start-date basis).
 
 ## R630. 식별자·정체성 해시는 그 대상의 입력에서 파생한다 — 표시·overlay 파생값을 넣지 않는다 (v56.15, P1177)
 

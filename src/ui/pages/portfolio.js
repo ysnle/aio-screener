@@ -124,6 +124,22 @@ function renderPortfolioSurface(documentRef, page, surface) {
   setSurfaceText(documentRef, 'pf-daily-pct', surface.dailyPct == null ? '—' : `${surface.dailyPct >= 0 ? '+' : ''}${surface.dailyPct.toFixed(2)}% today`, surface.dailyPct, surface, surface.dailyChange == null ? 'var(--text-dim)' : surface.dailyChange >= 0 ? 'var(--green)' : 'var(--red)');
   setSurfaceText(documentRef, 'pf-cash-hero', formatSurfaceMoney(surface.cash), surface.cash, surface);
   setSurfaceText(documentRef, 'pf-cash-pct-hero', surface.cashPct == null ? '—' : `${surface.cashPct.toFixed(1)}%`, surface.cashPct, surface);
+  // E3/P1181 (11 P11-02): 통화 상태를 표시에 드러낸다 — 혼합 통화는 환산근거가 없어 합계를 만들지
+  // 않았고, 그 이유를 화면이 말해야 '값 소실'과 '의도된 보류'를 구분할 수 있다.
+  const currencyNoteBase = surface.readState !== 'ready' || !surface.holdingCount
+    ? '—'
+    : surface.currencyState === 'converted-with-declared-rates'
+      ? `통화 환산(선언 rate) → ${surface.baseCurrency}`
+      : surface.currencyState === 'mixed-without-conversion'
+        ? `통화 혼합(${(surface.declaredCurrencies || []).join('/')}) — 환산 없어 합계 보류`
+        : surface.currencyState === 'declared-single' ? `통화 ${surface.baseCurrency}`
+          : '통화 미선언 · 단일 기준 가정';
+  // E3/P1196: 원가/시세 불일치는 이제 두 갈래다 — 선언된 leg로 환산됐으면 P&L이 성립하고, 근거가
+  // 없으면 예전처럼 보류한다. 화면이 둘을 구분해야 "값 소실"과 "의도된 보류"가 구분된다.
+  const currencyHeld = surface.costCurrencyState === 'cost-price-mismatch-held' ? ' · 원가/시세 불일치 — P&L 보류'
+    : surface.costCurrencyState === 'cost-price-mismatch-converted' ? ' · 원가/시세 불일치 — 선언 rate로 환산' : '';
+  const currencyHeldActive = (surface.currencyState === 'mixed-without-conversion' || surface.costCurrencyState === 'cost-price-mismatch-held') && surface.readState === 'ready' && !!surface.holdingCount;
+  setSurfaceText(documentRef, 'pf-currency-note', currencyNoteBase === '—' ? '—' : currencyNoteBase + currencyHeld, surface.holdingCount || null, surface, currencyHeldActive ? 'var(--data-amber)' : 'var(--text-dim)');
   const rule = surface.exposureCap == null ? 'VIX 확인 중' : `VIX ${surface.vix.toFixed(1)} · 최대 ${surface.exposureCap}%`;
   setSurfaceText(documentRef, 'pf-exposure-rule', rule, surface.exposureCap, surface);
   const current = surface.exposurePct == null ? '현재 노출 —' : `현재 노출 ${surface.exposurePct.toFixed(1)}%${surface.exposureExceeded ? ' · 참고 한도 초과' : ''}`;

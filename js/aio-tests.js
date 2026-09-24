@@ -7249,7 +7249,7 @@
         model845.allowedUse === 'reference-only' && model845.decisionEligible === false &&
         model845.promotionEligible === false && Array.isArray(model845.promotionBlockers) &&
         model845.promotionBlockers.indexOf('transaction-costs-not-modeled') >= 0 &&
-        model845.settings && model845.settings.targetWeightBasis === 'terminal-adjusted-close-market-value' &&
+        model845.settings && model845.settings.targetWeightBasis === 'start-date-adjusted-close-market-value' &&
         model845.settings.turnoverBasis === 'half-sum-absolute-target-minus-realized-end-weight-at-rebalance' &&
         model845.monthlyRows[0].returnContributionBasis === 'realized-beginning-weighted-arithmetic-return' &&
         model845.components.every(function(c) { return c.riskContributionBasis === 'realized-beginning-weighted-monthly-return'; }) &&

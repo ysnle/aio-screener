@@ -2,6 +2,8 @@ import {
   SCREENER_CONTRACT_VERSION,
   SCREENER_FIELD_REGISTRY,
   CALCULABLE_FIELD_STATUSES,
+  LIVE_QUOTE_MCAP_INPUT_ROW_KEYS,
+  LIVE_QUOTE_PRICE_ROW_KEYS,
   SCREEN_NODE_TYPES,
   createRankExplanation,
   createScreenDefinition,
@@ -11,7 +13,15 @@ import {
   validateScreenDefinition
 } from '../../data/contracts/screener.js';
 
-export const SCREEN_ENGINE_VERSION = 'screen-engine.v5';
+// P1180/R24-04: engine v6 introduces the calculation input identity; screen-engine.v5 records
+// keep legacy_identity_semantics in replayScreenRun.
+export const SCREEN_ENGINE_VERSION = 'screen-engine.v6';
+
+// P1180/R24-04 (07 W07-G): the factor input policy this engine declares. `live_capture` is
+// today's honest behavior — an evidence-eligible live market cap feeds the size factor — so a
+// mcap tick mints a new calculationInputId and result while the observation set stays fixed.
+// The 07 artifact-fixed default requires the producer's marketCapObservation contract first.
+export const FACTOR_INPUT_POLICY = 'live_capture';
 
 const USABLE_REQUIRED_FIELD_STATUSES = new Set(CALCULABLE_FIELD_STATUSES);
 
@@ -142,7 +152,42 @@ export function compileScreenDefinition(definition) {
   });
 }
 
-export function runScreen({ definition, rows = [], snapshotId = 'unknown', providerSet = [], startedAt = new Date().toISOString(), completedAt = new Date().toISOString(), engineVersion = SCREEN_ENGINE_VERSION } = {}) {
+// P1180/R24-04: every row key a definition can read — filters, hard gates, ranking and
+// required fields, resolved through the registry exactly like valueAt does at evaluation time.
+function collectDefinitionRowKeys(definition) {
+  const rowKeys = new Set();
+  const addField = (field) => {
+    if (field == null || field === '') return;
+    if (field === 'rank' || field === 'score' || field === 'sym' || field === 'symbol') { rowKeys.add(String(field)); return; }
+    const registered = SCREENER_FIELD_REGISTRY.get(field);
+    if (registered?.rowKey) rowKeys.add(String(registered.rowKey));
+  };
+  const walk = (node) => {
+    if (!node || typeof node !== 'object') return;
+    if (Array.isArray(node)) { node.forEach(walk); return; }
+    if (node.field) addField(node.field);
+    if (Array.isArray(node.fields)) node.fields.forEach(addField);
+    if (Array.isArray(node.children)) node.children.forEach(walk);
+  };
+  walk(definition?.filtersAST);
+  if (Array.isArray(definition?.hardGates)) definition.hardGates.forEach(walk);
+  if (definition?.ranking) { addField(definition.ranking.field); if (Array.isArray(definition.ranking.fields)) definition.ranking.fields.forEach(addField); }
+  if (Array.isArray(definition?.requiredFields)) definition.requiredFields.forEach(addField);
+  return rowKeys;
+}
+
+// P1180/R24-04: the live overlay keys this calculation actually consumes. The market-cap family
+// is a rank input under the live_capture policy and always belongs to the identity; the price
+// family joins only when the definition reads row.price — an unconsumed UI overlay must never
+// mint a calculation identity (07 W07-G).
+function calculationLiveInputKeys(definition) {
+  const referenced = collectDefinitionRowKeys(definition);
+  const keys = [...LIVE_QUOTE_MCAP_INPUT_ROW_KEYS];
+  if (referenced.has('price')) for (const key of LIVE_QUOTE_PRICE_ROW_KEYS) if (!keys.includes(key)) keys.push(key);
+  return keys;
+}
+
+export function runScreen({ definition, rows = [], snapshotId = 'unknown', providerSet = [], startedAt = new Date().toISOString(), completedAt = new Date().toISOString(), engineVersion = SCREEN_ENGINE_VERSION, factorInputPolicy = FACTOR_INPUT_POLICY, legacyResultIdentity = false } = {}) {
   const compiled = compileScreenDefinition(definition);
   const entries = (Array.isArray(rows) ? rows : []).map((row, inputIndex) => {
     const gateResults = (definition.hardGates || []).map((gate) => compiled.evaluateGate(row, gate));
@@ -204,9 +249,30 @@ export function runScreen({ definition, rows = [], snapshotId = 'unknown', provi
   const rejected = entries.filter((entry) => entry.status === 'rejected').length;
   const unavailable = entries.filter((entry) => entry.status === 'unknown').length;
   const explanationsHash = stableHash(entries.map((entry) => [entry.row.sym || entry.row.symbol, entry.status, entry.explanation]));
-  const resultHash = stableHash({ engineVersion, definitionHash: compiled.hash, snapshotId, rows: entries.map((entry) => [entry.row.sym || entry.row.symbol, entry.status, entry.score]) });
+  // P1180/R24-04 (07 W07-G): three separated identities. `snapshotId` (observationSetId)
+  // identifies the observation set that arrived; `calculationInputId` identifies what THIS
+  // calculation consumed — definition, engine, factor input policy and the live overlay keys
+  // the policy/definition actually read; `resultHash` derives from the calculation input plus
+  // the ordered outputs. legacyResultIdentity recomputes the screen-engine.v5 formula exactly,
+  // so a stored v5 record verifies against its own semantics instead of a re-derived feed.
+  const calculationInputId = legacyResultIdentity ? null : stableHash({
+    observationSetId: snapshotId,
+    definitionHash: compiled.hash,
+    engineVersion,
+    factorInputPolicy,
+    liveInputs: (() => {
+      const liveKeys = calculationLiveInputKeys(definition);
+      return rows.map((row) => ({
+        symbol: row?.sym || row?.symbol || '',
+        ...Object.fromEntries(liveKeys.map((key) => [key, row?.[key] ?? null]))
+      }));
+    })()
+  });
+  const resultHash = legacyResultIdentity
+    ? stableHash({ engineVersion, definitionHash: compiled.hash, snapshotId, rows: entries.map((entry) => [entry.row.sym || entry.row.symbol, entry.status, entry.score]) })
+    : stableHash({ calculationInputId, rows: entries.map((entry) => [entry.row.sym || entry.row.symbol, entry.status, entry.score]) });
   const readiness = summarizeScreenReadiness(rowsWithResults, definition.requiredFields || []);
-  const run = createScreenRun({ screenId: definition.screenId, screenVersion: definition.version, definitionHash: compiled.hash, snapshotId, startedAt, completedAt, status: unavailable ? (passed || rejected ? 'partial' : 'unavailable') : 'completed', rowCount: entries.length, eligibleCount: readiness.eligibleCount, passed, rejected, unavailable, providerSet, engineVersion, explanationsHash, resultHash });
+  const run = createScreenRun({ screenId: definition.screenId, screenVersion: definition.version, definitionHash: compiled.hash, snapshotId, startedAt, completedAt, status: unavailable ? (passed || rejected ? 'partial' : 'unavailable') : 'completed', rowCount: entries.length, eligibleCount: readiness.eligibleCount, passed, rejected, unavailable, providerSet, engineVersion, explanationsHash, resultHash, ...(calculationInputId ? { calculationInputId, factorInputPolicy } : {}) });
   return Object.freeze({ run, rows: Object.freeze(rowsWithResults), readiness, rankedCount: rankByIndex.size, passed: Object.freeze(rowsWithResults.filter((row) => row.screenStatus === 'passed')), rejected: Object.freeze(rowsWithResults.filter((row) => row.screenStatus === 'rejected')), unavailable: Object.freeze(rowsWithResults.filter((row) => row.screenStatus === 'unavailable')), explanationsHash, resultHash });
 }
 
@@ -226,11 +292,17 @@ export function captureScreenRun(input, result = runScreen(input)) {
 }
 
 export function replayScreenRun(record) {
-  if (record?.schemaVersion !== 'screener-run-record.v1' || record.engineVersion !== SCREEN_ENGINE_VERSION) throw new Error('SCREEN_REPLAY_VERSION_UNSUPPORTED');
+  // P1180/R24-04: a screen-engine.v5 record predates the calculation input identity. It is
+  // verified under legacy_identity_semantics — the stored inputs, hash and result are checked
+  // against the v5 formula that produced them, never re-derived from the current live feed.
+  const legacyIdentity = record?.run?.calculationInputId == null;
+  if (record?.schemaVersion !== 'screener-run-record.v1') throw new Error('SCREEN_REPLAY_VERSION_UNSUPPORTED');
+  if (legacyIdentity ? record.engineVersion !== 'screen-engine.v5' : record.engineVersion !== SCREEN_ENGINE_VERSION) throw new Error('SCREEN_REPLAY_VERSION_UNSUPPORTED');
   const { contentHash, ...content } = record;
   if (contentHash !== stableHash(content)) throw new Error('SCREEN_REPLAY_CONTENT_MISMATCH');
-  const result = runScreen({ ...record, startedAt: record.run.startedAt, completedAt: record.run.completedAt });
+  const result = runScreen({ ...record, startedAt: record.run.startedAt, completedAt: record.run.completedAt, legacyResultIdentity: legacyIdentity, ...(record.run?.factorInputPolicy ? { factorInputPolicy: record.run.factorInputPolicy } : {}) });
   if (result.resultHash !== record.run.resultHash || result.explanationsHash !== record.run.explanationsHash) throw new Error('SCREEN_REPLAY_RESULT_MISMATCH');
+  if (!legacyIdentity && result.run.calculationInputId !== record.run.calculationInputId) throw new Error('SCREEN_REPLAY_INPUT_MISMATCH');
   return result;
 }
 

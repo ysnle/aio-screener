@@ -100,7 +100,19 @@ check('deployment gate includes runtime contract', /runtimeContract/.test(core) 
 check('tests cover runtime/share gate', /T844 v5079_runtime_contract_share_gate/.test(tests));
 check('Telegram digest applies latest items into SCREENER_DB memo', /function\s+_aioApplyTelegramDigestToScreenerDb/.test(data) && /_aioApplyTelegramDigestToScreenerDb\(raw,\s*merged\)/.test(data));
 check('non-route screener consumers use the canonical native read boundary', /function\s+_aioGetCanonicalScreenerRows/.test(data) && /getScreenerRows:\s*\(\)\s*=>/.test(bootstrap) && /_aioGetCanonicalScreenerRows\(\)/.test(runtimeBundle));
+// P1185/E2 S-A·S-B: 두 죽은 screener 경로를 퇴역시켰다 — ① legacy `renderScreenerResults()`는
+// 리스너 없는 `aio:screener:render-request` dispatch만 하는 no-op였고, ② runtime `readScreener()`는
+// 어떤 writer도 대입하지 않는 `root._aioScreenerRows`를 읽어 항상 빈 행을 돌려주는 두 번째 경로였다.
+// canonical 경계(위 단언)만 남고, 같은 이름의 퇴역 경로가 되살아나지 않도록 여기서 막는다.
+check('P1185 the retired screener render-request hook is not re-introduced', !/aio:screener:render-request/.test(data) && !/function\s+renderScreenerResults/.test(data), 'legacy no-op screener render hook returned');
+check('P1185 the dead runtime screener reader is not re-introduced', !/readScreener\s*:\s*\(\)\s*=>/.test(read('src/data/runtime-readers.js')) && !/_aioScreenerRows/.test(read('src/data/runtime-readers.js')), 'runtime screener reader over an unwritten global returned');
 check('P768: native screener is the sole runtime artifact fetch and legacy receives metadata/breadth only', /_aioApplyNativeScreenerState/.test(data) && /aio:nativeScreenerReady/.test(bootstrap) && /getScreenerState/.test(bootstrap) && /breadth:\s*artifact\.breadth/.test(screenerProvider) && !/fetch\([^\n]*screener\.json/.test(data) && !/_aioApplyServerScreener/.test(data));
+// P1186/E2 S-D: native screener state의 투영 트리거는 readiness 이벤트 하나여야 한다. 종전에는
+// server data.json 적용 경로가 같은 state를 다시 투영해(중복 렌더 + 순서 역전 시 더 새로운 투영을
+// 덮어쓸 수 있음) 실제로 두 번 적용됐다 — 이제 그 경로는 '이미 투영됐는가'만 확인한다.
+check('P1186 native screener state has exactly one projection trigger (the readiness event)',
+  (data.match(/_aioApplyNativeScreenerState\(/g) || []).length === 2 && /nativeScreenerReady/.test(data) && /nativeStateApplied/.test(data),
+  'a second projection path for native screener state returned');
 const canonicalScreenerConsumerNames = ['_aioExtractRecentRecommendationTickers', '_detectSectorQuery', '_aioRunScreenerQuery', '_aioMakerCheckerVerify'];
 for (const name of canonicalScreenerConsumerNames) {
   const start = data.indexOf(`function ${name}`);

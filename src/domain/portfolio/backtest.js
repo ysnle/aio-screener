@@ -16,6 +16,98 @@ function _statStdDev(arr) {
   return Math.sqrt(variance);
 }
 
+// ── 22:PFR05 (E4) sample-stability verification ──────────────────────────────
+// VaR/CVaR may be trusted only when the sample is stable and the estimate is
+// insensitive to the estimator chosen. The bootstrap derives its seed from the
+// sample itself, so the same input replays the same band (R630) without a clock
+// or Math.random. Sensitivity re-estimates on the same sample with other rules.
+// The thresholds travel with the result — a certification without a declared
+// threshold is the same unbacked claim the hold replaced.
+function _btFnv1a(text) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < text.length; i += 1) h = Math.imul(h ^ text.charCodeAt(i), 0x01000193) >>> 0;
+  return h >>> 0;
+}
+
+function _btMulberry32(seed) {
+  let state = seed >>> 0;
+  return function next() {
+    state = (state + 0x6d2b79f5) >>> 0;
+    let t = state;
+    t = Math.imul(t ^ (t >>> 15), t | 1) >>> 0;
+    t = (t ^ (t + Math.imul(t ^ (t >>> 7), t | 61))) >>> 0;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function _btTailRisk(values, quantile) {
+  const sorted = values.slice().sort((a, b) => a - b);
+  const cut = _quantileR7(sorted, quantile);
+  const tail = sorted.filter((value) => value <= cut);
+  return {
+    var: Math.max(0, -cut),
+    cvar: tail.length ? Math.max(0, -_statMean(tail)) : null,
+    tailN: tail.length,
+    cut
+  };
+}
+
+export function deriveVarStability({ returns = [], iterations = 400, quantile = 0.05, thresholds = {} } = {}) {
+  const clean = (Array.isArray(returns) ? returns : []).filter((value) => typeof value === 'number' && isFinite(value));
+  const declared = {
+    minSampleN: Number.isFinite(thresholds.minSampleN) ? thresholds.minSampleN : 36,
+    minTailN: Number.isFinite(thresholds.minTailN) ? thresholds.minTailN : 3,
+    maxRelativeBand: Number.isFinite(thresholds.maxRelativeBand) ? thresholds.maxRelativeBand : 0.75,
+    maxRelativeSensitivity: Number.isFinite(thresholds.maxRelativeSensitivity) ? thresholds.maxRelativeSensitivity : 0.5
+  };
+  if (clean.length < 2) {
+    return { status: 'unavailable', reason: 'insufficient-sample', sampleN: clean.length, thresholds: declared, certification: 'held', certificationReasons: ['sample-below-declared-minimum'] };
+  }
+  const point = _btTailRisk(clean, quantile);
+
+  const random = _btMulberry32(_btFnv1a(clean.map((value) => Number(value).toFixed(8)).join(',')));
+  const varSamples = [];
+  const draws = Math.max(1, Math.floor(iterations));
+  for (let i = 0; i < draws; i += 1) {
+    const resample = new Array(clean.length);
+    for (let j = 0; j < clean.length; j += 1) resample[j] = clean[Math.floor(random() * clean.length)];
+    varSamples.push(_btTailRisk(resample, quantile).var);
+  }
+  const sortedVars = varSamples.slice().sort((a, b) => a - b);
+  const band = { p05: _quantileR7(sortedVars, 0.05), median: _quantileR7(sortedVars, 0.5), p95: _quantileR7(sortedVars, 0.95) };
+  const relativeBand = point.var > 0 ? (band.p95 - band.p05) / point.var : null;
+
+  const ascending = clean.slice().sort((a, b) => a - b);
+  const nearestIndex = Math.max(0, Math.min(ascending.length - 1, Math.ceil(quantile * ascending.length) - 1));
+  const variants = [
+    { id: 'nearest-rank', var: Math.max(0, -ascending[nearestIndex]) },
+    { id: 'leave-one-worst-out', var: ascending.length > 2 ? _btTailRisk(ascending.slice(1), quantile).var : null },
+    { id: 'recent-half', var: clean.length >= 4 ? _btTailRisk(clean.slice(Math.floor(clean.length / 2)), quantile).var : null }
+  ].filter((entry) => entry.var != null && isFinite(entry.var))
+    .map((entry) => ({ id: entry.id, var: entry.var, deviation: entry.var - point.var }));
+  const maxAbsDeviation = variants.length ? Math.max.apply(null, variants.map((entry) => Math.abs(entry.deviation))) : null;
+  const relativeSensitivity = point.var > 0 && maxAbsDeviation != null ? maxAbsDeviation / point.var : null;
+
+  const reasons = [];
+  if (clean.length < declared.minSampleN) reasons.push('sample-below-declared-minimum');
+  if (point.tailN < declared.minTailN) reasons.push('tail-below-declared-minimum');
+  if (relativeBand == null || relativeBand > declared.maxRelativeBand) reasons.push('bootstrap-band-exceeds-declared-maximum');
+  if (relativeSensitivity == null || relativeSensitivity > declared.maxRelativeSensitivity) reasons.push('estimator-sensitivity-exceeds-declared-maximum');
+
+  return {
+    status: 'ready',
+    quantile,
+    sampleN: clean.length,
+    tailN: point.tailN,
+    point: { var: point.var, cvar: point.cvar },
+    bootstrap: { iterations: draws, seed: 'sample-derived-fnv1a', band, relativeBand },
+    sensitivity: { variants, maxAbsDeviation, relativeSensitivity },
+    thresholds: declared,
+    certification: reasons.length ? 'held' : 'certified',
+    certificationReasons: reasons
+  };
+}
+
 function _calcDailyReturns(prices, timestamps) {
   if (!prices || prices.length < 2) return [];
   const returns = [];
@@ -270,6 +362,23 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
     if (p.targetWeight != null) byTickerTargetWeight[p.ticker] = (byTickerTargetWeight[p.ticker] || 0) + p.targetWeight;
   });
   var tickers = Object.keys(byTicker).filter(function(t) { return priceMap && priceMap[t]; });
+  // 22:PFR08/R24-05 (E3): a held member whose price series is missing is a coverage gap, not an
+  // exclusion. Dropping it above silently renormalized every remaining member (AAA 100% from a
+  // 2-member intent), converting a provider miss into the user's exclusion decision.
+  var intendedTickers = Object.keys(byTicker);
+  var missingPriceMembers = intendedTickers.filter(function(t) { return !(priceMap && priceMap[t]); });
+  if (missingPriceMembers.length) {
+    return {
+      ok: false, status: 'PARTIAL', allowedUse: 'reference-only', decisionUse: false,
+      decisionEligible: false, promotionEligible: false,
+      promotionBlockers: ['member-price-coverage-required', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-not-modeled'],
+      reason: 'member price series missing',
+      model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
+      priceBasis: 'adjusted-close-required', compositionDisclosure: 'current-composition-retrospective',
+      allocationBlocked: { code: 'member-price-series-missing', members: missingPriceMembers.slice(), intended: intendedTickers.slice() },
+      warnings: ['가격 이력이 없어 실행을 보류합니다: ' + missingPriceMembers.join(', ') + '.', '보유 멤버를 제외 의도로 간주해 재분배하지 않습니다 — 새 정의로 명시하거나 가격 이력을 채운 뒤 다시 실행하세요.']
+    };
+  }
   var totalValue = tickers.reduce(function(s, t) { return s + byTicker[t]; }, 0);
   if (!tickers.length || totalValue <= 0) return { ok: false, reason: 'no valid portfolio price series', warnings: ['가격 이력이 있는 포지션이 없습니다.'] };
   if (!priceMap || !priceMap[benchmarkSymbol]) return { ok: false, reason: 'missing benchmark', warnings: [benchmarkSymbol + ' 벤치마크 가격 이력이 없습니다.'] };
@@ -365,20 +474,25 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
   }
 
 
-  var explicitTargetWeights = tickers.every(function(t) { return byTickerTargetWeight[t] != null; });
+  // 23:PFR07 (E3): allocation resolution owns its policy. The old path flipped "all specified"
+  // to false on a sum of 0 WITHOUT updating the basis, then renormalized explicit exclusions
+  // back in by market value while still reporting 'explicit-target-weight' — invalid input was
+  // silently rewritten into a different policy with a lying provenance.
+  //  - no weights at all: start-date market-value composition, honestly labeled. 22:PFR01 (E4)
+  //    retires the period-END price fallback: a future terminal quote must never move the
+  //    starting allocation, so the first common month's adjusted close seeds the weights.
+  //  - any member unspecified (or all-specified sum ≠ 100): partial allocation → hold with
+  //    member-level guidance; the remainder is never distributed implicitly.
+  //  - sum 0: a cash-mode question, not a fallback trigger.
   var targetWeights = {};
-  var targetWeightBasis = explicitTargetWeights ? 'explicit-target-weight' : 'terminal-adjusted-close-market-value';
+  var targetWeightBasis = 'start-date-adjusted-close-market-value';
+  var specifiedTickers = tickers.filter(function(t) { return byTickerTargetWeight[t] != null; });
   var targetWeightDenominator = 0;
-  if (explicitTargetWeights) {
-    tickers.forEach(function(t) { targetWeightDenominator += byTickerTargetWeight[t]; });
-    if (!(targetWeightDenominator > 0)) explicitTargetWeights = false;
-  }
-  if (explicitTargetWeights) {
-    tickers.forEach(function(t) { targetWeights[t] = byTickerTargetWeight[t] / targetWeightDenominator; });
-  } else {
+  if (!specifiedTickers.length) {
+    var startMonth = common[0];
     tickers.forEach(function(t) {
-      var terminalPoint = monthEnds[t][common[common.length - 1]];
-      var marketValue = terminalPoint && terminalPoint.value > 0 ? byTickerQty[t] * terminalPoint.value : null;
+      var startPoint = monthEnds[t][startMonth];
+      var marketValue = startPoint && startPoint.value > 0 ? byTickerQty[t] * startPoint.value : null;
       targetWeightDenominator += marketValue || 0;
       targetWeights[t] = marketValue;
     });
@@ -389,10 +503,45 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
         promotionBlockers: ['target-weight-basis-unavailable', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-not-modeled'],
         reason: 'target weight basis unavailable', model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
         priceBasis: 'adjusted-close-required', compositionDisclosure: 'current-composition-retrospective',
-        warnings: ['원가 비중을 목표비중으로 대체하지 않습니다. 명시적 targetWeight 또는 종점 조정주가×수량이 필요합니다.']
+        warnings: ['원가 비중을 목표비중으로 대체하지 않습니다. 명시적 targetWeight 또는 시작 시점 조정주가×수량이 필요합니다.']
       };
     }
     tickers.forEach(function(t) { targetWeights[t] = targetWeights[t] / targetWeightDenominator; });
+  } else {
+    var unspecifiedTickers = tickers.filter(function(t) { return byTickerTargetWeight[t] == null; });
+    specifiedTickers.forEach(function(t) { targetWeightDenominator += byTickerTargetWeight[t]; });
+    var allocationBlocked = null;
+    var allocationWarnings = null;
+    if (unspecifiedTickers.length) {
+      allocationBlocked = { code: 'partial-allocation-unresolved', specified: specifiedTickers.slice(), unspecified: unspecifiedTickers.slice() };
+      allocationWarnings = [
+        '부분 배분은 보류입니다 — 미지정 멤버: ' + unspecifiedTickers.join(', ') + '.',
+        '이건 제외가 아닙니다: 지정된 비중과 현금 배분을 모두 입력하거나 잔여비중 정책을 별도로 지정하세요. 잔여를 시장가치로 암묵 재분배하지 않습니다.'
+      ];
+    } else if (!(targetWeightDenominator > 0)) {
+      allocationBlocked = { code: 'explicit-zero-allocation', members: tickers.slice(), sum: targetWeightDenominator };
+      allocationWarnings = ['모든 목표비중이 0입니다 — 명시적 0은 제외 의도이며, 현금 100% 모드 없이는 실행할 수 없습니다.', '제외된 종목을 시장가치로 되살리지 않습니다.'];
+    } else if (targetWeightDenominator > 100 + 1e-9) {
+      allocationBlocked = { code: 'invalid-allocation-sum', members: tickers.slice(), sum: targetWeightDenominator };
+      allocationWarnings = ['목표비중 합계가 100을 넘습니다 (' + Math.round(targetWeightDenominator * 100) / 100 + ') — 비율로 눌러 정규화하지 않습니다.'];
+    } else if (targetWeightDenominator < 100 - 1e-9) {
+      allocationBlocked = { code: 'partial-allocation-unresolved', specified: specifiedTickers.slice(), unspecified: [], sum: targetWeightDenominator };
+      allocationWarnings = ['목표비중 합계가 100보다 작습니다 (' + Math.round(targetWeightDenominator * 100) / 100 + ') — 잔여비중 정책 없이 잔여를 분배하지 않습니다. 현금 비중을 명시하세요.'];
+    } else {
+      targetWeightBasis = 'explicit-target-weight';
+      tickers.forEach(function(t) { targetWeights[t] = (byTickerTargetWeight[t] || 0) / targetWeightDenominator; });
+    }
+    if (allocationBlocked) {
+      return {
+        ok: false, status: 'PARTIAL', allowedUse: 'reference-only', decisionUse: false,
+        decisionEligible: false, promotionEligible: false,
+        promotionBlockers: ['allocation-resolution-blocked', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-not-modeled'],
+        reason: allocationBlocked.code, model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
+        priceBasis: 'adjusted-close-required', compositionDisclosure: 'current-composition-retrospective',
+        allocationBlocked: allocationBlocked,
+        warnings: allocationWarnings
+      };
+    }
   }
   var assetBalances = {};
   tickers.forEach(function(t) { assetBalances[t] = initialAmount * targetWeights[t]; });
@@ -503,6 +652,25 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
   var var5 = cleanMonthly.length ? Math.max(0, -_quantileR7(cleanMonthly, 0.05)) : null;
   var tail = cleanMonthly.filter(function(r) { return r <= _quantileR7(cleanMonthly, 0.05); });
   var cvar5 = tail.length ? Math.max(0, -_statMean(tail)) : null;
+  // 22:PFR05 (E4): publish the sample facts behind VaR/CVaR and certify only the
+  // sample that survives the declared stability/sensitivity thresholds. A CVaR
+  // averaged over a single tail observation is one loss printed as a risk
+  // estimate, and an estimate that moves with the estimator is not one either.
+  // P1203: `deriveVarStability`의 `recent-half` 변형은 **시간 순서**를 가정한다 — 정렬된 표본을 넘기면
+  // 그 변형이 '최근 절반'이 아니라 '상위 절반'이 되어 VaR가 0, 민감도 1이 되고, 현실적인(중앙값이 양수인)
+  // 표본은 영원히 인증될 수 없었다. 꼬리·근사 순위 계산은 함수 안에서 정렬하므로 순서를 넘겨도 안전하다.
+  var varStability = deriveVarStability({ returns: monthlyReturns, quantile: 0.05 });
+  var varCertification = {
+    confidence: 0.95,
+    horizonMonths: 1,
+    quantileMethod: 'R7-linear-interpolation',
+    sampleN: cleanMonthly.length,
+    tailN: tail.length,
+    certification: varStability.certification === 'certified' ? 'certified' : 'held',
+    certificationReasons: (tail.length < 2 ? ['tail-sample-single-observation'] : [])
+      .concat(varStability.certification === 'certified' ? [] : varStability.certificationReasons),
+    stability: varStability
+  };
   var upBench = [], upPf = [], downBench = [], downPf = [];
   benchmarkReturns.forEach(function(br, idx) {
     if (br >= 0) { upBench.push(br); upPf.push(monthlyReturns[idx]); }
@@ -597,13 +765,15 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
       alphaBasis: alpha == null ? 'unavailable-risk-free-rate-or-benchmark-variance' : 'monthly-arithmetic-jensen-alpha-annualized-12',
       historicalVar5: var5,
       conditionalVar5: cvar5,
+      varCertification: varCertification,
       upsideCapture: upCapture,
       downsideCapture: downCapture
     },
     warnings: [
       '조정주가 기반 총수익률의 참고용 추정치입니다. 세금·수수료·거래비용·슬리피지·회전율을 모델링하지 않았으며 gross 성과입니다. 이 누락은 승격 차단 사유입니다.',
-      '현재 보유 구성의 명시적 목표비중 또는 종점 조정주가×수량 비중을 과거에 소급한 current-composition retrospective이며 원가 비중을 시장가 비중으로 오인하지 않습니다. 생존편향·구성 변경·상장 전 구간은 교정하지 않습니다.',
+      '명시적 목표비중 또는 시작 시점 조정주가×수량 비중을 과거에 소급한 current-composition retrospective이며 원가 비중을 시장가 비중으로 오인하지 않습니다. 생존편향·구성 변경·상장 전 구간은 교정하지 않습니다.',
       '월말 관측일이 자산 간 ' + maxAlignmentGapDays + '일을 초과하는 월은 비동시성 편향 방지를 위해 제외했습니다.',
+      'VaR/CVaR 표본 ' + varCertification.sampleN + '개·꼬리 ' + varCertification.tailN + '개 — 인증 보류(표본 안정성·bootstrap/민감도 미검증).',
       rfInvalid ? '무위험수익률(RF)은 연간 소수(decimal) 단위(-1, 1]만 허용합니다. 입력 단위가 잘못되어 Sharpe·Sortino·Alpha를 산출하지 않았습니다.' : rfAnnual == null ? '무위험수익률(RF)을 입력하지 않아 Sharpe·Sortino·Alpha를 산출하지 않았습니다.' : ('RF 가정: 연 소수 ' + rfAnnual.toFixed(6) + ' (' + (rfAnnual * 100).toFixed(2) + '%).'),
       '거래 가능한 실현 성과·매매 지시로 승격하지 않습니다.',
       '무료 Yahoo chart 데이터 범위와 각 종목 상장일에 따라 시작 월이 자동 제한됩니다.'

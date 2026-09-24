@@ -1,6 +1,8 @@
 # 제품 목적부터 다시 설계하는 데이터 전략
 
-2026-09-21 · Astra 설계. v56.01 현행 구조는 분석 대상이지 유지해야 할 제약이 아니다. 이 문서는 실제 제품 설정을 바꾸지 않는 구현 핸드오프다. 스킬을 사용하지 않았다.
+최초 설계: 2026-09-21 · v56.01. 현재성 기준: v56.15 · 2026-09-23. 현행 구조는 분석 대상이지 유지해야 할 제약이 아니다. 이 문서는 제품 코드를 바꾸지 않는 상위 제품·데이터 의사결정 문서다.
+
+> 현재 발견 상태와 완료 범위는 [25](25-CURRENT-FINDING-STATUS-CROSSWALK.md), 결정 게이트·담당·구현 순서는 [26](26-EXECUTION-AND-ACCEPTANCE-PLAN.md)가 정본이다. 여기서는 제품 요구와 데이터/플랫폼 선택 기준을 유지하고 E0/E6 공통 객체나 검색 승격 설계를 중복 작성하지 않는다.
 
 ## 전수 검수 완료 여부
 
@@ -54,6 +56,22 @@
 
 “모든 빈칸 채우기”보다 “이 질문에 필요한 입력을 충분히 확보했는가”를 기준으로 한다. 검색 결과의 특정 기업만 quality 팩터에 편입한다면 비교 집단과 편입 조건을 다시 계산해야 한다. 데이터가 없는 종목을 나쁜 기업으로 판단하지 않는다.
 
+### 파일럿 선택 전 선행 결정
+
+플랫폼이나 provider를 고르기 전에 아래 결과물을 제품 질문과 함께 확정한다. 요구와 권리·보안 증거를 확보하지 못하면 기능 범위를 낮추거나 배포를 보류한다. 구체적인 사용자 시험, 권리 객체, E6 candidate→observation 흐름과 fixture는 [26의 E0/E6 및 권리 선행 설계](26-EXECUTION-AND-ACCEPTANCE-PLAN.md#제품-질문과-첫-수직-과업)에 둔다.
+
+| 결정 | 먼저 남길 산출물 | owner / 통과 조건 |
+|---|---|---|
+| 누구의 어떤 판단을 돕는가 | 잠정 사용자, 과업, 대안·실패 결과, 성과 정의 | Product owner. 사용자의 실제 과업 검증 전에는 가정으로 표시 |
+| 어떤 관측이 필요하고 언제 알려졌는가 | 모집단·metric 정의·unit/currency·period·session·availableAt·허용 지연 | Domain/data owner. 의미·시점·비교 집단이 검증 불가능하면 점수·순위로 승격하지 않음 |
+| 데이터를 어떻게 쓸 권리가 있는가 | 출처별 표시·파생·저장·AI 전송·재배포·보존·삭제 조건과 확인 시점 | Data-rights owner. 미확인 조건은 그 사용 단계만 차단하고 허용된 provenance는 보존 |
+| 무엇을 보호해야 하는가 | public/private data-flow, secret·PII 경계, 로그/캐시/AI 수신자, 위협·복구 계획 | Security/privacy owner. 계정 개인 자료나 자격증명을 public artifact/운영 trace로 보내지 않음 |
+| 사용자가 상태와 근거를 이해하는가 | reference/current/missing/disputed·보류 표시, provenance·이유·복구 상태 | Product/UI + accessibility reviewer. 색만으로 구분하지 않고 키보드·스크린리더·좁은 화면에서 인수 |
+| 운영과 비용이 요구를 만족하는가 | 출처 호출/갱신 주기, quota, 저장·검색 비용, deadline, SLO와 recovery target | Operations owner. 목표는 실제 pilot baseline/계약 제약에 근거해 사전 설정 |
+| 어느 구조가 적합한가 | static projection/API/object manifest/worker 대안의 측정표와 종료 조건 | Architecture owner. 이전 행들의 요구를 비교한 뒤 작은 수직 pilot로 비용·지연·복구를 확인 |
+
+검색 문서에서 나온 숫자를 기존 공통 순위에 즉시 혼합하지 않는다. 출처 권리와 검색 provenance를 확인하고, 후보 상태로 저장한 뒤 E6의 승격 계약을 거쳐 같은 definition/model revision의 비교 모집단을 다시 계산한다. 정본과 대화에서만 쓴 자료의 provenance가 서로 끊기지 않는지 사용자가 볼 수 있어야 한다.
+
 ## 목표 구조 및 대체 조건
 
 ```text
@@ -73,3 +91,7 @@
 소규모 저빈도 projection은 정적으로 유지할 수 있다. 갱신마다 코드 배포를 요구해 데이터 지연·경합을 만들거나 이력 보존/독립 rollback이 어려우면 데이터 publication을 별도 불변 object store와 manifest로 분리한다. 장중 지연 목표가 scheduler 능력을 초과하면 queue 기반 scheduler와 관측 가능한 worker로 옮긴다. 비용·지연·표본 크기를 측정해 선택하고 특정 플랫폼을 먼저 확정하지 않는다.
 
 사용자에게 내부 job 이름을 보여주는 대신 “이번 비교는 9/18 종가와 가용 공시를 사용합니다. 12개 종목은 재무 기간이 맞지 않아 제외했습니다. 최신 사건은 별도 참고입니다.”처럼 실제 판단에 필요한 범위와 이유를 설명한다.
+
+### v56.15 상세 상태와 인수 계획 연결
+
+이 상위 전략의 표는 전수 의미 검수 완료율이 아니라 조사 범위다. P1166/P1169/P1173의 부분 완료, R24-02 metric identity 공백, R24-03 시각 전달 잔여, R24-07 SLO event 혼입, R24-08 navigation 잔여와 portfolio 결과는 [25의 finding별 현재성](25-CURRENT-FINDING-STATUS-CROSSWALK.md)을 따른다. 제품 질문을 다시 확정한 뒤 우선 구현 순서·권리/보안 선행 조건·접근성 사용자 인수는 [26 실행·인수 계획](26-EXECUTION-AND-ACCEPTANCE-PLAN.md)을 따른다. 플랫폼이나 제품 방향이 실제 사용자 연구·권리 조건·운영 측정으로 결정되기 전까지는 이 문서의 구조 선택도 잠정안이다.

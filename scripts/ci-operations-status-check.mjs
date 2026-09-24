@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { validateOperationsStatus } from '../src/data/contracts/operations.js';
-import { deriveDurableFreshness, derivePublicAiConfig, deriveRouteOwnership, reuseWorkerHealthEvidence } from './build-operations-status.mjs';
+import { OPERATIONS_STATUS, validateOperationsStatus } from '../src/data/contracts/operations.js';
+import { deriveDurableFreshness, deriveFredProviderStatus, derivePublicAiConfig, deriveRouteOwnership, reuseWorkerHealthEvidence } from './build-operations-status.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
@@ -107,4 +107,24 @@ if ((status.ai?.scheduledAnalysis?.lastCallSucceeded === 'CURRENT') !== schedule
 const expectedFredAttempt = data.meta?.fredAttemptedAt || data.meta?.generatedAt || null;
 if (status.providers?.fred?.lastAttemptAt !== expectedFredAttempt) throw new Error('[operations-status] FRED lastAttemptAt must use explicit provider attempt evidence');
 if (data.meta?.fredFetchOk === true && status.providers?.fred?.lastFetchAt !== (data.meta?.fredLastSuccessfulAt || data.meta?.generatedAt || null)) throw new Error('[operations-status] FRED lastFetchAt must use explicit successful-fetch evidence');
+
+// P1189: FRED provider status is an operational claim and must come from
+// OPERATIONS_STATUS. It used to publish 'UNAVAILABLE' — a rights/feature word
+// (P1091 two-axes confusion) — so validateOperationsStatus rejected the whole
+// artifact and fetch-data.mjs aborted before writing operations-status, which
+// killed every cycle where FRED was not fully fetched, including the explicit
+// LKG cycle ci-refresh-artifact-integrity-check allows.
+const fredStatusFixtures = [
+  [{ fetchOk: true, keyPresent: true }, 'CURRENT'],
+  [{ fetchOk: false, keyPresent: true }, 'BLOCKED'],
+  [{ fetchOk: false, keyPresent: false }, 'OPERATOR_REQUIRED']
+];
+for (const [input, expected] of fredStatusFixtures) {
+  const derived = deriveFredProviderStatus(input);
+  if (derived !== expected) throw new Error(`[operations-status] FRED provider status drifted for ${JSON.stringify(input)}: ${derived}`);
+  if (!OPERATIONS_STATUS.includes(derived)) throw new Error(`[operations-status] FRED provider status ${derived} is outside the declared operations vocabulary`);
+}
+if (fredStatusFixtures.some(([input]) => deriveFredProviderStatus(input) === 'UNAVAILABLE')) throw new Error('[operations-status] the retired rights word leaked back into an operations status');
+const builderSource = read('scripts/build-operations-status.mjs');
+if (!/status: fredProviderStatus/.test(builderSource)) throw new Error('[operations-status] the FRED provider status must be derived, not written inline');
 console.log(JSON.stringify({ ok: true, overall: status.overall, durable: status.planes.durable.status, fast: status.planes.fast.status, blockers: status.blockers }));

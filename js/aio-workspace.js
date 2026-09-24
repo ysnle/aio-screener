@@ -237,23 +237,271 @@ function getPortfolioData() {
 }
 function savePortfolioData(positions) {
   var json = JSON.stringify(positions);
+  var memoryOk = true;
   try {
     if (typeof _AioVault !== 'undefined') {
       if (!_AioVault._keyRuntime) _AioVault._keyRuntime = {};
       _AioVault._keyRuntime[PF_STORAGE_KEY] = json; // 동기 read가 항상 최신값을 보게 즉시 갱신
     }
-  } catch(e) {}
+  } catch(e) { memoryOk = false; }
+  // E3/P1181 (11 P11-01): 메모리 반영과 영구 저장 성공은 서로 다른 사건이다. 이전에는 지연 persist가
+  // 실패해도 호출자가 즉시 '완료'를 알렸다 — 이제 persist 결과를 반환해 호출자가 성공/실패를 구분한다.
+  var persist;
   if (_pfVaultOptedOut() || typeof safeLS !== 'function') {
     try {
       var adapter = window.AIO && window.AIO.storageAdapter;
       if (adapter) adapter.set(PF_STORAGE_KEY, json);
       else localStorage.setItem(PF_STORAGE_KEY, json);
-    } catch(e) {}
+      persist = Promise.resolve({ ok: true });
+    } catch(e) { persist = Promise.resolve({ ok: false, reason: 'storage-write-failed' }); }
   } else {
-    safeLS(PF_STORAGE_KEY, json).catch(function(e) { _aioLog('warn', 'portfolio', '저장 확인 실패: ' + (e && e.message || e)); });
+    persist = safeLS(PF_STORAGE_KEY, json).then(function() { return { ok: true }; }).catch(function(e) {
+      _aioLog('warn', 'portfolio', '저장 확인 실패: ' + (e && e.message || e));
+      return { ok: false, reason: 'persist-rejected' };
+    });
   }
   try { document.dispatchEvent(new CustomEvent('aio:portfolioChanged')); } catch(e) {}
+  return persist.then(function(result) {
+    var durable = !!memoryOk && result.ok === true;
+    return { ok: durable, durable: durable, memoryApplied: !!memoryOk, reason: memoryOk ? (result.reason || null) : 'memory-write-failed' };
+  });
 }
+
+// ══════════════════════════════════════════════════════════════════════
+// E3/E4/P1188: 통화·현금 수익률·RF 선언의 단일 writer.
+// 통화/수익률은 입력이지 추정값이 아니다 — 선언이 없으면 키를 만들지 않고, 잘못된 형식은
+// 저장하지 않는다(빈 값 = 삭제). reader(runtime-readers)가 같은 키를 읽으므로 키·정규화는
+// bootstrap이 노출한 `_pfPortfolioAssumptions` 한 곳에서 온다(R632).
+// ══════════════════════════════════════════════════════════════════════
+var PF_ASSUMPTION_FIELDS = {
+  'pf-base-currency-input': { key: 'baseCurrency', kind: 'currency' },
+  'pf-cash-currency-input': { key: 'cashCurrency', kind: 'currency' },
+  'pf-cash-return-input': { key: 'cashReturn', kind: 'rate' },
+  'pf-rf-input': { key: 'riskFreeRate', kind: 'rate' },
+  'pf-exposure-path-input': { key: 'exposurePath', kind: 'path' },
+  'pf-rebalance-policy-input': { key: 'rebalancePolicy', kind: 'policy' }
+};
+function _pfAssumptionApi() {
+  return (typeof window !== 'undefined' && window._pfPortfolioAssumptions) ? window._pfPortfolioAssumptions : null;
+}
+function readPortfolioAssumptionDeclarations() {
+  // 키·정규화·저장 읽기는 portfolio-assumptions.js 한 곳이 소유한다 — 셸은 위임만 한다(R632).
+  var api = _pfAssumptionApi();
+  if (!api || typeof api.read !== 'function') return { baseCurrency: null, cashCurrency: null, cashReturn: null, riskFreeRate: null };
+  try { return api.read(localStorage); } catch(e) { return { baseCurrency: null, cashCurrency: null, cashReturn: null, riskFreeRate: null }; }
+}
+function savePortfolioAssumption(fieldId, value) {
+  var field = PF_ASSUMPTION_FIELDS[fieldId];
+  var api = _pfAssumptionApi();
+  if (!field || !api || !api.keys) return;
+  var key = api.keys[field.key];
+  var normalized;
+  if (field.kind === 'currency') normalized = api.normalizeCurrencyCode ? api.normalizeCurrencyCode(value) : null;
+  else if (field.kind === 'rate') normalized = api.normalizeAnnualRate ? api.normalizeAnnualRate(value) : null;
+  else if (field.kind === 'path') normalized = api.normalizeExposurePath ? api.normalizeExposurePath(value) : null;
+  else normalized = api.normalizeRebalancePolicy ? api.normalizeRebalancePolicy(value) : null;
+  try {
+    // 유효하지 않은 선언은 남기지 않는다 — 3자리 코드·범위 밖 수익률·인식할 수 없는 열거형은 이전
+    // 선언까지 지운다(P1198: 열거형도 예외가 아니다 — 지어낸 기본값을 저장하지 않는다). 비율만 입력
+    // 원문을 보존해 화면이 그대로 되돌릴 수 있게 한다.
+    if (normalized == null) localStorage.removeItem(key);
+    else localStorage.setItem(key, field.kind === 'rate' ? String(value).trim() : normalized);
+  } catch(e) {}
+  renderPortfolio();
+  if (typeof refreshPortfolioRisk === 'function') { try { refreshPortfolioRisk(); } catch(e) {} }
+}
+window.savePortfolioAssumption = savePortfolioAssumption;
+
+// ══════════════════════════════════════════════════════════════════════
+// E4/P1191: 계좌 원장(입출금·기간 평가액) 입력.
+// TWR/MWR은 원장 없이 계산되지 않으므로(assessAccountPerformance) 원장 자체가 입력이어야 한다.
+// 원장은 사용자 금융 데이터다 — 포지션과 같은 Vault 경로(safeLS + `_keyRuntime` 동기 캐시)로
+// 저장하고 별도 평문 키를 만들지 않는다.
+// ══════════════════════════════════════════════════════════════════════
+var PF_LEDGER_KEY = 'aio_portfolio_ledger';
+// E3/P1194: FX leg도 같은 저장 규약을 쓴다 — 목록형 선언은 한 경로(safeLS + 동기 캐시 + ack)로 통일한다.
+var PF_FX_KEY = 'aio_portfolio_fx_legs';
+function _pfLedgerApi() {
+  return (typeof window !== 'undefined' && window._pfPortfolioLedger) ? window._pfPortfolioLedger : null;
+}
+function _pfFxApi() {
+  return (typeof window !== 'undefined' && window._pfPortfolioFx) ? window._pfPortfolioFx : null;
+}
+// P1199: 저장 *정책*(safeLS ack + Vault 동기 캐시 + 자체 평문 키 없음)은 셸이 소유하되, 그 *형태*는
+// 네이티브 모듈이 가진다 — ack가 "메모리 반영"과 "영구 저장"을 분리해 보고하는 계약이 브라우저 없이
+// 테스트된다(이 블록이 ratchet에서 조용히 자라던 자리다).
+var _pfDeclarationStore = null;
+function _pfVaultRuntime() {
+  if (typeof _AioVault === 'undefined') return null;
+  if (!_AioVault._keyRuntime) _AioVault._keyRuntime = {};
+  return _AioVault._keyRuntime;
+}
+function _pfDeclarations() {
+  if (_pfDeclarationStore) return _pfDeclarationStore;
+  var api = (typeof window !== 'undefined' && window._pfDeclarationsStore) ? window._pfDeclarationsStore : null;
+  if (!api || typeof api.create !== 'function') return null;
+  _pfDeclarationStore = api.create({
+    getRuntimeCache: _pfVaultRuntime,
+    getAdapter: function() { return (window.AIO && window.AIO.storageAdapter) || null; },
+    getLocalStorage: function() { return typeof localStorage !== 'undefined' ? localStorage : null; },
+    optedOut: _pfVaultOptedOut,
+    secureSet: function(key, json) {
+      return typeof safeLS === 'function' ? safeLS(key, json) : Promise.reject(new Error('safeLS-unavailable'));
+    },
+    warn: function(message) { _aioLog('warn', 'portfolio', message); }
+  });
+  return _pfDeclarationStore;
+}
+function getPortfolioLedger() { var store = _pfDeclarations(); return store ? store.read(PF_LEDGER_KEY) : null; }
+function _pfDeclarationWrite(key, value) {
+  var store = _pfDeclarations();
+  return store ? store.write(key, value) : Promise.resolve({ ok: false, reason: 'declaration-store-unavailable' });
+}
+function savePortfolioLedger(ledger) { return _pfDeclarationWrite(PF_LEDGER_KEY, ledger); }
+function getPortfolioFxLegs() { var store = _pfDeclarations(); var legs = store ? store.read(PF_FX_KEY) : null; return Array.isArray(legs) ? legs : []; }
+function savePortfolioFxLegs(legs) { return _pfDeclarationWrite(PF_FX_KEY, Array.isArray(legs) ? legs : []); }
+function _pfLedgerRead() {
+  var api = _pfLedgerApi();
+  return api ? api.normalize(getPortfolioLedger()) : null;
+}
+function _pfFxRead() {
+  var api = _pfFxApi();
+  return api ? api.normalize(getPortfolioFxLegs()) : [];
+}
+// P1195: 마크업·문구는 네이티브 패널(src/ui/panels/portfolio-declarations.js)이 소유한다 —
+// 셸은 저장 경로와 핸들러, ack 순서만 남긴다(이 블록이 ratchet에서 가장 빨리 자라던 부분이었다).
+var PF_FIELD_IDS = {
+  transaction: ['pf-ledger-date', 'pf-ledger-kind', 'pf-ledger-amount'],
+  valuation: ['pf-ledger-valuation-date', 'pf-ledger-valuation-amount'],
+  fx: ['pf-fx-from', 'pf-fx-to', 'pf-fx-rate', 'pf-fx-date']
+};
+function _pfPanels() {
+  return (typeof window !== 'undefined' && window._pfDeclarationPanels) ? window._pfDeclarationPanels : null;
+}
+function _pfShowStatus(statusId, kind, phase, result, okMessage) {
+  var panels = _pfPanels();
+  if (panels) panels.showDeclarationStatus({ documentRef: document, statusId: statusId, kind: kind, phase: phase, result: result, okMessage: okMessage });
+}
+function _pfReadFields(kind) {
+  var panels = _pfPanels();
+  return panels ? panels.readDeclaredFields(document, PF_FIELD_IDS[kind]) : {};
+}
+function _pfClearFields(kind) {
+  var panels = _pfPanels();
+  if (panels) panels.clearDeclaredFields(document, PF_FIELD_IDS[kind]);
+}
+function _pfVaultListPersist(options) {
+  _pfShowStatus(options.statusId, options.kind, 'pending');
+  return _pfDeclarationWrite(options.key, options.value).then(function(result) {
+    _pfShowStatus(options.statusId, options.kind, 'persist', result, options.okMessage);
+    if (typeof options.rerender === 'function') options.rerender();
+    if (typeof refreshPortfolioRisk === 'function') { try { refreshPortfolioRisk(); } catch(e) {} }
+    return result;
+  });
+}
+// 유효성·병합은 portfolio-ledger.js와 fx.js가 소유한다 — 셸은 값을 읽어 넘기고 결과를 게시만 한다.
+function _pfApply(kind, statusId, key, result, okMessage) {
+  if (!result || result.ok !== true) {
+    _pfShowStatus(statusId, kind, 'apply', result);
+    return Promise.resolve(result || { ok: false, reason: kind + '-apply-failed' });
+  }
+  return _pfVaultListPersist({
+    kind: kind,
+    key: key,
+    statusId: statusId,
+    rerender: kind === 'fx' ? renderPortfolioFxLegs : renderPortfolioLedger,
+    value: kind === 'fx' ? result.legs : result.ledger,
+    okMessage: okMessage
+  });
+}
+function _pfLedgerApply(result, okMessage) { return _pfApply('ledger', 'pf-ledger-status', PF_LEDGER_KEY, result, okMessage); }
+function _pfFxApply(result, okMessage) { return _pfApply('fx', 'pf-fx-status', PF_FX_KEY, result, okMessage); }
+function addLedgerEntry(kind) {
+  var api = _pfLedgerApi();
+  if (!api) return Promise.resolve({ ok: false, reason: 'ledger-api-unavailable' });
+  var values = _pfReadFields(kind === 'valuation' ? 'valuation' : 'transaction');
+  if (kind === 'valuation') {
+    return _pfLedgerApply(api.appendValuation(_pfLedgerRead(), {
+      date: values['pf-ledger-valuation-date'], amount: values['pf-ledger-valuation-amount']
+    }), '기간 평가액을 저장했습니다.').then(function(result) {
+      if (result.ok) _pfClearFields('valuation');
+      return result;
+    });
+  }
+  var kindValue = values['pf-ledger-kind'] === 'withdrawal' ? 'withdrawal' : 'deposit';
+  return _pfLedgerApply(api.appendTransaction(_pfLedgerRead(), {
+    date: values['pf-ledger-date'], kind: kindValue, amount: values['pf-ledger-amount']
+  }), (kindValue === 'deposit' ? '입금' : '출금') + ' 거래를 저장했습니다.').then(function(result) {
+    if (result.ok) _pfClearFields('transaction');
+    return result;
+  });
+}
+function removeLedgerEntry(kind, index) {
+  var api = _pfLedgerApi();
+  if (!api) return Promise.resolve({ ok: false, reason: 'ledger-api-unavailable' });
+  return _pfLedgerApply(api.remove(_pfLedgerRead(), kind, index), '원장 항목을 삭제했습니다.');
+}
+function setLedgerCoverage(field, checked) {
+  var api = _pfLedgerApi();
+  if (!api) return Promise.resolve({ ok: false, reason: 'ledger-api-unavailable' });
+  return _pfLedgerApply(api.setCoverage(_pfLedgerRead(), field, checked), '원장 포함 범위를 저장했습니다.');
+}
+function setLedgerFlowTiming(value) {
+  var api = _pfLedgerApi();
+  if (!api) return Promise.resolve({ ok: false, reason: 'ledger-api-unavailable' });
+  return _pfLedgerApply(api.setFlowTiming(_pfLedgerRead(), value), '현금흐름 시점 규약을 저장했습니다.');
+}
+function renderPortfolioLedger() {
+  var panels = _pfPanels();
+  if (!panels) return;
+  var api = _pfLedgerApi();
+  var ledger = _pfLedgerRead();
+  panels.applyLedgerPanel({
+    documentRef: document,
+    ledger: ledger,
+    coverageState: api && typeof api.coverageState === 'function' ? api.coverageState(ledger) : { inputs: [] }
+  });
+}
+window._aioAddLedgerEntry = function() { return addLedgerEntry('transaction'); };
+window._aioAddLedgerValuation = function() { return addLedgerEntry('valuation'); };
+window._aioRemoveLedgerEntry = function(arg) {
+  var parts = String(arg == null ? '' : arg).split(':');
+  return removeLedgerEntry(parts[0] === 'valuation' ? 'valuation' : 'transaction', Number(parts[1]));
+};
+window._aioSetLedgerCoverage = function(el) { return setLedgerCoverage(el && el.dataset ? el.dataset.field : null, !!(el && el.checked)); };
+window._aioSaveLedgerConvention = function(el) { return setLedgerFlowTiming(el ? el.value : ''); };
+function renderPortfolioFxLegs() {
+  var panels = _pfPanels();
+  var api = _pfFxApi();
+  if (!panels || !api || typeof api.legsState !== 'function') return;
+  panels.applyFxPanel({ documentRef: document, legsState: api.legsState(_pfFxRead(), { asOfMs: Date.now() }), maxAgeMs: api.maxAgeMs });
+}
+function addFxLeg() {
+  var api = _pfFxApi();
+  if (!api) return Promise.resolve({ ok: false, reason: 'fx-api-unavailable' });
+  var values = _pfReadFields('fx');
+  return _pfFxApply(api.appendLeg(_pfFxRead(), {
+    from: values['pf-fx-from'], to: values['pf-fx-to'], rate: values['pf-fx-rate'], observedAt: values['pf-fx-date']
+  }), 'FX leg를 저장했습니다.').then(function(result) {
+    if (result.ok) _pfClearFields('fx');
+    return result;
+  });
+}
+function removeFxLeg(index) {
+  var api = _pfFxApi();
+  if (!api) return Promise.resolve({ ok: false, reason: 'fx-api-unavailable' });
+  return _pfFxApply(api.removeLeg(_pfFxRead(), index), 'FX leg를 삭제했습니다.');
+}
+window._aioAddFxLeg = function() { return addFxLeg(); };
+window._aioRemoveFxLeg = function(arg) { return removeFxLeg(Number(arg)); };
+window.getPortfolioFxLegs = getPortfolioFxLegs;
+window.savePortfolioFxLegs = savePortfolioFxLegs;
+window.getPortfolioLedger = getPortfolioLedger;
+window.savePortfolioLedger = savePortfolioLedger;
+window.addLedgerEntry = addLedgerEntry;
+window.removeLedgerEntry = removeLedgerEntry;
+window.setLedgerCoverage = setLedgerCoverage;
+window.setLedgerFlowTiming = setLedgerFlowTiming;
 
 // PIN Lock — v52.46: 독자 PIN 저장을 폐기하고 공유 _AioVault 상태를 단일 진실 원천으로 사용
 function isPortfolioLocked() {
@@ -368,7 +616,8 @@ window._aioTogglePortfolioEntry = function(forceOpen) {
 };
 
 // Add/Edit Position
-function addPortfolioPosition() {
+// E3/P1181 (11 P11-01): 완료 알림은 durable ack 뒤에 온다 — persist가 거부되면 '완료'를 말하지 않는다.
+async function addPortfolioPosition() {
   const ticker = (document.getElementById('pf-add-ticker').value || '').trim().toUpperCase();
   const qty = parseFloat(document.getElementById('pf-add-qty').value) || 0;
   const cost = parseFloat(document.getElementById('pf-add-cost').value) || 0;
@@ -376,6 +625,16 @@ function addPortfolioPosition() {
   const parsedTarget = parseFloat((document.getElementById('pf-add-target').value || '').trim());
   const target = Number.isFinite(parsedTarget) && parsedTarget > 0 ? parsedTarget : null;
   const memo = (document.getElementById('pf-add-memo').value || '').trim();
+  // E3/P1187 (11 P11-02): 원가 통화는 합산의 단위다 — 이 경로에 writer가 없어서 사용자는 통화를
+  // 선언할 방법이 없었고, 선언은 import로만 들어왔다. 선언이 비면 null로 남기고 티커·시세·locale로
+  // 추정하지 않는다(11 §23). 선언했는데 형식이 틀리면 조용히 버리지 않고 거부한다(R628).
+  const costCurrencyEl = document.getElementById('pf-add-cost-currency');
+  const costCurrencyRaw = (costCurrencyEl ? costCurrencyEl.value : '').trim().toUpperCase();
+  if (costCurrencyRaw && !/^[A-Z]{3}$/.test(costCurrencyRaw)) {
+    showToast('원가 통화는 3자리 코드(예: USD, KRW)로 입력하거나 비워 두세요.');
+    return;
+  }
+  const costCurrency = costCurrencyRaw || null;
   if (!ticker || qty <= 0 || cost <= 0) { showToast('티커, 수량, 매수 단가를 모두 입력하세요.'); return; }
 
   // v38.8: 티커 유효성 검증 — KNOWN_TICKERS 또는 _SNAP_FALLBACK에 존재하는지 확인
@@ -394,33 +653,42 @@ function addPortfolioPosition() {
   if (pfMain) pfMain.classList.toggle('is-empty', positions.length === 0);
   const existing = positions.findIndex(p => p.ticker === ticker);
   if (existing >= 0) {
-    showConfirmModal('종목 중복', ticker + ' 이미 존재합니다. 업데이트하시겠습니까?', function() {
-      positions[existing] = { ticker, qty, cost, target, memo, addedAt: positions[existing].addedAt, updatedAt: Date.now() };
-      savePortfolioData(positions);
+    showConfirmModal('종목 중복', ticker + ' 이미 존재합니다. 업데이트하시겠습니까?', async function() {
+      // E3/P1187: 통째 교체는 import로 들어온 sector·targetWeight·note·시세 통화를 지웠다 —
+      // 폼이 소유한 필드만 덮어쓰고 나머지는 보존한다.
+      positions[existing] = { ...positions[existing], ticker, qty, cost, target, memo, costCurrency, updatedAt: Date.now() };
+      const saved = await savePortfolioData(positions);
       clearPortfolioForm();
       renderPortfolio();
       window._aioTogglePortfolioEntry(false);
-      showToast(ticker + ' 업데이트 완료');
+      showToast(saved.ok ? ticker + ' 업데이트 완료' : '영구 저장 실패 — ' + ticker + ' 변경은 이 화면에만 반영됐습니다. 새로고침 전 다시 시도하세요.');
     }, '');
     return;
   } else {
-    positions.push({ ticker, qty, cost, target, memo, addedAt: Date.now(), updatedAt: Date.now() });
+    positions.push({ ticker, qty, cost, target, memo, costCurrency, addedAt: Date.now(), updatedAt: Date.now() });
   }
-  savePortfolioData(positions);
+  const saved = await savePortfolioData(positions);
   clearPortfolioForm();
   renderPortfolio();
   window._aioTogglePortfolioEntry(false);
-  // v48.3: 신규 추가 성공 토스트 (기존엔 업데이트 경로만 있었음) — 사용자가 "저장되었는지" 즉시 확인 가능
-  if (typeof showToast === 'function') showToast(ticker + ' 포지션 추가 완료 · 브라우저에만 저장됨');
+  // v48.3 신규 추가 토스트 → E3/P1181: 완료 문구는 durable ack 성공 뒤에만 노출된다.
+  if (typeof showToast === 'function') {
+    showToast(saved.ok
+      ? ticker + ' 포지션 추가 완료 · 브라우저에 저장됨'
+      : '영구 저장 실패 — ' + ticker + ' 변경은 이 화면에만 반영됐습니다. 새로고침 전 다시 시도하세요.');
+  }
 }
 function removePosition(ticker) {
   showConfirmModal(
     ticker + ' 포지션 삭제',
     ticker + ' 종목이 포트폴리오에서 삭제됩니다. 계속하시겠습니까?',
-    function() {
+    async function() {
       const positions = getPortfolioData().filter(p => p.ticker !== ticker);
-      savePortfolioData(positions);
+      const saved = await savePortfolioData(positions);
       renderPortfolio();
+      if (typeof showToast === 'function' && !saved.ok) {
+        showToast('영구 저장 실패 — 삭제가 확정되지 않았습니다. 새로고침 시 되돌아올 수 있습니다.');
+      }
     },
     ''
   );
@@ -433,11 +701,13 @@ function editPosition(ticker) {
   var qtyEl = document.getElementById('pf-add-qty');
   var costEl = document.getElementById('pf-add-cost');
   var tEl = document.getElementById('pf-add-target');
+  var ccEl = document.getElementById('pf-add-cost-currency');
   var memoEl = document.getElementById('pf-add-memo');
   if (tkEl) tkEl.value = p.ticker;
   if (qtyEl) qtyEl.value = p.qty;
   if (costEl) costEl.value = p.cost;
   if (tEl) tEl.value = p.target || '';
+  if (ccEl) ccEl.value = p.costCurrency || '';
   if (memoEl) memoEl.value = p.memo || '';
   // v48.3: 편집 UX 개선 — 폼으로 스크롤 + 포커스 + 토스트 안내 (사용자가 어디서 편집 중인지 명확화)
   if (tkEl) {
@@ -447,7 +717,7 @@ function editPosition(ticker) {
   if (typeof showToast === 'function') showToast(ticker + ' 편집 모드 — 값 수정 후 "추가/업데이트" 버튼 클릭');
 }
 function clearPortfolioForm() {
-  ['pf-add-ticker','pf-add-qty','pf-add-cost','pf-add-target','pf-add-memo'].forEach(id => {
+  ['pf-add-ticker','pf-add-qty','pf-add-cost','pf-add-target','pf-add-memo','pf-add-cost-currency'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -563,7 +833,15 @@ function clearAllPositions() {
   showConfirmModal(
     '포트폴리오 전체 삭제',
     '모든 포지션이 영구 삭제됩니다. 이 작업은 되돌릴 수 없습니다. 정말 삭제하시겠습니까?',
-    function() { savePortfolioData([]); renderPortfolio(); },
+    // E3/P1187 (11 P11-01): 이 경로는 savePortfolioData의 반환을 버려 persist가 거부돼도 조용히
+    // 성공한 것처럼 보였다 — 삭제도 durable ack 뒤에만 확정으로 말한다.
+    async function() {
+      const saved = await savePortfolioData([]);
+      renderPortfolio();
+      if (typeof showToast === 'function' && !saved.ok) {
+        showToast('영구 저장 실패 — 전체 삭제가 확정되지 않았습니다. 새로고침 시 되돌아올 수 있습니다.');
+      }
+    },
     ''
   );
 }
@@ -665,6 +943,28 @@ function renderPortfolio() {
   // 현금 입력 필드 복원
   var cashInp = document.getElementById('pf-cash-input');
   if (cashInp) { try { cashInp.value = localStorage.getItem('aio_portfolio_cash') || ''; } catch(e) {} }
+  // E3/E4/P1188: 선언 필드 복원 — 저장된 원문(코드/퍼센트)을 그대로 되돌린다.
+  var _pfApi = _pfAssumptionApi();
+  if (_pfApi && _pfApi.keys) {
+    Object.keys(PF_ASSUMPTION_FIELDS).forEach(function(id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      try { el.value = localStorage.getItem(_pfApi.keys[PF_ASSUMPTION_FIELDS[id].key]) || ''; } catch(e) { el.value = ''; }
+    });
+    // P1201: 정책은 전략 경로에서만 소비된다 — 회고 경로에서는 비활성으로 그 사실을 드러낸다(선언은 보존).
+    var pathEl = document.getElementById('pf-exposure-path-input');
+    var policyEl = document.getElementById('pf-rebalance-policy-input');
+    if (pathEl && policyEl) {
+      var strategyPathSelected = pathEl.value === 'fixed_target_weight_strategy';
+      policyEl.disabled = !strategyPathSelected;
+      policyEl.setAttribute('aria-disabled', strategyPathSelected ? 'false' : 'true');
+      policyEl.title = strategyPathSelected ? '' : '현재 구성 소급 경로에서는 리밸런싱 정책이 쓰이지 않습니다.';
+    }
+  }
+  // E4/P1191: 원장 입력도 같은 화면 복원 주기에 함께 수화한다.
+  try { renderPortfolioLedger(); } catch(e) {}
+  // E3/P1194: FX leg 목록도 같은 주기에 수화한다(사용 가능/창 초과 표시 포함).
+  try { renderPortfolioFxLegs(); } catch(e) {}
   try { if (typeof window._aioSyncPortfolioAiWorkbench === 'function') window._aioSyncPortfolioAiWorkbench(); } catch(_){}
   try { if (typeof _aioRenderPortfolioHoldingCharts === 'function') _aioRenderPortfolioHoldingCharts(positions, ld); } catch(_){}
 }
@@ -889,9 +1189,11 @@ async function refreshPortfolioRisk() {
   // Cost is historical context, never a current-value fallback. Require a
   // timestamped decision-authorized quote for each live portfolio weight.
   var currentValueMap = {};
+  var priceEvidenceMap = {};
   var missingCurrent = [];
   positions.forEach(function(p) {
     var evidence = typeof _aioDecisionMetric === 'function' ? _aioDecisionMetric(p.ticker, 'price', null) : null;
+    priceEvidenceMap[p.ticker] = evidence;
     var price = evidence && evidence.allowedUse === true ? evidence.value : null;
     if (price == null || !isFinite(price) || price <= 0) missingCurrent.push(p.ticker);
     else currentValueMap[p.ticker] = price * Number(p.qty);
@@ -905,31 +1207,98 @@ async function refreshPortfolioRisk() {
     el.innerHTML = '<div style="font-size:11px;color:var(--data-amber);padding:8px 0;">현재 평가액을 산출할 수 없어 리스크 계산을 보류합니다.</div>';
     return;
   }
-  var currentWeights = {};
-  positions.forEach(function(p) { currentWeights[p.ticker] = currentValueMap[p.ticker] / totalCurrentValue; });
   var minLen = commonDates.length - 1;
   validTickers.forEach(function(t) {
     var values = commonDates.map(function(day) { return historyMap[t][day]; });
     returnsMap[t] = values.slice(1).map(function(value, idx) { return (value / values[idx]) - 1; });
   });
-  // Portfolio weighted daily returns use current live valuation weights.
-  const pfReturns = new Array(minLen).fill(0);
-  validTickers.forEach(function(t) {
-    const w = currentWeights[t];
-    const r = returnsMap[t];
-    for (let i = 0; i < minLen; i++) pfReturns[i] += r[i] * w;
-  });
+
+  // 22:PFR02/PFR09/PFR10 (E4): publish a DECLARED risk path instead of an
+  // implied one. Weights are frozen into one immutable composition snapshot;
+  // cash is declared or held (never dropped into a stock-only denominator and
+  // then called "account risk"); the estimate carries exposure path, rebalance
+  // policy, denominator, RF state and sample facts for the renderer.
+  var cashValue = 0;
+  try { cashValue = Math.max(0, parseFloat(localStorage.getItem('aio_portfolio_cash') || '0') || 0); } catch(e) {}
+  // E3/E4/P1188: 선언된 계좌·현금 통화와 현금 수익률·RF만 쓴다. 현금 통화가 없거나 기준 통화와
+  // 다르면 계좌 전체 분모를 만들 수 없으므로 주식 부분만 게시하고 계좌 뷰는 보류한다.
+  var declarations = readPortfolioAssumptionDeclarations();
+  var cashDeclarable = cashValue === 0
+    || (declarations.cashCurrency != null && declarations.baseCurrency != null && declarations.cashCurrency === declarations.baseCurrency);
+  var snapshot = (typeof window._pfCreateCompositionSnapshot === 'function') ? window._pfCreateCompositionSnapshot({
+    members: positions.map(function(p) {
+      var ev = priceEvidenceMap[p.ticker] || null;
+      return {
+        ticker: p.ticker,
+        qty: Number(p.qty),
+        price: ev ? ev.value : null,
+        priceObservedAt: ev && ev.ts != null ? new Date(ev.ts).toISOString() : null,
+        priceSource: ev && ev.source != null ? String(ev.source) : null
+      };
+    }),
+    cash: { amount: cashValue, currency: declarations.cashCurrency },
+    asOf: new Date().toISOString(),
+    weightBasis: cashDeclarable ? 'whole_account' : 'invested_sleeve',
+    baseCurrency: declarations.baseCurrency
+  }) : null;
+  // E4/P1193: 측정 경로와 리밸런싱 정책도 선언 입력이다. 전략 경로는 포지션이 선언한 목표비중
+  // (폼 단위 %)이 합 100%일 때만 성립하고, 아니면 엔진이 `strategy-target-weights-invalid`로 보류한다.
+  // P1198: 선언된 정책만 넘긴다 — 셸이 'daily'를 지어내면 미선언이 선언으로 게시된다(ledger P1198).
+  var exposurePath = declarations.exposurePath || 'current_composition_retrospective';
+  var rebalancePolicy = declarations.rebalancePolicy;
+  var strategyTargetWeights;
+  if (exposurePath === 'fixed_target_weight_strategy') {
+    var declaredWeightSum = 0;
+    var weightComplete = positions.length > 0;
+    strategyTargetWeights = {};
+    positions.forEach(function(p) {
+      var declaredWeight = Number(p.targetWeight);
+      if (!isFinite(declaredWeight) || declaredWeight < 0) { weightComplete = false; return; }
+      strategyTargetWeights[p.ticker] = declaredWeight / 100;
+      declaredWeightSum += declaredWeight;
+    });
+    // P1200: 합이 100% 미만이면 나머지는 현금 목표비중이다(계좌 범위 선언). 100% 초과만 무효다.
+    if (!weightComplete || declaredWeightSum > 100 + 1e-6) strategyTargetWeights = {};
+  }
+  var estimate = (snapshot && typeof window._pfDeriveRiskEstimate === 'function') ? window._pfDeriveRiskEstimate({
+    snapshot: snapshot,
+    returnsMap: returnsMap,
+    cashReturn: declarations.cashReturn != null ? { mode: 'explicit_assumption', annualRate: declarations.cashReturn } : { mode: 'unresolved' },
+    rfAnnual: declarations.riskFreeRate,
+    exposureHistoryMode: exposurePath,
+    rebalancePolicy: rebalancePolicy,
+    targetWeights: strategyTargetWeights,
+    sampleDates: commonDates.slice(1)
+  }) : null;
+  if (!estimate || estimate.status !== 'ready') {
+    el.innerHTML = '<div style="font-size:11px;color:var(--data-amber);padding:8px 0;">위험 추정 입력을 확정하지 못해 보류합니다: ' +
+      _escHtmlSafe((estimate && estimate.code) || (snapshot && snapshot.blocked && snapshot.blocked.code) || 'composition-snapshot-unavailable') + '.</div>';
+    return;
+  }
+  var pfReturns = estimate.publishedReturns;
 
   // 각 지표 계산
   const var95  = (typeof _calcPortfolioVaR === 'function') ? _calcPortfolioVaR(pfReturns, 0.95) : null;
   const var99  = (typeof _calcPortfolioVaR === 'function') ? _calcPortfolioVaR(pfReturns, 0.99) : null;
-  const sharpe = (typeof _calcSharpe === 'function') ? _calcSharpe(pfReturns, 0.043) : null;
+  // 22:PFR03 (E4): RF는 선언 입력에서만 온다. 미선언·무효면 Sharpe를 보류한다 —
+  // 고정 상수를 라벨 뒤에 숨기지 않는다(P1182에서 제거).
+  const rfAnnual = (estimate.rf && estimate.rf.status === 'accepted') ? estimate.rf.annualRate : null;
+  const sharpe = (typeof _calcSharpe === 'function') ? _calcSharpe(pfReturns, rfAnnual) : null;
   const mddRes = (typeof _calcMaxDrawdown === 'function') ? _calcMaxDrawdown(pfReturns) : null;
   const corrRes = (validTickers.length >= 2 && typeof _calcCorrelationMatrix === 'function')
     ? _calcCorrelationMatrix(returnsMap) : null;
 
+  // E4/P1191: 원장이 선언되면 실제 계좌 성과를 계산한다. 없거나 규약이 미선언이면 엔진이
+  // 자기 사유로 보류하고, 패널은 그 사유를 그대로 게시한다 — 없는 성과를 만들지 않는다.
+  var accountLedger = (typeof getPortfolioLedger === 'function') ? getPortfolioLedger() : null;
+  var accountPerf = (typeof window._pfAssessAccountPerformance === 'function')
+    ? window._pfAssessAccountPerformance({
+      ledger: accountLedger ? { ...accountLedger, currency: accountLedger.currency || declarations.baseCurrency || null } : null
+    }) : null;
+  window._lastPortfolioRiskEstimate = { estimate: estimate, snapshot: snapshot, accountPerformance: accountPerf, rfAnnual: rfAnnual, checkedAt: Date.now() };
   _renderRiskMetrics(el, { var95: var95, var99: var99, sharpe: sharpe, mddRes: mddRes,
-    corrRes: corrRes, validTickers: validTickers, n: minLen });
+    corrRes: corrRes, validTickers: validTickers, n: minLen, rfAnnual: rfAnnual,
+    estimate: estimate, accountPerf: accountPerf });
   try { _aioRenderPortfolioExposure(positions, returnsMap); } catch(_) {}   // v50.54 3D
   try { _aioRenderPortfolioStress(positions); } catch(_) {}                 // v50.54 3E
   try { refreshPortfolioTechnicalRisk(); } catch(_) {}
@@ -1073,6 +1442,14 @@ window.refreshPortfolioTechnicalRisk = refreshPortfolioTechnicalRisk;
 function _renderRiskMetrics(el, data) {
   var var95 = data.var95, var99 = data.var99, sharpe = data.sharpe,
       mddRes = data.mddRes, corrRes = data.corrRes, n = data.n;
+  var est = data.estimate || null;
+  var rfAnnual = data.rfAnnual != null ? data.rfAnnual : null;
+  // 22:PFR02/PFR09 (E4): every number on this panel belongs to a declared
+  // scope. The title carries the denominator so a sleeve figure can never read
+  // as account risk, and the declaration block states path/cash/RF/snapshot.
+  var scopeToken = est ? est.publishedScope : null;
+  var scopeLabel = scopeToken === 'whole_account' ? '계좌 전체' : scopeToken === 'invested_sleeve' ? '주식 부분' : null;
+  var scopeSuffix = scopeLabel ? ' · ' + scopeLabel : '';
 
   function fmtLoss(v) { return (v !== null && v !== undefined) ? '-' + (v * 100).toFixed(2) + '%' : '—'; } // v50.22: null일 때 "-—" 대신 "—"
   function fmtN(v, d) { return (v !== null && v !== undefined) ? v.toFixed(d !== undefined ? d : 2) : '—'; }
@@ -1093,27 +1470,73 @@ function _renderRiskMetrics(el, data) {
     return v >= 0.3 ? '위험' : v >= 0.15 ? '주의' : '양호';
   }
 
+  // 선언 블록 — 계좌 성과 보류 + 측정 경로/분모/RF/표본/snapshot.
+  var declLines = [];
+  if (data.accountPerf && data.accountPerf.status === 'ready') {
+    // E4/P1191: 원장 계약을 통과한 실제 계좌 성과 — 규약·기간·표본을 수치와 함께 게시한다.
+    var perf = data.accountPerf;
+    var perfPct = function(v) { return (v >= 0 ? '+' : '') + (v * 100).toFixed(2) + '%'; };
+    declLines.push('<b>실제 계좌 성과 TWR ' + _escHtmlSafe(perfPct(perf.twr)) + ' · MWR ' +
+      (perf.mwr == null ? '보류' : _escHtmlSafe(perfPct(perf.mwr))) + '</b> — ' +
+      _escHtmlSafe(perf.currency + ' · ' + perf.flowTiming + ' · ' + perf.sample.periods + '기간 ' + perf.sample.from + '~' + perf.sample.to) +
+      (perf.mwr == null ? ' · ' + _escHtmlSafe((perf.warnings && perf.warnings[0]) || 'MWR 계산 불가') : ''));
+  } else if (data.accountPerf) {
+    declLines.push('<b>실제 계좌 성과(TWR/MWR) 보류</b> — ' + _escHtmlSafe(data.accountPerf.message || '원장 없음') +
+      ' 아래 지표는 현재 구성을 과거에 적용한 참고도입니다.');
+  }
+  if (est) {
+    var declParts = [
+      '경로 ' + est.exposureHistoryMode,
+      'rebalance ' + (est.rebalancePolicyApplied ? est.rebalancePolicy : (est.rebalancePolicyDeclared ? est.rebalancePolicyDeclared + '(미사용)' : '미선언')),
+      '분모 ' + (scopeToken || '—') + (scopeLabel ? '(' + scopeLabel + ')' : ''),
+      'RF ' + (est.rf && est.rf.status === 'accepted' ? '입력' : '미입력 — Sharpe 보류'),
+      '표본 ' + (est.sample && est.sample.n != null ? est.sample.n : n) + '일',
+      'snapshot ' + est.compositionSnapshotId + ' @ ' + (est.valuationCut || '—')
+    ];
+    if (est.pathLineage === 'legacy-risk-path') declParts.push('legacy-risk-path · 실제 계좌 이력 아님' + (est.rebalancePolicyDeclared ? ' · 선언 정책 ' + _escHtmlSafe(est.rebalancePolicyDeclared) + ' 미사용' : '')); // P1197: 소비되지 않는 선언을 화면이 말한다
+    if (est.pathLineage === 'fixed-target-weight-strategy') {
+      var declaredTargets = est.strategy && est.strategy.targetWeights ? Object.keys(est.strategy.targetWeights) : [];
+      declParts.push('고정 목표비중 전략 · 실제 계좌 이력 아님' + (est.strategy && est.strategy.cashWeight > 0 ? ' · 현금 ' + (est.strategy.cashWeight * 100).toFixed(1) + '%' : '') + (declaredTargets.length
+        ? ' · 목표 ' + declaredTargets.map(function(ticker) { return ticker + ' ' + (est.strategy.targetWeights[ticker] * 100).toFixed(1) + '%'; }).join('/')
+        : ''));
+    }
+    declLines.push(_escHtmlSafe(declParts.join(' · ')));
+    if (est.wholeAccountHold) {
+      // E3/E4/P1188: 보류 사유를 구분해 말한다 — 통화 미선언/수익률 미입력/전략 경로 미선언.
+      var holdReason = est.wholeAccountHold === 'cash-declaration-unresolved' ? '현금 통화 미선언'
+        : est.wholeAccountHold === 'strategy-account-scope-not-declared' ? '전략 경로의 계좌 범위 미선언'
+        : '현금 수익률 미입력';
+      declLines.push('현금 보류: ' + holdReason + ' — 계좌 전체 위험은 게시하지 않습니다(주식 부분만 게시).');
+    }
+  }
+  var declHtml = declLines.length
+    ? '<div style="font-size:10px;color:var(--text-muted);line-height:1.6;padding:6px 8px;margin-bottom:10px;background:var(--surface-2);border:1px solid var(--border);border-radius:4px;">' + declLines.join('<br>') + '</div>'
+    : '';
+
   // 지표 카드
   var mdd = mddRes ? mddRes.mdd : null;
   var cards = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(138px,1fr));gap:10px;margin-bottom:14px;">';
 
   cards += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:10px 12px;">' +
-    '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">1일 VaR (95%)</div>' +
+    '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">1일 VaR (95%)' + scopeSuffix + '</div>' +
     '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);">' + fmtLoss(var95) + '</div>' +
-    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">95% 신뢰구간 최대 손실</div></div>';
+    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">95% 최대 손실 · 표본 ' + n + '일 · 인증 보류</div></div>';
 
   cards += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:10px 12px;">' +
-    '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">1일 VaR (99%)</div>' +
+    '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">1일 VaR (99%)' + scopeSuffix + '</div>' +
     '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:var(--data-red);">' + fmtLoss(var99) + '</div>' +
-    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">99% 신뢰구간 최대 손실</div></div>';
+    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">99% 최대 손실 · 표본 ' + n + '일 · 인증 보류</div></div>';
 
+  var sharpeSub = sharpe !== null && sharpe !== undefined
+    ? sharpeLabel(sharpe) + ' (RF 입력, ' + n + '일)'
+    : (rfAnnual == null && est ? 'RF 미입력 — 보류 (' + n + '일)' : '데이터 부족');
   cards += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:10px 12px;">' +
-    '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">Sharpe Ratio</div>' +
+    '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">Sharpe Ratio' + scopeSuffix + '</div>' +
     '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:' + sharpeColor(sharpe) + ';">' + fmtN(sharpe) + '</div>' +
-    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">' + (sharpe !== null ? sharpeLabel(sharpe) + ' (RF 4.3%, ' + n + '일)' : '데이터 부족') + '</div></div>';
+    '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">' + sharpeSub + '</div></div>';
 
   cards += '<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:10px 12px;">' +
-    '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">최대낙폭 (MDD)</div>' +
+    '<div style="font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:4px;">최대낙폭 (MDD)' + scopeSuffix + '</div>' +
     '<div style="font-size:18px;font-weight:800;font-family:var(--font-mono);color:' + mddColor(mdd) + ';">' + fmtLoss(mdd) + '</div>' +
     '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">' + (mdd !== null ? mddLabel(mdd) + ' (기간: ' + n + '일)' : '데이터 부족') + '</div></div>';
 
@@ -1160,9 +1583,10 @@ function _renderRiskMetrics(el, data) {
   }
 
   var note = '<div style="font-size:10px;color:var(--text-muted);padding-top:8px;border-top:1px solid var(--border);">' +
-    '역사적 시뮬레이션 VaR — 과거 3개월 수익률 분포 기반. 실제 손실은 이를 초과할 수 있습니다. 투자 결정 참고용으로만 활용하세요.</div>';
+    '역사적 시뮬레이션 VaR — ' + (scopeLabel ? _escHtmlSafe(scopeLabel) + ' 범위' : '선언된 범위') +
+    '의 과거 수익률 분포 기반 참고값이며 인증 보류 상태입니다. 실제 손실은 이를 초과할 수 있습니다. 투자 결정 참고용으로만 활용하세요.</div>';
 
-  el.innerHTML = cards + heatHtml + note;
+  el.innerHTML = declHtml + cards + heatHtml + note;
 }
 
 function _aioFmtBtPct(v, d) {
@@ -1172,6 +1596,22 @@ function _aioFmtBtPct(v, d) {
 function _aioFmtBtNum(v, d) {
   if (v === null || v === undefined || !isFinite(v)) return '—';
   return Number(v).toFixed(d == null ? 2 : d);
+}
+// E4/P1190: 인증 문구는 실제 판정을 따른다 — '인증 보류'를 고정 라벨로 두면 인증된 표본도
+// 보류로 보이고, 왜 보류인지 소비자가 알 수 없다.
+var PF_VAR_REASON_LABELS = {
+  'sample-below-declared-minimum': '표본 부족',
+  'tail-below-declared-minimum': '꼬리 부족',
+  'bootstrap-band-exceeds-declared-maximum': '부트스트랩 변동 큼',
+  'estimator-sensitivity-exceeds-declared-maximum': '추정량 민감',
+  'tail-sample-single-observation': '꼬리 1개'
+};
+function _aioBtVarCertLabel(cert) {
+  if (!cert || typeof cert !== 'object') return '인증 보류';
+  if (cert.certification === 'certified') return '인증';
+  var reasons = (cert.stability && Array.isArray(cert.stability.certificationReasons)) ? cert.stability.certificationReasons : [];
+  if (!reasons.length && Array.isArray(cert.certificationReasons)) reasons = cert.certificationReasons;
+  return reasons.length ? '인증 보류 — ' + reasons.map(function(reason) { return PF_VAR_REASON_LABELS[reason] || reason; }).join(', ') : '인증 보류';
 }
 function _aioFmtBtMoney(v) {
   if (v === null || v === undefined || !isFinite(v)) return '—';
@@ -1201,7 +1641,7 @@ function _aioRenderPortfolioBacktestLab(model) {
     ['Sharpe / Sortino', _aioFmtBtNum(p.sharpe) + ' / ' + _aioFmtBtNum(p.sortino), '—'],
     ['Active / Tracking Error / IR', _aioFmtBtPct(p.activeReturn) + ' / ' + _aioFmtBtPct(p.trackingError) + ' / ' + _aioFmtBtNum(p.informationRatio), '—'],
     ['Beta / Alpha / Corr', _aioFmtBtNum(p.beta) + ' / ' + _aioFmtBtPct(p.alpha) + ' / ' + _aioFmtBtNum(p.benchmarkCorrelation), '—'],
-    ['VaR / CVaR 5% monthly', _aioFmtBtPct(-p.historicalVar5) + ' / ' + _aioFmtBtPct(-p.conditionalVar5), '—'],
+    ['VaR / CVaR 5% monthly' + (p.varCertification ? ' (표본 ' + p.varCertification.sampleN + '·꼬리 ' + p.varCertification.tailN + ' · ' + _aioBtVarCertLabel(p.varCertification) + ')' : ''), _aioFmtBtPct(-p.historicalVar5) + ' / ' + _aioFmtBtPct(-p.conditionalVar5), '—'],
     ['Up / Down Capture', _aioFmtBtPct(p.upsideCapture) + ' / ' + _aioFmtBtPct(p.downsideCapture), '—']
   ];
   var metricHtml = metricRows.map(function(r) {
@@ -1235,7 +1675,7 @@ function _aioRenderPortfolioBacktestLab(model) {
     '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">' +
       '<div style="font-size:11px;color:var(--text-muted);">기간 <b style="color:var(--text-primary);font-family:var(--font-mono);">' + _escHtmlSafe(model.settings.startMonth) + ' ~ ' + _escHtmlSafe(model.settings.endMonth) + '</b> · ' +
       '리밸런싱 <b style="color:var(--text-primary);">' + _escHtmlSafe(model.settings.rebalanceType) + '</b> · 벤치마크 <b style="color:var(--text-primary);font-family:var(--font-mono);">' + _escHtmlSafe(model.settings.benchmarkSymbol) + '</b><br>' +
-      '조정주가 · 현재 구성 소급 · 거래비용 미모형 · RF ' + (model.settings.rfAnnual == null ? '미입력' : _aioFmtBtPct(model.settings.rfAnnual, 2)) + '</div>' +
+      '조정주가 · 현재 구성 소급 · 배분 basis ' + _escHtmlSafe(model.settings.targetWeightBasis || '—') + ' · 거래비용 미모형 · RF ' + (model.settings.rfAnnual == null ? '미입력' : _aioFmtBtPct(model.settings.rfAnnual, 2)) + '</div>' +
       '<span class="aio-source-badge is-delayed">REFERENCE-ONLY · delayed monthly backtest</span>' +
     '</div>' +
     '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:10px;">' +
@@ -1471,10 +1911,14 @@ function importPortfolio(event) {
         return p;
       });
       if (data.length === 0) throw new Error('유효한 포지션 없음');
-      showConfirmModal('데이터 가져오기', data.length + '개 포지션을 가져오시겠습니까? 기존 데이터가 대체됩니다.', function() {
-        savePortfolioData(data);
+      showConfirmModal('데이터 가져오기', data.length + '개 포지션을 가져오시겠습니까? 기존 데이터가 대체됩니다.', async function() {
+        // E3/P1187 (11 P11-01): 가져오기도 durable ack 뒤에만 '완료'를 말한다 — persist가 거부되면
+        // 기존 데이터가 남아 있으므로 성공 문구는 거짓이 된다.
+        const saved = await savePortfolioData(data);
         renderPortfolio();
-        showToast(data.length + '개 포지션 가져오기 완료');
+        showToast(saved.ok
+          ? data.length + '개 포지션 가져오기 완료'
+          : '영구 저장 실패 — 가져오기가 확정되지 않았습니다. 새로고침 시 이전 데이터로 되돌아올 수 있습니다.');
       }, '');
     } catch(err) { showToast('파일 형식이 올바르지 않습니다.'); }
   });
