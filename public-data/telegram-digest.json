@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-09-24T02:54:41.270Z",
-  "attemptedAt": "2026-09-24T02:54:41.270Z",
-  "lastSuccessfulAt": "2026-09-24T02:54:41.270Z",
+  "generatedAt": "2026-09-24T06:46:52.888Z",
+  "attemptedAt": "2026-09-24T06:46:52.888Z",
+  "lastSuccessfulAt": "2026-09-24T06:46:52.888Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 4,
   "windowKind": "research-14d",
-  "since": "2026-09-10T02:54:37.012Z",
-  "until": "2026-09-24T02:54:37.012Z",
+  "since": "2026-09-10T06:46:48.952Z",
+  "until": "2026-09-24T06:46:48.952Z",
   "current24hWindow": {
     "start": "2026-09-22T23:00:00.000Z",
     "end": "2026-09-23T23:00:00.000Z",
@@ -14,7 +14,7 @@
   },
   "current24hCoverage": {
     "observedCount": 176,
-    "eligibleTextCount": 84,
+    "eligibleTextCount": 58,
     "channelCounts": {
       "insidertracking": 87,
       "HANAchina": 46,
@@ -81,7 +81,7 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 319,
+      "count": 313,
       "freshCount": 19,
       "eligibleTextCount": 19,
       "selectedCount": 95,
@@ -93,19 +93,19 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1127,
-      "freshCount": 40,
-      "eligibleTextCount": 39,
+      "count": 1123,
+      "freshCount": 39,
+      "eligibleTextCount": 37,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 64525
+      "lastPostId": 64536
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 181,
+      "count": 174,
       "freshCount": 18,
       "eligibleTextCount": 18,
       "selectedCount": 80,
@@ -117,17 +117,334 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 629,
-      "freshCount": 35,
-      "eligibleTextCount": 35,
+      "count": 634,
+      "freshCount": 34,
+      "eligibleTextCount": 34,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 69343
+      "lastPostId": 69359
     }
   ],
-  "count": 2256,
-  "retainedItemCount": 477,
+  "count": 2244,
+  "retainedItemCount": 487,
   "observedItems": [
+    {
+      "id": "insidertracking/64536",
+      "channel": "insidertracking",
+      "datetime": "2026-09-24T06:39:18.000Z",
+      "localDateKst": "2026-09-24",
+      "score": 45,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/64535",
+      "channel": "insidertracking",
+      "datetime": "2026-09-24T06:38:38.000Z",
+      "localDateKst": "2026-09-24",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/69359",
+      "channel": "HANAchina",
+      "datetime": "2026-09-24T06:34:21.000Z",
+      "localDateKst": "2026-09-24",
+      "score": 47,
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/69358",
+      "channel": "HANAchina",
+      "datetime": "2026-09-24T06:32:20.000Z",
+      "localDateKst": "2026-09-24",
+      "score": 69,
+      "tags": [
+        "credit",
+        "macro",
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/64534",
+      "channel": "insidertracking",
+      "datetime": "2026-09-24T05:59:00.000Z",
+      "localDateKst": "2026-09-24",
+      "score": 60,
+      "tags": [
+        "macro",
+        "equity",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "META",
+        "PYPL"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/64533",
+      "channel": "insidertracking",
+      "datetime": "2026-09-24T05:57:18.000Z",
+      "localDateKst": "2026-09-24",
+      "score": 89,
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "ai-policy",
+        "japan"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/64532",
+      "channel": "insidertracking",
+      "datetime": "2026-09-24T05:52:20.000Z",
+      "localDateKst": "2026-09-24",
+      "score": 0,
+      "tags": [
+        "media-only"
+      ],
+      "tickers": [],
+      "hasText": false
+    },
+    {
+      "id": "insidertracking/64530",
+      "channel": "insidertracking",
+      "datetime": "2026-09-24T05:51:49.000Z",
+      "localDateKst": "2026-09-24",
+      "score": 100,
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "ai-policy",
+        "kr-market",
+        "earnings",
+        "flows",
+        "japan"
+      ],
+      "tickers": [
+        "GOOG"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/69357",
+      "channel": "HANAchina",
+      "datetime": "2026-09-24T05:48:56.000Z",
+      "localDateKst": "2026-09-24",
+      "score": 52,
+      "tags": [
+        "macro",
+        "japan"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/69356",
+      "channel": "HANAchina",
+      "datetime": "2026-09-24T05:36:48.000Z",
+      "localDateKst": "2026-09-24",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/69355",
+      "channel": "HANAchina",
+      "datetime": "2026-09-24T05:20:04.000Z",
+      "localDateKst": "2026-09-24",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/69354",
+      "channel": "HANAchina",
+      "datetime": "2026-09-24T05:18:12.000Z",
+      "localDateKst": "2026-09-24",
+      "score": 63,
+      "tags": [
+        "ai-policy",
+        "kr-market",
+        "flows"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/64529",
+      "channel": "insidertracking",
+      "datetime": "2026-09-24T04:52:00.000Z",
+      "localDateKst": "2026-09-24",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/64528",
+      "channel": "insidertracking",
+      "datetime": "2026-09-24T04:37:28.000Z",
+      "localDateKst": "2026-09-24",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/64527",
+      "channel": "insidertracking",
+      "datetime": "2026-09-24T04:35:06.000Z",
+      "localDateKst": "2026-09-24",
+      "score": 50,
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/69353",
+      "channel": "HANAchina",
+      "datetime": "2026-09-24T04:16:45.000Z",
+      "localDateKst": "2026-09-24",
+      "score": 52,
+      "tags": [
+        "macro",
+        "japan"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/69352",
+      "channel": "HANAchina",
+      "datetime": "2026-09-24T04:06:29.000Z",
+      "localDateKst": "2026-09-24",
+      "score": 64,
+      "tags": [
+        "macro",
+        "power"
+      ],
+      "tickers": [
+        "CRWV"
+      ],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/69349",
+      "channel": "HANAchina",
+      "datetime": "2026-09-24T03:46:04.000Z",
+      "localDateKst": "2026-09-24",
+      "score": 52,
+      "tags": [
+        "macro",
+        "earnings"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/69348",
+      "channel": "HANAchina",
+      "datetime": "2026-09-24T03:45:07.000Z",
+      "localDateKst": "2026-09-24",
+      "score": 40,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/69347",
+      "channel": "HANAchina",
+      "datetime": "2026-09-24T03:42:33.000Z",
+      "localDateKst": "2026-09-24",
+      "score": 47,
+      "tags": [
+        "macro"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "insidertracking/64526",
+      "channel": "insidertracking",
+      "datetime": "2026-09-24T03:24:06.000Z",
+      "localDateKst": "2026-09-24",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/69346",
+      "channel": "HANAchina",
+      "datetime": "2026-09-24T03:21:15.000Z",
+      "localDateKst": "2026-09-24",
+      "score": 52,
+      "tags": [
+        "semi"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/69345",
+      "channel": "HANAchina",
+      "datetime": "2026-09-24T03:12:05.000Z",
+      "localDateKst": "2026-09-24",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
+    {
+      "id": "HANAchina/69344",
+      "channel": "HANAchina",
+      "datetime": "2026-09-24T03:04:29.000Z",
+      "localDateKst": "2026-09-24",
+      "score": 35,
+      "tags": [
+        "market-note"
+      ],
+      "tickers": [],
+      "hasText": true
+    },
     {
       "id": "insidertracking/64525",
       "channel": "insidertracking",
@@ -838,7 +1155,7 @@
         "power"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64495",
@@ -850,7 +1167,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64494",
@@ -862,7 +1179,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64493",
@@ -903,7 +1220,7 @@
         "VRT",
         "HPE"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64492",
@@ -915,7 +1232,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64491",
@@ -941,7 +1258,7 @@
         "ILMN",
         "BIIB"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64490",
@@ -961,7 +1278,7 @@
         "SNDK",
         "NKE"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64489",
@@ -973,7 +1290,7 @@
         "semi"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64488",
@@ -1001,7 +1318,7 @@
         "ORCL",
         "SMCI"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64487",
@@ -1022,7 +1339,7 @@
         "AMZN",
         "TSM"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64486",
@@ -1034,7 +1351,7 @@
         "kr-market"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64485",
@@ -1160,7 +1477,7 @@
         "macro"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25461",
@@ -1273,7 +1590,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25455",
@@ -1327,7 +1644,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69315",
@@ -1344,7 +1661,7 @@
         "TSM",
         "BA"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64480",
@@ -1381,7 +1698,7 @@
         "geo"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69313",
@@ -1397,7 +1714,7 @@
       "tickers": [
         "NVDA"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69312",
@@ -1412,7 +1729,7 @@
         "TSM",
         "MTK"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69311",
@@ -1431,7 +1748,7 @@
       "tickers": [
         "NVDA"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64477",
@@ -1635,7 +1952,7 @@
         "optical"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69309",
@@ -1650,7 +1967,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69308",
@@ -1662,7 +1979,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "aetherjapanresearch/25450",
@@ -1722,7 +2039,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64464",
@@ -1872,7 +2189,7 @@
         "market-note"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "HANAchina/69305",
@@ -1886,7 +2203,7 @@
         "earnings"
       ],
       "tickers": [],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64450",
@@ -1936,7 +2253,7 @@
       "tickers": [
         "BCS"
       ],
-      "hasText": true
+      "hasText": false
     },
     {
       "id": "insidertracking/64446",
@@ -30269,569 +30586,62 @@
       ],
       "tickers": [],
       "hasText": false
-    },
-    {
-      "id": "HANAchina/68685",
-      "channel": "HANAchina",
-      "datetime": "2026-09-10T06:31:30.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 52,
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/63338",
-      "channel": "insidertracking",
-      "datetime": "2026-09-10T06:15:27.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 79,
-      "tags": [
-        "credit",
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/63337",
-      "channel": "insidertracking",
-      "datetime": "2026-09-10T06:15:01.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 63,
-      "tags": [
-        "geo",
-        "kr-market",
-        "japan"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/63336",
-      "channel": "insidertracking",
-      "datetime": "2026-09-10T06:14:04.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 67,
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/63335",
-      "channel": "insidertracking",
-      "datetime": "2026-09-10T06:12:54.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 67,
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/68684",
-      "channel": "HANAchina",
-      "datetime": "2026-09-10T06:09:40.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 47,
-      "tags": [
-        "semi",
-        "earnings"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/25132",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-09-10T06:07:21.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 56,
-      "tags": [
-        "semi",
-        "earnings"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/63334",
-      "channel": "insidertracking",
-      "datetime": "2026-09-10T06:07:18.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 43,
-      "tags": [
-        "kr-market"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/25130",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-09-10T06:07:13.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 52,
-      "tags": [
-        "macro",
-        "japan"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/25131",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-09-10T06:07:13.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 52,
-      "tags": [
-        "macro",
-        "japan"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/20109",
-      "channel": "bornlupin",
-      "datetime": "2026-09-10T05:40:46.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 68,
-      "tags": [
-        "macro",
-        "semi",
-        "earnings"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/68683",
-      "channel": "HANAchina",
-      "datetime": "2026-09-10T05:37:25.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 68,
-      "tags": [
-        "macro",
-        "semi",
-        "earnings"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/20108",
-      "channel": "bornlupin",
-      "datetime": "2026-09-10T05:34:56.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 68,
-      "tags": [
-        "macro",
-        "semi",
-        "earnings"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/63333",
-      "channel": "insidertracking",
-      "datetime": "2026-09-10T05:33:04.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 68,
-      "tags": [
-        "macro",
-        "semi",
-        "earnings"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/20107",
-      "channel": "bornlupin",
-      "datetime": "2026-09-10T05:28:33.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 69,
-      "tags": [
-        "macro",
-        "semi",
-        "equity",
-        "flows",
-        "healthcare"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/68682",
-      "channel": "HANAchina",
-      "datetime": "2026-09-10T05:22:47.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 48,
-      "tags": [
-        "kr-market",
-        "equity",
-        "flows"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/63331",
-      "channel": "insidertracking",
-      "datetime": "2026-09-10T05:17:45.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 95,
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "kr-market",
-        "earnings",
-        "flows"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/63330",
-      "channel": "insidertracking",
-      "datetime": "2026-09-10T05:14:20.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 100,
-      "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi",
-        "power",
-        "ai-policy",
-        "kr-market",
-        "flows",
-        "healthcare",
-        "japan"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/68681",
-      "channel": "HANAchina",
-      "datetime": "2026-09-10T04:59:34.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 47,
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/20106",
-      "channel": "bornlupin",
-      "datetime": "2026-09-10T04:39:08.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/20105",
-      "channel": "bornlupin",
-      "datetime": "2026-09-10T04:34:14.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 52,
-      "tags": [
-        "semi"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/25129",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-09-10T04:07:26.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 57,
-      "tags": [
-        "geo",
-        "kr-market"
-      ],
-      "tickers": [
-        "035420.KS"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/63329",
-      "channel": "insidertracking",
-      "datetime": "2026-09-10T03:51:34.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/63328",
-      "channel": "insidertracking",
-      "datetime": "2026-09-10T03:44:21.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 80,
-      "tags": [
-        "macro",
-        "semi",
-        "kr-market",
-        "flows"
-      ],
-      "tickers": [
-        "005930.KS",
-        "000660.KS"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/20104",
-      "channel": "bornlupin",
-      "datetime": "2026-09-10T03:43:46.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 59,
-      "tags": [
-        "semi"
-      ],
-      "tickers": [
-        "NVDA",
-        "CAT",
-        "TSM"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/25128",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-09-10T03:40:10.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 35,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "aetherjapanresearch/25127",
-      "channel": "aetherjapanresearch",
-      "datetime": "2026-09-10T03:40:05.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 47,
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/63327",
-      "channel": "insidertracking",
-      "datetime": "2026-09-10T03:26:28.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 47,
-      "tags": [
-        "semi"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/63326",
-      "channel": "insidertracking",
-      "datetime": "2026-09-10T03:21:42.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 47,
-      "tags": [
-        "macro",
-        "insider"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/68679",
-      "channel": "HANAchina",
-      "datetime": "2026-09-10T03:15:17.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 40,
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "bornlupin/20103",
-      "channel": "bornlupin",
-      "datetime": "2026-09-10T03:11:21.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 60,
-      "tags": [
-        "semi",
-        "kr-market",
-        "earnings"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/68678",
-      "channel": "HANAchina",
-      "datetime": "2026-09-10T03:10:51.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 56,
-      "tags": [
-        "semi",
-        "earnings",
-        "flows",
-        "healthcare"
-      ],
-      "tickers": [
-        "TSM"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/68677",
-      "channel": "HANAchina",
-      "datetime": "2026-09-10T03:06:30.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 50,
-      "tags": [
-        "ai-policy",
-        "equity"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/63323",
-      "channel": "insidertracking",
-      "datetime": "2026-09-10T03:06:13.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 56,
-      "tags": [
-        "semi"
-      ],
-      "tickers": [
-        "005930.KS"
-      ],
-      "hasText": false
-    },
-    {
-      "id": "insidertracking/63322",
-      "channel": "insidertracking",
-      "datetime": "2026-09-10T03:01:02.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 45,
-      "tags": [
-        "geo"
-      ],
-      "tickers": [],
-      "hasText": false
-    },
-    {
-      "id": "HANAchina/68676",
-      "channel": "HANAchina",
-      "datetime": "2026-09-10T02:59:26.000Z",
-      "localDateKst": "2026-09-10",
-      "score": 55,
-      "tags": [
-        "semi",
-        "flows"
-      ],
-      "tickers": [
-        "SNDK",
-        "ETSY"
-      ],
-      "hasText": false
     }
   ],
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2256,
-    "eligibleTextCount": 111,
-    "mediaOnlyCount": 2145,
-    "highSignalCount": 476,
-    "broadSignalCount": 1020,
+    "observedCount": 2244,
+    "eligibleTextCount": 108,
+    "mediaOnlyCount": 2136,
+    "highSignalCount": 468,
+    "broadSignalCount": 1007,
     "selectedRawCount": 416,
-    "selectedEligibleCount": 53,
-    "selectedRawCoveragePct": 47.7,
-    "selectedOfObservedPct": 18.4,
+    "selectedEligibleCount": 50,
+    "selectedRawCoveragePct": 46.3,
+    "selectedOfObservedPct": 18.5,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount."
   },
   "topicCounts": {
-    "ai-policy": 204,
-    "market-note": 680,
-    "macro": 775,
-    "equity": 170,
-    "kr-market": 262,
-    "power": 290,
-    "semi": 498,
-    "flows": 186,
-    "earnings": 304,
-    "geo": 434,
-    "media-only": 58,
-    "credit": 48,
-    "crypto": 10,
-    "healthcare": 120,
+    "geo": 430,
+    "market-note": 685,
+    "macro": 768,
+    "credit": 47,
+    "earnings": 299,
+    "equity": 168,
+    "healthcare": 118,
+    "semi": 484,
+    "ai-policy": 205,
     "japan": 127,
-    "insider": 26,
+    "media-only": 59,
+    "kr-market": 256,
+    "flows": 181,
+    "power": 289,
+    "crypto": 10,
+    "insider": 25,
     "optical": 47
   },
   "tickerCounts": {
-    "META": 70,
+    "META": 71,
+    "PYPL": 1,
+    "GOOG": 44,
+    "CRWV": 10,
     "AVGO": 38,
     "BE": 27,
-    "035420.KS": 23,
-    "GOOG": 43,
+    "035420.KS": 22,
     "AAPL": 23,
-    "NVDA": 69,
+    "NVDA": 68,
     "MSFT": 34,
     "PLTR": 9,
     "AMZN": 48,
-    "TSM": 73,
+    "TSM": 66,
     "ORCL": 27,
     "GOOGL": 11,
     "AMAT": 7,
     "MRVL": 11,
     "AAOI": 6,
-    "SNDK": 13,
+    "SNDK": 12,
     "PEP": 2,
     "ARM": 3,
     "PANW": 8,
@@ -30860,9 +30670,9 @@
     "BA": 4,
     "MTK": 7,
     "IONQ": 12,
-    "005930.KS": 62,
+    "005930.KS": 60,
     "BCS": 1,
-    "000660.KS": 72,
+    "000660.KS": 71,
     "QCOM": 7,
     "BABA": 1,
     "WFC": 2,
@@ -30877,7 +30687,6 @@
     "INTC": 5,
     "ASTS": 1,
     "SMR": 5,
-    "CRWV": 9,
     "GME": 1,
     "TECH": 1,
     "BNS": 2,
@@ -30946,10 +30755,10 @@
     "EQNR": 3,
     "CVX": 3,
     "RBLX": 3,
-    "CAT": 3,
+    "CAT": 2,
     "GTLB": 1,
     "IRDM": 1,
-    "ETSY": 3,
+    "ETSY": 2,
     "003490.KS": 2,
     "SIMO": 1,
     "CRH": 1,
@@ -30976,60 +30785,60 @@
     "016360.KS": 1
   },
   "themes": [
-    "Macro/Rates (775 posts in 14-day research window): 2026년 9월 23일 서학개미 순매수 미국 주식 TOP 50 1위: DIREX DAI SEMI BE 3X ETF-USD SPLR 2642142633002 US25461H5726 (20.44%) 2위: PALO ALTO NETWORKS INC (12.01%) 3위: MICROSTRATEGY INC CL A...",
-    "Market Notes (680 posts in 14-day research window): 52주 신고가 (시총 &#036;1B 이상) ━━━━━━━━━━━━━━ 🧬 헬스케어 · AtriCure · Freenome · Haemonetics · Halozyme Therapeutics ·...",
-    "Semiconductors/Memory (498 posts in 14-day research window): 2026년 9월 23일 서학개미 순매수 미국 주식 TOP 50 1위: DIREX DAI SEMI BE 3X ETF-USD SPLR 2642142633002 US25461H5726 (20.44%) 2위: PALO ALTO NETWORKS INC (12.01%) 3위: MICROSTRATEGY INC CL A...",
-    "Geopolitics (434 posts in 14-day research window): 2026년 9월 23일 서학개미 순매수 미국 주식 TOP 50 1위: DIREX DAI SEMI BE 3X ETF-USD SPLR 2642142633002 US25461H5726 (20.44%) 2위: PALO ALTO NETWORKS INC (12.01%) 3위: MICROSTRATEGY INC CL A...",
-    "Earnings/Corporate (304 posts in 14-day research window): 2026년 9월 23일 서학개미 순매수 미국 주식 TOP 50 1위: DIREX DAI SEMI BE 3X ETF-USD SPLR 2642142633002 US25461H5726 (20.44%) 2위: PALO ALTO NETWORKS INC (12.01%) 3위: MICROSTRATEGY INC CL A...",
-    "AI Power/Grid (290 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — 제3자 판매자를 위한 상시 작동형 AI 에이전트 기능을 Seller Assistant에 도입. 판매자가 자연어로 작업과 가드레일을 설정하면 가격·재고·상품 목록·계정 상태를...",
-    "Korea Market (262 posts in 14-day research window): 2026년 9월 23일 서학개미 순매수 미국 주식 TOP 50 1위: DIREX DAI SEMI BE 3X ETF-USD SPLR 2642142633002 US25461H5726 (20.44%) 2위: PALO ALTO NETWORKS INC (12.01%) 3위: MICROSTRATEGY INC CL A...",
-    "AI Policy/Export Controls (204 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — 제3자 판매자를 위한 상시 작동형 AI 에이전트 기능을 Seller Assistant에 도입. 판매자가 자연어로 작업과 가드레일을 설정하면 가격·재고·상품 목록·계정 상태를..."
+    "Macro/Rates (768 posts in 14-day research window): 2026년 9월 24일 미국 증시 프리마켓 브리핑 미국 증시는 프리마켓에서 약세. 다우 선물 -0.20%, S&P500 -0.29%, 나스닥100 -0.34%, 러셀2000 -0.15%로 기술주 중심의 하방 압력이 소폭 우세하며 VIX는 17.77 부근. 연준의 추가 긴축 가능성과 미·중 정상회담을 앞둔 관망...",
+    "Market Notes (685 posts in 14-day research window): 52주 신고가 (시총 &#036;1B 이상) ━━━━━━━━━━━━━━ 🧬 헬스케어 · AtriCure · Freenome · Haemonetics · Halozyme Therapeutics ·...",
+    "Semiconductors/Memory (484 posts in 14-day research window): 2026년 9월 24일 미국 증시 프리마켓 브리핑 미국 증시는 프리마켓에서 약세. 다우 선물 -0.20%, S&P500 -0.29%, 나스닥100 -0.34%, 러셀2000 -0.15%로 기술주 중심의 하방 압력이 소폭 우세하며 VIX는 17.77 부근. 연준의 추가 긴축 가능성과 미·중 정상회담을 앞둔 관망...",
+    "Geopolitics (430 posts in 14-day research window): 2026년 9월 24일 미국 증시 프리마켓 브리핑 미국 증시는 프리마켓에서 약세. 다우 선물 -0.20%, S&P500 -0.29%, 나스닥100 -0.34%, 러셀2000 -0.15%로 기술주 중심의 하방 압력이 소폭 우세하며 VIX는 17.77 부근. 연준의 추가 긴축 가능성과 미·중 정상회담을 앞둔 관망...",
+    "Earnings/Corporate (299 posts in 14-day research window): 2026년 9월 24일 미국 증시 프리마켓 브리핑 미국 증시는 프리마켓에서 약세. 다우 선물 -0.20%, S&P500 -0.29%, 나스닥100 -0.34%, 러셀2000 -0.15%로 기술주 중심의 하방 압력이 소폭 우세하며 VIX는 17.77 부근. 연준의 추가 긴축 가능성과 미·중 정상회담을 앞둔 관망...",
+    "AI Power/Grid (289 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — 제3자 판매자를 위한 상시 작동형 AI 에이전트 기능을 Seller...",
+    "Korea Market (256 posts in 14-day research window): 2026년 9월 24일 미국 증시 프리마켓 브리핑 미국 증시는 프리마켓에서 약세. 다우 선물 -0.20%, S&P500 -0.29%, 나스닥100 -0.34%, 러셀2000 -0.15%로 기술주 중심의 하방 압력이 소폭 우세하며 VIX는 17.77 부근. 연준의 추가 긴축 가능성과 미·중 정상회담을 앞둔 관망...",
+    "AI Policy/Export Controls (205 posts in 14-day research window): 2026년 9월 24일 미국 증시 프리마켓 브리핑 미국 증시는 프리마켓에서 약세. 다우 선물 -0.20%, S&P500 -0.29%, 나스닥100 -0.34%, 러셀2000 -0.15%로 기술주 중심의 하방 압력이 소폭 우세하며 VIX는 17.77 부근. 연준의 추가 긴축 가능성과 미·중 정상회담을 앞둔 관망..."
   ],
   "catalysts": [
     {
-      "key": "TSM",
-      "count": 73,
-      "text": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — 제3자 판매자를 위한 상시 작동형 AI 에이전트 기능을 Seller Assistant에 도입. 판매자가 자연어로 작업과 가드레일을 설정하면 가격·재고·상품 목록·계정 상태를..."
-    },
-    {
-      "key": "000660.KS",
-      "count": 72,
-      "text": "2026년 9월 21일 미국 증시 프리마켓 브리핑 미국 증시는 현재 다우 선물 +0.37%, S&P500 선물 +0.39%, 나스닥100 선물 +0.49%, 러셀2000 선물 +0.33% 상승 중이며 VIX는..."
-    },
-    {
       "key": "META",
-      "count": 70,
+      "count": 71,
       "text": "2026년 9월 23일 프리마켓 주요 종목 동향 ━━━━━━━━━━━━━━ 상승 종목 WOR (+16.66%) 주당순이익 예상치 &#036;0.07 상회, 매출도 예상치 상회 TLSI (+14.40%)..."
     },
     {
+      "key": "000660.KS",
+      "count": 71,
+      "text": "2026년 9월 21일 미국 증시 프리마켓 브리핑 미국 증시는 현재 다우 선물 +0.37%, S&P500 선물 +0.39%, 나스닥100 선물 +0.49%, 러셀2000 선물 +0.33% 상승 중이며 VIX는..."
+    },
+    {
       "key": "NVDA",
-      "count": 69,
-      "text": "2026년 9월 24일 미국 증시 브리핑 미국 증시는 강한 경기지표가 추가 긴축 우려를 재점화하면서 전반적인 위험자산 조정으로 마감. S&P 500 -0.75%, 다우 -0.68%, 나스닥 -1.13%, 러셀2000 -1.77%, VIX +6.83% 기록. 특히 중소형주와 경기민감·소비주 약세가 대형주보다 크게..."
+      "count": 68,
+      "text": "2026년 9월 24일 미국 증시 브리핑 미국 증시는 강한 경기지표가 추가 긴축 우려를 재점화하면서 전반적인 위험자산 조정으로 마감. S&P 500 -0.75%, 다우 -0.68%, 나스닥 -1.13%,..."
+    },
+    {
+      "key": "TSM",
+      "count": 66,
+      "text": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — 제3자 판매자를 위한 상시 작동형 AI 에이전트 기능을 Seller..."
     },
     {
       "key": "005930.KS",
-      "count": 62,
+      "count": 60,
       "text": "2026년 9월 21일 미국 증시 프리마켓 브리핑 미국 증시는 현재 다우 선물 +0.37%, S&P500 선물 +0.39%, 나스닥100 선물 +0.49%, 러셀2000 선물 +0.33% 상승 중이며 VIX는..."
     },
     {
       "key": "AMZN",
       "count": 48,
-      "text": "2026년 9월 23일 서학개미 순매수 미국 주식 TOP 50 1위: DIREX DAI SEMI BE 3X ETF-USD SPLR 2642142633002 US25461H5726 (20.44%) 2위: PALO ALTO NETWORKS INC (12.01%) 3위: MICROSTRATEGY INC CL A..."
+      "text": "2026년 9월 23일 서학개미 순매수 미국 주식 TOP 50 1위: DIREX DAI SEMI BE 3X ETF-USD SPLR 2642142633002 US25461H5726 (20.44%) 2위:..."
     },
     {
       "key": "AMD",
       "count": 46,
-      "text": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — 제3자 판매자를 위한 상시 작동형 AI 에이전트 기능을 Seller Assistant에 도입. 판매자가 자연어로 작업과 가드레일을 설정하면 가격·재고·상품 목록·계정 상태를..."
+      "text": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — 제3자 판매자를 위한 상시 작동형 AI 에이전트 기능을 Seller..."
     },
     {
       "key": "GOOG",
-      "count": 43,
-      "text": "2026년 9월 23일 서학개미 순매수 미국 주식 TOP 50 1위: DIREX DAI SEMI BE 3X ETF-USD SPLR 2642142633002 US25461H5726 (20.44%) 2위: PALO ALTO NETWORKS INC (12.01%) 3위: MICROSTRATEGY INC CL A..."
+      "count": 44,
+      "text": "2026년 9월 24일 미국 증시 프리마켓 브리핑 미국 증시는 프리마켓에서 약세. 다우 선물 -0.20%, S&P500 -0.29%, 나스닥100 -0.34%, 러셀2000 -0.15%로 기술주 중심의 하방 압력이 소폭 우세하며 VIX는 17.77 부근. 연준의 추가 긴축 가능성과 미·중 정상회담을 앞둔 관망..."
     },
     {
       "key": "AVGO",
       "count": 38,
-      "text": "2026년 9월 23일 서학개미 순매수 미국 주식 TOP 50 1위: DIREX DAI SEMI BE 3X ETF-USD SPLR 2642142633002 US25461H5726 (20.44%) 2위: PALO ALTO NETWORKS INC (12.01%) 3위: MICROSTRATEGY INC CL A..."
+      "text": "2026년 9월 23일 서학개미 순매수 미국 주식 TOP 50 1위: DIREX DAI SEMI BE 3X ETF-USD SPLR 2642142633002 US25461H5726 (20.44%) 2위:..."
     },
     {
       "key": "MU",
@@ -31039,12 +30848,12 @@
     {
       "key": "MSFT",
       "count": 34,
-      "text": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — 제3자 판매자를 위한 상시 작동형 AI 에이전트 기능을 Seller Assistant에 도입. 판매자가 자연어로 작업과 가드레일을 설정하면 가격·재고·상품 목록·계정 상태를..."
+      "text": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — 제3자 판매자를 위한 상시 작동형 AI 에이전트 기능을 Seller..."
     },
     {
       "key": "BE",
       "count": 27,
-      "text": "2026년 9월 23일 서학개미 순매수 미국 주식 TOP 50 1위: DIREX DAI SEMI BE 3X ETF-USD SPLR 2642142633002 US25461H5726 (20.44%) 2위: PALO ALTO NETWORKS INC (12.01%) 3위: MICROSTRATEGY INC CL A..."
+      "text": "2026년 9월 23일 서학개미 순매수 미국 주식 TOP 50 1위: DIREX DAI SEMI BE 3X ETF-USD SPLR 2642142633002 US25461H5726 (20.44%) 2위:..."
     }
   ],
   "categories": [
@@ -31054,8 +30863,8 @@
       "topics": [
         "macro"
       ],
-      "count": 775,
-      "focus": "2026년 9월 23일 서학개미 순매수 미국 주식 TOP 50 1위: DIREX DAI SEMI BE 3X ETF-USD SPLR 2642142633002 US25461H5726 (20.44%) 2위: PALO ALTO NETWORKS INC (12.01%) 3위: MICROSTRATEGY INC CL A..."
+      "count": 768,
+      "focus": "2026년 9월 24일 미국 증시 프리마켓 브리핑 미국 증시는 프리마켓에서 약세. 다우 선물 -0.20%, S&P500 -0.29%, 나스닥100 -0.34%, 러셀2000 -0.15%로 기술주 중심의 하방 압력이 소폭 우세하며 VIX는 17.77 부근. 연준의 추가 긴축 가능성과 미·중 정상회담을 앞둔 관망..."
     },
     {
       "id": "geo",
@@ -31063,8 +30872,8 @@
       "topics": [
         "geo"
       ],
-      "count": 434,
-      "focus": "2026년 9월 23일 서학개미 순매수 미국 주식 TOP 50 1위: DIREX DAI SEMI BE 3X ETF-USD SPLR 2642142633002 US25461H5726 (20.44%) 2위: PALO ALTO NETWORKS INC (12.01%) 3위: MICROSTRATEGY INC CL A..."
+      "count": 430,
+      "focus": "2026년 9월 24일 미국 증시 프리마켓 브리핑 미국 증시는 프리마켓에서 약세. 다우 선물 -0.20%, S&P500 -0.29%, 나스닥100 -0.34%, 러셀2000 -0.15%로 기술주 중심의 하방 압력이 소폭 우세하며 VIX는 17.77 부근. 연준의 추가 긴축 가능성과 미·중 정상회담을 앞둔 관망..."
     },
     {
       "id": "credit",
@@ -31072,7 +30881,7 @@
       "topics": [
         "credit"
       ],
-      "count": 48,
+      "count": 47,
       "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 9월 23일 > 오후 2시~오후 9시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 행정부는 미국 내 디젤 가격 급등에 대응해 디젤 수출 제한 또는 금지 방안을..."
     },
     {
@@ -31081,8 +30890,8 @@
       "topics": [
         "semi"
       ],
-      "count": 498,
-      "focus": "2026년 9월 23일 서학개미 순매수 미국 주식 TOP 50 1위: DIREX DAI SEMI BE 3X ETF-USD SPLR 2642142633002 US25461H5726 (20.44%) 2위: PALO ALTO NETWORKS INC (12.01%) 3위: MICROSTRATEGY INC CL A..."
+      "count": 484,
+      "focus": "2026년 9월 24일 미국 증시 프리마켓 브리핑 미국 증시는 프리마켓에서 약세. 다우 선물 -0.20%, S&P500 -0.29%, 나스닥100 -0.34%, 러셀2000 -0.15%로 기술주 중심의 하방 압력이 소폭 우세하며 VIX는 17.77 부근. 연준의 추가 긴축 가능성과 미·중 정상회담을 앞둔 관망..."
     },
     {
       "id": "optical",
@@ -31099,8 +30908,8 @@
       "topics": [
         "power"
       ],
-      "count": 290,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — 제3자 판매자를 위한 상시 작동형 AI 에이전트 기능을 Seller Assistant에 도입. 판매자가 자연어로 작업과 가드레일을 설정하면 가격·재고·상품 목록·계정 상태를..."
+      "count": 289,
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — 제3자 판매자를 위한 상시 작동형 AI 에이전트 기능을 Seller..."
     },
     {
       "id": "ai-policy",
@@ -31108,8 +30917,8 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 204,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — 제3자 판매자를 위한 상시 작동형 AI 에이전트 기능을 Seller Assistant에 도입. 판매자가 자연어로 작업과 가드레일을 설정하면 가격·재고·상품 목록·계정 상태를..."
+      "count": 205,
+      "focus": "2026년 9월 24일 미국 증시 프리마켓 브리핑 미국 증시는 프리마켓에서 약세. 다우 선물 -0.20%, S&P500 -0.29%, 나스닥100 -0.34%, 러셀2000 -0.15%로 기술주 중심의 하방 압력이 소폭 우세하며 VIX는 17.77 부근. 연준의 추가 긴축 가능성과 미·중 정상회담을 앞둔 관망..."
     },
     {
       "id": "kr-market",
@@ -31117,8 +30926,8 @@
       "topics": [
         "kr-market"
       ],
-      "count": 262,
-      "focus": "2026년 9월 23일 서학개미 순매수 미국 주식 TOP 50 1위: DIREX DAI SEMI BE 3X ETF-USD SPLR 2642142633002 US25461H5726 (20.44%) 2위: PALO ALTO NETWORKS INC (12.01%) 3위: MICROSTRATEGY INC CL A..."
+      "count": 256,
+      "focus": "2026년 9월 24일 미국 증시 프리마켓 브리핑 미국 증시는 프리마켓에서 약세. 다우 선물 -0.20%, S&P500 -0.29%, 나스닥100 -0.34%, 러셀2000 -0.15%로 기술주 중심의 하방 압력이 소폭 우세하며 VIX는 17.77 부근. 연준의 추가 긴축 가능성과 미·중 정상회담을 앞둔 관망..."
     },
     {
       "id": "equity",
@@ -31126,8 +30935,8 @@
       "topics": [
         "equity"
       ],
-      "count": 170,
-      "focus": "2026년 9월 23일 서학개미 순매수 미국 주식 TOP 50 1위: DIREX DAI SEMI BE 3X ETF-USD SPLR 2642142633002 US25461H5726 (20.44%) 2위: PALO ALTO NETWORKS INC (12.01%) 3위: MICROSTRATEGY INC CL A..."
+      "count": 168,
+      "focus": "2026년 9월 23일 서학개미 순매수 미국 주식 TOP 50 1위: DIREX DAI SEMI BE 3X ETF-USD SPLR 2642142633002 US25461H5726 (20.44%) 2위:..."
     },
     {
       "id": "crypto",
@@ -31136,7 +30945,7 @@
         "crypto"
       ],
       "count": 10,
-      "focus": "2026년 9월 23일 서학개미 순매수 미국 주식 TOP 50 1위: DIREX DAI SEMI BE 3X ETF-USD SPLR 2642142633002 US25461H5726 (20.44%) 2위: PALO ALTO NETWORKS INC (12.01%) 3위: MICROSTRATEGY INC CL A..."
+      "focus": "2026년 9월 23일 서학개미 순매수 미국 주식 TOP 50 1위: DIREX DAI SEMI BE 3X ETF-USD SPLR 2642142633002 US25461H5726 (20.44%) 2위:..."
     },
     {
       "id": "earnings",
@@ -31144,8 +30953,8 @@
       "topics": [
         "earnings"
       ],
-      "count": 304,
-      "focus": "2026년 9월 23일 서학개미 순매수 미국 주식 TOP 50 1위: DIREX DAI SEMI BE 3X ETF-USD SPLR 2642142633002 US25461H5726 (20.44%) 2위: PALO ALTO NETWORKS INC (12.01%) 3위: MICROSTRATEGY INC CL A..."
+      "count": 299,
+      "focus": "2026년 9월 24일 미국 증시 프리마켓 브리핑 미국 증시는 프리마켓에서 약세. 다우 선물 -0.20%, S&P500 -0.29%, 나스닥100 -0.34%, 러셀2000 -0.15%로 기술주 중심의 하방 압력이 소폭 우세하며 VIX는 17.77 부근. 연준의 추가 긴축 가능성과 미·중 정상회담을 앞둔 관망..."
     },
     {
       "id": "healthcare",
@@ -31153,8 +30962,8 @@
       "topics": [
         "healthcare"
       ],
-      "count": 120,
-      "focus": "2026년 9월 23일 서학개미 순매수 미국 주식 TOP 50 1위: DIREX DAI SEMI BE 3X ETF-USD SPLR 2642142633002 US25461H5726 (20.44%) 2위: PALO ALTO NETWORKS INC (12.01%) 3위: MICROSTRATEGY INC CL A..."
+      "count": 118,
+      "focus": "2026년 9월 23일 서학개미 순매수 미국 주식 TOP 50 1위: DIREX DAI SEMI BE 3X ETF-USD SPLR 2642142633002 US25461H5726 (20.44%) 2위:..."
     },
     {
       "id": "japan",
@@ -31163,7 +30972,7 @@
         "japan"
       ],
       "count": 127,
-      "focus": "🌎 글로벌 뉴스 브리핑 - 2026년 9월 23일 > 오후 2시~오후 9시 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 트럼프 행정부는 미국 내 디젤 가격 급등에 대응해 디젤 수출 제한 또는 금지 방안을..."
+      "focus": "2026년 9월 24일 미국 증시 프리마켓 브리핑 미국 증시는 프리마켓에서 약세. 다우 선물 -0.20%, S&P500 -0.29%, 나스닥100 -0.34%, 러셀2000 -0.15%로 기술주 중심의 하방 압력이 소폭 우세하며 VIX는 17.77 부근. 연준의 추가 긴축 가능성과 미·중 정상회담을 앞둔 관망..."
     },
     {
       "id": "flows",
@@ -31171,8 +30980,8 @@
       "topics": [
         "flows"
       ],
-      "count": 186,
-      "focus": "2026년 9월 23일 서학개미 순매수 미국 주식 TOP 50 1위: DIREX DAI SEMI BE 3X ETF-USD SPLR 2642142633002 US25461H5726 (20.44%) 2위: PALO ALTO NETWORKS INC (12.01%) 3위: MICROSTRATEGY INC CL A..."
+      "count": 181,
+      "focus": "2026년 9월 24일 미국 증시 프리마켓 브리핑 미국 증시는 프리마켓에서 약세. 다우 선물 -0.20%, S&P500 -0.29%, 나스닥100 -0.34%, 러셀2000 -0.15%로 기술주 중심의 하방 압력이 소폭 우세하며 VIX는 17.77 부근. 연준의 추가 긴축 가능성과 미·중 정상회담을 앞둔 관망..."
     },
     {
       "id": "insider",
@@ -31180,7 +30989,7 @@
       "topics": [
         "insider"
       ],
-      "count": 26,
+      "count": 25,
       "focus": "2026년 9월 23일 프리마켓 주요 종목 동향 ━━━━━━━━━━━━━━ 상승 종목 WOR (+16.66%) 주당순이익 예상치 &#036;0.07 상회, 매출도 예상치 상회 TLSI (+14.40%)..."
     },
     {
@@ -31189,7 +30998,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 680,
+      "count": 685,
       "focus": "52주 신고가 (시총 &#036;1B 이상) ━━━━━━━━━━━━━━ 🧬 헬스케어 · AtriCure · Freenome · Haemonetics · Halozyme Therapeutics ·..."
     }
   ],
@@ -31441,6 +31250,29 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "insidertracking/64530",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/64530",
+      "datetime": "2026-09-24T05:51:49.000Z",
+      "localDateKst": "2026-09-24",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "ai-policy",
+        "kr-market",
+        "earnings",
+        "flows",
+        "japan"
+      ],
+      "tickers": [
+        "GOOG"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "2026년 9월 24일 미국 증시 프리마켓 브리핑 미국 증시는 프리마켓에서 약세. 다우 선물 -0.20%, S&P500 -0.29%, 나스닥100 -0.34%, 러셀2000 -0.15%로 기술주 중심의 하방..."
+    },
     {
       "id": "insidertracking/64493",
       "channel": "insidertracking",
@@ -32112,34 +31944,6 @@
       "summary": "2026년 9월 19일 미국 레딧 게시물 분석 > 🤖 NVDA · AVGO · AMD - AI 반도체 · AI 다시 Risk-On 분위기 · AVGO 콜 수익 인증 계속 · AMD 강세에 커버드콜 폭사 인증..."
     },
     {
-      "id": "insidertracking/64093",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/64093",
-      "datetime": "2026-09-18T22:30:50.000Z",
-      "localDateKst": "2026-09-19",
-      "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "power",
-        "ai-policy",
-        "kr-market",
-        "earnings",
-        "healthcare",
-        "japan"
-      ],
-      "tickers": [
-        "NVDA",
-        "TSLA",
-        "AAPL",
-        "AMZN",
-        "T"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) ━━━━━━━━━━━━━━ 🤖 AI · 클라우드 · 소프트웨어 • 아마존 (AMZN) — AWS가 SAP와 5년 전략적 협력 계약을 체결하고 SAP 비즈니스 AI..."
-    },
-    {
       "id": "aetherjapanresearch/25340",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25340",
@@ -32614,6 +32418,189 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "HANAchina/69358",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/69358",
+      "datetime": "2026-09-24T06:32:20.000Z",
+      "localDateKst": "2026-09-24",
+      "tags": [
+        "credit",
+        "macro",
+        "earnings"
+      ],
+      "tickers": [],
+      "score": 69,
+      "hasText": true,
+      "summary": "•DeepSeek가 75억달러 규모의 자금조달을 완료 •연환산 매출은 10억달러 (The Information) >DeepSeek完成75亿美元融资，年化营收达到10亿美元。（The Information）..."
+    },
+    {
+      "id": "insidertracking/64534",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/64534",
+      "datetime": "2026-09-24T05:59:00.000Z",
+      "localDateKst": "2026-09-24",
+      "tags": [
+        "macro",
+        "equity",
+        "earnings",
+        "healthcare"
+      ],
+      "tickers": [
+        "META",
+        "PYPL"
+      ],
+      "score": 60,
+      "hasText": true,
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) > 새벽 6시~오후 3시 기준 ━━━━━━━━━━━━━━ • 메타 플랫폼스 (META) — Connect 2026에서 Muse AI를 쇼핑·결제·여행·생산성까지..."
+    },
+    {
+      "id": "insidertracking/64533",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/64533",
+      "datetime": "2026-09-24T05:57:18.000Z",
+      "localDateKst": "2026-09-24",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "ai-policy",
+        "japan"
+      ],
+      "tickers": [],
+      "score": 89,
+      "hasText": true,
+      "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 9월 24일 > 새벽 6시~오후 3시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미국과 중국은 부산에서 합의한 무역 휴전을 2027년 1월 10일까지..."
+    },
+    {
+      "id": "insidertracking/64530",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/64530",
+      "datetime": "2026-09-24T05:51:49.000Z",
+      "localDateKst": "2026-09-24",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "ai-policy",
+        "kr-market",
+        "earnings",
+        "flows",
+        "japan"
+      ],
+      "tickers": [
+        "GOOG"
+      ],
+      "score": 100,
+      "hasText": true,
+      "summary": "2026년 9월 24일 미국 증시 프리마켓 브리핑 미국 증시는 프리마켓에서 약세. 다우 선물 -0.20%, S&P500 -0.29%, 나스닥100 -0.34%, 러셀2000 -0.15%로 기술주 중심의 하방..."
+    },
+    {
+      "id": "HANAchina/69357",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/69357",
+      "datetime": "2026-09-24T05:48:56.000Z",
+      "localDateKst": "2026-09-24",
+      "tags": [
+        "macro",
+        "japan"
+      ],
+      "tickers": [],
+      "score": 52,
+      "hasText": true,
+      "summary": ">>글로벌 채권시장 매도세 확산, 일본 10년물 국채금리 1996년 이후 최고치 •일본 10년물 국채금리가 3.075%까지 급등함. 배경에는 미국 국채 매도, 일본은행의 금리인상 신호, 재정확대 우려 등..."
+    },
+    {
+      "id": "HANAchina/69354",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/69354",
+      "datetime": "2026-09-24T05:18:12.000Z",
+      "localDateKst": "2026-09-24",
+      "tags": [
+        "ai-policy",
+        "kr-market",
+        "flows"
+      ],
+      "tickers": [],
+      "score": 63,
+      "hasText": true,
+      "summary": "> >월가에서 가장 주목받는 ‘금융 AI’ 창업자: ‘AI 시대의 Bloomberg’를 만드는 방법, 왜 OpenAI와 Anthropic은 금융을 잘하지 못하는가 •Rogo 창업자 Stengel은 핵심 논리로..."
+    },
+    {
+      "id": "insidertracking/64527",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/64527",
+      "datetime": "2026-09-24T04:35:06.000Z",
+      "localDateKst": "2026-09-24",
+      "tags": [
+        "geo"
+      ],
+      "tickers": [],
+      "score": 50,
+      "hasText": true,
+      "summary": "월스트리트저널에 따르면 이란 세관 자료에서 올해 1~6월 중국산 이중용도 부품 약 1,300건이 이란 국방부로 반입된 것으로 나타남. 전자부품, 모터, GPS 장비, 항공기 부품 등이 포함됐으며 드론과..."
+    },
+    {
+      "id": "HANAchina/69353",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/69353",
+      "datetime": "2026-09-24T04:16:45.000Z",
+      "localDateKst": "2026-09-24",
+      "tags": [
+        "macro",
+        "japan"
+      ],
+      "tickers": [],
+      "score": 52,
+      "hasText": true,
+      "summary": ">>일본 국채 금리 전 구간 상승, 5년물·10년물 상승폭 부각 **10년물 금리 1996년 이후 최고 •일본 10년물 8bp 상승한 3.055% •일본 5년물 8bp 상승한 2.355% •일본 20년물..."
+    },
+    {
+      "id": "HANAchina/69352",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/69352",
+      "datetime": "2026-09-24T04:06:29.000Z",
+      "localDateKst": "2026-09-24",
+      "tags": [
+        "macro",
+        "power"
+      ],
+      "tickers": [
+        "CRWV"
+      ],
+      "score": 64,
+      "hasText": true,
+      "summary": ">>AI 연산력 금융, 재평가 시작…CoreWeave 데이터센터 채권 금리 9.25%, 동급 대비 2.7%p 높아 •Blue Owl Capital 관계사가 CoreWeave 데이터센터를 위해 발행한 11억달러..."
+    },
+    {
+      "id": "HANAchina/69349",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/69349",
+      "datetime": "2026-09-24T03:46:04.000Z",
+      "localDateKst": "2026-09-24",
+      "tags": [
+        "macro",
+        "earnings"
+      ],
+      "tickers": [],
+      "score": 52,
+      "hasText": true,
+      "summary": ">>미국 PMI 호조 이면: 가격 압력 2022년 이후 최고, 공급망 병목 심화 (JP Morgan) •JP Morgan은 9월 미국 종합 PMI가 58.4로 급등해 2021년 7월 이후 최고치를 기록했으며,..."
+    },
+    {
+      "id": "HANAchina/69346",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/69346",
+      "datetime": "2026-09-24T03:21:15.000Z",
+      "localDateKst": "2026-09-24",
+      "tags": [
+        "semi"
+      ],
+      "tickers": [],
+      "score": 52,
+      "hasText": true,
+      "summary": "•중국 증시 연휴 직전 거래에서 반도체, 부동산, 백주, 여행주 동반 약세 •CXMT -3.3%, 반도체•PCB 최하위..."
+    },
     {
       "id": "insidertracking/64522",
       "channel": "insidertracking",
@@ -38488,23 +38475,6 @@
       "summary": ">>FT : OpenAI, 2030년까지 약 2,800억 달러 소진할 것으로 예상 •OpenAI는 2030년까지 약 2,800억 달러를 소진할 것으로 예상 •2026-2030년 자유현금흐름은 -2,780억..."
     },
     {
-      "id": "HANAchina/69102",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/69102",
-      "datetime": "2026-09-18T22:43:59.000Z",
-      "localDateKst": "2026-09-19",
-      "tags": [
-        "semi",
-        "earnings"
-      ],
-      "tickers": [
-        "AVGO"
-      ],
-      "score": 66,
-      "hasText": true,
-      "summary": ">>JPMorgan: 커스텀 칩, 2027년 출하 비중 GPU 초과 전망…브로드컴 TPU ‘공급망 불투명’이 주문 의심을 의미하지 않아 •JPMorgan은 2027년 ASIC/XPU 출하 비중이 54%에 달해..."
-    },
-    {
       "id": "insidertracking/64098",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/64098",
@@ -38587,37 +38557,6 @@
       "summary": "2026년 9월 18일 서학개미 순매수 미국 주식 TOP 50 1위: MICRON TECHNOLOGY INC (8.09%) 2위: SCHWAB US DIVIDEND EQUITY ETF (6.44%) 3위:..."
     },
     {
-      "id": "HANAchina/69099",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/69099",
-      "datetime": "2026-09-18T22:38:12.000Z",
-      "localDateKst": "2026-09-19",
-      "tags": [
-        "semi"
-      ],
-      "tickers": [
-        "AMD",
-        "TSM"
-      ],
-      "score": 60,
-      "hasText": true,
-      "summary": ">>TSMC 파운드리 가격 인상 전가? AMD 전 제품군 칩, 4분기부터 10% 인상설…인텔과 동시에 역행하는 가격 인상 •AI 연산 수요가 비용 전가를 뒷받침할 수 있는 여력을 제공하고 있음. 보도에 따르면..."
-    },
-    {
-      "id": "HANAchina/69098",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/69098",
-      "datetime": "2026-09-18T22:34:43.000Z",
-      "localDateKst": "2026-09-19",
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "score": 52,
-      "hasText": true,
-      "summary": ">>LME 구리, 12주 연속 11번째 상승…중국 수요 증가에 양산 구리 프리미엄 약 4년래 최고 •LME 구리는 금요일 +0.2% 상승했으며, 올해 누적 상승률은 약 17%. 중국에서는 수입 구리 수요를..."
-    },
-    {
       "id": "insidertracking/64095",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/64095",
@@ -38639,23 +38578,6 @@
       "score": 60,
       "hasText": true,
       "summary": "52주 신고가 (시총 &#036;1B 이상) ━━━━━━━━━━━━━━ 🧬 헬스케어 · AtriCure · Freenome · Haemonetics · Halozyme Therapeutics ·..."
-    },
-    {
-      "id": "HANAchina/69097",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/69097",
-      "datetime": "2026-09-18T22:32:31.000Z",
-      "localDateKst": "2026-09-19",
-      "tags": [
-        "macro",
-        "ai-policy",
-        "equity",
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 57,
-      "hasText": true,
-      "summary": ">>Anthropic, IPO 시점을 11월로 연기, 기업가치 예상 2조 달러 (WSJ) •분석에 따르면 Anthropic이 상장을 11월로 연기한 것은 3분기 재무 데이터를 공개해 경쟁력을 보여주기 위한..."
     },
     {
       "id": "insidertracking/64094",
@@ -38805,55 +38727,6 @@
       "score": 64,
       "hasText": true,
       "summary": "마이크론 임원 \"의미 있는 신규 메모리 공급은 2028년에야 도래할 수도\" 마이크론의 전 부사장 겸 최고사업책임자(CBO)인 수미트 사다나(Sumit Sadana)는 의미 있는 신규 메모리 공급이..."
-    },
-    {
-      "id": "HANAchina/69096",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/69096",
-      "datetime": "2026-09-18T14:22:56.000Z",
-      "localDateKst": "2026-09-18",
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "tickers": [],
-      "score": 57,
-      "hasText": true,
-      "summary": ">>사우디, 유럽 정유사에 경고: 다음 달 원유 공급 중단이 이어질 수 있어 유럽 ‘겨울 에너지 위기’ 리스크 추가 •사우디 아람코는 동서 송유관 피격과 호르무즈 해협 운항 차질로 다음 달 유럽 정유사에..."
-    },
-    {
-      "id": "HANAchina/69095",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/69095",
-      "datetime": "2026-09-18T14:21:09.000Z",
-      "localDateKst": "2026-09-18",
-      "tags": [
-        "credit",
-        "macro"
-      ],
-      "tickers": [],
-      "score": 64,
-      "hasText": true,
-      "summary": ">>프랑스 부채 리스크 고조: 10년물 국채금리 2008년 이후 최고치, 독일과의 금리 스프레드 100bp 돌파하며 2012년 이후 최고 •프랑스의 부채 리스크에 대한 우려가 지속적으로 확대. 10년물..."
-    },
-    {
-      "id": "HANAchina/69094",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/69094",
-      "datetime": "2026-09-18T13:11:02.000Z",
-      "localDateKst": "2026-09-18",
-      "tags": [
-        "macro",
-        "power",
-        "ai-policy",
-        "equity"
-      ],
-      "tickers": [
-        "META"
-      ],
-      "score": 79,
-      "hasText": true,
-      "summary": ">>Anthropic, 올해말까지 약 5GW의 가용 컴퓨팅 확보 계획 •관계자에 따르면 지난해 Anthropic의 가용 컴퓨팅 규모는 약 1.5GW, OpenAI는 약 2GW였음. 해당 관계자는 관련 세부..."
     },
     {
       "id": "bornlupin/20211",
@@ -39158,61 +39031,6 @@
       "summary": "SK하이닉스, 美 첫 낸드 공장 구축 추진 솔리다임이 미국 첫 생산거점 구축을 검토하는 지역은 미국 동부다. 현재 부지 선정과 생산품목, 양산시점 등을 세부적으로 논의 중인 것으로 파악됐다. 사안에 정통한..."
     },
     {
-      "id": "insidertracking/64062",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/64062",
-      "datetime": "2026-09-18T06:56:14.000Z",
-      "localDateKst": "2026-09-18",
-      "tags": [
-        "macro",
-        "power"
-      ],
-      "tickers": [
-        "ARM"
-      ],
-      "score": 69,
-      "hasText": true,
-      "summary": "소프트뱅크, Arm 주식 담보대출 250억달러로 확대 소프트뱅크가 자회사 Arm Holdings Plc 주식을 담보로 한 대출을 50억달러 늘려 250억달러로 확대한 상황. AI 투자 자금을 마련하기 위해..."
-    },
-    {
-      "id": "insidertracking/64061",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/64061",
-      "datetime": "2026-09-18T06:55:26.000Z",
-      "localDateKst": "2026-09-18",
-      "tags": [
-        "macro",
-        "semi",
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 69,
-      "hasText": true,
-      "summary": "엔비디아 젠슨 황 CEO가 내년 반도체 판매량이 올해의 두 배 수준으로 증가할 것으로 전망. 엔비디아는 최근 분기 실적 발표에서 이례적으로 다음 회계연도 매출이 70% 증가한 6,730억 달러에 이를 것으로..."
-    },
-    {
-      "id": "insidertracking/64059",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/64059",
-      "datetime": "2026-09-18T06:47:28.000Z",
-      "localDateKst": "2026-09-18",
-      "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "kr-market",
-        "flows",
-        "japan"
-      ],
-      "tickers": [
-        "005930.KS",
-        "000660.KS"
-      ],
-      "score": 95,
-      "hasText": true,
-      "summary": "2026년 9월 18일 미국 증시 프리마켓 브리핑 미국 증시는 전일 연준의 25bp 금리 인상 이후에도 위험자산 선호가 유지되는 가운데, 오늘은 산업생산과 연준 인사 발언, 월간 옵션 만기를 중심으로 변동성..."
-    },
-    {
       "id": "bornlupin/20207",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20207",
@@ -39229,23 +39047,6 @@
       "score": 77,
       "hasText": true,
       "summary": "** SMH ETF, 하이닉스 ADR 지수 편입 유진증권 ETF/파생 강송철 (02-368-6153) - VanEck Semiconductor ETF (SMH, 순자산 724억 달러, 9/17)가 추적하는..."
-    },
-    {
-      "id": "insidertracking/64058",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/64058",
-      "datetime": "2026-09-18T06:40:24.000Z",
-      "localDateKst": "2026-09-18",
-      "tags": [
-        "macro",
-        "geo",
-        "power",
-        "japan"
-      ],
-      "tickers": [],
-      "score": 75,
-      "hasText": true,
-      "summary": "🌎 글로벌 뉴스 브리핑 - 2026년 9월 18일 > 오전 6시~오후 4시 기준 ━━━━━━━━━━━━━━ 🇺🇸 아메리카 • 미 국방부는 유럽 주둔 미군을 최대 4만 명 감축하는 방안을 검토 중이며..."
     },
     {
       "id": "bornlupin/20206",
@@ -40108,34 +39909,6 @@
       "summary": "미 중부사령관 성명 “1년 전 오늘, 미 중부사령부(CENTCOM)는 장병들에게 최첨단 기술을 제공하기 위해 신속전력화 합동태스크포스(REJTF)를 창설했습니다. 태스크포스는 즉시 중동 지역 최초의 미군..."
     },
     {
-      "id": "insidertracking/64495",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/64495",
-      "datetime": "2026-09-23T21:15:11.000Z",
-      "localDateKst": "2026-09-24",
-      "tags": [
-        "macro"
-      ],
-      "tickers": [],
-      "score": 47,
-      "hasText": true,
-      "summary": "💬 💬 💬 💬 💬 💬 금일 한국시간 (KST) 기준 경제지표 및 주요 일정 > 21:30 – 신규 실업수당청구건수 23:00 – 신규 주택판매 (8월)"
-    },
-    {
-      "id": "insidertracking/64494",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/64494",
-      "datetime": "2026-09-23T21:14:42.000Z",
-      "localDateKst": "2026-09-24",
-      "tags": [
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "금일 실적 발표 리스트"
-    },
-    {
       "id": "insidertracking/64493",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/64493",
@@ -40177,20 +39950,6 @@
       "score": 100,
       "hasText": true,
       "summary": "2026년 9월 23일 서학개미 순매수 미국 주식 TOP 50 1위: DIREX DAI SEMI BE 3X ETF-USD SPLR 2642142633002 US25461H5726 (20.44%) 2위:..."
-    },
-    {
-      "id": "insidertracking/64492",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/64492",
-      "datetime": "2026-09-23T21:12:17.000Z",
-      "localDateKst": "2026-09-24",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "딸원 1,366원"
     },
     {
       "id": "insidertracking/64491",
@@ -40241,20 +40000,6 @@
       "score": 90,
       "hasText": true,
       "summary": "2026년 9월 24일 미국 레딧 게시물 분석 > 🤖 META - AI 대장주 · Zuck 발표 기대감 최고조 · \"Never Bet Against Tech\" · Connect 이벤트 집중 · AI..."
-    },
-    {
-      "id": "insidertracking/64489",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/64489",
-      "datetime": "2026-09-23T21:06:41.000Z",
-      "localDateKst": "2026-09-24",
-      "tags": [
-        "semi"
-      ],
-      "tickers": [],
-      "score": 47,
-      "hasText": true,
-      "summary": "⚡️ ⚡️ ⚡️ ⚡️ ⚡️ ⚡️ 받)트럼프 대통령과 시진핑의 국빈 만찬에 참석할 주요 기업 경영진 명단. • 엔비디아 CEO 젠슨 황 • 오픈AI CEO 샘 올트먼 • 알파벳·구글 CEO 순다르 피차이 •..."
     },
     {
       "id": "insidertracking/64488",
@@ -40308,20 +40053,6 @@
       "score": 100,
       "hasText": true,
       "summary": "2026년 9월 24일 미국 증시 브리핑 미국 증시는 강한 경기지표가 추가 긴축 우려를 재점화하면서 전반적인 위험자산 조정으로 마감. S&P 500 -0.75%, 다우 -0.68%, 나스닥 -1.13%,..."
-    },
-    {
-      "id": "insidertracking/64486",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/64486",
-      "datetime": "2026-09-23T21:00:09.000Z",
-      "localDateKst": "2026-09-24",
-      "tags": [
-        "kr-market"
-      ],
-      "tickers": [],
-      "score": 43,
-      "hasText": true,
-      "summary": "코스피 야간선물은 정보가 안나왔고... 하이퍼 리퀴드 전닉시세 전달드립니다."
     },
     {
       "id": "insidertracking/64482",
@@ -40529,20 +40260,6 @@
       "summary": "UBS , 마이크론( &#036;MU ) ‘매수(Buy)’ 의견, 목표주가 1,625달러 “마이크론 주식은 여전히 주가 모멘텀과 업황 지속성(duration) 사이에서 논쟁이 치열한 종목이지만, 펀더멘털은..."
     },
     {
-      "id": "HANAchina/69317",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/69317",
-      "datetime": "2026-09-23T13:03:24.000Z",
-      "localDateKst": "2026-09-23",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": ""
-    },
-    {
       "id": "aetherjapanresearch/25455",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/25455",
@@ -40588,21 +40305,6 @@
       "score": 89,
       "hasText": true,
       "summary": "[Citi] 미국 정유: 수출 금지 지지 확산에 정유주 조정 (9/22, 비크람 바그리) 디젤 소매가격이 갤런당 6.5달러를 넘어서면서 미국 정제유 수출 제한 요구가 거세지고 있습니다. 이번 가격 급등은 이란..."
-    },
-    {
-      "id": "HANAchina/69316",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/69316",
-      "datetime": "2026-09-23T13:00:25.000Z",
-      "localDateKst": "2026-09-23",
-      "tags": [
-        "macro",
-        "earnings"
-      ],
-      "tickers": [],
-      "score": 47,
-      "hasText": true,
-      "summary": ">>인플레이션 청구서 도착…월가, 미국 기업의 ‘실적 잔치’에 할인 적용 •월가 애널리스트들이 23주 만에 처음으로 미국 증시 기업의 이익 전망치를 하향 조정하면서, 2021년 9월 이후 가장 긴 상향 조정..."
     },
     {
       "id": "HANAchina/69315",
@@ -40829,20 +40531,6 @@
       "summary": "웰스파고가 마이크론 테크놀로지 목표주가를 기존 1,525달러에서 1,400달러로 하향 조정하면서도 ‘비중확대(Overweight)’ 의견 유지. 웰스파고는 2027~2028 회계연도 실적 전망치를 상향하고,..."
     },
     {
-      "id": "HANAchina/69310",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/69310",
-      "datetime": "2026-09-23T09:58:51.000Z",
-      "localDateKst": "2026-09-23",
-      "tags": [
-        "optical"
-      ],
-      "tickers": [],
-      "score": 43,
-      "hasText": true,
-      "summary": ">>Nomura 광통신·광칩 전문가 회의: 1.6T 공급이 주요 병목…부족분은 최소 2027년 하반기까지 지속 •Nomura가 공개한 회의록에 따르면, 1.6T 광모듈 DSP의 2026년 공급 부족분은 약..."
-    },
-    {
       "id": "HANAchina/69309",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/69309",
@@ -40858,20 +40546,6 @@
       "score": 67,
       "hasText": true,
       "summary": ">>GPT가 DeepSeek보다 저렴해졌다? 대형모델 가격전쟁, 새로운 수준으로 격화 •OpenAI의 플래그십 모델 Astra 출시 이후 3주도 지나지 않아 GPT-6 Sol과 Luna를 추가로 출시하며..."
-    },
-    {
-      "id": "HANAchina/69308",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/69308",
-      "datetime": "2026-09-23T09:43:44.000Z",
-      "localDateKst": "2026-09-23",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "•인민은행 : 9월 24일 8,000억위안 규모 1년만기 MLF(중기유동성지원창구) 운영..."
     },
     {
       "id": "aetherjapanresearch/25450",
@@ -40916,20 +40590,6 @@
       "summary": "칩 이름 좀 어떻게 해주면 안되나 \"퀄컴 스냅드래곤8엘리트 익스트림 Gen6\"가 뭐냐"
     },
     {
-      "id": "HANAchina/69307",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/69307",
-      "datetime": "2026-09-23T09:03:28.000Z",
-      "localDateKst": "2026-09-23",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": ">>시진핑, 미국 국빈방문 위해 베이징 출발 (신화통신) •9월 23일 오후 국가주석 시진핑이 전용기를 타고 베이징을 떠나 도널드 트럼프 미국 대통령의 초청으로 미국 국빈방문에 나섬. 시진핑의 이번 방미에는..."
-    },
-    {
       "id": "insidertracking/64463",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/64463",
@@ -40963,20 +40623,6 @@
       "summary": "삼성 LPDDR6, 퀄컴 차세대 스냅드래곤서 업계 첫 검증 23일 삼성전자에 따르면 16GB LPDDR6는 퀄컴 테크놀로지스의 '스냅드래곤 8 엘리트 익스트림 6세대'에서 최대 초당..."
     },
     {
-      "id": "HANAchina/69306",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/69306",
-      "datetime": "2026-09-23T07:18:43.000Z",
-      "localDateKst": "2026-09-23",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [],
-      "score": 35,
-      "hasText": true,
-      "summary": "하나 중국/신흥국 전략 김경환 pinned « 하나증권 중국테마전략 김성은(T.02-3771-7520) [중국 테마 전략] 우주 산업 승부의 출발점, 로켓 자료: [상업 우주 패권 경쟁의 패러다임 변화와..."
-    },
-    {
       "id": "HANAchina/69305",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/69305",
@@ -40991,22 +40637,6 @@
       "score": 53,
       "hasText": true,
       "summary": "하나증권 중국테마전략 김성은(T.02-3771-7520) [중국 테마 전략] 우주 산업 승부의 출발점, 로켓 자료: [상업 우주 패권 경쟁의 패러다임 변화와 위성망 선점 경쟁] 우주산업의 패권 경쟁은 과거의..."
-    },
-    {
-      "id": "HANAchina/69302",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/69302",
-      "datetime": "2026-09-23T07:00:13.000Z",
-      "localDateKst": "2026-09-23",
-      "tags": [
-        "market-note"
-      ],
-      "tickers": [
-        "BCS"
-      ],
-      "score": 44,
-      "hasText": true,
-      "summary": ">>AI 대체 과대평가됐나? Barclays: 직장 핵심 기술 중 고도로 복제 가능한 것은 20%에 불과하지만, 확대 효과는 이미 조용히 확산 •AI가 노동력에 미치는 충격은 예상보다 완만하면서도 더욱..."
     },
     {
       "id": "aetherjapanresearch/25447",
