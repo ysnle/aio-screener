@@ -23,8 +23,8 @@
     "UNAVAILABLE",
     "UNKNOWN"
   ],
-  "generatedAt": "2026-09-24T01:25:28.536Z",
-  "appRevision": "v56.15",
+  "generatedAt": "2026-09-24T02:50:46.403Z",
+  "appRevision": "v56.32",
   "dataRevision": "market-snapshot:2026-09-24T01:25:16.690Z:ca3cb399",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
   "overall": "OPERATOR_REQUIRED",
@@ -102,9 +102,9 @@
         "quoteQualityComplete": true,
         "blockedQuotes": [],
         "generatedAt": "2026-09-24T01:25:16.690Z",
-        "ageHours": 0,
+        "ageHours": 1.42,
         "maxAgeHours": 12,
-        "evaluatedAt": "2026-09-24T01:25:28.536Z",
+        "evaluatedAt": "2026-09-24T02:50:46.403Z",
         "reason": null
       },
       "readiness": {
@@ -127,11 +127,11 @@
         "revision": "fast-quotes:ebcafd53",
         "sourceSha": "8a3939117e18de904c3892006e08611ea2d1a676",
         "observedAt": "2026-09-24T01:25:28.536Z",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-09-24T01:25:28.536Z"
+        "evidenceEvaluatedAt": "2026-09-24T02:50:46.403Z"
       },
       "soak": {
         "requiredDays": 7,
@@ -150,7 +150,7 @@
       "status": "UNKNOWN",
       "statusCode": "NOT_OBSERVED",
       "source": "static-pages+service-worker",
-      "revision": "v56.15",
+      "revision": "v56.32",
       "configured": true,
       "observed": "NOT_OBSERVED",
       "lastAttemptAt": null,
@@ -192,11 +192,11 @@
         "providerSmokeBoundary": "blocking-deployment-workflow-only",
         "ready": true,
         "note": "Periodic live health observed; provider smoke remains a blocking deployment-workflow gate.",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-09-24T01:25:28.536Z"
+        "evidenceEvaluatedAt": "2026-09-24T02:50:46.403Z"
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }

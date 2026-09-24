@@ -1912,7 +1912,10 @@ P1187(종목 원가 통화 writer·ack)·P1188(계좌·현금 통화+현금 수�
 - [x] **결정(2026-09-24, 권장 방향) — 삼각 환산 불허, 선언 창 72시간 유지.** 두 leg로 만든 사슬(EUR→USD, USD→KRW)은 사용자가 하지 않은 주장이므로 계속 금지한다(보류 + `costHeld`/`held`에 쌍 게시). 창 72시간은 지연 시세 창 재사용이며, 통화쌍별 신선도 정책은 실제 FX 공급원이 도입될 때 백테스트 통화축 항목과 함께 다룬다.
 - [x] **결정(2026-09-24, 권장 방향) — P1192는 값 보존 바인딩 유지.** 완료 컷을 넘는 previous-close 스탬프는 값을 버리지 않고 직전 bar open 경계로 앉히되(`observedAtBoundary: 'previous-bar-open'`), 그마저 컷을 넘으면 값을 싣지 않는다. 문자 그대로의 `null`로 되돌리면 23:00Z 이후 대부분 행에서 dxy/wti/gold가 사라져 "값 소실"이 된다 — 보류와 소실을 구분하는 원칙에 어긋난다.
 
-## data-refresh 상태 (v56.23, 2026-09-24)
+## data-refresh 상태 (v56.32, 2026-09-24)
+
+**CI 정식 산출물이 P1095 게이트를 위반한 상태로 원격에 있다(2026-09-24, v56.32 리베이스 시점).** 원격 `main`(ac5fc72c)의 `public-data/*`는 CI 시크릿 사이클(09-23~09-24, 11커밋)이 생산한 **공식 산출물**이며, 로컬에서 `ci-artifact-semantics-check`를 돌리면 실패한다: `2026-09-24.dxy/wti/gold previous close stamped after the completed cut`. 원인은 **producer**다 — P1192가 `scripts/fetch-data.mjs`에서 previous-close를 직전 bar 경계로 제한했지만, 그 수정 이전에 CI가 생산한 산출물이 그대로 원격에 남아 있다. 이 조건은 **원격 HEAD에 이미 존재**하며(동일 파일) 이번 로컬 배치가 새로 만든 것이 아니다. 해소는 다음 CI 사이클(수정된 producer로 재생성)에서만 가능하다 — 로컬 재실행은 무키(LKG/폴백) 산출물로 공식 데이터를 덮으므로 하지 않는다. **따라서 이 게이트 실패는 미해결로 남기고, 코드·문서·projection 재생성만 배포했다.**
+- 재생성(로컬): `public-data/operations-status.json`은 `build-operations-status.mjs`로 v56.32에 맞춰 재생성했다. CI가 관측한 라이브 헬스는 **증거로 보존**(`status: CURRENT`·200·`evidenceFresh: true`·`observedAt 2026-09-24T01:25:28Z`)되고, 이번 로컬 실행은 관측을 주장하지 않는다(`observationStatus: NOT_ATTEMPTED`, `source: last-observed-live-health`) — P1166 규약대로다. 다음 CI 사이클이 실제 관측으로 되돌린다.
 
 로컬에서 `node scripts/fetch-data.mjs`를 실제 실행해 확인한 결과다. 성공으로 승격하지 않는다.
 
