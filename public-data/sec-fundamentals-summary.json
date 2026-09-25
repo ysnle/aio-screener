@@ -3,7 +3,7 @@
   "sourceSchemaVersion": "2.0",
   "artifactRole": "BOUNDED_PAGE_PROJECTION",
   "projectionPolicy": "Latest normalized annual facts plus PIT coverage counters; append-only PIT observations remain producer-side and are not shipped on the interactive path.",
-  "generatedAt": "2026-09-24T21:46:32.224Z",
+  "generatedAt": "2026-09-25T05:20:59.574Z",
   "source": "SEC EDGAR companyfacts",
   "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
   "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
@@ -14,13 +14,13 @@
   "domainReceipt": {
     "schemaVersion": "domain-receipt.v1",
     "domain": "sec-fundamentals",
-    "runId": "gha:36063499816",
-    "attemptedAt": "2026-09-24T21:46:32.222Z",
-    "sourceRevision": "sec-company-tickers:903f9bde82d0f3bd89978c89b8b65e2ea3438672d67b2510af1ebb23c7133c0e",
+    "runId": "gha:36098136644",
+    "attemptedAt": "2026-09-25T05:20:59.573Z",
+    "sourceRevision": "sec-company-tickers:934b2cf31597017f4da5dbf1da2a717fa03fc1a240e6cfa219f0289788f7c5e2",
     "inputWatermarks": {
       "universe": null,
-      "screener": "2026-09-24T17:33:04.972Z",
-      "previousArtifact": "2026-09-24T17:32:16.477Z"
+      "screener": "2026-09-24T21:47:23.485Z",
+      "previousArtifact": "2026-09-24T21:46:32.224Z"
     },
     "batchLimit": 24,
     "counts": {
