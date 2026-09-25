@@ -20,6 +20,7 @@ import { createEvidenceStore } from '../data/evidence-store.js';
 import { createEvidence } from '../data/contracts/evidence.js';
 import { selectForDecision, selectForDisplay, selectLastKnown, selectCompleteness } from '../data/selectors/evidence.js';
 import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
+import { normalizeSignalScoreMode, describeSignalScoreMode, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/signal/mode.js';
 import { computeRelativeRotation } from '../domain/themes/rrg.js';
 import { classifyMovingAverageStructure, deriveMultiTimeframeView } from '../domain/technical/stage.js';
 import { computeNewsSentimentScore, computeNewsRiskSignals } from '../domain/news/scoring.js';
@@ -67,6 +68,7 @@ import { PORTFOLIO_ASSUMPTION_KEYS, EXPOSURE_PATHS, REBALANCE_POLICIES, normaliz
 import { LEDGER_COVERAGE_INPUTS, appendLedgerTransaction, appendLedgerValuation, ledgerCoverageState, normalizeLedger, removeLedgerEntry as removeLedgerEntryFromLedger, setLedgerCoverage as setLedgerCoverageOnLedger, setLedgerFlowTiming as setLedgerFlowTimingOnLedger } from '../data/portfolio-ledger.js';
 import { FX_LEG_MAX_AGE_MS, appendFxLeg, fxLegsState, normalizeFxLegs, removeFxLeg } from '../domain/portfolio/fx.js';
 import { applyFxPanel, applyLedgerPanel, clearDeclaredFields, readDeclaredFields, showDeclarationStatus } from '../ui/panels/portfolio-declarations.js';
+import { assembleRiskEstimateInput } from '../ui/panels/portfolio-risk-input.js';
 import { createDeclarationsStore } from '../data/portfolio-declarations-store.js';
 import { buildEvidenceContext } from '../ai/context-builder.js';
 import { createEvidenceRetriever } from '../ai/retrieval/evidence.js';
@@ -93,6 +95,9 @@ if (typeof window !== 'undefined') {
   // domain contract — composition snapshot, risk path, account-performance hold.
   window._pfCreateCompositionSnapshot = createCompositionSnapshot;
   window._pfDeriveRiskEstimate = deriveRiskEstimate;
+  // P1258: 위험 입력 조립(스냅샷·returnsMap·estimate 호출)의 단일 소유자 — 셸은 이 브리지를
+  // 호출해 결과를 그대로 렌더한다.
+  window._pfAssembleRiskEstimateInput = assembleRiskEstimateInput;
   window._pfAssessAccountPerformance = assessAccountPerformance;
   // E3/P1188: the classic-shell form is the writer for the declared currency /
   // cash-return / RF inputs; it consumes the same keys and normalizers the
@@ -311,6 +316,24 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // the data-layer readers, not through legacy.read* projections.  The legacy
   // facade remains available only for compatibility actions and navigation.
   const runtimeReaders = createRuntimeReaders({ root, now: clock.now });
+  // E2/LC-26: the single writer/reader for the signal score mode. The legacy toggle calls
+  // `setSignalScoreMode`; both the native runtime reader and the legacy facade read it back
+  // so the pill, the score input and the score hero share one revision. Persisted so a reload
+  // does not silently revert a declared day mode to swing.
+  let signalScoreMode = null;
+  const getSignalScoreMode = () => {
+    if (signalScoreMode == null) {
+      let stored = null;
+      try { stored = root?.localStorage?.getItem(SIGNAL_SCORE_MODE_STORAGE_KEY); } catch (_) {}
+      signalScoreMode = normalizeSignalScoreMode(stored);
+    }
+    return signalScoreMode;
+  };
+  const setSignalScoreMode = (mode) => {
+    signalScoreMode = normalizeSignalScoreMode(mode);
+    try { root?.localStorage?.setItem(SIGNAL_SCORE_MODE_STORAGE_KEY, signalScoreMode); } catch (_) {}
+    return signalScoreMode;
+  };
   // The fast quote plane is evidence-gated upstream (scripts/ci-fast-plane-consumer-gate.mjs
   // derives marketData.fastQuotes.enabled). Read it per load so a promotion takes effect and a
   // revocation stops working without a reload; when it is unset or disabled the loader chain is
@@ -669,6 +692,10 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopAnalysisRefresh = compatibilityEvents.on('aio:refresh:done', syncAnalysis.sync);
     const stopAnalysisChanged = legacy.on('aio:entityChanged', syncAnalysis.sync);
     const stopAnalysisShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['home', 'signal', 'technical']), syncAnalysis.sync));
+    // E2/LC-26: a mode change is a score input change, so re-derive the analysis slice instead of
+    // leaving the hero on the previous mode until the next refresh cycle. Deliberately its own
+    // event (not `aio:refresh:done`) so toggling the pill does not re-run every route provider.
+    const stopAnalysisModeChange = compatibilityEvents.on('aio:signalScoreModeChanged', syncAnalysis.sync);
     const stopShown = legacy.on('aio:navigationCommitted', (event) => {
       // W00/P1143: the store route follows the router's single committed result, so
       // DOM, router, scope, and canonical state move together on one navigation.
@@ -751,6 +778,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopAnalysisRefresh();
       stopAnalysisChanged();
       stopAnalysisShown();
+      stopAnalysisModeChange();
       stopShown();
       stopTimelineStore();
       compatibilityEvents.dispose();
@@ -829,6 +857,13 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // wrapper calls this instead of keeping its own copy of the scoring formula (R352/F-03: legacy
     // and native must not diverge into two different models).
     ,computeTradingScoreModel
+    // E2/LC-26: signal score mode revision — a calculation input shared by the legacy toggle
+    // and the native readers, plus the pure descriptor/normalizer so the UI never invents a
+    // mode-dependent threshold the model does not produce.
+    ,getSignalScoreMode
+    ,setSignalScoreMode
+    ,describeSignalScoreMode
+    ,normalizeSignalScoreMode
     // RM-03 item 2: same single-implementation pattern for RRG (index.html:calcLiveRS) and
     // Weinstein/MTF (js/aio-core.js:calcTechnicalSnapshot, index.html:updateMTF).
     ,computeRelativeRotation

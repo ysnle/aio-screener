@@ -26,6 +26,24 @@ const { createEvidenceStore } = await load('src/data/evidence-store.js');
 const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compatibility-facade.js');
 const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/capability-loader.js');
 const { renderSentimentSummaryProjection } = await load('src/ui/projections/sentiment-summary.js');
+const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/pages/entity.js');
+
+// P1205/LC-18/LC-27: ticker range controls are one native calendar-window contract.
+{
+  const end = Date.parse('2026-09-24T00:00:00Z');
+  const history = [400, 365, 180, 90, 30, 1].map((daysAgo) => ({
+    time: new Date(end - daysAgo * 24 * 60 * 60 * 1000).toISOString(),
+    close: 400 - daysAgo
+  }));
+  const expected = { '1m': 2, '3m': 3, '6m': 4, '1y': 5 };
+  for (const [range, count] of Object.entries(expected)) {
+    const view = selectTickerChartWindow(history, range);
+    if (view.range !== range || view.rowCount !== count || view.days !== TICKER_CHART_RANGES[range].days) {
+      fail(`ticker chart ${range}: expected ${count} rows/${TICKER_CHART_RANGES[range].days}d, got ${view.rowCount}/${view.days}d`);
+    }
+  }
+  if (selectTickerChartWindow([], '6m').rowCount !== 0) fail('ticker chart unavailable range fabricated rows');
+}
 
 // RM-07: cross-route sentiment summary projection must not mutate unchanged
 // text sinks on an unrelated/empty sentiment update.
@@ -675,7 +693,14 @@ const { renderSentimentSummaryProjection } = await load('src/ui/projections/sent
   }
 }
 
-// ── data/orchestrators/entity.js ────────────────────────────────────────────────────────────
+{
+  const { createSentimentProvider } = await load('src/data/providers/sentiment.js');
+  const { createSentimentOrchestrator } = await load('src/data/orchestrators/sentiment.js');
+  const { normalizeSentiment } = await load('src/data/normalize/sentiment.js');
+  const skewObservation = { metricId: 'market.volatility.skew', instrumentId: '^SKEW', unit: 'index', value: 146.15, observedAt: '2026-09-24T12:00:00Z', fetchedAt: '2026-09-24T12:00:01Z', revisionId: 'quote-batch-skew', source: 'yahoo:^SKEW', sourceKind: 'T3_PUBLIC_DELAYED', allowedUse: 'reference', allowedUseCeiling: 'reference' };
+  const normalizedSkew = normalizeSentiment({ skew: skewObservation }).skew;
+  if (normalizedSkew.metricId !== skewObservation.metricId || normalizedSkew.instrumentId !== '^SKEW' || normalizedSkew.unit !== 'index' || normalizedSkew.value !== 146.15 || normalizedSkew.observedAt !== skewObservation.observedAt || normalizedSkew.revisionId !== skewObservation.revisionId) fail(`LC-20 SKEW identity drifted across native normalization: ${JSON.stringify(normalizedSkew)}`);
+}
 {
   const { createEntityOrchestrator } = await load('src/data/orchestrators/entity.js');
   const deferred = () => { let resolve; const promise = new Promise((r) => { resolve = r; }); return { promise, resolve }; };
@@ -779,31 +804,30 @@ const { renderSentimentSummaryProjection } = await load('src/ui/projections/sent
 
 // ── W08-B/P1147 (H02): the 2s10s spread names its two legs and their alignment ──────────────
 {
-  const { buildTreasuryCurveSpread } = await load('src/domain/macro/treasury-curve.js');
+  const { buildTreasuryCurveSpread, deriveTreasuryCurveEvidence } = await load('src/domain/macro/treasury-curve.js');
   const sameDay = buildTreasuryCurveSpread({
     twoY: 4.1, tenY: 4.3,
-    legs: { twoY: { instrumentId: 'DGS2', observedAt: '2026-09-18T00:00:00Z', provider: 'FRED' }, tenY: { instrumentId: '^TNX', observedAt: '2026-09-18T20:00:00Z', provider: 'live-quote' } }
+    legs: { twoY: { instrumentId: 'DGS2', cutId: 'curve-A', observedAt: '2026-09-18T00:00:00Z', provider: 'FRED' }, tenY: { instrumentId: 'DGS10', cutId: 'curve-A', observedAt: '2026-09-18T00:00:00Z', provider: 'U.S. Treasury' } }
   });
-  if (sameDay.mode !== 'aligned-legs' || sameDay.spread !== 0.2 || sameDay.mixedDates !== false) fail(`W08-B: same-day legs must compute an aligned spread, got ${JSON.stringify(sameDay)}`);
-  if (sameDay.legs[0].instrumentId !== 'DGS2' || sameDay.legs[1].instrumentId !== '^TNX' || sameDay.legs[0].unit !== 'percent') fail(`W08-B: each leg must keep its identity/unit, got ${JSON.stringify(sameDay.legs)}`);
-  // The official same-date FRED spread outranks a local calculation.
-  const official = buildTreasuryCurveSpread({ twoY: 4.1, tenY: 4.3, officialSpread: 0.18, legs: {} });
-  if (official.mode !== 'official-same-date' || official.spread !== 0.18) fail(`W08-B: the official same-date spread must win, got ${JSON.stringify(official)}`);
-  // Legs from different observation dates are a mixed-date reference, never a live curve.
+  if (sameDay.mode !== 'aligned-legs' || sameDay.spread !== 0.2 || sameDay.mixedDates !== false || sameDay.unit !== 'percentage-point' || sameDay.curveCutId !== 'curve-A') fail(`W08-B: same-cut legs must compute one %p spread, got ${JSON.stringify(sameDay)}`);
+  if (sameDay.legs[0].instrumentId !== 'DGS2' || sameDay.legs[1].instrumentId !== 'DGS10' || sameDay.legs[0].unit !== 'percent') fail(`W08-B: each leg must keep its identity/unit, got ${JSON.stringify(sameDay.legs)}`);
+  const official = buildTreasuryCurveSpread({ twoY: 4.1, tenY: 4.3, officialSpread: 0.18, officialSpreadMeta: { cutId: 'curve-B', observedAt: '2026-09-18T00:00:00Z', source: 'FRED' }, legs: { twoY: { cutId: 'curve-B', observedAt: '2026-09-18T00:00:00Z' }, tenY: { cutId: 'curve-B', observedAt: '2026-09-18T00:00:00Z' } } });
+  if (official.mode !== 'official-same-date' || official.spread !== 0.18 || official.unit !== 'percentage-point') fail(`W08-B: a same-cut official %p spread must win, got ${JSON.stringify(official)}`);
   const mixed = buildTreasuryCurveSpread({
     twoY: 4.1, tenY: 4.3,
-    legs: { twoY: { instrumentId: 'DGS2', observedAt: '2026-09-15T00:00:00Z' }, tenY: { instrumentId: '^TNX', observedAt: '2026-09-18T20:00:00Z' } }
+    legs: { twoY: { instrumentId: 'DGS2', cutId: 'curve-A', observedAt: '2026-09-15T00:00:00Z' }, tenY: { instrumentId: 'DGS10', cutId: 'curve-B', observedAt: '2026-09-18T20:00:00Z' } }
   });
-  if (mixed.mode !== 'mixed-date-reference' || mixed.mixedDates !== true || !mixed.label.includes('혼합 시점') || !mixed.label.includes('실시간 곡선 아님')) fail(`W08-B: differing leg dates must be labelled a mixed-date reference, got ${JSON.stringify(mixed)}`);
-  // An unknown leg observation time cannot be called aligned.
+  if (mixed.mode !== 'mixed-cut-reference' || mixed.mixedDates !== true || mixed.spread !== null || !mixed.label.includes('cut 불일치')) fail(`W08-B: differing cut IDs must block comparison, got ${JSON.stringify(mixed)}`);
+  const mixedOfficial = buildTreasuryCurveSpread({ twoY: 4.1, tenY: 4.3, officialSpread: 0.18, officialSpreadMeta: { cutId: 'curve-A', observedAt: '2026-09-15T00:00:00Z' }, legs: { twoY: { cutId: 'curve-A', observedAt: '2026-09-15T00:00:00Z' }, tenY: { cutId: 'curve-B', observedAt: '2026-09-18T20:00:00Z' } } });
+  if (mixedOfficial.mode !== 'mixed-cut-reference' || mixedOfficial.spread !== null || mixedOfficial.referenceSpread !== 0.18) fail(`W08-B: an official spread cannot override a conflicting 10Y cut, got ${JSON.stringify(mixedOfficial)}`);
   const unknownTime = buildTreasuryCurveSpread({ twoY: 4.1, tenY: 4.3, legs: {} });
-  if (unknownTime.mode !== 'mixed-date-reference' || !unknownTime.label.includes('관측시각 미확인')) fail(`W08-B: unknown leg observation times must not be called aligned, got ${JSON.stringify(unknownTime)}`);
-  // One leg missing withholds instead of computing from the other.
+  if (unknownTime.mode !== 'mixed-cut-reference' || unknownTime.spread !== null) fail(`W08-B: unknown cut identity must not compute a spread, got ${JSON.stringify(unknownTime)}`);
   const oneLeg = buildTreasuryCurveSpread({ twoY: 4.1, tenY: null, legs: {} });
   if (oneLeg.mode !== 'unavailable' || oneLeg.spread !== null) fail(`W08-B: a missing leg must withhold the spread, got ${JSON.stringify(oneLeg)}`);
-  // Negative/zero spreads stay numeric and are not withheld.
-  const inverted = buildTreasuryCurveSpread({ twoY: 4.4, tenY: 4.0, officialSpread: -0.4, legs: {} });
-  if (inverted.spread !== -0.4 || inverted.mode !== 'official-same-date') fail(`W08-B: an inverted curve must keep its signed spread, got ${JSON.stringify(inverted)}`);
+  const inverted = buildTreasuryCurveSpread({ twoY: 4.4, tenY: 4.0, officialSpread: -0.4, officialSpreadMeta: { cutId: 'curve-C', observedAt: '2026-09-18T00:00:00Z' }, legs: { twoY: { cutId: 'curve-C', observedAt: '2026-09-18T00:00:00Z' }, tenY: { cutId: 'curve-C', observedAt: '2026-09-18T00:00:00Z' } } });
+  if (inverted.spread !== -0.4 || inverted.mode !== 'official-same-date') fail(`W08-B: an inverted same-cut curve must keep its signed %p spread, got ${JSON.stringify(inverted)}`);
+  const atomicCurve = deriveTreasuryCurveEvidence({ treasury: { observedAt: '2026-09-23', source: 'U.S. Treasury', values: { dgs2: 4.85, dgs10: 5.11, t10y2y: 0.26 } } });
+  if (atomicCurve.spread2s10s !== 0.26 || atomicCurve.curve.curveCutId !== 'us-treasury-daily:2026-09-23' || atomicCurve.curve.unit !== 'percentage-point') fail(`W08-B: atomic Treasury cut must survive projection, got ${JSON.stringify(atomicCurve)}`);
 }
 
 // ── W09-C/P1148 (F03): one absolute-time formatting owner with a timezone ────────────────────
@@ -877,6 +901,112 @@ const { renderSentimentSummaryProjection } = await load('src/ui/projections/sent
   if (blocked.status !== 'blocked' || blocked.action !== 'NO_ACTION' || blocked.score !== null || blocked.decisionEligible !== false || blocked.presentation?.status !== 'blocked' || blocked.presentation?.action !== 'NO_ACTION' || blocked.presentation?.displayScore !== '—') fail(`signal: missing score inputs must fail closed, got ${JSON.stringify(blocked)}`);
   const invalidScore = computeTradingScoreModel({ mode: 'swing', vix: -10, vvix: 0, dxy: 10, tnx: -1, oilPrice: -5, fg: 101, maCurrent: true, spx200ma: -1, spx50ma: 0, spxPrice: -10, breadthAvailable: true, breadth200: 150, pcr: -1, hyBp: -2, newsSentimentScore: 101, newsRiskSignals: [{ impact: 'bad' }] });
   if (invalidScore.total !== null || invalidScore.modelVersion !== 'trading-score.v3' || !Object.isFrozen(invalidScore) || !Object.isFrozen(invalidScore.componentMissing)) fail(`signal: out-of-domain inputs must fail closed in an immutable v3 result, got ${JSON.stringify(invalidScore)}`);
+}
+
+// ── E2/LC-26 (P1214): the signal score mode is one revision consumed by both readers ───────────
+// The mode used to be cosmetic: the legacy facade hardcoded 'swing', the native reader dropped the
+// mode entirely, and the UI copy promised a threshold the model never produced. This fixes the mode
+// as a real calculation input with a single owner and forbids a mode-dependent decision cutoff.
+{
+  const signalMode = await load('src/domain/signal/mode.js');
+  if (signalMode.SIGNAL_SCORE_MODES.join(',') !== 'swing,day') fail(`P1214 signal-mode: mode vocabulary drifted, got ${signalMode.SIGNAL_SCORE_MODES.join(',')}`);
+  if (signalMode.normalizeSignalScoreMode('DAY') !== 'day' || signalMode.normalizeSignalScoreMode('nonsense') !== 'swing' || signalMode.normalizeSignalScoreMode(null) !== 'swing') {
+    fail('P1214 signal-mode: an unknown or blank mode must normalize to the swing default');
+  }
+  const dayMode = signalMode.describeSignalScoreMode('day');
+  const swingMode = signalMode.describeSignalScoreMode('swing');
+  if (!/plus-12/.test(dayMode.volatilityAdjustment) || dayMode.volatilityAdjustment === swingMode.volatilityAdjustment) {
+    fail('P1214 signal-mode: the day descriptor must name the real volatility adjustment it applies');
+  }
+  if (dayMode.decisionThreshold != null || swingMode.decisionThreshold != null) {
+    fail('P1214 signal-mode: no mode-specific decision threshold exists; the descriptor must not invent one');
+  }
+  if (!/임계값/.test(dayMode.note) || !/사용하지 않습니다/.test(dayMode.note)) fail('P1214 signal-mode: the descriptor must state that no separate threshold is used');
+
+  const { normalizeAnalysis } = await load('src/data/normalize/analysis.js');
+  const swingAnalysis = normalizeAnalysis({ tradingScoreInputs: { mode: 'swing', vix: 18 } });
+  const dayAnalysis = normalizeAnalysis({ tradingScoreInputs: { mode: 'day', vix: 18 } });
+  if (swingAnalysis.signal.scoreMode !== 'swing' || dayAnalysis.signal.scoreMode !== 'day') fail('P1214 signal-mode: normalizeAnalysis must carry the declared mode into the signal slice');
+  if (dayAnalysis.signal.presentation?.score === swingAnalysis.signal.presentation?.score) {
+    fail(`P1214 signal-mode: the day mode changed only the label, not the score input (${dayAnalysis.signal.presentation?.score} == ${swingAnalysis.signal.presentation?.score})`);
+  }
+
+  const readersSource = readFileSync(path.join(root, 'src/data/runtime-readers.js'), 'utf8');
+  const facade = readFileSync(path.join(root, 'src/legacy/compatibility-facade.js'), 'utf8');
+  if (!/input\.mode = normalizeSignalScoreMode\(/.test(readersSource)) fail('P1214 signal-mode: the native runtime reader must thread the declared mode into the score input');
+  if (!/mode: normalizeSignalScoreMode\(root\?\.AIO_ARCH/.test(facade)) fail('P1214 signal-mode: the legacy facade must read the shared mode, not hardcode swing');
+}
+
+// ── E2/S-C/P1240: screener row resolution shadow comparison ────────────────────────────────────
+// The legacy resolver and the facade reader both resolve screener rows, with different fallback
+// chains. This harness executes BOTH on the same synthetic inputs and pins the measured divergence
+// set, so a new divergence cannot appear silently. It does not declare them equivalent.
+{
+  const dataSource = readFileSync(path.join(root, 'js/aio-data.js'), 'utf8');
+  const anchor = dataSource.indexOf('function _aioGetCanonicalScreenerRows(');
+  if (anchor < 0) fail('E2/S-C: the legacy canonical screener-row resolver is missing');
+  const braceStart = dataSource.indexOf('{', anchor);
+  let depth = 0;
+  let braceEnd = -1;
+  for (let index = braceStart; index < dataSource.length; index += 1) {
+    if (dataSource[index] === '{') depth += 1;
+    else if (dataSource[index] === '}') { depth -= 1; if (depth === 0) { braceEnd = index + 1; break; } }
+  }
+  if (braceEnd < 0) fail('E2/S-C: could not extract the legacy resolver body');
+  if (!/function _aioGetCanonicalScreenerRows\(root\)/.test(dataSource.slice(anchor, braceStart))) {
+    fail('E2/S-C: the legacy resolver must stay root-injectable for the shadow harness');
+  }
+  const legacyResolve = new Function('window', `return ${dataSource.slice(anchor, braceEnd)};`)({});
+  const policy = await load('src/data/screener-row-policy.js');
+  const cases = [
+    { id: 'published-rows', nativeRows: [{ sym: 'AAA' }], status: 'current', db: [{ sym: 'DB' }] },
+    { id: 'published-empty', nativeRows: [], status: 'current', db: [{ sym: 'DB' }] },
+    { id: 'unpublished-empty-db-present', nativeRows: [], status: 'unavailable', db: [{ sym: 'DB' }] },
+    { id: 'unpublished-empty-db-absent', nativeRows: [], status: 'unavailable', db: null },
+    { id: 'no-reader-db-present', nativeRows: null, status: null, db: [{ sym: 'DB' }] }
+  ];
+  const shape = (rows) => (Array.isArray(rows) ? rows : []).map((row) => row && row.sym).join(',');
+  const measured = cases.map((testCase) => {
+    const syntheticRoot = { AIO_ARCH: {}, _aioScreenerRows: [{ sym: 'DEAD' }] };
+    if (testCase.db) syntheticRoot.SCREENER_DB = testCase.db;
+    if (testCase.nativeRows !== null) syntheticRoot.AIO_ARCH.getScreenerRows = () => testCase.nativeRows;
+    if (testCase.status) syntheticRoot.AIO_ARCH.getScreenerState = () => ({ status: testCase.status, rows: testCase.nativeRows || [] });
+    syntheticRoot.AIO_ARCH.resolveScreenerRows = (intent) => policy.resolveScreenerRows(syntheticRoot, intent);
+    return {
+      id: testCase.id,
+      legacy: shape(legacyResolve(syntheticRoot)),
+      facade: shape(createLegacyFacade(syntheticRoot).readScreener().rows),
+      evidenceOnly: shape(policy.resolveScreenerRows(syntheticRoot, policy.SCREENER_ROW_INTENT.EVIDENCE)),
+      compat: shape(policy.resolveScreenerRows(syntheticRoot, policy.SCREENER_ROW_INTENT.BUNDLED_COMPAT))
+    };
+  });
+  // The owner decision (P1241): a published-but-empty native state is authoritative for BOTH intents,
+  // so the old divergence on that case is gone. The only remaining differences are the two declared
+  // pre-publication compatibility reads, where the evidence reader deliberately has no substitute.
+  const expected = [
+    { id: 'published-rows', legacy: 'AAA', facade: 'AAA' },
+    { id: 'published-empty', legacy: '', facade: '' },
+    { id: 'unpublished-empty-db-present', legacy: 'DB', facade: '' },
+    { id: 'unpublished-empty-db-absent', legacy: '', facade: '' },
+    { id: 'no-reader-db-present', legacy: 'DB', facade: '' }
+  ];
+  const mismatches = expected.filter((entry, index) => {
+    const actual = measured[index];
+    return !actual || actual.id !== entry.id || actual.legacy !== entry.legacy || actual.facade !== entry.facade;
+  });
+  if (mismatches.length) {
+    fail(`E2/S-C: screener row resolution moved off the declared table — ${mismatches.map((entry) => `${entry.id} legacy=${measured.find((m) => m.id === entry.id)?.legacy} facade=${measured.find((m) => m.id === entry.id)?.facade}`).join(' | ')}`);
+  }
+  // The retired `_aioScreenerRows` global (S-B) must be unreachable from every path.
+  const deadReach = measured.filter((entry) => /DEAD/.test(`${entry.legacy},${entry.facade},${entry.evidenceOnly},${entry.compat}`));
+  if (deadReach.length) fail(`E2/S-C: the retired _aioScreenerRows global is still reachable (${deadReach.map((entry) => entry.id).join(', ')})`);
+  // The evidence intent must never substitute the bundled DB, and intent must not change the
+  // published-empty outcome.
+  const evidenceLeak = measured.filter((entry) => entry.evidenceOnly === 'DB');
+  if (evidenceLeak.length) fail(`E2/S-C: the evidence intent substituted the bundled DB (${evidenceLeak.map((entry) => entry.id).join(', ')})`);
+  if (measured.find((entry) => entry.id === 'published-empty').compat !== '') {
+    fail('E2/S-C: a published-but-empty native state still falls back to the bundled DB');
+  }
 }
 
 // ── domain/technical/stage.js: deriveTechnicalStageFromOhlcv ───────────────────────────────────
@@ -1444,6 +1574,25 @@ const { renderSentimentSummaryProjection } = await load('src/ui/projections/sent
     || missingRun.weights !== undefined || missingRun.performance !== undefined) {
     fail(`P1181/22:PFR08 a missing member must block with intent preserved instead of AAA 100%, got ${JSON.stringify({ ok: missingRun.ok, reason: missingRun.reason, blocked: missingRun.allocationBlocked, weights: missingRun.weights })}`);
   }
+  // P1252/BT-01 — 원가 미신고 보유(증여·스핀오프·이전 롯)는 시작 배분에서 조용히 제외되지 않는다.
+  // qty>0·cost=null 멤버는 의도 목록(intendedTickers)에 남고 비중을 받는다 — 원가는 어떤 계산에도
+  // 쓰이지 않고 공개 필드(missingCostMembers)로만 남는다.
+  const costlessTimestamps = e3MonthKeys.map((key) => `${key}-28T00:00:00Z`);
+  const costlessPriceMap = e3PriceMap();
+  costlessPriceMap.CCC = {
+    timestamps: [...costlessTimestamps],
+    adjustedCloses: e3MonthKeys.map((_, index) => 100 + index * 10),
+    backtestEligible: true, backtestPriceBasis: 'adjusted-close'
+  };
+  const costlessRun = buildPortfolioBacktestLab(costlessPriceMap, [
+    { ticker: 'AAA', qty: 1, cost: 100 },
+    { ticker: 'CCC', qty: 1, cost: null }
+  ], {});
+  if (costlessRun.ok !== true || !(costlessRun.intendedTickers || []).includes('CCC')
+    || costlessRun.weights?.AAA !== 0.5 || costlessRun.weights?.CCC !== 0.5
+    || !(costlessRun.missingCostMembers || []).includes('CCC')) {
+    fail(`P1252/BT-01 a qty>0 cost=null member must stay intended and weighted instead of being silently dropped, got ${JSON.stringify({ ok: costlessRun.ok, intended: costlessRun.intendedTickers, weights: costlessRun.weights, missingCost: costlessRun.missingCostMembers, reason: costlessRun.reason })}`);
+  }
   // 명시 배분의 시작 가격 불변 — 미래 종점 가격이 명시 배분을 옮기면 실패다.
   const invariantBase = buildPortfolioBacktestLab(e3PriceMap(), e3Positions([50, 50]), {});
   const invariantMoved = buildPortfolioBacktestLab(e3PriceMap({ terminalA: 99999 }), e3Positions([50, 50]), {});
@@ -1451,6 +1600,134 @@ const { renderSentimentSummaryProjection } = await load('src/ui/projections/sent
     || JSON.stringify(invariantBase.weights) !== JSON.stringify(invariantMoved.weights)
     || invariantBase.performance?.startBalance !== invariantMoved.performance?.startBalance) {
     fail(`P1181/explicit-invariance: a terminal price change moved the explicit starting allocation, got ${JSON.stringify({ base: invariantBase.weights, moved: invariantMoved.weights })}`);
+  }
+
+  // ── P1247 (E3/E4): 랩의 통화축 — 통화 없는 합산 금지 ────────────────────────────────────────
+  // 종전에는 비중의 분모가 `qty × 시작가`를 통화 구분 없이 더한 값이었다. KRW 멤버와 USD 멤버를 함께
+  // 보유하면 그 합계는 성립하지 않는다. 선언된 관측 leg가 있으면 기준 통화로 환산하고, 없으면 보류한다.
+  const { FX_LEG_MAX_AGE_MS: fxAxisMaxAgeMs } = await load('src/domain/portfolio/fx.js');
+  const mixedPositions = (weights) => e3Positions(weights).map((p, index) => ({
+    ...p, currency: index === 0 ? 'USD' : 'KRW', costCurrency: index === 0 ? 'USD' : 'KRW'
+  }));
+  const fxNow = Date.parse('2026-09-25T00:00:00Z');
+
+  // 기준 통화 미선언 — 통화를 모르는 채 서로 다른 단위를 더하지 않는다.
+  const noBaseRun = buildPortfolioBacktestLab(e3PriceMap(), mixedPositions([undefined, undefined]), { asOfMs: fxNow });
+  if (noBaseRun.ok !== false || noBaseRun.reason !== 'base-currency-undeclared'
+    || noBaseRun.currencyAxis?.basis !== 'mixed' || noBaseRun.weights !== undefined) {
+    fail(`P1247 a mixed-currency composition without a declared base must hold, got ${JSON.stringify({ ok: noBaseRun.ok, reason: noBaseRun.reason, axis: noBaseRun.currencyAxis, weights: noBaseRun.weights })}`);
+  }
+  // 기준 통화 선언 + leg 없음 — 환산 근거가 없으므로 여전히 보류한다(1:1 합산 금지).
+  const noLegRun = buildPortfolioBacktestLab(e3PriceMap(), mixedPositions([undefined, undefined]), { baseCurrency: 'USD', asOfMs: fxNow });
+  if (noLegRun.ok !== false || noLegRun.reason !== 'fx-rate-not-declared'
+    || noLegRun.allocationBlocked?.baseCurrency !== 'USD') {
+    fail(`P1247 a mixed-currency composition with no declared leg must hold, got ${JSON.stringify({ ok: noLegRun.ok, reason: noLegRun.reason, blocked: noLegRun.allocationBlocked })}`);
+  }
+  // leg는 있으나 선언 창(72h)을 넘은 관측 — 컷 이후·만료 rate를 오늘의 환산 근거로 쓰지 않는다.
+  const staleLegRun = buildPortfolioBacktestLab(e3PriceMap(), mixedPositions([undefined, undefined]), {
+    baseCurrency: 'USD', asOfMs: fxNow,
+    fxLegs: [{ from: 'KRW', to: 'USD', rate: 1 / 1350, observedAt: '2026-09-01T00:00:00Z' }]
+  });
+  if (staleLegRun.ok !== false || staleLegRun.reason !== 'fx-conversion-unavailable'
+    || staleLegRun.allocationBlocked?.held?.[0]?.reason !== 'rate-stale'
+    || staleLegRun.currencyAxis?.maxAgeMs !== fxAxisMaxAgeMs || staleLegRun.weights !== undefined) {
+    fail(`P1247 a stale leg must hold the composition rather than convert, got ${JSON.stringify({ ok: staleLegRun.ok, reason: staleLegRun.reason, held: staleLegRun.allocationBlocked?.held, axis: staleLegRun.currencyAxis })}`);
+  }
+  // 양성 대조: 신선한 leg가 있으면 기준 통화로 환산한 비중을 만들고, 사용한 leg와 수익 기준을 발행한다.
+  // KRW 100은 USD 100과 같지 않으므로 1:1 합산(50/50)이었다면 여기서 깨진다.
+  const convertedRun = buildPortfolioBacktestLab(e3PriceMap(), mixedPositions([undefined, undefined]), {
+    baseCurrency: 'USD', asOfMs: fxNow,
+    fxLegs: [{ from: 'KRW', to: 'USD', rate: 1 / 1350, observedAt: '2026-09-24T00:00:00Z', source: 'test-leg' }]
+  });
+  if (convertedRun.ok !== true || convertedRun.currencyAxis?.applied !== true
+    || convertedRun.currencyAxis?.legs?.[0]?.from !== 'KRW'
+    || convertedRun.returnCurrencyBasis !== 'local-currency-weighted'
+    || convertedRun.fxTranslation !== 'excluded-requires-fx-series'
+    || !(convertedRun.weights?.BBB > 0) || !(convertedRun.weights?.BBB < 0.01)
+    || !(convertedRun.weights?.AAA > 0.99)) {
+    fail(`P1247 a fresh leg must convert the composition instead of summing KRW and USD 1:1, got ${JSON.stringify({ ok: convertedRun.ok, axis: convertedRun.currencyAxis, weights: convertedRun.weights, basis: convertedRun.returnCurrencyBasis })}`);
+  }
+  if (!(convertedRun.warnings || []).join(' ').includes('현지 통화')) {
+    fail('P1247 a converted run must disclose that the return series is local-currency-weighted');
+  }
+  // P1252/BT-02 — 환산이 필요한데 멤버 통화가 미선언이면(시세·원가 통화 모두 없음) rate 1 암묵
+  // 통과로 기준 통화로 눕히지 않는다 — 미확인 통화는 기준 통화(USD)라는 뜻이 아니므로 시작 배분
+  // 전체를 'member-currency-undeclared'로 보류한다(추정 금지).
+  const undeclaredMemberRun = buildPortfolioBacktestLab(e3PriceMap(), [
+    { ticker: 'AAA', qty: 1, cost: 100, currency: 'KRW', costCurrency: 'KRW' },
+    { ticker: 'BBB', qty: 1, cost: 100 }
+  ], {
+    baseCurrency: 'USD', asOfMs: fxNow,
+    fxLegs: [{ from: 'KRW', to: 'USD', rate: 1 / 1350, observedAt: '2026-09-24T00:00:00Z', source: 'test-leg' }]
+  });
+  if (undeclaredMemberRun.ok !== false || undeclaredMemberRun.reason !== 'member-currency-undeclared'
+    || undeclaredMemberRun.allocationBlocked?.code !== 'member-currency-undeclared'
+    || !(undeclaredMemberRun.allocationBlocked?.members || []).includes('BBB')
+    || undeclaredMemberRun.weights !== undefined) {
+    fail(`P1252/BT-02 an undeclared member currency must hold the whole start allocation instead of silently becoming the base currency, got ${JSON.stringify({ ok: undeclaredMemberRun.ok, reason: undeclaredMemberRun.reason, blocked: undeclaredMemberRun.allocationBlocked, weights: undeclaredMemberRun.weights })}`);
+  }
+  // 단일 통화(선언 없음)는 종전과 같다 — 환산도, 수익 기준 변경도 없다.
+  const singleRun = buildPortfolioBacktestLab(e3PriceMap(), e3Positions([50, 50]), { asOfMs: fxNow });
+  if (singleRun.ok !== true || singleRun.currencyAxis?.applied !== false
+    || singleRun.currencyAxis?.basis !== 'undeclared'
+    || singleRun.returnCurrencyBasis !== 'single-currency' || singleRun.fxTranslation !== 'not-applicable') {
+    fail(`P1247 an undeclared single-currency run must keep the existing behaviour, got ${JSON.stringify({ ok: singleRun.ok, axis: singleRun.currencyAxis, basis: singleRun.returnCurrencyBasis })}`);
+  }
+
+  // 명시 목표비중은 단위 없는 비율이므로 혼합 통화여도 환산 없이 성립한다 — 필요하지 않은 곳에서 막지 않는다.
+  const explicitMixedRun = buildPortfolioBacktestLab(e3PriceMap(), mixedPositions([50, 50]), { baseCurrency: 'USD', asOfMs: fxNow });
+  if (explicitMixedRun.ok !== true || explicitMixedRun.settings?.targetWeightBasis !== 'explicit-target-weight'
+    || explicitMixedRun.weights?.AAA !== 0.5 || explicitMixedRun.currencyAxis?.applied !== false
+    || explicitMixedRun.returnCurrencyBasis !== 'local-currency-weighted') {
+    fail(`P1247 explicit target weights are unitless and must not be held for a missing leg, got ${JSON.stringify({ ok: explicitMixedRun.ok, reason: explicitMixedRun.reason, basis: explicitMixedRun.settings?.targetWeightBasis, weights: explicitMixedRun.weights, axis: explicitMixedRun.currencyAxis })}`);
+  }
+
+  // ── P1259 (QA-FX-SERIES): 기준 통화 수익률 — 월말 FX 정렬 + 두 결과의 라벨·수치 대조 ─────────
+  // 같은 입력에서 현지 통화 결과와 기준 통화 결과를 함께 발행하고 라벨을 분리한다. 월말 정렬 계약:
+  // 월 키의 **마지막 관측**만 쓰고(월 중간 관측 무시), 관측이 없는 달 경계는 보류한다(추정 금지).
+  const fxFlat = (flat) => ({
+    timestamps: e3MonthKeys.map((k) => `${k}-28T00:00:00Z`),
+    adjustedCloses: e3MonthKeys.map(() => flat), backtestEligible: true, backtestPriceBasis: 'adjusted-close'
+  });
+  const krwFlatMap = { AAA: fxFlat(100), SPY: fxFlat(100) };
+  const krwFlatPositions = [{ ticker: 'AAA', qty: 1, cost: 100, currency: 'KRW', costCurrency: 'KRW' }];
+  // usdkrw: 2024-01에 1200 → 2024-02에 1320(원화 10% 절하). 2024-02 중간(14일)에 99999라는
+  // 비현실 관측을 두어 월말 정렬이 그것을 쓰지 않는지 검증하고, 2024-03은 관측을 비운다.
+  const fxTimestamps = e3MonthKeys.map((k, i) => (i === 2 ? null : `${k}-28T00:00:00Z`)).filter(Boolean).concat('2024-02-14T00:00:00Z');
+  const fxCloses = e3MonthKeys.map((_, i) => (i === 2 ? null : 1200 + i * 120)).filter((v) => v != null).concat(99999);
+  const fxOptions = {
+    baseCurrency: 'USD', asOfMs: fxNow,
+    fxLegs: [{ from: 'KRW', to: 'USD', rate: 1 / 1350, observedAt: '2026-09-24T00:00:00Z', source: 'test-leg' }],
+    fxSeries: { usdkrw: { timestamps: fxTimestamps, closes: fxCloses } }
+  };
+  const fxRun = buildPortfolioBacktestLab(krwFlatMap, krwFlatPositions, fxOptions);
+  const bcr = fxRun.baseCurrencyReturns || {};
+  const firstMonth = (bcr.months || [])[0] || {};
+  // 현지 통화 월 수익률은 평평한 가격에서 0이고, 기준 통화(USD) 결과는 환율 움직임(-9.09%)을 먹는다 —
+  // 두 결과는 같은 입력에서 다른 수로 발행되어야 한다.
+  const expectedKrwToUsd = (1200 / 1320) - 1;
+  const month2 = (bcr.months || [])[1] || {};
+  const month3 = (bcr.months || [])[2] || {};
+  if (fxRun.ok !== true || fxRun.returnCurrencyBasis !== 'local-currency-weighted'
+    || bcr.returnCurrencyBasis !== 'base-currency-month-end-fx' || bcr.label == null
+    || bcr.returnCurrencyBasis === fxRun.returnCurrencyBasis
+    || Math.abs(firstMonth.return - expectedKrwToUsd) > 1e-9
+    || firstMonth.return === 0
+    || (firstMonth.fxUsed || [])[0]?.value !== 1320 || (firstMonth.fxUsed || [])[0]?.observedAt !== '2024-02-28'
+    || month2.return !== null || month2.held !== 'fx-month-observation-missing:2024-03'
+    || month3.return !== null || month3.held !== 'fx-month-observation-missing:2024-03') {
+    fail(`P1259 the base-currency series must align to month-end observations and differ from the local series, got ${JSON.stringify({ ok: fxRun.ok, local: fxRun.returnCurrencyBasis, base: bcr, first: firstMonth, m2: month2, m3: month3, expected: expectedKrwToUsd })}`);
+  }
+  // 월 중간 관측(99999)이 쓰였다면 첫 달 환산이 -98%대가 됐을 것이다 — 위 수치 대조가 이를 고정한다.
+  // FX 시계열이 아예 없으면 기준 통화 결과를 보류하고 추정하지 않는다.
+  const fxSerieslessRun = buildPortfolioBacktestLab(krwFlatMap, krwFlatPositions, {
+    baseCurrency: 'USD', asOfMs: fxNow,
+    fxLegs: [{ from: 'KRW', to: 'USD', rate: 1 / 1350, observedAt: '2026-09-24T00:00:00Z', source: 'test-leg' }]
+  });
+  if (fxSerieslessRun.baseCurrencyReturns?.status !== 'held'
+    || fxSerieslessRun.baseCurrencyReturns?.reason !== 'fx-series-missing'
+    || (fxSerieslessRun.baseCurrencyReturns?.months || []).length !== 0) {
+    fail(`P1259 without an observed FX series the base-currency result must hold instead of estimating, got ${JSON.stringify(fxSerieslessRun.baseCurrencyReturns)}`);
   }
 
   // 통화 체인 reader→provider→normalize: 선언이 어느 계층에서도 지워지지 않는다.
@@ -1662,13 +1939,16 @@ const { renderSentimentSummaryProjection } = await load('src/ui/projections/sent
   }
 
   // 소스 계약 — 패널의 선언·표시가 코드에 실제로 존재한다.
+  // P1258: 위험 입력 조립(스냅샷·returnsMap·estimate 호출)이 src/ui/panels/portfolio-risk-input.js로
+  // 분해됐다 — 계약은 코드의 새 소유자를 따라간다: 선언 기본값·추정 호출은 모듈, lineage 문구는 셸.
   const e4WorkspaceSource = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
+  const e4RiskInputSource = readFileSync(path.join(root, 'src/ui/panels/portfolio-risk-input.js'), 'utf8');
   if (/0\.043/.test(e4WorkspaceSource)) fail('P1182/22:PFR03 the risk panel must not carry a hidden fixed RF assumption (0.043) any more');
   if (!/RF 미입력 — 보류/.test(e4WorkspaceSource)) fail('P1182/22:PFR03 the panel must publish the withheld-RF state instead of a bare dash');
-  if (!/legacy-risk-path/.test(e4WorkspaceSource) || !/current_composition_retrospective/.test(e4WorkspaceSource)) {
+  if (!/current_composition_retrospective/.test(e4RiskInputSource) || !/legacy-risk-path/.test(e4WorkspaceSource)) {
     fail('P1182/22:PFR09 the panel must declare its exposure path and legacy-risk-path lineage');
   }
-  if (!/compositionSnapshotId/.test(e4WorkspaceSource) || !/_pfDeriveRiskEstimate/.test(e4WorkspaceSource)) {
+  if (!/createCompositionSnapshot/.test(e4RiskInputSource) || !/deriveRiskEstimate/.test(e4RiskInputSource) || !/_pfAssembleRiskEstimateInput/.test(e4WorkspaceSource)) {
     fail('P1182/22:PFR10 the panel must read weights through the frozen composition snapshot');
   }
   const e4HtmlSource = readFileSync(path.join(root, 'index.html'), 'utf8');
@@ -1786,11 +2066,16 @@ const { renderSentimentSummaryProjection } = await load('src/ui/projections/sent
   if (!/function savePortfolioAssumption\(/.test(p1188Workspace) || !/readPortfolioAssumptionDeclarations\(\)/.test(p1188Workspace)) {
     fail('P1188/11 P11-02 the classic shell must own the assumption writer and read its own declarations');
   }
-  if (!/cash: \{ amount: cashValue, currency: declarations\.cashCurrency \}/.test(p1188Workspace)
-    || !/baseCurrency: declarations\.baseCurrency/.test(p1188Workspace)
-    || !/cashReturn: declarations\.cashReturn != null/.test(p1188Workspace)
-    || !/rfAnnual: declarations\.riskFreeRate/.test(p1188Workspace)) {
+  // P1258: 위험 입력 조립이 네이티브 모듈로 분해됐다 — 선언 전달 계약은 모듈이, 셸은 브리지 배선이 소유한다.
+  const p1188RiskInput = readFileSync(path.join(root, 'src/ui/panels/portfolio-risk-input.js'), 'utf8');
+  if (!/cash: \{ amount: cashAmount, currency: decl\.cashCurrency \}/.test(p1188RiskInput)
+    || !/baseCurrency: decl\.baseCurrency/.test(p1188RiskInput)
+    || !/cashReturn: decl\.cashReturn != null/.test(p1188RiskInput)
+    || !/rfAnnual: decl\.riskFreeRate/.test(p1188RiskInput)) {
     fail('P1188/11 P11-02 the risk path must pass the declared currency/return/RF instead of nulls');
+  }
+  if (!/cashValue: cashValue/.test(p1188Workspace) || !/declarations: declarations/.test(p1188Workspace)) {
+    fail('P1188/11 P11-02 the shell must hand its declarations to the assembled risk input');
   }
   const p1188Bootstrap = readFileSync(path.join(root, 'src/app/bootstrap.js'), 'utf8');
   if (!/window\._pfPortfolioAssumptions = \{ keys: PORTFOLIO_ASSUMPTION_KEYS/.test(p1188Bootstrap)) {
@@ -1810,8 +2095,10 @@ const { renderSentimentSummaryProjection } = await load('src/ui/projections/sent
   const stableSample = Array.from({ length: 120 }, (_, i) => 0.008 + Math.sin(i / 7) * 0.02 + ((i * 37) % 11 - 5) / 500);
   stableSample[40] = -0.12;
   stableSample[41] = -0.08;
-  const certified = deriveVarStability({ returns: stableSample, iterations: 400 });
-  const certifiedReplay = deriveVarStability({ returns: stableSample, iterations: 400 });
+  // P1243: a time-ordered sample must declare (or be verified for) its order before the `recent-half`
+  // variant is computed, so the fixture declares the chronological contract it is built with.
+  const certified = deriveVarStability({ returns: stableSample, iterations: 400, order: 'chronological' });
+  const certifiedReplay = deriveVarStability({ returns: stableSample, iterations: 400, order: 'chronological' });
   if (certified.status !== 'ready' || certified.certification !== 'certified' || certified.certificationReasons.length !== 0
     || certified.sampleN !== 120 || !(certified.tailN >= 3)
     || certified.bootstrap?.seed !== 'sample-derived-fnv1a' || certified.bootstrap.iterations !== 400
@@ -1820,11 +2107,38 @@ const { renderSentimentSummaryProjection } = await load('src/ui/projections/sent
     || !(certified.sensitivity.relativeSensitivity <= certified.thresholds.maxRelativeSensitivity)
     || JSON.stringify(certified.bootstrap.band) !== JSON.stringify(certifiedReplay.bootstrap.band)
     || certified.sensitivity.variants.length !== 3
+    || certified.sensitivity.recentHalfOrder !== 'declared'
     || !certified.sensitivity.variants.some((variant) => variant.id === 'leave-one-worst-out')
+    || !certified.sensitivity.variants.some((variant) => variant.id === 'recent-half')
     || !certified.sensitivity.variants.some((variant) => variant.id === 'nearest-rank')) {
     fail(`P1190/22:PFR05 a stable 120-observation sample must certify with a replayed bootstrap band and three sensitivity variants, got ${JSON.stringify({ status: certified.status, cert: certified.certification, band: certified.bootstrap?.band, relBand: certified.bootstrap?.relativeBand, sens: certified.sensitivity, reasons: certified.certificationReasons })}`);
   }
-  const smallSample = deriveVarStability({ returns: [0.02, -0.01, 0.03, -0.02, 0.01, -0.05, 0.04, -0.03, 0.02, 0.01, -0.02, 0.03, -0.08], iterations: 400 });
+  // P1243: the `recent-half` variant must not run on an unverified sample order. An undeclared order
+  // withholds the variant and holds certification; dated observations upgrade it to `verified`, and a
+  // non-monotonic sample is `violated`.
+  const undeclaredOrder = deriveVarStability({ returns: stableSample, iterations: 400 });
+  if (undeclaredOrder.sensitivity.recentHalfOrder !== 'undeclared'
+    || undeclaredOrder.sensitivity.variants.some((variant) => variant.id === 'recent-half')
+    || undeclaredOrder.certification !== 'held'
+    || !undeclaredOrder.certificationReasons.includes('recent-half-order-undeclared')) {
+    fail(`P1243 var-order: an undeclared sample order must withhold the recent-half variant, got ${JSON.stringify({ order: undeclaredOrder.sensitivity.recentHalfOrder, variants: undeclaredOrder.sensitivity.variants.map((v) => v.id), cert: undeclaredOrder.certification, reasons: undeclaredOrder.certificationReasons })}`);
+  }
+  const monthlyStamps = stableSample.map((_, index) => Date.UTC(2016, index, 1));
+  const verifiedOrder = deriveVarStability({ returns: stableSample, iterations: 400, observedAt: monthlyStamps });
+  if (verifiedOrder.sensitivity.recentHalfOrder !== 'verified'
+    || !verifiedOrder.sensitivity.variants.some((variant) => variant.id === 'recent-half')) {
+    fail(`P1243 var-order: a non-decreasing dated sample must verify the order, got ${JSON.stringify({ order: verifiedOrder.sensitivity.recentHalfOrder, variants: verifiedOrder.sensitivity.variants.map((v) => v.id) })}`);
+  }
+  const unorderedStamps = monthlyStamps.slice();
+  [unorderedStamps[10], unorderedStamps[20]] = [unorderedStamps[20], unorderedStamps[10]];
+  const violatedOrder = deriveVarStability({ returns: stableSample, iterations: 400, observedAt: unorderedStamps });
+  if (violatedOrder.sensitivity.recentHalfOrder !== 'violated'
+    || violatedOrder.sensitivity.variants.some((variant) => variant.id === 'recent-half')
+    || violatedOrder.certification !== 'held'
+    || !violatedOrder.certificationReasons.includes('recent-half-order-violated')) {
+    fail(`P1243 var-order: a non-monotonic dated sample must fail the order contract, got ${JSON.stringify({ order: violatedOrder.sensitivity.recentHalfOrder, variants: violatedOrder.sensitivity.variants.map((v) => v.id), cert: violatedOrder.certification, reasons: violatedOrder.certificationReasons })}`);
+  }
+  const smallSample = deriveVarStability({ returns: [0.02, -0.01, 0.03, -0.02, 0.01, -0.05, 0.04, -0.03, 0.02, 0.01, -0.02, 0.03, -0.08], iterations: 400, order: 'chronological' });
   if (smallSample.status !== 'ready' || smallSample.certification !== 'held'
     || !smallSample.certificationReasons.includes('sample-below-declared-minimum')
     || !smallSample.certificationReasons.includes('tail-below-declared-minimum')
@@ -1966,10 +2280,12 @@ const { renderSentimentSummaryProjection } = await load('src/ui/projections/sent
     || !/value="fixed_target_weight_strategy"/.test(p1193Index) || !/value="buy-and-hold"/.test(p1193Index)) {
     fail('P1193 the risk surface must expose the exposure path and rebalance policy declarations');
   }
-  if (!/exposureHistoryMode: exposurePath/.test(p1193Workspace) || !/rebalancePolicy: rebalancePolicy/.test(p1193Workspace)
-    || !/targetWeights: strategyTargetWeights/.test(p1193Workspace) || !/declaredWeight \/ 100/.test(p1193Workspace)
-    || !/declaredWeightSum > 100 \+ 1e-6/.test(p1193Workspace)
-    || /Math\.abs\(declaredWeightSum - 100\)/.test(p1193Workspace)
+  // P1258: 조립이 네이티브 모듈로 분해됐다 — 경로/정책/목표비중 전달은 모듈이, lineage 표기는 셸이 소유한다.
+  const p1193RiskInput = readFileSync(path.join(root, 'src/ui/panels/portfolio-risk-input.js'), 'utf8');
+  if (!/exposureHistoryMode: exposurePath/.test(p1193RiskInput) || !/rebalancePolicy,/.test(p1193RiskInput)
+    || !/targetWeights: strategyTargetWeights/.test(p1193RiskInput) || !/declaredWeight \/ 100/.test(p1193RiskInput)
+    || !/declaredWeightSum > 100 \+ 1e-6/.test(p1193RiskInput)
+    || /Math\.abs\(declaredWeightSum - 100\)/.test(p1193RiskInput)
     || !/pathLineage === 'fixed-target-weight-strategy'/.test(p1193Workspace)) {
     fail('P1193/P1200 the risk path must pass the declared path/policy and hand the target weights through, leaving the cash remainder to the engine');
   }
@@ -2205,10 +2521,11 @@ const { renderSentimentSummaryProjection } = await load('src/ui/projections/sent
 // 정책이 '선언'으로 게시된다 — 지어낸 선언은 선언이 아니다. 전략 경로에서 미선언이면 엔진이 보류한다.
 {
   const p1198Workspace = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
+  const p1198RiskInput = readFileSync(path.join(root, 'src/ui/panels/portfolio-risk-input.js'), 'utf8');
   const p1198Index = readFileSync(path.join(root, 'index.html'), 'utf8');
   const p1198Checks = [
-    ['the shell does not invent a policy', !/rebalancePolicy \|\| 'daily'/.test(p1198Workspace)],
-    ['the shell passes the declared value through', /var rebalancePolicy = declarations\.rebalancePolicy;/.test(p1198Workspace)],
+    ['the shell does not invent a policy', !/rebalancePolicy \|\| 'daily'/.test(p1198Workspace) && !/rebalancePolicy \|\| 'daily'/.test(p1198RiskInput)],
+    ['the shell passes the declared value through', /const rebalancePolicy = decl\.rebalancePolicy;/.test(p1198RiskInput) && /declarations: declarations/.test(p1198Workspace)],
     ['the panel distinguishes applied / declared / undeclared', /est\.rebalancePolicyApplied \? est\.rebalancePolicy : \(est\.rebalancePolicyDeclared \? est\.rebalancePolicyDeclared \+ '\(미사용\)' : '미선언'\)/.test(p1198Workspace)],
     ['the panel never prints a raw null', !/'rebalance ' \+ est\.rebalancePolicy\b/.test(p1198Workspace)],
     ['an unrecognized declaration is deleted, not stored as a default', /if \(normalized == null\) localStorage\.removeItem\(key\);/.test(p1198Workspace)],
@@ -2318,8 +2635,56 @@ const { renderSentimentSummaryProjection } = await load('src/ui/projections/sent
     fail(`P1200 strategy cash-weight checks failed: ${failedP1200.join(' | ')} — ${JSON.stringify({ withCash: { status: withCash.status, cashWeight: withCash.strategy && withCash.strategy.cashWeight, hold: withCash.wholeAccountHold, scope: withCash.publishedScope, first: withCash.wholeAccountReturns && withCash.wholeAccountReturns[0] }, over: { status: overAllocated.status, code: overAllocated.code }, unresolved: { hold: cashUnresolved.wholeAccountHold, scope: cashUnresolved.publishedScope }, full: { weight: fullSleeve.strategy && fullSleeve.strategy.cashWeight, hold: fullSleeve.wholeAccountHold } })}`);
   }
   const p1200Workspace = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
-  if (!/declaredWeightSum > 100 \+ 1e-6/.test(p1200Workspace) || !/est\.strategy\.cashWeight > 0 \? ' · 현금 '/.test(p1200Workspace)) {
+  const p1200RiskInput = readFileSync(path.join(root, 'src/ui/panels/portfolio-risk-input.js'), 'utf8');
+  // P1258: 합 검증은 조립 모듈이, 현금 몫 표기는 셸 패널이 소유한다.
+  if (!/declaredWeightSum > 100 \+ 1e-6/.test(p1200RiskInput) || !/est\.strategy\.cashWeight > 0 \? ' · 현금 '/.test(p1200Workspace)) {
     fail('P1200 the shell must accept a sub-100% target sum and the panel must publish the cash share');
+  }
+}
+// ── P1258 — 위험 입력 조립 분해: 조립 fixture (QA1986 verify_by) ─────────────────────────────────
+// 셸에서 분리된 순수 조립이 입력 자격·returnsMap·구성 스냅샷·estimate 호출까지 한 계약에서 수행하고,
+// 보류는 사유 코드로 돌려준다(문구는 셸이 고른다). 무효 입력을 조용히 제외하지 않는다.
+{
+  const { assembleRiskEstimateInput } = await load('src/ui/panels/portfolio-risk-input.js');
+  const p1258Days = ['2026-09-01', '2026-09-02', '2026-09-03', '2026-09-04', '2026-09-07', '2026-09-08'];
+  const p1258Series = (base) => Object.fromEntries(p1258Days.map((d, i) => [d, base * (1 + i * 0.01)]));
+  const p1258Evidence = (value) => ({ value, ts: '2026-09-25T00:00:00.000Z', source: 'fixture', allowedUse: true });
+  const p1258Declarations = { baseCurrency: null, cashCurrency: null, cashReturn: null, riskFreeRate: null, exposurePath: null, rebalancePolicy: null };
+  const p1258Input = {
+    positions: [{ ticker: 'AAA', qty: 10 }, { ticker: 'BBB', qty: 5 }],
+    priceEvidenceMap: { AAA: p1258Evidence(100), BBB: p1258Evidence(50) },
+    historyMap: { AAA: p1258Series(100), BBB: p1258Series(50) },
+    validTickers: ['AAA', 'BBB'],
+    commonDates: p1258Days,
+    cashValue: 0,
+    declarations: p1258Declarations,
+    // 스냅샷 ID는 asOf를 포함한다 — 재현성 검사를 결정적으로 만들려면 관측 시각을 고정한다.
+    nowIso: '2026-09-25T00:00:00.000Z'
+  };
+  const p1258Happy = assembleRiskEstimateInput(p1258Input);
+  const p1258Replay = assembleRiskEstimateInput(p1258Input);
+  const p1258Missing = assembleRiskEstimateInput({ ...p1258Input, priceEvidenceMap: { AAA: p1258Evidence(100), BBB: { value: null, allowedUse: false } } });
+  // 'no-current-value'는 가격 결측(→ missing-current)이 아니라, 가격은 있으나 평가액이 0인 경우다.
+  const p1258NoValue = assembleRiskEstimateInput({ ...p1258Input, positions: [{ ticker: 'AAA', qty: 0 }, { ticker: 'BBB', qty: 0 }] });
+  const p1258ShortGrid = assembleRiskEstimateInput({ ...p1258Input, commonDates: p1258Days.slice(0, 5) });
+  const p1258OverWeight = assembleRiskEstimateInput({
+    ...p1258Input,
+    declarations: { ...p1258Declarations, exposurePath: 'fixed_target_weight_strategy' },
+    positions: [{ ticker: 'AAA', qty: 10, targetWeight: 60 }, { ticker: 'BBB', qty: 5, targetWeight: 60 }]
+  });
+  const p1258Ok = p1258Happy.ok === true && p1258Happy.minLen === p1258Days.length - 1
+    && Array.isArray(p1258Happy.returnsMap?.AAA) && p1258Happy.returnsMap.AAA.length === p1258Days.length - 1
+    && p1258Happy.snapshot?.status === 'ready' && p1258Happy.estimate?.status === 'ready'
+    && p1258Happy.exposurePath === 'current_composition_retrospective'
+    && p1258Happy.strategyTargetWeights === undefined
+    && p1258Replay.snapshot?.compositionSnapshotId === p1258Happy.snapshot?.compositionSnapshotId;
+  const p1258Holds = p1258Missing.ok === false && p1258Missing.code === 'missing-current' && (p1258Missing.tickers || []).includes('BBB')
+    && p1258NoValue.ok === false && p1258NoValue.code === 'no-current-value'
+    && p1258ShortGrid.ok === false && p1258ShortGrid.code === 'common-dates-insufficient';
+  const p1258Over = p1258OverWeight.ok === true && p1258OverWeight.strategyTargetWeights
+    && Object.keys(p1258OverWeight.strategyTargetWeights).length === 0;
+  if (!p1258Ok || !p1258Holds || !p1258Over) {
+    fail(`P1258 the assembled risk input must qualify, hold with codes, and refuse over-allocation, got ${JSON.stringify({ ok: { ok: p1258Happy.ok, minLen: p1258Happy.minLen, snap: p1258Happy.snapshot?.status, estimate: p1258Happy.estimate?.status, path: p1258Happy.exposurePath, weights: p1258Happy.strategyTargetWeights, replay: p1258Replay.snapshot?.compositionSnapshotId === p1258Happy.snapshot?.compositionSnapshotId }, missing: p1258Missing, noValue: p1258NoValue.code, short: p1258ShortGrid.code, over: p1258OverWeight.strategyTargetWeights })}`);
   }
 }
 // ── P1192 — 완료 컷 행의 previous-completed-close 경계 ──────────────────────────────────────

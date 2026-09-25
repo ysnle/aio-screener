@@ -22,7 +22,6 @@
     "theme-detail-panel",
     "tech-candle-chart",
     "tech-candle-volume",
-    "ticker-price-chart",
     "pf-position-donut",
     "sector-perf-bars"
   ],
@@ -33,7 +32,6 @@
     "theme-detail-panel": "After P818, themes.js is the sole panel display/current-theme writer; index.html showThemeDetail/closeThemeDetail only read the panel to retain selection/event compatibility. Legitimate read dependency, not a write race."
     ,"tech-candle-chart": "P833: analysis.js owns the native technical price chart; index.html loadTechCandleChart is fenced by the mounted native technical chart marker.",
     "tech-candle-volume": "P833: analysis.js owns the native technical volume chart; index.html loadTechCandleChart is fenced by the mounted native technical chart marker."
-    ,"ticker-price-chart": "P834: entity.js owns the native ticker price chart; index.html loadTickerChart is fenced by the mounted native ticker chart marker."
     ,"pf-position-donut": "P835: portfolio.js owns the native holding-allocation chart; index.html drawPositionDonut is fenced by the mounted native portfolio chart marker."
     ,"sector-perf-bars": "P859: themes.js owns the normalized sector-performance bars; index.html renderSectorPerfBars is fenced by the mounted native bars marker and remains only a compatibility fallback."
   },
@@ -138,7 +136,8 @@
       "loadingStrategy": "route-dynamic-import",
       "contestedIds": [],
       "legacyWriterEvidence": [],
-      "notes": "W01-B (2026-09-19): sentiment narrative cut over to the single ViewModel (src/domain/sentiment/narrative.js + src/ui/pages/sentiment.js). Legacy `_generateSentimentAnalysis`/`_updateSentimentActionGuides` are inert stubs and the aio-data.js deferred timers are removed; sent-analysis-text is native from the same revision as the P/C card. Static numeric seeds replaced with fail-closed placeholders."
+      "p1207Boundary": "sentiment.js and entity.js consume the same ^SKEW quote observation (market.volatility.skew/index, observedAt, revisionId) for the sentiment and options cards; the legacy sentiment data-snap SKEW writer is deleted.",
+      "notes": "W01-B (2026-09-19): sentiment narrative cut over to the single ViewModel (src/domain/sentiment/narrative.js + src/ui/pages/sentiment.js). Legacy `_generateSentimentAnalysis`/`_updateSentimentActionGuides` are inert stubs and the aio-data.js deferred timers are removed; sent-analysis-text is native from the same revision as the P/C card. Static numeric seeds replaced with fail-closed placeholders. P1207 adds one typed SKEW observation shared with options."
     },
     "briefing": {
       "lifecycleOwner": "native",
@@ -150,7 +149,9 @@
       "loadingStrategy": "route-dynamic-import",
       "contestedIds": [],
       "legacyWriterEvidence": [],
-      "notes": "P770: native news.js owns briefing-live-news-list, count, completed 08:00 KST timestamp, and reveal control from canonical news state. Legacy AI digest and model/translation producers remain compatibility/narrative boundaries; no legacy primary-feed DOM writer remains."
+      "p770Boundary": "news.js owns briefing-live-news-list, count, completed 08:00 KST timestamp, and reveal control from canonical normalized news state; P1209 makes display-text entity decoding a single non-recursive pass before text-node rendering.",
+      "p1206Boundary": "archive/interview date and stale-days sinks are item-bound by window._aioRenderSnapshotDateBindings; no route may fall back to briefing-stale-days for another key, and TNX 2Y uses only its DGS2 observation date.",
+      "notes": "P770/P1209: native news.js owns briefing-live-news-list, count, completed 08:00 KST timestamp, reveal control, and normalized display text. Legacy AI digest and model/translation producers remain compatibility/narrative boundaries; no legacy primary-feed DOM writer remains."
     },
   "technical": {
       "lifecycleOwner": "native",
@@ -210,6 +211,7 @@
         "#page-macro #curve-meaning",
         "#page-macro #macro-fed-meaning"
       ],
+      "p1208Boundary": "market.js and the legacy curve reader publish the same treasury-curve.v2 view-model: 2Y/10Y/spread retain one cutId and the spread unit is percentage-point; macro and fxbond display the same value/cut/comparability.",
       "p806Boundary": "market.js owns the bounded 2s10s summary surfaces from explicit 2Y/10Y evidence with a fail-closed state; the legacy yield-curve spread writer is fenced.",
       "p808Boundary": "market.js owns the bounded macro 2Y value/source readout from explicit DGS2 evidence; missing DGS2 remains visibly pending.",
       "p811Boundary": "market.js owns the bounded curve status/meaning labels from explicit 2Y/10Y evidence with a fail-closed state; the legacy yield-curve status prose is deleted while the legacy chart remains.",
@@ -246,12 +248,14 @@
         "#page-fxbond #yc-chart-status",
         "#page-fxbond #yc-2y",
         "#page-fxbond #yc-2y-track",
+        "#page-fxbond #sc-2s10s",
         "#page-fxbond #fxbond-tnx-trend",
         "#page-fxbond #fxbond-jpy-trend",
         "#page-fxbond #koreaCurveChart"
       ],
       "p772Boundary": "market.js owns primary FX/bond live quote and MOVE snapshot sinks; P828 also owns the three FX/bond chart lifecycles and keeps missing history fail-closed.",
       "p804Boundary": "market.js owns the bounded fxbond-risk-pill status from DXY and US 10Y quote evidence with an explicit fail-closed state; the legacy updater is fenced.",
+      "p1208Boundary": "fxbond #sc-2s10s is native from the same treasury-curve.v2 percentage-point/cut model as macro; the legacy updateFxBondPage spread writer is deleted.",
       "p805Boundary": "market.js owns the bounded 3M/10Y yield-curve inversion badge from quote evidence with an explicit fail-closed state; the legacy curve updater is fenced.",
       "p807Boundary": "market.js owns the bounded carry-risk-level label only when JPY, VIX, 10Y, BOK rate, and HY OAS evidence are complete; otherwise it remains explicitly pending and the legacy proxy is fenced.",
       "p809Boundary": "market.js owns the FX/bond 2Y readouts from explicit DGS2 evidence with a pending fallback; the legacy DGS2 writer is fenced.",
@@ -423,17 +427,23 @@
         "#page-ticker #ticker-hero-value",
         "#page-ticker #ticker-back-btn-main",
         "#page-ticker #ticker-breadcrumb-main",
-        "#page-ticker #ticker-fundamental-link"
+        "#page-ticker #ticker-fundamental-link",
+        "#page-ticker #ticker-tab-overview",
+        "#page-ticker #ticker-tab-chart",
+        "#page-ticker #tab-overview",
+        "#page-ticker #tab-chart",
+        "#page-ticker #ticker-chart-period-tabs",
+        "#page-ticker #ticker-chart-meta",
+        "#page-ticker #ticker-price-chart"
       ],
       "contestedIds": [],
       "legacyWriterEvidence": [
         "js/aio-core.js:showTicker retains compatibility overview writers; P1010 retires dead action/financial/navigation writers and P829 fences P&L behind aioTickerPnlRenderer",
-        "js/aio-data.js: ticker-hero-ext after-hours compatibility writer skips aioTickerExtensionRenderer",
-        "index.html:loadTickerChart is fenced while #page-ticker[data-aio-ticker-chart-renderer=\"native\"] is mounted"
+        "js/aio-data.js: ticker-hero-ext after-hours compatibility writer skips aioTickerExtensionRenderer"
       ],
       "p777Boundary": "entity.js owns the ticker hero identity/name/price/change primary surface from the normalized entity state.",
       "p817Boundary": "entity.js owns the bounded candle/entry symbol labels from normalized entity id; P829 also owns the after-hours and portfolio P&L hero sinks with fail-closed output when quote or position evidence is missing.",
-      "p834Boundary": "entity.js owns the ticker price-chart canvas lifecycle from normalized entity history with a blocked fallback; legacy Stooq/Chart.js loading is fenced while the native marker is mounted."
+      "p834Boundary": "LC-18/LC-27: entity.js owns ticker tab/panel visibility, keyboard tab navigation, 1M/3M/6M/1Y calendar windows, chart canvas lifecycle, and observed row/date metadata from normalized entity history; legacy switchTab/loadTickerChart/Stooq ticker helpers are retired."
     },
     "market-news": {
       "lifecycleOwner": "native",
@@ -445,7 +455,8 @@
       "loadingStrategy": "route-dynamic-import",
       "contestedIds": [],
       "legacyWriterEvidence": [],
-      "notes": "P769/P770: native news.js owns the primary live-news-feed and briefing-live-news-list DOM, counts, completed 08:00 KST empty states/timestamps, and reveal controls from canonical news state. Legacy RSS/filter/translation/model handlers remain compatibility producers; the secondary Korean rewrite, briefing digest/AI narrative, and data pipeline remain legacy-owned for the next content packet."
+      "p1209Boundary": "news.js renders normalized display text through text nodes after one bounded entity decode; URLs are excluded and hostile markup remains inert text.",
+      "notes": "P769/P770/P1209: native news.js owns the primary live-news-feed and briefing-live-news-list DOM, counts, completed 08:00 KST empty states/timestamps, reveal controls, and normalized display text from canonical news state. Legacy RSS/filter/translation/model handlers remain compatibility producers; the secondary Korean rewrite, briefing digest/AI narrative, and data pipeline remain legacy-owned for the next content packet."
     },
     "options": {
       "lifecycleOwner": "native",
@@ -465,9 +476,10 @@
         "js/aio-core.js: applyDataSnapshot skips data-snap sinks under the native options page",
         "index.html: initOptionsPage PCR fallback skips native options elements"
       ],
+      "p1207Boundary": "options.skew is a native projection of the shared ^SKEW quote observation and preserves metricId, instrumentId, unit, observedAt, revisionId, source, and reference-only status.",
       "p778Boundary": "entity.js owns only the three current replacement-metric values (VIX/PCR/SKEW) from the normalized entity options projection. The page is explicitly not an options-chain source: explanatory copy, old IV/VVIX/GEX/narrative handlers, and any future chain/chart surface remain legacy/reference-only.",
       "contestedIds": [],
-      "notes": "Shares entity.js render() with ticker/fundamental; options renderer cutover is bounded to the three current replacement-metric sinks."
+      "notes": "Shares entity.js render() with ticker/fundamental; options renderer cutover is bounded to the three current replacement-metric sinks. P1207 makes SKEW identity/observedAt/revision identical to the sentiment card."
     },
     "principles": {
       "lifecycleOwner": "native",
@@ -654,6 +666,13 @@
       "function renderScreenerResults",
       "aio:screener:render-request"
     ],
+    "ticker": [
+      "function switchTab",
+      "function loadTickerChart",
+      "function fetchStooqData",
+      "function fetchStooqChart",
+      "_tickerChartInstance"
+    ],
     "market-news": [
       "function renderFeed"
     ],
@@ -728,7 +747,7 @@
     "RESOLVED (P820): home-fg-score is native from the normalized sentiment slice with reference-only lineage; the legacy score writer is fenced while home-fg-label remains legacy-owned.",
     "RESOLVED (P821): home quality meter/score/label are native fail-closed surfaces; the legacy block that displayed tradingScore as Quality is fenced until a canonical five-input quality model is available.",
     "RESOLVED (P822): technical candle title/meta are native from normalized analysis input with a fail-closed waiting state; the legacy chart retains canvas/indicator lifecycle only.",
-    "RESOLVED (P834): ticker price-chart lifecycle is native from normalized entity history with an explicit unavailable state; legacy Stooq loading is fenced while the native ticker chart marker is mounted.",
+     "RESOLVED (P1205/LC-18/LC-27): ticker tab/panel, keyboard navigation, 1M/3M/6M/1Y calendar range, and chart lifecycle are native from normalized entity history; legacy switchTab/loadTickerChart/Stooq ticker helpers are deleted.",
     "RESOLVED (P835): portfolio position-allocation chart lifecycle is native from normalized holding value evidence with an explicit unavailable state; legacy drawPositionDonut is fenced while the native marker is mounted.",
     "RESOLVED (P1150): navigation now has a single transition authority. When the compatibility facade wraps `window.showPage`, it claims authority and the router's `aio:pageShown` listener becomes observation-only; the router publishes `aio:navigationCommitted` after a successful commit and bootstrap derives `store.route` from that event. A scalar page id is never read as an entity id, so one click = one scope transition with DOM/router/store in agreement (verified in ci-architecture-browser-check). Hosts without a writable `showPage` global retain the event path.",
     "OPEN (ARX scope): mixed-source fundamental report sections, portfolio risk/history/AI surfaces, and native-route secondary chart/data/narrative boundaries remain intentionally separate; each future packet must delete or fence the legacy writer before expanding native ownership."

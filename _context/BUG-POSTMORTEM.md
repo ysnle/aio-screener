@@ -1,13 +1,566 @@
 ---
-verified_by: P1204(Masters canonical index staging 누락·실제 Git index blob gate)·P1203(E4 VaR 인증 도달 가능성 — 정렬 표본을 넘겨 '최근 절반' 민감도가 상위 절반이 되던 결함, 인증 렌더 실측 PFE2-23)·P1200(전략 목표비중의 현금 몫이 계좌 범위를 선언)·P1201(회고 경로 정책 셀렉터 비활성)·P1199(선언 저장소 ack 계약 네이티브 분해, 셸 -9)·P1198(선언 정직성 — 미선언·미인식 열거형이 기본값으로 승격되지 않음)·P1197(소비되지 않는 선언 — 회고 경로 정책 미요구·정체성 제외)·P1196(E3 원가축 환산)·P1195(선언 패널 네이티브 분해, 셸 -32)·P1194(E3 FX 환산 — 선언된 관측 rate leg)·P1193·P1192·P1191·P1190·P1189 구현, ci-esm-core-unit-check(P1182/P1191/P1193 갱신 + P1190~P1200 fixture)·ci-masters-contract-check(worktree regenerated PASS, pre-fix staged index FAIL)·ci-data-continuity-check PASS·ci-artifact-semantics-check·ci-history-field-time-contract-check·ci-data-lineage-audit·ci-reconciliation-contract-check·ci-operations-status-check PASS. 남은 OPEN: E2 S-C/S-E/S-F(별도 실행 하니스), 셸 위험 입력 조립 분해(~60줄), 백테스트 랩 통화축(과거 FX 이력 공급원 필요), `recent-half` 입력 순서 계약의 런타임 검증, 정식 CI 시크릿 refresh 사이클
-last_verified: 2026-09-24
+verified_by: P1247(E3/E4 FX 계획 4 — 백테스트 랩 통화축을 `fx.js` 선언 leg 계약으로 배선(통화 없는 합산 제거·환산 불가 보류·현지통화 가중 공시·과차단 금지), reconciliation `commodities-fx`에 FX 일별 이력·공식 대조 evidence 추가, P1247 픽스처 6종)·P1246(E3/E4 FX 축 선행 BLOCKER 해소 — history.json USD/KRW 정본 열(KRW=X, 기존 Yahoo chart producer 경로·1년 백필), producer·게이트가 공유하는 단일 타당 범위 `HIST_FIELD_PLAUSIBILITY`, 시장 레인 값·증거 단일 열거, FRED DEXKOUS 키 없는 공식 교차검증을 `providerCrossChecks.fx`로 발행·같은 시점 정렬(실측 0.61% 일치, 지연 무시 설계는 2.09% 오표기), FX 계약 6종)·P1245(E6 A05 요청별 출처 소유권 — native 인용/연구 tool 오류를 공유 전역에서 `requestId` 스코프 저장소로 이동, `_aioActiveAIRequestId`/`_aioLastClaudeCitations`/`_aioLastClaudeResearchError` 제거, evidence gate 계약을 모순된 리터럴에서 의미·행동 기준으로 갱신, 겹친 두 스트림 비혼입 VM 검증)·P1244(E6 A05·A06 — AI 요청 분류/응답 감사 분리와 `bindingVerified` 경계, E2 S-E·LC-44 회귀 복구)·P1243(VaR `recent-half` 표본 순서 계약 런타임 검증 — 날짜 표본 단조 검증·선언 요구, 미검증은 변형 보류·인증 hold)·P1242(E5 R24-07 종료 — SLO 예정 도착은 `schedule` event만 측정, 다른 trigger는 제외·breakdown 발행, push-only 창은 NOT_OBSERVED)·P1241(E2 S-C 종료 — 행 해석 단일 소유자 `screener-row-policy.js`, 게시된 빈 상태 권위·번들 대체 금지, 번들은 선언된 BUNDLED_COMPAT 호환 읽기로 한정, 퇴역 전역 도달 제거, facade API 59→60)·P1240(E2 S-C 스크리너 행 해석 체인 shadow 하니스 — 양쪽 체인을 5개 입력에서 실행하고 측정 분기 집합 고정)·P1239(E2 S-E 두 채팅의 스크리너 AI 컨텍스트 helper 단일화)·P1238(E2 S-F 뉴스 전용 IDB 뉴스 범위 개명 + 이전 이름 DB 비파괴 복사 마이그레이션)·P1237(LC-53 Principles 학습 층 안내)·P1236(LC-52 Guide 배경 문장 조건·반례·계절 정합)·P1235(LC-51 Masters 역조회 표시/전체 카운트+더보기)·P1234(LC-50 Atlas 검색 범위 안내)·P1233(LC-36 테마 가격 참여 폭 분모 표시)·P1232(LC-35 테마 공개 범위 결정 기록, 제품 결정 OPEN)·P1231(LC-32 헤드라인 전용 요약 보류)·P1230(LC-31 피드 주제와 기사 주제 분리·검토 필요 표기)·P1229(LC-49 Macro 곡선 가용성을 공식 2s10s와 분리 — cut 미확정은 스프레드 판정 보류)·P1228(LC-48 Signal 섹터 폭 모집단 명시)·P1227(LC-47 Breadth 50SMA 문장 native 단일 소유·상승 종목 비중 라벨)·P1226(LC-46 Macro 배너 상태를 렌더된 카드에서 파생)·P1225(LC-45 포트폴리오 표 통화 인식)·P1224(LC-44 가져오기 실제 버튼·키보드 도달)·P1223(LC-43 포트폴리오 도입 문구를 실제 표시 근거에 정합)·P1222(LC-30 Masters 과거 shard가 index 서술자(managerId·schema·행 범위)와 동치 검증 후 사용)·P1221(LC-22 Atlas 고유 개념/단계 배치/재등장 구분)·P1220(LC-19·21 Guide 매매 지시 제거·미제공 지표 명시)·P1219(LC-29 F&G 변화량에 `전일 대비` 라벨·접근성 이름)·P1218(LC-28·37·38 테마 상세의 하루 등락→모멘텀·자금흐름·원인 단정 분리)·P1217(LC-34 뉴스 원문 카드가 키보드 도달 가능한 실제 `<a>` — click 위임 앵커 skip으로 이중 열기 차단)·P1216(LC-33 뉴스 빈 상태의 내부 emptyReason enum 번역·raw 보간 제거)·P1215(LC-39 기업→기술 차트 bridge 단일화 — 폐기된 `deep-ticker-*` id 삭제, `runDeepAnalysis(sym)` 호출)·P1214(E2 LC-26 신호 점수 모드 단일 revision — legacy facade 하드코딩 'swing'·native reader 모드 누락·'임계값 65점' 미지원 약속 제거, mode 입력이 점수를 실제로 바꾸는 단위 fixture)·P1213(E2 LC-42 행별 quote 현재성 — 관측시각 미확인 가격을 '현재가'로 확정하지 않고 전역 LIVE 배지를 상속하지 않음)·P1212(E2 LC-41 결측의 0 승격 차단 — native 진단 계수와 legacy 팩터 IC 캔버스의 null→0)·P1211(E2 LC-25 funnel 실행 판정/표시 범위 분모·runId 분리)·P1210(E2 LC-40 Why 상태 어휘 정합 — 'available'≠엔진 'ranked', 표시 순위/팩터 원값 명명)·P1209(뉴스 HTML entity 단일 decode, 허용 문자만 text node 표시, XSS 음성 fixture)·P1208(2s10s percentage-point·동일 Treasury cut 단일 모델, macro/fxbond parity)·P1207(SKEW market.volatility.skew 단일 quote identity/read model, sentiment/options parity)·P1206(항목별 date/as-of와 stale sink 결속, briefing fallback writer 삭제)·P1205(티커 탭/기간 native 단일 소유권, legacy switchTab·loadTickerChart·Stooq 경로 삭제, 실브라우저 31/91/181/366행 인수)·P1204(Masters canonical index staging 누락·실제 Git index blob gate)·P1203(E4 VaR 인증 도달 가능성 — 정렬 표본을 넘겨 '최근 절반' 민감도가 상위 절반이 되던 결함, 인증 렌더 실측 PFE2-23)·P1200(전략 목표비중의 현금 몫이 계좌 범위를 선언)·P1201(회고 경로 정책 셀렉터 비활성)·P1199(선언 저장소 ack 계약 네이티브 분해, 셸 -9)·P1198(선언 정직성 — 미선언·미인식 열거형이 기본값으로 승격되지 않음)·P1197(소비되지 않는 선언 — 회고 경로 정책 미요구·정체성 제외)·P1196(E3 원가축 환산)·P1195(선언 패널 네이티브 분해, 셸 -32)·P1194(E3 FX 환산 — 선언된 관측 rate leg)·P1193·P1192·P1191·P1190·P1189 구현, ci-esm-core-unit-check(P1182/P1191/P1193 갱신 + P1190~P1200 fixture)·ci-masters-contract-check(worktree regenerated PASS, pre-fix staged index FAIL)·ci-data-continuity-check PASS·ci-artifact-semantics-check·ci-history-field-time-contract-check·ci-data-lineage-audit·ci-reconciliation-contract-check·ci-operations-status-check PASS. 남은 OPEN: E2 S-C/S-E/S-F(별도 실행 하니스), 셸 위험 입력 조립 분해(~60줄), 백테스트 랩 통화축(과거 FX 이력 공급원 필요), `recent-half` 입력 순서 계약의 런타임 검증, 정식 CI 시크릿 refresh 사이클
+last_verified: 2026-09-25
 confidence: medium
-latest_version: v56.33
-latest_P_number: P1204
-next_P_number: P1205
-current_total_entries: 591 tracked entries (418 headings + 173 compacted lines, P1~P1204, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
-current_checkpoint: 사용자 판단(지인용 사설 스크리너)으로 **차단 경계를 공시로 재배치**했다 — 개인화 지시·현재증거 부족·수치 주장 불일치·헤드라인 전용 인과를 하드 차단에서 경고/공시로 강등(P1120~P1122). 조작 방지(값·단위·NFP 배율), 금지 행위 P0, 포트폴리오 동의, 도구 경계는 그대로 차단이다. 남은 OPEN: 날짜 없는 중첩 산출물 12건(P1110 측정면이 노출), `objects/**` 592/629 미참조 blob의 보존 정책, 캐시 라우팅 밖의 실제 소비 산출물 오프라인 폴백 (semantic coverage 6.89%, releaseCertified=false)
+latest_version: v56.49
+latest_P_number: P1259
+next_P_number: P1260
+current_total_entries: 646 tracked entries (473 headings + 173 compacted lines, P1~P1259, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
+current_checkpoint: 2026-09-25 E7 잔여 배치 마무리 — 감사 3종 결함 8클러스터(P1248~P1255), 셸 위험 입력 분해(P1258), 테마 숨김 섹션 분류(P1257, QA-THM-35 종료), E5 O06 도메인 receipt(P1256, QA-E5-RECEIPT 종료), QA-FX-SERIES 기준 통화 수익률(P1259)까지 구현·게이트 이관·픽스처를 마쳤다. affected = pass 79 / cached 7 / skip 31(브라우저 그룹, 데이터 노후), 남은 fail 1건은 환경 data-lineage(artifact 노후 — 정식 refresh에서 해소). 남은 OPEN: QA-FX-REFRESH(다음 정식 refresh), QA-THM-CLEANUP(퇴역 섹션 legacy writer·CSS 잔여), QA-GLOSSARY-SWEEP(용어집 역사 수치 전수 대조), E6 A01~A04, 20 대장의 options·PIT universe·기관공시·학습·모바일·접근성 수직 경로. 커밋·배포 없음.
 ---
+
+## P1259 - v56.49 - 기준 통화 수익률이 없었고, 게이트의 셸 소스 계약이 분해된 코드를 따라오지 못했다 (QA-FX-SERIES·게이트 클로즈아웃) (2026-09-25)
+
+- symptom/reproduction: ① 백테스트 랩은 월별 수익률을 현지 통화 가중으로만 게시했다 — 혼합 통화 포트폴리오의 "기준 통화 수익률"은 미구현이고(`QA-FX-SERIES`), 환율 움직임이 수익률에 들어가지 않았다. ② P1258의 조립 분해로 `ci-esm-core-unit-check`의 셸 소스 계약 6건(PFR09/PFR10·P11-02·P1193/P1200·P1198)이 예전 위치의 리터럴을 요구해 실패했다. ③ 테마 퇴역 후 `_loadSector20dChart`가 선언 전용 함수로 남아 `ci-structural-check`가 실패했다.
+- root_cause: ① FX가 시세 축에만 있고 월별 수익률 경로에 정렬된 시계열 소비가 없었다. ② 소스 계약이 "어느 파일에 있는가"를 하드코딩해 코드 이동을 따라가지 못했다.
+- fix: ① `backtest.js`에 `_aioBtFxMonthEndSeries`/`_aioBtBaseCurrencyMonthlyReturns` 신설 — 월 키의 **마지막 관측**만 월말 관측으로 쓰고(월 중간 관측 무시), 관측 없는 달 경계·미보유 통화쌍은 해당 월을 보류한다(`fx-month-observation-missing`/`fx-series-missing`, 추정 금지). 같은 입력에서 현지 통화 결과와 **라벨·수치가 다른** 별도 결과(`baseCurrencyReturns`, `returnCurrencyBasis: 'base-currency-month-end-fx'`)로 함께 발행한다. 셸은 랩과 같은 chart 경로로 `KRW=X`를 관측해 `fxSeries`로 넘기고, 못 얻으면 보류를 그대로 게시한다. ② esm-core 소스 계약 6건을 코드의 새 소유자 기준으로 갱신(모듈=선언·추정 호출, 셸=문구·배선)하고 **조립 fixture**(P1258: 입력 자격·returnsMap·스냅샷 재현·보류 코드 3종·합 초과 거부)와 **FX 픽스처**(P1259: 월말 정렬·보류·두 결과 대조·시계열 부재 보류)를 추가했다. ③ 선언 전용 `_loadSector20dChart`와 죽은 차트 정리 가드를 제거했다.
+- violated_rule: QA-FX-SERIES verify_by(월말 FX 정렬 fixture + 두 결과의 라벨·수치 대조), QA1986 verify_by(조립 fixture + 셸 순감소), 소스 계약의 "코드의 소유자를 따라간다" 원칙.
+- prevention: `ci-esm-core-unit-check` P1258 조립 fixture + P1259 FX fixture(위 4검사군)가 두 계약을 고정한다. `ci-structural-check`가 선언 전용 함수 잔재를 계속 막는다.
+- verification: `ci-esm-core-unit-check` 전체 PASS(신규 fixture 포함)·`ci-structural-check` PASS·`ci-headless-tests`(예상 밖 실패 0)·affected(`qa-runner affected --session e7-shell-theme-e5-batch`) pass 79 / cached 7 / skip 31 — 남은 fail 1건은 환경 `data-lineage`(artifact 노후, 이 변경과 무관). decomp ratchet을 `--write --allow-growth`로 기록(전체 순 −48, 증가분은 정직한 계약 내용).
+- residual_risk: ① `history.json:usdkrw` 실값은 다음 정식 refresh에서 채워진다(그 전까지 기준 통화 결과는 정직하게 보류 — `QA-FX-REFRESH`). ② FX 시계열은 현재 `usdkrw` 한 쌍만 지원한다(다른 통화쌍은 `fx-series-missing` 보류 — 삼각 환산 금지와 같은 규칙). ③ 기준 통화 수익률의 연간·drawdown 재계산은 하지 않는다(월별 시계열만 별도 발행).
+
+## P1258 - v56.48 - 셸 위험 입력 조립(스냅샷·returnsMap·estimate 호출)이 아직 셸에 남아 있었다 (E4 잔여/셸 분해) (2026-09-25)
+
+- symptom/reproduction: `js/aio-workspace.js`의 `refreshPortfolioRisk`가 위험 추정 입력 자격 검사·구성 스냅샷 조립·returnsMap 생성·`_pfDeriveRiskEstimate` 호출(~60줄)을 셸에서 직접 수행했다 — 도메인 조립이 전역 셸 상태에 묶여 재사용·fixture 검증이 불가능한 상태였다(QA-CHECKLIST 미착수 항목 "셸 위험 입력 조립 분해", verify_by: ci-decomp-hotspot-check 순감소 + 조립 fixture).
+- root_cause: P1195(선언 패널)/P1199(저장 경로)가 네이티브로 분해될 때 위험 입력 조립만 셸에 남았다 — 계산은 순수한데 셸의 DOM·문구 코드와 같은 함수에 끼어 있었다.
+- fix: `src/ui/panels/portfolio-risk-input.js` 신설 — `assembleRiskEstimateInput({positions, priceEvidenceMap, historyMap, validTickers, commonDates, cashValue, declarations})`가 공통 거래일·현재시세 결측·평가액 0 검사, returnsMap, 구성 스냅샷(createCompositionSnapshot 직접 import), exposurePath/rebalancePolicy/전략 목표비중, estimate 호출까지 수행하고 `{ok, code, tickers}` 보류 또는 `{returnsMap, snapshot, estimate, minLen, ...}`를 반환한다. 셸은 증거 수집(`_aioDecisionMetric`)·기존 한국어 보류 문구 코드 매핑·렌더만 유지하고 `window._pfAssembleRiskEstimateInput`(bootstrap 브리지)로 호출한다.
+- violated_rule: QA1986 verify_by(조립 fixture + 셸 순감소), P1195/P1199 분해 선례(R632 단일 writer 정신).
+- prevention: `ci-decomp-hotspot-check` ratchet가 `js/aio-workspace.js` 순감소를 고정한다. 조립 fixture는 이 배치 게이트 단계에서 `ci-esm-core-unit-check`에 추가해 이 항목을 인용한다.
+- verification: `node --check`, `ci-syntax-check` PASS, `ci-decomp-hotspot-check`에서 aio-workspace.js −51행 확인(ratchet `--write`는 게이트 단계). 동작 보존: 보류 코드별 문구가 이전과 동일함을 코드 대조로 확인.
+- residual_risk: `readPortfolioAssumptionDeclarations`·localStorage 현금 읽기는 여전히 셸 소유(입력 수집 계층) — 저장 경로 분해(P1195 잔여)는 후속 단위다.
+
+## P1257 - v56.48 - 테마 페이지 숨김 섹션의 퇴역/이전이 결정되지 않아 공개 문구와 실제 노출이 어긋나 있었다 (LC-35/QA-THM-35) (2026-09-25)
+
+- symptom/reproduction: `body:not(.aio-dev-mode) #page-themes > .aio-section` 일괄 숨김 규칙이 경기 사이클·시장 리더십·섹터 퍼포먼스·20일 추이·히트맵·45개 세분화 카드·한국 28테마·대표 ETF를 통째로 가렸고, 페이지 도입 문구는 "45개 세분화 테마 실시간"을 약속했다 — "전체 콘텐츠 제공"과 "공개에서 실제 제공"이 달랐다(LC-35). QA-THM-35가 **제품 결정 OPEN**(퇴역·이동)으로 남아 있었다.
+- root_cause: 숨김이 "미결정 보관"으로 오래 유지됐다 — 어떤 섹션이 계약된 소비자(테스트·아키텍처 게이트)를 갖는지, 어떤 것이 칩·상세와 중복되는 구형인지 분류되지 않았다.
+- fix: **분류 결정을 기록하고 실행했다** — ① 퇴역(삭제): 시장 리더십 미러·섹터 ETF 20일 추이·테마 히트맵·대표 ETF 그리드(계약 소비자 없음, 칩·상세와 중복). ② 공개 경로로 이전: 경기 사이클(T806/T229/T256 계약 — `_aioReorderCoreSections`가 헤더 직후 리드 판정으로 재배치)·섹터 퍼포먼스(아키텍처 게이트가 네이티브 렌더러 소유권 계약). ③ 개발자 번들로 이전: 세분화 테마 45+상세(T642 계약)·한국 28테마 통합(T177/178/824/869/1018 계약) — v52.87 P702 고급 토글 경로에 래핑해 계약 DOM을 보존. 일괄 숨김 규칙 자체를 제거하고 결정 기록을 스타일시트에 남겼으며, 공개 문구(인사이트·부제·홈 링크)를 공개 노출 범위만 약속하도록 고쳤다. 삭제된 섹션을 HEAD에서 재확인해 복원 대상을 원본 그대로 복원했다.
+- violated_rule: LC-35 설계("공개 요구를 먼저 결정하고 중복·낡은 마크업은 삭제·통합, 필요한 콘텐츠만 명확한 공개 경로로 이전"), 공개 문구=실제 노출 원칙.
+- prevention: `ci-runtime-contract-check`의 LC-35 단언이 분류 결정 기록(퇴역/공개 이전/개발자 이전)과 "45개 세분화 테마 실시간" 부재를 검증하도록 갱신(P1257 인용). 계약 테스트(T642/T806/T824/T869/T1018·아키텍처 게이트)가 복원된 DOM을 고정한다.
+- verification: `ci-runtime-contract-check`·`ci-architecture-contract-check`·`ci-syntax-check` PASS. `ci-headless-tests`가 삭제 직후 12건 실패로 계약된 소비자를 드러냈고, 분류 복원 후 8건 해소(잔여 4건은 P1250의 alias 정합으로 해소).
+- residual_risk: ① 삭제된 구형 섹션을 참조하던 legacy writer(`js/aio-pages.js`의 히트맵/대표ETF/20일 추이 렌더러, `aio-ui.js`의 m7 미러 동기화 selector)는 요소 부재 시 no-op으로 남아 있다 — 후속으로 삭제한다. ② 퇴역 섹션의 responsive CSS 잔재(`#theme-heatmap`/`#all-etf-grid` 규칙)도 후속 정리 대상. ③ 세분화·KR의 개발자 번들 분류는 P702 정책 유지 — 공개화 요구가 생기면 별도 제품 결정.
+
+## P1256 - v56.48 - SEC 밖 도메인에는 receipt가 없었고, "기존값 유지"가 상태 소비자에서 새 수집 성공과 구분되지 않았다 (E5 O06/QA-E5-RECEIPT) (2026-09-25)
+
+- symptom/reproduction: `buildDomainReceipt`(P1169)는 SEC 전용 파일에만 있었고, `scripts/fetch-data.mjs`의 다른 도메인(시세·뉴스·매크로·조사·옵션)은 `data.meta`의 ad-hoc 상태 필드(`fredStatus`/`newsOk` 등)만 발행했다 — attempted/updated/retained와 `lastSuccessfulObservation`이 없어 "실패 후 기존값 유지"와 "새 수집 성공"을 구분할 수 없었고, 운영 상태 소비자는 도메인 receipt를 읽지 않았다.
+- root_cause: receipt 계약이 한 producer에 박혀 있었다 — 계약은 도메인 제약이 없는데 모듈 소유가 공용이 아니었다.
+- fix: ① `scripts/lib/domain-receipt.mjs`에 정본 `buildDomainReceipt`(계약·어휘 `DOMAIN_RECEIPT_PUBLICATION_STATUS`는 `src/data/contracts/operations.js`가 소유)를 두고 SEC producer가 re-export한다(기존 fixture import 경로 유지). ② `fetch-data.mjs`가 8개 도메인(`market-quotes`/`news`/`macro-fred`/`macro-bls`/`macro-bea`/`treasury-curve`/`surveys-aaii`/`options-put-call`)의 receipt를 `data.meta.domainReceipts`로 발행 — 이전 artifact의 receipt를 `priorReceipt`로 넘겨 실패 시 `lastSuccessfulObservation`이 전진하지 않는다. ③ `build-operations-status.mjs`가 `deriveDomainStatus`로 소비해 사용자 복구 설명("새 수집 성공" / "일부만 갱신 — 기존값 유지" / "새 수집 실패 — 기존값 유지" / "이번 배치 미수집")을 기능 수준 언어로 발행. ④ `createOperationsStatus`/`validateOperationsStatus`가 `domainReceipts` 필드를 어휘로 검증한다.
+- violated_rule: doc 17 O06("domain receipt에 attempted/updated/retained/terminalUnsupported/transientFailed와 lastSuccessfulObservation을 독립 기록"), QA-E5-RECEIPT verify_by.
+- prevention: `ci-operations-status-check`에 도메인별 receipt 픽스처 4종(P1256 인용) — 전부 실패+기존값 유지(NO_REFRESH_RETAINED, 사용자 문구가 "새 수집 성공"을 말하지 않음·observation 전진 없음), 일부 성공(PARTIAL), 전부 성공(SUCCESS+전진), 미수집(NOT_ATTEMPTED). `ci-sec-runtime-projection-check`의 소스 토큰 검사가 이동한 정본 모듈을 따라가도록 갱신.
+- verification: `ci-operations-status-check`·`ci-sec-runtime-projection-check`(SEC 픽스처 5종 유지) PASS.
+- residual_risk: ① checked-in `data.json`/`operations-status.json`은 다음 refresh 전까지 receipt 필드가 없다(producer가 발행하는 즉시 소비자가 읽는다). ② `history.json` 축(심볼별 일별 이력)의 receipt는 미포함 — 후속 단위.
+
+## P1255 - v56.48 - 조정종가 계열과 raw 계열이 한 순위·한 행에서 섞이고, 가격 기준 선언이 소비자까지 도달하지 않았다 (E7 기업행동/조정가격) (2026-09-25)
+
+- symptom/reproduction: 원본 감사(07:M04 계열): ① live 스크리너의 교차 섹터 모멘텀 랭킹이 조정 `ret*`와 raw 가격수익률을 같은 z-score 모집단에서 비교했다. ② `src/data/normalize/screener.js` 화이트리스트가 producer의 `priceBasis`/`adjustedCloseStatus`/`backtestEligible`/`adjustedCloseCoveragePct` 선언을 조용히 버려 소비자가 구분 불가. ③ setup 필드가 raw `price`와 조정 계열 EMA를 비교(`priceAboveEma60`). ④ 화면이 "수익률"만 표기하고 basis를 밝히지 않음. ⑤ quote 경로가 가격 basis를 선언하지 않음.
+- root_cause: 조정 범위(adjustment scope)가 계열마다 다르면서 그 사실이 계약 필드로 흐르지 않았다 — 화이트리스트가 선언을 삭제하고, 비교 계열이 한 모집단에 섞였다.
+- fix: ① 화이트리스트에 4개 선언 필드를 시간 계약 필드와 같은 규칙으로 통과(P1255/D2). ② `factor-ranks.js` 행 필터에서 **선언된** raw/partial basis 행을 비교 모집단에서 분리해 `rawBasisRows`로 집계·발행(미선언 합성 행은 기존 동작 유지 — 과차단 금지, D1). ③ `_calcSetupScreenFields`의 EMA를 `price`와 같은 close 계열로 통일하고 `emaBasis: 'same-close-series-as-price'` 발행(D3). ④ 티커 차트 기간 메타에 "가격 기준 close(배당 미조정 price return)" 표기(D4). ⑤ quote 출력에 `priceBasis: 'provider-close-adjustment-scope-undeclared'` 선언(D5).
+- violated_rule: return-contract의 `mixed-adjustment-scope-in-one-comparison`, P1181 이중 기준 혼합 금지, P1167 시간 계약 필드 통과 규칙.
+- prevention: 화이트리스트·행 필터·EMA 계열 단위 검증은 이 배치 게이트 단계 fixture로 추가해 이 항목을 인용한다.
+- verification: `node --check`, `ci-syntax-check` PASS. producer의 실제 발행 필드(`priceBasis`/`adjustedCloseStatus`/`backtestEligible`)와 게이트 조건을 코드 대조로 확인.
+- residual_risk: ① Yahoo `close`의 분할 반영 여부는 미검증(N1) — quote가 `adjustment-scope-undeclared`로 선언하는 이유. ② 백테스트는 조정 계열에서 비용 차감 시뮬레이션 유지(N4, 미검증 원가 경고 유지). ③ raw 행 분리는 모멘텀 랭킹 모집단만 정화 — 전체 factor parity 확장은 후속.
+
+## P1254 - v56.48 - 테마 칩이 상세 제공 여부를 드러내지 않아 14개 상세/11개 요약 전용이 구분되지 않았다 (LC-54) (2026-09-25)
+
+- symptom/reproduction: `src/ui/pages/themes.js`의 `createChip`이 상세 패널이 있는 칩만 `<button>`, 없는 칩은 `<span>`으로 만들었지만 스타일·의미가 동일했다 — 요약 전용 칩을 눌러도 아무 일도 일어나지 않는 이유가 드러나지 않았고, 상세 제공 범위(14종)가 화면에 공시되지 않았다.
+- root_cause: `detailAvailability`가 데이터 계약에 없었다 — 소비자가 링크 가능성을 우연한 DOM 타입으로만 추론했다.
+- fix: `resolveThemeDetailId` 결과로 `data-detail-availability="available|summary-only"`를 발행하고, 요약 전용 칩을 점선·`aria-disabled`·"상세 없음" 툴팁으로 구분하며, 그리드 상단 범례에 "상세 제공 N개 · 요약 전용 M개"를 동적 집계로 표시한다.
+- violated_rule: LC-54 설계("데이터 계약에 detailAvailability를 명시하고 읽기 전용 칩의 시각·접근성 의미를 구분한다").
+- prevention: `ci-runtime-contract-check` 보강은 이 배치 게이트 단계에서 추가해 이 항목을 인용한다.
+- verification: `node --check` PASS. 칩 생성 경로 코드 대조(available/summary-only 분기·범례 집계).
+- residual_risk: 요약 전용 11종의 상세 신설 여부는 제품 범위 결정 — 현재는 요약+관련 테마 경로만 제공.
+
+## P1253 - v56.48 - 죽은 다이버전스 감지기가 항상 "없음"을 출력하고, VCP·변동성 프로필·Stage가 같은 이름으로 서로 다른 모델을 가리켰다 (E7 차트 기법) (2026-09-25)
+
+- symptom/reproduction: ① `js/aio-ui.js` `_detectDivergence`는 RSI 창 off-by-one과 "마지막 봉까지 argmax 포함" 구조로 항상 false를 반환하는 죽은 코드였다 — 화면의 다이버전스 감지는 항상 "없음"이었다. ② `_calcRSIDivergence`(aio-core.js)와 이중 구현. ③ `analyzeKrTickerDeep`는 divData/crossData를 계산만 하고 렌더하지 않았다. ④ `_calcVcpQuality`(변동성 수축 휴리스틱)가 `_calcVCP`(4단계 모델)와 "VCP" 이름을 공유. ⑤ `_buildHorizontalVolumeZones`와 `_calcVolProfile`가 다른 binning으로 "Volume Profile"을 표기. ⑥ `_detectStage`의 죽은 삼항·catch-all이 "상승 추세"를 무조건 출력. ⑦ `calcOpexGammaRisk`의 실행되지 않는 규칙과 근거 없는 `GAMMA_SUPPORT` 라벨.
+- root_cause: 차트 기법들이 화면별로 별도 구현되며 모델 정체성·표본·기준이 계약 없이 이름을 공유했다.
+- fix: ① `_detectDivergence`를 `_calcRSIDivergence`의 얇은 래퍼로 통일(실제 감지가 표시되게 됨). ② `_calcRSIDivergence`의 LOOK=50 slice 정렬을 `Math.min`으로 고정. ③ 미렌더 계산 제거. ④ `_calcVcpQuality` 출력에 `model: 'range-contraction-heuristic'`과 "단순 변동성 수축 지표" 라벨. ⑤ UI 변동성 프로필을 `_calcVolProfile`와 같은 24 bin·±0.2%로 통일하고 모델명 표기. ⑥ `_detectStage`의 죽은 삼항 제거·catch-all을 "전환 구간(미분류)"으로 개명. ⑦ OPEX 밴드 라벨을 "감마 미측정" 명시로 개명하고 미실행 규칙 제거. ⑧ LC-61: 두 Stage 모델(장기 MA 스택 vs 단기 SMA150·고저점) 렌더에 각각 모델·대상·표본·기준일을 표기해 같은 "Weinstein" 판단으로 읽히지 않게 함.
+- violated_rule: 계약 없는 모델명 공유(정체성 불일치), 미검증 수치를 매매 근거로 표기하지 않는 규칙.
+- prevention: `ci-esm-core-unit-check`/`ci-runtime-contract-check` 보강은 이 배치 게이트 단계에서 추가해 이 항목을 인용한다.
+- verification: `node --check` PASS. 래퍼 반환 형태(기존 소비자 호환) 코드 대조.
+- residual_risk: ① 두 Stage 모델의 통합은 설계 결정 사항 — 이번에는 라벨 분리만. ② `_calcVcpQuality` 점수 수식은 불변(명명만 정정).
+
+## P1252 - v56.48 - 백테스트가 비용 미상 행을 조용히 제외해 비중을 재분배했고, 집중도가 원가를 분모에 섞었다 (E7 백테스트·위험) (2026-09-25)
+
+- symptom/reproduction: ① `src/domain/portfolio/backtest.js`의 멤버 필터가 `qty > 0 && cost > 0` — 비용 미상 멤버가 **조용히 제외**되고 비중이 재분배돼 PFR08 계약(보류·고지)을 우회했다. ② 통화 미선언 멤버가 needsConversion에서 기준 통화 1:1로 통과했다. ③ 가격 기반 평가액을 원가 통화로 환산했다. ④ VaR 경고가 항상 "인증 보류"를 단정. ⑤ 부분 기간 수익률이 연간 최고/최저에 끼었다. ⑥ netGain≤0에서 기여도 퍼센트가 부호 반전. ⑦ 보류 메시지가 존재하지 않는 현금 입력을 요구했다. ⑧ `src/domain/portfolio/concentration.js`의 positionValue가 price→currentPrice→cost→avgCost로 떨어져 **원가가 시장가치 분모에 섞였다**(PFR06/legacy 계약 위반), 음수 qty/price clamp, ΣweightPct>100 미신고.
+- root_cause: P1247이 통화 축을 넣을 때 "결측 원가"와 "결측 시장가치"를 같은 결측으로 취급했고, 집중도 모듈에 legacy가 거부한 원가 fallback이 있었다.
+- fix: 필터를 `ticker && qty > 0`로 바꾸고 비용은 disclosure-only(PFR08 유지). 통화 미선언+환산 필요 시 `member-currency-undeclared` 보류. priceCurrency가 없을 때는 `price-currency-inferred-from-cost` 공시, 둘 다 없으면 보류. VaR 경고를 실제 `varCertification`에서 파생. 부분 기간 행에 `months`/`partialYear`를 발행하고 연간 선택에서 제외. 기여도는 netGain≤0이면 pct 대신 보류 사유. 메시지를 "전액 투자 전략만 지원"으로 정정. 집중도는 price/currentPrice만 시장가치로 인정하고 미상 항목을 `data-insufficient`로 분리·발행, 음수는 `invalid-input`, Σ>100.5는 `denominator-mismatch` 이슈 발행, `weightBasis: 'invested-sleeve-positions-only'` 선언.
+- violated_rule: PFR08(비용은 통계 수단 아님·제외=재분배 금지), PFR06/legacy 원가-시장가치 분리, 결측은 보류 원칙.
+- prevention: `ci-esm-core-unit-check` 픽스처 — 비용 미상 멤버 포함(PFR08), 원가 fallback 금지(CON-01), 기본 weightPct 비적용 검증 + 두 신규 fixture(에이전트 추가). 이 배치 게이트 단계에서 잔여 fixture와 P1252 인용을 보강한다.
+- verification: `ci-esm-core-unit-check` 27/29 groups PASS(실패 2건은 P1258 분해로 인한 셸 소스 계약 — 게이트 단계에서 갱신).
+- residual_risk: ① VaR의 `close=adjClose` 기준과 백테스트의 조정-원가 시뮬레이션 불일치(N4)는 경고로만 공시. ② 부분 기간 표기는 최고/최저 제외만 — 연율화는 미구현.
+
+## P1251 - v56.48 - 스크리너 빌더가 표시 필터를 실행 조건처럼 보이게 했고, 무효 입력이 무음 무시됐다 (LC-64/65/73) (2026-09-25)
+
+- symptom/reproduction: ① 표 필터(지수/섹터) 적용이 "활성 필터" 칩과 빌더 영역에 조건으로 표시됐지만 preview 정의·hash·통과 모집단은 불변 — 사용자가 실행 조건이 걸린 줄로 읽었다. ② 빌더 `최소 rank`에 95를 입력하면 선택란이 그대로이고 아무 오류도 없었다(허용값은 0/40/50/65/80 — `select.value` 조용히 무시). ③ 시총 필터에서 데이터 미상 행이 0건 빈 상태에서 "조건 불충족"과 구분되지 않았다.
+- root_cause: 표시 필터와 실행 정의(runDefinition/hash)가 상태를 공유하면서 칩이 두 의미를 함께 표현했고, `readVisualCondition`이 대상 컨트롤의 허용값을 검증하지 않았다.
+- fix: `RUN_CONDITION_FIELDS`(rank/RSI/3M 수익률) 선언 — 빌더 칩은 실행 조건만 표시하고 섹터·분류·검색은 "표시 필터(표 범위만)"로 라벨·위치를 분리한다. `readVisualCondition`이 select 허용값/숫자를 검증해 무효 입력을 필드·상태줄·`aria-invalid`로 명시적 거부(Enter와 클릭이 같은 검증기). 시총 필터 0건 빈 상태에 "조건 충족 0건 / 시총 정보 없어 판정 보류 N건 / 시총 적격 n/N / 적용 컷"을 분리 표시한다.
+- violated_rule: LC-64/65/73 설계(runDefinition/hash와 tableViewFilter 분리, 무효 입력의 명시적 거부, 빈 상태 분리).
+- prevention: `ci-runtime-contract-check` 보강은 이 배치 게이트 단계에서 추가해 이 항목을 인용한다.
+- verification: `node --check` PASS. 빌더/칩/빈 상태 코드 대조.
+- residual_risk: 섹터·분류·검색을 실행 정의 AST에 넣는 확장은 엔진 계약 변경 — 제품 결정 전까지 표시 전용임을 명시한다.
+
+## P1250 - v56.48 - SKEW 변화량이 본값과 다른 read model에서 나와 보류된 값 옆에 퍼센트가 표시됐다 (LC-63/OPT-01) (2026-09-25)
+
+- symptom/reproduction: 심리·리스크 모니터의 `data-live-chg="^SKEW"`가 레거시 raw quote의 pct를 쓰는 동안 본값(`#sent-skew-value`/`rm-skew-val`)은 더 엄격한 envelope/snapshot 모델에서 `—`로 보류됐다 — "보류된 현재값 옆에 -0.07% 변화량"이 표시됐다. `applyLiveDataToDom`의 chg 패스는 본값 결측이어도 변화량을 그대로 썼고, 옵션 Put/Call 설명 writer는 native guard 없이 톤 라벨을 덮어썼다.
+- root_cause: current/previous/change/cut/source/eligibility가 한 read model로 묶여 있지 않았다 — 변화량 writer가 본값 소유권을 상속하지 않았다.
+- fix: ① 심리 카드의 변화량을 native `skew` read model(`pct`/`directionValue`/`directionCompatible`)에서 렌더해 본값·비교값 미완성이면 "변화량 보류 — 사유"로 표시(`#sent-skew-change`, P1207 계열 단일 identity). ② 리스크 모니터의 변화량을 `data-snap="skew-pct"`(렌더 라우터가 `DS.skewChg`에서 파생, 미관측 시 `—` 보류)로 이관. ③ `applyLiveDataToDom` chg 패스에 "본값 결측이면 변화량도 보류" 일반 규칙. ④ `_aioUpdatePutCallDom` 설명 writer에 native guard 부착. ⑤ `skew-pct`를 R97 시드 인정 alias(`→skewChg`)로 선언해 sink-to-source 계약에 정합.
+- violated_rule: LC-63 계약("current/previous 어느 하나가 부적격이면 변화량도 보류"), P1207 단일 identity/read model.
+- prevention: headless T680/T913/T914/T917(고아 sink 0건 계약)이 `skew-pct`의 시드 연결을 고정한다 — R97 aliasMap 인용.
+- verification: `ci-headless-tests`에서 관련 4건 실패가 alias 선언으로 해소됨을 확인(테스트 재실행).
+- residual_risk: `DS.skewChg`는 아직 producer가 없다 — 실측 quote 경로가 채울 때까지 변화량은 정직하게 보류된다(QA-FX 류 follow-up과 별개).
+
+## P1249 - v56.48 - 캔들 패턴이 방향 예측으로 읽히고, Guide가 척도 불일치·직접 행동 지시를 남기고 있었다 (LC-55/78) (2026-09-25)
+
+- symptom/reproduction: 실시간 감지 결과의 패턴 카드가 "반등 신호/조정 신호/3일 반전(바닥/천장)"으로 방향을 단정했고, 관측 봉 수·기준일·원천이 표시되지 않았다. Guide는 "20점 환경 스코어(75+/45-)"(실제 척도는 0~100), "둘 중 하나만 강하면 포지션 크기를 줄입니다", "10MA < 20MA = 현금 비중 확대" 같은 직접 행동 지시를 남겼다.
+- root_cause: 패턴 감지가 기술적 분석 연구 해석을 매매 언어로 번역해 표시했고, Guide 문구가 스코어 척도·정책(행동 지시는 개인 판단)과 어긋났다.
+- fix: 카드 문구를 "형태 관측"으로 제한(하락/상승 구간 뒤 관찰 라벨), 감지 결과에 "관측 3봉 · 기준일 · 원천 · 미수신 시 결측 표시"를 추가, 하단 고지에 "패턴은 거래 신호가 아님"을 유지·강화. Guide: 스코어를 "0~100 환경 스코어(매매 지시 아님)"로 정정, 포지션/현금 비중 문장을 관찰+개인 판단으로 분리, "2% 룰·ATR 손절·분할 매수"를 교육용 방법론 예시로 명명.
+- violated_rule: LC-55("각 문장을 형태 관측으로 제한하고 관측 봉 수·기준일·원천·미감지를 함께 표시"), 매매 지시 금지 정책(P1220 계열), 스코어 척도 단일화(P1214).
+- prevention: `ci-runtime-contract-check` 보강은 이 배치 게이트 단계에서 추가해 이 항목을 인용한다.
+- verification: `node --check` PASS, `ci-runtime-contract-check` PASS(기존 단언 불변).
+- residual_risk: 패턴 카드의 원천 표기는 요약 수준 — 종목별 상세 프로venance는 티커 차트 메타(P1255/D4)와 별개 계층이다.
+
+## P1248 - v56.48 - 용어 사전이 금융 정의를 틀리게 가르치고, 중복 표제·수동 분류 목록이 레지스트리와 어긋나 있었다 (E7 콘텐츠) (2026-09-25)
+
+- symptom/reproduction: `js/aio-glossary.js`(275항목)에 확정 오류가 있었다 — `행사가`가 ITM/OTM을 "수익/손실 상태"로 정의(실제: 콜은 기초>행사가), 경기침체를 "GDP 2분기 연속 마이너스"로 단정(NBER 다지표), CPI 항목의 "Core CPI 2% = 연준 목표 달성"(정본: headline PCE 장기 2%), OECD CLI 100의 "확장/수축 전환"(정본: 장기 추세 기준선), HY OAS를 "회사채 금리−국채 금리" 단순 스프레드로 등가 기술(정본: 인덱스 OAS), 다크풀 "전체 거래량의 약 40%"(무출처, SEC 2021은 ATS 약 9%·도매 약 38%를 구분), 증권거래세 단일 "0.18%"(시장별 상이 — 시행령 제5조 기준 유가 0.05%·코넥스 0.10%·코스닥 0.20%). 헤드앤숄더 "신뢰도 89%" 등 검증 표본 없는 패턴 확률, "기관 ATR 1.5~2배", "1/3 부분익절 권장", "20~30종목 최적 분산", "1,350원 이상=위기" 등 미검증 경험칙. 중복 표제 2쌍(맥스페인/맥스 페인, 평균회귀/평균 회귀 — 고유 표제 273). `js/aio-ui.js`의 분류 필터는 수동 10종이라 `기술`(2)·`심화`(2)가 도달 불가였고, 선택 분류 안 검색임이 드러나지 않았다.
+- root_cause: 정의·교육 경험칙·제품 capability·행동 언어가 구분 없이 작성됐고, 필터 목록이 항목 데이터와 별개로 수동 관리됐다.
+- fix: 원전 대조 정정(NBER 다지표 판정, 연준 headline PCE 장기 2% 목표, CLI 100=장기 추세 기준선·정성 선행, OAS=인덱스 OAS·구간 해석은 조건부, SEC 2021 수치의 기준일 명시, 시장별 거래세+시행일+개정 시 확인) + ITM/OTM·손익분기점·프리미엄 계약 통일 + 미검증 확률/경험칙을 "표본·기간 미공개 시 확률로 게시하지 않는 관측"으로 격하 + 기준금리·Sahm·엔캐리·DXY(100=1973 기준선)·장단기 금리차·EST/EDT(동부시각 계절 구분) 문구 정정 + 중복 2쌍 통합(alias 보존) + 분류 필터를 레지스트리에서 파생(273개·분류 전체 도달·분류별 집계) + 선택 분류 밖 검색 자동 전환·검색 범위 표시.
+- violated_rule: 금융 콘텐츠 정직성(정의 대조·출처·조건부 경험칙·행동 지시 분리), LC-56/57/58/66~72 원전 대조 요구.
+- prevention: 사전 레지스트리 무결성(고유 표제·중복 0·분류 도달)과 정정된 정의 게이트는 이 배치 게이트 단계에서 `ci-runtime-contract-check`에 추가해 이 항목을 인용한다.
+- verification: 사전 로드 집계 스크립트로 273개·중복 0·전 분류 도달 확인, `node --check`·`ci-syntax-check` PASS.
+- residual_risk: 나머지 배경지식 항목의 역사적 수치(예: 골든크로스 후속 수익 인용)는 조건부 문구로 격하했지만 원전 대조는 미완 — 용어집 전수 대조는 후속 단위다.
+
+## P1247 - v56.47 - 백테스트 랩이 통화 없는 합산으로 비중을 만들었고, 첫 수정은 필요 없는 곳까지 막았다 (E3/E4 FX 축) (2026-09-25)
+
+- symptom/reproduction: `buildPortfolioBacktestLab`은 시작 배분을 `byTickerQty[t] * startPoint.value`(= `qty × 조정종가`)로 만들고 `targetWeightDenominator`에 **통화 구분 없이** 더했다. 원화 종목과 달러 종목을 함께 보유하면 KRW 금액과 USD 금액이 1:1로 더해져 분모가 성립하지 않는다(원/달러 규모 차가 비중을 지배). 같은 함수가 `qty × cost`도 전역 합산해 실행 여부까지 판단했고(그 합계의 유일한 소비처), 결과에는 어떤 통화 기준인지 남지 않았다. `surface.js`(평가 경로)는 P1175/P1194/P1196에서 같은 종류의 합산을 이미 거부한다.
+- root_cause: ① 백테스트 랩이 통화 축을 **갖지 않았다** — 멤버 통화를 입력으로 받지도, 발행하지도 않았으므로 "합산 가능한가"를 물을 수 없었다. ② 금액을 합치는 경로(시작 시점 시장가치 비중)와 단위 없는 비율 경로(명시 목표비중)를 구분하지 않아, 통화 기준이 필요한 곳과 필요 없는 곳이 같은 규칙으로 취급됐다.
+- fix: ① 멤버별 `costCurrency`/`priceCurrency`를 보존하고(E3/P1181의 두 축 구분 유지) `currencyAxis`를 계산해 결과에 발행한다. ② 시작 시점 시장가치를 **평가 경로와 같은** `convertWithDeclaredRates` 계약으로 기준 통화로 환산해 분모·분자를 만든다 — 선언 leg 없음/기준 통화 없음/선언 창 초과/컷 이후 관측은 추정하지 않고 보류하고, 실패한 통화쌍과 사유를 `allocationBlocked.held`로 발행한다. ③ 환산 불가를 0이나 제외로 눕히지 않는다(0은 제외 의도다). ④ 월별 수익률은 현지 통화 가격 경로에서 계산되므로 `returnCurrencyBasis: 'local-currency-weighted'`와 `fxTranslation: 'excluded-requires-fx-series'`를 발행하고 경고로 밝힌다 — 기준 통화 수익률은 FX **시계열**이 있어야 하며 이 결과가 아니다. ⑤ 셸은 평가 화면과 같은 선언(`baseCurrency` + `getPortfolioFxLegs()`)을 넘긴다(도메인은 순수하게 유지 — R632 단일 writer).
+- violated_rule: 26 §전환·복구·삭제 3("통화 없는 합산을 구형 fallback으로 되살리지 않는다"), 11 §23 선언된 관측 rate leg, E3/P1194·P1196의 환산 근거 규칙, data-refresh SP4(소비자 라벨이 실제 지표와 일치).
+- prevention: `ci-esm-core-unit-check` P1247 픽스처 6종 — ① 기준 통화 미선언 혼합 → `base-currency-undeclared` 보류(비중 미발행) ② 기준 통화 + leg 없음 → `fx-rate-not-declared` 보류 ③ 만료 leg(72h 초과) → `fx-conversion-unavailable`·`rate-stale` 보류 ④ 양성: 신선한 leg → 환산된 비중(AAA>0.99, BBB<0.01 — 1:1 합산이면 0.5/0.5라 여기서 깨진다) + 사용 leg + `local-currency-weighted` 공시 ⑤ 단일 통화 미선언 → 기존 동작 유지(`applied:false`, `single-currency`) ⑥ **명시 목표비중 + 혼합 통화 → 보류하지 않음**(단위 없는 비율 — 과차단 금지). `build-reconciliation-status.mjs`에 `fx-daily-history-60`·`fx-official-provider-reconciliation` evidence를 추가하고 artifact를 재생성해 `ci-reconciliation-contract-check`(재생성 truth-view 일치)로 고정했다.
+- verification: `ci-esm-core-unit-check`·`ci-reconciliation-contract-check`·`ci-operations-status-check`(OPERATOR_REQUIRED 불변)·`ci-data-pipeline-contract-check`·`ci-syntax-check`(409)·`ci-decomp-hotspot-check`(js/aio-workspace.js +4 `--allow-growth` 기록·정당화) PASS. `commodities-fx`는 HEAD에서도 `PARTIAL`이었고 지금도 `PARTIAL`·`overall` `PARTIAL` 불변 — 상태를 바꾸지 않고 증거만 추가했음을 확인했다.
+  - **한 번 스스로 틀렸다**: 초기 구현은 기준 통화·leg 부재를 명시 목표비중 경로에서도 거부했다. 새 픽스처 ⑥이 즉시 실패해 드러났고(과차단), 거부를 금액 합산 경로로 옮겨 고쳤다 — 게이트가 자기 설계 오류를 잡은 사례다.
+- residual_risk: ① **기준 통화 수익률 미구현** — 월별 수익률은 현지 통화 가중이며, FX 시계열(신규 `history.json:usdkrw`)을 월말에 정렬해 환산하는 것은 다음 단위다. ② `history.json`의 `usdkrw` 실값·`providerCrossChecks.fx` 실값은 다음 정식 refresh에서 채워진다(그때까지 reconciliation의 두 FX evidence는 FAIL이 정직한 상태). ③ 통화를 선언하지 않은 포트폴리오는 단일 기준으로 가정한다(`currencyAxis.basis: 'undeclared'`) — 평가 경로와 같은 결정이며, 티커 접미사로 통화를 추정하지 않는다.
+
+## P1246 - v56.46 - 백테스트 통화축이 요구한 과거 FX 시계열 공급원이 없었고, 공식 교차검증이 공표 지연을 불일치로 오표기할 설계였다 (E3/E4 FX 축) (2026-09-25)
+
+- symptom/reproduction: E3/E4는 포트폴리오 평가 경로에 FX 환산(P1194/P1196, "선언된 관측 rate leg")을 넣었지만, 연구·시뮬레이션 경로인 백테스트 랩(`src/domain/portfolio/backtest.js`)에는 **통화 참조가 0건**이다. 확장에 필요한 입력인 과거 FX 시계열이 없었다 — `scripts/fetch-data.mjs`의 `HIST_SYMBOLS`에 `KRW=X`가 없어 `public-data/history.json`은 USD/KRW 열을 생산하지 않았다(실측: 마지막 행의 키 24개에 FX 없음). 그래서 이 항목은 "과거 FX 시계열 공급원 결정"이 선행이라며 BLOCKED로 남아 있었다.
+- root_cause: ① FX가 **라이브 시세 면에만** 존재했다(`SYMBOLS`/`CORE_LIVE_SYMBOLS`에는 있고 히스토리 면에는 없음). 하루 1건씩 쌓는 일별 레인을 쓰는 심볼 목록(`HIST_SYMBOLS`)이 곧 "어떤 축이 시계열을 갖는가"의 단일 결정인데, FX는 그 목록에 들어간 적이 없었다. ② 교차검증을 최신값끼리 비교하도록 설계하면, 공식 계열의 **공표 지연**이 곧 "불일치"로 보고된다 — 원인을 값 오류로 오표기하는 유형이다.
+- fix: ① `HIST_SYMBOLS`에 `'KRW=X': 'usdkrw'`, `HIST_FIELDS`에 `'usdkrw'`를 추가해 **기존 producer 경로**(Yahoo chart 일별 종가, worker 프록시가 CORS 처리, 1년 백필 시드)로 FX 정본 열을 생산한다. 새 출처·새 키·새 약관이 없다. ② 품질 경계를 `HIST_FIELD_PLAUSIBILITY`로 **한 번 선언**하고 producer(시장·백필 두 레인)와 게이트가 **같은 맵**을 쓴다(게이트의 별도 리터럴 제거) — 범위 밖 값은 null + fieldMeta 없음으로 남기고 관측으로 승격하지 않는다. ③ 시장 레인의 값과 fieldMeta를 **한 번의 열거**에서 만든다(종전 `rec`의 명시적 pick 목록 + fieldMeta 루프가 같은 `HIST_SYMBOLS` 매핑을 두 번 나열해, 새 필드를 추가하면 한쪽만 갱신될 수 있었다). ④ FRED `DEXKOUS`를 키 없는 fredgraph.csv로 받아 `providerCrossChecks.fx`에 발행하고, **공식 관측일과 같은 시점(±1일)**의 우리 종가와 비교한다. 하루 어긋난 봉은 실제 날짜를 레코드에 남기고, 그 이상 벌어지면 `not-comparable`로 남겨 불일치로 단정하지 않는다. 어느 값도 덮어쓰지 않는다(`decisionUse: false`).
+- violated_rule: E0 "producer·artifact·consumer·gate를 한 변경에서 동기화", data-refresh SP1/SP2/SP3(출처·관측 경계 식별, 실패·미관측의 명시, REFERENCE의 현재 입력 승격 금지), SP4(소비자 라벨이 실제 지표·대리와 일치), "결측을 0·현재값으로 승격하지 않는다".
+- prevention: `ci-history-field-time-contract-check`에 FX 계약 6종을 추가했다 — ① `KRW=X→usdkrw` 매핑과 한 열거 생산(배선) ② 공유 타당 경계가 타당값 통과·범위 밖/null/NaN 거부 ③ 두 레인이 같은 경계를 적용 ④ DEXKOUS CSV 파싱(비수치 관측은 0이 아니라 null) ⑤ 비교 판정 4상태(같은 날짜 `ok` / 하루 어긋남 `ok`+실제 날짜 / 허용폭 초과 `divergent`(값 불변) / 시점 다름 `not-comparable`)과 양쪽 결측 `unavailable` ⑥ `providerCrossChecks.fx` 발행 + 히스토리 레인 실패 시에도 판정 불가 발행 + 같은 시점 정렬. 게이트의 타당 범위는 producer가 선언한 맵을 그대로 import한다(선언/집행 분리 금지).
+- verification: `ci-history-field-time-contract-check`(FX 픽스처 6종 + 기존 420행·4,181필드 증거 전건)·`ci-syntax-check`(409)·`ci-data-pipeline-contract-check`·`ci-artifact-semantics-check`·`ci-esm-core-unit-check`·`ci-domain-parity-check`·`ci-reconciliation-contract-check`·`ci-source-registry-check`·`ci-decomp-hotspot-check`·`ci-version-check`(v56.46) PASS. **실측 프로브**(읽기 전용, 아티팩트 미기록): FRED DEXKOUS 접속 성공(최신 1387.97 @ 2026-09-18), Yahoo KRW=X 1년 260봉 수신·전 봉이 800~2000 경계 내, 공식 관측일 정렬 시 2026-09-17 봉 1379.53 → **0.61% 일치(`ok`)**. 지연을 무시한 초기 설계는 같은 데이터에서 2.09% `divergent`를 냈을 것이다.
+- residual_risk: **① 아티팩트 미채움** — `history.json`의 `usdkrw`는 현재 전 행 null이고, 1년 백필은 다음 정식 refresh(`.github/workflows/refresh-data.yml`)에서 시드된다. 그때까지 FX 커버리지·교차검증 실값은 미검증이다. ② 백테스트 통화축 배선(`backtest.js`)과 `build-reconciliation-status.mjs`의 FX evidence 행은 다음 단위다. ③ DEXKOUS는 정오 매입환율이라 스팟 종가와 측정 기준이 다르다 — 허용폭 5%는 배율·상품 오류 검출이 목적이며, 두 계열의 동일성 주장이 아니다.
+
+## P1245 - v56.45 - 요청 출처가 스트림이 아니라 공유 전역에 묶여, 겹친 두 요청의 근거가 서로의 검증으로 승격될 수 있었다 (E6 A05) (2026-09-25)
+
+- symptom/reproduction: 수집된 native citation은 단일 전역 `window._aioLastClaudeCitations`, 연구 tool 오류는 `window._aioLastClaudeResearchError`에 저장되고 **모든 스트림이 시작 시 그 전역을 리셋**했다. request id도 `window._aioActiveAIRequestId` 전역으로, **응답 파이프라인(`_aioRunAIResponsePipeline`)이 쓰고 수집기(`_pushWebCite`)·사전 research floor가 읽었다**. 정적/합성 추적: ① 겹쳐 도는 두 요청(per-page + unified, 재시도 포함)이 서로의 인용 배열을 지운다. ② Anthropic web_search 스트림은 `web_search_tool_result` 블록을 첫 `text_delta`보다 먼저 보내므로, 첫 onChunk(=파이프라인의 전역 설정) 이전에 수집된 인용은 **직전 요청의 id나 null**로 찍힌다. ③ onDone의 `_aioEvaluateAIResearchGate`가 같은 전역을 **기대값**(`expectedQueryIds`)으로 넘겨, B의 파이프라인이 마지막으로 돌았다면 A의 onDone이 B의 인용 집합을 B의 id로 검증해 `BOUND`를 얻는다 — 다른 질문의 출처가 A 답변의 검증된 근거로 승격된다. 반대로 정상 인용이 `MISMATCHED_QUERY`로 오거부될 수도 있다. 실제 공급자 동시 요청은 아직 실행 재현하지 않았고(05 A05의 "실제 동시 요청에서 출처가 섞이는 현상은 아직 재현하지 않았다"와 동일 경계), 결함은 배선의 결정성에서 확정된다.
+- root_cause: 요청 정체성이 **한 스트림에 속한 불변 값이 아니라, 서로 다른 단계가 서로 다른 시점에 접근하는 가변 싱글턴**이었다. 인용 수집기에는 자기 요청 id가 애초에 전달되지 않았으므로(수집 시점에 정확히 찍는 것이 구조적으로 불가능), 단일 요청에서도 순서에 따라 오표기됐다. 게다가 게이트가 그 전역 리터럴을 요구해(P1172 assertion) 결함을 계약으로 고정하고 있었다.
+- fix: `requestId`별 스트림 저장소를 도입했다 — `_aioAIRequestStream(requestId)`(인용 배열 + `researchError`, 최근 8건 유지), `_aioAIRequestCitations`, `_aioAIRequestResearchError`, `_aioLatestAIRequestStream`(진단 전용). `callClaude`는 진입점이 넘긴 `opts.requestId`를 시작 시 한 번 캡처해(재시도는 같은 요청 객체 재사용 → id 안정) 수집기·SLO 표본·연구오류 write에만 쓰고, 소유자 없는 스트림은 인용을 수집하지 않는다(임의 전역에 붙이지 않음). 공유 전역 3종은 write·read **전부 제거**했다. `_aioEvaluateAIResearchGate`는 호출자가 id를 말하지 않으면 전역으로 채우지 않고 판정 불가로 남긴다(P1172의 reporting-only 결정 유지). 사전 research floor는 `options.requestId || null`만 넘긴다 — 아직 요청 객체가 없는 단계에서 전역 id를 빌려 "확인"한 것처럼 보이지 않게 하고, 권위 판정은 onDone gate가 자기 id로 수행한다. 두 진입점은 gate·출처 렌더에서 `_pageRequestId`/`_uniRequestId`만 읽는다. 진단(`AIO.getWebSearchAudit`)은 최신 스트림 기록을 읽는다.
+- violated_rule: 05 A05(요청별 출처·오류 소유권, 취소·재시도·늦은 응답이 다른 요청 상태를 변경하지 못함), E6 claim/publication gate의 fail-closed, 그리고 "결정을 리터럴로 고정해 요구와 모순된 구현을 보증하지 않는다"(R618 계열).
+- prevention: `ci-ai-intelligence-contract-check` P1245 2종. ① **의미**: 수집기가 자기 스트림 id를 찍을 것(`requestId: _streamRequestId, queryId: _streamRequestId`) + 공유 request-id 슬롯 부재(`window._aioActiveAIRequestId`/`window._aioLastClaudeCitations`/`window._aioLastClaudeResearchError`). ② **행동(VM 실행)**: 겹친 두 스트림 `req:a`/`req:b`의 인용이 서로 보이지 않고, 미등록 id는 빈 배열, `null` 소유자는 `null` 기록을 돌려준다. 회귀 시 크래시가 아니라 실패한 검사로 보고된다. 기존 P1172 리터럴 assertion은 **요구와 모순되는 구현에 결속돼 게이트가 결함을 보증했으므로** 제거·대체했고(P1244의 `bindingVerified` 경계와 P1172의 UNVERIFIABLE 결정은 그대로), 445·464도 새 접근자로 갱신했다. headless T774는 새 저장소 심볼을 검사한다.
+- verification: `ci-ai-intelligence-contract-check`(새 P1245 2종 + 기존 30 routing cases)·`ci-ai-provider-stream-check`(12 transport 시나리오)·`ci-headless-tests`(**1145/1145 PASS**, T774 갱신)·`ci-runtime-contract-check`(95 AI callable)·`ci-esm-core-unit-check`·`ci-retirement-contract`(facade 60)·`ci-syntax-check`(409)·`ci-decomp-hotspot-check`·`ci-workspace-contract-check`·`ci-knowledge-lint-check`·`ci-ledger-integrity-check`·`ci-version-check`(v56.45)·`ci-assertion-trace-check` PASS. **음성 검증**: 새 assertion의 predicate를 사전(pre-fix) 소스 문자열에 대해 실행해 `current=true / preFix=false`를 확인했다(게이트가 결함 상태를 실제로 잡음).
+- recorded_growth: `ci-decomp-hotspot-check --write --allow-growth`로 `js/aio-chat.js` 9188→9252(+64)·`js/aio-core.js` 28104→28107(+3)·`js/aio-tests.js` 9442→9444(+2)를 기록·정당화했다. 증가분은 중복이 아니라 공유 싱글턴 3종을 대체하는 새 요청 스코프 소유권 + 근거 주석이며, R620이 게이밍으로 규정한 "주석 압축"을 사용하지 않았다. 하니스(`ci-ai-provider-stream-check`)는 `callClaude` 절단 슬라이스에 저장소 조각을 함께 실행하도록 고쳐, stub 드리프트 없이 실제 헬퍼를 돌린다.
+- environment_failure: `ci-data-lineage-audit` FAIL 1건 — `data.json`(live-core) 13.58h > 12h SLA. 로컬 refresh 경과로 인한 신선도 실패이며 이 변경과 무관하고, 정식 CI 시크릿 사이클에서 해소된다.
+- residual_risk: E6 A01(정책 정본·실행·최종 공개가 같은 결정 공유), A02(근거 존재와 질문 필수근거 충분성 분리), A03(주장-원문 entailment), A04(자유 문장 안 각 숫자의 claim binding)는 남는다. 여기서 닫은 것은 **요청 결속 배선**이며, 실제 provider 동시 요청·취소·역순 응답의 실브라우저 trace와 원문 지지 검수는 별도 인수다. `nativeDocuments`는 여전히 `requestId`를 넘기지 않으므로 결속은 citation 쪽 선언에 의존한다(현재 판정에는 충분하나, 문서 단독 승격 경로가 생기면 별도 처리 필요).
+
+## P1244 - v56.44 - AI 요청 분류와 응답 감사가 한 함수에 섞여 있었고, E2 S-E 리팩터가 headless 배선 프로브를 깼다 (E6 A05·A06 + 회귀 복구) (2026-09-25)
+
+- symptom/reproduction: ① `classifyAIConduct`가 요청 분류(query)와 응답 감사(responseText)를 한 함수로 처리해, 질문 계획(응답 없음)과 런타임 감사(응답 있음)가 같은 이름의 `requestMode`에 다른 값을 싣는 구조였다(A06 intent/conduct 분류 불일치). ② `evaluateResearchEvidenceFloor`는 `ready`만 발행하고, 결속이 확인된 경우(`BOUND`)와 판정 불가/미결속(`UNVERIFIABLE`/`UNBOUND`)을 구분하는 필드가 없어 "floor 충족"과 "출처가 이 요청의 것임을 확인"이 같은 `ready:true`로 읽혔다(A05). ③ **E2 S-E(P1239) 회귀**: 채팅의 인라인 스크리너 호출을 helper로 옮기면서 `chatSend`/`chatSendUnified` 소스에서 `_aioRunScreenerQuery`·`_aioExtractRecentRecommendationTickers` 리터럴이 사라져 headless T809·T825·T833 3건이 실패했다. ④ **E2 LC-44(P1224) 회귀**: visually-hidden 파일 입력이 1×40px로 a11y 소형 타깃 위반을 만들었다(portfolio 라우트, `ci-accessibility-matrix-check` fail).
+- root_cause: ① 한 함수가 두 표면(요청/응답)을 겸했다. ② `ready` 하나가 "바닥 충족"과 "결속 확인"을 겸했다. ③ 배선 프로브가 옛 인라인 구현 리터럴에 결속돼 있었다. ④ 숨김 입력이 접근성 타깃 집합에 남아 있었다.
+- fix: ① `classifyAIRequest`(요청 전용, 응답 미열람)와 `auditAIResponse`(응답 감사, `responseCompliance`로 감사 결과 분리 보존)로 나누고 `classifyAIConduct`는 표면에 따라 라우팅하는 합성으로 남겼다(기존 출력 형태 불변, `buildScopedConductFallback` 동작 불변). 정책이 `responseModes`·`surfaces`를 선언한다. `question-planner`는 요청 표면을 소비한다. ② `bindingVerified`를 추가해 `ready`와 "결속 확인"을 분리하고, P1172의 "판정 불가를 실패로 만들지 않는다"는 결정은 그대로 유지했다. ③ T809·T825·T833 프로브를 helper 호출 + helper 구현 검증으로 갱신(기능 제거로 통과할 수 없게 유지). ④ 숨김 입력에 `visibility:hidden`·`aria-hidden`을 주어 접근성 타깃 집합에서 제외(버튼이 tab stop, `input.click()`은 그대로 동작 — PFE2-13로 확인).
+- violated_rule: E6 A05/A06, E2 S-E·LC-44 회귀, 단일 소유자 없는 이중 분류.
+- prevention: `ci-ai-intelligence-contract-check` P1244 E6/A06 6종(요청 분류가 응답 텍스트를 무시할 것, 응답 감사가 요청 분류를 보존하고 지시를 별도 기록할 것, 합성이 표면별로 라우팅할 것, 질문 계획이 응답 독립 분류를 실을 것, 정책이 두 표면을 선언할 것, COMPLIANT 기록) + E6/A05 1종(`bindingVerified` 구분). headless T809·T825·T833는 helper 기준으로 강화. a11y 매트릭스 20라우트 pass.
+- verification: `ci-ai-intelligence-contract-check`·`ci-headless-tests`(**1145/1145 PASS**, 이전 1142/1145)·`ci-accessibility-matrix-check`(20라우트 pass)·`ci-portfolio-vault-e2e`(PFE2-13 포함 ok)·`ci-esm-core-unit-check`·`ci-syntax-check`(409)·`ci-assertion-trace-check` PASS.
+- residual_risk: E6의 A01~A04(전역 citation, 근거 충분성, 역순 동시 요청)는 남는다. `bindingVerified`를 소비해 "미확인 결속"을 UI에서 검증으로 표시하지 않게 만드는 소비자 배선은 별도다.
+
+## P1243 - v56.43 - VaR `recent-half`가 검증되지 않은 표본 순서를 가정했다 (2026-09-25)
+
+- symptom/reproduction: `deriveVarStability`의 `recent-half` 민감도 변형은 표본의 뒤 절반을 **주어진 순서대로** 읽는다. P1203은 정렬된 표본을 넘기던 호출부를 고쳤지만, 함수 자체는 여전히 "호출부가 시간순으로 준다"고 가정했다. 순서 계약이 런타임에 검증되지 않아 같은 결함이 다른 호출부에서 조용히 재발할 수 있었다(E4/P1203 잔여).
+- root_cause: 계약이 주석/관례에만 있었고, 함수는 순서를 확인하지 않은 채 변형을 계산하고 인증에 사용했다.
+- fix: `order`(기본 `'unspecified'`)와 `observedAt`을 입력으로 받고 `_btVarOrderAudit`가 순서를 판정한다 — 날짜 표본이 있으면 관측시각 단조 비감소를 **검증**(`verified`), 비단조면 `violated`, 없으면 호출부 선언(`chronological`)이 있을 때만 `declared`. `recent-half`는 `usable`일 때만 계산하고, 판정 상태를 `sensitivity.recentHalfOrder`로 발행하며, 검증되지 않으면 인증 사유 `recent-half-order-undeclared|violated`로 **보류(fail-closed)**한다. 순서를 넘겨도 안전한 꼬리·근사 순위 계산은 그대로 정렬한다.
+- violated_rule: E4/P1203 잔여(입력 순서 계약의 런타임 검증), 표본 가정의 fail-closed 원칙.
+- prevention: `ci-esm-core-unit-check` P1243 fixture 3종 — 미선언 → 변형 부재·`undeclared`·보류, 단조 날짜 표본 → `verified`·변형 존재, 비단조 날짜 표본 → `violated`·변형 부재·보류. 기존 P1190 양성 fixture는 `order: 'chronological'`을 선언해 계속 인증된다(게이트가 항상 실패하지 않음).
+- verification: `ci-esm-core-unit-check`(P1190 + P1243)·`ci-portfolio-vault-e2e`(24/24)·`ci-syntax-check`(409) PASS.
+- residual_risk: 백테스트 랩이 실제 월 버킷 관측시각을 넘겨 `declared`를 `verified`로 올리는 배선은 남는다. VaR 인증 렌더 문구의 실브라우저 확인은 기존 QA와 동일.
+
+## P1242 - v56.42 - 다른 trigger로 채운 창이 예정 도착 PASS로 인증됐다 (E5 R24-07 종료) (2026-09-25)
+
+- symptom/reproduction: `build-operations-slo-window.mjs`의 `buildLane`이 `workflow_dispatch`만 제외하고 `event !== 'workflow_dispatch'`인 run을 전부 `scheduled`로 분류했다. 그래서 30일 동안 **push 성공만** 있는 screener lane도 `observedRuns`가 차고 `scheduledArrivalRate`가 채워져 lane `MEASURED`·창 `CERTIFIED_WINDOW`가 될 수 있었다(06 O02·O04, R24-07). 원격 운영 장애의 관측이 아니라 집계 함수의 의미 오류다.
+- root_cause: "예정 도착"의 정의가 "수동 실행이 아닌 것"으로 구현됐다. 다른 trigger(push·PR 등)는 별개 lane의 사실인데 분자를 채웠다.
+- fix: **예정 도착은 `schedule` event만 측정한다.** 다른 trigger는 제외하고 `nonScheduledRunsExcluded`·`nonScheduledEventBreakdown`으로 개수·종류를 발행한다. 하위 호환 pooled `artifact` 요약(종전 소비자용, PASS 판정 미사용)도 `schedule`만 세도록 맞췄다. 결과적으로 push-only 창은 `NOT_OBSERVED`이며 PASS가 될 수 없다.
+- violated_rule: 06 O02·O04 SLO 관측창 완전성, R24-07.
+- prevention: `ci-operations-slo-window-check.mjs`에 R24-07 fixture를 추가했다 — market/screener/watchdog 30일 push-only 창이 `NOT_OBSERVED`·`CERTIFIED_WINDOW` 아님·제외 30건·`push: 30` breakdown을 만족해야 한다. 기존 기대 fixture(`event: 'schedule'`)는 그대로 PASS로 남아 "항상 실패하는 게이트"가 아님을 함께 확인한다.
+- verification: `ci-operations-slo-window-check`(7d/30d INSUFFICIENT_EVIDENCE, per-domain lane + O04 repro guard)·`ci-operations-status-check`(OPERATOR_REQUIRED, durable CURRENT)·`ci-operations-contract-check`(9 workflow/28 action/20 route, errors 0) PASS.
+- residual_risk: **게시된 `public-data/operations-slo-window.json`은 GitHub API 시크릿이 있어야 재생성되므로, 새 lane 필드는 다음 자격증명 refresh에서 반영된다.** 게이트는 builder 순수 함수를 직접 검증하므로 예방은 지금 작동한다. 실제 원격 창의 MEASURED/실패 판정과 O06 도메인 receipt 일반화는 별도다.
+
+## P1241 - v56.41 - 스크리너 행 해석 소유자 미확정으로 번들 DB가 정본처럼 쓰일 수 있었다 (E2 S-C 종료) (2026-09-25)
+
+- symptom/reproduction: P1240의 shadow 하니스가 측정한 분기 ① — native 상태가 **게시되었지만 비어 있을 때**(`status: 'current'`, `rows: []`) legacy 정량 경로는 번들 `SCREENER_DB`로 내려가고 증거 리더는 빈 배열을 반환했다. 즉 정본이 "빈 화면"이라고 말하는 순간에도 번들 데이터가 스크리너 결과·AI 후보군으로 표시될 수 있었다. ② facade가 S-B에서 퇴역한 `_aioScreenerRows` 전역에 여전히 도달했다.
+- root_cause: 두 소비자가 각자 체인을 가진 채 "어느 쪽이 정본인지" 결정이 없었다(P1240이 이 결정을 OPEN으로 남김).
+- fix: **소유자 결정 = native 정본.** `src/data/screener-row-policy.js`가 행 해석 단일 소유자이고, `screenerNativePublished(state)`(`status !== 'unavailable'`)로 "게시됨"을 판정한다. 게시된 빈 상태는 **두 intent 모두에서** 권위 있다(번들 대체 금지). 번들 DB는 native가 아직 게시되지 않은 호환 읽기로만 남고, 그마저도 호출부가 `BUNDLED_COMPAT` intent로 **선언**해야 도달한다. facade `readScreener`는 `EVIDENCE` intent를 선언하고 퇴역 전역 참조를 제거했다. legacy 번들은 ESM을 import할 수 없어 `AIO_ARCH.resolveScreenerRows(intent)`로 브리지한다(facade API 59→60, 원장 기록).
+- violated_rule: E0 map S-C shadow 종료 조건(한 owner), R632.
+- prevention: `ci-esm-core-unit-check` S-C 하니스가 5케이스 × {legacy, facade, evidence, compat}를 실제 실행해 선언표를 고정하고, ①게시된 빈 상태에서 `compat`도 번들로 내려가지 않을 것 ②`EVIDENCE` intent가 번들 DB를 반환하지 않을 것 ③퇴역 전역이 어느 경로에서도 도달 불가일 것을 단언한다. `ci-runtime-contract-check` E2/S-C/P1241이 단일 정책·intent·브리지 형태를 고정한다. `ci-retirement-contract`가 facade API 60을 검증한다.
+- verification: `ci-esm-core-unit-check`·`ci-runtime-contract-check`·`ci-retirement-contract`(currentFacadeApi 60)·`ci-syntax-check`(409) PASS. 동작 변화는 **의도한 1건**(게시된 빈 상태에서 번들 대체 중단)이고, 미게시 구간의 번들 폴백은 그대로 유지되어 로드 창 회귀가 없다.
+- residual_risk: 실브라우저에서 게시 전/후 전환 시점의 실제 행 집합(QA-E2-40)과, producer가 게시한 빈 상태의 원인(빈 필터 vs 빈 artifact) 구분은 별도다.
+
+## P1240 - v56.40 - 스크리너 행 해석 체인이 두 구현으로 갈라져 비교 근거가 없었다 (E2 S-C) (2026-09-25)
+
+- symptom/reproduction: legacy `_aioGetCanonicalScreenerRows`(aio-data.js)와 facade `readScreener`(compatibility-facade.js)가 같은 행을 서로 다른 fallback 체인으로 해석한다. 한쪽은 native 비어 있으면 번들 DB로 내려가고, 다른 쪽은 native 빈 배열을 그대로 인정한다. 어느 쪽이 옳은지 비교할 실행 근거가 없었다(E0 맵 S-C).
+- root_cause: 두 소비자(정량 질의 UI / 증거 provider)가 각자 체인을 작성했고, legacy 쪽은 합성 입력으로 실행할 수 없어 shadow 비교 자체가 불가능했다.
+- fix: legacy resolver를 선택적 `root`로 주입 가능하게 만들어(호출부 변경 0, 동작 불변) 같은 입력으로 양쪽을 실행할 수 있게 하고, `ci-esm-core-unit-check`에 shadow 하니스를 추가해 5개 입력 케이스에서 두 체인을 실제 실행하고 **측정된 분기 집합을 고정**한다. 신규 분기가 조용히 생기면 게이트가 실패한다.
+- violated_rule: E0 map S-C shadow 종료 조건, R632(단일 소유자 없는 이중 구현 금지).
+- prevention: `ci-esm-core-unit-check` S-C shadow 하니스 + `ci-runtime-contract-check` E2/S-C/P1240(root 주입 형태 고정). `ci-retirement-contract`가 facade API 59를 유지함도 확인.
+- verification: `ci-esm-core-unit-check`·`ci-runtime-contract-check`·`ci-retirement-contract`·`ci-syntax-check` PASS. 측정 분기: ① native-empty+DB 존재 → legacy=DB / facade=[] ② native-null+DB 없음+`_aioScreenerRows` → legacy=[] / facade=DEAD(S-B에서 퇴역한 전역).
+- residual_risk: **①은 미해결 소유자 결정**이다. 통합 시 "native ready-but-empty"를 증거로 볼지(현재 facade) vs 번들 폴백으로 볼지(현재 legacy)를 정해야 하며, 이 하니스는 그 결정의 입력이지 완료가 아니다. ②는 퇴역 전역 참조 제거만 남는다.
+
+## P1239 - v56.40 - 두 채팅이 같은 스크리너 AI 컨텍스트를 각자 구현했다 (E2 S-E) (2026-09-25)
+
+- symptom/reproduction: 일반 채팅(`aio-chat.js`)과 통합 패널이 `_aioRunScreenerQuery` + `_aioExtractRecentRecommendationTickers` + `_formatScreenerResultPrompt` 조합을 각자 인라인으로 재구현했다. 한쪽은 `matched` 가드만, 다른 쪽은 `matched` + `typeof` 가드로 달랐다(E0 맵 S-E).
+- root_cause: 공통 helper가 없어 두 채팅이 같은 시퀀스를 중복 작성했다.
+- fix: `_aioBuildScreenerAiContext(query, messages, logger)` 하나가 추출·질의·포맷을 소유하고 두 호출부가 이를 소비한다. 통합 패널의 `diversified-recommendation` 추가 문구는 호출부에 그대로 남겼다(MODE 판단은 소비자 몫).
+- violated_rule: E0 map S-E 공통 helper 종료 조건.
+- prevention: `ci-runtime-contract-check` E2/S-E/P1239가 helper 정의 + 두 소비 + 인라인 질의 부재를 고정한다.
+- verification: `ci-esm-core-unit-check`·`ci-runtime-contract-check`·`ci-syntax-check` PASS. AI callable 참조는 91건(중복 호출부 제거로 92→91, 미사용 심볼 아님).
+- residual_risk: 두 경로의 실제 응답 동일성(동일 질의 → 동일 후보군)은 실브라우저 대조가 필요하다.
+
+## P1238 - v56.40 - 뉴스 전용 IDB가 스크리너 저장소 이름으로 남아 있었다 (E2 S-F) (2026-09-25)
+
+- symptom/reproduction: `_AIO_IDB_NAME = 'AIOScreenerDB'`인데 실제 스토어는 `news` 하나뿐이고, "Phase D: IndexedDB 뉴스 캐시" 경로에서만 쓰였다. 실제 run 저장소와 혼동되며 S-B에서 퇴역한 `_aioScreenerRows` 전역과도 이름이 겹쳤다(E0 맵 S-F).
+- root_cause: 뉴스 캐시 도입(v48.63) 당시 스크리너 명칭을 재사용했다.
+- fix: 이름을 `AIOScreenerNewsCache`로 뉴스 범위화하고, `AIOScreenerNewsCache`의 `news` 스토어가 빈 경우에만 이전 `AIOScreenerDB`에서 레코드를 복사하는 마이그레이션을 추가했다. `indexedDB.open`이 없는 DB를 생성하므로 `indexedDB.databases()`로 존재를 먼저 확인하고, 이전 DB는 **삭제하지 않는다**.
+- violated_rule: E0 map S-F 개명·쓰기 경로 이전.
+- prevention: `ci-runtime-contract-check` E2/S-F/P1238이 새 이름·legacy 이름·마이그레이션 함수·`store-not-empty` 가드를 고정한다.
+- verification: `ci-runtime-contract-check`·`ci-syntax-check`·`ci-esm-core-unit-check` PASS. 실 IndexedDB 마이그레이션(레코드 복사·미삭제)은 QA-E2-40으로 잔여.
+- residual_risk: 구형 DB 정리(삭제) 정책은 마이그레이션 실측 후 결정한다. 지금 삭제하면 이전 캐시를 잃을 수 있다.
+
+## P1237 - v56.39 - Principles가 4개 학습 층의 관계를 첫 화면에서 설명하지 않았다 (2026-09-25)
+
+- symptom/reproduction: 페이지에 이야기 12장·자료실 15장·심화 레슨 112개·개념 60·경로 8이 서로 다른 목적으로 공존하는데, 첫 진입 문구만으로 층의 포함 관계를 복원하기 어려웠다(LC-53).
+- root_cause: 층별 개수와 관계가 화면 어디에도 요약되지 않았다.
+- fix: `index.html` Principles 도입부에 `학습 단위: 이야기 장(12) → 개념·선택 경로 → 참고 자료실 장(15) → 짧은 심화 레슨(112)`가 더하는 집합이 아니라 목적이 다른 층임을 밝히는 한 줄을 추가했다.
+- violated_rule: LC-53 인수 조건, 콘텐츠 층 표기.
+- prevention: `ci-runtime-contract-check.mjs` LC-53/P1237이 층 안내 문구를 소스로 고정한다.
+- verification: `ci-runtime-contract-check`·`ci-syntax-check` PASS. 초보 사용자 동선 이해도는 U 과업이다.
+- residual_risk: 실제 이해도 시험과 112 레슨 본문 전수는 별도다.
+
+## P1236 - v56.39 - Guide 배경지식이 조건·출처 없이 금융 규칙을 단정했다 (2026-09-25)
+
+- symptom/reproduction: 접힌 배경지식이 미국 정규장 시간을 계절 조건 없이 `23:30~06:00`으로 고정하고, `DXY 100 이상=달러 강세`, `가격 상승+거래량 증가=진짜 상승(기관 매집)`, `CPI 예상치보다 높으면 주가 하락`, `제조업 PMI 48 미만이면 침체 경고`를 반례·출처 없이 썼다(LC-52).
+- root_cause: 배경 문장이 1차 원전·계절·조건 대사 없이 작성됐다. 외부 사실 검증 전이라 오류 단정은 피해야 한다(감사 지침).
+- fix: `index.html`에서 거래 시간에 표준시/서머타임을 분리하고, DXY 수준은 임계값이 아닌 참고값으로, 이동평균·크로스는 횡보 뒤집힘·전환 후보로, 거래량은 매수 주체를 식별하지 않는 참여 규모 지표로, CPI·PMI는 조건·관례·반례로 문장을 낮췄다.
+- violated_rule: LC-52 인수 조건, E6 claim/allowedUse 경계(교육 문장도 조건·반례 필요).
+- prevention: `ci-runtime-contract-check.mjs` LC-52/P1236이 계절·전환 후보·CPI 조건 문구와 폐기된 `기관 매집` 단정 부재를 소스로 고정한다.
+- verification: `ci-runtime-contract-check`·`ci-syntax-check` PASS. 외부 1차 원전 대사(E)는 별도다.
+- residual_risk: 각 문장의 `claimType/조건/반례/출처` 원장화는 별도 작업이며, 나머지 배경 문장도 같은 등급화 대상이다.
+
+## P1235 - v56.39 - Masters 역조회가 8행만 조용히 잘라 6행이 사라진 것처럼 보였다 (2026-09-25)
+
+- symptom/reproduction: 역조회 헤더는 `연결 행 14개`인데 UI는 8행만 렌더하고 `8/14`·더보기가 없었다(LC-51).
+- root_cause: `record.rows.slice(0, 8)`가 상한을 알리지 않았다.
+- fix: `src/ui/pages/masters.js`가 `표시 N/M행` 카운트를 항상 표시하고, 8행 초과면 `나머지 N행 보기` 버튼으로 전체 행을 펼친다(접근성 이름 포함).
+- violated_rule: LC-51 인수 조건, 표시 범위 정직성.
+- prevention: `ci-runtime-contract-check.mjs` LC-51/P1235가 카운트와 확장 버튼을 소스로 고정한다.
+- verification: `ci-runtime-contract-check`·`ci-syntax-check`·`ci-masters-contract-check` PASS. 원행↔manager 집계↔SEC filing identity 실브라우저 인수는 별도다.
+- residual_risk: 14행의 원행별 `비교 불가` 사유와 기간별 manager 집계 구분은 남는다.
+
+## P1234 - v56.39 - Atlas 근거 검색이 0건을 근거 부재로 읽히게 했다 (2026-09-25)
+
+- symptom/reproduction: `NAND`로 근거 자료실을 검색하면 연구 패킷 0건인데, 실제로는 packet metadata(id·제목·범위·상태)만 검색 대상이었다. 기초·관계·산업 탭과 dated ledger는 다른 필드를 검색한다(LC-50).
+- root_cause: 검색 범위가 화면에 없었고 0건의 의미를 설명하지 않았다.
+- fix: `src/ui/pages/atlas.js` overview 탭에서 query가 있으면 `검색 범위: 연구 패킷 metadata … N건 일치 — 탭별 검색 범위가 다르며 0건이 근거 부재를 뜻하지 않음` 안내 줄을 렌더한다.
+- violated_rule: LC-50 인수 조건, 검색 범위·0건 설명.
+- prevention: `ci-runtime-contract-check.mjs` LC-50/P1234가 범위 안내 노드를 소스로 고정한다.
+- verification: `ci-runtime-contract-check`·`ci-syntax-check` PASS. 탭간 복귀·통합 검색 인수는 별도다.
+- residual_risk: claim·ledger 본문을 통합 검색에 포함할지는 별도 설계다.
+
+## P1233 - v56.39 - 테마 가격 참여 폭이 실제 분모(n)를 밝히지 않았다 (2026-09-25)
+
+- symptom/reproduction: XLE 상세의 `브레드스 79% · 14종목`과 `5개 하위 그룹 17종목`이 서로 다른 모집단인데, 비율의 실제 가격 적격 분모가 화면에 없었다(LC-36).
+- root_cause: `detail.breadth`만 표시하고 계산에 쓰인 리더 목록 중 가격이 확인된 n을 세지 않았다.
+- fix: `src/ui/pages/themes.js`가 `가격 적격 n/N`을 비율 옆에 표시한다(`가격 적격 11/14`).
+- violated_rule: LC-36 인수 조건, 분모·표본 명시.
+- prevention: `ci-runtime-contract-check.mjs` LC-36/P1233이 분모 표기를 소스로 고정한다.
+- verification: `ci-runtime-contract-check`·`ci-syntax-check` PASS. 부분 수신·17↔14 관계 실브라우저 인수는 별도다.
+- residual_risk: 하위 그룹 17종목과 리더 14의 membership as-of 표시는 남는다.
+
+## P1232 - v56.39 - 테마 공개 범위가 화면에 선언되지 않았다 (LC-35 조사) (2026-09-25)
+
+- symptom/reproduction: 공개 `#themes`는 RRG/ETF 요약과 카드에서 여는 상세가 핵심인데, `경기 사이클·시장 리더십·섹터 퍼포먼스·20일 추이·히트맵·45개 세분화 카드·한국 28테마·대표 ETF`가 `body:not(.aio-dev-mode)` 규칙으로 숨는다. DOM·계산 경로는 남아 있어 '전체 콘텐츠 제공'과 '실제 제공'이 다르다(LC-35).
+- root_cause: 숨김 결정이 코드 한 줄에만 있고, 공개 범위·이동/퇴역 계획이 어디에도 기록되지 않았다.
+- fix: 숨김 규칙 옆에 `LC-35` 결정 주석으로 공개 범위와 dev-only 유지, 공개 copy가 이를 약속하지 않는다는 조건을 기록했다. **파괴적 삭제·이동은 제품 결정 전이라 하지 않았다.**
+- violated_rule: LC-35 인수 조건(범위 결정 기록).
+- prevention: `ci-runtime-contract-check.mjs` LC-35/P1232가 결정 주석을 소스로 고정한다.
+- verification: `ci-runtime-contract-check`·`ci-syntax-check` PASS.
+- residual_risk: **OPEN(제품 결정)** — 숨김 섹션의 퇴역·통합 또는 공개 경로 설계, 그리고 공개/개발자 모드의 번들·라우트 소유자 대조는 소유자 결정 후 진행한다.
+
+## P1231 - v56.39 - 헤드라인 전용 기사의 인과·수혜 요약이 그대로 게시됐다 (2026-09-25)
+
+- symptom/reproduction: 본문이 `본문 미수신`·`헤드라인 전용 · 단독 분석 근거 사용 금지`인 카드에 `…재평가 기회 제공` 같은 결론형 요약이 붙었다(LC-32).
+- root_cause: `src/ui/pages/news.js`가 `contentDepth`와 무관하게 `summary`를 먼저 출력하고 금지 라벨을 뒤에 붙였다.
+- fix: `contentDepth === 'headline-only'`면 요약 대신 `요약 보류 — 헤드라인 전용(본문 미수신)이라 인과·수혜 요약을 게시하지 않습니다.`를 표시한다.
+- violated_rule: LC-32 인수 조건, 헤드라인 전용의 claim 자격.
+- prevention: `ci-runtime-contract-check.mjs` LC-32/P1231이 보류 문구와 판정 분기를 소스로 고정한다.
+- verification: `ci-runtime-contract-check`·`ci-syntax-check` PASS. 실제 카드 렌더는 QA-NEWS-35.
+- residual_risk: claimType·원문 span·review 상태가 준비되면 중립 번역·검증 질문만 게시하는 계약은 별도다.
+
+## P1230 - v56.39 - 뉴스 주제가 피드 query에서 복사돼 기사 분류처럼 표시됐다 (2026-09-25)
+
+- symptom/reproduction: 철도 서비스 계약 기사(`WAB … Rail Services Deal`)가 `반도체/AI 인프라`·`semi`로 표시됐다. producer가 기사마다 feed의 `topic`을 복사하고 normalizer가 그대로 통과시켰다(LC-31).
+- root_cause: feed query 주제와 기사별 주제가 같은 필드였다. 기사 수준 분류 근거가 없어도 유효한 분류처럼 보였다.
+- fix: `src/data/normalize/news.js`가 `topic`(기사 주제, 선언된 경우만)과 `feedTopic`·`topicSource`·`topicReviewRequired`를 분리하고, `news.js`가 `(피드 분류 · 검토 필요)`와 0건 시 `피드 분류로만 걸러진 항목 N건`을 표시한다.
+- violated_rule: LC-31 인수 조건, 분류 근거·원천 표시.
+- prevention: `ci-runtime-contract-check.mjs` LC-31/P1230이 필드 분리와 UI 표기를 소스로 고정한다.
+- verification: `ci-runtime-contract-check`·`ci-syntax-check` PASS. WAB·중복 topic fixture 실브라우저 인수는 별도다.
+- residual_risk: producer가 기사별 분류 근거를 생산하기 전까지는 모든 피드 유래 주제가 검토 필요로 남는다.
+
+## P1229 - v56.38 - Macro 곡선 가용성이 공식 2s10s 스프레드에 종속됐다 (2026-09-25)
+
+- symptom/reproduction: 곡선 카드의 `curveAvailable`이 `spread != null`이었다. 공식 T10Y2Y가 로딩/미확인인 동안 2Y·10Y가 관측돼도 곡선이 '비교 판정 보류'로 묶였고, 반대로 공식 스칼라만 있으면 곡선 상태 문구가 그 값을 곡선 판정처럼 썼다(LC-49).
+- root_cause: 두 독립 입력(그려진 곡선 다리 vs 공식 스프레드)의 가용성을 한 조건으로 합쳤다. 스프레드의 `comparable` 판정도 상태 문구에 반영되지 않았다.
+- fix: `market.js`가 `curveLegsPresent`(2Y·10Y 유한)로 곡선 가용성을, `curveSpreadComparable`(같은 cut + comparable)로 스프레드 밴드를 분리한다. cut 미확정이면 `2Y·10Y 관측 · 2s10s cut 미확정`을 표시하고 스프레드 판정은 보류한다(혼합 cut 수치를 만들지 않는다).
+- violated_rule: P1147/P1208 same-cut curve contract, LC-49 인수 조건.
+- prevention: `ci-runtime-contract-check.mjs` LC-49/P1228이 `curveLegsPresent`·`curveSpreadComparable`·cut 미확정 문구를 소스로 고정한다.
+- verification: `ci-runtime-contract-check`·`ci-syntax-check` PASS. 곡선 로딩/공식값 도착 시퀀스 실브라우저 인수는 QA-PORT-MKT-38.
+- residual_risk: 곡선 다리(3M/5Y/30Y) 일부만 수신일 때의 부분 곡선 표현은 별도다.
+
+## P1228 - v56.38 - Signal 섹터 폭과 Breadth 종목 폭이 같은 '시장 폭'처럼 읽혔다 (2026-09-25)
+
+- symptom/reproduction: Signal 체크리스트의 `6/11 (55%)`(SPDR 섹터 ETF 11개 당일 등락 ≥0)와 Breadth의 `40/30/35%`(AIO 미국 주식 유니버스 5/20/50일선)가 화면을 오가면 같은 '시장 폭'으로 합쳐 읽혔다(LC-48).
+- root_cause: 체크리스트 셀 라벨이 `섹터 폭 50%+`로 모집단을 말하지 않았다.
+- fix: `index.html` 체크리스트 라벨을 `섹터 폭 50%+ (SPDR 11 ETF 당일)`로 바꾸고 툴팁에 `Breadth의 AIO 종목 5/20/50일선 폭과 다른 모집단입니다`를 붙였다.
+- violated_rule: LC-48 인수 조건, 모집단·기간 명시.
+- prevention: `ci-runtime-contract-check.mjs` LC-48/P1227이 두 문구를 소스로 고정한다.
+- verification: `ci-runtime-contract-check`·`ci-syntax-check` PASS. 두 화면을 오가는 사용자 이해도는 U 과업이다.
+- residual_risk: Signal 셀에는 아직 n(11)과 기간(당일)이 값 옆에 상시 표시되지 않고 라벨·툴팁에만 있다.
+
+## P1227 - v56.38 - Breadth 50SMA 카드와 그 아래 문장이 다른 상태를 동시에 보여줬다 (2026-09-25)
+
+- symptom/reproduction: native 카드는 `35% · 현재 관측`인데 같은 카드 아래 `#breadth-50sma-readout` 문장은 `현재 breadth 원천 미수신`이었다. 또한 종합 진단의 `상승/하락 비율 34.7%`는 실제로 상승/(상승+하락) 비중이었다(LC-47).
+- root_cause: legacy 문장 writer는 native fence(`_aioIsNativeBreadthElement`)로 막혀 있었지만 native renderer가 그 문장을 쓰지 않아 정적 fallback이 남았다. 라벨도 '비율'로 분모를 잘못 말했다.
+- fix: `market.js`가 50SMA evidence에서 `#breadth-50sma-readout`을 직접 쓰고(미수신이면 미수신 문장), `index.html` 라벨을 `상승 종목 비중 (보합 제외)`+denominator 툴팁, 시그널 라벨도 같은 이름으로 바꿨다.
+- violated_rule: P1164/B01 native sink fence, LC-47 인수 조건.
+- prevention: `ci-runtime-contract-check.mjs` LC-47/P1227이 native 문장 소유와 라벨·denominator를 소스로 고정한다.
+- verification: `ci-runtime-contract-check`·`ci-syntax-check` PASS. 실브라우저 카드·문장 일치는 QA-PORT-MKT-38.
+- residual_risk: 공식 거래소 A/D·McClellan 원천은 여전히 없어 AIO 유니버스 기준임을 문장에 유지한다.
+
+## P1226 - v56.38 - Macro 배너가 정적 '수신 대기'인데 카드에는 값이 있었다 (2026-09-25)
+
+- symptom/reproduction: `#macro-fred-stale-banner`가 `CPI/PCE: FRED·BLS 원천 수신 대기`로 고정 표시되는 동안 CPI 3.4%·Core PCE 3.3%·NFP 카드에 값이 있었다(P1142가 파싱 시점에 무효였던 은닉 스크립트를 제거한 뒤 상태 갱신 코드가 없었다)(LC-46).
+- root_cause: 배너가 정적 fail-closed 마크업이었고 native renderer가 그 상태를 소유하지 않았다.
+- fix: `market.js` renderMacro 끝에서 렌더된 `[data-snap=cpi-yoy|core-cpi-yoy|pce-yoy|core-pce-yoy]` 값을 읽어 배너 문구·`data-runtime-state`(`partial`/`unavailable`)·`data-operational-use`(`reference-only`/`blocked`)·색을 같은 렌더 패스에서 갱신한다.
+- violated_rule: LC-46 인수 조건, 값/배너/상태 원자성.
+- prevention: `ci-runtime-contract-check.mjs` LC-46/P1226이 배너 상태 파생을 소스로 고정한다.
+- verification: `ci-runtime-contract-check`·`ci-syntax-check` PASS. 실브라우저 배너·카드 동시 상태는 QA-PORT-MKT-38.
+- residual_risk: 카드별 관측월·발표일을 배너에 실어 보내는 원자적 observation revision 결속은 별도다.
+
+## P1225 - v56.38 - 포트폴리오 표가 모든 금액에 `$`를 붙였다 (2026-09-25)
+
+- symptom/reproduction: `src/ui/pages/portfolio.js`가 원가·현재가·목표가·손익을 `$` 고정으로 출력했지만 도메인은 행마다 `currency`/`costCurrency`를 선언한다. KRW/혼합 통화 행이 USD로 재표기될 수 있었다(LC-45, 코드 후보).
+- root_cause: 표 셀이 presentation에서 통화를 무시하고 리터럴 `$`를 썼다.
+- fix: 각 셀이 `holding.currency`(시세)·`holding.costCurrency`(원가)·`surface.baseCurrency`(손익)를 읽어 USD는 `$`, 그 외는 통화 코드 접두로 출력하고 셀 툴팁에 통화 근거를 남긴다. 손익 보류 시 사유 툴팁을 붙인다.
+- violated_rule: E3 통화 보존 계약, LC-45 인수 조건.
+- prevention: `ci-runtime-contract-check.mjs` LC-45/P1225가 통화 인식 셀과 `$` 고정 제거를 소스로 고정한다.
+- verification: `ci-runtime-contract-check`·`ci-syntax-check` PASS. 가짜 USD/KRW/혼합 계좌 실브라우저 인수는 QA-PORT-MKT-38.
+- residual_risk: 합계·현금·히어로 금액의 통화 표기는 기존 surface 요약을 따르며, 혼합 통화 표의 셀별 재현은 실브라우저 과업이다.
+
+## P1224 - v56.38 - 포트폴리오 '가져오기'가 Tab에서 건너뛰어졌다 (2026-09-25)
+
+- symptom/reproduction: `가져오기`가 `<label tabIndex=-1>`이고 파일 input은 `display:none`이라 실브라우저 Tab 순서에서 `종목 추가 → 내보내기 → 시세 갱신`으로 건너뛰었다(LC-44).
+- root_cause: 라벨이 파일 input을 감싸는 관용 패턴이었지만 라벨 자체가 포커스 불가였고 input이 `display:none`이었다.
+- fix: `index.html`이 실제 `<button data-action="_aioTriggerPortfolioImport">`(접근성 이름)를 두고, input은 visually-hidden(1px·opacity 0·`tabindex=-1`)로 남겨 클릭/`data-on-change` 계약을 보존한다. `js/aio-core.js`에 트리거 함수를 추가했다.
+- violated_rule: LC-44 인수 조건, 키보드 도달.
+- prevention: `ci-runtime-contract-check.mjs` LC-44/P1224가 버튼·input·트리거 함수를 소스로 고정한다.
+- verification: `ci-runtime-contract-check`·`ci-syntax-check` PASS. 실제 Tab/Enter/파일 선택 실기는 QA-PORT-MKT-38.
+- residual_risk: 파일 대화상자 취소·유효/무효 JSON 선택의 실기 확인은 별도다.
+
+## P1223 - v56.38 - 포트폴리오 도입 문구가 숨겨진 신선도 strip을 약속했다 (2026-09-25)
+
+- symptom/reproduction: 페이지 부제가 `시세 지연/출처를 별도 표시`라고 약속했지만 `#pf-freshness-strip`은 `display:none!important`로 공개 기본 화면에서 숨겨져 있었다(LC-43).
+- root_cause: 문구가 숨김 CSS와 독립적으로 작성돼 표시 범위와 어긋났다.
+- fix: 부제를 실제 표시 근거에 맞춰 `행별 시세 출처·관측시각을 툴팁으로 표시`로 고쳤다(가격 셀 tooltip은 LC-42가 소유).
+- violated_rule: LC-43 인수 조건, 공개 약속과 표시 일치.
+- prevention: `ci-runtime-contract-check.mjs` LC-43/P1223이 이전 약속 문구 부재와 실제 근거 문구를 소스로 고정한다.
+- verification: `ci-runtime-contract-check`·`ci-syntax-check` PASS. 공개 화면 실측은 QA-PORT-MKT-38.
+- residual_risk: 숨긴 리스크·비중·벤치마크·AI 패널을 퇴역·통합할지, 공개 경로를 설계할지는 제품 결정이며 별도다.
+
+## P1222 - v56.37 - Masters 과거 shard가 index 서술자와 동치 검증 없이 변화 원장에 들어갔다 (2026-09-25)
+
+- symptom/reproduction: 현재 보유 shard(`loadManagerRows`)는 managerId·artifactRole·행 수·비교 수·accession을 검증했지만, **과거 분기 shard**(`loadQuarterArtifacts`)는 descriptor의 URL만 믿고 `managerId`·schema·행 범위를 확인하지 않았다. 잘못된/오래된 shard가 교체되면 다른 기관·다른 세대의 기간이 변화 원장에 섞일 수 있었다(LC-30).
+- root_cause: 두 shard 로더가 같은 index 서술자를 쓰지만 검증 수준이 달랐다. 과거 shard에는 `runtimeShardSchema`·`historyRows` 계약이 index에 선언돼 있는데도 소비되지 않았다.
+- fix: `src/ui/pages/masters.js` `loadQuarterArtifacts`가 `bundle.managerId === managerId`·`bundle.schema === index.runtimeShardSchema`·`bundle.historySummary.rawRowsAvailable === descriptor.historyRows`를 확인하고 불일치면 throw해 fail-closed(`aioMastersHistoryRows='fallback'`)로 전환한다.
+- violated_rule: LC-30 인수 조건, P1204 원본·파생 세대 동치 계약(소비자 측).
+- prevention: `ci-runtime-contract-check.mjs` LC-30/P1222가 identity 불일치 게이트·`runtimeShardSchema` 소비·행 범위 비교를 소스로 고정한다.
+- verification: `ci-runtime-contract-check`·`ci-syntax-check`·`ci-masters-contract-check`(38 프로필·history 84기간·12,339행) PASS. 잘못된 shard 주입 실브라우저 fixture는 미실시다.
+- residual_risk: CIK·보고기간은 runtime shard에 게시되지 않아 managerId/schema/행 수로만 검증한다 — CIK·period 대조는 원문 대사(E)와 함께 별도다.
+
+## P1221 - v56.37 - Atlas가 고유 개념 수와 단계 배치 수를 구분하지 않았다 (2026-09-25)
+
+- symptom/reproduction: 상단은 `기초 개념 48개`인데 7단계 카드는 `6+7+8+10+7+9+8=55` 배치를 표시했다. `capex-and-depreciation`이 두 단계에 중복 배치되고 primer 6개가 더해져 고유 54/배치 55가 됐다(LC-22).
+- root_cause: `resultCount`가 `moduleIndex.length`(48)만 게시하고 `layers`의 배치 총수·재등장을 계산하지 않았다.
+- fix: `src/ui/pages/atlas.js`가 `foundationPlacements`(레이어 배치 합)와 `foundationRepeat`(배치−고유)를 계산해 `기초 개념 48개(고유) · 단계 배치 55개 · 다른 단계 재등장 1개`로 함께 게시한다.
+- violated_rule: LC-22 인수 조건, 분모·총수 표기 정직성.
+- prevention: `ci-runtime-contract-check.mjs` LC-22/P1221이 고유/배치/재등장 문구를 소스로 고정한다.
+- verification: `ci-runtime-contract-check`·`ci-syntax-check` PASS. 실제 화면 수치 확인은 미실시다.
+- residual_risk: 중복 배치(`capex-and-depreciation`)를 유지할지 제거할지는 제품 판단이며, 7카드 재방문 이해도는 실사용자 과업이다.
+
+## P1220 - v56.37 - Guide가 reference-only 점수를 매매 지시로 바꾸고 미제공 지표를 제공한다고 썼다 (2026-09-25)
+
+- symptom/reproduction: Guide가 `SIGNAL 점수 45 미만이면 매매하지 않는 것이 최선입니다`라고 단정했지만 홈/신호는 `환경 설명값 — 매매 판단 지표 아님`, 도메인은 `NO_ACTION/reference-only`다. 또 `5/20/50/200일선 위 종목 비율`, `NAAIM 종합 심리 측정`, `200일선 위 비율 70%`를 제공 지표처럼 썼지만 화면의 breadth는 5/20/50만, NAAIM은 미수신이다(LC-19·LC-21).
+- root_cause: Guide 본문이 capability registry·route 상태가 아니라 사람이 쓴 문장이었다. 제공 범위와 정책 용법이 화면과 독립적으로 표류했다.
+- fix: `index.html` Guide 본문을 관측·재확인 문장으로 바꾸고(`…관측값이며 매매 승인이 아닙니다…`), 제공되지 않는 200일선 비율·공식 McClellan·NAAIM·II를 `현재 미수신/미제공`으로 명시했다.
+- violated_rule: LC-19·LC-21 인수 조건, E6 allowedUse·capability 정직성.
+- prevention: `ci-runtime-contract-check.mjs` LC-19/21/P1220이 매매 지시 문구 부재·미제공 지표 광고 부재·미수신 표기를 소스로 고정한다.
+- verification: `ci-runtime-contract-check`·`ci-syntax-check` PASS. Guide 전체 문장의 외부 원전 대사(E)는 별도다.
+- residual_risk: 문장 단위 claimType·allowedUse 원장화와 capability registry에서 본문을 생성하는 구조(E7)는 별도 작업이며, LC-52 배경지식 단정은 아직 남아 있다.
+
+## P1219 - v56.37 - Fear & Greed 변화량 `0`이 라벨 없이 두 번째 점수처럼 보였다 (2026-09-25)
+
+- symptom/reproduction: F&G `35` 옆의 `0`(`#sentiment-fg-delta`)이 변화·부호·기간 라벨 없이 표시돼 사용자가 두 번째 점수로 읽을 수 있었다. 접근성 이름도 `0`뿐이었다(LC-29).
+- root_cause: `_aioSetDeltaEl`이 `_aioFormatDelta` 텍스트를 그대로 넣었고, F&G 호출만 suffix/label이 없었다(CPI/NFP 등은 `pp`·`K vs 전월` suffix 보유).
+- fix: `js/aio-data.js` `_aioSetDeltaEl`이 `opts.label`을 받아 본문·`title`·`aria-label`에 접두하고, 네 F&G 호출이 `label: '전일 대비'`를 전달한다(`전일 대비 0`). 비교원천이 없으면 기존대로 숨긴다.
+- violated_rule: LC-29 인수 조건, 결측·변화 라벨 정직성.
+- prevention: `ci-runtime-contract-check.mjs` LC-29/P1219가 label 옵션·호출·aria-label 부여를 소스로 고정한다.
+- verification: `ci-runtime-contract-check`·`ci-syntax-check` PASS. 스크린리더 실기와 비교일 표시는 미실시다.
+- residual_risk: 비교일(전일 날짜)은 live CNN 경로에 없어 표시하지 않는다. 날짜를 게시하려면 원천 개선이 필요하다.
+
+## P1218 - v56.37 - 테마 상세가 하루 등락을 모멘텀·자금흐름·원인 단정으로 확장했다 (2026-09-25)
+
+- symptom/reproduction: 에너지 상세에서 14종목 일간 상승 비율 `79%`를 `광범위한 매수세가 테마를 지지`로 해석했고, `서브테마 내에서도 자금이 순환`, 당일 등락 하나로 `모멘텀이 살아있습니다`·`차익실현/로테이션 매도`·`구조적 훼손`·`같은 재료에 반응`·ETF 접근 권유를 단정했다(LC-28·LC-37·LC-38).
+- root_cause: 패널들이 관측 창을 명시하지 않고 하루 ETF 등락·상승 비율을 시계열 모멘텀·수급·원인·행동 층으로 확장했다. claim 유형 구분이 없었다.
+- fix: `src/ui/pages/themes.js`의 네 패널(온도→`테마 당일 등락 구간`, 격차, 건강도→`가격 상승 참여 폭 (당일)`, 서브테마 격차)이 측정한 창(당일)과 모집단만 말하고, 자금 유입·거래 주체·시계열 모멘텀·원인·행동은 `별도 근거가 필요합니다`로 분리한다.
+- violated_rule: LC-28·LC-37·LC-38 인수 조건, 관측→계산→해석→행동 층 분리.
+- prevention: `ci-runtime-contract-check.mjs` LC-28/37/38/P1218이 새 라벨 존재와 폐기 문구 부재를 소스로 고정한다.
+- verification: `ci-runtime-contract-check`·`ci-syntax-check` PASS. 실제 화면 문구·경계값(+1.01%/−0.5% 등) fixture는 미실시다.
+- residual_risk: legacy 한국 테마 문장(`js/aio-kr-data.js`의 같은 계열 표현)과 테마 RRG/ETF 해석 문장은 별도 정리 대상이다.
+
+## P1217 - v56.36 - 뉴스 원문 카드가 키보드로 도달할 수 없는 클릭 div였다 (2026-09-25)
+
+- symptom/reproduction: `.news-item-card`가 `<div data-open-url=...>`로 렌더되고 `role`·`tabindex`·내부 `<a>`가 없었다. 접근성 트리에서 기사 카드는 링크가 아닌 container로 보였고, 클릭 위임만이 원문을 열었다(LC-34).
+- root_cause: 원문 열기가 카드 전체의 click delegation(`[data-open-url]`)에만 위임돼 있었고, 제목도 plain text node였다. 포커스 가능한 링크가 아예 없었다.
+- fix: `src/ui/pages/news.js` `createNewsCard`가 제목을 실제 `<a class="news-item-link" target="_blank" rel="noopener noreferrer">`로 렌더하고 접근성 이름(`원문 새 창에서 열기`)을 준다. `index.html`에 `.news-item-link`(색 상속·focus-visible 링)를 추가하고, `js/aio-core.js`의 카드 click delegation은 `a[href]`를 만나면 즉시 반환해 같은 URL이 두 번 열리지 않게 한다.
+- violated_rule: LC-34 인수 조건, 접근 가능한 원문 링크.
+- prevention: `ci-runtime-contract-check.mjs`가 `news-item-link` 렌더·CSS·`closest('a[href]')` 위임 skip을 소스로 고정한다.
+- verification: `ci-runtime-contract-check`·`ci-syntax-check`(408)·`ci-research-flow-contract-check`(66) PASS. 실제 보조공학(Tab/Enter/스크린리더) 인수는 미실시다.
+- residual_risk: 실브라우저 접근성 트리에서 카드가 링크로 노출되는지와 자식 티커 버튼 이벤트 보존은 별도다.
+
+## P1216 - v56.36 - 뉴스 빈 상태가 내부 emptyReason enum을 그대로 노출했다 (2026-09-25)
+
+- symptom/reproduction: 한국 국가 필터 0건일 때 `현재 조건에서 ... 뉴스가 없습니다. (all-news-outside-time-window)`가 화면에 보였다. 원인 문자열은 파이프라인 enum이었다(LC-33).
+- root_cause: `src/ui/pages/news.js` 빈 상태 fallback이 `model.emptyReason`을 문장에 그대로 보간했다. enum 값 집합은 `_aioNewsEmptyReason()`가 소유한 내부 어휘였다.
+- fix: `emptyReason`을 사용자 문장으로 옮기는 `NEWS_EMPTY_REASON_COPY` + `describeNewsEmptyReason()`를 두고 market-news·briefing 두 빈 상태가 이를 소비한다. 미지의 토큰은 일반 문장으로 대체되고, 창 밖 수집분은 별도 건수로 밝힌다.
+- violated_rule: LC-33 인수 조건, 내부 구현 어휘의 사용자 노출 금지.
+- prevention: `ci-runtime-contract-check.mjs`가 번역 함수 존재와 raw `emptyReason` 보간 부재를 소스로 고정한다.
+- verification: `ci-runtime-contract-check`·`ci-syntax-check` PASS. 실제 화면 문구 확인은 미실시다.
+- residual_risk: 국가/토픽/정렬 조합별 분모·이유 일치와 스크린리더 이름은 실브라우저 과업이다.
+
+## P1215 - v56.36 - 기업 분석의 '차트 분석'이 없는 입력에 쓰고 이전 종목을 보여줬다 (2026-09-25)
+
+- symptom/reproduction: 기업 분석에서 AAPL의 `차트 분석`을 누르면 기술 분석은 `SPY −0.23%`를 보였다. bridge는 `#deep-ticker-input`에 썼지만 그 id는 어디에도 없고, 실제 입력은 `#deep-sym-input`이며 분석 트리거도 호출되지 않았다(LC-39).
+- root_cause: 같은 목적의 bridge 두 개(`_aioChartAnalyze`·`_aioTechnicalTicker`)가 각자 죽은 id를 썼고, `showPage('technical')`만 호출해 이전 종목의 상태를 유지했다. 단일 소유자가 없었다.
+- fix: `js/aio-core.js`가 `_aioOpenTechnicalAnalysis(ticker)` 하나로 수렴해 대문자 정규화 후 `runDeepAnalysis(sym)`(=실제 입력 `#deep-sym-input` + `analyzeTickerDeep` + `aio:entityChanged`)을 호출하고, 두 legacy bridge는 그 함수로 위임한다. `runDeepAnalysis`가 없을 때만 입력값을 직접 채운다.
+- violated_rule: R630(동일 결과 ID는 실제 입력만 바꾸어야 함), LC-39 인수 조건.
+- prevention: `ci-runtime-contract-check.mjs`가 legacy 셸 전체에서 폐기된 `deep-ticker-*` id 부재·단일 bridge 함수·`runDeepAnalysis(sym)` 호출을 소스로 고정한다.
+- verification: `ci-runtime-contract-check`·`ci-syntax-check`·`ci-research-flow-contract-check` PASS. 실제 클릭(AAPL→기술→뒤로가기) 인수는 미실시다.
+- residual_risk: 뒤로가기·새 탭 딥링크에서 같은 종목이 유지되는지는 실브라우저 과업이며, 상세는 [25](_artifacts/structural-handoff-20260919/25-CURRENT-FINDING-STATUS-CROSSWALK.md) LC-39에 남긴다.
+
+## P1214 - v56.35 - 신호 점수 모드가 라벨만 바꾸고 실제 계산·판정·체크리스트에는 전달되지 않았다 (2026-09-25)
+
+- symptom/reproduction: `데이트레이딩` 버튼은 `임계값 65점 (더 엄격)`을 약속했지만 `trading-score.js`에는 모드별 임계값이 없다. native 점수 hero는 모드를 아예 소비하지 않았고 legacy facade는 `mode: 'swing'`을 하드코딩했다. 그래서 pill·점수·판정이 서로 다른 모드를 말할 수 있었고, 체크리스트 제목은 `스윙 환경 체크리스트`로 고정돼 모드와 무관한 결과가 모드 결과처럼 읽혔다(LC-26).
+- root_cause: 모드가 **계산 입력이 아니라 표현 문구**로 존재했다. 세 경로가 각자 모드를 다뤘다: legacy 토글은 설명 텍스트만, legacy facade는 상수, native reader는 누락. 모드의 실제 효과(변동성 구성 18≤VIX<30 +12)를 명명한 단일 소유자가 없었다.
+- fix: `src/domain/signal/mode.js`가 모드 어휘(`swing`/`day`), 정규화, 그리고 모드별 **실제로 적용되는 항**만 기술하는 descriptor를 소유한다(`decisionThreshold: null` — 없는 임계값을 광고하지 않는다). `src/app/bootstrap.js`가 모드 홀더(파일 영속)와 `AIO_ARCH.signalScoreMode` 단일 브리지를 노출하고, native `runtime-readers.js`와 legacy facade가 같은 값을 읽어 `computeTradingScoreModel({ mode })`에 전달한다. legacy `toggleSignalMode`는 브리지로 저장·설명을 가져오고 `aio:signalScoreModeChanged`로 native 분석 slice를 재계산한다. 체크리스트는 시장건강 기반이며 점수 모드와 **독립**임을 제목·툴팁으로 명시하고, `통과/미충족/대기`를 분리 표시해 대기 상태를 긍정 단정으로 덮지 않는다.
+- violated_rule: R630(동일 결과 ID는 실제 입력만 바꾸어야 함), R624(상태 global 단일 소유), LC-26 인수 조건.
+- prevention: `ci-esm-core-unit-check.mjs`의 P1214 fixture가 어휘·정규화·descriptor의 `decisionThreshold:null`·`normalizeAnalysis`의 `scoreMode` 전달·**day 모드가 점수 입력을 실제로 바꾸는지**(swing 62 vs day 74)를 검사하고, 두 reader가 공유 모드를 읽는지 소스로 고정한다. `ci-runtime-contract-check.mjs`는 legacy 토글이 브리지를 통하고 `임계값 65점` 미지원 약속이 사라졌는지, 체크리스트 제목이 모드 독립으로 바뀌었는지 검사한다. facade 확장은 단일 그룹 키 `signalScoreMode`로 제한했고 `facadeExpansionBudget` 58→59로 기록했다.
+- verification: `ci-esm-core-unit-check`·`ci-runtime-contract-check`·`ci-retirement-contract`·`ci-domain-parity-check`·`ci-data-pipeline-contract-check`·`ci-architecture-contract-check`·`ci-screener-workbench-contract` PASS. 실제 브라우저 lateral 검증은 이 배치에서 미실시다.
+- residual_risk: (1) 실제 브라우저에서 pill↔hero↔`data-aio-signal-score-mode` parity와 새로고침 후 모드 영속은 별도 인수다. (2) 체크리스트 임계값이 모드별로 달라야 한다는 제품 판단이 서면 시장건강 5조건 자체를 모드 revision에 결속해야 한다.
+
+## P1213 - v56.35 - 관측시각 없는 가격이 전역 LIVE 배지와 나란히 '현재가'로 읽혔다 (2026-09-25)
+
+- symptom/reproduction: 스크리너 CRWD 행에 `259.38`이 표시되고 툴팁은 `runtime-quote · 관측 시각 미확인 · MISSING`인데, 화면 상단은 `LIVE · 39개`였다. 숫자 존재·관측 가능·live 범위가 각각 다른데 가까이 놓여 전역 LIVE가 행의 증거로 상속됐다(LC-42).
+- root_cause: `liveRow()`의 overlay가 `live.observedAt` 없이도 가격을 채우고, 가격 셀은 통화/관측시각/출처를 한 줄 title에만 담았다. 관측시각 미확인 상태를 시각적으로 구분하지 않아 숫자가 확정 현재가처럼 보였다.
+- fix: `src/ui/pages/screener.js` 가격 셀이 행 자체의 `currency`/`priceObservedAt`/`priceSource`를 읽어 관측시각이 없으면 `관측시각 미확인 · 참고` 하위 라벨과 muted 색, `data-quote-freshness="unverified"`를 붙이고, 툴팁에 `현재성 미확인 — 전역 LIVE에 상속하지 않음`을 명시한다. 관측시각이 있으면 `관측 <시각>`을 표시한다.
+- violated_rule: P1107 field-owned observation time, LC-42 인수 조건.
+- prevention: `ci-screener-workbench-contract.mjs`가 가격 셀이 `quoteFreshness`와 전역 LIVE 비상속 문구를 유지하는지 소스로 고정한다.
+- verification: `ci-screener-workbench-contract`·`ci-runtime-contract-check` PASS. 실제 브라우저 행 렌더는 미실시다.
+- residual_risk: 전역 topbar LIVE 배지 자체의 의미(커버리지 vs 행 현재성)는 별도 표면이며 이 배치는 행 단위만 다룬다.
+
+## P1212 - v56.35 - 결측 진단값이 0으로 승격돼 '측정된 0'처럼 보였다 (2026-09-25)
+
+- symptom/reproduction: 팩터 패널에 `상위군 회전 null%`가, legacy 팩터 IC 캔버스에 표본 `n=0`과 함께 `IC 0.000`·`분위 스프레드 0.00%`·`방향 적중률 0.0%`가 표시됐다(LC-41).
+- root_cause: `Number(null) === 0`이고 `Number.isFinite(0) === true`라, `Number.isFinite(Number(turnover.turnoverPct))` 같은 계수가 결측을 유효값으로 통과시켰다. legacy 캔버스는 `bt.quantileSpread || 0`, `ic[key] || 0`, `hitRate || 0`, `n || 0`으로 미수신을 0으로 만들었다.
+- fix: `src/ui/pages/screener.js` 진단 계수는 `countOrNull()`(null/''/boolean/비유한은 null)로만 값을 인정하고, `js/aio-ui.js` `_factorBacktest`는 표본이 0/미수신이면 `계산 불가 · 표본 없음`을 그리고 IC 막대를 그리지 않는다. 실측 0은 표본이 있을 때만 0.00으로 표시한다.
+- violated_rule: P1176 계열의 `Number(null)===0` 승격 금지, LC-41 인수 조건.
+- prevention: `ci-screener-workbench-contract.mjs`가 native 진단의 strict 계수와 legacy 캔버스의 폴백 0 제거를 소스로 고정하고, `ci-runtime-contract-check.mjs`가 `_factorBacktest`가 `num()`과 `계산 불가 · 표본 없음`을 유지하는지 검사한다.
+- verification: `ci-screener-workbench-contract`·`ci-runtime-contract-check` PASS. 실제 브라우저 캔버스 렌더는 미실시다.
+- residual_risk: 산출물이 실제 표본 없이 발행되는 이유(수집 주기 vs 데이터 부족)는 데이터 계층 문제로 남는다.
+
+## P1211 - v56.35 - 스크리너 실행 판정과 표의 표시 범위가 같은 모집단처럼 보였다 (2026-09-25)
+
+- symptom/reproduction: 실행 뒤 funnel에 `조건 통과 342 / 데이터 부족 29`와 `현재 필터 결과 873`이 함께 보였다. 342는 실행 rowCount 기준 판정이고 873은 현재 UI 필터 결과인데 분모가 화면에 없어 한 집합으로 읽혔다(LC-25).
+- root_cause: `renderFunnel`이 두 모집단을 라벨 없이 나열했고, 실행 run의 `rowCount`/`runId`와 origin(파이프라인 vs 사용자)을 어디에도 게시하지 않았다.
+- fix: `src/ui/pages/screener.js`가 `scr-funnel-passed-denom`/`scr-funnel-unavailable-denom`에 실행 분모(`/873`)를, `scr-funnel-runid`에 run id와 origin을, `scr-funnel-scope-note`에 `실행 판정 … / 표시 범위 …` 분리 문장을 쓴다. index.html funnel은 실행 판정(조건 통과·데이터 부족)과 표시 범위(현재 필터 결과)·기준 run을 구획하고, 실행 완료 상태줄과 readiness note에도 runId/분모를 추가했다.
+- violated_rule: LC-25 인수 조건, 12 U01 결과 정직성.
+- prevention: `ci-screener-workbench-contract.mjs`가 funnel sink·`runRowCount`·scope note를 소스로 고정한다.
+- verification: `ci-screener-workbench-contract`·`ci-runtime-contract-check` PASS. 실제 브라우저 funnel 문자열은 미실시다.
+- residual_risk: 필터 badge와 표 행 배지의 runId 결속은 실브라우저 과업에서 확인해야 한다.
+
+## P1210 - v56.35 - Why 제목이 엔진이 방출하지 않는 상태를 비교해 항상 '순위 계산 보류'였다 (2026-09-25)
+
+- symptom/reproduction: AAPL Why 제목이 `조건 통과 · 순위 계산 보류`인데 본문은 `rank 192`·`팩터 원값 77`을 함께 보였다. 순위가 계산됐는데도 보류로 표시됐다(LC-40).
+- root_cause: `screen-engine.js`의 `screenRankingState` 어휘는 `ranked`/`unavailable`/`not-requested`인데 `src/ui/pages/screener.js`가 `=== 'available'`을 비교해 그 분기가 **절대 참이 될 수 없었다**. 또한 서수 표시 순위(`screenRank`)와 순위 입력 원값(`rankExplanation.contributions.rank`)을 둘 다 `rank`로 불러 서로 다른 숫자가 같은 값처럼 보였다.
+- fix: Why drawer가 엔진 어휘 `ranked`를 소비하고, 필터 상태(`passed`/`rejected`/그 외)와 랭킹 상태를 각각 이름으로 표시한다. 상태줄은 `표시 순위 N · 팩터 원값 M`으로 두 rank를 명명한다.
+- violated_rule: LC-40 인수 조건, R630(도메인 상태를 UI가 재구성하지 않음).
+- prevention: `ci-screener-workbench-contract.mjs`가 `screenRankingState === 'available'` 부재와 `ranked` 분기·두 rank 명명을 소스로 고정한다(엔진 상태 어휘 자체는 기존 G-SCR 계약이 이미 고정).
+- verification: `ci-screener-workbench-contract`·`ci-runtime-contract-check` PASS. 실제 브라우저 Why 렌더는 미실시다.
+- residual_risk: pass+ranked / pass+unranked / unavailable 각 조합의 제목·숫자·표 배지·저장 재생 일치는 실브라우저 과업으로 남는다.
+
+## P1209 - v56.34 - 뉴스 HTML entity가 화면에 문자열 그대로 남았다 (2026-09-24)
+
+- symptom/reproduction: 시장 뉴스 본문의 `네비우스 &#036;NBIS`가 `$`로 해석되지 않은 채 native 카드에 표시됐다. native `.textContent` 렌더는 XSS에서 안전했지만 producer가 남긴 entity 문자열을 정규화 경계가 제거하지 않았다.
+- root_cause: RSS·Telegram producer의 허용 entity 목록과 native `normalizeNews()`가 서로 다른 계약이었다. named entity만 다루는 경로와 numeric entity를 통과시키는 경로가 병존했다.
+- fix: `src/data/normalize/news.js`가 title/headline/desc/summary의 decimal·hex numeric entity와 허용 named entity를 **단 한 번** decode한다. URL은 entity decoder를 거치지 않고 native 카드는 계속 text node만 사용한다. 한국어 비율 판별은 literal markup 태그를 제거한 문자열 기준이 되어 안전한 entity fixture가 번역 fallback으로 가려지지 않는다.
+- violated_rule: P1095 HTML-escaping boundary, R630(consumer에서 표현 수단을 바꾸지 않음), LC-24 인수 조건.
+- prevention: architecture contract의 `normalizeNews` unit fixture는 `&#036;`, `&amp;`, `&#60;...&#62;`, `&amp;#036;`의 단일 decode·double-decode 차단을 검사한다. 실제 Chromium은 카드에 `네비우스 $NBIS`와 hostile tag 문자열이 보이고 `img/script/onerror` DOM 0건·XSS 실행 0건을 확인한다.
+- verification: `ci-esm-core-unit-check`·`ci-architecture-contract-check` PASS, 실제 Chromium `ci-architecture-browser-check` PASS(`browserErrors:0`). 링크 query의 `&amp;`는 URL 소유권 경계 때문에 유지된다.
+- residual_risk: 허용되지 않은 named entity는 원문으로 남으며, 이는 안전한 명시적 policy다. 외부 원문의 권리·사실 정확성은 별도 검증이다.
+
+## P1208 - v56.34 - 2s10s가 금리 수준과 금리차를 섞고 cut identity를 잃었다 (2026-09-24)
+
+- symptom/reproduction: 같은 2s10s가 macro에는 `+0.25%p`, fxbond에는 `+0.25%`로 표시됐다. daily 2Y와 live 10Y 또는 공식 spread가 서로 다른 관측 cut이어도 비교 가능한 곡선처럼 소비됐다.
+- root_cause: `buildTreasuryCurveSpread()`와 `deriveTreasuryCurveEvidence()`가 별도 모델로, official scalar가 있거나 관측시각이 36시간 안이면 같은 cut으로 승격했다. macro/fxbond/차트는 다른 우선순위와 단위를 소비했다.
+- fix: `src/domain/macro/treasury-curve.js`를 `treasury-curve.v2`/`treasury-curve-spread.v2`로 통일한다. atomic Treasury `_treasury`의 2Y·10Y·spread와 chart points가 `cutId`·observedAt·sourceKind를 함께 보존하고, spread는 명시적으로 같은 cut일 때만 `percentage-point` 값으로 게시한다. macro와 fxbond는 같은 `curve` object의 값·unit·cutId·comparability를 렌더하고 legacy `#sc-2s10s` writer는 삭제했다.
+- violated_rule: P1147 same-observation curve contract, R630/LC-23 unit·cut identity, route owner single-writer boundary.
+- prevention: ESM unit은 같은 cut, conflicting cut, unknown cut, atomic-vs-live precedence와 `percentage-point`를 검사한다. domain parity는 구 field projection만 v1 golden과 비교하고 v2 spread 의미를 별도 고정한다. 실제 Chromium은 macro/fxbond 모두 `+0.26%p`, 동일 `us-treasury-daily:2026-09-24`, `comparable=true`를 확인한다.
+- verification: `ci-esm-core-unit-check`·`ci-domain-parity-check`·`ci-runtime-contract-check`·`ci-architecture-contract-check` PASS, 실제 Chromium macro/fxbond parity PASS. 범위 밖의 invalid yield clamping 회귀도 함께 닫았다.
+- residual_risk: 5Y/30Y 같은 산출물에 atomic daily 값이 없으면 chart는 unavailable이다. live quote와 daily atomic curve를 시각상 가까운 값으로 대체하지 않는다.
+
+## P1207 - v56.34 - SKEW가 options에는 있고 sentiment에는 없는 동일 quote였다 (2026-09-24)
+
+- symptom/reproduction: runtime SKEW `146.15`가 options에는 표시됐지만 sentiment는 `—`를 유지했다. route profile에 `^SKEW`가 없고, sentiment는 raw `data-snap=skew`, options는 별도 `quoteObservation()`을 소비했다. live quote 뒤 snapshot pass가 sentiment sink를 다시 `—`로 덮을 수 있었다.
+- root_cause: 동일 instrument `^SKEW`가 canonical metric identity 없이 두 read/render 경로로 갈라져 있었다. `metricId/instrumentId/unit/observedAt/revision`이 어느 화면에도 게시되지 않았다.
+- fix: quote identity registry에 `^SKEW → market.volatility.skew/index`를 추가하고 runtime reader가 이 identity와 `revisionId`를 단일 observation으로 반환한다. sentiment native state/renderer와 entity options가 같은 quote object를 소비하고, legacy sentiment SKEW writer는 삭제했다. CORE/quote scope와 두 route profile에 `^SKEW`를 포함했다.
+- violated_rule: R630 동일 결과 ID는 실제 입력만 바꾸어야 함, route/data owner 단일 경계, LC-20 동일 metric identity/read model.
+- prevention: ESM unit은 SKEW identity·observedAt·revision 보존을 검사하고 page timeline은 sentiment/options 양쪽이 `market.^SKEW`를 요구한다. 실제 Chromium은 `146.15`, `market.volatility.skew`, `^SKEW`, `index`, 같은 observedAt/revision이 두 native 화면에 함께 게시됨을 확인한다. **후속 정정(2026-09-25, v56.35)**: 이 항목이 sentiment 계약에 `market.^SKEW`를 추가해 field check가 48→49가 됐지만 `ci-page-market-epoch-browser-check.mjs`는 `48`·screener `6`을 하드코딩한 채였다(로컬 freshness로 affected에서 skip되어 미검출). 이제 기대 개수를 `PAGE_DATA_TIMELINE_CONTRACTS`에서 파생해 계약 변경이 다시 이 게이트를 조용히 깨뜨리지 못하게 했다.
+- verification: `ci-esm-core-unit-check`·`ci-market-snapshot-contract-check`·`ci-native-decision-evidence-check`·`ci-architecture-contract-check` PASS, 실제 Chromium cross-screen parity PASS.
+- residual_risk: SKEW는 지연 quote이므로 두 화면 모두 `reference-only`다. options chain/Greeks와 SKEW 계약의 외부 원문 검증은 별도다.
+
+## P1206 - v56.34 - 날짜 경과일이 다른 항목의 sink를 덮었다 (2026-09-24)
+
+- symptom/reproduction: briefing archive `2026-04-17`의 경과일 대신 뒤 순서의 TNX 2Y 날짜가 `134일` 또는 snapshot 날짜 기준 `2일`로 `#briefing-stale-days`에 표시됐다. static HTML 날짜와 producer field date가 별개 owner였다.
+- root_cause: `[data-snap-date]` loop가 자기 sink가 없으면 무조건 `#briefing-stale-days`를 fallback으로 선택했다. TNX 2Y는 producer-specific as-of가 아니라 전체 snapshot 날짜까지 대체할 수 있었다. core와 pages의 stale-days writer도 별도로 경쟁했다.
+- fix: `_aioRenderSnapshotDateBindings()`가 날짜 key와 동일 ID stale sink만 결합한다. static archive/interview date는 item `data-snap-date-value`로 명시하고, TNX 2Y는 `macro_dgs2`/`_serverMacroEvidence.dgs2.observedAt`만 사용하며 미수신 시 `기준일 미수신`을 표시한다. 두 legacy stale writer를 하나의 item-local resolver로 통합했다.
+- violated_rule: P1107 field-owned observation time, R630 DOM last-writer 금지, LC-17 인수 조건.
+- prevention: headless T1206은 archive와 TNX sink가 다르며 TNX date가 `macro_dgs2`를 따르고, 두 날짜 노드 순서와 무관한 계약을 고정한다. 실제 Chromium은 고정 DGS2 cut에서 각자 경과일을 표시한다.
+- verification: `ci-headless-tests`·`ci-runtime-contract-check` PASS, 실제 Chromium `ci-architecture-browser-check` PASS.
+- residual_risk: DST/calendar-day 표시는 로컬 달력일 helper를 유지하며 elapsed-hour가 아니다. 관측 cutoff의 release timezone 정책은 별도다.
+
+## P1205 - v56.34 - 티커 탭 클릭이 두 패널을 모두 숨기고 기간 버튼은 죽은 경로였다 (2026-09-24)
+
+- symptom/reproduction: AAPL 선택 후 `가격 이력` 탭을 클릭하면 버튼 정의는 `data-arg="chart"`였지만 legacy `switchTab()`는 `tab-chart`와만 비교해 두 패널을 모두 `display:none`으로 만들었다. 1M/3M/6M/1Y 버튼은 legacy `loadTickerChart()`를 직접 호출했지만 native route marker에서 즉시 no-op이었고, native 차트는 항상 마지막 365행만 표시했다.
+- root_cause: **같은 가시 control을 generic legacy dispatcher와 native renderer가 동시에 소유하면서 서로 다른 state vocabular리를 사용했다.** `overview/chart`와 `tab-overview/tab-chart`가 어긋났고, 기간 입력도 native history window가 아니라 별도 Stooq fetch 경로를 향했다. native marker는 중복 렌더만 막았을 뿐 사용자 interaction까지 복구하지 못했다.
+- fix: `src/ui/pages/entity.js`가 tab/panel, keyboard arrow navigation, 1M/3M/6M/1Y range state, calendar-window selection, Chart.js lifecycle, row/date metadata를 단독 소유한다. `TICKER_CHART_RANGES`와 `selectTickerChartWindow()`는 normalized entity history를 시간순 정렬한 뒤 30/90/180/365일 창을 선택한다. `switchTab`, `loadTickerChart`, `fetchStooqData/Chart`, `_tickerChartInstance`, 전용 cleanup을 삭제하고 `showTicker()`는 `aio:tickerViewReset`으로 새 종목의 overview/1M 상태를 초기화한다.
+- violated_rule: R630(동일 결과 ID는 실제 입력만 바꾸어야 함), R624(상태 global의 단일 소유), LC-18/LC-27 인수 조건, P834의 native chart ownership.
+- prevention: `ci-esm-core-unit-check.mjs` P1205 fixture가 inclusive calendar windows 2/3/4/5행과 empty/unavailable을 검사한다. `ci-architecture-browser-check.mjs`는 키보드 ArrowLeft/ArrowRight 왕복과 400일 관측에서 1M/3M/6M/1Y = 31/91/181/366행, 시작·끝 날짜, `native-runtime`, 실제 Chart.js 인스턴스 또는 명시적 로컬 fallback 렌더러를 검증한다. `ci-retirement-contract.mjs`는 legacy bundle에 `switchTab/loadTickerChart/fetchStooq*`가 돌아오면 실패시키고, `ci-architecture-contract-check.mjs`와 headless T1029는 native control 수와 legacy 부재를 고정한다.
+- verification: ESM unit PASS, architecture/retirement contract PASS, 실제 Chromium `ci-architecture-browser-check` PASS(`browserErrors:0`, 20-route round-trip 유지). v56.34 full affected/release 및 live 배포 증거는 종료 보고에서 분리한다.
+- residual_risk: (1) calendar-window 기간은 거래일 수가 아니라 실제 달력일 경계다. (2) Chart.js CDN이 막히면 범위 metadata는 보이지만 canvas는 명시적 unavailable 상태다. (3) 티커의 패턴·진입·요약 prose는 별도 legacy/narrative 경계로 남는다.
 
 ## P1204 - v56.33 - Masters canonical index가 최신 holdings 세대와 다른 커밋을 만들었다 (2026-09-24)
 

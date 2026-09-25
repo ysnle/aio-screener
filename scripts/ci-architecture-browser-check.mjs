@@ -130,6 +130,28 @@ try {
   });
   await waitForTopbar('기준 시세', 'published snapshot restore');
 
+  await page.evaluate(() => {
+    const observedAt = '2026-09-24T12:00:00Z';
+    const treasury = {
+      observedAt,
+      source: 'U.S. Treasury Daily Par Yield Curve Rates XML Feed',
+      sourceKind: 'T1_OFFICIAL',
+      cutId: 'us-treasury-daily:2026-09-24',
+      values: { dgs2: 4.85, dgs5: 4.99, dgs10: 5.11, dgs20: 5.45, dgs30: 5.4, t10y2y: 0.26 }
+    };
+    window._serverDataMeta = window._serverDataMeta || {};
+    window._serverDataMeta.treasury = treasury;
+    window.DATA_SNAPSHOT = window.DATA_SNAPSHOT || {};
+    window.DATA_SNAPSHOT.tnx2y = 4.85;
+    window.DATA_SNAPSHOT.tnx = 5.11;
+    window.DATA_SNAPSHOT.t10y2y = 0.26;
+    window.DATA_SNAPSHOT._fieldTs = window.DATA_SNAPSHOT._fieldTs || {};
+    window.DATA_SNAPSHOT._fieldTs.macro_dgs2 = observedAt;
+    window._live2Y = 4.85;
+    window._live10Y = 5.11;
+    window._fredData = { DGS2: { value: 4.85, observedAt }, DGS10: { value: 5.11, observedAt }, T10Y2Y: { value: 0.26, observedAt, unit: 'percentage-point', source: treasury.source } };
+  });
+
   await page.evaluate(() => window.showPage('sentiment'));
   await page.waitForFunction(() => document.getElementById('page-sentiment')?.dataset.aioArchitectureRoute === 'sentiment');
   const sentimentRoute = await page.evaluate(() => ({
@@ -141,6 +163,66 @@ try {
     badgeText: document.getElementById('sent-overall-badge')?.textContent || ''
   }));
   if (sentimentRoute.active !== 'sentiment' || sentimentRoute.storeRoute !== 'sentiment' || sentimentRoute.state !== 'blocked' || sentimentRoute.renderer !== 'native' || sentimentRoute.badgeText !== '심리: 판정 보류') throw new Error(`sentiment lifecycle failed: ${JSON.stringify(sentimentRoute)}`);
+
+  const staleDateRoute = await page.evaluate(() => {
+    window._aioRenderSnapshotDates();
+    const briefingStale = document.getElementById('briefing-stale-days')?.textContent || '';
+    const tnxStale = document.getElementById('tnx-2y-stale-days')?.textContent || '';
+    return { briefingStale, tnxStale, tnxDate: document.querySelector('[data-snap-date="tnx-2y"]')?.textContent || '' };
+  });
+  if (staleDateRoute.tnxDate !== '2026-09-24' || staleDateRoute.tnxStale === staleDateRoute.briefingStale || !staleDateRoute.tnxStale.includes('일 경과')) throw new Error(`snapshot date item binding failed: ${JSON.stringify(staleDateRoute)}`);
+
+  const skewRevision = 'browser-skew-revision';
+  const skewObservedAt = new Date(Date.now() - 1000).toISOString();
+  await page.evaluate(({ revision, observedAt }) => {
+    window._liveData = window._liveData || {};
+    window._liveData['^SKEW'] = {
+      price: 146.15,
+      pct: 1.2,
+      observedAt,
+      fetchedAt: observedAt,
+      revisionId: revision,
+      revision,
+      source: 'browser:^SKEW',
+      sourceKind: 'T3_PUBLIC_DELAYED',
+      allowedUse: 'reference',
+      allowedUseCeiling: 'reference',
+      quality: { status: 'delayed', maxAgeMs: 4 * 86400000 },
+      qualityStatus: 'DELAYED',
+      rightsId: 'PUBLIC_REFERENCE',
+      changeBasis: 'previous-close',
+      valueBasis: 'previous-close',
+      quoteEnvelope: {
+        price: 146.15,
+        pct: 1.2,
+        observedAt,
+        fetchedAt: observedAt,
+        revisionId: revision,
+        source: 'browser:^SKEW',
+        sourceKind: 'T3_PUBLIC_DELAYED',
+        allowedUse: 'reference',
+        allowedUseCeiling: 'reference',
+        quality: { status: 'delayed', maxAgeMs: 4 * 86400000 },
+        qualityStatus: 'DELAYED',
+        rightsId: 'PUBLIC_REFERENCE',
+        changeBasis: 'previous-close',
+        valueBasis: 'previous-close'
+      }
+    };
+    const event = new CustomEvent('aio:liveQuotes', { detail: { fixture: 'skew' } });
+    document.dispatchEvent(event);
+    window.dispatchEvent(event);
+  }, { revision: skewRevision, observedAt: skewObservedAt });
+  await page.waitForFunction(() => document.getElementById('sent-skew-value')?.textContent === '146.15', null, { timeout: 10000 });
+  const sentimentSkew = await page.evaluate(() => ({
+    value: document.getElementById('sent-skew-value')?.textContent || '',
+    metricId: document.getElementById('sent-skew-value')?.getAttribute('data-metric-id') || null,
+    instrumentId: document.getElementById('sent-skew-value')?.getAttribute('data-instrument-id') || null,
+    unit: document.getElementById('sent-skew-value')?.getAttribute('data-unit') || null,
+    observedAt: document.getElementById('sent-skew-value')?.getAttribute('data-observed-at') || null,
+    revision: document.getElementById('sent-skew-value')?.getAttribute('data-revision') || null
+  }));
+  if (sentimentSkew.value !== '146.15' || sentimentSkew.metricId !== 'market.volatility.skew' || sentimentSkew.instrumentId !== '^SKEW' || sentimentSkew.unit !== 'index' || sentimentSkew.observedAt !== skewObservedAt || sentimentSkew.revision !== skewRevision) throw new Error(`sentiment SKEW native observation failed: ${JSON.stringify(sentimentSkew)}`);
 
   await page.evaluate(() => window.AIO_ARCH.navigate('guide'));
   await page.waitForFunction(() => document.getElementById('page-guide')?.dataset.aioArchitectureRoute === 'guide');
@@ -167,6 +249,46 @@ try {
     renderer: document.getElementById('page-market-news')?.dataset.aioArchitectureRenderer || null,
     feedRenderer: document.getElementById('live-news-feed')?.dataset.aioNewsRenderer || null
   }));
+  await page.evaluate(() => {
+    window.__aioNewsXssExecuted = false;
+    const windowInfo = window._getBriefingWindowKST?.();
+    const windowMidpoint = windowInfo
+      ? (new Date(windowInfo.start).getTime() + new Date(windowInfo.end).getTime()) / 2
+      : Date.now();
+    const now = new Date(windowMidpoint).toISOString();
+    window._allNewsItems = [{
+      newsId: 'browser-news-entity-p1205',
+      title: '네비우스 &#036;NBIS 한글 안전 뉴스의 &#60;img src=x onerror="window.__aioNewsXssExecuted=true"&#62; &amp;#036;DOUBLE',
+      summary: ' &#036;NBIS 한글 &#60;script>window.__aioNewsXssExecuted=true<&#47;script>',
+      source: 'Browser Fixture',
+      link: 'https://example.test/nebius?x=1&amp;y=2',
+      pubDate: now,
+      fetchedAt: now,
+      score: 100,
+      topic: 'equity',
+      country: 'us',
+      contentDepth: 'summary',
+      sourceTier: 1
+    }];
+    window._serverDataMeta = window._serverDataMeta || {};
+    window._serverDataMeta.generatedAt = now;
+    window._serverDataMeta.newsCycleEnd = new Date(Date.now() + 3600000).toISOString();
+    document.dispatchEvent(new CustomEvent('aio:newsUpdated', { detail: { fixture: 'news-entity-p1205' } }));
+  });
+  await page.waitForFunction(() => document.getElementById('live-news-feed')?.textContent?.includes('네비우스 $NBIS'));
+  const newsEntityRoute = await page.evaluate(() => {
+    const feed = document.getElementById('live-news-feed');
+    const card = feed?.querySelector('.news-item-card');
+    return {
+      text: card?.textContent || '',
+      imgCount: card?.querySelectorAll('img').length || 0,
+      scriptCount: card?.querySelectorAll('script').length || 0,
+      onerrorCount: card?.querySelectorAll('[onerror]').length || 0,
+      doubleDecoded: (card?.textContent || '').includes('$DOUBLE'),
+      xssExecuted: window.__aioNewsXssExecuted === true
+    };
+  });
+  if (!newsEntityRoute.text.includes('네비우스 $NBIS 한글 안전') || newsEntityRoute.imgCount || newsEntityRoute.scriptCount || newsEntityRoute.onerrorCount || newsEntityRoute.doubleDecoded || newsEntityRoute.xssExecuted) throw new Error(`news text entity/XSS contract failed: ${JSON.stringify(newsEntityRoute)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('macro'));
   await page.waitForFunction(() => document.getElementById('page-macro')?.dataset.aioArchitectureRoute === 'macro');
   const macroRoute = await page.evaluate(() => ({
@@ -181,6 +303,9 @@ try {
     twoYearValue: document.getElementById('macro-2y-value')?.textContent || '',
     spreadRenderer: document.getElementById('macro-spread-value')?.dataset.aioMacroSpreadRenderer || null,
     spreadValue: document.getElementById('macro-spread-value')?.textContent || '',
+    spreadCutId: document.getElementById('macro-spread-value')?.getAttribute('data-curve-cut-id') || null,
+    spreadUnit: document.getElementById('macro-spread-value')?.getAttribute('data-spread-unit') || null,
+    spreadComparable: document.getElementById('macro-spread-value')?.getAttribute('data-curve-comparable') || null,
     spreadMeaning: document.getElementById('macro-spread-meaning')?.textContent || '',
     spreadStatusRenderer: document.getElementById('spread-status')?.dataset.aioMacroSpreadRenderer || null,
     curveRenderer: document.getElementById('curve-status')?.dataset.aioMacroCurveRenderer || null,
@@ -191,6 +316,7 @@ try {
     htmlHasLiveAttr: document.getElementById('page-macro')?.innerHTML.includes('data-live-price') || false
   }));
   if (macroRoute.twoYearRenderer !== 'native' || !macroRoute.twoYearValue.trim() || macroRoute.spreadRenderer !== 'native' || macroRoute.spreadStatusRenderer !== 'native' || !macroRoute.spreadValue.trim() || !macroRoute.spreadMeaning.trim() || macroRoute.curveRenderer !== 'native' || !macroRoute.curveStatus.trim() || !macroRoute.curveMeaning.trim() || macroRoute.fedMeaningRenderer !== 'native' || !macroRoute.fedMeaningText.trim()) throw new Error(`macro secondary surface failed: ${JSON.stringify(macroRoute)}`);
+  if (macroRoute.spreadUnit !== 'percentage-point' || macroRoute.spreadComparable !== 'true' || !macroRoute.spreadCutId || !macroRoute.spreadValue.endsWith('%p')) throw new Error(`macro Treasury curve same-cut/%p contract failed: ${JSON.stringify(macroRoute)}`);
 
   await page.evaluate(() => window.AIO_ARCH.navigate('fxbond'));
   await page.waitForFunction(() => document.getElementById('page-fxbond')?.dataset.aioArchitectureRoute === 'fxbond');
@@ -214,6 +340,11 @@ try {
     curveStatusText: document.getElementById('yc-chart-status')?.textContent || '',
     twoYearRenderer: document.getElementById('yc-2y-track')?.dataset.aioFxbondTwoYearRenderer || null,
     twoYearText: document.getElementById('yc-2y-track')?.textContent || '',
+    spreadRenderer: document.getElementById('sc-2s10s')?.dataset.aioFxbondSpreadRenderer || null,
+    spreadValue: document.getElementById('sc-2s10s')?.textContent || '',
+    spreadCutId: document.getElementById('sc-2s10s')?.getAttribute('data-curve-cut-id') || null,
+    spreadUnit: document.getElementById('sc-2s10s')?.getAttribute('data-spread-unit') || null,
+    spreadComparable: document.getElementById('sc-2s10s')?.getAttribute('data-curve-comparable') || null,
     rawLiveSinkCount: document.querySelectorAll('#page-fxbond [data-live-price], #page-fxbond [data-live-chg]').length,
     nativeLiveSinkCount: document.querySelectorAll('#page-fxbond[data-aio-architecture-renderer="native"] [data-live-price], #page-fxbond[data-aio-architecture-renderer="native"] [data-live-chg]').length,
     rawMoveSinkCount: document.querySelectorAll('#page-fxbond [data-snap="move"]').length,
@@ -222,6 +353,7 @@ try {
     chartKinds: ['fxbond-tnx-trend', 'fxbond-jpy-trend', 'koreaCurveChart'].map((id) => document.getElementById(id)?.getAttribute('data-source-kind') || null),
     chartStatusTexts: ['fxbond-tnx-trend-status', 'fxbond-jpy-trend-status', 'korea-curve-chart-status'].map((id) => document.getElementById(id)?.textContent || '')
   }));
+  if (fxbondRoute.spreadRenderer !== 'native' || fxbondRoute.spreadValue !== macroRoute.spreadValue || fxbondRoute.spreadCutId !== macroRoute.spreadCutId || fxbondRoute.spreadUnit !== 'percentage-point' || fxbondRoute.spreadComparable !== 'true') throw new Error(`macro/fxbond Treasury curve parity failed: ${JSON.stringify({ macro: macroRoute, fxbond: fxbondRoute })}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('breadth'));
   await page.waitForFunction(() => document.getElementById('page-breadth')?.dataset.aioArchitectureRoute === 'breadth');
   const breadthRoute = await page.evaluate(() => ({
@@ -341,6 +473,67 @@ try {
     entrySymbol: document.getElementById('ticker-entry-symbol')?.textContent || ''
   }));
   if (tickerRoute.chartRenderer !== 'native' || !['unavailable', 'native-runtime'].includes(tickerRoute.chartSourceKind)) throw new Error(`ticker native chart surface failed: ${JSON.stringify(tickerRoute)}`);
+  await page.locator('#ticker-tab-chart').click();
+  await page.waitForFunction(() => {
+    const pageNode = document.getElementById('page-ticker');
+    const overview = document.getElementById('tab-overview');
+    const chart = document.getElementById('tab-chart');
+    return pageNode?.dataset.activeTickerTab === 'chart'
+      && pageNode?.dataset.activeTickerRange === '1m'
+      && document.getElementById('ticker-tab-chart')?.getAttribute('aria-selected') === 'true'
+      && overview?.style.display === 'none'
+      && chart?.style.display !== 'none';
+  });
+  await page.locator('#ticker-tab-chart').press('ArrowLeft');
+  await page.waitForFunction(() => document.getElementById('page-ticker')?.dataset.activeTickerTab === 'overview' && document.activeElement?.id === 'ticker-tab-overview');
+  await page.locator('#ticker-tab-overview').press('ArrowRight');
+  await page.waitForFunction(() => document.getElementById('page-ticker')?.dataset.activeTickerTab === 'chart' && document.activeElement?.id === 'ticker-tab-chart');
+  const tickerRangeEvidence = [];
+  for (const [range, expectedRows] of [['1m', 31], ['3m', 91], ['6m', 181], ['1y', 366]]) {
+    await page.evaluate(() => {
+      const end = Date.parse('2026-09-24T00:00:00Z');
+      const history = Array.from({ length: 400 }, (_, index) => {
+        const daysAgo = 399 - index;
+        return { time: new Date(end - daysAgo * 86400000).toISOString(), close: 100 + index, epochMs: end - daysAgo * 86400000, open: 100 + index, high: 101 + index, low: 99 + index, volume: 1 };
+      });
+      window._technicalOHLCV = { ...(window._technicalOHLCV || {}), NVDA: history };
+      window._tickerHistory = { ...(window._tickerHistory || {}), NVDA: history };
+      document.dispatchEvent(new CustomEvent('aio:entityChanged', { detail: { id: 'NVDA', source: 'ticker-browser-fixture' } }));
+    });
+    await page.locator(`#page-ticker [data-ticker-range="${range}"]`).click();
+    await page.waitForFunction((expected) => {
+      const canvas = document.getElementById('ticker-price-chart');
+      return canvas?.dataset.tickerChartRange === expected.range
+        && Number(canvas?.dataset.tickerChartRowCount || 0) === expected.rows
+        && document.querySelector(`#page-ticker [data-ticker-range="${expected.range}"]`)?.getAttribute('aria-pressed') === 'true';
+    }, { range, rows: expectedRows });
+    await page.waitForFunction(() => {
+      const canvas = document.getElementById('ticker-price-chart');
+      const realChart = !!window.Chart?.getChart?.(canvas);
+      const fallbackChart = window.Chart?.__aioFallback === true
+        && canvas?.dataset.aioChartRegistry === 'ticker-price-chart'
+        && document.getElementById('ticker-chart-loading')?.style.display === 'none';
+      return realChart || fallbackChart;
+    });
+    tickerRangeEvidence.push(await page.evaluate(() => {
+      const canvas = document.getElementById('ticker-price-chart');
+      return {
+        range: canvas?.dataset.tickerChartRange,
+        rows: Number(canvas?.dataset.tickerChartRowCount || 0),
+        start: canvas?.dataset.tickerChartStart,
+        end: canvas?.dataset.tickerChartEnd,
+        sourceKind: canvas?.dataset.sourceKind || null,
+        rendered: !!window.Chart?.getChart?.(canvas) || window.Chart?.__aioFallback === true && canvas?.dataset.aioChartRegistry === 'ticker-price-chart',
+        meta: document.getElementById('ticker-chart-meta')?.textContent || ''
+      };
+    }));
+  }
+  await page.locator('#ticker-tab-overview').click();
+  await page.waitForFunction(() => document.getElementById('page-ticker')?.dataset.activeTickerTab === 'overview' && document.getElementById('tab-overview')?.style.display !== 'none' && document.getElementById('tab-chart')?.style.display === 'none');
+  if (tickerRangeEvidence.map((item) => item.rows).join(',') !== '31,91,181,366'
+    || new Set(tickerRangeEvidence.map((item) => item.range)).size !== 4
+    || tickerRangeEvidence.some((item) => item.sourceKind !== 'native-runtime' || !item.rendered)) throw new Error(`ticker native range windows failed: ${JSON.stringify(tickerRangeEvidence)}`);
+  tickerRoute.tabRangeEvidence = tickerRangeEvidence;
   const relatedTheme = page.locator('#page-ticker [data-action="showThemeDetail"][data-arg]').first();
   if (await relatedTheme.count() < 1) throw new Error('ticker related-theme action is unavailable for NVDA');
   const relatedThemeId = await relatedTheme.getAttribute('data-arg');
@@ -371,9 +564,15 @@ try {
     rawPrimarySinkCount: document.querySelectorAll('#page-options #opt-vix-val-secondary, #page-options #opt-pcr-val-secondary, #page-options #opt-skew-val-secondary').length,
     nativePrimarySinkCount: document.querySelectorAll('#page-options[data-aio-architecture-renderer="native"] #opt-vix-val-secondary, #page-options[data-aio-architecture-renderer="native"] #opt-pcr-val-secondary, #page-options[data-aio-architecture-renderer="native"] #opt-skew-val-secondary').length,
     primaryValues: ['opt-vix-val-secondary', 'opt-pcr-val-secondary', 'opt-skew-val-secondary'].map((id) => document.getElementById(id)?.textContent || null),
-    visibleEvidenceMeta: ['opt-vix-val-secondary-meta', 'opt-pcr-val-secondary-meta', 'opt-skew-val-secondary-meta'].map((id) => document.getElementById(id)?.textContent || '')
+    visibleEvidenceMeta: ['opt-vix-val-secondary-meta', 'opt-pcr-val-secondary-meta', 'opt-skew-val-secondary-meta'].map((id) => document.getElementById(id)?.textContent || ''),
+    skewMetricId: document.getElementById('opt-skew-val-secondary')?.getAttribute('data-metric-id') || null,
+    skewInstrumentId: document.getElementById('opt-skew-val-secondary')?.getAttribute('data-instrument-id') || null,
+    skewUnit: document.getElementById('opt-skew-val-secondary')?.getAttribute('data-unit') || null,
+    skewObservedAt: document.getElementById('opt-skew-val-secondary')?.getAttribute('data-observed-at') || null,
+    skewRevision: document.getElementById('opt-skew-val-secondary')?.getAttribute('data-revision') || null
   }));
   if (optionsRoute.visibleEvidenceMeta.some((value) => !value.includes('·') || (!value.includes('참고용') && !value.includes('수신 대기')))) throw new Error(`options visible observedAt/source metadata missing: ${JSON.stringify(optionsRoute)}`);
+  if (optionsRoute.primaryValues[2] !== sentimentSkew.value || optionsRoute.skewMetricId !== sentimentSkew.metricId || optionsRoute.skewInstrumentId !== sentimentSkew.instrumentId || optionsRoute.skewUnit !== sentimentSkew.unit || optionsRoute.skewObservedAt !== sentimentSkew.observedAt || optionsRoute.skewRevision !== sentimentSkew.revision) throw new Error(`sentiment/options SKEW parity failed: ${JSON.stringify({ sentimentSkew, optionsRoute })}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('fundamental'));
   await page.waitForFunction(() => document.getElementById('page-fundamental')?.dataset.aioArchitectureRoute === 'fundamental');
   const fundamentalRoute = await page.evaluate(() => ({

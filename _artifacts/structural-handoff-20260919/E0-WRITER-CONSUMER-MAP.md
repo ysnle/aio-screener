@@ -77,7 +77,17 @@
 | `holding.currency`/`costCurrency` | ① `src/data/runtime-readers.js:582` 매핑 필드 목록에서 제거(upstream 소실) ② `src/domain/portfolio/surface.js:187-203` row가 `currency`만 담음 |
 | `baseCurrency`/`cashCurrency` | `src/data/providers/portfolio.js:29-39` 반환 객체가 명시 필드만 나열 → 드롭 |
 
-→ P1181이 ①·②(reader 매핑·provider 반환)를 고쳤고, P1187이 **종목 원가 통화** writer(`pf-add-cost-currency`)를, P1188이 **계좌·현금 통화** writer(`pf-base-currency-input`/`pf-cash-currency-input`, 키 `aio_portfolio_base_currency`/`aio_portfolio_cash_currency`)를 추가했다. 남은 것은 FX 환산·cut이다. CI는 모듈을 직접 입력으로 테스트(`scripts/ci-esm-core-unit-check.mjs:1308-1332`)라 통화 폼 입력 왕복은 `ci-portfolio-vault-e2e`(PFE2-12·PFE2-15)로만 검증된다.
+→ P1181이 ①·②(reader 매핑·provider 반환)를 고쳤고, P1187이 **종목 원가 통화** writer(`pf-add-cost-currency`)를, P1188이 **계좌·현금 통화** writer(`pf-base-currency-input`/`pf-cash-currency-input`, 키 `aio_portfolio_base_currency`/`aio_portfolio_cash_currency`)를 추가했다. FX 환산은 P1194(선언된 관측 rate leg)·P1196(원가축 환산)이 구현했고, **P1246·P1247이 남아 있던 FX **시계열 공급원**과 **백테스트 랩 통화축**을 닫았다**(아래). 남은 것은 FX 시계열을 월말 관측에 정렬한 **기준 통화 수익률**과 통화쌍별 창 정책이다. CI는 모듈을 직접 입력으로 테스트(`scripts/ci-esm-core-unit-check.mjs:1308-1332`)라 통화 폼 입력 왕복은 `ci-portfolio-vault-e2e`(PFE2-12·PFE2-15)로만 검증된다.
+
+### FX 시계열(USD/KRW) writer·consumer (2026-09-25, P1246·P1247)
+
+| 대상 | writer | consumer |
+|---|---|---|
+| 일별 FX 이력 | `scripts/fetch-data.mjs` `HIST_SYMBOLS['KRW=X']='usdkrw'` → `public-data/history.json`(일별 완료 컷 + 1년 백필 시드, `HIST_FIELD_PLAUSIBILITY`를 producer·게이트가 공유) | 백테스트 랩 통화축(`src/domain/portfolio/backtest.js` — 시작 시점 구성 환산), reconciliation `fx-daily-history-60` |
+| 공식 대조 기록 | `fetchFredDexkousPublic`(FRED DEXKOUS, 연준 H.10, **키 없는** fredgraph.csv) → `data.json:providerCrossChecks.fx`(공식 원본 레코드 보존, 12h 캐시) | reconciliation `fx-official-provider-reconciliation`(같은 시점 ±1일 정렬, `ok`만 통과로 셈) |
+| 선언 rate leg | `aio_portfolio_fx_legs` (`js/aio-workspace.js` `savePortfolioFxLegs`) — 평가·백테스트 **공용**, 계약은 `src/domain/portfolio/fx.js` 단일 소유(`convertWithDeclaredRates`·`resolveFxRate`·72h 창) | 포트폴리오 surface, 백테스트 랩(`buildPortfolioBacktestLab` 옵션 `baseCurrency`/`fxLegs`) |
+
+남은 것: **기준 통화 수익률**(FX 시계열을 월말 관측에 정렬해 멤버별 환산 — 현지 통화 가중 수익률과 **다른 결과**로 라벨 분리, `QA-FX-SERIES`), `usdkrw`·`providerCrossChecks.fx` **실값은 다음 정식 refresh**(`QA-FX-REFRESH`). 통화를 선언하지 않은 포트폴리오는 단일 기준으로 가정하고 티커 접미사로 통화를 추정하지 않는다(평가 경로와 같은 결정).
 
 ### deprecated reader / 이중 경로
 
@@ -115,6 +125,13 @@
 |---|---|---|---|
 | M-A | `auditMarketSnapshotCoverage` 미사용 경로 | loader는 `validateMarketSnapshot`만 호출 — metricId 대조 없음 | validator fail-closed 전환 후 정상 snapshot 수용(positive control) 유지 |
 | M-B | 게이트 tamper 케이스에 metricId 없음 (`ci-market-snapshot-contract-check.mjs:112-117`) | unit/instrument/duplicate만 tamper | metricId tamper 반증 추가 후 회귀 차단 |
+
+## 3a. 운영 도메인 receipt · 위험 입력 조립 (E5/O06·E4 분해 — P1256·P1258, 2026-09-26 갱신)
+
+| writer | 소비자 | 계약 / 남은 것 |
+|---|---|---|
+| `scripts/lib/domain-receipt.mjs` `buildDomainReceipt` (정본) — `scripts/fetch-data.mjs`가 8개 도메인에 발행(`data.meta.domainReceipts`: market-quotes·news·macro-fred·macro-bls·macro-bea·treasury-curve·surveys-aaii·options-put-call) | `scripts/build-operations-status.mjs` `deriveDomainStatus` → `public-data/operations-status.json` `domainReceipts` (사용자 복구 설명: "새 수집 성공 / 일부만 갱신 — 기존값 유지 / 새 수집 실패 — 기존값 유지 / 이번 배치 미수집") | attempted/updated/retained/terminalUnsupported/transientFailed + `lastSuccessfulObservation`(이전 artifact의 `priorReceipt`로 전진 방지). `publicationStatus` 어휘는 `src/data/contracts/operations.js` 소유. 남은 것: history 축 receipt, checked-in artifact 필드 반영(다음 refresh). |
+| `src/ui/panels/portfolio-risk-input.js` `assembleRiskEstimateInput` (위험 입력 조립 — 스냅샷·returnsMap·estimate 호출) | `js/aio-workspace.js` `refreshPortfolioRisk` (브리지 `window._pfAssembleRiskEstimateInput` — bootstrap 배선) | 보류 코드(`missing-current`/`no-current-value`/`common-dates-insufficient`)와 tickers를 반환하면 셸이 기존 한국어 문구로 렌더. 남은 것: Vault 저장 경로 분해(P1195 잔여). |
 
 ## 4. 변경 전후 입력·결과 차이표 (템플릿)
 

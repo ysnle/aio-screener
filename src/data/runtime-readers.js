@@ -1,6 +1,8 @@
 import { isDecisionQuality, isValidRightsId, normalizeAllowedUse, hasObservedPast, parseEvidenceTime } from './contracts/evidence.js';
 import { canonicalSourceTier, isDecisionEligibleSourceKind } from './contracts/source-kind.js';
+import { QUOTE_IDENTITIES } from './contracts/market-snapshot.js';
 import { readPortfolioAssumptions } from './portfolio-assumptions.js';
+import { normalizeSignalScoreMode } from '../domain/signal/mode.js';
 
 // Native runtime readers.  These readers are deliberately kept in the data
 // layer so route providers do not depend on the legacy compatibility facade.
@@ -60,8 +62,16 @@ function lastSeriesObservedAt(rows) {
   return row.observedAt || row.date || row.time || row.timestamp || null;
 }
 
+const QUOTE_INSTRUMENT_BY_ID = new Map(QUOTE_IDENTITIES.map((row) => [row.instrumentId, row]));
+
+function quoteIdentity(symbol) {
+  const row = QUOTE_INSTRUMENT_BY_ID.get(symbol) || null;
+  return Object.freeze({ metricId: row?.metricId || null, unit: row?.unit || null });
+}
+
 function quoteObservation(root, symbol, nowMs = Date.now()) {
   const row = root?._liveData?.[symbol] || {};
+  const identity = quoteIdentity(symbol);
   const hasEnvelope = !!(row.quoteEnvelope && typeof row.quoteEnvelope === 'object');
   // When a producer supplies an envelope, its authority fields are read only
   // from that envelope. A raw row may be accepted as a legacy envelope only
@@ -97,6 +107,9 @@ function quoteObservation(root, symbol, nowMs = Date.now()) {
   const revisionId = envelope.revisionId || null;
   const envelopeComplete = value != null && !rawIdentityMismatch && !!sourceTier && !!observed && !!quality && !!allowedUse && !!allowedUseCeiling && !!revisionId;
   return {
+    metricId: identity.metricId,
+    instrumentId: symbol,
+    unit: identity.unit,
     value,
     pct: directionValue,
     directionValue,
@@ -115,6 +128,7 @@ function quoteObservation(root, symbol, nowMs = Date.now()) {
     envelopeComplete,
     decisionEligible,
     revisionId,
+    revision: revisionId,
     changeBasis,
     directionCompatible: directionValue != null && changeBasis !== 'unknown',
     directionReason: directionValue == null ? 'quote-change-missing' : changeBasis === 'unknown' ? 'quote-change-basis-unknown' : null
@@ -484,6 +498,10 @@ function decisionInputs(root, nowMs = Date.now()) {
   input.decisionEvidence = decisionEvidence;
   try { input.newsSentimentScore = finite(root?.computeNewsSentimentScore?.()?.score); } catch (_) { input.newsSentimentScore = null; }
   try { input.newsRiskSignals = root?.computeNewsRiskSignals?.() || []; } catch (_) { input.newsRiskSignals = []; }
+  // E2/LC-26: the signal score mode is a calculation input, not presentation copy. The
+  // native reader used to omit it entirely, so the score hero always computed the default
+  // swing weighting while the legacy pill claimed a day threshold the model never had.
+  input.mode = normalizeSignalScoreMode(root?.AIO_ARCH?.signalScoreMode?.get?.() ?? root?._signalMode);
   return input;
 }
 
@@ -497,6 +515,7 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
     const snapshot = readSnapshot();
     const fg = fearGreedObservation(root, snapshot);
     const putCall = putCallObservation(root, snapshot);
+    const skew = quoteObservation(root, '^SKEW', now());
     const quote = (symbol) => live[symbol] || {};
     const hySpread = hySpreadObservation(root, snapshot);
     const spyRow = live.SPY || {};
@@ -519,6 +538,7 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
       vix: finite(quote('^VIX').price), vixObservedAt: observedAt(quote('^VIX')),
       vix3m: finite(quote('^VIX3M').price), vix3mObservedAt: observedAt(quote('^VIX3M')),
       vix6m: finite(quote('^VIX6M').price), vix6mObservedAt: observedAt(quote('^VIX6M')),
+      skew: Object.freeze(skew),
       putCall: putCall.value,
       putCallSourceKind: putCall.sourceKind,
       putCallSource: putCall.source,

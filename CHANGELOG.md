@@ -1,3 +1,183 @@
+## v56.49 (2026-09-26)
+- **QA-FX-SERIES 종료 — 기준 통화 수익률(월말 FX 정렬) + 게이트 클로즈아웃 (P1259).**
+- **기준 통화 수익률(P1259):** 백테스트 랩이 현지 통화 가중 수익률만 게시하던 것에 **별도 결과**인 기준 통화 수익률을 추가했습니다. 월말 정렬 계약: 월 키의 **마지막 관측**만 쓰고(월 중간 관측 무시), 관측이 없는 달 경계는 보류합니다(0 채우기·보간·삼각 환산 금지 — P1194/P1247과 같은 규칙). 두 결과는 같은 입력에서 **라벨과 수치가 모두 다르게** 발행됩니다(`returnCurrencyBasis: 'local-currency-weighted'` ↔ `base-currency-month-end-fx`). 셸은 랩과 같은 chart 경로로 `KRW=X`를 관측해 넘기고, 못 얻으면 엔진이 현지 통화 결과만 게시합니다(추정하지 않음 — checked-in 데이터는 다음 refresh 전이라 이 경로가 정직한 보류 상태입니다).
+- **픽스처:** `ci-esm-core-unit-check`에 ① 월말 정렬(월 중간 99999 관측 무시 + 사용 관측일·값 발행) ② 관측 없는 달 보류(`fx-month-observation-missing`) ③ 두 결과의 라벨·수치 대조(평평한 현지 수익률 0 vs 환율 절하 −9.09%) ④ 시계열 부재 시 보류(`fx-series-missing`)를 고정했습니다.
+- **게이트 클로즈아웃(P1258 계약 이관):** `ci-esm-core-unit-check`의 셸 소스 계약 6건이 조립 분해로 낡아짐을 코드의 새 소유자(`src/ui/panels/portfolio-risk-input.js` = 선언·추정 호출, 셸 = 문구·배선)로 갱신하고, **조립 fixture**(입력 자격·returnsMap·스냅샷 재현성·보류 코드 3종·목표비중 합 초과 거부)를 추가했습니다. 테마 퇴역의 선언 전용 함수(`_loadSector20dChart`)와 죽은 차트 정리 가드를 제거해 `ci-structural-check`를 통과시켰습니다.
+- 검증: `ci-esm-core-unit-check`(P1258 조립 + P1259 FX fixture 포함 전체 통과)·`ci-structural-check`·`ci-headless-tests`(예상 밖 실패 0)·`ci-runtime-contract-check`·`ci-operations-status-check`·`ci-sec-runtime-projection-check`·`ci-version-check` PASS. affected 풀런(`qa-runner affected --session e7-shell-theme-e5-batch`) = **pass 79 / cached 7 / skip 31(브라우저 그룹, 데이터 노후)**, 남은 fail 1건은 환경 `data-lineage`(artifact 노후 — 이 변경과 무관, 다음 정식 refresh에서 해소).
+- **분해 예산:** `index.html` −85·`js/aio-workspace.js` −40(축소 반영) 대비 `js/aio-core.js` +22·`js/aio-ui.js` +42·`js/aio-data.js` +5·`js/aio-tests.js` +2·`js/aio-glossary.js` +3·`js/aio-macro-tech.js` +3을 `--write --allow-growth`로 기록·정당화했습니다(증가분은 정직한 계약 내용 — 금융 정의 정정·자격/보류 라벨·레지스트리 파생 필터·모델 정체성 라벨·테스트 단언이며, R620이 게이밍으로 규정한 "주석 압축"을 쓰지 않았습니다. 전체 순 −48).
+- **잔여:** `QA-FX-REFRESH`(`usdkrw`·`providerCrossChecks.fx` 실값은 다음 정식 refresh), `QA-THM-CLEANUP`(퇴역 섹션의 나머지 legacy writer·CSS), `QA-GLOSSARY-SWEEP`(용어집 역사 수치 전수 대조).
+- 이 변경은 **로컬 작업 트리에만 있으며 커밋·푸시·배포하지 않았습니다.**
+- R1 7곳 v56.49
+
+## v56.48 (2026-09-26)
+- **E7 잔여 배치 — 새 감사(3종) 확정 결함 클러스터 수정 + 큐 3종 종료 (P1248~P1258). 중간 기록.**
+- **감사 결함 수정:** ① **용어 사전**(P1248) — ITM/OTM을 "수익/손실 상태"로, 경기침체를 "GDP 2분기 연속 마이너스"로, "Core CPI 2% = 연준 목표"로, CLI 100을 "확장/수축 전환"으로, HY OAS를 단순 스프레드로, 다크풀 "전체 거래량 40%"로, 거래세 단일 0.18%로 잘못 가르치던 정의를 원전 대조로 정정(NBER 다지표·headline PCE 장기 2%·장기 추세 기준선·인덱스 OAS·SEC 2021 수치의 기준일·시장별 거래세+시행일)하고, 미검증 패턴 확률(89% 등)·ATR 1.5~2배·1/3 익절 같은 경험칙을 조건부 관측으로 격하, 중복 표제 2쌍 통합(고유 273개), 분류 필터를 레지스트리에서 파생(기술/심화 도달)했습니다. ② **캔들·Guide**(P1249) — 패턴 카드의 "반등/조정 신호"를 "형태 관측"으로 제한하고 관측 봉 수·기준일·원천을 표시하며, Guide의 "20점 스코어"(실제 0~100)·"포지션 크기를 줄입니다"·"현금 비중 확대"를 관찰+개인 판단으로 분리했습니다. ③ **SKEW 변화량**(P1250) — 보류된 본값 옆에 레거시 pct가 표시되던 문제를 단일 read model로 정리하고, 본값 결측이면 변화량도 보류하는 일반 규칙을 legacy writer에 넣었습니다(고아 sink alias 정합 포함). ④ **스크리너**(P1251) — 표시 필터와 실행 조건(runDefinition/hash)의 칩·라벨·위치를 분리하고, 무효 입력(95 등)을 허용값 목록과 함께 명시적으로 거부(Enter·클릭 동일 검증), 시총 필터 0건을 "조건 충족 0건 / 판정 보류 n건 / 적격 n/N"으로 분리했습니다. ⑤ **백테스트·집중도**(P1252) — 비용 미상 행의 조용한 제외(PFR08 우회)를 포함로 변경하고, 통화 미선언·원가 fallback·부호 반전 기여도·항상 "인증 보류" 경고 등 12건을 수정했습니다. ⑥ **차트 기법**(P1253) — 항상 "없음"이던 죽은 다이버전스 감지기를 실현현 구현(`_calcRSIDivergence`)으로 통일하고, VCP·Volume Profile·Stage의 이중 모델명을 정체성 라벨로 분리했습니다. ⑦ **조정가격**(P1255) — 조정/raw 계열을 한 순위에서 섞던 모집단을 분리(`rawBasisRows`), 화이트리스트가 버리던 `priceBasis`/`adjustedCloseStatus` 선언을 소비자까지 통과시키고 EMA 계열을 통일했습니다. ⑧ **테마 칩**(P1254) — `detailAvailability`로 상세 제공/요약 전용을 구분하고 "상세 14 / 요약 전용 11" 범례를 발행합니다.
+- **큐 3종 종료:** ⑨ **셸 위험 입력 조립 분해**(P1258) — 스냅샷·returnsMap·estimate 호출 조립을 `src/ui/panels/portfolio-risk-input.js`로 분해하고 셸은 증거 수집·문구만 유지(`js/aio-workspace.js` −51행). ⑩ **테마 숨김 섹션 분류**(P1257, QA-THM-35 결정 종료) — 퇴역(시장 리더십·20일 추이·히트맵·대표 ETF) / 공개 이전(경기 사이클·섹터 퍼포먼스) / 개발자 번들 이전(세분화 45·한국 28테마)을 결정·실행하고 결정 기록과 공개 문구를 정합했습니다. ⑪ **E5 O06 도메인 receipt**(P1256, QA-E5-RECEIPT 종료) — `scripts/lib/domain-receipt.mjs` 정본화 후 8개 도메인 receipt 발행·운영 상태 소비·"기존값 유지 ≠ 새 수집 성공" 사용자 복구 설명을 추가했습니다.
+- 검증: `ci-runtime-contract-check`·`ci-architecture-contract-check`·`ci-operations-status-check`(도메인 receipt 픽스처 4종)·`ci-sec-runtime-projection-check`(SEC 픽스처 5종)·`ci-syntax-check`(411) PASS. `ci-headless-tests`는 숨김 섹션 삭제 직후 12건 실패가 계약된 소비자를 드러냈고, 분류 복원으로 8건 해소 — 잔여 4건(고아 sink)은 P1250 alias 정합으로 재확인 중입니다.
+- **잔여(이어서 진행):** 게이트 정리(esm-core 셸 단언 갱신+조립 fixture, decomp ratchet, affected 풀런)와 **QA-FX-SERIES**(기준 통화 수익률, P1259). `history.json`의 `usdkrw` 실값은 다음 정식 refresh(QA-FX-REFRESH).
+- 이 변경은 **로컬 작업 트리에만 있으며 커밋·푸시·배포하지 않았습니다.**
+- R1 7곳 v56.48
+
+## v56.47 (2026-09-25)
+- **FX 계획 4 — 백테스트 랩 통화축 배선 + reconciliation FX evidence (P1247).**
+- **문제:** 백테스트 랩(`buildPortfolioBacktestLab`)의 시작 배분은 `qty × 시작가`를 **통화 구분 없이** 더해 분모를 만들었습니다. 평가 화면(`surface.js`)이 이미 거부하는 "통화 없는 합산"이고, KRW 멤버와 USD 멤버를 함께 보유하면 원/달러 규모 차가 비중을 지배합니다. 게다가 `qty × cost`를 전역으로 합산해 실행 여부까지 판단했습니다.
+- **수정:** 평가 경로와 **같은** `src/domain/portfolio/fx.js` 계약(`convertWithDeclaredRates` — 선언된 관측 leg·컷 이후 관측·선언 창 72h·삼각 환산 금지)을 씁니다. 시작 시점 시장가치를 멤버별 통화에서 기준 통화로 환산해 분모·분자를 만들고, 환산할 수 없으면 **추정하지 않고 보류**합니다(`base-currency-undeclared` / `fx-rate-not-declared` / `fx-conversion-unavailable` + 실패 통화쌍·사유). 사용한 leg와 통화축(`currencyAxis`)을 결과에 발행합니다.
+- **과차단 금지(픽스처가 잡아냈습니다):** 처음에는 기준 통화·leg 부재를 무조건 거부했지만, 명시 목표비중은 **단위 없는 비율**이라 환산 없이도 성립합니다. 거부를 금액을 합치는 경로로 옮기고, 명시 비중 + 혼합 통화는 통과시키되 `returnCurrencyBasis: 'local-currency-weighted'`로 공시하도록 고쳤습니다.
+- **정직한 경계:** 월별 수익률은 각 자산의 **현지 통화** 가격 경로에서 계산됩니다 — 기준 통화 수익률은 관측 FX **시계열**이 있어야 하고 그건 이 결과가 아닙니다. 그래서 `returnCurrencyBasis`·`fxTranslation: 'excluded-requires-fx-series'`와 경고를 함께 발행합니다(두 가지를 같은 것으로 읽지 않도록). 셸(`aio-workspace.js`)은 평가 화면과 같은 선언(기준 통화 + FX leg)을 넘깁니다.
+- **reconciliation evidence:** `build-reconciliation-status.mjs`의 `commodities-fx`에 `fx-daily-history-60`(FX 일별 이력 커버리지, crypto의 `btc-daily-history-60`과 같은 규칙)과 `fx-official-provider-reconciliation`(FRED DEXKOUS와 **같은 시점** 일치 — 판정 불가/불일치는 통과로 세지 않음)을 추가했습니다. 카테고리 상태는 이전과 같이 `PARTIAL`이고 `overall`도 `PARTIAL`로 불변 — 증거만 정직해졌습니다.
+- 검증: `ci-esm-core-unit-check`(P1247 픽스처 6종)·`ci-reconciliation-contract-check`(재생성 일치)·`ci-operations-status-check`·`ci-data-pipeline-contract-check`·`ci-syntax-check`(409)·`ci-decomp-hotspot-check` PASS.
+- **잔여:** (`QA-FX-CONSUMERS`로 등록) 기준 통화 수익률을 위한 FX **시계열** 정렬(월말 leg)은 다음 단위입니다. `history.json`의 `usdkrw` 실값은 여전히 다음 refresh에서 채워집니다.
+- 이 변경은 **로컬 작업 트리에만 있으며 커밋·푸시·배포하지 않았습니다.**
+- R1 7곳 v56.47
+
+## v56.46 (2026-09-25)
+- **E3/E4 FX 통화축의 선행 BLOCKER를 해소했습니다 — USD/KRW 정본 열 + 품질 경계 + 공식 교차검증 (P1246).**
+- **문제:** 백테스트 랩(`src/domain/portfolio/backtest.js`)에는 통화 참조가 0건이고, `scripts/fetch-data.mjs`의 `history.json`은 FX 일별 이력을 생산하지 않았습니다(`HIST_SYMBOLS`에 `KRW=X` 없음). 그래서 E3/E4의 FX 환산을 연구·시뮬레이션 경로로 확장할 "과거 FX 시계열 공급원"이 없어 BLOCKED였습니다.
+- **수정(정본):** `USD/KRW`를 **기존 producer 경로 그대로** 추가했습니다 — `HIST_SYMBOLS`에 `'KRW=X': 'usdkrw'`, `HIST_FIELDS`에 `usdkrw`. 새 출처·새 키·새 약관이 없고, 백필(`fetchHistory('KRW=X','1y')`)이 1년 일별 종가를 즉시 시드하며, 일별 완료 컷은 기존 `historyMeta` 경로(previous-completed-close 경계·P1192)를 그대로 탑니다.
+- **품질 경계(단일 선언):** `HIST_FIELD_PLAUSIBILITY`를 새로 export해 **producer와 게이트가 같은 맵을 씁니다**(게이트의 별도 리터럴 제거 — 선언과 집행이 어긋나는 경로 차단). 시장 레인과 백필 레인 모두 범위 밖 값을 관측으로 승격하지 않습니다(null + fieldMeta 없음). 추가로 시장 레인의 값·증거를 **한 번의 열거**에서 만들어(종전 `rec`의 pick 목록과 fieldMeta 루프가 같은 매핑을 두 번 나열) 새 필드 추가 시 조용히 어긋나던 경로를 없앴습니다.
+- **공식 교차검증:** FRED `DEXKOUS`(연준 H.10, 공식 bilateral)를 **키 없는** fredgraph.csv 공개 다운로드로 받아 `providerCrossChecks.fx`에 발행합니다(크립토 교차검증과 같은 면). 공식 원본 레코드를 통째로 보존해 다음 실행이 12시간 캐시를 재사용합니다.
+- **실측이 설계를 고쳤습니다:** DEXKOUS 최신 관측은 **7일 지연**되어 있었고 그 사이 스팟이 2.09% 움직였습니다. 최신값끼리 비교하는 초기 설계는 건강한 계열을 매일 `divergent`로 오표기했을 것입니다. 비교를 **공식 관측일과 같은 시점**의 우리 종가로 정렬하도록 고쳤습니다(실측: 공식 2026-09-18에 대해 Yahoo 봉은 **2026-09-17**로 하루 앞 스탬프 → 정렬 비교 시 **0.61% 일치 = `ok`**). 그 이상 벌어지면 최신값으로 대신하지 않고 `not-comparable`로 남깁니다. 어느 값도 덮어쓰지 않습니다(`decisionUse: false`, `allowedUse: reference-only-not-a-value-source`).
+- 검증: `ci-history-field-time-contract-check`(FX 픽스처 6종 + 공유 경계 + 배선 단언)·`ci-syntax-check`(409)·`ci-data-pipeline-contract-check`·`ci-artifact-semantics-check`·`ci-esm-core-unit-check`·`ci-domain-parity-check`·`ci-reconciliation-contract-check`·`ci-source-registry-check`·`ci-decomp-hotspot-check` PASS. 실측 프로브로 양쪽 공급자에 실제 접속해 파싱·경계·정렬·판정을 확인했습니다.
+- **잔여(다음 단위):** ① `backtest.js` 통화축 배선(열은 이제 생산되지만 소비자 배선은 별도) ② `build-reconciliation-status.mjs`에 FX 커버리지·공식 대조 evidence 행 ③ **아티팩트는 다음 refresh에서 채워집니다** — 현재 `history.json`에는 `usdkrw` 열이 null로만 존재하고, 정식 사이클(`.github/workflows/refresh-data.yml`)이 1년 백필을 시드합니다.
+- 이 변경은 **로컬 작업 트리에만 있으며 커밋·푸시·배포하지 않았습니다.**
+- R1 7곳 v56.46
+
+## v56.45 (2026-09-25)
+- **E6 A05: 요청별 출처 소유권 — native 인용과 연구 tool 오류를 공유 전역에서 요청 스코프로 옮겼습니다 (P1245).**
+- **문제:** 수집된 native citation은 단일 전역 `_aioLastClaudeCitations`에, tool 오류는 `_aioLastClaudeResearchError`에 저장되고 모든 스트림이 시작 시 리셋했습니다. request id도 `_aioActiveAIRequestId` 전역을 **응답 파이프라인이 쓰고 수집기가 읽었습니다**. 그래서 ① 겹쳐 도는 두 요청(per-page + unified, 또는 재시도)이 서로의 인용을 지웠고, ② web_search 결과 블록은 첫 text delta보다 먼저 오므로 수집 시점의 전역은 아직 이 요청이 아니어서 직전 요청의 id가 찍혔고, ③ onDone의 evidence floor가 같은 전역을 **기대값**으로 읽어 다른 질문의 출처가 이 답변의 검증된 근거로 승격(또는 반대로 오거부)될 수 있었습니다.
+- **수정:** `requestId`별 스트림 저장소(`_aioAIRequestStream`/`_aioAIRequestCitations`/`_aioAIRequestResearchError`)를 도입했습니다. `callClaude`는 `opts.requestId`(진입점이 만든 불변 요청 id)를 시작 시 한 번 캡처하고, 수집기·SLO 표본·연구오류는 그 값만 씁니다. **공유 전역 3종은 제거**했고, `_aioEvaluateAIResearchGate`는 호출자가 자기 id를 말하지 않으면 전역으로 채우지 않고 `UNVERIFIABLE`로 남깁니다(P1172의 "판정 불가를 실패로 만들지 않는다" 결정 유지). 두 진입점은 evidence gate·출처 렌더에서 자기 요청 id로만 읽습니다.
+- **게이트 계약 갱신(근거 있는 결정):** `ci-ai-intelligence-contract-check`의 P1172 assertion이 `requestId: window._aioActiveAIRequestId || null` **리터럴**을 요구했습니다. 그 리터럴은 "수집기는 활성 요청 id를 찍어야 한다"는 요구를 **그 요구와 모순되는 구현**(파이프라인이 쓰고 수집기가 읽는 전역)에 결속해, 게이트가 결함을 보증하고 있었습니다. 리터럴 대신 의미·행동을 고정합니다 — 수집기가 자기 스트림 id를 찍을 것, 공유 request-id 슬롯이 남지 않을 것, 그리고 **겹친 두 스트림이 서로의 인용을 보지 못할 것**(VM에서 실제 실행).
+- **분해 예산 기록:** `ci-decomp-hotspot-check --write --allow-growth`로 `js/aio-chat.js` 9188→9252(+64)·`js/aio-core.js` 28104→28107(+3)·`js/aio-tests.js` 9442→9444(+2)를 기록했습니다. 증가분은 중복 구현이 아니라 **공유 싱글턴 3종을 대체하는 요청 스코프 저장소**(새 소유권)와 그 근거 주석입니다. R620이 "주석 압축으로 통과시키는 것"을 명시적으로 게이밍으로 규정하므로, 기록 + 정당화 경로를 사용했습니다.
+- **게이트 하니스 갱신:** `ci-ai-provider-stream-check`는 `callClaude`만 잘라 실행하므로, 요청 저장소 조각도 함께 실행하도록 고쳤습니다(stub이 아니라 실제 저장소 — 드리프트 방지).
+- 검증: `ci-ai-intelligence-contract-check`(새 P1245 2종 + 기존 전건)·`ci-ai-provider-stream-check`(12 시나리오)·`ci-headless-tests`(**1145/1145 PASS**)·`ci-runtime-contract-check`·`ci-esm-core-unit-check`·`ci-retirement-contract`·`ci-syntax-check`(409)·`ci-decomp-hotspot-check`·`ci-workspace-contract-check`·`ci-knowledge-lint-check`·`ci-ledger-integrity-check`·`ci-version-check`(v56.45)·`ci-assertion-trace-check` PASS. 사전(pre-fix) 소스에 대해 새 assertion이 실제로 실패함을 음성 검증했습니다.
+- **환경 실패 1건(변경 무관):** `ci-data-lineage-audit` — `data.json`(live-core) 13.58h > 12h SLA. 로컬 마지막 refresh가 12시간을 넘겨 발생한 신선도 실패이며, 정식 사이클(`.github/workflows/refresh-data.yml`)에서 해소됩니다.
+- **잔여:** E6 A01(정책 정본·실행·최종 공개가 같은 결정을 공유), A02(근거 존재와 충분성 구분), A03(주장-원문 entailment), A04(자유문장 숫자 claim binding), 실제 provider 동시 요청 실브라우저 인수.
+- 이 변경은 **로컬 작업 트리에만 있으며 커밋·푸시·배포하지 않았습니다.**
+- R1 7곳 v56.45
+
+## v56.44 (2026-09-25)
+- **E6 A06: AI 요청 분류와 응답 감사를 분리했습니다 (P1244).** `classifyAIConduct`가 요청(query)과 응답(responseText)을 한 함수로 처리해, 질문 계획(응답 없음)과 런타임 감사(응답 있음)가 같은 `requestMode`에 다른 값을 실을 수 있었습니다. 이제 `classifyAIRequest`(요청 전용·응답 미열람)와 `auditAIResponse`(응답 감사, `responseCompliance`로 지시를 별도 보존)가 표면을 나누고, `classifyAIConduct`는 표면별 라우팅 합성으로 남습니다(기존 출력·`buildScopedConductFallback` 동작 불변). 정책이 `responseModes`·`surfaces`를 선언하고 질문 계획은 요청 표면을 소비합니다.
+- **E6 A05: `ready`와 "결속 확인"을 분리했습니다.** 근거 floor가 `ready:true`만 발행해, 출처가 이 요청의 것임이 확인된 경우(`BOUND`)와 판정 불가/미결속(`UNVERIFIABLE`/`UNBOUND`)이 같은 값으로 읽혔습니다. `bindingVerified`를 추가했습니다(P1172의 "판정 불가를 실패로 만들지 않는다" 결정은 유지).
+- **E2 S-E 회귀 복구**: 채팅의 스크리너 호출을 helper로 옮기면서 headless 소스 프로브 T809·T825·T833이 깨졌습니다. 프로브를 helper 호출 + helper 구현 검증으로 갱신했습니다(기능 제거로는 통과 불가).
+- **E2 LC-44 회귀 복구**: 숨김 파일 입력(1×40px)이 a11y 소형 타깃 위반이었습니다. `visibility:hidden`·`aria-hidden`으로 접근성 타깃 집합에서 제외했습니다(버튼이 tab stop, `input.click()` 동작은 PFE2-13으로 확인).
+- 검증: `ci-ai-intelligence-contract-check`·`ci-headless-tests`(**1145/1145 PASS**, 이전 1142/1145)·`ci-accessibility-matrix-check`(20라우트 pass)·`ci-portfolio-vault-e2e`·`ci-esm-core-unit-check`·`ci-syntax-check`(409)·`ci-assertion-trace-check` PASS.
+- **잔여**: E6 A01~A04(전역 citation·근거 충분성·역순 동시 요청), `bindingVerified` 소비자 배선.
+- 이 변경은 **로컬 작업 트리에만 있으며 커밋·푸시·배포하지 않았습니다.**
+- R1 7곳 v56.44
+
+## v56.43 (2026-09-25)
+- **VaR `recent-half`의 표본 순서 계약을 런타임에 검증합니다 (P1243).**
+- **문제:** `deriveVarStability`의 `recent-half` 변형은 표본 뒤 절반을 주어진 순서대로 읽습니다. P1203이 정렬된 표본을 넘기던 호출부를 고쳤지만, 함수는 여전히 "호출부가 시간순으로 준다"고 **가정**했습니다. 같은 결함이 다른 호출부에서 조용히 재발할 수 있었습니다.
+- **수정:** `order`·`observedAt` 입력과 `_btVarOrderAudit`를 추가했습니다. 날짜 표본이 있으면 **관측시각 단조 비감소를 검증**(`verified`), 비단조면 `violated`, 없으면 `order: 'chronological'` 선언에만 의존(`declared`)합니다. `recent-half`는 검증/선언된 경우에만 계산하고, 상태를 `sensitivity.recentHalfOrder`로 발행하며, 검증 안 되면 **인증을 보류(fail-closed)**합니다.
+- **회귀 게이트:** `ci-esm-core-unit-check` P1243 fixture 3종(미선언 → 변형 부재·보류 / 단조 날짜 → `verified` / 비단조 날짜 → `violated`·보류). 기존 P1190 양성 fixture는 순서를 선언해 계속 인증.
+- 검증: `ci-esm-core-unit-check`·`ci-portfolio-vault-e2e`(24/24)·`ci-syntax-check`(409) PASS.
+- **잔여:** 백테스트 랩이 실제 월 관측시각을 넘겨 `declared`→`verified`로 올리는 배선.
+- 이 변경은 **로컬 작업 트리에만 있으며 커밋·푸시·배포하지 않았습니다.**
+- R1 7곳 v56.43
+
+## v56.42 (2026-09-25)
+- **E5의 R24-07(SLO 예정 도착 집계)을 닫았습니다 (P1242).**
+- **문제:** SLO 창 집계가 `workflow_dispatch`만 제외하고 **나머지 trigger를 전부 `scheduled`로** 세었습니다. 그래서 30일간 **push 성공만** 있는 lane도 `MEASURED`·창 `CERTIFIED_WINDOW`가 될 수 있었습니다(06 O02·O04).
+- **수정:** 예정 도착은 **`schedule` event만** 측정합니다. 다른 trigger는 분자에서 제외하고 `nonScheduledRunsExcluded`·`nonScheduledEventBreakdown`으로 개수·종류만 발행합니다. 하위 호환 pooled 요약도 `schedule`만 세도록 맞췄습니다. **push-only 창은 이제 `NOT_OBSERVED`이며 PASS가 될 수 없습니다.**
+- **회귀 게이트:** `ci-operations-slo-window-check`에 push-only fixture 추가(3도메인 30일 push → `NOT_OBSERVED`·미인증·제외 30건·`push: 30` breakdown). 기존 schedule fixture는 PASS로 유지되어 게이트가 항상 실패하지 않음을 확인.
+- 검증: `ci-operations-slo-window-check`·`ci-operations-status-check`·`ci-operations-contract-check` PASS.
+- **잔여:** 게시된 `operations-slo-window.json`의 새 lane 필드는 자격증명 refresh 시 반영됩니다(게이트는 builder를 직접 검증). O06 도메인 receipt 일반화는 별도.
+- 이 변경은 **로컬 작업 트리에만 있으며 커밋·푸시·배포하지 않았습니다.**
+- R1 7곳 v56.42
+
+## v56.41 (2026-09-25)
+- **E2 S-C를 소유자 결정으로 종료했습니다 (P1241).**
+- **결정: native 정본.** P1240의 shadow 하니스가 찾은 분기는 "native 상태가 **게시되었지만 비어 있을 때** 번들 `SCREENER_DB`가 정본 행세를 할 수 있다"였습니다. 새 `src/data/screener-row-policy.js`가 행 해석 단일 소유자이고, `screenerNativePublished`(`status !== 'unavailable'`)로 게시 여부를 판정합니다. **게시된 빈 상태는 두 intent 모두에서 권위** 있고 번들 대체가 금지됩니다.
+- **번들 DB는 선언된 호환 읽기로만**: native 게시 전에만, 그리고 호출부가 `BUNDLED_COMPAT` intent를 선언할 때만 도달합니다. facade `readScreener`는 `EVIDENCE` intent를 선언하고, 퇴역한 전역(S-B) 참조를 제거했습니다. legacy 번들은 ESM import가 불가해 `AIO_ARCH.resolveScreenerRows(intent)`로 브리지합니다(facade API 59→60, 원장 기록).
+- **동작 변화는 의도한 1건**(게시된 빈 상태에서 번들 대체 중단)이고, 미게시 구간의 번들 폴백은 그대로 유지되어 로드 창 회귀가 없습니다.
+- **회귀 게이트**: `ci-esm-core-unit-check` S-C 하니스(5케이스 × 4경로 실제 실행·선언표 고정·퇴역 전역 도달 불가·EVIDENCE intent 번들 누출 금지), `ci-runtime-contract-check` E2/S-C/P1241, `ci-retirement-contract`(facade API 60).
+- 검증: `ci-esm-core-unit-check`·`ci-runtime-contract-check`·`ci-retirement-contract`·`ci-syntax-check`(409) PASS.
+- 이 변경은 **로컬 작업 트리에만 있으며 커밋·푸시·배포하지 않았습니다.**
+- R1 7곳 v56.41
+
+## v56.40 (2026-09-25)
+- **E2 잔여 3건(S-C·S-E·S-F)을 로컬 완료했습니다 (P1238~P1240).**
+- **S-C (P1240):** legacy 행 해석기와 facade `readScreener`가 서로 다른 fallback 체인으로 같은 행을 두 번 해석했습니다. resolver를 선택적 `root` 주입 가능하게 만들어(호출부·동작 불변) **양쪽 체인을 같은 입력으로 실제 실행하는 shadow 하니스**를 `ci-esm-core-unit-check`에 추가하고, 측정된 분기 집합을 고정했습니다. 측정 분기: ① native-empty + 번들 DB 존재 → legacy=DB / facade=[] ② 퇴역한 `_aioScreenerRows` 경로. ①의 소유자 결정은 **OPEN**입니다(하니스는 그 결정의 입력).
+- **S-E (P1239):** 일반·통합 채팅이 스크리너 질의/최근 추천 추출/프롬프트 포맷을 각자 인라인 구현하던 것을 `_aioBuildScreenerAiContext` 하나로 통일했습니다. 통합 패널의 편향 방지 문구는 호출부에 유지.
+- **S-F (P1238):** 뉴스 전용 IDB가 `AIOScreenerDB`(스크리너 명칭)였습니다. `AIOScreenerNewsCache`로 뉴스 범위화하고, 새 스토어가 빈 경우에만 이전 이름 DB에서 비파괴 복사하는 마이그레이션을 추가했습니다(`indexedDB.databases()`로 존재 확인 후 open — 없는 DB 생성을 방지).
+- **회귀 게이트**: `ci-esm-core-unit-check` S-C shadow 하니스, `ci-runtime-contract-check` E2/S-C·S-E·S-F 단언.
+- 검증: `ci-esm-core-unit-check`·`ci-runtime-contract-check`(91 AI callable — 중복 호출부 제거로 92→91)·`ci-retirement-contract`(facade API 59 유지)·`ci-syntax-check`(408) PASS.
+- 이 변경은 **로컬 작업 트리에만 있으며 커밋·푸시·배포하지 않았습니다.**
+- R1 7곳 v56.40
+
+## v56.39 (2026-09-25)
+- **기사·테마·근거·학습 문장 정직성 8건을 닫았습니다 (P1230~P1237/LC-31·32·35·36·50~53).**
+- **LC-31 (P1230):** 뉴스 주제가 피드 query에서 복사돼 기사 분류처럼 보였습니다(철도 계약이 `semi`). `topic`/`feedTopic`/`topicSource`/`topicReviewRequired`로 분리하고 `(피드 분류 · 검토 필요)`를 표시합니다.
+- **LC-32 (P1231):** 헤드라인 전용 기사에 인과·수혜 요약이 붙던 것을 보류 문구로 바꿨습니다.
+- **LC-35 (P1232):** 테마 공개 범위 결정(dev-only 유지, 공개 copy는 약속하지 않음)을 숨김 규칙 옆에 기록했습니다. 퇴역·이동은 제품 결정 OPEN으로 남깁니다.
+- **LC-36 (P1233):** 테마 가격 참여 폭에 실제 분모 `가격 적격 n/N`을 표시합니다.
+- **LC-50 (P1234):** Atlas 근거 검색이 packet metadata만 검색함을 명시해 0건을 근거 부재로 오해하지 않게 했습니다.
+- **LC-51 (P1235):** Masters 역조회가 8행만 조용히 자르던 것을 `표시 N/M행` + `나머지 N행 보기`로 바꿨습니다.
+- **LC-52 (P1236):** Guide 배경지식의 계절·임계값·거래주체·CPI 인과 단정에 조건·반례·관례를 붙였습니다.
+- **LC-53 (P1237):** Principles 도입부에 4개 학습 층(12/15/112)이 더하는 집합이 아님을 설명합니다.
+- **회귀 게이트**: `ci-runtime-contract-check` LC-31/P1230~LC-53/P1237.
+- 검증: `ci-runtime-contract-check`·`ci-syntax-check`(408)·`ci-masters-contract-check` PASS. 실브라우저·사용자 이해도 인수는 잔여.
+- 이 변경은 **로컬 작업 트리에만 있으며 커밋·푸시·배포하지 않았습니다.**
+- R1 7곳 v56.39
+
+## v56.38 (2026-09-25)
+- **공개 포트폴리오·시장 표시 정직성 7건을 닫았습니다 (P1223~P1229/LC-43~49).**
+- **LC-43 (P1223):** 숨겨진 `#pf-freshness-strip`을 부제가 약속했습니다. 실제 표시 근거(행별 가격 셀 툴팁)로 문구를 맞췄습니다.
+- **LC-44 (P1224):** `가져오기`가 `<label tabIndex=-1>`+`display:none`이라 Tab에서 건너뛰어졌습니다. 실제 버튼 + visually-hidden input으로 바꿨습니다.
+- **LC-45 (P1225):** 표가 모든 금액에 `$`를 붙이던 것을 행별 선언 통화(USD만 `$`)로 출력하고 통화 근거 툴팁을 남깁니다.
+- **LC-46 (P1226):** Macro 배너가 정적 `수신 대기`인데 카드에 값이 있었습니다. 렌더된 카드에서 배너 문구·`data-runtime-state`를 파생합니다.
+- **LC-47 (P1227):** 50SMA 카드 `35%`와 아래 문장 `원천 미수신`이 공존했고 `상승/하락 비율 34.7%`는 실제로 상승/(상승+하락) 비중이었습니다. 문장을 native가 단독 소유하고 라벨을 `상승 종목 비중 (보합 제외)`로 고쳤습니다.
+- **LC-48 (P1228):** Signal `6/11 (55%)`(SPDR 11 ETF 당일)와 Breadth `40/30/35%`(AIO 종목 5/20/50일선)의 모집단을 라벨·툴팁으로 구분했습니다.
+- **LC-49 (P1229):** 곡선 가용성이 공식 2s10s에 종속돼 있었습니다. `curveLegsPresent`/`curveSpreadComparable`로 분리하고 cut 미확정은 스프레드 판정을 보류합니다.
+- **회귀 게이트**: `ci-runtime-contract-check` LC-43/P1223·LC-44/P1224·LC-45/P1225·LC-46/P1226·LC-47/P1227·LC-48/P1227·LC-49/P1228.
+- 검증: `ci-runtime-contract-check`·`ci-syntax-check`(408) PASS. 실브라우저·보조공학 인수는 QA-PORT-MKT-38로 남깁니다.
+- 이 변경은 **로컬 작업 트리에만 있으며 커밋·푸시·배포하지 않았습니다.**
+- R1 7곳 v56.38
+
+## v56.37 (2026-09-25)
+- **Masters shard 동치·수량·문장 정직성 5개 작업 단위(8 findings)를 닫았습니다 (P1218~P1222/LC-30·22·19·21·29·28·37·38).**
+- **LC-30 (P1222):** Masters 과거 분기 shard가 index 서술자와 동치 검증 없이 변화 원장에 들어갔습니다. `managerId`·`runtimeShardSchema`·`historySummary.rawRowsAvailable === descriptor.historyRows`를 확인하고 불일치면 fail-closed합니다.
+- **LC-22 (P1221):** Atlas가 `기초 개념 48개`만 쓰고 7단계 배치 55개를 표시해 수량이 어긋나 보였습니다. `기초 개념 48개(고유) · 단계 배치 55개 · 다른 단계 재등장 1개`로 구분합니다.
+- **LC-19·21 (P1220):** Guide가 `SIGNAL 점수 45 미만이면 매매하지 않는 것이 최선`이라 단정하고 미제공 지표(200일선 비율·공식 McClellan·NAAIM·II)를 제공한다고 썼습니다. 관측·재확인 문장으로 바꾸고 `현재 미수신/미제공`을 명시했습니다.
+- **LC-29 (P1219):** F&G 옆의 맨 `0`을 `전일 대비 0`으로 라벨링하고 `title`·`aria-label`을 채웠습니다.
+- **LC-28·37·38 (P1218):** 테마 상세가 하루 등락을 `광범위한 매수세`·`자금이 순환`·`모멘텀이 살아있습니다`·`구조적 훼손`으로 확장했습니다. 네 패널이 측정 창(당일)과 모집단만 말하고 나머지는 별도 근거로 분리합니다.
+- **회귀 게이트**: `ci-runtime-contract-check` LC-30/P1222·LC-22/P1221·LC-19/21/P1220·LC-29/P1219·LC-28/37/38/P1218.
+- 검증: `ci-runtime-contract-check`·`ci-syntax-check`(408)·`ci-masters-contract-check` PASS. 실브라우저·보조공학·경계값 인수는 QA-CONTENT-37로 남깁니다.
+- 이 변경은 **로컬 작업 트리에만 있으며 커밋·푸시·배포하지 않았습니다.**
+- R1 7곳 v56.37
+
+## v56.36 (2026-09-25)
+- **교차 라우트 종목 정체성·뉴스 접근성 3건을 닫았습니다 (P1215~P1217/LC-39·33·34).**
+- **LC-39 (P1215):** 기업 분석의 `차트 분석`은 존재하지 않는 `deep-ticker-input`에 쓰고 분석을 트리거하지 않아 기술 화면이 이전 종목(SPY)을 보였습니다. `_aioOpenTechnicalAnalysis(ticker)` 하나로 수렴해 실제 입력 `#deep-sym-input`을 채우고 `runDeepAnalysis(sym)`(=심층 분석 + `aio:entityChanged`)을 실행합니다. `_aioChartAnalyze`(기업)·`_aioTechnicalTicker`(포트폴리오)는 그 함수로 위임합니다.
+- **LC-33 (P1216):** 뉴스 빈 상태가 내부 `emptyReason` enum(`all-news-outside-time-window`)을 문장에 그대로 노출했습니다. `NEWS_EMPTY_REASON_COPY` + `describeNewsEmptyReason()`로 조건·기간·건수 문장으로 번역하고, 미지 토큰은 일반 문장으로 대체합니다.
+- **LC-34 (P1217):** 뉴스 원문 카드가 포커스 불가능한 클릭 `div`였습니다. 제목을 실제 `<a target="_blank" rel="noopener noreferrer">`(접근성 이름 포함)로 렌더하고, 카드 click 위임은 `a[href]`에서 즉시 반환해 원문이 두 번 열리지 않게 합니다.
+- **회귀 게이트**: `ci-runtime-contract-check` LC-39/P1215(legacy 셸 전체 `deep-ticker-*` 부재·단일 bridge·`runDeepAnalysis(sym)`), LC-33/P1216(번역 함수·raw 보간 부재), LC-34/P1217(앵커 렌더·CSS·위임 skip).
+- 검증: `ci-runtime-contract-check`·`ci-syntax-check`(408)·`ci-research-flow-contract-check`(66) PASS. 실브라우저·보조공학 인수는 QA-NEWS-35로 남깁니다.
+- 이 변경은 **로컬 작업 트리에만 있으며 커밋·푸시·배포하지 않았습니다.**
+- R1 7곳 v56.36
+
+## v56.35 (2026-09-25)
+- **E2 결과·모드 정직성 5건을 닫았습니다 (P1210~P1214/LC-25·26·40·41·42).** 스크리너 실행 판정과 표 표시 범위의 분모를 분리하고, Why 상태 어휘를 엔진과 맞추고, 결측 진단값이 0으로 승격되지 않게 하고, 행별 quote 현재성을 전역 LIVE 배지에서 분리했으며, 신호 점수 모드를 실제 계산 입력으로 만들었습니다.
+- **LC-40 (P1210):** Why 제목이 엔진이 방출하지 않는 `screenRankingState === 'available'`을 비교해 순위가 계산돼도 항상 `순위 계산 보류`였습니다. 엔진 어휘 `ranked`를 소비하고 서수 표시 순위와 순위 입력 원값(팩터 원값)을 각각 이름으로 표시합니다.
+- **LC-25 (P1211):** funnel이 `조건 통과 342 / 데이터 부족 29`와 `현재 필터 결과 873`을 분모 없이 나열했습니다. 실행 판정은 `run.rowCount` 분모(`/873`)·runId·origin과 함께, 표시 범위는 별도 구획으로 표시하고, 실행 완료 상태줄과 readiness note에도 runId/분모를 넣었습니다.
+- **LC-41 (P1212):** `Number(null) === 0`이라 native 진단의 `Number.isFinite(Number(x))`와 legacy `_factorBacktest`의 `|| 0` 폴백이 미수신을 유효값으로 만들었습니다(`상위군 회전 null%`, IC `n=0`에 IC 0.000). 결측은 `이전 스냅샷 없음`/`계산 불가 · 표본 없음`으로, 실측 0은 표본이 있을 때만 표시합니다.
+- **LC-42 (P1213):** 관측시각 없는 overlay 가격이 전역 `LIVE · 39개` 옆에서 확정 현재가처럼 보였습니다. 가격 셀이 행 자체의 currency/observedAt/source를 담고, 관측시각 미확인은 `관측시각 미확인 · 참고`·`data-quote-freshness="unverified"`·`전역 LIVE에 상속하지 않음` 툴팁으로 표시합니다.
+- **LC-26 (P1214):** 신호 점수 모드가 표현 문구만 바꿨습니다 — legacy facade는 `mode:'swing'`을 하드코딩하고 native reader는 모드를 아예 빼먹었으며, UI는 모델에 없는 `임계값 65점`을 약속했습니다. `src/domain/signal/mode.js`가 어휘·정규화·실제 적용 항만 기술하는 descriptor를 단독 소유하고(`decisionThreshold:null`), `AIO_ARCH.signalScoreMode` 단일 브리지로 legacy 토글과 native reader가 같은 revision을 소비합니다. 체크리스트는 시장건강 기반이며 점수 모드와 독립임을 명시하고 `통과/미충족/대기`를 분리 표시합니다.
+- **회귀 게이트**: `ci-esm-core-unit-check` P1214 fixture(day 모드가 점수를 실제로 바꿈 — swing 62 vs day 74), `ci-screener-workbench-contract` P1210~P1213 단언, `ci-runtime-contract-check` legacy 캔버스·모드 브리지·체크리스트 단언. facade 확장은 단일 그룹 키로 제한하고 `facadeExpansionBudget` 58→59로 기록했습니다.
+- 검증: `ci-esm-core-unit-check`·`ci-screener-workbench-contract`·`ci-runtime-contract-check`·`ci-domain-parity-check`·`ci-data-pipeline-contract-check`·`ci-architecture-contract-check`·`ci-retirement-contract`·`ci-assertion-trace-check`·`ci-ledger-integrity-check` PASS. 실제 브라우저 lateral 인수는 미실시(QA-SCR-28/QA-SIG-27)입니다.
+- 이 변경은 **로컬 작업 트리에만 있으며 커밋·푸시·배포하지 않았습니다.** 배포된 최신 버전은 v56.33이며 v56.34/v56.35 live 인수는 별도 명시 요청 후 수행합니다.
+- R1 7곳 v56.35
+
+## v56.34 (2026-09-24)
+- **티커 가격 이력 탭과 기간 선택을 하나의 native owner로 수렴했습니다 (P1205/LC-18/LC-27).** 기존 버튼은 `data-arg="chart"`를 보내지만 legacy `switchTab()`는 `tab-chart`만 비교해 클릭 시 overview/chart 패널을 모두 숨겼습니다. 1M/3M/6M/1Y도 native route에서 no-op이던 legacy 차트 함수를 향했고, native 차트는 항상 마지막 365행만 사용했습니다.
+- `src/ui/pages/entity.js`가 tab/panel 표시, `aria-selected`, ArrowLeft/ArrowRight/Home/End 키보드 전환, 새 종목 선택 시 overview/1M 초기화를 단독 소유합니다. `selectTickerChartWindow()`는 정규화된 동일 entity history에서 시간순 30/90/180/365일 calendar window를 만들고 행 수·시작/끝 날짜를 화면에 게시합니다.
+- `switchTab`, `loadTickerChart`, `fetchStooqData/Chart`, `_tickerChartInstance` 및 전용 legacy cleanup을 삭제했습니다. `route-owners.json`은 ticker tab/panel/range/chart를 native surface로 확장하고 retirement fence로 삭제된 심볼을 막습니다.
+- **E1 입력·표현 수렴 4건을 함께 닫았습니다 (P1206~P1209/LC-17/20/23/24)**. 날짜/as-of와 경과일 sink를 항목별로 결속하고, SKEW는 `market.volatility.skew` 단일 identity/revision으로 sentiment·options가 공유하며, 2s10s는 실제 Treasury cut과 `percentage-point` 단위를 macro·fxbond가 공유하고, 뉴스 entity는 표시 text에서 정확히 한 번만 안전하게 decode합니다. 동일 입력은 어느 화면에서도 같은 의미로 보입니다.
+- **회귀 fixture를 결함 유형별로 고정했습니다**: archive/TNX date sink 분리, SKEW cross-screen metadata parity, same-cut/conflicting/unknown Treasury curve와 unit, numeric/named entity·double-decode·`<img>/<script>` 음성. 실제 Chromium은 네 경로와 티커 기간·키보드 왕복, 20-route round-trip을 함께 확인했습니다(`browserErrors:0`).
+- 검증: `ci-esm-core-unit-check`·`ci-domain-parity-check`·`ci-runtime-contract-check`·`ci-architecture-contract-check`·`ci-retirement-contract` PASS. 전체 headless는 1144/1145에서 T1206 fixture 실패를 확인한 뒤 해당 fixture를 item-local 계약에 맞게 고치고 G030을 5/5로 재검증했으며, 실제 Chromium `ci-architecture-browser-check`는 `browserErrors:0`·20-route round-trip PASS입니다. 전체 release/deploy suite는 수행하지 않았습니다.
+- 이 변경은 **로컬 작업 트리에만 있으며 커밋·푸시·배포하지 않았습니다.** 배포된 최신 버전은 v56.33이며 v56.34 live 인수는 별도 명시 요청 후 수행합니다.
+- R1 7곳 v56.34
+
 ## v56.33 (2026-09-24)
 - **Masters canonical index가 최신 `holdings.json`과 다른 세대로 커밋되던 배포 차단을 고쳤습니다 (P1204/R457).** `build-masters-runtime-artifacts.mjs`가 working tree의 `public-data/masters/index.json`은 올바르게 갱신했지만 `refresh-data.yml`의 commit stage 목록에서 이 파일을 빠뜨렸습니다. 따라서 producer 직후 게이트는 새 working tree를 읽어 통과했지만, 커밋은 새 `holdings.json` + 구 `index.json`을 함께 담았고 GitHub CI가 `fullComparisonRowsAvailable` 89,890 대 89,976 불일치로 막았습니다.
 - `refresh-data.yml`은 `set -euo pipefail` + `stage_if_exists`로 모든 게시 파일을 fail-fast staging하고, `public-data/masters/index.json`을 명시적으로 포함합니다. 같은 commit step이 `ci-masters-contract-check.mjs --staged`를 실행해 **실제 Git index blob** 전체를 검증한 뒤에만 commit합니다. `refresh-screener.yml`의 `|| true` staging도 같은 fail-fast 방식으로 교체했습니다.

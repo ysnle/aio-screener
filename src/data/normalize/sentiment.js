@@ -25,6 +25,14 @@ export function normalizeSentiment(raw = {}) {
   for (const field of SENTIMENT_FIELDS) result[field.metric] = finite(raw[field.metric]);
   result.spyChg = nullPreserving(raw.spyChg);
   result.tradingScoreTotal = nullPreserving(raw.tradingScoreTotal);
+  const skew = raw.skew && typeof raw.skew === 'object' ? raw.skew : {};
+  result.skew = Object.freeze({
+    ...skew,
+    metricId: skew.metricId || 'market.volatility.skew',
+    instrumentId: skew.instrumentId || '^SKEW',
+    unit: skew.unit || 'index',
+    value: finite(skew.value)
+  });
   result.vixHistory = Array.isArray(raw.vixHistory)
     ? raw.vixHistory.map((point) => ({ date: point?.date || null, value: finite(point?.value) })).filter((point) => point.value != null)
     : [];

@@ -386,6 +386,10 @@ function render({ root, documentRef, store, route, charts }) {
     if (route === 'signal') {
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioSignalRenderer = 'native';
+      // E2/LC-26: publish the mode revision that produced this hero so the declared pill and the
+      // rendered score cannot silently disagree (browser/gate evidence reads this attribute).
+      page.dataset.aioSignalScoreMode = signal?.scoreMode || 'swing';
+      page.dataset.aioSignalScoreModeRevision = signal?.scoreModeRevision || '';
       renderSignalDecision({ documentRef, signal });
       renderScoreAdjustments({ documentRef, signal });
     }
@@ -406,9 +410,12 @@ export function createAnalysisPage({ root = globalThis, documentRef, store, rout
       eventTarget?.addEventListener?.('aio:liveQuotes', renderNow);
       eventTarget?.addEventListener?.('aio:refresh:done', renderNow);
       eventTarget?.addEventListener?.('aio:serverDataLoaded', renderNow);
+      // E2/LC-26: the mode change re-derives the analysis slice; re-render the hero from it.
+      eventTarget?.addEventListener?.('aio:signalScoreModeChanged', renderNow);
       bag.add(() => eventTarget?.removeEventListener?.('aio:liveQuotes', renderNow));
       bag.add(() => eventTarget?.removeEventListener?.('aio:refresh:done', renderNow));
       bag.add(() => eventTarget?.removeEventListener?.('aio:serverDataLoaded', renderNow));
+      bag.add(() => eventTarget?.removeEventListener?.('aio:signalScoreModeChanged', renderNow));
       const page = documentRef?.getElementById(`page-${route}`);
       let suppliedMaterialBridge = page?.querySelector?.(`[data-aio-supplied-material-route="${route}"]`) || null;
       if (page && !suppliedMaterialBridge) {
@@ -468,6 +475,8 @@ export function createAnalysisPage({ root = globalThis, documentRef, store, rout
         if (route === 'signal' && page?.dataset.aioSignalRenderer === 'native') {
           delete page.dataset.aioSignalRenderer;
           delete page.dataset.aioArchitectureRenderer;
+          delete page.dataset.aioSignalScoreMode;
+          delete page.dataset.aioSignalScoreModeRevision;
         }
         if (route === 'signal') {
           const adjustments = documentRef?.getElementById('score-adjustments-container');

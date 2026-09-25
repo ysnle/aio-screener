@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v56.33';
+const APP_VERSION = 'v56.49';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -2104,6 +2104,10 @@ window._aioLRU = function(name, cap) {
     // a clickable news card). Only let the URL owner win when it is the innermost target.
     var actionEl = e.target.closest && e.target.closest('[data-action]');
     var urlEl = e.target.closest && e.target.closest('[data-open-url]');
+    // LC-34: an explicit anchor inside a data-open-url card owns its own navigation. Letting the
+    // card delegation also fire would open the same article twice (and duplicate the new tab).
+    var anchorEl = e.target.closest && e.target.closest('a[href]');
+    if (anchorEl) return;
     if (urlEl && (!actionEl || !urlEl.contains(actionEl))) {
       if (urlEl.dataset.stop === '1') e.stopPropagation();
       try { window.open(urlEl.dataset.openUrl, '_blank', 'noopener,noreferrer'); } catch(_){}
@@ -2391,12 +2395,22 @@ window._aioAddToPortfolio = function(ticker) {
     if (inp) inp.value = ticker;
   }, 50);
 };
-window._aioChartAnalyze = function(ticker) {
+// LC-39: one bridge from any route into the technical deep analysis. The two legacy bridges wrote
+// a `deep-ticker-*` input id that does not exist (the real input is `#deep-sym-input`) and never
+// triggered the analysis — so the user landed on the technical page still showing the previous
+// symbol (SPY). Both now fill the real input and run the shared entry point.
+function _aioOpenTechnicalAnalysis(ticker) {
+  var sym = String(ticker == null ? '' : ticker).toUpperCase().trim();
   if (typeof window.showPage === 'function') window.showPage('technical');
+  if (!sym) return;
   setTimeout(function() {
-    var inp = document.getElementById('deep-ticker-input');
-    if (inp) inp.value = ticker;
+    if (typeof window.runDeepAnalysis === 'function') { try { window.runDeepAnalysis(sym); return; } catch (_) {} }
+    var inp = document.getElementById('deep-sym-input');
+    if (inp) inp.value = sym;
   }, 300);
+}
+window._aioChartAnalyze = function(ticker) {
+  _aioOpenTechnicalAnalysis(ticker);
 };
 window._aioFundSearchFill = function(preset) {
   var inp = document.getElementById('fund-search-input');
@@ -2615,11 +2629,7 @@ window._aioRemovePosition = function(tk) {
   if (typeof window.removePosition === 'function') window.removePosition(tk);
 };
 window._aioTechnicalTicker = function(tk) {
-  if (typeof window.showPage === 'function') window.showPage('technical');
-  setTimeout(function() {
-    var inp = document.getElementById('deep-ticker-input');
-    if (inp) inp.value = tk;
-  }, 300);
+  _aioOpenTechnicalAnalysis(tk);
 };
 window._aioUpdateBannerClose = function() {
   var b = document.getElementById('update-banner');
@@ -2662,8 +2672,13 @@ window._aioDetectTickerPattern = function(symbol, requestEpoch) {
     else if (lower >= Math.max(body * 2, range * 0.45) && upper <= Math.max(body, range * 0.15)) label = '긴 아래꼬리형';
     else if (upper >= Math.max(body * 2, range * 0.45) && lower <= Math.max(body, range * 0.15)) label = '긴 위꼬리형';
     else label = c > o ? '양봉 · 복합 패턴 미확정' : c < o ? '음봉 · 복합 패턴 미확정' : '보합봉';
-    ind.textContent = sym + ' · ' + label + ' · 형태 관측';
-    ind.title = '최근 3개 실제 OHLCV 중 마지막 2개 봉의 형태만 분류합니다. 거래 신호가 아닙니다.';
+    // LC-55/P1249: 관측 봉 수·기준일·원천을 결과에 함께 말한다(형태 관측의 자격 표시).
+    var lastBar = series[series.length - 1] || {};
+    var asOf = lastBar.time || lastBar.date || null;
+    var q = series.dataQuality || null;
+    var src = (q && q.source) || null;
+    ind.textContent = sym + ' · ' + label + ' · 형태 관측 · 관측 3봉 · 기준일 ' + (asOf || '미확인') + (src ? ' · 원천 ' + src : ' · 원천 미확인');
+    ind.title = '최근 실제 OHLCV 3봉 중 마지막 2개 봉의 형태만 분류한 관측입니다. 방향 예측이나 거래 신호가 아니며, 기준일 ' + (asOf || '미확인') + (src ? ' · 원천 ' + src : '') + ' 자격을 함께 확인하세요.';
   }
   if (bars.length >= 3) { renderPattern(bars); return; }
   ind.textContent = sym + ' · OHLCV 확인 중';
@@ -2747,12 +2762,13 @@ window._aioRenderSnapshotDates = function() {
     var snap = window.DATA_SNAPSHOT || null;
     if (!snap) return;
     var staticDates = snap._staticDates || {};
-    // 데이터 종류별 세부 날짜 (필요 시 확장) — 현재는 동일 날짜
+    // Each visible date is bound to its own producer. A whole-snapshot date is not
+    // evidence for a maturity-specific observation, so it must not replace its as-of.
     var dateByKey = {
       'cp-narrative': snap._snapshotDate || (snap._updated ? snap._updated.slice(0, 10) : null),
-      'briefing-archive': staticDates.briefingArchive || '2026-04-17',
-      'jensen-interview': staticDates.jensenInterview || '2026-03-20',
-      'tnx-2y': staticDates.tnx2y || snap._snapshotDate || null,
+      'briefing-archive': staticDates.briefingArchive || null,
+      'jensen-interview': staticDates.jensenInterview || null,
+      'tnx-2y': staticDates.tnx2y || snap._fieldTs?.macro_dgs2 || (window?._serverMacroEvidence?.dgs2?.observedAt || null),
       'option-snapshot': staticDates.optionSnapshot || null,
       'kr-credit': staticDates.krCredit || null,
       'kr-deposit': staticDates.krDeposit || null,
@@ -2762,15 +2778,30 @@ window._aioRenderSnapshotDates = function() {
       'kr-decline': staticDates.krBreadthReference || null,
       'kr-issues': staticDates.krIssues || staticDates.krMarket || null
     };
-    document.querySelectorAll('[data-snap-date]').forEach(function(el) {
-      var key = el.getAttribute('data-snap-date');
-      if (!key) return;
-      var explicit = el.getAttribute('data-snap-date-value');
-      var d = explicit || dateByKey[key] || null;
-      if (!d) return;
-      // 기존 텍스트가 이미 정확한 날짜면 skip
-      if ((el.textContent || '').trim() !== d) el.textContent = d;
-    });
+    var writeDateBindings = function() {
+      document.querySelectorAll('[data-snap-date]').forEach(function(el) {
+        var key = el.getAttribute('data-snap-date');
+        if (!key) return;
+        var explicit = el.getAttribute('data-snap-date-value');
+        var rawDate = explicit || dateByKey[key] || null;
+        var d = rawDate == null ? null : String(rawDate).slice(0, 10);
+        if (d && (el.textContent || '').trim() !== d) el.textContent = d;
+        if (typeof window._aioStaleDaysLabel !== 'function') return;
+        var target = document.getElementById(key + '-stale-days');
+        if (!target) return;
+        if (!d) {
+          target.textContent = '기준일 미수신';
+          target.style.color = 'var(--text-muted)';
+          return;
+        }
+        var lbl = window._aioStaleDaysLabel(d);
+        if (!lbl || lbl.days == null) return;
+        target.textContent = lbl.text;
+        target.style.color = lbl.color;
+      });
+    };
+    window._aioRenderSnapshotDateBindings = writeDateBindings;
+    writeDateBindings();
     document.querySelectorAll('[data-snap]').forEach(function(el) {
       var key = el.getAttribute('data-snap');
       if (!key || el.closest('[data-aio-archive="true"]')) return;
@@ -9087,8 +9118,11 @@ window.AIO.getWebSearchAudit = function() {
   var hasGoogleKey = false;
   var hasGoogleCx = false;
   var routeState = window._aioLastClaudeRouteState || null;
-  var nativeCitations = Array.isArray(window._aioLastClaudeCitations) ? window._aioLastClaudeCitations : [];
-  var nativeToolError = window._aioLastClaudeResearchError || null;
+  // P1245 (05 A05): 진단은 "가장 최근 스트림"의 기록만 본다. 전역 단일 슬롯은 겹치는 스트림끼리 서로의
+  // 인용을 지웠으므로, 요청별 저장소의 최신 항목을 읽는다.
+  var _latestAIStream = (window.AIO && typeof window.AIO.getLatestAIRequestStream === 'function') ? window.AIO.getLatestAIRequestStream() : null;
+  var nativeCitations = _latestAIStream && Array.isArray(_latestAIStream.citations) ? _latestAIStream.citations : [];
+  var nativeToolError = _latestAIStream ? _latestAIStream.researchError : null;
   var nativeToolReady = nativeCitations.length > 0 && !nativeToolError;
   var contractReady = !!(window.AIO_ARCH &&
     typeof window.AIO_ARCH.createAIResearchEvidenceDocument === 'function' &&
@@ -10644,6 +10678,7 @@ window.AIO.getStaticSeedFallbackAudit = function() {
     'tnx-2y': 'tnx2y',
     'krw-full': 'krw',
     'vkospi-chg': 'vkospiPct',
+    'skew-pct': 'skewChg',
     'kr-credit': 'krCreditBalance',
     'kr-semi-export-yoy-label': 'krSemiExport',
     'kr-cpi-yoy': 'krCpi',
@@ -15719,7 +15754,7 @@ window.AIO.DATA_REQUIREMENT_PROFILES = {
   signal:      { tasks: ['quotes','sentiment','breadth','technicals','vixHistory','hySpread'], symbols: ['^GSPC','^IXIC','SPY','QQQ','IWM','DIA','RSP','SMH','SOXX','HYG','LQD','TLT','^VIX','^VVIX','^TNX','DX-Y.NYB','CL=F','GC=F','BTC-USD','NVDA','ARM','XLK','XLY','XLF','XLI','XLV','XLE','XLP','XLU','XLRE','XLB','XLC','GLD'] },
   signals:     { alias: 'signal' },
   breadth:     { tasks: ['quotes','breadth','technicals'], symbols: ['^GSPC','^IXIC','^RUT','SPY','QQQ','IWM','RSP','XLK','XLY','XLF','XLI','XLV','XLE','XLP','XLU','XLRE','XLB','XLC'] },
-  sentiment:   { tasks: ['quotes','sentiment','vixHistory','hySpread'], symbols: ['^VIX','^VVIX','^VIX9D','^VIX3M','^VIX6M','VXX','UVXY','SPY','QQQ','HYG','LQD','TLT'] },
+  sentiment:   { tasks: ['quotes','sentiment','vixHistory','hySpread'], symbols: ['^VIX','^SKEW','^VVIX','^VIX9D','^VIX3M','^VIX6M','VXX','UVXY','SPY','QQQ','HYG','LQD','TLT'] },
   briefing:    { tasks: ['quotes','news','sentiment','breadth','fred','technicals'], symbols: ['^GSPC','^IXIC','^DJI','^RUT','SPY','QQQ','IWM','RSP','SMH','SOXX','^VIX','CL=F','BZ=F','GC=F','KRW=X','DX-Y.NYB','^TNX','HYG','LQD','^KS11'] },
   technical:   { tasks: ['quotes','technicals','breadth','sentiment','vixHistory','krDynamic'], symbols: ['^GSPC','SPY','QQQ','SMH','SOXX','IWM','RSP','DIA','NVDA','AVGO','AMD','PLTR','^VIX','^KS11','^KQ11','KRW=X'] },
   macro:       { tasks: ['quotes','fred','news','sentiment','krDynamic','krSupply'], symbols: ['DX-Y.NYB','^TNX','^TYX','^FVX','^IRX','TLT','HYG','LQD','^VIX','CL=F','BZ=F','NG=F','GC=F','SI=F','KRW=X','JPY=X','EURUSD=X','^KS11','^KQ11'] },
@@ -15730,7 +15765,7 @@ window.AIO.DATA_REQUIREMENT_PROFILES = {
   'theme-detail': { tasks: ['quotes','news','technicals'], symbols: ['SMH','SOXX','QQQ','SPY'] },
   portfolio:   { tasks: ['quotes','technicals'], symbols: ['SPY','QQQ','IWM','^VIX'] },
   ticker:      { tasks: ['quotes','news','technicals'], symbols: ['SPY','QQQ','^VIX'] },
-  options:     { tasks: ['quotes','sentiment','vixHistory'], symbols: ['SPY','QQQ','^VIX'] },
+  options:     { tasks: ['quotes','sentiment','vixHistory','optionsSnapshot'], symbols: ['SPY','QQQ','^VIX','^SKEW','^VVIX','VXX','UVXY','ES=F','NQ=F','YM=F','RTY=F','PCR'] },
   korea:       { alias: 'macro' },
   glossary:    { tasks: [], symbols: [] },
   guide:       { tasks: [], symbols: [] }
@@ -16482,6 +16517,12 @@ window._aioVaultPublicMode = function(el) {
 };
 window._aioImportPortfolio = function(el, ev) {
   if (typeof window.importPortfolio === 'function') window.importPortfolio(ev);
+};
+// LC-44: the visible trigger is a real button now (the old <label tabIndex=-1> was skipped by Tab);
+// it opens the visually hidden but still focusable file input.
+window._aioTriggerPortfolioImport = function() {
+  var input = document.getElementById('pf-import-file');
+  if (input && typeof input.click === 'function') input.click();
 };
 window._aioSaveCashPosition = function(el) {
   if (typeof window.saveCashPosition === 'function') window.saveCashPosition(el ? el.value : '');
@@ -20549,7 +20590,12 @@ function _calcRSIDivergence(bars) {
   if (rsiSeries.length < 30) return null;
   var LOOK = Math.min(50, bars.length - 1);
   var N = 4;
-  var cSlice = closes.slice(-LOOK), rSlice = rsiSeries.slice(-LOOK);
+  // P1253: rsiSeries는 워밍업(14봉) 소실로 bars보다 짧다(길이 = bars.length - 14).
+  // slice(-LOOK)로 두 배열을 각각 자르면 60~63봉 구간에서 시작 인덱스가 어긋나
+  // 가격/RSI 피벗이 서로 다른 프레임을 비교하게 된다. 두 슬라이스 길이를 같은 값으로
+  // 클램프해 끝점 정렬(price[i] ↔ rsi[i])을 유지한다.
+  var look = Math.min(LOOK, rsiSeries.length, bars.length - 1);
+  var cSlice = closes.slice(-look), rSlice = rsiSeries.slice(-look);
   var pHighs = [], pLows = [], rHighs = [], rLows = [];
   for (var i = N; i < cSlice.length - N; i++) {
     var isPH = true, isPL = true, isRH = true, isRL = true;
@@ -20862,12 +20908,21 @@ function calcOpexGammaRisk(ctx) {
   if (isFinite(equityPutCall) && equityPutCall < 0.55) add(18, 'EQUITY_PUT_CALL_COMPLACENCY');
   if (isFinite(indexPutCall) && indexPutCall > 1.0 && isFinite(equityPutCall) && equityPutCall < 0.6) add(14, 'INDEX_HEDGE_EQUITY_CALL_CHASE_SPLIT');
   if (isFinite(totalPutCall) && totalPutCall < 0.75) add(8, 'TOTAL_PUT_CALL_LOW');
-  if (ctx.priceNearCallWall && !ctx.closeAboveCallWall) add(14, 'PINNED_BELOW_CALL_WALL');
-  if (ctx.afterOpex && ctx.callVolumeDecelerating) add(18, 'POST_OPEX_CALL_DECAY');
+  // P1253: 아래 두 규칙은 프로덕션에서 입력이 공급된 적 없는 미연결 규칙이다 — 유일한 호출부
+  // (js/aio-ui.js 기술 페이지)가 priceNearCallWall/closeAboveCallWall/afterOpex/callVolumeDecelerating을
+  // 전달하지 않아 감마 근거 없이 점수가 가산됐다. 수식·가중치는 보존하되 비활성 규칙으로 만든다.
+  var UNFED_RULES_ENABLED = false;
+  if (UNFED_RULES_ENABLED && ctx.priceNearCallWall && !ctx.closeAboveCallWall) add(14, 'PINNED_BELOW_CALL_WALL');
+  if (UNFED_RULES_ENABLED && ctx.afterOpex && ctx.callVolumeDecelerating) add(18, 'POST_OPEX_CALL_DECAY');
+  // P1253: vixRisingWhileIndexUp 은 프로덕션 호출부가 상수 false 로 고정 공급한다 — 현재 경로에서 발화 불가.
+  // 입력이 실측으로 공급되면 발화할 수 있으므로 규칙 자체는 유지한다.
   if (ctx.vixRisingWhileIndexUp) add(16, 'VIX_RISING_WHILE_INDEX_UP');
   score = Math.max(0, Math.min(100, Math.round(score)));
-  var regime = score >= 60 ? 'GAMMA_UNWIND_RISK' : score >= 30 ? 'GAMMA_DECAY_WATCH' : 'GAMMA_SUPPORT';
-  return { regime: regime, score: score, flags: flags.length ? flags : ['NO_OPEX_GAMMA_STRESS'], daysToOpex: days, nextOpexDate: cal.nextOpexDate || null, equityPutCall: isFinite(equityPutCall) ? equityPutCall : null, indexPutCall: isFinite(indexPutCall) ? indexPutCall : null, totalPutCall: isFinite(totalPutCall) ? totalPutCall : null, dataQuality: ctx.dataQuality || null };
+  // P1253: 이 점수는 OPEX 캘린더·풋콜 비율만으로 계산되며 감마(GEX)는 측정된 바 없다.
+  // 'GAMMA_SUPPORT' 등 감마 단언 라벨을 정직한 라벨로 교체한다 — 점수/가중치는 그대로다.
+  var regime = score >= 60 ? 'OPEX 스트레스 높음(감마 미측정)' : score >= 30 ? 'OPEX 스트레스 중간(감마 미측정)' : 'OPEX 스트레스 낮음(감마 미측정)';
+  // P1253: 기본 플래그도 감마 단언('NO_OPEX_GAMMA_STRESS')을 제거 — 감마 미측정 사실을 명시.
+  return { regime: regime, score: score, flags: flags.length ? flags : ['NO_OPEX_STRESS_GAMMA_UNMEASURED'], daysToOpex: days, nextOpexDate: cal.nextOpexDate || null, equityPutCall: isFinite(equityPutCall) ? equityPutCall : null, indexPutCall: isFinite(indexPutCall) ? indexPutCall : null, totalPutCall: isFinite(totalPutCall) ? totalPutCall : null, dataQuality: ctx.dataQuality || null };
 }
 
 function calcBreadthRotation(ctx) {
@@ -20900,7 +20955,8 @@ function calcLockoutRegime(modules) {
   var breadth = modules.breadth || {};
   var extension = modules.extension || {};
   if (candle.type === 'BEARISH_CONFIRMATION' || candle.type === 'FAILED_RETEST') return 'DISTRIBUTION_REVERSAL';
-  if (opex.regime === 'GAMMA_UNWIND_RISK') return 'OPEX_PIN_OR_DECAY';
+  // P1253: calcOpexGammaRisk 라벨 개명(감마 미측정)에 맞춰 비교식도 새 라벨로 갱신 — 분기 동작은 동일.
+  if (opex.regime === 'OPEX 스트레스 높음(감마 미측정)') return 'OPEX_PIN_OR_DECAY';
   if (breadth.regime === 'FAILED_ROTATION') return 'FAILED_ROTATION';
   if (extension.state === 'BLOW_OFF_RISK' || extension.state === 'EXTREME_EXTENSION') return 'LATE_STAGE_GAMMA_CHASE';
   if (breadth.regime === 'BREADTH_BROADENING') return 'BREADTH_BROADENING';
@@ -21141,7 +21197,8 @@ function calcBlowoffTopChecklist(snapshot, context) {
   push(checks, railroadTrack, 'Railroad-track distribution watch', railroadA === null ? 'two-week OHLCV history unavailable' : 'weekly range similarity + rising volume/close condition', 'risk');
   push(checks, context.upperChannelBreakout === true, 'Upper channel breakout watch', context.upperChannelBreakout === true ? 'user/runtime channel input supplied' : 'channel geometry not supplied', 'warn');
   push(checks, !!snapshot.bbReentry, 'Upper Bollinger re-entry', snapshot.bbReentry ? 'outside upper band then closed back inside' : 'no exhaustion re-entry yet', 'warn');
-  push(checks, context.opexGammaRisk && context.opexGammaRisk.regime !== 'GAMMA_SUPPORT', 'OPEX/gamma decay watch', context.opexGammaRisk ? context.opexGammaRisk.regime : 'option context unavailable', 'warn');
+  // P1253: 라벨 개명에 맞춰 비교식 갱신 + 체크 문구도 감마 미측정 사실을 반영 (점수 로직 불변).
+  push(checks, context.opexGammaRisk && context.opexGammaRisk.regime !== 'OPEX 스트레스 낮음(감마 미측정)', 'OPEX 스트레스 감시(감마 미측정)', context.opexGammaRisk ? context.opexGammaRisk.regime : 'option context unavailable', 'warn');
   push(checks, eventCtx && eventCtx.cpi && eventCtx.cpi.coreMoM >= 0.4, 'Hot CPI macro trigger', eventCtx.cpi ? ('core CPI +' + window._aioSafeFixed(eventCtx.cpi.coreMoM, 1, '—') + '% MoM / headline ' + window._aioSafeFixed(eventCtx.cpi.headlineYoY, 1, '—') + '% YoY') : 'CPI context unavailable', 'risk');
 
   push(supports, snapshot.above10EMA !== false && snapshot.above21EMA !== false, '10/21 EMA trend alive', snapshot.above10EMA === false || snapshot.above21EMA === false ? 'short/swing line already violated' : 'short-term trend not broken', 'bull');
@@ -21940,7 +21997,7 @@ window._aioRefreshFreshness = function() {
 };
 
 // v48.80/P150 + v48.81/P151 + v48.82/P152: one-call operational/data/pipeline snapshot for live checks.
-window.AIO.CORE_LIVE_SYMBOLS = ['^GSPC', '^IXIC', '^VIX', 'CL=F', 'GC=F', 'KRW=X', 'DX-Y.NYB', '^KS11', '^KQ11'];
+window.AIO.CORE_LIVE_SYMBOLS = ['^GSPC', '^IXIC', '^VIX', '^SKEW', 'CL=F', 'GC=F', 'KRW=X', 'DX-Y.NYB', '^KS11', '^KQ11'];
 
 window.AIO.getLiveCoverage = function(requiredSymbols) {
   var required = requiredSymbols || window.AIO.CORE_LIVE_SYMBOLS || [];
@@ -22595,7 +22652,7 @@ window.AIO.getUsTreasuryCurveEvidence = function() {
   if (!_curveFn) {
     // Fail-closed fallback for the (unexpected) case the ESM architecture runtime never mounted —
     // mirrors the model's own "nothing available" shape instead of duplicating the formula here.
-    return { threeM: null, twoY: null, fiveY: null, tenY: null, thirtyY: null, spread2s10s: null, available: false, complete: false, source: 'partial', asOf: asOf };
+    return { threeM: null, twoY: null, fiveY: null, tenY: null, thirtyY: null, values: {}, spread2s10s: null, available: false, complete: false, source: 'partial', asOf: asOf, curve: { modelVersion: 'treasury-curve-spread.v2', mode: 'unavailable', spread: null, referenceSpread: null, unit: 'percentage-point', legs: [], mixedDates: false, curveCutId: null, comparable: false, label: '2s10s · curve evidence unavailable' } };
   }
   return _curveFn({
     live: {
@@ -22603,10 +22660,11 @@ window.AIO.getUsTreasuryCurveEvidence = function() {
       tnx: ld['^TNX'] && ld['^TNX'].price, tenYRaw: window._live10Y, tyx: ld['^TYX'] && ld['^TYX'].price, thirtyYRaw: window._live30Y
     },
     fred: {
-      dgs3mo: fd.DGS3MO && fd.DGS3MO.value, dgs2: fd.DGS2 && fd.DGS2.value, dgs5: fd.DGS5 && fd.DGS5.value,
-      dgs10: fd.DGS10 && fd.DGS10.value, dgs30: fd.DGS30 && fd.DGS30.value, t10y2y: fd.T10Y2Y && fd.T10Y2Y.value
+      dgs3mo: fd.DGS3MO, dgs2: fd.DGS2, dgs5: fd.DGS5,
+      dgs10: fd.DGS10, dgs30: fd.DGS30, t10y2y: fd.T10Y2Y
     },
     snapshot: { irx: snap.irx, fvx: snap.fvx, tnx: snap.tnx, tyx: snap.tyx, t10y2y: snap.t10y2y },
+    treasury: snap._serverTreasury || window._serverDataMeta?.treasury || null,
     asOf: asOf
   });
 };
@@ -23251,20 +23309,10 @@ function applyDataSnapshot() {
 
     // v48.14: data-snap-date 표준화 — 모든 스냅샷 배지에 경과일 자동 표시 (Agent 권장 아키텍처)
     // 사용: <span data-snap-date="briefing-archive">2026-04-15</span>
-    //       <span id="briefing-stale-days">...</span>  ← 동일 블록 내 경과일 자동 채움
+    //       <span id="briefing-stale-days">...</span>  ← 동일 항목의 경과일만 갱신
     try {
-      // v50.51 A1: 단일 포맷터 경유 (index.html data-snap-date 핸들러와 동일 출력 — 경쟁 기재 해소)
-      document.querySelectorAll('[data-snap-date]').forEach(function(el) {
-        var dateStr = (el.textContent || el.getAttribute('data-snap-date-value') || '').trim();
-        var key = el.getAttribute('data-snap-date');
-        var staleEl = document.getElementById(key + '-stale-days') || document.getElementById('briefing-stale-days');
-        if (!staleEl) return;
-        var lbl = (typeof window._aioStaleDaysLabel === 'function') ? window._aioStaleDaysLabel(dateStr) : null;
-        if (!lbl || lbl.days == null) return;
-        staleEl.textContent = lbl.text;
-        staleEl.style.color = lbl.color;
-      });
-    } catch(sdErr) { _aioLog('warn', 'snap-date', '처리 실패: ' + sdErr.message); }
+          if (typeof window._aioRenderSnapshotDateBindings === 'function') window._aioRenderSnapshotDateBindings();
+        } catch(sdErr) { _aioLog('warn', 'snap-date', '처리 실패: ' + sdErr.message); }
 
     // v48.14: FX 카드 fx-note 해설 동적 생성 (Agent P1-12)
     try {
@@ -24963,7 +25011,7 @@ function _aioExternalReferenceMap(externalReferences) {
       home:{tasks:['quotes','news','sentiment','breadth','technicals'],symbols:['^GSPC','^IXIC','^DJI','^RUT','SPY','QQQ','IWM','RSP','^VIX','^TNX','CL=F','BZ=F','GC=F','KRW=X','DX-Y.NYB','^KS11','BTC-USD']},
       signal:{tasks:['quotes','sentiment','breadth','technicals','vixHistory','hySpread'],symbols:['^GSPC','^IXIC','SPY','QQQ','IWM','DIA','RSP','SMH','SOXX','HYG','LQD','TLT','^VIX','^VVIX','^TNX','DX-Y.NYB','CL=F','GC=F','BTC-USD','NVDA','ARM','XLK','XLY','XLF','XLI','XLV','XLE','XLP','XLU','XLRE','XLB','XLC','GLD']},
       breadth:{tasks:['quotes','breadth','technicals'],symbols:['^GSPC','^IXIC','^RUT','SPY','QQQ','IWM','RSP','XLK','XLY','XLF','XLI','XLV','XLE','XLP','XLU','XLRE','XLB','XLC']},
-      sentiment:{tasks:['quotes','sentiment','vixHistory','hySpread'],symbols:['^VIX','^VVIX','^VIX9D','^VIX3M','^VIX6M','VXX','UVXY','SPY','QQQ','HYG','LQD','TLT']},
+      sentiment:{tasks:['quotes','sentiment','vixHistory','hySpread'],symbols:['^VIX','^SKEW','^VVIX','^VIX9D','^VIX3M','^VIX6M','VXX','UVXY','SPY','QQQ','HYG','LQD','TLT']},
       briefing:{tasks:['quotes','news','sentiment','breadth','fred','technicals'],symbols:['^GSPC','^IXIC','^DJI','^RUT','SPY','QQQ','IWM','RSP','SMH','SOXX','^VIX','CL=F','BZ=F','GC=F','KRW=X','DX-Y.NYB','^TNX','HYG','LQD','^KS11']},
       technical:{tasks:['quotes','technicals','breadth','sentiment','vixHistory','krDynamic'],symbols:['^GSPC','SPY','QQQ','SMH','SOXX','IWM','RSP','DIA','NVDA','AVGO','AMD','PLTR','^VIX','^KS11','^KQ11','KRW=X']},
       macro:{tasks:['quotes','fred','news','sentiment','krDynamic','krMacro'],symbols:['DX-Y.NYB','^TNX','^TYX','^FVX','^IRX','TLT','HYG','LQD','^VIX','CL=F','BZ=F','NG=F','GC=F','SI=F','KRW=X','JPY=X','EURUSD=X','^KS11','^KQ11']},
@@ -24974,7 +25022,7 @@ function _aioExternalReferenceMap(externalReferences) {
       portfolio:{tasks:['quotes','technicals','portfolioRisk'],symbols:['SPY','QQQ','IWM','^VIX']},
       ticker:{tasks:['quotes','news','technicals','companyFundamentals','filings'],symbols:['SPY','QQQ','^VIX']},
       'market-news':{tasks:['news','quotes','sentiment'],symbols:['SPY','QQQ','^VIX','^TNX','DX-Y.NYB','CL=F','GC=F']},
-      options:{tasks:['quotes','sentiment','vixHistory','optionsSnapshot'],symbols:['SPY','QQQ','^VIX','^VVIX','VXX','UVXY','ES=F','NQ=F','YM=F','RTY=F','PCR']},
+      options:{tasks:['quotes','sentiment','vixHistory','optionsSnapshot'],symbols:['SPY','QQQ','^VIX','^SKEW','^VVIX','VXX','UVXY','ES=F','NQ=F','YM=F','RTY=F','PCR']},
       guide:{tasks:[],symbols:[]},
       principles:{tasks:[],symbols:[]},
       masters:{tasks:[],symbols:[]},
@@ -26692,11 +26740,6 @@ function destroyPageCharts(pageId) {
       if (window._yieldCurveChart) { window._yieldCurveChart.destroy(); window._yieldCurveChart = null; }
       if (typeof _ycChart !== 'undefined' && _ycChart) { _ycChart.destroy(); _ycChart = null; }
     }
-    if (pageId === 'screener' || pageId === 'portfolio') {
-      if (typeof _tickerChartInstance !== 'undefined' && _tickerChartInstance) {
-        _tickerChartInstance.destroy(); _tickerChartInstance = null;
-      }
-    }
     // v30.11: Signal 페이지 이탈 시 타이머 전수 해제 (좀비 타이머 방지)
     if (pageId === 'signal') {
       if (typeof _signalInterval !== 'undefined' && _signalInterval) {
@@ -26740,10 +26783,7 @@ function destroyPageCharts(pageId) {
           if (_macroExisting) _macroExisting.destroy();
         }
       } catch(e) {}
-      if (typeof _sector20dChart !== 'undefined' && _sector20dChart) {
-        try { _sector20dChart.destroy(); } catch(e){}
-        _sector20dChart = null;
-      }
+      // P1257/QA-THM-CLEANUP: `sector-20d-chart`는 퇴역했다 — 그 차트 인스턴스 정리 가드도 함께 제거.
       // FRED 차트도 destroy (LWC compat wrapper도 destroy 호출 가능)
       if (typeof _fredChartInstances !== 'undefined') {
         Object.values(_fredChartInstances).forEach(function(c) { try { c.destroy(); } catch(e){} });
@@ -27978,7 +28018,7 @@ function showTicker(tkr) {
 
   showPage('ticker', null);
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  switchTab(document.querySelector('#page-ticker .tab'), 'tab-overview');
+  try { document.dispatchEvent(new CustomEvent('aio:tickerViewReset', { detail: { id: tkr } })); } catch (_) {}
 }
 
 // ══════════════════════════════════════════════════════════════════════

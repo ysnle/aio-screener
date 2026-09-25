@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { mergeMacroLastKnownGood, normalizeHistoryRows, parseBeaPceHtml, validateMarketAnalysisText } from './fetch-data.mjs';
+import { mergeMacroLastKnownGood, normalizeHistoryRows, parseBeaPceHtml, validateMarketAnalysisText, HIST_FIELD_PLAUSIBILITY, histValueWithinPlausibility, parseFredDexkousCsv, compareUsdKrwCrossCheck } from './fetch-data.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readJson = (rel) => JSON.parse(fs.readFileSync(path.join(root, rel), 'utf8'));
@@ -10,7 +10,7 @@ const fail = (message) => { throw new Error(`[history-field-time-contract] ${mes
 
 const history = readJson('public-data/history.json');
 if (!Array.isArray(history) || history.length < 2) fail('history.json must contain at least two rows');
-const fields = ['spx', 'nasdaq', 'dow', 'rut', 'vix', 'vvix', 'tnx', 'dxy', 'wti', 'gold', 'kospi', 'kosdaq', 'btc'];
+const fields = ['spx', 'nasdaq', 'dow', 'rut', 'vix', 'vvix', 'tnx', 'dxy', 'wti', 'gold', 'kospi', 'kosdaq', 'btc', 'usdkrw'];
 const errors = [];
 const fetchDataSource = readText('scripts/fetch-data.mjs');
 if (!/regularMarketPreviousCloseObservedAt:[\s\S]{0,260}closeBars\[closeBars\.length - 1\]\.timestamp/.test(fetchDataSource)) {
@@ -45,11 +45,9 @@ for (const [lane, literal] of [
 let observedFieldCount = 0;
 let numericFieldCount = 0;
 let previousDate = null;
-const ranges = {
-  spx:[500,50000], nasdaq:[500,100000], dow:[2000,150000], rut:[100,10000],
-  vix:[5,200], vvix:[20,400], tnx:[0,20], dxy:[50,200], wti:[1,400],
-  gold:[100,20000], kospi:[300,20000], kosdaq:[100,5000], btc:[1000,2000000]
-};
+// P1246: 타당 범위는 producer가 선언한 **하나의** 맵을 그대로 쓴다. 게이트가 자기 리터럴을 따로
+// 들고 있으면 선언과 집행이 조용히 어긋난다(P1127이 지적한 바로 그 경로).
+const ranges = HIST_FIELD_PLAUSIBILITY;
 
 for (const [index, row] of history.entries()) {
   if (!row || !/^\d{4}-\d{2}-\d{2}$/.test(String(row.date || ''))) {
@@ -102,7 +100,8 @@ const snapshot = readJson('public-data/market-snapshot.json');
 const snapshotMap = new Map((snapshot.quotes || []).map((row) => [row.instrumentId, row]));
 const fieldSymbols = {
   spx:'^GSPC', nasdaq:'^IXIC', dow:'^DJI', rut:'^RUT', vix:'^VIX', tnx:'^TNX',
-  dxy:'DX-Y.NYB', wti:'CL=F', gold:'GC=F', kospi:'^KS11', kosdaq:'^KQ11', btc:'BTC-USD'
+  dxy:'DX-Y.NYB', wti:'CL=F', gold:'GC=F', kospi:'^KS11', kosdaq:'^KQ11', btc:'BTC-USD',
+  usdkrw:'KRW=X'
 };
 for (const [field, symbol] of Object.entries(fieldSymbols)) {
   const quote = snapshotMap.get(symbol);
@@ -207,6 +206,71 @@ if (Number.isFinite(nfp)) {
   if (!good.ok || bad.ok || !bad.issues.includes('nfp-scale-mismatch')) {
     fail(`NFP semantic fixture failed: good=${JSON.stringify(good)} bad=${JSON.stringify(bad)}`);
   }
+}
+
+// ── P1246 (E3/E4 FX 축): USD/KRW 정본 열 · 품질 경계 · 공식 교차검증 계약 ────────────────
+// (a) FX 열은 같은 producer 경로로 생산된다 — 값과 fieldMeta를 한 번의 열거에서 만든다.
+if (!/HIST_SYMBOLS = \{[\s\S]*?'KRW=X': 'usdkrw'/.test(fetchDataSource)) {
+  fail('fetch-data: history must map KRW=X to the usdkrw field, or the backtest FX axis has no producer');
+}
+if (!/const fieldValues = \{\}/.test(fetchDataSource) || !/fieldValues\[field\] = value;/.test(fetchDataSource)) {
+  fail('fetch-data: the market lane must derive history values and fieldMeta from one enumeration');
+}
+// (b) 품질 경계: 선언된 범위 밖 값은 관측으로 승격되지 않는다.
+if (!histValueWithinPlausibility('usdkrw', 1380) || histValueWithinPlausibility('usdkrw', 13.8)
+  || histValueWithinPlausibility('usdkrw', null) || histValueWithinPlausibility('usdkrw', NaN)
+  || !histValueWithinPlausibility('vix', 16) || histValueWithinPlausibility('vix', 4000)) {
+  fail('fetch-data: the shared plausibility boundary must accept plausible values and reject implausible ones');
+}
+if (!/if \(!histValueWithinPlausibility\(field, row\.close\)\) continue;/.test(fetchDataSource)
+  || !/const pickField = \(field, symbol\) => \{/.test(fetchDataSource)) {
+  fail('fetch-data: both the backfill lane and the market lane must apply the shared plausibility boundary');
+}
+// (c) 공식 교차검증: FRED DEXKOUS 공개 CSV는 상태를 말하고, 비교는 값을 바꾸지 않는다.
+const dexkousFixture = parseFredDexkousCsv('observation_date,DEXKOUS\n2026-09-18,1382.40\n2026-09-21,1391.05\n2026-09-19,.\n', '2026-09-25T00:00:00.000Z');
+if (!dexkousFixture || dexkousFixture.value !== 1391.05 || dexkousFixture.observedAt !== '2026-09-21'
+  || dexkousFixture.seriesId !== 'DEXKOUS' || dexkousFixture.decisionUse !== false
+  || !/DEXKOUS/.test(dexkousFixture.sourceUrl || '')) {
+  fail(`DEXKOUS CSV fixture failed: ${JSON.stringify(dexkousFixture)}`);
+}
+if (parseFredDexkousCsv('observation_date,DEXKOUS\n2026-09-19,.\n', '2026-09-25T00:00:00.000Z') !== null) {
+  fail('a DEXKOUS CSV with no numeric observation must stay unavailable, not become zero');
+}
+const fxProvider = (value, date) => ({ value, date, observedAt: `${date}T00:00:00.000Z` });
+// 같은 날짜 비교는 판정한다.
+const fxAgreed = compareUsdKrwCrossCheck({ provider: fxProvider(1391.05, '2026-09-21'), official: dexkousFixture });
+if (fxAgreed.status !== 'ok' || fxAgreed.comparable !== true || fxAgreed.dayGap !== 0 || fxAgreed.decisionUse !== false
+  || fxAgreed.official?.seriesId !== 'DEXKOUS' || fxAgreed.providerValue !== 1391.05) {
+  fail(`FX cross-check agreed fixture failed: ${JSON.stringify(fxAgreed)}`);
+}
+// 공급자 봉이 공식 관측일과 하루 어긋나도(00:00Z 일봉 경계) 판정한다 — 실제 날짜는 레코드에 남는다.
+const fxAdjacent = compareUsdKrwCrossCheck({ provider: fxProvider(1385.20, '2026-09-22'), official: dexkousFixture });
+if (fxAdjacent.status !== 'ok' || fxAdjacent.comparable !== true || fxAdjacent.dayGap !== 1 || fxAdjacent.providerDate !== '2026-09-22') {
+  fail(`FX cross-check must still judge a one-day-stamped FX bar and record its real date: ${JSON.stringify(fxAdjacent)}`);
+}
+const fxDivergent = compareUsdKrwCrossCheck({ provider: fxProvider(1500, '2026-09-21'), official: dexkousFixture });
+if (fxDivergent.status !== 'divergent' || !(fxDivergent.divergencePct > 5) || fxDivergent.providerValue !== 1500 || fxDivergent.officialValue !== 1391.05) {
+  fail(`FX cross-check must report an aligned divergence without rewriting either value: ${JSON.stringify(fxDivergent)}`);
+}
+// 공식 계열의 공표 지연: 시점이 다른 두 값을 비교해 '불일치'라고 말하면 지연을 데이터 오류로 오표기한다.
+const fxLagging = compareUsdKrwCrossCheck({ provider: fxProvider(1358.96, '2026-09-25'), official: dexkousFixture, latestProvider: { value: 1358.96, date: '2026-09-25' } });
+if (fxLagging.status !== 'not-comparable' || fxLagging.comparable !== false || fxLagging.dayGap !== 4 || fxLagging.latestProviderValue !== 1358.96) {
+  fail(`FX cross-check must not call a publication-lagged official series divergent: ${JSON.stringify(fxLagging)}`);
+}
+if (compareUsdKrwCrossCheck({ provider: null, official: dexkousFixture }).status !== 'unavailable'
+  || compareUsdKrwCrossCheck({ provider: fxProvider(1391.05, '2026-09-21'), official: null }).status !== 'unavailable'
+  || compareUsdKrwCrossCheck({}).status !== 'unavailable') {
+  fail('FX cross-check must report unavailable when either side has no observation, never a fabricated value');
+}
+// 배선: 교차검증은 크립토 교차검증 옆에 발행되고, 히스토리 레인이 통째로 실패해도 판정 불가를 남긴다.
+if (!/data\.providerCrossChecks\.fx = histInfo\?\.fxCrossCheck/.test(fetchDataSource)
+  || !/\|\| compareUsdKrwCrossCheck\(\{ provider: null, official: fredDexkous/.test(fetchDataSource)) {
+  fail('fetch-data must publish the FX cross-check beside the crypto cross-check, with a verdict even when the history lane fails');
+}
+// 배선: 비교는 **공식 관측일과 같은 시점**의 완료 종가로 한다(최신값으로 대신하지 않는다).
+if (!/const officialDate = String\(officialFx\?\.observedAt/.test(fetchDataSource)
+  || !/\.map\(\(candidate\) => hist\.find\(\(row\) => row && row\.date === candidate && Number\.isFinite\(row\.usdkrw\)\)\)/.test(fetchDataSource)) {
+  fail('fetch-data must compare the official observation against the aligned provider close, not the latest value');
 }
 
 console.log(JSON.stringify({

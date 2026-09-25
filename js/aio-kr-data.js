@@ -2049,67 +2049,6 @@ function _secFrameRank(frame, cik, cikList) {
 // FRED 시리즈 확장은 v47.11에서 FRED_SERIES 단일 원천으로 병합 예정
 
 // ══════════════════════════════════════════════════════════════════
-// Stooq API — 글로벌 주가/지수 데이터 (무료, CSV 형식)
-// ══════════════════════════════════════════════════════════════════
-// Endpoint: https://stooq.com/q/d/l/?s=TICKER&d1=YYYYMMDD&d2=YYYYMMDD&i=d
-// Supported: US stocks, indices, commodities, forex
-// Returns: CSV with Date,Open,High,Low,Close,Volume
-
-async function fetchStooqData(ticker, days) {
-  days = days || 30;
-  try {
-    var end = new Date();
-    var start = new Date(end.getTime() - days * 24 * 60 * 60 * 1000);
-    var d1 = start.toISOString().slice(0,10).replace(/-/g,'');
-    var d2 = end.toISOString().slice(0,10).replace(/-/g,'');
-    // Stooq uses lowercase tickers, US stocks need .us suffix
-    var stooqTicker = ticker.toLowerCase();
-    if (!stooqTicker.includes('.')) stooqTicker += '.us';
-    var url = 'https://stooq.com/q/d/l/?s=' + stooqTicker + '&d1=' + d1 + '&d2=' + d2 + '&i=d';
-    // P1142: corsproxy.io 하드코딩 단일 경로 → 레지스트리 fetchViaProxy(헬스 추적·쿨다운·순회 적용).
-    var r = await fetchViaProxy(url, 10000);
-    if (!r || !r.ok) return null;
-    var csv = await r.text();
-    var lines = csv.trim().split('\n');
-    if (lines.length < 2) return null;
-    var headers = lines[0].toLowerCase().split(',');
-    var data = [];
-    for (var i = 1; i < lines.length; i++) {
-      var cols = lines[i].split(',');
-      if (cols.length >= 5) {
-        data.push({
-          date: cols[0],
-          open: parseFloat(cols[1]),
-          high: parseFloat(cols[2]),
-          low: parseFloat(cols[3]),
-          close: parseFloat(cols[4]),
-          volume: parseInt(cols[5]) || 0
-        });
-      }
-    }
-    return { ticker: ticker, source: 'stooq', data: data };
-  } catch(e) { _aioLog('warn', 'fetch', 'Stooq fetch error for ' + ticker + ': ' + e.message); }
-  return null;
-}
-
-// Stooq: Get historical price data for charting
-async function fetchStooqChart(ticker, days) {
-  var result = await fetchStooqData(ticker, days || 90);
-  if (result && result.data && result.data.length > 0) {
-    return {
-      ticker: ticker,
-      labels: result.data.map(function(d) { return d.date; }),
-      prices: result.data.map(function(d) { return d.close; }),
-      volumes: result.data.map(function(d) { return d.volume; }),
-      high: Math.max.apply(null, result.data.map(function(d) { return d.high; })),
-      low: Math.min.apply(null, result.data.map(function(d) { return d.low; })),
-      latest: result.data[result.data.length - 1]
-    };
-  }
-  return null;
-}
-
-// ══════════════════════════════════════════════════════════════════
 // Dynamic Ticker Lookup — 어떤 US 주식이든 실시간 조회
 // ══════════════════════════════════════════════════════════════════
 // SCREENER_DB에 없는 종목도 Yahoo Finance API로 동적 조회 가능

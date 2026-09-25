@@ -70,7 +70,7 @@ for (const route of measuredNativeLifecycle) {
 
 // Renderer-native routes must have zero occurrences of their registered legacy symbols left in the
 // legacy bundle — a marker/scaffold existing in src/ is not sufficient evidence of retirement (F-02).
-const legacyFiles = ['index.html', 'js/aio-core.js', 'js/aio-data.js', 'js/aio-ui.js', 'js/aio-chat.js'];
+const legacyFiles = ['index.html', 'js/aio-core.js', 'js/aio-data.js', 'js/aio-ui.js', 'js/aio-chat.js', 'js/aio-kr-data.js'];
 const legacyAggregate = legacyFiles.map(read).join('\n');
 for (const [route, symbols] of Object.entries(routeOwners.legacySymbolsMustBeAbsent || {})) {
   if (!measuredNativeRenderer.includes(route)) fail(`legacySymbolsMustBeAbsent declared for a route route-owners.json does not mark renderer-native: ${route}`);

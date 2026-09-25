@@ -34,6 +34,11 @@ export const TIER_0_INSTRUMENTS = Object.freeze([
   { instrumentId: 'ETH-USD', metricId: 'market.crypto.eth', unit: 'USD', valueKind: 'price' }
 ]);
 
+export const QUOTE_IDENTITIES = Object.freeze([
+  ...TIER_0_INSTRUMENTS,
+  { instrumentId: '^SKEW', metricId: 'market.volatility.skew', unit: 'index', valueKind: 'index' }
+]);
+
 export const TIER_0_REQUIRED = TIER_0_INSTRUMENTS.length;
 
 const INSTRUMENT_BY_ID = new Map(TIER_0_INSTRUMENTS.map((row) => [row.instrumentId, row]));

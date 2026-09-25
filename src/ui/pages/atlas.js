@@ -1510,7 +1510,14 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
            if (state.currentEvidenceLedger) body.appendChild(createCurrentEvidenceLedgerView(documentRef, state.currentEvidenceLedger, state.query));
            const telegramView = createTelegramReferenceView(documentRef, state.telegram, state.query);
            if (telegramView) body.appendChild(telegramView);
-          if (state.researchError) body.appendChild(element(documentRef, 'div', 'atlas-empty', '근거 원장을 불러오지 못했습니다. 구조 참고 화면은 계속 사용할 수 있습니다.'));
+            // LC-50: the 근거 자료실 search only matches packet metadata (id·제목·범위·상태) while the
+            // 기초·관계·산업 tabs and the dated ledger search other fields. State the scope so a 0건
+            // result is not read as "이 주제의 근거가 없다".
+            if (state.tab === 'overview' && state.query) {
+              const scopeNote = element(documentRef, 'p', 'atlas-card-copy atlas-search-scope', `검색 범위: 연구 패킷 metadata(id·제목·범위·상태) ${packets.length}건 일치 — 기초·관계·산업 탭과 dated ledger의 본문·주장 검색은 탭별로 다르며, 여기 0건이 근거 부재를 뜻하지 않습니다.`);
+              body.appendChild(scopeNote);
+            }
+            if (state.researchError) body.appendChild(element(documentRef, 'div', 'atlas-empty', '근거 원장을 불러오지 못했습니다. 구조 참고 화면은 계속 사용할 수 있습니다.'));
            if (state.knowledgeStatusError) body.appendChild(element(documentRef, 'div', 'atlas-empty', '검수 현황을 불러오지 못했습니다. 이 화면은 구조 참고 경계를 유지하며 현재 상태를 추정하지 않습니다.'));
         }
         const learningId = state.tab === 'foundations' ? `atlas-foundations:${state.selectedModuleId}` : state.tab === 'taxonomy' ? `atlas-node:${state.selectedDomainNodeId}` : state.tab === 'relationships' ? `atlas-relationship:${state.selectedRelationshipGuideId}:${state.selectedRelationshipNodeId || 'overview'}` : 'atlas:overview';
@@ -1524,11 +1531,19 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
         const resultCount = page.querySelector('[data-atlas-result-count]');
         if (resultCount) {
           const foundationCount = state.foundations?.moduleIndex?.length;
+          // LC-22: the 7 step cards place 55 modules over 48 distinct concepts (`capex-and-depreciation`
+          // appears in two steps). Showing only "48" beside a 55-placement map read as a miscount, so
+          // the distinct count, the placement count and the re-placement are stated together.
+          const foundationLayerModules = (state.foundations?.layers || []).flatMap((layer) => layer.modules || []);
+          const foundationPlacements = foundationLayerModules.length;
+          const foundationRepeat = foundationPlacements - new Set(foundationLayerModules).size;
           const taxonomyDomainCount = state.research?.taxonomyDomains?.length;
           const taxonomyNodeCount = state.research?.taxonomyDomains?.reduce((sum, domain) => sum + (domain.nodes?.length || 0), 0);
           const sourceCount = state.research?.sources?.length;
           resultCount.textContent = state.tab === 'foundations'
-            ? foundationCount !== undefined ? `기초 개념 ${foundationCount}개 · 학습 원고 연결 · 근거는 접힘` : '기초 개념 수량 미확인 · 학습 지도를 연결하는 중'
+            ? foundationCount !== undefined
+              ? `기초 개념 ${foundationCount}개(고유) · 단계 배치 ${foundationPlacements}개${foundationRepeat > 0 ? ` · 다른 단계 재등장 ${foundationRepeat}개` : ''} · 학습 원고 연결 · 근거는 접힘`
+              : '기초 개념 수량 미확인 · 학습 지도를 연결하는 중'
             : state.tab === 'relationships'
               ? state.relationshipGuides ? `관계 지도 ${state.relationshipGuides.guides?.length || 0}개 · 원리→지표→반증 연결` : '관계 지도 수량 미확인 · 연결하는 중'
               : state.tab === 'taxonomy'

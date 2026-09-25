@@ -302,6 +302,28 @@ export function buildReconciliationStatus({ data = {}, marketSnapshot = {}, scre
 
     categoryDefinition('commodities-fx', [
       evidenceCheck('tier0-wti-gold-dxy-krw-current', quoteGroup(['CL=F', 'GC=F', 'DX-Y.NYB', 'KRW=X']), 'public-data/market-snapshot.json', marketSnapshot.generatedAt),
+      // P1246/P1247 (E3/E4 FX 축): 라이브 시세만으로는 "시계열이 있는가"를 말할 수 없다. 백테스트 통화축이
+      // 요구하는 것은 일별 이력이므로 그 커버리지 자체를 evidence로 세운다(crypto의 btc-daily-history-60과 같은 규칙).
+      evidenceCheck('fx-daily-history-60', historyCoverage(history, 'usdkrw', 60), 'public-data/history.json', latestHistory?.date),
+      // 공식 대조는 "값을 대신한다"가 아니라 "우리 계열이 공식 계열과 같은 시점에서 어긋나지 않는다"는 증거다.
+      // 공표 지연으로 시점이 맞지 않으면(not-comparable) 그건 판정 불가이며 통과로 세지 않는다.
+      evidenceCheck(
+        'fx-official-provider-reconciliation',
+        (() => {
+          const crossCheck = data?.providerCrossChecks?.fx;
+          if (crossCheck?.status !== 'ok' || crossCheck?.comparable !== true) return false;
+          if (!fresh(crossCheck?.fetchedAt, 2 * DAY, nowMs)) return false;
+          return Number.isFinite(Number(crossCheck?.providerValue)) && Number.isFinite(Number(crossCheck?.officialValue))
+            && Number.isFinite(Number(crossCheck?.divergencePct));
+        })(),
+        'public-data/data.json:providerCrossChecks.fx',
+        data?.providerCrossChecks?.fx?.fetchedAt,
+        data?.providerCrossChecks?.fx?.status === 'ok'
+          ? 'FRED DEXKOUS(H.10)와 같은 시점의 공급자 종가가 선언 허용폭 안에서 일치한다.'
+          : data?.providerCrossChecks?.fx?.status === 'divergent'
+            ? '공식 계열과 허용폭을 넘게 벌어졌다 — 값 출처를 바꾸지 않고 그대로 보고한다.'
+            : '공식 계열과 같은 시점 비교가 성립하지 않아 불일치를 단정하지 않는다(공표 지연/미수신).'
+      ),
       evidenceCheck('settlement-vs-spot-contract', false, 'market-data-field-contract', null, 'Settlement, futures, and spot bases are not fully reconciled.')
     ], { gate: 'current-plus-settlement-spot-contract' }),
 

@@ -1,6 +1,6 @@
 ---
-verified_by: Codex
-last_verified: 2026-08-10
+verified_by: Codex; CommandCode re-verified structural claims and open-packet status at v56.35 (2026-09-25)
+last_verified: 2026-09-25
 confidence: high for repository structure and static code findings; live/operator state not re-certified
 target_version: v53.97-local
 status: VERIFIED_LOCAL
@@ -526,3 +526,12 @@ Status: IMPLEMENTED_LOCAL | VERIFIED_LOCAL | BLOCKED_DECISION
 - rights, live Worker/CSP, 7/30-day SLO는 실제 운영자 증거가 있을 때만 완료다.
 
 현재 상태: **설계 완료, 구현 미착수. 첫 실행 패킷은 `CR-QA-01`이다.**
+
+## 재검증 (2026-09-25, v56.35)
+
+`last_verified`가 45일 임계를 넘어 knowledge-lint가 이 문서를 stale로 표시했다. 문서 자체를 다시 쓰지 않고, 이번 배치에서 실제로 확인한 범위만 기록한다.
+
+- **구조 주장 재확인(성립)**: 활성 route는 20개(`architecture/route-owners.json`), lifecycle/primary renderer/route data owner는 20/20 native(`_context/CURRENT-STATE.md`, `architecture/retirement-manifest.json`; `ci-retirement-contract` PASS). §0-2와 §3.2의 수치는 v56.35에서도 유효하다.
+- **P0 재확인**: `CR-QA-01`(테스트 그룹 예외가 성공으로 숨는 문제)은 **여전히 OPEN**이다 — QA-EXHAUST-98로 추적 중이고, 2026-09-25 `qa-runner affected`도 `skip=31`을 보고해 "affected PASS가 추출 안전성의 증거가 되지 못한다"는 원래 지적이 그대로 유효하다. `CR-BASE-01`(패킷 의존 그래프의 미정의 ID)은 이 문서가 원본 그래프를 대체 실행하지 않는 것으로 처리돼 있다.
+- **미재확인**: `CR-QA-02`(browser runtime error → release blocker)의 종단 배선과 나머지 패킷은 이번 배치에서 검증하지 않았다.
+- 이 재검증은 문서의 결론·패킷 정의를 바꾸지 않는다. `target_version: v53.97-local`은 작성 당시 기준선으로 남긴다.

@@ -94,6 +94,13 @@ const BUILDER_FIELDS = Object.freeze([
   { value: 'query', label: '티커·이름 검색', target: 'scr-text-search' }
 ]);
 
+// LC-64: 빌더 필드 중 실행 정의(filtersAST/definitionHash)에 실제로 들어가는 필드다.
+// 섹터·분류·구조·검색은 표 표시 범위만 바꾸므로 실행 정의에 넣지 않는다 — 이전에는 이런
+// 값도 빌더 조건 칩으로 올라와 실행 조건처럼 읽히다가 buildVisualDefinition에서 조용히
+// 버려져, 칩이 있는데 preview hash·통과 집합이 그대로인 상태가 됐다. 이제 실행 조건과
+// 표시 필터는 칩 위치·라벨·삭제 동작이 다르고, 표시 전용 값은 상태 줄이 그 사실을 말한다.
+const RUN_CONDITION_FIELDS = Object.freeze(['rank', 'rsi', 'momentum']);
+
 function finite(value) { return typeof value === 'number' && Number.isFinite(value) ? value : null; }
 function text(documentRef, value) {
   const node = documentRef.createElement('span');
@@ -363,10 +370,32 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
     return node;
   }
   if (key === 'price') {
-    const node = text(documentRef, finite(live.price) == null ? '미수신' : numberText(live.price, 2));
-    node.title = finite(live.price) == null ? '가격 미수신' : `관측 가격 ${row.instrumentRef?.currency || '통화 미확인'} · 기준 ${row.priceObservedAt || '미확인'} · ${row.priceSource || '출처 미확인'}`;
-    if (finite(live.price) != null && row.instrumentRef?.currency && row.instrumentRef.currency !== 'USD') node.textContent += ` ${row.instrumentRef.currency}`;
-    return node;
+    const price = finite(live.price);
+    if (price == null) {
+      const missing = text(documentRef, '미수신');
+      missing.title = '가격 미수신 — 이 행의 현재가로 확정하지 않습니다.';
+      return missing;
+    }
+    const currency = String(row.instrumentRef?.currency || row.currency || '').trim().toUpperCase() || null;
+    const observedAt = row.priceObservedAt || row.priceObserved || null;
+    const source = row.priceSource || null;
+    const stamp = observedAt ? `관측 ${String(observedAt).slice(0, 16).replace('T', ' ')}` : '관측 시각 미확인';
+    // LC-42: an overlay quote with no observation time is not a confirmed 현재가. Bind currency/
+    // observedAt/source/freshness to the row itself and do not inherit the global LIVE badge,
+    // which counts topbar coverage rather than this instrument's quote.
+    const wrap = documentRef.createElement('span');
+    const value = text(documentRef, `${numberText(price, 2)}${currency && currency !== 'USD' ? ` ${currency}` : ''}`);
+    value.dataset.quoteFreshness = observedAt ? 'observed' : 'unverified';
+    value.title = `${currency || '통화 미확인'} · ${stamp} · ${source || '출처 미확인'} · ${observedAt ? '행 자체 관측' : '현재성 미확인 — 전역 LIVE에 상속하지 않음'}`;
+    if (!observedAt) value.style.color = 'var(--text-muted)';
+    wrap.appendChild(value);
+    if (!observedAt) {
+      const note = documentRef.createElement('small');
+      note.textContent = '관측시각 미확인 · 참고';
+      note.style.cssText = 'display:block;font-size:10px;color:var(--text-muted);';
+      wrap.appendChild(note);
+    }
+    return wrap;
   }
   if (['ret1m', 'ret3m', 'ret6m'].includes(key)) return returnText(row[key]);
   if (key === 'rsi') return numberText(row.rsi, 1);
@@ -517,10 +546,18 @@ function renderFactorTab(documentRef, metadata) {
     const outliers = ranking.outlierDiagnostics || {};
     const turnover = ranking.turnoverStability || {};
     const regimeStability = ranking.regimeStability || {};
+    // LC-41: Number(null) === 0 and Number.isFinite(0) === true, so a missing diagnostic rendered
+    // as a measured zero ("상위군 회전 null%", "(0개 그룹)"). A count is only a count when the
+    // producer actually sent a number — null/'' stay unmeasured.
+    const countOrNull = (value) => (value == null || value === '' || typeof value === 'boolean') ? null : finite(Number(value));
+    const sectorGroups = countOrNull(sector.groups);
+    const sectorUnknown = countOrNull(sector.unknownRows);
+    const outlierCount = countOrNull(outliers.totalOutliers);
+    const turnoverPct = countOrNull(turnover.turnoverPct);
     const parts = [
-      `섹터 중립 ${sector.status || '미확인'}${Number.isFinite(Number(sector.groups)) ? ` (${sector.groups}개 그룹${Number(sector.unknownRows) ? `, 미분류 ${sector.unknownRows}` : ''})` : ''}`,
-      `극단치 완화 ${Number.isFinite(Number(outliers.totalOutliers)) ? `${outliers.totalOutliers}건` : '미확인'}`,
-      `상위군 회전 ${Number.isFinite(Number(turnover.turnoverPct)) ? `${turnover.turnoverPct}%` : turnover.status || '이전 스냅샷 없음'}`,
+      `섹터 중립 ${sector.status || '미확인'}${sectorGroups != null ? ` (${sectorGroups}개 그룹${sectorUnknown ? `, 미분류 ${sectorUnknown}` : ''})` : ''}`,
+      `극단치 완화 ${outlierCount != null ? `${outlierCount}건` : '미확인'}`,
+      `상위군 회전 ${turnoverPct != null ? `${turnoverPct}%` : turnover.status || '이전 스냅샷 없음'}`,
       `레짐 안정성 ${regimeStability.status || '이전 스냅샷 없음'}`
     ];
     diagnosticsNode.textContent = `${parts.join(' · ')} · 연구용 상대 순위이며 매매 신호/자동 가중 승격에 사용하지 않습니다.`;
@@ -753,7 +790,7 @@ function renderFilterChips(documentRef) {
   if (!active.length) {
     const empty = documentRef.createElement('span');
     empty.className = 'scr-chip-empty';
-    empty.textContent = '활성 조건 없음';
+    empty.textContent = '표시 필터 없음 — 표는 전체 범위를 보여줍니다';
     container.appendChild(empty);
   } else {
     active.forEach(({ id, label, value }) => {
@@ -762,7 +799,7 @@ function renderFilterChips(documentRef) {
       chip.className = 'scr-filter-chip';
       chip.dataset.aioScreenerAction = 'clear-filter';
       chip.dataset.aioScreenerArg = id;
-      chip.setAttribute('aria-label', `${label} ${value} 조건 제거`);
+      chip.setAttribute('aria-label', `표시 필터 ${label} ${value} 제거 (표 범위만)`);
       chip.textContent = `${label}: ${value} ×`;
       container.appendChild(chip);
     });
@@ -778,7 +815,7 @@ function renderBuilderConditions(documentRef, conditions = []) {
   if (!conditions.length) {
     const empty = documentRef.createElement('span');
     empty.className = 'scr-builder-empty';
-    empty.textContent = '시각 조건을 추가하면 이곳에 표시됩니다. 필터 변경은 미리보기, 실행 버튼이 결과 snapshot을 고정합니다.';
+    empty.textContent = '실행 조건(rank·RSI·3M 수익률)을 추가하면 이곳에 표시되고 실행 정의 hash에 포함됩니다. 섹터·분류·검색은 표시 필터로만 표 범위를 바꿉니다.';
     list.appendChild(empty);
     return;
   }
@@ -788,6 +825,7 @@ function renderBuilderConditions(documentRef, conditions = []) {
     chip.className = 'scr-filter-chip';
     chip.dataset.aioScreenerAction = 'remove-builder-condition';
     chip.dataset.aioScreenerArg = String(index);
+    chip.setAttribute('aria-label', `실행 조건 ${condition.label} ${condition.value} 제거 (정의 hash 변경)`);
     chip.textContent = `${condition.label}: ${condition.value} ×`;
     list.appendChild(chip);
   });
@@ -821,12 +859,34 @@ function describeFilterAst(definition) {
   };
 }
 
-function renderFunnel(documentRef, { universe = 0, ready = 0, passed = 0, unavailable = 0, filtered = 0 } = {}) {
+// LC-25: the funnel used to stack two different populations side by side with no denominator:
+// the executed judgment ("조건 통과 342 / 데이터 부족 29", out of the run's rowCount) and the
+// table's display scope ("현재 필터 결과 873", the current UI filter). Users read 342 and 873 as
+// one set. Both denominators are now explicit and bound to the run that produced them.
+function renderFunnel(documentRef, { universe = 0, ready = 0, passed = 0, unavailable = 0, filtered = 0, runRowCount = null, runId = null, origin = null } = {}) {
   const values = { 'scr-funnel-universe': universe, 'scr-funnel-ready': ready, 'scr-funnel-passed': passed, 'scr-funnel-unavailable': unavailable, 'scr-funnel-filtered': filtered };
   Object.entries(values).forEach(([id, value]) => {
     const node = documentRef.getElementById(id);
     if (node) node.textContent = String(value ?? 0);
   });
+  const runRow = finite(runRowCount);
+  const denominator = runRow != null && runRow > 0 ? `/${runRow}` : '';
+  const setText = (id, text) => { const node = documentRef.getElementById(id); if (node) node.textContent = text; };
+  setText('scr-funnel-passed-denom', denominator);
+  setText('scr-funnel-unavailable-denom', denominator);
+  const executed = !!runId;
+  const originLabel = origin === 'user' ? '사용자 실행'
+    : origin === 'pipeline' ? '파이프라인 실행'
+      : origin === 'preview' ? '미리보기(미고정)' : null;
+  setText('scr-funnel-runid', executed
+    ? `${String(runId).slice(0, 18)}${originLabel ? ` · ${originLabel}` : ''}`
+    : '실행 전');
+  const scope = documentRef.getElementById('scr-funnel-scope-note');
+  if (scope) {
+    scope.textContent = executed
+      ? `실행 판정 · run ${String(runId).slice(0, 12)} ${originLabel ? `(${originLabel})` : ''} · 분모 ${runRow != null ? runRow : '미확인'} · 통과 ${passed} · 부족 ${unavailable} / 표시 범위 · 현재 필터 ${filtered}행 (다른 모집단)`
+      : '실행 전 — 조건을 실행하면 실행 판정 분모가 고정됩니다. 표시 범위는 현재 필터 결과입니다.';
+  }
 }
 
 function render({ documentRef, store, readLiveData, readWatchlist, readAliases, sortState, visibleLimit, onWatchlistToggle, onExplain, onCompare, onVisibleSymbols, selectedSymbols, compareSymbols, columnPreset = 'discovery', customColumns = [], rowsOverride = null, workbenchResult = null, previewResult = null }) {
@@ -851,7 +911,23 @@ function render({ documentRef, store, readLiveData, readWatchlist, readAliases, 
     if (!workbenchResult?.run) onVisibleSymbols?.(visible.map((row) => row.sym || row.symbol).filter(Boolean));
     if (!visible.length) {
       const empty = documentRef.createElement('tr');
-      empty.appendChild(cell(documentRef, state?.status === 'unavailable' ? '스크리너 산출물 미수신' : '조건에 맞는 종목이 없습니다', '', 'text-align:center;padding:20px;color:var(--text-muted);'));
+      // LC-73: 필터 0건의 "거절"과 "데이터 미상으로 판정 보류"를 분리해 말한다 — 시총 필터가
+      // 걸려 있는데 시총이 없는 행을 조용히 제외하면 0건이 '조건 미달 0건'으로만 읽힌다.
+      const capFilter = selectedValue(documentRef, 'scr-cap');
+      let capHeld = 0;
+      if (capFilter) {
+        rows.forEach((row) => {
+          const mcapValue = row.fieldReadiness ? fieldValueForPurpose(row, 'valuation.marketCap', 'calculation') : finite(row.mcap);
+          if (mcapValue == null || mcapValue <= 0) capHeld += 1;
+        });
+      }
+      const capLabel = { MEGA: '초대형($1T+)', LARGE: '대형($10B~1T)', MID: '중형($2~10B)', SMALL: '소형(<$2B)' }[capFilter] || capFilter;
+      const emptyMessage = state?.status === 'unavailable'
+        ? '스크리너 산출물 미수신'
+        : capFilter && capHeld > 0
+          ? `조건을 충족한 0건 / 시총 정보가 없어 판정 보류 ${capHeld}건 — 시총 적격 ${rows.length - capHeld}/${rows.length} · 적용 컷 ${capLabel}`
+          : '조건에 맞는 종목이 없습니다';
+      empty.appendChild(cell(documentRef, emptyMessage, '', 'text-align:center;padding:20px;color:var(--text-muted);'));
       empty.firstChild.colSpan = visibleColumns.length;
       body.appendChild(empty);
     } else visible.forEach((row) => body.appendChild(createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, selectedSymbols, compareSymbols, visibleColumns })));
@@ -933,8 +1009,23 @@ function render({ documentRef, store, readLiveData, readWatchlist, readAliases, 
   if (readiness && previewConditions) readiness.title = `내장 조건: ${previewConditions.builtin.map(item => item.text).join(' · ') || '없음'} | 사용자 추가: ${previewConditions.user.map(item => item.text).join(' · ') || '없음'}`;
   if (readiness) readiness.textContent = state?.status === 'unavailable'
     ? '데이터 상태: 산출물 미수신 · 결과와 검증 수치를 표시하지 않습니다.'
-    : `${identityNote}${previewNote}${state?.metadata?.artifactFreshnessStatus === 'stale' || state?.metadata?.factorFreshnessStatus === 'stale' ? '갱신 지연: 원자료는 기준일과 함께 표시하고 계산은 필드별로 확인합니다. · ' : ''}${state?.metadata?.universeFreshnessStatus === 'stale' ? '종목 목록 최신성 확인 필요 · ' : ''}${state?.metadata?.modelValidation?.status !== 'READY' ? `모델 검증 ${state?.metadata?.modelValidation?.status || 'BLOCKED'} · ` : ''}연구 snapshot · 종목 ${allRows.length} · 계산 준비 ${readyCount} · 조건 통과 ${passedCount} · 계산 보류 ${unavailableCount} · 상대 랭킹은 연구용이며 현재 매매 지시가 아닙니다.`;
-  renderFunnel(documentRef, { universe: allRows.length, ready: readyCount, passed: passedCount, unavailable: unavailableCount, filtered: filtered.length });
+    : `${identityNote}${previewNote}${state?.metadata?.artifactFreshnessStatus === 'stale' || state?.metadata?.factorFreshnessStatus === 'stale' ? '갱신 지연: 원자료는 기준일과 함께 표시하고 계산은 필드별로 확인합니다. · ' : ''}${state?.metadata?.universeFreshnessStatus === 'stale' ? '종목 목록 최신성 확인 필요 · ' : ''}${state?.metadata?.modelValidation?.status !== 'READY' ? `모델 검증 ${state?.metadata?.modelValidation?.status || 'BLOCKED'} · ` : ''}연구 snapshot · 종목 ${allRows.length} · 계산 준비 ${readyCount} · 실행 판정 ${run?.runId ? `run ${String(run.runId).slice(0, 12)} ` : ''}통과 ${passedCount} · 부족 ${unavailableCount} / ${Number.isFinite(Number(run?.rowCount)) ? run.rowCount : '—'} · 표시 범위 현재 필터 ${filtered.length}행 · 상대 랭킹은 연구용이며 현재 매매 지시가 아닙니다.`;
+  // LC-25: bind the executed judgment to the run that produced it and keep the table's display
+  // scope separate. A preview is an unfixed run and is labeled as such; the pipeline entry and a
+  // user run are different origins over the same artifact.
+  const runOrigin = workbenchResult?.run ? 'user'
+    : preview?.run ? 'preview'
+      : state?.lastRun ? 'pipeline' : null;
+  renderFunnel(documentRef, {
+    universe: allRows.length,
+    ready: readyCount,
+    passed: passedCount,
+    unavailable: unavailableCount,
+    filtered: filtered.length,
+    runRowCount: run?.rowCount,
+    runId: run?.runId,
+    origin: runOrigin
+  });
   renderFilterChips(documentRef);
   const coverage = documentRef.getElementById('screener-factor-coverage');
   if (coverage) {
@@ -971,7 +1062,10 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
   const compareSymbols = new Set();
   // Controls own the visual conditions. A second mutable chip array drifted
   // from the filters and could keep removed conditions active on the next run.
+  // LC-64: 빌더 조건 칩은 **실행 정의에 들어가는 조건**만 표시한다. 표시 필터(섹터·분류·
+  // 구조·검색)는 renderFilterChips의 "표시 필터" 행에만 나타나며, 두 행의 라벨·삭제 의미가 다르다.
   const readBuilderConditions = () => BUILDER_FIELDS.flatMap(definition => {
+    if (!RUN_CONDITION_FIELDS.includes(definition.value)) return [];
     const value = String(documentRef?.getElementById(definition.target)?.value || '').trim();
     if (!value || (definition.value === 'rank' && value === '0')) return [];
     return [{ field: definition.value, label: definition.label, value, target: definition.target }];
@@ -1055,17 +1149,28 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          const readiness = row.fieldReadiness?.coverage || {};
           // P1164/B04(12:W12-B): screenStatus=passed만으로 'WhyRanked'라 부르지 않는다.
           // 도메인이 분리한 필터/순위/설명 상태를 renderer도 그대로 사용한다.
+          // LC-40: 엔진 어휘는 'ranked'/'unavailable'/'not-requested'다. 이전 비교('available')는
+          // 절대 참이 될 수 없어 순위가 계산돼도 제목이 항상 '순위 계산 보류'로 고정됐다.
           const filterState = row.screenFilterState || row.screenStatus;
-          const title = filterState !== 'passed'
-            ? (filterState === 'rejected' ? 'WhyRejected' : '계산 불가')
-            : (row.screenRankingState === 'available' && row.screenRank != null ? '조건 통과 · 순위 계산 가능' : '조건 통과 · 순위 계산 보류');
+          const rankingState = row.screenRankingState || (row.screenRank != null ? 'ranked' : 'unavailable');
+          const ordinalRank = finite(row.screenRank);
+          const rawFactorRank = finite(explanation.contributions?.rank);
+          const filterLabel = filterState === 'passed' ? '필터 통과'
+            : filterState === 'rejected' ? '필터 미충족' : '필터 판정 보류';
+          const rankingLabel = rankingState === 'ranked' ? '랭킹 계산됨'
+            : rankingState === 'not-requested' ? '랭킹 미요청(필터 미통과)' : '랭킹 계산 불가';
+          const title = filterState === 'passed'
+            ? (rankingState === 'ranked' && ordinalRank != null ? '조건 통과 · 순위 계산 가능' : '조건 통과 · 순위 계산 보류')
+            : (filterState === 'rejected' ? 'WhyRejected — 조건 미충족' : '데이터 부족 — 판정 보류');
          const missing = explanation.missingEvidence || row.setupProfile?.missingEvidence || [];
          const contrary = explanation.contraryEvidence || [];
          setText('scr-why-title', `${row.sym || row.symbol || '종목'} · ${title}`);
          setText('scr-why-subtitle', row.name || '연구용 상대 랭킹 설명');
           const factorConfidence = finite(row.confidence);
-           const visibleRank = row.screenRank != null ? row.screenRank : '—';
-          setText('scr-why-status', `${row.screenStatus || 'unavailable'} · rank ${visibleRank} · 필드 coverage ${readiness.coveragePct == null ? '—' : `${readiness.coveragePct}%`} · 팩터 근거 ${factorConfidence == null ? '—' : `${Math.round(factorConfidence * 100)}%`} (수익확률 아님)`);
+           // LC-40: 두 rank를 이름으로 분리한다 — 표시 순위는 통과 행의 서수, 팩터 원값은 순위
+           // 입력(0~100)이다. 둘 다 'rank'라 부르면 서로 다른 숫자를 같은 값으로 오해한다.
+           const rankText = `표시 순위 ${ordinalRank == null ? '—' : ordinalRank} · 팩터 원값 ${rawFactorRank == null ? '—' : rawFactorRank.toFixed(2)}`;
+          setText('scr-why-status', `${filterLabel} · ${rankingLabel} · ${rankText} · 필드 coverage ${readiness.coveragePct == null ? '—' : `${readiness.coveragePct}%`} · 팩터 근거 ${factorConfidence == null ? '—' : `${Math.round(factorConfidence * 100)}%`} (수익확률 아님)`);
          setText('scr-why-contrary', contrary.length ? contrary.join(' · ') : row.screenStatus === 'unavailable' ? '필수 근거 미수신으로 조건 판단을 보류했습니다.' : '조건을 반대한 근거가 없습니다.');
           const structureEvidence = row.setupProfile?.structureEvidence || {};
           const structureNote = structureEvidence.postEarningsBreakout === 'unavailable'
@@ -1185,7 +1290,11 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
              activeRows = result.rows;
              selectedSymbols.clear();
              visibleLimit.value = 12;
-             if (workbenchStatus) workbenchStatus.textContent = `실행 완료 · ${result.persistence?.status === 'persisted' ? '입력 로컬 보관됨' : '입력 보관 실패: 이 화면에서만 유지'} · ${result.run?.passed || 0} 통과 / ${result.run?.unavailable || 0} 데이터 부족`;
+              // LC-25: name the run and its denominator so the executed judgment is not confused
+              // with the table's separate display scope.
+              const runRowCount = Number.isFinite(Number(result.run?.rowCount)) ? ` / ${result.run.rowCount}` : '';
+              const runIdText = result.run?.runId ? ` · run ${String(result.run.runId).slice(0, 12)}` : '';
+              if (workbenchStatus) workbenchStatus.textContent = `실행 완료 · ${result.persistence?.status === 'persisted' ? '입력 로컬 보관됨' : '입력 보관 실패: 이 화면에서만 유지'}${runIdText} · 실행 판정 ${result.run?.passed || 0} 통과 / ${result.run?.unavailable || 0} 데이터 부족${runRowCount}`;
              syncDefinitionEditor();
              renderWorkbench();
              renderNow();
@@ -1321,6 +1430,20 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
          const definition = BUILDER_FIELDS.find((item) => item.value === field?.value);
          const raw = value?.value?.trim();
          if (!definition || !raw) return null;
+         // LC-65: 허용 범위 밖 입력을 조용히 버리지 않는다 — 셀렉트는 허용값 목록과 함께
+         // 명시적으로 거부하고, 숫자 필드는 숫자 검증을 같은 parser로 통과한다.
+         const target = documentRef.getElementById(definition.target);
+         if (target && target.options) {
+           const allowed = Array.prototype.slice.call(target.options).map((option) => option.value).filter((optionValue) => optionValue && optionValue !== '0');
+           const matched = allowed.find((optionValue) => optionValue.toLowerCase() === raw.toLowerCase());
+           if (!matched) return { error: `“${raw}”는 지원하지 않는 값입니다 — 허용값: ${allowed.join(', ')}` };
+           return { field: definition.value, label: definition.label, value: matched, target: definition.target };
+         }
+         if (RUN_CONDITION_FIELDS.includes(definition.value)) {
+           const numeric = Number(raw);
+           if (!Number.isFinite(numeric)) return { error: `“${raw}”는 숫자가 아닙니다 — ${definition.label}은 숫자만 허용합니다` };
+           if (numeric < 0) return { error: `“${raw}”는 허용 범위 밖입니다 — ${definition.label}은 0 이상만 허용합니다` };
+         }
          return { field: definition.value, label: definition.label, value: raw, target: definition.target };
        };
        const buildVisualDefinition = () => {
@@ -1502,13 +1625,27 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            visibleLimit.value += 12;
            renderNow();
          } else if (action === 'add-builder-condition') {
+           const valueInput = documentRef.getElementById('scr-builder-value');
            const condition = readVisualCondition();
+           if (condition && condition.error) {
+             // LC-65: 무효 입력은 필드·상태줄·접근성을 함께 물린다 — 이전 preview/run이
+             // 그대로 남아 "95를 실행했다"고 읽히지 않도록 명시적으로 거부한다.
+             if (workbenchStatus) workbenchStatus.textContent = condition.error;
+             if (valueInput) { valueInput.setAttribute('aria-invalid', 'true'); valueInput.focus(); }
+             return;
+           }
            if (!condition) {
              if (workbenchStatus) workbenchStatus.textContent = '조건을 선택하고 값을 입력하세요.';
              return;
            }
+           if (valueInput) valueInput.removeAttribute('aria-invalid');
            const target = documentRef.getElementById(condition.target);
            if (target) target.value = condition.value;
+           if (workbenchStatus) {
+             workbenchStatus.textContent = RUN_CONDITION_FIELDS.includes(condition.field)
+               ? `${condition.label}: ${condition.value} — 실행 조건으로 추가됨 (정의 hash 변경 · 미리보기 갱신)`
+               : `${condition.label}: ${condition.value} — 표시 필터로만 적용 (표 범위만 · 실행 정의 미포함)`;
+           }
            renderNow();
          } else if (action === 'remove-builder-condition') {
            const condition = readBuilderConditions()[Number(argument)];
@@ -1563,7 +1700,15 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
            visibleLimit.value = 12;
            renderNow();
          }
-      };
+       };
+       // LC-65: 키보드 Enter도 클릭과 같은 parser/validator를 통과한다.
+       const handleBuilderKeydown = (event) => {
+         if (event.key !== 'Enter') return;
+         if (!event.target.matches?.('#scr-builder-value, #scr-builder-field')) return;
+         event.preventDefault();
+         const add = event.target.closest?.('#page-screener')?.querySelector('[data-aio-screener-action="add-builder-condition"]');
+         add?.click();
+       };
       const fillSelect = (id, key, label) => {
         const select = documentRef.getElementById(id);
         if (!select) return;
@@ -1588,9 +1733,11 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
       page.addEventListener('click', handleClick);
       page.addEventListener('input', handleInput);
       page.addEventListener('change', handleInput);
+      page.addEventListener('keydown', handleBuilderKeydown);
       bag.add(() => page.removeEventListener('click', handleClick));
       bag.add(() => page.removeEventListener('input', handleInput));
       bag.add(() => page.removeEventListener('change', handleInput));
+      bag.add(() => page.removeEventListener('keydown', handleBuilderKeydown));
       bag.add(subscribeToSlices(store, ['screener'], renderWithControls));
       const eventTarget = documentRef || root;
       ['aio:refresh:done', 'aio:liveQuotes'].forEach((eventName) => {

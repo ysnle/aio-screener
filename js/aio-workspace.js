@@ -1139,7 +1139,6 @@ async function refreshPortfolioRisk() {
   el.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:8px 0;">가격 데이터 요청 중...</div>';
 
   const tickers = positions.map(function(p) { return p.ticker; });
-  const returnsMap = {};
   const historyMap = {};
 
   // 각 종목 Yahoo Finance 3개월 가격 기록 fetch
@@ -1186,90 +1185,40 @@ async function refreshPortfolioRisk() {
     return;
   }
 
-  // Cost is historical context, never a current-value fallback. Require a
-  // timestamped decision-authorized quote for each live portfolio weight.
-  var currentValueMap = {};
+  // P1258: 위험 입력 조립(입력 자격·구성 스냅샷·returnsMap·estimate 호출)은 네이티브
+  // src/ui/panels/portfolio-risk-input.js가 소유한다 — 셸은 증거 수집(_aioDecisionMetric),
+  // 사유별 문구, 렌더만 남긴다(P1195/P1199 선례의 분해 잔여 해소).
   var priceEvidenceMap = {};
-  var missingCurrent = [];
   positions.forEach(function(p) {
-    var evidence = typeof _aioDecisionMetric === 'function' ? _aioDecisionMetric(p.ticker, 'price', null) : null;
-    priceEvidenceMap[p.ticker] = evidence;
-    var price = evidence && evidence.allowedUse === true ? evidence.value : null;
-    if (price == null || !isFinite(price) || price <= 0) missingCurrent.push(p.ticker);
-    else currentValueMap[p.ticker] = price * Number(p.qty);
+    priceEvidenceMap[p.ticker] = typeof _aioDecisionMetric === 'function' ? _aioDecisionMetric(p.ticker, 'price', null) : null;
   });
-  if (missingCurrent.length) {
-    el.innerHTML = '<div style="font-size:11px;color:var(--data-amber);padding:8px 0;">현재 시세가 없는 종목은 원가로 평가액을 대체하지 않습니다. 갱신 후 다시 시도하세요: ' + _escHtmlSafe(missingCurrent.join(', ')) + '.</div>';
-    return;
-  }
-  var totalCurrentValue = positions.reduce(function(s, p) { return s + (currentValueMap[p.ticker] || 0); }, 0);
-  if (!(totalCurrentValue > 0)) {
-    el.innerHTML = '<div style="font-size:11px;color:var(--data-amber);padding:8px 0;">현재 평가액을 산출할 수 없어 리스크 계산을 보류합니다.</div>';
-    return;
-  }
-  var minLen = commonDates.length - 1;
-  validTickers.forEach(function(t) {
-    var values = commonDates.map(function(day) { return historyMap[t][day]; });
-    returnsMap[t] = values.slice(1).map(function(value, idx) { return (value / values[idx]) - 1; });
-  });
-
-  // 22:PFR02/PFR09/PFR10 (E4): publish a DECLARED risk path instead of an
-  // implied one. Weights are frozen into one immutable composition snapshot;
-  // cash is declared or held (never dropped into a stock-only denominator and
-  // then called "account risk"); the estimate carries exposure path, rebalance
-  // policy, denominator, RF state and sample facts for the renderer.
   var cashValue = 0;
   try { cashValue = Math.max(0, parseFloat(localStorage.getItem('aio_portfolio_cash') || '0') || 0); } catch(e) {}
-  // E3/E4/P1188: 선언된 계좌·현금 통화와 현금 수익률·RF만 쓴다. 현금 통화가 없거나 기준 통화와
-  // 다르면 계좌 전체 분모를 만들 수 없으므로 주식 부분만 게시하고 계좌 뷰는 보류한다.
   var declarations = readPortfolioAssumptionDeclarations();
-  var cashDeclarable = cashValue === 0
-    || (declarations.cashCurrency != null && declarations.baseCurrency != null && declarations.cashCurrency === declarations.baseCurrency);
-  var snapshot = (typeof window._pfCreateCompositionSnapshot === 'function') ? window._pfCreateCompositionSnapshot({
-    members: positions.map(function(p) {
-      var ev = priceEvidenceMap[p.ticker] || null;
-      return {
-        ticker: p.ticker,
-        qty: Number(p.qty),
-        price: ev ? ev.value : null,
-        priceObservedAt: ev && ev.ts != null ? new Date(ev.ts).toISOString() : null,
-        priceSource: ev && ev.source != null ? String(ev.source) : null
-      };
-    }),
-    cash: { amount: cashValue, currency: declarations.cashCurrency },
-    asOf: new Date().toISOString(),
-    weightBasis: cashDeclarable ? 'whole_account' : 'invested_sleeve',
-    baseCurrency: declarations.baseCurrency
+  var assembled = (typeof window._pfAssembleRiskEstimateInput === 'function') ? window._pfAssembleRiskEstimateInput({
+    positions: positions,
+    priceEvidenceMap: priceEvidenceMap,
+    historyMap: historyMap,
+    validTickers: validTickers,
+    commonDates: commonDates,
+    cashValue: cashValue,
+    declarations: declarations
   }) : null;
-  // E4/P1193: 측정 경로와 리밸런싱 정책도 선언 입력이다. 전략 경로는 포지션이 선언한 목표비중
-  // (폼 단위 %)이 합 100%일 때만 성립하고, 아니면 엔진이 `strategy-target-weights-invalid`로 보류한다.
-  // P1198: 선언된 정책만 넘긴다 — 셸이 'daily'를 지어내면 미선언이 선언으로 게시된다(ledger P1198).
-  var exposurePath = declarations.exposurePath || 'current_composition_retrospective';
-  var rebalancePolicy = declarations.rebalancePolicy;
-  var strategyTargetWeights;
-  if (exposurePath === 'fixed_target_weight_strategy') {
-    var declaredWeightSum = 0;
-    var weightComplete = positions.length > 0;
-    strategyTargetWeights = {};
-    positions.forEach(function(p) {
-      var declaredWeight = Number(p.targetWeight);
-      if (!isFinite(declaredWeight) || declaredWeight < 0) { weightComplete = false; return; }
-      strategyTargetWeights[p.ticker] = declaredWeight / 100;
-      declaredWeightSum += declaredWeight;
-    });
-    // P1200: 합이 100% 미만이면 나머지는 현금 목표비중이다(계좌 범위 선언). 100% 초과만 무효다.
-    if (!weightComplete || declaredWeightSum > 100 + 1e-6) strategyTargetWeights = {};
+  if (!assembled || !assembled.ok) {
+    var holdCode = (assembled && assembled.code) || 'risk-input-unavailable';
+    el.innerHTML = '<div style="font-size:11px;color:var(--data-amber);padding:8px 0;">' + (
+      holdCode === 'missing-current'
+        ? '현재 시세가 없는 종목은 원가로 평가액을 대체하지 않습니다. 갱신 후 다시 시도하세요: ' + _escHtmlSafe(((assembled && assembled.tickers) || []).join(', ')) + '.'
+        : holdCode === 'no-current-value' ? '현재 평가액을 산출할 수 없어 리스크 계산을 보류합니다.'
+          : holdCode === 'common-dates-insufficient' ? '종목 간 공통 거래일이 6일 미만이라 리스크 계산을 보류합니다.'
+            : '위험 추정 입력을 확정하지 못해 보류합니다: ' + _escHtmlSafe(holdCode) + '.'
+    ) + '</div>';
+    return;
   }
-  var estimate = (snapshot && typeof window._pfDeriveRiskEstimate === 'function') ? window._pfDeriveRiskEstimate({
-    snapshot: snapshot,
-    returnsMap: returnsMap,
-    cashReturn: declarations.cashReturn != null ? { mode: 'explicit_assumption', annualRate: declarations.cashReturn } : { mode: 'unresolved' },
-    rfAnnual: declarations.riskFreeRate,
-    exposureHistoryMode: exposurePath,
-    rebalancePolicy: rebalancePolicy,
-    targetWeights: strategyTargetWeights,
-    sampleDates: commonDates.slice(1)
-  }) : null;
+  var returnsMap = assembled.returnsMap;
+  var snapshot = assembled.snapshot;
+  var estimate = assembled.estimate;
+  var minLen = assembled.minLen;
   if (!estimate || estimate.status !== 'ready') {
     el.innerHTML = '<div style="font-size:11px;color:var(--data-amber);padding:8px 0;">위험 추정 입력을 확정하지 못해 보류합니다: ' +
       _escHtmlSafe((estimate && estimate.code) || (snapshot && snapshot.blocked && snapshot.blocked.code) || 'composition-snapshot-unavailable') + '.</div>';
@@ -1714,6 +1663,13 @@ async function runPortfolioBacktestLab() {
      if (d && d.timestamps && d.closes && (Array.isArray(d.adjustedCloses) || Array.isArray(d.adjCloses)) && d.backtestEligible !== false) priceMap[t] = d;
   }));
   var failed = tickers.filter(function(t) { return !priceMap[t]; });
+  // P1259 (QA-FX-SERIES): 기준 통화 수익률은 월말 관측 FX 시계열을 요구한다 — 랩과 같은 chart 경로로
+  // KRW=X를 관측해 넘기고, 못 얻으면 엔진이 현지 통화 결과만 게시한다(추정하지 않음).
+  var fxSeries = null;
+  try {
+    var fxD = (typeof _fetchYahooChartData === 'function') ? await _fetchYahooChartData('KRW=X', '10y', '1d') : null;
+    if (fxD && fxD.timestamps && fxD.closes && fxD.closes.length) fxSeries = { usdkrw: { timestamps: fxD.timestamps, closes: fxD.closes } };
+  } catch (e) { fxSeries = null; }
   var model = window.AIO && typeof window.AIO.buildPortfolioBacktestLab === 'function'
     ? window.AIO.buildPortfolioBacktestLab(priceMap, positions, {
         initialAmount: initial,
@@ -1723,11 +1679,19 @@ async function runPortfolioBacktestLab() {
         benchmarkSymbol: benchmark || 'SPY',
         // No time-varying RF series is loaded here.  Keep RF-dependent
         // statistics unavailable instead of silently applying a fixed 4.3%.
-        rfAnnual: null
+        rfAnnual: null,
+        // P1247 (E3/E4): 랩의 시작 구성도 환산 주장이다. 평가 화면(surface)과 **같은** 선언(기준 통화 +
+        // 관측 FX leg)을 넘긴다 — 넘기지 않으면 혼합 통화 구성은 1:1 합산 대신 보류된다.
+        baseCurrency: (readPortfolioAssumptionDeclarations() || {}).baseCurrency || null,
+        fxLegs: getPortfolioFxLegs(),
+        fxSeries: fxSeries
       })
     : { ok: false, warnings: ['백테스트 엔진을 찾을 수 없습니다.'] };
   if (model && failed.length) {
     model.warnings = (model.warnings || []).concat(['가격 이력 수신 실패: ' + failed.join(', ')]);
+  }
+  if (model && model.baseCurrencyReturns && model.baseCurrencyReturns.disclosure) {
+    model.warnings = (model.warnings || []).concat([model.baseCurrencyReturns.disclosure]);
   }
   window._lastPortfolioBacktestLab = { model: model, priceMap: priceMap, checkedAt: Date.now(), fetchStatuses: settled.map(function(r, i) { return { ticker: tickers[i], status: r.status }; }) };
   _aioRenderPortfolioBacktestLab(model);

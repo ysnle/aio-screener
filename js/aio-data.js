@@ -973,15 +973,40 @@ var SCREENER_DB = [
 // read the canonical native screener state when it is ready. The legacy DB is
 // a fallback only, and native rows may be enriched with fields that the
 // published artifact does not yet carry (for example curated memo metadata).
-function _aioGetCanonicalScreenerRows() {
+// E2/S-C (P1241): row resolution now has one owner — `src/data/screener-row-policy.js`, bridged as
+// `AIO_ARCH.resolveScreenerRows`. Owner decision: a published-but-empty native state is authoritative
+// and the bundled DB is only a pre-publication compatibility read, declared by this call site's intent.
+// The optional `root` is kept so the shadow harness can execute this path on synthetic input.
+function _aioGetCanonicalScreenerRows(root) {
+  var w = root || window;
   try {
-    var arch = window.AIO_ARCH;
-    if (arch && typeof arch.getScreenerRows === 'function') {
-      var rows = arch.getScreenerRows();
-      if (Array.isArray(rows) && rows.length) return rows;
+    var arch = w.AIO_ARCH;
+    if (arch && typeof arch.resolveScreenerRows === 'function') {
+      return arch.resolveScreenerRows('bundled-compat');
     }
   } catch (_) {}
-  return Array.isArray(window.SCREENER_DB) ? window.SCREENER_DB : [];
+  // Pre-native-boot bundle (no AIO_ARCH at all): no canonical reader exists, so the bundled DB is the
+  // only available row set. This is the same declared policy, not a second chain.
+  var rows = (w.AIO_ARCH && typeof w.AIO_ARCH.getScreenerRows === 'function') ? w.AIO_ARCH.getScreenerRows() : null;
+  if (Array.isArray(rows) && rows.length) return rows;
+  return Array.isArray(w.SCREENER_DB) ? w.SCREENER_DB : [];
+}
+
+// E2/S-E (P1239): the general and unified chats used to re-implement the same screener query,
+// recent-ticker extraction and prompt formatting inline. One helper now owns that sequence in both.
+function _aioBuildScreenerAiContext(query, messages, logger) {
+  var result = null;
+  try {
+    if (typeof _aioRunScreenerQuery !== 'function') return { result: null, prompt: '' };
+    var recent = (typeof _aioExtractRecentRecommendationTickers === 'function') ? _aioExtractRecentRecommendationTickers(messages) : [];
+    result = _aioRunScreenerQuery(query, { recentTickers: recent });
+    if (!(result && result.matched)) return { result: result || null, prompt: '' };
+    var prompt = (typeof _formatScreenerResultPrompt === 'function') ? _formatScreenerResultPrompt(result) : '';
+    return { result: result, prompt: prompt || '' };
+  } catch (e) {
+    if (typeof logger === 'function') logger(e);
+    return { result: result, prompt: '' };
+  }
 }
 
 
@@ -1927,21 +1952,6 @@ var _fetchYahooChartData = window._fetchYahooChartData;
 
 
 // v39.2: screener 제거됨
-function switchTab(tabId, el) {
-  // Handle both switchTab(el, tabId) and switchTab(tabId) forms
-  if (el && typeof el === 'string') { var tmp = tabId; tabId = el; el = tmp; }
-  const page = (el && el.closest) ? (el.closest('.page') || document.getElementById('page-ticker')) : document.getElementById('page-ticker');
-  if (page) page.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
-  if (el && el.classList) el.classList.add('active');
-  ['tab-overview','tab-chart','tab-financials','tab-technical','tab-fundamental','tab-monalert'].forEach(function(id){
-    const el2 = document.getElementById(id);
-    if(el2) el2.style.display = (id === tabId) ? '' : 'none';
-  });
-  // v27.1: Chart 탭 선택 시 자동으로 차트 로드
-  if (tabId === 'tab-chart' && typeof loadTickerChart === 'function') {
-    setTimeout(function(){ loadTickerChart('3m', null); }, 100);
-  }
-}
 function switchThemeMode(mode) {
   const etfView = document.getElementById('etf-view');
   const subView = document.getElementById('subtheme-view');
@@ -2925,7 +2935,7 @@ async function fetchFredSeries(seriesId, limit = 30) {
 //   → macro 페이지 + 브리핑 AI 프롬프트에서 활용 가능
 const FRED_SERIES = {
   'BAMLH0A0HYM2': { name: 'HY Spread', unit: 'bp' }, // multiplier 제거 (사문화 필드)
-  'T10Y2Y':       { name: '10Y-2Y Spread', el: null, unit: '%' },
+  'T10Y2Y':       { name: '10Y-2Y Spread', el: null, unit: 'percentage-point' },
   'T10Y3M':       { name: '10Y-3M Spread', el: null, unit: '%' },
   'DGS2':         { name: '2Y Treasury', el: null, unit: '%' },
   'DGS5':         { name: '5Y Treasury', el: null, unit: '%' },
@@ -5151,7 +5161,10 @@ function cleanupProxyCache() {
 
 /* ── Phase D: IndexedDB 뉴스 캐시 (v48.63) ─────────────────────────────── */
 // 뉴스 원본을 IDB에 저장 → 새로고침 후 fetchAllNews 완료 전 즉시 렌더
-const _AIO_IDB_NAME = 'AIOScreenerDB';
+// E2/S-F (P1238): 이 DB는 뉴스 캐시 전용인데 이름이 스크리너 저장소처럼 읽혔다. 이름을 뉴스
+// 범위로 바꾸고, 이전 이름의 DB는 삭제하지 않고 'news' 스토어가 비었을 때만 복사한다(마이그레이션).
+const _AIO_IDB_NAME = 'AIOScreenerNewsCache';
+const _AIO_IDB_LEGACY_NAME = 'AIOScreenerDB';
 const _AIO_IDB_VER  = 1;
 
 function _idbOpen() {
@@ -5165,8 +5178,58 @@ function _idbOpen() {
         os.createIndex('ts', 'ts', { unique: false });
       }
     };
-    req.onsuccess = function(e) { resolve(e.target.result); };
+    req.onsuccess = function(e) {
+      resolve(e.target.result);
+      _idbMigrateLegacyNews(e.target.result);
+    };
     req.onerror   = function()  { reject(req.error); };
+  });
+}
+
+var _aioIdbMigrationDone = false;
+// S-F 마이그레이션: 새 DB가 비었고 이전 이름의 DB가 실제로 존재할 때만 'news' 레코드를 복사한다.
+// `indexedDB.open`은 없으면 DB를 만들어버리므로, 존재 확인 후에만 연다. 이전 DB는 지우지 않는다.
+function _idbMigrateLegacyNews(db) {
+  if (_aioIdbMigrationDone) return Promise.resolve({ migrated: 0, reason: 'already-checked' });
+  _aioIdbMigrationDone = true;
+  return new Promise(function(resolve) {
+    try {
+      var countReq = db.transaction('news', 'readonly').objectStore('news').count();
+      countReq.onerror = function() { resolve({ migrated: 0, reason: 'count-error' }); };
+      countReq.onsuccess = function() {
+        if (countReq.result > 0) { resolve({ migrated: 0, reason: 'store-not-empty' }); return; }
+        var exists = Promise.resolve(true);
+        if (typeof indexedDB.databases === 'function') {
+          exists = indexedDB.databases().then(function(list) {
+            return (list || []).some(function(entry) { return entry && entry.name === _AIO_IDB_LEGACY_NAME; });
+          }).catch(function() { return false; });
+        }
+        exists.then(function(present) {
+          if (!present) { resolve({ migrated: 0, reason: 'legacy-absent' }); return; }
+          var legacyReq = indexedDB.open(_AIO_IDB_LEGACY_NAME);
+          legacyReq.onerror = function() { resolve({ migrated: 0, reason: 'legacy-unavailable' }); };
+          legacyReq.onsuccess = function(e) {
+            var legacy = e.target.result;
+            try {
+              if (!legacy.objectStoreNames.contains('news')) { legacy.close(); resolve({ migrated: 0, reason: 'legacy-store-absent' }); return; }
+              var rows = [];
+              var cursorReq = legacy.transaction('news', 'readonly').objectStore('news').openCursor();
+              cursorReq.onerror = function() { legacy.close(); resolve({ migrated: 0, reason: 'cursor-error' }); };
+              cursorReq.onsuccess = function(event) {
+                var cursor = event.target.result;
+                if (cursor) { rows.push(cursor.value); cursor.continue(); return; }
+                legacy.close();
+                try {
+                  var tx = db.transaction('news', 'readwrite');
+                  rows.forEach(function(row) { try { tx.objectStore('news').put(row); } catch (_) {} });
+                } catch (_) {}
+                resolve({ migrated: rows.length, reason: 'copied' });
+              };
+            } catch (err) { try { legacy.close(); } catch (_) {} resolve({ migrated: 0, reason: 'legacy-error' }); }
+          };
+        });
+      };
+    } catch (e) { resolve({ migrated: 0, reason: 'error' }); }
   });
 }
 
@@ -5407,6 +5470,12 @@ function _aioApplyServerTreasuryEvidence(macro, metadata) {
     fields.push(definition.field);
   });
   window._fredData = fred;
+  window._serverDataMeta = window._serverDataMeta || {};
+  window._serverDataMeta.treasury = window._serverDataMeta.treasury || Object.freeze({
+    ...treasury,
+    cutId: treasury.observedAt ? `us-treasury-daily:${treasury.observedAt}` : null,
+    values: Object.freeze({ ...(treasury.values || {}) })
+  });
   // Reuse the existing DOM projection so legacy macro/fx-bond sinks and the
   // native event-driven consumers observe the same dated field envelope.
   try { if (typeof applyFredToUI === 'function') applyFredToUI(fred); } catch (_) {}
@@ -5799,7 +5868,11 @@ async function _aioLoadServerData() {
       });
       var _serverTreasuryProjection = _aioApplyServerTreasuryEvidence(d.macro, window._serverDataMeta);
       if (window._serverDataMeta) {
-        window._serverDataMeta.treasury = d.macro._treasury || null;
+        window._serverDataMeta.treasury = d.macro._treasury ? Object.freeze({
+          ...d.macro._treasury,
+          cutId: d.macro._treasury.cutId || (d.macro._treasury.observedAt ? `us-treasury-daily:${d.macro._treasury.observedAt}` : null),
+          values: Object.freeze({ ...(d.macro._treasury.values || {}) })
+        }) : null;
         window._serverDataMeta.treasuryProjectedFields = _serverTreasuryProjection.fields;
       }
       if (_beaEvidence && _beaEvidence.status === 'ok' && window.DATA_SNAPSHOT._fieldTs && (_beaEvidence.releasedAt || _beaEvidence.lastSuccessfulAt)) {
@@ -6105,10 +6178,15 @@ function _aioSetDeltaEl(id, delta, polarity, opts) {
   var el = document.getElementById(id);
   if (!el) return;
   var fmt = _aioFormatDelta(delta, polarity, opts);
-  if (!fmt) { el.style.display = 'none'; return; }
-  el.textContent = fmt.text;
+  if (!fmt) { el.style.display = 'none'; el.removeAttribute('title'); el.removeAttribute('aria-label'); return; }
+  // LC-29: a bare "0" next to a score reads like a second score. A caller may pass a label so the
+  // change is named in the visible text AND the accessibility name (e.g. "전일 대비 0").
+  var label = (opts && opts.label) ? opts.label + ' ' : '';
+  el.textContent = label + fmt.text;
   el.className = 'aio-metric-delta ' + fmt.cls;
   el.style.cssText = 'display:inline;font-size:10px;font-family:var(--font-mono);margin-left:4px;';
+  el.setAttribute('title', label + fmt.text);
+  el.setAttribute('aria-label', label + fmt.text);
 }
 
 // v53.15/P738: use the just-fetched CNN previous-day score for the current
@@ -6120,8 +6198,8 @@ function _aioRenderLiveFearGreedDelta(score, previousScore) {
   _fgLiveDelta = Number.isFinite(current) && Number.isFinite(previous)
     ? Math.round(current) - Math.round(previous)
     : null;
-  _aioSetDeltaEl('sentiment-fg-delta', _fgLiveDelta, _AIO_DELTA_POLARITY.fearGreed, { decimals: 0 });
-  _aioSetDeltaEl('home-fg-delta', _fgLiveDelta, _AIO_DELTA_POLARITY.fearGreed, { decimals: 0 });
+  _aioSetDeltaEl('sentiment-fg-delta', _fgLiveDelta, _AIO_DELTA_POLARITY.fearGreed, { decimals: 0, label: '전일 대비' });
+  _aioSetDeltaEl('home-fg-delta', _fgLiveDelta, _AIO_DELTA_POLARITY.fearGreed, { decimals: 0, label: '전일 대비' });
   return _fgLiveDelta;
 }
 window._aioRenderLiveFearGreedDelta = _aioRenderLiveFearGreedDelta;
@@ -6145,8 +6223,8 @@ function _aioRenderDeltas() {
 
   // 2) Fear & Greed 전일 delta (서버 CNN API previousScore 기반)
   var _fgDeltaForRender = _fgLiveDelta != null ? _fgLiveDelta : snap._fearGreedDelta;
-  _aioSetDeltaEl('sentiment-fg-delta', _fgDeltaForRender, _AIO_DELTA_POLARITY.fearGreed,    { decimals: 0 });
-  _aioSetDeltaEl('home-fg-delta',      _fgDeltaForRender, _AIO_DELTA_POLARITY.fearGreed,    { decimals: 0 });
+  _aioSetDeltaEl('sentiment-fg-delta', _fgDeltaForRender, _AIO_DELTA_POLARITY.fearGreed,    { decimals: 0, label: '전일 대비' });
+  _aioSetDeltaEl('home-fg-delta',      _fgDeltaForRender, _AIO_DELTA_POLARITY.fearGreed,    { decimals: 0, label: '전일 대비' });
 
   // 3) 트레이딩 스코어 전일 delta (localStorage)
   if (prev && typeof prev.tradingScore === 'number') {
@@ -9903,8 +9981,9 @@ function _tcLoadFromStorage() {
 // 한국어 문자열 판별 (한국어면 번역 불필요)
 function isKoreanText(text) {
   if (!text) return false;
-  var korean = text.match(/[\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F]/g);
-  return korean && korean.length > text.length * 0.3; // 30% 이상 한글이면 한국어
+  var visibleText = String(text).replace(/<[^>]*>/g, '');
+  var korean = visibleText.match(/[\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F]/g);
+  return korean && korean.length > visibleText.length * 0.3;
 }
 
 // v52.42 (P657/EF-14): 뉴스 제목은 getDisplayTitle()이 이미 isKoreanText 가드로 원문 노출을 막지만,
@@ -13511,7 +13590,7 @@ async function fetchLiveQuotes(requestedSymbols) {
   // ticker catalogue on every refresh; the screener has its durable artifact.
   const PRIORITY_SYMS = _aioPlanQuoteGroups(_requestedQuoteSyms,
     (window.AIO && window.AIO.CORE_LIVE_SYMBOLS) ||
-    ['^GSPC','^IXIC','^VIX','CL=F','GC=F','KRW=X','DX-Y.NYB','^KS11','^KQ11']);
+    ['^GSPC','^IXIC','^VIX','^SKEW','CL=F','GC=F','KRW=X','DX-Y.NYB','^KS11','^KQ11']);
 
   // Yahoo Finance Chart API — crumb 불필요, 단일 심볼
   // corsproxy.io가 가장 안정적 (무료, CORS 없이)
@@ -14413,6 +14492,8 @@ window.AIO.applyLiveDataToDom = function(opts) {
       var sym = el.getAttribute('data-live-chg') || el.getAttribute('data-live-pct');
       var d = _aioLiveDataFor(sym);
       var pct = _aioLivePct(d);
+      // LC-63/P1250: 변화량은 자기 본값과 한 observation이다 — 본값이 결측이면 변화량도 보류한다.
+      if (pct != null && _aioLivePrice(d) == null) pct = null;
       stats.touched += 1;
       if (pct != null) {
         el.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
@@ -15562,6 +15643,7 @@ function _syncYahooToFred() {
       value: spread10y2y,
       prevValue: fd['T10Y2Y'] ? fd['T10Y2Y'].value : spread10y2y,
       date: todayStr,
+      unit: 'percentage-point',
       _source: 'yahoo-calc:^TNX-DGS2'
     };
     // UI 즉시 갱신
@@ -15643,25 +15725,46 @@ function _updateFreshnessBadges() {
 // (showPage 훅은 showPage 함수 본문에 직접 포함됨)
 
 // ── Trading Signal 페이지 ────────────────────────────────────────
+// E2/LC-26: the mode is a real score input with one owner (AIO_ARCH.setSignalScoreMode), not
+// presentation copy. The old text promised a separate day cutoff that trading-score.js never
+// produced; the descriptor now states the one term the model actually applies and the native
+// reader recomputes the same revision.
 function toggleSignalMode(mode) {
-  _signalMode = mode; // Update global state
+  // The mode bridge is one grouped AIO_ARCH entry (get/set/describe) so the facade budget stays a
+  // single key; the owner and the descriptor prose live in src/domain/signal/mode.js.
+  var bridge = window.AIO_ARCH && window.AIO_ARCH.signalScoreMode ? window.AIO_ARCH.signalScoreMode : null;
+  var normalized = bridge && typeof bridge.set === 'function'
+    ? bridge.set(mode)
+    : (String(mode || '').toLowerCase() === 'day' ? 'day' : 'swing');
+  _signalMode = normalized; // legacy global kept in sync for compatibility readers
+  if (window.AIO_PAGE_SCORE_MODE) window.AIO_PAGE_SCORE_MODE.signal = normalized;
   const swBtn = document.getElementById('sig-sw-btn');
   const dyBtn = document.getElementById('sig-dy-btn');
   const desc  = document.getElementById('sig-mode-desc');
   // v52.65 아이보리 2a: 모드 필은 상태색이 아닌 무채 반전(ink bg + paper text)만 사용 (원칙 §1 — 색은 3계열만)
-  if (mode === 'swing') {
+  if (normalized === 'swing') {
     if (swBtn) { swBtn.classList.add('primary'); swBtn.style.background='var(--text-primary)'; swBtn.style.color='var(--bg-base)'; }
     if (dyBtn) { dyBtn.classList.remove('primary'); dyBtn.style.background='transparent'; dyBtn.style.color='var(--text-muted)'; }
     if (swBtn) swBtn.setAttribute('aria-pressed', 'true');
     if (dyBtn) dyBtn.setAttribute('aria-pressed', 'false');
-    if (desc)  desc.textContent = '스윙 트레이딩 모드 · 임계값 60점 · 자동 갱신 45초';
   } else {
     if (dyBtn) { dyBtn.classList.add('primary'); dyBtn.style.background='var(--text-primary)'; dyBtn.style.color='var(--bg-base)'; }
     if (swBtn) { swBtn.classList.remove('primary'); swBtn.style.background='transparent'; swBtn.style.color='var(--text-muted)'; }
     if (dyBtn) dyBtn.setAttribute('aria-pressed', 'true');
     if (swBtn) swBtn.setAttribute('aria-pressed', 'false');
-    if (desc)  desc.textContent = '데이 트레이딩 모드 · 임계값 65점 (더 엄격) · 자동 갱신 45초';
   }
+  var descriptor = bridge && typeof bridge.describe === 'function' ? bridge.describe(normalized) : null;
+  if (desc) {
+    desc.textContent = descriptor
+      ? descriptor.label + ' 모드 · ' + descriptor.note + ' · 자동 갱신 45초'
+      : (normalized === 'day' ? '데이트레이딩 모드 · 자동 갱신 45초' : '스윙 모드 · 자동 갱신 45초');
+    desc.setAttribute('data-score-mode', normalized);
+    if (descriptor) desc.title = descriptor.revision; else desc.removeAttribute('title');
+  }
+  // Recompute the shared score (legacy sinks) and let the native analysis slice re-derive from the
+  // same revision so the pill, the hero and the score input cannot disagree.
+  try { if (typeof refreshSignalDashboard === 'function') refreshSignalDashboard(); } catch(_) {}
+  try { document.dispatchEvent(new CustomEvent('aio:signalScoreModeChanged', { detail: { mode: normalized } })); } catch(_) {}
 }
 
 let sigRefreshTimer = null;
@@ -16124,15 +16227,18 @@ function _aioUpdatePutCallDom(payload) {
     el.setAttribute('data-operational-use', metric.allowedUse ? 'decision' : 'reference-only');
   });
 
+  // OPT-02: 설명·상세 문구 라이터에도 네이티브 가드를 붙인다 — options 네이티브 페이지의
+  // 안내문(수신 실패 시 스냅샷 참고 하향)을 톤 라벨이 출처 메타 없이 덮어쓰던 경로 차단.
   ['opt-pcr-desc', 'opt-pcr-desc-secondary'].forEach(function(id) {
     var el = document.getElementById(id);
     if (!el) return;
+    if (_aioIsNativeMacroElement(el)) return;
     el.textContent = tone.label;
     el.style.color = tone.color;
   });
 
   var detail = document.getElementById('opt-pcr-text');
-  if (detail) {
+  if (detail && !_aioIsNativeMacroElement(detail)) {
     var mode = metric.allowedUse ? '현재 의사결정 사용 가능' : '참고용 표시';
     // v50.14 R206: 내부 소스 식별자(DATA_SNAPSHOT)를 사용자 친화 라벨로 표시
     var srcDisplay = sourceLabel === 'DATA_SNAPSHOT' ? '스냅샷 · 참고' : sourceLabel;

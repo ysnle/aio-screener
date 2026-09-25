@@ -16,7 +16,7 @@ import { createResearchDecision, validateResearchDecision } from '../src/ai/rese
 import { createResearchPlan, validateResearchPlan } from '../src/ai/research/plan.js';
 import { createEvidenceDocument, evaluateResearchEvidenceFloor, normalizeResearchExecutionResult, normalizeSearchResults, validateClaimEvidenceBinding, verifyEvidenceBinding } from '../src/ai/research/evidence.js';
 import { createResearchCapability, validateResearchCapability } from '../src/ai/research/capability.js';
-import { classifyAIConduct, buildScopedConductFallback } from '../src/ai/policy/conduct.js';
+import { classifyAIConduct, classifyAIRequest, auditAIResponse, getAIConductPolicy, buildScopedConductFallback } from '../src/ai/policy/conduct.js';
 import { createAIAnswerOrchestrator } from '../src/ai/orchestrator/answer-orchestrator.js';
 import { createAIKnowledgeIndex, retrieveAIKnowledge } from '../src/ai/retrieval/knowledge.js';
 import { evaluateEvidenceUse } from '../src/ai/policy.js';
@@ -228,6 +228,37 @@ for (const [query, status, requestMode] of conductCases) {
 const responseDirectiveAudit = classifyAIConduct({ query:'해외주식 세금 원리 설명', responseText:'반드시 세금 신고하세요.' });
 check('conduct-response-directive-is-scoped-not-blocked', responseDirectiveAudit.status === 'EDUCATIONAL_ALLOWED' && responseDirectiveAudit.requestMode === 'LEGAL_TAX_ANALYSIS' && responseDirectiveAudit.jurisdictionContextRequired === true);
 check('conduct-plan-is-carried-by-question-plan', createQuestionPlan({ query:'옵션은 어떻게 작동해?', route:'options', now:'2026-07-28T12:00:00Z' }).conductPlan?.requestMode === 'CONDITIONAL_ANALYSIS');
+
+// E6/A06: a request is classified before an answer exists and a response is audited after one does.
+// The two surfaces share one policy but must not share a classifier, or a plan's classification could
+// be rewritten by text the plan never saw.
+{
+  const requestQuery = '해외주식 세금 원리 설명';
+  const requestOnly = classifyAIRequest({ query: requestQuery });
+  check('P1244 E6/A06 request classification ignores response text', JSON.stringify(requestOnly) === JSON.stringify(classifyAIRequest({ query: requestQuery, responseText: '세금 신고하세요.' })));
+  const audited = auditAIResponse({ query: requestQuery, responseText: '세금 신고하세요.' });
+  check('P1244 E6/A06 response audit keeps the request classification and records the directive separately',
+    audited.responseCompliance?.mode === 'LEGAL_DIRECTIVE'
+    && audited.responseCompliance?.requestMode === requestOnly.requestMode
+    && audited.requestMode === 'LEGAL_TAX_ANALYSIS'
+    && buildScopedConductFallback(audited).includes('전제와 확인 범위'));
+  const compliantAudit = auditAIResponse({ query: requestQuery, responseText: '일반 원리를 설명합니다.' });
+  check('P1244 E6/A06 a compliant response audit records COMPLIANT without moving the request mode',
+    compliantAudit.responseCompliance?.mode === 'COMPLIANT'
+    && compliantAudit.responseCompliance?.directive === false
+    && compliantAudit.requestMode === requestOnly.requestMode);
+  check('P1244 E6/A06 the composite routes by surface', classifyAIConduct({ query: requestQuery }).responseCompliance === undefined
+    && classifyAIConduct({ query: requestQuery, responseText: '세금 신고하세요.' }).responseCompliance?.mode === 'LEGAL_DIRECTIVE');
+  const plan = createQuestionPlan({ query: requestQuery, route: 'home', now: '2026-07-28T12:00:00Z' });
+  check('P1244 E6/A06 the question plan carries the response-independent request classification',
+    JSON.stringify(plan.conductPlan) === JSON.stringify(classifyAIRequest({ query: plan.query })));
+  const policy = getAIConductPolicy();
+  check('P1244 E6/A06 the policy declares both surfaces and the response modes',
+    policy.surfaces?.request === 'classifyAIRequest'
+    && policy.surfaces?.response === 'auditAIResponse'
+    && policy.responseModes?.includes('LEGAL_DIRECTIVE')
+    && policy.responseModes?.includes('COMPLIANT'));
+}
 check('legal-scope-notice-remains-useful', buildScopedConductFallback(responseDirectiveAudit).includes('전제와 확인 범위') && !buildScopedConductFallback(responseDirectiveAudit).includes('AI 안전 모드'));
 const disabledDecision = createResearchDecision({ questionPlan: causalPlan, userOptOut: true, now: '2026-07-28T12:00:00Z' });
 check('research-optout-fails-closed', disabledDecision.requirement === 'REQUIRED' && disabledDecision.failureMode === 'REQUIRED_BUT_DISABLED' && validateResearchDecision(disabledDecision).ok);
@@ -297,11 +328,50 @@ const unverifiable = evaluateResearchEvidenceFloor({ questionPlan: { ...currentP
 check('P1172 research-floor reports an unjudgeable binding instead of failing closed on a missing caller id',
   unverifiable.ready === true && unverifiable.evidenceBinding.status === 'UNVERIFIABLE' && unverifiable.bindingChecked === false,
   JSON.stringify(unverifiable.evidenceBinding));
-check('P1172 native citations carry the request they were collected for',
-  fs.readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8').includes("requestId: window._aioActiveAIRequestId || null, queryId: window._aioActiveAIRequestId || null"),
-  'the chat citation collector must stamp the active request id');
-// 결속이 판정되려면 호출자가 자기 요청 id를 넘겨야 한다 — 수집만 하고 넘기지 않으면 영원히 UNBOUND다.
+// E6/A05: `ready` alone used to be the only verdict, so a floor met with an unchecked binding was
+// indistinguishable from one met with a verified binding. `bindingVerified` carries that boundary and
+// P1172's reporting-only decision stays intact.
+check('P1244 E6/A05 a ready floor with a verified binding is distinguishable from an unchecked one',
+  ownRequest.bindingVerified === true
+  && unboundRequest.ready === true && unboundRequest.bindingVerified === false
+  && unverifiable.ready === true && unverifiable.bindingVerified === false
+  && crossQuestion.bindingVerified === false,
+  JSON.stringify({ own: ownRequest.bindingVerified, unbound: unboundRequest.bindingVerified, unverifiable: unverifiable.bindingVerified, cross: crossQuestion.bindingVerified }));
+// P1245 (05 A05): the stamp must come from the stream's own immutable request id. This assertion
+// used to pin the literal `requestId: window._aioActiveAIRequestId || null` — a mutable global that
+// the response pipeline wrote and the citation collector read at a different moment, so a citation
+// could be stamped with, or checked against, a *different concurrent* request. Pinning that literal
+// made the gate defend the defect. These assertions pin the meaning instead: the collector stamps
+// the request id its stream was started with, no shared request-id slot survives, and two
+// interleaved streams cannot observe each other's citations (executed, not read as source text).
 const chatSource = fs.readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8');
+check('P1245 the chat citation collector stamps its own stream request id, not a shared global',
+  /requestId: _streamRequestId, queryId: _streamRequestId/.test(chatSource)
+  && !/window\._aioActiveAIRequestId/.test(chatSource)
+  && !/window\._aioLastClaudeCitations/.test(chatSource)
+  && !/window\._aioLastClaudeResearchError/.test(chatSource),
+  'the collector must stamp the request id the stream was started with and no shared slot may remain');
+const streamContext = vm.createContext({ window: {}, Date, String, Array, Object, Number, JSON });
+vm.runInContext(chatSource.slice(chatSource.indexOf('var _AIO_AI_REQUEST_STREAM_LIMIT'), chatSource.indexOf('// P897: the ESM evidence module')), streamContext);
+// 회귀(헬퍼 부재)는 크래시가 아니라 실패한 검사로 보고돼야 한다.
+const streamHelpersReady = typeof streamContext._aioAIRequestStream === 'function'
+  && typeof streamContext._aioAIRequestCitations === 'function';
+let streamACites = [];
+let streamBCites = [];
+if (streamHelpersReady) {
+  streamContext._aioAIRequestStream('req:b').citations.push({ url: 'https://b.example/evidence', requestId: 'req:b', queryId: 'req:b' });
+  streamContext._aioAIRequestStream('req:a').citations.push({ url: 'https://a.example/evidence', requestId: 'req:a', queryId: 'req:a' });
+  streamACites = streamContext._aioAIRequestCitations('req:a');
+  streamBCites = streamContext._aioAIRequestCitations('req:b');
+}
+check('P1245 two interleaved chat streams do not share collected citations',
+  streamHelpersReady
+  && streamACites.length === 1 && streamACites[0].requestId === 'req:a'
+  && streamBCites.length === 1 && streamBCites[0].requestId === 'req:b'
+  && streamContext._aioAIRequestCitations('req:missing').length === 0
+  && streamContext._aioAIRequestStream(null) === null,
+  JSON.stringify({ helpers: streamHelpersReady, a: streamACites, b: streamBCites }));
+// 결속이 판정되려면 호출자가 자기 요청 id를 넘겨야 한다 — 수집만 하고 넘기지 않으면 영원히 UNBOUND다.
 const floorCallSites = chatSource.split('evaluateAIResearchEvidenceFloor({').slice(1);
 check('P1172 every chat evidence-floor call declares the active request id',
   floorCallSites.length >= 1 && floorCallSites.every((chunk) => chunk.slice(0, 400).includes('requestId:')),
@@ -402,7 +472,7 @@ check('knowledge-loader-never-fetches-article-monolith', read('src/ai/retrieval/
 // Both the per-page and the unified surface now live in js/aio-chat.js, so the invariant is that the
 // wrapper appears at least twice there rather than once per file.
 check('knowledge-reference-is-wrapped-as-untrusted-data', (chat.match(/buildAIUntrustedBlock\('KNOWLEDGE_REFERENCE'/g) || []).length >= 2);
-check('unified-chat-renders-native-claude-citations', /_uniCitationResult/.test(chat) && /engine:'claude'/.test(chat) && /_aioLastClaudeCitations/.test(chat));
+check('unified-chat-renders-native-claude-citations', /_uniCitationResult/.test(chat) && /engine:'claude'/.test(chat) && /_aioAIRequestCitations\(_uniRequestId\)/.test(chat));
 check('public-policy-allows-conditional-analysis-without-blanket-refusal', /가격 범위·무효화 수준·손절 기준·포트폴리오 비중은 시나리오와 계산 입력으로 분석할 수 있다/.test(chat) && /답변 전체를 안전 모드로 바꾸지 말고/.test(chat) && !/현재 답변에서는 구체적인 매수·매도·진입·청산 지시/.test(chat));
 check('research-optout-degrades-current-claims-without-ending-chat', /web_research_disabled_by_user/.test(chat) && !/userOptOut\)[\s\S]{0,600}state\._chatSendEntered = 0;[\s\S]{0,180}return;/.test(chat));
 check('chat-dispatches-through-orchestrator', /AIO_ARCH\.getAIOrchestrator/.test(chat) && /_aioOrchestrated/.test(chat));
@@ -421,7 +491,7 @@ check('research-capability-is-separate', /getAIResearchCapability/.test(bootstra
 // Both surfaces live in js/aio-chat.js now, so "shared" is asserted by occurrence count, not by file.
 check('research-capability-drives-shared-preparation', (chat.match(/_aioPrepareAIResearch/g) || []).length >= 2 && /externalSearchReady/.test(chat) && /externalEvidenceReady/.test(chat) && /nativeFallbackRequired/.test(chat));
 check('research-document-classification-is-centralized', /createAIResearchEvidenceDocument/.test(chat) && /createAIResearchEvidenceDocument/.test(bootstrap) && /createAIResearchEvidenceDocument/.test(read('src/legacy/compatibility-facade.js')));
-check('research-native-tool-errors-are-promoted', /web_search_tool_result_error/.test(chat) && /_aioLastClaudeResearchError/.test(chat));
+check('research-native-tool-errors-are-promoted', /web_search_tool_result_error/.test(chat) && /_streamState\.researchError/.test(chat) && /_aioAIRequestResearchError/.test(chat) && !/window\._aioLastClaudeResearchError/.test(chat));
 check('deep-search-has-no-fixed-year', !/(latest news earnings|policy outlook|geopolitical risk latest|investment trend latest) 2026/.test(chat));
 check('research-gate-shared-by-both-surfaces', /evaluateAIResearchEvidenceFloor/.test(chat) && /_aioEvaluateAIResearchGate/.test(chat) && /_aioPrepareAIResearch/.test(chat));
 check('research-result-canonical-nesting', /researchEvidence:\s*\{[\s\S]*evidenceDocuments:\s*evidenceDocuments/.test(chat) && !/\n\s*evidenceDocuments:\s*evidenceDocuments,\n\s*researchPlanId/.test(chat));

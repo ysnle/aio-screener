@@ -74,6 +74,22 @@ const reproObserved = {
 };
 const repro = buildSloWindow({ observed: reproObserved, cadencePerDay: cadence, query: completeQuery, alertEvidence: { deduped: true, source: 'github-issues-api' }, now: at });
 check('P1166 O04 repro: a zero-run required domain cannot be certified', repro.status !== 'CERTIFIED_WINDOW');
+
+// R24-07/P1242: push 등 다른 trigger로 채운 창은 예정 도착이 아니다. 종전 집계는
+// workflow_dispatch만 제외하고 나머지를 전부 scheduled로 세어, 30일간 push 성공만 있는 lane도
+// MEASURED·CERTIFIED_WINDOW가 될 수 있었다(06 O02·O04).
+const pushOnly = buildSloWindow({
+  observed: Object.fromEntries(['market', 'screener', 'watchdog']
+    .map((id) => [id, fixtureRuns(1, 30, at).map((run) => ({ ...run, event: 'push' }))])),
+  cadencePerDay: cadence,
+  query: completeQuery,
+  alertEvidence: { deduped: true, source: 'github-issues-api' },
+  now: at
+});
+check('P1242 R24-07: a push-only window is not a scheduled arrival', pushOnly.status !== 'CERTIFIED_WINDOW'
+  && ['market', 'screener', 'watchdog'].every((id) => pushOnly.windows?.['30d']?.domains?.[id]?.status === 'NOT_OBSERVED')
+  && ['market', 'screener', 'watchdog'].every((id) => (pushOnly.windows?.['30d']?.domains?.[id]?.nonScheduledRunsExcluded || 0) === 30)
+  && pushOnly.windows?.['30d']?.domains?.market?.nonScheduledEventBreakdown?.push === 30);
 check('P1166 O04 repro: the 30-day window is not a pass', repro.windows['30d'].status !== 'PASS');
 check('P1166 O04 repro: the missing domain is named', (repro.windows['30d'].coverage?.missingDomains || []).includes('screener'));
 check('P1166 O04 repro: the screener lane is NOT_OBSERVED', repro.windows['30d'].domains.screener.status === 'NOT_OBSERVED');

@@ -1036,7 +1036,9 @@ updateWeinsteinStage = function(snapshot) {
     if (label) label.textContent = label.textContent.replace(' — 현재', '');
   }
   if (!complete) {
-    if (analysis) analysis.innerHTML = '<div style="font-weight:700;color:var(--text-muted);margin-bottom:4px;">Weinstein Stage 판정 보류</div>' +
+    // P1253: 이 카드는 고정 SPY 스냅샷의 장기 MA 스택 모델(classifyMovingAverageStructure)이다.
+    // 티커별 _detectStage(단기 SMA150·고저점 모델, js/aio-ui.js)와 다른 판정이므로 모델·대상을 명시한다.
+    if (analysis) analysis.innerHTML = '<div style="font-weight:700;color:var(--text-muted);margin-bottom:4px;">Weinstein Stage(장기 MA 스택 모델) · 대상 SPY · 판정 보류</div>' +
       '<div style="font-size:12px;color:var(--text-muted);line-height:1.7;">최소 200거래일 OHLCV와 50·100·200일 이동평균이 모두 필요합니다. 현재가·당일 등락률·정적 시장폭으로 Stage를 추정하지 않습니다.</div>';
     return { available: false, reason: 'observed_ohlcv_200_required' };
   }
@@ -1054,7 +1056,8 @@ updateWeinsteinStage = function(snapshot) {
     var activeLabel = active.querySelector('span:nth-child(2)');
     if (activeLabel) activeLabel.textContent = activeLabel.textContent.replace(' — 현재', '') + ' — 현재';
   }
-  if (analysis) analysis.innerHTML = '<div style="font-weight:700;color:' + state.color + ';margin-bottom:4px;">관측 OHLCV 기반: ' + state.stage + '단계 — ' + state.desc + '</div>' +
+  // P1253: 모델·대상·표본을 제목에 명시 — 티커별 Stage(단기 SMA150·고저점 모델)와 한 판정으로 읽히지 않게 한다.
+  if (analysis) analysis.innerHTML = '<div style="font-weight:700;color:' + state.color + ';margin-bottom:4px;">Weinstein Stage(장기 MA 스택 모델) · 대상 SPY · 표본 ' + snap.bars + '거래일 — ' + state.stage + '단계 ' + state.desc + '</div>' +
     '<div style="font-size:12px;color:var(--text-muted);line-height:1.7;">기준 ' + (snap.time || '최근 거래일') + ' · ' + snap.bars + '거래일 · 종가 ' + Number(snap.price).toFixed(2) + '<br>' +
     '50일선 ' + Number(snap.sma50).toFixed(2) + ' · 100일선 ' + Number(snap.sma100).toFixed(2) + ' · 200일선 ' + Number(snap.sma200).toFixed(2) + ' · 50일선 기울기 ' + (snap.sma50Rising ? '상승' : '비상승') + '<br>' +
     'Stage는 보조 분류이며 단독 매매 신호가 아닙니다.</div>';

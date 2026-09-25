@@ -8,6 +8,9 @@ export const OPERATIONAL_STATE_CODES = Object.freeze(['NOT_CONFIGURED', 'CONFIGU
 // alone — so a browser plane that was never observed leaves `overall` unchanged. Feature availability is
 // therefore a separate axis with its own closed vocabulary.
 export const FEATURE_AVAILABILITY = Object.freeze(['AVAILABLE', 'DEGRADED', 'UNAVAILABLE', 'UNKNOWN']);
+// P1256 (E5 O06 / 06 O06): 도메인 receipt의 발행 상태는 수집 성공의 어휘이다 —
+// "기존값 유지(NO_REFRESH_RETAINED)"는 성공이 아니며, NOT_ATTEMPTED는 결과가 아니다.
+export const DOMAIN_RECEIPT_PUBLICATION_STATUS = Object.freeze(['SUCCESS', 'PARTIAL', 'NO_REFRESH_RETAINED', 'EMPTY', 'NOT_ATTEMPTED']);
 
 export function createOperationsStatus(input = {}) {
   return Object.freeze({
@@ -43,6 +46,23 @@ export function createOperationsStatus(input = {}) {
         asOf: entry?.asOf ? String(entry.asOf) : null,
         missingReason: entry?.missingReason ? String(entry.missingReason) : null,
         sources: Object.freeze(Array.isArray(entry?.sources) ? entry.sources.map(String) : [])
+      })])))
+      : Object.freeze({}),
+    // P1256: 도메인 receipt의 소비 결과 — 원본 receipt의 `publication.status`는 이 표면에서
+    // 선언 어휘와 겹치지 않도록 `publicationStatus`로 이름을 바꿔 실어 나른다.
+    domainReceipts: input.domainReceipts && typeof input.domainReceipts === 'object'
+      ? Object.freeze(Object.fromEntries(Object.entries(input.domainReceipts).map(([domain, entry]) => [String(domain), Object.freeze({
+        publicationStatus: DOMAIN_RECEIPT_PUBLICATION_STATUS.includes(entry?.publicationStatus) ? entry.publicationStatus : 'NOT_ATTEMPTED',
+        userCopy: entry?.userCopy ? String(entry.userCopy) : null,
+        lastSuccessfulObservation: entry?.lastSuccessfulObservation ? String(entry.lastSuccessfulObservation) : null,
+        counts: entry?.counts && typeof entry.counts === 'object'
+          ? Object.freeze({
+            eligible: Number(entry.counts.eligible) || 0,
+            attempted: Number(entry.counts.attempted) || 0,
+            updated: Number(entry.counts.updated) || 0,
+            retained: Number(entry.counts.retained) || 0
+          })
+          : null
       })])))
       : Object.freeze({}),
     planes: input.planes && typeof input.planes === 'object' ? Object.freeze({ ...input.planes }) : Object.freeze({}),
@@ -95,5 +115,10 @@ export function validateOperationsStatus(status) {
     }
   };
   walk(surface, 'operations');
+  // P1256: 도메인 receipt의 publicationStatus도 선언 어휘로 해석 가능해야 한다.
+  const domainStatuses = new Set(DOMAIN_RECEIPT_PUBLICATION_STATUS);
+  for (const [domain, entry] of Object.entries(status?.domainReceipts || {})) {
+    if (!domainStatuses.has(entry?.publicationStatus)) errors.push(`undeclared_domain_publication_status:${domain}`);
+  }
   return Object.freeze({ ok: errors.length === 0, errors: [...new Set(errors)] });
 }

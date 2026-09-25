@@ -1,5 +1,7 @@
 import { computeMarketHealth } from '../domain/market/health.js';
 import { normalizeAllowedUse } from '../data/contracts/evidence.js';
+import { normalizeSignalScoreMode } from '../domain/signal/mode.js';
+import { SCREENER_ROW_INTENT, resolveScreenerRows } from '../data/screener-row-policy.js';
 
 function finite(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
@@ -326,10 +328,10 @@ function tradingEvidenceRows(root) {
 }
 
 function readScreener(root) {
-  const nativeRows = typeof root?.AIO_ARCH?.getScreenerRows === 'function' ? root.AIO_ARCH.getScreenerRows() : null;
-  const rows = Array.isArray(nativeRows)
-    ? nativeRows
-    : Array.isArray(root?.SCREENER_DB) ? root.SCREENER_DB : Array.isArray(root?._aioScreenerRows) ? root._aioScreenerRows : [];
+  // E2/S-C (P1241): the row chain is no longer written here. `resolveScreenerRows` owns it and this
+  // reader declares the evidence intent — it never substitutes the bundled legacy DB, and the s-b
+  // retired global is no longer reachable from this path.
+  const rows = resolveScreenerRows(root, SCREENER_ROW_INTENT.EVIDENCE);
   const metadata = root?._serverDataMeta?.screener || root?._aioScreenerLoadState || {};
   return Object.freeze({ rows: clone(rows), revision: metadata.revision || metadata.generatedAt || null, updatedAt: metadata.asOf || metadata.generatedAt || new Date().toISOString() });
 }
@@ -384,7 +386,9 @@ function readTradingScoreInputs(root) {
     hyBp: runtimeEvidence('hyBp', verified('hy-spread-bp'), evidenceRows.get('hy-spread-bp'))
   };
   return Object.freeze({
-    mode: 'swing',
+    // E2/LC-26: the mode is the user's declared revision, not a hardcoded default. Read the
+    // same holder the native reader does so a day/swing toggle changes what this computes.
+    mode: normalizeSignalScoreMode(root?.AIO_ARCH?.signalScoreMode?.get?.() ?? root?._signalMode),
     vix: quote('^VIX'),
     vvix: quote('^VVIX'),
     dxy: quote('DX-Y.NYB'),
@@ -528,6 +532,9 @@ export function exposeArchitecture(root, api, { immutableState = false } = {}) {
        getSuppliedMaterialClaimIds: snapshotCall(api.getSuppliedMaterialClaimIds),
        getScreenerRows: stateSnapshotCall(api.getScreenerRows),
        getScreenerState: stateSnapshotCall(api.getScreenerState),
+       // E2/S-C (P1241): the classic legacy bundle cannot import the policy module, so the declared
+       // intent is bridged here. This is the only legacy entry point into the shared resolver.
+       resolveScreenerRows: (intent) => resolveScreenerRows(root, intent),
        getEvidence: snapshotCall(api.getEvidence),
        selectForDecision: snapshotCall(api.selectForDecision),
        selectForDisplay: snapshotCall(api.selectForDisplay),
@@ -560,6 +567,7 @@ export function exposeArchitecture(root, api, { immutableState = false } = {}) {
        navigate: api.navigate,
       router: api.router,
       computeTradingScoreModel: api.computeTradingScoreModel,
+      signalScoreMode: Object.freeze({ get: api.getSignalScoreMode, set: api.setSignalScoreMode, describe: api.describeSignalScoreMode }),
       computeRelativeRotation: api.computeRelativeRotation,
       classifyMovingAverageStructure: api.classifyMovingAverageStructure,
       deriveMultiTimeframeView: api.deriveMultiTimeframeView,

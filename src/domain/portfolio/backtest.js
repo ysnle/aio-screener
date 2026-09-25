@@ -4,6 +4,13 @@
  * Native ESM owner for the reference-only adjusted-close research calculation.
  * The app bootstrap installs the classic-shell compatibility binding.
  */
+import { convertWithDeclaredRates, FX_LEG_MAX_AGE_MS } from './fx.js';
+
+function _cleanCurrencyCode(value) {
+  const text = String(value == null ? '' : value).trim().toUpperCase();
+  return /^[A-Z]{3}$/.test(text) ? text : null;
+}
+
 function _statMean(arr) {
   if (!arr || !arr.length) return 0;
   return arr.reduce((sum, value) => sum + value, 0) / arr.length;
@@ -52,7 +59,24 @@ function _btTailRisk(values, quantile) {
   };
 }
 
-export function deriveVarStability({ returns = [], iterations = 400, quantile = 0.05, thresholds = {} } = {}) {
+// P1243: the `recent-half` sensitivity variant reads the sample's second half *in the order given*, so
+// it is only meaningful for a time-ordered sample. P1203 fixed the caller that passed a sorted sample,
+// but the function still assumed that contract instead of verifying it. A dated sample is now checked
+// for non-decreasing observation time; otherwise the caller must declare `order: 'chronological'`. An
+// unverified order withholds the variant and holds certification, so the assumption cannot silently
+// return.
+function _btVarOrderAudit(values, order, observedAt) {
+  const stamps = Array.isArray(observedAt)
+    ? observedAt.map((value) => (Number.isFinite(Number(value)) ? Number(value) : null))
+    : null;
+  if (stamps && stamps.length === values.length && stamps.every((value) => value != null)) {
+    for (let i = 1; i < stamps.length; i += 1) if (stamps[i] < stamps[i - 1]) return { state: 'violated', usable: false };
+    return { state: 'verified', usable: true };
+  }
+  return order === 'chronological' ? { state: 'declared', usable: true } : { state: 'undeclared', usable: false };
+}
+
+export function deriveVarStability({ returns = [], iterations = 400, quantile = 0.05, thresholds = {}, order = 'unspecified', observedAt = null } = {}) {
   const clean = (Array.isArray(returns) ? returns : []).filter((value) => typeof value === 'number' && isFinite(value));
   const declared = {
     minSampleN: Number.isFinite(thresholds.minSampleN) ? thresholds.minSampleN : 36,
@@ -77,12 +101,13 @@ export function deriveVarStability({ returns = [], iterations = 400, quantile = 
   const band = { p05: _quantileR7(sortedVars, 0.05), median: _quantileR7(sortedVars, 0.5), p95: _quantileR7(sortedVars, 0.95) };
   const relativeBand = point.var > 0 ? (band.p95 - band.p05) / point.var : null;
 
+  const orderAudit = _btVarOrderAudit(clean, order, observedAt);
   const ascending = clean.slice().sort((a, b) => a - b);
   const nearestIndex = Math.max(0, Math.min(ascending.length - 1, Math.ceil(quantile * ascending.length) - 1));
   const variants = [
     { id: 'nearest-rank', var: Math.max(0, -ascending[nearestIndex]) },
     { id: 'leave-one-worst-out', var: ascending.length > 2 ? _btTailRisk(ascending.slice(1), quantile).var : null },
-    { id: 'recent-half', var: clean.length >= 4 ? _btTailRisk(clean.slice(Math.floor(clean.length / 2)), quantile).var : null }
+    { id: 'recent-half', var: orderAudit.usable && clean.length >= 4 ? _btTailRisk(clean.slice(Math.floor(clean.length / 2)), quantile).var : null }
   ].filter((entry) => entry.var != null && isFinite(entry.var))
     .map((entry) => ({ id: entry.id, var: entry.var, deviation: entry.var - point.var }));
   const maxAbsDeviation = variants.length ? Math.max.apply(null, variants.map((entry) => Math.abs(entry.deviation))) : null;
@@ -93,6 +118,7 @@ export function deriveVarStability({ returns = [], iterations = 400, quantile = 
   if (point.tailN < declared.minTailN) reasons.push('tail-below-declared-minimum');
   if (relativeBand == null || relativeBand > declared.maxRelativeBand) reasons.push('bootstrap-band-exceeds-declared-maximum');
   if (relativeSensitivity == null || relativeSensitivity > declared.maxRelativeSensitivity) reasons.push('estimator-sensitivity-exceeds-declared-maximum');
+  if (!orderAudit.usable) reasons.push(`recent-half-order-${orderAudit.state}`);
 
   return {
     status: 'ready',
@@ -101,7 +127,7 @@ export function deriveVarStability({ returns = [], iterations = 400, quantile = 
     tailN: point.tailN,
     point: { var: point.var, cvar: point.cvar },
     bootstrap: { iterations: draws, seed: 'sample-derived-fnv1a', band, relativeBand },
-    sensitivity: { variants, maxAbsDeviation, relativeSensitivity },
+    sensitivity: { variants, maxAbsDeviation, relativeSensitivity, recentHalfOrder: orderAudit.state },
     thresholds: declared,
     certification: reasons.length ? 'held' : 'certified',
     certificationReasons: reasons
@@ -332,6 +358,88 @@ function _aioBtShouldRebalance(type, monthKey) {
   return false;
 }
 
+// ── P1259 (QA-FX-SERIES): 기준 통화 수익률 — 월말 관측 FX 시계열 ─────────────────────────────────
+// 현지 통화 수익률과는 **다른 결과**다. 월말 정렬 계약: 월 키(YYYY-MM)의 마지막 관측이 그 달의
+// 월말 관측이고, 관측이 없는 달 경계는 미관측이다. 미관측·미보유 통화쌍은 추정하지 않고 해당 월을
+// 보류한다(0 채우기·보간·삼각 환산 금지 — P1194/P1247과 같은 규칙).
+function _aioBtFxMonthEndSeries(fxSeries) {
+  var raw = fxSeries && fxSeries.usdkrw;
+  if (!raw) return null;
+  var byMonth = {};
+  var push = function(ts, value) {
+    var v = _aioBtFinite(value);
+    var key = _aioBtMonthKeyFromTs(ts);
+    var ms = _aioBtTimestampMs(ts);
+    if (!key || ms == null || v == null || v <= 0) return;
+    var prev = byMonth[key];
+    if (!prev || ms > prev.observedMs) {
+      byMonth[key] = { value: v, observedMs: ms, observedAt: new Date(ms).toISOString().slice(0, 10) };
+    }
+  };
+  if (Array.isArray(raw.timestamps) && Array.isArray(raw.closes)) {
+    for (var i = 0; i < Math.min(raw.timestamps.length, raw.closes.length); i++) push(raw.timestamps[i], raw.closes[i]);
+  } else if (raw && typeof raw === 'object') {
+    Object.keys(raw).forEach(function(date) { push(date, raw[date]); });
+  }
+  return Object.keys(byMonth).length ? byMonth : null;
+}
+
+function _aioBtBaseCurrencyMonthlyReturns(input) {
+  var monthlyRows = input.monthlyRows || [];
+  var currencyByTicker = input.currencyByTicker || {};
+  var baseCurrency = input.baseCurrency || null;
+  var needsConversion = !!input.needsConversion;
+  var startMonth = input.startMonth || (monthlyRows[0] && monthlyRows[0].month) || null;
+  var basis = 'base-currency-month-end-fx';
+  var label = '기준 통화 수익률(월말 FX 정렬)';
+  var build = function(status, reason, months) {
+    return {
+      status: status, reason: reason || null,
+      returnCurrencyBasis: basis,
+      fxTranslation: needsConversion ? 'month-end-observed-series' : 'not-applicable',
+      fxSeriesKey: needsConversion ? 'usdkrw' : null,
+      fxAlignmentBasis: 'last-observation-within-calendar-month',
+      baseCurrency: baseCurrency,
+      label: label,
+      months: months || [],
+      disclosure: status === 'ready'
+        ? label + ' — 현지 통화 수익률과 다른 결과입니다(같은 수로 읽지 마세요).'
+        : label + ' 보류 — ' + (reason || 'fx-unavailable') + ' (추정하지 않음)'
+    };
+  };
+  if (!needsConversion) {
+    return build('ready', null, monthlyRows.map(function(r) { return { month: r.month, return: r.return, held: null, fxUsed: [] }; }));
+  }
+  if (!baseCurrency) return build('held', 'base-currency-undeclared');
+  var fxByMonth = _aioBtFxMonthEndSeries(input.fxSeries);
+  if (!fxByMonth) return build('held', 'fx-series-missing');
+  var months = [];
+  monthlyRows.forEach(function(row, idx) {
+    var month = row.month;
+    var prevMonth = idx === 0 ? startMonth : monthlyRows[idx - 1].month;
+    var weighted = 0;
+    var held = null;
+    var fxUsed = [];
+    Object.keys(row.assetReturns || {}).forEach(function(t) {
+      if (held) return;
+      var rLocal = Number(row.assetReturns[t]);
+      if (!isFinite(rLocal)) { held = 'member-return-missing:' + t; return; }
+      var w = row.realizedWeights && typeof row.realizedWeights[t] === 'number' ? row.realizedWeights[t] : 0;
+      var pc = (currencyByTicker[t] && currencyByTicker[t].price) || null;
+      if (!pc || pc === baseCurrency) { weighted += w * rLocal; return; }
+      var isKrwUsd = (pc === 'KRW' && baseCurrency === 'USD') || (pc === 'USD' && baseCurrency === 'KRW');
+      if (!isKrwUsd) { held = 'fx-series-missing:' + pc + '/' + baseCurrency; return; }
+      var nowFx = fxByMonth[month], prevFx = fxByMonth[prevMonth];
+      if (!nowFx || !prevFx) { held = 'fx-month-observation-missing:' + (!prevFx ? prevMonth : month); return; }
+      var factor = pc === 'KRW' ? prevFx.value / nowFx.value : nowFx.value / prevFx.value;
+      weighted += w * ((1 + rLocal) * factor - 1);
+      fxUsed.push({ ticker: t, currency: pc, pair: pc + '/' + baseCurrency, observedAt: nowFx.observedAt, value: nowFx.value, startObservedAt: prevFx.observedAt, startValue: prevFx.value });
+    });
+    months.push({ month: month, return: held ? null : weighted, held: held, fxUsed: fxUsed });
+  });
+  return build('ready', null, months);
+}
+
 export function buildPortfolioBacktestLab(priceMap, positions, options) {
   options = options || {};
   var initialAmount = Math.max(1, Number(options.initialAmount) || 10000);
@@ -345,19 +453,32 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
     ? Number(options.maxAlignmentGapDays) : 3;
   var startYear = Number(options.startYear) || 2017;
   var endYear = Number(options.endYear) || 2099;
+  // P1252 (BT-01): 원가(cost) 필터 제거 — 원가는 이 경로의 어떤 계산에도 쓰이지 않으므로 멤버
+  // 집합을 가를 자격이 없다. qty>0·cost 미신고 보유(증여·스핀오프·이전 롯)를 조용히 빼고 비중을
+  // 재분배하는 것은 22:PFR08의 "누락 데이터 = 커버리지 공백, 제외 아님" 계약을 우회한다.
+  // 미신고 원가는 결과의 공개 필드(missingCostMembers)로만 남는다.
   var raw = (positions || []).filter(function(p) {
-    return p && p.ticker && Number(p.qty) > 0 && Number(p.cost) > 0;
+    return p && p.ticker && Number(p.qty) > 0;
   }).map(function(p) {
     return {
-      ticker: String(p.ticker).trim().toUpperCase(), value: Number(p.qty) * Number(p.cost), qty: Number(p.qty),
-      targetWeight: typeof p.targetWeight === 'number' && isFinite(p.targetWeight) && p.targetWeight >= 0 ? p.targetWeight : null
+      ticker: String(p.ticker).trim().toUpperCase(), qty: Number(p.qty),
+      targetWeight: typeof p.targetWeight === 'number' && isFinite(p.targetWeight) && p.targetWeight >= 0 ? p.targetWeight : null,
+      // P1252 (BT-01): 원가 선언 여부는 공개용 — 계산 입력이 아니다.
+      costDeclared: Number(p.cost) > 0,
+      // E3/P1181 + E4/P1247: 원가 통화와 시세 통화는 다른 축이다. 랩은 두 축을 각각 환산해야 하므로
+      // 표시용 이름 하나로 뭉개지 않고 둘 다 보존한다(surface.js가 같은 구분을 쓴다).
+      costCurrency: _cleanCurrencyCode(p.costCurrency),
+      priceCurrency: _cleanCurrencyCode(p.currency || p.priceCurrency)
     };
   });
   var byTicker = {};
   var byTickerQty = {};
   var byTickerTargetWeight = {};
   raw.forEach(function(p) {
-    byTicker[p.ticker] = (byTicker[p.ticker] || 0) + p.value;
+    // P1247: 멤버 집합만 필요하다. 종전에는 `qty × cost`를 여기서 통화 구분 없이 누적했지만, 그 합계는
+    // KRW 금액과 USD 금액을 1:1로 더한 값이라 실행 여부 판단에도 쓸 수 없다 — 그 용도는 아래에서
+    // 기준 통화로 환산된 시작 시점 시장가치가 맡는다.
+    byTicker[p.ticker] = true;
     byTickerQty[p.ticker] = (byTickerQty[p.ticker] || 0) + p.qty;
     if (p.targetWeight != null) byTickerTargetWeight[p.ticker] = (byTickerTargetWeight[p.ticker] || 0) + p.targetWeight;
   });
@@ -366,6 +487,10 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
   // exclusion. Dropping it above silently renormalized every remaining member (AAA 100% from a
   // 2-member intent), converting a provider miss into the user's exclusion decision.
   var intendedTickers = Object.keys(byTicker);
+  // P1252 (BT-01): 미신고 원가 멤버는 제외하지 않고 공개만 한다.
+  var missingCostMembers = intendedTickers.filter(function(t) {
+    return !raw.some(function(p) { return p.ticker === t && p.costDeclared; });
+  });
   var missingPriceMembers = intendedTickers.filter(function(t) { return !(priceMap && priceMap[t]); });
   if (missingPriceMembers.length) {
     return {
@@ -379,8 +504,110 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
       warnings: ['가격 이력이 없어 실행을 보류합니다: ' + missingPriceMembers.join(', ') + '.', '보유 멤버를 제외 의도로 간주해 재분배하지 않습니다 — 새 정의로 명시하거나 가격 이력을 채운 뒤 다시 실행하세요.']
     };
   }
-  var totalValue = tickers.reduce(function(s, t) { return s + byTicker[t]; }, 0);
-  if (!tickers.length || totalValue <= 0) return { ok: false, reason: 'no valid portfolio price series', warnings: ['가격 이력이 있는 포지션이 없습니다.'] };
+  if (!tickers.length) return { ok: false, reason: 'no valid portfolio price series', warnings: ['가격 이력이 있는 포지션이 없습니다.'] };
+
+  // ── P1247 (E3/E4): 통화축 ───────────────────────────────────────────────────────────────────
+  // 구성은 환산 주장이다. `qty × 시작가`는 각 멤버의 **자기 통화**로 표시된 시장가치이므로 통화가 다르면
+  // 1:1로 더할 수 없다 — 평가 화면(surface.js)이 이미 거부하는 "통화 없는 합산"이고, KRW와 USD 금액을
+  // 그대로 더하면 원/달러 규모 차가 비중을 지배한다. 평가 경로와 **같은** `convertWithDeclaredRates`
+  // 계약(선언된 관측 leg·컷 이후 관측·선언 창)만 쓰고, 환산할 수 없으면 추정하지 않고 보류한다.
+  var baseCurrency = _cleanCurrencyCode(options.baseCurrency);
+  var fxLegs = Array.isArray(options.fxLegs) ? options.fxLegs : [];
+  var asOfMs = Number.isFinite(Number(options.asOfMs)) ? Number(options.asOfMs) : Date.now();
+  var currencyByTicker = {};
+  raw.forEach(function(p) {
+    if (!currencyByTicker[p.ticker]) currencyByTicker[p.ticker] = { price: null, cost: null };
+    if (p.priceCurrency && !currencyByTicker[p.ticker].price) currencyByTicker[p.ticker].price = p.priceCurrency;
+    if (p.costCurrency && !currencyByTicker[p.ticker].cost) currencyByTicker[p.ticker].cost = p.costCurrency;
+  });
+  var memberCurrencies = tickers.reduce(function(acc, t) {
+    var entry = currencyByTicker[t] || {};
+    [entry.price, entry.cost].forEach(function(code) { if (code && acc.indexOf(code) < 0) acc.push(code); });
+    return acc;
+  }, []);
+  var currencyAxis = {
+    basis: memberCurrencies.length > 1 ? 'mixed' : memberCurrencies.length === 1 ? 'declared-single' : 'undeclared',
+    baseCurrency: baseCurrency,
+    memberCurrencies: memberCurrencies,
+    asOfMs: new Date(asOfMs).toISOString(),
+    maxAgeMs: FX_LEG_MAX_AGE_MS,
+    applied: false,
+    legs: [],
+    held: []
+  };
+  // 통화를 선언하지 않은 단일 통화 포트폴리오는 종전과 같이 환산 없이 계산한다 — 그 가정은 축에 남는다.
+  var needsConversion = memberCurrencies.length > 1
+    || (baseCurrency != null && memberCurrencies.some(function(code) { return code !== baseCurrency; }));
+  var toBaseCurrency = function(amount, currency, axisLabel) {
+    if (amount == null) return amount;
+    if (!needsConversion) return amount;
+    // P1252 (BT-02): 미선언 통화를 `currency || baseCurrency`로 눕히지 않는다 — rate 1 암묵 통과는
+    // "미확인 통화는 기준 통화라는 뜻이 아니다"라는 이 모듈의 불변식을 깬다. 추정하지 않고 보류한다.
+    if (!currency) {
+      if (!currencyAxis.held.some(function(entry) { return entry.reason === 'member-currency-undeclared' && entry.axis === axisLabel; })) {
+        currencyAxis.held.push({ axis: axisLabel, currency: null, reason: 'member-currency-undeclared', pair: (baseCurrency || '?') + '(base)/?' });
+      }
+      return null;
+    }
+    var result = convertWithDeclaredRates({ value: amount, from: currency, to: baseCurrency, legs: fxLegs, asOfMs: asOfMs });
+    if (!result.ok) {
+      var pair = result.pair || ((currency || '?') + '/' + (baseCurrency || '?'));
+      if (!currencyAxis.held.some(function(entry) { return entry.pair === pair && entry.reason === result.reason; })) {
+        currencyAxis.held.push({ axis: axisLabel, currency: currency || null, reason: result.reason, pair: pair });
+      }
+      return null;
+    }
+    if (result.leg && !currencyAxis.legs.some(function(entry) {
+      return entry.from === result.leg.from && entry.to === result.leg.to && entry.observedAt === result.leg.observedAt;
+    })) {
+      currencyAxis.legs.push({
+        from: result.leg.from, to: result.leg.to, rate: result.leg.rate,
+        observedAt: result.leg.observedAt, source: result.leg.source, inverted: result.inverted === true
+      });
+    }
+    currencyAxis.applied = true;
+    return result.value;
+  };
+  // 기준 통화·leg 부재는 **금액을 합치는 경로에서만** 치명적이다. 명시 목표비중은 단위 없는 비율이라
+  // 환산 없이도 성립하므로, 필요하지 않은 곳에서 막지 않는다(과차단 금지). 그 경우에도 수익 기준이
+  // 현지 통화 가중임은 계속 발행한다.
+  var refuseCompositionConversion = function() {
+    if (!needsConversion) return null;
+    if (!baseCurrency) {
+      currencyAxis.held = [{ axis: 'composition', currency: null, reason: 'base-currency-undeclared', pair: memberCurrencies.join('/') }];
+      return {
+        ok: false, status: 'PARTIAL', allowedUse: 'reference-only', decisionUse: false,
+        decisionEligible: false, promotionEligible: false,
+        promotionBlockers: ['currency-conversion-basis-required', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-not-modeled'],
+        reason: 'base-currency-undeclared', model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
+        priceBasis: 'adjusted-close-required', compositionDisclosure: 'current-composition-retrospective',
+        currencyAxis: currencyAxis,
+        allocationBlocked: { code: 'base-currency-undeclared', memberCurrencies: memberCurrencies.slice() },
+        warnings: [
+          '보유 멤버의 통화가 섞여 있어(' + memberCurrencies.join(', ') + ') 시작 시점 시장가치 비중에 기준 통화가 필요합니다.',
+          '통화를 선언하지 않은 채 서로 다른 통화 금액을 1:1로 더하지 않았습니다 — 미확인 통화는 USD라는 뜻이 아닙니다.',
+          '단위 없는 명시 목표비중을 입력하면 비중은 환산 없이도 성립합니다(수익률은 현지 통화 가중으로 표시).'
+        ]
+      };
+    }
+    if (!fxLegs.length) {
+      currencyAxis.held = [{ axis: 'composition', currency: null, reason: 'rate-not-declared', pair: memberCurrencies.join('/') + '→' + baseCurrency }];
+      return {
+        ok: false, status: 'PARTIAL', allowedUse: 'reference-only', decisionUse: false,
+        decisionEligible: false, promotionEligible: false,
+        promotionBlockers: ['currency-conversion-basis-required', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-not-modeled'],
+        reason: 'fx-rate-not-declared', model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
+        priceBasis: 'adjusted-close-required', compositionDisclosure: 'current-composition-retrospective',
+        currencyAxis: currencyAxis,
+        allocationBlocked: { code: 'fx-rate-not-declared', baseCurrency: baseCurrency, memberCurrencies: memberCurrencies.slice() },
+        warnings: [
+          '기준 통화 ' + baseCurrency + '로 환산할 관측 rate leg가 선언되지 않았습니다.',
+          'rate 없이 서로 다른 통화를 합산하지 않았습니다 — 포트폴리오 선언에서 FX leg(쌍·관측 rate·관측 시각)를 추가한 뒤 다시 실행하세요.'
+        ]
+      };
+    }
+    return null;
+  };
   if (!priceMap || !priceMap[benchmarkSymbol]) return { ok: false, reason: 'missing benchmark', warnings: [benchmarkSymbol + ' 벤치마크 가격 이력이 없습니다.'] };
 
   // Returns require a corporate-action-adjusted series.  A raw close is still
@@ -486,16 +713,70 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
   //  - sum 0: a cash-mode question, not a fallback trigger.
   var targetWeights = {};
   var targetWeightBasis = 'start-date-adjusted-close-market-value';
+  // P1252 (BT-03): 원가 통화로 시세 값을 환산한 멤버 공개(명시 비중 경로에서는 비어 있다).
+  var priceCurrencyInferredMembers = [];
   var specifiedTickers = tickers.filter(function(t) { return byTickerTargetWeight[t] != null; });
   var targetWeightDenominator = 0;
   if (!specifiedTickers.length) {
+    var conversionRefusal = refuseCompositionConversion();
+    if (conversionRefusal) return conversionRefusal;
+    // P1252 (BT-02): 환산이 필요한데 멤버의 통화가 선언되지 않았으면(시세·원가 통화 모두 없음)
+    // `currency || baseCurrency`의 rate 1 암묵 통과로 기준 통화로 눕히지 않는다 — 미확인 통화는
+    // 기준 통화(USD 등)라는 뜻이 아니다. 추정 없이 시작 배분 전체를 보류한다.
+    var undeclaredCurrencyMembers = needsConversion ? tickers.filter(function(t) {
+      var entry = currencyByTicker[t] || {};
+      return !entry.price && !entry.cost;
+    }) : [];
+    if (undeclaredCurrencyMembers.length) {
+      currencyAxis.held = [{ axis: 'composition', currency: null, reason: 'member-currency-undeclared', pair: undeclaredCurrencyMembers.join(',') }];
+      return {
+        ok: false, status: 'PARTIAL', allowedUse: 'reference-only', decisionUse: false,
+        decisionEligible: false, promotionEligible: false,
+        promotionBlockers: ['currency-conversion-basis-required', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-not-modeled'],
+        reason: 'member-currency-undeclared', model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
+        priceBasis: 'adjusted-close-required', compositionDisclosure: 'current-composition-retrospective',
+        currencyAxis: currencyAxis,
+        allocationBlocked: { code: 'member-currency-undeclared', members: undeclaredCurrencyMembers.slice(), intended: intendedTickers.slice() },
+        warnings: [
+          '통화가 선언되지 않은 멤버: ' + undeclaredCurrencyMembers.join(', ') + ' — 미확인 통화는 기준 통화라는 뜻이 아닙니다.',
+          '시작 시점 시장가치를 추정 환산하지 않고 시작 배분 전체를 보류합니다. 각 멤버의 시세·원가 통화를 선언한 뒤 다시 실행하세요.'
+        ]
+      };
+    }
     var startMonth = common[0];
+    // P1252 (BT-03): 분자는 **시세** 기준 시장가치다. 시세 통화가 없고 원가 통화만 있으면 원가
+    // 통화로 시세 값을 환산하는 근거 추정이 된다 — 숨기지 않고 축에 공개한다(price-currency-inferred-
+    // from-cost). 둘 다 없으면 위의 BT-02 보류가 이미 막는다.
     tickers.forEach(function(t) {
       var startPoint = monthEnds[t][startMonth];
       var marketValue = startPoint && startPoint.value > 0 ? byTickerQty[t] * startPoint.value : null;
-      targetWeightDenominator += marketValue || 0;
-      targetWeights[t] = marketValue;
+      // P1247: 비중의 분자는 **기준 통화로 환산된** 시장가치다. 환산 실패를 0으로눕히지 않는다 —
+      // 0은 "제외 의도"이고 여기서는 환산 근거가 없다는 뜻이므로 아래에서 실행을 보류한다.
+      var entry = currencyByTicker[t] || {};
+      if (!entry.price && entry.cost && priceCurrencyInferredMembers.indexOf(t) < 0) priceCurrencyInferredMembers.push(t);
+      var marketValueBase = toBaseCurrency(marketValue, entry.price || entry.cost, 'price');
+      targetWeightDenominator += marketValueBase || 0;
+      targetWeights[t] = marketValueBase;
     });
+    if (priceCurrencyInferredMembers.length) {
+      currencyAxis.priceValueBasis = 'price-currency-inferred-from-cost';
+      currencyAxis.priceCurrencyInferredMembers = priceCurrencyInferredMembers.slice();
+    }
+    if (currencyAxis.held.length) {
+      return {
+        ok: false, status: 'PARTIAL', allowedUse: 'reference-only', decisionUse: false,
+        decisionEligible: false, promotionEligible: false,
+        promotionBlockers: ['currency-conversion-basis-required', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-not-modeled'],
+        reason: 'fx-conversion-unavailable', model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
+        priceBasis: 'adjusted-close-required', compositionDisclosure: 'current-composition-retrospective',
+        currencyAxis: currencyAxis,
+        allocationBlocked: { code: 'fx-conversion-unavailable', held: currencyAxis.held.slice() },
+        warnings: [
+          '시작 시점 시장가치를 기준 통화로 환산하지 못해 비중을 만들지 않았습니다: ' + currencyAxis.held.map(function(entry) { return entry.pair + '(' + entry.reason + ')'; }).join(', ') + '.',
+          '환산 실패를 0이나 제외로 바꾸지 않습니다 — 선언한 leg의 관측 시각·창을 확인하거나 통화쌍을 추가한 뒤 다시 실행하세요.'
+        ]
+      };
+    }
     if (!(targetWeightDenominator > 0) || tickers.some(function(t) { return !(targetWeights[t] > 0); })) {
       return {
         ok: false, status: 'PARTIAL', allowedUse: 'reference-only', decisionUse: false,
@@ -516,17 +797,21 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
       allocationBlocked = { code: 'partial-allocation-unresolved', specified: specifiedTickers.slice(), unspecified: unspecifiedTickers.slice() };
       allocationWarnings = [
         '부분 배분은 보류입니다 — 미지정 멤버: ' + unspecifiedTickers.join(', ') + '.',
-        '이건 제외가 아닙니다: 지정된 비중과 현금 배분을 모두 입력하거나 잔여비중 정책을 별도로 지정하세요. 잔여를 시장가치로 암묵 재분배하지 않습니다.'
+        '이건 제외가 아닙니다: 모든 멤버의 목표비중을 명시하거나 잔여비중 정책을 별도로 지정하세요. 잔여를 시장가치로 암묵 재분배하지 않습니다.'
       ];
     } else if (!(targetWeightDenominator > 0)) {
       allocationBlocked = { code: 'explicit-zero-allocation', members: tickers.slice(), sum: targetWeightDenominator };
-      allocationWarnings = ['모든 목표비중이 0입니다 — 명시적 0은 제외 의도이며, 현금 100% 모드 없이는 실행할 수 없습니다.', '제외된 종목을 시장가치로 되살리지 않습니다.'];
+      // P1252 (BT-08): 이 엔진은 전액투자 전략만 지원한다 — 목표비중 합계가 100%여야 하고 현금
+      // 배분 모드는 없다. 존재하지 않는 "현금 100% 모드"를 안내하지 않는다.
+      allocationWarnings = ['모든 목표비중이 0입니다 — 명시적 0은 제외 의도이며, 이 엔진은 전액투자 전략만 지원하므로(목표비중 합계가 100%여야 하며 현금 배분 모드는 제공하지 않습니다) 실행할 수 없습니다.', '제외된 종목을 시장가치로 되살리지 않습니다.'];
     } else if (targetWeightDenominator > 100 + 1e-9) {
       allocationBlocked = { code: 'invalid-allocation-sum', members: tickers.slice(), sum: targetWeightDenominator };
       allocationWarnings = ['목표비중 합계가 100을 넘습니다 (' + Math.round(targetWeightDenominator * 100) / 100 + ') — 비율로 눌러 정규화하지 않습니다.'];
     } else if (targetWeightDenominator < 100 - 1e-9) {
       allocationBlocked = { code: 'partial-allocation-unresolved', specified: specifiedTickers.slice(), unspecified: [], sum: targetWeightDenominator };
-      allocationWarnings = ['목표비중 합계가 100보다 작습니다 (' + Math.round(targetWeightDenominator * 100) / 100 + ') — 잔여비중 정책 없이 잔여를 분배하지 않습니다. 현금 비중을 명시하세요.'];
+      // P1252 (BT-08): "현금 비중을 명시하세요"는 존재하지 않는 입력을 안내한다 — 이 엔진은
+      // 전액투자 전략만 지원한다(목표비중 합계 100%, 현금 배분 모드 없음).
+      allocationWarnings = ['목표비중 합계가 100보다 작습니다 (' + Math.round(targetWeightDenominator * 100) / 100 + ') — 잔여비중 정책 없이 잔여를 분배하지 않습니다. 이 엔진은 전액투자 전략만 지원합니다: 목표비중 합계가 100%여야 하며 현금 배분 모드는 제공하지 않습니다.'];
     } else {
       targetWeightBasis = 'explicit-target-weight';
       tickers.forEach(function(t) { targetWeights[t] = (byTickerTargetWeight[t] || 0) / targetWeightDenominator; });
@@ -612,8 +897,16 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
     years[y].benchmarkBalance = r.benchmarkBalance;
   });
   var annualRows = Object.keys(years).sort().map(function(y) {
+    // P1252 (BT-06): 연도 행의 복리 수익률은 그 해에 관측된 월 수만큼의 수익률이다. 창이 연중에
+    // 시작/끝나면 그 해는 부분 연도다 — 개월 수를 발행하고 라벨에 병기하며, 전체 연도와 같은
+    // 표에서 부분 연도임을 표시한다.
+    var months = years[y].returns.length;
+    var partialYear = months !== 12;
     return {
       year: y,
+      label: partialYear ? y + ' (' + months + '개월)' : y,
+      months: months,
+      partialYear: partialYear,
       return: _aioBtCompound(years[y].returns),
       balance: years[y].balance,
       benchmarkReturn: _aioBtCompound(years[y].benchmarkReturns),
@@ -647,7 +940,9 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
   // beta and annualized by 12; it is not a CAGR-minus-CAGR hybrid.
   var alpha = rfMonthly != null && beta != null
     ? (_statMean(excessMonthly) - beta * _statMean(benchmarkExcessMonthly)) * 12 : null;
-  var annualReturns = annualRows.map(function(r) { return r.return; });
+  // P1252 (BT-06): 최고/최저 연도는 **전체 연도만** 후보로 삼는다 — 연중 시작한 창의 2개월 부분
+  // 연도가 "최악의 해"로 발행되는 것을 막는다. 전체 연도가 없으면 best/worst는 null이다.
+  var annualReturns = annualRows.filter(function(r) { return !r.partialYear; }).map(function(r) { return r.return; });
   var cleanMonthly = monthlyReturns.slice().sort(function(a, b) { return a - b; });
   var var5 = cleanMonthly.length ? Math.max(0, -_quantileR7(cleanMonthly, 0.05)) : null;
   var tail = cleanMonthly.filter(function(r) { return r <= _quantileR7(cleanMonthly, 0.05); });
@@ -659,7 +954,9 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
   // P1203: `deriveVarStability`의 `recent-half` 변형은 **시간 순서**를 가정한다 — 정렬된 표본을 넘기면
   // 그 변형이 '최근 절반'이 아니라 '상위 절반'이 되어 VaR가 0, 민감도 1이 되고, 현실적인(중앙값이 양수인)
   // 표본은 영원히 인증될 수 없었다. 꼬리·근사 순위 계산은 함수 안에서 정렬하므로 순서를 넘겨도 안전하다.
-  var varStability = deriveVarStability({ returns: monthlyReturns, quantile: 0.05 });
+  // P1243: `monthlyReturns`는 월 버킷 순서(시간순)이므로 계약을 선언한다. 순서를 검증할 수 있는
+  // 관측시각이 있으면 `observedAt`으로 올려 `verified`가 된다.
+  var varStability = deriveVarStability({ returns: monthlyReturns, quantile: 0.05, order: 'chronological' });
   var varCertification = {
     confidence: 0.95,
     horizonMonths: 1,
@@ -693,12 +990,27 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
     return {
       ticker: t, weight: targetWeights[t], targetWeight: targetWeights[t], averageRealizedWeight: averageRealizedWeight,
       standaloneReturn: standalone, returnContribution: contribution,
-      returnContributionPct: netGain !== 0 ? contribution / netGain : null,
+      // P1252 (BT-07): netGain ≤ 0(손실 구간)에서 contribution/netGain은 부호 의미를 뒤집는다 —
+      // 손실 기여자가 양수 %로 발행된다. 달러 기여액과 Σ기여액 = netGain 항등식은 그대로 두고
+      // 비율만 보류한다(사유 병기).
+      returnContributionPct: netGain > 0 ? contribution / netGain : null,
+      returnContributionPctReason: netGain > 0 ? null : 'loss-period-pct-withheld',
       contributionBasis: 'arithmetic-period-start-dollar',
       riskContribution: riskContribution,
       riskContributionBasis: 'realized-beginning-weighted-monthly-return'
     };
   }).sort(function(a, b) { return Math.abs(b.riskContribution || 0) - Math.abs(a.riskContribution || 0); });
+
+  // P1259 (QA-FX-SERIES): 기준 통화 수익률(월말 FX 정렬) — 현지 통화 결과와 **다른 결과**로 함께
+  // 발행한다. FX 시계열이 없으면 보류하고 추정하지 않는다.
+  var baseCurrencyReturns = _aioBtBaseCurrencyMonthlyReturns({
+    monthlyRows: monthlyRows,
+    currencyByTicker: currencyByTicker,
+    baseCurrency: baseCurrency,
+    needsConversion: needsConversion,
+    startMonth: common[0],
+    fxSeries: options.fxSeries || null
+  });
 
   return {
     ok: true,
@@ -719,6 +1031,13 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
     model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
     priceBasis: 'adjusted-close',
     compositionDisclosure: 'current-composition-retrospective',
+    // P1247 (E3/E4): 통화축. 비중은 선언된 leg로 기준 통화로 환산했지만, 월별 수익률은 각 자산의
+    // **현지 통화** 가격 경로에서 계산된다 — 기준 통화 수익률은 관측 FX **시계열**이 있어야 하고,
+    // 그건 이 결과가 아니다. 두 가지를 같은 것으로 읽지 않도록 축과 수익 기준을 함께 발행한다.
+    currencyAxis: currencyAxis,
+    returnCurrencyBasis: needsConversion ? 'local-currency-weighted' : 'single-currency',
+    fxTranslation: needsConversion ? 'excluded-requires-fx-series' : 'not-applicable',
+    baseCurrencyReturns: baseCurrencyReturns,
     rfAnnualUnit: 'decimal',
     rfInputStatus: rfInvalid ? 'invalid-rejected' : rfAnnual == null ? 'not-supplied' : 'accepted',
     settings: {
@@ -734,6 +1053,11 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
       monthlyGridBasis: gridGaps.length ? 'longest-contiguous-window' : 'contiguous'
     },
     tickers: tickers,
+    // P1252 (BT-01): 의도 멤버 전체와 원가 공개 — 원가 미신고 멤버는 제외되지 않았고, 원가는
+    // 어떤 계산에도 쓰이지 않았다(공개 필드 전용).
+    intendedTickers: intendedTickers.slice(),
+    costBasis: 'cost-not-used-for-allocation',
+    missingCostMembers: missingCostMembers.slice(),
     weights: targetWeights,
     monthlyRows: monthlyRows,
     annualRows: annualRows,
@@ -773,11 +1097,19 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
       '조정주가 기반 총수익률의 참고용 추정치입니다. 세금·수수료·거래비용·슬리피지·회전율을 모델링하지 않았으며 gross 성과입니다. 이 누락은 승격 차단 사유입니다.',
       '명시적 목표비중 또는 시작 시점 조정주가×수량 비중을 과거에 소급한 current-composition retrospective이며 원가 비중을 시장가 비중으로 오인하지 않습니다. 생존편향·구성 변경·상장 전 구간은 교정하지 않습니다.',
       '월말 관측일이 자산 간 ' + maxAlignmentGapDays + '일을 초과하는 월은 비동시성 편향 방지를 위해 제외했습니다.',
-      'VaR/CVaR 표본 ' + varCertification.sampleN + '개·꼬리 ' + varCertification.tailN + '개 — 인증 보류(표본 안정성·bootstrap/민감도 미검증).',
+      // P1252 (BT-05): 경고는 실제 판정을 말한다 — 인증된 표본에 고정 "인증 보류"를 붙이지 않고,
+      // 보류면 실제 certificationReasons를 나열한다.
+      varCertification.certification === 'certified'
+        ? ('VaR/CVaR 표본 ' + varCertification.sampleN + '개·꼬리 ' + varCertification.tailN + '개 — 인증됨(표본 안정성 통과).')
+        : ('VaR/CVaR 표본 ' + varCertification.sampleN + '개·꼬리 ' + varCertification.tailN + '개 — 인증 보류(' + (varCertification.certificationReasons || []).join(', ') + ').'),
       rfInvalid ? '무위험수익률(RF)은 연간 소수(decimal) 단위(-1, 1]만 허용합니다. 입력 단위가 잘못되어 Sharpe·Sortino·Alpha를 산출하지 않았습니다.' : rfAnnual == null ? '무위험수익률(RF)을 입력하지 않아 Sharpe·Sortino·Alpha를 산출하지 않았습니다.' : ('RF 가정: 연 소수 ' + rfAnnual.toFixed(6) + ' (' + (rfAnnual * 100).toFixed(2) + '%).'),
       '거래 가능한 실현 성과·매매 지시로 승격하지 않습니다.',
-      '무료 Yahoo chart 데이터 범위와 각 종목 상장일에 따라 시작 월이 자동 제한됩니다.'
-    ]
+      '무료 Yahoo chart 데이터 범위와 각 종목 상장일에 따라 시작 월이 자동 제한됩니다.',
+      // P1252 (BT-03): 원가 통화로 시세 값을 환산한 근거 추정은 공개한다 — 시세 통화 선언이
+      // 원가 통화와 다르면 비중이 왜곡될 수 있다.
+      priceCurrencyInferredMembers.length ? ('시세 통화가 선언되지 않은 멤버(' + priceCurrencyInferredMembers.join(', ') + ')는 원가 통화를 시세 값 환산의 통화로 사용했습니다(price-currency-inferred-from-cost) — 원가 통화가 실제 시세 통화와 다르면 시작 비중이 왜곡됩니다.') : null,
+      needsConversion ? ('비중은 선언된 rate leg로 기준 통화(' + baseCurrency + ')로 환산했지만, 월별 수익률은 각 자산의 현지 통화 가격 경로에서 계산됩니다 — 기준 통화 수익률에는 관측 FX 시계열이 필요하며 이 결과에 포함되지 않았습니다.') : null
+    ].filter(Boolean)
   };
 };
 

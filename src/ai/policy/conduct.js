@@ -23,13 +23,23 @@ export function getAIConductPolicy() {
     version: AI_CONDUCT_POLICY_VERSION,
     matrix: Object.freeze(POLICY_ROWS.map(({ id, severity, mode }) => Object.freeze({ id, severity, mode }))),
     statuses: Object.freeze(['BLOCKED_P0', 'EDUCATIONAL_ALLOWED']),
-    requestModes: Object.freeze(['PROHIBITED_INSTRUCTION', 'LEGAL_TAX_ANALYSIS', 'CONDITIONAL_ANALYSIS', 'EDUCATIONAL'])
+    requestModes: Object.freeze(['PROHIBITED_INSTRUCTION', 'LEGAL_TAX_ANALYSIS', 'CONDITIONAL_ANALYSIS', 'EDUCATIONAL']),
+    // E6/A06: a request is classified before an answer exists; a response is audited after one does.
+    // They are different surfaces of this one policy and must not share a classifier.
+    responseModes: Object.freeze(['LEGAL_DIRECTIVE', 'COMPLIANT']),
+    surfaces: Object.freeze({
+      request: 'classifyAIRequest',
+      response: 'auditAIResponse',
+      legacyComposite: 'classifyAIConduct'
+    }),
+    requiredEvidenceForResponseAudit: Object.freeze(['query', 'responseText'])
   });
 }
 
-export function classifyAIConduct({ query = '', responseText = '' } = {}) {
+// E6/A06: the request surface. It never reads an answer, so a plan cannot be re-classified by text
+// that does not exist yet (the question planner runs before any model output).
+export function classifyAIRequest({ query = '' } = {}) {
   const queryText = String(query || '').trim();
-  const answerText = String(responseText || '').trim();
   const categories = POLICY_ROWS.filter((row) => row.pattern.test(queryText)).map((row) => row.id);
   const prohibitedCategories = POLICY_ROWS.filter((row) => row.mode === 'prohibited' && categories.includes(row.id)).map((row) => row.id);
   const educational = EDUCATIONAL.test(queryText);
@@ -37,7 +47,6 @@ export function classifyAIConduct({ query = '', responseText = '' } = {}) {
   const directAction = DIRECT_MARKET_ACTION.test(queryText);
   const operational = OPERATIONAL.test(queryText);
   const asksLegalDetermination = LEGAL_DETERMINATION.test(queryText);
-  const responseLegalDirective = RESPONSE_LEGAL_DIRECTIVE.test(answerText);
 
   if (prohibitedCategories.length && operational) {
     return Object.freeze({
@@ -49,10 +58,10 @@ export function classifyAIConduct({ query = '', responseText = '' } = {}) {
     });
   }
 
-  const legalTaxAnalysis = responseLegalDirective || (categories.includes('jurisdictional-advice') && (
+  const legalTaxAnalysis = categories.includes('jurisdictional-advice') && (
     (asksLegalDetermination && (personalized || directAction || !educational)) ||
     (directAction && !educational)
-  ));
+  );
   if (legalTaxAnalysis) {
     return Object.freeze({
       version: AI_CONDUCT_POLICY_VERSION, requestMode: 'LEGAL_TAX_ANALYSIS',
@@ -71,6 +80,37 @@ export function classifyAIConduct({ query = '', responseText = '' } = {}) {
     categories: Object.freeze(categories), execution: directAction, educational: educational || !directAction,
     personalized, directAction, legalReviewRequired: false, reasons: Object.freeze([])
   });
+}
+
+// E6/A06: the response surface. It keeps the request classification it was given and records the
+// response finding separately (`responseCompliance`), so a directive found in an answer cannot be
+// mistaken for a property of the request.
+export function auditAIResponse({ query = '', responseText = '' } = {}) {
+  const request = classifyAIRequest({ query });
+  const responseLegalDirective = RESPONSE_LEGAL_DIRECTIVE.test(String(responseText || '').trim());
+  const responseCompliance = Object.freeze({
+    mode: responseLegalDirective ? 'LEGAL_DIRECTIVE' : 'COMPLIANT',
+    directive: responseLegalDirective,
+    requestMode: request.requestMode
+  });
+  if (responseLegalDirective) {
+    return Object.freeze({
+      ...request, requestMode: 'LEGAL_TAX_ANALYSIS',
+      status: 'EDUCATIONAL_ALLOWED', severity: 'P1',
+      execution: request.directAction || request.execution,
+      legalReviewRequired: false, jurisdictionContextRequired: true,
+      reasons: Object.freeze(['jurisdiction-and-facts-required']),
+      responseCompliance
+    });
+  }
+  return Object.freeze({ ...request, responseCompliance });
+}
+
+// Legacy composite kept for the bridged consumers: it routes to the request surface when no answer
+// was supplied and to the response surface when one was. Its output shape is unchanged.
+export function classifyAIConduct({ query = '', responseText = '' } = {}) {
+  const answerText = String(responseText || '').trim();
+  return answerText ? auditAIResponse({ query, responseText: answerText }) : classifyAIRequest({ query });
 }
 
 export function buildScopedConductFallback(audit = {}) {

@@ -334,7 +334,7 @@ function emptyResult({ inputVersion, regimeLabel, weights, reason = 'fewer than 
     confidence: 0,
     compositeConfidence: 0,
     confidenceMeaning: '입력 커버리지·표본 안정성 진단값이며 미래 수익률 확률이 아님',
-    inputAudit: freezeRecord({ inputRows: 0, eligibleRows: 0, validCoreRows: 0, invalidCoreRows: 0, duplicateRows: 0, missingIdentityRows: 0, reason, ...inputAudit }),
+    inputAudit: freezeRecord({ inputRows: 0, eligibleRows: 0, validCoreRows: 0, invalidCoreRows: 0, duplicateRows: 0, missingIdentityRows: 0, rawBasisRows: 0, reason, ...inputAudit }),
     sectorNeutrality: freezeRecord({ method: 'sector-relative-z-score-with-global-shrinkage', unknownSectorPolicy: 'universe-fallback', status: 'unavailable', groups: 0, unknownRows: 0, maxAbsMeanCompositeZ: null }),
     outlierDiagnostics: freezeRecord({ method: 'MAD-triggered-winsorization', byFactor: {}, totalOutliers: 0 }),
     regimeStability: deriveRegimeStability(regimeLabel, null, null, {}),
@@ -366,10 +366,16 @@ export function computeFactorRanks({
   let duplicateRows = 0;
   let missingIdentityRows = 0;
   let invalidCoreRows = 0;
+  let rawBasisRows = 0;
   const items = inputRows.filter((row) => {
     if (!row || (typeof row.ret3m !== 'number' && typeof row.ret1m !== 'number')) return false;
     const symbol = String(row.sym || row.symbol || '').trim().toUpperCase();
     if (!symbol) { missingIdentityRows += 1; return false; }
+    // P1255 (07:M04 계열 잔여 D1): 조정 완결이 아닌 계열의 가격수익률은 조정 계열과 한 순위에서
+    // 비교하지 않는다 — return-contract의 `mixed-adjustment-scope-in-one-comparison` 위반을
+    // 막는다. 가격 기준 선언이 아예 없는 합성/구형 행은 기존 동작을 유지하고, 선언된
+    // raw/partial 행만 비교 집합에서 분리해 inputAudit에 남긴다.
+    if (row.adjustedCloseStatus != null && row.adjustedCloseStatus !== 'complete') { rawBasisRows += 1; return false; }
     if (finite(row.ret3m) == null && finite(row.ret1m) == null) { invalidCoreRows += 1; return false; }
     if (symbol && seenSymbols.has(symbol)) { duplicateRows += 1; return false; }
     if (symbol) seenSymbols.add(symbol);
@@ -382,7 +388,7 @@ export function computeFactorRanks({
       regimeLabel,
       weights,
       reason: items.length < 5 ? 'fewer than five eligible rows' : 'fewer than five rows with finite momentum observations',
-      inputAudit: { inputRows: inputRows.length, eligibleRows: items.length, validCoreRows, invalidCoreRows, duplicateRows, missingIdentityRows }
+      inputAudit: { inputRows: inputRows.length, eligibleRows: items.length, validCoreRows, invalidCoreRows, duplicateRows, missingIdentityRows, rawBasisRows }
     });
   }
 
@@ -477,7 +483,7 @@ export function computeFactorRanks({
       reason: 'no factor meets the minimum cross-sectional coverage threshold',
       factorCoverage,
       inactiveFactorReasons,
-      inputAudit: { inputRows: inputRows.length, eligibleRows: items.length, validCoreRows, invalidCoreRows, duplicateRows, missingIdentityRows }
+      inputAudit: { inputRows: inputRows.length, eligibleRows: items.length, validCoreRows, invalidCoreRows, duplicateRows, missingIdentityRows, rawBasisRows }
     });
   }
 
@@ -504,7 +510,7 @@ export function computeFactorRanks({
         requestedFactorWeights: resolution.requestedFactorWeights || {},
         excludedFactorWeights: resolution.excludedFactorWeights || {},
         requestedWeightCoveragePct: resolution.coverage == null ? null : Math.round(resolution.coverage * 1000) / 10,
-        inputAudit: { inputRows: inputRows.length, eligibleRows: items.length, validCoreRows, invalidCoreRows, duplicateRows, missingIdentityRows }
+        inputAudit: { inputRows: inputRows.length, eligibleRows: items.length, validCoreRows, invalidCoreRows, duplicateRows, missingIdentityRows, rawBasisRows }
       });
     }
     appliedFactorWeights = resolution.appliedFactorWeights;

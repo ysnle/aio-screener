@@ -358,20 +358,16 @@ function renderNativeHistoryChart(root, page, charts, { id, field, label, render
 function renderNativeCurveChart(root, page, charts, canvasId = 'koreaCurveChart', rendererKey = 'aioFxbondChartRenderer') {
   const canvas = page.querySelector(`#${canvasId}`);
   if (!canvas) return;
-  const values = [
-    ['3M', quoteValue(root, '^IRX')?.price],
-    ['2Y', finite(root?._live2Y) ?? finite(root?._fredData?.DGS2?.value)],
-    ['5Y', quoteValue(root, '^FVX')?.price],
-    ['10Y', quoteValue(root, '^TNX')?.price],
-    ['30Y', quoteValue(root, '^TYX')?.price]
-  ];
-  if (!values.every(([, value]) => Number.isFinite(value)) || typeof root?.Chart !== 'function') {
+  const curve = root?.AIO?.getUsTreasuryCurveEvidence?.()?.curve || null;
+  const points = Array.isArray(curve?.points) ? curve.points : [];
+  const cutIds = new Set(points.map((point) => point?.cutId).filter(Boolean));
+  if (points.length < 2 || cutIds.size !== 1 || !curve?.curveCutId || typeof root?.Chart !== 'function') {
     destroyNativeChart(charts, canvasId);
     setCanvasState(canvas, { rendererKey, sourceKind: 'unavailable', sourceLabel: 'yield-curve:current-evidence-unavailable', operationalUse: 'blocked', title: '수익률 곡선 현재 관측값 미수신' });
     canvas.__rendered = 'native';
     return;
   }
-  const signature = values.map(([, value]) => value).join('|');
+  const signature = `${curve.curveCutId}|${points.map((point) => `${point.tenor}:${point.value}`).join('|')}`;
   if (charts.get(canvasId)?.signature === signature) return;
   destroyNativeChart(charts, canvasId);
   let chart;
@@ -379,8 +375,8 @@ function renderNativeCurveChart(root, page, charts, canvasId = 'koreaCurveChart'
     chart = new root.Chart(canvas, {
       type: 'line',
       data: {
-        labels: values.map(([label]) => label),
-        datasets: [{ label: 'US Treasury yield (%)', data: values.map(([, value]) => value), borderColor: '#4aa3df', backgroundColor: 'rgba(74,163,223,0.12)', borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#4aa3df', fill: true, tension: 0.2 }]
+        labels: points.map((point) => point.tenor),
+        datasets: [{ label: 'US Treasury yield (%)', data: points.map((point) => point.value), borderColor: '#4aa3df', backgroundColor: 'rgba(74,163,223,0.12)', borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#4aa3df', fill: true, tension: 0.2 }]
       },
       options: {
         responsive: true,
@@ -396,7 +392,8 @@ function renderNativeCurveChart(root, page, charts, canvasId = 'koreaCurveChart'
   }
   charts.set(canvasId, { chart, signature });
   canvas.__rendered = 'chartjs';
-  setCanvasState(canvas, { rendererKey, sourceKind: 'live', sourceLabel: 'live:^IRX+DGS2+^FVX+^TNX+^TYX', operationalUse: 'reference-only', title: 'US Treasury yield curve · current observed evidence' });
+  canvas.setAttribute('data-curve-cut-id', curve.curveCutId);
+  setCanvasState(canvas, { rendererKey, sourceKind: points.every((point) => point.sourceKind === 'T1_OFFICIAL') ? 'T1_OFFICIAL' : 'unavailable', sourceLabel: `treasury-daily:${curve.curveCutId}`, operationalUse: 'reference-only', title: `US Treasury yield curve · cut ${curve.curveCutId}` });
 }
 
 function renderMacroTransmissionLens(documentRef, root, page) {
@@ -530,32 +527,18 @@ function renderMacroTransmissionLens(documentRef, root, page) {
 function renderMacro(documentRef, root, page, charts) {
   renderLiveQuotes(root, page);
   renderSnapshotMetrics(root, page);
-  const twoYear = finite(root?._live2Y) ?? finite(root?._fredData?.DGS2?.value);
-  const tenYear = quoteValue(root, '^TNX')?.price;
-  // W08-B/P1147 (H02): the two legs carry their own tenor, observation time, session and
-  // provider, and an official same-date FRED spread outranks a same-day calculation. Legs from
-  // different observation dates are reported as a mixed-date reference, never as a live curve.
-  const curveSpread = buildTreasuryCurveSpread({
-    twoY: twoYear,
-    // P1162: this was written as a bare `tenY` shorthand against a local named `tenYear`, so every
-    // mount of the macro route threw `ReferenceError: tenY is not defined`. The lazy loader reports
-    // that as `aioRouteModuleState: 'failed'`, which failed the user-journey browser gate and, with
-    // it, Attest and the Pages deployment.
-    tenY: tenYear,
-    officialSpread: root?._fredData?.T10Y2Y?.value ?? root?.DATA_SNAPSHOT?.t10y2y ?? null,
-    legs: {
-      twoY: { instrumentId: 'DGS2', observedAt: root?._fredData?.DGS2?.observedAt || root?._fredData?.DGS2?.asOf || null, session: 'closing', provider: 'FRED' },
-      tenY: { instrumentId: '^TNX', observedAt: root?._liveData?.['^TNX']?.observedAt || root?._liveData?.['^TNX']?.quoteEnvelope?.observedAt || null, session: root?._liveData?.['^TNX']?.marketState || null, provider: 'live-quote' }
-    }
-  });
+  const curveEvidence = root?.AIO?.getUsTreasuryCurveEvidence?.() || null;
+  const curveSpread = curveEvidence?.curve || buildTreasuryCurveSpread({});
+  const twoYear = finite(curveEvidence?.twoY);
+  const tenYear = finite(curveEvidence?.tenY);
   const twoYearNode = page.querySelector('#macro-2y-value');
   const twoYearSourceNode = page.querySelector('#macro-2y-source');
   writeText(twoYearNode, Number.isFinite(twoYear) ? `${twoYear.toFixed(2)}%` : '—');
-  writeText(twoYearSourceNode, Number.isFinite(twoYear) ? 'FRED DGS2 · 기준금리 참고' : 'FRED DGS2 수신 대기');
+  writeText(twoYearSourceNode, Number.isFinite(twoYear) ? `${curveSpread.legs?.[0]?.source || 'U.S. Treasury'} DGS2 · 기준금리 참고` : 'DGS2 수신 대기');
   [twoYearNode, twoYearSourceNode].forEach((node) => {
     if (!node) return;
     node.dataset.aioMacroTwoYearRenderer = 'native';
-    writeLineage(node, Number.isFinite(twoYear) ? 'fred' : 'unavailable', Number.isFinite(twoYear) ? 'FRED:DGS2' : 'FRED:DGS2 unavailable');
+    writeLineage(node, Number.isFinite(twoYear) ? 'fred' : 'unavailable', Number.isFinite(twoYear) ? `${curveSpread.legs?.[0]?.source || 'U.S. Treasury'}:DGS2` : 'DGS2 unavailable');
   });
   const spreadValueNode = page.querySelector('#macro-spread-value');
   const spreadMeaningNode = page.querySelector('#macro-spread-meaning');
@@ -564,9 +547,9 @@ function renderMacro(documentRef, root, page, charts) {
   const available = spread != null;
   const valueText = spread == null ? '—' : `${spread >= 0 ? '+' : ''}${spread.toFixed(2)}%p`;
   const meaningText = spread == null
-    ? '판정 보류 · 2Y·10Y 관측값 미수신'
+    ? `${curveSpread.label} — 동일 cut 값을 확정할 수 없습니다.`
     : curveSpread.mixedDates
-      ? `${curveSpread.label} — 두 만기의 관측시각이 달라 실시간 곡선으로 해석하지 않습니다.`
+      ? `${curveSpread.label} — 실시간 곡선으로 해석하지 않습니다.`
       : spread < -0.1 ? '역전 · 경기침체 경고 구간' : spread < 0.3 ? '평탄 · 방향성 확인 필요' : '정상 기울기 · 단독 매수 신호 아님';
   writeText(spreadValueNode, valueText);
   writeText(spreadMeaningNode, meaningText);
@@ -575,26 +558,38 @@ function renderMacro(documentRef, root, page, charts) {
     if (!node) return;
     node.dataset.aioMacroSpreadRenderer = 'native';
     node.setAttribute('data-curve-mode', curveSpread.mode);
+    node.setAttribute('data-curve-cut-id', curveSpread.curveCutId || '');
+    node.setAttribute('data-spread-unit', curveSpread.unit || 'percentage-point');
+    node.setAttribute('data-curve-comparable', curveSpread.comparable ? 'true' : 'false');
     writeLineage(node, available ? (curveSpread.mixedDates ? 'reference' : 'live') : 'unavailable', available ? curveSpread.label : 'yield-curve evidence unavailable');
   });
   const curveStatusNode = page.querySelector('#curve-status');
   const curveMeaningNode = page.querySelector('#curve-meaning');
-  const curveAvailable = spread != null;
-  const curveSpreadValue = spread;
-  const curveStatus = curveSpreadValue == null
-    ? '판정 보류'
-    : curveSpreadValue < -0.1 ? '역전 곡선' : curveSpreadValue < 0.3 ? '평탄 곡선' : '양(+)의 곡선';
-  const curveMeaning = curveSpreadValue == null
-    ? '판정 보류 · 2Y·10Y 관측값 미수신'
-    : curveSpreadValue < -0.1 ? '2s10s 역전 · 경기·신용 위험을 함께 확인합니다.'
-      : curveSpreadValue < 0.3 ? '2s10s 평탄 · 곡선 방향성 확인이 필요합니다.'
-        : '10Y > 2Y · 정상 양(+) 기울기입니다.';
+  // LC-49: the drawn curve (2Y/10Y legs) and the official T10Y2Y spread are independent inputs. The
+  // curve card used to be 'available' only when the official spread resolved, so a pending official
+  // scalar hid an observed curve (and vice versa). Curve availability now comes from its own legs;
+  // the spread band is only applied when the official cut is comparable.
+  const curveLegsPresent = Number.isFinite(twoYear) && Number.isFinite(tenYear);
+  const curveAvailable = curveLegsPresent;
+  const curveSpreadComparable = curveLegsPresent && curveSpread.comparable === true && spread != null;
+  const curveSpreadValue = curveSpreadComparable ? spread : null;
+  const curveStatus = !curveLegsPresent
+    ? '비교 판정 보류'
+    : !curveSpreadComparable ? '2Y·10Y 관측 · 2s10s cut 미확정'
+      : curveSpreadValue < -0.1 ? '역전 곡선' : curveSpreadValue < 0.3 ? '평탄 곡선' : '양(+)의 곡선';
+  const curveMeaning = !curveLegsPresent
+    ? `${curveSpread.label}`
+    : !curveSpreadComparable ? '2Y·10Y는 관측됐지만 공식 2s10s와 같은 cut이 아니어서 스프레드 판정은 보류합니다.'
+      : curveSpreadValue < -0.1 ? '2s10s 역전 · 경기·신용 위험을 함께 확인합니다.'
+        : curveSpreadValue < 0.3 ? '2s10s 평탄 · 곡선 방향성 확인이 필요합니다.'
+          : '10Y > 2Y · 정상 양(+) 기울기입니다.';
   writeText(curveStatusNode, curveStatus);
   writeText(curveMeaningNode, curveMeaning);
   [curveStatusNode, curveMeaningNode].forEach((node) => {
     if (!node) return;
     node.dataset.aioMacroCurveRenderer = 'native';
     node.setAttribute('data-curve-mode', curveSpread.mode);
+    node.setAttribute('data-curve-cut-id', curveSpread.curveCutId || '');
     writeLineage(node, curveAvailable ? (curveSpread.mixedDates ? 'reference' : 'live') : 'unavailable', curveAvailable ? curveSpread.label : 'yield-curve evidence unavailable');
   });
   const fedMeaningNode = page.querySelector('#macro-fed-meaning');
@@ -611,12 +606,33 @@ function renderMacro(documentRef, root, page, charts) {
   }
   renderNativeCurveChart(root, page, charts, 'yieldCurveChart', 'aioMacroChartRenderer');
   renderMacroTransmissionLens(documentRef, root, page);
+  // LC-46: the banner was a static fail-closed notice that nothing updated, so the CPI/PCE cards could
+  // carry values while the banner still claimed '원천 수신 대기'. Reflect what the cards actually show,
+  // from the same render pass, instead of a hardcoded state.
+  const staleBanner = page.querySelector('#macro-fred-stale-banner');
+  if (staleBanner) {
+    const renderedCards = ['cpi-yoy', 'core-cpi-yoy', 'pce-yoy', 'core-pce-yoy']
+      .map((key) => String(page.querySelector(`[data-snap="${key}"]`)?.textContent || '').trim())
+      .filter((text) => text && text !== '—');
+    const received = renderedCards.length > 0;
+    staleBanner.textContent = received
+      ? `CPI/PCE ${renderedCards.length}/4 지표 수신 — 관측월·발표일과 함께 확인하세요. 미수신 값은 현재 판단에 사용하지 않습니다.`
+      : 'CPI/PCE: FRED·BLS 원천 수신 대기 · 미수신 값은 현재 판단에 사용하지 않습니다.';
+    staleBanner.dataset.runtimeState = received ? 'partial' : 'unavailable';
+    staleBanner.setAttribute('data-operational-use', received ? 'reference-only' : 'blocked');
+    staleBanner.style.color = received ? 'var(--text-secondary)' : 'var(--data-amber)';
+  }
 }
 
 function renderFxbond(root, page, charts) {
   renderLiveQuotes(root, page);
   renderSnapshotMetrics(root, page);
-  const twoYear = finite(root?._live2Y) ?? finite(root?._fredData?.DGS2?.value);
+  const curveEvidence = root?.AIO?.getUsTreasuryCurveEvidence?.() || null;
+  const curveSpread = curveEvidence?.curve || buildTreasuryCurveSpread({});
+  const twoYear = finite(curveEvidence?.twoY);
+  const tnx = finite(curveEvidence?.tenY) ?? quoteValue(root, '^TNX')?.price;
+  const dxy = quoteValue(root, 'DX-Y.NYB')?.price;
+  const hasEvidence = Number.isFinite(dxy) && Number.isFinite(tnx);
   ['#yc-2y', '#yc-2y-track'].forEach((selector) => {
     const node = page.querySelector(selector);
     if (!node) return;
@@ -625,12 +641,23 @@ function renderFxbond(root, page, charts) {
     node.style.color = Number.isFinite(twoYear)
       ? (twoYear > 4.5 ? 'var(--data-red)' : twoYear > 4 ? 'var(--data-amber)' : 'var(--data-green)')
       : 'var(--text-muted)';
-    writeLineage(node, Number.isFinite(twoYear) ? 'fred' : 'unavailable', Number.isFinite(twoYear) ? 'FRED:DGS2' : 'FRED:DGS2 unavailable');
+    writeLineage(node, Number.isFinite(twoYear) ? 'fred' : 'unavailable', Number.isFinite(twoYear) ? `${curveSpread.legs?.[0]?.source || 'U.S. Treasury'}:DGS2` : 'DGS2 unavailable');
   });
+  const spreadNode = page.querySelector('#sc-2s10s');
+  const spread = curveSpread.spread;
+  const spreadComparable = Number.isFinite(spread);
+  if (spreadNode) {
+    writeText(spreadNode, spread == null ? '—' : `${spread >= 0 ? '+' : ''}${spread.toFixed(2)}%p`);
+    spreadNode.dataset.aioFxbondSpreadRenderer = 'native';
+    spreadNode.setAttribute('data-curve-mode', curveSpread.mode);
+    spreadNode.setAttribute('data-curve-cut-id', curveSpread.curveCutId || '');
+    spreadNode.setAttribute('data-spread-unit', curveSpread.unit || 'percentage-point');
+    spreadNode.setAttribute('data-curve-comparable', curveSpread.comparable ? 'true' : 'false');
+    spreadNode.style.color = spread == null ? 'var(--text-muted)' : spread < 0 ? 'var(--data-red)' : spread < 0.1 ? 'var(--data-amber)' : 'var(--data-green)';
+    spreadNode.title = curveSpread.label;
+    writeLineage(spreadNode, spread == null ? 'unavailable' : curveSpread.mixedDates ? 'reference' : 'live', curveSpread.spreadSource || 'yield-curve evidence unavailable');
+  }
   const riskNode = page.querySelector('#fxbond-risk-pill');
-  const dxy = quoteValue(root, 'DX-Y.NYB')?.price;
-  const tnx = quoteValue(root, '^TNX')?.price;
-  const hasEvidence = Number.isFinite(dxy) && Number.isFinite(tnx);
   let riskText = '판정 보류 · 달러·금리 입력 미수신';
   let riskClass = 'status-pill sp-neutral';
   if (hasEvidence) {
@@ -653,37 +680,17 @@ function renderFxbond(root, page, charts) {
     writeLineage(riskNode, hasEvidence ? 'live' : 'unavailable', hasEvidence ? 'live:DX-Y.NYB+^TNX' : 'fxbond evidence unavailable');
   }
   const inversionNode = page.querySelector('#yc-inversion-badge');
-  const irx = quoteValue(root, '^IRX')?.price;
-  const curveEvidence = Number.isFinite(tnx) && Number.isFinite(irx);
-  let inversionText = '판정 보류 · 3개월·10년 금리 입력 미수신';
-  let inversionColor = 'var(--text-muted)';
-  let inversionBackground = 'rgba(33,29,22,0.06)';
-  if (curveEvidence) {
-    const spread = tnx - irx;
-    if (spread < -0.2) {
-      inversionText = '깊은 역전 · 경기침체 경고';
-      inversionColor = 'var(--data-red)';
-      inversionBackground = 'rgba(177,58,48,0.15)';
-    } else if (spread < 0) {
-      inversionText = '역전 지속 · 주의';
-      inversionColor = 'var(--data-amber)';
-      inversionBackground = 'rgba(177,58,48,0.08)';
-    } else if (spread < 0.3) {
-      inversionText = '역전 해소 중 · 위험 구간';
-      inversionColor = 'var(--data-amber)';
-      inversionBackground = 'rgba(177,58,48,0.08)';
-    } else {
-      inversionText = '정상 곡선 · 안정';
-      inversionColor = 'var(--data-green)';
-      inversionBackground = 'rgba(34,117,76,0.12)';
-    }
-  }
+  let inversionText = spreadComparable
+    ? spread < -0.1 ? '2s10s 역전 · 비교 가능' : spread < 0.3 ? '2s10s 평탄 · 비교 가능' : '2s10s 정상 기울기 · 비교 가능'
+    : curveSpread.label;
+  let inversionColor = !spreadComparable ? 'var(--text-muted)' : spread < -0.1 ? 'var(--data-red)' : spread < 0.3 ? 'var(--data-amber)' : 'var(--data-green)';
+  let inversionBackground = !spreadComparable ? 'rgba(33,29,22,0.06)' : spread < -0.1 ? 'rgba(177,58,48,0.15)' : spread < 0.3 ? 'rgba(177,58,48,0.08)' : 'rgba(34,117,76,0.12)';
   writeText(inversionNode, inversionText);
   if (inversionNode) {
     inversionNode.dataset.aioFxbondCurveRenderer = 'native';
     inversionNode.style.background = inversionBackground;
     inversionNode.style.color = inversionColor;
-    writeLineage(inversionNode, curveEvidence ? 'live' : 'unavailable', curveEvidence ? 'live:^TNX-^IRX' : 'yield-curve evidence unavailable');
+    writeLineage(inversionNode, spreadComparable ? (curveSpread.mixedDates ? 'reference' : 'live') : 'unavailable', spreadComparable ? curveSpread.label : 'yield-curve comparison unavailable');
   }
   const carryNode = page.querySelector('#carry-risk-level');
   const carryScoreNode = page.querySelector('#carry-score-text');
@@ -735,7 +742,7 @@ function renderFxbond(root, page, charts) {
   const camNode = page.querySelector('#cam-verdict-text');
   const dxyPct = quoteValue(root, 'DX-Y.NYB')?.pct;
   const hygPct = quoteValue(root, 'HYG')?.pct;
-  const camSpread = Number.isFinite(twoYear) && Number.isFinite(tnx) ? tnx - twoYear : null;
+  const camSpread = spreadComparable ? spread : null;
   const camAvailable = [dxyPct, tnx, hygPct, camSpread].every((value) => Number.isFinite(value));
   let camText = '판정 보류 · DXY·10Y·HYG·2Y 입력 미수신';
   if (camAvailable) {
@@ -758,14 +765,14 @@ function renderFxbond(root, page, charts) {
     writeLineage(camNode, camAvailable ? 'live' : 'unavailable', camAvailable ? 'live:DX-Y.NYB+^TNX+HYG+DGS2' : 'cross-asset evidence unavailable');
   }
   const chartStatusNode = page.querySelector('#yc-chart-status');
-  const chartStatus = !curveEvidence
-    ? '수익률 곡선 대기'
-    : tnx - irx < 0 ? '역전 감지' : '정상 곡선';
+  const chartStatus = !spreadComparable
+    ? '2s10s 비교 판정 보류'
+    : spread < 0 ? '역전 감지' : '정상 곡선';
   writeText(chartStatusNode, chartStatus);
   if (chartStatusNode) {
-    chartStatusNode.style.color = !curveEvidence ? 'var(--text-muted)' : tnx - irx < 0 ? 'var(--data-red)' : 'var(--data-green)';
+    chartStatusNode.style.color = !spreadComparable ? 'var(--text-muted)' : spread < 0 ? 'var(--data-red)' : 'var(--data-green)';
     chartStatusNode.dataset.aioFxbondCurveStatusRenderer = 'native';
-    writeLineage(chartStatusNode, curveEvidence ? 'live' : 'unavailable', curveEvidence ? 'live:^TNX-^IRX' : 'yield-curve evidence unavailable');
+    writeLineage(chartStatusNode, spreadComparable ? (curveSpread.mixedDates ? 'reference' : 'live') : 'unavailable', spreadComparable ? curveSpread.label : 'yield-curve comparison unavailable');
   }
   renderNativeHistoryChart(root, page, charts, {
     id: 'fxbond-tnx-trend',
@@ -933,6 +940,17 @@ function renderBreadth(root, page, charts, store) {
     if (labelNode) labelNode.style.color = tone;
     if (freshnessNode) freshnessNode.style.color = value == null ? 'var(--text-muted)' : 'var(--text-dim)';
   });
+  // LC-47: the legacy sentence under the 50SMA card was fenced off from the native card, so the card
+  // could read 35% while the sentence still said '원천 미수신'. The native renderer now owns that
+  // sentence too, from the same evidence (the legacy writer stays fenced by _aioIsNativeBreadthElement).
+  const readoutNode = page.querySelector('#breadth-50sma-readout');
+  if (readoutNode) {
+    const b50 = evidence.available ? Number(evidence.sma50) : null;
+    writeText(readoutNode, Number.isFinite(b50)
+      ? `50일선 상회 ${Math.round(b50)}% · ${observedLabel || '현재'} 관측 — AIO 미국 주식 유니버스 1y 조정종가 기준. 공식 거래소 breadth 아님.`
+      : '50일선 breadth 원천 미수신 · 과거 참고 시계열은 현재 판단에서 제외');
+    writeLineage(readoutNode, Number.isFinite(b50) ? sourceKind : 'unavailable', Number.isFinite(b50) ? source : 'breadth evidence unavailable');
+  }
   const advanceNode = page.querySelector('#breadth-advance-ratio');
   const signalNode = page.querySelector('#breadth-signal-val');
   const ratio = evidence.available ? Number(evidence.advanceRatio) : null;

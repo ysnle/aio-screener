@@ -129,9 +129,14 @@ const summarize = (runs) => {
 
 // 17: 수동 실행을 추가해 분모를 유리하게 바꾸지 않는다 → workflow_dispatch run은 lane 계산에서
 // 제외하고 개수만 남긴다. 취소·미실행은 별도 상태로 기록한다(성공률 분모에는 남는다).
+// R24-07/P1242: 예정 도착(scheduled arrival)은 `schedule` event만 측정한다. 종전에는
+// workflow_dispatch만 제외하고 push 등 나머지 trigger를 전부 scheduled로 세어, 30일간 push 성공만
+// 있는 lane도 MEASURED·창 PASS가 될 수 있었다. 다른 trigger는 별도 lane의 사실이므로 제외하고
+// 개수·종류만 남긴다. 결과적으로 push-only 창은 NOT_OBSERVED이며 PASS가 될 수 없다.
 const buildLane = (runs, { workflow, required, expectedRuns }) => {
   const manual = runs.filter((run) => run.event === 'workflow_dispatch');
-  const scheduled = runs.filter((run) => run.event !== 'workflow_dispatch');
+  const scheduled = runs.filter((run) => run.event === 'schedule');
+  const otherEvents = runs.filter((run) => run.event !== 'schedule' && run.event !== 'workflow_dispatch');
   const summary = summarize(scheduled);
   const arrivalRate = expectedRuns ? round(Math.min(1, summary.completed / expectedRuns)) : null;
   const status = summary.completed === 0
@@ -147,6 +152,9 @@ const buildLane = (runs, { workflow, required, expectedRuns }) => {
     expectedRuns,
     observedRuns: summary.completed,
     manualRunsExcluded: manual.length,
+    nonScheduledRunsExcluded: otherEvents.length,
+    nonScheduledEventBreakdown: Object.fromEntries([...new Set(otherEvents.map((run) => run.event || 'unknown'))]
+      .map((event) => [event, otherEvents.filter((run) => (run.event || 'unknown') === event).length])),
     cancelledRuns: scheduled.filter((run) => run.conclusion === 'cancelled').length,
     scheduledArrivalRate: arrivalRate,
     ...summary,
@@ -188,8 +196,9 @@ export function buildSloWindow({ observed = {}, cadencePerDay = {}, query = {}, 
         everySourcePaginated: incompleteSources.length === 0
       },
       // 하위 호환 필드: 종전 소비자가 읽던 pooled artifact/watchdog 요약. PASS 판정에는 쓰지 않는다.
+      // R24-07/P1242: this pooled compatibility summary counts schedule arrivals only, like the lanes.
       artifact: summarize([...(observed.market || []), ...(observed.screener || [])]
-        .filter((run) => new Date(run.created_at) >= since && run.event !== 'workflow_dispatch')),
+        .filter((run) => new Date(run.created_at) >= since && run.event === 'schedule')),
       watchdog: lanes.watchdog ? { ...lanes.watchdog } : null,
       source: 'github-actions-api'
     };

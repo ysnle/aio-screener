@@ -435,7 +435,6 @@ function updateRiskMonitor() {
   // v48.53: Yahoo 직접 매핑 9종 추가 자동화 (tnx/tnx-2y/skew/kospi/kosdaq/krw/dxy)
   var tnx = ld['^TNX'] ? ld['^TNX'].price : null;
   var tnx2y = ld['^IRX'] ? ld['^IRX'].price : null;
-  var skew = ld['^SKEW'] ? ld['^SKEW'].price : null;
   var kospi = ld['^KS11'] ? ld['^KS11'].price : null;
   var kospiPct = ld['^KS11'] ? ld['^KS11'].pct : null;
   var kosdaq = ld['^KQ11'] ? ld['^KQ11'].price : null;
@@ -444,7 +443,6 @@ function updateRiskMonitor() {
   var dxy = ld['DX-Y.NYB'] ? ld['DX-Y.NYB'].price : null;
   if (tnx != null) document.querySelectorAll('[data-snap="tnx"]').forEach(function(el){ el.textContent = tnx.toFixed(2) + '%'; });
   if (tnx2y != null) document.querySelectorAll('[data-snap="tnx-2y"]').forEach(function(el){ el.textContent = tnx2y.toFixed(2) + '%'; });
-  if (skew != null) document.querySelectorAll('[data-snap="skew"]').forEach(function(el){ el.textContent = skew.toFixed(1); });
   if (kospi != null) document.querySelectorAll('[data-snap="kospi"]').forEach(function(el){ el.textContent = kospi.toLocaleString('en-US', {maximumFractionDigits:2}); });
   if (kospiPct != null) document.querySelectorAll('[data-snap="kospi-pct"]').forEach(function(el){ el.textContent = (kospiPct >= 0 ? '+' : '') + kospiPct.toFixed(2) + '%'; });
   if (kosdaq != null) document.querySelectorAll('[data-snap="kosdaq"]').forEach(function(el){ el.textContent = kosdaq.toLocaleString('en-US', {maximumFractionDigits:2}); });
@@ -453,22 +451,7 @@ function updateRiskMonitor() {
   if (krw != null) document.querySelectorAll('[data-snap="krw-full"]').forEach(function(el){ el.textContent = krw.toFixed(2); });
   if (dxy != null) document.querySelectorAll('[data-snap="dxy"]').forEach(function(el){ el.textContent = dxy.toFixed(2); });
 
-  // 내러티브 stale 일수 자동 계산 (data-snap-date + sibling [id$="-stale-days"])
-  // v50.51 A1: aio-core 핸들러와 동일한 단일 포맷터(_aioStaleDaysLabel) 경유 — 두 writer가
-  //   같은 #KEY-stale-days span에 다른 포맷/기준일로 경쟁 기재하던 문제 해소.
-  try {
-    document.querySelectorAll('[data-snap-date]').forEach(function(sd) {
-      var dateStr = sd.textContent || sd.getAttribute('data-snap-date-value');
-      var key = sd.getAttribute('data-snap-date');
-      if (!dateStr || !key) return;
-      var target = document.getElementById(key + '-stale-days');
-      if (!target) return;
-      var lbl = (typeof window._aioStaleDaysLabel === 'function') ? window._aioStaleDaysLabel(dateStr) : null;
-      if (!lbl || lbl.days == null) return;
-      target.textContent = lbl.text;
-      target.style.color = lbl.color;
-    });
-  } catch(_e){}
+  if (typeof window._aioRenderSnapshotDateBindings === 'function') window._aioRenderSnapshotDateBindings();
 }
 
 // ── Update Sector Heatmap Colors ──────────────────────────────────
@@ -674,7 +657,9 @@ function updateEntryChecklist() {
   var vixD = ld['^VIX'];
   var spyD = ld['SPY'];
   var health = typeof computeMarketHealth === 'function' ? computeMarketHealth() : null;
-  var passed = 0, total = 5;
+  // E2/LC-26: 통과/미충족/대기를 따로 센다. 이전에는 통과만 세고 대기를 5 분모에 남긴 채
+  // "조건 대부분 충족"을 써서, 점수가 보류인데도 4/5 같은 긍정 문구가 나올 수 있었다.
+  var passed = 0, failed = 0, pending = 0, total = 5;
 
   // 섹터 ETF 상승 비율
   var sectorETFs = ['XLK','XLF','XLE','XLV','XLI','XLY','XLP','XLRE','XLB','XLU','XLC'];
@@ -693,7 +678,9 @@ function updateEntryChecklist() {
     }
     if (valEl) valEl.textContent = val;
     // v52.65 아이보리 2a: 셀 좌측 컬러 스트라이프 제거(원칙 §3) — 통과/미충족은 텍스트 색만으로 표시
-    if (ok) passed++;
+    if (ok === true) passed++;
+    else if (ok === false) failed++;
+    else pending++;
   }
 
   // 1. VIX < 25
@@ -756,8 +743,12 @@ function updateEntryChecklist() {
   if (sumEl) {
     var color = passed >= 4 ? 'var(--data-green)' : passed >= 3 ? 'var(--data-amber)' : 'var(--data-red)';
     // P720: 시스템 발화형 판정("진입 검토 가능/자제")을 관측형(조건 충족도)으로 전환 — P714 정합.
-    var label = passed >= 4 ? '조건 대부분 충족' : passed >= 3 ? '조건 일부 충족' : '조건 미충족 다수';
-    sumEl.textContent = passed + '/' + total + ' ' + label;
+    // LC-26: 통과/미충족/대기를 분리해 표시한다. 대기가 남은 상태에서 '조건 대부분 충족'으로
+    // 단정하지 않는다 — 점수 보류와 조건부 통과가 같은 문구로 섞이던 결함.
+    var label = pending > 0
+      ? '일부 조건 미수신'
+      : passed >= 4 ? '조건 대부분 충족' : passed >= 3 ? '조건 일부 충족' : '조건 미충족 다수';
+    sumEl.textContent = '통과 ' + passed + ' · 미충족 ' + failed + ' · 대기 ' + pending + ' (' + passed + '/' + total + ' ' + label + ')';
     sumEl.style.color = color;
   }
 }
@@ -778,6 +769,13 @@ _aioPageBus.register('html-signal-checklist-live', 'aio:liveQuotes', function() 
 function initSignalDashboard() {
   // Draw portfolio donut once
   drawPortfolioDonut();
+  // E2/LC-26: restore the declared mode into the pill/description. Static markup defaults to
+  // swing, so a persisted day mode must be re-applied on entry or the pill would lie.
+  try {
+    var declaredMode = (window.AIO_ARCH && window.AIO_ARCH.signalScoreMode && typeof window.AIO_ARCH.signalScoreMode.get === 'function')
+      ? window.AIO_ARCH.signalScoreMode.get() : _signalMode;
+    if (typeof toggleSignalMode === 'function') toggleSignalMode(declaredMode);
+  } catch(_) {}
   // 진입 체크리스트 초기 업데이트
   setTimeout(updateEntryChecklist, 500);
 
@@ -812,7 +810,10 @@ function _aioIsNativeSignalHero() {
 window._aioIsNativeSignalHero = _aioIsNativeSignalHero;
 
 function refreshSignalDashboard() {
-  var mode = _signalMode;
+  // E2/LC-26: read the one declared revision (AIO_ARCH owner) instead of a page-local copy, so
+  // this legacy widget cannot compute a different mode than the native hero it sits beside.
+  var mode = (window.AIO_ARCH && window.AIO_ARCH.signalScoreMode && typeof window.AIO_ARCH.signalScoreMode.get === 'function')
+    ? window.AIO_ARCH.signalScoreMode.get() : _signalMode;
   var scores = computeTradingScore(mode);
   var total = scores.total;
   var totalFinite = typeof total === 'number' && isFinite(total);
@@ -1207,18 +1208,7 @@ function updateFxBondPage() {
     }
   }
 
-  // 2s10s spread — 명시적 2Y·10Y 관측치만 사용
-  var s2s10 = curveEvidence && curveEvidence.spread2s10s != null ? curveEvidence.spread2s10s : null;
-  if (s2s10 !== null) {
-    var sc2s10 = document.getElementById('sc-2s10s');
-    if (sc2s10) {
-      sc2s10.textContent = (s2s10 >= 0 ? '+' : '') + s2s10.toFixed(2) + '%';
-      sc2s10.style.color = s2s10 < 0 ? 'var(--data-red)' : s2s10 < 0.1 ? 'var(--data-amber)' : 'var(--data-green)';
-    }
-  } else {
-    var sc2s10Missing = document.getElementById('sc-2s10s');
-    if (sc2s10Missing) { sc2s10Missing.textContent = '—'; sc2s10Missing.title = '2Y 또는 10Y 관측값 미수신'; }
-  }
+  // 2s10s spread — native market.js owns the comparable curve view-model.
 
   // Credit spread — HYG/LQD 가격을 OAS로 환산하지 않고 FRED 관측값만 사용
   var spreadBp = (typeof window._hySpreadBp === 'number' && isFinite(window._hySpreadBp)) ? window._hySpreadBp : null;
@@ -2636,70 +2626,6 @@ function fetchSectorWeeklyPerf() {
       try { document.dispatchEvent(new CustomEvent('aio:sectorPerfChanged', { detail: { mode: _sectorPerfMode, view: _sectorPerfView, source: 'weekly-cache' } })); } catch (_) {}
     }
   });
-}
-
-async function _loadSector20dChart() {
-  var statusEl = document.getElementById('sector-20d-status');
-  if (statusEl) statusEl.textContent = '데이터 수집 중...';
-  var sectorETFs = [
-    {sym:'XLK',name:'기술',color:'var(--data-cyan)'}, {sym:'XLE',name:'에너지',color:'var(--data-red)'},
-    {sym:'XLF',name:'금융',color:'var(--data-green)'}, {sym:'XLV',name:'헬스',color:'var(--data-purple)'},
-    {sym:'XLI',name:'산업',color:'var(--data-amber)'}
-  ];
-  var datasets = [];
-  var labels = null;
-  var fallbackUsed = false;
-  for (var i = 0; i < sectorETFs.length; i++) {
-    var etf = sectorETFs[i];
-    try {
-      var data = await _fetchYahooChartData(etf.sym, '1mo');
-      if (data && data.closes && data.closes.length >= 5) {
-        var closes = data.closes.slice(-20).filter(function(v) { return v != null && isFinite(v) && v > 0; });
-        var ts = data.timestamps.slice(-20);
-        // 수익률 기준으로 정규화 (첫날 = 0%)
-        var base = closes[0];
-        if (!isFinite(base) || base <= 0) continue;
-        var pctData = closes.map(function(c) { return ((c - base) / base * 100); });
-        if (!labels) {
-          labels = ts.map(function(t) {
-            var d = new Date(t * 1000);
-            return (d.getMonth()+1) + '/' + d.getDate();
-          });
-        }
-        datasets.push({
-          label: etf.name + '(' + etf.sym + ')', data: pctData,
-          borderColor: etf.color, borderWidth: 1.5, pointRadius: 0, tension: 0.3, fill: false
-        });
-      }
-    } catch(e) { _aioLog('warn', 'fetch', 'Sector 20d error: ' + etf.sym + ' ' + e.message); }
-  }
-  if (!labels || datasets.length === 0) {
-    if (statusEl) statusEl.textContent = '실시간 수집 실패 · 정적 대체 곡선 미사용';
-    var emptyCanvas = document.getElementById('sector-20d-chart');
-    if (emptyCanvas && typeof _showChartFallback === 'function') {
-      _showChartFallback(emptyCanvas, 'Sector 20D', '라이브 차트 데이터 부족 · 정적 곡선은 현재 분석에 쓰지 않음');
-    }
-    return;
-  }
-  var canvas = document.getElementById('sector-20d-chart');
-  if (!canvas) return;
-  if (_sector20dChart) _sector20dChart.destroy();
-  _sector20dChart = new Chart(canvas, {
-    type: 'line',
-    data: { labels: labels, datasets: datasets },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      scales: {
-        y: { grid: { color: 'var(--surface-4)' }, ticks: { color: '#8a8271', font: { size: 11 }, callback: function(v) { return v.toFixed(1) + '%'; } } },
-        x: { grid: { display: false }, ticks: { color: '#8a8271', font: { size: 11 }, maxTicksLimit: 8 } }
-      },
-      plugins: {
-        legend: { display: true, position: 'bottom', labels: { color: '#8a8271', font: { size: 11 }, boxWidth: 12, padding: 8 } },
-        annotation: { annotations: { zeroLine: { type: 'line', yMin: 0, yMax: 0, borderColor: 'rgba(33,29,22,0.2)', borderWidth: 1, borderDash: [4,4] } } }
-      }
-    }
-  });
-  if (statusEl) statusEl.textContent = '갱신: ' + new Date().toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
 }
 
 function renderSectorPerfBars() {

@@ -20,6 +20,7 @@ import { deriveMarketSession, publishMarketSnapshot } from './build-market-snaps
 import { writeOperationsStatus } from './build-operations-status.mjs';
 import { writeReconciliationStatus } from './build-reconciliation-status.mjs';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { buildDomainReceipt } from './lib/domain-receipt.mjs';
 import { deriveFredCycle } from './lib/refresh-continuity.mjs';
 import { percentileRank01, spearman } from './lib/rank-statistics.mjs';
 import { factorScopesByMarket, marketOfSymbol, sessionDateInMarket, timeZoneForMarket } from '../src/domain/market/session-time.js';
@@ -210,6 +211,9 @@ async function fetchQuote(symbol) {
         regularMarketChangePercent: pct,
         regularMarketPreviousClose: prev,
         chartPreviousClose: prev,
+        // P1255 (07:M04 계열 잔여 D5/N1): quote 경로는 조정 개념을 수집하지 않으므로 그 사실을
+        // 선언한다 — 이 가격이 배당·분할 중 무엇을 반영하는지는 공급자 관례에 의존하며 미검증이다.
+        priceBasis: 'provider-close-adjustment-scope-undeclared',
         // Yahoo daily timestamps mark the bar OPEN, not its close. For an
         // in-session quote the previous completed bar closes at the boundary
         // represented by the current bar's timestamp. Using the previous
@@ -306,6 +310,8 @@ async function fetchQuoteTwelveData(symbol, apiKey) {
     regularMarketChangePercent: pct,
     regularMarketPreviousClose: isFinite(prev) ? prev : null,
     chartPreviousClose: isFinite(prev) ? prev : null,
+    // P1255 (07:M04 계열 잔여 D5): 폴백 공급자도 같은 가격 기준 계약을 선언한다.
+    priceBasis: 'provider-close-adjustment-scope-undeclared',
     _pctSource: 'twelvedata-quote',
     _source: 'live:twelvedata-fallback',
     regularMarketTime: j && j.timestamp ? Number(j.timestamp) : null,
@@ -503,6 +509,118 @@ export async function fetchFredHyOasPublic(previous = null) {
       unit: 'percent', failureReason, allowedUse: 'none', decisionUse: false
     };
   }
+}
+
+// ── P1246: FRED DEXKOUS — 공식 USD/KRW 교차검증 (키 불필요) ─────────────────────────────
+// FRED의 DEXKOUS는 연준 H.10이 발표하는 공식 일별 원/달러 환율이다. fredgraph.csv 공개 다운로드는
+// API 키가 필요 없어(FRED HY OAS와 같은 경로) 로컬 무키 실행에서도 상태를 정직하게 발행할 수 있다.
+// 주의: 공식 계열은 공표 지연이 있어 공급자 스팟 종가와 같은 날짜가 아닐 수 있다 — 그래서 이
+// 교차검증은 **값 출처가 아니라 참조**다. 불일치는 숨기지 않고 보고하되, 공급자 시계열을 공식 값으로
+// 덮어쓰지 않는다(단일 소유권: history의 usdkrw는 Yahoo chart가 계속 소유한다).
+const FRED_DEXKOUS_CSV_URL = 'https://fred.stlouisfed.org/graph/fredgraph.csv?id=DEXKOUS';
+const FRED_DEXKOUS_CACHE_MAX_AGE_MS = 12 * 60 * 60 * 1000;
+
+export function parseFredDexkousCsv(csv, fetchedAt = new Date().toISOString()) {
+  const observations = String(csv || '').trim().split(/\r?\n/).slice(1).map((line) => {
+    const [observedAt, rawValue] = line.split(',');
+    const value = rawValue == null || rawValue.trim() === '' ? NaN : Number(rawValue);
+    return /^\d{4}-\d{2}-\d{2}$/.test(String(observedAt || '').trim()) && Number.isFinite(value)
+      ? { observedAt: observedAt.trim(), value }
+      : null;
+  }).filter(Boolean).sort((a, b) => b.observedAt.localeCompare(a.observedAt));
+  const latest = observations[0] || null;
+  if (!latest) return null;
+  return {
+    schemaVersion: 'fred-public-series.v1',
+    status: 'ok',
+    seriesId: 'DEXKOUS',
+    source: 'FRED public series download (Federal Reserve H.10 USD/KRW noon buying rate)',
+    sourceKind: 'official-government-relay',
+    sourceUrl: FRED_DEXKOUS_CSV_URL,
+    observedAt: latest.observedAt,
+    fetchedAt,
+    value: latest.value,
+    unit: 'KRW per USD',
+    allowedUse: 'official-relay-observation-with-publication-lag',
+    decisionUse: false
+  };
+}
+
+export async function fetchFredDexkousPublic(previous = null) {
+  const nowIso = new Date().toISOString();
+  const previousFetchedAt = Date.parse(previous?.fetchedAt || '');
+  if (previous?.value != null && Number.isFinite(previousFetchedAt) && Date.now() - previousFetchedAt <= FRED_DEXKOUS_CACHE_MAX_AGE_MS) {
+    return { ...previous, attemptedAt: nowIso, status: 'cached-fresh', cacheHit: true };
+  }
+  try {
+    const csv = await _fetchRss(FRED_DEXKOUS_CSV_URL, 18000);
+    const parsed = parseFredDexkousCsv(csv, nowIso);
+    if (!parsed) throw new Error('FRED public CSV contained no dated numeric DEXKOUS observation');
+    return { ...parsed, attemptedAt: nowIso, cacheHit: false };
+  } catch (error) {
+    const failureReason = String(error?.message || error);
+    if (previous?.value != null && previous?.observedAt) return { ...previous, status: 'stale', attemptedAt: nowIso, failureReason, cacheHit: false };
+    return {
+      schemaVersion: 'fred-public-series.v1', status: 'unavailable', seriesId: 'DEXKOUS',
+      source: 'FRED public series download (Federal Reserve H.10 USD/KRW noon buying rate)', sourceKind: 'official-government-relay',
+      sourceUrl: FRED_DEXKOUS_CSV_URL, observedAt: null, fetchedAt: null, attemptedAt: nowIso, value: null,
+      unit: 'KRW per USD', failureReason, allowedUse: 'none', decisionUse: false
+    };
+  }
+}
+
+// 순수 판정: **같은 날짜**의 공급자 완료 종가와 공식 관측치를 비교해 상태를 말한다. 어느 값도 바꾸지
+// 않는다. 시점이 다른 두 값(공식 계열의 공표 지연)을 비교해 "불일치"라고 말하면 지연을 데이터 오류로
+// 오표기하는 것이므로, 날짜가 다르면 판정하지 않고 not-comparable로 남긴다.
+// 실측(2026-09-25): DEXKOUS 최신 관측은 7일 전이고 그 사이 스팟이 2.09% 움직였다 — 지연을 무시한
+// 비교는 정상 계열을 매일 'divergent'로 신고했을 것이다.
+export function compareUsdKrwCrossCheck({ provider = null, official = null, latestProvider = null, tolerancePct = 5, attemptedAt = new Date().toISOString() } = {}) {
+  const providerDate = String(provider?.date || (provider?.observedAt ? String(provider.observedAt).slice(0, 10) : '') || '').slice(0, 10) || null;
+  const officialDate = String(official?.observedAt || '').slice(0, 10) || null;
+  const base = {
+    schemaVersion: 'fx-cross-check.v1',
+    provider: 'Yahoo chart KRW=X completed close',
+    officialSource: official?.source || 'FRED DEXKOUS (Federal Reserve H.10)',
+    officialSourceUrl: official?.sourceUrl || FRED_DEXKOUS_CSV_URL,
+    providerValue: provider?.value ?? null,
+    providerDate,
+    // 최신값은 맥락으로만 싣는다. 비교는 같은 날짜끼리 한다.
+    latestProviderValue: latestProvider?.value ?? null,
+    latestProviderDate: latestProvider?.date || null,
+    officialValue: official?.value ?? null,
+    officialDate,
+    // 공식 계열의 원본 레코드를 통째로 보존한다 — 상태·출처·실패 사유·수집 시각의 단일 표기이고,
+    // 다음 실행이 이 레코드로 12시간 캐시를 재사용한다(별도 아티팩트를 만들지 않는다).
+    official: official || null,
+    tolerancePct,
+    attemptedAt,
+    fetchedAt: official?.fetchedAt || null,
+    // 참조용이다. 이 레코드는 어떤 소비자의 값도 대체하지 않는다.
+    allowedUse: 'reference-only-not-a-value-source',
+    decisionUse: false,
+  };
+  if (!Number.isFinite(base.providerValue) || !Number.isFinite(base.officialValue)) {
+    return { ...base, status: 'unavailable', comparable: false, dayGap: null, divergencePct: null, reason: 'no aligned observation on one or both sides' };
+  }
+  // 공급자 봉의 날짜 스탬프가 공식 관측일과 하루 어긋나는 경우가 있다(FX 일봉 경계 00:00Z vs 발표일
+  // 표기). 어긋난 날짜를 그대로 기록하고, 하루까지는 같은 시점으로 본다 — 그 이상은 다른 관측이다.
+  const dayGap = (providerDate && officialDate) ? Math.round((Date.parse(providerDate) - Date.parse(officialDate)) / 86400000) : null;
+  const comparable = Number.isFinite(dayGap) && Math.abs(dayGap) <= 1;
+  const divergencePct = round(Math.abs(base.providerValue / base.officialValue - 1) * 100, 3);
+  if (!comparable) {
+    return { ...base, status: 'not-comparable', comparable: false, dayGap, divergencePct,
+      reason: `provider ${providerDate} and official ${officialDate} are different observations` };
+  }
+  return {
+    ...base,
+    status: divergencePct <= tolerancePct ? 'ok' : 'divergent',
+    comparable: true,
+    dayGap,
+    divergencePct,
+    // 두 계열은 측정 기준이 다르다(스팟 종가 vs 정오 매입환율). 허용폭을 넘는 차이는 작은 시차가 아니라
+    // 다른 상품/배율을 집어온 신호로 읽는다.
+    reason: divergencePct <= tolerancePct ? null : `aligned close differs from the official observation by ${divergencePct}% (> ${tolerancePct}%)`,
+  };
 }
 
 export function parseTreasuryYieldCurveHtml(html, fetchedAt = new Date().toISOString()) {
@@ -1511,8 +1629,28 @@ const HIST_SYMBOLS = {
   '^VIX': 'vix', '^VIX3M': 'vix3m', '^VVIX': 'vvix', '^TNX': 'tnx',
   'DX-Y.NYB': 'dxy', 'CL=F': 'wti', 'GC=F': 'gold',
   '^KS11': 'kospi', '^KQ11': 'kosdaq', 'BTC-USD': 'btc',
+  // P1246 (E3/E4 FX 축): USD/KRW도 같은 producer 경로(Yahoo chart 일별 종가, worker 프록시가
+  // CORS를 처리)로 일별 히스토리를 갖는다. 새 출처·새 키·새 약관이 없고, 백테스트 랩의 통화 축이
+  // 요구하던 "과거 FX 시계열 공급원"이 이 열이다. 교차검증은 FRED DEXKOUS(공식 bilateral)가 한다.
+  'KRW=X': 'usdkrw',
 };
-const HIST_FIELDS = ['spx','nasdaq','dow','rut','vix','vix3m','vvix','tnx','dxy','wti','gold','kospi','kosdaq','btc','fg'];
+const HIST_FIELDS = ['spx','nasdaq','dow','rut','vix','vix3m','vvix','tnx','dxy','wti','gold','kospi','kosdaq','btc','usdkrw','fg'];
+// P1246 (data-refresh: 품질 경계): 히스토리 시장 필드의 **단일** 타당 범위 선언. producer가 이 범위를
+// 벗어난 값을 관측으로 승격하지 않고(null + fieldMeta 없음 = P1101의 무관측 표기), 게이트가 같은 선언을
+// 가져와 아티팩트를 검사한다 — 선언과 집행이 서로 다른 리터럴을 들고 어긋나는 경로를 만들지 않는다.
+export const HIST_FIELD_PLAUSIBILITY = Object.freeze({
+  spx: [500, 50000], nasdaq: [500, 100000], dow: [2000, 150000], rut: [100, 10000],
+  vix: [5, 200], vvix: [20, 400], tnx: [0, 20], dxy: [50, 200], wti: [1, 400],
+  gold: [100, 20000], kospi: [300, 20000], kosdaq: [100, 5000], btc: [1000, 2000000],
+  // 원/달러는 1997년 외환위기 이후 800~2000원대를 벗어난 적이 없다. 공급자 오류(예: 지수/배율
+  // 혼동)로 한 자리·두 자리 수가 들어오면 그대로 히스토리에 남아 백테스트 환산을 오염시킨다.
+  usdkrw: [800, 2000],
+});
+export function histValueWithinPlausibility(field, value) {
+  const range = HIST_FIELD_PLAUSIBILITY[field];
+  if (!range) return true;
+  return typeof value === 'number' && Number.isFinite(value) && value >= range[0] && value <= range[1];
+}
 const HIST_MARKET_FIELDS = HIST_FIELDS.filter(field => field !== 'fg');
 // Breadth columns are produced by the screener lane, so a row written by the
 // 30-minute market lane used to omit them entirely while the screener lane
@@ -1552,6 +1690,9 @@ async function backfillHistory(hist) {
     if (!r || r.__error || !Array.isArray(r.rows)) continue;
     const field = HIST_SYMBOLS[r.sym];
     for (const row of r.rows) {
+      // P1246: 품질 경계는 백필 레인에도 똑같이 적용된다. 선언된 타당 범위를 벗어난 공급자 값은
+      // 관측으로 승격하지 않는다 — 그 날짜의 행 자체를 만들지 않는다(값도 fieldMeta도 없음).
+      if (!histValueWithinPlausibility(field, row.close)) continue;
       if (!byDate[row.date]) byDate[row.date] = { date: row.date };
       byDate[row.date][field] = row.close;
       byDate[row.date].fieldMeta = byDate[row.date].fieldMeta || {};
@@ -1625,7 +1766,7 @@ function carryForwardHistoryEvidence(hist) {
 //     차트가 하드코딩 시드 배열에 의존하는 근본 원인. 하루 1건(같은 날은 최신값으로 upsert =
 //     마지막 실행이 종가에 가까움)씩 핵심 지표를 append → 시간이 지나면 사이트가 자체 실데이터 사용.
 // 핵심 심볼(SPX/VIX) 없으면 스킵(널 레코드 오염 방지). ~420일(14개월) cap.
-async function updateHistory(data, marketSnapshot = null) {
+async function updateHistory(data, marketSnapshot = null, officialFx = null) {
   try {
     const snapshotBySym = new Map((marketSnapshot?.quotes || []).map((row) => [row.instrumentId, row]));
     const bySymQuote = {};
@@ -1676,6 +1817,15 @@ async function updateHistory(data, marketSnapshot = null) {
       bySymQuote[q.symbol] = bySymQuoteEntry;
     }
     const pick = (s) => (typeof bySym[s] === 'number' && isFinite(bySym[s])) ? round(bySym[s], 2) : null;
+    // P1246 (품질 경계): 히스토리에 실릴 값은 선언된 타당 범위 안에 있어야 한다. 범위 밖 값은 관측이
+    // 아니라 공급자 오류로 취급해 null로 남긴다(값도 fieldMeta도 없음 — P1101의 무관측 표기).
+    const pickField = (field, symbol) => {
+      const value = pick(symbol);
+      if (value == null) return null;
+      if (histValueWithinPlausibility(field, value)) return value;
+      console.warn(`[fetch-data] history: ${field}(${symbol})=${value} 이 타당 범위 밖 — 관측으로 기록하지 않음`);
+      return null;
+    };
     if (pick('^GSPC') === null && pick('^VIX') === null) {
       console.warn('[fetch-data] history: 핵심 심볼(SPX/VIX) 없음 — 히스토리 갱신 스킵');
       return null;
@@ -1702,9 +1852,15 @@ async function updateHistory(data, marketSnapshot = null) {
       observationRelation: quote?.observationRelation || fallback.observationRelation || 'latest-completed-close',
       observedAtSource: quote?.observedAtSource || fallback.observedAtSource || 'provider-current',
     });
+    // P1246: 값과 증거를 **한 번의 열거**에서 만든다. 종전에는 `rec`의 명시적 pick 목록과 이 루프가
+    // 같은 HIST_SYMBOLS 매핑을 두 번 나열해, 한쪽만 고치면 값과 fieldMeta가 서로 다른 필드 집합을
+    // 갖게 됐다(새 필드를 추가할 때 특히 조용히 어긋난다).
+    const fieldValues = {};
     for (const [sym, field] of Object.entries(HIST_SYMBOLS)) {
-      const q = bySymQuote[sym];
-      if (pick(sym) !== null) fieldMeta[field] = historyMeta(field, q);
+      const value = pickField(field, sym);
+      if (value === null) continue;
+      fieldValues[field] = value;
+      fieldMeta[field] = historyMeta(field, bySymQuote[sym]);
     }
     if (typeof data.fearGreed?.score === 'number') {
       const rawAsOf = data.fearGreed.asOf;
@@ -1725,10 +1881,7 @@ async function updateHistory(data, marketSnapshot = null) {
       seriesMode: 'completed-market-cut',
       cycleEnd: cycleEnd,
       marketSnapshotRevision: data.meta?.marketSnapshotRevision || marketSnapshot?.revision || null,
-      spx: pick('^GSPC'), nasdaq: pick('^IXIC'), dow: pick('^DJI'), rut: pick('^RUT'),
-      vix: pick('^VIX'), vix3m: pick('^VIX3M'), vvix: pick('^VVIX'), tnx: pick('^TNX'),
-      dxy: pick('DX-Y.NYB'), wti: pick('CL=F'), gold: pick('GC=F'),
-      kospi: pick('^KS11'), kosdaq: pick('^KQ11'), btc: pick('BTC-USD'),
+      ...fieldValues,
       fg: (data.fearGreed && typeof data.fearGreed.score === 'number') ? data.fearGreed.score : null,
       fieldMeta,
     };
@@ -1772,7 +1925,32 @@ async function updateHistory(data, marketSnapshot = null) {
     hist.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
     if (hist.length > 420) hist = hist.slice(hist.length - 420);  // 14개월 cap
     await atomicWriteFile(HIST, JSON.stringify(normalizeHistoryRows(hist)));
-    return { days: hist.length, today, upsert: idx >= 0 ? 'update' : 'append', backfilled };
+    // P1246: 이번 실행이 실제로 기록한 USD/KRW 완료 종가. FRED DEXKOUS 교차검증이 이 값을 기준으로
+    // 삼는다 — 아티팩트가 실제로 담은 값이어야 검증이 의미를 갖는다. 없으면 null로 남겨 교차검증이
+    // "판정 불가"를 말하게 한다(값을 지어내지 않는다).
+    const fxObservation = Number.isFinite(fieldValues.usdkrw)
+      ? { value: fieldValues.usdkrw, date: today, observedAt: fieldMeta.usdkrw?.observedAt || null, valueBasis: fieldMeta.usdkrw?.valueBasis || null }
+      : null;
+    // P1246: 공식 관측일과 **같은 시점**의 우리 완료 종가를 골라 비교한다. 하루 어긋난 봉까지는 같은
+    // 시점으로 보되 실제 날짜를 레코드에 남긴다. 그 이상 벌어지면 최신값으로 대신하지 않고 '판정 불가'
+    // 로 남긴다 — 시점이 다른 두 값을 비교해 불일치라고 말하는 것은 공표 지연을 데이터 오류로
+    // 오표기하는 것이다.
+    const officialDate = String(officialFx?.observedAt || '').slice(0, 10);
+    const alignedRow = /^\d{4}-\d{2}-\d{2}$/.test(officialDate)
+      ? [officialDate,
+          new Date(Date.parse(`${officialDate}T00:00:00Z`) - 86400000).toISOString().slice(0, 10),
+          new Date(Date.parse(`${officialDate}T00:00:00Z`) + 86400000).toISOString().slice(0, 10)]
+        .map((candidate) => hist.find((row) => row && row.date === candidate && Number.isFinite(row.usdkrw)))
+        .find(Boolean) || null
+      : null;
+    const fxCrossCheck = compareUsdKrwCrossCheck({
+      provider: alignedRow
+        ? { value: alignedRow.usdkrw, date: alignedRow.date, observedAt: alignedRow.fieldMeta?.usdkrw?.observedAt || `${alignedRow.date}T00:00:00.000Z` }
+        : null,
+      latestProvider: fxObservation,
+      official: officialFx,
+    });
+    return { days: hist.length, today, upsert: idx >= 0 ? 'update' : 'append', backfilled, fxCrossCheck };
   } catch (e) {
     console.warn('[fetch-data] history 갱신 실패(무시):', e && e.message || e);
     return null;
@@ -2636,9 +2814,13 @@ function _calcSetupScreenFields(closes, adjCloses, highs, lows, volumes) {
     dollarVolume30d: price > 0 && avgVolume30d != null ? Math.round(price * avgVolume30d) : null,
     lastVolume: latestVolume == null ? null : Math.round(latestVolume),
     dollarVolume: price > 0 && latestVolume != null ? Math.round(price * latestVolume) : null,
-    ema8: ema(adjCloses, 8),
-    ema21: ema(adjCloses, 21),
-    ema60: ema(adjCloses, 60)
+    ema8: ema(closes, 8),
+    ema21: ema(closes, 21),
+    ema60: ema(closes, 60),
+    // P1255 (07:M04 계열 잔여 D3): setup 비교(예: price > ema60)는 같은 계열 안에서만 성립한다.
+    // EMA를 price와 같은 close 계열로 계산하고 기준을 선언한다 — 조정 EMA와 raw 가격을 직접
+    // 비교하던 혼합 basis를 제거한다(조정 계열 수익률은 별도 ret* 필드가 소유).
+    emaBasis: 'same-close-series-as-price'
   };
 }
 
@@ -3578,6 +3760,7 @@ async function main() {
   let previousBea = null;
   let previousTreasury = null;
   let previousFredHyOas = null;
+  let previousFredDexkous = null;
   let previousMacro = null;
   let previousMarketSurveys = null;
   let previousOfficialWebReferences = null;
@@ -3591,6 +3774,9 @@ async function main() {
     previousBea = previous && previous.macro && previous.macro._bea || null;
     previousTreasury = previous && previous.macro && previous.macro._treasury || null;
     previousFredHyOas = previous && previous.macro && previous.macro._fredHyOas || null;
+    // P1246: 교차검증 레코드가 공식 원본 레코드를 그대로 보존하므로, 다음 실행은 그 레코드를
+    // previous로 받아 12시간 캐시를 재사용한다(별도 아티팩트 없이 lineage가 이어진다).
+    previousFredDexkous = previous && previous.providerCrossChecks && previous.providerCrossChecks.fx && previous.providerCrossChecks.fx.official || null;
     previousMacro = previous && previous.macro || null;
     previousMarketSurveys = previous && previous.marketSurveys || null;
     previousOfficialWebReferences = previous && previous.officialWebReferences || null;
@@ -3614,6 +3800,7 @@ async function main() {
     fetchFredHyOasPublic(previousFredHyOas),
     fetchCoinGeckoCrossCheck(),
     fetchAaiiSentiment(previousMarketSurveys?.aaii || null),
+    fetchFredDexkousPublic(previousFredDexkous),
   ]);
   const settledValue = (index, fallback, label) => {
     const result = settled[index];
@@ -3642,6 +3829,7 @@ async function main() {
   const fredHyOas = settledValue(8, previousFredHyOas ? { ...previousFredHyOas, status: 'stale', attemptedAt, failureReason: 'fred-hy-oas-plane-failed' } : { status: 'unavailable', attemptedAt, fetchedAt: null, value: null, failureReason: 'fred-hy-oas-plane-failed' }, 'FRED HY OAS');
   const cryptoCrossCheck = settledValue(9, { status: 'unavailable', attemptedAt, fetchedAt: null, quotes: [], reason: 'crypto-cross-check-plane-failed' }, 'crypto cross-check');
   const aaii = settledValue(10, previousMarketSurveys?.aaii ? { ...previousMarketSurveys.aaii, status: 'stale-reference', attemptedAt, failureReason: 'aaii-plane-failed' } : { status: 'unavailable', attemptedAt, fetchedAt: null, observedAt: null, failureReason: 'aaii-plane-failed' }, 'AAII');
+  const fredDexkous = settledValue(11, { status: 'unavailable', attemptedAt, fetchedAt: null, value: null, reason: 'fred-dexkous-plane-failed' }, 'FRED DEXKOUS');
   const surveyAttemptedAt = aaii.attemptedAt || new Date().toISOString();
   // `checkedAt` was inherited verbatim from the previous artifact, so it froze at
   // its first value forever while `automatedCheckedAt` advanced: two "checked at"
@@ -3769,6 +3957,78 @@ async function main() {
   const fredOk = fredFetchOk; // 하위 호환 유지
   const generatedAt = attemptedAt;
 
+  // P1256 (E5 O06 / 17 작업 단위 1): 도메인별 수집 결과를 receipt로 남긴다 — exit code나
+  // generatedAt은 수집 성공이 아니다. 이번 batch가 갱신했는가와 기존 적격값이 그대로 발행되는가는
+  // 다른 축이며, 소비자(build-operations-status)는 그 구분을 사용자 언어로 바꾼다.
+  const priorReceipts = (previous && previous.meta && previous.meta.domainReceipts) || {};
+  const receiptRunId = `fetch-data:${attemptedAt}`;
+  const planeReceipt = (domain, { eligible, attempted, updated, stored, failures = [], note }) => buildDomainReceipt({
+    domain,
+    runId: receiptRunId,
+    attemptedAt,
+    sourceRevision: null,
+    inputWatermarks: { generatedAt },
+    eligible,
+    attempted,
+    updated,
+    stored,
+    failures,
+    priorReceipt: priorReceipts[domain] || null,
+    basisNote: note || 'per-plane independent collection; retained eligible values stay published while a failed refresh keeps the previous artifact'
+  });
+  const newsFellBack = Array.isArray(previousNews) && news === previousNews;
+  const fredSeriesIds = fredExpectedSeries;
+  const blsSeriesIds = Object.keys((bls && bls.series) || {});
+  const blsFresh = ['ok', 'cached-fresh', 'partial'].includes(bls && bls.status);
+  const beaFresh = ['ok', 'cached-fresh'].includes(bea && bea.status);
+  const treasuryFresh = ['ok', 'cached-fresh'].includes(treasury && treasury.status);
+  const aaiiFresh = ['ok', 'cached-fresh'].includes(aaii && aaii.status);
+  const putCallFresh = !!(putCall && !putCall.error && putCall.fetchedAt);
+  const domainReceipts = {
+    'market-quotes': planeReceipt('market-quotes', {
+      eligible: SYMBOLS.length, attempted: SYMBOLS.length, updated: quotes.length, stored: quotes.length,
+      failures: failed.map((symbol) => ({ symbol, status: 'TRANSIENT_PROVIDER_FAILURE', attemptedAt }))
+    }),
+    news: planeReceipt('news', {
+      eligible: NEWS_FEEDS.length, attempted: NEWS_FEEDS.length,
+      updated: newsFellBack ? 0 : (Array.isArray(news) ? news.length : 0),
+      stored: Array.isArray(news) ? news.length : 0,
+      failures: newsFellBack ? [{ symbol: 'news-plane', status: 'TRANSIENT_PROVIDER_FAILURE', attemptedAt }] : []
+    }),
+    'macro-fred': planeReceipt('macro-fred', {
+      eligible: fredSeriesIds.length, attempted: fredSeriesIds.length,
+      updated: fredFetchedKeys.length, stored: fredSeriesIds.length,
+      failures: fredFailedSeries.map((id) => ({ symbol: id, status: 'TRANSIENT_PROVIDER_FAILURE', attemptedAt }))
+    }),
+    'macro-bls': planeReceipt('macro-bls', {
+      eligible: blsSeriesIds.length + (bls && Array.isArray(bls.failures) ? bls.failures.filter((row) => row && row.metricId && row.metricId !== 'batch').length : 0),
+      attempted: blsSeriesIds.length + (bls && Array.isArray(bls.failures) ? bls.failures.filter((row) => row && row.metricId && row.metricId !== 'batch').length : 0),
+      updated: blsFresh ? blsSeriesIds.length : 0,
+      stored: blsSeriesIds.length,
+      failures: (bls && Array.isArray(bls.failures) ? bls.failures : []).map((row) => ({ symbol: row.metricId || 'batch', status: 'TRANSIENT_PROVIDER_FAILURE', attemptedAt }))
+    }),
+    'macro-bea': planeReceipt('macro-bea', {
+      eligible: 1, attempted: 1, updated: beaFresh ? 1 : 0,
+      stored: (beaFresh || (bea && bea.status === 'last-known-good')) ? 1 : 0,
+      failures: beaFresh ? [] : [{ symbol: 'bea-pce', status: 'TRANSIENT_PROVIDER_FAILURE', attemptedAt }]
+    }),
+    'treasury-curve': planeReceipt('treasury-curve', {
+      eligible: 1, attempted: 1, updated: treasuryFresh ? 1 : 0,
+      stored: (treasuryFresh || (treasury && treasury.status === 'stale')) ? 1 : 0,
+      failures: treasuryFresh ? [] : [{ symbol: 'treasury-yield-curve', status: 'TRANSIENT_PROVIDER_FAILURE', attemptedAt }]
+    }),
+    'surveys-aaii': planeReceipt('surveys-aaii', {
+      eligible: 1, attempted: 1, updated: aaiiFresh ? 1 : 0,
+      stored: (aaiiFresh || (aaii && aaii.observedAt)) ? 1 : 0,
+      failures: aaiiFresh ? [] : [{ symbol: 'aaii-sentiment', status: 'TRANSIENT_PROVIDER_FAILURE', attemptedAt }]
+    }),
+    'options-put-call': planeReceipt('options-put-call', {
+      eligible: 1, attempted: 1, updated: putCallFresh ? 1 : 0,
+      stored: (putCallFresh || (putCall && Number.isFinite(Number(putCall.totalPutCall)))) ? 1 : 0,
+      failures: putCallFresh ? [] : [{ symbol: 'cboe-put-call', status: 'TRANSIENT_PROVIDER_FAILURE', attemptedAt }]
+    })
+  };
+
   const data = {
     meta: {
       generatedAt,
@@ -3776,6 +4036,8 @@ async function main() {
       symbolsOk: quotes.length,
       symbolsFail: failed.length,
       failedSymbols: failed,
+      // P1256: 도메인별 수집 receipt — "새 수집 성공"과 "기존값 유지"의 구분이 여기서 생긴다.
+      domainReceipts,
       verifyStats: { pass1: pass1.length, retried: toRetry.length, recovered: pass2.length, failed: failed.length },
       tdHasKey: !!tdApiKey,
       tdFallbackEligible: tdEligible.length,
@@ -3955,7 +4217,14 @@ async function main() {
   });
   await atomicWriteFile(OUT, JSON.stringify(toPublicPayload(data), null, 1));
   // WO-7 (ops): 일별 히스토리 누적 (충분한 데이터일 때만 — 아래 <50% 가드와 별개로 핵심 심볼 존재 시)
-  const histInfo = await updateHistory(data, marketSnapshotForConsumers);
+  const histInfo = await updateHistory(data, marketSnapshotForConsumers, fredDexkous);
+  // P1246: FX 교차검증 — 히스토리 레인이 기록한 **공식 관측일과 같은 날짜**의 완료 종가를 공식
+  // DEXKOUS와 비교해 **상태만** 발행한다. 값 출처는 바뀌지 않는다(providerCrossChecks는 참조 면이다).
+  // 히스토리 레인이 통째로 실패해도 판정 불가 레코드를 남긴다 — 교차검증의 부재를 성공으로 읽지 않는다.
+  if (data.providerCrossChecks) {
+    data.providerCrossChecks.fx = histInfo?.fxCrossCheck
+      || compareUsdKrwCrossCheck({ provider: null, official: fredDexkous, attemptedAt });
+  }
   const cyclePublication = deriveCyclePublication({
     marketSnapshotPublished: !!marketSnapshotInfo.published,
     quoteCount: quotes.length,
@@ -4031,7 +4300,7 @@ async function main() {
   const fmpSummary = scrInfo && !scrInfo.skipped
     ? `hasKey=${scrInfo.fmpHasKey} ok=${scrInfo.fmpOk} count=${scrInfo.fmpCount || 0}${scrInfo.fmpPlanError ? ' ⚠PLAN_ERROR' : ''}`
     : `hasKey=${!!process.env.FMP_API_KEY} (screener skipped)`;
-  console.log(`[fetch-data] 완료: quotes ${quotes.length}/${SYMBOLS.length} [verify: 1차ok=${pass1.length} retry=${toRetry.length} 복구=${pass2.length} 최종실패=${failed.length}], macro keys ${Object.keys(macro).length}, F&G ${fearGreed.score ?? 'fail'}, news ${data.meta.newsCount}, history ${histInfo ? histInfo.days + 'd(' + histInfo.upsert + (histInfo.backfilled ? ',+' + histInfo.backfilled + 'bf' : '') + ')' : 'skip'}, screener ${scrInfo ? (scrInfo.skipped ? 'skip(' + scrInfo.count + ')' : scrInfo.count + '/' + scrInfo.universe + (scrInfo.tickerNews != null ? ' tickerNews=' + scrInfo.tickerNews : '')) : 'n/a'}, FMP ${fmpSummary}, ${data.meta.elapsedMs}ms`);
+  console.log(`[fetch-data] 완료: quotes ${quotes.length}/${SYMBOLS.length} [verify: 1차ok=${pass1.length} retry=${toRetry.length} 복구=${pass2.length} 최종실패=${failed.length}], macro keys ${Object.keys(macro).length}, F&G ${fearGreed.score ?? 'fail'}, news ${data.meta.newsCount}, history ${histInfo ? histInfo.days + 'd(' + histInfo.upsert + (histInfo.backfilled ? ',+' + histInfo.backfilled + 'bf' : '') + ')' : 'skip'}, fx ${data.providerCrossChecks?.fx?.status || 'n/a'}, screener ${scrInfo ? (scrInfo.skipped ? 'skip(' + scrInfo.count + ')' : scrInfo.count + '/' + scrInfo.universe + (scrInfo.tickerNews != null ? ' tickerNews=' + scrInfo.tickerNews : '')) : 'n/a'}, FMP ${fmpSummary}, ${data.meta.elapsedMs}ms`);
 
 }
 

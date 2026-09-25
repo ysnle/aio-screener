@@ -81,8 +81,8 @@ export function createEntityProvider({ read = () => ({}), httpClient, fundamenta
           fundamentals?.observedAt,
           fundamentals?.filedAt,
           value.options?.vix?.observedAt,
-          value.options?.pcr?.observedAt,
-          value.options?.skew?.observedAt
+          value.options?.skew?.observedAt,
+          value.options?.pcr?.observedAt
         ])
       });
     }

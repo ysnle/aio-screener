@@ -305,6 +305,12 @@ export function evaluateResearchEvidenceFloor(input = {}) {
     expectedQueryIds: [questionPlan.queryId, input.queryId, input.requestId].filter(Boolean),
     expectedEntity: questionPlan.entity || (Array.isArray(questionPlan.entities) ? questionPlan.entities[0] : null) || input.entity || null
   });
+  // E6/A05: P1172 deliberately keeps an unjudgeable binding as `UNVERIFIABLE`/`UNBOUND` rather than a
+  // failure, so a legitimate producer that has not stamped a request id is not reported as an error.
+  // What was still missing is the distinction between "floor met with a verified binding" and "floor met
+  // with an unchecked binding": both published `ready: true` and nothing separated them. `bindingVerified`
+  // carries that boundary, so no consumer has to read `ready` as though the binding were confirmed.
+  const bindingVerified = binding.checked === true && binding.ok === true;
   const ready = (externalReady || nativeReady) && binding.ok;
   const documents = externalReady ? externalDocuments : nativeReady ? nativeDocuments :
     (externalDocuments.length ? externalDocuments : nativeDocuments);
@@ -325,6 +331,9 @@ export function evaluateResearchEvidenceFloor(input = {}) {
         : input.error ? 'research-provider-error' : 'research-evidence-floor-not-met',
     evidenceBinding: binding,
     bindingChecked: binding.checked,
+    // E6/A05: `ready` can be true with an unchecked binding. Only `bindingVerified` means the source set
+    // was confirmed to belong to this request.
+    bindingVerified,
     evidenceDocuments: Object.freeze([...documents]),
     eligibleEvidenceCount: eligibleDocuments.length,
     excludedEvidenceCount: Math.max(0, documents.length - eligibleDocuments.length),

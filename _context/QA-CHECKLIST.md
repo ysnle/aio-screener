@@ -1,8 +1,93 @@
 ---
-verified_by: Codex local source review and affected QA; full semantic audit remains open
-last_verified: 2026-09-19
+verified_by: P1218~P1222 (LC-30/22/19/21/29/28/37/38), P1215~P1217 (LC-39/33/34) and P1210~P1214 (LC-25/26/40~42) local source/unit/runtime/retirement contracts; P1205~P1209 Chromium verification retained; release/deploy suite and browser/a11y acceptance for this tree not run
+last_verified: 2026-09-25
 confidence: medium
 ---
+
+## v56.48 E7 잔여 — 감사 3종 결함 클러스터 + 큐 3종 (2026-09-25)
+
+- [x] QA-THM-35 세부·QA-E5-RECEIPT·셸 위험 입력 분해(E2 표기 포함)는 각 항목에서 갱신 — P1256~P1258.
+- [ ] QA-THM-CLEANUP: **테마 퇴역 섹션의 legacy writer·CSS 잔재가 남아 있다 (P1257 residual).** 삭제된 `theme-heatmap`/`all-etf-grid`/`sector-20d-*`/`themes-m7-mirror`/`themes-breadth-*`/`themes-sector-mirror`를 참조하는 `js/aio-pages.js`·`js/aio-ui.js`·`js/aio-core.js`의 렌더러·selector·quote 게이트 항목과 responsive CSS 규칙이 요소 부재 시 no-op으로 남는다. verify_by: `ci-runtime-contract-check` 퇴역 id 참조 0건 단언(P1257 후속 신설) + `ci-decomp-hotspot-check` aio-pages/aio-ui/aio-core 순감소 ratchet
+- [ ] QA-GLOSSARY-SWEEP: **용어집의 나머지 역사 수치가 전수 원전 대조되지 않았다 (P1248 residual).** 확정 오류(LC-58/66~71)와 미검증 경험칙(LC-72)은 정정·격하했지만, 배경지식 항목의 인용 수치(골든크로스 후속 수익 등)는 조건부 문구로만 남아 있고 출처 필드 계약이 없다. verify_by: `ci-runtime-contract-check` 경험칙 수치의 출처·조건 표기 단언(P1248 후속 신설) + 대조 결과 기록
+
+## v56.47 E3/E4 FX 계획 4 — 백테스트 통화축 (2026-09-25)
+
+- [x] QA-FX-CONSUMERS: **백테스트 랩에 통화 참조가 0건이라 FX 열이 생겨도 소비되지 않았다 (E3/E4, P1247).** 시작 배분이 `qty × 시작가`를 통화 구분 없이 더해 분모를 만들었고, 이제 평가 경로와 같은 `fx.js` 선언 leg 계약(`convertWithDeclaredRates`)으로 환산하거나 보류한다. reconciliation `commodities-fx`에 `fx-daily-history-60`·`fx-official-provider-reconciliation` evidence를 추가했다. 게이트: `ci-esm-core-unit-check` P1247 픽스처 6종 + `ci-reconciliation-contract-check`(재생성 truth-view 일치). verify_by: 판정 완료(P1247 — 순수 합성·계약) — 실값은 아래 QA-FX-REFRESH, FX 시계열 정렬은 QA-FX-SERIES.
+- [x] QA-FX-SERIES: **기준 통화 수익률 (P1259 종료).** 백테스트 랩이 현지 통화 가중 수익률과 **별도 결과**인 기준 통화 수익률을 함께 발행한다 — 월말 정렬 계약(월 키의 마지막 관측만 사용, 관측 없는 달 경계·미보유 통화쌍은 보류·추정 금지)으로 멤버별 환산하고 `returnCurrencyBasis: 'base-currency-month-end-fx'` 라벨을 분리한다. verify_by 충족: `ci-esm-core-unit-check` 월말 FX 정렬 fixture(월 중간 관측 무시·보류 사유) + 동일 입력에서 현지통화/기준통화 두 결과의 라벨·수치 대조(0 vs −9.09%). 잔여: `history.json:usdkrw` 실값은 QA-FX-REFRESH(다음 정식 refresh), 연간·drawdown 재계산은 미포함.
+
+## v56.46 E3/E4 FX 통화축 선행 BLOCKER (2026-09-25)
+
+- [x] QA-FX-AXIS: **USD/KRW 과거 시계열 공급원이 없어 백테스트 통화축이 BLOCKED였다 (E3/E4, P1246).** `HIST_SYMBOLS`에 `KRW=X→usdkrw`를 넣어 기존 producer 경로(1년 백필 + 일별 완료 컷)로 생산하고, 타당 범위(`HIST_FIELD_PLAUSIBILITY`)를 producer·게이트가 공유하며, FRED DEXKOUS 공식 대조를 같은 시점 정렬로 `providerCrossChecks.fx`에 발행한다. 게이트: `ci-history-field-time-contract-check` FX 계약 6종. verify_by: 판정 완료(P1246 — 정적·실측 프로브) — 아티팩트 실값은 아래 QA-FX-REFRESH.
+- [ ] QA-FX-REFRESH: **`history.json`의 `usdkrw`는 아직 전 행 null이고 1년 백필이 시드되지 않았다.** 다음 정식 refresh(`.github/workflows/refresh-data.yml`)가 채운 뒤 ① FX 열 60행+ 커버리지 ② `latest` 행의 `usdkrw`가 market-snapshot `KRW=X` 완료 종가와 2% 이내인지 ③ `providerCrossChecks.fx.status`가 `ok`/`divergent`/`not-comparable` 중 무엇이며 그 이유가 관측일과 함께 맞는지 ④ 값·단위(원/달러)와 출처 라벨이 화면·소비자에서 일치하는지 확인해야 한다. verify_by: `ci-history-field-time-contract-check` + `ci-data-lineage-audit` 재실행 후 `public-data/history.json`·`public-data/data.json:providerCrossChecks.fx` 실값 대조
+- [x] QA-FX-CONSUMERS: **백테스트 랩 통화축 배선과 reconciliation evidence 행 — v56.47에서 종료(P1247).** 이 낡은 "미착수" 표기는 v56.47 절의 동명 항목으로 대체됐다.
+
+## v56.45 E6 A05 요청별 출처 소유권 (2026-09-25)
+
+- [x] QA-AI-A05: **요청 출처가 스트림이 아니라 공유 전역에 묶여 있었다 (E6 A05, P1245).** native 인용·연구 tool 오류를 `requestId` 스코프 저장소로 옮기고 `_aioActiveAIRequestId`/`_aioLastClaudeCitations`/`_aioLastClaudeResearchError`를 제거했다. 수집기는 스트림이 시작할 때 받은 불변 id를 찍고, evidence gate는 호출자가 말한 id만 쓴다. 게이트: `ci-ai-intelligence-contract-check` P1245 2종(수집기 자기 스트림 id 스탬프·공유 슬롯 부재 + 겹친 두 스트림 비혼입 VM 실행, 사전 소스 음성 검증). verify_by: 판정 완료(P1245 — 의미·행동) — 실공급자 동시 요청 trace는 아래 QA-AI-A05-STREAM.
+- [ ] QA-AI-A05-STREAM: **실제 provider 동시 요청·역순 응답·취소 후 늦은 chunk의 인용 결속이 미검증이다.** 정적·VM 검증은 겹친 두 스트림의 비혼입을 고정했지만, 실브라우저에서 classic(`per-page-chat`)·unified 두 진입점에 동시에 질의해 ① 각 답변의 출처 푸터가 자기 요청의 인용인지, ② 늦게 도착한 응답·재시도가 앞 요청의 근거를 채우지 않는지, ③ 원문이 그 문장을 실제로 지지하는지(A03 entailment)를 확인해야 한다. verify_by: P1245 기준선 대비 실브라우저 두 진입점 동시 질의 trace + 비식별 provider 응답 대조
+
+## v56.42 E5 R24-07 SLO 예정 도착 집계 (2026-09-25)
+
+- [x] QA-E5-SLO: **다른 trigger로 채운 창이 예정 도착 PASS로 인증됐다 (R24-07, P1242).** `buildLane`이 `workflow_dispatch`만 제외하고 나머지를 전부 `scheduled`로 세어, 30일 push-only lane도 MEASURED·CERTIFIED_WINDOW가 될 수 있었다. 이제 `schedule` event만 측정하고 다른 trigger는 `nonScheduledRunsExcluded`·`nonScheduledEventBreakdown`으로만 발행한다. 게이트: `ci-operations-slo-window-check` R24-07 push-only fixture(3도메인 30일 → NOT_OBSERVED·미인증·제외 30건). verify_by: 판정 완료 — 게시 artifact의 새 lane 필드는 자격증명 refresh 시 반영.
+- [x] QA-E5-RECEIPT: **O06 도메인 receipt 일반화 (P1256 종료).** `scripts/lib/domain-receipt.mjs` 정본화(SEC re-export), `fetch-data.mjs` 8개 도메인 receipt 발행(`data.meta.domainReceipts`, priorReceipt로 observation 전진 방지), `build-operations-status.mjs` `deriveDomainStatus` 소비 + 사용자 복구 설명("기존값 유지 ≠ 새 수집 성공"), 계약 `domainReceipts` 어휘 검증. verify_by 충족: `ci-operations-status-check` + 도메인별 receipt 픽스처 4종(전부 실패 유지/일부/성공/미수집). 잔여: checked-in artifact의 receipt 필드는 다음 refresh 반영, history 축 receipt는 후속.
+
+## v56.40 E2 잔여 S-C·S-E·S-F (2026-09-25)
+
+- [x] QA-E2-SC: **스크리너 행 해석 체인이 두 구현으로 갈라져 비교 근거가 없었다 (S-C 종료, P1240·P1241).** P1240이 shadow 하니스로 분기를 측정했고, **P1241이 소유자를 확정**했다 — `src/data/screener-row-policy.js`가 단일 소유자, `screenerNativePublished`로 게시 여부 판정, **게시된 빈 상태는 두 intent 모두에서 권위**(번들 대체 금지), 번들 DB는 `BUNDLED_COMPAT` intent를 선언한 호출부의 게시 전 호환 읽기로만 도달, 퇴역 전역 도달 제거, facade API 59→60. 게이트: `ci-esm-core-unit-check` S-C 하니스(5케이스 × 4경로) + `ci-runtime-contract-check` E2/S-C/P1241 + `ci-retirement-contract`. verify_by: 판정 완료 — 실브라우저 게시 전/후 전환은 QA-E2-40.
+- [x] QA-E2-SE: **두 채팅이 같은 스크리너 AI 컨텍스트를 각자 구현했다 (S-E, P1239).** `_aioBuildScreenerAiContext` 단일 소유. 게이트: E2/S-E/P1239. verify_by: 판정 완료 — 동일 질의 동일 후보군 실브라우저 대조는 잔여.
+- [x] QA-E2-SF: **뉴스 전용 IDB가 `AIOScreenerDB`(스크리너 명칭)였다 (S-F, P1238).** `AIOScreenerNewsCache` 개명 + 비파괴 복사 마이그레이션(`indexedDB.databases()` 존재 확인). 게이트: E2/S-F/P1238. verify_by: 판정 완료 — 실 IDB 마이그레이션(복사·미삭제)은 아래 QA-E2-40.
+- [ ] QA-E2-40: **E2 배치의 실브라우저·실 IDB 인수가 미실시다.** (a) 이전 이름 DB에만 뉴스가 있을 때 새 DB로 복사되고 이전 DB가 남는지, (b) 새 이름 DB가 이미 차있을 때 마이그레이션이 건너뛰어지는지, (c) 두 채팅이 같은 스크리너 컨텍스트를 받는지, (d) shadow 하니스의 두 분기 케이스가 실페이지에서 같은 결과인지. verify_by: `ci-architecture-browser-check.mjs` + 수동 IndexedDB 점검(DevTools)
+
+## v56.39 LC-31/32/35/36/50~53 기사·테마·근거·학습 정직성 (2026-09-25)
+
+- [x] QA-NEWS-31: **피드 query 주제가 기사 분류로 표시됐다 (LC-31, P1230).** `topic`/`feedTopic`/`topicSource`/`topicReviewRequired` 분리 + `(피드 분류 · 검토 필요)` 표기. 게이트: `ci-runtime-contract-check` LC-31/P1230. verify_by: 판정 완료 — producer의 기사별 분류 근거 생산은 잔여.
+- [x] QA-NEWS-32: **헤드라인 전용 기사의 인과·수혜 요약이 게시됐다 (LC-32, P1231).** `contentDepth==='headline-only'`면 요약 보류 문구. 게이트: LC-32/P1231. verify_by: 판정 완료 — claimType/원문 span 계약은 잔여.
+- [x] QA-THM-35: **테마 공개 범위 — 제품 결정 완료·실행 (P1257 종료).** 숨김 구형 섹션을 분류했다: 퇴역(시장 리더십·20일 추이·히트맵·대표 ETF) / 공개 이전(경기 사이클 리드 판정·섹터 퍼포먼스) / 개발자 번들 이전(세분화 45·한국 28테마 — P702 고급 토글). 일괄 숨김 규칙 제거, 결정 기록을 스타일시트에 유지, 공개 문구=실제 노출 정합. 게이트: LC-35/P1257. verify_by 충족: 판정 완료 + 공개/개발자 번들 대조(계약 DOM 보존 검증 — headless T642/T806/T824/T869/T1018·아키텍처 게이트).
+- [x] QA-THM-36: **테마 가격 참여 폭이 실제 분모를 밝히지 않았다 (LC-36, P1233).** `가격 적격 n/N` 표시. 게이트: LC-36/P1233. verify_by: 판정 완료 — 하위 그룹 17↔리더 14 membership as-of는 잔여.
+- [x] QA-ATL-50: **Atlas 근거 검색 0건이 근거 부재로 읽혔다 (LC-50, P1234).** 검색 범위 안내 줄 추가. 게이트: LC-50/P1234. verify_by: 판정 완료 — 통합 검색 설계는 잔여.
+- [x] QA-MST-51: **Masters 역조회가 8행만 조용히 잘랐다 (LC-51, P1235).** `표시 N/M행` + `나머지 N행 보기`. 게이트: LC-51/P1235. verify_by: 판정 완료 — 원행 identity 실브라우저 인수는 잔여.
+- [x] QA-GUIDE-52: **Guide 배경지식이 조건·출처 없이 금융 규칙을 단정했다 (LC-52, P1236).** 계절·임계값 참고값·전환 후보·참여 규모·CPI 조건으로 낮췄다. 게이트: LC-52/P1236. verify_by: 판정 완료 — 문장별 claimType 원장화·외부 원전 대사(E)는 잔여.
+- [x] QA-PRN-53: **Principles가 학습 층 관계를 설명하지 않았다 (LC-53, P1237).** 도입부에 4층 비가산 안내. 게이트: LC-53/P1237. verify_by: 판정 완료 — 초보 이해도 시험(U)은 잔여.
+- [ ] QA-FINAL-39: **P1230~P1237은 소스/계약 수준으로만 검증됐고 실브라우저 인수는 미실시다.** (a) 뉴스 카드의 검토 필요 표기·headline-only 요약 보류, (b) 테마 분모 표기, (c) Atlas 검색 범위 안내·탭 복귀, (d) Masters 8/14 더보기·키보드, (e) Guide 배경 문구, (f) Principles 층 안내. verify_by: `ci-architecture-browser-check.mjs` + `ci-masters-contract-check.mjs` + `ci-principles-browser-check.mjs` + 수동 보조공학 점검
+
+## v56.38 LC-43~49 공개 포트폴리오·시장 표시 정직성 (2026-09-25)
+
+- [x] QA-PORT-43: **포트폴리오 도입 문구가 숨겨진 신선도 strip을 약속했다 (LC-43, P1223).** `#pf-freshness-strip`은 `display:none!important`인데 부제는 `시세 지연/출처를 별도 표시`라고 했다. 실제 표시 근거(행별 가격 셀 툴팁)로 문구를 고쳤다. 게이트: `ci-runtime-contract-check` LC-43/P1223. verify_by: 판정 완료(P1223) — 숨김 패널 퇴역/공개 결정은 제품 판단으로 잔여.
+- [x] QA-PORT-44: **`가져오기`가 Tab에서 건너뛰어졌다 (LC-44, P1224).** `<label tabIndex=-1>` + `display:none` input을 실제 `<button data-action="_aioTriggerPortfolioImport">` + visually-hidden input으로 바꿨다. 게이트: LC-44/P1224. verify_by: 판정 완료(P1224) — Tab/Enter/파일 선택 실기는 QA-PORT-MKT-38.
+- [x] QA-PORT-45: **포트폴리오 표가 모든 금액에 `$`를 붙였다 (LC-45, P1225).** 원가·시세·손익이 행별 선언 통화(USD만 `$`)를 출력하고 툴팁에 통화 근거를 남긴다. 게이트: LC-45/P1225. verify_by: 판정 완료(P1225) — 가짜 USD/KRW/혼합 실브라우저 인수는 QA-PORT-MKT-38.
+- [x] QA-MKT-46: **Macro 배너가 정적 '수신 대기'인데 카드에 값이 있었다 (LC-46, P1226).** native renderer가 렌더된 CPI/PCE 카드 값에서 배너 문구·`data-runtime-state`·operational-use를 파생한다. 게이트: LC-46/P1226. verify_by: 판정 완료(P1226) — 실브라우저 동시 상태는 QA-PORT-MKT-38.
+- [x] QA-MKT-47: **50SMA 카드와 아래 문장이 다른 상태를 동시에 보여줬고 '상승/하락 비율' 라벨이 분모를 잘못 말했다 (LC-47, P1227).** native가 readout 문장을 단독 소유하고 라벨을 `상승 종목 비중 (보합 제외)`로 바꿨다. 게이트: LC-47/P1227. verify_by: 판정 완료(P1227).
+- [x] QA-MKT-48: **Signal 섹터 폭과 Breadth 종목 폭이 같은 '시장 폭'처럼 읽혔다 (LC-48, P1228).** `섹터 폭 50%+ (SPDR 11 ETF 당일)` + 교차 툴팁으로 모집단을 명시했다. 게이트: LC-48/P1227. verify_by: 판정 완료(P1228).
+- [x] QA-MKT-49: **Macro 곡선 가용성이 공식 2s10s에 종속됐다 (LC-49, P1229).** `curveLegsPresent`/`curveSpreadComparable`로 분리하고 cut 미확정은 스프레드 판정을 보류한다. 게이트: LC-49/P1228. verify_by: 판정 완료(P1229) — 로딩→도착 시퀀스 실브라우저는 QA-PORT-MKT-38.
+- [ ] QA-PORT-MKT-38: **P1223~P1229는 소스/계약 수준으로만 검증됐고 실브라우저 인수는 미실시다.** (a) 포트폴리오 Tab 순서에서 가져오기 도달·파일 선택·취소, (b) USD/KRW/혼합 계좌 표·손익 통화 표기와 보류, (c) macro 배너·카드 동시 상태와 곡선 로딩→공식값 도착 순서, (d) breadth 카드·readout·라벨 일치와 Signal↔Breadth 모집단 구별. verify_by: `ci-architecture-browser-check.mjs`(portfolio/macro/breadth 라우트 DOM) + `ci-accessibility-matrix-check.mjs`(Tab 도달) + 수동 보조공학 점검
+
+## v56.37 LC-30/22/19/21/29/28/37/38 shard 동치·수량·문장 정직성 (2026-09-25)
+
+- [x] QA-MST-30: **Masters 과거 분기 shard가 index 서술자와 동치 검증 없이 변화 원장에 들어갔다 (LC-30, P1222).** 현재 보유 shard는 검증했지만 `loadQuarterArtifacts`는 URL만 믿었다. `managerId`·`runtimeShardSchema`·`historySummary.rawRowsAvailable === descriptor.historyRows`를 확인하고 불일치면 fail-closed한다. 게이트: `ci-runtime-contract-check` LC-30/P1222 + `ci-masters-contract-check`. verify_by: 판정 완료(P1222) — 잘못된 shard 주입 실브라우저 fixture는 QA-CONTENT-37.
+- [x] QA-ATL-22: **Atlas가 고유 개념 48과 단계 배치 55를 구분하지 않았다 (LC-22, P1221).** `기초 개념 48개(고유) · 단계 배치 55개 · 다른 단계 재등장 1개`로 함께 게시한다. 게이트: `ci-runtime-contract-check` LC-22/P1221. verify_by: 판정 완료(P1221) — 실화면 수치·7카드 재방문 이해도는 QA-CONTENT-37.
+- [x] QA-GUIDE-19: **Guide가 reference-only 점수를 매매 지시로 바꿨다 (LC-19, P1220).** `45 미만이면 매매하지 않는 것이 최선` → 관측·재확인 문장(`관측값이며 매매 승인이 아닙니다`). 게이트: `ci-runtime-contract-check` LC-19/21/P1220. verify_by: 판정 완료(P1220) — 문장 단위 claimType 원장화는 잔여(LC-52).
+- [x] QA-GUIDE-21: **Guide가 미제공 지표(200일선 비율·공식 McClellan·NAAIM·II)를 제공한다고 썼다 (LC-21, P1220).** `현재 미수신/미제공`으로 명시하고 breadth 범위를 5/20/50으로 맞췄다. 게이트: 동일 단언. verify_by: 판정 완료(P1220) — capability registry에서 본문을 생성하는 구조는 별도(E7).
+- [x] QA-SENT-29: **F&G 변화량 `0`이 라벨 없이 두 번째 점수처럼 보였다 (LC-29, P1219).** `전일 대비 0`으로 본문·`title`·`aria-label`을 채운다. 게이트: `ci-runtime-contract-check` LC-29/P1219. verify_by: 판정 완료(P1219) — 스크린리더 실기·비교일 표시는 QA-CONTENT-37.
+- [x] QA-THM-28: **테마 상세가 하루 등락을 모멘텀·자금흐름·원인 단정으로 확장했다 (LC-28·LC-37·LC-38, P1218).** 네 패널이 측정 창(당일)과 모집단만 말하고 나머지는 `별도 근거가 필요합니다`로 분리한다. 게이트: `ci-runtime-contract-check` LC-28/37/38/P1218. verify_by: 판정 완료(P1218) — 경계값 fixture·legacy 한국 테마 문장은 QA-CONTENT-37.
+- [ ] QA-CONTENT-37: **P1218~P1222는 소스/계약 수준으로만 검증됐고 실브라우저·경계값 인수는 미실시다.** (a) theme-detail 4패널의 당일/기간 구분 문구, (b) Atlas 상단 수량과 7카드 배치 합(55) 일치, (c) Guide 해당 절 문구와 실제 route 제공 범위, (d) F&G delta 라벨·스크린리더 이름, (e) Masters history shard 교체 주입 시 fallback 전환. verify_by: `ci-architecture-browser-check.mjs`(themes/atlas/guide/sentiment 라우트 DOM) + `ci-masters-contract-check.mjs` + 수동 보조공학 점검
+
+## v56.36 LC-39/33/34 교차 라우트 정체성·뉴스 접근성 (2026-09-25)
+
+- [x] QA-ENT-39: **기업 분석의 `차트 분석`이 없는 입력(`deep-ticker-input`)에 쓰고 분석을 트리거하지 않아 기술 화면이 이전 종목(SPY)을 보였다 (LC-39, P1215).** `_aioChartAnalyze`(기업)·`_aioTechnicalTicker`(포트폴리오) 두 bridge가 같은 죽은 id에 썼고 `showPage('technical')`만 호출했다. `_aioOpenTechnicalAnalysis(ticker)` 하나로 수렴해 실제 입력 `#deep-sym-input` + `runDeepAnalysis(sym)`(=`analyzeTickerDeep` + `aio:entityChanged`)을 호출한다. 게이트: `ci-runtime-contract-check` LC-39/P1215(legacy 셸 전체 `deep-ticker-*` 부재·단일 bridge·`runDeepAnalysis(sym)`). verify_by: 판정 완료 — `ci-runtime-contract-check`·`ci-syntax-check`·`ci-research-flow-contract-check` PASS. 실브라우저 클릭 인수는 QA-NEWS-35.
+- [x] QA-NEWS-33: **한국 필터 0건에서 내부 `emptyReason` enum(`all-news-outside-time-window`)이 사용자 문장에 그대로 노출됐다 (LC-33, P1216).** market-news·briefing 빈 상태의 raw 보간을 제거하고 `NEWS_EMPTY_REASON_COPY` + `describeNewsEmptyReason()`로 번역한다(미지 토큰은 일반 문장, 창 밖 수집분은 건수로 분리). 게이트: `ci-runtime-contract-check` LC-33/P1216. verify_by: 판정 완료(P1216) — 실제 화면 문구·조합별 분모는 QA-NEWS-35.
+- [x] QA-NEWS-34: **뉴스 원문 카드가 포커스 불가능한 클릭 `div`라 키보드/AT로 원문을 열 수 없었다 (LC-34, P1217).** 제목을 실제 `<a class="news-item-link" target="_blank" rel="noopener noreferrer">`로 렌더하고 접근성 이름을 주며, 카드 click 위임은 `a[href]`에서 즉시 반환해 이중 열기를 막는다. 게이트: `ci-runtime-contract-check` LC-34/P1217 + `.news-item-link` CSS. verify_by: 판정 완료(P1217) — 실제 Tab/Enter/스크린리더는 QA-NEWS-35.
+- [ ] QA-NEWS-35: **P1215~P1217은 단위/소스 계약으로만 검증됐고 실브라우저·보조공학 인수는 미실시다.** (a) 기업 분석 AAPL → `차트 분석` → 기술 화면 입력·제목·차트가 AAPL이고 뒤로가기가 유지되는지, (b) 뉴스 카드가 접근성 트리에서 링크로 노출되고 Tab/Enter로 원문이 한 번만 열리는지(자식 티커 버튼 이벤트 보존), (c) 국가/토픽/정렬 0건 조합의 문구·분모를 확인해야 한다. verify_by: `ci-architecture-browser-check.mjs`(뉴스/기술 라우트 DOM) + `ci-a11y-*` 또는 수동 Tab/스크린리더 과업
+
+## v56.35 E2 LC-25/26/40~42 스크리너·신호 결과 정직성 (2026-09-25)
+
+- [x] QA-SCR-40: **Why 제목이 엔진이 방출하지 않는 상태를 비교해 항상 '순위 계산 보류'였다 (LC-40, P1210).** `screen-engine.js`의 `screenRankingState` 어휘는 `ranked`/`unavailable`/`not-requested`인데 `src/ui/pages/screener.js`가 `=== 'available'`을 비교해 그 분기가 참이 될 수 없었고, 서수 표시 순위와 팩터 원값 순위를 둘 다 `rank`로 불렀다. 엔진 어휘 `ranked` 소비 + `표시 순위 N · 팩터 원값 M` 명명으로 고쳤다. 게이트: `ci-screener-workbench-contract` P1210 단언 2종. verify_by: 판정 완료(P1210) — pass+ranked/pass+unranked/unavailable 조합의 실브라우저 Why 렌더는 QA-SCR-28.
+- [x] QA-SCR-25: **스크리너 실행 판정과 표의 표시 범위가 같은 모집단으로 읽혔다 (LC-25, P1211).** funnel이 `조건 통과 342 / 데이터 부족 29`와 `현재 필터 결과 873`을 분모 없이 나열했다. `scr-funnel-passed-denom`/`scr-funnel-unavailable-denom`(실행 분모=`run.rowCount`)·`scr-funnel-runid`(run id+origin)·`scr-funnel-scope-note`로 실행 판정/표시 범위를 분리하고, 실행 완료 상태줄과 readiness note에도 runId/분모를 추가했다. 게이트: `ci-screener-workbench-contract` P1211 단언 2종. verify_by: 판정 완료(P1211) — 필터 badge↔runId 결속은 QA-SCR-28.
+- [x] QA-SCR-41: **결측 진단값이 0으로 승격돼 '측정된 0'처럼 보였다 (LC-41, P1212).** native 팩터 진단의 `Number.isFinite(Number(x))`(=`Number(null)===0`)와 legacy `_factorBacktest`의 `|| 0` 폴백이 미수신을 유효값으로 만들었다. `countOrNull()`과 `num()`으로 결측을 분리하고 표본이 없으면 `계산 불가 · 표본 없음`을 그린다. 게이트: `ci-screener-workbench-contract` P1212 단언 + `ci-runtime-contract-check` legacy 캔버스 단언. verify_by: 판정 완료(P1212) — 실브라우저 캔버스 렌더는 QA-SCR-28.
+- [x] QA-SCR-42: **관측시각 없는 가격이 전역 LIVE 배지와 나란히 '현재가'로 읽혔다 (LC-42, P1213).** 가격 셀이 행 자체의 currency/priceObservedAt/priceSource를 담고, 관측시각이 없으면 `관측시각 미확인 · 참고` 하위 라벨·muted 색·`data-quote-freshness="unverified"`와 `전역 LIVE에 상속하지 않음` 툴팁을 표시한다. 게이트: `ci-screener-workbench-contract` P1213 단언. verify_by: 판정 완료(P1213) — 실브라우저 행 렌더는 QA-SCR-28.
+- [x] QA-SIG-26: **신호 점수 모드가 표현 문구만 바꾸고 계산 입력·판정·체크리스트에는 전달되지 않았다 (LC-26, P1214).** legacy facade는 `mode:'swing'` 하드코딩, native reader는 모드 누락, UI는 모델에 없는 `임계값 65점`을 약속했고 체크리스트 제목은 모드와 무관하게 `스윙 환경 체크리스트`였다. `src/domain/signal/mode.js` 단일 소유 + `AIO_ARCH.signalScoreMode` 단일 브리지 + 두 reader의 `computeTradingScoreModel({mode})` 전달 + 체크리스트 3상 집계와 모드 독립 명시로 고쳤다. 게이트: `ci-esm-core-unit-check` P1214 fixture(어휘·descriptor `decisionThreshold:null`·day 모드가 점수를 실제로 바꿈 swing 62 vs day 74) + `ci-runtime-contract-check` 단언 3종 + `ci-retirement-contract`(facade 예산 59). verify_by: 판정 완료(P1214) — 실브라우저 pill↔hero parity·모드 영속·체크리스트 3상은 QA-SCR-28/QA-SIG-27.
+- [ ] QA-SCR-28: **P1210~P1213의 스크리너 결과 정직성 변경은 단위/소스 계약으로만 검증됐고 실브라우저 인수는 미실시다.** 실제 Chromium에서 AAPL/CRWD 표본으로 (a) Why 제목이 pass+ranked에서 `순위 계산 가능`·두 rank 명명, (b) funnel 분모 `/873`·runId·scope note, (c) 상위군 회전 결측이 `이전 스냅샷 없음`·IC 캔버스가 `계산 불가 · 표본 없음`, (d) 가격 셀 `data-quote-freshness`, (e) 저장/replay 동일 runId를 확인해야 한다. verify_by: `ci-architecture-browser-check.mjs`(스크리너 Why·funnel·가격 셀) + `ci-screener-auto-refresh-browser-check.mjs`
+- [ ] QA-SIG-27: **체크리스트 5조건은 시장건강 기반이며 점수 모드와 독립임을 명시했지만, 모드별 임계값이 필요하다는 제품 판단이 서면 시장건강 5조건 자체를 모드 revision에 결속해야 한다.** 현재는 모드가 변동성 구성만 바꾸고 임계값은 없다(`decisionThreshold:null`). verify_by: 제품 결정 후 `ci-esm-core-unit-check.mjs`(모드별 체크리스트 fixture) + 실브라우저 체크리스트 3상 집계
+- [x] QA-DOC-01: **현행 핸드오프 `_context/AIO-CURRENT-CODE-REMEDIATION-HANDOFF-2026-08-09.md`가 45일 임계를 넘어 `knowledge-lint`가 red가 됐다 — 이번 배치와 무관한 날짜 경과다**(기준선 `doc-freshness-baseline.json`은 2026-09-19 작성, 당시 40d → 2026-09-25 46d). 문서를 다시 쓰지 않고 구조 주장(활성 route 20·lifecycle/renderer/data owner 20/20)과 P0 상태(`CR-QA-01`은 QA-EXHAUST-98로 OPEN, 2026-09-25 `affected`도 `skip=31` 보고)를 재확인한 뒤 `last_verified`를 2026-09-25로 갱신하고 `## 재검증` 절을 덧붙였다. `CR-QA-02` 종단 배선과 나머지 패킷은 미재확인으로 명시했다. verify_by: 판정 완료 — `ci-knowledge-lint-check` PASS(잔여 2건은 기존 encoding 경고) + `generate-workspace-state --check`
 
 ## v56.14 스크리너 frozen-run 동일성 (2026-09-22)
 
@@ -1883,6 +1968,12 @@ P1090~P1095로 수정했으나 남은 항목. 게이트는 새 형식이 산출�
 - [x] S9 (v55.04, P1119 — "명시적 정책 경계"로 종결): 출처 권리상 발췌를 보존하지 않기로 확정했다(사용자 결정). `MARKET_ANALYSIS_NEWS_CONTENT_POLICY`를 선언해 모든 `market-analysis.v2` 발행물의 `newsContentPolicy`에 싣고, `causalNarrative: 'blocked-by-design'`·`excerptRetention: 'not-permitted-source-rights'`를 게이트로 고정했다. **"결함 없음"이 아니라 "의도된 차단"의 선언**이며, 피드 권리가 바뀌면 정책과 게이트를 함께 개정해야 한다.
 - [ ] S1/P1095 수정으로 `history.json`의 6개 필드가 `observedAt: null`이 되는데, 이 값이 `reference-only`/`observedAt` 미상으로 소비자에게 표시되는지 확인한다(현재 게이트는 시각이 없으면 통과). (v55.04에서 미수정 — P1117로 프로듀서가 `observedAtSource: 'unavailable'`을 발행하므로 다음 refresh 후 재확인 필요) verify_by: ci-artifact-semantics-check (history observedAtSource 단언이 면제 해제 후 무조건 실행)
 
+- [x] **티커 탭·기간 native 소유권 (P1205/LC-18/LC-27)**: `switchTab/loadTickerChart/Stooq ticker helpers`를 삭제하고 `entity.js`가 tab/panel, 키보드 navigation, 1M/3M/6M/1Y calendar window, chart lifecycle을 단독 소유한다. ESM unit은 2/3/4/5행 경계와 empty 상태를, 실제 Chromium은 31/91/181/366행·날짜·오프라인 fallback 차트·overview 왕복을 검증했다. verify_by: 판정 완료(로컬) — 배포 후 live 인수 별도.
+- [x] **항목별 날짜/as-of 단일 writer (P1206/LC-17)**: generic `#briefing-stale-days` fallback을 제거하고 각 date key와 동일 ID stale sink만 렌더한다. TNX 2Y는 DGS2 관측일만 사용하며 미수신 시 `기준일 미수신`을 표시한다. 실제 Chromium은 archive와 TNX 경과일이 서로 덮지 않음을 확인했다. verify_by: 판정 완료(로컬).
+- [x] **SKEW 단일 quote identity/read model (P1207/LC-20)**: `^SKEW`를 `market.volatility.skew/index`로 등록하고 sentiment/options native state가 같은 value·observedAt·revision을 소비한다. 실제 Chromium은 `146.15`와 동일 metadata가 두 화면에 나타남을 확인했다. verify_by: 판정 완료(로컬).
+- [x] **2s10s 동일 cut·percentage-point (P1208/LC-23)**: atomic Treasury cut을 보존하고 macro/fxbond가 같은 값·unit·cutId·comparability를 렌더한다. conflicting/unknown cut은 비교 판정을 보류한다. 실제 Chromium은 양쪽 `+0.26%p`와 동일 cut ID를 확인했다. verify_by: 판정 완료(로컬).
+- [x] **뉴스 HTML entity 단일 decode/XSS 음성 (P1209/LC-24)**: display text의 named/numeric entity를 한 번만 해석하고 URL은 건드리지 않으며 native card는 text node만 사용한다. 실제 Chromium은 `$NBIS` 표시, literal hostile tag, DOM 0건, 실행 0건을 확인했다. verify_by: 판정 완료(로컬).
+
 ## E3·E4 portfolio 통화·수익률·성과 잔여 (v56.22, 2026-09-24)
 
 P1187(종목 원가 통화 writer·ack)·P1188(계좌·현금 통화+현금 수익률·RF writer, TWR/MWR 원장 엔진, 고정 목표비중 전략 경로)·P1190(VaR 표본 안정성)·P1191(원장 입력 UI·TWR/MWR 표시·인증 문구)로 닫힌 항목과 남은 항목.
@@ -1898,8 +1989,8 @@ P1187(종목 원가 통화 writer·ack)·P1188(계좌·현금 통화+현금 수�
 - [x] **전략 목표비중에 현금 포함** (P1200, 결정 확정 후 착수): 목표비중 합이 100% 미만이면 그 차액이 **현금 목표비중**이고, 그 선언이 곧 **계좌 범위 선언**이다 — 현금 수익률이 선언되면 `Σ wᵢ·rᵢ + w_cash·r_cash`로 계좌 전체 수익을 계산하고(scope `whole_account`), 없으면 계좌 보기만 보류한다(sleeve는 게시). 초과 배분(합 >100%)만 무효다. 패널이 `현금 20.0%`를 발행한다. `ci-esm-core-unit-check` P1200(6검사, P1188/P1193 기대값 갱신) + 실브라우저 `PFE2-22`(40/40 → `현금 20.0%`·차단 없음, 120% → `strategy-target-weights-invalid`) PASS. **잔여**: 합이 0인 선언(전액 현금)은 별도 검증이 없다.
 - [x] **회고 경로 정책 셀렉터 비활성** (P1201): 회고 경로에서 정책은 소비되지 않으므로 셀렉터를 `disabled`/`aria-disabled`/`title`로 비활성 표시한다(선언값은 보존 — 경로를 되돌리면 살아난다). 패널의 `(미사용)` 표기와 조작 표면이 같은 사실을 말한다. 실브라우저 `PFE2-22` PASS. **잔여**: `unrecognized` 플래그는 발행만 하고 별도 문구가 없다.
 - [x] **VaR `certified` 렌더 실측** (P1203): 72개월 표본(꼬리 구조가 모든 창에서 동일한 6개월 주기)에서 렌더 라벨이 **`인증`**, 13개월 표본은 `인증 보류 — 표본 부족, 꼬리 부족, 부트스트랩 변동 큼, 추정량 민감`. 실브라우저 `PFE2-23` PASS. **이 실측이 결함을 찾았다**: 랩이 `deriveVarStability`에 **정렬된** 표본을 넘겨 민감도 변형 `recent-half`가 '최근 절반'이 아니라 '상위 절반'이 됐고(중앙값 양수인 표본은 VaR 0 → 민감도 1), **인증이 현실 표본에서 도달 불가**였다 — 호출자가 시간 순서 표본을 넘기도록 수정. **잔여**: 입력 순서 계약은 주석으로만 알리고 런타임 검증이 없다.
-- [ ] **미착수 — 셸 위험 입력 조립 분해**: `js/aio-workspace.js`의 위험 스냅샷·returnsMap·estimate 호출 조립(약 60줄)이 아직 셸에 있다. P1195/P1199 선례대로 네이티브로 옮길 수 있다. verify_by: ci-decomp-hotspot-check (aio-workspace 순감소 + 조립 fixture)
-- [ ] **미착수 — E2 S-C/S-E/S-F**: S-C는 legacy 번들을 실제로 실행해 shadow 비교하는 **별도 실행 하니스**가 필요하고(그룹·하니스 설계 포함), S-E(공통 helper)·S-F(IDB 개명)는 마이그레이션 선행이다. 코드 작업이며 시크릿은 필요 없다. verify_by: ci-retirement-contract (shadow 실행 하니스 도입 후)
+- [x] **셸 위험 입력 조립 분해 — 종료(P1258).** 조립을 `src/ui/panels/portfolio-risk-input.js`로 분해하고 셸은 증거 수집·문구만 유지(`js/aio-workspace.js` −51행). verify_by 충족: ci-decomp-hotspot-check (aio-workspace 순감소 ratchet 반영 + 조립 fixture — `ci-esm-core-unit-check` P1258: 입력 자격·returnsMap·스냅샷 재현성·보류 코드 3종·목표비중 합 초과 거부).
+- [x] **E2 S-C/S-E/S-F — 종료(P1238~P1241).** S-F IDB 뉴스 범위 개명+비파괴 복사(P1238), S-E 스크리너 AI 컨텍스트 helper 단일화(P1239), S-C shadow 실행 하니스(P1240)와 행 해석 단일 소유자 `screener-row-policy.js` 전환(P1241). 이 항목의 "미착수" 표기는 갱신 전 낡은 상태였다.
 - [x] **원장·FX 선언 패널의 `src/ui` 분해** (P1195): 마크업·ack 문구를 `src/ui/panels/portfolio-declarations.js`로 옮기고 셸은 저장 경로·핸들러·ack 순서만 남겼다. `js/aio-workspace.js` 3099→3067(-32)로 ratchet을 조였고, `ci-esm-core-unit-check` P1195(마크업 15검사 + 셸 소스 계약) + 실브라우저 22/22 PASS. **잔여**: Vault 저장 경로(`_pfVaultListRead/_pfVaultListWrite`, ~33줄)와 위험 입력 조립은 아직 셸에 있다 — 저장 경로를 옮기려면 `safeLS`·Vault 런타임 캐시 주입이 필요하다. verify_by: ci-decomp-hotspot-check (aio-workspace 추가 순감소 + 선언 저장소 fixture)
 - [x] **전략 실행 경로 연결** (P1193): risk 표면의 `pf-exposure-path-input`·`pf-rebalance-policy-input`이 측정 경로(현재 구성 소급 ↔ 고정 목표비중 전략)와 리밸런싱 정책을 선언하고, 셸이 포지션의 `targetWeight`(%)를 합 100% 조건으로 검증해 실수 비중으로 넘긴다 — 조건이 어긋나면 엔진이 `strategy-target-weights-invalid`로 보류한다. 패널이 전략 lineage·목표비중·sleeve 분모·계좌 범위 보류를 게시한다. `ci-esm-core-unit-check` P1193 + 실브라우저 `PFE2-18` PASS.
 - [x] **소비되지 않는 선언의 정리** (P1197): 회고 경로에서 리밸런싱 정책은 결과를 바꾸지 않는데 **필수**였고(없으면 `rebalance-policy-required`로 차단) 선언되면 **정체성 해시만** 바꿔 같은 입력이 다른 `estimateId`를 받았다. 이제 정책 부재는 전략 경로에서만 차단하고, 정체성에는 **적용된 정책만** 들어가며, `rebalancePolicy`(적용값, 회고 경로 null)·`rebalancePolicyDeclared`·`rebalancePolicyApplied`를 따로 발행한다. 위험 패널이 `선언 정책 monthly 미사용`을 표시한다. `ci-esm-core-unit-check` P1197(8검사 — 정책을 바꿔도 수치·id 동일, 전략 경로는 차단·적용·해시) PASS. P1182 fixture의 기대값을 새 계약으로 갱신했다.

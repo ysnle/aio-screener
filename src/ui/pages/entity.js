@@ -10,6 +10,35 @@ function finite(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
+export const TICKER_CHART_RANGES = Object.freeze({
+  '1m': Object.freeze({ key: '1m', label: '1개월', days: 30 }),
+  '3m': Object.freeze({ key: '3m', label: '3개월', days: 90 }),
+  '6m': Object.freeze({ key: '6m', label: '6개월', days: 180 }),
+  '1y': Object.freeze({ key: '1y', label: '1년', days: 365 })
+});
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+export function selectTickerChartWindow(history = [], requestedRange = '1m') {
+  const range = TICKER_CHART_RANGES[requestedRange] || TICKER_CHART_RANGES['1m'];
+  const ordered = (Array.isArray(history) ? history : [])
+    .map((row) => ({ ...row, epochMs: canonicalEpochMs(row?.epochMs ?? row?.time ?? row?.date ?? row?.timestamp) }))
+    .filter((row) => row.epochMs != null && finite(row.close) != null)
+    .sort((left, right) => left.epochMs - right.epochMs);
+  const endEpochMs = ordered.at(-1)?.epochMs ?? null;
+  const startEpochMs = endEpochMs == null ? null : endEpochMs - range.days * DAY_MS;
+  const rows = endEpochMs == null ? [] : ordered.filter((row) => row.epochMs >= startEpochMs);
+  return Object.freeze({
+    range: range.key,
+    label: range.label,
+    days: range.days,
+    rows: Object.freeze(rows),
+    rowCount: rows.length,
+    startEpochMs: rows[0]?.epochMs ?? null,
+    endEpochMs: rows.at(-1)?.epochMs ?? null
+  });
+}
+
 function setText(documentRef, id, value) {
   const element = documentRef?.getElementById(id);
   if (element) element.textContent = value;
@@ -145,32 +174,73 @@ function renderTickerNavigation(documentRef, state, root) {
   }
 }
 
-function renderTickerChart({ root, page, state, charts }) {
+function formatTickerChartDate(epochMs) {
+  return epochMs == null ? '—' : new Date(epochMs).toISOString().slice(0, 10);
+}
+
+function renderTickerControls(documentRef, page, activeTab = 'overview', requestedRange = '1m') {
+  if (!page) return;
+  const tab = activeTab === 'chart' ? 'chart' : 'overview';
+  const range = TICKER_CHART_RANGES[requestedRange] ? requestedRange : '1m';
+  page.dataset.activeTickerTab = tab;
+  page.dataset.activeTickerRange = range;
+  page.querySelectorAll?.('[data-ticker-tab]').forEach((button) => {
+    const selected = button.getAttribute('data-ticker-tab') === tab;
+    button.classList?.toggle('active', selected);
+    button.setAttribute('aria-selected', selected ? 'true' : 'false');
+    button.tabIndex = selected ? 0 : -1;
+  });
+  page.querySelectorAll?.('[data-ticker-range]').forEach((button) => {
+    const selected = button.getAttribute('data-ticker-range') === range;
+    button.classList?.toggle('active', selected);
+    button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+  });
+  const overview = documentRef?.getElementById('tab-overview');
+  const chart = documentRef?.getElementById('tab-chart');
+  if (overview) overview.style.display = tab === 'overview' ? '' : 'none';
+  if (chart) chart.style.display = tab === 'chart' ? '' : 'none';
+}
+
+function renderTickerChart({ root, page, state, charts, requestedRange = '1m' }) {
   const canvas = page?.querySelector?.('#ticker-price-chart');
   if (!canvas) return;
-  const rows = (Array.isArray(state?.history) ? state.history : [])
-    .filter((row) => row?.time && finite(row.close) != null)
-    .slice(-365);
+  const range = TICKER_CHART_RANGES[requestedRange] ? requestedRange : '1m';
+  const view = selectTickerChartWindow(state?.history, range);
+  const rows = view.rows;
   const ChartConstructor = root?.Chart;
   const unavailable = rows.length < 2 || typeof ChartConstructor !== 'function';
-  const signature = rows.map((row) => `${canonicalEpochMs(row.epochMs ?? row.time) ?? row.time}:${row.close}`).join('|');
+  const signature = `${range}|${rows.map((row) => `${row.epochMs}:${row.close}`).join('|')}`;
+  const periodLabel = TICKER_CHART_RANGES[range].label;
+  const periodMeta = unavailable
+    ? `${state?.id || '종목'} ${periodLabel} 관측 가격 이력 미수신 · 차트 보류`
+    // P1255 (07:M04 계열 잔여 D4): 차트는 close 계열(배당 미조정)이다 — "수익률"과 섞이지 않도록
+    // 가격 기준을 메타에 함께 말한다(분할 반영 여부는 공급자 관례에 의존, 미검증).
+    : `${periodLabel} · ${view.rowCount}개 관측 · ${formatTickerChartDate(view.startEpochMs)} ~ ${formatTickerChartDate(view.endEpochMs)} · 가격 기준 close(배당 미조정 price return · 분할 반영 여부 미검증)`;
   canvas.dataset.aioTickerChartRenderer = 'native';
   canvas.dataset.sourceKind = unavailable ? 'unavailable' : 'native-runtime';
   canvas.dataset.sourceLabel = unavailable ? 'entity-history-unavailable' : 'native:entity-history';
   canvas.dataset.operationalUse = 'reference-only';
+  canvas.dataset.tickerChartRange = range;
+  canvas.dataset.tickerChartRowCount = String(view.rowCount);
+  canvas.dataset.tickerChartStart = formatTickerChartDate(view.startEpochMs);
+  canvas.dataset.tickerChartEnd = formatTickerChartDate(view.endEpochMs);
+  canvas.setAttribute('aria-label', periodMeta);
+  canvas.setAttribute('title', periodMeta);
+  const meta = page.querySelector?.('#ticker-chart-meta');
+  if (meta) meta.textContent = periodMeta;
   const loading = page.querySelector('#ticker-chart-loading');
   if (unavailable) {
     charts.destroy('ticker-price-chart');
     if (loading) {
       loading.style.display = 'flex';
-      loading.textContent = `${state?.id || '종목'} 관측 가격 이력 미수신 · 차트 보류`;
+      loading.textContent = periodMeta;
     }
     return;
   }
   if (charts.get('ticker-price-chart')?.signature === signature) return;
   charts.destroy('ticker-price-chart');
   try {
-    const labels = rows.map((row) => String(row.time).slice(5));
+    const labels = rows.map((row) => formatTickerChartDate(row.epochMs));
     const prices = rows.map((row) => finite(row.close));
     const isUp = prices.at(-1) >= prices[0];
     const chart = new ChartConstructor(canvas, {
@@ -178,11 +248,11 @@ function renderTickerChart({ root, page, state, charts }) {
       data: { labels, datasets: [{ label: state?.id || '가격', data: prices, borderColor: isUp ? '#22754c' : '#b13a30', backgroundColor: isUp ? 'rgba(34,117,76,0.14)' : 'rgba(177,58,48,0.14)', borderWidth: 1.6, pointRadius: 0, tension: 0.2, fill: true }] },
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { maxTicksLimit: 8, maxRotation: 0 }, grid: { display: false } }, y: { ticks: { maxTicksLimit: 4 } } } }
     });
-    charts.set('ticker-price-chart', { chart, signature });
+    charts.set('ticker-price-chart', { chart, signature, canvas });
     if (loading) loading.style.display = 'none';
   } catch (_) {
     charts.destroy('ticker-price-chart');
-    if (loading) { loading.style.display = 'flex'; loading.textContent = `${state?.id || '종목'} 차트 런타임 실패 · 차트 보류`; }
+    if (loading) { loading.style.display = 'flex'; loading.textContent = `${state?.id || '종목'} ${periodLabel} 차트 런타임 실패 · 차트 보류`; }
   }
 }
 
@@ -198,6 +268,14 @@ function renderOptionMetric(documentRef, id, metric, color = null) {
   element.setAttribute('data-source-kind', sourceKind);
   element.setAttribute('data-source-label', metric?.source || 'unavailable');
   element.setAttribute('data-operational-use', 'reference-only');
+  if (metric?.metricId) element.setAttribute('data-metric-id', metric.metricId);
+  else element.removeAttribute('data-metric-id');
+  if (metric?.instrumentId) element.setAttribute('data-instrument-id', metric.instrumentId);
+  else element.removeAttribute('data-instrument-id');
+  if (metric?.unit) element.setAttribute('data-unit', metric.unit);
+  else element.removeAttribute('data-unit');
+  if (metric?.revisionId) element.setAttribute('data-revision', metric.revisionId);
+  else element.removeAttribute('data-revision');
   if (metric?.observedAt) element.setAttribute('data-observed-at', metric.observedAt);
   else element.removeAttribute('data-observed-at');
   if (color) element.style.color = color;
@@ -459,7 +537,7 @@ function renderFundamentalReport(documentRef, page, state) {
 // SEC annual-data availability/source badge on fundamental. P815 transfers only the bounded
 // SEC-derived summary line; options-chain, report sections, charts, and AI narrative remain
 // legacy-owned.
-function render({ root, documentRef, store, route, charts }) {
+function render({ root, documentRef, store, route, charts, activeTickerTab = 'overview', tickerChartRange = '1m' }) {
   const state = selectEntityState(store.getState());
   const portfolioState = selectPortfolioState(store.getState());
   const routeNode = documentRef?.getElementById(`page-${route}`);
@@ -474,7 +552,8 @@ function render({ root, documentRef, store, route, charts }) {
     renderTickerSecondarySymbols(documentRef, state, root);
     renderTickerActivity(documentRef, root, state, portfolioState);
     renderTickerNavigation(documentRef, state, root);
-    renderTickerChart({ root, page: routeNode, state, charts });
+    renderTickerControls(documentRef, routeNode, activeTickerTab, tickerChartRange);
+    renderTickerChart({ root, page: routeNode, state, charts, requestedRange: tickerChartRange });
   }
   if (route === 'options') renderOptions(documentRef, state);
   if (route === 'fundamental') {
@@ -492,7 +571,9 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
       const bag = createResourceBag();
       const charts = createChartRegistry({ maxCanvasHeight: 520 });
       bag.add(charts.dispose);
-      const renderNow = () => render({ root, documentRef, store, route, charts });
+      let activeTickerTab = 'overview';
+      let tickerChartRange = '1m';
+      const renderNow = () => render({ root, documentRef, store, route, charts, activeTickerTab, tickerChartRange });
       renderNow();
       bag.add(subscribeToSlices(store, ['entity', 'portfolio'], renderNow));
       const eventTarget = documentRef || globalThis;
@@ -588,6 +669,46 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
       }
       if (route === 'ticker') {
         const page = documentRef?.getElementById('page-ticker');
+        const onTickerControlClick = (event) => {
+          const tabButton = event?.target?.closest?.('[data-ticker-tab]');
+          const rangeButton = event?.target?.closest?.('[data-ticker-range]');
+          if (!tabButton && !rangeButton) return;
+          if (tabButton) activeTickerTab = tabButton.getAttribute('data-ticker-tab') === 'chart' ? 'chart' : 'overview';
+          if (rangeButton) {
+            const requested = rangeButton.getAttribute('data-ticker-range');
+            if (TICKER_CHART_RANGES[requested]) tickerChartRange = requested;
+            activeTickerTab = 'chart';
+          }
+          event.preventDefault?.();
+          event.stopImmediatePropagation?.();
+          refresh();
+        };
+        const onTickerControlKeydown = (event) => {
+          const tabButton = event?.target?.closest?.('[data-ticker-tab]');
+          if (!tabButton || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event?.key)) return;
+          const tabs = [...page?.querySelectorAll?.('[data-ticker-tab]') || []];
+          if (!tabs.length) return;
+          const current = Math.max(0, tabs.indexOf(tabButton));
+          const next = event.key === 'Home' ? 0
+            : event.key === 'End' ? tabs.length - 1
+              : event.key === 'ArrowRight' ? (current + 1) % tabs.length
+                : (current - 1 + tabs.length) % tabs.length;
+          event.preventDefault?.();
+          activeTickerTab = tabs[next]?.getAttribute('data-ticker-tab') === 'chart' ? 'chart' : 'overview';
+          refresh();
+          tabs[next]?.focus?.();
+        };
+        const resetTickerView = () => {
+          activeTickerTab = 'overview';
+          tickerChartRange = '1m';
+          refresh();
+        };
+        eventTarget?.addEventListener?.('click', onTickerControlClick, true);
+        eventTarget?.addEventListener?.('keydown', onTickerControlKeydown, true);
+        eventTarget?.addEventListener?.('aio:tickerViewReset', resetTickerView);
+        bag.add(() => eventTarget?.removeEventListener?.('click', onTickerControlClick, true));
+        bag.add(() => eventTarget?.removeEventListener?.('keydown', onTickerControlKeydown, true));
+        bag.add(() => eventTarget?.removeEventListener?.('aio:tickerViewReset', resetTickerView));
         if (page) page.dataset.aioTickerChartRenderer = 'native';
         ['ticker-candle-symbol', 'ticker-entry-symbol', 'ticker-hero-ext', 'ticker-hero-pnl', 'ticker-hero-value'].forEach((id) => {
           const element = documentRef?.getElementById(id);
@@ -603,6 +724,8 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
         });
         bag.add(() => {
           if (page?.dataset.aioTickerChartRenderer === 'native') delete page.dataset.aioTickerChartRenderer;
+          if (page?.dataset.activeTickerTab) delete page.dataset.activeTickerTab;
+          if (page?.dataset.activeTickerRange) delete page.dataset.activeTickerRange;
           const canvas = documentRef?.getElementById('ticker-price-chart');
           if (canvas?.dataset.aioTickerChartRenderer === 'native') {
             delete canvas.dataset.aioTickerChartRenderer;

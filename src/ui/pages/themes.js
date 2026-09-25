@@ -265,8 +265,11 @@ function createChip(documentRef, item, root) {
   const pct = finite(item?.pct);
   const symbol = String(item?.symbol || item?.id || '');
   chip.dataset.themeSymbol = symbol;
-  chip.textContent = `${symbol} ${String(item?.label || symbol)} ${pct == null ? '—' : `${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`}`;
-  chip.style.cssText = `font-size:12px;border:1px solid var(--border-subtle);border-radius:6px;padding:4px 10px;background:var(--bg-elevated);color:var(--text-primary);font-variant-numeric:tabular-nums;${detailId ? 'cursor:pointer;text-align:left;' : ''}`;
+  // LC-54: 상세 제공 여부를 데이터 계약으로 드러낸다 — 읽기 전용 칩과 상세 버튼이
+  // 같은 외형이면 사용자가 눌러도 아무 일도 없는 이유를 알 수 없다.
+  chip.dataset.detailAvailability = detailId ? 'available' : 'summary-only';
+  chip.textContent = `${symbol} ${String(item?.label || symbol)} ${pct == null ? '—' : `${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`}${detailId ? '' : ' · 요약만'}`;
+  chip.style.cssText = `font-size:12px;border:1px ${detailId ? 'solid' : 'dashed'} var(--border-subtle);border-radius:6px;padding:4px 10px;background:var(--bg-elevated);color:var(--text-primary);font-variant-numeric:tabular-nums;${detailId ? 'cursor:pointer;text-align:left;' : 'opacity:0.85;'}`;
   if (detailId) {
     chip.type = 'button';
     chip.dataset.action = 'showThemeDetail';
@@ -274,6 +277,10 @@ function createChip(documentRef, item, root) {
     chip.dataset.passEl = '1';
     chip.setAttribute('aria-label', `${String(item?.label || symbol)} 테마 상세 열기`);
     chip.title = '테마 상세 열기';
+  } else {
+    chip.setAttribute('role', 'text');
+    chip.setAttribute('aria-label', `${String(item?.label || symbol)} — 요약 전용(상세 패널 없음)`);
+    chip.title = '요약 전용 칩입니다 — 이 항목은 상세 패널이 제공되지 않습니다(ETF 정체성·관측 상태만 표시).';
   }
   if (pct != null) chip.style.color = pct >= 0 ? 'var(--data-green)' : 'var(--data-red)';
   return chip;
@@ -294,6 +301,13 @@ function renderThemes({ documentRef, root, store, route }) {
   groups.forEach((group) => group.sort((a, b) => (finite(b?.pct) ?? -Infinity) - (finite(a?.pct) ?? -Infinity)));
   const classifiedCount = [...groups.values()].reduce((count, group) => count + group.length, 0);
   container.replaceChildren();
+  // LC-54: 한 눈에 상세 제공/요약 전용 범위를 말한다 — 점선 칩은 상세가 없다.
+  const detailCount = items.filter((item) => resolveThemeDetailId(root, item)).length;
+  const legend = documentRef.createElement('div');
+  legend.dataset.themeDetailLegend = 'true';
+  legend.textContent = `상세 제공 ${detailCount}개 · 요약 전용 ${Math.max(0, items.length - detailCount)}개 — 점선 칩은 요약만 제공하며 상세 패널이 없습니다.`;
+  legend.style.cssText = 'grid-column:1/-1;font-size:11px;color:var(--text-muted);padding:2px 0 6px;';
+  container.appendChild(legend);
   const appendUnclassified = () => {
     const pending = items.filter((item) => !groups.has(String(item?.quadrant || 'unknown')) || finite(item?.rsRatio) == null || finite(item?.rsMomentum) == null);
     if (!pending.length) return;
@@ -564,16 +578,20 @@ function renderThemeDetailTemperature({ documentRef, root, store, themeId = null
     return;
   }
   const heading = documentRef.createElement('div');
-  heading.textContent = '테마 온도 진단';
+  // LC-38: this panel only observes ONE day's ETF change. It used to expand that single number into
+  // time-series momentum, flow, cause and action claims ("모멘텀이 살아있다", "차익실현/로테이션
+  // 매도", "구조적 훼손"). Each band now names the day window it actually measured; the other claim
+  // types require their own evidence.
+  heading.textContent = '테마 당일 등락 구간';
   heading.style.cssText = 'font-size:12px;font-weight:800;color:var(--text-secondary);margin:8px 0 4px;';
   const body = documentRef.createElement('div');
   const pct = finite(detail.pct);
-  if (pct == null) body.textContent = '시세 대기 — 구성종목 가격이 확인되면 테마 모멘텀을 판정합니다.';
-  else if (pct >= 3) body.textContent = '매우 강세 — 시장 전체에서 주목받는 테마입니다. 단기 과열 가능성도 확인하세요.';
-  else if (pct >= 1) body.textContent = '강세 — 모멘텀이 살아있습니다. 자금 유입 가능성과 추세 지속 여부를 함께 확인하세요.';
-  else if (pct >= 0) body.textContent = '보합 — 방향성을 탐색 중입니다. 추가 가격·거래량 확인이 필요합니다.';
-  else if (pct >= -2) body.textContent = '약세 — 차익실현 또는 로테이션 매도 가능성이 있습니다. 일시 조정인지 확인하세요.';
-  else body.textContent = '급락 — 테마 모멘텀이 약합니다. 구조적 훼손 여부를 확인하기 전 추격을 피하세요.';
+  if (pct == null) body.textContent = '시세 대기 — 구성종목 가격이 확인되면 당일 등락을 표시합니다.';
+  else if (pct >= 3) body.textContent = '당일 +3% 이상 — 관측된 당일 등락 구간입니다. 과열·추세 지속은 별도 기간 근거가 필요합니다.';
+  else if (pct >= 1) body.textContent = '당일 +1% 이상 — 관측된 당일 등락 구간입니다. 시계열 모멘텀·자금 유입은 별도 근거가 필요합니다.';
+  else if (pct >= 0) body.textContent = '당일 보합 — 관측된 당일 등락 구간입니다. 방향은 추가 가격·거래량으로 확인합니다.';
+  else if (pct >= -2) body.textContent = '당일 하락 — 관측된 당일 등락 구간입니다. 원인(수급·로테이션)은 별도 근거가 필요합니다.';
+  else body.textContent = '당일 -2% 이하 — 관측된 당일 등락 구간입니다. 시계열 하락·구조 훼손은 별도 기간 근거가 필요합니다.';
   body.style.cssText = `font-size:11px;line-height:1.7;color:${pct == null ? 'var(--text-muted)' : pct >= 0 ? 'var(--text-secondary)' : 'var(--data-amber)'};`;
   host.replaceChildren(heading, body);
   host.hidden = false;
@@ -602,7 +620,9 @@ function renderThemeDetailSpread({ documentRef, root, store, themeId = null }) {
     body.textContent = '시세 대기 — 최소 두 종목의 등락률이 확인되면 격차를 계산합니다.';
   } else {
     const spread = rows[0].pct - rows[rows.length - 1].pct;
-    const level = spread > 5 ? '매우 큼 — 승자와 패자가 뚜렷해 종목 선별이 중요합니다.' : spread > 2 ? '보통 — 테마 전반의 움직임과 개별 종목 차이를 함께 확인하세요.' : '좁음 — 테마 전체가 같은 재료에 반응하고 있어 ETF 접근도 참고할 수 있습니다.';
+    // LC-38: a narrow day-level spread is not evidence that every constituent reacted to one
+    // catalyst, nor a reason to prefer the ETF. State the measured dispersion only.
+    const level = spread > 5 ? '매우 큼 — 구성종목 간 당일 등락 차가 큽니다.' : spread > 2 ? '보통 — 테마 전반의 움직임과 개별 종목 차이를 함께 확인하세요.' : '좁음 — 구성종목의 당일 등락이 비슷합니다.';
     body.textContent = `등락 편차 ${spread.toFixed(1)}%p (${level})`;
     const leaders = documentRef.createElement('div');
     leaders.textContent = `최강 ${rows[0].symbol} ${rows[0].pct >= 0 ? '+' : ''}${rows[0].pct.toFixed(2)}% · 최약 ${rows[rows.length - 1].symbol} ${rows[rows.length - 1].pct >= 0 ? '+' : ''}${rows[rows.length - 1].pct.toFixed(2)}%`;
@@ -624,14 +644,21 @@ function renderThemeDetailBreadthHealth({ documentRef, root, store, themeId = nu
     return;
   }
   const heading = documentRef.createElement('div');
-  heading.textContent = '브레드스 기반 건강도';
+  // LC-28: the up-ratio is an observed PRICE participation measure. The retired wording claimed a
+  // buyer and a fund flow the screen never measured; the label now names only the price participation.
+  heading.textContent = '가격 상승 참여 폭 (당일)';
   heading.style.cssText = 'font-size:12px;font-weight:800;color:var(--text-secondary);margin:8px 0 4px;';
   const body = documentRef.createElement('div');
   const breadth = finite(detail.breadth);
-  if (breadth == null) body.textContent = '시세 대기 — 충분한 구성종목 가격이 확인되면 테마 건강도를 판정합니다.';
-  else if (breadth >= 70) body.textContent = `상승 종목 ${breadth}% · 테마 건강도 우수 — 광범위한 매수세가 테마를 지지하고 있습니다.`;
-  else if (breadth >= 50) body.textContent = `상승 종목 ${breadth}% · 테마 건강도 보통 — 일부 종목 중심인지 선별이 필요합니다.`;
-  else body.textContent = `상승 종목 ${breadth}% · 테마 건강도 취약 — 모멘텀 약화와 추격 매수 위험을 확인하세요.`;
+  // LC-36: the up-ratio is computed over the 리더 목록 중 가격이 확인된 종목만이다. 그 분모를 값
+  // 옆에 표시해, 화면의 14행(리더 목록)과 실제 비율의 n이 다를 수 있음을 드러낸다.
+  const leaderList = Array.isArray(detail.leaders) ? detail.leaders : [];
+  const priceEligible = leaderList.filter((symbol) => finite(detailQuote(detail, symbol)?.pct) != null).length;
+  const basis = breadth == null ? '' : ` (가격 적격 ${priceEligible}/${leaderList.length})`;
+  if (breadth == null) body.textContent = '시세 대기 — 충분한 구성종목 가격이 확인되면 당일 가격 참여 폭을 계산합니다.';
+  else if (breadth >= 70) body.textContent = `상승 종목 ${breadth}%${basis} · 당일 가격 참여 폭 우수 — 관측된 당일 가격 참여이며 자금 유입·거래 주체의 증거가 아닙니다.`;
+  else if (breadth >= 50) body.textContent = `상승 종목 ${breadth}%${basis} · 당일 가격 참여 폭 보통 — 일부 종목 중심인지 선별이 필요합니다.`;
+  else body.textContent = `상승 종목 ${breadth}%${basis} · 당일 가격 참여 폭 취약 — 관측된 당일 가격 참여이며 추세 단정이 아닙니다.`;
   body.style.cssText = `font-size:11px;line-height:1.7;color:${breadth == null ? 'var(--text-muted)' : breadth >= 70 ? 'var(--data-green)' : breadth >= 50 ? 'var(--text-secondary)' : 'var(--data-amber)'};`;
   host.replaceChildren(heading, body);
   host.hidden = false;
@@ -660,9 +687,10 @@ function renderThemeDetailSubthemeGap({ documentRef, root, store, themeId = null
     body.textContent = '시세 대기 — 최소 두 서브테마의 등락률이 확인되면 격차를 계산합니다.';
   } else {
     const spread = rows[0].pct - rows[rows.length - 1].pct;
+    // LC-37: max−min of day returns is price dispersion, not observed fund rotation.
     const read = spread > 1
-      ? '서브테마 내에서도 자금이 순환하고 있어 선별이 필요합니다.'
-      : '서브테마 간 반응은 유사해 개별 종목 차이를 함께 확인하세요.';
+      ? '서브테마 간 당일 가격 반응 격차가 큽니다. 자금 순환 여부는 별도 수급 근거가 필요합니다.'
+      : '서브테마 간 당일 반응은 유사합니다. 개별 종목 차이를 함께 확인하세요.';
     body.textContent = `서브테마 격차 ${spread.toFixed(1)}%p · 최강 ${rows[0].name} ${rows[0].pct >= 0 ? '+' : ''}${rows[0].pct.toFixed(2)}% · 최약 ${rows[rows.length - 1].name} ${rows[rows.length - 1].pct >= 0 ? '+' : ''}${rows[rows.length - 1].pct.toFixed(2)}% — ${read}`;
   }
   host.replaceChildren(heading, body);

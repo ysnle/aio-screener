@@ -37,6 +37,11 @@ const screenerPage = read('src/ui/pages/screener.js');
 const newsPage = read('src/ui/pages/news.js');
 const sentimentDomain = read('src/domain/sentiment/metrics.js');
 const themesPage = read('src/ui/pages/themes.js');
+const atlasPage = read('src/ui/pages/atlas.js');
+const mastersPage = read('src/ui/pages/masters.js');
+const marketPage = read('src/ui/pages/market.js');
+const portfolioPage = read('src/ui/pages/portfolio.js');
+const newsNormalize = read('src/data/normalize/news.js');
 const tradingScoreDomain = read('src/domain/signal/trading-score.js');
 const secReportDomain = read('src/domain/fundamental/sec-report.js');
 const entityPage = read('src/ui/pages/entity.js');
@@ -188,7 +193,84 @@ check('trading guidance avoids aggressive-buy wording on score 75+', !/75\+\s*(?
 // P1132/R619: the deep technical analysis engine moved from index.html's inline block F into
 // js/aio-ui.js, so the whole ticker-deep-analysis assertion group now reads `ui`.
 check('ticker deep analysis gates entry verdict with market score', /function\s+analyzeTickerDeep/.test(ui) && /computeTradingScore\('swing'\)/.test(ui) && /marketAllowsEntry/.test(ui) && /marketCaution/.test(ui));
+// P1212/E2 LC-41: the legacy factor-backtest canvas promoted null/undefined IC, spread, hit-rate and
+// sample count to 0 (`bt.quantileSpread || 0`, `ic[key] || 0`), so an empty backtest rendered as
+// measured zeros beside `n=0`. Missing stays missing.
+check('LC-41/P1212 legacy factor-backtest does not promote missing values to zero', /function\s+_factorBacktest/.test(ui) && /var num = function\s*\(v\)/.test(ui) && /계산 불가 · 표본 없음/.test(ui) && !/bt\.quantileSpread \|\| 0/.test(ui));
+// P1214/E2 LC-26: the mode is one declared revision shared by the legacy toggle, the native reader
+// and the facade — and the copy must not promise a per-mode threshold the model does not produce.
+check('E2/LC-26/P1214 signal mode has one writer and one descriptor', /bridge\.set\(/.test(data) && /bridge\.describe\(/.test(data) && /aio:signalScoreModeChanged/.test(data) && !/임계값 65점/.test(data));
+check('E2/LC-26/P1214 legacy signal dashboard and checklist consume the declared mode', /AIO_ARCH\.signalScoreMode\.get\(\)/.test(pagesSource) && /pending\+\+/.test(pagesSource));
+check('E2/LC-26/P1214 checklist is stated independent of the score mode', /시장 환경 체크리스트/.test(html) && !/스윙 환경 체크리스트/.test(html));
 check('ticker deep analysis includes institutional Minervini engine', /function\s+_buildMinerviniTechnicalEngine/.test(ui) && /_calcMinerviniMAStack/.test(ui) && /_buildHorizontalVolumeZones/.test(ui) && /_calcVcpQuality/.test(ui) && /_calcFibonacciConfluence/.test(ui));
+// LC-39/P1215: the entity/portfolio → technical bridge must write the real deep-analysis input
+// (`#deep-sym-input`) and actually run the analysis. The retired `deep-ticker-input` id must not
+// survive anywhere in the legacy shell.
+check('LC-39/P1215 technical bridge targets the real input and runs the analysis', !/deep-ticker-input/.test([core, html, ui, data, workspace, krData, macroTech, pagesSource].join('\n')) && /function\s+_aioOpenTechnicalAnalysis/.test(core) && /window\.runDeepAnalysis\(sym\)/.test(core) && /window\._aioChartAnalyze = function[\s\S]{0,120}_aioOpenTechnicalAnalysis/.test(core));
+// LC-33/P1216: the internal news `emptyReason` enum is pipeline vocabulary; the empty state must
+// translate it rather than interpolating the raw token into the sentence.
+check('LC-33/P1216 news empty state translates the internal emptyReason enum', /describeNewsEmptyReason/.test(newsPage) && /NEWS_EMPTY_REASON_COPY/.test(newsPage) && !/\(\$\{model\?\.emptyReason/.test(newsPage) && !/emptyReason\s*\|\|\s*'no-/.test(newsPage));
+// LC-34/P1217: the article headline is a real anchor (keyboard reachable) and the card's
+// data-open-url delegation must ignore it so the URL cannot open twice.
+check('LC-34/P1217 news headline is a keyboard-reachable anchor', /className = 'news-item-link'/.test(newsPage) && /news-item-link/.test(html) && /closest\('a\[href\]'\)/.test(core));
+// LC-28/37/38/P1218: theme-detail panels observe one day's move; they must not expand it into
+// momentum, fund-flow, cause or ETF-preference claims.
+check('LC-28/37/38/P1218 theme detail does not assert flow or momentum from a day move', /가격 상승 참여 폭 \(당일\)/.test(themesPage) && /테마 당일 등락 구간/.test(themesPage) && !/광범위한 매수세/.test(themesPage) && !/자금이 순환하고 있어/.test(themesPage) && !/모멘텀이 살아있습니다/.test(themesPage) && !/같은 재료에 반응/.test(themesPage));
+// LC-29/P1219: a bare F&G delta read as a second score; the change is named in the visible text and
+// the accessibility name.
+check('LC-29/P1219 Fear & Greed delta is a named day-over-day change', /opts\.label/.test(data) && /label: '전일 대비'/.test(data) && /setAttribute\('aria-label', label \+ fmt\.text\)/.test(data));
+// LC-19/21/P1220: the Guide must not turn a reference-only score into a trade instruction, and must
+// not advertise breadth/survey series the product does not provide.
+check('LC-19/21/P1220 Guide does not direct trades or claim unavailable breadth/surveys', !/45 미만이면 매매하지 않는/.test(html) && /관측값이며 매매 승인이 아닙니다/.test(html) && !/200일선 위 비율 70%/.test(html) && !/AAII\/NAAIM\/크레딧/.test(html) && /NAAIM은 현재 원천 미수신/.test(html));
+// LC-22/P1221: Atlas showed one concept count beside a larger step-placement map.
+check('LC-22/P1221 Atlas separates distinct concepts from step placements', /기초 개념 \$\{foundationCount\}개\(고유\) · 단계 배치 \$\{foundationPlacements\}개/.test(atlasPage) && /다른 단계 재등장/.test(atlasPage));
+// LC-30/P1222: the Masters history shard is verified against the index descriptor before it feeds
+// the change ledger.
+check('LC-30/P1222 Masters history shard identity is verified before use', /manager history shard identity mismatch/.test(mastersPage) && /runtimeShardSchema/.test(mastersPage) && /historySummary\?\.rawRowsAvailable !== descriptor\.historyRows/.test(mastersPage));
+// LC-43/P1223: the portfolio intro must describe the visible evidence, not a strip hidden by CSS.
+check('LC-43/P1223 portfolio intro matches the visible freshness evidence', !/시세 지연\/출처를 별도 표시/.test(html) && /행별 시세 출처·관측시각/.test(html));
+// LC-44/P1224: the import trigger is a real button opening a hidden-but-focusable file input.
+check('LC-44/P1224 portfolio import is keyboard reachable', /data-action="_aioTriggerPortfolioImport"/.test(html) && /id="pf-import-file"/.test(html) && /_aioTriggerPortfolioImport = function/.test(core) && !/<label[^>]*>가져오기<input type="file"/.test(html));
+// LC-45/P1225: the holdings table prints each row's declared currency instead of a fixed `$`.
+check('LC-45/P1225 portfolio table is currency-aware', /const priceCurrency = String\(holding\?\.currency/.test(portfolioPage) && /const costCurrency = String\(holding\?\.costCurrency/.test(portfolioPage) && !/avgCost == null \? '—' : `\$\$\{avgCost/.test(portfolioPage));
+// LC-46/P1226: the macro banner state follows the rendered inflation cards.
+check('LC-46/P1226 macro banner reflects the rendered inflation cards', /macro-fred-stale-banner/.test(marketPage) && /renderedCards/.test(marketPage) && /dataset\.runtimeState = received \? 'partial'/.test(marketPage));
+// LC-47/P1227: the 50SMA readout is owned by the native renderer and the advance share is named.
+check('LC-47/P1227 breadth readout single-owner and share label', /breadth-50sma-readout/.test(marketPage) && /50일선 상회 \$\{Math\.round\(b50\)\}%/.test(marketPage) && /상승 종목 비중 \(보합 제외\)/.test(html) && /상승 종목 비중\)/.test(html));
+// LC-48/P1227: the signal sector-breadth cell names its own population.
+check('LC-48/P1227 signal sector breadth names its population', /SPDR 11 ETF 당일/.test(html) && /Breadth의 AIO 종목 5\/20\/50일선 폭과 다른 모집단/.test(html));
+// LC-49/P1228: the macro curve's availability is independent of the official 2s10s spread.
+check('LC-49/P1228 macro curve availability is independent of the official spread', /const curveLegsPresent = Number\.isFinite\(twoYear\)/.test(marketPage) && /const curveSpreadComparable =/.test(marketPage) && /2s10s cut 미확정/.test(marketPage));
+// LC-31/P1230: the feed query's topic is kept separate from an article-level topic.
+check('LC-31/P1230 news keeps feed topic separate from an article topic', /topicReviewRequired/.test(newsNormalize) && /feedTopic/.test(newsNormalize) && /topic: item\?\.articleTopic \|\| item\?\.topic/.test(newsNormalize) && /검토 필요/.test(newsPage));
+// LC-32/P1231: a headline-only card withholds the causal/benefit summary.
+check('LC-32/P1231 headline-only news withholds the summary claim', /요약 보류 — 헤드라인 전용/.test(newsPage) && /const headlineOnly = String\(item\?\.contentDepth/.test(newsPage));
+// LC-35/P1257: the hidden legacy themes sections are classified (retire / public re-home / dev
+// bundle) and the decision is recorded in the stylesheet — public copy promises only what ships.
+check('LC-35/P1257 themes hidden sections classified with the decision recorded', /P1257\/LC-35 제품 결정/.test(html) && /퇴역\(삭제\)/.test(html) && /공개 경로로 이전/.test(html) && /개발자 번들로 이전/.test(html) && !/45개 세분화 테마 실시간/.test(html));
+// LC-36/P1233: the theme breadth panel names the price-eligible denominator.
+check('LC-36/P1233 theme breadth names its price-eligible denominator', /가격 적격 \$\{priceEligible\}\/\$\{leaderList\.length\}/.test(themesPage));
+// LC-50/P1234: the Atlas overview states what the search actually matches.
+check('LC-50/P1234 atlas states the search scope', /atlas-search-scope/.test(atlasPage) && /연구 패킷 metadata\(id·제목·범위·상태\)/.test(atlasPage));
+// LC-51/P1235: the Masters lookup exposes visible/total rows and can expand.
+check('LC-51/P1235 masters lookup exposes the visible/total rows', /masters-ticker-lookup-count/.test(mastersPage) && /나머지 \$\{allRows\.length - 8\}행 보기/.test(mastersPage));
+// LC-52/P1236: Guide background statements carry season/condition/evidence framing.
+check('LC-52/P1236 guide background statements carry conditions', !/기관 매집\)/.test(html) && /서머타임\(EDT\)에는 22:30~05:00/.test(html) && /확정하는 신호가 아니며/.test(html) && /예상보다 높으면 금리 인상 우려가 커지는 경우가 많지만/.test(html));
+// LC-53/P1237: the Principles page explains its non-additive learning layers.
+check('LC-53/P1237 principles explains the learning layers', /학습 단위:/.test(html) && /이야기 장\(12\)/.test(html) && /심화 레슨\(112\)/.test(html));
+// E2/S-C/P1241: one policy owns row resolution; both paths declare their intent and neither reaches
+// the retired `_aioScreenerRows` global.
+check('E2/S-C/P1241 screener row resolution has one owner and a declared intent', /function _aioGetCanonicalScreenerRows\(root\)/.test(data)
+  && /arch\.resolveScreenerRows\('bundled-compat'\)/.test(data)
+  && /var w = root \|\| window;/.test(data)
+  && /SCREENER_ROW_INTENT\.EVIDENCE/.test(read('src/legacy/compatibility-facade.js'))
+  && !/_aioScreenerRows/.test(read('src/legacy/compatibility-facade.js'))
+  && /export function resolveScreenerRows\(root, intent/.test(read('src/data/screener-row-policy.js'))
+  && /function screenerNativePublished\(/.test(read('src/data/screener-row-policy.js')));
+// E2/S-E/P1239: one helper owns the screener AI context for both chats.
+check('E2/S-E/P1239 both chats consume one screener AI context helper', /function _aioBuildScreenerAiContext\(/.test(data) && (chat.match(/_aioBuildScreenerAiContext\(/g) || []).length >= 2 && !/_aioRunScreenerQuery\(q, \{ recentTickers/.test(chat));
+// E2/S-F/P1238: the news cache DB is news-scoped and migrates the legacy name without deleting it.
+check('E2/S-F/P1238 the news cache DB is news-scoped and migrates the legacy name', /_AIO_IDB_NAME = 'AIOScreenerNewsCache'/.test(data) && /_AIO_IDB_LEGACY_NAME = 'AIOScreenerDB'/.test(data) && /function _idbMigrateLegacyNews\(/.test(data) && /store-not-empty/.test(data));
 check('ticker deep analysis covers 5/10/20 short and 50/100/200 long MA stacks', /단기 정배열 5>10>20/.test(ui) && /장기 정배열 50>100>200/.test(ui) && /FULL_BULL_STACK_5_10_20_50_100_200/.test(core + '\n' + chat));
 check('ticker deep analysis exposes horizontal volume profile beginner guidance', /Volume Profile/.test(ui) && /POC/.test(ui) && /Value Area/.test(ui) && /beginnerNote/.test(ui) && /수평 매물대/.test(ui));
 check('technical snapshot exposes full MA stack to AI chat', /sma5/.test(core) && /sma100/.test(core) && /shortMAState/.test(core) && /longMAState/.test(core) && /maStackScore/.test(core) && /5SMA/.test(chat) && /100SMA/.test(chat));
@@ -866,7 +948,7 @@ check('LIVE3-01: stored API secrets never re-enter DOM values or reveal partial 
 check('LIVE3-02: early snapshot-date rendering uses the post-initialization window bridge and avoids DATA_SNAPSHOT TDZ', /var snap = window\.DATA_SNAPSHOT \|\| null/.test(core));
 check('LIVE3-03: 20SMA breadth uses its value-specific server observation timestamp and fails closed', /id:'breadth200-participation', globalVar:'_breadth200', fetchKey:'breadthScreener'/.test(core) && /_aioApplyScreenerBreadth/.test(data) && /coveragePct\s*>=\s*85/.test(data) && /ageHours\s*<=\s*96/.test(data) && /window\._breadthLiveData\s*=/.test(data) && /getCurrentBreadthEvidence/.test(core) && /snapshotKey:null/.test(core));
 check('LIVE3-04: Yahoo/FRED bridge never fabricates a missing 2Y or overwrites official T10Y2Y', !/:\s*4\.0\s*\)/.test(String((data.match(/function _syncYahooToFred\([\s\S]*?\n\}/) || [''])[0])) && /!fd\['T10Y2Y'\]/.test(data) && /Number\(window\._live2Y\)/.test(data));
-check('LIVE3-05: MOVE/SKEW regimes require live observations and missing values render unavailable', /quote\('\^SKEW'\)/.test(core) && /quote\('\^MOVE'\)/.test(core) && /'move':\s*'—'/.test(core) && /'skew':\s*'—'/.test(core));
+check('LIVE3-05: MOVE/SKEW regimes require live observations, missing values render unavailable, and SKEW has one native read model', /quote\('\^SKEW'\)/.test(core) && /quote\('\^MOVE'\)/.test(core) && /'move':\s*'—'/.test(core) && /'skew':\s*'—'/.test(core) && /market\.volatility\.skew/.test(sentimentPage + read('src/data/runtime-readers.js')) && /sent-skew-value/.test(html) && !/_bridge\('\^SKEW'/.test(ui));
 check('LIVE3-06: late breadth producer refreshes breadth, signal, and home consumers atomically', /updateBreadthBars\(\)/.test(data) && /refreshSignalDashboard\(\)/.test(data) && /refreshHomeDashboard\(\)/.test(data));
 check('LIVE3-04: briefing labels the actual S&P index and reads the canonical pct field', /var spx = _ldSafe\('\^GSPC', 'price'\), spxChg = _ldSafe\('\^GSPC', 'pct'\)/.test(core) && /S&amp;P 500 지수/.test(core) && !/_ldSafe\('SPY', 'chgPct'\)/.test(core));
 check('LIVE3-05: KR supply parses formatted values and renders missing as unknown rather than zero', /String\(v\)\.replace\(\/\[,\+\\s\]\/g/.test(krData) && /streakEl\.textContent = '수급 미수신'/.test(krData) && /미수신을 0원\/매도 우위로 해석하지 않는다/.test(krData) && /기관 세부 수급 미수신/.test(krData) && /프로그램 매매 미수신/.test(krData));
@@ -897,7 +979,7 @@ check('R340/P712: KR theme breadth and market-health claims fail closed on missi
 check('R340/P712: future-event calendar is data-driven and no stale 7\/10 BOK row remains',
   /renderOfficialFutureCalendar/.test(macroTech + core) && /id="official-future-calendar"/.test(html) && !/>7\/10<\/span>[\s\S]{0,260}한국은행 금통위/.test(html + macroTech));
 check('R340/P712: semantic market-integrity tests cover curve exactness and KR missingness',
-  /T1025 treasury_curve_exact_2s10s/.test(tests) && /T1027 kr_theme_missingness_fail_closed/.test(tests) && /T1028 technical_indicator_no_intraday_synthesis/.test(tests) && /T1029 ticker_chart_no_random_history/.test(tests) && /T1030 rrg_history_fail_closed/.test(tests) && /T1031 mcclellan_requires_advance_decline_history/.test(tests) && /T1032 hy_oas_official_only/.test(tests) && /T1033 breadth_chart_no_random_series/.test(tests) && /T1034 market_health_required_inputs_fail_closed/.test(tests));
+  /T1025 treasury_curve_exact_2s10s/.test(tests) && /T1027 kr_theme_missingness_fail_closed/.test(tests) && /T1028 technical_indicator_no_intraday_synthesis/.test(tests) && /T1029 ticker_chart_native_tabs_and_ranges/.test(tests) && /T1030 rrg_history_fail_closed/.test(tests) && /T1031 mcclellan_requires_advance_decline_history/.test(tests) && /T1032 hy_oas_official_only/.test(tests) && /T1033 breadth_chart_no_random_series/.test(tests) && /T1034 market_health_required_inputs_fail_closed/.test(tests));
 check('R340/P712: synthetic market-series formulas are absent from decision paths',
   !/50\s*\+\s*\(chg\s*\*\s*5\)/.test(html) && !/500\s*\*\s*abv50/.test(html) && !/\(85\s*-\s*p\)\s*\*\s*20\s*\+\s*250/.test(ui) && !/latestLiveVal\s*\*\s*\(1\s*\+\s*\(Math\.random/.test(core));
 check('R340/P712: KR yields and US breadth require timestamped current evidence and fail closed otherwise',

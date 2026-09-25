@@ -36,6 +36,7 @@ export function normalizeScreener(raw = {}) {
     ema8: finite(row?.ema8),
     ema21: finite(row?.ema21),
     ema60: finite(row?.ema60),
+    emaBasis: row?.emaBasis || null,
     mcap: finite(row?.mcap),
     nativeMarketCap: row?.nativeMarketCap ? { ...row.nativeMarketCap } : null,
     _mcapObservedAt: row?._mcapObservedAt || null,
@@ -107,6 +108,13 @@ export function normalizeScreener(raw = {}) {
     factorSourceKind: row?.factorSourceKind || null,
     factorAllowedUse: row?.factorAllowedUse || null,
     factorQuality: row?.factorQuality && typeof row.factorQuality === 'object' ? { ...row.factorQuality } : null,
+    // P1255 (07:M04 계열 잔여 D2): producer가 발행한 가격 기준(조정 범위) 선언을 화이트리스트가
+    // 조용히 버리면 소비자는 조정 수익률과 raw 가격수익률을 구분할 수 없다 — 시간 계약 필드
+    // (P1167)과 같은 규칙으로 가격 기준 계약도 통과시킨다.
+    priceBasis: row?.priceBasis || null,
+    adjustedCloseStatus: row?.adjustedCloseStatus || null,
+    adjustedCloseCoveragePct: finite(row?.adjustedCloseCoveragePct),
+    backtestEligible: row?.backtestEligible == null ? null : !!row.backtestEligible,
     instrumentRef: row?.instrumentRef && typeof row.instrumentRef === 'object' ? { ...row.instrumentRef } : null,
     // P1167 (15 D05): 명시적 화이트리스트가 선언된 필드를 조용히 버리면 provider가 발행한 식별
     // 검증 상태가 소비자에게 도달하지 않는다. 행 정규화는 같은 계약을 통과시킨다.

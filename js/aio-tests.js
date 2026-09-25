@@ -1093,8 +1093,10 @@
     var exRisk = window.classifyTerminalCandle ? window.classifyTerminalCandle(exhaustion, prev, Object.assign({}, hotSnap, { rvol20: 3.0 })) : null;
     _assert('T128 candle: gap-up exhaustion escalates', exRisk && (exRisk.type === 'GAP_UP_EXHAUSTION' || exRisk.type === 'SHOOTING_STAR_RISK') && exRisk.score >= 40, exRisk && JSON.stringify(exRisk));
 
+    // P1253: priceNearCallWall/closeAboveCallWall 은 프로덕션 미연결 입력이며 해당 규칙은 비활성화됐다 —
+    // 입력을 넣어도 점수 가산이 없음을 전제로 한 기대값이다. 라벨도 '감마 미측정' 정직 라벨로 갱신.
     var opex = window.calcOpexGammaRisk ? window.calcOpexGammaRisk({ daysToOpex: 2, equityPutCall: 0.5, indexPutCall: 1.2, priceNearCallWall: true, closeAboveCallWall: false }) : null;
-    _assert('T129 opex_gamma: decay/unwind risk', opex && opex.score >= 40 && opex.regime !== 'GAMMA_SUPPORT', opex && JSON.stringify(opex));
+    _assert('T129 opex_gamma: decay/unwind risk', opex && opex.score >= 40 && opex.regime !== 'OPEX 스트레스 낮음(감마 미측정)', opex && JSON.stringify(opex));
 
     var breadthGood = window.calcBreadthRotation ? window.calcBreadthRotation({ iwmUp: true, rspUp: true, kreUp: true, xbiUp: true, iwmVsQqqRS_5d: 1.2, rspVsSpyRS_5d: 0.5 }) : null;
     var breadthBad = window.calcBreadthRotation ? window.calcBreadthRotation({ qqqUpButBreadthDown: true, iwmFailedBreakout: true, rspLaggingSpy: true, kreDown: true, xbiDown: true }) : null;
@@ -1215,7 +1217,7 @@
     };
     var blow = window.calcBlowoffTopChecklist ? window.calcBlowoffTopChecklist(hotSnap, {
       semiHeat: { state: 'SEMI_HEATED' },
-      opexGammaRisk: { regime: 'GAMMA_DECAY_WATCH' },
+      opexGammaRisk: { regime: 'OPEX 스트레스 중간(감마 미측정)' }, // P1253: calcOpexGammaRisk 라벨 개명 반영 (구 'GAMMA_DECAY_WATCH')
       breadthRotation: { regime: 'BREADTH_BROADENING' },
       referenceDate: '2026-05-14'
     }) : null;
@@ -5204,6 +5206,37 @@
       !/이란 재협상 기대/.test(signalText),
       /이란 재협상 기대/.test(signalText) ? 'stale Iran text found' : 'ok');
 
+    var snapshotDateOldFieldTs = window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fieldTs;
+    var snapshotDateOldMacro = window._serverMacroEvidence && window._serverMacroEvidence.dgs2;
+    var snapshotDateFixture = document.createElement('div');
+    snapshotDateFixture.innerHTML = '<span data-snap-date="t1206-archive" data-snap-date-value="2026-04-17"></span><span id="t1206-archive-stale-days">pending</span><span data-snap-date="t1206-orphan"></span>';
+    document.body.appendChild(snapshotDateFixture);
+    try {
+      if (window.DATA_SNAPSHOT) {
+        window.DATA_SNAPSHOT._fieldTs = Object.assign({}, snapshotDateOldFieldTs || {}, { macro_dgs2: '2026-09-20' });
+        window._serverMacroEvidence = window._serverMacroEvidence || {};
+        window._serverMacroEvidence.dgs2 = Object.assign({}, snapshotDateOldMacro || {}, { observedAt: '2026-09-20' });
+        window._aioRenderSnapshotDates();
+        var briefingStale = document.getElementById('t1206-archive-stale-days');
+        var tnxDate = document.querySelector('#page-fxbond [data-snap-date="tnx-2y"]') || document.querySelector('[data-snap-date="tnx-2y"]');
+        var tnxStale = document.getElementById('tnx-2y-stale-days');
+        var expectedBriefing = window._aioStaleDaysLabel('2026-04-17').text;
+        var expectedTnx = window._aioStaleDaysLabel('2026-09-20').text;
+        _assert('T1206 snapshot_date_item_binding: each stale-days sink uses its own date/as-of and missing sinks never fall back',
+          briefingStale && tnxDate && tnxStale
+            && briefingStale.textContent === expectedBriefing
+            && tnxDate.textContent.trim() === '2026-09-20'
+            && tnxStale.textContent === expectedTnx
+            && briefingStale.textContent !== tnxStale.textContent,
+          JSON.stringify({ briefing: briefingStale && briefingStale.textContent, tnxDate: tnxDate && tnxDate.textContent, tnx: tnxStale && tnxStale.textContent }));
+      }
+    } finally {
+      if (window.DATA_SNAPSHOT) window.DATA_SNAPSHOT._fieldTs = snapshotDateOldFieldTs;
+      if (window._serverMacroEvidence) window._serverMacroEvidence.dgs2 = snapshotDateOldMacro;
+      snapshotDateFixture.remove();
+      try { window._aioRenderSnapshotDates(); } catch (_) {}
+    }
+
     // T186: briefing "Week of May 4-10" section has data-aio-archive
     var briefingEls = document.querySelectorAll('#page-briefing [data-aio-archive="true"]');
     var hasWeekArchive = false;
@@ -5688,7 +5721,9 @@
       var csSrc2 = (typeof chatSend === 'function') ? String(chatSend) : (typeof window.chatSend === 'function' ? String(window.chatSend) : '');
       var badgeUpgradeOk = csSrc2.indexOf('웹검색 출처 기반') >= 0 && csSrc2.indexOf('출처 미확정') >= 0 && csSrc2.indexOf('_webCited') >= 0;
       var ccFn = (typeof callClaude === 'function') ? callClaude : (typeof window.callClaude === 'function' ? window.callClaude : null);
-      var citeCaptureOk = ccFn ? String(ccFn).indexOf('_aioLastClaudeCitations') >= 0 : false;
+      // P1245 (05 A05): 수집기는 공유 전역이 아니라 이 스트림이 시작할 때 받은 요청 id의 기록에 쓴다.
+      var ccSrc = ccFn ? String(ccFn) : '';
+      var citeCaptureOk = !!ccFn && ccSrc.indexOf('_aioAIRequestStream') >= 0 && ccSrc.indexOf('_streamRequestId') >= 0 && ccSrc.indexOf('_aioLastClaudeCitations') < 0;
       t774ok = renderOk && badgeUpgradeOk && citeCaptureOk;
       t774detail = 'render(claude+url)=' + renderOk + ' badgeUpgrade=' + badgeUpgradeOk + ' citeCapture=' + citeCaptureOk;
     } catch(e) { t774detail = 'err: ' + (e && e.message); }
@@ -6198,7 +6233,11 @@
       var hasTickerGate = /detectedTickers\.length\s*>\s*0\s*&&\s*\(_liveStatusCS/.test(csSrc809); // HARD STOP이 종목 지목 시에만
       var hasGeneralBranch = csSrc809.indexOf('일반·교육 질문 유연성 규칙') >= 0;
       var hasScreenerBranch = csSrc809.indexOf('스크리너 답변 규칙') >= 0;
-      var hasScreenerWire = csSrc809.indexOf('_aioRunScreenerQuery') >= 0 && csSrc809.indexOf('screenerStr') >= 0;
+      // P1239/E2 S-E: the chat no longer inlines the screener query; one helper owns it. The probe keeps
+      // proving the capability by checking the call site AND that the helper itself runs the query.
+      var hasScreenerWire = csSrc809.indexOf('_aioBuildScreenerAiContext') >= 0 && csSrc809.indexOf('screenerStr') >= 0
+        && typeof window._aioBuildScreenerAiContext === 'function'
+        && String(window._aioBuildScreenerAiContext).indexOf('_aioRunScreenerQuery') >= 0;
       t809ok = hasTickerGate && hasGeneralBranch && hasScreenerBranch && hasScreenerWire;
       t809detail = 'tickerGate=' + hasTickerGate + ' generalBranch=' + hasGeneralBranch + ' screenerBranch=' + hasScreenerBranch + ' screenerWire=' + hasScreenerWire;
     } catch(e) { t809detail = 'ERR:' + e.message; }
@@ -6637,7 +6676,10 @@
         maxSector825 <= 3 &&
         specific825 && specific825.mode !== 'diversified-recommendation' &&
         /균형 추천 후보/.test(prompt825) && /반복|분산|다양/.test(prompt825) &&
-        csSrc825.indexOf('_aioExtractRecentRecommendationTickers') >= 0 &&
+        // P1239/E2 S-E: recent-recommendation extraction moved into the shared screener helper.
+        csSrc825.indexOf('_aioBuildScreenerAiContext') >= 0 &&
+        typeof window._aioBuildScreenerAiContext === 'function' &&
+        String(window._aioBuildScreenerAiContext).indexOf('_aioExtractRecentRecommendationTickers') >= 0 &&
         csSrc825.indexOf('추천 다양성·반복 편향 방지 규칙') >= 0);
       t825detail = JSON.stringify({
         mode:broad825 && broad825.mode,
@@ -6647,7 +6689,7 @@
         maxSector:maxSector825,
         specificMode:specific825 && specific825.mode,
         promptOk:/균형 추천 후보/.test(prompt825),
-        chatWire:csSrc825.indexOf('_aioExtractRecentRecommendationTickers') >= 0
+        chatWire:csSrc825.indexOf('_aioBuildScreenerAiContext') >= 0
       });
     } catch(e) { t825detail = 'ERR:' + e.message; }
     _assert('T825 v5057_chat_recommendation_diversity: broad stock recommendations use diversified candidates and anti-repeat guard', t825ok, t825detail);
@@ -6949,7 +6991,10 @@
       var domAuditSrc833 = window.AIO && typeof window.AIO.assertChatPanelDomAudit === 'function' ? String(window.AIO.assertChatPanelDomAudit) : '';
       var hasUnifiedPipeline833 =
         unifiedSrc833.indexOf('_fetchTechnicalDataForChat') >= 0 &&
-        unifiedSrc833.indexOf('_aioRunScreenerQuery') >= 0 &&
+        // P1239/E2 S-E: the unified panel consumes the same shared screener helper.
+        unifiedSrc833.indexOf('_aioBuildScreenerAiContext') >= 0 &&
+        typeof window._aioBuildScreenerAiContext === 'function' &&
+        String(window._aioBuildScreenerAiContext).indexOf('_aioRunScreenerQuery') >= 0 &&
         unifiedSrc833.indexOf('_fetchDomainContextForChat') >= 0 &&
         unifiedSrc833.indexOf('_buildAioIntegratedAnswerContext') >= 0 &&
         unifiedSrc833.indexOf('_shouldUseClaudeWebSearch') >= 0;
@@ -8850,19 +8895,21 @@
       'AIO.getUsTreasuryCurveEvidence missing');
 
     if (window.AIO && typeof window.AIO.getUsTreasuryCurveEvidence === 'function') {
-      var oldLd = window._liveData, old2y = window._live2Y, oldFred = window._fredData;
+      var oldLd = window._liveData, old2y = window._live2Y, oldFred = window._fredData, oldTreasury = window._serverDataMeta && window._serverDataMeta.treasury;
       try {
+        window._serverDataMeta = window._serverDataMeta || {};
+        window._serverDataMeta.treasury = { observedAt: '2026-09-24', source: 'U.S. Treasury', cutId: 'us-treasury-daily:2026-09-24', values: { dgs2: 4.10, dgs5: 4.30, dgs10: 4.50, t10y2y: 0.40 } };
         window._live2Y = 4.10;
         window._fredData = {};
         window._liveData = {
           '^IRX': { price: 3.70 }, '^FVX': { price: 4.30 }, '^TNX': { price: 4.50 }, '^TYX': { price: 5.00 }
         };
         var curve = window.AIO.getUsTreasuryCurveEvidence();
-        _assert('T1025 treasury_curve_exact_2s10s: 2s10s uses observed 2Y and 10Y, never a synthetic 5Y proxy',
-          curve.complete === true && curve.twoY === 4.10 && curve.fiveY === 4.30 && curve.tenY === 4.50 && curve.spread2s10s === 0.40,
+        _assert('T1025 treasury_curve_exact_2s10s: 2s10s uses one observed Treasury cut and never a synthetic 5Y proxy',
+          curve.complete === true && curve.twoY === 4.10 && curve.fiveY === 4.30 && curve.tenY === 4.50 && curve.spread2s10s === 0.40 && curve.curve?.unit === 'percentage-point' && curve.curve?.comparable === true,
           JSON.stringify(curve));
       } finally {
-        window._liveData = oldLd; window._live2Y = old2y; window._fredData = oldFred;
+        window._liveData = oldLd; window._live2Y = old2y; window._fredData = oldFred; if (window._serverDataMeta) window._serverDataMeta.treasury = oldTreasury;
       }
     }
 
@@ -8882,10 +8929,14 @@
       !!techSrc && techSrc.indexOf('50 + (chg * 5)') < 0 && techSrc.indexOf("macdValue = macdHist !== null") >= 0 && techSrc.indexOf("'—'") >= 0,
       'updateTechIndicators synthesis contract');
 
-    var tickerChartSrc = typeof loadTickerChart === 'function' ? String(loadTickerChart) : '';
-    _assert('T1029 ticker_chart_no_random_history: missing price history cannot generate a random chart',
-      !!tickerChartSrc && tickerChartSrc.indexOf('Math.random') < 0 && tickerChartSrc.indexOf('합성 차트를 표시하지 않습니다') >= 0,
-      'loadTickerChart random=' + (tickerChartSrc.indexOf('Math.random') >= 0));
+    var tickerTabCount = document.querySelectorAll('#page-ticker [data-ticker-tab]').length;
+    var tickerRangeCount = document.querySelectorAll('#page-ticker [data-ticker-range]').length;
+    _assert('T1029 ticker_chart_native_tabs_and_ranges (P1205)',
+      tickerTabCount === 2 && tickerRangeCount === 4
+        && !document.querySelector('#page-ticker [data-action="switchTab"]')
+        && !document.querySelector('#page-ticker [data-action="loadTickerChart"]')
+        && typeof loadTickerChart !== 'function',
+      `tabs=${tickerTabCount}, ranges=${tickerRangeCount}, legacy=${typeof loadTickerChart}`);
 
     var rrgOldLd = window._liveData;
     try {

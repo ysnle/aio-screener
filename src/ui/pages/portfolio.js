@@ -250,10 +250,23 @@ function renderPortfolioTable(documentRef, page, state, surface) {
       tickerCell.appendChild(memo);
     }
     row.appendChild(tickerCell);
+    // LC-45: the table printed `$` for every row while the domain already declares each row's price
+    // and cost currency. Print the declared code instead, so a KRW/mixed row is not relabelled as USD.
+    const baseCurrency = String(surface?.baseCurrency || 'USD').trim().toUpperCase();
+    const priceCurrency = String(holding?.currency || '').trim().toUpperCase() || baseCurrency;
+    const costCurrency = String(holding?.costCurrency || holding?.currency || '').trim().toUpperCase() || baseCurrency;
+    const money = (amount, currency) => (amount == null
+      ? '—'
+      : `${currency === 'USD' ? '$' : `${currency} `}${Math.abs(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
     row.appendChild(tableCell(documentRef, 'pf-th-qty', shares == null ? '—' : String(shares), 'text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;'));
-    row.appendChild(tableCell(documentRef, 'pf-th-cost', avgCost == null ? '—' : `$${avgCost.toFixed(2)}`, 'text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;'));
-    row.appendChild(tableCell(documentRef, 'pf-th-price', price == null ? '—' : `$${price.toFixed(2)}`, 'text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;color:var(--text-primary);'));
-    const pnlCell = tableCell(documentRef, 'pf-th-pnl', pnl == null ? '—' : `${pnl >= 0 ? '+' : '-'}$${Math.abs(pnl).toLocaleString('en-US', { maximumFractionDigits: 0 })}`, 'text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;font-weight:700;');
+    const costCell = tableCell(documentRef, 'pf-th-cost', money(avgCost, costCurrency), 'text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;');
+    costCell.title = `원가 통화 ${holding?.costCurrency ? costCurrency : `${costCurrency}(추정)`}`;
+    row.appendChild(costCell);
+    const priceCellNode = tableCell(documentRef, 'pf-th-price', money(price, priceCurrency), 'text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;color:var(--text-primary);');
+    priceCellNode.title = `시세 통화 ${priceCurrency}`;
+    row.appendChild(priceCellNode);
+    const pnlCell = tableCell(documentRef, 'pf-th-pnl', pnl == null ? '—' : `${pnl >= 0 ? '+' : '-'}${money(Math.abs(pnl), baseCurrency)}`, 'text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;font-weight:700;');
+    if (pnl == null) pnlCell.title = '손익 보류 · 원가/시세 통화 불일치 또는 시세 미수신';
     pnlCell.style.color = pnl == null ? 'var(--text-muted)' : pnl >= 0 ? 'var(--green)' : 'var(--red)';
     row.appendChild(pnlCell);
     const pctCell = tableCell(documentRef, 'pf-th-pct', pnlPct == null ? '—' : `${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(1)}%`, 'text-align:center;padding:8px 6px;font-family:var(--font-mono);font-size:11px;font-weight:700;');

@@ -13,6 +13,23 @@ function finite(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
+// LC-33: `emptyReason` is a pipeline enum (`_aioNewsEmptyReason`), not user copy. The old empty
+// state interpolated the raw token (`all-news-outside-time-window`) into the sentence, which reads
+// as a bug to a user. Every known reason is translated to filter/period/count wording, and an
+// unknown token falls back to a generic sentence instead of leaking itself.
+const NEWS_EMPTY_REASON_COPY = Object.freeze({
+  'no-input-news': '수신된 뉴스가 없습니다.',
+  'all-news-outside-time-window': '선택한 조건의 완료 24h 창 안에 들어온 뉴스가 없습니다.',
+  'below-score-threshold-or-policy-excluded': '수신된 뉴스가 중요도·정책 기준을 통과하지 못했습니다.',
+  'filters-removed-all-eligible-news': '현재 필터 조합이 적격 뉴스를 모두 제외했습니다.',
+  'no-verified-current-news-for-surface-policy': '이 화면의 검증·현재성 기준을 통과한 뉴스가 없습니다.',
+  'native-model-unavailable': '뉴스 판정 모델을 사용할 수 없어 표시를 보류합니다.'
+});
+
+function describeNewsEmptyReason(reason) {
+  return NEWS_EMPTY_REASON_COPY[String(reason || '')] || '현재 조건에 맞는 뉴스가 없습니다.';
+}
+
 function isNewsAnalysisEligible(item) {
   if (!item || item.verificationStatus === 'unverified' || item.verificationStatus === 'secondary-only') return false;
   if (String(item.contentDepth || '').toLowerCase() === 'headline-only' || item.verificationStatus === 'headline-only') return false;
@@ -162,22 +179,45 @@ function createNewsCard(documentRef, root, item, index) {
   const headline = documentRef.createElement('div');
   headline.className = 'news-item-headline';
   if (Array.isArray(tickers)) tickers.slice(0, 4).forEach((ticker) => headline.appendChild(createTickerBadge(documentRef, ticker)));
-  headline.appendChild(text(documentRef, title, '제목 없음'));
+  // LC-34: the original article was reachable only through the card's `data-open-url` click
+  // delegation, so keyboard/AT users had no focusable link. The headline is now a real anchor
+  // (new tab, noopener); the card keeps its larger pointer target, and the delegation ignores the
+  // anchor so the URL cannot open twice.
+  if (link) {
+    const anchor = documentRef.createElement('a');
+    anchor.className = 'news-item-link';
+    anchor.href = link;
+    anchor.target = '_blank';
+    anchor.rel = 'noopener noreferrer';
+    anchor.textContent = title || '제목 없음';
+    anchor.setAttribute('aria-label', `${title || '제목 없음'} — 원문 새 창에서 열기`);
+    headline.appendChild(anchor);
+  } else {
+    headline.appendChild(text(documentRef, title, '제목 없음'));
+  }
   body.appendChild(headline);
+  const headlineOnly = String(item?.contentDepth || '').toLowerCase() === 'headline-only';
   if (summary) {
     const summaryNode = documentRef.createElement('div');
     summaryNode.className = 'news-item-summary';
-    summaryNode.textContent = summary;
+    // LC-32: a headline-only card has no article body, so a causal/benefit summary has no grounding.
+    // Withhold the claim and state the boundary instead of printing a conclusion above it.
+    summaryNode.textContent = headlineOnly
+      ? '요약 보류 — 헤드라인 전용(본문 미수신)이라 인과·수혜 요약을 게시하지 않습니다.'
+      : summary;
     body.appendChild(summaryNode);
   }
   const meta = documentRef.createElement('div');
   meta.className = 'news-item-meta';
   const source = item?._tgChannel ? `TG · ${item?.source || ''}` : item?.source || '';
   const score = finite(item?.score);
-  const contentBoundary = String(item?.contentDepth || '').toLowerCase() === 'headline-only'
-    ? '헤드라인 전용 · 단독 분석 근거 사용 금지'
-    : '';
-  meta.textContent = [item?.verificationStatus === 'unverified' ? '미검증' : '', contentBoundary, item?.sourceTierLabel || '', item?.flag || '', source, item?.topic || '', timeAgo, score == null ? '' : `선별 점수 ${score}`]
+  const contentBoundary = headlineOnly ? '헤드라인 전용 · 단독 분석 근거 사용 금지' : '';
+  // LC-31: a feed-query topic is not an article-level classification. Show the review flag instead of
+  // presenting the query's label as a verified sector assignment.
+  const topicLabel = item?.topicReviewRequired
+    ? `${item?.topic || 'general'}(피드 분류 · 검토 필요)`
+    : (item?.topic || '');
+  meta.textContent = [item?.verificationStatus === 'unverified' ? '미검증' : '', contentBoundary, item?.sourceTierLabel || '', item?.flag || '', source, topicLabel, timeAgo, score == null ? '' : `선별 점수 ${score}`]
     .filter(Boolean)
     .join(' · ');
   body.appendChild(meta);
@@ -197,12 +237,15 @@ function appendMarketNews(documentRef, root, container, model, status, visibleLi
     const empty = documentRef.createElement('div');
     empty.style.cssText = 'text-align:center;padding:30px;color:var(--text-muted);font-size:12px;line-height:1.7;';
     // P1164/B03: 창 밖에 남은 과거 수집분을 오늘 뉴스로 읽히게 두지 않는다.
+    // LC-32: 분류가 피드 query에서 복사된 경우, 0건은 '해당 주제 뉴스가 없다'가 아니라
+    // '이 필터가 피드 분류를 기준으로 걸러낸 결과'임을 함께 밝힌다.
+    const reviewFlagged = eligible.filter((item) => item?.topicReviewRequired).length;
     const outOfWindow = Number(model?.outOfWindowCount || 0);
     empty.textContent = status === 'unavailable'
       ? '뉴스 수신 대기 — 새로고침 후 검증된 뉴스가 표시됩니다.'
       : (model?.emptyReason === 'all-news-outside-time-window' && outOfWindow > 0
           ? `현재 조건에서 오늘(08:00 KST 완료 24h) 자료 미확보 · 이전 수집분 ${outOfWindow}건은 오늘 뉴스가 아닙니다.`
-          : `현재 조건에서 08:00 KST 완료 24h · 중요도 기준 뉴스가 없습니다. (${model?.emptyReason || 'no-eligible-news'})`);
+          : `현재 조건에서 08:00 KST 완료 24h · 중요도 기준 뉴스가 없습니다. ${describeNewsEmptyReason(model?.emptyReason)}${outOfWindow > 0 ? ` (창 밖 이전 수집분 ${outOfWindow}건 제외)` : ''}${reviewFlagged > 0 ? ` · 피드 분류로만 걸러진 항목 ${reviewFlagged}건은 기사별 검토가 필요합니다.` : ''}`);
     container.appendChild(empty);
   } else if (controls.typeTab === 'category') {
     const groups = new Map();
@@ -253,7 +296,7 @@ function appendBriefingNews(documentRef, root, container, model, status, windowI
       ? '뉴스 수신 대기 중입니다.'
       : (model?.emptyReason === 'all-news-outside-time-window' && briefingOutOfWindow > 0
           ? `오늘(08:00 KST 완료 24h) 자료 미확보 · 이전 수집분 ${briefingOutOfWindow}건은 오늘 뉴스가 아닙니다.`
-          : `08:00 KST 완료 24h 검증 뉴스가 없습니다. (${model?.emptyReason || 'no-briefing-news'})`);
+          : `08:00 KST 완료 24h 검증 뉴스가 없습니다. ${describeNewsEmptyReason(model?.emptyReason)}${briefingOutOfWindow > 0 ? ` (창 밖 이전 수집분 ${briefingOutOfWindow}건 제외)` : ''}`);
     container.appendChild(empty);
   } else {
     const groups = new Map();

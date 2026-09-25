@@ -1,8 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { OPERATIONS_STATUS, validateOperationsStatus } from '../src/data/contracts/operations.js';
-import { deriveDurableFreshness, deriveFredProviderStatus, derivePublicAiConfig, deriveRouteOwnership, reuseWorkerHealthEvidence } from './build-operations-status.mjs';
+import { OPERATIONS_STATUS, DOMAIN_RECEIPT_PUBLICATION_STATUS, createOperationsStatus, validateOperationsStatus } from '../src/data/contracts/operations.js';
+import { deriveDurableFreshness, deriveDomainStatus, deriveFredProviderStatus, derivePublicAiConfig, deriveRouteOwnership, reuseWorkerHealthEvidence } from './build-operations-status.mjs';
+import { buildDomainReceipt } from './lib/domain-receipt.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
@@ -127,4 +128,38 @@ for (const [input, expected] of fredStatusFixtures) {
 if (fredStatusFixtures.some(([input]) => deriveFredProviderStatus(input) === 'UNAVAILABLE')) throw new Error('[operations-status] the retired rights word leaked back into an operations status');
 const builderSource = read('scripts/build-operations-status.mjs');
 if (!/status: fredProviderStatus/.test(builderSource)) throw new Error('[operations-status] the FRED provider status must be derived, not written inline');
-console.log(JSON.stringify({ ok: true, overall: status.overall, durable: status.planes.durable.status, fast: status.planes.fast.status, blockers: status.blockers }));
+// P1256 (E5 O06 / 06 O06): 도메인 receipt 일반화 픽스처 — SEC 외 도메인도 전부 실패·일부 실패·
+// 미수집을 구분하고, 소비자는 "기존값 유지"를 "새 수집 성공"으로 말하지 않아야 한다.
+// 이 픽스처는 구 P1169의 SEC 전용 판정을 모든 도메인의 공통 계약으로 고정한다.
+const receiptAt = '2026-09-25T00:00:00.000Z';
+const receiptPrior = { lastSuccessfulObservation: '2026-09-24T00:00:00.000Z' };
+const receiptRows = (count, status) => Array.from({ length: count }, (unused, index) => ({ symbol: `S${index}`, status, attemptedAt: receiptAt }));
+const retainedReceipt = buildDomainReceipt({ domain: 'market-quotes', attemptedAt: receiptAt, priorReceipt: receiptPrior, eligible: 5, attempted: 5, updated: 0, stored: 5, failures: receiptRows(5, 'TRANSIENT_PROVIDER_FAILURE') });
+const partialReceipt = buildDomainReceipt({ domain: 'news', attemptedAt: receiptAt, priorReceipt: receiptPrior, eligible: 5, attempted: 5, updated: 3, stored: 5, failures: receiptRows(2, 'TRANSIENT_PROVIDER_FAILURE') });
+const successReceipt = buildDomainReceipt({ domain: 'macro-fred', attemptedAt: receiptAt, priorReceipt: receiptPrior, eligible: 5, attempted: 5, updated: 5, stored: 5, failures: [] });
+const idleReceipt = buildDomainReceipt({ domain: 'options-put-call', attemptedAt: receiptAt, priorReceipt: receiptPrior, eligible: 5, attempted: 0, updated: 0, stored: 5, failures: [] });
+const derived = deriveDomainStatus({ 'market-quotes': retainedReceipt, news: partialReceipt, 'macro-fred': successReceipt, 'options-put-call': idleReceipt });
+if (derived['market-quotes'].publicationStatus !== 'NO_REFRESH_RETAINED') throw new Error(`[operations-status] a total-failure domain must not read as success: ${derived['market-quotes'].publicationStatus}`);
+if (!derived['market-quotes'].userCopy.includes('기존값 유지') || derived['market-quotes'].userCopy.includes('새 수집 성공')) throw new Error('[operations-status] retained values must not be described as a fresh collection success');
+if (derived['market-quotes'].lastSuccessfulObservation !== receiptPrior.lastSuccessfulObservation) throw new Error('[operations-status] lastSuccessfulObservation advanced without a single update');
+if (derived.news.publicationStatus !== 'PARTIAL' || !derived.news.userCopy.includes('일부만 갱신')) throw new Error('[operations-status] a partial domain must say which part stayed at the previous value');
+if (derived['macro-fred'].publicationStatus !== 'SUCCESS' || !derived['macro-fred'].userCopy.includes('새 수집 성공')) throw new Error('[operations-status] a fully updated domain must read as a fresh collection success');
+if (derived['macro-fred'].lastSuccessfulObservation !== receiptAt) throw new Error('[operations-status] an updating batch must advance lastSuccessfulObservation');
+if (derived['options-put-call'].publicationStatus !== 'NOT_ATTEMPTED' || !derived['options-put-call'].userCopy.includes('미수집')) throw new Error('[operations-status] a domain with nothing due is not a collection result');
+for (const entry of Object.values(derived)) {
+  if (!DOMAIN_RECEIPT_PUBLICATION_STATUS.includes(entry.publicationStatus)) throw new Error(`[operations-status] domain receipt status outside the declared vocabulary: ${entry.publicationStatus}`);
+}
+const withReceipts = createOperationsStatus({
+  generatedAt: new Date().toISOString(),
+  appRevision: 'test', dataRevision: 'test', evidenceRevision: 'test',
+  overall: 'BLOCKED',
+  planes: { durable: { status: 'BLOCKED' }, fast: { status: 'OPERATOR_REQUIRED' } },
+  providers: { fred: { status: 'OPERATOR_REQUIRED' } },
+  reconciliation: { categoryCount: 22 },
+  domainReceipts: derived
+});
+const receiptValidation = validateOperationsStatus(withReceipts);
+if (!receiptValidation.ok) throw new Error(`[operations-status] domain receipt surface failed contract validation: ${receiptValidation.errors.join(',')}`);
+if (!withReceipts.domainReceipts['market-quotes'] || withReceipts.domainReceipts['market-quotes'].publicationStatus !== 'NO_REFRESH_RETAINED') throw new Error('[operations-status] the domain receipt surface must survive contract normalization');
+
+console.log(JSON.stringify({ ok: true, overall: status.overall, durable: status.planes.durable.status, fast: status.planes.fast.status, blockers: status.blockers, domainReceiptFixtures: 4 }));

@@ -5,7 +5,7 @@ import { evaluateQuestionActionPermission } from '../policy/suitability.js';
 import { createCapabilityPlan } from './capability-planner.js';
 import { createResearchDecision } from '../research/decision.js';
 import { createResearchPlan } from '../research/plan.js';
-import { classifyAIConduct } from '../policy/conduct.js';
+import { classifyAIRequest } from '../policy/conduct.js';
 import { createQuestionPremise } from './premise.js';
 import { buildNathanAnalysisContext } from '../../domain/knowledge/nathan-framework-pack.js';
 
@@ -86,7 +86,8 @@ export function createQuestionPlan({ query = '', route = null, now = new Date(),
     // personalize an account. Suitability is required only for the explicit
     // personalized/executable action mode classified by the intent SSOT.
     suitabilityRequired: intent.personalizedActionRequested,
-    conductPlan: classifyAIConduct({ query: normalized }),
+    // E6/A06: a plan is built before any answer exists, so it consumes the request surface only.
+    conductPlan: classifyAIRequest({ query: normalized }),
     actionPermission: evaluateQuestionActionPermission({ questionPlan: intent, suitabilityProfile: null, evidenceComplete: false }),
     clarificationQuestions: Object.freeze(entities.ambiguous ? ['어느 시장의 어떤 종목/ETF를 말하는지 티커 또는 거래소를 알려주세요.'] : []),
     sessionEvidence,

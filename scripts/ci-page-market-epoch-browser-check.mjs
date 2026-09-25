@@ -3,6 +3,10 @@ import { spawn } from 'node:child_process';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
+// P1207 follow-through: the expected page/field-check counts are derived from the timeline
+// contract instead of being hardcoded. P1207 added `market.^SKEW` to the sentiment page, which
+// moved the total from 48 to 49 while this gate still asserted the old literal.
+import { PAGE_DATA_TIMELINE_CONTRACTS } from '../src/data/contracts/page-timeline.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.AIO_MARKET_EPOCH_TEST_PORT || 8907);
@@ -90,12 +94,14 @@ try {
   if (runtimeErrors.length) throw new Error(`runtime errors: ${runtimeErrors.join(' | ')}`);
   if (report.audit.sharedRevisionCount !== 1) throw new Error(`shared revision count=${report.audit.sharedRevisionCount}`);
   if (report.audit.mismatchedPages.length) throw new Error(`DOM epoch mismatch: ${report.audit.mismatchedPages.join(',')}`);
-  if (!report.fieldTimeline || report.fieldTimeline.pageCount !== 16 || report.fieldTimeline.fieldCheckCount !== 48) {
-    throw new Error(`field timeline coverage mismatch: ${JSON.stringify(report.fieldTimeline)}`);
+  const expectedPageCount = Object.keys(PAGE_DATA_TIMELINE_CONTRACTS).length;
+  const expectedFieldChecks = Object.values(PAGE_DATA_TIMELINE_CONTRACTS).reduce((total, requirements) => total + requirements.length, 0);
+  if (!report.fieldTimeline || report.fieldTimeline.pageCount !== expectedPageCount || report.fieldTimeline.fieldCheckCount !== expectedFieldChecks) {
+    throw new Error(`field timeline coverage mismatch (expected ${expectedPageCount}/${expectedFieldChecks}): ${JSON.stringify(report.fieldTimeline)}`);
   }
   const screenerTimeline = report.fieldTimeline.rows.find((row) => row.pageId === 'screener');
   const screenerRequiredFailures = (screenerTimeline?.checks || []).filter((check) => check.required && check.status !== 'PASS');
-  if (!screenerTimeline || screenerTimeline.checks.length !== 6 || screenerRequiredFailures.length) {
+  if (!screenerTimeline || screenerTimeline.checks.length !== PAGE_DATA_TIMELINE_CONTRACTS.screener.length || screenerRequiredFailures.length) {
     throw new Error(`quant screener timeline mismatch: ${JSON.stringify(screenerTimeline)}`);
   }
   const invalidFieldChecks = report.fieldTimeline.rows.flatMap((row) => row.checks

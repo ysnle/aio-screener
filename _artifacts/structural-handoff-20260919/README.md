@@ -6,6 +6,8 @@
 
 ## 이 자료를 사용하는 방법
 
+**2026-09-25 최신 읽기 경로:** [33 새 SHA 20개 라우트 재점검](33-NEW-SHA-20-ROUTE-LIVE-RECHECK-20260925.md) → [32 사용자 링크·차트·뉴스·검증 구조](32-EXTERNAL-REFERENCES-CHART-NEWS-AND-TEST-DESIGN-20260925.md) → [31 Principles·Masters 본문/SEC 감사](31-PRINCIPLES-MASTERS-LIVE-CONTENT-AND-SEC-AUDIT-20260925.md) → [30 Atlas·Guide·포트폴리오 심층 감사](30-ATLAS-GUIDE-PORTFOLIO-LIVE-DEPTH-AUDIT-20260925.md) → [29 2차 라이브 콘텐츠 감사](29-SECOND-PASS-LIVE-CONTENT-AUDIT-20260925.md) → [28 페이지별 사용자 감사](28-PAGE-BY-PAGE-LIVE-USER-AUDIT-20260924.md) → [25 발견 상태](25-CURRENT-FINDING-STATUS-CROSSWALK.md) → [26 실행·인수](26-EXECUTION-AND-ACCEPTANCE-PLAN.md) 순으로 읽는다. 원격 `v56.33`은 **두 sourceSha**에서 관찰됐고 로컬 working tree는 별개다. 열람 수와 의미·원문·사용자 인수를 혼동하지 않는다. 이 증분은 핸드오프 문서만 작성하며 제품 코드·설정·데이터를 수정하거나 커밋·배포하지 않는다.
+
 **2026-09-24 실브라우저 재점검:** [27 라이브·로컬·코드 의미 정합성 감사](27-LIVE-LOCAL-CODE-SEMANTIC-AUDIT-20260924.md)는 배포 v56.15와 로컬 v56.21→v56.23의 20개 라우트 방문, 대표 상호작용, 코드·데이터 계약을 대조한 추가 증거다. LC-01~16의 확정 결함·설계 후보·미검증을 구분하며, 기존 25/26의 현행 상태를 자동 대체하지 않는다. 구현 전에는 27의 재현·인수 조건을 25의 상태 원장과 26의 E0–E7 작업 카드에 연결한다.
 
 **지금 구현 계획을 세울 때:** [25 v56.15 발견 상태 교차표](25-CURRENT-FINDING-STATUS-CROSSWALK.md)에서 역사 반증 차단·부분 구현·열린 구조 과제를 먼저 분리하고, [26 실행·인수 설계](26-EXECUTION-AND-ACCEPTANCE-PLAN.md)의 선행 결정과 E0–E7 카드를 따른다. [24 독립 재검토](24-INDEPENDENT-STRUCTURAL-REVIEW-20260923.md)는 9/23 기준 추가 발견의 원래 감사 기록이다. 19는 제품·구조 선택 근거, 20은 전체 범위와 미검수 대장이다. 25/26은 00–23의 사실을 전수 인증하거나 제품 구현을 완료했다는 선언이 아니다.
@@ -55,9 +57,15 @@
 | [22](22-PORTFOLIO-PERFORMANCE-RISK-REDESIGN.md) | 성과·현재 구성 소급·위험의 도메인 분리 | 초기 발견+v56.15 보강; PFR06만 제한적 차단 | 23의 배분 정의 및 25 상태와 함께 읽기 |
 | [23](23-CURRENT-BASELINE-AND-ALLOCATION-CONTRACT.md) | v56.15 재검증, 명시 0/부분 배분 | native 합성 입력·정적 경로; 구현 아님 | AllocationSnapshot·누락 멤버·valuation cut 인수 |
 | [24](24-INDEPENDENT-STRUCTURAL-REVIEW-20260923.md) | 독립 감사의 신규 공백·증거 한계 | 현재 코드 대조·일부 순수 합성; 역사 감사 기록 | 상세 보강은 각 패키지·25/26 참조 |
-| [25](25-CURRENT-FINDING-STATUS-CROSSWALK.md) | finding별 현재성·P/QA 연결 | v56.15 상태 색인; 구현 전 재검증 필요 | 중복 구현과 미해결 누락 방지 |
-| [26](26-EXECUTION-AND-ACCEPTANCE-PLAN.md) | 객체 계약·우선순위·작업 카드·복구·증거·사용자 인수 | 9/23 통합 설계; 기능 구현·live 인증 아님 | E0→필수 선행→수직 과업→독립 증거 |
+| [25](25-CURRENT-FINDING-STATUS-CROSSWALK.md) | finding별 현재성·P/QA 연결 | v56.15 역사 색인 + 9/25 LC 후속 상태; 구현 전 재검증 필요 | 중복 구현과 미해결 누락 방지 |
+| [26](26-EXECUTION-AND-ACCEPTANCE-PLAN.md) | 객체 계약·우선순위·작업 카드·복구·증거·사용자 인수 | 9/23 통합 설계 + 9/25 C1~C7 추가; 기능 구현·live 인증 아님 | E0→필수 선행→수직 과업→옛 경로 삭제·독립 증거 |
 | [27](27-LIVE-LOCAL-CODE-SEMANTIC-AUDIT-20260924.md) | 20개 라우트의 live/local/코드 대조, 의미 결함·인수 경계 | 9/24 브라우저 표본과 코드 감사; 전체 기능·외부 사실 인증 아님 | LC-01~16을 25 상태·26 실행 카드와 연결 |
+| [28](28-PAGE-BY-PAGE-LIVE-USER-AUDIT-20260924.md) | 20 route의 사용자 관점·콘텐츠 흐름·좁은 화면 감사 | 실제 화면과 코드 대조, 상태별 열린 범위 명시 | UX 과업과 원문/양성 흐름의 미검증 보존 |
+| [29](29-SECOND-PASS-LIVE-CONTENT-AUDIT-20260925.md) | Screener·뉴스·기술·Principles·Masters 2차 라이브 본문 대조 | 이전 원격 SHA의 조작·문장 검수, LC-54~73 | 현재 배포 SHA 차이를 재검증 |
+| [30](30-ATLAS-GUIDE-PORTFOLIO-LIVE-DEPTH-AUDIT-20260925.md) | Atlas 55배치·95산업노드, Guide 전체 문장, 포트폴리오 공개 경계 | 이전 원격 SHA의 렌더/조작, LC-74~82 | 원전 직접성·PIN/양성 계좌·다른 폭 인수 |
+| [31](31-PRINCIPLES-MASTERS-LIVE-CONTENT-AND-SEC-AUDIT-20260925.md) | Principles 112확장 원고, Masters SEC 행/값/단위·투영 범위 | 새 원격 SHA의 전수 열람/대표 SEC 대사, LC-83~85 | 개별 원전·37기관 원행 전수와 사용자 이해도 |
+| [32](32-EXTERNAL-REFERENCES-CHART-NEWS-AND-TEST-DESIGN-20260925.md) | 사용자 X/웹 링크·9이미지의 출처 경계와 차트·뉴스·환경/테스트 통합 | 외부 설계 참고, 이미지 정적 분석, LC-86~90 | 시장 사실·패턴 성능·전체 답글·외부 전문 별도 검증 |
+| [33](33-NEW-SHA-20-ROUTE-LIVE-RECHECK-20260925.md) | 새 sourceSha의 20개 route 대표 화면·동선, LC-91~95 | Chrome 1920/1280 폭 대표 확인; 상세 조합·원전·실사용자는 미인수 | QQQ 결과 정체성, rank/뉴스/SEC/RRG 상태를 25/26에 연결 |
 
 개별 함수 상태와 미검수 영역은 [검수 대장](FUNCTION-REVIEW.md)을 따른다. 패키지 작성은 해당 영역 전수 검수 완료를 뜻하지 않는다. 구현 시작 전에 해당 발견이 현재 트리에 남았는지 재검증한다.
 
@@ -65,7 +73,7 @@
 
 우선순위는 **수집 시점·단위·계산 기준의 정확성과 사용자에게 보이는 의미를 연결하는 것**이다. 입력 계약→순수 계산→결과/설명→화면/AI의 순서로 소유권을 정리한다. 함수가 돌아가도 사용자가 기준·비교대상·결측·결과 이유를 알 수 없으면 완료가 아니다. 파일 크기 감소와 native 모듈 수 증가는 결과 지표이며 그 자체로 완료 조건이 아니다.
 
-읽기 순서: 25 현재성 → 26 실행 카드 → 19 선택 근거·20 범위 → 대상 패키지와 해당 재검증·원시 증거다. 금융 계산은 07/09/11/22/23, 데이터 계약은 03/15/17/18, 사용자 동선은 12/21을 교차 확인한다. 모든 영역을 한 변경으로 개편하지 않고 각 패키지의 작은 인수 단위로 진행한다.
+구현 전에는 최신 32→31→30→29→28의 해당 증거와 25 현재성 → 26 실행 카드를 함께 읽고, 19 선택 근거·20 범위를 참조한다. 금융 계산은 07/09/11/22/23, 데이터 계약은 03/15/17/18, 사용자 동선은 12/21을 교차 확인한다. 모든 영역을 한 변경으로 개편하지 않고 각 패키지의 작은 인수 단위로 진행한다.
 
 기존 `src/domain`, state slice, provider/normalizer/orchestrator, resource bag, evidence store는 재사용 가능성을 평가한다. 제품 목적과 요구 계약을 충족하지 못하면 구조와 저장·발행 경계를 교체한다. 보존이나 전면 재작성 어느 쪽도 미리 전제하지 않는다. 작업 패키지마다 현재 writer, 최종 owner, 폐기할 경로, migration/rollback과 검증할 사용자 동선을 명시한다. 최신 상위 판단 기준은 16을 따른다.
 
@@ -89,6 +97,27 @@
 - 커밋·푸시·배포는 별도 명시 요청이 있어야 한다.
 
 ## 진행 기록
+
+### 2026-09-25 E7 잔여 배치 — 감사 3종 확정 결함 클러스터 + 큐 3종 종료 (P1248~P1258, v56.48, 로컬 미커밋 · 중간 기록)
+
+이 배치는 E7의 "남은 의미 범위" 조사(감사 3건 병렬 위임: 기업행동/조정가격 · 백테스트·위험 · 차트기법/옵션)에서 확정된 결함을 클러스터로 수정하고, 큐의 셸 위험 입력 분해·테마 숨김 섹션·E5 O06 receipt를 닫았다. 같은 배치 안에서 **게이트 정리**(P1258 계약 이관·조립 fixture·decomp ratchet)와 **QA-FX-SERIES**(P1259 기준 통화 수익률)까지 마무리했다(v56.48→v56.49). 커밋·푸시·배포는 하지 않았다.
+
+- **감사 결함 8클러스터(P1248~P1255)**: 용어 사전 금융 정의 정정(ITM/OTM·NBER·headline PCE·CLI·OAS·다크풀·거래세 + 미검증 확률 격하 + 중복 2쌍·분류 파생) / 캔들 패턴 "형태 관측" 제한 + Guide 척도·행동 문구 분리 / SKEW 변화량 단일 read model(보류된 본값 옆 pct 제거) / 스크리너 실행-표시 분리·무효 입력 명시 거부·시총 빈상태 분리 / 백테스트·집중도 12건(비용 미상 조용 제외= PFR08 우회, 원가 분모 혼합 등) / 차트 기법 9건(죽은 다이버전스 감지기 통일·이중 모델명 분리) / 조정가격 혼합 D1~D5(raw·조정 계열 분리, basis 선언 소실 복구) / 테마 칩 `detailAvailability`.
+- **큐 3종**: ① **셸 위험 입력 조립 분해(P1258)** — `src/ui/panels/portfolio-risk-input.js`로 조립을 옮기고 셸은 증거 수집·문구만 유지(`aio-workspace.js` −51행). ② **테마 숨김 섹션(P1257, QA-THM-35 결정 종료)** — 퇴역(시장 리더십·20일 추이·히트맵·대표 ETF) / **공개 이전**(경기 사이클 리드 판정 — T806 재배치 계약, 섹터 퍼포먼스 — 아키텍처 네이티브 계약) / **개발자 번들 이전**(세분화 45·한국 28테마 — P702 고급 토글, 계약 DOM 보존). 일괄 숨김 규칙 제거 + 결정 기록 + 공개 문구=실제 노출. ③ **E5 O06 도메인 receipt(P1256, QA-E5-RECEIPT 종료)** — `scripts/lib/domain-receipt.mjs` 정본화, fetch-data 8도메인 receipt 발행, 운영 상태 소비 + "기존값 유지 ≠ 새 수집 성공" 사용자 복구 설명.
+- **과정의 실측**: 테마 섹션 삭제 직후 `ci-headless-tests`가 **12건 실패**로 계약된 소비자(T806/T824/T869/T1018/T642·T178 등)를 즉시 드러냈다 — "숨김=미결정 보관"이 아니라 계약된 표면이었다는 근거로, 분류 결정(공개/개발자/퇴역)에 반영했다. 잔여 4건(고아 data-snap sink)은 `skew-pct`를 R97 시드 alias(`→skewChg`)로 선언해 해소했다.
+- **검증(이 시점)**: `ci-headless-tests`(예상 밖 실패 0)·`ci-runtime-contract-check`·`ci-architecture-contract-check`·`ci-operations-status-check`(도메인 receipt 픽스처 4종)·`ci-sec-runtime-projection-check`(SEC 픽스처 5종)·`ci-syntax-check`(411) PASS.
+- **미검증·잔여**: ① ~~게이트 정리~~ **종료** — esm-core 셸 소스 계약 6건을 코드의 새 소유자로 갱신 + 조립 fixture(P1258) + FX fixture(P1259), decomp ratchet `--write --allow-growth`(전체 순 −48), affected 풀런 **pass 79 / cached 7 / skip 31** ② ~~QA-FX-SERIES~~ **종료(P1259)** — 기준 통화 수익률(월말 FX 정렬)을 현지 통화 결과와 라벨·수치가 다른 별도 결과로 발행 ③ `history.json:usdkrw` 실값은 다음 정식 refresh(`QA-FX-REFRESH`) — 그 전까지 기준 통화 결과는 정직하게 보류, 남은 fail 1건도 같은 데이터 노후(환경 `data-lineage`) ④ P1257 residual: 퇴역 섹션의 legacy writer·CSS 잔재(`QA-THM-CLEANUP` — 선언 전용 함수는 structural 게이트가 이미 차단) ⑤ P1248 residual: 용어집 나머지 역사 수치 전수 대조(`QA-GLOSSARY-SWEEP`).
+
+### 2026-09-25 구현 배치 — E6 A05 요청 결속 종료 + FX 축 선행 해소 + 백테스트 통화축 (P1245~P1247, v56.45→v56.47, 로컬 미커밋)
+
+이 배치는 26의 카드를 바꾸지 않고 세 가지를 실제로 닫았다. 커밋·푸시·배포는 하지 않았다.
+
+- **E6 A05 종료(P1245)**: 인용·연구 tool 오류가 단일 전역에 저장되고 그 전역을 **응답 파이프라인이 쓰고 수집기가 읽어**, 겹친 두 요청(per-page + unified, 재시도)에서 서로의 인용을 지우고 다른 질문의 출처가 이 답변의 검증된 근거로 승격될 수 있었다. `requestId` 스코프 저장소로 대체하고 공유 전역 3종을 제거했다. **게이트 결정 기록**: P1172 assertion이 `requestId: window._aioActiveAIRequestId || null` **리터럴**을 요구해 그 요구와 모순되는 구현을 보증하고 있었으므로, 리터럴을 의미·행동(겹친 두 스트림 비혼입 VM 실행 + 사전 소스 음성 검증) 기준으로 교체했다. 실공급자 trace는 `QA-AI-A05-STREAM`으로 미검증 등록.
+- **FX 축 선행 조건 해소(P1246)**: `HIST_SYMBOLS`에 `KRW=X→usdkrw`가 없어 `history.json`이 FX 이력을 생산하지 못하던 것을 기존 Yahoo chart producer 경로(1년 백필 + 일별 완료 컷)로 해소했다. 품질 경계는 `HIST_FIELD_PLAUSIBILITY` 한 곳에서 선언하고 producer와 게이트가 같은 맵을 쓴다(종전에는 게이트가 별도 리터럴을 들고 있었다). 공식 대조는 FRED **DEXKOUS**(연준 H.10, 키 없는 fredgraph.csv)를 `providerCrossChecks.fx`로 발행한다. **실측이 설계를 고쳤다**: DEXKOUS가 7일 지연되어 최신값끼리 비교하면 정상 계열이 2.09% `divergent`로 오표기됐을 것이고, **같은 시점 정렬**로 바꾼 뒤 실제로는 0.61% 일치(`ok`)였다(Yahoo 봉이 공식 관측일보다 하루 앞으로 스탬프되는 것도 실측 확인).
+- **백테스트 통화축 배선(P1247)**: 랩이 `qty × 시작가`를 통화 구분 없이 더해 비중 분모를 만들던 것을 평가 경로와 같은 `fx.js` `convertWithDeclaredRates` 계약으로 환산하거나 보류하도록 바꿨다. 명시 목표비중은 단위 없는 비율이므로 막지 않는다(첫 구현의 과차단을 새 픽스처가 잡아냈다). 수익률은 현지 통화 가중이며 `returnCurrencyBasis`·`fxTranslation`과 경고로 공시한다. reconciliation `commodities-fx`에 FX 일별 이력·공식 대조 evidence를 추가했다(카테고리·`overall`은 `PARTIAL` 불변 — 증거만 정직해졌다).
+- **검증**: `ci-ai-intelligence-contract-check`·`ci-ai-provider-stream-check`·`ci-headless-tests`(1145/1145)·`ci-runtime-contract-check`·`ci-esm-core-unit-check`(P1247 픽스처 6종)·`ci-history-field-time-contract-check`(FX 계약 6종)·`ci-reconciliation-contract-check`·`ci-operations-status-check`·`ci-data-pipeline-contract-check`·`ci-retirement-contract`·`ci-domain-parity-check`·`ci-syntax-check`(409)·`ci-decomp-hotspot-check`·workspace/knowledge-lint/ledger/assertion-trace/version PASS. 실측 프로브로 두 공급자에 실제 접속해 파싱·경계·정렬·판정을 확인했다.
+- **미검증으로 남긴 것**: ① `history.json:usdkrw`·`providerCrossChecks.fx` **실값은 다음 정식 refresh에서** 채워진다(`QA-FX-REFRESH`) ② 기준 통화 수익률(FX 시계열 월말 정렬)은 미구현(`QA-FX-SERIES`) ③ 데이터 노후로 affected 브라우저 그룹 31개가 skip, `ci-data-lineage-audit`가 `data.json`(live-core) SLA 초과로 1건 실패(환경 조건, 이 배치와 무관) ④ E6 A01~A04 미착수.
+- **분해 예산**: `js/aio-chat.js` +64·`js/aio-core.js` +3·`js/aio-tests.js` +2·`js/aio-workspace.js` +4를 `--write --allow-growth`로 기록·정당화했다(중복 구현이 아니라 공유 싱글턴 대체·새 소유권·도메인 위임이며, R620이 게이밍으로 규정한 "주석 압축"을 쓰지 않았다).
 
 ### 2026-09-24 구현 배치 — E0~E4 종료 (P1188~P1203, v56.16→v56.32)
 

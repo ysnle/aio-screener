@@ -2,6 +2,8 @@ import { readFile, rename, writeFile } from 'node:fs/promises';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { createOperationsStatus, validateOperationsStatus } from '../src/data/contracts/operations.js';
 
+import { describeDomainReceipt } from './lib/domain-receipt.mjs';
+
 export const OPERATIONS_STATUS_OUT = new URL('../public-data/operations-status.json', import.meta.url);
 const ROUTE_OWNERS_PATH = new URL('../architecture/route-owners.json', import.meta.url);
 const SEC_FUNDAMENTALS_PATH = new URL('../public-data/sec-fundamentals.json', import.meta.url);
@@ -217,6 +219,27 @@ async function syncPublicAiConfig({ appRevision, workerEndpoint, proxyHealthy, p
  * ci-refresh-artifact-integrity-check explicitly allows. An operator must
  * configure a missing key; a configured provider that did not fetch is BLOCKED.
  */
+// P1256 (E5 O06 / 06 O06): 도메인 receipt 소비 — "새 수집 성공"과 "기존값 유지"를 같은 성공으로
+// 말하지 않는다. 사용자 복구 설명은 내부 runId 대신 기능 수준 언어로 바꿔 발행한다(O05의 축).
+export function deriveDomainStatus(domainReceipts = null) {
+  const entries = domainReceipts && typeof domainReceipts === 'object' ? domainReceipts : {};
+  return Object.fromEntries(Object.entries(entries).map(([domain, receipt]) => {
+    const described = describeDomainReceipt(receipt);
+    const counts = receipt && receipt.counts && typeof receipt.counts === 'object' ? receipt.counts : {};
+    return [domain, {
+      publicationStatus: described.publicationStatus,
+      userCopy: described.userCopy,
+      lastSuccessfulObservation: described.lastSuccessfulObservation,
+      counts: {
+        eligible: Number(counts.eligible) || 0,
+        attempted: Number(counts.attempted) || 0,
+        updated: Number(counts.updated) || 0,
+        retained: Number(counts.retained) || 0
+      }
+    }];
+  }));
+}
+
 export function deriveFredProviderStatus({ fetchOk, keyPresent } = {}) {
   if (fetchOk === true) return 'CURRENT';
   return keyPresent === true ? 'BLOCKED' : 'OPERATOR_REQUIRED';
@@ -501,6 +524,8 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
         sources: ['browser']
       }
     },
+    // P1256: 도메인 receipt의 사용자 복구 설명 — "새 수집 성공"과 "기존값 유지 중"이 여기서 갈린다.
+    domainReceipts: deriveDomainStatus(data?.meta?.domainReceipts),
     planes: {
       durable: {
         status: durableOk ? 'CURRENT' : 'BLOCKED', statusCode: deriveOperationalState({ configured: true, healthy: durableOk }), source: 'github-actions', lastSuccessfulAt: snapshot.lastSuccessfulAt || null, coverage,

@@ -249,6 +249,33 @@ function renderSentiment(documentRef, state, evidenceStore, chartFactory, charts
   setText(documentRef, 'vix-live-label', getEvidence('vix')?.allowedUse === 'decision' ? '현재 관측' : '참고값');
   setMetric(documentRef, '[data-live-price="^VIX3M"]', sentiment.vix3m, getEvidence('vix3m'));
   setMetric(documentRef, '[data-live-price="^VIX6M"]', sentiment.vix6m, getEvidence('vix6m'));
+  const skew = sentiment.skew || {};
+  const skewValue = setText(documentRef, 'sent-skew-value', formatNumber(skew.value, 2));
+  const skewMeta = setText(documentRef, 'sent-skew-meta', finite(skew.value) == null
+    ? '현재 원천 미수신 · 판정 보류'
+    : `${String(skew.observedAt || '관측일 미확인').replace('T', ' ').replace(/\.000Z$|Z$/, ' UTC')} · ${skew.source || '출처 미확인'} · 참고용`);
+  // LC-63: 변화량도 본값과 같은 read model에서 나온다 — 본값/비교값 어느 하나가 부적격이면
+  // 변화량도 함께 보류한다(별도 legacy quote sink가 결측 옆에 변화량을 남기던 경로 퇴역).
+  const skewChange = setText(documentRef, 'sent-skew-change',
+    finite(skew.value) == null
+      ? '변화량 보류 — 본값 미수신'
+      : skew.directionValue == null
+        ? `변화량 보류 — ${skew.directionReason === 'quote-change-missing' ? '비교값 미수신' : '비교 근거 미확인'}`
+        : skew.directionCompatible === false
+          ? '변화량 보류 — 비교 기준 미상'
+          : `전일 대비 ${skew.directionValue >= 0 ? '+' : ''}${formatNumber(skew.directionValue, 2)}%`);
+  [skewValue, skewMeta, skewChange].forEach((element) => {
+    if (!element) return;
+    element.dataset.aioSentimentSkewRenderer = 'native';
+    element.setAttribute('data-metric-id', skew.metricId || 'market.volatility.skew');
+    element.setAttribute('data-instrument-id', skew.instrumentId || '^SKEW');
+    element.setAttribute('data-unit', skew.unit || 'index');
+    element.setAttribute('data-observed-at', skew.observedAt || '');
+    element.setAttribute('data-revision', skew.revisionId || '');
+    element.setAttribute('data-source-kind', skew.sourceKind || 'unavailable');
+    element.setAttribute('data-source-label', skew.source || 'unavailable');
+    element.setAttribute('data-operational-use', 'reference-only');
+  });
   if (vixElement) annotate(vixElement, getEvidence('vix'));
   setText(documentRef, 'vix-term-regime-text', summary.vixTermStructure.regime);
   const regime = documentRef?.getElementById('vix-term-regime');

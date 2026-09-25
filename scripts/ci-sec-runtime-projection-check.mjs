@@ -76,8 +76,14 @@ if (publishedLedger.ledger.total !== (source.failures || []).length) fail('recei
 if (publishedLedger.ledger.terminalUnsupported + publishedLedger.ledger.transientFailed + publishedLedger.ledger.legacyUnknown !== publishedLedger.ledger.total) fail('every published ledger row must fall into exactly one receipt class');
 
 // 배선: 생산자가 receipt를 발행하고 projection이 소비자에게 넘긴다.
+// P1256: 계약의 정본 구현은 scripts/lib/domain-receipt.mjs로 이전했다 — 본체 토큰은 정본에서,
+// SEC 발행 배선 토큰은 생산자 소스에서 검사한다.
+const receiptImplSource = read('scripts/lib/domain-receipt.mjs');
+for (const token of ['buildDomainReceipt', 'lastSuccessfulObservation', 'NO_REFRESH_RETAINED', 'legacyUnknown', 'generatedAtIsNotFreshness']) {
+  if (!receiptImplSource.includes(token)) fail(`the canonical domain-receipt builder must keep its contract (${token} missing)`);
+}
 const producerSource = read('scripts/fetch-sec-fundamentals.mjs');
-for (const token of ['buildDomainReceipt', 'domainReceipt:', 'lastSuccessfulObservation', 'NO_REFRESH_RETAINED', 'legacyUnknown', 'generatedAtIsNotFreshness']) {
+for (const token of ['buildDomainReceipt', 'domainReceipt:']) {
   if (!producerSource.includes(token)) fail(`the SEC producer must publish the domain receipt (${token} missing)`);
 }
 if (!read('scripts/build-sec-runtime-projection.mjs').includes('domainReceipt')) fail('the runtime projection must forward the domain receipt instead of dropping it with the failure ledger');

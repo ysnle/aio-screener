@@ -244,9 +244,11 @@ if (!marketPageSource.includes('yc-chart-status') || !marketPageSource.includes(
 if (pagesSource.includes("document.getElementById('yc-chart-status')")) fail('legacy fxbond curve status writer returned after P814 cutover');
 if (!marketPageSource.includes("page.dataset.aioBreadthRenderer = 'native'") || !marketPageSource.includes('renderBreadth')) fail('market.js native breadth primary renderer marker missing');
 if (!dataSource.includes('function _aioIsNativeBreadthElement') || !dataSource.includes('_aioIsNativeBreadthElement(el)') || !uiSource.includes('_aioIsNativeBreadthElement(el)') || !coreSource.includes('#page-breadth[data-aio-architecture-renderer="native"]')) fail('legacy breadth native-element writer fence missing');
-// P806: market.js owns the bounded 2s10s summary surfaces from explicit 2Y/10Y evidence;
-// the legacy yield-curve updater cannot overwrite spread-status once marked native.
-if (!marketPageSource.includes('macro-spread-value') || !marketPageSource.includes('aioMacroSpreadRenderer')) fail('native macro spread renderer marker missing');
+// P806/LC-23: macro and fxbond consume one Treasury-curve v2 view-model. The fxbond
+// 2s10s sink is native, both routes publish percentage-point, and the legacy writer is gone.
+if (!marketPageSource.includes('macro-spread-value') || !marketPageSource.includes('sc-2s10s') || !marketPageSource.includes('aioFxbondSpreadRenderer') || !marketPageSource.includes("data-spread-unit") || !marketPageSource.includes("data-curve-cut-id")) fail('native Treasury curve %p/cut contract missing');
+if (pagesSource.includes("document.getElementById('sc-2s10s')")) fail('legacy fxbond 2s10s writer returned after LC-23 cutover');
+if (!read('src/domain/macro/treasury-curve.js').includes("TREASURY_CURVE_SPREAD_VERSION = 'treasury-curve-spread.v2'")) fail('Treasury curve v2 domain contract missing');
 // P1135/R620: the macro spread writer moved with block B into js/aio-macro-tech.js.
 if (!macroTechSource.includes('blockedSpread.dataset.aioMacroSpreadRenderer') || !macroTechSource.includes('nativeSpread')) fail('legacy macro spread writer fence missing');
 if (!marketPageSource.includes('macro-2y-value') || !marketPageSource.includes('aioMacroTwoYearRenderer')) fail('native macro 2Y renderer marker missing');
@@ -381,11 +383,16 @@ for (const marker of ['renderTickerActivity', 'ticker-hero-ext', 'ticker-hero-pn
   if (!entityPageSource.includes(marker)) fail(`native ticker activity marker missing: ${marker}`);
 }
 if (!coreSource.includes('aioTickerPnlRenderer') || !dataSource.includes('aioTickerExtensionRenderer')) fail('legacy ticker activity writer fence missing');
-// P834: ticker price chart lifecycle is native from normalized entity history and the
-// Stooq compatibility loader must not run while the native route marker is mounted.
-// P1132/R619: the Stooq compatibility loader that carries this route marker moved from index.html's
-// inline block F into js/aio-ui.js.
-if (routeOwners.routes?.ticker?.chartOwner !== 'native' || !entityPageSource.includes('renderTickerChart') || !entityPageSource.includes('aioTickerChartRenderer') || !uiSource.includes('aio-ticker-chart-renderer="native"')) fail('native ticker chart ownership/fence missing');
+// P834/LC-18/LC-27: entity.js owns ticker tab, range, and chart lifecycle from the
+// normalized entity history. The legacy Stooq/Chart.js and generic tab dispatchers
+// are removed rather than fenced.
+if (routeOwners.routes?.ticker?.chartOwner !== 'native'
+  || !entityPageSource.includes('TICKER_CHART_RANGES')
+  || !entityPageSource.includes('selectTickerChartWindow')
+  || !entityPageSource.includes('renderTickerControls')
+  || !entityPageSource.includes('aioTickerChartRenderer')
+  || uiSource.includes('function loadTickerChart')
+  || dataSource.includes('function switchTab')) fail('native ticker tab/range/chart ownership boundary missing');
 // P832: entity.js owns a bounded SEC annual-fact report from one pure model. The broader
 // multi-source report/charts/AI narrative remain legacy boundaries until independently cut over.
 for (const marker of ['deriveSecReport', 'renderFundamentalReport', 'fund-native-sec-report', 'fund-native-sec-grid', 'aioSecReportRenderer']) {
@@ -565,6 +572,7 @@ const { createNewsOrchestrator } = await import(pathToFileURL(path.join(root, 's
 const { createInitialNewsState, newsReducer } = await import(pathToFileURL(path.join(root, 'src/state/slices/news.js')));
 const { createNewsCommands } = await import(pathToFileURL(path.join(root, 'src/app/commands/news.js')));
 const { selectNewsItems } = await import(pathToFileURL(path.join(root, 'src/state/selectors/news.js')));
+const { decodeNewsText, normalizeNews } = await import(pathToFileURL(path.join(root, 'src/data/normalize/news.js')));
 const { createInitialMarketState, marketReducer } = await import(pathToFileURL(path.join(root, 'src/state/slices/market.js')));
 const { createMarketCommands } = await import(pathToFileURL(path.join(root, 'src/app/commands/market.js')));
 const { createMarketProvider } = await import(pathToFileURL(path.join(root, 'src/data/providers/market.js')));
@@ -597,6 +605,11 @@ newsWriter.sync();
 if (selectNewsItems(newsStore.getState()).length !== 1 || selectNewsItems(newsStore.getState())[0].source !== 'fixture' || newsStore.getState().news.status !== 'stale') fail('news provider/normalize/orchestrator writer contract failed');
 const invalidNewsProjection = createNewsProvider({ read: () => ({ invalid: true }), now: () => 'invalid' }).readCurrent();
 if (invalidNewsProjection.items.length !== 0 || invalidNewsProjection.checkedAt !== null) fail('news provider must fail closed on malformed items/time');
+const hostileNewsText = '&#036;NBIS &amp; 한글 &#60;img src=x onerror="globalThis.__aioNewsXssExecuted=true"&#62; &amp;#036;DOUBLE';
+const normalizedHostileNews = normalizeNews({ items: [{ title: hostileNewsText, summary: hostileNewsText, link: 'https://example.test/a?x=1&amp;y=2' }] }).items[0];
+if (decodeNewsText('&#x24;NBIS &nbsp; 한글') !== '$NBIS \u00a0 한글'
+  || normalizedHostileNews.title !== '$NBIS & 한글 <img src=x onerror="globalThis.__aioNewsXssExecuted=true"> &#036;DOUBLE'
+  || normalizedHostileNews.link !== 'https://example.test/a?x=1&amp;y=2') fail('news text entities must decode exactly once in display fields without changing URLs');
 const marketStore = createStore({ initialState: { market: createInitialMarketState() }, reducer: (state, action) => ({ ...state, market: marketReducer(state.market, action) }) });
 const marketCommands = createMarketCommands({ store: marketStore });
 const marketWriter = createMarketOrchestrator({ provider: createMarketProvider({ read: () => ({ quotes: { '^TNX': { value: 4.2, pct: 0.1 } }, metrics: { fedRate: 5.25 } }) }), commands: marketCommands });

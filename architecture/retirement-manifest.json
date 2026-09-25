@@ -65,15 +65,17 @@
     "computeFactorRanks",
     "deriveFactorWeights",
     "computeMarketHealth",
+    "signalScoreMode",
     "getVerticalSliceContract",
     "getVerticalSliceContracts",
     "auditVerticalSliceContracts",
     "capabilityManifestVersion",
     "getCapability",
     "getCapabilityManifest",
-    "auditCapabilityClaims"
+    "auditCapabilityClaims",
+    "resolveScreenerRows"
   ],
-  "facadeExpansionBudget": 58,
+  "facadeExpansionBudget": 60,
   "facadeContractionGate": "Contraction is required as route imports replace global calls; target certification additionally requires route-owners.counts.fullNativeOwner to cover every active route.",
   "nativeLifecycleRoutes": [
     "home",

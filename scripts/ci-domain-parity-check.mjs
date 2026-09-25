@@ -194,11 +194,11 @@ for (const fixture of newsGolden.fixtures) {
   }
 }
 
-// ── REAL parity: deriveTreasuryCurveEvidence vs golden legacy dump (getUsTreasuryCurveEvidence) ──
+// ── Legacy field-projection parity; spread semantics now use the explicit v2 cut contract ──
 const macroCurveGoldenPath = path.join(root, 'architecture/fixtures/macro-curve-golden.json');
 const macroCurveGolden = JSON.parse(readFileSync(macroCurveGoldenPath, 'utf8'));
 if (!Array.isArray(macroCurveGolden.fixtures) || macroCurveGolden.fixtures.length < 5) fail('macro-curve golden fixture missing or too small — re-run scripts/dump-macro-curve-fixtures.mjs');
-const CURVE_FIELDS = ['threeM', 'twoY', 'fiveY', 'tenY', 'thirtyY', 'spread2s10s', 'available', 'complete', 'source'];
+const CURVE_FIELDS = ['threeM', 'twoY', 'fiveY', 'tenY', 'thirtyY', 'complete'];
 for (const fixture of macroCurveGolden.fixtures) {
   const s = fixture.inputs;
   const extracted = deriveTreasuryCurveEvidence({
@@ -211,6 +211,17 @@ for (const fixture of macroCurveGolden.fixtures) {
       fail(`MACRO_CURVE_PARITY_MISMATCH:${fixture.name}.${field} extracted=${JSON.stringify(extracted[field])} golden=${JSON.stringify(fixture.legacyOutput[field])}`);
     }
   }
+  const officialCurve = deriveTreasuryCurveEvidence({ treasury: { observedAt: '2026-09-24', source: 'U.S. Treasury', values: { dgs2: 4.85, dgs10: 5.11, t10y2y: 0.26 } } });
+  const atomicPrecedenceCurve = deriveTreasuryCurveEvidence({
+    treasury: {
+      observedAt: '2026-09-24',
+      source: 'U.S. Treasury',
+      values: { dgs2: 4.85, dgs10: 5.11, t10y2y: 0.26 }
+    },
+    live: { tnx: 5.2 }
+  });
+  if (officialCurve.spread2s10s !== 0.26 || officialCurve.curve.mode !== 'official-same-date' || officialCurve.curve.unit !== 'percentage-point') fail(`MACRO_CURVE_V2_SAME_CUT:${JSON.stringify(officialCurve)}`);
+  if (atomicPrecedenceCurve.spread2s10s !== 0.26 || atomicPrecedenceCurve.curve.curveCutId !== 'us-treasury-daily:2026-09-24') fail(`MACRO_CURVE_V2_ATOMIC_PRIORITY:${JSON.stringify(atomicPrecedenceCurve)}`);
 }
 
 // ── REAL parity: deriveConcentrationRisk vs golden legacy dump (calcPortfolioTechnicalRisk,

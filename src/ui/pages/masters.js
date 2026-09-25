@@ -214,18 +214,38 @@ function createTickerLookup(documentRef, tickerIndex, registry, query) {
           element(documentRef, 'span', 'masters-ticker-lookup-meta', `CUSIP ${record.cusips?.join(', ') || '확인 필요'} · 연결 행 ${record.currentRowCount || record.rows?.length || 0}개`)
         );
         const rows = element(documentRef, 'ul', 'masters-ticker-lookup-rows');
-        (record.rows || []).slice(0, 8).forEach((row) => {
-          const manager = registryById.get(row.managerId);
-          const item = element(documentRef, 'li', 'masters-ticker-lookup-row');
-          const source = element(documentRef, 'a', 'masters-source-link', 'SEC 원문');
-          applySafeExternalLink(source, row.sourceUrl);
-          item.append(
-            element(documentRef, 'span', '', `${manager?.name || row.managerId} · ${row.reportPeriod} · ${Number(row.shares || 0).toLocaleString('en-US')}주 · ${ACTION_LABELS[row.action] || row.action || '변화 확인 필요'}`),
-            source
-          );
-          rows.appendChild(item);
-        });
+        const allRows = Array.isArray(record.rows) ? record.rows : [];
+        // LC-51: the lookup silently sliced to 8 rows while the header said '연결 행 14개', so six rows
+        // looked missing. Show the visible/total count and let the user reveal the rest.
+        const renderLookupRows = (list) => {
+          rows.replaceChildren();
+          list.forEach((row) => {
+            const manager = registryById.get(row.managerId);
+            const item = element(documentRef, 'li', 'masters-ticker-lookup-row');
+            const source = element(documentRef, 'a', 'masters-source-link', 'SEC 원문');
+            applySafeExternalLink(source, row.sourceUrl);
+            item.append(
+              element(documentRef, 'span', '', `${manager?.name || row.managerId} · ${row.reportPeriod} · ${Number(row.shares || 0).toLocaleString('en-US')}주 · ${ACTION_LABELS[row.action] || row.action || '변화 확인 필요'}`),
+              source
+            );
+            rows.appendChild(item);
+          });
+        };
+        renderLookupRows(allRows.slice(0, 8));
         card.appendChild(rows);
+        const countLine = element(documentRef, 'span', 'masters-ticker-lookup-count', `표시 ${Math.min(allRows.length, 8)}/${allRows.length}행`);
+        card.appendChild(countLine);
+        if (allRows.length > 8) {
+          const more = element(documentRef, 'button', 'aio-btn-table', `나머지 ${allRows.length - 8}행 보기`);
+          more.type = 'button';
+          more.setAttribute('aria-label', `${record.tickerReference} 나머지 ${allRows.length - 8}행 표시`);
+          more.addEventListener('click', () => {
+            renderLookupRows(allRows);
+            countLine.textContent = `표시 ${allRows.length}/${allRows.length}행`;
+            more.remove();
+          });
+          card.appendChild(more);
+        }
         body.appendChild(card);
       });
     }
@@ -1186,6 +1206,15 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
           if (!descriptor?.url) throw new Error(`manager history shard missing: ${managerId}`);
           const bundle = await loadJson(descriptor.url);
           if (!isAlive()) return;
+          // LC-30: the history shard used to be trusted on URL alone, so a swapped/older shard could
+          // feed the change ledger with another manager's periods. Verify it is the shard the index
+          // declares for this manager and generation, and that its row scope matches, before use.
+          const shardSchema = state.history?.runtimeShardSchema;
+          if (bundle?.managerId !== managerId
+            || (shardSchema && bundle?.schema !== shardSchema)
+            || bundle?.historySummary?.rawRowsAvailable !== descriptor.historyRows) {
+            throw new Error(`manager history shard identity mismatch: ${managerId}`);
+          }
           state.quarterBundles.set(managerId, bundle);
           state.historyRowsError = false;
           state.issuerAggregatesError = false;

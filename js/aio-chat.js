@@ -61,6 +61,48 @@ function _aioCreateAIRequestObject(entrypoint, meta) {
   return request;
 }
 
+// P1245 (05 A05): 수집된 native citation과 research tool 오류는 **그것을 만든 스트림의 요청**에 속한다.
+// 종전에는 단일 전역(`_aioLastClaudeCitations`·`_aioLastClaudeResearchError`)에 저장되고 모든 스트림이
+// 시작 시 리셋했으며, request id도 `_aioActiveAIRequestId`라는 전역을 응답 파이프라인이 쓰고 수집기가
+// 읽었다. 그래서 ① 두 요청이 겹치면(per-page + unified, 또는 재시도) 한 스트림이 다른 스트림의 인용을
+// 지우고, ② 수집 시점의 전역은 아직 이 요청으로 설정되지 않아 직전 요청의 id가 찍혔고, ③ onDone의
+// evidence floor가 그 전역을 *기대값*으로 읽어 다른 질문의 출처를 이 답변의 검증된 근거로 승격할 수
+// 있었다. 요청 id별 저장소로 바꾸고, 스트림은 시작 시 받은 불변 id만 사용한다.
+var _AIO_AI_REQUEST_STREAM_LIMIT = 8;
+function _aioAIRequestStream(requestId) {
+  if (typeof window === 'undefined' || !requestId) return null;
+  var key = String(requestId);
+  var store = window._aioAIRequestStreams = window._aioAIRequestStreams || {};
+  var order = window._aioAIRequestStreamOrder = window._aioAIRequestStreamOrder || [];
+  var record = store[key];
+  if (!record) {
+    record = store[key] = { requestId: key, citations: [], researchError: null, startedAt: new Date().toISOString() };
+    order.push(key);
+    while (order.length > _AIO_AI_REQUEST_STREAM_LIMIT) {
+      var stale = order[0];
+      if (stale === key) break;
+      order.shift();
+      delete store[stale];
+    }
+  }
+  return record;
+}
+function _aioAIRequestCitations(requestId) {
+  if (!requestId || typeof window === 'undefined' || !window._aioAIRequestStreams) return [];
+  var record = window._aioAIRequestStreams[String(requestId)];
+  return record && Array.isArray(record.citations) ? record.citations : [];
+}
+function _aioAIRequestResearchError(requestId) {
+  if (!requestId || typeof window === 'undefined' || !window._aioAIRequestStreams) return null;
+  var record = window._aioAIRequestStreams[String(requestId)];
+  return record ? record.researchError : null;
+}
+function _aioLatestAIRequestStream() {
+  var order = typeof window !== 'undefined' ? window._aioAIRequestStreamOrder : null;
+  if (!Array.isArray(order) || !order.length) return null;
+  return _aioAIRequestStream(order[order.length - 1]);
+}
+
 // P897: the ESM evidence module is the only producer/consumer contract for
 // both chat surfaces. If bootstrap has not exposed it, fail closed instead of
 // keeping a second legacy implementation that can drift again.
@@ -68,7 +110,9 @@ function _aioEvaluateAIResearchGate(input) {
   input = input || {};
   // P1172 (05 A05): 이 요청의 id를 함께 넘겨 출처 결속을 판정 가능하게 한다. questionPlan.queryId와
   // chat 요청 id는 서로 다른 이름공간이므로 둘 다 기대값으로 넘긴다(없으면 UNVERIFIABLE로 남는다).
-  if (input.requestId == null && window._aioActiveAIRequestId) input = Object.assign({}, input, { requestId: window._aioActiveAIRequestId });
+  // P1245: 여기서 공유 전역(`_aioActiveAIRequestId`)으로 기대값을 채우지 않는다. 그 전역은 응답
+  // 파이프라인이 쓰고 수집기가 읽어 동시 요청에서 다른 요청의 id가 이 요청의 기대값으로 둔갑했다.
+  // 호출자가 자기 id를 말하지 않으면 UNVERIFIABLE로 남는 것이 맞다 — 모르는 것을 아는 것처럼 채우지 않는다.
   if (window.AIO_ARCH && typeof window.AIO_ARCH.evaluateAIResearchEvidenceFloor === 'function') {
     return window.AIO_ARCH.evaluateAIResearchEvidenceFloor(input);
   }
@@ -325,7 +369,6 @@ function _aioRunAIResponsePipeline(rawText, meta) {
   var currentSensitive = meta.currentSensitive === true || !!(questionPlan && questionPlan.currentSensitive === true);
   var researchRequired = meta.researchRequired === true || !!(questionPlan && questionPlan.researchDecision && questionPlan.researchDecision.requirement === 'REQUIRED');
   var isPartialStream = meta.streamPhase === 'partial';
-  if (typeof window !== 'undefined' && request && request.requestId) window._aioActiveAIRequestId = request.requestId;
   var raw = String(rawText == null ? '' : rawText);
   var answerPlanAudit = (typeof window !== 'undefined' && window.AIO_ARCH && typeof window.AIO_ARCH.parseAIAnswerPlan === 'function')
     ? window.AIO_ARCH.parseAIAnswerPlan(raw, { questionPlan: questionPlan, currentSensitive: currentSensitive })
@@ -628,6 +671,9 @@ if (typeof window !== 'undefined') {
   window.AIO.getAIResponsePipelineAudit = function() {
     return (window._aioAiPipelineAudit || []).slice();
   };
+  // P1245 (05 A05): 진단은 "가장 최근 스트림"의 기록을 읽는다. 게이트/공개 경로는 이 접근자를 쓰지 않고
+  // 각자 자기 요청 id로 `_aioAIRequestCitations(requestId)`를 읽어 동시 요청에서 섞이지 않는다.
+  window.AIO.getLatestAIRequestStream = function() { return _aioLatestAIRequestStream(); };
 }
 
 function _getImportedResearchContext(ctxId) {
@@ -2043,6 +2089,10 @@ function _aioChatError(error, status) {
 
 async function callClaude(system, messages, onChunk, onDone, onError, opts) {
   opts = opts || {};
+  // P1245 (05 A05): 이 스트림의 불변 요청 id. 재시도는 같은 요청 객체를 재사용하므로 id도 안정적이고,
+  // 수집기·진단·evidence floor는 모두 이 값만 쓰고 공유 전역을 읽지 않는다.
+  var _streamRequestId = opts.requestId ? String(opts.requestId) : null;
+  var _streamState = _aioAIRequestStream(_streamRequestId);
   var _chatSignal = opts.signal;
   try { _aioThrowIfChatAborted(_chatSignal); } catch (abortBeforeRoute) {
     if (typeof opts.onCancel === 'function') opts.onCancel(abortBeforeRoute);
@@ -2210,20 +2260,24 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
     window._lastClaudeUsage = null;
 
     // v50.10: native web_search 인용/검색결과 수집 (사용자 출처 표면화). 요청 시작 시 리셋.
-    if (opts.webSearch === true) {
-      _aioSetChatRuntimeState('_aioLastClaudeCitations', []);
-      _aioSetChatRuntimeState('_aioLastClaudeResearchError', null);
+    // P1245 (05 A05): 리셋 대상이 공유 전역이 아니라 이 요청의 기록이므로, 겹쳐 도는 다른 스트림의
+    // 인용을 지우지 않는다.
+    if (opts.webSearch === true && _streamState) {
+      _streamState.citations.length = 0;
+      _streamState.researchError = null;
     }
     function _pushWebCite(url, title) {
       if (!url || typeof url !== 'string') return;
-      if (!window._aioLastClaudeCitations) window._aioLastClaudeCitations = [];
-      var arr = window._aioLastClaudeCitations;
+      // P1245: 소유자(요청 id) 없는 스트림은 인용을 수집하지 않는다 — 임의의 전역에 붙이지 않는다.
+      if (!_streamState) return;
+      var arr = _streamState.citations;
       for (var _ci = 0; _ci < arr.length; _ci++) { if (arr[_ci].url === url) return; }
       if (arr.length >= 12) return;  // 과다 누적 방지
-      // P1172 (05 A05): 인용을 이 요청에 묶는다. 전역 배열은 요청 시작에 리셋되지만, 취소·재시도·늦게
-      // 도착한 응답의 citation이 다음 질문의 근거로 넘어가는 경로를 막으려면 출처 자신이 어느 요청의
-      // 것인지 말해야 한다(결속이 없으면 evidence floor가 UNBOUND로 표시하고 확인된 것으로 승격하지 않는다).
-      arr.push({ url: url, title: (title || ''), requestId: window._aioActiveAIRequestId || null, queryId: window._aioActiveAIRequestId || null });
+      // P1172 (05 A05) + P1245: 출처 자신이 어느 요청의 것인지 말해야 결속을 판정할 수 있다. id는 이
+      // 스트림이 시작할 때 받은 불변 값이므로, 취소·재시도·늦게 도착하거나 순서가 뒤바뀐 응답의
+      // citation도 다른 요청의 근거로 넘어가지 않는다(결속이 없으면 evidence floor가 UNBOUND로 표시하고
+      // 확인된 것으로 승격하지 않는다).
+      arr.push({ url: url, title: (title || ''), requestId: _streamRequestId, queryId: _streamRequestId });
     }
 
     try {
@@ -2287,10 +2341,10 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
             // the request as a successful no-search answer.
             else if (evt.type === 'content_block_start' && evt.content_block && /web_search_tool_result.*error|web_search.*error/i.test(evt.content_block.type || '')) {
               var _toolError = evt.content_block.error || evt.content_block.message || evt.content_block.content || 'web_search_tool_error';
-              _aioSetChatRuntimeState('_aioLastClaudeResearchError', typeof _toolError === 'string' ? _toolError : JSON.stringify(_toolError));
+              if (_streamState) _streamState.researchError = typeof _toolError === 'string' ? _toolError : JSON.stringify(_toolError);
             }
             else if (evt.type === 'web_search_tool_result_error' || evt.type === 'server_tool_error') {
-              _aioSetChatRuntimeState('_aioLastClaudeResearchError', evt.error?.message || evt.message || evt.type);
+              if (_streamState) _streamState.researchError = evt.error?.message || evt.message || evt.type;
             }
             // v48.0: usage 추적 — message_start에는 input/cache_creation/cache_read_input_tokens, message_delta에는 output_tokens
             else if (evt.type === 'message_start' && evt.message && evt.message.usage) {
@@ -2330,7 +2384,7 @@ async function callClaude(system, messages, onChunk, onDone, onError, opts) {
         var _aiEndedAt = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
         var _sloUsage = window._lastClaudeUsage || {};
         window.AIO.recordAISLOSample({
-          requestId: window._aioActiveAIRequestId || null,
+          requestId: _streamRequestId,
           entrypoint: opts.entrypoint || 'chat',
           model: (modelCfg && modelCfg.key) || opts.modelKey || 'unknown',
           status: stopReason === 'max_tokens' || stopReason === 'client_output_limit' ? 'degraded' : 'success', latencyMs: Math.round(_aiEndedAt - _aiStartedAt),
@@ -5187,7 +5241,10 @@ async function _aioPrepareAIResearch(questionPlan, options) {
         prepared.externalEvidenceReady = window.AIO_ARCH.evaluateAIResearchEvidenceFloor({
           questionPlan: questionPlan,
           required: true,
-          requestId: window._aioActiveAIRequestId || null,
+          // P1245 (05 A05): 사전 준비 단계에는 아직 요청 객체가 없다. 공유 전역에서 id를 빌려 오면 다른
+          // 요청의 id로 결속을 "확인"한 것처럼 보이므로, 호출자가 실제로 넘긴 id만 쓴다(모르면 null →
+          // UNVERIFIABLE). 권위 있는 결속 판정은 onDone의 evidence gate가 자기 요청 id로 수행한다.
+          requestId: options.requestId || null,
           externalResult: prepared.externalResult
         }).ready === true;
       }
@@ -6356,14 +6413,13 @@ async function chatSend(ctxId, _aioDispatchOptions) {
   }
 
   // v50.37 트랙1: 자연어 스크리너 질의 — 실제 SCREENER_DB 필터(일반 LLM 불가 차별 기능). 특정 티커 없을 때만.
+  // E2/S-E (P1239): 일반·통합 채팅이 같은 helper를 소비한다(질의·최근 추천 추출·프롬프트 포맷 단일 구현).
   var screenerStr = '';
   var screenerResult = null;
-  if (detectedTickers.length === 0 && typeof _aioRunScreenerQuery === 'function') {
-    try {
-      var recentRecommendationTickers = (typeof _aioExtractRecentRecommendationTickers === 'function') ? _aioExtractRecentRecommendationTickers(state.messages) : [];
-      screenerResult = _aioRunScreenerQuery(q, { recentTickers: recentRecommendationTickers });
-      if (screenerResult && screenerResult.matched) screenerStr = _formatScreenerResultPrompt(screenerResult);
-    } catch(e) { _aioLog('warn', 'fetch', '스크리너 질의 실패: ' + e.message); }
+  if (detectedTickers.length === 0 && typeof _aioBuildScreenerAiContext === 'function') {
+    var screenerContext = _aioBuildScreenerAiContext(q, state.messages, function(e) { _aioLog('warn', 'fetch', '스크리너 질의 실패: ' + e.message); });
+    screenerResult = screenerContext.result;
+    screenerStr = screenerContext.prompt;
   }
 
   // v50.38 트랙2: 도메인 라이브 데이터 주입 — macro/fxbond/themes 채팅에 페이지 도메인 데이터(수익률곡선·DXY·사이클·섹터 리더 등) 주입.
@@ -6759,7 +6815,9 @@ async function chatSend(ctxId, _aioDispatchOptions) {
   // v52.76/WP-AI1: one request object survives initial call and retries.
   var _pageAIRequest = typeof _aioCreateAIRequestObject === 'function'
      ? _aioCreateAIRequestObject('per-page-chat', { ctxId: ctxId, query: q, model: selectedModelKey, questionPlan: _aioQuestionPlan })
-    : null;
+     : null;
+  // P1245 (05 A05): 이 실행의 불변 요청 id. 스트림·evidence gate·출처 렌더가 모두 이 값만 쓴다.
+  var _pageRequestId = _pageAIRequest ? _pageAIRequest.requestId : null;
   if (typeof _aioBeginAIRequestAttempt === 'function') _aioBeginAIRequestAttempt(_pageAIRequest, selectedModelKey);
 
   // onChunk — live update. The shared response pipeline owns chip stripping
@@ -6816,7 +6874,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
 
       var streamEl = document.getElementById('chat-' + ctxId + '-streaming');
       var _pageResearchGate = typeof _aioEvaluateAIResearchGate === 'function'
-        ? _aioEvaluateAIResearchGate({ questionPlan: _aioQuestionPlan, required: _researchRequiredForChat, externalResult: webSearchResult, nativeCitations: _useClaudeWebSearch ? (window._aioLastClaudeCitations || []) : [], error: webSearchResult ? null : (_researchFailureForChat || window._aioLastClaudeResearchError) })
+        ? _aioEvaluateAIResearchGate({ questionPlan: _aioQuestionPlan, requestId: _pageRequestId, required: _researchRequiredForChat, externalResult: webSearchResult, nativeCitations: _useClaudeWebSearch ? _aioAIRequestCitations(_pageRequestId) : [], error: webSearchResult ? null : (_researchFailureForChat || _aioAIRequestResearchError(_pageRequestId)) })
         : { required: _researchRequiredForChat, ready: !_researchRequiredForChat, reason: 'research-gate-unavailable' };
       var _pageDoneResult = (typeof _aioRunAIResponsePipeline === 'function')
          ? _aioRunAIResponsePipeline(fullText, { request: _pageAIRequest, questionPlan: _aioQuestionPlan, researchRequired: _researchRequiredForChat, researchGate: _pageResearchGate, entrypoint: 'per-page-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: chatFreshPreflight, evidence: _pageClaimEvidence, provenanceBundle: chatProvenanceBundle, chatEvidence: chatEvidenceContext, researchResult: webSearchResult, retrievalAudit: _pageRetrievalAudit, contextBudgetAudit: _pageContextBudgetAudit, analysisAudit: _pageAnalysisAudit, completion: completion || null, streamPhase: 'complete' })
@@ -6900,7 +6958,8 @@ async function chatSend(ctxId, _aioDispatchOptions) {
         aiBubble.parentNode.appendChild(_srcBadge);
 
         // v50.10: Claude native web_search 출처 푸터 (인용 URL 표면화 — 검증성)
-        var _claudeCites = (window._aioLastClaudeCitations || []);
+        // P1245 (05 A05): 이 요청이 수집한 인용만 표시한다(공유 전역은 다른 스트림의 출처를 섞었다).
+        var _claudeCites = _aioAIRequestCitations(_pageRequestId);
         var _webCited = !!(_useClaudeWebSearch && _claudeCites.length > 0);
         if (_webCited) {
           try {
@@ -7360,7 +7419,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
           if (typeof _aioBeginAIRequestAttempt === 'function') _aioBeginAIRequestAttempt(_pageAIRequest, nextModel);
           callClaude(systemPrompt, state.messages, _pageOnChunk, _pageOnDone,
             _pageOnError,
-            { modelKey: nextModel, webSearch: _useClaudeWebSearch, signal: _chatSignal }
+            { modelKey: nextModel, webSearch: _useClaudeWebSearch, signal: _chatSignal, requestId: _pageRequestId }
           );
         }, 5000);
         return;
@@ -7414,7 +7473,7 @@ async function chatSend(ctxId, _aioDispatchOptions) {
     _pageOnChunk,
     _pageOnDone,
     _pageOnError,
-    { modelKey: selectedModelKey, maxTokens: (singleDeepStr || deepCompareStr || _shouldDeepAnalyze) ? 16000 : undefined, webSearch: _useClaudeWebSearch, signal: _chatSignal }
+    { modelKey: selectedModelKey, maxTokens: (singleDeepStr || deepCompareStr || _shouldDeepAnalyze) ? 16000 : undefined, webSearch: _useClaudeWebSearch, signal: _chatSignal, requestId: _pageRequestId }
   );
   } catch (preparationError) {
     if (_isCurrentChatRun()) {
@@ -8649,14 +8708,13 @@ async function chatSendUnified(_aioDispatchOptions) {
     }
 
     // 1c. 자연어 퀀트 스크리너 — 특정 티커가 없을 때 후보군을 다양화해 추천 편향을 줄임
-    if (detectedTickers.length === 0 && typeof _aioRunScreenerQuery === 'function') {
+    // E2/S-E (P1239): 일반 채팅과 같은 helper를 소비한다(중복 구현 제거).
+    if (detectedTickers.length === 0 && typeof _aioBuildScreenerAiContext === 'function') {
       try {
-        var _uniRecentRecommendationTickers = (typeof _aioExtractRecentRecommendationTickers === 'function')
-          ? _aioExtractRecentRecommendationTickers(state.messages)
-          : [];
-        _uniScreenerResult = _aioRunScreenerQuery(q, { recentTickers: _uniRecentRecommendationTickers });
-          if (_uniScreenerResult && _uniScreenerResult.matched && typeof _formatScreenerResultPrompt === 'function') {
-            _uniScreenerStr = _formatScreenerResultPrompt(_uniScreenerResult);
+        var _uniScreenerContext = _aioBuildScreenerAiContext(q, state.messages, function(e) { _aioLog('warn', 'fetch', '통합 스크리너 질의 실패: ' + e.message); });
+        _uniScreenerResult = _uniScreenerContext.result;
+        _uniScreenerStr = _uniScreenerContext.prompt;
+          if (_uniScreenerStr) {
             sysPrompt += _wrapUnifiedExternal('SCREENER_RESULT', _uniScreenerStr, { maxChars: 10000 });
           if (_uniScreenerResult.mode === 'diversified-recommendation') {
             sysPrompt += '\n\n[통합 AI 패널 추천 편향 방지]\n' +
@@ -8996,6 +9054,8 @@ async function chatSendUnified(_aioDispatchOptions) {
   var _uniAIRequest = typeof _aioCreateAIRequestObject === 'function'
     ? _aioCreateAIRequestObject('unified-chat', { ctxId: ctxId, query: q, model: selectedModelKey, questionPlan: _uniQuestionPlan })
     : null;
+  // P1245 (05 A05): 이 실행의 불변 요청 id. 스트림·evidence gate·출처 렌더가 모두 이 값만 쓴다.
+  var _uniRequestId = _uniAIRequest ? _uniAIRequest.requestId : null;
   if (typeof _aioBeginAIRequestAttempt === 'function') _aioBeginAIRequestAttempt(_uniAIRequest, selectedModelKey);
 
   // v46.10: chatSend()와 동일한 onChunk/onDone/onError + 재시도/폴백 완전 이식
@@ -9022,7 +9082,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     if (loadEl) loadEl.parentNode.removeChild(loadEl);
     var streamEl = document.getElementById('ai-panel-streaming');
     var _uniResearchGate = typeof _aioEvaluateAIResearchGate === 'function'
-      ? _aioEvaluateAIResearchGate({ questionPlan: _uniQuestionPlan, required: _uniResearchRequired, externalResult: _uniWebResult, nativeCitations: _uniUseClaudeWebSearch ? (window._aioLastClaudeCitations || []) : [], error: _uniWebResult ? null : (_uniResearchFailure || window._aioLastClaudeResearchError) })
+      ? _aioEvaluateAIResearchGate({ questionPlan: _uniQuestionPlan, requestId: _uniRequestId, required: _uniResearchRequired, externalResult: _uniWebResult, nativeCitations: _uniUseClaudeWebSearch ? _aioAIRequestCitations(_uniRequestId) : [], error: _uniWebResult ? null : (_uniResearchFailure || _aioAIRequestResearchError(_uniRequestId)) })
       : { required: _uniResearchRequired, ready: !_uniResearchRequired, reason: 'research-gate-unavailable' };
     var _uniDoneResult = (typeof _aioRunAIResponsePipeline === 'function')
        ? _aioRunAIResponsePipeline(fullText, { request: _uniAIRequest, questionPlan: _uniQuestionPlan, researchRequired: _uniResearchRequired, researchGate: _uniResearchGate, entrypoint: 'unified-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: _uniFreshPreflight, evidence: _uniClaimEvidence, provenanceBundle: _uniProvenanceBundle, chatEvidence: typeof _uniEvidence !== 'undefined' ? _uniEvidence : null, researchResult: _uniWebResult, retrievalAudit: _uniRetrievalAudit, contextBudgetAudit: _uniContextBudgetAudit, analysisAudit: _uniAnalysisAudit, completion: completion || null, streamPhase: 'complete' })
@@ -9091,9 +9151,11 @@ async function chatSendUnified(_aioDispatchOptions) {
     }
 
     // v46.10: 웹검색 출처 링크
+    // P1245 (05 A05): 이 요청이 수집한 인용만 표시한다(공유 전역은 다른 스트림의 출처를 섞었다).
     var _uniCitationResult = _uniWebResult;
-    if ((!_uniCitationResult || !_uniCitationResult.citations || !_uniCitationResult.citations.length) && _uniUseClaudeWebSearch && Array.isArray(window._aioLastClaudeCitations) && window._aioLastClaudeCitations.length) {
-      _uniCitationResult = { engine:'claude', citations:window._aioLastClaudeCitations.slice(0, 12) };
+    var _uniNativeCites = _aioAIRequestCitations(_uniRequestId);
+    if ((!_uniCitationResult || !_uniCitationResult.citations || !_uniCitationResult.citations.length) && _uniUseClaudeWebSearch && _uniNativeCites.length) {
+      _uniCitationResult = { engine:'claude', citations:_uniNativeCites.slice(0, 12) };
     }
     if (_uniCitationResult && _uniCitationResult.citations && _uniCitationResult.citations.length > 0 && typeof _searchCitationsHTML === 'function') {
       var citTarget = _bubbleParent || (streamEl ? streamEl.querySelector('.ai-msg-content') : null);
@@ -9145,7 +9207,7 @@ async function chatSendUnified(_aioDispatchOptions) {
           if (typeof _aioBeginAIRequestAttempt === 'function') _aioBeginAIRequestAttempt(_uniAIRequest, nextModel);
           callClaude(sysPrompt, state.messages, _uniOnChunk, _uniOnDone,
             _uniOnError,
-            Object.assign({}, modelOpts, { modelKey: nextModel, signal: _uniSignal })
+            Object.assign({}, modelOpts, { modelKey: nextModel, signal: _uniSignal, requestId: _uniRequestId })
           );
         } catch(rtEx) {
           // v47.8: 재시도 callClaude 동기 throw 방어
@@ -9165,7 +9227,7 @@ async function chatSendUnified(_aioDispatchOptions) {
 
   // v47.8: callClaude 호출 자체가 동기 throw 시 streaming 영구 잠김 방어
   try {
-    callClaude(sysPrompt, state.messages, _uniOnChunk, _uniOnDone, _uniOnError, Object.assign({}, modelOpts, { signal: _uniSignal }));
+    callClaude(sysPrompt, state.messages, _uniOnChunk, _uniOnDone, _uniOnError, Object.assign({}, modelOpts, { signal: _uniSignal, requestId: _uniRequestId }));
   } catch(callEx) {
     _aioLog('error', 'fetch', 'callClaude 동기 throw: ' + callEx.message);
     _releaseUnifiedRun();

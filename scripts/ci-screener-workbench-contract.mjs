@@ -406,6 +406,18 @@ async function run() {
   assert(screenerUi.includes('screener-visible-quotes') && screenerUi.includes('registerLiveSymbol'), 'G-SCR-LIVE: rendered screener rows register bounded live-quote demand');
   assert(page.includes('screener-factor-confidence') && page.includes('screener-factor-diagnostics') && screenerUi.includes('미래 수익률 확률 아님') && screenerUi.includes('dataset.decisionEligible'), 'G-SCR-FACTOR-UX: confidence and research-only diagnostics are visible and cannot masquerade as return probability');
   assert(['factorCoverage', 'confidenceMeaning', 'sectorNeutrality', 'outlierDiagnostics', 'turnoverStability', 'researchBoundary'].every((field) => screenerOrchestrator.includes(field)), 'G-SCR-FACTOR-LINEAGE: factor diagnostics survive ranker-to-UI metadata projection');
+  // P1210 (LC-40): the Why drawer compared `screenRankingState === 'available'` while the engine only
+  // emits ranked/unavailable/not-requested, so a ranked row was permanently titled '순위 계산 보류'.
+  assert(!/screenRankingState === 'available'/.test(screenerUi) && screenerUi.includes("rankingState === 'ranked'"), 'P1210 G-SCR-WHY-VOCAB: Why must read the engine ranking vocabulary, not a state it never emits');
+  assert(screenerUi.includes('팩터 원값') && screenerUi.includes('표시 순위'), 'P1210 G-SCR-WHY-RANK: the ordinal display rank and the raw factor rank must be named distinctly');
+  // P1211 (LC-25): the executed judgment (run rowCount denominator) and the table display scope must
+  // not be shown as one population.
+  assert(page.includes('scr-funnel-passed-denom') && page.includes('scr-funnel-runid') && page.includes('scr-funnel-scope-note'), 'P1211 G-SCR-FUNNEL: funnel must expose the run denominator, run id and a scope note');
+  assert(screenerUi.includes('runRowCount') && screenerUi.includes('scr-funnel-scope-note'), 'P1211 G-SCR-FUNNEL-DENOM: the funnel must bind the executed denominator and label the display scope');
+  // P1212 (LC-41): a missing diagnostic must not render as a measured zero.
+  assert(screenerUi.includes('countOrNull') && !/Number\.isFinite\(Number\(turnover\.turnoverPct\)\)/.test(screenerUi), 'P1212 G-SCR-MISSING: null diagnostics must not be promoted to 0 by Number()');
+  // P1213 (LC-42): per-row quote freshness must not be inherited from the global LIVE badge.
+  assert(screenerUi.includes('quoteFreshness') && screenerUi.includes('전역 LIVE에 상속하지 않음'), 'P1213 G-SCR-QUOTE-FRESH: the price cell must carry its own observedAt/freshness context');
 
   const providerArtifact = {
     asOf: '2026-08-25T12:00:00.000Z',
