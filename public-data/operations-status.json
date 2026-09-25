@@ -23,9 +23,9 @@
     "UNAVAILABLE",
     "UNKNOWN"
   ],
-  "generatedAt": "2026-09-25T12:45:06.614Z",
+  "generatedAt": "2026-09-25T15:17:50.412Z",
   "appRevision": "v56.33",
-  "dataRevision": "market-snapshot:2026-09-25T12:44:39.896Z:25f11472",
+  "dataRevision": "market-snapshot:2026-09-25T15:17:37.486Z:d347ff48",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
   "overall": "OPERATOR_REQUIRED",
   "overallBasis": {
@@ -41,7 +41,7 @@
   "featureAvailability": {
     "market-breadth": {
       "availability": "AVAILABLE",
-      "asOf": "2026-09-25T12:44:39.896Z",
+      "asOf": "2026-09-25T15:17:37.486Z",
       "missingReason": null,
       "sources": [
         "durable"
@@ -49,7 +49,7 @@
     },
     "fundamental-ranking": {
       "availability": "AVAILABLE",
-      "asOf": "2026-09-25T12:44:39.896Z",
+      "asOf": "2026-09-25T15:17:37.486Z",
       "missingReason": null,
       "sources": [
         "durable"
@@ -57,7 +57,7 @@
     },
     "quotes": {
       "availability": "AVAILABLE",
-      "asOf": "2026-09-25T12:45:06.614Z",
+      "asOf": "2026-09-25T15:17:50.412Z",
       "missingReason": null,
       "sources": [
         "fast"
@@ -65,7 +65,7 @@
     },
     "ai-chat": {
       "availability": "AVAILABLE",
-      "asOf": "2026-09-25T12:45:06.614Z",
+      "asOf": "2026-09-25T15:17:50.412Z",
       "missingReason": null,
       "sources": [
         "fast"
@@ -85,7 +85,7 @@
       "status": "CURRENT",
       "statusCode": "CONFIGURED_HEALTHY",
       "source": "github-actions",
-      "lastSuccessfulAt": "2026-09-25T12:44:39.896Z",
+      "lastSuccessfulAt": "2026-09-25T15:17:37.486Z",
       "coverage": {
         "required": 16,
         "observed": 16,
@@ -101,10 +101,10 @@
         "coverageComplete": true,
         "quoteQualityComplete": true,
         "blockedQuotes": [],
-        "generatedAt": "2026-09-25T12:44:39.896Z",
-        "ageHours": 0.01,
+        "generatedAt": "2026-09-25T15:17:37.486Z",
+        "ageHours": 0,
         "maxAgeHours": 12,
-        "evaluatedAt": "2026-09-25T12:45:06.614Z",
+        "evaluatedAt": "2026-09-25T15:17:50.412Z",
         "reason": null
       },
       "readiness": {
@@ -124,14 +124,14 @@
         "status": "CURRENT",
         "statusCode": 200,
         "coverage": "16/16",
-        "revision": "fast-quotes:3d655040",
+        "revision": "fast-quotes:b8add904",
         "sourceSha": "8a3939117e18de904c3892006e08611ea2d1a676",
-        "observedAt": "2026-09-25T12:45:06.614Z",
+        "observedAt": "2026-09-25T15:17:50.412Z",
         "source": "periodic-live-health",
         "observationStatus": "SUCCESS",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-09-25T12:45:06.614Z"
+        "evidenceEvaluatedAt": "2026-09-25T15:17:50.412Z"
       },
       "soak": {
         "requiredDays": 7,
@@ -164,13 +164,13 @@
   },
   "ai": {
     "scheduledAnalysis": {
-      "status": "CURRENT",
-      "statusCode": "CONFIGURED_HEALTHY",
+      "status": "BLOCKED",
+      "statusCode": "CONFIGURED_BROKEN",
       "source": "github-actions",
-      "lastCallSucceeded": "CURRENT",
+      "lastCallSucceeded": "BLOCKED",
       "evidence": {
-        "marketAnalysisOk": true,
-        "generatedAt": "2026-09-25T12:44:39.896Z"
+        "marketAnalysisOk": false,
+        "generatedAt": "2026-09-25T15:17:37.486Z"
       }
     },
     "publicChat": {
@@ -182,7 +182,7 @@
       "health": {
         "status": "CURRENT",
         "statusCode": 200,
-        "observedAt": "2026-09-25T12:45:06.614Z",
+        "observedAt": "2026-09-25T15:17:50.412Z",
         "revision": "v56.33",
         "sourceSha": "46f2f7815bcc22728658f3a276a780b51e998e95",
         "configured": true,
@@ -196,7 +196,7 @@
         "observationStatus": "SUCCESS",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-09-25T12:45:06.614Z"
+        "evidenceEvaluatedAt": "2026-09-25T15:17:50.412Z"
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }
@@ -206,15 +206,15 @@
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "reference",
-      "lastFetchAt": "2026-09-25T12:44:39.896Z"
+      "lastFetchAt": "2026-09-25T15:17:37.486Z"
     },
     "fred": {
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "official-series",
       "status": "CURRENT",
-      "lastAttemptAt": "2026-09-25T12:44:39.958Z",
-      "lastFetchAt": "2026-09-25T12:44:39.958Z"
+      "lastAttemptAt": "2026-09-25T15:17:37.548Z",
+      "lastFetchAt": "2026-09-25T15:17:37.548Z"
     },
     "sec": {
       "rights": "REVIEW_REQUIRED",
@@ -228,7 +228,7 @@
   "reconciliation": {
     "tier0": {
       "status": "MATCH",
-      "artifact": "market-snapshot:2026-09-25T12:44:39.896Z:25f11472",
+      "artifact": "market-snapshot:2026-09-25T15:17:37.486Z:d347ff48",
       "uiEvidence": "same-revision-contract",
       "observedAtComplete": true
     },
@@ -362,7 +362,7 @@
           }
         ]
       },
-      "sourceRevision": "market-snapshot:2026-09-25T12:44:39.896Z:25f11472",
+      "sourceRevision": "market-snapshot:2026-09-25T15:17:37.486Z:d347ff48",
       "sourceArtifacts": [
         "public-data/data.json",
         "public-data/market-snapshot.json",
