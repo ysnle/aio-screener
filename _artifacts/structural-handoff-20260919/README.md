@@ -6,6 +6,8 @@
 
 ## 이 자료를 사용하는 방법
 
+**2026-09-26 QA·커밋·배포 효율성 점검:** [34 검증 파이프라인 재감사](34-QA-COMMIT-DEPLOY-EFFICIENCY-AUDIT-20260926.md)는 현재 v56.50 manifest·runner·워크플로를 근거로 유지할 출시 경계와 실제 중복·선택 과다·시간 미측정을 분리한다. [26 실행·인수 계획](26-EXECUTION-AND-ACCEPTANCE-PLAN.md)의 E2-C6 실행 전에 읽는다. CI 원격 소요시간과 비용은 아직 확인되지 않았다.
+
 **2026-09-25 최신 읽기 경로:** [33 새 SHA 20개 라우트 재점검](33-NEW-SHA-20-ROUTE-LIVE-RECHECK-20260925.md) → [32 사용자 링크·차트·뉴스·검증 구조](32-EXTERNAL-REFERENCES-CHART-NEWS-AND-TEST-DESIGN-20260925.md) → [31 Principles·Masters 본문/SEC 감사](31-PRINCIPLES-MASTERS-LIVE-CONTENT-AND-SEC-AUDIT-20260925.md) → [30 Atlas·Guide·포트폴리오 심층 감사](30-ATLAS-GUIDE-PORTFOLIO-LIVE-DEPTH-AUDIT-20260925.md) → [29 2차 라이브 콘텐츠 감사](29-SECOND-PASS-LIVE-CONTENT-AUDIT-20260925.md) → [28 페이지별 사용자 감사](28-PAGE-BY-PAGE-LIVE-USER-AUDIT-20260924.md) → [25 발견 상태](25-CURRENT-FINDING-STATUS-CROSSWALK.md) → [26 실행·인수](26-EXECUTION-AND-ACCEPTANCE-PLAN.md) 순으로 읽는다. 원격 `v56.33`은 **두 sourceSha**에서 관찰됐고 로컬 working tree는 별개다. 열람 수와 의미·원문·사용자 인수를 혼동하지 않는다. 이 증분은 핸드오프 문서만 작성하며 제품 코드·설정·데이터를 수정하거나 커밋·배포하지 않는다.
 
 **2026-09-24 실브라우저 재점검:** [27 라이브·로컬·코드 의미 정합성 감사](27-LIVE-LOCAL-CODE-SEMANTIC-AUDIT-20260924.md)는 배포 v56.15와 로컬 v56.21→v56.23의 20개 라우트 방문, 대표 상호작용, 코드·데이터 계약을 대조한 추가 증거다. LC-01~16의 확정 결함·설계 후보·미검증을 구분하며, 기존 25/26의 현행 상태를 자동 대체하지 않는다. 구현 전에는 27의 재현·인수 조건을 25의 상태 원장과 26의 E0–E7 작업 카드에 연결한다.
@@ -66,6 +68,7 @@
 | [31](31-PRINCIPLES-MASTERS-LIVE-CONTENT-AND-SEC-AUDIT-20260925.md) | Principles 112확장 원고, Masters SEC 행/값/단위·투영 범위 | 새 원격 SHA의 전수 열람/대표 SEC 대사, LC-83~85 | 개별 원전·37기관 원행 전수와 사용자 이해도 |
 | [32](32-EXTERNAL-REFERENCES-CHART-NEWS-AND-TEST-DESIGN-20260925.md) | 사용자 X/웹 링크·9이미지의 출처 경계와 차트·뉴스·환경/테스트 통합 | 외부 설계 참고, 이미지 정적 분석, LC-86~90 | 시장 사실·패턴 성능·전체 답글·외부 전문 별도 검증 |
 | [33](33-NEW-SHA-20-ROUTE-LIVE-RECHECK-20260925.md) | 새 sourceSha의 20개 route 대표 화면·동선, LC-91~95 | Chrome 1920/1280 폭 대표 확인; 상세 조합·원전·실사용자는 미인수 | QQQ 결과 정체성, rank/뉴스/SEC/RRG 상태를 25/26에 연결 |
+| [34](34-QA-COMMIT-DEPLOY-EFFICIENCY-AUDIT-20260926.md) | QA·커밋·배포 선택 범위·중복·대기 구조 감사 | v56.50 로컬 manifest/runner/YAML·캐시 시간 표본; 원격 Actions 시간 미측정 | 캐시/리포트 격리→후보 tree 결속→중복 제거→CI 시간 실측 |
 
 개별 함수 상태와 미검수 영역은 [검수 대장](FUNCTION-REVIEW.md)을 따른다. 패키지 작성은 해당 영역 전수 검수 완료를 뜻하지 않는다. 구현 시작 전에 해당 발견이 현재 트리에 남았는지 재검증한다.
 

@@ -20,7 +20,7 @@ import { createEvidenceStore } from '../data/evidence-store.js';
 import { createEvidence } from '../data/contracts/evidence.js';
 import { selectForDecision, selectForDisplay, selectLastKnown, selectCompleteness } from '../data/selectors/evidence.js';
 import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
-import { normalizeSignalScoreMode, describeSignalScoreMode, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/signal/mode.js';
+import { normalizeSignalScoreMode, describeSignalScoreMode, summarizeEntryChecklist, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/signal/mode.js';
 import { computeRelativeRotation } from '../domain/themes/rrg.js';
 import { classifyMovingAverageStructure, deriveMultiTimeframeView } from '../domain/technical/stage.js';
 import { computeNewsSentimentScore, computeNewsRiskSignals } from '../domain/news/scoring.js';
@@ -98,6 +98,8 @@ if (typeof window !== 'undefined') {
   // P1258: 위험 입력 조립(스냅샷·returnsMap·estimate 호출)의 단일 소유자 — 셸은 이 브리지를
   // 호출해 결과를 그대로 렌더한다.
   window._pfAssembleRiskEstimateInput = assembleRiskEstimateInput;
+  // QA-SIG-27/P1263: 체크리스트 3상 집계의 단일 소유자(모드 revision 결속)를 셸에 빌려준다.
+  window._sigSummarizeEntryChecklist = summarizeEntryChecklist;
   window._pfAssessAccountPerformance = assessAccountPerformance;
   // E3/P1188: the classic-shell form is the writer for the declared currency /
   // cash-return / RF inputs; it consumes the same keys and normalizers the

@@ -5237,6 +5237,43 @@
       try { window._aioRenderSnapshotDates(); } catch (_) {}
     }
 
+    // T1207 / QA-SIG-27 (P1263): 체크리스트 3상 집계는 모드 독립이고, 집계 결과가 자기 모드
+    // revision·decisionThreshold를 실어 간다. 보고되지 않은 조건은 대기로 집계된다.
+    var summarizeT1207 = window._sigSummarizeEntryChecklist;
+    var statesT1207 = [{ ok: true }, { ok: true }, { ok: false }, { ok: null }, {}];
+    var swingT1207 = typeof summarizeT1207 === 'function' ? summarizeT1207(statesT1207, 'swing') : null;
+    var dayT1207 = typeof summarizeT1207 === 'function' ? summarizeT1207(statesT1207, 'day') : null;
+    _assert('T1207 checklist_three_state_and_revision_binding: 3상 집계·모드 revision 결속·모드 독립',
+      !!swingT1207 && swingT1207.passed === 2 && swingT1207.failed === 1 && swingT1207.pending === 2
+      && swingT1207.modeRevision === 'signal-score-mode.swing' && swingT1207.decisionThreshold === null
+      && !!dayT1207 && dayT1207.passed === swingT1207.passed && dayT1207.failed === swingT1207.failed
+      && dayT1207.pending === swingT1207.pending && dayT1207.label === swingT1207.label
+      && dayT1207.modeRevision === 'signal-score-mode.day' && dayT1207.decisionThreshold === null,
+      JSON.stringify({ swing: swingT1207, day: dayT1207 }));
+
+    var liveOldT1207 = window._liveData;
+    var snapOldT1207 = window.DATA_SNAPSHOT;
+    var healthOldT1207 = window.computeMarketHealth;
+    var sumT1207 = document.getElementById('entry-check-summary');
+    try {
+      window._liveData = {};
+      window.DATA_SNAPSHOT = {};
+      window.computeMarketHealth = function() { return null; };
+      updateEntryChecklist();
+      var revisionT1207 = sumT1207 ? (sumT1207.dataset.modeRevision || '') : '';
+      _assert('T1207 checklist_unreported_inputs_pending: 미보고 입력은 통과 0 · 미충족 0 · 대기 5로 집계된다',
+        !!sumT1207 && /통과 0 · 미충족 0 · 대기 5/.test(sumT1207.textContent || '')
+        && /일부 조건 미수신/.test(sumT1207.textContent || '')
+        && /^signal-score-mode\.(swing|day)$/.test(revisionT1207)
+        && (sumT1207.dataset.decisionThreshold || '') === 'null',
+        JSON.stringify({ text: sumT1207 && sumT1207.textContent, revision: revisionT1207, threshold: sumT1207 && sumT1207.dataset.decisionThreshold }));
+    } finally {
+      window._liveData = liveOldT1207;
+      window.DATA_SNAPSHOT = snapOldT1207;
+      window.computeMarketHealth = healthOldT1207;
+      try { updateEntryChecklist(); } catch (_) {}
+    }
+
     // T186: briefing "Week of May 4-10" section has data-aio-archive
     var briefingEls = document.querySelectorAll('#page-briefing [data-aio-archive="true"]');
     var hasWeekArchive = false;

@@ -935,6 +935,38 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const facade = readFileSync(path.join(root, 'src/legacy/compatibility-facade.js'), 'utf8');
   if (!/input\.mode = normalizeSignalScoreMode\(/.test(readersSource)) fail('P1214 signal-mode: the native runtime reader must thread the declared mode into the score input');
   if (!/mode: normalizeSignalScoreMode\(root\?\.AIO_ARCH/.test(facade)) fail('P1214 signal-mode: the legacy facade must read the shared mode, not hardcode swing');
+
+  // ── QA-SIG-27 (P1263): 체크리스트 3상 집계는 모드 독립이고, 집계 결과가 자기 모드 revision을
+  // 실어 나른다. 보고되지 않은 조건(ok 없음)은 대기로 센다. 제품 결정: 모드별 판정 임계값 없음.
+  const summarize = signalMode.summarizeEntryChecklist;
+  const threeStates = [
+    { id: 'ec-vix', ok: true }, { id: 'ec-score', ok: true }, { id: 'ec-breadth', ok: false },
+    { id: 'ec-streak', ok: null }, { id: 'ec-event', ok: true },
+  ];
+  const swingSummary = summarize(threeStates, swingMode);
+  const daySummary = summarize(threeStates, dayMode);
+  if (swingSummary.passed !== 3 || swingSummary.failed !== 1 || swingSummary.pending !== 1 || swingSummary.total !== 5) {
+    fail(`QA-SIG-27 checklist: 3-state aggregation drifted, got ${JSON.stringify(swingSummary)}`);
+  }
+  if (swingSummary.label !== '일부 조건 미수신') fail(`QA-SIG-27 checklist: a pending condition must surface as 미수신, got ${swingSummary.label}`);
+  if (!swingSummary.modeRevision.endsWith('.swing') || swingSummary.decisionThreshold != null) {
+    fail(`QA-SIG-27 checklist: the summary must carry its mode revision and a null decision threshold, got ${JSON.stringify(swingSummary)}`);
+  }
+  if (swingSummary.passed !== daySummary.passed || swingSummary.failed !== daySummary.failed || swingSummary.pending !== daySummary.pending || swingSummary.label !== daySummary.label) {
+    fail('QA-SIG-27 checklist: the market-health checklist is mode-independent — only the revision binding may differ');
+  }
+  if (daySummary.modeRevision === swingSummary.modeRevision || daySummary.decisionThreshold != null) {
+    fail('QA-SIG-27 checklist: each mode revision must be bound distinctly and must not invent a decision threshold');
+  }
+  const allPending = summarize([{}, null, { ok: null }], 'swing');
+  if (allPending.pending !== 3 || allPending.passed !== 0 || allPending.failed !== 0 || allPending.label !== '일부 조건 미수신') {
+    fail(`QA-SIG-27 checklist: unreported conditions must aggregate as pending, got ${JSON.stringify(allPending)}`);
+  }
+  const allClear = summarize([{ ok: true }, { ok: true }, { ok: true }, { ok: true }, { ok: true }], swingMode);
+  if (allClear.label !== '조건 대부분 충족' || allClear.pending !== 0) fail(`QA-SIG-27 checklist: a fully passing checklist must aggregate without a pending label, got ${JSON.stringify(allClear)}`);
+  if (swingMode.checklistPolicy?.modeIndependent !== true || swingMode.checklistPolicy?.decisionThreshold != null || dayMode.checklistPolicy?.modeIndependent !== true) {
+    fail('QA-SIG-27 checklist: the product decision (mode-independent, no per-mode threshold) must stay recorded on the descriptor');
+  }
 }
 
 // ── E2/S-C/P1240: screener row resolution shadow comparison ────────────────────────────────────

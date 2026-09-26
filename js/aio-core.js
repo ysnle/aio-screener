@@ -1,5 +1,5 @@
 ﻿
-const APP_VERSION = 'v56.49';
+const APP_VERSION = 'v56.52';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -1872,7 +1872,6 @@ window._aioClearAllTimers = function() {
       'fred-cpi-chart': { type:'message', label:'FRED CPI 시계열 미수신', status:'fred-chart-status' },
       'fred-fedfunds-chart': { type:'message', label:'FRED 기준금리 시계열 미수신', status:'fred-chart-status' },
       'rrg-canvas': { type:'message', label:'RRG 시계열 미수신', status:'rrg-chart-status' },
-      'sector-20d-chart': { type:'message', label:'섹터 20일 시계열 미수신', status:'sector-20d-status' },
       'fund-var-chart': { type:'message', label:'티커 선택 후 표시' },
       'pf-benchmark-chart': { type:'message', label:'포트폴리오 구성 후 표시' },
       'pf-position-donut': { type:'message', label:'포트폴리오 구성 후 표시' },
@@ -26783,7 +26782,7 @@ function destroyPageCharts(pageId) {
           if (_macroExisting) _macroExisting.destroy();
         }
       } catch(e) {}
-      // P1257/QA-THM-CLEANUP: `sector-20d-chart`는 퇴역했다 — 그 차트 인스턴스 정리 가드도 함께 제거.
+      // P1257/P1260: 퇴역한 20일 섹터 차트의 인스턴스 정리 가드도 함께 제거했다.
       // FRED 차트도 destroy (LWC compat wrapper도 destroy 호출 가능)
       if (typeof _fredChartInstances !== 'undefined') {
         Object.values(_fredChartInstances).forEach(function(c) { try { c.destroy(); } catch(e){} });

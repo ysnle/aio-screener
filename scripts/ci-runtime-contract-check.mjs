@@ -200,8 +200,16 @@ check('LC-41/P1212 legacy factor-backtest does not promote missing values to zer
 // P1214/E2 LC-26: the mode is one declared revision shared by the legacy toggle, the native reader
 // and the facade — and the copy must not promise a per-mode threshold the model does not produce.
 check('E2/LC-26/P1214 signal mode has one writer and one descriptor', /bridge\.set\(/.test(data) && /bridge\.describe\(/.test(data) && /aio:signalScoreModeChanged/.test(data) && !/임계값 65점/.test(data));
-check('E2/LC-26/P1214 legacy signal dashboard and checklist consume the declared mode', /AIO_ARCH\.signalScoreMode\.get\(\)/.test(pagesSource) && /pending\+\+/.test(pagesSource));
+check('E2/LC-26/P1214 legacy signal dashboard and checklist consume the declared mode', /AIO_ARCH\.signalScoreMode\.get\(\)/.test(pagesSource) && /states\.push\(/.test(pagesSource));
 check('E2/LC-26/P1214 checklist is stated independent of the score mode', /시장 환경 체크리스트/.test(html) && !/스윙 환경 체크리스트/.test(html));
+// QA-SIG-27/P1263: the market-health checklist is mode-independent by product decision and its
+// 3-state aggregate is owned by one revision-bound domain function; the shell renders through
+// the bootstrap bridge and never invents a threshold copy.
+check('QA-SIG-27/P1263 entry checklist aggregates via the revision-bound domain summary', /window\._sigSummarizeEntryChecklist = summarizeEntryChecklist/.test(bootstrap)
+  && /_sigSummarizeEntryChecklist/.test(pagesSource)
+  && /dataset\.modeRevision/.test(pagesSource)
+  && /checklistPolicy/.test(read('src/domain/signal/mode.js'))
+  && /export function summarizeEntryChecklist/.test(read('src/domain/signal/mode.js')));
 check('ticker deep analysis includes institutional Minervini engine', /function\s+_buildMinerviniTechnicalEngine/.test(ui) && /_calcMinerviniMAStack/.test(ui) && /_buildHorizontalVolumeZones/.test(ui) && /_calcVcpQuality/.test(ui) && /_calcFibonacciConfluence/.test(ui));
 // LC-39/P1215: the entity/portfolio → technical bridge must write the real deep-analysis input
 // (`#deep-sym-input`) and actually run the analysis. The retired `deep-ticker-input` id must not
@@ -248,6 +256,9 @@ check('LC-32/P1231 headline-only news withholds the summary claim', /요약 보�
 // LC-35/P1257: the hidden legacy themes sections are classified (retire / public re-home / dev
 // bundle) and the decision is recorded in the stylesheet — public copy promises only what ships.
 check('LC-35/P1257 themes hidden sections classified with the decision recorded', /P1257\/LC-35 제품 결정/.test(html) && /퇴역\(삭제\)/.test(html) && /공개 경로로 이전/.test(html) && /개발자 번들로 이전/.test(html) && !/45개 세분화 테마 실시간/.test(html));
+// QA-THM-CLEANUP/P1260: the P1257-retired theme sections leave no renderer, selector,
+// quote-gate or responsive-CSS reference behind — element-absent no-ops are deleted, not kept.
+check('QA-THM-CLEANUP/P1260 retired theme ids have no surviving surface references (P1257)', !/theme-heatmap|all-etf-grid|sector-20d|themes-m7-mirror|themes-breadth|themes-sector-mirror/.test([html, core, ui, data, workspace, krData, macroTech, pagesSource, chat, tests].join('\n')));
 // LC-36/P1233: the theme breadth panel names the price-eligible denominator.
 check('LC-36/P1233 theme breadth names its price-eligible denominator', /가격 적격 \$\{priceEligible\}\/\$\{leaderList\.length\}/.test(themesPage));
 // LC-50/P1234: the Atlas overview states what the search actually matches.
@@ -955,6 +966,33 @@ check('LIVE3-05: KR supply parses formatted values and renders missing as unknow
 check('LIVE3-06: conflicting stale Naver KR index quotes cannot overwrite a materially different server quote', /_aioKrQuoteConflicts/.test(data) && /_krDiff > 0\.0075/.test(data));
 check('LIVE3-07: Telegram collection attempts and last success have separate semantics', /collectionStatus/.test(telegramFetcher) && /attemptedAt/.test(telegramFetcher) && /lastSuccessfulAt/.test(telegramFetcher) && /generatedAt means successful collection time/.test(telegramFetcher));
 check('LIVE3-08: glossary expectancy math and tactical-score wording are non-predictive', /거래당 \+0\.4R/.test(glossary) && /예측·매수 신호가 아니며/.test(glossary) && !/승률 40% × R 2\.5 = \+100% 수익/.test(glossary));
+// QA-GLOSSARY-SWEEP/P1261 (P1248 residual): every glossary entry that carries a heuristic,
+// threshold or historical figure must declare its source basis in GLOSSARY_FIGURE_SOURCES
+// (kind/src/cond) — the sweep's full reconciliation record. No figure without a declared basis.
+const glossaryEntries = [];
+const glossaryEntryRe = /\{term:'((?:[^'\\]|\\.)*)'(?:,\s*alias:'((?:[^'\\]|\\.)*)')?,\s*cat:'((?:[^'\\]|\\.)*)',\s*def:'((?:[^'\\]|\\.)*)'\}/g;
+let glossaryEntryMatch;
+while ((glossaryEntryMatch = glossaryEntryRe.exec(glossary))) {
+  glossaryEntries.push({ term: glossaryEntryMatch[1], def: glossaryEntryMatch[4] });
+}
+const GLOSSARY_FIGURE_RE = /\d+(?:\.\d+)?\s*(?:%|배|점|bp|p)(?![A-Za-z])|\d+(?:\.\d+)?\s*(?:이상|이하|초과|미만|↑|↓)|\d+(?:\.\d+)?\s*[~–-]\s*\d+(?:\.\d+)?\s*(?:%|배|점|bp|p)?|\d+\s*\/\s*\d+/;
+const glossaryFigureTerms = glossaryEntries.filter((e) => GLOSSARY_FIGURE_RE.test(e.def)).map((e) => e.term);
+const glossaryFigureSourcesMatch = glossary.match(/var GLOSSARY_FIGURE_SOURCES = \{([\s\S]*?)\n\};/);
+const glossaryFigureSources = glossaryFigureSourcesMatch
+  ? [...glossaryFigureSourcesMatch[1].matchAll(/'((?:[^'\\]|\\.)*)':\s*\{kind:'([^']*)',\s*src:'((?:[^'\\]|\\.)*)',\s*cond:'((?:[^'\\]|\\.)*)'\}/g)]
+      .map((m) => ({ term: m[1], kind: m[2], src: m[3], cond: m[4] }))
+  : [];
+const GLOSSARY_FIGURE_KINDS = new Set(['정의', '산식', '관례', '방법론-예시', '역사-관측', '미검증-경험칙']);
+const glossarySourceTerms = new Set(glossaryFigureSources.map((r) => r.term));
+const glossaryTermSet = new Set(glossaryEntries.map((e) => e.term));
+check('QA-GLOSSARY-SWEEP/P1261 figure-carrying glossary entries and source rows match exactly (P1248)', glossaryFigureTerms.length > 0
+  && glossaryFigureTerms.every((t) => glossarySourceTerms.has(t))
+  && glossaryFigureSources.every((r) => glossaryFigureTerms.includes(r.term))
+  && glossaryFigureSources.length === glossaryFigureTerms.length);
+check('QA-GLOSSARY-SWEEP/P1261 every figure source row declares kind, source and condition', glossaryFigureSources.length > 0
+  && glossaryFigureSources.every((r) => glossaryTermSet.has(r.term) && GLOSSARY_FIGURE_KINDS.has(r.kind) && r.src.trim().length > 0 && r.cond.trim().length > 0)
+  && glossaryFigureSources.filter((r) => r.kind === '미검증-경험칙').every((r) => r.src.includes('미검증')));
+check('QA-GLOSSARY-SWEEP/P1261 unattributed aphorism and sourced superlative stay unasserted', !/— 아인슈타인\./.test(glossary) && !/역사상 가장 강력한 주가 부양 수단/.test(glossary) && /출처가 확정된 문헌이 없어/.test(glossary));
 check('LIVE3-09: quote producers preserve exchange observation time separately from file freshness', /regularMarketTime/.test(fetchData) && /marketState/.test(fetchData) && /exchangeTimezoneName/.test(fetchData) && /window\._liveData\[q\.symbol\]\.observedAt/.test(data));
 check('LIVE3-10: failed client F&G refresh preserves a newer server observation instead of overwriting it with static seed', /\^\(live\|proxy\|delayed\)\$/.test(data) && /외부 관측값이 전혀 없을 때만 정적 snapshot/.test(data));
 

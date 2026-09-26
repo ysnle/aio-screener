@@ -455,9 +455,8 @@ function updateRiskMonitor() {
 }
 
 // ── Update Sector Heatmap Colors ──────────────────────────────────
-// v48.50: #sector-heatmap + #themes-sector-mirror 동시 업데이트
 function updateSectorHeatmap() {
-  document.querySelectorAll('#sector-heatmap .sec-tile, #themes-sector-mirror .sec-tile').forEach(function(tile) {
+  document.querySelectorAll('#sector-heatmap .sec-tile').forEach(function(tile) {
     var sym = tile.dataset.sym;
     var chgEl = tile.querySelector('.sec-chg');
     if (!chgEl) return;
@@ -657,9 +656,10 @@ function updateEntryChecklist() {
   var vixD = ld['^VIX'];
   var spyD = ld['SPY'];
   var health = typeof computeMarketHealth === 'function' ? computeMarketHealth() : null;
-  // E2/LC-26: 통과/미충족/대기를 따로 센다. 이전에는 통과만 세고 대기를 5 분모에 남긴 채
-  // "조건 대부분 충족"을 써서, 점수가 보류인데도 4/5 같은 긍정 문구가 나올 수 있었다.
-  var passed = 0, failed = 0, pending = 0, total = 5;
+  // QA-SIG-27/P1263: 집계는 도메인의 단일 소유자(`summarizeEntryChecklist`)가 한다 — 셸은
+  // 5조건의 판정만 수집한다. 미보고 조건도 명시적으로 대기(null)로 남긴다(통과·미충족으로
+  // 만들지 않는다). E2/LC-26의 3상 분리 문구는 그대로 유지된다.
+  var states = [];
 
   // 섹터 ETF 상승 비율
   var sectorETFs = ['XLK','XLF','XLE','XLV','XLI','XLY','XLP','XLRE','XLB','XLU','XLC'];
@@ -668,6 +668,7 @@ function updateEntryChecklist() {
   var breadthPct = totalSectors > 0 ? Math.round(upCount / totalSectors * 100) : 0;
 
   function setCheck(id, ok, val) {
+    states.push({ id: id, ok: ok === true ? true : ok === false ? false : null });
     var el = document.getElementById(id);
     if (!el) return;
     var icon = el.querySelector('.ec-icon');
@@ -678,33 +679,36 @@ function updateEntryChecklist() {
     }
     if (valEl) valEl.textContent = val;
     // v52.65 아이보리 2a: 셀 좌측 컬러 스트라이프 제거(원칙 §3) — 통과/미충족은 텍스트 색만으로 표시
-    if (ok === true) passed++;
-    else if (ok === false) failed++;
-    else pending++;
   }
 
   // 1. VIX < 25
   if (vixD && vixD.price != null) {
     setCheck('ec-vix', vixD.price < 25, vixD.price.toFixed(1));
+  } else {
+    setCheck('ec-vix', null, '미수신');
   }
 
   // 2. 시장 스코어 55+ — P715: fail-closed로 score가 null일 수 있음(서버 시세 백스톱 제거 후
   // 오프라인/미수신 부팅에서 "null점" 노출 실증). 유한값일 때만 표기, 아니면 명시적 미수신.
   if (health && typeof health.score === 'number' && isFinite(health.score)) {
     setCheck('ec-score', health.score >= 55, health.score + '점');
-  } else if (health) {
+  } else {
     setCheck('ec-score', null, '미수신');
   }
 
   // 3. 섹터 폭 50%+
   if (totalSectors > 0) {
     setCheck('ec-breadth', breadthPct >= 50, upCount + '/' + totalSectors + ' (' + breadthPct + '%)');
+  } else {
+    setCheck('ec-breadth', null, '미수신');
   }
 
   // 4. 연속 상승 경고 (SPY 당일 변동으로 간이 판단)
   if (spyD && spyD.pct != null) {
     var streak = spyD.pct >= 0;
     setCheck('ec-streak', !streak || spyD.pct < 1.5, spyD.pct >= 0 ? '+' + spyD.pct.toFixed(1) + '%' : spyD.pct.toFixed(1) + '%');
+  } else {
+    setCheck('ec-streak', null, '미수신');
   }
 
   // 5. FOMC/CPI 48시간 이내 — v46.9: 동적 FOMC + 미래 이벤트만 (P89)
@@ -738,18 +742,29 @@ function updateEntryChecklist() {
     setCheck('ec-event', !nearEvent, nearEvent ? '48h 이내 이벤트' : '48h 이내 일정 없음');
   }
 
-  // 요약
+  // 요약 — QA-SIG-27/P1263: 집계 단일 소유자(bootstrap 브리지)가 모드 revision·decisionThreshold를
+  // 함께 발행한다. 브리지가 없으면 요약을 지어내지 않고 판정 보류로 남는다.
   var sumEl = document.getElementById('entry-check-summary');
   if (sumEl) {
-    var color = passed >= 4 ? 'var(--data-green)' : passed >= 3 ? 'var(--data-amber)' : 'var(--data-red)';
-    // P720: 시스템 발화형 판정("진입 검토 가능/자제")을 관측형(조건 충족도)으로 전환 — P714 정합.
-    // LC-26: 통과/미충족/대기를 분리해 표시한다. 대기가 남은 상태에서 '조건 대부분 충족'으로
-    // 단정하지 않는다 — 점수 보류와 조건부 통과가 같은 문구로 섞이던 결함.
-    var label = pending > 0
-      ? '일부 조건 미수신'
-      : passed >= 4 ? '조건 대부분 충족' : passed >= 3 ? '조건 일부 충족' : '조건 미충족 다수';
-    sumEl.textContent = '통과 ' + passed + ' · 미충족 ' + failed + ' · 대기 ' + pending + ' (' + passed + '/' + total + ' ' + label + ')';
-    sumEl.style.color = color;
+    var summarize = (typeof window._sigSummarizeEntryChecklist === 'function') ? window._sigSummarizeEntryChecklist : null;
+    var summary = summarize ? summarize(states) : null;
+    if (!summary) {
+      sumEl.textContent = '체크리스트 집계 모듈 미연결 — 판정 보류';
+      sumEl.style.color = 'var(--text-muted)';
+      delete sumEl.dataset.modeRevision;
+      delete sumEl.dataset.decisionThreshold;
+    } else {
+      var passed = summary.passed;
+      // P720: 시스템 발화형 판정("진입 검토 가능/자제")을 관측형(조건 충족도)으로 전환 — P714 정합.
+      // LC-26: 통과/미충족/대기를 분리해 표시한다. 대기가 남은 상태에서 '조건 대부분 충족'으로
+      // 단정하지 않는다 — 점수 보류와 조건부 통과가 같은 문구로 섞이던 결함.
+      var color = passed >= 4 ? 'var(--data-green)' : passed >= 3 ? 'var(--data-amber)' : 'var(--data-red)';
+      sumEl.textContent = '통과 ' + summary.passed + ' · 미충족 ' + summary.failed + ' · 대기 ' + summary.pending + ' (' + summary.passed + '/' + summary.total + ' ' + summary.label + ')';
+      sumEl.style.color = color;
+      // 모드 revision 결속: 이 집계가 어느 모드 revision·임계값 정책에서 나왔는지 결과가 실고 간다.
+      sumEl.dataset.modeRevision = summary.modeRevision;
+      sumEl.dataset.decisionThreshold = summary.decisionThreshold == null ? 'null' : String(summary.decisionThreshold);
+    }
   }
 }
 
@@ -2312,33 +2327,6 @@ function calcSectorBreadth(tickers) {
   return total >= Math.max(2, Math.ceil(tickers.length * 0.6)) ? Math.round(above / total * 100) : null;
 }
 
-// ══════════════════════════════════════════════════════════════════
-//  핫/이머징 테마 감지
-// ══════════════════════════════════════════════════════════════════
-function detectHotThemes() {
-  var results = [];
-  THEME_MAP.forEach(function(theme) {
-    var perf = getThemePerf(theme);
-    var breadth = calcSectorBreadth(theme.leaders);
-    var hasPerf = perf.chgPct != null && isFinite(perf.chgPct);
-    var rs = theme.etf ? calcLiveRS(theme.etf) : { rsRatio: null, rsMom: null, quadrant: 'unknown', reason: 'theme_etf_missing' };
-    var complete = hasPerf && breadth !== null && perf.quality !== 'missing';
-    results.push({
-      theme: theme,
-      perf: perf.chgPct,
-      perfMeta: perf,
-      breadth: breadth,
-      rsRatio: rs.rsRatio,
-      rsMom: rs.rsMom,
-      quadrant: rs.quadrant,
-      score: complete ? perf.chgPct * 2 + (breadth - 50) * 0.05 + (rs.rsRatio !== null ? (rs.rsRatio - 100) * 0.3 : 0) : -999,
-      complete: complete
-    });
-  });
-  results.sort(function(a,b) { return b.score - a.score; });
-  return results;
-}
-
 var _rrgViewMode = 'sectors'; // 'sectors' or 'subsectors' or 'all'
 
 function setRRGView(mode, btn) {
@@ -2893,61 +2881,6 @@ function generateSectorAnalysis(sectors) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  테마 히트맵 & 핫 테마 패널 동적 렌더
-// ═══════════════════════════════════════════════════════════════
-var _themeHeatmapRetries = 0;
-function renderThemeHeatmap() {
-  let ld = window._liveData || {};
-  if (Object.keys(ld).length < 5) {
-    _themeHeatmapRetries++;
-    if (_themeHeatmapRetries < 60) {
-      setTimeout(renderThemeHeatmap, 500);
-      return;
-    }
-    _aioLog('warn', 'render', '테마 히트맵: 라이브 데이터 30초 초과 — 정적 현재값 대체 금지');
-  }
-  var container = document.getElementById('theme-heatmap');
-  if (!container) return;
-  var results = detectHotThemes();
-
-  // If no results yet, show placeholder
-  if (!results || results.length === 0) {
-    container.innerHTML = '<div style="grid-column:span 4;text-align:center;padding:20px;color:var(--text-muted);font-size:12px;">테마 데이터 준비 중…</div>';
-    return;
-  }
-
-  var html = '';
-  results.forEach(function(r) {
-    var theme = r.theme;
-    var chg = r.perf;
-    var hasPerf = chg != null && isFinite(chg);
-    var isPos = hasPerf && chg >= 0;
-    var bgIntensity = hasPerf ? Math.min(Math.abs(chg) * 8, 30) : 0;
-    var bgColor = hasPerf ? (isPos ? 'rgba(34,117,76,' + (bgIntensity/100) + ')' : 'rgba(177,58,48,' + (bgIntensity/100) + ')') : 'rgba(33,29,22,0.08)';
-    var chgColor = hasPerf ? (isPos ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
-    var qLabel = !hasPerf ? '대기' : r.quadrant === 'Leading' ? '선도' : r.quadrant === 'Improving' ? '개선' : r.quadrant === 'Weakening' ? '약화' : '후행';
-    var qColor = !hasPerf ? 'var(--text-muted)' : r.quadrant === 'Leading' ? 'var(--data-green)' : r.quadrant === 'Improving' ? 'var(--data-cyan)' : r.quadrant === 'Weakening' ? 'var(--data-amber)' : 'var(--data-red)';
-    var perfMeta = r.perfMeta || {};
-    var coverageLabel = perfMeta.count != null && perfMeta.total ? perfMeta.count + '/' + perfMeta.total : '';
-
-    html += '<div class="aio-hover-scale" data-action="showThemeDetail" data-arg="' + escHtml(theme.id) + '" style="background:' + bgColor + ';border:1px solid rgba(33,29,22,0.06);border-radius:4px;padding:8px;cursor:pointer;transition:transform var(--dur-fast);">' +
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;">' +
-        '<span style="font-size:10px;font-weight:800;">' + theme.nameKr + '</span>' +
-        '<span style="font-size:12px;font-weight:700;font-family:var(--font-mono);color:' + chgColor + ';">' + (hasPerf ? ((isPos?'+':'') + chg.toFixed(2) + '%') : 'LIVE') + '</span>' +
-      '</div>' +
-      '<div style="display:flex;align-items:center;justify-content:space-between;">' +
-        '<span style="font-size:11px;color:var(--text-muted);">' + (hasPerf ? (theme.etf || '합산') : '수집 대기') + (coverageLabel ? ' · ' + coverageLabel : '') + '</span>' +
-        '<span style="font-size:10px;color:' + qColor + ';font-weight:700;">● ' + qLabel + '</span>' +
-      '</div>' +
-      '<div style="font-size:10px;color:var(--text-muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' +
-        theme.leaderHighlight.slice(0,4).map(function(t){return '<span data-action="showTicker" data-arg="'+t+'" data-stop="1" style="cursor:pointer;color:var(--accent);font-family:var(--font-mono);font-weight:700;" title="'+t+' 분석 →">'+t+'</span>';}).join('<span style="color:var(--surface-5);"> · </span>') +
-      '</div>' +
-    '</div>';
-  });
-  container.innerHTML = html;
-}
-
-// ═══════════════════════════════════════════════════════════════
 //  테마 상세 패널 (서브테마 + 대장주 + 라이브 가격)
 // ═══════════════════════════════════════════════════════════════
 function _themeFinitePct(v) {
@@ -3368,52 +3301,6 @@ async function hydrateRRGDailyHistory() {
 window.hydrateRRGDailyHistory = hydrateRRGDailyHistory;
 
 // ═══════════════════════════════════════════════════════════════
-//  ALL-ETF GRID 렌더 (섹터+서브 ETF 전체 시세)
-// ═══════════════════════════════════════════════════════════════
-// v48.57: 무한 재귀 가드 — 60회(30초) 재시도 후 폴백 메시지
-window._renderAllEtfGridRetries = 0;
-function renderAllEtfGrid() {
-  let ld = window._liveData || {};
-  if (Object.keys(ld).length < 5) {
-    if (++window._renderAllEtfGridRetries > 60) {
-      var fallbackEl = document.getElementById('all-etf-grid');
-      if (fallbackEl) fallbackEl.innerHTML = '<div style="grid-column:1/-1;padding:20px;text-align:center;color:var(--text-muted);font-size:11px;">ETF 시세 수신 실패 · API 키 확인 필요 (Settings)</div>';
-      return;
-    }
-    setTimeout(renderAllEtfGrid, 500);
-    return;
-  }
-  window._renderAllEtfGridRetries = 0;
-  var container = document.getElementById('all-etf-grid');
-  if (!container) return;
-  var allEtfs = ALL_RRG_ETFS;
-  var html = '';
-  allEtfs.forEach(function(e) {
-    var d = ld[e.sym];
-    var chg = d && d.pct != null ? d.pct : null;
-    var price = d ? (d.price||0) : 0;
-    var isPos = chg !== null ? chg >= 0 : true;
-    var col = chg !== null ? (isPos ? 'var(--data-green)' : 'var(--data-red)') : 'var(--text-muted)';
-    var bg = isPos ? 'rgba(34,117,76,0.06)' : 'rgba(177,58,48,0.06)';
-    html += '<div style="background:' + bg + ';border:1px solid var(--surface-4);border-radius:3px;padding:5px;text-align:center;cursor:pointer;" data-action="showThemeByEtf" data-arg="' + escHtml(e.sym) + '">' +
-      '<div style="font-size:12px;font-weight:800;font-family:var(--font-mono);">' + e.sym + '</div>' +
-      '<div style="font-size:10px;color:var(--text-muted);">' + e.name + '</div>' +
-      '<div style="font-size:12px;font-weight:700;font-family:var(--font-mono);color:' + col + ';">' + (chg !== null ? ((isPos?'+':'') + chg.toFixed(2) + '%') : '—') + '</div>' +
-    '</div>';
-  });
-  container.innerHTML = html;
-}
-
-function showThemeByEtf(etfSym) {
-  for (var i = 0; i < THEME_MAP.length; i++) {
-    if (THEME_MAP[i].etf === etfSym) {
-      showThemeDetail(THEME_MAP[i].id);
-      return;
-    }
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════
 //  세분화 테마 (Sub-Themes) — 시장 핵심 트렌드 & 대장주
 // ═══════════════════════════════════════════════════════════════
 // 각 세분화 테마: 고유 색상, 대장주(리더), 관련 종목, 커스텀 합산
@@ -3654,8 +3541,6 @@ _aioPageBus.register('html-themes-shown', 'aio:pageShown', function(e) {
       drawRRG();
       document.dispatchEvent(new CustomEvent('aio:themesViewChanged'));
       renderSectorPerfBars();
-      renderThemeHeatmap();
-      renderAllEtfGrid();
       renderSubThemesGrid();
       // v45.5: 1주 캐시 백그라운드 프리페치 (사용자가 1주 탭 클릭 시 즉각 표시)
       if (Object.keys(_sectorWeeklyCache).length === 0 && !_sectorWeeklyFetching) {
@@ -3672,8 +3557,6 @@ _aioPageBus.register('html-themes-live', 'aio:liveQuotes', function() {
     drawRRG();
     document.dispatchEvent(new CustomEvent('aio:themesViewChanged'));
     renderSectorPerfBars();
-    renderThemeHeatmap();
-    renderAllEtfGrid();
     renderSubThemesGrid();
     // 열려있는 상세 패널 자동 갱신
     var dp = document.getElementById('theme-detail-panel');

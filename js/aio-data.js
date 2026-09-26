@@ -13061,7 +13061,7 @@ const LIVE_SYMBOLS = [
   'AEM','NEM','GOLD','WPM','FNV','GFI','KGC',                 // Gold mining
   'FCX','LIN','APD','AA','MP','LAC','ALB','CTVA','ADM',        // Materials
   // ── v48.53: Themes/SUB_THEMES 전수 커버리지 누락 13종 보충 ──
-  'ROBO','WCLD','BUG','VIG','DGRO','SCHD',                    // 테마 ETF (aio-explain 언급 + renderAllEtfGrid 대상)
+  'ROBO','WCLD','BUG','VIG','DGRO','SCHD',                    // 테마 ETF (aio-explain 언급)
   'ACLS','AVAV','CRAK','ENTG','GEV','KTOS','UCTT'             // SUB_THEMES 개별 종목 (반도체 장비/방산/정유/전력)
 ];
 // v49.49 P319/R101 buf fix: LIVE_SYMBOLS를 window.LIVE_SYMBOLS로 노출 — R101 getLiveSymbolsCoverageAudit이 const top-level 변수에 접근 못해 R101_total: 0 보고 (false positive 131 미등록). top-level const는 module scope이므로 window property 아님 — 명시 노출.

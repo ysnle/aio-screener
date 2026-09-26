@@ -5103,8 +5103,7 @@ document.addEventListener('keydown', function(e) {
       var title = chg !== null ? (t + ' ' + (chg > 0 ? '+' : '') + chg.toFixed(2) + '%') : (t + ' —');
       m7html += '<span title="' + title + '" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:' + dotColor + ';border:1px solid rgba(33,29,22,0.2);margin-right:4px;cursor:pointer;"></span>';
     });
-    // v48.50: M7 리더십 technical + themes 미러 동시 업데이트
-    document.querySelectorAll('#m7-health-row, #themes-m7-mirror, .m7-leadership-row').forEach(function(el){
+    document.querySelectorAll('#m7-health-row, .m7-leadership-row').forEach(function(el){
       if (el) el.innerHTML = m7html;
     });
 
@@ -5116,11 +5115,10 @@ document.addEventListener('keydown', function(e) {
     });
     // 이 값은 실제 50일선 상회율이 아니라 당일 섹터 ETF 상승 비율이다. 결측 시 50%를 만들지 않는다.
     var above50ma = secTot >= 6 ? Math.round((secUp / secTot) * 100) : null;
-    // v48.50: breadth-bar + themes-breadth-bar 동시 동기화
-    document.querySelectorAll('#breadth-bar, #themes-breadth-bar, .breadth-bar-sync').forEach(function(el){
+    document.querySelectorAll('#breadth-bar, .breadth-bar-sync').forEach(function(el){
       if (el) el.style.width = above50ma === null ? '0%' : above50ma + '%';
     });
-    document.querySelectorAll('#breadth-pct, #themes-breadth-pct, .breadth-pct-sync').forEach(function(el){
+    document.querySelectorAll('#breadth-pct, .breadth-pct-sync').forEach(function(el){
       if (el) { el.textContent = above50ma === null ? '—' : above50ma + '%'; el.title = above50ma === null ? '섹터 ETF 현재값 부족' : '당일 섹터 ETF 상승 비율 · 50일선 상회율 아님'; }
     });
 

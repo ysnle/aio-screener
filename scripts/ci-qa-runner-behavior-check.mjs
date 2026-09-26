@@ -1,7 +1,8 @@
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
@@ -152,7 +153,149 @@ try {
     }
     if (events.length !== 10 || active.size || peak !== jobs) fail('browser concurrency cap or serial override failed', result);
   }
-  console.log('QA runner behavior OK: phase barriers, failed-only retry, content cache invalidation, task scope, test dependencies, bounded concurrency and exclusive timing gates.');
+
+  // ── P1265/E2-C6 P0: run identity — failed-batch preservation, exact rerun selection,
+  // corrupt cache/report causes, concurrent runner isolation, commit-candidate binding ──
+  const runAsync = (...args) => new Promise((resolvePromise) => {
+    const child = spawn(process.execPath, ['scripts/qa-runner.mjs', ...args], {
+      cwd: root,
+      windowsHide: true,
+      env: { ...process.env, CI: 'false', AIO_QA_MANIFEST_PATH: manifestPath, AIO_QA_CACHE_DIR: cacheDir }
+    });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', (chunk) => { stdout += chunk; });
+    child.stderr.on('data', (chunk) => { stderr += chunk; });
+    child.on('close', (status) => resolvePromise({ status, stdout, stderr }));
+  });
+
+  writeFileSync(manifestPath, JSON.stringify({
+    ...base,
+    groups: {
+      fixture: { phase: 0, kind: 'static', inputs: [fixtureScript], gates: [
+        { id: 'batch-fail', script: fixtureScript, args: ['--mode', 'fail-a'] },
+        { id: 'batch-pass', script: fixtureScript, args: ['--mode', 'pass'] }
+      ] },
+      unrelated: { phase: 0, kind: 'static', inputs: [fixtureScript], gates: [
+        { id: 'unrelated-pass', script: fixtureScript, args: ['--mode', 'pass'] }
+      ] }
+    },
+    profiles: { test: ['fixture'], unrelated: ['unrelated'] }
+  }, null, 2));
+  const batchRun = run('test', '--no-cache');
+  if (batchRun.status !== 1) fail('failed-batch fixture expected a failing run', batchRun);
+  const unrelatedRun = run('unrelated', '--no-cache');
+  if (unrelatedRun.status !== 0) fail('unrelated fixture run failed', unrelatedRun);
+  const rerunAfterUnrelated = run('rerun-failed', '--list');
+  if (rerunAfterUnrelated.status !== 0) fail('rerun-failed lost the failed batch after an unrelated successful run', rerunAfterUnrelated);
+  const rerunIds = JSON.parse(rerunAfterUnrelated.stdout).gates.map((gate) => gate.id).sort();
+  if (rerunIds.join(',') !== 'batch-fail') fail(`rerun-failed did not select the exact preserved batch, got ${rerunIds.join(',') || 'none'}`, rerunAfterUnrelated);
+  writeFileSync(manifestPath, JSON.stringify({
+    ...base,
+    groups: { fixture: { phase: 0, kind: 'static', inputs: [fixtureScript], gates: [
+      { id: 'batch-fail', script: fixtureScript, args: ['--mode', 'pass'] }
+    ] } },
+    profiles: { test: ['fixture'] }
+  }, null, 2));
+  const resolvedRun = run('test', '--no-cache');
+  if (resolvedRun.status !== 0) fail('batch-resolving run failed', resolvedRun);
+  if (existsSync(join(cacheDir, 'failed-batch.json'))) fail('failed batch was not cleared after a run covered and passed every batch gate', resolvedRun);
+  const emptyRerun = run('rerun-failed');
+  if (emptyRerun.status !== 2 || !/FAIL gate가 없습니다/.test(emptyRerun.stderr)) fail('rerun-failed did not refuse an empty failure batch with an explicit cause', emptyRerun);
+
+  writeFileSync(join(cacheDir, 'success-cache.json'), '{corrupt-json');
+  const corruptCacheRun = run('test');
+  if (corruptCacheRun.status !== 0) fail('run under a corrupt success cache failed', corruptCacheRun);
+  const corruptCacheReport = JSON.parse(readFileSync(join(cacheDir, 'last-run.json'), 'utf8'));
+  if (corruptCacheReport.counts?.CACHED) fail('a corrupt success cache produced cache hits instead of re-running', corruptCacheRun);
+  if (!/unreadable/.test(corruptCacheRun.stderr)) fail('a corrupt success cache was not reported with its cause', corruptCacheRun);
+
+  writeFileSync(join(cacheDir, 'failed-batch.json'), 'not-json-at-all');
+  const corruptBatchRun = run('rerun-failed');
+  if (corruptBatchRun.status !== 2 || !/unreadable/.test(corruptBatchRun.stderr)) fail('a corrupt failed batch was not rejected with its cause', corruptBatchRun);
+
+  writeFileSync(manifestPath, JSON.stringify({
+    ...base,
+    groups: {
+      concFail: { phase: 0, kind: 'static', inputs: [fixtureScript], gates: [{ id: 'conc-fail', script: fixtureScript, args: ['--mode', 'fail-a'] }] },
+      concPass: { phase: 0, kind: 'static', inputs: [fixtureScript], gates: [{ id: 'conc-pass', script: fixtureScript, args: ['--mode', 'pass'] }] }
+    },
+    profiles: { concfail: ['concFail'], concpass: ['concPass'] }
+  }, null, 2));
+  const [concFailRun, concPassRun] = await Promise.all([runAsync('concfail', '--no-cache'), runAsync('concpass', '--no-cache')]);
+  if (concFailRun.status !== 1 || concPassRun.status !== 0) fail('concurrent runners produced the wrong exit codes', concFailRun);
+  const concBatch = JSON.parse(readFileSync(join(cacheDir, 'failed-batch.json'), 'utf8'));
+  if ((concBatch.gateIds || []).join(',') !== 'conc-fail') fail(`concurrent run contaminated the failed batch: ${JSON.stringify(concBatch.gateIds)}`, concFailRun);
+  const runReports = readdirSync(join(cacheDir, 'runs')).filter((name) => name.endsWith('.json')).map((name) => JSON.parse(readFileSync(join(cacheDir, 'runs', name), 'utf8')));
+  const sawConcFail = runReports.some((report) => (report.results || []).some((item) => item.id === 'conc-fail' && item.status === 'FAIL'));
+  const sawConcPass = runReports.some((report) => (report.results || []).some((item) => item.id === 'conc-pass' && item.status === 'PASS'));
+  if (!sawConcFail || !sawConcPass) fail('per-run reports did not preserve both concurrent results independently', concFailRun);
+
+  const candidateRepo = join(temp, 'candidate-repo');
+  mkdirSync(candidateRepo, { recursive: true });
+  const git = (...args) => spawnSync('git', args, { cwd: candidateRepo, encoding: 'utf8' });
+  const runCandidate = (...args) => spawnSync(process.execPath, ['scripts/qa-runner.mjs', ...args], {
+    cwd: root,
+    encoding: 'utf8',
+    env: { ...process.env, CI: 'false', AIO_QA_MANIFEST_PATH: manifestPath, AIO_QA_CACHE_DIR: cacheDir, AIO_QA_CANDIDATE_REPO: candidateRepo }
+  });
+  git('init');
+  git('config', 'user.email', 'fixture@aio.test');
+  git('config', 'user.name', 'fixture');
+  writeFileSync(join(candidateRepo, 'task.txt'), 'v1\n');
+  git('add', 'task.txt');
+  const initCommit = git('commit', '-m', 'init');
+  if (initCommit.status !== 0) fail('candidate fixture could not create its isolated repo', initCommit);
+  const digest = (content) => createHash('sha256').update(content).digest('hex');
+  const writeVerifiedTree = (runLabel, files) => writeFileSync(join(cacheDir, 'verified-tree.json'), JSON.stringify({
+    schemaVersion: 'aio-qa-verified-tree.v1', runId: runLabel, files, taskFiles: files
+  }, null, 2));
+  writeVerifiedTree('fixture-verify-1', { 'task.txt': digest('v2\n') });
+  writeFileSync(join(candidateRepo, 'task.txt'), 'v2\n');
+  git('add', 'task.txt');
+  writeFileSync(join(candidateRepo, 'task.txt'), 'v3\n');
+  const partialStage = runCandidate('candidate', '--files', 'task.txt');
+  if (partialStage.status !== 1 || !/staged-differs-from-worktree/.test(partialStage.stderr)) fail('candidate accepted a partially staged tree', partialStage);
+  git('add', 'task.txt');
+  const postQaDrift = runCandidate('candidate', '--files', 'task.txt');
+  if (postQaDrift.status !== 1 || !/changed-after-qa-verification/.test(postQaDrift.stderr)) fail('candidate accepted a tree changed after QA verification', postQaDrift);
+  writeVerifiedTree('fixture-verify-2', { 'task.txt': digest('v3\n') });
+  writeFileSync(join(candidateRepo, 'extra.txt'), 'x\n');
+  git('add', 'extra.txt');
+  const unverifiedFile = runCandidate('candidate', '--files', 'task.txt');
+  if (unverifiedFile.status !== 1 || !/staged-file-not-verified/.test(unverifiedFile.stderr)) fail('candidate accepted an unverified staged file', unverifiedFile);
+  git('rm', '--cached', 'extra.txt');
+  const cleanCandidate = runCandidate('candidate', '--files', 'task.txt');
+  if (cleanCandidate.status !== 0) fail('candidate rejected a staged tree identical to the QA-verified tree', cleanCandidate);
+
+  // P1265/E2-C6 P1: gate-level impact entries add exactly the named gate without
+  // widening to the whole group (single-owner dedup compensation).
+  writeFileSync(manifestPath, JSON.stringify({
+    ...base,
+    impactRules: [
+      { patterns: ['worker/**'], groups: ['cloudflare'], gates: ['data-plane'] },
+      { patterns: ['public-data/**'], groups: ['data'] }
+    ],
+    groups: {
+      preflight: { phase: 0, kind: 'static', inputs: ['scripts/fixtures/**'], gates: [{ id: 'preflight', script: fixtureScript }] },
+      cloudflare: { phase: 1, kind: 'static', inputs: ['scripts/fixtures/**'], gates: [{ id: 'cf-gate', script: fixtureScript }] },
+      data: { phase: 1, kind: 'static', inputs: ['scripts/fixtures/**'], gates: [
+        { id: 'data-plane', script: fixtureScript },
+        { id: 'data-other', script: fixtureScript }
+      ] }
+    },
+    profiles: { test: ['preflight'] }
+  }, null, 2));
+  const workerEdit = run('affected', '--files', 'worker/data-plane.js', '--list');
+  if (workerEdit.status !== 0) fail('gate-level impact affected selection failed', workerEdit);
+  const workerGates = JSON.parse(workerEdit.stdout).gates.map((gate) => gate.id).sort();
+  if (workerGates.join(',') !== 'cf-gate,data-plane,preflight') fail(`gate-level impact must add exactly the named gate, got ${workerGates.join(',')}`, workerEdit);
+  const dataEdit = run('affected', '--files', 'public-data/data.json', '--list');
+  if (dataEdit.status !== 0) fail('group-level impact affected selection failed', dataEdit);
+  const dataGates = JSON.parse(dataEdit.stdout).gates.map((gate) => gate.id).sort();
+  if (dataGates.join(',') !== 'data-other,data-plane,preflight') fail(`group impact must keep its own gates, got ${dataGates.join(',')}`, dataEdit);
+
+  console.log('QA runner behavior OK: phase barriers, failed-only retry, content cache invalidation, task scope, test dependencies, bounded concurrency, exclusive timing gates, failed-batch preservation, corrupt cache/report causes, concurrent run isolation and commit-candidate binding.');
 } finally {
   rmSync(temp, { recursive: true, force: true });
 }

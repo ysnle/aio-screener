@@ -1,3 +1,35 @@
+## v56.52 (2026-09-26)
+- **E2-C6 감사(34) 반영 — QA 실행 identity·커밋 후보 결속 (P1265, P0 2건 + P1-3). 중간 마무리 배치.**
+- **P0 실행 identity:** qa-runner에 런 ID·`runs/<runId>.json` 보존·**실패 배치 고정**(`failed-batch.json`)을 도입했습니다 — 무관한 성공 런이 실패 리포트를 덮던 실측 결함이 사라졌고, `rerun-failed`는 정확한 실패 배치만 다시 고르며(=`--report` 지정 가능) 빈 배치는 명시 사유로 거부합니다. 모든 캐시·리포트 기록이 원자적 쓰기(tmp+rename, EPERM류 재시도)와 merge-on-write로 바뀌고, 손상 캐시는 신뢰하지 않고 원인과 함께 재실행합니다.
+- **P0 커밋 후보 identity:** 통과 런이 `verified-tree.json`을 남기고 새 `qa-runner candidate`가 staged↔working↔검증 트리를 대조해 부분 staging·QA 후 변경·미검증 staged 파일을 명시 사유로 거부합니다(출시 준비 PASS 금지 계약).
+- **P1-3 중복 제거:** `ci-data-plane-contract-check`의 `data`/`cloudflare` 이중 등록을 단일 소유로 옮기고, 영향 규칙의 gate 단위 `gates` 항목으로 worker 경로 변경이 정확히 `data-plane`만 추가 선택하게 보완했습니다(동일 SHA 중복 실행 제거). `version.json` 단독 선택은 기준선 103 gate와 동일함을 대조 확인.
+- **기반 준비:** `verify-refresh-candidate.mjs`(후보 hash 기록/대조)를 신설하고 셀프테스트(tamper 거부·정상 수용·집합 확장 거부·기준선 부재 fail-closed)를 통과시켰습니다.
+- 검증: `ci-qa-runner-behavior-check`(인수 fixture 9종 신설 포함)·`ci-qa-pipeline-contract-check`(140 gates)·`verify-refresh-candidate --self-test` PASS.
+- **미착수(다음 배치):** E2-C6 P1-4(refresh promotion 게이트 중복 호출을 후보 결속으로 대체하는 배선 + 게이트 계약 갱신)·P1-5(CI job 준비 시간 계측·후보 비교 캠페인)·P2-6(수렴 대기 지표). QA-AI-A05-STREAM(공급자 키 대기)·QA-CONTENT-37·QA-CRED-02~04·14(운영자)·E6 A01~A04·E7-C1~C7·20장 수직 경로는 잔존.
+- 병렬 작업 산출물(34 감사 문서·README/26 연결)을 함께 포함합니다. 사용자 승인에 따라 이 배치에서 **커밋·푸시·배포**를 수행합니다.
+- R1 7곳 v56.52
+
+## v56.51 (2026-09-26)
+- **핸드오프 잔여 항목 2차 — 데이터 refresh 해소 + 결정 항목 2건 종료 (P1262~P1264).**
+- **P1262 (QA-FX-REFRESH 종료):** `fetch-data` producer가 P1256 이후 **모든 실행에서** `previous is not defined`로 죽던 스코프 결함을 수정했습니다(이전 refresh 시도들이 전부 이 탓에 중단됐음). 실제 완주로 FX 백필을 시드하고 4검증을 실값으로 통과시켰습니다 — usdkrw 261행, latest 1354.4 = market-snapshot KRW=X 1354.4(0.0%), `providerCrossChecks.fx: ok`(DEXKOUS 같은 시점 정렬), `unit: KRW/USD`·`source: Yahoo chart`. **data-lineage FAIL=0·reconciliation ok**로 기존 환경 실패 2건도 해소됐습니다.
+- **P1263 (QA-SIG-27 종료 — 결정: 모드 독립):** 제품 결정을 기록했습니다 — 체크리스트 5조건은 시장건강 기반이며 **모드별 판정 임계값을 도입하지 않는다**(`checklistPolicy` 선언). 집계를 도메인 `summarizeEntryChecklist` 단일 소유자로 옮기고 결과가 `modeRevision`·`decisionThreshold`를 실어 나르게 결속했습니다(셸 `data-mode-revision` 표시). 미보고 조건은 명시적 대기로 집계됩니다. fixture 5군 + 실브라우저 T1207 2종.
+- **P1264 (QA-CRED-05 종료):** 매크로 라우트의 FRED 출처 라벨과, 개인 키 URL이 공유 Worker로 넘어가지 않고 `PRIVATE_ROUTE_REQUIRED` 사유 힌트로 거부되는 경로를 `ci-architecture-browser-check`에서 실측했습니다(20라우트 왕복, browserErrors 0).
+- 검증: `ci-esm-core-unit-check`·`ci-runtime-contract-check`·`ci-headless-tests`(**1147/1147**)·`ci-architecture-browser-check`·`ci-history-field-time-contract-check`·`ci-data-lineage-audit`·`ci-reconciliation-contract-check`·`ci-artifact-semantics-check`·`ci-data-pipeline-contract-check`·`ci-operations-status-check`·`ci-sec-runtime-projection-check` PASS.
+- **잔여:** `QA-AI-A05-STREAM`(실공급자 키 — 사용자 확인 필요), `QA-CONTENT-37`(실화면 이해도), `QA-CRED-02~04·14`(운영자 시크릿·배포), E6 A01~A04, E7-C1~C7 이전 카드, 20 대장 수직 경로. 무키 라벨(`fredHasKey:false`)은 정식 refresh 사이클이 덮습니다.
+- 이 변경은 **로컬 작업 트리에만 있으며 커밋·푸시·배포하지 않았습니다.**
+- R1 7곳 v56.51
+
+## v56.50 (2026-09-26)
+- **핸드오프 잔여 큐 2종 종료 — QA-THM-CLEANUP·QA-GLOSSARY-SWEEP (P1260·P1261).**
+- **QA-THM-CLEANUP (P1260):** P1257이 삭제한 테마 퇴역 섹션(`theme-heatmap`/`all-etf-grid`/`sector-20d-*`/`themes-m7-mirror`/`themes-breadth-*`/`themes-sector-mirror`)을 참조하던 no-op 잔여를 전부 회수했습니다 — 죽은 렌더러 3종(`renderThemeHeatmap`/`renderAllEtfGrid`/`detectHotThemes`)·전용 핸들러 `showThemeByEtf`·호출부 4줄, quote 게이트 프리셋 1행(`sector-20d-chart`), 미러 selector 3곳, 반응형 CSS 규칙 4건 삭제. 실존 타깃(`#sector-heatmap`·`#m7-health-row`·`#breadth-bar/pct`)은 보존했습니다. 회귀 게이트: `ci-runtime-contract-check`에 **퇴역 id 원시 참조 0건 단언** 신설(전 표면 10종 스캔 — 요소 부재 no-op이 남으면 실패). decomp ratchet: `js/aio-pages.js` −197·`js/aio-core.js` −4·`js/aio-ui.js` −2·`index.html` −6(`--write`로 조임).
+- **QA-GLOSSARY-SWEEP (P1261):** 용어집 수치 항목 **84개 전수**에 출처 필드 계약(`GLOSSARY_FIGURE_SOURCES` 레지스트리: `kind` 정의·산식·관례·방법론-예시·역사-관측·미검증-경험칙 / `src` 확인한 출처 또는 "단일 원전 없음·미검증" 명기 / `cond` 성립 조건)을 신설해 대조 결과를 기록했습니다. 대조 중 발견된 근거 없는 주장 6건 정정 — "복리는 세계 8번째 불가사의 — 아인슈타인"(출처 미확정으로 격하), QE "역사상 가장 강력한 주가 부양 수단"+40% 단정(역사 사례로 한정), AAII "반등 가능성 높음" 예측 제거, DCA "역사적 66% 확률"(연구 집계·표본 한정으로 교체), 롱/숏 손절·켈리 하프 "권장"(방법론 예시로 재구성). 회귀 게이트: 수치 항목↔출처 행 **양방향 정합 단언 3종**(누락 행·결손 필드·미검증 표기·미확정 인용 재등장 차단).
+- 검증: `ci-runtime-contract-check`(신규 4단언 포함)·`ci-syntax-check`(411)·`ci-assertion-trace-check`(2660 labelled, 0 new untraced)·`ci-decomp-hotspot-check`·`ci-headless-tests`(**1145/1145 PASS**, skip-list 밖 실패 0) PASS.
+- **분해 예산:** `js/aio-glossary.js` +97을 `--write --allow-growth`로 기록·정당화했습니다 — 증가분은 수치 84개의 출처·조건 대조 레지스트리(정직한 계약 내용이며 R620이 게이밍으로 규정한 "주석 압축"이 아닙니다). 같은 배치에서 `js/aio-pages.js` −197·`js/aio-core.js` −4·`js/aio-ui.js` −2·`index.html` −6이라 전체 순감소입니다.
+- **affected 풀런:** pass 82 / cached 3 / skip 31(브라우저 그룹, 데이터 노후). 남은 fail 3건 중 decomposition은 위 예산 기록으로 해소했고, `reconciliation`(artifact 24h 운영 창 초과)·`data-lineage`(artifact 노후) 2건은 **환경 실패**입니다 — 이 변경과 무관하며 정식 데이터 refresh에서 해소됩니다.
+- **잔여:** `QA-FX-REFRESH`(다음 정식 refresh), `QA-AI-A05-STREAM`(실공급자 동시 요청), `QA-CONTENT-37`(실화면 이해도), `QA-SIG-27`·`QA-CRED-02~05`(제품·운영자 결정 대기), E6 A01~A04, E7-C1~C7 이전 카드(코드 미수정), 20 대장 수직 경로(options·PIT universe·기관공시·학습·모바일·접근성).
+- 이 변경은 **로컬 작업 트리에만 있으며 커밋·푸시·배포하지 않았습니다.**
+- R1 7곳 v56.50
+
 ## v56.49 (2026-09-26)
 - **QA-FX-SERIES 종료 — 기준 통화 수익률(월말 FX 정렬) + 게이트 클로즈아웃 (P1259).**
 - **기준 통화 수익률(P1259):** 백테스트 랩이 현지 통화 가중 수익률만 게시하던 것에 **별도 결과**인 기준 통화 수익률을 추가했습니다. 월말 정렬 계약: 월 키의 **마지막 관측**만 쓰고(월 중간 관측 무시), 관측이 없는 달 경계는 보류합니다(0 채우기·보간·삼각 환산 금지 — P1194/P1247과 같은 규칙). 두 결과는 같은 입력에서 **라벨과 수치가 모두 다르게** 발행됩니다(`returnCurrencyBasis: 'local-currency-weighted'` ↔ `base-currency-month-end-fx`). 셸은 랩과 같은 chart 경로로 `KRW=X`를 관측해 넘기고, 못 얻으면 엔진이 현지 통화 결과만 게시합니다(추정하지 않음 — checked-in 데이터는 다음 refresh 전이라 이 경로가 정직한 보류 상태입니다).

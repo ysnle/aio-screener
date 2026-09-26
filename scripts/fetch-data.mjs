@@ -3767,8 +3767,12 @@ async function main() {
   let previousFearGreed = null;
   let previousNews = null;
   let previousMeta = null;
+  // P1262: `previous`(이전 data.json 전체)는 main 스코프에 둔다 — P1256의 domainReceipt
+  // priorReceipt가 이 블록 밖에서 이 값을 읽는데 const를 try 안에 선언해 모든 실행이
+  // ReferenceError로 죽었다. 계열 변수와 같은 스코프로 올린다.
+  let previous = null;
   try {
-    const previous = JSON.parse(await readFile(OUT, 'utf8'));
+    previous = JSON.parse(await readFile(OUT, 'utf8'));
     previousMeta = previous && previous.meta || null;
     previousBls = previous && previous.macro && previous.macro._bls || null;
     previousBea = previous && previous.macro && previous.macro._bea || null;

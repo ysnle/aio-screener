@@ -115,3 +115,5 @@ v56.22 변경분(P1191 원장 입력 UI): 동일 파일 목록의 affected 실�
 **삭제/통합 게이트:** 기존 호출·저장/복구 호환·사용자 경로를 먼저 기록하고, 새 owner가 양성/음성·실브라우저·원격 publication을 인수하면 구 writer/reader/문구/테스트 전용 seam을 같은 batch에서 삭제한다. 영구 shim 또는 구 폴백을 남겨 이중 결과가 가능하면 카드 미완료다. 제거한 심볼·코드/테스트 LOC, 남은 의도적 임시 경로와 제거 기한, 정상·실패 컷의 화면 의미를 인수 기록에 남긴다. 자동 PASS만으로 원문 정확도·보안·실사용자 직관성 완료를 주장하지 않는다.
 
 **이번 QA 실행 환경 메모:** 문서 파일만 선택한 `affected`가 기본 `.cache/aio-qa/success-cache.json`에 `EPERM`으로 두 번 중단됐고, 임시 `AIO_QA_CACHE_DIR`로 같은 파일 목록을 실행해 preflight/workspace 26 PASS를 얻었다([32 LC-89](32-EXTERNAL-REFERENCES-CHART-NEWS-AND-TEST-DESIGN-20260925.md)). 캐시 쓰기 원인은 아직 미확정이다. 이를 제품 회귀로 계산하거나 첫 두 실행을 PASS로 치환하지 않는다. 구현 배치에서 캐시 동시 접근/권한/원자적 기록 경계를 재현한다.
+
+**2026-09-26 E2-C6 효율성 수리 순서:** [34](34-QA-COMMIT-DEPLOY-EFFICIENCY-AUDIT-20260926.md)의 실측/정적 증거에 따라 ① 병렬 runner의 캐시·실패 리포트 격리와 원자적 기록, ② 실제 staged/commit 후보와 로컬 QA hash 결속, ③ data/cloudflare 중복 gate 및 refresh 내 반복 검사 정리, ④ gate 단위 영향 범위와 CI job 준비 시간 실측 순으로 진행한다. `version.json`만의 affected 103개/브라우저 23개는 범위 재설계의 기준선이며, 출시 `full --no-cache`·정확한 SHA attestation·배포 후 live/독립 watchdog은 제거 대상이 아니다. 원격 Actions의 실제 critical path와 절감률은 아직 미측정이므로 빠르다고 단정해 절차를 삭제하지 않는다.
