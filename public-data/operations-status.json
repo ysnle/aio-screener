@@ -23,7 +23,7 @@
     "UNAVAILABLE",
     "UNKNOWN"
   ],
-  "generatedAt": "2026-09-26T16:45:26.626Z",
+  "generatedAt": "2026-09-26T21:31:53.185Z",
   "appRevision": "v56.52",
   "dataRevision": "market-snapshot:2026-09-26T06:38:56.910Z:8743d3bc",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
@@ -186,15 +186,15 @@
       },
       "freshness": {
         "fresh": true,
-        "withinSla": true,
+        "withinSla": false,
         "marketClosedGrace": true,
         "coverageComplete": true,
         "quoteQualityComplete": true,
         "blockedQuotes": [],
         "generatedAt": "2026-09-26T06:38:56.910Z",
-        "ageHours": 10.11,
+        "ageHours": 14.88,
         "maxAgeHours": 12,
-        "evaluatedAt": "2026-09-26T16:45:26.626Z",
+        "evaluatedAt": "2026-09-26T21:31:53.185Z",
         "reason": null
       },
       "readiness": {
@@ -221,7 +221,7 @@
         "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-09-26T16:45:26.626Z"
+        "evidenceEvaluatedAt": "2026-09-26T21:31:53.185Z"
       },
       "soak": {
         "requiredDays": 7,
@@ -286,7 +286,7 @@
         "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-09-26T16:45:26.626Z"
+        "evidenceEvaluatedAt": "2026-09-26T21:31:53.185Z"
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }
