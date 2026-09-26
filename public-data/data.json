@@ -1,10 +1,324 @@
 {
  "meta": {
-  "generatedAt": "2026-09-26T01:35:13.162Z",
+  "generatedAt": "2026-09-26T06:38:56.910Z",
   "source": "github-actions",
   "symbolsOk": 78,
   "symbolsFail": 0,
   "failedSymbols": [],
+  "domainReceipts": {
+   "market-quotes": {
+    "schemaVersion": "domain-receipt.v1",
+    "domain": "market-quotes",
+    "runId": "fetch-data:2026-09-26T06:38:56.910Z",
+    "attemptedAt": "2026-09-26T06:38:56.910Z",
+    "sourceRevision": null,
+    "inputWatermarks": {
+     "generatedAt": "2026-09-26T06:38:56.910Z"
+    },
+    "batchLimit": null,
+    "counts": {
+     "eligible": 78,
+     "attempted": 78,
+     "updated": 78,
+     "retained": 0,
+     "pendingEligible": 0
+    },
+    "thisBatch": {
+     "updated": 78,
+     "terminalUnsupported": 0,
+     "transientFailed": 0,
+     "recorded": 0
+    },
+    "ledger": {
+     "total": 0,
+     "terminalUnsupported": 0,
+     "transientFailed": 0,
+     "legacyUnknown": 0
+    },
+    "lastSuccessfulObservation": "2026-09-26T06:38:56.910Z",
+    "publication": {
+     "status": "SUCCESS",
+     "reason": "every attempted target was updated",
+     "allowsPartial": true,
+     "basis": "per-plane independent collection; retained eligible values stay published while a failed refresh keeps the previous artifact",
+     "terminalExcludedFromBatchFailures": true,
+     "generatedAtIsNotFreshness": true
+    }
+   },
+   "news": {
+    "schemaVersion": "domain-receipt.v1",
+    "domain": "news",
+    "runId": "fetch-data:2026-09-26T06:38:56.910Z",
+    "attemptedAt": "2026-09-26T06:38:56.910Z",
+    "sourceRevision": null,
+    "inputWatermarks": {
+     "generatedAt": "2026-09-26T06:38:56.910Z"
+    },
+    "batchLimit": null,
+    "counts": {
+     "eligible": 8,
+     "attempted": 8,
+     "updated": 40,
+     "retained": 0,
+     "pendingEligible": 0
+    },
+    "thisBatch": {
+     "updated": 40,
+     "terminalUnsupported": 0,
+     "transientFailed": 0,
+     "recorded": 0
+    },
+    "ledger": {
+     "total": 0,
+     "terminalUnsupported": 0,
+     "transientFailed": 0,
+     "legacyUnknown": 0
+    },
+    "lastSuccessfulObservation": "2026-09-26T06:38:56.910Z",
+    "publication": {
+     "status": "SUCCESS",
+     "reason": "every attempted target was updated",
+     "allowsPartial": true,
+     "basis": "per-plane independent collection; retained eligible values stay published while a failed refresh keeps the previous artifact",
+     "terminalExcludedFromBatchFailures": true,
+     "generatedAtIsNotFreshness": true
+    }
+   },
+   "macro-fred": {
+    "schemaVersion": "domain-receipt.v1",
+    "domain": "macro-fred",
+    "runId": "fetch-data:2026-09-26T06:38:56.910Z",
+    "attemptedAt": "2026-09-26T06:38:56.910Z",
+    "sourceRevision": null,
+    "inputWatermarks": {
+     "generatedAt": "2026-09-26T06:38:56.910Z"
+    },
+    "batchLimit": null,
+    "counts": {
+     "eligible": 19,
+     "attempted": 19,
+     "updated": 19,
+     "retained": 0,
+     "pendingEligible": 0
+    },
+    "thisBatch": {
+     "updated": 19,
+     "terminalUnsupported": 0,
+     "transientFailed": 0,
+     "recorded": 0
+    },
+    "ledger": {
+     "total": 0,
+     "terminalUnsupported": 0,
+     "transientFailed": 0,
+     "legacyUnknown": 0
+    },
+    "lastSuccessfulObservation": "2026-09-26T06:38:56.910Z",
+    "publication": {
+     "status": "SUCCESS",
+     "reason": "every attempted target was updated",
+     "allowsPartial": true,
+     "basis": "per-plane independent collection; retained eligible values stay published while a failed refresh keeps the previous artifact",
+     "terminalExcludedFromBatchFailures": true,
+     "generatedAtIsNotFreshness": true
+    }
+   },
+   "macro-bls": {
+    "schemaVersion": "domain-receipt.v1",
+    "domain": "macro-bls",
+    "runId": "fetch-data:2026-09-26T06:38:56.910Z",
+    "attemptedAt": "2026-09-26T06:38:56.910Z",
+    "sourceRevision": null,
+    "inputWatermarks": {
+     "generatedAt": "2026-09-26T06:38:56.910Z"
+    },
+    "batchLimit": null,
+    "counts": {
+     "eligible": 8,
+     "attempted": 8,
+     "updated": 8,
+     "retained": 0,
+     "pendingEligible": 0
+    },
+    "thisBatch": {
+     "updated": 8,
+     "terminalUnsupported": 0,
+     "transientFailed": 0,
+     "recorded": 0
+    },
+    "ledger": {
+     "total": 0,
+     "terminalUnsupported": 0,
+     "transientFailed": 0,
+     "legacyUnknown": 0
+    },
+    "lastSuccessfulObservation": "2026-09-26T06:38:56.910Z",
+    "publication": {
+     "status": "SUCCESS",
+     "reason": "every attempted target was updated",
+     "allowsPartial": true,
+     "basis": "per-plane independent collection; retained eligible values stay published while a failed refresh keeps the previous artifact",
+     "terminalExcludedFromBatchFailures": true,
+     "generatedAtIsNotFreshness": true
+    }
+   },
+   "macro-bea": {
+    "schemaVersion": "domain-receipt.v1",
+    "domain": "macro-bea",
+    "runId": "fetch-data:2026-09-26T06:38:56.910Z",
+    "attemptedAt": "2026-09-26T06:38:56.910Z",
+    "sourceRevision": null,
+    "inputWatermarks": {
+     "generatedAt": "2026-09-26T06:38:56.910Z"
+    },
+    "batchLimit": null,
+    "counts": {
+     "eligible": 1,
+     "attempted": 1,
+     "updated": 1,
+     "retained": 0,
+     "pendingEligible": 0
+    },
+    "thisBatch": {
+     "updated": 1,
+     "terminalUnsupported": 0,
+     "transientFailed": 0,
+     "recorded": 0
+    },
+    "ledger": {
+     "total": 0,
+     "terminalUnsupported": 0,
+     "transientFailed": 0,
+     "legacyUnknown": 0
+    },
+    "lastSuccessfulObservation": "2026-09-26T06:38:56.910Z",
+    "publication": {
+     "status": "SUCCESS",
+     "reason": "every attempted target was updated",
+     "allowsPartial": true,
+     "basis": "per-plane independent collection; retained eligible values stay published while a failed refresh keeps the previous artifact",
+     "terminalExcludedFromBatchFailures": true,
+     "generatedAtIsNotFreshness": true
+    }
+   },
+   "treasury-curve": {
+    "schemaVersion": "domain-receipt.v1",
+    "domain": "treasury-curve",
+    "runId": "fetch-data:2026-09-26T06:38:56.910Z",
+    "attemptedAt": "2026-09-26T06:38:56.910Z",
+    "sourceRevision": null,
+    "inputWatermarks": {
+     "generatedAt": "2026-09-26T06:38:56.910Z"
+    },
+    "batchLimit": null,
+    "counts": {
+     "eligible": 1,
+     "attempted": 1,
+     "updated": 1,
+     "retained": 0,
+     "pendingEligible": 0
+    },
+    "thisBatch": {
+     "updated": 1,
+     "terminalUnsupported": 0,
+     "transientFailed": 0,
+     "recorded": 0
+    },
+    "ledger": {
+     "total": 0,
+     "terminalUnsupported": 0,
+     "transientFailed": 0,
+     "legacyUnknown": 0
+    },
+    "lastSuccessfulObservation": "2026-09-26T06:38:56.910Z",
+    "publication": {
+     "status": "SUCCESS",
+     "reason": "every attempted target was updated",
+     "allowsPartial": true,
+     "basis": "per-plane independent collection; retained eligible values stay published while a failed refresh keeps the previous artifact",
+     "terminalExcludedFromBatchFailures": true,
+     "generatedAtIsNotFreshness": true
+    }
+   },
+   "surveys-aaii": {
+    "schemaVersion": "domain-receipt.v1",
+    "domain": "surveys-aaii",
+    "runId": "fetch-data:2026-09-26T06:38:56.910Z",
+    "attemptedAt": "2026-09-26T06:38:56.910Z",
+    "sourceRevision": null,
+    "inputWatermarks": {
+     "generatedAt": "2026-09-26T06:38:56.910Z"
+    },
+    "batchLimit": null,
+    "counts": {
+     "eligible": 1,
+     "attempted": 1,
+     "updated": 0,
+     "retained": 1,
+     "pendingEligible": 0
+    },
+    "thisBatch": {
+     "updated": 0,
+     "terminalUnsupported": 0,
+     "transientFailed": 1,
+     "recorded": 1
+    },
+    "ledger": {
+     "total": 1,
+     "terminalUnsupported": 0,
+     "transientFailed": 1,
+     "legacyUnknown": 0
+    },
+    "lastSuccessfulObservation": null,
+    "publication": {
+     "status": "NO_REFRESH_RETAINED",
+     "reason": "every attempted target failed; previously stored rows stay published",
+     "allowsPartial": true,
+     "basis": "per-plane independent collection; retained eligible values stay published while a failed refresh keeps the previous artifact",
+     "terminalExcludedFromBatchFailures": true,
+     "generatedAtIsNotFreshness": true
+    }
+   },
+   "options-put-call": {
+    "schemaVersion": "domain-receipt.v1",
+    "domain": "options-put-call",
+    "runId": "fetch-data:2026-09-26T06:38:56.910Z",
+    "attemptedAt": "2026-09-26T06:38:56.910Z",
+    "sourceRevision": null,
+    "inputWatermarks": {
+     "generatedAt": "2026-09-26T06:38:56.910Z"
+    },
+    "batchLimit": null,
+    "counts": {
+     "eligible": 1,
+     "attempted": 1,
+     "updated": 1,
+     "retained": 0,
+     "pendingEligible": 0
+    },
+    "thisBatch": {
+     "updated": 1,
+     "terminalUnsupported": 0,
+     "transientFailed": 0,
+     "recorded": 0
+    },
+    "ledger": {
+     "total": 0,
+     "terminalUnsupported": 0,
+     "transientFailed": 0,
+     "legacyUnknown": 0
+    },
+    "lastSuccessfulObservation": "2026-09-26T06:38:56.910Z",
+    "publication": {
+     "status": "SUCCESS",
+     "reason": "every attempted target was updated",
+     "allowsPartial": true,
+     "basis": "per-plane independent collection; retained eligible values stay published while a failed refresh keeps the previous artifact",
+     "terminalExcludedFromBatchFailures": true,
+     "generatedAtIsNotFreshness": true
+    }
+   }
+  },
   "verifyStats": {
    "pass1": 78,
    "retried": 0,
@@ -22,8 +336,8 @@
   "fredLkgSource": null,
   "macroKeyCount": 45,
   "fredFetchedKeyCount": 19,
-  "fredAttemptedAt": "2026-09-26T01:35:13.199Z",
-  "fredLastSuccessfulAt": "2026-09-26T01:35:13.199Z",
+  "fredAttemptedAt": "2026-09-26T06:38:56.973Z",
+  "fredLastSuccessfulAt": "2026-09-26T06:38:56.973Z",
   "fredStatus": "complete",
   "fredExpectedSeriesCount": 19,
   "fredSuccessfulSeries": [
@@ -51,30 +365,30 @@
   "blsStatus": "cached-fresh",
   "blsSeriesCount": 8,
   "blsFailedSeries": [],
-  "blsAttemptedAt": "2026-09-26T01:35:13.202Z",
+  "blsAttemptedAt": "2026-09-26T06:38:56.977Z",
   "blsLastSuccessfulAt": "2026-09-25T22:50:38.035Z",
   "beaStatus": "ok",
-  "beaAttemptedAt": "2026-09-26T01:35:13.202Z",
-  "beaLastSuccessfulAt": "2026-09-26T01:35:13.202Z",
+  "beaAttemptedAt": "2026-09-26T06:38:56.977Z",
+  "beaLastSuccessfulAt": "2026-09-26T06:38:56.977Z",
   "beaReleaseAt": "2026-08-26T12:30:00.000Z",
   "beaNextReleaseAt": "2026-09-30T12:30:00.000Z",
-  "treasuryStatus": "ok",
-  "treasuryAttemptedAt": "2026-09-26T01:35:13.202Z",
+  "treasuryStatus": "cached-fresh",
+  "treasuryAttemptedAt": "2026-09-26T06:38:56.979Z",
   "treasuryLastSuccessfulAt": "2026-09-26T01:35:13.202Z",
   "treasuryObservedAt": "2026-09-25",
   "aaiiStatus": "current-reference",
-  "aaiiAttemptedAt": "2026-09-26T01:35:13.204Z",
+  "aaiiAttemptedAt": "2026-09-26T06:38:56.980Z",
   "aaiiFetchedAt": "2026-09-26T01:35:13.204Z",
   "aaiiObservedAt": "2026-09-23",
   "aaiiRelayUsed": true,
   "fredHyOasStatus": "cached-fresh",
-  "fredHyOasAttemptedAt": "2026-09-26T01:35:13.203Z",
+  "fredHyOasAttemptedAt": "2026-09-26T06:38:56.979Z",
   "fredHyOasLastSuccessfulAt": "2026-09-25T22:50:38.038Z",
   "fredHyOasObservedAt": "2026-09-24",
   "newsOk": true,
   "newsCount": 40,
   "newsFeedCount": 8,
-  "newsPublisherCount": 25,
+  "newsPublisherCount": 26,
   "newsCyclePolicy": "kst-0800-completed-24h",
   "newsCycleStart": "2026-09-24T23:00:00.000Z",
   "newsCycleEnd": "2026-09-25T23:00:00.000Z",
@@ -86,21 +400,21 @@
   "putCallOk": true,
   "putCallAsOf": "2026-09-25",
   "marketSurveysStatus": "web-research-captured-reference",
-  "marketSurveysCheckedAt": "2026-09-26T01:35:13.204Z",
+  "marketSurveysCheckedAt": "2026-09-26T06:38:56.980Z",
   "marketSurveysWebResearchCheckedAt": "2026-08-21T15:00:00Z",
-  "elapsedMs": 18478,
-  "attemptedAt": "2026-09-26T01:35:13.162Z",
-  "artifactGeneratedAt": "2026-09-26T01:35:13.162Z",
+  "elapsedMs": 4793,
+  "attemptedAt": "2026-09-26T06:38:56.910Z",
+  "artifactGeneratedAt": "2026-09-26T06:38:56.910Z",
   "schema": 1,
-  "marketAnalysisOk": false,
-  "marketAnalysisSemanticOk": false,
+  "marketAnalysisOk": true,
+  "marketAnalysisSemanticOk": true,
   "marketAnalysisEvidenceCount": 11,
   "marketAnalysisNewsEvidenceCount": 0,
   "marketSnapshotPublished": true,
-  "marketSnapshotAttemptedAt": "2026-09-26T01:35:13.162Z",
-  "marketSnapshotPublishedAt": "2026-09-26T01:35:13.162Z",
-  "marketSnapshotAttemptRevision": "market-snapshot:2026-09-26T01:35:13.162Z:d00965bd",
-  "marketSnapshotLastSuccessfulAt": "2026-09-26T01:35:13.162Z",
+  "marketSnapshotAttemptedAt": "2026-09-26T06:38:56.910Z",
+  "marketSnapshotPublishedAt": "2026-09-26T06:38:56.910Z",
+  "marketSnapshotAttemptRevision": "market-snapshot:2026-09-26T06:38:56.910Z:8743d3bc",
+  "marketSnapshotLastSuccessfulAt": "2026-09-26T06:38:56.910Z",
   "marketSnapshotCoverage": {
    "required": 16,
    "observed": 16,
@@ -108,24 +422,24 @@
    "tier0Required": 16,
    "tier0Observed": 16
   },
-  "marketSnapshotRevision": "market-snapshot:2026-09-26T01:35:13.162Z:d00965bd",
+  "marketSnapshotRevision": "market-snapshot:2026-09-26T06:38:56.910Z:8743d3bc",
   "cycleId": "kst-0800-2026-09-25T23:00:00.000Z",
   "cycleStatus": "PUBLISHED",
   "marketCycleFreshnessSlaHours": 12,
   "cycleComponents": {
-   "marketSnapshotRevision": "market-snapshot:2026-09-26T01:35:13.162Z:d00965bd",
+   "marketSnapshotRevision": "market-snapshot:2026-09-26T06:38:56.910Z:8743d3bc",
    "marketSnapshotPublished": true,
    "quoteCount": 78,
    "requiredQuoteCount": 78,
-   "newsGeneratedAt": "2026-09-26T01:35:13.162Z",
+   "newsGeneratedAt": "2026-09-26T06:38:56.910Z",
    "newsCount": 40,
    "minimumNewsCount": 10,
    "historyCycleEnd": "2026-09-25T23:00:00.000Z",
    "historyUpdated": true,
    "telegramDigestExpected": true
   },
-  "cycleManifestRevision": "kst-0800-2026-09-25T23:00:00.000Z:market-snapshot:2026-09-26T01:35:13.162Z:d00965bd",
-  "cycleManifestAttemptRevision": "market-snapshot:2026-09-26T01:35:13.162Z:d00965bd",
+  "cycleManifestRevision": "kst-0800-2026-09-25T23:00:00.000Z:market-snapshot:2026-09-26T06:38:56.910Z:8743d3bc",
+  "cycleManifestAttemptRevision": "market-snapshot:2026-09-26T06:38:56.910Z:8743d3bc",
   "cycleBlockers": [],
   "fmpHasKey": false,
   "secFundamentalsOk": true,
@@ -182,7 +496,7 @@
    "sourceUrl": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
    "fetchedAt": "2026-09-25T22:50:38.035Z",
    "lastSuccessfulAt": "2026-09-25T22:50:38.035Z",
-   "attemptedAt": "2026-09-26T01:35:13.202Z",
+   "attemptedAt": "2026-09-26T06:38:56.977Z",
    "releaseAt": null,
    "status": "cached-fresh",
    "series": {
@@ -450,15 +764,15 @@
    "observedAt": "2026-07-01",
    "releasedAt": "2026-08-26T12:30:00.000Z",
    "nextReleaseAt": "2026-09-30T12:30:00.000Z",
-   "fetchedAt": "2026-09-26T01:35:13.202Z",
-   "lastSuccessfulAt": "2026-09-26T01:35:13.202Z",
+   "fetchedAt": "2026-09-26T06:38:56.977Z",
+   "lastSuccessfulAt": "2026-09-26T06:38:56.977Z",
    "values": {
     "pce": 3.7,
     "corePce": 3.3,
     "pceMoM": 0.2,
     "corePceMoM": null
    },
-   "attemptedAt": "2026-09-26T01:35:13.202Z"
+   "attemptedAt": "2026-09-26T06:38:56.977Z"
   },
   "_source_pce": "bea-official-primary",
   "_source_corePce": "bea-official-primary",
@@ -473,7 +787,7 @@
   "_source_hyOAS": "fred-official-public-csv",
   "_treasury": {
    "schemaVersion": "us-treasury-curve.v1",
-   "status": "ok",
+   "status": "cached-fresh",
    "source": "U.S. Treasury Daily Par Yield Curve Rates XML Feed",
    "sourceKind": "T1_OFFICIAL",
    "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value_month=202609",
@@ -489,8 +803,8 @@
    },
    "allowedUse": "official-observation-and-derived-same-date-spread",
    "decisionUse": false,
-   "attemptedAt": "2026-09-26T01:35:13.202Z",
-   "cacheHit": false
+   "attemptedAt": "2026-09-26T06:38:56.979Z",
+   "cacheHit": true
   },
   "dgs2": 4.81,
   "_asOf_dgs2": "2026-09-25",
@@ -523,7 +837,7 @@
    "unit": "percent",
    "allowedUse": "official-relay-observation-with-publication-lag",
    "decisionUse": false,
-   "attemptedAt": "2026-09-26T01:35:13.203Z",
+   "attemptedAt": "2026-09-26T06:38:56.979Z",
    "cacheHit": true
   },
   "dgs2Delta": 0.02,
@@ -576,7 +890,7 @@
   "_asOf_coreCpiSa": "2026-08-01",
   "_source_cpiSa": "fred-official-primary",
   "_source_coreCpiSa": "fred-official-primary",
-  "_attemptedAt": "2026-09-26T01:35:13.199Z",
+  "_attemptedAt": "2026-09-26T06:38:56.973Z",
   "_successfulSeries": [
    "cpi",
    "coreCpi",
@@ -1863,8 +2177,8 @@
     "rating": "fear"
    }
   ],
-  "attemptedAt": "2026-09-26T01:35:13.199Z",
-  "fetchedAt": "2026-09-26T01:35:13.199Z",
+  "attemptedAt": "2026-09-26T06:38:56.974Z",
+  "fetchedAt": "2026-09-26T06:38:56.974Z",
   "status": "current-reference"
  },
  "putCall": {
@@ -1872,39 +2186,77 @@
   "indexPutCall": 0.95,
   "equityPutCall": 0.52,
   "asOf": "2026-09-25",
-  "fetchedAt": "2026-09-26T01:35:20.390Z",
+  "fetchedAt": "2026-09-26T06:38:58.155Z",
   "source": "Cboe Daily Market Statistics",
   "sourceUrl": "https://www.cboe.com/data/mktstat.aspx",
   "sourceKind": "T3_PUBLIC_DELAYED",
   "allowedUse": "decision-with-daily-delay",
-  "attemptedAt": "2026-09-26T01:35:13.201Z",
+  "attemptedAt": "2026-09-26T06:38:56.976Z",
   "status": "current-reference"
  },
  "providerCrossChecks": {
   "crypto": {
    "status": "ok",
-   "attemptedAt": "2026-09-26T01:35:13.203Z",
-   "fetchedAt": "2026-09-26T01:35:13.624Z",
+   "attemptedAt": "2026-09-26T06:38:56.979Z",
+   "fetchedAt": "2026-09-26T06:38:57.484Z",
    "source": "CoinGecko Simple Price API",
    "sourceKind": "independent-secondary",
    "sourceUrl": "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_last_updated_at=true",
    "quotes": [
     {
      "symbol": "BTC-USD",
-     "price": 83939,
-     "observedAt": "2026-09-26T01:32:40.000Z"
+     "price": 83892,
+     "observedAt": "2026-09-26T06:37:20.000Z"
     },
     {
      "symbol": "ETH-USD",
-     "price": 2688.79,
-     "observedAt": "2026-09-26T01:33:10.000Z"
+     "price": 2683.95,
+     "observedAt": "2026-09-26T06:37:20.000Z"
     }
    ]
+  },
+  "fx": {
+   "schemaVersion": "fx-cross-check.v1",
+   "provider": "Yahoo chart KRW=X completed close",
+   "officialSource": "FRED public series download (Federal Reserve H.10 USD/KRW noon buying rate)",
+   "officialSourceUrl": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DEXKOUS",
+   "providerValue": 1379.53,
+   "providerDate": "2026-09-17",
+   "latestProviderValue": 1354.4,
+   "latestProviderDate": "2026-09-26",
+   "officialValue": 1387.97,
+   "officialDate": "2026-09-18",
+   "official": {
+    "schemaVersion": "fred-public-series.v1",
+    "status": "ok",
+    "seriesId": "DEXKOUS",
+    "source": "FRED public series download (Federal Reserve H.10 USD/KRW noon buying rate)",
+    "sourceKind": "official-government-relay",
+    "sourceUrl": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DEXKOUS",
+    "observedAt": "2026-09-18",
+    "fetchedAt": "2026-09-26T06:38:56.980Z",
+    "value": 1387.97,
+    "unit": "KRW per USD",
+    "allowedUse": "official-relay-observation-with-publication-lag",
+    "decisionUse": false,
+    "attemptedAt": "2026-09-26T06:38:56.980Z",
+    "cacheHit": false
+   },
+   "tolerancePct": 5,
+   "attemptedAt": "2026-09-26T06:39:07.865Z",
+   "fetchedAt": "2026-09-26T06:38:56.980Z",
+   "allowedUse": "reference-only-not-a-value-source",
+   "decisionUse": false,
+   "status": "ok",
+   "comparable": true,
+   "dayGap": -1,
+   "divergencePct": 0.608,
+   "reason": null
   }
  },
  "marketSurveys": {
   "schemaVersion": "web-research-surveys.v2",
-  "checkedAt": "2026-09-26T01:35:13.204Z",
+  "checkedAt": "2026-09-26T06:38:56.980Z",
   "policy": "official-publisher-public-web; reference-only; no synthesis",
   "aaii": {
    "status": "current-reference",
@@ -1923,8 +2275,8 @@
    "allowedUse": "reference-only",
    "decisionUse": false,
    "note": "Official public percentages collected through a bounded text relay after the publisher blocked direct automation; reference-only and excluded from trading gates.",
-   "attemptedAt": "2026-09-26T01:35:13.204Z",
-   "cacheHit": false
+   "attemptedAt": "2026-09-26T06:38:56.980Z",
+   "cacheHit": true
   },
   "naaim": {
    "status": "stale-reference",
@@ -1946,7 +2298,7 @@
    "allowedUse": "not-used",
    "note": "Official subscription page documents the survey but does not expose a current numeric reading without subscriber access."
   },
-  "automatedCheckedAt": "2026-09-26T01:35:13.204Z",
+  "automatedCheckedAt": "2026-09-26T06:38:56.980Z",
   "webResearchCheckedAt": "2026-08-21T15:00:00Z"
  },
  "officialWebReferences": {
@@ -2006,27 +2358,6 @@
    "eventTime": "2026-09-25T19:58:00.000Z",
    "eventTimeKind": "published",
    "independenceKey": "wsj",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-09-24T23:00:00.000Z",
-   "newsCycleEnd": "2026-09-25T23:00:00.000Z",
-   "newsCycleLabel": "2026-09-25 08:00 KST ~ 2026-09-26 08:00 KST"
-  },
-  {
-   "title": "Oil prices slide about 2% as US, Iran explore path out of war - Reuters",
-   "link": "https://news.google.com/rss/articles/CBMixAFBVV95cUxQV3EzX3oydnQxRk5Ld1BKbk82ek14ZVdyLVpTdldjdEpqeDJfTVZ2Q0F1TnhvaWlhR1p0Z3hScDV0S2Z1UFR5OXhKSWk3NmtqTzd0SkJfa2RLRFpOOUlEcE5mR1d4Z21Td2FCQVZqNHV1eDloQkplT1NHaHhyTDlqOG5DYlFFdnRERThxNU0yX29LcTRyal9pMHQ4ZzNoU0VKZkdHN2hFYjhCZUpZZ3d2am11SDJYYVBiN0JxWVBtczNRYkh1?oc=5",
-   "source": "Reuters",
-   "pubDate": "Fri, 25 Sep 2026 19:28:52 GMT",
-   "topic": "geo",
-   "country": "global",
-   "tier": 1,
-   "score": 62,
-   "selectionReason": "base+20 | source-tier1+16 | recency+12 | geopolitics-energy+14",
-   "feedSource": "Google News - Geopolitics/Energy",
-   "sourceTierLabel": "official-or-wire",
-   "contentDepth": "headline-only",
-   "eventTime": "2026-09-25T19:28:52.000Z",
-   "eventTimeKind": "published",
-   "independenceKey": "reuters",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-09-24T23:00:00.000Z",
    "newsCycleEnd": "2026-09-25T23:00:00.000Z",
@@ -2159,10 +2490,10 @@
    "newsCycleLabel": "2026-09-25 08:00 KST ~ 2026-09-26 08:00 KST"
   },
   {
-   "title": "Oil prices fall on talks to reopen the Strait of Hormuz - CNBC",
-   "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxPSEMxY2ZGaGFIbFFtWlhDOHYxNlZMNFZPMUxQSTd2STdsU3hhOWNiNkdmYjN1ajNpR2FXOVgyZnd3bmQ4QW5MNm9sSTlHSDNnTnRPWlI2andEdDNpbE5pOF9WVWV5Zl8zNGFHUTZqWndVcWQyV095R2k5eFpUc3dUQUI5STZ1eEdfZnRpUHR1QXZnTEFKRUx5M0dR?oc=5",
-   "source": "CNBC",
-   "pubDate": "Fri, 25 Sep 2026 15:19:24 GMT",
+   "title": "Oil prices slide about 2% as US, Iran explore path out of war - Reuters",
+   "link": "https://news.google.com/rss/articles/CBMixAFBVV95cUxQV3EzX3oydnQxRk5Ld1BKbk82ek14ZVdyLVpTdldjdEpqeDJfTVZ2Q0F1TnhvaWlhR1p0Z3hScDV0S2Z1UFR5OXhKSWk3NmtqTzd0SkJfa2RLRFpOOUlEcE5mR1d4Z21Td2FCQVZqNHV1eDloQkplT1NHaHhyTDlqOG5DYlFFdnRERThxNU0yX29LcTRyal9pMHQ4ZzNoU0VKZkdHN2hFYjhCZUpZZ3d2am11SDJYYVBiN0JxWVBtczNRYkh1?oc=5",
+   "source": "Reuters",
+   "pubDate": "Fri, 25 Sep 2026 01:11:00 GMT",
    "topic": "geo",
    "country": "global",
    "tier": 1,
@@ -2171,9 +2502,9 @@
    "feedSource": "Google News - Geopolitics/Energy",
    "sourceTierLabel": "official-or-wire",
    "contentDepth": "headline-only",
-   "eventTime": "2026-09-25T15:19:24.000Z",
+   "eventTime": "2026-09-25T01:11:00.000Z",
    "eventTimeKind": "published",
-   "independenceKey": "cnbc",
+   "independenceKey": "reuters",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-09-24T23:00:00.000Z",
    "newsCycleEnd": "2026-09-25T23:00:00.000Z",
@@ -2243,49 +2574,7 @@
    "newsCycleLabel": "2026-09-25 08:00 KST ~ 2026-09-26 08:00 KST"
   },
   {
-   "title": "Who Decides the Most Important Interest Rate in the World? Understanding What Gold Is Really Trading Through the Fed, the U.S. Treasury, and the Bond Market - TradingKey",
-   "link": "https://news.google.com/rss/articles/CBMitwFBVV95cUxPdWJpc0w1UWhHQzg3Z0RtT25OdHBBTk9BWHk2eFVKQ1R5SEdOT2tvbTFvMmVpQWdBYXF6S2hiZGtkMTlVZlR6LV9SQ0dIclVqa0pySlRtQmlOYXJBMm92NG1QaXNnS1hzOWs2M2xINV81OUtsbWlla0hXSUY2VThuT3dDYndoVmxGSFpkUXppNEtILU02b1ZvYndka0Zfc0FWWU1EUTgzUG1lN3lOd01WclJzUFlwTnc?oc=5",
-   "source": "TradingKey",
-   "pubDate": "Fri, 25 Sep 2026 16:34:17 GMT",
-   "topic": "fxbond",
-   "country": "global",
-   "tier": 3,
-   "score": 50,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | macro-rates+14 | fx-bonds-commodities+8",
-   "feedSource": "Google News - FX/Bonds",
-   "sourceTierLabel": "aggregator-or-trade",
-   "contentDepth": "headline-only",
-   "eventTime": "2026-09-25T16:34:17.000Z",
-   "eventTimeKind": "published",
-   "independenceKey": "tradingkey",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-09-24T23:00:00.000Z",
-   "newsCycleEnd": "2026-09-25T23:00:00.000Z",
-   "newsCycleLabel": "2026-09-25 08:00 KST ~ 2026-09-26 08:00 KST"
-  },
-  {
-   "title": "Gold and Silver retreats to FOMC lows as US Yields surge - FXStreet",
-   "link": "https://news.google.com/rss/articles/CBMipgFBVV95cUxNT0pGcGstUEpZc2Q3MXJtaU5XMllhM0pZV2FLcVBCR1dOWDFIRFdLLWVvV3Q4UEpYR0ZmZVFJTjVDWWM5cFNBTUhPYV9hZjlFVU1nUnZwNTZJVEJSNnZDZXo0emd4VnZ1YU83UnlEUk5qTldxbHFjSGFJY1lZak5xOUhTYXV1X3hOOUhDRDJKWDAxSXVFZjQ3OEtIelZoQXhBWWEtcFRR?oc=5",
-   "source": "FXStreet",
-   "pubDate": "Fri, 25 Sep 2026 15:57:21 GMT",
-   "topic": "fxbond",
-   "country": "global",
-   "tier": 3,
-   "score": 50,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | macro-rates+14 | fx-bonds-commodities+8",
-   "feedSource": "Google News - FX/Bonds",
-   "sourceTierLabel": "aggregator-or-trade",
-   "contentDepth": "headline-only",
-   "eventTime": "2026-09-25T15:57:21.000Z",
-   "eventTimeKind": "published",
-   "independenceKey": "fxstreet",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-09-24T23:00:00.000Z",
-   "newsCycleEnd": "2026-09-25T23:00:00.000Z",
-   "newsCycleLabel": "2026-09-25 08:00 KST ~ 2026-09-26 08:00 KST"
-  },
-  {
-   "title": "Stock Market Today (Sept. 25, 2026): S&P 500 edges higher amid easing oil prices - Yahoo Finance",
+   "title": "Stock Market Today (Sept. 25, 2026): S&P 500, Nasdaq jump as yields, oil prices test investors - Yahoo Finance",
    "link": "https://news.google.com/rss/articles/CBMilgFBVV95cUxQZGhGRUF3LUhaRDdvZW41cFh4djVaazlNeHV5MjlJaGU0eXdEUFM3a2hYY1JKWG9qZHRMeTVGbGZyMy04dW9tMDZ4dUJqMjBiazFmampBWDFkRzE5WlFjTmw0XzkwOVR5OVBxS25OWW02MGNzVFhyUlRIS1hlQWFIemhsT1RUd09Relc2NU1lOTVOYkpuT2c?oc=5",
    "source": "Yahoo Finance",
    "pubDate": "Fri, 25 Sep 2026 13:41:26 GMT",
@@ -2327,9 +2616,9 @@
    "newsCycleLabel": "2026-09-25 08:00 KST ~ 2026-09-26 08:00 KST"
   },
   {
-   "title": "Oracle invokes ‘force majeure’ to shield itself from data center issues: Bloomberg - The American Bazaar",
+   "title": "Oracle invokes ‘force majeure’ to shield itself from data center issues: Bloomberg - americanbazaaronline.com",
    "link": "https://news.google.com/rss/articles/CBMiywFBVV95cUxNWGh0RzNaeXFoYjVNMEtZMHlTNEk4azBXeXhoMzA1bktzWk9EbG1kZjg4OVRNMXBaUU5DTmNGRmNCc3pDVTFWSmV4ZFR3VWVuZm5WY21ORjhiNDlfeWdBeWJNZk5hM0lBb3dWcTFnSHpad0xDem16LVR6ak5aSHNRN09zc0gwcURiRmY3SklzYnhoaUdYRU9sRnkxNXJ3VWpZODlvbFM5WHRubmdZbDNJdDBvUjQ3Ulh2WWVBXzBMTUZlb1NxRDlkQXVXOA?oc=5",
-   "source": "The American Bazaar",
+   "source": "americanbazaaronline.com",
    "pubDate": "Fri, 25 Sep 2026 08:47:18 GMT",
    "topic": "semi",
    "country": "us",
@@ -2341,7 +2630,7 @@
    "contentDepth": "headline-only",
    "eventTime": "2026-09-25T08:47:18.000Z",
    "eventTimeKind": "published",
-   "independenceKey": "the american bazaar",
+   "independenceKey": "americanbazaaronline.com",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-09-24T23:00:00.000Z",
    "newsCycleEnd": "2026-09-25T23:00:00.000Z",
@@ -2369,9 +2658,9 @@
    "newsCycleLabel": "2026-09-25 08:00 KST ~ 2026-09-26 08:00 KST"
   },
   {
-   "title": "Maine posts record-breaking heating oil prices amid Iran War - Maine Public",
+   "title": "Maine posts record-breaking heating oil prices amid Iran War - mainepublic.org",
    "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxQZ2VheXUxc1UzTndDTUpjSnA4LW9LZGt2ZklsbEQyMDZwQ1ZHdDRTTHY1Q2labnI3WWJsM2I0SU5SODNOY2FfaE5TRXhfWWRuRGZHYWxpVzJyYnV5X0t1Q2gwSU9OWTB6UEV1S0RwQWlPdGZMOFNVWXFUTVJuS3I5M21yYzNVU1g4NmZrU1BmOVdWeWdKenRVcEh4bWlVcUI3eGVVd1Z3LU5TVUE?oc=5",
-   "source": "Maine Public",
+   "source": "mainepublic.org",
    "pubDate": "Fri, 25 Sep 2026 20:20:00 GMT",
    "topic": "geo",
    "country": "global",
@@ -2383,37 +2672,16 @@
    "contentDepth": "headline-only",
    "eventTime": "2026-09-25T20:20:00.000Z",
    "eventTimeKind": "published",
-   "independenceKey": "maine public",
+   "independenceKey": "mainepublic.org",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-09-24T23:00:00.000Z",
    "newsCycleEnd": "2026-09-25T23:00:00.000Z",
    "newsCycleLabel": "2026-09-25 08:00 KST ~ 2026-09-26 08:00 KST"
   },
   {
-   "title": "US Equity Markets End Higher Amid Falling Oil Prices Following Iran's Proposal to Reopen Strait of Hormuz - Yahoo! Finance Canada",
-   "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxOVnBWOUQ5TndjTVhaSFptbVBNaHN1dTJ3a1lkOFlqdHZLYzFwS3Vkb3BsUjBUY0VIU1RDcGZ5VkMxSEF1V0hZVHpQYks0dDRPY1hRdVZJenVjTW1scmVhWXFrQkhHaVk1Sk4wRFVEVVVhaUttZmRybnFzcm4yNmlmTWFLUQ?oc=5",
-   "source": "Yahoo! Finance Canada",
-   "pubDate": "Fri, 25 Sep 2026 20:15:55 GMT",
-   "topic": "geo",
-   "country": "global",
-   "tier": 3,
-   "score": 48,
-   "selectionReason": "base+20 | source-tier3+2 | recency+12 | geopolitics-energy+14",
-   "feedSource": "Google News - Geopolitics/Energy",
-   "sourceTierLabel": "aggregator-or-trade",
-   "contentDepth": "headline-only",
-   "eventTime": "2026-09-25T20:15:55.000Z",
-   "eventTimeKind": "published",
-   "independenceKey": "yahoo! finance canada",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-09-24T23:00:00.000Z",
-   "newsCycleEnd": "2026-09-25T23:00:00.000Z",
-   "newsCycleLabel": "2026-09-25 08:00 KST ~ 2026-09-26 08:00 KST"
-  },
-  {
-   "title": "S&P 500 posts weekly gains despite Treasury yield, oil headwinds (SP500:) - Seeking Alpha",
-   "link": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxQcUVWVE01Nl94ZWdCZGdPTmlOcDRPbFJqLVd3eFgzWDZ5bG1ndG9sNGhfQ0MtOGhkX0wwd2hzY3dlWUphRGlzeDNlaEVpRXN3bVJvdnV4ellKS2hjM3RlTVc0cjlyVlVYc0U2VkV5NkFSRGhJUGlYR2p3d2dxOV9UQTQzbUc3Ui1yUXhyVGpEdlJoNklRMTN5NUlvR1VybnlsZmZGa21KTW4?oc=5",
-   "source": "Seeking Alpha",
+   "title": "S&P 500 posts weekly gains despite Treasury yield, oil headwinds - TradingView",
+   "link": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxQRUFLWXd0MXJCLWEydFFvVkJoYzhTSTA1SFN1SERrM0ZuVTlhN0F1TEYyWkkyNzBObVQ0YktGalY2QzFyZTg2aXpteDJSa3FXWHozR1BmOGNRa3FlbTNUcGNFM0VYU2R4UTFBMEhjVVZyMGdZNW1sTEZrVU9kZmtzWHVoaHYtWDgwZVl5Nmc1TkR1QWxaSDJCZVJDSnIzYk1RY1g3NmNPUVlyUHJ4WFl2WURsT3NsNjRhcE5jcEVHX1dmVkE?oc=5",
+   "source": "TradingView",
    "pubDate": "Fri, 25 Sep 2026 20:11:24 GMT",
    "topic": "macro",
    "country": "us",
@@ -2425,7 +2693,7 @@
    "contentDepth": "headline-only",
    "eventTime": "2026-09-25T20:11:24.000Z",
    "eventTimeKind": "published",
-   "independenceKey": "seeking alpha",
+   "independenceKey": "tradingview",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-09-24T23:00:00.000Z",
    "newsCycleEnd": "2026-09-25T23:00:00.000Z",
@@ -2474,9 +2742,9 @@
    "newsCycleLabel": "2026-09-25 08:00 KST ~ 2026-09-26 08:00 KST"
   },
   {
-   "title": "Oil Prices Lower Alongside Possibility of US-Iran Truce - marinelink.com",
+   "title": "Oil Prices Lower Alongside Possibility of US-Iran Truce - Marine Link",
    "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxNeV9NNjdGT2JjaG9tWlZ1Y1dGU0JwVmgzTVJ5bTZackpFRVVpMzU3Z1VfWFU4dnlIMGh1Sk5nLWVxX3ZWZ0NWUmVNVmRzWVhheU9yclBxNDBHVjQzaUI4cy1yTVJ0ak0tRjZaUnI4eUpDNFUyQlFDUVNYRTVRMl9uZWE5SQ?oc=5",
-   "source": "marinelink.com",
+   "source": "Marine Link",
    "pubDate": "Fri, 25 Sep 2026 17:18:05 GMT",
    "topic": "geo",
    "country": "global",
@@ -2488,7 +2756,28 @@
    "contentDepth": "headline-only",
    "eventTime": "2026-09-25T17:18:05.000Z",
    "eventTimeKind": "published",
-   "independenceKey": "marinelink.com",
+   "independenceKey": "marine link",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-09-24T23:00:00.000Z",
+   "newsCycleEnd": "2026-09-25T23:00:00.000Z",
+   "newsCycleLabel": "2026-09-25 08:00 KST ~ 2026-09-26 08:00 KST"
+  },
+  {
+   "title": "Q4 Earnings Are Likely to Boost the ‘Strong Buy’ Case for Micron Stock - inkl",
+   "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxNRzgxaXV3Wl9TbjlMdzBvV2EzaWRQdExrRW04Z2NINGpuclY4WjlHdmxVajBIT1pqcUlhNjNBLXE4c1hmUkVRMmY3cGJ1ZWFXNEVSb3FwM2NRSm15a1REMnNFZmlxX1B0QmJ3LTVvRU5lR2VGcjVWaUJUY2VGUGUtMDkyUE95dTNETFVBU2tJRmx2MTlvZ254T1VR?oc=5",
+   "source": "inkl",
+   "pubDate": "Fri, 25 Sep 2026 19:25:41 GMT",
+   "topic": "semi",
+   "country": "us",
+   "tier": 3,
+   "score": 44,
+   "selectionReason": "base+20 | source-tier3+2 | recency+12 | earnings-guidance+10",
+   "feedSource": "Google News - AI/Semis",
+   "sourceTierLabel": "aggregator-or-trade",
+   "contentDepth": "headline-only",
+   "eventTime": "2026-09-25T19:25:41.000Z",
+   "eventTimeKind": "published",
+   "independenceKey": "inkl",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-09-24T23:00:00.000Z",
    "newsCycleEnd": "2026-09-25T23:00:00.000Z",
@@ -2558,27 +2847,6 @@
    "newsCycleLabel": "2026-09-25 08:00 KST ~ 2026-09-26 08:00 KST"
   },
   {
-   "title": "Treasury Yield Surge Pressures Rate-Sensitive Shares - Seeking Alpha",
-   "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxQVnZreEpjLWpHTzNySW5RMGEzMUVCT1UtQTQ2TGtqR0NJU1pNc2tPcFJhalljaXJmempGQTk0T0NzR1BIdlQyTmlQWVdIN2poQkkwZWpJaHE4dHkwdTFzYXBxTktodWpoUC1nemNvZzZ4V0RlOWsyVldlWGtZcjZpaDd1SXNjMnJzV1MwU1RNbTBSUTgwc21aRw?oc=5",
-   "source": "Seeking Alpha",
-   "pubDate": "Fri, 25 Sep 2026 12:20:00 GMT",
-   "topic": "macro",
-   "country": "us",
-   "tier": 3,
-   "score": 42,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | macro-rates+14",
-   "feedSource": "Google News - US markets",
-   "sourceTierLabel": "aggregator-or-trade",
-   "contentDepth": "headline-only",
-   "eventTime": "2026-09-25T12:20:00.000Z",
-   "eventTimeKind": "published",
-   "independenceKey": "seeking alpha",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-09-24T23:00:00.000Z",
-   "newsCycleEnd": "2026-09-25T23:00:00.000Z",
-   "newsCycleLabel": "2026-09-25 08:00 KST ~ 2026-09-26 08:00 KST"
-  },
-  {
    "title": "Oil prices back up as U.S. and Iran trade fresh threats to expand 7-month war - CBS News",
    "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxPSWU4WXp4UDJYb25pa3BRYTNqSW1rcFhDdF9vMXdoekszMG1JbEttak9SWDhnWnotU21ucFhVYlByOGQwaFdoRE1DeU04WXVjTVN2a0dmSzJoR3VsNGozZi0zQ0tNbkdMRkVRd0Z3MzE3QnFNWkNpYTgycTBqLUJ3QUNYN1hWVFA5NGdnS2JycV9KUTE1VnBQcQ?oc=5",
    "source": "CBS News",
@@ -2594,6 +2862,27 @@
    "eventTime": "2026-09-25T11:16:25.000Z",
    "eventTimeKind": "published",
    "independenceKey": "cbs news",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-09-24T23:00:00.000Z",
+   "newsCycleEnd": "2026-09-25T23:00:00.000Z",
+   "newsCycleLabel": "2026-09-25 08:00 KST ~ 2026-09-26 08:00 KST"
+  },
+  {
+   "title": "Stock market today: Dow, S&P 500, Nasdaq notch weekly wins as market shrugs off bond sell-off, oil prices ease - AOL.com",
+   "link": "https://news.google.com/rss/articles/CBMid0FVX3lxTE15V0toSW42ZGFBLTlmdWVRVnNmVmNJdm4ybjV5ZWVIVHVHUldYbWlVZVYteVZGY1paMlFkeEdjN0R0QVVzUzkzbkU1TEE4b0RqM1dRWXhEc0x6SG1qWjhwWXJzREJreTlwVHlQakN5V0pKelVET05v?oc=5",
+   "source": "AOL.com",
+   "pubDate": "Fri, 25 Sep 2026 08:43:02 GMT",
+   "topic": "macro",
+   "country": "us",
+   "tier": 3,
+   "score": 42,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | geopolitics-energy+14",
+   "feedSource": "Google News - US markets",
+   "sourceTierLabel": "aggregator-or-trade",
+   "contentDepth": "headline-only",
+   "eventTime": "2026-09-25T08:43:02.000Z",
+   "eventTimeKind": "published",
+   "independenceKey": "aol.com",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-09-24T23:00:00.000Z",
    "newsCycleEnd": "2026-09-25T23:00:00.000Z",
@@ -2657,6 +2946,27 @@
    "eventTime": "2026-09-25T01:06:35.000Z",
    "eventTimeKind": "published",
    "independenceKey": "ndtv profit",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-09-24T23:00:00.000Z",
+   "newsCycleEnd": "2026-09-25T23:00:00.000Z",
+   "newsCycleLabel": "2026-09-25 08:00 KST ~ 2026-09-26 08:00 KST"
+  },
+  {
+   "title": "Oil jump sends 30-year yields to two-decade high - Reuters",
+   "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxOWEltUDlJNE9jWHA5VlhOV21YTl9vZnZzMjQ1ZldQTmNSOHQ4NDMyZzlVbHVXZ1NqN01WR0d1aWxKVTQ1LURRTGhKQjlYbzUydHBYRVVuUkt3dFhRWDB1VDdWQTZhVy1Fb0pIM1hRa0UtTWZGQ1ZIa0MzSm1SUEdPR2pjNA?oc=5",
+   "source": "Reuters",
+   "pubDate": "Thu, 24 Sep 2026 23:32:10 GMT",
+   "topic": "macro",
+   "country": "us",
+   "tier": 1,
+   "score": 42,
+   "selectionReason": "base+20 | source-tier1+16 | recency+6",
+   "feedSource": "Google News - US markets",
+   "sourceTierLabel": "official-or-wire",
+   "contentDepth": "headline-only",
+   "eventTime": "2026-09-24T23:32:10.000Z",
+   "eventTimeKind": "published",
+   "independenceKey": "reuters",
    "newsCyclePolicy": "kst-0800-completed-24h",
    "newsCycleStart": "2026-09-24T23:00:00.000Z",
    "newsCycleEnd": "2026-09-25T23:00:00.000Z",
@@ -2747,27 +3057,6 @@
    "newsCycleLabel": "2026-09-25 08:00 KST ~ 2026-09-26 08:00 KST"
   },
   {
-   "title": "Snam stock follows 6% higher EBITDA guidance - AD HOC NEWS",
-   "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxNT3RxQklrNEF2Qm91ekFYRGs5OVp4S0xfbjRyQVlfd2NsWkJMVGdnUldPMWtBVVJNdVNqMjVUcllIcktQRXZLMXlvN0swOEo3aU85cVBvUlVMOTFVYTVqVFNvdGZsaDBTcnBsbElGVGdSRmFMWWtFZjh0MlRlNy1TOVVQV0ZMaEpqUkhWUjZOV3lWT25LamtKRmQzdVBzYTNOdjlHRnl3Z1FYSjhsN19qVnBnS2o?oc=5",
-   "source": "AD HOC NEWS",
-   "pubDate": "Fri, 25 Sep 2026 08:14:28 GMT",
-   "topic": "analyst",
-   "country": "us",
-   "tier": 3,
-   "score": 38,
-   "selectionReason": "base+20 | source-tier3+2 | recency+6 | earnings-guidance+10",
-   "feedSource": "Google News - Analyst/Earnings",
-   "sourceTierLabel": "aggregator-or-trade",
-   "contentDepth": "headline-only",
-   "eventTime": "2026-09-25T08:14:28.000Z",
-   "eventTimeKind": "published",
-   "independenceKey": "ad hoc news",
-   "newsCyclePolicy": "kst-0800-completed-24h",
-   "newsCycleStart": "2026-09-24T23:00:00.000Z",
-   "newsCycleEnd": "2026-09-25T23:00:00.000Z",
-   "newsCycleLabel": "2026-09-25 08:00 KST ~ 2026-09-26 08:00 KST"
-  },
-  {
    "title": "Gold Is Falling With Stocks and Bonds Are the Reason - stonex.com",
    "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxPcFJJekltcWJBUzgxZV9UU21XbFU4VWVsZjU5ZXBTOU5aUVNRcDFfRGpUV2tLdTNtT0R4Z1F6Wmc5NWIyTU91d0Npc3pPZHNNWnhMaXA5eWxRUFZta2Y4Q2JZLU1pdV80dGoycjMtczRzNDU1M3BhRml5eXBHZ1d4SWZlTFF3c2pFREd4V2NLb3RCVmhJOFFXeWxad2ZfY1ZOWEE?oc=5",
    "source": "stonex.com",
@@ -2808,24 +3097,87 @@
    "newsCycleStart": "2026-09-24T23:00:00.000Z",
    "newsCycleEnd": "2026-09-25T23:00:00.000Z",
    "newsCycleLabel": "2026-09-25 08:00 KST ~ 2026-09-26 08:00 KST"
+  },
+  {
+   "title": "Bond Yields Are Surging: What It Means for Stocks, Gold, and the US Dollar - Investing.com",
+   "link": "https://news.google.com/rss/articles/CBMitwFBVV95cUxOaWlxRkloZG00WmFLTXFwQktaTVZsT2UyeTFzUkhXWS1CYzVvNDU0bGVVaG5sZjVJMEotYjVrYWpManhMd25UZXA4OE51SE1rUlBvQWhKdXFkbVpyRHRTNlRUQWtCcFVVNE5sRFFPSzIyUkZMVHlZRm9UY082Ym1fRFBMNWFoYVl6QVQ3NXNvakttWnF4V2lTYUU3b2dlNFB4WDlKMEw3b2hlT3VVNmpVZ0oxQWszUWc?oc=5",
+   "source": "Investing.com",
+   "pubDate": "Fri, 25 Sep 2026 14:44:16 GMT",
+   "topic": "fxbond",
+   "country": "global",
+   "tier": 3,
+   "score": 36,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | fx-bonds-commodities+8",
+   "feedSource": "Google News - FX/Bonds",
+   "sourceTierLabel": "aggregator-or-trade",
+   "contentDepth": "headline-only",
+   "eventTime": "2026-09-25T14:44:16.000Z",
+   "eventTimeKind": "published",
+   "independenceKey": "investing.com",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-09-24T23:00:00.000Z",
+   "newsCycleEnd": "2026-09-25T23:00:00.000Z",
+   "newsCycleLabel": "2026-09-25 08:00 KST ~ 2026-09-26 08:00 KST"
+  },
+  {
+   "title": "Steep Yield Curve Opens a Window for Bond Investors - ETF Database",
+   "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxQMzJtaGdadlVFYUZHYU5jTWJRWkdXdmxjdG1HaVY2Z2FPdnlDTFRmRUQxdnBWeWhmWDZBOVJSZmRkc0pWOWwzRFJyWWVucHdhXzhjTlZVNFY0UC1VajJ3VnhFSFhYck1hb3ltNUFadmZieHZQU0xVRDUwQVBLM3RaUll2VTMtcmRYN3pBZllpa2JVQ2k4VVhUT1BjMA?oc=5",
+   "source": "ETF Database",
+   "pubDate": "Fri, 25 Sep 2026 14:27:45 GMT",
+   "topic": "fxbond",
+   "country": "global",
+   "tier": 3,
+   "score": 36,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | fx-bonds-commodities+8",
+   "feedSource": "Google News - FX/Bonds",
+   "sourceTierLabel": "aggregator-or-trade",
+   "contentDepth": "headline-only",
+   "eventTime": "2026-09-25T14:27:45.000Z",
+   "eventTimeKind": "published",
+   "independenceKey": "etf database",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-09-24T23:00:00.000Z",
+   "newsCycleEnd": "2026-09-25T23:00:00.000Z",
+   "newsCycleLabel": "2026-09-25 08:00 KST ~ 2026-09-26 08:00 KST"
+  },
+  {
+   "title": "Treasury Yields Top Rental Returns for First Time in 20 Years: What It Means for Gold - NAI500",
+   "link": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxPYVBDaFY2TnZXbEN3NXBVdmRhYkdnb184QlFncFBJMjlFcDV2NVotb0xKZ0lFVUVLemJuWjlKSDBjVDJCRDNHWWhwb29vOFhzb2wtemRjYzdISzdsd3ZEZDY1QnRlZGtlZ0V3c2hRcTFjN20zSnVoVzVoSnlYYWFKNjJfay1RV2stRnFTbVVGUkdhblJwcUR4TUZ5ZC0zdjZEa2I4LWI3UkU5dGVFSlJWRlZ5U3VoR2Ut?oc=5",
+   "source": "NAI500",
+   "pubDate": "Fri, 25 Sep 2026 14:11:12 GMT",
+   "topic": "fxbond",
+   "country": "global",
+   "tier": 3,
+   "score": 36,
+   "selectionReason": "base+20 | source-tier3+2 | recency+6 | fx-bonds-commodities+8",
+   "feedSource": "Google News - FX/Bonds",
+   "sourceTierLabel": "aggregator-or-trade",
+   "contentDepth": "headline-only",
+   "eventTime": "2026-09-25T14:11:12.000Z",
+   "eventTimeKind": "published",
+   "independenceKey": "nai500",
+   "newsCyclePolicy": "kst-0800-completed-24h",
+   "newsCycleStart": "2026-09-24T23:00:00.000Z",
+   "newsCycleEnd": "2026-09-25T23:00:00.000Z",
+   "newsCycleLabel": "2026-09-25 08:00 KST ~ 2026-09-26 08:00 KST"
   }
  ],
  "marketAnalysis": {
   "schemaVersion": "market-analysis.v2",
-  "status": "blocked",
-  "summary": "시장 분석 대기: 검증된 관측치만 표시합니다 — SPX=7743.41 index (2026-09-25T20:39:57.000Z) · VIX=14.87 index (2026-09-25T20:15:01.000Z) · 10Y=5.184 percent (2026-09-25T18:59:55.000Z) · DXY=101.035 index (2026-09-25T20:59:59.000Z). 추가 방향성·인과 해석은 유효한 분석 산출물 확인 후 제공됩니다.",
-  "full": "시장 분석 대기: 검증된 관측치만 표시합니다 — SPX=7743.41 index (2026-09-25T20:39:57.000Z) · VIX=14.87 index (2026-09-25T20:15:01.000Z) · 10Y=5.184 percent (2026-09-25T18:59:55.000Z) · DXY=101.035 index (2026-09-25T20:59:59.000Z). 추가 방향성·인과 해석은 유효한 분석 산출물 확인 후 제공됩니다.",
-  "oneLine": "시장 분석 대기: 검증된 관측치만 표시합니다 — SPX=7743.41 index (2026-09-25T20:39:57.000Z) · VIX=14.87 index (2026-09-25T20:15:01.000Z) · 10Y=5.184 percent (2026-09-25T18:59:55.000Z) · DXY=101.035 index (2026-09-25T20:59:59.000Z). 추가 방향성·인과 해석은 유효한 분석 산출물 확인 후 제공됩니다.",
+  "status": "verified",
+  "summary": "# Korean Market Analysis (September 25, 2026)\n**KOSPI Position:** At 7080.92 [f29347eb], the Korean benchmark remains below concurrent US strength (SPX 7743.41 [c8a9351c]), reflecting divergent regional momentum.\n**Volatility & Risk Sentiment:** VIX at 14.87 [0d627329] signals low equity volatility, while Fear&Greed at 37 [market-analysis:fear-greed] indicates fear-dominant sentiment—a disconnect suggesting caution despite technical calm.\n**Rate & Currency Headwinds:** US 10Y yields at 5.184% [8e855b21] and DXY at 101.035 [7382e87e] create headwinds for Korean exporters; domestic CPI at 3.4% [market-analysis:macro.cpi] and Fed rate at 3.63% [market-analysis:macro.fed-rate] maintain tightening pressure.\n**Commodity Flows:** WTI at 92.41 USD/barrel [3c83870f] and Gold at 4321.2 USD/oz [09d49bee] reflect mixed safe-haven demand. Per WSJ and CNBC headlines, falling oil prices amid U.S.-Iran diplomatic progress may ease some cost pressures on Korean importers.\n**Key Watch:** Readers should monitor US jobs data and inflation releases (referenced in Reuters headline) for signals on Fed rate trajectory—any hawkish surprise could further weigh on KOSPI via capital outflows and currency depreciation.",
+  "full": "# Korean Market Analysis (September 25, 2026)\n**KOSPI Position:** At 7080.92 [f29347eb], the Korean benchmark remains below concurrent US strength (SPX 7743.41 [c8a9351c]), reflecting divergent regional momentum.\n**Volatility & Risk Sentiment:** VIX at 14.87 [0d627329] signals low equity volatility, while Fear&Greed at 37 [market-analysis:fear-greed] indicates fear-dominant sentiment—a disconnect suggesting caution despite technical calm.\n**Rate & Currency Headwinds:** US 10Y yields at 5.184% [8e855b21] and DXY at 101.035 [7382e87e] create headwinds for Korean exporters; domestic CPI at 3.4% [market-analysis:macro.cpi] and Fed rate at 3.63% [market-analysis:macro.fed-rate] maintain tightening pressure.\n**Commodity Flows:** WTI at 92.41 USD/barrel [3c83870f] and Gold at 4321.2 USD/oz [09d49bee] reflect mixed safe-haven demand. Per WSJ and CNBC headlines, falling oil prices amid U.S.-Iran diplomatic progress may ease some cost pressures on Korean importers.\n**Key Watch:** Readers should monitor US jobs data and inflation releases (referenced in Reuters headline) for signals on Fed rate trajectory—any hawkish surprise could further weigh on KOSPI via capital outflows and currency depreciation.",
+  "oneLine": "# Korean Market Analysis (September 25, 2026)",
   "regime": {
-   "label": "UNKNOWN",
-   "status": "blocked",
+   "label": "MODEL_SUMMARY",
+   "status": "verified",
    "evidenceIds": [
     "market.index.spx:c8a9351c",
     "market.volatility.vix:0d627329",
     "market.rates.us10y:8e855b21",
     "market.fx.dxy:7382e87e",
-    "market.commodity.wti:96fcef48",
-    "market.commodity.gold:4423d46c",
+    "market.commodity.wti:3c83870f",
+    "market.commodity.gold:09d49bee",
     "market.index.kospi:f29347eb",
     "market-analysis:macro.cpi:2026-08-01T00:00:00.000Z",
     "market-analysis:macro.fed-rate:2026-08-01T00:00:00.000Z",
@@ -2833,18 +3185,52 @@
     "market-analysis:fear-greed:2026-09-25T23:59:59.000Z"
    ]
   },
-  "drivers": [],
-  "risks": [],
-  "watch": [
+  "drivers": [
    {
-    "label": "await validated market analysis",
+    "label": "validated summary drivers",
     "evidenceIds": [
      "market.index.spx:c8a9351c",
      "market.volatility.vix:0d627329",
      "market.rates.us10y:8e855b21",
      "market.fx.dxy:7382e87e",
-     "market.commodity.wti:96fcef48",
-     "market.commodity.gold:4423d46c",
+     "market.commodity.wti:3c83870f",
+     "market.commodity.gold:09d49bee",
+     "market.index.kospi:f29347eb",
+     "market-analysis:macro.cpi:2026-08-01T00:00:00.000Z",
+     "market-analysis:macro.fed-rate:2026-08-01T00:00:00.000Z",
+     "market-analysis:macro.nfp-mom:2026-08-01T00:00:00.000Z",
+     "market-analysis:fear-greed:2026-09-25T23:59:59.000Z"
+    ]
+   }
+  ],
+  "risks": [
+   {
+    "label": "validated summary risks",
+    "evidenceIds": [
+     "market.index.spx:c8a9351c",
+     "market.volatility.vix:0d627329",
+     "market.rates.us10y:8e855b21",
+     "market.fx.dxy:7382e87e",
+     "market.commodity.wti:3c83870f",
+     "market.commodity.gold:09d49bee",
+     "market.index.kospi:f29347eb",
+     "market-analysis:macro.cpi:2026-08-01T00:00:00.000Z",
+     "market-analysis:macro.fed-rate:2026-08-01T00:00:00.000Z",
+     "market-analysis:macro.nfp-mom:2026-08-01T00:00:00.000Z",
+     "market-analysis:fear-greed:2026-09-25T23:59:59.000Z"
+    ]
+   }
+  ],
+  "watch": [
+   {
+    "label": "monitor cited evidence",
+    "evidenceIds": [
+     "market.index.spx:c8a9351c",
+     "market.volatility.vix:0d627329",
+     "market.rates.us10y:8e855b21",
+     "market.fx.dxy:7382e87e",
+     "market.commodity.wti:3c83870f",
+     "market.commodity.gold:09d49bee",
      "market.index.kospi:f29347eb",
      "market-analysis:macro.cpi:2026-08-01T00:00:00.000Z",
      "market-analysis:macro.fed-rate:2026-08-01T00:00:00.000Z",
@@ -2856,22 +3242,22 @@
   "claims": [
    {
     "id": "market-summary-1",
-    "text": "시장 분석 대기: 검증된 관측치만 표시합니다 — SPX=7743.41 index (2026-09-25T20:39:57.000Z) · VIX=14.87 index (2026-09-25T20:15:01.000Z) · 10Y=5.184 percent (2026-09-25T18:59:55.000Z) · DXY=101.035 index (2026-09-25T20:59:59.000Z). 추가 방향성·인과 해석은 유효한 분석 산출물 확인 후 제공됩니다.",
+    "text": "# Korean Market Analysis (September 25, 2026)\n**KOSPI Position:** At 7080.92 [f29347eb], the Korean benchmark remains below concurrent US strength (SPX 7743.41 [c8a9351c]), reflecting divergent regional momentum.\n**Volatility & Risk Sentiment:** VIX at 14.87 [0d627329] signals low equity volatility, while Fear&Greed at 37 [market-analysis:fear-greed] indicates fear-dominant sentiment—a disconnect suggesting caution despite technical calm.\n**Rate & Currency Headwinds:** US 10Y yields at 5.184% [8e855b21] and DXY at 101.035 [7382e87e] create headwinds for Korean exporters; domestic CPI at 3.4% [market-analysis:macro.cpi] and Fed rate at 3.63% [market-analysis:macro.fed-rate] maintain tightening pressure.\n**Commodity Flows:** WTI at 92.41 USD/barrel [3c83870f] and Gold at 4321.2 USD/oz [09d49bee] reflect mixed safe-haven demand. Per WSJ and CNBC headlines, falling oil prices amid U.S.-Iran diplomatic progress may ease some cost pressures on Korean importers.\n**Key Watch:** Readers should monitor US jobs data and inflation releases (referenced in Reuters headline) for signals on Fed rate trajectory—any hawkish surprise could further weigh on KOSPI via capital outflows and currency depreciation.",
     "claimType": "summary",
     "evidenceIds": [
      "market.index.spx:c8a9351c",
      "market.volatility.vix:0d627329",
      "market.rates.us10y:8e855b21",
      "market.fx.dxy:7382e87e",
-     "market.commodity.wti:96fcef48",
-     "market.commodity.gold:4423d46c",
+     "market.commodity.wti:3c83870f",
+     "market.commodity.gold:09d49bee",
      "market.index.kospi:f29347eb",
      "market-analysis:macro.cpi:2026-08-01T00:00:00.000Z",
      "market-analysis:macro.fed-rate:2026-08-01T00:00:00.000Z",
      "market-analysis:macro.nfp-mom:2026-08-01T00:00:00.000Z",
      "market-analysis:fear-greed:2026-09-25T23:59:59.000Z"
     ],
-    "status": "blocked"
+    "status": "validated"
    }
   ],
   "evidenceIds": [
@@ -2879,21 +3265,19 @@
    "market.volatility.vix:0d627329",
    "market.rates.us10y:8e855b21",
    "market.fx.dxy:7382e87e",
-   "market.commodity.wti:96fcef48",
-   "market.commodity.gold:4423d46c",
+   "market.commodity.wti:3c83870f",
+   "market.commodity.gold:09d49bee",
    "market.index.kospi:f29347eb",
    "market-analysis:macro.cpi:2026-08-01T00:00:00.000Z",
    "market-analysis:macro.fed-rate:2026-08-01T00:00:00.000Z",
    "market-analysis:macro.nfp-mom:2026-08-01T00:00:00.000Z",
    "market-analysis:fear-greed:2026-09-25T23:59:59.000Z"
   ],
-  "generatedAt": "2026-09-26T01:35:38.747Z",
-  "model": "none",
+  "generatedAt": "2026-09-26T06:39:07.661Z",
+  "model": "claude-haiku-4-5",
   "validatorVersion": "market-analysis-validator.v2",
-  "semanticStatus": "blocked",
-  "semanticIssues": [
-   "metric-value-mismatch:macro.fed-rate"
-  ],
+  "semanticStatus": "verified",
+  "semanticIssues": [],
   "metricEvidence": [
    {
     "evidenceId": "market.index.spx:c8a9351c",
@@ -2903,7 +3287,7 @@
     "value": 7743.41,
     "unit": "index",
     "observedAt": "2026-09-25T20:39:57.000Z",
-    "collectedAt": "2026-09-26T01:35:13.162Z",
+    "collectedAt": "2026-09-26T06:38:56.910Z",
     "asOf": "2026-09-25T20:39:57.000Z",
     "source": "Yahoo chart",
     "sourceTier": "T3_PUBLIC_DELAYED",
@@ -2919,7 +3303,7 @@
     "value": 14.87,
     "unit": "index",
     "observedAt": "2026-09-25T20:15:01.000Z",
-    "collectedAt": "2026-09-26T01:35:13.162Z",
+    "collectedAt": "2026-09-26T06:38:56.910Z",
     "asOf": "2026-09-25T20:15:01.000Z",
     "source": "Yahoo chart",
     "sourceTier": "T3_PUBLIC_DELAYED",
@@ -2935,7 +3319,7 @@
     "value": 5.184,
     "unit": "percent",
     "observedAt": "2026-09-25T18:59:55.000Z",
-    "collectedAt": "2026-09-26T01:35:13.162Z",
+    "collectedAt": "2026-09-26T06:38:56.910Z",
     "asOf": "2026-09-25T18:59:55.000Z",
     "source": "Yahoo chart",
     "sourceTier": "T3_PUBLIC_DELAYED",
@@ -2951,7 +3335,7 @@
     "value": 101.035,
     "unit": "index",
     "observedAt": "2026-09-25T20:59:59.000Z",
-    "collectedAt": "2026-09-26T01:35:13.162Z",
+    "collectedAt": "2026-09-26T06:38:56.910Z",
     "asOf": "2026-09-25T20:59:59.000Z",
     "source": "Yahoo chart",
     "sourceTier": "T3_PUBLIC_DELAYED",
@@ -2960,14 +3344,14 @@
     "status": "observed"
    },
    {
-    "evidenceId": "market.commodity.wti:96fcef48",
+    "evidenceId": "market.commodity.wti:3c83870f",
     "metricId": "market.wti",
     "canonicalMetricId": "market.commodity.wti",
     "label": "WTI",
-    "value": 92.44,
+    "value": 92.41,
     "unit": "USD/barrel",
     "observedAt": "2026-09-25T20:59:58.000Z",
-    "collectedAt": "2026-09-26T01:35:13.162Z",
+    "collectedAt": "2026-09-26T06:38:56.910Z",
     "asOf": "2026-09-25T20:59:58.000Z",
     "source": "Yahoo chart",
     "sourceTier": "T3_PUBLIC_DELAYED",
@@ -2976,14 +3360,14 @@
     "status": "observed"
    },
    {
-    "evidenceId": "market.commodity.gold:4423d46c",
+    "evidenceId": "market.commodity.gold:09d49bee",
     "metricId": "market.gold",
     "canonicalMetricId": "market.commodity.gold",
     "label": "Gold",
-    "value": 4320.5,
+    "value": 4321.2,
     "unit": "USD/oz",
     "observedAt": "2026-09-25T20:59:59.000Z",
-    "collectedAt": "2026-09-26T01:35:13.162Z",
+    "collectedAt": "2026-09-26T06:38:56.910Z",
     "asOf": "2026-09-25T20:59:59.000Z",
     "source": "Yahoo chart",
     "sourceTier": "T3_PUBLIC_DELAYED",
@@ -2999,7 +3383,7 @@
     "value": 7080.92,
     "unit": "index",
     "observedAt": "2026-09-23T11:05:40.000Z",
-    "collectedAt": "2026-09-26T01:35:13.162Z",
+    "collectedAt": "2026-09-26T06:38:56.910Z",
     "asOf": "2026-09-23T11:05:40.000Z",
     "source": "Yahoo chart",
     "sourceTier": "T3_PUBLIC_DELAYED",
@@ -3014,7 +3398,7 @@
     "value": 3.4,
     "unit": "percent",
     "observedAt": "2026-08-01T00:00:00.000Z",
-    "collectedAt": "2026-09-26T01:35:13.162Z",
+    "collectedAt": "2026-09-26T06:38:56.910Z",
     "asOf": "2026-08-01T00:00:00.000Z",
     "source": "BLS Public Data API v1",
     "sourceTier": "T1_OFFICIAL",
@@ -3029,7 +3413,7 @@
     "value": 3.63,
     "unit": "percent",
     "observedAt": "2026-08-01T00:00:00.000Z",
-    "collectedAt": "2026-09-26T01:35:13.162Z",
+    "collectedAt": "2026-09-26T06:38:56.910Z",
     "asOf": "2026-08-01T00:00:00.000Z",
     "source": "FRED",
     "sourceTier": "T1_OFFICIAL",
@@ -3044,7 +3428,7 @@
     "value": 162,
     "unit": "thousands",
     "observedAt": "2026-08-01T00:00:00.000Z",
-    "collectedAt": "2026-09-26T01:35:13.162Z",
+    "collectedAt": "2026-09-26T06:38:56.910Z",
     "asOf": "2026-08-01T00:00:00.000Z",
     "source": "BLS Public Data API v1",
     "sourceTier": "T1_OFFICIAL",
@@ -3059,7 +3443,7 @@
     "value": 37,
     "unit": "score",
     "observedAt": "2026-09-25T23:59:59.000Z",
-    "collectedAt": "2026-09-26T01:35:13.162Z",
+    "collectedAt": "2026-09-26T06:38:56.910Z",
     "asOf": "2026-09-25T23:59:59.000Z",
     "source": "cnn",
     "sourceTier": "public-api",
@@ -3089,17 +3473,6 @@
     "evidenceBasis": "headline-title",
     "observedAt": "2026-09-25T19:58:00.000Z",
     "link": "https://news.google.com/rss/articles/CBMiswFBVV95cUxQYkwxOXhTT2ExSk55Yy1KWDl0NVlKOERpbW04c2Q2NVE1aXRmT2ZpSFNoRkpGYmJKSUZpajZ6NURoanZiTlU0Tkx5anJaWUhLY3dhQ0N5RUN6SGJ0M1haR25NZDBwdWRZb2REbURyU2gxbk4zN2VZRU1aLUg2ZHdDd3duUU1Wa1pSb20yal96N0VXeFRvMEY3ZDgwWS1WUmVYOV9CdUlVY3c2QWRMWVVMQzhpbw?oc=5",
-    "allowedUse": "reference",
-    "status": "observed"
-   },
-   {
-    "evidenceId": "headline:https://news.google.com/rss/articles/CBMixAFBVV95cUxQV3EzX3oydnQxRk5Ld1BKbk82ek14ZVdyLVpTdldjdEpqeDJfTVZ2Q0F1TnhvaWlhR1p0Z3hScDV0S2Z1UFR5OXhKSWk3NmtqTzd0SkJfa2RLRFpOOUlEcE5mR1d4Z21Td2FCQVZqNHV1eDloQkplT1NHaHhyTDlqOG5DYlFFdnRERThxNU0yX29LcTRyal9pMHQ4ZzNoU0VKZkdHN2hFYjhCZUpZZ3d2am11SDJYYVBiN0JxWVBtczNRYkh1?oc=5:2026-09-25T19:28:52.000Z",
-    "title": "Oil prices slide about 2% as US, Iran explore path out of war - Reuters",
-    "source": "Reuters",
-    "contentDepth": "headline-only",
-    "evidenceBasis": "headline-title",
-    "observedAt": "2026-09-25T19:28:52.000Z",
-    "link": "https://news.google.com/rss/articles/CBMixAFBVV95cUxQV3EzX3oydnQxRk5Ld1BKbk82ek14ZVdyLVpTdldjdEpqeDJfTVZ2Q0F1TnhvaWlhR1p0Z3hScDV0S2Z1UFR5OXhKSWk3NmtqTzd0SkJfa2RLRFpOOUlEcE5mR1d4Z21Td2FCQVZqNHV1eDloQkplT1NHaHhyTDlqOG5DYlFFdnRERThxNU0yX29LcTRyal9pMHQ4ZzNoU0VKZkdHN2hFYjhCZUpZZ3d2am11SDJYYVBiN0JxWVBtczNRYkh1?oc=5",
     "allowedUse": "reference",
     "status": "observed"
    },
@@ -3157,10 +3530,23 @@
     "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTE5xeGZGd2dtVTBWbzhHcUQycEVzX21HU0RBZV93TGZjZkppVEsxMkY5aFc1SUlOUlNUR04tV3k5aDlxNjBYeVByUEQ5R3RnZk5aaGhlUVJBYzNkSTlRaGpVY0ZZTUVhWjA0UDRzbEVB0gFzQVVfeXFMTUlFUTZEcWJxUVlRSXBUZkQyWVRxYkFDMUhtVnNfNEgzWTZJVTJyMnp2RHBEYkdqTUpla1FDdkRZUHZDVVpWZURvZFFiZzJnY2FKU2tLckxSSC1wUEFYVzcwSWU0RnlERElSalFBeXYtTFJCYw?oc=5",
     "allowedUse": "reference",
     "status": "observed"
+   },
+   {
+    "evidenceId": "headline:https://news.google.com/rss/articles/CBMitgFBVV95cUxPSWUzR2h3ZjhJcDU5ZGhHM3B5bXhEZGhJYklPUTdNNjBnTXB4aGY4c3RrSlF4dDBiSTRPNWZZLXhsVlAzYmhqamh1MUVUX3F6eUJCQ25CY0paRlNXZFIzUy04SDVVNGRuY1lub0JUSjc0dEMyak95bllWcTU1NDF6MDFUaHZYZFV5RDVVN1NjNlBuazNSYkt6UG9obkFlMW56NzlJMXNPTV9PajJRaEZFNnFHSV9Xdw?oc=5:2026-09-25T16:40:00.000Z",
+    "title": "Stocks pop, oil prices fall on report U.S.-Iran talks entered technical stage - CNBC",
+    "source": "CNBC",
+    "contentDepth": "headline-only",
+    "evidenceBasis": "headline-title",
+    "observedAt": "2026-09-25T16:40:00.000Z",
+    "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxPSWUzR2h3ZjhJcDU5ZGhHM3B5bXhEZGhJYklPUTdNNjBnTXB4aGY4c3RrSlF4dDBiSTRPNWZZLXhsVlAzYmhqamh1MUVUX3F6eUJCQ25CY0paRlNXZFIzUy04SDVVNGRuY1lub0JUSjc0dEMyak95bllWcTU1NDF6MDFUaHZYZFV5RDVVN1NjNlBuazNSYkt6UG9obkFlMW56NzlJMXNPTV9PajJRaEZFNnFHSV9Xdw?oc=5",
+    "allowedUse": "reference",
+    "status": "observed"
    }
   ],
   "causalEvidenceCount": 0,
-  "semanticWarnings": [],
+  "semanticWarnings": [
+   "metric-identity-proximity:vix-vs-fear-greed"
+  ],
   "newsContentPolicy": {
    "schemaVersion": "news-content-policy.v1",
    "retainedDepth": "headline-only",
@@ -3168,7 +3554,7 @@
    "causalNarrative": "headline-attributed-with-disclosure",
    "rationale": "RSS feeds grant headline/link reuse only; article bodies are never redistributed. Directional and causal commentary is published from retained headlines and typed metrics with explicit attribution, never as an unsourced assertion."
   },
-  "disclosure": null,
-  "reason": "metric-value-mismatch:macro.fed-rate"
+  "disclosure": "헤드라인 제목과 검증된 지표만 사용했습니다. 기사 본문은 출처 권리상 사용하지 않으므로 인과·방향 서술은 헤드라인 귀속 기반의 참고 해석이며, 최종 판단과 책임은 사용자에게 있습니다.",
+  "reason": null
  }
 }
