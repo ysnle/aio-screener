@@ -23,7 +23,7 @@
     "UNAVAILABLE",
     "UNKNOWN"
   ],
-  "generatedAt": "2026-09-27T05:42:35.615Z",
+  "generatedAt": "2026-09-27T12:25:40.210Z",
   "appRevision": "v56.52",
   "dataRevision": "market-snapshot:2026-09-26T06:38:56.910Z:8743d3bc",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
@@ -56,17 +56,17 @@
       ]
     },
     "quotes": {
-      "availability": "AVAILABLE",
+      "availability": "DEGRADED",
       "asOf": "2026-09-26T06:39:07.932Z",
-      "missingReason": null,
+      "missingReason": "fast-quote-observation-not-fresh",
       "sources": [
         "fast"
       ]
     },
     "ai-chat": {
-      "availability": "AVAILABLE",
+      "availability": "DEGRADED",
       "asOf": "2026-09-26T06:39:07.932Z",
-      "missingReason": null,
+      "missingReason": "ai-shared-proxy-not-ready",
       "sources": [
         "fast"
       ]
@@ -192,9 +192,9 @@
         "quoteQualityComplete": true,
         "blockedQuotes": [],
         "generatedAt": "2026-09-26T06:38:56.910Z",
-        "ageHours": 23.06,
+        "ageHours": 29.78,
         "maxAgeHours": 12,
-        "evaluatedAt": "2026-09-27T05:42:35.615Z",
+        "evaluatedAt": "2026-09-27T12:25:40.210Z",
         "reason": null
       },
       "readiness": {
@@ -207,11 +207,11 @@
     },
     "fast": {
       "status": "OPERATOR_REQUIRED",
-      "statusCode": "CONFIGURED_HEALTHY",
+      "statusCode": "STALE",
       "scheduler": "cloudflare-cron",
       "endpoint": "https://aio-screener-data-plane.zmfhd007.workers.dev",
       "health": {
-        "status": "CURRENT",
+        "status": "UNKNOWN",
         "statusCode": 200,
         "coverage": "16/16",
         "revision": "fast-quotes:e73a699b",
@@ -220,8 +220,8 @@
         "source": "last-observed-live-health",
         "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
-        "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-09-27T05:42:35.615Z"
+        "evidenceFresh": false,
+        "evidenceEvaluatedAt": "2026-09-27T12:25:40.210Z"
       },
       "soak": {
         "requiredDays": 7,
@@ -232,7 +232,7 @@
         "secretConfigured": "OPERATOR_REQUIRED",
         "workflowWired": "CURRENT",
         "lastCallSucceeded": "CURRENT",
-        "dataCurrent": "CURRENT",
+        "dataCurrent": "UNKNOWN",
         "licensedForUse": "REVIEW_REQUIRED"
       }
     },
@@ -264,13 +264,13 @@
       }
     },
     "publicChat": {
-      "status": "CURRENT",
-      "statusCode": "CONFIGURED_HEALTHY",
+      "status": "NO_ROUTE",
+      "statusCode": "STALE",
       "personalKey": "EXPLICIT_USER_CONFIG",
-      "sharedWorker": "CURRENT",
+      "sharedWorker": "OPERATOR_REQUIRED",
       "workerEndpoint": "https://aio-proxy.zmfhd007.workers.dev",
       "health": {
-        "status": "CURRENT",
+        "status": "OPERATOR_REQUIRED",
         "statusCode": 200,
         "observedAt": "2026-09-26T06:39:07.932Z",
         "revision": "v56.33",
@@ -285,8 +285,8 @@
         "source": "last-observed-live-health",
         "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
-        "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-09-27T05:42:35.615Z"
+        "evidenceFresh": false,
+        "evidenceEvaluatedAt": "2026-09-27T12:25:40.210Z"
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }
@@ -583,6 +583,7 @@
   },
   "blockers": [
     "fast_plane_soak_and_rights_review_required",
-    "provider_rights_review_required"
+    "provider_rights_review_required",
+    "ai_proxy_deploy_or_readiness_required"
   ]
 }
