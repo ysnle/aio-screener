@@ -1,40 +1,16 @@
 {
- "generatedAt": "2026-09-26T06:39:07.885Z",
+ "generatedAt": "2026-09-28T07:40:39.437Z",
  "note": "Phase 3 [C3] P599 — computeTradingScore 재구성 검증 하네스. RM-03(2026-07-19)부터 src/domain/signal/trading-score.js 단일 구현을 호출한다. breadth/pcr/뉴스감성은 history.json에 구조적으로 없어 라이브의 현재 fail-closed 미수신 처리(null/false)를 그대로 따른다 — 예전의 중립 상수 근사(57/0.95)는 제거됨(F-11 드리프트였음). summary의 sampleSizeSufficient는 관측 수 바닥일 뿐이며, 이 하네스는 CI/p-value를 계산하지 않아 statistical significance는 UNKNOWN, statisticallyMeaningful은 false로 fail-closed한다.",
  "summary": {
-  "n5d": 303,
-  "corr5d": -0.148,
-  "n21d": 287,
+  "n5d": 304,
+  "corr5d": -0.147,
+  "n21d": 288,
   "corr21d": -0.28,
   "sampleSizeSufficient": true,
   "significanceStatus": "UNKNOWN",
   "statisticallyMeaningful": false
  },
  "records": [
-  {
-   "date": "2026-02-17",
-   "reconstructedScore": 49,
-   "subScores": {
-    "vol": 62,
-    "mom": 34,
-    "trend": null,
-    "breadth": null,
-    "macro": 55
-   },
-   "fwd5dReturn": 0.6846192289594585,
-   "fwd21dReturn": -3.193233594711268,
-   "dataCompleteness": {
-    "vix": true,
-    "dxy": true,
-    "tnx": true,
-    "wti": true,
-    "vvix": true,
-    "trend200maAvailable": false,
-    "breadthPcrFellBackToUnavailable": true,
-    "newsSentimentOmitted": true,
-    "componentCoveragePct": 60
-   }
-  },
   {
    "date": "2026-02-18",
    "reconstructedScore": 49,
@@ -3838,7 +3814,7 @@
     "macro": 45
    },
    "fwd5dReturn": -1.6440805327391048,
-   "fwd21dReturn": null,
+   "fwd21dReturn": 0.32143134765371295,
    "dataCompleteness": {
     "vix": true,
     "dxy": true,
@@ -4221,7 +4197,7 @@
     "breadth": null,
     "macro": 45
    },
-   "fwd5dReturn": null,
+   "fwd5dReturn": -0.2734189865853468,
    "fwd21dReturn": null,
    "dataCompleteness": {
     "vix": true,
@@ -4312,6 +4288,30 @@
    "reconstructedScore": 56,
    "subScores": {
     "vol": 90,
+    "mom": 34,
+    "trend": 68,
+    "breadth": null,
+    "macro": 45
+   },
+   "fwd5dReturn": null,
+   "fwd21dReturn": null,
+   "dataCompleteness": {
+    "vix": true,
+    "dxy": true,
+    "tnx": true,
+    "wti": true,
+    "vvix": true,
+    "trend200maAvailable": true,
+    "breadthPcrFellBackToUnavailable": true,
+    "newsSentimentOmitted": true,
+    "componentCoveragePct": 80
+   }
+  },
+  {
+   "date": "2026-09-28",
+   "reconstructedScore": 53,
+   "subScores": {
+    "vol": 78,
     "mom": 34,
     "trend": 68,
     "breadth": null,
