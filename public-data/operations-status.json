@@ -23,11 +23,11 @@
     "UNAVAILABLE",
     "UNKNOWN"
   ],
-  "generatedAt": "2026-09-27T21:35:55.057Z",
+  "generatedAt": "2026-09-28T05:49:36.357Z",
   "appRevision": "v56.52",
   "dataRevision": "market-snapshot:2026-09-26T06:38:56.910Z:8743d3bc",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
-  "overall": "OPERATOR_REQUIRED",
+  "overall": "BLOCKED",
   "overallBasis": {
     "planes": [
       "durable"
@@ -40,15 +40,15 @@
   },
   "featureAvailability": {
     "market-breadth": {
-      "availability": "AVAILABLE",
+      "availability": "UNAVAILABLE",
       "asOf": "2026-09-26T06:38:56.910Z",
-      "missingReason": null,
+      "missingReason": "durable-market-cycle-stale",
       "sources": [
         "durable"
       ]
     },
     "fundamental-ranking": {
-      "availability": "AVAILABLE",
+      "availability": "DEGRADED",
       "asOf": "2026-09-26T06:38:56.910Z",
       "missingReason": null,
       "sources": [
@@ -172,8 +172,8 @@
   },
   "planes": {
     "durable": {
-      "status": "CURRENT",
-      "statusCode": "CONFIGURED_HEALTHY",
+      "status": "BLOCKED",
+      "statusCode": "CONFIGURED_BROKEN",
       "source": "github-actions",
       "lastSuccessfulAt": "2026-09-26T06:38:56.910Z",
       "coverage": {
@@ -185,23 +185,23 @@
         "tier1Observed": 0
       },
       "freshness": {
-        "fresh": true,
+        "fresh": false,
         "withinSla": false,
-        "marketClosedGrace": true,
+        "marketClosedGrace": false,
         "coverageComplete": true,
         "quoteQualityComplete": true,
         "blockedQuotes": [],
         "generatedAt": "2026-09-26T06:38:56.910Z",
-        "ageHours": 38.95,
+        "ageHours": 47.18,
         "maxAgeHours": 12,
-        "evaluatedAt": "2026-09-27T21:35:55.057Z",
-        "reason": null
+        "evaluatedAt": "2026-09-28T05:49:36.357Z",
+        "reason": "market-cycle-freshness-sla-exceeded"
       },
       "readiness": {
         "secretConfigured": "OPERATOR_REQUIRED",
         "workflowWired": "CURRENT",
-        "lastCallSucceeded": "CURRENT",
-        "dataCurrent": "CURRENT",
+        "lastCallSucceeded": "BLOCKED",
+        "dataCurrent": "BLOCKED",
         "licensedForUse": "REVIEW_REQUIRED"
       }
     },
@@ -221,7 +221,7 @@
         "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": false,
-        "evidenceEvaluatedAt": "2026-09-27T21:35:55.057Z"
+        "evidenceEvaluatedAt": "2026-09-28T05:49:36.357Z"
       },
       "soak": {
         "requiredDays": 7,
@@ -286,7 +286,7 @@
         "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": false,
-        "evidenceEvaluatedAt": "2026-09-27T21:35:55.057Z"
+        "evidenceEvaluatedAt": "2026-09-28T05:49:36.357Z"
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }
@@ -317,23 +317,25 @@
   },
   "reconciliation": {
     "tier0": {
-      "status": "MATCH",
+      "status": "BLOCKED",
       "artifact": "market-snapshot:2026-09-26T06:38:56.910Z:8743d3bc",
-      "uiEvidence": "same-revision-contract",
-      "observedAtComplete": true
+      "uiEvidence": null,
+      "observedAtComplete": false
     },
     "artifact": "public-data/reconciliation-status.json",
     "categoryCount": 22,
     "overall": "PARTIAL",
     "counts": {
-      "PARTIAL": 14,
-      "MATCH": 6,
+      "PARTIAL": 16,
+      "MATCH": 4,
       "BLOCKED": 2
     },
     "closure": {
       "complete": false,
       "unresolvedCategories": [
         "market-quotes",
+        "volatility",
+        "fear-greed",
         "aaii",
         "naaim",
         "investors-intelligence",
@@ -352,6 +354,8 @@
       ],
       "partialCategories": [
         "market-quotes",
+        "volatility",
+        "fear-greed",
         "aaii",
         "naaim",
         "us-breadth",
@@ -582,6 +586,8 @@
     "routeOwnersManifest": "architecture/route-owners.json"
   },
   "blockers": [
+    "durable_tier0_publish_blocked",
+    "durable_market_cycle_stale",
     "fast_plane_soak_and_rights_review_required",
     "provider_rights_review_required",
     "ai_proxy_deploy_or_readiness_required"
