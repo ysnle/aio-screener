@@ -22,7 +22,7 @@ concurrency:
 jobs:
   deploy:
     if: >-
-      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_repository.full_name == github.repository)
       || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -39,11 +39,13 @@ jobs:
           set -euo pipefail
           if [ "$EVENT_NAME" = 'workflow_run' ]; then run_id="$WORKFLOW_RUN_ID"; expected_sha="$WORKFLOW_SHA"; else run_id="$DISPATCH_CI_RUN_ID"; expected_sha=''; fi
           case "$run_id" in ''|null|*[!0-9]*) echo "::error::a successful CI run id is required"; exit 1;; esac
-          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run_id" --jq '[.name, .conclusion, (.head_branch // ""), (.head_sha // "")] | @tsv' > "$RUNNER_TEMP/aio-worker-ci-run.tsv"
-          IFS="$(printf '\t')" read -r workflow_name conclusion branch ci_sha < "$RUNNER_TEMP/aio-worker-ci-run.tsv"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run_id" --jq '[.name, .conclusion, (.head_branch // ""), (.head_sha // ""), (.event // ""), (.head_repository.full_name // "")] | @tsv' > "$RUNNER_TEMP/aio-worker-ci-run.tsv"
+          IFS="$(printf '\t')" read -r workflow_name conclusion branch ci_sha ci_event ci_repo < "$RUNNER_TEMP/aio-worker-ci-run.tsv"
           [ "$workflow_name" = 'CI' ] || { echo "::error::run $run_id is '$workflow_name', expected CI"; exit 1; }
           [ "$conclusion" = 'success' ] || { echo "::error::CI run $run_id concluded '$conclusion', expected success"; exit 1; }
           [ "$branch" = 'main' ] || { echo "::error::CI run $run_id ran on '$branch', expected main"; exit 1; }
+          [ "$ci_event" = 'push' ] || { echo "::error::CI run $run_id was triggered by '$ci_event', expected a push to main"; exit 1; }
+          [ "$ci_repo" = "$GITHUB_REPOSITORY" ] || { echo "::error::CI run $run_id came from '$ci_repo', not $GITHUB_REPOSITORY (fork)"; exit 1; }
           if [ -n "$expected_sha" ]; then [ "$ci_sha" = "$expected_sha" ] || { echo "::error::CI run SHA differs from workflow_run SHA"; exit 1; }; fi
           [[ "$ci_sha" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::CI run has invalid head SHA"; exit 1; }
           echo "run_id=$run_id" >> "$GITHUB_OUTPUT"

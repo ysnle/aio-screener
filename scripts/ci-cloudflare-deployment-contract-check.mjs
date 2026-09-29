@@ -124,6 +124,11 @@ try {
 check('P1307/R652/QA-DATA-49 rollback resolver accepts a single active version and rejects a split baseline',
   resolvesSingleActiveRollback && rejectsSplitRollback && rollbackResolver.includes('percentage !== 100'));
 
+// P1334/R674: a fork PR can name its branch 'main'; workflow_run deploys must require a push from this repository.
+for (const wf of ['.github/workflows/deploy-ai-proxy.yml', '.github/workflows/deploy-data-plane.yml']) {
+  const text = readFileSync(wf, 'utf8');
+  check(wf + ' deploys only from a push to this repository, never a fork workflow_run (P1334/R674)', text.includes("github.event.workflow_run.event == 'push'") && text.includes('github.event.workflow_run.head_repository.full_name == github.repository') && text.includes(`[ "$ci_event" = 'push' ]`) && text.includes('[ "$ci_repo" = "$GITHUB_REPOSITORY" ]'));
+}
 if (errors.length) {
   console.error('Cloudflare deployment contract failed:');
   errors.forEach((error) => console.error(` - ${error}`));
