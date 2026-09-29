@@ -146,6 +146,17 @@ function renderHomeSummary({ documentRef, signal }) {
     setText(documentRef, 'home-trading-signal', '판정 보류 — 입력 대기', 'var(--text-muted)');
     return;
   }
+  // P1322: a blocked score collapses to one line under the numbers instead of an empty panel.
+  const hero = documentRef?.getElementById('home-score-hero');
+  if (hero) {
+    hero.dataset.state = presentation.status || 'pending';
+    // Keep only the headline column; restore each child's own inline display when unblocked.
+    [...hero.children].forEach((child, index) => {
+      if (index === 2) return;
+      if (child.dataset.aioDisplay === undefined) child.dataset.aioDisplay = child.style.display || '';
+      child.style.display = presentation.status === 'blocked' ? 'none' : child.dataset.aioDisplay;
+    });
+  }
   const color = presentation.status === 'blocked'
     ? 'var(--text-muted)'
     : presentation.action === 'WATCH'
@@ -154,7 +165,7 @@ function renderHomeSummary({ documentRef, signal }) {
         ? 'var(--data-red)'
         : 'var(--data-amber)';
   setText(documentRef, 'home-hero-total', presentation.displayScore, color);
-  setText(documentRef, 'home-hero-headline', presentation.decision, color);
+  setText(documentRef, 'home-hero-headline', presentation.status === 'blocked' ? '시장 환경 점수 · 보류 (판단 등급 입력 없음)' : presentation.decision, color);
   setText(documentRef, 'home-hero-desc', presentation.description, 'var(--text-secondary)');
   setText(documentRef, 'home-trading-signal', presentation.decision, color);
 }

@@ -1,0 +1,94 @@
+name: Weekly macro calendar candidate review
+
+on:
+  schedule:
+    # Offset from market refreshes (:17/:47), watchdog (:23), and monthly universe review (:29).
+    - cron: '7 10 * * 1'
+  workflow_dispatch:
+    inputs:
+      review_date:
+        description: 'Optional deterministic UTC review date (YYYY-MM-DD).'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: weekly-macro-calendar-review
+  cancel-in-progress: false
+
+jobs:
+  review:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      REVIEW_DATE: ${{ inputs.review_date || '' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      - name: Setup Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: '20'
+
+      - name: Collect official FRED and annual-calendar candidates
+        id: report
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: |
+          set -euo pipefail
+          review_date="${REVIEW_DATE:-$(date -u +'%Y-%m-%d')}"
+          node scripts/fetch-fred-calendar-candidates.mjs --as-of "$review_date" > "$RUNNER_TEMP/macro-calendar-candidates.json"
+          node scripts/preview-macro-calendar.mjs --fixture "$RUNNER_TEMP/macro-calendar-candidates.json" --as-of "$review_date" > "$RUNNER_TEMP/macro-calendar-preview.json"
+          node scripts/build-macro-calendar-review.mjs --preview "$RUNNER_TEMP/macro-calendar-preview.json" > "$RUNNER_TEMP/macro-calendar-review.md"
+          echo "date=$review_date" >> "$GITHUB_OUTPUT"
+          echo "month=${review_date:0:7}" >> "$GITHUB_OUTPUT"
+          echo "digest=$(sed -n 's/<!-- aio-macro-calendar-candidate-hash:\([a-f0-9]*\) -->/\1/p' "$RUNNER_TEMP/macro-calendar-review.md")" >> "$GITHUB_OUTPUT"
+          echo "needs_review=$(sed -n 's/<!-- aio-macro-calendar-needs-review:\([a-z]*\) -->/\1/p' "$RUNNER_TEMP/macro-calendar-review.md")" >> "$GITHUB_OUTPUT"
+
+      - name: Upload review evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: macro-calendar-review-${{ steps.report.outputs.date }}
+          path: |
+            ${{ runner.temp }}/macro-calendar-candidates.json
+            ${{ runner.temp }}/macro-calendar-preview.json
+            ${{ runner.temp }}/macro-calendar-review.md
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Update or create this month’s review issue
+        if: steps.report.outputs.needs_review == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REVIEW_DATE: ${{ steps.report.outputs.date }}
+          REVIEW_MONTH: ${{ steps.report.outputs.month }}
+          CANDIDATE_DIGEST: ${{ steps.report.outputs.digest }}
+        run: |
+          set -euo pipefail
+          title="[AIO] Official macro calendar review: ${REVIEW_MONTH}"
+          body_file="$RUNNER_TEMP/macro-calendar-review.md"
+          month_marker="<!-- aio-macro-calendar-review:${REVIEW_MONTH} -->"
+          digest_marker="<!-- aio-macro-calendar-candidate-hash:${CANDIDATE_DIGEST} -->"
+          matches="$(gh issue list --state all --search 'in:body aio-macro-calendar-review' --json number,title,state,body,createdAt --limit 100)"
+          matches="$(jq --arg marker "$month_marker" '[.[] | select((.body // "") | contains($marker))]' <<< "$matches")"
+          if [ "$(jq 'length' <<< "$matches")" -eq 0 ]; then
+            matches="$(gh issue list --state all --search "in:title \"Official macro calendar review: ${REVIEW_MONTH}\"" --json number,title,state,body,createdAt --limit 100)"
+            matches="$(jq --arg title "$title" '[.[] | select(.title == $title)]' <<< "$matches")"
+          fi
+          open_issue="$(jq -r '[.[] | select(.state == "OPEN")] | sort_by(.createdAt) | last | .number // empty' <<< "$matches")"
+          unchanged_closed="$(jq -r --arg digest "$digest_marker" '[.[] | select(.state == "CLOSED" and ((.body // "") | contains($digest)))] | length' <<< "$matches")"
+
+          if [ -n "$open_issue" ]; then
+            gh issue edit "$open_issue" --title "$title" --body-file "$body_file"
+            echo "Updated macro-calendar review issue #${open_issue}"
+          elif [ "$unchanged_closed" -gt 0 ]; then
+            echo "The matching candidate review is already closed; leaving it closed."
+          else
+            gh issue create --title "$title" --body-file "$body_file"
+            echo "Created macro-calendar review issue for ${REVIEW_MONTH}"
+          fi

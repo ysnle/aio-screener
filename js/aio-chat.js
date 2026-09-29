@@ -1498,7 +1498,6 @@ const CHAT_CONTEXTS = {
   'market-news':_aioCreateEvidenceContext('AI 뉴스 분석가','market-news'),
   principles:_aioCreateEvidenceContext('AI 시장 원리 학습 분석가','principles'),
   atlas:_aioCreateEvidenceContext('AI 시대 지식 지도 분석가','atlas'),
-  options:_aioCreateEvidenceContext('AI 옵션 분석가','options'),
   'kr-themes':_aioCreateEvidenceContext('AI 한국 테마 분석가','themes'),
   'kr-macro':_aioCreateEvidenceContext('AI 한국 매크로 분석가','macro'),
   'kr-home':_aioCreateEvidenceContext('AI 한국시장 분석가','home'),
@@ -3109,7 +3108,7 @@ var AIO_CHAT_PIPELINE_REGISTRY = [
   { key:'screener', label:'퀀트 스크리너 후보군', tier:'analysis', kind:'quant', pages:['screener','themes','kr-themes'] },
   { key:'breadthSentiment', label:'시장 폭·심리', tier:'context', kind:'quant', pages:['breadth','sentiment'] },
   { key:'macroRatesFx', label:'매크로·금리·환율', tier:'context', kind:'quant', pages:['macro','fxbond','kr-macro'] },
-  { key:'userResearchReference', label:'사용자 연구자료 · AI 추론·매크로 전이', tier:'reference', kind:'qual', pages:['macro','themes','briefing','market-news','options'] },
+  { key:'userResearchReference', label:'사용자 연구자료 · AI 추론·매크로 전이', tier:'reference', kind:'qual', pages:['macro','themes','briefing','market-news'] },
   { key:'companyFundamentals', label:'기업 펀더멘털·밸류에이션', tier:'analysis', kind:'mixed', pages:['fundamental'] },
   { key:'newsFilings', label:'뉴스·공시·촉매·리스크', tier:'current', kind:'qual', pages:['market-news','briefing','fundamental'] },
   { key:'themes', label:'테마·섹터 로테이션', tier:'context', kind:'mixed', pages:['themes','theme-detail','kr-themes'] },
@@ -4139,7 +4138,6 @@ var _CTX_TOPIC_MAP = {
   'fundamental': ['earnings','equity','semi','energy','healthcare'],
   'themes':      ['semi','energy','crypto','defense','equity','healthcare','shipbuilding','space','quantum'],
   'screener':    ['earnings','equity','semi','energy','healthcare','defense','shipbuilding'],
-  'options':     ['macro','equity','semi'],
   'portfolio':   ['macro','equity','semi','earnings','energy','geo','healthcare','defense'],
   'fxbond':      ['fx','bond','macro','geo','energy'],
   'mentor':      ['macro','equity','semi','earnings','healthcare'],
@@ -4626,7 +4624,7 @@ function _buildChatIntentContext(ctxId, query, flags) {
 
 function _shouldSingleDeepAnalyzeChat(ctxId, query, detectedTickers, deepCompareStr) {
   if (!detectedTickers || detectedTickers.length !== 1 || deepCompareStr) return false;
-  var deepCtx = ctxId === 'fundamental' || ctxId === 'ticker' || ctxId === 'technical' || ctxId === 'options' || ctxId === 'themes' || ctxId === 'theme-detail' || ctxId === 'portfolio';
+  var deepCtx = ctxId === 'fundamental' || ctxId === 'ticker' || ctxId === 'technical' || ctxId === 'themes' || ctxId === 'theme-detail' || ctxId === 'portfolio';
   return deepCtx || (typeof _hasDeepAnalysisKw === 'function' && _hasDeepAnalysisKw(query));
 }
 window._classifyChatIntent = _classifyChatIntent;
@@ -5973,7 +5971,7 @@ function _autoNavigatePage(userQuery, currentCtxId) {
   else if (/(기업 분석|fundamental|재무|earnings|EPS|PER|밸류에이션|valuation|owner earnings|moat)/i.test(q)) intent = { page: 'fundamental', label: '기업 분석', emoji: '🏢' };
   else if (/(테마|theme|섹터|sector|RRG|rotation)/i.test(q)) intent = { page: 'themes', label: '테마/섹터', emoji: '🔄' };
   else if (/(포트폴리오|portfolio|보유|holdings|리밸런싱|rebalancing)/i.test(q)) intent = { page: 'portfolio', label: '포트폴리오', emoji: '💼' };
-  else if (/(옵션|option|GEX|put|call|delta|gamma|theta|vega)/i.test(q)) intent = { page: 'options', label: '옵션 전략', emoji: '⚙️' };
+  else if (/(옵션|option|GEX|put|call|delta|gamma|theta|vega)/i.test(q)) intent = { page: 'sentiment', label: '옵션·변동성 지표', emoji: '⚙️' }; // P1321: options route retired
   else if (/(브리핑|briefing|오늘|today|이번 주|this week)/i.test(q)) intent = { page: 'briefing', label: '데일리 브리핑', emoji: '📰' };
   else if (/(뉴스|news|헤드라인|headline)/i.test(q)) intent = { page: 'market-news', label: '실시간 뉴스', emoji: '🗞️' };
   else if (/(한국|KOSPI|KOSDAQ|KRX|코스피|코스닥|원화|BOK|한은|VKOSPI)/i.test(q)) intent = { page: 'macro', label: '한국 거시(거시경제 페이지 통합 섹션)', emoji: '🇰🇷' };
@@ -5994,40 +5992,47 @@ function _simulatePortfolioAddition(userQuery, detectedTickers) {
   if (!percentToAdd || percentToAdd <= 0 || percentToAdd > 100) return null;
   var target = (Array.isArray(detectedTickers) && detectedTickers[0]) || null;
   if (!target) return null;
-  // 현재 포트폴리오 holdings 조회
-  var portfolio = null;
+  // E0/P1281: 포트폴리오 단일 소유자는 getPortfolioData(Vault-aware, 스키마 {ticker, qty, cost})다.
+  // 옛 읽기 경로 — `window.getPortfolioState`(저장소에 정의 없음) + 폐기 키 `aio_portfolio_v1`
+  // (holdings/quantity/symbol 스키마, writer 없음) — 은 실데이터에서 항상 "포트폴리오 비어 있음"만
+  // 돌려주는 죽은 reader였고, 가동됐어도 필드명이 현행과 어긋난다.
+  var positions = null;
   try {
-    if (typeof window.getPortfolioState === 'function') portfolio = window.getPortfolioState();
-    if (!portfolio || !portfolio.holdings) {
-      var pfRaw = localStorage.getItem('aio_portfolio_v1');
-      if (pfRaw) portfolio = JSON.parse(pfRaw);
-    }
+    if (typeof window.getPortfolioData === 'function') positions = window.getPortfolioData();
   } catch(_) {}
-  if (!portfolio || !Array.isArray(portfolio.holdings) || portfolio.holdings.length === 0) {
+  var holdings = (Array.isArray(positions) ? positions : []).map(function(p) {
+    return { symbol: String((p && p.ticker) || '').toUpperCase(), qty: Number(p && p.qty) || 0 };
+  }).filter(function(h) { return h.symbol && h.qty > 0; });
+  if (holdings.length === 0) {
     return {
       target: target,
       percentToAdd: percentToAdd,
       available: false,
-      note: '포트폴리오 비어 있음 — 보유 종목 추가 후 시뮬레이션 가능'
+      note: '포트폴리오 비어 있음 — 보유 종목 추가 후 시뮬레이션 가능 (PIN 잠금 상태도 대상으로 계산하지 않는다)'
     };
   }
-  // 현재 총 가치 + 가중치
+  // 관측 시세 없는 보유 종목을 0으로 합치지 않는다 — 비중 분모가 조용히 왜곡되므로 보류한다.
   var ld = window._liveData || {};
-  var currentTotal = portfolio.holdings.reduce(function(sum, h) {
-    var price = (ld[h.symbol] && ld[h.symbol].price) || h.price || 0;
-    return sum + (price * (h.quantity || 0));
-  }, 0);
+  var priceOf = function(sym) {
+    var v = Number((ld[sym] || {}).price);
+    return isFinite(v) && v > 0 ? v : null;
+  };
+  var missingPrices = holdings.filter(function(h) { return priceOf(h.symbol) === null; }).map(function(h) { return h.symbol; });
+  if (missingPrices.length) {
+    return { target: target, percentToAdd: percentToAdd, available: false, reason: '시세 미수신(보유 종목): ' + missingPrices.join(', ') };
+  }
+  // 현재 총 가치 + 가중치
+  var currentTotal = holdings.reduce(function(sum, h) { return sum + priceOf(h.symbol) * h.qty; }, 0);
   if (currentTotal <= 0) return null;
   // 시뮬레이션: target ticker를 percentToAdd% 비중으로 추가
-  var targetPrice = (ld[target] && ld[target].price) || null;
-  if (!targetPrice) return { target: target, percentToAdd: percentToAdd, available: false, reason: '시세 미수신' };
+  var targetPrice = priceOf(target);
+  if (!targetPrice) return { target: target, percentToAdd: percentToAdd, available: false, reason: '시세 미수신(대상 종목)' };
   var addAmount = currentTotal * (percentToAdd / 100);
   var addQty = Math.floor(addAmount / targetPrice);
   var newTotal = currentTotal + (addQty * targetPrice);
   // 신규 가중치 계산
-  var newWeights = portfolio.holdings.map(function(h) {
-    var price = (ld[h.symbol] && ld[h.symbol].price) || h.price || 0;
-    var currentValue = price * (h.quantity || 0);
+  var newWeights = holdings.map(function(h) {
+    var currentValue = priceOf(h.symbol) * h.qty;
     var newValue = h.symbol === target ? currentValue + (addQty * targetPrice) : currentValue;
     return {
       symbol: h.symbol,
@@ -6037,7 +6042,7 @@ function _simulatePortfolioAddition(userQuery, detectedTickers) {
     };
   });
   // target이 holdings에 없으면 신규 추가
-  var existsInHoldings = portfolio.holdings.some(function(h) { return h.symbol === target; });
+  var existsInHoldings = holdings.some(function(h) { return h.symbol === target; });
   if (!existsInHoldings) {
     newWeights.push({
       symbol: target,
@@ -6117,10 +6122,6 @@ function _suggestFollowUpQuestions(ctxId, userQuery, aiResponse, detectedTickers
     suggestions.push('매출 성장·마진·현금흐름의 질을 연결해서 설명해줘');
     suggestions.push('밸류에이션이 정당화되려면 어떤 가정이 필요한가?');
     suggestions.push('가장 중요한 공시 원문과 반대 근거를 알려줘');
-  } else if (ctxId === 'options') {
-    suggestions.push('IV·스큐·GEX가 서로 다른 신호를 줄 때 해석법은?');
-    suggestions.push('옵션 지표의 기준시각과 만기 구조를 확인해줘');
-    suggestions.push('이 옵션 해석의 손실 위험과 무효화 조건은 무엇인가?');
   } else if (ctxId === 'kr-supply' || ctxId === 'kr-tech') {
     suggestions.push('외국인·기관·개인 수급의 기준기간을 맞춰 비교해줘');
     suggestions.push('한국과 미국 시장의 상대강도 차이를 설명해줘');
@@ -8256,7 +8257,7 @@ function toggleSidebar() {
 // 페이지 로드 시 사이드바 상태 복원 + 데스크톱에서 토글 버튼 표시
 (function() {
   var btn = document.getElementById('sidebar-toggle-btn');
-  if (btn && window.innerWidth > 768) btn.style.display = 'inline-block';
+  if (btn) btn.style.display = 'inline-block';
   try {
     if (localStorage.getItem('aio_sidebar_collapsed') === '1') {
       var sb = document.querySelector('.sidebar');
@@ -8275,7 +8276,7 @@ var _aiCtxMap = {
   'fundamental':'fundamental','themes':'themes','portfolio':'portfolio',
   'signal':'signal','screener':'screener','ticker':'ticker','theme-detail':'theme-detail','briefing':'briefing',
   'market-news':'market-news','breadth':'breadth','sentiment':'sentiment',
-  'options':'options','principles':'principles','atlas':'atlas',
+  'principles':'principles','atlas':'atlas',
   'kr-themes':'kr-themes','kr-macro':'kr-macro','kr-technical':'kr-tech' // v53.7 (P725): kr-home/kr-supply 퇴역
 };
 var _aiDefaultChips = {
@@ -8313,7 +8314,7 @@ function toggleAIPanel() {
     p.classList.remove('open');
     p.inert = true;
     p.setAttribute('inert', '');
-    if (app && window.innerWidth > 768) { app.style.maxWidth = ''; app.style.width = ''; }
+    if (app) { app.style.maxWidth = ''; app.style.width = ''; }
     p.setAttribute('aria-hidden', 'true');
     if (btn) { btn.classList.remove('active'); btn.textContent = 'AI 베타'; btn.setAttribute('aria-expanded', 'false'); }
     if (btn && typeof btn.focus === 'function') btn.focus();
@@ -8323,7 +8324,7 @@ function toggleAIPanel() {
     p.style.transform = 'translateX(0)';
     p.style.boxShadow = '-8px 0 32px rgba(0,0,0,0.4)';
     p.classList.add('open');
-    if (app && window.innerWidth > 768) { app.style.maxWidth = 'calc(100vw - 400px)'; app.style.width = 'calc(100vw - 400px)'; }
+    if (app) { app.style.maxWidth = 'calc(100vw - 400px)'; app.style.width = 'calc(100vw - 400px)'; }
     p.setAttribute('aria-hidden', 'false');
     if (btn) { btn.classList.add('active'); btn.textContent = 'AI 닫기'; btn.setAttribute('aria-expanded', 'true'); }
     // 현재 페이지에 맞는 맥락 설정

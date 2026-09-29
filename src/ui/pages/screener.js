@@ -102,6 +102,14 @@ const BUILDER_FIELDS = Object.freeze([
 const RUN_CONDITION_FIELDS = Object.freeze(['rank', 'rsi', 'momentum']);
 
 function finite(value) { return typeof value === 'number' && Number.isFinite(value) ? value : null; }
+// P1318/R664: size-bucket value in USD billions — decision-grade live cap first, else the
+// plausibility-checked SEC reference cap; null means "size unknown" (never a zero).
+export function capFilterValue(row = {}) {
+  const live = finite(row.mcap) != null && row.mcap > 0 && (!row.fieldReadiness || fieldValueForPurpose(row, 'valuation.marketCap', 'calculation') != null) ? row.mcap : null;
+  if (live != null) return live;
+  const reference = finite(row.referenceMarketCap?.billions);
+  return reference != null && reference > 0 ? reference : null;
+}
 function text(documentRef, value) {
   const node = documentRef.createElement('span');
   node.textContent = value == null || value === '' ? '—' : String(value);
@@ -215,11 +223,14 @@ export function filterRows(rows, documentRef, { readWatchlist, readAliases } = {
     if (market && row.index !== market) return false;
     if (sector && row.sector !== sector) return false;
     if (signal && row.signal !== signal) return false;
-    if (cap && (finite(row.mcap) == null || row.mcap <= 0 || (row.fieldReadiness && fieldValueForPurpose(row, 'valuation.marketCap', 'calculation') == null))) return false;
-    if (cap === 'MEGA' && !(row.mcap >= 1000)) return false;
-    if (cap === 'LARGE' && !(row.mcap >= 10 && row.mcap < 1000)) return false;
-    if (cap === 'MID' && !(row.mcap >= 2 && row.mcap < 10)) return false;
-    if (cap === 'SMALL' && !(row.mcap < 2)) return false;
+    // P1318/R664: a size bucket is a reference filter — use the decision-grade live value when it
+    // exists, otherwise the plausibility-checked SEC reference value; unknown size stays excluded.
+    const capValue = capFilterValue(row);
+    if (cap && capValue == null) return false;
+    if (cap === 'MEGA' && !(capValue >= 1000)) return false;
+    if (cap === 'LARGE' && !(capValue >= 10 && capValue < 1000)) return false;
+    if (cap === 'MID' && !(capValue >= 2 && capValue < 10)) return false;
+    if (cap === 'SMALL' && !(capValue < 2)) return false;
     if (minRank > 0 && !(row.screenStatus === 'passed' && finite(row.rank) != null && row.rank >= minRank)) return false;
     const rsi = row.fieldReadiness ? fieldValueForPurpose(row, 'price.rsi14', 'calculation') : finite(row.rsi);
     const momentum = row.fieldReadiness ? fieldValueForPurpose(row, 'price.ret3m', 'calculation') : finite(row.ret3m);
@@ -409,6 +420,12 @@ function createColumnContent(documentRef, row, key, { readLiveData, readWatchlis
   if (key === 'mcap') {
     if (live.mcap != null) return live.mcap >= 1000 ? `$${(live.mcap / 1000).toFixed(1)}T` : `$${live.mcap}B`;
     const native = row.nativeMarketCap;
+    const reference = row.referenceMarketCap;
+    if ((finite(native?.value) == null || ['BLOCKED', 'DENIED'].includes(native.rightsId)) && finite(reference?.billions) != null) {
+      const node = text(documentRef, `${reference.billions >= 1000 ? `$${numberText(reference.billions / 1000, 1)}T` : `$${numberText(reference.billions, 1)}B`} · 참고`);
+      node.title = `참고 시총 = SEC 발행주식수(${reference.sharesObservedAt || '기준일 미상'}) × 산출물 종가 — 크기 구간 필터에만 쓰고 팩터·판단에는 쓰지 않음 (P1318)`;
+      return node;
+    }
     if (finite(native?.value) == null || ['BLOCKED', 'DENIED'].includes(native.rightsId)) return '—';
     const billions = native.value / 1e9;
     const amount = billions >= 1000 ? `${numberText(billions / 1000, 1)}T` : `${numberText(billions, 2)}B`;
@@ -484,17 +501,48 @@ function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatch
     if (field) {
       td.dataset.fieldStatus = field.status;
       td.title = `${field.sourceId || '출처 미확인'} · 관측 ${field.observedAt || '시각 미확인'} · ${field.status}`;
-      if (['STALE', 'LAST_GOOD', 'CONFLICT'].includes(field.status) && fieldValueForPurpose(row, fieldId) != null) {
+      if (field.status === 'CONFLICT' && fieldValueForPurpose(row, fieldId) != null) {
         const note = documentRef.createElement('small');
-        note.textContent = field.status === 'CONFLICT' ? '값 충돌 · 참고' : `${field.observedAt ? String(field.observedAt).slice(0, 10) : '시각 미확인'} · 참고`;
+        note.textContent = '값 충돌 · 참고';
         note.style.cssText = 'display:block;font-size:11px;color:var(--text-muted);';
         td.appendChild(note);
+      } else if (['STALE', 'LAST_GOOD'].includes(field.status) && fieldValueForPurpose(row, fieldId) != null) {
+        // P1319/N12: every stale cell used to repeat "YYYY-MM-DD · 참고", burying the numbers.
+        // The cell is muted and marked; one table-level note states the date(s) once (renderStaleNote).
+        td.dataset.staleAsOf = field.observedAt ? String(field.observedAt).slice(0, 10) : '시각 미확인';
+        td.style.color = 'var(--text-muted)';
       }
     }
     tr.appendChild(td);
     if (column.sticky) stickyLeft += column.width;
   });
   return tr;
+}
+
+// P1319/N12: one honest statement of staleness per table instead of one per cell.
+export function describeStaleDates(dates = []) {
+  const unique = [...new Set(dates.filter(Boolean))].sort();
+  if (!unique.length) return '';
+  const span = unique.length === 1 ? unique[0] : `${unique[0]} ~ ${unique[unique.length - 1]}`;
+  return `흐리게 표시된 값은 ${span} 기준 관측값으로 최신이 아닙니다(참고용). 셀에 마우스를 올리면 출처·관측 시각이 보입니다.`;
+}
+
+function renderStaleNote(documentRef, body) {
+  const table = body?.closest?.('table');
+  if (!table) return;
+  let note = documentRef.getElementById('scr-stale-note');
+  const message = describeStaleDates([...body.querySelectorAll('[data-stale-as-of]')].map((cell) => cell.dataset.staleAsOf));
+  if (!message) { if (note) note.hidden = true; return; }
+  if (!note) {
+    note = documentRef.createElement('div');
+    note.id = 'scr-stale-note';
+    note.setAttribute('role', 'note');
+    note.style.cssText = 'font-size:12px;color:var(--text-secondary);background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:6px 10px;margin:0 0 8px;';
+    const anchor = table.parentElement && table.parentElement !== body.ownerDocument?.body ? table.parentElement : table;
+    anchor.parentElement?.insertBefore(note, anchor);
+  }
+  note.hidden = false;
+  note.textContent = message;
 }
 
 function renderFactorTab(documentRef, metadata) {
@@ -917,8 +965,7 @@ function render({ documentRef, store, readLiveData, readWatchlist, readAliases, 
       let capHeld = 0;
       if (capFilter) {
         rows.forEach((row) => {
-          const mcapValue = row.fieldReadiness ? fieldValueForPurpose(row, 'valuation.marketCap', 'calculation') : finite(row.mcap);
-          if (mcapValue == null || mcapValue <= 0) capHeld += 1;
+          if (capFilterValue(row) == null) capHeld += 1;
         });
       }
       const capLabel = { MEGA: '초대형($1T+)', LARGE: '대형($10B~1T)', MID: '중형($2~10B)', SMALL: '소형(<$2B)' }[capFilter] || capFilter;
@@ -943,6 +990,7 @@ function render({ documentRef, store, readLiveData, readWatchlist, readAliases, 
   if (filteredCount) filteredCount.textContent = String(filtered.length);
   const summary = documentRef.getElementById('scr-visible-summary');
   if (summary) summary.textContent = `전체 ${filtered.length}개 중 ${Math.min(visibleLimit.value, filtered.length)}개 표시`;
+  renderStaleNote(documentRef, body);
   const loadMore = documentRef.getElementById('scr-load-more-wrap');
   if (loadMore) loadMore.hidden = visibleLimit.value >= filtered.length;
   const allRows = rows;

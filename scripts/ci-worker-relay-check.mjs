@@ -209,7 +209,7 @@ async function main() {
   }
 
   // ── Health surface ─────────────────────────────────────────────────────────
-  const healthEnv = { FRED_API_KEY: SECRET, AIO_QUOTA_DO: atomicQuota() };
+  const healthEnv = { FRED_API_KEY: SECRET, AIO_QUOTA_DO: atomicQuota(), ANTHROPIC_DAILY_CAP: '321', AIO_OPERATOR_TOKEN: 'operator-private-fixture-' + 'x'.repeat(32) };
   const health = await worker.fetch(new Request('https://worker.example/health', { headers: { Origin: PROD_ORIGIN } }), healthEnv);
   const healthText = await health.text();
   const healthBody = JSON.parse(healthText);
@@ -221,6 +221,11 @@ async function main() {
   check('P1156 health reports whether the app token is required', healthBody.relay?.appTokenRequired === false, healthBody.relay);
   const tokenHealth = await worker.fetch(new Request('https://worker.example/health', { headers: { Origin: PROD_ORIGIN } }), { ...healthEnv, AIO_APP_TOKEN: 'token-fixture' });
   check('P1156 health reflects a configured app token', (await tokenHealth.json()).relay?.appTokenRequired === true);
+  check('P1312/R658/QA-OPS-02 public health never exposes Anthropic daily count or cap',
+    healthBody.ai?.requestCount === undefined
+      && healthBody.ai?.anthropicDailyCap === undefined
+      && healthBody.ai?.dailyCap === undefined
+      && !healthText.includes('ANTHROPIC_DAILY_CAP'), healthBody.ai);
 
   if (errors.length) {
     console.error('Worker relay contract failed:');

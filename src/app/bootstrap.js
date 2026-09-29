@@ -23,7 +23,7 @@ import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
 import { normalizeSignalScoreMode, describeSignalScoreMode, summarizeEntryChecklist, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/signal/mode.js';
 import { computeRelativeRotation } from '../domain/themes/rrg.js';
 import { classifyMovingAverageStructure, deriveMultiTimeframeView } from '../domain/technical/stage.js';
-import { computeNewsSentimentScore, computeNewsRiskSignals } from '../domain/news/scoring.js';
+import { computeNewsSentimentScore, computeNewsRiskSignals, MIN_NEWS_ANALYSIS_SAMPLE, normalizeNewsSentimentHistory } from '../domain/news/scoring.js';
 import { classifyBreadthParticipation } from '../domain/market/breadth.js';
 import { computeMarketHealth } from '../domain/market/health.js';
 import { deriveTreasuryCurveEvidence } from '../domain/macro/treasury-curve.js';
@@ -70,6 +70,11 @@ import { FX_LEG_MAX_AGE_MS, appendFxLeg, fxLegsState, normalizeFxLegs, removeFxL
 import { applyFxPanel, applyLedgerPanel, clearDeclaredFields, readDeclaredFields, showDeclarationStatus } from '../ui/panels/portfolio-declarations.js';
 import { assembleRiskEstimateInput } from '../ui/panels/portfolio-risk-input.js';
 import { createDeclarationsStore } from '../data/portfolio-declarations-store.js';
+import { BACKUP_SECTIONS, buildPortfolioBackup, describeBackupCounts, parsePortfolioBackup } from '../data/portfolio-backup.js';
+import { normalizeTickerInput, tickerDisplayName } from '../domain/entity/ticker-symbol.js';
+import { describeQuoteCurrentness } from '../domain/market/quote-currentness.js';
+import { KR_THEME_LABELS, krThemesForSymbol } from '../domain/themes/kr-themes.js';
+import { installTermTooltips } from '../ui/components/term-tooltip.js';
 import { buildEvidenceContext } from '../ai/context-builder.js';
 import { createEvidenceRetriever } from '../ai/retrieval/evidence.js';
 import { createAIKnowledgeRetriever } from '../ai/retrieval/knowledge.js';
@@ -122,6 +127,41 @@ if (typeof window !== 'undefined') {
   // P1199: 선언 저장소의 *형태*(읽기 규칙·ack 분리)는 네이티브가 소유하고, 셸이 저장 정책(경로)을 주입한다.
   window._pfDeclarationsStore = { create: createDeclarationsStore };
   window._pfDeclarationPanels = { applyLedgerPanel, applyFxPanel, showDeclarationStatus, readDeclaredFields, clearDeclaredFields };
+  // P1316/R661: 전체 개인 데이터 백업 묶음의 형태·검증은 네이티브가 소유하고, 셸은 스냅샷 수집과
+  // 저장(ack) 순서만 맡는다. 섹션 정규화는 각 섹션의 기존 소유자(원장·FX·가정)를 그대로 쓴다.
+  const backupDeps = {
+    normalizeLedger,
+    normalizeFxLegs,
+    assumptionKinds: { baseCurrency: 'currency', cashCurrency: 'currency', cashReturn: 'rate', riskFreeRate: 'rate', exposurePath: 'path', rebalancePolicy: 'policy' },
+    assumptionNormalizers: { currency: normalizeCurrencyCode, rate: normalizeAnnualRate, path: normalizeExposurePath, policy: normalizeRebalancePolicy }
+  };
+  window._pfPortfolioBackup = {
+    sections: BACKUP_SECTIONS,
+    build: buildPortfolioBackup,
+    describe: describeBackupCounts,
+    parse: (text) => parsePortfolioBackup(text, backupDeps)
+  };
+  // P1317/R663: the ticker route, quote request and screener lookup share one canonical symbol —
+  // a bare KRX code or registered Korean name resolves to `005930.KS`-style keys.
+  window._aioNormalizeTickerInput = (raw) => normalizeTickerInput(raw, { krStockDb: window.KR_STOCK_DB, krToYahoo: window.krTickerToYahoo });
+  window._aioTickerDisplayName = (symbol) => tickerDisplayName(symbol, { krStockDb: window.KR_STOCK_DB });
+  // P1326/R671: one currentness vocabulary (실시간/지연/종가/지난 시세) from observation times + US calendar.
+  window._aioDescribeQuoteCurrentness = describeQuoteCurrentness;
+  // P1327/R672: Korean theme names and ticker → theme membership have one owner; the ticker
+  // overview links a KRX stock to its themes and opens the theme detail on the themes page.
+  window.AIO_KR_THEME_LABELS = KR_THEME_LABELS;
+  window._aioKrThemesForSymbol = (symbol) => krThemesForSymbol(symbol, window.KR_THEME_MAP);
+  window.openKrThemeDetail = (themeId) => {
+    if (!window.KR_THEME_MAP?.[themeId]) return false;
+    if (typeof window.showPage === 'function') window.showPage('themes');
+    const section = document.getElementById('kr-integrated-themes');
+    const details = section?.closest('details');
+    if (details) details.open = true;
+    if (typeof window.showKrThemeDetail === 'function') window.showKrThemeDetail(themeId);
+    const panel = document.getElementById('kr-theme-detail-panel');
+    if (panel) panel.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    return true;
+  };
 }
 import { renderSentimentSummaryProjection } from '../ui/projections/sentiment-summary.js';
 import { createInitialAnalysisState, analysisReducer, ANALYSIS_DATA_CLEAR, ANALYSIS_DATA_SET } from '../state/slices/analysis.js';
@@ -318,6 +358,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // the data-layer readers, not through legacy.read* projections.  The legacy
   // facade remains available only for compatibility actions and navigation.
   const runtimeReaders = createRuntimeReaders({ root, now: clock.now });
+  // P1328/R670: the legacy computeTradingScore wrapper reads the one native score-input path.
+  root._aioReadTradingScoreInputs = () => runtimeReaders.readTradingScoreInputs();
   // E2/LC-26: the single writer/reader for the signal score mode. The legacy toggle calls
   // `setSignalScoreMode`; both the native runtime reader and the legacy facade read it back
   // so the pill, the score input and the score hero share one revision. Persisted so a reload
@@ -512,7 +554,6 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   modules.sentiment = createLazyPage({ route: 'sentiment', loader: () => import('../ui/pages/sentiment.js'), factory: ({ createSentimentPage }) => createSentimentPage({ documentRef, evidenceStore, store, chartFactory: () => root?.Chart }) });
   modules.ticker = createLazyPage({ route: 'ticker', loader: () => import('../ui/pages/entity.js'), factory: ({ createEntityPage }) => createEntityPage({ root, documentRef, store, route: 'ticker' }) });
   modules.fundamental = createLazyPage({ route: 'fundamental', loader: () => import('../ui/pages/entity.js'), factory: ({ createEntityPage }) => createEntityPage({ root, documentRef, store, route: 'fundamental' }) });
-  modules.options = createLazyPage({ route: 'options', loader: () => import('../ui/pages/entity.js'), factory: ({ createEntityPage }) => createEntityPage({ root, documentRef, store, route: 'options' }) });
   modules.portfolio = createLazyPage({ route: 'portfolio', loader: () => import('../ui/pages/portfolio.js'), factory: ({ createPortfolioPage }) => createPortfolioPage({ root, documentRef, store }) });
   modules.screener = createLazyPage({
     route: 'screener',
@@ -669,6 +710,25 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopThemeDetail = legacy.on('aio:themeDetailShown', syncThemes.sync);
     const stopEntityRefresh = compatibilityEvents.on('aio:refresh:done', syncEntity.sync);
     const stopEntityChanged = legacy.on('aio:entityChanged', syncEntity.sync);
+    // P1317/R663: a selected ticker outside the core quote list (e.g. most KR names) had no
+    // quote request at all, so its page stayed "—" forever. Register it and request it once;
+    // when quotes arrive while the ticker route is active, re-derive the entity and overview.
+    const requestSelectedTickerQuote = (event) => {
+      const id = String(event?.detail?.id || '').trim().toUpperCase();
+      if (!id || event?.detail?.source !== 'ticker-selection' || root?._liveData?.[id]?.price != null) return;
+      if (typeof root?.AIO?.registerLiveSymbol === 'function') root.AIO.registerLiveSymbol(id, { reason: 'ticker-selection' });
+      if (typeof root?.fetchLiveQuotes === 'function') Promise.resolve().then(() => root.fetchLiveQuotes([id])).catch(() => {});
+    };
+    const stopTickerQuoteRequest = legacy.on('aio:entityChanged', requestSelectedTickerQuote);
+    // P1320/R665: "?" term tooltips open on hover, focus or tap and stay inside the viewport.
+    const stopTermTooltips = installTermTooltips(documentRef, { root });
+    const stopTickerQuotes = legacy.on('aio:liveQuotes', () => {
+      if (disposed || String(router.active() || '').replace(/^page-/, '') !== 'ticker') return;
+      const id = String(root?._currentTickerId || '').trim().toUpperCase();
+      if (!id || root?._liveData?.[id]?.price == null) return;
+      syncEntity.sync();
+      if (typeof root?._aioRenderTickerOverview === 'function') { try { root._aioRenderTickerOverview(id); } catch (_) {} }
+    });
     const normalizeShownRoute = (event) => {
       const detail = event?.detail;
       const route = typeof detail === 'string' ? detail : detail?.pageId || detail?.route || router.active();
@@ -683,7 +743,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         return withScope ? sync({ scope }) : sync();
       });
     };
-    const stopEntityShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['ticker', 'fundamental', 'options']), syncEntity.sync, { withScope: true }));
+    const stopEntityShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['ticker', 'fundamental']), syncEntity.sync, { withScope: true }));
     const stopPortfolioShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['portfolio']), syncPortfolio.sync));
     const stopPortfolioChanged = legacy.on('aio:portfolioChanged', syncPortfolio.sync);
     const stopScreenerRefresh = compatibilityEvents.on('aio:refresh:done', syncScreenerData);
@@ -771,6 +831,9 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopThemeDetail();
       stopEntityRefresh();
       stopEntityChanged();
+      stopTickerQuoteRequest();
+      stopTickerQuotes();
+      stopTermTooltips();
       stopEntityShown();
       stopPortfolioShown();
       stopPortfolioChanged();
@@ -859,6 +922,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // wrapper calls this instead of keeping its own copy of the scoring formula (R352/F-03: legacy
     // and native must not diverge into two different models).
     ,computeTradingScoreModel
+    // P1328/R670: the one score-input path (decision evidence first, then the latest US regular close).
+    ,readTradingScoreInputs: () => runtimeReaders.readTradingScoreInputs()
     // E2/LC-26: signal score mode revision — a calculation input shared by the legacy toggle
     // and the native readers, plus the pure descriptor/normalizer so the UI never invents a
     // mode-dependent threshold the model does not produce.
@@ -873,6 +938,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     ,deriveMultiTimeframeView
     ,computeNewsSentimentScore
     ,computeNewsRiskSignals
+    ,MIN_NEWS_ANALYSIS_SAMPLE
+    ,normalizeNewsSentimentHistory
     // P746 follow-up (2026-07-21, Fable-advisor design): breadth page's own participation
     // classifier — deliberately NOT reusing classifyMovingAverageStructure (single-symbol price MA
     // stack, categorically different input) or the RSP/SPY-ratio breadth-signal-val logic.

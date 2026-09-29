@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v56.52 — 올인원 투자 터미널</title>
+  <title>AIO Screener v56.82 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 매매 환경 점수, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f7f4ee">
@@ -32,14 +32,14 @@
   <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css">
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap">
 <!-- v48.29 perf: 4개 외부 모듈 .js preload — 다운로드 병렬화 (실제 실행은 본문 script-src 위치 순서 보장) -->
-<script src="./js/aio-workspace.js?v=56.52" defer></script>
-<script src="./js/aio-macro-tech.js?v=56.52" defer></script>
-<script src="./js/aio-kr-data.js?v=56.52" defer></script>
-<script src="./js/aio-pages.js?v=56.52" defer></script>
-  <link rel="preload" as="script" href="./js/aio-core.js?v=56.52">
-  <link rel="preload" as="script" href="./js/aio-data.js?v=56.52">
-  <link rel="preload" as="script" href="./js/aio-ui.js?v=56.52">
-  <link rel="preload" as="script" href="./js/aio-chat.js?v=56.52">
+<script src="./js/aio-workspace.js?v=56.82" defer></script>
+<script src="./js/aio-macro-tech.js?v=56.82" defer></script>
+<script src="./js/aio-kr-data.js?v=56.82" defer></script>
+<script src="./js/aio-pages.js?v=56.82" defer></script>
+  <link rel="preload" as="script" href="./js/aio-core.js?v=56.82">
+  <link rel="preload" as="script" href="./js/aio-data.js?v=56.82">
+  <link rel="preload" as="script" href="./js/aio-ui.js?v=56.82">
+  <link rel="preload" as="script" href="./js/aio-chat.js?v=56.82">
   <!-- v48.31 perf: 3개 CDN defer 스크립트 다운로드 hint — HTML 파싱과 병렬 다운로드, defer 실행 시점 대기 제거 -->
   <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
   <link rel="preload" as="script" href="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js">
@@ -1286,12 +1286,6 @@ body {
   line-height: var(--lh-body);
 }
 .aio-explain-summary-body strong { color: var(--text-primary); }
-@media (max-width: 860px) {
-  .aio-page-brief-head,
-  .aio-page-brief-grid { display: block; }
-  .aio-page-brief-use { max-width: none; text-align: left; margin-top: 6px; }
-  .aio-page-brief-steps { grid-template-columns: 1fr; margin-bottom: 8px; }
-}
 
 .explain-section {
   margin-top: 14px;
@@ -1894,7 +1888,6 @@ body {
   min-height: 0;
   background: var(--bg-base);
   overscroll-behavior-y: contain; /* v48.68 P139: scroll-chaining 차단 — scrollTop=0에서 위로 스크롤 시 부모(body/app overflow:hidden)로 전파 방지 */
-  -webkit-overflow-scrolling: touch; /* iOS 모멘텀 스크롤 보장 */
 }
 .content::-webkit-scrollbar { width: 8px; }
 .content::-webkit-scrollbar-thumb { background: var(--surface-4); border-radius: var(--radius-pill); }
@@ -2077,11 +2070,6 @@ body {
   #page-signal [style*="grid-template-columns:repeat(6"] { grid-template-columns: repeat(3, 1fr) !important; }
   #page-signal [style*="grid-template-columns:200px"] { grid-template-columns: 1fr !important; }
 }
-@media (max-width: 768px) {
-  #page-signal [style*="grid-template-columns:repeat(6"] { grid-template-columns: repeat(2, 1fr) !important; }
-  #page-signal [style*="grid-template-columns:repeat(4"] { grid-template-columns: repeat(2, 1fr) !important; }
-  #page-signal [style*="grid-template-columns:repeat(5"] { grid-template-columns: repeat(2, 1fr) !important; }
-}
 /* v48.42: Nav item — Figma 스타일 (왼쪽 accent 라인 hover/active) */
 .nav-item {
   display: flex;
@@ -2225,7 +2213,6 @@ body {
 /* v48.56: 어닝 캘린더 EH 스타일 + 리스크 레이더 유틸 */
 .aio-earn-cal-grid { grid-template-columns: repeat(5, 1fr); }
 @media (max-width: 1100px) { .aio-earn-cal-grid { grid-template-columns: repeat(3, 1fr); } }
-@media (max-width: 700px) { .aio-earn-cal-grid { grid-template-columns: repeat(2, 1fr); } }
 .aio-earn-card { transition: border-color var(--dur-fast), transform var(--dur-fast); }
 .aio-earn-card:hover { border-color: var(--data-cyan); transform: translateY(-1px); }
 .aio-earn-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
@@ -2505,7 +2492,6 @@ h3.chat-h{font-size:14px;}h4.chat-h{font-size:12.5px;}h5.chat-h{font-size:11.5px
 
 /* ═══ 한국 테마 카드 스타일 ═══ */
 .kr-theme-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:12px;margin-bottom:14px;}
-@media(max-width:768px){.kr-theme-grid{grid-template-columns:1fr;}}
 .kr-theme-card{background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:16px 18px;transition:all 0.2s ease;cursor:pointer;}
 .kr-theme-card:hover{border-color:rgba(177,58,48,0.35);box-shadow:0 4px 20px rgba(0,0,0,0.15);transform:translateY(-1px);}
 .kr-theme-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
@@ -2699,10 +2685,10 @@ html { scrollbar-width: thin; scrollbar-color: rgba(33,29,22,0.12) transparent; 
 .term-tooltip {
   position: relative; display: inline-flex; align-items: center; gap: 3px; cursor: help;
 }
-.term-tooltip .tip-icon {
-  width: 15px; height: 15px; background: rgba(33,29,22,0.2); border: 1px solid rgba(33,29,22,0.35);
-  border-radius: 50%; font-size: 11px; color: var(--accent); display: inline-flex; align-items: center;
-  justify-content: center; font-weight: 700; flex-shrink: 0; line-height: 1;
+.term-tooltip .tip-icon { /* P1331: 24px hit target (WCAG 2.5.8), 15px visual circle, same layout via -4.5px margin */
+  width: 24px; height: 24px; margin: -4.5px; position: relative; isolation: isolate; background: transparent; border: 0; padding: 0;
+  border-radius: 50%; font-size: 11px; color: var(--accent); display: inline-flex; align-items: center; cursor: help;
+  justify-content: center; font-weight: 700; flex-shrink: 0; line-height: 1; } .term-tooltip .tip-icon::before { content: ''; position: absolute; inset: 4.5px; z-index: -1; border-radius: 50%; background: rgba(33,29,22,0.2); border: 1px solid rgba(33,29,22,0.35);
 }
 .term-tooltip .tip-body {
   display: none; position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
@@ -3189,6 +3175,7 @@ body { background: #fbf9f5 !important; }
 
 /* Home FX strip cells */
 .home-fx-cell{background:var(--surface-1);border:1px solid rgba(33,29,22,0.07);border-radius:var(--radius-md);padding:6px 8px;text-align:center;}
+#home-score-hero[data-state="blocked"]{padding:10px 0!important;gap:14px!important}#home-score-hero[data-state="blocked"] #home-hero-headline{font-size:14px!important;margin-bottom:2px!important}#home-score-hero[data-state="blocked"] #home-hero-desc{font-size:12px!important;line-height:1.6!important}/* P1322 */
 .hfc-label{font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;}
 .hfc-val{font-size:13px;font-weight:800;font-family:var(--font-mono);color:var(--text-primary);margin:2px 0;}
 .hfc-chg{font-size:11px;font-family:var(--font-mono);}
@@ -3617,75 +3604,6 @@ body { background: #fbf9f5 !important; }
 .pnl.neg { color: var(--data-red); }
 .pnl.neutral { color: var(--text-muted); }
 
-/* ═══ v20: Responsive Breakpoints ═══ */
-@media (max-width: 1024px) {
-  .snap-grid-v5 { grid-template-columns: repeat(3, 1fr); }
-  .mkt-status-bar { grid-template-columns: repeat(3, 1fr); }
-  .tac-score-grid { grid-template-columns: repeat(3, 1fr); }
-  .energy-grid { grid-template-columns: repeat(2, 1fr); }
-  .breadth-summary { grid-template-columns: repeat(2, 1fr); }
-  .stage-grid { grid-template-columns: repeat(2, 1fr); }
-  .kr-index-grid { grid-template-columns: repeat(2, 1fr); }
-  .desk-layout { grid-template-columns: 1fr; }
-}
-@media (max-width: 768px) {
-  :root { --sidebar-w: 0px !important; }
-  .sidebar { display: none; position: fixed; top: 0; left: 0; bottom: 0; width: 260px !important; z-index: 10001; box-shadow: 4px 0 20px rgba(0,0,0,0.5); }
-  .sidebar.mobile-open { display: flex !important; }
-  .mobile-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 10000; }
-  .mobile-overlay.show { display: block; }
-  .mobile-hamburger { display: flex !important; }
-  .snap-grid-v5 { grid-template-columns: repeat(2, 1fr); }
-  .mkt-status-bar { grid-template-columns: repeat(2, 1fr); }
-  .tac-score-grid { grid-template-columns: repeat(2, 1fr); }
-  .energy-grid { grid-template-columns: 1fr; }
-  .breadth-summary { grid-template-columns: repeat(2, 1fr); }
-  .stage-grid { grid-template-columns: 1fr; }
-  .news-items-grid { grid-template-columns: 1fr; }
-  .tac-sector-grid { grid-template-columns: 1fr; }
-  .kr-screener-grid { grid-template-columns: 1fr; }
-  .topbar { flex-wrap: wrap; }
-  .content { padding: 10px; }
-  .home-quick-nav { grid-template-columns: repeat(3, 1fr) !important; }
-  /* v30.11: 고정 너비 grid → 모바일 1열 전환 */
-  .desk-layout { grid-template-columns: 1fr !important; }
-  [style*="grid-template-columns:200px"] { grid-template-columns: 1fr !important; }
-  [style*="grid-template-columns:300px"] { grid-template-columns: 1fr !important; }
-  [style*="grid-template-columns:120px"] { grid-template-columns: 1fr !important; }
-  [style*="grid-template-columns:repeat(4"] { grid-template-columns: repeat(2, 1fr) !important; }
-  [style*="grid-template-columns:repeat(5"] { grid-template-columns: repeat(2, 1fr) !important; }
-  /* v31.9: breadth/score 바 + 경제 캘린더 모바일 레이아웃 */
-  .breadth-bar-row { grid-template-columns: 90px 1fr 36px 60px !important; gap: 4px !important; }
-  .score-bar-row { grid-template-columns: 100px 1fr 40px 24px !important; gap: 4px !important; }
-  [style*="grid-template-columns:70px 1fr 60px auto"] { grid-template-columns: 50px 1fr 40px auto !important; }
-  .bb-label { font-size: 11px !important; min-width: 0 !important; }
-  .bb-badge { max-width: 60px !important; font-size: 11px !important; }
-  /* v30.11: 포트폴리오 입력 폼 반응형 */
-  #pf-add-ticker, #pf-add-qty, #pf-add-cost, #pf-add-memo { width: 100% !important; min-width: 0 !important; box-sizing: border-box; }
-  #pf-pin-input { width: 100% !important; max-width: 160px; box-sizing: border-box; }
-  /* v30.11: 채팅 입력 키보드 가림 방지 */
-  .aio-chat { max-height: 50vh; }
-  .acp-input-row { position: sticky; bottom: 0; background: var(--bg-card); z-index: 10; padding: 8px 10px !important; }
-  .acp-input-row input { font-size: 16px !important; /* iOS 자동 확대 방지 */ }
-  /* v49.76 P407 R152: 모바일 채팅 레이아웃 비율 fix (사용자 좌절 발견 — "답변 화면 비율이랑 레이아웃도 안 맞아") */
-  .aio-chat { width: 100% !important; max-width: 100vw !important; box-sizing: border-box; }
-  .acp-messages { padding: 12px 12px 16px !important; max-width: 100% !important; box-sizing: border-box; }
-  .acp-msg { max-width: 100% !important; }
-  .acp-bubble { max-width: calc(100vw - 80px) !important; min-width: 0 !important; padding: 10px 12px !important; font-size: 14px !important; line-height: 1.55 !important; }
-  .acp-msg.user .acp-bubble { max-width: calc(100vw - 100px) !important; }
-  .acp-chips { padding: 6px 12px !important; gap: 4px !important; flex-wrap: wrap; }
-  .aio-chat-chip, .q-chip { font-size: 11px !important; padding: 4px 8px !important; max-width: 100%; white-space: normal; text-align: left; line-height: 1.4; }
-  /* AI 응답 가독성 — 모바일에서 답변 본문이 양옆 짧게 보이는 문제 시정 */
-  .acp-bubble code { word-break: break-all; font-size: 12px; }
-  .acp-bubble pre { max-width: 100%; overflow-x: auto; font-size: 11px; }
-}
-/* Mobile hamburger button */
-.mobile-hamburger {
-  display: none; align-items: center; justify-content: center;
-  width: 36px; height: 36px; border-radius: 6px; border: 1px solid var(--border);
-  background: var(--surface-4); cursor: pointer; color: var(--text-primary);
-  font-size: 18px; flex-shrink: 0;
-}
 /* Scroll-to-top button */
 #scroll-top-btn {
   display: none; position: fixed; bottom: 90px; right: 24px; z-index:99;
@@ -3796,11 +3714,6 @@ body.aio-screener-focus .sidebar { width:0; min-width:0; overflow:hidden; paddin
 body.aio-screener-focus { --sidebar-w:0px; }
 body.dark-theme .scr-profile-btn.active { color:var(--bg-base) !important; }
 body.dark-theme .scr-screen-chip.active { color:var(--bg-base) !important; }
-@media (max-width:900px) {
-  .scr-workflow-grid, .scr-why-grid { grid-template-columns:1fr; }
-  .scr-funnel { grid-template-columns:repeat(2,minmax(0,1fr)); }
-  #screener-workbench > div[style*="repeat(3"] { grid-template-columns:1fr !important; }
-}
 /* v52.72 아이보리 4c: 시안은 9열 핵심 컬럼만 노출 — 나머지(순위/등급/섹터/모멘텀/추세/저변동/밸류/퀄리티/
    시총/진입?/시그널/최신뉴스/그룹헤더)는 기본 숨김, "전체 컬럼 보기" 토글로만 노출(삭제 아님). */
 #screener-results-table .scr-adv-col { display: none; }
@@ -3837,36 +3750,17 @@ body.dark-theme .scr-screen-chip.active { color:var(--bg-base) !important; }
   /* FX 멀티셀 6열 → 3열 */
   #page-fxbond [style*="grid-template-columns:repeat(6"] { grid-template-columns: repeat(3, 1fr) !important; }
   /* 옵션 5열 메트릭 → 3열 */
-  #page-options [style*="grid-template-columns:repeat(5"] { grid-template-columns: repeat(3, 1fr) !important; }
   /* 리스크 모니터 5열 → 3열 */
   #risk-monitor-grid { grid-template-columns: repeat(3, 1fr) !important; }
   /* 수익률 곡선 5열 → 3열 */
   #page-fxbond [style*="grid-template-columns:repeat(5"] { grid-template-columns: repeat(3, 1fr) !important; }
   /* 옵션 센티먼트 스트립 4열 → 2열 */
-  #page-options > div:nth-child(3) { grid-template-columns: repeat(2, 1fr) !important; }
   /* 시그널 2컬럼 그리드 */
   #page-signal [style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
-  /* 서브테마 4열 → 2열 (태블릿) */
+  /* 서브테마 4열 → 2열 (1200px 이하) */
   #sub-themes-grid { grid-template-columns: repeat(2, 1fr) !important; }
 }
 
-@media (max-width: 768px) {
-  #page-themes [style*="grid-template-columns:repeat(6"] { grid-template-columns: repeat(2, 1fr) !important; }
-  #page-fxbond [style*="grid-template-columns:repeat(6"] { grid-template-columns: repeat(2, 1fr) !important; }
-  #page-options [style*="grid-template-columns:repeat(5"] { grid-template-columns: repeat(2, 1fr) !important; }
-  #page-options [style*="grid-template-columns:repeat(4"] { grid-template-columns: repeat(2, 1fr) !important; }
-  #risk-monitor-grid { grid-template-columns: repeat(2, 1fr) !important; }
-  #page-fxbond [style*="grid-template-columns:repeat(5"] { grid-template-columns: repeat(2, 1fr) !important; }
-  #sub-themes-grid { grid-template-columns: 1fr !important; }
-  /* 옵션 3열 전략 가이드 → 1열 */
-  #page-options [style*="grid-template-columns:repeat(3"] { grid-template-columns: 1fr !important; }
-  /* 센티먼트 KPI 그리드 */
-  #page-sentiment [style*="grid-template-columns:repeat(4"] { grid-template-columns: repeat(2, 1fr) !important; }
-  /* RRG 캔버스 모바일 축소 */
-  #rrg-canvas { max-height: var(--chart-h-lg) !important; }
-  /* 섹터 히트맵 4열 → 2열 */
-  #sector-heatmap { grid-template-columns: repeat(2, 1fr) !important; }
-}
 
 /* ═══ v27.1: 시그널 페이지 2컬럼 그리드 비율 조정 ═══ */
 #page-signal [style*="grid-template-columns:1fr 1fr"] {
@@ -3975,14 +3869,6 @@ body.dark-theme .scr-screen-chip.active { color:var(--bg-base) !important; }
   box-sizing: border-box;
 }
 
-@media (max-width: 640px) {
-  #kr-integrated-technical [style*="grid-template-columns:1fr 1fr"],
-  #kr-integrated-technical [style*="grid-template-columns: 1fr 1fr"],
-  #kr-integrated-technical [style*="grid-template-columns:repeat(3,1fr)"],
-  #kr-integrated-technical [style*="grid-template-columns: repeat(3, 1fr)"] {
-    grid-template-columns: 1fr !important;
-  }
-}
 
 /* ═══ v27.1: 전체 카드 간격 통일 ═══ */
 .page > .data-widget, .page > .aio-widget,
@@ -3990,236 +3876,14 @@ body.dark-theme .scr-screen-chip.active { color:var(--bg-base) !important; }
   margin-bottom: 12px;
 }
 
-/* ═══ v27.1: 옵션 페이지 전략 가이드 카드 동일 높이 ═══ */
-#page-options [style*="grid-template-columns:repeat(3,1fr)"] > div {
-  display: flex;
-  flex-direction: column;
-}
-
 /* ═══ v27.1: Ticker Chart tab — placeholder 스타일 개선 ═══ */
 #tab-chart .data-widget, #tab-chart .aio-widget {
   min-height: 200px;
 }
 
-/* ═══ v27: Portfolio grid responsive ═══ */
-@media (max-width: 1024px) {
-  #page-portfolio [style*="grid-template-columns:repeat(4"] {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
-}
-@media (max-width: 768px) {
-  #page-portfolio [style*="grid-template-columns:repeat(4"] {
-    grid-template-columns: 1fr !important;
-  }
-  #page-portfolio [style*="display:flex;gap:8px;flex-wrap:wrap"] {
-    flex-direction: column;
-  }
-  /* v52.72: sentiment F&G+VIX 히어로 2열(minmax(260px,360px) | minmax(0,1fr))의 260px 최소폭이
-     768px 이하 뷰포트에서 두번째 열(VIX 기간구조 차트 포함)을 0폭으로 밀어냄
-     — ci-viewport-matrix가 mobile390/sentiment에서 vix-term-chart zero-size canvas로 포착. */
-  #page-sentiment [style*="grid-template-columns:minmax(260px,360px)"] {
-    grid-template-columns: 1fr !important;
-    gap: 22px !important;
-  }
-}
 
-/* ═══ v27.4+v30.11: 스마트폰 (480px 이하) 반응형 ═══ */
-@media (max-width: 480px) {
-  .content { padding: 8px !important; }
-  .topbar { padding: 6px 10px !important; gap: 6px !important; }
-  .topbar .topbar-title { font-size: 12px !important; }
-  /* v52.14 P6/P615: 우측 버튼 클러스터가 줄바꿈 없이 넘쳐 마지막 버튼 텍스트("완료")가 잘리던 문제 */
-  .topbar-actions-right {
-    flex: 1 1 100% !important;
-    flex-shrink: 1 !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    flex-wrap: wrap !important;
-    justify-content: flex-start !important;
-    gap: 6px !important;
-    row-gap: 4px !important;
-  }
-  .topbar-actions-right > * { min-width: 0 !important; }
-  #live-quote-ts { max-width: 190px !important; overflow:hidden !important; text-overflow:ellipsis !important; white-space:nowrap !important; }
-  #topbar-ai-btn, #topbar-refresh-btn { flex: 0 1 auto !important; max-width: 96px !important; overflow:hidden !important; text-overflow:ellipsis !important; white-space:nowrap !important; }
-  /* 그리드 1열로 축소 */
-  .snap-grid, .kr-index-grid, .tac-score-grid { grid-template-columns: 1fr !important; }
-  .snap-card, .metric-card { padding: 8px !important; }
-  /* v30.11: 2열 grid도 1열로 (320px SE 대응) */
-  .snap-grid-v5, .mkt-status-bar, .breadth-summary { grid-template-columns: 1fr !important; }
-  [style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
-  [style*="grid-template-columns:repeat(2"] { grid-template-columns: 1fr !important; }
-  /* v31.9: 브레스 바 극소 화면 대응 */
-  .breadth-bar-row { grid-template-columns: 80px 1fr 30px 50px !important; gap: 3px !important; }
-  .bb-label { font-size: 11px !important; }
-  .bb-badge { max-width: 50px !important; font-size: 11px !important; }
-  .score-bar-row { grid-template-columns: 80px 1fr 36px 20px !important; gap: 3px !important; }
-  /* 뉴스 카드 간격 */
-  .news-item-card { padding: 6px 8px !important; }
-  .news-time-col { width: 32px !important; }
-  .news-time-abs { font-size: 11px !important; }
-  .news-item-headline { font-size: 11px !important; }
-  /* 차트 높이 축소 */
-  canvas { max-height: 200px !important; }
-  /* 뉴스 정렬 버튼 */
-  .news-sort-btn { padding: 4px 8px !important; font-size: 11px !important; min-height: 32px !important; }
-  /* 대시보드 타이틀 */
-  .page-title { font-size: 14px !important; }
-  /* 테이블 스크롤 */
-  .tac-tracking-table, .kr-flow-table, .demand-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  #page-fxbond table {
-    width: 100% !important;
-    min-width: 0 !important;
-    table-layout: fixed;
-  }
-  #page-fxbond th,
-  #page-fxbond td {
-    white-space: normal !important;
-    word-break: keep-all;
-    overflow-wrap: anywhere;
-    padding-left: 6px !important;
-    padding-right: 6px !important;
-  }
-  #pf-ai-workbench > div {
-    grid-template-columns: 1fr !important;
-  }
-  #pf-ai-workbench [style*="display:flex"],
-  #pf-ai-workbench [style*="display: flex"] {
-    min-width: 0 !important;
-  }
-  #pf-ai-workbench [style*="display:flex"] > *,
-  #pf-ai-workbench [style*="display: flex"] > * {
-    min-width: 0 !important;
-  }
-  #page-ticker .aio-section > div[style*="display:flex"],
-  #page-ticker .aio-section > div[style*="display: flex"] {
-    flex-wrap: wrap !important;
-    min-width: 0 !important;
-  }
-  #page-ticker #ticker-direct-search {
-    flex: 1 1 180px !important;
-    min-width: 0 !important;
-  }
-  #page-ticker .q-chip {
-    flex: 0 1 auto;
-    min-width: 0;
-    max-width: 100%;
-    white-space: normal !important;
-    overflow-wrap: anywhere;
-  }
-  #page-sentiment .term-tooltip,
-  #page-sentiment .aio-tooltip {
-    max-width: 100%;
-    min-width: 0;
-    white-space: normal !important;
-    overflow-wrap: anywhere;
-  }
-  #page-sentiment [style*="justify-content:space-between"],
-  #page-sentiment [style*="justify-content: space-between"] {
-    flex-wrap: wrap !important;
-    min-width: 0 !important;
-    gap: 4px !important;
-  }
-  #page-sentiment [style*="justify-content:space-between"] > *,
-  #page-sentiment [style*="justify-content: space-between"] > * {
-    min-width: 0 !important;
-    max-width: 100% !important;
-  }
-  #page-sentiment .aio-widget > div[style*="justify-content:space-between"],
-  #page-sentiment .aio-widget > div[style*="justify-content: space-between"],
-  #page-sentiment .data-widget > div[style*="justify-content:space-between"],
-  #page-sentiment .data-widget > div[style*="justify-content: space-between"] {
-    display: block !important;
-  }
-  #page-sentiment .aio-src-dot {
-    width: 4px !important;
-    height: 4px !important;
-    margin-left: 2px !important;
-  }
-  #page-sentiment #vix-live-label,
-  #page-sentiment #vix-live-val {
-    display: inline-block;
-    max-width: 100%;
-    overflow-wrap: anywhere;
-  }
-  #page-sentiment .aio-widget[style*="flex:1"],
-  #page-sentiment .data-widget[style*="flex:1"] {
-    flex: 1 1 100% !important;
-    width: 100% !important;
-  }
-  #page-sentiment [style*="grid-template-columns:1fr 1fr"],
-  #page-sentiment [style*="grid-template-columns: 1fr 1fr"] {
-    grid-template-columns: 1fr !important;
-  }
-  #page-sentiment [style*="grid-template-columns:minmax(280px,360px)"],
-  #page-sentiment [style*="grid-template-columns: minmax(280px, 360px)"] {
-    grid-template-columns: 1fr !important;
-  }
-  /* v30.11: 포트폴리오 서머리 카드 2열 → 1열 */
-  [style*="grid-template-columns:repeat(4"] { grid-template-columns: repeat(2, 1fr) !important; }
-  /* v34.5: 5열 그리드 → 2열 (홈 시세카드, 옵션 메트릭스 등) */
-  [style*="grid-template-columns:repeat(5"] { grid-template-columns: repeat(2, 1fr) !important; }
-  /* v34.5: 3열 그리드 → 1열 (홈 매매판단, 브리핑 메트릭스 등) */
-  [style*="grid-template-columns:1fr 1fr 1fr"] { grid-template-columns: 1fr !important; }
-  [style*="grid-template-columns:repeat(3"] { grid-template-columns: 1fr !important; }
-  /* v30.11: 포트폴리오 차트/배분 영역 */
-  [style*="width:120px;height:120px"] { width: 80px !important; height: 80px !important; }
-  /* v30.11: 채팅 칩 가로 스크롤 */
-  .acp-chips { overflow-x: auto; flex-wrap: nowrap !important; -webkit-overflow-scrolling: touch; }
-  .acp-chips .q-chip { flex-shrink: 0; }
-  #chat-theme-detail-chips { overflow-x: visible !important; flex-wrap: wrap !important; }
-  #chat-theme-detail-chips .q-chip { flex: 0 1 auto; white-space: normal; }
-  /* v30.11: home quick nav 2열 */
-  .home-quick-nav { grid-template-columns: repeat(2, 1fr) !important; }
-  /* v48.57: repeat(6,1fr) 인라인 그리드 4곳 480px 일괄 대응 */
-  [style*="grid-template-columns:repeat(6,1fr)"],
-  [style*="grid-template-columns: repeat(6, 1fr)"] { grid-template-columns: repeat(2, 1fr) !important; }
-  [style*="grid-template-columns:repeat(5,1fr)"],
-  [style*="grid-template-columns: repeat(5, 1fr)"] { grid-template-columns: repeat(2, 1fr) !important; }
-  .aio-prompt-modal { max-width: 94vw !important; }
-  /* v30.11: 사이드바 모바일 전체 너비 */
-  .sidebar.mobile-open { width: 100% !important; }
-  body, .content { overflow-x: hidden !important; }
-}
 
-/* ═══ v27.4+v30.11: 터치 디바이스 hover 대응 ═══ */
-@media (hover: none) and (pointer: coarse) {
-  /* 터치에서 hover 효과를 tap으로 대체 */
-  .nav-item:active, .page-tab:active,
-  .news-item-card:active, .fund-ticker-card:active, .macro-card:active,
-  .kr-theme-card:active { opacity: 0.7; transition: opacity 0.1s; }
-  /* 터치 타겟 최소 44px */
-  .nav-item, .page-tab { min-height: 44px !important; }
-  .filter-btn, .news-sort-btn { min-height: 36px !important; padding: 6px 12px !important; }
-  /* 툴팁을 탭으로 표시 */
-  .aio-tip:hover::after { display: none; }
-  .aio-tip:focus::after, .aio-tip:active::after { display: block; }
-  /* v30.11: 차트 터치-스크롤 충돌 방지 — 차트 영역에서 기본 스크롤 허용 */
-  canvas { touch-action: pan-y !important; }
-  /* v30.11: 채팅 입력 시 하단 고정 요소가 키보드에 가리지 않도록 */
-  #risk-banner { position: static !important; }
-  #scroll-top-btn { bottom: 16px !important; right: 16px !important; }
-  #glossary-btn { bottom: 16px !important; right: 16px !important; }
-}
 
-/* ═══ v30.11: 모바일 키보드 열린 상태 ═══ */
-body.keyboard-open #risk-banner,
-body.keyboard-open #scroll-top-btn,
-body.keyboard-open #glossary-btn { display: none !important; }
-body.keyboard-open .aio-chat { max-height: 40vh; }
-body.keyboard-open .aio-chat.chat-expanded .acp-messages { max-height: 50vh; }
-
-/* ═══ v30.11: 극소 화면 (320px 이하, iPhone SE 1세대) ═══ */
-@media (max-width: 320px) {
-  .page-title { font-size: 12px !important; }
-  .page-subtitle { font-size: 11px !important; }
-  .topbar .topbar-title { display: none; }
-  .data-widget, .aio-widget { padding: 8px !important; border-radius: 6px !important; }
-  .widget-title { font-size: 11px !important; }
-  .acp-input-row button { padding: 8px 10px !important; font-size: 11px !important; }
-  .tb-btn, .aio-btn-table { padding: 5px 8px !important; font-size: 11px !important; }
-  .insight-box { padding: 8px 10px !important; font-size: 11px !important; }
-}
 
 /* ═══ v27.4: 배터리 절약 — 애니메이션 줄이기 ═══ */
 @media (prefers-reduced-motion: reduce) {
@@ -4319,8 +3983,8 @@ body.dark-theme .nav-item.kr-item.active { background: rgba(255,255,255,0.07) !i
 .theme-toggle-btn { display:none; }
 .theme-toggle-btn:hover { transform:scale(1.1); }
 /* ── v34.9: 색각 이상 접근성 (▲/▼ 아이콘 병용) ── */
-.a11y-up::before { content:'▲ '; font-size:0.8em; }
-.a11y-dn::before { content:'▼ '; font-size:0.8em; }
+.a11y-up { color: var(--data-green); } .a11y-up::before { content:'▲ '; font-size:0.8em; } /* P1315: direction had glyph only — no colour rule matched .pos/.neg outside .pnl */
+.a11y-dn { color: var(--data-red); } .a11y-dn::before { content:'▼ '; font-size:0.8em; }
 .a11y-hold::before { content:'● '; font-size:0.7em; }
 /* ── v34.8: 인쇄 전용 스타일시트 ── */
 @media print {
@@ -4370,16 +4034,6 @@ body.dark-theme .nav-item.kr-item.active { background: rgba(255,255,255,0.07) !i
 .rrg-view-pill { color: var(--text-secondary); background: transparent; }
 .rrg-view-pill.active { color: var(--bg-base); background: var(--text-primary); font-weight: 600; }
 
-/* ── v48.92: 모바일 폰트 브레이크포인트 ────────────────────────── */
-@media (max-width: 768px) {
-  :root {
-    --fs-xs:   13px;
-    --fs-sm:   14px;
-    --fs-base: 15px;
-    --fs-md:   16px;
-    --fs-min:  13px;
-  }
-}
 
 /* 초기 부팅 상태 — 앱 셸을 가리지 않고 클릭을 막지 않는 상단 상태 배너 */
 #aio-boot-loader {
@@ -4512,11 +4166,6 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
   color:var(--accent,#211d16);
   font-size:11px;
   font-weight:800;
-}
-@media (max-width:640px) {
-  #home-operator-note .aio-operator-note-card { padding:14px 15px; }
-  #home-operator-note .aio-operator-note-title { font-size:16px; }
-  #home-operator-note .aio-operator-note-body { font-size:14px; line-height:1.75; }
 }
 
 /* v51.43: visual hierarchy refresh (R231) — v52.62 아이보리 리디자인으로 값만 교체, 선언 구조·
@@ -4836,26 +4485,6 @@ body.aio-dev-mode .aio-public-readiness { display:grid !important; }
   min-width: 0 !important;
   overflow-wrap: anywhere;
 }
-@media (max-width: 760px) {
-  .content { padding: 12px !important; }
-  .aio-decision-top,
-  .aio-decision-grid {
-    grid-template-columns: 1fr !important;
-  }
-  .aio-decision-meta {
-    justify-content: flex-start !important;
-    min-width: 0 !important;
-  }
-  #home-operator-note .aio-operator-note-title {
-    font-size: 18px !important;
-  }
-  #home-operator-note .aio-operator-note-lead {
-    font-size: 14px;
-  }
-  .aio-public-readiness {
-    grid-template-columns: 1fr !important;
-  }
-}
 /* v50.85: page body redesign — decision -> action -> data -> AI, with dense legacy controls folded */
 .aio-action-hub {
   margin:0 0 14px;
@@ -4964,7 +4593,7 @@ body.aio-dev-mode #page-fundamental .aio-page-advanced-toggle,
 body.aio-dev-mode #page-themes .aio-page-advanced-toggle,
 body.aio-dev-mode #page-portfolio .aio-page-advanced-toggle,
 body.aio-dev-mode #page-market-news .aio-page-advanced-toggle,
-body.aio-dev-mode #page-screener .aio-page-advanced-toggle { display:block !important; }
+body.aio-dev-mode #page-screener .aio-page-advanced-toggle, #page-themes #kr-integrated-themes { display:block !important; } /* P1327: KR themes are user content, not an operator panel */
 /* v52.88 P703: 시안 13면을 실제 기본 화면으로 고정한다. 운영 진단/중복 피드는
    삭제하지 않고 개발자 모드에만 남겨 사용자 화면의 판단 밀도를 보존한다. */
 body:not(.aio-dev-mode) #market-pulse-bar,
@@ -5105,33 +4734,6 @@ body:not(.aio-dev-mode) #briefing-live-news-list.is-expanded { max-height:none; 
 #glossary-modal h2 { font-family:var(--font-display); font-size:22px !important; font-weight:600; color:var(--text-primary) !important; }
 #glossary-body .aio-glossary-item { padding:15px 0 !important; }
 #glossary-body .aio-glossary-term { color:var(--text-primary) !important; font-family:var(--font-display); font-size:15px !important; }
-@media (max-width:720px) {
-  /* WCAG 2.5.8: every mobile interactive target gets a measurable 24px
-     minimum.  Components with a larger visual target keep their own padding. */
-  button, [role="button"], a[href], input, select, textarea { min-height:26px; }
-  .q-chip, .chip, .news-sort-btn, .news-type-tab, .kr-tab, .kr-sector-tab { min-height:26px; display:inline-flex; align-items:center; }
-  #page-guide a[href^="https://github.com/"] { min-height:26px; display:inline-flex; align-items:center; }
-  #aio-first-visit-onboarding button { min-height:32px; }
-  #glossary-modal > div { width:calc(100% - 20px) !important; max-height:92vh !important; }
-  #glossary-modal > div > div:first-child, #glossary-body { padding-left:16px !important; padding-right:16px !important; }
-  .aio-comp-secondary > summary, .aio-guide-chapter > summary { font-size:14px; }
-  #fund-search-input { font-size:16px !important; min-height:42px; }
-  #news-country-chips .chip,
-  #news-topic-chips .chip,
-  .news-sort-btn,
-  .news-type-tab,
-  #kr-integrated-themes a,
-  .kr-tab,
-  .kr-sector-tab { min-height:34px; display:inline-flex; align-items:center; }
-  .topbar { flex-wrap:nowrap !important; min-height:48px; }
-  .topbar-actions-right { flex:0 1 auto !important; flex-wrap:nowrap !important; justify-content:flex-end !important; gap:5px !important; }
-  .topbar-actions-right [data-vix-badge] { position:absolute !important;inline-size:1px;block-size:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap; }
-  #live-quote-ts { max-width:104px !important; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  #topbar-ai-btn { min-height:34px; padding:5px 9px !important; }
-  #kr-integrated-themes .row.mb-4 { flex-direction:column;align-items:stretch !important; }
-  #kr-integrated-themes .row.mb-4 .page-actions { width:100%;display:grid !important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px !important; }
-  #kr-integrated-themes .row.mb-4 .page-actions .aio-btn-table { justify-content:center;white-space:nowrap;min-width:0;padding-left:8px;padding-right:8px; }
-}
 
 /* 시안의 조용한 브랜드/내비게이션. */
 .logo .aio-avatar { display:none !important; }
@@ -5139,9 +4741,6 @@ body:not(.aio-dev-mode) #briefing-live-news-list.is-expanded { max-height:none; 
 .logo-sub { margin-top:2px; }
 .nav-icon { display:none !important; }
 .nav-item { padding-left:12px !important; }
-@media (max-width: 720px) {
-  #pf-hero-stats { grid-template-columns:1fr !important; gap:14px !important; }
-}
 /* 포트폴리오는 시안 4a 순서(보유→리스크→배분→벤치마크→종목분석)를 CSS order로 고정한다. */
 #pf-main { flex-direction:column; }
 #pf-main > * { order:90; }
@@ -5202,7 +4801,6 @@ body:not(.aio-dev-mode) #briefing-live-news-list.is-expanded { max-height:none; 
 .mv-ind-seg { height:100%; border-radius:2px; transition:width 0.4s; }
 /* v53.6: ticker 종목 개요 — 좌 요약 레일 + 우 대형 차트 (밸리AI 참조 레이아웃) */
 .ticker-ov-grid { display:grid; grid-template-columns:300px 1fr; gap:12px; align-items:start; }
-@media (max-width: 900px) { .ticker-ov-grid { grid-template-columns:1fr; } }
 .ticker-ov-row { display:flex; justify-content:space-between; align-items:baseline; gap:10px; padding:5px 0; border-bottom:1px solid var(--surface-2); font-size:12px; }
 .ticker-ov-row:last-child { border-bottom:none; }
 .ticker-ov-row .ov-lbl { color:var(--text-muted); font-weight:600; white-space:nowrap; }
@@ -5221,13 +4819,6 @@ body:not(.aio-dev-mode) #briefing-live-news-list.is-expanded { max-height:none; 
 .aio-visual-report-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
 .aio-visual-report-title { font-size:12px; font-weight:900; color:var(--text-primary); }
 .aio-visual-report canvas { width:100%; max-width:540px; border-radius:4px; border:1px solid rgba(33,29,22,0.10); background:#fbf9f5; display:block; }
-@media (max-width:900px) {
-  .aio-decision-top { flex-direction:column; }
-  .aio-decision-meta { justify-content:flex-start; min-width:0; }
-  .aio-decision-grid { grid-template-columns:1fr; }
-  .mhc-row { grid-template-columns:100px repeat(4,1fr); }
-  .mhc-label { font-size:10px; padding:0 6px; }
-}
 
 /* ═══════════════════════════════════════════════════════════════════
    v51.27 구조 개편 — 반응형 강화 · 스켈레톤 로더 · 신선도 배지 통일
@@ -5278,67 +4869,7 @@ button[data-filter-active="true"] {
   font-weight: 700 !important;
 }
 
-/* ═══ 640px: 중간 반응형 — 태블릿 세로/대형 폰 ═══ */
-@media (max-width: 640px) {
-  /* Sentiment F&G+분석 고정폭 레이아웃 → 세로 스택 */
-  [style*="grid-template-columns:300px 1fr"],
-  [style*="grid-template-columns: 300px 1fr"],
-  [style*="grid-template-columns:220px 1fr"],
-  [style*="grid-template-columns: 220px 1fr"] {
-    grid-template-columns: 1fr !important;
-  }
-  /* 6열 → 3열 (480px에서 2열로 재처리) */
-  [style*="grid-template-columns:repeat(6,1fr)"],
-  [style*="grid-template-columns: repeat(6, 1fr)"] {
-    grid-template-columns: repeat(3, 1fr) !important;
-  }
-  /* 5열 → 3열 */
-  [style*="grid-template-columns:repeat(5,1fr)"],
-  [style*="grid-template-columns: repeat(5, 1fr)"] {
-    grid-template-columns: repeat(3, 1fr) !important;
-  }
-  /* 포트폴리오 R:R 계산기 4-입력 → 2×2 */
-  [style*="grid-template-columns:1fr 1fr 1fr auto"],
-  [style*="grid-template-columns: 1fr 1fr 1fr auto"] {
-    grid-template-columns: 1fr 1fr !important;
-  }
-  /* KR-Home 지수카드 3열 → 2열 */
-  .kr-index-grid { grid-template-columns: repeat(2,1fr) !important; }
-  /* 인터뷰 카드 2열 → 1열 */
-  [style*="grid-template-columns:1fr 1fr"][class*="interview"],
-  .interview-card [style*="grid-template-columns:1fr 1fr"] {
-    grid-template-columns: 1fr !important;
-  }
-  /* 페이지 패딩 축소 */
-  .page { padding: 12px 10px !important; }
-  /* 사이드바 오버레이 → AI 패널 여백 축소 */
-  .aio-chat { min-width: 0; }
-}
 
-/* ═══ 768px: 가로 스크롤 필요 테이블 ═══ */
-@media (max-width: 768px) {
-  /* 포트폴리오 보유 테이블 */
-  #pf-table-wrap {
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch;
-  }
-  #pf-table-wrap table { min-width: 620px; }
-  /* 기업 펀더멘털 재무표 */
-  #fund-table-wrap {
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch;
-  }
-  /* 브리핑 인터뷰 카드 내 2열 그리드 → 1열 */
-  .interview-card [style*="grid-template-columns:1fr 1fr"],
-  .interview-card [style*="grid-template-columns: 1fr 1fr"] {
-    grid-template-columns: 1fr !important;
-  }
-  /* 브리핑 투자 임플리케이션 3열 → 1열 */
-  .interview-card [style*="grid-template-columns:repeat(3,1fr)"],
-  .interview-card [style*="grid-template-columns: repeat(3, 1fr)"] {
-    grid-template-columns: 1fr !important;
-  }
-}
 
 /* ═══ 페이지 최대 너비 오버플로 방지 ═══ */
 .page, .aio-widget, .data-widget { max-width: 100%; box-sizing: border-box; }
@@ -5416,7 +4947,7 @@ button[data-filter-active="true"] {
 .principles-search { margin-left:auto; min-width:220px; }
 .principles-search-input { width:100%; box-sizing:border-box; padding:8px 10px; border:1px solid var(--border); border-radius:4px; background:var(--surface-1); color:var(--text-primary); }
 .principles-workspace { display:grid; grid-template-columns:minmax(330px, .9fr) minmax(0, 1.1fr); gap:16px; align-items:start; }
-.principles-tree-list, .principles-graph-mobile-list { display:grid; gap:10px; max-height:none; overflow:visible; padding-right:0; }
+.principles-tree-list { display:grid; gap:10px; max-height:none; overflow:visible; padding-right:0; }
 .principles-node-card { display:flex; flex-direction:column; gap:6px; text-align:left; padding:13px 14px; border:1px solid var(--border); border-radius:7px; background:var(--surface-1); color:var(--text-primary); cursor:pointer; }
 .principles-node-card:hover, .principles-node-card.is-selected { border-color:var(--accent); box-shadow:0 0 0 1px rgba(33,29,22,.10); }
 .principles-node-title { font-size:15px; line-height:1.4; }
@@ -5593,7 +5124,6 @@ button[data-filter-active="true"] {
 .principles-graph-node { position:absolute; transform:translate(-50%,-50%); width:116px; z-index:1; }
 .principles-graph-node-button { width:100%; min-height:34px; padding:6px 7px; border:1px solid var(--border); border-radius:5px; background:var(--surface-2); color:var(--text-primary); font-size:10px; line-height:1.25; cursor:pointer; }
 .principles-graph-node.is-selected .principles-graph-node-button { border-color:var(--accent); background:var(--accent-faint, rgba(33,29,22,.10)); font-weight:800; }
-.principles-graph-mobile-list { display:none; }
 .principles-path-layout { display:grid; grid-template-columns:minmax(190px,.7fr) minmax(180px,.65fr) minmax(0,1.2fr); gap:12px; align-items:start; }
 .principles-path-picker { display:grid; gap:7px; }
 .principles-path-button { display:flex; flex-direction:column; gap:4px; padding:10px; text-align:left; }
@@ -5929,70 +5459,9 @@ button[data-filter-active="true"] {
   .atlas-relationship-detail { position:static; grid-column:1/-1; max-height:none; }
   .atlas-learning-workspace, .atlas-industry-workspace { grid-template-columns:220px 300px minmax(360px,1fr); }
 }
-@media (max-width:760px) {
-  .knowledge-learning-controls { grid-template-columns:1fr; }
-  .masters-search { order:3; flex-basis:100%; margin-left:0; min-width:0; }
-  .masters-layout { grid-template-columns:1fr; }
-  .masters-manager-list { max-height:none; }
-  .masters-metric-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
-  .atlas-search { order:3; flex-basis:100%; margin-left:0; min-width:0; }
-  .atlas-metric-grid, .atlas-packet-grid, .atlas-track-grid, .atlas-node-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
-  .atlas-telegram-channel-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
-  .atlas-level-rail { grid-template-columns:repeat(2,minmax(0,1fr)); }
-  .integrated-framework-flow { grid-template-columns:repeat(2,minmax(0,1fr)); }
-  .atlas-relationship-header { display:grid; padding:15px; }
-  .atlas-relationship-meta { justify-content:flex-start; min-width:0; }
-  .atlas-relationship-workspace, .atlas-learning-workspace, .atlas-industry-workspace { grid-template-columns:1fr; }
-  .atlas-relationship-guide-rail { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); overflow:visible; }
-  .atlas-relationship-guide { min-height:82px; }
-  .atlas-relationship-map-panel { padding:10px; }
-  .atlas-relationship-columns { grid-template-columns:1fr; overflow:visible; }
-  .atlas-relationship-column-arrow { transform:rotate(90deg); justify-self:center; }
-  .atlas-relationship-node small { display:block; overflow:visible; -webkit-line-clamp:unset; }
-  .atlas-relationship-edge { grid-template-columns:1fr; }
-  .atlas-relationship-edge-arrow { white-space:normal; }
-  .atlas-relationship-detail, .atlas-learning-detail, .atlas-industry-node-detail { position:static; max-height:none; }
-}
-@media (max-width: 760px) {
-  .principles-search { order:3; flex-basis:100%; margin-left:0; min-width:0; }
-  .principles-narrative-layout { grid-template-columns:1fr; gap:22px; }
-  .principles-narrative-rail { position:static; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; max-height:none; overflow:visible; padding:0 0 10px; }
-  .principles-narrative-rail-group { min-width:0; }
-  .principles-narrative-masthead { padding-top:10px; }
-  .principles-narrative-thesis { font-size:18px; }
-  .principles-narrative-title { font-size:29px; }
-  .principles-narrative-lead { font-size:18px; }
-  .principles-narrative-prose p { font-size:15px; line-height:1.9; }
-  .principles-narrative-flow { display:grid; gap:9px; }
-  .principles-narrative-flow-step { padding-right:0; }
-  .principles-narrative-flow-step:not(:last-child)::after { content:'↓'; position:static; margin-left:auto; }
-  .principles-narrative-actions { align-items:stretch; }
-  .principles-workspace, .principles-graph-workspace, .principles-path-layout { grid-template-columns:1fr; }
-  .principles-graph-canvas { min-height:420px; }
-  .principles-graph-canvas .principles-graph-node { display:none; }
-  .principles-graph-mobile-list { display:grid; max-height:none; }
-  .principles-tree-list { max-height:none; overflow:visible; padding-right:0; }
-  .principles-learning-grid, .principles-explainer, .principles-chapter-grid, .principles-lesson-library-grid, .knowledge-current-observations-grid { grid-template-columns:1fr; }
-  .principles-reference-curriculum { padding:16px; }
-  .principles-reference-loop { grid-template-columns:repeat(2,minmax(0,1fr)); }
-  .principles-reference-body { grid-template-columns:1fr; }
-  .principles-detail-card, .principles-path-card { min-height:0; position:static; padding:16px; }
-  .principles-detail-title { font-size:23px; }
-  .principles-detail-summary, .principles-path-body, .principles-explainer-body, .principles-chapter-copy { font-size:15px; }
-  .principles-tree-section-header { grid-template-columns:28px minmax(0,1fr) auto; }
-  .principles-tree-section-toggle { grid-column:2 / -1; }
-  .principles-tree-section-copy { padding-left:46px; }
-}
-@media (max-width: 480px) {
-  .atlas-metric-grid, .atlas-packet-grid, .atlas-track-grid, .atlas-node-grid, .atlas-telegram-channel-grid { grid-template-columns:1fr; }
-}
-/* v54.47: controls that users must tap or fill need a predictable hit area.
-   Keep compact desktop density, then use the 44px target on touch devices. */
+/* v54.47: controls that users must click or fill need a predictable hit area (desktop density). */
 .page input:not([type="hidden"]), .page select, .page textarea { min-height:40px; box-sizing:border-box; }
 .page button, .page [role="button"] { min-height:36px; }
-@media (pointer: coarse) {
-  .page button, .page [role="button"], .page input:not([type="hidden"]), .page select, .page textarea { min-height:44px; }
-}
 </style>
 </head>
 <body>
@@ -6040,7 +5509,6 @@ button[data-filter-active="true"] {
   <!-- v34.9: 다크/라이트 테마 토글 -->
   <button class="theme-toggle-btn" id="theme-toggle" data-action="toggleTheme" title="다크/라이트 테마 전환" aria-label="테마 전환"></button>
   <a href="#main-content" class="skip-link">메인 콘텐츠로 건너뛰기</a>
-  <div class="mobile-overlay" id="mobile-overlay" data-action="closeMobileMenu" hidden aria-hidden="true"></div>
   <div class="app">
     <nav class="sidebar" aria-label="메인 네비게이션">
       <div class="logo">
@@ -6345,7 +5813,6 @@ button[data-filter-active="true"] {
     <div class="main">
       <header class="topbar" role="banner" style="justify-content:space-between;">
         <div style="display:flex;align-items:center;gap:8px;">
-          <button id="mobile-menu-trigger" class="mobile-hamburger" data-action="toggleMobileMenu" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mobile-overlay">☰</button>
           <button data-action="toggleSidebar" class="btn-icon" style="display:none;" id="sidebar-toggle-btn" title="사이드바 열기/닫기">☰</button>
           <div id="breadcrumb"></div>
         </div>
@@ -6403,13 +5870,12 @@ button[data-filter-active="true"] {
   <!-- ═══ 헤더 (페이지 상단 정보) ═══ -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
     <div>
-          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v56.52</span></div>
+          <div class="page-title">시장 현황 <span style="font-size:11px;font-weight:500;color:var(--text-muted);font-family:var(--font-mono);" id="app-version-badge">v56.82</span></div>
       <div class="page-subtitle" id="home-date-label">시세 자동갱신 중...</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
       <span id="home-risk-regime-badge" class="status-pill sp-neutral">고점 대비 확인 중 · 참고 관측</span>
       <span id="live-source-static-badge" class="freshness-badge fb-static">시세 source 확인</span>
-      <span id="live-quote-ts-topbar" class="freshness-badge fb-static" style="font-size:11px;" title="외부 API 연결 필요 — CORS 프록시 사용">시세 연결 중...</span>
       <span id="server-data-age" class="freshness-badge fb-static" style="font-size:11px;display:none;" title="서버(GitHub Actions)가 받아둔 데이터의 나이 — cron 정의는 30분 주기이나 실제 발화는 환경상 1~4시간 소요될 수 있음">서버 데이터 확인 중...</span>
       <span id="llm-header-badge" data-action="toggleLLM"
         tabindex="0"
@@ -6437,7 +5903,6 @@ button[data-filter-active="true"] {
     </div>
   </div>
 
-  <!-- v50.30: 초보자 시작 패널 제거 (사용자 지시 — 추가형 안내 패널 금지, 페이지는 핵심 기능만) -->
 
   <!-- v48.62: 페이지 결론 바 -->
   <div id="home-conclusion-bar"></div>
@@ -6445,6 +5910,65 @@ button[data-filter-active="true"] {
   <!-- v50.75: 시장 분석 카드 → Decision Header "왜" 섹션과 중복, DOM 유지(테스트 T820) 시각만 숨김 -->
   <div class="aio-card has-stripe-left" style="display:none;">
     <div id="home-market-analysis" data-market-analysis-sink="full"></div>
+  </div>
+
+  <!-- v52.65 아이보리 리디자인 1b: KPI 4열 셀-스트립 (시안 — 카드 박스 대신 헤어라인 구분선). data-live-price/chg 훅은 유지. -->
+  <div id="home-kpi-strip" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:14px;">
+    <div class="is-interactive" data-action="showPage" data-arg="technical" role="button" tabindex="0" title="S&P 500 · 미국 대표 지수" style="padding:18px 20px 18px 0;border-right:1px solid var(--border-subtle);cursor:pointer;">
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">S&amp;P 500</div>
+      <div style="font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="^GSPC">—</div>
+      <div style="font-size:12.5px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;" data-live-chg="^GSPC">—</div>
+    </div>
+    <div class="is-interactive" data-action="showPage" data-arg="technical" role="button" tabindex="0" title="NASDAQ · 기술주 중심" style="padding:18px 20px;border-right:1px solid var(--border-subtle);cursor:pointer;">
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">NASDAQ</div>
+      <div style="font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="^IXIC">—</div>
+      <div style="font-size:12.5px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;" data-live-chg="^IXIC">—</div>
+    </div>
+    <div class="is-interactive" data-action="showPage" data-arg="sentiment" role="button" tabindex="0" title="VIX · 공포지수" style="padding:18px 20px;border-right:1px solid var(--border-subtle);cursor:pointer;">
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">공포지수 VIX</div>
+      <div id="home-vix-value" style="font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="^VIX">—</div>
+      <div id="home-vix-status" style="font-size:12.5px;font-weight:600;margin-top:4px;color:var(--text-secondary);">—</div>
+    </div>
+    <div class="is-interactive" data-action="showPage" data-arg="sentiment" role="button" tabindex="0" title="Fear &amp; Greed · 시장 심리 종합" style="padding:18px 0 18px 20px;cursor:pointer;">
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">Fear &amp; Greed</div>
+      <div id="home-fg-score" style="font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</div>
+      <div style="display:flex;align-items:baseline;gap:6px;margin-top:4px;">
+        <span id="home-fg-label" style="font-size:12.5px;font-weight:600;color:var(--text-secondary);">갱신 대기</span>
+        <!-- v51.69: 전일 대비 delta — _aioRenderDeltas()가 채움 -->
+        <span id="home-fg-delta" class="is-flat" style="display:none;font-size:11px;color:var(--text-muted);font-family:var(--font-mono);"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- v52.65 아이보리 리디자인 1b: quiet indices — pill 배경 제거, 시안처럼 baseline inline 나열 -->
+  <div id="home-cross-assets" style="display:flex;align-items:center;flex-wrap:wrap;column-gap:28px;row-gap:8px;margin-bottom:16px;">
+    <span class="is-interactive" data-action="showPage" data-arg="fxbond" title="달러 인덱스" style="display:flex;align-items:baseline;gap:7px;cursor:pointer;"><span style="font-size:12px;color:var(--text-muted);">DXY</span><b style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="DX-Y.NYB">—</b></span>
+    <span class="is-interactive" data-action="showPage" data-arg="fxbond" title="10년 국채 수익률" style="display:flex;align-items:baseline;gap:7px;cursor:pointer;"><span style="font-size:12px;color:var(--text-muted);">美 10년물</span><b style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="^TNX">—</b></span>
+    <span class="is-interactive" data-action="showPage" data-arg="macro" title="금 가격" style="display:flex;align-items:baseline;gap:7px;cursor:pointer;"><span style="font-size:12px;color:var(--text-muted);">금</span><b style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="GC=F">—</b></span>
+    <span class="is-interactive" data-action="showPage" data-arg="macro" title="WTI 원유" style="display:flex;align-items:baseline;gap:7px;cursor:pointer;"><span style="font-size:12px;color:var(--text-muted);">WTI</span><b style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="CL=F">—</b></span>
+    <span class="is-interactive" data-action="showPage" data-arg="macro" title="KOSPI — 거시경제 페이지의 한국 시장 섹션" style="display:flex;align-items:baseline;gap:7px;cursor:pointer;"><span style="font-size:12px;color:var(--text-muted);">KOSPI</span><b style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="^KS11">—</b></span>
+    <span class="is-interactive" data-action="showPage" data-arg="macro" title="비트코인" style="display:flex;align-items:baseline;gap:7px;cursor:pointer;"><span style="font-size:12px;color:var(--text-muted);">BTC</span><b style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="BTC-USD">—</b></span>
+  </div>
+
+  <!-- v52.65 아이보리 리디자인 1b: 종합 거래 점수 히어로 — 레거시 vis-home(원형게이지+2x2쿼드런트, _aioDiagram
+       score-breakdown/market-regime 타입) 완전 대체. computeTradingScore()를 직접 호출해 실데이터로 구성. -->
+  <!-- A-2 (2026-07-17, IA 잔여): 스코어 게이지 강등 — 숫자를 히어로 리드로 크게 쓰지 않는다(52px→22px).
+       P714 공시(예측력 미검증·음의 상관 관측)와 시각 위계를 일치시킴. 판단문(headline/desc)이 리드. -->
+  <div id="home-score-hero" style="display:flex;align-items:center;gap:44px;flex-wrap:wrap;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:22px 0;margin-bottom:var(--space-3);">
+    <div style="flex-shrink:0;">
+      <div style="font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:0.08em;margin-bottom:8px;">시장 환경 점수 <span style="font-weight:400;">· 참고값</span></div>
+      <div style="display:flex;align-items:baseline;gap:6px;">
+        <span id="home-hero-total" style="font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--text-secondary);line-height:1;font-variant-numeric:tabular-nums;">—</span>
+        <span style="font-size:12px;color:var(--text-muted);">/100</span>
+      </div>
+      <div style="font-size:10.5px;color:var(--text-dim);margin-top:6px;max-width:130px;line-height:1.5;">환경 설명값 — 매매 판단 지표 아님</div>
+    </div>
+    <div style="width:1px;align-self:stretch;background:var(--border);min-height:64px;"></div>
+    <div style="flex:1;min-width:240px;max-width:600px;">
+      <div id="home-hero-headline" style="font-family:var(--font-display);font-size:17px;font-weight:600;color:var(--text-primary);margin-bottom:7px;">판단 산출 중</div>
+      <div id="home-hero-desc" style="font-size:13.5px;color:var(--text-secondary);line-height:1.75;">데이터 수신 후 표시됩니다.</div>
+    </div>
+    <div id="home-hero-components" style="flex-shrink:0;display:flex;flex-direction:column;gap:6px;min-width:180px;"></div>
   </div>
 
   <!-- ═══ v48.42: SECTION 0 — 오늘의 시장 ═══ -->
@@ -6468,27 +5992,6 @@ button[data-filter-active="true"] {
         핵심 뉴스 수집 중...
       </div>
     </div>
-  </div>
-
-  <!-- v52.65 아이보리 리디자인 1b: 종합 거래 점수 히어로 — 레거시 vis-home(원형게이지+2x2쿼드런트, _aioDiagram
-       score-breakdown/market-regime 타입) 완전 대체. computeTradingScore()를 직접 호출해 실데이터로 구성. -->
-  <!-- A-2 (2026-07-17, IA 잔여): 스코어 게이지 강등 — 숫자를 히어로 리드로 크게 쓰지 않는다(52px→22px).
-       P714 공시(예측력 미검증·음의 상관 관측)와 시각 위계를 일치시킴. 판단문(headline/desc)이 리드. -->
-  <div id="home-score-hero" style="display:flex;align-items:center;gap:44px;flex-wrap:wrap;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:22px 0;margin-bottom:var(--space-3);">
-    <div style="flex-shrink:0;">
-      <div style="font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:0.08em;margin-bottom:8px;">시장 환경 점수 <span style="font-weight:400;">· 참고값</span></div>
-      <div style="display:flex;align-items:baseline;gap:6px;">
-        <span id="home-hero-total" style="font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--text-secondary);line-height:1;font-variant-numeric:tabular-nums;">—</span>
-        <span style="font-size:12px;color:var(--text-muted);">/100</span>
-      </div>
-      <div style="font-size:10.5px;color:var(--text-dim);margin-top:6px;max-width:130px;line-height:1.5;">환경 설명값 — 매매 판단 지표 아님</div>
-    </div>
-    <div style="width:1px;align-self:stretch;background:var(--border);min-height:64px;"></div>
-    <div style="flex:1;min-width:240px;max-width:600px;">
-      <div id="home-hero-headline" style="font-family:var(--font-display);font-size:17px;font-weight:600;color:var(--text-primary);margin-bottom:7px;">판단 산출 중</div>
-      <div id="home-hero-desc" style="font-size:13.5px;color:var(--text-secondary);line-height:1.75;">데이터 수신 후 표시됩니다.</div>
-    </div>
-    <div id="home-hero-components" style="flex-shrink:0;display:flex;flex-direction:column;gap:6px;min-width:180px;"></div>
   </div>
 
   <!-- ═══ v48.42: SECTION 1 매매 판단 — aio-card 통일 (v51.30 UX: 설명 접힘 제거, 실전 카드만 유지) ═══ -->
@@ -6539,44 +6042,6 @@ button[data-filter-active="true"] {
     <div style="font-size:10px;color:var(--text-muted);margin-top:8px;padding-top:6px;border-top:1px solid var(--border);">
       <strong>프레임워크 참고(지시 아님)</strong>: VIX 구간별 노출 관리 관행(저변동→정상, 극단→축소)과 F&amp;G 구간 서술(≤25 극단 공포 · 26~45 공포 · 46~75 중립~탐욕 · 75+ 극단 탐욕)을 요약한 역사적 프레임워크입니다. 이 밴드들의 예측력은 검증되지 않았습니다.
     </div>
-  </div>
-
-  <!-- v52.65 아이보리 리디자인 1b: KPI 4열 셀-스트립 (시안 — 카드 박스 대신 헤어라인 구분선). data-live-price/chg 훅은 유지. -->
-  <div id="home-kpi-strip" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:14px;">
-    <div class="is-interactive" data-action="showPage" data-arg="technical" role="button" tabindex="0" title="S&P 500 · 미국 대표 지수" style="padding:18px 20px 18px 0;border-right:1px solid var(--border-subtle);cursor:pointer;">
-      <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">S&amp;P 500</div>
-      <div style="font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="^GSPC">—</div>
-      <div style="font-size:12.5px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;" data-live-chg="^GSPC">—</div>
-    </div>
-    <div class="is-interactive" data-action="showPage" data-arg="technical" role="button" tabindex="0" title="NASDAQ · 기술주 중심" style="padding:18px 20px;border-right:1px solid var(--border-subtle);cursor:pointer;">
-      <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">NASDAQ</div>
-      <div style="font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="^IXIC">—</div>
-      <div style="font-size:12.5px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;" data-live-chg="^IXIC">—</div>
-    </div>
-    <div class="is-interactive" data-action="showPage" data-arg="sentiment" role="button" tabindex="0" title="VIX · 공포지수" style="padding:18px 20px;border-right:1px solid var(--border-subtle);cursor:pointer;">
-      <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">공포지수 VIX</div>
-      <div id="home-vix-value" style="font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="^VIX">—</div>
-      <div id="home-vix-status" style="font-size:12.5px;font-weight:600;margin-top:4px;color:var(--text-secondary);">—</div>
-    </div>
-    <div class="is-interactive" data-action="showPage" data-arg="sentiment" role="button" tabindex="0" title="Fear &amp; Greed · 시장 심리 종합" style="padding:18px 0 18px 20px;cursor:pointer;">
-      <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">Fear &amp; Greed</div>
-      <div id="home-fg-score" style="font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</div>
-      <div style="display:flex;align-items:baseline;gap:6px;margin-top:4px;">
-        <span id="home-fg-label" style="font-size:12.5px;font-weight:600;color:var(--text-secondary);">갱신 대기</span>
-        <!-- v51.69: 전일 대비 delta — _aioRenderDeltas()가 채움 -->
-        <span id="home-fg-delta" class="is-flat" style="display:none;font-size:11px;color:var(--text-muted);font-family:var(--font-mono);"></span>
-      </div>
-    </div>
-  </div>
-
-  <!-- v52.65 아이보리 리디자인 1b: quiet indices — pill 배경 제거, 시안처럼 baseline inline 나열 -->
-  <div id="home-cross-assets" style="display:flex;align-items:center;flex-wrap:wrap;column-gap:28px;row-gap:8px;margin-bottom:16px;">
-    <span class="is-interactive" data-action="showPage" data-arg="fxbond" title="달러 인덱스" style="display:flex;align-items:baseline;gap:7px;cursor:pointer;"><span style="font-size:12px;color:var(--text-muted);">DXY</span><b style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="DX-Y.NYB">—</b></span>
-    <span class="is-interactive" data-action="showPage" data-arg="fxbond" title="10년 국채 수익률" style="display:flex;align-items:baseline;gap:7px;cursor:pointer;"><span style="font-size:12px;color:var(--text-muted);">美 10년물</span><b style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="^TNX">—</b></span>
-    <span class="is-interactive" data-action="showPage" data-arg="macro" title="금 가격" style="display:flex;align-items:baseline;gap:7px;cursor:pointer;"><span style="font-size:12px;color:var(--text-muted);">금</span><b style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="GC=F">—</b></span>
-    <span class="is-interactive" data-action="showPage" data-arg="macro" title="WTI 원유" style="display:flex;align-items:baseline;gap:7px;cursor:pointer;"><span style="font-size:12px;color:var(--text-muted);">WTI</span><b style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="CL=F">—</b></span>
-    <span class="is-interactive" data-action="showPage" data-arg="macro" title="KOSPI — 거시경제 페이지의 한국 시장 섹션" style="display:flex;align-items:baseline;gap:7px;cursor:pointer;"><span style="font-size:12px;color:var(--text-muted);">KOSPI</span><b style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="^KS11">—</b></span>
-    <span class="is-interactive" data-action="showPage" data-arg="macro" title="비트코인" style="display:flex;align-items:baseline;gap:7px;cursor:pointer;"><span style="font-size:12px;color:var(--text-muted);">BTC</span><b style="font-size:13px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;" data-live-price="BTC-USD">—</b></span>
   </div>
 
   <!-- v52.62 아이보리: 히트맵+GMO를 details로 접어 1차 화면 밀도 축소 (원칙 §5) -->
@@ -6671,7 +6136,7 @@ button[data-filter-active="true"] {
   <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--border-strong);padding-bottom:20px;margin-bottom:22px;">
     <div>
       <div class="page-title">지금 거래해야 할까?</div>
-      <div class="page-subtitle">변동성(VIX) 25% · 모멘텀(F&G·추세추종) 25% · 추세(MA) 20% · 시장폭(20일선) 20% · 거시 10% 가중 합산</div>
+      <div class="page-subtitle">변동성(VIX) 25% · 추세(이동평균) 20% · 심리(공포·탐욕·풋콜) 25% · 시장 폭(20일선) 20% · 거시 10% 가중 합산</div>
     </div>
     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
       <div style="display:flex;align-items:center;gap:14px;">
@@ -9287,25 +8752,25 @@ button[data-filter-active="true"] {
     <div class="aio-section">
     <div class="aio-section-hd"><span class="aio-section-label">핵심 지수</span></div>
     <div class="kr-index-grid">
-      <div class="kr-idx-card up">
+      <div class="kr-idx-card">
         <div class="kr-idx-label">KOSPI</div>
-        <div class="kr-idx-val" id="kr-kospi-price" style="color:var(--green)" data-snap="kospi" data-live-price="^KS11">—</div>
-        <div class="kr-idx-chg" style="color:var(--green)"><span data-live-kr-change="^KS11"><span data-snap="kospi-pct" data-live-chg="^KS11">—</span></span> <span data-date-ref="kr-last"></span></div>
+        <div class="kr-idx-val" id="kr-kospi-price" data-snap="kospi" data-live-price="^KS11">—</div>
+        <div class="kr-idx-chg" style="color:var(--text-muted)"><span data-live-kr-change="^KS11"><span data-snap="kospi-pct" data-live-chg="^KS11">—</span></span> <span data-date-ref="kr-last"></span></div>
         <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">전일종가: <span data-snap="kospi-prev" data-live-prev-close="^KS11">—</span></div>
       </div>
-      <div class="kr-idx-card down">
+      <div class="kr-idx-card">
         <div class="kr-idx-label">KOSDAQ</div>
-        <div class="kr-idx-val" id="kr-kosdaq-price" style="color:var(--red)" data-snap="kosdaq" data-live-price="^KQ11">—</div>
-        <div class="kr-idx-chg" style="color:var(--red)"><span data-live-kr-change="^KQ11"><span data-snap="kosdaq-pct" data-live-chg="^KQ11">—</span></span> <span data-date-ref="kr-last"></span></div>
+        <div class="kr-idx-val" id="kr-kosdaq-price" data-snap="kosdaq" data-live-price="^KQ11">—</div>
+        <div class="kr-idx-chg" style="color:var(--text-muted)"><span data-live-kr-change="^KQ11"><span data-snap="kosdaq-pct" data-live-chg="^KQ11">—</span></span> <span data-date-ref="kr-last"></span></div>
         <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">전일종가: <span data-snap="kosdaq-prev" data-live-prev-close="^KQ11">—</span></div>
       </div>
-      <div class="kr-idx-card down">
+      <div class="kr-idx-card">
         <div class="kr-idx-label">KRW/USD</div>
-        <div class="kr-idx-val" id="kr-krw-price" style="color:var(--red)" data-snap="krw-full">—</div>
+        <div class="kr-idx-val" id="kr-krw-price" data-snap="krw-full">—</div>
         <div class="kr-idx-chg" style="color:var(--text-muted)"><span data-live-kr-change="KRW=X">—</span> <span data-date-ref="kr-last"></span></div>
         <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">전일 종가 대비 방향만 표시 · 원인은 수급·금리·정책과 별도 확인</div>
       </div>
-      <div class="kr-idx-card up">
+      <div class="kr-idx-card">
         <div class="kr-idx-label">VKOSPI</div>
         <div class="kr-idx-val" id="kr-vkospi-val" style="color:var(--text-muted)" title="VKOSPI(한국 변동성지수) — Naver 비공식 릴레이(공식 KRX/Koscom 승인 전 참고용) · 실시간 수신 성공 시 표시">—</div>
         <div class="kr-idx-chg" style="color:var(--text-muted)">현재 원천 수신 대기</div>
@@ -10390,10 +9855,6 @@ button[data-filter-active="true"] {
           </div>
         </div>
       </div>
-      <style>
-        @media (max-width: 768px) { #fund-qual-grid, #fund-qual-charts { grid-template-columns: 1fr !important; } }
-      </style>
-
       <!-- ── SEC EDGAR 공시 정보 ── [재무 상세 탭] -->
       <div id="fund-rpt-sec" data-fund-tab="financial" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;display:none;">
         <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:10px;">SEC EDGAR 공시 정보</div>
@@ -10478,12 +9939,6 @@ button[data-filter-active="true"] {
           ※ 정보 제공 목적이며 투자 권유 아님. KR 종목은 Naver fallback (DART 직접 확인 권장). FMP 250 req/day 한도 보호 → 5분 캐시.
         </div>
       </div>
-
-      <!-- v49.72: 모바일 반응형 (4열 → 2열 → 1열) -->
-      <style>
-        @media (max-width: 1024px) { #fundamental-financials-grid { grid-template-columns: repeat(2, 1fr) !important; } #fundamental-financials-grid .fund-fin-card[style*="span 2"] { grid-column: span 2 !important; } }
-        @media (max-width: 640px)  { #fundamental-financials-grid { grid-template-columns: 1fr !important; } #fundamental-financials-grid .fund-fin-card[style*="span 2"] { grid-column: span 1 !important; } }
-      </style>
 
       <!-- ── 경쟁사 비교 (Peer Group) ── [외부 정보 탭] -->
       <div id="fund-rpt-peers" data-fund-tab="external" style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;margin-bottom:12px;display:none;">
@@ -10781,12 +10236,6 @@ button[data-filter-active="true"] {
         <span id="cycle-dynamic-phase" style="color:var(--data-amber);font-weight:700;">판정 입력 대기...</span> ·
         <span id="cycle-dynamic-inputs" style="font-size:10px;color:var(--text-muted);">매크로 입력 수신 대기</span>
         <div id="cycle-dynamic-rationale" style="font-size:10px;color:var(--text-muted);margin-top:3px;line-height:1.5;"></div>
-      </div>
-      <!-- v50.29 declutter: "사이클 진단 읽는 법" 교육 prose 제거 — 현재 국면은 위 동적 판정이 담당, 개념은 용어집/guide -->
-      <div id="cycle-analysis" style="display:grid;grid-template-columns:1fr;gap:10px;font-size:12px;color:var(--text-muted);line-height:1.7;">
-        <div style="background:rgba(34,117,76,0.04);border:1px solid rgba(34,117,76,0.12);border-radius:3px;padding:12px;">
-          <b style="color:var(--data-green);">전략:</b> AI Capex 효율화 사이클: 네트워크 패브릭(AVGO/MRVL) > 냉각(VRT) > 추론(NVDA). 데이터센터 전력: WMB(BTM) > NEE > 유틸리티. 에너지(XLE) 모멘텀 + MLP/파이프라인(AMLP). 어닝 시즌(GS/JPM/TSM/ASML/NFLX)이 섹터 방향 결정.
-        </div>
       </div>
     </div>
     </div><!-- /aio-section 경기사이클 -->
@@ -11459,7 +10908,7 @@ button[data-filter-active="true"] {
     </details>
 
     <!-- 종목 추가 폼 -->
-    <!-- v48.3: 라벨 9px→11px, 입력 10px→12px, 버튼 9~10px→11~12px 일괄 상향. 입력 필드 padding 확장으로 탭/모바일 터치 친화성 개선 -->
+    <!-- v48.3: 라벨 9px→11px, 입력 10px→12px, 버튼 9~10px→11~12px 일괄 상향. 입력 필드 padding 확장으로 클릭 영역 개선 -->
     <div class="aio-section" id="pf-entry-section">
     <div class="aio-section-hd"><span class="aio-section-label">종목 추가 / 수정</span></div>
     <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 18px;margin-bottom:14px;">
@@ -11646,7 +11095,7 @@ button[data-filter-active="true"] {
     <div class="aio-section-hd"><span class="aio-section-label">종목 검색</span></div>
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:10px 14px;">
       <span style="font-size:12px;color:var(--text-muted);white-space:nowrap;">종목 검색</span>
-      <input id="ticker-direct-search" type="text" placeholder="티커 입력 (예: NVDA, AAPL, TSLA)" aria-label="종목 티커 검색"
+      <input id="ticker-direct-search" type="text" placeholder="티커·종목코드·한글명 (예: NVDA, 005930, 삼성전자)" aria-label="종목 티커 검색"
         style="flex:1;padding:8px 12px;background:var(--surface-4);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:13px;font-family:var(--font-mono);text-transform:uppercase;"
         data-on-enter="showTicker:__value_upper"
         data-on-input="_aioUppercaseInput"/>
@@ -11860,7 +11309,7 @@ button[data-filter-active="true"] {
     <div style="width:1px;height:16px;background:var(--border-subtle);"></div>
     <div style="display:flex;align-items:baseline;gap:8px;"><span style="font-size:12px;color:var(--text-dim);">24시간 수집</span><span id="news-24h-count" style="font-size:15px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</span><span id="news-24h-sources" style="font-size:12px;color:var(--text-dim);"></span></div>
     <div style="width:1px;height:16px;background:var(--border-subtle);"></div>
-    <div style="display:flex;align-items:baseline;gap:8px;"><span style="font-size:12px;color:var(--text-dim);">리스크 뉴스</span><span id="news-risk-count" style="font-size:15px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</span><span id="news-risk-label" style="font-size:12px;font-weight:600;color:var(--text-dim);">뉴스 수신 대기</span></div>
+    <div style="display:flex;align-items:baseline;gap:8px;"><span style="font-size:12px;color:var(--text-dim);">리스크 신호</span><span id="news-risk-count" style="font-size:15px;font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums;">—</span><span id="news-risk-label" style="font-size:12px;font-weight:600;color:var(--text-dim);">뉴스 수신 대기</span></div>
     <span id="market-news-tw-label" style="display:none;"></span>
     <span id="market-news-count" style="margin-left:auto;font-size:12px;color:var(--text-dim);font-family:var(--font-mono);"></span>
     <span id="last-fetch-time" style="font-size:12px;color:var(--text-dim);font-family:var(--font-mono);">수신 대기...</span>
@@ -11980,46 +11429,6 @@ button[data-filter-active="true"] {
     </div>
     </div><!-- /aio-section 뉴스피드 -->
   </div>
-<div class="page" id="page-options">
-  <!-- v50.35: 옵션 페이지 콘텐츠 폐기 (사용자 요청). 실제 옵션체인 피드 미연결 — 스큐·옵션흐름·Greeks가 정적 스냅샷이었음.
-       페이지 셸은 21페이지 아키텍처 정합 위해 유지하되 내부는 최소 스텁(내비에서도 제거됨). VIX/VVIX는 투자심리 페이지에서 확인. -->
-  <div class="page-title">옵션 분석</div>
-  <div class="insight-box box-collapsed"><strong>옵션체인 원자료 미연결 상태입니다. 현재 화면은 변동성·풋콜·스큐 대체 지표만 참고용으로 제공합니다.</strong></div>
-  <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">옵션 대체 지표 현황</span></div>
-    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;">
-      <div class="aio-widget" style="padding:14px 16px;">
-        <div style="font-size:11px;color:var(--text-muted);font-weight:700;margin-bottom:6px;">변동성 레벨</div>
-        <div id="opt-vix-val-secondary" style="font-size:22px;font-weight:800;font-family:var(--font-mono);" data-live-price="^VIX">—</div>
-        <div id="opt-vix-val-secondary-meta" style="font-size:10px;color:var(--text-muted);line-height:1.45;margin-top:4px;">기준일·출처 수신 대기</div>
-        <div style="font-size:11px;color:var(--text-secondary);line-height:1.5;margin-top:6px;">VIX 기준. 기간구조와 함께 보며, 단독 매매 신호로 쓰지 않습니다.</div>
-      </div>
-      <div class="aio-widget" style="padding:14px 16px;">
-        <div style="font-size:11px;color:var(--text-muted);font-weight:700;margin-bottom:6px;">풋콜 비율</div>
-        <div id="opt-pcr-val-secondary" style="font-size:22px;font-weight:800;font-family:var(--font-mono);" data-live-price="PCR">—</div>
-        <div id="opt-pcr-val-secondary-meta" style="font-size:10px;color:var(--text-muted);line-height:1.45;margin-top:4px;">기준일·출처 수신 대기</div>
-        <div id="opt-pcr-desc-secondary" style="font-size:11px;color:var(--text-secondary);line-height:1.5;margin-top:6px;">CBOE 수신 실패 시 스냅샷 참고값으로 낮춰 표시합니다.</div>
-      </div>
-      <div class="aio-widget" style="padding:14px 16px;">
-        <div style="font-size:11px;color:var(--text-muted);font-weight:700;margin-bottom:6px;">꼬리위험 스큐</div>
-        <div id="opt-skew-val-secondary" style="font-size:22px;font-weight:800;font-family:var(--font-mono);" data-snap="skew">—</div>
-        <div id="opt-skew-val-secondary-meta" style="font-size:10px;color:var(--text-muted);line-height:1.45;margin-top:4px;">기준일·출처 수신 대기</div>
-        <div style="font-size:11px;color:var(--text-secondary);line-height:1.5;margin-top:6px;">SKEW는 참고 스냅샷입니다. 최신 옵션체인 확인 전 포지션 판단에는 쓰지 않습니다.</div>
-      </div>
-    </div>
-  </div>
-  <div class="aio-section">
-    <div class="aio-section-hd"><span class="aio-section-label">운영 기준</span></div>
-    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:4px;padding:14px 16px;font-size:12px;color:var(--text-secondary);line-height:1.75;">
-      <b style="color:var(--text-primary);">실시간 옵션체인·Greeks·옵션플로우는 아직 연결하지 않습니다.</b><br>
-      프리미엄·미결제약정·만기별 감마 노출이 검증되지 않은 상태에서 정적 숫자를 매매판단처럼 보이면 오판 위험이 커집니다. 그래서 이 페이지는 VIX, 풋콜, SKEW처럼 앱 안에서 출처/폴백 정책을 추적할 수 있는 보조 지표만 노출합니다.
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
-        <button data-action="showPage" data-arg="sentiment" class="aio-btn-table primary" style="font-size:11px;">투자 심리 보기</button>
-        <button data-action="showPage" data-arg="signal" class="aio-btn-table" style="font-size:11px;">매매 신호 보기</button>
-      </div>
-    </div>
-  </div>
-</div>
   <!-- ═══════════════ PAGE: SCREENER (퀀트 스크리너) — v51.39 ═══════════════ -->
   <div class="page" id="page-screener">
     <div class="aio-section">
@@ -12471,7 +11880,7 @@ button[data-filter-active="true"] {
           <ul>
             <li><strong>1. 오늘의 브리핑</strong> — 전일 이벤트 + Action Item 5개 확인 (5분)</li>
             <li><strong>2. 홈 대시보드 KPI</strong> — SPX/NASDAQ/VIX/F&amp;G 수치 읽기 (1분)</li>
-            <li><strong>3. 매매 신호</strong> — 0~100 환경 스코어 참고 (75+ = 환경 우호 · 45 미만 = 주의 — 매매 지시 아님)</li>
+            <li><strong>3. 매매 신호</strong> — 0~100 환경 스코어 참고 (75~100 우호 · 60~74 양호 · 45~59 중립 · 30~44 주의 · 0~29 위험 — 매매 지시 아님)</li>
             <li><strong>4. 시장 품질 + 국면</strong> — Broad/Narrow · UPTREND/TOPPING/DOWN/BOTTOM 확인</li>
             <li><strong>5. 매크로</strong> — CPI/NFP/FOMC 일정 + Yield Curve (역전 여부)</li>
             <li><strong>6. 센티먼트</strong> — F&amp;G + AAII + Put/Call 극단값 체크</li>
@@ -12554,7 +11963,7 @@ button[data-filter-active="true"] {
         <div style="font-size:12px;font-weight:800;color:var(--data-green);margin-bottom:6px;">시그널 (SIGNAL)</div>
         <div style="font-size:10px;color:var(--text-secondary);line-height:1.7;">
           <b>사용법:</b> 시장 환경 점수와 구성요소·입력 부족 상태를 확인합니다.<br>
-          <b>점수 해석:</b> 60~100=환경 우호 | 40~60=중립 | 0~40=환경 불리 (환경 설명값)<br>
+          <b>점수 해석:</b> 75~100=환경 우호 | 60~74=환경 양호 | 45~59=중립 | 30~44=주의 | 0~29=위험 (환경 설명값)<br>
           <b>유의사항:</b> 예측/매매 신호 아님 — 부분 백테스트(2016~2026)에서 선행수익률과 음(−)의 상관이 관측됨. 타이밍 근거로 사용 금지.
         </div>
       </div>
@@ -13196,15 +12605,15 @@ button[data-filter-active="true"] {
        파싱+실행만 문서 전체 파싱 완료 후(DOMContentLoaded 직전)로 미룬다. defer는 문서 순서를
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
-  <script src="./js/aio-core.js?v=56.52" defer></script>
-  <script src="./js/aio-data.js?v=56.52" defer></script>
-  <script src="./js/aio-ui.js?v=56.52" defer></script>
+  <script src="./js/aio-core.js?v=56.82" defer></script>
+  <script src="./js/aio-data.js?v=56.82" defer></script>
+  <script src="./js/aio-ui.js?v=56.82" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
   <!-- 이 블록은 core보다 먼저 실행되어 core가 평가 시점에 읽는 전역을 만들므로, 그 파일은 defer 그룹 맨 앞에 놓인다(R622). -->
 <!-- Phase3[A2] 2단계: defer 전환 (위 aio-core/data/ui와 동일 근거) -->
-<script src="./js/aio-chat.js?v=56.52" defer></script>
+<script src="./js/aio-chat.js?v=56.82" defer></script>
 
   <!-- P1135: 블록 B(매크로/기술 렌더 1,175줄)는 js/aio-macro-tech.js로 이동했다. -->
 
@@ -13219,7 +12628,7 @@ button[data-filter-active="true"] {
   <div id="kbd-shortcuts-inner">
     <h2 style="font-size:inherit;margin:inherit;">⌨ KEYBOARD SHORTCUTS</h2>
     <div class="kbd-row"><span class="kbd-key">?</span><span class="kbd-desc">단축키 도움말 열기/닫기</span></div>
-    <div class="kbd-row"><span class="kbd-key">Ctrl+K</span><span class="kbd-desc">빠른 검색 포커스</span></div>
+    <div class="kbd-row"><span class="kbd-key">Ctrl+K</span><span class="kbd-desc">현재 화면 검색창 (없으면 용어 사전)</span></div>
     <div class="kbd-row"><span class="kbd-key">ESC</span><span class="kbd-desc">모달/메뉴 닫기</span></div>
     <div class="kbd-row"><span class="kbd-key">1</span><span class="kbd-desc">홈 (시장 현황)</span></div>
     <div class="kbd-row"><span class="kbd-key">2</span><span class="kbd-desc">시그널</span></div>
@@ -13228,7 +12637,7 @@ button[data-filter-active="true"] {
     <div class="kbd-row"><span class="kbd-key">5</span><span class="kbd-desc">뉴스</span></div>
     <div class="kbd-row"><span class="kbd-key">6</span><span class="kbd-desc">포트폴리오</span></div>
     <div class="kbd-row"><span class="kbd-key">7</span><span class="kbd-desc">스크리너</span></div>
-    <div class="kbd-row"><span class="kbd-key">8</span><span class="kbd-desc">한국장</span></div>
+    <div class="kbd-row"><span class="kbd-key">8</span><span class="kbd-desc">테마·트렌드</span></div>
     <div class="kbd-row"><span class="kbd-key">G</span><span class="kbd-desc">글로벌 마켓 오버뷰 토글</span></div>
     <div class="kbd-row"><span class="kbd-key">R</span><span class="kbd-desc">데이터 새로고침</span></div>
     <div style="margin-top:12px;text-align:center;">
@@ -13266,7 +12675,7 @@ button[data-filter-active="true"] {
 
 <!-- Phase3[A2] 2단계: defer 전환 — 최상위 참조는 GLOSSARY 배열 하나뿐이고 유일한 소비처가
      renderGlossaryItems() 함수 본문 안(호출 시점에만 실행)이라 추가 방어 없이 안전. -->
-<script src="./js/aio-glossary.js?v=56.52" defer></script>
+<script src="./js/aio-glossary.js?v=56.82" defer></script>
 <!-- v50.27/WO-9: 단위 테스트 모듈(~100KB)은 일반 사용자에게 불필요 → 기본 미로드(페이로드 절감).
      개발자/검증: 콘솔에서 AIO.loadTests().then(function(){ return AIO.runTests(); }) -->
 <!-- P1132: 블록 F(용어사전·차트·기술적 분석 엔진·KR 기술 페이지·SW 등록·온보딩)는 js/aio-ui.js 끝으로 이동했다. -->
@@ -13346,7 +12755,6 @@ button[data-filter-active="true"] {
 #topbar-ai-btn{font-size:11px;font-weight:700;padding:5px 12px;background:rgba(33,29,22,0.12);border:1px solid rgba(33,29,22,0.35);color:var(--accent);border-radius:var(--radius-sm);cursor:pointer;font-family:var(--font-mono);transition:background 0.15s,color 0.15s;white-space:nowrap;}
 #topbar-ai-btn:hover{background:rgba(33,29,22,0.22);}
 #topbar-ai-btn.active{background:rgba(33,29,22,0.25);color:#fff;border-color:var(--accent);}
-@media(max-width:768px){#ai-panel.open{width:100vw;}}
 </style>
 
 <!-- ai-panel: body 직계 자식으로 이동됨 (v42.2) — position:fixed 정상 동작 보장 -->

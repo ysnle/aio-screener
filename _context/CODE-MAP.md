@@ -25,6 +25,7 @@ current_checkpoint: P963 correlated public-AI browser request plus ticker empty-
 | `js/aio-ui.js` | 4,354 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-chat.js` | 7,067 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-tests.js` | 9,123 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `js/aio-qa-audits.js` | 4,308 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `src/ui/pages/guide.js` | 131 | native guide search/jump/capability lifecycle module |
 | `src/ui/pages/screener.js` | 1,190 | native screener table/filter/profile/watchlist/position renderer + provenance and research setup labels |
 | `src/data/providers/screener.js` | 242 | screener artifact + identity-universe provider + coverage/provenance metadata |
@@ -37,7 +38,7 @@ current_checkpoint: P963 correlated public-AI browser request plus ticker empty-
 | `src/domain/ai/inference-efficiency.js` | 105 | reference-only inference efficiency axes, workload fit, architecture archetypes, AI deal-map nodes/role-level edges and public proxy resolver |
 | `src/domain/macro/transmission.js` | 65 | pure macro funding-to-hedge causal chain, observed/blocked evidence states and missing-producer registry; no synthetic risk score |
 | `src/ui/pages/analysis.js` | 371 | native home/signal/technical decision surfaces and technical OHLCV/volume chart lifecycles with fail-closed input states |
-| `src/ui/pages/entity.js` | 453 | native ticker hero/activity/navigation, options metrics, fundamental SEC status/summary, `sec-report.v2` core report renderer, and native ticker chart lifecycle with explicit unavailable history state |
+| `src/ui/pages/entity.js` | 453 | native ticker hero/activity/navigation, VIX/PCR/SKEW replacement metrics (options page retired v56.79), fundamental SEC status/summary, `sec-report.v2` core report renderer, and native ticker chart lifecycle with explicit unavailable history state |
 | `src/ui/pages/portfolio.js` | 386 | native portfolio state, positive-only holdings/summary/allocation surfaces, and position-allocation chart lifecycle with explicit unavailable state |
 | `src/data/runtime-readers.js` | 353 | canonical read-only runtime boundary plus 16-route field observation catalog |
 | `js/aio-glossary.js` | 322 | `scripts/ci-doc-currency-check.mjs` |
@@ -201,7 +202,7 @@ The tables in this subsection supersede older detailed line snapshots retained b
 | `page-portfolio` | 10283 |
 | `page-ticker` | 10746 |
 | `page-market-news` | 11046 |
-| `page-options` | 11183 |
+| `page-options` (retired v56.79) | 11183 |
 | `page-screener` | 11221 |
 | `page-guide` | 11423 |
 
@@ -259,6 +260,7 @@ The tables in this subsection supersede older detailed line snapshots retained b
 | `js/aio-ui.js` | 활성 차트/렌더러, breadth UI, LLM quota UI, 교육 레이어 (sentiment renderer는 `src/ui/pages/sentiment.js`) |
 | `js/aio-chat.js` | evidence-first CHAT_CONTEXTS, data preflight, Claude/Perplexity, 응답 파이프라인 |
 | `js/aio-tests.js` | CI/로컬 브라우저 회귀 테스트 전용(110그룹). Pages·service worker 배포 대상에서 제외 |
+| `js/aio-qa-audits.js` | P1329/R673 자기 감사·QA 기계(aio-core에서 분리). `AIO.loadQaAudits()`로 자동화 브라우저·?qa=1·상세 감사 모드·운영자 자가 진단 위젯·`AIO.loadTests()`에서만 로드. Pages·service worker 배포 제외 |
 | `js/aio-glossary.js` | 용어사전 데이터 리터럴 |
 | `js/aio-pages.js` | **P1133으로 index.html 인라인 블록 D에서 추출한 페이지 렌더러** — 신호 대시보드, FX/채권, 크로스에셋, 기업분석 레거시 위젯, RRG/섹터/테마 맵, `showThemeDetail` 네이티브 브리지, 가격 이력·RRG 하이드레이션, ETF/서브테마 그리드. `defer`로 로드되며 `index.html`의 `data-action` 위임이 그대로 호출한다 |
 | `js/aio-workspace.js` | **P1136으로 index.html 인라인 블록 A에서 추출한 사용자 상태·워크스페이스 계층** — 포트폴리오(`updatePortfolioSummary`/`refreshPortfolioPrices`/`refreshPortfolioRisk`/`exportPortfolio`/`importPortfolio`), 백테스트 랩(`_aioRenderPortfolioBacktestLab`/`runPortfolioBacktestLab`), 워치리스트(`getWatchlists`/`createWatchlist`/`switchWatchlist`/`addToWatchlist`), 투자 일지·채팅 이력(`PF_JOURNAL_KEY`/`CHAT_HISTORY_LS`/`CHAT_DEFAULT_CHIPS`), 공용 헬퍼(`showToast`/`_escHtmlSafe`). **`defer` 그룹의 첫 번째** — core·data·ui가 자기 평가 시점에 이 전역들을 읽는다(P1136/R622) |
@@ -317,7 +319,7 @@ The tables in this subsection supersede older detailed line snapshots retained b
 | 포트폴리오 | `page-portfolio` | 11,083 |
 | 티커 상세 | `page-ticker` | 11,546 |
 | 시장 뉴스 | `page-market-news` | 11,778 |
-| 옵션 분석(폐기 안내 shell) | `page-options` | 11,915 |
+| 옵션 분석(v56.79 퇴역 — 셸 삭제, `#options`는 sentiment alias) | `page-options` | 11,915 |
 | 퀀트 스크리너 | `page-screener` | 11,956 |
 | 시장 원리 | `page-principles` | 12,259 |
 | 대가의 포트폴리오 | `page-masters` | 12,278 |

@@ -10,6 +10,8 @@ const worker = read('worker/data-plane.js');
 const wrangler = read('worker/wrangler.example.toml');
 const workerReadme = read('worker/README.md');
 const workflow = read('.github/workflows/deploy-data-plane.yml');
+const rollbackResolver = await import('./resolve-worker-rollback-version.mjs');
+const workerImpact = await import('./worker-deploy-impact.mjs');
 const watchdog = read('.github/workflows/data-watchdog.yml');
 const qaPipeline = JSON.parse(read('architecture/qa-pipeline.json'));
 const watchdogScripts = (qaPipeline.profiles?.watchdog || []).flatMap((group) => qaPipeline.groups?.[group]?.gates || []).map((gate) => gate.script);
@@ -18,7 +20,31 @@ for (const token of ['scheduled', 'publishQuotes', 'AIO_QUOTES_KV', "'quotes:cur
   if (!worker.includes(token)) fail(`Worker missing ${token}`);
 }
 for (const token of ['*/5 * * * *', 'AIO_QUOTES_KV_ID']) if (!wrangler.includes(token)) fail(`wrangler example missing ${token}`);
-for (const token of ['workflow_dispatch', 'CLOUDFLARE_API_TOKEN', 'CLOUDFLARE_ACCOUNT_ID', 'AIO_QUOTES_KV_ID', 'wrangler']) if (!workflow.includes(token)) fail(`deploy workflow missing ${token}`);
+for (const token of ['workflow_run', 'workflow_dispatch', 'ci_run_id', 'aio-release-attestation', 'attested_change', 'worker-deploy-impact.mjs', 'getWorkerChangesBetween', 'shouldDeployWorker', 'CLOUDFLARE_API_TOKEN', 'CLOUDFLARE_ACCOUNT_ID', 'AIO_QUOTES_KV_ID', 'wrangler']) if (!workflow.includes(token)) fail(`deploy workflow missing ${token}`);
+for (const token of ['deployments list --json', 'rollback-baseline', 'wrangler rollback', 'Verify fast-plane rollback source identity']) if (!workflow.includes(token)) fail(`P1307/R652/QA-DATA-49 auto deploy/rollback missing ${token}`);
+if (!/fetch-depth:\s*0/.test(workflow) || !/convergence-health\.json/.test(workflow) || !/sourceSha/.test(workflow)
+  || !/branches\/main/.test(workflow) || !/latestMainSha/.test(workflow)
+  || !/Recheck main head immediately before Worker mutation/.test(workflow) || !/steps\.latest-main\.outputs\.safe/.test(workflow)) fail('P1308/R653/QA-DATA-50 must compare latest main and live Worker SHA with full attested history');
+const rollbackFixtureVersion = 'a1a1a1a1-1111-4111-8111-a1a1a1a1a1a1';
+if (rollbackResolver.resolveActiveWorkerVersionId({ deployments: [{ versions: [{ percentage: 100, version_id: rollbackFixtureVersion }] }] }) !== rollbackFixtureVersion) {
+  fail('P1307/R652/QA-DATA-49 single active rollback target was not resolved');
+}
+let splitRollbackRefused = false;
+try {
+  rollbackResolver.resolveActiveWorkerVersionId({ deployments: [{ versions: [{ percentage: 50, version_id: rollbackFixtureVersion }, { percentage: 50, version_id: 'b2b2b2b2-2222-4222-8222-b2b2b2b2b2b2' }] }] });
+} catch { splitRollbackRefused = true; }
+if (!splitRollbackRefused) fail('P1307/R652/QA-DATA-49 split active traffic must refuse automatic rollback selection');
+const deploymentInputs = workerImpact.getWorkerDeploymentInputs();
+const marketSnapshotDependency = workerImpact.classifyWorkerDeployChanges(['src/data/contracts/market-snapshot.js']);
+const sourceKindDependency = workerImpact.classifyWorkerDeployChanges(['src/data/contracts/source-kind.js']);
+const canceledRunRecovery = workerImpact.shouldDeployWorker({ plane: 'dataPlane', attestedChanged: false, liveSha: 'c'.repeat(40), testedSha: 'd'.repeat(40), latestMainSha: 'd'.repeat(40), cumulativeChanges: { dataPlane: true, aiProxy: false }, isAncestor: () => true });
+const outdatedCiRunRejected = !workerImpact.shouldDeployWorker({ plane: 'dataPlane', attestedChanged: true, liveSha: 'e'.repeat(40), testedSha: 'd'.repeat(40), latestMainSha: 'f'.repeat(40) });
+const newerLiveRejected = !workerImpact.shouldDeployWorker({ plane: 'dataPlane', attestedChanged: true, liveSha: 'f'.repeat(40), testedSha: 'e'.repeat(40), latestMainSha: 'e'.repeat(40), isAncestor: (ancestor, descendant) => ancestor === 'e'.repeat(40) && descendant === 'f'.repeat(40) });
+const staleCiRunRejected = !workerImpact.shouldDeployWorker({ plane: 'dataPlane', attestedChanged: true, liveSha: 'd'.repeat(40), testedSha: 'e'.repeat(40), latestMainSha: 'f'.repeat(40) });
+if (!['worker/data-plane.js', 'src/data/contracts/market-snapshot.js', 'src/data/contracts/source-kind.js'].every((file) => deploymentInputs.dataPlane.includes(file))
+  || !marketSnapshotDependency.dataPlane || !sourceKindDependency.dataPlane) fail('P1308/R653/QA-DATA-50 misses a transitive data-plane bundle source');
+if (!canceledRunRecovery) fail('P1308/R653/QA-DATA-50 does not recover a canceled or replaced Worker run from cumulative live-SHA changes');
+if (!outdatedCiRunRejected || !newerLiveRejected || !staleCiRunRejected) fail('P1308/R653/QA-DATA-50 permits stale CI to overwrite a newer main or live Worker SHA');
 for (const source of [worker, wrangler, workflow]) {
   if (/AIO_QUOTES_BUCKET|AIO_QUOTES_R2_BUCKET|r2_buckets/i.test(source)) fail('R2 must remain disabled for the KV-only fast plane');
 }
@@ -63,8 +89,6 @@ const readQuotes = await dataPlane.fetch(new Request('https://fast.example/quote
 if (readQuotes.status !== 200) fail(`GET /quotes regressed: ${readQuotes.status}`);
 const adminWithoutToken = await dataPlane.fetch(new Request('https://fast.example/admin/run', { method: 'POST' }), smokeEnv);
 if (adminWithoutToken.status !== 401) fail(`/admin/run without the cron token was not refused: ${adminWithoutToken.status}`);
-const adminWithToken = await dataPlane.fetch(new Request('https://fast.example/admin/run', { method: 'POST', headers: { 'X-AIO-Cron-Token': 'cron-fixture' } }), new Proxy({ ...smokeEnv, AIO_CRON_SECRET: 'cron-fixture' }, { get: (t, p) => (p === 'AIO_QUOTES_BUCKET' || p === 'AIO_QUOTES_R2_BUCKET') ? fail('KV smoke touched an R2 binding') : Reflect.get(t, p) }));
-if (adminWithToken.status !== 200) fail(`/admin/run with a valid cron token regressed: ${adminWithToken.status}`);
 
 if (FAST_PLANE_WRITE_POLICY.kvFreeTierDailyLimit !== 1000
   || FAST_PLANE_WRITE_POLICY.warningDailyTarget > FAST_PLANE_WRITE_POLICY.kvFreeTierDailyLimit / 2
@@ -75,11 +99,12 @@ if (!/revision-change-or-15m-liveness/.test(worker) || !/snapshotChanged/.test(w
 
 const originalFetch = globalThis.fetch;
 const baseNow = Date.parse('2026-09-14T12:00:00Z');
+let fixtureNow = Date.now();
 let fixtureValue = 100;
 globalThis.fetch = async () => ({
   ok: true,
   async json() {
-    return { chart: { result: [{ meta: { regularMarketPrice: fixtureValue, regularMarketTime: Math.floor((baseNow - 60 * 60 * 1000) / 1000), marketState: 'CLOSED', chartPreviousClose: fixtureValue - 1, fullExchangeName: 'fixture' }, indicators: { quote: [{ close: [fixtureValue - 1, fixtureValue] }] } }] } };
+    return { chart: { result: [{ meta: { regularMarketPrice: fixtureValue, regularMarketTime: Math.floor((fixtureNow - 60 * 60 * 1000) / 1000), marketState: 'CLOSED', chartPreviousClose: fixtureValue - 1, fullExchangeName: 'fixture' }, indicators: { quote: [{ close: [fixtureValue - 1, fixtureValue] }] } }] } };
   }
 });
 const writes = [];
@@ -92,6 +117,11 @@ const policyKv = {
   async put(key, value) { writes.push(key); values.set(key, String(value)); }
 };
 try {
+  // P1266: exercise the authenticated write route under the same deterministic
+  // quote transport as scheduled publication; CI must not depend on live Yahoo.
+  const adminWithToken = await dataPlane.fetch(new Request('https://fast.example/admin/run', { method: 'POST', headers: { 'X-AIO-Cron-Token': 'cron-fixture' } }), new Proxy({ ...smokeEnv, AIO_CRON_SECRET: 'cron-fixture' }, { get: (t, p) => (p === 'AIO_QUOTES_BUCKET' || p === 'AIO_QUOTES_R2_BUCKET') ? fail('KV smoke touched an R2 binding') : Reflect.get(t, p) }));
+  if (adminWithToken.status !== 200) fail(`/admin/run with a valid cron token regressed: ${adminWithToken.status}`);
+  fixtureNow = baseNow;
   const policyEnv = { AIO_QUOTES_KV: policyKv };
   const first = await publishQuotes({ env: policyEnv, now: baseNow });
   if (!first.snapshotWritten || !first.heartbeatWritten || first.heartbeat.publishedAt !== first.snapshot.generatedAt || first.heartbeat.checkedAt !== first.snapshot.attemptedAt) fail(`first publish timestamp semantics regressed: ${JSON.stringify(first)}`);
@@ -110,4 +140,4 @@ try {
   globalThis.fetch = originalFetch;
 }
 
-console.log(JSON.stringify({ ok: true, worker: 'cron+kv', kvSmoke: 'health/fixture-pass', qg: ['QG-01', 'QG-06', 'QG-08'], deploy: 'manual-preflight' }));
+console.log(JSON.stringify({ ok: true, worker: 'cron+kv', kvSmoke: 'health/fixture-pass', qg: ['QG-01', 'QG-06', 'QG-08'], deploy: 'exact-CI-attested-auto+rollback' }));

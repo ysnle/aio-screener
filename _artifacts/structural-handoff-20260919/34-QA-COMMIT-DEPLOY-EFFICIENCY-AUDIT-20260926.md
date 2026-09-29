@@ -1,5 +1,7 @@
 # QA·커밋·배포 효율성 재감사 — 2026-09-26
 
+> **후속 실행 상태(같은 날, 로컬 미커밋):** 이 문서의 "아직 설계, 코드 미수정"과 원격 미열람 문장은 감사 당시 기록이다. P1265가 런별 실패 배치 보존·원자 캐시·후보 결속·중복 gate owner 제거를 구현했다. 후속 P1270은 두 refresh workflow의 중복 promotion 검사 대신 생산물 hash를 기록·비교하고, staged/commit tree 및 rebase 후 blob을 재확인하도록 배선했다. `verify-refresh-candidate --self-test`, `ci-qa-pipeline-contract-check`, YAML 검사 결과는 새 [35 구현 교차점검](35-FINAL-IMPLEMENTATION-CROSSWALK-20260926.md)에 기록한다. CI 준비 시간 p50/p95·비용(P1-5)과 수렴 지표(P2-6)는 여전히 미측정이다. 원격 Actions의 옛 SHA 실패를 현 로컬 수정의 성공으로 승격하지 않는다.
+
 > 기준은 로컬 dirty v56.50의 `architecture/qa-pipeline.json`, `scripts/qa-runner.mjs`, GitHub Actions YAML 및 이전 로컬 QA 캐시다. 원격 Actions 실행 기록은 이 환경에서 GitHub API 연결이 차단되어 읽지 못했다. 아래 **선택 게이트 수는 `--explain` 실측**, 실행 시간은 서로 다른 날의 로컬 캐시 표본이며, CI 총 소요시간·비용·절감률은 아직 미측정이다. 사용자 소유 변경은 건드리지 않았다. [외부 참고의 독립 테스트 원칙](32-EXTERNAL-REFERENCES-CHART-NEWS-AND-TEST-DESIGN-20260925.md)은 AIO 게이트의 실제 보호 계약을 확인하는 질문으로만 사용한다.
 
 ## 판정

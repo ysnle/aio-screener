@@ -2,6 +2,9 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { archiveBase, createSecClient, findInformationTableFiles, normalizeCik, recentOwnershipRows, select13fFilings, withArchiveUrls } from './lib/sec-edgar.mjs';
+import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { writeJsonIfSemanticallyChanged } from './lib/13f-semantic-hash.mjs';
+import { ownershipFailureFields, updateOwnershipOnlyDiscovery } from './lib/13f-discovery.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const mastersDir = path.join(root, 'public-data', 'masters');
@@ -9,11 +12,13 @@ const catalogPath = path.join(mastersDir, 'manager-catalog.json');
 const filingsPath = path.join(mastersDir, 'filings.json');
 const discoveryPath = path.join(mastersDir, 'filing-discovery.json');
 const holdingsPath = path.join(mastersDir, 'holdings.json');
+const previousDiscovery = JSON.parse(await fs.readFile(discoveryPath, 'utf8'));
 const offline = process.argv.includes('--offline');
+const ownershipOnly = process.argv.includes('--ownership-only');
 const catalog = JSON.parse(await fs.readFile(catalogPath, 'utf8'));
 const previousFilings = JSON.parse(await fs.readFile(filingsPath, 'utf8'));
 const holdings = JSON.parse(await fs.readFile(holdingsPath, 'utf8'));
-const client = offline ? null : createSecClient();
+const client = offline || ownershipOnly ? null : createSecClient();
 const generatedAt = new Date().toISOString();
 const reviewedAt = generatedAt.slice(0, 10);
 
@@ -33,12 +38,37 @@ async function enrichFilingDocuments(cik, filing) {
 }
 
 async function writeAtomic(file, value) {
-  const temp = `${file}.tmp`;
-  await fs.writeFile(temp, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
-  await fs.rename(temp, file);
+  await writeJsonIfSemanticallyChanged(file, value, { writer: atomicWriteFile });
 }
 
 const filerProfiles = catalog.managers.filter((manager) => manager.type !== 'METHOD_ONLY' && manager.cik);
+if (ownershipOnly) {
+  if (offline) throw new Error('--ownership-only cannot run in --offline mode; use the focused fixture gate');
+  let ownershipClient = null;
+  const { artifact, pending13fHrTriggers, in13fFilingSeason } = await updateOwnershipOnlyDiscovery({
+    discoveryArtifact: previousDiscovery,
+    holdingsArtifact: holdings,
+    filerProfiles,
+    checkedAt: generatedAt,
+    fetchSubmissions: async (cik) => {
+      if (!ownershipClient) ownershipClient = createSecClient();
+      return ownershipClient.json(`https://data.sec.gov/submissions/CIK${cik}.json`);
+    }
+  });
+  await writeAtomic(discoveryPath, artifact);
+  console.log(JSON.stringify({
+    ok: artifact.coverage.ownershipBlocked === 0,
+    output: 'public-data/masters/filing-discovery.json',
+    ownershipCheckedAt: artifact.ownershipCheckedAt,
+    ownershipEvents: artifact.coverage.ownershipEvents,
+    ownershipManagers: artifact.coverage.ownershipManagers,
+    ownershipBlocked: artifact.coverage.ownershipBlocked,
+    in13fFilingSeason,
+    pending13fHrTriggers
+  }));
+  process.exit(0);
+}
+
 const discovered = [];
 for (const manager of filerProfiles) {
   const cik = normalizeCik(manager.cik);
@@ -69,10 +99,13 @@ for (const manager of filerProfiles) {
       latestPeriodSubmissions,
       priorPeriodSubmissions,
       ownershipStatus: 'DISCOVERED',
+      ownershipCheckedAt: generatedAt,
       ownershipEvents
     });
   } catch (error) {
     const previous = previousFilings.managers?.find((item) => item.id === manager.id);
+    const reason = String(error?.message || error);
+    const previousOwnership = previousDiscovery.managers?.find((item) => item.managerId === manager.id);
     discovered.push({
       managerId: manager.id,
       cik,
@@ -80,10 +113,9 @@ for (const manager of filerProfiles) {
       checkedAt: generatedAt,
       sourceKind: 'SEC_EDGAR',
       sourceUrl,
-      reason: String(error?.message || error),
+      reason,
       lastKnownGood: previous?.latestFiling || manager.latestFiling || null,
-      ownershipStatus: 'BLOCKED',
-      ownershipEvents: []
+      ...ownershipFailureFields(previousOwnership, generatedAt, reason)
     });
   }
 }
@@ -131,6 +163,7 @@ const coverage = {
   noticeFiled: successful.filter((item) => item.noticeStatus === 'NOTICE_FILED').length,
   ownershipEventCount: successful.reduce((sum, item) => sum + item.ownershipEvents.length, 0),
   ownershipManagers: successful.filter((item) => item.ownershipEvents.length).length,
+  ownershipBlocked: discovered.filter((item) => item.ownershipStatus === 'BLOCKED').length,
   latestPeriod
 };
 const nextCatalog = { ...catalog, reviewedAt, generatedAt, coverage, managers };
@@ -140,6 +173,7 @@ const nextFilings = {
   schema: 'masters-13f-reference.v2',
   reviewedAt,
   generatedAt,
+  ownershipCheckedAt: generatedAt,
   latestAvailablePeriod: latestPeriod,
   status: discovered.some((item) => item.status === 'BLOCKED') ? 'REFERENCE_METADATA_PARTIAL' : 'REFERENCE_METADATA_CURRENT',
   managers: [

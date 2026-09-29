@@ -1,9 +1,18 @@
 name: Deploy fast data plane
 
 on:
-  workflow_dispatch: {}
+  workflow_run:
+    workflows: ['CI']
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      ci_run_id:
+        description: Successful main CI run that attested the exact Worker source SHA
+        required: true
+        type: string
 
 permissions:
+  actions: read
   contents: read
 
 concurrency:
@@ -12,13 +21,103 @@ concurrency:
 
 jobs:
   deploy:
+    if: >-
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_repository.full_name == github.repository)
+      || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     steps:
-      - name: Checkout
+      - name: Resolve successful exact-SHA CI run
+        id: ci
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
+          WORKFLOW_SHA: ${{ github.event.workflow_run.head_sha }}
+          DISPATCH_CI_RUN_ID: ${{ github.event.inputs.ci_run_id }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = 'workflow_run' ]; then run_id="$WORKFLOW_RUN_ID"; expected_sha="$WORKFLOW_SHA"; else run_id="$DISPATCH_CI_RUN_ID"; expected_sha=''; fi
+          case "$run_id" in ''|null|*[!0-9]*) echo "::error::a successful CI run id is required"; exit 1;; esac
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run_id" --jq '[.name, .conclusion, (.head_branch // ""), (.head_sha // ""), (.event // ""), (.head_repository.full_name // "")] | @tsv' > "$RUNNER_TEMP/aio-worker-ci-run.tsv"
+          IFS="$(printf '\t')" read -r workflow_name conclusion branch ci_sha ci_event ci_repo < "$RUNNER_TEMP/aio-worker-ci-run.tsv"
+          [ "$workflow_name" = 'CI' ] || { echo "::error::run $run_id is '$workflow_name', expected CI"; exit 1; }
+          [ "$conclusion" = 'success' ] || { echo "::error::CI run $run_id concluded '$conclusion', expected success"; exit 1; }
+          [ "$branch" = 'main' ] || { echo "::error::CI run $run_id ran on '$branch', expected main"; exit 1; }
+          [ "$ci_event" = 'push' ] || { echo "::error::CI run $run_id was triggered by '$ci_event', expected a push to main"; exit 1; }
+          [ "$ci_repo" = "$GITHUB_REPOSITORY" ] || { echo "::error::CI run $run_id came from '$ci_repo', not $GITHUB_REPOSITORY (fork)"; exit 1; }
+          if [ -n "$expected_sha" ]; then [ "$ci_sha" = "$expected_sha" ] || { echo "::error::CI run SHA differs from workflow_run SHA"; exit 1; }; fi
+          [[ "$ci_sha" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::CI run has invalid head SHA"; exit 1; }
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+          echo "sha=$ci_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Download CI release attestation
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: aio-release-attestation
+          path: ${{ runner.temp }}/aio-worker-attestation
+          github-token: ${{ github.token }}
+          run-id: ${{ steps.ci.outputs.run_id }}
+
+      - name: Validate data-plane CI attestation
+        id: release
+        env:
+          EXPECTED_SHA: ${{ steps.ci.outputs.sha }}
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const file = `${process.env.RUNNER_TEMP}/aio-worker-attestation/aio-release-attestation.json`;
+          const attestation = JSON.parse(fs.readFileSync(file, 'utf8'));
+          if (attestation.schemaVersion !== 'aio-release-attestation.v1' || attestation.testedSha !== process.env.EXPECTED_SHA) {
+            throw new Error('CI attestation does not match the successful run SHA');
+          }
+          if (typeof attestation.workerDeploy?.dataPlane !== 'boolean') throw new Error('CI attestation has no data-plane change result');
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `sha=${attestation.testedSha}\nattested_change=${attestation.workerDeploy.dataPlane}\n`);
+          NODE
+
+      - name: Checkout exact attested SHA
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          ref: ${{ steps.release.outputs.sha }}
+          fetch-depth: 0
+
+      - name: Resolve data-plane convergence from live source SHA
+        id: convergence
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          ATTESTED_CHANGE: ${{ steps.release.outputs.attested_change }}
+          EXPECTED_SHA: ${{ steps.release.outputs.sha }}
+          FAST_QUOTES_URL: ${{ vars.AIO_FAST_QUOTES_URL || 'https://aio-screener-data-plane.zmfhd007.workers.dev' }}
+        run: |
+          set -euo pipefail
+          health_status="$(curl --silent --show-error --output "$RUNNER_TEMP/aio-fast-convergence-health.json" --write-out '%{http_code}' "$FAST_QUOTES_URL/health" || true)"
+          if [ "$health_status" != '200' ] && [ "$health_status" != '503' ]; then echo "::error::cannot resolve fast data-plane convergence: HTTP $health_status"; exit 1; fi
+          LIVE_SHA="$(node -e "const h=require(process.argv[1]);process.stdout.write(typeof h.sourceSha==='string'?h.sourceSha:'')" "$RUNNER_TEMP/aio-fast-convergence-health.json")"
+          CURRENT_MAIN_SHA="$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')"
+          export LIVE_SHA CURRENT_MAIN_SHA
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import { getWorkerChangesBetween, isAncestorCommit, shouldDeployWorker } from './scripts/worker-deploy-impact.mjs';
+          const manual = process.env.EVENT_NAME === 'workflow_dispatch';
+          const changed = process.env.ATTESTED_CHANGE === 'true';
+          const liveSha = process.env.LIVE_SHA;
+          const liveIsAncestor = !manual && process.env.CURRENT_MAIN_SHA === process.env.EXPECTED_SHA
+            && liveSha !== process.env.EXPECTED_SHA && /^[0-9a-f]{40}$/.test(liveSha)
+            && isAncestorCommit(liveSha, process.env.EXPECTED_SHA);
+          const cumulativeChanges = liveIsAncestor && !changed
+            ? await getWorkerChangesBetween(liveSha, process.env.EXPECTED_SHA)
+            : undefined;
+          const shouldDeploy = shouldDeployWorker({ plane: 'dataPlane', manual, attestedChanged: changed, liveSha, testedSha: process.env.EXPECTED_SHA, latestMainSha: process.env.CURRENT_MAIN_SHA, cumulativeChanges });
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `should_deploy=${shouldDeploy}\n`);
+          const reason = !manual && process.env.CURRENT_MAIN_SHA !== process.env.EXPECTED_SHA ? 'stale-ci-run' : shouldDeploy ? 'worker-change-or-live-drift' : 'already-converged-or-no-worker-change';
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `reason=${reason}\n`);
+          console.log(`Data-plane automatic convergence decision: ${shouldDeploy ? 'deploy' : 'skip'} (live=${liveSha || 'unknown'}, tested=${process.env.EXPECTED_SHA})`);
+          NODE
 
       - name: Require Cloudflare operating configuration
+        if: steps.convergence.outputs.should_deploy == 'true'
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -31,52 +130,118 @@ jobs:
           done
 
       - name: Setup Node
+        if: steps.convergence.outputs.should_deploy == 'true'
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          # Wrangler 4.120.0 refuses to run on Node < 22 ("Wrangler requires at least Node.js
-          # v22.0.0"). This is why this workflow used to pin wrangler 4.44.0: the old pin, not a
-          # preference. Match deploy-ai-proxy.yml (Node 24 + wrangler 4.120.0) instead of
-          # downgrading wrangler back, so both deploys run one parser on one runtime.
           node-version: '24'
 
       - name: Validate Cloudflare source and deployment contract
+        if: steps.convergence.outputs.should_deploy == 'true'
         run: node scripts/qa-runner.mjs --group cloudflare --no-cache
 
       - name: Install Wrangler
-        # Keep this in lockstep with deploy-ai-proxy.yml. Two different Wrangler versions were
-        # parsing two configs of the same shape, and neither install is covered by Dependabot
-        # (they are global npm installs, not package.json dependencies).
+        if: steps.convergence.outputs.should_deploy == 'true'
         run: npm install --global wrangler@4.120.0
 
-      - name: Render deployment config
+      - name: Render exact-SHA deployment config
+        if: steps.convergence.outputs.should_deploy == 'true'
         env:
-          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           KV_ID: ${{ secrets.AIO_QUOTES_KV_ID }}
+          SOURCE_SHA: ${{ steps.release.outputs.sha }}
         run: |
           set -euo pipefail
-          sed -e "s/__AIO_QUOTES_KV_ID__/${KV_ID}/" -e "s/__AIO_SOURCE_SHA__/${GITHUB_SHA}/" worker/wrangler.example.toml > worker/wrangler.toml
+          sed -e "s/__AIO_QUOTES_KV_ID__/${KV_ID}/" -e "s/__AIO_SOURCE_SHA__/${SOURCE_SHA}/" worker/wrangler.example.toml > worker/wrangler.deploy.toml
 
-      - name: Deploy Worker
+      - name: Capture active rollback target and source identity
+        id: rollback-baseline
+        if: steps.convergence.outputs.should_deploy == 'true'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: wrangler deploy --config worker/wrangler.toml
-
-      - name: Smoke check fast plane
-        env:
           FAST_QUOTES_URL: ${{ vars.AIO_FAST_QUOTES_URL || 'https://aio-screener-data-plane.zmfhd007.workers.dev' }}
         run: |
           set -euo pipefail
-          if [ -z "$FAST_QUOTES_URL" ]; then echo "::error::operator_required: fast-plane endpoint is missing"; exit 1; fi
+          wrangler deployments list --json --config worker/wrangler.deploy.toml > "$RUNNER_TEMP/aio-fast-deployments.json"
+          previous_version="$(node scripts/resolve-worker-rollback-version.mjs "$RUNNER_TEMP/aio-fast-deployments.json")"
+          health_status="$(curl --silent --show-error --output "$RUNNER_TEMP/aio-fast-before-health.json" --write-out '%{http_code}' "$FAST_QUOTES_URL/health" || true)"
+          if [ "$health_status" != '200' ] && [ "$health_status" != '503' ]; then echo "::error::rollback baseline health endpoint returned HTTP $health_status"; exit 1; fi
+          previous_sha="$(node -e "const h=require(process.argv[1]);if(!/^([0-9a-f]{40})$/.test(h.sourceSha||''))process.exit(1);process.stdout.write(h.sourceSha)" "$RUNNER_TEMP/aio-fast-before-health.json")"
+          echo "version_id=$previous_version" >> "$GITHUB_OUTPUT"
+          echo "source_sha=$previous_sha" >> "$GITHUB_OUTPUT"
+          echo "http_status=$health_status" >> "$GITHUB_OUTPUT"
+          echo "Rollback target captured: version=$previous_version sourceSha=$previous_sha HTTP=$health_status"
+
+      - name: Recheck main head immediately before Worker mutation
+        id: latest-main
+        if: steps.convergence.outputs.should_deploy == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          EXPECTED_SHA: ${{ steps.release.outputs.sha }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = 'workflow_dispatch' ]; then echo 'safe=true' >> "$GITHUB_OUTPUT"; exit 0; fi
+          current_main_sha="$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')"
+          if [ "$current_main_sha" = "$EXPECTED_SHA" ]; then
+            echo 'safe=true' >> "$GITHUB_OUTPUT"
+          else
+            echo "Main advanced to $current_main_sha; skipping stale fast data-plane run for $EXPECTED_SHA."
+            echo 'safe=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy Worker
+        id: deploy
+        if: steps.convergence.outputs.should_deploy == 'true' && steps.latest-main.outputs.safe == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          SOURCE_SHA: ${{ steps.release.outputs.sha }}
+        run: wrangler deploy --config worker/wrangler.deploy.toml --message "AIO fast data plane $SOURCE_SHA"
+
+      - name: Smoke check fast plane
+        id: smoke
+        if: steps.convergence.outputs.should_deploy == 'true' && steps.latest-main.outputs.safe == 'true'
+        env:
+          FAST_QUOTES_URL: ${{ vars.AIO_FAST_QUOTES_URL || 'https://aio-screener-data-plane.zmfhd007.workers.dev' }}
+          EXPECTED_SHA: ${{ steps.release.outputs.sha }}
+        run: |
+          set -euo pipefail
           health_status=""
           for attempt in $(seq 1 10); do
-            health_status="$(curl --silent --show-error --output /tmp/aio-fast-health.json --write-out '%{http_code}' "$FAST_QUOTES_URL/health" || true)"
-            if [ "$health_status" = "200" ] || [ "$health_status" = "503" ]; then break; fi
+            health_status="$(curl --silent --show-error --output "$RUNNER_TEMP/aio-fast-health.json" --write-out '%{http_code}' "$FAST_QUOTES_URL/health" || true)"
+            if [ "$health_status" = '200' ] || [ "$health_status" = '503' ]; then break; fi
             sleep 3
           done
-          if [ "$health_status" != "200" ] && [ "$health_status" != "503" ]; then
+          if [ "$health_status" != '200' ] && [ "$health_status" != '503' ]; then
             echo "::error::fast_plane_unreachable: HTTP $health_status after propagation retry"
             exit 1
           fi
-          cat /tmp/aio-fast-health.json
-          node -e "const fs=require('fs'); const h=JSON.parse(fs.readFileSync('/tmp/aio-fast-health.json')); const complete=h.ok&&h.coverage?.tier0Observed>=h.coverage?.tier0Required; const bootstrap=!h.ok&&h.heartbeat===null&&h.revision===null; if(h.sourceSha!==process.env.GITHUB_SHA||(!complete&&!bootstrap)) process.exit(1); if(bootstrap) console.warn('operator_required: Worker is deployed; first scheduled KV snapshot has not been published yet')"
+          cat "$RUNNER_TEMP/aio-fast-health.json"
+          node -e "const fs=require('fs');const h=JSON.parse(fs.readFileSync(process.argv[1]));const complete=h.ok&&h.coverage?.tier0Observed>=h.coverage?.tier0Required;const bootstrap=!h.ok&&h.heartbeat===null&&h.revision===null;if(h.sourceSha!==process.env.EXPECTED_SHA||(!complete&&!bootstrap))process.exit(1);if(bootstrap)console.warn('operator_required: Worker is deployed; first scheduled KV snapshot has not been published yet')" "$RUNNER_TEMP/aio-fast-health.json"
+
+      - name: Roll back failed fast-plane smoke
+        id: rollback
+        if: failure() && steps.convergence.outputs.should_deploy == 'true' && steps.latest-main.outputs.safe == 'true' && steps.deploy.outcome == 'success' && steps.smoke.outcome == 'failure'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PREVIOUS_VERSION_ID: ${{ steps.rollback-baseline.outputs.version_id }}
+          SOURCE_SHA: ${{ steps.release.outputs.sha }}
+        run: wrangler rollback "$PREVIOUS_VERSION_ID" --config worker/wrangler.deploy.toml --message "Automatic rollback after failed AIO smoke for $SOURCE_SHA"
+
+      - name: Verify fast-plane rollback source identity
+        if: always() && steps.convergence.outputs.should_deploy == 'true' && steps.latest-main.outputs.safe == 'true' && steps.rollback.outcome == 'success'
+        env:
+          FAST_QUOTES_URL: ${{ vars.AIO_FAST_QUOTES_URL || 'https://aio-screener-data-plane.zmfhd007.workers.dev' }}
+          EXPECTED_SHA: ${{ steps.rollback-baseline.outputs.source_sha }}
+          EXPECTED_STATUS: ${{ steps.rollback-baseline.outputs.http_status }}
+        run: |
+          set -euo pipefail
+          restored=0
+          for attempt in $(seq 1 10); do
+            status="$(curl --silent --show-error --output "$RUNNER_TEMP/aio-fast-rollback-health.json" --write-out '%{http_code}' "$FAST_QUOTES_URL/health" || true)"
+            if [ "$status" = "$EXPECTED_STATUS" ] && node -e "const h=require(process.argv[1]);if(h.sourceSha!==process.env.EXPECTED_SHA)process.exit(1)" "$RUNNER_TEMP/aio-fast-rollback-health.json"; then restored=1; break; fi
+            sleep 3
+          done
+          if [ "$restored" != '1' ]; then echo "::error::fast-plane rollback source/status did not return to the captured baseline"; cat "$RUNNER_TEMP/aio-fast-rollback-health.json" || true; exit 1; fi
+          echo "Fast-plane rollback verified: sourceSha=$EXPECTED_SHA HTTP=$EXPECTED_STATUS"

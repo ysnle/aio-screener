@@ -188,6 +188,20 @@ try {
   // actually offers. Asserting "a tick must mint a new snapshotId" encoded the
   // pre-overlay design and can no longer hold (P1074).
   const afterQuoteTick = await page.evaluate(async () => {
+    // P1269: running a different definition can replace one of the first 12
+    // visible symbols. Seed the current visible set before asserting its price
+    // overlay; an unseeded new row correctly says "미수신" in an offline fixture.
+    const visibleNow = [...document.querySelectorAll('#screener-results-body [data-aio-screener-ticker]')]
+      .map((node) => node.getAttribute('data-aio-screener-ticker')).filter(Boolean);
+    const observedAt = new Date().toISOString();
+    visibleNow.forEach((symbol, index) => {
+      if (Number.isFinite(Number(window._liveData?.[symbol]?.price)) && Number(window._liveData[symbol].price) > 0) return;
+      window._liveData[symbol] = {
+        ...(window._liveData[symbol] || {}), price: 200 + index, pct: 0.25,
+        observedAt, fetchedAt: observedAt, source: 'ci-fixture:visible-quote',
+        revision: `ci-visible-quotes:${observedAt}`, changeBasis: 'previous-regular-session-close'
+      };
+    });
     const row = window.AIO_ARCH.getScreenerState().rows.find(row => window._liveData?.[row.sym]?.price);
     window._liveData[row.sym].price += 1;
     document.dispatchEvent(new CustomEvent('aio:liveQuotes', { detail: { source: 'frozen-run-fixture' } }));

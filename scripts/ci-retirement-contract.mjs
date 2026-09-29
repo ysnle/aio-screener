@@ -7,7 +7,7 @@ const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const manifest = JSON.parse(read('architecture/retirement-manifest.json'));
 const routeOwners = JSON.parse(read('architecture/route-owners.json'));
 const bootstrap = read('src/app/bootstrap.js');
-const core = read('js/aio-core.js');
+const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
 const status = JSON.parse(read('public-data/operations-status.json'));
 const fail = (message) => { throw new Error(`[retirement] ${message}`); };
 

@@ -15,6 +15,7 @@ const ROW_PREVIEWS_URL = './public-data/masters/manager-row-previews.json';
 const FILING_DISCOVERY_URL = './public-data/masters/filing-discovery.json';
 const MANAGER_PRINCIPLES_URL = './public-data/masters/manager-principles.json';
 const TICKER_INDEX_REFERENCE_URL = './public-data/masters/ticker-index-reference.json';
+const TICKER_INDEX_LOAD_OPTIONS = Object.freeze({ timeoutMs: 8000 });
 
 // MF-05: holding rows are rendered only from a verified SEC EDGAR
 // filer/CIK/filing artifact; the registry itself never invents rows.
@@ -170,9 +171,10 @@ function createMetric(documentRef, label, value) {
   return card;
 }
 
-function createTickerLookup(documentRef, tickerIndex, registry, query) {
+function createTickerLookup(documentRef, tickerIndex, registry, query, loadState = 'loading') {
   const section = element(documentRef, 'section', 'masters-ticker-lookup');
   section.dataset.mastersTickerLookup = 'reference-only';
+  section.dataset.mastersTickerLoadState = tickerIndex ? 'ready' : loadState;
   section.style.cssText = 'margin:12px 0;padding:12px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);';
   section.append(
     element(documentRef, 'span', 'masters-eyebrow', '13F · REFERENCE-ONLY TICKER LOOKUP'),
@@ -194,7 +196,23 @@ function createTickerLookup(documentRef, tickerIndex, registry, query) {
   const body = element(documentRef, 'div', 'masters-ticker-lookup-results');
   const normalized = String(query || '').trim().toUpperCase();
   if (!tickerIndex) {
-    body.appendChild(element(documentRef, 'p', 'masters-empty-state', '참조용 티커 원장을 불러오는 중입니다.'));
+    // P1325: this branch used to be the only non-ready state, so a failed/timed-out ledger fetch left
+    // '불러오는 중' on screen forever. Every non-ready state is now explicit and a failure is retryable.
+    if (loadState === 'error') {
+      const failure = element(documentRef, 'p', 'masters-empty-state', '참조용 티커 원장을 불러오지 못했습니다. 잠시 뒤 다시 시도하세요. 역조회 없이도 위 대가 카드와 공시 원문은 그대로 사용할 수 있습니다.');
+      failure.setAttribute('role', 'alert');
+      body.append(failure, button(documentRef, 'aio-btn-table masters-ticker-lookup-retry', '티커 원장 다시 불러오기', 'retry-ticker-index', 'tickerIndex'));
+    } else if (loadState === 'idle') {
+      // P1330: the ledger is not part of the initial Masters payload (artifact budget); it loads on
+      // first focus/typing or the "종목으로 역조회" button, so this idle state is never a spinner.
+      const idle = element(documentRef, 'p', 'masters-empty-state', '종목 코드나 이름을 입력하면 참조용 티커 원장을 불러와 보유 대가를 찾습니다.');
+      idle.setAttribute('role', 'status');
+      body.appendChild(idle);
+    } else {
+      const pending = element(documentRef, 'p', 'masters-empty-state', '참조용 티커 원장을 불러오는 중입니다.');
+      pending.setAttribute('role', 'status');
+      body.appendChild(pending);
+    }
   } else if (tickerIndex.status !== 'REFERENCE_ONLY') {
     body.appendChild(element(documentRef, 'p', 'masters-empty-state', '참조용 티커 원장의 상태를 확인할 수 없어 역조회를 보류합니다.'));
   } else if (!normalized) {
@@ -365,11 +383,12 @@ function createCatalogCoverage(documentRef, catalog, registry, holdings, preview
   section.dataset.mastersOfficialPrinciples = String(summary.officialPrinciples);
   section.dataset.mastersVerifiedSecurityRecords = String(summary.verifiedSecurityRecords);
   const coverage = catalog.coverage || {};
+  const discoveryAsOf = String(discovery?.reviewedAt || discovery?.generatedAt || '기준일 확인 필요').slice(0, 10);
   section.append(
     element(documentRef, 'summary', 'masters-catalog-title', `데이터 범위와 검증 상태 보기 · SEC 발견 ${summary.discoveryState === 'complete' ? '전체' : '부분'} · 13F 행 ${summary.rowCoverageState === 'complete' ? '전체' : '부분'} · 보강 ${summary.enrichmentState === 'complete' ? '전체' : '부분'}`),
     element(documentRef, 'p', 'masters-catalog-copy masters-coverage-classification', `현재 분류 ${summary.profiles}개: 최신 전체 행 ${summary.currentFull} · 지연 전체 행 ${summary.staleFull} · 원문 미리보기만 ${summary.previewOnly} · 메타데이터만 ${summary.metadataOnly} · 방법론 전용 ${summary.methodOnly}`),
     element(documentRef, 'p', 'masters-catalog-boundary masters-latest-quarter-boundary', `${summary.latestPeriod || '최신분기 확인 필요'} 기준 13F 신고주체 ${summary.filers}개 중 ${summary.latestPeriodMissing}개는 최신분기 전체 행이 연결되지 않았습니다. 프로필·CIK·과거 공시 링크가 있어도 최신 보유 데이터 완성을 뜻하지 않습니다.`),
-    element(documentRef, 'p', 'masters-catalog-boundary masters-discovery-boundary', `SEC 온라인 현재성 발견 ${summary.discovered}/${summary.filers} · 차단/미완료 ${summary.blocked}. 이 artifact 상태는 수집 실행 결과이며 repository 변수 설정 존재 여부와 같은 뜻이 아닙니다.`),
+    element(documentRef, 'p', 'masters-catalog-boundary masters-discovery-boundary', `SEC 발견 artifact 기준일 ${discoveryAsOf}: 제출주체 ${summary.discovered}/${summary.filers} · 차단/미완료 ${summary.blocked}. 이 artifact 상태는 수집 실행 결과이며 repository 변수 설정 존재 여부와 같은 뜻이 아닙니다. 최신 온라인 조회 시각은 별도로 표시되지 않습니다.`),
     element(documentRef, 'p', 'masters-catalog-boundary masters-shard-integrity-boundary', `브라우저 전체 행 원장 무결성 ${summary.shardIntegrityVerified ? '검증 완료' : '검증 미완료'}. 신고 메타데이터의 행 수와 실제 선택 로드 shard 길이가 일치할 때만 전체 행 연결로 분류합니다.`),
     element(documentRef, 'p', 'masters-catalog-boundary masters-enrichment-boundary', `공식 투자 원칙 원고 ${summary.officialPrinciples}/${summary.profiles} · 검증 issuer·ticker·sector master ${summary.verifiedSecurityRecords}개. 나머지 원칙은 catalog 전략 분류이며, 참고 섹터 분류는 검증 master로 승격하지 않습니다.`),
     element(documentRef, 'p', 'masters-catalog-copy', `SEC 메타데이터 상태 ${coverage.secMetadataVerified || 0}개 · 전체 행 대사 ${fullManagersLabel(summary)} · 원문 행 미리보기 ${coverage.rowPreviewManagers || 0}개/${coverage.previewRows || 0}행`),
@@ -446,6 +465,8 @@ function createOwnershipEvents(documentRef, manager, discovery) {
     section.appendChild(element(documentRef, 'div', 'masters-empty-state', '현재 연결된 SEC discovery artifact가 완료 상태가 아니므로 13D/G 최신 여부를 인증하지 않습니다. 이는 repository 변수 설정 존재 여부가 아니라 이 artifact의 수집 실행 결과를 뜻합니다.'));
     return section;
   }
+  const ownershipAsOf = String(discovery.ownershipCheckedAt || discovery.generatedAt || '기준일 확인 필요').slice(0, 10);
+  section.appendChild(element(documentRef, 'p', 'masters-catalog-boundary', `13D/G 제출 artifact 기준일 ${ownershipAsOf}. 이는 마지막으로 게시된 확인 시각이며 새 SEC 온라인 조회가 방금 수행됐다는 뜻은 아닙니다.`));
   const events = discovery.ownershipEvents || [];
   if (!events.length) {
     section.appendChild(element(documentRef, 'div', 'masters-empty-state', '현재 연결된 SEC 최근 제출목록에서 이 신고주체의 13D/G 이벤트를 찾지 못했습니다. 이는 소유권 부재를 뜻하지 않습니다.'));
@@ -1044,6 +1065,12 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
        const render = () => {
          if (!isAlive()) return;
          const registry = buildManagerRegistry(state.catalog);
+         // P1325: a late artifact load re-renders the page; keep the field the user is typing in.
+         const activeField = documentRef.activeElement;
+         const focusSelector = activeField && activeField.tagName === 'INPUT' && page.contains(activeField)
+           ? (activeField.dataset?.mastersAction ? `input[data-masters-action="${activeField.dataset.mastersAction}"]` : (activeField.classList.contains('masters-search-input') ? 'input.masters-search-input' : null))
+           : null;
+         const focusSelection = focusSelector ? [activeField.selectionStart, activeField.selectionEnd] : [0, 0];
          const toolbar = element(documentRef, 'div', 'masters-toolbar');
          const filters = element(documentRef, 'div', 'masters-filter-tabs');
         [['ALL', '전체'], ['LIVE_13F', '13F 연결'], ['METHOD_ONLY', '방법론 전용']].forEach(([value, label]) => filters.appendChild(button(documentRef, `masters-filter-tab${state.filter === value ? ' is-active' : ''}`, label, 'filter', value)));
@@ -1064,7 +1091,7 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
           });
         });
         searchLabel.appendChild(input);
-        toolbar.append(filters, searchLabel);
+        toolbar.append(filters, searchLabel, button(documentRef, 'masters-filter-tab masters-ticker-jump', '종목으로 역조회', 'goto-ticker-lookup', 'tickerIndex'));
          const matchesList = registry.filter((manager) => (state.filter === 'ALL' || manager.type === state.filter) && matches(manager, state.query));
          const selected = matchesList.find((manager) => manager.id === state.selectedId) || matchesList[0] || null;
          if (selected) state.selectedId = selected.id;
@@ -1144,21 +1171,30 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
            if (typeof root?.history?.back === 'function') root.history.back();
            else if (state.arrivalContext?.returnContext?.route && typeof root?.showPage === 'function') root.showPage(state.arrivalContext.returnContext.route);
          });
-          const tickerLookup = createTickerLookup(documentRef, state.tickerIndex, registry, state.tickerQuery);
-          page.dataset.aioMastersTickerIndex = state.tickerIndex ? 'connected' : (state.tickerIndexError ? 'fallback' : 'loading');
-          content.replaceChildren(...[toolbar, tickerLookup, arrival].filter(Boolean));
+          const tickerLoadState = state.tickerIndex ? 'ready' : (state.tickerIndexError && !state.loadingCapabilities.has('tickerIndex') ? 'error' : (state.loadingCapabilities.has('tickerIndex') ? 'loading' : 'idle'));
+          const tickerLookup = createTickerLookup(documentRef, state.tickerIndex, registry, state.tickerQuery, tickerLoadState);
+          page.dataset.aioMastersTickerIndex = tickerLoadState === 'ready' ? 'connected' : (tickerLoadState === 'error' ? 'fallback' : 'loading');
+          // P1325: manager cards (the investors) come first; the reverse lookup and the coverage
+          // explanation are secondary and follow. The toolbar carries a jump link to the lookup.
+          content.replaceChildren(...[arrival, toolbar, layout, tickerLookup].filter(Boolean));
          if (coverage) content.appendChild(coverage);
-         content.appendChild(layout);
+         if (focusSelector) {
+           const nextField = content.querySelector(focusSelector);
+           if (nextField && documentRef.activeElement !== nextField) {
+             nextField.focus({ preventScroll: true });
+             try { nextField.setSelectionRange(focusSelection[0], focusSelection[1]); } catch { /* non-text input */ }
+           }
+         }
       };
       const fetchFn = root?.fetch || globalThis.fetch;
       const loadJson = (url) => loadJsonArtifact(fetchFn, url, { signal: scope?.signal });
-      const loadOptionalArtifact = async (key, url) => {
+      const loadOptionalArtifact = async (key, url, options = {}) => {
         if (!isAlive() || state[key] != null || state.loadingCapabilities.has(key)) return;
         state.loadingCapabilities.add(key);
         state[`${key}Error`] = false;
         page.dataset[`aioMasters${key[0].toUpperCase()}${key.slice(1)}`] = 'loading';
         try {
-          state[key] = await loadJson(url);
+          state[key] = await loadJsonArtifact(fetchFn, url, { signal: scope?.signal, ...options });
           if (!isAlive()) return;
           page.dataset[`aioMasters${key[0].toUpperCase()}${key.slice(1)}`] = 'connected';
         } catch (error) {
@@ -1238,6 +1274,8 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
         const action = target.dataset.mastersAction;
         const value = target.dataset.mastersValue;
         const previousSelection = state.selectedId;
+        if (action === 'retry-ticker-index') { state.tickerIndexError = false; loadOptionalArtifact('tickerIndex', TICKER_INDEX_REFERENCE_URL, TICKER_INDEX_LOAD_OPTIONS); }
+        if (action === 'goto-ticker-lookup') loadOptionalArtifact('tickerIndex', TICKER_INDEX_REFERENCE_URL, TICKER_INDEX_LOAD_OPTIONS);
         if (action === 'filter') { state.filter = value; }
         if (action === 'select-manager') { state.selectedId = value; state.view = 'changes'; state.actionFilter = 'ALL'; state.holdingsQuery = ''; state.page = 1; }
         if (action === 'view') { state.view = value; state.page = 1; }
@@ -1262,6 +1300,7 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
             loadOptionalArtifact('securityMaster', SECURITY_MASTER_URL);
             loadOptionalArtifact('referenceMaster', SECURITY_MASTER_REFERENCE_URL);
           }
+          if (action === 'goto-ticker-lookup') queueMicrotask(() => { const field = page.querySelector('.masters-ticker-lookup-input'); field?.scrollIntoView({ block: 'center', behavior: 'auto' }); field?.focus({ preventScroll: true }); });
           if (action === 'select-manager' || action === 'view' || (action === 'change-filter' && previousSelection !== state.selectedId)) queueMicrotask(focusDetail);
         }
       };
@@ -1275,7 +1314,7 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
          }
          state.page = 1;
          render();
-         if (target.dataset.mastersAction === 'ticker-search') loadOptionalArtifact('tickerIndex', TICKER_INDEX_REFERENCE_URL);
+         if (target.dataset.mastersAction === 'ticker-search' && !state.tickerIndexError) loadOptionalArtifact('tickerIndex', TICKER_INDEX_REFERENCE_URL, TICKER_INDEX_LOAD_OPTIONS);
          queueMicrotask(() => {
            const nextInput = page.querySelector(`[data-masters-action="${target.dataset.mastersAction}"]`);
            nextInput?.focus({ preventScroll: true });
@@ -1284,6 +1323,10 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
       };
       page.addEventListener('click', onClick);
       page.addEventListener('input', onInput);
+      // P1330: load the ticker ledger on first focus of the lookup field (not at mount — budget).
+      const onFocusIn = (event) => { if (event.target?.dataset?.mastersAction === 'ticker-search' && !state.tickerIndex && !state.tickerIndexError) loadOptionalArtifact('tickerIndex', TICKER_INDEX_REFERENCE_URL, TICKER_INDEX_LOAD_OPTIONS); };
+      page.addEventListener('focusin', onFocusIn);
+      bag.add(() => page.removeEventListener('focusin', onFocusIn));
       bag.add(() => page.removeEventListener('click', onClick));
       bag.add(() => page.removeEventListener('input', onInput));
        bag.add(() => { delete page.dataset.aioArchitectureRoute; delete page.dataset.aioArchitectureRenderer; delete page.dataset.aioContentKind; delete page.dataset.aioReviewedAt; delete page.dataset.aioMastersData; delete page.dataset.aioMastersCoverageState; delete page.dataset.aioMastersCurrentFull; delete page.dataset.aioMastersStaleFull; delete page.dataset.aioMastersPreviewOnly; delete page.dataset.aioMastersMetadataOnly; delete page.dataset.aioMastersMethodOnly; delete page.dataset.aioMastersOfficialPrinciples; delete page.dataset.aioMastersVerifiedSecurityRecords; delete page.dataset.aioMastersLatestPeriodMissing; delete page.dataset.aioMastersHoldings; delete page.dataset.aioMastersCatalog; delete page.dataset.aioMastersPreviews; delete page.dataset.aioMastersDiscovery; delete page.dataset.aioMastersPrinciples; delete page.dataset.aioMastersSelectedShard; delete page.dataset.aioMastersSecurityMaster; delete page.dataset.aioMastersReferenceMaster; delete page.dataset.aioMastersHistory; delete page.dataset.aioMastersHistoryRows; delete page.dataset.aioMastersIssuerAggregates; delete page.dataset.aioMastersTickerIndex; delete page.dataset.aioMastersView; delete page.dataset.aioMastersFullRows; delete page.dataset.aioMastersComparisonRows; delete page.dataset.aioMastersActionFilter; content.replaceChildren(); });

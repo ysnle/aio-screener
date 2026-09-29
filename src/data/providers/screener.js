@@ -39,6 +39,30 @@ function finite(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
+// P1318/R664: the market-cap filter accepted only a decision-grade *live* market cap, which
+// the free quote tier never supplies, so every size bucket returned 0 rows. A size bucket is a
+// reference filter, not a trading input: SEC shares outstanding × the same artifact's adjusted
+// close gives a reproducible USD reference value. Share-basis errors (XBRL scale, ADR ratio,
+// share-class mix) show up as implausible daily turnover, so those rows stay unknown instead of
+// landing in the wrong bucket. Never used as a factor or a decision input.
+export const REFERENCE_MCAP_TURNOVER_BOUNDS = Object.freeze({ min: 0.0005, max: 0.2 });
+export function referenceMarketCapFrom(factor = {}, currency = null) {
+  const price = finite(factor.pePrice);
+  const shares = finite(factor.valuationSharesOutstanding);
+  const dollarVolume = finite(factor.dollarVolume30d);
+  if (String(currency || '').toUpperCase() !== 'USD' || price == null || price <= 0 || shares == null || shares <= 0) return null;
+  const value = price * shares;
+  const turnover = dollarVolume != null && dollarVolume > 0 ? dollarVolume / value : null;
+  if (turnover == null || turnover < REFERENCE_MCAP_TURNOVER_BOUNDS.min || turnover > REFERENCE_MCAP_TURNOVER_BOUNDS.max) return null;
+  return Object.freeze({
+    billions: Math.round(value / 1e8) / 10,
+    basis: 'sec-shares-x-artifact-close',
+    priceBasis: factor.pePriceBasis || null,
+    sharesObservedAt: factor.valuationSharesObservedAt || null,
+    allowedUse: 'reference-only'
+  });
+}
+
 function numberOrNull(value) {
   return value == null || typeof value === 'boolean' || (typeof value === 'string' && !value.trim()) ? null : finite(Number(value));
 }
@@ -397,6 +421,7 @@ export function createScreenerProvider({
           ema21: finite(factor.ema21),
           ema60: finite(factor.ema60),
           mcap: liveEvidenceEligible && marketCapCurrency === 'USD' ? live.mcap : null,
+          referenceMarketCap: referenceMarketCapFrom(factor, artifactCurrency),
           nativeMarketCap: live.marketCap == null ? null : { value: live.marketCap, currency: marketCapCurrency, observedAt: live._mcapObservedAt, source: live._mcapSource, allowedUse: 'reference-only' },
           _mcapObservedAt: live._mcapObservedAt,
           _mcapFetchedAt: live._mcapFetchedAt,

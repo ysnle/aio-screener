@@ -10,41 +10,24 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { deriveMarketSession } from './build-market-snapshot.mjs';
-import { isLatestUsRegularClose } from '../src/ai/time/market-session.js';
 
 const ROOT = join(fileURLToPath(new URL('..', import.meta.url)));
 const DATA_DIR = join(ROOT, 'public-data');
-const NOW = process.env.AIO_LINEAGE_AS_OF ? new Date(process.env.AIO_LINEAGE_AS_OF) : new Date();
-const FUTURE_TOLERANCE_MINUTES = 15;
-
-function readJsonIfPresent(file) {
-  try { return JSON.parse(readFileSync(join(DATA_DIR, file), 'utf8')); } catch { return null; }
+// P1283/R634: the production audit always uses the wall clock. Deterministic
+// fixtures inject `now` into evaluateArtifact; ambient environment values must
+// never let a caller move the live freshness reference time backwards.
+function createAuditTime(wallClock = Date.now) {
+  return new Date(wallClock());
 }
-
-const MARKET_SNAPSHOT_CONTEXT = readJsonIfPresent('market-snapshot.json');
-const DATA_CONTEXT = readJsonIfPresent('data.json');
-const PUBLISHABLE_QUOTE_QUALITIES = new Set(['CURRENT', 'CLOSED_CURRENT', 'DELAYED']);
-
-function marketClosedGraceEligible(name, { now = NOW, snapshot = MARKET_SNAPSHOT_CONTEXT, data = DATA_CONTEXT } = {}) {
-  if (name !== 'data.json' && name !== 'market-snapshot.json') return false;
-  const coverage = snapshot?.coverage;
-  const quality = snapshot?.quality;
-  const quotes = Array.isArray(snapshot?.quotes) ? snapshot.quotes : [];
-  if (!quotes.some((row) => isLatestUsRegularClose({ instrumentId: row?.instrumentId, observedAt: row?.observedAt, now: now.getTime() }))) return false;
-  const quoteQualityComplete = Number(coverage?.tier0Required) > 0
-    && quotes.length === Number(coverage.tier0Required)
-    && quotes.every((row) => PUBLISHABLE_QUOTE_QUALITIES.has(row?.quality)
-      && !['SOURCE_UNAVAILABLE', 'STALE_UNEXPECTED', 'UNKNOWN'].includes(String(row?.session || 'UNKNOWN'))
-      // P1045: publication-time labels cannot certify observation freshness
-      // at audit time. Reuse the producer policy without a stale provider hint;
-      // in particular, 24/7 crypto must not inherit an equity weekend grace.
-      && ['CURRENT_SESSION', 'DELAYED_IN_SESSION', 'MARKET_CLOSED', 'PREVIOUS_CLOSE_EXPECTED'].includes(
-        deriveMarketSession({ instrumentId: row?.instrumentId, observedAt: row?.observedAt, now: now.getTime() })));
-  if (snapshot?.status !== 'published' || data?.meta?.cycleStatus !== 'PUBLISHED') return false;
-  if (!coverage || coverage.tier0Observed !== coverage.tier0Required || quality?.gate !== 'QG-01_PASS') return false;
-  if (Array.isArray(snapshot.errors) && snapshot.errors.length) return false;
-  return quoteQualityComplete;
+const NOW = createAuditTime();
+const FUTURE_TOLERANCE_MINUTES = 15;
+function parseFreshnessMode(args = []) {
+  return args.includes('--code-release') ? 'unsupported' : 'strict';
+}
+const FRESHNESS_MODE = parseFreshnessMode(process.argv);
+if (FRESHNESS_MODE === 'unsupported') {
+  console.error('Strict-only data-lineage audit: --code-release was removed; refresh stale live-core data before release.');
+  process.exit(2);
 }
 
 const fail = (message, detail = '') => ({ status: 'FAIL', message, detail });
@@ -71,12 +54,12 @@ function parseDate(value) {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
-function hoursSince(date) {
-  return (NOW.getTime() - date.getTime()) / 3600000;
+function hoursSince(date, now = NOW) {
+  return (now.getTime() - date.getTime()) / 3600000;
 }
 
-function ageDetail(date) {
-  const age = hoursSince(date);
+function ageDetail(date, now = NOW) {
+  const age = hoursSince(date, now);
   return {
     ageHours: Number(age.toFixed(2)),
     ageDays: Number((age / 24).toFixed(2)),
@@ -156,25 +139,22 @@ function extractTimestamp(data, policy) {
   return firstPresent(data, policy.timestamp ?? []);
 }
 
-function evaluateArtifact(name, data) {
+function evaluateArtifact(name, data, { now = NOW } = {}) {
   const policy = POLICIES[name];
   if (!policy) return { artifact: name, policy: 'unregistered', status: 'FAIL', checks: [fail('tracked artifact has no lineage policy')] };
 
   const timestamp = extractTimestamp(data, policy);
   const date = parseDate(timestamp.value);
   const results = [];
-  const age = date ? ageDetail(date) : null;
+  const age = date ? ageDetail(date, now) : null;
   const source = sourceOf(data);
   const failures = failuresOf(data);
 
   if (!timestamp.value) results.push(fail('required lineage timestamp is missing', policy.custom ?? policy.timestamp?.join(', ')));
   else if (!date) results.push(fail('lineage timestamp is not parseable', `${timestamp.path}=${timestamp.value}`));
   else if (age.future) results.push(fail('lineage timestamp is unexpectedly in the future', `${timestamp.path}=${timestamp.value}`));
-  else if (policy.maxAgeHours != null && age.ageHours > policy.maxAgeHours && marketClosedGraceEligible(name)) {
-    results.push(info('artifact freshness evaluated under market-closed grace', `${age.ageHours}h old; Tier-0 snapshot coverage is complete`));
-  } else if (policy.maxAgeHours != null && age.ageHours > policy.maxAgeHours) {
-    const severity = policy.kind === 'live-core' ? 'FAIL' : 'WARN';
-    results.push(severity === 'FAIL'
+  else if (policy.maxAgeHours != null && age.ageHours > policy.maxAgeHours) {
+    results.push(policy.kind === 'live-core'
       ? fail('artifact exceeded freshness SLA', `${age.ageHours}h > ${policy.maxAgeHours}h`)
       : warn('artifact is older than its reference freshness window', `${age.ageHours}h > ${policy.maxAgeHours}h`));
   } else if (date) results.push(info('timestamp is within policy window', `${age.ageHours}h old`));
@@ -199,7 +179,7 @@ function evaluateArtifact(name, data) {
       results.push(fail('weekly calendar does not declare a parseable window', `weekStart=${data.weekStart} weekEnd=${data.weekEnd}`));
     } else if (weekEnd.getTime() < weekStart.getTime()) {
       results.push(fail('weekly calendar window ends before it starts', `${data.weekStart}..${data.weekEnd}`));
-    } else if (weekEnd.getTime() < NOW.getTime()) {
+    } else if (weekEnd.getTime() < now.getTime()) {
       results.push(warn('weekly calendar window already ended', `weekEnd=${data.weekEnd}`));
     } else {
       results.push(info('weekly calendar declares an open window', `${data.weekStart}..${data.weekEnd}`));
@@ -236,34 +216,6 @@ function evaluateArtifact(name, data) {
 
 function runContractSelfTests() {
   const weekendNow = new Date('2026-09-05T12:00:00Z');
-  const graceFixture = {
-    now: weekendNow,
-    data: { meta: { cycleStatus: 'PUBLISHED' } },
-    snapshot: { status: 'published', coverage: { tier0Required: 2, tier0Observed: 2 }, quality: { gate: 'QG-01_PASS' }, errors: [], quotes: [
-      { instrumentId: '^GSPC', observedAt: '2026-09-04T20:00:00Z', quality: 'CLOSED_CURRENT', session: 'MARKET_CLOSED' },
-      { instrumentId: 'BTC-USD', observedAt: '2026-09-05T11:59:00Z', quality: 'CURRENT', session: 'CURRENT_SESSION' }
-    ] }
-  };
-  if (!marketClosedGraceEligible('market-snapshot.json', graceFixture)) throw new Error('self-test: valid closed-session reference was rejected');
-  for (const observedAt of ['2026-09-05T01:18:53Z', null, '2026-09-05T13:00:00Z']) {
-    const stale = structuredClone(graceFixture);
-    stale.snapshot.quotes[1].observedAt = observedAt;
-    if (marketClosedGraceEligible('data.json', stale)) throw new Error('self-test: stale/missing/future crypto received weekend grace');
-  }
-  const oldClose = structuredClone(graceFixture);
-  oldClose.snapshot.quotes[0].observedAt = '2026-08-28T20:00:00Z';
-  if (marketClosedGraceEligible('market-snapshot.json', oldClose)) throw new Error('self-test: old equity close received weekend grace');
-  const reopened = structuredClone(graceFixture);
-  reopened.now = new Date('2026-09-08T13:30:00Z');
-  reopened.snapshot.quotes[1].observedAt = '2026-09-08T13:29:00Z';
-  if (marketClosedGraceEligible('data.json', reopened)) throw new Error('self-test: weekday received blanket weekend grace');
-  const holiday = structuredClone(graceFixture);
-  holiday.now = new Date('2026-09-07T16:00:00Z');
-  holiday.snapshot.quotes[1].observedAt = '2026-09-07T15:59:00Z';
-  if (!marketClosedGraceEligible('data.json', holiday)) throw new Error('self-test: latest close on Labor Day was rejected');
-  const staleKorea = structuredClone(holiday);
-  staleKorea.snapshot.quotes[1] = { instrumentId: '^KS11', observedAt: '2026-09-04T06:30:00Z', quality: 'CLOSED_CURRENT', session: 'MARKET_CLOSED' };
-  if (marketClosedGraceEligible('data.json', staleKorea)) throw new Error('self-test: stale Korea inherited US holiday grace');
   const fixture = { meta: { generatedAt: '2026-07-15T00:00:00Z', releaseAt: '2026-07-01T00:00:00Z' } };
   const selected = extractTimestamp(fixture, POLICIES['data.json']);
   if (selected.path !== 'meta.generatedAt') throw new Error('self-test: generatedAt selector drifted');
@@ -273,6 +225,28 @@ function runContractSelfTests() {
   if (history.value !== '2026-07-15') throw new Error('self-test: history last date selector drifted');
   const backtest = extractTimestamp([{ asOf: '2026-07-14T00:00:00Z' }, { asOf: '2026-07-15T00:00:00Z' }], POLICIES['backtest-history.json']);
   if (backtest.value !== '2026-07-15T00:00:00Z') throw new Error('self-test: backtest last asOf selector drifted');
+
+  // P1283/R634: lineage has no runtime flag that can downgrade strict live-core freshness.
+  const fixtureClock = Date.parse('2026-09-08T14:00:00Z');
+  if (createAuditTime(() => fixtureClock).getTime() !== fixtureClock) {
+    throw new Error('P1283/R634 self-test: deterministic freshness fixtures must inject a clock directly, not through ambient environment');
+  }
+  if (parseFreshnessMode([]) !== 'strict' || parseFreshnessMode(['--code-release']) !== 'unsupported') {
+    throw new Error('P1283/R634 self-test: freshness audit must stay strict-only and reject the removed downgrade flag');
+  }
+  const staleAt = new Date(weekendNow.getTime() - 13 * 3600000).toISOString();
+  const staleData = { meta: { generatedAt: staleAt, cycleStatus: 'PUBLISHED' } };
+  // P1287/R637: a stale live-core artifact fails at a closed-market reference time as well.
+  const strictStaleData = evaluateArtifact('data.json', staleData, {
+    now: weekendNow
+  });
+  const staleSnapshot = { generatedAt: new Date(weekendNow.getTime() - 25 * 3600000).toISOString(), status: 'published', quality: { gate: 'QG-01_PASS' } };
+  const strictStaleSnapshot = evaluateArtifact('market-snapshot.json', staleSnapshot, {
+    now: weekendNow
+  });
+  if (strictStaleData.status !== 'FAIL' || strictStaleSnapshot.status !== 'FAIL') throw new Error('P1287/R637 self-test: stale live-core artifacts stopped blocking during market-closed periods');
+  const invalidReleaseData = evaluateArtifact('data.json', { meta: { generatedAt: 'not-a-date' } }, { now: weekendNow });
+  if (invalidReleaseData.status !== 'FAIL') throw new Error('P1283/R634 self-test: invalid lineage timestamp was accepted');
 }
 
 runContractSelfTests();
@@ -296,6 +270,7 @@ const warnings = artifacts.filter(artifact => artifact.status === 'WARN');
 const report = {
   schemaVersion: 'data-lineage-audit-v1',
   asOf: NOW.toISOString(),
+  freshnessMode: FRESHNESS_MODE,
   trackedArtifacts: artifacts.length,
   pass: artifacts.filter(artifact => artifact.status === 'PASS').length,
   warnings: warnings.length,
@@ -368,7 +343,7 @@ report.nested = {
 if (process.argv.includes('--json')) {
   console.log(JSON.stringify(report, null, 2));
 } else {
-  console.log(`Data lineage audit: ${report.trackedArtifacts} artifacts | PASS=${report.pass} WARN=${report.warnings} FAIL=${report.failures}`);
+  console.log(`Data lineage audit: ${report.trackedArtifacts} artifacts | mode=${report.freshnessMode} PASS=${report.pass} WARN=${report.warnings} FAIL=${report.failures}`);
   for (const artifact of artifacts) {
     const age = artifact.ageHours == null ? 'n/a' : `${artifact.ageHours}h`;
     const commit = artifact.lastCommit?.sha ? artifact.lastCommit.sha.slice(0, 8) : 'no-git-revision';

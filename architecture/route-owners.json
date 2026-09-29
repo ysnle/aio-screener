@@ -136,7 +136,7 @@
       "loadingStrategy": "route-dynamic-import",
       "contestedIds": [],
       "legacyWriterEvidence": [],
-      "p1207Boundary": "sentiment.js and entity.js consume the same ^SKEW quote observation (market.volatility.skew/index, observedAt, revisionId) for the sentiment and options cards; the legacy sentiment data-snap SKEW writer is deleted.",
+      "p1207Boundary": "sentiment.js and entity.js consume the same ^SKEW quote observation (market.volatility.skew/index, observedAt, revisionId) for the sentiment cards (the options route retired in v56.79); the legacy sentiment data-snap SKEW writer is deleted.",
       "notes": "W01-B (2026-09-19): sentiment narrative cut over to the single ViewModel (src/domain/sentiment/narrative.js + src/ui/pages/sentiment.js). Legacy `_generateSentimentAnalysis`/`_updateSentimentActionGuides` are inert stubs and the aio-data.js deferred timers are removed; sent-analysis-text is native from the same revision as the P/C card. Static numeric seeds replaced with fail-closed placeholders. P1207 adds one typed SKEW observation shared with options."
     },
     "briefing": {
@@ -295,7 +295,7 @@
       "p779Boundary": "entity.js owns the SEC annual-data availability/source badge from the normalized sec-fundamentals artifact.",
       "p815Boundary": "entity.js now owns only the bounded SEC-derived fund-analysis-text summary line from normalized fundamentals; the former inline aggregate report is inert and the multi-source report sections, charts, and AI narrative remain legacy-owned.",
         "p832Boundary": "entity.js owns the bounded SEC annual-fact core report from sec-report.v3: filing identity, period/submission/acceptance metadata, point-in-time status/counts, coverage count, finite observed metrics, and explicit freshness state. The multi-source report sections, peer/news/external panels, charts, and AI narrative remain legacy-owned.",
-      "notes": "Shares entity.js render() with ticker/options; P832 is a bounded official-SEC core report cutover, not a full multi-source fundamental-report cutover."
+      "notes": "Shares entity.js render() with ticker (options route retired v56.79); P832 is a bounded official-SEC core report cutover, not a full multi-source fundamental-report cutover."
     },
     "themes": {
       "lifecycleOwner": "native",
@@ -453,33 +453,23 @@
       "narrativeOwner": "legacy",
       "nativeModule": "src/ui/pages/news.js (createNewsPage route=market-news)",
       "loadingStrategy": "route-dynamic-import",
-      "contestedIds": [],
-      "legacyWriterEvidence": [],
-      "p1209Boundary": "news.js renders normalized display text through text nodes after one bounded entity decode; URLs are excluded and hostile markup remains inert text.",
-      "notes": "P769/P770/P1209: native news.js owns the primary live-news-feed and briefing-live-news-list DOM, counts, completed 08:00 KST empty states/timestamps, reveal controls, and normalized display text from canonical news state. Legacy RSS/filter/translation/model handlers remain compatibility producers; the secondary Korean rewrite, briefing digest/AI narrative, and data pipeline remain legacy-owned for the next content packet."
-    },
-    "options": {
-      "lifecycleOwner": "native",
-      "rendererOwner": "native",
-      "dataOwner": "native",
-      "chartOwner": "legacy",
-      "narrativeOwner": "legacy",
-      "nativeModule": "src/ui/pages/entity.js (createEntityPage route=options)",
-      "loadingStrategy": "route-dynamic-import",
       "nativePrimarySurface": [
-        "#page-options #opt-vix-val-secondary",
-        "#page-options #opt-pcr-val-secondary",
-        "#page-options #opt-skew-val-secondary"
+        "#page-market-news #news-sent-score",
+        "#page-market-news #news-sent-label",
+        "#page-market-news #news-24h-count",
+        "#page-market-news #news-24h-sources",
+        "#page-market-news #news-risk-count",
+        "#page-market-news #news-risk-label",
+        "#page-market-news #last-fetch-time"
       ],
-      "legacyWriterEvidence": [
-        "js/aio-data.js: _aioIsNativeMacroElement fences generic live quote/PCR writers when the options page is native",
-        "js/aio-core.js: applyDataSnapshot skips data-snap sinks under the native options page",
-        "index.html: initOptionsPage PCR fallback skips native options elements"
-      ],
-      "p1207Boundary": "options.skew is a native projection of the shared ^SKEW quote observation and preserves metricId, instrumentId, unit, observedAt, revisionId, source, and reference-only status.",
-      "p778Boundary": "entity.js owns only the three current replacement-metric values (VIX/PCR/SKEW) from the normalized entity options projection. The page is explicitly not an options-chain source: explanatory copy, old IV/VVIX/GEX/narrative handlers, and any future chain/chart surface remain legacy/reference-only.",
       "contestedIds": [],
-      "notes": "Shares entity.js render() with ticker/fundamental; options renderer cutover is bounded to the three current replacement-metric sinks. P1207 makes SKEW identity/observedAt/revision identical to the sentiment card."
+      "legacyWriterEvidence": [
+        "js/aio-data.js:_aioUpdateNewsSourceMeta writes [data-news-source-count] from the stable registered-source registry; native news.js does not overwrite it with the filtered result source count",
+        "js/aio-data.js:_aioUpdateNewsSummaryFromItems remains a compatibility scoring producer for chart/signal consumers and no longer writes the native summary sinks"
+      ],
+      "p1209Boundary": "news.js renders normalized display text through text nodes after one bounded entity decode; URLs are excluded and hostile markup remains inert text.",
+      "p1268Boundary": "news.js owns the market-news sentiment score/label, 08:00 KST cycle count/current-filter source count, risk-signal count/copy, and cut status from one normalized model. scoring.js excludes headline-only or unverified rows from article-level sentiment/risk; feed-query topics are not used for topic-specific risk signals until reviewed. Legacy summary calls retain compatibility return values without writing these sinks.",
+      "notes": "P769/P770/P1209/P1268: native news.js owns the primary live-news-feed, briefing-live-news-list, and market-news summary DOM from canonical news state. The registered-source count remains the stable registry total; filtered source counts are shown only in the 24h summary. Legacy RSS/filter/translation/model handlers remain compatibility producers; the secondary Korean rewrite, briefing digest/AI narrative, and data pipeline remain legacy-owned for the next content packet."
     },
     "principles": {
       "lifecycleOwner": "native",
@@ -547,9 +537,9 @@
     }
   },
   "counts": {
-    "totalRoutes": 20,
-    "lifecycleNative": 20,
-    "rendererNative": 20,
+    "totalRoutes": 19,
+    "lifecycleNative": 19,
+    "rendererNative": 19,
     "rendererNativeRoutes": [
       "home",
       "signal",
@@ -565,7 +555,6 @@
       "portfolio",
       "ticker",
       "market-news",
-      "options",
       "principles",
       "masters",
       "atlas",
@@ -573,7 +562,7 @@
       "screener"
     ],
     "rendererLegacyRoutes": [],
-    "dataNative": 20,
+    "dataNative": 19,
     "dataNativeRoutes": [
       "home",
       "signal",
@@ -589,7 +578,6 @@
       "portfolio",
       "ticker",
       "market-news",
-      "options",
       "principles",
       "masters",
       "atlas",
@@ -624,7 +612,6 @@
       "portfolio",
       "ticker",
       "market-news",
-      "options",
       "principles",
       "masters",
       "atlas",

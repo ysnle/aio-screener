@@ -11,7 +11,7 @@ Use this reference to select QA depth after code, data, UI, or workflow edits.
 
 ## Tier 2: Page Function Coverage
 
-Check all user-facing pages touched by the change and any shared navigation path. For broad edits, inspect the full page set, including dashboard, signal, breadth, sentiment, sectors, themes, macro, options, portfolio, screener, ticker, and chat-related surfaces.
+Check all user-facing pages touched by the change and any shared navigation path. For broad edits, inspect the full page set, including dashboard, signal, breadth, sentiment, sectors, themes, macro, portfolio, screener, ticker, and chat-related surfaces (19 routes; the `options` route is retired and `#options` aliases to `sentiment`).
 
 ## Tier 3: Data Pipelines
 
@@ -19,7 +19,7 @@ Verify public-data generation, screener artifacts, quote fallbacks, macro/sentim
 
 ## Tier 4: Charts And Layout
 
-Check chart creation/destroy paths, canvas availability, responsive layout, overflow defense, Korean text wrapping, and no hidden grid artifacts.
+Check chart creation/destroy paths, canvas availability, desktop layout (desktop-only, R474; responsive CSS is compatibility code, not an acceptance target), overflow defense, Korean text wrapping, and no hidden grid artifacts.
 
 ## Tier 5: Security
 

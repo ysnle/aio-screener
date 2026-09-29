@@ -18,7 +18,7 @@ const UA = {
   'accept-language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
 };
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const FALLBACK_PAGE_IDS = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes','theme-detail','portfolio','ticker','market-news','options','screener','guide'];
+const FALLBACK_PAGE_IDS = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes','theme-detail','portfolio','ticker','market-news','screener','guide'];
 function loadRequiredPageIds() {
   try {
     const owners = JSON.parse(readFileSync(join(ROOT, 'architecture/route-owners.json'), 'utf8'));
@@ -45,7 +45,6 @@ const PAGE_TOPIC_MAP = {
   portfolio:['equity','earnings','flows','insider','macro','credit','geo'],
   ticker:['equity','earnings','insider','semi','power','optical','healthcare'],
   'market-news':['macro','market-note','credit','geo','semi','equity','kr-market','ai-policy','optical','power','crypto','earnings','healthcare','japan','flows','insider'],
-  options:['macro','equity','flows','earnings','crypto','geo'],
   screener:['equity','earnings','insider','semi','power','optical','healthcare','kr-market'],
   'kr-home':['kr-market','semi','equity','macro','credit','earnings','flows'],
   'kr-supply':['kr-market','equity','geo','semi','power','optical','credit','flows','insider'],

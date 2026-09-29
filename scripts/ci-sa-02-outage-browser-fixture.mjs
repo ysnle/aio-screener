@@ -29,7 +29,7 @@ async function runOnce(browser, run) {
   await page.route('**/*', (route) => route.request().url().startsWith(`http://127.0.0.1:${port}/`) ? route.continue() : route.abort());
   await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.waitForFunction(() => typeof window.AIO_ARCH === 'object' && typeof window.showPage === 'function', { timeout: 30000 });
-  await page.waitForFunction(() => document.getElementById('live-quote-ts-topbar')?.textContent?.includes('기준 시세'), { timeout: 30000 });
+  await page.waitForFunction(() => document.getElementById('live-quote-ts')?.textContent?.includes('서버 '), { timeout: 30000 });
   // The first outage fallback request is intentionally asynchronous. Sample
   // after the initial retry window so the fixture compares stable fallback
   // state rather than racing the first fail-count increment.
@@ -43,9 +43,9 @@ async function runOnce(browser, run) {
     return {
       snapshotSources: sources.filter((entry) => String(entry?.source || '').includes('snapshot')).length,
       topbar: {
-        text: document.getElementById('live-quote-ts-topbar')?.textContent || '',
-        className: document.getElementById('live-quote-ts-topbar')?.className || '',
-        title: document.getElementById('live-quote-ts-topbar')?.getAttribute('title') || ''
+        text: document.getElementById('live-quote-ts')?.textContent || '',
+        className: document.getElementById('live-quote-ts')?.dataset?.currentness || '',
+        title: document.getElementById('live-quote-ts')?.getAttribute('title') || ''
       },
       quoteFailCount: typeof window.fetchLiveQuotes === 'function' ? (window.fetchLiveQuotes._failCount || 0) : null
     };
@@ -55,12 +55,13 @@ async function runOnce(browser, run) {
   const lateQuoteRequests = external.filter((url) => /yahoo|stooq|quote|corsproxy|allorigins|codetabs/i.test(url)).length;
   const late = await page.evaluate(() => ({
     quoteFailCount: typeof window.fetchLiveQuotes === 'function' ? (window.fetchLiveQuotes._failCount || 0) : null,
-    topbar: document.getElementById('live-quote-ts-topbar')?.textContent || ''
+    topbar: document.getElementById('live-quote-ts')?.textContent || ''
   }));
   await page.close();
-  const topbarOk = /기준 시세/.test(early.topbar.text) && /\bfb-static\b/.test(early.topbar.className)
-    && /동일 출처 기준 스냅샷/.test(early.topbar.title);
-  const topbarStructuralOk = early.topbar.text.length > 0 && /\bfb-static\b/.test(early.topbar.className) && early.topbar.title.length > 0;
+  // P1326/R671: a server snapshot is labelled 종가/지난 시세 (never live) with the snapshot named in the title.
+  const topbarOk = /^서버 /.test(early.topbar.text) && /^(close|stale)$/.test(early.topbar.className)
+    && /서버 기준 스냅샷/.test(early.topbar.title);
+  const topbarStructuralOk = early.topbar.text.length > 0 && /^(close|stale)$/.test(early.topbar.className) && early.topbar.title.length > 0;
   const ok = early.snapshotSources >= 16
     && early.snapshotSources >= 16
      && topbarStructuralOk

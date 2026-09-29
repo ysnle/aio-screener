@@ -7,6 +7,7 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { buildUniverseReview, formatUniverseReviewIssue } from './build-universe-review.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(join(root, path), 'utf8');
@@ -21,11 +22,39 @@ const ageDays = (iso) => {
   return Number.isFinite(ms) ? (nowMs - ms) / 86400000 : null;
 };
 
-const core = read('js/aio-core.js');
+const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
 // P1134/R620: KR_THEME_MAP moved out of index.html's inline block C into js/aio-kr-data.js.
 const krData = read('js/aio-kr-data.js');
 const universe = JSON.parse(read('public-data/screener-universe.json'));
 const meta = universe.meta || {};
+
+// P1081/R605/QA-DATA-45: monthly review evidence must mirror the existing expiry
+// thresholds and must not disclose or change static-universe membership.
+const reviewFixture = {
+  meta: { lastBulkUpdate: '2026-01-01', staleAfterDays: 30, replaceAfterDays: 90 },
+  universe: [{ sym: 'AAA' }, { sym: 'AAA' }, { sym: 'BBB' }]
+};
+const reviewDue = buildUniverseReview(reviewFixture, { now: '2026-02-01T00:00:00.000Z' });
+const reviewSameMonth = buildUniverseReview(reviewFixture, { now: '2026-02-28T00:00:00.000Z' });
+const reviewExpired = buildUniverseReview(reviewFixture, { now: '2026-04-02T00:00:00.000Z' });
+const dueIssue = formatUniverseReviewIssue(reviewDue);
+const sameMonthIssue = formatUniverseReviewIssue(reviewSameMonth);
+const expiredIssue = formatUniverseReviewIssue(reviewExpired);
+check('P1081/R605/QA-DATA-45 static-db:monthly-review-counts', reviewDue.recordCount === 3 && reviewDue.uniqueCount === 2 && reviewDue.duplicateCount === 1,
+  'monthly review must report rows, unique symbols, and duplicates from the source array');
+check('P1081/R605/QA-DATA-45 static-db:monthly-review-threshold-dedup-and-no-membership', reviewDue.reviewThresholdPassed && !reviewDue.hardBoundaryPassed
+  && dueIssue.includes('<!-- aio-screener-universe-review:2026-02 -->')
+  && sameMonthIssue.includes('<!-- aio-screener-universe-review:2026-02 -->')
+  && !dueIssue.includes('AAA') && !dueIssue.includes('BBB'),
+'review threshold must use existing 30-day boundary, dedupe by UTC month, and omit constituent recommendations');
+check('P1081/R605/QA-DATA-45 static-db:monthly-review-preserves-hard-boundary', reviewExpired.hardBoundaryPassed
+  && expiredIssue.includes('Hard boundary exceeded') && expiredIssue.includes('fail-closed'),
+'monthly review must continue to disclose the existing 90-day hard expiry');
+const currentUniverseReview = buildUniverseReview(universe, { now: new Date(nowMs) });
+check('P1081/R605/QA-DATA-45 static-db:monthly-review-reflects-generated-mirror', currentUniverseReview.recordCount === Number(meta.recordCount)
+  && currentUniverseReview.uniqueCount === Number(meta.uniqueSymbols)
+  && currentUniverseReview.duplicateCount === Number(meta.duplicateSymbols),
+'review counts must match the generated screener-universe mirror');
 
 // S1: SCREENER_DB universe review window. staleAfterDays lapses to a warning
 // (lineage already warns); replaceAfterDays lapses to a hard failure.
@@ -44,14 +73,14 @@ check('static-db:universe-meta-present', typeof meta.source === 'string' && meta
 check('static-db:universe-record-count', Number(meta.recordCount) >= 100, `recordCount=${meta.recordCount}`);
 
 // S4: official calendar entries must not linger on a past meeting as next.
-// Expired nextRelease auto-nulls at runtime, but the registry itself must be
-// promoted (lastRelease advance) in the same data-refresh change.
+// A passed schedule date alone is not evidence that the event actually occurred;
+// keep lastRelease tied to a verified result and require only nextRelease to advance.
 const todayIso = new Date(nowMs).toISOString().slice(0, 10);
 const calBlock = core.match(/window\.AIO_MACRO_CALENDAR = \{[\s\S]*?\n\};/)?.[0] || '';
 const staleNext = [...calBlock.matchAll(/'([^']+)':\s*\{[^}]*?nextRelease:\s*'(\d{4}-\d{2}-\d{2})'/g)]
   .filter(([, , date]) => date < todayIso)
   .map(([full, key, date]) => `${key}=${date}`);
-check('static-db:calendar-no-past-nextRelease', staleNext.length === 0, `past nextRelease still registered: ${staleNext.join(', ')} (R605: promote lastRelease after each release)`);
+check('static-db:calendar-no-past-nextRelease', staleNext.length === 0, `past nextRelease still registered: ${staleNext.join(', ')} (R650: advance the schedule without inferring a completed result)`);
 
 // Expired events: the freshness registry keeps decided events as historical
 // context (getEventClaimState → historicalOnly), but entries past their claim

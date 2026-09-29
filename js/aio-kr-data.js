@@ -297,7 +297,7 @@ function renderKrThemeCardsFromMap() {
       var pillHtml = '<span class="kr-ticker-pill" data-live-symbol="' + sym + '" style="--bar-w:' + s.w + '%;--bar-c:' + barC + ';cursor:pointer;" data-action="showTicker" data-arg="' + sym + '" data-stop="1" title="' + (info.name||s.code) + ' ↗">' +
         '<span class="pill-code">' + s.code + '</span> ' +
         '<span class="pill-name">' + name + '</span> ' +
-        '<span class="pill-wt">' + s.w + '%</span> ' +
+        '<span class="pill-wt">' + (s.wLabel || (Math.round(s.w * 10) / 10) + '%') + '</span> ' +
         '<span class="pill-price" data-live-price="' + sym + '">' + priceStr + '</span> ' +
         '<span class="pill-pct" data-live-chg="' + sym + '" style="color:' + pctColor + ';">' + pctStr + '</span>' +
         '</span>';
@@ -353,7 +353,7 @@ function renderKrThemeCardsFromMap() {
 function renderKrThemePerfBars(ld) {
   refreshKrThemeRuntimeWeights();
   var c = document.getElementById('kr-theme-perf-bars'); if (!c||!ld||Object.keys(ld).length<5) return;
-  var N={'defense':' 방산','semi':'반도체','shipbuilding':' 조선','ai-sw':'AI/SW','power-grid':'전력기기','nuclear':' 원전','battery':' 2차전지','bio':' 바이오','kbeauty':' K뷰티','kcontent':' K콘텐츠','auto':' 자동차','robot':' 로봇','finance':' 금융','kfood':' K푸드','crypto':' 크립토','telecom':'통신','construction':' 건설','retail':' 유통','steel_chem':' 철강/화학','logistics':' 물류','medtech_kr':' 의료기기','energy_kr':' 에너지'};
+  var N={};Object.keys(window.AIO_KR_THEME_LABELS||{}).forEach(function(k){N[k]=window.AIO_KR_THEME_LABELS[k].split(' / ')[0];}); // P1327: one label owner
   var res=[];for(var tid in KR_THEME_MAP){var t=KR_THEME_MAP[tid],ws=0,vs=0;t.forEach(function(s){var d=ld[krTickerToYahoo(s.code)];if(d&&d.pct!==undefined&&s.w>0){vs+=d.pct*s.w;ws+=s.w;}});if(ws>0)res.push({id:tid,name:N[tid]||tid,perf:vs/ws});}
   if(!res.length)return;res.sort(function(a,b){return b.perf-a.perf;});var mx=Math.max.apply(null,res.map(function(r){return Math.abs(r.perf);}));if(mx<0.01)mx=1;
   var h='';res.forEach(function(r,i){var p=r.perf>=0,bw=Math.min(Math.abs(r.perf)/mx*100,100),cl=p?'var(--data-green)':'var(--data-red)',rk=i<3?'<b style="color:'+cl+';">'+(i+1)+'</b> ':'';
@@ -364,7 +364,7 @@ function showKrThemeDetail(themeId) {
   refreshKrThemeRuntimeWeights();
   var panel=document.getElementById('kr-theme-detail-panel'),content=document.getElementById('kr-theme-detail-content');
   if(!panel||!content)return;var tmap=KR_THEME_MAP[themeId];if(!tmap)return;var ld=window._liveData||{};
-  var CN={'defense':' K-방산/항공우주','semi':'반도체/HBM','shipbuilding':' 조선/해양','ai-sw':'AI/소프트웨어','power-grid':'전력기기/변압기','nuclear':' 원전/SMR','battery':' 2차전지/배터리','bio':' 바이오/제약','kbeauty':' K뷰티','kcontent':' K콘텐츠','auto':' 자동차/EV','robot':' 로봇/자동화','finance':' 금융','kfood':' K푸드','crypto':' 크립토','telecom':'통신','construction':' 건설/인프라','retail':' 유통','steel_chem':' 철강/화학','logistics':' 물류/운송','medtech_kr':' 의료기기','energy_kr':' 에너지/정유'};
+  var CN=window.AIO_KR_THEME_LABELS||{}; // P1327: one label owner (src/domain/themes/kr-themes.js)
   var cat=_krCatalystReferenceText(KR_THEME_CATALYSTS[themeId]||'');
   // 테마 통계 계산
   var ws=0,vs=0,upCnt=0,dnCnt=0,topStock=null,topPct=-999,botStock=null,botPct=999;
@@ -394,7 +394,7 @@ function showKrThemeDetail(themeId) {
     var pcs=pct!==null?((pct>=0?'+':'')+pct.toFixed(2)+'%'):'—';
     var lt=d?'<span style="color:var(--data-green);font-size:11px;">● 수신</span>':'<span style="color:var(--text-muted);font-size:11px;">○</span>';
     var rankIcon=idx===0?' ':idx===1?' ':idx===2?' ':'';
-    rows+='<tr style="background:'+(idx%2===0?'rgba(33,29,22,0.015)':'transparent')+';border-bottom:1px solid var(--surface-2);"><td style="padding:7px 8px;font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer;" data-action="showTicker" data-arg="'+sym+'" title="'+(info.name||t.code)+' 분석 →">'+rankIcon+'<span style="color:var(--accent);">'+(info.name||t.code)+'</span> <span style="font-size:10px;opacity:0.6;">↗</span><div style="font-size:11px;color:var(--text-muted);font-weight:400;">'+(info.sector||'')+' · '+t.code+'</div></td><td style="padding:7px 8px;font-size:13px;font-weight:800;font-family:var(--font-mono);text-align:right;">'+ps+'</td><td style="padding:7px 8px;font-size:13px;font-weight:900;font-family:var(--font-mono);text-align:right;color:'+pCol+';">'+pcs+'</td><td style="padding:7px 8px;font-size:10px;text-align:center;color:var(--text-muted);">'+(info.mcap||'—')+'</td><td style="padding:7px 8px;font-size:10px;text-align:center;">'+t.w+'%</td><td style="padding:7px 8px;text-align:center;">'+lt+'</td></tr>';
+    rows+='<tr style="background:'+(idx%2===0?'rgba(33,29,22,0.015)':'transparent')+';border-bottom:1px solid var(--surface-2);"><td style="padding:7px 8px;font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer;" data-action="showTicker" data-arg="'+sym+'" title="'+(info.name||t.code)+' 분석 →">'+rankIcon+'<span style="color:var(--accent);">'+(info.name||t.code)+'</span> <span style="font-size:10px;opacity:0.6;">↗</span><div style="font-size:11px;color:var(--text-muted);font-weight:400;">'+(info.sector||'')+' · '+t.code+'</div></td><td style="padding:7px 8px;font-size:13px;font-weight:800;font-family:var(--font-mono);text-align:right;">'+ps+'</td><td style="padding:7px 8px;font-size:13px;font-weight:900;font-family:var(--font-mono);text-align:right;color:'+pCol+';">'+pcs+'</td><td style="padding:7px 8px;font-size:10px;text-align:center;color:var(--text-muted);">'+(info.mcap||'—')+'</td><td style="padding:7px 8px;font-size:10px;text-align:center;">'+(t.wLabel||(Math.round(t.w*10)/10)+'%')+'</td><td style="padding:7px 8px;text-align:center;">'+lt+'</td></tr>';
   });
 
   var tn=(CN[themeId]||themeId).replace(/[^가-힣a-zA-Z0-9\/\s]/g,'').trim();
@@ -511,7 +511,7 @@ function _buildKrThemeDeepAnalysis(themeId, avg, upCnt, dnCnt, total, topStock, 
   }
 
   // 6) v38.3: 레퍼런스 기반 한국 테마 맞춤 인사이트
-  var kti = KR_THEME_INSIGHTS[themeId];
+  var kti = (typeof KR_THEME_INSIGHTS !== 'undefined' && KR_THEME_INSIGHTS) ? KR_THEME_INSIGHTS[themeId] : null; // P1315: optional global — bare read threw and aborted every KR theme detail
   if (kti) {
     ss.push('');
     ss.push(' <b>테마 인사이트</b>');
@@ -1821,7 +1821,7 @@ function refreshKrThemeRuntimeWeights() {
     var total = useCapWeight ? observed.reduce(function(sum, v) { return sum + v; }, 0) : rows.length;
     rows.forEach(function(row, i) {
       row.w = useCapWeight && caps[i] != null ? caps[i] / total * 100 : (useCapWeight ? 0 : 100 / rows.length);
-      row._weightSource = useCapWeight ? 'live-market-cap' : 'equal-weight';
+      row._weightSource = useCapWeight ? 'live-market-cap' : 'equal-weight'; row.wLabel = useCapWeight ? (Math.round(row.w * 10) / 10) + '%' : '동일가중'; // P1327: an equal split is not a measured weight
     });
   });
 }
@@ -2548,7 +2548,7 @@ function _generateKrMacroAnalysis(ld) {
     t += krMacroTs >= 55 ? '글로벌 환경 양호. 한국 시장 동반 상승 기대.' :
          krMacroTs >= 35 ? '글로벌 환경 혼조. 한국 고유 재료(수급·실적)가 방향 결정.' :
          '글로벌 환경 약세. 코스피 하방 압력 지속. 방어적 포지션 유지.';
-  } else t += '<br><b>【글로벌 시장 환경】</b> 필수 입력 미수신으로 점수 산출 보류.';
+  } else t += '<br><b>【글로벌 시장 환경】</b> 실시간·검증된 입력이 없어 점수 산출 보류.';
 
   el.innerHTML = t || '데이터 대기 중...';
 }
@@ -2568,7 +2568,7 @@ function _generateKrThemesAnalysis(ld) {
     return;
   }
   var validIds = coverage.validThemeIds;
-  var CN = {'defense':'방산','semi':'반도체','shipbuilding':'조선','ai-sw':'AI/SW','power-grid':'전력기기','nuclear':'원전','battery':'2차전지','bio':'바이오','kbeauty':'K뷰티','kcontent':'K콘텐츠','auto':'자동차','robot':'로봇','finance':'금융','kfood':'K푸드','crypto':'크립토','telecom':'통신','construction':'건설','retail':'유통','steel_chem':'철강/화학','logistics':'물류','medtech_kr':'의료기기','energy_kr':'에너지','photonics_kr':'광/포토닉스'};
+  var CN={};Object.keys(window.AIO_KR_THEME_LABELS||{}).forEach(function(k){CN[k]=window.AIO_KR_THEME_LABELS[k].split(' / ')[0];}); // P1327: one label owner
   var perfs = [];
   for (var tid in KR_THEME_MAP) {
     var t = KR_THEME_MAP[tid], ws = 0, vs = 0;
@@ -2692,7 +2692,7 @@ function _generateKrThemesAnalysis(ld) {
     h += krTsVal >= 55 ? '역사적으로 테마 순환매가 활발하던 환경(환경 설명값, 예측 아님).' :
          krTsVal >= 35 ? '역사적으로 실적 뒷받침 없는 테마의 성과가 부진하던 환경.' :
          '역사적으로 테마 전반이 부진하고 방어적 대응이 우선시되던 환경.';
-  } else h += '<br><b>【시장 환경】</b> 필수 입력 미수신으로 점수 산출 보류.';
+  } else h += '<br><b>【시장 환경】</b> 실시간·검증된 입력이 없어 점수 산출 보류.';
 
   el.innerHTML = h;
 }
@@ -2996,20 +2996,6 @@ function _generatePortfolioAnalysis(positions, ld, stats) {
 // ── 5) 심리지표 복합 분석 ──
 // W01-B: retired — native ViewModel owns sent-analysis-text from one revision.
 
-// ── 6) 옵션 환경 분석 ──
-function _generateOptionsAnalysis(vix, vvix, vixPctile, ivRank) {
-  var el = document.getElementById('opt-analysis-text'); if (!el) return;
-  var lines = [];
-  if (vix > 0) lines.push('VIX ' + vix.toFixed(1) + ' — S&P 500 옵션에서 산출한 향후 약 30일의 연율화 변동성 기대입니다. 개별 종목 IV가 아닙니다.');
-  if (vvix > 0) lines.push('VVIX ' + vvix.toFixed(1) + ' — VIX 자체의 변동성 기대를 관찰합니다.');
-  var evidence = window._vixIvRankEvidence;
-  if (evidence && evidence.sampleCount >= 20 && Number.isFinite(ivRank)) {
-    lines.push('수신 ' + evidence.sampleCount + '일 VIX 범위 내 위치 ' + ivRank + '% · 표본 백분위 ' + vixPctile + '%. 1년 IV Rank로 해석하지 않습니다.');
-  }
-  lines.push('옵션 체인·만기별 IV·미결제약정 근거가 없어 딜러 감마, CTA 주문 방향, 옵션 전략의 우열은 산출하지 않습니다.');
-  el.textContent = lines.join(' ');
-}
-
 // ── 7) 펀더멘털 분석 ──
  var _generateFundamentalAnalysis = function(fallback, ld) {
   // P815: the bounded SEC-derived summary is now rendered by src/ui/pages/entity.js.
@@ -3226,7 +3212,7 @@ function _generateOptionsAnalysis(vix, vvix, vixPctile, ivRank) {
          tsVal >= 55 ? '시장 환경 양호. 실적 뒷받침되는 종목 선별적 접근.' :
          tsVal >= 35 ? '시장 환경 중립~약세. 시장 역풍에 개별 종목이 눌릴 수 있음. 방어적 포지션 우선.' :
          '시장 환경 약세. 펀더멘털과 무관하게 센티먼트로 하락 가능. 현금 비중 확대 고려.';
-  } else h += '<br><b>【시장 환경】</b> 필수 입력 미수신으로 점수 산출 보류.';
+  } else h += '<br><b>【시장 환경】</b> 실시간·검증된 입력이 없어 점수 산출 보류.';
   h += '<br>';
 
   void h;

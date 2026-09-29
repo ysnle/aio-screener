@@ -19,7 +19,7 @@ developer_instructions = '''
 ## Workflow
 
 1. Run node scripts/ci-accessibility-matrix-check.mjs for broad or shared UI changes.
-2. Run node scripts/ci-viewport-matrix-check.mjs when layout, focus visibility or responsive controls changed.
+2. Run node scripts/ci-viewport-matrix-check.mjs when desktop layout or focus visibility changed. Scope is desktop-only (R474); responsive CSS is compatibility code, not an acceptance target.
 3. Inspect the touched renderer and sibling consumers for hidden-but-focusable controls, invalid aria state and noisy aria-live regions.
 4. Require Tier 13 browser interaction before claiming visible or keyboard behavior is certified.
 

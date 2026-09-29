@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { createSecClient, parse13fAmendmentMetadata } from './lib/sec-edgar.mjs';
 import { rawHoldingRow } from './lib/masters-raw-rows.mjs';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { writeJsonIfSemanticallyChanged } from './lib/13f-semantic-hash.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const filingsPath = path.join(root, 'public-data', 'masters', 'filings.json');
@@ -169,7 +170,7 @@ function baseUrl(indexUrl) {
 }
 
 async function writeAtomic(file, value) {
-  await atomicWriteFile(file, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
+  await writeJsonIfSemanticallyChanged(file, value, { writer: atomicWriteFile });
 }
 
 async function fetchFilingBundle(filing) {

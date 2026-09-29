@@ -444,6 +444,61 @@ async function quotaRpc(env, operation, payload) {
   return response.json();
 }
 
+async function matchesOperatorToken(expected, supplied) {
+  if (typeof expected !== 'string' || expected.length < 32 || typeof supplied !== 'string' || supplied.length < 32) return false;
+  const subtle = globalThis.crypto?.subtle;
+  if (!subtle) return false;
+  const encoder = new TextEncoder();
+  const [expectedDigest, suppliedDigest] = await Promise.all([
+    subtle.digest('SHA-256', encoder.encode(expected)),
+    subtle.digest('SHA-256', encoder.encode(supplied))
+  ]);
+  const left = new Uint8Array(expectedDigest);
+  const right = new Uint8Array(suppliedDigest);
+  let difference = 0;
+  for (let index = 0; index < left.length; index += 1) difference |= left[index] ^ right[index];
+  return difference === 0;
+}
+
+function privateOperatorResponse(payload, status = 200) {
+  return new Response(payload === null ? null : JSON.stringify(payload), {
+    status,
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'no-store',
+      'X-Content-Type-Options': 'nosniff',
+      'X-Robots-Tag': 'noindex, nofollow',
+      'Referrer-Policy': 'no-referrer'
+    }
+  });
+}
+
+async function handleOperatorAiUsage(request, env) {
+  const configuredToken = env?.AIO_OPERATOR_TOKEN;
+  const suppliedToken = request.headers.get('X-AIO-Operator-Token');
+  if (!await matchesOperatorToken(configuredToken, suppliedToken)) return privateOperatorResponse(null, 404);
+  if (request.method !== 'GET') return privateOperatorResponse({ error: 'GET required' }, 405);
+  if (!hasAtomicQuotaBinding(env)) return privateOperatorResponse({ error: 'usage source unavailable' }, 503);
+
+  const usageDayUtc = new Date().toISOString().slice(0, 10);
+  const cap = parseInt(env.ANTHROPIC_DAILY_CAP || '300', 10);
+  if (!Number.isSafeInteger(cap) || cap < 1) return privateOperatorResponse({ error: 'usage source unavailable' }, 503);
+  try {
+    const usage = await quotaRpc(env, 'usage', { dayKey: `claude:${usageDayUtc}` });
+    if (usage?.ok !== true || !Number.isSafeInteger(usage.requestCount) || usage.requestCount < 0) {
+      return privateOperatorResponse({ error: 'usage source unavailable' }, 503);
+    }
+    return privateOperatorResponse({
+      schemaVersion: 'aio-operator-ai-usage.v1',
+      usageDayUtc,
+      requestCount: usage.requestCount,
+      anthropicDailyCap: cap
+    });
+  } catch (_) {
+    return privateOperatorResponse({ error: 'usage source unavailable' }, 503);
+  }
+}
+
 async function deriveRequestId(request, bodyText) {
   const supplied = request.headers.get('X-AIO-Idempotency-Key') || request.headers.get('X-AIO-Request-Id');
   if (supplied && /^[A-Za-z0-9._:-]{8,160}$/.test(supplied)) return 'client:' + supplied;
@@ -567,6 +622,19 @@ export class AIOQuotaDurableObject {
       const dayKey = String(body.dayKey || '');
       const requestId = String(body.requestId || '');
       const key = dayKey + ':' + requestId;
+      if (operation === 'usage') {
+        const day = dayKey.slice(7);
+        const parsedDay = Date.parse(`${day}T00:00:00.000Z`);
+        if (!/^claude:\d{4}-\d{2}-\d{2}$/.test(dayKey)
+          || !Number.isFinite(parsedDay)
+          || new Date(parsedDay).toISOString().slice(0, 10) !== day) {
+          throw new Error('valid Anthropic UTC dayKey is required');
+        }
+        const requestCount = this.counts.days[dayKey] ?? 0;
+        if (!Number.isSafeInteger(requestCount) || requestCount < 0) throw new Error('valid Anthropic quota count is required');
+        result = { ok: true, requestCount };
+        return;
+      }
       if (!dayKey || !requestId) throw new Error('dayKey and requestId are required');
       if (operation === 'reserve') {
         if (this.counts.reservations[key]) {
@@ -613,6 +681,11 @@ export class AIOQuotaDurableObject {
       }, { status: 200 });
     }
     const body = await request.json();
+    if (operation === 'usage') {
+      if (jurisdiction !== 'us') return Response.json({ error: { type: 'authority_location_error', message: 'US AI authority required' } }, { status: 503 });
+      const result = await this.mutateQuota('usage', body);
+      return Response.json(result, { status: 200, headers: { 'Cache-Control': 'no-store' } });
+    }
     if (operation === 'proxy') {
       if (jurisdiction !== 'us') {
         return Response.json({ error: { type: 'authority_location_error', message: 'US AI authority required' } }, { status: 503 });
@@ -809,6 +882,8 @@ export default {
   async fetch(request, env) {
     const requestOrigin = request.headers.get('Origin') || '';
     const _u = new URL(request.url);
+
+    if (_u.pathname === '/_ops/ai-usage') return handleOperatorAiUsage(request, env);
 
     if (_u.pathname === '/health') {
       if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: getCorsHeaders(requestOrigin, env) });

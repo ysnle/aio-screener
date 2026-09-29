@@ -65,6 +65,7 @@ Settings → Secrets and variables → Actions → **Secrets**에 등록한다.
 - **KV 네임스페이스** `aio-quotes-prod` — 바인딩 id를 `AIO_QUOTES_KV_ID`로 저장소에 전달한다.
 - **Durable Object** `AIOQuotaDurableObject` (`AIO_QUOTA_DO` 바인딩) — 없으면 `/anthropic`이 503 fail-closed로 거부한다. `/relay`의 일일 캡도 같은 바인딩을 쓰므로, 없으면 릴레이도 503이다.
 - **Worker secrets** `AIO_CRON_SECRET`, 선택 `AIO_APP_TOKEN`, 선택 `AIO_DEV_ORIGINS`. `deploy-ai-proxy.yml`이 `ANTHROPIC_API_KEY`·`FRED_API_KEY`·`BOK_API_KEY`·`KOSIS_API_KEY`를 배포 시 `wrangler secret put`으로 게시하므로 대시보드에서 손으로 넣지 않아도 된다.
+- **비공개 AI 사용량 관측(선택)** — `AIO_OPERATOR_TOKEN`을 `aio-proxy` Cloudflare Worker secret으로 설정하면 `GET /_ops/ai-usage`에서 현재 UTC 날짜의 Anthropic Durable Object 요청 수와 `ANTHROPIC_DAILY_CAP`을 확인할 수 있다. 최소 32자 무작위 값으로 발급하고 Cloudflare에 직접 `wrangler secret put AIO_OPERATOR_TOKEN --config worker/wrangler.proxy.toml`로 설정한다. 이 명령은 저장소의 정본 config를 사용하며, `.deploy.toml`은 CI runner 안에서만 생성된다. 저장소·워크플로 로그·공개 이슈에 값이나 응답을 복사하지 않는다. 미설정 또는 인증 실패는 404이며 `/health`에는 사용량·Anthropic cap이 추가되지 않는다. 코드 배포 후 A5에서 secret 설정과 인증된 200 응답을 운영자가 확인해야 한다.
 - **릴레이 일일 캡** — `worker/wrangler.proxy.toml`의 `RELAY_DAILY_CAP`(기본 2000, 제공자별). 배포 전에 이 값을 조정하려면 toml을 수정한다.
 - **패스트 플레인 승격 플래그** — `architecture/worker-endpoints.json`의 `fastQuotes.rightsReviewed`(권리 검토 완료 시 `true`)와 `soakRequiredDays`. 7일 soak와 권리 검토가 끝나기 전에는 `public-config.json`의 `marketData.fastQuotes.enabled`가 `false`로 유지되며 브라우저는 패스트 플레인을 읽지 않는다. 이 승격은 손으로 켜지지 않는다 — `scripts/ci-fast-plane-consumer-gate.mjs`가 게시된 증거로 재파생해 검사한다.
 
@@ -72,10 +73,10 @@ Settings → Secrets and variables → Actions → **Secrets**에 등록한다.
 
 | 워크플로 | 트리거 | 이유 |
 |---|---|---|
-| `.github/workflows/deploy-ai-proxy.yml` | `workflow_dispatch` 전용 | Worker 소스 변경이 검토 없이 프로덕션 프록시·시크릿을 갈아치우지 않도록 의도적으로 분리했다. `ci-cloudflare-deployment-contract-check.mjs`가 이 수동 전용 상태를 계약으로 강제한다. |
-| `.github/workflows/deploy-data-plane.yml` | `workflow_dispatch` 전용 | 위와 동일. |
+| `.github/workflows/deploy-ai-proxy.yml` | 성공한 strict main CI attestation 후 변경/미수렴 시 자동 실행; `workflow_dispatch`는 성공한 main CI run id 필수 | 성공한 main CI run의 exact-SHA attestation에서 배포한다. 자동 경로는 저장소 API 키를 다시 게시하지 않으며, 수동 secret sync는 dispatch에서만 실행한다. 실패 smoke는 캡처한 이전 Worker 버전으로 rollback하고 이전 source SHA/status를 확인한다. |
+| `.github/workflows/deploy-data-plane.yml` | 성공한 strict main CI attestation 후 변경/미수렴 시 자동 실행; `workflow_dispatch`는 성공한 main CI run id 필수 | 성공한 main CI run의 exact-SHA attestation에서 배포하고 실패 smoke 시 캡처한 이전 Worker 버전으로 rollback한다. |
 
-두 워크플로를 자동화하려면 계약 게이트를 함께 수정해야 한다. 자동화하지 않는다면 **소스와 라이브 Worker 리비전이 벌어진다**. 저장소 측은 이제 고정할 수 있다 — `worker/wrangler.proxy.toml`의 `AIO_APP_REVISION`이 `version.json`을 따라가며 `ci-version-check.mjs`와 `bump-version.mjs`가 동기화를 강제한다(v56 이전에는 v54.37에 멈춰 있었다). **라이브** 리비전이 소스와 일치하는지는 `ci-external-pipeline-check.mjs`의 `proxy-source-revision` 검사가 감시하지만, 배포 후 대시보드에서 한 번 확인하는 것이 가장 확실하다.
+자동 배포는 exact successful main CI attestation을 소비하고, 현재 live `/health` source SHA부터 해당 CI SHA까지의 누적 Worker 변경을 비교해 취소되거나 대체된 실행의 변경을 회수한다. attested SHA가 계속 main HEAD이고 live SHA가 그 조상일 때만 자동 복구를 허용하며, 배포 직전에도 main HEAD를 재확인한다. 지연 이벤트나 더 최신·분기된 live Worker를 과거 SHA로 되돌리지 않는다. 데이터 플레인 감지는 정적 로컬 import graph를 포함한다. 변경된 Worker는 smoke 확인을 거치며 실패하면 명시된 이전 버전으로 rollback한다. live SHA를 확인할 수 없으면 자동 결정이 fail-closed된다. 저장소 측 revision은 `worker/wrangler.proxy.toml`의 `AIO_APP_REVISION`이 `version.json`을 따라가며 `ci-version-check.mjs`와 `bump-version.mjs`가 동기화를 강제한다. 첫 GitHub artifact handoff·자동 실행·live rollback은 아직 미검증이므로 외부 운영 증거가 추가될 때까지 운영자가 확인해야 한다.
 
 ## 6. 운영자 주기의 수동 데이터 작업
 

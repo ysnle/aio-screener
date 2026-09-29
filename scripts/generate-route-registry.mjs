@@ -1,6 +1,6 @@
 // Canonical route registry generator (P1137/R623).
 //
-// WHY THIS EXISTS: the same 20 route ids were hand-listed in five places, in five different
+// WHY THIS EXISTS: the same 19 route ids were hand-listed in five places, in five different
 // orders — `js/aio-core.js ROUTE_PAGE_IDS`, `src/app/routes.js ROUTE_IDS`,
 // `architecture/route-owners.json counts.*`, `architecture/golden-routes.json routes`, and the
 // `AIO_ROUTE_REGISTRY` classes. A count-only gate cannot see a reorder, so the orders silently

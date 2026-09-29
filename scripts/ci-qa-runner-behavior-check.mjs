@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
@@ -15,11 +15,13 @@ const marker = join(cacheDir, 'expensive-marker.txt');
 const fixtureScript = 'scripts/fixtures/qa-gate-fixture.mjs';
 const base = { schemaVersion: 'aio-qa-fixture.v1', cacheVersion: 1, impactRules: [], profiles: { test: ['fixture'] } };
 
-const run = (...args) => spawnSync(process.execPath, ['scripts/qa-runner.mjs', ...args], {
+const runnerEnv = { ...process.env, CI: 'false', AIO_QA_MANIFEST_PATH: manifestPath, AIO_QA_CACHE_DIR: cacheDir };
+const runWithEnv = (extraEnv, ...args) => spawnSync(process.execPath, ['scripts/qa-runner.mjs', ...args], {
   cwd: root,
   encoding: 'utf8',
-  env: { ...process.env, CI: 'false', AIO_QA_MANIFEST_PATH: manifestPath, AIO_QA_CACHE_DIR: cacheDir }
+  env: { ...runnerEnv, ...extraEnv }
 });
+const run = (...args) => runWithEnv({}, ...args);
 const fail = (message, result = null) => {
   console.error(message);
   if (result) console.error(`${result.stdout || ''}\n${result.stderr || ''}`.trim());
@@ -59,6 +61,64 @@ try {
   if (rerunList.status !== 0) fail('runner failed to list exact failed gates', rerunList);
   const rerunSelection = JSON.parse(rerunList.stdout);
   if (rerunSelection.gates.map((gate) => gate.id).sort().join(',') !== 'fixture-fail-a,fixture-fail-b') fail('rerun-failed selected passed siblings or skipped phases', rerunList);
+
+  // Failed gate sidecars preserve output past the 200 KB report cap, redact configured
+  // secrets across stream chunk boundaries, and keep the console summary bounded.
+  const secretSentinel = 'aio-qa-secret-sentinel-9c18d2f4';
+  const outputPadLength = 64 * 1024 - Math.floor(secretSentinel.length / 2);
+  const oversizedPayload = 'o'.repeat(220_000);
+  const expectedLargeOutput = `${'x'.repeat(outputPadLength)}${secretSentinel}:${oversizedPayload}:stdout-end`;
+  const failureOutputScript = join(temp, 'failure-output-fixture.mjs');
+  const failureOutputScriptRef = relative(root, failureOutputScript).replaceAll('\\', '/');
+  writeFileSync(failureOutputScript, [
+    "if (process.env.AIO_QA_FIXTURE_FAIL === '1') {",
+    "  const secret = process.env.AIO_QA_FIXTURE_SECRET;",
+    "  process.stdout.write('x'.repeat(Number(process.env.AIO_QA_FIXTURE_PAD)) + secret + ':' + 'o'.repeat(220000) + ':stdout-end');",
+    "  process.stderr.write('stderr secret=' + secret + '\\n');",
+    '  process.exitCode = 1;',
+    "} else { process.stdout.write('successful output'); }",
+    ''
+  ].join('\n'));
+  writeFileSync(manifestPath, JSON.stringify({
+    ...base,
+    groups: { output: { phase: 0, kind: 'static', gates: [{
+      id: 'failure-output-large',
+      script: failureOutputScriptRef,
+      env: { AIO_QA_FIXTURE_SECRET: secretSentinel, AIO_QA_FIXTURE_PAD: String(outputPadLength), AIO_QA_FIXTURE_FAIL: '1' }
+    }] } },
+    profiles: { test: ['output'] }
+  }, null, 2));
+  const largeFailure = run('test', '--no-cache');
+  if (largeFailure.status !== 1) fail('large failure-output fixture expected a failing gate', largeFailure);
+  const largeFailureReport = JSON.parse(readFileSync(join(cacheDir, 'last-run.json'), 'utf8'));
+  const largeFailureGate = largeFailureReport.results.find((result) => result.id === 'failure-output-large');
+  if (!largeFailureGate?.failureOutput?.stdout || !largeFailureGate?.failureOutput?.stderr) fail('failed gate report did not link both output sidecars', largeFailure);
+  const failureOutputDir = join(cacheDir, 'runs', largeFailureReport.runId, 'failure-output');
+  const failureOutputFiles = readdirSync(failureOutputDir).sort();
+  if (failureOutputFiles.length !== 2 || !failureOutputFiles.every((name) => name.endsWith('.txt'))) fail('failed gate output directory did not contain both artifact-collectable sidecars', largeFailure);
+  const retainedStdout = readFileSync(largeFailureGate.failureOutput.stdout, 'utf8');
+  const retainedStderr = readFileSync(largeFailureGate.failureOutput.stderr, 'utf8');
+  const expectedRedactedOutput = expectedLargeOutput.replaceAll(secretSentinel, '[REDACTED]');
+  if (retainedStdout.length <= 200_000 || retainedStdout !== expectedRedactedOutput) fail(`full failed stdout did not survive the runner cap or redact its sentinel (${retainedStdout.length} chars)`, largeFailure);
+  if (retainedStderr !== 'stderr secret=[REDACTED]\n' || retainedStdout.includes(secretSentinel) || retainedStderr.includes(secretSentinel)) fail('retained failure sidecars exposed the configured secret sentinel', largeFailure);
+  if (JSON.stringify(largeFailureGate).includes(secretSentinel)) fail('failed gate report retained the configured secret sentinel', largeFailure);
+  if (`${largeFailure.stdout || ''}\n${largeFailure.stderr || ''}`.includes(secretSentinel)) fail('runner console output exposed the configured secret sentinel', largeFailure);
+  if ((largeFailure.stdout || '').length + (largeFailure.stderr || '').length > 20_000) fail('runner console output exceeded the bounded failure-summary budget', largeFailure);
+
+  writeFileSync(manifestPath, JSON.stringify({
+    ...base,
+    groups: { output: { phase: 0, kind: 'static', gates: [{
+      id: 'failure-output-success',
+      script: failureOutputScriptRef,
+      env: { AIO_QA_FIXTURE_SECRET: secretSentinel, AIO_QA_FIXTURE_PAD: String(outputPadLength), AIO_QA_FIXTURE_FAIL: '0' }
+    }] } },
+    profiles: { test: ['output'] }
+  }, null, 2));
+  const successfulOutputRun = run('test', '--no-cache');
+  if (successfulOutputRun.status !== 0) fail('successful output fixture unexpectedly failed', successfulOutputRun);
+  const successfulOutputReport = JSON.parse(readFileSync(join(cacheDir, 'last-run.json'), 'utf8'));
+  if (existsSync(join(cacheDir, 'runs', successfulOutputReport.runId, 'failure-output'))) fail('successful run left failure output artifacts behind', successfulOutputRun);
+  if (existsSync(join(cacheDir, 'runs', '.failure-output-staging', successfulOutputReport.runId))) fail('successful run left raw output spools behind', successfulOutputRun);
 
   writeFileSync(manifestPath, JSON.stringify({
     ...base,

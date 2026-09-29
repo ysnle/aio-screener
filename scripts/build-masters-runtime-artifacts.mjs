@@ -4,14 +4,14 @@ import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { rawHoldingRow } from './lib/masters-raw-rows.mjs';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { writeJsonIfSemanticallyChanged } from './lib/13f-semantic-hash.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const mastersDir = path.join(root, 'public-data', 'masters');
 const readJson = async (name) => JSON.parse(await fs.readFile(path.join(mastersDir, name), 'utf8'));
 
 async function writeAtomic(file, value, { pretty = true } = {}) {
-  const serialized = pretty ? JSON.stringify(value, null, 2) : JSON.stringify(value);
-  await atomicWriteFile(file, `${serialized}\n`, 'utf8');
+  await writeJsonIfSemanticallyChanged(file, value, { pretty, writer: atomicWriteFile });
 }
 
 const [holdings, historyIndex, historyRows, issuerAggregates, mastersIndex, filingDiscovery, managerPrinciples, securityMaster] = await Promise.all([

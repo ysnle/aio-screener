@@ -3,7 +3,8 @@
 // live quote availability or operator secret configuration.
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -14,6 +15,8 @@ const isLive = !!liveBaseUrl;
 const baseUrl = liveBaseUrl || `http://127.0.0.1:${port}`;
 const url = `${baseUrl}/index.html`;
 const artifactDir = resolve(root, '_artifacts', isLive ? 'portfolio-vault-live' : 'portfolio-vault');
+const localRevision = JSON.parse(readFileSync(resolve(root, 'version.json'), 'utf8')).version;
+const localGitHead = (() => { try { return execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(); } catch (_) { return null; } })();
 
 function startServer() {
   return new Promise((resolvePromise, reject) => {
@@ -32,14 +35,29 @@ async function main() {
   mkdirSync(artifactDir, { recursive: true });
   const server = isLive ? null : await startServer();
   const browser = await chromium.launch();
-  const report = { checks: [], errors: [], scope: isLive ? `live Chromium, ${baseUrl}, external network allowed` : 'local Chromium, external network blocked' };
+  const report = {
+    schemaVersion: 'aio-portfolio-vault-evidence.v1',
+    observedAt: new Date().toISOString(),
+    appRevision: isLive ? null : localRevision,
+    gitHead: isLive ? null : localGitHead,
+    checks: [], errors: [],
+    scope: isLive ? `live Chromium, ${baseUrl}, external network allowed` : 'local Chromium, external network blocked'
+  };
   const check = (id, ok, detail) => report.checks.push({ id, ok: !!ok, detail: detail || '' });
+  // P1277: the artifact itself must identify the tested source or served revision.
+  check('P1277 evidence revision bound', !!report.appRevision || isLive, 'local appRevision and gitHead are required');
+  if (!isLive) check('P1277 local source SHA bound', !!report.gitHead, 'git rev-parse HEAD');
   try {
-    const page = await browser.newPage({ viewport: { width: 1024, height: 768 } });
+    const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
     if (!isLive) {
       await page.route('**/*', (route) => route.request().url().startsWith(`http://127.0.0.1:${port}/`) ? route.continue() : route.abort());
     }
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    if (isLive) report.appRevision = await page.evaluate(async () => {
+      try { const response = await fetch('./version.json', { cache: 'no-store' }); return response.ok ? (await response.json()).version || null : null; }
+      catch (_) { return null; }
+    });
+    if (isLive) check('P1277 live served revision bound', !!report.appRevision, 'live /version.json');
     await page.waitForFunction(() => typeof window.AIO === 'object' && typeof window.AIO.loadTests === 'function', { timeout: 30000 });
     const capability = await page.evaluate(() => ({
       get: typeof window.getPortfolioData,

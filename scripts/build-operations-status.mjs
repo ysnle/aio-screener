@@ -12,6 +12,7 @@ const PUBLIC_READINESS_PATH = new URL('../architecture/public-readiness.json', i
 const PUBLIC_CONFIG_PATH = new URL('../public-config.json', import.meta.url);
 const SLO_WINDOW_PATH = new URL('../public-data/operations-slo-window.json', import.meta.url);
 const WORKER_HEALTH_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+const MARKET_CYCLE_FRESHNESS_SLA_MS = 12 * 60 * 60 * 1000;
 const DURABLE_QUOTE_QUALITIES = new Set(['CURRENT', 'CLOSED_CURRENT', 'DELAYED']);
 
 // P1166 (17 작업 단위 3 / 06 O05): `configured`는 설정의 존재이고 `healthy`는 관측 결과다. 관측을
@@ -123,6 +124,16 @@ export function deriveFastQuotesConfig({ prior = null, endpoint = null, evidence
       certifiedAt: enabled ? (carried.certification?.certifiedAt || now) : null
     }
   };
+}
+
+// P1271: health alone cannot make the user-facing quote feature AVAILABLE.
+// The public route is disabled until rights and the measured soak both close.
+export function deriveFastQuoteAvailability({ configured = false, healthy = false, rightsReviewed = false, soakObservedDays = 0, soakRequiredDays = 7 } = {}) {
+  if (!configured) return { availability: 'UNAVAILABLE', missingReason: 'fast-quote-endpoint-not-configured' };
+  if (!rightsReviewed) return { availability: 'UNAVAILABLE', missingReason: 'fast-quote-provider-rights-not-reviewed' };
+  if (soakObservedDays < soakRequiredDays) return { availability: 'UNAVAILABLE', missingReason: 'fast-quote-soak-incomplete' };
+  if (!healthy) return { availability: 'DEGRADED', missingReason: 'fast-quote-health-not-current' };
+  return { availability: 'AVAILABLE', missingReason: null };
 }
 
 export function derivePublicAiConfig(previous = {}, {
@@ -249,8 +260,10 @@ export function deriveDurableFreshness({ data = {}, marketSnapshot = {}, now = n
   const generatedAt = data?.meta?.generatedAt || marketSnapshot?.generatedAt || null;
   const generatedMs = Date.parse(generatedAt || '');
   const nowMs = Date.parse(now || '');
-  const ageHours = Number.isFinite(generatedMs) && Number.isFinite(nowMs) ? (nowMs - generatedMs) / 3_600_000 : null;
-  const maxAgeHours = Number(data?.meta?.marketCycleFreshnessSlaHours || 12);
+  const ageMs = Number.isFinite(generatedMs) && Number.isFinite(nowMs) ? nowMs - generatedMs : null;
+  const ageHours = ageMs == null ? null : ageMs / 3_600_000;
+  // P1291/R641: artifact metadata cannot extend the canonical wall-clock freshness window.
+  const maxAgeHours = MARKET_CYCLE_FRESHNESS_SLA_MS / 3_600_000;
   const coverage = marketSnapshot?.coverage || {};
   const coverageComplete = Number(coverage.tier0Required) > 0
     && Number(coverage.tier0Observed) === Number(coverage.tier0Required)
@@ -262,18 +275,11 @@ export function deriveDurableFreshness({ data = {}, marketSnapshot = {}, now = n
   const quoteQualityComplete = Number(coverage.tier0Required) > 0
     && quotes.length === Number(coverage.tier0Required)
     && blockedQuotes.length === 0;
-  const utcDay = Number.isFinite(nowMs) ? new Date(nowMs).getUTCDay() : null;
-  const marketClosedGrace = (utcDay === 0 || utcDay === 6)
-    && marketSnapshot?.status === 'published'
-    && data?.meta?.cycleStatus === 'PUBLISHED'
-    && coverageComplete
-    && quoteQualityComplete;
-  const withinSla = ageHours != null && ageHours >= 0 && ageHours <= maxAgeHours;
-  const timeFresh = withinSla || marketClosedGrace;
+  const withinSla = ageMs != null && ageMs >= 0 && ageMs <= MARKET_CYCLE_FRESHNESS_SLA_MS;
+  // P1291/R641: operational freshness follows the same wall-clock SLA as browser decisions.
   return Object.freeze({
-    fresh: timeFresh && coverageComplete && quoteQualityComplete,
+    fresh: withinSla && coverageComplete && quoteQualityComplete,
     withinSla,
-    marketClosedGrace,
     coverageComplete,
     quoteQualityComplete,
     blockedQuotes: Object.freeze(blockedQuotes.map((quote) => Object.freeze({
@@ -294,11 +300,11 @@ export function deriveDurableFreshness({ data = {}, marketSnapshot = {}, now = n
       ? 'market-snapshot-quality-gate-blocked'
       : !quoteQualityComplete
         ? 'market-snapshot-quote-quality-blocked'
-        : timeFresh
+        : withinSla
           ? null
           : (ageHours == null
             ? 'generatedAt-missing-or-invalid'
-            : ageHours < 0
+            : ageMs < 0
               ? 'market-cycle-generatedAt-in-future'
               : 'market-cycle-freshness-sla-exceeded')
   });
@@ -459,6 +465,13 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
   const fastConfigured = fastEndpoint !== 'not-configured';
   const [fastObserved, fastRequired] = String(fastEvidence.fastCoverage || '').split('/').map(Number);
   const fastHealthy = fastEvidence.fastEvidenceFresh === true && Number(fastEvidence.fastHealthStatus) === 200 && Number.isFinite(fastObserved) && fastObserved === fastRequired && fastRequired === 16;
+  const quoteAvailability = deriveFastQuoteAvailability({
+    configured: fastConfigured,
+    healthy: fastHealthy,
+    rightsReviewed: fastConfig.rightsReviewed === true,
+    soakObservedDays: fastEvidence.fastSoakObservedDays || 0,
+    soakRequiredDays: Number(fastConfig.soakRequiredDays ?? 7)
+  });
   const proxyConfigured = !!workerEndpoints.proxy?.baseUrl;
   const proxyHealthStatus = Number(fastEvidence.proxyHealthStatus ?? fastEvidence.proxyHealthPathObserved);
   const proxyHealthy = fastEvidence.proxyEvidenceFresh === true && proxyHealthStatus === 200
@@ -503,10 +516,9 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
         sources: ['durable']
       },
       quotes: {
-        availability: fastHealthy ? 'AVAILABLE' : fastConfigured ? 'DEGRADED' : 'UNAVAILABLE',
+        availability: quoteAvailability.availability,
         asOf: fastEvidence.fastHealthObserved || null,
-        missingReason: fastHealthy ? null : !fastConfigured ? 'fast-quote-endpoint-not-configured'
-          : fastEvidence.fastEvidenceFresh === true ? 'fast-quote-health-not-200' : 'fast-quote-observation-not-fresh',
+        missingReason: quoteAvailability.missingReason,
         sources: ['fast']
       },
       'ai-chat': {

@@ -47,14 +47,14 @@ try {
   });
   const waitForTopbar = async (needle, label, timeout = 30000) => {
     try {
-      await page.waitForFunction((expected) => document.getElementById('live-quote-ts-topbar')?.textContent?.includes(expected), needle, { timeout });
+      await page.waitForFunction((expected) => document.getElementById('live-quote-ts')?.textContent?.includes(expected), needle, { timeout });
     } catch (error) {
       const diagnostic = await page.evaluate(() => {
-        const el = document.getElementById('live-quote-ts-topbar');
+        const el = document.getElementById('live-quote-ts');
         return {
           text: el?.textContent || '',
           title: el?.getAttribute('title') || '',
-          className: el?.className || '',
+          className: el?.dataset?.currentness || '',
           snapshotMeta: window._aioMarketSnapshotMeta || null,
           serverMeta: window._serverDataMeta || null,
           readyState: document.readyState
@@ -88,16 +88,18 @@ try {
   if (boot.status !== 'MIGRATION_IN_PROGRESS') throw new Error(`unexpected architecture status: ${boot.status}`);
   if (!boot.navigationInstalled || !boot.hasNavigate) throw new Error(`typed navigation facade not installed: ${JSON.stringify(boot)}`);
   if (!boot.summaryBlocked) throw new Error('offline sentiment must remain blocked');
-  await waitForTopbar('기준 시세', 'initial snapshot', 15000);
+  await waitForTopbar('서버 ', 'initial snapshot', 15000);
   const quoteTopbar = await page.evaluate(() => {
-    const el = document.getElementById('live-quote-ts-topbar');
+    const el = document.getElementById('live-quote-ts');
     return {
       text: el?.textContent || '',
-      className: el?.className || '',
+      duplicate: !!document.getElementById('live-quote-ts-topbar'),
+      className: el?.dataset?.currentness || '',
       title: el?.getAttribute('title') || ''
     };
   });
-  if (!/기준 시세.+\(16개\)/.test(quoteTopbar.text) || !/\bfb-static\b/.test(quoteTopbar.className) || !/실시간 시세가 아닌/.test(quoteTopbar.title)) {
+  // P1326/R671 (QA-UX-07): one slot, one vocabulary — a server snapshot is 종가/지난 시세, never live.
+  if (!/^서버 .+ · 16개$/.test(quoteTopbar.text) || !/^(close|stale)$/.test(quoteTopbar.className) || !/실시간 시세가 아닌/.test(quoteTopbar.title) || quoteTopbar.duplicate) {
     throw new Error(`snapshot quote topbar must stay reference-only while external providers are blocked: ${JSON.stringify(quoteTopbar)}`);
   }
 
@@ -114,7 +116,7 @@ try {
   });
   await waitForTopbar('스냅샷 미게시', 'unpublished snapshot');
   const unpublishedQuoteTopbar = await page.evaluate(() => {
-    const el = document.getElementById('live-quote-ts-topbar');
+    const el = document.getElementById('live-quote-ts');
     return { text: el?.textContent || '', title: el?.getAttribute('title') || '' };
   });
   if (!/스냅샷 미게시/.test(unpublishedQuoteTopbar.text) || !/판단에 사용하지 않음/.test(unpublishedQuoteTopbar.title)) {
@@ -128,7 +130,7 @@ try {
     marketSnapshotPublished: true,
     status: 'published'
   });
-  await waitForTopbar('기준 시세', 'published snapshot restore');
+  await waitForTopbar('서버 ', 'published snapshot restore');
 
   await page.evaluate(() => {
     const observedAt = '2026-09-24T12:00:00Z';
@@ -576,23 +578,10 @@ try {
     pendingThemeId: window._aioOpenThemeDetailOnThemes || null
   }), relatedThemeId);
   if (tickerThemeBridge.activePage !== 'page-themes' || tickerThemeBridge.panelThemeId !== relatedThemeId || tickerThemeBridge.pendingThemeId !== null || !tickerThemeBridge.summaryText.includes('참고 분류')) throw new Error(`ticker-to-theme lazy route handoff failed: ${JSON.stringify(tickerThemeBridge)}`);
-  await page.evaluate(() => window.AIO_ARCH.navigate('options'));
-  await page.waitForFunction(() => document.getElementById('page-options')?.dataset.aioArchitectureRoute === 'options');
-  const optionsRoute = await page.evaluate(() => ({
-    pageExists: !!document.getElementById('page-options'),
-    renderer: document.getElementById('page-options')?.dataset.aioArchitectureRenderer || null,
-    rawPrimarySinkCount: document.querySelectorAll('#page-options #opt-vix-val-secondary, #page-options #opt-pcr-val-secondary, #page-options #opt-skew-val-secondary').length,
-    nativePrimarySinkCount: document.querySelectorAll('#page-options[data-aio-architecture-renderer="native"] #opt-vix-val-secondary, #page-options[data-aio-architecture-renderer="native"] #opt-pcr-val-secondary, #page-options[data-aio-architecture-renderer="native"] #opt-skew-val-secondary').length,
-    primaryValues: ['opt-vix-val-secondary', 'opt-pcr-val-secondary', 'opt-skew-val-secondary'].map((id) => document.getElementById(id)?.textContent || null),
-    visibleEvidenceMeta: ['opt-vix-val-secondary-meta', 'opt-pcr-val-secondary-meta', 'opt-skew-val-secondary-meta'].map((id) => document.getElementById(id)?.textContent || ''),
-    skewMetricId: document.getElementById('opt-skew-val-secondary')?.getAttribute('data-metric-id') || null,
-    skewInstrumentId: document.getElementById('opt-skew-val-secondary')?.getAttribute('data-instrument-id') || null,
-    skewUnit: document.getElementById('opt-skew-val-secondary')?.getAttribute('data-unit') || null,
-    skewObservedAt: document.getElementById('opt-skew-val-secondary')?.getAttribute('data-observed-at') || null,
-    skewRevision: document.getElementById('opt-skew-val-secondary')?.getAttribute('data-revision') || null
-  }));
-  if (optionsRoute.visibleEvidenceMeta.some((value) => !value.includes('·') || (!value.includes('참고용') && !value.includes('수신 대기')))) throw new Error(`options visible observedAt/source metadata missing: ${JSON.stringify(optionsRoute)}`);
-  if (optionsRoute.primaryValues[2] !== sentimentSkew.value || optionsRoute.skewMetricId !== sentimentSkew.metricId || optionsRoute.skewInstrumentId !== sentimentSkew.instrumentId || optionsRoute.skewUnit !== sentimentSkew.unit || optionsRoute.skewObservedAt !== sentimentSkew.observedAt || optionsRoute.skewRevision !== sentimentSkew.revision) throw new Error(`sentiment/options SKEW parity failed: ${JSON.stringify({ sentimentSkew, optionsRoute })}`);
+  // P1321: the options route is retired; its old hash must alias to sentiment instead of a stub page.
+  // QA-ROUTE-19 / R666
+  const optionsRetired = await page.evaluate(() => ({ pageGone: !document.getElementById('page-options'), routeGone: !(window.AIO_ALL_ROUTE_PAGE_IDS || []).includes('options'), alias: window.AIO_ROUTE_REGISTRY?.canonical?.options || null }));
+  if (!optionsRetired.pageGone || !optionsRetired.routeGone || optionsRetired.alias !== 'sentiment') throw new Error(`options retirement failed: ${JSON.stringify(optionsRetired)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('fundamental'));
   await page.waitForFunction(() => document.getElementById('page-fundamental')?.dataset.aioArchitectureRoute === 'fundamental');
   const fundamentalRoute = await page.evaluate(() => ({
@@ -743,7 +732,7 @@ try {
   if (homeRoute.renderer !== 'native' || homeRoute.homeRenderer !== 'native' || homeRoute.rawPrimarySinkCount !== 4 || homeRoute.nativePrimarySinkCount !== 4 || homeRoute.fearGreedRenderer !== 'native' || !homeRoute.fearGreedScore.trim() || homeRoute.qualityRenderer !== 'native' || !homeRoute.qualityScore.trim() || !homeRoute.qualityLabel.trim() || Object.values(homeRoute.fenceValue).some((value) => value !== 'NATIVE-FENCE')) throw new Error(`home native summary/Fear & Greed/quality/fence failed: ${JSON.stringify(homeRoute)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('briefing'));
   await page.waitForFunction(() => document.getElementById('page-briefing')?.dataset.aioArchitectureRoute === 'briefing');
-  const contentRoutes = await page.evaluate(({ market, macro, fxbond, breadth, themes, themeDetail, ticker, options, fundamental, portfolio, technical, signal, home }) => ({
+  const contentRoutes = await page.evaluate(({ market, macro, fxbond, breadth, themes, themeDetail, ticker, fundamental, portfolio, technical, signal, home }) => ({
     active: window.AIO_ARCH.router.active(),
     // P770: market-news and briefing must expose native primary-feed markers; secondary AI digest
     // content remains a compatibility/narrative boundary.
@@ -764,15 +753,14 @@ try {
     themesPrimaryRenderer: themes.themesRenderer,
     themeDetailNativeSummary: themeDetail.nativeSummaryExists && !themeDetail.nativeSummaryHidden,
     tickerRenderer: ticker.renderer,
-    optionsRenderer: options.renderer,
     fundamentalRenderer: fundamental.renderer,
     portfolioRenderer: portfolio.renderer
     ,signalRenderer: signal.renderer
     ,signalHeroRenderer: signal.signalRenderer
     ,homeRenderer: home.renderer
     ,homeSummaryRenderer: home.homeRenderer
-  }), { market: marketRoute, macro: macroRoute, fxbond: fxbondRoute, breadth: breadthRoute, themes: themesRoute, themeDetail: themeDetailRoute, ticker: tickerRoute, options: optionsRoute, fundamental: fundamentalRoute, portfolio: portfolioRoute, technical: technicalRoute, signal: signalRoute, home: homeRoute });
-  if (contentRoutes.active !== 'briefing' || contentRoutes.marketRenderer !== 'native' || contentRoutes.marketFeedRenderer !== 'native' || contentRoutes.briefingRenderer !== 'native' || contentRoutes.briefingSlice !== 'news' || contentRoutes.briefingFeedRenderer !== 'native' || contentRoutes.macroRenderer !== 'native' || contentRoutes.macroPrimaryRenderer !== 'native' || contentRoutes.fxbondRenderer !== 'native' || contentRoutes.fxbondPrimaryRenderer !== 'native' || contentRoutes.breadthRenderer !== 'native' || contentRoutes.breadthPrimaryRenderer !== 'native' || contentRoutes.technicalRenderer !== 'native' || contentRoutes.technicalPrimaryRenderer !== 'native' || contentRoutes.signalRenderer !== 'native' || contentRoutes.signalHeroRenderer !== 'native' || contentRoutes.homeRenderer !== 'native' || contentRoutes.homeSummaryRenderer !== 'native' || contentRoutes.themesRenderer !== 'native' || contentRoutes.themesPrimaryRenderer !== 'native' || !contentRoutes.themeDetailNativeSummary || contentRoutes.tickerRenderer !== 'native' || contentRoutes.optionsRenderer !== 'native' || contentRoutes.fundamentalRenderer !== 'native' || contentRoutes.portfolioRenderer !== 'native' || macroRoute.nativeLiveSinkCount < 1 || macroRoute.primarySnapSinkCount < 1 || macroRoute.fedMeaningRenderer !== 'native' || !macroRoute.fedMeaningText.trim() || fxbondRoute.nativeLiveSinkCount < 1 || fxbondRoute.nativeMoveSinkCount < 1 || fxbondRoute.riskRenderer !== 'native' || !fxbondRoute.riskText.trim() || breadthRoute.rawPrimarySinkCount < 1 || breadthRoute.nativePrimarySinkCount !== breadthRoute.rawPrimarySinkCount || breadthRoute.signalRenderer !== 'native' || !breadthRoute.signalText.trim() || breadthRoute.diagnosticRenderer !== 'native' || !breadthRoute.diagnosticSignal.trim() || !breadthRoute.diagnosticText.trim() || themesRoute.rawPrimarySinkCount !== 2 || themesRoute.nativePrimarySinkCount !== 2 || tickerRoute.rawPrimarySinkCount !== 4 || tickerRoute.nativePrimarySinkCount !== 4 || tickerRoute.symbolRenderer !== 'native' || !tickerRoute.candleSymbol.trim() || !tickerRoute.entrySymbol.trim() || tickerRoute.pnlRenderer !== 'native' || tickerRoute.pnlParentRenderer !== 'native' || tickerRoute.extensionRenderer !== 'native' || optionsRoute.rawPrimarySinkCount !== 3 || optionsRoute.nativePrimarySinkCount !== 3 || fundamentalRoute.rawPrimarySinkCount !== 1 || fundamentalRoute.nativePrimarySinkCount !== 1 || fundamentalRoute.summaryRenderer !== 'native' || !fundamentalRoute.summaryText.trim() || !fundamentalRoute.summarySourceKind || fundamentalRoute.reportRenderer !== 'native' || fundamentalRoute.reportModel !== 'sec-report.v3' || !fundamentalRoute.reportTitle.trim() || !fundamentalRoute.reportMeta.trim() || !fundamentalRoute.reportMeta.includes('PIT') || !fundamentalRoute.reportCoverage.trim() || fundamentalRoute.reportGridRenderer !== 'native' || portfolioRoute.rawPrimarySinkCount !== 1 || portfolioRoute.nativePrimarySinkCount !== 1 || portfolioRoute.tableRenderer !== 'native') throw new Error(`content route lifecycle failed: ${JSON.stringify({ contentRoutes, macroRoute, fxbondRoute, breadthRoute, technicalRoute, signalRoute, homeRoute, themesRoute, themeDetailRoute, tickerRoute, optionsRoute, fundamentalRoute, portfolioRoute })}`);
+  }), { market: marketRoute, macro: macroRoute, fxbond: fxbondRoute, breadth: breadthRoute, themes: themesRoute, themeDetail: themeDetailRoute, ticker: tickerRoute, fundamental: fundamentalRoute, portfolio: portfolioRoute, technical: technicalRoute, signal: signalRoute, home: homeRoute });
+  if (contentRoutes.active !== 'briefing' || contentRoutes.marketRenderer !== 'native' || contentRoutes.marketFeedRenderer !== 'native' || contentRoutes.briefingRenderer !== 'native' || contentRoutes.briefingSlice !== 'news' || contentRoutes.briefingFeedRenderer !== 'native' || contentRoutes.macroRenderer !== 'native' || contentRoutes.macroPrimaryRenderer !== 'native' || contentRoutes.fxbondRenderer !== 'native' || contentRoutes.fxbondPrimaryRenderer !== 'native' || contentRoutes.breadthRenderer !== 'native' || contentRoutes.breadthPrimaryRenderer !== 'native' || contentRoutes.technicalRenderer !== 'native' || contentRoutes.technicalPrimaryRenderer !== 'native' || contentRoutes.signalRenderer !== 'native' || contentRoutes.signalHeroRenderer !== 'native' || contentRoutes.homeRenderer !== 'native' || contentRoutes.homeSummaryRenderer !== 'native' || contentRoutes.themesRenderer !== 'native' || contentRoutes.themesPrimaryRenderer !== 'native' || !contentRoutes.themeDetailNativeSummary || contentRoutes.tickerRenderer !== 'native' || contentRoutes.fundamentalRenderer !== 'native' || contentRoutes.portfolioRenderer !== 'native' || macroRoute.nativeLiveSinkCount < 1 || macroRoute.primarySnapSinkCount < 1 || macroRoute.fedMeaningRenderer !== 'native' || !macroRoute.fedMeaningText.trim() || fxbondRoute.nativeLiveSinkCount < 1 || fxbondRoute.nativeMoveSinkCount < 1 || fxbondRoute.riskRenderer !== 'native' || !fxbondRoute.riskText.trim() || breadthRoute.rawPrimarySinkCount < 1 || breadthRoute.nativePrimarySinkCount !== breadthRoute.rawPrimarySinkCount || breadthRoute.signalRenderer !== 'native' || !breadthRoute.signalText.trim() || breadthRoute.diagnosticRenderer !== 'native' || !breadthRoute.diagnosticSignal.trim() || !breadthRoute.diagnosticText.trim() || themesRoute.rawPrimarySinkCount !== 2 || themesRoute.nativePrimarySinkCount !== 2 || tickerRoute.rawPrimarySinkCount !== 4 || tickerRoute.nativePrimarySinkCount !== 4 || tickerRoute.symbolRenderer !== 'native' || !tickerRoute.candleSymbol.trim() || !tickerRoute.entrySymbol.trim() || tickerRoute.pnlRenderer !== 'native' || tickerRoute.pnlParentRenderer !== 'native' || tickerRoute.extensionRenderer !== 'native' || fundamentalRoute.rawPrimarySinkCount !== 1 || fundamentalRoute.nativePrimarySinkCount !== 1 || fundamentalRoute.summaryRenderer !== 'native' || !fundamentalRoute.summaryText.trim() || !fundamentalRoute.summarySourceKind || fundamentalRoute.reportRenderer !== 'native' || fundamentalRoute.reportModel !== 'sec-report.v3' || !fundamentalRoute.reportTitle.trim() || !fundamentalRoute.reportMeta.trim() || !fundamentalRoute.reportMeta.includes('PIT') || !fundamentalRoute.reportCoverage.trim() || fundamentalRoute.reportGridRenderer !== 'native' || portfolioRoute.rawPrimarySinkCount !== 1 || portfolioRoute.nativePrimarySinkCount !== 1 || portfolioRoute.tableRenderer !== 'native') throw new Error(`content route lifecycle failed: ${JSON.stringify({ contentRoutes, macroRoute, fxbondRoute, breadthRoute, technicalRoute, signalRoute, homeRoute, themesRoute, themeDetailRoute, tickerRoute, optionsRetired, fundamentalRoute, portfolioRoute })}`);
 
   if (fxbondRoute.curveRenderer !== 'native' || !fxbondRoute.curveText.trim() || fxbondRoute.carryRenderer !== 'native' || !fxbondRoute.carryText.trim() || fxbondRoute.carryScoreRenderer !== 'native' || !fxbondRoute.carryScoreText.trim() || !fxbondRoute.carryScoreBar.trim() || !fxbondRoute.carryVerdict.trim() || fxbondRoute.camRenderer !== 'native' || !fxbondRoute.camText.trim() || fxbondRoute.curveStatusRenderer !== 'native' || !fxbondRoute.curveStatusText.trim() || fxbondRoute.twoYearRenderer !== 'native' || !fxbondRoute.twoYearText.trim() || fxbondRoute.nativeChartMarkers.some((marker) => marker !== 'native') || fxbondRoute.chartKinds.some((kind) => !chartKindAllowed(kind))) throw new Error(`fxbond secondary surface failed: ${JSON.stringify(fxbondRoute)}`);
   if (breadthRoute.stageRenderer !== 'native' || !breadthRoute.stageText.trim() || breadthRoute.mcclellanRenderer !== 'native' || !breadthRoute.mcclellanText.trim() || breadthRoute.nativeChartMarkers.some((marker) => marker !== 'native') || breadthRoute.chartKinds.some((kind) => !chartKindAllowed(kind))) throw new Error(`breadth secondary surface failed: ${JSON.stringify(breadthRoute)}`);
@@ -860,7 +848,7 @@ try {
   await page.evaluate(() => window.showPage('sentiment'));
   await page.waitForFunction(() => document.getElementById('page-sentiment')?.dataset.aioArchitectureRoute === 'sentiment');
   if (errors.length) throw new Error(`browser errors: ${errors.join(' | ')}`);
-  console.log(JSON.stringify({ ok: true, boot, quoteTopbar, sentimentRoute, guideRoute, contentRoutes, macroRoute, fxbondRoute, breadthRoute, technicalRoute, signalRoute, homeRoute, themesRoute, themeDetailRoute, tickerRoute, optionsRoute, fundamentalRoute, portfolioRoute, homeSurface, roundTripEvidence, routeRoundTrip: true, browserErrors: 0 }));
+  console.log(JSON.stringify({ ok: true, boot, quoteTopbar, sentimentRoute, guideRoute, contentRoutes, macroRoute, fxbondRoute, breadthRoute, technicalRoute, signalRoute, homeRoute, themesRoute, themeDetailRoute, tickerRoute, optionsRetired, fundamentalRoute, portfolioRoute, homeSurface, roundTripEvidence, routeRoundTrip: true, browserErrors: 0 }));
 } finally {
   await browser.close();
   server.kill();

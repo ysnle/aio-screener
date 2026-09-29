@@ -6,6 +6,10 @@
 
 ## 이 자료를 사용하는 방법
 
+**2026-09-27 라이브/원격 재대조:** [36 v56.54 로컬·실배포·원격 CI 대조](36-LIVE-REMOTE-RECONCILIATION-20260927.md)를 먼저 읽는다. 공개 Pages는 9/27에도 v56.33, 로컬은 미커밋 v56.54이며 원격 refresh는 Tier-0 발행 실패로 중단됐다. 문서 35의 v56.53 로컬 130 PASS와 20 라우트 방문은 새 코드·원격 배포의 인증이 아니다. 같은 날 로컬에서 **v56.55 배치(P1278~P1282)**가 E0 원자 전환 커밋 계약(viewState 재확약·mount 실패 롤백)과 P-A/P-C/P-D/P-E 죽은 reader를 닫았다 — 진행 기록 참조, 나머지 원격·데이터·사용자 과업 계열은 그대로 열림이다.
+
+**2026-09-26 구현 교차점검:** [35 문서별 구현·증거 대조](35-FINAL-IMPLEMENTATION-CROSSWALK-20260926.md)를 현재 상태 진입점으로 사용한다. 00–34는 작성 시점의 설계·관찰·실행 기록이며, 이후 구현과 데이터 발행이 다를 수 있다. 특히 25·26의 E2 S-C/S-E/S-F 및 FX 시계열 미완 표기는 후속 P1238~P1241·P1259 구현 전 기록이다. 코드 구현, 체크인된 데이터, 로컬 브라우저, 현재 Pages 배포, 실제 사용자 이해도는 각각 별도로 판정한다. 이 README 아래의 "코드 수정 없이"와 당시 dirty/버전 설명은 원래 문서 작업의 범위 기록이며, 9/26 코드 점검 작업의 범위를 제한하지 않는다.
+
 **2026-09-26 QA·커밋·배포 효율성 점검:** [34 검증 파이프라인 재감사](34-QA-COMMIT-DEPLOY-EFFICIENCY-AUDIT-20260926.md)는 현재 v56.50 manifest·runner·워크플로를 근거로 유지할 출시 경계와 실제 중복·선택 과다·시간 미측정을 분리한다. [26 실행·인수 계획](26-EXECUTION-AND-ACCEPTANCE-PLAN.md)의 E2-C6 실행 전에 읽는다. CI 원격 소요시간과 비용은 아직 확인되지 않았다.
 
 **2026-09-25 최신 읽기 경로:** [33 새 SHA 20개 라우트 재점검](33-NEW-SHA-20-ROUTE-LIVE-RECHECK-20260925.md) → [32 사용자 링크·차트·뉴스·검증 구조](32-EXTERNAL-REFERENCES-CHART-NEWS-AND-TEST-DESIGN-20260925.md) → [31 Principles·Masters 본문/SEC 감사](31-PRINCIPLES-MASTERS-LIVE-CONTENT-AND-SEC-AUDIT-20260925.md) → [30 Atlas·Guide·포트폴리오 심층 감사](30-ATLAS-GUIDE-PORTFOLIO-LIVE-DEPTH-AUDIT-20260925.md) → [29 2차 라이브 콘텐츠 감사](29-SECOND-PASS-LIVE-CONTENT-AUDIT-20260925.md) → [28 페이지별 사용자 감사](28-PAGE-BY-PAGE-LIVE-USER-AUDIT-20260924.md) → [25 발견 상태](25-CURRENT-FINDING-STATUS-CROSSWALK.md) → [26 실행·인수](26-EXECUTION-AND-ACCEPTANCE-PLAN.md) 순으로 읽는다. 원격 `v56.33`은 **두 sourceSha**에서 관찰됐고 로컬 working tree는 별개다. 열람 수와 의미·원문·사용자 인수를 혼동하지 않는다. 이 증분은 핸드오프 문서만 작성하며 제품 코드·설정·데이터를 수정하거나 커밋·배포하지 않는다.
@@ -100,6 +104,18 @@
 - 커밋·푸시·배포는 별도 명시 요청이 있어야 한다.
 
 ## 진행 기록
+
+### 2026-09-27 E0 끝단 회수 배치 — 원자 전환 커밋 계약 + 포트폴리오 죽은 reader (P1278~P1282, v56.55, 로컬 미커밋)
+
+35호 교차점검과 36호 재대조의 잔여 중 **로컬에 닫을 수 있는 항목만** 구현했다. 데이터·원격 관측·사용자 과업 계열은 이번에도 진전되지 않았다.
+
+- **라우터 viewState 커밋(P1278):** `src/app/router.js`의 동일 라우트/entity 재확약은 새 `viewState`를 버리는 무음 no-op였다. 이제 비-null 상이 view state만 커밋으로 재확약해 커밋된 view 정체성을 갱신하고 같은 `mountId`의 `aio:navigationCommitted`(`recommit:true`)를 두 번째로 발행한다 — 마운트는 재사용하고 무관한 재확약은 기존 no-op 계약(router fixture의 `scopeLog` 4 고정)대로 유지한다. handle에 `activeViewState()`를 노출하고 commit 실패/dispose에서 초기화한다.
+- **facade 롤백(P1279):** `showPage`의 셸 효과가 router 전환보다 앞서는 순서는 유지하되(순서 완전 역전은 chart native 회수 전 — `QA-E0-SHELL-EFFECT-ORDER`), mount throw가 셸을 미커밋 화면에 남기는 경로를 막았다. 효과 이전 커밋 루트를 기억했다가 실패 시 같은 typed 경로(`source:'navigation-rollback'`)로 이전 라우트를 재마운트·재표시하고 `aio:navigationFailed{routeId,rolledBack,message}`를 발행하며 false를 반환한다. 롤백 성공 여부와 무관하게 실패는 관찰 가능하다.
+- **reader 단일 소유(P1280, E0 P-A/P-E):** facade의 두 번째 Vault 매핑(targetWeight·선언 통화·ledger·fxLegs·locked 상태 드롭)을 단일 runtime reader에 위임해 shadow diff가 구조적으로 0이 됐다. 저장소에 정의/할당자가 없던 `getPortfolioState`/`_portfolioState` 죽은 분기를 runtime reader·facade에서 제거했고(정의는 만들지 않음 — 두 번째 상태 소스 금지), totals은 surface 단독 소유로 남는다. `ci-esm-core-unit-check`이 동일 host byte-identical·선언 필드 보존·locked 비노출·죽은 host 분기 무영향을 단언하고 `ci-architecture-contract-check`이 두 번째 매핑 재도입을 차단한다.
+- **죽은 reader 재배선(P1281=P-D, P1282=P-C):** `_simulatePortfolioAddition`과 `_buildSectors`는 미정의 accessor·폐기 키(`aio_portfolio_v1` holdings/quantity/symbol, `aio_portfolio` sym 스키마) 대신 현행 소유자 `getPortfolioData`({ticker,qty,sector?}, Vault-aware — 잠금 시 빈결과가 설계상 정직)로 읽고, 시세 미수신 보유 종목은 0으로 합치지 않고 보류한다. `_simulatePortfolioAddition`의 호출부(chat 7182)가 살아 있어 삭제 대신 재배선이었고 T533/T534 계약은 그대로 통과한다.
+- **재구현 없이 확인·기록만 한 행:** S-D(이중 트리거)는 후속 배치에서 이미 소멸 — 리스너 단일화 상태이고 `ci-runtime-contract-check`가 호출 수를 단언한다. E3 배분 정책(`explicit-zero-allocation` 차단·`invalid-allocation-sum`·재정규화 금지)은 엔진에 구현돼 있었고 fixture로 확인했다.
+- **검증(이 시점):** `ci-esm-core-unit-check`(신규 fixture 3종: viewState 재확약 10단계, mount 실패 롤백, reader shadow-diff)·`ci-syntax-encoding-check`·`ci-architecture-contract-check`·`ci-retirement-contract`·`ci-headless-tests`(skip-list 밖 실패 0)·`ci-runtime-contract-check`·`ci-domain-parity-check`·`ci-user-journey-quality-check`·`ci-ledger-integrity-check`(신규 open 2건 verify_by)·`ci-assertion-trace-check`·`ci-knowledge-lint-check`(역사 경고 2건만)·R1 버전 동기화 PASS. aio-ui +4/aio-chat +7의 정직한 증가가 ratchet을 초과해 `--write --allow-growth`로 기록했고 src는 순 −36이다. `qa-runner affected --files`(task-소유 23파일)은 **84 PASS(1 실행+83 cached) / 1 FAIL / 31 SKIP** — 유일한 fail은 v56.54부터 문서화된 기존 `data-lineage` 신선도 SLA(`data.json` 30.3h>12h, `market-snapshot.json` 30.3h>24h)로 정식 refresh 전 로컬 종결 불가(타임스탬프 수동 bump 금지). commit/push/deploy 없음.
+- **잔여(이 배치 불진전, 계열별):** 데이터 라인 — 정식 producer 갱신 후 data-lineage 실패배치 종결 + 다음 원격 refresh 관측(`snapshotErrors`/Tier-0 원인) / AI 실 provider(E6 A01~04) / fast 평판·30일 SLO / SEC·뉴스 원천 의미(doc31) / 20라우트 수직 사용자 과업(E7 C1~C7, `QA-E0-VIEWSTATE-PRODUCER`) / Atlas 본문·PIN 저장 복구(doc30) / chart·narrative native 회수와 E0 P-B·P-F 회수.
 
 ### 2026-09-25 E7 잔여 배치 — 감사 3종 확정 결함 클러스터 + 큐 3종 종료 (P1248~P1258, v56.48, 로컬 미커밋 · 중간 기록)
 

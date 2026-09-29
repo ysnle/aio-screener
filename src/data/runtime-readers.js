@@ -3,6 +3,7 @@ import { canonicalSourceTier, isDecisionEligibleSourceKind } from './contracts/s
 import { QUOTE_IDENTITIES } from './contracts/market-snapshot.js';
 import { readPortfolioAssumptions } from './portfolio-assumptions.js';
 import { normalizeSignalScoreMode } from '../domain/signal/mode.js';
+import { resolveCloseBasis, evaluateCloseBasisInput, describeCloseBasis } from '../domain/signal/close-basis.js';
 
 // Native runtime readers.  These readers are deliberately kept in the data
 // layer so route providers do not depend on the legacy compatibility facade.
@@ -495,6 +496,32 @@ function decisionInputs(root, nowMs = Date.now()) {
       : { value: null, source: 'unavailable', sourceKind: null, sourceTier: null, status: 'unavailable', allowedUse: 'none', allowedUseCeiling: null, observedAt: null, blockedReasons: ['evidence_missing'] };
   });
   Object.assign(decisionEvidence, maEvidence);
+  // P1328/R670: inputs that are not decision-grade may still describe the market on the
+  // latest completed US regular close (domain/signal/close-basis.js). They are marked
+  // `session_close` / `close-basis` so the score can never present them as decision evidence.
+  const basis = resolveCloseBasis(nowMs);
+  const promoted = [];
+  if (basis) {
+    for (const [key, id] of Object.entries(evidenceKeys)) {
+      const row = byId.get(id);
+      if (input[key] != null || !row) continue;
+      const observedAt = row.observedAt || (row.timestampValid && Number.isFinite(row.ageMs) ? new Date(nowMs - row.ageMs).toISOString() : null);
+      const verdict = evaluateCloseBasisInput({ key, value: row.value, observedAt, basis, nowMs });
+      if (!verdict.ok) continue;
+      input[key] = finite(row.value);
+      decisionEvidence[key] = { ...decisionEvidence[key], value: input[key], status: 'session_close', allowedUse: 'close-basis', observedAt, basisAsOf: verdict.asOf, basisReason: verdict.reason };
+      promoted.push(key);
+    }
+    // The moving averages are daily-close derivatives of the same SPX series: they follow its basis.
+    for (const key of input.spxPrice != null ? ['spx50ma', 'spx200ma'] : []) {
+      const value = finite(maEvidence[key]?.value);
+      if (input[key] != null || value == null) continue;
+      input[key] = value;
+      decisionEvidence[key] = { ...maEvidence[key], value, status: 'session_close', allowedUse: 'close-basis', basisAsOf: basis.date, basisReason: 'daily-close-derivative' };
+      promoted.push(key);
+    }
+  }
+  input.closeBasis = basis ? Object.freeze({ ...basis, label: describeCloseBasis(basis), promoted: Object.freeze(promoted) }) : null;
   input.decisionEvidence = decisionEvidence;
   try { input.newsSentimentScore = finite(root?.computeNewsSentimentScore?.()?.score); } catch (_) { input.newsSentimentScore = null; }
   try { input.newsRiskSignals = root?.computeNewsRiskSignals?.() || []; } catch (_) { input.newsRiskSignals = []; }
@@ -590,14 +617,15 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
 
   const readPortfolio = () => {
     try {
+      // E0/P1280 (P-E): the `getPortfolioState`/`_portfolioState` branches are retired here —
+      // no writer anywhere in the repository ever defined or assigned them, so every read fell
+      // through to the owner function while the branches pretended a second portfolio state
+      // source existed. `getPortfolioData` (Vault-aware) is the single holdings source.
       const locked = typeof root?.isPortfolioLocked === 'function' ? root.isPortfolioLocked() : false;
-      const hasVaultState = typeof root?.getPortfolioState === 'function' || root?._portfolioState != null;
       const hasPositionsFn = typeof root?.getPortfolioData === 'function';
-      if (!hasVaultState && !hasPositionsFn) return { holdings: [], holdingsKnown: false, cash: null, cashKnown: false, readState: 'loading', privacy: 'opt-in', status: 'unavailable', updatedAt: null };
+      if (!hasPositionsFn) return { holdings: [], holdingsKnown: false, cash: null, cashKnown: false, readState: 'loading', privacy: 'opt-in', status: 'unavailable', updatedAt: null };
       if (locked) return { holdings: [], holdingsKnown: false, cash: null, cashKnown: false, readState: 'locked', privacy: 'opt-in', status: 'locked', updatedAt: null };
-      const state = typeof root?.getPortfolioState === 'function' ? clone(root.getPortfolioState()) : clone(root?._portfolioState) || {};
-      const storedHoldings = Array.isArray(state?.holdings) ? state.holdings : null;
-      const positions = storedHoldings != null ? storedHoldings : typeof root?.getPortfolioData === 'function' ? root.getPortfolioData() : [];
+      const positions = hasPositionsFn ? root.getPortfolioData() : [];
       const live = readLive();
       const holdings = Array.isArray(positions) ? positions.map((position) => {
         const symbol = String(position?.ticker || position?.symbol || position?.sym || '').toUpperCase();
@@ -620,20 +648,19 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
           if (Number.isFinite(parsedCash) && parsedCash >= 0) { cash = parsedCash; cashKnown = true; }
         }
       } catch (_) {}
-      if (state?.cash != null && String(state.cash).trim?.() !== '') {
-        const parsedStateCash = Number(state.cash);
-        if (Number.isFinite(parsedStateCash) && parsedStateCash >= 0) { cash = parsedStateCash; cashKnown = true; }
-      }
       // E3/P1188 (11 P11-02): 통화 선언은 입력이다 — 폼이 쓴 선언을 reader가 그대로 넘긴다.
       // 없으면 null이고 시세·티커·locale로 추정하지 않는다.
+      // E0/P1280: 선언의 정본은 localStorage 키(readPortfolioAssumptions)다 — 죽은 state 폴백은 제거됐다.
       const assumptions = readPortfolioAssumptions(root?.localStorage);
-      const baseCurrency = assumptions.baseCurrency || (state?.baseCurrency ?? null);
-      const cashCurrency = assumptions.cashCurrency || (state?.cashCurrency ?? null);
+      const baseCurrency = assumptions.baseCurrency || null;
+      const cashCurrency = assumptions.cashCurrency || null;
       // E4/P1191: 원장도 선언 입력이다 — 셸이 Vault 경로로 보관한 선언을 reader가 그대로 넘긴다.
-      const ledger = typeof root?.getPortfolioLedger === 'function' ? clone(root.getPortfolioLedger()) : (state?.ledger ?? null);
+      const ledger = typeof root?.getPortfolioLedger === 'function' ? clone(root.getPortfolioLedger()) : null;
       // E3/P1194: 선언된 FX leg도 같은 경계를 지난다 — 환산 근거가 reader에서 사라지면 surface는 못 본다.
-      const fxLegs = typeof root?.getPortfolioFxLegs === 'function' ? clone(root.getPortfolioFxLegs()) : (state?.fxLegs ?? []);
-      return { ...state, baseCurrency, cashCurrency, ledger, fxLegs: Array.isArray(fxLegs) ? fxLegs : [], holdings, holdingsKnown: true, cash, cashKnown, readState: 'ready', totals: state?.totals ?? null, privacy: state?.privacy || 'opt-in', status: holdings.length ? 'current' : 'empty', updatedAt: latestIso([...holdings.map((row) => row.quoteObservedAt), state?.updatedAt]) || null };
+      const fxLegs = typeof root?.getPortfolioFxLegs === 'function' ? clone(root.getPortfolioFxLegs()) : [];
+      // totals stays null by ownership: totals are derived once in the portfolio surface,
+      // not computed independently by a reader (the retired facade copy is gone with P1280).
+      return { baseCurrency, cashCurrency, ledger, fxLegs: Array.isArray(fxLegs) ? fxLegs : [], holdings, holdingsKnown: true, cash, cashKnown, readState: 'ready', totals: null, privacy: 'opt-in', status: holdings.length ? 'current' : 'empty', updatedAt: latestIso(holdings.map((row) => row.quoteObservedAt)) || null };
     } catch (_) { return { holdings: [], holdingsKnown: false, cash: null, cashKnown: false, readState: 'failed', privacy: 'opt-in', status: 'unavailable', updatedAt: null }; }
   };
 
@@ -658,5 +685,7 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
   // (`getScreenerRows()` via the compatibility facade) and `readObservationCatalog`.
   // (The retired symbol names are deliberately not repeated in this comment: the gate
   // asserts their absence in this file, and a self-referencing comment would defeat it.)
-  return Object.freeze({ readSentiment, readMarket, readNews, readEntity, readPortfolio, readAnalysis, readObservationCatalog });
+  // P1328: the legacy computeTradingScore wrapper reads the same inputs as the native analysis slice.
+  const readTradingScoreInputs = () => decisionInputs(root, now());
+  return Object.freeze({ readSentiment, readMarket, readNews, readEntity, readPortfolio, readAnalysis, readObservationCatalog, readTradingScoreInputs });
 }

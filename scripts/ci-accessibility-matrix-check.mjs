@@ -2,7 +2,8 @@
 // structural/keyboard audit; screen-reader/NVDA evidence remains manual.
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DESKTOP_PRIMARY_VIEWPORT, DESKTOP_QA_SCOPE } from './desktop-qa-config.mjs';
@@ -12,6 +13,8 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.CI_A11Y_PORT || 8901);
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 const routes = ROUTE_IDS;
+const appRevision = JSON.parse(readFileSync(resolve(root, 'version.json'), 'utf8')).version;
+const gitHead = (() => { try { return execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(); } catch (_) { return null; } })();
 const outPath = process.env.CI_A11Y_OUT
   ? resolve(root, process.env.CI_A11Y_OUT)
   : resolve(root, '_artifacts', 'accessibility-matrix-audit.json');
@@ -36,6 +39,8 @@ async function main() {
   const result = {
     schemaVersion: 'aio-accessibility-evidence.v2',
     observedAt: new Date().toISOString(),
+    appRevision,
+    gitHead,
     scope: DESKTOP_QA_SCOPE,
     viewport: DESKTOP_PRIMARY_VIEWPORT,
     routes: [],
@@ -84,6 +89,8 @@ async function main() {
       result.routes.push(audit);
     }
     result.status = result.routes.some((r) => !r.active || !r.skipLink || r.nameless.length || r.selectsWithoutName.length || r.positiveTabindex.length || r.unnamedCanvas.length || r.fontUnder10.length || r.smallTargetViolationCount || r.modalContracts.some((modal) => !modal.labelled)) || result.consoleErrors.length ? 'fail' : 'pass';
+    // P1277: a passing report without a revision cannot be tied to the tested source.
+    if (!result.appRevision || !result.gitHead) result.status = 'fail';
     result.certificationStatus = result.status === 'pass' ? 'PARTIAL_AUTOMATED' : 'FAILED_AUTOMATED';
   } catch (error) {
     result.status = 'fail';
@@ -94,7 +101,13 @@ async function main() {
     server.kill();
   }
   console.log(`[ci-accessibility-matrix] routes=${result.routes.length}, status=${result.status}, consoleErrors=${result.consoleErrors.length}, artifact=${outPath}`);
-  if (result.status === 'fail') process.exitCode = 1;
+  if (result.status === 'fail') {
+    // P1333: CI keeps only stdout, so name the failing route and the failing items there.
+    const failing = result.routes.filter((r) => !r.active || !r.skipLink || r.nameless.length || r.selectsWithoutName.length || r.positiveTabindex.length || r.unnamedCanvas.length || r.fontUnder10.length || r.smallTargetViolationCount || r.modalContracts.some((modal) => !modal.labelled))
+      .map((r) => ({ route: r.routeId, active: r.active, skipLink: r.skipLink, nameless: r.nameless.slice(0, 3), selects: r.selectsWithoutName.length, tabindex: r.positiveTabindex.length, canvas: r.unnamedCanvas.slice(0, 3), fontUnder10: r.fontUnder10.slice(0, 3), smallTargets: (r.smallTargetViolations || []).slice(0, 3) }));
+    console.log('[ci-accessibility-matrix] FAILING ' + JSON.stringify({ error: result.error || null, revision: result.appRevision || null, gitHead: result.gitHead || null, consoleErrors: result.consoleErrors.slice(0, 3), routes: failing }).slice(0, 4000));
+    process.exitCode = 1;
+  }
 }
 
 main().catch((error) => { console.error(error.stack || error.message); process.exit(1); });

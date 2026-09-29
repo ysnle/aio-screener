@@ -6,7 +6,7 @@ import vm from 'node:vm';
 const read = (file) => readFileSync(new URL(`../${file}`, import.meta.url), 'utf8');
 const html = read('index.html');
 const data = read('js/aio-data.js');
-const core = read('js/aio-core.js');
+const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
 const chat = read('js/aio-chat.js');
 // P1132/R619: the inline Yahoo chart helper moved from index.html's block F into js/aio-ui.js.
 const ui = read('js/aio-ui.js');

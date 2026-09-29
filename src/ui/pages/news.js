@@ -2,6 +2,7 @@ import { createResourceBag } from '../../app/lifecycle.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { selectNewsItems, selectNewsStatus } from '../../state/selectors/news.js';
 import { subscribeToSlices } from '../../state/memoize.js';
+import { classifyNewsTextStance, deriveNewsSummary, isNewsAnalysisEligible, isNewsHeadlineOnly, isNewsTopicReviewRequired } from '../../domain/news/scoring.js';
 
 function text(documentRef, value, fallback = '—') {
   const node = documentRef.createElement('span');
@@ -30,34 +31,33 @@ function describeNewsEmptyReason(reason) {
   return NEWS_EMPTY_REASON_COPY[String(reason || '')] || '현재 조건에 맞는 뉴스가 없습니다.';
 }
 
-function isNewsAnalysisEligible(item) {
-  if (!item || item.verificationStatus === 'unverified' || item.verificationStatus === 'secondary-only') return false;
-  if (String(item.contentDepth || '').toLowerCase() === 'headline-only' || item.verificationStatus === 'headline-only') return false;
-  return String(item.summary || item.desc || '').trim().length >= 40;
-}
-
 function renderNewsSummary(documentRef, root, model, status) {
-  const rows = Array.isArray(model?.items) ? model.items : [];
-  const distinctSources = new Set(rows.map((item) => item?._tgChannel || item?.source || item?.feed).filter(Boolean));
-  const analyzableRows = rows.filter(isNewsAnalysisEligible);
-  const tones = analyzableRows.map((item) => sentimentTone(root, item).label);
-  const bull = tones.filter((label) => label === '긍정').length;
-  const bear = tones.filter((label) => label === '부정').length;
-  const risk = rows.filter((item) => !isNewsAnalysisEligible(item)).length;
-  const score = analyzableRows.length ? Math.max(0, Math.min(100, Math.round(50 + ((bull - bear) / analyzableRows.length) * 50))) : null;
+  const rows = Array.isArray(model?.eligibleItems)
+    ? model.eligibleItems
+    : (Array.isArray(model?.items) ? model.items : []);
+  const generatedAtMs = Date.parse(model?.generatedAt || '');
+  const summary = deriveNewsSummary({
+    items: rows,
+    now: Number.isFinite(generatedAtMs) ? generatedAtMs : Date.now(),
+    windowStart: model?.newsCycle?.start,
+    windowEnd: model?.newsCycle?.end
+  });
   const set = (id, value, fallback = '—') => {
     const node = documentRef?.getElementById(id);
     if (node) node.textContent = value == null || value === '' ? fallback : String(value);
   };
-  documentRef?.querySelectorAll?.('[data-news-source-count]').forEach((node) => {
-    node.textContent = String(distinctSources.size || '—');
-  });
-  set('news-24h-count', model?.eligibleCount ?? rows.length, '0');
-  set('news-24h-sources', distinctSources.size ? `${distinctSources.size}개 소스` : '소스 확인 중');
-  set('news-risk-count', risk, '0');
-  set('news-risk-label', risk ? '본문/검증 필요' : '분석 가능');
-  set('news-sent-score', score);
-  set('news-sent-label', score == null ? '분석 보류' : score >= 60 ? '긍정' : score <= 40 ? '주의' : '중립');
+  set('news-24h-count', model?.eligibleCount ?? summary.itemCount, '0');
+  set('news-24h-sources', summary.sourceCount ? `${summary.sourceCount}개 소스` : '소스 확인 중');
+  set('news-sent-score', summary.score);
+  set('news-sent-label', summary.label);
+  const riskCopy = summary.riskSignals.map((signal) => signal.label);
+  if (summary.pendingCount > 0) riskCopy.push(`본문/검증 필요 ${summary.pendingCount}건`);
+  set('news-risk-count', summary.riskSignals.length, '0');
+  set('news-risk-label', riskCopy.length
+    ? riskCopy.join(' · ')
+    : (summary.analyzedCount > 0 && !summary.sampleSufficient
+      ? '표본 부족'
+      : (summary.analyzedCount > 0 ? '식별된 위험 신호 없음' : '분석 보류')));
   let cut = null;
   try { cut = root?.AIO?.getSharedMarketCut?.() || null; } catch (_) {}
   const generatedAt = root?._serverDataMeta?.generatedAt || null;
@@ -77,20 +77,16 @@ function safeUrl(value) {
   }
 }
 
-function sentimentTone(root, item) {
+function sentimentTone(item) {
   if (!isNewsAnalysisEligible(item)) {
-    return String(item?.contentDepth || '').toLowerCase() === 'headline-only' || item?.verificationStatus === 'headline-only'
+    return isNewsHeadlineOnly(item)
       ? { label: '본문 미수신', color: 'var(--text-muted)' }
       : { label: '검증 대기', color: 'var(--data-amber)' };
   }
-  try {
-    const sentiment = typeof root?.getSentimentFromText === 'function'
-      ? root.getSentimentFromText(`${item?.title || ''} ${item?.desc || ''}`)
-      : 'neutral';
-    if (sentiment === 'bull') return { label: '긍정', color: 'var(--data-green)' };
-    if (sentiment === 'bear') return { label: '부정', color: 'var(--data-red)' };
-    if (sentiment === 'warn') return { label: '주의', color: 'var(--data-amber)' };
-  } catch (_) {}
+  const sentiment = classifyNewsTextStance(`${item?.title || ''} ${item?.summary || item?.desc || ''}`);
+  if (sentiment === 'bull') return { label: '긍정', color: 'var(--data-green)' };
+  if (sentiment === 'bear') return { label: '부정', color: 'var(--data-red)' };
+  if (sentiment === 'warn') return { label: '주의', color: 'var(--data-amber)' };
   return { label: '중립', color: 'var(--text-muted)' };
 }
 
@@ -140,7 +136,7 @@ function createTickerBadge(documentRef, ticker) {
 
 function createNewsCard(documentRef, root, item, index) {
   const card = documentRef.createElement('div');
-  const tone = sentimentTone(root, item);
+  const tone = sentimentTone(item);
   const link = safeUrl(item?.link);
   const publishedIso = publicationIso(item);
   // The legacy hook is still preferred when a host actually provides it; otherwise the local
@@ -196,7 +192,7 @@ function createNewsCard(documentRef, root, item, index) {
     headline.appendChild(text(documentRef, title, '제목 없음'));
   }
   body.appendChild(headline);
-  const headlineOnly = String(item?.contentDepth || '').toLowerCase() === 'headline-only';
+  const headlineOnly = isNewsHeadlineOnly(item);
   if (summary) {
     const summaryNode = documentRef.createElement('div');
     summaryNode.className = 'news-item-summary';
@@ -214,8 +210,8 @@ function createNewsCard(documentRef, root, item, index) {
   const contentBoundary = headlineOnly ? '헤드라인 전용 · 단독 분석 근거 사용 금지' : '';
   // LC-31: a feed-query topic is not an article-level classification. Show the review flag instead of
   // presenting the query's label as a verified sector assignment.
-  const topicLabel = item?.topicReviewRequired
-    ? `${item?.topic || 'general'}(피드 분류 · 검토 필요)`
+  const topicLabel = isNewsTopicReviewRequired(item)
+    ? `${item?.feedTopic || item?.topic || 'general'}(피드 분류 · 검토 필요)`
     : (item?.topic || '');
   meta.textContent = [item?.verificationStatus === 'unverified' ? '미검증' : '', contentBoundary, item?.sourceTierLabel || '', item?.flag || '', source, topicLabel, timeAgo, score == null ? '' : `선별 점수 ${score}`]
     .filter(Boolean)
@@ -239,7 +235,7 @@ function appendMarketNews(documentRef, root, container, model, status, visibleLi
     // P1164/B03: 창 밖에 남은 과거 수집분을 오늘 뉴스로 읽히게 두지 않는다.
     // LC-32: 분류가 피드 query에서 복사된 경우, 0건은 '해당 주제 뉴스가 없다'가 아니라
     // '이 필터가 피드 분류를 기준으로 걸러낸 결과'임을 함께 밝힌다.
-    const reviewFlagged = eligible.filter((item) => item?.topicReviewRequired).length;
+    const reviewFlagged = eligible.filter(isNewsTopicReviewRequired).length;
     const outOfWindow = Number(model?.outOfWindowCount || 0);
     empty.textContent = status === 'unavailable'
       ? '뉴스 수신 대기 — 새로고침 후 검증된 뉴스가 표시됩니다.'
@@ -250,7 +246,9 @@ function appendMarketNews(documentRef, root, container, model, status, visibleLi
   } else if (controls.typeTab === 'category') {
     const groups = new Map();
     displayed.forEach((item) => {
-      const key = item?.topic || 'general';
+      const key = isNewsTopicReviewRequired(item)
+        ? `${item?.feedTopic || item?.topic || 'general'} · 피드 분류 검토 필요`
+        : (item?.topic || 'general');
       if (!groups.has(key)) groups.set(key, []);
       groups.get(key).push(item);
     });

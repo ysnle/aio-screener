@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { archiveBase, createSecClient } from './lib/sec-edgar.mjs';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { writeJsonIfSemanticallyChanged } from './lib/13f-semantic-hash.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const filingsPath = path.join(root, 'public-data', 'masters', 'filings.json');
@@ -66,5 +67,5 @@ const result = {
   rowImportedPeriods: managers.reduce((sum, manager) => sum + manager.periods.filter((period) => period.rowImportStatus !== 'METADATA_ONLY').length, 0),
   pendingRowImportPeriods: managers.reduce((sum, manager) => sum + manager.periods.filter((period) => period.rowImportStatus === 'METADATA_ONLY').length, 0)
 };
-await atomicWriteFile(outputPath, `${JSON.stringify(result, null, 2)}\n`, 'utf8');
+await writeJsonIfSemanticallyChanged(outputPath, result, { writer: atomicWriteFile });
 console.log(JSON.stringify({ ok: true, output: 'public-data/masters/history-index.json', connectedManagers: result.connectedManagers, totalPeriods: result.totalPeriods, pendingRowImportPeriods: result.pendingRowImportPeriods }));

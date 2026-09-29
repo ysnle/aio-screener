@@ -5,7 +5,7 @@ Updated: 2026-06-02T19:10:00+09:00
 
 ## Baseline
 
-- Route pages: 21 (`home`, `signal`, `breadth`, `sentiment`, `briefing`, `technical`, `macro`, `fxbond`, `fundamental`, `themes`, `theme-detail`, `portfolio`, `ticker`, `market-news`, `options`, `kr-home`, `kr-supply`, `kr-themes`, `kr-macro`, `kr-technical`, `guide`)
+- Route pages (v50.1 baseline, historical; the app has 19 routes since v56.79 and `options` is retired, aliasing to `sentiment`): 21 (`home`, `signal`, `breadth`, `sentiment`, `briefing`, `technical`, `macro`, `fxbond`, `fundamental`, `themes`, `theme-detail`, `portfolio`, `ticker`, `market-news`, `options`, `kr-home`, `kr-supply`, `kr-themes`, `kr-macro`, `kr-technical`, `guide`)
 - Static DOM surface: 259 live bindings, 106 snapshot bindings, 110 chart-like elements, 525 controls, 34 tables, about 32,095 numeric tokens.
 - `guide` is classified as education/reference content, not market-current trading content.
 - `DATA_SNAPSHOT` is fallback/reference/historical by default. It must not be treated as verified current trading evidence without promotion through `EvidenceStore`.

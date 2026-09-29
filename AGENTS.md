@@ -32,7 +32,7 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 ## Non-negotiable boundaries
 
 - Automatic commit, push and deployment are forbidden. Run them only after an explicit user request for that action.
-- Use `node scripts/bump-version.mjs <version>` for versioned changes. R1 remains the existing seven synchronized surface groups and is verified by `ci-version-check.mjs`.
+- Use `node scripts/bump-version.mjs <version>` for versioned changes. R1 covers every version surface patched by `scripts/bump-version.mjs` (it also regenerates `_context/CURRENT-STATE.md`) and is verified by `ci-version-check.mjs`.
 - Bug fixes require a new P entry. Promote recurring classes to RULES/QA and an executable gate. The gate must cite the entry it prevents a regression of — `ci-assertion-trace-check.mjs` enforces that for new assertions, and `ci-ledger-integrity-check.mjs` freezes the R-number gap set and requires new open QA items to declare `verify_by:`.
 - Generated workspace files are never hand-edited: run `node scripts/generate-workspace-state.mjs --write`, `node scripts/sync-agent-profiles.mjs`, and `node scripts/sync-agent-skills.mjs` as applicable.
 - Static, runtime/headless, browser and live evidence are separate. Never promote a lower evidence level to a higher one.

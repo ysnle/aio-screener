@@ -6,6 +6,12 @@
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "8080"],
       "port": 8080
+    },
+    {
+      "name": "aio-node",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["scripts/start-local-node.mjs", "8765"],
+      "port": 8765
     }
   ]
 }

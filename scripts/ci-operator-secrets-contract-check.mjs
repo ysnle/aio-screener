@@ -11,7 +11,7 @@
 //
 // 이 게이트는:
 //   1. 모든 워크플로가 참조하는 secrets.*/vars.* 가 운영자 런북에 문서화되어 있는지,
-//   2. 수동 전용 배포 워크플로가 여전히 수동이며 런북에 그렇게 기록되어 있는지,
+//   2. Worker 자동 배포가 strict main CI attestation을 요구하고, 수동 경로가 정확한 CI run으로 제한되는지,
 //   3. 런북이 카탈로그에서 targeted-map으로 분류되는지
 // 를 확인한다.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -22,7 +22,7 @@ import { join } from 'node:path';
 const WORKFLOW_DIR = '.github/workflows';
 const RUNBOOK = '_context/OPERATOR-RUNBOOK.md';
 const CATALOG = '_context/CONTEXT-CATALOG.json';
-const MANUAL_ONLY_WORKFLOWS = ['deploy-ai-proxy.yml', 'deploy-data-plane.yml'];
+const WORKER_DEPLOY_WORKFLOWS = ['deploy-ai-proxy.yml', 'deploy-data-plane.yml'];
 
 const failures = [];
 const check = (label, ok) => { if (!ok) failures.push(label); };
@@ -68,16 +68,34 @@ for (const [name, info] of [...referenced].sort(([left], [right]) => left.locale
     new RegExp('`' + escapeRegExp(name) + '`').test(runbook));
 }
 
-// The manual-only Cloudflare deploys are the operator boundary most likely to be
-// "helpfully" automated without updating the contract. Fail loudly if either the
-// workflow or its documentation changes on only one side.
-for (const file of MANUAL_ONLY_WORKFLOWS) {
+// Worker deploys may run automatically only after a successful exact-SHA main CI
+// attestation. Keep the operator's explicit dispatch path and its documentation
+// synchronized, and never publish repository API secrets during automatic runs.
+for (const file of WORKER_DEPLOY_WORKFLOWS) {
   const path = join(WORKFLOW_DIR, file);
   check(`${file} exists`, existsSync(path));
   if (!existsSync(path)) continue;
-  check(`${file} stays manual-only until its contract is updated deliberately`, /workflow_dispatch:\s*\{\}/.test(readFileSync(path, 'utf8')));
-  check(`${file} is documented as operator-run in ${RUNBOOK}`, new RegExp(escapeRegExp(file)).test(runbook));
+  const source = readFileSync(path, 'utf8');
+  check(`P1308/R653 ${file} automatic deployment requires successful main CI`,
+    /workflow_run:[\s\S]*?workflows:\s*\['CI'\]/.test(source)
+    && /workflow_run\.conclusion\s*==\s*'success'/.test(source)
+    && /workflow_run\.head_branch\s*==\s*'main'/.test(source)
+    && /aio-release-attestation/.test(source)
+    && /testedSha/.test(source)
+    && /branches\/main/.test(source)
+    && /latestMainSha/.test(source)
+    && /Recheck main head immediately before Worker mutation/.test(source));
+  check(`P1308/R653 ${file} explicit operator dispatch requires a successful main CI run id`,
+    /workflow_dispatch:[\s\S]*?ci_run_id/.test(source)
+    && /ci_sha/.test(source)
+    && /branch" = 'main'/.test(source));
+  check(`P1308/R653/QA-DATA-50 ${file} is documented as an exact-CI automatic and operator-run workflow in ${RUNBOOK}`,
+    new RegExp(escapeRegExp(file)).test(runbook)
+    && /successful main CI/i.test(runbook)
+    && /exact-SHA/i.test(runbook));
 }
+const proxyWorkflow = readFileSync(join(WORKFLOW_DIR, 'deploy-ai-proxy.yml'), 'utf8');
+check('P1308/R653 AI-proxy repository API secret publication stays explicit-dispatch only', /Publish Anthropic and server-side relay secrets[\s\S]*?github\.event_name == 'workflow_dispatch'/.test(proxyWorkflow));
 
 if (existsSync(CATALOG)) {
   const catalog = JSON.parse(readFileSync(CATALOG, 'utf8'));
@@ -90,4 +108,4 @@ if (failures.length) {
   failures.forEach((failure) => console.error(` - ${failure}`));
   process.exit(1);
 }
-console.log(`Operator provisioning contract OK: ${referenced.size} documented secret/variable references, ${MANUAL_ONLY_WORKFLOWS.length} manual-only deploys declared.`);
+console.log(`Operator provisioning contract OK: ${referenced.size} documented secret/variable references, ${WORKER_DEPLOY_WORKFLOWS.length} exact-CI Worker deploy workflows declared.`);

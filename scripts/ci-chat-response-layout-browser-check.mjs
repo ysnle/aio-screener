@@ -218,7 +218,7 @@ try {
     };
   }, messageId);
 
-  const widths = [320, 400, 768, 1280];
+  const widths = [400, 1280]; // P1324: 400 is the fixed desktop AI-panel width; phone/tablet widths are out of scope
   const positiveMetrics = {};
   for (const width of widths) {
     await page.setViewportSize({ width, height: 900 });

@@ -1,9 +1,18 @@
 name: Deploy AI proxy
 
 on:
-  workflow_dispatch: {}
+  workflow_run:
+    workflows: ['CI']
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      ci_run_id:
+        description: Successful main CI run that attested the exact Worker source SHA
+        required: true
+        type: string
 
 permissions:
+  actions: read
   contents: read
 
 concurrency:
@@ -12,65 +21,204 @@ concurrency:
 
 jobs:
   deploy:
+    if: >-
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_repository.full_name == github.repository)
+      || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 35
     steps:
-      - name: Checkout
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
-
-      - name: Require AI proxy operating configuration
+      - name: Resolve successful exact-SHA CI run
+        id: ci
         env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
+          WORKFLOW_SHA: ${{ github.event.workflow_run.head_sha }}
+          DISPATCH_CI_RUN_ID: ${{ github.event.inputs.ci_run_id }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = 'workflow_run' ]; then run_id="$WORKFLOW_RUN_ID"; expected_sha="$WORKFLOW_SHA"; else run_id="$DISPATCH_CI_RUN_ID"; expected_sha=''; fi
+          case "$run_id" in ''|null|*[!0-9]*) echo "::error::a successful CI run id is required"; exit 1;; esac
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run_id" --jq '[.name, .conclusion, (.head_branch // ""), (.head_sha // ""), (.event // ""), (.head_repository.full_name // "")] | @tsv' > "$RUNNER_TEMP/aio-worker-ci-run.tsv"
+          IFS="$(printf '\t')" read -r workflow_name conclusion branch ci_sha ci_event ci_repo < "$RUNNER_TEMP/aio-worker-ci-run.tsv"
+          [ "$workflow_name" = 'CI' ] || { echo "::error::run $run_id is '$workflow_name', expected CI"; exit 1; }
+          [ "$conclusion" = 'success' ] || { echo "::error::CI run $run_id concluded '$conclusion', expected success"; exit 1; }
+          [ "$branch" = 'main' ] || { echo "::error::CI run $run_id ran on '$branch', expected main"; exit 1; }
+          [ "$ci_event" = 'push' ] || { echo "::error::CI run $run_id was triggered by '$ci_event', expected a push to main"; exit 1; }
+          [ "$ci_repo" = "$GITHUB_REPOSITORY" ] || { echo "::error::CI run $run_id came from '$ci_repo', not $GITHUB_REPOSITORY (fork)"; exit 1; }
+          if [ -n "$expected_sha" ]; then [ "$ci_sha" = "$expected_sha" ] || { echo "::error::CI run SHA differs from workflow_run SHA"; exit 1; }; fi
+          [[ "$ci_sha" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::CI run has invalid head SHA"; exit 1; }
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+          echo "sha=$ci_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Download CI release attestation
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: aio-release-attestation
+          path: ${{ runner.temp }}/aio-worker-attestation
+          github-token: ${{ github.token }}
+          run-id: ${{ steps.ci.outputs.run_id }}
+
+      - name: Validate AI proxy CI attestation
+        id: release
+        env:
+          EXPECTED_SHA: ${{ steps.ci.outputs.sha }}
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const file = `${process.env.RUNNER_TEMP}/aio-worker-attestation/aio-release-attestation.json`;
+          const attestation = JSON.parse(fs.readFileSync(file, 'utf8'));
+          if (attestation.schemaVersion !== 'aio-release-attestation.v1' || attestation.testedSha !== process.env.EXPECTED_SHA) {
+            throw new Error('CI attestation does not match the successful run SHA');
+          }
+          if (typeof attestation.workerDeploy?.aiProxy !== 'boolean') throw new Error('CI attestation has no AI-proxy change result');
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `sha=${attestation.testedSha}\nattested_change=${attestation.workerDeploy.aiProxy}\n`);
+          NODE
+
+      - name: Checkout exact attested SHA
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          ref: ${{ steps.release.outputs.sha }}
+          fetch-depth: 0
+
+      - name: Resolve AI proxy convergence from live source SHA
+        id: convergence
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          ATTESTED_CHANGE: ${{ steps.release.outputs.attested_change }}
+          EXPECTED_SHA: ${{ steps.release.outputs.sha }}
+          AI_PROXY_URL: ${{ vars.AIO_PROXY_URL || 'https://aio-proxy.zmfhd007.workers.dev' }}
+        run: |
+          set -euo pipefail
+          health_status="$(curl --silent --show-error --output "$RUNNER_TEMP/aio-proxy-convergence-health.json" --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/health" || true)"
+          if [ "$health_status" != '200' ] && [ "$health_status" != '503' ]; then echo "::error::cannot resolve AI proxy convergence: HTTP $health_status"; exit 1; fi
+          LIVE_SHA="$(node -e "const h=require(process.argv[1]);process.stdout.write(typeof h.sourceSha==='string'?h.sourceSha:'')" "$RUNNER_TEMP/aio-proxy-convergence-health.json")"
+          CURRENT_MAIN_SHA="$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')"
+          export LIVE_SHA CURRENT_MAIN_SHA
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import { getWorkerChangesBetween, isAncestorCommit, shouldDeployWorker } from './scripts/worker-deploy-impact.mjs';
+          const manual = process.env.EVENT_NAME === 'workflow_dispatch';
+          const changed = process.env.ATTESTED_CHANGE === 'true';
+          const liveSha = process.env.LIVE_SHA;
+          const liveIsAncestor = !manual && process.env.CURRENT_MAIN_SHA === process.env.EXPECTED_SHA
+            && liveSha !== process.env.EXPECTED_SHA && /^[0-9a-f]{40}$/.test(liveSha)
+            && isAncestorCommit(liveSha, process.env.EXPECTED_SHA);
+          const cumulativeChanges = liveIsAncestor && !changed
+            ? await getWorkerChangesBetween(liveSha, process.env.EXPECTED_SHA)
+            : undefined;
+          const shouldDeploy = shouldDeployWorker({ plane: 'aiProxy', manual, attestedChanged: changed, liveSha, testedSha: process.env.EXPECTED_SHA, latestMainSha: process.env.CURRENT_MAIN_SHA, cumulativeChanges });
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `should_deploy=${shouldDeploy}\n`);
+          const reason = !manual && process.env.CURRENT_MAIN_SHA !== process.env.EXPECTED_SHA ? 'stale-ci-run' : shouldDeploy ? 'worker-change-or-live-drift' : 'already-converged-or-no-worker-change';
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `reason=${reason}\n`);
+          console.log(`AI-proxy automatic convergence decision: ${shouldDeploy ? 'deploy' : 'skip'} (live=${liveSha || 'unknown'}, tested=${process.env.EXPECTED_SHA})`);
+          NODE
+
+      - name: Require Cloudflare operating configuration
+        if: steps.convergence.outputs.should_deploy == 'true'
+        env:
+          EVENT_NAME: ${{ github.event_name }}
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLAUDE_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           FRED_RELAY_KEY: ${{ secrets.FRED_API_KEY }}
         run: |
           set -euo pipefail
-          # FRED_API_KEY is required because /relay's fred provider is the replacement for the
-          # browser-blocked client FRED path. BOK/KOSIS relay keys stay optional and are published
-          # conditionally below — a missing key fails only that provider closed, not the deploy.
-          for pair in "CLOUDFLARE_API_TOKEN=$CF_TOKEN" "CLOUDFLARE_ACCOUNT_ID=$CF_ACCOUNT" "ANTHROPIC_API_KEY=$CLAUDE_KEY" "FRED_API_KEY=$FRED_RELAY_KEY"; do
+          for pair in "CLOUDFLARE_API_TOKEN=$CF_TOKEN" "CLOUDFLARE_ACCOUNT_ID=$CF_ACCOUNT"; do
             name="${pair%%=*}"; value="${pair#*=}"
             if [ -z "$value" ]; then echo "::error::operator_required: $name is not configured"; exit 1; fi
           done
+          # Repository API keys are used only by an explicitly dispatched secret sync.
+          # Automatic code deploys retain Cloudflare's existing secret bindings.
+          if [ "$EVENT_NAME" = 'workflow_dispatch' ]; then
+            for pair in "ANTHROPIC_API_KEY=$CLAUDE_KEY" "FRED_API_KEY=$FRED_RELAY_KEY"; do
+              name="${pair%%=*}"; value="${pair#*=}"
+              if [ -z "$value" ]; then echo "::error::operator_required: $name is not configured for manual secret sync"; exit 1; fi
+            done
+          fi
 
       - name: Setup Node
+        if: steps.convergence.outputs.should_deploy == 'true'
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: '24'
 
       - name: Validate Cloudflare source and deployment contract
+        if: steps.convergence.outputs.should_deploy == 'true'
         run: node scripts/qa-runner.mjs --group cloudflare --no-cache
 
       - name: Install Wrangler
+        if: steps.convergence.outputs.should_deploy == 'true'
         run: npm install --global wrangler@4.120.0
 
       - name: Render exact-SHA deployment config
-        run: sed -e "s/__AIO_SOURCE_SHA__/${GITHUB_SHA}/" worker/wrangler.proxy.toml > worker/wrangler.proxy.deploy.toml
+        if: steps.convergence.outputs.should_deploy == 'true'
+        env:
+          SOURCE_SHA: ${{ steps.release.outputs.sha }}
+        run: sed -e "s/__AIO_SOURCE_SHA__/${SOURCE_SHA}/" worker/wrangler.proxy.toml > worker/wrangler.proxy.deploy.toml
 
-      - name: Deploy canonical Worker
+      - name: Capture active rollback target and source identity
+        id: rollback-baseline
+        if: steps.convergence.outputs.should_deploy == 'true'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: wrangler deploy --config worker/wrangler.proxy.deploy.toml
+          AI_PROXY_URL: ${{ vars.AIO_PROXY_URL || 'https://aio-proxy.zmfhd007.workers.dev' }}
+        run: |
+          set -euo pipefail
+          wrangler deployments list --json --config worker/wrangler.proxy.deploy.toml > "$RUNNER_TEMP/aio-proxy-deployments.json"
+          previous_version="$(node scripts/resolve-worker-rollback-version.mjs "$RUNNER_TEMP/aio-proxy-deployments.json")"
+          health_status="$(curl --silent --show-error --output "$RUNNER_TEMP/aio-proxy-before-health.json" --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/health" || true)"
+          if [ "$health_status" != '200' ] && [ "$health_status" != '503' ]; then echo "::error::rollback baseline health endpoint returned HTTP $health_status"; exit 1; fi
+          previous_sha="$(node -e "const h=require(process.argv[1]);if(!/^([0-9a-f]{40})$/.test(h.sourceSha||''))process.exit(1);process.stdout.write(h.sourceSha)" "$RUNNER_TEMP/aio-proxy-before-health.json")"
+          echo "version_id=$previous_version" >> "$GITHUB_OUTPUT"
+          echo "source_sha=$previous_sha" >> "$GITHUB_OUTPUT"
+          echo "http_status=$health_status" >> "$GITHUB_OUTPUT"
+          echo "AI-proxy rollback target captured: version=$previous_version sourceSha=$previous_sha HTTP=$health_status"
 
-      - name: Publish Anthropic secret
+      - name: Recheck main head immediately before Worker mutation
+        id: latest-main
+        if: steps.convergence.outputs.should_deploy == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          EXPECTED_SHA: ${{ steps.release.outputs.sha }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = 'workflow_dispatch' ]; then echo 'safe=true' >> "$GITHUB_OUTPUT"; exit 0; fi
+          current_main_sha="$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')"
+          if [ "$current_main_sha" = "$EXPECTED_SHA" ]; then
+            echo 'safe=true' >> "$GITHUB_OUTPUT"
+          else
+            echo "Main advanced to $current_main_sha; skipping stale AI-proxy run for $EXPECTED_SHA."
+            echo 'safe=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy canonical Worker
+        id: deploy
+        if: steps.convergence.outputs.should_deploy == 'true' && steps.latest-main.outputs.safe == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          SOURCE_SHA: ${{ steps.release.outputs.sha }}
+        run: wrangler deploy --config worker/wrangler.proxy.deploy.toml --message "AIO AI proxy $SOURCE_SHA"
+
+      - name: Publish Anthropic and server-side relay secrets
+        id: publish-secrets
+        if: steps.convergence.outputs.should_deploy == 'true' && steps.latest-main.outputs.safe == 'true' && github.event_name == 'workflow_dispatch'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: printf '%s' "$ANTHROPIC_API_KEY" | wrangler secret put ANTHROPIC_API_KEY --config worker/wrangler.proxy.deploy.toml
-
-      - name: Publish server-side relay secrets
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
           BOK_API_KEY: ${{ secrets.BOK_API_KEY }}
           KOSIS_API_KEY: ${{ secrets.KOSIS_API_KEY }}
         run: |
           set -euo pipefail
-          publish() {
+          printf '%s' "$ANTHROPIC_API_KEY" | wrangler secret put ANTHROPIC_API_KEY --config worker/wrangler.proxy.deploy.toml
+          publish_optional() {
             local name="$1" value="$2"
             if [ -z "$value" ]; then
               echo "::warning::relay_optional_missing: $name is not configured — that /relay provider stays fail-closed"
@@ -78,41 +226,69 @@ jobs:
             fi
             printf '%s' "$value" | wrangler secret put "$name" --config worker/wrangler.proxy.deploy.toml
           }
-          publish FRED_API_KEY "$FRED_API_KEY"
-          publish BOK_API_KEY "$BOK_API_KEY"
-          publish KOSIS_API_KEY "$KOSIS_API_KEY"
+          publish_optional FRED_API_KEY "$FRED_API_KEY"
+          publish_optional BOK_API_KEY "$BOK_API_KEY"
+          publish_optional KOSIS_API_KEY "$KOSIS_API_KEY"
 
       - name: Verify health, readiness, CORS, and fail-closed origin
+        id: smoke
+        if: always() && steps.convergence.outputs.should_deploy == 'true' && steps.latest-main.outputs.safe == 'true' && steps.deploy.outcome == 'success'
         env:
           AI_PROXY_URL: ${{ vars.AIO_PROXY_URL || 'https://aio-proxy.zmfhd007.workers.dev' }}
+          EXPECTED_SHA: ${{ steps.release.outputs.sha }}
         run: |
           set -euo pipefail
           ready="0"
           for attempt in $(seq 1 12); do
-            status="$(curl --silent --show-error --output /tmp/aio-ai-health.json --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/health" || true)"
-            if [ "$status" = "200" ] && node -e "const fs=require('fs');const h=JSON.parse(fs.readFileSync('/tmp/aio-ai-health.json'));if(h.schemaVersion!=='aio-worker-health.v1'||h.sourceSha!==process.env.GITHUB_SHA||h.ai?.configured!==true||h.ai?.quotaConfigured!==true||h.ai?.authorityReady!==true||h.ai?.authorityJurisdiction!=='us'||h.ai?.ready!==true||h.relay?.configured?.fred!==true||h.relay?.quotaConfigured!==true)process.exit(1)"; then
+            status="$(curl --silent --show-error --output "$RUNNER_TEMP/aio-ai-health.json" --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/health" || true)"
+            if [ "$status" = '200' ] && node -e "const fs=require('fs');const h=JSON.parse(fs.readFileSync(process.argv[1]));if(h.schemaVersion!=='aio-worker-health.v1'||h.sourceSha!==process.env.EXPECTED_SHA||h.ai?.configured!==true||h.ai?.quotaConfigured!==true||h.ai?.authorityReady!==true||h.ai?.authorityJurisdiction!=='us'||h.ai?.ready!==true||h.relay?.configured?.fred!==true||h.relay?.quotaConfigured!==true)process.exit(1)" "$RUNNER_TEMP/aio-ai-health.json"; then
               ready="1"
               break
             fi
             sleep 5
           done
-          if [ "$ready" != "1" ]; then cat /tmp/aio-ai-health.json || true; echo "::error::ai_proxy_not_ready: HTTP $status"; exit 1; fi
-          cors_status="$(curl --silent --show-error --dump-header /tmp/aio-ai-cors.txt --output /dev/null --write-out '%{http_code}' -X OPTIONS -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/anthropic")"
-          if [ "$cors_status" != "204" ]; then echo "::error::ai_proxy_cors_failed: HTTP $cors_status"; exit 1; fi
-          node -e "const fs=require('fs');const h=fs.readFileSync('/tmp/aio-ai-cors.txt','utf8').toLowerCase();if(!/^access-control-allow-origin:\s*https:\/\/ysnle\.github\.io\s*$/m.test(h))process.exit(1)"
+          if [ "$ready" != '1' ]; then cat "$RUNNER_TEMP/aio-ai-health.json" || true; echo "::error::ai_proxy_not_ready: HTTP $status"; exit 1; fi
+          cors_status="$(curl --silent --show-error --dump-header "$RUNNER_TEMP/aio-ai-cors.txt" --output /dev/null --write-out '%{http_code}' -X OPTIONS -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/anthropic")"
+          if [ "$cors_status" != '204' ]; then echo "::error::ai_proxy_cors_failed: HTTP $cors_status"; exit 1; fi
+          node -e "const fs=require('fs');const h=fs.readFileSync(process.argv[1],'utf8').toLowerCase();if(!/^access-control-allow-origin:\\s*https:\\/\\/ysnle\\.github\\.io\\s*$/m.test(h))process.exit(1)" "$RUNNER_TEMP/aio-ai-cors.txt"
           blocked="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' -H 'Origin: https://example.com' -H 'Content-Type: application/json' -d '{"model":"claude-haiku-4-5","max_tokens":1,"messages":[]}' "$AI_PROXY_URL/anthropic")"
-          if [ "$blocked" != "403" ]; then echo "::error::ai_proxy_origin_gate_failed: HTTP $blocked"; exit 1; fi
-          upstream_status="$(curl --silent --show-error --dump-header /tmp/aio-ai-upstream-headers.txt --output /tmp/aio-ai-upstream.json --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' -H 'Content-Type: application/json' -H "X-AIO-Idempotency-Key: deploy-${GITHUB_SHA}-${GITHUB_RUN_ATTEMPT}" -d '{"model":"claude-haiku-4-5","max_tokens":8,"messages":[{"role":"user","content":"Reply exactly OK"}]}' "$AI_PROXY_URL/anthropic")"
-          if [ "$upstream_status" != "200" ]; then cat /tmp/aio-ai-upstream.json || true; echo "::error::ai_proxy_upstream_failed: HTTP $upstream_status"; exit 1; fi
-          node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync('/tmp/aio-ai-upstream.json'));if(!Array.isArray(r.content)||!r.content.some(x=>x?.type==='text'&&typeof x.text==='string'))process.exit(1)"
-          node -e "const fs=require('fs');const h=fs.readFileSync('/tmp/aio-ai-upstream-headers.txt','utf8').toLowerCase();if(!/^x-aio-upstream-authority:\\s*durable-object-us\\s*$/m.test(h))process.exit(1)"
-          # /relay: server-side key relay must serve an operator-key FRED series without the client
-          # ever supplying a key, and must refuse a non-allowlisted Origin before any upstream call.
-          relay_status="$(curl --silent --show-error --dump-header /tmp/aio-relay-headers.txt --output /tmp/aio-relay.json --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/relay?provider=fred&series_id=DGS10&limit=1")"
-          if [ "$relay_status" != "200" ]; then cat /tmp/aio-relay.json || true; echo "::error::ai_proxy_relay_failed: HTTP $relay_status"; exit 1; fi
-          node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync('/tmp/aio-relay.json'));if(!Array.isArray(r.observations))process.exit(1)"
-          node -e "const fs=require('fs');const h=fs.readFileSync('/tmp/aio-relay-headers.txt','utf8');if(/api_key/i.test(h)||/api_key=/i.test(h))process.exit(1)"
+          if [ "$blocked" != '403' ]; then echo "::error::ai_proxy_origin_gate_failed: HTTP $blocked"; exit 1; fi
+          upstream_status="$(curl --silent --show-error --dump-header "$RUNNER_TEMP/aio-ai-upstream-headers.txt" --output "$RUNNER_TEMP/aio-ai-upstream.json" --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' -H 'Content-Type: application/json' -H "X-AIO-Idempotency-Key: deploy-${EXPECTED_SHA}-${GITHUB_RUN_ATTEMPT}" -d '{"model":"claude-haiku-4-5","max_tokens":8,"messages":[{"role":"user","content":"Reply exactly OK"}]}' "$AI_PROXY_URL/anthropic")"
+          if [ "$upstream_status" != '200' ]; then cat "$RUNNER_TEMP/aio-ai-upstream.json" || true; echo "::error::ai_proxy_upstream_failed: HTTP $upstream_status"; exit 1; fi
+          node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync(process.argv[1]));if(!Array.isArray(r.content)||!r.content.some(x=>x?.type==='text'&&typeof x.text==='string'))process.exit(1)" "$RUNNER_TEMP/aio-ai-upstream.json"
+          node -e "const fs=require('fs');const h=fs.readFileSync(process.argv[1],'utf8').toLowerCase();if(!/^x-aio-upstream-authority:\\s*durable-object-us\\s*$/m.test(h))process.exit(1)" "$RUNNER_TEMP/aio-ai-upstream-headers.txt"
+          relay_status="$(curl --silent --show-error --dump-header "$RUNNER_TEMP/aio-relay-headers.txt" --output "$RUNNER_TEMP/aio-relay.json" --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/relay?provider=fred&series_id=DGS10&limit=1")"
+          if [ "$relay_status" != '200' ]; then cat "$RUNNER_TEMP/aio-relay.json" || true; echo "::error::ai_proxy_relay_failed: HTTP $relay_status"; exit 1; fi
+          node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync(process.argv[1]));if(!Array.isArray(r.observations))process.exit(1)" "$RUNNER_TEMP/aio-relay.json"
+          node -e "const fs=require('fs');const h=fs.readFileSync(process.argv[1],'utf8');if(/api_key/i.test(h)||/api_key=/i.test(h))process.exit(1)" "$RUNNER_TEMP/aio-relay-headers.txt"
           relay_blocked="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' -H 'Origin: https://example.com' "$AI_PROXY_URL/relay?provider=fred&series_id=DGS10&limit=1")"
-          if [ "$relay_blocked" != "403" ]; then echo "::error::ai_proxy_relay_origin_gate_failed: HTTP $relay_blocked"; exit 1; fi
+          if [ "$relay_blocked" != '403' ]; then echo "::error::ai_proxy_relay_origin_gate_failed: HTTP $relay_blocked"; exit 1; fi
           relay_unknown="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/relay?provider=evil&series_id=DGS10")"
-          if [ "$relay_unknown" != "400" ]; then echo "::error::ai_proxy_relay_provider_gate_failed: HTTP $relay_unknown"; exit 1; fi
+          if [ "$relay_unknown" != '400' ]; then echo "::error::ai_proxy_relay_provider_gate_failed: HTTP $relay_unknown"; exit 1; fi
+
+      - name: Roll back failed AI-proxy deployment
+        id: rollback
+        if: failure() && steps.convergence.outputs.should_deploy == 'true' && steps.latest-main.outputs.safe == 'true' && steps.deploy.outcome == 'success' && steps.smoke.outcome == 'failure'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PREVIOUS_VERSION_ID: ${{ steps.rollback-baseline.outputs.version_id }}
+          SOURCE_SHA: ${{ steps.release.outputs.sha }}
+        run: wrangler rollback "$PREVIOUS_VERSION_ID" --config worker/wrangler.proxy.deploy.toml --message "Automatic rollback after failed AIO smoke for $SOURCE_SHA"
+
+      - name: Verify AI-proxy rollback source identity
+        if: always() && steps.convergence.outputs.should_deploy == 'true' && steps.latest-main.outputs.safe == 'true' && steps.rollback.outcome == 'success'
+        env:
+          AI_PROXY_URL: ${{ vars.AIO_PROXY_URL || 'https://aio-proxy.zmfhd007.workers.dev' }}
+          EXPECTED_SHA: ${{ steps.rollback-baseline.outputs.source_sha }}
+          EXPECTED_STATUS: ${{ steps.rollback-baseline.outputs.http_status }}
+        run: |
+          set -euo pipefail
+          restored=0
+          for attempt in $(seq 1 12); do
+            status="$(curl --silent --show-error --output "$RUNNER_TEMP/aio-proxy-rollback-health.json" --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/health" || true)"
+            if [ "$status" = "$EXPECTED_STATUS" ] && node -e "const h=require(process.argv[1]);if(h.sourceSha!==process.env.EXPECTED_SHA)process.exit(1)" "$RUNNER_TEMP/aio-proxy-rollback-health.json"; then restored=1; break; fi
+            sleep 5
+          done
+          if [ "$restored" != '1' ]; then echo "::error::AI-proxy rollback source/status did not return to the captured baseline"; cat "$RUNNER_TEMP/aio-proxy-rollback-health.json" || true; exit 1; fi
+          echo "AI-proxy rollback verified: sourceSha=$EXPECTED_SHA HTTP=$EXPECTED_STATUS"

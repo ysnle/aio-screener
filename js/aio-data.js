@@ -1270,7 +1270,6 @@ var _TG_PAGE_TAGS = {
   'portfolio':   ['equity','earnings','flows','insider','macro','credit','geo'],
   'ticker':      ['equity','earnings','insider','semi','power','optical','healthcare'],
   'market-news': ['macro','market-note','credit','geo','semi','equity','kr-market','ai-policy','optical','power','crypto','earnings','healthcare','japan','flows','insider'],
-  'options':     ['macro','equity','flows','earnings','crypto','geo'],
   'screener':    ['equity','earnings','insider','semi','power','optical','healthcare','kr-market'],
   'principles':  ['macro','credit','semi','power','ai-policy','geo','japan'],
   'masters':     ['equity','earnings','flows','insider','macro','credit'],
@@ -4114,7 +4113,7 @@ var AIO_PAGE_REFRESH_MAP = {
   portfolio:   ['quotes', 'technicals'],
   'market-news': ['quotes', 'news'],
   // v53.7 (P725): KR 라우트 퇴역 — themes/macro/technical가 KR 섹션 갱신을 겸함
-  'options': ['quotes', 'sentiment']
+  // P1321: options route retired — its VIX/PCR/SKEW live on sentiment
 };
 window.AIO_PAGE_REFRESH_MAP = AIO_PAGE_REFRESH_MAP;
 // P1129/R619: AIO_CRITICAL_10_PAGE_IDS 하드코딩 제거 — aio-core가 CRITICAL_5+ANALYSIS_5로 파생한다.
@@ -5482,6 +5481,10 @@ function _aioApplyServerTreasuryEvidence(macro, metadata) {
   return { applied: fields.length, fields };
 }
 
+function _aioIsStrictLiveCoreFreshnessAge(ageMs) {
+  return Number.isFinite(ageMs) && ageMs >= 0 && ageMs <= 12 * 60 * 60 * 1000;
+}
+
 async function _aioLoadServerData() {
   globalThis._aioScreenerLoadState = { status:'loading', checkedAt:Date.now() };
   try {
@@ -5560,9 +5563,12 @@ async function _aioLoadServerData() {
     globalThis._aioServerDataBridgeAttempts = 0;
 
     var _serverGeneratedMs = d.meta.generatedAt ? new Date(d.meta.generatedAt).getTime() : NaN;
-    var ageMin = isFinite(_serverGeneratedMs) ? Math.round((Date.now() - _serverGeneratedMs) / 60000) : null;
-    var _marketCycleFreshnessSlaHours = Number(d.meta.marketCycleFreshnessSlaHours || 12);
-    var _liveCoreAgeHours = ageMin == null ? Infinity : ageMin / 60;
+    var _serverNowMs = Date.now();
+    var _serverAgeMs = isFinite(_serverGeneratedMs) ? _serverNowMs - _serverGeneratedMs : NaN;
+    var ageMin = isFinite(_serverAgeMs) ? _serverAgeMs / 60000 : null;
+    // R646/P1295/P1296: canonical policy is 12h; artifact metadata does not configure runtime freshness.
+    var _marketCycleFreshnessSlaHours = 12;
+    var _liveCoreAgeHours = isFinite(_serverAgeMs) ? _serverAgeMs / 3600000 : Infinity;
     var _marketCoverageRaw = d.meta.marketSnapshotCoverage || {};
     // Older producers returned {required, observed, ratio}; newer snapshot
     // contracts also expose tier0Required/tier0Observed. Normalize both forms
@@ -5574,11 +5580,7 @@ async function _aioLoadServerData() {
     var _marketCoverageComplete = Number(_marketCoverage.tier0Required) > 0
       && Number(_marketCoverage.tier0Observed) === Number(_marketCoverage.tier0Required)
       && (!Array.isArray(d.meta.failedSymbols) || d.meta.failedSymbols.length === 0);
-    var _utcDay = new Date().getUTCDay();
-    var _marketClosedGrace = (_utcDay === 0 || _utcDay === 6)
-      && d.meta.cycleStatus === 'PUBLISHED'
-      && _marketCoverageComplete;
-    var _liveCoreFresh = isFinite(_liveCoreAgeHours) && _liveCoreAgeHours >= 0 && _liveCoreAgeHours <= _marketCycleFreshnessSlaHours;
+    var _liveCoreFresh = _aioIsStrictLiveCoreFreshnessAge(_serverAgeMs);
     // generatedAt is an attempt/payload timestamp. It is not permission to promote
     // an incomplete market cycle: a failed refresh can have a fresh generatedAt while
     // its quotes remain last-known-good. Require the producer's publication gate and
@@ -5586,7 +5588,8 @@ async function _aioLoadServerData() {
     var _marketCyclePublished = d.meta.cycleStatus === 'PUBLISHED'
       && d.meta.marketSnapshotPublished === true
       && _marketCoverageComplete;
-    var _liveCoreEligible = _marketCyclePublished && (_liveCoreFresh || _marketClosedGrace);
+    // P1291/R641: closed-market timing does not extend the wall-clock age of a live artifact.
+    var _liveCoreEligible = _marketCyclePublished && _liveCoreFresh;
     var _liveCoreStaleReason = _liveCoreEligible ? null
       : (!_marketCyclePublished ? 'market-cycle-not-published'
         : (!isFinite(_liveCoreAgeHours) ? 'generatedAt-missing-or-invalid' : 'market-cycle-freshness-sla-exceeded'));
@@ -5632,7 +5635,6 @@ async function _aioLoadServerData() {
       liveCoreAgeHours: isFinite(_liveCoreAgeHours) ? _liveCoreAgeHours : null,
       liveCoreFresh: _liveCoreFresh,
       liveCoreEligible: _liveCoreEligible,
-      marketClosedGrace: _marketClosedGrace,
       liveCoreStaleReason: _liveCoreStaleReason,
       cycleManifestRevision: d.meta.cycleManifestRevision || null,
       cycleManifestAttemptRevision: d.meta.cycleManifestAttemptRevision || null,
@@ -6460,44 +6462,13 @@ function _aioRenderOperatorNote() {
 }
 window._aioRenderOperatorNote = _aioRenderOperatorNote;
 
-// v52.90/P705: 뉴스 본문과 헤더 요약은 같은 items/meta를 단일 경로로 반영한다.
-// 서버 백스톱이 피드만 채우고 감성·24h·상태는 "수신 대기"로 남던 분리 상태를 방지한다.
+// P1268: this compatibility producer keeps returning the legacy score projection for charts and
+// signal consumers, while the native news route is the sole owner of the visible summary sinks.
+// RSS/server/IDB producer behavior remains intact; it no longer races the native renderer's counts.
 function _aioUpdateNewsSummaryFromItems(items, meta) {
   try {
     var rows = Array.isArray(items) ? items : [];
-    var info = meta || {};
     var ns = computeNewsSentimentScore(rows);
-    var scoreEl = document.getElementById('news-sent-score');
-    var labelEl = document.getElementById('news-sent-label');
-    if (scoreEl) {
-      scoreEl.textContent = rows.length ? ns.score : '—';
-      scoreEl.style.color = ns.score > 55 ? 'var(--data-green)' : ns.score < 45 ? 'var(--data-red)' : 'var(--text-primary)';
-    }
-    if (labelEl) labelEl.textContent = rows.length ? ns.label + ' (' + ns.bullCount + '↑ ' + ns.bearCount + '↓)' : '뉴스 없음';
-
-    var recent = typeof filterByAge === 'function' ? filterByAge(rows, 24) : rows;
-    var countEl = document.getElementById('news-24h-count');
-    var srcEl = document.getElementById('news-24h-sources');
-    if (countEl) countEl.textContent = recent.length + '건';
-    if (srcEl) srcEl.textContent = new Set(recent.map(function(i) { return i && i.source || '출처 미상'; })).size + '개 소스';
-
-    var risks = computeNewsRiskSignals(rows);
-    var riskCntEl = document.getElementById('news-risk-count');
-    var riskLblEl = document.getElementById('news-risk-label');
-    if (riskCntEl) {
-      riskCntEl.textContent = risks.length;
-      riskCntEl.style.color = risks.length >= 3 ? 'var(--data-red)' : risks.length >= 1 ? 'var(--text-primary)' : 'var(--data-green)';
-    }
-    if (riskLblEl) riskLblEl.textContent = risks.length ? risks.map(function(r) { return r.label; }).join(' · ') : '리스크 없음';
-
-    var asOf = info.generatedAt ? new Date(info.generatedAt) : new Date();
-    if (isNaN(asOf.getTime())) asOf = new Date();
-    var timeText = asOf.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
-    var kindLabel = info.kind === 'server-cache' ? '서버 캐시' : info.kind === 'idb-cache' ? '기기 캐시' : '직접 수집';
-    var ftEl = document.getElementById('last-fetch-time');
-    if (ftEl) ftEl.textContent = kindLabel + ' ' + timeText;
-    var sl = document.getElementById('news-sources-label');
-    if (sl) sl.textContent = rows.length + '건 · ' + kindLabel + ' · 기준 ' + timeText;
     return ns;
   } catch (e) {
     if (typeof _aioLog === 'function') _aioLog('warn', 'render', '뉴스 요약 동기화 실패: ' + (e && e.message || e));
@@ -6761,7 +6732,6 @@ function _aioPublicReadinessPageText(pageId) {
     portfolio: '포트폴리오',
     'market-news': '시장 뉴스',
     screener: '퀀트 스크리너',
-    options: '옵션',
     guide: '사용 설명서',
     glossary: '용어 사전',
     mindset: '투자 마인드'
@@ -11331,7 +11301,9 @@ function _aioNewsCycleWindowForContract(contract, opts) {
   if (contract && contract.newsCyclePolicy === 'kst-0800-completed-24h' && meta.newsCycleStart && meta.newsCycleEnd) {
     var smStart = new Date(meta.newsCycleStart).getTime();
     var smEnd = new Date(meta.newsCycleEnd).getTime();
-    var smAgeH = meta.generatedAt ? (Date.now() - new Date(meta.generatedAt).getTime()) / 3600000 : Infinity;
+    var smGeneratedMs = meta.generatedAt ? new Date(meta.generatedAt).getTime() : NaN;
+    var smAgeH = isFinite(smGeneratedMs) ? (Date.now() - smGeneratedMs) / 3600000 : Infinity;
+    var cutSlaHours = 12;
     var sharedCut = null;
     try { sharedCut = window.AIO && typeof window.AIO.getSharedMarketCut === 'function' ? window.AIO.getSharedMarketCut() : null; } catch(_) {}
     // A fresh generatedAt is only the refresh attempt clock. The news window
@@ -11343,7 +11315,7 @@ function _aioNewsCycleWindowForContract(contract, opts) {
       && meta.cycleStatus === 'PUBLISHED';
     var serverCutFresh = publishedCycle && (sharedCut
       ? sharedCut.usable === true
-      : meta.liveCoreEligible === true && smAgeH <= Number(meta.marketCycleFreshnessSlaHours || 12));
+      : meta.liveCoreEligible === true && isFinite(smAgeH) && smAgeH >= 0 && smAgeH <= cutSlaHours);
     if (isFinite(smStart) && isFinite(smEnd) && smEnd > smStart && serverCutFresh) {
       return { start: smStart, end: smEnd, anchorDate: meta.newsCycleLabel || '' };
     }
@@ -11628,6 +11600,14 @@ function _aioGetCurrentHomeWeeklyNews(nowMs) {
 }
 window._aioGetCurrentHomeWeeklyNews = _aioGetCurrentHomeWeeklyNews;
 
+// P1273: a publisher headline can rank for discovery, but it is not article-level evidence.
+function _aioHomeNewsHeadlineOnly(item) {
+  var depth = String(item && item.contentDepth || '').trim().toLowerCase();
+  var status = String(item && item.verificationStatus || '').trim().toLowerCase();
+  var body = String(item && (item.summary || item.desc || item.description) || '').trim();
+  return depth === 'headline-only' || status === 'headline-only' || body.length < 40;
+}
+
 function renderHomeFeed(items) {
   const container = document.getElementById('home-news-highlights');
   if (!container) return;
@@ -11644,23 +11624,30 @@ function renderHomeFeed(items) {
     }
     container.innerHTML = '<div style="font-size:11px;color:var(--text-muted);font-weight:700;letter-spacing:0.05em;margin-bottom:4px;">핵심 뉴스</div>' +
       homeModelV502.items.map(function(item) {
-        var sent = getSentimentFromText(item.title + ' ' + (item.desc || ''));
-        var sentIcon = sent === 'bull' ? '<span class="sd sd-g"></span>' : sent === 'bear' ? '<span class="sd sd-r"></span>' : sent === 'warn' ? '<span class="sd sd-y"></span>' : '<span class="sd sd-w"></span>';
+        var headlineOnly = _aioHomeNewsHeadlineOnly(item);
+        var sent = headlineOnly ? null : getSentimentFromText(item.title + ' ' + (item.desc || ''));
+        var sentIcon = headlineOnly ? '' : sent === 'bull' ? '<span class="sd sd-g"></span>' : sent === 'bear' ? '<span class="sd sd-r"></span>' : sent === 'warn' ? '<span class="sd sd-y"></span>' : '<span class="sd sd-w"></span>';
         var timeAgo = item.pubDate ? getTimeAgo(new Date(item.pubDate)) : '';
-        var displayTitle = escHtml(getDisplayTitle(item));
-        var displaySummary = escHtml(getDisplaySummary(item));
-        var summaryLine = displaySummary ? '<div style="font-size:10px;color:var(--text-secondary);margin-top:1px;line-height:1.35;">' + displaySummary + '</div>' : '';
+        var displayTitle = escHtml(headlineOnly ? (item.title || '제목 없음') : getDisplayTitle(item));
+        var articleUrl = escUrl(item.link || '');
+        var titleMarkup = headlineOnly && articleUrl
+          ? '<a href="' + escHtml(articleUrl) + '" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;min-height:24px;line-height:1.4;" aria-label="' + displayTitle + ' — 원문 새 창에서 열기">' + displayTitle + '</a>'
+          : displayTitle;
+        var displaySummary = headlineOnly ? '' : escHtml(getDisplaySummary(item));
+        var summaryLine = headlineOnly
+          ? '<div style="font-size:10px;color:var(--text-muted);margin-top:1px;line-height:1.35;">헤드라인 전용·본문 미검증 — 원문 확인 전 영향 해석 보류</div>'
+          : displaySummary ? '<div style="font-size:10px;color:var(--text-secondary);margin-top:1px;line-height:1.35;">' + displaySummary + '</div>' : '';
       var hMacroTopics = ['macro','geopolitics','policy','fed','rates','trade','geo','bond','credit','fx','fxbond'];
-        var tickers = hMacroTopics.indexOf(item.topic) === -1 ? getDisplayTickers(item) : [];
+        var tickers = headlineOnly || hMacroTopics.indexOf(item.topic) !== -1 ? [] : getDisplayTickers(item);
         var tickerStr = tickers.length > 0
           ? tickers.slice(0,2).map(function(t) { var s = t.replace('$',''); return '<span data-action="_aioNewsTickerClick" data-arg="' + escHtml(s) + '" role="button" tabindex="0" style="font-size:11px;font-weight:800;color:#60a5fa;font-family:var(--font-mono);cursor:pointer;" title="' + escHtml(s) + ' 분석">' + escHtml(t.charAt(0) === '$' ? t : '$' + t) + '</span>'; }).join(' ') + ' '
           : '';
         return '<div class="aio-hover-news-item" data-open-url="' + escHtml(escUrl(item.link)) + '" style="display:flex;align-items:flex-start;gap:6px;padding:3px 0;cursor:pointer;border-bottom:1px solid var(--surface-2);">' +
           '<span style="flex-shrink:0;font-size:10px;line-height:1.6;">' + sentIcon + '</span>' +
           '<div style="flex:1;min-width:0;">' +
-            '<div style="font-size:11px;font-weight:600;color:var(--text-primary);line-height:1.4;">' + tickerStr + displayTitle + '</div>' +
+            '<div style="font-size:11px;font-weight:600;color:var(--text-primary);line-height:1.4;">' + tickerStr + titleMarkup + '</div>' +
             summaryLine +
-            '<div style="font-size:10px;color:var(--text-muted);margin-top:1px;font-family:var(--font-mono);">' + escHtml(item.inclusionReason || '') + ' · ' + escHtml(item.source || '') + ' · ' + escHtml(timeAgo) + '</div>' +
+            '<div style="font-size:10px;color:var(--text-muted);margin-top:1px;font-family:var(--font-mono);">' + (isFinite(Number(item.score)) ? '선별 점수 ' + escHtml(Number(item.score)) + ' (노출 우선순위·감성/본문 검증 점수 아님) · ' : '') + escHtml(item.source || '') + ' · ' + escHtml(timeAgo) + '</div>' +
           '</div>' +
         '</div>';
       }).join('');
@@ -11914,8 +11901,9 @@ function computeNewsSentimentScore(items) {
   var sourceItems = Array.isArray(items) ? items : newsCache;
   var _fn = window.AIO_ARCH && typeof window.AIO_ARCH.computeNewsSentimentScore === 'function' ? window.AIO_ARCH.computeNewsSentimentScore : null;
   if (_fn) return _fn({ items: sourceItems || [], now: Date.now() });
-  // Fail-closed fallback for the (unexpected) case the ESM architecture runtime never mounted.
-  return { score: 50, label: '뉴스 없음', bullCount: 0, bearCount: 0, total: 0, bullRatio: 0, bearRatio: 0 };
+  // P1285/R635: without the shared eligibility/minimum-sample model, legacy
+  // compatibility must not publish its old neutral baseline as an observation.
+  return { score: null, label: '분석 엔진 준비 중', bullCount: 0, bearCount: 0, total: 0, bullRatio: 0, bearRatio: 0, sampleSufficient: false };
 }
 
 /* ── 뉴스→시그널 통합: 매크로 리스크 집계 ──────────────────── */
@@ -11958,7 +11946,7 @@ window.AIO.getTelegramPageCoverageAudit = function() {
   var currentWindow = digest.current24hWindow || null;
   var required = Array.isArray(window.AIO_ALL_ROUTE_PAGE_IDS) && window.AIO_ALL_ROUTE_PAGE_IDS.length
     ? window.AIO_ALL_ROUTE_PAGE_IDS.slice()
-    : ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes','theme-detail','portfolio','ticker','market-news','options','screener','principles','masters','atlas','guide'];
+    : ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes','theme-detail','portfolio','ticker','market-news','screener','principles','masters','atlas','guide'];
   var routes = {};
   required.forEach(function(pageId) {
     var tags = Array.isArray(_TG_PAGE_TAGS[pageId]) ? _TG_PAGE_TAGS[pageId] : [];
@@ -12736,9 +12724,18 @@ async function fetchAllNews(forceRefresh = false) {
     //   → (1) localStorage 영속(reload 생존·누적) (2) 첫 진입 시 뉴스 캐시를 시간 버킷으로 즉시 시딩
     if (!window._newsSentimentHistory) {
       window._newsSentimentHistory = [];
-      try { var _savedNsh = JSON.parse(localStorage.getItem('aio_news_sent_hist') || '[]'); if (Array.isArray(_savedNsh) && _savedNsh.length) window._newsSentimentHistory = _savedNsh.slice(-24); } catch (_nshR) {}
+      try {
+        var _savedNsh = JSON.parse(localStorage.getItem('aio_news_sent_hist') || '[]');
+        if (Array.isArray(_savedNsh) && _savedNsh.length) window._newsSentimentHistory = _savedNsh.slice(-24);
+      } catch (_nshR) {}
     }
-    var _nsh = window._newsSentimentHistory;
+    // P1285/R635: old localStorage points predate the sample contract, so their
+    // scores cannot be revalidated and are discarded before any chart can read them.
+    var _minNewsSample = Number(window.AIO_ARCH && window.AIO_ARCH.MIN_NEWS_ANALYSIS_SAMPLE) || 5;
+    var _normalizeNewsHistory = window.AIO_ARCH && typeof window.AIO_ARCH.normalizeNewsSentimentHistory === 'function'
+      ? window.AIO_ARCH.normalizeNewsSentimentHistory : function() { return []; };
+    var _nsh = _normalizeNewsHistory(window._newsSentimentHistory);
+    window._newsSentimentHistory = _nsh;
     // 히스토리 부족 시 뉴스 캐시(24h)를 3시간 버킷으로 즉시 시딩 — 빈 차트 방지
     if (_nsh.length < 3 && typeof newsCache !== 'undefined' && newsCache && newsCache.length >= 6 && typeof getSentimentFromText === 'function') {
       try {
@@ -12747,21 +12744,27 @@ async function fetchAllNews(forceRefresh = false) {
           var _hi = _nowMs - _bk * 3600000, _lo = _hi - 3600000;
           var _bkItems = newsCache.filter(function(it) { if (!it.pubDate) return false; var t = new Date(it.pubDate).getTime(); return t > _lo && t <= _hi; });
           if (_bkItems.length < 2) continue;
-          var _bBull = 0, _bBear = 0;
-          _bkItems.forEach(function(it) { var s = getSentimentFromText((it.title || '') + ' ' + (it.desc || '')); if (s === 'bull') _bBull++; else if (s === 'bear' || s === 'warn') _bBear++; });
-          _seedNsh.push({ time: new Date(_hi).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }), score: Math.max(0, Math.min(100, Math.round(50 + (_bBull - _bBear) / _bkItems.length * 50))), bull: _bBull, bear: _bBear });
+          var _bucketScore = computeNewsSentimentScore(_bkItems);
+          if (!_bucketScore || _bucketScore.sampleSufficient !== true || Number(_bucketScore.total) < _minNewsSample || _bucketScore.score == null) continue; // P1284/R633: only a sufficient eligible sample can seed a point.
+          _seedNsh.push({ time: new Date(_hi).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }), score: _bucketScore.score, bull: _bucketScore.bullCount, bear: _bucketScore.bearCount, eligibleCount: _bucketScore.total, sampleSufficient: true, modelVersion: _bucketScore.modelVersion });
         }
-        if (_seedNsh.length >= 2) { window._newsSentimentHistory = _seedNsh; _nsh = window._newsSentimentHistory; }
+        if (_seedNsh.length >= 2) { _nsh = _normalizeNewsHistory(_seedNsh); window._newsSentimentHistory = _nsh; }
       } catch (_seedErr) {}
     }
     var _nsTime = new Date().toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
-    _nsh.push({ time: _nsTime, score: ns.score, bull: ns.bullCount, bear: ns.bearCount });
-    if (_nsh.length > 24) _nsh.shift(); // 최대 24포인트
+    if (ns && ns.sampleSufficient === true && Number(ns.total) >= _minNewsSample && ns.score != null && Number.isFinite(Number(ns.score))) {
+      _nsh.push({ time: _nsTime, score: Number(ns.score), bull: ns.bullCount, bear: ns.bearCount, eligibleCount: Number(ns.total), sampleSufficient: true, modelVersion: ns.modelVersion });
+    }
+    _nsh = _normalizeNewsHistory(_nsh); // drops pre-contract points and caps the chart history at 24.
+    window._newsSentimentHistory = _nsh;
     try { localStorage.setItem('aio_news_sent_hist', JSON.stringify(_nsh.slice(-24))); } catch (_nshW) {}
     // 라이브 스코어 표시
     var _nsLiveScore = document.getElementById('news-sent-live-score');
     var _nsLiveLabel = document.getElementById('news-sent-live-label');
-    if (_nsLiveScore) { _nsLiveScore.textContent = ns.score; _nsLiveScore.style.color = ns.score > 55 ? '#00e5a0' : ns.score < 45 ? '#ff5b50' : '#ffa31a'; }
+    if (_nsLiveScore) {
+      _nsLiveScore.textContent = ns.score == null ? '—' : String(ns.score);
+      _nsLiveScore.style.color = ns.score == null ? 'var(--text-muted)' : ns.score > 55 ? '#00e5a0' : ns.score < 45 ? '#ff5b50' : '#ffa31a';
+    }
     if (_nsLiveLabel) _nsLiveLabel.textContent = ns.label;
     // 차트 렌더
     var _nsCanvas = document.getElementById('news-sentiment-chart');
@@ -13987,15 +13990,8 @@ async function fetchLiveQuotes(requestedSymbols) {
     // v34.2: 실시간 데이터 수신 이벤트 발화 → staleness 배너 즉시 해제
     try { window.dispatchEvent(new CustomEvent('aio:liveDataReceived', { detail: { count: allQuotes.length, liveCoverage: liveCoverage, coreCoverageOk: coreCoverageOk } })); } catch(_e){}
     if (!coreCoverageOk) updateDataStatusError('warn', 'API connected but core market coverage is partial - fallback still active');
-    const lqTs = document.getElementById('live-quote-ts');
-    if (lqTs) lqTs.textContent = '클라 시세 ' + new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) + ' 갱신 (' + allQuotes.length + '개)';
-    // v49.37 P282: live-quote-ts-topbar 동시 갱신 (영구 placeholder 잔존 차단)
-    const lqTsTop = document.getElementById('live-quote-ts-topbar');
+    // P1326/R671: one presenter labels currentness from observation times (실시간/지연/종가/지난 시세).
     try { document.dispatchEvent(new CustomEvent('aio:quoteTopbar', { detail: { coreCoverageOk: coreCoverageOk } })); } catch(_topbarEvent) {}
-    if (lqTsTop && !lqTsTop.textContent) {
-      lqTsTop.textContent = '● ' + (coreCoverageOk ? '실시간 ' : '일부 실시간 ') + new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}) + ' (' + allQuotes.length + '개)';
-      lqTsTop.className = 'freshness-badge ' + (coreCoverageOk ? 'fb-live' : 'fb-static');
-    }
     try {
       if (window.AIO && typeof window.AIO.scheduleMarketCurrentnessGuard === 'function') window.AIO.scheduleMarketCurrentnessGuard(250, 'live-quotes');
       else if (window.AIO && typeof window.AIO.applyMarketCurrentnessGuard === 'function') window.AIO.applyMarketCurrentnessGuard({ reason: 'live-quotes' });
@@ -14005,15 +14001,12 @@ async function fetchLiveQuotes(requestedSymbols) {
     // v46.4: 지수적 백오프 (선형 30×N → 지수 15×2^N, 최대 300초)
     const usingSnapshotFallback = !!(_aioMarketSnapshotMeta && Number(_aioMarketSnapshotMeta.count) > 0);
     const wait = usingSnapshotFallback ? 180 : Math.min(300, 15 * Math.pow(2, fetchLiveQuotes._failCount - 1));
-    const lqTs = document.getElementById('live-quote-ts');
-    if (lqTs) lqTs.textContent = usingSnapshotFallback ? '기준 스냅샷 사용 · 중앙 갱신 주기 대기' : wait + '초 후 재시도...';
-    // v49.37 P282: live-quote-ts-topbar 동시 갱신 (실패 상태)
-    const lqTsTopErr = document.getElementById('live-quote-ts-topbar');
+    // P1326/R671: a failed fetch does not replace the currentness label with transport text;
+    // whatever observations exist keep their own label (종가/지난 시세/미수신).
     if (usingSnapshotFallback) {
       try { document.dispatchEvent(new CustomEvent('aio:marketSnapshot', { detail: _aioMarketSnapshotMeta })); } catch(_snapshotTopbarEvent) {}
-    } else if (lqTsTopErr) {
-      lqTsTopErr.textContent = '⚠ ' + wait + '초 후 재시도';
-      lqTsTopErr.className = 'freshness-badge fb-static';
+    } else {
+      try { document.dispatchEvent(new CustomEvent('aio:quoteTopbar', { detail: { retryInSec: wait } })); } catch(_retryTopbarEvent) {}
     }
     updateDataStatusError(usingSnapshotFallback ? 'warn' : 'error', usingSnapshotFallback
       ? '실시간 시세 미수신 · 기준 스냅샷 사용 · 중앙 갱신 주기 대기'
@@ -14295,9 +14288,7 @@ function applyStaticFallbacks() {
           return Object.assign({}, f, { _source:'snapshot', _originalSource:f._source, fetchedAt:f.fetchedAt || parsed.ts });
         });
         applyLiveQuotes(cachedQuotes);
-        var tsEl = document.getElementById('live-quote-ts');
         var ago = ageHours < 1 ? Math.round(ageHours * 60) + '분' : Math.round(ageHours) + '시간';
-        if (tsEl) tsEl.textContent = '캐시 데이터 (' + ago + ' 전) · 실시간 연결 중...';
         console.log('[AIO v35.8] localStorage 캐시 폴백 사용 (' + parsed.data.length + '종목, ' + ago + ' 전)');
         // 하드코딩 폴백 건너뛰기 — 나머지 rm-rspratio 등은 계속 처리
         _applyRiskMonitorFallbacks();
@@ -14313,8 +14304,6 @@ function applyStaticFallbacks() {
   // DATA_SNAPSHOT is still seeded through applyDataSnapshot() with source='snapshot'; this path
   // only keeps non-price risk monitor placeholders from hanging forever.
   try {
-    var tsElBlocked = document.getElementById('live-quote-ts');
-    if (tsElBlocked) tsElBlocked.textContent = '실시간 시세 대기 중 · 오래된 하드코딩 가격 fallback 차단됨';
     window.AIO = window.AIO || {};
     window.AIO._lastStaticQuoteFallbackBlocked = {
       blocked: true,
@@ -14450,7 +14439,7 @@ function _aioIsNativeFxbondElement(el) {
 }
 function _aioIsNativeMacroElement(el) {
   try {
-    return !!(el && el.closest && (el.closest('#page-macro[data-aio-architecture-renderer="native"]') || _aioIsNativeFxbondElement(el) || el.closest('#page-options[data-aio-architecture-renderer="native"]')));
+    return !!(el && el.closest && (el.closest('#page-macro[data-aio-architecture-renderer="native"]') || _aioIsNativeFxbondElement(el)));
   }
   catch (_) { return false; }
 }
@@ -15000,13 +14989,7 @@ function applyLiveQuotes(quotes) {
       try {
         if (typeof _getUsSession === 'function') return _getUsSession() === 'open';
       } catch(_session) {}
-      const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
-      const day = now.getDay();
-      if (day === 0 || day === 6) return false; // 주말
-      const hours = now.getHours();
-      const mins = now.getMinutes();
-      const time = hours * 60 + mins;
-      return time >= 570 && time < 960; // 9:30am - 4:00pm EST
+      return false; // No registered session clock means current-market status is unknown.
     })();
     const ageMs = now - (window._quoteTimestamps[q.symbol] || now);
     const isStale = isMarketHours && ageMs > 5 * 60 * 1000; // > 5 min during market hours
@@ -15094,7 +15077,7 @@ function applyLiveQuotes(quotes) {
         el.textContent = (atomicDelta >= 0 ? '▲ ' : '▼ ')
           + Math.abs(atomicDelta).toLocaleString('ko-KR', { maximumFractionDigits: 2 })
           + ' (' + (atomicPct >= 0 ? '+' : '') + atomicPct.toFixed(2) + '%)';
-        el.style.color = atomicDelta >= 0 ? 'var(--green)' : 'var(--red)';
+        el.style.color = atomicDelta >= 0 ? 'var(--green)' : 'var(--red)'; var _krIdxCard = el.closest && el.closest('.kr-idx-card'); if (_krIdxCard) { _krIdxCard.classList.toggle('up', atomicDelta > 0); _krIdxCard.classList.toggle('down', atomicDelta < 0); } // P1315: card direction follows the live delta, never static markup
         el.setAttribute('data-source-kind', 'live');
         el.setAttribute('data-operational-use', 'decision');
         el.setAttribute('data-source-label', q._source || 'live:yahoo');
@@ -15106,7 +15089,7 @@ function applyLiveQuotes(quotes) {
       // ticker-hero (기업분석 페이지)의 시간외 표시 전용 영역
       var _extHeroEl = document.getElementById('ticker-hero-ext');
       if (_extHeroEl && _extHeroEl.dataset.aioTickerExtensionRenderer !== 'native' && _currentTickerSym === q.symbol) {
-        var _usS = (typeof _getUsSession === 'function') ? _getUsSession() : 'open';
+        var _usS = (typeof _getUsSession === 'function') ? _getUsSession() : 'unknown';
         var extPctVal = q.extPct != null ? q.extPct : null;
         var extLabel = q.extSession === 'pre' ? 'Pre' : 'After';
         var extColor = extPctVal != null ? (extPctVal >= 0 ? '#00e5a0' : '#ff5b50') : 'var(--text-muted)';
@@ -15128,7 +15111,7 @@ function applyLiveQuotes(quotes) {
     var _INDEX_FUTURES_MAP = {'^GSPC':'ES=F', '^IXIC':'NQ=F', '^DJI':'YM=F'};
     var _futSym = _INDEX_FUTURES_MAP[q.symbol];
     if (_futSym) {
-      var _usS2 = (typeof _getUsSession === 'function') ? _getUsSession() : 'open';
+      var _usS2 = (typeof _getUsSession === 'function') ? _getUsSession() : 'unknown';
       if (_usS2 !== 'open') {
         // 지수는 종가 그대로 표시 (이미 위에서 regularMarketPrice로 설정됨) + "종가" 라벨
         document.querySelectorAll(`[data-live-price="${q.symbol}"]`).forEach(el => {
@@ -15230,8 +15213,6 @@ function applyLiveQuotes(quotes) {
       vixPctTableCell.setAttribute('data-source-ts', _vixTs);
     }
   }
-  const tsEl = document.getElementById('live-quote-ts');
-  if (tsEl) tsEl.textContent = new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
 
   // v53.9 P728: per-symbol 반영 뒤의 두 번째 전체 price/chg rewrite를 제거한다.
   // data-live-field와 기존 sink 보정은 아래 canonical applyLiveDataToDom 1회가 담당한다.
@@ -16209,7 +16190,7 @@ function _aioUpdatePutCallDom(payload) {
     ? window.AIO.makeOperationalMetric('putCallRatioTotal', pcr, sourceKind, asOf, sourceLabel, { domain: 'options' })
     : { name: 'putCallRatioTotal', value: pcr, sourceKind: sourceKind, sourceLabel: sourceLabel, ts: asOf, allowedUse: sourceKind === 'live' };
 
-  ['regime-pcr', 'opt-pcr-val'].forEach(function(id) {
+  ['regime-pcr'].forEach(function(id) {
     var el = document.getElementById(id);
     if (!el) return;
     if (_aioIsNativeMacroElement(el)) return;

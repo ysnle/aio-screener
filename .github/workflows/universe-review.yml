@@ -1,0 +1,88 @@
+name: Monthly screener universe review
+
+on:
+  schedule:
+    # :29 is offset from the recurring market refreshes (:17/:47), watchdog (:23),
+    # and screener refresh (:41).
+    - cron: '29 9 1 * *'
+  workflow_dispatch:
+    inputs:
+      review_date:
+        description: 'Optional deterministic UTC report date (YYYY-MM-DD).'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: monthly-screener-universe-review
+  cancel-in-progress: false
+
+jobs:
+  review:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REVIEW_DATE: ${{ inputs.review_date || '' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      - name: Setup Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: '20'
+
+      - name: Verify generated universe mirror without writing
+        run: node scripts/sync-screener-universe.mjs --check
+
+      - name: Build monthly human-review report
+        id: report
+        run: |
+          set -euo pipefail
+          if [ -n "${REVIEW_DATE:-}" ]; then
+            review_date="$REVIEW_DATE"
+            node scripts/build-universe-review.mjs --date "$review_date" > "$RUNNER_TEMP/universe-review.md"
+          else
+            # Keep the default report age at the exact run instant, matching the
+            # expiry gate's Date.now() comparison instead of rounding to midnight.
+            review_date="$(date -u +'%Y-%m-%d')"
+            node scripts/build-universe-review.mjs > "$RUNNER_TEMP/universe-review.md"
+          fi
+          echo "date=$review_date" >> "$GITHUB_OUTPUT"
+
+      - name: Update or create this month’s review issue
+        env:
+          REVIEW_DATE: ${{ steps.report.outputs.date }}
+        run: |
+          set -euo pipefail
+          month="${REVIEW_DATE:0:7}"
+          title="[AIO] Monthly screener universe review: ${month}"
+          body_file="$RUNNER_TEMP/universe-review.md"
+
+          marker="<!-- aio-screener-universe-review:${month} -->"
+          # Search the stable body marker across open and closed issues. Fall back
+          # to the month-specific title query in case GitHub omits HTML comments
+          # from its body search index; exact title filtering prevents collisions.
+          matches="$(gh issue list --state all --search 'in:body aio-screener-universe-review' --json number,title,state,body --limit 100)"
+          matches="$(jq --arg marker "$marker" '[.[] | select((.body // "") | contains($marker))]' <<< "$matches")"
+          if [ "$(jq 'length' <<< "$matches")" -eq 0 ]; then
+            title_matches="$(gh issue list --state all --search "in:title \"Monthly screener universe review\" ${month}" --json number,title,state,body --limit 100)"
+            matches="$(jq --arg expected "$title" '[.[] | select(.title == $expected)]' <<< "$title_matches")"
+          fi
+          open_issue="$(jq -r '[.[] | select(.state == "OPEN") | .number] | sort | .[0] // empty' <<< "$matches")"
+          closed_issue="$(jq -r '[.[] | select(.state == "CLOSED") | .number] | sort | .[0] // empty' <<< "$matches")"
+
+          if [ -n "$open_issue" ]; then
+            gh issue edit "$open_issue" --title "$title" --body-file "$body_file"
+            echo "Updated monthly universe review issue #${open_issue}"
+          elif [ -n "$closed_issue" ]; then
+            echo "This month’s review issue #${closed_issue} is closed; leaving it closed."
+          else
+            gh issue create --title "$title" --body-file "$body_file"
+            echo "Created monthly universe review issue for ${month}"
+          fi

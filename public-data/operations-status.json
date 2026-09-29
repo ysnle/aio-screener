@@ -24,10 +24,10 @@
     "UNKNOWN"
   ],
   "generatedAt": "2026-09-29T14:04:19.194Z",
-  "appRevision": "v56.52",
+  "appRevision": "v56.82",
   "dataRevision": "market-snapshot:2026-09-29T14:01:27.915Z:22b3eb29",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
-  "overall": "OPERATOR_REQUIRED",
+  "overall": "BLOCKED",
   "overallBasis": {
     "planes": [
       "durable"
@@ -56,9 +56,9 @@
       ]
     },
     "quotes": {
-      "availability": "AVAILABLE",
+      "availability": "UNAVAILABLE",
       "asOf": "2026-09-29T14:04:19.194Z",
-      "missingReason": null,
+      "missingReason": "fast-quote-provider-rights-not-reviewed",
       "sources": [
         "fast"
       ]
@@ -172,8 +172,8 @@
   },
   "planes": {
     "durable": {
-      "status": "CURRENT",
-      "statusCode": "CONFIGURED_HEALTHY",
+      "status": "BLOCKED",
+      "statusCode": "CONFIGURED_BROKEN",
       "source": "github-actions",
       "lastSuccessfulAt": "2026-09-29T14:01:27.915Z",
       "coverage": {
@@ -200,18 +200,18 @@
       "readiness": {
         "secretConfigured": "OPERATOR_REQUIRED",
         "workflowWired": "CURRENT",
-        "lastCallSucceeded": "CURRENT",
-        "dataCurrent": "CURRENT",
+        "lastCallSucceeded": "BLOCKED",
+        "dataCurrent": "BLOCKED",
         "licensedForUse": "REVIEW_REQUIRED"
       }
     },
     "fast": {
       "status": "OPERATOR_REQUIRED",
-      "statusCode": "CONFIGURED_HEALTHY",
+      "statusCode": "STALE",
       "scheduler": "cloudflare-cron",
       "endpoint": "https://aio-screener-data-plane.zmfhd007.workers.dev",
       "health": {
-        "status": "CURRENT",
+        "status": "UNKNOWN",
         "statusCode": 200,
         "coverage": "16/16",
         "revision": "fast-quotes:d5e29720",
@@ -232,7 +232,7 @@
         "secretConfigured": "OPERATOR_REQUIRED",
         "workflowWired": "CURRENT",
         "lastCallSucceeded": "CURRENT",
-        "dataCurrent": "CURRENT",
+        "dataCurrent": "UNKNOWN",
         "licensedForUse": "REVIEW_REQUIRED"
       }
     },
@@ -240,7 +240,7 @@
       "status": "UNKNOWN",
       "statusCode": "NOT_OBSERVED",
       "source": "static-pages+service-worker",
-      "revision": "v56.52",
+      "revision": "v56.82",
       "configured": true,
       "observed": "NOT_OBSERVED",
       "lastAttemptAt": null,
@@ -264,13 +264,13 @@
       }
     },
     "publicChat": {
-      "status": "CURRENT",
-      "statusCode": "CONFIGURED_HEALTHY",
+      "status": "NO_ROUTE",
+      "statusCode": "STALE",
       "personalKey": "EXPLICIT_USER_CONFIG",
-      "sharedWorker": "CURRENT",
+      "sharedWorker": "OPERATOR_REQUIRED",
       "workerEndpoint": "https://aio-proxy.zmfhd007.workers.dev",
       "health": {
-        "status": "CURRENT",
+        "status": "OPERATOR_REQUIRED",
         "statusCode": 200,
         "observedAt": "2026-09-29T14:04:19.194Z",
         "revision": "v56.33",
@@ -468,7 +468,7 @@
     "rawProducerClaimGate": "not_applicable_for_quote_plane"
   },
   "routes": {
-    "supported": 20,
+    "supported": 19,
     "nativeOwner": [
       "sentiment",
       "principles",
@@ -492,7 +492,6 @@
       "portfolio",
       "ticker",
       "market-news",
-      "options",
       "principles",
       "masters",
       "atlas",
@@ -514,7 +513,6 @@
       "portfolio",
       "ticker",
       "market-news",
-      "options",
       "principles",
       "masters",
       "atlas",
@@ -536,7 +534,6 @@
       "portfolio",
       "ticker",
       "market-news",
-      "options",
       "principles",
       "masters",
       "atlas",
@@ -572,7 +569,6 @@
       "portfolio",
       "ticker",
       "market-news",
-      "options",
       "principles",
       "masters",
       "atlas",
@@ -584,7 +580,10 @@
     "routeOwnersManifest": "architecture/route-owners.json"
   },
   "blockers": [
+    "durable_tier0_publish_blocked",
+    "durable_market_cycle_stale",
     "fast_plane_soak_and_rights_review_required",
-    "provider_rights_review_required"
+    "provider_rights_review_required",
+    "ai_proxy_deploy_or_readiness_required"
   ]
 }

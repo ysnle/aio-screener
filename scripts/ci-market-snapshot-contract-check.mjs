@@ -42,7 +42,8 @@ for (const [instrumentId, observedAt, now, expected, providerSession] of session
 }
 
 const attemptedAt = '2026-07-18T00:00:00.000Z';
-// P1045: elapsed wall time is not a substitute for a completed session date.
+// R447/P1045/P1302, QA-MARKET-CALENDAR/QA-DATA-46: a previous close is current
+// only through a registered exchange calendar, including its exact year and close.
 const closeFixtures = [
   ['^GSPC', '2026-09-04T20:00:00Z', '2026-09-07T01:30:00Z', true],
   ['^GSPC', '2026-09-04T20:00:00Z', '2026-09-07T16:00:00Z', true],
@@ -55,7 +56,10 @@ const closeFixtures = [
   ['^GSPC', '2026-11-27T16:00:00Z', '2026-11-29T16:00:00Z', false],
   ['^GSPC', '2026-03-06T21:00:00Z', '2026-03-09T13:29:00Z', true],
   ['^GSPC', '2026-03-06T21:00:00Z', '2026-03-09T13:30:00Z', false],
-  ['^GSPC', '2026-12-31T21:00:00Z', '2027-01-02T12:00:00Z', false],
+  ['^GSPC', '2027-11-26T18:00:00Z', '2027-11-28T22:00:00Z', true],
+  ['^GSPC', '2027-11-26T17:54:00Z', '2027-11-28T22:00:00Z', false],
+  ['^GSPC', '2026-12-31T21:00:00Z', '2027-01-02T12:00:00Z', true],
+  ['^GSPC', '2027-12-31T21:00:00Z', '2028-01-03T21:00:00Z', false],
   ['BTC-USD', '2026-09-04T20:00:00Z', '2026-09-07T16:00:00Z', false],
   ['^KS11', '2026-09-04T06:30:00Z', '2026-09-07T16:00:00Z', false],
   ['^GSPC', '2026-09-08T20:00:00Z', '2026-09-07T16:00:00Z', false]

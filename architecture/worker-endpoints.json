@@ -16,6 +16,7 @@
     "name": "aio-proxy",
     "baseUrl": "https://aio-proxy.zmfhd007.workers.dev",
     "healthPath": "/health",
+    "operatorAiUsagePath": "/_ops/ai-usage",
     "role": "cors-proxy-and-optional-anthropic-route",
     "readiness": "verify-at-runtime"
   },
@@ -45,6 +46,7 @@
       "AIO_QUOTA_DO",
       "AIO_DEV_ORIGINS"
     ],
+    "operatorObservationRequires": ["AIO_OPERATOR_TOKEN"],
     "relayRequires": [
       "RELAY_DAILY_CAP"
     ],
@@ -56,7 +58,8 @@
     "proxyQuotaContract": {
       "binding": "AIO_QUOTA_DO",
       "authority": "single durable object",
-      "operations": ["reserve", "release"],
+      "operations": ["reserve", "release", "usage"],
+      "operatorUsage": "GET /_ops/ai-usage; separate AIO_OPERATOR_TOKEN; no CORS; no-store; never add counts or Anthropic cap to public /health",
       "idempotency": "X-AIO-Idempotency-Key or SHA-256 request-body digest",
       "legacyKv": "unsupported-fail-closed",
       "productionOrigins": ["https://ysnle.github.io"],

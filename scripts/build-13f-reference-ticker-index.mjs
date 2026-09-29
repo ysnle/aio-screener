@@ -3,7 +3,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { atomicWriteJsonSync } from './lib/atomic-write.mjs';
+import { atomicWriteFileSync } from './lib/atomic-write.mjs';
+import { writeJsonIfSemanticallyChangedSync } from './lib/13f-semantic-hash.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readJson = (file) => JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
@@ -101,17 +102,17 @@ const artifact = {
   records
 };
 
-atomicWriteJsonSync(path.join(root, 'public-data/masters/ticker-index-reference.json'), artifact);
+writeJsonIfSemanticallyChangedSync(path.join(root, 'public-data/masters/ticker-index-reference.json'), artifact, { writer: atomicWriteFileSync });
 const indexPath = path.join(root, 'public-data/masters/index.json');
 const mastersIndex = readJson('public-data/masters/index.json');
-atomicWriteJsonSync(indexPath, {
+writeJsonIfSemanticallyChangedSync(indexPath, {
   ...mastersIndex,
   tickerIndexArtifact: 'public-data/masters/ticker-index-reference.json',
   tickerIndexStatus: artifact.status,
   tickerIndexReferenceCount: records.length,
   tickerIndexMatchedRows: matchedRows,
   tickerIndexGeneratedAt: artifact.generatedAt
-});
+}, { writer: atomicWriteFileSync });
 console.log(JSON.stringify({
   status: 'PASS',
   reviewedAt,
