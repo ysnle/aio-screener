@@ -1,3 +1,12 @@
+## v56.83 (2026-09-29)
+- **CI diagnostics (P1333):** the accessibility matrix now prints the failing route and items when it fails on CI.
+- **Deploy security (P1334/R674):** Worker deploys can no longer be triggered by a fork branch named main.
+- **Deploy unblocked (P1335):** Pages deploy works under the SHA-pin policy again; the fast data plane smoke waits for the new Worker and a rollback returns to the version it replaced, not a July one.
+- **FRED retry (P1336):** a transient FRED timeout retries once instead of failing CPI/unemployment for the cycle.
+- **Working routines (P1337):** agent prompt template plus /restate, /assumptions and /trim-pr.
+- **Verification:** deployment/data-plane/release/skill/workspace contracts. No producer run locally.
+- R1 7곳 v56.83
+
 ## v56.82 (2026-09-29)
 - **Self-audit code split out (P1329/R673/QA-OPS-QA-01):** ~4,200 lines of in-app audit/QA machinery moved from js/aio-core.js (28,034 → 23,800 lines) into js/aio-qa-audits.js, which users never download; tests, automation and the operator's detailed-audit mode load it on demand. Users also stop running a full surface audit every 30 minutes.
 - **Masters budget (P1330):** the ticker ledger loads on first focus/typing instead of at page open, keeping the initial Masters payload at 431 KB (budget 500 KB) without reintroducing an endless loading state.

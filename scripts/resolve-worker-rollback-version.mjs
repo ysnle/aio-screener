@@ -14,8 +14,10 @@ export function resolveActiveWorkerVersionId(payload) {
     throw new Error('Cloudflare returned no active Worker deployment; automatic rollback baseline is unavailable');
   }
 
-  // Cloudflare's deployment list is ordered with the actively serving deployment first.
-  const active = deployments[0];
+  // P1335: Wrangler lists deployments oldest-first, so deployments[0] rolled a Worker back to a
+  // July version. The active deployment is the newest one by created_on.
+  const createdMs = (deployment) => { const ms = Date.parse(deployment?.created_on || deployment?.createdOn || ''); return Number.isFinite(ms) ? ms : -Infinity; };
+  const active = deployments.reduce((newest, deployment) => (createdMs(deployment) > createdMs(newest) ? deployment : newest), deployments[deployments.length - 1]);
   if (!Array.isArray(active?.versions) || active.versions.length !== 1 || active.versions[0]?.percentage !== 100) {
     throw new Error('active Worker deployment is split or malformed; automatic rollback requires one version at 100%');
   }

@@ -4,6 +4,51 @@ confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
 
+## P1337 - v56.83 - no shared routine for delegation, assumption checks or post-PR trimming (2026-09-29)
+
+- symptom/reproduction: Subagent prompts, assumption checks and "what can be cut" reviews were improvised per session; large PRs accumulated gates, comments and dead fields.
+- root_cause: The harness had command wrappers for skills but no reusable prompt shape or review routines.
+- fix: Added .claude/skills/_shared/agent-prompt-anatomy.md (goal → return format → warnings → context; mirrored to .agents), /restate, /assumptions (verified vs guessed, stop before applying) and /trim-pr (fresh-context cut review with a skeptic pass); CLAUDE.md points to them.
+- violated_rule: R27-family — shared agent contracts live in skills/_shared.
+- prevention: QA-OPS-AG-01 — skill contract (mirror parity) and workspace gates.
+- verification/residual: Used on PR #10: the fresh-context trim review found ~480 low-risk removable lines and a real bug (news sentiment history never exposed).
+
+## P1336 - v56.83 - one FRED abort failed CPI/unemployment for a whole cycle (2026-09-29)
+
+- symptom/reproduction: Refresh run 36579421549: "FRED series 실패: cpi (CPIAUCNS) — This operation was aborted" and unemployment; data.json fredFetchOk:false with last-known-good values.
+- root_cause: Each FRED series had a single attempt; a transient runner→FRED timeout became a cycle-level failure.
+- fix: Each series request retries once after 3 s before being marked failed.
+- violated_rule: R256 — failed series are named, not silently swallowed (kept).
+- prevention: QA-DATA-58 — ci-data-pipeline-contract-check passes; next refresh cycles observe fredFetchOk.
+- verification/residual: Syntax/contract checks; producer not run locally (CI owns it).
+
+## P1335 - v56.83 - Pages deploy blocked by SHA-pin policy; data-plane smoke failed and rolled back to a July Worker (2026-09-29)
+
+- symptom/reproduction: After merging PR #10: "actions/upload-artifact@v4 is not allowed … must be pinned to a full-length commit SHA" (Pages deploy failed, live stayed at v56.33); Deploy fast data plane failed its smoke and the automatic rollback restored version 40ab66be from 2026-07-27, not the pre-deploy version.
+- root_cause: upload-pages-artifact v3.0.1 calls upload-artifact by tag, which the repository SHA-pin setting rejects; the smoke loop retried only on HTTP status, so it judged the still-serving old Worker (wrong sourceSha) seconds after deploy; the rollback resolver took deployments[0], but Wrangler lists deployments oldest-first.
+- fix: upload-pages-artifact pinned to v4.0.0 (7b1f4a76, pins upload-artifact by SHA; no dotfiles are staged). The smoke loop polls up to 60 s until the new sourceSha answers. The resolver picks the newest deployment by created_on.
+- violated_rule: R-deploy — a deploy step must judge the version it deployed and roll back to the version it replaced.
+- prevention: QA-OPS-DEP-01 — ci-data-plane-contract-check fixture lists an older deployment first and requires the newest; release/deployment contracts pass.
+- verification/residual: Gates pass locally; Pages and data-plane deploys verified after merge.
+
+## P1334 - v56.83 - Worker deploy workflows could run fork code with deploy secrets (2026-09-29)
+
+- symptom/reproduction: CodeQL actions/untrusted-checkout (critical ×2) on deploy-ai-proxy.yml and deploy-data-plane.yml.
+- root_cause: The workflow_run guard only checked head_branch == main, which a fork PR can satisfy by naming its branch main; the job then checked out that SHA with Cloudflare secrets.
+- fix: Job condition and the API verification both require event == push and head_repository == this repository.
+- violated_rule: R674 — privileged workflow_run deploys only act on pushes to this repository.
+- prevention: QA-OPS-SEC-01 — ci-cloudflare-deployment-contract-check asserts both guards in both workflows; CodeQL passes.
+- verification/residual: CodeQL green on PR #10; AI proxy auto-deployed v56.82 from the merge push.
+
+## P1333 - v56.83 - accessibility matrix failed on CI with no detail (2026-09-29)
+
+- symptom/reproduction: PR #10 browser-surface failed with "[ci-accessibility-matrix] routes=19, status=fail" while the same gate passed locally; CI keeps only stdout, the JSON artifact is not uploaded.
+- root_cause: The gate printed only a summary line, so a CI-only failure could not be diagnosed without reproducing Linux fonts/timing.
+- fix: On failure the gate prints the failing routes and their first offending items (targets, names, canvases, fonts, modal labels) plus error/revision.
+- violated_rule: R620-family — a failing gate must name what failed.
+- prevention: QA-UX-04 — the next CI failure carries its own evidence; the re-run passed.
+- verification/residual: PR #10 re-run: browser-surface pass.
+
 ## P1332 - v56.82 - five gates and two artifacts still counted 20 routes after the options retirement (2026-09-29)
 
 - symptom/reproduction: After P1321, baseline-contract ("route count drift"), operations-status, retirement (nativeLifecycleOwner), vertical-slice (13 slices) and operations-contract gates still expected 20 routes/13 slices; public-data/operations-status.json and architecture/baseline.json still listed options.

@@ -26,6 +26,8 @@ if (!/fetch-depth:\s*0/.test(workflow) || !/convergence-health\.json/.test(workf
   || !/branches\/main/.test(workflow) || !/latestMainSha/.test(workflow)
   || !/Recheck main head immediately before Worker mutation/.test(workflow) || !/steps\.latest-main\.outputs\.safe/.test(workflow)) fail('P1308/R653/QA-DATA-50 must compare latest main and live Worker SHA with full attested history');
 const rollbackFixtureVersion = 'a1a1a1a1-1111-4111-8111-a1a1a1a1a1a1';
+// P1335: Wrangler returns deployments oldest-first; the newest (by created_on) is the active one.
+if (rollbackResolver.resolveActiveWorkerVersionId({ deployments: [{ created_on: '2026-07-27T00:00:00Z', versions: [{ percentage: 100, version_id: '11111111-1111-4111-8111-111111111111' }] }, { created_on: '2026-09-20T00:00:00Z', versions: [{ percentage: 100, version_id: rollbackFixtureVersion }] }] }) !== rollbackFixtureVersion) throw new Error('rollback resolver must pick the newest deployment, not the first listed (P1335)');
 if (rollbackResolver.resolveActiveWorkerVersionId({ deployments: [{ versions: [{ percentage: 100, version_id: rollbackFixtureVersion }] }] }) !== rollbackFixtureVersion) {
   fail('P1307/R652/QA-DATA-49 single active rollback target was not resolved');
 }

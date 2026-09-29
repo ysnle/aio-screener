@@ -380,7 +380,8 @@ async function fetchFred(key) {
     try {
       const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${spec.id}` +
         `&api_key=${key}&file_type=json&sort_order=desc&limit=14`;
-      const j = await fetchJSON(url);
+      // P1336: one transient runner→FRED abort failed CPI/UNRATE for a whole cycle; retry once after 3 s.
+      const j = await fetchJSON(url).catch(async () => { await new Promise((r) => setTimeout(r, 3000)); return fetchJSON(url); });
       // A provider can return an HTTP-success JSON envelope containing no
       // usable observations (rate-limit/error payload, '.', or NaN).  Such a
       // response is a failed series, never a current null/zero observation.
