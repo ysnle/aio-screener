@@ -1,7 +1,7 @@
 ---
 verified_by: Codex
-last_verified: 2026-08-13
-repository_version: v56.52
+last_verified: 2026-09-28
+repository_version: v56.82
 status: IMPLEMENTED_LOCAL
 local_code_status: VERIFIED_LOCAL
 implementation_authorized: true
@@ -15,20 +15,22 @@ depends_on:
   - AIO-CURRENT-CODE-REMEDIATION-HANDOFF-2026-08-09.md
 ---
 
-## Current scope override (2026-08-13)
+## Scope decision captured (2026-08-13)
 
-This product is desktop-only. Current QA uses 1280×900, 1440×1000, and 1920×1080; mobile/tablet implementation and acceptance work is out of scope. Existing responsive markup is retained only for compatibility and is not a future delivery requirement unless the user explicitly reopens the scope.
+As of 2026-08-13, the accepted product scope was desktop-only, with QA at 1280×900, 1440×1000, and 1920×1080. Mobile/tablet implementation and acceptance work was out of scope; existing responsive markup was retained for compatibility. This scope decision remains in force unless explicitly reopened, but the viewport list below is historical scope evidence, not a claim of a 2026-09-28 browser pass.
 
 
 # 오픈소스 전문 스크리너 비교와 AIO Screener 재설계 핸드오프
 
 > 목적: 전문 스크리너·브라우저형 투자 터미널과 개인 공개 프로젝트 20개를 비교하고, AIO가 가져올 제품 루프·데이터 계약·자동화 구조를 후속 구현자가 바로 실행할 수 있는 패킷으로 고정한다.
 >
-> 이 문서는 설계와 실행 계약이다. 이번 실행에서 계약·도메인·Workbench adapter·로컬 gate가 추가되었지만, 외부 프로젝트 코드/데이터·공급자 자격증명·PIT 예측 승격은 추가하지 않았다. 외부 프로젝트의 기능 설명과 별 수는 2026-08-12 각 저장소/공식 문서 관측값이며 변할 수 있다.
+> 이 문서는 설계와 실행 계약이다. 당시 구현 세션에서 계약·도메인·Workbench adapter·로컬 gate를 추가했지만, 외부 프로젝트 코드/데이터·공급자 자격증명·PIT 예측 승격은 추가하지 않았다. 외부 프로젝트의 기능 설명과 별 수는 2026-08-12 각 저장소/공식 문서 관측값이며 변할 수 있다.
+>
+> 2026-09-28 재확인은 저장소 내 스크리너 artifact와 로컬 contract gate, 이 문서의 상태 일관성에 한정한다. 외부 프로젝트 비교·별 수·기능 주장은 `research_as_of: 2026-08-12`에 동결했으며 다시 조사하지 않았다.
 
 ## 0. 결론
 
-AIO를 지금 전면 재작성하는 것은 권고하지 않는다. 현재 AIO에는 873종목 유니버스, 848종목 팩터 관측, 74.2% 펀더멘털 coverage, 팩터·VCP·레짐 가중치·알림·백테스트·포트폴리오·뉴스·내부자·공매도 데이터가 이미 있다. 문제는 기능 수가 아니라 다음 폐루프가 아직 하나의 계약으로 닫히지 않았다는 점이다.
+AIO를 지금 전면 재작성하는 것은 권고하지 않는다. 2026-09-28 로컬 확인에서 `public-data/screener.json`은 `asOf=2026-09-26T05:25:47.153Z`, configured universe 873, factor-observed 846, fundamental coverage 560/728 (76.9%)를 기록한다. `node scripts/ci-screener-workbench-contract.mjs`는 2026-09-28 00:17Z 확인에서 PASS였고 FieldRegistry 37개와 preset 6개를 확인했다. SCR-OS-00~11은 로컬 구현/계약 검증 단계 `VERIFIED_LOCAL`이다. 이는 완전한 운영·실시간·예측 검증을 뜻하지 않는다. `model-validation-status.json`과 `screener-validation-gate.json`은 여전히 `BLOCKED`; PIT 실데이터, 비용·유동성 검증, 공급자 권리와 live parity는 별도 증거로 확인되지 않아 예측/실거래 사용 승격은 닫혀 있다. 2026-08 설계 기준선과 gap matrix는 역사적 설계 증거이며 아래의 현재 수치로 읽지 않는다.
 
 ```text
 시장/이벤트 관측
@@ -192,14 +194,16 @@ Streamlit 공개 데모, 기본·기술·섹터 특화 분석, 다중 소스, �
 
 **가져오지 않을 것**: 모든 전략을 하나의 고정 5단 funnel에 넣는 것. 장기 가치와 단기 모멘텀은 목적함수와 시간축이 다르며, 레짐이 종목 품질 데이터의 결측을 정당화해서는 안 된다.
 
-## 4. AIO 현재 기준선과 정확한 부족분
+## 4. 2026-08 설계 기준선과 당시 부족분
 
-### 4.1 현재 확인된 강점
+> 이 절의 원래 기준선·gap matrix·구조 판정은 2026-08 설계 시점의 스냅샷이다. 당시 수치와 미구현 항목을 현재 artifact 값이나 현재 구현 상태로 해석하지 않는다. 현재 로컬 artifact와 contract-gate 상태는 §0 및 §5.11을 기준으로 한다.
 
-| 영역 | 현재 상태 |
+### 4.1 당시 확인된 강점
+
+| 영역 | 2026-08 설계 기준 |
 |---|---|
-| 유니버스 | `public-data/screener.json` 873, 관측 성공 848 |
-| 펀더멘털 | 540/728, 74.2%; SEC normalized + 선택적 FMP 모델 |
+| 유니버스 | 당시 artifact 기준 `public-data/screener.json` 873, 관측 성공 848 |
+| 펀더멘털 | 당시 artifact 기준 540/728, 74.2%; SEC normalized + 선택적 FMP 모델 |
 | 기술/팩터 | momentum, trend, low-vol, size, value, quality, Kalman, VCP/setup |
 | 레짐 | 시장 상태와 팩터 가중치 경로, drift marker, breadth/sentiment/macro 입력 존재 |
 | 자동화 | `refresh-screener.yml`, `refresh-data.yml`, watchdog, durable/fast plane 설계 존재 |
@@ -207,9 +211,9 @@ Streamlit 공개 데모, 기본·기술·섹터 특화 분석, 다중 소스, �
 | 연구 확장 | 실적, 내부자, 공매도, 뉴스, 테마, 포트폴리오 등 인접 데이터가 이미 존재 |
 | 안전 경계 | 랭킹은 `research-relative-ranking-only`; 거래 신호 아님 |
 
-### 4.2 검증으로 확인된 차단점
+### 4.2 예측 승격 차단점 — 2026-09-28 로컬 artifact 재확인
 
-`public-data/model-validation-status.json`은 `BLOCKED`다.
+2026-09-28에 읽은 `public-data/model-validation-status.json`과 `public-data/screener-validation-gate.json`은 `BLOCKED`다. 이 상태는 로컬 artifact에 근거하며 live/provider/PIT 실증 검증은 아니다.
 
 - point-in-time universe 없음
 - 현재 유니버스 기반 장기 검증으로 생존편향 미해소
@@ -219,9 +223,11 @@ Streamlit 공개 데모, 기본·기술·섹터 특화 분석, 다중 소스, �
 
 따라서 새 오픈소스의 전략 수, 높은 별 수, AI 기능은 이 차단을 우회하지 못한다.
 
-### 4.3 gap matrix
+### 4.3 gap matrix — 2026-08-12 당시 설계 증거
 
-| 축 | 현재 AIO | 부족한 계약 | 우선도 |
+아래 표의 “당시 AIO”와 우선도는 설계 당시 공백을 기록한다. SCR-OS 로컬 구현이 진행된 이후의 완료 여부는 표에서 갱신하지 않은 역사 기록이므로 현재 미구현 목록으로 사용하지 않는다.
+
+| 축 | 2026-08-12 당시 AIO | 당시 부족한 계약 | 당시 우선도 |
 |---|---|---|---:|
 | 조건식 | UI 필터와 팩터 프로필 존재 | versioned AST/DSL, 저장·공유·재현 | P0 |
 | 설명 | setup/factor 표시는 존재 | 행별 기여·통과·탈락·결측 이유 | P0 |
@@ -238,9 +244,9 @@ Streamlit 공개 데모, 기본·기술·섹터 특화 분석, 다중 소스, �
 
 ### 4.4 기존 요소별 유지·보완·재설계 판정
 
-이 표가 외부 프로젝트의 기능을 AIO에 무비판적으로 추가하지 않기 위한 실제 대조 원장이다.
+이 표는 2026-08 설계 당시 외부 프로젝트의 기능을 AIO에 무비판적으로 추가하지 않기 위해 작성한 대조 원장이다. 현재 구현 상태의 원장으로 쓰지 않는다.
 
-| AIO 요소/구조 | 현재 판정 | 외부 비교에서 확인한 보완점 | 처분 |
+| AIO 요소/구조 | 2026-08 당시 판정 | 외부 비교에서 확인한 보완점 | 설계 당시 처분 |
 |---|---|---|---|
 | `src/data` provider→orchestrator→normalize 계층 | 이미 방향이 맞음 | Opptrix의 capability/market registry처럼 지원 시장·필드·fallback을 명시 | **유지+강화** |
 | `src/domain/screener` factor/setup 순수 모듈 | 이미 있음 | ScreenDefinition과 explanation이 같은 순수 계산을 호출하게 함 | **유지** |
@@ -277,27 +283,29 @@ Streamlit 공개 데모, 기본·기술·섹터 특화 분석, 다중 소스, �
 
 ## 5. UI/UX·프런트엔드 재설계 감사
 
-### 5.1 감사 경계
+> 이 절의 화면·상호작용 관찰과 “현재” 코드 설명은 v54.13을 대상으로 한 2026-08 감사 기록이다. 설계 권고와 UX-SCR 원장은 보존하되, 현재 화면의 결함/완료 주장으로 쓰지 않는다. 2026-09-28 로컬 contract gate는 UI 동작·접근성·시각 회귀를 재인증하지 않았다.
 
-- Historical observation (2026-08-12): 공개 Pages에서 직접 확인한 화면은 `v54.7`이었다. 당시 저장소 `v54.13`와 같다고 간주하지 않았으며, 현재 활성 저장소 리비전은 `v54.18`이다.
-- `v54.13`는 `http://127.0.0.1:8765/`로 서빙해 1280×900, 1440×1000, 1920×1080 desktop에서 직접 확인했다. 모바일은 실제 사용자 범위에서 제외하므로 설계·구현·검증 대상에 포함하지 않는다.
+### 5.1 감사 경계 — 2026-08 설계 시점 기록
+
+- Historical observation (2026-08-12): 공개 Pages에서 직접 확인한 화면은 `v54.7`이었다. 당시 저장소 `v54.13`와 같다고 간주하지 않았고, 해당 감사 기록은 저장소 `v54.18`을 그 시점의 활성 리비전으로 적었다. 이 버전 정보는 현재 배포/저장소 버전을 뜻하지 않는다.
+- 당시 `v54.13`를 `http://127.0.0.1:8765/`로 서빙해 1280×900, 1440×1000, 1920×1080 desktop에서 직접 확인했다. 모바일은 당시 승인된 범위에서 제외했다. 이는 2026-09-28 브라우저 확인이 아니다.
 - 확인 흐름은 랭킹·팩터/레짐·백테스트 IC, 고급 필터, 검색 no-match, 전체 컬럼, light/dark theme, 행 선택→ticker→스크리너 복귀, 잘못된 JSON 실행까지 포함한다.
 - 외부 프로젝트는 저장소 README·공식 learning/documentation·공개 스크린샷과 `xang1234/stock-screener` static Scan 화면을 비교했다. 로그인/유료 기능, 모집 사용자 테스트, NVDA 등 보조기술 실사는 인증하지 않았다.
 
-### 5.2 현재 화면의 강점
+### 5.2 v54.13 설계 시점 화면의 강점
 
 | 요소 | 판정 |
 |---|---|
 | 페이지 제목→기준일→준비도→프리셋→탭→필터→결과 순서 | 기본 정보 위계가 명확함 |
 | 기본 9열과 `전체 컬럼 보기` | 22열을 처음부터 노출하지 않는 방향이 맞음 |
-| 12개씩 더 보기 | 873개 DOM을 한 번에 렌더하지 않아 현재 규모에 적절함 |
+| 12개씩 더 보기 | 당시 기록된 873개 규모에서 DOM을 한 번에 렌더하지 않는 방식이 적절하다고 판정 |
 | 시장·섹터·구조·시총·검색 | 핵심 필터가 첫 화면에 있음 |
 | 팩터 기준일·유니버스·rank coverage | 최소 데이터 준비도는 노출됨 |
 | 연구 전용·매매 신호 아님 경계 | 결과 하단과 지표 설명에 존재 |
 | 폼 aria-label, 표 region label, focus style | 접근성 기반이 이미 있음 |
 | 차분한 아이보리 테마와 숫자 중심 표 | 장시간 보는 연구 도구 성격에 적합함 |
 
-### 5.3 desktop 실측 기준선
+### 5.3 v54.13 desktop 실측 기준선 (역사 기록)
 
 | 항목 | 1280×900 | 1440×1000 | 1920×1080 | 판정 |
 |---|---:|---:|---:|---|
@@ -309,7 +317,9 @@ Streamlit 공개 데모, 기본·기술·섹터 특화 분석, 다중 소스, �
 | Workbench textarea | colspan | 1039×59.5px, 10px 글자 | colspan | 개발자 표면이 핵심 공간 점유 |
 | 조작 요소 | colspan | button 43, select 6, input 8, textarea 1 | colspan | hidden control 포함, 기본 행동 위계 약함 |
 
-### 5.4 확인된 문제 원장
+### 5.4 v54.13 감사에서 확인한 문제 원장
+
+다음 항목은 v54.13 화면 감사 당시의 재현 결과다. 현재 결함 목록이거나 SCR-UX 패킷의 완료 판정이 아니다. 2026-09-28 contract gate는 이 시각·상호작용 원장 전체를 브라우저에서 재인증하지 않았다.
 
 | ID | 심각도 | 확인 결과 | 사용자 영향 | 요구 조치 |
 |---|---|---|---|---|
@@ -356,7 +366,7 @@ Streamlit 공개 데모, 기본·기술·섹터 특화 분석, 다중 소스, �
   [Technology ×] [3M > 10% ×] [RSI 45~70 ×] [+ 조건]
 
 [Result summary]
-  873 universe -> 812 ready -> 41 passed -> 7 data unavailable
+  873 universe -> 812 ready -> 41 passed -> 7 data unavailable (2026-08 설계 예시, 현재 수치 아님)
 
 [Desktop]
   결과 표 65~70% | Why/근거 drawer 30~35%
@@ -420,16 +430,17 @@ Streamlit 공개 데모, 기본·기술·섹터 특화 분석, 다중 소스, �
 
 ### 5.11 프런트엔드 실행 패킷
 
-#### v54.15 구현 상태
+#### v54.15에 대한 역사적 화면 검증 기록
 
-- `SCR-UX-00~05` are implemented locally in the native screener route.
-- Local Chromium, CI, and GitHub Pages parity for v54.15 passed. The in-app Browser connector could not reach the local server, so Browser Tier 13 remains blocked and is not promoted to `VERIFIED_LIVE`.
+- 당시 기록상 `SCR-UX-00~05`는 native screener route에 구현되었다.
+- Local Chromium, CI, and GitHub Pages parity for v54.15 were recorded as passed. The in-app Browser connector could not reach the local server; Browser Tier 13 was blocked. This revision-specific historical result does not certify v56.61, the current Pages deployment, or a current browser tier.
 
-#### v54.16 로컬 코드 계약 검증 상태
+#### 2026-09-28 로컬 contract 재확인
 
-- `SCR-OS-00~11` local implementation and contract gates are now `VERIFIED_LOCAL`: FieldRegistry 37 fields, 6 saved presets, deterministic 873/5k/20k scale benchmark, Outcome T+1/5/21/63, refresh/provider/regime contracts, and Workbench UI wiring all pass.
-- PIT validation has both fail-closed and complete-evidence fixtures. Missing PIT universe, filing availability, turnover, cost, liquidity, or live/backtest parity remains blocked; complete evidence is review-ready but never auto-promotes regime weights.
-- `model-validation-status.json` and `screener-validation-gate.json` intentionally remain `BLOCKED` for real-world predictive validity. Provider rights/keys, point-in-time production artifacts, live provider parity, operations soak, and in-app Browser certification require external evidence.
+- `node scripts/ci-screener-workbench-contract.mjs` passed at `2026-09-28T00:17Z`. The local contract reports 37 registered fields and 6 presets. SCR-OS-00~11 remain `VERIFIED_LOCAL` for repository implementation/contract evidence; this status is not `VERIFIED_LIVE` or predictive certification.
+- PIT validation evidence is fixture/contract-level: fail-closed and complete-evidence fixture paths do not establish that production PIT universe, filing-availability, turnover, cost, liquidity, or live/backtest-parity evidence exists. Those real-data checks remain blocked; complete fixture evidence never auto-promotes regime weights.
+- The local `public-data/screener.json` artifact inspected on 2026-09-28 has `asOf=2026-09-26T05:25:47.153Z`, 873 configured universe rows, 846 factor-observed rows, and 560/728 (76.9%) mixed-field fundamental coverage for its stated US denominator. This is a repository artifact snapshot, not a fresh provider/live observation.
+- `model-validation-status.json` and `screener-validation-gate.json` were `BLOCKED` at recheck. Provider rights/keys, production PIT artifacts, live provider parity, operations soak, GitHub Pages parity for the current revision, and in-app Browser Tier 13 have not been certified by this local contract check.
 
 | 패킷 | 내용 | 선행조건 | 완료 gate |
 |---|---|---|---|
@@ -450,7 +461,7 @@ Streamlit 공개 데모, 기본·기술·섹터 특화 분석, 다중 소스, �
 
 ### 5.12 상태별 화면 계약
 
-현재 `architecture/visual-state-matrix.json`은 route 공통 `loaded/reference/blocked/stale-reference/empty`만 정의한다. Screener Workbench에는 실행 상태가 더 필요하다.
+2026-08 감사 당시 `architecture/visual-state-matrix.json`은 route 공통 `loaded/reference/blocked/stale-reference/empty`만 정의하는 것으로 기록됐다. Screener Workbench에는 추가 실행 상태 계약이 필요하다는 당시 요구사항이다.
 
 | 상태 | 현재 관찰 | 목표 표현 | 필수 행동 |
 |---|---|---|---|
@@ -538,8 +549,8 @@ ScreenerPage
 
 ### 5.17 성능·관측성·사용성 검증
 
-- 현재 12행 점진 노출은 유지한다. 873행 전부 DOM 렌더보다 안전하다.
-- filter 입력마다 tbody 전체를 다시 만드는 현재 방식은 12행에서는 허용하되, 검색은 120~180ms debounce하고 동일 ViewModel hash면 DOM 교체를 생략한다.
+- v54.13에서 확인한 12행 점진 노출은 당시 유지 권고였다. 873행 전부 DOM 렌더보다 안전하다는 설계 판단이다.
+- v54.13 감사 당시 filter 입력마다 tbody 전체를 다시 만드는 동작은 12행에서는 허용하되, 검색은 120~180ms debounce하고 동일 ViewModel hash면 DOM 교체를 생략하도록 권고했다.
 - hidden factor/backtest panel을 모든 store update에서 다시 그리지 말고 활성 tab 또는 데이터 revision 변경 시만 갱신한다.
 - pageShown/data refresh가 user Run history를 늘리지 않도록 `syncEvent`와 `screenRun` telemetry를 분리한다.
 - 측정 이벤트는 `screen_open`, `filter_add/remove`, `preview_update`, `run_start/complete/blocked`, `row_select`, `why_open`, `compare_add`, `ticker_open`, `return_to_screen`, `screen_save/load`, `zero_result_recovery`로 제한한다. 티커·조건의 민감한 원문은 저장하지 않는다.
@@ -752,7 +763,7 @@ trigger 전에는 C를 선택하지 않는다.
 
 **산출물**: 현재 field inventory, producer/consumer map, refresh owner, existing gate map, duplicate/stale proposal ledger.
 
-**완료 조건**: 873/848/74.2%와 model-validation BLOCKED를 fixture로 고정하고 기존 기능을 “미구현”으로 재발명하지 않음.
+**완료 조건**: 2026-08 설계 기준선 873/848/74.2%와 당시 `model-validation BLOCKED`를 날짜가 붙은 fixture로 고정하고 기존 기능을 “미구현”으로 재발명하지 않음. 이 값은 현재 artifact 값이 아니다.
 
 ### SCR-OS-01 — FieldRegistry와 ObservationEnvelope
 
@@ -790,7 +801,7 @@ trigger 전에는 C를 선택하지 않는다.
 
 **필수**: symbol+field queue, dedupe, priority, rate budget, retry/circuit breaker, LKG.
 
-**완료 조건**: 한 종목 펀더멘털 누락이 전체 873종목 refresh를 유발하지 않으며 실패가 operations artifact에 남음.
+**완료 조건**: 873-row scale fixture에서 한 종목 펀더멘털 누락이 전체 refresh를 유발하지 않으며 실패가 operations artifact에 남음.
 
 ### SCR-OS-07 — Provider Capability와 reconciliation
 
@@ -831,7 +842,7 @@ SCR-OS-00
   -> SCR-OS-11
 ```
 
-이번 구현 세션은 `SCR-OS-00 -> SCR-OS-01~04 -> SCR-OS-06~08 -> SCR-OS-05/09 -> SCR-OS-10 -> SCR-OS-11` 순서로 진행한다. Workbench UI는 계약·엔진·설명 경계가 생긴 뒤 legacy table을 rollback surface로 유지한 adapter로 연결한다.
+원래 구현 순서는 `SCR-OS-00 -> SCR-OS-01~04 -> SCR-OS-06~08 -> SCR-OS-05/09 -> SCR-OS-10 -> SCR-OS-11`이었다. Workbench UI는 계약·엔진·설명 경계가 생긴 뒤 legacy table을 rollback surface로 유지한 adapter로 연결하는 설계다. 현재 로컬 패킷 상태는 §5.11을 참조한다. 이 순서의 873/5k/20k 수치는 scale-test fixture이지 현재 유니버스 수치가 아니다.
 
 ## 12. 필수 검증 gate
 
@@ -919,9 +930,9 @@ AIO의 격차는 데이터 종류 부족보다 **선별 정의와 관측 시점,
 
 - 외부 코드 또는 라이선스 데이터 도입
 - 새 API key/provider 계약
-- runtime field registry/DSL/outcome ledger, PIT/cost validation, and promotion boundaries are implemented and contract-tested locally as `VERIFIED_LOCAL`; this does not claim real-data predictive validity.
-- PIT universe와 거래비용 검증
+- runtime FieldRegistry/DSL/Outcome Ledger, validation-gate 경계는 로컬 구현·계약 검증 `VERIFIED_LOCAL`이다. 이는 production PIT universe나 실거래 비용 검증 완료를 뜻하지 않는다.
+- 실데이터 PIT universe와 거래비용·유동성 검증
 - 자동 레짐 가중치의 predictive 승격
-- real-data PIT universe/trading-cost evidence, provider rights/keys, predictive promotion, operations soak, and in-app Browser Tier 13 live certification. GitHub Pages parity is verified for the deployed revision, but these external gates remain blocked.
+- real-data PIT/trading-cost evidence, provider rights/keys, predictive promotion, operations soak, current-revision GitHub Pages parity, and in-app Browser Tier 13 remain unverified or blocked. Historical v54.15 Pages parity is revision-bound and is not current live certification.
 
-이 문서의 다음 상태 변경은 최종 로컬 gate/benchmark 결과 또는 별도 live/provider/PIT 증거가 생성될 때만 수행한다.
+2026-09-28 재확인은 repository-local 상태만 갱신한다. 이후 live/provider/PIT 상태는 그에 해당하는 별도 증거가 생길 때만 바꾸며, local gate PASS를 더 높은 evidence tier로 승격하지 않는다.

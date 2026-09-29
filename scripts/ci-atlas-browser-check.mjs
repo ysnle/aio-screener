@@ -179,7 +179,7 @@ try {
     ['cpo-supply-map', 6, 5]
   ];
   const relationshipResponsive = [];
-  for (const width of [1280, 760]) {
+  for (const width of [1280, 1920]) { // P1324: desktop-only viewports
     await page.setViewportSize({ width, height: 900 });
     await page.waitForTimeout(120);
     await page.locator('#page-atlas [data-atlas-action="relationship-criticality"][data-atlas-value="all"]').click();

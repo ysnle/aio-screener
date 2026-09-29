@@ -74,7 +74,6 @@ export function classifyQuestionIntent(query, context = {}) {
   if (/^(technical|signal|kr-tech|kr-technical)$/.test(route)) scores.TECHNICAL_ANALYSIS += 5;
   if (/^(macro|kr-macro)$/.test(route)) scores.MACRO_ANALYSIS += 4;
   if (route === 'fxbond') scores.FX_ANALYSIS += 4;
-  if (route === 'options') scores.OPTIONS_ANALYSIS += 5;
   if (route === 'portfolio') scores.PORTFOLIO_ACTION += 5;
   if (route === 'screener') scores.SCREENING += 5;
   if (hasTicker && !hit.ENTITY_FACT) scores.ENTITY_ANALYSIS += 4;

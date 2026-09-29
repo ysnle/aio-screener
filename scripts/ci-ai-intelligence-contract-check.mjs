@@ -427,7 +427,7 @@ const samePublisher = normalizeSearchResults([{ url: 'https://reuters.com/a', pu
 check('research-relabeling-cannot-inflate-independence', samePublisher.independentSourceCount === 1);
 check('research-unbound-id-is-rejected', !validateClaimEvidenceBinding({ evidenceIds: ['invented'] }, evidence).ok);
 const data = read('js/aio-data.js');
-const core = read('js/aio-core.js');
+const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
 const bootstrap = read('src/app/bootstrap.js');
 check('single-orchestrator-export', /getAIOrchestrator/.test(bootstrap) && /createAIAnswerOrchestrator/.test(bootstrap));
 check('knowledge-retrieval-is-lazy-and-exposed-by-existing-orchestrator-boundary', /createAIKnowledgeRetriever/.test(bootstrap) && /knowledgeRetriever: aiKnowledgeRetriever/.test(bootstrap) && /buildAIKnowledgeContext/.test(read('src/ai/orchestrator/answer-orchestrator.js')));

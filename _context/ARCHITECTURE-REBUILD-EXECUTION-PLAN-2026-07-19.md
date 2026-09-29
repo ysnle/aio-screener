@@ -8,6 +8,7 @@ auto_refresh: false
 status: DESIGNED_EXECUTABLE
 parent: ARCHITECTURE-REBUILD-HANDOFF-2026-07-18.md
 scope: whole-system architecture execution
+---
 
 ## Current verified checkpoint (P771, 2026-07-22)
 
@@ -156,7 +157,6 @@ pure domain, AI, privacy vault, release, and retirement boundaries. All 17
 route lifecycle/renderer modules are registered natively; compatibility input
 is read-only through the facade. Full §8.1 validation remains intentionally
 deferred until this packet sequence is complete, then runs as one batch.
----
 
 # AIO ?�체 ?�키?�처 ?�구�??�행 ?�드?�프
 

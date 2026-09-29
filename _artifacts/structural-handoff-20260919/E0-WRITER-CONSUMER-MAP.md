@@ -37,7 +37,7 @@
 | S-A | `js/aio-data.js:1816` `renderScreenerResults()` | `aio:screener:render-request` dispatch만 하고 리스너 부재 → no-op | **퇴역 완료(P1185, 2026-09-24)**: 리스너 0 확인 후 함수·호출 삭제, `route-owners.json legacySymbolsMustBeAbsent.screener`에 심볼 등록으로 재등장 차단(`ci-retirement-contract`). 브라우저 페이지 순회는 미검증(데이터 노후 SKIP) |
 | S-B | `src/data/runtime-readers.js:612` `readScreener()` | `root._aioScreenerRows` 전역 할당 부재 → 항상 빈 행(죽은 reader) | **퇴역 완료(P1185, 2026-09-24)**: 소비 0(grep — facade는 자기 reader 사용) 확인 후 reader·export 삭제, `ci-runtime-contract-check`가 재도입을 차단 |
 | S-C | `_aioGetCanonicalScreenerRows`(aio-data.js:976) vs facade `readScreener`(compatibility-facade.js:328) | 같은 행을 서로 다른 fallback 체인으로 2회 구현 | 한 owner(reader)로 합칠 때까지 shadow 비교: 같은 입력 → 같은 행 집합 |
-| S-D | `_aioApplyNativeScreenerState` 이중 트리거(이벤트 :5335 + 직접 :5983) | 같은 상태를 두 번 읽어 legacy projection을 덮어씀 | 단일 트리거 전환 후 projection diff 0 |
+| S-D | `_aioApplyNativeScreenerState` 이중 트리거(이벤트 :5335 + 직접 :5983) | 같은 상태를 두 번 읽어 legacy projection을 덮어씀 | **이미 종료 확인(v56.55, 2026-09-27)**: 이벤트 리스너 호출만 남아 있고 직접 트리거는 소멸(현행 aio-data.js:5390-5395). `ci-runtime-contract-check`가 정의+리스너 2회를 단언 — 후속 배치에서 닫힌 행을 이번 작업이 재구현하지 않았다 |
 | S-E | AI 소비 이중 구현(aio-chat.js:6361 / 8652) | 같은 함수 쌍을 두 채팅이 각각 호출 | 공통 helper 추출 후 동일 결과 확인 |
 | S-F | IDB `AIOScreenerDB`(aio-data.js:5160) | 뉴스 전용인데 스크리너 명칭 — 실제 run 저장소와 혼동 | 개명/주석 정리, 쓰기 경로 이전 |
 
@@ -93,12 +93,12 @@
 
 | # | 위치 | 사유 | shadow 종료 조건 |
 |---|---|---|---|
-| P-A | `src/legacy/compatibility-facade.js:247-290` `readPortfolio` | runtime-readers와 다른 매핑으로 같은 Vault를 2회 구현, targetWeight·통화 드롭 | native store가 단일 owner일 때까지 두 reader 출력 shadow diff 0 |
-| P-B | `js/aio-workspace.js:572-673` `renderPortfolio()` + `:755` `updatePortfolioSummary()` | 세 번째 직접 reader + 자체 totals | `_nativePortfolioTable` fence 제거 후 단일 렌더 확인 |
-| P-C | `js/aio-ui.js:2555-2579` `_buildSectors()` | 폐기 키 `localStorage['aio_portfolio']`(sym 스키마)로 섹터 계산 | 현행 데이터로 동일 섹터 결과 확인 후 제거 |
-| P-D | `js/aio-chat.js:5941-5948` `_simulatePortfolioAddition()` | `window.getPortfolioState` 미정의 + 폐기 키 `aio_portfolio_v1` fallback, `h.quantity`≠현행 `qty` → 사실상 죽은 reader | 호출 0 확인 후 삭제 |
-| P-E | `getPortfolioState` 3중 호출(runtime-readers.js:569,573 / compatibility-facade.js:249 / aio-chat.js:5943) | 정의/할당 전체 저장소에 부재 → 항상 `getPortfolioData()` fallback | 정의를 만들거나 호출부를 제거 |
-| P-F | 현금 `aio_portfolio_cash` 4중 read(workspace:667,760 / facade:285 / runtime-readers:587) | 통화선언 없는 숫자 합산 | cash 통화 envelope 도입 후 단일 reader |
+| P-A | `src/legacy/compatibility-facade.js:247-290` `readPortfolio` | runtime-readers와 다른 매핑으로 같은 Vault를 2회 구현, targetWeight·통화 드롭 | **종료 완료(P1280, 2026-09-27 v56.55)**: facade가 단일 runtime reader에 위임 — shadow diff가 구조적으로 0. `ci-esm-core-unit-check`이 동일 host byte-identical·targetWeight/통화 보존·locked 비노출을, `ci-architecture-contract-check`이 위임 계약(두 번째 매핑 재도입 차단)을 강제 |
+| P-B | `js/aio-workspace.js:572-673` `renderPortfolio()` + `:755` `updatePortfolioSummary()` | 세 번째 직접 reader + 자체 totals | `_nativePortfolioTable` fence 제거 후 단일 렌더 확인 — `ci-architecture-contract-check`이 fence 계약을 현행 요구하므로 별도 회수 카드(P1280 residual) |
+| P-C | `js/aio-ui.js:2555-2579` `_buildSectors()` | 폐기 키 `localStorage['aio_portfolio']`(sym 스키마)로 섹터 계산 | **종료 완료(P1282, 2026-09-27 v56.55)**: 현행 소유자 `getPortfolioData`(Vault-aware, {ticker,qty,sector?})로 재배선. 다이어그램 자체의 native 회수 판단은 P-B 계열 카드에 인계 |
+| P-D | `js/aio-chat.js:5941-5948` `_simulatePortfolioAddition()` | `window.getPortfolioState` 미정의 + 폐기 키 `aio_portfolio_v1` fallback, `h.quantity`≠현행 `qty` → 사실상 죽은 reader | **종료 완료(P1281, 2026-09-27 v56.55)**: `getPortfolioData`/{ticker,qty} 재배선 + 시세 미수신 보류(0 합산 금지). 호출부(7182)가 살아 있어 삭제 대신 재배선이 선택이었고 T533/T534 계약은 유지 |
+| P-E | `getPortfolioState` 3중 호출(runtime-readers.js:569,573 / compatibility-facade.js:249 / aio-chat.js:5943) | 정의/할당 전체 저장소에 부재 → 항상 `getPortfolioData()` fallback | **종료 완료(P1280·P1281, 2026-09-27 v56.55)**: 세 호출부 모두 제거/재배선 — 정의는 만들지 않았다(두 번째 상태 소스를 의도하지 않음). runtime reader가 `getPortfolioData` 단일 소스 |
+| P-F | 현금 `aio_portfolio_cash` 4중 read(workspace:667,760 / facade:285 / runtime-readers:587) | 통화선언 없는 숫자 합산 | cash 통화 envelope 도입 후 단일 reader — 선언(cashCurrency)은 P1188·reader 위임으로 facade 중복은 소멸(P1280), workspace 렌더 경로 잔여는 P-B와 같은 회수 카드 |
 
 ## 3. 시세 metric/팩터 시간 (E1 대상)
 
@@ -155,4 +155,4 @@
 - 기준 SHA·세션 기준선 확보 완료. writer/consumer/deprecated/shadow 종료 조건 위 표로 기록.
 - `기존 run/portfolio 사본 export·복원`: 스크리너는 `captureScreenRun`→`replayScreenRun` contentHash 무결성이 기존 CI(`ci-screener-workbench-contract.mjs:197-199`)에 존재. 포트폴리오 백테스트 run은 저장 경로 자체가 없어(위 2절) export·복원 대상이 성립하지 않음을 현행 사실로 기록 — E3에서 저장·재현 여부를 먼저 결정한다.
 - 이 문서는 기록 산출물이며 제품 코드·게이트 변경은 포함하지 않는다. 구현 변경은 각 카드에서 새 P 항목과 assertion trace로 수행한다.
-- 갱신 이력: E1 종료(2026-09-24, v56.18) — P1178·P1179·P1183·P1184 행을 위 4절 표에 채웠다. **E2 착수(2026-09-24, v56.18·P1185)**: S-A·S-B 퇴역 완료(위 1절 표), S-C~S-F는 shadow 비교·공통 helper·단일 트리거가 선행돼야 해 미착수. **E3 착수(2026-09-24, v56.19·P1187)**: 통화 writer·수정 경로 보존·import/전체삭제 ack를 구현해 4절 표에 E3 통화 행을 채웠다(계좌 통화 입력 writer·FX 환산·cut은 미착수). **E4 착수(2026-09-24, v56.20·P1188)**: 계좌·현금 통화+현금 수익률·RF writer, TWR/MWR 원장 엔진, 고정 목표비중 전략 경로를 구현해 E4 통화·수익률·성과 엔진 행을 채웠다 — FX 환산·cut과 원장/전략 입력 UI는 미착수. E3 배분·E5 행은 각 카드 종료 시 채운다.
+- 갱신 이력: E1 종료(2026-09-24, v56.18) — P1178·P1179·P1183·P1184 행을 위 4절 표에 채웠다. **E2 착수(2026-09-24, v56.18·P1185)**: S-A·S-B 퇴역 완료(위 1절 표), S-C~S-F는 shadow 비교·공통 helper·단일 트리거가 선행돼야 해 미착수. **E3 착수(2026-09-24, v56.19·P1187)**: 통화 writer·수정 경로 보존·import/전체삭제 ack를 구현해 4절 표에 E3 통화 행을 채웠다(계좌 통화 입력 writer·FX 환산·cut은 미착수). **E4 착수(2026-09-24, v56.20·P1188)**: 계좌·현금 통화+현금 수익률·RF writer, TWR/MWR 원장 엔진, 고정 목표비중 전략 경로를 구현해 E4 통화·수익률·성과 엔진 행을 채웠다 — FX 환산·cut과 원장/전략 입력 UI는 미착수. E3 배분·E5 행은 각 카드 종료 시 채운다. **v56.55(2026-09-27) E0 끝단 갱신**: S-D는 후속 배치에서 이미 종료된 것을 확인하고 행에 기록만 했다. P-A/P-E(P1280)·P-D(P1281)·P-C(P1282)가 종료됐고 S-D의 섀도 종료 조건처럼 실행 확인으로 집행됐다. 원자 전환의 라우터 끝단(동일 라우트 viewState 커밋)과 facade 끝단(mount 실패 롤백+`aio:navigationFailed`)은 P1278·P1279로 닫혔다 — facade 효과 선행 순서의 완전 역전은 chart native 회수와 함께 QA-E0-SHELL-EFFECT-ORDER로 OPEN, viewState 생산자 수직 왕복은 QA-E0-VIEWSTATE-PRODUCER로 OPEN, P-B/P-F 회수는 별도 카드로 OPEN이다.

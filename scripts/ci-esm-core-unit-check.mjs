@@ -525,6 +525,74 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (!missingRootThrew) fail('router: createLifecycleRouter accepted a root with no addEventListener');
 }
 
+// ── E0/P1278: a same-route re-commit carries the committed view state ───────────────────────
+// The old branch returned after the marker restore and silently dropped the payload, so a
+// view change on the same route/entity (tab, filter, anchor intent) was invisible to the
+// store and to every consumer of the commit result. The re-commit must move the committed
+// view state and publish it — without remounting and without noise when nothing changed.
+{
+  const { createLifecycleRouter, createRouteRegistry } = await load('src/app/router.js');
+  const mounts = [];
+  const committed = [];
+  const target = new EventTarget();
+  const registry = createRouteRegistry({ modules: { breadth: { route: 'breadth', mount: () => { mounts.push('breadth'); return () => {}; } } } });
+  const router = createLifecycleRouter({ root: target, registry, context: {} });
+  target.addEventListener('aio:navigationCommitted', (event) => committed.push(event.detail));
+  router.start();
+  router.transition('breadth', { source: 'initial-load' });
+  if (router.activeViewState() !== null) fail('P1278 router: a commit without a view state published one');
+  if (committed[0]?.viewState !== null || committed[0]?.recommit !== false) fail(`P1278 router: the initial commit result lost its view-state field: ${JSON.stringify(committed[0])}`);
+  router.transition('breadth', { source: 'architecture-navigation' });
+  if (mounts.length !== 1 || committed.length !== 1) fail(`P1278 router: an unchanged same-route re-commit must stay a no-op, got mounts=${mounts.length}, commits=${committed.length}`);
+  const viewA = Object.freeze({ tab: 'sma50' });
+  if (router.transition('breadth', { source: 'architecture-navigation', viewState: viewA }) !== true) fail('P1278 router: a view-state re-commit was rejected');
+  const recommit = committed[committed.length - 1];
+  if (committed.length !== 2 || recommit?.recommit !== true || recommit?.viewState !== viewA || recommit?.mountId !== 1 || recommit?.routeId !== 'breadth') fail(`P1278 router: the view-state re-commit did not publish the same mount with its new view state: ${JSON.stringify(recommit)}`);
+  if (router.activeViewState() !== viewA) fail('P1278 router: activeViewState() did not follow the re-commit');
+  if (mounts.length !== 1) fail('P1278 router: a view-state re-commit remounted the route');
+  router.transition('breadth', { source: 'architecture-navigation', viewState: viewA });
+  if (committed.length !== 2) fail('P1278 router: re-committing the identical view state published duplicate commits');
+  const viewB = Object.freeze({ tab: 'sma5' });
+  router.transition('breadth', { source: 'architecture-navigation', viewState: viewB });
+  if (router.activeViewState() !== viewB || committed.length !== 3) fail('P1278 router: a second view state on the same mount did not move the committed view identity');
+  router.transition('home', { source: 'architecture-navigation' });
+  if (router.activeViewState() !== null) fail('P1278 router: a real transition did not reset the committed view state');
+  router.dispose();
+  if (router.activeViewState() !== null) fail('P1278 router: dispose() kept a committed view state');
+}
+
+// ── E0/P1279: a failed commit must not leave the shell on an unmounted page ─────────────────
+// The legacy side effect runs before the router commits, and the router clears its active
+// state when a mount throws. Without a rollback the user saw a page whose router never
+// committed it. The facade now re-commits the previous route through the same typed boundary
+// and publishes aio:navigationFailed; the failure is never a split surface.
+{
+  const { createLifecycleRouter, createRouteRegistry } = await load('src/app/router.js');
+  const { createLegacyFacade } = await load('src/legacy/compatibility-facade.js');
+  const shown = [];
+  const events = new EventTarget();
+  const root = { document: events, showPage(pageId) { shown.push(pageId); return true; } };
+  const registry = createRouteRegistry({ modules: {
+    home: { route: 'home', mount: () => () => {} },
+    macro: { route: 'macro', mount: () => { throw new Error('fixture-mount-failure'); } }
+  } });
+  const router = createLifecycleRouter({ root: events, registry, context: {} });
+  router.start();
+  router.transition('home', { source: 'initial-load' });
+  const failed = [];
+  events.addEventListener('aio:navigationFailed', (event) => failed.push(event.detail));
+  const legacy = createLegacyFacade(root, events);
+  const navigation = legacy.installNavigation(router);
+  if (!navigation.installed) fail('P1279 facade: navigation facade did not install over the callable showPage');
+  const result = root.showPage('macro');
+  if (result !== false) fail('P1279 facade: a failed commit reported the legacy show result as success');
+  if (shown.join(',') !== 'macro,home') fail(`P1279 facade: the shell was not rolled back to the committed route, shown=${shown.join(',')}`);
+  if (router.active() !== 'home') fail(`P1279 facade: the router did not re-commit the previous route, active=${router.active()}`);
+  if (failed.length !== 1 || failed[0]?.routeId !== 'macro' || failed[0]?.rolledBack !== true) fail(`P1279 facade: the failed commit was not observable: ${JSON.stringify(failed)}`);
+  navigation.restore();
+  router.dispose();
+}
+
 // ── evidence-store.js ────────────────────────────────────────────────────────────────────────
 {
   const store = createEvidenceStore();
@@ -611,7 +679,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
 // ── vertical-slices.js ───────────────────────────────────────────────────────────────────────
 {
   const audit = auditVerticalSliceContracts(ROUTE_IDS);
-  if (!audit.ok || audit.sliceCount !== 13 || audit.coveredRoutes.length !== ROUTE_IDS.length) fail(`vertical-slices: registry coverage drifted: ${JSON.stringify(audit)}`);
+  if (!audit.ok || audit.sliceCount !== 12 || audit.coveredRoutes.length !== ROUTE_IDS.length) fail(`vertical-slices: registry coverage drifted: ${JSON.stringify(audit)}`);
   if (getVerticalSliceContract('page-theme-detail')?.id !== 'vs04-themes-detail' || getVerticalSliceContract('missing')) fail('vertical-slices: route lookup did not normalize page ids or reject unknown routes');
 }
 
@@ -866,13 +934,116 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const { deriveMacroTransmissionEvidence } = await load('src/domain/macro/transmission.js');
   const macro = deriveMacroTransmissionEvidence({ treasurySupply: '' });
   if (macro.observed.issuance || !Object.isFrozen(macro) || !Object.isFrozen(macro.chain)) fail('macro: blank evidence was observed or projection remained mutable');
-  const { classifyNewsTextStance, computeNewsSentimentScore, computeNewsRiskSignals } = await load('src/domain/news/scoring.js');
+  const { classifyNewsTextStance, computeNewsSentimentScore, computeNewsRiskSignals, deriveNewsSummary, MIN_NEWS_ANALYSIS_SAMPLE, NEWS_SCORING_MODEL_VERSION, normalizeNewsSentimentHistory } = await load('src/domain/news/scoring.js');
   if (classifyNewsTextStance('The commissioner dismissed Bullard from the panel') !== 'neut' || classifyNewsTextStance('Stocks surged after earnings beat') !== 'bull') fail('news: substring collision or valid inflection regression');
   const fixedNewsNow = Date.parse('2026-09-08T01:00:00Z');
-  const newsItems = (titles) => titles.map((title) => ({ title, pubDate: '2026-09-07T12:00:00Z' }));
+  const newsItems = (titles) => titles.map((title) => ({ title, desc: 'The full article body provides more than enough reviewed context to support article-level analysis.', pubDate: '2026-09-07T12:00:00Z' }));
   if (computeNewsRiskSignals({ now: fixedNewsNow, items: newsItems(['Set your default browser', 'The story spreads online', 'Credit card rewards expand']) }).some((row) => row.type === 'credit')) fail('news: neutral words produced credit stress');
-  if (!computeNewsRiskSignals({ now: fixedNewsNow, items: newsItems(['Credit spreads widen', 'Bond market default risk rises', 'Banks face credit stress']) }).some((row) => row.type === 'credit')) fail('news: explicit credit stress was lost');
+  if (!computeNewsRiskSignals({ now: fixedNewsNow, items: newsItems([
+    'Credit spreads widen',
+    'Bond market default risk rises',
+    'Banks face credit stress',
+    'Corporate debt distress deepens',
+    'Lenders report borrower defaults'
+  ]) }).some((row) => row.type === 'credit')) fail('news: explicit credit stress was lost');
   if (computeNewsSentimentScore({ items: 'bad' }).total !== 0 || computeNewsSentimentScore({ items: [{ pubDate: '2026-01-01' }], now: NaN }).label !== '데이터 부족' || computeNewsRiskSignals({ items: 'bad' }).length !== 0) fail('news: malformed collection/time did not fail closed');
+  const longNewsBody = 'The published article contains enough source text to ground a summary and sentiment classification.';
+  const thinBullishNews = { title: 'Stocks surge rally beat expectations', desc: longNewsBody, pubDate: '2026-09-07T12:00:00Z' };
+  const thinSample = computeNewsSentimentScore({ items: [thinBullishNews], now: fixedNewsNow });
+  const thinSummary = deriveNewsSummary({ items: [thinBullishNews], now: fixedNewsNow });
+  const fiveArticleSample = computeNewsSentimentScore({ items: newsItems([
+    'Stocks surge rally beat expectations',
+    'Shares surge rally beat forecasts',
+    'Markets surge rally beat estimates',
+    'Firms surge rally beat projections',
+    'Funds surge rally beat consensus'
+  ]), now: fixedNewsNow });
+  const thinRiskItems = newsItems([
+    'Energy prices crash plunge amid crisis',
+    'Energy stocks collapse during trade war',
+    'Energy market crash deepens amid conflict',
+    'Energy exports plunge amid sanctions'
+  ]).map((item) => ({ ...item, topic: 'energy', topicSource: 'article', topicReviewRequired: false }));
+  if (MIN_NEWS_ANALYSIS_SAMPLE !== 5
+    || thinSample.total !== 1 || thinSample.score !== null || thinSample.label !== '표본 부족'
+    || thinSummary.score !== null || thinSummary.label !== '표본 부족' || thinSummary.sampleSufficient !== false
+    || computeNewsRiskSignals({ items: thinRiskItems, now: fixedNewsNow }).length !== 0
+    || fiveArticleSample.total !== MIN_NEWS_ANALYSIS_SAMPLE || !fiveArticleSample.sampleSufficient || fiveArticleSample.score !== 100) {
+    fail('P1284/R633: sentiment and risk outputs must hold below five eligible articles and publish from a sufficient bullish sample');
+  }
+  const oldNewsHistoryPoint = { time: '09:00', score: 100, bull: 1, bear: 0 };
+  const thinNewsHistoryPoint = { ...oldNewsHistoryPoint, eligibleCount: 1, sampleSufficient: true, modelVersion: NEWS_SCORING_MODEL_VERSION };
+  const wrongModelHistoryPoint = { ...thinNewsHistoryPoint, eligibleCount: 5, modelVersion: 'news-scoring.v1' };
+  const validNewsHistoryPoint = { ...thinNewsHistoryPoint, eligibleCount: 5 };
+  const normalizedNewsHistory = normalizeNewsSentimentHistory([oldNewsHistoryPoint, thinNewsHistoryPoint, wrongModelHistoryPoint, validNewsHistoryPoint]);
+  if (normalizedNewsHistory.length !== 1 || normalizedNewsHistory[0] !== validNewsHistoryPoint
+    || normalizeNewsSentimentHistory([validNewsHistoryPoint], 0).length !== 1) {
+    fail('P1285/R635: persisted news charts must discard legacy, below-minimum, and wrong-model scores while retaining a sufficient current-model point');
+  }
+  const legacyNewsSource = readFileSync(path.join(root, 'js/aio-data.js'), 'utf8');
+  const newsBootstrapSource = readFileSync(path.join(root, 'src/app/bootstrap.js'), 'utf8');
+  const legacyCoreNewsSource = readFileSync(path.join(root, 'js/aio-core.js'), 'utf8');
+  const legacyFacadeNewsSource = readFileSync(path.join(root, 'src/legacy/compatibility-facade.js'), 'utf8');
+  const legacyScoreFallback = legacyNewsSource.match(/function computeNewsSentimentScore\(items\) \{[\s\S]*?\n\}/)?.[0] || '';
+  if (!/if \(!_bucketScore \|\| _bucketScore\.sampleSufficient !== true \|\| Number\(_bucketScore\.total\) < _minNewsSample \|\| _bucketScore\.score == null\) continue/.test(legacyNewsSource)
+    || !/if \(ns && ns\.sampleSufficient === true && Number\(ns\.total\) >= _minNewsSample && ns\.score != null && Number\.isFinite\(Number\(ns\.score\)\)\) \{\s*_nsh\.push/.test(legacyNewsSource)
+    || !/_normalizeNewsHistory\(window\._newsSentimentHistory\)/.test(legacyNewsSource)
+    || !/normalizeNewsSentimentHistory/.test(newsBootstrapSource)
+    || !/MIN_NEWS_ANALYSIS_SAMPLE/.test(newsBootstrapSource)
+    || !/MIN_NEWS_ANALYSIS_SAMPLE:\s*api\.MIN_NEWS_ANALYSIS_SAMPLE/.test(legacyFacadeNewsSource)
+    || !/score: null,[\s\S]*?sampleSufficient: false/.test(legacyScoreFallback)
+    || /score:\s*50/.test(legacyScoreFallback)) {
+    fail('P1285/R635: legacy news fallback and chart persistence must require the current sufficient-sample contract, including rehydrated history');
+  }
+  if (!/configuredMinNewsSample = Number\(window\.AIO_ARCH && window\.AIO_ARCH\.MIN_NEWS_ANALYSIS_SAMPLE\)/.test(legacyCoreNewsSource)
+    || !/if \(!minNewsSampleReady \|\| total < minNewsSample\)/.test(legacyCoreNewsSource)
+    || !/sentimentScore: null, bull: null, bear: null, warn: null, neut: null,[\s\S]*?sampleSufficient: false/.test(legacyCoreNewsSource)
+    || !/newsSignal\.sampleSufficient === true/.test(legacyCoreNewsSource)
+    || !/newsSignal\.sentimentScore === 'number' && Number\.isFinite\(newsSignal\.sentimentScore\)/.test(legacyCoreNewsSource)
+    || !/ns\.sampleSufficient === true && ns\.decisionEligible === true && Number\(ns\.total\) >= minNewsSample[\s\S]*?typeof ns\.sentimentScore === 'number' && Number\.isFinite\(ns\.sentimentScore\)/.test(legacyCoreNewsSource)
+    || !/sig\.sampleSufficient === true && Number\(sig\.total\) >= minNewsSample[\s\S]*?typeof sig\.sentimentScore === 'number' && Number\.isFinite\(sig\.sentimentScore\)/.test(legacyCoreNewsSource)
+    || !/stages\.signal = \{ ok: !!signalSampleSufficient/.test(legacyCoreNewsSource)) {
+    fail('P1288/R638: the legacy news aggregate, market-state consumer, action-plan consumer, and loop audit must fail closed below the shared minimum sample');
+  }
+  const { exposeArchitecture } = await load('src/legacy/compatibility-facade.js');
+  const exposedNewsThreshold = {};
+  exposeArchitecture(exposedNewsThreshold, { MIN_NEWS_ANALYSIS_SAMPLE });
+  if (exposedNewsThreshold.AIO_ARCH?.MIN_NEWS_ANALYSIS_SAMPLE !== MIN_NEWS_ANALYSIS_SAMPLE) {
+    fail('P1288/R638: the bootstrap minimum-news threshold did not cross the legacy AIO_ARCH facade used by aio-core');
+  }
+  const nativeNewsSource = readFileSync(path.join(root, 'src/ui/pages/news.js'), 'utf8');
+  if (!/set\('news-sent-score', summary\.score\);/.test(nativeNewsSource)
+    || !/summary\.analyzedCount > 0 && !summary\.sampleSufficient\s*\? '표본 부족'/.test(nativeNewsSource)) {
+    fail('P1284/R633: the native news summary must display a dash and explicit insufficient-sample state instead of a sentiment score');
+  }
+  const headlineOnly = { title: 'Markets crash and plunge', desc: longNewsBody, pubDate: '2026-09-07T12:00:00Z', contentDepth: 'summary', verificationStatus: 'headline-only' };
+  if (computeNewsSentimentScore({ items: [headlineOnly], now: fixedNewsNow }).total !== 0) fail('LC-32/P1268: verificationStatus headline-only remained sentiment evidence when contentDepth disagreed');
+  const feedTopicRows = newsItems([
+    'Energy prices crash and plunge after crisis',
+    'Energy stocks collapse amid trade war',
+    'Energy market crash deepens amid conflict',
+    'Energy exports plunge amid sanctions',
+    'Energy contracts collapse during military conflict'
+  ])
+    .map((item) => ({ ...item, topic: 'energy', topicSource: 'feed-query', topicReviewRequired: true }));
+  const reviewedTopicRows = feedTopicRows.map((item) => ({ ...item, topicSource: 'article', topicReviewRequired: false }));
+  if (computeNewsRiskSignals({ now: fixedNewsNow, items: feedTopicRows }).some((row) => row.type === 'energy')) fail('LC-31/P1268: feed-query topic produced an article-topic risk signal before review');
+  if (!computeNewsRiskSignals({ now: fixedNewsNow, items: reviewedTopicRows }).some((row) => row.type === 'energy')) fail('LC-31/P1268: reviewed article topic stopped producing a supported risk signal');
+  const completedCycle = deriveNewsSummary({
+    items: newsItems([
+      'A neutral verified market update',
+      'A neutral verified market update two',
+      'A neutral verified market update three',
+      'A neutral verified market update four',
+      'A neutral verified market update five'
+    ]).map((item) => ({ ...item, pubDate: '2026-09-07T00:00:00Z', source: 'Reuters' })),
+    now: fixedNewsNow,
+    windowStart: '2026-09-06T23:00:00Z',
+    windowEnd: '2026-09-07T23:00:00Z'
+  });
+  if (completedCycle.analyzedCount !== 5 || completedCycle.score !== 50 || completedCycle.sourceCount !== 1 || completedCycle.sampleSufficient !== true) fail('LC-07/P1268: the displayed score/count/source projection diverged from the same completed-cycle items');
+  const noEvidenceSummary = deriveNewsSummary({ items: [], now: fixedNewsNow });
+  if (noEvidenceSummary.score !== null || noEvidenceSummary.label !== '분석 보류' || computeNewsSentimentScore({ items: [], now: fixedNewsNow }).score !== 50) fail('LC-93/P1268: a producer baseline score of 50 leaked as an observed empty-sample score');
   const { deriveConcentrationRisk, concentrationPenaltyForWeight } = await load('src/domain/portfolio/concentration.js');
   const concentration = deriveConcentrationRisk({ positions: [{ ticker: 'BAD', value: -100, qty: -2, price: -5 }] });
   if (concentration.totalValue < 0 || concentrationPenaltyForWeight(-10) !== 0) fail('portfolio: negative holding inputs produced risk weight');
@@ -899,6 +1070,62 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (partial.status !== 'partial' || partial.displayScore !== '43*' || partial.tier !== 'reference-only' || partial.action !== 'NO_ACTION' || partial.decisionEligible !== false) fail(`signal: partial presentation must remain descriptive/fail-closed, got ${JSON.stringify(partial)}`);
   const blocked = deriveSignalDecisionFromTradingScore({ score: computeTradingScoreModel({}), inputVersion: 'unit.v1' });
   if (blocked.status !== 'blocked' || blocked.action !== 'NO_ACTION' || blocked.score !== null || blocked.decisionEligible !== false || blocked.presentation?.status !== 'blocked' || blocked.presentation?.action !== 'NO_ACTION' || blocked.presentation?.displayScore !== '—') fail(`signal: missing score inputs must fail closed, got ${JSON.stringify(blocked)}`);
+  // P1322: a blocked score names the real cause (no decision-grade input), not "not received".
+  if (blocked.presentation?.decision !== '판정 보류 — 판단 등급 입력 없음' || !/실시간·검증된 입력이 없어/.test(blocked.presentation?.description || '') || /아래에서/.test(blocked.presentation?.description || '')) fail(`signal: blocked presentation wording drifted (P1322), got ${JSON.stringify(blocked.presentation)}`);
+  // ── P1328/R670: the reference score is computed on the latest completed US regular close ──
+  {
+    const { resolveCloseBasis, evaluateCloseBasisInput, describeCloseBasis } = await load('src/domain/signal/close-basis.js');
+    const now = Date.parse('2026-09-29T01:50:00Z'); // Tue 10:50 KST, US closed after Mon 9/28
+    const basis = resolveCloseBasis(now);
+    if (basis?.date !== '2026-09-28' || basis.previousDate !== '2026-09-25' || new Date(basis.closeMs).toISOString() !== '2026-09-28T20:00:00.000Z' || basis.inSession) fail(`close basis: wrong latest session ${JSON.stringify(basis)} (P1328)`);
+    if (describeCloseBasis(basis) !== '9/28 미국 정규장 종가 기준') fail('close basis: label drifted (P1328)');
+    const verdict = (key, observedAt) => evaluateCloseBasisInput({ key, value: 1, observedAt, basis, nowMs: now }).ok;
+    const expectations = [['spxPrice', '2026-09-28T20:36:11Z', true], ['tnx', '2026-09-28T18:59:52Z', true], ['dxy', '2026-09-29T01:48:32Z', true], ['spxPrice', '2026-09-28T15:00:00Z', false], ['fg', '2026-09-28T23:59:50Z', true], ['pcr', '2026-09-25', true], ['pcr', '2026-09-24', false], ['hyBp', null, false]];
+    for (const [key, observedAt, expected] of expectations) if (verdict(key, observedAt) !== expected) fail(`close basis: ${key} @ ${observedAt} expected ${expected} (P1328)`);
+    if (resolveCloseBasis(Date.parse('2026-09-07T15:00:00Z'))?.date !== '2026-09-04') fail('close basis: Labor Day must fall back to the prior session (P1328)');
+    if (new Date(resolveCloseBasis(Date.parse('2026-11-27T19:00:00Z')).closeMs).toISOString() !== '2026-11-27T18:00:00.000Z') fail('close basis: half-day close must be 13:00 ET (P1328)');
+    if (resolveCloseBasis(Date.parse('2031-03-03T15:00:00Z')) !== null) fail('close basis: unknown calendar year must fail closed (P1328)');
+    const closeEv = (value) => ({ value, status: 'session_close', allowedUse: 'close-basis' });
+    const closed = computeTradingScoreModel({ mode: 'swing', decisionEvidence: { vix: closeEv(16), dxy: closeEv(101), tnx: closeEv(4.2), fg: closeEv(34), pcr: closeEv(0.8), spxPrice: closeEv(500), spx50ma: closeEv(480), spx200ma: closeEv(450) }, closeBasis: { ...basis, label: describeCloseBasis(basis) }, decisionEligible: true, predictiveValidation: 'established' });
+    if (closed.total == null || closed.closeBasis?.label !== '9/28 미국 정규장 종가 기준' || closed.decisionEligible !== false || !closed.componentMissing.includes('breadth') || closed.componentMissing.includes('macro')) fail(`close basis: score must compute on the close basis, stay non-decision and not need VVIX ${JSON.stringify({ total: closed.total, basis: closed.closeBasis, eligible: closed.decisionEligible, missing: closed.componentMissing })} (P1328)`);
+    const snapshotOnly = computeTradingScoreModel({ decisionEvidence: { vix: { value: 16, status: 'snapshot', allowedUse: 'reference' } } });
+    if (snapshotOnly.volScore !== null) fail('close basis: a reference/snapshot value without the close-basis marker must stay out (P1328)');
+    const presentation = deriveTradingScoreDecisionPresentation({ score: closed });
+    if (!/9\/28 미국 정규장 종가 기준/.test(presentation.description) || /neutral|caution|favorable|constructive|defensive/.test(presentation.decision)) fail(`close basis: presentation must name the basis in Korean ${JSON.stringify(presentation)} (P1328)`);
+  }
+  // ── P1326/R671: one quote-currentness vocabulary from observation times + the US calendar ──
+  {
+    const { describeQuoteCurrentness } = await load('src/domain/market/quote-currentness.js');
+    const at = (iso) => Date.parse(iso);
+    const inSession = { date: '2026-09-28', closeMs: at('2026-09-28T20:00:00Z'), previousDate: '2026-09-25', previousCloseMs: at('2026-09-25T20:00:00Z'), inSession: true };
+    const closedSession = { ...inSession, inSession: false };
+    const obs = (iso) => [{ symbol: '^GSPC', observedMs: at(iso) }, { symbol: 'KRW=X', observedMs: at(iso) }];
+    const cases = [
+      [obs('2026-09-29T14:55:00Z'), at('2026-09-29T15:00:00Z'), inSession, 'live', 'LIVE'],
+      [obs('2026-09-29T14:20:00Z'), at('2026-09-29T15:00:00Z'), inSession, 'delayed', '지연'],
+      [obs('2026-09-29T11:00:00Z'), at('2026-09-29T15:00:00Z'), inSession, 'stale', '지난 시세'],
+      [obs('2026-09-28T20:15:00Z'), at('2026-09-29T02:00:00Z'), closedSession, 'close', '종가'],
+      [obs('2026-09-26T05:00:00Z'), at('2026-09-29T02:00:00Z'), closedSession, 'stale', '지난 시세'],
+      [[{ symbol: 'KRW=X', observedMs: at('2026-09-29T01:00:00Z') }], at('2026-09-29T02:00:00Z'), closedSession, 'none', '미수신']
+    ];
+    for (const [observations, nowMs, session, state, badge] of cases) {
+      const out = describeQuoteCurrentness({ observations, nowMs, session });
+      if (out.state !== state || out.badge !== badge || !out.detail || !out.title) fail(`quote currentness: expected ${state}/${badge}, got ${JSON.stringify(out)} (P1326/R671)`);
+    }
+  }
+  // ── P1327/R672: Korean theme names and membership have one owner ──
+  {
+    const { KR_THEME_LABELS, krThemesForSymbol, krCodeOf } = await load('src/domain/themes/kr-themes.js');
+    const map = { semi: [{ code: '005930' }, { code: '000660' }], bio: [{ code: '207940' }], defense: [{ code: '012450' }] };
+    const hits = krThemesForSymbol('005930.KS', map);
+    if (hits.length !== 1 || hits[0].id !== 'semi' || hits[0].label !== '반도체 / HBM' || krThemesForSymbol('AAPL', map).length || krCodeOf('035720.KQ') !== '035720') fail(`kr themes: membership lookup drifted ${JSON.stringify(hits)} (P1327/R672)`);
+    const krData = readFileSync(path.resolve(root, 'js/aio-kr-data.js'), 'utf8');
+    const mapBody = krData.slice(krData.indexOf('var KR_THEME_MAP = {'), krData.indexOf('\n};', krData.indexOf('var KR_THEME_MAP = {')));
+    const ids = [...mapBody.matchAll(/^\s*'([a-z0-9_-]+)':\s*\[/gm)].map((match) => match[1]);
+    const unlabeled = ids.filter((id) => !KR_THEME_LABELS[id]);
+    if (!ids.length || unlabeled.length) fail(`kr themes: every KR_THEME_MAP id needs a label, missing ${unlabeled.join(',')} (P1327/R672)`);
+    if (!/var CN=window\.AIO_KR_THEME_LABELS/.test(krData) || /var CN=\{'defense'/.test(krData)) fail('kr themes: the theme detail must read the single label owner (P1327/R672)');
+  }
   const invalidScore = computeTradingScoreModel({ mode: 'swing', vix: -10, vvix: 0, dxy: 10, tnx: -1, oilPrice: -5, fg: 101, maCurrent: true, spx200ma: -1, spx50ma: 0, spxPrice: -10, breadthAvailable: true, breadth200: 150, pcr: -1, hyBp: -2, newsSentimentScore: 101, newsRiskSignals: [{ impact: 'bad' }] });
   if (invalidScore.total !== null || invalidScore.modelVersion !== 'trading-score.v3' || !Object.isFrozen(invalidScore) || !Object.isFrozen(invalidScore.componentMissing)) fail(`signal: out-of-domain inputs must fail closed in an immutable v3 result, got ${JSON.stringify(invalidScore)}`);
 }
@@ -1531,6 +1758,31 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
     fail(`P1176/PFR01 legacy-facade: the facade resurrected a blank target while the runtime reader did not, got ${JSON.stringify(facadeRead.holdings.map((row) => [row.symbol, row.target]))}`);
   }
 
+  // E0/P1280 (P-A/P-E): the facade no longer keeps a second Vault mapping — one reader owns it
+  // and the two surfaces must be byte-identical for the same host, including the fields the old
+  // facade copy dropped (targetWeight, declared currencies, ledger, fxLegs, readState, locked).
+  // A dead `getPortfolioState` host branch must no longer change any answer either.
+  const shadowRoot = { isPortfolioLocked: () => false, localStorage: { getItem: () => null }, getPortfolioData: () => [
+    { ticker: 'AAA', qty: 1, cost: 90, target: 0 },
+    { ticker: 'BBB', qty: 1, cost: 90, target: 25, targetWeight: 0, sector: 'Tech', currency: 'KRW', costCurrency: 'KRW' }
+  ] };
+  const facadeShadow = createLegacyFacade(shadowRoot, {}).readPortfolio();
+  const runtimeShadow = createRuntimeReaders({ root: shadowRoot }).readPortfolio();
+  if (JSON.stringify(facadeShadow) !== JSON.stringify(runtimeShadow)) {
+    fail(`P1280 portfolio-reader: the facade and the runtime reader drifted for one host, facade=${JSON.stringify(facadeShadow)} runtime=${JSON.stringify(runtimeShadow)}`);
+  }
+  if (facadeShadow.holdings[1]?.targetWeight !== 0 || facadeShadow.holdings[1]?.currency !== 'KRW' || facadeShadow.holdings[1]?.costCurrency !== 'KRW') {
+    fail(`P1280 portfolio-reader: the shared reader dropped the declared weight or currency, got ${JSON.stringify(facadeShadow.holdings[1])}`);
+  }
+  if (facadeShadow.readState !== 'ready' || facadeShadow.holdingsKnown !== true || facadeShadow.cashKnown !== false || facadeShadow.totals !== null) {
+    fail(`P1280 portfolio-reader: the shared reader lost read-state honesty or re-adopted a second totals owner: ${JSON.stringify({ readState: facadeShadow.readState, holdingsKnown: facadeShadow.holdingsKnown, cashKnown: facadeShadow.cashKnown, totals: facadeShadow.totals })}`);
+  }
+  const lockedShadow = createLegacyFacade({ isPortfolioLocked: () => true, getPortfolioData: () => [{ ticker: 'AAA', qty: 1, cost: 90 }] }, {}).readPortfolio();
+  if (lockedShadow.readState !== 'locked' || lockedShadow.holdingsKnown !== false || lockedShadow.holdings.length !== 0) {
+    fail(`P1280 portfolio-reader: a locked Vault leaked holdings through the facade surface: ${JSON.stringify(lockedShadow)}`);
+  }
+  if (createLegacyFacade({ getPortfolioData: () => [] }, {}).readPortfolio().status !== 'empty') fail('P1280 portfolio-reader: the empty portfolio lost its status');
+
   // 22 단위 1 인수 fixture: 주식 100 + 현금 900의 주식 노출은 총자산 대비 10%다.
   const exposureFixture = derivePortfolioSurface({
     state: { readState: 'ready', holdingsKnown: true, holdings: [{ symbol: 'AAA', shares: 1, avgCost: 90, price: 100 }], cash: 900, cashKnown: true },
@@ -1820,7 +2072,8 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (!/\.\.\.positions\[existing\]/.test(workspaceSource)) {
     fail('P1187 the update path must preserve non-form fields instead of replacing the position object');
   }
-  if (!/await savePortfolioData\(data\)/.test(workspaceSource) || !/가져오기가 확정되지 않았습니다/.test(workspaceSource)) {
+  // P1316: the import path now restores a full backup bundle; the positions write is `c.positions`.
+  if (!/await savePortfolioData\((?:data|c\.positions)\)/.test(workspaceSource) || !/가져오기가 확정되지 않았습니다/.test(workspaceSource)) {
     fail('P1187/11 P11-01 the import path must gate completion on the durable acknowledgement');
   }
   if (!/await savePortfolioData\(\[\]\)/.test(workspaceSource) || !/전체 삭제가 확정되지 않았습니다/.test(workspaceSource)) {
@@ -2836,4 +3089,98 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   state.setNote('fixture','changed');
   if(first.notes.fixture.value !== 'saved in memory') fail('learning snapshot mutated retroactively');
   if(state.setNote('__proto__','unsafe').notes.__proto__?.value) fail('learning unsafe id accepted');
+}
+// ── P1316/R661 — 전체 개인 데이터 백업: 모든 섹션이 한 묶음으로 왕복하고 구형 배열도 받는다 ─────────
+// 포지션만 내보내던 export는 원장·FX·현금·가정·일지·관심목록을 기기 변경·주소 이전 때 조용히 잃었다.
+{
+  const { BACKUP_FORMAT, BACKUP_VERSION, buildPortfolioBackup, parsePortfolioBackup, describeBackupCounts } = await load('src/data/portfolio-backup.js');
+  const { normalizeLedger } = await load('src/data/portfolio-ledger.js');
+  const { normalizeFxLegs } = await load('src/domain/portfolio/fx.js');
+  const { normalizeCurrencyCode, normalizeAnnualRate, normalizeExposurePath, normalizeRebalancePolicy } = await load('src/data/portfolio-assumptions.js');
+  const deps = {
+    normalizeLedger, normalizeFxLegs,
+    assumptionKinds: { baseCurrency: 'currency', cashCurrency: 'currency', cashReturn: 'rate', riskFreeRate: 'rate', exposurePath: 'path', rebalancePolicy: 'policy' },
+    assumptionNormalizers: { currency: normalizeCurrencyCode, rate: normalizeAnnualRate, path: normalizeExposurePath, policy: normalizeRebalancePolicy }
+  };
+  const snapshot = {
+    positions: [{ ticker: 'nvda', qty: '3', cost: '120.5', costCurrency: 'USD' }, { ticker: '005930.KS', qty: 10, cost: 70000, costCurrency: 'KRW' }],
+    ledger: { currency: 'KRW', transactions: [{ date: '2026-09-01', kind: 'deposit', amount: 1000000 }], valuations: [{ date: '2026-09-27', amount: 1050000 }] },
+    fxLegs: [{ from: 'USD', to: 'KRW', rate: 1390.5, observedAt: '2026-09-27T06:00:00Z' }],
+    cash: '250000',
+    assumptions: { baseCurrency: 'krw', cashReturn: '3.1', rebalancePolicy: 'monthly', riskFreeRate: 'bogus' },
+    journal: [{ ts: 1790000000000, date: '2026-09-20T00:00:00Z', note: '추세 확인 후 분할 매수', tickers: ['NVDA'] }],
+    watchlists: [{ id: 'wl_1', name: '반도체', tickers: ['nvda', '<script>'], createdAt: 1 }],
+    activeWatchlistId: 'wl_1'
+  };
+  const bundle = buildPortfolioBackup(snapshot, { exportedAt: '2026-09-28T12:00:00Z', appVersion: 'v56.77', origin: 'https://example.test' });
+  const round = parsePortfolioBackup(JSON.stringify(bundle), deps);
+  const legacy = parsePortfolioBackup(JSON.stringify([{ ticker: 'aapl', qty: 1, cost: 150 }, { ticker: 'bad ticker!', qty: 1 }]), deps);
+  const c = round.contents || {};
+  const p1316Checks = [
+    ['bundle declares format and version', bundle.format === BACKUP_FORMAT && bundle.version === BACKUP_VERSION && bundle.counts.total > 0],
+    ['bundle round-trips as a bundle', round.ok === true && round.kind === 'bundle'],
+    ['positions keep both markets and normalize ticker/number', c.positions?.length === 2 && c.positions[0].ticker === 'NVDA' && c.positions[0].qty === 3 && c.positions[1].ticker === '005930.KS'],
+    ['ledger survives through its own normalizer', c.ledger && c.ledger.transactions.length === 1 && c.ledger.currency === 'KRW'],
+    ['fx legs survive through their own normalizer', c.fxLegs?.length === 1 && c.fxLegs[0].rate === 1390.5],
+    ['cash, journal and watchlists survive', c.cash === '250000' && c.journal?.length === 1 && c.watchlists?.length === 1 && c.activeWatchlistId === 'wl_1'],
+    ['invalid watchlist ticker is dropped', c.watchlists?.[0].tickers.length === 1 && c.watchlists[0].tickers[0] === 'NVDA'],
+    ['valid assumptions restore; invalid ones are not resurrected', c.assumptions?.baseCurrency === 'KRW' && c.assumptions.cashReturn === '3.1' && c.assumptions.rebalancePolicy === 'monthly' && !('riskFreeRate' in c.assumptions)],
+    ['legacy positions array still imports positions only', legacy.ok === true && legacy.kind === 'positions' && legacy.contents.positions.length === 1 && legacy.contents.positions[0].ticker === 'AAPL' && !('ledger' in legacy.contents)],
+    ['unknown format, future version and empty inputs are refused', parsePortfolioBackup('{"format":"other"}', deps).ok === false
+      && parsePortfolioBackup(JSON.stringify({ ...bundle, version: 2 }), deps).reason === 'unsupported-version'
+      && parsePortfolioBackup('[]', deps).ok === false && parsePortfolioBackup('not json', deps).reason === 'invalid-json'
+      && parsePortfolioBackup(JSON.stringify(buildPortfolioBackup({})), deps).reason === 'empty-bundle'],
+    ['counts are described for the confirm dialog', /포지션 2/.test(describeBackupCounts(round.counts)) && /관심목록 1/.test(describeBackupCounts(round.counts))]
+  ];
+  const failedP1316 = p1316Checks.filter(([, ok]) => !ok).map(([name]) => name);
+  if (failedP1316.length) fail(`P1316 portfolio backup checks failed: ${failedP1316.join(' | ')}`);
+  const p1316Workspace = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
+  const p1316Bootstrap = readFileSync(path.join(root, 'src/app/bootstrap.js'), 'utf8');
+  if (!/window\._pfPortfolioBackup = \{/.test(p1316Bootstrap)
+    || !/api\.build\(_pfBackupSnapshot\(\)/.test(p1316Workspace)
+    || !/getPortfolioLedger\(\), fxLegs: getPortfolioFxLegs\(\)/.test(p1316Workspace)
+    || !/PIN 잠금을 해제한 뒤 내보내세요/.test(p1316Workspace)
+    || !/savePortfolioLedger\(c\.ledger\), savePortfolioFxLegs\(c\.fxLegs\)/.test(p1316Workspace)
+    || !/영구 저장 실패 — 가져오기가 확정되지 않았습니다/.test(p1316Workspace)) {
+    fail('P1316 the shell must export every personal section through the native bundle, refuse locked data and ack every restored section');
+  }
+}
+// ── P1317~P1320 — 한국 종목 상세·참고 시총·셀별 stale 소음·툴팁 위치 (v56.78) ─────────────────────
+{
+  const { normalizeTickerInput, tickerDisplayName } = await load('src/domain/entity/ticker-symbol.js');
+  const krStockDb = { '005930': { name: '삼성전자' }, '000660': { name: 'SK하이닉스' }, '247540': { name: '에코프로비엠' }, '005935': { name: '삼성전자우' } };
+  const krToYahoo = (code) => code + (code === '247540' ? '.KQ' : '.KS');
+  const n = (value) => normalizeTickerInput(value, { krStockDb, krToYahoo });
+  const { referenceMarketCapFrom } = await load('src/data/providers/screener.js');
+  const { capFilterValue, describeStaleDates } = await load('src/ui/pages/screener.js');
+  const { placeTooltipBody } = await load('src/ui/components/term-tooltip.js');
+  const nvdaRef = referenceMarketCapFrom({ pePrice: 225.07, valuationSharesOutstanding: 24.3e9, dollarVolume30d: 27.1e9, pePriceBasis: 'adjusted-close', valuationSharesObservedAt: '2026-02-20' }, 'USD');
+  const pkgScaleError = referenceMarketCapFrom({ pePrice: 237.18, valuationSharesOutstanding: 89.2e9, dollarVolume30d: 1.3e8 }, 'USD');
+  const placedLeft = placeTooltipBody({ left: 4, width: 15, top: 400, bottom: 415 }, { width: 260, height: 60 }, { width: 1024, height: 768 });
+  const placedTop = placeTooltipBody({ left: 500, width: 15, top: 20, bottom: 35 }, { width: 260, height: 60 }, { width: 1024, height: 768 });
+  const placedNarrow = placeTooltipBody({ left: 300, width: 15, top: 400, bottom: 415 }, { width: 260, height: 60 }, { width: 320, height: 640 });
+  const p1317Checks = [
+    ['P1317 a bare KRX code resolves to its exchange symbol', n('005930') === '005930.KS' && n('247540') === '247540.KQ'],
+    ['P1317 an explicit suffix is kept as declared', n('005930.ks') === '005930.KS'],
+    ['P1317 an exact Korean name resolves; spaces are ignored', n('삼성전자') === '005930.KS' && n('SK 하이닉스') === '000660.KS'],
+    ['P1317 an ambiguous partial name is never guessed', n('삼성') === '삼성'.toUpperCase()],
+    ['P1317 US tickers are unchanged', n(' nvda ') === 'NVDA' && n('BRK.B') === 'BRK.B'],
+    ['P1317 display name comes from the KR registry only', tickerDisplayName('005930.KS', { krStockDb }) === '삼성전자' && tickerDisplayName('NVDA', { krStockDb }) === null],
+    ['P1318 SEC shares x artifact close gives a USD reference cap', nvdaRef && nvdaRef.billions > 5000 && nvdaRef.allowedUse === 'reference-only'],
+    ['P1318 implausible turnover (share-scale error) stays unknown', pkgScaleError === null],
+    ['P1318 non-USD or missing inputs stay unknown', referenceMarketCapFrom({ pePrice: 1, valuationSharesOutstanding: 1e9, dollarVolume30d: 1e7 }, 'KRW') === null && referenceMarketCapFrom({}, 'USD') === null],
+    ['P1318 the size bucket prefers the live cap, then the reference cap, never zero', capFilterValue({ mcap: 120 }) === 120 && capFilterValue({ mcap: null, referenceMarketCap: { billions: 45.5 } }) === 45.5 && capFilterValue({}) === null],
+    ['P1319 stale dates are stated once per table', describeStaleDates(['2026-09-25', '2026-09-25']).includes('2026-09-25 기준') && describeStaleDates(['2026-09-24', '2026-09-25']).includes('2026-09-24 ~ 2026-09-25') && describeStaleDates([]) === ''],
+    ['P1320 a tooltip near the left edge is kept inside the viewport', placedLeft.left >= 8 && placedLeft.left + placedLeft.width <= 1024 - 8],
+    ['P1320 a tooltip without room above opens below its icon', placedTop.top >= 35],
+    ['P1320 a tooltip is narrowed to fit a narrow window', placedNarrow.width <= 320 - 16 && placedNarrow.left >= 8]
+  ];
+  const failedP1317 = p1317Checks.filter(([, ok]) => !ok).map(([name]) => name);
+  if (failedP1317.length) fail(`P1317~P1320 checks failed: ${failedP1317.join(' | ')}`);
+  const p1317Core = readFileSync(path.join(root, 'js/aio-core.js'), 'utf8');
+  const p1317Boot = readFileSync(path.join(root, 'src/app/bootstrap.js'), 'utf8');
+  if (!/window\._aioNormalizeTickerInput\(tkr\)/.test(p1317Core) || !/window\._aioTickerDisplayName\(tkr\)/.test(p1317Core)
+    || !/requestSelectedTickerQuote/.test(p1317Boot) || !/installTermTooltips\(documentRef/.test(p1317Boot)) {
+    fail('P1317/P1320 showTicker must normalize through the native module, request a missing quote, and install term tooltips');
+  }
 }

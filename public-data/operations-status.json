@@ -23,11 +23,11 @@
     "UNAVAILABLE",
     "UNKNOWN"
   ],
-  "generatedAt": "2026-09-26T05:25:47.778Z",
-  "appRevision": "v56.33",
+  "generatedAt": "2026-09-28T04:45:57.756Z",
+  "appRevision": "v56.82",
   "dataRevision": "market-snapshot:2026-09-26T01:35:13.162Z:d00965bd",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
-  "overall": "OPERATOR_REQUIRED",
+  "overall": "BLOCKED",
   "overallBasis": {
     "planes": [
       "durable"
@@ -40,15 +40,15 @@
   },
   "featureAvailability": {
     "market-breadth": {
-      "availability": "AVAILABLE",
+      "availability": "UNAVAILABLE",
       "asOf": "2026-09-26T01:35:13.162Z",
-      "missingReason": null,
+      "missingReason": "durable-market-cycle-stale",
       "sources": [
         "durable"
       ]
     },
     "fundamental-ranking": {
-      "availability": "AVAILABLE",
+      "availability": "DEGRADED",
       "asOf": "2026-09-26T01:35:13.162Z",
       "missingReason": null,
       "sources": [
@@ -56,17 +56,17 @@
       ]
     },
     "quotes": {
-      "availability": "AVAILABLE",
+      "availability": "UNAVAILABLE",
       "asOf": "2026-09-26T01:35:38.833Z",
-      "missingReason": null,
+      "missingReason": "fast-quote-provider-rights-not-reviewed",
       "sources": [
         "fast"
       ]
     },
     "ai-chat": {
-      "availability": "AVAILABLE",
+      "availability": "DEGRADED",
       "asOf": "2026-09-26T01:35:38.833Z",
-      "missingReason": null,
+      "missingReason": "ai-shared-proxy-not-ready",
       "sources": [
         "fast"
       ]
@@ -80,10 +80,11 @@
       ]
     }
   },
+  "domainReceipts": {},
   "planes": {
     "durable": {
-      "status": "CURRENT",
-      "statusCode": "CONFIGURED_HEALTHY",
+      "status": "BLOCKED",
+      "statusCode": "CONFIGURED_BROKEN",
       "source": "github-actions",
       "lastSuccessfulAt": "2026-09-26T01:35:13.162Z",
       "coverage": {
@@ -95,33 +96,32 @@
         "tier1Observed": 0
       },
       "freshness": {
-        "fresh": true,
-        "withinSla": true,
-        "marketClosedGrace": true,
+        "fresh": false,
+        "withinSla": false,
         "coverageComplete": true,
         "quoteQualityComplete": true,
         "blockedQuotes": [],
         "generatedAt": "2026-09-26T01:35:13.162Z",
-        "ageHours": 3.84,
+        "ageHours": 51.18,
         "maxAgeHours": 12,
-        "evaluatedAt": "2026-09-26T05:25:47.778Z",
-        "reason": null
+        "evaluatedAt": "2026-09-28T04:45:57.756Z",
+        "reason": "market-cycle-freshness-sla-exceeded"
       },
       "readiness": {
         "secretConfigured": "OPERATOR_REQUIRED",
         "workflowWired": "CURRENT",
-        "lastCallSucceeded": "CURRENT",
-        "dataCurrent": "CURRENT",
+        "lastCallSucceeded": "BLOCKED",
+        "dataCurrent": "BLOCKED",
         "licensedForUse": "REVIEW_REQUIRED"
       }
     },
     "fast": {
       "status": "OPERATOR_REQUIRED",
-      "statusCode": "CONFIGURED_HEALTHY",
+      "statusCode": "STALE",
       "scheduler": "cloudflare-cron",
       "endpoint": "https://aio-screener-data-plane.zmfhd007.workers.dev",
       "health": {
-        "status": "CURRENT",
+        "status": "UNKNOWN",
         "statusCode": 200,
         "coverage": "16/16",
         "revision": "fast-quotes:59d768ae",
@@ -130,8 +130,8 @@
         "source": "last-observed-live-health",
         "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
-        "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-09-26T05:25:47.778Z"
+        "evidenceFresh": false,
+        "evidenceEvaluatedAt": "2026-09-28T04:45:57.756Z"
       },
       "soak": {
         "requiredDays": 7,
@@ -142,7 +142,7 @@
         "secretConfigured": "OPERATOR_REQUIRED",
         "workflowWired": "CURRENT",
         "lastCallSucceeded": "CURRENT",
-        "dataCurrent": "CURRENT",
+        "dataCurrent": "UNKNOWN",
         "licensedForUse": "REVIEW_REQUIRED"
       }
     },
@@ -150,7 +150,7 @@
       "status": "UNKNOWN",
       "statusCode": "NOT_OBSERVED",
       "source": "static-pages+service-worker",
-      "revision": "v56.33",
+      "revision": "v56.82",
       "configured": true,
       "observed": "NOT_OBSERVED",
       "lastAttemptAt": null,
@@ -174,13 +174,13 @@
       }
     },
     "publicChat": {
-      "status": "CURRENT",
-      "statusCode": "CONFIGURED_HEALTHY",
+      "status": "NO_ROUTE",
+      "statusCode": "STALE",
       "personalKey": "EXPLICIT_USER_CONFIG",
-      "sharedWorker": "CURRENT",
+      "sharedWorker": "OPERATOR_REQUIRED",
       "workerEndpoint": "https://aio-proxy.zmfhd007.workers.dev",
       "health": {
-        "status": "CURRENT",
+        "status": "OPERATOR_REQUIRED",
         "statusCode": 200,
         "observedAt": "2026-09-26T01:35:38.833Z",
         "revision": "v56.33",
@@ -195,8 +195,8 @@
         "source": "last-observed-live-health",
         "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
-        "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-09-26T05:25:47.778Z"
+        "evidenceFresh": false,
+        "evidenceEvaluatedAt": "2026-09-28T04:45:57.756Z"
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }
@@ -227,10 +227,10 @@
   },
   "reconciliation": {
     "tier0": {
-      "status": "MATCH",
+      "status": "BLOCKED",
       "artifact": "market-snapshot:2026-09-26T01:35:13.162Z:d00965bd",
-      "uiEvidence": "same-revision-contract",
-      "observedAtComplete": true
+      "uiEvidence": null,
+      "observedAtComplete": false
     },
     "artifact": "public-data/reconciliation-status.json",
     "categoryCount": 22,
@@ -376,7 +376,7 @@
     "rawProducerClaimGate": "not_applicable_for_quote_plane"
   },
   "routes": {
-    "supported": 20,
+    "supported": 19,
     "nativeOwner": [
       "sentiment",
       "principles",
@@ -400,7 +400,6 @@
       "portfolio",
       "ticker",
       "market-news",
-      "options",
       "principles",
       "masters",
       "atlas",
@@ -422,7 +421,6 @@
       "portfolio",
       "ticker",
       "market-news",
-      "options",
       "principles",
       "masters",
       "atlas",
@@ -444,7 +442,6 @@
       "portfolio",
       "ticker",
       "market-news",
-      "options",
       "principles",
       "masters",
       "atlas",
@@ -480,7 +477,6 @@
       "portfolio",
       "ticker",
       "market-news",
-      "options",
       "principles",
       "masters",
       "atlas",
@@ -492,7 +488,10 @@
     "routeOwnersManifest": "architecture/route-owners.json"
   },
   "blockers": [
+    "durable_tier0_publish_blocked",
+    "durable_market_cycle_stale",
     "fast_plane_soak_and_rights_review_required",
-    "provider_rights_review_required"
+    "provider_rights_review_required",
+    "ai_proxy_deploy_or_readiness_required"
   ]
 }

@@ -30,7 +30,7 @@ const splitFixture = [10, 20].map((value) => ({ issuer: 'APPLE INC', value, shar
 if (!splitFixture.every(rawRowComparable) || splitFixture.map(rawHoldingRow).some(rawRowComparable) || splitFixture.map(rawHoldingRow).reduce((sum, row) => sum + row.value, 0) !== 30) fail('raw split-row normalization must reject aggregate deltas and preserve reported values');
 
 const index = read('index.html');
-const core = read('js/aio-core.js');
+const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
 const routes = read('src/app/routes.js');
 const slices = read('src/app/vertical-slices.js');
 const bootstrap = read('src/app/bootstrap.js');
@@ -90,7 +90,7 @@ for (const [label, source, marker] of [
 
 if (/^import\s+\{[^\n]*createMastersPage[^\n]*from\s+['"]\.\.\/ui\/pages\/masters\.js['"]/m.test(bootstrap)) fail('masters page returned to the initial static module graph');
 
-if (!golden.routes.includes('masters') || golden.routes.length !== 20) fail('golden route does not contain the 20-route masters topology');
+if (!golden.routes.includes('masters') || golden.routes.length !== JSON.parse(read('architecture/route-owners.json')).counts.totalRoutes) fail('golden route does not contain masters or drifted from the route registry (P1321)');
 if (!/data-masters-content/.test(index)) fail('page markup lacks renderer mount');
 if (!/13F는 전체 포트폴리오가 아님/.test(index) || /재검산된 경우에만 전체 포트폴리오로 표시/.test(index)) fail('page must carry the bounded 13F coverage disclosure without calling it the complete portfolio');
 if (/data-live-price|data-live-chg|targetPrice|target-price/.test(page)) fail('masters page must not promote live market or target claims');
@@ -98,6 +98,10 @@ if (/currentPrice|targetPrice|BUY|SELL/.test(page)) fail('masters page must not 
 if (/\bnoop\b/.test(page)) fail('masters detail tabs must not be noop controls');
 if (!/replaceChildren/.test(page) || /innerHTML/.test(page)) fail('masters renderer must use safe DOM construction');
 if (!page.includes('FILINGS_URL') || !page.includes('HOLDINGS_URL') || !page.includes('SECURITY_MASTER_URL') || !page.includes('SECURITY_MASTER_REFERENCE_URL') || !page.includes('createTopHoldingTable') || !page.includes('createFullHoldingsView') || !page.includes('createChangeLedger') || !page.includes('createValueReconciliationNotice') || !page.includes('aioMastersHoldings') || !page.includes('aioMastersSecurityMaster') || !/^REFERENCE_METADATA_(?:CONNECTED|CURRENT|PARTIAL)$/.test(filings.status)) fail('SEC metadata/holdings/security-master artifacts are not connected');
+// P1325: the reverse lookup must have an explicit error state (it used to stay on '불러오는 중' forever
+// after a failed fetch), start its ledger load at mount, and the manager cards must precede lookup/coverage.
+if (!/loadState === 'error'/.test(page) || !page.includes('retry-ticker-index') || !/loadState === 'idle'/.test(page) || !/addEventListener\('focusin', onFocusIn\)/.test(page) || /start the ticker ledger at mount/.test(page)) fail('P1325 ticker lookup lost its explicit error/retry state or mount-time load');
+if (!/replaceChildren\(\.\.\.\[arrival, toolbar, layout, tickerLookup\]/.test(page) || page.indexOf('content.appendChild(coverage)') < page.indexOf('[arrival, toolbar, layout, tickerLookup]')) fail('P1325 Masters manager cards must render before the ticker lookup and coverage sections');
 if (![8, 38].includes(filings.managers.length) || filings.managers.filter((manager) => manager.cik).length < 7) fail('SEC metadata counts drifted');
 if (filingDiscovery.schema !== 'masters-sec-filing-discovery.v2' || filingDiscovery.coverage?.filerProfiles !== 37 || filingDiscovery.coverage.discovered + filingDiscovery.coverage.blocked !== 37 || filingDiscovery.coverage.ownershipEvents == null || filingDiscovery.coverage.ownershipManagers == null) fail('SEC 13F/13D/G filing discovery coverage is incomplete');
 if (filingDiscovery.status === 'CURRENT' && (filingDiscovery.coverage.discovered !== 37 || filingDiscovery.coverage.blocked !== 0 || filingDiscovery.managers.some((manager) => manager.status !== 'DISCOVERED' || !manager.latestSubmission?.accession || !manager.latestHoldings?.accession))) fail('current SEC filing discovery lacks all 37 filer accessions');

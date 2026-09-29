@@ -60,7 +60,7 @@ AIO는 한국어 자기주도 투자자를 위한 **증거 기반 관찰·스크
 
 ## 현재 구조의 역설계
 
-현재 앱은 GitHub Pages 정적 셸 위에 native ESM strangler를 얹은 legacy-first 하이브리드다. 20개 라우트의 lifecycle·renderer·data 소유권은 native로 표시되지만 chart는 일부, narrative는 거의 전부 legacy이고 `fullNativeOwner`는 아직 없다. `window.AIO_ARCH`와 runtime reader는 여전히 legacy 전역을 읽으므로 native 표시는 완전한 writer retirement를 뜻하지 않는다.
+현재 앱은 GitHub Pages 정적 셸 위에 native ESM strangler를 얹은 legacy-first 하이브리드다. 19개 라우트의 lifecycle·renderer·data 소유권은 native로 표시되지만 chart는 일부, narrative는 거의 전부 legacy이고 `fullNativeOwner`는 아직 없다. `window.AIO_ARCH`와 runtime reader는 여전히 legacy 전역을 읽으므로 native 표시는 완전한 writer retirement를 뜻하지 않는다.
 
 현재 병목은 독립 결함이 아니라 하나의 연결된 구조다.
 
@@ -107,12 +107,12 @@ AIO는 한국어 자기주도 투자자를 위한 **증거 기반 관찰·스크
 |---|---|---|---|
 | 제품 의도·전략 | AUDITED | 방향 교정 완료 | 연구 루프와 증거 철학은 유지하고 실시간 단말·주문·범용 AI 범위는 제외했다. |
 | 전체 시스템·신뢰 평면 | AUDITED | 가드레일 완료, 이행 중 | Pages·Cloudflare·데이터·지식·개인정보·AI·운영 증거를 일곱 평면으로 분리했다. |
-| 프런트엔드 레이어·라우트·런타임 소유권 | AUDITED | 구조 이행 필요 | 20개 라우트에 native 표시는 있으나 `fullNativeOwner`는 0이고 legacy writer/facade가 남았다. |
+| 프런트엔드 레이어·라우트·런타임 소유권 | AUDITED | 구조 이행 필요 | 19개 라우트에 native 표시는 있으나 `fullNativeOwner`는 0이고 legacy writer/facade가 남았다. |
 | 디자인·UI·UX·정보 구조 | AUDITED | 자동 증거 부분 완료, 사용자 검증 필요 | 정보 밀도와 연구 흐름은 강하지만 초기 인지 부하·거대 DOM·실사용자 검증이 남았다. |
 | 데이터·출처·신선도·권리 | AUDITED | 가드레일 완료, projection 이행 필요 | allowedUse 단조 제한과 missing/stale 경계는 강화했고 대형 원본의 브라우저 전달은 분리해야 한다. |
 | AI·개인정보·보안 | AUDITED | 가드레일 완료, 운영 검토 필요 | provider 전/출력 전 정책과 암호화 경계를 세웠지만 권리·관할·실서비스 관측은 별도다. |
 | 성능·부팅·수명주기 | AUDITED | 근본 원인 확정, 이행 필요 | 거대 셸·전역 평가·inactive DOM·browser fan-out이 사용자 성능과 QA 비용을 함께 만든다. |
-| 접근성 | AUDITED | 자동 검사 완료, 수동 검사 미완료 | 20-route 자동 계약은 있으나 screen reader·contrast·200% reflow·focus-return은 수동 증거가 필요하다. |
+| 접근성 | AUDITED | 자동 검사 완료, 수동 검사 미완료 | 19-route 자동 계약은 있으나 screen reader·contrast·200% reflow·focus-return은 수동 증거가 필요하다. |
 | 검사·검증·테스트 경제성 | AUDITED | 증분 구조로 재설계 | task baseline·phase barrier·failure batch·exact retry를 도입했고 runtime summary와 release deep audit를 분리했다. |
 | 내부 자동화 루프 | AUDITED | source 계약 완료, 원격 관측 필요 | 생성→검사→attestation→배포→watchdog 경계를 연결했지만 source PASS는 실제 실행 성공이 아니다. |
 | 지식 베이스·MD·스킬·작업환경 | AUDITED | 구조 계약 완료, 사람 의미 검토 미완료 | 생성 원본·catalog·sync·lint·eval fixture를 연결했고 과거 손상 문서 2개와 사람 의미 인증은 남겼다. |

@@ -83,7 +83,7 @@ const requiredTargets = {
 };
 for (const [key, value] of Object.entries(requiredTargets)) check(`SLO target ${key}`, slo.targets?.[key] === value, `${slo.targets?.[key]} != ${value}`);
 check('route soak declaration', ['pending', 'pass'].includes(slo.localBoundary?.routeSoak?.status));
-check('route soak topology', slo.localBoundary?.routeSoak?.laps === 3 && slo.localBoundary?.routeSoak?.routes === 20);
+check('route soak topology', slo.localBoundary?.routeSoak?.laps === 3 && slo.localBoundary?.routeSoak?.routes === json('architecture/route-owners.json').counts.totalRoutes); // P1321: derived, not pinned
 check('security header gate is explicit', slo.localBoundary?.securityHeaders?.status === 'edge-required' && slo.localBoundary?.securityHeaders?.manifest === '_headers');
 check('public readiness decision is conservative', readiness.publicBetaDecision === 'BLOCKED_UNTIL_OPERATOR_CRITERIA_CLOSE');
 check('human validation remains evidence-bound', humanValidation.schemaVersion === 'human-validation.v1' && humanValidation.certification === 'OPERATOR_REQUIRED' && readiness.criteria?.find((criterion) => criterion.id === 'accessibility-manual')?.evidence.includes('architecture/human-validation.json'));

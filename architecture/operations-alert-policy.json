@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "operations-alert-policy.v1",
+  "statuses": ["ALERT", "CLEAR", "UNKNOWN"],
+  "alerts": {
+    "siteUnavailable": {
+      "id": "site-unavailable",
+      "requiredEvidence": ["explicitSiteState", "now"],
+      "conditionalEvidence": {
+        "whenSiteStateIs": "UNAVAILABLE",
+        "required": ["outageStartedAt"]
+      },
+      "unavailableState": "UNAVAILABLE",
+      "availableState": "AVAILABLE",
+      "thresholdMs": 86400000,
+      "comparison": ">=",
+      "unknownWhen": ["site-state-missing-or-invalid", "outage-start-missing-invalid-or-future", "now-missing-or-invalid"]
+    },
+    "coreArtifactStaleness": {
+      "id": "core-artifact-staleness",
+      "requiredEvidence": ["market", "artifactPublishedAt", "now"],
+      "supportedMarkets": {
+        "NYSE": "US",
+        "KRX": "KR"
+      },
+      "publicationTimestampFallbackOrder": [
+        "public-data/market-snapshot.json.generatedAt",
+        "public-data/market-snapshot.json.lastSuccessfulAt",
+        "public-data/data.json.meta.marketSnapshotLastSuccessfulAt"
+      ],
+      "prohibitedTimestampSources": [
+        "public-data/data.json.meta.generatedAt",
+        "public-data/data.json.meta.marketSnapshotPublishedAt",
+        "public-data/operations-status.json.generatedAt"
+      ],
+      "staleCompletedSessionsThreshold": 2,
+      "comparison": ">=",
+      "calendarResolver": "resolveMarketCalendarSession",
+      "unknownWhen": ["market-missing-or-unsupported", "artifact-published-at-missing-invalid-or-future", "calendar-year-unknown", "now-missing-or-invalid"],
+      "doesNotChangeExistingFreshnessGateHours": 12
+    },
+    "aiDailyUsage": {
+      "id": "ai-daily-usage",
+      "requiredEvidence": ["requestCount", "usageDayUtc", "anthropicDailyCap", "now"],
+      "capVariable": "ANTHROPIC_DAILY_CAP",
+      "unit": "requests",
+      "dayTimeZone": "UTC",
+      "thresholdPercent": 80,
+      "comparison": ">=",
+      "unknownWhen": ["value-missing-or-malformed", "usage-day-does-not-match-now-utc-day", "count-exceeds-cap", "now-missing-or-invalid"]
+    }
+  }
+}

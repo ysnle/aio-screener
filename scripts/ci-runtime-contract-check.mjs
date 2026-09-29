@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { runInNewContext } from 'node:vm';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(join(root, path), 'utf8');
@@ -16,7 +17,7 @@ const version = JSON.parse(read('version.json')).version;
 const versionNum = version.replace(/^v/, '');
 const html = read('index.html');
 const visibleHtml = html.replace(/<!--[\s\S]*?-->/g, '');
-const core = read('js/aio-core.js');
+const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
 const data = read('js/aio-data.js');
 const ui = read('js/aio-ui.js');
 const chat = read('js/aio-chat.js');
@@ -35,6 +36,8 @@ const screenerProvider = read('src/data/providers/screener.js');
 const sentimentPage = read('src/ui/pages/sentiment.js');
 const screenerPage = read('src/ui/pages/screener.js');
 const newsPage = read('src/ui/pages/news.js');
+const newsScoring = read('src/domain/news/scoring.js');
+const routeOwners = JSON.parse(read('architecture/route-owners.json'));
 const sentimentDomain = read('src/domain/sentiment/metrics.js');
 const themesPage = read('src/ui/pages/themes.js');
 const atlasPage = read('src/ui/pages/atlas.js');
@@ -251,8 +254,26 @@ check('LC-48/P1227 signal sector breadth names its population', /SPDR 11 ETF 당
 check('LC-49/P1228 macro curve availability is independent of the official spread', /const curveLegsPresent = Number\.isFinite\(twoYear\)/.test(marketPage) && /const curveSpreadComparable =/.test(marketPage) && /2s10s cut 미확정/.test(marketPage));
 // LC-31/P1230: the feed query's topic is kept separate from an article-level topic.
 check('LC-31/P1230 news keeps feed topic separate from an article topic', /topicReviewRequired/.test(newsNormalize) && /feedTopic/.test(newsNormalize) && /topic: item\?\.articleTopic \|\| item\?\.topic/.test(newsNormalize) && /검토 필요/.test(newsPage));
-// LC-32/P1231: a headline-only card withholds the causal/benefit summary.
-check('LC-32/P1231 headline-only news withholds the summary claim', /요약 보류 — 헤드라인 전용/.test(newsPage) && /const headlineOnly = String\(item\?\.contentDepth/.test(newsPage));
+// LC-32/P1231/P1268: a headline-only status is a content boundary even if depth metadata disagrees.
+check('LC-32/P1231/P1268 headline-only status withholds the summary claim', /요약 보류 — 헤드라인 전용/.test(newsPage) && /isNewsHeadlineOnly\(item\)/.test(newsPage) && /verificationStatus/.test(newsScoring));
+// LC-07/LC-87/P1268: native owns the visible summary; compatibility producers remain available,
+// but the registry count, analyzed sample and risk signals keep distinct denominators.
+const legacyNewsSummaryWriter = data.match(/function _aioUpdateNewsSummaryFromItems\(items, meta\) \{[\s\S]*?\n\}/)?.[0] || '';
+const nativeNewsSummaryWriter = newsPage.match(/function renderNewsSummary\([\s\S]*?\n\}/)?.[0] || '';
+const newsRouteOwner = routeOwners.routes?.['market-news'];
+check('LC-07/LC-87/P1268 one owner for market-news summary and source-count denominators',
+  !!legacyNewsSummaryWriter && !/getElementById\(['"](?:news-sent-score|news-sent-label|news-24h-count|news-24h-sources|news-risk-count|news-risk-label|last-fetch-time|news-sources-label)['"]\)/.test(legacyNewsSummaryWriter)
+  && /return ns/.test(legacyNewsSummaryWriter)
+  && /deriveNewsSummary/.test(nativeNewsSummaryWriter)
+  && !/data-news-source-count/.test(nativeNewsSummaryWriter)
+  && /AIO_NEWS_SOURCES\.length/.test(data)
+  && (newsRouteOwner?.nativePrimarySurface || []).includes('#page-market-news #news-sent-score')
+  && /compatibility scoring producer/.test(newsRouteOwner?.legacyWriterEvidence?.join(' ') || ''));
+// LC-31/P1230/P1268: query topics stay review-only for topic-driven scoring while text sentiment remains possible.
+check('LC-31/P1230/P1268 feed-query topics do not drive article-topic risk signals',
+  /isNewsTopicReviewRequired/.test(newsScoring)
+  && /topicEvidence = recent\.filter\(hasReviewedArticleTopic\)/.test(newsScoring)
+  && /피드 분류 · 검토 필요/.test(newsPage));
 // LC-35/P1257: the hidden legacy themes sections are classified (retire / public re-home / dev
 // bundle) and the decision is recorded in the stylesheet — public copy promises only what ships.
 check('LC-35/P1257 themes hidden sections classified with the decision recorded', /P1257\/LC-35 제품 결정/.test(html) && /퇴역\(삭제\)/.test(html) && /공개 경로로 이전/.test(html) && /개발자 번들로 이전/.test(html) && !/45개 세분화 테마 실시간/.test(html));
@@ -442,7 +463,7 @@ check('KR candle chart auto-loads from canvas and avoids zero-baseline compressi
 check('headless tests validate every theme record and representative renderer boundaries plus route redirect', /T860 theme_detail_registry_and_representative_render_v5460/.test(tests) && /T861 theme_detail_route_redirect_v5227/.test(tests));
 check('theme composition audit indexes canonical semantic evidence once instead of rebuilding the screener universe per symbol', (() => {
   const start = core.indexOf('window.AIO.getThemeCompositionLogicAudit = function()');
-  const end = core.indexOf('window.AIO.getThemeSymbolExplainability = function', start);
+  const end = core.indexOf(String.fromCharCode(10) + 'window.', start + 10); // P1329: next top-level statement (the audit moved to the QA bundle)
   const audit = start >= 0 && end > start ? core.slice(start, end) : '';
   return /var canonicalSemanticEvidence = \{\}/.test(audit)
     && /canonicalSemanticEvidence\[key\] = true/.test(audit)
@@ -454,10 +475,12 @@ check('KR supply failure state clears canonical evidence and retired investor fa
 check('Cloudflare worker handles Naver JSON endpoints with browser-like headers and HTML block guard', /targetExpectsJson/.test(worker) && /m\.stock\.naver\.com/.test(worker) && /Upstream returned HTML block page for JSON endpoint/.test(worker) && /Referer = 'https:\/\/m\.stock\.naver\.com\/'/.test(worker));
 check('viewport matrix CI script covers desktop-only viewports, topbar clipping, and SVG text geometry', qaHas('scripts/ci-viewport-matrix-check.mjs', 'browser-viewport') && qaHas('scripts/ci-desktop-scope-check.mjs', 'core') && /desktop-qa-config\.mjs/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /'theme-detail'/.test(read('scripts/ci-viewport-matrix-check.mjs')) && !/mobile390|tablet768/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /desktop1440/.test(read('scripts/desktop-qa-config.mjs')) && /topbarClipCount/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /svgTextOverlapCount/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /svgTinyTextCount/.test(read('scripts/ci-viewport-matrix-check.mjs')));
 check('proxy registry ranks active proxies by success-rate score, not only static order', /okCount/.test(data) && /failCount/.test(data) && /getScore:\s*function/.test(data) && /self\.getScore\(b\)\s*-\s*self\.getScore\(a\)/.test(data));
-check('quote count labels distinguish live quotes from reference snapshot quotes',
-  /일부 실시간/.test(core + data) &&
-  /기준 시세/.test(core) &&
-  /freshness-badge fb-static/.test(core));
+check('quote status uses one presenter and vocabulary from observation times, never the render clock (P1326/R671)', (() => {
+  const presenter = read('src/domain/market/quote-currentness.js');
+  return ['실시간', '지연', '종가', '지난 시세', '미수신'].every((word) => presenter.includes(word))
+    && /function _aioWriteQuoteStatus/.test(core) && /_aioDescribeQuoteCurrentness/.test(core)
+    && !/클라 시세|일부 실시간/.test(data) && !/id="live-quote-ts-topbar"/.test(html);
+})());
 check('viewport matrix detects duplicate news and briefing cards by word-bag key', /wordBagKey/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /duplicateCardCount/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /market-news\|briefing/.test(read('scripts/ci-viewport-matrix-check.mjs')));
 check('value slot renderer encodes value/pending/failed/na states and touched market-pulse/VIX term surfaces', (() => {
   const valueSlotBase = core.includes('_aioRenderValueSlot') && core.includes('data-value-state') && core.includes("state === 'failed'") && core.includes("state === 'na'");
@@ -642,7 +665,7 @@ check('remaining user surfaces reuse the comp hierarchy without new parallel dat
 // P1137/R623: NAV_ROUTE is no longer a re-listed array — it is derived from the canonical
 // `AIO_ALL_ROUTE_PAGE_IDS` minus the derived-view and reference classes. Assert the derivation
 // itself, so re-introducing a hand-listed copy fails here as well as in the registry gate.
-check('route terminology separates 20 user surfaces from 22 internal QA routes', /NAV_ROUTE:\s*\[\]/.test(core) && /classes\.NAV_ROUTE = \(window\.AIO_ALL_ROUTE_PAGE_IDS \|\| \[\]\)\.filter/.test(core) && /DERIVED_VIEW:\s*\['ticker','theme-detail'\]/.test(core) && /REFERENCE:\s*\['options'\]/.test(core) && /OVERLAY:\s*\['glossary'\]/.test(core));
+check('route terminology derives user surfaces from internal QA routes and retires options (P1321)', /NAV_ROUTE:\s*\[\]/.test(core) && /classes\.NAV_ROUTE = \(window\.AIO_ALL_ROUTE_PAGE_IDS \|\| \[\]\)\.filter/.test(core) && /DERIVED_VIEW:\s*\['ticker','theme-detail'\]/.test(core) && /REFERENCE:\s*\[\]/.test(core) && /REMOVED:\s*\[[^\]]*'options'\]/.test(core) && /OVERLAY:\s*\['glossary'\]/.test(core));
 check('guide chapters and KR secondary groups are explicit progressive-disclosure controls', /#kr-integrated-themes \.aio-theme-progressive \.kr-theme-card:nth-child\(n\+4\)/.test(html) && /\.aio-comp-secondary[\s\S]{0,1200}\.aio-guide-chapter/.test(html));
 check('glossary renders countable semantic rows and a readable comp modal', /class="aio-glossary-item"/.test(ui) && /class="aio-glossary-term"/.test(ui) && /GLOSSARY\.length/.test(ui));
 check('headless tests cover the redesigned default path', /T869 redesign_default_path_v5289/.test(tests));
@@ -650,8 +673,10 @@ check('headless tests cover the redesigned default path', /T869 redesign_default
 // [G2] v52.90 P705/R331: 최종 렌더의 loaded/empty/degraded/closed 사용자 상태 계약.
 const newsMoreAt = html.indexOf('id="news-load-more-wrap"');
 const marketNewsAt = html.indexOf('id="page-market-news"');
-const optionsAt = html.indexOf('id="page-options"');
-check('news progressive reveal belongs to the market-news page rather than screener', newsMoreAt > marketNewsAt && newsMoreAt < optionsAt && /id="live-news-feed"[\s\S]{0,800}id="news-load-more-wrap"/.test(html));
+const screenerAt = html.indexOf('id="page-screener"');
+const homeOrder = ['home-kpi-strip', 'home-cross-assets', 'home-score-hero', 'home-market-summary-banner'].map((id) => html.indexOf(`id="${id}"`));
+check('home leads with numbers: KPI strip, cross assets, score, then today summary in static order with no runtime reorder (P1322)', homeOrder.every((at, i) => at > 0 && (i === 0 || at > homeOrder[i - 1])) && !/crossAssets\.insertAdjacentElement\('afterend', anchorH\)/.test(core) && /hero\.dataset\.state = presentation\.status/.test(read('src/ui/pages/analysis.js')));
+check('news progressive reveal belongs to the market-news page rather than screener', newsMoreAt > marketNewsAt && newsMoreAt < screenerAt && /id="live-news-feed"[\s\S]{0,800}id="news-load-more-wrap"/.test(html));
 check('fundamental search has one bounded total deadline and parallel bounded primary providers', /var _fundDeadline = Date\.now\(\) \+ 8000/.test(chat) && /Promise\.all\(\[[\s\S]{0,500}dynamicTickerLookup[\s\S]{0,500}fetchSECFilings[\s\S]{0,500}fetchSECFinancials/.test(chat) && /_fundRemaining\(5200\)/.test(chat) && /_fundRemaining\(1400\)/.test(chat));
 check('all news acquisition paths converge on one visible summary state updater', /function _aioUpdateNewsSummaryFromItems\(items, meta\)/.test(data) && (data.match(/_aioUpdateNewsSummaryFromItems\(/g) || []).length >= 4 && /kind: 'server-cache'/.test(data) && /kind: 'idb-cache'/.test(data) && /kind: 'direct'/.test(data));
 check('closed AI panel is inert and its trigger owns expanded state and focus return', /id="topbar-ai-btn"[\s\S]{0,300}aria-expanded="false"[\s\S]{0,300}aria-controls="ai-panel"/.test(html) && /id="ai-panel"[\s\S]{0,220}aria-hidden="true" inert/.test(html) && /p\.setAttribute\('inert', ''\)/.test(chat) && /p\.removeAttribute\('inert'\)/.test(chat) && /btn\.focus\(\)/.test(chat));
@@ -819,7 +844,7 @@ check('scheduler owns initial delay and invalidates stale loops across visibilit
   /cfg\.timer = setTimeout\(\(\) => \{[\s\S]{0,220}cfg\._scheduleEpoch !== scheduleEpoch/.test(data)
     && /cfg\._scheduleEpoch = \(cfg\._scheduleEpoch \|\| 0\) \+ 1;[\s\S]{0,120}clearTimeout\(cfg\.timer\)/.test(data)
     && /T1050 scheduler_initial_timer_is_owned_and_epoch_cancelled/.test(tests));
-check('H3-G: route contracts and cell-level data-lineage audit stay executable with zero broken/orphan sink condition', /getPageContractAudit/.test(core) && /expectedRoutePageCount:\s*20/.test(core) && /getDataLineageAudit/.test(core) && /totalOrphans/.test(core));
+check('H3-G: route contracts and cell-level data-lineage audit stay executable with zero broken/orphan sink condition', /getPageContractAudit/.test(core) && /expectedRoutePageCount:\s*19/.test(core) && /getDataLineageAudit/.test(core) && /totalOrphans/.test(core));
 check('headless tests cover H3-F/G boot-queue and route/lineage runtime contracts', /T912/.test(tests) && /T913/.test(tests));
 // v52.58 H3-G/H3-H/H3-I: close the handoff's element-level and human-surface gaps
 // with executable contracts. The handoff calls this a 12-field inventory but lists
@@ -992,6 +1017,13 @@ check('QA-GLOSSARY-SWEEP/P1261 figure-carrying glossary entries and source rows 
 check('QA-GLOSSARY-SWEEP/P1261 every figure source row declares kind, source and condition', glossaryFigureSources.length > 0
   && glossaryFigureSources.every((r) => glossaryTermSet.has(r.term) && GLOSSARY_FIGURE_KINDS.has(r.kind) && r.src.trim().length > 0 && r.cond.trim().length > 0)
   && glossaryFigureSources.filter((r) => r.kind === '미검증-경험칙').every((r) => r.src.includes('미검증')));
+// P1315/QA-UX-01: user-visible correctness regressions found by the 2026-09-28 full audit (V2-BLUEPRINT N1/N2/N5/N10/N24/N31).
+check('P1315 KR theme detail reads the optional KR_THEME_INSIGHTS global behind a typeof guard', !/var kti = KR_THEME_INSIGHTS\[/.test(krData) && /typeof KR_THEME_INSIGHTS !== 'undefined'/.test(krData));
+check('P1315 KR index cards carry no hardcoded direction class/colour; direction follows the live previous-close delta', !/kr-idx-card (?:up|down)"/.test(html) && !/id="kr-(?:kospi|kosdaq|krw)-price" style="color:var\(--(?:green|red)\)"/.test(html) && /_krIdxCard\.classList\.toggle\('up', atomicDelta > 0\)/.test(data));
+check('P1315 a11y direction classes carry colour, not only a glyph', /\.a11y-up \{ color: var\(--data-green\); \}/.test(html) && /\.a11y-dn \{ color: var\(--data-red\); \}/.test(html));
+check('P1315 signal weight legend uses the canonical 심리 component (F&G + put/call), not 모멘텀/추세추종', !/모멘텀\(F&G·추세추종\)/.test(html + ui) && /심리\(공포·탐욕·풋콜\) 25%/.test(html));
+check('P1315 Ctrl+K targets real page search inputs (the .search-bar selector never existed)', !/querySelector\('\.search-bar input'\)/.test(ui) && /#scr-text-search, #fund-search-input, #ticker-direct-search, #guide-search-input/.test(ui) && !/<span class="kbd-desc">한국장<\/span>/.test(html));
+check('P1315 KOSPI sell tax states securities-transaction tax plus rural special tax; Piotroski is dated 2000 with 8-9/0-2 original bins', /농어촌특별세 0\.15%가 더해져 합계 0\.20%/.test(glossary) && /Piotroski\(2000\)/.test(glossary) && !/Piotroski\(1998\)/.test(glossary) && /8~9점을 강한 그룹/.test(glossary));
 check('QA-GLOSSARY-SWEEP/P1261 unattributed aphorism and sourced superlative stay unasserted', !/— 아인슈타인\./.test(glossary) && !/역사상 가장 강력한 주가 부양 수단/.test(glossary) && /출처가 확정된 문헌이 없어/.test(glossary));
 check('LIVE3-09: quote producers preserve exchange observation time separately from file freshness', /regularMarketTime/.test(fetchData) && /marketState/.test(fetchData) && /exchangeTimezoneName/.test(fetchData) && /window\._liveData\[q\.symbol\]\.observedAt/.test(data));
 check('LIVE3-10: failed client F&G refresh preserves a newer server observation instead of overwriting it with static seed', /\^\(live\|proxy\|delayed\)\$/.test(data) && /외부 관측값이 전혀 없을 때만 정적 snapshot/.test(data));
@@ -1021,7 +1053,7 @@ check('R340/P712: semantic market-integrity tests cover curve exactness and KR m
 check('R340/P712: synthetic market-series formulas are absent from decision paths',
   !/50\s*\+\s*\(chg\s*\*\s*5\)/.test(html) && !/500\s*\*\s*abv50/.test(html) && !/\(85\s*-\s*p\)\s*\*\s*20\s*\+\s*250/.test(ui) && !/latestLiveVal\s*\*\s*\(1\s*\+\s*\(Math\.random/.test(core));
 check('R340/P712: KR yields and US breadth require timestamped current evidence and fail closed otherwise',
-  /T1035 kr_yield_current_source_fail_closed/.test(tests) && /T1036 breadth_current_evidence_gate/.test(tests) && /getCurrentBreadthEvidence/.test(core)
+  /T1035 kr_yield_current_source_fail_closed/.test(tests) && /T1036 P1274 breadth_current_evidence_gate/.test(tests) && /getCurrentBreadthEvidence/.test(core)
   && (/_breadthSeriesReferenceAsOf\s*=\s*null/.test(ui) || (/getCurrentBreadthEvidence/.test(ui) && /if\s*\(!currentBreadth\.available\)/.test(ui) && /현재 원천 미수신/.test(ui)))
   && !/DATA_SNAPSHOT\.krBond3y/.test(html.slice(html.indexOf('function updateKrMacroFromLive'), html.indexOf('function updateKrMacroFromLive') + 5000)));
 check('R344/P727: retired fxbond commentary has no orphan function, call, or DOM sink while live status stays in the canonical updater',
@@ -1099,7 +1131,7 @@ check('P783: reference snapshot metadata drives an explicit non-live topbar stat
   /sourceKind:\s*'REFERENCE'/.test(read('src/legacy/market-snapshot-bridge.js')) &&
   /root\.document\?\.dispatchEvent/.test(read('src/legacy/market-snapshot-bridge.js')) &&
   /_aioRenderMarketSnapshotTopbar/.test(core) &&
-  /실시간 시세가 아닌 동일 출처 기준 스냅샷/.test(core));
+  /실시간 시세가 아닌 서버 기준 스냅샷/.test(core));
 check('P783: a dead client quote proxy preserves snapshot fallback and bounds retry fanout',
   /quoteProxyCircuitOpen/.test(data) &&
   /quoteProxyCircuitOpen && hasMarketSnapshotFallback/.test(data) &&
@@ -1111,7 +1143,7 @@ check('P783: boot waits for the same-origin snapshot and server macro/HY success
   /_aioServerMacroReady/.test(data) &&
   /!_aioServerHyReady/.test(data));
 check('P783: blocked-external-network Chromium gate asserts the reference-only snapshot topbar',
-  read('scripts/ci-architecture-browser-check.mjs').includes('/기준 시세.+\\(16개\\)/') &&
+  read('scripts/ci-architecture-browser-check.mjs').includes('/^서버 .+ · 16개$/') &&
   /snapshot quote topbar must stay reference-only/.test(read('scripts/ci-architecture-browser-check.mjs')));
 
 check('P784/SA-01: Yahoo chart requests use the shared proxy registry health path', (() => {
@@ -1174,6 +1206,113 @@ check('P1118: signal page renders post-composite adjustments in a native-owned s
     && /renderScoreAdjustments\(\{ documentRef, signal \}\)/.test(read('src/ui/pages/analysis.js'))
     && /aioSignalAdjustmentsRenderer/.test(read('src/ui/pages/analysis.js'))
     && /#page-signal #score-adjustments-container/.test(read('architecture/route-owners.json')));
+
+// P1274: native breadth card and theme cycle must read the same dated US universe.
+// Exercise the actual compatibility selector, including an absent legacy projection.
+let breadthParityP1274 = false;
+try {
+  const start = core.indexOf('window.AIO.getCurrentBreadthEvidence = function(maxAgeMs) {');
+  const end = core.indexOf('\nwindow._aioSyncBreadth50Readout', start);
+  if (start >= 0 && end > start) {
+    const segment = { observedAt:new Date(Date.now() - 86400000).toISOString(), above5:41.7, above20:34.1, above50:35.5, above200:52.2, advanceRatio:0.6117, coveragePct:97.1, eligible:707 };
+    const breadth = { schemaVersion:'1.0', source:'github-actions:yahoo-1y-adjusted-close', segments:{ us:segment } };
+    const context = { window:{ AIO:{}, AIO_ARCH:{ getScreenerState:() => ({ metadata:{ breadth } }) }, _breadthLiveData:null },
+      _aioStrictFinite:(value) => typeof value === 'number' && Number.isFinite(value) ? value : null,
+      _aioMetricTs:(value) => typeof value === 'number' ? value : Date.parse(value) };
+    runInNewContext(core.slice(start, end), context);
+    const get = context.window.AIO.getCurrentBreadthEvidence;
+    const native = get();
+    context.window._breadthLiveData = { sma5:10, sma20:10, sma50:10, ts:Date.now() - 10 * 86400000, source:'stale-legacy' };
+    const fallback = get();
+    segment.coveragePct = 20;
+    const insufficient = get();
+    breadthParityP1274 = native.available && native.sma50 === 35.5 && fallback.sma50 === 35.5 && !insufficient.available;
+  }
+} catch (_) {}
+check('P1274: native current 50SMA reaches theme selector; stale legacy and inadequate coverage do not replace it', breadthParityP1274);
+// P1275: the CP2 text must use the same official FOMC decision as the registry.
+check('P1275: CP2 Fed range is registry-owned and prior 3.50-3.75% literal cannot override the September result',
+  /cp2\.textContent\s*=\s*claimPrefix\s*\+\s*'Fed '\s*\+\s*\(fomc\.policyRange/.test(core)
+    && /function getCP2Text\(\)[\s\S]{0,900}fomc\.policyRange[\s\S]{0,900}Fed 목표범위/.test(core)
+    && !/공식 정책금리 참고 '\s*\+\s*c\.fedRate/.test(core)
+    && !/cp2\.textContent\s*=\s*claimPrefix\s*\+\s*'Fed 3\.50-3\.75%/.test(core)
+    && /sourceUrl:\s*'https:\/\/www\.federalreserve\.gov\/newsevents\/pressreleases\/monetary20260916a\.htm'/.test(core));
+
+const macroCalendarStart = core.indexOf('window.AIO_MACRO_CALENDAR = {');
+const macroCalendarEnd = core.indexOf('\n};', macroCalendarStart);
+let macroCalendar = null;
+if (macroCalendarStart >= 0 && macroCalendarEnd > macroCalendarStart) {
+  const sandbox = { window: {} };
+  runInNewContext(`${core.slice(macroCalendarStart, macroCalendarEnd + 3)}\nthis.calendar = window.AIO_MACRO_CALENDAR;`, sandbox, { timeout: 1000 });
+  macroCalendar = sandbox.calendar;
+}
+const verifiedMacroScheduleKeys = ['us-nfp', 'us-cpi', 'us-pce', 'us-ism-mfg', 'us-ism-svc', 'us-fomc', 'us-fed-rate', 'kr-bok'];
+const readableOfficialCalendarSources = verifiedMacroScheduleKeys.every((key) => {
+  const release = macroCalendar?.releases?.[key];
+  return Boolean(release && release.source && !/^https?:\/\//i.test(release.source)
+    && /^https:\/\//i.test(release.sourceUrl || ''));
+});
+
+let riskSourceOutput = null;
+try {
+  const helperStart = pagesSource.indexOf('  function riskRadarSourceMarkup(source, sourceUrl) {');
+  const helperEnd = pagesSource.indexOf('\n  }\n', helperStart) + 4;
+  const escapeStart = data.indexOf('function escHtml(s) {');
+  const escapeEnd = data.indexOf('\n}', escapeStart) + 2;
+  if (helperStart >= 0 && helperEnd > helperStart && escapeStart >= 0 && escapeEnd > escapeStart) {
+    const sandbox = { URL };
+    runInNewContext(`${data.slice(escapeStart, escapeEnd)}\n${pagesSource.slice(helperStart, helperEnd)}\nthis.renderSource = riskRadarSourceMarkup;`, sandbox, { timeout: 1000 });
+    riskSourceOutput = {
+      official: sandbox.renderSource('Federal Reserve official calendar', 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm'),
+      unsafe: sandbox.renderSource('Untrusted <img src=x onerror=alert(1)>', 'javascript:alert(1)'),
+      unapproved: sandbox.renderSource('Forged official source', 'https://evil.example/official'),
+      urlOnly: sandbox.renderSource('https://www.bls.gov/schedule/news_release/empsit.htm', '')
+    };
+  }
+} catch (_) {}
+check('P1294/R644 macro calendar sources keep readable labels and Risk Radar emits escaped HTTPS-only links',
+  readableOfficialCalendarSources
+    && riskSourceOutput?.official.includes('href="https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"')
+    && riskSourceOutput.official.includes('>Federal Reserve official calendar</a>')
+    && riskSourceOutput.official.includes('rel="noopener noreferrer"')
+    && !riskSourceOutput.unsafe.includes('<img')
+    && !riskSourceOutput.unsafe.includes('javascript:')
+    && riskSourceOutput.unsafe.includes('&lt;img')
+    && !riskSourceOutput.unapproved.includes('<a ')
+    && riskSourceOutput.urlOnly.includes('>www.bls.gov</a>'));
+
+// P1301/R650: a passed scheduled date is not evidence of an actual release result.
+let macroScheduleResultDatesRemainEvidenceBound = false;
+try {
+  const refreshStart = core.indexOf('window.AIO.refreshMacroCalendarFromOfficialSchedule = function(now) {');
+  const refreshEnd = core.indexOf('\n};', refreshStart) + 3;
+  if (refreshStart >= 0 && refreshEnd > refreshStart) {
+    const fixture = () => ({
+      window: {
+        AIO: {},
+        AIO_MACRO_CALENDAR: { releases: { 'us-cpi': { lastRelease: '2026-09-11', nextRelease: '2026-10-14' } } },
+        AIO_MACRO_OFFICIAL_SCHEDULES: { 'us-cpi': ['2026-10-14', '2026-11-13'] }
+      },
+      _aioMacroTodayIso: (now) => now.toISOString().slice(0, 10),
+      _aioMacroIsoDate: (date) => /^\d{4}-\d{2}-\d{2}$/.test(date || '') ? date : null
+    });
+    const crossedContext = fixture();
+    runInNewContext(core.slice(refreshStart, refreshEnd), crossedContext, { timeout: 1000 });
+    const crossed = crossedContext.window.AIO.refreshMacroCalendarFromOfficialSchedule(new Date('2026-10-15T00:00:00.000Z'));
+    const resultDateRetained = crossedContext.window.AIO_MACRO_CALENDAR.releases['us-cpi'].lastRelease === '2026-09-11';
+    const nextDateAdvanced = crossedContext.window.AIO_MACRO_CALENDAR.releases['us-cpi'].nextRelease === '2026-11-13';
+
+    const noFutureContext = fixture();
+    noFutureContext.window.AIO_MACRO_OFFICIAL_SCHEDULES['us-cpi'] = ['2026-10-14'];
+    runInNewContext(core.slice(refreshStart, refreshEnd), noFutureContext, { timeout: 1000 });
+    const noFuture = noFutureContext.window.AIO.refreshMacroCalendarFromOfficialSchedule(new Date('2026-10-15T00:00:00.000Z'));
+    macroScheduleResultDatesRemainEvidenceBound = resultDateRetained && nextDateAdvanced
+      && noFutureContext.window.AIO_MACRO_CALENDAR.releases['us-cpi'].lastRelease === '2026-09-11'
+      && noFutureContext.window.AIO_MACRO_CALENDAR.releases['us-cpi'].nextRelease === null
+      && noFuture.status === 'stale';
+  }
+} catch (_) {}
+check('P1301/R650/QA-DATA-44 macro schedule dates never become lastRelease without result evidence', macroScheduleResultDatesRemainEvidenceBound);
 
 if (errors.length) {
   console.error('Runtime contract check failed:');

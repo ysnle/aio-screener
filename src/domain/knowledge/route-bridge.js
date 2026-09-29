@@ -1,4 +1,4 @@
-const ALLOWED_ROUTE_IDS = Object.freeze(['atlas', 'principles', 'macro', 'fxbond', 'fundamental', 'themes', 'technical', 'market-news', 'screener', 'entity', 'portfolio', 'options']);
+const ALLOWED_ROUTE_IDS = Object.freeze(['atlas', 'principles', 'macro', 'fxbond', 'fundamental', 'themes', 'technical', 'market-news', 'screener', 'entity', 'portfolio', 'options']); // P1321: 'options' kept only for generated knowledge links; navigation aliases it to sentiment
 const ALLOWED_ROUTE_SET = new Set(ALLOWED_ROUTE_IDS);
 
 // Read-only compatibility facade. Exporting the mutable Set let any consumer

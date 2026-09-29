@@ -3,11 +3,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { rawHoldingRow } from './lib/masters-raw-rows.mjs';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { writeJsonIfSemanticallyChanged } from './lib/13f-semantic-hash.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dataRoot = path.join(root, 'public-data', 'masters');
 const readJson = async (name) => JSON.parse(await fs.readFile(path.join(dataRoot, name), 'utf8'));
-const writeJson = async (name, value) => atomicWriteFile(path.join(dataRoot, name), `${JSON.stringify(value, null, 2)}\n`, 'utf8');
+const writeJson = async (name, value) => writeJsonIfSemanticallyChanged(path.join(dataRoot, name), value, { writer: atomicWriteFile });
 
 const [mastersIndex, filings, holdings, historyIndex, historyHoldings] = await Promise.all([
   readJson('index.json'),

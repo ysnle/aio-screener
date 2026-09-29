@@ -1,6 +1,6 @@
 {
   "schemaVersion": "public-readiness-v1",
-  "appRevision": "v56.52",
+  "appRevision": "v56.82",
   "currentStage": "RESEARCH_BETA_CONDITIONAL",
   "nextStage": "PUBLIC_BETA",
   "criteria": [
@@ -27,7 +27,7 @@
     {
       "id": "route-soak",
       "status": "PENDING_LOCAL_GATE",
-      "evidence": "Previous route-soak evidence predates v56.52; run ci-route-soak-check.mjs once at the release boundary."
+      "evidence": "Previous route-soak evidence predates v56.82; run ci-route-soak-check.mjs once at the release boundary."
     },
     {
       "id": "boot-performance",
@@ -47,7 +47,7 @@
     {
       "id": "live-revision",
       "status": "OPERATOR_REQUIRED",
-      "evidence": "Observed 2026-08-25: GitHub Pages is v54.43 and /deployment.json is 404; v54.61 exact-SHA deployment remains pending. Current Workers are healthy but predate sourceSha rollout."
+      "evidence": "Observed 2026-09-27 11:00 KST: GitHub Pages /deployment.json is HTTP 200, sourceSha fc75c775467001af6c1781cfc150c286b5a14806, appRevision v56.33, deployedAt 2026-09-26T01:41:02.613Z. Local v56.54 exact-SHA CI/Pages deployment remains unverified."
     },
     {
       "id": "edge-security-headers",
@@ -61,8 +61,8 @@
     },
     {
       "id": "fred-success-branch",
-      "status": "OPERATOR_REQUIRED",
-      "evidence": "public-data/data.json reports fredHasKey:false, fredFetchOk:false, fredOk:false; current official-series success is not certified."
+      "status": "PASS",
+      "evidence": "public-data/data.json reports fredHasKey:true, fredFetchOk:true and fredOk:true; SA-04 remains release-required."
     }
   ],
   "publicBetaDecision": "BLOCKED_UNTIL_OPERATOR_CRITERIA_CLOSE"

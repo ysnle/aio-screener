@@ -1,18 +1,111 @@
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { cpSync, existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync } from 'node:fs';
-import { join, relative, resolve } from 'node:path';
+import { copyFileSync, cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
+const args = process.argv.slice(2);
+let candidateDirectory = null;
+if (args.length) {
+  if (args.length !== 2 || args[0] !== '--candidate-dir' || !args[1]) {
+    throw new Error('Usage: node scripts/ci-knowledge-generated-parity-check.mjs [--candidate-dir <external-directory>]');
+  }
+  candidateDirectory = resolve(args[1]);
+  const parent = dirname(candidateDirectory);
+  if (!existsSync(parent) || !statSync(parent).isDirectory()) {
+    throw new Error(`Knowledge candidate parent directory must already exist: ${parent}`);
+  }
+  if (existsSync(candidateDirectory)) {
+    throw new Error(`Knowledge candidate directory must be new and empty of pre-existing paths: ${candidateDirectory}`);
+  }
+  const canonicalRoot = realpathSync(root);
+  const canonicalCandidate = resolve(realpathSync(parent), relative(parent, candidateDirectory));
+  const relativeCandidate = relative(canonicalRoot, canonicalCandidate);
+  const candidateIsInsideWorkspace = relativeCandidate === '' || (!isAbsolute(relativeCandidate) && relativeCandidate !== '..' && !relativeCandidate.startsWith(`..${sep}`));
+  if (candidateIsInsideWorkspace) {
+    throw new Error('Knowledge candidate directory must resolve outside the repository workspace.');
+  }
+}
+
+function gitHeadSha() {
+  const result = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8', stdio: 'pipe' });
+  const sha = String(result.stdout || '').trim();
+  if (result.status !== 0 || !/^[0-9a-f]{40}$/.test(sha)) {
+    throw new Error('Knowledge candidate mode requires a Git checkout with a full HEAD SHA.');
+  }
+  return sha;
+}
+
+function candidateIdentity() {
+  const status = spawnSync('git', ['status', '--porcelain', '--untracked-files=all'], { cwd: root, encoding: 'utf8', stdio: 'pipe' });
+  if (status.status !== 0 || String(status.stdout || '').trim()) {
+    throw new Error('Knowledge candidate mode requires a clean checkout so the manifest SHA identifies the exact source.');
+  }
+  const checkoutSha = gitHeadSha();
+  const declaredSourceSha = process.env.AIO_SOURCE_SHA || checkoutSha;
+  if (!/^[0-9a-f]{40}$/.test(declaredSourceSha) || declaredSourceSha !== checkoutSha) {
+    throw new Error(`AIO_SOURCE_SHA must equal the checked-out HEAD SHA (${checkoutSha}).`);
+  }
+  const pullRequestHeadSha = process.env.AIO_PR_HEAD_SHA || null;
+  if (pullRequestHeadSha && !/^[0-9a-f]{40}$/.test(pullRequestHeadSha)) {
+    throw new Error('AIO_PR_HEAD_SHA must be a full 40-character lowercase commit SHA when provided.');
+  }
+  return { checkoutSha, pullRequestHeadSha };
+}
+
+function writeCandidateArtifact({ changed, before, after, isolatedRoot, identity }) {
+  mkdirSync(candidateDirectory);
+  const changedFiles = changed.map((path) => {
+    const beforeSha256 = before.get(path) || null;
+    const candidateSha256 = after.get(path) || null;
+    const candidatePath = join(isolatedRoot, path);
+    let bytes = null;
+    let candidateArtifactSha256 = null;
+    if (candidateSha256) {
+      const outputPath = join(candidateDirectory, path);
+      mkdirSync(dirname(outputPath), { recursive: true });
+      copyFileSync(candidatePath, outputPath);
+      bytes = statSync(outputPath).size;
+      candidateArtifactSha256 = createHash('sha256').update(readFileSync(outputPath)).digest('hex');
+    }
+    return {
+      path,
+      change: candidateSha256 === null ? 'deleted' : beforeSha256 === null ? 'added' : 'updated',
+      beforeSnapshotSha256: beforeSha256,
+      candidateSnapshotSha256: candidateSha256,
+      candidateArtifactSha256,
+      bytes
+    };
+  });
+  const manifest = {
+    schemaVersion: 'aio-knowledge-build-candidate.v1',
+    status: changedFiles.length ? 'READY_FOR_HUMAN_REVIEW' : 'NO_GENERATED_CHANGES',
+    testedCheckoutSha: identity.checkoutSha,
+    pullRequestHeadSha: identity.pullRequestHeadSha,
+    builderCount: builders.length,
+    snapshotHashNormalization: 'Snapshot SHA-256 values normalize CRLF to LF; candidateArtifactSha256 hashes the exact exported bytes.',
+    changedFiles,
+    humanReviewRequired: true,
+    releaseArtifact: false,
+    canonicalWorkspaceModified: false,
+    note: 'Generated in a disposable workspace from the tested checkout. These files are review candidates only; this workflow does not update canonical sources or publish a release.'
+  };
+  writeFileSync(join(candidateDirectory, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+  console.log(`Knowledge build candidate written outside the repository: ${candidateDirectory}`);
+  console.log(`Candidate status: ${manifest.status}; ${changedFiles.length} generated target(s); tested SHA ${identity.checkoutSha}.`);
+}
+
 const builders = [
-  ['scripts/build-integrated-market-ai-framework-knowledge.mjs'],
+  // Each source producer must precede its generated-artifact consumers.
+  ['scripts/build-principles-lessons.mjs'],
   ['scripts/build-nathan-framework-knowledge.mjs'],
   ['scripts/build-knowledge-concept-manifest.mjs'],
   ['scripts/build-principles-edge-semantics.mjs'],
   ['scripts/build-knowledge-evidence-registry.mjs'],
   ['scripts/enrich-knowledge-source-lessons.mjs'],
+  ['scripts/build-integrated-market-ai-framework-knowledge.mjs'],
   ['scripts/build-knowledge-articles-and-learning-graph.mjs'],
   ['scripts/audit-knowledge-encyclopedia-depth.mjs'],
   ['scripts/build-knowledge-route-targets.mjs'],
@@ -65,6 +158,81 @@ for (const [script] of builders) {
   }
 }
 
+const ignoredDirectories = new Set(['.git', '.cache', '.claude', '.codex', 'node_modules']);
+const isIgnoredCopyDirectory = (basename) => ignoredDirectories.has(basename) || basename.startsWith('_codex-qa-cache-');
+
+function assertSymlinkFreeTree(baseRoot, { lstatImpl = lstatSync, readdirImpl = readdirSync } = {}) {
+  const pending = [baseRoot];
+  while (pending.length) {
+    const current = pending.pop();
+    const currentStat = lstatImpl(current);
+    if (currentStat.isSymbolicLink()) {
+      throw new Error(`Knowledge generated parity refuses symlinks in builder workspaces: ${relative(baseRoot, current) || '.'}`);
+    }
+    if (!currentStat.isDirectory()) continue;
+    for (const entry of readdirImpl(current, { withFileTypes: true })) {
+      if (isIgnoredCopyDirectory(entry.name)) continue;
+      const child = join(current, entry.name);
+      const childStat = lstatImpl(child);
+      if (childStat.isSymbolicLink()) {
+        throw new Error(`Knowledge generated parity refuses symlinks in builder workspaces: ${relative(baseRoot, child)}`);
+      }
+      if (childStat.isDirectory()) pending.push(child);
+    }
+  }
+}
+
+function symlinkGuardFixturePasses() {
+  const fixtureRoot = 'fixture-root';
+  const key = (path) => String(path).replaceAll('\\', '/');
+  const runFixture = (nodes, children) => assertSymlinkFreeTree(fixtureRoot, {
+    lstatImpl(path) {
+      const node = nodes.get(key(path));
+      if (!node) throw new Error(`unexpected fixture path: ${key(path)}`);
+      return {
+        isSymbolicLink: () => node.kind === 'symlink',
+        isDirectory: () => node.kind === 'directory'
+      };
+    },
+    readdirImpl(path) {
+      return children.get(key(path)) || [];
+    }
+  });
+  const root = key(fixtureRoot);
+  const publicData = key(join(fixtureRoot, 'public-data'));
+  const safeNodes = new Map([
+    [root, { kind: 'directory' }],
+    [publicData, { kind: 'directory' }],
+    [key(join(publicData, 'input.json')), { kind: 'file' }]
+  ]);
+  const safeChildren = new Map([
+    [root, [{ name: 'public-data' }]],
+    [publicData, [{ name: 'input.json' }]]
+  ]);
+  let safeTreeAccepted = true;
+  try { runFixture(safeNodes, safeChildren); } catch (_) { safeTreeAccepted = false; }
+
+  const unsafeNodes = new Map([
+    [root, { kind: 'directory' }],
+    [publicData, { kind: 'directory' }],
+    [key(join(publicData, 'articles')), { kind: 'symlink' }]
+  ]);
+  const unsafeChildren = new Map([
+    [root, [{ name: 'public-data' }]],
+    [publicData, [{ name: 'articles' }]]
+  ]);
+  let unsafeTreeRejected = false;
+  try { runFixture(unsafeNodes, unsafeChildren); } catch (error) {
+    unsafeTreeRejected = /refuses symlinks/.test(String(error?.message || ''));
+  }
+  return safeTreeAccepted && unsafeTreeRejected;
+}
+
+const check = (label, ok) => {
+  if (!ok) throw new Error(`Knowledge generated parity failed: ${label}`);
+};
+check('P1314/R660/QA-DATA-54 accepts an ordinary tree and rejects a linked generated-output directory', symlinkGuardFixturePasses());
+
 function filesUnder(baseRoot, path) {
   const absolute = join(baseRoot, path);
   if (!existsSync(absolute)) return [];
@@ -90,15 +258,19 @@ function snapshot(baseRoot) {
 // atomic writer, so merely changing cwd cannot isolate them. Run every producer in a disposable
 // workspace copy instead. This keeps parallel QA invocations from racing on published artifacts
 // (and turns this check into a read-only operation against the caller's workspace).
+assertSymlinkFreeTree(root);
 const before = snapshot(root);
+const identity = candidateDirectory ? candidateIdentity() : null;
 const isolatedRoot = mkdtempSync(join(tmpdir(), 'aio-knowledge-parity-'));
-const ignoredDirectories = new Set(['.git', '.cache', '.claude', '.codex', 'node_modules']);
 const copyFilter = (source) => {
   const basename = source.slice(Math.max(source.lastIndexOf('\\'), source.lastIndexOf('/')) + 1);
-  return !ignoredDirectories.has(basename) && !basename.startsWith('_codex-qa-cache-');
+  return !isIgnoredCopyDirectory(basename);
 };
 try {
   cpSync(root, isolatedRoot, { recursive: true, filter: copyFilter });
+  // cpSync preserves symlinks by default. Verify the disposable copy before any builder
+  // runs, so a PR-controlled generated target cannot redirect writes outside that copy.
+  assertSymlinkFreeTree(isolatedRoot);
   for (const [script, ...args] of builders) {
     const result = spawnSync(process.execPath, [join(isolatedRoot, script), ...args], { cwd: isolatedRoot, encoding: 'utf8', stdio: 'pipe' });
     if (result.status !== 0) {
@@ -110,13 +282,16 @@ try {
   const after = snapshot(isolatedRoot);
   const paths = [...new Set([...before.keys(), ...after.keys()])].sort();
   const changed = paths.filter((path) => before.get(path) !== after.get(path));
-  if (changed.length) {
+  if (candidateDirectory) {
+    writeCandidateArtifact({ changed, before, after, isolatedRoot, identity });
+  } else if (changed.length) {
     console.error('Knowledge generated parity failed: builders changed generated outputs. Review the regenerated files, then rerun.');
     changed.slice(0, 50).forEach((path) => console.error(` - ${path}`));
     if (changed.length > 50) console.error(` - ... ${changed.length - 50} more`);
     throw new Error('knowledge generated outputs drifted');
+  } else {
+    console.log(`Knowledge generated parity OK: ${builders.length} builders, ${after.size} generated files unchanged.`);
   }
-  console.log(`Knowledge generated parity OK: ${builders.length} builders, ${after.size} generated files unchanged.`);
 } finally {
   rmSync(isolatedRoot, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
 }

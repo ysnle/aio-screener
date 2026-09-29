@@ -10,18 +10,24 @@
       "convergenceRule": "sourceSha must equal the successful CI attestation testedSha and the Pages workflow expected SHA"
     },
     "aiProxy": {
-      "releaseCoupling": "INDEPENDENT_MANUAL_DEPLOYMENT",
+      "releaseCoupling": "INDEPENDENT_CI_ATTESTED_AUTO_DEPLOYMENT",
       "identityEndpoint": "/health",
       "requiredField": "sourceSha",
       "sameShaAsPagesRequired": false,
-      "convergenceRule": "sourceSha must equal the exact checkout SHA used by its own successful deployment run"
+      "automaticTrigger": "successful main CI attestation; deploy if the exact per-push Worker scope changed or if cumulative changes from the live sourceSha include Worker runtime/config files",
+      "manualRedeploy": "requires a successful main CI run id and its exact-SHA attestation",
+      "rollback": "capture the active 100-percent version and /health sourceSha before deploy; on failed smoke, roll back that version and verify its prior sourceSha",
+      "convergenceRule": "coalesced or canceled runs are recovered by comparing live sourceSha through the exact CI-attested SHA only when that SHA is still current main head and the live SHA is its ancestor; stale workflow_run events and newer/divergent live Workers are never rolled back; main head is rechecked immediately before deployment"
     },
     "fastDataPlane": {
-      "releaseCoupling": "INDEPENDENT_MANUAL_DEPLOYMENT",
+      "releaseCoupling": "INDEPENDENT_CI_ATTESTED_AUTO_DEPLOYMENT",
       "identityEndpoint": "/health",
       "requiredField": "sourceSha",
       "sameShaAsPagesRequired": false,
-      "convergenceRule": "sourceSha must equal the exact checkout SHA used by its own successful deployment run"
+      "automaticTrigger": "successful main CI attestation; deploy if the exact per-push Worker bundle/config changed or if cumulative changes from the live sourceSha include a data-plane bundle dependency/config",
+      "manualRedeploy": "requires a successful main CI run id and its exact-SHA attestation",
+      "rollback": "capture the active 100-percent version and /health sourceSha before deploy; on failed smoke, roll back that version and verify its prior sourceSha",
+      "convergenceRule": "coalesced or canceled runs are recovered by comparing live sourceSha through the exact CI-attested SHA and transitive data-plane module import graph only when that SHA is still current main head and the live SHA is its ancestor; stale workflow_run events and newer/divergent live Workers are never rolled back; main head is rechecked immediately before deployment"
     }
   },
   "evidenceBoundary": {

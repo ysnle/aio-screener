@@ -65,13 +65,22 @@ function renderTickerHero(documentRef, state, root) {
   const quote = state?.quote || {};
   const price = finite(quote.value);
   const pct = finite(quote.pct);
-  setText(documentRef, 'ticker-hero-name', id || '종목 선택 대기');
+  // P1317: Korean users recognise a KRX listing by its name, not its code — lead with the name.
+  const krName = /\.(KS|KQ)$/.test(String(id || '')) && state?.name && state.name !== id ? state.name : null;
+  setText(documentRef, 'ticker-hero-name', krName || id || '종목 선택 대기');
   setText(documentRef, 'ticker-hero-fullname', id
-    ? (state?.name || (state?.id ? id : `${root?._currentTickerName || id} · 시세 수신 대기`))
+    ? (krName ? id : (state?.name || (state?.id ? id : `${root?._currentTickerName || id} · 시세 수신 대기`)))
     : '종목을 검색하세요');
-  setText(documentRef, 'ticker-hero-price', formatMoney(price, quote.currency));
+  // P1317: a KRX listing (.KS/.KQ) trades only in KRW — the venue, not a guess, fixes the quote currency.
+  setText(documentRef, 'ticker-hero-price', formatMoney(price, quote.currency || (/\.(KS|KQ)$/.test(String(id || '')) ? 'KRW' : null)));
   const change = setText(documentRef, 'ticker-hero-chg', pct == null ? '—' : `${pct >= 0 ? '▲ +' : '▼ '}${Math.abs(pct).toFixed(2)}%`);
   if (change) change.className = `ticker-chg-big ${pct == null ? '' : pct >= 0 ? 'up' : 'down'}`;
+  // P1317/N27: showPage titles the route from the stale hero before this render runs, so the tab,
+  // history and bookmarks kept "종목 선택 대기" (or the previous symbol). The owner of the hero owns the title.
+  if (id && documentRef && documentRef.getElementById?.('page-ticker')?.classList?.contains('active')) {
+    const label = state?.name && state.name !== id ? `${state.name} (${id})` : id;
+    documentRef.title = `${label}${price == null ? '' : ` ${formatMoney(price, quote.currency || (/\.(KS|KQ)$/.test(String(id)) ? 'KRW' : null))}`} · AIO Screener`;
+  }
 }
 
 function renderTickerSecondarySymbols(documentRef, state, root) {
@@ -125,7 +134,7 @@ function renderTickerActivity(documentRef, root, state, portfolioState) {
   if (extensionNode) {
     const extPrice = finite(live.extPrice ?? live.postMarketPrice);
     const extPct = finite(live.extPct ?? live.postMarketChangePercent);
-    const session = live.extSession === 'pre' || live.extSession === 'after' ? live.extSession : (typeof root?._getUsSession === 'function' ? root._getUsSession() : 'open');
+    const session = live.extSession === 'pre' || live.extSession === 'after' ? live.extSession : (typeof root?._getUsSession === 'function' ? root._getUsSession() : 'unknown');
     const visible = (session === 'pre' || session === 'after') && extPrice != null;
     extensionNode.textContent = visible
       ? `${session === 'pre' ? 'Pre' : 'After'} ${formatMoney(extPrice, currency)}${extPct == null ? '' : ` (${extPct >= 0 ? '+' : ''}${extPct.toFixed(2)}%)`}`
@@ -254,51 +263,6 @@ function renderTickerChart({ root, page, state, charts, requestedRange = '1m' })
     charts.destroy('ticker-price-chart');
     if (loading) { loading.style.display = 'flex'; loading.textContent = `${state?.id || '종목'} ${periodLabel} 차트 런타임 실패 · 차트 보류`; }
   }
-}
-
-function formatOptionMetric(metric) {
-  const value = finite(metric?.value);
-  return value == null ? '—' : value.toFixed(2);
-}
-
-function renderOptionMetric(documentRef, id, metric, color = null) {
-  const element = setText(documentRef, id, formatOptionMetric(metric));
-  if (!element) return;
-  const sourceKind = metric?.sourceKind || 'unavailable';
-  element.setAttribute('data-source-kind', sourceKind);
-  element.setAttribute('data-source-label', metric?.source || 'unavailable');
-  element.setAttribute('data-operational-use', 'reference-only');
-  if (metric?.metricId) element.setAttribute('data-metric-id', metric.metricId);
-  else element.removeAttribute('data-metric-id');
-  if (metric?.instrumentId) element.setAttribute('data-instrument-id', metric.instrumentId);
-  else element.removeAttribute('data-instrument-id');
-  if (metric?.unit) element.setAttribute('data-unit', metric.unit);
-  else element.removeAttribute('data-unit');
-  if (metric?.revisionId) element.setAttribute('data-revision', metric.revisionId);
-  else element.removeAttribute('data-revision');
-  if (metric?.observedAt) element.setAttribute('data-observed-at', metric.observedAt);
-  else element.removeAttribute('data-observed-at');
-  if (color) element.style.color = color;
-  const meta = documentRef?.getElementById(`${id}-meta`);
-  if (meta) {
-    const asOf = metric?.observedAt ? String(metric.observedAt).replace('T', ' ').replace(/\.000Z$|Z$/, ' UTC') : '기준일 미수신';
-    meta.textContent = `${asOf} · ${metric?.source || '출처 미수신'} · 참고용`;
-    meta.setAttribute('data-source-kind', sourceKind);
-    meta.setAttribute('data-operational-use', 'reference-only');
-    if (metric?.observedAt) meta.setAttribute('data-observed-at', metric.observedAt);
-    else meta.removeAttribute('data-observed-at');
-  }
-}
-
-function renderOptions(documentRef, state) {
-  const options = state?.options || {};
-  const pcr = finite(options.pcr?.value);
-  const pcrColor = pcr == null
-    ? 'var(--text-muted)'
-    : pcr >= 1.2 ? 'var(--data-red)' : pcr >= 0.9 ? 'var(--data-amber)' : 'var(--data-green)';
-  renderOptionMetric(documentRef, 'opt-vix-val-secondary', options.vix);
-  renderOptionMetric(documentRef, 'opt-pcr-val-secondary', options.pcr, pcrColor);
-  renderOptionMetric(documentRef, 'opt-skew-val-secondary', options.skew);
 }
 
 function renderFundamentalStatus(documentRef, state) {
@@ -545,7 +509,7 @@ function render({ root, documentRef, store, route, charts, activeTickerTab = 'ov
     routeNode.dataset.aioArchitectureRoute = route;
     routeNode.dataset.aioArchitectureSlice = 'entity';
     routeNode.dataset.aioArchitectureStatus = state?.status || 'unavailable';
-    if (route === 'ticker' || route === 'options' || route === 'fundamental') routeNode.dataset.aioArchitectureRenderer = 'native';
+    if (route === 'ticker' || route === 'fundamental') routeNode.dataset.aioArchitectureRenderer = 'native';
   }
   if (route === 'ticker') {
     renderTickerHero(documentRef, state, root);
@@ -555,7 +519,6 @@ function render({ root, documentRef, store, route, charts, activeTickerTab = 'ov
     renderTickerControls(documentRef, routeNode, activeTickerTab, tickerChartRange);
     renderTickerChart({ root, page: routeNode, state, charts, requestedRange: tickerChartRange });
   }
-  if (route === 'options') renderOptions(documentRef, state);
   if (route === 'fundamental') {
     renderFundamentalStatus(documentRef, state);
     renderFundamentalSummary(documentRef, state);

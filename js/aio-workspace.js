@@ -1847,44 +1847,35 @@ window._aioPortfolioAsk = function(kind) {
   }, 120);
 };
 
+// P1316/R661: 전체 백업(포지션·원장·FX·현금·가정·일지·관심목록) — 묶음 형태·검증은 src/data/portfolio-backup.js가, 셸은 복호화 스냅샷과 저장 ack만 맡는다.
+function _pfBackupSnapshot() { var keys = (_pfAssumptionApi() || {}).keys || {}, assumptions = {}, cash = null; try { Object.keys(keys).forEach(function(n) { var v = localStorage.getItem(keys[n]); if (v != null) assumptions[n] = v; }); cash = localStorage.getItem('aio_portfolio_cash'); } catch(e) {}
+  return { positions: getPortfolioData(), ledger: getPortfolioLedger(), fxLegs: getPortfolioFxLegs(), cash: cash, assumptions: assumptions, journal: _aioPortfolioJournalEntries(), watchlists: getWatchlists(), activeWatchlistId: getActiveWatchlistId() || null }; }
 function exportPortfolio() {
-  const data = getPortfolioData();
-  if (!data.length) { showToast('내보낼 포지션이 없습니다.'); return; }
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'aio-portfolio-' + new Date().toISOString().split('T')[0] + '.json';
-  a.click(); URL.revokeObjectURL(url);
+  var api = window._pfPortfolioBackup, rt = _pfVaultRuntime() || {}; // 잠긴(암호화·미해제) 섹션은 빈 값으로 읽혀 불완전한 백업이 되므로 거부한다.
+  var locked = [PF_STORAGE_KEY, PF_LEDGER_KEY, PF_FX_KEY].some(function(k) { try { var raw = localStorage.getItem(k); return !!raw && raw.indexOf('aio_enc::') === 0 && rt[k] === undefined; } catch(e) { return false; } });
+  if (!api || locked) { showToast(!api ? '백업 모듈을 불러오지 못했습니다. 새로고침 후 다시 시도하세요.' : 'PIN 잠금을 해제한 뒤 내보내세요 — 잠긴 데이터는 백업에 넣을 수 없습니다.'); return; }
+  var bundle = api.build(_pfBackupSnapshot(), { appVersion: typeof APP_VERSION !== 'undefined' ? APP_VERSION : null, origin: location.origin }), a = document.createElement('a');
+  if (!bundle.counts.total) { showToast('내보낼 데이터가 없습니다.'); return; }
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(bundle, null, 2)], { type: 'application/json' })); a.download = 'aio-backup-' + bundle.exportedAt.slice(0, 10) + '.json'; a.click(); URL.revokeObjectURL(a.href);
+  try { localStorage.setItem('aio_last_backup_at', bundle.exportedAt); } catch(e) {}
+  showToast('전체 백업 저장 (' + api.describe(bundle.counts) + ') — 암호화되지 않은 파일이니 안전한 곳에 보관하세요.');
+}
+function _pfRestoreBackupSections(c) { var keys = (_pfAssumptionApi() || {}).keys || {};
+  try { Object.keys(keys).forEach(function(n) { if (c.assumptions[n] != null) localStorage.setItem(keys[n], c.assumptions[n]); else localStorage.removeItem(keys[n]); }); if (c.cash != null) localStorage.setItem('aio_portfolio_cash', c.cash); else localStorage.removeItem('aio_portfolio_cash'); localStorage.setItem(PF_JOURNAL_KEY, JSON.stringify(c.journal)); saveWatchlists(c.watchlists); setActiveWatchlistId(c.activeWatchlistId || ''); } catch(e) { return Promise.resolve([{ ok: false, reason: 'local-restore-failed' }]); }
+  return Promise.all([savePortfolioLedger(c.ledger), savePortfolioFxLegs(c.fxLegs)]).then(function(acks) { [renderPortfolioLedger, renderPortfolioFxLegs, window.refreshWatchlistUI].forEach(function(fn) { try { if (typeof fn === 'function') fn(); } catch(e) {} }); return acks; });
 }
 function importPortfolio(event) {
-  const file = event.target.files[0];
+  const file = event.target.files[0], reader = new FileReader();
   if (!file) return;
-  const reader = new FileReader();
-  reader.addEventListener('load', function(e) {
-    try {
-      var data = JSON.parse(e.target.result);
-      if (!Array.isArray(data)) throw new Error('Invalid format');
-      // v46.9: 스키마 검증 + XSS 정제
-      data = data.filter(function(p) {
-        return p && typeof p.ticker === 'string' && /^[A-Z0-9.\-^=]{1,12}$/i.test(p.ticker.trim());
-      }).map(function(p) {
-        p.ticker = p.ticker.trim().toUpperCase();
-        if (p.memo) p.memo = String(p.memo).slice(0, 200);
-        if (p.note) p.note = String(p.note).slice(0, 200);
-        p.qty = Number(p.qty) || 0; p.cost = Number(p.cost) || 0;
-        return p;
-      });
-      if (data.length === 0) throw new Error('유효한 포지션 없음');
-      showConfirmModal('데이터 가져오기', data.length + '개 포지션을 가져오시겠습니까? 기존 데이터가 대체됩니다.', async function() {
-        // E3/P1187 (11 P11-01): 가져오기도 durable ack 뒤에만 '완료'를 말한다 — persist가 거부되면
-        // 기존 데이터가 남아 있으므로 성공 문구는 거짓이 된다.
-        const saved = await savePortfolioData(data);
-        renderPortfolio();
-        showToast(saved.ok
-          ? data.length + '개 포지션 가져오기 완료'
-          : '영구 저장 실패 — 가져오기가 확정되지 않았습니다. 새로고침 시 이전 데이터로 되돌아올 수 있습니다.');
-      }, '');
-    } catch(err) { showToast('파일 형식이 올바르지 않습니다.'); }
+  reader.addEventListener('load', function(e) { // 구형 포지션 배열(포지션만 대체)과 aio-backup v1 묶음(모든 섹션 대체)을 모두 받는다.
+    var api = window._pfPortfolioBackup, parsed = api ? api.parse(e.target.result) : { ok: false }, c = parsed.contents, bundle = parsed.kind === 'bundle';
+    if (!parsed.ok) { showToast('파일 형식이 올바르지 않습니다.'); return; }
+    showConfirmModal('데이터 가져오기', (bundle ? '전체 백업(' + api.describe(parsed.counts) + ')을' : c.positions.length + '개 포지션을') + ' 가져오시겠습니까? 기존 데이터가 대체됩니다.', async function() {
+      // E3/P1187: 가져오기도 durable ack 뒤에만 '완료'를 말한다 — P1316: 묶음은 모든 섹션 ack를 합산한다.
+      var acks = [await savePortfolioData(c.positions)].concat(bundle ? await _pfRestoreBackupSections(c) : []);
+      renderPortfolio();
+      showToast(acks.every(function(r) { return r && r.ok; }) ? (bundle ? '전체 백업 가져오기 완료' : c.positions.length + '개 포지션 가져오기 완료') : '영구 저장 실패 — 가져오기가 확정되지 않았습니다. 새로고침 시 이전 데이터로 되돌아올 수 있습니다.');
+    }, '');
   });
   reader.readAsText(file);
 }
@@ -2451,9 +2442,9 @@ function _liveSnap() {
   });
 
   // 세션 상태
-  var usSession = (typeof _getUsSession === 'function') ? _getUsSession() : 'open';
-  var krSession = (typeof _getKrxSession === 'function') ? _getKrxSession() : 'open';
-  var futOpen = (typeof _isFuturesOpen === 'function') ? _isFuturesOpen() : true;
+  var usSession = (typeof _getUsSession === 'function') ? _getUsSession() : 'unknown';
+  var krSession = (typeof _getKrxSession === 'function') ? _getKrxSession() : 'unknown';
+  var futOpen = (typeof _isFuturesOpen === 'function') ? _isFuturesOpen() : false;
 
   // 시간외 정보
   var _ext = window._extHoursData || {};

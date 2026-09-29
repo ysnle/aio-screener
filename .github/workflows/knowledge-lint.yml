@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
 
       - name: Run deterministic knowledge lint
         run: |
@@ -27,5 +29,9 @@ jobs:
           node scripts/sync-agent-profiles.mjs --check
           node scripts/ci-skill-contract-check.mjs
           node scripts/ci-skill-eval-fixture-check.mjs
+          node scripts/ci-doc-currency-check.mjs
+          node scripts/ci-ledger-integrity-check.mjs
+          node scripts/ci-assertion-trace-check.mjs
+          node scripts/ci-six-doc-coverage-check.mjs
           node scripts/ci-workspace-contract-check.mjs
           node scripts/ci-knowledge-lint-check.mjs

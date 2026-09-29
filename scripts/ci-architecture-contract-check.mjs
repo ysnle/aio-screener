@@ -12,7 +12,7 @@ const version = JSON.parse(read('version.json'));
 const executionPlan = read('_context/ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md');
 const publicManifest = JSON.parse(read('public-artifact-manifest.json'));
 const serviceWorkerSource = read('sw.js');
-if (!Array.isArray(golden.routes) || golden.routes.length !== 20) fail('golden route count must be 20');
+if (!Array.isArray(golden.routes) || golden.routes.length !== 19) fail('golden route count must be 19 (P1321 options retired)');
 for (const marker of ['## 2. 계층별 현재 상태와 목표', '## 5. 17 route 세부 전환 원장', '## 7. 세션 작업 카드', 'DELETE-LEDGER', 'nativeRendererOwner', '## 9. 전체 재구축 최종 인수 기준']) {
   if (!executionPlan.includes(marker)) fail(`architecture execution plan missing marker: ${marker}`);
 }
@@ -125,7 +125,7 @@ if (Number.isFinite(burnDown.explicitWindowWritesMax) && current.explicitWindowW
   fail(`explicitWindowWrites burn-down target missed: ${current.explicitWindowWrites} > ${burnDown.explicitWindowWritesMax}`);
 }
 const dataSource = read('js/aio-data.js');
-const coreSource = read('js/aio-core.js');
+const coreSource = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
 const uiSource = read('js/aio-ui.js');
 // P1133/R620: page-level renderers extracted from index.html's inline block D live in js/aio-pages.js.
 const pagesSource = read('js/aio-pages.js');
@@ -301,10 +301,10 @@ if (!dataSource.includes("querySelector('[id=\"breadth-signal-val\"]')") || !dat
 for (const marker of ['renderTickerHero', "route === 'ticker'", "routeNode.dataset.aioArchitectureRenderer = 'native'"]) {
   if (!entityPageSource.includes(marker)) fail(`native ticker hero renderer marker missing: ${marker}`);
 }
-for (const marker of ['renderOptions', "route === 'options'", 'opt-vix-val-secondary', 'opt-pcr-val-secondary', 'opt-skew-val-secondary']) {
-  if (!entityPageSource.includes(marker)) fail(`native options renderer marker missing: ${marker}`);
+// P1321: the options route is fully retired — no native renderer, DOM sinks, or route entry may return.
+for (const marker of ['renderOptions', "route === 'options'", 'opt-vix-val-secondary']) {
+  if (entityPageSource.includes(marker) || indexHtmlSource.includes(marker)) fail(`retired options surface returned: ${marker}`);
 }
-if (!entityPageSource.includes('data-observed-at') || !entityPageSource.includes('기준일 미수신') || !indexHtmlSource.includes('opt-vix-val-secondary-meta') || !indexHtmlSource.includes('opt-pcr-val-secondary-meta') || !indexHtmlSource.includes('opt-skew-val-secondary-meta')) fail('visible option observedAt/source contract missing');
 if (!entityPageSource.includes("root.showThemeDetail(themeId)") || !entityPageSource.includes('stopImmediatePropagation')) fail('native ticker related-theme action does not own the cross-route click');
 for (const marker of ['renderFundamentalStatus', "route === 'fundamental'", 'fund-data-status', 'data-source-kind']) {
   if (!entityPageSource.includes(marker)) fail(`native fundamental status renderer marker missing: ${marker}`);
@@ -405,7 +405,14 @@ for (const marker of ['renderPortfolioTable', 'pf-positions-tbody', 'aioPortfoli
   if (!portfolioPageSource.includes(marker)) fail(`native portfolio table marker missing: ${marker}`);
 }
 // P1136/R620: the legacy portfolio table and its change event moved with block A to js/aio-workspace.js.
-if (!workspaceSource.includes('_nativePortfolioTable') || !workspaceSource.includes('aio:portfolioChanged') || !read('src/legacy/compatibility-facade.js').includes('getPortfolioData')) fail('legacy portfolio table/Vault boundary missing');
+// P1280/E0: the compatibility facade must delegate the Vault mapping to the single runtime
+// reader — a second facade mapping re-introduces the dropped-field drift (targetWeight, currency).
+{
+  const facadePortfolioSource = read('src/legacy/compatibility-facade.js');
+  if (!workspaceSource.includes('_nativePortfolioTable') || !workspaceSource.includes('aio:portfolioChanged')) fail('legacy portfolio table/Vault boundary missing');
+  if (!facadePortfolioSource.includes('createRuntimeReaders') || !/function readPortfolio\(root\)/.test(facadePortfolioSource)) fail('P1280: the facade portfolio reader must delegate to the single runtime reader');
+  if (facadePortfolioSource.includes('legacy-vault+live-quote') || facadePortfolioSource.includes('getPortfolioState')) fail('P1280: the facade must not keep a second Vault mapping or a dead state branch');
+}
 // W02/P1143: portfolio hero/status read one valuation — locked/failed never show
 // $0, cash-only shows total=cash, partial withholds totals with n/m state.
 for (const marker of ['valuationState', 'cash-only', 'data-valuation-state']) {
@@ -424,7 +431,7 @@ if ((indexHtmlSource + workspaceSource).includes("document.getElementById('pf-ho
 // P1130/R619: the options renderer moved from index.html's inline block E into js/aio-ui.js, so the
 // fence is now consulted there. The marker's owner must move with it — an assertion pinned to the old
 // file would either fail loudly (as this one did) or, worse, keep passing against a stale copy.
-if (!dataSource.includes('function _aioIsNativeMacroElement') || !dataSource.includes('#page-options[data-aio-architecture-renderer="native"]') || !coreSource.includes('#page-options[data-aio-architecture-renderer="native"]') || !uiSource.includes('_aioIsNativeMacroElement(el)')) fail('legacy options native-element writer fence missing');
+if (!dataSource.includes('function _aioIsNativeMacroElement') || dataSource.includes('#page-options') || coreSource.includes('#page-options') || uiSource.includes('#page-options')) fail('P1321 retired options fence must not return; macro native-element fence must remain');
 // P835: portfolio position allocation chart lifecycle is native from normalized holding
 // values and drawPositionDonut remains a compatibility fallback behind the route marker.
 if (routeOwners.routes?.portfolio?.chartOwner !== 'native' || !portfolioPageSource.includes('renderPortfolioChart') || !portfolioPageSource.includes('aioPortfolioChartRenderer') || !pagesSource.includes('aio-portfolio-chart-renderer="native"')) fail('native portfolio chart ownership/fence missing');
@@ -494,11 +501,15 @@ if (routeOwners.routes?.themes?.dataOwner === 'native' && (!bootstrapSource.incl
 for (const marker of ['renderThemeCyclePill', 'theme-cycle-pill', 'aioThemeCycleRenderer']) {
   if (!themesPageSource.includes(marker)) fail(`native theme cycle marker missing: ${marker}`);
 }
-if (!pagesSource.includes('P801: the RRG-derived cycle pill is native; legacy sector prose must not overwrite it.') || !pagesSource.includes("pill.dataset.aioThemeCycleRenderer !== 'native'")) fail('theme cycle legacy writer fence missing');
+// P1267: the obsolete legacy cycle pill writer is retired; only native themes owns it.
+if (pagesSource.includes('P801: the RRG-derived cycle pill is native; legacy sector prose must not overwrite it.')
+  || pagesSource.includes("pill.dataset.aioThemeCycleRenderer !== 'native'")
+  || !themesPageSource.includes("pill.dataset.aioThemeCycleRenderer = 'native'")) fail('retired theme cycle writer returned or native owner missing');
 for (const marker of ['renderThemePerformanceNarrative', 'sector-perf-analysis', 'aioThemePerformanceRenderer']) {
   if (!themesPageSource.includes(marker)) fail(`native theme performance marker missing: ${marker}`);
 }
-if (!pagesSource.includes('P802: normalized themes owns the bounded sector-performance narrative.') || !pagesSource.includes("el.dataset.aioThemePerformanceRenderer === 'native'")) fail('theme performance legacy writer fence missing');
+if (!pagesSource.includes("el.dataset.aioThemePerformanceRenderer === 'native'")
+  || !pagesSource.includes('단일 등락률은 시장폭·사이클·자금 흐름을 입증하지 않습니다.')) fail('theme performance legacy writer fence or bounded-copy contract missing');
 for (const marker of ['renderThemePerformanceBars', 'sector-perf-bars', 'aioThemePerformanceBarsRenderer', 'weeklyPct']) {
   if (!themesPageSource.includes(marker) && marker !== 'sector-perf-bars' && marker !== 'weeklyPct') fail(`native theme performance-bars marker missing: ${marker}`);
 }

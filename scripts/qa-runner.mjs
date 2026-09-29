@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync, renameSync, unlinkSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { createReadStream, createWriteStream, existsSync, mkdirSync, readFileSync, writeFileSync, renameSync, unlinkSync, rmSync } from 'node:fs';
+import { Transform } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
+import { StringDecoder } from 'node:string_decoder';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
@@ -143,6 +146,7 @@ const sessionId = String(sessionName || 'current').replace(/[^A-Za-z0-9._-]/g, '
 const sessionPath = join(sessionDir, `${sessionId}.json`);
 const runId = `${new Date().toISOString().replace(/[:.]/g, '-')}-${process.pid}-${Math.random().toString(36).slice(2, 8)}`;
 const runReportPath = join(runsDir, `${runId}.json`);
+const outputStagingDir = join(runsDir, '.failure-output-staging', runId);
 
 if (profile === 'session-start') {
   const baseline = Object.fromEntries(allFiles.map((file) => [file, fileDigest(file)]));
@@ -405,6 +409,176 @@ function gateFingerprint(gate) {
 }
 
 const outputLimit = 200_000;
+const maxFailureConsoleChars = 12_000;
+const maxProgressConsoleCharsPerGate = 8_000;
+const maxProgressConsoleCharsPerRun = 32_000;
+const maxProgressLineChars = 1_500;
+const maxProgressBufferChars = 16_384;
+const REDACTED_OUTPUT = '[REDACTED]';
+// CI uploads failed-gate sidecars as public run artifacts; mask configured credentials before they are retained.
+const secretEnvName = /(?:^|_)(?:KEY|TOKEN|SECRET|PASSWORD|CREDENTIALS?)(?:_|$)/i;
+const knownSecretEnvNames = new Set([
+  'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_SESSION_TOKEN', 'AZURE_CLIENT_SECRET',
+  'AZURE_CLIENT_CERTIFICATE_PASSWORD', 'GOOGLE_APPLICATION_CREDENTIALS', 'GOOGLE_CLOUD_KEYFILE_JSON',
+  'DOCKER_AUTH_CONFIG', 'NPM_TOKEN', 'NODE_AUTH_TOKEN', 'SENTRY_AUTH_TOKEN', 'PULUMI_ACCESS_TOKEN',
+  'GITHUB_TOKEN', 'GH_TOKEN', 'VERCEL_TOKEN', 'NETLIFY_AUTH_TOKEN', 'CLOUDFLARE_API_TOKEN', 'CF_API_TOKEN'
+]);
+let progressConsoleChars = 0;
+
+function collectSecretValues(env) {
+  const values = new Set();
+  for (const [name, rawValue] of Object.entries(env || {})) {
+    if (!secretEnvName.test(name) && !knownSecretEnvNames.has(name.toUpperCase())) continue;
+    if (rawValue == null) continue;
+    const value = String(rawValue);
+    for (const candidate of new Set([value, value.trim()])) {
+      if (candidate && !/^(?:true|false|yes|no|on|off|0|1)$/i.test(candidate)) values.add(candidate);
+    }
+  }
+  return [...values].sort((a, b) => b.length - a.length || a.localeCompare(b));
+}
+
+function secretPattern(secrets) {
+  if (!secrets.length) return null;
+  const escaped = secrets.map((value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  return new RegExp(escaped.join('|'), 'g');
+}
+
+function redactText(value, secrets) {
+  const pattern = secretPattern(secrets);
+  return pattern ? String(value).replace(pattern, REDACTED_OUTPUT) : String(value);
+}
+
+function redactStablePrefix(input, safeEnd, pattern) {
+  let output = '';
+  let cursor = 0;
+  let processedEnd = safeEnd;
+  for (const match of input.matchAll(pattern)) {
+    const start = match.index ?? 0;
+    if (start >= safeEnd) break;
+    const end = start + match[0].length;
+    if (end > safeEnd) {
+      processedEnd = start;
+      break;
+    }
+    output += input.slice(cursor, start) + REDACTED_OUTPUT;
+    cursor = end;
+  }
+  output += input.slice(cursor, processedEnd);
+  return { output, processedEnd };
+}
+
+function createSecretRedactionTransform(secrets) {
+  const pattern = secretPattern(secrets);
+  if (!pattern) return new Transform({ transform(chunk, encoding, callback) { callback(null, chunk); } });
+  const maxSecretLength = Math.max(...secrets.map((value) => value.length));
+  const decoder = new StringDecoder('utf8');
+  let carry = '';
+  return new Transform({
+    transform(chunk, encoding, callback) {
+      const input = carry + decoder.write(chunk);
+      const safeEnd = Math.max(0, input.length - maxSecretLength + 1);
+      const stable = redactStablePrefix(input, safeEnd, pattern);
+      carry = input.slice(stable.processedEnd);
+      callback(null, stable.output);
+    },
+    flush(callback) {
+      callback(null, redactText(carry + decoder.end(), secrets));
+    }
+  });
+}
+
+function safeUnlink(path) {
+  try { unlinkSync(path); } catch (error) { if (error.code !== 'ENOENT') throw error; }
+}
+
+function gateFileStem(id) {
+  const label = String(id).replace(/[^A-Za-z0-9._-]/g, '-').slice(0, 72) || 'gate';
+  return `${label}-${createHash('sha256').update(String(id)).digest('hex').slice(0, 10)}`;
+}
+
+function endSpool(stream) {
+  if (!stream || stream.destroyed || stream.closed || stream.writableFinished) return Promise.resolve();
+  return new Promise((resolveFinished) => {
+    let settled = false;
+    const done = () => {
+      if (settled) return;
+      settled = true;
+      resolveFinished();
+    };
+    stream.once('finish', done);
+    stream.once('close', done);
+    stream.once('error', done);
+    stream.end();
+  });
+}
+
+async function persistFailureOutput(rawPaths, outputPaths, secrets) {
+  let completed = false;
+  try {
+    mkdirSync(dirname(outputPaths.stdout), { recursive: true });
+    await Promise.all([
+      pipeline(createReadStream(rawPaths.stdout), createSecretRedactionTransform(secrets), createWriteStream(outputPaths.stdout, { flags: 'wx', mode: 0o600 })),
+      pipeline(createReadStream(rawPaths.stderr), createSecretRedactionTransform(secrets), createWriteStream(outputPaths.stderr, { flags: 'wx', mode: 0o600 }))
+    ]);
+    completed = true;
+    return outputPaths;
+  } finally {
+    for (const path of Object.values(rawPaths)) {
+      try { safeUnlink(path); } catch { /* do not retain or print raw gate output after a failed redaction */ }
+    }
+    if (!completed) {
+      for (const path of Object.values(outputPaths)) {
+        try { safeUnlink(path); } catch { /* best-effort cleanup of partial redacted files */ }
+      }
+    }
+  }
+}
+
+function writeGateSpool(path, failures) {
+  try {
+    const stream = createWriteStream(path, { flags: 'wx', mode: 0o600 });
+    stream.on('error', (error) => failures.push(error));
+    return stream;
+  } catch (error) {
+    failures.push(error);
+    return null;
+  }
+}
+
+function writeGateOutput(spool, source, chunk, failures) {
+  if (!spool || spool.destroyed) return;
+  let accepted;
+  try { accepted = spool.write(chunk); }
+  catch (error) { failures.push(error); source.resume(); return; }
+  if (!accepted && !spool.destroyed) {
+    source.pause();
+    const resume = () => source.resume();
+    spool.once('drain', resume);
+    spool.once('error', resume);
+  }
+}
+
+function logProgressLine(line, secrets, state) {
+  if (!line.includes('[qa-progress]')) return;
+  const safeLine = redactText(line.trim(), secrets);
+  const prefix = '[qa] ';
+  const available = Math.min(
+    maxProgressConsoleCharsPerGate - state.loggedChars,
+    maxProgressConsoleCharsPerRun - progressConsoleChars
+  );
+  if (available <= prefix.length) return;
+  const bodyLimit = Math.min(maxProgressLineChars, available - prefix.length);
+  const body = safeLine.length > bodyLimit
+    ? `${safeLine.slice(0, Math.max(0, bodyLimit - 14))}...[truncated]`
+    : safeLine;
+  if (!body) return;
+  console.log(`${prefix}${body}`);
+  const logged = prefix.length + body.length;
+  state.loggedChars += logged;
+  progressConsoleChars += logged;
+}
+
 function terminateChildTree(child) {
   if (!child?.pid) return;
   if (process.platform === 'win32') {
@@ -433,61 +607,122 @@ function runGate(gate) {
 
     const args = [gate.script, ...(gate.args || []).map((value) => String(value).replaceAll('{cacheDir}', cacheDir))];
     const started = Date.now();
+    const childEnv = { ...process.env, ...(gate.env || {}) };
+    const secrets = collectSecretValues(childEnv);
+    const fileStem = gateFileStem(gate.id);
+    const rawPaths = {
+      stdout: join(outputStagingDir, `${fileStem}.stdout.raw`),
+      stderr: join(outputStagingDir, `${fileStem}.stderr.raw`)
+    };
+    const outputDir = join(runsDir, runId, 'failure-output');
+    const outputPaths = {
+      stdout: join(outputDir, `${fileStem}.stdout.txt`),
+      stderr: join(outputDir, `${fileStem}.stderr.txt`)
+    };
+    const spoolFailures = [];
+    let stdoutSpool = null;
+    let stderrSpool = null;
+    try {
+      mkdirSync(outputStagingDir, { recursive: true });
+      stdoutSpool = writeGateSpool(rawPaths.stdout, spoolFailures);
+      stderrSpool = writeGateSpool(rawPaths.stderr, spoolFailures);
+    } catch (error) {
+      spoolFailures.push(error);
+    }
     console.log(`[qa] RUN ${gate.id}`);
     const child = spawn(process.execPath, args, {
       cwd: root,
-      env: { ...process.env, ...(gate.env || {}) },
+      env: childEnv,
       windowsHide: true,
       stdio: ['ignore', 'pipe', 'pipe']
     });
     let stdout = '';
     let stderr = '';
     const append = (current, chunk) => (current + chunk).slice(-outputLimit);
+    const progressState = { loggedChars: 0 };
+    let progressBuffer = '';
     child.stdout.on('data', (chunk) => {
       stdout = append(stdout, chunk);
-      for (const line of String(chunk).split(/\r?\n/).filter((value) => value.includes('[qa-progress]'))) console.log(`[qa] ${line.trim()}`);
+      writeGateOutput(stdoutSpool, child.stdout, chunk, spoolFailures);
+      const lines = `${progressBuffer}${chunk.toString('utf8')}`.split(/\r?\n/);
+      progressBuffer = lines.pop() || '';
+      for (const line of lines) logProgressLine(line, secrets, progressState);
+      if (progressBuffer.length > maxProgressBufferChars) progressBuffer = progressBuffer.slice(-maxProgressBufferChars);
     });
-    child.stderr.on('data', (chunk) => { stderr = append(stderr, chunk); });
+    child.stderr.on('data', (chunk) => {
+      stderr = append(stderr, chunk);
+      writeGateOutput(stderrSpool, child.stderr, chunk, spoolFailures);
+    });
     let timedOut = false;
     const timeout = setTimeout(() => {
       timedOut = true;
       terminateChildTree(child);
     }, Number(gate.timeoutMs || 120_000));
-    child.on('error', (error) => { stderr = append(stderr, error.stack || error.message); });
+    child.on('error', (error) => {
+      const detail = error.stack || error.message;
+      stderr = append(stderr, detail);
+      try { stderrSpool?.write(detail); } catch (spoolError) { spoolFailures.push(spoolError); }
+    });
     child.on('close', (code, signal) => {
       clearTimeout(timeout);
-      const durationMs = Date.now() - started;
-      const status = code === 0 && !timedOut ? 'PASS' : 'FAIL';
-      const result = {
-        id: gate.id,
-        group: gate.group,
-        phase: gate.phase,
-        kind: gate.kind,
-        status,
-        durationMs,
-        fingerprint,
-        exitCode: code,
-        signal,
-        timedOut,
-        output: stdout.trim(),
-        error: stderr.trim()
-      };
-      if (status === 'PASS') {
-        successCache.gates[gate.id] = { fingerprint, passedAt: new Date().toISOString(), durationMs };
-        // P1265/E2-C6 P0: merge-on-write + atomic replace — a concurrent runner's
-        // entries are kept instead of being lost to a whole-file rewrite.
-        const fresh = readJson(cachePath, null);
-        if (fresh && fresh.gates) successCache.gates = { ...fresh.gates, ...successCache.gates };
-        successCache.schemaVersion = manifest.schemaVersion;
-        successCache.cacheVersion = manifest.cacheVersion;
-        writeJsonAtomic(cachePath, successCache);
-        console.log(`[qa] PASS ${gate.id} (${durationMs}ms)`);
-      } else {
-        console.error(`[qa] FAIL ${gate.id} (${durationMs}ms${timedOut ? ', timeout' : ''})`);
-        const detail = [stderr, stdout].filter(Boolean).join('\n').split(/\r?\n/).slice(-30).join('\n');
-        if (detail) console.error(detail);
-      }
-      resolveResult(result);
+      void (async () => {
+        await Promise.all([endSpool(stdoutSpool), endSpool(stderrSpool)]);
+        const durationMs = Date.now() - started;
+        const status = code === 0 && !timedOut ? 'PASS' : 'FAIL';
+        let failureOutput = null;
+        let failureOutputError = spoolFailures[0] || null;
+        if (status === 'FAIL' && !failureOutputError && stdoutSpool && stderrSpool) {
+          try {
+            failureOutput = await persistFailureOutput(rawPaths, outputPaths, secrets);
+          } catch (error) {
+            failureOutputError = error;
+          }
+        } else {
+          for (const path of Object.values(rawPaths)) {
+            try { safeUnlink(path); } catch (error) { failureOutputError ||= error; }
+          }
+        }
+
+        const result = {
+          id: gate.id,
+          group: gate.group,
+          phase: gate.phase,
+          kind: gate.kind,
+          status,
+          durationMs,
+          fingerprint,
+          exitCode: code,
+          signal,
+          timedOut,
+          output: redactText(stdout, secrets).trim(),
+          error: redactText(stderr, secrets).trim(),
+          ...(failureOutput ? { failureOutput } : {}),
+          ...(failureOutputError && status === 'FAIL' ? { failureOutputError: failureOutputError.code || 'capture-failed' } : {})
+        };
+        if (status === 'PASS') {
+          successCache.gates[gate.id] = { fingerprint, passedAt: new Date().toISOString(), durationMs };
+          // P1265/E2-C6 P0: merge-on-write + atomic replace — a concurrent runner's
+          // entries are kept instead of being lost to a whole-file rewrite.
+          const fresh = readJson(cachePath, null);
+          if (fresh && fresh.gates) successCache.gates = { ...fresh.gates, ...successCache.gates };
+          successCache.schemaVersion = manifest.schemaVersion;
+          successCache.cacheVersion = manifest.cacheVersion;
+          writeJsonAtomic(cachePath, successCache);
+          console.log(`[qa] PASS ${gate.id} (${durationMs}ms)`);
+        } else {
+          console.error(`[qa] FAIL ${gate.id} (${durationMs}ms${timedOut ? ', timeout' : ''})`);
+          const capturedDetail = [stderr, stdout].filter(Boolean).join('\n').split(/\r?\n/).slice(-30).join('\n');
+          const detail = redactText(capturedDetail, secrets);
+          const truncation = '\n...[console detail truncated; full redacted output is in the run artifact]';
+          const boundedDetail = detail.length > maxFailureConsoleChars
+            ? `${detail.slice(-(maxFailureConsoleChars - truncation.length))}${truncation}`
+            : detail;
+          if (boundedDetail) console.error(boundedDetail);
+          if (failureOutput) console.error(`[qa] FAILURE-OUTPUT ${failureOutput.stdout} ${failureOutput.stderr}`);
+          if (failureOutputError) console.error(`[qa] WARN could not retain redacted failure output for ${gate.id} (${failureOutputError.code || 'capture-failed'})`);
+        }
+        resolveResult(result);
+      })();
     });
   });
 }
@@ -532,6 +767,9 @@ for (const phase of phases) {
   results.push(...phaseResults);
   blockedBy = phaseResults.filter((result) => result.status === 'FAIL').map((result) => result.id);
 }
+
+try { rmSync(outputStagingDir, { recursive: true, force: true }); }
+catch (error) { console.error(`[qa] WARN could not clean failure-output staging (${error.code || 'cleanup-failed'})`); }
 
 const counts = results.reduce((acc, result) => ({ ...acc, [result.status]: (acc[result.status] || 0) + 1 }), {});
 const report = {

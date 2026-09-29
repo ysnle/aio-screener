@@ -2,6 +2,7 @@ import { computeMarketHealth } from '../domain/market/health.js';
 import { normalizeAllowedUse } from '../data/contracts/evidence.js';
 import { normalizeSignalScoreMode } from '../domain/signal/mode.js';
 import { SCREENER_ROW_INTENT, resolveScreenerRows } from '../data/screener-row-policy.js';
+import { createRuntimeReaders } from '../data/runtime-readers.js';
 
 function finite(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
@@ -246,52 +247,14 @@ function readEntity(root) {
   });
 }
 
+// E0/P1280 (P-A): the facade's second Vault mapping is retired. It dropped
+// targetWeight, the declared quote/cost currencies, cash/base currency, ledger,
+// FX legs and the locked/failed read states, so every consumer behind this
+// surface could see a different portfolio than the native one. One reader owns
+// the mapping (`createRuntimeReaders().readPortfolio`) and the shadow-diff gate
+// in ci-esm-core-unit-check keeps the two surfaces byte-identical by construction.
 function readPortfolio(root) {
-  try {
-    if (typeof root?.getPortfolioState === 'function') return clone(root.getPortfolioState()) || {};
-  } catch (_) {}
-  const existing = root?._portfolioState || root?._portfolioData;
-  if (existing && (Array.isArray(existing.holdings) || existing.totals)) return clone(existing) || {};
-  try {
-    const positions = typeof root?.getPortfolioData === 'function' ? root.getPortfolioData() : [];
-    const liveData = root?._liveData || {};
-    const holdings = Array.isArray(positions) ? positions.map((position) => {
-      const symbol = String(position?.ticker || position?.symbol || position?.sym || '').toUpperCase();
-      const shares = Number(position?.qty ?? position?.shares);
-      const avgCost = Number(position?.cost ?? position?.avgCost);
-      const live = liveData[symbol] || {};
-      const price = Number(live.price ?? live.regularMarketPrice);
-      const dailyPct = Number(live.pct ?? live.regularMarketChangePercent);
-      const validShares = Number.isFinite(shares) ? shares : null;
-      const validAvgCost = Number.isFinite(avgCost) ? avgCost : null;
-      const validPrice = Number.isFinite(price) && price > 0 ? price : null;
-      return {
-        symbol,
-        shares: validShares,
-        avgCost: validAvgCost,
-        price: validPrice,
-        value: validPrice != null && validShares != null ? validPrice * validShares : null,
-        dailyPct: Number.isFinite(dailyPct) ? dailyPct : null,
-        sector: position?.sector ? String(position.sector) : null,
-        target: Number(position?.target) > 0 ? Number(position.target) : null,
-        memo: position?.memo ? String(position.memo) : '',
-        addedAt: position?.addedAt || null,
-        updatedAt: position?.updatedAt || null,
-        source: validPrice != null ? 'legacy-vault+live-quote' : 'legacy-vault'
-      };
-    }).filter((holding) => holding.symbol) : [];
-    const totalValue = holdings.reduce((sum, holding) => sum + (Number.isFinite(holding.value) ? holding.value : 0), 0);
-    const totalCost = holdings.reduce((sum, holding) => sum + (Number.isFinite(holding.shares) && Number.isFinite(holding.avgCost) ? holding.shares * holding.avgCost : 0), 0);
-    let cash = null;
-    try {
-      const storedCash = Number(root?.localStorage?.getItem?.('aio_portfolio_cash'));
-      cash = Number.isFinite(storedCash) && storedCash >= 0 ? storedCash : null;
-    } catch (_) {}
-    const dailyChange = holdings.reduce((sum, holding) => sum + (Number.isFinite(holding.value) && Number.isFinite(holding.dailyPct) ? holding.value * holding.dailyPct / 100 : 0), 0);
-    return { holdings, cash, totals: { totalValue: totalValue || null, totalAssets: totalValue + (cash || 0) || null, totalCost: totalCost || null, totalPnl: totalValue && totalCost ? totalValue - totalCost : null, dailyChange: dailyChange || null }, privacy: 'opt-in', status: holdings.length ? 'current' : 'empty', updatedAt: new Date().toISOString() };
-  } catch (_) {
-    return { holdings: [], privacy: 'opt-in', status: 'unavailable' };
-  }
+  return createRuntimeReaders({ root }).readPortfolio();
 }
 
 function runtimeEvidenceStatus(status, value) {
@@ -443,11 +406,42 @@ export function createLegacyFacade(root = globalThis, eventTarget = root?.docume
     }
     originalShowPage = candidate;
     const facade = function architectureShowPage(pageId, ...args) {
+      // E0/P1279: capture the last committed route BEFORE the legacy side effects run.
+      const previousRoute = router?.active?.() || null;
       const result = originalShowPage.apply(this, [pageId, ...args]);
       // W00-A: the typed command owns identity — DOM args never become entity ids.
       const canonicalRoute = root?.AIO_ROUTE_REGISTRY?.canonical?.[pageId] || pageId;
       const explicitEntity = args.find((arg) => typeof arg === 'string' && arg.trim() && !/^[<>]/.test(arg.trim())) || null;
-      router?.transition?.(canonicalRoute, { source: 'architecture-navigation', entityId: explicitEntity });
+      try {
+        router?.transition?.(canonicalRoute, { source: 'architecture-navigation', entityId: explicitEntity });
+      } catch (transitionError) {
+        // E0/P1279: the legacy shell has already painted the new page when the router
+        // mount throws, and the router resets its active state on that throw. Leaving
+        // it that way showed users a page whose router never committed. Roll the shell
+        // and the commit back through the same typed boundary and report the failure as
+        // observation — a failed navigation must be visible, never a split surface.
+        let rolledBack = false;
+        try {
+          if (previousRoute) {
+            originalShowPage.call(this, previousRoute);
+            router?.transition?.(previousRoute, { source: 'navigation-rollback' });
+            rolledBack = router?.active?.() === previousRoute;
+          }
+        } catch (_) {
+          rolledBack = false;
+        }
+        const EventConstructor = globalThis.CustomEvent;
+        if (typeof EventConstructor === 'function' && typeof eventTarget?.dispatchEvent === 'function') {
+          eventTarget.dispatchEvent(new EventConstructor('aio:navigationFailed', {
+            detail: {
+              routeId: canonicalRoute,
+              rolledBack,
+              message: String(transitionError?.message || transitionError)
+            }
+          }));
+        }
+        return false;
+      }
       return result;
     };
     Object.defineProperty(facade, '__aioArchitectureNavigation', { value: true, enumerable: false });
@@ -573,6 +567,7 @@ export function exposeArchitecture(root, api, { immutableState = false } = {}) {
       deriveMultiTimeframeView: api.deriveMultiTimeframeView,
       computeNewsSentimentScore: api.computeNewsSentimentScore,
       computeNewsRiskSignals: api.computeNewsRiskSignals,
+      MIN_NEWS_ANALYSIS_SAMPLE: api.MIN_NEWS_ANALYSIS_SAMPLE,
       classifyBreadthParticipation: api.classifyBreadthParticipation,
       deriveTreasuryCurveEvidence: api.deriveTreasuryCurveEvidence,
       deriveConcentrationRisk: api.deriveConcentrationRisk,

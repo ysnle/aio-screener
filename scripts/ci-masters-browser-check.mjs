@@ -63,7 +63,7 @@ try {
     overflow: document.documentElement.scrollWidth > window.innerWidth + 2
   }));
   const coverageOk = overview.dataState === 'partial' && overview.coverageState === 'partial' && overview.currentFull === '35' && overview.staleFull === '2' && overview.previewOnly === '0' && overview.metadataOnly === '0' && overview.methodOnly === '1' && overview.officialPrinciples === '2' && overview.verifiedSecurityRecords === '0' && overview.latestPeriodMissing === '2';
-  const coverageTextOk = overview.coverageText.includes('현재 분류 38개: 최신 전체 행 35 · 지연 전체 행 2 · 원문 미리보기만 0 · 메타데이터만 0 · 방법론 전용 1') && overview.coverageText.includes('2026-06-30 기준 13F 신고주체 37개 중 2개는 최신분기 전체 행이 연결되지 않았습니다') && overview.coverageText.includes('SEC 온라인 현재성 발견 37/37 · 차단/미완료 0') && overview.coverageText.includes('브라우저 전체 행 원장 무결성 검증 완료') && overview.coverageText.includes('공식 투자 원칙 원고 2/38 · 검증 issuer·ticker·sector master 0개') && overview.coverageText.includes('12분기 심화 이력은 우선순위 7/37개') && overview.coverageText.includes('repository 변수 설정 존재 여부와 같은 뜻이 아닙니다');
+  const coverageTextOk = overview.coverageText.includes('현재 분류 38개: 최신 전체 행 35 · 지연 전체 행 2 · 원문 미리보기만 0 · 메타데이터만 0 · 방법론 전용 1') && overview.coverageText.includes('2026-06-30 기준 13F 신고주체 37개 중 2개는 최신분기 전체 행이 연결되지 않았습니다') && overview.coverageText.includes('SEC 발견 artifact 기준일') && overview.coverageText.includes('제출주체 37/37 · 차단/미완료 0') && overview.coverageText.includes('브라우저 전체 행 원장 무결성 검증 완료') && overview.coverageText.includes('공식 투자 원칙 원고 2/38 · 검증 issuer·ticker·sector master 0개') && overview.coverageText.includes('12분기 심화 이력은 우선순위 7/37개') && overview.coverageText.includes('repository 변수 설정 존재 여부와 같은 뜻이 아닙니다');
   if (!overview.active || overview.profiles !== 38 || overview.filingArtifacts !== 1 || overview.topRows !== 10 || overview.comparisonRows !== 10 || overview.fullRows !== '0' || !coverageOk || !coverageTextOk || !overview.changeSummary.includes('2026-03-31') || !overview.text.includes('0001067983') || overview.nestedManagerLinks !== 0 || overview.explorationPanel !== 1 || !overview.blindSpotBoundary.includes('공매도') || overview.nanCells !== 0 || overview.overflow || await page.locator('#page-masters .masters-exploration-copy', { hasText: 'Top 보유 요약' }).count() !== 1) throw new Error(`overview/deferred-row/coverage contract failed: ${JSON.stringify(overview)}`);
 
   const managerSearch = page.locator('#page-masters .masters-search-input');
@@ -127,8 +127,38 @@ try {
   await page.locator('#page-masters [data-masters-action="toggle-compare"]').click();
   await page.locator('#page-masters [data-masters-action="view"][data-masters-value="compare"]').click();
   if (!(await page.locator('#page-masters .masters-compare-view').textContent()).includes('2~4명') || await page.locator('#page-masters .masters-compare-view .masters-metric').count() < 2) throw new Error('2~4 manager comparison surface missing');
+  // ---- P1325 block: manager cards first + reverse lookup never ends in an endless loading state ----
+  const contentOrder = await page.evaluate(() => [...document.querySelector('#page-masters [data-masters-content]').children].map((node) => node.className.split(' ')[0]));
+  if (contentOrder.indexOf('masters-layout') < 0 || contentOrder.indexOf('masters-layout') > contentOrder.indexOf('masters-ticker-lookup') || contentOrder.indexOf('masters-layout') > contentOrder.indexOf('masters-catalog-coverage') || contentOrder.indexOf('masters-toolbar') > contentOrder.indexOf('masters-layout')) throw new Error(`P1325 masters order drifted: ${contentOrder.join(',')}`);
+  const lookupStates = {};
+  for (const [symbol, expect] of [['NVDA', 'holder'], ['AAPL', 'holder'], ['ZZZZ', 'none']]) {
+    const lookupInput = page.locator('#page-masters .masters-ticker-lookup-input');
+    await lookupInput.fill(symbol);
+    await page.waitForFunction((want) => {
+      const box = document.querySelector('#page-masters .masters-ticker-lookup-results');
+      if (!box || /불러오는 중/.test(box.textContent)) return false;
+      return want === 'holder' ? !!box.querySelector('.masters-ticker-lookup-card') : /일치 항목을 찾지 못했습니다/.test(box.textContent);
+    }, expect, { timeout: 5000 });
+    lookupStates[symbol] = expect;
+  }
+  const failPage = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+  try {
+    await failPage.route('**/*', (route) => { const url = route.request().url(); return url.startsWith(`http://127.0.0.1:${port}/`) && !url.includes('ticker-index-reference') ? route.continue() : route.abort(); });
+    await failPage.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await failPage.waitForFunction(() => typeof window.AIO_ARCH === 'object' && typeof window.AIO_ARCH.navigate === 'function', { timeout: 30000 });
+    const failDisclaimer = failPage.locator('#aio-first-visit-disclaimer button');
+    if (await failDisclaimer.count()) await failDisclaimer.click();
+    await failPage.evaluate(() => window.AIO_ARCH.navigate('masters'));
+    // P1330: the ledger loads on first focus, not at mount.
+    await failPage.locator('#page-masters [data-masters-action="ticker-search"]').first().focus();
+    await failPage.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersTickerIndex === 'fallback', { timeout: 12000 });
+    const failText = await failPage.locator('#page-masters .masters-ticker-lookup-results').textContent();
+    if (/불러오는 중/.test(failText) || !failText.includes('불러오지 못했습니다') || await failPage.locator('#page-masters .masters-ticker-lookup-retry').count() !== 1) throw new Error('P1325 failed ticker ledger did not end in an explicit retryable error state');
+  } finally {
+    await failPage.close();
+  }
   if (errors.length) throw new Error(`browser errors: ${errors.join(' | ')}`);
-  console.log(JSON.stringify({ ok: true, route: 'masters', profiles: overview.profiles, dataState: overview.dataState, coverage: { currentFull: Number(overview.currentFull), staleFull: Number(overview.staleFull), previewOnly: Number(overview.previewOnly), metadataOnly: Number(overview.metadataOnly), methodOnly: Number(overview.methodOnly), latestPeriodMissing: Number(overview.latestPeriodMissing), officialPrinciples: Number(overview.officialPrinciples), verifiedSecurityRecords: Number(overview.verifiedSecurityRecords) }, verifiedMetadata: 37, reconciledManagers: 37, rowPreviewManagers: 0, previewRows: 0, fullRows: overview.fullRows, defaultTopRows: overview.topRows, defaultComparisonRows: overview.comparisonRows, selectedManagers: ['fisher-asset-management', 'duquesne-family-office', 'appaloosa-management', 'scion-asset-management', 'mark-minervini'], errors }));
+  console.log(JSON.stringify({ ok: true, route: 'masters', lookupStates, profiles: overview.profiles, dataState: overview.dataState, coverage: { currentFull: Number(overview.currentFull), staleFull: Number(overview.staleFull), previewOnly: Number(overview.previewOnly), metadataOnly: Number(overview.metadataOnly), methodOnly: Number(overview.methodOnly), latestPeriodMissing: Number(overview.latestPeriodMissing), officialPrinciples: Number(overview.officialPrinciples), verifiedSecurityRecords: Number(overview.verifiedSecurityRecords) }, verifiedMetadata: 37, reconciledManagers: 37, rowPreviewManagers: 0, previewRows: 0, fullRows: overview.fullRows, defaultTopRows: overview.topRows, defaultComparisonRows: overview.comparisonRows, selectedManagers: ['fisher-asset-management', 'duquesne-family-office', 'appaloosa-management', 'scion-asset-management', 'mark-minervini'], errors }));
 } catch (error) {
   console.error(JSON.stringify({ ok: false, errors: [...errors, String(error?.stack || error)] }));
   process.exitCode = 1;

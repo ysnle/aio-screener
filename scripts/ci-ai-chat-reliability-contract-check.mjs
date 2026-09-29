@@ -10,7 +10,7 @@ const json = file => JSON.parse(read(file));
 const errors = [];
 const check = (label, condition) => { if (!condition) errors.push(label); };
 
-const core = read('js/aio-core.js');
+const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
 const chat = read('js/aio-chat.js');
 const data = read('js/aio-data.js');
 const html = read('index.html');

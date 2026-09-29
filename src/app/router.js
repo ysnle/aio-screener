@@ -93,7 +93,7 @@ export function createLazyPage({ route, loader, factory, errorMessage } = {}) {
   });
 }
 
-const ENTITY_ROUTES = new Set(['ticker', 'fundamental', 'options']);
+const ENTITY_ROUTES = new Set(['ticker', 'fundamental']);
 
 function normalizeEntityId(candidate) {
   if (candidate == null) return null;
@@ -176,6 +176,9 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
   // compatibility facade is installed it emits the typed command; the raw
   // aio:pageShown event is then observation-only and must not replay a mount.
   let navigationAuthority = 'event';
+  // E0/P1278: the committed view state belongs to the transition, not to any page
+  // private. It moves on every commit that carries one and resets on a real transition.
+  let activeViewState = null;
 
   function disposeActive() {
     const dispose = activeDispose;
@@ -209,6 +212,25 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
     return pageNode;
   }
 
+  // W00/P1143: publish the committed result so shell observers (store route,
+  // timeline) follow the single commit instead of re-driving navigation.
+  function publishNavigationCommit({ routeId, entityId, mountId, command, directEntry, recommit }) {
+    const EventConstructor = context.runtimeRoot?.CustomEvent || globalThis.CustomEvent;
+    if (typeof EventConstructor !== 'function') return;
+    root.dispatchEvent(new EventConstructor('aio:navigationCommitted', {
+      detail: {
+        routeId,
+        entityId,
+        mountId,
+        viewState: activeViewState,
+        source: command.source,
+        historyMode: command.historyMode,
+        directEntry: recommit ? false : directEntry === true,
+        recommit: recommit === true
+      }
+    }));
+  }
+
   function transition(route, detail = {}) {
     if (disposed) return false;
     // W00/P1143: one typed command owns identity. A scalar second argument is the
@@ -225,6 +247,20 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
       // Re-committing to the route we are already on is still a commit: if the node that carries
       // the marker was replaced, this is the only place that can restore it.
       assertSliceMarker(normalizedRoute);
+      // E0/P1278: a re-commit that carries a NEW view state is a commit for the view identity —
+      // the mount survives, but the committed view state moves and every observer must see it.
+      // Silently dropping the payload here is what left same-route view changes (tab, filter,
+      // anchor intent) invisible to the store and to any consumer of the commit result.
+      if (command.viewState && command.viewState !== activeViewState) {
+        activeViewState = command.viewState;
+        publishNavigationCommit({
+          routeId: normalizedRoute,
+          entityId: nextEntityId,
+          mountId: activeScope?.mountId ?? null,
+          command,
+          recommit: true
+        });
+      }
       return true;
     }
     disposeActive();
@@ -238,6 +274,9 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
     });
     activeScope = scope;
     activeRoute = normalizedRoute;
+    // E0/P1278: a real transition replaces the committed view state — a view state
+    // from the previous route must never follow the new route around.
+    activeViewState = command.viewState;
     // The marker is asserted AFTER the mount, not before it. Written first, it was torn down by a
     // re-transition that disposed this scope while the replacement mount could no longer find the
     // page element — leaving the whole document unmarked (`probeMarked: []`) even though the route
@@ -251,6 +290,7 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
       scope.dispose();
       activeScope = null;
       activeRoute = null;
+      activeViewState = null;
       throw error;
     }
     const pageNode = assertSliceMarker(normalizedRoute);
@@ -263,21 +303,15 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
       const unsubscribe = context.store?.subscribe?.(updateSliceState);
       if (unsubscribe) scope.add(unsubscribe);
     }
-    // W00/P1143: publish the committed result so shell observers (store route,
-    // timeline) follow the single commit instead of re-driving navigation.
-    const EventConstructor = context.runtimeRoot?.CustomEvent || globalThis.CustomEvent;
-    if (typeof EventConstructor === 'function') {
-      root.dispatchEvent(new EventConstructor('aio:navigationCommitted', {
-        detail: {
-          routeId: normalizedRoute,
-          entityId: nextEntityId,
-          mountId: scope.mountId,
-          source: command.source,
-          historyMode: command.historyMode,
-          directEntry: detailObject?.directEntry === true
-        }
-      }));
-    }
+    // W00/P1143: publish the committed result so shell observers follow the single
+    // commit instead of re-driving navigation.
+    publishNavigationCommit({
+      routeId: normalizedRoute,
+      entityId: nextEntityId,
+      mountId: scope.mountId,
+      command,
+      directEntry: detailObject?.directEntry === true
+    });
     return true;
   }
 
@@ -304,7 +338,7 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
     root.addEventListener('aio:pageShown', onPageShown);
     rootBag.add(() => root.removeEventListener('aio:pageShown', onPageShown));
     started = true;
-    startedHandle = Object.freeze({ transition, active: () => activeRoute, activeScope: () => activeScope, dispose, claimNavigationAuthority, releaseNavigationAuthority });
+    startedHandle = Object.freeze({ transition, active: () => activeRoute, activeScope: () => activeScope, activeViewState: () => activeViewState, dispose, claimNavigationAuthority, releaseNavigationAuthority });
     return startedHandle;
   }
 
@@ -313,8 +347,9 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
     disposed = true;
     disposeActive();
     activeRoute = null;
+    activeViewState = null;
     rootBag.dispose();
   }
 
-  return Object.freeze({ start, transition, active: () => activeRoute, activeScope: () => activeScope, dispose, claimNavigationAuthority, releaseNavigationAuthority });
+  return Object.freeze({ start, transition, active: () => activeRoute, activeScope: () => activeScope, activeViewState: () => activeViewState, dispose, claimNavigationAuthority, releaseNavigationAuthority });
 }

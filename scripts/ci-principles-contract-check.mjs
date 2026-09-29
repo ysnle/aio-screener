@@ -56,7 +56,7 @@ for (const [label, source, marker] of [
 
 if (/^import\s+\{[^\n]*createPrinciplesPage[^\n]*from\s+['"]\.\.\/ui\/pages\/principles\.js['"]/m.test(bootstrap)) fail('principles page returned to the initial static module graph');
 
-if (!golden.routes.includes('principles') || golden.routes.length !== 20) fail('golden route does not contain the 20-route principles topology');
+if (!golden.routes.includes('principles') || golden.routes.length !== JSON.parse(read('architecture/route-owners.json')).counts.totalRoutes) fail('golden route does not contain principles or drifted from the route registry (P1321)');
 const narrativeChapters = narrative.parts?.flatMap((part) => part.chapters || []) || [];
 const expectedNarrativeOrder = ['money-is-choice', 'inflation-purchasing-power', 'interest-time-price', 'central-bank-transmission', 'bonds-dollar-trust', 'liquidity-asset-inflation', 'company-economic-machine', 'valuation-expectations', 'ai-physical-bottleneck', 'ai-capex-economics', 'market-expectations-prices', 'ownership-risk-process'];
 if (narrative.schemaVersion !== 'principles-narrative.v1' || narrative.parts?.length !== 6 || narrativeChapters.length !== 12 || narrativeChapters.map((chapter) => chapter.id).join(',') !== expectedNarrativeOrder.join(',')) fail('canonical money-to-market narrative order drifted');

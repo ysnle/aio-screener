@@ -1,3 +1,188 @@
+## v56.82 (2026-09-29)
+- **Self-audit code split out (P1329/R673/QA-OPS-QA-01):** ~4,200 lines of in-app audit/QA machinery moved from js/aio-core.js (28,034 → 23,800 lines) into js/aio-qa-audits.js, which users never download; tests, automation and the operator's detailed-audit mode load it on demand. Users also stop running a full surface audit every 30 minutes.
+- **Masters budget (P1330):** the ticker ledger loads on first focus/typing instead of at page open, keeping the initial Masters payload at 431 KB (budget 500 KB) without reintroducing an endless loading state.
+- **Tooltip targets (P1331):** "?" explanation buttons keep their 15 px look but have a 24 px hit area (WCAG 2.5.8); the accessibility matrix passes on all 19 routes.
+- **Route-count follow-up (P1332):** gates and artifacts that still counted 20 routes after the options retirement now agree on 19.
+- **Verification:** full static gate sweep, headless, architecture/outage/masters/viewport/atlas/chat/vault/principles/accessibility browser gates. Data-freshness gates (reconciliation 24h, AAII 12h, lineage) fail only because local public-data is from 9/26 — unrelated to code. No deploy.
+- R1 7곳 v56.82
+
+## v56.81 (2026-09-29)
+- **Mobile code removed (P1324/R669/QA-UX-08):** all phone/tablet CSS, the hidden mobile menu, keyboard/touch handlers and viewport-width branches are deleted (index.html −534 lines, ~29 KB); a gate keeps them from returning.
+- **Masters (P1325/QA-UX-06):** manager cards come first; the ticker reverse lookup can no longer hang on "불러오는 중" — it loads at mount, times out at 8 s into an explicit error with a retry button.
+- **Score on the previous US close (P1328/R670/QA-DATA-57):** the market-environment score no longer goes blank whenever the US market is closed. It is computed on the latest completed regular-session close (e.g. "9/28 미국 정규장 종가 기준"), stays a non-decision reference, uses one input path for every consumer, and no longer needs VVIX for the macro component.
+- **One status vocabulary (P1326/R671/QA-UX-07):** the header no longer claims "실시간/LIVE" for last night's closes. A single presenter shows 실시간 / 지연 / 종가 / 지난 시세 / 미수신 from the observation times and the US calendar; the duplicate home-header pill and five clock-based writers are gone.
+- **Korean themes (P1327/R672/QA-UX-09):** the Korean theme section is visible again (it had been hidden behind developer mode), a KRX stock's overview links to its Korean themes, all 28 themes have names from one owner, and equal splits read "동일가중" instead of "14.285714285714286%".
+- **Verification:** ESM unit, runtime/architecture/UX/desktop-scope/domain-parity/decision-evidence/masters/principles/operations contracts, headless, architecture/outage/masters/viewport/atlas/chat-layout/vault browser gates and local desktop Chromium. No commit or deploy.
+- R1 7곳 v56.81
+
+## v56.80 (2026-09-29)
+- **Home numbers first (P1322/R668/QA-UX-05):** the KPI strip and cross assets now lead the home page; the descriptive score follows and, when blocked, collapses to one line that names the real cause ("판정 보류 — 판단 등급 입력 없음") instead of an empty panel claiming inputs were not received. The date line no longer shows a never-cleared "상태 확인 중".
+- **Record system (P1323/R667/QA-OPS-REC-01):** unread, drifting ledger frontmatter removed in favour of the generated CURRENT-STATE, frontmatter lines capped at 400 chars, stale handoff/route-count/options/mobile wording corrected, and `scripts/record-fix.mjs` added so one JSON records P/R/QA/CHANGELOG/version note/execution status atomically (gate `ci-record-fix-check.mjs`).
+- **Verification:** ESM unit, runtime/architecture contract, headless 1163/1163, ledger, knowledge lint, workspace, skill, QA pipeline (146) and local desktop Chromium pass. No commit or deploy.
+- R1 version surfaces v56.80 (bump-version.mjs)
+
+## v56.79 (2026-09-29)
+- **Options route fully retired (P1321/R666/QA-ROUTE-19):** the options dashboard removed from navigation in v50.35 still shipped as a hidden page. Its shell, CSS, renderers, route ids, briefs, AI chat persona, native module, vertical slice and manifest rows are deleted; the registry now lists `options` under REMOVED and aliases `#options` to sentiment, where VIX/PCR/SKEW already live. 19 routes remain.
+- **Hardcoded route counts:** headless, runtime, architecture and ESM checks that pinned 20 routes, 13 slices or an options reference now pin the retired state (19 routes, 12 slices, REFERENCE empty).
+- **Verification:** ESM unit, runtime/architecture contract, route-registry check, decomposition ratchet (tightened), headless 1163/1163, architecture browser check, and a local Chromium check (`#options` → `#sentiment`, no `#page-options`) pass. Knowledge artifacts still name `options` until their producer regenerates them; the alias covers those links. No commit or deploy.
+- R1 7곳 v56.79
+
+## v56.78 (2026-09-28)
+- **KR tickers on the ticker route (P1317/R663/QA-UX-02):** 005930, 005930.KS and 삼성전자 resolve to one canonical symbol (`src/domain/entity/ticker-symbol.js`); the Korean name leads the hero, a missing selected-ticker quote is requested and re-rendered on arrival, KRW is formatted by venue (₩ / 원), the tab title follows the rendered ticker, and the KR chart notice no longer shows an internal ticket id.
+- **Screener size filter restored (P1318/R664/QA-DATA-56):** market-cap buckets returned 0 rows because only decision-grade live caps counted. A plausibility-checked reference cap (SEC shares × artifact close, 0.05%–20% daily turnover) now fills the size filter and column as "참고"; it never feeds factors. 436/873 rows covered locally; KR size remains unknown.
+- **Screener readability (P1319/QA-UX-03):** stale cells are muted and the table states the stale date once instead of repeating "YYYY-MM-DD · 참고" in every cell.
+- **Tooltips (P1320/R665/QA-UX-04):** "?" explanations open on hover, keyboard focus and click, close on Escape/outside click, and stay inside the viewport (`src/ui/components/term-tooltip.js`). Desktop-only scope (R474) unchanged.
+- **Verification:** ESM unit, runtime contract, decomposition ratchet, headless 1163/1163, architecture browser check and local Chromium checks (KR ticker, bucket counts, stale note, tooltip placement) pass. No commit or deploy; strict D0 release conditions unchanged.
+- R1 7곳 v56.78
+
+## v56.77 (2026-09-28)
+- **Full-audit user-visible fixes (P1315/R662/QA-UX-01):** Korean theme detail no longer throws for all 28 themes (optional `KR_THEME_INSIGHTS` guarded); macro KR index cards drop hardcoded KOSPI-green/KOSDAQ-red and follow the live previous-close delta; `.a11y-up/.a11y-dn` chips carry colour (rises and falls were the same grey); the #signal legend uses the canonical 심리(공포·탐욕·풋콜) component instead of 모멘텀(F&G·추세추종); Ctrl+K focuses the active page's real search input or opens the glossary, and shortcut 8 reads 테마·트렌드; the glossary states KOSPI sell tax as 0.05% + 0.15% rural special tax = 0.20% and dates Piotroski 2000 with the paper's 8~9/0~2 bins.
+- **Full personal-data backup (P1316/R661/QA-DATA-55):** export writes one versioned `aio-backup` bundle with positions, account ledger, FX legs, cash, declared assumptions, trade journal and watchlists (`src/data/portfolio-backup.js`); export is refused while Vault-locked data would read empty; import restores every section via its own normalizer and confirms only after every durable ack; legacy positions arrays still import. Prerequisite for any future origin move.
+- **Verification:** ESM unit, runtime contract, portfolio vault E2E 28/28, headless 1163/1163 and a local Chromium check (28/28 KR theme details, card direction, chip colours, Ctrl+K, export→import round-trip of all sections) pass. Not changed pending product decisions: AI golden corpus g07/g08 (P1120 design), up/down colour convention (D17). Strict D0 refresh/reconciliation/lineage and release remain separate; no commit or deploy.
+- R1 7곳 v56.77
+
+## v56.76 (2026-09-28)
+- **Knowledge candidate isolation (P1314/R660/QA-DATA-54):** reject symlinks before snapshotting/copying a workspace and before running builders in the disposable copy, preventing generated targets from redirecting writes outside the candidate workspace. Add a linked-output negative control and route shared knowledge-builder helper edits through the parity QA gate.
+- **Verification:** knowledge generated parity, Principles lesson parity contract, knowledge QA group, QA-pipeline, assertion-trace and ledger-integrity checks pass. The GitHub PR artifact and human review remain unverified; strict D0 refresh/reconciliation/lineage and release are separate.
+- R1 7곳 v56.76
+
+## v56.75 (2026-09-28)
+- **Operations alert source collection (P1313/R659/QA-OPS-03):** add an injectable collector for the deployed site and core artifacts. It uses the pinned publication timestamp fallback order, evaluates NYSE and KRX in one pass, reads private AI usage only with the operator token, rejects redirects on that request, and returns status plus safe reason only. No evidence is persisted.
+- **QA wiring:** register the 19-assertion source contract under the Cloudflare static QA group and add impact coverage for its collector and policy inputs. Missing outage continuity evidence remains UNKNOWN; scheduled invocation, durable state and private notification delivery remain follow-up work.
+- **Verification:** focused source check, syntax, QA-pipeline contract, ledger integrity and assertion trace pass. No live source or secret was accessed. Strict D0 refresh/reconciliation/lineage and exact-SHA live release remain prerequisites.
+- R1 7곳 v56.75
+
+## v56.74 (2026-09-28)
+- **Private AI usage source (P1312/R658/QA-OPS-02):** add a GET-only `/_ops/ai-usage` endpoint authenticated with a separate Cloudflare `AIO_OPERATOR_TOKEN`; it reads the current UTC-day Anthropic Durable Object count and configured cap. Unconfigured/invalid access returns 404, responses are no-store without CORS, and public `/health` plus quota enforcement are unchanged.
+- **Operator setup:** document one-time Cloudflare secret provisioning in the runbook and operator checklist. Secret provisioning and live observation remain unverified; scheduled observations, durable outage state and notification delivery are follow-up work.
+- **Verification:** Worker Anthropic, Worker relay/privacy, Cloudflare deployment and operator-secret contract checks pass. Strict D0 data refresh/reconciliation/lineage and live release remain separate prerequisites.
+- R1 7곳 v56.74
+
+## v56.73 (2026-09-28)
+- **Operator alert policy (P1311/R657/QA-OPS-01):** add pure, deterministic evaluators for explicit 24-hour site outages, two fully completed registered NYSE/KRX sessions since core artifact publication, and 80% of the actual Anthropic daily request cap on the matching UTC day. Missing or invalid evidence is UNKNOWN. The publication timestamp fallback uses snapshot generation/LKG fields and rejects attempt/status clocks; the existing 12-hour freshness SLA is unchanged.
+- **Scope:** this release adds the policy and its local contracts. Live site probes, continuous outage-state persistence, protected Worker usage telemetry, and operator email/Telegram delivery are follow-up work.
+- **Verification:** focused policy and QA-pipeline contracts, independent code review, version/workspace/knowledge/skill/ledger/assertion checks pass. Affected QA is 108 PASS / 3 FAIL / 31 SKIP; the three failures are the pre-existing stale reconciliation, 12-hour A1 artifact, and dependent data-lineage gates. Browser phase was blocked after those data failures. Details: `_artifacts/full-audit-20260927/EXECUTION-STATUS.md`; strict D0 data refresh/reconciliation and live release remain separate.
+- R1 7곳 v56.73
+
+## v56.72 (2026-09-28)
+- **Generated knowledge review candidates (P1310/R655/QA-DATA-52):** Add an opt-in mode to the existing 17-builder parity runner that exports only changed artifacts plus tested-checkout/PR provenance to an external review directory. A read-only PR/manual workflow uploads the candidate artifact when inventoried builder, helper or input paths change, including Principles/Atlas source modules; source writes, auto-commit and deployment remain outside the workflow.
+- **13F trigger regression coverage (P1309/R654/QA-DATA-51):** Add a notice-only 13F-NT negative control at the ownership poll trigger boundary.
+- **Weekly meta-gate backstop (R656/QA-WORKSPACE-13):** The scheduled knowledge-lint workflow now runs all six planned CI meta gates with read-only checkout credentials, creating the required backstop before any future severity review. Blocking CI severity remains unchanged.
+- **Annual exchange calendar review (R605/QA-DATA-53):** Add a source-linked November reminder for NYSE/ICE and KRX. It reads registered years, preserves unknown-year fail-closed runtime behavior, and separates read-only report generation from the issue-write job.
+- **Verification:** default generated parity passes (17 builders/655 artifacts); QA-pipeline contract (143 gates), workflow YAML (13 files), assertion trace (2,801 labelled assertions/0 new untraced), ledger integrity, workspace/knowledge contracts and sync checks pass. Candidate-mode runtime and the first GitHub artifact remain unverified because the shared checkout is dirty and the candidate mode requires a clean exact SHA; strict D0 release evidence remains open.
+- R1 7곳 v56.72
+
+## v56.71 (2026-09-28)
+- **SEC discovery cadence and semantic no-op (P1309/R654/QA-DATA-51):** retain daily submissions-only 13D/G polling; run the full 13F row/history chain on filing-season Mondays, for unconnected new 13F-HR/HR-A accessions, or by explicit dispatch. Semantic writers preserve artifact bytes when only polling clocks change while raw-byte SHA remains exact. Ownership failures retain LKG events as blocked and cannot overwrite 13F status or coverage. Masters UI labels last-published artifact dates.
+- **Verification:** semantic hash 41/41, 13F currentness, Masters, data pipeline, data continuity 63/63, and QA pipeline (143 gates) pass. First scheduled ownership/filing-season publication and live UI acceptance remain unverified; strict D0 refresh, reconciliation, lineage and exact-SHA release remain required.
+- R1 7곳 v56.71
+
+## v56.70 (2026-09-28)
+- **Worker deployment recovery (P1308/R653):** explicitly upload the hidden CI attestation path, derive data-plane deployment scope from its local module import graph, and recover canceled/coalesced runs by comparing live Worker source SHA through the successful exact-CI SHA.
+- **Verification:** local artifact, dependency-scope, per-plane decision, canceled-run recovery, stale-CI/newer-live rejection fixtures plus deployment/operator/QA/workflow contracts; first GitHub artifact handoff and live auto-deploy recovery remain unverified.
+- R1 7곳 v56.70
+
+## v56.69 (2026-09-28)
+- **Worker auto-deploy and recovery (P1307/R652):** the successful exact-SHA main CI attestation identifies changes to each Worker independently. Only the changed plane deploys; manual redeploy also requires an attested main CI run. Capture the active version and health SHA before deployment; roll back that explicit version and verify restored identity/status when smoke fails.
+- **Verification:** Cloudflare deployment, data-plane, deployment convergence, CI/QA-pipeline and workflow YAML contracts plus rollback fixtures pass locally. First main automation run, Cloudflare token/secrets, live smoke and live rollback remain unverified; strict data freshness/reconciliation/lineage still gates release.
+- R1 7곳 v56.69
+
+## v56.68 (2026-09-28)
+- **Knowledge producer ordering (P1306/R651):** run the Principles lesson, Nathan framework, and concept producers before direct generated-artifact consumers so one isolated build pass converges. Pin the ordering in the QA-pipeline contract.
+- **Verification:** generated knowledge parity (17 builders/655 outputs unchanged), Principles parity (6 checks), QA-pipeline (142 gates), assertion trace, ledger, workspace and R1 pass. This verifies local generation order; generated outputs remain reviewed with authored changes.
+- R1 7곳 v56.68
+
+## v56.67 (2026-09-28)
+- **F-33 review follow-up (P1305/R605):** candidate digest/report now cover full current/proposed schedule sets and added/removed dates, and tentative or partial annual evidence always opens human review. Scope FRED/GitHub tokens to their consuming steps, add an exact-title issue-search fallback, and route fetcher/preview edits through the macro review gate.
+- **Verification:** macro-calendar review contract (19 assertions), QA-pipeline/workflow contract, control-character/YAML, static-data/static-db-expiry, ledger, assertion trace, workspace and R1 checks pass. First GitHub schedule, FRED access, issue search behavior, operator review and D0 release prerequisites remain unverified/blocked.
+- R1 7곳 v56.67
+
+## v56.66 (2026-09-28)
+- **F-33 macro calendar review automation (P1304/R605):** add a weekly main-only workflow that fetches official FRED release dates and configured annual calendars, creates a source-linked candidate report, and uploads 30-day evidence. Month/digest issue upsert preserves closed reviews when candidates are unchanged. The workflow cannot apply runtime schedule edits; strict static expiry remains in force.
+- **Verification:** macro-calendar review contract (13 assertions), control-character/YAML parsing, static-data, static-db-expiry, data-pipeline, QA-pipeline, assertion trace, ledger, workspace and version checks pass. GitHub scheduling, FRED access, issue creation and human review remain unverified. D0 strict refresh/reconciliation/lineage/exact-SHA/live acceptance remains a release prerequisite.
+- R1 7곳 v56.66
+
+## v56.65 (2026-09-28)
+- **Generated Principles lesson parity (P1303/R560):** add D6 to the producer with canonical metadata, align source metadata, publish JSON atomically, and execute the builder before downstream enrichment in parity checks. The focused contract verifies exact D6 parity and deterministic repeated isolated builds.
+- **Verification:** Principles parity (6 checks), generated knowledge parity (17 builders/655 outputs), Principles contract, QA-pipeline contract, assertion trace and ledger integrity pass. Annual calendar T75 result updated to 1163/1163. Affected QA and live browser/deployment evidence remain separate; strict refresh/reconciliation/lineage remains a release prerequisite.
+- R1 7곳 v56.65
+
+## v56.64 (2026-09-28)
+- **Annual exchange calendar correctness (P1302/R447):** official 2026 KRX closures and 2027 KRX/NYSE closures are registered in native and legacy session paths. NYSE early closes, DST-aware session checks, and unknown-year fail-closed behavior are covered; missing calendars never become inferred open sessions.
+- **Verification:** market-session parity, market-snapshot contracts, runtime contracts, ESM core contracts, operations-status contract, and headless suite (1163/1163) pass. Deterministic coverage includes DST, holiday-aware last-trading-day helpers, and conflicting supplied-open rejection. Affected QA and live browser/deployment evidence remain separate. Strict refresh/reconciliation/lineage remains a release prerequisite.
+- R1 7곳 v56.64
+
+## v56.63 (2026-09-28)
+- **Monthly screener-universe review:** add a first-of-month, main-only workflow that verifies the generated mirror and creates or updates one human-review issue for that month. The report shows last bulk-update age and membership counts; it does not suggest or change constituents.
+- **Expiry policy preserved:** the report uses the existing 30-day review warning and 90-day hard boundary. The generated mirror remains at 873 rows / 873 unique / 0 duplicates as of 2026-09-28; the static hard gate was not softened.
+- **Verification:** deterministic review/report contract, mirror sync, workflow permission/schedule/deduplication contract, version and workspace gates pass. The scheduled GitHub issue workflow has not been run; it requires a main-branch workflow event and is not treated as live evidence.
+- R1 7곳 v56.63
+
+## v56.62 (2026-09-28)
+- **Macro calendar candidate input:** add separately verified 2026 official schedules for FOMC, BOK and ISM, plus the official tentative 2027 FOMC dates; FRED-backed CPI, NFP, retail and PCE dates remain API-key-gated. Annual coverage now spans each year touched by the 400-day FRED horizon and reports missing year files explicitly. The candidate preview is offline, writes no files, and marks every suggestion ineligible for automatic application.
+- **Macro result-date integrity (P1301/R650):** a passed schedule date advances `nextRelease` only; `lastRelease` stays tied to separately verified publication or decision evidence. QA-DATA-44 covers crossed-date and exhausted-schedule cases.
+- **Verification:** runtime resolver, preview fixture, static expiry, version and ledger checks; local FRED fetch intentionally stopped before network because `FRED_API_KEY` is unavailable. The existing stale universe-age warning and strict data-freshness release gate remain visible.
+- R1 7곳 v56.62
+
+## v56.61 (2026-09-27–28)
+- **live-core strict freshness closure (P1291/R641):** browser quote eligibility, generated operations status, and refresh promotion all use wall-clock artifact age. Complete weekend cycles no longer renew or waive stale inputs.
+- **future and joint policy evidence (P1292/R642, P1293/R643):** refresh audit labels future publication times `FUTURE` even when an `OK` state is forced, and E3/E4 require aligned current official Fed and BOK evidence.
+- **Risk Radar source links (P1294/R644):** macro event labels remain readable and approved official-host HTTPS URLs render as escaped links with safe new-tab attributes. Local browser acceptance is tracked separately.
+- **Freshness boundary hardening (P1295/R645, P1296/R646):** browser runtime rejects future cycles, ignores artifact-supplied SLA increases, and compares exact elapsed milliseconds at the canonical 12-hour boundary.
+- **Refresh audit timestamp precedence (P1297/R647):** future timestamps remain `FUTURE` even under forced non-OK statuses, and malformed timestamps cannot display forced `OK`.
+- **Fed calendar source validation (P1298/R648):** E3/E4 require both FOMC schedule entries to cite the canonical Federal Reserve calendar URL; lookalike hosts fail closed.
+- **Refresh candidate blob hashing (P1299):** staged and committed Git blobs are read with their measured size, so valid `history.json` revisions above Node's 1 MiB subprocess default no longer fail promotion. The isolated candidate self-test covers both index and commit blobs and runs in refresh-data's reconciliation gate before freshness promotion.
+- **Refresh snapshot timestamp provenance (P1300/R649):** a recent status-sidecar `lastSuccessfulAt` can no longer make a published snapshot without its own `generatedAt` appear fresh or promotion-ready; QA-DATA-43 covers the missing-field regression.
+- **Verification boundary:** strict refresh remains blocked by stale local/remote snapshot artifacts; no commit, push, or deployment occurred.
+- R1 7곳 v56.61
+
+## v56.60 (2026-09-27)
+- **refresh A1 freshness fail-closed(P1290/R640):** market-closed weekend grace가 오래된 LKG `market-snapshot`을 12시간 초과 후에도 A1 `OK`로 만들던 경로를 제거했다. freshness·현재-cycle publication·A1 `OK`가 모두 맞아야 구조 promotion이 통과한다.
+- R1 7곳 v56.60
+
+## v56.59 (2026-09-27)
+- **market-snapshot 실패 증거 보존(P1289/R639):** 실패·불일치 또는 12시간 초과 artifact에만 제한된 진단 JSON을 생성하고 고정 SHA 액션으로 7일 보관한다. registry 계측기 ID·내부 enum·bounded count만 허용하며 provider 자유 문자열은 제외한다. 신선도·reconciliation·promotion gate는 계속 strict다.
+- **공식 매크로 일정 provenance:** NFP·CPI·PCE·ISM 2건·FOMC·Fed 금리·한국은행 항목의 공식 일정 URL을 보강했다. 검증된 날짜는 유지했고 만료 심각도는 변경하지 않았다.
+- R1 7곳 v56.59
+
+## v56.58 (2026-09-27)
+- **F-52 legacy 표본 경계(P1288/R638):** 레거시 facade로 공통 N=5 기준을 연결하고, 집계·market-state·action plan·루프 audit이 미달 점수/bias/event/topic을 보류한다. 1/4건 hold, 5건 publish 회귀 게이트를 추가했다.
+- **live-core strict lineage(P1287/R637):** 휴장 세션 quote 상태가 생성 SLA를 넘긴 `data.json`·`market-snapshot.json`을 면제하던 grace를 제거했다. 두 artifact는 각각 12h/24h 초과 시 시장 세션과 무관하게 hard FAIL이다.
+- R1 7곳 v56.58
+
+## v56.57 (2026-09-27)
+- **Freshness wall-clock 고정(P1283/R634):** strict lineage audit가 `AIO_LINEAGE_AS_OF`로 기준 시각을 과거로 바꿀 수 있던 경로를 제거했다. 결정적 fixture는 함수에 주입하고 production audit는 실제 wall clock을 쓴다.
+- **F-52 저장 뉴스 점수 이력 보호(P1285/R635):** 현재 모델 버전·적격 표본 수·충분 표식이 있는 저장 점만 복구한다. 구형 localStorage 점수와 ESM scorer 부재 시 중립값 50 발행을 차단했다.
+- **F-19a CI 실패 증거 보존(P1286/R636):** 실패 게이트의 전체 stdout/stderr를 비밀값 마스킹 후 run별 저장하고, 실패한 CI shard만 최대 7일 아티팩트로 업로드한다. 성공 시 원본 임시 출력은 삭제한다.
+- R1 7곳 v56.57
+
+## v56.56 (2026-09-27)
+
+- **F-52 표본 부족 뉴스 점수 차단(P1284/R633):** 감성·위험 분석은 최소 5건의 적격 기사가 모여야 발행한다. 그 미만은 `표본 부족`/`null`로 보이고 차트 점에서도 제외된다. HANDOFF의 raw `.score`가 주 합성 매매점수에 직접 영향을 준다는 주장은 현 decision-evidence 경로와 맞지 않아 원장에 한계를 기록했다.
+- **Freshness strict-only(P1283/R634):** stale live-core를 WARN으로 낮추던 `--code-release` 및 freshness 기준 시각을 환경변수로 이동시키는 경로를 제거했다. 정상 데이터 refresh가 끝날 때까지 배포 후보는 차단이다.
+- R1 7곳 v56.56
+
+## v56.55 (2026-09-27)
+- **E0 원자 전환 closes (P1278·P1279):** 라우터는 동일 라우트/entity 재확약에서 실린 새 `viewState`를 커밋하고 `aio:navigationCommitted`로 발행한다 — 같은 mount를 재마운트하지 않고, 변화 없는 재확약은 무음 no-op로 남는다. `activeViewState()`가 커밋된 view 정체성을 노출하고 실제 전환·dispose에서 초기화된다. compatibility facade는 mount throw로 셸이 미커밋 화면에 남는 경로를 막는다 — 이전 커밋 루트를 같은 typed 경로로 재확약(`navigation-rollback`)하고 `aio:navigationFailed`(rolledBack 표시)를 발행하며 실패를 false로 알린다.
+- **포트폴리오 reader 단일 소유 (P1280, E0 P-A/P-E):** facade의 두 번째 Vault 매핑(타깃웨이트·통화·ledger·fxLegs·locked 상태 누락)을 retire하고 단일 runtime reader에게 위임 — 게이트가 두 표면을 byte-identical로 강제한다. 저장소에 정의/할당자가 없던 `getPortfolioState`/`_portfolioState` 죽은 분기를 제거했고 totals은 surface 단독 소유로 남는다.
+- **죽은 reader 재배선 (P1281·P1282, E0 P-D/P-C):** 채팅의 `_simulatePortfolioAddition`과 포트폴리오 섹터 다이어그램 `_buildSectors`는 폐기 키(`aio_portfolio_v1`/`aio_portfolio` sym 스키마) 대신 현행 소유자 `getPortfolioData`({ticker, qty})에서 읽고, 시세 미수신 보유 종목을 0으로 합치지 않고 보류한다. S-D(이중 트리거)와 E3 배분 정책([0,0] 차단·재정규화 금지)은 코드에서 이미 closes된 것으로 확인·기록했다.
+- **검증:** `ci-esm-core-unit-check`(P1278 viewState 10단계 + P1279 롤백 + P1280 shadow-diff/locked/empty fixture)·`ci-architecture-contract-check`(facade 위임 계약)·`ci-runtime-contract`·`ci-headless-tests`(skip-list 밖 실패 0)·`ci-domain-parity`·`ci-user-journey-quality`·`ci-decomp-hotspot`(+4/+7행 증가 `--write --allow-growth` 기록) PASS. `qa-runner affected --files`는 task-소유 23파일로 **84 PASS / 1 FAIL / 31 SKIP** — 유일한 fail은 기존 `data-lineage` 신선도 SLA(data.json 30.3h>12h, market-snapshot 30.3h>24h)로 v56.54부터 문서화된 환경 조건이며 정식 refresh 전 로컬 종결 불가다. 로컬 검증이며 커밋·푸시·배포하지 않았다.
+- **남은 경계:** viewState의 실제 생산자(수직 사용자 과업), E0 P-B(legacy 렌더 회수)·P-F(현금 envelope), 원격 refresh Tier-0 원인, 실사용자·원격 인수는 열려 있다.
+- R1 7곳 v56.55
+
+## v56.54 (2026-09-27)
+- **라이브 실패 대조와 의미 경계(P1273~P1277):** 홈 헤드라인 전용 뉴스의 번역·감성·영향 암시를 보류하고 원문과 선별 점수의 뜻을 표시했다. Themes는 native US 50SMA 관측을 같은 출처/시간 기준으로 읽는다. CP2의 옛 Fed 금리 범위를 9/16 공식 결정 레지스트리에 결속하고 E3/E4 감사 날짜의 중복을 없앴다.
+- **운영 증거:** 원격 refresh의 Tier-0 발행 실패 줄에 sidecar 오류를 출력해 실제 차단 종목을 찾을 수 있게 했다. 접근성·포트폴리오 보고서에는 세대/SHA를 기록하고, readiness의 오래된 라이브 관측 문구를 현재 실측으로 교체했다. 로컬 dirty HEAD의 브라우저 PASS는 배포/출시 인증으로 승격하지 않는다.
+- **남은 경계:** 공개 Pages는 9/27 관측 시 v56.33이고 원격 CI/refresh 실패가 계속됐다. 현 코드는 미커밋·미푸시·미배포이며 원격 Tier-0 개별 실패 원인, provider 실측, 수직 사용자 인수는 열려 있다.
+- R1 7곳 v56.54
+
+## v56.53 (2026-09-26)
+- **핸드오프 00~34 재대조·의미 결함 정리 (P1266~P1272):** 테마 50SMA 부재 시 사이클 보류와 과도한 섹터 전략 문구 퇴역, Guide 점수 5구간 정합, 뉴스 요약 native 단일 작성·헤드라인/피드 주제 분석 보류, 공개 fast quote 비인증 상태의 가용성 표시 교정, 숨김 입력의 뷰포트 검사 오탐 수정.
+- **검증·작업 환경:** 네트워크에 의존하던 data-plane fixture와 새 가시 행을 누락한 screener 브라우저 fixture를 바로잡았다. 두 refresh workflow는 생산 검사 후 변경 파일 hash를 고정하고 promotion·staged·commit/rebase 경계를 대조한다. 실제 CI 시간/비용과 원격 성공은 아직 별도 인수다.
+- **문서/데이터 경계:** 핸드오프 25/26/34/README의 역사 상태를 35 문서별 교차점검에 연결한다. 체크인 `usdkrw` 이력 0행·FX cross-check 미발행은 현재 데이터 commit이 producer 코드보다 앞선 상태이며, 정식 refresh/라이브 전파는 아직 열려 있다. 현재 운영 상태는 fast quote 비활성·권리 검토 대기와 FRED 성공 분기를 구분한다.
+- **출시 경계:** 이 로컬 변경은 커밋·푸시·배포하지 않았다. Anthropic 실공급자 동시 trace, relay/BOK/KOSIS/fast plane 운영자 권한, 실사용자 이해도, 새 SHA의 원격 CI/Pages는 미검증이다.
+- R1 7곳 v56.53
+
 ## v56.52 (2026-09-26)
 - **E2-C6 감사(34) 반영 — QA 실행 identity·커밋 후보 결속 (P1265, P0 2건 + P1-3). 중간 마무리 배치.**
 - **P0 실행 identity:** qa-runner에 런 ID·`runs/<runId>.json` 보존·**실패 배치 고정**(`failed-batch.json`)을 도입했습니다 — 무관한 성공 런이 실패 리포트를 덮던 실측 결함이 사라졌고, `rerun-failed`는 정확한 실패 배치만 다시 고르며(=`--report` 지정 가능) 빈 배치는 명시 사유로 거부합니다. 모든 캐시·리포트 기록이 원자적 쓰기(tmp+rename, EPERM류 재시도)와 merge-on-write로 바뀌고, 손상 캐시는 신뢰하지 않고 원인과 함께 재실행합니다.
@@ -701,7 +886,7 @@
 - 미수정으로 남긴 것: S9(헤드라인 전용 뉴스로 인과 근거가 항상 0건이라 LLM 서술이 상시 차단), signal 페이지의 조정 항목 렌더, `js/aio-core.js:25058`의 `data.json:quotes` 인용. 커밋·push·배포하지 않았다.
 
 ## v55 (2026-09-17)
-- <!-- 변경 내용을 이곳에 기록하세요 -->
+- **refresh A1 freshness fail-closed(P1290/R640):** market-closed weekend grace가 오래된 LKG `market-snapshot`을 12시간 초과 후에도 A1 `OK`로 만들던 경로를 제거했다. freshness·현재-cycle publication·A1 `OK`가 모두 맞아야 구조 promotion이 통과한다.
 - R1 7곳 v55
 
 ## v54.99 (2026-09-17)

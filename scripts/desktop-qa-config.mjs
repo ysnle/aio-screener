@@ -1,6 +1,6 @@
 // Product QA scope: AIO is desktop-only by product decision.
-// Keep legacy responsive CSS/DOM for compatibility, but do not add or gate
-// future work against phone/tablet viewports.
+// Mobile/tablet code was removed entirely (P1324/R669); only the desktop viewports below
+// are supported and gated.
 export const DESKTOP_QA_VIEWPORTS = Object.freeze([
   Object.freeze({ name: 'desktop1280', width: 1280, height: 900 }),
   Object.freeze({ name: 'desktop1440', width: 1440, height: 1000 }),

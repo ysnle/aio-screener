@@ -26,7 +26,7 @@ export const DATA_SOURCE_REGISTRY = Object.freeze({
   }),
   volatility: entry({
     cadence: '30m', refreshMode: 'scheduled', producer: 'scripts/fetch-data.mjs',
-    artifacts: ['public-data/market-snapshot.json', 'public-data/history.json'], consumers: ['sentiment', 'options', 'signal'],
+    artifacts: ['public-data/market-snapshot.json', 'public-data/history.json'], consumers: ['sentiment', 'signal'],
     origins: [{ id: 'yahoo-volatility-indexes', authority: 'secondary', sourceKind: 'public-information-service', access: 'public-unofficial', url: 'https://query1.finance.yahoo.com/v8/finance/chart/', fields: ['VIX', 'VIX3M', 'VVIX'] }],
     structuralLimit: { kind: 'official-history-rights', reason: 'Official Cboe redistribution and settlement contracts are not configured.', remediation: 'Add an approved Cboe source before labeling the series official.' }
   }),
@@ -37,7 +37,7 @@ export const DATA_SOURCE_REGISTRY = Object.freeze({
     structuralLimit: { kind: 'publisher-methodology-and-rights', reason: 'CNN is the index publisher but the web feed is not an exchange or regulator API.', remediation: 'Preserve CNN attribution and reference-only decision use unless a licensed contract is obtained.' }
   }),
   'put-call': entry({
-    cadence: 'daily', refreshMode: 'scheduled', producer: 'scripts/fetch-data.mjs', artifacts: ['public-data/data.json'], consumers: ['sentiment', 'options', 'briefing'],
+    cadence: 'daily', refreshMode: 'scheduled', producer: 'scripts/fetch-data.mjs', artifacts: ['public-data/data.json'], consumers: ['sentiment', 'briefing'],
     origins: [{ id: 'cboe-daily-statistics', authority: 'official-exchange', sourceKind: 'T1_OFFICIAL', access: 'public-web-terms-apply', url: 'https://www.cboe.com/us/options/market_statistics/daily/', fields: ['totalPutCall', 'equityPutCall', 'indexPutCall'] }], structuralLimit: null
   }),
   aaii: entry({

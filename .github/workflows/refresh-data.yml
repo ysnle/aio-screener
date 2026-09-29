@@ -42,6 +42,22 @@ jobs:
           AIO_OBSERVE_PROXY_HEALTH: '1'
         run: node scripts/fetch-data.mjs
 
+      - name: Capture redacted market snapshot diagnostics
+        id: snapshot-diagnostic
+        if: ${{ always() && !cancelled() }}
+        env:
+          AIO_MARKET_FETCH_OUTCOME: ${{ steps.fetch-market.outcome }}
+        run: node scripts/ci-data-refresh-audit.mjs --write-snapshot-diagnostic "$RUNNER_TEMP/market-snapshot-diagnostic.json"
+
+      - name: Upload failed market snapshot diagnostics
+        if: ${{ always() && !cancelled() && steps.snapshot-diagnostic.outputs.capture == 'true' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: market-snapshot-diagnostic-${{ github.run_id }}
+          path: ${{ runner.temp }}/market-snapshot-diagnostic.json
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Fetch Telegram digest
         id: fetch-telegram
         # P1085: an unavailable quote plane used to abort the whole job, so this
@@ -53,19 +69,36 @@ jobs:
           TG_PAGE_LIMIT: 50
         run: node scripts/fetch-telegram-digest.mjs --days=14 --out=public-data/telegram-digest.json
 
-      - name: Refresh SEC 13F and 13D-G discovery with connected rows
+      - name: Refresh weekly SEC 13F and daily 13D-G discovery
         id: masters
         if: ${{ !cancelled() && (github.event_name == 'workflow_dispatch' || github.event.schedule == '13 7 * * *') }}
         env:
           SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
         run: |
-          node scripts/collect-13f-discovery.mjs
-          node scripts/collect-13f-reference.mjs
-          node scripts/collect-13f-history-index.mjs
-          node scripts/collect-13f-history-rows.mjs
-          node scripts/build-13f-issuer-aggregates.mjs
-          node scripts/build-masters-runtime-artifacts.mjs
-          node scripts/build-13f-reference-ticker-index.mjs
+          set -euo pipefail
+          run_full_13f() {
+            node scripts/collect-13f-discovery.mjs
+            node scripts/collect-13f-reference.mjs
+            node scripts/collect-13f-history-index.mjs
+            node scripts/collect-13f-history-rows.mjs
+            node scripts/build-13f-issuer-aggregates.mjs
+            node scripts/build-masters-runtime-artifacts.mjs
+            node scripts/build-13f-reference-ticker-index.mjs
+          }
+          if [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
+            # Poll 13D/G daily. Import quarter rows weekly only within the SEC
+            # filing window, or immediately when a new HR/HR-A is unconnected.
+            ownership_result="$(node scripts/collect-13f-discovery.mjs --ownership-only)"
+            printf '%s\n' "$ownership_result"
+            pending_13f_hr="$(node --input-type=module -e 'process.stdout.write(String(JSON.parse(process.argv[1]).pending13fHrTriggers.length))' "$ownership_result")"
+            in_filing_season="$(node --input-type=module -e 'process.stdout.write(String(JSON.parse(process.argv[1]).in13fFilingSeason))' "$ownership_result")"
+            if [[ "$pending_13f_hr" -gt 0 || ( "$(date -u +%u)" == "1" && "$in_filing_season" == "true" ) ]]; then
+              run_full_13f
+            fi
+          else
+            # Explicit operator dispatches always run the full 13F row/history chain.
+            run_full_13f
+          fi
           node scripts/ci-13f-currentness-check.mjs
           node scripts/ci-masters-contract-check.mjs
 
@@ -87,12 +120,15 @@ jobs:
         id: reconciliation-gate
         if: ${{ !cancelled() }}
         run: |
+          set -euo pipefail
           node scripts/ci-reconciliation-contract-check.mjs
           node scripts/ci-source-registry-contract-check.mjs
            node scripts/ci-professional-data-gap-check.mjs
            node scripts/ci-static-data-contract-check.mjs
            node scripts/ci-web-research-contract-check.mjs
+          node scripts/verify-refresh-candidate.mjs --self-test
             node scripts/ci-data-refresh-audit.mjs
+          node scripts/verify-refresh-candidate.mjs --record "$RUNNER_TEMP/aio-refresh-data-candidate.json"
 
       - name: Fail-closed promotion candidate gate before push
         id: promotion-gate
@@ -103,9 +139,7 @@ jobs:
         run: |
           set -euo pipefail
           git diff --check
-          node scripts/ci-refresh-artifact-integrity-check.mjs
-          node scripts/ci-data-continuity-check.mjs
-          node scripts/ci-data-refresh-audit.mjs
+          node scripts/verify-refresh-candidate.mjs --expect "$RUNNER_TEMP/aio-refresh-data-candidate.json"
 
       - name: Pipeline status summary
         if: ${{ !cancelled() }}
@@ -203,6 +237,7 @@ jobs:
           stage_if_exists public-data/masters/history/managers
           git add -- architecture/asset-manifest.json architecture/release-manifest.json architecture/public-readiness.json
           node scripts/ci-masters-contract-check.mjs --staged
+          node scripts/verify-refresh-candidate.mjs --expect-staged "$RUNNER_TEMP/aio-refresh-data-candidate.json"
           if git diff --staged --quiet; then
             echo "No public-data changes to commit"
             echo "changed=false" >> "$GITHUB_OUTPUT"
@@ -216,6 +251,7 @@ jobs:
           # 13h+ stale while watchdog reported success). Data commits MUST run CI so the
           # deploy job publishes them; validate gating them is a feature, not a cost.
           git commit -m "data: refresh market and news data ${ts}"
+          node scripts/verify-refresh-candidate.mjs --expect-commit "$RUNNER_TEMP/aio-refresh-data-candidate.json"
           attempt=1
           max_attempts=5
           until git push; do
@@ -226,6 +262,7 @@ jobs:
             echo "push rejected (attempt ${attempt}/${max_attempts}) — fetching latest main and rebasing"
             git fetch origin main
             git rebase origin/main
+            node scripts/verify-refresh-candidate.mjs --expect-commit "$RUNNER_TEMP/aio-refresh-data-candidate.json"
             attempt=$((attempt + 1))
             sleep $((attempt * 3))
           done

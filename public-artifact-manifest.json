@@ -47,12 +47,13 @@
     "_patch_pm.py",
     "*.pdf",
     "*.py",
-    "package*.json"
-    ,"public-data/sec-fundamentals.json"
-    ,"public-data/masters/holdings.json"
-    ,"public-data/masters/history-holdings.json"
-    ,"public-data/masters/issuer-aggregates.json"
-    ,"public-data/masters/managers/**"
+    "package*.json",
+    "public-data/sec-fundamentals.json",
+    "public-data/masters/holdings.json",
+    "public-data/masters/history-holdings.json",
+    "public-data/masters/issuer-aggregates.json",
+    "public-data/masters/managers/**",
+    "js/aio-qa-audits.js"
   ],
   "dataHandling": {
     "portfolioAndApiKeys": "portfolio stays browser-local; API keys stay in browser storage and are transmitted only to the selected provider or an explicitly configured Worker for the requested call",

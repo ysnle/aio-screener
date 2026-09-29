@@ -8,7 +8,7 @@ ledgers are defined in
 
 The current release keeps the GitHub Pages shell. Code under `src/` is a native
 ESM strangler layer over a legacy-first boot path. The route registry currently
-contains 20 routes and records lifecycle/renderer/data ownership separately from
+contains 19 routes and records lifecycle/renderer/data ownership separately from
 chart, narrative, storage and producer retirement. A route is not fully native
 until every applicable surface is native or explicitly not applicable and its
 legacy writer is removed. `fullNativeOwner` is therefore the completion signal;

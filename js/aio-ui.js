@@ -274,7 +274,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // 날짜 자동 업데이트
   const todayDisp = _aioGetKstDateParts(new Date()).dateStr;
   const dlEl = document.getElementById('home-date-label');
-  if (dlEl) dlEl.textContent = todayDisp + ' KST · 실시간: 시세·뉴스·F&G  |  정적: MA·Breadth·CP리스크(주1회 갱신)';
 
   // v30.12 P4: 이전 번역 캐시 복원 (새로고침 시 재번역 방지)
   var _tcRestored = _tcLoadFromStorage();
@@ -719,7 +718,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Update home date label
   const dlEl = document.getElementById('home-date-label');
-  if (dlEl) dlEl.textContent = fullLabel + ' · 시세·뉴스 상태 확인 중';
+  if (dlEl) dlEl.textContent = fullLabel; // P1322: date only — freshness lives in the topbar badge, not a never-cleared "확인 중"
   
   // Update version badge
   const vb = document.getElementById('app-version-badge');
@@ -1264,8 +1263,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // 10. 주요 액션 버튼에 aria-label 추가
   var btnLabels = {
     'sidebar-toggle-btn': '사이드바 열기/닫기',
-    'topbar-refresh-btn': '데이터 새로고침',
-    'mobile-menu-btn': '모바일 메뉴'
+    'topbar-refresh-btn': '데이터 새로고침'
   };
   Object.keys(btnLabels).forEach(function(id) {
     var el = document.getElementById(id);
@@ -1286,7 +1284,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // 13. 빈 텍스트 인터랙티브 요소에 명시적 aria-label 추가
   var classLabels = {
-    'mobile-overlay': '모바일 메뉴 닫기',
     'llm-switch-track': 'AI 도우미 전환',
     'ai-ph-close': 'AI 패널 닫기',
     'acp-history-btn': 'AI 대화 기록'
@@ -1315,7 +1312,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // 16. v54.47: 가격 셀 수백 개를 모두 aria-live로 만들면 시세 갱신마다
   // 스크린리더가 전체 숫자를 읽어 과도한 알림이 발생한다. 요약 상태 영역만
   // announce하고 개별 데이터 셀은 일반 텍스트로 남긴다.
-  ['live-quote-ts-topbar','server-data-age','home-risk-regime-badge','score-gauge-val','pf-total-value','pf-total-pnl'].forEach(function(id) {
+  ['live-quote-ts','server-data-age','home-risk-regime-badge','score-gauge-val','pf-total-value','pf-total-pnl'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el && !el.getAttribute('aria-live')) {
       el.setAttribute('aria-live', 'polite');
@@ -2559,24 +2556,28 @@ window.runInstitutionalTechnicalBrief = runInstitutionalTechnicalBrief;
   }
 
   function _buildSectors() {
+    // E0/P1282: 현행 소유자 getPortfolioData(Vault-aware, 키 aio_portfolio_data, 스키마
+    // {ticker, qty, cost, sector?})에서 읽는다. 폐기된 sym-스키마 키 'aio_portfolio'에는
+    // writer가 없어 이 다이어그램은 실데이터에서 조용히 사라지고 있었다.
     var pf = [];
     try {
-      var raw = (typeof safeLSGetJSON === 'function')
-        ? safeLSGetJSON('aio_portfolio')
-        : JSON.parse(localStorage.getItem('aio_portfolio') || 'null');
-      if (Array.isArray(raw)) pf = raw;
+      if (typeof window.getPortfolioData === 'function') {
+        var raw = window.getPortfolioData();
+        if (Array.isArray(raw)) pf = raw;
+      }
     } catch (e) {}
     if (!pf.length) return { sectors: [] };
     var live = window._liveData || {};
     var db = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
     var sMap = {};
     pf.forEach(function (entry) {
-      var sym = (entry.sym || '').toUpperCase();
+      var sym = String((entry && entry.ticker) || '').toUpperCase();
+      if (!sym) return;
       var row = null;
       for (var i = 0; i < db.length; i++) {
         if ((db[i].sym || '').toUpperCase() === sym) { row = db[i]; break; }
       }
-      var sector = (row && row.sector) ? row.sector : 'Other';
+      var sector = (entry.sector || (row && row.sector)) ? (entry.sector || row.sector) : 'Other';
       var price = (live[sym] && typeof live[sym].price === 'number') ? live[sym].price : (entry.cost || 0);
       var mv = (entry.qty || 0) * price;
       if (!sMap[sector]) sMap[sector] = { mv: 0, perfSum: 0, count: 0 };
@@ -4085,7 +4086,7 @@ var AIO_PAGE_FUNDAMENTALS = {
   'signal': {
     title: `매매 점수의 구조`,
     concept: [
-      `매매 점수는 변동성(VIX)·모멘텀(F&G·추세추종)·추세(MA)·시장폭(20일선)·거시 5개 축을 가중 합성한 '시장 타이밍 필터'입니다(가중치는 페이지 상단 부제에 명시). 단일 지표의 단독 판단을 피하기 위한 장치입니다.`,
+      `매매 점수는 변동성(VIX)·추세(이동평균)·심리(공포·탐욕·풋콜)·시장 폭(20일선)·거시 5개 축을 가중 합성한 '시장 타이밍 필터'입니다(가중치는 페이지 상단 부제에 명시). 단일 지표의 단독 판단을 피하기 위한 장치입니다.`,
       `점수의 각 서브스코어는 서로 다른 데이터 축에서 옵니다 — 축들이 합의할 때 신뢰도가 올라갑니다.`
     ],
     why: [
@@ -4350,22 +4351,6 @@ var AIO_PAGE_FUNDAMENTALS = {
     ],
     terms: `어닝 서프라이즈`
   },
-  'options': {
-    title: `변동성 지표 읽기`,
-    concept: [
-      `VIX=향후 30일 기대변동성, PCR(풋/콜 비율)=하락 베팅과 상승 베팅의 비율, SKEW=극단 하락(테일) 보험의 상대 가격입니다.`
-    ],
-    why: [
-      `옵션 시장은 '보험료'로 공포를 정량화합니다 — 주식 투자자에게도 심리·헤지 수요를 읽는 창입니다.`
-    ],
-    how: [
-      `이 페이지의 대체 지표 카드(VIX·PCR·SKEW)를 심리 페이지의 F&G와 교차 확인하세요.`
-    ],
-    action: [
-      `PCR 극단(과도한 풋 쏠림)은 바닥 부근에서 자주 나타나는 역발상 참고 — 단독 매매 신호로 쓰지 않습니다.`
-    ],
-    terms: `OPEX (옵션 만기일) · 맥스페인(Max Pain)`
-  },
   'screener': {
     title: `팩터 스크리닝의 원리`,
     concept: [
@@ -4402,8 +4387,7 @@ var AIO_PAGE_FUNDAMENTALS = {
   var isDragging=false, hasMoved=false, startX=0, startY=0, origX=0, origY=0;
   function onStart(e){
     isDragging=true; hasMoved=false;
-    var t=e.touches?e.touches[0]:e;
-    startX=t.clientX; startY=t.clientY;
+    startX=e.clientX; startY=e.clientY;
     var r=btn.getBoundingClientRect();
     origX=r.left; origY=r.top;
     btn.style.cursor='grabbing';
@@ -4413,8 +4397,7 @@ var AIO_PAGE_FUNDAMENTALS = {
   }
   function onMove(e){
     if(!isDragging) return;
-    var t=e.touches?e.touches[0]:e;
-    var dx=t.clientX-startX, dy=t.clientY-startY;
+    var dx=e.clientX-startX, dy=e.clientY-startY;
     if(Math.abs(dx)>3||Math.abs(dy)>3) hasMoved=true;
     if(!hasMoved) return;
     var nx=origX+dx, ny=origY+dy;
@@ -4432,151 +4415,13 @@ var AIO_PAGE_FUNDAMENTALS = {
     if(!hasMoved) openGlossary();
   }
   btn.addEventListener('mousedown',onStart);
-  btn.addEventListener('touchstart',onStart,{passive:false});
   document.addEventListener('mousemove',onMove);
-  document.addEventListener('touchmove',onMove,{passive:true}); /* v48.68 P139: 글로서리 버튼 display:none → isDragging 항상 false → preventDefault() 미호출 → passive:true 안전 (브라우저 터치 스크롤 최적화 허용) */
   document.addEventListener('mouseup',onEnd);
-  document.addEventListener('touchend',onEnd);
 })();
-
-// ═══════════════ v31.9: OPTIONS 페이지 실시간 연동 ═══════════════
-function initOptionsPage() {
-  var vix = typeof _ldSafe === 'function' ? _ldSafe('^VIX','price') : 0;
-  var vvix = typeof _ldSafe === 'function' ? _ldSafe('^VVIX','price') : 0;
-
-  // ── VIX 기반 파생 지표 계산 ──
-  if (vix > 0) {
-    // Observed VIX window only: never invent a 52-week band or call this ticker IV.
-    var _vixPoints = Array.isArray(window._vixHistory) ? window._vixHistory.filter(function(point) {
-      return point && point.date && point.value != null && Number.isFinite(Number(point.value)) && Number(point.value) > 0;
-    }) : [];
-    var _vixSeries = _vixPoints.map(function(point) { return Number(point.value); });
-    var _vixLow = _vixSeries.length ? Math.min.apply(null, _vixSeries) : null;
-    var _vixHigh = _vixSeries.length ? Math.max.apply(null, _vixSeries) : null;
-    var _vixWindowReady = _vixSeries.length >= 20 && _vixHigh > _vixLow;
-    var vixPctile = _vixWindowReady ? Math.round(_vixSeries.filter(function(value) { return value <= vix; }).length / _vixSeries.length * 100) : null;
-    var ivRank = _vixWindowReady ? Math.max(0, Math.min(100, Math.round((vix - _vixLow) / (_vixHigh - _vixLow) * 100))) : null;
-    window._vixIvRankEvidence = {
-      source: _vixWindowReady ? 'dated-vix-history-window' : 'unavailable',
-      sampleCount: _vixSeries.length,
-      low: _vixLow, high: _vixHigh,
-      asOf: _vixPoints.length ? _vixPoints[_vixPoints.length - 1].date : null,
-      decisionUse: 'reference-only'
-    };
-    ['opt-vix-pctile','opt-ivpct-val'].forEach(function(id) {
-      var node = document.getElementById(id);
-      if (node) { node.textContent = vixPctile == null ? '—' : vixPctile + '%'; node.title = '수신 VIX 표본 내 백분위 · 개별 종목 IV 아님'; }
-    });
-    var ivRankEl = document.getElementById('opt-ivrank-val');
-    if (ivRankEl) { ivRankEl.textContent = ivRank == null ? '—' : ivRank + '%'; ivRankEl.title = '수신 VIX 표본의 고저 범위 내 위치 · 1년 IV Rank 아님'; }
-    ['opt-ivrank-desc','opt-ivpct-desc'].forEach(function(id) {
-      var node = document.getElementById(id);
-      if (node) node.textContent = _vixWindowReady ? '수신 ' + _vixSeries.length + '일 VIX 참고값 · 개별 옵션 IV 미제공' : '날짜가 있는 VIX 이력 20일 필요 · 임의 추정 안 함';
-    });
-
-    // VVIX 설명 업데이트
-    var vvixDesc = document.getElementById('opt-vvix-desc');
-    if (vvixDesc && vvix > 0) {
-      var vvixLevel = vvix >= 120 ? '매우 높음 · 변동성 급등 경고' :
-                      vvix >= 100 ? '높음 · 시장 긴장' :
-                      vvix >= 80 ? '보통 · 정상 범위' : '낮음 · 안정';
-      var vvixColor = vvix >= 120 ? 'var(--data-red)' : vvix >= 100 ? 'var(--data-amber)' : vvix >= 80 ? 'var(--data-amber)' : 'var(--data-green)';
-      vvixDesc.textContent = vvixLevel;
-      vvixDesc.style.color = vvixColor;
-    }
-
-    // VVIX/VIX 비율 — v36.7: 연구 기반 임계값 적용
-    var ratioEl = document.getElementById('opt-vvix-ratio');
-    if (ratioEl && vvix > 0 && vix > 0) {
-      var ratio = vvix / vix;
-      var ratioStr = ratio.toFixed(2);
-      var ratioColor, ratioLabel;
-      ratioColor = 'var(--text-secondary)';
-      ratioLabel = '관측 비율 · 감마·주문 방향 추정 안 함';
-      ratioEl.innerHTML = ratioStr + ' <span style="font-size:11px;color:' + ratioColor + ';font-weight:400;">' + ratioLabel + '</span>';
-      ratioEl.style.color = ratioColor;
-      // 전역 저장 (Risk Monitor, LLM용)
-      window._vvixVixRatio = { ratio: ratio, label: ratioLabel, color: ratioColor };
-    }
-
-    // VIX 수준별 상태 색상
-    var vixColor = vix >= 30 ? 'var(--data-red)' : vix >= 20 ? 'var(--data-amber)' : vix >= 15 ? 'var(--data-amber)' : 'var(--data-green)';
-    var vixSentiment = vix >= 30 ? '극도 긴장' : vix >= 25 ? '높은 긴장' : vix >= 20 ? '경계' : vix >= 15 ? '보통' : '안정';
-
-    // Sentiment strip VIX 설명 업데이트
-    var vixDescEls = document.querySelectorAll('#page-options div[style*="font-size:11px"][style*="color:#211d16"]');
-    if (vixDescEls.length > 0) {
-      vixDescEls[0].textContent = (vixPctile == null ? '표본 이력 미수신' : '수신 표본 ' + vixPctile + '%ile') + ' · ' + vixSentiment;
-      vixDescEls[0].style.color = vixColor;
-    }
-  }
-
-  // 업데이트 시간 표시
-  var timeEl = document.getElementById('opt-update-time');
-  if (timeEl) {
-    var vixObservation = window._liveData && window._liveData['^VIX'];
-    var observedAt = vixObservation && (vixObservation.observedAt || vixObservation.quoteEnvelope && vixObservation.quoteEnvelope.observedAt);
-    timeEl.textContent = observedAt ? 'VIX 관측: ' + String(observedAt).slice(0, 16).replace('T', ' ') : 'VIX 관측시각 미수신';
-  }
-
-  // v38.8: PCR 동적 연결 — data-live-price="PCR" 요소에 실시간 값 반영
-  var pcrVal = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.pcr) ? DATA_SNAPSHOT.pcr : null;
-  if (pcrVal && !(window._lastPutCallPayload && window._lastPutCallPayload.metric && window._lastPutCallPayload.metric.allowedUse)) {
-    if (typeof _aioUpdatePutCallDom === 'function') {
-      _aioUpdatePutCallDom({
-        totalPutCall: pcrVal,
-        sourceKind: 'snapshot',
-        sourceLabel: 'DATA_SNAPSHOT',
-        asOf: (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._snapshotDate) || new Date().toISOString()
-      });
-    } else {
-    var pcrEls = document.querySelectorAll('#page-options [data-live-price="PCR"]');
-    pcrEls.forEach(function(el) {
-      if (typeof _aioIsNativeMacroElement === 'function' && _aioIsNativeMacroElement(el)) return;
-      el.textContent = parseFloat(pcrVal).toFixed(2);
-      el.style.color = pcrVal > 1.2 ? 'var(--data-red)' : pcrVal > 0.9 ? 'var(--data-amber)' : 'var(--data-green)';
-      el.setAttribute('data-operational-use', 'reference-only');
-    });
-    }
-  }
-
-  // v38.8: GEX 스냅샷 명시
-  var gexEl = document.getElementById('opt-gex-val');
-  var gexDesc = document.getElementById('opt-gex-desc');
-  if (gexEl && gexEl.textContent !== '—' && !gexEl.dataset.marked) {
-    gexEl.dataset.marked = '1';
-  }
-  if (gexDesc && !gexDesc.dataset.marked) {
-    gexDesc.textContent = '실시간 API 미제공 · 참고용 스냅샷 · 의사결정 제외';
-    gexDesc.dataset.marked = '1';
-  }
-
-  // v37.8: 동적 옵션 분석
-  if (typeof _generateOptionsAnalysis === 'function') _generateOptionsAnalysis(vix, vvix, vixPctile, ivRank);
-  console.log('[AIO] Options page init — VIX:', vix, 'VVIX:', vvix);
-}
-
-// Options 페이지 이벤트 리스너
-// v48.99: _aioPageBus 마이그 (P180)
-// v51.99/Phase3[A2]: DOMContentLoaded 래핑(P556/R247 템플릿).
-document.addEventListener('DOMContentLoaded', function() {
-_aioPageBus.register('html-options-shown', 'aio:pageShown', function(e) {
-  if (e.detail === 'options') {
-    try { initOptionsPage(); } catch(err) { _aioLog('warn', 'init', 'Options pageShown error: ' + (err && err.message || err)); }
-  }
-});
-_aioPageBus.register('html-options-live', 'aio:liveQuotes', function() {
-  var optPage = document.getElementById('page-options');
-  if (optPage && optPage.classList.contains('active')) {
-    try { initOptionsPage(); } catch(err) {}
-  }
-});
-});
-// ═══════════════ END OPTIONS ═══════════════
 
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// P1132/R619: index.html 인라인 블록 F(3,106줄 — 용어사전 시스템, 모바일 메뉴/스크롤탑,
+// P1132/R619: index.html 인라인 블록 F(3,106줄 — 용어사전 시스템, 스크롤탑,
 // GMO 글로벌 개요, 키보드 단축키/내비, 티커 가격 차트, 종합 기술적 분석 엔진(Weinstein/추세/
 // VCP/Minervini 등), analyzeTickerDeep + Yahoo 조회, KR VKOSPI·건강도·수급 차트, KR 기술
 // 페이지, Phase-2 기능과 TradingView 위젯, McClellan·벤치마크 차트, 가격 알림, 접근성,
@@ -4735,78 +4580,6 @@ setTimeout(function() {
   }
 }, 15000);
 
-// ═══ v27: Mobile Menu Toggle ═══
-var _aioMobileMenuOpener = null;
-function toggleMobileMenu() {
-  var sidebar = document.querySelector('.sidebar');
-  var overlay = document.getElementById('mobile-overlay');
-  var trigger = document.getElementById('mobile-menu-trigger');
-  if (sidebar && overlay) {
-    var opening = !sidebar.classList.contains('mobile-open');
-    if (opening) _aioMobileMenuOpener = document.activeElement;
-    sidebar.classList.toggle('mobile-open', opening);
-    overlay.classList.toggle('show', opening);
-    if (opening) {
-      overlay.hidden = false;
-      overlay.setAttribute('aria-hidden', 'false');
-      overlay.setAttribute('role', 'button');
-      overlay.setAttribute('tabindex', '0');
-      overlay.setAttribute('aria-label', '모바일 메뉴 닫기');
-    } else {
-      overlay.hidden = true;
-      overlay.setAttribute('aria-hidden', 'true');
-      overlay.removeAttribute('role');
-      overlay.removeAttribute('tabindex');
-      overlay.removeAttribute('aria-label');
-    }
-    if (trigger) trigger.setAttribute('aria-expanded', opening ? 'true' : 'false');
-  }
-}
-function closeMobileMenu() {
-  var sidebar = document.querySelector('.sidebar');
-  var overlay = document.getElementById('mobile-overlay');
-  var trigger = document.getElementById('mobile-menu-trigger');
-  if (sidebar) sidebar.classList.remove('mobile-open');
-  if (overlay) overlay.classList.remove('show');
-  if (overlay) {
-    overlay.hidden = true;
-    overlay.setAttribute('aria-hidden', 'true');
-    overlay.removeAttribute('role');
-    overlay.removeAttribute('tabindex');
-    overlay.removeAttribute('aria-label');
-  }
-  if (trigger) trigger.setAttribute('aria-expanded', 'false');
-  var opener = _aioMobileMenuOpener;
-  _aioMobileMenuOpener = null;
-  if (opener && document.contains(opener) && !opener.disabled) { try { opener.focus(); } catch (_) {} }
-}
-// Close mobile menu when a nav item is clicked
-document.querySelectorAll('.nav-item').forEach(function(n) {
-  n.addEventListener('click', closeMobileMenu);
-});
-var mobileOverlay = document.getElementById('mobile-overlay');
-if (mobileOverlay) mobileOverlay.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); closeMobileMenu(); }
-});
-
-// ═══ v30.11: 모바일 키보드 가림 방지 (visualViewport API) ═══
-(function() {
-  if (!window.visualViewport) return;
-  var chatInputs = document.querySelectorAll('.acp-input-row input');
-  window.visualViewport.addEventListener('resize', function() {
-    // 키보드가 열리면 viewport 높이가 줄어듦
-    var keyboardOpen = window.visualViewport.height < window.innerHeight * 0.75;
-    document.body.classList.toggle('keyboard-open', keyboardOpen);
-    if (keyboardOpen) {
-      // 활성 입력 요소를 뷰포트 안으로 스크롤
-      var active = document.activeElement;
-      if (active && active.tagName === 'INPUT') {
-        setTimeout(function() { active.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 100);
-      }
-    }
-  });
-})();
-
 // ═══ v27: Scroll-to-top Button ═══
 (function() {
   var contentEl = document.querySelector('.content');
@@ -4892,7 +4665,7 @@ function renderGmoTable() {
   const regions = _gmoExpanded ? GMO_MARKETS : GMO_MARKETS.slice(0, 2);
   // v52.42 (P657/EF-17): 정규장(open)일 때는 현물 지수가 이미 실시간이라 선물 행이 정보 중복 —
   // 옅게 처리. 정규장 외(pre/after/closed/futures_only)일 때만 강조해 "오늘 미장 분위기"에 바로 답한다.
-  var usSession = (typeof _getUsSession === 'function') ? _getUsSession() : 'open';
+  var usSession = (typeof _getUsSession === 'function') ? _getUsSession() : 'unknown';
   var isRegularHours = usSession === 'open';
 
   for (const group of regions) {
@@ -5018,7 +4791,7 @@ document.addEventListener('keydown', function(e) {
   const tag = (e.target.tagName || '').toLowerCase();
   const isInput = tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable;
 
-  // ESC always works — closes modals and mobile menu
+  // ESC always works — closes modals and panels
   if (e.key === 'Escape') {
     closeKbdHelp();
     var glossary = document.getElementById('glossary-modal');
@@ -5033,15 +4806,14 @@ document.addEventListener('keydown', function(e) {
       if (typeof toggleAIPanel === 'function') toggleAIPanel();
       return;
     }
-    closeMobileMenu();
     return;
   }
 
   // Ctrl+K for quick search focus (works even in inputs)
   if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
     e.preventDefault();
-    var searchInput = document.querySelector('.search-bar input');
-    if (searchInput) searchInput.focus();
+    var searchInput = (document.querySelector('.page.active') || document).querySelector('#scr-text-search, #fund-search-input, #ticker-direct-search, #guide-search-input'); // P1315: .search-bar never existed
+    if (searchInput && searchInput.offsetParent !== null) searchInput.focus(); else if (typeof openGlossary === 'function') openGlossary();
     return;
   }
 
@@ -7046,7 +6818,7 @@ window._aioRenderTickerOverview = function(tkr) {
     if (isKr) {
       if (tvC.dataset.tvSym !== 'KR-UNSUPPORTED') {
         tvC.dataset.tvSym = 'KR-UNSUPPORTED';
-        tvC.innerHTML = '<span style="font-size:12px;color:var(--text-muted);padding:12px;text-align:center;">한국 종목은 TradingView KRX 데이터 제한(P610)으로 미지원 — 한국 기술분석 페이지의 자체 캔들 차트를 이용하세요</span>';
+        tvC.innerHTML = '<span style="font-size:12px;color:var(--text-muted);padding:12px;text-align:center;">한국 종목 대형 차트는 TradingView 무료 위젯이 KRX 데이터를 제공하지 않아 표시하지 않습니다 — 차트·기술 분석 화면의 한국 캔들 차트를 이용하세요</span>';
       }
     } else if (tvC.dataset.tvSym !== tkr) {
       tvC.dataset.tvSym = tkr;
@@ -7066,11 +6838,11 @@ window._aioRenderTickerOverview = function(tkr) {
     if (title) el.title = title; else el.removeAttribute('title');
   }
   var prev = Number(live.regularMarketPreviousClose || live.chartPreviousClose);
-  _set('ticker-ov-prevclose', prev > 0 ? cur + prev.toFixed(2) : '—', null, prev > 0 ? null : '전일 종가 원천 미수신');
+  var _px = function(v) { return isKr ? Math.round(v).toLocaleString('ko-KR') + '원' : cur + v.toFixed(2); }; _set('ticker-ov-prevclose', prev > 0 ? _px(prev) : '—', null, prev > 0 ? null : '전일 종가 원천 미수신'); // P1317: KRW 정수·원 표기
   var hi52 = Number(live.fiftyTwoWeekHigh), lo52 = Number(live.fiftyTwoWeekLow), price = Number(live.price);
   var bar = document.getElementById('ticker-ov-52wbar');
   if (hi52 > 0 && lo52 > 0 && hi52 > lo52) {
-    _set('ticker-ov-52w', cur + lo52.toFixed(2) + ' ~ ' + cur + hi52.toFixed(2));
+    _set('ticker-ov-52w', _px(lo52) + ' ~ ' + _px(hi52));
     if (bar && price > 0) {
       var pos = Math.max(0, Math.min(100, (price - lo52) / (hi52 - lo52) * 100));
       bar.style.display = 'block';
@@ -7106,8 +6878,10 @@ window._aioRenderTickerOverview = function(tkr) {
       (t.subThemes || []).forEach(function(st){ if (!subHit && Array.isArray(st.tickers) && st.tickers.indexOf(tkr) >= 0) subHit = st.name; });
       if (inLeaders || subHit) hits.push({ id: t.id, label: t.nameKr + (subHit ? ' · ' + subHit : '') });
     });
+    // P1327/R672: KRX stocks link to their Korean themes (structural KR_THEME_MAP membership).
+    (typeof window._aioKrThemesForSymbol === 'function' ? window._aioKrThemesForSymbol(tkr) : []).forEach(function(k) { hits.push({ id: k.id, label: '한국 · ' + k.label, action: 'openKrThemeDetail' }); });
     themesEl.innerHTML = hits.length
-      ? hits.map(function(h){ return '<span class="ticker-ov-theme-chip" role="button" tabindex="0" data-action="showThemeDetail" data-arg="' + escHtml(h.id) + '" title="' + escHtml(h.label) + ' 테마 상세 →">' + escHtml(h.label) + '</span>'; }).join('')
+      ? hits.map(function(h){ return '<span class="ticker-ov-theme-chip" role="button" tabindex="0" data-action="' + (h.action || 'showThemeDetail') + '" data-arg="' + escHtml(h.id) + '" title="' + escHtml(h.label) + ' 테마 상세 →">' + escHtml(h.label) + '</span>'; }).join('')
       : '<span style="font-size:11px;color:var(--text-muted);">테마 맵 미등록 종목</span>';
   }
   // 4) 팩터 프로파일 — SCREENER_DB factorScores(섹터 기준 정규화 점수 0~100, 서술적). W07-C/P1146: empirical percentile도 정규분포 누적확률도 아니며, 순위 percentile은 별도 composite rank다.
@@ -7586,7 +7360,7 @@ window.addEventListener('beforeunload', function() { _aioClearAllTimers(); }); /
   }
   function mountOnboarding() {
     if (document.getElementById('aio-first-visit-onboarding')) return;
-    var anchor = document.getElementById('home-score-hero');
+    var anchor = document.getElementById('home-kpi-strip');
     if (!anchor || !anchor.parentNode) return;
     var card = document.createElement('div');
     card.id = 'aio-first-visit-onboarding';

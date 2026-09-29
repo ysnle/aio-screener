@@ -2,7 +2,7 @@
   "schemaVersion": "decomposition-hotspots.v2",
   "owner": "src/ui/pages + js compatibility boundary",
   "measurement": "line-count ratchet: a measured runtime file may never exceed its recorded value; `ceiling` is the absolute bound that only an explicitly recorded decision may raise",
-  "history": "v53.96/P895 (commit 6fd5289b, 2026-08-10) introduced fixed caps on three files. Those caps were never read from this file — the numbers were hardcoded in scripts/ci-decomp-hotspot-check.mjs, so the declaration and the enforcement could silently disagree. They also covered only 3 of 7 runtime files, so accretion escaped sideways into aio-ui/aio-chat/aio-tests, and at js/aio-core.js the cap sat 1 line above the file — a wall that blocked a one-line correctness fix instead of a ratchet.",
+  "history": "v53.96/P895 (commit 6fd5289b, 2026-08-10) introduced fixed caps on three files. Those caps were never read from this file — the numbers were hardcoded in scripts/ci-decomp-hotspot-check.mjs, so the declaration and the enforcement could silently disagree. They also covered only 3 of 7 runtime files, so accretion escaped sideways into aio-ui/aio-chat/aio-tests, and at js/aio-core.js the cap sat 1 line above the file — a wall that blocked a one-line correctness fix instead of a ratchet. v56.61/P1291–P1298 records deliberate ratchet growth of js/aio-core.js (+3) and js/aio-data.js (+5) for strict millisecond-precision live-core freshness and future timestamp rejection, and js/aio-pages.js (+38) for escaped Risk Radar source labels and canonical official HTTPS links. These additions remove stale-input waivers and unsafe source rendering; include this rationale in the eventual release commit.",
   "measuredFiles": [
     "index.html",
     "js/aio-core.js",
@@ -14,24 +14,26 @@
     "js/aio-pages.js",
     "js/aio-kr-data.js",
     "js/aio-macro-tech.js",
-    "js/aio-workspace.js"
+    "js/aio-workspace.js",
+    "js/aio-qa-audits.js"
   ],
   "recordedLines": {
-    "index.html": 13364,
-    "js/aio-core.js": 28125,
-    "js/aio-data.js": 16896,
-    "js/aio-ui.js": 7642,
-    "js/aio-chat.js": 9252,
-    "js/aio-tests.js": 9483,
+    "index.html": 12772,
+    "js/aio-core.js": 23800,
+    "js/aio-data.js": 16877,
+    "js/aio-ui.js": 7417,
+    "js/aio-chat.js": 9253,
+    "js/aio-tests.js": 9584,
     "js/aio-glossary.js": 423,
-    "js/aio-pages.js": 3581,
-    "js/aio-kr-data.js": 3235,
+    "js/aio-pages.js": 3431,
+    "js/aio-kr-data.js": 3221,
     "js/aio-macro-tech.js": 1211,
-    "js/aio-workspace.js": 3033
+    "js/aio-workspace.js": 3024,
+    "js/aio-qa-audits.js": 4308
   },
   "ceiling": {
     "index.html": 35000,
-    "js/aio-core.js": 28200,
+    "js/aio-core.js": 28300,
     "js/aio-data.js": 18000
   },
   "ceilingHistory": [
@@ -41,6 +43,20 @@
       "to": 28200,
       "at": "v56 (P1151~P1155, 2026-09-20)",
       "reason": "The /relay client path, the three restored web-search credential inputs, the Claude server-key-mode toggle and the observed-vs-stored provider status added 54 lines. The previous 28000 sat one line above the file — the exact wall P1127 replaced with a ratchet — so the recorded decision is a raise with real headroom, not another near-boundary."
+    },
+    {
+      "file": "js/aio-core.js",
+      "from": 28200,
+      "to": 28250,
+      "at": "v56.58 (P1288/R638, 2026-09-27; release commit pending)",
+      "reason": "The legacy news sample guard adds 15 lines to reject sub-N signals and malformed synthetic scores at market-state, narrative, action-plan and loop-audit boundaries. Keeping the guard in the established compatibility path is required for F-52 closure; the previous 28200 ceiling was crossed by 7 lines, so this explicit 50-line window preserves readable regression coverage with 43 lines of headroom. The release commit remains pending strict data-refresh and approval boundaries."
+    },
+    {
+      "file": "js/aio-core.js",
+      "from": 28250,
+      "to": 28300,
+      "at": "v56.67 (2026-09-28; release commit pending)",
+      "reason": "The cumulative handoff fixes grew aio-core from 28210 to 28251 (+41), crossing the recorded absolute ceiling by one line. The growth carries executable safeguards for source-grounded macro events and calendars, strict millisecond freshness/future rejection, decision-grade news sample boundaries, and fail-closed cycle evidence. Keep a 50-line window so those contracts remain readable and the ratchet still catches further growth; do not raise this ceiling again without first evaluating extraction. Record this rationale in the eventual release commit after D0 data/lineage acceptance."
     }
   ],
   "facadePolicy": "bounded compatibility facade only; no permanent duplicate primary writer",

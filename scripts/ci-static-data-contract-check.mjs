@@ -1,8 +1,10 @@
 import fs from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { collectAnnualOfficialSchedules } from './fetch-fred-calendar-candidates.mjs';
 
 const read = (file) => fs.readFileSync(file, 'utf8');
 const json = (file) => JSON.parse(read(file));
-const core = read('js/aio-core.js');
+const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
 const dataCode = read('js/aio-data.js');
 const ui = read('js/aio-ui.js');
 const marketPage = read('src/ui/pages/market.js');
@@ -20,6 +22,31 @@ function assert(ok, message) { if (!ok) failures.push(message); }
 function hasNumber(value) { return value != null && value !== '' && Number.isFinite(Number(value)); }
 function segment(id) { return screener?.breadth?.segments?.[id] || {}; }
 function historyHas(...keys) { return history.length >= 3 && keys.every((key) => history.some((row) => hasNumber(row?.[key]))); }
+
+// P1301/R650/QA-DATA-44: exercise the annual collector and candidate preview without network or writes.
+const annualCandidates = await collectAnnualOfficialSchedules('2026-09-28');
+const fomc2027 = annualCandidates.byCalendarId['us-fomc']?.years?.find((year) => year.year === 2027);
+assert(annualCandidates.schedules['us-fomc']?.includes('2027-01-27') && fomc2027?.tentative === true,
+  'official tentative 2027 FOMC schedule must be included with its status');
+assert(annualCandidates.missingFiles.some((file) => file.calendarId === 'kr-bok' && file.year === 2027)
+  && annualCandidates.missingFiles.some((file) => file.calendarId === 'us-ism-mfg' && file.year === 2027),
+'missing next-year official calendars must remain explicit instead of claiming full annual coverage');
+const previewProcess = spawnSync(process.execPath, ['scripts/preview-macro-calendar.mjs', '--fixture', '-', '--as-of', '2026-12-10'], {
+  cwd: process.cwd(), encoding: 'utf8', input: JSON.stringify({
+    asOf: '2026-09-28', schedules: annualCandidates.schedules,
+    sourceEvidence: { byCalendarId: annualCandidates.byCalendarId }
+  })
+});
+let previewCandidate = null;
+try {
+  const preview = JSON.parse(previewProcess.stdout || '{}');
+  previewCandidate = preview.candidates?.find((candidate) => candidate.id === 'us-fomc');
+} catch (_) {}
+assert(previewProcess.status === 0 && previewCandidate?.proposed?.nextRelease === '2027-01-27'
+  && previewCandidate.proposed.lastRelease === previewCandidate.current.lastRelease
+  && previewCandidate.sourceEvidence?.years?.some((year) => year.year === 2027 && year.tentative === true)
+  && previewCandidate.eligibleToApply === false && JSON.parse(previewProcess.stdout).filesWritten === 0,
+'candidate preview must preserve tentative next-year evidence without promoting lastRelease or writing runtime data');
 
 const snapshotStart = core.indexOf('const DATA_SNAPSHOT = {');
 const snapshotEnd = core.indexOf('\n};', snapshotStart);

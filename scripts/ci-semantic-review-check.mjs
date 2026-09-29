@@ -14,7 +14,7 @@ const check = (label, condition, detail = '') => {
 
 const version = JSON.parse(read('version.json')).version;
 const html = read('index.html');
-const core = read('js/aio-core.js');
+const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
 // P1132/R619: the ticker deep-analysis entry-verdict gate moved from index.html's block F to js/aio-ui.js.
 const ui = read('js/aio-ui.js');
 const tests = read('js/aio-tests.js');

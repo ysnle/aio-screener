@@ -1,9 +1,40 @@
 {
   "schemaVersion": "visual-state-matrix-v1",
-  "appRevision": "v56.52",
-  "routes": ["home", "signal", "breadth", "sentiment", "briefing", "technical", "macro", "fxbond", "themes", "theme-detail", "ticker", "fundamental", "options", "portfolio", "market-news", "screener", "principles", "masters", "atlas", "guide"],
-  "states": ["loaded", "reference", "blocked", "stale-reference", "empty"],
-  "requiredSurface": ["value-or-unavailable", "source-or-asOf", "chart-or-blocked-alternative", "keyboard-or-native-control"],
+  "appRevision": "v56.82",
+  "routes": [
+    "home",
+    "signal",
+    "breadth",
+    "sentiment",
+    "briefing",
+    "technical",
+    "macro",
+    "fxbond",
+    "themes",
+    "theme-detail",
+    "ticker",
+    "fundamental",
+    "portfolio",
+    "market-news",
+    "screener",
+    "principles",
+    "masters",
+    "atlas",
+    "guide"
+  ],
+  "states": [
+    "loaded",
+    "reference",
+    "blocked",
+    "stale-reference",
+    "empty"
+  ],
+  "requiredSurface": [
+    "value-or-unavailable",
+    "source-or-asOf",
+    "chart-or-blocked-alternative",
+    "keyboard-or-native-control"
+  ],
   "evidence": {
     "loaded": "ci-architecture-browser-check.mjs",
     "reference": "ci-sa-02-outage-browser-fixture.mjs",

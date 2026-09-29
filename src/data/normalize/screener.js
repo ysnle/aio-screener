@@ -39,6 +39,8 @@ export function normalizeScreener(raw = {}) {
     emaBasis: row?.emaBasis || null,
     mcap: finite(row?.mcap),
     nativeMarketCap: row?.nativeMarketCap ? { ...row.nativeMarketCap } : null,
+    // P1318: artifact-derived reference size (SEC shares × artifact close) — size-bucket filter/display only.
+    referenceMarketCap: row?.referenceMarketCap && Number.isFinite(row.referenceMarketCap.billions) ? { ...row.referenceMarketCap } : null,
     _mcapObservedAt: row?._mcapObservedAt || null,
     _mcapFetchedAt: row?._mcapFetchedAt || null,
     _mcapSource: row?._mcapSource || null,

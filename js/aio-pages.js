@@ -837,9 +837,9 @@ function refreshSignalDashboard() {
   // Decision — 5-tier system
   var decision, decColor, decBg, decSub;
   if (!totalFinite || scores.partial) {
-    decision = !totalFinite ? '판정 보류 — 필수 입력 미수신' : '판정 보류 — 부분 데이터 점수';
+    decision = !totalFinite ? '판정 보류 — 판단 등급 입력 없음' : '판정 보류 — 부분 데이터 점수';
     decColor = 'var(--text-muted)'; decBg = 'transparent';
-    decSub = !totalFinite ? '필수 시장 입력이 없어 점수와 실행 판단을 표시하지 않습니다.' : '미수신 구성요소(' + (scores.componentMissing || []).join(', ') + ')는 중립값으로만 계산했습니다. 현재 진입 판단에는 사용하지 않습니다.';
+    decSub = !totalFinite ? '실시간·검증된 시장 입력이 없어 점수와 실행 판단을 표시하지 않습니다.' : '미수신 구성요소(' + (scores.componentMissing || []).join(', ') + ')는 중립값으로만 계산했습니다. 현재 진입 판단에는 사용하지 않습니다.';
   } else if (total >= 75) {
     decision = '환경 우호 — 종목별 근거 별도 확인';
     decColor = '#22754c'; decBg = 'rgba(34,117,76,0.15)';
@@ -1006,20 +1006,13 @@ function updateMarketPulse() {
     if (el1b) { el1b.textContent = sLabel; el1b.style.color = sColor; }
   } catch(e) {}
 
-  // 2) 시장폭 — 50일선 위 종목 % (breadth 페이지·스코어링 정의와 정합). v50.16: 제거된 _breadth200 대신 _breadth50 우선
+  // P1267: 시장폭은 timestamp가 확인된 canonical AIO 5/20/50SMA evidence만 사용한다.
+  // 20SMA, 스냅샷, 섹터 ETF 일간 등락률은 모집단·기간·현재성이 달라 50SMA 대신 쓰지 않는다.
   try {
-    var bVal = (typeof window._breadth50 === 'number') ? Math.round(window._breadth50) :
-              (window._breadthLiveData && window._breadthLiveData.abv50 != null) ? Math.round(window._breadthLiveData.abv50) :
-              (typeof window._breadth20 === 'number') ? Math.round(window._breadth20) :
-              (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT.breadth50sma != null) ? Math.round(window.DATA_SNAPSHOT.breadth50sma) : null;
-    // 최후 폴백 — 11 섹터 ETF 당일 양봉 비율(일간 폭, 50SMA 폭과 다름 — 참고용)
-    if (bVal === null || isNaN(bVal)) {
-      try {
-        var _sectETFs = ['XLK','XLF','XLE','XLV','XLI','XLY','XLP','XLRE','XLB','XLU','XLC'];
-        var _br = (typeof calcSectorBreadth === 'function') ? calcSectorBreadth(_sectETFs) : null;
-        if (_br != null && !isNaN(_br)) bVal = _br;
-      } catch(_e) {}
-    }
+    var breadthEvidence = window.AIO && typeof window.AIO.getCurrentBreadthEvidence === 'function'
+      ? window.AIO.getCurrentBreadthEvidence() : { available:false };
+    var breadth50 = breadthEvidence.available ? Number(breadthEvidence.sma50) : null;
+    var bVal = breadth50 != null && Number.isFinite(breadth50) && breadth50 >= 0 && breadth50 <= 100 ? Math.round(breadth50) : null;
     var el2 = document.getElementById('mp-breadth-val');
     var el2b = document.getElementById('mp-breadth-label');
     if (bVal !== null && !isNaN(bVal)) {
@@ -1031,10 +1024,13 @@ function updateMarketPulse() {
       if (el2) window._aioRenderValueSlot(el2, 'value', bVal + '%', { color: bColor });
       if (el2b) window._aioRenderValueSlot(el2b, 'value', bLabel, { color: bColor });
     } else {
-      window._aioRenderValueSlot(el2, 'pending', null, { text: '수신 대기', reason: '시장폭 live/snapshot 미수신' });
-      window._aioRenderValueSlot(el2b, 'pending', null, { text: '대기', reason: '시장폭 live/snapshot 미수신' });
+      window._aioRenderValueSlot(el2, 'pending', null, { text: '수신 대기', reason: '기준 시각이 확인된 AIO 50SMA 시장폭 미수신' });
+      window._aioRenderValueSlot(el2b, 'pending', null, { text: '판정 보류', reason: '기준 시각이 확인된 AIO 50SMA 시장폭 미수신' });
     }
-  } catch(e) {}
+  } catch(e) {
+    window._aioRenderValueSlot(document.getElementById('mp-breadth-val'), 'pending', null, { text: '수신 대기', reason: '현재성 확인 실패' });
+    window._aioRenderValueSlot(document.getElementById('mp-breadth-label'), 'pending', null, { text: '판정 보류', reason: '현재성 확인 실패' });
+  }
 
   // 3) 심리 (Fear & Greed) — canonical currentness selector
   try {
@@ -1742,6 +1738,42 @@ async function loadRiskRadar() {
 
   body.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:10px;"><span class="aio-spinner" style="margin-right:8px;"></span>이벤트 수집 중…</div>';
 
+  function riskRadarSourceMarkup(source, sourceUrl) {
+    var label = String(source || '').trim();
+    var url = String(sourceUrl || '').trim();
+    var labelIsUrl = /^https?:\/\//i.test(label);
+    if (!url && labelIsUrl) url = label;
+    if (labelIsUrl) label = '';
+    else {
+      label = label
+        .replace(/(?:https?:\/\/|www\.)[^\s)]+|(?:[a-z0-9-]+\.)+[a-z]{2,}(?:\/[^\s)]*)?/gi, '')
+        .replace(/\(\s*\)/g, '')
+        .replace(/\s{2,}/g, ' ')
+        .trim();
+    }
+
+    var safeUrl = '';
+    if (url) {
+      try {
+        var parsedUrl = new URL(url);
+        var officialHosts = ['www.bls.gov', 'www.bea.gov', 'www.ismworld.org', 'www.federalreserve.gov', 'www.bok.or.kr', 'www.census.gov', 'www.nvidia.com'];
+        if (parsedUrl.protocol === 'https:' && officialHosts.indexOf(parsedUrl.hostname) >= 0 && !parsedUrl.username && !parsedUrl.password) {
+          safeUrl = parsedUrl.href;
+        }
+      } catch (_) {}
+    }
+    if (!label && safeUrl) {
+      try { label = new URL(safeUrl).hostname; } catch (_) {}
+    }
+    if (!label) return '';
+
+    var safeLabel = escHtml(label);
+    if (safeUrl) {
+      return ' <a class="aio-risk-source-link" href="' + escHtml(safeUrl) + '" target="_blank" rel="noopener noreferrer" aria-label="' + escHtml(label + ' 공식 출처 새 창에서 열기') + '" style="color:var(--data-cyan);text-decoration:underline;text-underline-offset:2px;margin-left:6px;">' + safeLabel + '</a>';
+    }
+    return ' <span class="aio-risk-source-label" style="margin-left:6px;color:var(--text-muted);font-size:10px;">' + safeLabel + '</span>';
+  }
+
   // 1. 공식 일정 레지스트리. 소스 없는 정치·실적·루머 일정은 현재 이벤트로 승격하지 않는다.
   var officialEvents = [];
   var releases = window.AIO_MACRO_CALENDAR && window.AIO_MACRO_CALENDAR.releases || {};
@@ -1754,7 +1786,9 @@ async function loadRiskRadar() {
       date: r.nextRelease,
       impact: key === 'us-fomc' || key === 'kr-bok' ? 'critical' : 'high',
       category: key.indexOf('fomc') >= 0 || key.indexOf('fed-rate') >= 0 || key === 'kr-bok' ? 'fomc' : 'economic',
-      event: r.name + (r.source ? ' · ' + r.source : ''),
+      event: r.name,
+      source: r.source || '',
+      sourceUrl: r.sourceUrl || '',
       flag: key.indexOf('kr-') === 0 ? '🇰🇷' : '🇺🇸',
       sourceKind: 'official-calendar'
     });
@@ -1821,7 +1855,7 @@ async function loadRiskRadar() {
       html += '<span style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);flex-shrink:0;min-width:70px;">' + mmdd + '(' + dow + ')</span>';
       html += '<span style="font-size:11px;color:' + impactColor + ';font-weight:700;font-family:var(--font-mono);flex-shrink:0;min-width:40px;">' + dStr + '</span>';
       html += '<span style="font-size:13px;flex-shrink:0;">' + e.flag + '</span>';
-      html += '<span style="font-size:11px;color:var(--text-primary);flex:1;line-height:1.5;">' + escHtml(e.event) + '</span>';
+      html += '<span style="font-size:11px;color:var(--text-primary);flex:1;line-height:1.5;">' + escHtml(e.event) + riskRadarSourceMarkup(e.source, e.sourceUrl) + '</span>';
       html += '<span style="font-size:11px;color:' + impactColor + ';font-weight:700;padding:2px 6px;background:' + impactBg + ';border:1px solid ' + impactColor + ';border-radius:3px;font-family:var(--font-mono);flex-shrink:0;">' + impactLabel + '</span>';
       html += '</div>';
     });
@@ -2686,203 +2720,19 @@ function renderSectorPerfBars() {
 
 function generateSectorAnalysis(sectors) {
   var el = document.querySelector('[id="sector-perf-analysis"]');
-  // P802: normalized themes owns the bounded sector-performance narrative.
-  if (!el || el.dataset.aioThemePerformanceRenderer === 'native' || !sectors || sectors.length === 0) return; // v46.9: 빈 배열 방어
-  var validSectors = sectors.filter(function(s) { return s && s.chg != null && isFinite(s.chg); });
-  if (validSectors.length === 0) {
-    el.innerHTML = '섹터 시세가 아직 최신으로 수신되지 않았습니다. 정적 fallback 수익률은 현재 랭킹/판단에 쓰지 않습니다.';
+  // P1267: the fallback may describe observed sector returns, but not infer breadth, cycle, flows, or strategy from them.
+  if (!el || el.dataset.aioThemePerformanceRenderer === 'native' || !Array.isArray(sectors)) return;
+  var rows = sectors.filter(function(row) { return row && row.chg != null && Number.isFinite(Number(row.chg)); })
+    .map(function(row) { return { name: String(row.name || row.sym || '섹터'), symbol: String(row.sym || ''), change: Number(row.chg) }; })
+    .sort(function(a, b) { return b.change - a.change; });
+  if (rows.length < 2) {
+    el.textContent = '섹터 성과 요약 보류 · 비교 가능한 등락률이 2개 이상 수신되면 표시합니다.';
     return;
   }
-
-  var best = validSectors[0];
-  var worst = validSectors[validSectors.length-1];
-  var defensive = ['XLE','XLP','XLU','XLV'];
-  var cyclical = ['XLK','XLY','XLF','XLI','XLRE'];
-  // v38.5: 경기 사이클 매핑 (섹터 → 사이클 국면)
-  var earlyRecovery = ['XLF','XLY','XLRE','XLI'];  // 초기회복: 금융·소비재·부동산·산업
-  var expansion = ['XLK','XLY','XLI','XLB'];         // 확장기: 기술·소비재·산업·소재
-  var lateCycle = ['XLE','XLB','XLI'];                // 둔화기: 에너지·소재·산업
-  var recession = ['XLP','XLU','XLV'];                // 침체기: 필수소비·유틸·헬스케어
-
-  var defCount = 0, cycCount = 0;
-  var leadingSectors = [], improvingSectors = [], weakeningSectors = [], laggingSectors = [];
-  validSectors.slice(0, 4).forEach(function(s) {
-    if (defensive.indexOf(s.sym) !== -1) defCount++;
-    if (cyclical.indexOf(s.sym) !== -1) cycCount++;
-  });
-  sectors.forEach(function(s) {
-    if (s.q === 'Leading') leadingSectors.push(s.sym);
-    if (s.q === 'Improving') improvingSectors.push(s.sym);
-    if (s.q === 'Weakening') weakeningSectors.push(s.sym);
-    if (s.q === 'Lagging') laggingSectors.push(s.sym);
-  });
-
-  // v45.5: null chg 방어 — 1주 모드에서 fetch 미완료 시 크래시 방지
-  var _bestChg = (best && best.chg != null) ? best.chg : 0;
-  var _worstChg = (worst && worst.chg != null) ? worst.chg : 0;
-  var text = '';
-  text += '최강: <b style="color:var(--data-green);">' + best.name + '(' + best.sym + ') ' + (_bestChg>=0?'+':'') + _bestChg.toFixed(2) + '%</b> · ';
-  text += '최약: <b style="color:var(--data-red);">' + worst.name + '(' + worst.sym + ') ' + _worstChg.toFixed(2) + '%</b>';
-
-  if (leadingSectors.length > 0) {
-    text += '<br><span style="color:var(--data-green);font-size:11px;">선도:</span> <b style="color:var(--data-green);font-size:11px;">' + leadingSectors.join(', ') + '</b>';
-  }
-  if (improvingSectors.length > 0) {
-    text += ' <span style="color:var(--data-cyan);font-size:11px;">개선:</span> <b style="color:var(--data-cyan);font-size:11px;">' + improvingSectors.join(', ') + '</b>';
-  }
-
-  if (defCount >= 3) {
-    text += '<br><b style="color:var(--data-red);">방어 섹터 상위 독점</b> — 리스크오프 심화. 돈이 "안전한 곳"으로 도망 중. ';
-    text += '인과 체인: 불확실성↑ → 성장주 매도 → 배당·안정 섹터 매수 → 경기 후반 신호. ';
-    text += '성장주 축소, 현금·방어주 확대 고려.';
-  } else if (cycCount >= 3) {
-    text += '<br><b style="color:var(--data-green);">성장 섹터 주도</b> — 리스크온. 시장이 "미래가 밝다"에 베팅 중. ';
-    text += '특히 금융(XLF) 강세는 신용 확장 신호 — 은행이 잘되면 대출↑ 경제 성장↑ 선순환.';
-  } else {
-    text += '<br><b style="color:var(--data-amber);">혼재된 리더십</b> — 방향성 탐색 구간. 방어주도 성장주도 확실한 주도권을 못 잡고 있습니다. ';
-    text += '이런 "과도기"에서는 포지션을 줄이고 주도 섹터가 확정될 때까지 관망이 현명합니다.';
-  }
-
-  // v38.5: 섹터 로테이션 시계 (경기 사이클 위치 추정)
-  var earlyScore = 0, expScore = 0, lateScore = 0, recScore = 0;
-  validSectors.slice(0, 5).forEach(function(s) {
-    if (earlyRecovery.indexOf(s.sym) !== -1) earlyScore++;
-    if (expansion.indexOf(s.sym) !== -1) expScore++;
-    if (lateCycle.indexOf(s.sym) !== -1) lateScore++;
-    if (recession.indexOf(s.sym) !== -1) recScore++;
-  });
-  var cyclePhase, cycleColor, cycleFavored;
-  if (recScore >= 2 && defCount >= 2) {
-    cyclePhase = '침체/둔화기'; cycleColor = 'var(--data-red)';
-    cycleFavored = '필수소비(XLP), 헬스케어(XLV), 유틸리티(XLU), 금(GDX)';
-  } else if (lateScore >= 2) {
-    cyclePhase = '경기 후반(Late Cycle)'; cycleColor = 'var(--data-amber)';
-    cycleFavored = '에너지(XLE), 소재(XLB), 고배당주, 원자재';
-  } else if (expScore >= 2) {
-    cyclePhase = '확장기(Expansion)'; cycleColor = 'var(--data-green)';
-    cycleFavored = '기술(XLK), 소비재(XLY), 산업재(XLI), 소형주';
-  } else if (earlyScore >= 2) {
-    cyclePhase = '초기 회복(Early Recovery)'; cycleColor = 'var(--data-cyan)';
-    cycleFavored = '금융(XLF), 부동산(XLRE), 소비재(XLY), 소형주';
-  } else {
-    cyclePhase = '과도기(Transition)'; cycleColor = 'var(--data-amber)';
-    cycleFavored = '현금 + 핵심 대형주 중심 방어';
-  }
-  text += '<br><br><b>【섹터 로테이션 시계】</b> 추정 국면: <b style="color:' + cycleColor + ';">' + cyclePhase + '</b>';
-  text += '<br><span style="font-size:11px;">현 국면 유리 섹터: ' + cycleFavored + '</span>';
-  text += '<br><span style="font-size:10px;color:var(--text-muted);">산출: 상위 5개 섹터의 경기 사이클 분류 기반 추정 (earlyRec:' + earlyScore + ' exp:' + expScore + ' late:' + lateScore + ' rec:' + recScore + ')</span>';
-
-  // v38.5: 섹터간 상관 깨짐 감지
-  // 통상 같이 움직이는 쌍: XLK-SMH(반도체), XLF-XLRE(금리민감), XLE-XOP(에너지체인), XLP-XLV(방어)
-  var correlatedPairs = [
-    { a: 'XLK', b: 'SMH', label: '기술-반도체' },
-    { a: 'XLF', b: 'XLRE', label: '금융-부동산' },
-    { a: 'XLE', b: 'XOP', label: '에너지-E&P' },
-    { a: 'XLP', b: 'XLV', label: '필수소비-헬스케어' }
-  ];
-  var sectorChgMap = {};
-  // v45.5: null chg 제외 (1주 모드 fetch 미완료 대응)
-  sectors.forEach(function(s) { if (s.chg != null) sectorChgMap[s.sym] = s.chg; });
-  // RRG_SUBSECTORS에서도 가져오기
-  let ld = window._liveData || {};
-  ['SMH','XOP'].forEach(function(sym) {
-    if (ld[sym] && ld[sym].pct != null) sectorChgMap[sym] = ld[sym].pct;
-  });
-  var divergences = [];
-  correlatedPairs.forEach(function(pair) {
-    var chgA = sectorChgMap[pair.a], chgB = sectorChgMap[pair.b];
-    if (chgA != null && chgB != null) {
-      var gap = Math.abs(chgA - chgB);
-      if (gap > 2.0) {
-        divergences.push({ label: pair.label, a: pair.a, chgA: chgA, b: pair.b, chgB: chgB, gap: gap });
-      }
-    }
-  });
-  if (divergences.length > 0) {
-    text += '<br><br><b>【섹터간 상관 깨짐 감지】</b> <span style="font-size:10px;color:var(--text-muted);">통상 동조 섹터 쌍의 괴리 >2%p</span>';
-    divergences.forEach(function(dv) {
-      text += '<br><span style="color:var(--yellow);font-size:11px;"><b>' + dv.label + '</b> 괴리: ' + dv.a + ' ' + (dv.chgA >= 0 ? '+' : '') + dv.chgA.toFixed(1) + '% vs ' + dv.b + ' ' + (dv.chgB >= 0 ? '+' : '') + dv.chgB.toFixed(1) + '% (갭 ' + dv.gap.toFixed(1) + '%p) — 구조적 변화 시그널. 괴리 원인 분석 필요.</span>';
-    });
-  }
-
-  // v38.5: 방어/공격 밸런스 지표 (v45.5: null chg 제외)
-  var defChgSum = 0, defN = 0, atkChgSum = 0, atkN = 0;
-  sectors.forEach(function(s) {
-    if (s.chg == null) return;
-    if (defensive.indexOf(s.sym) !== -1) { defChgSum += s.chg; defN++; }
-    if (cyclical.indexOf(s.sym) !== -1) { atkChgSum += s.chg; atkN++; }
-  });
-  if (defN > 0 && atkN > 0) {
-    var defAvg = defChgSum / defN;
-    var atkAvg = atkChgSum / atkN;
-    var balanceRatio = atkAvg !== 0 ? (defAvg / atkAvg) : 0;
-    text += '<br><br><b>【방어/공격 밸런스】</b> ';
-    text += '방어섹터 평균 ' + (defAvg >= 0 ? '+' : '') + defAvg.toFixed(2) + '% / 성장섹터 평균 ' + (atkAvg >= 0 ? '+' : '') + atkAvg.toFixed(2) + '%';
-    if (defAvg > 0 && atkAvg < 0) {
-      text += '<br><span style="color:var(--data-red);font-weight:700;">Risk-Off 확실. 방어섹터 상승 + 성장섹터 하락 = 자금이 안전자산으로 이동 중. 공격적 포지션 축소, 현금·채권·금 비중 확대.</span>';
-    } else if (defAvg < 0 && atkAvg > 0) {
-      text += '<br><span style="color:var(--data-green);font-weight:700;">Risk-On 확실. 성장섹터가 방어섹터 아웃퍼폼. 모멘텀 팔로우 전략 유효. 기술·소비재·금융 매수 확대 구간.</span>';
-    } else if (defAvg > atkAvg && defAvg > 0) {
-      text += '<br><span style="color:var(--data-amber);">방어 우위. 시장 전반 상승이나 방어주가 더 강함 → 불확실성 잔존. 균형 포트폴리오 유지.</span>';
-    } else if (atkAvg > defAvg && atkAvg > 0) {
-      text += '<br><span style="color:var(--data-green);">성장 우위. 리스크 선호 분위기. 성장주 모멘텀 추종 유효.</span>';
-    } else {
-      text += '<br><span style="color:var(--data-amber);">양 측 모두 약세. 시장 전반 매도 압력. 현금 비중 확대, 반등 시그널 대기.</span>';
-    }
-  }
-
-  // 브레드스 요약
-  var breadthGood = 0, breadthBad = 0;
-  RRG_SECTORS.forEach(function(sec) {
-    var b = calcSectorBreadth(THEME_MAP.filter(function(t){ return t.etf === sec.sym; }).length > 0 ?
-      THEME_MAP.filter(function(t){ return t.etf === sec.sym; })[0].leaders : [sec.sym]);
-    if (b > 60) breadthGood++;
-    if (b < 40) breadthBad++;
-  });
-  if (breadthGood > 6) text += '<br><span style="font-size:11px;color:var(--data-green);">시장 브레드스 양호 — 다수 섹터 양봉 우세</span>';
-  else if (breadthBad > 6) text += '<br><span style="font-size:11px;color:var(--data-red);">시장 브레드스 악화 — 다수 섹터 음봉 우세</span>';
-
-  // v52.7 P606/R276: 섹터 리더십(defCount/cycCount) 독립 집계 대신 _aioRenderThemesCycle과 동일한
-  // 단일 사이클 소스(marketState.cycleFull → getCycleFromMacro)를 읽어 본문 "동적 사이클 판정"과의
-  // 모순(예: 칩 "Late Cycle" vs 본문 "Mid Cycle")을 구조적으로 제거.
-  var pill = document.querySelector('[id="theme-cycle-pill"]');
-  // P801: the RRG-derived cycle pill is native; legacy sector prose must not overwrite it.
-  if (pill && pill.dataset.aioThemeCycleRenderer !== 'native') {
-    var _rrgEvidenceCount = RRG_SECTORS.filter(function(sec) {
-      var read = calcLiveRS(sec.sym);
-      return read && read.quadrant !== 'unknown' && read.rsRatio !== null && read.rsMom !== null;
-    }).length;
-    if (_rrgEvidenceCount < 6) {
-      pill.className = 'status-pill sp-neutral';
-      pill.textContent = '사이클 판정 보류 · RRG 근거 ' + _rrgEvidenceCount + '/11';
-      el.innerHTML = text;
-      return;
-    }
-    var _cycPill = null;
-    try {
-      var _msPill = window.AIO && window.AIO.marketState;
-      if (_msPill && _msPill.cycleFull && (Date.now() - (_msPill.ts || 0) < 15 * 60 * 1000)) _cycPill = _msPill.cycleFull;
-      else if (window.AIO && window.AIO.getCycleFromMacro) _cycPill = window.AIO.getCycleFromMacro({});
-    } catch (_ePill) { _cycPill = null; }
-    var _phasePill = _cycPill && _cycPill.phase;
-    if (_phasePill === 'Late Cycle (Peak)' || _phasePill === 'Recession Risk' || _phasePill === 'Bear Market') {
-      pill.className = 'status-pill sp-risk-off';
-      pill.textContent = ' ' + _phasePill + ' · 방어 주도';
-    } else if (_phasePill === 'Mid Cycle (Expansion)' || _phasePill === 'Early Cycle (Recovery)') {
-      pill.className = 'status-pill sp-risk-on';
-      pill.textContent = ' ' + _phasePill + ' · 성장 주도';
-    } else {
-      pill.className = 'status-pill sp-neutral';
-      pill.textContent = _phasePill ? ' ' + _phasePill : ' Transition';
-    }
-  }
-
-  el.innerHTML = text;
+  var format = function(row) { return row.name + (row.symbol ? ' (' + row.symbol + ')' : '') + ' ' + (row.change >= 0 ? '+' : '') + row.change.toFixed(2) + '%'; };
+  el.textContent = '현재 선택 기간의 섹터 등락률 · 강세 ' + format(rows[0]) + ' · 약세 ' + format(rows[rows.length - 1]) + ' · 단일 등락률은 시장폭·사이클·자금 흐름을 입증하지 않습니다.';
 }
 
-// ═══════════════════════════════════════════════════════════════
-//  테마 상세 패널 (서브테마 + 대장주 + 라이브 가격)
-// ═══════════════════════════════════════════════════════════════
 function _themeFinitePct(v) {
   return v != null && isFinite(Number(v));
 }

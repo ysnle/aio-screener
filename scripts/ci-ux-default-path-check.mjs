@@ -67,9 +67,9 @@ check('visible canvas elements must have accessible names or be explicitly hidde
 check('chart registry resize must skip hidden charts to avoid viewport resize storms',
   /resizeAllVisible/.test(core) && /_isVisibleChart/.test(core) && /offsetParent !== null/.test(ui),
   'resizeAllVisible/_isVisibleChart contract missing');
-check('quote count labels must distinguish client live quotes from server snapshot quotes',
-  /클라 시세/.test(data) && /서버 스냅샷 시세/.test(data),
-  'UX-10 label split missing');
+check('quote status comes from one presenter; the data layer no longer writes clock-based quote labels (P1326/R671)',
+  !/클라 시세/.test(data) && /aio:quoteTopbar/.test(data),
+  'UX-10 single presenter missing');
 check('home decision header must render below operator note when present', /operatorNote[\s\S]{0,240}insertAdjacentHTML\('afterend', html\)/.test(core));
 check('guide must preserve compact methodology reference', /id="guide-methodology"/.test(html));
 check('methodology reference must preserve core decision concepts', /SIGNAL 점수 산식/.test(html) && /시장폭·랠리 품질/.test(html) && /종목 발굴\/검증 루프/.test(html));

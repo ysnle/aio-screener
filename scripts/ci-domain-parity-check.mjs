@@ -168,29 +168,18 @@ for (const fixture of stageGolden.fixtures) {
   }
 }
 
-// ── REAL parity: computeNewsSentimentScore/computeNewsRiskSignals vs golden legacy dump ──────
+// ── P1268: intentional news evidence boundary vs legacy headline-only golden dump ──────────
 const newsGoldenPath = path.join(root, 'architecture/fixtures/news-scoring-golden.json');
 const newsGolden = JSON.parse(readFileSync(newsGoldenPath, 'utf8'));
 if (!Array.isArray(newsGolden.fixtures) || newsGolden.fixtures.length < 5) fail('news-scoring golden fixture missing or too small — re-run scripts/dump-news-scoring-fixtures.mjs');
-const NEWS_SENTIMENT_FIELDS = ['score', 'label', 'bullCount', 'bearCount', 'total', 'bullRatio', 'bearRatio'];
 for (const fixture of newsGolden.fixtures) {
   const extractedSentiment = computeNewsSentimentScore({ items: fixture.items, now: fixture.now });
-  for (const field of NEWS_SENTIMENT_FIELDS) {
-    if (extractedSentiment[field] !== fixture.legacyOutput.sentiment[field]) {
-      fail(`NEWS_SENTIMENT_PARITY_MISMATCH:${fixture.name}.${field} extracted=${JSON.stringify(extractedSentiment[field])} golden=${JSON.stringify(fixture.legacyOutput.sentiment[field])}`);
-    }
-  }
   const extractedRisk = computeNewsRiskSignals({ items: fixture.items, now: fixture.now });
-  const goldenRisk = fixture.legacyOutput.risk;
-  if (extractedRisk.length !== goldenRisk.length) {
-    fail(`NEWS_RISK_PARITY_MISMATCH:${fixture.name}.length extracted=${extractedRisk.length} golden=${goldenRisk.length}`);
-  }
-  for (let i = 0; i < goldenRisk.length; i++) {
-    for (const field of ['type', 'level', 'label', 'impact']) {
-      if (extractedRisk[i]?.[field] !== goldenRisk[i][field]) {
-        fail(`NEWS_RISK_PARITY_MISMATCH:${fixture.name}[${i}].${field} extracted=${JSON.stringify(extractedRisk[i]?.[field])} golden=${JSON.stringify(goldenRisk[i][field])}`);
-      }
-    }
+  // The historical legacy fixtures contain title/empty-desc rows only. The
+  // old output is kept as evidence of the unsafe parity that was retired.
+  if (fixture.items.some((item) => String(item?.summary || item?.desc || '').trim().length >= 40)) fail(`NEWS_GOLDEN_FIXTURE_UNEXPECTED_ARTICLE:${fixture.name}`);
+  if (extractedSentiment.score !== 50 || extractedSentiment.total !== 0 || extractedRisk.length !== 0) {
+    fail(`NEWS_HEADLINE_BOUNDARY_MISMATCH:${fixture.name} sentiment=${JSON.stringify(extractedSentiment)} risk=${JSON.stringify(extractedRisk)}`);
   }
 }
 
@@ -311,4 +300,4 @@ for (const fixture of factorRanksGolden.fixtures) {
   }
 }
 
-console.log(JSON.stringify({ ok: true, inputVersion, models: { signal: signal.modelVersion }, tradingScoreParity: { fixtures: golden.fixtures.length, modelVersion: computeTradingScoreModel({}).modelVersion }, rrgParity: { fixtures: rrgGolden.fixtures.length }, stageParity: { fixtures: stageGolden.fixtures.length }, newsScoringParity: { fixtures: newsGolden.fixtures.length }, macroCurveParity: { fixtures: macroCurveGolden.fixtures.length }, portfolioConcentrationParity: { fixtures: portfolioGolden.fixtures.length }, factorRanksParity: { fixtures: factorRanksGolden.fixtures.length } }));
+console.log(JSON.stringify({ ok: true, inputVersion, models: { signal: signal.modelVersion }, tradingScoreParity: { fixtures: golden.fixtures.length, modelVersion: computeTradingScoreModel({}).modelVersion }, rrgParity: { fixtures: rrgGolden.fixtures.length }, stageParity: { fixtures: stageGolden.fixtures.length }, newsHeadlineBoundary: { fixtures: newsGolden.fixtures.length, legacyParityIntentionallyRetired: true }, macroCurveParity: { fixtures: macroCurveGolden.fixtures.length }, portfolioConcentrationParity: { fixtures: portfolioGolden.fixtures.length }, factorRanksParity: { fixtures: factorRanksGolden.fixtures.length } }));

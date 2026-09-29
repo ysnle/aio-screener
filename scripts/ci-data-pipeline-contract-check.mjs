@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
+import { runInNewContext } from 'node:vm';
 import { backtestFactors, deriveCyclePublication, deriveFactorQuality, deriveTickerNewsLineage } from './fetch-data.mjs';
 import { factorScopesByMarket, marketOfSymbol, sessionDateInMarket, timeZoneForMarket } from '../src/domain/market/session-time.js';
 import { FACTOR_FRESHNESS_MS } from '../src/domain/screener/factor-ranks.js';
@@ -79,6 +80,7 @@ const extractFunctionSource = (text, name) => {
 
 const refresh = read('.github/workflows/refresh-data.yml');
 const screenerRefresh = read('.github/workflows/refresh-screener.yml');
+const mastersLane = refresh.match(/      - name: Refresh weekly SEC 13F and daily 13D-G discovery[\s\S]*?(?=\n      - name: )/)?.[0] || '';
 const watchdog = read('.github/workflows/data-watchdog.yml');
 const ci = read('.github/workflows/ci.yml');
 const externalPipeline = read('scripts/ci-external-pipeline-check.mjs');
@@ -87,7 +89,7 @@ const watchdogScripts = (qaPipeline.profiles?.watchdog || []).flatMap((group) =>
 const fetchData = read('scripts/fetch-data.mjs');
 const fetchTelegram = read('scripts/fetch-telegram-digest.mjs');
 const reconciliationBuilder = read('scripts/build-reconciliation-status.mjs');
-const core = read('js/aio-core.js');
+const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
 const data = read('js/aio-data.js');
 const chat = read('js/aio-chat.js');
 const tests = read('js/aio-tests.js');
@@ -107,7 +109,72 @@ const marketNewsHtml = marketNewsStart >= 0 ? html.slice(marketNewsStart, market
 const newsEmptyStart = data.indexOf('현재 조건에서');
 const newsEmptyBlock = newsEmptyStart >= 0 ? data.slice(newsEmptyStart, newsEmptyStart + 1400) : '';
 
+// P1273: exercise the home renderer with a ranked headline that has no article body.
+// Discovery rank may select a card; translation, impact text and sentiment remain withheld.
+const homeNewsStart = data.indexOf('function _aioHomeNewsHeadlineOnly(');
+const homeNewsEnd = data.indexOf('\n/* ── renderBriefingFeed()', homeNewsStart);
+let homeHeadlineBoundary = false;
+let homeArticleSummaryPreserved = false;
+let homeNewsFixtureError = '';
+if (homeNewsStart >= 0 && homeNewsEnd > homeNewsStart) {
+  const source = data.slice(homeNewsStart, homeNewsEnd);
+  const renderFixture = (item) => {
+    const host = { innerHTML: '' };
+    const calls = { sentiment: 0, summary: 0, translatedTitle: 0, tickers: 0 };
+    const sandbox = {
+      window: { AIO: { buildNewsSurfaceModel: () => ({ items: [item] }) } },
+      document: { getElementById: (id) => id === 'home-news-highlights' ? host : null },
+      escHtml: (value) => String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'),
+      escUrl: (value) => String(value || ''),
+      getSentimentFromText: () => { calls.sentiment++; return 'bull'; },
+      getDisplayTitle: () => { calls.translatedTitle++; return '근거 없는 번역 제목'; },
+      getDisplaySummary: () => { calls.summary++; return '확인되지 않은 시장 영향과 수혜 해석'; },
+      getDisplayTickers: () => { calls.tickers++; return ['$FAKE']; },
+      getTimeAgo: () => '방금'
+    };
+    runInNewContext(`${source}\nrenderHomeFeed([]);`, sandbox, { timeout: 2000 });
+    return { html: host.innerHTML, calls };
+  };
+  try {
+    const headline = renderFixture({ title: 'Original wire headline', link: 'https://example.com/article', score: 62, topic: 'semi', source: 'Reuters', contentDepth: 'headline-only', pubDate: '2026-09-25T20:00:00Z' });
+    homeHeadlineBoundary = headline.html.includes('Original wire headline')
+      && headline.html.includes('href="https://example.com/article"')
+      && headline.html.includes('헤드라인 전용·본문 미검증')
+      && headline.html.includes('선별 점수 62 (노출 우선순위·감성/본문 검증 점수 아님)')
+      && !headline.html.includes('근거 없는 번역 제목')
+      && !headline.html.includes('확인되지 않은 시장 영향과 수혜 해석')
+      && !headline.html.includes('$FAKE')
+      && headline.calls.sentiment === 0 && headline.calls.summary === 0 && headline.calls.translatedTitle === 0 && headline.calls.tickers === 0;
+    const article = renderFixture({ title: 'Article with an excerpt', desc: 'This independently reviewed excerpt is longer than forty characters and supplies article-level context.', link: 'https://example.com/full', score: 75, topic: 'macro', source: 'Reuters', contentDepth: 'summary', pubDate: '2026-09-25T20:00:00Z' });
+    homeArticleSummaryPreserved = article.html.includes('확인되지 않은 시장 영향과 수혜 해석')
+      && !article.html.includes('헤드라인 전용·본문 미검증')
+      && article.calls.summary === 1;
+  } catch (error) {
+    homeNewsFixtureError = error.message;
+  }
+}
+check('P1273 home headline-only card withholds interpretation while exposing original article and rank meaning', homeHeadlineBoundary, homeNewsFixtureError);
+check('P1273 home full-article card retains its summary path', homeArticleSummaryPreserved, homeNewsFixtureError);
+
 check('refresh workflow runs twice hourly', /cron:\s*'17,47 \* \* \* \*'/.test(refresh));
+check('P1309/R654/QA-DATA-51 daily 13D/G poll runs ownership-only while filing-season Monday, unconnected HR/HR-A, and manual runs can invoke the full 13F chain',
+  /cron:\s*'13 7 \* \* \*'/.test(refresh)
+    && /GITHUB_EVENT_NAME.*schedule/.test(mastersLane)
+    && /collect-13f-discovery\.mjs --ownership-only/.test(mastersLane)
+    && /pending_13f_hr.*-gt 0/.test(mastersLane)
+    && /in_filing_season.*true/.test(mastersLane)
+    && /date -u \+%u/.test(mastersLane)
+    && /run_full_13f\(\)\s*\{[\s\S]*collect-13f-discovery\.mjs[\s\S]*collect-13f-reference\.mjs[\s\S]*collect-13f-history-rows\.mjs[\s\S]*build-masters-runtime-artifacts\.mjs/.test(mastersLane)
+    && /else[\s\S]*run_full_13f/.test(mastersLane)
+    && /ci-13f-currentness-check\.mjs/.test(mastersLane)
+    && /ci-masters-contract-check\.mjs/.test(mastersLane)
+    && /steps\.masters\.outcome == 'success' \|\| steps\.masters\.outcome == 'skipped'/.test(refresh));
+check('P1309/R654/QA-DATA-51 candidate and exact-SHA CI handoff remain after the weekly/daily SEC lanes',
+  refresh.indexOf('Refresh weekly SEC 13F and daily 13D-G discovery') < refresh.indexOf('verify-refresh-candidate.mjs --record')
+    && refresh.indexOf('verify-refresh-candidate.mjs --record') < refresh.indexOf('Commit refreshed public data if changed')
+    && /node scripts\/verify-refresh-candidate\.mjs --expect-commit/.test(refresh)
+    && /final_sha="\$\(git rev-parse HEAD\)"/.test(refresh)
+    && /release_sha="\$final_sha"/.test(refresh));
 check('refresh workflow has write permission and no cancel-in-progress', /contents:\s*write/.test(refresh) && /cancel-in-progress:\s*false/.test(refresh));
 check('refresh workflow fetches market data with free/official optional secrets', /node scripts\/fetch-data\.mjs/.test(refresh) && /FRED_API_KEY/.test(refresh) && !/FMP_API_KEY/.test(refresh) && /ANTHROPIC_API_KEY/.test(refresh));
 check('refresh workflow fetches Telegram digest artifact', /node scripts\/fetch-telegram-digest\.mjs --days=(?:7|14) --out=public-data\/telegram-digest\.json/.test(refresh));
@@ -750,6 +817,46 @@ check('getScreenerSymbols reads screener-universe.json, not source-text regex', 
 
 check('data pipeline contract is wired into CI', qaPipeline.profiles?.full?.includes('core') && Object.values(qaPipeline.groups || {}).flatMap((group) => group.gates || []).some((gate) => gate.script === 'scripts/ci-data-pipeline-contract-check.mjs'));
 check('data pipeline contract documented in QA/rules/postmortem', /P517/.test(qa) && /R222/.test(rules) && /P517/.test(postmortem) && /P531/.test(qa) && /R230/.test(rules) && /P531/.test(postmortem) && /P535/.test(qa) && /R232/.test(rules) && /P535/.test(postmortem));
+const lineageAuditSource = read('scripts/ci-data-lineage-audit.mjs');
+check('P1283/R634 lineage freshness reference uses the wall clock and ignores ambient overrides', /const NOW = createAuditTime\(\);/.test(lineageAuditSource) && !/process\.env\.AIO_LINEAGE_AS_OF/.test(lineageAuditSource));
+check('P1287/R637 live-core freshness has no market-closed age waiver', !/marketClosedGraceEligible|deriveMarketSession|isLatestUsRegularClose/.test(lineageAuditSource) && /policy\.maxAgeHours != null && age\.ageHours > policy\.maxAgeHours/.test(lineageAuditSource));
+const runtimeDataSource = read('js/aio-data.js');
+const operationsStatusSource = read('scripts/build-operations-status.mjs');
+check('P1291/R641 browser and operations status never waive stale live-core freshness at market close',
+  !/marketClosedGrace|_utcDay/.test(runtimeDataSource)
+  && /var _liveCoreEligible = _marketCyclePublished && _liveCoreFresh/.test(runtimeDataSource)
+  && !/marketClosedGrace|utcDay/.test(operationsStatusSource)
+  && /fresh: withinSla && coverageComplete && quoteQualityComplete/.test(operationsStatusSource));
+let strictLiveCoreAgeFixtures = false;
+try {
+  const freshnessStart = runtimeDataSource.indexOf('function _aioIsStrictLiveCoreFreshnessAge(ageMs) {');
+  const freshnessEnd = runtimeDataSource.indexOf('\n}', freshnessStart) + 2;
+  if (freshnessStart >= 0 && freshnessEnd > freshnessStart) {
+    const sandbox = {};
+    runInNewContext(`${runtimeDataSource.slice(freshnessStart, freshnessEnd)}\nthis.assess = _aioIsStrictLiveCoreFreshnessAge;`, sandbox, { timeout: 1000 });
+    strictLiveCoreAgeFixtures = sandbox.assess(12 * 60 * 60 * 1000) === true
+      && sandbox.assess(12 * 60 * 60 * 1000 + 1) === false
+      && sandbox.assess(-1) === false
+      && sandbox.assess(NaN) === false;
+  }
+} catch (_) {}
+check('P1295/R645 + P1296/R646 runtime uses fixed exact 12h age and rejects future, +1ms, and metadata overrides',
+  strictLiveCoreAgeFixtures
+  && /var _marketCycleFreshnessSlaHours = 12/.test(runtimeDataSource)
+  && /_liveCoreFresh = _aioIsStrictLiveCoreFreshnessAge\(_serverAgeMs\)/.test(runtimeDataSource)
+  && !/Number\(d\.meta\.marketCycleFreshnessSlaHours\)/.test(runtimeDataSource)
+  && /const MARKET_CYCLE_FRESHNESS_SLA_MS = 12 \* 60 \* 60 \* 1000/.test(operationsStatusSource)
+  && !/Number\(data\?\.meta\?\.marketCycleFreshnessSlaHours/.test(operationsStatusSource));
+const legacyNewsSignalSource = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
+const legacyNewsFacadeSource = read('src/legacy/compatibility-facade.js');
+check('P1288/R638 legacy news aggregate and every action consumer require the shared sufficient-sample contract',
+  /configuredMinNewsSample = Number\(window\.AIO_ARCH && window\.AIO_ARCH\.MIN_NEWS_ANALYSIS_SAMPLE\)/.test(legacyNewsSignalSource)
+  && /if \(!minNewsSampleReady \|\| total < minNewsSample\)/.test(legacyNewsSignalSource)
+  && /newsSignal\.sampleSufficient === true/.test(legacyNewsSignalSource)
+  && /newsSignal\.sentimentScore === 'number' && Number\.isFinite\(newsSignal\.sentimentScore\)/.test(legacyNewsSignalSource)
+  && /ns\.sampleSufficient === true && ns\.decisionEligible === true && Number\(ns\.total\) >= minNewsSample[\s\S]*?typeof ns\.sentimentScore === 'number' && Number\.isFinite\(ns\.sentimentScore\)/.test(legacyNewsSignalSource)
+  && /sig\.sampleSufficient === true && Number\(sig\.total\) >= minNewsSample[\s\S]*?typeof sig\.sentimentScore === 'number' && Number\.isFinite\(sig\.sentimentScore\)/.test(legacyNewsSignalSource)
+  && /MIN_NEWS_ANALYSIS_SAMPLE:\s*api\.MIN_NEWS_ANALYSIS_SAMPLE/.test(legacyNewsFacadeSource));
 check('workflow governance doc exists', exists('_context/WORKFLOW-GOVERNANCE.md'));
 
 // P1102: a producer whose artifact has no reader and no lineage policy is a

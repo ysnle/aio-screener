@@ -72,6 +72,9 @@ async function auditRoute(page, routeId) {
 
     const controls = Array.from(activeRoot.querySelectorAll('button,[role="button"],a[href],input,select,textarea'))
       .slice(0, 800)
+      // P1272: a programmatically triggered, aria-hidden/visibility:hidden file input
+      // is outside the accessible control set. Keep visible unlabeled controls failing.
+      .filter((el) => el.closest('[aria-hidden="true"]') == null && getComputedStyle(el).visibility !== 'hidden' && getComputedStyle(el).display !== 'none')
       .filter((el) => !ownText(el));
     const activeText = (activeRoot.textContent || '').replace(/\s+/g, ' ').trim();
     const badTextNodes = badTextRe.test(activeText)

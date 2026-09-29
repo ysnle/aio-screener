@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createSecClient } from './lib/sec-edgar.mjs';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
+import { writeJsonIfSemanticallyChanged } from './lib/13f-semantic-hash.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const historyPath = path.join(root, 'public-data', 'masters', 'history-index.json');
@@ -193,7 +194,7 @@ history.historicalRowsArtifact = 'public-data/masters/history-holdings.json';
 history.totalPeriods = history.managers.reduce((sum, manager) => sum + manager.periods.length, 0);
 history.rowImportedPeriods = history.managers.reduce((sum, manager) => sum + manager.periods.filter((period) => period.rowImportStatus !== 'METADATA_ONLY').length, 0);
 history.pendingRowImportPeriods = history.managers.reduce((sum, manager) => sum + manager.periods.filter((period) => period.rowImportStatus === 'METADATA_ONLY').length, 0);
-await atomicWriteFile(historyPath, `${JSON.stringify(history, null, 2)}\n`, 'utf8');
+await writeJsonIfSemanticallyChanged(historyPath, history, { writer: atomicWriteFile });
 
 const historyRowsArtifact = {
   schemaVersion: 'masters-13f-history-holdings.v1',
@@ -207,6 +208,6 @@ const historyRowsArtifact = {
   rowsImported: historicalRows.length,
   rows: historicalRows
 };
-await atomicWriteFile(historyRowsPath, `${JSON.stringify(historyRowsArtifact, null, 2)}\n`, 'utf8');
+await writeJsonIfSemanticallyChanged(historyRowsPath, historyRowsArtifact, { writer: atomicWriteFile });
 await fs.rm(partialRowsPath, { force: true });
 console.log(JSON.stringify({ ok: true, output: 'public-data/masters/history-holdings.json', importedPeriods, rowsImported: historicalRows.length, pendingRowImportPeriods: history.pendingRowImportPeriods }));

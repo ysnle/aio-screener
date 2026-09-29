@@ -1,0 +1,67 @@
+name: Knowledge build candidate
+
+on:
+  pull_request:
+    paths:
+      - 'content/**'
+      - 'js/aio-glossary.js'
+      - 'public-data/atlas/**'
+      - 'public-data/knowledge/**'
+      - 'public-data/masters/holdings.json'
+      - 'public-data/masters/history-holdings.json'
+      - 'public-data/masters/index.json'
+      - 'public-data/principles/**'
+      - 'src/ui/pages/principles.js'
+      - 'src/ui/pages/atlas.js'
+      - 'src/ui/knowledge/learning-controls.js'
+      - 'src/app/knowledge-route-state.js'
+      - 'src/domain/knowledge/**'
+      - 'scripts/build-13f-issuer-aggregates.mjs'
+      - 'scripts/lib/atomic-write.mjs'
+      - 'scripts/lib/13f-semantic-hash.mjs'
+      - 'scripts/*knowledge*.mjs'
+      - 'scripts/build-atlas-*.mjs'
+      - 'scripts/build-principles-*.mjs'
+      - 'scripts/audit-knowledge-*.mjs'
+      - 'scripts/enrich-knowledge-*.mjs'
+      - 'scripts/ci-knowledge-generated-parity-check.mjs'
+      - '.github/workflows/knowledge-build-candidate.yml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: knowledge-build-candidate-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout the event SHA
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: '24'
+
+      - name: Build generated candidates in a disposable workspace
+        env:
+          AIO_SOURCE_SHA: ${{ github.sha }}
+          AIO_PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || '' }}
+          CANDIDATE_DIR: ${{ runner.temp }}/aio-knowledge-build-candidate-${{ github.run_id }}
+        run: node scripts/ci-knowledge-generated-parity-check.mjs --candidate-dir "$CANDIDATE_DIR"
+
+      - name: Upload human-review candidate artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: knowledge-build-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/aio-knowledge-build-candidate-${{ github.run_id }}/
+          if-no-files-found: error
+          retention-days: 30

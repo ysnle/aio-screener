@@ -13,7 +13,7 @@ ANTHROPIC_MAX_TOKENS = "1500"
 # Per-provider daily ceiling for /relay (operator-key server-side fetches).
 RELAY_DAILY_CAP = "2000"
 # Must equal version.json — enforced by ci-version-check.mjs and synchronized by bump-version.mjs.
-AIO_APP_REVISION = "v56.52"
+AIO_APP_REVISION = "v56.82"
 AIO_SOURCE_SHA = "__AIO_SOURCE_SHA__"
 
 [[durable_objects.bindings]]
@@ -69,3 +69,5 @@ period = 60
 # A provider whose key is absent makes only that relay provider fail closed (503);
 # /relay never falls back to a client-supplied key.
 # AIO_APP_TOKEN and AIO_DEV_ORIGINS remain optional operator-managed settings.
+# Optional private quota observation uses the Cloudflare Worker secret AIO_OPERATOR_TOKEN;
+# it is deliberately excluded from public /health and is not synchronized from repository secrets.

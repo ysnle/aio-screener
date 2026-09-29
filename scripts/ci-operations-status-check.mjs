@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { OPERATIONS_STATUS, DOMAIN_RECEIPT_PUBLICATION_STATUS, createOperationsStatus, validateOperationsStatus } from '../src/data/contracts/operations.js';
-import { deriveDurableFreshness, deriveDomainStatus, deriveFredProviderStatus, derivePublicAiConfig, deriveRouteOwnership, reuseWorkerHealthEvidence } from './build-operations-status.mjs';
+import { deriveDurableFreshness, deriveDomainStatus, deriveFastQuoteAvailability, deriveFredProviderStatus, derivePublicAiConfig, deriveRouteOwnership, reuseWorkerHealthEvidence } from './build-operations-status.mjs';
 import { buildDomainReceipt } from './lib/domain-receipt.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -12,6 +12,13 @@ const data = JSON.parse(read('public-data/data.json'));
 const routeOwners = JSON.parse(read('architecture/route-owners.json'));
 const validation = validateOperationsStatus(status);
 if (!validation.ok) throw new Error(`[operations-status] ${validation.errors.join(',')}`);
+// P1271: a healthy endpoint without rights/soak remains disabled in public-config
+// and must not become an AVAILABLE quote feature in operations-status.
+const healthyUncertified = deriveFastQuoteAvailability({ configured: true, healthy: true, rightsReviewed: false, soakObservedDays: 0 });
+if (healthyUncertified.availability !== 'UNAVAILABLE' || healthyUncertified.missingReason !== 'fast-quote-provider-rights-not-reviewed') throw new Error('[operations-status] uncertified fast quotes were promoted');
+if (deriveFastQuoteAvailability({ configured: true, healthy: true, rightsReviewed: true, soakObservedDays: 6 }).availability !== 'UNAVAILABLE') throw new Error('[operations-status] incomplete fast quote soak was promoted');
+if (deriveFastQuoteAvailability({ configured: true, healthy: true, rightsReviewed: true, soakObservedDays: 7 }).availability !== 'AVAILABLE') throw new Error('[operations-status] certified healthy fast quotes were blocked');
+if (status.featureAvailability?.quotes?.availability === 'AVAILABLE' && JSON.parse(read('public-config.json')).marketData?.fastQuotes?.enabled !== true) throw new Error('[operations-status] published quote availability contradicts disabled public route');
 const durableQuotes = Array.from({ length: 16 }, (_, index) => ({ instrumentId: `Q${index}`, quality: 'CURRENT', session: 'CURRENT_SESSION' }));
 const durableSnapshot = {
   status: 'published',
@@ -25,8 +32,33 @@ const durableFresh = deriveDurableFreshness({ data: durableData, marketSnapshot:
 if (!durableFresh.fresh || !durableFresh.coverageComplete || !durableFresh.quoteQualityComplete) throw new Error('[operations-status] valid durable quote set did not become current');
 const staleQuoteFreshness = deriveDurableFreshness({ data: durableData, marketSnapshot: { ...durableSnapshot, quotes: durableQuotes.map((row, index) => index === 0 ? { ...row, quality: 'STALE', session: 'STALE_UNEXPECTED' } : row) }, now: '2026-08-28T01:00:00.000Z' });
 if (staleQuoteFreshness.fresh || staleQuoteFreshness.reason !== 'market-snapshot-quote-quality-blocked') throw new Error('[operations-status] fresh build timestamp promoted a stale quote set');
-const futureCycle = deriveDurableFreshness({ data: { meta: { ...durableData.meta, generatedAt: '2026-08-28T02:00:00.000Z' } }, marketSnapshot: durableSnapshot, now: '2026-08-28T01:00:00.000Z' });
+const futureCycle = deriveDurableFreshness({ data: { meta: { ...durableData.meta, generatedAt: '2026-08-28T01:00:00.001Z' } }, marketSnapshot: durableSnapshot, now: '2026-08-28T01:00:00.000Z' });
 if (futureCycle.fresh || futureCycle.reason !== 'market-cycle-generatedAt-in-future') throw new Error('[operations-status] future cycle timestamp was promoted');
+const extendedSlaData = { meta: { ...durableData.meta, marketCycleFreshnessSlaHours: 48 } };
+const cycleAtSlaBoundary = deriveDurableFreshness({
+  data: extendedSlaData,
+  marketSnapshot: durableSnapshot,
+  now: '2026-08-28T12:00:00.000Z'
+});
+if (!cycleAtSlaBoundary.fresh || !cycleAtSlaBoundary.withinSla || cycleAtSlaBoundary.maxAgeHours !== 12) {
+  throw new Error('[P1291/R641 operations-status] exact 12-hour cycle boundary was not accepted under the canonical SLA');
+}
+const cycleOneMsPastSla = deriveDurableFreshness({
+  data: extendedSlaData,
+  marketSnapshot: durableSnapshot,
+  now: '2026-08-28T12:00:00.001Z'
+});
+if (cycleOneMsPastSla.ageHours !== 12 || cycleOneMsPastSla.fresh || cycleOneMsPastSla.withinSla || cycleOneMsPastSla.reason !== 'market-cycle-freshness-sla-exceeded') {
+  throw new Error('[P1291/R641 operations-status] artifact SLA override promoted a cycle 1 ms beyond 12 hours');
+}
+const weekendStaleCycle = deriveDurableFreshness({
+  data: { meta: { ...durableData.meta, generatedAt: '2026-08-30T00:00:00.000Z' } },
+  marketSnapshot: durableSnapshot,
+  now: '2026-08-30T13:00:00.000Z'
+});
+if (weekendStaleCycle.fresh || weekendStaleCycle.withinSla || weekendStaleCycle.reason !== 'market-cycle-freshness-sla-exceeded') {
+  throw new Error('[P1291/R641 operations-status] weekend stale market cycle bypassed the wall-clock freshness SLA');
+}
 const lkgFixture = {
   ai: { publicChat: { health: { statusCode: 200, observedAt: '2026-08-25T00:00:00.000Z', revision: 'v-test', sourceSha: 'a'.repeat(40), configured: true, quotaConfigured: true, authorityReady: true, authorityJurisdiction: 'us', ready: true } } },
   planes: { fast: { health: { statusCode: 200, observedAt: '2026-08-25T00:00:00.000Z', coverage: '16/16', revision: 'v-test', sourceSha: 'b'.repeat(40) } } }

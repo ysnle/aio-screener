@@ -44,11 +44,13 @@
         "scripts/ci-professional-data-gap-check.mjs",
         "scripts/ci-static-data-contract-check.mjs",
         "scripts/ci-data-refresh-audit.mjs",
-        "scripts/ci-masters-contract-check.mjs"
+        "scripts/ci-masters-contract-check.mjs",
+        "scripts/ci-13f-currentness-check.mjs"
       ],
       "requiredTokens": [
         "public-data/masters/index.json",
-        "ci-masters-contract-check.mjs --staged"
+        "ci-masters-contract-check.mjs --staged",
+        "collect-13f-discovery.mjs --ownership-only"
       ]
     },
     {
@@ -74,6 +76,102 @@
         "scripts/ci-professional-data-gap-check.mjs",
         "scripts/ci-static-data-contract-check.mjs",
         "scripts/ci-data-refresh-audit.mjs"
+      ]
+    },
+    {
+      "workflow": ".github/workflows/universe-review.yml",
+      "mode": "direct",
+      "requiredScripts": [
+        "scripts/sync-screener-universe.mjs",
+        "scripts/build-universe-review.mjs"
+      ],
+      "requiredTokens": [
+        "cron: '29 9 1 * *'",
+        "contents: read",
+        "issues: write",
+        "group: monthly-screener-universe-review",
+        "cancel-in-progress: false",
+        "if: github.ref == 'refs/heads/main'",
+        "--state all",
+        "elif [ -n \"$closed_issue\" ]; then",
+        "leaving it closed"
+      ]
+    },
+    {
+      "workflow": ".github/workflows/macro-calendar-review.yml",
+      "mode": "direct",
+      "requiredScripts": [
+        "scripts/fetch-fred-calendar-candidates.mjs",
+        "scripts/preview-macro-calendar.mjs",
+        "scripts/build-macro-calendar-review.mjs"
+      ],
+      "requiredTokens": [
+        "cron: '7 10 * * 1'",
+        "contents: read",
+        "issues: write",
+        "FRED_API_KEY: ${{ secrets.FRED_API_KEY }}",
+        "GH_TOKEN: ${{ github.token }}",
+        "group: weekly-macro-calendar-review",
+        "cancel-in-progress: false",
+        "if: github.ref == 'refs/heads/main'",
+        "--state all",
+        "in:title",
+        "select(.title == $title)",
+        "retention-days: 30",
+        "leaving it closed"
+      ]
+    },
+    {
+      "workflow": ".github/workflows/knowledge-build-candidate.yml",
+      "mode": "direct",
+      "requiredScripts": [
+        "scripts/ci-knowledge-generated-parity-check.mjs"
+      ],
+      "requiredTokens": [
+        "pull_request:",
+        "workflow_dispatch: {}",
+        "contents: read",
+        "ref: ${{ github.sha }}",
+        "persist-credentials: false",
+        "AIO_SOURCE_SHA: ${{ github.sha }}",
+        "--candidate-dir \"$CANDIDATE_DIR\"",
+        "actions/upload-artifact@",
+        "retention-days: 30"
+      ]
+    },
+    {
+      "workflow": ".github/workflows/knowledge-lint.yml",
+      "mode": "direct",
+      "requiredScripts": [
+        "scripts/ci-doc-currency-check.mjs",
+        "scripts/ci-ledger-integrity-check.mjs",
+        "scripts/ci-assertion-trace-check.mjs",
+        "scripts/ci-six-doc-coverage-check.mjs",
+        "scripts/ci-workspace-contract-check.mjs",
+        "scripts/ci-knowledge-lint-check.mjs"
+      ],
+      "requiredTokens": [
+        "cron: '13 4 * * 1'",
+        "contents: read",
+        "persist-credentials: false"
+      ]
+    },
+    {
+      "workflow": ".github/workflows/exchange-calendar-review.yml",
+      "mode": "direct",
+      "requiredScripts": [
+        "scripts/build-exchange-calendar-review.mjs"
+      ],
+      "requiredTokens": [
+        "cron: '0 9 1 11 *'",
+        "workflow_dispatch:",
+        "contents: read",
+        "ref: ${{ github.sha }}",
+        "persist-credentials: false",
+        "needs: report",
+        "issues: write",
+        "GH_TOKEN: ${{ github.token }}",
+        "leaving it closed"
       ]
     }
   ],
@@ -405,11 +503,18 @@
           "script": "scripts/ci-deployment-convergence-check.mjs",
           "inputs": [
             "architecture/deployment-convergence.json",
+            ".github/workflows/ci.yml",
             ".github/workflows/pages-deploy.yml",
             ".github/workflows/deploy-ai-proxy.yml",
             ".github/workflows/deploy-data-plane.yml",
             "cloudflare-worker-proxy.js",
             "worker/data-plane.js",
+            "worker/wrangler.proxy.toml",
+            "worker/wrangler.example.toml",
+            "src/data/contracts/market-snapshot.js",
+            "src/data/contracts/source-kind.js",
+            "scripts/resolve-worker-rollback-version.mjs",
+            "scripts/worker-deploy-impact.mjs",
             "scripts/ci-external-pipeline-check.mjs",
             "scripts/ci-live-invariant-check.mjs",
             "scripts/build-operations-status.mjs"
@@ -476,6 +581,10 @@
       ],
       "gates": [
         {
+          "id": "macro-calendar-review",
+          "script": "scripts/ci-macro-calendar-review-contract-check.mjs"
+        },
+        {
           "id": "screener-workbench",
           "script": "scripts/ci-screener-workbench-contract.mjs"
         },
@@ -521,6 +630,18 @@
         {
           "id": "operations-status",
           "script": "scripts/ci-operations-status-check.mjs"
+        },
+        {
+          "id": "operations-alert-policy",
+          "script": "scripts/ci-operations-alert-policy-check.mjs",
+          "inputs": [
+            "architecture/operations-alert-policy.json",
+            "scripts/lib/operations-alert-policy.mjs",
+            "scripts/ci-operations-alert-policy-check.mjs",
+            "src/ai/time/market-session.js",
+            "scripts/build-operations-status.mjs",
+            "scripts/ci-operations-status-check.mjs"
+          ]
         },
         {
           "id": "fast-plane-consumer",
@@ -616,7 +737,8 @@
             "js/aio-data.js",
             "js/aio-kr-data.js",
             "index.html",
-            "public-data/screener-universe.json"
+            "public-data/screener-universe.json",
+            "scripts/build-universe-review.mjs"
           ]
         },
         {
@@ -676,6 +798,27 @@
             "js/aio-data.js",
             "version.json",
             "index.html",
+            ".github/workflows/refresh-data.yml",
+            "src/ui/pages/masters.js"
+          ]
+        },
+        {
+          "id": "13f-semantic-noop",
+          "script": "scripts/ci-13f-semantic-hash-check.mjs",
+          "inputs": [
+            "public-data/masters/**",
+            "public-data/objects/masters/**",
+            "scripts/lib/13f-semantic-hash.mjs",
+            "scripts/lib/13f-discovery.mjs",
+            "scripts/ci-13f-semantic-hash-check.mjs",
+            "scripts/collect-13f-discovery.mjs",
+            "scripts/collect-13f-reference.mjs",
+            "scripts/collect-13f-history-index.mjs",
+            "scripts/collect-13f-history-rows.mjs",
+            "scripts/build-13f-issuer-aggregates.mjs",
+            "scripts/build-13f-reference-ticker-index.mjs",
+            "scripts/reconcile-13f-prior-from-history.mjs",
+            "scripts/build-masters-runtime-artifacts.mjs",
             ".github/workflows/refresh-data.yml"
           ]
         }
@@ -695,9 +838,14 @@
         "src/ui/pages/masters.js",
         "src/ui/knowledge/**",
         "scripts/**",
+        ".github/workflows/knowledge-build-candidate.yml",
         "_context/**"
       ],
       "gates": [
+        {
+          "id": "principles-lesson-parity",
+          "script": "scripts/ci-principles-lesson-parity-contract-check.mjs"
+        },
         {
           "id": "knowledge-generated-parity",
           "script": "scripts/ci-knowledge-generated-parity-check.mjs",
@@ -850,6 +998,10 @@
           "script": "scripts/ci-ledger-integrity-check.mjs"
         },
         {
+          "id": "record-fix",
+          "script": "scripts/ci-record-fix-check.mjs"
+        },
+        {
           "id": "assertion-trace",
           "script": "scripts/ci-assertion-trace-check.mjs"
         },
@@ -865,11 +1017,18 @@
       "inputs": [
         "cloudflare-worker-proxy.js",
         "worker/**",
+        ".github/workflows/ci.yml",
         ".github/workflows/deploy-ai-proxy.yml",
         ".github/workflows/deploy-data-plane.yml",
         "architecture/worker-endpoints.json",
+        "scripts/resolve-worker-rollback-version.mjs",
+        "scripts/worker-deploy-impact.mjs",
+        "src/data/contracts/market-snapshot.js",
+        "src/data/contracts/source-kind.js",
         "scripts/ci-worker-anthropic-check.mjs",
         "scripts/ci-worker-relay-check.mjs",
+        "scripts/operations-alert/collect-observations.mjs",
+        "scripts/ci-operations-alert-source-check.mjs",
         "scripts/ci-data-plane-contract-check.mjs",
         "scripts/ci-cloudflare-deployment-contract-check.mjs"
       ],
@@ -881,6 +1040,17 @@
         {
           "id": "worker-relay",
           "script": "scripts/ci-worker-relay-check.mjs"
+        },
+        {
+          "id": "operations-alert-source",
+          "script": "scripts/ci-operations-alert-source-check.mjs",
+          "inputs": [
+            "scripts/operations-alert/collect-observations.mjs",
+            "scripts/ci-operations-alert-source-check.mjs",
+            "scripts/lib/operations-alert-policy.mjs",
+            "architecture/operations-alert-policy.json",
+            "architecture/worker-endpoints.json"
+          ]
         },
         {
           "id": "cloudflare-deployment",
@@ -1270,6 +1440,8 @@
     {
       "patterns": [
         "scripts/ci-ledger-integrity-check.mjs",
+        "scripts/ci-record-fix-check.mjs",
+        "scripts/record-fix.mjs",
         "scripts/ci-assertion-trace-check.mjs",
         "_context/rule-gap-manifest.json",
         "_context/open-item-baseline.json",
@@ -1292,7 +1464,8 @@
     {
       "patterns": [
         ".github/workflows/refresh-data.yml",
-        ".github/workflows/refresh-screener.yml"
+        ".github/workflows/refresh-screener.yml",
+        ".github/workflows/macro-calendar-review.yml"
       ],
       "groups": [
         "core",
@@ -1301,11 +1474,15 @@
     },
     {
       "patterns": [
+        ".github/workflows/ci.yml",
         ".github/workflows/pages-deploy.yml",
         ".github/workflows/deploy-ai-proxy.yml",
         ".github/workflows/deploy-data-plane.yml",
         "cloudflare-worker-proxy.js",
         "worker/data-plane.js",
+        "worker/wrangler.proxy.toml",
+        "worker/wrangler.example.toml",
+        "scripts/resolve-worker-rollback-version.mjs",
         "architecture/deployment-convergence.json"
       ],
       "groups": [
@@ -1424,6 +1601,41 @@
     },
     {
       "patterns": [
+        "src/ui/pages/masters.js"
+      ],
+      "groups": [
+        "data"
+      ],
+      "gates": [
+        "13f-currentness"
+      ]
+    },
+    {
+      "patterns": [
+        "public-data/masters/**",
+        "public-data/objects/masters/**",
+        "scripts/lib/13f-semantic-hash.mjs",
+        "scripts/lib/13f-discovery.mjs",
+        "scripts/ci-13f-semantic-hash-check.mjs",
+        "scripts/collect-13f-discovery.mjs",
+        "scripts/collect-13f-reference.mjs",
+        "scripts/collect-13f-history-index.mjs",
+        "scripts/collect-13f-history-rows.mjs",
+        "scripts/build-13f-issuer-aggregates.mjs",
+        "scripts/build-13f-reference-ticker-index.mjs",
+        "scripts/reconcile-13f-prior-from-history.mjs",
+        "scripts/build-masters-runtime-artifacts.mjs",
+        ".github/workflows/refresh-data.yml"
+      ],
+      "groups": [
+        "data"
+      ],
+      "gates": [
+        "13f-semantic-noop"
+      ]
+    },
+    {
+      "patterns": [
         "scripts/*data*.mjs",
         "scripts/fetch-*.mjs",
         "scripts/*screener*.mjs",
@@ -1445,10 +1657,44 @@
     },
     {
       "patterns": [
+        "architecture/operations-alert-policy.json",
+        "scripts/lib/operations-alert-policy.mjs",
+        "scripts/ci-operations-alert-policy-check.mjs",
+        "src/ai/time/market-session.js",
+        "scripts/build-operations-status.mjs",
+        "scripts/ci-operations-status-check.mjs"
+      ],
+      "groups": [
+        "data",
+        "core"
+      ],
+      "gates": [
+        "operations-alert-policy"
+      ]
+    },
+    {
+      "patterns": [
+        "scripts/operations-alert/collect-observations.mjs",
+        "scripts/ci-operations-alert-source-check.mjs",
+        "scripts/lib/operations-alert-policy.mjs",
+        "architecture/operations-alert-policy.json",
+        "architecture/worker-endpoints.json"
+      ],
+      "groups": [
+        "cloudflare"
+      ],
+      "gates": [
+        "operations-alert-source"
+      ]
+    },
+    {
+      "patterns": [
         "scripts/*worker*.mjs",
         "scripts/*cloudflare*.mjs",
         "scripts/*data-plane*.mjs",
-        "scripts/ci-fast-plane-consumer-gate.mjs"
+        "scripts/ci-fast-plane-consumer-gate.mjs",
+        "src/data/contracts/market-snapshot.js",
+        "src/data/contracts/source-kind.js"
       ],
       "groups": [
         "cloudflare"
@@ -1469,6 +1715,60 @@
         "architecture/skill-eval-cases.json"
       ],
       "groups": [
+        "workspace"
+      ]
+    },
+    {
+      "patterns": [
+        "scripts/fetch-fred-calendar-candidates.mjs",
+        "scripts/preview-macro-calendar.mjs",
+        "scripts/build-macro-calendar-review.mjs",
+        "scripts/ci-macro-calendar-review-contract-check.mjs",
+        ".github/workflows/macro-calendar-review.yml"
+      ],
+      "groups": [
+        "data"
+      ],
+      "gates": [
+        "macro-calendar-review"
+      ]
+    },
+    {
+      "patterns": [
+        "scripts/ci-knowledge-generated-parity-check.mjs",
+        "scripts/lib/atomic-write.mjs",
+        "scripts/lib/13f-semantic-hash.mjs",
+        ".github/workflows/knowledge-build-candidate.yml"
+      ],
+      "groups": [
+        "core",
+        "knowledge",
+        "workspace"
+      ],
+      "gates": [
+        "knowledge-generated-parity"
+      ]
+    },
+    {
+      "patterns": [
+        "scripts/build-universe-review.mjs"
+      ],
+      "groups": [
+        "core",
+        "data"
+      ],
+      "gates": [
+        "static-db-expiry"
+      ]
+    },
+    {
+      "patterns": [
+        "scripts/build-exchange-calendar-review.mjs",
+        ".github/workflows/exchange-calendar-review.yml"
+      ],
+      "groups": [
+        "core",
+        "data",
         "workspace"
       ]
     },

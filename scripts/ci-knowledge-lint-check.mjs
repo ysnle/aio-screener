@@ -26,6 +26,13 @@ for (const doc of catalog.documents) {
   if (!doc.path.endsWith('.md') || doc.generated) continue;
   const text = read(doc.path);
   if (text.startsWith('---')) check(`${doc.path} has closed YAML frontmatter`, /^---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$)/.test(text));
+  // R667: a frontmatter line is metadata, not a place to append evidence. Oversized lines (a 7,000-char
+  // verified_by drifted from generated CURRENT-STATE.md) bloat every read of the ledger head.
+  if (text.startsWith('---')) {
+    const fm = text.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/);
+    const oversized = fm ? fm[1].split(/\r?\n/).filter((line) => line.length > 400).map((line) => `${line.slice(0, 24)}... (${line.length})`) : [];
+    check(`${doc.path} frontmatter lines stay within 400 chars (R667)`, !oversized.length, oversized.slice(0, 3).join(', '));
+  }
   if (['preflight', 'ledger', 'targeted-map'].includes(doc.kind)) check(`${doc.path} has frontmatter`, /^---\r?\n/.test(text));
   if (doc.kind === 'current-handoff') {
     check(`${doc.path} current handoff declares last_verified`, /^\d{4}-\d{2}-\d{2}$/.test(doc.lastVerified || ''));

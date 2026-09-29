@@ -1,13 +1,553 @@
 ---
-verified_by: P1264(QA-CRED-05 — 매크로 FRED 출처 라벨 + PRIVATE_ROUTE_REQUIRED 개인키 거부 실브라우저 실측)·P1263(QA-SIG-27 — 체크리스트 모드 독립 결정 기록 + summarizeEntryChecklist 단일 소유자·revision 결속·미보고=대기, fixture 5군 + T1207)·P1262(QA-FX-REFRESH — fetch-data producer P1256 스코프 결함 수정·실제 refresh 완주·FX 4검증 종료·환경 실패 해소)·P1261(QA-GLOSSARY-SWEEP — 용어집 수치 항목 84개 전수 출처·조건 대조 레지스트리, 근거 없는 주장 6건 정정, 양방향 정합 단언 3종)·P1260(QA-THM-CLEANUP — P1257 퇴역 섹션의 렌더러·selector·quote 게이트·CSS no-op 잔여 회수, 퇴역 id 참조 0건 단언 + decomp 순감소 ratchet)·P1247(E3/E4 FX 계획 4 — 백테스트 랩 통화축을 `fx.js` 선언 leg 계약으로 배선(통화 없는 합산 제거·환산 불가 보류·현지통화 가중 공시·과차단 금지), reconciliation `commodities-fx`에 FX 일별 이력·공식 대조 evidence 추가, P1247 픽스처 6종)·P1246(E3/E4 FX 축 선행 BLOCKER 해소 — history.json USD/KRW 정본 열(KRW=X, 기존 Yahoo chart producer 경로·1년 백필), producer·게이트가 공유하는 단일 타당 범위 `HIST_FIELD_PLAUSIBILITY`, 시장 레인 값·증거 단일 열거, FRED DEXKOUS 키 없는 공식 교차검증을 `providerCrossChecks.fx`로 발행·같은 시점 정렬(실측 0.61% 일치, 지연 무시 설계는 2.09% 오표기), FX 계약 6종)·P1245(E6 A05 요청별 출처 소유권 — native 인용/연구 tool 오류를 공유 전역에서 `requestId` 스코프 저장소로 이동, `_aioActiveAIRequestId`/`_aioLastClaudeCitations`/`_aioLastClaudeResearchError` 제거, evidence gate 계약을 모순된 리터럴에서 의미·행동 기준으로 갱신, 겹친 두 스트림 비혼입 VM 검증)·P1244(E6 A05·A06 — AI 요청 분류/응답 감사 분리와 `bindingVerified` 경계, E2 S-E·LC-44 회귀 복구)·P1243(VaR `recent-half` 표본 순서 계약 런타임 검증 — 날짜 표본 단조 검증·선언 요구, 미검증은 변형 보류·인증 hold)·P1242(E5 R24-07 종료 — SLO 예정 도착은 `schedule` event만 측정, 다른 trigger는 제외·breakdown 발행, push-only 창은 NOT_OBSERVED)·P1241(E2 S-C 종료 — 행 해석 단일 소유자 `screener-row-policy.js`, 게시된 빈 상태 권위·번들 대체 금지, 번들은 선언된 BUNDLED_COMPAT 호환 읽기로 한정, 퇴역 전역 도달 제거, facade API 59→60)·P1240(E2 S-C 스크리너 행 해석 체인 shadow 하니스 — 양쪽 체인을 5개 입력에서 실행하고 측정 분기 집합 고정)·P1239(E2 S-E 두 채팅의 스크리너 AI 컨텍스트 helper 단일화)·P1238(E2 S-F 뉴스 전용 IDB 뉴스 범위 개명 + 이전 이름 DB 비파괴 복사 마이그레이션)·P1237(LC-53 Principles 학습 층 안내)·P1236(LC-52 Guide 배경 문장 조건·반례·계절 정합)·P1235(LC-51 Masters 역조회 표시/전체 카운트+더보기)·P1234(LC-50 Atlas 검색 범위 안내)·P1233(LC-36 테마 가격 참여 폭 분모 표시)·P1232(LC-35 테마 공개 범위 결정 기록, 제품 결정 OPEN)·P1231(LC-32 헤드라인 전용 요약 보류)·P1230(LC-31 피드 주제와 기사 주제 분리·검토 필요 표기)·P1229(LC-49 Macro 곡선 가용성을 공식 2s10s와 분리 — cut 미확정은 스프레드 판정 보류)·P1228(LC-48 Signal 섹터 폭 모집단 명시)·P1227(LC-47 Breadth 50SMA 문장 native 단일 소유·상승 종목 비중 라벨)·P1226(LC-46 Macro 배너 상태를 렌더된 카드에서 파생)·P1225(LC-45 포트폴리오 표 통화 인식)·P1224(LC-44 가져오기 실제 버튼·키보드 도달)·P1223(LC-43 포트폴리오 도입 문구를 실제 표시 근거에 정합)·P1222(LC-30 Masters 과거 shard가 index 서술자(managerId·schema·행 범위)와 동치 검증 후 사용)·P1221(LC-22 Atlas 고유 개념/단계 배치/재등장 구분)·P1220(LC-19·21 Guide 매매 지시 제거·미제공 지표 명시)·P1219(LC-29 F&G 변화량에 `전일 대비` 라벨·접근성 이름)·P1218(LC-28·37·38 테마 상세의 하루 등락→모멘텀·자금흐름·원인 단정 분리)·P1217(LC-34 뉴스 원문 카드가 키보드 도달 가능한 실제 `<a>` — click 위임 앵커 skip으로 이중 열기 차단)·P1216(LC-33 뉴스 빈 상태의 내부 emptyReason enum 번역·raw 보간 제거)·P1215(LC-39 기업→기술 차트 bridge 단일화 — 폐기된 `deep-ticker-*` id 삭제, `runDeepAnalysis(sym)` 호출)·P1214(E2 LC-26 신호 점수 모드 단일 revision — legacy facade 하드코딩 'swing'·native reader 모드 누락·'임계값 65점' 미지원 약속 제거, mode 입력이 점수를 실제로 바꾸는 단위 fixture)·P1213(E2 LC-42 행별 quote 현재성 — 관측시각 미확인 가격을 '현재가'로 확정하지 않고 전역 LIVE 배지를 상속하지 않음)·P1212(E2 LC-41 결측의 0 승격 차단 — native 진단 계수와 legacy 팩터 IC 캔버스의 null→0)·P1211(E2 LC-25 funnel 실행 판정/표시 범위 분모·runId 분리)·P1210(E2 LC-40 Why 상태 어휘 정합 — 'available'≠엔진 'ranked', 표시 순위/팩터 원값 명명)·P1209(뉴스 HTML entity 단일 decode, 허용 문자만 text node 표시, XSS 음성 fixture)·P1208(2s10s percentage-point·동일 Treasury cut 단일 모델, macro/fxbond parity)·P1207(SKEW market.volatility.skew 단일 quote identity/read model, sentiment/options parity)·P1206(항목별 date/as-of와 stale sink 결속, briefing fallback writer 삭제)·P1205(티커 탭/기간 native 단일 소유권, legacy switchTab·loadTickerChart·Stooq 경로 삭제, 실브라우저 31/91/181/366행 인수)·P1204(Masters canonical index staging 누락·실제 Git index blob gate)·P1203(E4 VaR 인증 도달 가능성 — 정렬 표본을 넘겨 '최근 절반' 민감도가 상위 절반이 되던 결함, 인증 렌더 실측 PFE2-23)·P1200(전략 목표비중의 현금 몫이 계좌 범위를 선언)·P1201(회고 경로 정책 셀렉터 비활성)·P1199(선언 저장소 ack 계약 네이티브 분해, 셸 -9)·P1198(선언 정직성 — 미선언·미인식 열거형이 기본값으로 승격되지 않음)·P1197(소비되지 않는 선언 — 회고 경로 정책 미요구·정체성 제외)·P1196(E3 원가축 환산)·P1195(선언 패널 네이티브 분해, 셸 -32)·P1194(E3 FX 환산 — 선언된 관측 rate leg)·P1193·P1192·P1191·P1190·P1189 구현, ci-esm-core-unit-check(P1182/P1191/P1193 갱신 + P1190~P1200 fixture)·ci-masters-contract-check(worktree regenerated PASS, pre-fix staged index FAIL)·ci-data-continuity-check PASS·ci-artifact-semantics-check·ci-history-field-time-contract-check·ci-data-lineage-audit·ci-reconciliation-contract-check·ci-operations-status-check PASS. 남은 OPEN: E2 S-C/S-E/S-F(별도 실행 하니스), 셸 위험 입력 조립 분해(~60줄), 백테스트 랩 통화축(과거 FX 이력 공급원 필요), `recent-half` 입력 순서 계약의 런타임 검증, 정식 CI 시크릿 refresh 사이클
-last_verified: 2026-09-26
+last_verified: 2026-09-29
 confidence: medium
-latest_version: v56.52
-latest_P_number: P1265
-next_P_number: P1266
-current_total_entries: 652 tracked entries (479 headings + 173 compacted lines, P1~P1265, 결번 존재) — 종전 "781 (P1~P1067)"은 셀 수 없는 historical 합계였다
-current_checkpoint: 2026-09-26 3차 — E2-C6 감사(34)의 P0 2건·P1-3 구현(P1265): qa-runner 런 identity·실패 배치 보존·원자적 쓰기·손상 캐시 처리·`candidate` 커밋 후보 결속·data/cloudflare 중복 등록 제거+gate 단위 영향 보완. 인수 fixture 9종 + verify-refresh-candidate 셀프테스트 PASS. **미착수**: E2-C6 P1-4(promotion 게이트 중복→후보 결속 배선)·P1-5(CI 준비 시간 계측)·P2-6(수렴 지표), QA-AI-A05-STREAM(키 대기), QA-CONTENT-37, QA-CRED-02~04·14, E6 A01~A04, E7-C1~C7, 20장 수직 경로. 커밋·배포는 사용자 승인으로 이번 마무리에서 수행.
+derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
+
+## P1332 - v56.82 - five gates and two artifacts still counted 20 routes after the options retirement (2026-09-29)
+
+- symptom/reproduction: After P1321, baseline-contract ("route count drift"), operations-status, retirement (nativeLifecycleOwner), vertical-slice (13 slices) and operations-contract gates still expected 20 routes/13 slices; public-data/operations-status.json and architecture/baseline.json still listed options.
+- root_cause: P1321 verification ran the gates it changed plus the core suite, not every gate that pins a route count; the counts were hardcoded in each place.
+- fix: baseline.json supportedRoutesCount 19, operations-status.json routes without options (the same edit its builder makes; the producer was not run locally), vertical-slice gate 12 slices; masters/principles/operations gates already derive the count from route-owners.json.
+- violated_rule: R666 — a removed route is removed everywhere.
+- prevention: QA-ROUTE-19 — the full static gate sweep now runs before closing a route change; the remaining pinned counts are listed for derivation in a later pass.
+- verification/residual: baseline, retirement, vertical-slice, operations-status and structural gates pass (19 routes).
+
+## P1331 - v56.82 - "?" term buttons were 15 px targets after becoming real buttons (2026-09-29)
+
+- symptom/reproduction: `ci-accessibility-matrix-check` failed on sentiment, breadth and signal: SKEW/Put-Call/HY/breadth explanation buttons measured 15×36 px, below the 24 px WCAG 2.5.8 minimum.
+- root_cause: P1320 made the icons focusable buttons but kept the 15 px visual circle as the hit box; the mobile-era 24 px target rule disappeared with the mobile CSS.
+- fix: The button is a 24×24 px target with a -4.5 px margin (layout unchanged) and draws the 15 px circle with ::before.
+- violated_rule: R665 — explanations reachable by pointer and keyboard.
+- prevention: QA-UX-04 — `ci-accessibility-matrix-check.mjs` (19 routes, pass).
+- verification/residual: Accessibility matrix: routes=19, status=pass, consoleErrors=0.
+
+## P1330 - v56.82 - Masters initial artifacts exceeded the 500 KB budget after the ticker ledger moved to mount time (2026-09-29)
+
+- symptom/reproduction: `ci-three-page-artifact-budget-check` failed: Masters initial requests totalled 570,289 bytes because P1325 started loading ticker-index-reference.json at mount.
+- root_cause: P1325 fixed the endless "불러오는 중" by loading the ledger eagerly, trading the loading bug for a payload-budget breach.
+- fix: The ledger loads on first focus of the lookup field, typing, or the "종목으로 역조회" button; before that an explicit idle line explains what will happen, so no state is an unbounded spinner; error/retry and the 8 s timeout from P1325 stay.
+- violated_rule: P1325 prevention — a fix must not breach an existing budget gate.
+- prevention: QA-UX-06 — `ci-masters-contract-check.mjs` now requires the idle state and focusin load and forbids the mount-time load; `ci-masters-browser-check.mjs` focuses the field before asserting the error path; the budget gate passes (431,214 bytes).
+- verification/residual: Masters browser check: NVDA/AAPL holders, ZZZZ explicit none, blocked ledger → error + retry; budget gate OK.
+
+## P1329 - v56.82 - every user parsed ~4,200 lines of self-audit/QA machinery in aio-core.js (2026-09-29)
+
+- symptom/reproduction: About 15% of js/aio-core.js (28,034 lines, 1.69 MB) was self-audit/QA code — surface/deep-review/"fourth-fifth pass"/essence/XSS/route-IA/theme-composition audits, a v49.58 sequential audit registry with stale line references, and the operator self-diagnosis widget — shipped to and parsed by every user; the widget is hidden for users, and `_aioAutoSurfaceOps` ran a full surface audit for every user every 30 minutes.
+- root_cause: Audits were added next to runtime code as in-app tooling and gates asserted their presence in core; there was no separate QA bundle besides the (undeployed) test bundle, so nothing pushed them out of the runtime.
+- fix: A reachability analysis (tokenizer split into 894 top-level statements, each parsed; reference graph from runtime roots in core, js/*, src/, index.html, sw.js; statements with load-time side effects kept) selected 90 audit statements and their helpers with no unguarded runtime caller. They moved verbatim to js/aio-qa-audits.js (4,308 lines), loaded by `AIO.loadQaAudits()` for automated browsers, ?qa=1/detailed audit mode, the operator widget (now a lazy stub) and `AIO.loadTests()`, and excluded from the Pages artifact and service worker. The 30-minute auto audit runs only when the QA bundle is loaded. Guarded optional callers (refresh reports, public status) return null without it. Gates that read core source now read core + QA bundle. Unwired product code found by the same analysis (~930 lines) was NOT deleted in this change — it includes broken features (e.g. the macro "next release" line is never rendered) and is queued for per-item review.
+- violated_rule: R673 — QA/audit machinery is not part of the user runtime.
+- prevention: QA-OPS-QA-01 — `ci-decomp-hotspot-check.mjs` ratchets js/aio-core.js at 23,800 and js/aio-qa-audits.js at 4,308 (both may only shrink); `ci-release-revision-check.mjs`/public-artifact-manifest exclude the bundle from Pages; headless and browser gates exercise the lazy path.
+- verification/residual: All 894 statements parse independently; guard scan found no unguarded reference to a moved name; ESM, runtime/architecture/data-pipeline/structural/retirement/AI contracts, headless, architecture/outage/masters/viewport/atlas/chat/vault/principles browser gates pass.
+
+## P1327 - v56.81 - Korean themes were invisible to users and unreachable from a KRX stock (2026-09-29)
+
+- symptom/reproduction: The whole "한국 시장 — 국내 테마 분석" section on #themes was hidden unless developer mode was on; the ticker overview of 005930 said "테마 맵 미등록 종목"; the detail name map lacked quantum/uam/hydrogen/space; equal weights printed "14.285714285714286%".
+- root_cause: P702 hid every `.aio-page-advanced-toggle` outside dev mode, including #kr-integrated-themes that P725 had made the only home of Korean themes; the overview only searched the US THEME_MAP; theme names lived in three local maps that disagreed; equal splits were printed raw and called weights.
+- fix: #kr-integrated-themes is user-visible; `src/domain/themes/kr-themes.js` owns labels and ticker→theme membership; the overview adds "한국 · <theme>" chips that open the theme detail (`openKrThemeDetail`); aio-kr-data reads the single label owner; equal splits show "동일가중", measured weights one decimal.
+- violated_rule: R672 — user content is not hidden behind developer mode, and a KRX stock links to its Korean themes.
+- prevention: QA-UX-09 — `ci-esm-core-unit-check.mjs` P1327 fixtures (membership, every KR_THEME_MAP id labelled, detail reads the single owner).
+- verification/residual: Local Chromium: 005930 overview shows "한국 · 반도체 / HBM"; clicking opens #themes with the section open and the detail panel filled; cards show "동일가중".
+
+## P1326 - v56.81 - header said "실시간/LIVE" with the current clock even for last night's closes (F-56) (2026-09-29)
+
+- symptom/reproduction: The topbar showed "부분 LIVE" + "● 일부 실시간 오전 11:05 (14개)" and the home header repeated the same pill while every US observation was the previous regular close; five other writers put "클라 시세 HH:MM", "N초 후 재시도", "캐시 데이터…", a seconds clock and a fallback notice into the same slot.
+- root_cause: The label counted rows from the live proxy and printed `new Date()`; currentness was never derived from observation times or the session calendar, and several writers owned the slot.
+- fix: `src/domain/market/quote-currentness.js` derives one of 실시간/지연/종가/지난 시세/미수신 from observation times and the NYSE calendar; aio-core writes the badge (state word) and #live-quote-ts (detail) through `_aioWriteQuoteStatus`; aio-data's clock writers were removed; a server snapshot is labelled 종가/지난 시세, never live; the duplicate home-header pill was deleted.
+- violated_rule: R671 — currentness labels come from observation times and the market calendar, from one presenter, in one slot.
+- prevention: QA-UX-07 — `ci-esm-core-unit-check.mjs` P1326 fixtures (live/delayed/stale in session, close/stale after, none), `ci-runtime-contract-check.mjs` single-presenter check, architecture and outage browser gates assert "서버 … · 16개" with close/stale state, headless T302.
+- verification/residual: Local Chromium Tue 11:05 KST: badge "종가", detail "9/28 마감 · 14개", title "미국 정규장 마감 · 9/28 종가 기준"; no home-header duplicate.
+
+## P1328 - v56.81 - market-environment score was blank all Korean daytime because the last US close counted as stale (2026-09-29)
+
+- symptom/reproduction: On the live site (Tue 10:39 KST) the home and signal score showed "— /100 · 판정 보류" with every component "—" although S&P 500, VIX 16.07 and F&G 34 were on screen; the score could only exist during US trading hours, i.e. Korean night.
+- root_cause: Score inputs required decision-grade, minutes-fresh evidence (stale_live after the close), the original v37.1 intent "주가는 종가 기준" had been lost, the macro component additionally required VVIX that is not collected client-side, and the legacy computeTradingScore assembled its own second input set.
+- fix: `src/domain/signal/close-basis.js` + `latestCompletedUsSession` (NYSE calendar, DST, half-days, holidays, unknown years fail closed): a non-decision value enters the reference score only if observed at/after the latest completed regular close (Treasury 65-min window) or, for daily publications, dated no earlier than the prior session; it is marked `session_close`/`close-basis`, makes the result non-decision-eligible, and the basis label ("9/28 미국 정규장 종가 기준") travels to the presentation. The legacy wrapper now reads the same native inputs (aio-core −89 lines); VVIX is an optional macro modifier; English band names in the Korean decision text were replaced.
+- violated_rule: R670 — a reference description is computed on the latest completed US regular close and states that basis.
+- prevention: QA-DATA-57 — `ci-esm-core-unit-check.mjs` P1328 fixtures (9/28 basis, Labor Day, half-day, unknown year, TNX window, PCR lag, snapshot exclusion, non-eligibility, Korean band text); `ci-domain-parity-check`/`ci-native-decision-evidence-check` unchanged and passing.
+- verification/residual: Local Chromium: home shows "53* /100 · 시장환경 관찰 — 중립 구간 · 9/28 미국 정규장 종가 기준 · 시장 폭 제외"; legacy and native paths agree (53, coverage 80). Residual: breadth enters only after the screener artifact loads (1.6 MB), so the home score usually excludes it.
+
+## P1325 - v56.81 - Masters ticker lookup stuck on "불러오는 중" and manager cards buried below it (2026-09-29)
+
+- symptom/reproduction: The reverse lookup ("which masters hold X") showed "참조용 티커 원장을 불러오는 중입니다." forever when the ledger fetch failed or timed out, and before the first keystroke; manager cards started at y≈655 below the lookup and coverage sections.
+- root_cause: `createTickerLookup` in src/ui/pages/masters.js had a single not-loaded state with no error branch, `render()` never passed `state.tickerIndexError`, and the ledger loaded only on the first input event.
+- fix: Explicit loading (role=status), error (role=alert) with a retry button, and ready states; the ledger loads at mount with an 8 s timeout; manager cards render first (y≈369) with a "종목으로 역조회" jump button; input focus/caret survive re-renders.
+- violated_rule: R665-family — an async surface must end in a result, an explicit empty state or an explicit error, never an endless loading state.
+- prevention: QA-UX-06 — `ci-masters-contract-check.mjs` P1325 source assertions and a `ci-masters-browser-check.mjs` block (order; NVDA/AAPL/ZZZZ outcomes within 5 s; blocked ledger → error + retry). A stale "SEC 온라인 현재성 발견 37/37" assertion in that gate was also corrected.
+- verification/residual: Local Chromium 1440×1000: NVDA 1 card, AAPL "표시 8/14행", ZZZZ explicit no-holder; aborted ledger → immediate error, retry recovers; hung ledger → error at 8 s.
+
+## P1324 - v56.81 - mobile/tablet code still shipped after the desktop-only decision (2026-09-29)
+
+- symptom/reproduction: Despite R474/R476, ~530 lines of phone/tablet CSS (31 @media blocks ≤1024px, coarse-pointer rules), a hidden hamburger and overlay, mobile-menu JS, visualViewport keyboard handling, touch drag listeners and `innerWidth > 768` branches shipped in index.html and js/*.js; the owner had asked for mobile to be removed entirely.
+- root_cause: R474/R476 only stopped gating phone/tablet viewports and kept the legacy responsive code "for compatibility", so it kept costing bytes and maintenance and a v56.78 change even added to it.
+- fix: Deleted every max-width ≤1024 / pointer:coarse / hover:none block, the mobile menu markup and functions, keyboard/touch handlers and viewport-width branches (index.html 13,306→12,772 lines, ~29 KB); the atlas/chat-layout browser gates dropped phone/tablet widths, the portfolio vault e2e runs at 1280×900 and desktop-qa-config states the removal.
+- violated_rule: R669 — desktop-only means no mobile/tablet code ships.
+- prevention: QA-UX-08 — `ci-desktop-scope-check.mjs` fails on any @media max-width below 1100px, coarse-pointer media, `mobile-overlay`/`mobile-hamburger` markup or `toggleMobileMenu`; headless T601 asserts absence.
+- verification/residual: Desktop-scope, viewport-matrix (57 desktop combos, 0px overflow), atlas and chat-layout browser gates, headless and architecture browser checks pass.
+
+## P1323 - v56.80 - ledger frontmatter duplicated generated facts and drifted; every fix needed six hand edits (2026-09-29)
+
+- symptom/reproduction: BUG-POSTMORTEM frontmatter `verified_by` was ~7,000 chars, `latest_version` lagged version.json, entry counts were wrong (533 claimed vs 554 headings), a stray `p795_entry…total_entries` YAML fragment sat mid-file, docs pointed to the superseded full-review-20260916 handoff, and several active docs still claimed 20 routes, an options page or mobile/tablet acceptance.
+- root_cause: Facts already derived by `generate-workspace-state` (latest P/R/QA/version) were also hand-maintained in frontmatter that no gate read, and each fix required hand edits to six files (P, R, QA, CHANGELOG, version note, execution status) with no tool, so drift accumulated silently.
+- fix: Removed the unread frontmatter fields (pointer to generated CURRENT-STATE instead), capped frontmatter lines at 400 chars (R667, `ci-knowledge-lint-check.mjs`), removed the stray fragment, corrected handoff pointers, route counts, options/mobile wording and the "7 surfaces" claims. Added `scripts/record-fix.mjs` (one JSON → P/R/QA/CHANGELOG/version note/execution status, ids allocated from headings, gap-manifest aware, atomic tmp+rename, line endings preserved) and `scripts/ci-record-fix-check.mjs` (temp-root fixtures incl. rejection and CRLF paths), registered in the QA pipeline (146 gates). Masters/principles/operations gates now derive the route count from `route-owners.json` instead of pinning 20.
+- violated_rule: R667 — frontmatter is metadata; derived facts live in the generated state.
+- prevention: QA-OPS-REC-01 — `ci-record-fix-check.mjs` and the R667 lint; `ci-workspace-contract-check.mjs` byte-compares the generated state.
+- verification/residual: record-fix allocated P1322/R668 and this entry on the real ledgers; ledger-integrity, knowledge-lint, workspace, skill, QA-pipeline gates pass. Residual: ledgers remain large single files (sharding not done); two 2026-07-19 context docs keep pre-existing encoding damage warnings.
+
+## P1322 - v56.80 - home first screen led with an empty score panel above the market numbers (2026-09-29)
+
+- symptom/reproduction: At 1440×1000 the home page showed a 190px "시장 환경 점수 — /100 · 판정 보류 — 필수 입력 미수신" panel with five "— / n" rows before S&P/NASDAQ/VIX/F&G, and the subtitle stayed "시세·뉴스 상태 확인 중" forever. Live (v56.33, Tue 10:39 KST) showed the same even though VIX 16.07 and F&G 34 were on screen, so "미수신" was false.
+- root_cause: The static order was score → KPI, a P703 runtime mover reinforced it, the blocked presentation said inputs were not received when they were received but not decision-grade (US session closed, last close judged stale), and two writers set the date line with the last one appending a status that nobody cleared.
+- fix: index.html order is now KPI strip → cross assets → score → today summary with the P703 mover removed; a blocked score collapses to one line (`#home-score-hero[data-state]`, children hidden by `analysis.js`, restoring each child's own display); wording is "판정 보류 — 판단 등급 입력 없음" with the real cause in the description (native owner, legacy signal hero, page decision, KR briefs); the date line has one writer and shows the date only. The first-visit card anchors to the KPI strip.
+- violated_rule: R668 — a summary that cannot be computed must not sit above the values it summarizes, and must state the real cause.
+- prevention: QA-UX-05 — `ci-runtime-contract-check.mjs` pins the static order, the absence of the runtime mover and the state hook; `ci-esm-core-unit-check.mjs` pins the blocked wording and forbids "아래에서"; headless 1163/1163.
+- verification/residual: Local Chromium 1440×1000: order header → onboarding → KPI → cross assets → score(86px, one line) → summary; date line "2026.09.29 (화) KST". Residual: whether the last regular close may feed the reference-only score while the US session is closed is a product decision (the score stays blank in KST daytime until then).
+
+## P1321 - v56.79 - the options route removed from navigation in v50.35 still shipped as a hidden page (2026-09-29)
+
+- symptom/reproduction: The owner removed the options dashboard long ago, but `#options` still opened a full page, the AI chat still offered an "options" persona and route, and the route registry, briefs, audits, golden routes and vertical slices still counted it (20 routes).
+- root_cause: v50.35 removed only the nav entry and kept the shell "for the 21-page architecture"; later work (P778) re-populated it, so each consumer kept its own copy of the route and nothing asserted that a removed route stays removed.
+- fix: Deleted the page block, its CSS, the legacy/native renderers, route lists, PAGE_BRIEFS/decision/action/explain/purpose/breadcrumb/task/label maps, the chat persona and suggestions, the native module, entity branches, vertical slice vs09, and golden/visual/retirement manifest rows. The registry now has `REFERENCE: []`, `options` in `REMOVED`, and `canonical.options = 'sentiment'`; `showPage` aliases the old hash. `src/app/routes.js`/route-owners were regenerated (19 routes). Knowledge links built by public-data producers still name `options`; `route-bridge.js` keeps the id only so those links resolve through the alias.
+- violated_rule: R666 — a route the owner removed is removed everywhere; its hash may only alias to the surviving owner.
+- prevention: QA-ROUTE-19 — `ci-architecture-browser-check.mjs` asserts no `#page-options`, no `options` route id and `canonical.options === 'sentiment'`; `ci-architecture-contract-check.mjs` fails if `#page-options` returns to data/core/ui and pins 19 golden routes; `ci-runtime-contract-check.mjs` pins `REFERENCE: []` with `options` in `REMOVED`; headless T137/T805.
+- verification/residual: Knowledge artifacts regenerate only through the producer workflow (not run locally); until then their `options` links work through the alias.
+
+## P1320 - v56.78 - "?" term tooltips clipped at the left edge and unreachable by keyboard or click (2026-09-28)
+
+- symptom/reproduction: On #signal, hovering the SKEW "?" showed a tooltip whose left half was cut off by the card/viewport; with a keyboard or a click the tooltips never opened, so the full-audit click-through recorded six of them as "dead".
+- root_cause: Tooltips relied on CSS :hover with absolute 50%-centred positioning inside overflow-clipped cards, and icons were plain spans with no focus/role.
+- fix: `src/ui/components/term-tooltip.js` (installed from bootstrap) makes each icon a focusable button with an accessible name and `aria-describedby`, opens the body on hover, focus, click, Enter/Space, closes on Escape/scroll/outside click, and pins it with fixed coordinates clamped to the viewport (above, else below; narrowed when the window is narrow). A short-lived 44px mobile header change was reverted in the same version: the product is desktop-only (R474/R476).
+- violated_rule: R665 — an explanation affordance must be reachable by pointer and keyboard and must render fully inside the viewport.
+- prevention: QA-UX-04 — `ci-esm-core-unit-check.mjs` P1320 placement fixtures (left edge, no room above, narrow window) and bootstrap wiring assertion; local desktop Chromium: clicked SKEW tooltip rendered fully (172–432px).
+- verification/residual: Screen-reader pass remains unverified. Mobile/touch is out of scope (R474).
+
+## P1319 - v56.78 - screener repeated "YYYY-MM-DD · 참고" in every stale cell (2026-09-28)
+
+- symptom/reproduction: With the artifact one session old, every return/RSI/VCP cell carried a second line "2026-09-25 · 참고", doubling row height and burying the values (full-audit N12).
+- root_cause: Staleness was disclosed per cell instead of once per view; the same date repeated hundreds of times.
+- fix: Stale/last-good cells are muted and keep their source/observed-at title; one table-level note (`#scr-stale-note`) states the date span once. CONFLICT keeps its per-cell note.
+- violated_rule: R662 — visible state is derived once from its owner and stated where it is read, not restated per value.
+- prevention: QA-UX-03 — `describeStaleDates` fixtures in `ci-esm-core-unit-check.mjs` (single date, span, empty).
+- verification/residual: Local Chromium screener view confirmed one note and muted cells.
+
+## P1318 - v56.78 - screener market-cap filter returned 0 rows in every size bucket (2026-09-28)
+
+- symptom/reproduction: Selecting 메가캡/대형/중형/소형 always showed "조건을 충족한 0건 / 시총 정보가 없어 판정 보류 873건" (full-audit F-40).
+- root_cause: The filter accepted only a decision-grade live market cap (live evidence eligibility + calculation readiness); the free quote tier never supplies one, so size was always unknown.
+- fix: `referenceMarketCapFrom` in `src/data/providers/screener.js` derives a USD reference cap from SEC shares outstanding × the same artifact's adjusted close, rejecting implausible daily turnover outside 0.05%–20% (XBRL scale errors such as PKG, ADR ratios such as TM/NTES, share-class mix such as BRK.B). The normalizer carries it; `capFilterValue` uses the decision-grade live cap first, then the reference cap; the column shows "$xB · 참고" with its basis in the title. Never a factor or decision input.
+- violated_rule: R664 — a reference-only filter must not require decision-grade evidence, and a derived reference value must pass a plausibility check before bucketing.
+- prevention: QA-DATA-56 — unit fixtures (NVDA reference, PKG scale error rejected, non-USD/missing unknown, bucket precedence) in `ci-esm-core-unit-check.mjs`.
+- verification/residual: Local artifact: 436 of 873 rows get a reference cap; MEGA 9 and LARGE/MID/SMALL non-empty. KR rows remain without size (no KRW reference source yet).
+
+## P1317 - v56.78 - Korean stocks could not be opened on the ticker route (2026-09-28)
+
+- symptom/reproduction: `showTicker('005930')` rendered name "005930", price "—" and every return "—" although the quote and screener row exist under `005930.KS`; typing 삼성전자 was rejected; KR names outside the core quote list were never requested; the tab title stayed "종목 선택 대기"; KRW prices showed "276500.00".
+- root_cause: The route keyed every lookup by the raw upper-cased input; only Yahoo-style symbols match quotes/rows. No on-demand quote request existed for a selected ticker, and the title was set by showPage before the hero rendered.
+- fix: `src/domain/entity/ticker-symbol.js` normalizes a bare KRX code or an exact/unique Korean name to `.KS/.KQ` via the existing `krTickerToYahoo` and supplies the registry name; showTicker uses it (line-neutral). Bootstrap registers and requests a missing selected-ticker quote and re-derives entity/overview when quotes arrive on the ticker route. The hero leads with the Korean name, formats KRW by venue and owns `document.title`; the overview formats KRW as 원; the TradingView notice no longer leaks "P610".
+- violated_rule: R663 — the route, the quote request and the screener lookup must use one canonical symbol for the same instrument.
+- prevention: QA-UX-02 — normalization/display-name fixtures and shell-wiring assertion in `ci-esm-core-unit-check.mjs`; local Chromium: 005930/삼성전자 → 005930.KS, name 삼성전자, 1M/3M/6M returns, and with a quote ₩286,500 ▲3.62%, 276,500원, title "삼성전자 (005930.KS) ₩286,500".
+- verification/residual: From localhost the site's own Worker proxy rejects the origin, so a live KR quote could not be fetched end-to-end locally; the deployed origin uses the Worker. KR theme chips on the ticker overview remain US-only.
+
+## P1316 - v56.77 - portfolio export dropped every personal section except positions (2026-09-28)
+
+- symptom/reproduction: `exportPortfolio()` wrote only `getPortfolioData()`. The account ledger (`aio_portfolio_ledger`), FX legs, cash, declared currency/rate/policy assumptions, trade journal and watchlists live under separate keys and were silently absent from the file; a device change lost them, and any future origin move (v2 on another address) would lose them for every family member because browser storage does not follow the address.
+- root_cause: Each personal section was added under its own key over time (P1191 ledger, P1194 FX, P1188 assumptions, journal, watchlists) without an owner for "the whole personal state", so the export path never grew with them.
+- fix: New pure module `src/data/portfolio-backup.js` owns a versioned `aio-backup` v1 bundle (build/parse/count/describe) and reuses each section's existing normalizer (ledger, FX, assumptions). Bootstrap exposes `window._pfPortfolioBackup`; the shell collects the decrypted snapshot, refuses export while Vault-locked sections would read empty, restores every section on import and reports completion only when every durable ack succeeded (P1187 contract preserved). The pre-P1316 positions array still imports (positions only). API keys and PINs are never exported. Shell line count decreased (3033 → 3024).
+- violated_rule: R661 — a personal-data export must include every personal section the app stores, or state what it omits.
+- prevention: QA-DATA-55 — `ci-esm-core-unit-check.mjs` P1316 fixtures round-trip every section, drop invalid tickers/assumptions, accept the legacy array, refuse unknown format/future version/empty/invalid JSON, and pin the shell wiring. `ci-portfolio-vault-e2e.mjs` 28/28 (PFE2-13 import ack) passes unchanged.
+- verification/residual: ESM unit, runtime contract, vault E2E 28/28, headless 1163/1163 and a local Chromium export→import round-trip (all eight sections restored, completion toast) pass. The live site and real family devices are not yet exercised; the old site's backup is the prerequisite for any v2 origin move (V2-BLUEPRINT §7).
+
+## P1315 - v56.77 - six user-visible correctness defects found by the 2026-09-28 full audit (2026-09-28)
+
+- symptom/reproduction: (1) every KR theme detail threw `ReferenceError: KR_THEME_INSIGHTS is not defined` (28/28); (2) the macro KR index grid hardcoded KOSPI green/`up` and KOSDAQ red/`down` — live KOSPI −1.46% rendered green and KOSDAQ +1.63% red; (3) `.pos.a11y-up`/`.neg.a11y-dn` chips (home strip, ticker strip) had no colour rule, so rises and falls were the same grey; (4) the #signal legend and its concept card called the F&G+put/call component "모멘텀(F&G·추세추종)" while home/guide and `deriveTradingScoreComponents` call it 심리; (5) Ctrl+K focused `.search-bar input`, which does not exist, and the shortcut modal still named retired route 8 "한국장"; (6) the glossary gave the KOSPI sell tax as 0.05% (omitting the 0.15% rural special tax — real total 0.20%) and dated Piotroski 1998 with the 7/3 cut presented as the paper's own sample boundary.
+- root_cause: Static markup and copy that duplicated a runtime or domain fact (card direction, component label, selector, statutory rate, citation) and was never re-derived from its owner; optional globals read without a guard.
+- fix: typeof guard (`js/aio-kr-data.js`); neutral KR index markup with direction toggled from the live previous-close delta in the existing `data-live-kr-change` writer (`js/aio-data.js`); colour rules on `.a11y-up/.a11y-dn`; canonical 심리(공포·탐욕·풋콜) legend in `index.html`/`js/aio-ui.js`; Ctrl+K targets the active page's real search input or opens the glossary; shortcut 8 = 테마·트렌드; glossary tax/Piotroski text and `GLOSSARY_FIGURE_SOURCES` rows corrected together. All runtime files stay within their decomposition records.
+- violated_rule: R662 — visible direction, component names, shortcuts and statutory/cited facts must be derived from (or checked against) their single owner; optional globals are read behind a guard.
+- prevention: QA-UX-01 — six `ci-runtime-contract-check.mjs` P1315 assertions pin each fix; local Chromium verification opened 28/28 KR theme details without error, confirmed neutral cards follow a down delta, distinct up/down colours, and Ctrl+K behaviour.
+- verification/residual: runtime contract, ESM unit, headless 1163/1163 pass. Not changed (product decision pending): the AI golden corpus still treats a non-personalized "NVDA를 10% 매수 추천합니다" as unblocked by P1120 design; up/down colour convention (US green-up) is unchanged pending D17.
+
+## P1314 - v56.76 - knowledge candidate builders could escape their isolated workspace through symlinks (2026-09-28)
+
+- symptom/reproduction: A symlink at a generated knowledge target could make a builder resolve output outside the disposable candidate copy; edits to `scripts/lib/atomic-write.mjs` or `scripts/lib/13f-semantic-hash.mjs` also did not select the knowledge parity gate in affected QA.
+- root_cause: The candidate parity copier walked with `statSync`, which follows symlinks, and its impact rule listed the workflow/checker but omitted two builder helpers named by the workflow trigger.
+- fix: Reject symlinks with `lstatSync` in the source workspace before snapshot/copy and again in the disposable copy before any producer runs. Add a deterministic safe-directory/symlink negative-control fixture. Map both helper paths to `knowledge-generated-parity` and assert the mapping.
+- violated_rule: R660 — generated knowledge builders may run only from a symlink-free isolated workspace, and every triggered producer helper must select its parity gate.
+- prevention: QA-DATA-54 covers the negative-control fixture, pre-builder ordering, helper-to-parity impact mapping, knowledge QA registration, and the exact P/R/QA links.
+- verification/residual: Local default parity and knowledge-group checks plus pipeline, assertion-trace and ledger gates pass. GitHub PR artifact execution and human review remain unverified; strict D0 release conditions are separate.
+
+## P1313 - v56.75 - operator alert policies had no source collector for deployed evidence (2026-09-28)
+
+- symptom/reproduction: The alert policy and private AI usage route existed, but no collector fetched deployed site/core artifacts or connected the protected Worker source; one run could evaluate only one market at a time.
+- root_cause: Alert evaluation, source retrieval and privacy-safe operational summaries were not joined by an executable adapter.
+- fix: Add an injectable, non-persisting collector that checks the deployed site and published artifacts, follows only the policy's publication timestamp order, evaluates NYSE and KRX together, and calls the protected Worker usage route only when an operator token is supplied. Reject redirects on the private request and return only status plus fixed safe reason.
+- violated_rule: R659 — alert observation sources must preserve evidence lineage, fail closed, protect operator credentials, and never expose source bodies or usage metrics.
+- prevention: QA-OPS-03 and `ci-operations-alert-source-check.mjs` exercise injected fetch/clock, both markets, permitted timestamp fallbacks, explicit outage-start requirements, redirect rejection, auth gating, and summary-only output; the QA pipeline registers the gate.
+- verification/residual: 19 offline assertions, syntax, pipeline, ledger and assertion-trace checks pass. No external request was made. Scheduled invocation, outage-start persistence/missed-probe semantics, private email/Telegram delivery, operator secret provisioning, and strict D0 refresh/reconciliation/lineage/exact-SHA release remain open.
+
+## P1312 - v56.74 - operator alert policy lacked a private Anthropic usage source (2026-09-28)
+
+- symptom/reproduction: The alert evaluator could classify the 80% daily request threshold, but the Worker had no supported way to read its existing quota counter. Public `/health` intentionally omitted usage and cap, and the Durable Object supported only reserve/release.
+- root_cause: The atomic quota state was treated only as an enforcement implementation detail; no operator-authenticated read contract existed.
+- fix: Add a GET-only `/_ops/ai-usage` route requiring a separate 32-character-or-longer `AIO_OPERATOR_TOKEN`. It reads only the current UTC-day Anthropic count through the US Durable Object, returns no-store data without CORS, and leaves `/health` and quota enforcement unchanged. Unconfigured or invalid authorization returns 404; absent/malformed source evidence returns 503.
+- violated_rule: R658 — operator-only usage evidence must be authenticated, private, read-only, UTC-day scoped, and excluded from public health or issue surfaces.
+- prevention: QA-OPS-02 pins missing/invalid/valid authentication, method restriction, no-store/no-CORS response, exact response fields, Durable Object Anthropic-only day keys, and public health non-disclosure in `ci-worker-anthropic-check.mjs`, `ci-worker-relay-check.mjs`, and `ci-cloudflare-deployment-contract-check.mjs`.
+- verification/residual: Local Worker and deployment contracts verify the source behavior. The Cloudflare `AIO_OPERATOR_TOKEN` is not present and must be provisioned by the operator after deployment; no live endpoint or notification channel was exercised. Continuous site/core observations, persistence, and delivery remain follow-up work. Strict D0 refresh/reconciliation/lineage and release are separate.
+
+## P1311 - v56.73 - operator alert thresholds had no executable fail-closed policy (2026-09-28)
+
+- symptom/reproduction: HANDOFF defines three operating alert thresholds, but the existing workflow only escalates repeated GitHub workflow failures. There was no deterministic check for a 24-hour site outage, two fully completed market sessions without a published core artifact, or 80% of the daily Anthropic request cap.
+- root_cause: alert thresholds, evidence freshness, and unknown-data behavior had no shared executable contract.
+- fix: add a reviewable policy manifest and pure evaluators for explicit site state, actual published artifact time with registered NYSE/KRX sessions, and same-UTC-day Anthropic request counts. Return UNKNOWN for absent, malformed, future, impossible, or unregistered evidence; preserve the separate 12-hour freshness SLA.
+- violated_rule: R657 — operator alert policy must preserve evidence provenance, threshold boundaries, and fail-closed UNKNOWN behavior without weakening existing release gates.
+- prevention: QA-OPS-01 pins all thresholds, source timestamp fallback order, prohibited attempt/status clocks, NYSE/KRX session boundaries, missing evidence and input immutability in `ci-operations-alert-policy-check.mjs` and `ci-qa-pipeline-contract-check.mjs`.
+- verification/residual: focused policy and QA-pipeline contracts pass, and an independent code review found no material defect. Data/site/Worker usage adapters, persistence of continuous observations, protected telemetry access, and actual operator email/Telegram delivery are not implemented by this policy-only unit. Strict data refresh/reconciliation/lineage and live release remain separate.
+
+## P1310 - v56.72 - generated knowledge changes had no reviewable candidate artifact (2026-09-28)
+
+- symptom/reproduction: the knowledge parity gate ran the ordered builder chain only in a disposable copy, reported drift, then deleted the generated candidates. Reviewers had no exact-checkout artifact to inspect and copy into the source change.
+- root_cause: the existing parity path was validation-only; candidate output and its source revision were not part of the workflow contract.
+- fix: add an opt-in candidate mode to the existing parity checker. It reuses the single ordered builder/target inventory, exports changed generated targets from the isolated copy to a new directory outside the repository, and writes a manifest with tested checkout SHA, PR head SHA, changed paths and hashes. A read-only PR/manual workflow uploads the review artifact only.
+- violated_rule: R655 — generated knowledge candidates must come from the tested checkout and stay review-only until a person adds reviewed outputs to the source change.
+- prevention: QA-DATA-52 pins shared-inventory reuse, external output path, tested SHA provenance, read-only permissions, pinned workflow actions, candidate artifact upload, builder runtime/helper and literal source/input path triggers (including the Principles/Atlas pages and learning route modules), and absence of source writes, auto-commit, or deployment.
+- verification/residual: local default parity (17 builders/655 outputs unchanged), workflow/QA contracts, assertion trace, ledger integrity and affected QA are recorded in the v56.72 closeout. Candidate-mode runtime was not run because this checkout contains pre-existing dirty files and candidate mode correctly requires an exact clean SHA. The first GitHub PR artifact and human review remain unverified; no commit, push or deployment occurred.
+
+## P1309 - v56.71 - SEC 13F discovery rewrote unchanged data daily and rebuilt rows outside filing season (2026-09-28)
+
+- violated_rule: R654 — SEC 13D/G freshness checks and 13F row imports must have separate cadences, with unchanged semantic artifacts left untouched.
+- symptom/reproduction: the daily SEC discovery path materialized new timestamps into content-addressed 13F objects and large runtime shards even when filings and holdings were unchanged. The full row/history chain also ran every week year-round although 13F reporting is quarterly; the ownership-event panel's timestamp could be read as a just-completed online poll.
+- root_cause: polling time was included in artifact identity, while daily ownership discovery and the expensive 13F row/history import shared a single unconditional schedule.
+- fix: add a semantic JSON writer that ignores only declared poll clocks while retaining raw-byte SHA checks; run 13D/G submissions-only discovery daily; run full 13F rows/history on filing-season Mondays, immediately when a new HR/HR-A accession is not connected in `holdings.json`, or by explicit dispatch. Ownership failure hides current events and preserves them as last-known-good; both UI panels identify the last published artifact date.
+- prevention: QA-DATA-51 / R654 pins clock-only byte preservation, meaningful SEC changes, filing-window boundaries, daily ownership-only fetch scope, 13F state preservation, LKG/BLOCKED recovery, new-accession triggering, a notice-only 13F-NT negative control at the row-import trigger, producer wiring and exact candidate/commit/SHA CI ordering.
+- verification/residual: focused semantic gate PASS (42 checks, including notice-only 13F-NT trigger negative control), currentness, Masters, data-pipeline, continuity and QA-pipeline checks pass locally. First scheduled daily/filing-season run, GitHub artifact publication and live UI acceptance remain unverified. Strict fresh data, reconciliation, lineage and exact-SHA release are still required; no commit, push or deployment occurred.
+
+---
+
+## P1308 - v56.70 - Worker attestation and coalesced deployment recovery were incomplete (2026-09-28)
+
+- violated_rule: R653 — Worker auto-deploy must recover coalesced changes from the live source SHA.
+- symptom/reproduction: the release attestation was written under `.release/` but the artifact upload omitted hidden files, so successful CI could fail to hand off the attestation. Change detection inspected only the data-plane entry point/config and missed imported market-snapshot and source-kind modules. A later main push could cancel the earlier CI run or replace a pending deployment; the later per-push diff then omitted the Worker change and the deploy was skipped.
+- root_cause: artifact path filtering, changed-path scope and automatic deploy selection were treated as isolated per-run details instead of one recoverable release chain.
+- fix: enable hidden-file inclusion only for the exact attestation path; derive Worker scope from the static local module graph; compare live `/health` sourceSha against the exact successful CI SHA and classify cumulative changes only when the attested SHA is still current main and live is its ancestor. Recheck main immediately before deploy. Older workflow events and newer/divergent live Workers cannot be deployed backward; missing live identity fails closed.
+- prevention: QA-DATA-50 / R653 pins artifact inclusion, transitive imports, plane isolation, cumulative recovery, stale-event rejection, and already-converged/no-change skips through deployment, data-plane, operator-provisioning and QA-pipeline contracts.
+- verification/residual: focused Cloudflare, data-plane, deployment convergence, operator-provisioning, QA-pipeline, workflow-YAML, import-graph and stale-event decision fixtures pass; affected QA retains only strict stale-data failures. GitHub artifact handoff and live coalesced-run recovery remain unverified. Strict Pages release still requires fresh scheduled data, reconciliation, strict lineage and exact-SHA CI. No commit, push or deployment occurred.
+
+## P1307 - v56.69 - Worker main changes had no attested automatic deployment or rollback (2026-09-28)
+
+- violated_rule: R652 — Worker auto-deploys require exact CI evidence and a verified rollback target.
+- impact: Worker source and live revision could diverge after main changes, while the manual workflow only provided a post-deploy smoke and no code rollback path.
+- correction: CI release attestation now records whether the exact main push changed the data-plane or AI-proxy runtime/config. Each Worker workflow consumes only a successful main CI attestation, checks out its exact SHA, captures the active 100% version and /health sourceSha, runs the existing smoke, and on smoke failure rolls back to that captured version and verifies the previous sourceSha/status. Explicit dispatch also requires a successful main CI run id. Split or missing rollback baselines fail closed.
+- prevention: QA-DATA-49 / Cloudflare deployment contract pins independent per-Worker change detection, successful attestation, exact-SHA checkout, captured rollback target, and verified recovery. The rollback resolver refuses split deployments.
+- verification/residual: Cloudflare deployment contract, data-plane/rollback fixtures, deployment convergence, QA-pipeline (142 gates), workflow YAML (11 files), Bash syntax (30 run blocks), version sync (13 cachebusters), assertion trace (2,755 labels/0 new untraced) and ledger integrity pass. GitHub artifact handoff, live token/secret readiness, first automatic run and live rollback remain unverified. Pages/P0 deployment remains blocked pending fresh scheduled data, reconciliation, strict lineage and exact-SHA CI.
+
+---
+
+## P1306 - v56.68 - knowledge parity ran lesson consumers before their source builder (2026-09-28)
+
+- symptom/reproduction: the isolated generated-parity pass placed `build-principles-lessons.mjs` after the integrated-framework and evidence-registry consumers of `lesson-library.json`. A changed lesson source could therefore leave downstream generated files on the prior artifact until a second build invocation.
+- root_cause: the builder inventory was treated as a list rather than a dependency-ordered build plan; its gate checked builder presence and source enrichment order but not the upstream/downstream relationships.
+- fix: execute the Principles lesson, Nathan framework and concept producers before their consumers; run enrichment before integrated frameworks and articles; assert these relationships in the QA-pipeline contract.
+- violated_rule: R651 — registered knowledge producers must precede their direct consumers within one build pass.
+- prevention: QA-DATA-47 pins lesson→evidence/enrichment/integrated-framework/article and Nathan/concepts→integrated-framework order; generated parity runs the full chain once in an isolated copy.
+- verification/residual: `ci-knowledge-generated-parity-check.mjs` PASS (17 builders/655 outputs unchanged after one pass), Principles parity PASS (6 checks/112 lessons), QA-pipeline PASS (142 gates), assertion trace PASS (0 new untraced), ledger integrity PASS (R651, frozen 65 gaps) and generated workspace state PASS (v56.68). Content still must be authored and generated outputs reviewed in the normal source PR; no live deployment claim.
+
+## P1305 - v56.67 - macro calendar review digest omitted later schedule changes (2026-09-28)
+
+- symptom/reproduction: an unchanged next release hid a later annual date change from both the digest and report; a tentative-only candidate set `reviewNeeded` false; job-level secrets reached unrelated steps; body-marker-only issue search had no fallback when GitHub did not index the marker.
+- root_cause: the report summarized only `nextRelease`/`lastRelease` and trusted summary counts, despite full `scheduleDates` and per-year evidence being available in the preview. Workflow credential scope and issue lookup fallback were not encoded as invariants.
+- fix: include sorted current/proposed schedule date sets and added/removed dates in report and digest; make tentative and partial annual evidence trigger review; scope `FRED_API_KEY` to collection and `GH_TOKEN` to issue management; fall back to exact month title; map both fetcher and preview edits to the macro review gate.
+- violated_rule: R605 — a scheduled official-source review must preserve full schedule differences and surface incomplete evidence for human review.
+- prevention: QA-DATA-48 now has negative-control fixtures for unchanged-next/later-date changes, tentative-only evidence and partial coverage, plus step-scope/title-fallback assertions and producer impact mapping.
+- verification/residual: macro-calendar review contract (19 assertions), QA-pipeline/workflow contracts, control-character/YAML parsing, static-data, static-db-expiry, and other local scoped checks pass. GitHub search indexing, scheduled execution, FRED API access and human review remain unverified. The affected QA batch still contains known stale reconciliation/data-refresh/lineage blockers; no repeated refresh attempt was made. No commit, push or deployment occurred.
+
+## P1304 - v56.66 - macro-calendar candidate dates had no scheduled evidence review path (2026-09-28)
+
+- symptom/reproduction: the FRED and annual-calendar candidate collector and preview existed only as manually invoked local scripts. No scheduled workflow preserved a reviewable candidate artifact or notified an operator before static schedule dates aged.
+- root_cause: candidate collection was not connected to an operational schedule or human-review channel; the checked-in runtime registry remained manually maintained.
+- fix: add a weekly main-only workflow that fetches FRED release dates and registered annual official calendars, produces a preview and Markdown review report, uploads bounded artifacts, and updates or creates a month-scoped issue keyed by a stable candidate digest. The workflow has read-only contents permission plus issue write, and cannot edit runtime calendars or commit code.
+- violated_rule: R605 — static calendars require cadence-aligned official-source review; keep `lastRelease` tied to verified result evidence.
+- prevention: QA-DATA-48 validates review report fields, explicit missing/tentative evidence, digest stability, fixed-date preview behavior, FRED secret handling, least-privilege workflow permissions, schedule, artifact retention and no-auto-apply boundaries.
+- verification/residual: macro-calendar contract (13 assertions), workflow YAML/control-character parsing, static-data, static-db-expiry, data-pipeline and QA-pipeline contracts, assertion trace, ledger, workspace and version checks pass. The GitHub schedule, FRED API request, issue creation and operator review have not run; F-33 remains OPEN until the workflow is available on main and its first evidence cycle is reviewed. Strict P0 release conditions remain separate; no commit, push or deployment occurred.
+
+## P1303 - v56.65 - generated Principles lesson library drifted from its canonical lesson and D6 metadata (2026-09-28)
+
+- symptom/reproduction: `build-principles-lessons.mjs` regenerated the 111-entry lesson library without D6's authored metadata, and wrote the shared generated JSON directly. The generated-parity inventory did not execute this producer before downstream enrichment.
+- root_cause: the lesson builder kept its full canonical input implicit in hand-maintained drafts and did not preserve per-lesson metadata; generated atomicity and producer coverage were absent.
+- fix: add D6 to the canonical builder with its prerequisites, source IDs, review date, claim ID and deep-status metadata; align the PS-02 source URL; preserve canonical summary/claim metadata and publish through `atomicWriteJsonSync`. Inventory the builder before enrichment and add a focused isolated repeat-build contract.
+- violated_rule: R560 — generated JSON visible to parallel readers must be replaced atomically as a complete artifact.
+- prevention: QA-DATA-47 checks the 112-lesson count, exact canonical D6 object equality, atomic writer use, two successful isolated builds with identical bytes, and direct knowledge-pipeline inventory/gating.
+- verification/residual: focused Principles parity contract (6 checks), generated knowledge parity (17 builders/655 outputs), Principles contract, QA-pipeline contract, assertion trace and ledger integrity pass. Affected QA and deployed/browser acceptance are separate evidence levels; no deployed-revision claim is made.
+
+## P1302 - v56.64 - exchange sessions used incomplete or incorrect annual calendars (2026-09-28)
+
+- symptom/reproduction: legacy KRX omitted 2026-05-01, 06-03, 07-17 and 12-31; its 2027 KRX/NYSE lists also contained missing or incorrect dates. Native US session resolution had no 2027 calendar, while legacy trading-day helpers silently reused 2026 dates for unsupported years. The US legacy session getter ignored market holidays and early closes.
+- root_cause: exchange holidays, early closes and session checks were maintained in duplicated year tables; the legacy path had a fail-open year fallback and local-offset time arithmetic, while native calendar registration covered only the current year.
+- fix: register official KRX 2026/2027 and NYSE 2026/2027 calendars in native ESM; correct and parity-check legacy tables; calculate US session boundaries in `America/New_York`; apply registered early-close minutes; return unknown for unsupported years rather than inferring an open day. Deterministic T75 fixtures cover representative holidays, early close and unknown-year behavior.
+- violated_rule: R447 — missing or unsupported market-calendar evidence must remain UNKNOWN and cannot be inferred as an open session.
+- prevention: QA-DATA-46 compares the legacy year tables with the canonical ESM registry and checks holiday, weekend, DST/early-close and unknown-year boundaries; the market-snapshot contract rejects dates whose annual calendar is absent.
+- verification/residual: `ci-market-session-contract-check.mjs`, `ci-market-snapshot-contract-check.mjs`, changed-runtime syntax checks and headless T75 pass (1163/1163). Deterministic fixtures include DST boundaries, holiday-aware last-trading-day helpers, and rejection of caller-supplied open status on registered closures. Affected QA closeout and deployed-revision acceptance remain separate; no live browser or deployed-revision claim is made. Official sources: KRX holiday lookup (https://open.krx.co.kr/contents/MKD/01/0110/01100305/MKD01100305.jsp) and NYSE 2026–2028 calendar (https://ir.theice.com/press/news-details/2025/NYSE-Group-Announces-2026-2027-and-2028-Holiday-and-Early-Closings-Calendar/). 2028 and later remain intentionally unknown until registered.
+
+## P1301 - v56.62 - a passed macro schedule date was inferred as a completed release (2026-09-28)
+
+- symptom/reproduction: on or after a scheduled macro event, runtime boot selected the latest earlier schedule date and wrote it into `lastRelease`, even when no publication/result evidence had arrived.
+- root_cause: `refreshMacroCalendarFromOfficialSchedule()` treated elapsed schedule dates as completed observations instead of using the independently verified `lastRelease` field.
+- fix: preserve `lastRelease` from the registry and derive only `nextRelease` from the official schedule. The preview and expiry gate now state the same evidence boundary.
+- violated_rule: R492/R605/R420 previously coupled a passed schedule date to `lastRelease`; those rules now require result evidence before advancing it.
+- prevention: QA-DATA-44 executes the runtime resolver at a fixed date after a scheduled event and checks both a later scheduled date and an exhausted schedule; neither case may overwrite the verified result date. The static-data contract gate also loads every annual calendar overlapping the 400-day FRED horizon, verifies tentative 2027 FOMC status and explicit missing-year evidence, and previews the next-year date without network or writes.
+- verification/residual: `ci-runtime-contract-check`, `ci-static-data-contract-check`, `ci-static-db-expiry-check`, `ci-version-check`, `ci-assertion-trace-check`, and `ci-ledger-integrity-check` pass. The static-data fixture checks that preview `sourceEvidence` still carries `tentative: true` for FOMC 2027, alongside next-year date coverage and no network/write side effects; missing-key validation confirms the FRED fetcher makes no request. Final affected QA reports 84 PASS and the three known stale reconciliation/A1/data-lineage blockers; the unrelated decomposition count returned to baseline after keeping the explanatory comment on the replaced code line. Live FRED collection remains unverified without `FRED_API_KEY`; BOK/ISM 2027 calendars remain explicitly missing.
+
+## P1300 - v56.61 - refresh audit borrowed the status timestamp when snapshot generatedAt was missing (2026-09-28)
+
+- symptom/reproduction: a published-looking snapshot with no own `generatedAt` could borrow a recent `status.lastSuccessfulAt`. With matching revision, a PUBLISHED data cycle, and complete Tier-0 coverage, that fallback could make current-cycle promotion and freshness appear valid.
+- root_cause: `assessPublishedSnapshot()` and diagnostic freshness selected `snapshotArtifact.generatedAt || statusArtifact.lastSuccessfulAt`, allowing sidecar metadata to stand in for the timestamp of the published artifact.
+- fix/prevention: only the published snapshot's own `generatedAt` may establish snapshot freshness and current-cycle promotion. Missing or malformed artifact time remains invalid and blocks A1/promotion; `lastSuccessfulAt` remains status metadata and never substitutes for it (R649).
+- violated_rule: R640 requires the published artifact itself to satisfy the strict freshness boundary; sidecar success time is not proof of artifact publication time.
+- prevention: QA-DATA-43 supplies a recent sidecar `lastSuccessfulAt` while omitting snapshot `generatedAt`, and asserts the audit remains invalid and promotion-blocking.
+- verification/residual: `node scripts/ci-data-refresh-audit.mjs --self-test-snapshot-diagnostics` passes the fixed missing-`generatedAt` + recent sidecar fixture; `node scripts/ci-data-pipeline-contract-check.mjs` and `node --check scripts/ci-data-refresh-audit.mjs` pass. Ledger/assertion trace closeout is recorded separately. Remote refresh success, diagnostic artifact acceptance (QA-DATA-32), and exact-SHA release remain open.
+
+## P1299 - v56.61 - refresh candidate gate가 1 MiB보다 큰 유효 blob을 거부했다 (2026-09-28)
+
+- symptom/reproduction: staged/commit 후보 검증이 `git show`를 Node `spawnSync` 기본 1 MiB 버퍼로 읽었다. `HEAD:public-data/history.json` blob은 1,777,373 bytes이고 같은 호출이 1,114,112 bytes에서 `ENOBUFS`로 끝나므로, 정상 refresh가 history 파일을 바꾼 경우 candidate gate가 유효 blob을 missing으로 오인한다.
+- root_cause: Git blob 읽기가 subprocess의 기본 출력 한도에 기대면서 실제 immutable blob 크기를 고려하지 않았다.
+- fix/prevention: `git cat-file -s`로 대상 tree/index blob의 정확한 크기를 얻고, `git show` 버퍼를 해당 크기+1로 제한하며 결과 바이트 수까지 검증한다. isolated self-test는 1 MiB보다 큰 blob을 staged 및 committed tree에서 모두 확인하고, refresh-data의 ordinary reconciliation gate가 매 실행 audit 전에 그 self-test를 수행한다.
+- violated_rule: refresh candidate hash는 검증한 바이트 전체를 재현해야 하며 유효 파일 크기만으로 정상 게시를 막지 않는다.
+- prevention: P1299를 인용하는 candidate self-test와 QA-DATA-42가 oversized staged/commit blob 회귀를 잡는다.
+- verification/residual: `verify-refresh-candidate.mjs --self-test`, `ci-data-refresh-audit.mjs --self-test-snapshot-diagnostics`의 negative wiring fixture, `ci-qa-pipeline-contract-check.mjs`, assertion trace, ledger integrity PASS를 확인한다. 원격 scheduled refresh, 커밋·푸시·배포는 수행하지 않았다.
+
+## P1298 - v56.61 - refresh audit가 Fed 일정 출처 URL의 공식성을 확인하지 않았다 (2026-09-28)
+
+- symptom/reproduction: FOMC/Fed 일정의 날짜가 공식 결정문 날짜와 맞아도 일정 `sourceUrl`이 비공식 호스트로 바뀌면 E3/E4가 aligned로 통과할 수 있었다.
+- root_cause: audit는 calendar entry의 last/next dates만 읽어 검증했고 `sourceUrl`을 공식 Fed 일정 URL과 비교하지 않았다.
+- fix/prevention: FOMC와 Fed rate 양쪽 일정의 출처가 canonical Federal Reserve FOMC calendar URL과 일치해야 registry alignment가 성립한다(R648).
+- verification/residual: `ci-data-refresh-audit.mjs` P1298/R648 fixture accepts the canonical URL and rejects a lookalike unapproved host (QA-DATA-41). The contract checks the declared endpoint and does not fetch page bodies; manual source-page verification remains separate.
+
+## P1297 - v56.61 - refresh audit의 forced status가 future·malformed 시각보다 우선했다 (2026-09-28)
+
+- symptom/reproduction: `statusForAt()`이 비-OK forced status를 시각 판정보다 먼저 반환해 future publication이 `BLOCKED` 등으로 가려지고, malformed publication은 forced `OK`일 때 `OK`로 표기될 수 있었다.
+- root_cause: audit 결과를 덮어쓰는 forced status 우선순위가 publication timestamp validity/future ordering보다 앞에 있었다.
+- fix/prevention: future timestamp는 어떤 forced status보다 먼저 `FUTURE`가 되고, malformed timestamp는 forced `OK`보다 먼저 `INVALID`가 된다. 명시적 non-OK 상태는 timestamp가 malformed일 때 계속 보존한다(R647).
+- verification/residual: `ci-data-refresh-audit.mjs` fixed-clock fixtures cover future + forced `OK`/`BLOCKED`, malformed + forced `OK`, and promotion rejection (QA-DATA-40). 정상 published artifact freshness remains separately blocked by the current stale snapshot.
+
+## P1296 - v56.61 - runtime freshness가 artifact SLA metadata와 분 반올림으로 완화될 수 있었다 (2026-09-27)
+
+- symptom/reproduction: published data의 `marketCycleFreshnessSlaHours=48`은 24시간 된 데이터를 fresh로 보이게 할 수 있었고, 분 단위 반올림은 실제 12시간 초과 시각을 허용했다.
+- root_cause: browser runtime과 operations-status producer가 artifact가 선언한 freshness 예산을 상한 검증 없이 소비했고, browser는 경과 시간을 분 단위 정수로 비교했다.
+- fix/prevention: live-core freshness 예산은 artifact 값과 무관하게 canonical 12시간 wall-clock으로 고정한다. 비교는 millisecond precision이며 future·12시간 초과는 즉시 stale 처리한다(R646).
+- verification/residual: 12h 경계 통과, 12h+1ms 거부, 48h metadata에도 24h artifact 거부 fixture로 검증한다. 운영 producer refresh와 external live state는 별도다.
+
+## P1295 - v56.61 - browser runtime이 future generatedAt을 current로 처리할 수 있었다 (2026-09-27)
+
+- symptom/reproduction: complete cycle의 `generatedAt`이 현재보다 미래여도 age를 0으로 clamp하고 이미 끝난 quote window가 있으면 live-core를 fresh/usable로 채택할 수 있었다.
+- root_cause: runtime freshness에서 `Math.max(0, now - generatedAt)` 형태가 future timestamp와 정상 age를 같은 0으로 합쳤다.
+- fix/prevention: publication age가 음수면 stale/invalid으로 분류해 quote decision eligibility와 snapshot clock advance를 모두 거부한다(R645).
+- verification/residual: fixed-clock runtime fixture가 future timestamp, complete cycle, past session window 조합의 fail-closed 동작을 검증한다. audit table의 `FUTURE` 표기는 P1292/R642에서 함께 확인한다.
+
+## P1294 - v56.61 - Risk Radar가 매크로 출처 URL을 이름과 함께 원문 노출했다 (2026-09-27)
+
+- symptom/reproduction: macro calendar `source` 값에 사람이 읽을 이름과 URL이 섞이거나 URL만 있으면 Risk Radar 이벤트 줄에 긴 URL이 일반 출처 문구처럼 노출될 수 있었다.
+- root_cause: 일정 레지스트리는 출처 표시 라벨과 링크 대상을 별도 필드로 보장하지 않았고 Risk Radar renderer는 event 문구에 출처를 붙여 텍스트로 표시했다.
+- fix/prevention: 검증된 공식 일정은 읽기 쉬운 `source` 라벨과 별도 `sourceUrl`을 갖는다. Risk Radar는 이벤트·출처를 분리하고 HTTPS와 URL credential을 확인한 뒤 HTML escaping, `noopener noreferrer`를 적용한 링크로 렌더링한다. URL만 제공된 옛 항목은 호스트 라벨로 표시하며 unsafe protocol은 링크하지 않는다(R644).
+- verification/residual: `ci-runtime-contract-check.mjs`의 P1294/R644 VM fixture가 승인된 공식 호스트의 HTTPS 링크, 사람이 읽는 링크 문구, hostile label escaping, javascript·미승인 호스트 거부를 확인한다. 실제 UI 브라우저 인수는 QA-DATA-37로 별도 추적한다.
+
+## P1293 - v56.61 - 중앙은행 금리 감사가 한국은행 증거 없이 OK가 될 수 있었다 (2026-09-27)
+
+- symptom/reproduction: E4가 Fed/FOMC만 확인해 BOK 금리의 누락·stale observation·비공식 출처를 발견하지 못해 중앙은행 정책 자료 전체를 정상으로 분류할 수 있었다. E3의 고정 시각도 화면의 공식 FOMC 레지스트리와 독립이었다.
+- root_cause: E3/E4의 refresh audit가 하드코딩 날짜와 Fed 단일 입력에 의존했고, BOK의 current rate, observation date, official source, 다음 회의 일정 정합 및 `DATA_SNAPSHOT` wiring을 함께 요구하지 않았다.
+- fix/prevention: E3는 화면의 FOMC registry와 Fed release calendar를 맞추고, E4는 공식·현재 Fed와 BOK 증거가 모두 유효할 때만 `OK`가 된다. BOK는 숫자 금리·상태·공식 출처·60일 observation budget·캘린더 날짜 일치·snapshot reference wiring을 확인한다(R643).
+- verification/residual: `ci-data-refresh-audit.mjs` fixture는 값 범위·날짜·공식 도메인 URL·캘린더·snapshot wiring과 Fed/BOK joint eligibility를 검사하지만 원문 페이지를 자동 fetch해 실제 내용을 대조하지는 않는다. 이번 점검에서 Fed 및 BOK 공식 원문은 별도로 열어 날짜와 표시 금리를 확인했다. 다음 정상 refresh 결과는 외부 producer 주기에서 다시 확인한다.
+
+## P1292 - v56.61 - 미래 snapshot 시각이 refresh audit에서 OK로 보일 수 있었다 (2026-09-27)
+
+- symptom/reproduction: `statusForAt()`이 강제 상태를 먼저 반환하면 미래 `generatedAt`도 A1 `OK`처럼 표기될 수 있었다. promotion 검사는 별도로 막더라도 진단 표가 현재 데이터를 암시했다.
+- root_cause: forced status 판정이 시각의 과거/현재/future 순서보다 먼저 실행되어 미래 lineage를 분류하지 않았다.
+- fix/prevention: 유효한 미래 시각은 강제 상태보다 먼저 `FUTURE`로 분류하고 malformed/future snapshot은 promotion-ready로 인정하지 않는다(R642).
+- verification/residual: 고정 시각 fixture가 forced `OK` 미래 시각, malformed 시각, promotion 거부를 검증한다. 정상 artifact를 생성하거나 freshness를 연장하지 않는다.
+
+## P1291 - v56.61 - browser와 operations status에 토요일 stale-cycle grace가 남아 있었다 (2026-09-27)
+
+- symptom/reproduction: 12시간이 지난 complete Saturday cycle이 브라우저에서 live-core quote로 채택되거나 generated operations status에서 fresh/current로 보고될 여지가 남아 있었다.
+- root_cause: P1287/R637의 strict lineage audit와 P1290/R640의 refresh promotion gate는 고쳤지만, runtime reader의 `_marketClosedGrace`와 operations-status producer의 별도 주말 예외는 제거되지 않았다.
+- fix/prevention: browser의 `_liveCoreEligible`는 publication과 `_liveCoreFresh`만 허용하고, operations status는 wall-clock SLA·complete coverage·quote quality를 모두 요구한다. 주말/휴장 여부는 timestamp freshness를 완화하지 않는다(R641).
+- verification/residual: stale Saturday cycle fixture, source/runtime contract, 13시간 operations fixture가 검증한다. 화면에서는 오래된 데이터가 날짜가 있는 reference로 남을 수 있으며 결정 입력으로 승격되지는 않는다.
+
+## P1290 - v56.60 - 휴장 주말의 stale market-snapshot이 refresh 구조 gate에서 OK로 분류됐다 (2026-09-27)
+
+- symptom/reproduction: 2026-09-27 로컬 `ci-data-refresh-audit.mjs`는 internally consistent `market-snapshot`의 `generatedAt=2026-09-26T01:35:13.162Z`(현재 36시간 경과)를 A1 `OK`/`market-closed grace`로 출력했다. `structuralOk`도 A1 상태를 필수 조건으로 보지 않았다. 별도 live-core lineage 게이트가 배포를 차단했지만 refresh 자체의 promotion audit는 주말 stale artifact를 현재 cycle로 오인할 수 있었다.
+- root_cause: refresh audit가 토·일이면 완전한 Tier-0 coverage와 일치하는 last-known-good 상태를 freshness timestamp 대신 사용해 A1을 강제 `OK`로 만들었고, 최종 구조 판정은 A1을 보지 않았다.
+- fix/prevention: A1의 12시간 기준은 항상 published `generatedAt`의 wall-clock age로 판정하고, closed-market waiver를 삭제했다. snapshot은 현재 주기 publication 정합성, 12시간 freshness, A1 `OK`가 모두 만족돼야만 `D1-structural=yes`가 된다(R640).
+- verification/residual: 고정 시각 fixture가 12시간 경계 통과와 12시간 초과/future/missing 보류를 검증한다. 현재 로컬 36시간 artifact는 의도대로 A1 `CRITICAL`, `D1-structural=no`가 된다. 실제 데이터 freshness를 복구하는 정상 scheduled refresh는 여전히 별도 운영 조건이며 이 수정은 새 데이터를 만들지 않는다.
+
+## P1289 - v56.59 - 예약 refresh의 market-snapshot 실패 원인이 runner 종료 뒤 사라졌다 (2026-09-27)
+
+- symptom/reproduction: 예약 `Refresh market data` run 36320766839은 quote 수집과 앞선 reconciliation 검사를 통과했지만 `market-snapshot` 게시가 실패해 `D1-structural=no`, A1 CRITICAL로 승격이 중단됐다. 최신 snapshot은 1.27일 전이었고, run 로그·보존 artifact에는 sidecar의 `tier0_quality`/coverage 원인이 남지 않아 어느 Tier-0 입력이 차단했는지 확정할 수 없었다.
+- root_cause: 실패 사유는 runner workspace의 `market-snapshot-status.json`에만 기록됐고, refresh workflow는 요약 구조 상태만 출력한 뒤 runner 종료 시 sidecar를 폐기했다. P1276의 요약 로그 개선도 원격 주기별 복구 자료 보존까지 연결하지 않았다.
+- fix/prevention: `fetch-market` 직후 현재 주기의 상태를 읽어 실패·불일치·12시간 초과 snapshot에만 진단 artifact를 만든다. 오류는 registry Tier-0 ID와 품질/세션 enum, 제한된 coverage/count로만 출력하고 최대 128개 오류·16개 계측기·4개 coverage 사례로 제한한다. 고정 SHA upload-artifact로 7일 보관한다. 원시 provider payload/오류 문자열은 버리고 freshness, reconciliation, promotion, commit 조건은 그대로 둔다(R639).
+- verification/residual: 로컬 redaction·상한·12h freshness fixture와 `ci-data-refresh-audit.mjs`의 run-scoped full-SHA/7-day upload workflow contract PASS를 확인한다. 이 수정으로 원격 refresh를 실행하지 않았으므로 실제 실패 artifact는 다음 예약 run에서 인수해야 한다. 현재 live data가 stale인 동안 strict QA·배포는 계속 차단된다.
+
+## P1288 - v56.58 - legacy 뉴스 집계가 최소 표본 아래서 시장 위험·행동 신호를 발행했다 (2026-09-27)
+
+- symptom/reproduction: 검증된 출처·권리·freshness를 통과한 단일 기사가 `_aioComputeNewsSignal()`에서 숫자 감성·bias·event/topic 신호가 되고 `computeMarketState()`의 위험 점수, `getActionPlan()`의 news tilt와 서사에 전달됐다(F-52). composite trading score 자체에는 이 뉴스 입력이 연결되지 않았다.
+- root_cause: P1284/R633이 ESM scorer와 페이지 요약을 보호했지만 legacy aggregate/consumer는 공통 `MIN_NEWS_ANALYSIS_SAMPLE`을 적용하지 않았다. 추가로 bootstrap API에 값은 존재해도 `exposeArchitecture()`의 legacy `AIO_ARCH` 허용 목록에는 빠져 있어 올바른 fail-closed 이후에도 5건 publish가 불가능했다. `getActionPlan()`은 직접 입력의 표본 provenance도 확인하지 않았다.
+- fix/prevention: aggregate가 단일 `AIO_ARCH.MIN_NEWS_ANALYSIS_SAMPLE`을 읽고 누락·미달 시 fail-closed하며, 표본 미달 시 분석 숫자·편향·event/topic을 발행하지 않는다. 호환 facade가 bootstrap 값을 정확히 전달한다. market-state, action-plan, loop audit는 충분 표본 표식과 실제 최소 수를 각각 확인한다(R638).
+- verification/residual: `ci-esm-core-unit-check`의 facade 동적 노출 fixture와 browser T818/P1288/R638이 1/4건 hold, 5건 publish, `sampleSufficient:true`와 `sentimentScore:null`인 모순 신호 거부 및 state/action/narrative 경계를 확인했다. 정성 감성 분류 정확도·중복/상관 기사 보정은 표본 수 gate가 해결하지 않는다.
+
+## P1287 - v56.58 - 휴장 세션의 quote 상태가 오래된 live-core artifact를 통과시켰다 (2026-09-27)
+
+- symptom/reproduction: 사용자 선택은 정상 refresh까지 live-core strict였지만, 완전한 Tier-0 snapshot과 일부 최신/폐장 quote가 있으면 12h/24h 초과 `data.json`·`market-snapshot.json`이 `INFO`로 통과할 수 있었다.
+- root_cause: freshness 감사가 artifact의 `generatedAt`/lineage SLA와 별개인 개별 시장 quote의 세션 품질을 `marketClosedGraceEligible()`로 사용해 오래된 publish cycle의 나이를 면제했다.
+- fix/prevention: 휴장 quote는 artifact 생성 시각을 갱신하지 않는다. live-core 최대 나이 초과는 시장 휴장 여부와 관계없이 hard `FAIL`이며, freshness 감사는 quote/session 데이터나 caller 전달 snapshot에 의존하지 않는다(R637).
+- verification/residual: lineage self-test는 주말 기준 13h `data.json`과 25h `market-snapshot.json`을 모두 거부한다. strict audit는 기존 데이터가 남아 있는 동안 의도적으로 QA와 배포를 막으며, refresh 자체는 operator가 정상 producer로 실행해야 한다.
+
+## P1283 - v56.56 - 호출 가능한 코드 릴리스 모드가 strict freshness 정책을 우회할 수 있었다 (2026-09-27)
+
+- symptom/reproduction: `ci-data-lineage-audit.mjs --code-release`는 stale live-core freshness를 `WARN`으로 낮출 수 있었다. 기본 실행은 strict였지만 호출 가능한 옵션 자체가 향후 배포 증거 우회로가 될 수 있었다.
+- root_cause: 코드 변경과 런타임 데이터 갱신을 분리하려던 CLI 진단 옵션과 `AIO_LINEAGE_AS_OF` 환경변수가 production audit의 freshness 기준 시각을 호출자가 과거로 이동시키는 경로를 만들었다.
+- fix/prevention: 모든 실행에서 stale live-core는 hard `FAIL`이다. `--code-release`는 제거하고, 전달되면 exit 2로 종료한다. production freshness 기준은 wall clock만 사용하며 고정 시각은 self-test에서 함수 입력으로만 주입한다. `ci-data-lineage-audit.mjs`와 pipeline contract가 strict 기본값·폐기 옵션 거부·ambient clock override 부재·stale live-core fail·malformed timestamp fail을 확인한다(R634).
+- verification/residual: self-test·source contract PASS, `AIO_LINEAGE_AS_OF`를 과거 timestamp로 지정한 CLI 실행도 현재 wall clock as-of와 stale `FAIL`을 유지했다. 정상 데이터 refresh 전에는 strict QA·배포가 계속 차단 상태다.
+
+## P1284 - v56.56 - 기사 표본 하나가 뉴스 감성을 극단값으로 만들었다 (2026-09-27)
+
+- symptom/reproduction: 적격 기사 한 건이 `Stocks surge rally beat expectations`이면 기존 계산은 `score=100`, `강한 낙관`을 발행했다. 표본 하나로는 같은 뉴스 집합의 변동성과 대표성을 지지할 수 없다(F-52).
+- root_cause: 헤드라인·본문 적격성 필터는 있었지만 집계 결과를 발행하기 위한 최소 기사 수가 없었다. HANDOFF는 raw `.score`가 매매점수에 직접 합성된다고 적었으나, 현재 `decisionEvidence` gate와 `trading-score.js` 경로는 이를 허용하지 않는 것으로 별도 소스 확인됐다. 이번 수정은 확인된 뉴스 요약·감성/위험 표면에 범위를 한정한다.
+- fix/prevention: 최소 5건의 시간 창 내 적격 기사에서만 감성 점수와 위험 신호를 발행한다. 표본 부족 시 숫자는 `null`로 두고 `표본 부족`을 표시하며 차트에도 점을 추가하지 않는다. 빈 뉴스의 기존 중립 baseline 50 계약은 유지한다.
+- verification/residual: `ci-esm-core-unit-check`는 1건 보류, 4건 미발행, 5건 이상 발행을 검증한다. 사람이 읽는 분류의 예측 타당성·중복 기사와 소스 상관 보정은 이 표본 수 게이트로 해결되지 않는다.
+
+## P1285 - v56.57 - 과거 뉴스 감성 이력과 ESM 부재 fallback이 표본 계약을 우회할 수 있었다 (2026-09-27)
+
+- symptom/reproduction: 기존 `aio_news_sent_hist`의 표본 메타데이터 없는 점수는 표본 부족 상태에서도 차트 재수화가 가능했고, native ESM이 준비되지 않은 legacy fallback은 기사 수·적격성 검사 없이 중립 점수 50을 반환했다(F-52).
+- root_cause: P1284는 새 계산 결과와 신규 저장 시점만 보호했고, 과거 localStorage 데이터의 provenance 및 비정상 ESM 미탑재 경로를 같은 발행 계약에 묶지 않았다.
+- fix/prevention: 저장 이력은 현재 뉴스 모델 버전·적격 표본 수·`sampleSufficient` 표식이 일치하는 점만 복구하며, 이전 형식 점수는 폐기한다. ESM 부재 fallback은 null/비분석 상태를 반환하고, live 및 bucket writer는 충분한 표본 결과만 저장한다. domain helper와 source contract가 이 경계를 확인한다(R635).
+- verification/residual: `ci-esm-core-unit-check` domain fixture와 source contract PASS. 과거 점수 기록은 다시 만들 수 없으므로 한 번 정리되면 충분한 새 표본이 누적될 때까지 차트는 비어 있을 수 있다.
+
+## P1286 - v56.57 - CI 실패 게이트의 원인 로그가 tail 제한과 함께 유실될 수 있었다 (2026-09-27)
+
+- symptom/reproduction: F-19a에서 실패 로그의 원인 줄이 200KB 요약 한도와 tail 출력에 잘려 CI UI만으로 실패를 진단할 수 없었다.
+- root_cause: runner가 stdout/stderr 전체를 스트리밍 보존하지 않고 마지막 제한 길이만 report에 기록했고, preflight/contracts/browser shard가 실패 증거 아티팩트를 업로드하지 않았다.
+- fix/prevention: QA runner는 실패 gate의 stdout/stderr를 run별 sidecar로 스트리밍 저장하고, 환경변수에 설정된 secret 값은 청크 경계를 포함해 마스킹한다. 원본 spool은 성공·실패 처리 뒤 제거하며, CI는 실패 shard에서만 redacted sidecar를 7일 보관한다. console 출력은 bounded summary로 유지한다(R636).
+- verification/residual: `ci-qa-runner-behavior-check`의 200KB 초과·청크 경계 secret·성공 cleanup fixture, `ci-qa-pipeline-contract-check` 140 gates, `ci-assertion-trace-check` 2675 labels/미추적 0, 관련 syntax와 diff 검사가 통과했다. 원격 Actions upload는 dispatch하지 않아 live artifact 확인은 미실시다.
+
+## P1278 - v56.55 - 동일 라우트 재확약이 viewState를 조용히 버려 전환 원자성이 깨졌다 (2026-09-27)
+
+- symptom/reproduction: `src/app/router.js`의 `transition()`은 같은 route/entity 재확약에서 마커 복원만 하고 `return true`했다. 타입드 커맨드가 새 `viewState`(탭·필터·앵커 의도)를 실어도 커밋된 view 정체성은 움직이지 않고 `aio:navigationCommitted`도 발행되지 않아 store·소비자가 view 변경을 알 수 없었다(36: "동일 route/entity 전환은 viewState 갱신을 생략").
+- root_cause: 재확약 경로를 '마커 복구'만 하는 no-op로 설계하고, view 정체성을 커밋 결과의 일부로 발행하는 계약이 누락됐다. `viewState`는 normalize만 되고 어떤 경로에서도 소비되지 않는 고아 필드였다.
+- fix/prevention: 재확약이 새 `viewState`(참조가 다른 non-null)를 실으면 커밋된 `activeViewState`를 갱신하고 같은 `mountId`로 `aio:navigationCommitted { viewState, recommit:true }`를 발행한다 — 재마운트 없음. 변화 없는 재확약(미지정·동일 참조)은 무음 no-op로 남아 기존 'same route/entity must remain a no-op' 계약을 지킨다. 실제 전환·mount 실패·dispose는 viewState를 초기화한다(이전 라우트의 view가 새 라우트를 따라다니지 않음). `activeViewState()`를 handle에 노출. `ci-esm-core-unit-check` fixture가 10단계(발행·no-op 유지·재마운트 금지·동일 참조 중복 금지·전환/dispose 초기화)로 회귀 차단한다.
+- verification/residual: esm-core PASS. viewState의 실제 **생산자**(화면 탭·필터가 typed 커맨드로 전송)와 소비자는 E7 수직 사용자 과업으로 OPEN — 이번 배치는 라우터의 커밋 계약을 닫았다.
+
+## P1279 - v56.55 - mount 실패 시 레거시 셸이 라우터가 커밋하지 않은 화면에 남았다 (2026-09-27)
+
+- symptom/reproduction: facade의 `architectureShowPage`는 `originalShowPage`(DOM 효과·hash·nav)를 먼저 실행하고 `router.transition()`을 나중에만 불렀다. mount가 throw하면 라우터는 active 상태를 null로 초기화한 뒤 예외를 다시 던지고, 셸은 이미 새 화면을 띄운 상태라 화면과 라우터 커밋이 갈라졌다(36: "showPage 부작용은 router 전환보다 앞선다").
+- root_cause: 전환 전 effect 순서 자체는 mount 시점 가시성(차트 치수 측정)을 지켜야 해 즉시 바꿀 수 없는데, 실패 경로에 롤백·관측 계약이 없었다.
+- fix/prevention: facade가 side effect **이전에** 마지막 커밋 루트를 캡처하고, transition throw 시 같은 typed 경로로 되돌린다 — `originalShowPage(previousRoute)` 후 `router.transition(previousRoute, {source:'navigation-rollback'})`, 성공 시 `rolledBack:true`. 항상 `aio:navigationFailed {routeId, rolledBack, message}`를 발행하고 false를 반환한다(성공으로 위장하지 않음). 롤백 전환 자체가 실패하면 `rolledBack:false`로 관측된다. `ci-esm-core-unit-check` fixture가 shown 순서(`macro,home`)·라우터 active·이벤트 3종을 고정한다.
+- verification/residual: esm-core PASS. 효과 순서 자체(커밋-먼저 전환)의 완전 역전은 chart native 회수(E0/P-B 계열)와 함께 재설계 대상이며, lazy route의 비동기 실패는 기존 `aio:routeModuleError` 경로가 별도 소유로 그대로 남는다.
+
+## P1280 - v56.55 - compatibility facade의 두 번째 포트폴리오 매핑과 죽은 상태 분기가 이중 결과를 냈다 (2026-09-27)
+
+- symptom/reproduction: facade `readPortfolio`는 runtime reader와 별개로 같은 Vault를 매핑하며 `targetWeight`·선언 통화(currency/costCurrency)·`baseCurrency`/`cashCurrency`·ledger·fxLegs·locked/failed 상태를 떨어뜨렸다(E0 P-A). `getPortfolioState`/`_portfolioState`는 저장소 어디에도 정의·할당자가 없는데 facade·runtime reader가 살아있는 것처럼 분기했다(E0 P-E) — 매 read가 owner 함수로 폴백되면서 두 번째 상태 소스를 가장했다.
+- root_cause: 네이티브 reader 도입 시 facade 사본이 병존한 채 필드 추가만 반복됐고, 죽은 폴백 분기 제거 조건('정의를 만들거나 호출부를 제거')이 집행되지 않았다.
+- fix/prevention: facade readPortfolio를 `createRuntimeReaders({root}).readPortfolio()` 위임으로 교체해 shadow diff를 구조적으로 0으로 만들고(섀도 종료 조건 집행), runtime reader의 죽은 분기(정의를 만들지 않고 호출부 제거)를 삭제했다. totals은 surface 단독 소유로 `null` 유지(reader 재계산 금지 — 폐기 사본의 third totals도 소멸). `ci-esm-core-unit-check`에 동일 host 섀도 byte-identical + targetWeight/currency 보존 + readState 정직성 + locked 비노출 + empty 상태 fixture, `ci-architecture-contract-check`에 위임 계약(두 번째 매핑·죽은 분기 재도입 차단)을 추가했다.
+- verification/residual: esm-core·architecture PASS. P-B(`renderPortfolio` 제3 reader·`_nativePortfolioTable` fence 회수)와 P-F(현금 envelope 단일화 완료)는 fence 계약이 현행 요구 상태여서 별도 카드다. facade 표면 소비자가 늘어난 superset 필드(readState 등)를 실사용하는지는 수직 과업에서 확인한다.
+
+## P1281 - v56.55 - 채팅 포트폴리오 시뮬레이터가 죽은 키·스키마를 읽어 실데이터에서 항상 빈 포트폴리오였다 (2026-09-27)
+
+- symptom/reproduction: `_simulatePortfolioAddition`은 `window.getPortfolioState`(정의 없음) → 폐기 키 `aio_portfolio_v1`(writer 없음, holdings/quantity/symbol 스키마) 순으로 읽었다. 현재 저장소는 `aio_portfolio_data`/{ticker, qty}이므로 실제 보유 종목이 있어도 "포트폴리오 비어 있음"만 반환했다(E0 P-D).
+- root_cause: v49-era 스키마에서 저장소 마이그레이션 후 reader가 이관되지 않았고, T533이 함수 존재만 검사해 내용의 죽음을 잡지 못했다.
+- fix/prevention: 현행 소유자 `getPortfolioData`(Vault-aware; 잠금·미해제 시 []를 돌려 평문 우회 없음)로 재배선하고 필드명을 {ticker, qty}로 정합했다. 시세 미수신 보유 종목을 0으로 합산하지 않고 `시세 미수신(보유 종목: …)`으로 보류한다(분모 조용 왜곡 금지 — 공통 설계 규칙). 빈 반환에는 잠금 상태를 명시한다. 함수명과 chatSend 통합은 유지돼 T533/T534 계약이 그대로 통과한다.
+- verification/residual: headless(skip-list 밖 실패 0) PASS. 브라우저 실응답 문구와 시나리오 수치의 사용자 인수는 E7 수직 과업으로 OPEN.
+
+## P1282 - v56.55 - 포트폴리오 섹터 다이어그램이 폐기 키 aio_portfolio를 읽어 실데이터에서 조용히 사라졌다 (2026-09-27)
+
+- symptom/reproduction: `_buildSectors`(aio-ui)는 sym-스키마 폐기 키 `localStorage['aio_portfolio']`만 읽었다 — writer가 없어 `_pfSec.sectors`는 실사용 환경에서 항상 비었고 `vis-portfolio` 래퍼는 매번 `display:none` 됐다(E0 P-C).
+- root_cause: 저장 키가 `aio_portfolio_data`/{ticker…}로 migrated된 뒤 legacy 다이어그램 reader가 이관되지 않았다.
+- fix/prevention: 현행 소유자 `getPortfolioData`(Vault-aware)로 읽고 {ticker, qty, cost, sector?} 스키마에 정합 — 선언 sector 우선, canonical screener row 폴백, Other. 가격 fallback(cost) 동작은 범위 유지로 이번 배치에서 변경하지 않았다.
+- verification/residual: headless·syntax PASS. 섹터 수치 자체의 화면 인수와 `vis-portfolio` 다이어그램의 native 회수(P-B 계열 최종 제거 여부)는 OPEN — E0의 '현행 데이터로 동일 섹터 결과 확인 후 제거' 조건 중 '제거' 판단은 다이어그램 소유권 카드에서 내린다.
+
+## P1277 - v56.54 - 접근성·포트폴리오 브라우저 보고서에 검증 세대가 없고 readiness의 라이브 문구가 오래됐다 (2026-09-27)
+
+- symptom/reproduction: 두 보고서가 PASS와 관측 시간만 기록해 어떤 앱 세대/소스 SHA인지 판별할 수 없었다. `public-readiness.json` live-revision 문구는 8/25의 v54.43·404를 계속 주장했으나 9/27 직접 관측한 `/deployment.json`은 v56.33·HTTP 200이었다.
+- root_cause: 브라우저 보고서 producer의 provenance 필드 누락과 수동 readiness 관측 문구의 세대 갱신 누락.
+- fix/prevention: 접근성 및 portfolio-vault 브라우저 producer가 `appRevision`/`gitHead`를 기록하고 로컬 실행에서 누락을 실패로 판정한다. live-revision 문구는 2026-09-27 실측 컷으로 갱신한다. v56.54의 dirty checkout 보고서는 커밋 후보 인증이 아니므로 readiness route-soak/boot를 자동 PASS로 승격하지 않는다.
+- verification/residual: 로컬 Chromium portfolio vault 28/28과 접근성 20라우트 PASS, 두 보고서의 `appRevision=v56.54`·`gitHead=cd4d8ca7` 확인. `gitHead`는 dirty checkout의 전체 파일 해시가 아니므로 커밋 후보 동일성은 `qa-runner candidate`와 원격 exact SHA 검증이 따로 필요하다.
+
+## P1276 - v56.54 - 원격 Tier-0 발행 실패 로그가 실패한 시세 행을 숨겼다 (2026-09-27)
+
+- symptom/reproduction: 9/27 원격 refresh #1458에서 22개 항목 중 E3/E4가 STALE로 보였지만 종료 원인은 `D1-structural no`였다. 로그는 `attempt=failed`만 보였고 status sidecar의 개별 `tier0_quality` 오류는 출력하지 않았다.
+- root_cause: 감사의 구조 실패 줄이 실제 `market-snapshot-status.json.errors`를 숨겨 FOMC를 차단 원인으로 오진하게 만들었다.
+- fix/prevention: `ci-data-refresh-audit.mjs`가 attempt status와 sidecar `snapshotErrors`를 원격 출력에 포함한다. 실패 발행은 계속 차단하고 last-known-good를 현재 데이터로 승격하지 않는다.
+- verification/residual: 로컬 감사가 sidecar 필드를 출력한다. #1458의 미커밋 시도 sidecar는 남아 있지 않아 실패한 개별 종목은 다음 원격 실행에서만 확정 가능하다.
+
+## P1275 - v56.54 - 9월 Fed 정책 결정과 CP2의 옛 금리 범위·22범주 감사 날짜가 충돌했다 (2026-09-27)
+
+- symptom/reproduction: CP2의 한 작성자는 Sep16 FOMC 결과 3.75–4.00% 옆에 `Fed 3.50-3.75%`를 고정 출력했고, 최종 `NARRATIVE_ENGINE` 작성자는 Aug1 유효금리 3.63%를 “공식 정책금리”로 덮어썼다. `ci-data-refresh-audit.mjs` E3/E4는 Jul29·이미 지난 Sep15–16 다음 회의를 출력했다.
+- root_cause: 동일 결정을 이벤트 레지스트리, 캘린더, CP2 두 작성자, 감사 스크립트에 복제했고 유효금리 관측을 목표범위와 혼동했다.
+- fix/prevention: 두 CP2 작성자가 이벤트 레지스트리 `policyRange`를 읽는다. E3/E4 감사는 같은 레지스트리와 캘린더 날짜의 정합 및 Fed 공식 URL을 요구하고, 다음 예정 회의 후 1일까지만 직전 결정의 참고 현재성을 허용한다. 출처는 [Fed 2026-09-16 공식 결정](https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm).
+- verification/residual: `ci-runtime-contract-check` P1275와 `ci-data-refresh-audit` E3/E4에서 Sep16·3.75–4.00%·Oct28 일치 확인. FOMC 긴급 결정이 예정 회의 사이에 발생하면 수동 레지스트리 갱신이 여전히 필요하다.
+
+## P1274 - v56.54 - 테마 국면이 현재 US 50SMA 시장폭을 놓쳤다 (2026-09-26)
+
+- symptom/reproduction: 로컬 Breadth 화면은 50SMA 35.5%·9/25 출처를 표시했지만 Themes 국면은 `Breadth50 —`와 판정 보류를 표시했다.
+- root_cause: 테마 선택자가 legacy `_breadthLiveData`만 읽고 native screener store의 동일 검증 관측을 읽지 않았다.
+- fix/prevention: 날짜·출처·coverage≥85%·eligible≥300과 유한 5/20/50/200 값이 있는 native US segment를 선택자의 후순위 입력으로 사용한다. 오래된 legacy가 있으면 native 현재 관측을 사용한다.
+- verification/residual: `ci-runtime-contract-check` P1274 fixture와 로컬 브라우저 Themes 35.5% 확인. 시장 대리 지표의 `경기 사이클/확장` 해석 자체는 예측력·사용자 의미 인수 전까지 연구 가설이다.
+
+## P1273 - v56.54 - 홈의 헤드라인 전용 뉴스가 번역·감성·시장 영향 해석으로 보였다 (2026-09-26)
+
+- symptom/reproduction: 뉴스 분석 화면은 40/40 헤드라인 전용을 보류했지만 홈 핵심 뉴스는 동일 항목을 번역·요약·감성 아이콘·Score 62와 함께 제시했다.
+- root_cause: 홈 카드 렌더러가 뉴스 본문 적격성 경계를 사용하지 않고 display summary/sentiment를 직접 호출했다.
+- fix/prevention: 헤드라인 전용은 원제목·원문 링크와 본문 미검증 안내만 보여주며 감성·번역·티커 해석을 보류한다. 점수는 `선별 점수(노출 우선순위)`로 뜻을 드러낸다.
+- verification/residual: `ci-data-pipeline-contract-check` P1273의 헤드라인/본문 있는 기사 행동 fixture PASS. v56.54 로컬 홈 실브라우저에서 원제목·원문 링크·보류 문구를 확인했고, 신설 링크가 17px 클릭 영역으로 접근성 게이트를 실패시켜 24px로 보강한 뒤 20라우트 접근성 구조 검사 PASS. 원문 전체 의미 인수는 별도다.
+
+## P1272 - v56.53 - 뷰포트 검사가 비접근성으로 명시된 숨김 file input을 이름 없는 화면 컨트롤로 셌다 (2026-09-26)
+
+- symptom/reproduction: `ci-viewport-matrix-check`가 portfolio의 `#pf-import-file`을 desktop 1280/1440/1920에서 nameless control로 실패시켰다. 이 input은 `aria-hidden=true`, `tabindex=-1`, `visibility:hidden`이며 이름 있는 별도 가져오기 버튼이 작동시킨다.
+- root_cause: 검사 selector가 DOM의 모든 input을 집계하고 접근성 트리/가시성 제외 조건이 없었다.
+- fix/prevention: `aria-hidden` 하위 또는 `visibility:hidden`/`display:none` 컨트롤을 nameless 후보에서 제외하고, 보이는 무라벨 컨트롤 단언은 유지한다(`ci-viewport-matrix-check.mjs` P1272).
+- verification: 로컬 Chromium 20라우트×desktop 3폭=60 조합 PASS, overflow 0·JS errors 0.
+- residual_risk: 모바일/태블릿·스크린리더 실제 조작 인수는 이 3폭 검사가 대신하지 않는다.
+
+## P1271 - v56.53 - 비활성 fast quote 경로를 사용자 기능 AVAILABLE로 표시했다 (2026-09-26)
+
+- symptom/reproduction: `public-config.json.marketData.fastQuotes.enabled=false`(권리 검토 false·7일 soak 0일)인데 `operations-status.json.featureAvailability.quotes.availability=AVAILABLE`였다.
+- root_cause: 운영 상태의 quote 기능 판정이 Worker의 최근 200/16건 건강도만 보고, 공개 경로의 권리·soak 인증과 연결되지 않았다.
+- fix: `deriveFastQuoteAvailability`가 설정·권리·soak·건강도를 함께 판정한다. 현 산출물은 `UNAVAILABLE/fast-quote-provider-rights-not-reviewed`; `build-operations-status` producer로 공개 설정·readiness를 재생성했다.
+- prevention/verification: `ci-operations-status-check.mjs`의 비인증/soak 미완/인증 양성 fixture와 실제 artifact↔public-config 불일치 단언 PASS; `ci-version-check` PASS.
+- residual_risk: 건강도는 과거 관측 재사용이며, 운영자 권리 검토·7일 soak·현재 배포 Worker 실응답은 별도 인수다.
+
+## P1270 - v56.53 - refresh promotion이 같은 무거운 검사를 다시 실행하고 검증 후보를 Git index/커밋에 결속하지 않았다 (2026-09-26)
+
+- symptom/reproduction: 두 refresh workflow가 producer 검사 뒤 promotion에서 같은 artifact/continuity/audit 또는 SEC/screener 검사를 재실행했다. 그 사이 변경 여부와 실제 staged tree는 hash로 결속되지 않았다.
+- root_cause: 반복 검사만 안전 경계로 쓰고 검증 시점의 변경 파일 집합·내용, staged blob, rebase 뒤 커밋 blob을 대조하지 않았다.
+- fix: 마지막 producer 검증 뒤 `verify-refresh-candidate --record`, promotion에서 `--expect`, staging 뒤 `--expect-staged`, commit/rebase 뒤 `--expect-commit`을 배선했다. 원래 조기 실패 검사와 정확한 SHA CI attestation은 유지한다.
+- prevention/verification: `verify-refresh-candidate --self-test`의 변조·집합 확장·staged 불일치·정상 staged/commit fixture PASS; `ci-qa-pipeline-contract-check`가 workflow 순서와 호출 1회를 단언, YAML 파싱·workflow compaction PASS.
+- residual_risk: 원격 Actions wall time/p95·실패율·실제 절감률은 아직 측정 전이며, 이 로컬 검사를 원격 성공으로 승격하지 않는다.
+
+## P1269 - v56.53 - 스크리너 자동 갱신 브라우저 검사가 새로 보이는 행을 잘못 실패시켰다 (2026-09-26)
+
+- symptom/reproduction: 이전 CI `browser-runtime`에서 12개 현재 행 중 11개 가격+1개 `미수신`으로 실패했다. fixture는 최초 화면 12행만 quote를 심은 뒤 다른 스크린을 실행해 새 행을 노출했다.
+- root_cause: 검사가 quote tick 자체와 무관한 새 가시 행까지 모두 초기 fixture 가격이 있다고 가정했다.
+- fix/prevention: tick 전에 새 가시 행만 결정적 최근 quote로 심고, 기존 행은 유지한다(P1269 주석). `ci-screener-auto-refresh-browser-check.mjs` 독립 실행 PASS(12/12 가격·동결 run 유지·runtimeErrors 0).
+- residual_risk: 옛 원격 실패 SHA에 대한 로컬 수정이며, 새 SHA의 원격 CI 재실행/배포 결과는 아직 없다.
+
+## P1268 - v56.53 - 뉴스 요약 DOM이 이중 작성되고 헤드라인·피드 주제를 검증된 위험 신호처럼 표시했다 (2026-09-26)
+
+- symptom/reproduction: legacy `_aioUpdateNewsSummaryFromItems`와 native `news.js`가 동일 요약 DOM을 번갈아 덮었고, 카드의 피드 query topic 또는 본문 없는 기사도 감성·위험 집계와 혼동될 수 있었다.
+- root_cause: 소스 등록 수·현재 필터 소스 수, 기사 적격성·주제 검토 상태, 점수·위험 신호의 owner가 분리되지 않았다.
+- fix: native news route를 요약 DOM 단일 작성자로 선언하고 legacy는 호환 계산만 반환한다. scoring 공통 경계가 headline-only/미검증을 분석에서 보류하고 feed-query topic을 주제별 위험 산정에서 제외한다. 등록 소스는 별도 registry writer, 현재 필터 소스는 native summary로 분리한다.
+- prevention/verification: `ci-esm-core-unit-check`·`ci-runtime-contract-check`에 적격성/주제/단일 owner fixture를 연결했다. `ci-domain-parity-check`의 옛 헤드라인 전용 golden은 의도적 보류 경계로 전환했고, headless T1016이 legacy DOM 비작성을 확인한다. 실브라우저의 지연 도착·필터·탭 왕복은 최종 QA 결과를 별도로 본다.
+- residual_risk: 헤드라인 감성/키워드 위험은 인과·가격 반응 증거가 아니며, 원문 전체·권리·사용자 이해도는 미검증이다.
+
+## P1267 - v56.53 - 테마 시장폭과 경기 국면이 다른 기간/모집단 대체값으로 확정되고 Guide 점수 범위가 어긋났다 (2026-09-26)
+
+- symptom/reproduction: 50SMA 시장폭 부재 시 20SMA·스냅샷·11 ETF 하루 양봉 비율을 섞어 경기 사이클 확장/전략 문구를 만들 수 있었다. Guide는 3구간 60/40으로 Signal의 실제 5구간 75/60/45/30과 불일치했다.
+- root_cause: legacy 테마 fallback의 서로 다른 지표를 같은 breadth50으로 취급하고, 투자 행동 문구가 섹터 수익률만으로 인과/국면을 추론했다.
+- fix: 현재성이 확인된 canonical 50SMA 없으면 사이클은 판정 보류, legacy 중복 cycle writer와 과도한 섹터 전략 문구를 퇴역/관측치 설명으로 축소했다. Guide 범위를 실제 5구간으로 맞췄다.
+- prevention/verification: `ci-esm-core-unit-check`·`ci-runtime-contract-check`·`ci-architecture-contract-check`·headless T785·문법 검사에 입력/owner/문구 경계를 추가·갱신했다. core +12행은 결측 시장폭 보류를 위한 판정 로직이고 index -6/data -31/pages -188행으로 4파일 합계 -213행이어서 decomp ratchet에 명시적으로 기록했다. headless T785/T1016의 실제 보류·DOM 단일 소유자 회귀 관찰을 위해 `js/aio-tests.js`가 +10행 늘어났으며, 테스트 약화 없이 공식 `--write --allow-growth`로 기록한다.
+- residual_risk: RRG 상대 강도를 경기/섹터 성장으로 읽는 native 표현, Atlas placement 이동·원전·사용자 인수는 별도 점검이 필요하다.
+
+## P1266 - v56.53 - data-plane 계약 게이트가 fixture 설치 전 실제 provider 호출로 503을 냈다 (2026-09-26)
+
+- symptom/reproduction: 깨끗한 v56.52 `full --no-cache`에서 106 PASS/1 FAIL/23 SKIP; 유일한 실패 `data-plane`의 `/admin/run`이 503이었다.
+- root_cause: 성공 계약 호출이 `globalThis.fetch` 결정적 stub보다 먼저 실행돼 네트워크 제한 환경에서 실제 Yahoo 요청을 했다.
+- fix/prevention: 인증 호출을 fixture의 fetch 범위 안으로 옮기고 시각을 고정했다. `ci-data-plane-contract-check.mjs` 단독 PASS, 가짜 외부 응답으로 권한·응답 계약을 검사한다.
+- residual_risk: 이는 로컬 계약 fixture 수리이며 실제 provider 동시 요청/배포 Worker 건강도의 증거가 아니다.
 
 ## P1265 - v56.52 - QA 실행 identity·커밋 후보 결속이 없어 실패 배치가 덮이고 검증 tree와 커밋 tree가 어긋날 수 있었다 (E2-C6 P0·P1-3) (2026-09-26)
 
@@ -3734,14 +4274,6 @@ current_checkpoint: 2026-09-26 3차 — E2-C6 감사(34)의 P0 2건·P1-3 구현
 - **fix**: added a translation readiness queue released after the boot boundary; deferred server-data narrative/news work and market-state recomputation to the post-boot phase; staged non-critical native hydration; reduced route class mutations to the active page/nav; preserved native signal/home ownership fences; moved pixel-level fallback retries beyond the interactive window.
 - **prevention**: `ci-boot-interaction-check.mjs` records an explicit 2s observation window and request/long-task budgets; `operations-slo.json` requires `TARGET_COMPLIANT` before release; future secondary producers must declare a phase boundary instead of attaching synchronous work to `aio:pageShown`/`aio:serverDataLoaded`.
 - **verification**: three sequential runs passed with initial external `12`, initial quote `0`, max long task `103-113ms`, total long task `542-558ms`, active-route DOM `724`, and no boot errors. Full suite and live edge/provider gates remain separate until executed.
-p795_entry: "Theme-detail selected-theme versus ETF/composite-base comparison now renders in #theme-detail-native-benchmark from normalized theme and benchmark quote evidence; the legacy benchmark section is fenced while theme insights stay legacy. ESM, architecture, and Chromium gates pass; local v53.30 remains uncommitted and undeployed."
-p821_entry: "Home Quality now has a native fail-closed meter/score/label and the legacy Trading Score-as-Quality writer is removed because it did not implement the documented five-input model. Architecture contract and Chromium gates pass."
-p822_entry: "Technical candle title/meta now come from normalized analysis input with a waiting fallback; the legacy chart retains canvas/indicator lifecycle but no longer writes those sinks. Architecture contract and Chromium gates pass."
-p823_entry: "The remaining legacy theme-detail deep-analysis comparison now filters non-finite constituent percentages before comparison/formatting, and the retirement manifest is synchronized with the 17/17 native renderer ledger. Runtime and retirement contracts pass."
-p824_entry: "The shared currentness sanitizer now skips native renderer-owned narrative sinks; no-live theme/carry regression tests accept the current Korean fail-closed states without allowing fabricated scores. Headless passes 1102/1102."
-p825_entry: "Theme-detail keeps one summary aria-live region and removes redundant live announcements from eight subordinate native panels. UX, accessibility, and viewport gates pass."
-p826_entry: "The architecture compatibility facade now replays derived theme-detail navigation through the canonical themes route, preventing the inline native detail mount from being disposed during FULL_INIT viewport traversal. Full local release verification passes, including architecture/browser and FULL_INIT 68/68."
-total_entries: 593 (P1~P833, 결번 존재 — 상세 + 압축 원장)
 # 2026-07-18 통합/압축: P703 이하 전 엔트리를 압축 원장(한 줄)·시대 블록으로 축약. 각 엔트리의 원문 전문(motivation/root_cause/fix/prevention/verification)은 git 히스토리(이 파일의 2026-07-18 이전 리비전)에서 열람.
 # P725 = v53.7 KR 5페이지 통합(기능 작업, CHANGELOG 기록 — 버그 아님). P617~P619/P650/P670/P710/P723 등 일부 번호는 결번 또는 비버그 작업.
 ---

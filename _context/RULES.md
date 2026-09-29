@@ -1,11 +1,257 @@
 ---
-verified_by: Codex local source review + affected QA (workspace/deployment regression); full semantic audit remains open
-last_verified: 2026-09-24
+verified_by: local source review + affected QA (summary; live facts in CURRENT-STATE.md)
+last_verified: 2026-09-29
 confidence: medium
-target_version: v56.52
+target_version: v56.82
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R673. QA and self-audit machinery stays out of the user runtime (v56.82, P1329)
+
+**Rule**: Self-audit, QA registries and operator diagnostics live in js/aio-qa-audits.js (or tests/scripts), load only through `AIO.loadQaAudits()` (automation, ?qa=1, detailed audit mode, operator widget, tests) and are excluded from Pages and the service worker. Runtime code may call an audit only through a guard that tolerates its absence.
+
+**Validation**: `ci-decomp-hotspot-check.mjs` ratchet on both files, Pages exclusion in public-artifact-manifest.json, headless/browser gates (QA-OPS-QA-01).
+
+## R672. Korean themes are user content with one label owner (v56.81, P1327)
+
+**Rule**: Korean theme sections are never gated behind developer mode. Theme names and ticker→theme membership come from `src/domain/themes/kr-themes.js`; every KR_THEME_MAP id has a label; equal splits are labelled as such, not as weights.
+
+**Validation**: `ci-esm-core-unit-check.mjs` P1327 fixtures (QA-UX-09).
+
+## R671. Currentness labels come from observations and the calendar, via one presenter (v56.81, P1326)
+
+**Rule**: Price currentness uses exactly five states — 실시간, 지연, 종가, 지난 시세, 미수신 — derived from observation times and the exchange calendar, never from the render clock or the transport. One presenter owns the topbar slot; other code requests a re-render instead of writing text.
+
+**Validation**: `ci-esm-core-unit-check.mjs` P1326 fixtures, `ci-runtime-contract-check.mjs`, architecture/outage browser gates (QA-UX-07).
+
+## R670. Reference descriptions use the latest completed US regular close and say so (v56.81, P1328)
+
+**Rule**: Descriptive (non-decision) scores are computed on decision-grade evidence when present and otherwise on the latest completed US regular-session close (quotes observed at/after that close; daily publications dated no earlier than the prior session), with the basis stated in the visible text. Close-basis inputs can never make a result decision-eligible. There is one input path for legacy and native consumers.
+
+**Validation**: `ci-esm-core-unit-check.mjs` P1328 fixtures (QA-DATA-57).
+
+## R669. Desktop-only: no mobile/tablet code ships (v56.81, P1324)
+
+**Rule**: Supported viewports are 1280×900, 1440×1000 and 1920×1080. index.html has no @media max-width below 1100px, no coarse-pointer/hover:none media and no mobile menu markup; JS has no mobile menu, touch or visualViewport handlers or viewport-width branches below 1100px.
+
+**Validation**: `ci-desktop-scope-check.mjs` (P1324/R669) and headless T601 (QA-UX-08).
+
+## R668. First screen shows values before summaries; blocked summaries collapse and name the cause (v56.80, P1322)
+
+**Rule**: On a desktop first screen, observed values (indices, key indicators) come before any derived summary. A derived summary that is blocked collapses to a single line and names the concrete cause (e.g. no decision-grade input) instead of "not received" when values are visibly present. Block order is static markup, not runtime DOM moves.
+
+**Validation**: `ci-runtime-contract-check.mjs` home order check and `ci-esm-core-unit-check.mjs` blocked wording (QA-UX-05).
+
+## R649. refresh freshness requires the published snapshot's own generatedAt (v56.61, P1300)
+
+**Rule**: A status sidecar's `lastSuccessfulAt` cannot substitute for a missing or malformed `market-snapshot.generatedAt`. Only the published artifact's own valid timestamp can establish freshness or permit current-cycle promotion; absent artifact time fails closed.
+
+**Validation**: `ci-data-refresh-audit.mjs` P1300 fixture pairs a missing snapshot timestamp with a recent successful status timestamp and verifies invalid freshness plus promotion rejection (QA-DATA-43).
+
+## R650. A passed macro schedule date is not evidence of a completed release (v56.62, P1301)
+
+**Rule**: Official schedules may advance `nextRelease` after a scheduled date passes, but `lastRelease` records only a separately verified publication or decision result. Runtime resolution and candidate previews must preserve the existing result date when the schedule date passes or contains no future date.
+
+**Validation**: `ci-runtime-contract-check.mjs` P1301/QA-DATA-44 exercises the actual resolver across a passed event and an exhausted schedule; `ci-static-db-expiry-check.mjs` continues to reject a stale configured `nextRelease` without requiring an unverified `lastRelease` promotion.
+
+## R651. Generated knowledge builders run before their downstream consumers (v56.68, P1306)
+
+**Rule**: When a registered producer changes an artifact consumed by later builders, execute the producer first and every direct consumer afterward in the same build pass. A generator chain must not depend on running CI or the local build command twice to make its outputs converge.
+
+**Validation**: `ci-qa-pipeline-contract-check.mjs` P1306/QA-DATA-47 pins the Principles lesson builder before evidence, enrichment, integrated-framework and article consumers, and pins the Nathan/concept producers before the integrated-framework builder; `ci-knowledge-generated-parity-check.mjs` verifies one isolated pass leaves all generated outputs unchanged.
+
+## R652. Worker auto-deploys require exact CI evidence and a verified rollback target (v56.69, P1307)
+
+**Rule**: A Worker source/config change may auto-deploy only from its exact successful main CI attestation. Before deployment, record the active single-version 100% deployment and the live health sourceSha; if post-deploy smoke fails, roll back to that explicit version and verify the prior sourceSha and health status. Missing or split rollback baselines block deployment. Worker releases remain independent from Pages identity, but do not bypass strict CI.
+
+**Validation**: ci-cloudflare-deployment-contract-check.mjs P1307/QA-DATA-49 pins per-Worker change selection, CI attestation, prior version/SHA capture, smoke-failure rollback, and restoration verification; ci-data-plane-contract-check.mjs exercises single-version and split-deployment rollback fixtures.
+
+## R653. Worker auto-deploy must recover coalesced changes from the live source SHA (v56.70, P1308)
+
+**Rule**: Main CI attestation explicitly uploads its hidden `.release` file. Each Worker change scope includes its complete local runtime import graph. Automatic deploy compares the last live `/health` source SHA through the exact successful CI SHA only while that SHA is still current `main` and the live SHA is its ancestor. A canceled CI run or replaced pending deploy is recovered when that cumulative range contains Worker changes. Delayed events and newer or divergent live Workers never roll back; recheck current `main` immediately before deployment. Skip when already at the tested SHA or the cumulative range has no files for that Worker; unavailable live identity fails closed.
+
+**Validation**: `worker-deploy-impact.mjs` classifies static local imports, commit ancestry and cumulative diffs. `ci-cloudflare-deployment-contract-check.mjs` P1308/QA-DATA-50 fixtures pin hidden artifact inclusion, transitive bundle files, per-plane scope, canceled-run recovery, stale-CI/newer-live rejection and convergence skip; operator-provisioning, data-plane and deployment-convergence gates enforce the workflows and ledger mapping.
+
+## R654. SEC ownership polling and 13F row imports use separate, semantic cadences (v56.71, P1309)
+
+**Rule**: Daily SEC submissions polling may refresh Schedule 13D/G ownership events without rebuilding quarterly 13F rows. Run the full 13F row/history chain during each 45-day post-quarter filing window's weekly Monday slot, immediately when a newly discovered 13F-HR/HR-A accession is not connected in `holdings.json`, or by explicit operator dispatch. A 13F-NT alone does not trigger row import. Producers must preserve artifact bytes when only declared poll timestamps or generated revision clocks change, while accession/form/amendment/row/status/coverage/LKG changes remain semantic. Ownership-only failure clears current events, retains them as LKG, and marks ownership `BLOCKED`; it must not alter 13F status or coverage.
+
+**Validation**: `ci-13f-semantic-hash-check.mjs` P1309/QA-DATA-51 exercises filing-window boundaries, raw versus semantic digests, no-op byte preservation, ownership-only projection preservation, new-HR trigger, 13F-NT exclusion and LKG/BLOCKED behavior. `ci-13f-currentness-check.mjs`, `ci-data-pipeline-contract-check.mjs`, `ci-masters-contract-check.mjs` and `ci-qa-pipeline-contract-check.mjs` pin daily poll, conditional weekly/import chain, as-of UI language, candidate ordering and exact-SHA handoff. The first scheduled run and live acceptance remain separate evidence.
+
+## R657. Operator alerts preserve explicit evidence and fail closed (v56.73, P1311)
+
+**Rule**: Evaluate a site outage only from explicit availability evidence and its continuous outage-start time; never infer one from deployment age. Count a core artifact stale only after at least two registered NYSE/KRX sessions have fully closed since its actual publication time. Resolve publication time in this order: `market-snapshot.json.generatedAt`, `market-snapshot.json.lastSuccessfulAt`, then `data.json.meta.marketSnapshotLastSuccessfulAt`; do not use attempt clocks (`data.json.meta.generatedAt`, `marketSnapshotPublishedAt`) or the operations-status generation clock. Evaluate AI usage against the actual `ANTHROPIC_DAILY_CAP` request count for the current UTC day. Thresholds are inclusive (24 hours, two sessions, 80%). Missing, malformed, future, impossible, wrong-day, over-cap, or unregistered-calendar evidence is `UNKNOWN`; consumers must not clear an existing alert from `UNKNOWN`. Keep the independent 12-hour hard freshness gate unchanged. This policy does not claim that probes, protected usage telemetry, or notification delivery are wired.
+
+**Validation**: `ci-operations-alert-policy-check.mjs` pins exact threshold boundaries, explicit evidence, timestamp source ordering, prohibited attempt/status clocks, NYSE DST/holiday/half-day and KRX holiday/close boundaries, unregistered years, missing values, UTC rollover, and immutability. `ci-qa-pipeline-contract-check.mjs` R657/P1311/QA-OPS-01 pins its gate inputs and the unchanged 12-hour operations-status SLA. Actual source adapters and delivery remain separate evidence.
+
+## R658. Operator AI usage evidence stays authenticated and private (v56.74, P1312)
+
+**Rule**: The current UTC-day Anthropic request count may be read only from the US quota Durable Object through `GET /_ops/ai-usage` with a separate `AIO_OPERATOR_TOKEN` of at least 32 characters. The route is read-only, no-store, and has no CORS response. Missing configuration or failed authentication returns 404; unavailable/malformed quota evidence fails closed. Never add Anthropic usage, cap, or token material to public `/health`, logs, artifacts, or public issue bodies. Do not change reserve/release enforcement or the existing cap.
+
+**Validation**: `ci-worker-anthropic-check.mjs` P1312/QA-OPS-02 checks missing/invalid/valid authentication, GET-only behavior, exact response shape, privacy headers, UTC count and Anthropic-only DO day keys. `ci-worker-relay-check.mjs` pins public `/health` non-disclosure; `ci-cloudflare-deployment-contract-check.mjs` ties the route, secret requirement, and `usage` operation to `architecture/worker-endpoints.json`. Live provisioning and retrieval are operator evidence, not a local PASS.
+
+## R659. Operator alert collectors preserve source, market, and privacy boundaries (v56.75, P1313)
+
+**Rule**: Scheduled alert collectors must fetch only deployed public site/core artifacts and the protected AI usage endpoint when the separate operator token is present. Resolve core publication time only from the R657 fallback order, evaluate both registered NYSE and KRX markets, and reject redirects on any request carrying the operator token. Return only fixed status/reason summaries; never persist or log source bodies, usage counts, caps, percentages, or credentials. A failed site probe or missing explicit outage-start time remains `UNKNOWN`; this collector does not invent continuity.
+
+**Validation**: `ci-operations-alert-source-check.mjs` P1313/QA-OPS-03 uses injected fetch/clock fixtures for both markets, timestamp fallback order, unavailable/malformed sources, explicit outage evidence, missing-token non-request, private token/header privacy and redirect rejection. `ci-qa-pipeline-contract-check.mjs` verifies registration and Cloudflare impact coverage. Live schedule, protected-secret provisioning, durable outage continuity, and private delivery remain separate evidence.
+
+## R660. Knowledge candidate builders cannot follow symlinks outside their isolated copy (v56.76, P1314)
+
+**Rule**: Before snapshotting, copying, or running any generated-knowledge builder in candidate/parity mode, reject symlinks in the source workspace and the disposable copy with `lstat` semantics. No producer may run unless the copied builder workspace is symlink-free. Any shared helper that participates in candidate generation must map to the knowledge parity gate in affected QA.
+
+**Validation**: `ci-knowledge-generated-parity-check.mjs` P1314/QA-DATA-54 accepts an ordinary directory fixture and rejects a symlinked generated-output directory, then checks the real source and copied workspace before any builder. `ci-qa-pipeline-contract-check.mjs` pins helper impact mapping for `scripts/lib/atomic-write.mjs` and `scripts/lib/13f-semantic-hash.mjs`.
+
+## R661. A personal-data export carries every personal section, or says what it omits (v56.77, P1316)
+
+**Rule**: Portfolio backup/export must include every personal section the app stores in the browser — positions, account ledger, FX legs, cash, declared assumptions, trade journal and watchlists — in one versioned bundle, and import must restore each declared section through that section's own normalizer and durable-ack path. Never export while Vault-locked sections would read as empty; never export API keys or PINs. A new personal storage key is incomplete until the backup bundle carries it.
+
+**Validation**: `ci-esm-core-unit-check.mjs` P1316/QA-DATA-55 round-trips all sections through `src/data/portfolio-backup.js`, rejects invalid/unknown/future/empty input, keeps legacy positions-array import, and pins the shell's locked-export refusal and per-section ack aggregation; `ci-portfolio-vault-e2e.mjs` PFE2-13 keeps the import completion claim gated on durable persistence.
+
+## R662. Visible facts are derived from their owner, not restated in static copy (v56.77, P1315)
+
+**Rule**: Market direction colour/class, score-component names, keyboard-shortcut targets and route names, statutory rates and literature citations shown to users must come from (or be checked against) their single owner — the live quote writer, `deriveTradingScoreComponents`, the real DOM inputs/routes, and the glossary source registry. Optional globals are read behind a `typeof` guard so one missing enrichment cannot abort a whole view.
+
+**Validation**: `ci-runtime-contract-check.mjs` P1315/QA-UX-01 asserts the KR theme guard, neutral KR index markup with delta-driven direction, colour on `.a11y-up/.a11y-dn`, the canonical 심리 legend, real Ctrl+K targets and route-8 label, and the corrected KOSPI tax and Piotroski facts.
+
+## R663. One instrument, one canonical symbol across route, quote request and screener (v56.78, P1317)
+
+**Rule**: Ticker input (bare KRX code, exchange-suffixed code, or an exact/unambiguous registered Korean name) is normalized once to the Yahoo-style symbol before any lookup; the route, the live quote request and the screener row lookup must use that same key. A selected instrument without a quote must be requested rather than left blank. Ambiguous names are never guessed.
+
+**Validation**: `ci-esm-core-unit-check.mjs` P1317/QA-UX-02 fixtures for code/suffix/name/ambiguity/US passthrough and the showTicker/bootstrap wiring.
+
+## R664. Reference-only filters use plausibility-checked reference values, not decision-grade gates (v56.78, P1318)
+
+**Rule**: A filter that only buckets or narrows (e.g. market-cap size) must not require decision-grade live evidence. It may use a reproducible reference value derived from published artifacts only after a plausibility check, must label it as reference, and must never feed it into factors or decisions. Unknown stays unknown (never zero).
+
+**Validation**: `ci-esm-core-unit-check.mjs` P1318/QA-DATA-56 fixtures for derivation, turnover rejection, currency/missing inputs and live-first bucket precedence.
+
+## R667. Ledger frontmatter is metadata, not an evidence log (v56.79)
+
+**Rule**: `_context/*.md` YAML frontmatter carries only durable metadata (`last_verified`, `confidence`, `target_version`, pointers). Latest P/R/QA numbers, entry counts, versions and checkpoints belong to the generated `_context/CURRENT-STATE.md`, never to a hand-maintained frontmatter field, and no frontmatter line may exceed 400 characters. Evidence for a change goes in its own ledger entry.
+
+**Validation**: `ci-knowledge-lint-check.mjs` label "frontmatter lines stay within 400 chars (R667)" over every context markdown document.
+
+## R666. A removed route is removed everywhere (v56.79, P1321)
+
+**Rule**: When the owner removes a page, delete its shell, renderers, route ids, briefs, AI personas, audits and manifests in the same change. Keeping a hidden page "for architecture" is not allowed; the old hash may only alias to the surviving owner page, and generated artifacts that still name it must resolve through that alias until their producer regenerates them.
+
+**Validation**: `ci-architecture-browser-check.mjs` (no page, no route id, alias target), `ci-architecture-contract-check.mjs` (fence + golden count), `ci-runtime-contract-check.mjs` (registry classes), headless T137/T805 (QA-ROUTE-19).
+
+## R665. Explanations are reachable by pointer and keyboard, fully on screen (v56.78, P1320)
+
+**Rule**: Every "?"/term explanation must open by hover, focus, click and Enter/Space, close by Escape/outside click, carry an accessible name, and render entirely inside the desktop viewport. Mobile/touch sizing stays out of scope (R474).
+
+**Validation**: `ci-esm-core-unit-check.mjs` P1320/QA-UX-04 placement fixtures and bootstrap installation assertion; local desktop Chromium placement check.
+
+## R656. CI meta-gate downgrades require a complete weekly backstop (v56.72)
+
+**Rule**: Keep the six CI meta gates (`doc-currency`, `ledger-integrity`, `assertion-trace`, `six-doc-coverage`, `workspace-contract`, `knowledge-lint`) in blocking CI until a scheduled weekly workflow runs all six with a read-only token. Adding the weekly backstop does not itself authorize a severity downgrade, weaken market freshness/static expiry, or replace release acceptance.
+
+**Validation**: `ci-qa-pipeline-contract-check.mjs` R656/QA-WORKSPACE-13 pins all six weekly commands, schedule and read-only checkout. The actual scheduled run remains separate operational evidence.
+
+## R655. Generated knowledge candidates preserve exact provenance and require human review (v56.72, P1310)
+
+**Rule**: When knowledge sources or builder dependencies change, build review candidates with the existing ordered builder/target inventory inside a disposable checkout. PR path filters include inventoried builders, runtime/helper modules, literal source-file inputs and generated input indexes so relevant changes cannot skip candidate generation. Keep the trigger contract synchronized when an input is added; it currently pins the Principles/Atlas source pages and learning route modules as well as masters/index and shared writer/hash helpers. Export only generated target changes and a manifest that identifies the tested checkout SHA and PR head SHA. The output directory must be outside the repository; workflow permissions stay read-only, actions are SHA-pinned, and generated candidates cannot modify canonical sources, commit, push, or deploy. A person reviews and adds approved outputs in the source change.
+
+**Validation**: `ci-knowledge-generated-parity-check.mjs --candidate-dir <external-directory>` exercises the shared builder inventory, exact SHA manifest, and outside-workspace boundary; default mode retains the no-drift parity gate. `ci-qa-pipeline-contract-check.mjs` P1310/QA-DATA-52 pins the PR/manual workflow, permissions, exact checkout, pinned artifact upload, builder dependency/input path triggers, and no-write/no-deploy boundaries. GitHub artifact execution and human review remain separate evidence.
+
+## R648. FOMC schedule alignment requires the canonical official Fed calendar source (v56.61, P1298)
+
+**Rule**: E3/E4 may treat the visible FOMC result and release dates as aligned only when both the `us-fomc` and `us-fed-rate` schedule entries cite the canonical Federal Reserve FOMC calendar URL. Matching dates alone cannot establish an official calendar source.
+
+**Validation**: `ci-data-refresh-audit.mjs` P1298/R648 accepts the canonical calendar URL and rejects an unapproved lookalike host (QA-DATA-41).
+
+## R647. future and malformed timestamps outrank forced refresh audit statuses (v56.61, P1297)
+
+**Rule**: A future publication timestamp must report `FUTURE` regardless of the forced audit status. A malformed timestamp must never report `OK`; classify it as `INVALID` when `OK` was forced. A non-OK forced status may remain visible for malformed inputs.
+
+**Validation**: `ci-data-refresh-audit.mjs` P1297/R647 fixed-clock fixtures cover future with forced `OK` and `BLOCKED`, malformed with forced `OK`, and promotion rejection (QA-DATA-40).
+
+## R646. live-core freshness uses a fixed millisecond-precision 12-hour budget (v56.61, P1296)
+
+**Rule**: Browser and operations-status consumers use the canonical 12-hour wall-clock SLA; generated artifact metadata cannot enlarge or otherwise redefine that budget. Compare unrounded elapsed milliseconds so exactly 12 hours is allowed, while 12 hours plus any positive duration and any future timestamp are stale.
+
+**Validation**: `ci-data-pipeline-contract-check.mjs` and `ci-operations-status-check.mjs` pin 12h, 12h+1ms, 24h with declared 48h, and future-cycle fixtures (QA-DATA-39).
+
+## R645. future generatedAt never makes browser market data fresh (v56.61, P1295)
+
+**Rule**: A published complete market cycle with `generatedAt` later than wall clock is invalid for current decision inputs. It must not become eligible through a zero-clamped age, a completed historical session window, or snapshot-clock advancement.
+
+**Validation**: `ci-data-pipeline-contract-check.mjs` P1295/R645 runs a fixed-clock future-cycle fixture with complete coverage and a closed session window (QA-DATA-38).
+
+## R644. macro calendar source labels are separate from safe official links (v56.61, P1294)
+
+**Rule**: A calendar's human-readable source name and its destination URL are distinct fields. Risk Radar renders the event and readable source label separately; only credential-free HTTPS URLs on the approved official host allowlist may become links, with escaped attribute/text values and `noopener noreferrer`. A raw URL must never become the visible source label, and an unsafe, unapproved, or invalid URL must not become a link.
+
+**Validation**: `ci-runtime-contract-check.mjs` P1294/R644 evaluates the renderer with an allowlisted official host, URL-only legacy input, hostile label, and rejected javascript/unapproved-host URLs (QA-DATA-37); local browser acceptance remains separate.
+
+## R643. central-bank policy audit requires current Fed and BOK evidence together (v56.61, P1293)
+
+**Rule**: E3/E4 are not OK unless the visible FOMC result, official Fed release calendar, and official current Bank of Korea policy record align. BOK evidence includes numeric value, decision status, official primary source, non-future observation within 60 days, next meeting date aligned with its official calendar, and data snapshot field-time wiring. One central bank passing cannot stand in for the other.
+
+**Validation**: `ci-data-refresh-audit.mjs` P1293/R643 fixtures reject stale, missing, future, implausible, unofficial, unwired, and one-sided Fed/BOK evidence (QA-DATA-36). This local contract validates metadata, domains, dates, ranges, and wiring; it does not fetch primary-page bodies, so source contents require separate evidence.
+
+## R642. future snapshot timestamps never report current or pass promotion (v56.61, P1292)
+
+**Rule**: A future `generatedAt` is classified as `FUTURE` before any forced audit status is applied. Future or malformed publication time cannot be A1 `OK` or promotion-ready.
+
+**Validation**: `ci-data-refresh-audit.mjs` P1292/R642 fixed-clock fixtures cover forced `OK`, malformed time, and promotion rejection (QA-DATA-35).
+
+## R641. browser decisions and operations status use the same strict live-core freshness boundary (v56.61, P1291)
+
+**Rule**: A complete weekend/holiday market cycle does not waive the live artifact's wall-clock freshness SLA. Browser quote promotion and the generated operations status must both require publication, complete Tier-0 coverage, and an artifact timestamp within its strict SLA; stale data may remain dated reference material only.
+
+**Validation**: `ci-data-pipeline-contract-check.mjs` pins browser eligibility to publication plus `_liveCoreFresh` and forbids market-close grace; `ci-operations-status-check.mjs` rejects a complete 13-hour Saturday fixture (QA-DATA-34).
+
+## R640. snapshot promotion requires a fresh published artifact in every market session (v56.60, P1290)
+
+**Rule**: `market-snapshot` publication and promotion use the artifact's own `generatedAt` against the 12-hour wall-clock budget. Weekend, holiday, or `CLOSED_CURRENT` quotes do not renew or waive that age. An internally consistent but stale last-known-good snapshot is not a current-cycle success; its audit status is non-OK and the structural promotion gate fails closed.
+
+**Validation**: `ci-data-refresh-audit.mjs` tests the 12-hour boundary, rejects a stale LKG even when its publication metadata is internally consistent, and requires A1 `OK` before `D1-structural=yes` (QA-DATA-33).
+
+## R639. 실패한 market-snapshot 주기는 비밀 없이 재진단 가능한 bounded artifact를 남긴다 (v56.59, P1289)
+
+**Rule**: 자동 market snapshot producer는 현재 주기 publication 실패, freshness 만료 또는 fetch 단계 실패를 성공 로그로 숨기지 않는다. 후속 조사 자료는 허용된 Tier-0 instrument ID, 품질·세션 enum, 제한된 coverage/count, 시각·상태 필드만 내보내고 임의 provider 문자열·payload·credential은 거부한다. 실패 또는 불일치일 때만 제한된 보존기간의 artifact를 만들며, 진단 실패도 strict freshness·promotion gate를 완화하거나 건너뛰지 않는다.
+
+**Validation**: `ci-data-refresh-audit.mjs`의 redaction·size·freshness fixtures와 static full-SHA, run-scoped, 7-day capture/upload workflow contract; 원격 실패 artifact는 capture workflow가 포함된 revision의 다음 scheduled refresh에서 별도 인수한다(QA-DATA-32).
+
+## R638. legacy 뉴스 의사결정 소비자도 공통 최소 표본을 강제한다 (v56.58, P1288)
+
+**Rule**: 레거시 뉴스 집계·시장 상태·행동 요약·루프 감사는 모두 `AIO_ARCH.MIN_NEWS_ANALYSIS_SAMPLE`의 단일 기준을 사용한다. bootstrap 값은 compatibility facade가 그대로 전달해야 한다. 기준 설정을 읽을 수 없거나 적격 기사가 기준 미만이면 점수·편향·이벤트·주도 토픽을 발행하지 않고, `sampleSufficient: false`와 실제 수만 남긴다. 시장 상태·행동 요약·루프 감사는 충분 표본 표식, 실제 최소 수, 유한한 숫자 점수 provenance를 다시 확인해 집계기 밖의 모순 신호도 거부한다.
+
+**Validation**: `ci-esm-core-unit-check`는 bootstrap 상수의 facade 전달을 동적으로 확인한다. browser T818/P1288/R638은 적격 기사 1·4건 hold, 5건 publish, `sampleSufficient` 표식에 null 점수를 붙인 모순 신호 reject, 시장상태/action/narrative 소비자 hold/publish를 확인한다.
+
+## R637. live-core freshness는 시장 휴장으로 SLA를 넘겨 통과하지 않는다 (v56.58, P1287)
+
+**Rule**: `data.json`과 `market-snapshot.json`은 각각 생성 lineage SLA를 만족해야 한다. 휴장 상태, Tier-0 quote coverage, `CLOSED_CURRENT` 관측치가 artifact 자체의 오래된 `generatedAt`을 새 것으로 만들지 않는다. 초과 시 항상 hard `FAIL`; 배포 전 정상 producer refresh가 필요하다.
+
+**Validation**: `ci-data-lineage-audit.mjs`는 주말 기준 stale data/snapshot을 거부하고, `ci-data-pipeline-contract-check.mjs`는 session-grace downgrade 경로의 부재를 확인한다.
+
+## R636. 실패한 QA 출력은 비밀을 마스킹한 run별 전체 증거로 보존한다 (v56.57, P1286)
+
+**Rule**: CI에서 실패한 검증은 원인 줄이 tail/console 한도에 잘려도 조사 가능해야 한다. QA runner는 stdout/stderr 전체를 run별 sidecar로 보존하고, 설정된 secret 값은 sidecar·report·console 전에 마스킹한다. 성공 실행의 출력 spool은 제거한다. GitHub Actions는 실패한 preflight/contracts/browser shard에서만 마스킹된 sidecar를 제한 보존기간으로 업로드한다.
+
+**Validation**: `scripts/ci-qa-runner-behavior-check.mjs` — 200KB 넘는 stdout/stderr 보존, 청크 경계 secret 마스킹, report/console 비노출, 성공 시 sidecar/staging cleanup. `scripts/ci-qa-pipeline-contract-check.mjs` — 실패 조건·경로·artifact 보존기간과 세 CI tier 연결.
+
+## R635. 저장 뉴스 점수 이력은 현재 모델의 충분한 표본 증거가 있어야 차트에 남는다 (v56.57, P1285)
+
+**Rule**: localStorage 이력은 앱 버전을 넘어 보존되므로 저장 당시의 점수만으로 현재 분석 정책을 입증하지 않는다. 복구되는 뉴스 차트 점에는 현재 scoring model version, 적격 기사 수, `sampleSufficient: true`가 함께 있어야 하며, 선언된 최소 표본 미만·구형 메타데이터·구형 모델 점은 버린다. ESM scorer가 준비되지 않은 legacy fallback도 50 같은 관측값을 만들지 않고 분석 불가/null을 반환한다.
+
+**Validation**: `scripts/ci-esm-core-unit-check.mjs` — 구형·소표본·오래된 모델 이력 거부, 충분한 현재 모델 이력 유지, legacy fallback의 null과 live/bucket 저장 경계, bootstrap API의 단일 threshold/helper 노출.
+
+## R634. live-core 신선도 감사에는 stale 데이터를 통과시키는 실행 모드가 없어야 한다 (v56.56, P1283)
+
+**Rule**: `data.json`·`market-snapshot.json` freshness는 실제 사용·배포 주장의 일부다. CLI 인수, 환경변수, qa-runner 옵션 또는 attestation caller가 live-core SLA 초과를 `WARN`으로 낮추어서는 안 된다. 사용자 정책이 정상 데이터 refresh 전 strict 유지라면 모든 audit 경로에서 stale/malformed/future lineage가 hard `FAIL`이고, 폐기된 완화 인수는 명시적으로 거부한다.
+
+**Validation**: `scripts/ci-data-lineage-audit.mjs` self-test — 기본 모드 strict, `--code-release` unsupported, deterministic clock은 함수 입력만 허용, stale live-core `FAIL`, malformed timestamp `FAIL`; `ci-data-pipeline-contract-check`는 audit wall clock과 ambient environment override 부재를 확인하고 CLI 호출은 폐기 인수 non-zero 종료를 확인한다.
+
+## R633. 뉴스 감성·위험은 최소 표본을 채우기 전 분석 결과로 발행하지 않는다 (v56.56, P1284)
+
+**Rule**: 기사 수준 검증을 통과한 항목만 분모로 삼되, 소수 표본은 대표성이 확인된 분석 결과가 아니다. 감성 점수와 위험 신호는 같은 선언된 시간 창의 적격 기사 수가 `MIN_NEWS_ANALYSIS_SAMPLE` 이상일 때만 발행한다. 표본 부족이면 `null`/보류 상태와 실제 표본 수를 표시하고, 차트·요약·의사결정 소비자에서 기존 중립값이나 극단값으로 대체하지 않는다. 빈 표본의 legacy neutral baseline은 데이터 부재 계약으로 유지하되 분석 가능한 결과로 게시하지 않는다.
+
+**Validation**: `scripts/ci-esm-core-unit-check.mjs` — 1개 표본 `score=null`, 4개 표본 위험 신호 없음, 5개 적격 bullish 표본에서만 점수 발행, `deriveNewsSummary`의 표본 상태 계약.
 
 ## R632. 선언 입력에는 writer가 있어야 하고, 저장 경로는 durable ack를 버리지 않는다 (v56.19, P1187)
 
@@ -171,7 +417,9 @@ target_version: v56.52
 
 ## R605. 정적 DB는 data-refresh 주기에 맞춰 갱신하거나 명시적으로 보류한다 (v54.98, P1081)
 
-**Rule**: `SCREENER_DB`·`KR_STOCK_DB`·`KR_THEME_MAP`·`AIO_MACRO_CALENDAR`·`AIO_MANUAL_REFERENCE`·채널 allowlist는 관측값이 아니라 구성이다. 스스로 최신화되지 않으므로 data-refresh 실행이 주기마다 점검한다: 유니버스 멤버십(월간, `staleAfterDays:30`·`replaceAfterDays:90`), 테마 구성(월간, 시점 박힌 수치 제거), 발표 일정(매 릴리스 후 공식 캘린더 대조, 만료된 `nextRelease`는 `lastRelease`로 승격), 정책 참조(매 결정·CPI 발표 후). 갱신하지 않으면 BLOCKED/DEFERRED 사유를 기록하고, `replaceAfterDays`를 넘긴 유니버스는 하드 FAIL이다. 정적 DB 목록의 정본은 data-refresh 스킬의 `references/inventory.md`다.
+**Rule**: `SCREENER_DB`·`KR_STOCK_DB`·`KR_THEME_MAP`·`AIO_MACRO_CALENDAR`·`AIO_MANUAL_REFERENCE`·채널 allowlist는 관측값이 아니라 구성이다. 스스로 최신화되지 않으므로 data-refresh 실행이 주기마다 점검한다: 유니버스 멤버십(월간, `staleAfterDays:30`·`replaceAfterDays:90`), 테마 구성(월간, 시점 박힌 수치 제거), 발표 일정(매 릴리스 후 공식 캘린더 대조 및 `nextRelease` 전진; `lastRelease`는 발표/결정 결과 증거가 있을 때만 갱신), 정책 참조(매 결정·CPI 발표 후), NYSE/KRX 정규 세션 캘린더(연간 공식 일정 검토 알림). 예약 후보 검토는 다음 일정 하나가 아니라 전체 현재/후보 날짜와 추가·제거 차이를 보고·digest에 포함하고, tentative 또는 부분 연도 커버리지는 값이 같아도 사람 검토를 요청한다. 연도별 거래소 캘린더가 등록되지 않았으면 세션 판정은 계속 `unknown`/fail-closed이며 평일 추정으로 대체하지 않는다. 갱신하지 않으면 BLOCKED/DEFERRED 사유를 기록하고, `replaceAfterDays`를 넘긴 유니버스는 하드 FAIL이다. 정적 DB 목록의 정본은 data-refresh 스킬의 `references/inventory.md`다.
+
+**Validation**: `scripts/ci-static-data-contract-check.mjs`, `scripts/ci-static-db-expiry-check.mjs`, `scripts/ci-macro-calendar-review-contract-check.mjs`, `.github/workflows/macro-calendar-review.yml`, `ci-qa-pipeline-contract-check.mjs` R605/QA-DATA-53 and `.github/workflows/exchange-calendar-review.yml`. Collector and issue-management credentials are limited to the jobs/steps that need them.
 
 ## R604. 정적 DB는 구성만 보관하고 시점 박힌 수치를 남기지 않는다 (v54.98, P1080)
 
@@ -791,7 +1039,7 @@ target_version: v56.52
 
 ## R492. Official static release calendars must be date-advanced and source-verified (v54.23)
 
-**Rule**: A desktop macro release registry may retain scheduled dates as reference data, but every `nextRelease` must be checked against the publisher's current official calendar before release. When a scheduled date passes, update `lastRelease`, advance `nextRelease`, and extend the official schedule list in the same change. Do not infer a release from elapsed time or synthesize dates from a generic cadence.
+**Rule**: A desktop macro release registry may retain scheduled dates as reference data, but every `nextRelease` must be checked against the publisher's current official calendar before release. When a scheduled date passes, advance `nextRelease` and extend the official schedule list in the same change; update `lastRelease` only when publication/decision evidence confirms the event occurred. Do not infer a release from elapsed time or synthesize dates from a generic cadence.
 
 **Validation**: `ci-static-data-contract-check.mjs` and `ci-data-refresh-audit.mjs` must pass with no past `nextRelease`; the refresh record must cite the official BLS, BEA, ISM, Census, Federal Reserve, and Bank of Korea calendar sources used for the current registry.
 
@@ -977,7 +1225,7 @@ target_version: v56.52
 
 ## R420. 공식 일정의 완료 이벤트는 nextRelease로 남기지 않는다 (v53.64, P865)
 
-**Rule**: A calendar registry must promote the next official future release after an event boundary, retaining the completed date only as `lastRelease`. Fixed dates may be used only when backed by the official schedule; no inferred cadence may replace a missing official date.
+**Rule**: A calendar registry must promote the next official future scheduled event after an event boundary. Retain a date as `lastRelease` only when a separate publication/decision result confirms completion. Fixed dates may be used only when backed by the official schedule; no inferred cadence may replace a missing official date.
 
 **Validation**: Headless T759 checks valid non-past NFP/CPI/FOMC/PCE dates, and the calendar registry's official schedule arrays provide the rollover source.
 

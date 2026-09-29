@@ -79,6 +79,7 @@ export function computeTradingScoreModel(input = {}) {
     ? PREDICTIVE_VALIDATION_ESTABLISHED
     : PREDICTIVE_VALIDATION_NOT_ESTABLISHED;
   const hasDecisionEvidence = !!input && input.decisionEvidence && typeof input.decisionEvidence === 'object' && !Array.isArray(input.decisionEvidence);
+  const closeBasisKeys = [];
   const decisionValue = (key, fallback, minimum, maximum) => {
     if (!hasDecisionEvidence) return boundedNumber(fallback, minimum, maximum);
     const evidence = input.decisionEvidence[key];
@@ -86,8 +87,13 @@ export function computeTradingScoreModel(input = {}) {
     // `live`/`fresh`.  Accept only those explicitly current statuses and an
     // explicit decision-use grant.  Reference/snapshot/stale values must not
     // silently fall back into the score.
-    if (!evidence || evidence.allowedUse !== 'decision' || !['live', 'fresh', 'verified_current'].includes(evidence.status)) return null;
-    return boundedNumber(evidence.value, minimum, maximum);
+    // P1328/R670: a close-basis value (latest completed US regular session) describes the
+    // market for this reference score; it is tracked so the result can never be decision-eligible.
+    const closeBasis = evidence?.allowedUse === 'close-basis' && evidence.status === 'session_close';
+    if (!evidence || (!closeBasis && (evidence.allowedUse !== 'decision' || !['live', 'fresh', 'verified_current'].includes(evidence.status)))) return null;
+    const bounded = boundedNumber(evidence.value, minimum, maximum);
+    if (closeBasis && bounded != null) closeBasisKeys.push(key);
+    return bounded;
   };
   const decisionCollection = (key, fallback) => {
     if (!hasDecisionEvidence) return Array.isArray(fallback) ? fallback : [];
@@ -160,7 +166,9 @@ export function computeTradingScoreModel(input = {}) {
   let breadthScore = breadthAvailable ? breadthCalcScore : null;
 
   // 5. Macro Score (10%) — 기저 55, 누진 감점
-  let macroScore = dxy != null && tnx != null && vvix != null ? 55 : null;
+  // P1328: VVIX is an optional stress modifier (it is often not collected client-side); dollar and
+  // 10Y yield are the required macro inputs.
+  let macroScore = dxy != null && tnx != null ? 55 : null;
   if (macroScore != null && dxy > 107) macroScore -= 12;
   if (macroScore != null && dxy > 110) macroScore -= 8;
   if (macroScore != null && tnx > 4.5) macroScore -= 10;
@@ -274,7 +282,9 @@ export function computeTradingScoreModel(input = {}) {
     // A complete input vector is not the same thing as a validated predictive
     // model.  Keep this false unless an explicit future validation contract is
     // supplied; current score-backtest evidence is descriptive/reference-only.
-    decisionEligible: input.decisionEligible === true
+    // P1328: which inputs used the close basis, and the basis itself, travel with the score.
+    closeBasis: closeBasisKeys.length && input.closeBasis ? Object.freeze({ date: input.closeBasis.date, label: input.closeBasis.label || '', inSession: input.closeBasis.inSession === true, keys: Object.freeze(closeBasisKeys.slice()) }) : null,
+    decisionEligible: input.decisionEligible === true && closeBasisKeys.length === 0
       && predictiveValidation === PREDICTIVE_VALIDATION_ESTABLISHED
       && total != null && !((hasDecisionEvidence && availableWeight < decisionCoverageThreshold) || componentMissing.length),
     predictiveValidation,
@@ -332,6 +342,8 @@ export function deriveSignalDecisionFromTradingScore({ score = {}, inputVersion 
  * WATCH/WAIT/REDUCE action level. Keeping that distinction explicit prevents
  * the legacy wording from becoming a second scoring implementation.
  */
+const CONDITION_BAND_LABELS = Object.freeze({ favorable: '우호', constructive: '양호', neutral: '중립', caution: '주의', defensive: '위험' });
+
 export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersion = 'unknown' } = {}) {
   const total = finiteNumber(score?.total ?? score?.score);
   const missing = Array.isArray(score?.componentMissing) ? score.componentMissing.slice() : [];
@@ -348,6 +360,8 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
   const missingLabels = { volatility: '변동성', momentum: '심리', trend: '추세', breadth: '시장 폭', macro: '거시' };
   const missingText = missing.map((key) => missingLabels[key] || key).join(' · ');
   const reasons = missing.map((key) => `missing:${key}`);
+  // P1328: the basis the inputs were read on (e.g. "9/28 미국 정규장 종가 기준") is part of the statement.
+  const basisLabel = score?.closeBasis?.label || '';
   if (total == null) {
     return Object.freeze({
       modelVersion: SIGNAL_PRESENTATION_MODEL_VERSION,
@@ -361,8 +375,8 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
       predictiveValidation,
       components,
       breakdown,
-      decision: '판정 보류 — 필수 입력 미수신',
-      description: `${missingText || '시장 환경'} 입력 부족 · 수신된 개별 지표는 아래에서 확인할 수 있습니다.`,
+      decision: '판정 보류 — 판단 등급 입력 없음',
+      description: `${missingText || '시장 환경'}: 실시간·검증된 입력이 없어 점수를 계산하지 않았습니다(미수신 또는 지연·참고 시세). 수신된 개별 지표는 참고값으로 볼 수 있습니다.`,
       reasons: Object.freeze(['required-input-missing', ...reasons])
     });
   }
@@ -386,8 +400,9 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
       predictiveValidation,
       components,
       breakdown,
-      decision: `시장환경 관찰 — ${conditionBand} 구간 · 예측 검증 미확립`,
-      description: `${missingText || '현재 입력 조합'}의 상태를 요약한 참고 지표입니다. 예측 신호·매매 권고로 사용하지 않습니다.`,
+      basisLabel,
+      decision: `시장환경 관찰 — ${CONDITION_BAND_LABELS[conditionBand]} 구간 · 예측 검증 미확립`,
+      description: `${basisLabel ? `${basisLabel} · ` : ''}${missingText ? `${missingText} 제외 · ` : ''}현재 시장 입력 조합을 요약한 참고 지표입니다. 예측 신호·매매 권고로 사용하지 않습니다.`,
       reasons: Object.freeze(['predictive-validation-not-established', ...reasons])
     });
   }
@@ -404,8 +419,9 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
       predictiveValidation,
       components,
       breakdown,
+      basisLabel,
       decision: '판정 보류 — 부분 데이터 점수',
-      description: `${missingText || '일부 입력'} 제외 · 수신된 입력만 반영한 참고 점수입니다.`,
+      description: `${basisLabel ? `${basisLabel} · ` : ''}${missingText || '일부 입력'} 제외 · 수신된 입력만 반영한 참고 점수입니다.`,
       reasons: Object.freeze(['partial-inputs', ...reasons])
     });
   }

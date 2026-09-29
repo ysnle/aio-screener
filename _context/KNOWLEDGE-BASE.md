@@ -30,10 +30,10 @@ confidence: high
 
 ## 2026-08-23 v54.50 visual surface and ticker-state closure
 
-- The 20-route screenshot audit found no desktop overflow or unlabelled large blank panels. Waiting, unavailable, pending and blocked states are intentionally visible and must not be upgraded to current evidence.
+- The route screenshot audit (20 routes at the time; 19 since the options route retired in v56.79) found no desktop overflow or unlabelled large blank panels. Waiting, unavailable, pending and blocked states are intentionally visible and must not be upgraded to current evidence.
 - Direct ticker entry now starts with `—` and `종목 선택 대기`; it no longer implies `NVDA` or a portfolio relationship before the user selects a symbol. The Korean symbol input has an accessible programmatic name.
 - The second-pass audit establishes a cross-surface negative-control: live sentiment wins over reference snapshots, stale screener identity is `partial` with its last bulk-update date, unknown coverage remains `null`/`미확인`, news freshness is derived from the completed cycle, and macro/FX-bond topic rows suppress inferred security tickers.
-- Hidden mobile overlays must not be focusable or role-bearing while closed. Generic `data-action` accessibility normalization now respects that boundary; signal mode exposes selected state and the AI close control has a specific accessible name.
+- Hidden compatibility (narrow-viewport) overlays must not be focusable or role-bearing while closed. Generic `data-action` accessibility normalization now respects that boundary; signal mode exposes selected state and the AI close control has a specific accessible name.
 - Screenshot review is an expert visual audit, not recruited-user evidence. Full headless, in-app Browser Tier 13, deployed parity and human usability gates remain separate.
 
 ## 2026-08-23 v54.49 residual audit closure
@@ -124,7 +124,7 @@ confidence: high
 - 시장 원리와 AI 시대 지식 지도는 지식 백과사전이자 실제 시장 분석으로 이어지는 학습 시스템이다. 현재 시장 원리 111개 핵심 설명 필드 합계 중앙값은 325자, AI 기초 48개는 275자이며 159/159가 1,200자 core 하한 미달이다. 이들은 유용한 요약 scaffold이지 완성된 장문 원고가 아니다.
 - 심층 본문은 `정의·선수 개념 → 직관 → mechanism/형식 모델 → worked example → 반례·대체 설명 → typed 관계 → 실물경제 → 산업·기업 → 재무제표 → 밸류에이션 → 시장가격/금융시장 → 트레이딩 관찰·무효화 → claim 출처·용어·회상 질문`으로 닫는다. 모든 개념에 수식을 억지로 넣지 않고 해당 없으면 이유를 기록한다.
 - 30초 요약과 5분/심층 본문을 분리해 점진 공개한다. 글자 수만 늘린 반복 문장, 포괄 출처 하나의 다수 주장 재사용, 교육 원고에서 직접 BUY/SELL 생성은 깊이 통과가 아니다.
-- 초보자·중급 투자자·능동 트레이더·전문가·한국 투자자·재방문·모바일/접근성·위험 회피·시간 부족 사용자의 과업을 별도 검증한다. 자동화된 persona 시나리오는 휴리스틱이며 실제 참여자 연구 전에는 `USER_VALIDATED`를 선언하지 않는다.
+- 초보자·중급 투자자·능동 트레이더·전문가·한국 투자자·재방문·접근성·위험 회피·시간 부족 사용자의 과업을 별도 검증한다. 자동화된 persona 시나리오는 휴리스틱이며 실제 참여자 연구 전에는 `USER_VALIDATED`를 선언하지 않는다.
 
 ## 2026-08-09 full-route audit closure: contracts are part of the evidence
 
@@ -179,7 +179,7 @@ confidence: high
 
 - Market Principles 기본 화면은 전체 원고를 먼저 나열하지 않고 `세상과 희소성`부터 `전력·후속 산업·한국`까지 7개 대분류와 하위 학습 그룹을 펼치는 Tree를 먼저 보여준다. 선택한 노드는 `public-data/principles/node-guides.json`의 60개 개별 원고에서 정의·직관·작동 원리·KPI·앞뒤 연결·실패 조건을 읽는다.
 - 기존 `lesson-library.json`은 111개 레슨을 유지하되 각 레슨의 정의·메커니즘·사례·반례·검증 질문·도식을 제목별로 다시 작성했다. `scripts/build-principles-lessons.mjs`와 contract가 6개 핵심 필드의 111개 고유성을 검사한다.
-- 전체 A~O 챕터/레슨은 자료실 탭으로 분리하고, source/status/evidence ID는 기본 학습 흐름에서 접힌 근거 영역으로 이동했다. Graph는 관계 라벨과 실제 hop 깊이를 렌더링하고, 데스크톱 상세 패널과 모바일 1열 흐름을 browser gate로 검사한다.
+- 전체 A~O 챕터/레슨은 자료실 탭으로 분리하고, source/status/evidence ID는 기본 학습 흐름에서 접힌 근거 영역으로 이동했다. Graph는 관계 라벨과 실제 hop 깊이를 렌더링하고, 데스크톱 상세 패널을 browser gate로 검사한다(좁은 화면 1열 CSS는 호환 코드이며 인수 대상이 아니다, 데스크톱 전용 R474).
 - AI Era Atlas의 기본 진입은 내부 packet/evidence 현황판이 아니라 48개 Foundations 모듈 학습 지도가 되었다. `산업·가치사슬`과 `근거 자료실`은 별도 탭이며, 모듈 source ID는 근거 details 안에 둔다.
 - 검증: `ci-principles-contract-check.mjs`, `ci-principles-browser-check.mjs`, `ci-atlas-contract-check.mjs`, `ci-atlas-browser-check.mjs`, `ci-six-doc-coverage-check.mjs` PASS. 현재 수치·매매 신호·검증되지 않은 기업/생산 상태는 여전히 공개하지 않는다.
 
@@ -221,7 +221,7 @@ confidence: high
 - 현재 SEC 정보표 전체 행은 Berkshire 90, Duquesne 70, Fisher 1,016, Pershing 11, Appaloosa 31, Baupost 22, Scion 8로 총 1,248행이다. 비교 원장은 1,377행이며 compact 화면은 68개 top rows다.
 - `holdings.json`은 `allHoldings`와 `comparisons`를 별도 공개해 Masters의 전체 보유·변화 원장·Exited 필터·페이지네이션이 실제 행 데이터를 사용한다. 섹터 master가 아직 없으므로 섹터 비중은 추정하지 않고 준비 상태로 표시한다.
 - Scion의 SEC submissions 기준 최신 연결 보고분기는 `2025-09-30`이며 `STALE_REFERENCE`로 명시한다. 이는 누락을 숨기지 않는 freshness boundary다.
-- Principles는 선택 노드의 실제 1-hop/2-hop subgraph, 12개 핵심 개념의 정의·작동·KPI·산업 연결·실패 조건, 15·30·45분 학습 순서를 제공한다. 출처 링크는 모바일 최소 24px 타깃과 focus-visible을 만족한다.
+- Principles는 선택 노드의 실제 1-hop/2-hop subgraph, 12개 핵심 개념의 정의·작동·KPI·산업 연결·실패 조건, 15·30·45분 학습 순서를 제공한다. 출처 링크는 최소 24px 타깃과 focus-visible을 만족한다(모바일은 지원 대상이 아님, R474).
 - Atlas는 `DESIGN_ONLY` 등 내부 상태를 기본 화면의 사용자용 라벨로 바꾸고, 95개 taxonomy node에 개념·연결 논리·기업 역할·KPI·검증 경계를 추가했다. current metric·수율·출하·목표가·매매 신호는 여전히 공개하지 않는다.
 
 ## 2026-08-02 코드 구현 환류: SEC 13F row connection
@@ -301,7 +301,7 @@ confidence: high
 
 - Kioxia의 다년 LTA·매출 가시성, Kioxia/Micron의 추론·SSD·메모리 제품 연결, Microsoft/Meta/Oracle의 AI 인프라 비용·CAPEX, Fed의 유가→물가·금융여건 경로, METI의 일본 공급망 resilience는 **좁은 명제** 수준에서 `REVIEWED_CANDIDATE` 또는 `PARTIAL`로 대조했다.
 - 고객집중 리스크, earnings surprise→positioning/forced flow, 전체 NAND/HBM 수급·가격·yield, 특정 기업 수혜는 공식 1차 출처가 부족해 `NEEDS_REVIEW` 또는 차단 상태다. 기업 발표를 산업 전체 사실로 일반화하지 않는다.
-- 저충실도 MVP 입력은 12개 node로 제한하고 Tree=계층, Graph=인과, Path=학습 순서를 분리한다. 실제 브라우저의 3-click·모바일 overflow·deep-link 검증은 `LF-6`로 남겨 두며, `MP-00/KG-00` 승인 전 구현하지 않는다.
+- 저충실도 MVP 입력은 12개 node로 제한하고 Tree=계층, Graph=인과, Path=학습 순서를 분리한다. 실제 브라우저의 3-click·데스크톱 overflow·deep-link 검증은 `LF-6`로 남겨 두며, `MP-00/KG-00` 승인 전 구현하지 않는다.
 - 전체 결과는 `REFERENCE/DISCOVERY`이며 `PUBLISHED/LIVE/Trading Score/13F`로 승격하지 않는다. 13F는 SEC EDGAR pipeline을 계속 별도 유지한다.
 
 > `_artifacts/telegram-5d-research-packet-2026-08-01.md`에 상세 기록. 기존 정식 rolling lineage는 3채널(`aetherjapanresearch`, `insidertracking`, `bornlupin`)만 포함하며, 조사 창 경량 관측은 235/465/113건이다. `survival_DoPB`는 2건으로 희소하고 `Onionfarmer`는 최신 관측이 2026-07-21이라 이번 창에서 stale이다. 5개 채널 전수 완료로 가장하지 않는다.

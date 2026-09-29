@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { atomicWriteJsonSync } from './lib/atomic-write.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const chaptersPath = path.join(root, 'public-data/principles/chapters.json');
@@ -16,8 +17,9 @@ const sourceIdsByChapter = {
   N: ['MP-NIST', 'PS-16', 'PS-18'], O: ['MP-BOK', 'MP-KRX', 'MP-SEC']
 };
 
-const lesson = (id, title, definition, mechanism, example, counterScenario, verificationQuestion, diagram) => ({
-  id, title, definition, mechanism, example, counterScenario, verificationQuestion, diagram
+const lesson = (id, title, definition, mechanism, example, counterScenario, verificationQuestion, diagram, metadata = {}) => ({
+  id, title, definition, mechanism, example, counterScenario, verificationQuestion, diagram,
+  metadata
 });
 
 const drafts = [
@@ -41,6 +43,13 @@ const drafts = [
   lesson('D3', '기준금리와 시장금리', '기준금리는 중앙은행의 정책 신호이고, 시장금리는 성장·물가·재정·수급·위험 프리미엄을 반영해 거래에서 정해진다.', '정책금리 변화는 단기 자금시장에 빠르게 전달되지만 장기금리는 미래 정책 기대와 채권 공급·수요에 따라 다르게 움직인다.', '기준금리가 동결되어도 장기 국채금리가 상승할 수 있다. 시장이 미래 재정 공급이나 인플레이션 위험을 새로 가격에 반영했기 때문이다.', '기준금리 인하를 모든 대출금리와 자산가격의 즉시 하락으로 해석하면 전달 시차와 스프레드를 놓친다.', '정책 변화와 시장금리 변화의 차이를 기대 경로·국채 수급·신용스프레드 중 무엇으로 설명할 수 있는가?', '정책 신호 → 기대·수급 → 시장금리'),
   lesson('D4', '중앙은행의 대차대조표', '중앙은행 대차대조표는 통화 발행과 지급결제, 국채·대출 등 자산을 통해 금융시스템 유동성이 어떻게 공급되는지 보여준다.', '자산 매입·대출·상환·보유자산의 만기 변화는 은행 준비금과 금융조건에 영향을 준다. 규모보다 구성과 운영체계가 중요하다.', '국채를 매입해 준비금이 늘어도 은행이 대출 수요를 보수적으로 평가하면 실물 신용이 같은 폭으로 늘지 않을 수 있다.', '대차대조표가 커졌다는 사실만으로 경제에 돈이 모두 풀렸다고 보면 준비금·신용·지출의 경로를 혼동한다.', '중앙은행 자산 변화가 준비금·시장 유동성·은행 대출·명목 지출 중 어디까지 전달됐는가?', '중앙은행 자산 ↔ 준비금 → 금융조건'),
   lesson('D5', '중앙은행의 딜레마', '중앙은행의 딜레마는 물가 안정·고용·금융 안정처럼 서로 다른 목표가 한 정책 수단에 동시에 걸리는 상황이다.', '수요를 식히는 금리 인상은 물가 기대를 안정시킬 수 있지만 취약 차주의 상환과 금융기관 건전성을 압박한다. 반대로 완화는 경기와 자산가격을 돕지만 물가를 자극할 수 있다.', '공급 충격으로 물가가 오를 때 금리만 크게 올리면 공급은 바로 회복되지 않으면서 신용 취약성이 먼저 드러날 수 있다.', '정책 결정의 결과를 즉시 효과로 평가하거나 목표 간 시차를 무시하면 중앙은행 행동의 이유와 부작용을 잘못 읽는다.', '현재 충격은 수요·공급·기대 중 어디에 있으며, 정책이 해결할 수 있는 부분과 감수해야 할 비용은 무엇인가?', '물가·고용·금융안정 → 정책 선택'),
+  lesson('D6', '중립금리와 정책 스탠스', '실질 중립금리 r*는 경제가 잠재 수준에 있고 물가가 안정적일 때 경기를 자극하지도 억제하지도 않는 이론적 실질 단기금리다. 명목 중립금리는 대략 r*와 장기 기대인플레이션의 합으로 본다.', '정책금리에서 추정 명목 중립금리를 뺀 격차가 양수면 다른 조건이 같을 때 제약적, 음수면 완화적인 방향이다. 다만 r*는 직접 관측되지 않는다. LW·HLW류 모형은 GDP·물가·금리에서 잠재성장·output gap·r*를 Kalman filter로 추정하며, 당시 정보만 쓰는 one-sided 값과 사후 전체 표본을 쓰는 two-sided smoothed 값은 수정 가능성과 용도가 다르다.', '2026년 6월 FOMC 목표범위 중간값 3.625%와 SEP 장기 연방기금금리 중앙값 3.1%를 비교하면 약 +50bp의 제약적 격차라는 시점 해석이 가능하다. 이는 r*의 참값이 아니라 기준일이 붙은 정책 브리핑 사례다.', '장기 TIPS·국채금리가 모델 중립금리보다 높을 수 있지만 시장금리에는 기대 단기금리뿐 아니라 기간·유동성·인플레이션 위험 프리미엄이 섞인다. 시장값을 r*로 곧바로 치환하거나 당월 CPI를 장기 기대물가로 쓰면 오류가 난다.', '사용한 r* 모형·one/two-sided 방식·data vintage·기대인플레이션·정책금리 기준일과 오차 범위는 무엇이며, 장기금리의 기간·유동성 프리미엄과 신용·재정·대차대조표 조건을 분리했는가?', 'GDP·물가·금리 → latent r* 범위 + 장기 기대물가 → 명목 중립 범위 ↔ 정책금리 → 스탠스 민감도', {
+    prerequisites: ['D2 명목·실질금리', 'D3 기준금리와 시장금리'],
+    sourceIds: ['MP-NYFED-RSTAR', 'MP-FED-SEP-2026-06', 'MP-FED-MP', 'MP-BLS'],
+    reviewedAt: '2026-08-18',
+    claimIds: ['principles-lesson-D6'],
+    deepStatus: 'RECONSTRUCTION_REQUIRED'
+  }),
 
   lesson('E1', '채권은 무엇인가', '채권은 발행자가 정해진 시점에 이자와 원금을 지급하겠다는 계약이며, 가격과 수익률은 서로 반대 방향으로 움직인다.', '투자자는 현금흐름의 크기·시점·지급 가능성을 현재 가격과 비교한다. 금리·신용·유동성 변화가 가격을 바꾼다.', '같은 쿠폰을 주는 채권이라도 만기가 길거나 발행자의 신용이 나빠지면 투자자는 더 낮은 가격을 요구할 수 있다.', '쿠폰이 높다는 사실을 수익률과 동일시하거나 만기까지 보유할 때의 현금흐름과 중간 매매 가격을 구분하지 않으면 위험을 놓친다.', '이 채권의 수익률은 쿠폰·가격·만기·상환 가능성 중 무엇에서 나오며 금리 변화에 얼마나 민감한가?', '쿠폰·원금 → 가격 ↔ 수익률'),
   lesson('E2', '수익률 곡선', '수익률 곡선은 같은 신용등급의 채권을 만기별로 배열해 시간에 따른 금리 기대와 기간 프리미엄을 보여준다.', '단기 구간은 정책 기대에, 장기 구간은 성장·물가·재정·채권 수급과 위험 프리미엄에 더 크게 반응한다.', '2년 금리가 10년 금리보다 높아진 뒤 다시 평탄해진다면, 정책 인하 기대와 장기 재정·성장 전망이 어떻게 바뀌었는지 분리해서 읽어야 한다.', '곡선의 모양 하나를 경기 예측기로 고정하면 기준기간·수급·국가별 제도 차이를 놓친다.', '곡선 변화가 금리 기대의 변화인지 기간 프리미엄·국채 공급의 변화인지 어떤 만기와 자료로 확인할 것인가?', '만기 → 기대금리 + 기간 프리미엄'),
@@ -148,7 +157,7 @@ const drafts = [
   lesson('O5', '세금·계좌·환율 비용', '세금·계좌·환율 비용은 투자 수익률에서 보이지 않게 차감되는 거래·보유·환전·배당·이자·양도 비용이다.', '같은 명목 수익도 계좌 유형·거래 빈도·환전 스프레드·원천징수·환헤지에 따라 세후 실현 수익이 달라진다.', '달러 자산의 가격이 올라도 매수·매도 환전 스프레드와 배당 원천징수, 국내 신고·계좌 비용을 빼면 목표 수익률을 달성하지 못할 수 있다.', '세전 수익률과 앱에 표시된 가격만 비교하면 장기 복리에서 작은 비용이 만드는 누적 차이를 놓친다.', '투자 기간 전체에 발생하는 세금·수수료·환전·환헤지·계좌 비용을 순현금흐름으로 계산했는가?', '명목수익 → 세금·수수료·환율 → 세후 현금'),
 ];
 
-if (drafts.length !== 111) throw new Error(`Expected 111 lesson drafts, got ${drafts.length}`);
+if (drafts.length !== 112) throw new Error(`Expected 112 lesson drafts, got ${drafts.length}`);
 const duplicateFields = ['definition', 'mechanism', 'example', 'counterScenario', 'verificationQuestion', 'diagram'];
 for (const field of duplicateFields) {
   const values = drafts.map((draft) => draft[field]);
@@ -160,6 +169,8 @@ const sources = [
   { id: 'MP-FED-ED', publisher: 'Federal Reserve', title: 'Education', url: 'https://www.federalreserve.gov/education.htm' },
   { id: 'MP-BLS', publisher: 'U.S. Bureau of Labor Statistics', title: 'Consumer Price Index', url: 'https://www.bls.gov/cpi/' },
   { id: 'MP-FED-MP', publisher: 'Federal Reserve', title: 'Monetary policy', url: 'https://www.federalreserve.gov/monetarypolicy.htm' },
+  { id: 'MP-NYFED-RSTAR', publisher: 'Federal Reserve Bank of New York', title: 'Measuring the Natural Rate of Interest', url: 'https://www.newyorkfed.org/research/policy/rstar' },
+  { id: 'MP-FED-SEP-2026-06', publisher: 'Federal Reserve Board', title: 'Summary of Economic Projections, June 2026', url: 'https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20260617.pdf' },
   { id: 'MP-TREASURY', publisher: 'U.S. Treasury', title: 'Interest rates and financing', url: 'https://home.treasury.gov/policy-issues/financing-the-government/interest-rates' },
   { id: 'MP-CBO', publisher: 'Congressional Budget Office', title: 'Budget and fiscal policy', url: 'https://www.cbo.gov/topics/budget' },
   { id: 'MP-SEC', publisher: 'SEC Investor.gov', title: 'Investing basics and disclosures', url: 'https://www.investor.gov/introduction-investing/investing-basics' },
@@ -171,27 +182,38 @@ const sources = [
   { id: 'MP-BOK', publisher: 'Bank of Korea', title: 'Bank of Korea', url: 'https://www.bok.or.kr/eng/main/main.do' },
   { id: 'MP-KRX', publisher: 'Korea Exchange', title: 'Korea Exchange', url: 'https://global.krx.co.kr/main/main.jsp' },
   { id: 'PS-01', publisher: 'TSMC', title: '2026 AGM minutes / business report', url: 'https://investor.tsmc.com/sites/ir/shareholders-meeting/2026-06-04/2026AGM_Minutes_wmn.pdf' },
-  { id: 'PS-02', publisher: 'Micron', title: 'HBM4 and data-center memory/storage announcement', url: 'https://investors.micron.com/news-releases/news-release-details/micron-high-volume-production-hbm4-designated-nvidia-vera-rubin' },
+  { id: 'PS-02', publisher: 'Micron', title: 'HBM4 and data-center memory/storage announcement', url: 'https://investors.micron.com/news-releases/news-release-details/micron-high-volume-production-hbm4-designed-nvidia-vera-rubin' },
   { id: 'PS-16', publisher: 'Tesla', title: 'AI and robotics overview', url: 'https://www.tesla.com/AI' },
   { id: 'PS-18', publisher: 'Rocket Lab', title: 'Space systems and spacecraft portfolio', url: 'https://rocketlabcorp.com/space-systems/spacecraft/' }
 ];
 
-const lessons = drafts.map((draft, index) => {
+const lessons = drafts.map((draft) => {
+  const { metadata, ...authored } = draft;
   const chapterId = draft.id[0];
   const chapter = chapterById.get(chapterId);
   if (!chapter) throw new Error(`Unknown chapter ${chapterId} for ${draft.id}`);
   const sequence = Number(draft.id.slice(1));
   return {
-    ...draft,
+    ...authored,
     chapterId,
     sequence,
     level: chapter.slug === 'adjacent-industry-map' ? '산업 응용' : chapter.slug === 'korea-investor-bridge' ? '한국 연결' : chapter.slug === 'ai-semiconductor-data-center' || chapter.slug === 'power-market-and-grid' ? 'AI 인프라' : '기초·시장 원리',
     status: 'AUTHORED_REFERENCE',
-    prerequisites: sequence === 1 ? ['해당 챕터의 핵심 질문'] : [`${chapterId}${sequence - 1}에서 앞선 개념`],
-    sourceIds: sourceIdsByChapter[chapterId],
+    prerequisites: metadata.prerequisites || (sequence === 1 ? ['해당 챕터의 핵심 질문'] : [`${chapterId}${sequence - 1}에서 앞선 개념`]),
+    sourceIds: metadata.sourceIds || sourceIdsByChapter[chapterId],
     route: 'principles',
-    reviewedAt: '2026-08-02',
-    publication: 'EDUCATIONAL_REFERENCE_ONLY'
+    reviewedAt: metadata.reviewedAt || '2026-08-18',
+    publication: 'EDUCATIONAL_REFERENCE_ONLY',
+    summary: {
+      definition: authored.definition,
+      mechanism: authored.mechanism,
+      example: authored.example,
+      counterScenario: authored.counterScenario,
+      verificationQuestion: authored.verificationQuestion,
+      diagram: authored.diagram
+    },
+    claimIds: metadata.claimIds || [`principles-lesson-${draft.id}`],
+    ...metadata
   };
 });
 
@@ -206,5 +228,5 @@ const artifact = {
   sources,
   lessons
 };
-fs.writeFileSync(outputPath, `${JSON.stringify(artifact, null, 2)}\n`, 'utf8');
+atomicWriteJsonSync(outputPath, artifact);
 console.log(`Wrote ${lessons.length} authored lessons to ${path.relative(root, outputPath)}`);

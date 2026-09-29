@@ -1,6 +1,6 @@
-// Product QA scope gate: AIO is desktop-only. Legacy responsive code may remain
-// for compatibility, but new acceptance criteria must not reintroduce mobile or
-// tablet viewports/personas as required work.
+// Product QA scope gate: AIO is desktop-only (R474/R476/R669). No mobile/tablet code
+// ships (P1324), and acceptance criteria must not reintroduce mobile or tablet
+// viewports/personas as required work.
 import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -60,6 +60,15 @@ const auditContract = read('_context/MARKET-PRINCIPLES-ATLAS-AUDIT-CONTRACT-2026
 check('knowledge route targets have no mobile persona', !/mobile-keyboard-screenreader/.test(routeBuilder));
 check('knowledge depth audit has no mobile persona', !/mobile-keyboard-screenreader/.test(depthAudit));
 check('principles audit contract has no mobile persona', !/mobile-keyboard-screenreader/.test(auditContract));
+
+// P1324/R669: desktop-only means no mobile/tablet code ships at all (not merely "not gated").
+const shellHtml = read('index.html');
+const uiJs = read('js/aio-ui.js');
+const mobileMedia = [...shellHtml.matchAll(/@media[^{]*max-width:\s*(\d+)px/g)].filter((m) => Number(m[1]) < 1100);
+check('index.html has no @media max-width below 1100px (P1324/R669)', mobileMedia.length === 0);
+check('index.html has no pointer: coarse / hover: none media (P1324/R669)', !/pointer:\s*coarse|hover:\s*none/.test(shellHtml));
+check('index.html has no mobile-overlay / mobile-hamburger / mobile-open (P1324/R669)', !/mobile-overlay|mobile-hamburger|mobile-open|mobile-menu-trigger/.test(shellHtml));
+check('js/aio-ui.js has no toggleMobileMenu / closeMobileMenu (P1324/R669)', !/toggleMobileMenu|closeMobileMenu/.test(uiJs));
 
 const handoff = read('_context/SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md');
 check('screener handoff declares desktop-only QA scope', /desktop-only/.test(handoff) && /1280x900|1280×900/.test(handoff));

@@ -30,6 +30,7 @@ function atomicQuota(initial = 0) {
       count = Math.max(0, count - 1);
       return { ok: true, released: true, idempotent: false, count };
     },
+    async usage({ dayKey }) { return { ok: true, requestCount: dayKey.startsWith('claude:') ? count : 0 }; },
     get count() { return count; },
   };
 }
@@ -57,6 +58,28 @@ async function main() {
   check('P1157 a refusing rate-limit binding blocks /anthropic', rateLimited.status === 429, rateLimited.status);
 
   const env = { ANTHROPIC_API_KEY: 'sk-test', AIO_QUOTA_DO: atomicQuota(), ANTHROPIC_DAILY_CAP: '5', AIO_DEV_ORIGINS: DEV_ORIGIN };
+  const operatorToken = 'operator-fixture-token-' + 'x'.repeat(32);
+  const privateUsageEnv = { AIO_QUOTA_DO: atomicQuota(4), AIO_OPERATOR_TOKEN: operatorToken, ANTHROPIC_DAILY_CAP: '10' };
+  const hiddenUsage = await worker.fetch(new Request('https://worker.example/_ops/ai-usage'));
+  check('P1312/R658/QA-OPS-02 private AI usage endpoint is undiscoverable until its operator secret is configured', hiddenUsage.status === 404 && hiddenUsage.headers.get('Cache-Control') === 'no-store', hiddenUsage.status);
+  const rejectedUsage = await worker.fetch(new Request('https://worker.example/_ops/ai-usage', { headers: { 'X-AIO-Operator-Token': 'wrong-' + 'x'.repeat(32) } }), privateUsageEnv);
+  check('P1312/R658/QA-OPS-02 private AI usage endpoint rejects an invalid operator secret without CORS', rejectedUsage.status === 404 && !rejectedUsage.headers.has('Access-Control-Allow-Origin'), rejectedUsage.status);
+  const privateUsage = await worker.fetch(new Request('https://worker.example/_ops/ai-usage', { headers: { 'X-AIO-Operator-Token': operatorToken } }), privateUsageEnv);
+  const privateUsageBody = await privateUsage.json();
+  check('P1312/R658/QA-OPS-02 authorized private AI usage returns only the UTC-day count and configured Anthropic cap with no-store',
+    privateUsage.status === 200
+      && privateUsage.headers.get('Cache-Control') === 'no-store'
+      && privateUsageBody.schemaVersion === 'aio-operator-ai-usage.v1'
+      && privateUsageBody.usageDayUtc === new Date().toISOString().slice(0, 10)
+      && privateUsageBody.requestCount === 4
+      && privateUsageBody.anthropicDailyCap === 10
+      && Object.keys(privateUsageBody).sort().join('|') === 'anthropicDailyCap|requestCount|schemaVersion|usageDayUtc', privateUsageBody);
+  const missingUsageSource = await worker.fetch(new Request('https://worker.example/_ops/ai-usage', { headers: { 'X-AIO-Operator-Token': operatorToken } }), { AIO_OPERATOR_TOKEN: operatorToken, ANTHROPIC_DAILY_CAP: '10' });
+  const malformedCapUsage = await worker.fetch(new Request('https://worker.example/_ops/ai-usage', { headers: { 'X-AIO-Operator-Token': operatorToken } }), { ...privateUsageEnv, ANTHROPIC_DAILY_CAP: 'not-a-cap' });
+  check('P1312/R658/QA-OPS-02 private AI usage fails closed when quota source or configured cap is unavailable',
+    missingUsageSource.status === 503 && malformedCapUsage.status === 503, { missingSource: missingUsageSource.status, malformedCap: malformedCapUsage.status });
+  const methodUsage = await worker.fetch(new Request('https://worker.example/_ops/ai-usage', { method: 'POST', headers: { 'X-AIO-Operator-Token': operatorToken } }), privateUsageEnv);
+  check('P1312/R658/QA-OPS-02 authorized private AI usage accepts read-only GET only', methodUsage.status === 405, methodUsage.status);
   const wrongPort = await worker.fetch(makeReq({ origin: 'http://localhost:8892', body: {} }), env);
   check('unconfigured dev port -> 403', wrongPort.status === 403, wrongPort.status);
   const devPreflight = await worker.fetch(makeReq({ origin: DEV_ORIGIN, method: 'OPTIONS' }), env);
@@ -125,7 +148,8 @@ async function main() {
   const authorityHealthBody = await authorityHealth.json();
   check('health executes the authority and requires US jurisdiction', authorityHealthBody.ai?.authorityReady === true && authorityHealthBody.ai?.authorityJurisdiction === 'us' && authorityHealthBody.ai?.ready === true, authorityHealthBody);
 
-  const durableStorage = new Map([['quota-state', { days: { 'claude:2020-01-01': 9 }, reservations: { 'claude:2020-01-01:old': 1 } }]]);
+  const currentUtcDay = new Date().toISOString().slice(0, 10);
+  const durableStorage = new Map([['quota-state', { days: { 'claude:2020-01-01': 9, [`claude:${currentUtcDay}`]: 7 }, reservations: { 'claude:2020-01-01:old': 1 } }]]);
   const durableState = {
     id: { jurisdiction: 'us' },
     storage: {
@@ -142,6 +166,37 @@ async function main() {
   check('Durable Object executes quota and provider in one authority', durableResponse.status === 200 && durableResponse.headers.get('X-AIO-Upstream-Authority') === 'durable-object-us', durableResponse.status);
   const prunedState = durableStorage.get('quota-state');
   check('Durable Object prunes expired day and reservation state', !Object.hasOwn(prunedState.days, 'claude:2020-01-01') && !Object.hasOwn(prunedState.reservations, 'claude:2020-01-01:old'), prunedState);
+  const durableUsage = await durable.fetch(new Request('https://aio-quota.internal/usage', {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ dayKey: `claude:${currentUtcDay}` }),
+  }));
+  const durableUsageBody = await durableUsage.json();
+  check('P1312/R658/QA-OPS-02 US Durable Object exposes an Anthropic-only read of the existing UTC-day counter',
+    durableUsage.status === 200 && durableUsageBody.ok === true && durableUsageBody.requestCount === 7, durableUsageBody);
+  let invalidUsageRejected = false;
+  try {
+    await durable.fetch(new Request('https://aio-quota.internal/usage', {
+      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ dayKey: `relay:fred:${currentUtcDay}` }),
+    }));
+  } catch { invalidUsageRejected = true; }
+  check('P1312/R658/QA-OPS-02 Durable Object usage reads reject non-Anthropic day keys', invalidUsageRejected, invalidUsageRejected);
+  let impossibleUsageDayRejected = false;
+  try {
+    await durable.fetch(new Request('https://aio-quota.internal/usage', {
+      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ dayKey: 'claude:2026-02-31' }),
+    }));
+  } catch { impossibleUsageDayRejected = true; }
+  check('P1312/R658/QA-OPS-02 Durable Object usage reads reject impossible calendar dates', impossibleUsageDayRejected, impossibleUsageDayRejected);
+  const corruptUsage = new AIOQuotaDurableObject({ ...durableState, storage: {
+    get: async () => ({ days: { [`claude:${currentUtcDay}`]: -1 }, reservations: {} }),
+    put: async () => {},
+  } }, { ANTHROPIC_API_KEY: 'sk-test' });
+  let corruptUsageRejected = false;
+  try {
+    await corruptUsage.fetch(new Request('https://aio-quota.internal/usage', {
+      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ dayKey: `claude:${currentUtcDay}` }),
+    }));
+  } catch { corruptUsageRejected = true; }
+  check('P1312/R658/QA-OPS-02 Durable Object usage reads reject malformed stored counts', corruptUsageRejected, corruptUsageRejected);
 
   const wrongJurisdiction = new AIOQuotaDurableObject({ ...durableState, id: { jurisdiction: undefined } }, { ANTHROPIC_API_KEY: 'sk-test' });
   const wrongJurisdictionResponse = await wrongJurisdiction.fetch(new Request('https://aio-quota.internal/proxy', {

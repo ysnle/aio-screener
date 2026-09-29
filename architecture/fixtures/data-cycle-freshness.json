@@ -16,5 +16,39 @@
     "marketSnapshotPublished": true,
     "coverage": { "tier0Required": 16, "tier0Observed": 16 },
     "expected": { "marketCyclePublished": true, "liveCoreEligible": true, "snapshotClockAdvances": true }
+  },
+  "staleWeekendCycle": {
+    "now": "2026-09-26T00:30:00.000Z",
+    "generatedAt": "2026-09-25T10:00:00.000Z",
+    "cycleStatus": "PUBLISHED",
+    "marketSnapshotPublished": true,
+    "coverage": { "tier0Required": 16, "tier0Observed": 16 },
+    "expected": { "marketCyclePublished": true, "liveCoreEligible": false, "snapshotClockAdvances": false }
+  },
+  "futurePublishedCycle": {
+    "now": "2026-09-27T00:00:00.000Z",
+    "generatedAt": "2026-09-27T00:00:00.001Z",
+    "cycleStatus": "PUBLISHED",
+    "marketSnapshotPublished": true,
+    "coverage": { "tier0Required": 16, "tier0Observed": 16 },
+    "expected": { "marketCyclePublished": true, "liveCoreEligible": false, "snapshotClockAdvances": false }
+  },
+  "extendedMetadataSlaCycle": {
+    "now": "2026-08-30T13:00:00.000Z",
+    "generatedAt": "2026-08-29T13:00:00.000Z",
+    "marketCycleFreshnessSlaHours": 48,
+    "cycleStatus": "PUBLISHED",
+    "marketSnapshotPublished": true,
+    "coverage": { "tier0Required": 16, "tier0Observed": 16 },
+    "expected": { "marketCyclePublished": true, "liveCoreEligible": false, "snapshotClockAdvances": false }
+  },
+  "exactTwelveHourBoundary": {
+    "now": "2026-08-30T13:00:00.000Z",
+    "generatedAt": "2026-08-30T01:00:00.000Z",
+    "marketCycleFreshnessSlaHours": 48,
+    "cycleStatus": "PUBLISHED",
+    "marketSnapshotPublished": true,
+    "coverage": { "tier0Required": 16, "tier0Observed": 16 },
+    "expected": { "marketCyclePublished": true, "liveCoreEligible": true, "snapshotClockAdvances": true }
   }
 }

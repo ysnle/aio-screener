@@ -14,7 +14,6 @@
     "theme-detail",
     "ticker",
     "fundamental",
-    "options",
     "portfolio",
     "market-news",
     "screener",
@@ -24,7 +23,10 @@
     "guide"
   ],
   "firstVerticalSlice": "sentiment",
-  "requiredLifecycle": ["mount", "dispose"],
+  "requiredLifecycle": [
+    "mount",
+    "dispose"
+  ],
   "requiredEvidenceFields": [
     "evidenceId",
     "metric",
