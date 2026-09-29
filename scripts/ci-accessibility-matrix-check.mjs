@@ -101,7 +101,13 @@ async function main() {
     server.kill();
   }
   console.log(`[ci-accessibility-matrix] routes=${result.routes.length}, status=${result.status}, consoleErrors=${result.consoleErrors.length}, artifact=${outPath}`);
-  if (result.status === 'fail') process.exitCode = 1;
+  if (result.status === 'fail') {
+    // P1333: CI keeps only stdout, so name the failing route and the failing items there.
+    const failing = result.routes.filter((r) => !r.active || !r.skipLink || r.nameless.length || r.selectsWithoutName.length || r.positiveTabindex.length || r.unnamedCanvas.length || r.fontUnder10.length || r.smallTargetViolationCount || r.modalContracts.some((modal) => !modal.labelled))
+      .map((r) => ({ route: r.routeId, active: r.active, skipLink: r.skipLink, nameless: r.nameless.slice(0, 3), selects: r.selectsWithoutName.length, tabindex: r.positiveTabindex.length, canvas: r.unnamedCanvas.slice(0, 3), fontUnder10: r.fontUnder10.slice(0, 3), smallTargets: (r.smallTargetViolations || []).slice(0, 3) }));
+    console.log('[ci-accessibility-matrix] FAILING ' + JSON.stringify({ error: result.error || null, revision: result.appRevision || null, gitHead: result.gitHead || null, consoleErrors: result.consoleErrors.slice(0, 3), routes: failing }).slice(0, 4000));
+    process.exitCode = 1;
+  }
 }
 
 main().catch((error) => { console.error(error.stack || error.message); process.exit(1); });
