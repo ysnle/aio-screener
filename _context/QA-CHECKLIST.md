@@ -4,6 +4,13 @@ last_verified: 2026-09-29
 confidence: medium
 ---
 
+## v56.83 deploy blockers, Worker rollback, FRED retry, delegation routines (2026-09-29)
+
+- [x] QA-OPS-SEC-01: Worker deploy workflows require event == push and head_repository == this repository before checking out an attested SHA. verify_by: P1334/R674 `ci-cloudflare-deployment-contract-check.mjs` + CodeQL
+- [x] QA-OPS-DEP-01: Pages deploy uses only SHA-pinned actions (incl. nested); Worker smoke waits for the deployed sourceSha; rollback targets the newest pre-deploy version. verify_by: P1335 `ci-data-plane-contract-check.mjs` + post-merge deploy runs
+- [ ] QA-DATA-58: A single transient FRED failure retries once before the series is marked failed. verify_by: P1336 `ci-data-pipeline-contract-check.mjs` + next refresh-data run
+- [x] QA-OPS-AG-01: Delegation template and /restate, /assumptions, /trim-pr exist and the .agents mirror matches. verify_by: P1337 `ci-skill-contract-check.mjs`
+
 ## v56.82 self-audit split, Masters budget, tooltip targets, route-count follow-up (2026-09-29)
 
 - [x] QA-OPS-QA-01: Users do not load js/aio-qa-audits.js; automation, ?qa=1, detailed audit mode, the operator widget and AIO.loadTests() do; guarded runtime callers tolerate its absence. verify_by: P1329/R673 `ci-decomp-hotspot-check.mjs` + headless + `ci-architecture-browser-check.mjs`

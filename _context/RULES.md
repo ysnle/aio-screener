@@ -2,10 +2,16 @@
 verified_by: local source review + affected QA (summary; live facts in CURRENT-STATE.md)
 last_verified: 2026-09-29
 confidence: medium
-target_version: v56.82
+target_version: v56.83
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R674. Privileged workflow_run deploys act only on pushes to this repository (v56.83, P1334)
+
+**Rule**: A workflow_run-triggered job that holds deploy secrets must require the triggering run to be a push event from this repository (not only a branch name) in its job condition and in its API verification.
+
+**Validation**: `ci-cloudflare-deployment-contract-check.mjs` (QA-OPS-SEC-01).
 
 ## R673. QA and self-audit machinery stays out of the user runtime (v56.82, P1329)
 

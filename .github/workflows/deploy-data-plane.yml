@@ -207,9 +207,10 @@ jobs:
         run: |
           set -euo pipefail
           health_status=""
-          for attempt in $(seq 1 10); do
+          # P1335: propagation — keep polling until the new Worker's sourceSha answers, not just any 200.
+          for attempt in $(seq 1 20); do
             health_status="$(curl --silent --show-error --output "$RUNNER_TEMP/aio-fast-health.json" --write-out '%{http_code}' "$FAST_QUOTES_URL/health" || true)"
-            if [ "$health_status" = '200' ] || [ "$health_status" = '503' ]; then break; fi
+            if { [ "$health_status" = '200' ] || [ "$health_status" = '503' ]; } && node -e "const h=require(process.argv[1]);process.exit(h.sourceSha===process.env.EXPECTED_SHA?0:1)" "$RUNNER_TEMP/aio-fast-health.json" 2>/dev/null; then break; fi
             sleep 3
           done
           if [ "$health_status" != '200' ] && [ "$health_status" != '503' ]; then
