@@ -500,7 +500,6 @@ function decisionInputs(root, nowMs = Date.now()) {
   // latest completed US regular close (domain/signal/close-basis.js). They are marked
   // `session_close` / `close-basis` so the score can never present them as decision evidence.
   const basis = resolveCloseBasis(nowMs);
-  const promoted = [];
   if (basis) {
     for (const [key, id] of Object.entries(evidenceKeys)) {
       const row = byId.get(id);
@@ -509,19 +508,17 @@ function decisionInputs(root, nowMs = Date.now()) {
       const verdict = evaluateCloseBasisInput({ key, value: row.value, observedAt, basis, nowMs });
       if (!verdict.ok) continue;
       input[key] = finite(row.value);
-      decisionEvidence[key] = { ...decisionEvidence[key], value: input[key], status: 'session_close', allowedUse: 'close-basis', observedAt, basisAsOf: verdict.asOf, basisReason: verdict.reason };
-      promoted.push(key);
+      decisionEvidence[key] = { ...decisionEvidence[key], value: input[key], status: 'session_close', allowedUse: 'close-basis', observedAt };
     }
     // The moving averages are daily-close derivatives of the same SPX series: they follow its basis.
     for (const key of input.spxPrice != null ? ['spx50ma', 'spx200ma'] : []) {
       const value = finite(maEvidence[key]?.value);
       if (input[key] != null || value == null) continue;
       input[key] = value;
-      decisionEvidence[key] = { ...maEvidence[key], value, status: 'session_close', allowedUse: 'close-basis', basisAsOf: basis.date, basisReason: 'daily-close-derivative' };
-      promoted.push(key);
+      decisionEvidence[key] = { ...maEvidence[key], value, status: 'session_close', allowedUse: 'close-basis' };
     }
   }
-  input.closeBasis = basis ? Object.freeze({ ...basis, label: describeCloseBasis(basis), promoted: Object.freeze(promoted) }) : null;
+  input.closeBasis = basis ? Object.freeze({ ...basis, label: describeCloseBasis(basis) }) : null;
   input.decisionEvidence = decisionEvidence;
   try { input.newsSentimentScore = finite(root?.computeNewsSentimentScore?.()?.score); } catch (_) { input.newsSentimentScore = null; }
   try { input.newsRiskSignals = root?.computeNewsRiskSignals?.() || []; } catch (_) { input.newsRiskSignals = []; }

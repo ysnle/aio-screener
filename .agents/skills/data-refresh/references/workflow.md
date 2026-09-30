@@ -6,7 +6,7 @@ Use `inventory.md` only to locate the relevant categories.
 
 1. Assess the requested categories; use the full 22-category table only for a complete freshness audit.
 2. Refresh CRITICAL categories first.
-3. Update generated artifacts through the repo's scripts when available.
+3. Update generated artifacts by dispatching the producing workflow (`refresh-data.yml`, `refresh-screener.yml`); do not run producer scripts locally.
 4. Keep producer, artifact, consumer, and gate together.
 5. Update docs that describe refreshed surfaces.
 6. Bump version with `node scripts/bump-version.mjs <version>`.

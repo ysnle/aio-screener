@@ -468,23 +468,6 @@
     }
     _assert('T63 chat_recursion_cap: 3번째 진입에서 차단', blocked63 === true);
 
-    // T64: _aioSafeParseJSON — 유효 JSON 파싱 성공
-    if (typeof window._aioSafeParseJSON === 'function') {
-      var parsed64 = window._aioSafeParseJSON('{"a":1,"b":2}', null, 'test');
-      _assert('T64 parse_fallback_object: 정상 파싱', parsed64 !== null && parsed64.a === 1 && parsed64.b === 2);
-    } else {
-      _assert('T64 parse_fallback_object: _aioSafeParseJSON must exist', false);
-    }
-
-    // T65: _aioSafeParseJSON — 잘못된 JSON → fallback 반환 (비충돌)
-    if (typeof window._aioSafeParseJSON === 'function') {
-      var fallback65 = { _fallback: true };
-      var result65 = window._aioSafeParseJSON('{invalid json}', fallback65, 'test');
-      _assert('T65 naver_partial_ok: 파싱 실패 시 fallback 반환', result65 === fallback65);
-    } else {
-      _assert('T65 naver_partial_ok: _aioSafeParseJSON must exist', false);
-    }
-
     // T66: _aioRenderNum — NaN 입력 시 '—' 반환
     if (typeof window._aioRenderNum === 'function') {
       _assert('T66 nan_dash_render: NaN → 대시', window._aioRenderNum(NaN) === '—');
@@ -695,19 +678,6 @@
       _assert('T80 proxy_failover_codetabs: _aioProxyChain 미존재 (skip)', true);
     }
 
-    // T81: retry_cap_3 — _aioRetry 통계 구조 검증 + 반환값 Promise 여부
-    if (typeof window._aioRetry === 'function') {
-      var statsBefore = { total: window._aioRetryStats.total };
-      // _aioRetry 호출 (즉시 reject 함수 — Promise 반환 여부와 stats 증가 확인)
-      var p81 = window._aioRetry(function() { return Promise.reject(new Error('T81')); }, { maxAttempts: 1, baseMs: 0 });
-      _assert('T81 retry_cap_3: _aioRetry가 Promise 반환', p81 && typeof p81.then === 'function');
-      _assert('T81 retry_cap_3: _aioRetryStats.total 증가', window._aioRetryStats.total > statsBefore.total);
-      _assert('T81 retry_cap_3: AIO.diag.retryStats() 반환', typeof window.AIO.diag.retryStats === 'function');
-      p81.catch(function() {}); // suppress unhandled rejection
-    } else {
-      _assert('T81 retry_cap_3: _aioRetry 미존재 (skip)', true);
-    }
-
     // T82: pii_redact_email — _aioRedactPII 이메일 마스킹
     if (typeof window._aioRedactPII === 'function') {
       var rec82 = { title: '테스트 user@example.com 기사', description: 'contact: admin@test.co.kr', ts: 0 };
@@ -720,16 +690,7 @@
       _assert('T82 pii_redact_email: _aioRedactPII 미존재 (skip)', true);
     }
 
-    // T83: apikey_masked_ui — _aioMaskKey ****-last4 형식
-    if (typeof window._aioMaskKey === 'function') {
-      _assert('T83 apikey_masked_ui: 8자 미만 → ****', window._aioMaskKey('abc') === '****');
-      _assert('T83 apikey_masked_ui: ****-last4 형식', window._aioMaskKey('sk-ant-abc12345') === '****-2345');
-      _assert('T83 apikey_masked_ui: null → ****', window._aioMaskKey(null) === '****');
-      _assert('T83 apikey_masked_ui: getApiKey 함수 존재', typeof window.getApiKey === 'function');
-      _assert('T83 apikey_masked_ui: setApiKey 함수 존재', typeof window.setApiKey === 'function');
-    } else {
-      _assert('T83 apikey_masked_ui: _aioMaskKey 미존재 (skip)', true);
-    }
+    _assert('T83 apikey_api (P1339): getApiKey/setApiKey 함수 존재', typeof window.getApiKey === 'function' && typeof window.setApiKey === 'function'); // P1339: _aioMaskKey (dead) removed
   }
 
   // ══════════════════════════════════════════════════════════════════════
@@ -749,16 +710,6 @@
     } else {
       _assert('T84 pagebus_register: _aioPageBus 미존재 (skip)', true);
       _assert('T84 pagebus_unregister: _aioPageBus 미존재 (skip)', true);
-    }
-
-    // T87: safediv_zero_denom — _aioSafeDiv 분모 0 → fallback
-    if (typeof window._aioSafeDiv === 'function') {
-      _assert('T87 safediv_zero: den=0 → null', window._aioSafeDiv(10, 0) === null);
-      _assert('T87 safediv_zero: den=0 custom fb → 0', window._aioSafeDiv(10, 0, 0) === 0);
-      _assert('T87 safediv_zero: 정상 계산', window._aioSafeDiv(10, 4) === 2.5);
-      _assert('T87 safediv_zero: num=Infinity → null', window._aioSafeDiv(Infinity, 1) === null);
-    } else {
-      _assert('T87 safediv_zero: _aioSafeDiv 미존재 (skip)', true);
     }
 
     // T88: finite_num_guard — _aioFiniteNum NaN/Infinity → fallback
@@ -974,15 +925,6 @@
       _assert('T95 score_cache_hit: _aioLRU 미존재 (skip)', true);
     }
 
-    // T96: _aioSafeDiv Fund renderer 맥락 재확인
-    if (typeof window._aioSafeDiv === 'function') {
-      _assert('T96 safediv_fund: 분모0→null', window._aioSafeDiv(100, 0) === null, 'got=' + window._aioSafeDiv(100, 0));
-      _assert('T96 safediv_fund: 분모0,fb="—"→"—"', window._aioSafeDiv(100, 0, '—') === '—', 'got=' + window._aioSafeDiv(100, 0, '—'));
-      _assert('T96 safediv_fund: 정상→값', window._aioSafeDiv(10, 4) === 2.5, 'got=' + window._aioSafeDiv(10, 4));
-    } else {
-      _assert('T96 safediv_fund: _aioSafeDiv 미존재 (skip)', true);
-    }
-
     // T97: PEG·P/E Infinity → _aioFiniteNum → '—' (API 분모0 비율 대비)
     if (typeof window._aioFiniteNum === 'function') {
       _assert('T97 peg_inf: FiniteNum(Infinity)→null', window._aioFiniteNum(Infinity) === null, 'got=' + window._aioFiniteNum(Infinity));
@@ -1152,13 +1094,6 @@
       return !b || !b.title || !b.use || !b.focus || !Array.isArray(b.steps) || b.steps.length < 3 || !Array.isArray(b.links) || b.links.length < 2;
     });
     _assert('T134 page_focus_brief: configs are actionable', malformed.length === 0, malformed.join(','));
-
-    var labelsOk = typeof window._aioSimplifyExplainLabels === 'function' && typeof window._aioRenderPageBrief === 'function';
-    _assert('T135 page_focus_brief: render/simplify hooks exposed', labelsOk, 'page focus hooks missing');
-
-    var summaries = window.AIO_EXPLAIN_SUMMARIES || {};
-    var summaryOk = typeof window._aioInjectExplainSummaries === 'function' && summaries['explain-technical-page'] && !summaries['explain-options-page'];
-    _assert('T136 explain_summaries: available but not forced into core view', !!summaryOk, 'explain summary hooks missing');
 
     var optionText = '';
     var optionPage = document.getElementById('page-options');
@@ -3244,10 +3179,6 @@
     _assert('T620 theme_concentration_audit: concentration warning array is exposed',
       themeAudit && Array.isArray(themeAudit.concentrationWarnings),
       themeAudit ? 'warnings=' + themeAudit.concentrationWarnings.length : 'audit missing');
-    var symExplain = window.AIO && window.AIO.getThemeSymbolExplainability && window.AIO.getThemeSymbolExplainability('KTOS');
-    _assert('T621 theme_symbol_explainability: missing registry tickers still have theme fallback explanation',
-      symExplain && symExplain.found && Array.isArray(symExplain.themes) && symExplain.themes.length >= 1,
-      symExplain ? 'found=' + symExplain.found + ' themes=' + symExplain.themes.length : 'explainability missing');
   }
 
   // ─────────────────────────────────────────────────────────────────
@@ -4871,12 +4802,6 @@
     _assert('T223 score_scale_registry: AIO_SCORE_SCALES.convert 20점↔100점 단일 출처 (표기 텍스트는 declutter로 제거)',
       convOk, 'registry=' + !!scaleReg + ' convert10→' + (convOk ? '50' : 'fail'));
 
-    // T224 (v50.29 스펙 갱신): ATR "표기"는 해설 블록과 함께 declutter — 단일 출처 AIO_ATR_PRESETS 레지스트리 검증
-    var atrReg = window.AIO_ATR_PRESETS;
-    var atrKeys = atrReg ? Object.keys(atrReg).filter(function(k) { return atrReg[k] && (typeof atrReg[k] === 'object'); }) : [];
-    _assert('T224 atr_presets_registry: AIO_ATR_PRESETS 레지스트리 단일 출처 (표기 텍스트는 declutter로 제거)',
-      !!atrReg && atrKeys.length >= 3, 'presets=' + atrKeys.length);
-
     // T225: home 카드 CARD_HIERARCHY 적용
     var primaryCard = document.querySelector('#page-home [data-card-level="primary"][data-weight-key="TRADING_SCORE"]');
     var secondaryCards = document.querySelectorAll('#page-home [data-card-level="secondary"]');
@@ -4989,20 +4914,6 @@
     _assert('T208 weight_tooltip: getComponentTooltip 결과에 Trend Template 포함',
       /Trend Template/.test(tip), 'tip=' + tip.slice(0, 100));
 
-    // T209: AIO_CARD_HIERARCHY 3 레벨 정의 + getClassList 작동
-    var ch = window.AIO_CARD_HIERARCHY;
-    var cls = ch && ch.getClassList ? ch.getClassList('primary') : [];
-    _assert('T209 card_hierarchy: primary getClassList → aio-card-primary 포함',
-      Array.isArray(cls) && cls.indexOf('aio-card-primary') !== -1, 'cls=' + JSON.stringify(cls));
-
-    // T210: applyLabelToElement 작동 (VIX 18 → 정상 Risk-On + color)
-    var testEl = document.createElement('span'); document.body.appendChild(testEl);
-    var applied = window.AIO && window.AIO.applyLabelToElement ? window.AIO.applyLabelToElement(testEl, 'VIX', 18) : null;
-    var ok = applied && applied.label === '정상 Risk-On' && testEl.getAttribute('data-signal') === 'normal';
-    _assert('T210 apply_label: VIX 18 → label + signal 속성 정확',
-      ok, applied ? 'label=' + applied.label + ' signal=' + testEl.getAttribute('data-signal') : 'api unavailable');
-    document.body.removeChild(testEl);
-
     // T211: getDuplicateContentAudit() 호출 + 구조
     var dupAudit = window.AIO && typeof window.AIO.getDuplicateContentAudit === 'function'
       ? window.AIO.getDuplicateContentAudit() : null;
@@ -5050,12 +4961,6 @@
       rsiLabel === '과매수' && breadthLabel === '혼조',
       'rsi=' + rsiLabel + ' breadth=' + breadthLabel);
 
-    // T202: AIO_ATR_PRESETS swing 3.0 + position 5.0
-    var atr = window.AIO_ATR_PRESETS;
-    _assert('T202 atr_presets: swing 3.0 + position 5.0',
-      !!atr && atr.swing && atr.swing.multiplier === 3.0 && atr.position && atr.position.multiplier === 5.0,
-      atr ? 'swing=' + atr.swing.multiplier + ' position=' + atr.position.multiplier : 'undefined');
-
     // T203: diagnoseBreadthConsensus 모순 신호 → conflict 보고
     var dx = window.AIO && typeof window.AIO.diagnoseBreadthConsensus === 'function'
       ? window.AIO.diagnoseBreadthConsensus({ sma5: 68, sma20: 75, sma50: 46, mcclellan: 'bearish' }) : null;
@@ -5084,11 +4989,6 @@
     _assert('T205 threshold_label_audit: getThresholdLabelAudit 호출 + registryLabels > 0',
       labAudit && labAudit.registryLabels > 0,
       labAudit ? ('registryLabels=' + labAudit.registryLabels + ' inlineHits=' + labAudit.inlineHits) : 'api unavailable');
-
-    // T206: ATR_PRESETS.getStop(100, 4, 'swing') === 100 - 4*3 = 88
-    var stop = atr && atr.getStop ? atr.getStop(100, 4, 'swing') : null;
-    _assert('T206 atr_getstop: getStop(100, 4, swing) === 88',
-      stop === 88, 'got: ' + stop);
   }
 
   // ── Group32: v49.24 근본 재발 방지 인프라 ────────────────────────────────

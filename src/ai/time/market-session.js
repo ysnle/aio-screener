@@ -76,8 +76,8 @@ export function isLatestUsRegularClose({ instrumentId, observedAt, now = Date.no
   return observed.minute >= minimumMinute;
 }
 
-// P1328: the most recent COMPLETED US regular session and the one before it, as calendar
-// dates plus the exact close instant. While a session is in progress its close has not
+// P1328: the most recent COMPLETED US regular session (date + exact close instant) and the date of
+// the session before it. While a session is in progress its close has not
 // happened yet, so the "latest completed" session is the previous one. Unknown years fail
 // closed (null).
 export function latestCompletedUsSession(now = Date.now()) {
@@ -117,7 +117,6 @@ export function latestCompletedUsSession(now = Date.now()) {
     date: last.date,
     closeMs: closeInstant(last.date, last.close),
     previousDate: before.date,
-    previousCloseMs: closeInstant(before.date, before.close),
     inSession: today.status === 'open' && current.minute >= 570 && current.minute < minuteOf(today.close)
   });
 }

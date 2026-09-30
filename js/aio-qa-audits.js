@@ -254,43 +254,6 @@ window.AIO.getArchitectureGovernanceAudit = function() {
   return { status:'partial', boundaries:boundaries, completedSlices:completed, incompleteSlices:incomplete, partialByDesign:true, note:'H2-15 incremental boundary audit: portfolio read/write and opt-out flag use the shared storage adapter; legacy snapshot reads and global writes remain separate vertical slices.', generatedAt:new Date().toISOString() };
 };
 
-window.AIO.getPageRedesignAudit = function() {
-  var ids = (window.AIO_ALL_ROUTE_PAGE_IDS && window.AIO_ALL_ROUTE_PAGE_IDS.length)
-    ? window.AIO_ALL_ROUTE_PAGE_IDS.slice()
-    : ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','guide'];
-  var hubs = window.AIO_PAGE_ACTION_HUBS || {};
-  var details = ids.map(function(id) {
-    var page = document.getElementById('page-' + id);
-    return {
-      pageId: id,
-      hasConfig: !!hubs[id],
-      hasDecision: !!(page && page.querySelector('.aio-decision-header')),
-      hasHub: !!(page && page.querySelector('.aio-action-hub')),
-      hasAiAction: !!(page && page.querySelector('[data-action="_aioAskAiFromPageDecision"]')),
-      foldedSections: page ? page.querySelectorAll('.aio-page-advanced-toggle').length : 0
-    };
-  });
-  var missingConfig = details.filter(function(d){ return !d.hasConfig; }).map(function(d){ return d.pageId; });
-  var missingHub = []; // v51.57: action hub removed from all pages — check disabled
-  var criticalFolded = ['market-news','screener','signal'].filter(function(id) {
-    var d = details.filter(function(x){ return x.pageId === id; })[0];
-    return !d || d.foldedSections < 1;
-  });
-  return {
-    status: (!missingConfig.length && !missingHub.length && !criticalFolded.length) ? 'pass' : 'warn',
-    routeCount: ids.length,
-    configuredCount: Object.keys(hubs).length,
-    missingConfig: missingConfig,
-    missingHub: missingHub,
-    criticalFolded: criticalFolded,
-    details: details
-  };
-};
-
-window.AIO.getAIUntrustedAudit = function() {
-  var audit = window._aioAIUntrustedAudit || { version: _AIO_AI_SECURITY_VERSION, blocks: 0, items: 0, quarantined: 0, flags: [], lastKind: null };
-  return JSON.parse(JSON.stringify(audit));
-};
 
 window.AIO.getFinancialConductPolicy = function() {
   if (window.AIO_ARCH && typeof window.AIO_ARCH.getAIConductPolicy === 'function') return window.AIO_ARCH.getAIConductPolicy();
@@ -1330,16 +1293,6 @@ window.AIO.getPageSequentialAuditStatus = function() {
   };
 };
 
-// ─────────────────────────────────────────────────────────────────
-// TAM/시장 분석: SIC는 산업 분류 단서일 뿐 시장규모의 근거가 아니다.
-// 수치·성장률은 sourceUrl+observedAt가 함께 있는 레코드만 공개한다.
-// ─────────────────────────────────────────────────────────────────
-window.AIO_INDUSTRY_TAM_POLICY = Object.freeze({
-  version: 'tam-provenance.v1',
-  requiredFields: ['sourceUrl', 'observedAt', 'tam'],
-  allowedUse: 'reference',
-  missingProvenance: 'withhold-numeric-output'
-});
 
 // ─────────────────────────────────────────────────────────────────
 // v49.71 P380 R135~R137: assertMemoCoverageAudit — SCREENER_DB memo 커버리지 + 신선도 + REGISTRY 매핑 자동 진단
@@ -4263,45 +4216,13 @@ window.AIO.getRouteIAAudit = function() {
   };
 };
 
-// ═══ v48.92: AIO.getColorContrastAudit() — WCAG AA 명도비 진단 API ═══════
-// 용도: 핵심 색상 페어링의 명도비 자동 계산 · WCAG AA 준수 여부 보고
-// 사용: AIO.getColorContrastAudit() → { pairs: [{fg, bg, ratio, wcagAA, label}], allPass: bool }
-window.AIO.getColorContrastAudit = function() {
-  // sRGB luminance 계산 (WCAG 2.1 공식)
-  function _lum(hex) {
-    var r, g, b;
-    hex = hex.replace('#', '');
-    if (hex.length === 3) hex = hex.split('').map(function(c){ return c+c; }).join('');
-    r = parseInt(hex.substr(0,2),16)/255;
-    g = parseInt(hex.substr(2,2),16)/255;
-    b = parseInt(hex.substr(4,2),16)/255;
-    function _lin(c) { return c <= 0.03928 ? c/12.92 : Math.pow((c+0.055)/1.055,2.4); }
-    return 0.2126 * _lin(r) + 0.7152 * _lin(g) + 0.0722 * _lin(b);
-  }
-  function _ratio(hex1, hex2) {
-    var l1 = _lum(hex1), l2 = _lum(hex2);
-    var lighter = Math.max(l1, l2), darker = Math.min(l1, l2);
-    return parseFloat(((lighter + 0.05) / (darker + 0.05)).toFixed(2));
-  }
-  // 핵심 색상 페어링 (v48.92 CSS 토큰 기준)
-  var bg = '#080d1a'; // AIO 다크 배경
-  var pairs = [
-    { label: '--text-muted (v48.92)', fg: '#9aa6b9', bg: bg },
-    { label: '--text-secondary',      fg: '#a5b0c2', bg: bg },
-    { label: '--text-primary',        fg: '#f0f4fc', bg: bg },
-    { label: '--data-green (bull)',    fg: '#00e5a0', bg: bg },
-    { label: '--data-red (bear)',      fg: '#ff5b50', bg: bg },
-    { label: '--accent (cyan)',        fg: '#00bcd4', bg: bg },
-    { label: '--data-amber',           fg: '#ffa31a', bg: bg },
-    { label: 'fund-tab active bg',     fg: '#00bcd4', bg: '#1a2035' },
-  ];
-  var results = pairs.map(function(p) {
-    var r = _ratio(p.fg, p.bg);
-    return { fg: p.fg, bg: p.bg, ratio: r, wcagAA: r >= 4.5, wcagAALarge: r >= 3.0, label: p.label };
-  });
-  var allPass = results.every(function(r) { return r.wcagAA; });
-  var failCount = results.filter(function(r) { return !r.wcagAA; }).length;
-  return { pairs: results, allPass: allPass, failCount: failCount,
-    summary: 'WCAG AA (' + (allPass ? '✓ 전체 통과' : '✗ ' + failCount + '건 미달') + ')' };
-};
-
+// ─────────────────────────────────────────────────────────────────
+// TAM/시장 분석: SIC는 산업 분류 단서일 뿐 시장규모의 근거가 아니다.
+// 수치·성장률은 sourceUrl+observedAt가 함께 있는 레코드만 공개한다.
+// ─────────────────────────────────────────────────────────────────
+window.AIO_INDUSTRY_TAM_POLICY = Object.freeze({
+  version: 'tam-provenance.v1',
+  requiredFields: ['sourceUrl', 'observedAt', 'tam'],
+  allowedUse: 'reference',
+  missingProvenance: 'withhold-numeric-output'
+});

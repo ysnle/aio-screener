@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node scripts/agent-hook.mjs guard-command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/agent-hook.mjs\" guard-command",
             "timeout": 10
           }
         ]
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node scripts/agent-hook.mjs guard-edit",
+            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/agent-hook.mjs\" guard-edit",
             "timeout": 10
           }
         ]
@@ -28,7 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node scripts/agent-hook.mjs post-edit",
+            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/agent-hook.mjs\" post-edit",
             "timeout": 20
           }
         ]
@@ -39,7 +39,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node scripts/agent-hook.mjs session-start",
+            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/agent-hook.mjs\" session-start",
             "timeout": 10
           }
         ]

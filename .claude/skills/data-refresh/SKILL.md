@@ -25,7 +25,7 @@ Read only what the current task needs; this is not an all-files reading checklis
 
 1. Identify freshness and source lineage for the requested categories.
 2. Prioritize CRITICAL stale categories.
-3. Refresh through existing scripts or structured data producers.
+3. Refresh through the producing GitHub Actions workflow (`gh workflow run refresh-data.yml` / `refresh-screener.yml`). Never run `scripts/fetch-*`, `build-*`, `sync-*`, `refresh-*` locally; locally, only read artifacts and run gates.
 4. Keep generated artifacts and consumers synchronized.
 5. Mark unavailable live-source updates as BLOCKED, not OK.
 6. Run data, runtime, version, workflow, and skill gates as applicable.

@@ -1,3 +1,12 @@
+## v56.84 (2026-09-30)
+- **Orphaned initializers (P1339, R675):** macro calendar, briefing strip, fundamental recent searches and guide chapters run again; company-name ticker search and chat aliases work; the score's trend input falls back to history.json closes.
+- **Removal:** ~500 unreachable lines in aio-core/audits and the tests that only kept them alive; facade -123 lines.
+- **Facade trim (P1338):** the third copy of the score inputs is gone; saved news-sentiment history is no longer wiped on render.
+- **Harness:** the data-refresh skill dispatches the refresh workflows instead of running producers locally.
+- **Watchdog and guard (P1340):** skipped deploy runs no longer fail the watchdog; whole-tree discards are denied; hooks run from the project root regardless of session cwd.
+- **Verification:** static, esm, headless and browser gates. No producer run locally.
+- R1 7곳 v56.84
+
 ## v56.83 (2026-09-29)
 - **CI diagnostics (P1333):** the accessibility matrix now prints the failing route and items when it fails on CI.
 - **Deploy security (P1334/R674):** Worker deploys can no longer be triggered by a fork branch named main.

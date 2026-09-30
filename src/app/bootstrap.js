@@ -26,6 +26,7 @@ import { classifyMovingAverageStructure, deriveMultiTimeframeView } from '../dom
 import { computeNewsSentimentScore, computeNewsRiskSignals, MIN_NEWS_ANALYSIS_SAMPLE, normalizeNewsSentimentHistory } from '../domain/news/scoring.js';
 import { classifyBreadthParticipation } from '../domain/market/breadth.js';
 import { computeMarketHealth } from '../domain/market/health.js';
+import { spxMovingAveragesFromHistory } from '../domain/market/moving-average.js';
 import { deriveTreasuryCurveEvidence } from '../domain/macro/treasury-curve.js';
 import { deriveConcentrationRisk, concentrationPenaltyForWeight } from '../domain/portfolio/concentration.js';
 // Portfolio statistics/backtest is a native ESM module; importing it during
@@ -143,7 +144,13 @@ if (typeof window !== 'undefined') {
   };
   // P1317/R663: the ticker route, quote request and screener lookup share one canonical symbol —
   // a bare KRX code or registered Korean name resolves to `005930.KS`-style keys.
-  window._aioNormalizeTickerInput = (raw) => normalizeTickerInput(raw, { krStockDb: window.KR_STOCK_DB, krToYahoo: window.krTickerToYahoo });
+  // P1339: registered company names (엔비디아 / nvidia / 퀄컴) resolve by exact registry match when the KRX
+  // normalizer left the input unchanged — no fuzzy guessing.
+  window._aioNormalizeTickerInput = (raw) => {
+    const normalized = normalizeTickerInput(raw, { krStockDb: window.KR_STOCK_DB, krToYahoo: window.krTickerToYahoo });
+    if (normalized !== String(raw || '').trim().toUpperCase()) return normalized;
+    return window.AIO?.resolveTickerFromAnyName?.(String(raw || '').trim()) || normalized;
+  };
   window._aioTickerDisplayName = (symbol) => tickerDisplayName(symbol, { krStockDb: window.KR_STOCK_DB });
   // P1326/R671: one currentness vocabulary (실시간/지연/종가/지난 시세) from observation times + US calendar.
   window._aioDescribeQuoteCurrentness = describeQuoteCurrentness;
@@ -360,6 +367,21 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   const runtimeReaders = createRuntimeReaders({ root, now: clock.now });
   // P1328/R670: the legacy computeTradingScore wrapper reads the one native score-input path.
   root._aioReadTradingScoreInputs = () => runtimeReaders.readTradingScoreInputs();
+  // P1338: the facade whitelist never exposed this, so aio-data fell back to () => [] and wiped the saved
+  // news-sentiment history on every render.
+  root._aioNormalizeNewsSentimentHistory = normalizeNewsSentimentHistory;
+  // P1339: when the live Yahoo 1y chart (autoUpdateMA) has not produced MAs, derive them from the
+  // committed daily history so the trend input follows the close basis instead of holding the score.
+  const applyHistoryMa = () => {
+    if (root._spxMA?.[50] && root._spxMA?.[200]) return;
+    const ma = spxMovingAveragesFromHistory(root._aioHistory);
+    if (!ma) return;
+    root._spxMA = { 50: ma[50], 200: ma[200] };
+    root._spxMATs = Date.parse(`${ma.asOf}T00:00:00Z`);
+    root._spxMASource = `public-data/history.json daily closes (${ma.asOf})`;
+  };
+  root.addEventListener?.('aio:historyLoaded', applyHistoryMa);
+  applyHistoryMa();
   // E2/LC-26: the single writer/reader for the signal score mode. The legacy toggle calls
   // `setSignalScoreMode`; both the native runtime reader and the legacy facade read it back
   // so the pill, the score input and the score hero share one revision. Persisted so a reload
@@ -922,8 +944,6 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // wrapper calls this instead of keeping its own copy of the scoring formula (R352/F-03: legacy
     // and native must not diverge into two different models).
     ,computeTradingScoreModel
-    // P1328/R670: the one score-input path (decision evidence first, then the latest US regular close).
-    ,readTradingScoreInputs: () => runtimeReaders.readTradingScoreInputs()
     // E2/LC-26: signal score mode revision — a calculation input shared by the legacy toggle
     // and the native readers, plus the pure descriptor/normalizer so the UI never invents a
     // mode-dependent threshold the model does not produce.

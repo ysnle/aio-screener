@@ -1,6 +1,4 @@
 import { computeMarketHealth } from '../domain/market/health.js';
-import { normalizeAllowedUse } from '../data/contracts/evidence.js';
-import { normalizeSignalScoreMode } from '../domain/signal/mode.js';
 import { SCREENER_ROW_INTENT, resolveScreenerRows } from '../data/screener-row-policy.js';
 import { createRuntimeReaders } from '../data/runtime-readers.js';
 
@@ -257,39 +255,6 @@ function readPortfolio(root) {
   return createRuntimeReaders({ root }).readPortfolio();
 }
 
-function runtimeEvidenceStatus(status, value) {
-  if (status === 'verified_current') return 'live';
-  if (status === 'snapshot_reference') return 'snapshot';
-  if (status === 'stale_live') return 'stale';
-  return value == null ? 'missing' : 'failed';
-}
-
-function runtimeEvidence(metric, value, row = {}) {
-  const normalizedValue = finite(value);
-  const status = runtimeEvidenceStatus(row.status, normalizedValue);
-  return Object.freeze({
-    evidenceId: row.id || metric,
-    metric,
-    value: normalizedValue,
-    unit: row.unit || 'unitless',
-    sourceKind: row.source || 'legacy-runtime',
-    source: row.source || 'legacy-runtime',
-    observedAt: row.observedAt || null,
-    fetchedAt: row.fetchedAt || null,
-    status,
-    allowedUse: normalizeAllowedUse(status === 'live' ? 'decision' : status === 'snapshot' || status === 'stale' ? 'reference' : 'none')
-  });
-}
-
-function tradingEvidenceRows(root) {
-  try {
-    const audit = root?.AIO?.getTradingDecisionInputEvidence?.();
-    return new Map((audit?.rows || []).map((row) => [row.id, row]));
-  } catch (_) {
-    return new Map();
-  }
-}
-
 function readScreener(root) {
   // E2/S-C (P1241): the row chain is no longer written here. `resolveScreenerRows` owns it and this
   // reader declares the evidence intent — it never substitutes the bundled legacy DB, and the s-b
@@ -297,101 +262,6 @@ function readScreener(root) {
   const rows = resolveScreenerRows(root, SCREENER_ROW_INTENT.EVIDENCE);
   const metadata = root?._serverDataMeta?.screener || root?._aioScreenerLoadState || {};
   return Object.freeze({ rows: clone(rows), revision: metadata.revision || metadata.generatedAt || null, updatedAt: metadata.asOf || metadata.generatedAt || new Date().toISOString() });
-}
-
-function readTradingScoreInputs(root) {
-  const live = root?._liveData || {};
-  const snapshot = root?.DATA_SNAPSHOT || {};
-  const freshnessPolicy = root?.FRESHNESS_POLICY?.static_snapshot || {};
-  const hardStaleMs = Number(freshnessPolicy.hardStaleMs) || 7 * 24 * 60 * 60 * 1000;
-  const snapshotTs = Date.parse(String(snapshot._updated || snapshot._snapshotDate || ''));
-  const snapshotUsable = Number.isFinite(snapshotTs) && Date.now() - snapshotTs <= hardStaleMs;
-  const snapshotKeys = { '^VIX': 'vix', '^VVIX': 'vvix', '^GSPC': 'spx', '^TNX': 'tnx', 'DX-Y.NYB': 'dxy', 'CL=F': 'wti' };
-  const quote = (symbol) => {
-    const liveValue = finite(live[symbol]?.price);
-    if (liveValue != null) return liveValue;
-    const snapshotValue = finite(snapshot[snapshotKeys[symbol]]);
-    return snapshotUsable ? snapshotValue : null;
-  };
-  const closing = (symbol) => {
-    const row = live[symbol];
-    if (row) return finite(row.chartPreviousClose) ?? finite(row.previousClose) ?? finite(row.price);
-    return quote(symbol);
-  };
-  const evidenceRows = tradingEvidenceRows(root);
-  const verified = (id) => {
-    const row = evidenceRows.get(id);
-    return row?.status === 'verified_current' ? finite(row.value) : null;
-  };
-  const canonicalFg = typeof root?.AIO?.getCanonicalMetric === 'function' ? root.AIO.getCanonicalMetric('fg') : null;
-  const breadth = typeof root?.AIO?.getCurrentBreadthEvidence === 'function' ? root.AIO.getCurrentBreadthEvidence() : null;
-  const ma = root?._spxMA || {};
-  const maTs = finite(root?._spxMATs);
-  const maCurrent = ma[50] != null && ma[200] != null && maTs != null && Date.now() - maTs <= 4 * 24 * 60 * 60 * 1000;
-  let newsSentimentScore = null;
-  let newsRiskSignals = [];
-  try {
-    if (typeof root?.computeNewsSentimentScore === 'function') newsSentimentScore = finite(root.computeNewsSentimentScore()?.score);
-    if (typeof root?.computeNewsRiskSignals === 'function') newsRiskSignals = root.computeNewsRiskSignals() || [];
-  } catch (_) {}
-  const decisionEvidence = {
-    vix: runtimeEvidence('vix', evidenceRows.get('vix-price')?.value ?? quote('^VIX'), evidenceRows.get('vix-price')),
-    vvix: runtimeEvidence('vvix', evidenceRows.get('vvix-price')?.value ?? quote('^VVIX'), evidenceRows.get('vvix-price')),
-    dxy: runtimeEvidence('dxy', evidenceRows.get('dxy-dollar')?.value ?? quote('DX-Y.NYB'), evidenceRows.get('dxy-dollar')),
-    tnx: runtimeEvidence('tnx', evidenceRows.get('tnx-yield')?.value ?? quote('^TNX'), evidenceRows.get('tnx-yield')),
-    oilPrice: runtimeEvidence('oilPrice', evidenceRows.get('oil-price')?.value ?? quote('CL=F'), evidenceRows.get('oil-price')),
-    fg: runtimeEvidence('fg', canonicalFg?.value, evidenceRows.get('fg-sentiment')),
-    spxPrice: runtimeEvidence('spxPrice', closing('^GSPC'), { id: 'spx-price', status: closing('^GSPC') != null ? 'verified_current' : 'unavailable', source: 'legacy-runtime' }),
-    spx50ma: runtimeEvidence('spx50ma', maCurrent ? ma[50] : null, { id: 'spx-50ma', status: maCurrent ? 'verified_current' : 'unavailable', source: 'legacy-ohlcv' }),
-    spx200ma: runtimeEvidence('spx200ma', maCurrent ? ma[200] : null, { id: 'spx-200ma', status: maCurrent ? 'verified_current' : 'unavailable', source: 'legacy-ohlcv' }),
-    breadth200: runtimeEvidence('breadth200', breadth?.available ? breadth.sma20 : null, evidenceRows.get('breadth200-participation')),
-    pcr: runtimeEvidence('pcr', verified('pcr-putcall'), evidenceRows.get('pcr-putcall')),
-    hyBp: runtimeEvidence('hyBp', verified('hy-spread-bp'), evidenceRows.get('hy-spread-bp'))
-  };
-  return Object.freeze({
-    // E2/LC-26: the mode is the user's declared revision, not a hardcoded default. Read the
-    // same holder the native reader does so a day/swing toggle changes what this computes.
-    mode: normalizeSignalScoreMode(root?.AIO_ARCH?.signalScoreMode?.get?.() ?? root?._signalMode),
-    vix: quote('^VIX'),
-    vvix: quote('^VVIX'),
-    dxy: quote('DX-Y.NYB'),
-    tnx: quote('^TNX'),
-    oilPrice: quote('CL=F'),
-    fg: decisionEvidence.fg.allowedUse === 'decision' ? finite(decisionEvidence.fg.value) : null,
-    maCurrent,
-    spx200ma: maCurrent ? finite(ma[200]) : null,
-    spx50ma: maCurrent ? finite(ma[50]) : null,
-    spxPrice: closing('^GSPC'),
-    breadthAvailable: !!breadth?.available,
-    breadth200: breadth?.available ? finite(breadth.sma20) : null,
-    pcr: verified('pcr-putcall'),
-    hyBp: verified('hy-spread-bp'),
-    newsSentimentScore,
-    newsRiskSignals,
-    decisionEvidence
-  });
-}
-
-function readAnalysis(root) {
-  const snapshot = root?.DATA_SNAPSHOT || {};
-  const id = String(root?._currentTickerId || root?._currentTickerSym || '').trim().toUpperCase() || null;
-  const technicalHistory = id ? root?._technicalOHLCV?.[id] || root?._tickerHistory?.[id] || [] : [];
-  const sentiment = readLegacy(root);
-  const market = readMarket(root);
-  const health = computeMarketHealth({
-    quotes: root?._liveData || {},
-    spxMA: root?._spxMA || {},
-    spxATH: root?._spxATH
-  });
-  return Object.freeze({
-    inputVersion: snapshot._updated || snapshot._snapshotDate || 'legacy-runtime',
-    technical: { symbol: id, ohlcv: clone(technicalHistory), health },
-    sentiment: { fearGreed: sentiment.fearGreed, vix: sentiment.vix },
-    market: market.metrics,
-    tradingScoreInputs: readTradingScoreInputs(root),
-    newsCount: Array.isArray(root?._allNewsItems) ? root._allNewsItems.length : 0,
-    updatedAt: new Date().toISOString()
-  });
 }
 
 export function createLegacyFacade(root = globalThis, eventTarget = root?.document || root) {
@@ -478,7 +348,6 @@ export function createLegacyFacade(root = globalThis, eventTarget = root?.docume
     readEntity: () => readEntity(root),
     readPortfolio: () => readPortfolio(root),
     readScreener: () => readScreener(root),
-    readAnalysis: () => readAnalysis(root),
     readRoute: () => root?.AIO?.state?.activePage || null,
     readVersion: () => root?.APP_VERSION || root?.AIO?.APP_VERSION || null,
     installNavigation,

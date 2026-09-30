@@ -1,8 +1,35 @@
 ---
-last_verified: 2026-09-29
+last_verified: 2026-09-30
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
+
+## P1340 - v56.84 - watchdog failed every run on skipped deploy runs; guard missed whole-tree discards; hooks were cwd-relative (2026-09-30)
+
+- symptom/reproduction: Data freshness watchdog failed on every run since 9/27 and alert issue #4 grew past 110 comments. One cause: deploy-ai-proxy/deploy-data-plane skip data-refresh commits by design, and the external-pipeline check read the latest completed run (conclusion 'skipped') as a failed deployment. Separately, the destructive-command guard blocked git reset --hard but not git checkout -- . / git restore . / git clean -f on a working tree shared with the user and Codex, and Claude hooks ran 'node scripts/agent-hook.mjs' relative to the session cwd, so a session started outside the repo root silently ran without guards.
+- root_cause: Run selection treated 'completed' as 'decided'; the guard list covered one discard command; hook commands assumed cwd.
+- fix: ci-external-pipeline-check reads 20 runs and ignores skipped ones; agent-hook guard denies whole-tree checkout/restore and git clean -f (single-path checkout stays allowed); .claude/settings.json hooks use "$CLAUDE_PROJECT_DIR/scripts/agent-hook.mjs" like the Codex hooks' repo-root resolution.
+- violated_rule: R674-family — deployment verdicts come from runs that actually deployed; destructive-command protection is deny-by-pattern for every whole-tree discard.
+- prevention: QA-OPS-AG-02 — workspace contract fixtures for the new deny patterns and project-dir hook paths.
+- verification/residual: ci-workspace-contract-check (deny: checkout -- ., restore ., clean -fd; allow: single-path checkout); external-pipeline syntax check; the remaining watchdog failures (live v56.33, July data plane) clear with the v56.83 Pages deploy and data-plane redeploy.
+
+## P1338 - v56.84 - facade kept a third copy of the score inputs; saved news-sentiment history wiped every render (2026-09-30)
+
+- symptom/reproduction: compatibility-facade.js still carried its own readTradingScoreInputs/readAnalysis/evidence rows after P1328 moved the score to one native path, and aio-data read window._aioNormalizeNewsSentimentHistory which nothing exposed, so its () => [] fallback erased the stored news-sentiment history on every render.
+- root_cause: Consolidations left the old copies in place, and the facade whitelist was assumed to expose helpers it never did; the fallback hid the missing export.
+- fix: Removed the facade's score/evidence/analysis readers (-123 lines; readScreener and computeMarketHealth stay), exposed normalizeNewsSentimentHistory from bootstrap as root._aioNormalizeNewsSentimentHistory, and switched the P1214 esm assertion to 'facade has no score reader, core uses _aioReadTradingScoreInputs'.
+- violated_rule: R670 — one score-input path for legacy and native consumers.
+- prevention: QA-DATA-59 — esm unit check asserts the facade has no score reader.
+- verification/residual: esm-core-unit, retirement (facade API cap), runtime, headless gates; browser: news history persists across re-render.
+
+## P1339 - v56.84 - page initializers orphaned since PAGES.init retirement; name search, chat aliases and trend input silently dead (2026-09-30)
+
+- symptom/reproduction: Macro next-release/econ calendar, the briefing strip, fundamental recent searches and the guide chapter layout never ran (guide page 6,846px unfolded); tests passed because they called the initializers directly. Ticker search ignored company names (엔비디아/nvidia), chat company-name aliases never loaded, the briefing score read window._tradingScore which had no writer, and when the live Yahoo 1y chart failed the score held with 'trend missing' although history.json has 420 completed closes. ~500 lines of unreachable core/audit code (onboarding, retired key-backup stubs, gauges, explain summaries, retry helpers) and their tests remained.
+- root_cause: Retiring PAGES[route].init (b7bce36b) removed the only caller; direct-call tests proved existence, not reachability. The chat alias loop iterated the registry as a flat name map although it is {entries:{TICKER:{en,kr,alt}}}.
+- fix: One aio:pageShown hook in aio-core re-wires macro/briefing/fundamental/guide initializers without reviving PAGES.init; _aioNormalizeTickerInput falls back to exact registry resolution; chat reads registry entries; briefing reads computeTradingScore(); new src/domain/market/moving-average.js derives SPX 50/200 MAs from public-data/history.json when the live chart has not (close basis, R670); unreachable code and the tests that only kept it alive deleted (core 23,800 -> 23,284 lines).
+- violated_rule: R675 (new) — a runtime initializer must be reachable from a route or event; a direct-call test does not prove it runs.
+- prevention: QA-UX-10 and QA-DATA-60 — browser checks for the rewired pages and the esm MA fixture.
+- verification/residual: Browser: macro shows 'BEA PCE · 9/30' and the econ calendar, guide folds to 1,397px, 엔비디아 -> NVDA / 퀄컴 -> QCOM; esm MA fixture; decomposition ratchet recorded; full headless/browser gates.
 
 ## P1337 - v56.83 - no shared routine for delegation, assumption checks or post-PR trimming (2026-09-29)
 

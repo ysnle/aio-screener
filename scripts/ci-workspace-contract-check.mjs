@@ -68,6 +68,12 @@ const runHook = (mode, payload, environment = {}) => spawnSync(process.execPath,
 const safeHook = runHook('guard-command', { cwd: root, hook_event_name: 'PreToolUse', tool_input: { command: 'git status --short' } });
 check('safe command hook fixture passes silently', safeHook.status === 0 && safeHook.stdout === '', safeHook.stderr);
 const dangerousHook = runHook('guard-command', { cwd: root, hook_event_name: 'PreToolUse', tool_input: { command: 'git reset --hard HEAD' } });
+// P1340: whole-tree discards are denied like reset --hard; a single-path checkout stays allowed.
+for (const command of ['git checkout -- .', 'git restore .', 'git clean -fd']) {
+  const out = runHook('guard-command', { cwd: root, hook_event_name: 'PreToolUse', tool_input: { command } });
+  check(`guard denies "${command}" (P1340)`, /"permissionDecision":"deny"/.test(out.stdout || ''));
+}
+check('guard allows a single-path checkout (P1340)', !/deny/.test(runHook('guard-command', { cwd: root, hook_event_name: 'PreToolUse', tool_input: { command: 'git checkout -- js/aio-core.js' } }).stdout || ''));
 let dangerousOutput = {};
 try { dangerousOutput = JSON.parse(dangerousHook.stdout || '{}'); } catch { dangerousOutput = {}; }
 check('destructive command hook fixture returns documented deny output', dangerousHook.status === 0 && dangerousOutput.hookSpecificOutput?.hookEventName === 'PreToolUse' && dangerousOutput.hookSpecificOutput?.permissionDecision === 'deny');
@@ -121,9 +127,9 @@ const claudeCommands = Object.values(claudeSettings.hooks || {})
   .flatMap((groups) => groups)
   .flatMap((group) => group.hooks || [])
   .map((handler) => String(handler.command || ''));
-check('Claude hooks wire the same guard modes as Codex', ['guard-command', 'guard-edit', 'post-edit', 'session-start'].every((mode) => claudeCommands.some((entry) => entry.includes(`agent-hook.mjs ${mode}`))));
+check('Claude hooks wire the same guard modes as Codex', ['guard-command', 'guard-edit', 'post-edit', 'session-start'].every((mode) => claudeCommands.some((entry) => entry.includes('$CLAUDE_PROJECT_DIR/scripts/agent-hook.mjs') && new RegExp(`agent-hook\\.mjs"? ${mode}\\b`).test(entry))));
 check('Claude hooks contain no automatic commit/deploy command', claudeCommands.every((entry) => !/(auto-commit|git\s+commit|git\s+push|\/deploy)/i.test(entry)));
-check('Claude SessionStart hook receives the generated preflight', claudeCommands.some((entry) => entry.includes('agent-hook.mjs session-start')));
+check('Claude SessionStart hook receives the generated preflight', claudeCommands.some((entry) => /agent-hook\.mjs"? session-start/.test(entry)));
 
 for (const dir of ['.codex/hooks', '.claude/hooks']) {
   const shellFiles = exists(dir) ? readdirSync(join(root, dir)).filter((name) => name.endsWith('.sh')) : [];

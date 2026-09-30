@@ -1,11 +1,17 @@
 ---
 verified_by: local source review + affected QA (summary; live facts in CURRENT-STATE.md)
-last_verified: 2026-09-29
+last_verified: 2026-09-30
 confidence: medium
-target_version: v56.83
+target_version: v56.84
 # 2026-07-18 통합/압축: 상시 참조 룰(R290+ 및 핵심 keep-list 89건)은 전문 유지, 나머지 244건은 헤더 한 줄로 축약.
 # 헤더-only 룰의 본문 전문은 git 히스토리(2026-07-18 이전 리비전) 참조. R번호는 전량 보존(재발 추적/게이트 grep 호환).
 ---
+
+## R675. Initializers are reachable from a route or event, not only from tests (v56.84, P1339)
+
+**Rule**: Every runtime initializer or renderer has a production caller (route event, page bus, bootstrap). When a caller is retired, its callees are either re-wired or deleted in the same change. A test that invokes a function directly proves it exists, not that users reach it; code kept alive only by such tests is deleted with the test.
+
+**Validation**: Reachability review in /trim-pr plus browser checks for the rewired routes (QA-UX-10).
 
 ## R674. Privileged workflow_run deploys act only on pushes to this repository (v56.83, P1334)
 

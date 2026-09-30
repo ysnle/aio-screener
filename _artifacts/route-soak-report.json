@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-route-soak-evidence.v1",
-  "observedAt": "2026-09-27T11:29:55.765Z",
-  "appRevision": "v56.57",
-  "gitHead": "cd4d8ca7ac1e9ef8ff6574e36c42ed0b9a1a144d",
+  "observedAt": "2026-09-30T01:06:05.457Z",
+  "appRevision": "v56.84",
+  "gitHead": "ac5ac36c424a6c12ac3cd98ca7d87f1b16edf383",
   "gitClean": false,
   "environment": {
     "browser": "chromium",
@@ -13,7 +13,7 @@
   },
   "command": "node scripts/ci-route-soak-check.mjs",
   "ok": true,
-  "routes": 20,
+  "routes": 19,
   "laps": 3,
   "lapReports": [
     {
@@ -73,15 +73,15 @@
     "sequence": [
       {
         "entityId": "AAPL",
-        "mountId": 58
+        "mountId": 55
       },
       {
         "entityId": "MSFT",
-        "mountId": 59
+        "mountId": 56
       },
       {
         "entityId": "AAPL",
-        "mountId": 60
+        "mountId": 57
       }
     ],
     "active": "ticker"

@@ -21,7 +21,7 @@ Use this reference to locate the requested AIO data surfaces; all categories are
 15. Screener rows and public-data artifacts.
 16. Chat context numeric snapshots.
 17. Technical-analysis constants and preset thresholds.
-18. Options and put/call fallback data.
+18. Put/call fallback data (the options route is retired; P1321).
 19. Portfolio sample or preset data.
 20. Static UI labels that include dates, versions, or market values.
 21. Generated files under `public-data/`.

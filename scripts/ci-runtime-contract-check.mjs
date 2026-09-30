@@ -307,7 +307,7 @@ check('ticker deep analysis covers 5/10/20 short and 50/100/200 long MA stacks',
 check('ticker deep analysis exposes horizontal volume profile beginner guidance', /Volume Profile/.test(ui) && /POC/.test(ui) && /Value Area/.test(ui) && /beginnerNote/.test(ui) && /수평 매물대/.test(ui));
 check('technical snapshot exposes full MA stack to AI chat', /sma5/.test(core) && /sma100/.test(core) && /shortMAState/.test(core) && /longMAState/.test(core) && /maStackScore/.test(core) && /5SMA/.test(chat) && /100SMA/.test(chat));
 check('event risk context fails closed without an embedded point-in-time timeline', /AIO_EVENT_RISK_CONTEXT/.test(core) && /available:\s*false/.test(core) && /asOf:\s*null/.test(core) && /timeline:\s*\[\]/.test(core) && !/headlineYoY:\s*\d/.test(core));
-check('page body redesign hub registry exists', /AIO_PAGE_ACTION_HUBS/.test(core) && /_aioApplyPageBodyRedesign/.test(core) && /getPageRedesignAudit/.test(core));
+check('page body redesign hub registry exists', /AIO_PAGE_ACTION_HUBS/.test(core) && /_aioApplyPageBodyRedesign/.test(core));
 check('page evidence currentness contract exists', /AIO_PAGE_EVIDENCE_CONTRACT/.test(core) && /getPageEvidenceState/.test(core) && /getPageEvidenceCurrentnessAudit/.test(core));
 check('H3-A canonical currentness selector exists and is shared by score/evidence paths', /getCanonicalMetric/.test(core) && /fgEvidenceAllowedUse/.test(core) && /id === 'fg-sentiment'/.test(core) && /_lastFGMeta/.test(data));
 check('H3-A current F&G consumers do not silently promote fallback through truthy OR', !/window\._lastFG\s*\|\|/.test(runtimeBundle + '\n' + html) && /sourceKind: 'snapshot'/.test(data) && /allowedUse/.test(core));
@@ -752,7 +752,7 @@ check('WO-1A: opting out of portfolio vault protection does not remove the share
 check('headless tests cover the WO-1A portfolio vault contract', /_testV5246PortfolioVault/.test(tests) && /T891/.test(tests) && /T892/.test(tests) && /T893/.test(tests) && /T894/.test(tests) && /T895/.test(tests));
 
 // v53.47 (P838/W2-04): plaintext API-key IndexedDB mirror retired; explicit export/import remains user-initiated.
-check('P838: automatic plaintext API-key IndexedDB backup is retired without reopening the legacy database, and its UI entrypoint is removed', /automatic_plaintext_idb_backup_retired/.test(core) && !/indexedDB\.open\(['"]aio-keys-backup/.test(core) && !/store\.put\(\{\s*snapshot:/.test(core) && !/aio-key-recover-menu/.test(visibleHtml));
+check('P838: automatic plaintext API-key IndexedDB backup is retired without reopening the legacy database, and its UI entrypoint is removed', /* P1339: retired stubs deleted; the contract is that nothing reopens the legacy DB */ !/indexedDB\.open\(['"]aio-keys-backup/.test(core) && !/store\.put\(\{\s*snapshot:/.test(core) && !/aio-key-recover-menu/.test(visibleHtml));
 
 // v52.47 (P662/WO-1B): Anthropic proxy auth/cost-boundary hardening — client side sends the shared
 // app token when routed through the Worker; the Worker's own behavior is verified separately by

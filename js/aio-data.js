@@ -12732,8 +12732,8 @@ async function fetchAllNews(forceRefresh = false) {
     // P1285/R635: old localStorage points predate the sample contract, so their
     // scores cannot be revalidated and are discarded before any chart can read them.
     var _minNewsSample = Number(window.AIO_ARCH && window.AIO_ARCH.MIN_NEWS_ANALYSIS_SAMPLE) || 5;
-    var _normalizeNewsHistory = window.AIO_ARCH && typeof window.AIO_ARCH.normalizeNewsSentimentHistory === 'function'
-      ? window.AIO_ARCH.normalizeNewsSentimentHistory : function() { return []; };
+    var _normalizeNewsHistory = typeof window._aioNormalizeNewsSentimentHistory === 'function'
+      ? window._aioNormalizeNewsSentimentHistory : function() { return []; }; // P1338: native owner, exposed by bootstrap
     var _nsh = _normalizeNewsHistory(window._newsSentimentHistory);
     window._newsSentimentHistory = _nsh;
     // 히스토리 부족 시 뉴스 캐시(24h)를 3시간 버킷으로 즉시 시딩 — 빈 차트 방지

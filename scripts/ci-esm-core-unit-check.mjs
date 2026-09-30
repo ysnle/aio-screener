@@ -1097,7 +1097,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   {
     const { describeQuoteCurrentness } = await load('src/domain/market/quote-currentness.js');
     const at = (iso) => Date.parse(iso);
-    const inSession = { date: '2026-09-28', closeMs: at('2026-09-28T20:00:00Z'), previousDate: '2026-09-25', previousCloseMs: at('2026-09-25T20:00:00Z'), inSession: true };
+    const inSession = { date: '2026-09-28', closeMs: at('2026-09-28T20:00:00Z'), previousDate: '2026-09-25', inSession: true };
     const closedSession = { ...inSession, inSession: false };
     const obs = (iso) => [{ symbol: '^GSPC', observedMs: at(iso) }, { symbol: 'KRW=X', observedMs: at(iso) }];
     const cases = [
@@ -1112,6 +1112,14 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
       const out = describeQuoteCurrentness({ observations, nowMs, session });
       if (out.state !== state || out.badge !== badge || !out.detail || !out.title) fail(`quote currentness: expected ${state}/${badge}, got ${JSON.stringify(out)} (P1326/R671)`);
     }
+  }
+  // ── P1339: SPX 50/200 MAs derive from completed daily history when the live chart is absent ──
+  {
+    const { spxMovingAveragesFromHistory } = await load('src/domain/market/moving-average.js');
+    const rows = Array.from({ length: 200 }, (_, i) => ({ date: new Date(Date.UTC(2026, 0, 1) + i * 86400000).toISOString().slice(0, 10), spx: i < 150 ? 100 : 200 }));
+    const ma = spxMovingAveragesFromHistory([...rows].reverse().concat([{ date: 'bad', spx: 1e9 }, { date: '2027-01-01', spx: null }]));
+    if (!ma || ma[50] !== 200 || ma[200] !== 125 || ma.asOf !== rows[199].date) fail(`moving average: expected 200/125 on sorted valid closes, got ${JSON.stringify(ma)} (P1339)`);
+    if (spxMovingAveragesFromHistory(rows.slice(1)) !== null || spxMovingAveragesFromHistory(null) !== null) fail('moving average: fewer than 200 closes must not produce a 200-day MA (P1339)');
   }
   // ── P1327/R672: Korean theme names and membership have one owner ──
   {
@@ -1161,7 +1169,9 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const readersSource = readFileSync(path.join(root, 'src/data/runtime-readers.js'), 'utf8');
   const facade = readFileSync(path.join(root, 'src/legacy/compatibility-facade.js'), 'utf8');
   if (!/input\.mode = normalizeSignalScoreMode\(/.test(readersSource)) fail('P1214 signal-mode: the native runtime reader must thread the declared mode into the score input');
-  if (!/mode: normalizeSignalScoreMode\(root\?\.AIO_ARCH/.test(facade)) fail('P1214 signal-mode: the legacy facade must read the shared mode, not hardcode swing');
+  // P1338: the facade's third score-input copy was deleted; the legacy wrapper reads the one native path.
+  const legacyCore = readFileSync(path.join(root, 'js/aio-core.js'), 'utf8');
+  if (/readTradingScoreInputs|runtimeEvidenceStatus/.test(facade) || !/_aioReadTradingScoreInputs/.test(legacyCore)) fail('P1214/P1338 signal-mode: the legacy score must read the shared native inputs (mode included), not its own copy');
 
   // ── QA-SIG-27 (P1263): 체크리스트 3상 집계는 모드 독립이고, 집계 결과가 자기 모드 revision을
   // 실어 나른다. 보고되지 않은 조건(ok 없음)은 대기로 센다. 제품 결정: 모드별 판정 임계값 없음.

@@ -11,7 +11,6 @@
 // Anything older, undated or non-finite stays out, so the score never mixes in stale days.
 import { latestCompletedUsSession } from '../../ai/time/market-session.js';
 
-export const CLOSE_BASIS_VERSION = 'close-basis.v1';
 export const CLOSE_BASIS_QUOTE_KEYS = Object.freeze(['vix', 'vvix', 'dxy', 'tnx', 'oilPrice', 'spxPrice']);
 export const CLOSE_BASIS_DAILY_KEYS = Object.freeze(['fg', 'pcr', 'hyBp', 'breadth200']);
 
@@ -25,7 +24,7 @@ function nyDate(ms) {
 /** The basis every close-basis input is judged against, or null when the calendar is unknown. */
 export function resolveCloseBasis(nowMs = Date.now()) {
   const session = latestCompletedUsSession(nowMs);
-  return session ? Object.freeze({ version: CLOSE_BASIS_VERSION, ...session }) : null;
+  return session;
 }
 
 /**

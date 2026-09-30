@@ -4261,13 +4261,10 @@ function _aioTickerNewsFromCache(ticker, opts) {
       if (_kdb && /^\d{6}$/.test(_krCode) && _kdb[_krCode] && _kdb[_krCode].name) _addAlias(_kdb[_krCode].name); // 005930 → 삼성전자 (뉴스는 한글명으로 표기)
     } catch (_k) {}
     try {
-      var reg = window.AIO_TICKER_NAME_REGISTRY;
-      if (reg) {
-        Object.keys(reg).forEach(function(name) {
-          var v = String(reg[name] || '').toUpperCase().replace(/\.(KS|KQ|KO)$/, '');
-          if (v === sym && name && name.length >= 2) _addAlias(name);
-        });
-      }
+      // P1339: the registry is { version, entries: { TICKER: { en, kr, alt } } }; iterating it as a flat
+      // name→ticker map never matched, so company-name aliases were never added.
+      var regEntry = window.AIO_TICKER_NAME_REGISTRY && window.AIO_TICKER_NAME_REGISTRY.entries && window.AIO_TICKER_NAME_REGISTRY.entries[sym];
+      if (regEntry) [regEntry.en, regEntry.kr].concat(regEntry.alt || []).forEach(function(name) { if (name && String(name).length >= 2) _addAlias(name); });
     } catch (_a) {}
     var matched = [];
     for (var i = 0; i < cache.length; i++) {

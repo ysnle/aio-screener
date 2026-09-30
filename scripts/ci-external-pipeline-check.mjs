@@ -64,9 +64,10 @@ async function observeOnce() {
   };
   const githubHeaders = { 'User-Agent': 'AIO-external-pipeline', ...(process.env.GITHUB_TOKEN ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` } : {}) };
   const githubPromise = Promise.allSettled(Object.entries(githubWorkflows).map(async ([id, file]) => {
-    const response = await fetchJson(`https://api.github.com/repos/ysnle/aio-screener/actions/workflows/${file}/runs?per_page=5`, { headers: githubHeaders });
+    const response = await fetchJson(`https://api.github.com/repos/ysnle/aio-screener/actions/workflows/${file}/runs?per_page=20`, { headers: githubHeaders });
     const runs = response.body?.workflow_runs || [];
-    return [id, { latest: runs[0] || null, completed: runs.find((run) => run.status === 'completed') || null, runs }];
+    // P1340: deploy workflows skip data-refresh commits by design; a skipped run is not a deployment verdict.
+    return [id, { latest: runs[0] || null, completed: runs.find((run) => run.status === 'completed' && run.conclusion !== 'skipped') || null, runs }];
   }));
   const [pages, proxy, fast, github] = await Promise.allSettled([pagesPromise, proxyPromise, fastPromise, githubPromise]);
 
