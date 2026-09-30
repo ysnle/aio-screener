@@ -780,6 +780,10 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // leaving the hero on the previous mode until the next refresh cycle. Deliberately its own
     // event (not `aio:refresh:done`) so toggling the pill does not re-run every route provider.
     const stopAnalysisModeChange = compatibilityEvents.on('aio:signalScoreModeChanged', syncAnalysis.sync);
+    // P1339: score inputs that land after boot (history.json MA fallback, F&G / put-call / HY spread) re-derive
+    // the analysis slice; otherwise the hero stays 'held' on the boot-time snapshot until the next refresh.
+    const stopAnalysisHistory = compatibilityEvents.on('aio:historyLoaded', syncAnalysis.sync);
+    const stopAnalysisSentiment = legacy.on('aio:sentimentUpdated', syncAnalysis.sync);
     const stopShown = legacy.on('aio:navigationCommitted', (event) => {
       // W00/P1143: the store route follows the router's single committed result, so
       // DOM, router, scope, and canonical state move together on one navigation.
@@ -866,6 +870,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopAnalysisChanged();
       stopAnalysisShown();
       stopAnalysisModeChange();
+      stopAnalysisHistory();
+      stopAnalysisSentiment();
       stopShown();
       stopTimelineStore();
       compatibilityEvents.dispose();
